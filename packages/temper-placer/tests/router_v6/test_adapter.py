@@ -1137,6 +1137,33 @@ class TestRoutingResultForcedSegments:
         routing_result = _build_routing_result(mock_result)
         assert "SW_NODE" in routing_result.forced_segment_nets
 
+    def test_gate_disallowed_net_reaches_unrouted_nets(self):
+        """R1/R3 integration: a net the forced-segment gate disallows must be
+        visible all the way out at RoutingResult.unrouted_nets, not just at
+        the gate function's own boundary or PathfindingResult.failed_nets.
+
+        Mirrors the design-rules-wiring lesson: a correct-looking unit
+        change can still be a no-op downstream if nothing verifies it
+        actually reaches the outermost, real consumer of the value.
+        """
+        from temper_placer.router_v6._adapter_convert import _build_routing_result
+
+        routing_results = SimpleNamespace(
+            compiled_routes={},
+            failed_nets=["SPI_MOSI"],
+        )
+        stage4 = SimpleNamespace(routing_results=routing_results)
+        mock_result = SimpleNamespace(
+            stage4=stage4,
+            completion_rate=0.0,
+        )
+
+        routing_result = _build_routing_result(mock_result)
+        assert "SPI_MOSI" in routing_result.unrouted_nets, (
+            "A net reported failed by the gate/pathfinder must surface in "
+            "the outermost RoutingResult.unrouted_nets, not just internally"
+        )
+
 
 # ============================================================================
 # R6 — HV/AC forced-segment fail-closed
@@ -1144,10 +1171,22 @@ class TestRoutingResultForcedSegments:
 
 
 class TestHVACForcedSegmentFailClosed:
-    """R6: HV/AC-class nets must not silently forced-segment."""
+    """R1/R2: no net class -- including HV/AC -- may silently forced-segment.
 
-    def test_hv_net_forces_fail_closed_on_all_obstacle_grid(self):
-        """When an HV-class net hits an all-obstacle grid, it must fail honestly."""
+    ``test_hv_net_name_excluded_from_astar_by_should_route`` and
+    ``test_ac_net_name_excluded_from_astar_by_should_route`` use canonical
+    HV/AC net names (``SW_NODE``, ``AC_L``). Those names are themselves
+    excluded from A* entirely by ``_should_route()``'s HV pattern matching
+    (handled by zone pours instead), so they never reach
+    ``_allow_forced_segments`` and prove name-pattern exclusion, not gate
+    behavior -- kept as real coverage of that exclusion, correctly labeled.
+    The two tests below them use non-excluded net names that carry an
+    HV/AC ``safety_category`` via ``design_rules`` instead, so they
+    genuinely drive execution into the gate.
+    """
+
+    def test_hv_net_name_excluded_from_astar_by_should_route(self):
+        """Canonical HV net names never reach A* at all (zone pours handle them)."""
         import numpy as np
 
         from temper_placer.router_v6._astar_reconstruct import run_astar_pathfinding
@@ -1195,8 +1234,8 @@ class TestHVACForcedSegmentFailClosed:
             "HV-class net must not succeed via A*"
         )
 
-    def test_ac_net_forces_fail_closed_on_all_obstacle_grid(self):
-        """When an AC-class net hits an all-obstacle grid, it must fail honestly."""
+    def test_ac_net_name_excluded_from_astar_by_should_route(self):
+        """Canonical AC net names never reach A* at all (zone pours handle them)."""
         import numpy as np
 
         from temper_placer.router_v6._astar_reconstruct import run_astar_pathfinding
@@ -1239,8 +1278,110 @@ class TestHVACForcedSegmentFailClosed:
         # AC net is excluded from A* routing by _should_route (handled by zone pours)
         assert "AC_L" not in result.routed_paths
 
-    def test_signal_net_still_allows_forced_segments(self):
-        """Plain signal nets (no safety_category) must still allow forced segments."""
+    def test_hv_class_net_with_routable_name_fails_closed_via_gate(self):
+        """An HV-class net whose *name* doesn't match the HV exclusion patterns
+        genuinely reaches attempt_route()/_allow_forced_segments() and must
+        still fail closed -- unlike the two tests above, this exercises the
+        gate's own decision logic, not _should_route()'s name-based exclusion.
+        """
+        import numpy as np
+
+        from temper_placer.router_v6._astar_reconstruct import run_astar_pathfinding
+        from temper_placer.router_v6.channel_mapping import (
+            ChannelMapping,
+            ChannelPath,
+        )
+        from temper_placer.router_v6.occupancy_grid import OccupancyGrid
+        from temper_placer.router_v6.stage0_data import DesignRules, NetClassRules
+
+        grid = OccupancyGrid("F.Cu", np.zeros((30, 30), dtype=np.int8), (0, 0), 1.0, 30, 30)
+        grid.grid[:, 15] = 1
+
+        design_rules = DesignRules()
+        design_rules.net_classes["HighVoltage"] = NetClassRules(
+            name="HighVoltage",
+            clearance_mm=6.0,
+            trace_width_mm=3.0,
+            via_diameter_mm=1.2,
+            via_drill_mm=0.6,
+            safety_category="HV",
+        )
+        design_rules.net_class_assignments["ISO_FB_HIGH"] = "HighVoltage"
+
+        channel_path = ChannelPath(
+            net_name="ISO_FB_HIGH",
+            channel_sequence=["ch_0"],
+            waypoints=[(0.0, 0.0), (29.0, 0.0)],
+            total_length=29.0,
+            preferred_layer="F.Cu",
+        )
+
+        result = run_astar_pathfinding(
+            ChannelMapping({"ISO_FB_HIGH": channel_path}),
+            grid,
+            design_rules=design_rules,
+            max_iter=10_000,
+        )
+
+        assert "ISO_FB_HIGH" not in result.routed_paths, (
+            "HV-class net must fail closed even when its name reaches the gate"
+        )
+        assert "ISO_FB_HIGH" in result.failed_nets, (
+            "HV-class net must be honestly reported as failed, proving the "
+            "gate -- not _should_route()'s name exclusion -- caused this"
+        )
+
+    def test_ac_class_net_with_routable_name_fails_closed_via_gate(self):
+        """Same as above for an AC-class net with a non-excluded name."""
+        import numpy as np
+
+        from temper_placer.router_v6._astar_reconstruct import run_astar_pathfinding
+        from temper_placer.router_v6.channel_mapping import (
+            ChannelMapping,
+            ChannelPath,
+        )
+        from temper_placer.router_v6.occupancy_grid import OccupancyGrid
+        from temper_placer.router_v6.stage0_data import DesignRules, NetClassRules
+
+        grid = OccupancyGrid("F.Cu", np.zeros((30, 30), dtype=np.int8), (0, 0), 1.0, 30, 30)
+        grid.grid[:, 15] = 1
+
+        design_rules = DesignRules()
+        design_rules.net_classes["ACMains"] = NetClassRules(
+            name="ACMains",
+            clearance_mm=6.0,
+            trace_width_mm=2.5,
+            via_diameter_mm=1.2,
+            via_drill_mm=0.6,
+            safety_category="AC",
+        )
+        design_rules.net_class_assignments["ISO_FB_MAINS"] = "ACMains"
+
+        channel_path = ChannelPath(
+            net_name="ISO_FB_MAINS",
+            channel_sequence=["ch_0"],
+            waypoints=[(0.0, 0.0), (29.0, 0.0)],
+            total_length=29.0,
+            preferred_layer="F.Cu",
+        )
+
+        result = run_astar_pathfinding(
+            ChannelMapping({"ISO_FB_MAINS": channel_path}),
+            grid,
+            design_rules=design_rules,
+            max_iter=10_000,
+        )
+
+        assert "ISO_FB_MAINS" not in result.routed_paths, (
+            "AC-class net must fail closed even when its name reaches the gate"
+        )
+        assert "ISO_FB_MAINS" in result.failed_nets, (
+            "AC-class net must be honestly reported as failed, proving the "
+            "gate -- not _should_route()'s name exclusion -- caused this"
+        )
+
+    def test_signal_net_also_fails_closed(self):
+        """R2: no net class is exempt -- plain signal nets fail closed too."""
         import numpy as np
 
         from temper_placer.router_v6._astar_reconstruct import run_astar_pathfinding
@@ -1272,11 +1413,105 @@ class TestHVACForcedSegmentFailClosed:
             max_iter=10_000,
         )
 
-        # Signal nets SHOULD still use forced segments (existing behavior)
-        assert "SPI_MOSI" in result.routed_paths, (
-            "Signal nets must still allow forced segments"
+        # Uniform fail-closed (R2): no net class -- not even plain Signal --
+        # is exempt from the forced-segment gate.
+        assert "SPI_MOSI" not in result.routed_paths, (
+            "Signal net must fail closed, not fabricate a forced segment"
         )
-        path = result.routed_paths["SPI_MOSI"]
-        assert path.forced_segment_count > 0, (
-            "Signal net on blocked grid should fall back to forced segment"
+        assert "SPI_MOSI" in result.failed_nets, (
+            "Signal net must be honestly reported as failed"
+        )
+
+
+class TestAllowForcedSegmentsGate:
+    """Direct coverage of _allow_forced_segments() itself (R1/R2)."""
+
+    @pytest.mark.parametrize(
+        ("net_name", "tree_route_active"),
+        [
+            ("SPI_MOSI", False),
+            ("SW_NODE", False),
+            ("vcc", False),
+            ("AnythingAtAll", True),
+        ],
+    )
+    def test_disallows_regardless_of_net_class_or_tree_context(
+        self, net_name, tree_route_active
+    ):
+        from temper_placer.router_v6._astar_reconstruct import (
+            _allow_forced_segments,
+        )
+        from temper_placer.router_v6.stage0_data import DesignRules, NetClassRules
+
+        design_rules = DesignRules()
+        design_rules.net_classes["HighVoltage"] = NetClassRules(
+            name="HighVoltage",
+            clearance_mm=6.0,
+            trace_width_mm=3.0,
+            via_diameter_mm=1.2,
+            via_drill_mm=0.6,
+            safety_category="HV",
+        )
+        design_rules.net_class_assignments[net_name] = "HighVoltage"
+
+        assert (
+            _allow_forced_segments(net_name, design_rules, tree_route_active) is False
+        )
+
+    def test_disallows_when_design_rules_is_none(self):
+        from temper_placer.router_v6._astar_reconstruct import (
+            _allow_forced_segments,
+        )
+
+        assert _allow_forced_segments("ANY_NET", None, False) is False
+
+    def test_disallows_when_get_rules_for_net_raises(self):
+        from temper_placer.router_v6._astar_reconstruct import (
+            _allow_forced_segments,
+        )
+
+        class RaisingDesignRules:
+            def get_rules_for_net(self, net_name):
+                raise RuntimeError("simulated wiring failure")
+
+        assert (
+            _allow_forced_segments("ANY_NET", RaisingDesignRules(), False) is False
+        )
+
+    def test_routable_net_still_routes_when_a_legal_path_exists(self):
+        """The gate must not block nets that have a genuinely legal path."""
+        import numpy as np
+
+        from temper_placer.router_v6._astar_reconstruct import run_astar_pathfinding
+        from temper_placer.router_v6.channel_mapping import (
+            ChannelMapping,
+            ChannelPath,
+        )
+        from temper_placer.router_v6.occupancy_grid import OccupancyGrid
+        from temper_placer.router_v6.stage0_data import DesignRules
+
+        # Open grid -- no obstacles, a direct legal path exists.
+        grid = OccupancyGrid("F.Cu", np.zeros((30, 30), dtype=np.int8), (0, 0), 1.0, 30, 30)
+
+        design_rules = DesignRules()
+        channel_path = ChannelPath(
+            net_name="SPI_CLK",
+            channel_sequence=["ch_0"],
+            waypoints=[(0.0, 0.0), (10.0, 0.0)],
+            total_length=10.0,
+            preferred_layer="F.Cu",
+        )
+
+        result = run_astar_pathfinding(
+            ChannelMapping({"SPI_CLK": channel_path}),
+            grid,
+            design_rules=design_rules,
+            max_iter=10_000,
+        )
+
+        assert "SPI_CLK" in result.routed_paths, (
+            "A net with a genuinely legal path must still route successfully"
+        )
+        assert result.routed_paths["SPI_CLK"].forced_segment_count == 0, (
+            "A legally-routed net must not carry a forced segment"
         )

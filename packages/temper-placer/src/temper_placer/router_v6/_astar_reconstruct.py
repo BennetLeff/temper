@@ -188,31 +188,24 @@ def _allow_forced_segments(
 ) -> bool:
     """Determine whether forced segments are permitted for a net.
 
-    Tree-executed nets already fail-closed (via ``not tree_route_active``).
-    R6 extends the same gate to HV/AC-class nets: nets whose resolved
-    netclass has ``safety_category`` in ``("HV", "AC")`` must not silently
-    draw a straight-line forced segment with zero clearance checking.
+    Always ``False``. Forced segments draw a raw, unchecked line between
+    waypoints with zero clearance checking -- fabricating copper that may
+    violate netclass clearance for the net it's drawn for. Nothing on this
+    board is worth an honest "unrouted" less than a silently unsafe
+    "routed": a net that can't find a real, clearance-respecting path is
+    reported as failed (see ``attempt_route``'s forced-segment interception,
+    ``_astar_reconstruct.py:409-448``), never fabricated.
+
+    This gate was originally class-conditional (only HV/AC-class nets, per
+    R6 of docs/plans/2026-07-23-008-feat-property-test-hardening-plan.md)
+    until docs/plans/2026-07-24-001-fix-forced-segment-fail-closed-plan.md
+    generalized it: congested power/ground nets were still fabricating
+    clearance-violating copper through this same fallback, which is why
+    ``shorting_items`` didn't improve after the netclass-clearance wiring
+    fix landed. ``net_name``, ``design_rules``, and ``tree_route_active``
+    are accepted for call-site stability but no longer change the outcome.
     """
-    if tree_route_active:
-        return False
-    if design_rules is None:
-        return True
-    try:
-        rules = design_rules.get_rules_for_net(net_name)
-    except Exception:
-        logger.warning(
-            "_allow_forced_segments: get_rules_for_net(%r) raised — "
-            "failing closed (disallowing forced segments) per "
-            "UNMEASURED discipline.  If this fires persistently the "
-            "design_rules object may be missing expected netclass data.",
-            net_name,
-            exc_info=True,
-        )
-        return False
-    cat = getattr(rules, "safety_category", None)
-    if cat in ("HV", "AC"):
-        return False
-    return True
+    return False
 
 
 def run_astar_pathfinding(
