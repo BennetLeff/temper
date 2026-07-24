@@ -1,7 +1,7 @@
 ---
 title: "fix: Uniform Fail-Closed Forced-Segment Disposition"
 type: fix
-status: active
+status: completed
 date: 2026-07-24
 origin: docs/brainstorms/2026-07-24-router-forced-segment-fail-closed-requirements.md
 ---
