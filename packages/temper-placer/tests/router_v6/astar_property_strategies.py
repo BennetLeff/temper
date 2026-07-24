@@ -199,8 +199,9 @@ def grid_and_pair(
     return g, s, gl
 
 
-# @req(2026-07-24-001, U3): guaranteed-unroutable grid strategy for
-# forced-segment fail-closed property coverage
+# docs/plans/2026-07-24-001-fix-forced-segment-fail-closed-plan.md (U3):
+# guaranteed-unroutable grid strategy for forced-segment fail-closed
+# property coverage
 @st.composite
 def unroutable_wall_grids(
     draw: st.DrawFn,
@@ -223,7 +224,7 @@ def unroutable_wall_grids(
     """
     r = draw(_default_rows(rows))
     c = draw(_default_cols(cols))
-    assume(c >= 4)
+    assume(c >= 5)  # st.integers(2, c - 3) needs c - 3 >= 2, i.e. c >= 5
     wall_col = draw(st.integers(2, c - 3))
 
     arr = np.zeros((r, c), dtype=np.int8)

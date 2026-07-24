@@ -1138,13 +1138,16 @@ class TestRoutingResultForcedSegments:
         assert "SW_NODE" in routing_result.forced_segment_nets
 
     def test_gate_disallowed_net_reaches_unrouted_nets(self):
-        """R1/R3 integration: a net the forced-segment gate disallows must be
-        visible all the way out at RoutingResult.unrouted_nets, not just at
-        the gate function's own boundary or PathfindingResult.failed_nets.
-
-        Mirrors the design-rules-wiring lesson: a correct-looking unit
-        change can still be a no-op downstream if nothing verifies it
-        actually reaches the outermost, real consumer of the value.
+        """R1/R3: _build_routing_result's RoutingResults.failed_nets ->
+        RoutingResult.unrouted_nets conversion is a real passthrough, not a
+        no-op or silent drop. Scoped to that one conversion boundary (input
+        is a directly-constructed failed_nets list, not a live gate-triggered
+        failure) -- the gate actually producing that failure is covered
+        separately by TestHVACForcedSegmentFailClosed and the property test
+        in test_forced_segment_fail_closed_pbt.py, both of which call
+        run_astar_pathfinding() for real. Mirrors the design-rules-wiring
+        lesson: a correct-looking unit change can still be a no-op downstream
+        if nothing verifies it actually reaches the outermost consumer.
         """
         from temper_placer.router_v6._adapter_convert import _build_routing_result
 
@@ -1423,59 +1426,68 @@ class TestHVACForcedSegmentFailClosed:
         )
 
 
+class _RaisingDesignRules:
+    """design_rules stand-in whose get_rules_for_net() always raises.
+
+    Pre-generalization, _allow_forced_segments() called this method and had
+    to fail closed on exception. It no longer calls it at all -- kept only
+    as an input-shape regression pin: if a future change reintroduces
+    per-net design_rules lookups here, this proves the gate still disallows
+    rather than propagating the exception or silently defaulting to allow.
+    """
+
+    def get_rules_for_net(self, net_name):
+        raise RuntimeError("simulated wiring failure")
+
+
 class TestAllowForcedSegmentsGate:
-    """Direct coverage of _allow_forced_segments() itself (R1/R2)."""
+    """Direct coverage of _allow_forced_segments() itself (R1/R2).
+
+    The gate is now an unconditional `return False` -- there is no
+    remaining conditional logic to branch-test. This class is a flat
+    regression pin over a representative input sweep (varied net class,
+    tree-route context, and design_rules shape including None and a
+    raising stand-in) proving the constant-return contract holds
+    regardless of what a caller passes, not a test of per-input branches.
+    """
 
     @pytest.mark.parametrize(
-        ("net_name", "tree_route_active"),
+        ("net_name", "design_rules_factory", "tree_route_active"),
         [
-            ("SPI_MOSI", False),
-            ("SW_NODE", False),
-            ("vcc", False),
-            ("AnythingAtAll", True),
+            ("SPI_MOSI", "hv_classified", False),
+            ("SW_NODE", "hv_classified", False),
+            ("vcc", "hv_classified", False),
+            ("AnythingAtAll", "hv_classified", True),
+            ("ANY_NET", "none", False),
+            ("ANY_NET", "raising", False),
         ],
     )
-    def test_disallows_regardless_of_net_class_or_tree_context(
-        self, net_name, tree_route_active
+    def test_disallows_regardless_of_input_shape(
+        self, net_name, design_rules_factory, tree_route_active
     ):
         from temper_placer.router_v6._astar_reconstruct import (
             _allow_forced_segments,
         )
         from temper_placer.router_v6.stage0_data import DesignRules, NetClassRules
 
-        design_rules = DesignRules()
-        design_rules.net_classes["HighVoltage"] = NetClassRules(
-            name="HighVoltage",
-            clearance_mm=6.0,
-            trace_width_mm=3.0,
-            via_diameter_mm=1.2,
-            via_drill_mm=0.6,
-            safety_category="HV",
-        )
-        design_rules.net_class_assignments[net_name] = "HighVoltage"
+        if design_rules_factory == "hv_classified":
+            design_rules = DesignRules()
+            design_rules.net_classes["HighVoltage"] = NetClassRules(
+                name="HighVoltage",
+                clearance_mm=6.0,
+                trace_width_mm=3.0,
+                via_diameter_mm=1.2,
+                via_drill_mm=0.6,
+                safety_category="HV",
+            )
+            design_rules.net_class_assignments[net_name] = "HighVoltage"
+        elif design_rules_factory == "none":
+            design_rules = None
+        else:
+            design_rules = _RaisingDesignRules()
 
         assert (
             _allow_forced_segments(net_name, design_rules, tree_route_active) is False
-        )
-
-    def test_disallows_when_design_rules_is_none(self):
-        from temper_placer.router_v6._astar_reconstruct import (
-            _allow_forced_segments,
-        )
-
-        assert _allow_forced_segments("ANY_NET", None, False) is False
-
-    def test_disallows_when_get_rules_for_net_raises(self):
-        from temper_placer.router_v6._astar_reconstruct import (
-            _allow_forced_segments,
-        )
-
-        class RaisingDesignRules:
-            def get_rules_for_net(self, net_name):
-                raise RuntimeError("simulated wiring failure")
-
-        assert (
-            _allow_forced_segments("ANY_NET", RaisingDesignRules(), False) is False
         )
 
     def test_routable_net_still_routes_when_a_legal_path_exists(self):
