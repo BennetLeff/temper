@@ -38,6 +38,8 @@ from temper_placer.router_v6._adapter_types import (
     _AdapterRoutePath,
 )
 
+# @deprecated — use V6RouterAdapter directly; this alias is at the
+# project's 30-day sunset threshold and may be removed in a follow-up.
 MazeRouter = V6RouterAdapter
 
 __all__ = [

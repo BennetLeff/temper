@@ -52,8 +52,13 @@ class V6RouterAdapter:
 
         adapter = V6RouterAdapter.from_board(board, cell_size_mm, num_layers, ...)
         adapter.block_components(components, positions)
-        results = adapter.rrr_route_all_nets(netlist, positions, net_order, assignments)
+        results = adapter.rrr_route_all_nets(netlist, positions, net_order)
         conflicts = adapter.get_conflict_locations()
+
+    .. note::
+       This adapter is at the project's 30-day sunset threshold (last used
+       via ``make route``, 31 days from last manifest ``last_run``). It may
+       be formally sunset in a follow-up.
     """
 
     def __init__(
@@ -137,19 +142,7 @@ class V6RouterAdapter:
         netlist: Any,
         positions: Any,
         net_order: list[str],
-        _assignments: dict[str, Any],
         _cost_maps: Any = None,
-        _max_iterations: int = 5,
-        _history_increment: float = 1.0,
-        _history_decay: float = 0.9,
-        _p_scale_start: float = 1.0,
-        _p_scale_step: float = 2.0,
-        _progress_callback: Any = None,
-        _incremental: bool = True,
-        _validate_final: bool = False,
-        _pin_positions_overrides: Any = None,
-        _component_margin: float = 0.5,
-        _soft_c_spaces: Any = None,
     ) -> dict[str, _AdapterRoutePath]:
         """Route all nets using RouterV6Pipeline.
 
@@ -157,7 +150,7 @@ class V6RouterAdapter:
         positions, invokes RouterV6Pipeline, and converts results to
         RoutePath-compatible format.
 
-        U8: the dormant ``_cost_maps`` seam accepts a
+        U8: the ``_cost_maps`` seam accepts a
         :class:`temper_placer.fields.CostFieldInput` (or any object
         with ``cost_flat`` and ``weight`` attributes).  When
         supplied, the thermal cost field is threaded into the A*
