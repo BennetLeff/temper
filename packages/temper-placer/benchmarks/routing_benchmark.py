@@ -21,7 +21,6 @@ import jax.numpy as jnp
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.router_v6.adapter import MazeRouter
-from temper_placer.router_v6.layer_assignment import Layer, LayerAssignment
 
 
 @dataclass
@@ -170,11 +169,8 @@ def run_benchmark(
     board = Board(width=board_width, height=board_height)
     router = MazeRouter.from_board(board, cell_size_mm=cell_size, num_layers=num_layers)
 
-    # Create assignments
+    # Create net order for metrics
     net_order = [n.name for n in netlist.nets]
-    assignments = {
-        n.name: LayerAssignment(n.name, Layer.L1_TOP, {Layer.L1_TOP}) for n in netlist.nets
-    }
 
     # Run routing
     start = time.perf_counter()
@@ -183,9 +179,6 @@ def run_benchmark(
         netlist=netlist,
         positions=positions,
         net_order=net_order,
-        assignments=assignments,
-        max_iterations=max_iterations,
-        incremental=True,
     )
 
     elapsed_ms = (time.perf_counter() - start) * 1000
@@ -323,9 +316,6 @@ def benchmark_incremental_vs_full() -> None:
 
     board = Board(width=50.0, height=50.0)
     net_order = [n.name for n in netlist.nets]
-    assignments = {
-        n.name: LayerAssignment(n.name, Layer.L1_TOP, {Layer.L1_TOP}) for n in netlist.nets
-    }
 
     # Full rerouting
     router1 = MazeRouter.from_board(board, cell_size_mm=1.0, num_layers=1)
@@ -334,9 +324,6 @@ def benchmark_incremental_vs_full() -> None:
         netlist,
         positions,
         net_order,
-        assignments,
-        max_iterations=10,
-        incremental=False,
     )
     time1 = (time.perf_counter() - start1) * 1000
 
@@ -347,9 +334,6 @@ def benchmark_incremental_vs_full() -> None:
         netlist,
         positions,
         net_order,
-        assignments,
-        max_iterations=10,
-        incremental=True,
     )
     time2 = (time.perf_counter() - start2) * 1000
 

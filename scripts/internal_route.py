@@ -617,10 +617,7 @@ def main():
         netlist,
         positions,
         net_order,
-        assignments,
         cost_maps=None,  # cost_maps disabled for debugging
-        max_iterations=args.rrr_iters,
-        history_increment=args.history_increment,
     )
     elapsed = time.time() - start_time
 
