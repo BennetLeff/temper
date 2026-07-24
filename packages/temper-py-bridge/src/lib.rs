@@ -200,7 +200,7 @@ impl<'py> DictExtract<'py> for Bound<'py, PyDict> {
     fn extract_str_list(&self, key: &str) -> PyResult<Vec<String>> {
         match self.get_item(key)? {
             Some(val) if !val.is_none() => {
-                let list: &Bound<'_, PyList> = val.downcast().map_err(|e| {
+                let list: Bound<'_, PyList> = val.cast_into::<PyList>().map_err(|e| {
                     py_value_err(format!("key '{key}' is not a list: {e}"))
                 })?;
                 let mut result = Vec::with_capacity(list.len());
@@ -218,12 +218,12 @@ impl<'py> DictExtract<'py> for Bound<'py, PyDict> {
     fn extract_dict_list(&self, key: &str) -> PyResult<Vec<Bound<'py, PyDict>>> {
         match self.get_item(key)? {
             Some(val) if !val.is_none() => {
-                let list: &Bound<'_, PyList> = val.downcast().map_err(|e| {
+                let list: Bound<'_, PyList> = val.cast_into::<PyList>().map_err(|e| {
                     py_value_err(format!("key '{key}' is not a list: {e}"))
                 })?;
                 let mut result = Vec::with_capacity(list.len());
                 for item in list.iter() {
-                    let d: &Bound<'_, PyDict> = item.downcast().map_err(|e| {
+                    let d: Bound<'_, PyDict> = item.cast_into::<PyDict>().map_err(|e| {
                         py_value_err(format!("item in '{key}' list is not a dict: {e}"))
                     })?;
                     result.push(d.clone());
@@ -238,15 +238,14 @@ impl<'py> DictExtract<'py> for Bound<'py, PyDict> {
         let item = self
             .get_item(key)?
             .ok_or_else(|| py_value_err(format!("missing required key: {key}")))?;
-        item.downcast::<PyDict>()
+        item.cast_into::<PyDict>()
             .map_err(|e| py_value_err(format!("key '{key}' is not a dict: {e}")))
-            .cloned()
     }
 
     fn extract_opt_dict(&self, key: &str) -> PyResult<Option<Bound<'py, PyDict>>> {
         match self.get_item(key)? {
             Some(val) if !val.is_none() => {
-                let d: &Bound<'_, PyDict> = val.downcast().map_err(|e| {
+                let d: Bound<'_, PyDict> = val.cast_into::<PyDict>().map_err(|e| {
                     py_value_err(format!("key '{key}' is not a dict: {e}"))
                 })?;
                 Ok(Some(d.clone()))
