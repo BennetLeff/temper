@@ -162,6 +162,25 @@ class PathfindingResult:
         print()
 
 
+_SKIP_NET_PREFIXES = ("unconnected-", "NC-", "DNP-", "NC_", "TP_")
+
+
+def _should_route(net_name: str) -> bool:
+    """Return True if net should be routed by A* (signal nets only).
+
+    Power, ground, and HV nets are handled by zone pours, not path routing.
+    """
+    from temper_placer.router_v6.net_classification import (
+        is_ground_net,
+        is_hv_net,
+        is_power_net,
+    )
+
+    if is_power_net(net_name) or is_ground_net(net_name) or is_hv_net(net_name):
+        return False
+    return not any(net_name.startswith(p) for p in _SKIP_NET_PREFIXES)
+
+
 def _allow_forced_segments(
     net_name: str,
     design_rules: DesignRules | None,
@@ -250,7 +269,8 @@ def run_astar_pathfinding(
         pad_centers_per_net = _extract_pad_centers_per_net(pcb)
 
     net_order = _compute_net_order(channel_mapping, bottleneck_widths=bottleneck_widths)
-    routable_nets = list(net_order)
+    routable_nets = [n for n in net_order if _should_route(n)]
+    skipped_nets = [n for n in net_order if n not in set(routable_nets)]
 
     if target_nets:
         target_set = set(target_nets)

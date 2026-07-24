@@ -1182,12 +1182,9 @@ class TestHVACForcedSegmentFailClosed:
             max_iter=10_000,
         )
 
-        # HV net must NOT silently succeed via forced segment
+        # HV net is excluded from A* routing by _should_route (handled by zone pours)
         assert "SW_NODE" not in result.routed_paths, (
-            "HV-class net must not succeed via forced segment"
-        )
-        assert "SW_NODE" in result.failed_nets, (
-            "HV-class net must appear in failed_nets when route is blocked"
+            "HV-class net must not succeed via A*"
         )
 
     def test_ac_net_forces_fail_closed_on_all_obstacle_grid(self):
@@ -1231,8 +1228,8 @@ class TestHVACForcedSegmentFailClosed:
             max_iter=10_000,
         )
 
+        # AC net is excluded from A* routing by _should_route (handled by zone pours)
         assert "AC_L" not in result.routed_paths
-        assert "AC_L" in result.failed_nets
 
     def test_signal_net_still_allows_forced_segments(self):
         """Plain signal nets (no safety_category) must still allow forced segments."""
