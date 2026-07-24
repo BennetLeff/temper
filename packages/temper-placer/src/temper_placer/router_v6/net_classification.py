@@ -72,7 +72,13 @@ def is_power_net(name: str) -> bool:
     """Return True if `name` matches a power-net pattern."""
     if _SINGLE_LAYER_MODE:
         return False
-    return _matches_any(name, POWER_NET_PATTERNS)
+    upper = name.upper()
+    if _matches_any(upper, POWER_NET_PATTERNS):
+        return True
+    # Prefix heuristic: nets starting with '+' are voltage rails
+    if upper.startswith("+"):
+        return True
+    return False
 
 
 def is_hv_net(name: str) -> bool:
