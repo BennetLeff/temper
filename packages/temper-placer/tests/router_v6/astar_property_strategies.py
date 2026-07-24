@@ -11,6 +11,9 @@ Strategies
 * ``start_goal_pairs`` -- two distinct free cells from a grid
 * ``obstacle_perturbations`` -- add/remove a single obstacle on a grid
 * ``grid_translations`` -- shift grid contents by (dx, dy) into a larger grid
+* ``unroutable_wall_grids`` -- grid with a full-height wall guaranteeing no
+  legal path exists between the returned start/goal, unlike ``grids()``'s
+  Bernoulli density which may or may not leave one
 
 Per Q4: separate module from oracle utils to keep the oracle clean of
 Hypothesis imports.
@@ -194,3 +197,39 @@ def grid_and_pair(
     g = draw(grids(rows, cols, p_obstacle))
     s, gl = draw(start_goal_pairs(g))
     return g, s, gl
+
+
+# @req(2026-07-24-001, U3): guaranteed-unroutable grid strategy for
+# forced-segment fail-closed property coverage
+@st.composite
+def unroutable_wall_grids(
+    draw: st.DrawFn,
+    rows: int | st.SearchStrategy = st.integers(6, 20),
+    cols: int | st.SearchStrategy = st.integers(6, 20),
+) -> tuple[OccupancyGrid, tuple[float, float], tuple[float, float]]:
+    """Generate a grid with a full-height wall that guarantees no legal
+    same-layer path exists between the returned start and goal.
+
+    ``grids()``'s Bernoulli obstacle density may or may not leave a path
+    open; a property test asserting fail-closed behavior needs the
+    negative case to actually occur, not merely be statistically likely.
+    Mirrors the deterministic wall construction used by
+    ``TestHVACForcedSegmentFailClosed``'s unit tests
+    (``grid.grid[:, wall_col] = 1``), generalized over grid size.
+
+    Returns ``(grid, start_point, goal_point)`` in world coordinates
+    (cell_size=1.0, origin=(0,0)), with start on the wall's left and goal
+    on its right.
+    """
+    r = draw(_default_rows(rows))
+    c = draw(_default_cols(cols))
+    assume(c >= 4)
+    wall_col = draw(st.integers(2, c - 3))
+
+    arr = np.zeros((r, c), dtype=np.int8)
+    arr[:, wall_col] = 1  # full-height wall blocks every row, all layers unaware
+
+    grid = OccupancyGrid("Test", arr, (0.0, 0.0), 1.0, c, r)
+    start = (0.0, 0.0)
+    goal = (float(c - 1), 0.0)
+    return grid, start, goal
