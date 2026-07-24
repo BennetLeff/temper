@@ -36,20 +36,12 @@ The `design_rules` wiring bug (`2026-07-23-005`) survived undetected because the
 
 **Action:** Assert on `RouterV6Pipeline(...)` constructor kwargs (specifically `placements` forwarding) and/or `mock_pipe.run.call_args`. Also pass `design_rules` so the test covers the full argument set.
 
-### R3 — Test `parse_kicad_pcb_v6`'s native `design_rules` extraction (gated)
-**Priority: P2 — gated on architectural decision**
+### R3 — Test `parse_kicad_pcb_v6`'s native `design_rules` extraction (resolved)
+**Priority: P2 — resolved (architectural decision reached)**
 
-`parse_kicad_pcb_v6`'s `_extract_design_rules()` extracts `net_classes`/`net_class_assignments` directly from `.kicad_pcb` files. No test asserts on its output. This is the third representation in the `DesignRules` three-way split — the other two being `stage0_data.DesignRules` (A* engine) and `core.netclass_rules_gen.NetClassRules` (YAML SSOT).
+**Decision (2026-07-23):** Injection is the long-term mechanism (resolved by `2026-07-23-008` wiring). Native `.kicad_pcb` file extraction is vestigial — documented in `_parse_nets.py` as such. No native extraction test needed; `_extract_design_rules()` should not be extended with new fields (e.g., `safety_category`).
 
-**Gate:** `2026-07-23-005`'s "Dependencies/Assumptions" section explicitly deferred the architectural decision: is native extraction or post-parse injection the long-term mechanism? Building R3 before that decision lands means:
-- If injection wins: R3 tests a code path that may be deliberately vestigial.
-- If native wins: R3 becomes load-bearing, and the injection code in `_pipeline_core.py:225-240` becomes redundant.
-
-**Action:** Resolve the architectural decision first. Then:
-- If injection wins: replace R3 with "add a comment to `_extract_design_rules` documenting native extraction as vestigial" (or delete the extraction code).
-- If native wins: R3 is an integration test for the extraction path, asserting extracted netclass data on a fixture with known embedded netclass sections.
-
-If written before the decision: keep it to a cheap documentation-test form (asserting today's actual behavior, whatever it is) rather than investing in comprehensive fixture coverage.
+The YAML SSOT (`configs/netclass_rules.yaml`) is authoritative; `_to_stage0_netclass_rules()` is the one-way adapter into the A* engine format.
 
 ### R4 — Replace or delete the `pass`-bodied `test_parse_kicad_pcb_v6_basic` stub
 **Priority: P2**
@@ -97,7 +89,7 @@ If written before the decision: keep it to a cheap documentation-test form (asse
 
 - [ ] R1: `test_route_pcb_e2e_threads_design_rules` asserts on `mock_pipe.run.call_args` for `net_class_assignments`/`net_classes`, or is split into two single-responsibility tests.
 - [ ] R2: `test_route_pcb_with_placements` asserts on pipeline constructor/run call arguments for `placements` forwarding, not just mock return value pass-through.
-- [ ] R3: Either a real test for native extraction exists (if that's the long-term mechanism), or the extraction code is documented as vestigial (if injection wins).
+- [x] R3: Either a real test for native extraction exists (if that's the long-term mechanism), or the extraction code is documented as vestigial (if injection wins). **(Resolved — injection is the mechanism; native extraction documented as vestigial.)**
 - [ ] R4: `test_parse_kicad_pcb_v6_basic` deleted. Empty slot freed for a real test if needed.
 - [ ] R5: CI check (grep-based or equivalent) flags `patch(...RouterV6Pipeline...)` without `call_args` or opt-out tag. Or R5 is documented as aspiration and explicitly deferred.
 

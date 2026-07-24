@@ -69,12 +69,10 @@ Construct a `.kicad_pcb` fixture with an embedded `(net_class ...)` section for 
 
 > **Post-review deprioritization:** R4 tests a code path that is currently dormant on the production board (`assignments_size=0` from native extraction). R1–R3 and R5–R6 form a coherent package without R4. If written, keep it minimal — a single deterministic scenario, not property-based.
 
-#### R7 — Evaluate consolidating the three netclass-rules representations
-**Priority: P3 — evaluation, not implementation (post-review addition)**
+#### R7 — Evaluate consolidating the three netclass-rules representations (resolved)
+**Priority: P3 — resolved (architectural decision reached)**
 
-R1–R4 make the existing three-way split safer. They do not address *why* three representations exist or whether that's still justified. Specifically: is `io/_parse_nets.py::_extract_design_rules()` (native `.kicad_pcb` file extraction) still needed now that `route_pcb()` injects the YAML SSOT directly? If vestigial, removing it eliminates one whole representation and its silent-precedence-conflict risk at the source — a stronger fix than any test.
-
-This requirement is evaluation-only: produce a documented decision (keep, remove, or deferred with rationale). Do not implement consolidation in this plan.
+**Decision (2026-07-23):** Injection is the mechanism. Native KiCad-file extraction is vestigial (see `_parse_nets.py` comment). Three representations reduced to two active ones (YAML SSOT + stage0 engine format) with a one-way adapter (`_to_stage0_netclass_rules()`) between them. `_extract_design_rules()` is retained for backwards compatibility only and should not be extended with new fields.
 
 ---
 
@@ -145,7 +143,7 @@ Option 1 should be evaluated first — it's the least code, reuses an establishe
 - [ ] R4: Single deterministic regression test confirms injection-vs-native precedence is explicit, not accidental ordering.
 - [ ] R5: Test fails (red) — `RoutingResult` has no forced-segment field. Passes (green) after field added and threaded through.
 - [ ] R6: HV/AC-class net forced into legal-path failure does not silently return `success=True`; either fails to `INCOMPLETE` (option 1) or raises/warns/records (options 2/3). High-confidence that `SW_NODE` would be caught.
-- [ ] R7: Documented decision on whether `io/_parse_nets.py::_extract_design_rules()` should be kept, removed, or deferred.
+- [x] R7: Documented decision on whether `io/_parse_nets.py::_extract_design_rules()` should be kept, removed, or deferred. **(Resolved — injection is the mechanism; native extraction is vestigial. Kept for backward compat only.)**
 
 ---
 
