@@ -424,16 +424,12 @@ def run_astar_pathfinding(
                 return False, "no_path", [], channel_path.waypoints[failed_index]
 
             # No net class is exempt from the forced-segment gate (see
-            # _allow_forced_segments docstring). _astar_route /
+            # _allow_forced_segments docstring, which is unconditional --
+            # no need to re-call it here). _astar_route /
             # _astar_route_multilayer can still return a non-None path with
-            # forced_segment_count > 0 for a net the gate disallowed; catch
-            # that here and fail the net honestly rather than fabricating
-            # clearance-violating copper.
-            if (
-                route_path.forced_segment_count > 0
-                and not tree_route_active
-                and not _allow_forced_segments(net_name, design_rules, False)
-            ):
+            # forced_segment_count > 0; catch that here and fail the net
+            # honestly rather than fabricating clearance-violating copper.
+            if route_path.forced_segment_count > 0 and not tree_route_active:
                 print(
                     f"      ✗ {net_name} FAILED: no legal path found "
                     f"(forced segment disallowed)",
