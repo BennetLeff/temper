@@ -1,0 +1,77 @@
+{
+  "plan": "2026-07-24-001",
+  "unit": "U5",
+  "measurement_date": "2026-07-24",
+  "board": "pcb/temper.kicad_pcb",
+  "kicad_cli_version": "10.0.4",
+  "test": "packages/temper-placer/tests/router_v6/test_temper_production_board_routing.py::TestProductionBoardRouting::test_route_pcb_production_board",
+  "net_scope": {
+    "total_nets": 95,
+    "excluded_from_astar_by_should_route": 11,
+    "excluded_net_names": [
+      "ac_n", "+3V3", "PWR_RTN", "+340V_BUS", "+15V", "+15V_LS",
+      "DC_BUS_RTN", "SW_NODE", "vcc", "V_BUS_SENSE", "ac_l"
+    ],
+    "astar_routable_nets": 84,
+    "note": "The brainstorm's illustrative examples (vcc, +3V3, PWR_RTN) are present on the real board but are excluded from the plain A* pathfinder entirely by _should_route()'s power/ground/HV name-pattern matching -- handled by zone pours instead. This fix does not touch them; their disposition is unaffected by this change either way."
+  },
+  "pre_fix_baseline": {
+    "description": "HV/AC-only fail-closed gate (docs/plans/2026-07-23-008), forced segments still allowed for every other net class",
+    "wall_time_s": 115.1,
+    "routed_nets": 72,
+    "total_nets": 95,
+    "completion_rate": 0.7619,
+    "total_drc_violations": 852,
+    "unconnected_items": 298,
+    "by_category": {
+      "clearance": 7,
+      "copper_edge_clearance": 8,
+      "copper_sliver": 1,
+      "courtyards_overlap": 27,
+      "hole_clearance": 4,
+      "hole_to_hole": 3,
+      "lib_footprint_issues": 30,
+      "lib_footprint_mismatch": 14,
+      "pth_inside_courtyard": 16,
+      "shorting_items": 82,
+      "silk_edge_clearance": 9,
+      "silk_over_copper": 199,
+      "silk_overlap": 199,
+      "solder_mask_bridge": 200,
+      "track_dangling": 19,
+      "tracks_crossing": 34
+    }
+  },
+  "post_fix_measurement": {
+    "description": "Uniform fail-closed gate (this plan) -- no net class exempt from the forced-segment ban",
+    "wall_time_s": 27.0,
+    "routed_nets": 0,
+    "total_nets": 95,
+    "completion_rate": 0.0,
+    "total_drc_violations": 625,
+    "unconnected_items": 326,
+    "by_category": {
+      "copper_edge_clearance": 5,
+      "courtyards_overlap": 27,
+      "hole_clearance": 4,
+      "hole_to_hole": 3,
+      "lib_footprint_issues": 30,
+      "lib_footprint_mismatch": 14,
+      "pth_inside_courtyard": 16,
+      "shorting_items": 62,
+      "silk_edge_clearance": 9,
+      "silk_over_copper": 199,
+      "silk_overlap": 199,
+      "solder_mask_bridge": 57
+    }
+  },
+  "delta": {
+    "routed_nets": "72 -> 0 (every A*-routable net this test attempts was previously succeeding only via a fabricated forced segment; genuinely zero of the 84 A*-routable nets have a real, clearance-respecting path on this board today)",
+    "shorting_items": "82 -> 62 (real improvement: -20)",
+    "clearance": "7 -> 0 (eliminated entirely)",
+    "solder_mask_bridge": "200 -> 57 (-143, downstream of far less copper being drawn)",
+    "track_dangling_and_tracks_crossing_and_copper_sliver": "19+34+1 -> 0 (categories disappear entirely -- no forced/dangling copper left to cause them)",
+    "unconnected_items": "298 -> 326 (+28, expected: honestly-failed nets have no copper at all now)"
+  },
+  "verdict": "Necessary and working as intended -- shorting_items and clearance violations both genuinely decreased, confirming the fix eliminates real fabricated-copper shorts rather than just hiding them. But the honest A*-routable completion rate on this specific board is 0%, not merely lower: pre-fix, all 72 of this test's 'successes' were forced segments. This is the true, previously-fabricated baseline this plan's R4/R5 anticipated -- more severe than illustrated, not different in kind. Re-routing the newly-honest 84 unrouted nets is explicitly out of scope for this plan (see Scope Boundaries) and is real, separate follow-up work: the plain A* engine on this board's current channel/grid setup essentially never finds a legal path without the escape hatch it used to lean on."
+}
