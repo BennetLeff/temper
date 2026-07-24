@@ -121,7 +121,7 @@ def route_pcb(
     thermal_flat: Any = None,
     thermal_weight: float = 0.0,
     enable_all_pad_tree: bool = False,
-    enable_zone_pours: bool = False,
+    enable_zone_pours: bool = True,
     enable_connectivity_verifier: bool = False,
 ) -> RoutingResult:
     """Route a PCB using the Router V6 pipeline.
