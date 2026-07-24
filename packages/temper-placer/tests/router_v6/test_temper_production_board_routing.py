@@ -135,7 +135,6 @@ class TestProductionBoardRouting:
         routing_result = route_pcb(
             parsed_stub,
             {},
-            _seed=42,
             design_rules=rules.design_rules,
         )
         wall_s = time.monotonic() - t0

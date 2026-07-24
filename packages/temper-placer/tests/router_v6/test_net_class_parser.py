@@ -1,4 +1,4 @@
-from temper_placer.io.kicad_parser import extract_net_classes
+from temper_placer.io._parse_nets import extract_net_classes
 
 
 def test_extract_net_classes_basic():

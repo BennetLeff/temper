@@ -496,14 +496,40 @@ def main():
         populate_oracle_from_board(drc_oracle, temp_ki_board)
         console.print("  [bold magenta]DRC Oracle loaded for Post-Processing[/]")
 
+    # design_rules: thread the real netclass_rules.yaml SSOT through so
+    # V6RouterAdapter's A* engine gets real per-net clearance instead of
+    # the flat board default -- the same class of gap route_pcb() had
+    # until 2026-07-23/24 (see docs/plans/2026-07-23-005). Fails soft to
+    # None (flat-default clearance, unchanged prior behavior) if the
+    # config can't be loaded, rather than crashing this script.
+    from temper_placer.placer.cp_sat._loop_utils import load_netclass_rules
+
+    netclass_rules = load_netclass_rules()
+    if netclass_rules is None:
+        console.print(
+            "  [bold yellow]Warning:[/] netclass_rules.yaml not loaded -- "
+            "routing will use flat default clearance for all nets, "
+            "including HighVoltage/ACMains classes."
+        )
+
+    # NOTE: _drc_oracle/_strict_mode are accepted by from_board() but never
+    # forwarded to the constructor (confirmed dead — see
+    # docs/brainstorms/2026-07-23-dead-parameter-wiring-sweep-requirements.md
+    # R1/R4). Passing drc_oracle/strict_mode here previously crashed this
+    # script outright (TypeError: unexpected keyword argument) since PR #342
+    # renamed the parameters without updating this call site. Renamed to
+    # match; still does nothing until R4 there is resolved -- the "Strict DRC
+    # mode enabled" message above is currently aspirational, not enforced by
+    # the router itself.
     router = V6RouterAdapter.from_board(
         board,
         cell_size_mm=args.cell_size,
         num_layers=args.layers,
         via_cost=args.via_cost,
         soft_blocking=args.soft_blocking,
-        drc_oracle=drc_oracle,
-        strict_mode=args.strict_drc,
+        design_rules=netclass_rules.design_rules if netclass_rules is not None else None,
+        _drc_oracle=drc_oracle,
+        _strict_mode=args.strict_drc,
     )
     console.print(f"  Via cost: {args.via_cost}")
     if args.soft_blocking:

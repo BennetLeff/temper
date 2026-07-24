@@ -98,7 +98,7 @@ class TestRoutePcbErrorHandling:
     def test_no_source_path_raises_value_error(self):
         parsed = type("FakeParsed", (), {})()
         with pytest.raises(ValueError, match="source_path"):
-            route_pcb(parsed, {}, 42)
+            route_pcb(parsed, {})
 
 
 class TestZoneLayersForNet:
@@ -247,7 +247,7 @@ class TestRoutePcbLayerConstraintsResolution:
                 (),
                 {"source_path": temp_path, "nets": [SimpleNamespace(name="vcc")]},
             )()
-            route_pcb(parsed, {}, _seed=1, design_rules=DesignRules())
+            route_pcb(parsed, {}, design_rules=DesignRules())
 
             _, kwargs = mock_pipe_cls.call_args
             layer_constraints = kwargs.get("layer_constraints")
@@ -274,7 +274,7 @@ class TestRoutePcbLayerConstraintsResolution:
         try:
             parsed = type("ParsedPCB", (), {"source_path": temp_path})()  # no .nets
             with caplog.at_level(logging.WARNING):
-                route_pcb(parsed, {}, _seed=1, design_rules=DesignRules())
+                route_pcb(parsed, {}, design_rules=DesignRules())
 
             _, kwargs = mock_pipe_cls.call_args
             assert kwargs.get("layer_constraints") == {}
@@ -298,7 +298,7 @@ class TestRoutePcbLayerConstraintsResolution:
         try:
             parsed = type("ParsedPCB", (), {"source_path": temp_path})()  # no .nets
             with caplog.at_level(logging.WARNING):
-                route_pcb(parsed, {}, _seed=1, design_rules=None)
+                route_pcb(parsed, {}, design_rules=None)
 
             assert not any("no resolvable .nets" in rec.message for rec in caplog.records)
         finally:
@@ -480,7 +480,6 @@ class TestCrossClassZoneClearance:
             result = route_pcb(
                 parsed,
                 {},
-                _seed=42,
                 design_rules=dr,
                 enable_zone_pours=True,
             )
@@ -952,9 +951,15 @@ class TestInjectedAssignmentsSurvival:
     )
     @settings(max_examples=30, deadline=30000)
     def test_varied_assignment_sets_survive(self, assignments):
-        """Every entry in the assignment set must survive route_pcb()."""
+        """Every entry in the assignment set must survive route_pcb().
+
+        route_pcb() no longer accepts a raw net_class_assignments kwarg
+        (removed 2026-07-24 -- it was always None from every real caller,
+        the exact dead-parameter shape this whole investigation is about).
+        The real, correct path is via design_rules.net_class_assignments,
+        which route_pcb() reads directly and forwards to pipeline.run().
+        """
         import os
-        from tempfile import NamedTemporaryFile
 
         patcher, mock_pipe_cls = self._patched_pipeline()
         temp_path = self._write_minimal_pcb()
@@ -965,12 +970,15 @@ class TestInjectedAssignmentsSurvival:
                 (),
                 {"source_path": temp_path, "nets": nets},
             )()
+            design_rules = SimpleNamespace(
+                net_class_assignments=assignments,
+                net_classes={},
+            )
 
             route_pcb(
                 parsed,
                 {},
-                _seed=42,
-                _net_class_assignments=assignments,
+                design_rules=design_rules,
             )
 
             # The assignments should have been forwarded through pipeline.run()
@@ -1067,7 +1075,7 @@ class TestInjectionPrecedence:
                 dru_priority=0,
             )
 
-            result = route_pcb(parsed, {}, _seed=42, design_rules=dr)
+            result = route_pcb(parsed, {}, design_rules=dr)
             assert result is not None
             # The design_rules was provided — verify the pipeline was
             # constructed (the mock was called), confirming the injection

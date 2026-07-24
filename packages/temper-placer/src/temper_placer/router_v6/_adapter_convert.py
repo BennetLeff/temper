@@ -115,9 +115,7 @@ def _to_stage0_netclass_rules(rules: Any) -> Any:
 def route_pcb(
     parsed: ParsedPcbLike | Any,
     placements: dict[str, tuple[float, float]],
-    _seed: int,
     design_rules: Any = None,
-    _net_class_assignments: dict[str, str] | None = None,
     thermal_flat: Any = None,
     thermal_weight: float = 0.0,
     enable_all_pad_tree: bool = False,
@@ -130,11 +128,10 @@ def route_pcb(
         parsed: ParsedPCB from parse_kicad_pcb_v6.
         placements: Dict mapping component ref -> (x, y) position in mm.
             If empty, routing proceeds with the board's existing positions.
-        seed: Random seed (passed through to pipeline configuration).
         design_rules: Optional DesignRules with net_classes for netclass
-            form injection into the output PCB.
-        net_class_assignments: Optional ``{net_name: netclass_name}`` map
-            for per-net clearance-aware routing (R4 FinePitch 0.15mm).
+            form injection into the output PCB. net_class_assignments and
+            net_classes are both derived from this object and threaded
+            into the pipeline automatically -- see the block below.
         thermal_flat: U9 optional (N,) float32 thermal cost field from
             the previous round's field.  Threaded to A* kernel.
         thermal_weight: U9 multiplier on per-cell thermal cost
@@ -209,6 +206,16 @@ def route_pcb(
         enable_connectivity_verifier=enable_connectivity_verifier,
     )
 
+    # Resolve the net->class-name mapping from the caller's design_rules.
+    # Without this, pipeline.run()'s net_class_assignments is empty and
+    # get_rules_for_net() can never find a class for any net regardless of
+    # how many real NetClassRules exist in net_classes below -- the class
+    # lookup needs BOTH the name mapping and the rules dict to resolve
+    # anything beyond the flat "Default" fallback.
+    net_class_assignments: dict[str, str] = {}
+    if design_rules is not None:
+        net_class_assignments = dict(getattr(design_rules, "net_class_assignments", {}) or {})
+
     # R6 (2026-07-23-008): Convert core netclass rules to stage0 format
     # so safety_category survives into pcb.design_rules for the HV/AC
     # forced-segment fail-closed gate.  If _to_stage0_netclass_rules() is
@@ -271,7 +278,7 @@ def route_pcb(
             # for the iter-cap sweet-spot table.
             result = pipeline.run(
                 Path(temp_path),
-                net_class_assignments=_net_class_assignments,
+                net_class_assignments=net_class_assignments,
                 net_classes=_stage0_net_classes if _stage0_net_classes else None,
             )
             result.enable_zone_pours = enable_zone_pours
@@ -293,7 +300,7 @@ def route_pcb(
     else:
         result = pipeline.run(
             pcb_path,
-            net_class_assignments=_net_class_assignments,
+            net_class_assignments=net_class_assignments,
             net_classes=_stage0_net_classes if _stage0_net_classes else None,
         )
         result.enable_zone_pours = enable_zone_pours

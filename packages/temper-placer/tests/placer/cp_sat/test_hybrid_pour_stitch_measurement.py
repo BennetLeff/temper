@@ -79,7 +79,6 @@ class TestHybridPourStitchVerification:
             routing_result = route_pcb(
                 parsed_stub,
                 {},
-                _seed=seed,
                 design_rules=rules.design_rules,
                 enable_all_pad_tree=True,
                 enable_zone_pours=True,
@@ -131,7 +130,6 @@ class TestHybridPourStitchVerification:
             routing_result = route_pcb(
                 parsed_stub,
                 {},
-                _seed=seed,
                 design_rules=rules.design_rules,
                 enable_all_pad_tree=False,
                 enable_zone_pours=False,

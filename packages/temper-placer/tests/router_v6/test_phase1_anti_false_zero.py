@@ -317,7 +317,6 @@ class TestU9CompletionPreservation:
         routing_result = route_pcb(
             parsed_stub,
             placement.to_placements_dict(),
-            _seed=42,
             design_rules=rules.design_rules,
         )
 

@@ -69,13 +69,12 @@ class RoutingStage(PipelineStage):
         from temper_placer.router_v6 import route_pcb
 
         parsed = input.data
-        seed = getattr(input.meta, "seed", 42) if input.meta else 42
 
         placements: dict[str, tuple[float, float]] = {}
         if input.meta and input.meta.trace_context:
             placements = input.meta.trace_context.get("placements", {}) or {}
 
-        result = route_pcb(parsed, placements=placements, _seed=seed)
+        result = route_pcb(parsed, placements=placements)
         return StageOutput(
             data=result,
             meta=input.meta,

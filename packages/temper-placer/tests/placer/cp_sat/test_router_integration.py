@@ -256,7 +256,6 @@ def test_route_pcb_with_placements():
             result = route_pcb(
                 parsed,
                 placements={"R1": (10.0, 20.0)},
-                _seed=42,
                 design_rules=DesignRules(),
             )
 
@@ -267,7 +266,10 @@ def test_route_pcb_with_placements():
             _, ctor_kwargs = mock_pipe_cls.call_args
             assert "layer_constraints" in ctor_kwargs
             assert ctor_kwargs["layer_constraints"] == {}
-            assert ctor_kwargs.get("enable_zone_pours") is False
+            # enable_zone_pours defaults True (zones on for multi-layer
+            # power/ground routing per route_pcb()'s docstring) -- this
+            # test doesn't override it, so it should see the real default.
+            assert ctor_kwargs.get("enable_zone_pours") is True
 
             # Pipeline invocation: run() receives the modified PCB file.
             mock_pipe.run.assert_called_once()
@@ -296,7 +298,7 @@ def test_route_pcb_no_source_path_raises():
 
     parsed = type("ParsedPCB", (), {})()
     with pytest.raises(ValueError, match="source_path"):
-        route_pcb(parsed, placements={}, _seed=0)
+        route_pcb(parsed, placements={})
 
 
 # ---------------------------------------------------------------------------

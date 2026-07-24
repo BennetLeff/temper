@@ -112,7 +112,7 @@ class _LoopRoutingMixin:
         placement,
         netlist,
         board,
-        seed: int,
+        _seed: int,
         thermal_flat=None,
         thermal_weight=0.0,
     ) -> RoutingResult:
@@ -122,6 +122,13 @@ class _LoopRoutingMixin:
         the continuous field from the previous round into the
         A* kernel.  When ``thermal_weight=0.0`` the field-off
         path is byte-identical to today's routing.
+
+        ``_seed`` is accepted for call-site compatibility but unused: the
+        router_v6 A* engine and net-ordering algorithm are deliberately
+        deterministic (same board + config -> same output, always -- see
+        ``_astar_ordering.py``'s hardening against accidental
+        ``PYTHONHASHSEED`` nondeterminism). ``route_pcb()`` itself no
+        longer accepts a seed parameter as of 2026-07-24.
         """
         from temper_placer.router_v6.adapter import RoutingResult, route_pcb
 
@@ -143,7 +150,6 @@ class _LoopRoutingMixin:
             return route_pcb(
                 parsed,
                 absolute_placements,
-                _seed=seed,
                 design_rules=netclass_rules.design_rules if netclass_rules is not None else None,
                 thermal_flat=thermal_flat,
                 thermal_weight=thermal_weight,
@@ -159,7 +165,6 @@ class _LoopRoutingMixin:
             return route_pcb(
                 parsed,
                 placements_dict,
-                _seed=seed,
                 design_rules=netclass_rules.design_rules if netclass_rules is not None else None,
                 thermal_flat=thermal_flat,
                 thermal_weight=thermal_weight,

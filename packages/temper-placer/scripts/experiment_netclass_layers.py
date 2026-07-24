@@ -121,7 +121,7 @@ def _route_and_write(
     )
 
     parsed = type("ParsedPCB", (), {"source_path": str(input_pcb)})()
-    routed = route_pcb(parsed, placements, _seed=seed, design_rules=rules.design_rules)
+    routed = route_pcb(parsed, placements, design_rules=rules.design_rules)
     body = getattr(routed, "routed_pcb_content", None)
     if not body:
         # Routing produced no output; fall back to placed-only PCB.

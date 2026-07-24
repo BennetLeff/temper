@@ -203,7 +203,6 @@ class TestZonePourProductionMeasurement:
         routing_result = route_pcb(
             parsed_stub,
             {},
-            _seed=42,
             design_rules=rules.design_rules,
             enable_zone_pours=True,
         )

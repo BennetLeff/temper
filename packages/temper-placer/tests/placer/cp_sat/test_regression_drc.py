@@ -412,7 +412,6 @@ def test_golden_board_routing_drc_regression(monkeypatch: pytest.MonkeyPatch):
     routing_result = route_pcb(
         parsed_stub,
         placements_dict,
-        _seed=42,
         design_rules=rules.design_rules,
     )
 
@@ -558,7 +557,6 @@ def test_production_board_routing_drc_regression(monkeypatch: pytest.MonkeyPatch
     routing_result = route_pcb(
         parsed_stub,
         {},
-        _seed=42,
         design_rules=rules.design_rules,
     )
 
