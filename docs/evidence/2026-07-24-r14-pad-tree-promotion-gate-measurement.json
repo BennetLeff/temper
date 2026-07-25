@@ -1,0 +1,46 @@
+{
+  "plan": "2026-07-22-001",
+  "requirement": "R14",
+  "measurement_date": "2026-07-24",
+  "board": "pcb/temper.kicad_pcb",
+  "kicad_cli_version": "10.0.4",
+  "purpose": "Re-check the enable_all_pad_tree=True promotion gate now that docs/plans/2026-07-24-001-fix-forced-segment-fail-closed-plan.md has landed. Neither existing regression test (test_golden_board_routing_drc_regression, test_production_board_routing_drc_regression) actually calls route_pcb() with enable_all_pad_tree=True -- both exercise only the False default regardless of intent -- so this measurement calls route_pcb() directly with the flag set.",
+  "gate": "unconnected_items <= 260 on production, == 0 on corpus (docs/plans/2026-07-22-001 R14; criteria originally set in docs/solutions/architecture-patterns/router-v6-all-pad-tree-default-off-2026-07-19.md)",
+  "production_measurement": {
+    "enable_all_pad_tree": true,
+    "completion_rate": 0.0345,
+    "unrouted_count": 84,
+    "total_drc_violations": 721,
+    "unconnected_items": 322,
+    "by_category": {
+      "clearance": 83,
+      "copper_edge_clearance": 18,
+      "courtyards_overlap": 27,
+      "hole_clearance": 4,
+      "hole_to_hole": 3,
+      "lib_footprint_issues": 30,
+      "lib_footprint_mismatch": 14,
+      "pth_inside_courtyard": 16,
+      "shorting_items": 62,
+      "silk_edge_clearance": 9,
+      "silk_over_copper": 199,
+      "silk_overlap": 199,
+      "solder_mask_bridge": 57
+    }
+  },
+  "production_comparison": {
+    "enable_all_pad_tree_false_baseline": {
+      "unconnected_items": 326,
+      "source": "docs/evidence/2026-07-24-forced-segment-fail-closed-U5-measurement.json"
+    },
+    "enable_all_pad_tree_true": {
+      "unconnected_items": 322
+    },
+    "delta": "Enabling the pad tree changes unconnected_items by only -4 (326 -> 322) on the real board -- both mechanisms are failing on nearly the same net set. Plain A* fails with 'no legal path found (forced segment disallowed)'; the tree executor fails the same nets with 'no legal tree edge'. Neither is a forced-segment/fabrication problem anymore (both correctly fail closed); this is a genuine routing-capacity/congestion gap on this board's current channel/grid setup."
+  },
+  "corpus_measurement": {
+    "status": "not obtained",
+    "reason": "solve_placement() raised UnresolvedConstraintRefsError (unresolved named critical-loop constraint refs: commutation_loop, gate_drive_high, gate_drive_low) in this standalone measurement script -- the equivalent pytest test downgrades this via monkeypatch.setattr(encoder, \"_UNRESOLVED_REF_POLICY\", \"warn\") inside the pytest fixture lifecycle, which this ad-hoc script did not correctly replicate. Not pursued further because the production result alone already fails the gate -- the gate requires both criteria, so corpus's result cannot change the verdict."
+  },
+  "verdict": "GATE FAILS. Production unconnected_items=322 exceeds the <=260 threshold, and completion (3.45%) is not meaningfully different from the enable_all_pad_tree=False case (0%) -- turning the flag on does not close a fabrication-vs-honesty gap (both paths already fail closed correctly), it exposes a genuine routing-capacity gap: the router's current channel/grid capability cannot legally route most of this board's nets either way. Do NOT promote enable_all_pad_tree to default-on. The blocking work is upstream of this flag -- better corridor/channel routing capacity, congestion-aware ordering, or board-level channel width increases -- not a promotion decision this flag alone can satisfy."
+}

@@ -1,0 +1,242 @@
+Empty placements provided; routing with existing board positions.
+_to_stage0_netclass_rules: dropping Creepage distance=6.0 for netclass 'ACMains' — no stage0 equivalent field exists
+_to_stage0_netclass_rules: dropping Voltage rating=325.0 for netclass 'ACMains' — no stage0 equivalent field exists
+_to_stage0_netclass_rules: dropping KiCad layer=F.Cu for netclass 'ACMains' — no stage0 equivalent field exists
+_to_stage0_netclass_rules: dropping Creepage distance=6.0 for netclass 'HighVoltage' — no stage0 equivalent field exists
+_to_stage0_netclass_rules: dropping Voltage rating=400.0 for netclass 'HighVoltage' — no stage0 equivalent field exists
+_to_stage0_netclass_rules: dropping KiCad layer=F.Cu for netclass 'HighVoltage' — no stage0 equivalent field exists
+_to_stage0_netclass_rules: dropping KiCad layer=B.Cu for netclass 'FinePitch' — no stage0 equivalent field exists
+_to_stage0_netclass_rules: dropping KiCad layer=B.Cu for netclass 'Power' — no stage0 equivalent field exists
+_to_stage0_netclass_rules: dropping KiCad layer=B.Cu for netclass 'GateDrive' — no stage0 equivalent field exists
+_to_stage0_netclass_rules: dropping KiCad layer=In1.Cu for netclass 'GND' — no stage0 equivalent field exists
+_to_stage0_netclass_rules: dropping KiCad layer=B.Cu for netclass 'HighSpeed' — no stage0 equivalent field exists
+_to_stage0_netclass_rules: dropping KiCad layer=F.Cu for netclass 'Signal' — no stage0 equivalent field exists
+_to_stage0_netclass_rules: dropping KiCad layer=F.Cu for netclass 'HighCurrent' — no stage0 equivalent field exists
+placement bbox: x 31.5..145.9  y 30.7..240.4
+baseline precondition: FAIL -- 113 footprints outside outline (0,0)-(100,150): ['C17', 'C18', 'C19', 'C2', 'C20', 'C26']
+variant outline: (16.5,15.7)-(160.9,255.4)  precondition: PASS
+DEBUG: Loading design_rules.py
+
+=== BASELINE (100x150 placeholder outline) ===
+  components: 149
+  Extracted 2245 skeleton lines
+  Added 247 pad anchor nodes to skeleton
+  Extracted 1311 skeleton lines
+  Added 248 pad anchor nodes to skeleton
+  Found 80 THT pads for layer switching
+      ✗ safety.ocp-line FAILED: no legal path found (forced segment disallowed)
+      ✗ rtd_pan.high_window-out FAILED: no legal path found (forced segment disallowed)
+      ✗ safety.latch-b2 FAILED: no legal path found (forced segment disallowed)
+      ✗ safety.fault_or-a2 FAILED: no legal path found (forced segment disallowed)
+      ✗ safety.fault_any_or-a2 FAILED: no legal path found (forced segment disallowed)
+      ✗ safety.ovp-line FAILED: no legal path found (forced segment disallowed)
+      ✗ discharge.r_snub1-p2 FAILED: no legal path found (forced segment disallowed)
+      ✗ discharge.q_dis_drv-g FAILED: no legal path found (forced segment disallowed)
+      ✗ fb FAILED: no legal path found (forced segment disallowed)
+      ✗ SHUTDOWN FAILED: no legal path found (forced segment disallowed)
+      ✗ input FAILED: no legal path found (forced segment disallowed)
+      ✗ safety-line-1 FAILED: no legal path found (forced segment disallowed)
+      ✗ discharge.r_dis1a-p2 FAILED: no legal path found (forced segment disallowed)
+      ✗ safety-line FAILED: no legal path found (forced segment disallowed)
+      ✗ power_in.q_relay_drv-g FAILED: no legal path found (forced segment disallowed)
+      ✗ safety.ovp.comp-inp FAILED: no legal path found (forced segment disallowed)
+      ✗ safety.fault_or-y2 FAILED: no legal path found (forced segment disallowed)
+      ✗ RTD_DRDY FAILED: no legal path found (forced segment disallowed)
+      ✗ io0 FAILED: no legal path found (forced segment disallowed)
+      ✗ safety.ocp.comp-inn FAILED: no legal path found (forced segment disallowed)
+      ✗ discharge.r_snub2-p2 FAILED: no legal path found (forced segment disallowed)
+      ✗ outa FAILED: no legal path found (forced segment disallowed)
+      ✗ hb.power_loop.q_high-g FAILED: no legal path found (forced segment disallowed)
+      ✗ safety.fault_or-b2 FAILED: no legal path found (forced segment disallowed)
+      ✗ safety-line-2 FAILED: no legal path found (forced segment disallowed)
+      ✗ safety.ovp.comp-inn FAILED: no legal path found (forced segment disallowed)
+      ✗ ina_p FAILED: no legal path found (forced segment disallowed)
+      ✗ i2c_sda_ui FAILED: no legal path found (forced segment disallowed)
+      ✗ RTD_SDI FAILED: no legal path found (forced segment disallowed)
+      ✗ WDT_KICK FAILED: no legal path found (forced segment disallowed)
+      ✗ rtd_pan.r_high_top-inp FAILED: no legal path found (forced segment disallowed)
+      ✗ w1_2 FAILED: no legal path found (forced segment disallowed)
+      ✗ WDT_RESET_N FAILED: no legal path found (forced segment disallowed)
+      ✗ RTD_HW_FAULT FAILED: no legal path found (forced segment disallowed)
+      ✗ safety.thermal.comp-inp FAILED: no legal path found (forced segment disallowed)
+      ✗ GATE_LS FAILED: no legal path found (forced segment disallowed)
+      ✗ i2c_scl_ui FAILED: no legal path found (forced segment disallowed)
+      ✗ RTD_SCK FAILED: no legal path found (forced segment disallowed)
+      ✗ y FAILED: no legal path found (forced segment disallowed)
+      ✗ RTD_CS_N FAILED: no legal path found (forced segment disallowed)
+      ✗ tank-out FAILED: no legal path found (forced segment disallowed)
+      ✗ safety.thermal-line FAILED: no legal path found (forced segment disallowed)
+      ✗ RTD_SDO FAILED: no legal path found (forced segment disallowed)
+      ✗ RELAY_CTRL FAILED: no legal path found (forced segment disallowed)
+      ✗ DISCHARGE_CTRL FAILED: no legal path found (forced segment disallowed)
+      ✗ discharge.k_dis1-nc FAILED: no legal path found (forced segment disallowed)
+      ✗ GATE_HS FAILED: no legal path found (forced segment disallowed)
+      ✗ inb FAILED: no legal path found (forced segment disallowed)
+      ✗ discharge.k_dis2-nc FAILED: no legal path found (forced segment disallowed)
+      ✗ rtd_pan.r_low_top-inn FAILED: no legal path found (forced segment disallowed)
+      ✗ bias FAILED: no legal path found (forced segment disallowed)
+      ✗ refin_n FAILED: no legal path found (forced segment disallowed)
+      ✗ sclk FAILED: no legal path found (forced segment disallowed)
+      ✗ power_in.bypass_relay-coil1 FAILED: no legal path found (forced segment disallowed)
+      ✗ ina FAILED: no legal path found (forced segment disallowed)
+      ✗ sdi FAILED: no legal path found (forced segment disallowed)
+      ✗ power_in.ntc-no FAILED: no legal path found (forced segment disallowed)
+      ✗ cs_n FAILED: no legal path found (forced segment disallowed)
+      ✗ PWM_HS FAILED: no legal path found (forced segment disallowed)
+      ✗ sdo FAILED: no legal path found (forced segment disallowed)
+      ✗ PWM_LS FAILED: no legal path found (forced segment disallowed)
+      ✗ vbias FAILED: no legal path found (forced segment disallowed)
+      ✗ power_in.bypass_relay-coil2 FAILED: no legal path found (forced segment disallowed)
+      ✗ ZCD FAILED: no legal path found (forced segment disallowed)
+      ✗ hb.gate_hs.driver-p1 FAILED: no legal path found (forced segment disallowed)
+      ✗ hb.gate_hs.driver-p2 FAILED: no legal path found (forced segment disallowed)
+      ✗ sw FAILED: no legal path found (forced segment disallowed)
+      ✗ discharge.k_dis1-coil2 FAILED: no legal path found (forced segment disallowed)
+      ✗ w1_1 FAILED: no legal path found (forced segment disallowed)
+      ✗ thermal.j_fan-p1 FAILED: no legal path found (forced segment disallowed)
+      ✗ boot FAILED: no legal path found (forced segment disallowed)
+      ✗ discharge.k_dis1-coil1 FAILED: no legal path found (forced segment disallowed)
+      ✗ I_SENSE FAILED: no legal path found (forced segment disallowed)
+      ✗ discharge.k_dis2-coil1 FAILED: no legal path found (forced segment disallowed)
+      ✗ tank.c_tank1-p2 FAILED: no legal path found (forced segment disallowed)
+      ✗ en FAILED: no legal path found (forced segment disallowed)
+      ✗ hb.gate_hs.driver-p1-1 FAILED: no legal path found (forced segment disallowed)
+      ✗ discharge.r_dis2a-p2 FAILED: no legal path found (forced segment disallowed)
+      ✗ safety.ovp.r_div_top1-p2 FAILED: no legal path found (forced segment disallowed)
+      ✗ safety.ovp.r_div_top2-p2 FAILED: no legal path found (forced segment disallowed)
+      ✗ power_in.r_zcd_top1-p2 FAILED: no legal path found (forced segment disallowed)
+      ✗ rtd_pan.low_window-out FAILED: no legal path found (forced segment disallowed)
+      ✗ safety.fault_any_or-y2 FAILED: no legal path found (forced segment disallowed)
+      ✗ y1 FAILED: no legal path found (forced segment disallowed)
+[LedgerReport IMBALANCED] routing_complete: Stage 'routing_complete' introduced cardinality imbalance:
+  net_count: 95 -> 0
+  component_count: 149 -> 0
+Empty placements provided; routing with existing board positions.
+_to_stage0_netclass_rules: dropping Creepage distance=6.0 for netclass 'ACMains' — no stage0 equivalent field exists
+_to_stage0_netclass_rules: dropping Voltage rating=325.0 for netclass 'ACMains' — no stage0 equivalent field exists
+_to_stage0_netclass_rules: dropping KiCad layer=F.Cu for netclass 'ACMains' — no stage0 equivalent field exists
+_to_stage0_netclass_rules: dropping Creepage distance=6.0 for netclass 'HighVoltage' — no stage0 equivalent field exists
+_to_stage0_netclass_rules: dropping Voltage rating=400.0 for netclass 'HighVoltage' — no stage0 equivalent field exists
+_to_stage0_netclass_rules: dropping KiCad layer=F.Cu for netclass 'HighVoltage' — no stage0 equivalent field exists
+_to_stage0_netclass_rules: dropping KiCad layer=B.Cu for netclass 'FinePitch' — no stage0 equivalent field exists
+_to_stage0_netclass_rules: dropping KiCad layer=B.Cu for netclass 'Power' — no stage0 equivalent field exists
+_to_stage0_netclass_rules: dropping KiCad layer=B.Cu for netclass 'GateDrive' — no stage0 equivalent field exists
+_to_stage0_netclass_rules: dropping KiCad layer=In1.Cu for netclass 'GND' — no stage0 equivalent field exists
+_to_stage0_netclass_rules: dropping KiCad layer=B.Cu for netclass 'HighSpeed' — no stage0 equivalent field exists
+_to_stage0_netclass_rules: dropping KiCad layer=F.Cu for netclass 'Signal' — no stage0 equivalent field exists
+_to_stage0_netclass_rules: dropping KiCad layer=F.Cu for netclass 'HighCurrent' — no stage0 equivalent field exists
+LOS BB shortcut: no calls recorded
+  wall: 27.3s
+  completion_rate: 0.0000
+  DRC violations: 625   unconnected: 326
+  segments emitted: 0
+
+=== VARIANT (outline encloses placement) ===
+  components: 149
+  Extracted 10602 skeleton lines
+DEBUG: Skeleton has 10 disconnected islands, bridging...
+DEBUG: Added bridge: 0.05mm
+DEBUG: Added bridge: 0.05mm
+DEBUG: Added bridge: 0.08mm
+DEBUG: Added bridge: 0.08mm
+DEBUG: Added bridge: 0.16mm
+DEBUG: Added bridge: 0.16mm
+DEBUG: Added bridge: 0.19mm
+DEBUG: Added bridge: 0.19mm
+DEBUG: Added bridge: 0.19mm
+  Added 430 pad anchor nodes to skeleton
+  Extracted 9274 skeleton lines
+  Added 429 pad anchor nodes to skeleton
+  Found 80 THT pads for layer switching
+      ✓ safety.ocp-line routed successfully
+      ✓ rtd_pan.high_window-out routed successfully
+      ✓ safety.latch-b2 routed successfully
+      ✓ safety.fault_or-a2 routed successfully
+      ✓ safety.fault_any_or-a2 routed successfully
+      ✓ safety.ovp-line routed successfully
+      ✓ discharge.r_snub1-p2 routed successfully
+      ✓ discharge.q_dis_drv-g routed successfully
+      ✓ fb routed successfully
+      ✓ SHUTDOWN routed successfully
+      ✓ input routed successfully
+      ✓ safety-line-1 routed successfully
+      ✓ discharge.r_dis1a-p2 routed successfully
+      ✓ safety-line routed successfully
+      ✓ power_in.q_relay_drv-g routed successfully
+      ✓ safety.ovp.comp-inp routed successfully
+      ✓ safety.fault_or-y2 routed successfully
+      ✓ RTD_DRDY routed successfully
+      ✓ io0 routed successfully
+      ✓ safety.ocp.comp-inn routed successfully
+      ✓ discharge.r_snub2-p2 routed successfully
+      ✓ outa routed successfully
+      ✓ hb.power_loop.q_high-g routed successfully
+      ✓ safety.fault_or-b2 routed successfully
+      ✓ safety-line-2 routed successfully
+      ✓ safety.ovp.comp-inn routed successfully
+      ✓ ina_p routed successfully
+      ✓ i2c_sda_ui routed successfully
+      ✓ RTD_SDI routed successfully
+      ✓ WDT_KICK routed successfully
+      ✓ rtd_pan.r_high_top-inp routed successfully
+      ✓ w1_2 routed successfully
+      ✓ WDT_RESET_N routed successfully
+      ✓ RTD_HW_FAULT routed successfully
+      ✓ safety.thermal.comp-inp routed successfully
+      ✗ GATE_LS FAILED: no legal path found (forced segment disallowed)
+      ✓ i2c_scl_ui routed successfully
+      ✗ RTD_SCK FAILED: no legal path found (forced segment disallowed)
+      ✓ y routed successfully
+      ✓ RTD_CS_N routed successfully
+      ✓ tank-out routed successfully
+      ✓ safety.thermal-line routed successfully
+      ✓ RTD_SDO routed successfully
+      ✗ RELAY_CTRL FAILED: no legal path found (forced segment disallowed)
+      ✓ DISCHARGE_CTRL routed successfully
+      ✓ discharge.k_dis1-nc routed successfully
+      ✓ GATE_HS routed successfully
+      ✓ inb routed successfully
+      ✓ discharge.k_dis2-nc routed successfully
+      ✗ rtd_pan.r_low_top-inn FAILED: no legal path found (forced segment disallowed)
+      ✓ bias routed successfully
+      ✓ refin_n routed successfully
+      ✓ sclk routed successfully
+      ✓ power_in.bypass_relay-coil1 routed successfully
+      ✗ ina FAILED: no legal path found (forced segment disallowed)
+      ✗ sdi FAILED: no legal path found (forced segment disallowed)
+      ✓ power_in.ntc-no routed successfully
+      ✗ cs_n FAILED: no legal path found (forced segment disallowed)
+      ✗ PWM_HS FAILED: no legal path found (forced segment disallowed)
+      ✓ sdo routed successfully
+      ✗ PWM_LS FAILED: no legal path found (forced segment disallowed)
+      ✓ vbias routed successfully
+      ✓ power_in.bypass_relay-coil2 routed successfully
+      ✗ ZCD FAILED: no legal path found (forced segment disallowed)
+      ✓ hb.gate_hs.driver-p1 routed successfully
+      ✓ hb.gate_hs.driver-p2 routed successfully
+      ✗ sw FAILED: no legal path found (forced segment disallowed)
+      ✗ discharge.k_dis1-coil2 FAILED: no legal path found (forced segment disallowed)
+      ✗ w1_1 FAILED: no legal path found (forced segment disallowed)
+      ✗ thermal.j_fan-p1 FAILED: no legal path found (forced segment disallowed)
+      ✗ boot FAILED: no legal path found (forced segment disallowed)
+      ✓ discharge.k_dis1-coil1 routed successfully
+      ✓ I_SENSE routed successfully
+      ✗ discharge.k_dis2-coil1 FAILED: no legal path found (forced segment disallowed)
+      ✗ tank.c_tank1-p2 FAILED: no legal path found (forced segment disallowed)
+      ✗ en FAILED: no legal path found (forced segment disallowed)
+      ✓ hb.gate_hs.driver-p1-1 routed successfully
+      ✓ discharge.r_dis2a-p2 routed successfully
+      ✓ safety.ovp.r_div_top1-p2 routed successfully
+      ✓ safety.ovp.r_div_top2-p2 routed successfully
+      ✓ power_in.r_zcd_top1-p2 routed successfully
+      ✓ rtd_pan.low_window-out routed successfully
+      ✓ safety.fault_any_or-y2 routed successfully
+      ✓ y1 routed successfully
+[LedgerReport IMBALANCED] routing_complete: Stage 'routing_complete' introduced cardinality imbalance:
+  net_count: 95 -> 0
+  component_count: 149 -> 0
+LOS BB shortcut: no calls recorded
+  wall: 98.3s
+  completion_rate: 0.7857
+  DRC violations: 1289   unconnected: 281
+  segments emitted: 2966
