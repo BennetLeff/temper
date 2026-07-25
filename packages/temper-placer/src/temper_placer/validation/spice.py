@@ -596,8 +596,19 @@ class PlacementSpiceResult:
 
     @property
     def passed(self) -> bool:
-        """True if simulation succeeded and all thresholds pass."""
+        """True if simulation succeeded and all thresholds pass.
+
+        A validation that evaluated zero thresholds has not passed
+        anything. ``all()`` over an empty ``threshold_results`` is
+        vacuously ``True`` in Python; that would report PASS for a SPICE
+        run whose thresholds were never checked (e.g. ``check_thresholds
+        =False``, or an unrecognized template) -- see
+        docs/METHODOLOGY.md Sec 4/5, anti-vacuous-truth. Fail closed
+        instead.
+        """
         if not self.spice_result.success:
+            return False
+        if not self.threshold_results:
             return False
         return all(r.get("passed", False) for r in self.threshold_results.values())
 

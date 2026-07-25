@@ -36,10 +36,15 @@ class _LoopGatesMixin:
         """Return True iff every gate in ``_gate_results`` is CLEAN.
 
         Uses cached results from ``check()`` calls; does not re-run
-        gates.  An UNMEASURED gate is never green (core invariant).
+        gates.  An UNMEASURED gate is never green (core invariant), and
+        neither is an empty result set: ``all()`` over no gates is
+        vacuously True in Python, which would report green for a round
+        that measured nothing (docs/METHODOLOGY.md §5, anti-vacuous-truth).
         """
         from temper_placer.placer.cp_sat.gates import GateStatus
 
+        if not self._gate_results:
+            return False
         return all(r.status is GateStatus.CLEAN for r in self._gate_results.values())
 
     def _are_named_gates_clean(self, gate_names: set[str]) -> bool:
@@ -57,7 +62,10 @@ class _LoopGatesMixin:
 
         Stores per-gate results in ``self._gate_results``.  A gate
         returning ``UNMEASURED`` is logged but never treated as green
-        (the core three-state invariant).
+        (the core three-state invariant).  An empty gate registry means
+        nothing was measured this round, which is never green either --
+        ``all()`` over zero gates is vacuously True and would otherwise
+        report a false pass (docs/METHODOLOGY.md §5, anti-vacuous-truth).
         """
         from temper_placer.placer.cp_sat.gates import GateResult, GateStatus
 
@@ -83,6 +91,8 @@ class _LoopGatesMixin:
                     result.error_message,
                 )
 
+        if not self._gate_results:
+            return False
         return all(r.status is GateStatus.CLEAN for r in self._gate_results.values())
 
     def _track_unmeasured(self, gate, result) -> None:

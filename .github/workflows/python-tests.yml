@@ -29,6 +29,7 @@ on:
       - 'scripts/import_linter_gate.py'
       - '.physics-provenance-allowlist'
       - 'scripts/check_physics_provenance.py'
+      - 'scripts/check_vacuous_gates.py'
       - 'docs/plans/**'
       - 'docs/traceability-registry.yaml'
       - '**/TRACEABILITY'
@@ -64,6 +65,7 @@ on:
       - 'scripts/import_linter_gate.py'
       - '.physics-provenance-allowlist'
       - 'scripts/check_physics_provenance.py'
+      - 'scripts/check_vacuous_gates.py'
       - 'docs/plans/**'
       - 'docs/traceability-registry.yaml'
       - '**/TRACEABILITY'
@@ -331,6 +333,9 @@ jobs:
         run: |
           uv run python ../../scripts/check_physics_provenance.py --allowlist ../../.physics-provenance-allowlist --physics-dir src/temper_placer/physics/
           uv run python ../../scripts/check_physics_provenance.py --check-shrink --allowlist ../../.physics-provenance-allowlist --physics-dir src/temper_placer/physics/
+
+      - name: Anti-vacuous-truth gate (gates/validators)
+        run: uv run python scripts/check_vacuous_gates.py
 
       - name: Import boundary enforcement
         run: uv run python scripts/import_linter_gate.py

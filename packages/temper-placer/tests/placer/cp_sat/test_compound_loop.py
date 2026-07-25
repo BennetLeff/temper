@@ -105,11 +105,16 @@ class RaisesGate(Gate):
 
 
 class TestAllGatesGreen:
-    def test_empty_registry_trivially_green(self):
-        """With no gates, all_gates_green returns True (vacuously)."""
+    def test_empty_registry_never_green(self):
+        """With no gates, nothing was measured -- never green.
+
+        ``all()`` over an empty registry is vacuously True in Python;
+        that used to report a false pass here (anti-vacuous-truth,
+        docs/METHODOLOGY.md §5).
+        """
         loop = PlaceRouteLoop(gates=[])
         state = BoardState()
-        assert loop.all_gates_green(state) is True
+        assert loop.all_gates_green(state) is False
         assert loop._gate_results == {}
 
     def test_all_clean_is_green(self):

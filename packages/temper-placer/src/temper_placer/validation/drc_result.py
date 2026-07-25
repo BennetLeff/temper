@@ -205,6 +205,15 @@ class RunResult:
 
     @property
     def passed(self) -> bool:
+        """A run that evaluated zero checks has not passed anything.
+
+        ``all()`` over an empty ``check_results`` is vacuously ``True`` in
+        Python; that would report PASS for a DRC run that never ran a
+        single check (see docs/METHODOLOGY.md §4/§5, anti-vacuous-truth).
+        Fail closed instead.
+        """
+        if not self.check_results:
+            return False
         return all(r.passed for r in self.check_results)
 
     @property

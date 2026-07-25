@@ -2164,3 +2164,18 @@ scripts:
       - pathlib
       - re
       - subprocess
+
+- path: check_vacuous_gates.py
+  purpose: "CI gate: reject unguarded all() in gate and validator modules (docs/METHODOLOGY.md Sec 4/5, anti-vacuous-truth); any() exempt (already fail-closed); asserts zero, no allowlist"
+  owner: bennet
+  last_run: "2026-07-25"
+  category: keep
+  disposition: ci-gate
+    imports:
+      - __future__
+      - argparse
+      - ast
+      - pathlib
+      - re
+      - rich.console
+      - sys
