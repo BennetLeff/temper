@@ -56,9 +56,19 @@ ignore_imports =
     temper_placer.core.* -> temper_placer.core.*
 
 # R3: External packages may only import from router_v6/ public interface (__init__.py).
+#
+# allow_indirect_imports restricts this contract to DIRECT submodule imports,
+# which is what the rule above actually says. Without it the contract is
+# unsatisfiable: `router_v6/__init__.py` must import its own submodules to be a
+# public interface, so any module correctly importing `temper_placer.router_v6`
+# produces a forbidden chain through it. Observed 2026-07-25 —
+# `io.kicad_exporter -> router_v6 (l.21) -> router_v6.adapter (l.7)` was
+# reported as a violation while doing exactly what the rule prescribes.
+# Direct submodule imports are still caught; verified zero remain.
 [importlinter:contract:router-v6-public-interface-only]
 name = router-v6-public-interface-only
 type = forbidden
+allow_indirect_imports = True
 source_modules =
     temper_placer.adapters
     temper_placer.cli
