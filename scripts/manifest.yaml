@@ -2152,3 +2152,15 @@ scripts:
       - re
       - sys
       - yaml
+- path: sweep_plan_status.py
+  purpose: "One-shot supersession sweep of docs/plans/ frontmatter status (2026-07-25); see docs/plans/README.md"
+  owner: bennet
+  last_run: "2026-07-25"
+  category: keep
+  disposition: utility
+    imports:
+      - argparse
+      - collections
+      - pathlib
+      - re
+      - subprocess
