@@ -25,7 +25,6 @@ forbidden_modules =
 name = core-public-interface-only
 type = forbidden
 source_modules =
-    temper_placer.ablation
     temper_placer.adapters
     temper_placer.cli
     temper_placer.constraints
@@ -44,7 +43,6 @@ source_modules =
     temper_placer.profiling
     temper_placer.regression
     temper_placer.router_v6
-    temper_placer.scale
     temper_placer.topological
     temper_placer.validation
     temper_placer.visualization
@@ -62,7 +60,6 @@ ignore_imports =
 name = router-v6-public-interface-only
 type = forbidden
 source_modules =
-    temper_placer.ablation
     temper_placer.adapters
     temper_placer.cli
     temper_placer.constraints
@@ -81,8 +78,6 @@ source_modules =
     temper_placer.placer
     temper_placer.profiling
     temper_placer.regression
-    temper_placer.routing
-    temper_placer.scale
     temper_placer.topological
     temper_placer.validation
     temper_placer.visualization
