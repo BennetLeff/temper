@@ -1,9 +1,11 @@
 ---
 title: "feat: Script Triage + Sunset — Reduce 118 Scripts"
 type: feat
-status: active
+status: completed
 date: 2026-06-22
 origin: docs/ideation/2026-06-22-test-and-build-next-ideation.md
+swept: 2026-07-25
+swept_basis: "referenced in git history; 5/7 paths exist"
 ---
 
 # feat: Script Triage + Sunset

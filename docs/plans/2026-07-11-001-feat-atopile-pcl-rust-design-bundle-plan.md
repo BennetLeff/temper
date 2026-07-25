@@ -2,9 +2,11 @@
 plan_id: 2026-07-11-001
 plan_type: feat
 title: "feat: typed Rust Atopile + PCL design bundle boundary"
-status: draft
+status: stale
 origin: docs/brainstorms/2026-07-11-atopile-pcl-rust-design-bundle-requirements.md
 tags: [atopile, pcl, rust, pyo3, provenance, constraints, pipeline]
+swept: 2026-07-25
+swept_basis: "insufficient evidence - needs human triage"
 ---
 
 # Typed Rust Atopile + PCL Design Bundle Boundary

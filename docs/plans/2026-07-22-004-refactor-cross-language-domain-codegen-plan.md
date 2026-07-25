@@ -1,9 +1,11 @@
 ---
 title: "feat: Cross-Language Domain Codegen — NetClassRules SSOT Manifest"
 type: feat
-status: active
+status: completed
 date: 2026-07-22
 origin: docs/brainstorms/2026-06-21-net-class-rules-fields-requirements.md
+swept: 2026-07-25
+swept_basis: "4/4 named paths exist"
 ---
 
 # feat: Cross-Language Domain Codegen — NetClassRules SSOT Manifest

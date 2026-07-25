@@ -1,9 +1,11 @@
 ---
 title: "feat: NetClassRules Field Extension — dru_priority + required_layer + safety_category"
 type: feat
-status: active
+status: abandoned
 date: 2026-06-22
 origin: docs/brainstorms/2026-06-21-net-class-rules-fields-requirements.md
+swept: 2026-07-25
+swept_basis: "only 3/14 named paths exist"
 ---
 
 # feat: NetClassRules Field Extension — dru_priority + required_layer + safety_category

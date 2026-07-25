@@ -4,6 +4,8 @@ type: feat
 status: completed
 date: 2026-06-23
 origin: docs/brainstorms/2026-06-23-wholesale-stale-dir-purge-requirements.md
+swept: 2026-07-25
+swept_basis: "already declared"
 ---
 
 # feat: Wholesale Stale-Directory Purge

@@ -1,11 +1,13 @@
 ---
 title: "feat: Constraint-Weighted Spectral Laplacian Initialization"
 type: feat
-status: draft
+status: abandoned
 date: 2026-07-01
 origin: docs/brainstorms/2026-07-01-constraint-weighted-laplacian-requirements.md
 depends_on:
   - "#1: Constraint-Passthrough (PCL constraints usable at init time)"
+swept: 2026-07-25
+swept_basis: "only 1/15 named paths exist"
 ---
 
 # feat: Constraint-Weighted Spectral Laplacian Initialization

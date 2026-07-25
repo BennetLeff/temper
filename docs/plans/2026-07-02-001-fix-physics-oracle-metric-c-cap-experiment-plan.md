@@ -1,9 +1,11 @@
 ---
 title: "fix: Physics Oracle Metric Fix and C-CAP Experiment"
 type: fix
-status: active
+status: stale
 date: 2026-07-02
 origin: docs/brainstorms/2026-07-02-physics-oracle-metric-fix-and-c-cap-experiment-requirements.md
+swept: 2026-07-25
+swept_basis: "insufficient evidence - needs human triage"
 ---
 
 # fix: Physics Oracle Metric Fix and C-CAP Experiment

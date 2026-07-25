@@ -1,8 +1,10 @@
 ---
 date: 2026-07-01
-status: active
+status: abandoned
 depth: deep
 source: docs/brainstorms/2026-07-01-ccap-requirements.md
+swept: 2026-07-25
+swept_basis: "only 4/23 named paths exist"
 ---
 
 # feat: Constraint-Cascade Alternating Projections (C-CAP)

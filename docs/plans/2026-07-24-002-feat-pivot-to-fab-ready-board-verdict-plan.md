@@ -1,11 +1,13 @@
 ---
 title: "feat: Pivot to Fab-Ready Board — Single Digital Verdict Covering Board-Level Gates"
 type: feat
-status: requirements-only
+status: superseded
 date: 2026-07-24
 artifact_contract: ce-unified-plan/v1
 artifact_readiness: requirements-only
 product_contract_source: ce-brainstorm
+swept: 2026-07-25
+swept_basis: "verdict layer superseded by the provenance-tiered check corpus"
 ---
 
 # feat: Pivot to Fab-Ready Board — Single Digital Verdict Covering Board-Level Gates

@@ -4,6 +4,8 @@ type: feat
 status: completed
 date: 2026-07-03
 origin: docs/brainstorms/2026-07-03-calendar-gate-jax-retirement-requirements.md
+swept: 2026-07-25
+swept_basis: "already declared"
 ---
 
 # feat: Calendar-Gate JAX Retirement (Override of Parity-Gate Requirement)

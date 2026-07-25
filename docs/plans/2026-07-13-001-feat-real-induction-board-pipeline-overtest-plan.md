@@ -1,9 +1,11 @@
 ---
 title: Real induction board pipeline overtest
 type: feat
-status: active
+status: stale
 date: 2026-07-13
 origin: docs/brainstorms/2026-07-13-real-induction-board-closure-arc-requirements.md
+swept: 2026-07-25
+swept_basis: "insufficient evidence - needs human triage"
 ---
 
 # Real induction board pipeline overtest

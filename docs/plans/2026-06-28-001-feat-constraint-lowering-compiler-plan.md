@@ -1,7 +1,9 @@
----
+---status: completed
 date: 2026-06-28
 type: feat
 origin: docs/brainstorms/2026-06-28-constraint-lowering-compiler-requirements.md
+swept: 2026-07-25
+swept_basis: "referenced in git history; 21/22 paths exist"
 ---
 
 # feat: Constraint Lattice & Multi-Tier Lowering Compiler

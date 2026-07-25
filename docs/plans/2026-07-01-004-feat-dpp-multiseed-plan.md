@@ -2,7 +2,9 @@
 date: 2026-07-01
 type: feat
 origin: docs/brainstorms/2026-07-01-dpp-multiseed-requirements.md
-status: active
+status: abandoned
+swept: 2026-07-25
+swept_basis: "only 3/15 named paths exist"
 ---
 
 # Plan: DPP-Diversified Multi-Seed Placement with Triage Gate

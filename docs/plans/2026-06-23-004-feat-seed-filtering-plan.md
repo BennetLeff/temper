@@ -2,9 +2,11 @@
 <<<<<<< HEAD
 title: "feat: Seed Filtering by Channel Bottleneck Map"
 type: feat
-status: active
+status: completed
 date: 2026-06-23
 origin: docs/brainstorms/2026-06-23-seed-filtering-requirements.md
+swept: 2026-07-25
+swept_basis: "referenced in git history; 14/22 paths exist"
 ---
 
 # feat: Seed Filtering by Channel Bottleneck Map

@@ -1,9 +1,11 @@
 ---
 title: "feat: Remove Dijkstra from Stage 4 channel mapping, use SAT solver output as primary path"
 type: feat
-status: active
+status: completed
 date: 2026-06-28
 origin: docs/brainstorms/2026-06-28-remove-dijkstra-channel-routing-requirements.md
+swept: 2026-07-25
+swept_basis: "referenced in git history; 3/4 paths exist"
 ---
 
 # Remove Dijkstra from Stage 4 Channel Mapping

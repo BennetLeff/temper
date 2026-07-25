@@ -1,10 +1,12 @@
 ---
 title: "feat: Physics-Informed Placement & Routing — Thermal Cost Field + Validation Discipline"
 type: feat
-status: active
+status: stale
 date: 2026-07-08
 deepened: 2026-07-08
 origin: docs/brainstorms/2026-07-08-physics-informed-placement-routing-requirements.md
+swept: 2026-07-25
+swept_basis: "insufficient evidence - needs human triage"
 ---
 
 # feat: Physics-Informed Placement & Routing — Thermal Cost Field + Validation Discipline

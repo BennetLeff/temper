@@ -1,9 +1,11 @@
 ---
 title: "feat: Netclass-aware clearance SSOT — placement + routing + derived output PCB"
 type: feat
-status: active
+status: completed
 date: 2026-07-06
 origin: docs/brainstorms/2026-07-06-netclass-aware-clearance-ssot-requirements.md
+swept: 2026-07-25
+swept_basis: "referenced in git history; 14/16 paths exist"
 ---
 
 # feat: Netclass-Aware Clearance — Single Source of Truth + Place/Route Enforcement + Per-Layer Experiment

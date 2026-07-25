@@ -1,8 +1,10 @@
 ---
 date: 2026-06-28
-status: active
+status: abandoned
 depth: deep
 source: docs/brainstorms/2026-06-28-pipeline-contracts-integration-requirements.md
+swept: 2026-07-25
+swept_basis: "only 5/35 named paths exist"
 ---
 
 # feat: Pipeline Contracts & Cross-Stage Integration

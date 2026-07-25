@@ -1,7 +1,9 @@
 ---
 type: feat
 origin: docs/brainstorms/2026-07-05-place-route-loop-feedback-as-constraint-requirements.md
-status: active
+status: abandoned
+swept: 2026-07-25
+swept_basis: "only 0/11 named paths exist"
 ---
 # feat: Place→Route Loop — Router Feedback as CP-SAT Constraints
 

@@ -1,7 +1,9 @@
 ---
 type: feat
 origin: docs/brainstorms/2026-07-05-jax-retirement-production-rollback-requirements.md
-status: active
+status: abandoned
+swept: 2026-07-25
+swept_basis: "only 1/33 named paths exist"
 ---
 # feat: JAX Retirement — Reverse-Topological Deletion
 

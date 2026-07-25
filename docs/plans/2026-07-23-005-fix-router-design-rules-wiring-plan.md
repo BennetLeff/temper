@@ -1,9 +1,11 @@
 ---
 title: "fix: Thread real per-net design rules into the Router V6 A* engine"
 type: fix
-status: R1/R2/R5/R6 shipped and verified; R3/R4/R7 open; R8 (new) open
+status: stale
 date: 2026-07-23
 origin: investigation triggered by re-measuring docs/plans/2026-07-22-001's R14 promotion gate
+swept: 2026-07-25
+swept_basis: "insufficient evidence - needs human triage"
 ---
 
 ## Post-implementation update (same day)

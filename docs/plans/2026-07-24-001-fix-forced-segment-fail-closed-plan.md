@@ -1,9 +1,11 @@
 ---
 title: "fix: Uniform Fail-Closed Forced-Segment Disposition"
 type: fix
-status: completed
+status: superseded
 date: 2026-07-24
 origin: docs/brainstorms/2026-07-24-router-forced-segment-fail-closed-requirements.md
+swept: 2026-07-25
+swept_basis: "fix was correct; framing was not - the gate was reporting an invalid board"
 ---
 
 # fix: Uniform Fail-Closed Forced-Segment Disposition

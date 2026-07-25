@@ -2,9 +2,11 @@
 plan_id: 2026-06-28-007
 plan_type: feat
 title: "feat: Router V6 Hypothesis-driven invariant test suite"
-status: active
+status: completed
 origin: docs/brainstorms/2026-06-28-router-v6-hypothesis-invariant-tests-requirements.md
 tags: [router-v6, hypothesis, pbt, invariants, testing]
+swept: 2026-07-25
+swept_basis: "12/13 named paths exist"
 ---
 
 # feat: Router V6 Hypothesis-driven invariant test suite

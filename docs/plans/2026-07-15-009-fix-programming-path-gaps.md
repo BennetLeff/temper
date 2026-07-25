@@ -6,6 +6,8 @@ date: 2026-07-15
 origin: docs/audits/2026-07-15-atopile-electrical-design-audit.md
 depends_on: []
 blocks: []
+swept: 2026-07-25
+swept_basis: "already declared"
 ---
 
 ## Shipped

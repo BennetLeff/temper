@@ -2,7 +2,9 @@
 date: 2026-06-22
 type: feat
 origin: docs/brainstorms/2026-06-22-unified-stage-protocol-requirements.md
-status: active
+status: stale
+swept: 2026-07-25
+swept_basis: "insufficient evidence - needs human triage"
 ---
 
 # Plan: Unified Stage Protocol — Protocol Class, Strategy Registry, Adapters for All Three Pipelines

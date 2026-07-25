@@ -2,11 +2,13 @@
 type: feat
 origin: docs/brainstorms/2026-07-08-4-layer-functional-stackup-requirements.md
 contract: docs/brainstorms/2026-07-08-gate-contract.md
-status: active
+status: stale
 date: 2026-07-08
 workstream: W2
 depth: deep
 depends_on: [W0, W1]
+swept: 2026-07-25
+swept_basis: "insufficient evidence - needs human triage"
 ---
 
 # W2 — 4-Layer Functional Stackup

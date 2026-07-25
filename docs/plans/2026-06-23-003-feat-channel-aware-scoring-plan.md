@@ -3,6 +3,8 @@ type: feat
 origin: docs/brainstorms/2026-06-23-channel-aware-scoring-requirements.md
 status: completed
 date: 2026-06-23
+swept: 2026-07-25
+swept_basis: "already declared"
 ---
 
 # Channel-Aware Placement Scoring — Implementation Plan

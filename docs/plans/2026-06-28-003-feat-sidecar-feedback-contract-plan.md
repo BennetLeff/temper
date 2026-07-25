@@ -1,8 +1,10 @@
 ---
 plan_type: feat
 origin: docs/ideation/2026-06-28-sidecar-feedback-convergence-ideation.md
-status: active
+status: stale
 created: 2026-06-28
+swept: 2026-07-25
+swept_basis: "insufficient evidence - needs human triage"
 ---
 
 # feat: Sidecar-as-Contract Placement-Routing Feedback Loop

@@ -1,9 +1,11 @@
 ---
 title: "feat: Coarse-to-fine A* corridor routing to reduce per-net expansion count"
 type: feat
-status: active
+status: completed
 date: 2026-06-29
 origin: docs/plans/2026-06-29-001-feat-coarse-to-fine-a-star-corridor-routing-plan.md
+swept: 2026-07-25
+swept_basis: "referenced in git history; 10/10 paths exist"
 ---
 
 # Coarse-to-Fine A* Corridor Routing

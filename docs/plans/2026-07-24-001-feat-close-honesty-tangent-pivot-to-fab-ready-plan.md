@@ -1,11 +1,13 @@
 ---
 title: "feat: Close the Placer/Router Honesty Tangent — Halt Hygiene Leaves and Pivot to Fab-Ready"
 type: feat
-status: requirements-only
+status: superseded
 date: 2026-07-24
 artifact_contract: ce-unified-plan/v1
 artifact_readiness: requirements-only
 product_contract_source: ce-brainstorm
+swept: 2026-07-25
+swept_basis: "premised on the router-capacity reading of the outline failure"
 ---
 
 # feat: Close the Placer/Router Honesty Tangent — Halt Hygiene Leaves and Pivot to Fab-Ready

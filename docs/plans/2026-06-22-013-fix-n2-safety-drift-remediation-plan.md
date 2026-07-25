@@ -1,9 +1,11 @@
 ---
 title: "fix: Remediate N2 Safety Drift Sites"
 type: fix
-status: active
+status: stale
 date: 2026-06-22
 origin: docs/plans/2026-06-22-002-feat-safety-constant-ssot-plan.md
+swept: 2026-07-25
+swept_basis: "insufficient evidence - needs human triage"
 ---
 
 # fix: Remediate N2 Safety Drift Sites

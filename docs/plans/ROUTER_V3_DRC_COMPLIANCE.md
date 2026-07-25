@@ -4,8 +4,7 @@
 **Created**: 2025-12-29
 **Goal**: Router produces KiCad PCB files that pass all DRC checks
 
----
-
+---status: abandoned
 ## Current State (DRC Analysis)
 
 From `pcb/DRC_violations.rpt`:
@@ -18,7 +17,8 @@ From `pcb/DRC_violations.rpt`:
 | Silkscreen Issues | ~75 | WARNING | Duplicate text, overlaps |
 | Library Mismatch | ~30 | WARNING | Ignorable |
 | Hole-to-Hole | 1 | WARNING | Placement collision |
-
+swept: 2026-07-25
+swept_basis: "only 1/8 named paths exist"
 ---
 
 ## Root Cause Analysis

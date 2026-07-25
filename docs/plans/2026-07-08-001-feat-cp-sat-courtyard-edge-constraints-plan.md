@@ -1,9 +1,11 @@
 ---
 title: "feat: Two hard geometry constraints — per-pair SEPARATED-τ + board-edge margin"
 type: feat
-status: active
+status: completed
 date: 2026-07-08
 origin: docs/brainstorms/2026-07-08-cp-sat-courtyard-edge-constraints-requirements.md
+swept: 2026-07-25
+swept_basis: "8/10 named paths exist"
 ---
 
 # feat: Per-Pair SEPARATED-τ + Board-Edge Margin for CP-SAT

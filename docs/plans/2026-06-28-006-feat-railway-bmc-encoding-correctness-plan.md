@@ -1,9 +1,11 @@
 ---
 title: "feat: Railway-style BMC verification for SAT encoding correctness"
 type: feat
-status: draft
+status: stale
 date: 2026-06-28
 origin: docs/brainstorms/2026-06-28-railway-bmc-encoding-correctness-requirements.md
+swept: 2026-07-25
+swept_basis: "insufficient evidence - needs human triage"
 ---
 
 # Railway-Style BMC Verification for Encoding Correctness

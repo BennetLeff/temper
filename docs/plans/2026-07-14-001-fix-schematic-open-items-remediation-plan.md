@@ -4,6 +4,8 @@ type: fix
 status: completed
 date: 2026-07-14
 origin: docs/solutions/workflow-issues/resolving-conflicting-sources-safety-critical-schematic-2026-07-14.md
+swept: 2026-07-25
+swept_basis: "already declared"
 ---
 
 # fix: Remediate remaining open items from the KiCad schematic repair audit

@@ -4,6 +4,8 @@ origin: docs/brainstorms/2026-06-23-router-v6-closure-rate-90-percent-requiremen
 status: completed
 completed: 2026-06-24
 date: 2026-06-23
+swept: 2026-07-25
+swept_basis: "already declared"
 ---
 
 # Router V6 Closure Rate to 90% — Implementation Plan

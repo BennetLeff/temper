@@ -1,9 +1,11 @@
 ---
 title: "fix: Resolve PCL constraint refs to match board components + decisive-result measurement run"
 type: fix
-status: active
+status: stale
 date: 2026-07-06
 origin: docs/reports/2026-07-06-umbrella-status.md
+swept: 2026-07-25
+swept_basis: "insufficient evidence - needs human triage"
 ---
 
 # fix: Resolve PCL Constraint Refs + Decisive-Result Measurement Run

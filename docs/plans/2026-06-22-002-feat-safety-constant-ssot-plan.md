@@ -1,9 +1,11 @@
 ---
 title: "feat: Safety-Constant SSOT with Two-Layer Enforcement"
 type: feat
-status: active
+status: stale
 date: 2026-06-22
 origin: docs/brainstorms/2026-06-21-safety-constant-ssot-requirements.md
+swept: 2026-07-25
+swept_basis: "insufficient evidence - needs human triage"
 ---
 
 # feat: Safety-Constant SSOT with Two-Layer Enforcement

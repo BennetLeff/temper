@@ -1,9 +1,11 @@
 ---
 title: "feat: Purge-and-Protect Root Directory Hygiene Gate"
 type: feat
-status: active
+status: stale
 date: 2026-06-22
 origin: docs/brainstorms/2026-06-21-purge-and-protect-requirements.md
+swept: 2026-07-25
+swept_basis: "insufficient evidence - needs human triage"
 ---
 
 # feat: Purge-and-Protect Root Directory Hygiene Gate

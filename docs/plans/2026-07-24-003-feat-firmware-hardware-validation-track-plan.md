@@ -1,11 +1,13 @@
 ---
 title: "feat: Firmware + Hardware Validation Track — Bench-Trip Every Protection Plus Performance Plus EMC Precompliance"
 type: feat
-status: requirements-only
+status: superseded
 date: 2026-07-24
 artifact_contract: ce-unified-plan/v1
 artifact_readiness: requirements-only
 product_contract_source: ce-brainstorm
+swept: 2026-07-25
+swept_basis: "re-sequenced under STRATEGY v2 build order"
 ---
 
 # feat: Firmware + Hardware Validation Track — Bench-Trip Every Protection Plus Performance Plus EMC Precompliance

@@ -1,9 +1,11 @@
 ---
 title: "feat: Gated experiment — SAT model decomposition for Temper PCB scale"
 type: feat
-status: active
+status: completed
 date: 2026-06-28
 origin: docs/brainstorms/2026-06-28-sat-model-decomposition-experiment-requirements.md
+swept: 2026-07-25
+swept_basis: "referenced in git history; 5/7 paths exist"
 ---
 
 # SAT Model Decomposition Experiment

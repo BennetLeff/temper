@@ -4,6 +4,8 @@ type: feat
 status: completed
 date: 2026-07-18
 origin: docs/brainstorms/2026-07-18-via-aware-layer-transitions-requirements.md
+swept: 2026-07-25
+swept_basis: "already declared"
 ---
 
 # Via-Aware Layer Transitions (Issue #226)

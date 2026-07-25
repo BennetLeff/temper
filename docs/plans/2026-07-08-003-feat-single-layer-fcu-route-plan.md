@@ -1,9 +1,11 @@
 ---
 title: "feat: Single-layer F.Cu routing gate — prove the router routes at all"
 type: feat
-status: draft
+status: completed
 date: 2026-07-08
 origin: docs/brainstorms/2026-07-08-single-layer-route-requirements.md
+swept: 2026-07-25
+swept_basis: "referenced in git history; 11/17 paths exist"
 ---
 
 # feat: Single-Layer F.Cu Route — Router Completion Gate

@@ -1,9 +1,11 @@
 ---
 title: "feat: External MFEM-FEM Corroboration for Thermal Verification Chain"
 type: feat
-status: active
+status: stale
 date: 2026-07-09
 origin: docs/brainstorms/2026-07-09-external-mfem-fem-corroboration-requirements.md
+swept: 2026-07-25
+swept_basis: "insufficient evidence - needs human triage"
 ---
 
 # feat: External MFEM-FEM Corroboration for Thermal Verification Chain

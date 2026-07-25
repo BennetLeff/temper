@@ -1,9 +1,11 @@
 ---
 title: "feat: Deploy Strangler to RouterV6 Stage 3 (SAT Solver) into 5 Micro-Stages"
 type: feat
-status: active
+status: stale
 date: 2026-06-22
 origin: docs/ideation/2026-06-22-test-and-build-next-ideation.md
+swept: 2026-07-25
+swept_basis: "insufficient evidence - needs human triage"
 ---
 
 # feat: Deploy Strangler to RouterV6 Stage 3 (SAT Solver)

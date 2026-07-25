@@ -4,6 +4,8 @@ type: feat
 status: completed
 date: 2026-07-07
 origin: docs/brainstorms/2026-07-06-netclass-aware-clearance-ssot-requirements.md
+swept: 2026-07-25
+swept_basis: "already declared"
 ---
 
 # feat: Add netclass-aware clearance single-source-of-truth with YAML authority

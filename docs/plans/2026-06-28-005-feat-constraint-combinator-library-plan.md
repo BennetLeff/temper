@@ -1,11 +1,13 @@
 ---
 title: "feat: Constraint Combinator Library with Soundness-Preserving Composition"
 type: feat
-status: active
+status: abandoned
 date: 2026-06-28
 origin: docs/brainstorms/2026-06-28-constraint-combinator-library-requirements.md
 dependencies:
   - docs/brainstorms/2026-06-28-constraint-lowering-compiler-requirements.md  # R5 boundary
+swept: 2026-07-25
+swept_basis: "only 1/10 named paths exist"
 ---
 
 # Constraint Combinator Library

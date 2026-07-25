@@ -1,11 +1,13 @@
 ---
 title: "feat: active bus discharge (<60s to safe) + thermal system BOM"
 type: feat
-status: pending
+status: completed
 date: 2026-07-16
 origin: PR #217 BOM-hardening session (passive-bleeder discharge-time warning in modules.ato PowerInput)
 depends_on: []
 blocks: []
+swept: 2026-07-25
+swept_basis: "referenced in git history; 1/1 paths exist"
 ---
 
 # feat: Active Bus Discharge + Thermal System BOM
