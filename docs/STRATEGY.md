@@ -90,9 +90,15 @@ command are not recorded here.
 - **Router scope: 95 nets.** Power/ground/HV nets are excluded from A* by
   `_should_route()` (`router_v6/_astar_reconstruct.py`); they are handled by
   zone pours.
-- **`Edge.Cuts` is a placeholder** — a single 100 × 150 mm rectangle at the
+- **`Edge.Cuts` was a placeholder** — a single 100 × 150 mm rectangle at the
   origin, while the placement spans x 31.5–145.9, y 30.7–240.4 mm.
-  **113 of 149 footprints (76%) lie outside it.** See `METHODOLOGY.md` §7.
+  **113 of 149 footprints (76%) lay outside it.** See `METHODOLOGY.md` §7.
+  **Fixed 2026-07-25**: outline is now (20, 20)–(172, 254), **152 × 234 mm**,
+  derived from true pad extents (132.2 × 213.6 mm, widest part the MeanWell
+  IRM-1 AC/DC module at 41.8 mm radius) plus a 10 mm edge margin.
+  **0 of 149 footprints outside.** This is **rung 1** of the tightening ladder
+  (`METHODOLOGY.md` §10) — deliberately loose, to be tightened toward the
+  teardown enclosure envelope at rungs 3–4. It is not an enclosure decision.
 - The committed board carries **no routing**: 0 segments, 0 vias, 0 zones.
 
 ### Router
@@ -113,9 +119,36 @@ Measured A/B, changing only the board outline. Same commit, netlist, and flags;
 board. DRC rising from 625 to 1,289 is expected and honest — zero routing
 cannot produce routing violations; 2,966 new segments produce new ones.
 
-**79% is not "nearly done."** It is measured on an arbitrary outline with an
-unvalidated schematic. It means the infrastructure is far healthier than
-previously recorded, not that the board is close.
+**79% is not "nearly done."** It is measured with an unvalidated schematic. It
+means the infrastructure is far healthier than previously recorded, not that
+the board is close.
+
+### Rung 1 — routed against the real outline (2026-07-25)
+
+Re-measured on the committed board after the `Edge.Cuts` fix above. Same
+invocation, `enable_zone_pours=True`, empty placements:
+
+| | Value |
+|---|---|
+| completion_rate | **0.7857** (66 of 84 attempted) |
+| segments / vias / zones | 3,265 / 48 / 98 |
+| unconnected items | **276** (from 326 unrouted) |
+| DRC violations | 1,464 |
+| wall time | 141.3 s |
+
+Violation profile of the routed output: **499 `clearance`**, 597 silkscreen
+(199 each of `silk_edge_clearance` / `silk_overlap` / `silk_over_copper`),
+**123 `shorting_items`**, 85 `solder_mask_bridge`.
+
+**`completion_rate` is itself a blind metric.** It reports 78.57% while the
+routes it produced contain 499 clearance violations and 123 shorts. A short is
+a fatal defect on a mains-connected board. Completion measures *whether a path
+was found*, not *whether the path is manufacturable* — the same class of gap
+as `METHODOLOGY.md` §7, one level up.
+
+Consequence: the router's success metric needs a DRC-legality term before any
+completion figure is quoted as progress. Recorded here so 78.57% is not
+carried forward as a stale headline the way "24/24" and "72/95" were.
 
 ### DRC — committed board
 

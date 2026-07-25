@@ -7496,10 +7496,10 @@
 
   (gr_poly
     (pts
-      (xy 0 0)
-      (xy 100 0)
-      (xy 100 150)
-      (xy 0 150)
+      (xy 20 20)
+      (xy 172 20)
+      (xy 172 254)
+      (xy 20 254)
     ) (layer "Edge.Cuts") (width 0.1))
 
 )
