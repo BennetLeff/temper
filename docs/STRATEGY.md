@@ -184,8 +184,33 @@ review by an experienced power-electronics engineer.
 
 ### ERC
 
-**No ERC has ever been run.** `kicad-cli sch erc` exists and is unused. This is
-the largest unexplored validation surface in the project.
+**First run 2026-07-25** (`kicad-cli sch erc`, KiCad 10.0.4, `pcb/temper.kicad_sch`).
+
+**438 violations, all severity `warning`. Zero errors.**
+
+```
+149  lib_symbol_issues       symbol/library drift
+146  footprint_link_issues   footprint assignment
+143  endpoint_off_grid       wire endpoints off grid
+```
+
+`pcb/mcu.kicad_sch` separately: 64 violations.
+
+**What this does and does not tell us.** No connectivity errors were reported —
+no undriven power pins, no conflicting outputs, no duplicate references. That
+is genuinely reassuring about gross wiring.
+
+But **ERC validates schematic hygiene, not circuit correctness**, so "ERC
+clean" must never be read as "schematic trustworthy." The design loop's real
+questions — are the component values right, does the resonant tank hold ZVS
+across the pan-load range, do the protection thresholds land inside
+OCP-01/OVP-01 — are untouched by ERC and need simulation plus expert review.
+
+One warning class deserves follow-up rather than bulk suppression:
+**143 `endpoint_off_grid`**. Off-grid endpoints are the condition under which
+two wires appear visually connected but are electrically separate. KiCad grades
+it a warning; on a mains-connected board it is worth confirming that none of
+the 143 sit on a net that matters.
 
 ### Simulation
 
