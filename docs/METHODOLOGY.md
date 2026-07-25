@@ -104,11 +104,77 @@ Field by field:
 - **`gate`** — the anti-spiral mechanism. A loop that advances no gate is
   hygiene, and hygiene draws from a budget (§8).
 
-### Seam contracts
+### 3.1 Seam contracts
 
 The postcondition of stage N must equal the precondition of stage N+1, and the
 equality is asserted. Fixing an individual bad input fixes an instance;
 contracts at every seam eliminate the class.
+
+### 3.2 What makes a loop validatable
+
+Principle 3 claims small loops are easier to validate. That is true only for
+loops with these properties, so they are the design target — not smallness by
+itself:
+
+- **pure** — no I/O, no global state
+- **enumerable or densely samplable** input domain
+- **deterministic**
+- **has an independent oracle** (see §5)
+- **fast enough to run thousands of cases**
+
+Honest scoring of this pipeline's loops. Subdivision helps the front of the
+pipeline far more than the back, and pretending otherwise is how a
+methodology becomes decoration:
+
+| Loop | Size | Pure | Enumerable | Oracle | Verdict |
+|------|------|------|------------|--------|---------|
+| Seam preconditions | 1 assertion | yes | yes | trivial | **excellent** |
+| Netlist checks | ms | yes | yes (small graphs) | physics + corpus | **excellent** |
+| Placement checks | ~1 s | yes | yes | KiCad differential | **good** |
+| Congestion predictor | ~1 s | yes | no | only the router | **weak** |
+| Full route | ~100 s | no | no | none direct | **poor** |
+| Cost fields | varies | yes | no | none direct | **poor** (see §6.3) |
+| Fault-injection harness | minutes | no | yes | known defect | **good, circular** |
+| Simulation sweeps | hours | yes | no | bench (absent) | **batch, not a loop** |
+
+Simulation is a slow oracle feeding fast loops, not itself a tight loop. Do not
+count it as one.
+
+### 3.3 Subdivision has a cost
+
+**Subdivision trades intra-stage complexity for inter-stage interface count,
+and interfaces are where bugs live.** The reference failure (§7) was a seam
+bug — board definition to placement. More stages means more seams means more
+of that failure class.
+
+Subdivision is therefore *not* monotonically safer. It pays off only when every
+new seam is contracted. Uncontracted subdivision is strictly worse than a
+monolith, because a monolith has no interfaces to get wrong.
+
+**Ordering rule: contracts before decomposition, always.**
+
+### 3.4 Block decomposition
+
+Routing is the hardest loop to subdivide — it is a global optimization and nets
+interact through congestion. The decomposition is already present in the
+atopile semantic hierarchy:
+
+```
+hb.*         half bridge
+tank.*       resonant tank
+safety.*     protection
+discharge.*  bus discharge
+power_in.*   mains input
+thermal.*    fan / thermal
+rtd_pan.*    pan sensing
+```
+
+**Route a block, verify it, freeze it, route the next.** Blocks that share no
+nets interact only at boundaries, and boundaries take contracts. This yields
+smaller routing problems, per-block verification, frozen blocks that stop being
+re-verified, and localized failure.
+
+Per §3.3, this lands *after* seam assertions exist, not before.
 
 ---
 
@@ -148,6 +214,23 @@ validator-correctness tractable rather than circular.
 | **Reality** | Silent on known-good boards? Confirmed on the bench? | corpus + hardware |
 
 Independence is what makes the conjunction strong.
+
+### Verifying the injector
+
+The construction axis has a hole that must be closed or it produces *false
+confidence*, which is worse than no coverage number at all. If the injector
+fails to actually inject — writes a malformed file the parser silently drops,
+or mutates a field nothing reads — every check "passes" its sensitivity test
+while detecting nothing.
+
+The fault injector is subject to the same vacuity discipline it exists to
+enforce (class 4, §4). Each injection asserts:
+
+1. the injected artifact **differs** from the original, structurally
+2. an **independent tool** (`kicad-cli`) also observes a difference
+3. the injection landed in the field the defect model names
+
+An injector that cannot prove its own mutations took effect is not evidence.
 
 ### Metamorphic relations for this domain
 
@@ -253,12 +336,37 @@ margin.
 **Consequence: checks intended as objectives must emit a scalar cost and, where
 possible, a gradient — not a boolean.** "FAIL: loop area too large" is useless
 to a router. "loop area = 47 mm², target < 20, here is the cost field" is
-steerable. Pass/fail thresholds layer on top of the cost field, not instead of
-it.
+steerable.
 
 The pattern already exists: `route_pcb()` accepts `thermal_flat`
 (an `(N,)` float32 thermal cost field threaded to the A* kernel) and
 `thermal_weight`. It generalizes to loop area, current density, and creepage.
+
+#### Threshold subordination
+
+Cost fields are **harder** to validate than booleans, not easier — a boolean
+has a clean question ("does it fire on a bad board?"), while a cost field is a
+function over the whole design whose gradient must point the right way
+everywhere. Making checks into optimization objectives is therefore a step
+away from principle 3, and it is only acceptable under this rule:
+
+> **The threshold check is the validated artifact. The cost field is a derived
+> heuristic, subordinate to it, and need only be monotone with it.**
+
+Validate `loop_area(board) > 20 mm² → FAIL` rigorously, with all five axes.
+The cost field then has one obligation:
+
+```
+cost decreases  ⟹  loop_area decreases
+```
+
+which is a **metamorphic** property (§5) — testable by perturbation, no oracle
+required. The hard-to-validate object stays subordinate to an easy-to-validate
+one.
+
+A cost field whose monotonicity with its threshold is untested must not be
+wired into the router. Optimizing hard against an unvalidated objective is the
+reference failure (§7) with more compute behind it.
 
 ---
 
@@ -414,3 +522,11 @@ the real state machine respond, measure latency against OCP-01's 1 µs budget.
 - Existing detectors gate. A detector that prints `IMBALANCED` and fails nothing
   is not a detector.
 - Never optimize a loop that has not been validated.
+- **Contracts before decomposition** (§3.3). A new seam without an assertion is
+  a regression, not progress.
+- **Thresholds are validated; cost fields are subordinate** (§6.3). No cost
+  field reaches the router without a tested monotonicity relation.
+- **The injector proves its own injections landed** (§5). Coverage numbers from
+  an unverified injector are false confidence.
+- Smallness is not the goal — §3.2's five properties are. A small loop with no
+  oracle is not a validatable loop.

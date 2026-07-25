@@ -209,6 +209,104 @@ the highest-value existing work in the repository.
 
 ---
 
+## Pipeline architecture
+
+### Today
+
+```
+elec/*.ato ──► netlist ──► placement ──► routing ──► kicad-cli drc ──► gerbers
+                                                       ▲
+                                            one terminal metric,
+                                            geometric only, no oracle
+```
+
+Each stage trusts its input. Checks live at the end and are purely geometric.
+The router optimizes connectivity and wirelength; physics is an optional
+bolt-on. Atopile's semantic hierarchy is flattened to strings. Everything is
+learned at the end, or not at all.
+
+### Target
+
+```
+                    ┌──────────── CHECK CORPUS ─────────────┐
+                    │ provenance-tiered · emits cost fields  │
+                    └─┬──────┬────────────┬───────────┬──────┘
+      verdicts (gate) │      │            │           │
+                      ▼      ▼            ▼           ▼
+ .ato ──► netlist ──► ✓ ──► placement ──► ✓ ──► routing ──► ✓ ──► DFM ──► gerbers
+   │        │                  ▲                    ▲
+   │   semantic                └──── cost fields ───┘
+   │   hierarchy                     (steer)
+   │   preserved ─────────────────────────────────►
+   │
+   └──► ERC ──► SPICE / thermal ──► calibrated? ──► verdicts + cost fields
+             (design loop, independent clock)
+
+
+  ┌─ VALIDATOR PIPELINE (own clock: runs when checks change) ─┐
+  │  check corpus ──► fault injection  → sensitivity          │
+  │              └──► known-good corpus → specificity         │
+  │                        ↓                                  │
+  │                  coverage number                          │
+  └───────────────────────────────────────────────────────────┘
+```
+
+### Five structural changes
+
+1. **Checks shift left.** Each check declares the earliest stage at which it is
+   computable, and runs there.
+2. **The check layer gains a feedback edge.** The same corpus flows both
+   directions: verdicts out (gate), cost fields in (steer), under threshold
+   subordination (`METHODOLOGY.md` §6.3).
+3. **Seams become contracts** (`METHODOLOGY.md` §3.1). Failures localize to a
+   stage instead of surfacing as a symptom several stages downstream.
+4. **A validator pipeline appears** that has no analogue today, running on its
+   own clock and producing the coverage number that replaces "DRC = 0".
+5. **Design and pipeline are parallel branches**, converging only at
+   "order boards".
+
+### Checks by stage
+
+| Stage | Checks | Cost |
+|-------|--------|------|
+| Netlist | isolation-domain reachability, voltage-domain compatibility, single-pin nets, unconnected power pins, part stress vs. abs-max | ms |
+| Placement | inside-outline, courtyard, decoupling proximity, HV keepout, congestion estimate | ~1 s |
+| Routing | clearance, ampacity, loop area, return-path continuity | ~100 s |
+| Manufacturing | DFM, fab-house rule set | s |
+
+### Loop cadence
+
+| Loop | Runs | Wall time |
+|------|------|-----------|
+| Netlist | every schematic edit | ms |
+| Placement | every placement iteration | ~1 s |
+| Route | when placement stabilizes | ~100 s |
+| Validator | when checks change | minutes |
+| Simulation | batch, not a loop (`METHODOLOGY.md` §3.2) | hours |
+
+Today only the ~100 s route loop exists.
+
+### Code impact
+
+- **New**: netlist-stage checks, seam preconditions, fault-injection harness,
+  corpus specificity run, ERC, SPICE harness, congestion predictor
+- **Modified**: `route_pcb()` gains semantic net metadata; checks return cost +
+  threshold rather than bool; the ledger's `IMBALANCED` gates instead of prints;
+  DRC output gains severity tiers
+- **Unchanged**: A* kernel, CP-SAT placer core, zone pours, KiCad I/O
+
+The router barely changes. What changes is what it is told to optimize and what
+is asserted around it.
+
+### Risk
+
+This adds stages, and stages are where the reference failure lived. Per
+`METHODOLOGY.md` §3.3, contracts and the validator pipeline land **before** the
+check corpus grows. A pipeline with more stages and no seam assertions is
+strictly worse than what exists today.
+
+---
+
 ## Build order
 
 Steps 1–4 build the validator for the validators before scaling check count —
@@ -217,15 +315,16 @@ principle 2 gating principle 4, applied to the plan itself.
 | # | Work | Rationale |
 |---|------|-----------|
 | 1 | `kicad-cli sch erc` | Free, today, largest unexplored surface |
-| 2 | Seam contracts + footprints-inside-outline precondition | Eliminates the §7 bug class |
+| 2 | Seam contracts + footprints-inside-outline precondition | Eliminates the §7 bug class; prerequisite to all decomposition (`METHODOLOGY.md` §3.3) |
 | 3 | Make existing detectors gate; anti-vacuous-truth guards; the 9 metamorphic relations | Targets failure classes 3/4/6 using machinery already present |
-| 4 | Fault-injection harness, ~10 defect classes | Coverage number exists from check #1; every later check is scored |
+| 4 | Fault-injection harness, ~10 defect classes, **with injector self-verification** | Coverage number exists from check #1; an unverified injector yields false confidence (`METHODOLOGY.md` §5) |
 | 5 | Corpus specificity run | False-positive oracle; corpus already exists |
-| 6 | Netlist isolation-domain + voltage-domain checks | Safety-critical, milliseconds, currently absent |
+| 6 | Netlist isolation-domain + voltage-domain checks | Safety-critical, milliseconds, currently absent; the most validatable loop we have (§3.2) |
 | 7 | Datasheet → check extraction, provenance-tiered | Scales with part count |
-| 8 | ngspice harness; ZVS sweep first; models tagged uncalibrated | Highest simulation return |
-| 9 | Revive physics branches as cost fields | Router objective function |
-| 10 | Convert `docs/solutions/` prose to checks + injections | Turns on the flywheel |
+| 8 | Block decomposition of routing on the atopile hierarchy | Only after step 2. Subdivides the one loop that is still monolithic (`METHODOLOGY.md` §3.4) |
+| 9 | ngspice harness; ZVS sweep first; models tagged uncalibrated | Highest simulation return |
+| 10 | Revive physics branches — **thresholds first, cost fields second** | Router objective function, under threshold subordination (`METHODOLOGY.md` §6.3) |
+| 11 | Convert `docs/solutions/` prose to checks + injections | Turns on the flywheel |
 
 Rungs of constraint tightening (`METHODOLOGY.md` §10) run alongside, starting at
 rung 1.
