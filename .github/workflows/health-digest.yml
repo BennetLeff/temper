@@ -105,13 +105,10 @@ jobs:
       - name: Import-linter status
         id: import-linter
         run: |
-          BASELINE=$(uv run python -c \
-            "import yaml; print(len(yaml.safe_load(open('import-linter-baseline.yaml'))['violations']))" 2>/dev/null || echo "0")
           ALLOWLIST=$(uv run python -c \
             "import yaml; print(len(yaml.safe_load(open('import-linter-allowlist.yaml'))['allowlist']))" 2>/dev/null || echo "0")
-          echo "baseline=$BASELINE" >> "$GITHUB_OUTPUT"
           echo "allowlist=$ALLOWLIST" >> "$GITHUB_OUTPUT"
-          echo "Import boundaries: $BASELINE baseline violation(s), $ALLOWLIST allowlist exemption(s)"
+          echo "Import boundaries: gate enforces zero violations directly, $ALLOWLIST allowlist exemption(s)"
 
       - name: Publish health digest issue
         uses: actions/github-script@v9
@@ -126,7 +123,6 @@ jobs:
             const spcSummary = `${{ steps.spc-trends.outputs.summary }}`;
             const sunsetWarnings = "${{ steps.sunset.outputs.warnings }}";
             const sunsetEscalates = "${{ steps.sunset.outputs.escalates }}";
-            const importBaseline = "${{ steps.import-linter.outputs.baseline }}";
             const importAllowlist = "${{ steps.import-linter.outputs.allowlist }}";
 
             // Build CI status section
@@ -198,7 +194,7 @@ jobs:
             let sunsetSection = `${sunsetWarnings} script(s) at WARNING (30d no invocation), ${sunsetEscalates} at ESCALATE (60d).`;
 
             // Build import-linter section
-            let importSection = `${importBaseline} baseline violations, ${importAllowlist} allowlist exemptions.`;
+            let importSection = `gate enforces zero violations directly, ${importAllowlist} allowlist exemptions.`;
 
             // Determine preamble
             const allClear = failCount === 0 && nullCount === 0 && !goldenFailures &&

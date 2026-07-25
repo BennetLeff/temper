@@ -1,12 +1,17 @@
 #!/usr/bin/env python3
 """Import-linter boundary enforcement CI gate.
 
-Wraps import-linter (lint-imports), diffs violations against a ratchet baseline,
-applies an allowlist, and enforces a monotonic-shrinking ratchet.
+Wraps import-linter (lint-imports), applies an allowlist, and fails directly
+on any unallowlisted violation. (Previously diffed against a ratchet baseline
+file, import-linter-baseline.yaml; that baseline sat empty for 32 days
+(2026-06-23 -> 2026-07-25) and was collapsed per
+docs/plans/2026-07-25-002-refactor-baseline-burndown-plan.md R4 — the
+"zero violations" contract is now asserted directly instead of diffed
+against a committed empty file.)
 
 Exit codes:
-  0 - OK (no new violations, WARNING-only mode, or all violations baseline/allowed)
-  3 - New boundary violation (not in baseline or allowlist)
+  0 - OK (no violations, WARNING-only mode, or all violations allowed)
+  3 - New boundary violation (not allowlisted)
   5 - Gate script error (tool failure, missing config, etc.)
 
 Soft-launch (R14): Before CUTOVER_DATE, violations print as warnings and exit 0.
@@ -90,30 +95,6 @@ def parse_syntax_errors(output: str) -> list[str]:
         if "Syntax error" in line:
             errors.append(line.strip())
     return errors
-
-
-def load_yaml_set(filepath: Path) -> set[tuple[str, str, str]]:
-    """Load a YAML file as set of (source, target, contract) tuples."""
-    import yaml
-
-    if not filepath.is_file():
-        return set()
-    with open(filepath) as f:
-        try:
-            data = yaml.safe_load(f)
-        except Exception:
-            return set()
-    if not data or not isinstance(data, dict):
-        return set()
-    entries = data.get("violations", [])
-    result = set()
-    if isinstance(entries, list):
-        for entry in entries:
-            if isinstance(entry, dict) and all(
-                k in entry for k in ("source", "target", "contract")
-            ):
-                result.add((entry["source"], entry["target"], entry["contract"]))
-    return result
 
 
 def load_yaml_allowlist(filepath: Path) -> set[tuple[str, str, str]]:
@@ -269,12 +250,6 @@ def main():
         help="Path to import-linter config file",
     )
     parser.add_argument(
-        "--baseline",
-        type=str,
-        default=str(REPO_ROOT / "import-linter-baseline.yaml"),
-        help="Path to ratchet baseline",
-    )
-    parser.add_argument(
         "--allowlist",
         type=str,
         default=str(REPO_ROOT / "import-linter-allowlist.yaml"),
@@ -283,7 +258,6 @@ def main():
     args = parser.parse_args()
 
     config_path = args.config
-    baseline_path = Path(args.baseline)
     allowlist_path = Path(args.allowlist)
 
     if not Path(config_path).is_file():
@@ -312,23 +286,13 @@ def main():
             sys.exit(5)
 
     if exit_code == 0:
-        baseline = load_yaml_set(baseline_path)
-        if baseline:
-            print("=== BASELINE SHRINK OPPORTUNITY ===")
-            print(
-                f"  {len(baseline)} baseline entries can be removed — "
-                "all violations resolved!"
-            )
-            print("  Commit the updated (empty) baseline to ratchet tighter.")
-        else:
-            print("Import boundary gate PASSED — 0 violations")
+        print("Import boundary gate PASSED — 0 violations")
         sys.exit(0)
 
     # Parse violations from output
     current_violations = parse_violations(output)
 
-    # Load baseline and allowlist
-    baseline = load_yaml_set(baseline_path)
+    # Load allowlist
     allowlist_raw = load_yaml_allowlist(allowlist_path)
 
     # Flatten current violations into (source, target, contract) tuples
@@ -343,9 +307,7 @@ def main():
         if matches_allowlist(*edge, allowlist_raw):
             allowed_edges.add(edge)
 
-    new_violations = current_edges - baseline - allowed_edges
-    resolved_violations = baseline - current_edges
-    matched_violations = current_edges & baseline
+    new_violations = current_edges - allowed_edges
 
     # Phase 3: scan tools/, simulation/
     # for temper_placer.* imports. These dirs aren't Python packages, so
@@ -422,28 +384,6 @@ def main():
                 gh_summary.write(
                     f"- `{src}` -> `{tgt}` (contract: `{contract}`)\n"
                 )
-
-    if resolved_violations:
-        print(
-            f"\n=== RESOLVED VIOLATIONS — BASELINE SHRINK "
-            f"({len(resolved_violations)}) ==="
-        )
-        for src, tgt, contract in sorted(resolved_violations)[:20]:
-            print(f"  {src} -> {tgt} ({contract})")
-        if len(resolved_violations) > 20:
-            print(f"  ... and {len(resolved_violations) - 20} more")
-        print("  Commit the updated baseline to ratchet tighter.")
-
-        if gh_summary:
-            gh_summary.write(
-                f"**RESOLVED ({len(resolved_violations)}):** can shrink baseline\n"
-            )
-
-    if matched_violations:
-        print(
-            f"\n=== KNOWN VIOLATIONS (baseline) — "
-            f"{len(matched_violations)} suppressed ==="
-        )
 
     if allowed_edges:
         print(
