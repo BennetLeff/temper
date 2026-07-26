@@ -1,0 +1,79 @@
+* UVL-02 candidate circuit: TPS3700 rail_monitor divider inside RTDSensing
+* (elec/src/modules.ato). See the harness's evidence JSON for the scope
+* caveat -- this is NOT unambiguously "the" UVL-02 logic-UVLO circuit; it
+* is the only board-level, model-backed, resistor-divider brownout monitor
+* found anywhere in elec/src/modules.ato. The more literal candidate for
+* "Logic (3.3V) UVLO" is the TPS3823-33 watchdog's built-in VDD supervisor
+* (fixed silicon threshold, 2.93V typ per docs/hardware/
+* SAFETY_INTERLOCK_DESIGN.md, no external divider, NO SPICE model exists
+* in simulation/models/ for TPS3823) -- that candidate is reported
+* UNMEASURED, not simulated here.
+*
+* CALIBRATED: false. No bench measurement exists for this circuit. Every
+* component value below is copied read-only from the committed atopile
+* source (elec/src/modules.ato: RTDSensing.rail_monitor). Nothing here was
+* invented to make the answer come out a particular way.
+*
+* Sourced values (read-only, elec/src/modules.ato: RTDSensing):
+*   - power.vcc (rail_monitor.VDD, direct, pre-ferrite):  3.3 V
+*   - fb_power ("Using Resistor component as generic placeholder for
+*     Ferrite Bead"):                                      120 ohm
+*   - r_avdd_top:                                           616000 ohm
+*   - r_avdd_bottom:                                        100000 ohm
+*   - r_rail_ok_pullup (external pull-up on open-drain OUTA):  10000 ohm
+*   - TPS3700 INA threshold VIT_A: 394.5 mV (simulation/models/
+*     TPS3700_ngspice.lib header: "typical 394.5 mV INA threshold ... from
+*     TI's unencrypted TPS3700 PSpice transient model (SBVM552B) and
+*     datasheet" -- NOT a value read from elec/, since TPS3700 has no
+*     external threshold-setting pins; it is fixed silicon, exposed to the
+*     board only via the resistor divider on INA_P.)
+*
+* Hand-derived trip (ignoring the ~120 ohm "ferrite" series drop, which
+* only carries the divider's own ~4.6 uA bias current -- confirmed
+* negligible, <1 mV, by comparing simulated V(vcc_3v3) against
+* V(avdd_post_fb) at the trip instant):
+*   V(INA_P) = V_vcc * 100000 / (616000 + 100000) = V_vcc / 7.16
+*   Trip:  V_vcc / 7.16 = 0.3945  =>  V_vcc = 2.8250 V (falling)
+* This matches RTDSensing's own inline comment: "OUTA is pulled high only
+* while RTD_AVDD is above its approximately 2.82 V nominal UV threshold."
+*
+* What this circuit actually monitors: RTD_AVDD, a post-ferrite rail
+* downstream of power_3v3, feeding the RTD analog front end -- per its own
+* component docstring in elec/src/components.ato: "Dual window supervisor;
+* OUTA is low on RTD_AVDD undervoltage." It is wired into the same
+* SafetyInterlock fault-OR tree as OCP/OVP/thermal (via rtd_hw_fault ->
+* fault_any_or), so a live RTD_AVDD brownout DOES reach the board's overall
+* fault-latch -- but it was authored as an RTD-subsystem safeguard, not
+* declared anywhere as "the" system Logic UVLO circuit.
+
+.include ../../models/TPS3700_ngspice.lib
+
+.param RAMP_TIME=330u
+
+V_VCC vcc_3v3 0 PWL(0 3.3 {RAMP_TIME} 0)
+R_FB vcc_3v3 avdd_post_fb 120
+R_AVDD_TOP avdd_post_fb ina_p 616000
+R_AVDD_BOT ina_p 0 100000
+R_PULLUP vcc_3v3 outa 10000
+* OUTB (channel B, unused -- RTDSensing ties INB_N to gnd, never trips)
+* needs a DC path to avoid a singular matrix; a large resistor to ground
+* has no bearing on the OUTA measurement this deck cares about.
+R_OUTB_TIEOFF outb_na 0 1meg
+
+X_MON vcc_3v3 ina_p 0 outa outb_na 0 TPS3700_NGSPICE
+
+.control
+set noaskquit
+tran 100n 330u
+meas tran t_trip WHEN v(outa)=1.65 FALL=1
+meas tran v_ina_p_at_trip FIND v(ina_p) AT={t_trip}
+meas tran v_vcc_at_trip FIND v(vcc_3v3) AT={t_trip}
+meas tran v_avdd_post_fb_at_trip FIND v(avdd_post_fb) AT={t_trip}
+print t_trip
+print v_ina_p_at_trip
+print v_vcc_at_trip
+print v_avdd_post_fb_at_trip
+quit
+.endc
+
+.end

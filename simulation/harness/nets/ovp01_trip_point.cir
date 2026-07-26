@@ -1,0 +1,82 @@
+* OVP-01 trip-point transient: OVPComparator (elec/src/modules.ato), TLV3201
+* comparator model.
+*
+* CALIBRATED: false. No bench measurement exists for this circuit. Every
+* component value below is copied read-only from the committed atopile
+* source (elec/src/modules.ato: OVPComparator). Nothing here was invented
+* to make the answer come out a particular way.
+*
+* Sourced values (read-only, elec/src/modules.ato: OVPComparator):
+*   - power_3v3 rail (comp.VCC):         3.3 V
+*   - r_div_top1/top2/top3:              430 kohm each, in series
+*   - r_div_bot:                         10000 ohm
+*       -> V(comp.INP) = V_bus * 10000 / (3*430000 + 10000) = V_bus / 130
+*   - r_ref_top:                         12000 ohm
+*   - r_ref_bot:                         10000 ohm
+*       -> V(comp.INN) = 3.3 * 10000 / (12000 + 10000) = 1.5000 V exactly
+*   - Hand-derived trip (no hysteresis on this comparator -- unlike
+*     ThermalComparator, OVPComparator has no feedback resistor):
+*       V_bus / 130 = 1.5  =>  V_bus = 195 V, measured AT THE v_bus.line NODE.
+*
+* What "V_bus" physically is (read-only, elec/src/main.ato):
+*   main.ato wires `safety.dc_bus.line ~ dc_bus_plus` and
+*   `safety.dc_bus.reference ~ gnd`. `dc_bus_plus` is the HALF bus of the
+*   split-rail voltage-doubler topology (elec/src/modules.ato PowerInput:
+*   c_bus1 charges dc_bus.hv_plus to dc_bus.gnd_ref, nominal 170V -- see
+*   `v_bus_half: voltage = 170V` in PowerInput, and main.ato's own comment
+*   `aux_supply.power_in.vcc ~ dc_bus_plus  # Half-bus input (~170VDC)`).
+*   This CONTRADICTS main.ato's top-level signal comment,
+*   `signal dc_bus_plus  # +340V` -- dc_bus_plus is not 340V anywhere it is
+*   actually used; it is the ~170V half-bus rail. This is a source
+*   self-contradiction, structurally identical to the OCP-01
+*   docstring-vs-comment mismatch, and is reported as a finding, not fixed.
+*
+*   OVPComparator's own inline comment is internally consistent with the
+*   half-bus reading: it computes the same 195V half-bus trip point derived
+*   above, then DOUBLES it to declare a "full bus" trip of 390V. That
+*   doubling assumes dc_bus_minus swings symmetrically negative to
+*   dc_bus_plus's positive excursion -- an assumption this single-ended
+*   divider does not itself measure (only dc_bus_plus is sensed;
+*   dc_bus_minus is not wired to this comparator at all).
+*
+* This deck measures the divider+comparator circuit AS WIRED: the trip
+* voltage at the v_bus.line node (i.e. at dc_bus_plus). It does not
+* simulate the doubler/rectifier or dc_bus_minus, and does not assert
+* whether the x2 symmetry assumption holds -- that is a separate,
+* un-simulated claim about upstream circuit behavior.
+*
+* Known model-fidelity limit (simulation/models/TLV3201_ngspice.lib header):
+* "It intentionally does not claim a timing, noise, or temperature model."
+* This deck therefore measures only the DC/quasi-static trip THRESHOLD.
+* OVPComparator has no hysteresis network (unlike ThermalComparator), so
+* there is no hysteresis band to measure either.
+
+.include ../../models/TLV3201_ngspice.lib
+
+.param RAMP_MAX_V=250
+.param RAMP_TIME=250u
+
+V_VCC VCC_3V3 0 DC 3.3
+V_BUS v_bus 0 PWL(0 0 {RAMP_TIME} {RAMP_MAX_V})
+
+R_DIV_TOP1 v_bus n1 430000
+R_DIV_TOP2 n1 n2 430000
+R_DIV_TOP3 n2 vinp 430000
+R_DIV_BOT vinp 0 10000
+
+R_REF_TOP VCC_3V3 vinn 12000
+R_REF_BOT vinn 0 10000
+
+X_COMP vinp vinn VCC_3V3 0 comp_out TLV3201_NGSPICE
+
+.control
+set noaskquit
+tran 100n 250u
+meas tran t_trip WHEN v(comp_out)=1.65 RISE=1
+meas tran v_bus_at_trip FIND v(v_bus) AT={t_trip}
+print t_trip
+print v_bus_at_trip
+quit
+.endc
+
+.end

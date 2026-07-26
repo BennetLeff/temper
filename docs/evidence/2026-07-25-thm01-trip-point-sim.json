@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "measurement_date": "2026-07-25",
+  "invocation": "uv run python simulation/harness/run_thm01_sim.py --runs 5",
+  "harness": "simulation/harness/run_thm01_sim.py",
+  "netlist": "simulation/harness/nets/thm01_trip_point.cir",
+  "simulator": {
+    "tool": "ngspice",
+    "determinism_runs": 5,
+    "deterministic": true,
+    "note": "5 identical byte-for-byte stdout runs; see docs/METHODOLOGY.md SS5 'the oracle is not exempt'."
+  },
+  "models_used": [
+    {
+      "file": "simulation/models/TLV3201_ngspice.lib",
+      "subckt": "TLV3201_NGSPICE",
+      "calibrated": false,
+      "note": "Vendor-provenance behavioural port; declares no timing model."
+    },
+    {
+      "file": "simulation/harness/nets/thm01_trip_point.cir (inline B-source)",
+      "subckt": "NTC Beta-equation behavioral model",
+      "calibrated": false,
+      "note": "R25=100k, B=4190K sourced read-only from elec/src/modules.ato ThermalComparator's inline comment (citing NTCALUG01A104GA). No Steinhart-Hart table for this part is committed anywhere in this repo; the Beta-equation approximation is the design's own basis, not an independent addition by this harness. 'Temperature' is an idealized ramped proxy signal, not a thermal-mass or thermal-time-constant simulation."
+    }
+  ],
+  "sourced_from_elec_read_only": {
+    "power_3v3_v": 3.3,
+    "r_ntc_fixed_ohm": 100000,
+    "r_ref_top_ohm": 150000,
+    "r_ref_bot_ohm": 10000,
+    "r_hyst_ohm": 100000,
+    "ntc_r25_ohm": 100000,
+    "ntc_beta_k": 4190.0,
+    "ntc_mpn": "NTCALUG01A104GA",
+    "citation": "elec/src/modules.ato: ThermalComparator"
+  },
+  "implementation_scope": {
+    "instances_of_ThermalComparator_in_modules_ato": 1,
+    "instantiated_as": "SafetyInterlock.thermal (elec/src/modules.ato ~line 1790)",
+    "physical_mounting_per_comment": "lug-mount on heatsink (NTCALUG01A104GA)",
+    "coil_ntc_circuit_exists": false,
+    "note": "Only one ThermalComparator is instantiated anywhere in elec/src/modules.ato. There is no second thermal-sense circuit for a coil NTC. THM-02 (coil NTC, 120 degC) has no implementing circuit to simulate -- this is a separate, reported finding, not a simulation result for THM-02."
+  },
+  "measurements": {
+    "t_trip_s": 0.0002127781,
+    "v_ntc_sense_at_trip_v": 0.1876243,
+    "temp_k_at_trip": 372.6223
+  },
+  "derived": {
+    "temp_trip_from_ramp_time_k": 372.62233499999996,
+    "temp_trip_from_probe_node_k": 372.6223,
+    "temp_trip_from_divider_voltage_k": 372.6223487227232,
+    "r_ntc_at_trip_ohm": 6028.330705704971
+  },
+  "internal_consistency_check_k": 4.87227231928955e-05,
+  "verdict": {
+    "calibrated": false,
+    "measured_trip_temp_c": 99.47,
+    "measured_trip_temp_k": 372.62,
+    "thm01_spec_trip_c": 85.0,
+    "thm01_spec_recover_c": 70.0,
+    "within_thm01_spec": false,
+    "docstring_claim_c": 85.0,
+    "matches_docstring_claim": false,
+    "design_comment_unloaded_estimate_c": 96.0,
+    "matches_design_comment_estimate": true,
+    "response_time_measured": false,
+    "response_time_reason": "TLV3201_ngspice.lib declares no timing model; the ramped 'temperature' driver is an idealized proxy, not a thermal time-constant simulation.",
+    "summary": "Simulated THM-01 (heatsink NTC) trip temperature is 99.47 degC (uncalibrated). This EXCEEDS the THM-01 85 degC trip spec -- the divider as committed lets the heatsink reach ~99 degC before shutdown, 14.5 degC past the declared limit. It does NOT match the ThermalComparator module's own docstring claim of an '85C threshold'; it is close to (but slightly above, after correctly accounting for r_hyst loading the pre-trip reference) the module's own inline comment estimate of ~96 degC. This is a mis-valued divider, not an unreachable target: unlike OCP-01's 50A (which is physically unreachable from a 3.3V rail with a 1:100 CT), an 85 degC trip IS reachable with this NTC/divider topology by changing r_ref_top/r_ref_bot -- this harness reports the discrepancy, it does not propose or apply a fix."
+  }
+}

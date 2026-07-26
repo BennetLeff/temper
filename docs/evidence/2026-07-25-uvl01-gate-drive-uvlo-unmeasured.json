@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "measurement_date": "2026-07-25",
+  "gate": "UVL-01",
+  "requirement": "Gate Drive (15V) UVLO: trip < 12.0V falling, recover > 13.0V rising (docs/FUNCTIONAL_TEST_CRITERIA.md SS2.4)",
+  "verdict": "UNMEASURED",
+  "reason": [
+    "No board-level UVLO circuit (comparator + resistor divider) for the gate-drive rail exists anywhere in elec/src/modules.ato or elec/src/main.ato. Searched for 'UVLO', 'uvlo', 'undervoltage', 'brownout' across elec/src/*.ato: zero matches outside a component-selection comment in components.ato unrelated to this gate.",
+    "docs/hardware/SAFETY_INTERLOCK_DESIGN.md SS6 states the design intent directly: 'No external UVLO circuit is required. The UCC21550B will automatically disable outputs if supply voltages fall below thresholds' -- citing the UCC21550B gate driver's INTERNAL, fixed-silicon UVLO: VCC 7.6V falling / 8.1V rising, VCCI 10.5V falling / 11.5V rising (per that same doc, SS6.1).",
+    "simulation/models/ contains no UCC21550(B) SPICE model of any kind (checked full directory listing: current_transformer.sub, IKW40N120H3(_thermal), LDO_3V3, LMR51430_avg, pan_load, REF2025_ngspice, SN74LVC1G08/38_ngspice, TLV3201_ngspice, TPS3700_ngspice, UCC14140_behavioral, XC6220_3V3 -- no UCC21550 entry).",
+    "Even if a model existed, the quantity in question (7.6/8.1V VCC, 10.5/11.5V VCCI) is a fixed internal-silicon parameter of the UCC21550B die, not a resistor divider read from elec/src/modules.ato. There is no committed component value to hand-verify against; this is a datasheet lookup, not a circuit measurement, and building a .cir from datasheet-only numbers with no external divider would not exercise anything this board's schematic actually determines."
+  ],
+  "cross_check_against_spec": {
+    "note": "For context only -- NOT a simulation result. The docstring-cited VCCI rising threshold (11.5V) is numerically below the UVL-01 12.0V trip-ceiling spec line, and the VCC rising threshold (8.1V) is well below it. Whether that constitutes a PASS depends on which supply rail (VCC vs VCCI) the spec's '12.0V' language actually refers to -- FUNCTIONAL_TEST_CRITERIA.md SS2.4 labels the row 'Gate Drive (15V)' without specifying VCC vs VCCI, which is itself an ambiguity in the requirement text, not something this investigation resolves.",
+    "citation": "docs/hardware/SAFETY_INTERLOCK_DESIGN.md SS6.1"
+  },
+  "not_simulated": true,
+  "no_cir_file_written": "No .cir file was authored for this gate. Per the task's UNMEASURED discipline: 'Do not emit a fabricated number.' Building a netlist with no board-sourced divider would not measure anything this repository's committed design determines.",
+  "investigation_commands": [
+    "grep -rn \"UVLO|uvlo|undervoltage|Undervoltage\" elec/src/*.ato",
+    "grep -n \"^module|^component\" elec/src/modules.ato",
+    "ls simulation/models/"
+  ]
+}

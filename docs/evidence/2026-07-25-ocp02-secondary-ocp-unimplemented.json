@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "measurement_date": "2026-07-25",
+  "gate": "OCP-02",
+  "requirement": "Secondary OCP 55-65A, <5us (docs/STRATEGY.md; docs/FUNCTIONAL_TEST_CRITERIA.md SS2.1)",
+  "verdict": "UNIMPLEMENTED",
+  "reason": [
+    "Searched elec/src/modules.ato and elec/src/main.ato for a second current-sensing/comparator chain: 'OCP-02', 'secondary', '60A', 'LM393', 'U_COMP2', 'INA240', 'desat', 'CT2' -- all zero matches in elec/src/*.ato.",
+    "CurrentSensing (the only current-transformer module in the source) is instantiated exactly once (main.ato: `ct_sense = new CurrentSensing`), feeding the single OCPComparator instance (primary OCP only). No second CurrentSensing instance, no second comparator, no LM393 or INA240 component definition exists anywhere in elec/src/components.ato or elec/src/modules.ato.",
+    "docs/hardware/BOM.md line 111 lists 'U_COMP2 | Dual Comparator | LM393DR | ... | 1 | SOIC-8 | Secondary OCP' and line 110 lists 'U_DIFF | Diff Amp | INA240A1QPWRQ1 | ... | Secondary OCP'-adjacent desat sensing -- i.e. the BOM (a design document) claims hardware that the atopile source of truth (elec/src/modules.ato) never actually instantiates. This is a source self-contradiction of the same species as the OCP-01 docstring/comment mismatch, but graver: it is BOM-vs-schematic, not comment-vs-comment. A BOM line item with no corresponding circuit cannot be placed, wired, or fabricated from the current elec/ source.",
+    "docs/plans/2026-07-24-002-feat-pivot-to-fab-ready-board-verdict-plan.md (R7c) independently confirms this gap from the firmware side: 'The production firmware state-machine currently has no firmware path for OVP-01, UVL-01, or UVL-02' -- and separately notes THM has no heatsink/coil split. OCP-02 is not named in that specific firmware-gap sentence, but the absence of any implementing circuit in elec/ makes a firmware path moot regardless."
+  ],
+  "not_simulated": true,
+  "no_cir_file_written": "No .cir file was authored: there are no committed component values (sense resistor, burden, comparator wiring) to read from elec/src/modules.ato for a secondary OCP chain. There is nothing to simulate.",
+  "investigation_commands": [
+    "grep -n \"OCP-02|secondary|60A|LM393|INA240|desat\" elec/src/modules.ato elec/src/main.ato",
+    "grep -rn \"LM393|U_COMP2|Secondary OCP\" elec/src/*.ato",
+    "grep -n \"^| U_\" docs/hardware/BOM.md"
+  ]
+}

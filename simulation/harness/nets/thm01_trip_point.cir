@@ -1,0 +1,93 @@
+* THM-01 trip-point transient: ThermalComparator (elec/src/modules.ato),
+* TLV3201 comparator model, NTC modeled via its own Beta equation.
+*
+* CALIBRATED: false. No bench measurement exists for this circuit. Every
+* component/thermistor value below is copied read-only from the committed
+* atopile source (elec/src/modules.ato: ThermalComparator). Nothing here
+* was invented to make the answer come out a particular way.
+*
+* Sourced values (read-only, elec/src/modules.ato: ThermalComparator):
+*   - power_3v3 rail:            3.3 V
+*   - NTC (ntc.mpn = "NTCALUG01A104GA", Vishay BCcomponents lug sensor,
+*     lug-mount on heatsink per module comment): R25 = 100 kohm,
+*     B25/85 = 4190 K (both from the module's own inline comment, which
+*     cites the datasheet part number).
+*   - r_ntc_fixed:                100000 ohm (top of NTC divider)
+*   - r_ref_top / r_ref_bot:      150000 / 10000 ohm (reference divider)
+*   - r_hyst:                     100000 ohm, from comp.OUT back to comp.INP
+*     (positive-feedback hysteresis, present on THIS comparator, unlike
+*     OCPComparator / OVPComparator which have none)
+*
+* NTC model: Beta (B-parameter) equation, not a datasheet Steinhart-Hart
+* table (none is committed anywhere in this repo for this part number):
+*     R(T) = R25 * exp( B * (1/T - 1/T25) ),  T in kelvin, T25 = 298.15 K
+* implemented as a temperature-controlled nonlinear resistor to ground via
+* an ngspice B-source, driven by an independent "temperature" voltage
+* source V_TEMP (units: kelvin, ramped as a proxy for the physical
+* thermistor body temperature -- there is no thermal-electrical coupling
+* being simulated here, exactly as OCP-01 ramped current directly rather
+* than modeling its true physical driver).
+*
+* Divider topology (as committed):
+*   VCC -> r_ntc_fixed -> ntc_sense -> NTC(T) -> GND     (comp.INN = ntc_sense)
+*   VCC -> r_ref_top -> comp.INP -> r_ref_bot -> GND     (reference, before
+*                                                          trip: comp.OUT=0V
+*                                                          via TLV3201_NGSPICE's
+*                                                          push-pull output,
+*                                                          so r_hyst effectively
+*                                                          parallels r_ref_bot
+*                                                          to ground pre-trip)
+*   comp.INP -> r_hyst -> comp.OUT
+*
+* Hand-derived pre-trip reference (accounting for r_hyst || r_ref_bot,
+* since comp.OUT sits at ~0V before the fault fires):
+*   R_bot_eff = (10000 * 100000) / (10000 + 100000) = 9090.909 ohm
+*   V_ref_pretrip = 3.3 * 9090.909 / (150000 + 9090.909) = 0.18857 V
+* Trip: V(ntc_sense) = V_ref_pretrip
+*   3.3 * R_ntc / (R_ntc + 100000) = 0.18857
+*   R_ntc_trip = 0.18857 * 100000 / (3.3 - 0.18857) = 6055.9 ohm
+* Convert to temperature via the Beta equation, R25=100k, B=4190K:
+*   ln(R_ntc_trip / 100000) = -2.8043
+*   1/T = 1/298.15 + (-2.8043/4190) = 2.6848e-3
+*   T_trip = 372.55 K = 99.40 degC
+* (The module's own inline comment ignores the r_hyst loading and computes
+* a simpler ~96 degC via the unloaded 150k/10k divider -- this deck's more
+* careful hand math and the fully-wired-as-committed SPICE simulation are
+* both expected to land close to ~99 degC, not the module docstring's
+* claimed 85 degC trip target.)
+*
+* Known model-fidelity limit (TLV3201_ngspice.lib): no timing model. This
+* deck measures only the DC/quasi-static trip THRESHOLD, not response time.
+
+.include ../../models/TLV3201_ngspice.lib
+
+.param T_START=298.15
+.param T_END=403.15
+.param RAMP_TIME=300u
+
+V_VCC VCC_3V3 0 DC 3.3
+V_TEMP temp_k 0 PWL(0 {T_START} {RAMP_TIME} {T_END})
+
+R_NTC_FIXED VCC_3V3 ntc_sense 100000
+* NTC to ground: nonlinear resistor via Beta equation, R25=100k, B=4190K
+B_NTC ntc_sense 0 I=V(ntc_sense,0)/(100000*exp(4190*((1/V(temp_k))-(1/298.15))))
+
+R_REF_TOP VCC_3V3 vinp 150000
+R_REF_BOT vinp 0 10000
+R_HYST vinp comp_out 100000
+
+X_COMP vinp ntc_sense VCC_3V3 0 comp_out TLV3201_NGSPICE
+
+.control
+set noaskquit
+tran 100n 300u
+meas tran t_trip WHEN v(comp_out)=1.65 RISE=1
+meas tran v_ntc_sense_at_trip FIND v(ntc_sense) AT={t_trip}
+meas tran temp_k_at_trip FIND v(temp_k) AT={t_trip}
+print t_trip
+print v_ntc_sense_at_trip
+print temp_k_at_trip
+quit
+.endc
+
+.end
