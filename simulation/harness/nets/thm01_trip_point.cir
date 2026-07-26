@@ -12,8 +12,8 @@
 *     lug-mount on heatsink per module comment): R25 = 100 kohm,
 *     B25/85 = 4190 K (both from the module's own inline comment, which
 *     cites the datasheet part number).
-*   - r_ntc_fixed:                100000 ohm (top of NTC divider)
-*   - r_ref_top / r_ref_bot:      150000 / 10000 ohm (reference divider)
+*   - r_ntc_fixed:                 10000 ohm (top of NTC divider)
+*   - r_ref_top / r_ref_bot:        9530 / 10000 ohm (reference divider)
 *   - r_hyst:                     100000 ohm, from comp.OUT back to comp.INP
 *     (positive-feedback hysteresis, present on THIS comparator, unlike
 *     OCPComparator / OVPComparator which have none)
@@ -68,11 +68,11 @@
 V_VCC VCC_3V3 0 DC 3.3
 V_TEMP temp_k 0 PWL(0 {T_START} {RAMP_TIME} {T_END})
 
-R_NTC_FIXED VCC_3V3 ntc_sense 100000
+R_NTC_FIXED VCC_3V3 ntc_sense 10000
 * NTC to ground: nonlinear resistor via Beta equation, R25=100k, B=4190K
 B_NTC ntc_sense 0 I=V(ntc_sense,0)/(100000*exp(4190*((1/V(temp_k))-(1/298.15))))
 
-R_REF_TOP VCC_3V3 vinp 150000
+R_REF_TOP VCC_3V3 vinp 9530
 R_REF_BOT vinp 0 10000
 R_HYST vinp comp_out 100000
 

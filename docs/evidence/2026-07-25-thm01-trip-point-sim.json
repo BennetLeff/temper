@@ -26,8 +26,8 @@
   ],
   "sourced_from_elec_read_only": {
     "power_3v3_v": 3.3,
-    "r_ntc_fixed_ohm": 100000,
-    "r_ref_top_ohm": 150000,
+    "r_ntc_fixed_ohm": 10000,
+    "r_ref_top_ohm": 9530,
     "r_ref_bot_ohm": 10000,
     "r_hyst_ohm": 100000,
     "ntc_r25_ohm": 100000,
@@ -43,30 +43,30 @@
     "note": "Only one ThermalComparator is instantiated anywhere in elec/src/modules.ato. There is no second thermal-sense circuit for a coil NTC. THM-02 (coil NTC, 120 degC) has no implementing circuit to simulate -- this is a separate, reported finding, not a simulation result for THM-02."
   },
   "measurements": {
-    "t_trip_s": 0.0002127781,
-    "v_ntc_sense_at_trip_v": 0.1876243,
-    "temp_k_at_trip": 372.6223
+    "t_trip_s": 0.000171178,
+    "v_ntc_sense_at_trip_v": 1.609691,
+    "temp_k_at_trip": 358.0623
   },
   "derived": {
-    "temp_trip_from_ramp_time_k": 372.62233499999996,
-    "temp_trip_from_probe_node_k": 372.6223,
-    "temp_trip_from_divider_voltage_k": 372.6223487227232,
-    "r_ntc_at_trip_ohm": 6028.330705704971
+    "temp_trip_from_ramp_time_k": 358.0623,
+    "temp_trip_from_probe_node_k": 358.0623,
+    "temp_trip_from_divider_voltage_k": 358.0622870244883,
+    "r_ntc_at_trip_ohm": 9523.057618459112
   },
-  "internal_consistency_check_k": 4.87227231928955e-05,
+  "internal_consistency_check_k": 1.2975511708646081e-05,
   "verdict": {
     "calibrated": false,
-    "measured_trip_temp_c": 99.47,
-    "measured_trip_temp_k": 372.62,
+    "measured_trip_temp_c": 84.91,
+    "measured_trip_temp_k": 358.06,
     "thm01_spec_trip_c": 85.0,
     "thm01_spec_recover_c": 70.0,
-    "within_thm01_spec": false,
+    "within_thm01_spec": true,
     "docstring_claim_c": 85.0,
-    "matches_docstring_claim": false,
+    "matches_docstring_claim": true,
     "design_comment_unloaded_estimate_c": 96.0,
-    "matches_design_comment_estimate": true,
+    "matches_design_comment_estimate": false,
     "response_time_measured": false,
     "response_time_reason": "TLV3201_ngspice.lib declares no timing model; the ramped 'temperature' driver is an idealized proxy, not a thermal time-constant simulation.",
-    "summary": "Simulated THM-01 (heatsink NTC) trip temperature is 99.47 degC (uncalibrated). This EXCEEDS the THM-01 85 degC trip spec -- the divider as committed lets the heatsink reach ~99 degC before shutdown, 14.5 degC past the declared limit. It does NOT match the ThermalComparator module's own docstring claim of an '85C threshold'; it is close to (but slightly above, after correctly accounting for r_hyst loading the pre-trip reference) the module's own inline comment estimate of ~96 degC. This is a mis-valued divider, not an unreachable target: unlike OCP-01's 50A (which is physically unreachable from a 3.3V rail with a 1:100 CT), an 85 degC trip IS reachable with this NTC/divider topology by changing r_ref_top/r_ref_bot -- this harness reports the discrepancy, it does not propose or apply a fix."
+    "summary": "Simulated THM-01 trip temperature is 84.91 degC (uncalibrated), within the THM-01 85 degC spec."
   }
 }

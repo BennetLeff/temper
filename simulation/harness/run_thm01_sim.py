@@ -85,8 +85,8 @@ NETLIST = HARNESS_DIR / "nets" / "thm01_trip_point.cir"
 # Component / thermistor values below are copied read-only from
 # elec/src/modules.ato :: ThermalComparator.
 VCC_V = 3.3
-R_NTC_FIXED_OHM = 100_000
-R_REF_TOP_OHM = 150_000
+R_NTC_FIXED_OHM = 10_000
+R_REF_TOP_OHM = 9_530
 R_REF_BOT_OHM = 10_000
 R_HYST_OHM = 100_000
 NTC_R25_OHM = 100_000

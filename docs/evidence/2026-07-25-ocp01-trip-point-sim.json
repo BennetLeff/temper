@@ -15,7 +15,7 @@
       "file": "simulation/models/current_transformer.sub",
       "subckt": "CT_WITH_BURDEN",
       "calibrated": false,
-      "note": "N=100, R_BURDEN=6.65 sourced from elec/src/modules.ato (read-only). RW=50 (winding resistance) is the subckt's own default, NOT verified against the real CST2010-100L datasheet."
+      "note": "N=100, R_BURDEN=4.99 sourced from elec/src/modules.ato (read-only). RW=50 (winding resistance) is the subckt's own default, NOT verified against the real CST2010-100L datasheet."
     },
     {
       "file": "simulation/models/TLV3201_ngspice.lib",
@@ -28,33 +28,33 @@
     "power_3v3_v": 3.3,
     "r_ref_top_ohm": 3200,
     "r_ref_bot_ohm": 10000,
-    "r_burden_ohm": 6.65,
+    "r_burden_ohm": 4.99,
     "ct_ratio_n": 100,
     "citation": "elec/src/modules.ato: OCPComparator, CurrentSensing"
   },
   "measurements": {
-    "t_trip_s": 0.0003761083,
-    "v_sense_at_trip_v": 2.50112
+    "t_trip_s": 0.0005012083,
+    "v_sense_at_trip_v": 2.501029
   },
   "derived": {
-    "i_trip_from_ramp_time_a": 37.61083000000001,
-    "i_trip_from_burden_voltage_a": 37.61082706766917
+    "i_trip_from_ramp_time_a": 50.12083000000001,
+    "i_trip_from_burden_voltage_a": 50.120821643286575
   },
-  "internal_consistency_check_a": 2.932330836813435e-06,
+  "internal_consistency_check_a": 8.356713436796781e-06,
   "verdict": {
     "calibrated": false,
-    "measured_trip_current_a": 37.611,
+    "measured_trip_current_a": 50.121,
     "ocp01_spec_window_a": [
       45.0,
       55.0
     ],
-    "within_ocp01_spec_window": false,
+    "within_ocp01_spec_window": true,
     "docstring_claim_a": 50.0,
-    "matches_docstring_claim": false,
+    "matches_docstring_claim": true,
     "design_comment_estimate_a": 37.6,
-    "matches_design_comment": true,
+    "matches_design_comment": false,
     "propagation_delay_measured": false,
     "propagation_delay_reason": "TLV3201_ngspice.lib declares no timing model; a measured delay from this model would be a modelling artifact (~picoseconds), not physical, and is deliberately not reported as an OCP-01 latency figure.",
-    "summary": "Simulated OCP trip current is 37.61 A (uncalibrated). This FALLS OUTSIDE the OCP-01 45-55 A spec window and matches the CurrentSensing module's own inline design-intent comment (~37.6 A), NOT its sibling OCPComparator docstring's claimed 50 A threshold. That mismatch is a real, pre-existing discrepancy between the committed resistor values and the stated requirement; this harness surfaces it but does not resolve it (no schematic/elec changes were made)."
+    "summary": "Simulated OCP trip current is 50.12 A (uncalibrated), within the OCP-01 45-55 A spec window."
   }
 }

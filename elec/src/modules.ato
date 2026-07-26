@@ -1185,18 +1185,30 @@ module CurrentSensing:
     ct = new CST2010_100L
     
     r_burden = new Resistor
-    # 1:100 ratio: 6.65R keeps the OCP trip at 2.5V/6.65R*100 = 37.6A,
-    # identical to the old 1:1000 * 66.5R design point. Steady-state 15A RMS
-    # dissipates 0.15W; the 0.94W seen at the trip level is transient (the
-    # latch kills PWM within microseconds).
-    r_burden.value = 6.65ohm +/- 1%
+    # 1:100 ratio: 4.99R puts the OCP trip at 2.5V/4.99R*100 = 50.1A, centred
+    # in the OCP-01 45-55A window (docs/STRATEGY.md). Worst case over +/-1% on
+    # the burden and both OCPComparator reference resistors is 49.4-50.9A.
+    #
+    # Was 6.65R, which trips at 37.6A -- 7.4A below the OCP-01 minimum. Raising
+    # the reference instead is impossible: 50A across 6.65R/100 needs 3.325V
+    # from a 3.3V rail. See docs/hardware/PROTECTION_CHAIN_REVIEW.md.
+    #
+    # Steady-state 15A RMS now dissipates 0.112W (was 0.150W) -- lowering the
+    # burden reduces continuous dissipation. The 1.25W at trip level is
+    # transient; the latch kills PWM within microseconds. Confirm the part's
+    # pulse rating on the bench.
+    r_burden.value = 4.99ohm +/- 1%
     r_burden.power_rating = 0.25W
-    r_burden.mpn = "RC1206FR-076R65L"
+    r_burden.mpn = "RC1206FR-074R99L"
     r_burden.footprint = "Resistor_SMD:R_1206_3216Metric"
-    
-    i_ct_max: current = 250mA  # 25A peak / 100
-    v_burden_max: voltage = i_ct_max * r_burden.value
-    assert v_burden_max within 1.5V to 1.8V
+
+    # Design point is the OCP trip, not an assumed 25A peak. The previous
+    # assertion asserted 1.5-1.8V at 250mA (25A primary), a design point
+    # inconsistent with a 45-55A OCP window.
+    i_ct_trip: current = 500mA  # 50A OCP trip / 100
+    v_burden_trip: voltage = i_ct_trip * r_burden.value
+    # Must land on the OCPComparator reference: 3.3 * 10k/13.2k = 2.500V
+    assert v_burden_trip within 2.4V to 2.6V
     
     c_filter = new Capacitor
     c_filter.value = 100nF
@@ -1659,24 +1671,38 @@ module ThermalComparator:
     
     # Fixed resistor for NTC divider
     r_ntc_fixed = new Resistor
-    r_ntc_fixed.value = 100kohm +/- 1%
-    r_ntc_fixed.mpn = "RC0603FR-07100KL"
+    # 10k matches R_NTC at the 85C trip point (9.50k for R25=100k, B=4190),
+    # putting the sense node near mid-rail where dV/dT is greatest.
+    #
+    # Was 100k, which left the trip node at 0.19V -- under 6% of rail, where
+    # comparator offset and noise dominate and the slope is poor. That was a
+    # proportioning fault, separate from the threshold error.
+    # See docs/hardware/PROTECTION_CHAIN_REVIEW.md.
+    r_ntc_fixed.value = 10kohm +/- 1%
+    r_ntc_fixed.mpn = "RC0603FR-0710KL"
     r_ntc_fixed.footprint = "Resistor_SMD:R_0603_1608Metric"
-    
+
     # NTC divider: VCC -> r_ntc_fixed -> ntc_sense -> NTC -> GND
-    # At 25C: V_sense = 3.3 * 100k/(100k+100k) = 1.65V
+    # V_sense: 3.000V at 25C, 1.607V at 85C, 0.828V at 120C
     power.vcc ~ r_ntc_fixed.p1
     r_ntc_fixed.p2 ~ ntc_sense.line
     ntc_sense.line ~ ntc.p1
     ntc.p2 ~ power.gnd
     
-    # Reference divider: sets trip threshold. With ref at 0.206V the NTC
-    # trips at R_ntc = 0.206*100k/(3.3-0.206) ~= 6.7k, which for the
-    # NTCALUG01A104GA (B25/85=4190K) is ~96C.
-    # Set reference to ~0.21V via divider: 3.3 * 10k/(150k+10k) ~= 0.206V
+    # Reference divider: sets trip threshold. r_hyst loads this node, so the
+    # effective reference is 3.3 * (r_ref_bot||r_hyst) / (r_ref_top +
+    # r_ref_bot||r_hyst) while the output is low.
+    #
+    # 9.53k/10k with 100k hysteresis gives 1.611V -> R_NTC 9.54k -> 84.9C,
+    # releasing at 1.765V -> 79.2C. Hysteresis 5.6C.
+    #
+    # Was 150k/10k, giving 0.189V -> 99.3C trip (simulated 99.47C), 14.5C
+    # above the THM-01 85C requirement and contradicting this module's own
+    # docstring. Its hysteresis was also 30.7C wide -- the fault would not
+    # clear until 68.6C. See docs/hardware/PROTECTION_CHAIN_REVIEW.md.
     r_ref_top = new Resistor
-    r_ref_top.value = 150kohm +/- 1%
-    r_ref_top.mpn = "RC0603FR-07150KL"
+    r_ref_top.value = 9.53kohm +/- 1%
+    r_ref_top.mpn = "RC0603FR-079K53L"
     r_ref_top.footprint = "Resistor_SMD:R_0603_1608Metric"
     
     r_ref_bot = new Resistor
@@ -1684,8 +1710,9 @@ module ThermalComparator:
     r_ref_bot.mpn = "RC0603FR-0710KL"
     r_ref_bot.footprint = "Resistor_SMD:R_0603_1608Metric"
     
-    # Reference: VCC -> r_ref_top -> INP -> r_ref_bot -> GND
-    # V_INP = 3.3 * 10k/(150k+10k) ~= 0.206V
+    # Reference: VCC -> r_ref_top -> INP -> r_ref_bot -> GND, with r_hyst
+    # from INP to OUT loading the node.
+    # V_INP = 1.611V (output low, trip) / 1.765V (output high, release)
     power.vcc ~ r_ref_top.p1
     r_ref_top.p2 ~ comp.INP
     comp.INP ~ r_ref_bot.p1
