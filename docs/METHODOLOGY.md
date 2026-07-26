@@ -284,6 +284,7 @@ and none of them the measurement:
 | grep for a string that was line-wrapped | nearly reported present text as absent |
 | inferred "the checks ran" from absent warnings | published, then had to correct — the stage never executed |
 | read a date-stamped evidence file from the previous day | reported a stale value as current |
+| ran a control experiment in a worktree branched before the fix | declared a *building* crate broken, and ranked it the #1 blocker |
 
 Rules that follow:
 
@@ -295,6 +296,18 @@ Rules that follow:
 - **When a result surprises you, suspect the reading before the result.**
   This is the load-bearing one — it caught most of the six above. The failures
   were the occasions it was not applied.
+- **A measurement carries the commit it was taken at, or it is not a
+  measurement.** The seventh instance was not truncation — the pipeline was
+  clean and the number was real. It was taken in one of 40+ stale worktrees,
+  branched before the fix landed, and then reported as current state. Staleness
+  of the *checkout* is as silent as staleness of the *date*, and harder to see:
+  nothing in the output says which tree produced it. Record the commit
+  alongside every measured claim, and re-measure in the main checkout before
+  ranking anything as a blocker.
+
+**Corollary — stale worktrees are a measurement hazard, not just clutter.**
+Each abandoned worktree is a checkout of the past that answers questions in the
+present tense. Prune them, or the archaeology reads as news.
 
 ### Physical envelopes are preconditions
 
