@@ -472,6 +472,43 @@ Also surfaced: **`FUNCTIONAL_TEST_CRITERIA.md` §1.2 specifies a 200 W ±25%
 power tier that has no corresponding gate** in this document. That is an
 omitted requirement, not a lost qualifier.
 
+### Four gates landed for the classes found today (2026-07-26)
+
+Each was built to fail on the tree that motivated it, and each was verified
+here rather than on report. All fail **closed** — a gate that cannot run exits
+non-zero, never 0.
+
+| Gate | Live result at HEAD | Anti-vacuity |
+|---|---|---|
+| `check_domain_partition.py` | **exit 5** — manifest names nets the netlist lacks (`+340V_BUS`, `pe`, `ZCD`, all changed by the SELV float) | refuses to run rather than report "no violations" |
+| `check_derived_doc_drift.py` | **16 drift violations**, all in `PROTECTION_CHAIN_REVIEW.md` | 24 tests pass; 12 degenerate-input cases exit 5; a 0-fields "clean" result is unreachable by construction |
+| `capacity_budget_gate.py` | **0 of 18 SET-path inputs available**, per-pin reasons matching the manual survey | 2 packages / 160 nets / 24 pins inspected; proven not vacuously pessimistic by a fixture that reports AVAILABLE |
+| `check_rust_drc_presence.py` | **exit 1 under `TEMPER_REQUIRE_RUST_DRC=1`**, naming the missing symbol | exit 0 unset for local dev; fails closed if `lib.rs` cannot be parsed |
+
+**The derived-doc gate's live finding matters on its own.**
+`docs/hardware/PROTECTION_CHAIN_REVIEW.md` carries **the same uncorrected lossy
+summary** that caused three wrong protection-gate fixes — still dropping the
+peak/RMS basis, hysteresis and recovery fields, in a document an engineer would
+consult while working on the protection chain. Soft-launched to **2026-08-02**
+(`CUTOVER_DATE`, mirroring `import_linter_gate.py`); tool errors exit 5
+unconditionally and are never soft-launched.
+
+**The capacity gate independently confirmed the netlist aliasing bug**: `.net`
+labels `U24`, the real `SN74HC00` latch, as `SN74HC4075DR` because they share a
+SOIC-14 footprint. It therefore keys identity off `default.csv` plus
+`sheetpath`, never `libsource`.
+
+**The presence gate found a live stale wheel in the primary checkout** — the
+condition that made the clearance port's equivalence proof report 38 *skipped*
+while the suite went green.
+
+Two follow-ups it named and did not fix: `temper_rust_router` and
+`temper_constraints` have the identical structural gap (locally-built PyO3
+extensions verified in CI by bare `import` only), and **six safety/EMC/DFM
+requirement files are permanently skipped with validators that raise
+`NotImplementedError`** — IEC 60335-2-6 creepage/clearance among them. Those
+have zero executed coverage, continuously.
+
 ### Manufacturing DRC is no longer the bottleneck (2026-07-26)
 
 Full detail: `docs/evidence/2026-07-26-clearance-rust-port.md`. `verify_clearance`
