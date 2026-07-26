@@ -472,6 +472,57 @@ Also surfaced: **`FUNCTIONAL_TEST_CRITERIA.md` §1.2 specifies a 200 W ±25%
 power tier that has no corresponding gate** in this document. That is an
 omitted requirement, not a lost qualifier.
 
+### The isolation barrier is shorted by the star-point join (2026-07-26)
+
+Full audit: `docs/hardware/IEC60335_CRITICAL_COMPONENTS.md`. **This is the
+highest-severity finding in the project to date.** Verified by direct reading
+of the committed source, not inferred.
+
+The design believes it has an isolated SELV control domain. Three lines defeat
+it:
+
+```
+main.ato:271  aux_supply.power_in.gnd  ~ power_return   # HV side of the barrier
+main.ato:273  aux_supply.power_out.gnd ~ gnd            # SELV side of the barrier
+main.ato:299  power_return ~ gnd                        # "single-point star join"
+```
+
+`power_in.gnd` and `power_out.gnd` are therefore **the same net**. The
+IRM-10-15's 4.2 kVAC isolation barrier is shorted across. A single-point star
+join is a technique for joining grounds *within* one domain; applied *across*
+an isolation barrier it is simply a short, and the comment block at
+`main.ato:288-297` asserts both things at once.
+
+That node is also mains-referenced. `modules.ato:620-621` ties AC Neutral
+through the common-mode choke winding to `dc_bus.gnd_ref`, which is the same
+net again. And `modules.ato:683-689` runs a 450 kΩ divider from **AC_L**
+directly to that node with its tap going to an MCU ADC pin — carrying a `TODO`
+that already admits *"ZCD signal crosses isolation barrier (HV -> SELV) …
+For now, ZCD is on HV side."*
+
+So the entire control domain — MCU, safety interlock, and the **user-touchable
+RTD food probe** — sits at AC Neutral in normal operation, and at AC Line under
+a reversed-plug fault. `RTDSensing`'s own docstring (`modules.ato:1259-1265`)
+claims the opposite: *"The user-touchable RTD food probe is therefore separated
+from AC mains potential."* It is not.
+
+**This is a topology decision, not a value fix, and it is the user's call:**
+
+| Option | Consequence |
+|---|---|
+| **Remove the star join**, float the SELV domain properly | Requires isolating every crossing — the ZCD optocoupler its own TODO already names, plus a full survey of the others. Preserves the SELV claim and the touchable probe |
+| **Accept a mains-referenced design** and re-classify | Legitimate and common for induction hobs, but the SELV claim must be deleted everywhere, and the RTD probe needs reinforced insulation or must stop being user-touchable. Changes the certification approach wholesale |
+
+Nothing else in the safety case should be treated as settled until this is
+resolved, because the insulation coordination for every other part depends on
+which domain it is actually in.
+
+Second finding from the same audit: the **G5LE-1 discharge relays are approved
+only to 30 VDC under UL/CSA** (125 VDC in the bare catalogue) while breaking up
+to **170 VDC**. `modules.ato:700-724` already documents the out-of-catalogue
+break and adds an RC snubber for it — but the *approval* still does not extend
+there, so the mitigation solves the engineering and not the certification.
+
 ### Bus capacitors fail on ripple current by ~5× (2026-07-26)
 
 Full derivation: `docs/evidence/2026-07-26-bus-capacitor-ripple.md`.
