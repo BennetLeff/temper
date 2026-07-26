@@ -511,9 +511,26 @@ this topology class (Hsieh 2023, IET Power Electronics) deliberately uses
 
 **Next step is to re-derive bulk capacitance from a real model**, checked
 against the tank's already-tight ZVS margin, before any further part selection.
-Note the coupling: more capacitance worsens `BusDischarge` (213 s against a
-<60 s spec), less improves it. The two constraints push opposite ways and must
-be solved together.
+
+**Correction to an earlier statement here: `BusDischarge` is not failing.**
+The 213 s figure quoted previously was the consequence of the *withdrawn*
+14,100 µF proposal, not the committed design. `modules.ato:772-773` derives the
+real number — `tau = 9.4k × 3600 µF = 33.8 s`, reaching <34 V in 1.61 tau
+≈ **54 s against the <60 s target**. It passes, on about 10% margin.
+
+That reframes the coupling rather than removing it: discharge time scales
+linearly with capacitance, so **anything above ~4000 µF per half breaks the
+target** with the present 9.4 kΩ strings. It is a ceiling on C, not a failure to
+repair. Two caveats: the 10% margin is nominal only, and electrolytic tolerance
+plus ageing could plausibly consume it; and the discharge resistors are
+themselves resizable, which is a real option rather than a fixed constraint.
+
+**Separately: the `<60 s` requirement is not in `FUNCTIONAL_TEST_CRITERIA.md`.**
+It exists only as comments in `elec/src/modules.ato` (lines 445, 636, 773). A
+safety-relevant timing requirement — bus discharge for servicing, IEC 60335-1
+territory — never made it into the requirements document at all. That is the
+inverse of the derived-document drift class: not a qualifier lost on the way
+down, but a requirement that never went up.
 
 This is a new species for the failure taxonomy — not a wrong value, not a
 vacuous check, but **a citation to evidence that was never produced.** Nothing
