@@ -2197,6 +2197,26 @@ scripts:
       - _lib.repo
       - _lib.github_summary
 
+- path: check_domain_partition.py
+  purpose: "Netlist domain-partition CI gate: verify the compiled netlist's HV/SELV domains are actually disjoint (docs/hardware/IEC60335_CRITICAL_COMPONENTS.md Sec 2) against elec/domain_manifest.yaml; fail-closed on missing/empty/stale netlist or manifest"
+  owner: bennet
+  last_run: "2026-07-26"
+  category: keep
+  disposition: ci-gate
+    imports:
+      - __future__
+      - argparse
+      - collections
+      - dataclasses
+      - json
+      - pathlib
+      - re
+      - sys
+      - typing
+      - yaml
+      - _lib.repo
+      - _lib.github_summary
+
 - path: check_rust_drc_presence.py
   purpose: "CI gate: fail-closed presence/freshness check for the temper_drc_rs PyO3 extension -- a bare import cannot detect a stale wheel missing a symbol the current lib.rs registers (2026-07-26 incident: verify_route_clearance silently absent, differential test silently skipped); TEMPER_REQUIRE_RUST_DRC=1 (CI) makes any gap fatal, unset (local dev) makes it a warning"
   owner: bennet
