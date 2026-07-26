@@ -439,6 +439,53 @@ fixed silicon with no model.
 circuit, one is ambiguous, and two are unmeasurable in simulation.** None has
 been validated on hardware. These are the gates the safety case rests on.
 
+### ZVS margin — the coil inductance is undefined (2026-07-26)
+
+First power-stage simulation. Full evidence:
+`docs/evidence/2026-07-26-zvs-margin-sweep.json`, harness
+`simulation/harness/run_zvs_sweep.py`.
+
+**The tank's defining component has no value in the design.** `grep` across
+`elec/src/*.ato` finds **no inductance anywhere** for the coil
+(`inductor_conn` is an unplaced Litz placeholder). Resonant frequency is
+therefore undetermined by the committed design. The sweep used
+`pan_load.sub`'s own 80 µH default, which is a *model* assumption, not a
+design choice.
+
+With the committed 300 nF (`c_tank1` + `c_tank2`, 150 nF each **in parallel**)
+and that 80 µH:
+
+| | |
+|---|---|
+| Actual resonance | **~32.5 kHz** |
+| Declared `f_resonant_nominal` (`main.ato:74`) | **25 kHz** |
+| Operating `f_switching` (`main.ato:71`) | **35 kHz** |
+| ZVS collapse, measured | between **32 kHz (lost)** and **33 kHz (held)** |
+
+**The design believes it has ~10 kHz of margin above resonance. Under the
+model's assumption it has ~2.5 kHz — four times less.** Losing ZVS means hard
+switching, which is the primary way an IGBT dies in this topology.
+
+To make the declared 25 kHz true, the coil would have to be **135 µH**. At
+80 µH resonance is 32.5 kHz; at 68.9 µH it would sit exactly on the 35 kHz
+operating point, i.e. fully capacitive and no ZVS at all. **Nothing in the
+design distinguishes these cases**, which is the actual defect — the margin
+number is a consequence, not the root.
+
+Also found: `pan_load.sub`'s `PANLOAD_SIMPLE` / `PANLOAD_VARIABLE` subcircuits
+declare an `RPAN` parameter that is **never referenced in the subcircuit
+body** — a dead knob, the same unwired-parameter class as the CLI flags and
+the manufacturing DRC stage. `PANLOAD_TRANSFORMER` was used instead.
+
+Sweep covered 4 pan presets × 9 frequencies (28–45 kHz); 34 of 36 points
+converged, 2 reported `UNMEASURED` rather than guessed. Collapse is driven
+almost entirely by frequency versus tank resonance, not by pan coupling —
+which is why the coil value matters more than the pan model.
+
+**Fidelity bound, stated rather than buried:** the IGBT model is behavioural
+with fixed capacitances, so margins are ordinal, not calibrated
+switching-loss figures. All models remain `calibrated: false`.
+
 ### BOM vs. source audit (2026-07-25)
 
 Full detail: `docs/evidence/2026-07-25-bom-source-audit.md`.
