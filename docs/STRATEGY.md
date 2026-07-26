@@ -472,6 +472,47 @@ Also surfaced: **`FUNCTIONAL_TEST_CRITERIA.md` §1.2 specifies a 200 W ±25%
 power tier that has no corresponding gate** in this document. That is an
 omitted requirement, not a lost qualifier.
 
+### The board has 18 real clearance violations — mains to SELV at 0.836 mm (2026-07-26)
+
+Full detail: `docs/evidence/2026-07-26-safety-validators-implemented.md`.
+
+The safety requirement validators had **zero executed coverage, continuously** —
+registered, collected, and raising `NotImplementedError`. Eight of ten are now
+implemented; the suite went from **13 passed / 22 failed / 23 skipped** to
+**53 passed / 1 xfailed / 0 skipped**, verified here.
+
+**Run against real component positions, they find 18 REQ-SAFE-01 violations,
+all severity `error`.** The worst:
+
+> **F1 (Schurter mains fuse, MAINS) ↔ J1 (fan connector, LV_CONTROL) at
+> 0.836 mm**, against a 3–6 mm requirement.
+
+Sixteen of the eighteen are between the mains-referenced domain and the SELV
+control domain. This is the physical counterpart to the isolation work: the
+*schematic* barrier was repaired today, and the *layout* still places mains
+under a millimetre from a user-adjacent SELV connector.
+
+It is wired as `xfail(strict=True)` with the exact count in the reason string —
+recorded, not tuned away, and it will fail loudly the moment the count changes.
+
+**Two stubs were left raising `NotImplementedError` on purpose.**
+`check_ucc21550_barrier` and `check_adum1250_barrier` receive only a bare
+`(x, y)` tuple — no trace list, no ground-plane geometry, no net assignments —
+so any verdict would be indistinguishable from a fabricated one. A truthfully
+unimplemented stub beats a validator that inspects nothing and passes; that is
+the whole defect being fixed here.
+
+**A latent vacuity was found while implementing:** `VoltageDomain` and
+`InsulationType` were not `str` mixins, so a test asserting
+`VoltageDomain.MAINS == "MAINS"` had been **silently skipped forever**, masked
+by the same `NotImplementedError` skip.
+
+**The committed PCB's net names are stale** — still `+340V_BUS`, with no `gnd`,
+`ZCD_ISO` or `pe` net at all. The validators had to join real positions to
+domain classification by *reference designator* because the board has not been
+re-synced with the netlist since the SELV float. That resync is now a
+prerequisite for any layout-level safety claim.
+
 ### Four gates landed for the classes found today (2026-07-26)
 
 Each was built to fail on the tree that motivated it, and each was verified
