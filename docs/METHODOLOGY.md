@@ -232,6 +232,41 @@ enforce (class 4, §4). Each injection asserts:
 
 An injector that cannot prove its own mutations took effect is not evidence.
 
+### The oracle is not exempt
+
+The five axes apply to **every artifact used as ground truth, including
+external tools we did not write.** `kicad-cli pcb drc`, `lint-imports`,
+`vulture`, `ngspice` — each is an oracle, and an oracle is a validator like any
+other. Treating a third-party tool as ground truth *because* it is
+third-party is the same mistake as trusting our own metric because we wrote it
+carefully.
+
+The cheapest axis to apply is **invariance**: run the tool N times on
+byte-identical input and compare.
+
+**Measured 2026-07-25.** Five `kicad-cli pcb drc` runs on the same routed
+file returned `shorting_items` of **124 / 113 / 119 / 120 / 123** — a spread
+of 11, about 9%, on identical input. `unconnected` was stable at 276 and
+`clearance` moved by one, so the instability is specific to the pairwise
+copper-overlap check. Our own router, tested the same way, was byte-identical
+across runs once regenerated `tstamp`/`uuid` fields were stripped.
+
+Two consequences:
+
+- **Characterise the oracle's noise floor before gating on it.** A gate whose
+  threshold sits below its oracle's noise floor cannot distinguish signal from
+  noise — it is a random number generator wearing a verdict's clothing.
+- **A single before/after measurement is not evidence when the oracle is
+  noisy.** Report median and range over N ≥ 5 runs. A delta smaller than the
+  spread proves nothing.
+
+This failure is the §7 reference failure one layer further out: the project
+audited its own checks thoroughly while treating the measuring instrument as
+exempt. Every routing claim in this repository rests on an oracle whose
+reproducibility had never been tested.
+
+Evidence: `docs/evidence/2026-07-25-shorting-items-diagnosis.md`.
+
 ### Metamorphic relations for this domain
 
 No oracle needed; a violation is proof of a bug.
@@ -528,5 +563,8 @@ the real state machine respond, measure latency against OCP-01's 1 µs budget.
   field reaches the router without a tested monotonicity relation.
 - **The injector proves its own injections landed** (§5). Coverage numbers from
   an unverified injector are false confidence.
+- **The oracle is not exempt** (§5). External tools used as ground truth are
+  validators too. Characterise the noise floor before gating on a number, and
+  never set a threshold below it.
 - Smallness is not the goal — §3.2's five properties are. A small loop with no
   oracle is not a validatable loop.
