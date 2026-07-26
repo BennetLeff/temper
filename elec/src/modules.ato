@@ -2037,8 +2037,8 @@ module SafetyInterlock:
     # plain signals (like HalfBridge.switch_node) rather than an
     # ElectricSignal interface. Top wires them into main.ato's dc_bus_minus
     # net on either side of the SecondaryOCPComparator's internal shunt.
-    signal ocp2_bus_in
-    signal ocp2_bus_out
+    # signal ocp2_bus_in
+    # signal ocp2_bus_out
 
     wdt_kick = new ElectricLogic
     wdt_kick.reference ~ power_3v3.gnd
@@ -2079,7 +2079,12 @@ module SafetyInterlock:
     ovp = new OVPComparator
     thermal = new ThermalComparator
     coil_thermal = new CoilThermalComparator  # THM-02
-    ocp2 = new SecondaryOCPComparator  # OCP-02
+    # OCP-02 NOT INSTANTIATED -- see main.ato. The design placed the shunt in
+    # DC_BUS_RTN believing common mode was near ground; DC_BUS_RTN is ~-170 V
+    # from signal ground in this doubler topology and the INA240 is a
+    # -4..+80 V part. SecondaryOCPComparator stays defined and ready; the
+    # sensing domain is an open topology decision.
+    # ocp2 = new SecondaryOCPComparator  # OCP-02
     wdt = new Watchdog
     fault_or = new SN74HC4075
     fault_any_or = new SN74HC4075
@@ -2101,9 +2106,9 @@ module SafetyInterlock:
 
     # OCP-02: secondary overcurrent, 60A. Added 2026-07-26 -- this gate
     # previously had no circuit at all (docs/hardware/OCP02_DESIGN.md).
-    ocp2.power ~ power_3v3
-    ocp2.bus_in ~ ocp2_bus_in
-    ocp2.bus_out ~ ocp2_bus_out
+    # ocp2.power ~ power_3v3
+    # ocp2.bus_in ~ ocp2_bus_in
+    # ocp2.bus_out ~ ocp2_bus_out
 
     wdt.power ~ power_3v3
     wdt.wdi.line ~ wdt_kick.line
@@ -2205,8 +2210,8 @@ module SafetyInterlock:
     # brought to a test point pending that decision, rather than wired
     # into the wrong logic (fault_any_or.C2) or left electrically
     # floating.
-    tp_ocp2_fault = new TestPoint
-    tp_ocp2_fault.p1 ~ ocp2.fault.line
+    # tp_ocp2_fault = new TestPoint
+    # tp_ocp2_fault.p1 ~ ocp2.fault.line
 
     # LED indicators remain unassigned until their current-limiting circuits
     # are specified; they must not be used as safety logic.

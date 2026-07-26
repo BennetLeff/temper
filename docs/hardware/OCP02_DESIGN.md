@@ -54,11 +54,9 @@ comfortably inside the 55–65 A window.
 
 ## Two constraints that would be fatal if missed
 
-**1. The shunt must be LOW-SIDE.** The INA240's common-mode input range is
-**−4 V to +80 V** (TI datasheet). The DC bus is **340 V**. A high-side shunt
-would place 340 V of common mode on the inputs and destroy the part. Placing
-the shunt in `DC_BUS_RTN` (declared at `main.ato:96`, connected at `:242` and
-`:290`) keeps common mode near ground.
+**1. ~~The shunt must be LOW-SIDE.~~ — THIS WAS WRONG. See the correction
+below.** The original claim was that placing the shunt in `DC_BUS_RTN` keeps
+the INA240's common mode near ground. It does not.
 
 **2. The comparator should be TLV3201, not the LM393 the BOM costs.**
 
@@ -91,7 +89,56 @@ on gates 2 and 3 of that package should be surveyed before adding OCP-02 — if
 none is free, a fourth OR input is needed, and that is a real part addition
 rather than a free one.
 
-## The blocker
+## CORRECTION 2026-07-26 — the sensing domain is wrong
+
+**The INA240 pinout blocker cleared, and implementation immediately exposed a
+worse error in this document.**
+
+Pinout, verified from two TI datasheets read directly (SBOS662A for the INA240,
+SBOS808E for the `-Q1` grade matching `INA240A1QPWRQ1`), identical in both:
+
+| Pin | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 |
+|---|---|---|---|---|---|---|---|---|
+| | NC | IN+ | IN− | GND | VS | REF2 | REF1 | OUT |
+
+**The design's core assumption is false.** This document claimed a low-side
+shunt in `DC_BUS_RTN` keeps common mode near ground. This is a
+**voltage-doubler** topology:
+
+- `main.ato:247` — `power_return ~ power_in.dc_bus.gnd_ref  # Doubler midpoint = power return`
+- `main.ato:283` — `power_return ~ gnd  # Single-star-point ground join near doubler caps`
+- `main.ato:254` — `dc_bus_plus` is the **+170 V half-bus**
+
+Signal ground **is** the doubler midpoint. `DC_BUS_RTN` therefore sits at
+roughly **−170 V** with respect to it, not ~0 V. An INA240 referenced to signal
+ground would see ~170 V of common mode against a **−4 V to +80 V** limit and be
+destroyed.
+
+"Low side" on a doubler is not "near ground". That was the error.
+
+**Current state.** `component INA240A1` and `module SecondaryOCPComparator` are
+committed with the verified pinout and the correct values — the electrical
+design (2 mΩ, G=20, 3.74 k/10 k, 60.0 A, 59.0–61.1 A worst case) is unchanged
+and still correct. **Neither is instantiated**, and the shunt splice has been
+removed from `main.ato`, so nothing destructive is buildable.
+
+**Options for the sensing domain**, all topology decisions rather than value
+changes:
+
+| Option | Trade |
+|---|---|
+| Shunt at the doubler midpoint (`power_return`) | Common mode ~0 V, INA240 works as designed — **but that node is the tank return, which erodes the independence from OCP-01 that is OCP-02's whole purpose** |
+| Isolated amplifier (`AMC1300`, `ACPL-C79A` class) | Preserves the sensing location and the independence; adds an isolated bias rail and cost |
+| High-common-mode current-shunt monitor | Needs a part rated well beyond ±170 V; check availability before assuming one exists |
+
+**Second finding: there is no spare OR input for the fault.** Every input on
+`fault_or` and `fault_any_or` in the latch SET path is occupied. `fault_or`
+gate 3 is free but its output drives nothing; `fault_any_or` C2 looks free but
+sits on the reset-qualifier path, so using it would block reset without ever
+tripping the latch — worse than leaving it unwired. Adding OCP-02 to the fault
+chain therefore needs a real logic addition, which is a decision for a human.
+
+## The original blocker (now cleared)
 
 **The INA240 pinout could not be verified.** The TI datasheet PDF fetch timed
 out and SnapEDA reports "No pinout data available" for the part. Writing a

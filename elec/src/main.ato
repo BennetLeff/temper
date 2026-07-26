@@ -287,15 +287,24 @@ module Top:
     # ===========================================================================
     
     hb.dc_bus.hv_plus ~ dc_bus_plus
-    # OCP-02 (docs/hardware/OCP02_DESIGN.md): the 2mOhm shunt in
-    # SecondaryOCPComparator is spliced in series in the DC_BUS_RTN
-    # conductor here, between the half-bridge's low-side return
-    # (hb.dc_bus.hv_minus, the load side) and the rest of DC_BUS_RTN
-    # (bulk caps / bleeders / discharge, the source side), so the
-    # half-bridge's return current flows through it. power_in.dc_bus.hv_minus
-    # and discharge.hv_minus (below) stay on the dc_bus_minus/bulk side.
-    hb.dc_bus.hv_minus ~ safety.ocp2_bus_in
-    safety.ocp2_bus_out ~ dc_bus_minus
+    # OCP-02 IS NOT WIRED IN. The shunt splice that belongs here is removed
+    # deliberately -- as designed it would destroy the sense amplifier.
+    #
+    # docs/hardware/OCP02_DESIGN.md claimed a low-side shunt in DC_BUS_RTN
+    # keeps the INA240's common mode near ground. That is wrong. This is a
+    # voltage-doubler topology: `power_return` IS the doubler midpoint
+    # (main.ato:247) and IS signal ground (main.ato:283), so DC_BUS_RTN sits
+    # at roughly -170 V with respect to it. The INA240's common-mode range is
+    # -4 V to +80 V, so the part would see ~170 V of common mode -- far
+    # outside its absolute maximum.
+    #
+    # SecondaryOCPComparator remains defined in modules.ato with the
+    # verified INA240 pinout, ready to wire once the sensing domain is
+    # resolved. The options are a shunt at the doubler midpoint (common mode
+    # ~0 V, but that is the tank return, which erodes OCP-02's independence
+    # from OCP-01), an isolated amplifier (AMC1300 / ACPL-C79A class), or a
+    # high-common-mode part. That is a topology decision, not a value change.
+    hb.dc_bus.hv_minus ~ dc_bus_minus
     hb.power_15v.vcc ~ vcc_15v
     hb.power_15v.gnd ~ gnd
     hb.power_3v3.vcc ~ vcc_3v3
