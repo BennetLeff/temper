@@ -1,5 +1,7 @@
 # Bus capacitor ripple failure: is this a part-selection problem at all?
 
+**Provenance: commit=UNKNOWN dirty=UNKNOWN** -- backfilled prior to the provenance gate's introduction (2026-07-26); no self-declared commit exists in this file's own content and none was fabricated. See .evidence-provenance-allowlist.
+
 **Scope and status.** `docs/evidence/2026-07-26-bus-capacitor-ripple.md`
 established (not re-derived here) that `C_BUS1/1B/2/2B` (`EKMQ251VSN182MA50S`,
 1800µF/250V snap-in, 2 parallel per half-bus) fail their rated ripple current

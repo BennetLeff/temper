@@ -1,5 +1,7 @@
 # `ato build` state — investigation result
 
+**Provenance: commit=ca9281d15923d6d89e1eb37e3f23ce1bb34395a2 dirty=UNKNOWN** -- backfilled: this document's own prose self-declares "HEAD verified: `ca9281d1`" (confirmed tip of `docs/methodology-loop-discipline` at measurement time); resolved to the full SHA via `git rev-parse ca9281d1`. dirty state was not recorded at measurement time and is not reconstructable, so it is UNKNOWN rather than guessed.
+
 **Date:** 2026-07-26
 **Worktree:** `/Users/bennet/Desktop/temper/.claude/worktrees/agent-ac7ed8a3e94bc878c`
 **HEAD verified:** `ca9281d1` — confirmed tip of `docs/methodology-loop-discipline` by
