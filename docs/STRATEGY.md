@@ -472,6 +472,55 @@ Also surfaced: **`FUNCTIONAL_TEST_CRITERIA.md` §1.2 specifies a 200 W ±25%
 power tier that has no corresponding gate** in this document. That is an
 omitted requirement, not a lost qualifier.
 
+### mypy caught it; an allowlist resync swallowed it (2026-07-26)
+
+Full detail: `docs/evidence/2026-07-26-api-signature-drift-gate.md`.
+
+A ruff ARG001 autofix (`ce882acf`) renamed `net_name` → `_net_name` in three
+functions in `routability_check.py`. `check_routability_direct`, **in the same
+file**, still called `check_routability(net_name=...)`. Result: a live
+`TypeError` on a production path, and **103 of 121 tests in
+`test_routability_check.py` failing** since 2026-07-23.
+
+Fixed: **1 failed / 120 passed**, verified here. The remaining failure is the
+"no pads" test, established as **pre-existing since `a72a9316` (2026-07-15)** —
+the atopile netlist renamed nets (`GATE_H`→`GATE_HS`, `SPI_CLK`→`sclk`) eleven
+days before any of today's electrical work. Confirmed by reproducing the
+byte-identical failure list in a second worktree pinned at `88adabcd`.
+
+**The important part is why nothing caught it. mypy is configured, runs in CI,
+and does catch this exact error** — `call-arg: did you mean "_net_name"?`,
+reproduced by reverting the fix. It was swallowed because
+`check_typecheck_gate.py`'s per-file monotonic-shrink allowlist was **bulk
+re-synced by `fed27984` about ten hours after the rename**, absorbing the new
+error into the baseline as pre-existing debt.
+
+**A gate that can absorb new failures by re-baselining is not a gate.** It
+converts a hard error into a silent quota. This is the same species as the ten
+dead CI gates and five vacuous ones already found, in a new disguise — and it
+is the mechanism `docs/solutions/best-practices/gate-neutering-mechanisms.md`
+warns about, operating on the project's own type checker.
+
+Now gated: a hard, allowlist-independent check for mypy's `call-arg` code
+specifically, backed by a **hand-curated `.call-arg-allowlist` that `--init`
+never touches**. The falsifier fired as predicted on a reconstruction; fail-closed
+verified for both a missing baseline and a missing scope.
+
+**It found six more, all the same shape**, all in the validation and geometry
+layers, none fixed:
+
+| File | Broken keyword |
+|---|---|
+| `validation/scorecard.py` | `key=` vs `_key` — **4 call sites** |
+| `validation/drc_fence.py` | `modified_regions=` for `CheckRunner.run` |
+| `validation/mfem_gate.py` | `cell_size_mm=` for `compare_fields` |
+| `validation/results/battery_run.py` | `ambient_C=`, `netlist=` |
+| `geometry/drc_inflate.py` | `beta=` for `smooth_relu` |
+
+Verified by hand: `_is_scorable_metric` declares `_key` keyword-only while four
+call sites pass `key=`. These are live `TypeError`s in the checking layer
+itself.
+
 ### A requirement was encoded backwards, and implementing it faithfully exposed it (2026-07-26)
 
 `check_mov_placement`'s docstring required the MOV *"at AC input, **before or
