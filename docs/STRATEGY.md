@@ -472,6 +472,54 @@ Also surfaced: **`FUNCTIONAL_TEST_CRITERIA.md` §1.2 specifies a 200 W ±25%
 power tier that has no corresponding gate** in this document. That is an
 omitted requirement, not a lost qualifier.
 
+### SELV domain floated — barrier real, but one resistive crossing remains (2026-07-26)
+
+Full detail: `docs/hardware/SELV_ISOLATION_REDESIGN.md`. **Landed.** The star
+join is gone; `main.ato:341` now reads `gnd ~ pe`, bonding SELV ground to
+protective earth instead of to the doubler midpoint. The ZCD signal crosses
+through a new **H11L1 optocoupler** (`U3`, datasheet-verified, 5000 Vrms), and
+`+340V_BUS` is renamed `+170V_BUS`.
+
+**Verified by hand on a freshly built netlist at HEAD**, not taken on report:
+
+| Net | Code | Pins | Refs |
+|---|---|---|---|
+| `gnd` | 1 | 80 | 71 |
+| `PWR_RTN` | 6 | 17 | 17 |
+
+Straddling designators: **`C6`, `PS1`, `T1`, `U3`** — the Y-cap, the IRM-10-15,
+the CST3015 current transformer, and the new optocoupler. Every one crosses by
+design.
+
+**The barrier is not yet complete, and the gap evades the obvious test.**
+
+```
+main.ato:434   safety.dc_bus.line      ~ dc_bus_plus   # +170 V, HV domain
+main.ato:435   safety.dc_bus.reference ~ gnd           # SELV domain
+```
+
+The OVP divider is **1.30 MΩ (3 × 430 kΩ + 10 kΩ) joining the HV bus to SELV
+ground.** Those are two *different* nets, so a partition check asking "are the
+declared domains disjoint?" returns **PASS while a galvanic path exists**.
+The lesson generalises: **passive two-terminal parts are wires.** Only declared
+isolators may break connectivity, and capacitors need an explicit, defended
+policy because they block DC and pass AC.
+
+**The steady 131 µA of leakage is not the hazard.** If the 10 kΩ bottom
+resistor opens, **the full +170 V appears on the SELV-side node** — which feeds
+a comparator input and an MCU ADC pin. A single passive failure puts
+mains-derived HV onto the control domain. Crossings should be reported with
+their single-fault behaviour, not merely their existence.
+
+Also found, and separate from isolation: **THM-02's MCU analog tap
+(`coil_ntc_sense`) is never wired at Top** — a completeness gap in a
+protection circuit that is otherwise live. `SecondaryOCPComparator` remains
+deliberately un-instantiated. `LogicUVLOComparator` is entirely SELV-internal
+and is not a crossing at all.
+
+ERC after the change: **492 warnings, 0 errors**, in the same three pre-existing
+generic categories — no new violation class.
+
 ### The bus capacitance rests on a simulation that does not exist (2026-07-26)
 
 Full review: `docs/evidence/2026-07-26-bus-capacitor-architecture-review.md`.
