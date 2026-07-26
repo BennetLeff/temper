@@ -29,10 +29,18 @@ source_document: docs/FUNCTIONAL_TEST_CRITERIA.md
 
 derived_documents:
   - path: docs/STRATEGY.md
-    # STRATEGY.md's gate table covers every gate defined below.
+    # STRATEGY.md's gate table covers every gate defined below. It also
+    # contains other tables that mention gate IDs (a measured-vs-verdict
+    # audit table, a "recovered qualifiers" appendix) -- header_contains
+    # scopes the search to the "## Non-negotiable safety and performance
+    # gates" tables specifically (header: "Gate | Description |
+    # Reference"), so an ambiguous match against those other tables is a
+    # tool_error rather than silently picking the wrong one.
     gates: all
+    header_contains: ["Description", "Reference"]
   - path: docs/hardware/PROTECTION_CHAIN_REVIEW.md
-    # This document only restates the seven protection gates.
+    # This document only restates the seven protection gates, in a table
+    # headed "Gate | Requirement | As committed | Disposition".
     gates:
       - OCP-01
       - OCP-02
@@ -41,6 +49,41 @@ derived_documents:
       - THM-02
       - UVL-01
       - UVL-02
+    header_contains: ["Requirement", "Disposition"]
+
+# Stale-verdict checks: a row asserting a pass/fixed verdict that a
+# documented, superseding finding already contradicts, with no
+# acknowledgement in the same row. Unlike `gates:` (which checks that a
+# required field survived a restatement), this checks that a *retracted*
+# claim doesn't keep standing unqualified.
+#
+# Case: docs/STRATEGY.md's "Full protection-gate audit (2026-07-25)" table
+# (header "Gate | Requirement | Measured | Verdict") marks OVP-01 "FIXED"
+# at 399.88 V. Its own later "Recovered gate qualifiers invalidate three
+# of today's fixes" section, in the same document, found the OVP-01
+# comparator "has no feedback resistor" -- hysteresis "absent entirely" --
+# which is a FUNCTIONAL_TEST_CRITERIA.md SS2.2 requirement (10-20 V). The
+# audit row's "FIXED" verdict was never corrected to reflect this and
+# still reads as an unqualified pass.
+consistency_checks:
+  - id: ovp01-fixed-verdict-vs-missing-hysteresis
+    gate: OVP-01
+    doc: docs/STRATEGY.md
+    row_locator: ["OVP-01", "399.88"]
+    stale_tokens: ["FIXED"]
+    required_mitigating_tokens:
+      - "hysteresis absent"
+      - "no hysteresis"
+      - "lacks"
+      - "insufficient hysteresis"
+      - "fail-open"
+      - "half-bus"
+    message: >-
+      OVP-01 is marked FIXED at 399.88V with no acknowledgement that the
+      comparator has no hysteresis network (FUNCTIONAL_TEST_CRITERIA.md
+      SS2.2 requires 10-20V hysteresis; see STRATEGY.md "Recovered gate
+      qualifiers invalidate three of today's fixes"). This verdict is
+      stale.
 
 gates:
   # --- Section 1: Performance ---
@@ -69,16 +112,17 @@ gates:
   PWR-01:
     source_row_locator: ["1000 W", "±10%"]
     required_fields:
-      - name: allowable_range
-        any_of: ["900-1100", "900 - 1100"]
+      # Note: the "Allowable Range" column (900-1100 W) is deliberately
+      # NOT required here -- it is arithmetically implied by "1000 W
+      # ±10%" (unlike Peak/RMS or hysteresis, which are independent
+      # facts a reader cannot re-derive from the rest of the row).
+      # Requiring it would just penalize a non-lossy compression.
       - name: tolerance
         any_of: ["±10%", "10%"]
 
   PWR-02:
     source_row_locator: ["1800 W", "±5%"]
     required_fields:
-      - name: allowable_range
-        any_of: ["1700-1900", "1700 - 1900"]
       - name: tolerance
         any_of: ["±5%", "5%"]
 
