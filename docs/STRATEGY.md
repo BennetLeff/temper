@@ -472,6 +472,42 @@ Also surfaced: **`FUNCTIONAL_TEST_CRITERIA.md` §1.2 specifies a 200 W ±25%
 power tier that has no corresponding gate** in this document. That is an
 omitted requirement, not a lost qualifier.
 
+### The fault tree is full — two designed circuits cannot reach the latch (2026-07-26)
+
+Detail: `docs/hardware/UVL02_DESIGN.md` §7.1.
+
+**UVL-02 now exists.** It had no implementing circuit; the two candidates were
+both rejected on identity, not on which number looked better. `TPS3823-33` is
+the literal logic supervisor but fixed silicon — verified against TI's
+datasheet at **2.93 V falling / 2.96 V rising**, failing the `<2.9 V` / `>3.0 V`
+window in *both* directions. `RTDSensing.rail_monitor` is the right IC family
+but monitors `RTD_AVDD`, a downstream rail, not the logic supply.
+
+The stated falsifier — *"the spec is achievable with a fixed-threshold
+supervisor"* — **fired**. The window needs >3.4% hysteresis; that device class
+tops out near 1–3%. It is only reachable with external positive feedback around
+a window comparator, which is what `LogicUVLOComparator` now does: nominal trip
+**2.716 V** / recovery **3.222 V**, worst case over ±1% E96 and the full
+datasheet VIT_A range **2.800 V / 3.106 V** — inside both limits with 100 mV
+and 106 mV to spare.
+
+**But its fault is not wired, and cannot be.** Surveyed against the current
+tree: `fault_or` gate 3's `Y3` drives nothing; `fault_any_or` gate 3 is
+entirely unreferenced with no path into the SET aggregation; `fault_any_or.C2`
+sits on the reset-qualifier path, so using it would block reset without ever
+tripping the latch. `fault_any_or.C1` — which an earlier survey found free —
+was claimed by THM-02 in `d99c88e2`.
+
+**Two fully-designed protection circuits, OCP-02 and UVL-02, now have nowhere
+to connect.** This is a fault-tree *capacity* problem, not a per-gate search.
+Remediation is either reworking the two `SN74HC4075`s into a wider cascade or
+adding a third OR package — a real part decision, deliberately not taken here.
+UVL-02's fault currently lands on a test point so the circuit is provable on a
+bench even while unwired.
+
+Also corrected: `components.ato` carried a stale `v_threshold = 3.08V` for the
+TPS3823, against the datasheet's 2.93 V.
+
 ### The isolation barrier is shorted by the star-point join (2026-07-26)
 
 Full audit: `docs/hardware/IEC60335_CRITICAL_COMPONENTS.md`. **This is the
