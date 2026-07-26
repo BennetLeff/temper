@@ -11,6 +11,7 @@ import pytest
 VALIDATORS_AVAILABLE = False
 try:
     from tests.requirements.validators.clearance import (
+        IEC60335_REQUIREMENTS,
         ClearanceResult,
         ClearanceViolation,
         InsulationType,
@@ -432,16 +433,61 @@ class TestIEC60335Compliance:
         assert result.error_count >= 2
 
     def test_all_boundary_types_checked(self):
-        """Test that all boundary types from requirements matrix are checked."""
-        # This test verifies the integration function checks all required boundaries
+        """verify_iec60335_compliance actually walks every matrix row, not a
+        hardcoded subset. Falsifier: pack one component into each domain the
+        matrix references (2 into LV_CONTROL, so the FUNCTIONAL
+        LV_CONTROL<->LV_CONTROL row has a pair to check) within 0.05mm of
+        each other -- tighter than the matrix's smallest requirement
+        (FUNCTIONAL: 0.5mm clearance) -- so every one of the 6 matrix rows
+        must report at least one clearance + one creepage violation, and
+        every (boundary, insulation_type) combination in the matrix must
+        appear in the result. If the implementation only checks a subset
+        (e.g. hardcodes MAINS<->LV_CONTROL and ignores the rest), the
+        boundary/insulation_type coverage assertions below catch it even
+        though the exact violation count depends on how many component
+        pairs straddle each boundary (2 LV_CONTROL components means every
+        *-LV_CONTROL boundary yields 2 pairs, not 1).
+        """
         matrix = get_requirement_matrix()
+        assert len(matrix) == 6
 
-        # The compliance function should check all these boundaries
-        expected_checks = len(matrix)
-        assert expected_checks > 0
+        components = [
+            {"ref": "MAINS1", "footprint": "0402", "position": (0.00, 0.0), "nets": ["N_MAINS"]},
+            {"ref": "DCBUS1", "footprint": "0402", "position": (0.05, 0.0), "nets": ["N_DCBUS"]},
+            {"ref": "ISO1", "footprint": "0402", "position": (0.10, 0.0), "nets": ["N_ISO"]},
+            {"ref": "LV1", "footprint": "0402", "position": (0.15, 0.0), "nets": ["N_LV1"]},
+            {"ref": "LV2", "footprint": "0402", "position": (0.20, 0.0), "nets": ["N_LV2"]},
+        ]
+        nets = {
+            "N_MAINS": {"domain": VoltageDomain.MAINS},
+            "N_DCBUS": {"domain": VoltageDomain.DC_BUS},
+            "N_ISO": {"domain": VoltageDomain.ISOLATED},
+            "N_LV1": {"domain": VoltageDomain.LV_CONTROL},
+            "N_LV2": {"domain": VoltageDomain.LV_CONTROL},
+        }
+        placement = {"components": components, "nets": nets}
+        voltage_domains = {name: info["domain"] for name, info in nets.items()}
 
-        # Placeholder - actual test would verify all boundaries are checked
-        pytest.skip("Actual boundary checking verification not yet implemented")
+        result = verify_iec60335_compliance(placement, voltage_domains)
+
+        assert not result.passed
+        # Every *-LV_CONTROL cross-domain boundary sees 2 pairs (1 other-side
+        # component x 2 LV_CONTROL components); MAINS<->ISOLATED and the
+        # LV_CONTROL<->LV_CONTROL self-pair each see exactly 1 pair. All
+        # pairs are well within every row's minimum, so every candidate
+        # pair violates both clearance and creepage: (4 rows x 2 pairs +
+        # 2 rows x 1 pair) x 2 metrics = 20.
+        assert len(result.violations) == 20
+
+        expected_boundaries = {
+            f"{a.value}<->{b.value}" for (a, b, _insulation) in IEC60335_REQUIREMENTS
+        }
+        seen_boundaries = {v.boundary for v in result.violations}
+        assert seen_boundaries == expected_boundaries
+
+        expected_insulation_types = {it for (_a, _b, it) in IEC60335_REQUIREMENTS}
+        seen_insulation_types = {v.insulation_type for v in result.violations}
+        assert seen_insulation_types == expected_insulation_types
 
 
 # =============================================================================
@@ -453,12 +499,55 @@ class TestClearanceIntegration:
     """Integration tests for complete clearance validation."""
 
     @pytest.mark.slow
+    @pytest.mark.xfail(
+        strict=True,
+        reason=(
+            "REAL BOARD, NOT SYNTHETIC: as of 2026-07-26 the real board has "
+            "18 REQ-SAFE-01 violations across DC_BUS<->LV_CONTROL (reinforced, "
+            "10) and MAINS<->LV_CONTROL (basic 2, reinforced 6) boundaries -- "
+            "worst is F1 (mains fuse) to J1 (fan connector, SELV) at 0.836mm, "
+            "far under the 3mm/6mm IEC 60335-2-6 minimums. This is a real, "
+            "board-verified safety finding, not a flaky test -- see "
+            "docs/evidence/2026-07-26-safety-validators-implemented.md. "
+            "xfail(strict=True) so this stays visible (XPASS => failure) "
+            "rather than silently skipped, without turning normal CI red "
+            "for a known, already-tracked hardware violation (consistent "
+            "with the project's 616-known-critical-DRC-violations ceiling "
+            "elsewhere). Remove this marker only once the board is "
+            "re-laid-out to close these gaps."
+        ),
+    )
     def test_temper_board_clearance_compliance(self):
-        """Temper board should meet all REQ-SAFE-01 requirements."""
-        # TODO: Load actual Temper board geometry
-        # TODO: Run all clearance checks
-        # TODO: Verify compliance
-        pytest.skip("Temper board fixture not yet available")
+        """Temper board should meet all REQ-SAFE-01 requirements.
+
+        Falsifier: if this ever reports 0 violations while F1/J1 (or any
+        other MAINS/DC_BUS-to-LV_CONTROL pair) are still sub-mm apart on the
+        real board, the check is vacuous -- inspecting nothing and passing.
+        As implemented, it currently correctly reports 18 real violations
+        (see the xfail reason above), so the falsifier has NOT fired.
+        """
+        from ._real_board_fixture import RealBoardUnavailable, load_real_board_placement
+
+        try:
+            placement, voltage_domains, stats = load_real_board_placement()
+        except RealBoardUnavailable as exc:
+            pytest.skip(f"{exc} (run `make netlist` first)")
+
+        assert stats["matched_components_in_placement"] > 0, (
+            "Loaded zero components onto classified domains -- this would "
+            "make the check below vacuously pass. Investigate the fixture, "
+            "don't trust a 0-violation result from an empty placement."
+        )
+
+        result = verify_iec60335_compliance(placement, voltage_domains)
+
+        assert result.passed, (
+            f"{result.error_count} REQ-SAFE-01 clearance/creepage violations "
+            f"on the real board (components matched: "
+            f"{stats['matched_components_in_placement']}). See "
+            "docs/evidence/2026-07-26-safety-validators-implemented.md for "
+            "the full list."
+        )
 
     def test_validation_result_aggregation(self):
         """Multiple violations should aggregate correctly."""
