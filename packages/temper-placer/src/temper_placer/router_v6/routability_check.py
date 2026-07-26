@@ -71,7 +71,13 @@ _DIRS_8: tuple[tuple[int, int], ...] = (
 
 
 def check_routability(
-    _net_name: str,
+    net_name: str,  # noqa: ARG001 -- public keyword API (see check_routability_direct);
+    # not read in the body today but callers pass it by keyword, and it is
+    # reserved for diagnostics/future logging (see docstring). Renaming this
+    # to `_net_name` silently broke `check_routability_direct`'s
+    # `net_name=net_name` call for 3 days (2026-07-23 to 2026-07-26) --
+    # underscore-prefixing an argument that is part of a public keyword
+    # contract is not a safe "unused argument" cleanup. Do not re-rename.
     start: tuple[float, float],
     goal: tuple[float, float],
     edt_grid: np.ndarray,
@@ -191,7 +197,8 @@ def check_routability(
 
 
 def check_routability_bidi(
-    _net_name: str,
+    net_name: str,  # noqa: ARG001 -- public keyword API, see check_routability's
+    # comment above for why this must not be underscore-prefixed.
     start: tuple[float, float],
     goal: tuple[float, float],
     edt_grid: np.ndarray,
@@ -303,7 +310,8 @@ def build_passability_mask(
 
 
 def check_routability_cc(
-    _net_name: str,
+    net_name: str,  # noqa: ARG001 -- public keyword API, see check_routability's
+    # comment above for why this must not be underscore-prefixed.
     start: tuple[float, float],
     goal: tuple[float, float],
     edt_grid: np.ndarray,
