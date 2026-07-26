@@ -102,7 +102,7 @@ rather than silently ignored.
 | `check_filter_component_order` | Implemented | `test_incorrect_order_fails`, `test_x_cap_before_cm_choke` (fixed, see §5), `test_y_caps_after_cm_choke` | |
 | `check_x_cap_placement` | Implemented | `test_x_cap_connected_to_pe_fails` | PE-proximity threshold reuses the module's own 6mm L/N-PE figure (self-consistent, not invented). |
 | `check_y_cap_placement` | Implemented | `test_y_caps_exceed_leakage_limit_fails` | Leakage-limit re-derivation attempted and **does not** cleanly reproduce the function's own 4.4nF default (see §6) — flagged rather than silently reconciled. |
-| `check_mov_placement` | Implemented | `test_mov_after_fuse_fails` | |
+| `check_mov_placement` | Implemented; **requirement direction corrected 2026-07-26 after coordinator review** | `test_mov_before_fuse_fails` (renamed/flipped, was `test_mov_after_fuse_fails`) | See §10 Addendum — the original "before or parallel to fuse" requirement was backwards for a safety-certified mains appliance. |
 | `check_cm_choke_placement` | Implemented | `test_cm_choke_before_x_caps_fails`, `test_cm_choke_after_y_caps_fails` (added) | |
 | `check_pe_trace_requirements` | Implemented, with a stated data gap | `test_pe_trace_width_below_minimum_fails` (added), `test_pe_trace_zigzag_not_direct_fails` (added) | Width can only be checked when trace points carry width as a 3rd tuple element (forward-compatible extension); the documented 2-tuple contract carries no width channel at all, so width is **unverified from that input shape** rather than fabricated. "Star ground at PE connection point" (docstring's 3rd requirement) is not checkable from this function's inputs at all — no domain/topology data is passed in; `check_star_ground_point` is the function that actually owns that check. |
 | `check_line_neutral_pe_spacing` | Implemented | `test_insufficient_spacing_fails` (pre-existing, PE-to-neutral), `test_line_too_close_to_pe_fails` (added, PE-to-line) | |
@@ -306,9 +306,12 @@ facts about the currently-committed board file, discovered while trying to
 run these checks, matter more than any individual finding below:
 
 - **Zero routed copper.** `grep -c '(segment' pcb/temper.kicad_pcb` → `0`.
-  `grep -c '(via' pcb/temper.kicad_pcb` → `0`. The "76.2% routed / 616
-  critical violations" figure in `docs/STRATEGY.md` is not persisted into
-  this file — it must be produced transiently by the router pipeline. This
+  `grep -c '(via' pcb/temper.kicad_pcb` → `0`. A routed-percentage /
+  violation-count figure describing a much-more-complete board appeared
+  elsewhere in project documentation; it described a routing pipeline run's
+  in-memory result, not this committed artifact, and has since been
+  corrected there (`docs/STRATEGY.md`, commit `391ed5d3`) — not repeated
+  here. The committed board is placed and entirely unrouted. This
   means `check_x_cap_placement`'s PE-proximity leg, `check_pe_trace_requirements`,
   and `check_line_neutral_pe_spacing` have **no trace geometry to check**
   today. Feeding them empty lists would report a vacuous "0 violations"
@@ -324,19 +327,26 @@ run these checks, matter more than any individual finding below:
   span both X and Y widely. `check_filter_signal_flow` /
   `check_filter_component_order` / `check_cm_choke_placement` assume a
   left-to-right (x-only) flow axis — every unit-test fixture for them is
-  collinear. Applying the x-only heuristic to this genuinely 2D layout is a
-  **weaker signal** than it looks; findings below are reported with that
-  caveat and cross-checked against schematic-level netlist adjacency
-  (`elec/src/modules.ato`) wherever possible, rather than trusted on
-  geometry alone.
+  collinear. **These checks infer topology from geometry, and that
+  inference is unsound in general** — x-coordinate order is only a proxy
+  for signal-flow order when a layout happens to be collinear along the
+  flow axis, and nothing enforces that on a real 2D board. The
+  `check_cm_choke_placement` finding below is a concrete demonstration:
+  it produces a violation directly contradicted by the actual schematic
+  topology. Whoever extends this family of checks (or feeds them real
+  board data again after more routing exists) needs to know this going
+  in, not discover it the way this pass did. Findings below are reported
+  with that caveat and cross-checked against schematic-level netlist
+  adjacency (`elec/src/modules.ato`) wherever possible, rather than
+  trusted on geometry alone.
 
 ### Findings (real board, `elec/build/default.csv` identity: F1=fuse,
 RV1=MOV, L1=CM choke, C1=X-cap `c_x2`, C6=Y-cap `y_cap_pe`)
 
 | Check | Result | Corroboration |
 |---|---|---|
-| `check_mov_placement` (RV1 vs F1) | **FAIL — `MOV-001`**: "MOV (x=65.5) is placed after the fuse (x=35.0)" | **Real, well-corroborated.** Independently confirmed at the schematic level: `elec/src/modules.ato` wires `fuse.p2 ~ mov.p1` — the MOV is one hop *downstream* of the fuse, not "at the AC input, before or parallel to the fuse" as both the function's own docstring and EN 55014-1 practice require. Geometry and topology agree. |
-| `check_filter_component_order` (MOV, FUSE, C_X1←C1, L_CM←L1) | **FAIL — 2×`FLOW-001`**: fuse should precede c_x1 but is placed after it; mov should precede l_cm but is placed after it | Axis-caveated (see above) — not independently corroborated beyond the MOV/FUSE case already captured by `check_mov_placement`. |
+| `check_mov_placement` (RV1 vs F1) | **PASS** (corrected 2026-07-26, see §10 Addendum — was reported as `FAIL` in the original version of this document; that was a wrong requirement, not a real design defect) | **Real, well-corroborated.** `elec/src/modules.ato` wires `fuse.p2 ~ mov.p1` — the MOV is downstream of the fuse, which is the *correct* requirement (an MOV's dominant failure mode is a short; downstream placement means the fuse interrupts a shorted MOV). Geometry (RV1 x=65.5 > F1 x=35.0) and topology agree, and the check now correctly reports this as compliant. |
+| `check_filter_component_order` (MOV, FUSE, C_X1←C1, L_CM←L1) | **FAIL — 2×`FLOW-001`**: fuse should precede c_x1 but is placed after it; mov should precede l_cm but is placed after it | Axis-caveated (see above) — the MOV/FUSE pair itself is not implicated in either reported violation (both are about `c_x1`/`l_cm`), so the MOV/fuse correction (§10) doesn't change this row's output. Not independently corroborated beyond that. |
 | `check_filter_signal_flow` (same 4 parts) | **FAIL — same 2×`FLOW-001`**, plus 3×`FLOW-ALIGN` warnings (parts are 47-102mm off a common flow axis) | Same axis caveat; the alignment warnings just quantify how non-collinear this layout is. |
 | `check_cm_choke_placement` (L1 vs C1, C6) | **FAIL — `CMC-002`**: "Y-cap C6 (x=31.5) is before the CM choke (x=35.5)" | **Likely a false positive from the axis heuristic**, contradicted by topology: `modules.ato` chains `ac_n ~ cmc.W2_1 ~ cmc.W2_2 ~ dc_bus.gnd_ref`, and `dc_bus.gnd_ref ~ y_cap_pe.p1` — C6 is electrically *downstream* of the choke (correct, per canonical order), even though its raw x-coordinate sits to the left of the choke's. Reported as a concrete demonstration of why x-only geometry checks are unreliable on this specific non-collinear layout, not suppressed. |
 | `check_y_cap_placement` (C6, 2.2nF) | **PASS** on the capacitance leg (2.2nF vs. the function's 4.4nF default — real margin, half the budget used by the one Y-cap in this design). PE-connection-distance leg **UNVERIFIED**: no discrete PE-stud/earth-terminal component exists in the BOM to supply a real `pe_connection` position distinct from C6 itself; proxying it to C6's own position makes that leg trivially (and uninformatively) pass rather than fabricating an arbitrary distinct point. | — |
@@ -362,7 +372,9 @@ location.
   reasonable layout-practice guesses, not sourced from a cited standard.
 - The IEC 60335-1-derived 4.4nF Y-cap leakage limit's exact arithmetic (§6)
   — order-of-magnitude discrepancy against the function's own stated
-  default, not resolved.
+  default. Investigated further per coordinator request, see §10 Addendum
+  item 4 — narrowed, but the primary standard text was not accessed, so
+  the exact correct number remains UNVERIFIED.
 - `check_y_cap_placement`'s PE-connection-distance leg on the real board —
   no discrete PE-stud component exists to supply a real position (§8).
 - Whether `check_filter_component_order`/`check_filter_signal_flow`/
@@ -375,3 +387,161 @@ location.
 - Why `test_emi_filter.py`'s tests were failing (not skipped) continuously
   before this change while `test_ground_plane.py`'s were properly skipped
   (§7) — noted, not investigated further (outside this task's scope).
+
+---
+
+## 10. Addendum (2026-07-26) — coordinator review, one finding overturned
+
+The coordinator merged the work above (57 passed / 4 skipped verified in
+the broader `emc/` suite at merge time), confirmed the zero-routed-copper /
+zero-zones findings independently, and flagged that this document's MOV
+finding was very likely a wrong requirement, not a wrong design. This
+section records the research done in response and what changed.
+
+### Item 1: `check_mov_placement`'s original requirement was backwards — corrected
+
+**Claim investigated:** the design has `elec/src/modules.ato:658-659`:
+`fuse.p2 ~ mov.p1`, `mov.p2 ~ ac_n` — the MOV is wired *downstream* of the
+fuse. `check_mov_placement`'s original docstring required the opposite
+("at AC input, before or parallel to fuse"), and the original version of
+this document reported the real board as a `MOV-001` violation on that
+basis.
+
+**Research performed** (WebSearch/WebFetch against public engineering
+literature; UL 1449 and IEC 61051-1 full primary text are both paywalled
+and were **not** accessed — this is secondary-source corroboration, marked
+as such, not a primary-standard citation):
+
+- A Digikey engineering article on meeting IEC 60335 power-supply
+  requirements, citing a commercial reference design (PSK-10D-12-T):
+  *"a 2A/300V slow-blow fuse is provided upfront, along with a metal oxide
+  varistor (MOV)... this sequential arrangement means the fuse sits between
+  the AC source and the MOV, protecting the entire circuit including the
+  varistor itself."* — fuse upstream, MOV downstream, matching this
+  design's wiring exactly.
+- General MOV-fusing / fire-safety literature (multiple independent
+  sources: an AllPCB article on MOV aging, general surge-protection patent
+  literature, industry articles on MOV thermal-runaway failure): MOVs'
+  characteristic end-of-life failure mode is a low-resistance short, not an
+  open circuit, and the standard mitigation is external fusing positioned
+  so the fuse's current path includes the MOV, so a shorted MOV is
+  interrupted rather than left drawing sustained fault current from the
+  mains.
+- No source found in this research recommended the reverse arrangement
+  (MOV upstream of / in parallel ahead of the fuse with nothing downstream
+  to interrupt a short).
+
+**Conclusion: the coordinator's reasoning is correct, and the original
+requirement was backwards.** Corrected:
+
+- `check_mov_placement`'s docstring and logic (`emi_filter.py`): now
+  requires the MOV at or after (never before) the fuse; flags `MOV-001` on
+  the opposite condition from before.
+- `_CANONICAL_ORDER` (shared by `check_filter_signal_flow` and
+  `check_filter_component_order`): `FUSE` now precedes `MOV`, was the
+  reverse.
+- `check_filter_component_order`'s and `check_filter_signal_flow`'s
+  docstrings updated to match.
+- Tests updated: `correct_filter_layout` fixture (FUSE/MOV positions
+  swapped), `TestMOVPlacement.test_mov_at_input` (fixture swapped),
+  `test_mov_after_fuse_fails` renamed to `test_mov_before_fuse_fails` with
+  the fixture flipped to the new failure condition.
+- The real-board integration test
+  (`test_temper_board_emi_filter_compliance`) now asserts
+  `check_mov_placement` **PASSES** on the real board — re-run confirms
+  `passed=True`, zero `MOV-001` violations. The "violation" reported in
+  the original version of this document is retracted: it was a defect in
+  the validator's requirement, not in the board.
+- Full suite re-verified after the correction: `emc/test_emi_filter.py` +
+  `emc/test_ground_plane.py` — **42 passed, 2 skipped** (unchanged from
+  before the correction; the fix only changed *which* fixtures encode the
+  correct/incorrect cases, not the pass/fail counts).
+
+This is exactly the failure mode flagged in the original task brief
+("a validator that fails a correct mains design is worse than no
+validator: it trains people to ignore safety output") — caught here
+because the coordinator checked a specific finding against domain
+knowledge rather than trusting the tool's output, which is the right
+instinct and the reason this addendum exists.
+
+### Item 2: struck the 76.2%/616 figures
+
+Confirmed and corrected in §8 above — the specific numbers are no longer
+repeated in this document; only the fact that a larger, non-zero
+routed-copper figure appeared elsewhere and did not describe this
+committed artifact is noted, with a pointer to where it was corrected
+(`docs/STRATEGY.md` commit `391ed5d3`).
+
+### Item 3: topology-from-geometry inference is unsound in general
+
+Reinforced in §8 above with an explicit statement rather than leaving it
+implicit in the `check_cm_choke_placement` row's caveat alone.
+
+### Item 4: the ~10x leakage-current discrepancy, investigated further
+
+**Re-derivation, precisely (Python, not mental arithmetic — the same class
+of error this task's own memory bank warns about):**
+
+```
+C = I / (2*pi*f*V)
+I = 3.5 mA, f = 50 Hz, V = 250 V  ->  C = 44.56 nF   (10.1x the stub's 4.4nF default)
+I = 0.75 mA (IEC 60335-1 Class I portable limit)      ->  C = 9.55 nF   (2.2x)
+I = 1.35 mA (see below)                               ->  C = 17.2 nF   (3.9x)
+```
+
+**New research this round, specifically on which appliance-classification
+touch-current figure actually applies to this product:**
+
+- IEC 60335-1's Class I touch-current limits (via a Digikey article and
+  corroborating search results) are **not a single number** — they differ
+  by appliance category: 0.75mA for portable appliances, 3.5mA for
+  *stationary motor-operated* appliances, and — the category that actually
+  matters here — **"0.75mA or 0.75mA per kW rated input power, whichever
+  is higher, up to a maximum of 5mA," for stationary *heating*
+  appliances.**
+- Temper is an induction cooktop: a stationary heating appliance (IEC
+  60335-2-6, "particular requirements for stationary cooking ranges, hobs,
+  ovens" — search results confirm induction hobs are explicitly in this
+  Part 2-6's scope, not the portable-appliance Part 2-9), rated 1800W
+  (1.8kW). Applying the per-kW formula: `0.75mA x 1.8kW = 1.35mA` (above
+  the 0.75mA floor, well under the 5mA cap) — so **1.35mA, not 3.5mA, is
+  the figure that plausibly applies to this specific product**, if the
+  per-kW formula above is stated correctly (it was not independently
+  confirmed against IEC 60335-1's primary text; secondary-source only).
+- 1.35mA corresponds to ~17.2nF, not 44.6nF (the 3.5mA figure) and not
+  4.4nF (the stub's default) — a third, different number, closer to the
+  stub's own docstring citation of "3.5mA" in magnitude-of-error terms
+  than to the stub's actual 4.4nF value, but matching neither exactly.
+
+**Determination:** I cannot access IEC 60335-1's or IEC 60335-2-6's
+primary text (both paywalled; not fetched) to confirm the exact applicable
+number, so the precise correct capacitance ceiling remains
+**UNVERIFIED**. What I can say with reasonable confidence from this
+research: under *every* standard-category interpretation found (portable
+0.75mA, stationary-heating-per-kW 1.35mA, or stationary-motor-operated
+3.5mA), the real permitted Y-cap ceiling comes out **higher** than the
+stub's 4.4nF default — by roughly 2x to 10x depending on category. That
+means:
+
+- The **direction** of the discrepancy is the safe one: `check_y_cap_placement`'s
+  4.4nF default is, if anything, *more conservative* than any interpretation
+  of the standard actually requires — not a validator that would pass a
+  design the real standard would reject.
+- I did **not** change the 4.4nF default. Touch-current limits are
+  classification-dependent and safety-critical; picking a specific
+  replacement number requires either primary-standard access or a
+  qualified person's product-classification sign-off, neither of which
+  this pass has. Changing it on secondary-source research alone would
+  replace one unverified number with another unverified number.
+- This differs from item 1: there, multiple independent sources agreed on
+  one clear direction with no contradicting source, and the design's own
+  wiring corroborated it. Here, the sources characterize a
+  classification-dependent *family* of numbers (0.75mA / 1.35mA / 3.5mA
+  depending on category) rather than one clear figure, and I could not
+  independently confirm which category-specific formula is exactly right
+  without the primary text. Flagged UNVERIFIED rather than guessed, per
+  the task's own standing instruction.
+- In this design specifically, the real Y-cap total (2.2nF, one cap) is
+  comfortably under every candidate ceiling found (4.4nF through 44.6nF),
+  so this ambiguity does not change today's real-board verdict — noted for
+  whoever tightens or re-derives this default later.

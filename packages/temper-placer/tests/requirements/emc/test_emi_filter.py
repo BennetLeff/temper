@@ -37,12 +37,18 @@ pytestmark = pytest.mark.skipif(
 
 @pytest.fixture
 def correct_filter_layout():
-    """EMI filter with correct component placement."""
+    """EMI filter with correct component placement.
+
+    MOV is downstream of (after) the fuse, not before it -- corrected
+    2026-07-26, see check_mov_placement's docstring and
+    docs/evidence/2026-07-26-emc-validators-implemented.md "Addendum": an
+    MOV ahead of the fuse fails short with no overcurrent protection.
+    """
     return {
         "input_connector": (10.0, 50.0),
         "components": {
-            FilterComponent.MOV: (15.0, 50.0),
-            FilterComponent.FUSE: (20.0, 50.0),
+            FilterComponent.FUSE: (15.0, 50.0),
+            FilterComponent.MOV: (20.0, 50.0),
             FilterComponent.L_DM: (30.0, 50.0),
             FilterComponent.C_X1: (40.0, 50.0),
             FilterComponent.L_CM: (50.0, 50.0),
@@ -256,13 +262,21 @@ class TestYCapPlacement:
 
 
 class TestMOVPlacement:
-    """Tests for MOV (surge suppressor) placement."""
+    """Tests for MOV (surge suppressor) placement.
+
+    Corrected 2026-07-26: the requirement is MOV *downstream of* (after)
+    the fuse, not before it -- see check_mov_placement's docstring and
+    docs/evidence/2026-07-26-emc-validators-implemented.md "Addendum" for
+    why the original "before or parallel to fuse" requirement was backwards
+    for a safety-certified mains appliance (an MOV ahead of the fuse fails
+    short with no overcurrent protection).
+    """
 
     def test_mov_at_input(self):
-        """MOV should be at AC input, before fuse."""
+        """MOV should be at the AC input, downstream of the fuse."""
         result = check_mov_placement(
-            mov_position=(15.0, 50.0),
-            fuse_position=(20.0, 50.0),
+            mov_position=(20.0, 50.0),
+            fuse_position=(15.0, 50.0),
             input_connector=(10.0, 50.0),
             line_trace=[(10.0, 52.0), (15.0, 52.0), (20.0, 52.0)],
             neutral_trace=[(10.0, 48.0), (15.0, 48.0), (20.0, 48.0)],
@@ -270,17 +284,19 @@ class TestMOVPlacement:
 
         assert result.passed
 
-    def test_mov_after_fuse_fails(self):
-        """MOV after fuse should fail."""
+    def test_mov_before_fuse_fails(self):
+        """MOV upstream of (before) the fuse should fail -- an end-of-life
+        MOV short would then have no overcurrent protection."""
         result = check_mov_placement(
-            mov_position=(25.0, 50.0),  # After fuse
+            mov_position=(10.0, 50.0),  # Before fuse -- unprotected if it shorts
             fuse_position=(20.0, 50.0),
-            input_connector=(10.0, 50.0),
-            line_trace=[(10.0, 52.0), (20.0, 52.0), (25.0, 52.0)],
-            neutral_trace=[(10.0, 48.0), (20.0, 48.0), (25.0, 48.0)],
+            input_connector=(5.0, 50.0),
+            line_trace=[(5.0, 52.0), (10.0, 52.0), (20.0, 52.0)],
+            neutral_trace=[(5.0, 48.0), (10.0, 48.0), (20.0, 48.0)],
         )
 
         assert not result.passed
+        assert any(v.code == "MOV-001" for v in result.violations)
 
 
 # =============================================================================
@@ -475,15 +491,29 @@ class TestEMIFilterIntegration:
         """Temper board EMI filter should meet all REQ-EMC-03 requirements.
 
         Implemented 2026-07-26, replacing "Temper board fixture not yet
-        available". Two real limitations, reported rather than papered
-        over (see docs/evidence/2026-07-26-emc-validators-implemented.md
-        for the full writeup):
+        available"; **corrected the same day** after coordinator review
+        overturned the original MOV finding -- see
+        docs/evidence/2026-07-26-emc-validators-implemented.md "Addendum"
+        for the full research and reasoning. Summary: the first pass of
+        this test asserted `check_mov_placement` should FAIL on the real
+        board (MOV placed after the fuse). That was backwards --
+        `check_mov_placement`'s original "before or parallel to fuse"
+        requirement was itself the bug, not this board's wiring. An MOV's
+        dominant failure mode is a low-resistance short; placing it
+        upstream of the fuse means a shorted MOV has no overcurrent
+        protection at all -- a fire mechanism. The real design
+        (`elec/src/modules.ato:658-659`: `fuse.p2 ~ mov.p1`) has the MOV
+        correctly downstream of the fuse. The requirement was corrected
+        (see `_CANONICAL_ORDER`'s comment in emi_filter.py and
+        `check_mov_placement`'s docstring), and this test now asserts the
+        real board PASSES.
+
+        Two other real limitations remain, reported rather than papered
+        over (see the evidence doc for the full writeup):
 
         1. ``pcb/temper.kicad_pcb`` has zero routed copper segments and
            zero vias (verified: ``grep -c '(segment'`` / ``'(via'`` both
-           return 0) -- the "76.2% routed" figure in docs/STRATEGY.md is
-           produced transiently by the router pipeline, not persisted into
-           this file. Every trace-geometry check (check_x_cap_placement's
+           return 0). Every trace-geometry check (check_x_cap_placement's
            PE-proximity leg, check_pe_trace_requirements,
            check_line_neutral_pe_spacing) has nothing to measure and is
            skipped here rather than fed empty lists and reported as a
@@ -493,17 +523,10 @@ class TestEMIFilterIntegration:
            "left-to-right flow" ordering check_filter_signal_flow /
            check_filter_component_order / check_cm_choke_placement assume
            is not a reliable proxy for true physical signal-path order on
-           this specific layout. Their raw output is still reported for
-           completeness but is *not* asserted on alone -- only findings
-           independently corroborated by schematic-level netlist adjacency
-           (grepped from elec/src/modules.ato, cited below) are asserted.
-
-        The one real, well-corroborated finding: `modules.ato` wires
-        `fuse.p2 ~ mov.p1` -- the MOV is downstream of the fuse in the
-        schematic, not "at the AC input, before or parallel to the fuse"
-        as check_mov_placement's own docstring (and EN 55014-1 practice)
-        requires. This agrees with the real placement too (RV1 x=65.51 is
-        past F1 x=34.95), independently, on both counts.
+           this specific layout -- these checks infer topology from
+           geometry, which is unsound in general whenever a layout isn't
+           collinear. Their raw output is reported in the evidence doc for
+           completeness but is *not* asserted on here.
         """
         positions = _load_real_emi_filter_positions()
 
@@ -525,12 +548,13 @@ class TestEMIFilterIntegration:
             neutral_trace=[],
         )
 
-        assert not result.passed, (
-            "check_mov_placement should flag the real board: MOV (RV1) is wired "
-            "and placed after the fuse (F1), not at/before it -- expected finding, "
-            "not a false positive (see docstring above)"
+        assert result.passed, (
+            "check_mov_placement should now PASS on the real board: MOV (RV1) is "
+            "wired and placed downstream of the fuse (F1), which is the correct, "
+            "safety-relevant requirement (see docstring above) -- a failure here "
+            "would mean the fix regressed"
         )
-        assert any(v.code == "MOV-001" for v in result.violations)
+        assert not any(v.code == "MOV-001" for v in result.violations)
 
     def test_complete_filter_validation(self, correct_filter_layout):
         """Complete EMI filter should pass all checks.

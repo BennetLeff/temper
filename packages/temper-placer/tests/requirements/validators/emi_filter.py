@@ -53,14 +53,41 @@ class EMIFilterResult:
 
 
 # Canonical left-to-right topology order (EN 55014-1 Pi-filter pattern):
-# MOV shunts the input (parallel, at/before the fuse); FUSE; optional DM
-# inductor; the "input side" X-cap; the CM choke; the Y-caps (line/neutral
-# to PE, after the choke); the "output side" X-cap. Shared by both
+# FUSE; MOV (downstream of / protected by the fuse -- see the note on
+# check_mov_placement below, corrected 2026-07-26); optional DM inductor;
+# the "input side" X-cap; the CM choke; the Y-caps (line/neutral to PE,
+# after the choke); the "output side" X-cap. Shared by both
 # check_filter_signal_flow and check_filter_component_order -- they differ
 # only in whether an input-connector reference point is included.
+#
+# FUSE precedes MOV, not the reverse: an MOV's dominant end-of-life failure
+# mode is thermal runaway to a low-resistance short (it does not fail open).
+# If the MOV sits upstream of the fuse -- directly across the incoming AC
+# line with the fuse only protecting circuitry further downstream -- a
+# shorted MOV draws fault current straight from the mains with nothing in
+# this appliance to interrupt it, a fire mechanism. Placing the MOV
+# downstream so the fuse's own current path includes it means a shorted MOV
+# blows the fuse and de-energizes the appliance. This matches this design's
+# actual wiring (elec/src/modules.ato:658-659: `fuse.p2 ~ mov.p1`,
+# `mov.p2 ~ ac_n`) and multiple independent secondary engineering sources
+# describing the same fuse-then-MOV topology for IEC 60335-class appliance
+# input protection (e.g. a Digikey IEC 60335 power-supply design article
+# citing a commercial reference design: "a 2A/300V slow-blow fuse is
+# provided upfront, along with a metal oxide varistor... this sequential
+# arrangement means the fuse sits between the AC source and the MOV,
+# protecting the entire circuit including the varistor itself";
+# corroborated by general MOV-fusing fire-safety literature describing
+# external fusing of MOVs against short-circuit failure). **UNVERIFIED
+# against the full primary text of UL 1449 / IEC 61051-1** (both paywalled,
+# not fetched in this pass) -- this is secondary-source corroboration, not
+# a primary-standard citation, but no source found in this research
+# contradicted it. Before 2026-07-26 this order had MOV ahead of FUSE,
+# which was backwards; a real-board check against that version flagged this
+# design's correct MOV-after-fuse wiring as a violation. See
+# docs/evidence/2026-07-26-emc-validators-implemented.md Sec "Addendum".
 _CANONICAL_ORDER: tuple[FilterComponent, ...] = (
-    FilterComponent.MOV,
     FilterComponent.FUSE,
+    FilterComponent.MOV,
     FilterComponent.L_DM,
     FilterComponent.C_X1,
     FilterComponent.L_CM,
@@ -145,10 +172,11 @@ def check_filter_signal_flow(
     """
     Check that filter components follow left-to-right signal flow.
 
-    Proper signal flow: AC_IN → FUSE → L_DM → C_X1 → L_CM → C_X2 → Rectifier
-    (MOV shunts the input, so it must be at/before FUSE; Y-caps land between
-    the choke and the output X-cap, per REQ-EMC-03's canonical topology --
-    see ``_CANONICAL_ORDER``).
+    Proper signal flow: AC_IN → FUSE → MOV → L_DM → C_X1 → L_CM → C_X2 →
+    Rectifier (MOV shunts L-N *downstream of* the fuse, so a shorted MOV is
+    interrupted by it -- see ``_CANONICAL_ORDER`` for why; Y-caps land
+    between the choke and the output X-cap, per REQ-EMC-03's canonical
+    topology).
 
     Args:
         component_positions: Dict of {component_type: (x, y)}
@@ -181,8 +209,8 @@ def check_filter_component_order(
     Check that filter components are in correct topology order.
 
     Required order:
-    1. MOV (parallel to input)
-    2. FUSE
+    1. FUSE
+    2. MOV (downstream of / protected by the fuse -- see ``_CANONICAL_ORDER``)
     3. L_DM (optional)
     4. C_X1 (line-to-neutral)
     5. L_CM (common-mode choke)
@@ -370,7 +398,20 @@ def check_mov_placement(
     Check MOV (Metal Oxide Varistor) placement.
 
     Requirements:
-    - At AC input, before or parallel to fuse
+    - At the AC input, but electrically downstream of (protected by) the
+      fuse -- **not** before or in parallel with it. Corrected 2026-07-26:
+      this function previously required the MOV *before or parallel to* the
+      fuse, which is backwards for a safety-certified mains appliance and
+      flagged this design's actually-correct wiring
+      (`elec/src/modules.ato:658-659`: `fuse.p2 ~ mov.p1`) as a violation.
+      An MOV's characteristic end-of-life failure mode is thermal runaway to
+      a low-resistance short, not an open circuit. If the MOV sits ahead of
+      the fuse, a shorted MOV draws fault current directly from the mains
+      with nothing in the appliance to interrupt it -- a fire mechanism.
+      Downstream placement means the fuse's own current path includes the
+      MOV, so a shorted MOV blows the fuse. See ``_CANONICAL_ORDER``'s
+      comment for sourcing (secondary-source corroborated; UL 1449 /
+      IEC 61051-1 primary text UNVERIFIED, both paywalled).
     - Short leads to L, N (minimize inductance)
     - Allow clearance for thermal expansion
 
@@ -385,7 +426,7 @@ def check_mov_placement(
         EMIFilterResult with violations
     """
     lead_length_warn_mm = 15.0  # heuristic "short leads minimize inductance"; UNVERIFIED numeric source
-    x_tolerance_mm = 0.01  # float-compare slack for "at or before"
+    x_tolerance_mm = 0.01  # float-compare slack for "at or after"
 
     violations: list[EMIFilterViolation] = []
     if mov_position[0] < input_connector[0] - x_tolerance_mm:
@@ -401,15 +442,16 @@ def check_mov_placement(
                 severity="warning",
             )
         )
-    if mov_position[0] > fuse_position[0] + x_tolerance_mm:
+    if mov_position[0] < fuse_position[0] - x_tolerance_mm:
         violations.append(
             EMIFilterViolation(
                 component="MOV",
                 code="MOV-001",
                 message=(
-                    f"MOV (x={mov_position[0]:.1f}) is placed after the fuse "
-                    f"(x={fuse_position[0]:.1f}) -- it must be at the AC input, "
-                    "before or parallel to the fuse"
+                    f"MOV (x={mov_position[0]:.1f}) is placed before the fuse "
+                    f"(x={fuse_position[0]:.1f}) -- an end-of-life MOV failure "
+                    "shorts the mains with no overcurrent protection unless the "
+                    "MOV is downstream of (protected by) the fuse"
                 ),
                 location=mov_position,
                 severity="error",
