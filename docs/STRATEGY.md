@@ -472,6 +472,44 @@ Also surfaced: **`FUNCTIONAL_TEST_CRITERIA.md` §1.2 specifies a 200 W ±25%
 power tier that has no corresponding gate** in this document. That is an
 omitted requirement, not a lost qualifier.
 
+### A requirement was encoded backwards, and implementing it faithfully exposed it (2026-07-26)
+
+`check_mov_placement`'s docstring required the MOV *"at AC input, **before or
+parallel to** fuse"*. The design has `modules.ato:658-659` —
+`fuse.p2 ~ mov.p1` — putting the MOV **downstream**. The validator therefore
+reported a violation on a **correct** design.
+
+The docstring was wrong. MOVs degrade toward a short, so an MOV upstream of the
+fuse sits across the mains with no overcurrent protection — a fire mechanism.
+Standard practice fuses the MOV. Corrected, with the reversal recorded inline.
+
+**Honest limitation:** UL 1449 and IEC 61051-1 primary text is paywalled and
+was not read. The correction rests on secondary engineering sources —
+consistent and uncontradicted, but marked **UNVERIFIED at the primary source**.
+
+**This is a distinct failure from the ones catalogued so far.** Not a lossy
+summary, not a stale measurement, not a vacuous check — **the specification
+itself was backwards**, and every downstream artifact faithfully reproduced it.
+`METHODOLOGY.md` §5's "the oracle is not exempt" covers the principle; this is
+its sharpest instance yet, because the wrong requirement would have generated a
+**false safety alarm on a correct board**. A validator that fails a correct
+mains design is worse than no validator: it teaches people to ignore safety
+output.
+
+**The open question it raises is bigger than the MOV.** Twenty stub docstrings
+were implemented today across `clearance.py`, `isolation.py`, `emi_filter.py`
+and `ground_plane.py`. Each was written as a requirement and, so far as anyone
+can tell, **never checked against a standard**. One of the ~27 has now been
+proven backwards. The rest are unaudited.
+
+Related, from the same pass: the IEC 60335-1 Class I touch-current limit is
+**classification-dependent** — 0.75 mA portable, 3.5 mA stationary
+motor-operated, or 0.75 mA/kW capped at 5 mA for stationary heating, which is
+the category a 1.8 kW cooktop falls in under IEC 60335-2-6 (~1.35 mA). None
+maps cleanly to the stub's 4.4 nF default, but every reading puts the true
+ceiling *higher*, so the error is in the safe direction. Left unchanged rather
+than swapping one unverified number for another.
+
 ### Correction: the committed board is UNROUTED (2026-07-26)
 
 This document previously reported the board as **"76.2% routed with 616
