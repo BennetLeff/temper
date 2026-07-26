@@ -209,6 +209,7 @@ def main() -> int:
 
     evidence = {
         "schema_version": 1,
+        "provenance": base.collect_provenance(REPO_ROOT),
         "measurement_date": _dt.date.today().isoformat(),
         "harness": "simulation/harness/run_tank_coil_sweep.py",
         "netlist": "simulation/harness/nets/zvs_margin_sweep.cir (extended with i_pan_rms_last .meas)",

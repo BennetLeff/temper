@@ -93,6 +93,9 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[2]
 HARNESS_DIR = Path(__file__).resolve().parent
 NETS_DIR = HARNESS_DIR / "nets"
+
+sys.path.insert(0, str(REPO_ROOT / "scripts"))
+from _lib.provenance import collect as collect_provenance  # noqa: E402
 MASTER_CIR = NETS_DIR / "zvs_margin_sweep.cir"
 
 # --- Sourced from elec/ (read-only); duplicated here (not imported from
@@ -470,6 +473,7 @@ def main() -> int:
 
     evidence = {
         "schema_version": 1,
+        "provenance": collect_provenance(REPO_ROOT),
         "measurement_date": _dt.date.today().isoformat(),
         "invocation": invocation,
         "harness": "simulation/harness/run_zvs_sweep.py",

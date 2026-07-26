@@ -81,6 +81,9 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 HARNESS_DIR = Path(__file__).resolve().parent
 NETLIST = HARNESS_DIR / "nets" / "ovp01_trip_point.cir"
 
+sys.path.insert(0, str(REPO_ROOT / "scripts"))
+from _lib.provenance import collect as collect_provenance  # noqa: E402
+
 # Component values below are copied read-only from elec/src/modules.ato ::
 # OVPComparator, as of the 2026-07-27 half-bus retune.
 VCC_V = 3.3
@@ -199,6 +202,7 @@ def build_evidence(
 
     return {
         "schema_version": 1,
+        "provenance": collect_provenance(REPO_ROOT),
         "measurement_date": _dt.date.today().isoformat(),
         "invocation": invocation,
         "harness": "simulation/harness/run_ovp01_sim.py",

@@ -81,6 +81,9 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 HARNESS_DIR = Path(__file__).resolve().parent
 NETLIST = HARNESS_DIR / "nets" / "thm01_trip_point.cir"
 
+sys.path.insert(0, str(REPO_ROOT / "scripts"))
+from _lib.provenance import collect as collect_provenance  # noqa: E402
+
 # Component / thermistor values below are copied read-only from
 # elec/src/modules.ato :: ThermalComparator, as of the 2026-07-26
 # hysteresis fix (r_ref_top/r_ref_bot/r_hyst all changed from the previous
@@ -237,6 +240,7 @@ def build_evidence(
 
     return {
         "schema_version": 1,
+        "provenance": collect_provenance(REPO_ROOT),
         "measurement_date": _dt.date.today().isoformat(),
         "invocation": invocation,
         "harness": "simulation/harness/run_thm01_sim.py",
