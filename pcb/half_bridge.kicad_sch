@@ -48,6 +48,23 @@
         (pin bidirectional line (at 15.24 0.00 180) (length 2.54) (name "2" (effects (font (size 1.27 1.27)))) (number "2" (effects (font (size 1.27 1.27)))))
       )
     )
+    (symbol "C0603C104K5RACTU"
+      (pin_names (offset 1.016))
+      (exclude_from_sim no)
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "U" (at 0 12.70 0) (effects (font (size 1.27 1.27))))
+      (property "Value" "C0603C104K5RACTU" (at 0 -12.70 0) (effects (font (size 1.27 1.27))))
+      (property "Footprint" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
+      (property "Datasheet" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
+      (property "Description" "src/components.ato:Capacitor" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
+      (symbol "C0603C104K5RACTU_0_1"
+        (rectangle (start -12.70 -10.16) (end 12.70 10.16) (stroke (width 0.254) (type default)) (fill (type background))))
+      (symbol "C0603C104K5RACTU_1_1"
+        (pin bidirectional line (at -15.24 0.00 0) (length 2.54) (name "1" (effects (font (size 1.27 1.27)))) (number "1" (effects (font (size 1.27 1.27)))))
+        (pin bidirectional line (at 15.24 0.00 180) (length 2.54) (name "2" (effects (font (size 1.27 1.27)))) (number "2" (effects (font (size 1.27 1.27)))))
+      )
+    )
     (symbol "CUSTOM_LITZ_COIL"
       (pin_names (offset 1.016))
       (exclude_from_sim no)
@@ -78,23 +95,6 @@
       (symbol "FKP1U021507E00JSSD_0_1"
         (rectangle (start -12.70 -10.16) (end 12.70 10.16) (stroke (width 0.254) (type default)) (fill (type background))))
       (symbol "FKP1U021507E00JSSD_1_1"
-        (pin bidirectional line (at -15.24 0.00 0) (length 2.54) (name "1" (effects (font (size 1.27 1.27)))) (number "1" (effects (font (size 1.27 1.27)))))
-        (pin bidirectional line (at 15.24 0.00 180) (length 2.54) (name "2" (effects (font (size 1.27 1.27)))) (number "2" (effects (font (size 1.27 1.27)))))
-      )
-    )
-    (symbol "GRM188R71E104KA01D"
-      (pin_names (offset 1.016))
-      (exclude_from_sim no)
-      (in_bom yes)
-      (on_board yes)
-      (property "Reference" "U" (at 0 12.70 0) (effects (font (size 1.27 1.27))))
-      (property "Value" "GRM188R71E104KA01D" (at 0 -12.70 0) (effects (font (size 1.27 1.27))))
-      (property "Footprint" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
-      (property "Datasheet" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
-      (property "Description" "src/components.ato:Capacitor" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
-      (symbol "GRM188R71E104KA01D_0_1"
-        (rectangle (start -12.70 -10.16) (end 12.70 10.16) (stroke (width 0.254) (type default)) (fill (type background))))
-      (symbol "GRM188R71E104KA01D_1_1"
         (pin bidirectional line (at -15.24 0.00 0) (length 2.54) (name "1" (effects (font (size 1.27 1.27)))) (number "1" (effects (font (size 1.27 1.27)))))
         (pin bidirectional line (at 15.24 0.00 180) (length 2.54) (name "2" (effects (font (size 1.27 1.27)))) (number "2" (effects (font (size 1.27 1.27)))))
       )
@@ -245,7 +245,7 @@
   )
 
   (symbol
-    (lib_id "GRM188R71E104KA01D")
+    (lib_id "C0603C104K5RACTU")
     (at 90.80 50.80 0)
     (unit 1)
     (exclude_from_sim no)
@@ -254,7 +254,7 @@
     (dnp no)
     (uuid "ccb6072e-d13a-c18f-0b8e-5c83753eeef3")
     (property "Reference" "C18" (at 90.80 48.26 0) (effects (font (size 1.27 1.27))))
-    (property "Value" "GRM188R71E104KA01D" (at 90.80 53.34 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "C0603C104K5RACTU" (at 90.80 53.34 0) (effects (font (size 1.27 1.27))))
     (property "Footprint" "Capacitor_SMD:C_0603_1608Metric" (at 90.80 50.80 0) (effects (font (size 1.27 1.27)) hide))
     (pin "1" (uuid "54a81073-0a99-5489-c4a5-01e1fab7206a"))
     (pin "2" (uuid "7c6ce1c6-06e4-e3de-a4c8-2325085ae8bd"))
@@ -272,7 +272,7 @@
   )
 
   (symbol
-    (lib_id "GRM188R71E104KA01D")
+    (lib_id "C0603C104K5RACTU")
     (at 130.80 50.80 0)
     (unit 1)
     (exclude_from_sim no)
@@ -281,7 +281,7 @@
     (dnp no)
     (uuid "5f49fe0d-76ea-2694-9e88-ecaf0df2a175")
     (property "Reference" "C19" (at 130.80 48.26 0) (effects (font (size 1.27 1.27))))
-    (property "Value" "GRM188R71E104KA01D" (at 130.80 53.34 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "C0603C104K5RACTU" (at 130.80 53.34 0) (effects (font (size 1.27 1.27))))
     (property "Footprint" "Capacitor_SMD:C_0603_1608Metric" (at 130.80 50.80 0) (effects (font (size 1.27 1.27)) hide))
     (pin "1" (uuid "dbd10507-5c6f-a52a-0496-68a53eb0fe38"))
     (pin "2" (uuid "1bb22f8c-1f8d-c8bf-425d-c999f557b00c"))
@@ -299,7 +299,7 @@
   )
 
   (symbol
-    (lib_id "GRM188R71E104KA01D")
+    (lib_id "C0603C104K5RACTU")
     (at 170.80 50.80 0)
     (unit 1)
     (exclude_from_sim no)
@@ -308,7 +308,7 @@
     (dnp no)
     (uuid "e2e89cc6-85a7-ea42-5dc7-90556220f608")
     (property "Reference" "C20" (at 170.80 48.26 0) (effects (font (size 1.27 1.27))))
-    (property "Value" "GRM188R71E104KA01D" (at 170.80 53.34 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "C0603C104K5RACTU" (at 170.80 53.34 0) (effects (font (size 1.27 1.27))))
     (property "Footprint" "Capacitor_SMD:C_0603_1608Metric" (at 170.80 50.80 0) (effects (font (size 1.27 1.27)) hide))
     (pin "1" (uuid "465e3eaa-9bc9-59ba-98fd-a5ffc289f4e4"))
     (pin "2" (uuid "2cde4148-8ad7-e7bf-2552-fc27c812a262"))
@@ -327,7 +327,7 @@
   )
 
   (symbol
-    (lib_id "GRM188R71E104KA01D")
+    (lib_id "C0603C104K5RACTU")
     (at 210.80 50.80 0)
     (unit 1)
     (exclude_from_sim no)
@@ -336,7 +336,7 @@
     (dnp no)
     (uuid "c670b5fe-0f83-9aaf-3a93-bb1f2a156b1e")
     (property "Reference" "C21" (at 210.80 48.26 0) (effects (font (size 1.27 1.27))))
-    (property "Value" "GRM188R71E104KA01D" (at 210.80 53.34 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "C0603C104K5RACTU" (at 210.80 53.34 0) (effects (font (size 1.27 1.27))))
     (property "Footprint" "Capacitor_SMD:C_0603_1608Metric" (at 210.80 50.80 0) (effects (font (size 1.27 1.27)) hide))
     (pin "1" (uuid "bcb9de10-8d25-0444-717e-779f505f3033"))
     (pin "2" (uuid "5fdec2ce-b282-a957-0a69-aca8bd1a8642"))
@@ -355,7 +355,7 @@
   )
 
   (symbol
-    (lib_id "GRM188R71E104KA01D")
+    (lib_id "C0603C104K5RACTU")
     (at 50.80 80.80 0)
     (unit 1)
     (exclude_from_sim no)
@@ -364,7 +364,7 @@
     (dnp no)
     (uuid "334611e0-c49c-5cbd-166c-6925a70d6fa7")
     (property "Reference" "C22" (at 50.80 78.26 0) (effects (font (size 1.27 1.27))))
-    (property "Value" "GRM188R71E104KA01D" (at 50.80 83.34 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "C0603C104K5RACTU" (at 50.80 83.34 0) (effects (font (size 1.27 1.27))))
     (property "Footprint" "Capacitor_SMD:C_0603_1608Metric" (at 50.80 80.80 0) (effects (font (size 1.27 1.27)) hide))
     (pin "1" (uuid "aa9c749b-8af4-f35d-22fa-6f89df6d6b86"))
     (pin "2" (uuid "cbbd47df-f7cf-062d-2876-c39c400dcdd6"))
@@ -381,7 +381,7 @@
   )
 
   (symbol
-    (lib_id "GRM188R71E104KA01D")
+    (lib_id "C0603C104K5RACTU")
     (at 90.80 80.80 0)
     (unit 1)
     (exclude_from_sim no)
@@ -390,7 +390,7 @@
     (dnp no)
     (uuid "d16d7772-8be8-1fea-7112-83fcdfa4f759")
     (property "Reference" "C23" (at 90.80 78.26 0) (effects (font (size 1.27 1.27))))
-    (property "Value" "GRM188R71E104KA01D" (at 90.80 83.34 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "C0603C104K5RACTU" (at 90.80 83.34 0) (effects (font (size 1.27 1.27))))
     (property "Footprint" "Capacitor_SMD:C_0603_1608Metric" (at 90.80 80.80 0) (effects (font (size 1.27 1.27)) hide))
     (pin "1" (uuid "c66f8d9e-1441-b15b-ba4f-3476f05acaac"))
     (pin "2" (uuid "075a1ef4-7471-614b-de7f-7daa8323afcf"))

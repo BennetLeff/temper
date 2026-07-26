@@ -83,6 +83,23 @@
         (pin bidirectional line (at 15.24 0.00 180) (length 2.54) (name "2" (effects (font (size 1.27 1.27)))) (number "2" (effects (font (size 1.27 1.27)))))
       )
     )
+    (symbol "B32922C3224M289"
+      (pin_names (offset 1.016))
+      (exclude_from_sim no)
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "U" (at 0 12.70 0) (effects (font (size 1.27 1.27))))
+      (property "Value" "B32922C3224M289" (at 0 -12.70 0) (effects (font (size 1.27 1.27))))
+      (property "Footprint" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
+      (property "Datasheet" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
+      (property "Description" "src/components.ato:Capacitor" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
+      (symbol "B32922C3224M289_0_1"
+        (rectangle (start -12.70 -10.16) (end 12.70 10.16) (stroke (width 0.254) (type default)) (fill (type background))))
+      (symbol "B32922C3224M289_1_1"
+        (pin bidirectional line (at -15.24 0.00 0) (length 2.54) (name "1" (effects (font (size 1.27 1.27)))) (number "1" (effects (font (size 1.27 1.27)))))
+        (pin bidirectional line (at 15.24 0.00 180) (length 2.54) (name "2" (effects (font (size 1.27 1.27)))) (number "2" (effects (font (size 1.27 1.27)))))
+      )
+    )
     (symbol "B82726S2163N030"
       (pin_names (offset 1.016))
       (exclude_from_sim no)
@@ -149,23 +166,6 @@
       (symbol "CRGP2512F22K_0_1"
         (rectangle (start -12.70 -10.16) (end 12.70 10.16) (stroke (width 0.254) (type default)) (fill (type background))))
       (symbol "CRGP2512F22K_1_1"
-        (pin bidirectional line (at -15.24 0.00 0) (length 2.54) (name "1" (effects (font (size 1.27 1.27)))) (number "1" (effects (font (size 1.27 1.27)))))
-        (pin bidirectional line (at 15.24 0.00 180) (length 2.54) (name "2" (effects (font (size 1.27 1.27)))) (number "2" (effects (font (size 1.27 1.27)))))
-      )
-    )
-    (symbol "DE2E3KH221MA3B"
-      (pin_names (offset 1.016))
-      (exclude_from_sim no)
-      (in_bom yes)
-      (on_board yes)
-      (property "Reference" "U" (at 0 12.70 0) (effects (font (size 1.27 1.27))))
-      (property "Value" "DE2E3KH221MA3B" (at 0 -12.70 0) (effects (font (size 1.27 1.27))))
-      (property "Footprint" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
-      (property "Datasheet" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
-      (property "Description" "src/components.ato:Capacitor" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
-      (symbol "DE2E3KH221MA3B_0_1"
-        (rectangle (start -12.70 -10.16) (end 12.70 10.16) (stroke (width 0.254) (type default)) (fill (type background))))
-      (symbol "DE2E3KH221MA3B_1_1"
         (pin bidirectional line (at -15.24 0.00 0) (length 2.54) (name "1" (effects (font (size 1.27 1.27)))) (number "1" (effects (font (size 1.27 1.27)))))
         (pin bidirectional line (at 15.24 0.00 180) (length 2.54) (name "2" (effects (font (size 1.27 1.27)))) (number "2" (effects (font (size 1.27 1.27)))))
       )
@@ -368,7 +368,7 @@
   )
 
   (symbol
-    (lib_id "DE2E3KH221MA3B")
+    (lib_id "B32922C3224M289")
     (at 50.80 50.80 0)
     (unit 1)
     (exclude_from_sim no)
@@ -377,7 +377,7 @@
     (dnp no)
     (uuid "4768dcc9-c6b8-4b4e-6751-7cb9f2c0f6a8")
     (property "Reference" "C1" (at 50.80 48.26 0) (effects (font (size 1.27 1.27))))
-    (property "Value" "DE2E3KH221MA3B" (at 50.80 53.34 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "B32922C3224M289" (at 50.80 53.34 0) (effects (font (size 1.27 1.27))))
     (property "Footprint" "Capacitor_THT:C_Disc_D10.0mm_W5.0mm_P5.00mm" (at 50.80 50.80 0) (effects (font (size 1.27 1.27)) hide))
     (pin "1" (uuid "02e5e19b-c3ac-1239-6d39-fa70b0403221"))
     (pin "2" (uuid "d931e980-75be-22e4-6463-a8fd8d1b8bc8"))
@@ -506,7 +506,7 @@
   )
 
   (symbol
-    (lib_id "DE2E3KH221MA3B")
+    (lib_id "B32922C3224M289")
     (at 50.80 80.80 0)
     (unit 1)
     (exclude_from_sim no)
@@ -515,7 +515,7 @@
     (dnp no)
     (uuid "b998cae6-6158-7f59-a4d3-96c0daefaabf")
     (property "Reference" "C6" (at 50.80 78.26 0) (effects (font (size 1.27 1.27))))
-    (property "Value" "DE2E3KH221MA3B" (at 50.80 83.34 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "B32922C3224M289" (at 50.80 83.34 0) (effects (font (size 1.27 1.27))))
     (property "Footprint" "Capacitor_THT:C_Disc_D10.0mm_W5.0mm_P5.00mm" (at 50.80 80.80 0) (effects (font (size 1.27 1.27)) hide))
     (pin "1" (uuid "52f10881-bbbb-f01d-e8d6-9714f045de42"))
     (pin "2" (uuid "727cd593-0fab-f2c2-4403-fc237f7ffe96"))

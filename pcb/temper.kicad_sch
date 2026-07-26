@@ -317,13 +317,13 @@
       (uuid "d61e9cdf-09bc-7250-1d3b-31e4d719b811"))    (pin "safety-line" bidirectional
       (at 25.40 355.91 180)
       (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "285de1d1-486a-70dd-826a-0918d3d0e3d1"))    (pin "safety-line-1" bidirectional
+      (uuid "285de1d1-486a-70dd-826a-0918d3d0e3d1"))    (pin "safety-line-2" bidirectional
       (at 25.40 360.99 180)
       (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "6ced48dc-d1b9-e79b-2784-4925c47816a7"))    (pin "safety-line-2" bidirectional
+      (uuid "b2ebde12-66b1-406c-e33e-43facb9d2179"))    (pin "safety-line-3" bidirectional
       (at 25.40 366.07 180)
       (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "b2ebde12-66b1-406c-e33e-43facb9d2179"))    (pin "tank-out" bidirectional
+      (uuid "5710f77a-0d5a-8e23-03b0-2cccda8a541d"))    (pin "tank-out" bidirectional
       (at 25.40 371.15 180)
       (effects (font (size 1.27 1.27)) (justify left))
       (uuid "84a0ecf8-8817-0834-63a2-b98423cf50ec"))    (instances
@@ -394,15 +394,15 @@
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "884a6b5d-d42c-6aef-b539-d604379df2d0")
   )
-  (label "safety-line-1"
+  (label "safety-line-2"
     (at 25.40 360.99 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid "face9a68-e1a1-b852-1565-74a35455468a")
+    (uuid "49b16725-5ac3-ddb7-a52b-981ba59a4bf4")
   )
-  (label "safety-line-2"
+  (label "safety-line-3"
     (at 25.40 366.07 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid "49b16725-5ac3-ddb7-a52b-981ba59a4bf4")
+    (uuid "d61c0ec2-447d-80b6-1875-2b9d8e8bf74a")
   )
   (label "tank-out"
     (at 25.40 371.15 0)
@@ -561,13 +561,13 @@
       (uuid "f6a61036-2bf6-f636-ad48-480a66c8df29"))    (pin "safety-line" bidirectional
       (at 25.40 553.39 180)
       (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "da211559-95db-51d5-093e-747123856787"))    (pin "safety-line-1" bidirectional
+      (uuid "da211559-95db-51d5-093e-747123856787"))    (pin "safety-line-2" bidirectional
       (at 25.40 558.47 180)
       (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "0b04cf66-680d-246c-3e0c-663bba776411"))    (pin "safety-line-2" bidirectional
+      (uuid "960bbcac-69f0-69a5-958a-dc01070b9f07"))    (pin "safety-line-3" bidirectional
       (at 25.40 563.55 180)
       (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "960bbcac-69f0-69a5-958a-dc01070b9f07"))    (instances
+      (uuid "2247fd57-42df-6510-474a-77032149e2ff"))    (instances
       (project "temper"
         (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
           (page "7")
@@ -665,15 +665,15 @@
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "9ce506dc-f27d-f7bb-82f5-16640a29bc93")
   )
-  (label "safety-line-1"
+  (label "safety-line-2"
     (at 25.40 558.47 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid "90cbe16f-2d3a-52b9-df02-f664e980b121")
+    (uuid "3420e550-58bf-6d02-0bc4-ebbf2c1769ae")
   )
-  (label "safety-line-2"
+  (label "safety-line-3"
     (at 25.40 563.55 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid "3420e550-58bf-6d02-0bc4-ebbf2c1769ae")
+    (uuid "fd60be4c-b1c2-f885-2de3-59c400656a80")
   )
 
   (sheet_instances
