@@ -181,13 +181,29 @@ module Top:
     # Critical for IEC 60335-1 compliance
     # ===========================================================================
     
-    # OCP must trip before IGBT SOA limit
-    # IGBT rated 40A continuous, SOA allows 60A pulsed
-    # OCP trips at ~37.6A (per OCPComparator)
-    i_ocp_trip: current = 37.6A
+    # OCP must trip before IGBT SOA limit.
+    # IGBT rated 40A continuous, SOA allows 60A pulsed.
+    #
+    # OCP-01 is specified as a PEAK threshold (FUNCTIONAL_TEST_CRITERIA §2.1
+    # gives "50A Peak"), and there is no rectifier in the sense path, so the
+    # comparator trips on instantaneous tank current. Both quantities are
+    # carried here because the two limits they must clear are in different
+    # bases: the SOA pulsed limit is a peak rating, the 40A device rating is
+    # continuous.
+    #
+    # The previous form asserted a 37.6A trip against BOTH limits. That value
+    # was stale after the burden was corrected to 4.99R, and comparing a peak
+    # trip against a continuous rating was the wrong comparison regardless --
+    # at the true 50.1A peak it would fail 50.1 < 40 while the design is
+    # actually sound, because 50.1A peak is 35.4A RMS.
+    i_ocp_trip_peak: current = 50.1A          # 2.500V / 4.99R * 100
+    i_ocp_trip_rms: current = 35.4A           # peak / sqrt(2), sinusoidal tank
     i_igbt_soa_limit: current = 60A
-    assert i_ocp_trip < i_igbt_soa_limit
-    assert i_ocp_trip < hb.power_loop.q_high.current_rating
+
+    # Peak trip must clear the pulsed SOA limit.
+    assert i_ocp_trip_peak < i_igbt_soa_limit
+    # RMS-equivalent trip must clear the continuous device rating.
+    assert i_ocp_trip_rms < hb.power_loop.q_high.current_rating
     
     # OVP must trip before bus capacitor ratings exceeded
     # Bus caps rated 250V each, in series = 500V total
