@@ -189,3 +189,42 @@ bundling Route A avoids a second HV re-layout pass later.
 - A specific 1200V/1A fast-recovery diode part number and its Vf for the DESAT blocking diode (STTH1R06, the existing doc's choice, is confirmed wrong at 600V).
 - Board-area/routing-completion deltas for either route — no layout or DRC run was attempted; comparisons to the CST3015 regression are qualitative.
 - Any specific IEC 60335-1 clause requiring device-level (DESAT-class) protection — not found in this repo or externally in this session.
+
+---
+
+## Review record (2026-07-26)
+
+**Accepted.** The recommendation — keep the de-scope, and if ever revisited do
+Route A only — is well supported, and the spike corrected two things it was
+given rather than accepting them.
+
+**It corrected the reviewer's premise.** The task brief asserted `UCC14140` was
+the current isolated bias supply. It is not:
+`GATE_DRIVER_POWER_ARCHITECTURE_DECISION.md:19` records it as evaluated and
+explicitly rejected in favour of bootstrap for the high side, with the low-side
+supply still owed regardless of DESAT. Verified.
+
+**The finding that decides the question** is that Route B, derived honestly, is
+**slower than OCP-02**: a workable blanking time lands the discrete chain near
+2.4 µs against OCP-02's ~0.92 µs. DESAT's entire justification is beating the
+current-sense chain on speed, so a discrete implementation that loses that race
+has no reason to exist. That reasoning is what makes "Route A or nothing" the
+right shape of answer, rather than a preference.
+
+**Three further errors in `IGBT_DESATURATION_PROTECTION.md`**, on top of the
+two already known (UCC21551 has no DESAT pin; UCC21553 is not a real part):
+
+1. Its recommended blocking diode `STTH1R06` is a **600 V** part, not 1200 V as
+   claimed. Worth noting that this diode was among the 19 lines removed from
+   the BOM — a 600 V device on a 340 V bus with switching transients was
+   marginal at best, so those lines were wrong twice over.
+2. Its blanking-time algebra is unworkable at 340 V with a plain resistor.
+3. Its high-side DESAT comparator shares a ground with the ESP32, which cannot
+   work — that node floats on the switching node to 340 V.
+
+That document should now be treated as unreliable throughout, or retired.
+
+**Open, and correctly flagged:** board-area and routing deltas for either route
+(no layout attempted), and whether any IEC 60335-1 clause specifically requires
+device-level protection. The second is the one that could still overturn the
+recommendation, and it needs a standards reading rather than a datasheet.
