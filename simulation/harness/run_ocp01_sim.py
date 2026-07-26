@@ -74,7 +74,7 @@ NETLIST = HARNESS_DIR / "nets" / "ocp01_trip_point.cir"
 # They are NOT re-derived here from any generated netlist -- see the
 # Phase 1 finding recorded in this run's evidence file about why no
 # whole-schematic SPICE netlist exists.
-R_BURDEN_OHM = 4.99
+R_BURDEN_OHM = 6.65
 CT_RATIO_N = 100
 VCC_V = 3.3
 R_REF_TOP_OHM = 3200
@@ -172,7 +172,7 @@ def build_evidence(
                 "subckt": "CT_WITH_BURDEN",
                 "calibrated": False,
                 "note": (
-                    "N=100, R_BURDEN=4.99 sourced from elec/src/modules.ato "
+                    "N=100, R_BURDEN=6.65 sourced from elec/src/modules.ato "
                     "(read-only). RW=50 (winding resistance) is the "
                     "subckt's own default, NOT verified against the real "
                     "CST2010-100L datasheet."

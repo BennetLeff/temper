@@ -99,8 +99,18 @@
 
 | Ref | Description | Part Number | Manufacturer | Qty | Package | Notes |
 |-----|-------------|-------------|--------------|-----|---------|-------|
-| CT1 | Current Transformer | CST-1005 | Coilcraft | 1 | SMD | 1:1000, 200kHz BW |
-| R_BURDEN | Burden Resistor | RC1206FR-0766R5L | Yageo | 1 | 1206 | 66.5Ω 1% 1/4W (50A -> 3.3V) |
+| CT1 | Current Transformer | CST2010-100L | Coilcraft | 1 | SMD | 1:100, senses to 47A, 1500Vrms isolation |
+| R_BURDEN | Burden Resistor | RC1206FR-076R65L | Yageo | 1 | 1206 | 6.65Ω 1% 1/4W — trips at 37.6A, see note |
+
+> **OCP-01 unresolved.** The burden above gives a 37.6 A trip, **7.4 A below the
+> OCP-01 45–55 A requirement**. It cannot simply be lowered: CT1 senses to 47 A,
+> so only 45–47 A satisfies both, and ±1% tolerances close that window. Needs a
+> CT rated above ~55 A, a revised OCP-01 spec, or 0.1% parts.
+> See `docs/hardware/PROTECTION_CHAIN_REVIEW.md`.
+>
+> Previous entries here specified `CST-1005` (1:1000) and a 66.5 Ω burden — the
+> superseded design point. `CST-1005` was retired in commit `5a58b397`
+> (5 A, 50/60 Hz only, 65 °C max) and the source has used `CST2010-100L` since.
 
 ### 4.4 Redundant Overcurrent Protection (DC Bus Shunt)
 
@@ -173,8 +183,22 @@
 
 | Ref | Description | Part Number | Manufacturer | Qty | Package | Notes |
 |-----|-------------|-------------|--------------|-----|---------|-------|
-| NTC_IGBT | NTC Thermistor | NCU18XH103F6SRB | Murata | 1 | 0603 | 10kΩ @ 25°C B=3950 |
-| R_NTC_PU | NTC Pull-up | RC0603FR-0710KL | Yageo | 1 | 0603 | 10kΩ 1% |
+| NTC_HS | NTC Thermistor (heatsink) | NTCALUG01A104GA | Vishay BCcomponents | 1 | M3 lug | 100kΩ @ 25°C, B25/85=4190K, 1500VAC isolation |
+| R_NTC_PU | NTC Divider Fixed | RC0603FR-0710KL | Yageo | 1 | 0603 | 10kΩ 1% — matches R_NTC at the 85°C trip |
+| R_THM_REF_T | Thermal Ref Divider High | RC0603FR-079K53L | Yageo | 1 | 0603 | 9.53kΩ 1% |
+| R_THM_REF_B | Thermal Ref Divider Low | RC0603FR-0710KL | Yageo | 1 | 0603 | 10kΩ 1% |
+| R_THM_HYST | Thermal Hysteresis | RC0603FR-07100KL | Yageo | 1 | 0603 | 100kΩ 1% — 5.6°C hysteresis |
+
+> **THM-01 corrected 2026-07-25.** Trips at 84.91 °C (simulated), against the
+> 85 °C requirement. Previously 99.47 °C.
+>
+> The thermistor entry was wrong: this listed `NCU18XH103F6SRB` (10 kΩ, B=3950)
+> while the source has used `NTCALUG01A104GA` (100 kΩ, B=4190, marked
+> "VERIFIED 2026-07-16") — a different resistance decade *and* a different beta.
+> The three divider resistors were absent from this BOM entirely.
+>
+> **THM-02 (coil NTC, 120 °C) has no circuit and no parts.** Only one
+> `ThermalComparator` exists in source, wired to the heatsink.
 
 ---
 
