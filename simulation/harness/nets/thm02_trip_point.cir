@@ -1,0 +1,112 @@
+* THM-02 trip-point AND recovery-point transient: CoilThermalComparator
+* (elec/src/modules.ato), TLV3201 comparator model, NTC modeled via its own
+* Beta equation.
+*
+* CALIBRATED: false. No bench measurement exists for this circuit. Every
+* component/thermistor value below is copied read-only from the committed
+* atopile source (elec/src/modules.ato: CoilThermalComparator). Nothing
+* here was invented to make the answer come out a particular way.
+*
+* Follows the run_thm01_sim.py / thm01_trip_point.cir pattern exactly,
+* applied to CoilThermalComparator instead of ThermalComparator.
+* CoilThermalComparator did not exist at all until 2026-07-26 -- THM-02
+* (coil 120C) previously had no implementing circuit anywhere in
+* elec/src/modules.ato (see docs/hardware/PROTECTION_CHAIN_REVIEW.md,
+* "OCP-02, THM-02 -- no circuit exists").
+*
+* Sourced values (read-only, elec/src/modules.ato: CoilThermalComparator):
+*   - power_3v3 rail:            3.3 V
+*   - NTC (ntc.mpn = "NTCALUG01A104GA", same family as the heatsink sensor):
+*     R25 = 100 kohm, B25/85 = 4190 K
+*   - r_ntc_fixed:                 3320 ohm (matched to R_NTC at the 120C
+*     trip point, same proportioning rule as the corrected THM-01)
+*   - r_ref_top / r_ref_bot:       3160 / 4420 ohm (reference divider)
+*   - r_hyst:                      11500 ohm, from comp.INP back to comp.OUT
+*     (positive-feedback hysteresis, same topology as ThermalComparator)
+*
+* NTC model: Beta (B-parameter) equation, not a datasheet Steinhart-Hart
+* table (none is committed anywhere in this repo for this part number):
+*     R(T) = R25 * exp( B * (1/T - 1/T25) ),  T in kelvin, T25 = 298.15 K
+* implemented as a temperature-controlled nonlinear resistor to ground via
+* an ngspice B-source, driven by an independent "temperature" voltage
+* source V_TEMP (units: kelvin). This is an idealized ramped proxy signal,
+* not a simulation of coil thermal mass or the NTC's own thermal time
+* constant.
+*
+* Divider topology (as committed, identical structure to ThermalComparator):
+*   VCC -> r_ntc_fixed -> ntc_sense -> NTC(T) -> GND     (comp.INN = ntc_sense)
+*   VCC -> r_ref_top -> comp.INP -> r_ref_bot -> GND     (reference)
+*   comp.INP -> r_hyst -> comp.OUT
+*
+* Hand-derived pre-trip reference (comp.OUT ~ 0V):
+*   G = 1/3160 + 1/4420 + 1/11500 = 6.29657e-4 S
+*   V_ref_pretrip = (3.3/3160) / G = 1.65868 V
+*   R_ntc_trip = V_ref_pretrip * 3320 / (3.3 - V_ref_pretrip) = 3352 ohm
+*   T_trip = 1 / (1/298.15 + ln(3352/100000)/4190) = 393.2 K = 120.05 degC
+*   (module comment: trip 120.0C; module's own worked example gives
+*   R_NTC(120C)=3.35k, matching this by construction.)
+*
+* Hand-derived post-trip (release) reference (comp.OUT ~ VCC=3.3V):
+*   V_ref_release = (3.3/3160 + 3.3/11500) / G = 2.11416 V
+*   R_ntc_release = V_ref_release * 3320 / (3.3 - V_ref_release) = 5920 ohm
+*   T_release = 1 / (1/298.15 + ln(5920/100000)/4190) = 373.2 K = 100.07 degC
+*   (module comment: release 100.1C)
+* Hysteresis (hand): ~20.0 degC, matching the THM-02 requirement of a 120C
+* trip / 100C recovery (FUNCTIONAL_TEST_CRITERIA.md SS2.3).
+*
+* SENSOR RATING CAVEAT (per module comment): NTCALUG01A104GA is specified
+* to +125C, and this gate trips at ~120C -- within 5C of the sensor's own
+* rated maximum. This deck does not evaluate that caveat; it is reported
+* separately by the harness.
+*
+* Ramp: this deck drives temperature UP past the trip point, THEN DOWN
+* past the release point, in one transient run, so both thresholds are
+* measured together from the same latched comparator state.
+*   25 degC (298.15K) -> 200 degC (473.15K) over 300us, then back down to
+*   25 degC (298.15K) over the next 300us. 200C gives ~80C margin above the
+*   120C trip target and the return to 25C gives ~75C margin below the
+*   100C recovery target.
+*
+* Known model-fidelity limit (TLV3201_ngspice.lib): no timing model. This
+* deck measures only the DC/quasi-static trip and release THRESHOLDS, not
+* response time.
+
+.include ../../models/TLV3201_ngspice.lib
+
+.param T_START=298.15
+.param T_PEAK=473.15
+.param T_UP=300u
+.param T_DOWN=300u
+
+V_VCC VCC_3V3 0 DC 3.3
+V_TEMP temp_k 0 PWL(0 {T_START} {T_UP} {T_PEAK} {T_UP+T_DOWN} {T_START})
+
+R_NTC_FIXED VCC_3V3 ntc_sense 3320
+* NTC to ground: nonlinear resistor via Beta equation, R25=100k, B=4190K
+B_NTC ntc_sense 0 I=V(ntc_sense,0)/(100000*exp(4190*((1/V(temp_k))-(1/298.15))))
+
+R_REF_TOP VCC_3V3 vinp 3160
+R_REF_BOT vinp 0 4420
+R_HYST vinp comp_out 11500
+
+X_COMP vinp ntc_sense VCC_3V3 0 comp_out TLV3201_NGSPICE
+
+.control
+set noaskquit
+tran 100n 600u
+meas tran t_trip WHEN v(comp_out)=1.65 RISE=1
+meas tran t_release WHEN v(comp_out)=1.65 FALL=1
+meas tran v_ntc_sense_at_trip FIND v(ntc_sense) AT={t_trip}
+meas tran v_ntc_sense_at_release FIND v(ntc_sense) AT={t_release}
+meas tran temp_k_at_trip FIND v(temp_k) AT={t_trip}
+meas tran temp_k_at_release FIND v(temp_k) AT={t_release}
+print t_trip
+print t_release
+print v_ntc_sense_at_trip
+print v_ntc_sense_at_release
+print temp_k_at_trip
+print temp_k_at_release
+quit
+.endc
+
+.end

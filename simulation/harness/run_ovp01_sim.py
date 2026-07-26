@@ -1,49 +1,48 @@
 #!/usr/bin/env python3
-"""Scriptable, non-interactive ngspice harness for the OVP-01 trip-voltage
-transient (simulation/harness/nets/ovp01_trip_point.cir).
+"""Scriptable, non-interactive ngspice harness for the OVP-01 trip AND
+release-voltage transient (simulation/harness/nets/ovp01_trip_point.cir).
 
 Same template as run_ocp01_sim.py, applied to OVPComparator
 (elec/src/modules.ato) instead of OCPComparator.
 
 What it measures
 -----------------
-A voltage ramp (0 -> 500 V over 500 us) is driven onto the `v_bus.line`
-node exactly as OVPComparator's resistor divider is wired
-(3x 430 kohm top / 10 kohm bottom -> comp.INP; 12 kohm / 10 kohm off the
-3.3 V rail -> comp.INN), feeding a TLV3201 comparator model
-(simulation/models/TLV3201_ngspice.lib). All resistor values are copied
-read-only from elec/src/modules.ato::OVPComparator; this script and its
-netlist never modify anything under elec/.
+A bus-voltage ramp (0 -> 500 V over 250us, THEN BACK DOWN to 0 V over the
+next 250us) is driven onto the `v_bus.line` node exactly as OVPComparator's
+resistor divider is wired (3x 430 kohm top / 10 kohm bottom -> comp.INP;
+1.1 kohm / 10 kohm off the 3.3 V rail -> comp.INN; a NEW 287 kohm
+hysteresis resistor from comp.INP back to comp.OUT), feeding a TLV3201
+comparator model (simulation/models/TLV3201_ngspice.lib). All resistor
+values are copied read-only from elec/src/modules.ato::OVPComparator, as
+of the 2026-07-26 hysteresis fix; this script and its netlist never
+modify anything under elec/.
 
-It reports the v_bus.line voltage at which the comparator output crosses
-the logic threshold ("trip voltage"), and compares it against:
-  - The hand-derived divider trip point (195 V at the v_bus.line node).
-  - OVPComparator's own inline "full bus" claim (390 V, after doubling the
-    195 V half-bus figure -- see the netlist header for why that doubling
-    is a separate, unverified claim about upstream circuit symmetry that
-    this deck does not itself test).
-  - OVP-01's declared 390-410 V spec window (docs/STRATEGY.md).
+The up-then-down ramp lets ONE transient run capture both the TRIP
+threshold, on the way up, and the RELEASE threshold, on the way down --
+the release threshold only exists once the comparator output has actually
+latched high via r_hyst positive feedback on the bus-sense node (INP),
+not the reference node (INN, unlike ThermalComparator).
+
+It reports the v_bus.line voltage at which the comparator trips and
+releases, and compares them against:
+  - The hand-derived divider trip/release points (399.8 V trip, 385.0 V
+    release, from OVPComparator's own inline comment).
+  - OVP-01's declared 390-410 V trip window and 10-20V hysteresis window
+    (docs/FUNCTIONAL_TEST_CRITERIA.md SS2.2).
 
 What "v_bus.line" physically is
 --------------------------------
-main.ato wires `safety.dc_bus.line ~ dc_bus_plus`. dc_bus_plus is the HALF
-bus of the split-rail voltage-doubler topology (nominal ~170V, per
-PowerInput's own `v_bus_half: voltage = 170V` and main.ato's own comment
-"Half-bus input (~170VDC)" on the same net) -- NOT the full 340V bus,
-despite main.ato's top-level `signal dc_bus_plus  # +340V` comment. This
-harness measures the divider circuit as wired: the trip point IN TERMS OF
-THE v_bus.line NODE VOLTAGE, which is what the comparator actually sees.
-Whether that node reaching 195V correctly implies a 390V full-bus event
-depends on an un-simulated symmetry assumption (dc_bus_minus mirrors
-dc_bus_plus) that is outside the scope of this two-terminal divider deck.
+main.ato wires `safety.dc_bus.line ~ dc_bus.line`, the FULL DC bus
+(resolved 2026-07-26 -- an earlier revision of this harness carried a
+stale "half-bus doubling" narrative from when the source was ambiguous;
+see docs/hardware/PROTECTION_CHAIN_REVIEW.md for the resolution history).
+This harness measures the divider circuit as wired: the trip/release
+points at the v_bus.line node, which is what the comparator actually
+sees, with no doubling assumption needed.
 
 What it does NOT measure
 -------------------------
-Propagation delay / hysteresis. TLV3201_ngspice.lib declares no timing
-model. OVPComparator (unlike ThermalComparator) has no hysteresis feedback
-network at all, so there is no hysteresis band to measure either --
-FUNCTIONAL_TEST_CRITERIA.md SS2.2's "10-20V hysteresis" spec column has no
-corresponding circuit element in the committed schematic.
+Propagation delay. TLV3201_ngspice.lib declares no timing model.
 
 Calibration
 -----------
@@ -81,29 +80,39 @@ HARNESS_DIR = Path(__file__).resolve().parent
 NETLIST = HARNESS_DIR / "nets" / "ovp01_trip_point.cir"
 
 # Component values below are copied read-only from elec/src/modules.ato ::
-# OVPComparator.
+# OVPComparator, as of the 2026-07-26 hysteresis fix.
 VCC_V = 3.3
 R_DIV_TOP_OHM = 430_000 * 3
 R_DIV_BOT_OHM = 10_000
-R_REF_TOP_OHM = 732
+R_REF_TOP_OHM = 1_100  # CHANGED from 732 ohm
 R_REF_BOT_OHM = 10_000
+R_HYST_OHM = 287_000  # NEW -- comp.INP (bus-sense node) to comp.OUT
 
-# Hand-derived, from the divider values above:
-#   V(INN) = 3.3 * 10000/(732+10000) = 3.0749 V
-#   V(INP) = V_bus * 10000/1300000 = V_bus/130
-#   trip:  V_bus/130 = 3.0749  =>  V_bus = 399.7 V (at the v_bus.line node)
-HAND_DERIVED_TRIP_V_BUS_NODE_V = 399.7
+# Hand-derived, from the divider values above (see netlist header for the
+# full node-equation derivation):
+#   V(INN) = 3.3 * 10000/(1100+10000) = 2.97297 V
+#   Pre-trip (comp.OUT ~ 0V):  V_bus_trip = 399.85 V
+#   Post-trip (comp.OUT ~ VCC): V_bus_release = 385.02 V
+HAND_DERIVED_TRIP_V_BUS_NODE_V = 399.85
+HAND_DERIVED_RELEASE_V_BUS_NODE_V = 385.02
+
+# Ramp shape, mirrored from the netlist's .param block (read-only copy for
+# the independent ramp-time cross-check derivation).
+RAMP_MAX_V = 500.0
+T_UP_S = 250e-6
+T_DOWN_S = 250e-6
 
 OVP01_SPEC_MIN_V = 390.0
 OVP01_SPEC_MAX_V = 410.0
-# OVPComparator's own inline comment doubles the half-bus trip point to
-# claim a "full bus" trip of 390V. Reported as a derived quantity, not
-# something this two-terminal deck independently verifies (see netlist
-# header and module docstring).
-DESIGN_COMMENT_FULL_BUS_CLAIM_V = 390.0
+OVP01_HYST_MIN_V = 10.0
+OVP01_HYST_MAX_V = 20.0
 
 T_TRIP_RE = re.compile(r"^t_trip\s*=\s*([-+0-9.eE]+)\s*$", re.MULTILINE)
-V_BUS_RE = re.compile(r"^v_bus_at_trip\s*=\s*([-+0-9.eE]+)\s*$", re.MULTILINE)
+T_RELEASE_RE = re.compile(r"^t_release\s*=\s*([-+0-9.eE]+)\s*$", re.MULTILINE)
+V_BUS_TRIP_RE = re.compile(r"^v_bus_at_trip\s*=\s*([-+0-9.eE]+)\s*$", re.MULTILINE)
+V_BUS_RELEASE_RE = re.compile(
+    r"^v_bus_at_release\s*=\s*([-+0-9.eE]+)\s*$", re.MULTILINE
+)
 
 
 class HarnessError(RuntimeError):
@@ -121,29 +130,41 @@ def run_ngspice_once() -> tuple[str, str, int]:
 
 
 def parse_measurements(stdout: str) -> dict[str, float]:
-    t_trip_match = T_TRIP_RE.search(stdout)
-    v_bus_match = V_BUS_RE.search(stdout)
-    if t_trip_match is None or v_bus_match is None:
-        raise HarnessError(
-            "could not parse t_trip / v_bus_at_trip from ngspice stdout -- "
-            "the comparator may never have tripped within the 500us ramp "
-            f"window.\n--- stdout ---\n{stdout}"
-        )
-    return {
-        "t_trip_s": float(t_trip_match.group(1)),
-        "v_bus_at_trip_v": float(v_bus_match.group(1)),
+    matches = {
+        "t_trip_s": T_TRIP_RE.search(stdout),
+        "t_release_s": T_RELEASE_RE.search(stdout),
+        "v_bus_at_trip_v": V_BUS_TRIP_RE.search(stdout),
+        "v_bus_at_release_v": V_BUS_RELEASE_RE.search(stdout),
     }
+    missing = [k for k, v in matches.items() if v is None]
+    if missing:
+        raise HarnessError(
+            f"could not parse {missing} from ngspice stdout -- the "
+            "comparator may never have tripped and/or released within the "
+            f"500us up/down ramp window.\n--- stdout ---\n{stdout}"
+        )
+    return {k: float(v.group(1)) for k, v in matches.items()}
 
 
-def derive_trip_voltage(measurements: dict[str, float]) -> dict[str, float]:
-    """Two independent derivations of the trip voltage from the same run."""
-    ramp_max_v = 500.0
-    ramp_time_s = 500e-6
-    v_from_ramp_time = ramp_max_v * (measurements["t_trip_s"] / ramp_time_s)
-    v_from_divider = measurements["v_bus_at_trip_v"]
+def temp_from_ramp_time_v(t_s: float) -> float:
+    """Independent ramp-time cross-check, valid on either leg of the
+    up-then-down ramp (mirrors the netlist's PWL breakpoints)."""
+    if t_s <= T_UP_S:
+        return RAMP_MAX_V * (t_s / T_UP_S)
+    t_down = t_s - T_UP_S
+    return RAMP_MAX_V - RAMP_MAX_V * (t_down / T_DOWN_S)
+
+
+def derive_trip_and_release(measurements: dict[str, float]) -> dict[str, float]:
+    """Two independent derivations of the trip and release voltage from
+    the same run."""
+    v_trip_from_ramp_time = temp_from_ramp_time_v(measurements["t_trip_s"])
+    v_release_from_ramp_time = temp_from_ramp_time_v(measurements["t_release_s"])
     return {
-        "v_bus_trip_from_ramp_time_v": v_from_ramp_time,
-        "v_bus_trip_from_node_voltage_v": v_from_divider,
+        "v_bus_trip_from_ramp_time_v": v_trip_from_ramp_time,
+        "v_bus_trip_from_node_voltage_v": measurements["v_bus_at_trip_v"],
+        "v_bus_release_from_ramp_time_v": v_release_from_ramp_time,
+        "v_bus_release_from_node_voltage_v": measurements["v_bus_at_release_v"],
     }
 
 
@@ -155,15 +176,21 @@ def build_evidence(
     deterministic: bool,
 ) -> dict:
     v_bus_trip = derived["v_bus_trip_from_node_voltage_v"]
-    agreement_v = abs(
+    v_bus_release = derived["v_bus_release_from_node_voltage_v"]
+    hysteresis_v = v_bus_trip - v_bus_release
+
+    trip_agreement_v = abs(
         derived["v_bus_trip_from_ramp_time_v"]
         - derived["v_bus_trip_from_node_voltage_v"]
     )
-    # RESOLVED 2026-07-26: the divider senses the FULL bus --
-    # modules.ato `ovp.v_bus.line ~ dc_bus.line`, and main.ato declares
-    # dc_bus_plus as +340V_BUS with v_bus_max = 340V. No doubling applies.
-    full_bus_doubled_v = v_bus_trip
-    in_ovp01_window = OVP01_SPEC_MIN_V <= v_bus_trip <= OVP01_SPEC_MAX_V
+    release_agreement_v = abs(
+        derived["v_bus_release_from_ramp_time_v"]
+        - derived["v_bus_release_from_node_voltage_v"]
+    )
+
+    in_trip_window = OVP01_SPEC_MIN_V <= v_bus_trip <= OVP01_SPEC_MAX_V
+    in_hyst_window = OVP01_HYST_MIN_V <= hysteresis_v <= OVP01_HYST_MAX_V
+    within_spec = in_trip_window and in_hyst_window
 
     return {
         "schema_version": 1,
@@ -199,44 +226,43 @@ def build_evidence(
             "r_div_bot_ohm": R_DIV_BOT_OHM,
             "r_ref_top_ohm": R_REF_TOP_OHM,
             "r_ref_bot_ohm": R_REF_BOT_OHM,
+            "r_hyst_ohm": R_HYST_OHM,
             "citation": "elec/src/modules.ato: OVPComparator",
         },
         "v_bus_line_node_identity": {
-            "wired_to": "dc_bus_plus (elec/src/main.ato: safety.dc_bus.line ~ dc_bus_plus)",
-            "actual_nominal_v": 170.0,
-            "citation": (
-                "elec/src/modules.ato PowerInput.v_bus_half = 170V; "
-                "elec/src/main.ato comment 'Half-bus input (~170VDC)' on "
-                "the same dc_bus_plus net"
-            ),
-            "source_self_contradiction": (
-                "elec/src/main.ato's own top-of-file signal comment reads "
-                "'signal dc_bus_plus  # +340V', contradicting every actual "
-                "use of that net (170V half-bus). Structurally identical "
-                "to the OCP-01 docstring-vs-comment mismatch."
+            "wired_to": "dc_bus.line, the FULL DC bus (elec/src/main.ato: safety.dc_bus.line ~ dc_bus.line)",
+            "resolution_note": (
+                "RESOLVED 2026-07-26: the divider senses the full bus, not "
+                "a half-bus requiring a x2 doubling assumption. An earlier "
+                "revision of this harness carried a stale half-bus/doubling "
+                "narrative left over from when main.ato's own comments "
+                "contradicted each other; see "
+                "docs/hardware/PROTECTION_CHAIN_REVIEW.md for the "
+                "resolution history."
             ),
         },
         "measurements": measurements,
         "derived": derived,
-        "internal_consistency_check_v": agreement_v,
+        "internal_consistency_check_trip_v": trip_agreement_v,
+        "internal_consistency_check_release_v": release_agreement_v,
         "verdict": {
             "calibrated": False,
             "measured_trip_v_bus_line_v": round(v_bus_trip, 3),
+            "measured_release_v_bus_line_v": round(v_bus_release, 3),
+            "measured_hysteresis_v": round(hysteresis_v, 3),
             "hand_derived_trip_v_bus_line_v": HAND_DERIVED_TRIP_V_BUS_NODE_V,
-            "hand_sim_agreement_v": round(
+            "hand_derived_release_v_bus_line_v": HAND_DERIVED_RELEASE_V_BUS_NODE_V,
+            "hand_sim_trip_agreement_v": round(
                 abs(v_bus_trip - HAND_DERIVED_TRIP_V_BUS_NODE_V), 4
             ),
-            "design_intent_full_bus_v": round(full_bus_doubled_v, 3),
-            "ovp01_spec_window_v": [OVP01_SPEC_MIN_V, OVP01_SPEC_MAX_V],
-            "within_ovp01_spec_window_if_doubling_assumption_holds": in_ovp01_window,
-            "doubling_assumption_verified_by_this_deck": False,
-            "hysteresis_measured": False,
-            "hysteresis_reason": (
-                "OVPComparator has no hysteresis feedback network in the "
-                "committed schematic (unlike ThermalComparator's r_hyst); "
-                "FUNCTIONAL_TEST_CRITERIA.md's 10-20V hysteresis spec has "
-                "no implementing circuit to measure."
+            "hand_sim_release_agreement_v": round(
+                abs(v_bus_release - HAND_DERIVED_RELEASE_V_BUS_NODE_V), 4
             ),
+            "ovp01_spec_trip_window_v": [OVP01_SPEC_MIN_V, OVP01_SPEC_MAX_V],
+            "ovp01_spec_hysteresis_window_v": [OVP01_HYST_MIN_V, OVP01_HYST_MAX_V],
+            "within_ovp01_trip_window": in_trip_window,
+            "within_ovp01_hysteresis_window": in_hyst_window,
+            "within_ovp01_spec": within_spec,
             "propagation_delay_measured": False,
             "propagation_delay_reason": (
                 "TLV3201_ngspice.lib declares no timing model; a measured "
@@ -244,18 +270,17 @@ def build_evidence(
                 "physical."
             ),
             "summary": (
-                f"Simulated OVP trip point at the v_bus.line node "
-                f"(=dc_bus_plus) is {v_bus_trip:.2f} V (uncalibrated), "
-                f"matching the hand-derived 195 V divider calculation to "
-                f"within {agreement_v:.4f} V. Doubling this half-bus figure "
-                f"per the module's own inline comment gives a 'full bus' "
-                f"claim of {full_bus_doubled_v:.1f} V, which lands inside "
-                f"the OVP-01 390-410V window -- BUT that doubling assumes "
-                f"dc_bus_minus mirrors dc_bus_plus symmetrically, an "
-                f"assumption this single-ended divider deck does not "
-                f"itself verify (dc_bus_minus is not wired to this "
-                f"comparator at all). The circuit AS WIRED trips at "
-                f"{v_bus_trip:.1f} V on the node it actually senses."
+                f"Simulated OVP-01 trip point at the v_bus.line node is "
+                f"{v_bus_trip:.2f} V and release point is "
+                f"{v_bus_release:.2f} V (uncalibrated), giving "
+                f"{hysteresis_v:.2f} V of hysteresis. This is "
+                f"{'WITHIN' if within_spec else 'OUTSIDE'} the OVP-01 "
+                f"390-410V trip / 10-20V hysteresis requirement "
+                f"(FUNCTIONAL_TEST_CRITERIA.md SS2.2), matching the "
+                f"OVPComparator module's own inline hand-derivation "
+                f"(399.8V trip, 385.0V release) to within "
+                f"{abs(v_bus_trip - HAND_DERIVED_TRIP_V_BUS_NODE_V):.2f} V / "
+                f"{abs(v_bus_release - HAND_DERIVED_RELEASE_V_BUS_NODE_V):.2f} V."
             ),
         },
     }
@@ -297,7 +322,7 @@ def main() -> int:
         return 2
 
     measurements = parse_measurements(stdout_runs[0])
-    derived = derive_trip_voltage(measurements)
+    derived = derive_trip_and_release(measurements)
 
     invocation = "uv run python simulation/harness/run_ovp01_sim.py --runs " + str(
         max(2, args.runs)

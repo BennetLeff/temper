@@ -1,54 +1,54 @@
 #!/usr/bin/env python3
-"""Scriptable, non-interactive ngspice harness for the THM-01 trip AND
-recovery transient (simulation/harness/nets/thm01_trip_point.cir).
+"""Scriptable, non-interactive ngspice harness for the THM-02 trip AND
+recovery transient (simulation/harness/nets/thm02_trip_point.cir).
 
-Same template as run_ocp01_sim.py / run_ovp01_sim.py, applied to
-ThermalComparator (elec/src/modules.ato) -- the heatsink NTC comparator.
-As of 2026-07-26 there is a second, structurally identical instance,
-CoilThermalComparator (THM-02, coil NTC), simulated separately by
-run_thm02_sim.py / thm02_trip_point.cir.
+Same template as run_thm01_sim.py, applied to CoilThermalComparator
+(elec/src/modules.ato) instead of ThermalComparator. THM-02 (coil NTC,
+120C) had NO IMPLEMENTING CIRCUIT AT ALL until 2026-07-26 -- see
+docs/hardware/PROTECTION_CHAIN_REVIEW.md's "OCP-02, THM-02 -- no circuit
+exists" finding -- so there was previously nothing for any harness to
+simulate. This is the first THM-02 simulation.
 
 What it measures
 -----------------
-A "temperature" ramp (25 degC -> 150 degC over 300us, THEN BACK DOWN to
-25 degC over the next 300us, represented as an independent voltage source
-in kelvin -- this is a proxy driver, not a thermal-electrical simulation;
-see the netlist header) drives an NTC modeled by its own Beta (B-parameter)
-equation, R25=100k / B=4190K, sourced read-only from
-elec/src/modules.ato::ThermalComparator's inline comment citing the
-committed NTCALUG01A104GA part. The NTC divider and reference divider
-(with the r_hyst positive-feedback network) feed a TLV3201 comparator
-model (simulation/models/TLV3201_ngspice.lib). This script and its
-netlist never modify anything under elec/.
+A "temperature" ramp (25 degC -> 200 degC over 300us, THEN BACK DOWN to
+25 degC over the next 300us) drives an NTC modeled by its own Beta
+(B-parameter) equation, R25=100k / B=4190K -- the same part family as the
+heatsink sensor, per elec/src/modules.ato::CoilThermalComparator's inline
+comment. The NTC divider and reference divider (with the r_hyst
+positive-feedback network) feed a TLV3201 comparator model
+(simulation/models/TLV3201_ngspice.lib). This script and its netlist
+never modify anything under elec/.
 
-The up-then-down ramp lets ONE transient run capture both the TRIP
-(SET) threshold, on the way up, and the RECOVERY (RESET) threshold, on
-the way down -- the recovery threshold only exists once the comparator
-output has actually latched high via r_hyst positive feedback, so it is
-not a property of the divider alone and cannot be read off a
-monotonic-only ramp.
+The up-then-down ramp lets ONE transient run capture both the TRIP (SET)
+threshold, on the way up, and the RECOVERY (RESET) threshold, on the way
+down -- the recovery threshold only exists once the comparator output has
+actually latched high via r_hyst positive feedback.
 
 It reports the trip and recovery temperatures against:
-  - THM-01's declared 85 degC trip / 70 degC recovery spec
+  - THM-02's declared 120 degC trip / 100 degC recovery spec
     (docs/FUNCTIONAL_TEST_CRITERIA.md SS2.3).
-  - ThermalComparator's own inline comment estimates (85.0 degC trip,
-    69.8 degC recovery, from the module's more precise arithmetic).
+  - CoilThermalComparator's own inline comment estimates (120.0 degC trip,
+    100.1 degC recovery).
 
 What it does NOT measure
 -------------------------
 - Response time / propagation delay: TLV3201_ngspice.lib declares no
   timing model.
 - Actual thermal time-constant / mounting: the "temperature ramp" here is
-  an idealized proxy signal, not a simulation of heatsink thermal mass or
-  the NTC's own thermal time constant.
+  an idealized proxy signal, not a simulation of coil thermal mass or the
+  NTC's own thermal time constant.
+- The module's own SENSOR RATING CAVEAT: NTCALUG01A104GA is specified to
+  +125C and this gate trips at ~120C, within 5C of the sensor's own rated
+  maximum. That is a part-selection concern the module flags explicitly;
+  this harness reports the electrical trip/recovery point only.
 
 Calibration
 -----------
-Every model used carries `calibrated: false`. Additionally, no
-Steinhart-Hart table for NTCALUG01A104GA is committed anywhere in this
-repo; the Beta-equation R25/B values are the sourced approximation the
-module's own comment relies on, so this harness is unusually far from
-calibrated even relative to OCP-01/OVP-01 (see `models_used` note).
+Every model used carries `calibrated: false`. No Steinhart-Hart table for
+NTCALUG01A104GA is committed anywhere in this repo; the Beta-equation
+R25/B values are the sourced approximation the module's own comment
+relies on.
 
 Determinism
 -----------
@@ -57,7 +57,7 @@ asserts byte-identical stdout before trusting any single run's numbers.
 
 Usage
 -----
-    uv run python simulation/harness/run_thm01_sim.py [--runs N] [--out PATH]
+    uv run python simulation/harness/run_thm02_sim.py [--runs N] [--out PATH]
 
 Exit codes
 ----------
@@ -79,18 +79,15 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 HARNESS_DIR = Path(__file__).resolve().parent
-NETLIST = HARNESS_DIR / "nets" / "thm01_trip_point.cir"
+NETLIST = HARNESS_DIR / "nets" / "thm02_trip_point.cir"
 
 # Component / thermistor values below are copied read-only from
-# elec/src/modules.ato :: ThermalComparator, as of the 2026-07-26
-# hysteresis fix (r_ref_top/r_ref_bot/r_hyst all changed from the previous
-# revision, which gave only 5.6C of hysteresis because the recovery
-# requirement had been dropped from the summary table).
+# elec/src/modules.ato :: CoilThermalComparator (added 2026-07-26).
 VCC_V = 3.3
-R_NTC_FIXED_OHM = 10_000
-R_REF_TOP_OHM = 9_090
-R_REF_BOT_OHM = 11_500
-R_HYST_OHM = 34_800
+R_NTC_FIXED_OHM = 3_320
+R_REF_TOP_OHM = 3_160
+R_REF_BOT_OHM = 4_420
+R_HYST_OHM = 11_500
 NTC_R25_OHM = 100_000
 NTC_BETA_K = 4190.0
 T25_K = 298.15
@@ -98,15 +95,18 @@ T25_K = 298.15
 # Ramp shape, mirrored from the netlist's .param block (read-only copy for
 # the independent ramp-time cross-check derivation).
 T_START_K = 298.15
-T_PEAK_K = 423.15
+T_PEAK_K = 473.15
 T_UP_S = 300e-6
 T_DOWN_S = 300e-6
 
-THM01_SPEC_TRIP_C = 85.0
-THM01_SPEC_RECOVER_C = 70.0
-DOCSTRING_CLAIM_TRIP_C = 85.0
-DOCSTRING_CLAIM_RECOVER_C = 69.8  # module's own more precise hand comment
+THM02_SPEC_TRIP_C = 120.0
+THM02_SPEC_RECOVER_C = 100.0
+DOCSTRING_CLAIM_TRIP_C = 120.0
+DOCSTRING_CLAIM_RECOVER_C = 100.1  # module's own hand-derivation
 SPEC_MATCH_TOLERANCE_C = 2.0
+
+# Module's own SENSOR RATING CAVEAT: NTCALUG01A104GA is rated to +125C.
+NTC_MAX_RATED_TEMP_C = 125.0
 
 T_TRIP_RE = re.compile(r"^t_trip\s*=\s*([-+0-9.eE]+)\s*$", re.MULTILINE)
 T_RELEASE_RE = re.compile(r"^t_release\s*=\s*([-+0-9.eE]+)\s*$", re.MULTILINE)
@@ -229,18 +229,19 @@ def build_evidence(
         ),
     )
 
-    trip_within_spec = abs(temp_trip_c - THM01_SPEC_TRIP_C) <= SPEC_MATCH_TOLERANCE_C
+    trip_within_spec = abs(temp_trip_c - THM02_SPEC_TRIP_C) <= SPEC_MATCH_TOLERANCE_C
     recovery_within_spec = (
-        abs(temp_release_c - THM01_SPEC_RECOVER_C) <= SPEC_MATCH_TOLERANCE_C
+        abs(temp_release_c - THM02_SPEC_RECOVER_C) <= SPEC_MATCH_TOLERANCE_C
     )
     within_spec = trip_within_spec and recovery_within_spec
+    within_sensor_rating = temp_trip_c < NTC_MAX_RATED_TEMP_C
 
     return {
         "schema_version": 1,
         "measurement_date": _dt.date.today().isoformat(),
         "invocation": invocation,
-        "harness": "simulation/harness/run_thm01_sim.py",
-        "netlist": "simulation/harness/nets/thm01_trip_point.cir",
+        "harness": "simulation/harness/run_thm02_sim.py",
+        "netlist": "simulation/harness/nets/thm02_trip_point.cir",
         "simulator": {
             "tool": "ngspice",
             "determinism_runs": determinism_runs,
@@ -261,16 +262,17 @@ def build_evidence(
                 ),
             },
             {
-                "file": "simulation/harness/nets/thm01_trip_point.cir (inline B-source)",
+                "file": "simulation/harness/nets/thm02_trip_point.cir (inline B-source)",
                 "subckt": "NTC Beta-equation behavioral model",
                 "calibrated": False,
                 "note": (
                     "R25=100k, B=4190K sourced read-only from "
-                    "elec/src/modules.ato ThermalComparator's inline "
-                    "comment (citing NTCALUG01A104GA). No Steinhart-Hart "
-                    "table for this part is committed anywhere in this "
-                    "repo. 'Temperature' is an idealized ramped proxy "
-                    "signal, not a thermal-mass or thermal-time-constant "
+                    "elec/src/modules.ato CoilThermalComparator's inline "
+                    "comment (same NTCALUG01A104GA part family as the "
+                    "heatsink sensor). No Steinhart-Hart table for this "
+                    "part is committed anywhere in this repo. "
+                    "'Temperature' is an idealized ramped proxy signal, "
+                    "not a thermal-mass or thermal-time-constant "
                     "simulation."
                 ),
             },
@@ -284,18 +286,18 @@ def build_evidence(
             "ntc_r25_ohm": NTC_R25_OHM,
             "ntc_beta_k": NTC_BETA_K,
             "ntc_mpn": "NTCALUG01A104GA",
-            "citation": "elec/src/modules.ato: ThermalComparator",
+            "ntc_max_rated_temp_c": NTC_MAX_RATED_TEMP_C,
+            "citation": "elec/src/modules.ato: CoilThermalComparator",
         },
         "implementation_scope": {
-            "instances_of_ThermalComparator_in_modules_ato": 1,
-            "instantiated_as": "SafetyInterlock.thermal (elec/src/modules.ato)",
-            "physical_mounting_per_comment": "lug-mount on heatsink (NTCALUG01A104GA)",
-            "coil_ntc_circuit_exists": True,
+            "instances_of_CoilThermalComparator_in_modules_ato": 1,
+            "instantiated_as": "SafetyInterlock.coil_thermal (elec/src/modules.ato)",
+            "circuit_existed_before_2026_07_26": False,
             "note": (
-                "A second, structurally identical comparator "
-                "(CoilThermalComparator, THM-02) was added 2026-07-26 and "
-                "is simulated separately by run_thm02_sim.py -- see that "
-                "harness's evidence file, not this one."
+                "THM-02 previously had NO implementing circuit at all "
+                "(docs/hardware/PROTECTION_CHAIN_REVIEW.md: 'OCP-02, "
+                "THM-02 -- no circuit exists'). This is the first "
+                "simulation of THM-02."
             ),
         },
         "measurements": measurements,
@@ -309,17 +311,26 @@ def build_evidence(
             "measured_recovery_temp_c": round(temp_release_c, 2),
             "measured_recovery_temp_k": round(temp_release_k, 2),
             "measured_hysteresis_c": round(hysteresis_c, 2),
-            "thm01_spec_trip_c": THM01_SPEC_TRIP_C,
-            "thm01_spec_recover_c": THM01_SPEC_RECOVER_C,
+            "thm02_spec_trip_c": THM02_SPEC_TRIP_C,
+            "thm02_spec_recover_c": THM02_SPEC_RECOVER_C,
             "spec_match_tolerance_c": SPEC_MATCH_TOLERANCE_C,
-            "trip_within_thm01_spec": trip_within_spec,
-            "recovery_within_thm01_spec": recovery_within_spec,
-            "within_thm01_spec": within_spec,
+            "trip_within_thm02_spec": trip_within_spec,
+            "recovery_within_thm02_spec": recovery_within_spec,
+            "within_thm02_spec": within_spec,
             "docstring_claim_trip_c": DOCSTRING_CLAIM_TRIP_C,
             "matches_docstring_claim_trip": abs(temp_trip_c - DOCSTRING_CLAIM_TRIP_C) < 1.0,
             "docstring_claim_recover_c": DOCSTRING_CLAIM_RECOVER_C,
             "matches_docstring_claim_recover": (
                 abs(temp_release_c - DOCSTRING_CLAIM_RECOVER_C) < 1.0
+            ),
+            "within_ntc_sensor_rating": within_sensor_rating,
+            "ntc_sensor_rating_margin_c": round(NTC_MAX_RATED_TEMP_C - temp_trip_c, 2),
+            "sensor_rating_caveat": (
+                "NTCALUG01A104GA is specified to +125C; the simulated trip "
+                f"temperature ({temp_trip_c:.1f}C) is within "
+                f"{NTC_MAX_RATED_TEMP_C - temp_trip_c:.1f}C of that rated "
+                "maximum. Flagged per the module's own comment, not "
+                "resolved by this harness."
             ),
             "response_time_measured": False,
             "response_time_reason": (
@@ -328,17 +339,20 @@ def build_evidence(
                 "time-constant simulation."
             ),
             "summary": (
-                f"Simulated THM-01 (heatsink NTC) trip temperature is "
+                f"Simulated THM-02 (coil NTC) trip temperature is "
                 f"{temp_trip_c:.2f} degC and recovery temperature is "
                 f"{temp_release_c:.2f} degC (uncalibrated), giving "
                 f"{hysteresis_c:.2f} degC of hysteresis. This is "
-                f"{'WITHIN' if within_spec else 'OUTSIDE'} the THM-01 85C "
-                f"trip / 70C recovery requirement "
-                f"(FUNCTIONAL_TEST_CRITERIA.md SS2.3), matching the "
-                f"ThermalComparator module's own inline hand-derivation "
-                f"(85.0C trip, 69.8C recovery) to within "
+                f"{'WITHIN' if within_spec else 'OUTSIDE'} the THM-02 120C "
+                f"trip / 100C recovery requirement "
+                f"(FUNCTIONAL_TEST_CRITERIA.md SS2.3), matching "
+                f"CoilThermalComparator's own inline hand-derivation "
+                f"(120.0C trip, 100.1C recovery) to within "
                 f"{abs(temp_trip_c - DOCSTRING_CLAIM_TRIP_C):.2f} degC / "
-                f"{abs(temp_release_c - DOCSTRING_CLAIM_RECOVER_C):.2f} degC."
+                f"{abs(temp_release_c - DOCSTRING_CLAIM_RECOVER_C):.2f} degC. "
+                f"The trip point sits {NTC_MAX_RATED_TEMP_C - temp_trip_c:.1f} "
+                f"degC below the NTC's own +125C rated maximum -- close "
+                f"enough that the module itself flags it as a caveat."
             ),
         },
     }
@@ -382,7 +396,7 @@ def main() -> int:
     measurements = parse_measurements(stdout_runs[0])
     derived = derive_trip_and_release(measurements)
 
-    invocation = "uv run python simulation/harness/run_thm01_sim.py --runs " + str(
+    invocation = "uv run python simulation/harness/run_thm02_sim.py --runs " + str(
         max(2, args.runs)
     )
     evidence = build_evidence(
@@ -396,7 +410,7 @@ def main() -> int:
     out_path = args.out
     if out_path is None:
         date_str = _dt.date.today().isoformat()
-        out_path = REPO_ROOT / "docs" / "evidence" / f"{date_str}-thm01-trip-point-sim.json"
+        out_path = REPO_ROOT / "docs" / "evidence" / f"{date_str}-thm02-trip-point-sim.json"
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(evidence, indent=2) + "\n")
 
