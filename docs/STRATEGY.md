@@ -336,6 +336,58 @@ fixed silicon with no model.
 circuit, one is ambiguous, and two are unmeasurable in simulation.** None has
 been validated on hardware. These are the gates the safety case rests on.
 
+### BOM vs. source audit (2026-07-25)
+
+Full detail: `docs/evidence/2026-07-25-bom-source-audit.md`.
+
+The two BOM contradictions found incidentally above prompted a systematic
+audit. The BOM and the design source disagree extensively **in both
+directions**:
+
+| Class | Count | Meaning |
+|---|---|---|
+| **A — costed, no circuit** | **35 BOM lines** | Parts ordered for circuits that do not exist |
+| **B — wired, uncosted** | **~75 source components** | Designed circuits whose parts will not be ordered |
+| **C — values disagree** | **16 items** | Same part, different value or MPN |
+
+**Two safety systems are mirror images of each other**, both spot-verified by
+the reviewer:
+
+- **IGBT desaturation protection is costed but never designed.**
+  `docs/hardware/BOM.md:145–163` lists 19 line items — DESAT diodes
+  (STTH1R06, 1200 V), 1 MΩ current-limit resistors, blanking capacitors — and
+  `grep -ni "desat" elec/src/*.ato` returns **nothing**. There is even a
+  `docs/hardware/IGBT_DESATURATION_PROTECTION.md`. DESAT is the mechanism that
+  detects an IGBT short-circuit and shuts the stage down.
+- **Active bus discharge is designed but never costed.** 14 references in
+  `modules.ato` (the router routes `discharge.k_dis1`, `discharge.r_dis1a` and
+  siblings); **zero** BOM entries. This is what makes the 340 V bus safe to
+  touch after power-off.
+
+Also absent from the BOM while present in source: the **isolated auxiliary
+15 V supply** — the actual isolation barrier — and the RTD hardware-window
+fault chain (~25 parts, including the UVL-02 candidate circuit cited above).
+
+Also class A: the secondary-OCP shunt/diff-amp/comparator chain
+(`BOM:109–111`), the precision rectifier (`BOM:185–186`), the ADUM1250 I²C
+isolator (`BOM:95`, explicitly superseded per `components.ato:51–54`), five
+fault LEDs (`BOM:196–201`, whose source comment at `modules.ato:1863` says they
+"remain unassigned"), and 74HC08D/74HC04D logic ICs (`BOM:131–132`) with zero
+references anywhere.
+
+Class C includes the **OCP-01 current-sense pair** (CT + burden,
+`BOM:102–103`) and the **OVP divider** (`BOM:169–170`) — the components that
+set the trip points already recorded as failing and ambiguous above. The
+BOM-vs-source gap on them was previously unnoticed.
+
+**Consequence: the BOM cannot currently be used to order this board.** It bills
+for circuits that were never designed and omits circuits that were. Reconciling
+it is a procurement and design decision, deliberately not made here.
+
+Counts are the audit's; the two safety-system findings and the OCP/OVP value
+gaps were independently spot-verified. Coverage limits and UNRESOLVED items are
+recorded in the evidence document.
+
 ---
 
 ## Architecture decisions
