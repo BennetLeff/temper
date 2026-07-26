@@ -37,14 +37,52 @@ mains-connected appliance.
 Live path: `_pipeline_core.py:358` calls `_run_manufacturing_drc` during
 `route_pcb()`. This is not dead code.
 
-## What it does NOT explain
+## CORRECTION (same day) — the stage never runs at all
 
-**It did not fire during the rung-1 measurement.** The routing log contains
-**zero** `Manufacturing DRC: … check failed` warnings. The checks ran.
+An earlier revision of this document said the checks "ran" during the rung-1
+route, inferred from zero `Manufacturing DRC: … check failed` warnings in the
+log. **That inference was wrong**, and the real finding is larger.
 
-So this is **not** the cause of the 499 `clearance` violations or the
-router-attributed shorts. It is a latent landmine, not the current bug. Anyone
-reading this later should not treat it as the shorts explanation.
+`_pipeline_core.py:355`:
+
+```python
+# Stage 5: Manufacturing DRC (opt-in)
+manufacturing_report = None
+if self.enable_manufacturing_drc:
+```
+
+with `_pipeline_core.py:63`:
+
+```python
+enable_manufacturing_drc: bool = False,
+```
+
+**`route_pcb()` never sets it.** `grep -rn "enable_manufacturing_drc"` across
+`packages/temper-placer/src/` returns hits only inside `_pipeline_core.py`
+itself — no caller enables it.
+
+So the entire manufacturing DRC stage — acid traps, annular rings, teardrops,
+thermal relief, power planes, copper balance, **creepage**, and **clearance** —
+**does not execute during routing.** The absence of failure warnings proved
+nothing, because the code path was never entered.
+
+### This is the shorts root cause
+
+The router emits copper without ever running its own clearance or creepage
+verification. That is why 499 `clearance` violations and ~51 router-attributed
+`shorting_items` reach the output: nothing checks them at emission time.
+
+`clearance_check.py` is 498 lines, imported by **17 test files**, and
+exercised by property-based tests. It is thoroughly tested and, in the
+production routing path, never called.
+
+### The crash-swallow below is still real, and now second-order
+
+`_run_one`'s empty-report fallback remains a genuine defect. It simply cannot
+have fired yet, because the function containing it has never been reached in a
+`route_pcb()` call. **It becomes live the moment the stage is enabled** — which
+is the obvious next step — so it must be fixed *before or with* that change,
+not after.
 
 ## Why it still matters
 
