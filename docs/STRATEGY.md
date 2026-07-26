@@ -21,7 +21,7 @@ evidence, all gathered 2026-07-25 and detailed below:
 
 | | |
 |---|---|
-| **Protection gates** | Of seven: **4 now fixed** (OCP-01, THM-01, OVP-01, THM-02), 1 designed pending a datasheet check (OCP-02), 2 vendor-internal (UVL-01/02), 0 validated on hardware |
+| **Protection gates** | Of seven: **3 fixed** (OCP-01, THM-01, THM-02), **OVP-01 fail-open** (senses the half-bus, can never trip), UVL-02 designed but its fault has nowhere to connect, OCP-02 blocked on sensing domain, UVL-01 vendor-internal. **0 validated on hardware** |
 | **IGBT desaturation protection** | **Does not exist.** 19 BOM lines cost it; `grep -ni desat elec/src/*.ato` returns nothing |
 | **BOM** | Unusable in both directions — 35 lines costed with no circuit, ~75 wired components uncosted |
 | **Router** | ~79% path-finding, but its output carries ~120 shorts and 499 clearance violations |
@@ -390,7 +390,7 @@ values. Simulated results hand-verified against divider arithmetic. Every model
 |---|---|---|---|
 | OCP-01 | 45–55 A | **50.12 A** | **FIXED** 2026-07-25 — needed a new CT (CST3015-100ED, 88 A) |
 | THM-01 | 85 °C | **84.91 °C** | **FIXED** 2026-07-25 — divider re-proportioned |
-| OVP-01 | 390–410 V | **399.88 V** | **FIXED** 2026-07-26 — was 195 V, tripping below normal bus |
+| OVP-01 | 390–410 V | **399.88 V at a node that never exceeds ~170 V** | **FAIL-OPEN** — see "OVP-01 senses the half-bus" below. The 2026-07-26 "fix" broke a working circuit |
 | OCP-02 | 55–65 A | 60.0 A designed | **DESIGNED, not implemented** — INA240 pinout unverified |
 | THM-02 | coil NTC 120 °C | **120.3 °C** | **DESIGNED & WIRED** 2026-07-26 |
 | UVL-01 | <12.0 V | — | **UNMEASURABLE** — internal to UCC21550B silicon |
@@ -471,6 +471,50 @@ corrected for the same reason before the cause was identified.
 Also surfaced: **`FUNCTIONAL_TEST_CRITERIA.md` §1.2 specifies a 200 W ±25%
 power tier that has no corresponding gate** in this document. That is an
 omitted requirement, not a lost qualifier.
+
+### OVP-01 senses the half-bus and is now fail-open (2026-07-26)
+
+**The 2026-07-26 OVP-01 "fix" recorded above disabled a working protection
+circuit.** It reasoned from a net name instead of the topology.
+
+`dc_bus_plus` is the **+170 V half-bus**, not 340 V. The proof needs no
+comment and no datasheet — it is already machine-checked in the source:
+
+```
+modules.ato:614-615   c_bus1.plus ~ dc_bus.hv_plus ; c_bus1.minus ~ dc_bus.gnd_ref
+modules.ato:579       assert c_bus1.voltage_rating >= v_bus_half * 1.25
+```
+
+The design sizes that exact capacitor — the one bridging `hv_plus` to the
+midpoint — against `v_bus_half`. Rated 250 V: `250 >= 212.5` passes against
+170 V; `250 >= 425` would fail against 340 V. 340 V is the differential from
+`hv_plus` to `hv_minus`, not the potential at either node.
+
+Meanwhile `main.ato:94-95` names that node `+340V_BUS` with the comment
+`# +340V`, while `main.ato:270` calls the *same node* "Half-bus input
+(~170VDC)". The file contradicts itself.
+
+**Consequence.** The 1/130 divider with `V_ref = 2.973 V` trips at ~400 V *at
+the sense node*, which sits at 170 V nominal. The comparator can never fire.
+
+**The original 12 kΩ / 1.50 V value was correct**: `1.50 × 130 = 195 V`, exactly
+half of the spec's 390 V — the right threshold for a half-bus sense. The
+premise that the OVP "asserted permanently and the cooker could not have run"
+was false; at 170 V the sense node sits at 1.31 V, *below* the 1.50 V
+reference. The bug being fixed did not exist.
+
+The false reasoning is recorded verbatim in `modules.ato:1590-1599` and is
+being corrected alongside the SELV work, together with the lying net name.
+
+**Resolution is deferred deliberately**, because it is entangled with the SELV
+float: sensing the full bus differentially requires a reference at `hv_minus`
+(−170 V), a second domain problem. Sensing the half-bus at half the threshold
+is simpler but misses fault modes where the two halves diverge.
+
+This is the third gate this session that went green while measuring the wrong
+thing, and the only one where the error was introduced rather than inherited.
+It is the seed defect for the net-name assertion gate in
+`docs/evidence/2026-07-26-three-consistency-gates.md`.
 
 ### The fault tree is full — two designed circuits cannot reach the latch (2026-07-26)
 
