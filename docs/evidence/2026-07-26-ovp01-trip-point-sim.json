@@ -68,5 +68,10 @@
     "propagation_delay_measured": false,
     "propagation_delay_reason": "TLV3201_ngspice.lib declares no timing model; a measured delay from this model would be a modelling artifact, not physical.",
     "summary": "Simulated OVP-01 trip point at the v_bus.line node is 399.96 V and release point is 385.20 V (uncalibrated), giving 14.76 V of hysteresis. This is WITHIN the OVP-01 390-410V trip / 10-20V hysteresis requirement (FUNCTIONAL_TEST_CRITERIA.md SS2.2), matching the OVPComparator module's own inline hand-derivation (399.8V trip, 385.0V release) to within 0.11 V / 0.18 V."
+  },
+  "provenance": {
+    "commit": "UNKNOWN",
+    "dirty": "UNKNOWN",
+    "note": "backfilled prior to the provenance gate's introduction (2026-07-26); no self-declared commit exists in this file's own content and none was fabricated. See .evidence-provenance-allowlist."
   }
 }

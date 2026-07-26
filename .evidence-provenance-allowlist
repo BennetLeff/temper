@@ -1,0 +1,42 @@
+# Evidence provenance allowlist -- monotonically-shrinking baseline
+# Format: <filename under docs/evidence/>  # TODO: temper-xxx
+#
+# An entry represents an evidence file whose commit provenance is
+# genuinely UNKNOWN (predates this gate, or its authoring commit
+# could not be established without fabricating a SHA -- see
+# docs/METHODOLOGY.md Sec 5 and
+# docs/evidence/2026-07-26-measurement-provenance.md).
+# Entries may only be removed when the file gains real commit
+# provenance or is deleted. Entries may only be added with a
+# # TODO: temper-xxx ticket reference.
+
+2026-07-20-tree-executor-resilience-U5-measurement.json  # TODO: temper-xxx
+2026-07-20-via-aware-U8-kicad-drc.json  # TODO: temper-xxx
+2026-07-24-forced-segment-fail-closed-U5-measurement.json  # TODO: temper-xxx
+2026-07-24-r14-pad-tree-promotion-gate-measurement.json  # TODO: temper-xxx
+2026-07-25-bom-source-audit.md  # TODO: temper-xxx
+2026-07-25-erc-first-run.json  # TODO: temper-xxx
+2026-07-25-manufacturing-drc-crash-swallow.md  # TODO: temper-xxx
+2026-07-25-ocp01-trip-point-sim.json  # TODO: temper-xxx
+2026-07-25-ocp02-secondary-ocp-unimplemented.json  # TODO: temper-xxx
+2026-07-25-outline-ab-experiment.log  # TODO: temper-xxx
+2026-07-25-outline-ab-experiment.py  # TODO: temper-xxx
+2026-07-25-ovp01-trip-point-sim.json  # TODO: temper-xxx
+2026-07-25-shorting-items-diagnosis.md  # TODO: temper-xxx
+2026-07-25-thm01-trip-point-sim.json  # TODO: temper-xxx
+2026-07-25-thm02-coil-ntc-unimplemented.json  # TODO: temper-xxx
+2026-07-25-uvl01-gate-drive-uvlo-unmeasured.json  # TODO: temper-xxx
+2026-07-25-uvl02-rtd-avdd-monitor-candidate-sim.json  # TODO: temper-xxx
+2026-07-26-bom-availability-sweep.md  # TODO: temper-xxx
+2026-07-26-bom-blocker-resolution.md  # TODO: temper-xxx
+2026-07-26-bus-capacitor-ripple.md  # TODO: temper-xxx
+2026-07-26-manufacturing-drc-scalability.md  # TODO: temper-xxx
+2026-07-26-ocp01-trip-point-sim.json  # TODO: temper-xxx
+2026-07-26-ocp01-vs-full-power-current.md  # TODO: temper-xxx
+2026-07-26-ovp01-trip-point-sim.json  # TODO: temper-xxx
+2026-07-26-tank-coil-L-sweep.json  # TODO: temper-xxx
+2026-07-26-thm01-trip-point-sim.json  # TODO: temper-xxx
+2026-07-26-thm02-trip-point-sim.json  # TODO: temper-xxx
+2026-07-26-uvl02-logic-uvlo-sim.json  # TODO: temper-xxx
+2026-07-26-zvs-margin-sweep.json  # TODO: temper-xxx
+cp-sat-feasibility-evidence-2026-07-03.md  # TODO: temper-xxx

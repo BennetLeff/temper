@@ -1,5 +1,7 @@
 # Bus capacitor ripple current: does `EKMQ251VSN182MA50S` survive this design?
 
+**Provenance: commit=UNKNOWN dirty=UNKNOWN** -- backfilled prior to the provenance gate's introduction (2026-07-26); no self-declared commit exists in this file's own content and none was fabricated. See .evidence-provenance-allowlist.
+
 **Scope:** `C_BUS1/1B/2/2B`, 4× 1800 µF/250 V United Chemi-Con KMQ, 2 parallel
 per half-bus (`elec/src/modules.ato:521-548`, `BOM.md:52`). No files under
 `elec/`, `pcb/`, or the BOM were modified to produce this document.

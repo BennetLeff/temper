@@ -1211,5 +1211,10 @@
       "i_pan_rms_a": 2.545,
       "p_pan_w": 51.81
     }
-  ]
+  ],
+  "provenance": {
+    "commit": "UNKNOWN",
+    "dirty": "UNKNOWN",
+    "note": "backfilled prior to the provenance gate's introduction (2026-07-26); no self-declared commit exists in this file's own content and none was fabricated. See .evidence-provenance-allowlist."
+  }
 }

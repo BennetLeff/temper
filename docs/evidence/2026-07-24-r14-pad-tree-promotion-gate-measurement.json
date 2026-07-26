@@ -42,5 +42,10 @@
     "status": "not obtained",
     "reason": "solve_placement() raised UnresolvedConstraintRefsError (unresolved named critical-loop constraint refs: commutation_loop, gate_drive_high, gate_drive_low) in this standalone measurement script -- the equivalent pytest test downgrades this via monkeypatch.setattr(encoder, \"_UNRESOLVED_REF_POLICY\", \"warn\") inside the pytest fixture lifecycle, which this ad-hoc script did not correctly replicate. Not pursued further because the production result alone already fails the gate -- the gate requires both criteria, so corpus's result cannot change the verdict."
   },
-  "verdict": "GATE FAILS. Production unconnected_items=322 exceeds the <=260 threshold, and completion (3.45%) is not meaningfully different from the enable_all_pad_tree=False case (0%) -- turning the flag on does not close a fabrication-vs-honesty gap (both paths already fail closed correctly), it exposes a genuine routing-capacity gap: the router's current channel/grid capability cannot legally route most of this board's nets either way. Do NOT promote enable_all_pad_tree to default-on. The blocking work is upstream of this flag -- better corridor/channel routing capacity, congestion-aware ordering, or board-level channel width increases -- not a promotion decision this flag alone can satisfy."
+  "verdict": "GATE FAILS. Production unconnected_items=322 exceeds the <=260 threshold, and completion (3.45%) is not meaningfully different from the enable_all_pad_tree=False case (0%) -- turning the flag on does not close a fabrication-vs-honesty gap (both paths already fail closed correctly), it exposes a genuine routing-capacity gap: the router's current channel/grid capability cannot legally route most of this board's nets either way. Do NOT promote enable_all_pad_tree to default-on. The blocking work is upstream of this flag -- better corridor/channel routing capacity, congestion-aware ordering, or board-level channel width increases -- not a promotion decision this flag alone can satisfy.",
+  "provenance": {
+    "commit": "UNKNOWN",
+    "dirty": "UNKNOWN",
+    "note": "backfilled prior to the provenance gate's introduction (2026-07-26); no self-declared commit exists in this file's own content and none was fabricated. See .evidence-provenance-allowlist."
+  }
 }

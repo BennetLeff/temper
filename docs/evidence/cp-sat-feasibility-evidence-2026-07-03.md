@@ -1,5 +1,7 @@
 # CP-SAT Feasibility Evidence
 
+**Provenance: commit=UNKNOWN dirty=UNKNOWN** -- backfilled prior to the provenance gate's introduction (2026-07-26); no self-declared commit exists in this file's own content and none was fabricated. See .evidence-provenance-allowlist.
+
 **Date:** 2026-07-03
 **Produced by:** U1 — Feasibility evidence (before quality-gap closure)
 **Status:** Documentation artifact — not a live CI gate

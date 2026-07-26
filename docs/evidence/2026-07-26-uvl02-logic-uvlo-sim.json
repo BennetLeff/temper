@@ -92,5 +92,10 @@
     "gate_confirmed_as_uvl02": true,
     "gate_confirmed_as_uvl02_caveat": "This circuit is confirmed as UVL-02's monitor -- it measures the logic rail directly and meets the trip/recovery spec with margin -- but it is NOT YET part of the hardware shutdown path (fault_wired_into_interlock is False). A live UVL-02 trip today reaches a test point, not GATE_DISABLE.",
     "summary": "Simulated UVL-02 (LogicUVLOComparator) trip voltage is 2.7160 V and recovery voltage is 3.2217 V (uncalibrated, nominal component values), giving 0.5057 V of hysteresis. This is WITHIN the UVL-02 <2.9V trip / >3.0V recovery requirement at nominal, matching LogicUVLOComparator's own inline hand-derivation (2.715V trip, 3.222V recover) to within 0.0010V / 0.0000V. Worst-case analytic corner sweep (+/-1% resistors, full datasheet VIT_A range) gives trip <= 2.8004 V and recovery >= 3.1056 V, which is STILL WITHIN spec with 0.0996V / 0.1056V margin respectively. NOT wired into the fault interlock: fault_any_or.C1, the only spare SET-path input, was taken by THM-02 before this circuit existed; no other spare exists (same conclusion as OCP-02 on this fault-tree). fault.line terminates at a test point pending a fault-aggregation redesign."
+  },
+  "provenance": {
+    "commit": "UNKNOWN",
+    "dirty": "UNKNOWN",
+    "note": "backfilled prior to the provenance gate's introduction (2026-07-26); no self-declared commit exists in this file's own content and none was fabricated. See .evidence-provenance-allowlist."
   }
 }

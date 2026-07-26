@@ -56,5 +56,10 @@
     "propagation_delay_measured": false,
     "propagation_delay_reason": "TLV3201_ngspice.lib declares no timing model; a measured delay from this model would be a modelling artifact (~picoseconds), not physical, and is deliberately not reported as an OCP-01 latency figure.",
     "summary": "Simulated OCP trip current is 50.12 A (uncalibrated), within the OCP-01 45-55 A spec window."
+  },
+  "provenance": {
+    "commit": "UNKNOWN",
+    "dirty": "UNKNOWN",
+    "note": "backfilled prior to the provenance gate's introduction (2026-07-26); no self-declared commit exists in this file's own content and none was fabricated. See .evidence-provenance-allowlist."
   }
 }

@@ -82,5 +82,10 @@
     "response_time_measured": false,
     "response_time_reason": "TLV3201_ngspice.lib declares no timing model; the ramped 'temperature' driver is an idealized proxy, not a thermal time-constant simulation.",
     "summary": "Simulated THM-01 (heatsink NTC) trip temperature is 84.99 degC and recovery temperature is 69.83 degC (uncalibrated), giving 15.16 degC of hysteresis. This is WITHIN the THM-01 85C trip / 70C recovery requirement (FUNCTIONAL_TEST_CRITERIA.md SS2.3), matching the ThermalComparator module's own inline hand-derivation (85.0C trip, 69.8C recovery) to within 0.01 degC / 0.03 degC."
+  },
+  "provenance": {
+    "commit": "UNKNOWN",
+    "dirty": "UNKNOWN",
+    "note": "backfilled prior to the provenance gate's introduction (2026-07-26); no self-declared commit exists in this file's own content and none was fabricated. See .evidence-provenance-allowlist."
   }
 }

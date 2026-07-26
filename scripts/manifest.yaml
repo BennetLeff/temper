@@ -1,8 +1,8 @@
 _meta:
   last_audit_date: '2026-06-24'
-  total_scripts: 66
+  total_scripts: 69
   counts:
-    keep: 65
+    keep: 68
     ticket: 1
   ticket_scripts_deleted: 40
 scripts:
@@ -236,9 +236,8 @@ scripts:
   - subprocess
   - sys
 - path: mpn_fabrication_gate.py
-  purpose: >-
-    Fabricated-MPN CI gate: fails closed on non-E-series resistor/capacitor
-    values and MPN/declared-value disagreement in elec/src/*.ato
+  purpose: 'Fabricated-MPN CI gate: fails closed on non-E-series resistor/capacitor values and MPN/declared-value
+    disagreement in elec/src/*.ato'
   owner: pipeline
   last_run: '2026-07-27'
   category: keep
@@ -611,8 +610,8 @@ scripts:
   - sys
   - yaml
 - path: pytest_guard.py
-  purpose: Run pytest and fail if fewer than --min-tests actually executed; catches a
-    suite silently collapsing to zero (missing path, mass skip, bad deselect)
+  purpose: Run pytest and fail if fewer than --min-tests actually executed; catches a suite silently collapsing
+    to zero (missing path, mass skip, bad deselect)
   owner: pipeline
   last_run: '2026-07-27'
   category: keep
@@ -952,4 +951,21 @@ scripts:
   - kiutils.footprint
   - kiutils.items.common
   - pathlib
+  - sys
+- path: check_evidence_provenance.py
+  purpose: 'Fail-closed provenance gate for docs/evidence/: every evidence file must declare how its numbers
+    were produced'
+  owner: bennet
+  last_run: '2026-07-27'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.gate_allowlist
+  - _lib.repo
+  - argparse
+  - json
+  - pathlib
+  - re
+  - rich.console
   - sys

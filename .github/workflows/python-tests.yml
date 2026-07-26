@@ -56,6 +56,10 @@ on:
       - 'scripts/mpn_fabrication_gate.py'
       - 'scripts/tests/test_mpn_fabrication_gate.py'
       - 'docs/hardware/BOM.md'
+      - 'docs/evidence/**'
+      - '.evidence-provenance-allowlist'
+      - 'scripts/check_evidence_provenance.py'
+      - 'scripts/_lib/provenance.py'
   pull_request:
     branches: [main]
     paths:
@@ -107,6 +111,10 @@ on:
       - 'scripts/mpn_fabrication_gate.py'
       - 'scripts/tests/test_mpn_fabrication_gate.py'
       - 'docs/hardware/BOM.md'
+      - 'docs/evidence/**'
+      - '.evidence-provenance-allowlist'
+      - 'scripts/check_evidence_provenance.py'
+      - 'scripts/_lib/provenance.py'
   workflow_dispatch:
   schedule:
     - cron: '0 3 * * *'  # nightly at 3am UTC
@@ -444,6 +452,11 @@ jobs:
         run: |
           uv run python ../../scripts/check_physics_provenance.py --allowlist ../../.physics-provenance-allowlist --physics-dir src/temper_placer/physics/
           uv run python ../../scripts/check_physics_provenance.py --check-shrink --allowlist ../../.physics-provenance-allowlist --physics-dir src/temper_placer/physics/
+
+      - name: Evidence provenance gate (docs/evidence/)
+        run: |
+          uv run python scripts/check_evidence_provenance.py
+          uv run python scripts/check_evidence_provenance.py --check-shrink
 
       - name: Anti-vacuous-truth gate (gates/validators)
         run: uv run python scripts/check_vacuous_gates.py

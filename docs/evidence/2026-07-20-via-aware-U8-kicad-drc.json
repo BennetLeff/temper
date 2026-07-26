@@ -23,5 +23,10 @@
     },
     "wall_time_s": 157.1
   },
-  "verdict": "PASS — unconnected_items 149→0, no regression in safety/manufacturing classes"
+  "verdict": "PASS \u2014 unconnected_items 149\u21920, no regression in safety/manufacturing classes",
+  "provenance": {
+    "commit": "UNKNOWN",
+    "dirty": "UNKNOWN",
+    "note": "backfilled prior to the provenance gate's introduction (2026-07-26); no self-declared commit exists in this file's own content and none was fabricated. See .evidence-provenance-allowlist."
+  }
 }

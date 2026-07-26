@@ -1,3 +1,5 @@
+Provenance: commit=UNKNOWN dirty=UNKNOWN -- backfilled prior to the provenance gate's introduction (2026-07-26); no self-declared commit exists in this file's own content and none was fabricated. See .evidence-provenance-allowlist.
+
 Empty placements provided; routing with existing board positions.
 _to_stage0_netclass_rules: dropping Creepage distance=6.0 for netclass 'ACMains' — no stage0 equivalent field exists
 _to_stage0_netclass_rules: dropping Voltage rating=325.0 for netclass 'ACMains' — no stage0 equivalent field exists

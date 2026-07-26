@@ -1,5 +1,7 @@
 # `shorting_items` diagnosis — zone-pour path exonerated
 
+**Provenance: commit=UNKNOWN dirty=UNKNOWN** -- backfilled prior to the provenance gate's introduction (2026-07-26); no self-declared commit exists in this file's own content and none was fabricated. See .evidence-provenance-allowlist.
+
 **Date:** 2026-07-25
 **Board:** `pcb/temper.kicad_pcb` at outline (20,20)–(172,254)
 **Status:** diagnosis **agent-reported, not independently reproduced**; the

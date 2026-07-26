@@ -1,5 +1,7 @@
 # temper-drc-rs macOS arm64 build — investigation result
 
+**Provenance: commit=ee9ba6ba201cbc60f32f222c2a9d4315748a0aaa dirty=UNKNOWN** -- backfilled: this document's own prose self-declares "this worktree's HEAD (`ee9ba6ba...`)" as the measurement commit; resolved to the full SHA via `git rev-parse ee9ba6ba`. dirty state was not recorded at measurement time and is not reconstructable, so it is UNKNOWN rather than guessed.
+
 **Date:** 2026-07-26
 **Crate:** `packages/temper-drc-rs`
 **Platform:** macOS darwin 25.5.0, Apple Silicon (arm64), rustc 1.92.0, cargo 1.92.0,

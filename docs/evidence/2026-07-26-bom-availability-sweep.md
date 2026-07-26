@@ -1,5 +1,7 @@
 # BOM Availability Sweep — Procurement Risk
 
+**Provenance: commit=UNKNOWN dirty=UNKNOWN** -- backfilled prior to the provenance gate's introduction (2026-07-26); no self-declared commit exists in this file's own content and none was fabricated. See .evidence-provenance-allowlist.
+
 **Date:** 2026-07-26. **Scope:** `docs/hardware/BOM.md` rev 1.5 (155 `elec/src` components + 6 chassis lines, ~182 distinct MPNs). **Method:** live web search + direct distributor/manufacturer page fetches (DigiKey, Mouser, TI, Murata, Littelfuse, TME), cross-checked against `elec/src/*.ato` and `elec/build/default.net`/`default.csv` for what MPN is actually specified. No BOM, `elec/`, or `pcb/` file was modified.
 
 **Distributor figures are a snapshot taken 2026-07-26** — treat stock counts as indicative, not precise; they move daily.
