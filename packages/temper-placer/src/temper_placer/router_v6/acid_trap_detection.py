@@ -29,6 +29,11 @@ class AcidTrapReport:
     """Report of all detected acid traps."""
 
     acid_traps: list[AcidTrap]
+    # True iff the check crashed and this report is a substituted
+    # empty/fallback report rather than a real result. See
+    # docs/evidence/2026-07-25-manufacturing-drc-crash-swallow.md --
+    # a crashed check must be visibly distinct from a clean run.
+    errored: bool = False
 
     @property
     def trap_count(self) -> int:

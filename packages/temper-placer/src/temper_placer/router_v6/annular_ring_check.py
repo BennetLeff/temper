@@ -53,6 +53,10 @@ class AnnularRingReport(BaseCheckReport):
 
     violations: list[AnnularRingViolation]
     total_vias_checked: int
+    # True iff the check crashed and this report is a substituted
+    # empty/fallback report rather than a real result. See
+    # docs/evidence/2026-07-25-manufacturing-drc-crash-swallow.md.
+    errored: bool = False
 
 
 def _check_via(

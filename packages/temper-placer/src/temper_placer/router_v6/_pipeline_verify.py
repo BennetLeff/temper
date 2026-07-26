@@ -250,42 +250,63 @@ def _run_manufacturing_drc(
         print("Stage 5: Manufacturing DRC...")
 
     def _run_one(name, fn, *args, **kwargs):
+        """Run one DFM check in isolation.
+
+        Returns ``(result, errored)``. ``errored`` is True exactly when
+        ``fn`` raised. **Every call site must fold ``errored`` into the
+        substituted report's own ``errored`` field** -- a crashed check
+        must be visibly distinct from a clean run *in the returned
+        report*, not only in this log line. Silently substituting an
+        empty/clean-looking report for a crash was the actual defect;
+        see docs/evidence/2026-07-25-manufacturing-drc-crash-swallow.md.
+        """
         try:
-            return fn(*args, **kwargs)
+            return fn(*args, **kwargs), False
         except Exception:
             _logger.warning(
                 "Manufacturing DRC: %s check failed, continuing",
                 name,
                 exc_info=True,
             )
-            return None
+            return None, True
 
-    acid_traps = _run_one(
+    acid_traps_result, acid_traps_errored = _run_one(
         "acid_trap",
         detect_acid_traps,
         routing_results,
-    ) or AcidTrapReport(acid_traps=[])
-    annular_rings = _run_one(
+    )
+    acid_traps = acid_traps_result or AcidTrapReport(acid_traps=[], errored=acid_traps_errored)
+
+    annular_result, annular_errored = _run_one(
         "annular_ring",
         check_annular_rings,
         routing_results,
-    ) or AnnularRingReport(violations=[], total_vias_checked=0)
-    teardrops = _run_one(
+    )
+    annular_rings = annular_result or AnnularRingReport(
+        violations=[], total_vias_checked=0, errored=annular_errored
+    )
+
+    teardrops_result, teardrops_errored = _run_one(
         "teardrop",
         insert_teardrops,
         routing_results,
-    ) or TeardropReport(teardrops=[])
-    thermal_reliefs = _run_one(
+    )
+    teardrops = teardrops_result or TeardropReport(teardrops=[], errored=teardrops_errored)
+
+    thermal_result, thermal_errored = _run_one(
         "thermal_relief",
         add_thermal_relief,
         routing_results,
         board=pcb.board,
-    ) or ThermalReliefReport(thermal_reliefs=[])
+    )
+    thermal_reliefs = thermal_result or ThermalReliefReport(
+        thermal_reliefs=[], errored=thermal_errored
+    )
 
     if pcb.board is not None:
         from temper_placer.router_v6.power_plane import generate_power_planes
 
-        geometry = _run_one(
+        geometry, power_planes_errored = _run_one(
             "power_planes",
             generate_power_planes,
             pcb.board,
@@ -298,32 +319,74 @@ def _run_manufacturing_drc(
                 len(geometry.power_pours),
                 geometry.via_count,
             )
+        elif power_planes_errored:
+            # power_planes has no dedicated slot in ManufacturingReport, so
+            # this is the only place a crash here is visible. Log at error
+            # (not warning) so it is not lost among routine warnings.
+            _logger.error(
+                "Manufacturing DRC: power_planes check errored -- no power "
+                "plane geometry was generated for this board (see warning "
+                "above for the traceback)."
+            )
 
     copper_balance = CopperBalanceReport(layer_balances=[], total_area_mm2=0.0)
     if pcb.board is not None:
-        copper_balance = (
-            _run_one(
-                "copper_balance",
-                analyze_copper_balance,
-                routing_results,
-                board_width=pcb.board.width,
-                board_height=pcb.board.height,
-            )
-            or copper_balance
+        cb_result, cb_errored = _run_one(
+            "copper_balance",
+            analyze_copper_balance,
+            routing_results,
+            board_width=pcb.board.width,
+            board_height=pcb.board.height,
+        )
+        copper_balance = cb_result or CopperBalanceReport(
+            layer_balances=[], total_area_mm2=0.0, errored=cb_errored
         )
     else:
         _logger.warning("Manufacturing DRC: skipping copper balance -- no board geometry")
 
-    creepage = _run_one(
+    # creepage and clearance carry HV safety meaning on a mains-connected
+    # board and must FAIL CLOSED, matching the `_allow_forced_segments`
+    # precedent in _astar_reconstruct.py: on error, do not fall back to a
+    # report that *reads* as clean. `ManufacturingReport` folds
+    # `errored=True` into critical_violations/total_violations as if a
+    # violation had been found.
+    #
+    # This also covers the anti-vacuous-truth axis (METHODOLOGY.md Sec 5):
+    # a check that ran without raising but examined zero conductor pairs
+    # on a board that has actual routed copper is just as untrustworthy
+    # as a crash, and is tagged `errored=True` too.
+    has_routed_copper = bool(
+        getattr(routing_results, "compiled_routes", None)
+        or getattr(routing_results, "tree_routes", None)
+    )
+
+    creepage_result, creepage_errored = _run_one(
         "creepage",
         verify_creepage,
         routing_results,
-    ) or CreepageReport(violations=[], total_checks=0)
-    clearance = _run_one(
+    )
+    creepage = creepage_result or CreepageReport(violations=[], total_checks=0, errored=True)
+    if not creepage_errored and creepage.total_checks == 0 and has_routed_copper:
+        _logger.error(
+            "Manufacturing DRC: creepage check reported total_checks=0 on "
+            "a board with routed copper -- anti-vacuous-truth guard "
+            "(METHODOLOGY.md Sec 5) fired; treating as errored/fail-closed."
+        )
+        creepage.errored = True
+
+    clearance_result, clearance_errored = _run_one(
         "clearance",
         verify_clearance,
         routing_results,
-    ) or ClearanceReport(violations=[], total_checks=0)
+    )
+    clearance = clearance_result or ClearanceReport(violations=[], total_checks=0, errored=True)
+    if not clearance_errored and clearance.total_checks == 0 and has_routed_copper:
+        _logger.error(
+            "Manufacturing DRC: clearance check reported total_checks=0 on "
+            "a board with routed copper -- anti-vacuous-truth guard "
+            "(METHODOLOGY.md Sec 5) fired; treating as errored/fail-closed."
+        )
+        clearance.errored = True
 
     return generate_manufacturing_report(
         acid_traps,
