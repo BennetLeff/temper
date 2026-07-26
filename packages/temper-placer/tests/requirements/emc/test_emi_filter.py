@@ -139,12 +139,21 @@ class TestFilterComponentOrder:
         assert result.error_count >= 1
 
     def test_x_cap_before_cm_choke(self):
-        """X-caps must be before CM choke."""
+        """X-caps must be before CM choke.
+
+        Fixed 2026-07-26: the original fixture placed the *second* X-cap
+        (C_X2) after the choke and labeled that "wrong" -- but the
+        canonical topology this same module's docstring defines
+        (MOV, FUSE, L_DM, C_X1, L_CM, C_Y1, C_Y2, C_X2) puts C_X2 *after*
+        the choke by design (it is the output-stage cap of a two-stage
+        Pi filter). That fixture was internally inconsistent with its own
+        stated intent ("X-caps must be before CM choke" is true of C_X1,
+        not C_X2). Corrected to actually test C_X1 placed after the choke.
+        """
         result = check_filter_component_order(
             component_positions={
-                FilterComponent.C_X1: (30.0, 50.0),
                 FilterComponent.L_CM: (40.0, 50.0),
-                FilterComponent.C_X2: (50.0, 50.0),  # After choke - wrong
+                FilterComponent.C_X1: (50.0, 50.0),  # After choke - wrong (C_X1 must precede it)
             }
         )
 
@@ -302,6 +311,17 @@ class TestCMChokePlacement:
 
         assert not result.passed
 
+    def test_cm_choke_after_y_caps_fails(self):
+        """CM choke after Y-caps should fail (falsifier for CMC-002)."""
+        result = check_cm_choke_placement(
+            cm_choke_position=(60.0, 50.0),
+            x_cap_positions={"C_X1": (40.0, 50.0)},  # Before choke - correct
+            y_cap_positions={"C_Y1": (55.0, 45.0)},  # Before choke - wrong
+        )
+
+        assert not result.passed
+        assert result.error_count >= 1
+
 
 # =============================================================================
 # PE Trace Tests
@@ -335,6 +355,37 @@ class TestPETraceRequirements:
 
         assert result.passed
 
+    def test_pe_trace_width_below_minimum_fails(self):
+        """PE trace narrower than min_width_mm should fail (falsifier for PE-001).
+
+        Width can only be checked when the trace's points carry a width as a
+        3rd tuple element (see check_pe_trace_requirements docstring note) --
+        the plain 2-tuple contract every other fixture in this suite uses
+        has no width channel at all.
+        """
+        result = check_pe_trace_requirements(
+            pe_trace=[(60.0, 40.0, 1.0), (70.0, 40.0, 1.0)],  # 1mm wide < 2mm minimum
+            pe_connection=(60.0, 40.0),
+            earth_stud=(70.0, 40.0),
+            min_width_mm=2.0,
+        )
+
+        assert not result.passed
+        assert result.error_count >= 1
+
+    def test_pe_trace_zigzag_not_direct_fails(self):
+        """A PE trace that meanders well beyond the straight-line distance should fail
+        (falsifier for PE-002)."""
+        result = check_pe_trace_requirements(
+            pe_trace=[(60.0, 40.0), (62.0, 60.0), (64.0, 20.0), (66.0, 55.0), (70.0, 40.0)],
+            pe_connection=(60.0, 40.0),
+            earth_stud=(70.0, 40.0),
+            min_width_mm=2.0,
+        )
+
+        assert not result.passed
+        assert result.error_count >= 1
+
 
 # =============================================================================
 # L/N/PE Spacing Tests
@@ -355,6 +406,18 @@ class TestLineNeutralPESpacing:
 
         assert result.passed
 
+    def test_line_too_close_to_pe_fails(self):
+        """Line trace <6mm from PE should fail (falsifier for LNPE-001)."""
+        result = check_line_neutral_pe_spacing(
+            line_trace=[(10.0, 44.0), (60.0, 44.0)],  # 4mm from PE - too close
+            neutral_trace=[(10.0, 30.0), (60.0, 30.0)],
+            pe_trace=[(10.0, 40.0), (60.0, 40.0)],
+            min_spacing_mm=6.0,
+        )
+
+        assert not result.passed
+        assert result.error_count >= 1
+
     def test_insufficient_spacing_fails(self):
         """L/N and PE with <6mm spacing should fail."""
         result = check_line_neutral_pe_spacing(
@@ -372,16 +435,117 @@ class TestLineNeutralPESpacing:
 # =============================================================================
 
 
+def _repo_root():
+    from pathlib import Path
+
+    # tests/requirements/emc/test_emi_filter.py -> repo root is 5 parents up
+    # (emc -> requirements -> tests -> temper-placer -> packages -> root).
+    return Path(__file__).resolve().parents[5]
+
+
+def _load_real_emi_filter_positions() -> dict[str, tuple[float, float]]:
+    """Load real component positions from the committed board.
+
+    Reference designators are resolved from ``elec/build/default.csv`` (BOM,
+    keyed by MPN -- default.net aliases part *identity* by footprint, per
+    the task brief, so .csv is the reliable identity source), not hardcoded:
+    F1=fuse, RV1=MOV (V150LA10AP varistor), L1=CM choke (B82726S2163N030),
+    C1=the design's one X-cap (B32922C3224M289, source name ``c_x2`` --
+    see the docstring on ``test_temper_board_emi_filter_compliance`` for why
+    it plays the C_X1 role here), C6=the Y1 PE-bonding cap
+    (DE1E3KX222MA4BA01, ``y_cap_pe`` in modules.ato).
+    """
+    from temper_placer.io.kicad_parser import parse_kicad_pcb
+
+    root = _repo_root()
+    res = parse_kicad_pcb(root / "pcb" / "temper.kicad_pcb")
+    comps = {c.ref: c for c in res.netlist.components}
+    refs = {"F1": "fuse", "RV1": "mov", "L1": "cmc", "C1": "c_x", "C6": "c_y"}
+    missing = [r for r in refs if r not in comps]
+    if missing:
+        pytest.skip(f"Real board is missing expected refs {missing} -- BOM/PCB may have changed")
+    return {refs[r]: comps[r].initial_position for r in refs}
+
+
 class TestEMIFilterIntegration:
     """Integration tests for complete EMI filter validation."""
 
     @pytest.mark.slow
     def test_temper_board_emi_filter_compliance(self):
-        """Temper board EMI filter should meet all REQ-EMC-03 requirements."""
-        pytest.skip("Temper board fixture not yet available")
+        """Temper board EMI filter should meet all REQ-EMC-03 requirements.
 
-    def test_complete_filter_validation(self, _correct_filter_layout):
-        """Complete EMI filter should pass all checks."""
+        Implemented 2026-07-26, replacing "Temper board fixture not yet
+        available". Two real limitations, reported rather than papered
+        over (see docs/evidence/2026-07-26-emc-validators-implemented.md
+        for the full writeup):
+
+        1. ``pcb/temper.kicad_pcb`` has zero routed copper segments and
+           zero vias (verified: ``grep -c '(segment'`` / ``'(via'`` both
+           return 0) -- the "76.2% routed" figure in docs/STRATEGY.md is
+           produced transiently by the router pipeline, not persisted into
+           this file. Every trace-geometry check (check_x_cap_placement's
+           PE-proximity leg, check_pe_trace_requirements,
+           check_line_neutral_pe_spacing) has nothing to measure and is
+           skipped here rather than fed empty lists and reported as a
+           fabricated "0 violations" pass.
+        2. This board's EMI-filter parts are not laid out on a common axis
+           (F1, RV1, L1, C1 span both X and Y widely), so the x-only
+           "left-to-right flow" ordering check_filter_signal_flow /
+           check_filter_component_order / check_cm_choke_placement assume
+           is not a reliable proxy for true physical signal-path order on
+           this specific layout. Their raw output is still reported for
+           completeness but is *not* asserted on alone -- only findings
+           independently corroborated by schematic-level netlist adjacency
+           (grepped from elec/src/modules.ato, cited below) are asserted.
+
+        The one real, well-corroborated finding: `modules.ato` wires
+        `fuse.p2 ~ mov.p1` -- the MOV is downstream of the fuse in the
+        schematic, not "at the AC input, before or parallel to the fuse"
+        as check_mov_placement's own docstring (and EN 55014-1 practice)
+        requires. This agrees with the real placement too (RV1 x=65.51 is
+        past F1 x=34.95), independently, on both counts.
+        """
+        positions = _load_real_emi_filter_positions()
+
+        # No AC input connector part exists in this design (ac_l/ac_n are
+        # bare PowerInput-module-boundary signals -- confirmed:
+        # `grep -c Connector elec/build/default.csv` finds only J1, a 2-pin
+        # header unrelated to the mains input). There is nothing upstream
+        # of the fuse to use as "input_connector_position"; using the
+        # fuse's own position (fuse is the very first component ac_l
+        # reaches) as an explicit, documented proxy rather than fabricating
+        # a connector location.
+        input_proxy = (positions["fuse"][0] - 0.01, positions["fuse"][1])
+
+        result = check_mov_placement(
+            mov_position=positions["mov"],
+            fuse_position=positions["fuse"],
+            input_connector=input_proxy,
+            line_trace=[],  # not routed yet (0 segments in pcb/temper.kicad_pcb)
+            neutral_trace=[],
+        )
+
+        assert not result.passed, (
+            "check_mov_placement should flag the real board: MOV (RV1) is wired "
+            "and placed after the fuse (F1), not at/before it -- expected finding, "
+            "not a false positive (see docstring above)"
+        )
+        assert any(v.code == "MOV-001" for v in result.violations)
+
+    def test_complete_filter_validation(self, correct_filter_layout):
+        """Complete EMI filter should pass all checks.
+
+        Fixed 2026-07-26: this fixture parameter was named
+        ``_correct_filter_layout`` (leading underscore), which does not
+        match the ``correct_filter_layout`` fixture defined above -- a
+        latent collection-time error masked for as long as this whole
+        module was skipped via ``VALIDATORS_AVAILABLE = False``. Now that
+        the validators exist, pytest raised "fixture not found" instead of
+        silently skipping. Corrected the name; still intentionally skipped
+        below pending a real aggregation helper (out of scope for this
+        pass -- REQ-EMC-03's individual checks are implemented and tested
+        independently).
+        """
         # TODO: Run all validation functions
         # TODO: Aggregate results
         pytest.skip("Complete validation not yet implemented")
