@@ -472,6 +472,30 @@ Also surfaced: **`FUNCTIONAL_TEST_CRITERIA.md` §1.2 specifies a 200 W ±25%
 power tier that has no corresponding gate** in this document. That is an
 omitted requirement, not a lost qualifier.
 
+### Correction: the committed board is UNROUTED (2026-07-26)
+
+This document previously reported the board as **"76.2% routed with 616
+critical violations."** That describes a routing *run's* in-memory result, not
+the committed artifact. Measured directly on `pcb/temper.kicad_pcb`:
+
+| | Count |
+|---|---|
+| `(footprint ` | **149** |
+| `(segment ` | **0** |
+| `(via ` | **0** |
+| `(zone ` | **0** |
+
+**The committed board is placed and entirely unrouted.** Any claim about copper
+geometry — overlapping traces, pour coverage, via stitching, trace clearance —
+is therefore about a routing run, not about what is in the repository. The 18
+clearance violations recorded below stand, because they are **component-to-component**
+distances and do not depend on routing.
+
+Consequence for the EMC validators: every trace- and pour-dependent check has
+**nothing to measure** on the committed board. They are reported
+*not-yet-applicable* rather than fed empty data for a fabricated pass — which is
+the correct handling and the distinction this whole day has been about.
+
 ### The board has 18 real clearance violations — mains to SELV at 0.836 mm (2026-07-26)
 
 Full detail: `docs/evidence/2026-07-26-safety-validators-implemented.md`.
