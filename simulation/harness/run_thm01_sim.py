@@ -155,10 +155,6 @@ def parse_measurements(stdout: str) -> dict[str, float]:
     return {k: float(v.group(1)) for k, v in matches.items()}
 
 
-def r_ntc_from_beta(temp_k: float) -> float:
-    return NTC_R25_OHM * math.exp(NTC_BETA_K * (1.0 / temp_k - 1.0 / T25_K))
-
-
 def temp_from_r_ntc(r_ntc_ohm: float) -> float:
     return 1.0 / (1.0 / T25_K + math.log(r_ntc_ohm / NTC_R25_OHM) / NTC_BETA_K)
 
