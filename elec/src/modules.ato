@@ -52,7 +52,7 @@ import MAX31865 from "components.ato"
 # barrier is between the HV power domain and the SELV control domain
 # (Option A, plan 003). Component definition retained in components.ato
 # for future isolated I2C expansion if needed.
-import CST2010_100L from "components.ato"
+import CST3015_100E from "components.ato"
 import IRM_10_15 from "components.ato"
 import PinHeader_1x02 from "components.ato"
 
@@ -1182,42 +1182,39 @@ module CurrentSensing:
     i_sense = new ElectricSignal
     
     signal primary_out
-    ct = new CST2010_100L
+    ct = new CST3015_100E
     
     r_burden = new Resistor
-    # UNRESOLVED CONFLICT -- OCP-01 cannot be met with this current transformer.
+    # 1:100 ratio: 4.99R puts the OCP trip at 2.5V/4.99R*100 = 50.1A, centred
+    # in the OCP-01 45-55A window. Worst case over +/-1% on the burden and both
+    # OCPComparator reference resistors is 49.4-50.9A.
     #
-    # OCP-01 requires a 45-55A trip. The CST2010-100L senses to 47A
-    # (components.ato:82). Only 45-47A satisfies both, and +/-1% tolerances on
-    # the burden and the two OCPComparator reference resistors close even that:
+    # Was 6.65R (37.6A), 7.4A below the OCP-01 minimum. Raising the reference
+    # instead is impossible: 50A across 6.65R/100 needs 3.325V from a 3.3V rail.
     #
-    #   R_burden   trip     worst case      verdict
-    #     5.36R   46.64A   46.0 - 47.3A     exceeds CT rating
-    #     5.49R   45.54A   44.9 - 46.2A     below OCP-01 minimum
+    # This value was applied, reverted, and reapplied. The revert was because
+    # the previous transformer (CST2010-100L) sensed only to 47A, so a 50.1A
+    # trip sat above its rated current where the core saturates and the
+    # secondary under-reads -- the comparator could trip late or not at all.
+    # No burden value satisfied both the spec and that part. Resolved by
+    # moving to the CST3015-100ED (88A sensed, same 1:100 ratio), which leaves
+    # 1.73x headroom at the worst-case trip.
+    # See docs/hardware/PROTECTION_CHAIN_REVIEW.md.
     #
-    # The specification and the selected component are incompatible. Resolving
-    # it needs a CT rated above ~55A, a revised OCP-01 window, or 0.1% parts --
-    # a component decision, not a value change.
-    #
-    # Held at 6.65R (trip 37.6A) pending that decision. This is a KNOWN
-    # SPEC VIOLATION -- 7.4A below the OCP-01 minimum -- accepted deliberately
-    # because the alternative is worse: a trip above the CT's rated current
-    # risks core saturation, where the secondary under-reads and the comparator
-    # may trip late or not at all. Tripping early is a nuisance; failing to
-    # trip is a hazard.
-    #
-    # A 4.99R burden (50.1A, centred in spec) was applied and reverted on
-    # discovering the CT limit. See docs/hardware/PROTECTION_CHAIN_REVIEW.md.
-    r_burden.value = 6.65ohm +/- 1%
+    # Steady-state 15A RMS dissipates 0.112W, improved from 0.150W -- lowering
+    # the burden reduces continuous dissipation. The 1.25W at trip level is
+    # transient; the latch kills PWM within microseconds. Confirm the part's
+    # pulse rating on the bench.
+    r_burden.value = 4.99ohm +/- 1%
     r_burden.power_rating = 0.25W
-    r_burden.mpn = "RC1206FR-076R65L"
+    r_burden.mpn = "RC1206FR-074R99L"
     r_burden.footprint = "Resistor_SMD:R_1206_3216Metric"
 
-    # Assert the burden voltage at the actual trip lands on the comparator
-    # reference (3.3 * 10k/13.2k = 2.500V). The previous assertion asserted
+    # Assert the burden voltage at the OCP trip lands on the comparator
+    # reference (3.3 * 10k/13.2k = 2.500V). The original assertion asserted
     # 1.5-1.8V at 250mA -- a 25A design point inconsistent with any 45-55A
-    # OCP window, and one that masked the conflict documented above.
-    i_ct_trip: current = 376mA  # 37.6A actual trip / 100
+    # OCP window, and one that masked the transformer conflict above.
+    i_ct_trip: current = 500mA  # 50A OCP trip / 100
     v_burden_trip: voltage = i_ct_trip * r_burden.value
     assert v_burden_trip within 2.4V to 2.6V
     

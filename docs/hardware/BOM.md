@@ -99,18 +99,30 @@
 
 | Ref | Description | Part Number | Manufacturer | Qty | Package | Notes |
 |-----|-------------|-------------|--------------|-----|---------|-------|
-| CT1 | Current Transformer | CST2010-100L | Coilcraft | 1 | SMD | 1:100, senses to 47A, 1500Vrms isolation |
-| R_BURDEN | Burden Resistor | RC1206FR-076R65L | Yageo | 1 | 1206 | 6.65Ω 1% 1/4W — trips at 37.6A, see note |
+| CT1 | Current Transformer | CST3015-100ED | Coilcraft | 1 | SMD | 1:100, senses to 88A, 5000Vrms reinforced, ≥8mm creepage |
+| R_BURDEN | Burden Resistor | RC1206FR-074R99L | Yageo | 1 | 1206 | 4.99Ω 1% 1/4W — OCP trip 50.1A |
 
-> **OCP-01 unresolved.** The burden above gives a 37.6 A trip, **7.4 A below the
-> OCP-01 45–55 A requirement**. It cannot simply be lowered: CT1 senses to 47 A,
-> so only 45–47 A satisfies both, and ±1% tolerances close that window. Needs a
-> CT rated above ~55 A, a revised OCP-01 spec, or 0.1% parts.
-> See `docs/hardware/PROTECTION_CHAIN_REVIEW.md`.
+> **OCP-01 resolved 2026-07-25.** Trip is 50.121 A simulated (worst case
+> 49.4–50.9 A over ±1% parts), inside the 45–55 A requirement.
 >
-> Previous entries here specified `CST-1005` (1:1000) and a 66.5 Ω burden — the
+> This needed a transformer change, not just a burden change. The previous
+> `CST2010-100L` senses only to 47 A, so no burden value satisfied both the
+> spec and the part — above 47 A the core saturates and the secondary
+> under-reads, meaning the comparator could trip late or not at all.
+> `CST3015-100ED` keeps the 1:100 ratio (so the burden math carries over) and
+> raises the sensed rating to 88 A, leaving 1.73× worst-case headroom.
+> Verified against Coilcraft Document 1608-1; volt-time margin at the trip is
+> 18×. Isolation also improves from 1500 Vrms to 5000 Vrms reinforced with
+> ≥8 mm creepage, which helps the IEC 60335-1 position.
+>
+> **⚠ Footprint not yet drawn.** `temper:CST3015` does not exist —
+> `pcb/libs/temper.pretty/` has only `CST2010` and the retired `CST-1005`.
+> The CST3015 is physically larger (16.6–16.9 g) and will require board
+> re-layout around T1. **Do not fabricate until this is done.**
+>
+> Earlier entries here specified `CST-1005` (1:1000) with a 66.5 Ω burden — the
 > superseded design point. `CST-1005` was retired in commit `5a58b397`
-> (5 A, 50/60 Hz only, 65 °C max) and the source has used `CST2010-100L` since.
+> (5 A, 50/60 Hz only, 65 °C max).
 
 ### 4.4 Redundant Overcurrent Protection (DC Bus Shunt)
 
@@ -315,6 +327,7 @@
 |---------|------|---------|
 | 1.0 | 2025-12-14 | Initial release |
 | 1.1 | 2025-12-17 | Updated for 1.8kW redesign: CST-1005 CT, 66.5Ω burden, 300nF FKP1 caps |
+| 1.3 | 2026-07-25 | **CT1 → CST3015-100ED** (88A sensed, was CST2010-100L at 47A) resolving the OCP-01 spec/transformer conflict; R_BURDEN → 4.99Ω, trip 50.1A. Footprint `temper:CST3015` still to be drawn — not fabricable until then. |
 | 1.2 | 2026-07-25 | Reconciled OCP/thermal entries with `elec/src/modules.ato`: CT1 → CST2010-100L (1:100; CST-1005 retired in `5a58b397`), R_BURDEN → 6.65Ω (was a decade off), NTC_HS → NTCALUG01A104GA (was wrong decade *and* beta), added the three thermal divider resistors. THM-01 corrected to 84.9°C. Flagged inline: OCP-01's spec/CT conflict, THM-02 having no circuit. **This BOM is not yet orderable** — see `docs/evidence/2026-07-25-bom-source-audit.md` for ~35 costed-but-absent and ~75 wired-but-uncosted items. |
 
 ---

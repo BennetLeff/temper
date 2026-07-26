@@ -84,10 +84,51 @@ component CST2010_100L:
     Replaces Triad CST-1005 (5A, 50/60Hz only, 65C max) per BOM audit.
     Footprint hand-built from the Coilcraft datasheet land pattern
     (Document 1100-2); pads 1/2 = primary tabs (Coilcraft 11/12),
-    pads 3/4 = secondary (Coilcraft pins 2/4)."""
+    pads 3/4 = secondary (Coilcraft pins 2/4).
+
+    SUPERSEDED 2026-07-25 by CST3015_100E. Its 47A sensed-current limit is
+    below the OCP-01 45-55A window, so no burden value could satisfy both
+    the spec and the transformer. Retained for reference only -- do not
+    instantiate. See docs/hardware/PROTECTION_CHAIN_REVIEW.md."""
     designator_prefix = "T"
     footprint = "temper:CST2010"
     mpn = "CST2010-100L"
+    manufacturer = "Coilcraft"
+    ratio = 100
+
+    signal P1 ~ pin 1
+    signal P2 ~ pin 2
+    signal S1 ~ pin 3
+    signal S2 ~ pin 4
+
+component CST3015_100E:
+    """Coilcraft CST3015-100ED SMT current sense transformer, 1:100.
+
+    Selected 2026-07-25 to resolve the OCP-01 spec/transformer conflict.
+    Verified against Coilcraft Document 1608-1 (rev 09/08/25):
+
+      sensed current    88 A        (CST2010-100L: 47 A)
+      turns ratio       1:100       unchanged, so the burden math carries over
+      frequency         0.78 kHz to >1 MHz; the 35 kHz tank is in band
+      volt-time product 638 V-us    vs 35.7 V-us at the trip point -- 18x margin
+      DCR               0.0001 ohm primary, 1.54 ohm secondary
+      isolation         5000 Vrms 1 min, reinforced, >=8 mm creepage/clearance
+      temperature       -40..+125C, AEC-Q200 qualified
+
+    At the 4.99 ohm burden the trip is 50.1 A (worst case 49.4-50.9 A over
+    +/-1% parts), leaving 1.73x headroom to the 88 A sensed rating. The
+    5000 Vrms reinforced-insulation rating also improves the IEC 60335-1
+    position over the CST2010's 1500 Vrms.
+
+    Datasheet note 5: the sensed-current figure is a 40C-rise reference
+    point, not an absolute maximum.
+
+    FOOTPRINT NOT YET DRAWN. temper:CST3015 must be built from the Coilcraft
+    land pattern; this part is physically larger than the CST2010 (16.6-16.9 g)
+    and will require board re-layout around T1."""
+    designator_prefix = "T"
+    footprint = "temper:CST3015"
+    mpn = "CST3015-100ED"
     manufacturer = "Coilcraft"
     ratio = 100
 

@@ -12,8 +12,8 @@
 *   - r_ref_top / r_ref_bot:     3200 / 10000 ohm  (OCPComparator, line ~1505)
 *       -> Vref = 3.3 * 10000/13200 = 2.5000 V
 *   - CT turns ratio:            1:100   (CurrentSensing comment, line ~1188:
-*       "1:100 ratio: 6.65R puts the OCP trip at 2.5V/6.65R*100 = 37.6A")
-*   - r_burden:                  6.65 ohm (CurrentSensing, line ~1192)
+*       "1:100 ratio: 4.99R puts the OCP trip at 2.5V/4.99R*100 = 50.1A")
+*   - r_burden:                  4.99 ohm (CurrentSensing, line ~1192)
 *
 * Model-default values (simulation/models/current_transformer.sub,
 * CT_WITH_BURDEN subckt) NOT sourced from the schematic, because the board
@@ -38,7 +38,7 @@
 V_VCC VCC_3V3 0 DC 3.3
 I_PRI pri_p 0 PWL(0 0 {RAMP_TIME} {RAMP_MAX_A})
 
-X_CT pri_p 0 i_sense 0 CT_WITH_BURDEN PARAMS: N=100 RW=50 R_BURDEN=6.65
+X_CT pri_p 0 i_sense 0 CT_WITH_BURDEN PARAMS: N=100 RW=50 R_BURDEN=4.99
 
 R_REF_TOP VCC_3V3 vref 3200
 R_REF_BOT vref 0 10000
