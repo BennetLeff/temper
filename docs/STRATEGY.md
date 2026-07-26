@@ -285,6 +285,57 @@ Caveats, stated rather than buried:
 This is the first finding in this work that advances an actual gate rather
 than the verification layer around it.
 
+#### Full protection-gate audit (2026-07-25)
+
+All seven protection gates examined against the committed `elec/src/modules.ato`
+values. Simulated results hand-verified against divider arithmetic. Every model
+`calibrated: false`; ngspice confirmed deterministic (5 identical runs per gate).
+
+| Gate | Requirement | Measured | Verdict |
+|---|---|---|---|
+| OCP-01 | 45–55 A | **37.61 A** | **FAIL** — and 50 A is unreachable on a 3.3 V rail |
+| THM-01 | 85 °C | **99.47 °C** | **FAIL** — ~14.5 °C high; mis-valued, not unreachable |
+| OVP-01 | 390–410 V | 195.18 V at `v_bus.line` | **AMBIGUOUS** — see below |
+| OCP-02 | 55–65 A | — | **NO CIRCUIT EXISTS** |
+| THM-02 | coil NTC 120 °C | — | **NO CIRCUIT EXISTS** |
+| UVL-01 | <12.0 V | — | **UNMEASURABLE** — internal to UCC21550B silicon |
+| UVL-02 | <2.9 V | 2.825 V (candidate circuit) | **UNCONFIRMED** — see below |
+
+**Two gates have no implementing circuit.** Verified by inspection, not
+inference:
+
+- **OCP-02**: zero references to a secondary OCP anywhere in `elec/src/*.ato`;
+  exactly one `OCPComparator` instance exists. Yet `docs/hardware/BOM.md:111`
+  lists `U_COMP2 | LM393DR | Secondary OCP` — a part costed for a circuit that
+  was never wired.
+- **THM-02**: exactly one `ThermalComparator` instance (`modules.ato:1790`),
+  wired to the heatsink NTC. No coil-temperature circuit exists.
+
+**THM-01 contradicts its own docstring** (*"Thermal protection, 85C threshold
+with hysteresis"*) by ~14.5 °C — the same self-contradiction species as OCP-01.
+
+**BOM and schematic specify different thermistors.** `BOM.md:176` lists
+`NCU18XH103F6SRB` (10 kΩ @ 25 °C, B=3950); `modules.ato:1648` uses
+`NTCALUG01A104GA` (R25 = 100 kΩ, B = 4190 K), annotated "VERIFIED 2026-07-16".
+Different R25 *and* different B — the divider behaviour is not comparable.
+
+**OVP-01 is ambiguous, not failed.** The circuit as wired trips at 195 V
+measured at `v_bus.line`. The module's own comment doubles this to 390.4 V by
+assuming symmetric bus halves, which this single-ended divider does not verify.
+Compounding it, `main.ato` declares `signal dc_bus_plus # +340V` while every
+actual use treats it as a 170 V half-bus rail. Resolving OVP-01 requires
+deciding what the divider actually senses — a design question, not a
+measurement one.
+
+**UVL-02's candidate** (TPS3700 monitoring RTD_AVDD) trips at 2.825 V,
+conservatively under the 2.9 V ceiling, but it monitors the RTD subsystem. The
+more literal candidate — the TPS3823-33 watchdog supervisor, 2.93 V typ — is
+fixed silicon with no model.
+
+**Summary: of seven protection gates, two fail measurably, two have no
+circuit, one is ambiguous, and two are unmeasurable in simulation.** None has
+been validated on hardware. These are the gates the safety case rests on.
+
 ---
 
 ## Architecture decisions
