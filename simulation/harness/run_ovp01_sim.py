@@ -7,7 +7,7 @@ Same template as run_ocp01_sim.py, applied to OVPComparator
 
 What it measures
 -----------------
-A voltage ramp (0 -> 250 V over 250 us) is driven onto the `v_bus.line`
+A voltage ramp (0 -> 500 V over 500 us) is driven onto the `v_bus.line`
 node exactly as OVPComparator's resistor divider is wired
 (3x 430 kohm top / 10 kohm bottom -> comp.INP; 12 kohm / 10 kohm off the
 3.3 V rail -> comp.INN), feeding a TLV3201 comparator model
@@ -85,14 +85,14 @@ NETLIST = HARNESS_DIR / "nets" / "ovp01_trip_point.cir"
 VCC_V = 3.3
 R_DIV_TOP_OHM = 430_000 * 3
 R_DIV_BOT_OHM = 10_000
-R_REF_TOP_OHM = 12_000
+R_REF_TOP_OHM = 732
 R_REF_BOT_OHM = 10_000
 
 # Hand-derived, from the divider values above:
-#   V(INN) = 3.3 * 10000/(12000+10000) = 1.5000 V
+#   V(INN) = 3.3 * 10000/(732+10000) = 3.0749 V
 #   V(INP) = V_bus * 10000/1300000 = V_bus/130
-#   trip:  V_bus/130 = 1.5  =>  V_bus = 195 V (at the v_bus.line node)
-HAND_DERIVED_TRIP_V_BUS_NODE_V = 195.0
+#   trip:  V_bus/130 = 3.0749  =>  V_bus = 399.7 V (at the v_bus.line node)
+HAND_DERIVED_TRIP_V_BUS_NODE_V = 399.7
 
 OVP01_SPEC_MIN_V = 390.0
 OVP01_SPEC_MAX_V = 410.0
@@ -126,7 +126,7 @@ def parse_measurements(stdout: str) -> dict[str, float]:
     if t_trip_match is None or v_bus_match is None:
         raise HarnessError(
             "could not parse t_trip / v_bus_at_trip from ngspice stdout -- "
-            "the comparator may never have tripped within the 250us ramp "
+            "the comparator may never have tripped within the 500us ramp "
             f"window.\n--- stdout ---\n{stdout}"
         )
     return {
@@ -137,8 +137,8 @@ def parse_measurements(stdout: str) -> dict[str, float]:
 
 def derive_trip_voltage(measurements: dict[str, float]) -> dict[str, float]:
     """Two independent derivations of the trip voltage from the same run."""
-    ramp_max_v = 250.0
-    ramp_time_s = 250e-6
+    ramp_max_v = 500.0
+    ramp_time_s = 500e-6
     v_from_ramp_time = ramp_max_v * (measurements["t_trip_s"] / ramp_time_s)
     v_from_divider = measurements["v_bus_at_trip_v"]
     return {
@@ -159,8 +159,11 @@ def build_evidence(
         derived["v_bus_trip_from_ramp_time_v"]
         - derived["v_bus_trip_from_node_voltage_v"]
     )
-    full_bus_doubled_v = v_bus_trip * 2.0
-    in_ovp01_window = OVP01_SPEC_MIN_V <= full_bus_doubled_v <= OVP01_SPEC_MAX_V
+    # RESOLVED 2026-07-26: the divider senses the FULL bus --
+    # modules.ato `ovp.v_bus.line ~ dc_bus.line`, and main.ato declares
+    # dc_bus_plus as +340V_BUS with v_bus_max = 340V. No doubling applies.
+    full_bus_doubled_v = v_bus_trip
+    in_ovp01_window = OVP01_SPEC_MIN_V <= v_bus_trip <= OVP01_SPEC_MAX_V
 
     return {
         "schema_version": 1,

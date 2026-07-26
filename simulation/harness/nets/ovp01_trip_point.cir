@@ -11,9 +11,9 @@
 *   - r_div_top1/top2/top3:              430 kohm each, in series
 *   - r_div_bot:                         10000 ohm
 *       -> V(comp.INP) = V_bus * 10000 / (3*430000 + 10000) = V_bus / 130
-*   - r_ref_top:                         12000 ohm
+*   - r_ref_top:                           732 ohm
 *   - r_ref_bot:                         10000 ohm
-*       -> V(comp.INN) = 3.3 * 10000 / (12000 + 10000) = 1.5000 V exactly
+*       -> V(comp.INN) = 3.3 * 10000 / (732 + 10000) = 3.0749 V
 *   - Hand-derived trip (no hysteresis on this comparator -- unlike
 *     ThermalComparator, OVPComparator has no feedback resistor):
 *       V_bus / 130 = 1.5  =>  V_bus = 195 V, measured AT THE v_bus.line NODE.
@@ -53,8 +53,8 @@
 
 .include ../../models/TLV3201_ngspice.lib
 
-.param RAMP_MAX_V=250
-.param RAMP_TIME=250u
+.param RAMP_MAX_V=500
+.param RAMP_TIME=500u
 
 V_VCC VCC_3V3 0 DC 3.3
 V_BUS v_bus 0 PWL(0 0 {RAMP_TIME} {RAMP_MAX_V})
@@ -64,14 +64,14 @@ R_DIV_TOP2 n1 n2 430000
 R_DIV_TOP3 n2 vinp 430000
 R_DIV_BOT vinp 0 10000
 
-R_REF_TOP VCC_3V3 vinn 12000
+R_REF_TOP VCC_3V3 vinn 732
 R_REF_BOT vinn 0 10000
 
 X_COMP vinp vinn VCC_3V3 0 comp_out TLV3201_NGSPICE
 
 .control
 set noaskquit
-tran 100n 250u
+tran 100n 500u
 meas tran t_trip WHEN v(comp_out)=1.65 RISE=1
 meas tran v_bus_at_trip FIND v(v_bus) AT={t_trip}
 print t_trip

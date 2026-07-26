@@ -1542,7 +1542,7 @@ module OCPComparator:
     comp.OUT ~ fault.line
 
 module OVPComparator:
-    """Over-voltage protection, 390V threshold."""
+    """Over-voltage protection, 390V threshold (trips 399.7V, OVP-01 390-410V)."""
     
     power = new ElectricPower
     v_bus = new ElectricSignal
@@ -1582,8 +1582,22 @@ module OVPComparator:
     r_div_bot.footprint = "Resistor_SMD:R_0603_1608Metric"
     
     r_ref_top = new Resistor
-    r_ref_top.value = 12000ohm +/- 1%
-    r_ref_top.mpn = "RC0603FR-0712KL"
+    # 732R sets V_ref = 3.3 * 10k/10.732k = 3.075V. With the 130:1 bus divider
+    # (3 x 430k over 10k) that trips at 399.7V, centred in the OVP-01
+    # 390-410V window; worst case over +/-1% on all five resistors is
+    # 391-408V.
+    #
+    # Was 12k -> V_ref 1.50V -> trip at 195V. The divider senses the FULL bus
+    # (modules.ato: ovp.v_bus.line ~ dc_bus.line, and main.ato declares
+    # dc_bus_plus as +340V_BUS with v_bus_max = 340V), so at the 340V nominal
+    # bus the sense node sat at 2.615V against a 1.50V reference and the OVP
+    # fault asserted permanently. The cooker could not have run.
+    #
+    # main.ato:195 already stated the intent: v_ovp_trip = 390V, with
+    # `assert v_ovp_trip > v_bus_max`. The reference divider never matched it.
+    # See docs/hardware/PROTECTION_CHAIN_REVIEW.md.
+    r_ref_top.value = 732ohm +/- 1%
+    r_ref_top.mpn = "RC0603FR-07732RL"
     r_ref_top.footprint = "Resistor_SMD:R_0603_1608Metric"
     
     r_ref_bot = new Resistor

@@ -21,7 +21,7 @@ evidence, all gathered 2026-07-25 and detailed below:
 
 | | |
 |---|---|
-| **Protection gates** | Of seven: **2 now fixed** (OCP-01, THM-01), **2 have no circuit at all**, 1 is ambiguous, 2 are unmeasurable in simulation, 0 validated on hardware |
+| **Protection gates** | Of seven: **3 now fixed** (OCP-01, THM-01, OVP-01), **2 have no circuit at all**, 2 are unmeasurable in simulation, 0 validated on hardware |
 | **IGBT desaturation protection** | **Does not exist.** 19 BOM lines cost it; `grep -ni desat elec/src/*.ato` returns nothing |
 | **BOM** | Unusable in both directions — 35 lines costed with no circuit, ~75 wired components uncosted |
 | **Router** | ~79% path-finding, but its output carries ~120 shorts and 499 clearance violations |
@@ -390,7 +390,7 @@ values. Simulated results hand-verified against divider arithmetic. Every model
 |---|---|---|---|
 | OCP-01 | 45–55 A | **50.12 A** | **FIXED** 2026-07-25 — needed a new CT (CST3015-100ED, 88 A) |
 | THM-01 | 85 °C | **84.91 °C** | **FIXED** 2026-07-25 — divider re-proportioned |
-| OVP-01 | 390–410 V | 195.18 V at `v_bus.line` | **AMBIGUOUS** — see below |
+| OVP-01 | 390–410 V | **399.88 V** | **FIXED** 2026-07-26 — was 195 V, tripping below normal bus |
 | OCP-02 | 55–65 A | — | **NO CIRCUIT EXISTS** |
 | THM-02 | coil NTC 120 °C | — | **NO CIRCUIT EXISTS** |
 | UVL-01 | <12.0 V | — | **UNMEASURABLE** — internal to UCC21550B silicon |
@@ -414,13 +414,21 @@ with hysteresis"*) by ~14.5 °C — the same self-contradiction species as OCP-0
 `NTCALUG01A104GA` (R25 = 100 kΩ, B = 4190 K), annotated "VERIFIED 2026-07-16".
 Different R25 *and* different B — the divider behaviour is not comparable.
 
-**OVP-01 is ambiguous, not failed.** The circuit as wired trips at 195 V
-measured at `v_bus.line`. The module's own comment doubles this to 390.4 V by
-assuming symmetric bus halves, which this single-ended divider does not verify.
-Compounding it, `main.ato` declares `signal dc_bus_plus # +340V` while every
-actual use treats it as a 170 V half-bus rail. Resolving OVP-01 requires
-deciding what the divider actually senses — a design question, not a
-measurement one.
+**OVP-01 is resolved, and it was failing hard.** The ambiguity is settled by
+`modules.ato`: `ovp.v_bus.line ~ dc_bus.line` — the divider senses the **full
+bus**, which `main.ato:94` declares as `+340V_BUS` with `v_bus_max = 340 V`.
+There is no half-bus interpretation.
+
+With the 130:1 divider (3 × 430 kΩ over 10 kΩ) and the original 1.50 V
+reference, the trip was 195 V. At the 340 V nominal bus the sense node sits at
+**2.615 V against a 1.50 V reference — the OVP fault asserted permanently and
+the cooker could not have run at all.**
+
+`main.ato:195` had already stated the intent (`v_ovp_trip: voltage = 390V`,
+with `assert v_ovp_trip > v_bus_max`); the reference divider simply never
+matched it. Fixed by `r_ref_top` 12 kΩ → 732 Ω, giving V_ref = 3.075 V and a
+**399.88 V** simulated trip (hand-derived 399.7 V), worst case 391–408 V over
+±1% parts — inside the 390–410 V window at both ends.
 
 **UVL-02's candidate** (TPS3700 monitoring RTD_AVDD) trips at 2.825 V,
 conservatively under the 2.9 V ceiling, but it monitors the RTD subsystem. The
