@@ -11,6 +11,7 @@
 pub mod board;
 pub mod board_py_bridge;
 pub mod constraints;
+pub mod router_clearance;
 pub mod rules;
 pub mod types;
 
@@ -262,5 +263,9 @@ fn json_value_to_py(py: Python<'_>, value: &serde_json::Value) -> PyResult<Py<Py
 #[pymodule]
 fn temper_drc_rs(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(run_drc, m)?)?;
+    m.add_function(wrap_pyfunction!(
+        crate::router_clearance::verify_route_clearance,
+        m
+    )?)?;
     Ok(())
 }
