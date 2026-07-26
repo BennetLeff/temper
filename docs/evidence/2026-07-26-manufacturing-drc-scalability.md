@@ -183,3 +183,41 @@ default is what makes a single-radius spatial index useless here.
 `clearance_check.py` is unchanged from before these attempts — 160 tests pass.
 `enable_manufacturing_drc` remains a `route_pcb()` parameter defaulting to
 `False`. The stage is still unusable on a real board.
+
+---
+
+## Rust port attempt — blocked before it could be evaluated (2026-07-26)
+
+A Rust implementation was written to `packages/temper-drc-rs/src/router_clearance.rs`
+(357 lines) along with the two things that actually matter: a differential
+parity harness (`tests/router_v6/test_clearance_check_rust_parity.py`, 458
+lines) and a benchmark (`scripts/bench_clearance_rust_vs_python.py`, 261
+lines).
+
+**None of it could be validated, because `temper-drc-rs` does not build.**
+
+```
+ld: symbol(s) not found for architecture arm64
+error: could not compile `temper-drc-rs` (lib)
+```
+
+**Control run: the crate fails identically when completely unmodified** on the
+current branch. This is pre-existing and unrelated to the port. The crate does
+have a `.cargo/config.toml` — the same mechanism that lets `temper-geometry`
+and `temper-dsn` link their pyo3 `extension-module` cdylibs — so the cause is
+something else and needs its own investigation.
+
+**Consequence:** the recommendation to move this check to Rust is now blocked
+on a build problem, not a design one. Fixing the crate build is a prerequisite
+for the port, and is worth doing regardless: `temper-drc-rs` holds the
+registered `IsolationCheck`, `IsolationBarrierCheck` and `IsolationSlotCheck`
+rules, so a crate that cannot compile means those safety rules cannot run
+either.
+
+The parity harness and benchmark are the durable artefacts here and should
+survive whatever the eventual implementation language is. They were the stated
+deliverable precisely because they outlive the attempt.
+
+**Status unchanged:** `clearance_check.py` remains the only working
+implementation, `enable_manufacturing_drc` stays `False` by default, and the
+stage is still unusable on a real board.
