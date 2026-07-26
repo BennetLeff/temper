@@ -1,9 +1,9 @@
 # Temper Induction Cooker - Bill of Materials (BOM)
 
 **Project:** Temper - Production-grade Induction Cooker
-**Version:** 1.5
+**Version:** 1.6
 **Date:** 2026-07-26
-**Status:** Reconciled against `elec/src/*.ato` (155 components, `elec/build/default.net`/`default.csv`) — see `docs/evidence/2026-07-25-bom-source-audit.md`
+**Status:** Reconciled against `elec/src/*.ato` (155 components, `elec/build/default.net`/`default.csv`) — see `docs/evidence/2026-07-25-bom-source-audit.md`. Three procurement blockers resolved 2026-07-26 — see `docs/evidence/2026-07-26-bom-blocker-resolution.md`.
 
 ---
 
@@ -21,10 +21,10 @@
 | RGS | Gate-Source Pull-Down | RC0603FR-072K2L | Yageo | 2 | 0603 | 2.2kΩ 5% |
 | D_ZENER | Negative-Bias Zener | BZT52C5V1-7-F | - | 1 | SOD-123 | 5.1V — sets VSSA negative gate off-bias |
 | R_DT | Dead-Time Resistor | RC0603FR-0734KL | Yageo | 1 | 0603 | 34kΩ 1% — sets ~305ns nominal dead time on UCC21550's DT pin |
-| C_VCCI1 | Driver VCCI Bypass | GRM188R71E104KA01D | Murata | 1 | 0603 | 100nF 10% X7R 16V |
+| C_VCCI1 | Driver VCCI Bypass | C0603C104K5RACTU | KEMET | 1 | 0603 | 100nF 10% X7R 50V — MPN fixed 2026-07-26, see note |
 | C_VCCI2 | Driver VCCI Bypass (bulk) | GRM188R71C105KA12D | Murata | 1 | 0603 | 1µF 10% X7R 16V |
-| C_VDDA | Driver VDDA (HS) Bypass | GRM188R71E104KA01D | Murata | 1 | 0603 | 100nF 10% X7R 25V |
-| C_VDDB | Driver VDDB (LS) Bypass | GRM188R71E104KA01D | Murata | 1 | 0603 | 100nF 10% X7R 25V |
+| C_VDDA | Driver VDDA (HS) Bypass | C0603C104K5RACTU | KEMET | 1 | 0603 | 100nF 10% X7R 50V — 15V rail, DC-bias derating flag, see note |
+| C_VDDB | Driver VDDB (LS) Bypass | C0603C104K5RACTU | KEMET | 1 | 0603 | 100nF 10% X7R 50V — 15V rail, DC-bias derating flag, see note |
 | C_DC_HF | DC Bus HF Decoupling | B32671L6474K000 | TDK/EPCOS | 1 | THT Film 18x11mm | 470nF 10% 630V PP — at the bridge, across HV+/HV- |
 
 > **`D_BOOT` corrected 2026-07-26.** Previously `UJ3D1210TS` (SiC Schottky, TO-220, 1200V/10A) — a different device class entirely for what is a small bootstrap-recharge diode. Source (`components.ato:262-273`) uses `ES1J`, a 600V/1A SMA ultrafast rectifier sized to the boot-cap recharge pulse, not the main power path.
@@ -32,14 +32,19 @@
 > **`U_GD` corrected**: `UCC21550BDW` (16-pin DW package), not `UCC21550BDWK` — `components.ato:30`: "Fixed: was UCC21550BDWK (14-pin), now correct 16-pin DW package."
 >
 > `D_ZENER`, `R_DT`, `C_VCCI1/2`, `C_VDDA/B`, `C_DC_HF` were wired in source but not costed here (Class B, 2026-07-25 audit). The two PWM-input EMI filter R/C pairs that also live inside the gate-drive module (`r_filt_a/b`, `c_filt_a/b`) are listed once, in §8, to avoid double-counting.
+>
+> **`C_VCCI1`/`C_VDDA`/`C_VDDB` MPN corrected 2026-07-26 (Blocker 1).** `GRM188R71E104KA01D` (Murata) is Obsolete with 0 stock per DigiKey's own product page — confirmed 2026-07-26. It was the single most-instantiated part in the design (16 refs across the board, all now corrected the same way — see §2.1, §2.3, §3.1, §4.1, §5.3, §5.6). Replaced everywhere with `C0603C104K5RACTU` (KEMET, 100nF ±10% X7R 50V, 0603) — Active, 6,707,514 units at DigiKey, confirmed 2026-07-26. Full evidence: `docs/evidence/2026-07-26-bom-blocker-resolution.md`.
+>
+> **DC-bias derating flag (new, 2026-07-26).** `C_VDDA` and `C_VDDB` decouple the 15V gate-drive rail, ~60% of the *old* part's 25V rating — a bias point where 0603 X7R MLCCs are known to lose a large fraction of nominal capacitance (industry rule of thumb: 40–60% loss of nominal C near 50% of rated voltage is typical for this case size/dielectric). The replacement's 50V rating drops that ratio to ~30%, which should retain materially more capacitance, but no part-specific DC-bias curve has been pulled for either the old or new part — treat the retained capacitance as UNVERIFIED, not as still-100nF.
 
 ### 1.2 AC Input, EMI Filter & Voltage Doubler
 
 | Ref | Description | Part Number | Manufacturer | Qty | Package | Notes |
 |-----|-------------|-------------|--------------|-----|---------|-------|
-| F1 | AC Mains Fuse (holder+fuse) | 0034.3129 | Schurter | 1 | 5x20mm holder | 16A 250V time-lag |
+| F1 | AC Mains Fuse LINK (not an assembly) | 0034.3129 | Schurter | 1 | 5x20mm THT | 16A 250V time-lag — see note, holder is a separate line below |
+| F1_HOLDER | AC Mains Fuseholder, PCB-mount | 0031.2510 | Schurter | 1 | THT, FUP series | 16A(VDE)/30A(UL,CSA), 250/500VAC(VDE) — added 2026-07-26, see note |
 | RV1 | MOV Surge Suppressor | V150LA10AP | Littelfuse | 1 | Radial Disc 15.5mm | 150VAC clamp, L-N after fuse |
-| C_X2 | EMI Cap (differential-mode) | DE2E3KH221MA3B | - | 1 | THT Disc 10mm | 0.22µF 20% X2 310V |
+| C_X2 | EMI Cap (differential-mode) | B32922C3224M289 | EPCOS/TDK | 1 | THT Radial Box, 15mm pitch | 0.22µF 20% X2 305VAC (max cont. 310VAC)/630VDC — MPN fixed 2026-07-26, see note |
 | L_EMI | Common-Mode Choke | B82726S2163N030 | TDK (EPCOS) | 1 | THT, 4-pin | 2.2mH/winding ±30% @10kHz, 16A, ~7.1mΩ/winding — ONE physical part, no polarity |
 | NTC_INRUSH | Inrush Limiter | SL32 10015 | Ametherm | 1 | Radial 15mm | 10Ω 15A |
 | K_BYPASS | Bypass Relay | G4A-1A-E DC12 | Omron | 1 | THT, SPST | 12V coil, 20A contact (SPST-NO) |
@@ -65,6 +70,12 @@
 > **`C_BUS1`/`C_BUS2` corrected**: `EKZE251ELL332MM40S` (3300µF) does not exist as an orderable part — source comment: "replace the fictional 3300uF/250V EKZE part." Source uses 4× `EKMQ251VSN182MA50S` (1800µF each, 2 in parallel per half-bus = 3600µF/half), not 2× 3300µF.
 >
 > **`R_BLEED1/2` corrected**: 22kΩ, not 100kΩ — a 4.5× error in the passive bus-discharge time constant. MPN/manufacturer were previously blank; source comment identifies `CRGP2512F22K` as TE Connectivity, "2W@70°C pulse-withstanding."
+>
+> **`F1`/`F1_HOLDER` split 2026-07-26 (Blocker 3).** `0034.3129` is real and stocked (DigiKey, in stock, confirmed 2026-07-26) but it is a bare Schurter FST 5x20mm fuse **link**, not a "holder+fuse" assembly as this BOM previously described it — Schurter's `0034.xxxx` numbering is the FST link family; fuseholders are a separate part family. No PCB-mount fuseholder existed anywhere in the 155-part count. Added `F1_HOLDER` = Schurter `0031.2510` (FUP series), confirmed via Schurter's own FUP datasheet: 5x20mm fuse-link acceptance (order-code table explicitly lists `0031.2510` = 5x20mm variant), PCB/THT solder-pin mount, rated 16A (VDE)/30A (UL,CSA) at 250/500VAC (VDE)/600V (UL,CSA) — meets/exceeds this circuit's 16A/250V. Approved to IEC 60127-6 (fuseholders for miniature fuse-links), UL 4248-1/CSA C22.2 no.4248.1, VDE cert 40045336, UL File E39328, and suitable per IEC 60335-1 (household appliances, unattended use — matches this product). Confirmed Active, 83 units at DigiKey, 2026-07-26. **Not separately modeled in `elec/src`**: mechanically it occupies the same two electrical nodes as `F1` (no new net), matching this BOM's existing treatment of other mechanical-only lines (heatsink, TIM pads, mounting hardware — §11). **New footprint required, not yet drawn**: the current PCB footprint stub (`Fuse:Fuse_Holder_5x20mm`, 2-pin THT, 22.5mm pitch, `temper.kicad_pcb`'s own comment calls it a "stub") does not match the FUP's real drilling diagram (~30.48mm primary pin spacing plus a third orientation pin, per Schurter's FUP datasheet).
+>
+> **Fuse rating / I²t coordination — open question, not resolved by this pass.** 16A/250V on a 15A continuous branch load (1800W/120V, `constraints.i_max` in `elec/src/constraints.ato`) is only ~7% headroom above full-load current for a time-lag fuse expected to ride through NTC-limited inrush without nuisance-tripping at legitimate steady-state load. No I²t/time-current coordination analysis between `F1`, `NTC_INRUSH`, and `K_BYPASS`'s switch-in timing was found anywhere in this repo. Flagging for follow-up, not fixing here.
+>
+> **`C_X2` corrected 2026-07-26 (Blocker 2).** `DE2E3KH221MA3B` was not found at any distributor, and Murata's own DE2-series "221" suffix convention decodes to 220**pF** (confirmed against sibling `DE2B3SA221KA3BT02F` = 220pF) — 1000× off the 0.22µF/220nF this circuit actually needs; Murata's DE2 leaded safety-disc line tops out around 10nF and cannot make this value in that family at all. The 220nF **value** was correct (standard X2 line-EMI value for this position); only the MPN was fictional. Replaced with EPCOS/TDK `B32922C3224M289` — confirmed Active, 28,179 units at DigiKey, 2026-07-26. Approvals read directly from EPCOS's own B32921...B32926 X2/305VAC datasheet: EN132400/IEC 60384-14 (cert 40005536/40010694), UL 1414/UL 1283 (E97863/E157153), CSA C22.2 No.1/No.8 (E97863/E157153, approved by UL), CQC GB/T14472-1998 (CQC001007-14859). Rated 305VAC per IEC 60384-14 with 310VAC maximum continuous — matches this design's original 310V spec exactly. **New footprint required, not yet drawn**: the disc footprint this BOM/source previously carried matched the fictional disc-style part, not the real MKP box-style replacement (2-pin THT radial box, 15mm lead pitch, body ~7.0×12.5×18.0mm). Full evidence and falsifier: `docs/evidence/2026-07-26-bom-blocker-resolution.md`.
 >
 > `RV1`, `C_X2`, `Y_CAP_PE`, `F1`, the `K_BYPASS` driver (`Q_RLY_DRV`/`R_RLY_DROP`/`R_RLY_GATE`/`R_RLY_GATE_PD`/`D_RLY_FLYBACK`), and the ZCD divider+clamp were wired in source but not costed (Class B, 2026-07-25 audit).
 
@@ -109,8 +120,8 @@
 | L_BUCK | Buck Inductor | SRP1265A-5R6M | Bourns | 1 | SMD 12.5x12.5mm | 5.6µH 12.5A |
 | C_IN | Input Capacitor | GRM32ER71E106KA12L | Murata | 1 | 1210 | 10µF 20% X7R 25V |
 | C_OUT1, C_OUT2 | Output Capacitor | GRM32ER71E226KE15L | Murata | 2 | 1210 | 22µF 20% X7R 25V |
-| C_OUT_HF | Output HF Decoupling | GRM188R71E104KA01D | Murata | 1 | 0603 | 100nF 10% X7R 10V |
-| C_BOOT | Bootstrap Capacitor | GRM188R71E104KA01D | Murata | 1 | 0603 | 100nF X7R 25V |
+| C_OUT_HF | Output HF Decoupling | C0603C104K5RACTU | KEMET | 1 | 0603 | 100nF 10% X7R 50V — MPN fixed 2026-07-26 |
+| C_BOOT | Bootstrap Capacitor | C0603C104K5RACTU | KEMET | 1 | 0603 | 100nF X7R 50V — MPN fixed 2026-07-26; ~5V nominal across it (bootstrap flying cap), not the 15V SW-node swing |
 | R_FB_TOP | Feedback Divider High | RC0603FR-07100KL | Yageo | 1 | 0603 | 100kΩ 1% |
 | R_FB_BOT | Feedback Divider Low | RC0603FR-0722K1L | Yageo | 1 | 0603 | 22.1kΩ 1% |
 
@@ -129,7 +140,7 @@
 | PS1 | Isolated AC/DC Module | IRM-10-15 | Mean Well | 1 | THT Module | 15V 0.67A 10W; 4.2kVac I/O withstand, Class II, IEC/EN 61558/62368-1 |
 | C_IN_BULK | Input Bulk Capacitor | GRM55DR72E106KW01L | Murata | 1 | 2220 | 10µF 20% X7R 250V |
 | C_OUT | Output Filter Capacitor | GRM32ER71E107ME15L | Murata | 1 | 1210 | 100µF 20% X7R 25V |
-| C_OUT_HF | Output HF Decoupling | GRM188R71E104KA01D | Murata | 1 | 0603 | 100nF 10% X7R 25V |
+| C_OUT_HF | Output HF Decoupling | C0603C104K5RACTU | KEMET | 1 | 0603 | 100nF 10% X7R 50V — MPN fixed 2026-07-26; 15V rail, DC-bias derating flag (see §1.1 note) |
 
 ---
 
@@ -140,7 +151,7 @@
 | Ref | Description | Part Number | Manufacturer | Qty | Package | Notes |
 |-----|-------------|-------------|--------------|-----|---------|-------|
 | U_MCU | WiFi+BLE SoC Module | ESP32-S3-WROOM-1-N8R8 | Espressif | 1 | Module | 8MB Flash + 8MB PSRAM |
-| C_VCC1 | Decoupling | GRM188R71E104KA01D | Murata | 1 | 0603 | 100nF 10V X7R |
+| C_VCC1 | Decoupling | C0603C104K5RACTU | KEMET | 1 | 0603 | 100nF 50V X7R — MPN fixed 2026-07-26 |
 | C_VCC2 | Bulk Capacitor | GRM21BR71A106KE51L | Murata | 1 | 0805 | 10µF 10V X5R |
 | R_EN | EN Pull-Up | RC0603FR-0710KL | Yageo | 1 | 0603 | 10kΩ 2% — boot-timing RC with C_EN |
 | C_EN | EN Timing Cap | GRM188R71A105KA61D | Murata | 1 | 0603 | 1µF 2% 10V |
@@ -163,7 +174,7 @@
 |-----|-------------|-------------|--------------|-----|---------|-------|
 | U_RTD | RTD-to-Digital | MAX31865AAP+ | Analog Devices | 1 | SSOP-20 | SPI, PT100/PT1000 |
 | R_REF | Reference Resistor | ERA-6AEB431V | Panasonic | 1 | 0805 | 430Ω 0.1% (PT100) |
-| C_DEC_RTD | Decoupling (IC/rail) | GRM188R71E104KA01D | Murata | 7 | 0603 | 100nF 10V X7R — one per: VDD (post-ferrite), reference, low/high-window comparators, window-AND, rail monitor, fault-NAND |
+| C_DEC_RTD | Decoupling (IC/rail) | C0603C104K5RACTU | KEMET | 7 | 0603 | 100nF 50V X7R — MPN fixed 2026-07-26; one per: VDD (post-ferrite), reference, low/high-window comparators, window-AND, rail monitor, fault-NAND |
 | R_SCLK, R_MOSI, R_CS, R_MISO | SPI EMI Filter | RC0603FR-0733RL | Yageo | 4 | 0603 | 33Ω 5% |
 | FB_POWER | Power Ferrite Bead | BLM18AG121SN1D | Murata | 1 | 0603 | ~120Ω @ 100MHz |
 
@@ -283,7 +294,7 @@ Per task instructions, `R_SHUNT` (WSLP25122L000FEA), `U_DIFF` (INA240A1QPWRQ1), 
 | Ref | Description | Part Number | Manufacturer | Qty | Package | Notes |
 |-----|-------------|-------------|--------------|-----|---------|-------|
 | U_WDT | Watchdog Timer | TPS3823-33DBVR | Texas Instruments | 1 | SOT-23-5 | 1.6s timeout |
-| C_WDT | Decoupling | GRM188R71E104KA01D | Murata | 1 | 0603 | 100nF 10V X7R |
+| C_WDT | Decoupling | C0603C104K5RACTU | KEMET | 1 | 0603 | 100nF 50V X7R — MPN fixed 2026-07-26 |
 
 > **`C_WDT` corrected**: source (`modules.ato:2001-2005`) uses the same 0603/10V/X7R part as the board's other 100nF rails, not the 0402/50V `GRM155R71H104KE14D` this BOM previously listed.
 
@@ -336,7 +347,7 @@ git history rather than re-deriving them.
 | R_OVP_REF_B | Comparator Reference Low | RC0603FR-0710KL | Yageo | 1 | 0603 | 10kΩ 1% |
 | R_OVP_ADC_T | MCU ADC Tap Divider High | RC1206FR-07510KL | Yageo | 1 | 1206 | 510kΩ 1% 0.1W 250V |
 | R_OVP_ADC_B | MCU ADC Tap Divider Low | RC0603FR-0710KL | Yageo | 1 | 0603 | 10kΩ 1% 0.1W |
-| C_OVP_ADC | ADC Tap Filter Cap | GRM188R71E104KA01D | Murata | 1 | 0603 | 100nF 10V X7R |
+| C_OVP_ADC | ADC Tap Filter Cap | C0603C104K5RACTU | KEMET | 1 | 0603 | 100nF 50V X7R — MPN fixed 2026-07-26 |
 
 > **Divider values corrected 2026-07-26.** `R_OVP1-3`/`R_OVP4` previously read 1MΩ/30kΩ (ratio ≈1/101, implying a ~195V bus-half trip). Source (`modules.ato:1561-1583`) uses 430kΩ×3 + 10kΩ (ratio 1/130), matching the comparator reference below to trip at 399.7V (390-410V window, OVP-01). This was flagged Critical/material in the 2026-07-25 audit and had not yet been applied to this BOM — it is fixed in this pass.
 >
@@ -424,7 +435,7 @@ Trips at 120.3°C (simulated), releasing at 113.7°C. Comparator is `U_THERMAL2`
 
 ### 10.1 Decoupling and Bypass — ITEMIZED ELSEWHERE
 
-**No generic bucket.** Every 100nF/0603 (`GRM188R71E104KA01D`, 16 instances) and 10µF-class decoupling/bulk capacitor in source is now listed against its actual instance under the relevant functional section (§1.1, §2.1, §2.3, §3.1, §4.1, §5.3, §5.6) rather than as a generic quantity bucket. The previous `C_DEC ×20` / `C_BULK ×5` rows used MPNs (`GRM188R71H104KA93D`, `GRM188R61E106MA73D`) that do not appear anywhere in `elec/src/*.ato`, and their quantities did not match the real per-instance count (16 × 100nF; three distinct 10µF-class parts with three different MPNs/ratings — see §2.1 `C_IN`, §2.3 `C_OUT`, §3.1 `C_VCC2`).
+**No generic bucket.** Every 100nF/0603 (`C0603C104K5RACTU` since 2026-07-26, was `GRM188R71E104KA01D` — Obsolete/0-stock, see §1.1; 16 instances) and 10µF-class decoupling/bulk capacitor in source is now listed against its actual instance under the relevant functional section (§1.1, §2.1, §2.3, §3.1, §4.1, §5.3, §5.6) rather than as a generic quantity bucket. The previous `C_DEC ×20` / `C_BULK ×5` rows used MPNs (`GRM188R71H104KA93D`, `GRM188R61E106MA73D`) that do not appear anywhere in `elec/src/*.ato`, and their quantities did not match the real per-instance count (16 × 100nF; three distinct 10µF-class parts with three different MPNs/ratings — see §2.1 `C_IN`, §2.3 `C_OUT`, §3.1 `C_VCC2`).
 
 ### 10.2 Test Points
 
@@ -481,7 +492,7 @@ Removed: `TP3` (`GATE_DISABLE`), `TP4` (`V_BOOT`), `TP5` (`SW_NODE`) — no corr
 | Thermal (PCB-side fan interface) | 2 |
 | **TOTAL (matches `elec/build/default.net` exactly)** | **155** |
 
-Chassis BOM (§11, not in the 155): heatsink, fan, TIM ×2, mounting hardware, thermal fuse — 6 additional lines, mechanical/off-`elec/src` by design.
+Chassis BOM (§11, not in the 155): heatsink, fan, TIM ×2, mounting hardware, thermal fuse — 6 additional lines, mechanical/off-`elec/src` by design. `F1_HOLDER` (§1.2, added 2026-07-26) is the same kind of exception: a real orderable part and BOM line that is not a separate `elec/src` component (mechanical carrier, same two electrical nodes as `F1`) — 1 additional line, not in the 155.
 
 ### Critical Long-Lead Items
 
@@ -492,6 +503,8 @@ Chassis BOM (§11, not in the 155): heatsink, fan, TIM ×2, mounting hardware, t
 | UCC21550BDW | 4-8 weeks | - |
 | CST3015-100ED | Verify stock | CST3015 family variants — board re-layout already required regardless, see §4.3 |
 | EKMQ251VSN182MA50S (×4) | Verify stock | Physically large snap-in electrolytics; confirm before layout freeze |
+| 0031.2510 (F1_HOLDER) | 12-week mfr. lead time (DigiKey), 83 units on hand | New line 2026-07-26 — order early; footprint not yet drawn, see §1.2 |
+| B32922C3224M289 (C_X2) | Not flagged long-lead (28,179 units at DigiKey) | New footprint required before fab (box-style MKP, 15mm pitch) — not a stock risk, a layout task, see §1.2 |
 
 ---
 
@@ -505,6 +518,7 @@ Chassis BOM (§11, not in the 155): heatsink, fan, TIM ×2, mounting hardware, t
 | 1.3 | 2026-07-25 | **CT1 → CST3015-100ED** (88A sensed, was CST2010-100L at 47A) resolving the OCP-01 spec/transformer conflict; R_BURDEN → 4.99Ω, trip 50.1A. Footprint `temper:CST3015` still to be drawn — not fabricable until then. |
 | 1.4 | 2026-07-26 | **De-scoped IGBT desaturation protection** — removed 19 costed line items for a circuit that was never designed. The UCC21550 in use has no DESAT pin, so this is a gate-drive redesign rather than a part swap. Shoot-through, gate-drive failure and device-local shorts are recorded as accepted residual risk; see `docs/hardware/DESAT_DECISION_BRIEF.md`. A redesign spike is open. |
 | 1.5 | 2026-07-26 | **Full BOM-vs-source reconciliation**, working the `docs/evidence/2026-07-25-bom-source-audit.md` findings class by class against `elec/src/*.ato` (verified via `elec/build/default.net`/`default.csv`, 155 components). Class C (16 value/MPN disagreements): fixed OVP divider (1MΩ/30kΩ → 430kΩ/10kΩ — this was still wrong going into this pass despite the OCP/thermal fixes in 1.2-1.3), bootstrap diode (UJ3D1210TS → ES1J), bus caps (fictional 3300µF → 4×1800µF), bleeder resistors (100kΩ → 22kΩ), CMC, bypass relay, buck converter (wrong topology entirely — was described as 24V/12V→5V, corrected to 15V→3.3V with all real values), gate driver MPN, RTD MPN/package/channel-count, PWM filter cap, ESP32 variant, watchdog decoupling cap, logic-IC manufacturer/MPN/quantity, fan, heatsink, TIM. Class A (removed, absence proven by grep against `elec/src/*.ato`): OCP-02 shunt/amp/comparator (still not instantiated — topology decision pending, see §4.4), precision rectifier, I2C isolator, fault LEDs, AND/INV logic gates, anti-aliasing filter, LDO section (replaced by buck), plus a newly-found `J_IN` connector line with no source component and a generic decoupling bucket superseded by exact itemization. Class B (added from source, ~95 previously-uncosted components): active bus discharge (17 parts), isolated auxiliary 15V supply (4 parts — the isolation barrier itself), RTD hardware-window fault chain (15 parts) plus RTD SPI/ferrite/decoupling (12 parts), CT bias+filter (3 parts), OCP/OVP reference and ADC-tap dividers (9 parts), gate-drive bypass/filter/dead-time/zener network (10 parts), AC-input protection (fuse, MOV, X2/Y1 caps, ZCD network, bypass-relay driver — 11 parts), MCU boot/reset RC + buttons (4 parts), plus THM-02 coil-thermal protection (5 parts, designed in source on this same date — previously had no circuit at all, not merely uncosted). Component count now matches source exactly at 155. See full per-line detail inline above; `docs/evidence/2026-07-25-bom-source-audit.md` records the original findings this pass resolves. |
+| 1.6 | 2026-07-26 | **Resolved the three confirmed procurement blockers from `docs/evidence/2026-07-26-bom-availability-sweep.md`** (full resolution detail: `docs/evidence/2026-07-26-bom-blocker-resolution.md`). (1) `GRM188R71E104KA01D` (100nF/0603/X7R decoupling, Obsolete/0-stock at DigiKey, 16 instances across §1.1/2.1/2.3/3.1/4.1/5.3/5.6) → `C0603C104K5RACTU` (KEMET, 100nF ±10% X7R 50V) — Active, 6.7M units at DigiKey; flagged DC-bias derating on the three 15V-rail instances (`C_VDDA`, `C_VDDB`, §2.3 `C_OUT_HF`). (2) `C_X2` MPN `DE2E3KH221MA3B` (not found at any distributor; Murata's own DE2 "221" suffix convention decodes to 220pF, 1000× off the 220nF this circuit needs, and the DE2 family tops out ~10nF regardless) → `B32922C3224M289` (EPCOS/TDK X2/305VAC film cap) — Active, 28,179 units at DigiKey; approvals read directly from EPCOS's own datasheet (IEC 60384-14/EN132400, UL 1414/1283, CSA C22.2, CQC); new box-style footprint required, not yet drawn. (3) `F1` (`0034.3129`) confirmed to be a bare Schurter FST fuse **link**, not a holder+fuse assembly — added `F1_HOLDER` = Schurter `0031.2510` (FUP series, 16A/250-500VAC, matches the fuse's rating) as a new BOM line; not separately modeled in `elec/src` (mechanical carrier, same two nodes as `F1`); new footprint required. Also flagged, unresolved: no I²t/inrush coordination analysis exists anywhere in this repo for `F1`/`NTC_INRUSH`/`K_BYPASS`, and the 16A fuse has only ~7% headroom over the 15A continuous branch load. |
 
 ---
 

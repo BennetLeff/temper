@@ -185,7 +185,22 @@ component MOSFET_N:
 # ==============================================================================
 
 component Fuse:
-    """Fuse holder with fuse"""
+    """Bare 5x20mm fuse LINK ONLY -- not a holder+fuse assembly.
+
+    Corrected 2026-07-26 (docs/evidence/2026-07-26-bom-availability-sweep.md,
+    Blocker 3 / docs/evidence/2026-07-26-bom-blocker-resolution.md): this
+    class's docstring previously claimed "Fuse holder with fuse", and BOM.md
+    described F1 as "AC Mains Fuse (holder+fuse)". Neither was true --
+    Schurter's 0034.xxxx numbering (this component's `mpn` field, e.g.
+    "0034.3129") is its FST fuse-LINK family; fuseholders are a separate
+    part family and a separate BOM line. This design had no PCB-mount
+    fuseholder anywhere in the 155-part count. See BOM.md Section 1.2 for
+    the added fuseholder line (Schurter FUP 0031.2510) that fills that gap.
+    The `footprint` below is a placeholder stub, not a real verified
+    footprint for either the link or a holder -- see the PCB stub's own
+    "(generator stub)" / "Stub for Schurter 0034.3128 fuse holder" comment
+    in temper.kicad_pcb.
+    """
     designator_prefix = "F"
     footprint = "Fuse:Fuse_Holder_5x20mm"
     current_rating: current

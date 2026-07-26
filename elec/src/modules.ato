@@ -282,11 +282,17 @@ module HalfBridge:
     
     # UCC21550 bypass capacitors
     # VCCI bypass: 0.1µF + 1µF at each VCCI pin
+    #
+    # 100nF/0603 decoupling MPN fixed 2026-07-26: GRM188R71E104KA01D (Murata)
+    # is Obsolete/0-stock at DigiKey (docs/evidence/2026-07-26-bom-availability-sweep.md,
+    # Blocker 1). Replaced everywhere in this file with KEMET C0603C104K5RACTU
+    # (100nF +/-10% X7R 50V 0603) -- Active, 6.7M units at DigiKey, confirmed
+    # 2026-07-26 (docs/evidence/2026-07-26-bom-blocker-resolution.md).
     c_vcci1 = new Capacitor
     c_vcci1.value = 100nF +/- 10%
     c_vcci1.dielectric = "X7R"
     c_vcci1.voltage_rating = 16V
-    c_vcci1.mpn = "GRM188R71E104KA01D"
+    c_vcci1.mpn = "C0603C104K5RACTU"
     c_vcci1.footprint = "Capacitor_SMD:C_0603_1608Metric"
     power_3v3.vcc ~ c_vcci1.p1
     c_vcci1.p2 ~ power_3v3.gnd
@@ -301,21 +307,36 @@ module HalfBridge:
     c_vcci2.p2 ~ power_3v3.gnd
 
     # VDDA bypass (high-side): placed at the gate driver IC
+    #
+    # DC-BIAS DERATING FLAG (2026-07-26, UNVERIFIED numeric %): this cap sits
+    # directly across the 15V VDDA-VSSA gate-drive rail, i.e. ~60% of a 25V
+    # part's rated voltage. 0603 X7R MLCCs are known to lose a large fraction
+    # of nominal capacitance under DC bias (industry rule of thumb: material
+    # loss of 40-60% of nominal C at ~50% of rated voltage is common for this
+    # case size/dielectric). The replacement part is rated 50V, dropping the
+    # bias ratio to ~30% (15V/50V), which should retain materially more
+    # capacitance than the original 25V-rated part -- but no P/N-specific
+    # bias curve has been pulled for either part, so the actual retained
+    # capacitance under bias is UNVERIFIED. If gate-drive VDDA/VDDB ripple is
+    # ever measured out of spec, revisit this before assuming the 100nF
+    # nominal value holds.
     c_vdda = new Capacitor
     c_vdda.value = 100nF +/- 10%
     c_vdda.dielectric = "X7R"
     c_vdda.voltage_rating = 25V
-    c_vdda.mpn = "GRM188R71E104KA01D"
+    c_vdda.mpn = "C0603C104K5RACTU"
     c_vdda.footprint = "Capacitor_SMD:C_0603_1608Metric"
     gate_hs.driver.VDDA ~ c_vdda.p1
     c_vdda.p2 ~ gate_hs.driver.VSSA
 
     # VDDB bypass (low-side): placed at the gate driver IC
+    # Same DC-bias derating flag as c_vdda above (15V rail on a 25V-declared,
+    # 50V-actual part).
     c_vddb = new Capacitor
     c_vddb.value = 100nF +/- 10%
     c_vddb.dielectric = "X7R"
     c_vddb.voltage_rating = 25V
-    c_vddb.mpn = "GRM188R71E104KA01D"
+    c_vddb.mpn = "C0603C104K5RACTU"
     c_vddb.footprint = "Capacitor_SMD:C_0603_1608Metric"
     gate_hs.driver.VDDB ~ c_vddb.p1
     c_vddb.p2 ~ gate_hs.driver.VSSB
@@ -448,6 +469,32 @@ module PowerInput:
     fuse.mpn = "0034.3129"
     assert fuse.current_rating >= constraints.i_max
     assert fuse.voltage_rating >= constraints.v_max
+    # OPEN QUESTION (2026-07-26, not resolved by this pass): 16A/250V on a
+    # 15A continuous branch load (1800W / 120V, main.ato constraints.i_max)
+    # is only ~7% headroom above rated full-load current for a *time-lag*
+    # fuse meant to ride through the NTC-limited inrush without nuisance
+    # tripping at legit steady-state load. No I2t coordination analysis
+    # between this fuse, NTC_Inrush (ntc, below), and bypass_relay's
+    # switch-in timing has been found anywhere in this repo. This is a flag
+    # to verify (fuse manufacturer I2t / time-current curve vs NTC inrush
+    # profile and bypass-relay pull-in delay), not a fix made here.
+    #
+    # HOLDER GAP (2026-07-26, Blocker 3): 0034.3129 is a bare fuse LINK
+    # (Schurter FST 5x20 family), not a holder+fuse assembly — see the Fuse
+    # component docstring in components.ato. No PCB-mount fuseholder is
+    # instantiated anywhere in this file or the 155-part BOM. BOM.md Section
+    # 1.2 adds a new line for Schurter FUP 0031.2510 (5x20mm PCB-mount
+    # fuseholder, 16A VDE / 30A UL-CSA, matches this fuse's rating) to close
+    # that gap. It is not modeled as a separate elec/src component: as a
+    # mechanical carrier it occupies the same two electrical nodes as `fuse`
+    # above (ac_l and fuse.p2), so it adds no new net -- same treatment this
+    # codebase already gives other mechanical-only BOM lines (heatsink, TIM
+    # pads, mounting hardware in BOM.md Section 11). The existing PCB
+    # footprint stub ("Fuse:Fuse_Holder_5x20mm", 2-pin THT, 22.5mm pitch) is
+    # a generic placeholder and does not match the FUP's real drilling
+    # diagram (Schurter FUP datasheet: ~30.48mm primary pin spacing plus a
+    # third orientation pin) -- a correct footprint still needs to be drawn
+    # before fab, same caveat CT1/CST3015 already carries.
     
     # MOV: 150VAC surge protection across L-N (after fuse)
     mov = new MOV_Varistor
@@ -456,12 +503,35 @@ module PowerInput:
     mov.footprint = "Varistor:RV_Disc_D15.5mm_W5.2mm_P7.5mm"
 
     # X2 EMI capacitor: differential-mode filtering L-N (after fuse, after MOV)
+    #
+    # MPN fixed 2026-07-26 (docs/evidence/2026-07-26-bom-availability-sweep.md,
+    # Blocker 2 / docs/evidence/2026-07-26-bom-blocker-resolution.md):
+    # DE2E3KH221MA3B was not found at any distributor, and Murata's own DE2
+    # "221" suffix convention decodes to 220pF (confirmed against sibling
+    # DE2B3SA221KA3BT02F = 220pF), 1000x off the 0.22uF/220nF this circuit
+    # needs -- Murata's DE2 leaded safety-disc line tops out around 10nF and
+    # cannot make this value in that family at all. The 220nF *value* is
+    # correct for this circuit (standard X2 line-EMI value); only the MPN was
+    # wrong. Replaced with EPCOS/TDK B32922C3224M289 (0.22uF X2, rated
+    # 305VAC/max-continuous 310VAC, 630VDC, polypropylene, 15mm lead pitch) --
+    # Active, 28,179 units at DigiKey, approved to IEC 60384-14/EN132400
+    # (cert 40005536/40010694), UL1414/UL1283 (E97863/E157153), CSA C22.2
+    # No.1/No.8, CQC GB/T14472-1998 (CQC001007-14859), per EPCOS's own
+    # B32921...B32926 X2/305VAC datasheet, confirmed 2026-07-26.
+    #
+    # FOOTPRINT CHANGE REQUIRED: the disc footprint below matched the old
+    # (fictional) disc-style part and does NOT fit the real MKP box-style
+    # replacement. New footprint needed, not yet drawn: 2-pin THT radial box,
+    # 15mm lead pitch, body envelope ~7.0(w) x 12.5(h) x 18.0(l) mm, 0.8mm
+    # lead diameter (EPCOS B32922 dimensional table, 15mm-pitch row). Do not
+    # fab until this footprint exists and has been checked in the KiCad
+    # footprint editor -- same caveat CT1/CST3015 already carries.
     c_x2 = new Capacitor
     c_x2.value = 0.22uF +/- 20%
     c_x2.dielectric = "X2"
     c_x2.voltage_rating = 310V
-    c_x2.mpn = "DE2E3KH221MA3B"
-    c_x2.footprint = "Capacitor_THT:C_Disc_D10.0mm_W5.0mm_P5.00mm"
+    c_x2.mpn = "B32922C3224M289"
+    c_x2.footprint = "Capacitor_THT:C_Disc_D10.0mm_W5.0mm_P5.00mm"  # TODO: wrong footprint, see comment above
 
     # CMC: common-mode choke for conducted EMI suppression.
     # ONE physical 4-pin part (TDK B82726S2163N030) — previously modeled as
@@ -973,7 +1043,7 @@ module BuckConverter3V3:
     c_boot.value = 100nF
     c_boot.voltage_rating = 25V
     c_boot.dielectric = "X7R"
-    c_boot.mpn = "GRM188R71E104KA01D"
+    c_boot.mpn = "C0603C104K5RACTU"
     c_boot.footprint = "Capacitor_SMD:C_0603_1608Metric"
 
     # TI Table 9-1 (Vout=3.3V, fsw=500kHz): L=5.6uH, Cout=2x22uF/25V,
@@ -1003,7 +1073,7 @@ module BuckConverter3V3:
     c_out_hf.value = 100nF +/- 10%
     c_out_hf.dielectric = "X7R"
     c_out_hf.voltage_rating = 10V
-    c_out_hf.mpn = "GRM188R71E104KA01D"
+    c_out_hf.mpn = "C0603C104K5RACTU"
     c_out_hf.footprint = "Capacitor_SMD:C_0603_1608Metric"
 
     r_fb_top = new Resistor
@@ -1106,13 +1176,17 @@ module AuxSupply:
     c_out.mpn = "GRM32ER71E107ME15L"  # 100uF 25V X7R 1210
     c_out.footprint = "Capacitor_SMD:C_1210_3225Metric"
     
+    # DC-bias derating flag (2026-07-26, UNVERIFIED numeric %): this cap
+    # decouples the 15V SELV output rail, i.e. the same ~60%-of-25V-rated
+    # bias condition as HalfBridge.c_vdda/c_vddb -- see the comment there.
+    # The 50V-rated replacement drops the bias ratio to ~30%.
     c_out_hf = new Capacitor
     c_out_hf.value = 100nF +/- 10%
     c_out_hf.dielectric = "X7R"
     c_out_hf.voltage_rating = 25V
-    c_out_hf.mpn = "GRM188R71E104KA01D"
+    c_out_hf.mpn = "C0603C104K5RACTU"
     c_out_hf.footprint = "Capacitor_SMD:C_0603_1608Metric"
-    
+
     # Connections
     power_in.vcc ~ c_in_bulk.p1
     c_in_bulk.p2 ~ power_in.gnd
@@ -1296,7 +1370,7 @@ module RTDSensing:
     c_vdd = new Capacitor
     c_vdd.value = 100nF
     c_vdd.voltage_rating = 10V
-    c_vdd.mpn = "GRM188R71E104KA01D"
+    c_vdd.mpn = "C0603C104K5RACTU"
     c_vdd.footprint = "Capacitor_SMD:C_0603_1608Metric"
     
     # EMI Filtering (temper-en5)
@@ -1367,12 +1441,12 @@ module RTDSensing:
     c_window_and.dielectric = "X7R"
     c_rail_monitor.dielectric = "X7R"
     c_fault_nand.dielectric = "X7R"
-    c_reference.mpn = "GRM188R71E104KA01D"
-    c_low_window.mpn = "GRM188R71E104KA01D"
-    c_high_window.mpn = "GRM188R71E104KA01D"
-    c_window_and.mpn = "GRM188R71E104KA01D"
-    c_rail_monitor.mpn = "GRM188R71E104KA01D"
-    c_fault_nand.mpn = "GRM188R71E104KA01D"
+    c_reference.mpn = "C0603C104K5RACTU"
+    c_low_window.mpn = "C0603C104K5RACTU"
+    c_high_window.mpn = "C0603C104K5RACTU"
+    c_window_and.mpn = "C0603C104K5RACTU"
+    c_rail_monitor.mpn = "C0603C104K5RACTU"
+    c_fault_nand.mpn = "C0603C104K5RACTU"
     power.vcc ~ c_reference.p1
     c_reference.p2 ~ power.gnd
     fb_power.p2 ~ c_low_window.p1
@@ -1671,7 +1745,7 @@ module OVPComparator:
     c_adc_filter.value = 100nF +/- 10%
     c_adc_filter.dielectric = "X7R"
     c_adc_filter.voltage_rating = 10V
-    c_adc_filter.mpn = "GRM188R71E104KA01D"
+    c_adc_filter.mpn = "C0603C104K5RACTU"
     c_adc_filter.footprint = "Capacitor_SMD:C_0603_1608Metric"
     
     v_bus.line ~ r_adc_top.p1
@@ -2028,7 +2102,7 @@ module Watchdog:
     c_bypass = new Capacitor
     c_bypass.value = 100nF
     c_bypass.voltage_rating = 10V
-    c_bypass.mpn = "GRM188R71E104KA01D"
+    c_bypass.mpn = "C0603C104K5RACTU"
     c_bypass.footprint = "Capacitor_SMD:C_0603_1608Metric"
     
     power.vcc ~ wdt.VDD
@@ -2502,7 +2576,7 @@ module MCU:
     c_vcc1 = new Capacitor
     c_vcc1.value = 100nF
     c_vcc1.voltage_rating = 10V
-    c_vcc1.mpn = "GRM188R71E104KA01D"
+    c_vcc1.mpn = "C0603C104K5RACTU"
     c_vcc1.footprint = "Capacitor_SMD:C_0603_1608Metric"
     
     c_vcc2 = new Capacitor
