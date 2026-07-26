@@ -304,6 +304,20 @@ X_PAN tank_mid2 0 PANLOAD_TRANSFORMER L1={PAN_L1} L2={PAN_L2} K={PAN_K} RPAN={PA
 .meas tran v_sw_max MAX V(sw) FROM='(N_CYCLES-1)*PERIOD' TO='N_CYCLES*PERIOD'
 .meas tran v_sw_min MIN V(sw) FROM='(N_CYCLES-1)*PERIOD' TO='N_CYCLES*PERIOD'
 
+* Pan-secondary current, last cycle -- added for the L x f_sw x power sweep
+* (docs/hardware/TANK_COIL_SPECIFICATION.md). PANLOAD_TRANSFORMER's
+* secondary loop is L_sec -> R_pan -> V_short (0V, closes the "shorted
+* turn"), all in series, so the current through any one of them equals the
+* current through all three. V_short's branch current is addressable at
+* top level via ngspice's subcircuit-internal naming convention
+* `v.<instance>.<device>#branch` (verified empirically: a standalone probe
+* deck printed `v.x_pan.v_short#branch` as a valid vector; `i(x_pan.v_short)`
+* is NOT valid ngspice syntax and errors). Power delivered to the pan
+* model is purely resistive (R_pan is the only dissipative element in the
+* secondary loop): P_pan = i_pan_rms_last^2 * RPAN, computed in the harness
+* (not here) since RPAN is already tracked per grid point there.
+.meas tran i_pan_rms_last RMS v.x_pan.v_short#branch FROM='(N_CYCLES-1)*PERIOD' TO='N_CYCLES*PERIOD'
+
 .control
 set noaskquit
 run
