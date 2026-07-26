@@ -26,6 +26,7 @@ evidence, all gathered 2026-07-25 and detailed below:
 | **BOM** | Unusable in both directions — 35 lines costed with no circuit, ~75 wired components uncosted |
 | **Router** | ~79% path-finding, but its output carries ~120 shorts and 499 clearance violations |
 | **Router's own DRC** | Never ran; when enabled, the first check **crashes** on current data |
+| **Fixed today** | OCP-01 50.12 A (was 37.6), THM-01 84.91 °C (was 99.5), board outline, 10 dead CI gates |
 
 The router was never the bottleneck. A month went into routing a board whose
 overcurrent protection trips 17% low, whose thermal shutdown is 14.5 °C high,
@@ -55,10 +56,11 @@ grep of the BOM against the source. None of it required the router to work.
 
 ### Recommended sequence
 
-1. **Design review of the protection chain** — human, power-electronics
-   judgment. OCP-01 needs a component change (50 A is unreachable on a 3.3 V
-   rail); OCP-02, THM-02 and DESAT need circuits designed; OVP-01's divider
-   interpretation needs a decision.
+1. ~~**Design review of the protection chain**~~ — **done 2026-07-25**
+   (`docs/hardware/PROTECTION_CHAIN_REVIEW.md`). OCP-01 and THM-01 are fixed
+   and verified in simulation. Still outstanding from it: OVP-01's divider
+   reference is a design decision; OCP-02, THM-02 and DESAT need circuits
+   designed; `temper:CST3015` footprint must be drawn before fabrication.
 2. **Reconcile the BOM against the source**, both directions.
 3. **Extend the SPICE harness** to the power stage — a ZVS-margin sweep across
    the pan-load envelope is the highest-value remaining simulation
