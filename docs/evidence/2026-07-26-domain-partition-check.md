@@ -2,10 +2,15 @@
 
 **Scope:** `scripts/check_domain_partition.py` (the gate), `elec/domain_manifest.yaml`
 (the declared HV/SELV domains and isolator pin-groups), `scripts/tests/test_check_domain_partition.py`
-(33 unit tests), `.github/workflows/python-tests.yml` (CI wiring). Built at
-commit `ee9b0323181988041e52dfc425c4239c0b6c658d`, rebased onto the tip of
-`docs/methodology-loop-discipline` at the time of this run (confirmed:
-`git merge-base --is-ancestor docs/methodology-loop-discipline HEAD` exits 0).
+(33 unit tests), `.github/workflows/python-tests.yml` (CI wiring). All
+measurements below were taken at commit `ee9b0323181988041e52dfc425c4239c0b6c658d`
+and then **re-verified after a further rebase** onto the tip of
+`docs/methodology-loop-discipline` (final commit `b713246912b681bcb07b15c6e7b1223b03801902`,
+confirmed: `git merge-base --is-ancestor docs/methodology-loop-discipline HEAD`
+exits 0) with a freshly rebuilt netlist (`rm -rf elec/build && make netlist`
+→ exit 0, 76/76 PASSED, 0 FAILED). Every number and path in §2-§3 is
+unchanged between the two commits — re-measured, not assumed carried
+forward.
 
 **Falsifier, stated before implementing:** *this check is vacuous if it
 reports PASS on the currently committed netlist.* The design's own galvanic
