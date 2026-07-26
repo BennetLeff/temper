@@ -30,6 +30,12 @@ on:
       - '.physics-provenance-allowlist'
       - 'scripts/check_physics_provenance.py'
       - 'scripts/check_vacuous_gates.py'
+      - 'scripts/check_derived_doc_drift.py'
+      - 'scripts/derived_doc_gates.yaml'
+      - 'scripts/tests/test_check_derived_doc_drift.py'
+      - 'docs/FUNCTIONAL_TEST_CRITERIA.md'
+      - 'docs/STRATEGY.md'
+      - 'docs/hardware/PROTECTION_CHAIN_REVIEW.md'
       - 'docs/plans/**'
       - 'docs/traceability-registry.yaml'
       - '**/TRACEABILITY'
@@ -66,6 +72,12 @@ on:
       - '.physics-provenance-allowlist'
       - 'scripts/check_physics_provenance.py'
       - 'scripts/check_vacuous_gates.py'
+      - 'scripts/check_derived_doc_drift.py'
+      - 'scripts/derived_doc_gates.yaml'
+      - 'scripts/tests/test_check_derived_doc_drift.py'
+      - 'docs/FUNCTIONAL_TEST_CRITERIA.md'
+      - 'docs/STRATEGY.md'
+      - 'docs/hardware/PROTECTION_CHAIN_REVIEW.md'
       - 'docs/plans/**'
       - 'docs/traceability-registry.yaml'
       - '**/TRACEABILITY'
@@ -356,6 +368,12 @@ jobs:
         env:
           XLA_PYTHON_CLIENT_MEM_FRACTION: 0.15
           JAX_PLATFORM_NAME: cpu
+
+      - name: Derived-document drift gate tests
+        run: uv run pytest scripts/tests/test_check_derived_doc_drift.py -v --tb=short
+
+      - name: Derived-document drift gate (docs/STRATEGY.md vs FUNCTIONAL_TEST_CRITERIA.md)
+        run: uv run python scripts/check_derived_doc_drift.py
 
       - name: Rebuild script invocation graph
         run: uv run python scripts/trace_invocations.py
