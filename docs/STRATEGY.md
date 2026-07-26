@@ -472,6 +472,47 @@ Also surfaced: **`FUNCTIONAL_TEST_CRITERIA.md` §1.2 specifies a 200 W ±25%
 power tier that has no corresponding gate** in this document. That is an
 omitted requirement, not a lost qualifier.
 
+### Manufacturing DRC is no longer the bottleneck (2026-07-26)
+
+Full detail: `docs/evidence/2026-07-26-clearance-rust-port.md`. `verify_clearance`
+is ported to Rust in `temper-drc-rs`. **Stage 5 now adds ~0.7 s to a ~124 s
+route, down from 25+ minutes or non-terminating.** 9.7×–124× faster than the
+Python path, the gap widening with n.
+
+**Scope correction to a figure this document previously carried.** The
+"27 min / 9.2 GB" was **Stage 5 as a whole** — all seven DFM checks — not
+`verify_clearance` alone. Measured in isolation the function is O(n²) in time
+(180.9 s at 3,200 routes, clean 4×-per-doubling) but modest in memory, under
+5 MB. The 9.2 GB belonged elsewhere in the stage.
+
+**Both falsifiers were stated before implementing and neither fired:** distinct
+required-clearance values on the real board number **3** (0.127 / 4.2 / 14.0 mm)
+and do not grow with n; HV-gated nets are **1.16%** (7 of 603). That is what
+makes a two-tier structure safe here — a uniform grid for the ~99% fine-vs-fine
+majority, brute force for HV-touching pairs and all via checks. An explicit
+100%-HV differential test proves it degrades *gracefully* rather than
+*incorrectly* if that ratio ever changed.
+
+**Equivalence was proved, not assumed.** The port preserves CPython's positional
+`max()`/`min()` NaN semantics, NaN poisoning of per-layer minima, two
+*different* HV-keyword lists, and an existing `via_diameter_default` quirk —
+**preserved deliberately, not fixed**, so the port is a port. Evidence: a
+40-seed Rust property test against a brute-force oracle, a Python-vs-Rust
+differential test asserting **set equality of violations, not counts**
+(`test_clearance_rust_differential.py:131`), and the full suite at **551 passed,
+18 pre-existing xfail, 0 failed** now running against the Rust backend.
+
+The existing Hypothesis idempotency test earned its keep: it caught **`HashMap`
+iteration-order nondeterminism** in the new grid, fixed with `BTreeMap` and
+locked in by a regression test.
+
+**`enable_manufacturing_drc` still defaults False, deliberately.** Performance
+no longer blocks it, but two things do: 14 of 16 router-instantiating test files
+implicitly assume it is off, and **the committed board has 616 critical
+violations** — genuine overlapping copper from routing that is 76.2% complete —
+which would immediately trip the existing `dfm_fail_on="critical"` gate. Flipping
+the default is a follow-up decision, not a side effect.
+
 ### SELV domain floated — barrier real, but one resistive crossing remains (2026-07-26)
 
 Full detail: `docs/hardware/SELV_ISOLATION_REDESIGN.md`. **Landed.** The star
