@@ -626,7 +626,38 @@ this topology class (Hsieh 2023, IET Power Electronics) deliberately uses
 **Next step is to re-derive bulk capacitance from a real model**, checked
 against the tank's already-tight ZVS margin, before any further part selection.
 
-**Correction to an earlier statement here: `BusDischarge` is not failing.**
+**Superseded by the derivation below — at real part tolerance, `BusDischarge`
+FAILS.** `docs/hardware/BUS_CAPACITANCE_DERIVATION.md` computes **65.4 s at the
+capacitor's +20% tolerance** against the <60 s target, verified against the
+distributor-published tolerance. The 54 s figure is nominal-only. So the
+sequence here went: reported failing at 213 s (wrong — that was a withdrawn
+proposal), corrected to passing at 54 s (right, but nominal-only), and now
+**failing at 65.4 s once tolerance is applied.** The margin never existed.
+
+Two fixes, either sufficient: reduce C to **~3000 µF/half**, or resize the
+discharge strings from **9.4 kΩ to ~8.6 kΩ** and leave C alone. The latter is
+arguably lower-risk since it touches one passive value rather than the bus.
+
+**The derivation's load-bearing result: capacitance is a weak lever on the
+ripple failure.** The 35 kHz term is structurally independent of bulk C, so
+driving C toward zero buys back at most ~27% of the combined ripple current. At
+the recommended 3000 µF the margin moves only from **4.26× to 4.16×** over
+rated. **Re-sizing the bus does not fix ripple** — that needs the film-bypass
+and parallel-capacity levers from the architecture review.
+
+The ripple-voltage budget lands at ~15–16%, justified *not* by ZVS or voltage
+headroom (neither is tight) but by there being no reward for pushing further.
+
+**The falsifier partially fired**, which is the honest part. ZVS Coss-timing and
+voltage ratings are derivable from real datasheet numbers and are non-binding.
+But whether the tank still delivers 1800 W through the bottom of the ripple sag
+(`PWR-02`/`EFF-02`) needs the tank's `P(V_bus, f_sw)` transfer function — which
+needs the coil/pan coupling calibration that `TANK_COIL_SPECIFICATION.md`
+already flags as missing. **That is the named blocker: bench-measure the real
+coil-and-pan coupling and reflected resistance.** It is the same measurement
+three separate open questions now depend on.
+
+**Prior text, retained for the record:**
 The 213 s figure quoted previously was the consequence of the *withdrawn*
 14,100 µF proposal, not the committed design. `modules.ato:772-773` derives the
 real number — `tau = 9.4k × 3600 µF = 33.8 s`, reaching <34 V in 1.61 tau
