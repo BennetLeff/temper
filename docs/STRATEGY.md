@@ -472,6 +472,43 @@ Also surfaced: **`FUNCTIONAL_TEST_CRITERIA.md` §1.2 specifies a 200 W ±25%
 power tier that has no corresponding gate** in this document. That is an
 omitted requirement, not a lost qualifier.
 
+### Bus capacitors fail on ripple current by ~5× (2026-07-26)
+
+Full derivation: `docs/evidence/2026-07-26-bus-capacitor-ripple.md`.
+
+`EKMQ251VSN182MA50S` is rated **2.70 A rms at 105 °C, 120 Hz** (United
+Chemi-Con CAT. No. E1001E, KMQ series, part listed explicitly). Four of them,
+two per half-bus, give the bank **10.8 A** of ripple capability.
+
+| Component | Per capacitor, 120 Hz-equivalent |
+|---|---|
+| Line-frequency recharge | **7.7 – 12.3 A** |
+| ~35 kHz inverter draw | 8.4 – 9.5 A |
+| **Combined (quadrature)** | **4.2 – 5.8 × rated**, central **4.8×** |
+
+**Verdict: FAILS**, under every assumption combination checked including the
+one most favourable to the design.
+
+**The conclusion does not depend on the undefined tank inductance.** The
+falsifier was stated before deriving — *"this fails if the line-frequency term
+alone does not already exceed rating"* — and it did not fire: the
+line-frequency term **alone** clears the rating by 2.8–4.6×. The switching-term
+estimate was taken from this repo's own committed-values bound rather than
+fabricated, and the verdict survives without it.
+
+The analysis also corrected the topology framing: this is a Delon/cascade
+doubler, so each bank recharges once per full 60 Hz cycle, not twice.
+
+**Life estimation is not meaningful here.** The datasheet's 2000 h at 105 °C
+endurance assumes operation *within* rated ripple. At ~4.8× rated the
+dissipation is roughly 23× higher, and the case thermal resistance is not
+published, so the hotspot rise is UNVERIFIED. Quoting a life figure would
+imply a validity the operating point does not have.
+
+This is the failure mode predicted as most likely for this design, and it is
+failing structurally rather than marginally — the fix is more capacitance,
+more parts in parallel, or a higher-ripple series, not a tweak.
+
 ### The BOM matches source but cannot be ordered (2026-07-26)
 
 Full detail: `docs/evidence/2026-07-26-bom-availability-sweep.md`. ~38 of ~182
