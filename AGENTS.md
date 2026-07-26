@@ -157,6 +157,33 @@ verification pattern.
 
 ## Session Lifecycle
 
+### Base-Commit Assertion (Session Start — do this first)
+
+Before measuring, building, or concluding anything, confirm you are actually
+on the commit/branch you were told to work from:
+
+```bash
+scripts/assert-base.sh <expected-ref>
+```
+
+`<expected-ref>` is whatever you were dispatched against (a branch name, a
+SHA, `origin/main`, ...). Exit 0 means you match; exit 1 means you don't
+(it prints both SHAs and how far apart they are — the fix is almost always
+`git rebase <expected-ref>`, not a force-checkout); exit 2 means the ref
+itself doesn't resolve (typo, or you need to `git fetch` first).
+
+This exists because it kept not happening: four confirmed cases in one day
+of an agent measuring in a stale worktree and reporting the result as
+current state — a "broken" crate that builds fine one commit later, a
+fault-tree survey that was correct for a tree that no longer exists, two
+agents that started work from commits several patches behind the branch tip
+they thought they were on. See `docs/METHODOLOGY.md` Sec 5 ("a measurement
+carries the commit it was taken at, or it is not a measurement") and
+`docs/evidence/2026-07-26-measurement-provenance.md`. Every dispatch that
+names a base commit or branch should have the receiving agent run this
+before doing anything else, and again before writing up results if the
+session ran long enough that the base branch could have moved.
+
 ### Issue Tracking & Management
 
 *   **Granularity is Critical**: Bias towards small, iterative tasks.
