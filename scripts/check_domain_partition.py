@@ -889,6 +889,21 @@ def run(netlist_path: Path, manifest_path: Path, src_dir: Path, skip_freshness: 
         "components."
     )
 
+    # Informational only (does not affect the exit code): a net record with
+    # zero nodes is a dangling/unused signal declaration in the source --
+    # not a domain violation, but worth a human glance, since an empty net
+    # is also exactly the shape of bug that could one day silently hide a
+    # forgotten connection.
+    empty_nets = sorted(
+        name for code, name in netlist.nets.items() if not netlist.net_nodes.get(code)
+    )
+    if empty_nets:
+        print(
+            f"\nNOTE: {len(empty_nets)} net record(s) with zero connected "
+            f"pins (dangling signal declarations, not a violation): "
+            f"{empty_nets}"
+        )
+
     gh = get_github_summary_path()
     gh_lines: list[str] = []
 
