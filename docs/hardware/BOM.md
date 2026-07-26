@@ -315,6 +315,7 @@
 |---------|------|---------|
 | 1.0 | 2025-12-14 | Initial release |
 | 1.1 | 2025-12-17 | Updated for 1.8kW redesign: CST-1005 CT, 66.5Ω burden, 300nF FKP1 caps |
+| 1.2 | 2026-07-25 | Reconciled OCP/thermal entries with `elec/src/modules.ato`: CT1 → CST2010-100L (1:100; CST-1005 retired in `5a58b397`), R_BURDEN → 6.65Ω (was a decade off), NTC_HS → NTCALUG01A104GA (was wrong decade *and* beta), added the three thermal divider resistors. THM-01 corrected to 84.9°C. Flagged inline: OCP-01's spec/CT conflict, THM-02 having no circuit. **This BOM is not yet orderable** — see `docs/evidence/2026-07-25-bom-source-audit.md` for ~35 costed-but-absent and ~75 wired-but-uncosted items. |
 
 ---
 
