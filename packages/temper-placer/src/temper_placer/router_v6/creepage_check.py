@@ -52,6 +52,14 @@ class CreepageReport(BaseCheckReport):
 
     violations: list[CreepageViolation]
     total_checks: int
+    # True iff the check crashed, OR the anti-vacuous-truth guard fired
+    # (total_checks == 0 on a board with routed copper -- METHODOLOGY.md
+    # Sec 5). Creepage carries HV safety meaning, so ManufacturingReport
+    # folds `errored` into critical_violations/total_violations as a
+    # fail-closed sentinel rather than reading this as "0 violations
+    # found". See
+    # docs/evidence/2026-07-25-manufacturing-drc-crash-swallow.md.
+    errored: bool = False
 
 
 # ---------------------------------------------------------------------------

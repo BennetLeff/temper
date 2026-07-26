@@ -204,6 +204,20 @@ def route_pcb(
         enable_all_pad_tree=enable_all_pad_tree,
         enable_zone_pours=enable_zone_pours,
         enable_connectivity_verifier=enable_connectivity_verifier,
+        # Manufacturing DRC (acid_trap, annular_ring, teardrop,
+        # thermal_relief, power_planes, copper_balance, creepage,
+        # clearance) never ran during production routing before this --
+        # `enable_manufacturing_drc` defaulted to False and nothing set
+        # it. See
+        # docs/evidence/2026-07-25-manufacturing-drc-crash-swallow.md.
+        # Reporting-only for now: dfm_fail_on="none" means the stage runs
+        # and its ManufacturingReport is attached to the result, but it
+        # does not raise ManufacturingDRCViolationError and does not
+        # change routing behavior. Promoting this to a blocking gate is a
+        # separate, deliberate decision once the current violation volume
+        # is characterized.
+        enable_manufacturing_drc=True,
+        dfm_fail_on="none",
     )
 
     # Resolve the net->class-name mapping from the caller's design_rules.

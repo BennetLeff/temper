@@ -49,15 +49,52 @@ class ManufacturingReport:
                 )
 
     @property
+    def errored_checks(self) -> tuple[str, ...]:
+        """Names of DFM checks that crashed, or hit the anti-vacuous-truth
+        guard (total_checks == 0 on a board with routed copper).
+
+        This must be visible in the *returned report*, not only in a log
+        line -- see
+        docs/evidence/2026-07-25-manufacturing-drc-crash-swallow.md.
+        """
+        candidates = (
+            ("acid_trap", self.acid_traps),
+            ("annular_ring", self.annular_rings),
+            ("teardrop", self.teardrops),
+            ("thermal_relief", self.thermal_reliefs),
+            ("copper_balance", self.copper_balance),
+            ("creepage", self.creepage),
+            ("clearance", self.clearance),
+        )
+        return tuple(name for name, sub_report in candidates if getattr(sub_report, "errored", False))
+
+    @property
     def total_violations(self) -> int:
-        """Total number of violations across all checks, including partial failures."""
+        """Total number of violations across all checks, including partial failures.
+
+        ``creepage`` and ``clearance`` fail closed (METHODOLOGY.md Sec 5;
+        matches the ``_allow_forced_segments`` precedent): an errored
+        check counts as at least one violation even when its
+        (necessarily incomplete) violation list is empty, rather than
+        being read as "0 violations found".
+        """
         teardrop_failure = 1 if self.teardrops.teardrop_count == 0 else 0
         thermal_failure = 1 if self.thermal_reliefs.relief_count == 0 else 0
+        creepage_count = (
+            max(self.creepage.violation_count, 1)
+            if self.creepage.errored
+            else self.creepage.violation_count
+        )
+        clearance_count = (
+            max(self.clearance.violation_count, 1)
+            if self.clearance.errored
+            else self.clearance.violation_count
+        )
         return (
             self.acid_traps.trap_count
             + self.annular_rings.violation_count
-            + self.creepage.violation_count
-            + self.clearance.violation_count
+            + creepage_count
+            + clearance_count
             + self.copper_balance.unbalanced_layer_count
             + teardrop_failure
             + thermal_failure
@@ -70,12 +107,26 @@ class ManufacturingReport:
 
     @property
     def critical_violations(self) -> int:
-        """Number of critical violations (blocking manufacture)."""
+        """Number of critical violations (blocking manufacture).
+
+        Fails closed on an errored creepage/clearance check -- see
+        ``total_violations``.
+        """
+        creepage_count = (
+            max(self.creepage.violation_count, 1)
+            if self.creepage.errored
+            else self.creepage.violation_count
+        )
+        clearance_count = (
+            max(self.clearance.violation_count, 1)
+            if self.clearance.errored
+            else self.clearance.violation_count
+        )
         return (
             self.acid_traps.critical_count
             + self.annular_rings.violation_count
-            + self.creepage.violation_count
-            + self.clearance.violation_count
+            + creepage_count
+            + clearance_count
             + self.copper_balance.unbalanced_layer_count
         )
 
@@ -158,6 +209,11 @@ def format_manufacturing_report(report: ManufacturingReport) -> str:
     lines.append(f"Overall Status: {status}")
     lines.append(f"Total Violations: {report.total_violations}")
     lines.append(f"Critical Violations: {report.critical_violations}")
+    if report.errored_checks:
+        lines.append(
+            "⚠ CHECK ERRORS (crashed or vacuous -- results below are "
+            f"unreliable/fail-closed): {', '.join(report.errored_checks)}"
+        )
     lines.append("")
 
     # Acid Traps
@@ -191,7 +247,8 @@ def format_manufacturing_report(report: ManufacturingReport) -> str:
     lines.append("")
 
     # Creepage
-    lines.append(f"Creepage: {report.creepage.violation_count} violations")
+    creepage_tag = " [ERRORED -- fail-closed, see CHECK ERRORS above]" if report.creepage.errored else ""
+    lines.append(f"Creepage: {report.creepage.violation_count} violations{creepage_tag}")
     lines.append(f"  - Total checks: {report.creepage.total_checks}")
     if report.creepage.total_checks == 0:
         lines.append("  - Pass rate: N/A")
@@ -200,7 +257,8 @@ def format_manufacturing_report(report: ManufacturingReport) -> str:
     lines.append("")
 
     # Clearance
-    lines.append(f"Clearance: {report.clearance.violation_count} violations")
+    clearance_tag = " [ERRORED -- fail-closed, see CHECK ERRORS above]" if report.clearance.errored else ""
+    lines.append(f"Clearance: {report.clearance.violation_count} violations{clearance_tag}")
     lines.append(f"  - Total checks: {report.clearance.total_checks}")
     if report.clearance.total_checks == 0:
         lines.append("  - Pass rate: N/A")

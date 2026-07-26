@@ -80,6 +80,10 @@ class ThermalReliefReport:
     """Report of thermal relief connections."""
 
     thermal_reliefs: list[ThermalRelief]
+    # True iff the check crashed and this report is a substituted
+    # empty/fallback report rather than a real result. See
+    # docs/evidence/2026-07-25-manufacturing-drc-crash-swallow.md.
+    errored: bool = False
 
     @property
     def relief_count(self) -> int:
