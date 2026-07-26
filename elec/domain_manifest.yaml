@@ -9,58 +9,82 @@
 # Ground rule: every entry below is an exact, literal net name or component
 # instance path taken from elec/src / elec/build/default.net -- never a
 # pattern, prefix, or naming-convention guess. Net names are exactly what
-# lied in this design ("+340V_BUS" names a node that is actually the ~170V
-# half-bus -- see docs/hardware/IEC60335_CRITICAL_COMPONENTS.md Sec 2), so
-# domain membership must never be inferred from how a net is spelled.
+# lied in this design ("+340V_BUS" used to name a node that is actually the
+# ~170V half-bus -- see docs/hardware/IEC60335_CRITICAL_COMPONENTS.md Sec 2
+# and docs/hardware/SELV_ISOLATION_REDESIGN.md Sec 5), so domain membership
+# must never be inferred from how a net is spelled.
 #
-# Source of the domain assignments below: docs/STRATEGY.md, "The isolation
-# barrier is shorted by the star-point join (2026-07-26)" and
-# docs/hardware/IEC60335_CRITICAL_COMPONENTS.md Sec 2, "What is and isn't
-# mains-referenced, concretely."
+# History: the original star-point join (`power_return ~ gnd`, main.ato)
+# shorted the AuxSupply's isolation barrier outright -- see
+# docs/hardware/IEC60335_CRITICAL_COMPONENTS.md Sec 2 and the
+# 2026-07-26-domain-partition-check evidence doc for that (now-fixed)
+# finding. That join has been REMOVED (docs/hardware/SELV_ISOLATION_REDESIGN.md,
+# commit 6976ef44): `gnd` and `PWR_RTN` are separate compiled nets as of this
+# manifest's writing. Instead of that direct short, the design's own audit
+# (SELV_ISOLATION_REDESIGN.md Sec 4, rows 3-4) documents a real, still-open
+# gap: a plain resistive divider (3x430kohm + 10kohm, `OVPComparator`,
+# `main.ato:434-435`) runs from the HV half-bus (`dc_bus_plus`/`+170V_BUS`)
+# straight to `gnd`, with no isolator in the path at all. That divider has no
+# isolator declaration below because it genuinely is not isolated -- it is
+# exactly the class of gap this check exists to surface, not something to be
+# quietly modeled away.
 
 schema_version: 1
 
 domains:
   # Mains / high-voltage power domain: AC line/neutral, the rectified DC
-  # bus, the doubler midpoint (power_return), PE, and everything that
-  # floats on the half-bridge switch node or the negative DC rail.
+  # bus, the doubler midpoint (power_return), and everything that floats on
+  # the half-bridge switch node or the negative DC rail.
   HV:
     nets:
       - ac_l
       - ac_n
-      - pe                # bonded to PWR_RTN only via the Y1 cap (C6) --
-                           # intentional high-impedance EMI path, not a DC
-                           # safety bond; must still never reach SELV.
-      - "+340V_BUS"        # dc_bus_plus. NAME LIES: this node is the ~170V
-                           # half-bus, not 340V (main.ato:95, IEC60335 doc
-                           # Sec 2). Declared here by its exact compiled
-                           # string, not inferred from the "+340V" text.
+      - "+170V_BUS"        # dc_bus_plus. Renamed from "+340V_BUS" in the
+                           # SELV redesign: the old name is what caused
+                           # OVP-01's reference divider to be tuned for a
+                           # 340V full-bus reading it never actually sees
+                           # (SELV_ISOLATION_REDESIGN.md Sec 5) -- declared
+                           # here by its current exact compiled string, not
+                           # inferred from either name.
       - DC_BUS_RTN         # dc_bus_minus
       - PWR_RTN            # power_return, the doubler midpoint
-                           # (main.ato:103 override_net_name). This is the
-                           # net the star-join bug also drags `gnd` into --
-                           # see aux_supply.psu isolator group check below,
-                           # which catches that directly at the barrier.
-      - ZCD                # power_in.zcd: tap of a plain resistive divider
-                           # from ac_l to PWR_RTN (modules.ato:683-689,
-                           # un-isolated by the module's own TODO). HV by
-                           # construction, not by name.
+                           # (main.ato override_net_name). Confirmed a
+                           # SEPARATE net from `gnd` as of this manifest
+                           # (net 6, 17 pins) -- the star-join short that
+                           # used to merge them into one net has been
+                           # removed. Straddled only by the declared
+                           # isolators below (C6, PS1, T1, U3).
       - w1_1               # CMC winding 1 taps (line side)
       - w1_2
       - "+15V_LS"          # low-side gate-driver rail; referenced to
-                           # DC_BUS_RTN, not gnd (modules.ato:380-381) --
-                           # floats within the HV domain, not SELV.
+                           # DC_BUS_RTN, not gnd (modules.ato) -- floats
+                           # within the HV domain, not SELV.
       - SW_NODE            # half-bridge switch node
       - GATE_HS            # UCC21550 high-side gate output; floats on
-                           # SW_NODE (secondary side of U6, HV side of the
-                           # barrier even though it is a "secondary")
+                           # SW_NODE (secondary side of the gate driver, HV
+                           # side of the barrier even though it is a
+                           # "secondary" winding of that isolator)
       - GATE_LS            # UCC21550 low-side gate output; referenced to
                            # DC_BUS_RTN
+      - zcd                # power_in's internal HV-side ZCD divider tap
+                           # (top-of-divider node feeding the new H11L1
+                           # opto's LED). Stays inside PowerInput/HV; does
+                           # NOT cross main.ato's module boundary any more
+                           # (see ZCD_ISO under SELV) -- this is the
+                           # isolation fix (SELV_ISOLATION_REDESIGN.md Sec 4
+                           # row 2) working as intended.
+      - a                  # auto-named net between the ZCD divider tap and
+                           # the H11L1 LED series resistor/anode (R9-U3),
+                           # still entirely HV-side.
 
   # SELV control/logic domain: MCU, safety interlock, RTD sensing, and the
-  # isolated 15V/3.3V rails they are claimed to run from.
+  # isolated 15V/3.3V rails they are claimed to run from. `gnd` itself is
+  # now bonded directly to protective earth (`gnd ~ pe`, main.ato) rather
+  # than to power_return -- there is no separate `pe` net record any more
+  # (it is net 1, `gnd`, itself); see SELV_ISOLATION_REDESIGN.md Sec 3.
   SELV:
     nets:
+      - gnd
       - "+15V"
       - "+3V3"
       - usb_dn
@@ -82,9 +106,21 @@ domains:
       - SHUTDOWN
       - RELAY_CTRL
       - DISCHARGE_CTRL
-      - V_BUS_SENSE
-      - PWM_HS             # MCU-side PWM output, primary side of U6
+      - V_BUS_SENSE        # mcu.adc_v_bus -- fed by OVPComparator's second,
+                           # independent resistive divider
+                           # (SELV_ISOLATION_REDESIGN.md Sec 4 row 4); also
+                           # not isolated. Expected to co-locate in the same
+                           # violated connected component as `gnd` alongside
+                           # the main OVP-01 divider crossing.
+      - PWM_HS             # MCU-side PWM output, primary side of the gate driver
       - PWM_LS
+      - ZCD_ISO            # power_in.zcd_out -- the H11L1 opto's SELV-side
+                           # output feeding mcu.zcd_in. Newly isolated by
+                           # this design's own fix
+                           # (SELV_ISOLATION_REDESIGN.md Sec 4 row 2); listed
+                           # here specifically so the domain check exercises
+                           # a *correctly fixed* crossing, not just the two
+                           # still-open ones.
 
 # Components whose pins do NOT connect across the barrier they implement.
 # `instance_path` is the dotted atopile instance path as it appears after
@@ -154,3 +190,49 @@ isolators:
       "2": "coil1 (SELV coil drive)"
       "5": "coil2 (SELV coil drive)"
       "1": "COM (HV bus contact)"
+
+  - instance_path: power_in.zcd_opto
+    component: "Everlight/Vishay/onsemi H11L1 (H11L1), Schmitt-trigger phototransistor optocoupler"
+    groups:
+      primary: ["1", "2"]        # A (anode), K (cathode) -- LED, HV side
+      secondary: ["4", "5", "6"] # VO, GND, VCC -- phototransistor output, SELV side
+    pin_labels:
+      "1": "A (LED anode, HV side, driven from the zcd divider tap)"
+      "2": "K (LED cathode, HV side, returns to PWR_RTN)"
+      "4": "VO (open-collector output, SELV side -- feeds ZCD_ISO)"
+      "5": "GND (SELV side ground)"
+      "6": "VCC (SELV side supply, +3V3)"
+
+  # --- Capacitor policy (stated and defended, not left implicit) ---
+  # By default, EVERY two-terminal passive (resistor, inductor, ferrite bead,
+  # zero-ohm link, ordinary capacitor) is treated as CONDUCTING by this
+  # check -- see scripts/check_domain_partition.py: only components declared
+  # here break connectivity. An ordinary bulk/decoupling capacitor bridging
+  # HV and SELV would be a real defect and must never be modeled away by
+  # adding it here.
+  #
+  # C6 is the one deliberate exception, and it is declared explicitly rather
+  # than silently exempted by any general "capacitors don't conduct" rule:
+  # it is a Y1-class, IEC 60384-14 safety-rated capacitor
+  # (docs/hardware/IEC60335_CRITICAL_COMPONENTS.md: "Y1 EMI/PE-bonding
+  # capacitor") whose entire regulatory purpose is to provide a bounded,
+  # high-impedance AC-only path across a safety barrier while blocking DC --
+  # that is what Y-cap agency approval certifies, unlike a generic capacitor.
+  # docs/hardware/SELV_ISOLATION_REDESIGN.md Sec 3 independently re-derives
+  # and defends this same bond as "without a DC short." Declaring it here
+  # (instead of leaving it to the default conducting rule) is what lets this
+  # gate distinguish "the one certified, documented, IEC-60335-legitimate
+  # EMI bond" from "an accidental short" -- treating it as conducting would
+  # make this gate permanently and uninformatively red over standards-
+  # required behavior; treating every future undeclared capacitor as
+  # non-conducting by default would hide a real fault the same way the
+  # original star join was hidden. This is the only capacitor granted this
+  # treatment in this manifest.
+  - instance_path: power_in.y_cap_pe
+    component: "Y1-class EMI/PE-bonding capacitor (IEC 60384-14) -- see capacitor policy above"
+    groups:
+      hv_side: ["1"]     # p1, bonded to power_return / PWR_RTN
+      selv_side: ["2"]   # p2, bonded to pe (now part of the gnd net)
+    pin_labels:
+      "1": "p1 (HV side, power_return / PWR_RTN)"
+      "2": "p2 (SELV side, pe -- merged into gnd since SELV_ISOLATION_REDESIGN.md Sec 3)"

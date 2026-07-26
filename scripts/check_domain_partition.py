@@ -402,14 +402,29 @@ def load_manifest(path: Path) -> Manifest:
 class Graph:
     adjacency: dict[str, list[tuple[str, str]]] = field(default_factory=dict)
 
-    def add_edge(self, a: str, b: str, label: str) -> None:
+    def add_edge(self, a: str, b: str, label: str, weight: int = 1) -> None:
         if a == b:
             return
-        self.adjacency.setdefault(a, []).append((b, label))
-        self.adjacency.setdefault(b, []).append((a, label))
+        self.adjacency.setdefault(a, []).append((b, label, weight))
+        self.adjacency.setdefault(b, []).append((a, label, weight))
 
     def ensure_node(self, n: str) -> None:
         self.adjacency.setdefault(n, [])
+
+    def without_labels(self, labels: set[str]) -> "Graph":
+        """Return a copy of this graph with every edge carrying one of
+        `labels` removed. Used to find multiple INDEPENDENT bridging paths
+        between two domains rather than only the single shortest one --
+        two real, separate crossings (e.g. a 2-resistor ADC-sense divider
+        and an unrelated 4-resistor comparator-reference divider) must both
+        be visible, not just whichever happens to have fewer hops."""
+        pruned = Graph()
+        for node, edges in self.adjacency.items():
+            pruned.ensure_node(node)
+            pruned.adjacency[node] = [
+                (n, lbl, w) for n, lbl, w in edges if lbl not in labels
+            ]
+        return pruned
 
 
 def resolve_isolator_refs(
@@ -461,6 +476,37 @@ def resolve_isolator_refs(
     return ref_isolator
 
 
+def _dedupe_nets_in_pin_order(netlist: Netlist, ref: str, pins: list[str]) -> list[str]:
+    """Unique nets touched by `pins`, ordered by pin number (numeric where
+    possible). Used to chain a multi-pin component's nets pin1-pin2-pin3-...
+    rather than hub everything through whichever pin happened to be listed
+    first in the netlist file. A star topology from an arbitrary hub pin
+    creates a false "1-hop shortcut" between two pins of a many-pin IC that
+    have nothing to do with each other electrically (e.g. a comparator's
+    GND pin and its INP pin) -- which can bury a real, more informative
+    passive-component path (e.g. a divider's own bottom resistor) behind an
+    arbitrary equal-length route through an unrelated IC pin. A pin-order
+    chain is still the same fail-closed "this component conducts across all
+    its pins" assumption (same reachability, same total edges), it just
+    does not manufacture spurious 1-hop adjacency between unrelated pins."""
+
+    def _pin_key(pin: str) -> tuple[int, object]:
+        try:
+            return (0, int(pin))
+        except ValueError:
+            return (1, pin)
+
+    ordered_pins = sorted(pins, key=_pin_key)
+    nets_here: list[str] = []
+    seen: set[str] = set()
+    for p in ordered_pins:
+        net = netlist.pin_net[(ref, p)]
+        if net not in seen:
+            nets_here.append(net)
+            seen.add(net)
+    return nets_here
+
+
 def build_graph(netlist: Netlist, ref_isolator: dict[str, Isolator]) -> Graph:
     graph = Graph()
     for code in netlist.nets:
@@ -474,10 +520,20 @@ def build_graph(netlist: Netlist, ref_isolator: dict[str, Isolator]) -> Graph:
             # Conductive only WITHIN each declared group -- never across.
             for group_name, group_pins in iso.groups.items():
                 wired_group_pins = [p for p in group_pins if p in pins]
-                nets_in_group = [netlist.pin_net[(ref, p)] for p in wired_group_pins]
+                nets_in_group = _dedupe_nets_in_pin_order(netlist, ref, wired_group_pins)
                 label = f"{instance_path} ({iso.component}) [{group_name} group]"
+                # Weight 0 for a genuine two-terminal element (a real single
+                # physical part with exactly two nodes -- conducting between
+                # them is a fact about the part, not a modeling assumption);
+                # weight 1 for anything wider. Cheapest-path search then
+                # prefers a chain of plain two-terminal parts (e.g. a
+                # resistor divider) over an equal-hop-count route that
+                # happens to pass through an arbitrary pair of an unrelated
+                # multi-pin IC's pins, without discarding the IC route
+                # entirely -- it is still found, just not preferred on ties.
+                weight = 0 if len(nets_in_group) <= 2 else 1
                 for i in range(1, len(nets_in_group)):
-                    graph.add_edge(nets_in_group[0], nets_in_group[i], label)
+                    graph.add_edge(nets_in_group[i - 1], nets_in_group[i], label, weight)
         else:
             # Default, conservative assumption: an undeclared component
             # conducts across all of its own pins. This is the fail-closed
@@ -485,10 +541,11 @@ def build_graph(netlist: Netlist, ref_isolator: dict[str, Isolator]) -> Graph:
             # real short gets missed; treating it as conductive can only
             # produce a false positive that a human then has to adjudicate,
             # never a silently missed hazard.
-            nets_here = [netlist.pin_net[(ref, p)] for p in pins]
+            nets_here = _dedupe_nets_in_pin_order(netlist, ref, pins)
             label = ref if not instance_path else f"{instance_path} ({ref})"
+            weight = 0 if len(nets_here) <= 2 else 1
             for i in range(1, len(nets_here)):
-                graph.add_edge(nets_here[0], nets_here[i], label)
+                graph.add_edge(nets_here[i - 1], nets_here[i], label, weight)
 
     return graph
 
@@ -504,7 +561,7 @@ def connected_components(graph: Graph) -> dict[str, int]:
         queue = deque([start])
         while queue:
             node = queue.popleft()
-            for neighbor, _label in graph.adjacency.get(node, []):
+            for neighbor, _label, _weight in graph.adjacency.get(node, []):
                 if neighbor not in component_of:
                     component_of[neighbor] = next_id
                     queue.append(neighbor)
@@ -520,41 +577,93 @@ def shortest_path(graph: Graph, start: str, goal: str) -> list[tuple[str, str]]:
 def multi_source_shortest_path(
     graph: Graph, sources: set[str], targets: set[str]
 ) -> list[tuple[str, str]]:
-    """Multi-source BFS: the shortest path from ANY of `sources` to ANY of
-    `targets`. Used so a reported violation is the most direct evidence
-    available (e.g. picks the isolator's own primary/secondary pins over a
-    longer detour through unrelated components), not just whichever pair
-    happens to be first in manifest declaration order. Returns a list of
-    (net_code, edge_label_used_to_arrive), starting with (source, "")."""
+    """Multi-source 0-1 BFS: the CHEAPEST path from ANY of `sources` to ANY
+    of `targets`, where a genuine two-terminal component (weight 0) is
+    preferred over an equal-hop-count route through an arbitrary pair of an
+    unrelated multi-pin IC's pins (weight 1) -- see build_graph's weight
+    assignment. This is what lets the report show a plain resistor-divider
+    bridge (e.g. dc_bus_plus -> 430k -> 430k -> 430k -> 10k -> gnd) rather
+    than an equally-short-by-hop-count but less informative route through
+    some unrelated IC's assumed full-pin conductivity, without ever hiding
+    the IC route -- it is simply not preferred when a two-terminal-only
+    route of equal or lower cost exists. Falls back to plain hop-count
+    ordering among equal-weight routes (0-1 BFS is still a real shortest-
+    path algorithm, not a heuristic reordering).
+
+    Returns a list of (net_code, edge_label_used_to_arrive), starting with
+    (source, "")."""
     common = sources & targets
     if common:
         n = next(iter(common))
         return [(n, "")]
-    visited: dict[str, tuple[str, str] | None] = {s: None for s in sources}
-    queue: deque[str] = deque(sources)
-    while queue:
-        node = queue.popleft()
+
+    dist: dict[str, int] = {s: 0 for s in sources}
+    parent: dict[str, tuple[str, str]] = {}
+    finalized: set[str] = set()
+    dq: deque[str] = deque(sources)
+
+    while dq:
+        node = dq.popleft()
+        if node in finalized:
+            continue
+        finalized.add(node)
         if node in targets and node not in sources:
             path: list[tuple[str, str]] = []
             cur: str | None = node
             while cur is not None:
-                prev = visited[cur]
-                if prev is None:
+                if cur in parent:
+                    prev, label = parent[cur]
+                    path.append((cur, label))
+                    cur = prev
+                else:
                     path.append((cur, ""))
-                    break
-                path.append((cur, prev[1]))
-                cur = prev[0]
+                    cur = None
             path.reverse()
             return path
-        for neighbor, label in graph.adjacency.get(node, []):
-            if neighbor in visited:
+        for neighbor, label, weight in graph.adjacency.get(node, []):
+            if neighbor in finalized:
                 continue
-            visited[neighbor] = (node, label)
-            queue.append(neighbor)
+            new_dist = dist[node] + weight
+            if neighbor not in dist or new_dist < dist[neighbor]:
+                dist[neighbor] = new_dist
+                parent[neighbor] = (node, label)
+                if weight == 0:
+                    dq.appendleft(neighbor)
+                else:
+                    dq.append(neighbor)
     raise GateError(
         "internal error: no BFS path found between declared-same-component "
         "source/target sets"
     )
+
+
+def find_independent_paths(
+    graph: Graph, sources: set[str], targets: set[str], max_paths: int = 5
+) -> list[list[tuple[str, str]]]:
+    """Find up to `max_paths` independent bridging paths between `sources`
+    and `targets`, not just the single shortest one.
+
+    After each path is found, every component (edge label) it used is
+    removed from a working copy of the graph before searching again. This
+    guarantees a second, unrelated bridge (a different divider, a different
+    undeclared component) is not hidden just because it happens to be a few
+    hops longer than the first one found -- both are real evidence and both
+    must be reported (METHODOLOGY.md: extra findings are the point, not
+    noise). Stops when no more paths exist or `max_paths` is reached.
+    """
+    paths: list[list[tuple[str, str]]] = []
+    working = graph
+    for _ in range(max_paths):
+        try:
+            path = multi_source_shortest_path(working, sources, targets)
+        except GateError:
+            break
+        paths.append(path)
+        used_labels = {label for _net, label in path if label}
+        if not used_labels:
+            break
+        working = working.without_labels(used_labels)
+    return paths
 
 
 def format_path(netlist: Netlist, path: list[tuple[str, str]]) -> str:
@@ -577,9 +686,7 @@ def format_path(netlist: Netlist, path: list[tuple[str, str]]) -> str:
 class DomainViolation:
     domain_a: str
     domain_b: str
-    net_a: str
-    net_b: str
-    path_desc: str
+    path_descs: list[str]  # one or more INDEPENDENT bridging paths, shortest first
     component_id: int
 
 
@@ -650,17 +757,19 @@ def check_domain_disjointness(
                 # this shared component -- picks the most direct evidence
                 # available (e.g. the isolator's own two pins) rather than
                 # whichever net happened to be listed first in the manifest.
-                path = multi_source_shortest_path(
+                # find_independent_paths additionally re-searches with each
+                # found bridge's components removed, so a SECOND, unrelated
+                # crossing (e.g. a different resistor divider) is reported
+                # too, not hidden just because it has more hops than the
+                # first one found.
+                paths = find_independent_paths(
                     graph, set(comp_to_nets_a[comp_id]), set(comp_to_nets_b[comp_id])
                 )
-                net_a, net_b = path[0][0], path[-1][0]
                 violations.append(
                     DomainViolation(
                         domain_a=domain_a,
                         domain_b=domain_b,
-                        net_a=netlist.nets[net_a],
-                        net_b=netlist.nets[net_b],
-                        path_desc=format_path(netlist, path),
+                        path_descs=[format_path(netlist, p) for p in paths],
                         component_id=comp_id,
                     )
                 )
@@ -800,11 +909,13 @@ def run(netlist_path: Path, manifest_path: Path, src_dir: Path, skip_freshness: 
         else "\n=== DOMAIN VIOLATIONS: 0 ==="
     )
     for v in domain_violations:
-        print(f"\n  Domain {v.domain_a!r} and domain {v.domain_b!r} are NOT disjoint:")
-        print(f"    {v.path_desc}")
-        gh_lines.append(
-            f"- `{v.domain_a}` <-> `{v.domain_b}`: {v.path_desc}"
+        print(
+            f"\n  Domain {v.domain_a!r} and domain {v.domain_b!r} are NOT "
+            f"disjoint ({len(v.path_descs)} independent bridge(s) found):"
         )
+        for j, desc in enumerate(v.path_descs, start=1):
+            print(f"    [{j}] {desc}")
+            gh_lines.append(f"- `{v.domain_a}` <-> `{v.domain_b}` [{j}]: {desc}")
 
     print(
         f"\n=== ISOLATOR BARRIER VIOLATIONS: {len(isolator_violations)} ==="
