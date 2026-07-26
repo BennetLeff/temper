@@ -236,9 +236,54 @@ for the power stage and protection chain, with nothing to run it.
 
 ### Gates
 
-**0 of 22 measured.** No board has been fabricated. No protection has tripped.
-No performance has been observed. Every remaining gate requires physical
-hardware.
+**0 of 22 measured on hardware.** No board has been fabricated. No protection
+has tripped. No performance has been observed. Every gate's *acceptance*
+requires physical hardware.
+
+**1 of 22 measured in simulation — and it FAILS.**
+
+#### OCP-01 — simulated 37.61 A against a 45–55 A requirement
+
+First simulated protection measurement in the project (2026-07-25,
+`simulation/harness/run_ocp01_sim.py`, evidence
+`docs/evidence/2026-07-25-ocp01-trip-point-sim.json`). Independently
+re-derived by hand:
+
+| | |
+|---|---|
+| Reference divider | 3200 Ω / 10000 Ω on +3V3 → **V_ref = 2.500 V** |
+| CT + burden | 1:100, 6.65 Ω |
+| Trip current | 2.5 / 6.65 × 100 = **37.6 A** |
+| Simulation | **37.611 A** |
+| **OCP-01 requirement** | **45–55 A** |
+
+The design as committed trips **7.4 A below the specified minimum.**
+
+The source contains both figures and contradicts itself:
+
+- `elec/src/modules.ato:1188` — *"6.65R keeps the OCP trip at
+  2.5V/6.65R\*100 = 37.6A"*
+- `elec/src/modules.ato:1493` — *"Over-current protection comparator, 50A
+  threshold."*
+
+**A 50 A trip is not merely unimplemented, it is unreachable.** It would
+require V_ref = 50 × 6.65 / 100 = **3.325 V from a 3.3 V rail**. No choice of
+divider on this rail can reach the OCP-01 window with a 6.65 Ω burden; the
+burden resistor or the CT ratio has to change.
+
+Caveats, stated rather than buried:
+
+- **Uncalibrated.** No bench data exists; all models carry
+  `calibrated: false`.
+- **OCP-01's <1 µs propagation budget remains UNMEASURED.** The `TLV3201`
+  behavioral model declares no timing model. Reporting a delay figure from it
+  would be a fabricated number.
+- Whether 37.6 A is *dangerous* or merely *non-compliant* depends on real
+  operating current at 1800 W, which is unmeasured. It is a spec violation
+  either way.
+
+This is the first finding in this work that advances an actual gate rather
+than the verification layer around it.
 
 ---
 
