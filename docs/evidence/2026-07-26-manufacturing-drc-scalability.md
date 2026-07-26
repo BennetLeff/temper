@@ -103,3 +103,83 @@ python -c "...route_pcb(stub, {}, design_rules=rules, enable_manufacturing_drc=T
 ps -o pid,etime,time,%cpu,rss -p <pid>
 sample <pid> 5
 ```
+
+---
+
+## Attempted fixes, 2026-07-26 — both failed, both reverted
+
+Two optimisation attempts, neither of which worked. Recorded because the
+failure modes narrow the solution space considerably for whoever does this
+next.
+
+### Attempt 1 — route-level bounding-box prefilter
+
+Reject a route pair without touching its segments when the gap between their
+bounding boxes exceeds the required clearance plus half of each trace width.
+Exact, not heuristic.
+
+**Failed: it rejected almost nothing.** On a dense board a net that crosses
+the board has a bounding box covering much of it, so route bboxes overlap
+heavily even when the copper is nowhere near. Rejection has to happen per
+segment, not per route.
+
+### Attempt 2 — segment-level uniform spatial grid
+
+Bucket every segment into a grid whose pitch is the search radius, then
+compare only within cells.
+
+**Failed on the clearance distribution.** The required clearance is not
+uniform:
+
+| Net pair | F.Cu | In1.Cu |
+|---|---|---|
+| `SPI_CLK` ↔ `SPI_MOSI` | 0.127 mm | 0.127 mm |
+| `AC_L` ↔ `PWR_RTN` | **14.0 mm** | 4.2 mm |
+| `HV_BUS` ↔ `GND` | **14.0 mm** | 4.2 mm |
+
+A single grid must be sized for the 14 mm worst case, which puts roughly 138
+items in every cell on this board and reinstates the quadratic behaviour for
+the ~99% of pairs that only need 0.127 mm. Measured 14 GB RSS and no
+completion.
+
+The memory blow-up specifically was the pair-dedup `seen` set — ~2 M tuples.
+It is unnecessary: the accumulator takes a minimum, so comparing a pair twice
+is idempotent. **Drop the dedup set.**
+
+### Attempt 3 — two-tier sweep (fine pass + asymmetric HV pass)
+
+Fine sweep at 0.127 mm for the common case; a second sweep seeded only from
+HV segments at the 14 mm radius, queried by everything else.
+
+**Correct in principle, but the implementation broke 52 tests** and was
+reverted. The idea is sound and is the recommended direction; the difficulty
+is preserving exact parity with the existing per-route accumulation semantics
+(per-layer minima, via-to-trace but not via-to-via, trace-width edge
+distances) while restructuring from route-pairs to segment-pairs.
+
+## Recommendation
+
+**Do this in Rust, in `temper-drc-rs`, not in Python.** The reasoning has
+changed since the first assessment:
+
+- The algorithmic fix is not a small local edit. It requires restructuring
+  the accumulation from route-pairs to segment-pairs while preserving several
+  subtle behaviours, and the two-tier radius split is essential rather than
+  optional.
+- If the structure has to be rewritten anyway, the constant factor may as well
+  come along. `temper-drc-rs` already exists, already has geometry primitives,
+  and is already a pyo3 boundary the router uses.
+- Correctness parity must be demonstrated against the current implementation
+  on the existing 17 test files plus a real board, whichever language it is
+  written in. That differential harness is the actual deliverable and is
+  language-independent.
+
+Whoever picks this up: the fine/coarse radius split and dropping the dedup set
+are the two load-bearing insights. The 14 mm HV requirement against a 0.127 mm
+default is what makes a single-radius spatial index useless here.
+
+## Current state
+
+`clearance_check.py` is unchanged from before these attempts — 160 tests pass.
+`enable_manufacturing_drc` remains a `route_pcb()` parameter defaulting to
+`False`. The stage is still unusable on a real board.
