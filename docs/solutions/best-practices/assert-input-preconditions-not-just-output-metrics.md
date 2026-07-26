@@ -40,8 +40,13 @@ A/B, changing only the outline, same router commit / netlist / flags:
 | nets routed / failed | 0 / 95 | 66 / 18 |
 | segments emitted | 0 | 2,966 |
 
-Every failing net reported `no legal path found (forced segment
-disallowed)` — the fail-closed gate working correctly and saying so in
+Every failing net reported this, 95 times:
+
+```
+no legal path found (forced segment disallowed)
+```
+
+— the fail-closed gate working correctly and saying so in
 plain language. It was read as router congestion. Roughly four weeks of
 router work followed: a fail-closed generalization, property tests, a
 nine-reviewer code review, evidence files, a strategy section titled "the
