@@ -21,7 +21,7 @@ evidence, all gathered 2026-07-25 and detailed below:
 
 | | |
 |---|---|
-| **Protection gates** | Of seven: **3 now fixed** (OCP-01, THM-01, OVP-01), **2 have no circuit at all**, 2 are unmeasurable in simulation, 0 validated on hardware |
+| **Protection gates** | Of seven: **4 now fixed** (OCP-01, THM-01, OVP-01, THM-02), 1 designed pending a datasheet check (OCP-02), 2 vendor-internal (UVL-01/02), 0 validated on hardware |
 | **IGBT desaturation protection** | **Does not exist.** 19 BOM lines cost it; `grep -ni desat elec/src/*.ato` returns nothing |
 | **BOM** | Unusable in both directions — 35 lines costed with no circuit, ~75 wired components uncosted |
 | **Router** | ~79% path-finding, but its output carries ~120 shorts and 499 clearance violations |
@@ -391,8 +391,8 @@ values. Simulated results hand-verified against divider arithmetic. Every model
 | OCP-01 | 45–55 A | **50.12 A** | **FIXED** 2026-07-25 — needed a new CT (CST3015-100ED, 88 A) |
 | THM-01 | 85 °C | **84.91 °C** | **FIXED** 2026-07-25 — divider re-proportioned |
 | OVP-01 | 390–410 V | **399.88 V** | **FIXED** 2026-07-26 — was 195 V, tripping below normal bus |
-| OCP-02 | 55–65 A | — | **NO CIRCUIT EXISTS** |
-| THM-02 | coil NTC 120 °C | — | **NO CIRCUIT EXISTS** |
+| OCP-02 | 55–65 A | 60.0 A designed | **DESIGNED, not implemented** — INA240 pinout unverified |
+| THM-02 | coil NTC 120 °C | **120.3 °C** | **DESIGNED & WIRED** 2026-07-26 |
 | UVL-01 | <12.0 V | — | **UNMEASURABLE** — internal to UCC21550B silicon |
 | UVL-02 | <2.9 V | 2.825 V (candidate circuit) | **UNCONFIRMED** — see below |
 
