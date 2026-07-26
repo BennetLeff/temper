@@ -21,14 +21,14 @@ bench data exists.
 
 | Gate | Requirement | As committed | Disposition |
 |---|---|---|---|
-| OCP-01 | 45–55 A | 37.6 A → **50.1 A** | **FIXED** — needed a new CT, not just a resistor |
-| THM-01 | 85 °C | 99.5 °C → **84.9 °C** | **FIXED** — resistor + ref divider |
-| OVP-01 | 390–410 V | 195 V sensed | **Blocked on a design decision** |
-| OCP-02 | 55–65 A | absent | **Needs design** |
-| THM-02 | coil 120 °C | absent | **Needs design** |
+| OCP-01 | 45–55 A **Peak**, **< 1 µs** response | 37.6 A → **50.1 A** | **FIXED** — needed a new CT, not just a resistor |
+| THM-01 | 85 °C, **recovery 70 °C** | 99.5 °C → **84.9 °C** | **FIXED (trip only)** — resistor + ref divider. **Hysteresis is insufficient** (5.6 °C measured vs 15 °C required) — superseded verdict, see `docs/STRATEGY.md` § "Recovered gate qualifiers invalidate three of today's fixes" |
+| OVP-01 | 390–410 V, **hysteresis 10–20 V** | 195 V sensed — **superseded, see note below** | **Blocked on a design decision** — and now **fail-open** per the currently committed values (senses the +170 V half-bus against a ~400 V-referred trip); see `docs/STRATEGY.md` § "OVP-01 senses the half-bus and is now fail-open" |
+| OCP-02 | 55–65 A **Peak**, **< 5 µs** response | absent | **Needs design** |
+| THM-02 | coil 120 °C, **recovery 100 °C** | absent | **Needs design** |
 | DESAT | (not a numbered gate) | absent, but costed | **Needs decision: design or de-scope** |
-| UVL-01 | <12.0 V | UCC21550B internal | Document only |
-| UVL-02 | <2.9 V | ambiguous circuit | Identify intended circuit |
+| UVL-01 | **Falling** < 12.0 V / **Rising** > 13.0 V | UCC21550B internal | Document only |
+| UVL-02 | **Falling** < 2.9 V / **Rising** > 3.0 V | ambiguous circuit | Identify intended circuit |
 
 Two are one-part fixes. Two need circuits. One needs a decision before it can
 be analysed.
@@ -175,11 +175,36 @@ swings across most of the rail over the useful range.
 Confirm the comparator polarity while making this change: rising temperature
 *lowers* V_sense, so the fault must assert on `V_sense < V_ref`.
 
+> **Superseded 2026-07-26 — hysteresis is insufficient.** `FUNCTIONAL_TEST_CRITERIA.md`
+> §2.3 requires **recovery at 70 °C** (15 °C hysteresis from the 85 °C trip).
+> The divider above was recommended against a summary that had dropped the
+> recovery/hysteresis requirement entirely; as designed it delivers only
+> **5.6 °C** of hysteresis (release ≈79.2 °C), not 15 °C. This is an
+> `r_hyst` value change, not a topology change. See `docs/STRATEGY.md` §
+> "Recovered gate qualifiers invalidate three of today's fixes" for the
+> derivation (0.4154 V required sense-node swing vs 0.1535 V delivered).
+> The trip-point fix above remains correct; only the hysteresis is
+> outstanding.
+
 ---
 
 ## OVP-01 — DC bus overvoltage — **decision required**
 
-### As built
+> **Superseded 2026-07-26 — read `docs/STRATEGY.md` first.** The "As built"
+> values immediately below (130:1 divider, ≈1.50 V reference, 195 V sensed)
+> describe the pre-2026-07-26 circuit, not what is currently committed in
+> `elec/src/modules.ato` (`r_ref_top` = 1.1 kΩ, V_ref = 2.973 V, a
+> ~386–400 V-referred trip). That later change is now known to be
+> **fail-open**: `dc_bus_plus` is the +170 V half-bus, not the full 340 V
+> bus, so the sense node can never reach the reference and the comparator
+> can never fire. This section's own "which node does `v_bus` physically
+> connect to?" question, below, is now answered — half-bus — but the fix is
+> deliberately deferred because it is entangled with the SELV isolation
+> work. See `docs/STRATEGY.md` § "OVP-01 senses the half-bus and is now
+> fail-open" for the full derivation. The historical values below are left
+> unedited rather than silently rewritten.
+
+### As built (historical — see superseded note above)
 
 Divider: 3 × 430 kΩ (1.29 MΩ) over 10 kΩ → ratio **130:1**. Reference ≈1.50 V.
 Trip at the sensed node = 1.50 × 130 = **195 V** (simulated 195.18 V).
