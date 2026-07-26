@@ -326,53 +326,67 @@ class TestCheckNoTracesAcrossBarrier:
 
 
 class TestCheckUCC21550Barrier:
-    """Tests for check_ucc21550_barrier function."""
+    """Tests for check_ucc21550_barrier function.
+
+    check_ucc21550_barrier is deliberately left raising NotImplementedError
+    (see its docstring in validators/isolation.py): its signature provides
+    only a bare (x, y) position, with none of the trace/ground-plane/net
+    data needed to check "no traces under transformer", "ground plane
+    cutout", or "separate power domains" against. These three tests
+    (originally written expecting a real IsolationResult once implemented)
+    now assert that precise, honest failure mode instead of a fabricated
+    pass -- each names the specific requirement it would otherwise probe.
+    """
 
     def test_ucc21550_valid_placement(self):
-        """Test UCC21550 with valid isolation setup."""
+        """UCC21550 isolation cannot be evaluated from position alone."""
         driver_position = (75.0, 30.0)
-        result = check_ucc21550_barrier(driver_position)
-        # Should pass when properly implemented
-        assert isinstance(result, IsolationResult)
+        with pytest.raises(NotImplementedError):
+            check_ucc21550_barrier(driver_position)
 
     def test_ucc21550_missing_ground_cutout(self):
-        """Test UCC21550 with missing ground plane cutout."""
+        """Detecting a missing ground cutout needs ground-plane geometry,
+        which this function's signature does not provide."""
         driver_position = (75.0, 30.0)
-        result = check_ucc21550_barrier(driver_position)
-        # Should detect missing ground cutout when implemented
-        assert isinstance(result, IsolationResult)
+        with pytest.raises(NotImplementedError):
+            check_ucc21550_barrier(driver_position)
 
     def test_ucc21550_traces_under_transformer(self):
-        """Test UCC21550 with traces under transformer area."""
+        """Detecting traces under pins 5-12 needs a trace list, which this
+        function's signature does not provide."""
         driver_position = (75.0, 30.0)
-        result = check_ucc21550_barrier(driver_position)
-        # Should detect traces under pins 5-12 when implemented
-        assert isinstance(result, IsolationResult)
+        with pytest.raises(NotImplementedError):
+            check_ucc21550_barrier(driver_position)
 
 
 class TestCheckADUM1250Barrier:
-    """Tests for check_adum1250_barrier function."""
+    """Tests for check_adum1250_barrier function.
+
+    check_adum1250_barrier is deliberately left raising NotImplementedError
+    for the same reason as check_ucc21550_barrier above: a bare (x, y)
+    position cannot support checking clearance, ground-plane split, or
+    power-supply separation.
+    """
 
     def test_adum1250_valid_placement(self):
-        """Test ADUM1250 with valid isolation setup."""
+        """ADUM1250 isolation cannot be evaluated from position alone."""
         isolator_position = (25.0, 50.0)
-        result = check_adum1250_barrier(isolator_position)
-        # Should pass when properly implemented
-        assert isinstance(result, IsolationResult)
+        with pytest.raises(NotImplementedError):
+            check_adum1250_barrier(isolator_position)
 
     def test_adum1250_insufficient_clearance(self):
-        """Test ADUM1250 with insufficient clearance."""
+        """Detecting <10mm clearance needs component/clearance data, which
+        this function's signature does not provide."""
         isolator_position = (25.0, 50.0)
-        result = check_adum1250_barrier(isolator_position)
-        # Should detect <10mm clearance when implemented
-        assert isinstance(result, IsolationResult)
+        with pytest.raises(NotImplementedError):
+            check_adum1250_barrier(isolator_position)
 
     def test_adum1250_missing_ground_split(self):
-        """Test ADUM1250 with missing ground plane split."""
+        """Detecting a missing ground split needs ground-plane geometry,
+        which this function's signature does not provide."""
         isolator_position = (25.0, 50.0)
-        result = check_adum1250_barrier(isolator_position)
-        # Should detect missing ground split when implemented
-        assert isinstance(result, IsolationResult)
+        with pytest.raises(NotImplementedError):
+            check_adum1250_barrier(isolator_position)
 
 
 class TestCheckGroundPlaneSplit:
@@ -393,9 +407,14 @@ class TestCheckGroundPlaneSplit:
         ]
         result = check_ground_plane_split(ground_planes, barriers)
         assert isinstance(result, IsolationResult)
+        assert result.passed
+        assert len(result.violations) == 0
 
     def test_unsplit_ground_plane(self):
-        """Test unsplit ground plane crossing barrier."""
+        """A single rectangle spanning x=[0,100] straddles the barrier at
+        x=50 -- falsifier: if this reports 0 violations, the check is
+        inspecting nothing and passing on a ground plane that was never
+        actually cut at the isolation barrier."""
         ground_planes = {
             "Layer2": [(0, 0, 100, 50)],  # No split
         }
@@ -408,13 +427,19 @@ class TestCheckGroundPlaneSplit:
         ]
         result = check_ground_plane_split(ground_planes, barriers)
         assert isinstance(result, IsolationResult)
+        assert not result.passed
+        assert len(result.violations) == 1
+        assert result.violations[0].code == "GROUND_PLANE_NOT_SPLIT"
 
 
 class TestCheckClearanceDistances:
     """Tests for check_clearance_distances function."""
 
     def test_sufficient_clearance(self):
-        """Test components with sufficient clearance."""
+        """Both components are 30mm from the barrier (>= the 10mm
+        requirement) -- falsifier: if this reports any violation, the
+        check is over-triggering on components that are nowhere near the
+        barrier."""
         components = {
             "U1": {"position": (20.0, 25.0), "voltage": 340, "type": "HV"},
             "U2": {"position": (80.0, 25.0), "voltage": 3.3, "type": "LV"},
@@ -428,9 +453,14 @@ class TestCheckClearanceDistances:
         ]
         result = check_clearance_distances(components, barriers, min_clearance_mm=10.0)
         assert isinstance(result, IsolationResult)
+        assert result.passed
+        assert len(result.violations) == 0
 
     def test_insufficient_clearance(self):
-        """Test components with insufficient clearance."""
+        """Both components are only 5mm from the barrier (< the 10mm
+        requirement) -- falsifier: if this reports 0 violations, the check
+        is inspecting nothing and passing (exactly the vacuous-validator
+        failure mode this task warns against)."""
         components = {
             "U1": {"position": (45.0, 25.0), "voltage": 340, "type": "HV"},
             "U2": {"position": (55.0, 25.0), "voltage": 3.3, "type": "LV"},
@@ -444,13 +474,20 @@ class TestCheckClearanceDistances:
         ]
         result = check_clearance_distances(components, barriers, min_clearance_mm=10.0)
         assert isinstance(result, IsolationResult)
+        assert not result.passed
+        assert len(result.violations) == 2
+        refs = {v.component_refs[0] for v in result.violations}
+        assert refs == {"U1", "U2"}
+        assert all(v.code == "INSUFFICIENT_CLEARANCE" for v in result.violations)
 
 
 class TestCheckPowerDomainSeparation:
     """Tests for check_power_domain_separation function."""
 
     def test_proper_domain_separation(self):
-        """Test properly separated power domains."""
+        """Two distinct, named domains plus isolation components declared
+        -- falsifier: if this reports any violation, the check is flagging
+        a design that is not actually coupled."""
         power_supplies = {
             "PS1": {"voltage": 340, "position": (20.0, 25.0), "domain": "HV"},
             "PS2": {"voltage": 5.0, "position": (80.0, 25.0), "domain": "LV"},
@@ -458,32 +495,57 @@ class TestCheckPowerDomainSeparation:
         isolation_components = ["U3", "U4"]  # UCC21550, ADUM1250
         result = check_power_domain_separation(power_supplies, isolation_components)
         assert isinstance(result, IsolationResult)
+        assert result.passed
+        assert len(result.violations) == 0
 
     def test_coupled_power_domains(self):
-        """Test coupled power domains without isolation."""
+        """A supply with an explicit "SHARED" domain and no isolation
+        components -- falsifier: if this reports 0 violations, the check
+        is inspecting nothing and passing on a design that has explicitly
+        declared its HV/LV sides are not separated (the exact failure mode
+        docs/hardware/IEC60335_CRITICAL_COMPONENTS.md Sec 2 documents for
+        this design's real pre-redesign star join)."""
         power_supplies = {
             "PS1": {"voltage": 5.0, "position": (20.0, 25.0), "domain": "SHARED"},
         }
         isolation_components = []  # No isolation
         result = check_power_domain_separation(power_supplies, isolation_components)
         assert isinstance(result, IsolationResult)
+        assert not result.passed
+        assert len(result.violations) == 1
+        assert result.violations[0].code == "POWER_DOMAIN_NOT_SEPARATED"
+        assert result.violations[0].severity == "error"
+
+    def test_multiple_domains_without_isolation_components_warns(self):
+        """Two distinct real domains declared, but no isolation_components
+        given -- falsifier: if this passes with 0 violations, the check
+        never notices that nothing in the given data actually enforces the
+        claimed separation."""
+        power_supplies = {
+            "PS1": {"voltage": 340, "position": (20.0, 25.0), "domain": "HV"},
+            "PS2": {"voltage": 5.0, "position": (80.0, 25.0), "domain": "LV"},
+        }
+        result = check_power_domain_separation(power_supplies, isolation_components=[])
+        assert len(result.violations) == 1
+        assert result.violations[0].code == "MISSING_ISOLATION_COMPONENTS"
+        assert result.violations[0].severity == "warning"
+        # A warning alone doesn't fail the domain-separation check itself.
+        assert result.passed
 
 
 class TestNotImplementedErrors:
-    """Tests that functions raise NotImplementedError before implementation."""
-
-    def test_check_isolation_slot_not_implemented(self):
-        """Test that check_isolation_slot raises NotImplementedError."""
-        barrier = {"type": "MAIN_HV_LV", "position": (50.0, 25.0)}
-        with pytest.raises(NotImplementedError):
-            check_isolation_slot(barrier)
-
-    def test_check_no_traces_across_barrier_not_implemented(self):
-        """Test that check_no_traces_across_barrier raises NotImplementedError."""
-        traces = [{"start": (10, 10), "end": (90, 90)}]
-        barrier = {"type": "MAIN_HV_LV", "position": (50, 50)}
-        with pytest.raises(NotImplementedError):
-            check_no_traces_across_barrier(traces, barrier)
+    """check_ucc21550_barrier and check_adum1250_barrier are the only two
+    isolation.py functions still raising NotImplementedError, and
+    deliberately so: both take only a bare (x, y) position with no trace,
+    ground-plane, or net-assignment data to check anything real against.
+    See their docstrings in validators/isolation.py for the precise
+    reasoning. The other 5 functions that used to be tested here
+    (check_isolation_slot, check_no_traces_across_barrier,
+    check_ground_plane_split, check_clearance_distances,
+    check_power_domain_separation) are now implemented -- their own
+    positive/negative-fixture tests above (TestCheckIsolationSlot etc.)
+    replace the old "raises NotImplementedError" assertions for them.
+    """
 
     def test_check_ucc21550_barrier_not_implemented(self):
         """Test that check_ucc21550_barrier raises NotImplementedError."""
@@ -494,24 +556,3 @@ class TestNotImplementedErrors:
         """Test that check_adum1250_barrier raises NotImplementedError."""
         with pytest.raises(NotImplementedError):
             check_adum1250_barrier((25.0, 50.0))
-
-    def test_check_ground_plane_split_not_implemented(self):
-        """Test that check_ground_plane_split raises NotImplementedError."""
-        ground_planes = {"Layer2": [(0, 0, 100, 50)]}
-        barriers = [{"type": "MAIN_HV_LV", "position": (50, 25)}]
-        with pytest.raises(NotImplementedError):
-            check_ground_plane_split(ground_planes, barriers)
-
-    def test_check_clearance_distances_not_implemented(self):
-        """Test that check_clearance_distances raises NotImplementedError."""
-        components = {"U1": {"position": (20, 25), "voltage": 340}}
-        barriers = [{"type": "MAIN_HV_LV", "position": (50, 25)}]
-        with pytest.raises(NotImplementedError):
-            check_clearance_distances(components, barriers)
-
-    def test_check_power_domain_separation_not_implemented(self):
-        """Test that check_power_domain_separation raises NotImplementedError."""
-        power_supplies = {"PS1": {"voltage": 5.0, "position": (20, 25)}}
-        isolation_components = ["U3"]
-        with pytest.raises(NotImplementedError):
-            check_power_domain_separation(power_supplies, isolation_components)

@@ -65,7 +65,6 @@ from pathlib import Path
 from typing import Any
 
 from temper_placer.io.kicad_parser import parse_kicad_pcb
-
 from tests.requirements.validators.clearance import VoltageDomain
 
 _REPO_ROOT = Path(__file__).resolve().parents[5]
