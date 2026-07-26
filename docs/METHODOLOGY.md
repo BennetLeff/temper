@@ -309,6 +309,32 @@ Rules that follow:
 Each abandoned worktree is a checkout of the past that answers questions in the
 present tense. Prune them, or the archaeology reads as news.
 
+### A known failure pattern becomes a way to skip measuring
+
+The eighth instance was caused by the seventh. After four stale-base errors in
+one day, an agent reported that its tree was missing THM-02, OCP-02 and the
+OVP hysteresis fix. **It was confirmed without being checked, because it
+matched the pattern.** Measured afterwards, all three were present; the tree
+was five commits behind on two unrelated things.
+
+The cost was not the wasted rebase. The agent had concluded from the same
+misreading that OVP-01's divider was "already correctly calibrated" — when its
+tree held the same fail-open 1.1 kΩ/287 kΩ configuration as main. A wrong
+premise about *which tree* produced a wrong conclusion about *the circuit*,
+and the confirmation removed the last chance to catch it.
+
+Two rules, and the second is the general one:
+
+- **A claim that a tree lacks something must quote the command and its
+  output.** "grep -c returned 0" is checkable. "It does not exist here" is a
+  conclusion wearing an observation's clothes, and it cannot be audited.
+- **A familiar failure pattern raises the prior, it does not discharge the
+  check.** Every taxonomy in this document is a list of things worth measuring
+  *more* carefully, never a licence to skip the measurement because the shape
+  is recognisable. Recognition is the cheapest possible substitute for
+  evidence, which is exactly why it is tempting after a day of finding the
+  same bug.
+
 ### Physical envelopes are preconditions
 
 §3's rule — assert the input, do not assume it — was written for code and then

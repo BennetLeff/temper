@@ -472,6 +472,46 @@ Also surfaced: **`FUNCTIONAL_TEST_CRITERIA.md` §1.2 specifies a 200 W ±25%
 power tier that has no corresponding gate** in this document. That is an
 omitted requirement, not a lost qualifier.
 
+### `default.net` aliases part identity by footprint — use `default.csv` (2026-07-26)
+
+Detail: `docs/evidence/2026-07-26-ato-build-state.md`.
+
+**atopile's netlist exporter collapses the `libsource`/MPN identity of
+components that share an identical KiCad footprint.** Every SOT-23-5 five-pin
+IC — ten components spanning `REF2025`, six `TLV3201` instances, `SN74LVC1G08`,
+`SN74LVC1G38` and `TPS3823` — is labelled `REF2025AIDDCR` in `elec/build/default.net`.
+**85 distinct BOM parts collapse to 40 `libpart` entries.**
+
+`default.csv`, the BOM and the designator map all identify each part
+correctly. Only the `.net` file's part-identity fields are affected.
+
+**Blast radius, checked rather than assumed:** the `(nets ...)` section keys on
+`(ref, pin)` and not on `libsource`, confirmed directly for U19. So
+connectivity-based checks — net topology, the SELV isolation survey, the
+domain-partition gate — read the right thing. **Anything trusting `.net` for
+*which part* a designator is will be wrong for every footprint-duplicate
+group.**
+
+This bit immediately: grepping `.net` for MPNs to test whether the artifact was
+stale produced counts inflated by aliasing — 22 apparent instances of one
+capacitor MPN across all 0603 parts. The clean test is `default.csv`.
+
+**Two related facts, neither of which is the other:**
+
+1. `ato build` was never broken. The bare invocation crashed because
+   `elec/ato.yaml`'s `builds.default.entry` lacked the `:Top` root-instance
+   suffix — pre-existing since the file was created, and never hit by the
+   Makefile, which always passed the entry explicitly. One-line fix. This was
+   the **fourth** stale-base false alarm of the day.
+2. The build artifacts in the working checkout **are** currently stale — they
+   predate the BOM blocker replacements. `default.csv` still lists
+   `GRM188R71E104KA01D` and `DE2E3KH221MA3B`, neither of which is in source any
+   more. They were current when measured a few commits earlier; `HEAD` moved
+   underneath them. Since `elec/build/` is gitignored and has never been
+   tracked, **there is no committed netlist and never has been** — every claim
+   in this project citing `default.net`, including "the BOM reconciles 155/155",
+   read a local artifact of unrecorded provenance.
+
 ### OVP-01 senses the half-bus and is now fail-open (2026-07-26)
 
 **The 2026-07-26 OVP-01 "fix" recorded above disabled a working protection
