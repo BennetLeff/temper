@@ -592,15 +592,22 @@ def multi_source_shortest_path(
 
     Returns a list of (net_code, edge_label_used_to_arrive), starting with
     (source, "")."""
+    # Sort every set-derived iteration order below. Python randomizes str
+    # hashing per-process (PYTHONHASHSEED), so iterating a set directly
+    # would make which of several EQUALLY VALID shortest paths gets
+    # reported vary between runs on byte-identical input -- the same
+    # oracle-reproducibility failure METHODOLOGY.md Sec 5 requires
+    # checking for in third-party tools applies to this script's own
+    # internals too.
     common = sources & targets
     if common:
-        n = next(iter(common))
+        n = min(common)
         return [(n, "")]
 
-    dist: dict[str, int] = {s: 0 for s in sources}
+    dist: dict[str, int] = {s: 0 for s in sorted(sources)}
     parent: dict[str, tuple[str, str]] = {}
     finalized: set[str] = set()
-    dq: deque[str] = deque(sources)
+    dq: deque[str] = deque(sorted(sources))
 
     while dq:
         node = dq.popleft()
@@ -748,7 +755,7 @@ def check_domain_disjointness(
             for code in domain_codes[domain_b]:
                 comp_to_nets_b.setdefault(component_of[code], []).append(code)
             shared = set(comp_to_nets_a) & set(comp_to_nets_b)
-            for comp_id in shared:
+            for comp_id in sorted(shared):
                 key = (comp_id, frozenset({domain_a, domain_b}))
                 if key in reported_components:
                     continue
@@ -810,7 +817,7 @@ def check_isolator_integrity(
                 shared = comps_a & comps_b
                 if not shared:
                     continue
-                comp_id = next(iter(shared))
+                comp_id = min(shared)  # deterministic pick; see note in multi_source_shortest_path
                 nets_a_here = {c for c in group_nets[ga] if component_of[c] == comp_id}
                 nets_b_here = {c for c in group_nets[gb] if component_of[c] == comp_id}
                 path = multi_source_shortest_path(graph, nets_a_here, nets_b_here)
