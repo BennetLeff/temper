@@ -137,3 +137,41 @@ no-`elec/`-changes constraint.
   materially different thresholds).
 - No bench measurement changes this: it is vendor-guaranteed silicon, and the
   question is which guarantee, not whether one exists.
+
+---
+
+## Review record (2026-07-26)
+
+Independently verified before acceptance.
+
+**Confirmed locally:**
+
+| Claim | Check |
+|---|---|
+| `components.ato:468` states `v_threshold = 3.08V` | confirmed — and it matches **no** value in the TI table |
+| `SAFETY_INTERLOCK_DESIGN.md:304–305` cites 7.6/8.1 V and 10.5/11.5 V | confirmed present |
+| `IGBT_DESATURATION_PROTECTION.md` names UCC21551 (×5) and UCC21553 (×1) | confirmed |
+
+**Confirmed against the TI datasheet** (SLVS165G, package information table):
+`TPS3823-33DBVR → threshold voltage 2.93 V`. The repo's 3.08 V is wrong.
+
+**Additional observation on the SAFETY_INTERLOCK figures.** Beyond not matching
+a real grade row, they are internally implausible: VCCI is the *primary-side
+input* supply (a few volts) yet is listed at 10.5/11.5 V, while VCC — the
+~15 V output-side supply — is listed at 7.6/8.1 V. The two look transposed.
+`SAFETY_INTERLOCK_DESIGN.md:313` then concludes "No external UVLO circuit is
+required" from those figures.
+
+**On the UVL-02 verdict.** The reviewer initially disputed "marginal fail",
+reading `<2.9 V` as *"must trip before the rail falls below 2.9 V"* (under
+which 2.93 V passes). That reading is wrong because it is **inconsistent with
+UVL-01**: the same phrasing there (`<12.0 V`) is satisfied by a 7.7–8.9 V
+threshold, which only works if the spec means *"the threshold shall be below
+the stated value"*. Applied consistently, 2.93 V typ / 3.00 V max exceeds
+2.9 V and the gate does not cleanly pass. The document's verdict stands.
+
+**One consequence worth adding:** at a 3.00 V worst-case threshold, a 3.3 V
+rail sagging 10% reaches 2.97 V — *below* the supervisor threshold. If the
+logic rail is specified at ±10% anywhere in the design, this part can assert
+reset during a tolerated sag. Worth checking against the actual rail
+tolerance before selecting a replacement.
