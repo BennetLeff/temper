@@ -24,6 +24,13 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
 
+      # This job runs in a container as root while the workspace is checked out
+      # by the runner user. actions/checkout marks the repo safe only under its
+      # own temporary HOME, so later `run:` steps get "detected dubious
+      # ownership" and exit 128. Mark it safe for root's real gitconfig.
+      - name: Mark workspace safe for git
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
       - uses: astral-sh/setup-uv@v4
         with:
           version: "latest"

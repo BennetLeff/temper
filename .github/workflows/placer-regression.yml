@@ -41,6 +41,12 @@ jobs:
         with:
           fetch-depth: 0
 
+      # Container runs as root; workspace is owned by the runner user. The
+      # baseline-approval check below shells out to `git diff`/`git log`, which
+      # exit 128 on "dubious ownership" without this.
+      - name: Mark workspace safe for git
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
       - name: Install uv
         uses: astral-sh/setup-uv@v4
         with:

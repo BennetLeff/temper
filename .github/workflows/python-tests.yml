@@ -131,7 +131,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v7
-      
+
+      # Container runs as root; workspace is owned by the runner user. Without
+      # this, every `git` call in a later `run:` step exits 128 on "dubious
+      # ownership" rather than doing its job.
+      - name: Mark workspace safe for git
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
       - name: Install uv
         uses: astral-sh/setup-uv@v4
         with:
@@ -472,7 +478,13 @@ jobs:
     
     steps:
       - uses: actions/checkout@v7
-      
+
+      # Container runs as root; workspace is owned by the runner user. Without
+      # this, every `git` call in a later `run:` step exits 128 on "dubious
+      # ownership" rather than doing its job.
+      - name: Mark workspace safe for git
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
       - name: Install uv
         uses: astral-sh/setup-uv@v4
         with:
@@ -548,7 +560,13 @@ jobs:
     
     steps:
       - uses: actions/checkout@v7
-      
+
+      # Container runs as root; workspace is owned by the runner user. Without
+      # this, every `git` call in a later `run:` step exits 128 on "dubious
+      # ownership" rather than doing its job.
+      - name: Mark workspace safe for git
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
       - name: Install uv
         uses: astral-sh/setup-uv@v4
         with:
