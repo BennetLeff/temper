@@ -181,8 +181,15 @@ they thought they were on. See `docs/METHODOLOGY.md` Sec 5 ("a measurement
 carries the commit it was taken at, or it is not a measurement") and
 `docs/evidence/2026-07-26-measurement-provenance.md`. Every dispatch that
 names a base commit or branch should have the receiving agent run this
-before doing anything else, and again before writing up results if the
-session ran long enough that the base branch could have moved.
+before doing anything else.
+
+Note the check is exact-match, not ancestry: once you've legitimately
+rebased onto `<expected-ref>` and made your own commits on top, HEAD no
+longer equals it and a re-run correctly reports FAIL (you're ahead, not
+on it anymore) -- that's expected, not a bug. Re-run the assertion mid-session
+only if you suspect the *base* moved out from under you (e.g. a long-running
+session on a shared branch); if it fails with HEAD *behind* the expected
+ref, rebase before trusting anything you measured after that point.
 
 ### Issue Tracking & Management
 
