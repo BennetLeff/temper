@@ -267,6 +267,77 @@ reproducibility had never been tested.
 
 Evidence: `docs/evidence/2026-07-25-shorting-items-diagnosis.md`.
 
+### The reader is not exempt either
+
+§5's oracle rule says an external tool used as ground truth is a validator.
+The same applies one step closer in: **the shell pipeline between you and the
+number is a validator, and it fails silently.**
+
+Measured on 2026-07-25/26, six instances in two days, all of them the reader
+and none of them the measurement:
+
+| What happened | Consequence |
+|---|---|
+| `cmd \| tail` then `echo $?` | read `tail`'s status; reported a working gate as broken |
+| `grep \| head -10` | truncated before the real hits; nearly reported "zero production callers" |
+| `\| head` on a long run's output | destroyed a 10-minute route's result entirely |
+| grep for a string that was line-wrapped | nearly reported present text as absent |
+| inferred "the checks ran" from absent warnings | published, then had to correct — the stage never executed |
+| read a date-stamped evidence file from the previous day | reported a stale value as current |
+
+Rules that follow:
+
+- **Capture raw to a file, then query the file.** Do not filter in the same
+  pipeline that produces the value.
+- **Exit codes never through a pipe.** `cmd > f 2>&1; echo $?`.
+- **Prefer structured output** (JSON) over scraping text.
+- **`head`/`tail` only when the value's position is known.**
+- **When a result surprises you, suspect the reading before the result.**
+  This is the load-bearing one — it caught most of the six above. The failures
+  were the occasions it was not applied.
+
+### Physical envelopes are preconditions
+
+§3's rule — assert the input, do not assume it — was written for code and then
+applied only to code. It applies identically to hardware, and both design
+errors on this project came from the gap:
+
+| Change | Verified | Not verified | Result |
+|---|---|---|---|
+| OCP-01 burden 6.65 → 4.99 Ω | divider math → 50.1 A trip | the CT's **47 A** sensed rating | trip placed above the transformer's range, where the core saturates and the comparator may never fire |
+| OCP-02 shunt in `DC_BUS_RTN` | amplifier gain → 2.40 V | that the node sits at **−170 V** | INA240 is a −4…+80 V part; it would have been destroyed |
+
+In both cases the arithmetic was correct and the physical context invalidated
+it. Computing a value is not the same as establishing that the parts survive
+where it puts them.
+
+**Before changing any component value, enumerate the operating envelope of
+every part in the signal path** — voltage, current, common mode, temperature,
+frequency — not just the part being changed. The value is valid only inside all
+of them. This is a checklist, and it is mechanizable.
+
+The specific trap: reasoning by analogy from a familiar topology. "Low side is
+near ground" is true of a single-rail bus and false of a voltage doubler, where
+the midpoint is ground and the low rail is −170 V.
+
+### State the falsifier before implementing
+
+Before writing a fix, write one sentence: **"this fails if X"** — then check X
+first.
+
+For the route-level bounding-box prefilter that sentence was *"this fails if
+route bounding boxes overlap heavily."* Thirty seconds to check, and it does,
+so the implementation was wasted. Three optimisation attempts on
+`verify_clearance` went the same way, one of them breaking 52 tests, because
+each was evaluated only after being built.
+
+This is the `blind_to` field (§3) applied to proposals rather than to loops.
+
+Corollary: **before optimising, build the benchmark.** Get the measurement loop
+under ten seconds before iterating on it. Each `verify_clearance` attempt cost
+a ten-minute run to evaluate, which is why three of them fit in the time one
+disciplined attempt would have taken.
+
 ### Metamorphic relations for this domain
 
 No oracle needed; a violation is proof of a bug.
@@ -566,5 +637,15 @@ the real state machine respond, measure latency against OCP-01's 1 µs budget.
 - **The oracle is not exempt** (§5). External tools used as ground truth are
   validators too. Characterise the noise floor before gating on a number, and
   never set a threshold below it.
+- **The reader is not exempt** (§5). Capture raw to a file, then query it.
+  Exit codes never through a pipe. When a result surprises you, suspect the
+  reading before the result.
+- **Physical envelopes are preconditions** (§5). Before changing a component
+  value, enumerate the voltage, current, common-mode, temperature and
+  frequency limits of every part in the signal path — not just the one being
+  changed. Correct arithmetic in the wrong physical context is still wrong.
+- **State the falsifier before implementing** (§5). One sentence — "this fails
+  if X" — then check X first. Before optimising, build the benchmark: get the
+  measurement loop under ten seconds before iterating on it.
 - Smallness is not the goal — §3.2's five properties are. A small loop with no
   oracle is not a validatable loop.
