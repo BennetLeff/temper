@@ -1,13 +1,73 @@
 # Temper Project Strategy
 
-**Version:** 2.0
+**Version:** 3.0
 **Date:** 2026-07-25
-**Supersedes:** Strategy v1.0 (2026-06-22) and its "Strategy-Level Move Set"
-added 2026-07-24.
+**Supersedes:** v2.0 (same day), v1.0 (2026-06-22) and its "Strategy-Level
+Move Set".
 
 How we work lives in [`METHODOLOGY.md`](./METHODOLOGY.md) and should rarely
 change. This document holds what we are building and where we honestly are. It
 churns by design.
+
+---
+
+## Bottom line
+
+**The critical path is design completion, not tooling. The board cannot be
+fabricated, and the router is not what is stopping it.**
+
+This reverses the premise the project has run on for roughly a month. The
+evidence, all gathered 2026-07-25 and detailed below:
+
+| | |
+|---|---|
+| **Protection gates** | Of seven: **2 fail measurably, 2 have no circuit at all**, 1 is ambiguous, 2 are unmeasurable in simulation, 0 validated on hardware |
+| **IGBT desaturation protection** | **Does not exist.** 19 BOM lines cost it; `grep -ni desat elec/src/*.ato` returns nothing |
+| **BOM** | Unusable in both directions — 35 lines costed with no circuit, ~75 wired components uncosted |
+| **Router** | ~79% path-finding, but its output carries ~120 shorts and 499 clearance violations |
+| **Router's own DRC** | Never ran; when enabled, the first check **crashes** on current data |
+
+The router was never the bottleneck. A month went into routing a board whose
+overcurrent protection trips 17% low, whose thermal shutdown is 14.5 °C high,
+which has no secondary OCP, no coil thermal sensing, and no desaturation
+protection — while its BOM bills for a desat circuit that was never designed
+and omits the bus discharge that was.
+
+**All of it was found in one day, with tools already in the repository**: four
+ngspice runs against models sitting unused since they were committed, and a
+grep of the BOM against the source. None of it required the router to work.
+
+### What this changes
+
+1. **Fabrication is not the next milestone.** "Close one loop, fab a board"
+   — the model this document carried this morning — assumed a roughly sound
+   design. That assumption is falsified. Ordering this board would produce
+   hardware missing three protection mechanisms.
+2. **Simulation, not place-and-route, is where the pipeline investment pays.**
+   Four SPICE runs found more real defects than a month of router work. For the
+   long-term goal of building kitchen appliances quickly, a
+   simulation-in-the-loop design-verification layer is worth more than
+   incremental autorouter quality — and it is far less built.
+3. **The verification layer is not trustworthy yet, but it is now honest.**
+   Ten dead CI gates, five vacuous production gates, and a DRC oracle with ±11
+   noise were found and mostly fixed. That work is done; continuing it advances
+   no gate.
+
+### Recommended sequence
+
+1. **Design review of the protection chain** — human, power-electronics
+   judgment. OCP-01 needs a component change (50 A is unreachable on a 3.3 V
+   rail); OCP-02, THM-02 and DESAT need circuits designed; OVP-01's divider
+   interpretation needs a decision.
+2. **Reconcile the BOM against the source**, both directions.
+3. **Extend the SPICE harness** to the power stage — a ZVS-margin sweep across
+   the pan-load envelope is the highest-value remaining simulation
+   (`METHODOLOGY.md` §11) and the models are already present.
+4. **Then** return to routing quality: the ~120 shorts, and repairing the
+   manufacturing DRC checks so they run against `RoutePath3D`.
+
+Nothing in steps 1–2 is a coding task, and nothing in them should be delegated
+to an agent. They are design and procurement decisions.
 
 ---
 
