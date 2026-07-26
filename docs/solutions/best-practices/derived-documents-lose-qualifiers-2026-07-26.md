@@ -152,3 +152,41 @@ Derived (docs/STRATEGY.md gate table):
 - `docs/solutions/best-practices/multi-document-requirements-review-patterns-2026-07-23.md`
   — a sibling precision failure in derived documents: "identical results" vs
   "within tolerance" language drift across requirements docs
+
+---
+
+## The payoff: three designs falsified by restoring one column
+
+Added after this document was first written, because it is the strongest
+evidence for the lesson and it landed later the same day.
+
+Restoring the dropped qualifiers to `docs/STRATEGY.md` immediately invalidated
+part of **three protection fixes designed and verified earlier that day**:
+
+| Gate | Spec, once restored | As designed against the lossy table |
+|---|---|---|
+| THM-01 | trip 85 °C, **recovery 70 °C** → 15 °C hysteresis | trip 84.9 °C, release 79.2 °C → **5.6 °C** |
+| THM-02 | trip 120 °C, **recovery 100 °C** → 20 °C hysteresis | trip 120.3 °C, release 113.7 °C → **6.6 °C** |
+| OVP-01 | 390–410 V trip, **hysteresis 10–20 V** | **no hysteresis at all** |
+
+The trip points were correct in all three. The *release* behaviour was not —
+and the engineer never knew it was specified, because the summary table had
+dropped the recovery and hysteresis columns entirely. Hysteresis was therefore
+chosen by judgement against a table that had silently removed the constraint
+governing it.
+
+This is what makes the failure mode expensive rather than merely untidy. The
+work was careful: values hand-derived, tolerance-checked, simulated, and
+cross-verified. **None of that helps when the requirement being satisfied is
+an abridged one.**
+
+A fourth instance surfaced at the same time: `FUNCTIONAL_TEST_CRITERIA.md`
+§1.2 specifies a **200 W ±25%** power tier with no corresponding gate in the
+summary at all — an omitted requirement rather than an abridged one, which the
+same audit caught only because it was comparing row by row against the source.
+
+**Practical test for whether a summary is safe to reason from:** can a reader
+derive a *design* from it, or only recognise a topic? If the former is
+intended, every column that constrains an implementation has to survive the
+abridgement — and the cheapest way to know is to diff the summary against its
+source row by row, which is exactly the audit that found all of this.
