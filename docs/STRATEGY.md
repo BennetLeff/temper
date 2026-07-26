@@ -472,6 +472,38 @@ Also surfaced: **`FUNCTIONAL_TEST_CRITERIA.md` §1.2 specifies a 200 W ±25%
 power tier that has no corresponding gate** in this document. That is an
 omitted requirement, not a lost qualifier.
 
+### The BOM matches source but cannot be ordered (2026-07-26)
+
+Full detail: `docs/evidence/2026-07-26-bom-availability-sweep.md`. ~38 of ~182
+distinct MPNs checked (~21%), weighted by consequence; coverage stated
+explicitly rather than implied.
+
+Reconciling the BOM to source established **consistency, not procurability**.
+Three blockers:
+
+| Part | Problem |
+|---|---|
+| `GRM188R71E104KA01D` 100 nF 0603 | **Obsolete, zero stock** — and used in **22 netlist instances** across gate drive, buck, aux supply, MCU, RTD, watchdog and OVP |
+| `DE2E3KH221MA3B` X2 EMI cap | Not found at any distributor. Murata's DE2-series coding decodes "221" as **220 pF, not the 220 nF the BOM states** — a 1000× mismatch, and the family tops out near 10 nF |
+| `0034.3129` mains fuse | Real and stocked, but appears to be a bare fuse *link*, not the holder+fuse assembly the BOM describes |
+
+The X2 capacitor is the more serious of the three: it is a **mains-facing
+safety-critical part**, it carries a 1000× value discrepancy, and it may not
+exist. It shares the exact signature of the already-corrected fictional
+`EKZE251ELL332MM40S` bus capacitor — a plausible-looking MPN that survives
+review because nobody looks it up.
+
+**Risks** (not blockers): `G4A-1A-E` bypass relay is EOL with finite stock;
+`V150LA10AP` MOV has conflicting EOL signals, left UNVERIFIED rather than
+guessed; bus caps show only ~200 units at ~28-week lead; and `CST3015-100ED`,
+`SN74HC4075DR` and the WIMA film cap could not be confirmed at a distributor
+at all — notable because the CST3015 was selected only today.
+
+**Two MPN discrepancies resolved** by tracing to the netlist rather than the
+prose: only `MAX31865AAP+` (SSOP-20) is ever instantiated — `ATP+` exists only
+in BOM text; and only `UCC21550BDW` is ordered, though the atopile class is
+still misleadingly *named* `UCC21550BDWK`.
+
 ### OCP-01 versus full-power tank current (2026-07-26)
 
 Analytical, from committed values only — no pan model. Full working:
