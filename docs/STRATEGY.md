@@ -101,43 +101,43 @@ writing, zero of 22 have been measured.**
 
 | Gate | Description | Reference |
 |------|-------------|-----------|
-| EFF-01 | Efficiency >90% @1000W | `FUNCTIONAL_TEST_CRITERIA.md` §1.1 |
-| EFF-02 | Efficiency >92% @1800W | §1.1 |
-| EFF-03 | Standby power <1.0W | §1.1 |
+| EFF-01 | Efficiency >90% @1000W (Pin/Pout) | `FUNCTIONAL_TEST_CRITERIA.md` §1.1 |
+| EFF-02 | Efficiency >92% @1800W (ZVS active) | §1.1 |
+| EFF-03 | Standby power <1.0W (off state, mains connected) | §1.1 |
 | PWR-01 | Power accuracy ±10% @1000W | §1.2 |
 | PWR-02 | Power accuracy ±5% @1800W | §1.2 |
-| PID-01 | Temperature accuracy ±2°C | §1.3 |
-| PID-02 | Temperature stability ±1°C (30min) | §1.3 |
-| PID-03 | Overshoot <5°C | §1.3 |
-| PID-04 | Settling time <5min | §1.3 |
+| PID-01 | Temperature accuracy ±2°C (steady state @100°C, calibrated ref) | §1.3 |
+| PID-02 | Temperature stability ±1°C (30min hold @60°C) | §1.3 |
+| PID-03 | Overshoot <5°C peak (step 25°C→100°C) | §1.3 |
+| PID-04 | Settling time <5min to within 2°C (step 25°C→100°C) | §1.3 |
 
 ### Protection
 
 | Gate | Description | Reference |
 |------|-------------|-----------|
-| OCP-01 | Primary OCP 45-55A, <1µs | `FUNCTIONAL_TEST_CRITERIA.md` §2.1 |
-| OCP-02 | Secondary OCP 55-65A, <5µs | §2.1 |
-| OVP-01 | DC Bus OVP 390-410V | §2.2 |
-| THM-01 | Heatsink NTC 85°C shutdown | §2.3 |
-| THM-02 | Coil NTC 120°C shutdown | §2.3 |
-| UVL-01 | Gate Drive UVLO <12.0V | §2.4 |
-| UVL-02 | Logic UVLO <2.9V | §2.4 |
+| OCP-01 | Primary OCP 45-55A **peak**, <1µs | `FUNCTIONAL_TEST_CRITERIA.md` §2.1 |
+| OCP-02 | Secondary OCP 55-65A **peak**, <5µs | §2.1 |
+| OVP-01 | DC Bus OVP 390-410V, hysteresis 10-20V | §2.2 |
+| THM-01 | Heatsink NTC 85°C trip / 70°C recovery, shutdown | §2.3 |
+| THM-02 | Coil NTC 120°C trip / 100°C recovery, shutdown | §2.3 |
+| UVL-01 | Gate Drive UVLO **<12.0V falling** / **>13.0V rising** | §2.4 |
+| UVL-02 | Logic UVLO **<2.9V falling** / **>3.0V rising** | §2.4 |
 
 ### EMC
 
 | Gate | Description | Reference |
 |------|-------------|-----------|
-| EMC-01 | CISPR 14-1 Class B 150-500kHz | `FUNCTIONAL_TEST_CRITERIA.md` §3.1 |
-| EMC-02 | CISPR 14-1 Class B 0.5-5MHz | §3.1 |
-| EMC-03 | CISPR 14-1 Class B 5-30MHz | §3.1 |
+| EMC-01 | CISPR 14-1 Class B 150-500kHz (66→56 dBµV QP / 56→46 dBµV avg, >3dB margin) | `FUNCTIONAL_TEST_CRITERIA.md` §3.1 |
+| EMC-02 | CISPR 14-1 Class B 0.5-5MHz (56 dBµV QP / 46 dBµV avg, >3dB margin) | §3.1 |
+| EMC-03 | CISPR 14-1 Class B 5-30MHz (60 dBµV QP / 50 dBµV avg, >3dB margin) | §3.1 |
 
 ### Mechanical
 
 | Gate | Description | Reference |
 |------|-------------|-----------|
-| MCH-01 | Button force 2-5N | `FUNCTIONAL_TEST_CRITERIA.md` §4 |
-| MCH-02 | Knob torque 0.5-2 N·cm | §4 |
-| MCH-03 | Glass load 20kg | §4 |
+| MCH-01 | Button force 2-5N (tactile feedback) | `FUNCTIONAL_TEST_CRITERIA.md` §4 |
+| MCH-02 | Knob torque 0.5-2 N·cm (smooth feel) | §4 |
+| MCH-03 | Glass load 20kg static, no cracking | §4 |
 
 ---
 
@@ -438,6 +438,39 @@ fixed silicon with no model.
 **Summary: of seven protection gates, two fail measurably, two have no
 circuit, one is ambiguous, and two are unmeasurable in simulation.** None has
 been validated on hardware. These are the gates the safety case rests on.
+
+### Recovered gate qualifiers invalidate three of today's fixes (2026-07-26)
+
+The gate tables above previously dropped qualifiers that
+`FUNCTIONAL_TEST_CRITERIA.md` states explicitly — peak/RMS basis, rising/falling
+direction, and **entire recovery and hysteresis columns**. Restoring them
+immediately falsified part of three fixes landed earlier the same day:
+
+| Gate | Spec (recovered) | As designed today | Verdict |
+|---|---|---|---|
+| THM-01 | trip 85 °C, **recovery 70 °C** → 15 °C hysteresis | trip 84.9 °C, release 79.2 °C → **5.6 °C** | **insufficient hysteresis** |
+| THM-02 | trip 120 °C, **recovery 100 °C** → 20 °C hysteresis | trip 120.3 °C, release 113.7 °C → **6.6 °C** | **insufficient hysteresis** |
+| OVP-01 | 390–410 V trip, **hysteresis 10–20 V** | no hysteresis — comparator has no feedback resistor | **hysteresis absent entirely** |
+
+The trip points are correct in all three cases; the release behaviour is not.
+Required sense-node swings, computed from the NTC beta curve:
+
+- THM-01 needs **0.4154 V** between the 85 °C and 70 °C sense levels; the
+  present divider delivers 0.1535 V.
+- THM-02 needs **0.4582 V** between 120 °C and 100 °C.
+
+These are `r_hyst` value changes, not topology changes. OVP-01 needs a
+hysteresis resistor added, which it currently lacks.
+
+**This is the cost of reasoning from a lossy summary.** The information was in
+the source document throughout; three designs were derived against a table that
+had silently dropped the columns that constrain them. Two earlier analyses this
+week — OCP peak-versus-RMS and UVL-02 threshold direction — had already been
+corrected for the same reason before the cause was identified.
+
+Also surfaced: **`FUNCTIONAL_TEST_CRITERIA.md` §1.2 specifies a 200 W ±25%
+power tier that has no corresponding gate** in this document. That is an
+omitted requirement, not a lost qualifier.
 
 ### OCP-01 versus full-power tank current (2026-07-26)
 
