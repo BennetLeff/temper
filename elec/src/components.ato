@@ -525,8 +525,21 @@ component TPS3823:
     
     # Ratings
     wdt_timeout = 1.6s
-    v_threshold = 3.08V  # Reset at 3.08V
-    
+    # VIT- (falling reset threshold), verified 2026-07-26 directly against
+    # TI's TPS382x datasheet (SLVS165O, rev March 2025), TPS3823-33/
+    # TPS3823A-33 row, -40C to 85C: min 2.86V, typ 2.93V, max 3.00V.
+    # V_HYS (VIT+ - VIT-) = 30mV typ, no min/max given -- i.e. not a
+    # guaranteed spec. Rising threshold VIT- + V_HYS = 2.89/2.96/3.03V
+    # min/typ/max. The previous value here (3.08V) did not match either the
+    # datasheet or docs/hardware/SAFETY_INTERLOCK_DESIGN.md's own secondhand
+    # citation (2.93V) and its source was never established -- corrected.
+    # This part fails UVL-02 (FUNCTIONAL_TEST_CRITERIA.md SS2.4: <2.9V
+    # falling / >3.0V rising) in both directions even at nominal: 2.93V typ
+    # falling trips ABOVE the 2.9V ceiling, and 2.96V typ rising recovers
+    # BELOW the 3.0V floor. See docs/hardware/UVL02_DESIGN.md.
+    v_threshold = 2.93V
+    v_threshold_hysteresis = 30mV
+
     signal GND ~ pin 1
     signal RESET_N ~ pin 2
     signal MR_N ~ pin 3

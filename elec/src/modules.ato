@@ -2040,6 +2040,159 @@ module Watchdog:
     wdt.RESET_N ~ reset_n.line
     power.vcc ~ wdt.MR_N
 
+module LogicUVLOComparator:
+    """Logic-rail (3.3V) under-voltage lockout, UVL-02.
+
+    Ambiguity this module resolves (see docs/hardware/UVL02_DESIGN.md for the
+    full writeup): two pre-existing candidates were checked against UVL-02
+    (FUNCTIONAL_TEST_CRITERIA.md SS2.4: trip <2.9V falling, recover >3.0V
+    rising -- >100mV hysteresis on a 2.9V threshold) and NEITHER qualified.
+
+      1. TPS3823-33 (Watchdog module): its VDD brownout comparator is fixed
+         silicon. Verified directly from TI's TPS3823 datasheet (SLVS165O,
+         Mar 2025 rev), NOT the secondhand figure in SAFETY_INTERLOCK_DESIGN.md:
+         VIT- (falling) = 2.86/2.93/3.00 V min/typ/max over -40..85C, and
+         V_HYS = 30mV typ (no min/max given, i.e. not a guaranteed spec) ->
+         VIT- + V_HYS (rising) = 2.89/2.96/3.03 V min/typ/max. Nominal alone
+         already fails: falling trips at 2.93V (above the 2.9V ceiling) and
+         rising recovers at 2.96V (below the 3.0V floor). A fixed-threshold
+         supervisor with ~1% factory hysteresis cannot deliver the >100mV
+         (3.4%) hysteresis this spec demands -- confirmed, not assumed.
+      2. RTDSensing.rail_monitor (TPS3700): trips at a simulated 2.825V
+         (docs/evidence/2026-07-25-uvl02-rtd-avdd-monitor-candidate-sim.json)
+         with NO added hysteresis resistor, and it monitors RTD_AVDD (a
+         downstream RTD-subsystem rail), not the board logic supply. Not
+         UVL-02 by its own component docstring.
+
+    This module is the actual UVL-02 gate: a NEW TPS3700 instance, wired
+    directly across the board's own power_3v3 logic rail (VDD of the chip
+    IS the rail under test), with an external resistor divider AND a
+    deliberate positive-feedback hysteresis resistor -- unlike candidate 2,
+    which had no r_hyst at all. This works because VIT_A is an internal
+    bandgap-derived ~0.4V reference, independent of VDD (down to the part's
+    own 1.3-1.7V UVLO, far below anything we care about here), so an
+    external divider referenced to the same rail it measures still produces
+    an absolute (not ratiometric) trip point -- the same reason candidate 2
+    could work as a brownout detector at all.
+
+    Topology follows OVPComparator's hysteresis pattern, not
+    ThermalComparator's: the externally-set node (INA_P, driven by the
+    VCC divider) is the one that carries the sense signal, and the
+    threshold being compared against (VIT_A) is fixed/internal -- exactly
+    like OVPComparator's bus-sense INP node against a fixed INN reference.
+    So r_hyst loads INA_P directly from OUTA, not a separate reference leg.
+
+    Derivation (VITA_NOM = 394.5mV, the TPS3700_ngspice.lib model default,
+    itself sourced from TI's TPS3700 datasheet SBVS187G, VIT- typ 394.5mV):
+        Gt = 1/R_div_top, Gb = 1/R_div_bot, Gh = 1/R_hyst
+        V(INA_P) pre-trip  (OUTA high, ~VCC) = VCC * (Gt+Gh) / (Gt+Gb+Gh)
+        V(INA_P) post-trip (OUTA low,  ~0V)  = VCC * Gt      / (Gt+Gb+Gh)
+        Trip    (falling): VCC_trip    = VIT_A * (Gt+Gb+Gh) / (Gt+Gh)
+        Recover (rising):  VCC_recover = VIT_A * (Gt+Gb+Gh) / Gt
+
+    With R_div_top=698k, R_div_bot=100k, R_hyst=3.74M (all E96 1%):
+        VCC_trip    = 2.715 V  (nominal)
+        VCC_recover = 3.222 V  (nominal)
+        hysteresis  = 0.507 V  (15.4% of 3.3V -- wide, but this is what a
+                                 >100mV window on a 2.9V threshold, stacked
+                                 with +/-1% resistors and the datasheet's
+                                 full VIT_A range, actually costs)
+
+    WORST-CASE (each resistor independently at +/-1%, VIT_A at its full
+    datasheet range 387-400mV, all 16 corner combinations swept -- see
+    docs/hardware/UVL02_DESIGN.md for the script):
+        worst-case trip    (max) = 2.800 V  < 2.9V ceiling  (100mV margin)
+        worst-case recovery (min) = 3.106 V > 3.0V floor    (106mV margin)
+    Both requirements clear with comfortable margin in the worst corner, not
+    just nominal -- this was NOT true of an earlier trial with a narrower
+    hysteresis resistor (see UVL02_DESIGN.md's "spec is achievable" section
+    for the failed first attempt at 2.85/3.05V nominal, which gave only
+    -3.6mV of trip margin in the worst corner).
+
+    mon.OUTA is active-low (open-drain, LOW = undervoltage). It is pulled up
+    to power.vcc and inverted to the project's active-high fault convention
+    by a NAND with one input tied high -- the same inverter idiom used for
+    SafetyInterlock's own SR-latch gate 1, and structurally identical to how
+    RTDSensing's fault_nand inverts rail_monitor.OUTA.
+
+    NOT WIRED INTO THE INTERLOCK: this.fault.line is intentionally left out
+    of fault_or/fault_any_or in SafetyInterlock. By the time this module was
+    designed, THM-02 (coil_thermal) already occupied the one spare input in
+    the SET aggregation (fault_any_or.C1); no other input reaches
+    fault_any_or.Y1 -> latch.A1 without adding a further OR stage. See the
+    "UVL-02 fault output" comment block near the end of SafetyInterlock and
+    docs/hardware/UVL02_DESIGN.md SS7 for the full survey and what a fix
+    would require. fault.line is brought to a test point
+    (SafetyInterlock.tp_uvlo2_fault) for bench observability instead."""
+
+    power = new ElectricPower
+    fault = new ElectricLogic
+    fault.reference ~ power.gnd
+    fault.line.required = true
+
+    mon = new TPS3700
+
+    r_div_top = new Resistor
+    r_div_top.value = 698kohm +/- 1%
+    r_div_top.mpn = "RC0603FR-07698KL"
+    r_div_top.footprint = "Resistor_SMD:R_0603_1608Metric"
+
+    r_div_bot = new Resistor
+    r_div_bot.value = 100kohm +/- 1%
+    r_div_bot.mpn = "RC0603FR-0710KL"
+    r_div_bot.footprint = "Resistor_SMD:R_0603_1608Metric"
+
+    # Positive feedback: loads the sense node (INA_P) from OUTA, exactly as
+    # OVPComparator loads its bus-sense INP from comp.OUT. 3.74M is E96
+    # exact (no rounding error) and gives 507mV of nominal hysteresis --
+    # see module docstring for the worst-case corner sweep.
+    r_hyst = new Resistor
+    r_hyst.value = 3.74Mohm +/- 1%
+    r_hyst.mpn = "RC0603FR-073M74L"
+    r_hyst.footprint = "Resistor_SMD:R_0603_1608Metric"
+
+    # OUTA is open-drain; needs its own pull-up (same 10k convention as
+    # RTDSensing.r_rail_ok_pullup).
+    r_outa_pullup = new Resistor
+    r_outa_pullup.value = 10kohm +/- 1%
+    r_outa_pullup.mpn = "RC0603FR-0710KL"
+    r_outa_pullup.footprint = "Resistor_SMD:R_0603_1608Metric"
+
+    mon.VDD ~ power.vcc
+    mon.GND ~ power.gnd
+    # Channel B unused -- tie INB_N low, same convention as
+    # RTDSensing.rail_monitor.INB_N.
+    mon.INB_N ~ power.gnd
+
+    power.vcc ~ r_div_top.p1
+    r_div_top.p2 ~ mon.INA_P
+    mon.INA_P ~ r_div_bot.p1
+    r_div_bot.p2 ~ power.gnd
+
+    mon.INA_P ~ r_hyst.p1
+    r_hyst.p2 ~ mon.OUTA
+
+    power.vcc ~ r_outa_pullup.p1
+    r_outa_pullup.p2 ~ mon.OUTA
+
+    # Invert active-low OUTA to active-high fault (NAND with B tied high).
+    # inv.Y is itself open-drain (SN74LVC1G38), so it needs its own pull-up
+    # feeding the fault line -- same pattern as RTDSensing.fault_nand ->
+    # r_fault_pullup -> rtd_hw_fault.
+    inv = new SN74LVC1G38
+    inv.VCC ~ power.vcc
+    inv.GND ~ power.gnd
+    mon.OUTA ~ inv.A
+    power.vcc ~ inv.B
+
+    r_fault_pullup = new Resistor
+    r_fault_pullup.value = 10kohm +/- 1%
+    r_fault_pullup.mpn = "RC0603FR-0710KL"
+    r_fault_pullup.footprint = "Resistor_SMD:R_0603_1608Metric"
+    power.vcc ~ r_fault_pullup.p1
+    r_fault_pullup.p2 ~ fault.line
+    inv.Y ~ fault.line
+
 module SafetyInterlock:
     """Complete safety interlock system."""
     
@@ -2113,16 +2266,17 @@ module SafetyInterlock:
     # sensing domain is an open topology decision.
     # ocp2 = new SecondaryOCPComparator  # OCP-02
     wdt = new Watchdog
+    uvlo_logic = new LogicUVLOComparator
     fault_or = new SN74HC4075
     fault_any_or = new SN74HC4075
     latch = new SN74HC00
-    
+
     ocp.power ~ power_3v3
     ocp.i_sense.line ~ i_sense.line
-    
+
     ovp.power ~ power_3v3
     ovp.v_bus.line ~ dc_bus.line
-    
+
     thermal.power ~ power_3v3
     thermal.ntc_sense.line ~ ntc_sense.line
 
@@ -2140,6 +2294,14 @@ module SafetyInterlock:
     wdt.power ~ power_3v3
     wdt.wdi.line ~ wdt_kick.line
     wdt.reset_n.line ~ wdt_reset_n.line
+
+    # UVL-02: logic-rail (3.3V) UVLO. Monitors power_3v3 directly -- this is
+    # a NEW circuit, not RTDSensing.rail_monitor (which measures RTD_AVDD,
+    # a different rail) and not the TPS3823-33 watchdog (fixed silicon
+    # threshold, confirmed against TI's datasheet to fail this spec in both
+    # directions -- see LogicUVLOComparator's docstring and
+    # docs/hardware/UVL02_DESIGN.md).
+    uvlo_logic.power ~ power_3v3
     
     fault_or.VCC ~ power_3v3.vcc
     fault_or.GND ~ power_3v3.gnd
@@ -2169,7 +2331,10 @@ module SafetyInterlock:
     rtd_hw_fault.line ~ fault_any_or.B1
     # THM-02 coil over-temperature joins the fault-any chain here. This
     # input was previously tied to GND -- a spare OR input on a part already
-    # placed, so THM-02 costs no additional logic.
+    # placed, so THM-02 costs no additional logic. THM-02 got here first;
+    # by the time UVL-02 was designed (below), this was the last spare in
+    # the SET aggregation and is no longer available to it -- see the
+    # UVL-02 fault-wiring note near the end of this module for the survey.
     coil_thermal.fault.line ~ fault_any_or.C1
     fault_any_or.Y1 ~ latch.A1
 
@@ -2239,6 +2404,53 @@ module SafetyInterlock:
     # floating.
     # tp_ocp2_fault = new TestPoint
     # tp_ocp2_fault.p1 ~ ocp2.fault.line
+
+    # UVL-02 fault output: NOT wired into the fault OR-tree either.
+    #
+    # LogicUVLOComparator (uvlo_logic) IS instantiated and powered above --
+    # unlike ocp2, this is a real, populated circuit -- but its fault.line
+    # is deliberately left out of fault_or/fault_any_or. Re-surveyed both
+    # SN74HC4075s against THIS tree (which now includes THM-02 and the
+    # OCP-02 finding above; an earlier pass of this same survey was done
+    # against a stale worktree that still had fault_any_or.C1 grounded and
+    # wrongly concluded it was free -- it is not, see below):
+    #
+    #   fault_or gate 3 (A3/B3/C3->Y3): unchanged from the OCP-02 survey --
+    #     all three inputs tied GND, Y3 has no consumer anywhere. Confirmed
+    #     still a dead end, not a path into the SET aggregation.
+    #   fault_any_or gate 1 (A1/B1/C1->Y1): full -- fault_or.Y2,
+    #     rtd_hw_fault, AND NOW coil_thermal (THM-02, added 2026-07-26,
+    #     took what used to be the last spare here before this module
+    #     existed). This is the gate whose Y1 feeds latch.A1, the SET
+    #     input, and it has no free input left.
+    #   fault_any_or gate 2 (A2/B2/C2->Y2): C2 is GND-tied and looks spare,
+    #     but this gate computes the RESET qualifier, same as the OCP-02
+    #     finding already established -- wiring a fault here blocks reset
+    #     without ever tripping the latch. Still not usable.
+    #   fault_any_or gate 3 (A3/B3/C3/Y3): all four pins entirely
+    #     unreferenced anywhere in this module -- not grounded, not wired,
+    #     just absent. This is a genuinely unused gate, structurally the
+    #     same situation as fault_or gate 3: its output has no path into
+    #     the SET aggregation (fault_any_or.Y1 -> latch.A1) without another
+    #     OR stage to combine it in, and, unlike a truly spare INPUT on an
+    #     already-consumed gate, wiring inputs here produces a Y3 that
+    #     still reaches nothing.
+    #
+    # Net result: OCP-02 and UVL-02 are now BOTH designed with no available
+    # SET-path input. This is not a per-gate problem to solve by finding
+    # yet another spare -- there isn't one -- it is a fault-aggregation
+    # capacity problem. See docs/hardware/UVL02_DESIGN.md SS7 for what a
+    # fix would require (rework the existing two 3-input OR ICs into a
+    # wider tree vs. adding a third SN74HC4075/74HC4078-class part) and why
+    # that decision is left to a human rather than made silently here.
+    #
+    # uvlo_logic.fault.line is instantiated (fault.line.required = true on
+    # LogicUVLOComparator) and must terminate somewhere, so it is brought
+    # to a test point for bench observability -- exactly the "flag it,
+    # don't fake a connection" outcome the OCP-02 finding already
+    # established as preferable to wiring into a colliding or dead input.
+    tp_uvlo2_fault = new TestPoint
+    tp_uvlo2_fault.p1 ~ uvlo_logic.fault.line
 
     # LED indicators remain unassigned until their current-limiting circuits
     # are specified; they must not be used as safety logic.
