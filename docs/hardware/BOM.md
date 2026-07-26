@@ -115,10 +115,17 @@
 > 18×. Isolation also improves from 1500 Vrms to 5000 Vrms reinforced with
 > ≥8 mm creepage, which helps the IEC 60335-1 position.
 >
-> **⚠ Footprint not yet drawn.** `temper:CST3015` does not exist —
-> `pcb/libs/temper.pretty/` has only `CST2010` and the retired `CST-1005`.
-> The CST3015 is physically larger (16.6–16.9 g) and will require board
-> re-layout around T1. **Do not fabricate until this is done.**
+> **Footprint drawn 2026-07-26.** `temper:CST3015` built from the official
+> Recommended Land Pattern (Coilcraft Document 1608-2): primary pads
+> 9.0 × 4.8 mm on 15.36 mm centres, secondary 3.0 × 4.6 mm on 13.76 mm centres.
+> Dimensionally cross-verified — the secondary geometry reproduces the
+> component drawing's independent 13.76 mm span exactly.
+>
+> **⚠ Still requires board re-layout.** The CST3015 body is 23.0 × 30.0 mm
+> against the CST2010's 13.0 × 14.55 mm, so T1's surroundings must be
+> re-placed. **Open the footprint in KiCad and check it against the datasheet
+> before fabrication** — it has not been visually confirmed in the KiCad
+> footprint editor.
 >
 > Earlier entries here specified `CST-1005` (1:1000) with a 66.5 Ω burden — the
 > superseded design point. `CST-1005` was retired in commit `5a58b397`

@@ -123,9 +123,14 @@ component CST3015_100E:
     Datasheet note 5: the sensed-current figure is a 40C-rise reference
     point, not an absolute maximum.
 
-    FOOTPRINT NOT YET DRAWN. temper:CST3015 must be built from the Coilcraft
-    land pattern; this part is physically larger than the CST2010 (16.6-16.9 g)
-    and will require board re-layout around T1."""
+    Footprint temper:CST3015 drawn 2026-07-26 from the official Recommended
+    Land Pattern (Coilcraft Document 1608-2). Primary pads 9.0 x 4.8mm on
+    15.36mm centres; secondary pads 3.0 x 4.6mm on 13.76mm centres. Pad
+    numbering matches the datasheet pins directly, so P1/P2/S1/S2 map to
+    pads 1/2/3/4 with no remapping.
+
+    This part is physically larger than the CST2010 (body 23.0 x 30.0mm,
+    16.6-16.9 g) and will require board re-layout around T1."""
     designator_prefix = "T"
     footprint = "temper:CST3015"
     mpn = "CST3015-100ED"
