@@ -506,6 +506,31 @@ The existing Hypothesis idempotency test earned its keep: it caught **`HashMap`
 iteration-order nondeterminism** in the new grid, fixed with `BTreeMap` and
 locked in by a regression test.
 
+**The port is NOT active in the primary checkout, and its proof skips silently.**
+Measured at HEAD:
+
+```
+pytest test_clearance_rust_differential.py -q  ->  38 skipped in 0.07s  (exit 0)
+```
+
+The port's author reported "38/38 pass", true in their own worktree where the
+wheel was built. Here, `test_clearance_rust_differential.py:33-35` guards on
+`skipif(not _HAS_RUST_CLEARANCE)`, and the installed `temper_drc_rs` exposes
+only `run_drc` — a stale wheel predating `verify_route_clearance`.
+
+**So both guarantees are absent wherever the wheel is stale**: the speedup (the
+Python fallback runs) and the equivalence proof (the differential test never
+executes). Both silent; the suite exits 0.
+
+This is the **silently-skipped** entry in `METHODOLOGY.md` §4's own taxonomy —
+after ten dead CI gates and five vacuous ones, it would be the eleventh. Note
+the ambiguity that makes it invisible: **"38 passed" and "38 skipped" are both
+exit 0.** Reporting run counts rather than exit codes is the whole fix.
+
+The wheel was *importable and wrong-versioned*, not missing, so an import check
+would not have caught it. A build-freshness check comparing installed extension
+to crate source is the mechanism that would.
+
 **`enable_manufacturing_drc` still defaults False, deliberately.** Performance
 no longer blocks it, but two things do: 14 of 16 router-instantiating test files
 implicitly assume it is off, and **the committed board has 616 critical
