@@ -1,4 +1,4 @@
 ato-version: 0.2.68
 builds:
   default:
-    entry: src/main.ato
+    entry: src/main.ato:Top
