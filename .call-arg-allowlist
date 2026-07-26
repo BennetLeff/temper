@@ -1,0 +1,26 @@
+# call-arg hard-gate baseline — HAND-CURATED ONLY, never touched by
+# `scripts/check_typecheck_gate.py --init`.
+#
+# Format: <filepath> ||| <mypy message text, verbatim minus the [call-arg] tag>
+#
+# Every line here is a *known, pre-existing* mypy call-arg error: a call site
+# passing a keyword argument the callee's signature no longer has. These all
+# predate the 2026-07-26 investigation into check_routability's TypeError
+# (docs/evidence/2026-07-26-api-signature-drift-gate.md) and were found by
+# running `uv run mypy packages/temper-placer/src packages/temper-workflow/src
+# --ignore-missing-imports` on commit 11f859e5. They look like the SAME defect
+# class (an underscore-prefix lint autofix breaking a keyword caller — most
+# carry mypy's own "did you mean "_x"?" hint) and are almost certainly live,
+# unfixed bugs, not legitimate type debt. They are listed here, not fixed,
+# because fixing them is out of scope for this task; do not add to this list
+# without first checking whether the "new" entry is actually a live bug.
+#
+# Any call-arg error NOT listed here is an unconditional hard failure,
+# regardless of what .typecheck-allowlist says.
+
+packages/temper-placer/src/temper_placer/geometry/drc_inflate.py ||| Unexpected keyword argument "beta" for "smooth_relu"
+packages/temper-placer/src/temper_placer/validation/drc_fence.py ||| Unexpected keyword argument "modified_regions" for "run" of "CheckRunner"; did you mean "_modified_regions"?
+packages/temper-placer/src/temper_placer/validation/scorecard.py ||| Unexpected keyword argument "key" for "_is_scorable_metric"; did you mean "_key"?
+packages/temper-placer/src/temper_placer/validation/mfem_gate.py ||| Unexpected keyword argument "cell_size_mm" for "compare_fields"; did you mean "_cell_size_mm"?
+packages/temper-placer/src/temper_placer/validation/results/battery_run.py ||| Unexpected keyword argument "ambient_C" for "check_thermal_plausibility"; did you mean "_ambient_C"?
+packages/temper-placer/src/temper_placer/validation/results/battery_run.py ||| Unexpected keyword argument "netlist" for "_ensure_field_diverges"; did you mean "_netlist"?
