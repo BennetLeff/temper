@@ -73,15 +73,15 @@ from __future__ import annotations
 import argparse
 import csv
 import sys
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
+
+import yaml
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-import yaml  # noqa: E402
-
-from _lib.repo import find_repo_root  # noqa: E402
 from _lib.github_summary import get_github_summary_path  # noqa: E402
+from _lib.repo import find_repo_root  # noqa: E402
 
 REPO_ROOT = find_repo_root()
 DEFAULT_NETLIST = REPO_ROOT / "elec" / "build" / "default.net"
@@ -700,7 +700,7 @@ def analyze(netlist: Netlist, ref_to_mpn: dict, registry: dict) -> CapacityRepor
 
 
 def check_required_packages(netlist: Netlist, ref_to_mpn: dict, registry: dict) -> None:
-    present_mpns = set(ref_to_mpn.get(ref) for ref in netlist.components)
+    present_mpns = {ref_to_mpn.get(ref) for ref in netlist.components}
     for required in registry["required_packages"]:
         matches = [ref for ref, mpn in ref_to_mpn.items() if mpn == required and ref in netlist.components]
         if not matches:

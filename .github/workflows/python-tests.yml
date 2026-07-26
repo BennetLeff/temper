@@ -27,6 +27,8 @@ on:
       - '.importlinter'
       - 'import-linter-allowlist.yaml'
       - 'scripts/import_linter_gate.py'
+      - 'scripts/capacity_budget_gate.py'
+      - 'scripts/capacity_budget_packages.yaml'
       - '.physics-provenance-allowlist'
       - 'scripts/check_physics_provenance.py'
       - 'scripts/check_vacuous_gates.py'
@@ -69,6 +71,8 @@ on:
       - '.importlinter'
       - 'import-linter-allowlist.yaml'
       - 'scripts/import_linter_gate.py'
+      - 'scripts/capacity_budget_gate.py'
+      - 'scripts/capacity_budget_packages.yaml'
       - '.physics-provenance-allowlist'
       - 'scripts/check_physics_provenance.py'
       - 'scripts/check_vacuous_gates.py'
@@ -374,6 +378,12 @@ jobs:
 
       - name: Derived-document drift gate (docs/STRATEGY.md vs FUNCTIONAL_TEST_CRITERIA.md)
         run: uv run python scripts/check_derived_doc_drift.py
+
+      - name: Design capacity budget gate tests
+        run: uv run pytest scripts/tests/test_capacity_budget_gate.py -v --tb=short
+
+      - name: Design capacity budget gate (fault-tree fan-in)
+        run: uv run python scripts/capacity_budget_gate.py
 
       - name: Rebuild script invocation graph
         run: uv run python scripts/trace_invocations.py

@@ -2179,3 +2179,20 @@ scripts:
       - re
       - rich.console
       - sys
+
+- path: capacity_budget_gate.py
+  purpose: "CI gate: design-capacity budget check over the fault-tree's SN74HC4075 fan-in -- reachability over elec/build/default.net, not pin-occupancy counting; fails closed on missing/empty netlist or BOM, an absent required package, or a real fault source wired into a dead-output gate (docs/evidence/2026-07-26-design-capacity-budget-gate.md)"
+  owner: bennet
+  last_run: "2026-07-26"
+  category: keep
+  disposition: ci-gate
+    imports:
+      - __future__
+      - argparse
+      - csv
+      - dataclasses
+      - pathlib
+      - sys
+      - yaml
+      - _lib.repo
+      - _lib.github_summary
