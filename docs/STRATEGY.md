@@ -224,6 +224,39 @@ Consequence: the router's success metric needs a DRC-legality term before any
 completion figure is quoted as progress. Recorded here so 78.57% is not
 carried forward as a stale headline the way "24/24" and "72/95" were.
 
+### Rung 1b — re-measured after the CST3015 change (2026-07-26)
+
+T1 was swapped to the CST3015-100ED (courtyard 21.0 × 16.2 → 24.86 × 30.5 mm,
+3.5× area) and four parts re-placed. Re-routed on the same board, manufacturing
+DRC off:
+
+| | Rung 1 | Rung 1b | Δ |
+|---|---|---|---|
+| completion_rate | 0.7857 | **0.7738** | −1.2 pp |
+| segments | 3,265 | **2,878** | −387 |
+| vias | 48 | **52** | +4 |
+| unconnected | 276 | **283** | +7 |
+| `shorting_items` median (range) | 120 (113–124) | **142 (136–148)** | **+22** |
+| `clearance` | 499 | 499 | 0 |
+| wall time | 141 s | 96 s | — |
+
+**The shorts increase is real, not noise.** Measured as median over five DRC
+runs per the protocol in the reconciliation note above; the two ranges
+(113–124 and 136–148) do not overlap. This is the first time that protocol has
+distinguished a genuine regression from measurement scatter.
+
+**This is an accepted trade, not a defect.** A 3.5× larger part landed in an
+already-tight region, so nets that previously routed through it no longer can.
+What was bought: OCP-01 moves from failing (37.6 A against a 45–55 A window) to
+passing at 50.1 A, and winding isolation goes from 1500 Vrms to 5000 Vrms
+reinforced with ≥8 mm creepage. Protection correctness over routability, on a
+board that is not fabricable for other reasons anyway.
+
+**Manufacturing DRC could not be included.** With the stage enabled the run did
+not finish — 27 min, 98% CPU, 9.2 GB — because `verify_clearance` is O(n²) pure
+Python. It is now switchable and off by default; see
+`docs/evidence/2026-07-26-manufacturing-drc-scalability.md`.
+
 ### DRC — committed board
 
 747 violations, 326 unconnected (`kicad-cli pcb drc`, KiCad 10.0.4):
