@@ -480,10 +480,33 @@ non-zero, never 0.
 
 | Gate | Live result at HEAD | Anti-vacuity |
 |---|---|---|
-| `check_domain_partition.py` | **exit 5** — manifest names nets the netlist lacks (`+340V_BUS`, `pe`, `ZCD`, all changed by the SELV float) | refuses to run rather than report "no violations" |
+| `check_domain_partition.py` | **exit 3** — prints the OVP divider path `+170V_BUS →R51→R52→R53→ comp-inp →R54→ gnd`, plus 8 isolator-barrier violations and 2 crossings I had not identified | 33 tests; fails closed on empty/malformed manifest, stale netlist, missing isolator declarations, incomplete pin coverage |
 | `check_derived_doc_drift.py` | **16 drift violations**, all in `PROTECTION_CHAIN_REVIEW.md` | 24 tests pass; 12 degenerate-input cases exit 5; a 0-fields "clean" result is unreachable by construction |
 | `capacity_budget_gate.py` | **0 of 18 SET-path inputs available**, per-pin reasons matching the manual survey | 2 packages / 160 nets / 24 pins inspected; proven not vacuously pessimistic by a fixture that reports AVAILABLE |
 | `check_rust_drc_presence.py` | **exit 1 under `TEMPER_REQUIRE_RUST_DRC=1`**, naming the missing symbol | exit 0 unset for local dev; fails closed if `lib.rs` cannot be parsed |
+
+**The domain-partition gate found two crossings beyond the one it was pointed
+at**, both genuine rather than artifacts of a broad rule:
+
+- a **second OVP-01 ADC-sense divider** (`R58`/`R59`), and
+- a **gate-driver bootstrap network** (`D5`/`C17`/`U8`) that is not a certified
+  isolator yet bridges the domains.
+
+It also flags **23 dangling net records with zero connected pins** — including
+`gnd_ref`, `safety.ovp-reference`, and eight `mcu-reference-*` — as a
+non-blocking note. A determinism bug in its own path reporting (ordering varied
+with `PYTHONHASHSEED`) was caught by three-run measurement and fixed before
+delivery. Isolator identity is keyed on the netlist `sheetpath` instance path,
+never on reference designator or `libsource` — proven to survive both a
+designator renumber and the footprint-aliasing bug.
+
+**It is wired into CI without `continue-on-error`, so CI will go red on merge.**
+That is correct: the finding is real, and an isolation crossing on a mains
+appliance should block.
+
+One incidental pre-existing failure it surfaced:
+`elec/validation/test_ucc21550_contract.py::test_generated_netlist_keeps_max31865_reference_and_force2_connected`
+hardcodes a net literally named `pwr_rtn` from before the SELV redesign.
 
 **The derived-doc gate's live finding matters on its own.**
 `docs/hardware/PROTECTION_CHAIN_REVIEW.md` carries **the same uncorrected lossy
