@@ -221,6 +221,20 @@ jobs:
       - name: Run electronics validation tests
         run: uv run pytest elec/validation/ -v --tb=short
 
+      - name: Domain-partition gate unit tests
+        run: uv run pytest scripts/tests/test_check_domain_partition.py -v --tb=short
+
+      - name: Netlist domain-partition gate (galvanic isolation)
+        # Fail-closed: reads the compiled netlist against
+        # elec/domain_manifest.yaml and asserts the declared HV/SELV
+        # domains land in disjoint connected components, and that every
+        # declared isolator's own pin groups are mutually unreachable. This
+        # is the check that would have caught the aux_supply.psu star-join
+        # short (docs/hardware/IEC60335_CRITICAL_COMPONENTS.md Sec 2) --
+        # see docs/evidence/2026-07-26-domain-partition-check.md. Never
+        # `continue-on-error`: a gate that cannot run must exit non-zero.
+        run: uv run python scripts/check_domain_partition.py
+
       - name: Run temper-constraints integration tests
         working-directory: packages/temper-placer
         run: uv run pytest tests/rust_integration/ -v --tb=short -p no:cacheprovider -m "not benchmark"

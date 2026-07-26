@@ -1,0 +1,156 @@
+# Netlist domain-partition manifest.
+#
+# Declares, explicitly and by hand, which compiled nets belong to which
+# electrical safety domain, and which components are legitimate galvanic
+# isolators between domains. This is a claim about *intended* topology,
+# reviewed against elec/src by a human; scripts/check_domain_partition.py
+# verifies the *actual* compiled netlist (elec/build/default.net) upholds it.
+#
+# Ground rule: every entry below is an exact, literal net name or component
+# instance path taken from elec/src / elec/build/default.net -- never a
+# pattern, prefix, or naming-convention guess. Net names are exactly what
+# lied in this design ("+340V_BUS" names a node that is actually the ~170V
+# half-bus -- see docs/hardware/IEC60335_CRITICAL_COMPONENTS.md Sec 2), so
+# domain membership must never be inferred from how a net is spelled.
+#
+# Source of the domain assignments below: docs/STRATEGY.md, "The isolation
+# barrier is shorted by the star-point join (2026-07-26)" and
+# docs/hardware/IEC60335_CRITICAL_COMPONENTS.md Sec 2, "What is and isn't
+# mains-referenced, concretely."
+
+schema_version: 1
+
+domains:
+  # Mains / high-voltage power domain: AC line/neutral, the rectified DC
+  # bus, the doubler midpoint (power_return), PE, and everything that
+  # floats on the half-bridge switch node or the negative DC rail.
+  HV:
+    nets:
+      - ac_l
+      - ac_n
+      - pe                # bonded to PWR_RTN only via the Y1 cap (C6) --
+                           # intentional high-impedance EMI path, not a DC
+                           # safety bond; must still never reach SELV.
+      - "+340V_BUS"        # dc_bus_plus. NAME LIES: this node is the ~170V
+                           # half-bus, not 340V (main.ato:95, IEC60335 doc
+                           # Sec 2). Declared here by its exact compiled
+                           # string, not inferred from the "+340V" text.
+      - DC_BUS_RTN         # dc_bus_minus
+      - PWR_RTN            # power_return, the doubler midpoint
+                           # (main.ato:103 override_net_name). This is the
+                           # net the star-join bug also drags `gnd` into --
+                           # see aux_supply.psu isolator group check below,
+                           # which catches that directly at the barrier.
+      - ZCD                # power_in.zcd: tap of a plain resistive divider
+                           # from ac_l to PWR_RTN (modules.ato:683-689,
+                           # un-isolated by the module's own TODO). HV by
+                           # construction, not by name.
+      - w1_1               # CMC winding 1 taps (line side)
+      - w1_2
+      - "+15V_LS"          # low-side gate-driver rail; referenced to
+                           # DC_BUS_RTN, not gnd (modules.ato:380-381) --
+                           # floats within the HV domain, not SELV.
+      - SW_NODE            # half-bridge switch node
+      - GATE_HS            # UCC21550 high-side gate output; floats on
+                           # SW_NODE (secondary side of U6, HV side of the
+                           # barrier even though it is a "secondary")
+      - GATE_LS            # UCC21550 low-side gate output; referenced to
+                           # DC_BUS_RTN
+
+  # SELV control/logic domain: MCU, safety interlock, RTD sensing, and the
+  # isolated 15V/3.3V rails they are claimed to run from.
+  SELV:
+    nets:
+      - "+15V"
+      - "+3V3"
+      - usb_dn
+      - usb_dp
+      - i2c_sda_ui
+      - i2c_scl_ui
+      - RTD_SCK
+      - RTD_SDO
+      - RTD_SDI
+      - RTD_CS_N
+      - RTD_DRDY
+      - RTD_HW_FAULT
+      - rtd_force_p
+      - rtd_force_n
+      - rtd_sense_p
+      - rtd_sense_n
+      - WDT_KICK
+      - WDT_RESET_N
+      - SHUTDOWN
+      - RELAY_CTRL
+      - DISCHARGE_CTRL
+      - V_BUS_SENSE
+      - PWM_HS             # MCU-side PWM output, primary side of U6
+      - PWM_LS
+
+# Components whose pins do NOT connect across the barrier they implement.
+# `instance_path` is the dotted atopile instance path as it appears after
+# "::" in the netlist's sheetpath (stable across ref-designator reshuffles
+# and across machines -- unlike the absolute path prefix, which is stripped
+# before matching). `groups` partitions every pin the component actually
+# has wired in the netlist; every wired pin must appear in exactly one
+# group or the gate fails closed (an isolator with an undeclared pin is a
+# gap in the model, not a clean bill of health).
+isolators:
+  - instance_path: aux_supply.psu
+    component: "Mean Well IRM-10-15 (IRM_10_15), aux supply transformer -- 4.2kVAC I/O withstand"
+    groups:
+      primary: ["1", "2"]     # ACL, ACN
+      secondary: ["3", "4"]   # VP, VN
+    pin_labels:
+      "1": "ACL (= aux_supply.power_in.vcc)"
+      "2": "ACN (= aux_supply.power_in.gnd, i.e. power_return -- main.ato:271)"
+      "3": "VP (= aux_supply.power_out.vcc)"
+      "4": "VN (= aux_supply.power_out.gnd, i.e. gnd -- main.ato:273)"
+
+  - instance_path: hb.gate_hs.driver
+    component: "TI UCC21550BDW (UCC21550BDWK), reinforced-isolation dual gate driver"
+    groups:
+      primary: ["1", "2", "3", "4", "5", "6", "7", "8"]       # INA,INB,VCCI_1,GNDI,DIS,DT,NC_7,VCCI_2
+      secondary: ["9", "10", "11", "12", "13", "14", "15", "16"]  # VSSB,OUTB,VDDB,NC_12,NC_13,VSSA,OUTA,VDDA
+    pin_labels:
+      "4": "GNDI (primary-side logic ground, should be SELV gnd)"
+      "9": "VSSB (low-side secondary ground, floats on DC_BUS_RTN)"
+
+  - instance_path: ct_sense.ct
+    component: "Coilcraft CST3015-100ED (CST3015_100E), current sense transformer"
+    groups:
+      primary: ["1", "2"]     # P1, P2
+      secondary: ["3", "4"]   # S1, S2
+    pin_labels:
+      "2": "P2 (primary return, in series with tank return)"
+      "4": "S2 (secondary bias reference)"
+
+  - instance_path: power_in.bypass_relay
+    component: "Omron G4A-1A-E DC12 (Relay_SPST), bypass relay"
+    groups:
+      coil: ["1", "2"]        # coil1, coil2
+      contacts: ["3", "4"]    # NO, COM
+    pin_labels:
+      "1": "coil1 (SELV coil drive)"
+      "2": "coil2 (SELV coil drive)"
+      "3": "NO (mains contact)"
+      "4": "COM (mains contact)"
+
+  - instance_path: discharge.k_dis1
+    component: "Omron G5LE-1 DC12 (Relay_SPDT), discharge relay 1"
+    groups:
+      coil: ["2", "5"]           # coil1, coil2
+      contacts: ["1", "3", "4"]  # COM, NO, NC
+    pin_labels:
+      "2": "coil1 (SELV coil drive)"
+      "5": "coil2 (SELV coil drive)"
+      "1": "COM (HV bus contact)"
+
+  - instance_path: discharge.k_dis2
+    component: "Omron G5LE-1 DC12 (Relay_SPDT), discharge relay 2"
+    groups:
+      coil: ["2", "5"]
+      contacts: ["1", "3", "4"]
+    pin_labels:
+      "2": "coil1 (SELV coil drive)"
+      "5": "coil2 (SELV coil drive)"
+      "1": "COM (HV bus contact)"
