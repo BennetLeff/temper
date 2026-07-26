@@ -472,6 +472,54 @@ Also surfaced: **`FUNCTIONAL_TEST_CRITERIA.md` §1.2 specifies a 200 W ±25%
 power tier that has no corresponding gate** in this document. That is an
 omitted requirement, not a lost qualifier.
 
+### The bus capacitance rests on a simulation that does not exist (2026-07-26)
+
+Full review: `docs/evidence/2026-07-26-bus-capacitor-architecture-review.md`.
+The earlier reselection is **withdrawn**: six 66 mm cans are 57.7% of the
+152 × 234 mm board as raw circles and **82.7% at a realistic 70 mm pitch**, and
+the small-can route is worse — 20–24 D35 cans at **90–108%** of the board. The
+source edits were reverted; `EKMQ251VSN182MA50S` stands, still failing ripple.
+
+When every route is physically impossible, the architecture is the defect.
+Three findings follow, and the third is the load-bearing one.
+
+**1. The HF bypass is across the wrong node pair.** `c_dc_hf` (470 nF) is wired
+`hv_plus ↔ hv_minus` (`modules.ato:322-331`). In this doubler the ripple never
+flows through that pair — it flows `hv_plus ↔ gnd_ref` and `gnd_ref ↔ hv_minus`,
+one half at a time. The part is in the circuit and out of the current path.
+Sizing it correctly would need **~819 µF per half**, ~1740× the present value,
+at or beyond commercial DC-link film range — and still insufficient, since the
+line-frequency term fails on its own.
+
+**2. The bank is ESR-dominated at 35 kHz.** Xc is 2.3% of ESR, so the
+electrolytics absorb the HF term regardless of what the film cap does.
+
+**3. There is no derivation for 3600 µF per half, and the evidence cited for it
+does not exist.** `docs/hardware/VOLTAGE_DOUBLER_DESIGN.md:70` reports results
+"(sim_33_voltage_doubler.cir)" and cites two explicit paths at `:291-292`.
+**Neither file exists anywhere in the repository** — confirmed by `find`. A
+"Results" section reports numbers from a simulation with no artifact.
+
+Worse, the "≥5 A RMS ripple current" spec that sizing rests on appears to be
+**the average DC diode current relabelled as RMS ripple**, corroborated by that
+same document's capacitor-loss estimate being ~10× low against real ripple.
+
+**So the ripple failure is substantially self-inflicted.** A stiff bus was
+chosen on absent evidence against a mis-derived requirement. Published work on
+this topology class (Hsieh 2023, IET Power Electronics) deliberately uses
+*reduced* DC filtering for high power factor — the opposite direction.
+
+**Next step is to re-derive bulk capacitance from a real model**, checked
+against the tank's already-tight ZVS margin, before any further part selection.
+Note the coupling: more capacitance worsens `BusDischarge` (213 s against a
+<60 s spec), less improves it. The two constraints push opposite ways and must
+be solved together.
+
+This is a new species for the failure taxonomy — not a wrong value, not a
+vacuous check, but **a citation to evidence that was never produced.** Nothing
+in the repo could have caught it, because nothing verifies that referenced
+artifacts exist.
+
 ### `default.net` aliases part identity by footprint — use `default.csv` (2026-07-26)
 
 Detail: `docs/evidence/2026-07-26-ato-build-state.md`.
