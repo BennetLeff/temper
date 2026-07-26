@@ -86,10 +86,9 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import yaml
-from rich.console import Console
-
-from _lib.repo import find_repo_root
 from _lib.github_summary import get_github_summary_path
+from _lib.repo import find_repo_root
+from rich.console import Console
 
 console = Console()
 
