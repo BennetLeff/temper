@@ -1755,6 +1755,98 @@ module ThermalComparator:
     ntc_sense.line ~ comp.INN
     comp.OUT ~ fault.line
 
+module CoilThermalComparator:
+    """Coil over-temperature protection, 120C threshold with hysteresis (THM-02).
+
+    Structurally identical to ThermalComparator (heatsink, THM-01); only the
+    divider values differ, scaled for the higher trip temperature.
+
+    Designed 2026-07-26. THM-02 is a non-negotiable gate in docs/STRATEGY.md
+    and previously had NO CIRCUIT AT ALL -- only one ThermalComparator
+    instance existed, wired to the heatsink NTC.
+
+    Sizing follows the same rule as the corrected THM-01: match the fixed
+    divider resistor to the NTC resistance AT the trip temperature, which puts
+    the sense node near mid-rail where dV/dT is greatest.
+
+        R_NTC(120C) = 100k * exp(4190 * (1/393.15 - 1/298.15)) = 3.35k
+        r_ntc_fixed = 3.32k (E96)
+        V_sense(120C) = 3.3 * 3.351/(3.32+3.351) = 1.658 V
+
+    r_hyst loads the reference exactly as in THM-01, so the effective
+    reference while the output is low is
+        3.3 * (r_ref_bot||r_hyst) / (r_ref_top + r_ref_bot||r_hyst)
+    9.09k/10k with 100k hysteresis gives 1.650 V -> trip 120.3C, releasing at
+    113.7C. Hysteresis 6.6C.
+
+    SENSOR RATING CAVEAT: NTCALUG01A104GA is specified to +125C, and this gate
+    trips at 120.3C, so the sensor operates within 5C of its maximum. Confirm
+    the part is acceptable for sustained coil-adjacent service, or select a
+    higher-temperature variant. Flagged rather than silently accepted.
+
+    See docs/hardware/PROTECTION_CHAIN_REVIEW.md."""
+    power = new ElectricPower
+    ntc_sense = new ElectricSignal
+    ntc_sense.reference ~ power.gnd
+
+    fault = new ElectricLogic
+    fault.reference ~ power.gnd
+    fault.line.required = true
+
+    comp = new TLV3201
+
+    # Coil-mounted NTC, same family as the heatsink sensor
+    ntc = new Resistor  # Using Resistor as NTC placeholder
+    ntc.value = 100kohm  # Resistance at 25C
+    ntc.mpn = "NTCALUG01A104GA"
+    ntc.footprint = "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
+
+    # Fixed resistor: matched to R_NTC at the 120C trip point
+    r_ntc_fixed = new Resistor
+    r_ntc_fixed.value = 3.32kohm +/- 1%
+    r_ntc_fixed.mpn = "RC0603FR-073K32L"
+    r_ntc_fixed.footprint = "Resistor_SMD:R_0603_1608Metric"
+
+    # NTC divider: VCC -> r_ntc_fixed -> ntc_sense -> NTC -> GND
+    # V_sense: 3.194V at 25C, 1.658V at 120C
+    power.vcc ~ r_ntc_fixed.p1
+    r_ntc_fixed.p2 ~ ntc_sense.line
+    ntc_sense.line ~ ntc.p1
+    ntc.p2 ~ power.gnd
+
+    # Reference divider, loaded by r_hyst while the output is low
+    r_ref_top = new Resistor
+    r_ref_top.value = 9.09kohm +/- 1%
+    r_ref_top.mpn = "RC0603FR-079K09L"
+    r_ref_top.footprint = "Resistor_SMD:R_0603_1608Metric"
+
+    r_ref_bot = new Resistor
+    r_ref_bot.value = 10kohm +/- 1%
+    r_ref_bot.mpn = "RC0603FR-0710KL"
+    r_ref_bot.footprint = "Resistor_SMD:R_0603_1608Metric"
+
+    power.vcc ~ r_ref_top.p1
+    r_ref_top.p2 ~ comp.INP
+    comp.INP ~ r_ref_bot.p1
+    r_ref_bot.p2 ~ power.gnd
+
+    # Hysteresis: positive feedback from output to INP
+    r_hyst = new Resistor
+    r_hyst.value = 100kohm +/- 1%
+    r_hyst.mpn = "RC0603FR-07100KL"
+    r_hyst.footprint = "Resistor_SMD:R_0603_1608Metric"
+    comp.INP ~ r_hyst.p1
+    r_hyst.p2 ~ comp.OUT
+
+    power.vcc ~ comp.VCC
+    power.gnd ~ comp.GND
+
+    # Rising temperature lowers V_sense, so the fault asserts on
+    # V_sense < V_ref -- same polarity as ThermalComparator.
+    ntc_sense.line ~ comp.INN
+    comp.OUT ~ fault.line
+
+
 module Watchdog:
     """External watchdog with 1.6s timeout."""
     
@@ -1798,7 +1890,11 @@ module SafetyInterlock:
     
     ntc_sense = new ElectricSignal
     ntc_sense.reference ~ power_3v3.gnd
-    
+
+    # THM-02 coil thermistor sense (added 2026-07-26)
+    coil_ntc_sense = new ElectricSignal
+    coil_ntc_sense.reference ~ power_3v3.gnd
+
     wdt_kick = new ElectricLogic
     wdt_kick.reference ~ power_3v3.gnd
     
@@ -1837,6 +1933,7 @@ module SafetyInterlock:
     ocp = new OCPComparator
     ovp = new OVPComparator
     thermal = new ThermalComparator
+    coil_thermal = new CoilThermalComparator  # THM-02
     wdt = new Watchdog
     fault_or = new SN74HC4075
     fault_any_or = new SN74HC4075
@@ -1850,6 +1947,11 @@ module SafetyInterlock:
     
     thermal.power ~ power_3v3
     thermal.ntc_sense.line ~ ntc_sense.line
+
+    # THM-02: coil over-temperature, 120C. Added 2026-07-26 -- this gate
+    # previously had no circuit at all.
+    coil_thermal.power ~ power_3v3
+    coil_thermal.ntc_sense.line ~ coil_ntc_sense.line
     
     wdt.power ~ power_3v3
     wdt.wdi.line ~ wdt_kick.line
@@ -1881,7 +1983,10 @@ module SafetyInterlock:
     fault_any_or.GND ~ power_3v3.gnd
     fault_or.Y2 ~ fault_any_or.A1
     rtd_hw_fault.line ~ fault_any_or.B1
-    power_3v3.gnd ~ fault_any_or.C1
+    # THM-02 coil over-temperature joins the fault-any chain here. This
+    # input was previously tied to GND -- a spare OR input on a part already
+    # placed, so THM-02 costs no additional logic.
+    coil_thermal.fault.line ~ fault_any_or.C1
     fault_any_or.Y1 ~ latch.A1
 
     # Set-dominant NAND SR latch. Gate 1 inverts the active-high fault bus;
