@@ -21,15 +21,15 @@
       "file": "simulation/harness/nets/thm01_trip_point.cir (inline B-source)",
       "subckt": "NTC Beta-equation behavioral model",
       "calibrated": false,
-      "note": "R25=100k, B=4190K sourced read-only from elec/src/modules.ato ThermalComparator's inline comment (citing NTCALUG01A104GA). No Steinhart-Hart table for this part is committed anywhere in this repo; the Beta-equation approximation is the design's own basis, not an independent addition by this harness. 'Temperature' is an idealized ramped proxy signal, not a thermal-mass or thermal-time-constant simulation."
+      "note": "R25=100k, B=4190K sourced read-only from elec/src/modules.ato ThermalComparator's inline comment (citing NTCALUG01A104GA). No Steinhart-Hart table for this part is committed anywhere in this repo. 'Temperature' is an idealized ramped proxy signal, not a thermal-mass or thermal-time-constant simulation."
     }
   ],
   "sourced_from_elec_read_only": {
     "power_3v3_v": 3.3,
     "r_ntc_fixed_ohm": 10000,
-    "r_ref_top_ohm": 9530,
-    "r_ref_bot_ohm": 10000,
-    "r_hyst_ohm": 100000,
+    "r_ref_top_ohm": 9090,
+    "r_ref_bot_ohm": 11500,
+    "r_hyst_ohm": 34800,
     "ntc_r25_ohm": 100000,
     "ntc_beta_k": 4190.0,
     "ntc_mpn": "NTCALUG01A104GA",
@@ -37,36 +37,50 @@
   },
   "implementation_scope": {
     "instances_of_ThermalComparator_in_modules_ato": 1,
-    "instantiated_as": "SafetyInterlock.thermal (elec/src/modules.ato ~line 1790)",
+    "instantiated_as": "SafetyInterlock.thermal (elec/src/modules.ato)",
     "physical_mounting_per_comment": "lug-mount on heatsink (NTCALUG01A104GA)",
-    "coil_ntc_circuit_exists": false,
-    "note": "Only one ThermalComparator is instantiated anywhere in elec/src/modules.ato. There is no second thermal-sense circuit for a coil NTC. THM-02 (coil NTC, 120 degC) has no implementing circuit to simulate -- this is a separate, reported finding, not a simulation result for THM-02."
+    "coil_ntc_circuit_exists": true,
+    "note": "A second, structurally identical comparator (CoilThermalComparator, THM-02) was added 2026-07-26 and is simulated separately by run_thm02_sim.py -- see that harness's evidence file, not this one."
   },
   "measurements": {
-    "t_trip_s": 0.000171178,
-    "v_ntc_sense_at_trip_v": 1.609691,
-    "temp_k_at_trip": 358.0623
+    "t_trip_s": 0.000143978,
+    "t_release_s": 0.0004924,
+    "v_ntc_sense_at_trip_v": 1.607575,
+    "v_ntc_sense_at_release_v": 2.027323,
+    "temp_k_at_trip": 358.1408,
+    "temp_k_at_release": 342.9833
   },
   "derived": {
-    "temp_trip_from_ramp_time_k": 358.0623,
-    "temp_trip_from_probe_node_k": 358.0623,
-    "temp_trip_from_divider_voltage_k": 358.0622870244883,
-    "r_ntc_at_trip_ohm": 9523.057618459112
+    "temp_trip_from_ramp_time_k": 358.1408333333333,
+    "temp_trip_from_probe_node_k": 358.1408,
+    "temp_trip_from_divider_voltage_k": 358.14083468168997,
+    "r_ntc_at_trip_ohm": 9498.648389145754,
+    "temp_release_from_ramp_time_k": 342.9833333333333,
+    "temp_release_from_probe_node_k": 342.9833,
+    "temp_release_from_divider_voltage_k": 342.9833228545811,
+    "r_ntc_at_release_ohm": 15929.59564759951
   },
-  "internal_consistency_check_k": 1.2975511708646081e-05,
+  "internal_consistency_check_trip_k": 3.4681689953686146e-05,
+  "internal_consistency_check_release_k": 3.3333333306018176e-05,
   "verdict": {
     "calibrated": false,
-    "measured_trip_temp_c": 84.91,
-    "measured_trip_temp_k": 358.06,
+    "measured_trip_temp_c": 84.99,
+    "measured_trip_temp_k": 358.14,
+    "measured_recovery_temp_c": 69.83,
+    "measured_recovery_temp_k": 342.98,
+    "measured_hysteresis_c": 15.16,
     "thm01_spec_trip_c": 85.0,
     "thm01_spec_recover_c": 70.0,
+    "spec_match_tolerance_c": 2.0,
+    "trip_within_thm01_spec": true,
+    "recovery_within_thm01_spec": true,
     "within_thm01_spec": true,
-    "docstring_claim_c": 85.0,
-    "matches_docstring_claim": true,
-    "design_comment_unloaded_estimate_c": 96.0,
-    "matches_design_comment_estimate": false,
+    "docstring_claim_trip_c": 85.0,
+    "matches_docstring_claim_trip": true,
+    "docstring_claim_recover_c": 69.8,
+    "matches_docstring_claim_recover": true,
     "response_time_measured": false,
     "response_time_reason": "TLV3201_ngspice.lib declares no timing model; the ramped 'temperature' driver is an idealized proxy, not a thermal time-constant simulation.",
-    "summary": "Simulated THM-01 trip temperature is 84.91 degC (uncalibrated), within the THM-01 85 degC spec."
+    "summary": "Simulated THM-01 (heatsink NTC) trip temperature is 84.99 degC and recovery temperature is 69.83 degC (uncalibrated), giving 15.16 degC of hysteresis. This is WITHIN the THM-01 85C trip / 70C recovery requirement (FUNCTIONAL_TEST_CRITERIA.md SS2.3), matching the ThermalComparator module's own inline hand-derivation (85.0C trip, 69.8C recovery) to within 0.01 degC / 0.03 degC."
   }
 }

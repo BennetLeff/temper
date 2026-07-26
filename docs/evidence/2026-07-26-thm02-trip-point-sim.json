@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "measurement_date": "2026-07-26",
+  "invocation": "uv run python simulation/harness/run_thm02_sim.py --runs 5",
+  "harness": "simulation/harness/run_thm02_sim.py",
+  "netlist": "simulation/harness/nets/thm02_trip_point.cir",
+  "simulator": {
+    "tool": "ngspice",
+    "determinism_runs": 5,
+    "deterministic": true,
+    "note": "5 identical byte-for-byte stdout runs; see docs/METHODOLOGY.md SS5 'the oracle is not exempt'."
+  },
+  "models_used": [
+    {
+      "file": "simulation/models/TLV3201_ngspice.lib",
+      "subckt": "TLV3201_NGSPICE",
+      "calibrated": false,
+      "note": "Vendor-provenance behavioural port; declares no timing model."
+    },
+    {
+      "file": "simulation/harness/nets/thm02_trip_point.cir (inline B-source)",
+      "subckt": "NTC Beta-equation behavioral model",
+      "calibrated": false,
+      "note": "R25=100k, B=4190K sourced read-only from elec/src/modules.ato CoilThermalComparator's inline comment (same NTCALUG01A104GA part family as the heatsink sensor). No Steinhart-Hart table for this part is committed anywhere in this repo. 'Temperature' is an idealized ramped proxy signal, not a thermal-mass or thermal-time-constant simulation."
+    }
+  ],
+  "sourced_from_elec_read_only": {
+    "power_3v3_v": 3.3,
+    "r_ntc_fixed_ohm": 3320,
+    "r_ref_top_ohm": 3160,
+    "r_ref_bot_ohm": 4420,
+    "r_hyst_ohm": 11500,
+    "ntc_r25_ohm": 100000,
+    "ntc_beta_k": 4190.0,
+    "ntc_mpn": "NTCALUG01A104GA",
+    "ntc_max_rated_temp_c": 125.0,
+    "citation": "elec/src/modules.ato: CoilThermalComparator"
+  },
+  "implementation_scope": {
+    "instances_of_CoilThermalComparator_in_modules_ato": 1,
+    "instantiated_as": "SafetyInterlock.coil_thermal (elec/src/modules.ato)",
+    "circuit_existed_before_2026_07_26": false,
+    "note": "THM-02 previously had NO implementing circuit at all (docs/hardware/PROTECTION_CHAIN_REVIEW.md: 'OCP-02, THM-02 -- no circuit exists'). This is the first simulation of THM-02."
+  },
+  "measurements": {
+    "t_trip_s": 0.000162778,
+    "t_release_s": 0.0004712001,
+    "v_ntc_sense_at_trip_v": 1.658776,
+    "v_ntc_sense_at_release_v": 2.112936,
+    "temp_k_at_trip": 393.1038,
+    "temp_k_at_release": 373.2833
+  },
+  "derived": {
+    "temp_trip_from_ramp_time_k": 393.10383333333334,
+    "temp_trip_from_probe_node_k": 393.1038,
+    "temp_trip_from_divider_voltage_k": 393.1038464224563,
+    "r_ntc_at_trip_ohm": 3355.505598260811,
+    "temp_release_from_ramp_time_k": 373.28327499999995,
+    "temp_release_from_probe_node_k": 373.2833,
+    "temp_release_from_divider_voltage_k": 373.28329076572,
+    "r_ntc_at_release_ohm": 5909.493944724127
+  },
+  "internal_consistency_check_trip_k": 4.642245630748221e-05,
+  "internal_consistency_check_release_k": 2.5000000050567905e-05,
+  "verdict": {
+    "calibrated": false,
+    "measured_trip_temp_c": 119.95,
+    "measured_trip_temp_k": 393.1,
+    "measured_recovery_temp_c": 100.13,
+    "measured_recovery_temp_k": 373.28,
+    "measured_hysteresis_c": 19.82,
+    "thm02_spec_trip_c": 120.0,
+    "thm02_spec_recover_c": 100.0,
+    "spec_match_tolerance_c": 2.0,
+    "trip_within_thm02_spec": true,
+    "recovery_within_thm02_spec": true,
+    "within_thm02_spec": true,
+    "docstring_claim_trip_c": 120.0,
+    "matches_docstring_claim_trip": true,
+    "docstring_claim_recover_c": 100.1,
+    "matches_docstring_claim_recover": true,
+    "within_ntc_sensor_rating": true,
+    "ntc_sensor_rating_margin_c": 5.05,
+    "sensor_rating_caveat": "NTCALUG01A104GA is specified to +125C; the simulated trip temperature (120.0C) is within 5.0C of that rated maximum. Flagged per the module's own comment, not resolved by this harness.",
+    "response_time_measured": false,
+    "response_time_reason": "TLV3201_ngspice.lib declares no timing model; the ramped 'temperature' driver is an idealized proxy, not a thermal time-constant simulation.",
+    "summary": "Simulated THM-02 (coil NTC) trip temperature is 119.95 degC and recovery temperature is 100.13 degC (uncalibrated), giving 19.82 degC of hysteresis. This is WITHIN the THM-02 120C trip / 100C recovery requirement (FUNCTIONAL_TEST_CRITERIA.md SS2.3), matching CoilThermalComparator's own inline hand-derivation (120.0C trip, 100.1C recovery) to within 0.05 degC / 0.03 degC. The trip point sits 5.0 degC below the NTC's own +125C rated maximum -- close enough that the module itself flags it as a caveat."
+  }
+}
