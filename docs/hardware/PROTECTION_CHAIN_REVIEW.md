@@ -22,7 +22,7 @@ bench data exists.
 | Gate | Requirement | As committed | Disposition |
 |---|---|---|---|
 | OCP-01 | 45–55 A **Peak**, **< 1 µs** response | 37.6 A → **50.1 A** | **FIXED** — needed a new CT, not just a resistor |
-| THM-01 | 85 °C, **recovery 70 °C** | 99.5 °C → **84.9 °C** | **FIXED (trip only)** — resistor + ref divider. **Hysteresis is insufficient** (5.6 °C measured vs 15 °C required) — superseded verdict, see `docs/STRATEGY.md` § "Recovered gate qualifiers invalidate three of today's fixes" |
+| THM-01 | 85 °C, **recovery 70 °C** | trip **84.99 °C**, recovery **69.83 °C**, hysteresis **15.16 °C** | **FIXED** — resistor + ref divider, then `r_hyst` = 34.8 kΩ (`a4fb15dc`). Trip and recovery both within spec per `docs/evidence/2026-07-26-thm01-trip-point-sim.json` |
 | OVP-01 | 390–410 V, **hysteresis 10–20 V** | 195 V sensed — **superseded, see note below** | **Blocked on a design decision** — and now **fail-open** per the currently committed values (senses the +170 V half-bus against a ~400 V-referred trip); see `docs/STRATEGY.md` § "OVP-01 senses the half-bus and is now fail-open" |
 | OCP-02 | 55–65 A **Peak**, **< 5 µs** response | absent | **Needs design** |
 | THM-02 | coil 120 °C, **recovery 100 °C** | absent | **Needs design** |
@@ -175,16 +175,25 @@ swings across most of the rail over the useful range.
 Confirm the comparator polarity while making this change: rising temperature
 *lowers* V_sense, so the fault must assert on `V_sense < V_ref`.
 
-> **Superseded 2026-07-26 — hysteresis is insufficient.** `FUNCTIONAL_TEST_CRITERIA.md`
-> §2.3 requires **recovery at 70 °C** (15 °C hysteresis from the 85 °C trip).
-> The divider above was recommended against a summary that had dropped the
-> recovery/hysteresis requirement entirely; as designed it delivers only
-> **5.6 °C** of hysteresis (release ≈79.2 °C), not 15 °C. This is an
-> `r_hyst` value change, not a topology change. See `docs/STRATEGY.md` §
-> "Recovered gate qualifiers invalidate three of today's fixes" for the
-> derivation (0.4154 V required sense-node swing vs 0.1535 V delivered).
-> The trip-point fix above remains correct; only the hysteresis is
-> outstanding.
+> **Historical note — the hysteresis shortfall described here was FIXED on
+> 2026-07-26 and this paragraph is retained only for the record.**
+> `FUNCTIONAL_TEST_CRITERIA.md` §2.3 requires **recovery at 70 °C** (15 °C
+> hysteresis from the 85 °C trip). The divider was originally recommended
+> against a summary that had dropped the recovery requirement, and delivered
+> only **5.6 °C** of hysteresis (release ≈79.2 °C).
+>
+> That was corrected by commit `a4fb15dc` ("add the hysteresis three gates
+> actually specify"), which set `r_hyst` to **34.8 kΩ**. Measured after the
+> fix (`docs/evidence/2026-07-26-thm01-trip-point-sim.json`):
+>
+> | | Measured | Spec |
+> |---|---|---|
+> | Trip | **84.99 °C** | 85.0 °C |
+> | Recovery | **69.83 °C** | 70.0 °C |
+> | Hysteresis | **15.16 °C** | 15 °C |
+>
+> with `trip_within_thm01_spec: true` and `recovery_within_thm01_spec: true`.
+> **THM-01 passes on both trip and recovery.**
 
 ---
 
