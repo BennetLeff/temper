@@ -439,6 +439,43 @@ fixed silicon with no model.
 circuit, one is ambiguous, and two are unmeasurable in simulation.** None has
 been validated on hardware. These are the gates the safety case rests on.
 
+### OCP-01 versus full-power tank current (2026-07-26)
+
+Analytical, from committed values only — no pan model. Full working:
+`docs/evidence/2026-07-26-ocp01-vs-full-power-current.md`.
+
+**OCP-01 trips on instantaneous current.** There is no rectifier in the sense
+path (the BOM's "Precision Rectifier (OCP)" is class A — costed, never wired),
+and the 100 nF across the burden has a 319 kHz corner, so at the 35 kHz
+fundamental it filters noise rather than averaging. Trip is **50.1 A peak =
+35.4 A RMS**.
+
+**That is in tension with EFF-02/PWR-02.** Power is `I_rms² × R_eff`, so
+reaching 1800 W without tripping requires:
+
+| Trip (peak) | = RMS | `R_eff` needed for 1800 W |
+|---|---|---|
+| 45.0 A (spec min) | 31.8 A | 1.78 Ω |
+| **50.1 A (as built)** | **35.4 A** | **1.43 Ω** |
+| 55.0 A (spec max) | 38.9 A | 1.19 Ω |
+
+A typical 1.8 kW hob runs ~40 A RMS, implying `R_eff ≈ 1.12 Ω` — which needs
+56.6 A peak and **trips**. Even at the top of the OCP-01 window the design
+needs better-than-typical coupling. The failure mode is nuisance trips on
+low-resistivity, undersized or off-centre cookware.
+
+The conflict is **conditional on `R_eff`, which is unknown** because the coil is
+unspecified. That makes measuring `R_eff` for the intended coil and a reference
+pan set the single highest-value bench measurement available — it also unblocks
+the coil specification.
+
+**Spec ambiguity, again.** `OCP-01: 45-55A` does not say peak or RMS. Read as
+peak the implementation is compliant; read as RMS it trips at 35.4 A, below the
+45 A minimum. Peak is almost certainly intended — OCP-02's 55–65 A read as RMS
+would be 78–92 A peak against a 40 A IGBT, which is incoherent. This is the
+same ambiguity as UVL-02 and should be written into
+`FUNCTIONAL_TEST_CRITERIA.md` rather than inferred a third time.
+
 ### ZVS margin — the coil inductance is undefined (2026-07-26)
 
 First power-stage simulation. Full evidence:
