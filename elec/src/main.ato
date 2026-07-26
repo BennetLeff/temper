@@ -287,7 +287,15 @@ module Top:
     # ===========================================================================
     
     hb.dc_bus.hv_plus ~ dc_bus_plus
-    hb.dc_bus.hv_minus ~ dc_bus_minus
+    # OCP-02 (docs/hardware/OCP02_DESIGN.md): the 2mOhm shunt in
+    # SecondaryOCPComparator is spliced in series in the DC_BUS_RTN
+    # conductor here, between the half-bridge's low-side return
+    # (hb.dc_bus.hv_minus, the load side) and the rest of DC_BUS_RTN
+    # (bulk caps / bleeders / discharge, the source side), so the
+    # half-bridge's return current flows through it. power_in.dc_bus.hv_minus
+    # and discharge.hv_minus (below) stay on the dc_bus_minus/bulk side.
+    hb.dc_bus.hv_minus ~ safety.ocp2_bus_in
+    safety.ocp2_bus_out ~ dc_bus_minus
     hb.power_15v.vcc ~ vcc_15v
     hb.power_15v.gnd ~ gnd
     hb.power_3v3.vcc ~ vcc_3v3

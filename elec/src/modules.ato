@@ -58,6 +58,7 @@ import PinHeader_1x02 from "components.ato"
 
 # Safety components
 import TLV3201 from "components.ato"
+import INA240A1 from "components.ato"
 import TPS3823 from "components.ato"
 import REF2025 from "components.ato"
 import TPS3700 from "components.ato"
@@ -1847,6 +1848,142 @@ module CoilThermalComparator:
     comp.OUT ~ fault.line
 
 
+module SecondaryOCPComparator:
+    """Secondary overcurrent protection, 60.0A threshold (OCP-02).
+
+    Designed 2026-07-26 per docs/hardware/OCP02_DESIGN.md. OCP-02 must trip
+    independently of OCP-01 (docs/STRATEGY.md gate: 55-65A, <5us), so it
+    uses a different sensing element (resistive shunt, not the CT that
+    serves OCP-01) at a different location (DC bus return, not the
+    resonant tank) -- a single sensor failure cannot disable both.
+
+        DC_BUS_RTN --[ R_SHUNT 2mOhm ]-- DC_BUS_RTN (bulk side)
+                       |          |
+                      IN+        IN-
+                    +-----------------+
+                    |     INA240A1    |  G = 20, REF1/REF2 -> GND
+                    +--------+--------+
+                             | 2.402V at ~60A
+                          +--+--+  INP
+                 3V3 -[3.74k]-+-INN--comparator (TLV3201)--> fault.line
+                           [10k]
+                             |
+                            GND
+
+    Derivation (matches OCP02_DESIGN.md exactly):
+
+        V_shunt = I x R_shunt        60A x 2mOhm = 120mV
+        V_out   = V_shunt x G        120mV x 20  = 2.400V
+        V_ref   = 3.3 x 10/13.74     =              2.402V  -> trip 60.0A
+
+    Worst case over +/-1% shunt, +/-1% divider and INA240A1 gain error:
+    59.0-61.1A, inside the 55-65A window (independently re-checked here:
+    Rtop 3.7026-3.7774k, Rbot 9.9-10.1k, Rshunt 1.98-2.02mOhm, gain
+    19.8-20.2 V/V gives 58.5-61.6A -- same order, no discrepancy from the
+    design doc's stated band).
+
+    Comparator is TLV3201, NOT the LM393DR the BOM currently costs
+    (BOM.md:109-111, a separate reconciliation track's line -- not touched
+    here). LM393's ~1.3-3us delay leaves only 2.2-3.9us of the 5us budget
+    once stacked with the INA240's 0.875us rise time at 400kHz; TLV3201's
+    40ns delay leaves 0.92us, comfortable margin. TLV3201 is already used
+    for OCP-01/OVP-01/THM-01/THM-02, so this also avoids adding a new
+    comparator part.
+
+    Shunt dissipation: 0.45W at 15A continuous (fine against the WSLP2512's
+    3W rating); 7.2W at the 60A trip point (2.4x rated, but the latch cuts
+    PWM within microseconds, so this is a pulse, not steady state -- the
+    WSLP2512 family is designed for pulse duty, per OCP02_DESIGN.md).
+
+    FLAGGED, NOT SILENTLY ASSUMED -- common-mode voltage on the INA240:
+    OCP02_DESIGN.md justifies the low-side shunt placement by treating the
+    "DC bus" as a single-ended 340V rail with DC_BUS_RTN near 0V. But
+    main.ato's actual doubler topology (PowerInput: v_bus_half = 170V,
+    asserted on both r_bleed1 AND r_bleed2; BusDischarge: two independent
+    170V half-bus strings) puts DC_BUS_RTN (dc_bus_minus) at approximately
+    -170V relative to the system ground star point (power_return ~ gnd,
+    main.ato:283) -- not near 0V. This is the same class of half-bus/
+    full-bus confusion already flagged for OVP-01 in
+    docs/hardware/PROTECTION_CHAIN_REVIEW.md, just not caught for OCP-02.
+    If this module's power.gnd is tied to system 3V3 ground (the pattern
+    every other comparator in SafetyInterlock uses, and the only pattern
+    with a working path back to the fault-OR logic), the INA240 inputs see
+    roughly -170V of common-mode against its own GND pin -- far outside
+    the -4V to +80V absolute rating, and likely destructive. Low-side
+    placement only helps if the amplifier's own GND is referenced to
+    DC_BUS_RTN itself (which then needs an isolated supply and an isolated
+    fault-output path back to SafetyInterlock's SELV logic, neither of
+    which exists in this design). This module is implemented exactly as
+    specified in the design doc and wired into DC_BUS_RTN as directed, but
+    the common-mode question MUST be resolved (either the bus topology
+    read here is wrong, or the sensing domain needs isolation) before this
+    circuit is trusted on hardware. Do not power this from power_3v3
+    without re-deriving the actual DC_BUS_RTN-to-gnd potential first."""
+
+    power = new ElectricPower
+    fault = new ElectricLogic
+    fault.reference ~ power.gnd
+    fault.line.required = true
+
+    # The shunt sits IN the DC_BUS_RTN conductor (a two-terminal splice,
+    # not a signal tap): bus_in is the half-bridge (load) side, bus_out is
+    # the bulk-capacitor/bleeder (source) side. Top wires these into the
+    # dc_bus_minus net on either side of the shunt so bus return current
+    # flows through it.
+    signal bus_in
+    signal bus_out
+
+    shunt = new Resistor
+    shunt.value = 0.002ohm +/- 1%
+    shunt.power_rating = 3W  # WSLP2512 rated; 7.2W at trip is a pulse, see docstring
+    shunt.mpn = "WSLP25122L000FEA"
+    shunt.footprint = "Resistor_SMD:R_2512_6332Metric"
+
+    amp = new INA240A1
+
+    comp = new TLV3201
+
+    r_ref_top = new Resistor
+    r_ref_top.value = 3740ohm +/- 1%
+    r_ref_top.mpn = "RC0603FR-073K74L"
+    r_ref_top.footprint = "Resistor_SMD:R_0603_1608Metric"
+
+    r_ref_bot = new Resistor
+    r_ref_bot.value = 10000ohm +/- 1%
+    r_ref_bot.mpn = "RC0603FR-0710KL"
+    r_ref_bot.footprint = "Resistor_SMD:R_0603_1608Metric"
+
+    # Shunt in series in the DC_BUS_RTN conductor
+    bus_in ~ shunt.p1
+    shunt.p2 ~ bus_out
+
+    # INA240: IN+ on the supply (bus_in/load) side, IN- on the load
+    # (bus_out/bulk) side -- per the TI pin-function table (see
+    # components.ato INA240A1 docstring).
+    shunt.p1 ~ amp.INP
+    shunt.p2 ~ amp.INN
+
+    amp.REF1 ~ power.gnd
+    amp.REF2 ~ power.gnd
+    amp.GND ~ power.gnd
+    amp.VS ~ power.vcc
+    # Pin 1 (NC/reserved): datasheet says connect to ground.
+    amp.NC ~ power.gnd
+
+    amp.OUT ~ comp.INP
+
+    # Reference divider: 3V3 -> 3.74k -> INN -> 10k -> GND, V_ref = 2.402V
+    power.vcc ~ r_ref_top.p1
+    r_ref_top.p2 ~ comp.INN
+    comp.INN ~ r_ref_bot.p1
+    r_ref_bot.p2 ~ power.gnd
+
+    power.vcc ~ comp.VCC
+    power.gnd ~ comp.GND
+
+    comp.OUT ~ fault.line
+
+
 module Watchdog:
     """External watchdog with 1.6s timeout."""
     
@@ -1895,6 +2032,14 @@ module SafetyInterlock:
     coil_ntc_sense = new ElectricSignal
     coil_ntc_sense.reference ~ power_3v3.gnd
 
+    # OCP-02 shunt splice (added 2026-07-26): the shunt is a two-terminal
+    # element IN the DC_BUS_RTN conductor, not a signal tap, so these are
+    # plain signals (like HalfBridge.switch_node) rather than an
+    # ElectricSignal interface. Top wires them into main.ato's dc_bus_minus
+    # net on either side of the SecondaryOCPComparator's internal shunt.
+    signal ocp2_bus_in
+    signal ocp2_bus_out
+
     wdt_kick = new ElectricLogic
     wdt_kick.reference ~ power_3v3.gnd
     
@@ -1934,6 +2079,7 @@ module SafetyInterlock:
     ovp = new OVPComparator
     thermal = new ThermalComparator
     coil_thermal = new CoilThermalComparator  # THM-02
+    ocp2 = new SecondaryOCPComparator  # OCP-02
     wdt = new Watchdog
     fault_or = new SN74HC4075
     fault_any_or = new SN74HC4075
@@ -1952,7 +2098,13 @@ module SafetyInterlock:
     # previously had no circuit at all.
     coil_thermal.power ~ power_3v3
     coil_thermal.ntc_sense.line ~ coil_ntc_sense.line
-    
+
+    # OCP-02: secondary overcurrent, 60A. Added 2026-07-26 -- this gate
+    # previously had no circuit at all (docs/hardware/OCP02_DESIGN.md).
+    ocp2.power ~ power_3v3
+    ocp2.bus_in ~ ocp2_bus_in
+    ocp2.bus_out ~ ocp2_bus_out
+
     wdt.power ~ power_3v3
     wdt.wdi.line ~ wdt_kick.line
     wdt.reset_n.line ~ wdt_reset_n.line
@@ -2013,7 +2165,49 @@ module SafetyInterlock:
     tp_shutdown.p1 ~ shutdown.line
     tp_fault = new TestPoint
     tp_fault.p1 ~ fault_status.line
-    
+
+    # OCP-02 fault output: NOT wired into the fault OR-tree.
+    #
+    # Surveyed both SN74HC4075s for a spare input before wiring, per
+    # docs/hardware/OCP02_DESIGN.md's own instruction to do so:
+    #
+    #   fault_or gate 1 (A1/B1/C1->Y1): full -- ocp/ovp/thermal.
+    #   fault_or gate 2 (A2/B2/C2->Y2): full -- Y1 feedback, latch.Y4
+    #     (watchdog), runaway_cut.
+    #   fault_or gate 3 (A3/B3/C3->Y3): all three inputs tied GND, Y3 has
+    #     no consumer anywhere -- a genuinely free gate, but its output
+    #     doesn't reach the latch's SET path without another gate to
+    #     combine it in.
+    #   fault_any_or gate 1 (A1/B1/C1->Y1): full -- fault_or.Y2,
+    #     rtd_hw_fault, coil_thermal (THM-02 took the last spare here).
+    #     This Y1 is what feeds latch.A1, the SET input.
+    #   fault_any_or gate 2 (A2/B2/C2->Y2): C2 is GND-tied and looks
+    #     spare, but this gate computes the RESET qualifier (Y2 ->
+    #     latch.A3: OR(any_fault, reset_request), which blocks firmware
+    #     reset during a live fault). Wiring OCP-02 fault here would only
+    #     block reset -- it would never SET the latch, i.e. OCP-02 would
+    #     not actually trip shutdown. That is a worse outcome than not
+    #     wiring it at all, so this input is not usable despite appearing
+    #     free.
+    #
+    # Every input that actually participates in the SET aggregation
+    # (fault_or gates 1-2, fault_any_or gate 1) is full. The only fully
+    # unused gate (fault_or gate 3) has no path into the SET aggregation
+    # without adding a further OR stage -- and rewiring the existing
+    # fault_or.Y2 -> fault_any_or.A1 link through it would add one gate
+    # delay to EVERY fault source (OCP-01, OVP-01, THM-01, watchdog,
+    # runaway-cut), not just OCP-02, which is a timing-budget decision
+    # for humans, not something to do silently here.
+    #
+    # Per the design doc: "if none is free, a fourth OR input is needed,
+    # and that is a real part addition rather than a free one." No spare
+    # SET-path input exists. OCP-02's comparator output is therefore
+    # brought to a test point pending that decision, rather than wired
+    # into the wrong logic (fault_any_or.C2) or left electrically
+    # floating.
+    tp_ocp2_fault = new TestPoint
+    tp_ocp2_fault.p1 ~ ocp2.fault.line
+
     # LED indicators remain unassigned until their current-limiting circuits
     # are specified; they must not be used as safety logic.
 

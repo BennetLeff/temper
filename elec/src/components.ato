@@ -388,6 +388,66 @@ component MAX31865:
     signal NC3 ~ pin 20
 
 
+component INA240A1:
+    """TI INA240A1 bidirectional, zero-drift current-sense amplifier, G=20 V/V,
+    8-pin TSSOP (PW package). MPN INA240A1QPWRQ1 (AEC-Q100 automotive grade).
+
+    VERIFIED 2026-07-26 against two TI datasheets, both fetched and read
+    directly (the earlier PDF-fetch timeout + SnapEDA "no pinout data" gap
+    that blocked OCP-02 is resolved):
+      - INA240 (non-automotive): SBOS662A, July 2016, revised October 2016,
+        Section 6 "Pin Configuration and Functions", PW package.
+      - INA240-Q1 (this MPN's grade): SBOS808E, August 2016, revised
+        December 2021, Section 6, Figure 6-1 "INA240-Q1 PW Package 8-Pin
+        TSSOP Top View" + Table 6-1 "Pin Functions".
+    Both datasheets give an identical PW (TSSOP-8) pinout:
+
+        1 NC    reserved; non-Q1 says "connect to ground", Q1 says
+                "connect to ground or leave floating"
+        2 IN+   analog input, connect to supply side of shunt resistor
+        3 IN-   analog input, connect to load side of shunt resistor
+        4 GND   analog ground
+        5 VS    power supply, 2.7 V to 5.5 V
+        6 REF2  reference 2 voltage, 0 V to VS
+        7 REF1  reference 1 voltage, 0 V to VS
+        8 OUT   analog output
+
+    Device body size 3.00 mm x 4.40 mm (TI Device Information table) ->
+    KiCad Package_SO.pretty "TSSOP-8_4.4x3mm_P0.65mm" (JEDEC MO-153 Var AA,
+    0.65mm pitch), the standard upstream footprint for this body size.
+
+    Common-mode range is -4 V to +80 V (TI datasheet Description section /
+    Recommended Operating Conditions), independent of supply voltage. This
+    is the reason OCP-02 (docs/hardware/OCP02_DESIGN.md) requires the shunt
+    on the LOW side (DC bus return) rather than the high side: a high-side
+    placement across the 340V DC bus would put ~340V of common-mode on the
+    inputs and destroy the part. See SecondaryOCPComparator in modules.ato
+    for a flagged concern about how much common-mode voltage the low-side
+    placement actually leaves, given the DC_BUS_RTN topology as built.
+
+    Gain is fixed by grade (TI Device Comparison Table): A1=20 V/V (this
+    part), A2=50, A3=100, A4=200 V/V."""
+    designator_prefix = "U"
+    footprint = "Package_SO:TSSOP-8_4.4x3mm_P0.65mm"
+    mpn = "INA240A1QPWRQ1"
+    manufacturer = "Texas Instruments"
+
+    # Ratings
+    gain = 20  # V/V, fixed (A1 grade)
+    v_cm_min = -4V
+    v_cm_max = 80V
+    v_supply_min = 2.7V
+    v_supply_max = 5.5V
+
+    signal NC ~ pin 1
+    signal INP ~ pin 2
+    signal INN ~ pin 3
+    signal GND ~ pin 4
+    signal VS ~ pin 5
+    signal REF2 ~ pin 6
+    signal REF1 ~ pin 7
+    signal OUT ~ pin 8
+
 # ==============================================================================
 # SAFETY INTERLOCK COMPONENTS
 # ==============================================================================
