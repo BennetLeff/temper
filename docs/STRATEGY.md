@@ -21,7 +21,7 @@ evidence, all gathered 2026-07-25 and detailed below:
 
 | | |
 |---|---|
-| **Protection gates** | Of seven: **2 fail measurably, 2 have no circuit at all**, 1 is ambiguous, 2 are unmeasurable in simulation, 0 validated on hardware |
+| **Protection gates** | Of seven: **2 now fixed** (OCP-01, THM-01), **2 have no circuit at all**, 1 is ambiguous, 2 are unmeasurable in simulation, 0 validated on hardware |
 | **IGBT desaturation protection** | **Does not exist.** 19 BOM lines cost it; `grep -ni desat elec/src/*.ato` returns nothing |
 | **BOM** | Unusable in both directions — 35 lines costed with no circuit, ~75 wired components uncosted |
 | **Router** | ~79% path-finding, but its output carries ~120 shorts and 499 clearance violations |
@@ -353,8 +353,8 @@ values. Simulated results hand-verified against divider arithmetic. Every model
 
 | Gate | Requirement | Measured | Verdict |
 |---|---|---|---|
-| OCP-01 | 45–55 A | **37.61 A** | **FAIL** — and 50 A is unreachable on a 3.3 V rail |
-| THM-01 | 85 °C | **99.47 °C** | **FAIL** — ~14.5 °C high; mis-valued, not unreachable |
+| OCP-01 | 45–55 A | **50.12 A** | **FIXED** 2026-07-25 — needed a new CT (CST3015-100ED, 88 A) |
+| THM-01 | 85 °C | **84.91 °C** | **FIXED** 2026-07-25 — divider re-proportioned |
 | OVP-01 | 390–410 V | 195.18 V at `v_bus.line` | **AMBIGUOUS** — see below |
 | OCP-02 | 55–65 A | — | **NO CIRCUIT EXISTS** |
 | THM-02 | coil NTC 120 °C | — | **NO CIRCUIT EXISTS** |

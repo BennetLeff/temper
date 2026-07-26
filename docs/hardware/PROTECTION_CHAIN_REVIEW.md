@@ -14,10 +14,15 @@ bench data exists.
 
 ## Summary
 
+> **Updated 2026-07-25 (later same day).** OCP-01 and THM-01 are now **fixed**;
+> OCP-01 required a transformer change, not the one-resistor fix this document
+> originally proposed. See "OCP-01 — resolution" below. The remaining gates are
+> unchanged.
+
 | Gate | Requirement | As committed | Disposition |
 |---|---|---|---|
-| OCP-01 | 45–55 A | 37.6 A | **Fixable — one resistor** |
-| THM-01 | 85 °C | 99.5 °C | **Fixable — one resistor + ref divider** |
+| OCP-01 | 45–55 A | 37.6 A → **50.1 A** | **FIXED** — needed a new CT, not just a resistor |
+| THM-01 | 85 °C | 99.5 °C → **84.9 °C** | **FIXED** — resistor + ref divider |
 | OVP-01 | 390–410 V | 195 V sensed | **Blocked on a design decision** |
 | OCP-02 | 55–65 A | absent | **Needs design** |
 | THM-02 | coil 120 °C | absent | **Needs design** |
@@ -63,13 +68,65 @@ rating, but this is not a continuous-rating problem.
 This is a single line change in `elec/src/modules.ato` plus the matching BOM
 entry (`BOM.md:102–103`, which currently disagrees with source anyway).
 
-### Still open
+### OCP-01 — resolution
 
-**OCP-01's <1 µs propagation budget is UNMEASURED.** The `TLV3201` behavioural
-model declares no timing model. The datasheet figure should be checked against
-the budget by hand, and the real number measured on the bench. Note the
-comparator drives a fault chain (`SN74HC4075` OR → latch), so the budget is the
-*chain's* delay, not the comparator's alone.
+**The one-resistor fix above was wrong, and was reverted before being kept.**
+
+A 4.99 Ω burden puts the trip at 50.1 A, but `components.ato` records that the
+`CST2010-100L` **senses only to 47 A**. Above its rated current the core
+saturates and the secondary under-reads, so the comparator could trip late or
+not at all — a worse failure than tripping early. Checking the divider and
+burden arithmetic without checking the sensor's range was the gap.
+
+The conflict was structural, not a value error:
+
+| R_burden | Trip | Worst case ±1% | |
+|---|---|---|---|
+| 5.36 Ω | 46.64 A | 46.0 – 47.3 A | exceeds CT |
+| 5.49 Ω | 45.54 A | 44.9 – 46.2 A | below spec |
+
+OCP-01 wants 45–55 A; the CT sensed to 47 A; tolerances closed the 45–47 A
+overlap. **No E96 value satisfied both.**
+
+**Resolved by changing the transformer** to the Coilcraft **CST3015-100ED**
+(Document 1608-1):
+
+| | CST2010-100L | CST3015-100ED |
+|---|---|---|
+| Sensed current | 47 A | **88 A** |
+| Turns ratio | 1:100 | **1:100 — unchanged** |
+| Isolation | 1500 Vrms | **5000 Vrms, reinforced** |
+| Creepage/clearance | — | **≥8 mm** |
+| Frequency | to 1 MHz+ | 0.78 kHz – >1 MHz |
+| Volt-time product | — | 638 V·µs |
+
+Holding the ratio at 1:100 means the burden analysis carries over unchanged.
+With 4.99 Ω the trip is **50.121 A simulated**, worst case 49.4–50.9 A, leaving
+**1.73× headroom** to the 88 A rating.
+
+Checked rather than assumed: volt-time at trip is 2.5 V × 14.3 µs = 35.7 V·µs
+against the 638 V·µs limit (**18× margin**); the 35 kHz tank sits inside the
+0.78 kHz–1 MHz range; secondary compliance is 3.27 V. Datasheet note 5 records
+that the sensed-current figure is a 40 °C-rise reference point, not an absolute
+maximum.
+
+The isolation improvement is worth as much as the current rating: 5000 Vrms
+reinforced with ≥8 mm creepage materially strengthens the IEC 60335-1 position
+over 1500 Vrms.
+
+**⚠ Not fabricable yet.** `temper:CST3015` has not been drawn —
+`pcb/libs/temper.pretty/` holds only `CST2010` and the retired `CST-1005`. The
+CST3015 is physically larger (16.6–16.9 g) and will require board re-layout
+around T1.
+
+### Still open — OCP-01 timing
+
+The **<1 µs** propagation budget is not yet measured end to end. The `TLV3201`
+behavioural model declares no timing model, so simulation cannot supply it.
+The BOM records the `TLV3201AIDBVR` at **40 ns** propagation delay, which
+leaves generous room, but the budget applies to the *whole chain* — comparator
+→ `SN74HC4075` OR → latch — not the comparator alone. Sum the datasheet delays,
+then confirm on the bench.
 
 ---
 
