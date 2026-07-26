@@ -21,9 +21,50 @@ Of the `shorting_items` measured on the routed production board with
 | Involving routed `(segment ...)` / `(via ...)` | 51 | Router-emitted copper |
 | — of which via-vs-existing-track | 26 | Via dropped without clearance check |
 
-Reported total 113. **This does not reconcile with the 123 measured on this
-branch** (`docs/STRATEGY.md`, rung-1 measurement). The discrepancy is
-unexplained and must be resolved before any of these figures are quoted.
+Reported total 113 vs. 123 measured on this branch. **Reconciled 2026-07-25 —
+see below. Both are correct: `shorting_items` is not a reproducible metric.**
+
+## Reconciliation: `shorting_items` is non-deterministic
+
+The 113-vs-123 gap is not a difference in board, router, or method.
+
+**The router is deterministic.** Two independent routing runs produced
+byte-identical geometry after stripping regenerated `tstamp`/`uuid` fields —
+same completion (0.7857), same 3,265 segments / 48 vias / 98 zones.
+
+**`kicad-cli pcb drc` is not.** Five consecutive runs *on the same file*:
+
+| run | total | `shorting_items` | `clearance` | unconnected |
+|---|---|---|---|---|
+| 1 | 1456 | **124** | 499 | 276 |
+| 2 | 1446 | **113** | 499 | 276 |
+| 3 | 1451 | **119** | 499 | 276 |
+| 4 | 1454 | **120** | 499 | 276 |
+| 5 | 1456 | **123** | 500 | 276 |
+
+`shorting_items` ranges **113–124** on identical input — a spread of 11, about
+9%. The agent's 113 is the observed minimum; the branch's 123 is near the
+maximum. Both are samples of the same distribution.
+
+Note the contrast: `unconnected` is rock-stable at 276 and `clearance` varies
+by one. The instability is specific to `shorting_items`, consistent with
+parallelised pairwise copper-overlap checks racing on violation dedup.
+
+### Consequences — these matter more than the reconciliation
+
+1. **Every figure gated on `shorting_items` is unreliable at ±11.** That
+   includes `power_pcb_dataset/drc_ceiling.json`, the corpus regression
+   baselines, and the "381 honest violations" figure carried in
+   `docs/STRATEGY.md`.
+2. **A single before/after comparison cannot validate a shorts fix.** A change
+   of fewer than ~11 is indistinguishable from noise. The rejected
+   `short_rejection.py` could not have been validated the way it was being
+   measured, independent of its design defect.
+3. **Acceptance condition 2 is strengthened:** any shorts fix must report
+   median and range over **N ≥ 5 runs**, not a single measurement.
+4. **`METHODOLOGY.md` §5's determinism relation was never applied to the
+   measurement tool itself** — only to our own code. An external tool is as
+   capable of being a blind metric as an internal one.
 
 ## Consequences
 

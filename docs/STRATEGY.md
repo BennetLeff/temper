@@ -138,7 +138,19 @@ invocation, `enable_zone_pours=True`, empty placements:
 
 Violation profile of the routed output: **499 `clearance`**, 597 silkscreen
 (199 each of `silk_edge_clearance` / `silk_overlap` / `silk_over_copper`),
-**123 `shorting_items`**, 85 `solder_mask_bridge`.
+**113–124 `shorting_items`**, 85 `solder_mask_bridge`.
+
+> **`shorting_items` is not reproducible.** Five `kicad-cli pcb drc` runs on
+> the *same* routed file returned 124 / 113 / 119 / 120 / 123 — a spread of 11
+> (~9%). The router itself is deterministic (byte-identical geometry across
+> runs once `tstamp`/`uuid` are stripped); the instability is in KiCad's DRC.
+> `unconnected` (276) and `clearance` (499) are stable.
+>
+> Any figure gated on `shorting_items` is therefore unreliable at ±11 —
+> including `drc_ceiling.json`, the corpus regression baselines, and the
+> "381 honest violations" figure recorded below. A shorts fix must be
+> validated over N ≥ 5 runs with median and range, never a single before/after.
+> Evidence: `docs/evidence/2026-07-25-shorting-items-diagnosis.md`.
 
 **`completion_rate` is itself a blind metric.** It reports 78.57% while the
 routes it produced contain 499 clearance violations and 123 shorts. A short is
