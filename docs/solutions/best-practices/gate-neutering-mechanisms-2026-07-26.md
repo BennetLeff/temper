@@ -152,6 +152,11 @@ coverage was not.
 
 ## Related
 
+- `docs/solutions/best-practices/claimed-isolation-vs-actual-connectivity-2026-07-26.md`
+  — the hardware-side instance of the same shape: netlist/BOM/ERC all green,
+  none of them able to catch an isolation barrier shorted by a star-point
+  ground join, because the check that would catch it (a cross-domain
+  partition check) doesn't exist yet rather than existing-but-neutered.
 - `docs/solutions/best-practices/assert-input-preconditions-not-just-output-metrics.md`
   — the incident this taxonomy generalizes from, with the full ten-item
   catalog and the board-outline story

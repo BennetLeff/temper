@@ -139,6 +139,10 @@ echo "gate exit: $gate_status"
 
 ## Related
 
+- `docs/solutions/best-practices/a-measurement-carries-its-commit-2026-07-26.md`
+  — the sibling failure one layer further out: a clean pipeline run against a
+  *stale checkout*, rather than a clean pipeline misread. Four instances in
+  one day, now outnumbering the six catalogued here.
 - `docs/METHODOLOGY.md` §5, "The reader is not exempt either" — the rule this
   doc instantiates, with the same six-instance table
 - `docs/solutions/best-practices/assert-input-preconditions-not-just-output-metrics.md`

@@ -143,6 +143,11 @@ Derived (docs/STRATEGY.md gate table):
 
 ## Related
 
+- `docs/solutions/best-practices/net-name-is-a-claim-not-an-authority-2026-07-26.md`
+  — the *other* independent defect that hit OVP-01 the same day: a threshold
+  re-tuned from a self-contradicting net name (`+340V_BUS` on a node that
+  never exceeds 170V), leaving the gate fail-open. Different mechanism,
+  same gate, same day.
 - `docs/STRATEGY.md` — the OCP-01 peak/RMS self-correction ("Spec ambiguity,
   again") and the gate summary table where the qualifier was dropped
 - `docs/hardware/UVLO_TRACEABILITY.md` — the UVL-02 direction-of-inequality
