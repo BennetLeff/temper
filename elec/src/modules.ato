@@ -57,6 +57,7 @@ import IRM_10_15 from "components.ato"
 import PinHeader_1x02 from "components.ato"
 
 # Safety components
+import H11L1 from "components.ato"
 import TLV3201 from "components.ato"
 import INA240A1 from "components.ato"
 import TPS3823 from "components.ato"
@@ -457,7 +458,9 @@ module PowerInput:
     signal pe
     pe.required = true
     signal gnd
-    signal zcd
+    signal vcc_3v3   # SELV 3.3V supply, only for the ZCD opto's output side
+    signal zcd       # HV-side raw ZCD node -- never leaves this module now
+    zcd_out = new ElectricLogic  # SELV-side, isolated ZCD output
     signal relay_ctrl
     power_15v = new ElectricPower
 
@@ -745,11 +748,15 @@ module PowerInput:
     
     # Divider: AC_L -> 220k -> 220k -> zcd -> 10k -> GND
     # At 120VAC peak (170V): V_zcd = 170 * 10k/(220k+220k+10k) ~= 3.78V
-    # Zener clamps to 3.3V protecting MCU input
-    # TODO: ZCD signal crosses isolation barrier (HV -> SELV).
-    # Option A: Add optocoupler (H11L1) for isolated ZCD
-    # Option B: Place ZCD divider on SELV side (post-isolation aux winding)
-    # For now, ZCD is on HV side; plan for optocoupler in follow-up.
+    # Zener clamps to 3.3V protecting the opto LED (see below)
+    #
+    # RESOLVED 2026-07-26 (SELV isolation redesign): this TODO used to read
+    # "ZCD signal crosses isolation barrier (HV -> SELV); For now, ZCD is on
+    # HV side; plan for optocoupler in follow-up." That follow-up is this
+    # change -- Option A (H11L1 optocoupler) below. The divider and clamp
+    # stay exactly as they were, entirely on the HV side, referenced to
+    # dc_bus.gnd_ref (power_return); `zcd` itself no longer leaves this
+    # module -- only the opto's galvanically-isolated output (zcd_out) does.
     ac_l ~ r_zcd_top1.p1
     r_zcd_top1.p2 ~ r_zcd_top2.p1
     r_zcd_top2.p2 ~ zcd
@@ -757,6 +764,40 @@ module PowerInput:
     r_zcd_bot.p2 ~ dc_bus.gnd_ref
     zcd ~ d_zcd_clamp.K
     d_zcd_clamp.A ~ dc_bus.gnd_ref
+
+    # Opto LED drive (HV side, referenced to dc_bus.gnd_ref like the divider
+    # above). zcd is clamped to ~3.3V by d_zcd_clamp. r_zcd_opto sets the LED
+    # current at that clamp voltage: (3.3V - ~1.15V Vf) / 430R ~= 5.0mA,
+    # >3x the H11L1's 1.6mA max guaranteed turn-on threshold, well under the
+    # 60mA absolute max. NOT bench-verified for soft-start timing accuracy
+    # (edge shape/delay through the opto vs. the original raw-ADC approach)
+    # -- flagged, not silently assumed.
+    r_zcd_opto = new Resistor
+    r_zcd_opto.value = 430ohm +/- 5%
+    r_zcd_opto.power_rating = 0.125W
+    r_zcd_opto.voltage_rating = 200V
+    r_zcd_opto.mpn = "RC0603FR-07430RL"
+    r_zcd_opto.footprint = "Resistor_SMD:R_0603_1608Metric"
+
+    zcd_opto = new H11L1
+    zcd ~ r_zcd_opto.p1
+    r_zcd_opto.p2 ~ zcd_opto.A
+    zcd_opto.K ~ dc_bus.gnd_ref
+
+    # Opto output (SELV side): open-collector, pulled up to vcc_3v3 (NOT
+    # power_15v -- the MCU GPIO this feeds is a 3.3V input, and pulling an
+    # open-collector output up to 15V would overvoltage it).
+    r_zcd_pullup = new Resistor
+    r_zcd_pullup.value = 10kohm +/- 1%
+    r_zcd_pullup.mpn = "RC0603FR-0710KL"
+    r_zcd_pullup.footprint = "Resistor_SMD:R_0603_1608Metric"
+
+    zcd_out.reference ~ gnd
+    vcc_3v3 ~ r_zcd_pullup.p1
+    r_zcd_pullup.p2 ~ zcd_opto.VO
+    zcd_opto.VO ~ zcd_out.line
+    zcd_opto.GND ~ gnd
+    zcd_opto.VCC ~ vcc_3v3
 
 
 module BusDischarge:
@@ -1329,14 +1370,33 @@ module CurrentSensing:
 
 module RTDSensing:
     """MAX31865 RTD interface for PT100.
-    
-    Isolation: With Option A (isolated SELV control domain, plan 003), the
-    RTD probe and MAX31865 are on the SELV side — galvanically isolated from
-    the HV power domain by the auxiliary supply transformer. The user-touchable
-    RTD food probe is therefore separated from AC mains potential. The
-    isolation barrier sits between the HV domain (DC bus, IGBTs, resonant
-    tank) and the SELV control domain (MCU, sensors, gate-driver control side),
-    NOT at the RTD interface itself.
+
+    Isolation (corrected 2026-07-26, SELV isolation redesign -- this
+    docstring previously asserted a claim the netlist contradicted; see
+    docs/hardware/SELV_ISOLATION_REDESIGN.md for the full finding and fix):
+
+    The RTD probe and MAX31865 are on the SELV side (power.gnd here chains
+    to Top's `gnd`), galvanically isolated from the HV power domain by the
+    AuxSupply module's Mean Well IRM-10-15 transformer (4.2kVAC I/O
+    withstand). `gnd` is bonded to protective earth (PE) and is no longer
+    tied to `power_return` (the doubler midpoint) -- the star join that used
+    to join them has been removed. That means the RTD probe's SELV
+    reference is now PE, not AC Neutral, and does not shift under an L/N
+    reversal fault.
+
+    This claim now holds ONLY if every other HV/SELV crossing is actually
+    isolated. As of this change it is NOT fully true end-to-end: the OVP
+    bus-sense divider in SafetyInterlock/OVPComparator still connects
+    resistively from the HV half-bus into this same `gnd` net (see
+    OVPComparator's docstring and SELV_ISOLATION_REDESIGN.md), so `gnd` --
+    and therefore this module -- is not yet on a domain with ZERO galvanic
+    connection to HV, only a high-impedance (~1.3M ohm / ~520k ohm) one.
+    The isolation barrier is intended to sit between the HV domain (DC bus,
+    IGBTs, resonant tank) and the SELV control domain (MCU, sensors,
+    gate-driver control side), NOT at the RTD interface itself -- but that
+    intent is not yet fully realized. Do not restate the old unqualified
+    "separated from AC mains potential" claim until the OVP crossing is
+    also resolved.
     """
     
     power = new ElectricPower
@@ -1617,15 +1677,59 @@ module OCPComparator:
     comp.OUT ~ fault.line
 
 module OVPComparator:
-    """Over-voltage protection, 390V threshold (trips 399.7V, OVP-01 390-410V)."""
-    
+    """Over-voltage protection, 390V (full-bus-equivalent) threshold (trips
+    399.7V, OVP-01 390-410V).
+
+    NODE IDENTITY (2026-07-26, SELV isolation redesign -- read this before
+    touching r_ref_top): v_bus.line is wired in main.ato to dc_bus_plus,
+    which is the +170V HALF-bus (positive rail of the Delon/cascade voltage
+    doubler in PowerInput), referenced to power_return/dc_bus.gnd_ref -- the
+    doubler MIDPOINT -- not to dc_bus_minus. Proof independent of any
+    comment: PowerInput's own c_bus1 is sized against v_bus_half (170V), not
+    the 340V full bus (`assert c_bus1.voltage_rating >= v_bus_half * 1.25`;
+    250V >= 212.5V passes, but 250V >= 425V would not). See
+    docs/hardware/VOLTAGE_DOUBLER_DESIGN.md and
+    docs/hardware/SELV_ISOLATION_REDESIGN.md.
+
+    THIS REVISION'S VALUES ARE FAIL-OPEN. r_ref_top=1.1k (V_ref=2.973V) plus
+    the 287k hysteresis resistor below require dc_bus_plus to reach
+    ~386-400V to trip (see the inline derivation further down). dc_bus_plus
+    physically cannot reach that -- it is the 170V-nominal half-bus, and the
+    bus capacitors are rated 250V and fail well before 400V. The inline
+    comment below that justifies 1.1k asserts "the divider senses the FULL
+    bus," reading the net name that used to be at main.ato ("+340V_BUS")
+    instead of the actual doubler topology; that net name is corrected in
+    this same change (now "+170V_BUS") specifically because trusting it
+    produced this fail-open comparator. The prior 12k/1.50V value (also
+    preserved in the inline comment below, framed there as "the bug") was,
+    per this corrected understanding, the physically correct one: 1.50V x
+    130 = 195V trip AT dc_bus_plus, a sensible ~15% margin over the 170V
+    half-bus nominal, comfortably under the 250V-rated caps, matching the
+    390V full-bus-equivalent spec via the same x2 relationship the inline
+    comment already uses. NOT RE-TUNED HERE -- this is flagged, not fixed,
+    per instruction not to unilaterally retune a value entangled with the
+    still-open isolation decision below. See
+    docs/hardware/SELV_ISOLATION_REDESIGN.md for the full derivation and two
+    remediation options with a recommendation.
+
+    UNRESOLVED after the SELV float (same document): this divider
+    (r_div_top1-3/r_div_bot) and the adc_v_bus divider (r_adc_top/r_adc_bot)
+    both return to `power.gnd`, which is now the floated SELV ground rather
+    than the HV domain. Two resistive paths (~1.3M ohm and ~520k ohm) still
+    bridge the HV half-bus into the SELV domain -- neither is isolated by
+    this change. Fixing that needs either an HV-side comparator (its own
+    HV-referenced bias supply plus an opto/isolated-amp for the fault
+    output) or a full isolated-amplifier bus sense; both are real part
+    additions entangled with the retuning decision above and are NOT
+    implemented here."""
+
     power = new ElectricPower
     v_bus = new ElectricSignal
     # Note: v_bus reference might be different (HV ground), but here it's measuring relative to signal ground via divider?
     # Actually OVP measures HV bus. The divider is connected to v_bus.
     # v_bus input to this module is the HV rail.
     # So v_bus.reference is HV ground.
-    
+
     fault = new ElectricLogic
     fault.reference ~ power.gnd
     fault.line.required = true

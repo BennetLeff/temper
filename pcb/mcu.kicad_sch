@@ -142,11 +142,11 @@
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "b16413fe-25da-db26-0587-49f3865a074c")
   )
-  (hierarchical_label "PWR_RTN"
+  (hierarchical_label "gnd"
     (shape bidirectional)
     (at 66.04 50.80 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid "cc7cd506-f7c7-cade-98d8-cf5b629e8212")
+    (uuid "89a1189d-fc00-554c-2a82-7ecd47200f3e")
   )
 
   (symbol
@@ -170,11 +170,11 @@
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "a20028be-3923-243d-1603-86d847e4a8fb")
   )
-  (hierarchical_label "PWR_RTN"
+  (hierarchical_label "gnd"
     (shape bidirectional)
     (at 106.04 50.80 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid "9fe01351-09ba-7d5b-5475-fbad7866a077")
+    (uuid "c7403d43-d984-4635-656e-2ce91e78794a")
   )
 
   (symbol
@@ -197,11 +197,11 @@
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "4f06c13d-d26f-0e63-dc84-98eb2059783e")
   )
-  (hierarchical_label "PWR_RTN"
+  (hierarchical_label "gnd"
     (shape bidirectional)
     (at 146.04 50.80 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid "232cc7f1-cf2c-af77-f6ba-c264ae072c8c")
+    (uuid "931c0569-829a-c0aa-4e2e-296b15bcff6d")
   )
 
   (symbol
@@ -213,7 +213,7 @@
     (on_board yes)
     (dnp no)
     (uuid "40d6e426-3f33-cbce-135e-2611de8441b8")
-    (property "Reference" "R62" (at 170.80 48.26 0) (effects (font (size 1.27 1.27))))
+    (property "Reference" "R64" (at 170.80 48.26 0) (effects (font (size 1.27 1.27))))
     (property "Value" "RC0603FR-0710KL" (at 170.80 53.34 0) (effects (font (size 1.27 1.27))))
     (property "Footprint" "Resistor_SMD:R_0603_1608Metric" (at 170.80 50.80 0) (effects (font (size 1.27 1.27)) hide))
     (pin "1" (uuid "0292c856-e498-3a6e-a784-100e7d33c80d"))
@@ -223,12 +223,12 @@
     (shape bidirectional)
     (at 155.56 50.80 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid "e9ede85a-82c5-d870-5f53-1ae3be43407e")
+    (uuid "fd921b8f-e877-976e-4b90-3d301bf0e21f")
   )
   (label "en"
     (at 186.04 50.80 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid "f8af3e1a-c9c9-f9ff-4e8f-67c7bf340806")
+    (uuid "c0e896da-258e-4772-0ca5-32be1ed76d5d")
   )
 
   (symbol
@@ -240,7 +240,7 @@
     (on_board yes)
     (dnp no)
     (uuid "bfeac704-0715-d194-f3a4-2e336f13a6da")
-    (property "Reference" "R63" (at 210.80 48.26 0) (effects (font (size 1.27 1.27))))
+    (property "Reference" "R65" (at 210.80 48.26 0) (effects (font (size 1.27 1.27))))
     (property "Value" "RC0603FR-0710KL" (at 210.80 53.34 0) (effects (font (size 1.27 1.27))))
     (property "Footprint" "Resistor_SMD:R_0603_1608Metric" (at 210.80 50.80 0) (effects (font (size 1.27 1.27)) hide))
     (pin "1" (uuid "f4c8b6b5-c20a-ff77-a81b-238e2d6bd9c0"))
@@ -250,12 +250,12 @@
     (shape bidirectional)
     (at 195.56 50.80 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid "bfdbb9df-ea57-5b36-c474-0429dc990d98")
+    (uuid "169f0b1f-3dcc-ffba-87b2-0a8c8d7cc090")
   )
   (label "io0"
     (at 226.04 50.80 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid "d00820d0-cccc-8222-e894-04cbc3d17277")
+    (uuid "c4224e7c-0975-d65d-e00c-fd426d4f5bd4")
   )
 
   (symbol
@@ -267,7 +267,7 @@
     (on_board yes)
     (dnp no)
     (uuid "49e59e68-a15f-6e4d-4594-67e30d733814")
-    (property "Reference" "R64" (at 50.80 78.26 0) (effects (font (size 1.27 1.27))))
+    (property "Reference" "R66" (at 50.80 78.26 0) (effects (font (size 1.27 1.27))))
     (property "Value" "RC0603FR-0710KL" (at 50.80 83.34 0) (effects (font (size 1.27 1.27))))
     (property "Footprint" "Resistor_SMD:R_0603_1608Metric" (at 50.80 80.80 0) (effects (font (size 1.27 1.27)) hide))
     (pin "1" (uuid "e753b615-6e0a-1f72-7e42-d093c1538ad7"))
@@ -277,12 +277,12 @@
     (shape bidirectional)
     (at 35.56 80.80 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid "fd921b8f-e877-976e-4b90-3d301bf0e21f")
+    (uuid "920fd676-48b3-be45-fabe-4f7ada7c42ae")
   )
   (label "i2c_sda_ui"
     (at 66.04 80.80 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid "2cc6432d-b8ad-7163-c87f-873c73a32b9a")
+    (uuid "294b1426-b340-c554-202e-b26cf8944973")
   )
 
   (symbol
@@ -294,7 +294,7 @@
     (on_board yes)
     (dnp no)
     (uuid "4c04980b-b4c1-ae9d-2ff2-579f3a30ba4d")
-    (property "Reference" "R65" (at 90.80 78.26 0) (effects (font (size 1.27 1.27))))
+    (property "Reference" "R67" (at 90.80 78.26 0) (effects (font (size 1.27 1.27))))
     (property "Value" "RC0603FR-0710KL" (at 90.80 83.34 0) (effects (font (size 1.27 1.27))))
     (property "Footprint" "Resistor_SMD:R_0603_1608Metric" (at 90.80 80.80 0) (effects (font (size 1.27 1.27)) hide))
     (pin "1" (uuid "f2993e29-0d86-7b63-646f-02af2648d492"))
@@ -304,12 +304,12 @@
     (shape bidirectional)
     (at 75.56 80.80 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid "169f0b1f-3dcc-ffba-87b2-0a8c8d7cc090")
+    (uuid "fbf91f09-1c11-6e85-e1a1-c78f576f6d54")
   )
   (label "i2c_scl_ui"
     (at 106.04 80.80 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid "b0964c48-2070-28ec-125c-4068fcc62594")
+    (uuid "6f276faf-5a42-863b-2036-67ef95fcb678")
   )
 
   (symbol
@@ -332,11 +332,11 @@
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "22ac215b-5eb4-4d45-e433-b1e3ce36ec20")
   )
-  (hierarchical_label "PWR_RTN"
+  (hierarchical_label "gnd"
     (shape bidirectional)
     (at 146.04 80.80 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid "9fba0221-b735-7d87-e8fa-aea253c7cc13")
+    (uuid "9036f616-8081-f34c-4897-98d331008cb4")
   )
 
   (symbol
@@ -359,11 +359,11 @@
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "065dec15-7fed-7d0d-cb64-85b52af366f8")
   )
-  (hierarchical_label "PWR_RTN"
+  (hierarchical_label "gnd"
     (shape bidirectional)
     (at 186.04 80.80 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid "1963f5a5-5154-abd7-78ab-9e3338bb90da")
+    (uuid "8ed17016-1394-505f-653b-375d3f3766aa")
   )
 
   (symbol
@@ -375,7 +375,7 @@
     (on_board yes)
     (dnp no)
     (uuid "4906a98a-e38a-aee2-9d83-8f7589ff0197")
-    (property "Reference" "U22" (at 210.80 78.26 0) (effects (font (size 1.27 1.27))))
+    (property "Reference" "U23" (at 210.80 78.26 0) (effects (font (size 1.27 1.27))))
     (property "Value" "ESP32-S3-WROOM-1-N8R8" (at 210.80 83.34 0) (effects (font (size 1.27 1.27))))
     (property "Footprint" "lib:ESP32-S3-WROOM-1" (at 210.80 80.80 0) (effects (font (size 1.27 1.27)) hide))
     (pin "1" (uuid "29fdc725-5089-be9b-5f6f-7e98c38e6a29"))
@@ -418,205 +418,205 @@
     (pin "24" (uuid "d186e659-1c78-ee26-7f9b-6359d73fb9e9"))
     (pin "25" (uuid "34523fc7-0da8-84eb-e178-558b84b76efd"))
   )
-  (hierarchical_label "PWR_RTN"
+  (hierarchical_label "gnd"
     (shape bidirectional)
     (at 195.56 129.06 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid "ee41bc06-7cea-d7c0-758d-4ab0c1d838ce")
+    (uuid "49754c0e-79b2-3c42-d199-1a4bea96ade2")
   )
   (hierarchical_label "+3V3"
     (shape bidirectional)
     (at 195.56 123.98 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid "3468bd36-7ee2-3eff-3b66-86f385a26022")
+    (uuid "04917cd3-a187-383f-780f-85b161be6d4d")
   )
   (hierarchical_label "RTD_SCK"
     (shape bidirectional)
     (at 195.56 118.90 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid "68692c0d-4165-6d27-9a82-850b72aa0951")
+    (uuid "237cc8b7-58b0-788e-1ec4-2526e91fd121")
   )
   (hierarchical_label "RTD_CS_N"
     (shape bidirectional)
     (at 195.56 113.82 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid "e0f7279c-c25a-de92-f905-4894e6ce84a7")
+    (uuid "f30d5e38-4f45-5895-d326-42f80e0a87a9")
   )
   (hierarchical_label "RTD_SDI"
     (shape bidirectional)
     (at 195.56 108.74 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid "a4480b9e-592e-2528-a213-d2dc89f26919")
+    (uuid "79a77d14-7071-3199-41f9-d036dc8b96b6")
   )
   (hierarchical_label "RTD_SDO"
     (shape bidirectional)
     (at 195.56 103.66 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid "bd64524b-001a-f6a2-e946-7f26fe0098a8")
+    (uuid "af61cd1b-318f-2b84-8523-1e416f3a9e7d")
   )
   (hierarchical_label "RELAY_CTRL"
     (shape bidirectional)
     (at 195.56 98.58 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid "3a7a50dd-831e-54b8-8786-3a24db52e783")
+    (uuid "03df2d17-7957-4937-88df-3b93c78e3441")
   )
   (hierarchical_label "SHUTDOWN"
     (shape bidirectional)
     (at 195.56 93.50 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid "7590b4cf-a9f6-c89b-53fb-d6a71ab77ab6")
+    (uuid "2f87ff1b-fc9f-1c08-5345-b7820b518279")
   )
   (hierarchical_label "I_SENSE"
     (shape bidirectional)
     (at 195.56 88.42 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid "a22ac937-ec1c-6e57-b8ec-7980c9d77eb9")
+    (uuid "f94858ce-0397-e543-97bd-1a7b5844a780")
   )
   (hierarchical_label "V_BUS_SENSE"
     (shape bidirectional)
     (at 195.56 83.34 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid "cbb02963-f8bc-dc04-7bfb-b60263e83fdf")
+    (uuid "b0342466-7d23-f387-1620-4ee2a5de40e0")
   )
   (hierarchical_label "safety-line"
     (shape bidirectional)
     (at 195.56 78.26 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid "8b6d2960-7702-51f4-479e-a704892bba2e")
+    (uuid "737c7bb0-44d4-60b3-d89c-95477694b7da")
   )
   (no_connect
     (at 195.56 73.18)
-    (uuid "580365b4-a112-ea3c-6b8d-3fd653869695")
+    (uuid "7093e092-d22c-0a2a-f2e9-5c19c4b3ba8c")
   )
   (no_connect
     (at 195.56 68.10)
-    (uuid "6da2198c-9a76-85fa-0f34-137a796da65a")
+    (uuid "6b6db8a8-bfdc-0f97-6a45-bc5402ee5101")
   )
   (no_connect
     (at 195.56 63.02)
-    (uuid "58dfabe0-caf0-2edc-1209-f7421b601159")
+    (uuid "763073a6-84f3-82e0-b512-cd4501aa3eb4")
   )
   (no_connect
     (at 195.56 57.94)
-    (uuid "547f94c7-1a3d-7fe4-05fe-f78ac90b11d2")
+    (uuid "21bc7882-a9ff-58c9-a00b-371d0ab5b702")
   )
   (no_connect
     (at 195.56 52.86)
-    (uuid "1b7b2a79-95cc-e9a2-45de-5a3733369465")
+    (uuid "ce432d05-806b-ff47-8182-f23322990cc4")
   )
   (no_connect
     (at 195.56 47.78)
-    (uuid "81177e38-5d10-e0eb-f135-e1f134bd4fb2")
+    (uuid "0304661e-4c51-9ee0-eba7-b4670d1bc322")
   )
   (no_connect
     (at 195.56 42.70)
-    (uuid "10535c91-0d7a-5295-7721-3267800347be")
+    (uuid "1613860e-d3d1-4ca0-5bb3-20292f17c12b")
   )
   (no_connect
     (at 195.56 37.62)
-    (uuid "7609f3cc-623c-dea0-ef74-8923ca1182ab")
+    (uuid "fa948c1c-2bc9-03f8-9aff-40c32acdef3c")
   )
   (no_connect
     (at 195.56 32.54)
-    (uuid "6bf771b4-8791-d424-92e6-84aed635ca8c")
+    (uuid "975e4d33-7bcf-52d7-6ac4-7394567e44b1")
   )
   (hierarchical_label "PWM_HS"
     (shape bidirectional)
     (at 226.04 126.52 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid "2526a779-d43b-8c05-3452-e1e64218ab47")
+    (uuid "aebc8e03-d4b2-9c49-c924-9bb39c0c27c2")
   )
   (hierarchical_label "PWM_LS"
     (shape bidirectional)
     (at 226.04 121.44 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid "cdab784a-96c6-be32-6279-6acdc3b9affb")
+    (uuid "d24ee0d0-9b7f-3bde-4bfe-26133dbae1ae")
   )
   (label "en"
     (at 226.04 116.36 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid "7c8d3612-5c0c-65ad-bb73-4686e312e8db")
+    (uuid "70788d59-3d2c-efa7-3c3a-2bfd0dd55d1b")
   )
   (label "io0"
     (at 226.04 111.28 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid "7e5b57e8-9036-c046-3fa8-513dd9c02c26")
+    (uuid "f1f2c759-fee6-33c1-3b94-53581ac93d35")
   )
   (hierarchical_label "WDT_RESET_N"
     (shape bidirectional)
     (at 226.04 106.20 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid "d2bfbd4d-d38c-8e50-895f-1a7daeb073f7")
+    (uuid "fa7d3075-fb11-4359-64e9-b6563e768c71")
   )
   (hierarchical_label "WDT_KICK"
     (shape bidirectional)
     (at 226.04 101.12 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid "7a5a4fcc-f748-3741-d85e-2184d10e535f")
+    (uuid "92a29f8b-9832-c9a9-2f75-1afd366b8d8c")
   )
   (hierarchical_label "RTD_DRDY"
     (shape bidirectional)
     (at 226.04 96.04 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid "bcc60e00-7c22-acb1-5f29-24a395e0cd2e")
+    (uuid "c23038b7-faa3-b559-57e4-fd96f1e645c4")
   )
-  (hierarchical_label "ZCD"
+  (hierarchical_label "ZCD_ISO"
     (shape bidirectional)
     (at 226.04 90.96 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid "7bdc7c60-6092-3758-24b1-6ee38ca251ca")
+    (uuid "df32c9d9-181c-11b4-f3a1-3e491ad41790")
   )
   (hierarchical_label "safety-line-1"
     (shape bidirectional)
     (at 226.04 85.88 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid "32fbbed1-2b70-c3e1-66e8-e77fe86427b6")
+    (uuid "ece71294-dc0f-25e8-073b-149152a6f33b")
   )
   (hierarchical_label "safety-line-2"
     (shape bidirectional)
     (at 226.04 80.80 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid "e905e7db-f6a6-fff3-33ea-80614bc9aaaa")
+    (uuid "4976905e-b3be-fc75-a0a0-582f5b8d8bf5")
   )
   (label "i2c_sda_ui"
     (at 226.04 75.72 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid "b9aa0a50-2acc-5abf-7986-a4e62bb3585c")
+    (uuid "4d7b51d2-1ecf-1d46-eb95-aff11e66e0ec")
   )
   (label "i2c_scl_ui"
     (at 226.04 70.64 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid "6cf1135c-1fe7-9643-2cf6-d1fd04ef0e27")
+    (uuid "aad4ca8e-eef1-7a4a-2f99-d26879862cad")
   )
   (no_connect
     (at 226.04 65.56)
-    (uuid "087b4d4a-c7ed-9448-3cc9-b422cb1fb190")
+    (uuid "e655a408-f103-2a3a-d3b5-f1716a1d4b19")
   )
   (no_connect
     (at 226.04 60.48)
-    (uuid "94c7e0e9-644f-4e3b-76cd-69e96053eb80")
+    (uuid "49de177f-1694-f827-889c-c880af91c54c")
   )
   (no_connect
     (at 226.04 55.40)
-    (uuid "55334f03-8f42-ff3d-e34e-903ebca32b4f")
+    (uuid "4eb10628-8666-66d9-3c8b-b632dea4e87b")
   )
   (no_connect
     (at 226.04 50.32)
-    (uuid "43bbc72e-6ac9-46ba-a859-404cba1f1ce5")
+    (uuid "b4b706e3-9352-3414-4fd8-7786d4a17dad")
   )
   (no_connect
     (at 226.04 45.24)
-    (uuid "662144c1-fd78-220d-815b-07f11a082452")
+    (uuid "0f0ffb72-8bfd-82c9-91f6-cdf1b7b0fa3c")
   )
   (hierarchical_label "DISCHARGE_CTRL"
     (shape bidirectional)
     (at 226.04 40.16 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid "ca8ed47b-bf01-8238-4bd9-239b7079ca46")
+    (uuid "8b35649c-69b1-f2c0-e2f8-7cfef166da1f")
   )
   (no_connect
     (at 226.04 35.08)
-    (uuid "9f984bb1-4480-9864-8899-c1ae3fa965d3")
+    (uuid "784d9648-38d2-0458-b49b-cd4f95d11cd8")
   )
 
 )

@@ -467,6 +467,47 @@ component INA240A1:
 # SAFETY INTERLOCK COMPONENTS
 # ==============================================================================
 
+component H11L1:
+    """6-pin DIP Schmitt-trigger phototransistor optocoupler (H11LX family).
+
+    Carries the zero-crossing-detect signal across the HV/SELV isolation
+    barrier (docs/hardware/SELV_ISOLATION_REDESIGN.md, 2026-07-26): the LED
+    (pins 1/2) stays on the HV side, referenced to power_return/dc_bus.gnd_ref;
+    the Schmitt-trigger output (pins 4/5/6) is powered from and referenced to
+    the SELV domain. This is the part the project's own pre-existing TODO
+    (modules.ato, PowerInput ZCD section) already named as the fix.
+
+    VERIFIED 2026-07-26 directly against Everlight's H11LX-series datasheet
+    (DPC-0000022 Rev 5, fetched and read): 6-pin DIP, pin 1=Anode, 2=Cathode,
+    3=No Connection, 4=Vo, 5=GND, 6=Vcc. Isolation voltage Viso=5000Vrms
+    (1-minute AC withstand per the datasheet's own test note -- a dielectric
+    strength figure, NOT independently confirmed here as a certified
+    reinforced-insulation rating at this design's ~170-340V DC working
+    voltage; PCB creepage/clearance across the barrier still needs layout-
+    stage verification). UL recognized (File E214129), VDE approved (No.
+    132249). Output: Vcc range 3-15V, open-collector, sinks 16mA at
+    Vol<=0.4V (needs an external pull-up). LED: Vf ~1.15-1.5V @ 10mA, IF
+    abs max 60mA. H11L1 grade (of the L1/L2/L3 family): guaranteed turn-on
+    threshold current <=1.6mA -- the tightest/most sensitive of the three,
+    and the grade named by the pre-existing TODO.
+
+    MPN below is the bare, second-sourced industry part number -- Vishay,
+    onsemi, and Everlight all manufacture pin-compatible H11L1 devices per
+    their respective datasheets found during the same search. Confirm the
+    exact manufacturer and orderable suffix (through-hole vs SMD, temp
+    grade) at procurement; not done here."""
+    designator_prefix = "U"
+    footprint = "Package_DIP:DIP-6_W7.62mm"
+    mpn = "H11L1"
+    manufacturer = "Everlight (or pin-compatible Vishay/onsemi H11L1)"
+
+    signal A ~ pin 1    # LED anode -- HV side
+    signal K ~ pin 2    # LED cathode -- HV side
+    # pin 3: No Connection
+    signal VO ~ pin 4   # Open-collector output -- SELV side
+    signal GND ~ pin 5  # SELV side ground
+    signal VCC ~ pin 6  # SELV side supply, 3-15V
+
 component TLV3201:
     """40ns Rail-to-Rail Comparator"""
     footprint = "Package_TO_SOT_SMD:SOT-23-5"

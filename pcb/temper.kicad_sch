@@ -24,7 +24,7 @@
 
   (sheet
     (at 25.40 101.60)
-    (size 50.80 40.64)
+    (size 50.80 50.80)
     (fields_autoplaced yes)
     (stroke (width 0.1524) (type solid))
     (fill (color 255 194 194 1.0))
@@ -33,29 +33,35 @@
       (at 25.40 100.89 0)
       (effects (font (size 1.27 1.27)) (justify left bottom)))
     (property "Sheetfile" "power_input.kicad_sch"
-      (at 25.40 143.51 0)
+      (at 25.40 153.67 0)
       (effects (font (size 1.27 1.27)) (justify left top)))    (pin "+15V" bidirectional
       (at 25.40 107.95 180)
       (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "639b28fe-5674-5911-b90f-a859ad36d280"))    (pin "+340V_BUS" bidirectional
+      (uuid "639b28fe-5674-5911-b90f-a859ad36d280"))    (pin "+170V_BUS" bidirectional
       (at 25.40 113.03 180)
       (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "29376ad5-6500-0790-8496-258a47ec488d"))    (pin "DC_BUS_RTN" bidirectional
+      (uuid "cafddb0c-f9a2-29ea-87c5-40014bb89115"))    (pin "+3V3" bidirectional
       (at 25.40 118.11 180)
       (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "8b44843e-3b10-57de-8113-53d0ce416167"))    (pin "DISCHARGE_CTRL" bidirectional
+      (uuid "0dc580fc-cb1a-fea6-50ea-6222ea629ee3"))    (pin "DC_BUS_RTN" bidirectional
       (at 25.40 123.19 180)
       (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "2ac91511-1725-60fe-65f4-da3b661f6e46"))    (pin "PWR_RTN" bidirectional
+      (uuid "8b44843e-3b10-57de-8113-53d0ce416167"))    (pin "DISCHARGE_CTRL" bidirectional
       (at 25.40 128.27 180)
       (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "1eefe98f-ead3-1c83-241b-0c892aa1e134"))    (pin "RELAY_CTRL" bidirectional
+      (uuid "2ac91511-1725-60fe-65f4-da3b661f6e46"))    (pin "PWR_RTN" bidirectional
       (at 25.40 133.35 180)
       (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "7fba3a98-ce9a-9522-157b-2deabf20c2a6"))    (pin "ZCD" bidirectional
+      (uuid "1eefe98f-ead3-1c83-241b-0c892aa1e134"))    (pin "RELAY_CTRL" bidirectional
       (at 25.40 138.43 180)
       (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "1174b996-3d97-882e-743c-861df1c7807c"))    (instances
+      (uuid "7fba3a98-ce9a-9522-157b-2deabf20c2a6"))    (pin "ZCD_ISO" bidirectional
+      (at 25.40 143.51 180)
+      (effects (font (size 1.27 1.27)) (justify left))
+      (uuid "7beaaa3b-7dab-2244-da3e-58e5abfdd7c0"))    (pin "gnd" bidirectional
+      (at 25.40 148.59 180)
+      (effects (font (size 1.27 1.27)) (justify left))
+      (uuid "efd40538-bcf9-c8c4-831d-536d2dd5126d"))    (instances
       (project "temper"
         (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
           (page "2")
@@ -68,75 +74,85 @@
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "79bde5d2-f860-b012-606f-c9bc01e0642e")
   )
-  (label "+340V_BUS"
+  (label "+170V_BUS"
     (at 25.40 113.03 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid "d57365c0-29e3-5bf6-bd21-a62e3a7694ca")
+    (uuid "765ce46a-cae9-8e5b-2965-3309e08f6b6e")
+  )
+  (label "+3V3"
+    (at 25.40 118.11 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid "c0b123ff-ed44-b9a2-6948-161db2e9c103")
   )
   (label "DC_BUS_RTN"
-    (at 25.40 118.11 0)
+    (at 25.40 123.19 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "b6dee2d6-6169-2d47-0f0f-d4e04e2a0d0a")
   )
   (label "DISCHARGE_CTRL"
-    (at 25.40 123.19 0)
+    (at 25.40 128.27 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "efea7103-71cc-a713-5dd3-26e138949701")
   )
   (label "PWR_RTN"
-    (at 25.40 128.27 0)
+    (at 25.40 133.35 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "ce62970b-9dd4-51b9-2069-e1017613cbd9")
   )
   (label "RELAY_CTRL"
-    (at 25.40 133.35 0)
+    (at 25.40 138.43 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "f5a1c19f-16b8-0409-b383-06813a847279")
   )
-  (label "ZCD"
-    (at 25.40 138.43 0)
+  (label "ZCD_ISO"
+    (at 25.40 143.51 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid "3a9682fd-3524-fa04-ece3-92377e654475")
+    (uuid "448dd4bc-e5dc-1e73-446d-d96eb1fb5bf8")
+  )
+  (label "gnd"
+    (at 25.40 148.59 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid "176f7184-5c99-5702-bc82-15810a55b553")
   )
 
   (sheet
-    (at 25.40 162.24)
+    (at 25.40 172.40)
     (size 50.80 50.80)
     (fields_autoplaced yes)
     (stroke (width 0.1524) (type solid))
     (fill (color 194 255 194 1.0))
     (uuid "d61259d9-efec-c16a-c492-29583ffe2acc")
     (property "Sheetname" "Half_Bridge"
-      (at 25.40 161.53 0)
+      (at 25.40 171.69 0)
       (effects (font (size 1.27 1.27)) (justify left bottom)))
     (property "Sheetfile" "half_bridge.kicad_sch"
-      (at 25.40 214.31 0)
+      (at 25.40 224.47 0)
       (effects (font (size 1.27 1.27)) (justify left top)))    (pin "+15V" bidirectional
-      (at 25.40 168.59 180)
-      (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "e5a702fc-2b55-0fd5-b2de-e645db773857"))    (pin "+340V_BUS" bidirectional
-      (at 25.40 173.67 180)
-      (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "52d71c6c-cc7b-658e-ad8b-dcda2d8fa228"))    (pin "+3V3" bidirectional
       (at 25.40 178.75 180)
       (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "fe0b610c-466f-c90d-a5fa-08c74da2d97e"))    (pin "DC_BUS_RTN" bidirectional
+      (uuid "e5a702fc-2b55-0fd5-b2de-e645db773857"))    (pin "+170V_BUS" bidirectional
       (at 25.40 183.83 180)
       (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "bef89d41-1cbc-6657-23c3-03b5b7cd4a10"))    (pin "PWM_HS" bidirectional
+      (uuid "9bfcffb9-4fa3-c8c3-eae5-2615a530e64f"))    (pin "+3V3" bidirectional
       (at 25.40 188.91 180)
       (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "ae021549-3ad4-7ce1-117d-5851c039ae75"))    (pin "PWM_LS" bidirectional
+      (uuid "fe0b610c-466f-c90d-a5fa-08c74da2d97e"))    (pin "DC_BUS_RTN" bidirectional
       (at 25.40 193.99 180)
       (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "fabefd20-d351-e087-00b4-b9c1301c9866"))    (pin "PWR_RTN" bidirectional
+      (uuid "bef89d41-1cbc-6657-23c3-03b5b7cd4a10"))    (pin "PWM_HS" bidirectional
       (at 25.40 199.07 180)
       (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "ad94d7ed-4450-dbf5-3a0b-7704d747496e"))    (pin "SHUTDOWN" bidirectional
+      (uuid "ae021549-3ad4-7ce1-117d-5851c039ae75"))    (pin "PWM_LS" bidirectional
       (at 25.40 204.15 180)
       (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "f03f7674-e9c0-f672-8f61-5e3fa26679bb"))    (pin "tank-out" bidirectional
+      (uuid "fabefd20-d351-e087-00b4-b9c1301c9866"))    (pin "SHUTDOWN" bidirectional
       (at 25.40 209.23 180)
+      (effects (font (size 1.27 1.27)) (justify left))
+      (uuid "f03f7674-e9c0-f672-8f61-5e3fa26679bb"))    (pin "gnd" bidirectional
+      (at 25.40 214.31 180)
+      (effects (font (size 1.27 1.27)) (justify left))
+      (uuid "9eeef451-54aa-c141-0b31-ff9dc0ecbadf"))    (pin "tank-out" bidirectional
+      (at 25.40 219.39 180)
       (effects (font (size 1.27 1.27)) (justify left))
       (uuid "3362f211-e6a6-28f5-3621-7dc6d4587855"))    (instances
       (project "temper"
@@ -147,76 +163,79 @@
     )
   )
   (label "+15V"
-    (at 25.40 168.59 0)
+    (at 25.40 178.75 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "b40531ac-d0ac-0161-d392-cba0f3eb0c73")
   )
-  (label "+340V_BUS"
-    (at 25.40 173.67 0)
+  (label "+170V_BUS"
+    (at 25.40 183.83 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid "8af6e648-d02a-a4aa-30d9-bc015bc830a0")
+    (uuid "a31207b9-ec07-46fb-3039-17bb65960cfc")
   )
   (label "+3V3"
-    (at 25.40 178.75 0)
+    (at 25.40 188.91 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "27521419-d4d6-0fd3-ab42-9ceb0a5edf52")
   )
   (label "DC_BUS_RTN"
-    (at 25.40 183.83 0)
+    (at 25.40 193.99 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "872fb656-1934-d0c6-7907-d0ad4d193f62")
   )
   (label "PWM_HS"
-    (at 25.40 188.91 0)
+    (at 25.40 199.07 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "1b3d0c67-7a53-4053-c906-e7f082d4588f")
   )
   (label "PWM_LS"
-    (at 25.40 193.99 0)
+    (at 25.40 204.15 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "5ca9d90d-6184-38fb-9822-49e8b26a8bbc")
   )
-  (label "PWR_RTN"
-    (at 25.40 199.07 0)
-    (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid "833b705a-6887-4ed4-d692-717bb54e9e71")
-  )
   (label "SHUTDOWN"
-    (at 25.40 204.15 0)
+    (at 25.40 209.23 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "6d6695af-15f2-d725-f429-46dbe9cfe9cb")
   )
+  (label "gnd"
+    (at 25.40 214.31 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid "e162092c-236e-a410-ef97-ff26de4a5fc6")
+  )
   (label "tank-out"
-    (at 25.40 209.23 0)
+    (at 25.40 219.39 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "bcf6bc2d-4934-080b-f302-468bc888ae61")
   )
 
   (sheet
-    (at 25.40 233.04)
-    (size 50.80 25.40)
+    (at 25.40 243.20)
+    (size 50.80 30.48)
     (fields_autoplaced yes)
     (stroke (width 0.1524) (type solid))
     (fill (color 194 194 255 1.0))
     (uuid "e46ceeab-ac85-9cfd-1a91-fca6f7f37042")
     (property "Sheetname" "Power_Management"
-      (at 25.40 232.33 0)
+      (at 25.40 242.49 0)
       (effects (font (size 1.27 1.27)) (justify left bottom)))
     (property "Sheetfile" "power_management.kicad_sch"
-      (at 25.40 259.71 0)
+      (at 25.40 274.95 0)
       (effects (font (size 1.27 1.27)) (justify left top)))    (pin "+15V" bidirectional
-      (at 25.40 239.39 180)
-      (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "900d3cd6-d700-b873-bfbe-8f318d1316ab"))    (pin "+340V_BUS" bidirectional
-      (at 25.40 244.47 180)
-      (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "fc7c9390-51c3-9d4a-69ae-a1bb28ca5b74"))    (pin "+3V3" bidirectional
       (at 25.40 249.55 180)
       (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "481bbcec-9aff-6881-11a5-ae201f33c3df"))    (pin "PWR_RTN" bidirectional
+      (uuid "900d3cd6-d700-b873-bfbe-8f318d1316ab"))    (pin "+170V_BUS" bidirectional
       (at 25.40 254.63 180)
       (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "848c677d-00df-e23b-368a-13bda3144202"))    (instances
+      (uuid "782644ad-8cb1-6491-5617-e537c50ff325"))    (pin "+3V3" bidirectional
+      (at 25.40 259.71 180)
+      (effects (font (size 1.27 1.27)) (justify left))
+      (uuid "481bbcec-9aff-6881-11a5-ae201f33c3df"))    (pin "PWR_RTN" bidirectional
+      (at 25.40 264.79 180)
+      (effects (font (size 1.27 1.27)) (justify left))
+      (uuid "848c677d-00df-e23b-368a-13bda3144202"))    (pin "gnd" bidirectional
+      (at 25.40 269.87 180)
+      (effects (font (size 1.27 1.27)) (justify left))
+      (uuid "03785f92-8db8-7635-6162-8b3b36e558b7"))    (instances
       (project "temper"
         (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
           (page "4")
@@ -225,79 +244,87 @@
     )
   )
   (label "+15V"
-    (at 25.40 239.39 0)
+    (at 25.40 249.55 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "9d571502-17f7-5785-6373-901bc73b9ec7")
   )
-  (label "+340V_BUS"
-    (at 25.40 244.47 0)
+  (label "+170V_BUS"
+    (at 25.40 254.63 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid "a1cfa6dd-2093-32fc-e97f-9f2ad87ca587")
+    (uuid "abb0fe8f-71c2-7c49-694c-0159adac868c")
   )
   (label "+3V3"
-    (at 25.40 249.55 0)
+    (at 25.40 259.71 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "65bd5dde-2154-5837-2a9e-89b11105cda1")
   )
   (label "PWR_RTN"
-    (at 25.40 254.63 0)
+    (at 25.40 264.79 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "cef5a497-ef7b-b960-7f43-007f2f3f0b04")
   )
+  (label "gnd"
+    (at 25.40 269.87 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid "f479f24d-7ed1-e7df-a905-172645593dad")
+  )
 
   (sheet
-    (at 25.40 278.44)
-    (size 50.80 76.20)
+    (at 25.40 293.68)
+    (size 50.80 81.28)
     (fields_autoplaced yes)
     (stroke (width 0.1524) (type solid))
     (fill (color 255 194 255 1.0))
     (uuid "f658e221-c0d3-31b3-181b-3fad3b8eb66f")
     (property "Sheetname" "Safety_Interlock"
-      (at 25.40 277.73 0)
+      (at 25.40 292.97 0)
       (effects (font (size 1.27 1.27)) (justify left bottom)))
     (property "Sheetfile" "safety_interlock.kicad_sch"
-      (at 25.40 355.91 0)
+      (at 25.40 376.23 0)
       (effects (font (size 1.27 1.27)) (justify left top)))    (pin "+15V" bidirectional
-      (at 25.40 284.79 180)
-      (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "055ac72f-9c0c-7b29-bd9c-b551b7fea1fa"))    (pin "+340V_BUS" bidirectional
-      (at 25.40 289.87 180)
-      (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "b1811e39-8f0c-535d-75f6-d10df25306ef"))    (pin "+3V3" bidirectional
-      (at 25.40 294.95 180)
-      (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "0b0248fc-6ca8-f2d6-4966-50c95423a491"))    (pin "I_SENSE" bidirectional
       (at 25.40 300.03 180)
       (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "cba7ce09-e9c0-beb4-94a1-4db75023fbea"))    (pin "PWR_RTN" bidirectional
+      (uuid "055ac72f-9c0c-7b29-bd9c-b551b7fea1fa"))    (pin "+170V_BUS" bidirectional
       (at 25.40 305.11 180)
       (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "687a2b3c-78fe-720e-e0a9-bc4956c8c309"))    (pin "RTD_HW_FAULT" bidirectional
+      (uuid "cc1814b3-7caf-0fe8-d4ac-b2a57f2a93d4"))    (pin "+3V3" bidirectional
       (at 25.40 310.19 180)
       (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "0b948560-e901-1cea-4bdb-101a5e16e5ba"))    (pin "SHUTDOWN" bidirectional
+      (uuid "0b0248fc-6ca8-f2d6-4966-50c95423a491"))    (pin "I_SENSE" bidirectional
       (at 25.40 315.27 180)
       (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "ee8b419a-9924-9862-b10c-88c04bb49ea9"))    (pin "V_BUS_SENSE" bidirectional
+      (uuid "cba7ce09-e9c0-beb4-94a1-4db75023fbea"))    (pin "PWR_RTN" bidirectional
       (at 25.40 320.35 180)
       (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "fdc03374-cfcd-a0d2-7d33-52cf93bc0932"))    (pin "WDT_KICK" bidirectional
+      (uuid "687a2b3c-78fe-720e-e0a9-bc4956c8c309"))    (pin "RTD_HW_FAULT" bidirectional
       (at 25.40 325.43 180)
       (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "cdd30011-fc5c-868a-bbdd-d2162bd45134"))    (pin "WDT_RESET_N" bidirectional
+      (uuid "0b948560-e901-1cea-4bdb-101a5e16e5ba"))    (pin "SHUTDOWN" bidirectional
       (at 25.40 330.51 180)
       (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "b8ea32a7-dec0-4ac7-b5b0-16415b339bf0"))    (pin "safety-line" bidirectional
+      (uuid "ee8b419a-9924-9862-b10c-88c04bb49ea9"))    (pin "V_BUS_SENSE" bidirectional
       (at 25.40 335.59 180)
       (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "285de1d1-486a-70dd-826a-0918d3d0e3d1"))    (pin "safety-line-1" bidirectional
+      (uuid "fdc03374-cfcd-a0d2-7d33-52cf93bc0932"))    (pin "WDT_KICK" bidirectional
       (at 25.40 340.67 180)
       (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "6ced48dc-d1b9-e79b-2784-4925c47816a7"))    (pin "safety-line-2" bidirectional
+      (uuid "cdd30011-fc5c-868a-bbdd-d2162bd45134"))    (pin "WDT_RESET_N" bidirectional
       (at 25.40 345.75 180)
       (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "b2ebde12-66b1-406c-e33e-43facb9d2179"))    (pin "tank-out" bidirectional
+      (uuid "b8ea32a7-dec0-4ac7-b5b0-16415b339bf0"))    (pin "gnd" bidirectional
       (at 25.40 350.83 180)
+      (effects (font (size 1.27 1.27)) (justify left))
+      (uuid "d61e9cdf-09bc-7250-1d3b-31e4d719b811"))    (pin "safety-line" bidirectional
+      (at 25.40 355.91 180)
+      (effects (font (size 1.27 1.27)) (justify left))
+      (uuid "285de1d1-486a-70dd-826a-0918d3d0e3d1"))    (pin "safety-line-1" bidirectional
+      (at 25.40 360.99 180)
+      (effects (font (size 1.27 1.27)) (justify left))
+      (uuid "6ced48dc-d1b9-e79b-2784-4925c47816a7"))    (pin "safety-line-2" bidirectional
+      (at 25.40 366.07 180)
+      (effects (font (size 1.27 1.27)) (justify left))
+      (uuid "b2ebde12-66b1-406c-e33e-43facb9d2179"))    (pin "tank-out" bidirectional
+      (at 25.40 371.15 180)
       (effects (font (size 1.27 1.27)) (justify left))
       (uuid "84a0ecf8-8817-0834-63a2-b98423cf50ec"))    (instances
       (project "temper"
@@ -308,113 +335,118 @@
     )
   )
   (label "+15V"
-    (at 25.40 284.79 0)
+    (at 25.40 300.03 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "43dd0e8a-41fc-4b76-4f58-542851cf3993")
   )
-  (label "+340V_BUS"
-    (at 25.40 289.87 0)
+  (label "+170V_BUS"
+    (at 25.40 305.11 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid "5f853e54-6b15-e3fb-f798-a6f0b62a76c4")
+    (uuid "c8dac87b-4fe0-9d72-5ba3-67786e039949")
   )
   (label "+3V3"
-    (at 25.40 294.95 0)
+    (at 25.40 310.19 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "feca27d3-f994-eb12-cc14-65acd2c81f5b")
   )
   (label "I_SENSE"
-    (at 25.40 300.03 0)
+    (at 25.40 315.27 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "bbf3cc4a-1e12-3c54-9114-269279ecf8f1")
   )
   (label "PWR_RTN"
-    (at 25.40 305.11 0)
+    (at 25.40 320.35 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "571d7046-ee60-6cd5-5f30-67331933d957")
   )
   (label "RTD_HW_FAULT"
-    (at 25.40 310.19 0)
+    (at 25.40 325.43 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "9dac8218-9983-2c12-82e2-511d41611dc2")
   )
   (label "SHUTDOWN"
-    (at 25.40 315.27 0)
+    (at 25.40 330.51 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "79f16ade-680e-e906-3453-39de993a6405")
   )
   (label "V_BUS_SENSE"
-    (at 25.40 320.35 0)
+    (at 25.40 335.59 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "29439c84-99b0-0d52-558c-f4b0e715d9fd")
   )
   (label "WDT_KICK"
-    (at 25.40 325.43 0)
+    (at 25.40 340.67 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "c648c420-f422-bb37-b7de-109d77034089")
   )
   (label "WDT_RESET_N"
-    (at 25.40 330.51 0)
+    (at 25.40 345.75 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "7db979b0-a395-f17d-a666-05d3f2a6e00e")
   )
+  (label "gnd"
+    (at 25.40 350.83 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid "8da99182-03bd-5127-7138-03afb14b35a1")
+  )
   (label "safety-line"
-    (at 25.40 335.59 0)
+    (at 25.40 355.91 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "884a6b5d-d42c-6aef-b539-d604379df2d0")
   )
   (label "safety-line-1"
-    (at 25.40 340.67 0)
+    (at 25.40 360.99 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "face9a68-e1a1-b852-1565-74a35455468a")
   )
   (label "safety-line-2"
-    (at 25.40 345.75 0)
+    (at 25.40 366.07 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "49b16725-5ac3-ddb7-a52b-981ba59a4bf4")
   )
   (label "tank-out"
-    (at 25.40 350.83 0)
+    (at 25.40 371.15 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "194d19a3-b024-1376-87d9-deb15ca9190e")
   )
 
   (sheet
-    (at 25.40 374.64)
+    (at 25.40 394.96)
     (size 50.80 45.72)
     (fields_autoplaced yes)
     (stroke (width 0.1524) (type solid))
     (fill (color 194 255 255 1.0))
     (uuid "4ce66fef-e010-b004-2fb2-beac2dbb6013")
     (property "Sheetname" "Sensing"
-      (at 25.40 373.93 0)
+      (at 25.40 394.25 0)
       (effects (font (size 1.27 1.27)) (justify left bottom)))
     (property "Sheetfile" "sensing.kicad_sch"
-      (at 25.40 421.63 0)
+      (at 25.40 441.95 0)
       (effects (font (size 1.27 1.27)) (justify left top)))    (pin "+3V3" bidirectional
-      (at 25.40 380.99 180)
-      (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "19c9b53e-b840-5d00-0e83-8594a57ceacb"))    (pin "PWR_RTN" bidirectional
-      (at 25.40 386.07 180)
-      (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "1ddd0c5d-f557-acf9-2475-a92fde0b4e2d"))    (pin "RTD_CS_N" bidirectional
-      (at 25.40 391.15 180)
-      (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "12888d95-a66c-b562-785b-59680e3ec49c"))    (pin "RTD_DRDY" bidirectional
-      (at 25.40 396.23 180)
-      (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "1196e37e-4c4c-ebfa-8e06-5ced05679c0a"))    (pin "RTD_HW_FAULT" bidirectional
       (at 25.40 401.31 180)
       (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "fd22dd92-282d-be18-9172-3ba11ed26f49"))    (pin "RTD_SCK" bidirectional
+      (uuid "19c9b53e-b840-5d00-0e83-8594a57ceacb"))    (pin "RTD_CS_N" bidirectional
       (at 25.40 406.39 180)
       (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "d57fcd07-feff-29c5-9a7d-10bd1d122800"))    (pin "RTD_SDI" bidirectional
+      (uuid "12888d95-a66c-b562-785b-59680e3ec49c"))    (pin "RTD_DRDY" bidirectional
       (at 25.40 411.47 180)
       (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "ba62e677-ce8c-aefc-23c1-7f8f2347128e"))    (pin "RTD_SDO" bidirectional
+      (uuid "1196e37e-4c4c-ebfa-8e06-5ced05679c0a"))    (pin "RTD_HW_FAULT" bidirectional
       (at 25.40 416.55 180)
       (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "f5134860-1a7b-09c2-7399-d41e8e251643"))    (instances
+      (uuid "fd22dd92-282d-be18-9172-3ba11ed26f49"))    (pin "RTD_SCK" bidirectional
+      (at 25.40 421.63 180)
+      (effects (font (size 1.27 1.27)) (justify left))
+      (uuid "d57fcd07-feff-29c5-9a7d-10bd1d122800"))    (pin "RTD_SDI" bidirectional
+      (at 25.40 426.71 180)
+      (effects (font (size 1.27 1.27)) (justify left))
+      (uuid "ba62e677-ce8c-aefc-23c1-7f8f2347128e"))    (pin "RTD_SDO" bidirectional
+      (at 25.40 431.79 180)
+      (effects (font (size 1.27 1.27)) (justify left))
+      (uuid "f5134860-1a7b-09c2-7399-d41e8e251643"))    (pin "gnd" bidirectional
+      (at 25.40 436.87 180)
+      (effects (font (size 1.27 1.27)) (justify left))
+      (uuid "a02d64da-cf8f-f093-e48d-43214744101f"))    (instances
       (project "temper"
         (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
           (page "6")
@@ -423,117 +455,117 @@
     )
   )
   (label "+3V3"
-    (at 25.40 380.99 0)
+    (at 25.40 401.31 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "03578536-5806-9b6a-eac8-cab907dd273f")
   )
-  (label "PWR_RTN"
-    (at 25.40 386.07 0)
-    (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid "eedbae6c-f21a-a881-f087-d7bf7fc1c4a9")
-  )
   (label "RTD_CS_N"
-    (at 25.40 391.15 0)
+    (at 25.40 406.39 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "e205b0aa-2ca1-4681-1fe3-379bd052efb1")
   )
   (label "RTD_DRDY"
-    (at 25.40 396.23 0)
+    (at 25.40 411.47 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "3915447f-3b7b-90da-06d2-6d4a3bffe350")
   )
   (label "RTD_HW_FAULT"
-    (at 25.40 401.31 0)
+    (at 25.40 416.55 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "1b0652f5-b40e-1586-5a7b-e241780527ff")
   )
   (label "RTD_SCK"
-    (at 25.40 406.39 0)
+    (at 25.40 421.63 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "1733e3e0-ea1c-7a9e-97d0-d460bb8a3e98")
   )
   (label "RTD_SDI"
-    (at 25.40 411.47 0)
+    (at 25.40 426.71 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "7849acaf-4818-94b0-0d40-e90abb264b97")
   )
   (label "RTD_SDO"
-    (at 25.40 416.55 0)
+    (at 25.40 431.79 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "c656d5b0-302b-4e90-27a1-0af27fb3b0fb")
   )
+  (label "gnd"
+    (at 25.40 436.87 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid "d3a8c411-93d2-876a-2666-3b4b3828c3cf")
+  )
 
   (sheet
-    (at 25.40 440.36)
+    (at 25.40 460.68)
     (size 50.80 106.68)
     (fields_autoplaced yes)
     (stroke (width 0.1524) (type solid))
     (fill (color 220 220 220 1.0))
     (uuid "342ceefe-d4ef-f24b-854a-f51698d00808")
     (property "Sheetname" "MCU"
-      (at 25.40 439.65 0)
+      (at 25.40 459.97 0)
       (effects (font (size 1.27 1.27)) (justify left bottom)))
     (property "Sheetfile" "mcu.kicad_sch"
-      (at 25.40 548.31 0)
+      (at 25.40 568.63 0)
       (effects (font (size 1.27 1.27)) (justify left top)))    (pin "+3V3" bidirectional
-      (at 25.40 446.71 180)
-      (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "6454e6bf-d0ca-af1b-e522-e872a78bc8bf"))    (pin "DISCHARGE_CTRL" bidirectional
-      (at 25.40 451.79 180)
-      (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "217014d0-3a99-f7f6-5135-3f24e6c25c2c"))    (pin "I_SENSE" bidirectional
-      (at 25.40 456.87 180)
-      (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "725d20d5-21ed-9e07-31ad-435b7544ea5e"))    (pin "PWM_HS" bidirectional
-      (at 25.40 461.95 180)
-      (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "ffb71557-9e0f-9d31-6275-faaa79011d3f"))    (pin "PWM_LS" bidirectional
       (at 25.40 467.03 180)
       (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "1f5815aa-4c24-d2fe-e5d7-faf834991bee"))    (pin "PWR_RTN" bidirectional
+      (uuid "6454e6bf-d0ca-af1b-e522-e872a78bc8bf"))    (pin "DISCHARGE_CTRL" bidirectional
       (at 25.40 472.11 180)
       (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "aa27efd7-eb4a-484e-e0b5-fb0929439aba"))    (pin "RELAY_CTRL" bidirectional
+      (uuid "217014d0-3a99-f7f6-5135-3f24e6c25c2c"))    (pin "I_SENSE" bidirectional
       (at 25.40 477.19 180)
       (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "622d6327-57a5-0b87-34f7-9c4bb7f9fe76"))    (pin "RTD_CS_N" bidirectional
+      (uuid "725d20d5-21ed-9e07-31ad-435b7544ea5e"))    (pin "PWM_HS" bidirectional
       (at 25.40 482.27 180)
       (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "d21abb49-caee-3129-a163-7603f49afa04"))    (pin "RTD_DRDY" bidirectional
+      (uuid "ffb71557-9e0f-9d31-6275-faaa79011d3f"))    (pin "PWM_LS" bidirectional
       (at 25.40 487.35 180)
       (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "20851675-e1ab-67a3-834f-b8391f423d7b"))    (pin "RTD_SCK" bidirectional
+      (uuid "1f5815aa-4c24-d2fe-e5d7-faf834991bee"))    (pin "RELAY_CTRL" bidirectional
       (at 25.40 492.43 180)
       (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "4587e7d7-e4e5-5896-8ab2-b0a4a89caa75"))    (pin "RTD_SDI" bidirectional
+      (uuid "622d6327-57a5-0b87-34f7-9c4bb7f9fe76"))    (pin "RTD_CS_N" bidirectional
       (at 25.40 497.51 180)
       (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "c96522e5-eba3-0234-f75e-ff100ea11088"))    (pin "RTD_SDO" bidirectional
+      (uuid "d21abb49-caee-3129-a163-7603f49afa04"))    (pin "RTD_DRDY" bidirectional
       (at 25.40 502.59 180)
       (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "bdbb4c45-609e-4a53-2369-937a46d45c63"))    (pin "SHUTDOWN" bidirectional
+      (uuid "20851675-e1ab-67a3-834f-b8391f423d7b"))    (pin "RTD_SCK" bidirectional
       (at 25.40 507.67 180)
       (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "08ed20a5-e289-c2e1-5d31-2fbcbe72375f"))    (pin "V_BUS_SENSE" bidirectional
+      (uuid "4587e7d7-e4e5-5896-8ab2-b0a4a89caa75"))    (pin "RTD_SDI" bidirectional
       (at 25.40 512.75 180)
       (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "507361e2-a123-affb-fb5a-a1e3ea892571"))    (pin "WDT_KICK" bidirectional
+      (uuid "c96522e5-eba3-0234-f75e-ff100ea11088"))    (pin "RTD_SDO" bidirectional
       (at 25.40 517.83 180)
       (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "6a09b25c-0ce0-4719-4645-d478cfb61107"))    (pin "WDT_RESET_N" bidirectional
+      (uuid "bdbb4c45-609e-4a53-2369-937a46d45c63"))    (pin "SHUTDOWN" bidirectional
       (at 25.40 522.91 180)
       (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "2fb4430d-81fa-4453-b0d0-469487bf0bff"))    (pin "ZCD" bidirectional
+      (uuid "08ed20a5-e289-c2e1-5d31-2fbcbe72375f"))    (pin "V_BUS_SENSE" bidirectional
       (at 25.40 527.99 180)
       (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "1158af70-e3ce-fb8f-356a-4dc4237e5b49"))    (pin "safety-line" bidirectional
+      (uuid "507361e2-a123-affb-fb5a-a1e3ea892571"))    (pin "WDT_KICK" bidirectional
       (at 25.40 533.07 180)
       (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "da211559-95db-51d5-093e-747123856787"))    (pin "safety-line-1" bidirectional
+      (uuid "6a09b25c-0ce0-4719-4645-d478cfb61107"))    (pin "WDT_RESET_N" bidirectional
       (at 25.40 538.15 180)
       (effects (font (size 1.27 1.27)) (justify left))
-      (uuid "0b04cf66-680d-246c-3e0c-663bba776411"))    (pin "safety-line-2" bidirectional
+      (uuid "2fb4430d-81fa-4453-b0d0-469487bf0bff"))    (pin "ZCD_ISO" bidirectional
       (at 25.40 543.23 180)
+      (effects (font (size 1.27 1.27)) (justify left))
+      (uuid "81a5cd71-5188-9677-80ec-c703eab9bc80"))    (pin "gnd" bidirectional
+      (at 25.40 548.31 180)
+      (effects (font (size 1.27 1.27)) (justify left))
+      (uuid "f6a61036-2bf6-f636-ad48-480a66c8df29"))    (pin "safety-line" bidirectional
+      (at 25.40 553.39 180)
+      (effects (font (size 1.27 1.27)) (justify left))
+      (uuid "da211559-95db-51d5-093e-747123856787"))    (pin "safety-line-1" bidirectional
+      (at 25.40 558.47 180)
+      (effects (font (size 1.27 1.27)) (justify left))
+      (uuid "0b04cf66-680d-246c-3e0c-663bba776411"))    (pin "safety-line-2" bidirectional
+      (at 25.40 563.55 180)
       (effects (font (size 1.27 1.27)) (justify left))
       (uuid "960bbcac-69f0-69a5-958a-dc01070b9f07"))    (instances
       (project "temper"
@@ -544,102 +576,102 @@
     )
   )
   (label "+3V3"
-    (at 25.40 446.71 0)
+    (at 25.40 467.03 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "7549f7e5-6e4a-abd6-d052-77e874765e10")
   )
   (label "DISCHARGE_CTRL"
-    (at 25.40 451.79 0)
+    (at 25.40 472.11 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "90ca9c37-06f1-ac92-11cc-81eaf078e96f")
   )
   (label "I_SENSE"
-    (at 25.40 456.87 0)
+    (at 25.40 477.19 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "7dadcf1d-cb0e-288f-9913-82f6d8151411")
   )
   (label "PWM_HS"
-    (at 25.40 461.95 0)
+    (at 25.40 482.27 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "caf6f5db-c731-551a-6f51-a6f8fec03a54")
   )
   (label "PWM_LS"
-    (at 25.40 467.03 0)
+    (at 25.40 487.35 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "e2ed3c13-d07c-b800-3aba-514b1c367d4a")
   )
-  (label "PWR_RTN"
-    (at 25.40 472.11 0)
-    (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid "0422b0ac-55f7-bd4a-4e2c-1f6fb3594241")
-  )
   (label "RELAY_CTRL"
-    (at 25.40 477.19 0)
+    (at 25.40 492.43 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "25da5777-e77c-89ae-455a-5b4f5c1be00d")
   )
   (label "RTD_CS_N"
-    (at 25.40 482.27 0)
+    (at 25.40 497.51 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "ac280708-1d70-03b8-bc42-bb8322d58903")
   )
   (label "RTD_DRDY"
-    (at 25.40 487.35 0)
+    (at 25.40 502.59 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "e88033f9-1d83-efc2-9ec0-9486c830434e")
   )
   (label "RTD_SCK"
-    (at 25.40 492.43 0)
+    (at 25.40 507.67 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "7b4a6ce9-dcf4-3410-f057-8b927859354e")
   )
   (label "RTD_SDI"
-    (at 25.40 497.51 0)
+    (at 25.40 512.75 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "7efb0e30-ac0b-cf37-eb52-228c3243482e")
   )
   (label "RTD_SDO"
-    (at 25.40 502.59 0)
+    (at 25.40 517.83 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "c4e6e498-2102-4ead-8d02-e4987f97a14e")
   )
   (label "SHUTDOWN"
-    (at 25.40 507.67 0)
+    (at 25.40 522.91 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "7349fbb2-157a-e910-928e-325db90af0f3")
   )
   (label "V_BUS_SENSE"
-    (at 25.40 512.75 0)
+    (at 25.40 527.99 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "a2b09662-7236-c2c8-f277-b1798d29fea7")
   )
   (label "WDT_KICK"
-    (at 25.40 517.83 0)
+    (at 25.40 533.07 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "b7b59626-180e-8eaa-7957-75ab93db8dec")
   )
   (label "WDT_RESET_N"
-    (at 25.40 522.91 0)
+    (at 25.40 538.15 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "34dc66a6-65fc-8c25-df6f-ba4bb455497a")
   )
-  (label "ZCD"
-    (at 25.40 527.99 0)
+  (label "ZCD_ISO"
+    (at 25.40 543.23 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid "d243b8df-6fb7-9098-8bd0-283ed2690901")
+    (uuid "ce5e7507-919d-0f34-43e7-dc9f5305743e")
+  )
+  (label "gnd"
+    (at 25.40 548.31 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid "b40a3849-5309-f0c6-8a06-59f2aff98bc6")
   )
   (label "safety-line"
-    (at 25.40 533.07 0)
+    (at 25.40 553.39 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "9ce506dc-f27d-f7bb-82f5-16640a29bc93")
   )
   (label "safety-line-1"
-    (at 25.40 538.15 0)
+    (at 25.40 558.47 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "90cbe16f-2d3a-52b9-df02-f664e980b121")
   )
   (label "safety-line-2"
-    (at 25.40 543.23 0)
+    (at 25.40 563.55 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid "3420e550-58bf-6d02-0bc4-ebbf2c1769ae")
   )
