@@ -167,29 +167,35 @@
 | U_WDT | Watchdog Timer | TPS3823-33DBVR | Texas Instruments | 1 | SOT-23-5 | 1.6s timeout |
 | C_WDT | Decoupling | GRM155R71H104KE14D | Murata | 1 | 0402 | 100nF 50V X7R |
 
-### 5.4 IGBT Desaturation Protection
+### 5.4 IGBT Desaturation Protection — DE-SCOPED 2026-07-26
 
-| Ref | Description | Part Number | Manufacturer | Qty | Package | Notes |
-|-----|-------------|-------------|--------------|-----|---------|-------|
-| D_DESAT_HS | DESAT Diode High-Side | STTH1R06 | STMicroelectronics | 1 | DO-201AD | 1200V 1A Fast |
-| D_DESAT_LS | DESAT Diode Low-Side | STTH1R06 | STMicroelectronics | 1 | DO-201AD | 1200V 1A Fast |
-| R_DESAT1_HS | Current Limit HS | ERJ-8ENF1004V | Panasonic | 1 | 1206 | 1MΩ 1% 0.25W |
-| R_DESAT1_LS | Current Limit LS | ERJ-8ENF1004V | Panasonic | 1 | 1206 | 1MΩ 1% 0.25W |
-| C_BLANK_HS | Blanking Cap HS | GRM1885C2A101JA01D | Murata | 1 | 0603 | 100pF 100V C0G |
-| C_BLANK_LS | Blanking Cap LS | GRM1885C2A101JA01D | Murata | 1 | 0603 | 100pF 100V C0G |
-| R_DIV1_HS | Voltage Divider High | ERJ-8ENF2203V | Panasonic | 1 | 1206 | 220kΩ 1% |
-| R_DIV1_LS | Voltage Divider High | ERJ-8ENF2203V | Panasonic | 1 | 1206 | 220kΩ 1% |
-| R_DIV2_HS | Voltage Divider Low | RC0603FR-0722KL | Yageo | 1 | 0603 | 22kΩ 1% |
-| R_DIV2_LS | Voltage Divider Low | RC0603FR-0722KL | Yageo | 1 | 0603 | 22kΩ 1% |
-| D_TVS_HS | Clamp Diode HS | SMBJ3.0CA | Littelfuse | 1 | SMB | 3.0V TVS |
-| D_TVS_LS | Clamp Diode LS | SMBJ3.0CA | Littelfuse | 1 | SMB | 3.0V TVS |
-| C_FILT_HS | Filter Cap HS | GRM155R71H104KE14D | Murata | 1 | 0402 | 100pF |
-| C_FILT_LS | Filter Cap LS | GRM155R71H104KE14D | Murata | 1 | 0402 | 100pF |
-| U_DESAT | Dual Comparator | LM393DR | Texas Instruments | 1 | SOIC-8 | 2 comparators |
-| R_REF1 | Ref Divider High | RC0603FR-074K7L | Yageo | 1 | 0603 | 4.7kΩ 1% |
-| R_REF2 | Ref Divider Low | RC0603FR-071KL | Yageo | 1 | 0603 | 1kΩ 1% |
-| R_PULL_HS | Pull-up Resistor HS | RC0603FR-0710KL | Yageo | 1 | 0603 | 10kΩ |
-| R_PULL_LS | Pull-up Resistor LS | RC0603FR-0710KL | Yageo | 1 | 0603 | 10kΩ |
+**No parts. This section previously costed 19 line items for a circuit that
+was never designed** — `grep -ni desat elec/src/*.ato` returns nothing.
+Removed: `D_DESAT_HS/LS`, `R_DESAT1_HS/LS`, `C_BLANK_HS/LS`, `R_DIV1_HS/LS`,
+`R_DIV2_HS/LS`, `D_TVS_HS/LS`, `C_FILT_HS/LS`, `U_DESAT`, `R_REF1`, `R_REF2`,
+`R_PULL_HS/LS`.
+
+**Why it cannot simply be built:** the `UCC21550` gate driver in use has no
+DESAT pin, and neither does the `UCC21551` that
+`docs/hardware/IGBT_DESATURATION_PROTECTION.md` proposes as an upgrade path.
+(The `UCC21553` that document also names is not a real TI part.) DESAT-capable
+TI drivers are a different single-channel architecture, so adopting one is a
+gate-drive redesign, not a part swap. Full analysis:
+`docs/hardware/DESAT_DECISION_BRIEF.md`.
+
+**Accepted residual risk.** OCP-01 (50.1 A, tank CT) and OCP-02 (60 A, bus
+shunt, designed) cover most of the same fault space. They do **not** cover:
+
+| Uncovered fault | Why current sensing misses it |
+|---|---|
+| Shoot-through | Both switches on together shorts the bus through the devices; current may never reach the sense element |
+| Gate-drive failure | A sagging gate partially turns the IGBT on and it dissipates enormously while current still reads normal |
+| Short at the device | May bypass where current is measured |
+| Response speed | A hard short can destroy an IGBT faster than shunt → amp → comparator → logic responds |
+
+This is a **deliberate scope decision recorded as risk**, not an oversight. A
+redesign spike is open. If DESAT is reinstated, restore these parts from
+git history rather than re-deriving them.
 
 ### 5.5 OVP Voltage Divider
 
@@ -334,6 +340,7 @@
 |---------|------|---------|
 | 1.0 | 2025-12-14 | Initial release |
 | 1.1 | 2025-12-17 | Updated for 1.8kW redesign: CST-1005 CT, 66.5Ω burden, 300nF FKP1 caps |
+| 1.4 | 2026-07-26 | **De-scoped IGBT desaturation protection** — removed 19 costed line items for a circuit that was never designed. The UCC21550 in use has no DESAT pin, so this is a gate-drive redesign rather than a part swap. Shoot-through, gate-drive failure and device-local shorts are recorded as accepted residual risk; see `docs/hardware/DESAT_DECISION_BRIEF.md`. A redesign spike is open. |
 | 1.3 | 2026-07-25 | **CT1 → CST3015-100ED** (88A sensed, was CST2010-100L at 47A) resolving the OCP-01 spec/transformer conflict; R_BURDEN → 4.99Ω, trip 50.1A. Footprint `temper:CST3015` still to be drawn — not fabricable until then. |
 | 1.2 | 2026-07-25 | Reconciled OCP/thermal entries with `elec/src/modules.ato`: CT1 → CST2010-100L (1:100; CST-1005 retired in `5a58b397`), R_BURDEN → 6.65Ω (was a decade off), NTC_HS → NTCALUG01A104GA (was wrong decade *and* beta), added the three thermal divider resistors. THM-01 corrected to 84.9°C. Flagged inline: OCP-01's spec/CT conflict, THM-02 having no circuit. **This BOM is not yet orderable** — see `docs/evidence/2026-07-25-bom-source-audit.md` for ~35 costed-but-absent and ~75 wired-but-uncosted items. |
 
