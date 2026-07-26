@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "measurement_date": "2026-07-25",
+  "invocation": "uv run python simulation/harness/run_ovp01_sim.py --runs 5",
+  "harness": "simulation/harness/run_ovp01_sim.py",
+  "netlist": "simulation/harness/nets/ovp01_trip_point.cir",
+  "simulator": {
+    "tool": "ngspice",
+    "determinism_runs": 5,
+    "deterministic": true,
+    "note": "5 identical byte-for-byte stdout runs; see docs/METHODOLOGY.md SS5 'the oracle is not exempt'."
+  },
+  "models_used": [
+    {
+      "file": "simulation/models/TLV3201_ngspice.lib",
+      "subckt": "TLV3201_NGSPICE",
+      "calibrated": false,
+      "note": "Vendor-provenance behavioural port. Its own header states it 'does not claim a timing, noise, or temperature model' -- propagation delay is NOT measurable with this model."
+    }
+  ],
+  "sourced_from_elec_read_only": {
+    "power_3v3_v": 3.3,
+    "r_div_top_total_ohm": 1290000,
+    "r_div_bot_ohm": 10000,
+    "r_ref_top_ohm": 12000,
+    "r_ref_bot_ohm": 10000,
+    "citation": "elec/src/modules.ato: OVPComparator"
+  },
+  "v_bus_line_node_identity": {
+    "wired_to": "dc_bus_plus (elec/src/main.ato: safety.dc_bus.line ~ dc_bus_plus)",
+    "actual_nominal_v": 170.0,
+    "citation": "elec/src/modules.ato PowerInput.v_bus_half = 170V; elec/src/main.ato comment 'Half-bus input (~170VDC)' on the same dc_bus_plus net",
+    "source_self_contradiction": "elec/src/main.ato's own top-of-file signal comment reads 'signal dc_bus_plus  # +340V', contradicting every actual use of that net (170V half-bus). Structurally identical to the OCP-01 docstring-vs-comment mismatch."
+  },
+  "measurements": {
+    "t_trip_s": 0.000195178,
+    "v_bus_at_trip_v": 195.178
+  },
+  "derived": {
+    "v_bus_trip_from_ramp_time_v": 195.178,
+    "v_bus_trip_from_node_voltage_v": 195.178
+  },
+  "internal_consistency_check_v": 0.0,
+  "verdict": {
+    "calibrated": false,
+    "measured_trip_v_bus_line_v": 195.178,
+    "hand_derived_trip_v_bus_line_v": 195.0,
+    "hand_sim_agreement_v": 0.178,
+    "design_intent_full_bus_v": 390.356,
+    "ovp01_spec_window_v": [
+      390.0,
+      410.0
+    ],
+    "within_ovp01_spec_window_if_doubling_assumption_holds": true,
+    "doubling_assumption_verified_by_this_deck": false,
+    "hysteresis_measured": false,
+    "hysteresis_reason": "OVPComparator has no hysteresis feedback network in the committed schematic (unlike ThermalComparator's r_hyst); FUNCTIONAL_TEST_CRITERIA.md's 10-20V hysteresis spec has no implementing circuit to measure.",
+    "propagation_delay_measured": false,
+    "propagation_delay_reason": "TLV3201_ngspice.lib declares no timing model; a measured delay from this model would be a modelling artifact, not physical.",
+    "summary": "Simulated OVP trip point at the v_bus.line node (=dc_bus_plus) is 195.18 V (uncalibrated), matching the hand-derived 195 V divider calculation to within 0.0000 V. Doubling this half-bus figure per the module's own inline comment gives a 'full bus' claim of 390.4 V, which lands inside the OVP-01 390-410V window -- BUT that doubling assumes dc_bus_minus mirrors dc_bus_plus symmetrically, an assumption this single-ended divider deck does not itself verify (dc_bus_minus is not wired to this comparator at all). The circuit AS WIRED trips at 195.2 V on the node it actually senses."
+  }
+}

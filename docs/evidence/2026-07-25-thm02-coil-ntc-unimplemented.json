@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "measurement_date": "2026-07-25",
+  "gate": "THM-02",
+  "requirement": "Coil NTC 120C shutdown, 100C recovery (docs/STRATEGY.md; docs/FUNCTIONAL_TEST_CRITERIA.md SS2.3)",
+  "verdict": "UNIMPLEMENTED",
+  "reason": [
+    "Exactly one `ThermalComparator` module is defined in elec/src/modules.ato, and it is instantiated exactly once: `thermal = new ThermalComparator` inside SafetyInterlock (elec/src/modules.ato ~line 1790). There is no second instance, and no second NTC-divider+comparator chain of any kind in elec/src/modules.ato or elec/src/main.ato.",
+    "The one instantiated ThermalComparator's NTC (mpn NTCALUG01A104GA) is documented by its own inline comment as 'lug-mount on heatsink' -- consistent with THM-01 (heatsink), not THM-02 (coil). No coil-mounted NTC circuit exists to be THM-02's implementation.",
+    "docs/hardware/BOM.md's NTC-related line items are NTC_INRUSH (the AC inrush limiter thermistor, unrelated to over-temperature protection) and a single NTC_IGBT (Murata NCU18XH103F6SRB, 10kohm/B=3950 @ 25C) -- note this BOM part NUMBER AND VALUE differs from the part actually wired into ThermalComparator in elec/src/modules.ato (Vishay NTCALUG01A104GA, 100kohm/B=4190 @ 25C). That is a second, independent BOM-vs-schematic source contradiction (component identity, not just value) worth flagging alongside the OCP-02 finding. Neither BOM entry is a coil sensor.",
+    "docs/plans/2026-07-24-002-feat-pivot-to-fab-ready-board-verdict-plan.md independently confirms this gap from the firmware side: 'THM is a single generic EVENT_OVER_TEMP with no heatsink-vs-coil distinction' -- the firmware state machine has no separate coil-thermal event either, consistent with there being no coil hardware to generate one."
+  ],
+  "not_simulated": true,
+  "no_cir_file_written": "No .cir file was authored: there is no committed coil-NTC divider circuit in elec/src/modules.ato to read component values from. Simulating a hypothetical circuit would be fabricating a design, which the task's hard constraints explicitly forbid ('Do not propose or apply component-value fixes').",
+  "related_measured_gate": "THM-01 (heatsink NTC) was measured via simulation/harness/run_thm01_sim.py against the single ThermalComparator instance that does exist -- see docs/evidence/2026-07-25-thm01-trip-point-sim.json.",
+  "investigation_commands": [
+    "grep -n \"NTC|thermal|Thermal\" elec/src/modules.ato",
+    "grep -n \"NTC|Thermistor|thermistor|coil\" docs/hardware/BOM.md"
+  ]
+}
