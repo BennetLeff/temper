@@ -15,12 +15,23 @@ same actual/required clearance values) across:
     which degrades the Rust accelerator to brute force and must still match).
 
 If ``temper_drc_rs`` is not installed, these tests are skipped rather than
-failed -- the Python backend remains the documented fallback.
+failed -- the Python backend remains the documented fallback for local
+development without a Rust toolchain.
+
+**Except in CI.** A skip here is exit-0 and looks identical in a CI summary
+to a genuine pass -- that ambiguity is precisely how this file's proof went
+silently missing in the primary checkout once before (see
+docs/evidence/2026-07-26-rust-backend-presence-gate.md). Setting
+``TEMPER_REQUIRE_RUST_DRC=1`` (which CI does) turns "would have skipped"
+into a hard collection-time failure instead, so the ambiguity cannot recur
+here even if the separate presence-gate script
+(``scripts/check_rust_drc_presence.py``) is ever removed or bypassed.
 """
 
 from __future__ import annotations
 
 import math
+import os
 import random
 
 import pytest
@@ -30,8 +41,26 @@ from temper_placer.router_v6.clearance_check import _HAS_RUST_CLEARANCE, verify_
 from temper_placer.router_v6.routing_results import CompiledRoute, RoutingResults
 from temper_placer.router_v6.via_placement import Via
 
+_RUST_DRC_REQUIRED = os.environ.get("TEMPER_REQUIRE_RUST_DRC", "").strip().lower() in {
+    "1",
+    "true",
+    "yes",
+}
+
+if _RUST_DRC_REQUIRED and not _HAS_RUST_CLEARANCE:
+    pytest.fail(
+        "TEMPER_REQUIRE_RUST_DRC=1 but temper_drc_rs.verify_route_clearance is "
+        "not available -- this environment declares the Rust clearance "
+        "backend mandatory (CI), so this differential proof must not "
+        "silently skip. Rebuild with `maturin develop --release "
+        "--manifest-path packages/temper-drc-rs/Cargo.toml`.",
+        pytrace=False,
+    )
+
 pytestmark = pytest.mark.skipif(
-    not _HAS_RUST_CLEARANCE, reason="temper_drc_rs.verify_route_clearance not available"
+    not _HAS_RUST_CLEARANCE,
+    reason="temper_drc_rs.verify_route_clearance not available "
+    "(set TEMPER_REQUIRE_RUST_DRC=1 to make this fatal instead of a skip)",
 )
 
 LAYERS = ["F.Cu", "In1.Cu", "In2.Cu", "B.Cu"]

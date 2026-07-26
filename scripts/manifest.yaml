@@ -2196,3 +2196,17 @@ scripts:
       - yaml
       - _lib.repo
       - _lib.github_summary
+
+- path: check_rust_drc_presence.py
+  purpose: "CI gate: fail-closed presence/freshness check for the temper_drc_rs PyO3 extension -- a bare import cannot detect a stale wheel missing a symbol the current lib.rs registers (2026-07-26 incident: verify_route_clearance silently absent, differential test silently skipped); TEMPER_REQUIRE_RUST_DRC=1 (CI) makes any gap fatal, unset (local dev) makes it a warning"
+  owner: bennet
+  last_run: "2026-07-26"
+  category: keep
+  disposition: ci-gate
+    imports:
+      - __future__
+      - importlib
+      - os
+      - pathlib
+      - re
+      - sys

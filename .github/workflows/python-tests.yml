@@ -123,7 +123,12 @@ jobs:
       XLA_PYTHON_CLIENT_MEM_FRACTION: 0.35
       JAX_PLATFORM_NAME: cpu
       VIRTUAL_ENV: ${{ github.workspace }}/.venv
-    
+      # CI is the environment where the Rust DRC/clearance accelerator and
+      # its Python-equivalence proof are themselves under test, so a skip
+      # here must not be silent -- see the presence-gate step below and
+      # docs/evidence/2026-07-26-rust-backend-presence-gate.md.
+      TEMPER_REQUIRE_RUST_DRC: "1"
+
     steps:
       - uses: actions/checkout@v7
       
@@ -178,6 +183,22 @@ jobs:
         run: uv run python3 -c "import temper_drc_rs; print('temper_drc_rs loaded OK')"
         env:
           RUST_BACKTRACE: full
+
+      # A bare import (above) cannot detect a *stale* wheel -- one built
+      # from an older revision of the crate that is missing a symbol the
+      # current source registers (e.g. verify_route_clearance, added
+      # 2026-07-26). This happened once already in the primary checkout:
+      # the module imported fine, but the differential proof that depends
+      # on the missing symbol silently skipped instead of failing. See
+      # docs/evidence/2026-07-26-rust-backend-presence-gate.md.
+      # TEMPER_REQUIRE_RUST_DRC=1 makes this step -- and the differential
+      # test itself -- fail loudly instead of skipping, because CI is
+      # exactly where the accelerator and its equivalence proof are the
+      # thing under test.
+      - name: Verify temper-drc-rs is fresh (presence + symbol gate)
+        run: uv run python3 scripts/check_rust_drc_presence.py
+        env:
+          TEMPER_REQUIRE_RUST_DRC: "1"
 
       - name: Cache Rust build (temper-constraints)
         uses: actions/cache@v4
