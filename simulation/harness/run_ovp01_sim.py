@@ -7,15 +7,26 @@ Same template as run_ocp01_sim.py, applied to OVPComparator
 
 What it measures
 -----------------
-A bus-voltage ramp (0 -> 500 V over 250us, THEN BACK DOWN to 0 V over the
+A bus-voltage ramp (0 -> 350 V over 250us, THEN BACK DOWN to 0 V over the
 next 250us) is driven onto the `v_bus.line` node exactly as OVPComparator's
 resistor divider is wired (3x 430 kohm top / 10 kohm bottom -> comp.INP;
-1.1 kohm / 10 kohm off the 3.3 V rail -> comp.INN; a NEW 287 kohm
+11.8 kohm / 10 kohm off the 3.3 V rail -> comp.INN; a 619 kohm
 hysteresis resistor from comp.INP back to comp.OUT), feeding a TLV3201
 comparator model (simulation/models/TLV3201_ngspice.lib). All resistor
 values are copied read-only from elec/src/modules.ato::OVPComparator, as
-of the 2026-07-26 hysteresis fix; this script and its netlist never
+of the 2026-07-27 half-bus retune; this script and its netlist never
 modify anything under elec/.
+
+IMPORTANT -- what "v_bus.line" physically is: `elec/src/main.ato` wires
+`safety.dc_bus.line ~ dc_bus_plus`, the +170V HALF-bus (positive rail of
+the Delon/cascade voltage doubler), NOT the full DC bus. An earlier
+revision of this harness (2026-07-26) stated the opposite -- that the
+divider senses the full bus -- based on a "resolution" that was itself
+wrong (see docs/STRATEGY.md "OVP-01 senses the half-bus and is now
+fail-open"). The spec windows this harness checks against are therefore
+the HALF-bus-equivalent windows: 195-205V trip / 5-10V hysteresis, i.e.
+FUNCTIONAL_TEST_CRITERIA.md SS2.2's 390-410V/10-20V full-bus windows
+halved, not the full-bus windows themselves.
 
 The up-then-down ramp lets ONE transient run capture both the TRIP
 threshold, on the way up, and the RELEASE threshold, on the way down --
@@ -25,20 +36,11 @@ not the reference node (INN, unlike ThermalComparator).
 
 It reports the v_bus.line voltage at which the comparator trips and
 releases, and compares them against:
-  - The hand-derived divider trip/release points (399.8 V trip, 385.0 V
+  - The hand-derived divider trip/release points (199.9 V trip, 193.1 V
     release, from OVPComparator's own inline comment).
-  - OVP-01's declared 390-410 V trip window and 10-20V hysteresis window
-    (docs/FUNCTIONAL_TEST_CRITERIA.md SS2.2).
-
-What "v_bus.line" physically is
---------------------------------
-main.ato wires `safety.dc_bus.line ~ dc_bus.line`, the FULL DC bus
-(resolved 2026-07-26 -- an earlier revision of this harness carried a
-stale "half-bus doubling" narrative from when the source was ambiguous;
-see docs/hardware/PROTECTION_CHAIN_REVIEW.md for the resolution history).
-This harness measures the divider circuit as wired: the trip/release
-points at the v_bus.line node, which is what the comparator actually
-sees, with no doubling assumption needed.
+  - The HALF-bus-equivalent OVP-01 window: 195-205 V trip, 5-10V
+    hysteresis (docs/FUNCTIONAL_TEST_CRITERIA.md SS2.2's 390-410V/10-20V
+    full-bus windows, halved for half-bus sensing).
 
 What it does NOT measure
 -------------------------
@@ -80,32 +82,35 @@ HARNESS_DIR = Path(__file__).resolve().parent
 NETLIST = HARNESS_DIR / "nets" / "ovp01_trip_point.cir"
 
 # Component values below are copied read-only from elec/src/modules.ato ::
-# OVPComparator, as of the 2026-07-26 hysteresis fix.
+# OVPComparator, as of the 2026-07-27 half-bus retune.
 VCC_V = 3.3
 R_DIV_TOP_OHM = 430_000 * 3
 R_DIV_BOT_OHM = 10_000
-R_REF_TOP_OHM = 1_100  # CHANGED from 732 ohm
+R_REF_TOP_OHM = 11_800  # CHANGED from 1100 ohm (fail-open, full-bus assumption)
 R_REF_BOT_OHM = 10_000
-R_HYST_OHM = 287_000  # NEW -- comp.INP (bus-sense node) to comp.OUT
+R_HYST_OHM = 619_000  # CHANGED from 287000 ohm -- comp.INP (bus-sense node) to comp.OUT
 
 # Hand-derived, from the divider values above (see netlist header for the
 # full node-equation derivation):
-#   V(INN) = 3.3 * 10000/(1100+10000) = 2.97297 V
-#   Pre-trip (comp.OUT ~ 0V):  V_bus_trip = 399.85 V
-#   Post-trip (comp.OUT ~ VCC): V_bus_release = 385.02 V
-HAND_DERIVED_TRIP_V_BUS_NODE_V = 399.85
-HAND_DERIVED_RELEASE_V_BUS_NODE_V = 385.02
+#   V(INN) = 3.3 * 10000/(11800+10000) = 1.51376 V
+#   Pre-trip (comp.OUT ~ 0V):  V_bus_trip = 199.94 V
+#   Post-trip (comp.OUT ~ VCC): V_bus_release = 193.06 V
+HAND_DERIVED_TRIP_V_BUS_NODE_V = 199.94
+HAND_DERIVED_RELEASE_V_BUS_NODE_V = 193.06
 
 # Ramp shape, mirrored from the netlist's .param block (read-only copy for
 # the independent ramp-time cross-check derivation).
-RAMP_MAX_V = 500.0
+RAMP_MAX_V = 350.0
 T_UP_S = 250e-6
 T_DOWN_S = 250e-6
 
-OVP01_SPEC_MIN_V = 390.0
-OVP01_SPEC_MAX_V = 410.0
-OVP01_HYST_MIN_V = 10.0
-OVP01_HYST_MAX_V = 20.0
+# HALF-bus-equivalent windows: v_bus.line is dc_bus_plus, the +170V
+# half-bus, so FUNCTIONAL_TEST_CRITERIA.md SS2.2's full-bus 390-410V trip
+# / 10-20V hysteresis windows are halved here to 195-205V / 5-10V.
+OVP01_SPEC_MIN_V = 195.0
+OVP01_SPEC_MAX_V = 205.0
+OVP01_HYST_MIN_V = 5.0
+OVP01_HYST_MAX_V = 10.0
 
 T_TRIP_RE = re.compile(r"^t_trip\s*=\s*([-+0-9.eE]+)\s*$", re.MULTILINE)
 T_RELEASE_RE = re.compile(r"^t_release\s*=\s*([-+0-9.eE]+)\s*$", re.MULTILINE)
@@ -230,15 +235,17 @@ def build_evidence(
             "citation": "elec/src/modules.ato: OVPComparator",
         },
         "v_bus_line_node_identity": {
-            "wired_to": "dc_bus.line, the FULL DC bus (elec/src/main.ato: safety.dc_bus.line ~ dc_bus.line)",
+            "wired_to": "dc_bus_plus, the +170V HALF-bus (elec/src/main.ato: safety.dc_bus.line ~ dc_bus_plus)",
             "resolution_note": (
-                "RESOLVED 2026-07-26: the divider senses the full bus, not "
-                "a half-bus requiring a x2 doubling assumption. An earlier "
-                "revision of this harness carried a stale half-bus/doubling "
-                "narrative left over from when main.ato's own comments "
-                "contradicted each other; see "
-                "docs/hardware/PROTECTION_CHAIN_REVIEW.md for the "
-                "resolution history."
+                "CORRECTED 2026-07-27: the 2026-07-26 'resolution' claiming "
+                "this divider senses the FULL bus was itself wrong -- see "
+                "docs/STRATEGY.md 'OVP-01 senses the half-bus and is now "
+                "fail-open'. Proof independent of any comment: PowerInput's "
+                "c_bus1 is sized against v_bus_half (170V), not the 340V "
+                "full bus (modules.ato: `assert c_bus1.voltage_rating >= "
+                "v_bus_half * 1.25`). The spec windows applied by this "
+                "harness are therefore the HALVED windows (195-205V trip / "
+                "5-10V hysteresis), not the full-bus 390-410V/10-20V ones."
             ),
         },
         "measurements": measurements,
@@ -270,17 +277,26 @@ def build_evidence(
                 "physical."
             ),
             "summary": (
-                f"Simulated OVP-01 trip point at the v_bus.line node is "
-                f"{v_bus_trip:.2f} V and release point is "
-                f"{v_bus_release:.2f} V (uncalibrated), giving "
-                f"{hysteresis_v:.2f} V of hysteresis. This is "
-                f"{'WITHIN' if within_spec else 'OUTSIDE'} the OVP-01 "
-                f"390-410V trip / 10-20V hysteresis requirement "
-                f"(FUNCTIONAL_TEST_CRITERIA.md SS2.2), matching the "
-                f"OVPComparator module's own inline hand-derivation "
-                f"(399.8V trip, 385.0V release) to within "
+                f"Simulated OVP-01 trip point at the v_bus.line node "
+                f"(dc_bus_plus, the +170V half-bus) is {v_bus_trip:.2f} V "
+                f"and release point is {v_bus_release:.2f} V "
+                f"(uncalibrated), giving {hysteresis_v:.2f} V of "
+                f"hysteresis. This is "
+                f"{'WITHIN' if within_spec else 'OUTSIDE'} the half-bus-"
+                f"equivalent 195-205V trip / 5-10V hysteresis requirement "
+                f"(FUNCTIONAL_TEST_CRITERIA.md SS2.2's 390-410V/10-20V "
+                f"full-bus windows, halved), matching the OVPComparator "
+                f"module's own inline hand-derivation (199.9V trip, "
+                f"193.1V release) to within "
                 f"{abs(v_bus_trip - HAND_DERIVED_TRIP_V_BUS_NODE_V):.2f} V / "
-                f"{abs(v_bus_release - HAND_DERIVED_RELEASE_V_BUS_NODE_V):.2f} V."
+                f"{abs(v_bus_release - HAND_DERIVED_RELEASE_V_BUS_NODE_V):.2f} V. "
+                f"Note the nominal-only simulated result is expected to "
+                f"pass; the worst-case corner analysis in "
+                f"docs/evidence/2026-07-27-ovp01-half-bus-retune.md shows "
+                f"the trip window is NOT fully met at +/-1% resistor "
+                f"tolerance (this simulation uses nominal component "
+                f"values only, per METHODOLOGY.md -- worst-case is a "
+                f"separate hand/script analysis, not a SPICE sweep)."
             ),
         },
     }
