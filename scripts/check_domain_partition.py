@@ -279,9 +279,35 @@ class Isolator:
 
 
 @dataclass
+class ProtectiveImpedanceChain:
+    """A declared protective-impedance construction: an ORDERED series of
+    two-terminal components (e.g. 3x430k resistors) between two named nets,
+    where the safety property ("no single component failure removes the
+    current-limiting function") depends on ALL declared members actually
+    being present and wired in series -- not on any single one of them.
+
+    Declaring only the first element as an isolator (as a single-component
+    Isolator entry would) verifies nothing about the rest of the chain: a
+    later edit that deletes or bypasses the second/third element would still
+    pass a gate that only knows about the first. This declaration, together
+    with check_chain_integrity, verifies the WHOLE chain: every member
+    exists, is a genuine two-terminal part, is wired in series to its
+    declared neighbor, and no interior node has an undeclared extra
+    connection (a bypass/tap that would defeat the redundancy)."""
+
+    name: str
+    component: str
+    chain: list[str]  # instance paths, in series order, boundary_a -> boundary_b
+    boundary_a: str  # net name
+    boundary_b: str  # net name
+    min_length: int  # manifest-declared minimum series-element count
+
+
+@dataclass
 class Manifest:
     domains: dict[str, list[str]]  # domain name -> [net name, ...]
     isolators: list[Isolator]
+    chains: list[ProtectiveImpedanceChain] = field(default_factory=list)
 
 
 def load_manifest(path: Path) -> Manifest:
@@ -390,7 +416,91 @@ def load_manifest(path: Path) -> Manifest:
             )
         )
 
-    return Manifest(domains=domains, isolators=isolators)
+    chains_raw = data.get("protective_impedance_chains")
+    if chains_raw is None:
+        chains_raw = []
+    if not isinstance(chains_raw, list):
+        raise GateError("'protective_impedance_chains' must be a list if present")
+
+    chains: list[ProtectiveImpedanceChain] = []
+    seen_chain_members: set[str] = set()
+    seen_chain_names: set[str] = set()
+    for entry in chains_raw:
+        if not isinstance(entry, dict):
+            raise GateError(f"protective_impedance_chain entry must be a mapping: {entry!r}")
+        name = entry.get("name")
+        component = entry.get("component", "")
+        chain_raw = entry.get("chain")
+        boundary_a = entry.get("boundary_a")
+        boundary_b = entry.get("boundary_b")
+        min_length = entry.get("min_length")
+        if not name or not isinstance(name, str):
+            raise GateError(f"protective_impedance_chain entry missing 'name': {entry!r}")
+        if name in seen_chain_names:
+            raise GateError(f"duplicate protective_impedance_chain name: {name!r}")
+        seen_chain_names.add(name)
+        if not isinstance(chain_raw, list) or len(chain_raw) < 2:
+            raise GateError(
+                f"protective_impedance_chain {name!r} must declare a 'chain' "
+                "list of at least 2 component instance_paths -- a single "
+                "component is not a redundant protective-impedance "
+                "construction (use a plain 'isolators' entry for that)"
+            )
+        chain_paths = [str(c) for c in chain_raw]
+        if len(set(chain_paths)) != len(chain_paths):
+            raise GateError(
+                f"protective_impedance_chain {name!r} lists the same "
+                "instance_path more than once"
+            )
+        for p in chain_paths:
+            if p in seen_chain_members:
+                raise GateError(
+                    f"instance_path {p!r} appears in more than one "
+                    "protective_impedance_chain -- each physical component "
+                    "backs at most one declared chain"
+                )
+            seen_chain_members.add(p)
+        if not boundary_a or not isinstance(boundary_a, str):
+            raise GateError(f"protective_impedance_chain {name!r} missing 'boundary_a'")
+        if not boundary_b or not isinstance(boundary_b, str):
+            raise GateError(f"protective_impedance_chain {name!r} missing 'boundary_b'")
+        if not isinstance(min_length, int) or isinstance(min_length, bool) or min_length < 2:
+            raise GateError(
+                f"protective_impedance_chain {name!r} must declare an "
+                "integer 'min_length' >= 2 -- the number of independent "
+                "series elements required for 'no single failure removes "
+                "the impedance' (IEC 60335-1 protective-impedance "
+                "construction requirement)"
+            )
+        if min_length > len(chain_paths):
+            raise GateError(
+                f"protective_impedance_chain {name!r} declares "
+                f"min_length={min_length} but only lists "
+                f"{len(chain_paths)} chain member(s) -- the manifest's own "
+                "declaration is internally inconsistent"
+            )
+        chains.append(
+            ProtectiveImpedanceChain(
+                name=str(name),
+                component=str(component),
+                chain=chain_paths,
+                boundary_a=str(boundary_a),
+                boundary_b=str(boundary_b),
+                min_length=int(min_length),
+            )
+        )
+
+    isolator_paths = {i.instance_path for i in isolators}
+    overlap = isolator_paths & seen_chain_members
+    if overlap:
+        raise GateError(
+            f"instance_path(s) {sorted(overlap)} are declared both as a "
+            "standalone 'isolators' entry and as a 'protective_impedance_"
+            "chains' member -- ambiguous double modeling of the same "
+            "component's graph role"
+        )
+
+    return Manifest(domains=domains, isolators=isolators, chains=chains)
 
 
 # ---------------------------------------------------------------------------
@@ -474,6 +584,136 @@ def resolve_isolator_refs(
             )
         ref_isolator[ref] = iso
     return ref_isolator
+
+
+def build_name_to_code(netlist: Netlist) -> dict[str, str]:
+    """Compiled net name -> net code, first-match-wins (mirrors the local
+    helper previously inlined in check_domain_disjointness; factored out so
+    check_chain_integrity can resolve boundary net names the same way)."""
+    name_to_code: dict[str, str] = {}
+    for code, name in netlist.nets.items():
+        name_to_code.setdefault(name, code)
+    return name_to_code
+
+
+def resolve_chain_refs(
+    netlist: Netlist, chains: list[ProtectiveImpedanceChain]
+) -> dict[str, list[str]]:
+    """Map chain name -> ordered list of component refs (same order as
+    declared), validating that every chain member matches exactly one real
+    component in the netlist and that it is a genuine two-terminal part.
+
+    Fails closed exactly like resolve_isolator_refs: a chain member that has
+    been deleted from the design (not just from the manifest) is the single
+    most direct way this redundancy could quietly disappear, so a missing
+    match is a GateError, not a silently-skipped chain link."""
+    path_to_refs: dict[str, list[str]] = {}
+    for ref, comp in netlist.components.items():
+        path_to_refs.setdefault(comp.instance_path, []).append(ref)
+
+    resolved: dict[str, list[str]] = {}
+    for chain in chains:
+        refs: list[str] = []
+        for path in chain.chain:
+            matches = path_to_refs.get(path, [])
+            if not matches:
+                raise GateError(
+                    f"protective_impedance_chain {chain.name!r} member "
+                    f"{path!r} matches no component in the netlist -- "
+                    "either the manifest is stale or this component was "
+                    "removed from the design, in which case the "
+                    "protective-impedance construction it was declared to "
+                    "be part of no longer exists as declared"
+                )
+            if len(matches) > 1:
+                raise GateError(
+                    f"protective_impedance_chain {chain.name!r} member "
+                    f"{path!r} matches {len(matches)} components "
+                    f"({matches!r}) -- instance paths must be unique"
+                )
+            ref = matches[0]
+            wired = sorted(set(netlist.ref_pins.get(ref, [])))
+            if len(wired) != 2:
+                raise GateError(
+                    f"protective_impedance_chain {chain.name!r} member "
+                    f"{path!r} (ref {ref}) has {len(wired)} wired pin(s) "
+                    f"{wired}, not exactly 2 -- chain members must be plain "
+                    "two-terminal components; a part with more pins cannot "
+                    "be modeled as a single series link"
+                )
+            refs.append(ref)
+        resolved[chain.name] = refs
+    return resolved
+
+
+def synthesize_chain_head_isolators(
+    netlist: Netlist,
+    chains: list[ProtectiveImpedanceChain],
+    resolved: dict[str, list[str]],
+    name_to_code: dict[str, str],
+) -> dict[str, Isolator]:
+    """For each declared chain, synthesize an Isolator for its FIRST member
+    only, so the existing graph machinery (build_graph / check_domain_
+    disjointness / check_isolator_integrity) treats that one component as
+    blocking -- exactly as it would a single-component 'isolators' entry --
+    which is sufficient to disconnect boundary_a from everything downstream
+    in the reachability graph. The remaining chain members are deliberately
+    left as ORDINARY, undeclared (fully-conductive) components in the graph:
+    they genuinely do conduct, and declaring them as graph-isolators too
+    caused false isolator-barrier violations in practice (a chain's last
+    resistor's own two nets are legitimately, separately reconnected
+    elsewhere in the SELV domain -- e.g. through the comparator IC's own
+    pins, or a decoupling capacitor -- which is not a barrier breach).
+    check_chain_integrity (a separate, direct netlist inspection, not a
+    graph-reachability check) is what verifies the REST of the chain is
+    actually present and wired in series, without that false-positive
+    failure mode."""
+    boundary_a_code = {c.name: name_to_code.get(c.boundary_a) for c in chains}
+    head_isolators: dict[str, Isolator] = {}
+    for chain in chains:
+        a_code = boundary_a_code[chain.name]
+        if a_code is None:
+            raise GateError(
+                f"protective_impedance_chain {chain.name!r} boundary_a "
+                f"{chain.boundary_a!r} does not exist in the compiled "
+                "netlist -- typo, or the design changed and the manifest "
+                "is stale"
+            )
+        head_ref = resolved[chain.name][0]
+        pins = sorted(set(netlist.ref_pins.get(head_ref, [])))
+        pin_nets = {p: netlist.pin_net[(head_ref, p)] for p in pins}
+        entry_pins = [p for p, net in pin_nets.items() if net == a_code]
+        if not entry_pins:
+            raise GateError(
+                f"protective_impedance_chain {chain.name!r}'s first member "
+                f"{chain.chain[0]!r} (ref {head_ref}) does not have either "
+                f"of its pins on the declared boundary_a net "
+                f"{chain.boundary_a!r} -- the chain is not wired as "
+                "declared, so this manifest entry cannot be trusted to "
+                "model the design"
+            )
+        entry_pin = entry_pins[0]
+        other_pins = [p for p in pins if p != entry_pin]
+        if len(other_pins) != 1:
+            raise GateError(
+                f"protective_impedance_chain {chain.name!r}'s first member "
+                f"{chain.chain[0]!r} (ref {head_ref}) has both pins on "
+                f"boundary_a {chain.boundary_a!r} -- effectively shorted, "
+                "which cannot be the intended protective-impedance element"
+            )
+        head_isolators[head_ref] = Isolator(
+            instance_path=chain.chain[0],
+            component=chain.component,
+            groups={
+                "boundary_a_side": [entry_pin],
+                "chain_interior": [other_pins[0]],
+            },
+            pin_labels={
+                entry_pin: f"boundary_a ({chain.boundary_a})",
+                other_pins[0]: "-> rest of declared protective-impedance chain",
+            },
+        )
+    return head_isolators
 
 
 def _dedupe_nets_in_pin_order(netlist: Netlist, ref: str, pins: list[str]) -> list[str]:
@@ -720,9 +960,7 @@ def check_domain_disjointness(
     component_of: dict[str, int],
 ) -> list[DomainViolation]:
     # Map compiled net name -> code, validating every declared net exists.
-    name_to_code: dict[str, str] = {}
-    for code, name in netlist.nets.items():
-        name_to_code.setdefault(name, code)
+    name_to_code = build_name_to_code(netlist)
 
     domain_codes: dict[str, list[str]] = {}
     missing: list[str] = []
@@ -841,6 +1079,146 @@ def check_isolator_integrity(
     return violations
 
 
+@dataclass
+class ChainViolation:
+    name: str
+    component: str
+    reason: str
+    detail: str
+
+
+def check_chain_integrity(
+    netlist: Netlist,
+    chains: list[ProtectiveImpedanceChain],
+    resolved: dict[str, list[str]],
+    name_to_code: dict[str, str],
+) -> list[ChainViolation]:
+    """Verify each declared protective-impedance chain is ACTUALLY wired as
+    an unbroken series of its declared members, end to end -- not merely
+    that its first member exists (that much is already guaranteed by
+    synthesize_chain_head_isolators / resolve_chain_refs raising GateError
+    for a missing component).
+
+    This is a direct netlist inspection, independent of the reachability
+    graph: it walks the declared chain link by link, and for every INTERIOR
+    node (between two consecutive chain members) demands that node connect
+    ONLY those two members' declared pins -- nothing else. A component that
+    is deleted is already caught earlier (GateError); a component that is
+    still present but bypassed (an added jumper/wire tying two interior
+    nodes together, or shorting a member's own two pins) collapses net
+    codes in a way this walk catches directly, without needing to know any
+    resistance VALUE at all (the compiled netlist does not reliably carry
+    resistor values -- see the evidence doc -- so this checks topology,
+    which it does carry, and which is exactly what 'no single failure
+    removes the impedance' depends on structurally)."""
+    violations: list[ChainViolation] = []
+    for chain in chains:
+        refs = resolved[chain.name]
+        a_code = name_to_code.get(chain.boundary_a)
+        b_code = name_to_code.get(chain.boundary_b)
+        if a_code is None:
+            raise GateError(
+                f"protective_impedance_chain {chain.name!r} boundary_a "
+                f"{chain.boundary_a!r} does not exist in the compiled netlist"
+            )
+        if b_code is None:
+            raise GateError(
+                f"protective_impedance_chain {chain.name!r} boundary_b "
+                f"{chain.boundary_b!r} does not exist in the compiled netlist"
+            )
+
+        current = a_code
+        for i, ref in enumerate(refs):
+            path = chain.chain[i]
+            pins = sorted(set(netlist.ref_pins.get(ref, [])))
+            if len(pins) != 2:
+                violations.append(
+                    ChainViolation(
+                        chain.name, chain.component, "malformed-member",
+                        f"{ref} ({path}) does not have exactly 2 wired pins "
+                        f"({pins}) -- cannot be a series link",
+                    )
+                )
+                break
+            p_a, p_b = pins
+            net_a = netlist.pin_net[(ref, p_a)]
+            net_b = netlist.pin_net[(ref, p_b)]
+            if net_a == net_b:
+                violations.append(
+                    ChainViolation(
+                        chain.name, chain.component, "member-shorted",
+                        f"{ref} ({path}) has both pins ({p_a}, {p_b}) on the "
+                        f"same net {netlist.nets[net_a]!r} -- effectively "
+                        "shorted or removed from the circuit, defeating the "
+                        "protective-impedance construction",
+                    )
+                )
+                break
+            if current == net_a:
+                exit_pin, exit_net = p_b, net_b
+            elif current == net_b:
+                exit_pin, exit_net = p_a, net_a
+            else:
+                violations.append(
+                    ChainViolation(
+                        chain.name, chain.component, "chain-broken",
+                        f"{ref} ({path}) does not connect to the expected "
+                        f"upstream node {netlist.nets.get(current, current)!r} "
+                        f"(its pins are on {netlist.nets[net_a]!r} and "
+                        f"{netlist.nets[net_b]!r}) -- the declared series "
+                        "chain is not actually wired as declared",
+                    )
+                )
+                break
+
+            is_last = i == len(refs) - 1
+            if is_last:
+                if exit_net != b_code:
+                    violations.append(
+                        ChainViolation(
+                            chain.name, chain.component, "chain-wrong-terminus",
+                            f"{ref} ({path}) terminates on "
+                            f"{netlist.nets[exit_net]!r}, not the declared "
+                            f"boundary_b {chain.boundary_b!r}",
+                        )
+                    )
+                    break
+            else:
+                next_ref = refs[i + 1]
+                nodes_here = netlist.net_nodes.get(exit_net, [])
+                other_nodes = [
+                    (r, p) for (r, p) in nodes_here if not (r == ref and p == exit_pin)
+                ]
+                unexpected = [(r, p) for (r, p) in other_nodes if r != next_ref]
+                if unexpected:
+                    violations.append(
+                        ChainViolation(
+                            chain.name, chain.component, "chain-tapped",
+                            f"interior node {netlist.nets[exit_net]!r} "
+                            f"between {ref} ({path}) and the declared next "
+                            f"member {next_ref} ({chain.chain[i + 1]}) has "
+                            f"additional connection(s) {unexpected} -- a "
+                            "possible bypass/tap defeating the declared "
+                            "protective-impedance chain",
+                        )
+                    )
+                    break
+                touching_next = [(r, p) for (r, p) in other_nodes if r == next_ref]
+                if len(touching_next) != 1:
+                    violations.append(
+                        ChainViolation(
+                            chain.name, chain.component, "chain-broken",
+                            f"interior node {netlist.nets[exit_net]!r} does "
+                            f"not connect {ref} ({path}) to exactly one pin "
+                            f"of the declared next member {next_ref} "
+                            f"({chain.chain[i + 1]}) (found {touching_next})",
+                        )
+                    )
+                    break
+            current = exit_net
+    return violations
+
+
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
@@ -853,6 +1231,12 @@ def run(netlist_path: Path, manifest_path: Path, src_dir: Path, skip_freshness: 
         netlist = parse_netlist(netlist_path)
         manifest = load_manifest(manifest_path)
         ref_isolator = resolve_isolator_refs(netlist, manifest.isolators)
+        name_to_code = build_name_to_code(netlist)
+        chain_refs = resolve_chain_refs(netlist, manifest.chains)
+        head_isolators = synthesize_chain_head_isolators(
+            netlist, manifest.chains, chain_refs, name_to_code
+        )
+        ref_isolator.update(head_isolators)
         graph = build_graph(netlist, ref_isolator)
         component_of = connected_components(graph)
 
@@ -869,6 +1253,9 @@ def run(netlist_path: Path, manifest_path: Path, src_dir: Path, skip_freshness: 
         domain_violations = check_domain_disjointness(netlist, manifest, graph, component_of)
         isolator_violations = check_isolator_integrity(
             netlist, ref_isolator, graph, component_of
+        )
+        chain_violations = check_chain_integrity(
+            netlist, manifest.chains, chain_refs, name_to_code
         )
     except GateError as exc:
         print("=== DOMAIN-PARTITION GATE ERROR ===", file=sys.stderr)
@@ -891,7 +1278,10 @@ def run(netlist_path: Path, manifest_path: Path, src_dir: Path, skip_freshness: 
         f"Checked {sum(len(v) for v in manifest.domains.values())} declared "
         f"nets across {len(manifest.domains)} domains "
         f"({', '.join(sorted(manifest.domains))}), "
-        f"{len(ref_isolator)} declared isolators, over "
+        f"{len(ref_isolator)} declared isolators, "
+        f"{len(manifest.chains)} declared protective-impedance chain(s) "
+        f"({sum(len(c.chain) for c in manifest.chains)} chain member(s) "
+        "total), over "
         f"{len(netlist.nets)} compiled nets / {len(netlist.components)} "
         "components."
     )
@@ -914,14 +1304,18 @@ def run(netlist_path: Path, manifest_path: Path, src_dir: Path, skip_freshness: 
     gh = get_github_summary_path()
     gh_lines: list[str] = []
 
-    if not domain_violations and not isolator_violations:
-        print("\nPASSED -- 0 domain crossings, 0 isolator-barrier breaches")
+    if not domain_violations and not isolator_violations and not chain_violations:
+        print(
+            "\nPASSED -- 0 domain crossings, 0 isolator-barrier breaches, "
+            "0 protective-impedance chain defects"
+        )
         if gh:
             with open(gh, "a") as f:
                 f.write("### Netlist Domain-Partition Gate -- PASSED\n")
                 f.write(
                     f"0 violations across {len(manifest.domains)} domains, "
-                    f"{len(ref_isolator)} isolators.\n"
+                    f"{len(ref_isolator)} isolators, "
+                    f"{len(manifest.chains)} protective-impedance chains.\n"
                 )
         return EXIT_OK
 
@@ -962,19 +1356,32 @@ def run(netlist_path: Path, manifest_path: Path, src_dir: Path, skip_freshness: 
             f"pin {v.pin_b} [{v.group_b}]: {v.path_desc}"
         )
 
+    print(
+        f"\n=== PROTECTIVE-IMPEDANCE CHAIN VIOLATIONS: {len(chain_violations)} ==="
+        if chain_violations
+        else "\n=== PROTECTIVE-IMPEDANCE CHAIN VIOLATIONS: 0 ==="
+    )
+    for v in chain_violations:
+        print(f"\n  Chain {v.name!r} ({v.component}): [{v.reason}]")
+        print(f"    {v.detail}")
+        gh_lines.append(f"- `{v.name}` [{v.reason}]: {v.detail}")
+
     if gh:
         with open(gh, "a") as f:
             f.write("### Netlist Domain-Partition Gate -- FAILED\n")
             f.write(
                 f"{len(domain_violations)} domain violation(s), "
-                f"{len(isolator_violations)} isolator violation(s)\n\n"
+                f"{len(isolator_violations)} isolator violation(s), "
+                f"{len(chain_violations)} protective-impedance chain "
+                "violation(s)\n\n"
             )
             for line in gh_lines:
                 f.write(line + "\n")
 
     print(
         f"\nFAILED -- {len(domain_violations)} domain violation(s), "
-        f"{len(isolator_violations)} isolator barrier violation(s)"
+        f"{len(isolator_violations)} isolator barrier violation(s), "
+        f"{len(chain_violations)} protective-impedance chain violation(s)"
     )
     return EXIT_VIOLATION
 
