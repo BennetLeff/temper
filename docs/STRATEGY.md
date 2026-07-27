@@ -472,6 +472,51 @@ Also surfaced: **`FUNCTIONAL_TEST_CRITERIA.md` §1.2 specifies a 200 W ±25%
 power tier that has no corresponding gate** in this document. That is an
 omitted requirement, not a lost qualifier.
 
+### Protection chain closed out — three items, one honest shortfall (2026-07-27)
+
+Evidence: `docs/evidence/2026-07-27-protection-chain-closeout.md` and three
+per-item docs. **Verified at HEAD**: `make netlist` **76 assertions PASSED / 0
+FAILED**, `check_domain_partition.py` **exit 0 / 0 crossings**,
+`capacity_budget_gate.py` **exit 0**.
+
+**OVP-01: fail-open → in spec at nominal, marginal at worst case.**
+`r_ref_top` 1.1 kΩ → **11.8 kΩ**, `r_hyst` 287 kΩ → **619 kΩ**. Simulated trip
+**200.03 V** and hysteresis **6.83 V**, both centred in the 195–205 V / 5–10 V
+half-bus windows; hand-derived 199.94 V, agreeing to 0.089 V; deterministic
+across 5 runs.
+
+**But the worst-case corner does not fully clear.** Over ±1% on all five
+path resistors, hysteresis holds (6.74–7.02 V) while **trip spans
+193.9–206.2 V** against a 195–205 V window — about 0.6% outside at each end.
+An exhaustive E96 search confirms this is **not fixable at 1% tolerance** given
+the sense divider's own contribution. Closing it needs 0.1% parts on the
+divider, or a wider spec. Reported rather than buried, and the gate should be
+read as *nominally compliant, marginally non-compliant at tolerance*.
+
+Known limitation retained: sensing one half is blind to bus **imbalance**.
+
+**BusDischarge: my recommendation was wrong and the agent corrected it.** I
+proposed 8.6 kΩ from capacitor tolerance alone. Stacked with the resistor's own
+±5%, that still fails at **62.8 s**. Resized instead to **3.9 kΩ** per resistor
+(7.8 kΩ/string, `AC05000003901JAC00`, distributor-verified), giving **56.9 s**
+against the <60 s target with *both* tolerances stacked. Dissipation rises to
+1.85 W per 5 W part; relay contact stress unchanged at 21.8 mA.
+
+**Fault tree: capacity restored.** A third `SN74HC4075DR` added; **UVL-02's
+fault is now wired into the SET path** rather than terminating on a test point.
+Measured: **AVAILABLE SET-path inputs 0 → 3**, across 3 packages and 27
+evaluated inputs. Propagation delay against OCP-01's <1 µs budget goes
+**686 ns → 811 ns**, margin 31.4% → 18.9% — still clears, on datasheet
+worst-case figures.
+
+**OCP-02 remains deliberately un-instantiated** — its sensing domain is
+unresolved, and an INA240 at the doubler midpoint would see ~170 V common mode
+against a ±80 V limit.
+
+**Protection gate status: 5 of 7 now have a verified circuit** (OCP-01, THM-01,
+THM-02, OVP-01 nominal, UVL-02), OCP-02 blocked on topology, UVL-01
+vendor-internal. **Still zero validated on hardware.**
+
 ### The clearance analysis was joining on the wrong components (2026-07-27)
 
 Full detail: `docs/evidence/2026-07-27-pcb-netlist-resync.md`. The board is
