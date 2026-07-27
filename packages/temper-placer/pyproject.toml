@@ -167,4 +167,5 @@ dev = [
     "pytest-bdd>=8.1.0",
     "pytest-timeout>=2.3.1",
     "python-sat>=1.8.dev14",
+    "sympy>=1.12",
 ]
