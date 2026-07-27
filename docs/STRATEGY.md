@@ -472,6 +472,53 @@ Also surfaced: **`FUNCTIONAL_TEST_CRITERIA.md` §1.2 specifies a 200 W ±25%
 power tier that has no corresponding gate** in this document. That is an
 omitted requirement, not a lost qualifier.
 
+### The clearance analysis was joining on the wrong components (2026-07-27)
+
+Full detail: `docs/evidence/2026-07-27-pcb-netlist-resync.md`. The board is
+resynced with the netlist, and doing so invalidated the violation count this
+document has been carrying.
+
+**Verified independently at HEAD** (re-parsed with `kiutils`, not the script's
+self-report):
+
+| | |
+|---|---|
+| Footprints | **169** (149 − 1 split + 21 new, fully accounted) |
+| Components moved | **0 of 148** persisting |
+| `+340V_BUS` | **0** occurrences |
+| `+170V_BUS` / `ZCD_ISO` | present |
+| Segments | 0 — still unrouted |
+
+`pe` correctly has no separate net record: `gnd ~ pe` merges it into the same
+compiled net, so its absence is right rather than missing.
+
+**The finding that matters: 77 of 148 persisting components had been assigned a
+new reference number, and 78 of 149 shared designators silently pointed at a
+different physical component.** Spot-checked directly: **old `U3` was a
+`SOT-23-6`** (buck converter); **new `U3` is a `DIP-6_W7.62mm`** (the H11L1
+optocoupler). Same label, different part, different package.
+
+Because the safety validators joined component positions to voltage domains **by
+reference designator**, roughly half those joins were matching the wrong
+physical part. **The "18 clearance violations" figure was computed on a broken
+join and should not be trusted.** Measured now: the untouched stale board
+against a fresh netlist gives **16**; the resynced board gives **22**, with
+matched components rising from **109/126 to 126/126** classifiable.
+
+The count moved because identity was wrong before, not because any requirement
+or classification changed — `classified_nets_present` is identical across both.
+At least one violation in the old set is provably a false positive, and several
+real ones were only detectable once identity was correct.
+
+**This is the same species as everything else this session**: an artifact that
+was internally consistent, passed its checks, and was joined to reality by a key
+that had silently stopped meaning what it used to. The resync keys on
+`Sheetpath` module-instance identity instead, per
+`docs/solutions/logic-errors/fixed-positions-ref-fragility-across-renumbering.md`.
+
+**Consequence:** the 0.836 mm F1↔J1 figure and the whole 18-violation list need
+re-deriving against the resynced board before any of it is acted on.
+
 ### Prior art narrows R_eff — and undermines the OCP-01 conflict I reported (2026-07-27)
 
 Full synthesis: `docs/evidence/2026-07-27-coil-pan-coupling-prior-art.md`.
