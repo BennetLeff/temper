@@ -18,9 +18,13 @@ Documentation fields (YAML-only, not stored in the model):
 {%- endfor %}
 {%- endif %}
 """
+{#- Import order must match ruff's isort rules (stdlib before third-party).
+    Otherwise the codegen-drift gate and the ruff gate demand different files
+    and can never both be satisfied. #}
+
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict
-from typing import Literal
 
 
 class NetClassRules(BaseModel):
@@ -37,7 +41,6 @@ class NetClassRules(BaseModel):
 {%- endif %}
     {{ field.name }}: {{ field.py_type }}{{ " = " + field.py_default if not field.required else "" }}
 {% endfor %}
-
     def __init__(self, name: str = "", **data: object) -> None:
         # Accept a positional name for ergonomics so callers can write
         # ``NetClassRules("HighVoltage", trace_width=0.5)`` instead of
