@@ -472,6 +472,52 @@ Also surfaced: **`FUNCTIONAL_TEST_CRITERIA.md` §1.2 specifies a 200 W ±25%
 power tier that has no corresponding gate** in this document. That is an
 omitted requirement, not a lost qualifier.
 
+### The gate found a real gate-drive isolation bug on its first run (2026-07-26)
+
+`modules.ato` had `power_15v.vcc ~ gate_hs.boot_diode.A` — the high-side
+bootstrap diode's anode fed from the **primary, gnd-referenced SELV rail**.
+Wrong on two independent grounds:
+
+1. **Bootstrap physics.** The diode must reference the node the switch leg
+   bottoms out at — `hv_minus`. `power_15v` floats on `gnd`, electrically
+   unrelated to where the switch node sits when low. The module already
+   declared `power_15v_ls` as *"MUST float on hv_minus"*; the correct rail
+   existed and was simply not wired to this diode.
+2. **Isolation.** The UCC21550 is a reinforced-isolation part precisely so
+   primary and secondary never share a conductive path. This bridged it with an
+   external forward-biased silicon diode: `SW_NODE --D5--> ... --C17--> ...
+   --U8--> +15V`.
+
+Fixed to `power_15v_ls.vcc ~ gate_hs.boot_diode.A`. **Verified at HEAD:**
+`power_15v_ls.gnd ~ dc_bus.hv_minus` (`modules.ato:436`), it already fed
+`driver.VDDB`, `make netlist` gives **76 assertions PASSED / 0 FAILED**, and
+`D5`/`C17` now appear **zero** times in the gate's output.
+
+**This is the domain-partition gate paying for itself on its first real run.**
+No schematic review, ERC pass, or BOM reconciliation had caught it — the same
+blind spot that hid the star join. A prior hypothesis that the bootstrap was a
+*manifest misclassification* was wrong, and the measurement said so.
+
+**The two remaining crossings are legitimate and will be declared, not
+removed.** Three 430 kΩ resistors in series is the textbook **protective
+impedance** construction: no single component failure removes the impedance.
+
+| Condition | Leakage |
+|---|---|
+| Normal | 131 µA (56.2 V per resistor) |
+| One shorted | 195 µA |
+| Two shorted | 386 µA |
+
+against roughly **1.35 mA** for a 1.8 kW stationary heating appliance
+(0.75 mA/kW, capped at 5 mA). The ADC-sense divider had a **single** 510 kΩ
+top resistor and did *not* qualify — one short removes the impedance entirely —
+so it was split into three. That distinction is the difference between a
+reasoned exception and a rubber stamp.
+
+**Acceptance condition for the declarations**: the gate must exit 0 **and still
+fail on a reconstructed `power_return ~ gnd` short**. A declaration that blinds
+the gate to the defect it was built for is worse than a red gate.
+
 ### mypy caught it; an allowlist resync swallowed it (2026-07-26)
 
 Full detail: `docs/evidence/2026-07-26-api-signature-drift-gate.md`.
