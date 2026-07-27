@@ -214,6 +214,11 @@ class DrcRatchet:
                 exit_code=1,
             )
 
+        # Per-error-type counts, when the backend can supply them. None means
+        # "this backend cannot break errors down", which is distinct from "no
+        # violations" and must never be treated as an all-clear.
+        current_by_type: dict[str, int] | None = None
+
         try:
             if self.backend == "rust":
                 current_errors, current_warnings = self._run_rust_drc(pcb_path)
@@ -223,6 +228,10 @@ class DrcRatchet:
                 drc_result = run_drc(pcb_path)
                 current_errors = drc_result.error_count
                 current_warnings = drc_result.warning_count
+                current_by_type = {}
+                for err in drc_result.errors:
+                    rule = err.rule or "unknown"
+                    current_by_type[rule] = current_by_type.get(rule, 0) + 1
             else:
                 return DrcRatchetResult(
                     passed=False,
@@ -256,10 +265,45 @@ class DrcRatchet:
                 exit_code=1,
             )
 
+        # Per-type ceilings. `violations_by_type` is an exhaustive record of the
+        # error categories this board is allowed to have, and how many of each.
+        # Anything absent from it has an implicit ceiling of zero, so a brand
+        # new violation category cannot arrive for free under the aggregate.
+        # This is what lets categories be driven to zero independently --
+        # notably `clearance`, where the aggregate ceiling is far too coarse to
+        # notice a HighVoltage net at 0.336mm against a 2.0mm requirement.
+        if entry.violations_by_type and current_by_type is not None:
+            regressions = []
+            for rule, count in sorted(current_by_type.items()):
+                allowed = entry.violations_by_type.get(rule, 0)
+                if count > allowed:
+                    regressions.append(f"{rule} {count} > {allowed}")
+            if regressions:
+                return DrcRatchetResult(
+                    passed=False,
+                    board_id=board_id,
+                    message=(
+                        f"{board_id}: DRC per-type ceiling exceeded -- "
+                        + "; ".join(regressions)
+                    ),
+                    exit_code=1,
+                )
+
+        slack = entry.error_ceiling - current_errors
+        slack_note = (
+            f" [{slack} error(s) of unratcheted slack -- lower error_ceiling to "
+            f"{current_errors} to lock this in]"
+            if slack > 0
+            else ""
+        )
         return DrcRatchetResult(
             passed=True,
             board_id=board_id,
-            message=f"{board_id}: DRC {current_errors}/{entry.error_ceiling} errors, {current_warnings}/{entry.warning_ceiling} warnings within ceiling",
+            message=(
+                f"{board_id}: DRC {current_errors}/{entry.error_ceiling} errors, "
+                f"{current_warnings}/{entry.warning_ceiling} warnings within ceiling"
+                f"{slack_note}"
+            ),
         )
 
     def detect_ceiling_raise(

@@ -1,11 +1,22 @@
 {
+  "_goal": "error_ceiling: 0. Every number below is debt to pay down, not budget to spend. Ceilings may only decrease; raising one requires a 'Ceiling-Approval:' commit trailer (drc_ratchet.detect_ceiling_raise).",
+  "_march": {
+    "2026-07-27": "error_ceiling 158 -> 90. The 158 was set when the board measured 158; the domain-clearance re-solve cut actual errors to 90 and nobody ratcheted, leaving 68 errors of slack for a regression to hide in. violations_by_type is now populated AND enforced -- a category absent from it has an implicit ceiling of 0, so a new violation class cannot arrive for free under the aggregate.",
+    "next": "clearance (10) and copper_edge_clearance (3) go to 0 first. They include HighVoltage netclass pairs at 0.336-0.85 mm against a 2.0 mm requirement (U7 pad9/pad11, TP3-U7, C23, R28) and three pads at 0.000 mm to the board edge. These pass today only because the aggregate ceiling is coarse enough to hide them."
+  },
   "boards": [
     {
       "board_id": "temper",
       "path": "pcb/temper.kicad_pcb",
-      "error_ceiling": 158,
+      "error_ceiling": 90,
       "warning_ceiling": 578,
-      "violations_by_type": {}
+      "violations_by_type": {
+        "shorting_items": 35,
+        "solder_mask_bridge": 32,
+        "clearance": 10,
+        "courtyards_overlap": 10,
+        "copper_edge_clearance": 3
+      }
     }
   ]
 }

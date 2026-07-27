@@ -103,3 +103,95 @@ class TestDrcRatchetResult:
             passed=False, board_id="b1", message="requires approval", exit_code=2
         )
         assert result.exit_code == 2
+
+
+class TestPerTypeCeilings:
+    """`violations_by_type` is enforced, not just parsed.
+
+    It was previously loaded into DrcCeilingEntry and never read, so the only
+    thing standing between the board and a new violation class was the
+    aggregate error_ceiling -- coarse enough on this board to hide HighVoltage
+    netclass pairs at 0.336mm against a 2.0mm requirement.
+    """
+
+    @staticmethod
+    def _entry(tmp_path: Path, by_type: dict, error_ceiling: int = 100):
+        ceiling_path = tmp_path / "drc_ceiling.json"
+        ceiling_path.write_text(
+            json.dumps(
+                {
+                    "boards": [
+                        {
+                            "board_id": "b",
+                            "path": "pcb/b.kicad_pcb",
+                            "error_ceiling": error_ceiling,
+                            "warning_ceiling": 1000,
+                            "violations_by_type": by_type,
+                        }
+                    ]
+                }
+            )
+        )
+        ratchet = DrcRatchet(ceiling_path, backend="kicad-cli")
+        ratchet.load()
+        return ratchet, ratchet.entries["b"]
+
+    def _check(self, tmp_path, by_type, current, monkeypatch, error_ceiling=100):
+        """Drive _check_board with a stubbed kicad-cli backend."""
+        import temper_placer.validation._drc_api as drc_api
+
+        ratchet, entry = self._entry(tmp_path, by_type, error_ceiling)
+        errors = [
+            type("E", (), {"rule": rule})()
+            for rule, n in current.items()
+            for _ in range(n)
+        ]
+        result_obj = type(
+            "R",
+            (),
+            {"error_count": len(errors), "warning_count": 0, "errors": errors},
+        )()
+        monkeypatch.setattr(drc_api, "run_drc", lambda _p: result_obj)
+        pcb = tmp_path / "b.kicad_pcb"
+        pcb.write_text("(kicad_pcb)")
+        return ratchet._check_board("b", pcb, entry)
+
+    def test_within_per_type_ceilings_passes(self, tmp_path, monkeypatch):
+        r = self._check(tmp_path, {"clearance": 10}, {"clearance": 10}, monkeypatch)
+        assert r.passed, r.message
+
+    def test_category_over_its_ceiling_fails(self, tmp_path, monkeypatch):
+        r = self._check(tmp_path, {"clearance": 10}, {"clearance": 11}, monkeypatch)
+        assert not r.passed
+        assert "clearance 11 > 10" in r.message
+
+    def test_new_category_has_implicit_zero_ceiling(self, tmp_path, monkeypatch):
+        """A violation class absent from the record must not arrive for free."""
+        r = self._check(
+            tmp_path,
+            {"clearance": 10},
+            {"clearance": 10, "hole_to_hole": 1},
+            monkeypatch,
+        )
+        assert not r.passed
+        assert "hole_to_hole 1 > 0" in r.message
+
+    def test_per_type_fails_even_when_aggregate_has_room(self, tmp_path, monkeypatch):
+        """The whole point: the aggregate ceiling must not mask a category."""
+        r = self._check(
+            tmp_path,
+            {"clearance": 10},
+            {"clearance": 20},
+            monkeypatch,
+            error_ceiling=100,
+        )
+        assert not r.passed, "aggregate slack masked a per-category regression"
+
+    def test_slack_is_reported_so_the_ceiling_gets_ratcheted(
+        self, tmp_path, monkeypatch
+    ):
+        r = self._check(
+            tmp_path, {"clearance": 5}, {"clearance": 5}, monkeypatch, error_ceiling=90
+        )
+        assert r.passed
+        assert "85 error(s) of unratcheted slack" in r.message
