@@ -446,6 +446,28 @@ jobs:
       - name: Derived-document drift gate (docs/STRATEGY.md vs FUNCTIONAL_TEST_CRITERIA.md)
         run: uv run python scripts/check_derived_doc_drift.py
 
+      # Plan 2026-07-25-001 R2. `tests/requirements/` holds the encoded
+      # IEC 60335 / EMC / design-review checks and was named in NO workflow --
+      # 240 test functions with zero CI execution path on a mains-connected
+      # design. Measured on wiring: safety 53 passed, emc 57 passed,
+      # review 27 passed.
+      #
+      # `dfm/` is deliberately NOT included yet: it has one real failure
+      # (DFM001-ANT-002, a copper pour inside the ESP32 antenna keepout on a
+      # fixture whose purpose is to represent adequate keepout), three tests
+      # requesting an `accessible_components` fixture that does not exist, and
+      # four assertion bugs. Wiring it now would add noise, not signal. It goes
+      # in once green -- not behind continue-on-error.
+      #
+      # Guarded so this cannot quietly regress to zero the way the extended
+      # suite did via a phantom path.
+      - name: Requirements tests (safety / EMC / review)
+        run: >
+          cd packages/temper-placer &&
+          uv run python ../../scripts/pytest_guard.py --min-tests 130 --
+          tests/requirements/safety/ tests/requirements/emc/
+          tests/requirements/review/ -v --tb=short -p no:cacheprovider
+
       - name: Design capacity budget gate tests
         run: uv run pytest scripts/tests/test_capacity_budget_gate.py -v --tb=short
 
