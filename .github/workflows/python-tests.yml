@@ -360,11 +360,26 @@ jobs:
            uv run python3 -c "import temper_design_bundle_python; print('temper_design_bundle_python loaded OK')") &
           BUNDLE_PID=$!
 
+          # `tests/losses/` was listed here and does not exist. pytest aborts on
+          # a missing path, so NONE of the seven sibling directories ran --
+          # 3,526 collectible tests, executing zero times, with the non-zero
+          # exit discarded by this step's continue-on-error. Proven in the log
+          # of run 30291488317: "ERROR: file or directory not found:
+          # tests/losses/" followed by "no tests ran in 0.02s".
+          #
+          # pytest_guard.py asserts a floor on tests actually executed, so this
+          # invocation cannot silently collapse to zero again. The floor is
+          # deliberately well under the real count (~3,500) -- it exists to catch
+          # catastrophic loss, not to track churn. --continue-on-collection-errors
+          # keeps three pre-existing broken modules from aborting the whole run
+          # while still reporting them and exiting non-zero.
           (cd packages/temper-placer && \
            export XLA_PYTHON_CLIENT_MEM_FRACTION=0.15 JAX_PLATFORM_NAME=cpu && \
-           uv run pytest tests/router_v6/ tests/io/ tests/deterministic/ tests/losses/ \
+           uv run python ../../scripts/pytest_guard.py --min-tests 2500 -- \
+             tests/router_v6/ tests/io/ tests/deterministic/ \
              tests/physics/ tests/fields/ tests/validation/ tests/placer/cp_sat/ \
-             -v --tb=short -p no:cacheprovider --maxfail=10 -m "not slow") &
+             -v --tb=short -p no:cacheprovider --maxfail=10 -m "not slow" \
+             --continue-on-collection-errors) &
           INVARIANT_PID=$!
 
           (cd packages/temper-placer && \
