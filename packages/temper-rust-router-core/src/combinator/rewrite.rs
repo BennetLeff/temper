@@ -47,10 +47,41 @@
 /// regardless of order; confluent because the rules are monotonic decreases
 /// on a well-founded measure.
 use std::collections::{BTreeSet, HashMap, HashSet};
+use std::io::Write;
+use std::time::Instant;
 
 use thiserror::Error;
 
 use crate::types::{InternalConstraint, InternalConstraintModel};
+
+/// Diagnostic trace for the rewrite fixpoint loop, enabled by setting the
+/// `TEMPER_REWRITE_TRACE` env var (any value). Off by default: the env
+/// lookup happens once per `rewrite()` call, and printing is gated behind
+/// the resulting bool, so normal (non-debug) runs pay one `env::var` call
+/// and a handful of branch checks -- no allocation, no formatting.
+///
+/// Added to verify (not assume) where full-board rewrite time goes -- see
+/// docs/evidence/2026-07-27-stage3-model-and-rewrite.md.
+struct RewriteTrace {
+    enabled: bool,
+    start: Instant,
+}
+
+impl RewriteTrace {
+    fn new() -> Self {
+        Self {
+            enabled: std::env::var("TEMPER_REWRITE_TRACE").is_ok(),
+            start: Instant::now(),
+        }
+    }
+
+    fn log(&self, msg: &str) {
+        if self.enabled {
+            eprintln!("[rewrite-trace t={:.3}s] {msg}", self.start.elapsed().as_secs_f64());
+            let _ = std::io::stderr().flush();
+        }
+    }
+}
 
 /// Error returned when the rewrite engine detects a structural contradiction.
 #[derive(Error, Debug, PartialEq)]
@@ -91,7 +122,14 @@ pub enum RewriteError {
 /// Returns the simplified model or `RewriteError::UnsatPreSolve` if a
 /// structural contradiction is detected.
 pub fn rewrite(model: &InternalConstraintModel) -> Result<InternalConstraintModel, RewriteError> {
+    let trace = RewriteTrace::new();
+    let clone_start = Instant::now();
     let mut constraints = model.constraints.clone();
+    trace.log(&format!(
+        "model.constraints.clone(): {:?}, {} constraints",
+        clone_start.elapsed(),
+        constraints.len()
+    ));
     let mut changed = true;
     let max_iterations = constraints.len() * 2;
     let mut iteration = 0;
@@ -99,52 +137,79 @@ pub fn rewrite(model: &InternalConstraintModel) -> Result<InternalConstraintMode
     while changed && iteration < max_iterations {
         changed = false;
         iteration += 1;
+        let iter_start = Instant::now();
 
         // RW7. LayerConflict (must fire first — detects UNSAT)
         detect_layer_conflict(&constraints)?;
 
         // RW5. DiffPairDedup
+        let t = Instant::now();
         let before = constraints.len();
         constraints = dedup_diff_pairs(constraints);
+        let t_dedup_dp = t.elapsed();
         if constraints.len() < before {
             changed = true;
         }
 
         // RW6. LayerDedup
+        let t = Instant::now();
         let before = constraints.len();
         constraints = dedup_layers(constraints);
+        let t_dedup_layers = t.elapsed();
         if constraints.len() < before {
             changed = true;
         }
 
         // RW3. LayerPropagate (true unit clause removes var from Capacity, K-1)
+        let t = Instant::now();
         let before_len = constraints.len();
         constraints = propagate_layer_true(constraints);
+        let t_prop_true = t.elapsed();
         if constraints.len() != before_len {
             changed = true;
         }
 
         // RW4. LayerPropagateFalse (false unit clause removes var, K unchanged)
+        let t = Instant::now();
         let before_len = constraints.len();
         constraints = propagate_layer_false(constraints);
+        let t_prop_false = t.elapsed();
         if constraints.len() != before_len {
             changed = true;
         }
 
         // RW1. CapSubsume
+        let t = Instant::now();
         let before_len = constraints.len();
-        constraints = subsume_capacity(constraints)?;
+        constraints = subsume_capacity(constraints, &trace)?;
+        let t_subsume = t.elapsed();
         if constraints.len() != before_len {
             changed = true;
         }
 
         // RW2. CapEliminate
+        let t = Instant::now();
         let before = constraints.len();
         constraints = eliminate_trivial_capacity(constraints);
+        let t_elim = t.elapsed();
         if constraints.len() < before {
             changed = true;
         }
+
+        trace.log(&format!(
+            "iter={iteration} len={} changed={changed} \
+             dedup_dp={t_dedup_dp:?} dedup_layers={t_dedup_layers:?} \
+             prop_true={t_prop_true:?} prop_false={t_prop_false:?} \
+             subsume={t_subsume:?} elim={t_elim:?} iter_total={:?}",
+            constraints.len(),
+            iter_start.elapsed()
+        ));
     }
+
+    trace.log(&format!(
+        "rewrite() done: iterations={iteration} (max_iterations={max_iterations}) final_len={}",
+        constraints.len()
+    ));
 
     Ok(InternalConstraintModel {
         variables: model.variables.clone(),
@@ -430,7 +495,11 @@ fn propagate_layer_false(constraints: Vec<InternalConstraint>) -> Vec<InternalCo
 /// - V1 ⊆ V2 and K1 ≤ K2: tighten C2 to min(K2, K1 + |V2\V1|)
 /// - After tightening, if two constraints have identical var sets,
 ///   keep only the one with smaller K.
-fn subsume_capacity(constraints: Vec<InternalConstraint>) -> Result<Vec<InternalConstraint>, RewriteError> {
+fn subsume_capacity(
+    constraints: Vec<InternalConstraint>,
+    trace: &RewriteTrace,
+) -> Result<Vec<InternalConstraint>, RewriteError> {
+    let fn_start = Instant::now();
     // Separate capacity constraints from others.
     let mut caps: Vec<(usize, String, f64, f64, Vec<(String, f64)>)> = Vec::new();
     let mut others: Vec<InternalConstraint> = Vec::new();
@@ -489,7 +558,29 @@ fn subsume_capacity(constraints: Vec<InternalConstraint>) -> Result<Vec<Internal
             .push(i);
     }
 
+    if trace.enabled {
+        let group_count = channel_groups.len();
+        let max_group_size = channel_groups.values().map(|v| v.len()).max().unwrap_or(0);
+        let mut size_histogram: HashMap<usize, usize> = HashMap::new();
+        for v in channel_groups.values() {
+            *size_histogram.entry(v.len()).or_insert(0) += 1;
+        }
+        trace.log(&format!(
+            "subsume_capacity: cap_infos_build={:?} groups={group_count} max_group_size={max_group_size} \
+             size_histogram(size->num_groups, top 10)={:?}",
+            fn_start.elapsed(),
+            {
+                let mut v: Vec<(usize, usize)> = size_histogram.into_iter().collect();
+                v.sort_unstable_by(|a, b| b.1.cmp(&a.1));
+                v.truncate(10);
+                v
+            }
+        ));
+    }
+
     let mut tight_k: Vec<Option<usize>> = cap_infos.iter().map(|info| Some(info.max_nets)).collect();
+    let mut comparisons: u64 = 0u64;
+    let loop_start = Instant::now();
 
     // For each channel group, do pairwise subsumption.
     for indices in channel_groups.values() {
@@ -499,6 +590,13 @@ fn subsume_capacity(constraints: Vec<InternalConstraint>) -> Result<Vec<Internal
             local_changed = false;
             for &i in indices.iter() {
                 for &j in indices.iter() {
+                    comparisons += 1;
+                    if trace.enabled && comparisons.is_multiple_of(5_000_000) {
+                        trace.log(&format!(
+                            "subsume_capacity progress: comparisons={comparisons} elapsed={:?}",
+                            loop_start.elapsed()
+                        ));
+                    }
                     if i == j {
                         continue;
                     }
@@ -543,7 +641,28 @@ fn subsume_capacity(constraints: Vec<InternalConstraint>) -> Result<Vec<Internal
         }
     }
 
+    if trace.enabled {
+        trace.log(&format!(
+            "subsume_capacity: pairwise loop done, comparisons={comparisons} elapsed={:?}",
+            loop_start.elapsed()
+        ));
+    }
+
     // Rebuild capacity constraints with tightened bounds.
+    //
+    // `dedup_map` carries `(orig_idx, tight_k)` per distinct var-set, and
+    // `cap_infos[orig_idx]` is a direct O(1) lookup back to that entry's
+    // CapInfo -- `cap_infos` is built by `.map()` over `caps` in order
+    // (see above), so `cap_infos[i].orig_idx == i` always holds; no search
+    // is needed. This replaces a previous `cap_infos.iter().find(|info| {
+    // rebuild a BTreeSet<String> from info.terms and compare })`, which
+    // rebuilt an up-to-N-element BTreeSet from scratch for every candidate
+    // scanned, for every one of the up-to-N dedup entries -- confirmed by
+    // instrumentation (see docs/evidence/2026-07-27-stage3-model-and-
+    // rewrite.md) to be the actual dominant full-board rewrite cost, not
+    // the pairwise loop above (which is O(n) here because every
+    // channel_id is unique, so every channel group has size 1).
+    let rebuild_start = Instant::now();
     let mut dedup_map: HashMap<BTreeSet<String>, (usize, usize)> = HashMap::new();
     // var_set → (orig_idx, tight_k)
 
@@ -563,19 +682,11 @@ fn subsume_capacity(constraints: Vec<InternalConstraint>) -> Result<Vec<Internal
 
     let mut result = others;
 
-    for (var_sorted, (_orig_idx, tight_k)) in dedup_map {
-        let var_set_display: Vec<String> = var_sorted.iter().cloned().collect();
-        let info = cap_infos
-            .iter()
-            .find(|info| {
-                let vs: BTreeSet<String> =
-                    info.terms.iter().map(|(n, _)| n.clone()).collect();
-                vs == var_sorted
-            })
-            .ok_or_else(|| RewriteError::SubsumeDedup {
-                var_set: var_set_display.join(", "),
-                channel_id: String::from("<unknown>"),
-            })?;
+    for (_var_sorted, (orig_idx, tight_k)) in dedup_map {
+        let info = cap_infos.get(orig_idx).ok_or_else(|| RewriteError::SubsumeDedup {
+            var_set: format!("orig_idx={orig_idx}"),
+            channel_id: String::from("<unknown>"),
+        })?;
 
         let new_max_nets = tight_k;
 
@@ -597,6 +708,14 @@ fn subsume_capacity(constraints: Vec<InternalConstraint>) -> Result<Vec<Internal
             slack_factor: info.slack_factor,
             terms: info.terms.clone(),
         });
+    }
+
+    if trace.enabled {
+        trace.log(&format!(
+            "subsume_capacity: rebuild loop done, elapsed={:?}, total_fn={:?}",
+            rebuild_start.elapsed(),
+            fn_start.elapsed()
+        ));
     }
 
     Ok(result)

@@ -39,22 +39,47 @@ fn solve_topology_rust(
     conflict_limit: Option<u32>,
     time_limit_ms: Option<u64>,
 ) -> PyResult<Py<PyAny>> {
+    // Diagnostic phase timing, enabled by TEMPER_REWRITE_TRACE (same env
+    // var the rewrite engine's own instrumentation uses -- see
+    // docs/evidence/2026-07-27-stage3-model-and-rewrite.md). Off by
+    // default: one env::var() call, no cost otherwise.
+    let phase_trace = std::env::var("TEMPER_REWRITE_TRACE").is_ok();
+    let t_start = std::time::Instant::now();
+
     // Convert Python objects to internal model.
     let py_vars: Vec<Py<PyAny>> = variables.iter().map(|v| v.into()).collect();
     let py_cons: Vec<Py<PyAny>> = constraints.iter().map(|c| c.into()).collect();
 
     let model: InternalConstraintModel =
         types_py_bridge::model_from_python(net_names.clone(), py_vars, py_cons, py)?;
+    if phase_trace {
+        eprintln!("[phase-trace t={:.3}s] model_from_python done", t_start.elapsed().as_secs_f64());
+    }
 
     // Apply combinator rewrite engine (RW1-RW7) to simplify the model
     // before CNF encoding.  Detects structural contradictions (RW7) pre-solve.
-    let model = combinator::rewrite::rewrite(&model)
-        .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(format!("{:?}", e)))?;
+    //
+    // TEMPER_SKIP_REWRITE bypasses this step entirely -- a measurement-only
+    // escape hatch (default: unset, rewrite always runs) used to compare
+    // "rewrite on" vs "rewrite off" model size / solve time. See
+    // docs/evidence/2026-07-27-stage3-model-and-rewrite.md.
+    let model = if std::env::var("TEMPER_SKIP_REWRITE").is_ok() {
+        model
+    } else {
+        combinator::rewrite::rewrite(&model)
+            .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(format!("{:?}", e)))?
+    };
+    if phase_trace {
+        eprintln!("[phase-trace t={:.3}s] rewrite done, {} constraints", t_start.elapsed().as_secs_f64(), model.constraints.len());
+    }
 
     // Encode to CNF (cardinality constraints encoded as CNF clauses).
     let (cnf, var_names) = encoding::encode_to_cnf(&model);
     let num_vars = cnf.num_vars;
     let num_clauses = cnf.clauses.len();
+    if phase_trace {
+        eprintln!("[phase-trace t={:.3}s] encode_to_cnf done, {num_vars} vars, {num_clauses} clauses", t_start.elapsed().as_secs_f64());
+    }
 
     // Solve with CaDiCaL via rustsat traits, under the caller-supplied bound.
     let limits = solver::SolveLimits {
@@ -64,6 +89,9 @@ fn solve_topology_rust(
     let mut result: TopologyResult = solver::solve_with_cadical(&cnf, &var_names, limits);
     result.num_vars = num_vars;
     result.num_clauses = num_clauses;
+    if phase_trace {
+        eprintln!("[phase-trace t={:.3}s] solve done, status={:?}", t_start.elapsed().as_secs_f64(), result.status);
+    }
 
     // Extract topology if satisfiable.
     let topology = if result.status == SolverStatus::Satisfiable {
