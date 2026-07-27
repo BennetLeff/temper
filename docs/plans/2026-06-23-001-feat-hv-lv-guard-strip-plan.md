@@ -4,11 +4,7 @@ plan_id: 2026-06-23-001-feat-hv-lv-guard-strip
 title: HV/LV Pre-Placement Guard Strip Stage
 type: feat
 origin: docs/brainstorms/2026-06-23-hv-lv-guard-strip-requirements.md
-<<<<<<< HEAD
 status: completed
-=======
-status: completed
->>>>>>> feat/hv-lv-guard-strip
 swept: 2026-07-25
 swept_basis: "referenced in git history; 10/13 paths exist"
 ---
