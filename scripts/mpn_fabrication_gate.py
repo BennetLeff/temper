@@ -398,13 +398,30 @@ def load_allowlist(path: Path) -> list[AllowlistEntry] | None:
     for e in entries_raw:
         if not isinstance(e, dict):
             return None
+        # `required` is a fixed 5-element literal written directly above --
+        # never built from runtime/config data -- so it can never be empty
+        # here; asserted rather than assumed so a future edit that turns
+        # it into a computed/config-driven set is forced to reconsider
+        # this guard.
         required = ("file", "ref", "mpn", "checks", "reason")
+        assert required
         if not all(k in e for k in required):
             return None
         checks = e["checks"]
         if isinstance(checks, str):
             checks = [checks]
-        if not isinstance(checks, list) or not all(c in ("eseries", "decode") for c in checks):
+        if not isinstance(checks, list):
+            return None
+        if not checks:
+            # An empty `checks` list is not "valid but covers nothing" --
+            # allowlist_covers() would never match it (checking
+            # `check in e.checks` against an empty set is always False),
+            # so it would silently sit in the file as dead, un-auditable
+            # weight. Before this guard, `not all(... for c in checks)`
+            # was vacuously False for checks=[], so this branch never
+            # rejected an empty list -- reject it explicitly instead.
+            return None
+        if not all(c in ("eseries", "decode") for c in checks):
             return None
         if not isinstance(e["reason"], str) or not e["reason"].strip():
             return None

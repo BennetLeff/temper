@@ -72,7 +72,14 @@ def check_production_board_if_present() -> bool:
 
 
 def main() -> int:
+    # `results` is a fixed two-element literal -- exactly the two checks
+    # named on this line, never built from runtime-variable-length data --
+    # so it can never be empty; all() over it can never be vacuous. Assert
+    # rather than assume so a future refactor that turns this into a
+    # variable-length list (e.g. a for-loop over checks) is forced to
+    # reconsider this guard.
     results = [check_fixture_rejected(), check_production_board_if_present()]
+    assert results
     return 0 if all(results) else 1
 
 

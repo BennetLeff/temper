@@ -76,7 +76,14 @@ def parse_violations(output: str) -> dict[str, set[tuple[str, str]]]:
         # Check if this is a contract header (name followed by dashes)
         if i + 1 < len(lines):
             next_line = lines[i + 1].strip()
-            if next_line and all(c == "-" for c in next_line):
+            if not next_line:
+                # A blank line can never be a "----" separator; nothing to
+                # check it against, so don't even ask all() to decide (an
+                # empty next_line would otherwise make the all() below
+                # vacuously True and misclassify a blank line as a
+                # contract-header separator).
+                pass
+            elif all(c == "-" for c in next_line):
                 # Skip known non-contract headers
                 if stripped not in (
                     "Contracts",

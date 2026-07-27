@@ -48,6 +48,11 @@ def rule_8consecutive(values: list[float], mean: float) -> bool:
     if len(values) < 8:
         return False
     last8 = values[-8:]
+    # Guaranteed exactly 8 elements by the len(values) >= 8 check above
+    # (values[-8:] of a list with >= 8 elements always returns exactly 8);
+    # asserted here (not just on `values`) since that is the collection
+    # the all() calls below actually iterate.
+    assert len(last8) == 8
     return all(v > mean for v in last8) or all(v < mean for v in last8)
 
 

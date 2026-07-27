@@ -189,10 +189,29 @@ def find_rows_by_locator(
 ) -> list[tuple[Table, list[str]]]:
     """Rows where every *locator* substring appears in the normalized row context."""
     norm_locator = [normalize(s) for s in locator]
+    if not norm_locator:
+        # locator comes straight from config (gate_cfg["source_row_locator"]
+        # or check["row_locator"]) with no schema-level minimum-length
+        # check. An empty locator would make the all() below vacuously
+        # True for every row in every table -- silently "matching" without
+        # checking any actual content, which is exactly the drift-masking
+        # failure mode this gate exists to catch. Fail closed instead.
+        raise ValueError(
+            "find_rows_by_locator: locator must be non-empty -- an empty "
+            "locator vacuously matches every row"
+        )
     norm_header_filter = [normalize(s) for s in header_contains] if header_contains else None
     matches = []
     for t in tables:
         if norm_header_filter is not None:
+            # norm_header_filter can only be non-None here when
+            # header_contains was itself truthy (see the ternary above: an
+            # empty list is falsy, so header_contains=[] yields None, never
+            # a non-None empty list) -- and a list comprehension preserves
+            # length, so norm_header_filter is always non-empty whenever
+            # this branch runs. Safe by construction; asserted, not
+            # rewritten.
+            assert norm_header_filter
             header_text = normalize(" | ".join(t.header))
             if not all(h in header_text for h in norm_header_filter):
                 continue
@@ -212,6 +231,11 @@ def find_rows_by_exact_cell(
     matches = []
     for t in tables:
         if norm_header_filter is not None:
+            # Same invariant as find_rows_by_locator above: norm_header_filter
+            # is non-None only when header_contains was truthy, and the
+            # comprehension preserves length -- so it is always non-empty
+            # whenever this branch runs. Safe by construction.
+            assert norm_header_filter
             header_text = normalize(" | ".join(t.header))
             if not all(h in header_text for h in norm_header_filter):
                 continue
@@ -402,7 +426,19 @@ def check_consistency(
         report.gate_rows_matched += 1
         ctx = normalize(row_context(table, row))
         report.fields_checked += 1
-        stale_present = all(normalize(t) in ctx for t in check["stale_tokens"])
+        stale_tokens = check["stale_tokens"]
+        if not stale_tokens:
+            # stale_tokens comes straight from config with no schema-level
+            # minimum-length check. An empty list would make the all()
+            # below vacuously True -- every row would be reported as
+            # containing a "stale" claim regardless of its actual content,
+            # which inverts this check's purpose. Fail closed instead of
+            # silently mis-scoring every row.
+            raise ValueError(
+                f"consistency check {check['id']!r}: stale_tokens must be "
+                "non-empty -- an empty list vacuously marks every row stale"
+            )
+        stale_present = all(normalize(t) in ctx for t in stale_tokens)
         mitigated = any(normalize(t) in ctx for t in check["required_mitigating_tokens"])
         if stale_present and not mitigated:
             report.violations.append(
@@ -457,17 +493,26 @@ def run(config_path: Path, repo_root: Path) -> tuple[str, Report]:
 
     source_text = _read_doc(repo_root, source_path, report)
     tables_cache: dict[str, list[Table]] = {}
-    if source_text is not None:
-        source_tables = _parse_or_error(source_path, source_text, report)
-        tables_cache[source_path] = source_tables
-        if source_tables:
-            check_source_self_validation(gates_cfg, source_tables, source_path, report)
+    try:
+        if source_text is not None:
+            source_tables = _parse_or_error(source_path, source_text, report)
+            tables_cache[source_path] = source_tables
+            if source_tables:
+                check_source_self_validation(gates_cfg, source_tables, source_path, report)
 
-    for doc_cfg in derived_docs_cfg:
-        check_derived_document(doc_cfg, gates_cfg, repo_root, report, tables_cache)
+        for doc_cfg in derived_docs_cfg:
+            check_derived_document(doc_cfg, gates_cfg, repo_root, report, tables_cache)
 
-    if consistency_cfg:
-        check_consistency(consistency_cfg, repo_root, report, tables_cache)
+        if consistency_cfg:
+            check_consistency(consistency_cfg, repo_root, report, tables_cache)
+    except ValueError as exc:
+        # A malformed config entry (e.g. an empty locator or empty
+        # stale_tokens list -- see find_rows_by_locator and
+        # check_consistency) raises ValueError rather than silently
+        # mis-scoring; converted to a tool_error here so this stays within
+        # the documented 0/3/5 exit-code contract instead of an
+        # undocumented bare-crash exit code.
+        report.tool_errors.append(ToolError(str(config_path), str(exc)))
 
     # Anti-vacuity backstop: even if nothing above tripped, a run that
     # inspected zero fields checked nothing and must not report clean.
