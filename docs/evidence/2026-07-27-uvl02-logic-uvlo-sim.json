@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "measurement_date": "2026-07-27",
+  "invocation": "uv run python simulation/harness/run_uvl02_logic_sim.py --runs 5",
+  "harness": "simulation/harness/run_uvl02_logic_sim.py",
+  "netlist": "simulation/harness/nets/uvl02_logic_uvlo_trip_point.cir",
+  "gate_scope": "This measures LogicUVLOComparator (elec/src/modules.ato), a NEW circuit directly monitoring power_3v3 (the board logic rail). It is the first circuit in this repository confirmed as UVL-02. Two prior candidates were rejected: TPS3823-33 (Watchdog module's fixed-silicon VDD supervisor -- verified against TI's datasheet to fail UVL-02 in both directions even at nominal, no SPICE model exists, UNMEASURED) and RTDSensing.rail_monitor (TPS3700 monitoring RTD_AVDD, a different rail, with no hysteresis resistor -- see docs/evidence/2026-07-25-uvl02-rtd-avdd-monitor-candidate-sim.json). This circuit's fault output is NOT wired into the interlock's fault_or/fault_any_or tree -- see 'implementation_scope' and 'verdict.fault_wired_into_interlock' below. See docs/hardware/UVL02_DESIGN.md for the full resolution.",
+  "simulator": {
+    "tool": "ngspice",
+    "determinism_runs": 5,
+    "deterministic": true,
+    "note": "5 identical byte-for-byte stdout runs; see docs/METHODOLOGY.md SS5 'the oracle is not exempt'."
+  },
+  "models_used": [
+    {
+      "file": "simulation/models/TPS3700_ngspice.lib",
+      "subckt": "TPS3700_NGSPICE",
+      "calibrated": false,
+      "note": "VIT_A=394.5mV is the model's own header default, sourced from TI's TPS3700 PSpice transient model (SBVM552B) and datasheet SBVS187G. Single fixed threshold, no min/max spread, no internal hysteresis, no timing model -- all hysteresis in this circuit comes from the external r_hyst network."
+    }
+  ],
+  "sourced_from_elec_read_only": {
+    "power_3v3_nominal_v": 3.3,
+    "r_div_top_ohm": 698000,
+    "r_div_bot_ohm": 100000,
+    "r_hyst_ohm": 3740000,
+    "r_outa_pullup_ohm": 10000,
+    "resistor_tolerance": 0.01,
+    "citation": "elec/src/modules.ato: LogicUVLOComparator"
+  },
+  "datasheet_values_not_in_elec": {
+    "vit_a_datasheet_min_v": 0.387,
+    "vit_a_datasheet_typ_v": 0.3945,
+    "vit_a_datasheet_max_v": 0.4,
+    "citation": "TI TPS3700 datasheet SBVS187G (Feb 2012, rev Feb 2019), SS6.5 Electrical Characteristics, VIT- row, VDD=1.8V to 18V: min 387mV, typ 394.5mV, max 400mV. Verified directly from the datasheet PDF, not secondhand."
+  },
+  "implementation_scope": {
+    "instances_of_LogicUVLOComparator_in_modules_ato": 1,
+    "instantiated_as": "SafetyInterlock.uvlo_logic (elec/src/modules.ato)",
+    "circuit_existed_before_2026_07_26": false,
+    "fault_wiring": "NOT wired into fault_or/fault_any_or. uvlo_logic.fault.line is instead brought to a test point (SafetyInterlock.tp_uvlo2_fault). An earlier pass of this survey, done against a stale worktree, found fault_any_or.C1 grounded and concluded it was a free SET-path input -- wrong: on the current tree, THM-02 (coil_thermal.fault.line) already owns fault_any_or.C1 (added in commit d99c88e2, before this circuit was designed). Re-surveyed against the current tree: fault_or gate 3 (Y3) drives nothing downstream; fault_any_or.C2 sits on the reset-qualifier path (wiring a fault there blocks reset without ever tripping the latch); fault_any_or gate 3 (A3/B3/C3/Y3) is entirely unreferenced, but its Y3 has no path into the SET aggregation without a further OR stage. No genuine spare SET-path input exists for UVL-02 -- the same conclusion already reached for OCP-02 on this same fault-tree. See docs/hardware/UVL02_DESIGN.md SS7."
+  },
+  "measurements": {
+    "t_trip_s": 0.0001347671,
+    "t_release_s": 0.0005618013,
+    "v_vcc_at_trip_v": 2.716009,
+    "v_vcc_at_release_v": 3.221739,
+    "v_ina_p_at_trip_v": 0.3702924,
+    "v_ina_p_at_release_v": 0.4321907
+  },
+  "derived": {
+    "hand_derived_trip_v_nominal": 2.7150275799909873,
+    "hand_derived_recover_v_nominal": 3.2217359358288773,
+    "trip_hand_sim_agreement_v": 0.0009814200090128011,
+    "recover_hand_sim_agreement_v": 3.0641711226131463e-06
+  },
+  "internal_consistency_check_trip_v": 0.0009814200090128011,
+  "internal_consistency_check_recover_v": 3.0641711226131463e-06,
+  "worst_case_analysis": {
+    "method": "Analytic 16-corner sweep (NOT simulated in ngspice -- the behavioral model has no min/max spread): each of r_div_top/r_div_bot/r_hyst independently at +/-1% (E96 part tolerance per elec/src/modules.ato), VIT_A at the real TPS3700 datasheet's 387mV/400mV min/max. 2^3 x 2 = 16 combinations; worst (max) trip and worst (min) recovery reported.",
+    "worst_case_trip_v": 2.800412598267488,
+    "worst_case_recovery_v": 3.1055656843331394,
+    "best_case_trip_v": 2.6183336388258027,
+    "best_case_recovery_v": 3.3245645762437213,
+    "worst_case_trip_margin_v": 0.0995874017325118,
+    "worst_case_recovery_margin_v": 0.1055656843331394,
+    "worst_case_trip_within_spec": true,
+    "worst_case_recovery_within_spec": true,
+    "within_spec_worst_case": true
+  },
+  "worst_case_analysis_with_tempco": {
+    "method": "Same 16-corner sweep as worst_case_analysis, but each resistor's +/-1% initial tolerance is widened by +/-100ppm/C Yageo RC-series tempco (DigiKey-verified) at DT=60C 'extreme ambient', stacked (not RSS-combined) with tolerance -- matching docs/evidence/2026-07-27-threshold-sensitivity-tempco-budget.md's convention and added 2026-07-27 alongside the r_div_bot MPN fix (docs/evidence/2026-07-27-ocp01-uvl02-part-resolution.md).",
+    "effective_resistor_tolerance": 0.016,
+    "worst_case_trip_v": 2.82939608774186,
+    "worst_case_recovery_v": 3.0731323070445073,
+    "worst_case_trip_margin_v": 0.07060391225813989,
+    "worst_case_recovery_margin_v": 0.07313230704450735,
+    "worst_case_trip_within_spec": true,
+    "worst_case_recovery_within_spec": true,
+    "within_spec_worst_case": true
+  },
+  "verdict": {
+    "calibrated": false,
+    "measured_trip_v": 2.716,
+    "measured_recovery_v": 3.2217,
+    "measured_hysteresis_v": 0.5057,
+    "uvl02_spec_trip_ceiling_v": 2.9,
+    "uvl02_spec_recover_floor_v": 3.0,
+    "trip_within_uvl02_spec_nominal": true,
+    "recovery_within_uvl02_spec_nominal": true,
+    "within_uvl02_spec_nominal": true,
+    "worst_case_trip_v": 2.8004,
+    "worst_case_recovery_v": 3.1056,
+    "within_uvl02_spec_worst_case": true,
+    "worst_case_trip_v_with_tempco": 2.8294,
+    "worst_case_recovery_v_with_tempco": 3.0731,
+    "within_uvl02_spec_worst_case_with_tempco": true,
+    "docstring_claim_trip_v": 2.715,
+    "matches_docstring_claim_trip": true,
+    "docstring_claim_recover_v": 3.222,
+    "matches_docstring_claim_recover": true,
+    "response_time_measured": false,
+    "response_time_reason": "TPS3700_ngspice.lib declares no timing model; the ramped VCC driver is an idealized PWL stimulus, not a real regulator brownout transient.",
+    "fault_wired_into_interlock": false,
+    "fault_wiring_reason": "No genuine spare SET-path input exists in fault_or/fault_any_or -- THM-02 (coil_thermal) already took the last one (fault_any_or.C1) before this circuit was designed. fault.line is brought to a test point (SafetyInterlock.tp_uvlo2_fault) instead of being wired into a colliding or dead-end input. See 'implementation_scope.fault_wiring' above and docs/hardware/UVL02_DESIGN.md SS7.",
+    "gate_confirmed_as_uvl02": true,
+    "gate_confirmed_as_uvl02_caveat": "This circuit is confirmed as UVL-02's monitor -- it measures the logic rail directly and meets the trip/recovery spec with margin -- but it is NOT YET part of the hardware shutdown path (fault_wired_into_interlock is False). A live UVL-02 trip today reaches a test point, not GATE_DISABLE.",
+    "summary": "Simulated UVL-02 (LogicUVLOComparator) trip voltage is 2.7160 V and recovery voltage is 3.2217 V (uncalibrated, nominal component values), giving 0.5057 V of hysteresis. This is WITHIN the UVL-02 <2.9V trip / >3.0V recovery requirement at nominal, matching LogicUVLOComparator's own inline hand-derivation (2.715V trip, 3.222V recover) to within 0.0010V / 0.0000V. Worst-case analytic corner sweep (+/-1% resistors, full datasheet VIT_A range) gives trip <= 2.8004 V and recovery >= 3.1056 V, which is STILL WITHIN spec with 0.0996V / 0.1056V margin respectively. NOT wired into the fault interlock: fault_any_or.C1, the only spare SET-path input, was taken by THM-02 before this circuit existed; no other spare exists (same conclusion as OCP-02 on this fault-tree). fault.line terminates at a test point pending a fault-aggregation redesign."
+  }
+}

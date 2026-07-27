@@ -2543,8 +2543,21 @@ module LogicUVLOComparator:
     r_div_top.footprint = "Resistor_SMD:R_0603_1608Metric"
 
     r_div_bot = new Resistor
+    # MPN corrected 2026-07-27
+    # (docs/evidence/2026-07-27-ocp01-uvl02-part-resolution.md): was
+    # "RC0603FR-0710KL", which decodes (Yageo RC-series convention) to
+    # 10kohm -- a 10x mismatch against the declared 100kohm value used
+    # throughout this module's own derivation and worst-case corner sweep
+    # (see docstring above and docs/hardware/UVL02_DESIGN.md). Re-deriving
+    # from the circuit confirms the VALUE, not the MPN, was right: with
+    # r_div_bot actually at 10kohm, VCC_trip/VCC_recover come out to
+    # ~23.6V/~28.0V -- physically unreachable on a 3.3V logic rail, i.e. a
+    # UVLO that would never trip. Corrected to "RC0603FR-07100KL"
+    # (DigiKey-verified: 100kohm, +/-1%, 0603, +/-100ppm/C, Yageo, in
+    # stock -- the same MPN pattern already used for this file's other real
+    # 100kohm 1% 0603 parts, e.g. RTDSensing.r_window_ok_pulldown).
     r_div_bot.value = 100kohm +/- 1%
-    r_div_bot.mpn = "RC0603FR-0710KL"
+    r_div_bot.mpn = "RC0603FR-07100KL"
     r_div_bot.footprint = "Resistor_SMD:R_0603_1608Metric"
 
     # Positive feedback: loads the sense node (INA_P) from OUTA, exactly as

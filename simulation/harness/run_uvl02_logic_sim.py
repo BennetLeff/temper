@@ -103,6 +103,18 @@ VIT_A_DATASHEET_MAX_V = 0.400
 
 RESISTOR_TOLERANCE = 0.01  # +/-1%, E96 parts per elec/src/modules.ato
 
+# Temperature-coefficient budget added 2026-07-27
+# (docs/evidence/2026-07-27-ocp01-uvl02-part-resolution.md), following
+# docs/evidence/2026-07-27-threshold-sensitivity-tempco-budget.md's
+# DigiKey-verified figure for this same Yageo RC-series family
+# (+/-100ppm/C) and its DT=60C "extreme ambient" convention. Also the
+# occasion r_div_bot's MPN ("RC0603FR-0710KL", decoding to 10kohm against
+# the declared 100kohm value) was corrected to "RC0603FR-07100KL" -- the
+# numeric value used in this harness (R_DIV_BOT_OHM) was already 100kohm
+# and is unchanged by that MPN-only fix.
+TEMPCO_PPM_PER_C = 100
+DELTA_T_C = 60.0
+
 UVL02_SPEC_TRIP_CEILING_V = 2.9
 UVL02_SPEC_RECOVER_FLOOR_V = 3.0
 DOCSTRING_CLAIM_TRIP_V = 2.715
@@ -201,6 +213,28 @@ def worst_case_corners(
     }
 
 
+def worst_case_corners_with_tempco(
+    r_top: float,
+    r_bot: float,
+    r_hyst: float,
+    resistor_tol: float,
+    tempco_ppm_per_c: float,
+    delta_t_c: float,
+    vit_lo: float,
+    vit_hi: float,
+) -> dict[str, float]:
+    """Same 16-corner sweep as worst_case_corners, but with the
+    per-resistor tolerance widened by the tempco contribution
+    (tempco_ppm_per_c * delta_t_c), stacked (not RSS-combined) with the
+    initial +/-1% tolerance -- the pessimistic, uncorrelated treatment this
+    project's tempco-budget evidence doc argues is the correct one for a
+    protection circuit's safety case."""
+    eff_tol = resistor_tol + (tempco_ppm_per_c * 1e-6 * delta_t_c)
+    result = worst_case_corners(r_top, r_bot, r_hyst, eff_tol, vit_lo, vit_hi)
+    result["effective_resistor_tolerance"] = eff_tol
+    return result
+
+
 def build_evidence(
     measurements: dict[str, float],
     invocation: str,
@@ -224,6 +258,25 @@ def build_evidence(
         RESISTOR_TOLERANCE,
         VIT_A_DATASHEET_MIN_V,
         VIT_A_DATASHEET_MAX_V,
+    )
+    worst_case_tempco = worst_case_corners_with_tempco(
+        R_DIV_TOP_OHM,
+        R_DIV_BOT_OHM,
+        R_HYST_OHM,
+        RESISTOR_TOLERANCE,
+        TEMPCO_PPM_PER_C,
+        DELTA_T_C,
+        VIT_A_DATASHEET_MIN_V,
+        VIT_A_DATASHEET_MAX_V,
+    )
+    worst_case_tempco_trip_within_spec = (
+        worst_case_tempco["worst_case_trip_v"] < UVL02_SPEC_TRIP_CEILING_V
+    )
+    worst_case_tempco_recovery_within_spec = (
+        worst_case_tempco["worst_case_recovery_v"] > UVL02_SPEC_RECOVER_FLOOR_V
+    )
+    within_spec_worst_case_tempco = (
+        worst_case_tempco_trip_within_spec and worst_case_tempco_recovery_within_spec
     )
 
     trip_within_spec = trip_v < UVL02_SPEC_TRIP_CEILING_V
@@ -359,6 +412,34 @@ def build_evidence(
             "worst_case_recovery_within_spec": worst_case_recovery_within_spec,
             "within_spec_worst_case": within_spec_worst_case,
         },
+        "worst_case_analysis_with_tempco": {
+            "method": (
+                "Same 16-corner sweep as worst_case_analysis, but each "
+                "resistor's +/-1% initial tolerance is widened by "
+                "+/-100ppm/C Yageo RC-series tempco (DigiKey-verified) at "
+                "DT=60C 'extreme ambient', stacked (not RSS-combined) with "
+                "tolerance -- matching docs/evidence/"
+                "2026-07-27-threshold-sensitivity-tempco-budget.md's "
+                "convention and added 2026-07-27 alongside the r_div_bot "
+                "MPN fix (docs/evidence/"
+                "2026-07-27-ocp01-uvl02-part-resolution.md)."
+            ),
+            "effective_resistor_tolerance": worst_case_tempco[
+                "effective_resistor_tolerance"
+            ],
+            "worst_case_trip_v": worst_case_tempco["worst_case_trip_v"],
+            "worst_case_recovery_v": worst_case_tempco["worst_case_recovery_v"],
+            "worst_case_trip_margin_v": (
+                UVL02_SPEC_TRIP_CEILING_V - worst_case_tempco["worst_case_trip_v"]
+            ),
+            "worst_case_recovery_margin_v": (
+                worst_case_tempco["worst_case_recovery_v"]
+                - UVL02_SPEC_RECOVER_FLOOR_V
+            ),
+            "worst_case_trip_within_spec": worst_case_tempco_trip_within_spec,
+            "worst_case_recovery_within_spec": worst_case_tempco_recovery_within_spec,
+            "within_spec_worst_case": within_spec_worst_case_tempco,
+        },
         "verdict": {
             "calibrated": False,
             "measured_trip_v": round(trip_v, 4),
@@ -372,6 +453,13 @@ def build_evidence(
             "worst_case_trip_v": round(worst_case["worst_case_trip_v"], 4),
             "worst_case_recovery_v": round(worst_case["worst_case_recovery_v"], 4),
             "within_uvl02_spec_worst_case": within_spec_worst_case,
+            "worst_case_trip_v_with_tempco": round(
+                worst_case_tempco["worst_case_trip_v"], 4
+            ),
+            "worst_case_recovery_v_with_tempco": round(
+                worst_case_tempco["worst_case_recovery_v"], 4
+            ),
+            "within_uvl02_spec_worst_case_with_tempco": within_spec_worst_case_tempco,
             "docstring_claim_trip_v": DOCSTRING_CLAIM_TRIP_V,
             "matches_docstring_claim_trip": (
                 abs(trip_v - DOCSTRING_CLAIM_TRIP_V) < SPEC_MATCH_TOLERANCE_V
