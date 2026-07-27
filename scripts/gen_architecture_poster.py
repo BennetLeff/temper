@@ -579,7 +579,7 @@ def discover_packages() -> list[dict[str, Any]]:
     _PRIORITY = {
         "firmware": 0,
         "temper-pcl-ir": 1, "temper-constraint-compiler": 1, "temper-constraints": 1,
-        "temper-geometry-core": 2, "temper-geometry": 2,
+        "temper-geometry": 2,
         "temper-rust-router-core": 2, "temper-rust-router": 2,
         "temper-drc-rs": 3, "temper-dsn": 3, "temper-ipc": 3,
         "temper-quality-oracle": 3,

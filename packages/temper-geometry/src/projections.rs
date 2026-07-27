@@ -7,7 +7,7 @@
 // Each function projects a point onto a geometric constraint set, returning
 // the nearest valid point (or the point itself if already valid).
 
-use temper_geometry_core::types::*;
+use crate::types::*;
 
 // =============================================================================
 // Identity Projection

@@ -11,7 +11,7 @@
 //
 // All functions take a query `Point` + shape parameters and return `f64`.
 
-use temper_geometry_core::types::*;
+use crate::types::*;
 
 // =============================================================================
 // Basic Shape SDFs

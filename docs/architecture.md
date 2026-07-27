@@ -30,8 +30,7 @@ PyO3 crate wraps it for use from `temper_placer`.
 
 | Rust crate | Replaces | Language | Binding |
 |---|---|---|---|
-| `temper-geometry-core` | `temper_placer/geometry/` (types) | Rust (rlib) | — |
-| `temper-geometry` | 8 geometry submodules (primitives, polygon, sdf, smooth, transform, overlap, projections, drc_inflate) | Rust + PyO3 | `temper_geometry` |
+| `temper-geometry` | `temper_placer/geometry/` (types + 8 submodules: primitives, polygon, sdf, smooth, transform, overlap, projections, drc_inflate) | Rust + PyO3 | `temper_geometry` |
 | `temper-dsn-core` | DSN (Specctra) format parsing | Rust (rlib) | — |
 | `temper-dsn` | DSN Python module | Rust + PyO3 | `temper_dsn` |
 | `temper-ipc-core` | IPC-2221 trace width / clearance | Rust (rlib) | — |
@@ -49,7 +48,7 @@ PyO3 crate wraps it for use from `temper_placer`.
 | `temper-io-types` | KiCad IO types + golden serializers | Rust + PyO3 | `temper_io_types` |
 
 The `temper-io-types` crate is on branch `feat/io-port-final`; the remaining
-16 crates are on `main`.
+15 crates are on `main`.
 
 ## 3. Cycle-Breaking Pattern
 
@@ -84,12 +83,11 @@ Examples: `temper_geometry` replaces `temper_placer/geometry/` (severed
 
 ## 4. Current Crate Inventory
 
-### Rust crates (17 on main, 1 on branch)
+### Rust crates (16 on main, 1 on branch)
 
 | Package | Language | PyO3 module | Description |
 |---|---|---|---|
-| `temper-geometry-core` | Rust | — | Shared geometry data types |
-| `temper-geometry` | Rust+Py | `temper_geometry` | PyO3 wrapper for geometry-core |
+| `temper-geometry` | Rust+Py | `temper_geometry` | 2D geometry math + shared geometry data types |
 | `temper-dsn-core` | Rust | — | DSN (Specctra) format utilities |
 | `temper-dsn` | Rust+Py | `temper_dsn` | PyO3 wrapper for dsn-core |
 | `temper-ipc-core` | Rust | — | IPC-2221 trace calculations |
@@ -121,9 +119,6 @@ Examples: `temper_geometry` replaces `temper_placer/geometry/` (severed
 temper-pcl-ir  (no deps)
   ├── temper-constraints
   └── temper-design-bundle
-
-temper-geometry-core  (no deps)
-  └── temper-geometry
 
 temper-dsn-core  (no deps)
   └── temper-dsn
