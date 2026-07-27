@@ -472,6 +472,52 @@ Also surfaced: **`FUNCTIONAL_TEST_CRITERIA.md` §1.2 specifies a 200 W ±25%
 power tier that has no corresponding gate** in this document. That is an
 omitted requirement, not a lost qualifier.
 
+### Two more bad parts, both in protection circuits (2026-07-27)
+
+Audit and gate: `docs/evidence/2026-07-27-fabricated-mpn-audit.md`,
+`scripts/mpn_fabrication_gate.py`. **Both verified independently at HEAD.**
+
+**1. OCP-01's reference divider is a suspect-fabricated part.**
+`modules.ato` `OCPComparator.r_ref_top` declares **3.2 kΩ**, MPN
+`RC0603FR-073K2L`. Confirmed by computation: **3.2 kΩ is in neither E24 nor
+E96** — the E96 neighbours are 3.16 k and 3.24 k. The MPN encodes `3K2`, so
+value and part number are internally consistent and both invented — the exact
+signature of `ERA-3AEB6132V`. DigiKey returns zero hits; Mouser timed out, so
+this is **UNVERIFIED rather than certain**.
+
+This sets the threshold for **OCP-01, the primary 50 A over-current
+protection.**
+
+**2. UVL-02's sense divider names a real part with the wrong value — and this
+one is worse.** `LogicUVLOComparator.r_div_bot` declares **100 kΩ** with MPN
+`RC0603FR-0710KL`. Yageo's encoding makes `10KL` = **10 kΩ**; 100 kΩ would be
+`RC0603FR-07100KL`. **A 10× mismatch.**
+
+The module's entire worst-case corner analysis — the 2.800 V / 3.106 V bounds
+recorded earlier — is built on 100 kΩ. **Built to the MPN as written, the 3.3 V
+logic under-voltage lockout would essentially never trip.**
+
+**This is the more dangerous class.** The part is *real*. You would order it,
+receive exactly what you ordered, and assemble a board whose UVLO does not
+work — with no availability check, no distributor flag, and no supply-chain
+signal anywhere. Fabricated parts fail loudly at procurement; a *correct part
+with the wrong value* fails silently at the bench.
+
+Also flagged, unresolved: `ERA-3AEB5931V` (5.93 kΩ, RTD window chain) and
+`ERA-3AEB6163V` (616 kΩ, rail monitor) — same non-E-series, no-DigiKey-hit
+signature.
+
+**The gate**: 120 R/C value+MPN pairs parsed, **103 decoded**, 17
+unchecked-prefix **reported rather than silently passed**, 14 E-series
+violations of which 9 are confirmed-real round numbers allowlisted with
+citations. Exits **3** on today's tree with 5 unresolved findings. Its
+falsifier — reconstructing `61.3 kΩ` as a fixture — produces the E192 violation
+naming 61.2/61.9/60.4 exactly. Anti-vacuity holds: zero `.ato` files, zero
+parseable parts, and a malformed allowlist all exit 5, never 0.
+
+Allowlist is hand-curated with no auto-generation path, deliberately unlike
+`check_typecheck_gate.py`'s auto-resynced one.
+
 ### Tempco was never analysed, and a fourth part is fabricated (2026-07-27)
 
 Full analysis: `docs/evidence/2026-07-27-threshold-sensitivity-tempco-budget.md`.
