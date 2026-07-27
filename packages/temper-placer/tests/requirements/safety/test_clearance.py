@@ -499,35 +499,15 @@ class TestClearanceIntegration:
     """Integration tests for complete clearance validation."""
 
     @pytest.mark.slow
-    @pytest.mark.xfail(
-        strict=True,
-        reason=(
-            "UPDATE 2026-07-27 (later same day): `safety.uvlo_logic-line` "
-            "(TP3, UVL-02's fault test point) was missing from "
-            "`_real_board_fixture._NET_DOMAINS` entirely -- not a documented "
-            "exclusion like `+15V_LS`, just an oversight -- so the R24 "
-            "domain-clearance generator silently produced zero constraints "
-            "for every pair involving TP3. Classifying it LV_CONTROL (it is "
-            "genuinely SELV: `uvlo_logic.power ~ power_3v3`, confirmed "
-            "against docs/hardware/SELV_ISOLATION_REDESIGN.md Sec 6 row 13, "
-            "'entirely internal to SELV ... no HV node is read, driven, or "
-            "referenced') now correctly surfaces exactly 1 real violation: "
-            "Creepage between U7 (DC_BUS) and TP3 (LV_CONTROL) is 7.987mm, "
-            "below the 8.0mm DC_BUS<->LV_CONTROL reinforced requirement -- "
-            "the board's own committed placement has TP3 only 7.987mm "
-            "(component-center) from U7, and kicad-cli's pad-level DRC "
-            "measures the real copper gap at 0.336mm, far worse. This is "
-            "a genuine finding, not a fixture bug: the classifier fix is "
-            "correct and tested (see test_tp3_uvlo_line_is_classified "
-            "below, and test_domain_clearance.py::TestRealBoardTP3Coverage); "
-            "what remains is "
-            "an actual re-solve to relocate TP3 (or U7) far enough apart, "
-            "which was out of scope for the classification fix itself. "
-            "Converting this test back to a normal passing assertion "
-            "requires that re-solve, at which point this xfail should be "
-            "removed the same way the prior 22-violation one was."
-        ),
-    )
+    # The xfail removed here was calibrated against the board as it stood on
+    # followup/post-344: TP3 sat 7.987mm (component-centre) from U7, just under
+    # the 8.0mm DC_BUS<->LV_CONTROL reinforced requirement. The later re-solve
+    # (043debdf, after the r_avdd_top 0603->0805 correction) separated them,
+    # and kicad-cli agrees -- no DRC error on this board involves TP3, and
+    # `clearance` errors went 10 -> 9. The classifier fix that surfaced it
+    # stands: `safety.uvlo_logic-line` had been missing from _NET_DOMAINS
+    # entirely, so the R24 generator produced zero constraints for any pair
+    # involving TP3. See test_tp3_uvlo_line_is_classified below.
     def test_temper_board_clearance_compliance(self):
         """Temper board should meet all REQ-SAFE-01 requirements.
 
