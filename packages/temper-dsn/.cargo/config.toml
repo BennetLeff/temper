@@ -18,10 +18,14 @@ rustflags = ["-C", "link-arg=-undefined", "-C", "link-arg=dynamic_lookup"]
 [target.x86_64-apple-darwin]
 rustflags = ["-C", "link-arg=-undefined", "-C", "link-arg=dynamic_lookup"]
 
-# CRATE-SPECIFIC LIMITATION: this crate's lib pulls pyo3 code paths that
-# reference Python exception *data* symbols (e.g. _PyExc_BaseException).
-# dyld binds data eagerly at load, so even pure-Rust unit tests abort at
-# startup ("symbol not found in flat namespace"). The flags above still
-# fix compile/link (cargo check / cargo build --tests are clean); running
-# the unit tests requires splitting pure logic into a -core rlib first,
-# per the temper-rust-router-core precedent.
+# UPDATE 2026-07-27: the paragraph that used to live here claimed pyo3
+# exception *data* symbols (e.g. _PyExc_BaseException) made `cargo test --lib`
+# abort at dyld load even for pure-Rust tests, and that rescuing tests
+# required splitting pure logic into a separate `-core` rlib. That claim did
+# not hold: `temper-geometry` runs the identical shape (pyo3 0.29,
+# crate-type = ["cdylib", "rlib"], same extension-module feature, tests
+# living directly alongside `#[pyfunction]`/`#[pymodule]` code) and passes
+# `cargo test --lib` (312/313, one pre-existing unrelated failure). The
+# dsn/ipc-core split this file described was reverted in the commit that
+# added this comment (folded `temper-dsn-core`'s tests back into `dsn.rs`
+# here); `cargo test --lib` on this crate now passes all 8 of them directly.
