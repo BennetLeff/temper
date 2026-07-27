@@ -499,6 +499,35 @@ class TestClearanceIntegration:
     """Integration tests for complete clearance validation."""
 
     @pytest.mark.slow
+    @pytest.mark.xfail(
+        strict=True,
+        reason=(
+            "UPDATE 2026-07-27 (later same day): `safety.uvlo_logic-line` "
+            "(TP3, UVL-02's fault test point) was missing from "
+            "`_real_board_fixture._NET_DOMAINS` entirely -- not a documented "
+            "exclusion like `+15V_LS`, just an oversight -- so the R24 "
+            "domain-clearance generator silently produced zero constraints "
+            "for every pair involving TP3. Classifying it LV_CONTROL (it is "
+            "genuinely SELV: `uvlo_logic.power ~ power_3v3`, confirmed "
+            "against docs/hardware/SELV_ISOLATION_REDESIGN.md Sec 6 row 13, "
+            "'entirely internal to SELV ... no HV node is read, driven, or "
+            "referenced') now correctly surfaces exactly 1 real violation: "
+            "Creepage between U7 (DC_BUS) and TP3 (LV_CONTROL) is 7.987mm, "
+            "below the 8.0mm DC_BUS<->LV_CONTROL reinforced requirement -- "
+            "the board's own committed placement has TP3 only 7.987mm "
+            "(component-center) from U7, and kicad-cli's pad-level DRC "
+            "measures the real copper gap at 0.336mm, far worse. This is "
+            "a genuine finding, not a fixture bug: the classifier fix is "
+            "correct and tested (see test_tp3_uvlo_line_is_classified "
+            "below, and test_domain_clearance.py::TestRealBoardTP3Coverage); "
+            "what remains is "
+            "an actual re-solve to relocate TP3 (or U7) far enough apart, "
+            "which was out of scope for the classification fix itself. "
+            "Converting this test back to a normal passing assertion "
+            "requires that re-solve, at which point this xfail should be "
+            "removed the same way the prior 22-violation one was."
+        ),
+    )
     def test_temper_board_clearance_compliance(self):
         """Temper board should meet all REQ-SAFE-01 requirements.
 
@@ -525,22 +554,27 @@ class TestClearanceIntegration:
         to emit per-pair SeparatedConstraint objects at the IEC 60335-2-6
         margin, and the resynced board was re-solved with them (169/169
         components, CP-SAT status=optimal). Re-running this exact check
-        against the re-solved, re-parsed `pcb/temper.kicad_pcb` now reports
-        0 violations -- see
+        against the re-solved, re-parsed `pcb/temper.kicad_pcb` reported
+        0 violations at that time -- see
         docs/evidence/2026-07-27-domain-clearance-constraint.md for the
         full 22->0 before/after count, the R24 soundness proof,
-        BMC-exhaustive validation, and the post-solve audit. This is now a
-        normal passing assertion, not an xfail: converting away from
-        `xfail(strict=True)` is required once the underlying defect closes
-        -- leaving the strict-xfail marker in place would have made this
-        specific test XPASS (a hard failure under `strict=True`) while
-        masking the fact the placer's actual capability changed.
+        BMC-exhaustive validation, and the post-solve audit.
 
-        Falsifier: if this ever reports >0 violations while
-        `pcb/temper.kicad_pcb` is the resynced-and-re-solved board, the
-        domain-clearance constraint (or its post-solve audit) has
-        regressed silently. As implemented, it currently correctly reports
-        0 violations, so the falsifier has NOT fired.
+        UPDATE 2026-07-27 (later same day, this session): that 0 was
+        measured with `TP3` unclassified (see fixture module docstring and
+        `test_tp3_uvlo_line_is_classified` below). Once classified, this test
+        finds 1 real violation and is back to `xfail(strict=True)` above --
+        see that marker's reason for the exact number. This is deliberate,
+        not a reversion: leaving a component's net unclassified so its
+        pairs never get checked is exactly the "detector that reports
+        nothing and passes" failure mode this suite exists to catch; a
+        correctly-scoped classifier finding a real gap is the system
+        working, not regressing.
+
+        Falsifier: if this ever reports a *different* violation count than
+        the one cited in the xfail reason above while `pcb/temper.kicad_pcb`
+        and this fixture's classification are unchanged, something drifted
+        silently -- investigate before adjusting the marker.
         """
         from ._real_board_fixture import RealBoardUnavailable, load_real_board_placement
 
@@ -564,6 +598,38 @@ class TestClearanceIntegration:
             "docs/evidence/2026-07-26-safety-validators-implemented.md for "
             "the full list."
         )
+
+    def test_tp3_uvlo_line_is_classified(self) -> None:
+        """Falsifier for the specific gap this session closed: `TP3`'s net
+        (`safety.uvlo_logic-line`) must be present in `voltage_domains` and
+        mapped to `LV_CONTROL`. Before the fix, this net was absent from
+        `_NET_DOMAINS` entirely, so `TP3` never appeared in
+        `placement["components"]` and no domain pair involving it was ever
+        checked -- a silent, unreported gap distinct from the documented
+        `+15V_LS`/`pe` exclusions."""
+        from ._real_board_fixture import RealBoardUnavailable, load_real_board_placement
+
+        try:
+            placement, voltage_domains, stats = load_real_board_placement()
+        except RealBoardUnavailable as exc:
+            pytest.skip(f"{exc} (run `make netlist` first)")
+
+        assert "safety.uvlo_logic-line" in voltage_domains, (
+            "TP3's net (safety.uvlo_logic-line) is not classified into any "
+            "VoltageDomain -- the R24 domain-clearance generator will "
+            "silently produce zero constraints for every pair involving "
+            "TP3, and verify_iec60335_compliance will never check it "
+            "either."
+        )
+        assert voltage_domains["safety.uvlo_logic-line"] == VoltageDomain.LV_CONTROL
+
+        tp3_components = [c for c in placement["components"] if c.get("ref") == "TP3"]
+        assert tp3_components, (
+            "TP3 is not present in the placement at all -- either the net "
+            "classification didn't take, or TP3 has no position in the "
+            "parsed PCB."
+        )
+        assert "safety.uvlo_logic-line" in tp3_components[0]["nets"]
 
     def test_validation_result_aggregation(self):
         """Multiple violations should aggregate correctly."""

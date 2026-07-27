@@ -295,3 +295,88 @@ class TestPostSolveAudit:
         # Would violate if audited -- must be skipped entirely.
         violations = audit_domain_clearance([c], {"A": (0.0, 0.0), "B": (0.1, 0.0)})
         assert violations == []
+
+
+# ---------------------------------------------------------------------------
+# Group 4: real-board regression -- TP3's net must be classified
+# ---------------------------------------------------------------------------
+
+
+class TestRealBoardTP3Coverage:
+    """Falsifier for a specific DRC finding: kicad-cli reports a
+    HighVoltage-netclass clearance violation between `TP3` (a UVL-02 test
+    point on `safety.uvlo_logic-line`) and `U7` (DC_BUS_RTN). Root cause:
+    `TP3`'s net was entirely absent from
+    `tests.requirements.safety._real_board_fixture._NET_DOMAINS`, so this
+    generator -- which pairs components purely off that classification --
+    silently produced zero `SeparatedConstraint`s for any pair involving
+    `TP3`. This class checks the generator's real-board behavior directly
+    (not just the fixture's own classification, covered separately in
+    `tests/requirements/safety/test_clearance.py::
+    TestClearanceIntegration::test_tp3_uvlo_line_is_classified`) so a
+    regression in either the fixture *or* the generator's own pairing logic
+    is caught here.
+    """
+
+    def _load(self):
+        import pytest
+
+        from tests.requirements.safety._real_board_fixture import (
+            RealBoardUnavailable,
+            load_real_board_placement,
+        )
+
+        try:
+            return load_real_board_placement()
+        except RealBoardUnavailable as exc:
+            pytest.skip(f"{exc} (run `make netlist` first)")
+
+    def test_generator_emits_at_least_one_constraint_for_tp3(self) -> None:
+        placement, voltage_domains, _stats = self._load()
+        constraints = generate_domain_clearance_constraints(placement, voltage_domains)
+        tp3_constraints = [c for c in constraints if c.a == "TP3" or c.b == "TP3"]
+        assert tp3_constraints, (
+            "generate_domain_clearance_constraints() produced 0 constraints "
+            "involving TP3 against the real board -- TP3's net "
+            "(safety.uvlo_logic-line) is unclassified again, so the "
+            "generator is silently skipping every pair that touches it "
+            "(the exact R24-follow-up gap this test guards)."
+        )
+
+    def test_generator_covers_the_tp3_u7_pair_specifically(self) -> None:
+        """The DRC finding this session investigated was specifically
+        TP3<->U7 (kicad-cli: HighVoltage netclass, 2.0mm required, 0.336mm
+        actual). Confirm the generator emits a constraint for this pair at
+        the DC_BUS<->LV_CONTROL margin (8.0mm).
+
+        U7 genuinely straddles domains (it carries `gnd`/`+3V3` -- both
+        LV_CONTROL -- *and* `DC_BUS_RTN`, i.e. it is a level-shifting gate
+        driver, confirmed directly: ``[c['nets'] for c in placement if
+        c['ref']=='U7'] == ['gnd', '+3V3', 'DC_BUS_RTN']``). Because the
+        generator's pair-dict key is the *ordered* tuple ``(ref_a, ref_b)``
+        rather than a canonicalized/unordered one, the same physical
+        TP3/U7 pair can be emitted under two different keys when it
+        matches rows from different domain groupings with reversed
+        ref order -- here, ``domain_clearance_U7_TP3`` (8.0mm, from the
+        DC_BUS<->LV_CONTROL cross-domain rows, where U7 is drawn from the
+        DC_BUS group) *and* ``domain_clearance_TP3_U7`` (1.0mm, from the
+        LV_CONTROL<->LV_CONTROL functional same-domain row, where both are
+        drawn from the LV_CONTROL group and happen to be visited in that
+        order). This does not lose safety margin -- the stricter 8.0mm
+        constraint is still emitted and still audited under its own id --
+        so this test checks that the *strictest* margin among any
+        constraint touching this unordered pair is the expected 8.0mm,
+        rather than assuming a single key.
+        """
+        placement, voltage_domains, _stats = self._load()
+        constraints = generate_domain_clearance_constraints(placement, voltage_domains)
+        matches = [c for c in constraints if {c.a, c.b} == {"TP3", "U7"}]
+        assert matches, (
+            "No SeparatedConstraint generated for the TP3<->U7 pair -- "
+            "either TP3's net is unclassified again, or U7 no longer "
+            "carries a DC_BUS-domain net (DC_BUS_RTN)."
+        )
+        # DC_BUS<->LV_CONTROL: max across basic (3.0/4.0) and reinforced
+        # (6.0/8.0) rows is 8.0mm. This must appear among the (possibly
+        # multiple, see docstring) constraints for this pair.
+        assert max(c.min_distance_mm for c in matches) == 8.0

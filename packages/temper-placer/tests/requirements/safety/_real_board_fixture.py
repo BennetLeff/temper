@@ -56,6 +56,23 @@ classification used here (asserted from that document + a direct read of
   so the (MAINS, ISOLATED, REINFORCED) matrix row is checked but will
   always report zero candidate components -- an honest gap, not a silent
   pass dressed up as compliance.
+- ``safety.uvlo_logic-line`` -> ``LV_CONTROL``. This is
+  ``uvlo_logic.fault.line`` (UVL-02's ``LogicUVLOComparator`` fault output;
+  ``elec/src/modules.ato`` also brings it to a bench test point,
+  ``tp_uvlo2_fault = new TestPoint; tp_uvlo2_fault.p1 ~
+  uvlo_logic.fault.line``, which is ``TP3`` on the current resynced board).
+  Unlike ``+15V_LS`` above, this net is not merely unclassifiable -- it was
+  simply missing from this dict (an oversight, not a documented exclusion).
+  Per ``docs/hardware/SELV_ISOLATION_REDESIGN.md`` Sec 6 row 13: "Not a
+  crossing at all -- entirely internal to SELV. This module monitors
+  ``power_3v3`` ... against the TPS3700's internal ... reference; both its
+  power and its sense divider are ``power.vcc``/``power.gnd`` ... No HV
+  node is read, driven, or referenced anywhere in this module" -- confirmed
+  directly here too (``uvlo_logic.power ~ power_3v3``,
+  ``elec/src/modules.ato`` ~line 2690). Leaving it unclassified meant the
+  R24 domain-clearance generator silently skipped every pair involving
+  ``TP3`` -- exactly the "component whose net is unclassified so no
+  constraint was generated" gap-class this fixture exists to avoid.
 """
 
 from __future__ import annotations
@@ -84,6 +101,7 @@ _NET_DOMAINS: dict[str, VoltageDomain] = {
     "zcd": VoltageDomain.DC_BUS,
     "ac_l": VoltageDomain.MAINS,
     "ac_n": VoltageDomain.MAINS,
+    "safety.uvlo_logic-line": VoltageDomain.LV_CONTROL,
 }
 
 
