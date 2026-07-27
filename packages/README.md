@@ -9,7 +9,6 @@ The `packages/` directory contains the temper EDA pipeline — placement, routin
 | `temper-drc-rs` | Rust DRC engine — PCB design rule checks with geo + rstar spatial indexing | Python + Rust | done |
 | `temper-dsn` | DSN (Specctra) format utilities for temper PCB placement | Python + Rust | done |
 | `temper-geometry` | 2D geometry math functions for temper PCB placement | Python + Rust | done |
-| `temper-geometry-core` | Shared geometry data types for temper | Python + Rust | done |
 | `temper-ipc` | IPC standard calculations for PCB design (current capacity, trace width) | Python + Rust | done |
 | `temper-pcl-ir` | Shared typed PCL intermediate representation | Python + Rust | done |
 | `temper-placer` | CP-SAT-based PCB placement optimizer for the Temper induction cooker | Python | N/A |
@@ -18,6 +17,6 @@ The `packages/` directory contains the temper EDA pipeline — placement, routin
 | `temper-rust-router-core` | Router V6 topology stage — pure-Rust core (SAT solver, topology extraction, loop extraction) | Python + Rust | done |
 | `temper-workflow` | GPBM workflow orchestration for Temper development | Python | N/A |
 
-Packages with a `-core` suffix (`temper-geometry-core`, `temper-rust-router-core`) are pure-Rust type crates with zero logic — the corresponding non-core package (`temper-geometry`, `temper-rust-router`) wraps them with Python bindings and adds computation.
+Packages with a `-core` suffix (`temper-rust-router-core`) are pure-Rust type crates with zero logic — the corresponding non-core package (`temper-rust-router`) wraps them with Python bindings and adds computation.
 
 `temper-constraints` is a nested Rust/PyO3 crate inside `packages/temper-placer/` providing SAT constraint encoding primitives. It appears as a separate node in `ARCHITECTURE.svg` but is not a top-level package.

@@ -142,18 +142,15 @@ For contributors working on architecture, verification, or toolchain internals:
 
 <!-- BEGIN GENERATED: inventory -- edits here are overwritten by scripts/gen_repo_state.py -->
 
-**18 workspace packages** under `packages/`:
+**15 workspace packages** under `packages/`:
 
 - `temper-constraint-compiler`
 - `temper-design-bundle`
 - `temper-drc-rs`
 - `temper-dsn`
-- `temper-dsn-core`
 - `temper-geometry`
-- `temper-geometry-core`
 - `temper-io-types`
 - `temper-ipc`
-- `temper-ipc-core`
 - `temper-pcl-ir`
 - `temper-placer`
 - `temper-py-bridge`

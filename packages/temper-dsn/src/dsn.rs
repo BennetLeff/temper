@@ -1,6 +1,7 @@
-//! Pure-Rust DSN (Specctra) format utilities — core logic extracted from temper-dsn.
+//! Pure-Rust DSN (Specctra) format utilities.
 //!
-//! Tests live here.  The pyo3 wrappers in `temper-dsn` are thin adapters.
+//! Tests live here.  The `#[pyfunction]` wrappers in `lib.rs` are thin adapters
+//! over this module.
 
 use regex::Regex;
 use sha2::{Digest, Sha256};

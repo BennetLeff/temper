@@ -12,7 +12,7 @@
 // - Nearest point on polygon boundary
 // - Polygon transformations (translate, scale, rotate)
 
-use temper_geometry_core::types::*;
+use crate::types::*;
 use crate::primitives;
 
 // =============================================================================

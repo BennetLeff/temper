@@ -1,4 +1,4 @@
-use temper_geometry_core::types::*;
+use crate::types::*;
 
 // =============================================================================
 // Point Operations

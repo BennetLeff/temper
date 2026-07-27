@@ -374,13 +374,8 @@ dependencies = [
  "proptest",
  "pyo3",
  "rand 0.8.7",
- "temper-geometry-core",
  "temper-py-bridge",
 ]
-
-[[package]]
-name = "temper-geometry-core"
-version = "0.1.0"
 
 [[package]]
 name = "temper-py-bridge"

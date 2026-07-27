@@ -14,7 +14,7 @@
 // - Clearance violation checking
 // - Smooth penalties suitable for loss functions
 
-use temper_geometry_core::types::*;
+use crate::types::*;
 use crate::smooth::*;
 
 // =============================================================================

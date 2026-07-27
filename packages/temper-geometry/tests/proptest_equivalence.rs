@@ -14,7 +14,7 @@ use temper_geometry::projections::*;
 use temper_geometry::sdf::*;
 use temper_geometry::smooth::*;
 use temper_geometry::transform::*;
-use temper_geometry_core::types::*;
+use temper_geometry::types::*;
 
 // ---------------------------------------------------------------------------
 // Strategy helpers

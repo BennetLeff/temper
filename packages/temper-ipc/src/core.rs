@@ -1,6 +1,6 @@
-//! Pure-Rust IPC standard calculations for PCB design — core logic extracted from temper-ipc.
+//! Pure-Rust IPC standard calculations for PCB design.
 //!
-//! Tests live here.  The pyo3 wrappers in `temper-ipc` are thin adapters.
+//! Tests live here.  The pyo3 wrappers in `lib.rs` are thin adapters.
 
 use std::collections::HashMap;
 use std::sync::LazyLock;
