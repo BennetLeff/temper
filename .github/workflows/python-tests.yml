@@ -51,48 +51,14 @@ on:
       - 'packages/temper-drc-rs/src/board.rs'
   pull_request:
     branches: [main]
-    paths:
-      - 'packages/**'
-      - 'elec/**'
-      - 'tests/**'
-      - 'scripts/**'
-      - 'pyproject.toml'
-      - '.github/workflows/python-tests.yml'
-      - 'deadcode-baseline.py'
-      - 'scripts/vulture_gate.py'
-      - 'scripts/trace_invocations.py'
-      - 'scripts/check_manifest_gate.py'
-      - 'scripts/check_script_sunset.py'
-      - 'scripts/manifest.yaml'
-      - 'scripts/invocation_graph.json'
-      - 'pcb/*.kicad_sch'
-      - 'scripts/gen_schematics.py'
-      - 'elec/build/default.net'
-      - '.importlinter'
-      - 'import-linter-allowlist.yaml'
-      - 'scripts/import_linter_gate.py'
-      - 'scripts/capacity_budget_gate.py'
-      - 'scripts/capacity_budget_packages.yaml'
-      - '.physics-provenance-allowlist'
-      - 'scripts/check_physics_provenance.py'
-      - 'scripts/check_vacuous_gates.py'
-      - 'scripts/check_derived_doc_drift.py'
-      - 'scripts/derived_doc_gates.yaml'
-      - 'scripts/tests/test_check_derived_doc_drift.py'
-      - 'docs/FUNCTIONAL_TEST_CRITERIA.md'
-      - 'docs/STRATEGY.md'
-      - 'docs/hardware/PROTECTION_CHAIN_REVIEW.md'
-      - 'docs/plans/**'
-      - 'docs/traceability-registry.yaml'
-      - '**/TRACEABILITY'
-      - 'power_pcb_dataset/timing_baselines.yaml'
-      - 'power_pcb_dataset/golden_manifest.yaml'
-      - 'scripts/gen_domain_models.py'
-      - 'scripts/templates/netclass_rules.py.j2'
-      - 'scripts/templates/netclass_rules.rs.j2'
-      - 'packages/temper-placer/configs/netclass_rules_manifest.yaml'
-      - 'packages/temper-placer/src/temper_placer/core/netclass_rules_gen.py'
-      - 'packages/temper-drc-rs/src/board.rs'
+    # No `paths:` filter. GitHub evaluates path filters against only the
+    # first 300 changed files of a pull request; on a large PR the core
+    # gates in this workflow -- manifest, schematic drift, ruff, coverage,
+    # import-linter, capacity budget -- silently never ran. Measured on
+    # PR #344 (497 files): the first scripts/ file sat at position 444 and
+    # the first elec/ file at 355, so none of the filters below could match.
+    # A PR large enough to defeat the filter is the one most in need of
+    # gating, so this workflow now runs on every PR.
   workflow_dispatch:
   schedule:
     - cron: '0 3 * * *'  # nightly at 3am UTC
