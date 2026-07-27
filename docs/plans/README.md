@@ -6,14 +6,27 @@
 
 ## Current status
 
+<!-- BEGIN GENERATED: plan-status -- edits here are overwritten by scripts/gen_repo_state.py -->
+
+*146 plan documents. Generated from frontmatter.*
+
 | Status | Count | Meaning |
-|--------|-------|---------|
-| `active` | 1 | Live work. Only `2026-06-28-004` (pinned by live `@req` annotations). |
+|---|---:|---|
+| `active` | 4 | Live work. |
 | `completed` | 61 | Deliverables landed. |
-| `stale` | 52 | **Insufficient evidence — needs human triage.** |
+| `stale` | 52 | Insufficient evidence -- needs human triage. |
 | `abandoned` | 17 | Named deliverables largely absent; work never landed. |
-| `superseded` | 5 | Replaced by STRATEGY v2.0 / METHODOLOGY.md. |
+| `superseded` | 5 | Replaced by a later plan or by STRATEGY.md. |
 | *(no frontmatter)* | 7 | Legacy documents predating the plan format. |
+
+**Active plans (4):**
+
+- [`2026-06-28-004-feat-mathematical-rigor-deferred-items-plan.md`](./2026-06-28-004-feat-mathematical-rigor-deferred-items-plan.md) — 2026-06-28-004-feat-mathematical-rigor-deferred-items-plan
+- [`2026-07-25-001-fix-test-skip-accounting-plan.md`](./2026-07-25-001-fix-test-skip-accounting-plan.md) — fix: Test Skip Accounting
+- [`2026-07-25-002-refactor-baseline-burndown-plan.md`](./2026-07-25-002-refactor-baseline-burndown-plan.md) — refactor: Baseline Burn-Down
+- [`2026-07-25-003-refactor-package-consolidation-plan.md`](./2026-07-25-003-refactor-package-consolidation-plan.md) — refactor: Package Consolidation
+
+<!-- END GENERATED: plan-status -->
 
 The forward plan of record is the build order in
 [`../STRATEGY.md`](../STRATEGY.md). New plans are written against it, not
