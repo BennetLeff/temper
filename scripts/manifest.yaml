@@ -1,8 +1,8 @@
 _meta:
   last_audit_date: '2026-06-24'
-  total_scripts: 64
+  total_scripts: 66
   counts:
-    keep: 63
+    keep: 65
     ticket: 1
   ticket_scripts_deleted: 40
 scripts:
@@ -901,4 +901,23 @@ scripts:
   - rich.console
   - rich.table
   - subprocess
+  - sys
+- path: resync_pcb_netlist.py
+  purpose: Resync pcb/temper.kicad_pcb nets/designators/footprints against elec/build/default.net without
+    moving any existing footprint
+  owner: bennet
+  last_run: '2026-07-27'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - argparse
+  - copy
+  - dataclasses
+  - gen_pcb_skeleton
+  - json
+  - kiutils.board
+  - kiutils.footprint
+  - kiutils.items.common
+  - pathlib
   - sys
