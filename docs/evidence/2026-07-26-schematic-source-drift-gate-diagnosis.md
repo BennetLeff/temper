@@ -210,6 +210,33 @@ produce this result, per the task's constraint.
    diagnosis, not a larger change to the generator, so the fix is
    characterized precisely above rather than attempted partially.
 
+### Status update — recommendation (2) landed
+
+Item 2 was implemented immediately after this diagnosis, in the commit that
+carries this line. `gen_schematics.py` now sources the `Value` property from
+`elec/build/default.csv` via `load_bom_values()` / `apply_bom_values()`, and
+refuses to emit a symbol without one rather than falling back to the aliased
+`libsource.part`.
+
+Measured result on the tree as of this commit:
+
+    $ uv run python3 scripts/gen_schematics.py --check --no-oracle
+    CHECK FAIL: 6 of 7 schematic(s) drifted from the netlist: half_bridge,
+    mcu, power_input, power_management, safety_interlock, sensing
+    exit 1                          # was: "CHECK PASS", exit 0
+
+All six OVP-01 designators are now caught (R51/R52/R53 → `RC1206FR-07430KL`,
+R55 → `RC0603FR-071K1L`, R57 → `RC0603FR-07287KL`, R58 → `RC1206FR-07510KL`),
+matching `elec/src/modules.ato` exactly. The blast radius is wider than
+OVP-01: five further sheets carry the same aliasing, including C27, which the
+committed schematic had labelled with its neighbour's `C0603C104K5RACTU`
+instead of its own `GRM1885C1H104JA01D`.
+
+Items 1 and 3 remain open and are deliberately not done: `continue-on-error:
+true` is still on the step, so the gate reports but does not block. Removing
+it is a separate decision, and it should be taken together with the question
+of whether to regenerate the six drifted schematics.
+
 ## What was not verified
 
 - Whether `make netlist` / `gen_schematics.py --check --no-oracle` runs

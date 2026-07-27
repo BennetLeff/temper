@@ -1968,7 +1968,9 @@ scripts:
       - subprocess
 
 - path: gen_schematics.py
-  purpose: "Generate KiCad schematics from atopile netlist (default.net)"
+  purpose: "Generate KiCad schematics from atopile netlist (default.net), with
+    per-designator part identity from default.csv (default.net's libsource is
+    footprint-aliased); --check is the schematic-drift CI gate"
   owner: bennet
   last_run: "2026-07-15"
   category: keep
@@ -1977,6 +1979,7 @@ scripts:
       - __future__
       - argparse
       - collections
+      - csv
       - dataclasses
       - hashlib
       - json
@@ -1989,6 +1992,7 @@ scripts:
       - __future__
       - argparse
       - collections
+      - csv
       - dataclasses
       - hashlib
       - json
