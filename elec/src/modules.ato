@@ -837,30 +837,54 @@ module BusDischarge:
     """Fail-safe active bus discharge (plan 2026-07-16-001, Option A).
 
     One relay-switched resistor string across each 170V half-bus:
-    NC contact + 2x 4.7k/5W wirewound in series (9.4k per string).
-    Both relay coils are held energized from the 15V SELV rail whenever
-    the unit runs, holding the NC contacts OPEN. ANY loss of power
-    (unplug, fuse, aux-supply fault, MCU dead) drops the coils and the
-    NC contacts close -> discharge engages with no MCU involvement.
+    NC contact + 2x 3.9k/5W wirewound in series (7.8k per string).
+    RESIZED 2026-07-27 from 2x 4.7k (9.4k per string) --
+    docs/evidence/2026-07-27-busdischarge-tolerance-retune.md. Both relay
+    coils are held energized from the 15V SELV rail whenever the unit
+    runs, holding the NC contacts OPEN. ANY loss of power (unplug, fuse,
+    aux-supply fault, MCU dead) drops the coils and the NC contacts close
+    -> discharge engages with no MCU involvement.
 
-    Sizing (per half-bus): tau = 9.4k x 3600uF = 33.8s; 170V -> <34V in
-    1.61 tau ~= 54s (<60s target). Peak power at contact closure:
-    170^2/9.4k = 3.1W per string, ~1.5W per 5W resistor -- the string
-    survives indefinitely even with a stuck-closed contact across an
-    energized bus (no single-point fire risk).
+    Sizing (per half-bus), per docs/hardware/BUS_CAPACITANCE_DERIVATION.md
+    SS5.3 and re-derived independently here with the resistor's OWN
+    tolerance included (the derivation doc's own worst case did not):
+    the bus capacitor (EKMQ251VSN182MA50S, 3600uF/half nominal) is
+    +/-20% tolerance, VERIFIED against its DigiKey product page (see the
+    derivation doc). At NOMINAL R and C: tau = 7.8k x 3600uF = 28.1s,
+    170V -> <34V in 1.61 tau ~= 45.2s. At the CAPACITOR's own +20%
+    tolerance alone (4320uF, R held at nominal): tau = 33.7s, t = 54.2s
+    (<60s target, restoring the ~10% margin the 9.4k design had nominally
+    and did not have at tolerance -- see the derivation doc SS5.1 for why
+    9.4k fails at 65.4s under this same test). At BOTH tolerances stacked
+    worst-case (resistor's own +5% AND capacitor's +20%, since a real
+    board can see both at once): R=8.19k, C=4320uF, tau=35.4s,
+    t=56.9s -- still <60s, ~3s of real margin. (2x 4.3k/8.6k, the
+    capacitor-tolerance-only answer, was evaluated first and REJECTED:
+    stacked with its own +5% resistor tolerance it gives t=62.8s, failing
+    the same way 9.4k did -- the point of this exercise. 3.9k is the
+    nearest standard value below that clears both.)
 
-    Contact stress: break at ~18mA / up to 170VDC, purely resistive.
-    VERIFIED 2026-07-16 (Omron G5LE datasheet K100-E1-08, ratings table
-    + max switching capacity curve): max switching voltage is 125VDC
-    (30VDC where UL/CSA is applied) and the DC load curve ends at 125V
-    -- a 170VDC break is out-of-catalog at ANY current. 18mA is far
-    below the ~0.4A minimum arc-sustain current of Ag contacts, but to
-    stay in-spec each NC contact gets an RC snubber (100R 2W
-    pulse-withstanding + 470nF/630V PP film, both already-on-BOM
-    families): opening dV/dt is limited to I/C ~= 38V/ms so the gap is
-    fully open long before it sees bus voltage; closure discharges
-    6.8mJ (1.7A pk, tau 47us) into the 100R, trivial for a
-    pulse-withstanding 2512 and well under the 10A contact rating.
+    Peak power at contact closure (worst case, nominal R since dissipation
+    should not be UNDER-estimated by assuming tolerance in resistor's
+    favour): 170^2/7.8k = 3.7W per string, 1.85W per 5W resistor (37% of
+    rating, vs. 1.54W/30.8% at the prior 9.4k) -- comfortable margin
+    retained on a part rated for continuous 5W, and this IS the peak (bus
+    voltage only falls from here as the cap discharges).
+
+    Contact stress: break at ~21.8mA (up from ~18mA at 9.4k) / up to
+    170VDC, purely resistive. VERIFIED 2026-07-16 (Omron G5LE datasheet
+    K100-E1-08, ratings table + max switching capacity curve): max
+    switching voltage is 125VDC (30VDC where UL/CSA is applied) and the DC
+    load curve ends at 125V -- a 170VDC break is out-of-catalog at ANY
+    current, unchanged conclusion at the new current. 21.8mA remains far
+    below the ~0.4A minimum arc-sustain current of Ag contacts (5.4% of
+    it, same order of magnitude as before), so each NC contact keeps its
+    RC snubber (100R 2W pulse-withstanding + 470nF/630V PP film, both
+    already-on-BOM families): opening dV/dt is limited to I/C ~= 38V/ms so
+    the gap is fully open long before it sees bus voltage -- this and the
+    6.8mJ/1.7A-peak/47us closure-discharge figures depend only on the
+    snubber RC and bus voltage, not on the discharge string resistance, so
+    they are unchanged by this resize.
 
     Coil budget: 2 x 33mA from the 15V rail, only while running. Each
     coil gets its own 100R dropper (15V -> ~11.7V at the 360R coil,
@@ -894,38 +918,40 @@ module BusDischarge:
     k_dis2.mpn = "G5LE-1 DC12"
     k_dis2.footprint = "Relay_THT:Relay_SPDT_Omron-G5LE-1"
 
-    # Discharge resistors: Vishay AC05 cemented wirewound, 4.7k 5% 5W,
-    # axial ~18mm body, AEC-Q200, all-welded (plan doc, verified
-    # 2026-07-16 against Vishay AC05 series / distributor listings).
-    # voltage_rating is the series' max continuous element voltage
-    # sqrt(P x R) = sqrt(5W x 4.7k) ~= 153V; each resistor sees at most
-    # half a half-bus (85V) in the stuck-contact steady state.
+    # Discharge resistors: Vishay AC05 cemented wirewound, 3.9k 5% 5W,
+    # axial ~18mm body, AEC-Q200, all-welded -- RESIZED 2026-07-27 from
+    # 4.7k (docs/evidence/2026-07-27-busdischarge-tolerance-retune.md;
+    # MPN verified 2026-07-27 via DigiKey product search, exact match,
+    # active/orderable, same Vishay AC05 family/footprint as the prior
+    # 4.7k part). voltage_rating is the series' max continuous element
+    # voltage sqrt(P x R) = sqrt(5W x 3.9k) ~= 139V; each resistor sees at
+    # most half a half-bus (85V) in the stuck-contact steady state.
     r_dis1a = new Resistor
-    r_dis1a.value = 4.7kohm +/- 5%
+    r_dis1a.value = 3.9kohm +/- 5%
     r_dis1a.power_rating = 5W
-    r_dis1a.voltage_rating = 153V
-    r_dis1a.mpn = "AC05000004701JAC00"
+    r_dis1a.voltage_rating = 139V
+    r_dis1a.mpn = "AC05000003901JAC00"
     r_dis1a.footprint = "Resistor_THT:R_Axial_DIN0918_L18.0mm_D9.0mm_P22.86mm_Horizontal"
 
     r_dis1b = new Resistor
-    r_dis1b.value = 4.7kohm +/- 5%
+    r_dis1b.value = 3.9kohm +/- 5%
     r_dis1b.power_rating = 5W
-    r_dis1b.voltage_rating = 153V
-    r_dis1b.mpn = "AC05000004701JAC00"
+    r_dis1b.voltage_rating = 139V
+    r_dis1b.mpn = "AC05000003901JAC00"
     r_dis1b.footprint = "Resistor_THT:R_Axial_DIN0918_L18.0mm_D9.0mm_P22.86mm_Horizontal"
 
     r_dis2a = new Resistor
-    r_dis2a.value = 4.7kohm +/- 5%
+    r_dis2a.value = 3.9kohm +/- 5%
     r_dis2a.power_rating = 5W
-    r_dis2a.voltage_rating = 153V
-    r_dis2a.mpn = "AC05000004701JAC00"
+    r_dis2a.voltage_rating = 139V
+    r_dis2a.mpn = "AC05000003901JAC00"
     r_dis2a.footprint = "Resistor_THT:R_Axial_DIN0918_L18.0mm_D9.0mm_P22.86mm_Horizontal"
 
     r_dis2b = new Resistor
-    r_dis2b.value = 4.7kohm +/- 5%
+    r_dis2b.value = 3.9kohm +/- 5%
     r_dis2b.power_rating = 5W
-    r_dis2b.voltage_rating = 153V
-    r_dis2b.mpn = "AC05000004701JAC00"
+    r_dis2b.voltage_rating = 139V
+    r_dis2b.mpn = "AC05000003901JAC00"
     r_dis2b.footprint = "Resistor_THT:R_Axial_DIN0918_L18.0mm_D9.0mm_P22.86mm_Horizontal"
 
     # Coil droppers: 15V rail -> 12V coil, one per coil so a single relay
@@ -1015,8 +1041,13 @@ module BusDischarge:
     # --- Sizing assertions ---
     v_bus_half: voltage = 170V
     # Steady dissipation per resistor with a stuck-closed contact across
-    # an energized half-bus: (170V)^2 / 9.4k / 2 ~= 1.54W
-    p_dis_resistor: power = v_bus_half * v_bus_half / 9.4kohm / 2
+    # an energized half-bus: (170V)^2 / 7.8k / 2 ~= 1.85W (was 9.4k/1.54W
+    # before the 2026-07-27 resize -- docs/evidence/
+    # 2026-07-27-busdischarge-tolerance-retune.md). Written against
+    # r_dis1a.value + r_dis1b.value (not a hardcoded resistance) so this
+    # assertion cannot go stale the way OVPComparator's trip-point assert
+    # did across a resistor-value change.
+    p_dis_resistor: power = v_bus_half * v_bus_half / (r_dis1a.value + r_dis1b.value) / 2
 
     # Power: 50% derating even in the abnormal continuous case
     assert r_dis1a.power_rating >= p_dis_resistor * 2
@@ -1037,13 +1068,13 @@ module BusDischarge:
     assert r_dis2b.voltage_rating >= v_bus_half * 0.625
 
     # --- Connections ---
-    # Half-bus 1 string: hv_plus -> 4.7k -> 4.7k -> NC contact -> mid
+    # Half-bus 1 string: hv_plus -> 3.9k -> 3.9k -> NC contact -> mid
     hv_plus ~ r_dis1a.p1
     r_dis1a.p2 ~ r_dis1b.p1
     r_dis1b.p2 ~ k_dis1.NC
     k_dis1.COM ~ mid
 
-    # Half-bus 2 string: mid -> 4.7k -> 4.7k -> NC contact -> hv_minus
+    # Half-bus 2 string: mid -> 3.9k -> 3.9k -> NC contact -> hv_minus
     mid ~ r_dis2a.p1
     r_dis2a.p2 ~ r_dis2b.p1
     r_dis2b.p2 ~ k_dis2.NC
