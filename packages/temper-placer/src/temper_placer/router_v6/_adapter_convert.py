@@ -122,6 +122,8 @@ def route_pcb(
     enable_zone_pours: bool = True,
     enable_connectivity_verifier: bool = False,
     enable_manufacturing_drc: bool = False,
+    sat_conflict_limit: int | None = 20_000,
+    sat_time_limit_ms: int | None = None,
 ) -> RoutingResult:
     """Route a PCB using the Router V6 pipeline.
 
@@ -152,6 +154,15 @@ def route_pcb(
             Python and does not complete on a routed board (27 min,
             9.2 GB, unfinished). See
             docs/evidence/2026-07-26-manufacturing-drc-scalability.md.
+        sat_conflict_limit: Bound the Stage 3 CaDiCaL SAT solve to at
+            most this many conflicts (see
+            RouterV6Pipeline.__init__'s docstring for the full
+            rationale and docs/evidence/2026-07-27-sat-bound-tradeoff.md
+            for the measured trade-off curve). Default 20_000 -- pass
+            None for the old, unbounded behavior.
+        sat_time_limit_ms: Secondary wall-clock bound on the same
+            solve. None by default (conflict-count alone is the
+            recommended bound; it is deterministic, wall-clock is not).
 
     Returns:
         RoutingResult with completion_rate, routed_pcb_content, and
@@ -239,6 +250,8 @@ def route_pcb(
         # default to True once verify_clearance scales.
         enable_manufacturing_drc=enable_manufacturing_drc,
         dfm_fail_on="none",
+        sat_conflict_limit=sat_conflict_limit,
+        sat_time_limit_ms=sat_time_limit_ms,
     )
 
     # Resolve the net->class-name mapping from the caller's design_rules.

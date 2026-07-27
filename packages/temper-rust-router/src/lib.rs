@@ -20,12 +20,24 @@ use temper_rust_router_core::{audit, combinator, encoding, extraction, solver};
 /// Accepts a list of variable dicts, constraint dicts, and net names
 /// matching the Python `ConstraintModel` shape, and returns a dict with
 /// solver status, variable assignments, and topology graph.
+///
+/// `conflict_limit` and `time_limit_ms` bound the CaDiCaL solve (see
+/// `temper_rust_router_core::solver::SolveLimits`). Both default to
+/// `None` (unbounded) at this FFI boundary -- the recommended production
+/// bound is applied by the caller
+/// (`RouterV6Pipeline.sat_conflict_limit` in
+/// `packages/temper-placer/src/temper_placer/router_v6/_pipeline_core.py`),
+/// not hard-coded here, so any other caller of this function is
+/// unaffected unless it opts in.
 #[pyfunction]
+#[pyo3(signature = (variables, constraints, net_names, conflict_limit=None, time_limit_ms=None))]
 fn solve_topology_rust(
     py: Python<'_>,
     variables: &Bound<'_, PyList>,
     constraints: &Bound<'_, PyList>,
     net_names: Vec<String>,
+    conflict_limit: Option<u32>,
+    time_limit_ms: Option<u64>,
 ) -> PyResult<Py<PyAny>> {
     // Convert Python objects to internal model.
     let py_vars: Vec<Py<PyAny>> = variables.iter().map(|v| v.into()).collect();
@@ -44,8 +56,12 @@ fn solve_topology_rust(
     let num_vars = cnf.num_vars;
     let num_clauses = cnf.clauses.len();
 
-    // Solve with CaDiCaL via rustsat traits.
-    let mut result: TopologyResult = solver::solve_with_cadical(&cnf, &var_names);
+    // Solve with CaDiCaL via rustsat traits, under the caller-supplied bound.
+    let limits = solver::SolveLimits {
+        conflict_limit,
+        time_limit_ms,
+    };
+    let mut result: TopologyResult = solver::solve_with_cadical(&cnf, &var_names, limits);
     result.num_vars = num_vars;
     result.num_clauses = num_clauses;
 
