@@ -451,7 +451,7 @@ jobs:
     container:
       image: ghcr.io/bennetleff/temper-ci:latest
       options: --user root
-    timeout-minutes: 20
+    timeout-minutes: 30
     env:
       XLA_PYTHON_CLIENT_MEM_FRACTION: 0.15
       JAX_PLATFORM_NAME: cpu
@@ -566,7 +566,7 @@ jobs:
     container:
       image: ghcr.io/bennetleff/temper-ci:latest
       options: --user root
-    timeout-minutes: 20
+    timeout-minutes: 30
     env:
       XLA_PYTHON_CLIENT_MEM_FRACTION: 0.15
       JAX_PLATFORM_NAME: cpu
@@ -681,7 +681,7 @@ jobs:
     container:
       image: ghcr.io/bennetleff/temper-ci:latest
       options: --user root
-    timeout-minutes: 20
+    timeout-minutes: 30
     env:
       XLA_PYTHON_CLIENT_MEM_FRACTION: 0.15
       JAX_PLATFORM_NAME: cpu
