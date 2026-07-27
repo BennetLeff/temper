@@ -97,6 +97,14 @@ power_pcb_dataset/quarantine/
 /kicad-tutorials-a/
 /dummy_dataset/
 /artifacts/
+
+# Official KiCad footprint library, fetched on demand by
+# tools/setup_kicad_env.py via a sparse git clone. This is itself a nested
+# .git repo -- never commit it (see 11f859e5, "untrack 73 phantom gitlinks,
+# close the submodule-foreach hole", for why a directory like this landing
+# in the index as an uncommitted gitlink is a real, previously-hit failure
+# mode, not a hypothetical one).
+/pcb/libs/kicad-footprints/
 /analysis_results/
 /reports/
 /snapshots/
