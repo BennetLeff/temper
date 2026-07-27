@@ -472,6 +472,60 @@ Also surfaced: **`FUNCTIONAL_TEST_CRITERIA.md` §1.2 specifies a 200 W ±25%
 power tier that has no corresponding gate** in this document. That is an
 omitted requirement, not a lost qualifier.
 
+### Tempco was never analysed, and a fourth part is fabricated (2026-07-27)
+
+Full analysis: `docs/evidence/2026-07-27-threshold-sensitivity-tempco-budget.md`.
+
+**The falsifier did not fire: tempco is not negligible.** At an assumed
+45–60 °C board rise, thick-film drift is **0.45–0.6% per resistor** — comparable
+to the ±1% initial tolerance and stacking on top of it. For OVP-01 it roughly
+**triples** the window violation. Nothing in `elec/src` had ever accounted for
+it; `grep -c "tempco\|ppm"` returned **0**.
+
+**Recommendation: Option C — re-reference OVP-01 to the existing `REF2025`.**
+Verified usable: same 3.3 V domain, its 2.5 V output is **completely unused
+elsewhere**, 20 mA drive against ~150 µA needed, and **±0.05% / 8 ppm/°C** —
+far better than the divider it replaces. Deleting `r_ref_top`/`r_ref_bot` and
+retuning `r_div_bot`/`r_hyst` gives the **widest worst-case margin of any
+option, 195.25–202.91 V with tolerance and tempco combined**, at
+**+$0.063/board** at 1k. Cheaper *and* better than the partial 0.1% upgrade
+($0.123) or the full one ($0.479). Fewer parts, no new IC.
+
+**On correlation**: treating the three 430 kΩ parts as correlated versus
+independent yields the *identical* worst-case bound — a sum's extreme is the
+same either way. The real fork is **worst-case (fails) versus RSS (passes,
+197.2–202.7 V)**. The safety case must use worst-case; leaning on RSS without a
+supplier tracking agreement is not defensible.
+
+**THM-02 has a new problem.** Once the NTC's own **±1.5% B-value tolerance** is
+included — which dominates every resistor term — worst-case trip reaches
+**124.5 °C, within 0.5 °C of the sensor's own 125 °C maximum** cited in its
+docstring. A thermal cut-out that can trip essentially at its sensor's limit has
+no headroom. Unresolved discrepancy: DigiKey lists that same part at −40 to
+150 °C. Neither figure could be confirmed from the Vishay PDF text.
+
+**The 390–410 V spec has no derivation.** Traced: introduced in a bulk "commit
+all pending changes" with **zero supporting calculation** — the same pattern as
+the uncited `IEC60335_REQUIREMENTS` matrix and the bus capacitance's
+nonexistent simulation. It is *bounded* (between `v_bus_max = 340 V` and
+`v_cap_max = 500 V`) rather than arbitrary, but the exact window is uncited.
+Option C makes this moot; it would have mattered a great deal had the answer
+been "buy 0.1% parts to hit it."
+
+**Fourth fabricated part, and it is in the live design.**
+`modules.ato:1621-1622` specifies `r_low_top = 61.3 kΩ ±0.1%`, MPN
+`ERA-3AEB6132V`. **61.3 kΩ is not an E96 or E192 value** — confirmed by direct
+computation; the neighbours are 60.4, 61.2, 61.9. The MPN appears in neither
+DigiKey's nor Mouser's catalogue. Value and part number are internally
+consistent with each other and both invented. Real neighbour:
+`ERA-3AEB6192V` (61.9 kΩ).
+
+I had cited this part to the user as evidence that "the project already buys
+0.1% parts." It does not. Joining `EKZE251ELL332MM40S`, `DE2E3KH221MA3B` and
+the third already found, this is the **fourth** fabricated MPN — and the first
+found in a *precision* part where the wrong value would silently shift a
+threshold.
+
 ### Clearance violations 22 → 0, and the placer can no longer produce them (2026-07-27)
 
 Full detail: `docs/evidence/2026-07-27-domain-clearance-constraint.md`.
