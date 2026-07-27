@@ -340,33 +340,23 @@ jobs:
             ${{ runner.os }}-design-bundle-
 
       - name: Run extended test suites in parallel
+        # The INVARIANT suite (tests/router_v6/ tests/io/ tests/deterministic/
+        # tests/physics/ tests/fields/ tests/validation/ tests/placer/cp_sat/,
+        # ~3,500 tests once tests/losses/ stopped aborting collection -- see
+        # docs/evidence/2026-07-27-invariant-suite-parallel-split.md) used to
+        # run here as a fifth backgrounded process. Measured at only 21% done
+        # after this job's full 30-minute timeout (run 30305743267, killed
+        # 2026-07-27T22:16Z) -- a genuine ~2.5h suite, not a hang. Keeping it
+        # in this job meant the timeout killed every later step too (board
+        # identity gate, vulture, MPN gates, etc.), not just the slow suite.
+        # It now runs as four separate parallel jobs (invariant-router-v6-1/2/3
+        # and invariant-rest, below) so this job's own budget covers only
+        # BUNDLE/CPSAT/WORKFLOW/CHECKS again.
         run: |
           set +e
           (cargo test --manifest-path packages/temper-design-bundle/Cargo.toml && \
            uv run python3 -c "import temper_design_bundle_python; print('temper_design_bundle_python loaded OK')") &
           BUNDLE_PID=$!
-
-          # `tests/losses/` was listed here and does not exist. pytest aborts on
-          # a missing path, so NONE of the seven sibling directories ran --
-          # 3,526 collectible tests, executing zero times, with the non-zero
-          # exit discarded by this step's continue-on-error. Proven in the log
-          # of run 30291488317: "ERROR: file or directory not found:
-          # tests/losses/" followed by "no tests ran in 0.02s".
-          #
-          # pytest_guard.py asserts a floor on tests actually executed, so this
-          # invocation cannot silently collapse to zero again. The floor is
-          # deliberately well under the real count (~3,500) -- it exists to catch
-          # catastrophic loss, not to track churn. --continue-on-collection-errors
-          # keeps three pre-existing broken modules from aborting the whole run
-          # while still reporting them and exiting non-zero.
-          (cd packages/temper-placer && \
-           export XLA_PYTHON_CLIENT_MEM_FRACTION=0.15 JAX_PLATFORM_NAME=cpu && \
-           uv run python ../../scripts/pytest_guard.py --min-tests 2500 -- \
-             tests/router_v6/ tests/io/ tests/deterministic/ \
-             tests/physics/ tests/fields/ tests/validation/ tests/placer/cp_sat/ \
-             -v --tb=short -p no:cacheprovider --maxfail=10 -m "not slow" \
-             --continue-on-collection-errors) &
-          INVARIANT_PID=$!
 
           (cd packages/temper-placer && \
            export XLA_PYTHON_CLIENT_MEM_FRACTION=0.15 JAX_PLATFORM_NAME=cpu && \
@@ -385,7 +375,7 @@ jobs:
           CHECKS_PID=$!
 
           FAIL=0
-          for pid in $BUNDLE_PID $INVARIANT_PID $CPSAT_PID $WORKFLOW_PID $CHECKS_PID; do
+          for pid in $BUNDLE_PID $CPSAT_PID $WORKFLOW_PID $CHECKS_PID; do
             wait $pid || FAIL=1
           done
           exit $FAIL
@@ -455,6 +445,465 @@ jobs:
       - name: Rebuild script invocation graph
         run: uv run python scripts/trace_invocations.py
 
+  invariant-router-v6-1:
+    name: Invariant tests (router_v6 group 1)
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/bennetleff/temper-ci:latest
+      options: --user root
+    timeout-minutes: 20
+    env:
+      XLA_PYTHON_CLIENT_MEM_FRACTION: 0.15
+      JAX_PLATFORM_NAME: cpu
+      VIRTUAL_ENV: ${{ github.workspace }}/.venv
+      TEMPER_REQUIRE_RUST_DRC: "1"
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Mark workspace safe for git
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+          enable-cache: true
+
+      - name: Cache virtualenv
+        uses: actions/cache@v4
+        id: cache-venv
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
+
+      - name: Create virtualenv (cache miss)
+        if: steps.cache-venv.outputs.cache-hit != 'true'
+        run: uv venv
+
+      - name: Install maturin
+        run: uv pip install maturin
+
+      - name: Cache Rust build
+        uses: actions/cache@v4
+        with:
+          path: packages/temper-rust-router/target
+          key: ${{ runner.os }}-rust-router-${{ hashFiles('packages/temper-rust-router/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-rust-router-
+
+      - name: Build and install Rust crate
+        run: uv run maturin develop --release --manifest-path packages/temper-rust-router/Cargo.toml
+
+      - name: Verify Rust module loads
+        run: uv run python3 -c "import temper_rust_router"
+        env:
+          RUST_BACKTRACE: full
+
+      - name: Cache Rust build (temper-drc-rs)
+        uses: actions/cache@v4
+        with:
+          path: packages/temper-drc-rs/target
+          key: ${{ runner.os }}-drc-rs-${{ hashFiles('packages/temper-drc-rs/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-drc-rs-
+
+      - name: Build and install temper-drc-rs
+        run: uv run maturin develop --release --manifest-path packages/temper-drc-rs/Cargo.toml
+
+      - name: Verify temper-drc-rs loads
+        run: uv run python3 -c "import temper_drc_rs"
+        env:
+          RUST_BACKTRACE: full
+
+      - name: Cache Rust build (temper-constraints)
+        uses: actions/cache@v4
+        with:
+          path: packages/temper-placer/temper-constraints/target
+          key: ${{ runner.os }}-temper-constraints-${{ hashFiles('packages/temper-placer/temper-constraints/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-temper-constraints-
+
+      - name: Build and install temper-constraints
+        run: >
+          uv run maturin develop --release
+          --manifest-path packages/temper-placer/temper-constraints/Cargo.toml
+        env:
+          PYO3_USE_ABI3_FORWARD_COMPATIBILITY: "1"
+
+      - name: Verify temper-constraints loads
+        run: uv run python3 -c "import temper_constraints"
+        env:
+          RUST_BACKTRACE: full
+
+      - name: Install dependencies
+        run: >
+          uv sync --all-packages --inexact
+          --no-install-package temper-rust-router
+          --no-install-package temper-drc-rs
+          --no-install-package temper-constraints
+
+      - name: Cache netlist
+        uses: actions/cache@v4
+        with:
+          path: elec/build
+          key: netlist-${{ hashFiles('elec/src/**') }}
+
+      - name: Build electronics netlist
+        run: make netlist
+
+      - name: Run invariant tests (router_v6 group 1)
+        working-directory: packages/temper-placer
+        run: >
+          uv run python ../../scripts/pytest_guard.py --min-tests 500 --
+          tests/router_v6/test_acid_trap_boundary.py tests/router_v6/test_acid_trap_detection.py tests/router_v6/test_acid_trap_induction.py  tests/router_v6/test_acid_trap_properties.py tests/router_v6/test_adapter.py tests/router_v6/test_annular_ring_induction.py  tests/router_v6/test_astar_cost_field.py tests/router_v6/test_astar_inductive_ladder.py tests/router_v6/test_astar_pathfinding.py  tests/router_v6/test_astar_perf_regression.py tests/router_v6/test_bundle_analyzer.py tests/router_v6/test_bundled_model_builder.py  tests/router_v6/test_capacity_check.py tests/router_v6/test_channel_skeleton.py tests/router_v6/test_channel_skeleton_pbt.py  tests/router_v6/test_ci_bug_regressions.py tests/router_v6/test_clearance_segment_dist.py tests/router_v6/test_copper_balance.py  tests/router_v6/test_copper_balance_boundary.py tests/router_v6/test_copper_balance_induction.py tests/router_v6/test_creepage_boundary.py  tests/router_v6/test_creepage_properties.py tests/router_v6/test_dfm_interaction.py tests/router_v6/test_finish_board_gate.py  tests/router_v6/test_forced_segment_fail_closed_pbt.py tests/router_v6/test_grid_prep_pbt.py tests/router_v6/test_layer_capacity.py  tests/router_v6/test_los_bb_shortcut.py tests/router_v6/test_manufacturing_report.py tests/router_v6/test_manufacturing_report_properties.py  tests/router_v6/test_net_class_parser.py tests/router_v6/test_net_ordering_proof.py tests/router_v6/test_occupancy_grid_pbt.py  tests/router_v6/test_phase1_anti_false_zero.py tests/router_v6/test_quality_corridor.py tests/router_v6/test_resource_bound.py  tests/router_v6/test_routing_demand_pbt.py tests/router_v6/test_routing_space.py tests/router_v6/test_sat_model.py  tests/router_v6/test_stage3_monolith_parity.py tests/router_v6/test_stage4_result_pbt.py tests/router_v6/test_stage_ledger.py  tests/router_v6/test_teardrop_properties.py tests/router_v6/test_temper_production_board_routing.py tests/router_v6/test_terminal_extraction.py  tests/router_v6/test_topology_solver.py tests/router_v6/test_trace_width_assignment.py tests/router_v6/test_tree_route_geometry.py  tests/router_v6/test_truthful_completion.py tests/router_v6/test_via_layer_properties_pbt.py tests/router_v6/test_via_placement.py  tests/router_v6/test_wave3_skip_sat.py tests/router_v6/test_wave4_pathfinder.py
+          -v --tb=short -p no:cacheprovider --maxfail=10 -m "not slow"
+          --continue-on-collection-errors
+        continue-on-error: true  # TODO: temper-NNN -- parallel test suite flakiness; hard-fail after 2026-09-01
+
+  invariant-router-v6-2:
+    name: Invariant tests (router_v6 group 2)
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/bennetleff/temper-ci:latest
+      options: --user root
+    timeout-minutes: 20
+    env:
+      XLA_PYTHON_CLIENT_MEM_FRACTION: 0.15
+      JAX_PLATFORM_NAME: cpu
+      VIRTUAL_ENV: ${{ github.workspace }}/.venv
+      TEMPER_REQUIRE_RUST_DRC: "1"
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Mark workspace safe for git
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+          enable-cache: true
+
+      - name: Cache virtualenv
+        uses: actions/cache@v4
+        id: cache-venv
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
+
+      - name: Create virtualenv (cache miss)
+        if: steps.cache-venv.outputs.cache-hit != 'true'
+        run: uv venv
+
+      - name: Install maturin
+        run: uv pip install maturin
+
+      - name: Cache Rust build
+        uses: actions/cache@v4
+        with:
+          path: packages/temper-rust-router/target
+          key: ${{ runner.os }}-rust-router-${{ hashFiles('packages/temper-rust-router/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-rust-router-
+
+      - name: Build and install Rust crate
+        run: uv run maturin develop --release --manifest-path packages/temper-rust-router/Cargo.toml
+
+      - name: Verify Rust module loads
+        run: uv run python3 -c "import temper_rust_router"
+        env:
+          RUST_BACKTRACE: full
+
+      - name: Cache Rust build (temper-drc-rs)
+        uses: actions/cache@v4
+        with:
+          path: packages/temper-drc-rs/target
+          key: ${{ runner.os }}-drc-rs-${{ hashFiles('packages/temper-drc-rs/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-drc-rs-
+
+      - name: Build and install temper-drc-rs
+        run: uv run maturin develop --release --manifest-path packages/temper-drc-rs/Cargo.toml
+
+      - name: Verify temper-drc-rs loads
+        run: uv run python3 -c "import temper_drc_rs"
+        env:
+          RUST_BACKTRACE: full
+
+      - name: Cache Rust build (temper-constraints)
+        uses: actions/cache@v4
+        with:
+          path: packages/temper-placer/temper-constraints/target
+          key: ${{ runner.os }}-temper-constraints-${{ hashFiles('packages/temper-placer/temper-constraints/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-temper-constraints-
+
+      - name: Build and install temper-constraints
+        run: >
+          uv run maturin develop --release
+          --manifest-path packages/temper-placer/temper-constraints/Cargo.toml
+        env:
+          PYO3_USE_ABI3_FORWARD_COMPATIBILITY: "1"
+
+      - name: Verify temper-constraints loads
+        run: uv run python3 -c "import temper_constraints"
+        env:
+          RUST_BACKTRACE: full
+
+      - name: Install dependencies
+        run: >
+          uv sync --all-packages --inexact
+          --no-install-package temper-rust-router
+          --no-install-package temper-drc-rs
+          --no-install-package temper-constraints
+
+      - name: Cache netlist
+        uses: actions/cache@v4
+        with:
+          path: elec/build
+          key: netlist-${{ hashFiles('elec/src/**') }}
+
+      - name: Build electronics netlist
+        run: make netlist
+
+      - name: Run invariant tests (router_v6 group 2)
+        working-directory: packages/temper-placer
+        run: >
+          uv run python ../../scripts/pytest_guard.py --min-tests 500 --
+          tests/router_v6/metrics/test_octilinear.py tests/router_v6/test_adapter_repair_verification.py tests/router_v6/test_all_pad_tree_routing.py  tests/router_v6/test_annular_ring_boundary.py tests/router_v6/test_apply_suggestions.py tests/router_v6/test_assignment_validation_pbt.py  tests/router_v6/test_astar_3d_production_scale_spike.py tests/router_v6/test_astar_metamorphic_pbt.py tests/router_v6/test_audit_tree_geometry.py  tests/router_v6/test_bottleneck_geometry.py tests/router_v6/test_bottleneck_ordering_pbt.py tests/router_v6/test_bundled_equivalence.py  tests/router_v6/test_channel_mapping.py tests/router_v6/test_channel_widths_pbt.py tests/router_v6/test_clearance_rust_differential.py  tests/router_v6/test_coarse_grid_pbt.py tests/router_v6/test_congestion_analysis.py tests/router_v6/test_constraint_model.py  tests/router_v6/test_copper_balance_properties.py tests/router_v6/test_corridor.py tests/router_v6/test_diagnostics.py  tests/router_v6/test_diff_pair_constraints.py tests/router_v6/test_diff_pair_inference.py tests/router_v6/test_escape_via_generator.py  tests/router_v6/test_inductive_ladder.py tests/router_v6/test_kicad_connectivity_preflight.py tests/router_v6/test_layer_assignment_ssot.py  tests/router_v6/test_layer_constraints.py tests/router_v6/test_los_numba_correctness.py tests/router_v6/test_manufacturing_report_induction.py  tests/router_v6/test_multi_layer_tree_routing.py tests/router_v6/test_multilayer_edge_cases.py tests/router_v6/test_net_prep_pbt.py  tests/router_v6/test_obstacle_map_pbt.py tests/router_v6/test_placement_suggestions.py tests/router_v6/test_quality_via_count.py  tests/router_v6/test_routability_check.py tests/router_v6/test_router_v6_drc_invariants_pbt.py tests/router_v6/test_routing_demand.py  tests/router_v6/test_routing_results.py tests/router_v6/test_scale_resolution.py tests/router_v6/test_stage0_loader.py  tests/router_v6/test_stage2_monolith_parity.py tests/router_v6/test_teardrop_generation.py tests/router_v6/test_teardrop_induction.py  tests/router_v6/test_terminal_tree_execution.py tests/router_v6/test_terminal_tree_planner.py tests/router_v6/test_thermal_relief_properties.py  tests/router_v6/test_topology_extraction.py tests/router_v6/test_via_insertion_anti_false_zero.py tests/router_v6/test_via_output_writer.py  tests/router_v6/test_wave4_bit_tensor.py tests/router_v6/test_wave4_numba_astar.py
+          -v --tb=short -p no:cacheprovider --maxfail=10 -m "not slow"
+          --continue-on-collection-errors
+        continue-on-error: true  # TODO: temper-NNN -- parallel test suite flakiness; hard-fail after 2026-09-01
+
+  invariant-router-v6-3:
+    name: Invariant tests (router_v6 group 3)
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/bennetleff/temper-ci:latest
+      options: --user root
+    timeout-minutes: 20
+    env:
+      XLA_PYTHON_CLIENT_MEM_FRACTION: 0.15
+      JAX_PLATFORM_NAME: cpu
+      VIRTUAL_ENV: ${{ github.workspace }}/.venv
+      TEMPER_REQUIRE_RUST_DRC: "1"
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Mark workspace safe for git
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+          enable-cache: true
+
+      - name: Cache virtualenv
+        uses: actions/cache@v4
+        id: cache-venv
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
+
+      - name: Create virtualenv (cache miss)
+        if: steps.cache-venv.outputs.cache-hit != 'true'
+        run: uv venv
+
+      - name: Install maturin
+        run: uv pip install maturin
+
+      - name: Cache Rust build
+        uses: actions/cache@v4
+        with:
+          path: packages/temper-rust-router/target
+          key: ${{ runner.os }}-rust-router-${{ hashFiles('packages/temper-rust-router/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-rust-router-
+
+      - name: Build and install Rust crate
+        run: uv run maturin develop --release --manifest-path packages/temper-rust-router/Cargo.toml
+
+      - name: Verify Rust module loads
+        run: uv run python3 -c "import temper_rust_router"
+        env:
+          RUST_BACKTRACE: full
+
+      - name: Cache Rust build (temper-drc-rs)
+        uses: actions/cache@v4
+        with:
+          path: packages/temper-drc-rs/target
+          key: ${{ runner.os }}-drc-rs-${{ hashFiles('packages/temper-drc-rs/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-drc-rs-
+
+      - name: Build and install temper-drc-rs
+        run: uv run maturin develop --release --manifest-path packages/temper-drc-rs/Cargo.toml
+
+      - name: Verify temper-drc-rs loads
+        run: uv run python3 -c "import temper_drc_rs"
+        env:
+          RUST_BACKTRACE: full
+
+      - name: Cache Rust build (temper-constraints)
+        uses: actions/cache@v4
+        with:
+          path: packages/temper-placer/temper-constraints/target
+          key: ${{ runner.os }}-temper-constraints-${{ hashFiles('packages/temper-placer/temper-constraints/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-temper-constraints-
+
+      - name: Build and install temper-constraints
+        run: >
+          uv run maturin develop --release
+          --manifest-path packages/temper-placer/temper-constraints/Cargo.toml
+        env:
+          PYO3_USE_ABI3_FORWARD_COMPATIBILITY: "1"
+
+      - name: Verify temper-constraints loads
+        run: uv run python3 -c "import temper_constraints"
+        env:
+          RUST_BACKTRACE: full
+
+      - name: Install dependencies
+        run: >
+          uv sync --all-packages --inexact
+          --no-install-package temper-rust-router
+          --no-install-package temper-drc-rs
+          --no-install-package temper-constraints
+
+      - name: Cache netlist
+        uses: actions/cache@v4
+        with:
+          path: elec/build
+          key: netlist-${{ hashFiles('elec/src/**') }}
+
+      - name: Build electronics netlist
+        run: make netlist
+
+      - name: Run invariant tests (router_v6 group 3)
+        working-directory: packages/temper-placer
+        run: >
+          uv run python ../../scripts/pytest_guard.py --min-tests 500 --
+          tests/router_v6/test_all_pad_connectivity.py tests/router_v6/test_all_pad_evidence.py tests/router_v6/test_annular_ring_check.py  tests/router_v6/test_annular_ring_properties.py tests/router_v6/test_astar_cost_field_pbt.py tests/router_v6/test_astar_dijkstra_oracle_pbt.py  tests/router_v6/test_astar_route_multilayer_via_fallback.py tests/router_v6/test_astar_runtime_monitor.py tests/router_v6/test_bottleneck_analysis.py  tests/router_v6/test_bottleneck_analysis_pbt.py tests/router_v6/test_capacity_constraints.py tests/router_v6/test_channel_widths.py  tests/router_v6/test_channel_widths_edt.py tests/router_v6/test_clearance_boundary.py tests/router_v6/test_clearance_check.py  tests/router_v6/test_clearance_induction.py tests/router_v6/test_congestion_derivative_pbt.py tests/router_v6/test_constraint_generation_pbt.py  tests/router_v6/test_creepage_check.py tests/router_v6/test_creepage_induction.py tests/router_v6/test_demand_budget_pbt.py  tests/router_v6/test_dense_package_detection.py tests/router_v6/test_dfm_hypothesis_fuzzing.py tests/router_v6/test_empty_data_edge_cases.py  tests/router_v6/test_geometric_degeneracy.py tests/router_v6/test_induction_base.py tests/router_v6/test_induction_strategy.py  tests/router_v6/test_layer_capacity_pbt.py tests/router_v6/test_manufacturing_drc_integration.py tests/router_v6/test_model_extraction_pbt.py  tests/router_v6/test_net_ordering.py tests/router_v6/test_obstacle_map.py tests/router_v6/test_occupancy_grid.py  tests/router_v6/test_power_plane_geometry.py tests/router_v6/test_router_v6_geometric_invariants_pbt.py tests/router_v6/test_router_v6_output_validity_pbt.py  tests/router_v6/test_router_v6_topological_invariants_pbt.py tests/router_v6/test_routing_space_pbt.py tests/router_v6/test_sat_solve_pbt.py  tests/router_v6/test_stackup_parsing.py tests/router_v6/test_stage3_constraint_audit.py tests/router_v6/test_stage4_route_pbt.py  tests/router_v6/test_stage_validators.py tests/router_v6/test_teardrop_boundary.py tests/router_v6/test_thermal_relief.py  tests/router_v6/test_thermal_relief_boundary.py tests/router_v6/test_thermal_relief_induction.py tests/router_v6/test_variable_mapping_pbt.py  tests/router_v6/test_wave1_easy_wins.py tests/router_v6/test_wave2_structural_small.py tests/router_v6/test_wave5_net_ordering.py  tests/router_v6/test_zone_emission.py
+          -v --tb=short -p no:cacheprovider --maxfail=10 -m "not slow"
+          --continue-on-collection-errors
+        continue-on-error: true  # TODO: temper-NNN -- parallel test suite flakiness; hard-fail after 2026-09-01
+
+  invariant-rest:
+    name: Invariant tests (io, deterministic, physics, fields, validation, cp_sat)
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/bennetleff/temper-ci:latest
+      options: --user root
+    timeout-minutes: 20
+    env:
+      XLA_PYTHON_CLIENT_MEM_FRACTION: 0.15
+      JAX_PLATFORM_NAME: cpu
+      VIRTUAL_ENV: ${{ github.workspace }}/.venv
+      TEMPER_REQUIRE_RUST_DRC: "1"
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Mark workspace safe for git
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+          enable-cache: true
+
+      - name: Cache virtualenv
+        uses: actions/cache@v4
+        id: cache-venv
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
+
+      - name: Create virtualenv (cache miss)
+        if: steps.cache-venv.outputs.cache-hit != 'true'
+        run: uv venv
+
+      - name: Install maturin
+        run: uv pip install maturin
+
+      - name: Cache Rust build
+        uses: actions/cache@v4
+        with:
+          path: packages/temper-rust-router/target
+          key: ${{ runner.os }}-rust-router-${{ hashFiles('packages/temper-rust-router/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-rust-router-
+
+      - name: Build and install Rust crate
+        run: uv run maturin develop --release --manifest-path packages/temper-rust-router/Cargo.toml
+
+      - name: Verify Rust module loads
+        run: uv run python3 -c "import temper_rust_router"
+        env:
+          RUST_BACKTRACE: full
+
+      - name: Cache Rust build (temper-drc-rs)
+        uses: actions/cache@v4
+        with:
+          path: packages/temper-drc-rs/target
+          key: ${{ runner.os }}-drc-rs-${{ hashFiles('packages/temper-drc-rs/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-drc-rs-
+
+      - name: Build and install temper-drc-rs
+        run: uv run maturin develop --release --manifest-path packages/temper-drc-rs/Cargo.toml
+
+      - name: Verify temper-drc-rs loads
+        run: uv run python3 -c "import temper_drc_rs"
+        env:
+          RUST_BACKTRACE: full
+
+      - name: Cache Rust build (temper-constraints)
+        uses: actions/cache@v4
+        with:
+          path: packages/temper-placer/temper-constraints/target
+          key: ${{ runner.os }}-temper-constraints-${{ hashFiles('packages/temper-placer/temper-constraints/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-temper-constraints-
+
+      - name: Build and install temper-constraints
+        run: >
+          uv run maturin develop --release
+          --manifest-path packages/temper-placer/temper-constraints/Cargo.toml
+        env:
+          PYO3_USE_ABI3_FORWARD_COMPATIBILITY: "1"
+
+      - name: Verify temper-constraints loads
+        run: uv run python3 -c "import temper_constraints"
+        env:
+          RUST_BACKTRACE: full
+
+      - name: Install dependencies
+        run: >
+          uv sync --all-packages --inexact
+          --no-install-package temper-rust-router
+          --no-install-package temper-drc-rs
+          --no-install-package temper-constraints
+
+      - name: Cache netlist
+        uses: actions/cache@v4
+        with:
+          path: elec/build
+          key: netlist-${{ hashFiles('elec/src/**') }}
+
+      - name: Build electronics netlist
+        run: make netlist
+
+      - name: Run invariant tests (remaining directories)
+        working-directory: packages/temper-placer
+        run: >
+          uv run python ../../scripts/pytest_guard.py --min-tests 1200 --
+          tests/io/ tests/deterministic/ tests/physics/ tests/fields/ tests/validation/ tests/placer/cp_sat/
+          -v --tb=short -p no:cacheprovider --maxfail=10 -m "not slow"
+          --continue-on-collection-errors
+        continue-on-error: true  # TODO: temper-NNN -- parallel test suite flakiness; hard-fail after 2026-09-01
   closure:
     name: Pipeline Closure Test (Truth-Gated)
     runs-on: ubuntu-latest
