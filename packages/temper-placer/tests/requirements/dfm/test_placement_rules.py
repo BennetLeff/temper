@@ -368,7 +368,7 @@ class TestSpacingRequirements:
         assert package_requirements["recommended_mm"] == expected_recommended
 
 
-def test_esp32_module_has_most_restrictive_requirements(_self):
+def test_esp32_module_has_most_restrictive_requirements():
     """Test that ESP32 module has the most restrictive spacing requirements."""
     requirements = get_spacing_requirements()
     esp32_req = requirements["ESP32_MODULE"]
@@ -635,7 +635,7 @@ class TestFiducialPlacement:
 class TestESP32AntennaKeepout:
     """Tests for ESP32-S3-WROOM antenna keepout requirements."""
 
-    def test_adequate_antenna_keepout_passes(self, _esp32_placement):
+    def test_adequate_antenna_keepout_passes(self, esp32_placement):
         """Placement with adequate antenna keepout should pass."""
         board_dims = (100, 100)
         esp32_pos = (50, 50)
@@ -646,7 +646,7 @@ class TestESP32AntennaKeepout:
         assert result.passed
         assert result.error_count == 0
 
-    def test_copper_in_antenna_keepout_fails(self, _esp32_antenna_violation):
+    def test_copper_in_antenna_keepout_fails(self, esp32_antenna_violation):
         """Placement with copper in antenna keepout should fail."""
         board_dims = (100, 100)
         esp32_pos = (10, 10)
@@ -683,7 +683,7 @@ class TestESP32AntennaKeepout:
         # Should pass if no copper in keepout zone
         assert result.passed or not result.passed  # Depends on implementation
 
-    def test_antenna_keepout_violation_details(self, _esp32_antenna_violation):
+    def test_antenna_keepout_violation_details(self, esp32_antenna_violation):
         """Test that antenna keepout violations include required details."""
         board_dims = (100, 100)
         esp32_pos = (10, 10)
