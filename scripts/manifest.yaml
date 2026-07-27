@@ -865,6 +865,25 @@ scripts:
   - rich.console
   - sys
   - yaml
+- path: check_undeclared_imports.py
+  purpose: 'CI gate: fail when a module-level import in scripts/ or a Python test tree is not resolvable
+    in the synced environment (undeclared third-party dependency) -- catches the jinja2/sympy class of
+    incident (docs/evidence/2026-07-27-undeclared-import-gate.md)'
+  owner: bennet
+  last_run: '2026-07-27'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - ast
+  - dataclasses
+  - fnmatch
+  - importlib.util
+  - pathlib
+  - sys
 - path: worktree_report.py
   purpose: 'Worktree hygiene report: inventory each git worktree with HEAD, age, distance behind main,
     and unique unmerged commits (read-only, prunes nothing)'

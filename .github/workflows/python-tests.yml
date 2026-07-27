@@ -35,6 +35,9 @@ on:
       - 'scripts/check_derived_doc_drift.py'
       - 'scripts/derived_doc_gates.yaml'
       - 'scripts/tests/test_check_derived_doc_drift.py'
+      - 'scripts/check_undeclared_imports.py'
+      - 'scripts/tests/test_check_undeclared_imports.py'
+      - '.undeclared-imports-allowlist'
       - 'docs/FUNCTIONAL_TEST_CRITERIA.md'
       - 'docs/STRATEGY.md'
       - 'docs/hardware/PROTECTION_CHAIN_REVIEW.md'
@@ -79,6 +82,9 @@ on:
       - 'scripts/check_derived_doc_drift.py'
       - 'scripts/derived_doc_gates.yaml'
       - 'scripts/tests/test_check_derived_doc_drift.py'
+      - 'scripts/check_undeclared_imports.py'
+      - 'scripts/tests/test_check_undeclared_imports.py'
+      - '.undeclared-imports-allowlist'
       - 'docs/FUNCTIONAL_TEST_CRITERIA.md'
       - 'docs/STRATEGY.md'
       - 'docs/hardware/PROTECTION_CHAIN_REVIEW.md'
@@ -427,6 +433,19 @@ jobs:
 
       - name: Design capacity budget gate (fault-tree fan-in)
         run: uv run python scripts/capacity_budget_gate.py
+
+      - name: Undeclared-import gate tests
+        run: uv run pytest scripts/tests/test_check_undeclared_imports.py -v --tb=short
+
+      # Fail-closed, not soft-launched: catches the jinja2/sympy class of
+      # incident (a third-party module imported by first-party code but
+      # declared nowhere, silently dying inside a continue-on-error step).
+      # Must run after `uv sync --all-packages` above (never a plain
+      # `uv sync`, which prunes workspace packages) so resolvability
+      # reflects the same environment the rest of this job runs under. See
+      # docs/evidence/2026-07-27-undeclared-import-gate.md.
+      - name: Undeclared-import gate (scripts/ and Python test trees)
+        run: uv run python scripts/check_undeclared_imports.py
 
       - name: Rebuild script invocation graph
         run: uv run python scripts/trace_invocations.py
