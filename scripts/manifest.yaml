@@ -235,6 +235,24 @@ scripts:
   - re
   - subprocess
   - sys
+- path: mpn_fabrication_gate.py
+  purpose: >-
+    Fabricated-MPN CI gate: fails closed on non-E-series resistor/capacitor
+    values and MPN/declared-value disagreement in elec/src/*.ato
+  owner: pipeline
+  last_run: '2026-07-27'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - dataclasses
+  - math
+  - pathlib
+  - re
+  - sys
+  - yaml
 - path: internal_route.py
   purpose: Internal route command (Makefile + shell-invoked)
   owner: unassigned
