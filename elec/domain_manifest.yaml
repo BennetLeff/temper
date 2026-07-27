@@ -95,6 +95,21 @@ domains:
       - a                  # auto-named net between the ZCD divider tap and
                            # the H11L1 LED series resistor/anode (R9-U3),
                            # still entirely HV-side.
+      - discharge.k_dis1-nc  # discharge.k_dis1's own declared "contacts"
+                             # group (pin 4, NC) -- below, the SAME group as
+                             # pin 1 (COM), which that isolator entry's own
+                             # pin_labels already calls "COM (HV bus contact)".
+                             # The group is undifferentiated (COM/NO/NC are
+                             # one physical switch mechanism, one domain);
+                             # this just also lists the net name so the
+                             # domain check (this file) and the isolator
+                             # check (below) agree, instead of leaving pin 4
+                             # unclassified despite pin 1 of the same group
+                             # already being HV. See
+                             # 2026-07-27-domain-classification-coverage.md
+                             # for why this was previously unclassified.
+      - discharge.k_dis2-nc  # same reasoning, discharge.k_dis2's "contacts"
+                             # group (below).
 
   # SELV control/logic domain: MCU, safety interlock, RTD sensing, and the
   # isolated 15V/3.3V rails they are claimed to run from. `gnd` itself is
@@ -143,6 +158,46 @@ domains:
                            # here specifically so the domain check exercises
                            # a *correctly fixed* crossing, not just the two
                            # still-open ones.
+      - discharge.k_dis1-coil1  # discharge.k_dis1's own declared "coil"
+                                # group (below), pin_labels already call
+                                # both coil pins "SELV coil drive" -- listed
+                                # here too so the domain check and the
+                                # isolator check (below) do not disagree
+                                # about the same two pins' domain. See
+                                # 2026-07-27-domain-classification-coverage.md.
+      - discharge.k_dis1-coil2  # this net is shared with discharge.k_dis2's
+                                # own coil2 pin too (the two relay coils are
+                                # wired in series through a shared node;
+                                # confirmed directly from the compiled
+                                # netlist -- there is no separate
+                                # "discharge.k_dis2-coil2" net record) --
+                                # covers BOTH isolators' coil2 pin.
+      - discharge.k_dis2-coil1  # same reasoning, discharge.k_dis2's own
+                                # "coil" group (below).
+      - power_in.bypass_relay-coil1  # same reasoning, power_in.bypass_relay's
+                                     # own declared "coil" group (below);
+                                     # pin_labels already call both pins
+                                     # "SELV coil drive".
+      - power_in.bypass_relay-coil2
+      - safety.ovp.comp-inp  # OVP-01 comparator sense node -- the far end
+                             # of the ovp01_comparator_divider protective-
+                             # impedance chain (below). NOT inferred from
+                             # naming: this manifest's own single-fault
+                             # analysis two sections below (search
+                             # "SINGLE-FAULT DIRECTION WHEN r_div_bot (R54)
+                             # OPENS") already establishes this node sits at
+                             # ~1.4V normal / clamped ~3.6V under the single
+                             # fault originally flagged as the hazard --
+                             # genuinely SELV-range in both analyzed
+                             # conditions, fed from the SELV-referenced
+                             # TLV3201 (VCC = power_3v3). The chain's own
+                             # interior nodes upstream of this one
+                             # (r_div_top1-p2, r_div_top2-p2, sitting at
+                             # ~57-114V per the same arithmetic) are NOT
+                             # added here -- they are genuinely mid-chain,
+                             # neither HV nor SELV by voltage, and remain
+                             # deliberately unclassified; see
+                             # 2026-07-27-domain-classification-coverage.md.
 
 # Components whose pins do NOT connect across the barrier they implement.
 # `instance_path` is the dotted atopile instance path as it appears after
