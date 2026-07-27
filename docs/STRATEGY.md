@@ -472,6 +472,62 @@ Also surfaced: **`FUNCTIONAL_TEST_CRITERIA.md` §1.2 specifies a 200 W ±25%
 power tier that has no corresponding gate** in this document. That is an
 omitted requirement, not a lost qualifier.
 
+### Stage 3: 1,573.8 s → 52.67 s, and a feature deleted by refactor (2026-07-27)
+
+**The ~30× speedup came from refuting the hypothesis I supplied.**
+`docs/evidence/2026-07-27-stage3-model-and-rewrite.md`.
+
+I handed the agent the O(n²) subsumption loop at `rewrite.rs:495-540` with
+arithmetic that matched the symptom almost exactly — 39,544² / 2 ≈ 782 M pairs
+≈ 250 s. It instrumented instead of accepting: **every one of the 20,734
+`CapacityConstraint`s has a unique `channel_id`**, so every group has size 1 and
+that loop measures **113–159 microseconds.**
+
+The real bottleneck was **an unnamed second O(n²) loop ninety lines later in the
+same function** — `cap_infos.iter().find(...)` rebuilding a `BTreeSet<String>`
+per candidate, for every dedup entry. **144.34 s at 15 nets.** Root cause:
+`cap_infos[i].orig_idx == i` always holds, because the vector is built by an
+order-preserving `.map()`. The search was never necessary.
+
+`cap_infos.get(orig_idx)` — O(1) — gives **144.34 s → 62.4 ms (~2,313×)** on
+that loop and **Stage 3 1,573.8 s → 52.67 s (~30×)** end to end, at **no
+completion-rate cost**, since it is a proven algorithmic equivalence. Full board
+now reaches SATISFIABLE with **0 conflicts and 0 decisions** — the "decided
+early" falsifier does generalise; it had simply never reached the solver.
+
+**Model size is explained exactly**: `variables = n_nets × (skeleton edges +
+via-anchor nodes)`, matching at both 15 and 108 nets. ~35,889 skeleton elements
+built once per board, so **every net gets a boolean for every channel edge
+regardless of proximity** — ~37,000 variables per net.
+
+### The bundled encoding was deleted by a refactor and nobody noticed (2026-07-27)
+
+`docs/evidence/2026-07-27-bundled-encoding.md`. **Do not enable
+`enable_bundling`. There is nothing behind the flag.**
+
+It was built and wired end to end on **2026-06-29**, PyO3 entrypoint included.
+On **2026-07-08** `packages/temper-rust-router/src/lib.rs` was replaced wholesale
+during the `temper-rust-router-core` crate split (`b27851fe`/`87bda65e`) and the
+entrypoint went with it.
+
+**762 lines of algorithm still compile as unused `pub` code** —
+`Watchdog::solve` (`watchdog.rs:96`, 415 lines) and
+`extract_bundled`/`expand_assignments` (`extraction.rs:107,160`, 347 lines).
+Verified at HEAD: **zero callers** in `temper-rust-router/src/`, and
+`from temper_rust_router import solve_topology_rust_bundled` raises
+`ImportError`. `route_pcb()` does not even expose the parameter.
+
+**It went undetected for three weeks because no test exercises the solve path.**
+The only bundling tests instantiate `ModelBuilder` directly and never touch
+`RouterV6Pipeline` — unit coverage over an integration that no longer exists.
+
+Flipping the flag today would not produce a smaller, worse or different model.
+It would **crash every route before Stage 3 built a single variable.**
+
+Restoring it is a real task — a new PyO3 binding over never-integration-tested
+CEGAR code, first-ever coverage for that loop, then the measurement plan against
+the 48/96 = 50.0% baseline. Not a wiring job.
+
 ### Three-track consolidation, and a corrected profile (2026-07-27)
 
 All three landed and are verified at HEAD. **Two of the three overturned the
