@@ -472,6 +472,54 @@ Also surfaced: **`FUNCTIONAL_TEST_CRITERIA.md` §1.2 specifies a 200 W ±25%
 power tier that has no corresponding gate** in this document. That is an
 omitted requirement, not a lost qualifier.
 
+### Prior art narrows R_eff — and undermines the OCP-01 conflict I reported (2026-07-27)
+
+Full synthesis: `docs/evidence/2026-07-27-coil-pan-coupling-prior-art.md`.
+
+**Best source found: Infineon AN235020** (`EVAL_2KW_SiC_IH`, 2025) — a real 2 kW
+half-bridge series-resonant induction board with **directly measured,
+impedance-swept coil L and R, with and without a stainless pot**. It gives a
+**loaded/unloaded inductance ratio ≈ 0.40**, the most transferable figure found,
+and a measured reflected resistance of **3.3–4.5 Ω** — but at **90–150 kHz**,
+not this design's 35 kHz.
+
+A second source (IJCRT 2022) *assumes* **R_eff = 2 Ω** at 23 kHz / 1.8 kW — a
+stated design estimate, not a measurement — and is self-consistent at 30 A RMS.
+Extrapolating Infineon down to 35 kHz on a √f skin-effect argument (unverified
+for this geometry) gives **≈2.2 Ω**, within ~10% of the IJCRT figure.
+Suggestive agreement between an independent measurement and an independent
+assumption, not proof.
+
+**The falsifier fired, and both framings are reported.** Pooling every value
+found spans **0.055–4.5 Ω, ~82×**. Restricted to sources characterising a full
+coil against a full pan, it is **2.0–4.5 Ω, ~2.25×**. The narrower reading is a
+judgement call, flagged as one rather than quietly adopted.
+
+**Correction to a conflict this document previously asserted.** The OCP-01
+analysis states *"a typical 1.8 kW induction hob runs roughly 40 A RMS, implying
+`R_eff ≈ 1.12 Ω`"* (`2026-07-26-ocp01-vs-full-power-current.md:44`) and builds a
+whole "trips / ok" table on it. **That 1.12 Ω figure is uncited.** Literature
+puts R_eff at **2–2.2 Ω**, comfortably *above* the **1.43 Ω** needed to reach
+1800 W without tripping — which would mean **no conflict at all**.
+
+This does not resolve the question; it relocates it. **Both sides now rest on
+assumptions**, one uncited and one extrapolated across a 3–4× frequency gap. A
+bench measurement is still required. But the conflict should not be treated as
+established, and I over-reported it by propagating an uncited number.
+
+**One concrete, actionable model bug identified:** `pan_load.sub:102` defaults
+`L2 = 1u` in `PANLOAD_TRANSFORMER` — the secondary (pan) inductance — and this
+is the parameter driving the ~10× under-absorption. Infineon's measured
+loaded/unloaded L ratio offers a route to back out a non-fabricated `L2`/`k`
+pair rather than guessing. Described, deliberately not implemented.
+
+**Coupling coefficient `k` remains completely open** — no source gives a
+measured, cited value for a full domestic coil-pan pair.
+
+Blocked and logged UNVERIFIED: Hsieh 2023 (IET, 402), two MDPI papers (403 on
+every attempt including raw curl), a ResearchGate paper (403), a Springer paper
+(login wall), ST AN4713 (3× timeout) and AN2383 (403).
+
 ### The gate found a real gate-drive isolation bug on its first run (2026-07-26)
 
 `modules.ato` had `power_15v.vcc ~ gate_hs.boot_diode.A` — the high-side
