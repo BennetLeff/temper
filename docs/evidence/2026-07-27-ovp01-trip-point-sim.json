@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "measurement_date": "2026-07-27",
+  "invocation": "uv run python simulation/harness/run_ovp01_sim.py --runs 5",
+  "harness": "simulation/harness/run_ovp01_sim.py",
+  "netlist": "simulation/harness/nets/ovp01_trip_point.cir",
+  "simulator": {
+    "tool": "ngspice",
+    "determinism_runs": 5,
+    "deterministic": true,
+    "note": "5 identical byte-for-byte stdout runs; see docs/METHODOLOGY.md SS5 'the oracle is not exempt'."
+  },
+  "models_used": [
+    {
+      "file": "simulation/models/TLV3201_ngspice.lib",
+      "subckt": "TLV3201_NGSPICE",
+      "calibrated": false,
+      "note": "Vendor-provenance behavioural port. Its own header states it 'does not claim a timing, noise, or temperature model' -- propagation delay is NOT measurable with this model."
+    }
+  ],
+  "sourced_from_elec_read_only": {
+    "power_3v3_v": 3.3,
+    "r_div_top_total_ohm": 1290000,
+    "r_div_bot_ohm": 10000,
+    "r_ref_top_ohm": 11800,
+    "r_ref_bot_ohm": 10000,
+    "r_hyst_ohm": 619000,
+    "citation": "elec/src/modules.ato: OVPComparator"
+  },
+  "v_bus_line_node_identity": {
+    "wired_to": "dc_bus_plus, the +170V HALF-bus (elec/src/main.ato: safety.dc_bus.line ~ dc_bus_plus)",
+    "resolution_note": "CORRECTED 2026-07-27: the 2026-07-26 'resolution' claiming this divider senses the FULL bus was itself wrong -- see docs/STRATEGY.md 'OVP-01 senses the half-bus and is now fail-open'. Proof independent of any comment: PowerInput's c_bus1 is sized against v_bus_half (170V), not the 340V full bus (modules.ato: `assert c_bus1.voltage_rating >= v_bus_half * 1.25`). The spec windows applied by this harness are therefore the HALVED windows (195-205V trip / 5-10V hysteresis), not the full-bus 390-410V/10-20V ones."
+  },
+  "measurements": {
+    "t_trip_s": 0.000142878,
+    "t_release_s": 0.000362,
+    "v_bus_at_trip_v": 200.0292,
+    "v_bus_at_release_v": 193.2
+  },
+  "derived": {
+    "v_bus_trip_from_ramp_time_v": 200.0292,
+    "v_bus_trip_from_node_voltage_v": 200.0292,
+    "v_bus_release_from_ramp_time_v": 193.2,
+    "v_bus_release_from_node_voltage_v": 193.2
+  },
+  "internal_consistency_check_trip_v": 0.0,
+  "internal_consistency_check_release_v": 0.0,
+  "verdict": {
+    "calibrated": false,
+    "measured_trip_v_bus_line_v": 200.029,
+    "measured_release_v_bus_line_v": 193.2,
+    "measured_hysteresis_v": 6.829,
+    "hand_derived_trip_v_bus_line_v": 199.94,
+    "hand_derived_release_v_bus_line_v": 193.06,
+    "hand_sim_trip_agreement_v": 0.0892,
+    "hand_sim_release_agreement_v": 0.14,
+    "ovp01_spec_trip_window_v": [
+      195.0,
+      205.0
+    ],
+    "ovp01_spec_hysteresis_window_v": [
+      5.0,
+      10.0
+    ],
+    "within_ovp01_trip_window": true,
+    "within_ovp01_hysteresis_window": true,
+    "within_ovp01_spec": true,
+    "propagation_delay_measured": false,
+    "propagation_delay_reason": "TLV3201_ngspice.lib declares no timing model; a measured delay from this model would be a modelling artifact, not physical.",
+    "summary": "Simulated OVP-01 trip point at the v_bus.line node (dc_bus_plus, the +170V half-bus) is 200.03 V and release point is 193.20 V (uncalibrated), giving 6.83 V of hysteresis. This is WITHIN the half-bus-equivalent 195-205V trip / 5-10V hysteresis requirement (FUNCTIONAL_TEST_CRITERIA.md SS2.2's 390-410V/10-20V full-bus windows, halved), matching the OVPComparator module's own inline hand-derivation (199.9V trip, 193.1V release) to within 0.09 V / 0.14 V. Note the nominal-only simulated result is expected to pass; the worst-case corner analysis in docs/evidence/2026-07-27-ovp01-half-bus-retune.md shows the trip window is NOT fully met at +/-1% resistor tolerance (this simulation uses nominal component values only, per METHODOLOGY.md -- worst-case is a separate hand/script analysis, not a SPICE sweep)."
+  }
+}
