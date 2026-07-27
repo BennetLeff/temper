@@ -8,7 +8,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates curl git \
+    ca-certificates curl git git-lfs \
     python3.12 python3.12-dev python3.12-venv \
     build-essential cmake pkg-config \
     libclang-dev \
@@ -21,7 +21,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt-get update && apt-get install -y --no-install-recommends software-properties-common \
     && add-apt-repository -y ppa:kicad/kicad-10.0-releases \
-    && apt-get update && apt-get install -y --no-install-recommends kicad \
+    && apt-get update && apt-get install -y --no-install-recommends kicad kicad-footprints \
     && rm -rf /var/lib/apt/lists/*
 
 # Rust toolchain (stable, minimal profile)
