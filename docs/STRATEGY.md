@@ -472,6 +472,53 @@ Also surfaced: **`FUNCTIONAL_TEST_CRITERIA.md` §1.2 specifies a 200 W ±25%
 power tier that has no corresponding gate** in this document. That is an
 omitted requirement, not a lost qualifier.
 
+### The board is NOT clearance-clean — the check ran on 10 nets (2026-07-27)
+
+Detail: `docs/evidence/2026-07-27-domain-classification-coverage.md`. **This
+retracts the "0 clearance violations" result recorded below.**
+
+**There were two independently-drifting classifiers, not one:**
+
+1. `elec/domain_manifest.yaml` — 39 nets — feeding `check_domain_partition.py`
+   (galvanic isolation).
+2. **`_real_board_fixture.py` — a second, hand-maintained 10-net dict**, a
+   strict subset of the first — feeding `verify_iec60335_compliance` and
+   `domain_clearance.py`, i.e. **the actual clearance/creepage path.**
+
+So the clearance result was computed over **10 of 165 nets**. Not the 39 I
+reported, and not the 47 declared now.
+
+**The falsifier fired.** Three components sat inside the 8.0 mm largest IEC
+margin of a declared HV part: **R59 at 5.39 mm, R53 at 6.05 mm, D3 at 6.91 mm.**
+Two resolved on investigation — R59/R53 are interior nodes of already-declared
+protective-impedance chains, D3 is a relay flyback on an isolator's own SELV
+coil-drive pin. A manifest expansion traced to text the manifest already
+contained (39 → **47 nets**, not guessed net names) closed two; **R59 remains**,
+justified as a same-chain sibling rather than dismissed.
+
+**The disclosure that matters: at full coverage there are 17 real violations.**
+
+| | |
+|---|---|
+| Coverage before | 127/170 components (74.7%), **10 nets** |
+| Coverage now | **156/170 (91.8%)**, 47 nets |
+| Violations at full coverage | **17, across 9 component pairs** |
+| Worst | **2.26 mm where 3–6 mm is required** |
+
+These were always there. They were invisible because the check inspected a
+tenth of the board's nets. **They are printed on every test run** rather than
+asserted, because closing them needs a **placement re-solve** — and the board
+is currently owned by a concurrent routing agent. Reported, not hidden, and not
+forced green by narrowing scope.
+
+`test_clearance.py`'s guard is strengthened from
+`matched_components_in_placement > 0` — which a single matched component would
+satisfy — to **`coverage_ratio >= 0.85`**, plus a new fail-closed assertion on
+any unclassified component near HV.
+
+**63 nets remain undeclared** and are flagged UNVERIFIED: likely
+should-have-been-declared, not independently traced.
+
 ### Every fabricated part is now resolved — MPN gate 5 → 0 (2026-07-27)
 
 **Verified at HEAD**: `mpn_fabrication_gate.py` **PASSED, 0 violations**;
