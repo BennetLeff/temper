@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "measurement_date": "2026-07-27",
+  "invocation": "uv run python simulation/harness/run_ocp01_sim.py --runs 5",
+  "harness": "simulation/harness/run_ocp01_sim.py",
+  "netlist": "simulation/harness/nets/ocp01_trip_point.cir",
+  "simulator": {
+    "tool": "ngspice",
+    "determinism_runs": 5,
+    "deterministic": true,
+    "note": "5 identical byte-for-byte stdout runs measured 2026-07-25; see docs/METHODOLOGY.md SS5 'the oracle is not exempt'."
+  },
+  "models_used": [
+    {
+      "file": "simulation/models/current_transformer.sub",
+      "subckt": "CT_WITH_BURDEN",
+      "calibrated": false,
+      "note": "N=100, R_BURDEN=4.99 sourced from elec/src/modules.ato (read-only). RW=50 (winding resistance) is the subckt's own default, NOT verified against the real CST2010-100L datasheet."
+    },
+    {
+      "file": "simulation/models/TLV3201_ngspice.lib",
+      "subckt": "TLV3201_NGSPICE",
+      "calibrated": false,
+      "note": "Vendor-provenance behavioural port. Its own header states it 'does not claim a timing, noise, or temperature model' -- propagation delay is NOT measurable with this model."
+    }
+  ],
+  "sourced_from_elec_read_only": {
+    "power_3v3_v": 3.3,
+    "r_ref_top_ohm": 3240,
+    "r_ref_bot_ohm": 10000,
+    "r_burden_ohm": 4.99,
+    "ct_ratio_n": 100,
+    "citation": "elec/src/modules.ato: OCPComparator, CurrentSensing"
+  },
+  "measurements": {
+    "t_trip_s": 0.0004997083,
+    "v_sense_at_trip_v": 2.493544
+  },
+  "derived": {
+    "i_trip_from_ramp_time_a": 49.97083,
+    "i_trip_from_burden_voltage_a": 49.97082164328657
+  },
+  "internal_consistency_check_a": 8.356713429691354e-06,
+  "worst_case_analysis": {
+    "method": "Analytic corner sweep (NOT simulated in ngspice) over r_ref_top/r_ref_bot/r_burden, each independently at its worst-case fractional error. 'tolerance_only' uses the committed +/-1% E96 part tolerance alone. 'tolerance_plus_tempco' adds +/-100ppm/C Yageo RC-series tempco (DigiKey-verified) at DT=60C 'extreme ambient' (matching docs/evidence/2026-07-27-threshold-sensitivity-tempco-budget.md's convention), stacked with tolerance rather than RSS-combined -- the pessimistic, uncorrelated treatment appropriate for a protection circuit's safety case. 'tolerance_plus_tempco_plus_vcc_regulation' additionally folds in the 3.3V buck's own asserted +/-5% output tolerance (BuckConverter3V3 in elec/src/modules.ato) as a bonus, non-blocking check beyond the original design comment's scope.",
+    "tolerance_only": {
+      "effective_resistor_tolerance": 0.01,
+      "worst_case_min_a": 49.21101297895866,
+      "worst_case_max_a": 50.69905157434811
+    },
+    "tolerance_plus_tempco": {
+      "effective_resistor_tolerance": 0.016,
+      "worst_case_min_a": 48.77409301334691,
+      "worst_case_max_a": 51.15529576958216
+    },
+    "tolerance_plus_tempco_plus_vcc_regulation": {
+      "effective_resistor_tolerance": 0.016,
+      "worst_case_min_a": 46.33538836267957,
+      "worst_case_max_a": 53.71306055806126
+    },
+    "within_ocp01_spec_window_tolerance_plus_tempco": true
+  },
+  "verdict": {
+    "calibrated": false,
+    "measured_trip_current_a": 49.971,
+    "ocp01_spec_window_a": [
+      45.0,
+      55.0
+    ],
+    "within_ocp01_spec_window": true,
+    "worst_case_min_a": 48.774,
+    "worst_case_max_a": 51.155,
+    "within_ocp01_spec_window_worst_case": true,
+    "docstring_claim_a": 50.0,
+    "matches_docstring_claim": true,
+    "design_comment_estimate_a": 37.6,
+    "matches_design_comment": false,
+    "propagation_delay_measured": false,
+    "propagation_delay_reason": "TLV3201_ngspice.lib declares no timing model; a measured delay from this model would be a modelling artifact (~picoseconds), not physical, and is deliberately not reported as an OCP-01 latency figure.",
+    "summary": "Simulated OCP trip current is 49.97 A (uncalibrated), within the OCP-01 45-55 A spec window."
+  }
+}

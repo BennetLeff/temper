@@ -77,12 +77,31 @@ NETLIST = HARNESS_DIR / "nets" / "ocp01_trip_point.cir"
 R_BURDEN_OHM = 4.99
 CT_RATIO_N = 100
 VCC_V = 3.3
-R_REF_TOP_OHM = 3200
+# RE-DERIVED 2026-07-27 (docs/evidence/2026-07-27-ocp01-uvl02-part-resolution.md):
+# was 3200 (fabricated MPN "RC0603FR-073K2L", not an E24/E96 value, zero
+# DigiKey hits). Corrected to the real E96 neighbour 3240 ohm
+# ("RC0603FR-073K24L", DigiKey-verified).
+R_REF_TOP_OHM = 3240
 R_REF_BOT_OHM = 10000
 OCP01_SPEC_MIN_A = 45.0
 OCP01_SPEC_MAX_A = 55.0
 DOCSTRING_CLAIM_A = 50.0
 DESIGN_COMMENT_A = 37.6
+
+# Worst-case tolerance + temperature-coefficient budget. Tempco figure
+# (+/-100ppm/C) and the DT=60C "extreme ambient" convention both match
+# docs/evidence/2026-07-27-threshold-sensitivity-tempco-budget.md, which
+# verified this figure directly against DigiKey pages for this same Yageo
+# RC-series family (RC0603FR-0710KL etc., all report +/-100ppm/C).
+RESISTOR_TOLERANCE = 0.01
+TEMPCO_PPM_PER_C = 100
+DELTA_T_C = 60.0
+# Bonus/non-blocking check: BuckConverter3V3 (elec/src/modules.ato) asserts
+# power_out.voltage within 3.3V +/-5% -- the OCP-01 comparator's own
+# worst-case comment (and the original design) does not fold this in, but
+# it is reported here for completeness since it is a real error term on the
+# same VCC rail this divider references.
+VCC_TOLERANCE = 0.05
 
 T_TRIP_RE = re.compile(r"^t_trip\s*=\s*([-+0-9.eE]+)\s*$", re.MULTILINE)
 V_SENSE_RE = re.compile(r"^v_sense_at_trip\s*=\s*([-+0-9.eE]+)\s*$", re.MULTILINE)
@@ -136,6 +155,53 @@ def derive_trip_current_a(measurements: dict[str, float]) -> dict[str, float]:
     }
 
 
+def _i_trip_a(r_ref_top: float, r_ref_bot: float, r_burden: float, vcc: float) -> float:
+    v_ref = vcc * r_ref_bot / (r_ref_top + r_ref_bot)
+    return v_ref * CT_RATIO_N / r_burden
+
+
+def worst_case_corners(
+    r_ref_top: float,
+    r_ref_bot: float,
+    r_burden: float,
+    vcc: float,
+    resistor_tol: float,
+    tempco_ppm_per_c: float,
+    delta_t_c: float,
+    vcc_tol: float = 0.0,
+) -> dict[str, float]:
+    """Exhaustive corner sweep over r_ref_top/r_ref_bot/r_burden (each
+    independently at its worst-case tolerance) and optionally VCC.
+
+    ``resistor_tol`` is the initial (E96 1%) tolerance; ``tempco_ppm_per_c``
+    x ``delta_t_c`` is added to it (NOT RSS-combined) to get the effective
+    worst-case fractional error per resistor -- matching the treatment in
+    docs/evidence/2026-07-27-threshold-sensitivity-tempco-budget.md, which
+    argues initial tolerance and tempco should stack in the pessimistic,
+    uncorrelated case for a protection circuit's safety case rather than
+    relying on an unverified correlation/RSS assumption.
+    """
+    eff_tol = resistor_tol + (tempco_ppm_per_c * 1e-6 * delta_t_c)
+    top_lo, top_hi = r_ref_top * (1 - eff_tol), r_ref_top * (1 + eff_tol)
+    bot_lo, bot_hi = r_ref_bot * (1 - eff_tol), r_ref_bot * (1 + eff_tol)
+    burd_lo, burd_hi = r_burden * (1 - eff_tol), r_burden * (1 + eff_tol)
+    vcc_lo, vcc_hi = vcc * (1 - vcc_tol), vcc * (1 + vcc_tol)
+
+    import itertools
+
+    currents = [
+        _i_trip_a(rt, rb, rB, v)
+        for rt, rb, rB, v in itertools.product(
+            (top_lo, top_hi), (bot_lo, bot_hi), (burd_lo, burd_hi), (vcc_lo, vcc_hi)
+        )
+    ]
+    return {
+        "effective_resistor_tolerance": eff_tol,
+        "worst_case_min_a": min(currents),
+        "worst_case_max_a": max(currents),
+    }
+
+
 def build_evidence(
     stdout_runs: list[str],
     measurements: dict[str, float],
@@ -149,6 +215,25 @@ def build_evidence(
         derived["i_trip_from_ramp_time_a"] - derived["i_trip_from_burden_voltage_a"]
     )
     in_ocp01_window = OCP01_SPEC_MIN_A <= i_trip <= OCP01_SPEC_MAX_A
+
+    wc_tol_only = worst_case_corners(
+        R_REF_TOP_OHM, R_REF_BOT_OHM, R_BURDEN_OHM, VCC_V,
+        resistor_tol=RESISTOR_TOLERANCE, tempco_ppm_per_c=0, delta_t_c=0,
+    )
+    wc_tol_tempco = worst_case_corners(
+        R_REF_TOP_OHM, R_REF_BOT_OHM, R_BURDEN_OHM, VCC_V,
+        resistor_tol=RESISTOR_TOLERANCE, tempco_ppm_per_c=TEMPCO_PPM_PER_C,
+        delta_t_c=DELTA_T_C,
+    )
+    wc_tol_tempco_vcc = worst_case_corners(
+        R_REF_TOP_OHM, R_REF_BOT_OHM, R_BURDEN_OHM, VCC_V,
+        resistor_tol=RESISTOR_TOLERANCE, tempco_ppm_per_c=TEMPCO_PPM_PER_C,
+        delta_t_c=DELTA_T_C, vcc_tol=VCC_TOLERANCE,
+    )
+    wc_within_spec = (
+        OCP01_SPEC_MIN_A <= wc_tol_tempco["worst_case_min_a"]
+        and wc_tol_tempco["worst_case_max_a"] <= OCP01_SPEC_MAX_A
+    )
 
     return {
         "schema_version": 1,
@@ -201,11 +286,38 @@ def build_evidence(
         "measurements": measurements,
         "derived": derived,
         "internal_consistency_check_a": agreement_a,
+        "worst_case_analysis": {
+            "method": (
+                "Analytic corner sweep (NOT simulated in ngspice) over "
+                "r_ref_top/r_ref_bot/r_burden, each independently at its "
+                "worst-case fractional error. 'tolerance_only' uses the "
+                "committed +/-1% E96 part tolerance alone. "
+                "'tolerance_plus_tempco' adds +/-100ppm/C Yageo RC-series "
+                "tempco (DigiKey-verified) at DT=60C 'extreme ambient' "
+                "(matching docs/evidence/"
+                "2026-07-27-threshold-sensitivity-tempco-budget.md's "
+                "convention), stacked with tolerance rather than RSS-combined "
+                "-- the pessimistic, uncorrelated treatment appropriate for "
+                "a protection circuit's safety case. "
+                "'tolerance_plus_tempco_plus_vcc_regulation' additionally "
+                "folds in the 3.3V buck's own asserted +/-5% output "
+                "tolerance (BuckConverter3V3 in elec/src/modules.ato) as a "
+                "bonus, non-blocking check beyond the original design "
+                "comment's scope."
+            ),
+            "tolerance_only": wc_tol_only,
+            "tolerance_plus_tempco": wc_tol_tempco,
+            "tolerance_plus_tempco_plus_vcc_regulation": wc_tol_tempco_vcc,
+            "within_ocp01_spec_window_tolerance_plus_tempco": wc_within_spec,
+        },
         "verdict": {
             "calibrated": False,
             "measured_trip_current_a": round(i_trip, 3),
             "ocp01_spec_window_a": [OCP01_SPEC_MIN_A, OCP01_SPEC_MAX_A],
             "within_ocp01_spec_window": in_ocp01_window,
+            "worst_case_min_a": round(wc_tol_tempco["worst_case_min_a"], 3),
+            "worst_case_max_a": round(wc_tol_tempco["worst_case_max_a"], 3),
+            "within_ocp01_spec_window_worst_case": wc_within_spec,
             "docstring_claim_a": DOCSTRING_CLAIM_A,
             "matches_docstring_claim": abs(i_trip - DOCSTRING_CLAIM_A) < 1.0,
             "design_comment_estimate_a": DESIGN_COMMENT_A,

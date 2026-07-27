@@ -1365,9 +1365,18 @@ module CurrentSensing:
     ct = new CST3015_100E
     
     r_burden = new Resistor
-    # 1:100 ratio: 4.99R puts the OCP trip at 2.5V/4.99R*100 = 50.1A, centred
-    # in the OCP-01 45-55A window. Worst case over +/-1% on the burden and both
-    # OCPComparator reference resistors is 49.4-50.9A.
+    # 1:100 ratio: 4.99R puts the OCP trip at 2.49V(comp ref)/4.99R*100 =
+    # 49.9A, centred in the OCP-01 45-55A window. RE-DERIVED 2026-07-27
+    # (docs/evidence/2026-07-27-ocp01-uvl02-part-resolution.md) alongside
+    # OCPComparator.r_ref_top: the reference divider's top leg moved from a
+    # fabricated 3.2kohm ("RC0603FR-073K2L", confirmed zero DigiKey hits, not
+    # an E96 member) to the real E96 neighbour 3.24kohm
+    # ("RC0603FR-073K24L", DigiKey-confirmed). Worst case over +/-1% initial
+    # tolerance AND +/-100ppm/C tempco (DT=60C, Yageo RC-series, matching
+    # docs/evidence/2026-07-27-threshold-sensitivity-tempco-budget.md's
+    # convention) on the burden and both OCPComparator reference resistors is
+    # 48.77-51.16A; see simulation/harness/run_ocp01_sim.py's
+    # worst_case_corners output for the full sweep.
     #
     # Was 6.65R (37.6A), 7.4A below the OCP-01 minimum. Raising the reference
     # instead is impossible: 50A across 6.65R/100 needs 3.325V from a 3.3V rail.
@@ -1390,10 +1399,15 @@ module CurrentSensing:
     r_burden.mpn = "RC1206FR-074R99L"
     r_burden.footprint = "Resistor_SMD:R_1206_3216Metric"
 
-    # Assert the burden voltage at the OCP trip lands on the comparator
-    # reference (3.3 * 10k/13.2k = 2.500V). The original assertion asserted
-    # 1.5-1.8V at 250mA -- a 25A design point inconsistent with any 45-55A
-    # OCP window, and one that masked the transformer conflict above.
+    # Assert the burden voltage at the OCP trip lands close to the comparator
+    # reference (3.3 * 10k/13.24k = 2.4925V, re-derived 2026-07-27 alongside
+    # r_ref_top's fabricated-MPN fix; see OCPComparator). This assertion only
+    # checks r_burden's own nominal drop at the fixed 500mA/50A design point,
+    # independent of the exact reference-divider value, so its 2.4V-2.6V
+    # window is unaffected by the r_ref_top correction. The original
+    # assertion asserted 1.5-1.8V at 250mA -- a 25A design point inconsistent
+    # with any 45-55A OCP window, and one that masked the transformer
+    # conflict above.
     i_ct_trip: current = 500mA  # 50A OCP trip / 100
     v_burden_trip: voltage = i_ct_trip * r_burden.value
     assert v_burden_trip within 2.4V to 2.6V
@@ -1709,21 +1723,37 @@ module RTDSensing:
     adc.RTDIN_N ~ rtd_sense_n
 
 module OCPComparator:
-    """Over-current protection comparator, 50A threshold."""
-    
+    """Over-current protection comparator, 50A threshold.
+
+    r_ref_top RE-DERIVED 2026-07-27
+    (docs/evidence/2026-07-27-ocp01-uvl02-part-resolution.md): the previous
+    3.2kohm value/`RC0603FR-073K2L` MPN was fabricated -- 3.2kohm is not an
+    E24 or E96 member (nearest E96 neighbours 3.16k/3.24k), the MPN encodes
+    the same invented "3K2" figure, and DigiKey confirms zero hits for that
+    part number. Replaced with the real E96 neighbour 3.24kohm
+    (`RC0603FR-073K24L`, DigiKey-verified: 3.24k, +/-1%, 0603,
+    +/-100ppm/C, Yageo, in stock), chosen over the other real E96 neighbour
+    (3.16k) because it centres the nominal trip closer to the 45-55A
+    window's 50.0A midpoint (49.95A vs 50.25A). Worst-case tolerance
+    (+/-1%) plus tempco (+/-100ppm/C, DT=60C) on r_ref_top/r_ref_bot/
+    r_burden: 48.77-51.16A, comfortably inside 45-55A. See
+    simulation/harness/run_ocp01_sim.py and the evidence doc for the full
+    corner sweep, including a bonus check folding in the 3.3V rail's own
+    +/-5% regulation tolerance (46.34-53.71A, still inside spec)."""
+
     power = new ElectricPower
     i_sense = new ElectricSignal
     i_sense.reference ~ power.gnd
-    
+
     fault = new ElectricLogic
     fault.reference ~ power.gnd
     fault.line.required = true
-    
+
     comp = new TLV3201
-    
+
     r_ref_top = new Resistor
-    r_ref_top.value = 3200ohm +/- 1%
-    r_ref_top.mpn = "RC0603FR-073K2L"
+    r_ref_top.value = 3240ohm +/- 1%
+    r_ref_top.mpn = "RC0603FR-073K24L"
     r_ref_top.footprint = "Resistor_SMD:R_0603_1608Metric"
     
     r_ref_bot = new Resistor
