@@ -592,6 +592,20 @@ scripts:
   - pathlib
   - sys
   - yaml
+- path: pytest_guard.py
+  purpose: Run pytest and fail if fewer than --min-tests actually executed; catches a
+    suite silently collapsing to zero (missing path, mass skip, bad deselect)
+  owner: pipeline
+  last_run: '2026-07-27'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - argparse
+  - subprocess
+  - sys
+  - tempfile
+  - xml.etree.ElementTree
+  - pathlib
 - path: gen_repo_state.py
   purpose: Generate README.md and docs/plans/README.md state blocks from source; --check fails closed
     on drift so hand-maintained state cannot go stale

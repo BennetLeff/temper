@@ -104,11 +104,19 @@ dev without the full toolchain, not CI coverage.
 
 ## Requirements
 
-- **R1.** The 4 unguarded `all()` sites get a non-empty assertion or explicit
-  "no gates ran" failure, per §12.
+- **R1.** ~~The 4 unguarded `all()` sites get a non-empty assertion or explicit
+  "no gates ran" failure, per §12.~~ **DONE** (verified 2026-07-27): all four
+  now guard explicitly and cite METHODOLOGY §4/§5 --
+  `_loop_gates.py:35`, `drc_result.py:207`, `validation_gates.py:54`,
+  `manufacturing/stackup_validator.py:54`.
 - **R2.** Wire `requirements/` (238 tests: safety/emc/dfm) into a CI step with
   no `continue-on-error` — highest-priority unwired directory.
-- **R3.** Fix the phantom `tests/losses/` path in `python-tests.yml:269`.
+- **R3.** ~~Fix the phantom `tests/losses/` path in `python-tests.yml:269`.~~
+  **DONE** (2026-07-27). Worse than a path typo: pytest aborts on a missing
+  path, so all seven sibling directories ran **zero** tests. Confirmed in the
+  log of run 30291488317. Fixed, and `scripts/pytest_guard.py` now asserts a
+  floor on tests actually executed so the invocation cannot silently collapse
+  to zero again -- a partial R4, applied where the damage was proven.
 - **R4.** Skip-budget gate: CI check comparing skip-site count (`pytest.skip`,
   `skipif`, unconditional `skip`) against `origin/main`; growth fails without
   an explicit override token (same convention as the sibling plan's R1).
