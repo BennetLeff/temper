@@ -1,8 +1,8 @@
 use pyo3::create_exception;
 use pyo3::prelude::*;
-use pyo3::types::{PyDict, PyList, PyTuple};
+use pyo3::types::{PyDict, PyList, PySet, PyTuple};
 use pyo3::IntoPyObject;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
 
 // ---------------------------------------------------------------------------
@@ -10,6 +10,7 @@ use std::path::PathBuf;
 // ---------------------------------------------------------------------------
 
 create_exception!(temper_io_types, FootprintParseError, pyo3::exceptions::PyException);
+create_exception!(temper_io_types, ConfigBoardMismatchError, pyo3::exceptions::PyValueError);
 
 // ---------------------------------------------------------------------------
 // export_types: TraceSegment
@@ -1036,8 +1037,265 @@ fn sha256_hex(py: Python<'_>, data: Vec<u8>) -> PyResult<String> {
 }
 
 // ---------------------------------------------------------------------------
+// config_board_binding: extract_config_refs, verify_config_matches_netlist
+// ---------------------------------------------------------------------------
+
+fn _is_single_ref_key(key: &str) -> bool {
+    matches!(
+        key,
+        "component"
+            | "component_ref"
+            | "signal_component"
+            | "target_component"
+            | "hv_component"
+            | "from_component"
+            | "to_component"
+    )
+}
+
+fn _is_list_ref_key(key: &str) -> bool {
+    matches!(key, "components" | "fixed_components")
+}
+
+fn _collect_config_refs(node: &Bound<'_, PyAny>, refs: &mut HashSet<String>) -> PyResult<()> {
+    if let Ok(dict) = node.cast::<PyDict>() {
+        for (key, value) in dict {
+            let key_str: String = key.extract()?;
+            if _is_single_ref_key(&key_str) {
+                if let Ok(s) = value.extract::<String>() {
+                    refs.insert(s);
+                }
+            } else if _is_list_ref_key(&key_str) {
+                _collect_ref_container(&value, refs)?;
+            } else {
+                _collect_config_refs(&value, refs)?;
+            }
+        }
+    } else if let Ok(tuple) = node.cast::<PyTuple>() {
+        for item in tuple {
+            _collect_config_refs(&item, refs)?;
+        }
+    } else if let Ok(list) = node.cast::<PyList>() {
+        for item in list {
+            _collect_config_refs(&item, refs)?;
+        }
+    }
+    Ok(())
+}
+
+fn _collect_ref_container(value: &Bound<'_, PyAny>, refs: &mut HashSet<String>) -> PyResult<()> {
+    if let Ok(dict) = value.cast::<PyDict>() {
+        for (key, _) in dict {
+            if let Ok(k) = key.extract::<String>() {
+                refs.insert(k);
+            }
+        }
+    } else if let Ok(tuple) = value.cast::<PyTuple>() {
+        for item in tuple {
+            if let Ok(s) = item.extract::<String>() {
+                refs.insert(s);
+            }
+        }
+    } else if let Ok(list) = value.cast::<PyList>() {
+        for item in list {
+            if let Ok(s) = item.extract::<String>() {
+                refs.insert(s);
+            }
+        }
+    }
+    Ok(())
+}
+
+#[pyfunction]
+fn extract_config_refs(py: Python<'_>, config: Bound<'_, PyAny>) -> PyResult<Py<PySet>> {
+    let mut refs: HashSet<String> = HashSet::new();
+    _collect_config_refs(&config, &mut refs)?;
+    Ok(PySet::new(py, refs.iter().map(|s| s.as_str()))?.unbind())
+}
+
+#[pyfunction]
+#[pyo3(signature = (config_refs, netlist_refs, *, config_name))]
+fn verify_config_matches_netlist(
+    config_refs: Bound<'_, PyAny>,
+    netlist_refs: Bound<'_, PyAny>,
+    config_name: String,
+) -> PyResult<()> {
+    let mut board_refs: HashSet<String> = HashSet::new();
+    for item in netlist_refs.try_iter()? {
+        board_refs.insert(item?.extract::<String>()?);
+    }
+
+    let mut missing: Vec<String> = Vec::new();
+    for item in config_refs.try_iter()? {
+        let s: String = item?.extract()?;
+        if !board_refs.contains(&s) {
+            missing.push(s);
+        }
+    }
+
+    if !missing.is_empty() {
+        missing.sort();
+        let sample = missing
+            .iter()
+            .take(10)
+            .map(|s| s.as_str())
+            .collect::<Vec<_>>()
+            .join(", ");
+        let more = if missing.len() > 10 {
+            format!(" (+{} more)", missing.len() - 10)
+        } else {
+            String::new()
+        };
+        let err = ConfigBoardMismatchError::new_err(format!(
+            "Config '{}' references {} component ref(s) not present in the board netlist: {}{}. This config was likely authored for a different board.",
+            config_name,
+            missing.len(),
+            sample,
+            more
+        ));
+        // Attach structured fields to the exception instance so callers can
+        // inspect `missing_refs` / `config_name` directly, matching the
+        // pre-Rust-port Python implementation's contract (and this module's
+        // test suite).
+        let py = config_refs.py();
+        err.value(py).setattr("missing_refs", missing.clone())?;
+        err.value(py).setattr("config_name", config_name)?;
+        Err(err)
+    } else {
+        Ok(())
+    }
+}
+
+// ---------------------------------------------------------------------------
 // Module definition
 // ---------------------------------------------------------------------------
+
+// Restored 2026-07-27. These two functions, together with
+// ConfigBoardMismatchError/extract_config_refs/verify_config_matches_netlist,
+// were added by 67e4d4ab and silently discarded by the merge commit cd4e896a,
+// which kept the Python shims importing them. zone_filler.py:7 has been raising
+// ImportError at module load ever since; nothing caught it because no test
+// exercises that module.
+
+// zone_filler: fill_zones_pcbnew, fill_zones_if_present
+// ---------------------------------------------------------------------------
+
+#[pyfunction]
+fn fill_zones_pcbnew(py: Python<'_>, pcb_file: PathBuf) -> PyResult<bool> {
+    let script_path = pcb_file
+        .parent()
+        .unwrap_or_else(|| std::path::Path::new("."))
+        .join("_zone_fill_temp.py");
+    let pcb_str = pcb_file.to_str().unwrap_or("?");
+    let script_content = format!(
+        r#"#!/usr/bin/env python3
+import sys
+
+try:
+    import pcbnew
+except ImportError:
+    print("ERROR: pcbnew module not available. KiCad Python API is required.", file=sys.stderr)
+    print("Zone filling skipped. Zones will need to be filled manually in KiCad.", file=sys.stderr)
+    sys.exit(0)
+
+board = pcbnew.LoadBoard(r"{}")
+
+zones = list(board.Zones())
+
+if len(zones) == 0:
+    print("No zones found in PCB - nothing to fill")
+    sys.exit(0)
+
+print(f"Found {{len(zones)}} zones in PCB")
+
+filler = pcbnew.ZONE_FILLER(board)
+
+print(f"Filling {{len(zones)}} zones...")
+try:
+    filler.Fill(zones)
+    board.Save(r"{}")
+    print("\u2713 Successfully filled {{len(zones)}} zones")
+except Exception as e:
+    print(f"ERROR filling zones: {{e}}", file=sys.stderr)
+    sys.exit(1)
+"#,
+        pcb_str, pcb_str
+    );
+
+    std::fs::write(&script_path, &script_content).map_err(|e| {
+        pyo3::exceptions::PyOSError::new_err(format!("Error writing temp script: {}", e))
+    })?;
+
+    let sys = py.import("sys")?;
+    let exe: String = sys.getattr("executable")?.extract()?;
+    let subprocess = py.import("subprocess")?;
+
+    let kwargs = PyDict::new(py);
+    kwargs.set_item("capture_output", true)?;
+    kwargs.set_item("text", true)?;
+    kwargs.set_item("timeout", 30)?;
+
+    let script_path_str = script_path.to_str().unwrap_or("?");
+    let args = PyList::new(py, [exe.as_str(), script_path_str])?;
+    let result = subprocess.call_method("run", (args,), Some(&kwargs));
+
+    let _ = std::fs::remove_file(&script_path);
+
+    match result {
+        Ok(r) => {
+            let stdout: String = r.getattr("stdout")?.extract().unwrap_or_default();
+            let stderr: String = r.getattr("stderr")?.extract().unwrap_or_default();
+            let returncode: i32 = r.getattr("returncode")?.extract().unwrap_or(1);
+            let trimmed_out = stdout.trim();
+            if !trimmed_out.is_empty() {
+                println!("{}", trimmed_out);
+            }
+            let trimmed_err = stderr.trim();
+            if !trimmed_err.is_empty() {
+                eprintln!("{}", trimmed_err);
+            }
+            Ok(returncode == 0)
+        }
+        Err(e) => {
+            if e.is_instance_of::<pyo3::exceptions::PyBaseException>(py) {
+                eprintln!("Zone filling timed out after 30 seconds");
+            } else {
+                eprintln!("Error filling zones: {}", e);
+            }
+            Ok(false)
+        }
+    }
+}
+
+#[pyfunction]
+#[pyo3(signature = (pcb_file, verbose = true))]
+fn fill_zones_if_present(py: Python<'_>, pcb_file: PathBuf, verbose: bool) -> PyResult<bool> {
+    if !pcb_file.exists() {
+        if verbose {
+            eprintln!("PCB file not found: {}", pcb_file.display());
+        }
+        return Ok(false);
+    }
+
+    if verbose {
+        println!("\n=== Zone Filling ===");
+        println!(
+            "PCB: {}",
+            pcb_file
+                .file_name()
+                .unwrap_or_default()
+                .to_string_lossy()
+        );
+    }
+
+    let success = fill_zones_pcbnew(py, pcb_file)?;
+
+    if verbose && success {
+        println!("=== Zone Filling Complete ===\n");
+    }
+
+    Ok(success)
+}
 
 #[pymodule]
 fn temper_io_types(m: &Bound<'_, PyModule>) -> PyResult<()> {
@@ -1045,6 +1303,10 @@ fn temper_io_types(m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     // Exceptions
     m.add("FootprintParseError", m.py().get_type::<FootprintParseError>())?;
+    m.add(
+        "ConfigBoardMismatchError",
+        m.py().get_type::<ConfigBoardMismatchError>(),
+    )?;
 
     // Classes
     m.add_class::<TraceSegment>()?;
@@ -1068,6 +1330,10 @@ fn temper_io_types(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(serialize_connectivity_to_json, m)?)?;
     m.add_function(wrap_pyfunction!(dsn_list, m)?)?;
     m.add_function(wrap_pyfunction!(sha256_hex, m)?)?;
+    m.add_function(wrap_pyfunction!(extract_config_refs, m)?)?;
+    m.add_function(wrap_pyfunction!(verify_config_matches_netlist, m)?)?;
+    m.add_function(wrap_pyfunction!(fill_zones_pcbnew, m)?)?;
+    m.add_function(wrap_pyfunction!(fill_zones_if_present, m)?)?;
 
     // SERIALIZER_REGISTRY
     let registry = PyDict::new(m.py());
