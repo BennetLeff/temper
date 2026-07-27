@@ -472,6 +472,61 @@ Also surfaced: **`FUNCTIONAL_TEST_CRITERIA.md` §1.2 specifies a 200 W ±25%
 power tier that has no corresponding gate** in this document. That is an
 omitted requirement, not a lost qualifier.
 
+### Clearance violations 22 → 0, and the placer can no longer produce them (2026-07-27)
+
+Full detail: `docs/evidence/2026-07-27-domain-clearance-constraint.md`.
+**Verified at HEAD**: safety suite **54 passed, 0 failed, 0 xfailed**; board
+still 169 footprints.
+
+**The placer had no voltage-domain awareness at all** — confirmed by direct
+inspection of `_encoder_core.py`, `model.py`, `encoder.py` and
+`_encoder_solve.py`. Its only clearance mechanism was a uniform
+`courtyard_clearance_mm` of ~0.3–0.6 mm applied to every pair regardless of
+domain. That is *why* mains sat 0.836 mm from SELV: the solver was never told
+those parts must stay apart, so the position was arbitrary rather than wrong.
+
+`domain_clearance.py` now generates ordinary `SeparatedConstraint` objects at
+`margin = max(clearance, creepage)` per `IEC60335_REQUIREMENTS` row, **reusing
+the existing `encode_separated` handler unmodified** and importing
+`VoltageDomain` and the pairing logic **from the validator itself** — one
+classifier, not two that can drift.
+
+**AGENTS.md R24 satisfied in all three parts:**
+
+1. **Soundness** — Chebyshev edge-to-edge separation at margin M implies
+   Euclidean centre-to-centre distance ≥ M. Conservative by construction.
+2. **BMC-exhaustive** — 9,375 size × margin × offset combinations swept against
+   the validator's own `_distance` oracle. **0 counterexamples.**
+3. **Post-solve audit** — recomputes real distance from solved coordinates
+   independent of solver status. **0 mismatches across 7,715 constraints.**
+
+Final solve: **169/169 components, status `optimal`, 27.6 s.** No board-size
+infeasibility; the falsifier did not fire.
+
+**The agent caught and discarded its own invalid result.** Its first solve ran
+against the pre-resync board and reported "16/18 → 0". When the resync landed
+and proved the designator join broken for 78 of 149 refs, it **rebased, dropped
+that commit, and re-derived everything** — rather than keeping a number that
+looked better. Corrected baseline: **22 violations, worse than the documented
+18**, because the broken join had been *hiding* some. F1↔J1 at 0.836 mm
+reconfirmed as real under correct identity.
+
+**After: 0 violations**, verified two independent ways — in memory, and by
+re-parsing the written `pcb/temper.kicad_pcb` from scratch.
+`test_temper_board_clearance_compliance` is converted from `xfail(strict=True)`
+to a real assertion, guarded by `assert matched_components_in_placement > 0` so
+a broken join cannot again produce zero violations by matching nothing.
+
+A pre-existing KiCad-DRC ratchet that was failing on both prior board states now
+passes as well.
+
+**Still open from this work**: `configs/pcl/temper_production.yaml` is stale
+against the netlist; the CLI's `optimize --no-loop` path has a latent
+origin-offset bug (worked around here, not patched at source);
+`VoltageDomain.ISOLATED` still has zero real candidates; REQ-SAFE-02
+(`isolation.py`) is still untested against real geometry; and the
+`IEC60335_REQUIREMENTS` matrix provenance remains uncited.
+
 ### Protection chain closed out — three items, one honest shortfall (2026-07-27)
 
 Evidence: `docs/evidence/2026-07-27-protection-chain-closeout.md` and three
