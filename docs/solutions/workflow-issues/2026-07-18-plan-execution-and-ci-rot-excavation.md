@@ -138,6 +138,8 @@ which hid drift failures. Each fix exposed the next layer.
 | 6 | Extended: schematic-oracle install | `apt-get install kicad-cli` — no such package; the CLI ships inside `kicad` on the KiCad PPA | Install `kicad`. |
 | 7 | Every PR: `advisory` job hard-fails | Checkout of `BennetLeff/gusano` 404s (private/moved); the job's own comments say "Advisory only — not blocking" | Job-level `continue-on-error: true`. |
 
+> **2026-07-27 update:** the root cause of row 7 was later pinned down precisely — `BennetLeff/gusano` is a real, private repo, but the workflow's default `GITHUB_TOKEN` is scoped to `temper` only and cannot read a second private repo. Rather than add a PAT/deploy key to fix the checkout, the owner decided to drop the gusano-based hidden-coupling advisory entirely. `.github/workflows/hidden-coupling-advisory.yml` was deleted (it existed solely to check out and run `.gusano`, so there was no residual job to keep). This entry is left as-is as the historical record of the `continue-on-error` mitigation that was in place at the time.
+
 **Filed instead of fixed** (each would be a redesign inside a bugfix PR — R22):
 
 - **#226** — via-aware layer transitions: the true prerequisite for
