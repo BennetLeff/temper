@@ -25,6 +25,7 @@ REQUIRED_LIBS = [
     "Inductor_SMD",
     "Inductor_THT",
     "Package_DFN_QFN",
+    "Package_DIP",
     "Package_SO",
     "Package_TO_SOT_SMD",
     "Package_TO_SOT_THT",
