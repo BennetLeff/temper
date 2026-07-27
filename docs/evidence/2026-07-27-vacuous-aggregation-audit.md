@@ -1,5 +1,7 @@
 # Vacuous-aggregation audit — the 13 `check_vacuous_gates.py` findings
 
+<!-- provenance: commit=d44b8f1949406ab0f7e193f6b0dbcc1f98ab20ad dirty=UNKNOWN -->
+
 Date: 2026-07-27
 Scope: the 13 unguarded `all()` calls reported by `python3 scripts/check_vacuous_gates.py`
 after its 2026-07-27 widening from 52 to 526 files.

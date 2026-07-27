@@ -1,5 +1,7 @@
 # Schematic/source drift gate: diagnosis, not a new checker
 
+<!-- provenance: commit=2e24ba09b08efb52566aeee2d6452555c8d5aa2f dirty=UNKNOWN -->
+
 **Date:** 2026-07-26
 **Scope:** `scripts/gen_schematics.py`, `.github/workflows/python-tests.yml`'s
 "Regenerate schematics and check drift" step, `elec/build/default.net`,

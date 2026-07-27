@@ -1,5 +1,7 @@
 # OVP-01 half-bus retune: derivation, worst-case tolerance, simulation
 
+<!-- provenance: commit=9a4ad578f895dc34a866fd4af4bcc030094e3ec6 dirty=UNKNOWN -->
+
 **Date:** 2026-07-27
 **Scope:** `elec/src/modules.ato::OVPComparator` (`r_ref_top`, `r_hyst`),
 `simulation/harness/run_ovp01_sim.py`,

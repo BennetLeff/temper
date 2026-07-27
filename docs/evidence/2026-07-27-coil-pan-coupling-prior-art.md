@@ -1,5 +1,7 @@
 # Coil-to-pan coupling and reflected resistance — literature synthesis
 
+<!-- provenance: commit=fa3dde2001f88036aee5cc778fe0ae801fcffb3e dirty=UNKNOWN -->
+
 **Date:** 2026-07-27
 **Method:** Web literature search + direct document fetch (WebSearch/WebFetch), no
 simulation, no bench hardware. Every number below is either quoted from a document

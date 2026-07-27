@@ -1,5 +1,7 @@
 # Bounding the CaDiCaL SAT solve: mechanism, verification, and a scale limit the sweep ran into
 
+<!-- provenance: commit=b78f9041d42f9e98ea988902927856ad7546385f dirty=UNKNOWN -->
+
 **Date:** 2026-07-27
 **Task:** Add a configurable bound (conflict and/or wall-clock) to the CaDiCaL
 solve at `packages/temper-rust-router-core/src/solver.rs:20`

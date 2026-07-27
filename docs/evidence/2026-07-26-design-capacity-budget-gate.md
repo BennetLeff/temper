@@ -1,5 +1,7 @@
 # Design-capacity budget gate: fault-tree fan-in reachability
 
+<!-- provenance: commit=9880a3b8dd1d4b4e9ea7cee19779e2d122944e67 dirty=UNKNOWN -->
+
 **Date:** 2026-07-26
 **Built at commit:** `45dd80e321b958c3da92c4244bae365c20471f2e` (branch tip of
 `docs/methodology-loop-discipline` at the time of this spike; `elec/build/`

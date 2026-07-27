@@ -1,5 +1,7 @@
 # OCP-01 / UVL-02 protection-divider part resolution — 2026-07-27
 
+<!-- provenance: commit=ed89a3a2181d35397b9047ba3344c5ce573e1ec4 dirty=UNKNOWN -->
+
 **Scope:** two `mpn_fabrication_gate.py` findings in protection circuits:
 `OCPComparator.r_ref_top` (`elec/src/modules.ato`) and
 `LogicUVLOComparator.r_div_bot` (`elec/src/modules.ato`). Both set a safety

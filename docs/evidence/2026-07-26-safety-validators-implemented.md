@@ -1,5 +1,7 @@
 # Safety Validators Implemented — REQ-SAFE-01 (clearance.py) / REQ-SAFE-02 (isolation.py)
 
+<!-- provenance: commit=61967aa92b955094119b6ee9590ad1e7586bd18c dirty=UNKNOWN -->
+
 **Date:** 2026-07-26
 **Scope:** `packages/temper-placer/tests/requirements/validators/clearance.py` (3
 stubs), `packages/temper-placer/tests/requirements/validators/isolation.py` (7

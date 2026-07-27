@@ -1,4 +1,6 @@
 # Gate subset-blindness audit: which CI gates inspect a fraction of their
+
+<!-- provenance: commit=9fe513038b1bc6a130d855510314a6535fdac310 dirty=UNKNOWN -->
 intended input without saying so
 
 **Date:** 2026-07-27

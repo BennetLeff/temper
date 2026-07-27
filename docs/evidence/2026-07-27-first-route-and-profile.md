@@ -1,5 +1,7 @@
 # First route of `pcb/temper.kicad_pcb`, and where the time goes
 
+<!-- provenance: commit=99caa33e386d2c58f523284c48e7db0214365441 dirty=UNKNOWN -->
+
 **Date:** 2026-07-27
 **Board:** 170 footprints, placed and domain-clearance-solved (170/170, `optimal`,
 R24 audit clean at 0 mismatches across 7,843 constraints). Never routed before

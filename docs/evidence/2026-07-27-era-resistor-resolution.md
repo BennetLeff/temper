@@ -1,5 +1,7 @@
 # RTD-chain / rail-monitor Panasonic ERA-series resistor resolution — 2026-07-27
 
+<!-- provenance: commit=6c7887808e667ef323e3893c4902b628fda01f6d dirty=UNKNOWN -->
+
 **Scope:** three `mpn_fabrication_gate.py` findings, all in
 `RTDSensing` (`elec/src/modules.ato`): `r_low_top` (61.3 kΩ,
 `ERA-3AEB6132V`), `r_high_top` (5.93 kΩ, `ERA-3AEB5931V`), and `r_avdd_top`

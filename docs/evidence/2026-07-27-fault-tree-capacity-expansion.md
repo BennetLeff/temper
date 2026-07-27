@@ -1,5 +1,7 @@
 # Fault-tree capacity expansion: third OR package, UVL-02 wired
 
+<!-- provenance: commit=b3e055f93dc041704ff8de7bbb2a04c697f5b634 dirty=UNKNOWN -->
+
 **Date:** 2026-07-27
 **Scope:** `elec/src/modules.ato::SafetyInterlock` (new `fault_or3` instance
 and wiring), `LogicUVLOComparator` docstring.

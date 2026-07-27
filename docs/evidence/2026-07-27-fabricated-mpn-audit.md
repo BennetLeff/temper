@@ -1,5 +1,7 @@
 # Fabricated-MPN Audit and Gate — 2026-07-27
 
+<!-- provenance: commit=26658389eac8518826013a52f3557e41b16bcde9 dirty=UNKNOWN -->
+
 **Scope:** every MPN in `elec/src/*.ato` (the canonical, machine-readable source of
 truth) and `docs/hardware/BOM.md` (the derived prose BOM). Four fabricated parts
 had already been found by accident, each while looking for something else:

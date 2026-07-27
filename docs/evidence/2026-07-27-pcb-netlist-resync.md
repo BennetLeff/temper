@@ -1,5 +1,7 @@
 # PCB Netlist Resync — `pcb/temper.kicad_pcb` reconciled against the current netlist
 
+<!-- provenance: commit=3c9bb1dee4803b90be6958ce30328451d1c73574 dirty=UNKNOWN -->
+
 **Date:** 2026-07-27
 **Scope:** `pcb/temper.kicad_pcb`, `pcb/fp-lib-table`, `tools/setup_kicad_env.py`,
 `.gitignore`, new `scripts/resync_pcb_netlist.py`.

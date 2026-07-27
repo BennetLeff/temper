@@ -1,5 +1,7 @@
 # Clearance Rust port: baseline, falsifier, differential proof, and result
 
+<!-- provenance: commit=278662e8035894f08bf287a2c4e8b4591cd1ddd1 dirty=UNKNOWN -->
+
 **Date:** 2026-07-26
 **Scope:** `verify_clearance()` (`packages/temper-placer/src/temper_placer/router_v6/clearance_check.py`),
 ported to `packages/temper-drc-rs/src/router_clearance.rs`, exposed as

@@ -1,5 +1,7 @@
 # Re-establishing the 0-violation domain-clearance result after r_avdd_top's 0603→0805 footprint change
 
+<!-- provenance: commit=043debdfc05208799dc9560e3e327d91673cbfbb dirty=UNKNOWN -->
+
 **Date:** 2026-07-27
 **Scope:** `pcb/temper.kicad_pcb` (resynced + re-solved). No `elec/src/*.ato` changes
 (parts settled, per task constraint). Driver scripts used to run the resync/solve/audit

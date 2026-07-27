@@ -1,5 +1,7 @@
 # Resistor-set sensitivity ranking and temperature-coefficient budget for the four protection thresholds
 
+<!-- provenance: commit=cb192812e6179af05b715299cfebb85064ce0cd8 dirty=UNKNOWN -->
+
 **Date:** 2026-07-27
 **Scope:** Analysis only. No `elec/src/*.ato`, `pcb/`, or BOM files were modified.
 **Subject:** OVP-01 (`OVPComparator`), THM-01 (`ThermalComparator`), THM-02

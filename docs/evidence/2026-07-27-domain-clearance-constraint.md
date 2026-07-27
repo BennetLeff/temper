@@ -1,5 +1,7 @@
 # Domain-Aware Clearance Constraint — CP-SAT Placer Teaches Voltage Domains (R24)
 
+<!-- provenance: commit=e67b8a6e074457a77090f095d452b935561533e1 dirty=UNKNOWN -->
+
 **Date:** 2026-07-27
 **Scope:** `packages/temper-placer/src/temper_placer/placer/cp_sat/domain_clearance.py`
 (new), `packages/temper-placer/tests/placer/cp_sat/test_domain_clearance.py` (new),

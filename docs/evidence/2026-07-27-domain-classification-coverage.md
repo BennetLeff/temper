@@ -1,5 +1,7 @@
 # Domain-classification coverage: quantifying and closing the "0 violations covers only a fraction of the board" gap
 
+<!-- provenance: commit=70503e6dc045619766ba11c6fcfc2a4d62691c32 dirty=UNKNOWN -->
+
 **Date:** 2026-07-27
 **Scope:** `elec/domain_manifest.yaml`, `packages/temper-placer/tests/requirements/safety/_real_board_fixture.py`,
 `packages/temper-placer/tests/requirements/safety/test_clearance.py`. No `elec/src/*.ato` changes. `pcb/temper.kicad_pcb`

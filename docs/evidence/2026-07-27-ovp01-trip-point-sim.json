@@ -68,5 +68,9 @@
     "propagation_delay_measured": false,
     "propagation_delay_reason": "TLV3201_ngspice.lib declares no timing model; a measured delay from this model would be a modelling artifact, not physical.",
     "summary": "Simulated OVP-01 trip point at the v_bus.line node (dc_bus_plus, the +170V half-bus) is 200.03 V and release point is 193.20 V (uncalibrated), giving 6.83 V of hysteresis. This is WITHIN the half-bus-equivalent 195-205V trip / 5-10V hysteresis requirement (FUNCTIONAL_TEST_CRITERIA.md SS2.2's 390-410V/10-20V full-bus windows, halved), matching the OVPComparator module's own inline hand-derivation (199.9V trip, 193.1V release) to within 0.09 V / 0.14 V. Note the nominal-only simulated result is expected to pass; the worst-case corner analysis in docs/evidence/2026-07-27-ovp01-half-bus-retune.md shows the trip window is NOT fully met at +/-1% resistor tolerance (this simulation uses nominal component values only, per METHODOLOGY.md -- worst-case is a separate hand/script analysis, not a SPICE sweep)."
+  },
+  "provenance": {
+    "commit": "9a4ad578f895dc34a866fd4af4bcc030094e3ec6",
+    "dirty": "UNKNOWN"
   }
 }

@@ -1,5 +1,7 @@
 # BusDischarge resistor resize: worst-case tolerance derivation
 
+<!-- provenance: commit=66ed62791faed7a1782973ad9828dfa332665fbb dirty=UNKNOWN -->
+
 **Date:** 2026-07-27
 **Scope:** `elec/src/modules.ato::BusDischarge` (`r_dis1a/1b/2a/2b`).
 

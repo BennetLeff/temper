@@ -1,5 +1,7 @@
 # Clearance re-solve at full domain-classification coverage: 17 -> 0 REQ-SAFE-01 violations
 
+<!-- provenance: commit=c6b1b4635d5eb42f7d1315191a477fb076672ae5 dirty=UNKNOWN -->
+
 **Date:** 2026-07-27
 **Scope:** `pcb/temper.kicad_pcb` (re-solved and rewritten). No `elec/src/*.ato` changes, no gate
 script changes. Driver scripts used to run the constraint-generation/solve/write/audit pipeline

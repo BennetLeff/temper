@@ -1,5 +1,7 @@
 # Derived-document drift gate: decision, proofs, and live findings
 
+<!-- provenance: commit=f46c32d122312533cf136b02c262c648c2627034 dirty=UNKNOWN -->
+
 **Date:** 2026-07-26
 **Scope:** `scripts/check_derived_doc_drift.py`, `scripts/derived_doc_gates.yaml`,
 `scripts/tests/test_check_derived_doc_drift.py`, CI wiring in

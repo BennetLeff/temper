@@ -1,5 +1,7 @@
 # Undeclared-import gate: decision, falsifier, mutation proofs, live findings
 
+<!-- provenance: commit=8e0d8527e49e7455597607a48397de1ac50df8b4 dirty=UNKNOWN -->
+
 **Date:** 2026-07-27
 **Scope:** `scripts/check_undeclared_imports.py`, `.undeclared-imports-allowlist`,
 `scripts/tests/test_check_undeclared_imports.py`, CI wiring in

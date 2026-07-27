@@ -1,5 +1,7 @@
 # Protection chain closeout: OVP-01 retune, BusDischarge resize, fault-tree capacity
 
+<!-- provenance: commit=06ca2f68060250cd75a09d50b7c7f3b003c92506 dirty=UNKNOWN -->
+
 **Date:** 2026-07-27
 **Commits:** `8fe11824` (OVP-01 retune), `26329b4a` (OVP-01 simulation),
 `5484a1fd` (BusDischarge resize), `7826a5d7` (fault-tree third package).

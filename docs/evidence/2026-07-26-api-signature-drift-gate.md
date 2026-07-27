@@ -1,5 +1,7 @@
 # API signature drift gate: check_routability's TypeError, why mypy didn't stop it, and the hard call-arg gate
 
+<!-- provenance: commit=edd325435514632c93a14b242632613278508366 dirty=UNKNOWN -->
+
 **Date:** 2026-07-26
 **Scope:** `packages/temper-placer/src/temper_placer/router_v6/routability_check.py`
 (the fix), `scripts/check_typecheck_gate.py` (the guard), `.call-arg-allowlist`

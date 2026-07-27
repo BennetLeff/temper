@@ -1,5 +1,7 @@
 # `check_antenna_keepout` fix: corner/centre bug + module-centred keepout
 
+<!-- provenance: commit=f22393ad1ae35b0c9703ec842ee5d05cf80dc2ff dirty=UNKNOWN -->
+
 Scope: `packages/temper-placer/tests/requirements/validators/pick_and_place.py:363`
 (`check_antenna_keepout`), and its tests in
 `packages/temper-placer/tests/requirements/dfm/test_placement_rules.py`.
