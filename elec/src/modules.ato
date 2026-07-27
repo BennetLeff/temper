@@ -202,7 +202,9 @@ module GateDriveHS:
     boot_diode.K ~ driver.VDDA
     
     # Inputs
-    # vcc_15v (from HalfBridge) ~ boot_diode.A
+    # power_15v_ls.vcc (from HalfBridge, floats on hv_minus) ~ boot_diode.A --
+    # see the "High Side Power (Bootstrap)" comment in HalfBridge for why
+    # this must NOT be power_15v (gnd-referenced).
 
 module GateDriveLS:
     rg_on = new Resistor
@@ -381,7 +383,38 @@ module HalfBridge:
     gate_hs.drive.vss ~ power_loop.q_high.E
 
     # High Side Power (Bootstrap)
-    power_15v.vcc ~ gate_hs.boot_diode.A
+    #
+    # WIRING BUG FIXED (2026-07-26, domain-partition gate investigation --
+    # docs/evidence/2026-07-26-ovp-crossing-resolution.md): this used to read
+    # `power_15v.vcc ~ gate_hs.boot_diode.A`, i.e. the bootstrap diode's anode
+    # was fed from `power_15v` -- the PRIMARY, GNDI-referenced control supply
+    # (main.ato: hb.power_15v.vcc ~ vcc_15v, the SELV/PE-bonded "+15V" rail).
+    # That is wrong on two independent grounds:
+    #
+    # 1. Bootstrap physics: a high-side bootstrap diode must be referenced to
+    #    whatever node the switch leg bottoms out at (here, `dc_bus.hv_minus`
+    #    / VSSB) so it recharges the floating VDDA-VSSA rail each cycle when
+    #    switch_node is low. `power_15v` floats on `gnd`, not on `hv_minus` --
+    #    electrically unrelated to where switch_node actually sits when low.
+    #    `power_15v_ls` (declared two lines below, "MUST float on hv_minus")
+    #    is the rail this diode was always supposed to bootstrap from; the
+    #    module already had the correct supply, just not wired to this diode.
+    # 2. Isolation: UCC21550 is a reinforced-isolation part specifically so
+    #    the primary (gnd) and secondary (switch-node-referenced) sides never
+    #    share a conductive path. Feeding the boot diode from `power_15v`
+    #    (gnd) into `driver.VDDA` (secondary) defeated that barrier with an
+    #    external, forward-biased silicon diode -- confirmed as a live
+    #    domain-partition crossing (`scripts/check_domain_partition.py`,
+    #    'SW_NODE' --D5--> ... --C17--> ... --U8--> '+15V') and traced back to
+    #    this line, not to a manifest gap.
+    #
+    # Fix: bootstrap from `power_15v_ls` (already floats on `hv_minus`,
+    # already the low-side driver's own secondary-side supply) instead.
+    # This keeps the entire bootstrap network (D5/C17/U8) on the HV-
+    # referenced secondary side end-to-end, matching how every other
+    # already-isolated crossing in this design works -- no manifest
+    # declaration needed because there is no crossing left to declare.
+    power_15v_ls.vcc ~ gate_hs.boot_diode.A
     # Internal connections handled in GateDriveHS
     # Just need to connect Zener Anode (drive.vss) to switch_node
     gate_hs.drive.vss ~ switch_node
@@ -1712,16 +1745,32 @@ module OVPComparator:
     docs/hardware/SELV_ISOLATION_REDESIGN.md for the full derivation and two
     remediation options with a recommendation.
 
-    UNRESOLVED after the SELV float (same document): this divider
-    (r_div_top1-3/r_div_bot) and the adc_v_bus divider (r_adc_top/r_adc_bot)
-    both return to `power.gnd`, which is now the floated SELV ground rather
-    than the HV domain. Two resistive paths (~1.3M ohm and ~520k ohm) still
-    bridge the HV half-bus into the SELV domain -- neither is isolated by
-    this change. Fixing that needs either an HV-side comparator (its own
-    HV-referenced bias supply plus an opto/isolated-amp for the fault
-    output) or a full isolated-amplifier bus sense; both are real part
-    additions entangled with the retuning decision above and are NOT
-    implemented here."""
+    RESOLVED 2026-07-26 (docs/evidence/2026-07-26-ovp-crossing-resolution.md,
+    supersedes the "UNRESOLVED"/"NOT implemented" framing that used to be
+    here after the SELV float): this divider (r_div_top1-3/r_div_bot) and
+    the adc_v_bus divider (r_adc_top1-3/r_adc_bot) both return to
+    `power.gnd`, the floated-and-PE-bonded SELV ground -- two resistive
+    paths from the HV half-bus into SELV. Investigated properly rather than
+    either rubber-stamped or reflexively isolated: IEC 60335-1 permits a
+    protective-impedance connection between a mains-derived circuit and a
+    PE-bonded (earthed) low-voltage circuit -- the same provision this
+    design already relies on for `power_in.y_cap_pe` (C6) -- provided (a) no
+    single component failure removes the current-limiting function and (b)
+    touch current stays under the applicable limit in both normal and
+    single-fault conditions. Verified, not assumed: this divider's 3x430k
+    already satisfied (a); the adc_v_bus divider's PRIOR single 510k
+    resistor did NOT (fixed below, to 3x169k, this same change) and neither
+    the arithmetic against IEC 60335-2-6's 0.75mA/kW (capped 5mA) limit --
+    ~1.35mA at 1.8kW, against 131/195/386uA normal/one-shorted/two-shorted
+    for this divider -- nor the RC1206 resistors' datasheet voltage rating
+    (200V, against a worst-case 166V two-shorted per-resistor voltage) had
+    been checked before. See the evidence doc for the full standard clause,
+    the single-fault analysis (including what happens if r_div_bot opens),
+    and the declared exceptions in elec/domain_manifest.yaml. Both dividers
+    are declared there as intentional protective-impedance crossings; no
+    isolated-amplifier or HV-referenced-bias-supply hardware was added,
+    because none was needed once the ADC divider's redundancy defect was
+    fixed."""
 
     power = new ElectricPower
     v_bus = new ElectricSignal
@@ -1736,21 +1785,33 @@ module OVPComparator:
     
     comp = new TLV3201
     
+    # Protective-impedance construction (IEC 60335-1) -- see
+    # docs/evidence/2026-07-26-ovp-crossing-resolution.md and
+    # elec/domain_manifest.yaml's isolator declarations for r_div_top1-3/
+    # r_div_bot for the standard clause, arithmetic (131uA normal / 195uA
+    # one-shorted / 386uA two-shorted, all << the ~1.35mA IEC 60335-2-6
+    # touch-current limit at 1.8kW), and the R54-open fail-safe analysis.
+    # voltage_rating=200V below is the Yageo RC1206 (1/4W family) datasheet-
+    # confirmed rated (continuous working) voltage -- verified against the
+    # actual MPN, not assumed.
     r_div_top1 = new Resistor
     r_div_top1.value = 430kohm +/- 1%
     r_div_top1.power_rating = 0.25W
+    r_div_top1.voltage_rating = 200V
     r_div_top1.mpn = "RC1206FR-07430KL"
     r_div_top1.footprint = "Resistor_SMD:R_1206_3216Metric"
-    
+
     r_div_top2 = new Resistor
     r_div_top2.value = 430kohm +/- 1%
     r_div_top2.power_rating = 0.25W
+    r_div_top2.voltage_rating = 200V
     r_div_top2.mpn = "RC1206FR-07430KL"
     r_div_top2.footprint = "Resistor_SMD:R_1206_3216Metric"
-    
+
     r_div_top3 = new Resistor
     r_div_top3.value = 430kohm +/- 1%
     r_div_top3.power_rating = 0.25W
+    r_div_top3.voltage_rating = 200V
     r_div_top3.mpn = "RC1206FR-07430KL"
     r_div_top3.footprint = "Resistor_SMD:R_1206_3216Metric"
     
@@ -1827,40 +1888,76 @@ module OVPComparator:
     # V_bus_full_trip = 195V * 2 = 390V
     assert 180V * (10000 / (3 * 430000 + 10000)) < 3.3V * (10000 / (12000 + 10000))
     
-    # Bus voltage ADC sense: separate divider from the same v_bus net
-    # 510k + 10k -> 170V gives 3.27V at ADC (stays within 3.3V range)
+    # Bus voltage ADC sense: separate divider from the same v_bus net.
+    #
+    # REDUNDANCY FIX (2026-07-26, domain-partition gate investigation --
+    # docs/evidence/2026-07-26-ovp-crossing-resolution.md): this used to be a
+    # SINGLE 510k resistor (r_adc_top) in series with r_adc_bot. That is not
+    # a valid protective-impedance construction: IEC 60335-1's protective-
+    # impedance provision (the same one r_div_top1-3/r_div_bot above rely on)
+    # requires the current-limiting function to survive ANY single component
+    # failure. With only one top resistor, shorting THAT ONE resistor removes
+    # 100% of the top-side impedance in a single fault, dumping the full
+    # +170V_BUS across r_adc_bot alone (10k -> 17mA, ~29x r_adc_bot's 0.1W
+    # rating and ~13x the 1.35mA touch-current limit derived in the evidence
+    # doc) -- exactly the failure mode protective impedance exists to
+    # prevent. Split into 3x169k (matches r_div_top1-3's pattern: 3x169k =
+    # 507k, within 0.6% of the original 510k, so the ADC ratio below is
+    # essentially unchanged): losing any one of the three still leaves 338k
+    # or 169k of top-side impedance, never zero.
     adc_v_bus = new ElectricSignal
     adc_v_bus.reference ~ power.gnd
-    
-    r_adc_top = new Resistor
-    r_adc_top.value = 510kohm +/- 1%
-    r_adc_top.power_rating = 0.1W
-    r_adc_top.voltage_rating = 250V
-    r_adc_top.mpn = "RC1206FR-07510KL"
-    r_adc_top.footprint = "Resistor_SMD:R_1206_3216Metric"
-    
+
+    r_adc_top1 = new Resistor
+    r_adc_top1.value = 169kohm +/- 1%
+    r_adc_top1.power_rating = 0.1W
+    # 200V is the Yageo RC1206 (1/4W family) datasheet-confirmed rated
+    # (continuous working) voltage; the previous single-resistor version of
+    # this divider declared 250V here, which does not match the part's own
+    # datasheet. Corrected while splitting this divider (not a separate,
+    # undocumented change) -- see the evidence doc's resistor-rating check.
+    r_adc_top1.voltage_rating = 200V
+    r_adc_top1.mpn = "RC1206FR-07169KL"
+    r_adc_top1.footprint = "Resistor_SMD:R_1206_3216Metric"
+
+    r_adc_top2 = new Resistor
+    r_adc_top2.value = 169kohm +/- 1%
+    r_adc_top2.power_rating = 0.1W
+    r_adc_top2.voltage_rating = 200V
+    r_adc_top2.mpn = "RC1206FR-07169KL"
+    r_adc_top2.footprint = "Resistor_SMD:R_1206_3216Metric"
+
+    r_adc_top3 = new Resistor
+    r_adc_top3.value = 169kohm +/- 1%
+    r_adc_top3.power_rating = 0.1W
+    r_adc_top3.voltage_rating = 200V
+    r_adc_top3.mpn = "RC1206FR-07169KL"
+    r_adc_top3.footprint = "Resistor_SMD:R_1206_3216Metric"
+
     r_adc_bot = new Resistor
     r_adc_bot.value = 10kohm +/- 1%
     r_adc_bot.power_rating = 0.1W
     r_adc_bot.mpn = "RC0603FR-0710KL"
     r_adc_bot.footprint = "Resistor_SMD:R_0603_1608Metric"
-    
+
     c_adc_filter = new Capacitor
     c_adc_filter.value = 100nF +/- 10%
     c_adc_filter.dielectric = "X7R"
     c_adc_filter.voltage_rating = 10V
     c_adc_filter.mpn = "C0603C104K5RACTU"
     c_adc_filter.footprint = "Capacitor_SMD:C_0603_1608Metric"
-    
-    v_bus.line ~ r_adc_top.p1
-    r_adc_top.p2 ~ adc_v_bus.line
+
+    v_bus.line ~ r_adc_top1.p1
+    r_adc_top1.p2 ~ r_adc_top2.p1
+    r_adc_top2.p2 ~ r_adc_top3.p1
+    r_adc_top3.p2 ~ adc_v_bus.line
     adc_v_bus.line ~ r_adc_bot.p1
     r_adc_bot.p2 ~ power.gnd
     adc_v_bus.line ~ c_adc_filter.p1
     c_adc_filter.p2 ~ power.gnd
-    
-    # Verify ADC range
-    v_adc_max: voltage = 170V * (10kohm / (510kohm + 10kohm))
+
+    # Verify ADC range: 3x169k + 10k = 517k total, 170V * 10k/517k = 3.29V
+    v_adc_max: voltage = 170V * (10kohm / (3 * 169kohm + 10kohm))
     assert v_adc_max <= 3.3V
 
 module ThermalComparator:
