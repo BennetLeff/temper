@@ -23,9 +23,9 @@ This is a real cross-layer import (``src`` depending on ``tests``), which is
 architecturally unusual and is called out plainly in
 ``docs/evidence/2026-07-27-domain-clearance-constraint.md`` rather than
 hidden. ``tests/`` is a proper Python package
-(``tests/requirements/validators/__init__.py`` exists) but is not installed
-as a runtime dependency, so a small ``sys.path`` shim below makes the import
-work outside pytest's own path insertion.
+The validator now lives in ``temper_placer.requirements.validators.clearance``
+(moved there 2026-07-27) so this module -- and therefore the CP-SAT encoder --
+can import it without production depending on the test tree.
 
 **Encoding strategy — reuse SeparatedConstraint, not a new constraint type.**
 ``SeparatedConstraint`` (``pcl/constraints.py``) already has a registered
@@ -110,9 +110,7 @@ not trust the solver's own bookkeeping, it recomputes from coordinates.
 from __future__ import annotations
 
 import logging
-import sys
 from dataclasses import dataclass
-from pathlib import Path
 from typing import Any
 
 from temper_placer.pcl.constraints import ConstraintTier, SeparatedConstraint
@@ -125,11 +123,7 @@ logger = logging.getLogger(__name__)
 # regardless of how this module is invoked (pytest already does this itself;
 # this shim covers direct script/CLI invocation).
 # ---------------------------------------------------------------------------
-_PACKAGE_ROOT = Path(__file__).resolve().parents[4]  # .../packages/temper-placer
-if str(_PACKAGE_ROOT) not in sys.path:
-    sys.path.insert(0, str(_PACKAGE_ROOT))
-
-from tests.requirements.validators.clearance import (  # noqa: E402
+from temper_placer.requirements.validators.clearance import (
     IEC60335_REQUIREMENTS,
     VoltageDomain,
     _domain_boundary_pairs,
