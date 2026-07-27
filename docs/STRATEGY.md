@@ -472,6 +472,68 @@ Also surfaced: **`FUNCTIONAL_TEST_CRITERIA.md` §1.2 specifies a 200 W ±25%
 power tier that has no corresponding gate** in this document. That is an
 omitted requirement, not a lost qualifier.
 
+### Three-track consolidation, and a corrected profile (2026-07-27)
+
+All three landed and are verified at HEAD. **Two of the three overturned the
+premise they were dispatched on**, which is the useful part.
+
+**1. Clearance: 17 → 0.** The falsifier did *not* fire — none of the 9
+violating pairs existed in the old constraint set at all. The 10-net
+classification generated 7,843 constraints; the 47-net classification
+generates **11,725**, and only then do those pairs appear. The old solve was
+never asked to satisfy them. Re-solve: `optimal`, 170/170, 36.0 s, R24 audit
+**0 mismatches over 12,409 constraints**.
+
+The fail-closed guard earned itself: the first pass cleared all 17 and moved
+`R52` to **6.5 mm from HV part `C14`**, tripping the unclassified-near-HV
+assertion. Fixed with **684 keep-away constraints** and re-solved. The hard
+check now asserts over the **full 48-net declared set** (157/170 components,
+92.4%), not a tenth of it.
+
+**2. Vacuous aggregation: 6 of 13 were real bugs.** The falsifier did not fire.
+Best of them: `window = history[-persistence_window:]` with a window of 0 —
+`lst[-0:]` is **the whole list**, so `check_escalation()` reported a persistent
+violation from an empty history. Also an `EnclosingConstraint` with zero inner
+refs reported "resolved", and an empty `locator` config **vacuously matching
+every row**.
+
+The agent overruled its instruction correctly: told to allowlist the
+safe-by-construction cases, it found `check_vacuous_gates.py` documents having
+**no allowlist by design**, and used runtime `assert`s instead — strictly
+stronger, since they break loudly rather than persisting silently. **No gate's
+reported count changed**, so today's results stand and are now defended.
+
+**3. The SAT bound works — and the profile it was based on was wrong.**
+
+The bound is real and verified: `SolveLimits{conflict_limit, time_limit_ms}`,
+checked against the vendored `rustsat-cadical` source rather than assumed
+(**CaDiCaL has no native wall-clock API** — it needs a polled terminator).
+The `Unknown` → unguided-A\* fallback is proven at two levels: pigeonhole CNFs
+in Rust that provably require CDCL search, and a Python run forcing
+`sat_time_limit_ms=1` on a real 15-net subset, which completed at **identical
+completion rate (6/7) and route length (602.98 mm)**.
+
+**But it will not cut the 26 minutes, because the SAT solve is not where the
+time goes.** At 15- and 30-net subsets CaDiCaL needed **0 conflicts**
+regardless of bound. At full board, diagnostic timers showed
+`combinator::rewrite::rewrite` (`rewrite.rs:93`, a pre-solve simplification
+pass with a suspected O(n²) pairwise capacity-subsumption loop at `:433`)
+**still running past 250 s before `solve()` was ever reached** — on a model of
+**4,022,352 variables and 39,544 constraints**.
+
+So the earlier "Stage 3 SAT = 95.5% of wall time" figure, inferred from a
+single opaque cProfile frame, **conflated rewrite + encode + solve**. The
+solver was the visible name on the frame, not the cost inside it.
+
+**The real optimisation target is the rewrite pass, and behind it the model
+size.** Four million variables for a 108-net board is the number to interrogate
+first. The bound stays as a cheap safety net against pathological instances
+(`sat_conflict_limit=20_000`, `sat_time_limit_ms=None`), which is what it is
+actually good for.
+
+Verified: `cargo test --release` **101 passed, 0 failed** across 6 binaries;
+clippy 0 warnings; `make netlist` **76/76**; all gates exit 0.
+
 ### The board is NOT clearance-clean — the check ran on 10 nets (2026-07-27)
 
 Detail: `docs/evidence/2026-07-27-domain-classification-coverage.md`. **This
