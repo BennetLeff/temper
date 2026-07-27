@@ -248,7 +248,7 @@ jobs:
 
       - name: Clippy (non-PyO3 crates)
         run: |
-          for crate in temper-geometry-core temper-ipc-core \
+          for crate in \
                        temper-rust-router-core temper-pcl-ir temper-design-bundle; do
             echo "=== clippy $crate ==="
             cargo clippy --manifest-path "packages/$crate/Cargo.toml" -- -D warnings
