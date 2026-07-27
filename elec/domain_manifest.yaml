@@ -373,42 +373,6 @@ isolators:
   # these two root crossings, not independent findings -- confirmed by
   # re-running the gate after each source fix and watching the reported
   # bridge count drop from 3 to 2 (see the evidence doc for both outputs).
-  - instance_path: safety.ovp.r_div_top1
-    component: "Yageo RC1206FR-07430KL, 430k 1% 1206 -- protective-impedance element 1 of 4 (comparator divider)"
-    groups:
-      hv_side: ["1"]
-      chain: ["2"]
-    pin_labels:
-      "1": "p1 (HV side, +170V_BUS)"
-      "2": "p2 (-> r_div_top2, interior of the protective-impedance chain)"
-
-  - instance_path: safety.ovp.r_div_top2
-    component: "Yageo RC1206FR-07430KL, 430k 1% 1206 -- protective-impedance element 2 of 4 (comparator divider)"
-    groups:
-      chain_in: ["1"]
-      chain_out: ["2"]
-    pin_labels:
-      "1": "p1 (<- r_div_top1)"
-      "2": "p2 (-> r_div_top3)"
-
-  - instance_path: safety.ovp.r_div_top3
-    component: "Yageo RC1206FR-07430KL, 430k 1% 1206 -- protective-impedance element 3 of 4 (comparator divider)"
-    groups:
-      chain_in: ["1"]
-      comp_side: ["2"]
-    pin_labels:
-      "1": "p1 (<- r_div_top2)"
-      "2": "p2 (-> comp.INP, also r_hyst.p1 and r_div_bot.p1)"
-
-  - instance_path: safety.ovp.r_div_bot
-    component: "Yageo RC0603FR-0710KL, 10k 1% 0603 -- protective-impedance element 4 of 4 (comparator divider)"
-    groups:
-      comp_side: ["1"]
-      gnd_side: ["2"]
-    pin_labels:
-      "1": "p1 (<- r_div_top3 / comp.INP)"
-      "2": "p2 (SELV side, gnd)"
-
   # --- OVP-01 ADC-sense divider (second, independent protective-impedance
   # crossing) ---
   # Same standard clause and PE-bonded-earth reasoning as the comparator
@@ -460,38 +424,42 @@ isolators:
   #   firmware-visible sensor fault, not a hidden hazard, since OVP-01's
   #   actual trip path is the comparator divider above, entirely independent
   #   of this ADC path. UNVERIFIED beyond that.
-  - instance_path: safety.ovp.r_adc_top1
-    component: "Yageo RC1206FR-07169KL, 169k 1% 1206 -- protective-impedance element 1 of 4 (ADC-sense divider)"
-    groups:
-      hv_side: ["1"]
-      chain: ["2"]
-    pin_labels:
-      "1": "p1 (HV side, +170V_BUS)"
-      "2": "p2 (-> r_adc_top2, interior of the protective-impedance chain)"
+# ---------------------------------------------------------------------------
+# Protective-impedance chains (2026-07-26)
+#
+# Declared here rather than under `isolators:` for a reason that matters.
+# An isolator declaration names ONE component as a barrier. The safety
+# property of these dividers is NOT carried by any one resistor -- it is
+# carried by the SERIES CHAIN, so that no single component failure removes
+# the impedance. Declaring one element would leave the gate blessing the path
+# even if the rest of the chain were later shorted or deleted.
+#
+# The gate therefore verifies the CONSTRUCTION: every listed element must
+# exist, be a genuine two-terminal part, and be wired in series to its
+# neighbour, and the chain must not fall below `min_length`. Shorten a chain
+# and the declaration stops being honoured, so the crossing reappears as a
+# violation.
+#
+# Full derivation, arithmetic, single-fault analysis and UNVERIFIED list:
+# docs/evidence/2026-07-26-ovp-crossing-resolution.md
+# ---------------------------------------------------------------------------
+protective_impedance_chains:
+  - name: ovp01_comparator_divider
+    component: "OVP-01 comparator sense divider: 3 x Yageo RC1206FR-07430KL (430k 1% 1206) in series + RC0603FR-0710KL (10k 1% 0603)"
+    chain:
+      - safety.ovp.r_div_top1
+      - safety.ovp.r_div_top2
+      - safety.ovp.r_div_top3
+    boundary_a: "+170V_BUS"
+    boundary_b: "safety.ovp.comp-inp"
+    min_length: 3
 
-  - instance_path: safety.ovp.r_adc_top2
-    component: "Yageo RC1206FR-07169KL, 169k 1% 1206 -- protective-impedance element 2 of 4 (ADC-sense divider)"
-    groups:
-      chain_in: ["1"]
-      chain_out: ["2"]
-    pin_labels:
-      "1": "p1 (<- r_adc_top1)"
-      "2": "p2 (-> r_adc_top3)"
-
-  - instance_path: safety.ovp.r_adc_top3
-    component: "Yageo RC1206FR-07169KL, 169k 1% 1206 -- protective-impedance element 3 of 4 (ADC-sense divider)"
-    groups:
-      chain_in: ["1"]
-      adc_side: ["2"]
-    pin_labels:
-      "1": "p1 (<- r_adc_top2)"
-      "2": "p2 (-> adc_v_bus / V_BUS_SENSE, also r_adc_bot.p1)"
-
-  - instance_path: safety.ovp.r_adc_bot
-    component: "Yageo RC0603FR-0710KL, 10k 1% 0603 -- protective-impedance element 4 of 4 (ADC-sense divider)"
-    groups:
-      adc_side: ["1"]
-      gnd_side: ["2"]
-    pin_labels:
-      "1": "p1 (<- r_adc_top3 / V_BUS_SENSE)"
-      "2": "p2 (SELV side, gnd)"
+  - name: ovp01_adc_sense_divider
+    component: "OVP-01 ADC-sense divider: 3 x 170k in series + RC0603FR-0710KL (10k 1% 0603). Split from a single 510k top resistor on 2026-07-26 -- one short removed the impedance entirely, which is not a valid protective-impedance construction."
+    chain:
+      - safety.ovp.r_adc_top1
+      - safety.ovp.r_adc_top2
+      - safety.ovp.r_adc_top3
+    boundary_a: "+170V_BUS"
+    boundary_b: "V_BUS_SENSE"
+    min_length: 3
