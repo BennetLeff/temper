@@ -53,14 +53,24 @@ SAFETY_3V3 -- ferrite --> RTD_AVDD --> MAX31865 + two window comparators
 ```
 
 The captured circuit uses `REF2025AIDDCR` (1.25 V `VBIAS`) with 0.1% dividers:
-61.3 kΩ / 10 kΩ gives the 175.3 mV low threshold and 5.93 kΩ / 10 kΩ gives
-the 784.7 mV high threshold. Two TLV3201s produce `LOW_OK` and `HIGH_OK`; an
-`SN74LVC1G08` forms `WINDOW_OK`; an Ioff-rated `SN74LVC1G38` sinks
+61.9 kΩ (`ERA-3AEB6192V`) / 10 kΩ gives the 173.9 mV low threshold and
+5.9 kΩ (`ERA-3AEB5901V`) / 10 kΩ gives the 786.2 mV high threshold. (2026-07-27:
+corrected from the originally-specified 61.3 kΩ/`ERA-3AEB6132V` and
+5.93 kΩ/`ERA-3AEB5931V` -- neither value is an E96/E192 series member and
+neither MPN exists at any distributor; see
+docs/evidence/2026-07-27-era-resistor-resolution.md for the distributor
+fetches and worst-case-margin arithmetic, including 25 ppm/°C tempco, that
+this substitution still clears.) Two TLV3201s produce `LOW_OK` and `HIGH_OK`;
+an `SN74LVC1G08` forms `WINDOW_OK`; an Ioff-rated `SN74LVC1G38` sinks
 `RTD_HW_FAULT` only while all permissions are true. The upstream `TPS3700DDCR`
-monitors `RTD_AVDD` through a 616 kΩ / 100 kΩ 0.1% divider. Its complete
-UV-fault/clear threshold corner is 2.766--2.870 V, above the TLV3201 2.70 V
-minimum supply and below the 3.3 V -10% normal-rail corner of 2.97 V. The
-selected single-channel UV monitor has no asserted hysteresis claim.
+monitors `RTD_AVDD` through a 619 kΩ (`ERA-6AEB6193V`, 0805) / 100 kΩ 0.1%
+divider. (2026-07-27: corrected from 616 kΩ/`ERA-3AEB6163V` -- not an
+E96/E192 value, the MPN does not exist, and 616 kΩ is above the top of
+Panasonic's ERA-3A/0603 series; ERA-6A/0805 is the real family at this
+value.) Its complete UV-fault/clear threshold corner is 2.777--2.882 V, above
+the TLV3201 2.70 V minimum supply and below the 3.3 V -10% normal-rail
+corner of 2.97 V. The selected single-channel UV monitor has no asserted
+hysteresis claim.
 [REF2025](https://www.ti.com/lit/ds/symlink/ref2025.pdf)
 [TPS3700](https://www.ti.com/lit/ds/symlink/tps3700.pdf)
 [TLV3201](https://www.ti.com/lit/ds/symlink/tlv3201.pdf)

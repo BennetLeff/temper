@@ -18,7 +18,12 @@
 *   - power.vcc (rail_monitor.VDD, direct, pre-ferrite):  3.3 V
 *   - fb_power ("Using Resistor component as generic placeholder for
 *     Ferrite Bead"):                                      120 ohm
-*   - r_avdd_top:                                           616000 ohm
+*   - r_avdd_top:                                           619000 ohm
+*     (2026-07-27: corrected from the fabricated 616000 ohm/ERA-3AEB6163V --
+*     616k is not an E96/E192 value and that MPN does not exist at any
+*     distributor. Replaced with 619k/ERA-6AEB6193V, confirmed real and
+*     in-stock by direct DigiKey fetch -- see
+*     docs/evidence/2026-07-27-era-resistor-resolution.md.)
 *   - r_avdd_bottom:                                        100000 ohm
 *   - r_rail_ok_pullup (external pull-up on open-drain OUTA):  10000 ohm
 *   - TPS3700 INA threshold VIT_A: 394.5 mV (simulation/models/
@@ -32,10 +37,13 @@
 * only carries the divider's own ~4.6 uA bias current -- confirmed
 * negligible, <1 mV, by comparing simulated V(vcc_3v3) against
 * V(avdd_post_fb) at the trip instant):
-*   V(INA_P) = V_vcc * 100000 / (616000 + 100000) = V_vcc / 7.16
-*   Trip:  V_vcc / 7.16 = 0.3945  =>  V_vcc = 2.8250 V (falling)
-* This matches RTDSensing's own inline comment: "OUTA is pulled high only
-* while RTD_AVDD is above its approximately 2.82 V nominal UV threshold."
+*   V(INA_P) = V_vcc * 100000 / (619000 + 100000) = V_vcc / 7.19
+*   Trip:  V_vcc / 7.19 = 0.3945  =>  V_vcc = 2.8367 V (falling)
+* This is a ~12 mV increase from the previous (fabricated-resistor) nominal
+* of 2.8250 V, consistent with the top resistor increasing from 616k to
+* 619k. RTDSensing's own inline comment ("...approximately 2.82 V nominal
+* UV threshold") is now marginally stale (2.82 V vs. the corrected 2.84 V)
+* and should be nudged in a follow-up documentation pass.
 *
 * What this circuit actually monitors: RTD_AVDD, a post-ferrite rail
 * downstream of power_3v3, feeding the RTD analog front end -- per its own
@@ -52,7 +60,7 @@
 
 V_VCC vcc_3v3 0 PWL(0 3.3 {RAMP_TIME} 0)
 R_FB vcc_3v3 avdd_post_fb 120
-R_AVDD_TOP avdd_post_fb ina_p 616000
+R_AVDD_TOP avdd_post_fb ina_p 619000
 R_AVDD_BOT ina_p 0 100000
 R_PULLUP vcc_3v3 outa 10000
 * OUTB (channel B, unused -- RTDSensing ties INB_N to gnd, never trips)

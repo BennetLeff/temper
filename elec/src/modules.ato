@@ -1631,15 +1631,26 @@ module RTDSensing:
     reference.EN ~ power.vcc
     reference.GND ~ power.gnd
 
+    # r_low_top/r_high_top were ERA-3AEB6132V (61.3k) and ERA-3AEB5931V
+    # (5.93k): neither value is an E96/E192 member and neither MPN exists at
+    # any distributor (confirmed 2026-07-27, DigiKey direct fetch -- "did not
+    # return any results" for both). Replaced with the nearest E192 values
+    # that are BOTH legal series members AND real, stocked/orderable Panasonic
+    # ERA-3A part numbers (verified by DigiKey product-page fetch, not by
+    # naming-pattern similarity alone -- see
+    # docs/evidence/2026-07-27-era-resistor-resolution.md for the distributor
+    # evidence, the rejected 61.2k/5.97k/5.83k candidates that do NOT exist as
+    # real parts, and the worst-case threshold-margin arithmetic including
+    # 25 ppm/C tempco at ΔT=60C).
     r_low_top = new Resistor
-    r_low_top.value = 61.3kohm +/- 0.1%
-    r_low_top.mpn = "ERA-3AEB6132V"
+    r_low_top.value = 61.9kohm +/- 0.1%
+    r_low_top.mpn = "ERA-3AEB6192V"
     r_low_bottom = new Resistor
     r_low_bottom.value = 10kohm +/- 0.1%
     r_low_bottom.mpn = "ERA-3AEB103V"
     r_high_top = new Resistor
-    r_high_top.value = 5.93kohm +/- 0.1%
-    r_high_top.mpn = "ERA-3AEB5931V"
+    r_high_top.value = 5.9kohm +/- 0.1%
+    r_high_top.mpn = "ERA-3AEB5901V"
     r_high_bottom = new Resistor
     r_high_bottom.value = 10kohm +/- 0.1%
     r_high_bottom.mpn = "ERA-3AEB103V"
@@ -1677,15 +1688,29 @@ module RTDSensing:
     r_window_ok_pulldown.p2 ~ power.gnd
 
     # TPS3700 is powered upstream of the ferrite.  OUTA is pulled high only
-    # while RTD_AVDD is above its approximately 2.82 V nominal UV threshold; it pulls low
+    # while RTD_AVDD is above its approximately 2.84 V nominal UV threshold
+    # (2026-07-27: was ~2.82 V before r_avdd_top's 616k->619k correction,
+    # see docs/evidence/2026-07-27-era-resistor-resolution.md); it pulls low
     # through brownout before the post-rail TLV3201 operation is unspecified.
     rail_monitor = new TPS3700
     rail_monitor.VDD ~ power.vcc
     rail_monitor.GND ~ power.gnd
     rail_monitor.INB_N ~ power.gnd
+    # r_avdd_top was ERA-3AEB6163V (616k): not an E96/E192 value and the MPN
+    # does not exist at DigiKey (confirmed 2026-07-27, direct fetch). 616k
+    # also turns out to be above the top of Panasonic's ERA-3A (0603) range
+    # for this decade -- 604k/612k/619k/626k/634k ERA-3A part numbers were
+    # individually checked and NONE exist in 0603; the same 3-digit values
+    # DO exist in the ERA-6A (0805) family (confirmed: ERA-6AEB6193V, 619k,
+    # in stock). Replaced with 619k/ERA-6AEB6193V and the footprint bumped to
+    # 0805 to match -- see docs/evidence/2026-07-27-era-resistor-resolution.md
+    # for the distributor evidence and TPS3700 trip-window arithmetic
+    # (including 25 ppm/C tempco) showing this still clears the required
+    # 2.70-2.97V corner with margin.
     r_avdd_top = new Resistor
-    r_avdd_top.value = 616kohm +/- 0.1%
-    r_avdd_top.mpn = "ERA-3AEB6163V"
+    r_avdd_top.value = 619kohm +/- 0.1%
+    r_avdd_top.mpn = "ERA-6AEB6193V"
+    r_avdd_top.footprint = "Resistor_SMD:R_0805_2012Metric"
     r_avdd_bottom = new Resistor
     r_avdd_bottom.value = 100kohm +/- 0.1%
     r_avdd_bottom.mpn = "ERA-3AEB104V"

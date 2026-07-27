@@ -303,7 +303,13 @@ def test_captured_ref2025_divider_network_separates_every_rtd_corner(
 # This is intentionally a complete-trip window rather than a nominal divider.
 # The selected divider, reference, offset, and temperature errors are bounded
 # into these limits; the single-channel UV monitor makes no hysteresis claim.
-_RTD_AVDD_MONITOR = RtdAvddMonitorCorners(trip_min_v=2.766, trip_max_v=2.870)
+# 2026-07-27: recomputed for r_avdd_top's correction from the fabricated 616k
+# (ERA-3AEB6163V, not real / not E96/E192) to 619k (ERA-6AEB6193V, confirmed
+# real, 0805) -- see docs/evidence/2026-07-27-era-resistor-resolution.md.
+# Corner: VIT_A in [0.387, 0.400] V (TPS3700, carried over from the UVL-02
+# citation), r_avdd_top/r_avdd_bottom each independently at +/-0.1%:
+# trip = VIT_A * (top+bottom)/bottom -> 2.7777-2.8810 V, rounded outward.
+_RTD_AVDD_MONITOR = RtdAvddMonitorCorners(trip_min_v=2.777, trip_max_v=2.882)
 
 
 def test_rtd_avdd_uv_monitor_has_no_undefined_brownout_gap() -> None:
@@ -318,7 +324,7 @@ def test_rtd_avdd_uv_monitor_has_no_undefined_brownout_gap() -> None:
     low_window_ok=st.booleans(),
     high_window_ok=st.booleans(),
     rtd_avdd_v=st.floats(min_value=0.0, max_value=3.4),
-    trip_v=st.floats(min_value=2.766, max_value=2.870),
+    trip_v=st.floats(min_value=2.777, max_value=2.882),
 )
 @settings(max_examples=200, deadline=10_000)
 def test_default_high_rtd_fault_line_requires_every_normal_permission(
@@ -343,7 +349,7 @@ def test_default_high_rtd_fault_line_requires_every_normal_permission(
     low_window_ok=st.booleans(),
     high_window_ok=st.booleans(),
     rtd_avdd_v=st.floats(min_value=0.0, max_value=2.70),
-    trip_v=st.floats(min_value=2.766, max_value=2.870),
+    trip_v=st.floats(min_value=2.777, max_value=2.882),
 )
 @settings(max_examples=150, deadline=10_000)
 def test_rtd_avdd_loss_always_releases_hardware_fault(
@@ -368,7 +374,7 @@ def test_rtd_avdd_loss_always_releases_hardware_fault(
     low_window_ok=st.booleans(),
     high_window_ok=st.booleans(),
     rtd_avdd_v=st.floats(min_value=0.0, max_value=3.4),
-    trip_v=st.floats(min_value=2.766, max_value=2.870),
+    trip_v=st.floats(min_value=2.777, max_value=2.882),
 )
 @settings(max_examples=200, deadline=10_000)
 def test_global_safety_rail_loss_is_gate_driver_disable(

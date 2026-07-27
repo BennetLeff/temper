@@ -122,23 +122,32 @@ allowlist:
       page confirmed 2026-07-27 (430 Ohms, +/-0.1%, In-Stock: 10,954).
       MAX31865 RTD current-source reference resistor.
 
-# NOT allowlisted, deliberately, so the gate fails on today's tree per the
-# audit's own falsifier:
+# FORMERLY not allowlisted, deliberately, so the gate would fail on the
+# tree per the audit's own falsifier. All five were fixed in-source (real
+# E-series values + distributor-verified MPNs), not suppressed here, so none
+# of them need an allowlist entry -- kept below as a resolution record:
 #   - r_ref_top / RC0603FR-073K2L (OCP-01, modules.ato:1695) -- no DigiKey
 #     or Mouser hit found; sibling OCP/thermal comparators all use genuine
-#     E96 values (3.16k, 3.74k) for the analogous divider leg. Safety-
-#     critical and UNVERIFIED -- flag, do not suppress.
+#     E96 values (3.16k, 3.74k) for the analogous divider leg. RESOLVED
+#     2026-07-27: re-derived to 3.24k / RC0603FR-073K24L (see
+#     docs/evidence/2026-07-27-ocp01-uvl02-part-resolution.md).
 #   - r_high_top / ERA-3AEB5931V (RTD window, modules.ato:1597) -- no
-#     DigiKey hit found.
+#     DigiKey hit found. RESOLVED 2026-07-27: 5.9k / ERA-3AEB5901V,
+#     confirmed real (out of stock, 33wk lead time) -- see
+#     docs/evidence/2026-07-27-era-resistor-resolution.md.
 #   - r_avdd_top / ERA-3AEB6163V (rail monitor, modules.ato:1643) -- no
-#     DigiKey hit found.
+#     DigiKey hit found. RESOLVED 2026-07-27: 619k / ERA-6AEB6193V (0805,
+#     the value is above ERA-3A/0603's stocked range), confirmed real and
+#     in stock -- see docs/evidence/2026-07-27-era-resistor-resolution.md.
 #   - r_low_top / ERA-3AEB6132V (modules.ato:1591) -- the already-known
-#     case-4 fabrication. Left failing on purpose to prove the gate
-#     catches it.
+#     case-4 fabrication. RESOLVED 2026-07-27: 61.9k / ERA-3AEB6192V,
+#     confirmed real and in stock -- see
+#     docs/evidence/2026-07-27-era-resistor-resolution.md.
 #   - r_div_bot / RC0603FR-0710KL under LogicUVLOComparator
 #     (modules.ato:2415-2417) -- this is a real MPN (10 kOhm), but the
 #     declared value on the same lines says 100 kOhm. This is a
 #     value<->MPN *disagreement*, not a non-standard value, so the
 #     eseries check doesn't fire on it (10k and 100k are both E96
-#     members) -- it is caught by the decode check instead, which is
-#     also deliberately left unallowlisted.
+#     members) -- it is caught by the decode check instead. RESOLVED
+#     2026-07-27: corrected to RC0603FR-07100KL (see
+#     docs/evidence/2026-07-27-ocp01-uvl02-part-resolution.md).

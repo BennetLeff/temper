@@ -45,7 +45,9 @@ What it measures
 -----------------
 power_3v3 (which also directly powers rail_monitor.VDD, pre-ferrite) is
 ramped down 3.3V -> 0V over 330us, modeling a board-wide brownout. The
-divider on INA_P (616 kohm / 100 kohm, post the 120-ohm "ferrite bead"
+divider on INA_P (619 kohm / 100 kohm -- corrected 2026-07-27 from the
+fabricated 616 kohm/ERA-3AEB6163V, see
+docs/evidence/2026-07-27-era-resistor-resolution.md -- post the 120-ohm "ferrite bead"
 placeholder resistor -- elec/src/modules.ato's own comment: "Using
 Resistor component as generic placeholder for Ferrite Bead") feeds the
 TPS3700 behavioral model's fixed INA threshold (394.5 mV, sourced from the
@@ -106,10 +108,17 @@ NETLIST = HARNESS_DIR / "nets" / "uvl02_rtd_avdd_monitor_trip_point.cir"
 # external threshold-setting pins.
 VCC_V = 3.3
 R_FB_OHM = 120
-R_AVDD_TOP_OHM = 616_000
+R_AVDD_TOP_OHM = 619_000  # corrected 2026-07-27, was 616_000 (fabricated)
 R_AVDD_BOT_OHM = 100_000
 R_PULLUP_OHM = 10_000
 TPS3700_VIT_A_V = 0.3945
+
+# Computed, not hand-copied, so this can never drift from the constants
+# above the way the previous hardcoded 2.8250 literal did after the 2026-07-27
+# r_avdd_top correction (616k -> 619k).
+HAND_DERIVED_TRIP_V_VCC_V = round(
+    TPS3700_VIT_A_V * (R_AVDD_TOP_OHM + R_AVDD_BOT_OHM) / R_AVDD_BOT_OHM, 4
+)
 
 UVL02_SPEC_TRIP_MAX_V = 2.9  # "trip < 2.9V falling"
 UVL02_SPEC_RECOVER_MIN_V = 3.0
@@ -243,8 +252,8 @@ def build_evidence(
         "verdict": {
             "calibrated": False,
             "measured_trip_v_vcc_v": round(v_trip, 4),
-            "hand_derived_trip_v_vcc_v": 2.8250,
-            "hand_sim_agreement_v": round(abs(v_trip - 2.8250), 4),
+            "hand_derived_trip_v_vcc_v": HAND_DERIVED_TRIP_V_VCC_V,
+            "hand_sim_agreement_v": round(abs(v_trip - HAND_DERIVED_TRIP_V_VCC_V), 4),
             "uvl02_spec_trip_ceiling_v": UVL02_SPEC_TRIP_MAX_V,
             "uvl02_spec_recover_floor_v": UVL02_SPEC_RECOVER_MIN_V,
             "candidate_below_uvl02_trip_ceiling": below_uvl02_ceiling,
@@ -252,11 +261,11 @@ def build_evidence(
             "summary": (
                 f"The TPS3700 rail_monitor CANDIDATE circuit trips at "
                 f"V(power_3v3)={v_trip:.3f} V (uncalibrated), matching the "
-                f"hand-derived 2.825 V to within "
-                f"{abs(v_trip - 2.8250):.4f} V. That number sits BELOW the "
+                f"hand-derived {HAND_DERIVED_TRIP_V_VCC_V:.4f} V to within "
+                f"{abs(v_trip - HAND_DERIVED_TRIP_V_VCC_V):.4f} V. That number sits BELOW the "
                 f"UVL-02 spec's 2.9V trip ceiling, i.e. on the conservative "
                 f"side: IF this circuit were confirmed as UVL-02, it would "
-                f"trip at 2.825V, before the rail falls all the way to the "
+                f"trip at {HAND_DERIVED_TRIP_V_VCC_V:.4f}V, before the rail falls all the way to the "
                 f"2.9V line the spec treats as the last safe point -- "
                 f"earlier/more conservative than the spec requires, not a "
                 f"failure to trip in time. But this circuit monitors RTD_AVDD, a "

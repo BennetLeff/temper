@@ -253,11 +253,11 @@ Per task instructions, `R_SHUNT` (WSLP25122L000FEA), `U_DIFF` (INA240A1QPWRQ1), 
 | U_RTD_WIN_AND | Window AND Gate | SN74LVC1G08DBVR | Texas Instruments | 1 | SOT-23-5 | Combines low/high window outputs |
 | U_RTD_RAIL_MON | RTD_AVDD Rail Monitor | TPS3700DDCR | Texas Instruments | 1 | SOT-23-6 | Dual window supervisor; OUTA low on undervoltage |
 | U_RTD_FAULT_NAND | Fault-Combining NAND | SN74LVC1G38DBVR | Texas Instruments | 1 | SOT-23-5 | Open-drain, Ioff-rated — only device allowed to hold RTD_HW_FAULT low |
-| R_RTD_LOW_TOP | Low-Window Divider High | ERA-3AEB6132V | Panasonic | 1 | 0603 | 61.3kΩ 0.1% |
+| R_RTD_LOW_TOP | Low-Window Divider High | ERA-3AEB6192V | Panasonic | 1 | 0603 | 61.9kΩ 0.1% (2026-07-27: corrected from fabricated 61.3kΩ/ERA-3AEB6132V, not an E96/E192 value and MPN not real) |
 | R_RTD_LOW_BOT, R_RTD_HIGH_BOT | Window Divider Low (both) | ERA-3AEB103V | Panasonic | 2 | 0603 | 10kΩ 0.1% |
-| R_RTD_HIGH_TOP | High-Window Divider High | ERA-3AEB5931V | Panasonic | 1 | 0603 | 5.93kΩ 0.1% |
+| R_RTD_HIGH_TOP | High-Window Divider High | ERA-3AEB5901V | Panasonic | 1 | 0603 | 5.9kΩ 0.1% (2026-07-27: corrected from fabricated 5.93kΩ/ERA-3AEB5931V, not an E96/E192 value and MPN not real; out of stock at DigiKey, 33wk lead time, see evidence doc) |
 | R_RTD_WIN_PULLDOWN | Window-AND Output Pulldown | RC0603FR-07100KL | Yageo | 1 | 0603 | 100kΩ 1% |
-| R_RTD_AVDD_TOP | Rail-Monitor Divider High | ERA-3AEB6163V | Panasonic | 1 | 0603 | 616kΩ 0.1% |
+| R_RTD_AVDD_TOP | Rail-Monitor Divider High | ERA-6AEB6193V | Panasonic | 1 | 0805 | 619kΩ 0.1% (2026-07-27: corrected from fabricated 616kΩ/ERA-3AEB6163V, not an E96/E192 value, MPN not real, and above ERA-3A/0603's stocked range; package changed 0603→0805 to match the real ERA-6A part) |
 | R_RTD_AVDD_BOT | Rail-Monitor Divider Low | ERA-3AEB104V | Panasonic | 1 | 0603 | 100kΩ 0.1% |
 | R_RTD_RAIL_PULLUP, R_RTD_FAULT_PULLUP | Open-Drain Pull-Ups | RC0603FR-0710KL | Yageo | 2 | 0603 | 10kΩ 1% |
 

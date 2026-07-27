@@ -17,16 +17,22 @@ R_RREF max_bias refin_minus 430
 R_RTD refin_minus 0 100
 
 X_REFERENCE reference_vbias 0 safety_3v3 safety_3v3 reference_vref REF2025_NGSPICE
-R_LOW_TOP reference_vbias low_threshold 61.3k
+* 2026-07-27: r_low_top/r_high_top corrected from the fabricated 61.3k/5.93k
+* (ERA-3AEB6132V/ERA-3AEB5931V, neither real) to 61.9k/5.9k
+* (ERA-3AEB6192V/ERA-3AEB5901V, both confirmed real) -- see
+* docs/evidence/2026-07-27-era-resistor-resolution.md.
+R_LOW_TOP reference_vbias low_threshold 61.9k
 R_LOW_BOTTOM low_threshold 0 10k
-R_HIGH_TOP reference_vbias high_threshold 5.93k
+R_HIGH_TOP reference_vbias high_threshold 5.9k
 R_HIGH_BOTTOM high_threshold 0 10k
 X_LOW refin_minus low_threshold rtd_avdd 0 low_ok TLV3201_NGSPICE
 X_HIGH high_threshold refin_minus rtd_avdd 0 high_ok TLV3201_NGSPICE
 
 X_WINDOW_AND low_ok high_ok 0 window_ok rtd_avdd SN74LVC1G08_NGSPICE
 R_WINDOW_OK_PULLDOWN window_ok 0 100k
-R_AVDD_TOP rtd_avdd rail_monitor_in 616k
+* 2026-07-27: corrected from the fabricated 616k/ERA-3AEB6163V to
+* 619k/ERA-6AEB6193V (confirmed real, 0805).
+R_AVDD_TOP rtd_avdd rail_monitor_in 619k
 R_AVDD_BOTTOM rail_monitor_in 0 100k
 X_MONITOR safety_3v3 rail_monitor_in 0 rail_ok unused_monitor_out 0 TPS3700_NGSPICE
 R_RAIL_OK_PULLUP safety_3v3 rail_ok 10k
