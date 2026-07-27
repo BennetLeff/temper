@@ -2484,15 +2484,21 @@ module LogicUVLOComparator:
     SafetyInterlock's own SR-latch gate 1, and structurally identical to how
     RTDSensing's fault_nand inverts rail_monitor.OUTA.
 
-    NOT WIRED INTO THE INTERLOCK: this.fault.line is intentionally left out
-    of fault_or/fault_any_or in SafetyInterlock. By the time this module was
-    designed, THM-02 (coil_thermal) already occupied the one spare input in
-    the SET aggregation (fault_any_or.C1); no other input reaches
+    WIRED INTO THE INTERLOCK 2026-07-27: this.fault.line now reaches the
+    SET path via a third fan-in package, SafetyInterlock.fault_or3
+    (uvlo_logic.fault.line ~ fault_or3.A1 -> ... -> fault_or3.Y2 ~
+    latch.A1) -- see docs/evidence/
+    2026-07-27-fault-tree-capacity-expansion.md. Before that change, this
+    fault had nowhere to connect: by the time this module was designed,
+    THM-02 (coil_thermal) already occupied the one spare input in the SET
+    aggregation (fault_any_or.C1), and no other input reached
     fault_any_or.Y1 -> latch.A1 without adding a further OR stage. See the
-    "UVL-02 fault output" comment block near the end of SafetyInterlock and
-    docs/hardware/UVL02_DESIGN.md SS7 for the full survey and what a fix
-    would require. fault.line is brought to a test point
-    (SafetyInterlock.tp_uvlo2_fault) for bench observability instead."""
+    "UVL-02 fault output" comment block near the end of SafetyInterlock
+    (including the SUPERSEDED block preserved there) and
+    docs/hardware/UVL02_DESIGN.md SS7.1 for the full survey and the
+    remediation options it named. fault.line is ALSO still brought to a
+    test point (SafetyInterlock.tp_uvlo2_fault) for bench observability --
+    the functional connection and the probe pad are not exclusive."""
 
     power = new ElectricPower
     fault = new ElectricLogic
@@ -2638,6 +2644,17 @@ module SafetyInterlock:
     uvlo_logic = new LogicUVLOComparator
     fault_or = new SN74HC4075
     fault_any_or = new SN74HC4075
+    # Third fan-in package, added 2026-07-27 (docs/hardware/UVL02_DESIGN.md
+    # SS7.1 remediation option 2; docs/evidence/
+    # 2026-07-27-fault-tree-capacity-expansion.md). fault_or/fault_any_or
+    # were both fully occupied on their SET-aggregation paths -- see the
+    # OCP-02/UVL-02 survey comments further down for why. Chosen over
+    # reworking the existing two packages' spare Y3 gates into the chain
+    # (SS7.1 option 1) because that also adds a gate delay to every fault
+    # path while additionally requiring re-verification of all existing
+    # connections; a fresh package with a well-defined interface is the
+    # lower-risk way to add capacity on a board that is still unrouted.
+    fault_or3 = new SN74HC4075
     latch = new SN74HC00
 
     ocp.power ~ power_3v3
@@ -2705,7 +2722,31 @@ module SafetyInterlock:
     # the SET aggregation and is no longer available to it -- see the
     # UVL-02 fault-wiring note near the end of this module for the survey.
     coil_thermal.fault.line ~ fault_any_or.C1
-    fault_any_or.Y1 ~ latch.A1
+
+    # Third-package aggregation, added 2026-07-27: gate1 combines the new
+    # fault sources (UVL-02 wired now; one input reserved for OCP-02,
+    # tied GND until its sensing domain is resolved -- NOT wired here, see
+    # the OCP-02 note below; one input genuinely spare). gate2 merges that
+    # with the existing 7-source SET bus (fault_any_or.Y1) and now drives
+    # latch.A1 in place of the previous direct connection. This adds
+    # exactly one gate of delay to the pre-existing 7-source path -- see
+    # docs/evidence/2026-07-27-fault-tree-capacity-expansion.md for the
+    # propagation-delay recheck against OCP-01's <1us budget.
+    fault_or3.VCC ~ power_3v3.vcc
+    fault_or3.GND ~ power_3v3.gnd
+    uvlo_logic.fault.line ~ fault_or3.A1
+    power_3v3.gnd ~ fault_or3.B1  # reserved for OCP-02; NOT wired (deliberate)
+    power_3v3.gnd ~ fault_or3.C1  # spare
+    fault_any_or.Y1 ~ fault_or3.A2
+    fault_or3.Y1 ~ fault_or3.B2
+    power_3v3.gnd ~ fault_or3.C2  # spare
+    fault_or3.Y2 ~ latch.A1
+    # Third gate on this package is genuinely unused headroom beyond the
+    # slots above; inputs tied GND rather than left floating (same
+    # convention as fault_or gate 3 below).
+    power_3v3.gnd ~ fault_or3.A3
+    power_3v3.gnd ~ fault_or3.B3
+    power_3v3.gnd ~ fault_or3.C3
 
     # Set-dominant NAND SR latch. Gate 1 inverts the active-high fault bus;
     # gates 2 and 3 cross-couple Q/Q-bar. Reset is explicit and active-low.
@@ -2732,9 +2773,49 @@ module SafetyInterlock:
     tp_fault = new TestPoint
     tp_fault.p1 ~ fault_status.line
 
-    # OCP-02 fault output: NOT wired into the fault OR-tree.
+    # OCP-02 fault output: STILL NOT wired into the fault OR-tree.
     #
-    # Surveyed both SN74HC4075s for a spare input before wiring, per
+    # A third fan-in package (fault_or3, added 2026-07-27, see its
+    # instantiation comment above and docs/evidence/
+    # 2026-07-27-fault-tree-capacity-expansion.md) now provides SET-path
+    # capacity that did not exist when this was last surveyed
+    # (fault_or/fault_any_or were both fully occupied -- see
+    # docs/hardware/OCP02_DESIGN.md's original survey). fault_or3.B1 is
+    # reserved for OCP-02 (tied GND for now, a real spare input on a gate
+    # that DOES reach the SET path via fault_or3.Y1 -> fault_or3.B2 ->
+    # fault_or3.Y2 -> latch.A1) -- but OCP-02 is deliberately NOT wired
+    # here. Its sensing domain is still unresolved: the design places an
+    # INA240 shunt in DC_BUS_RTN, which sits at ~-170V common mode in this
+    # doubler topology against the INA240's -4..+80V input range. Wiring a
+    # fault source into working aggregation logic while the upstream
+    # sensing circuit cannot actually work would be worse than leaving it
+    # unwired -- it would look connected on inspection while never being
+    # able to assert correctly. SecondaryOCPComparator therefore stays
+    # un-instantiated (see main.ato), and its fault output has no source
+    # to wire in the first place; the reserved fault_or3.B1 input is
+    # capacity held ready for whenever that topology decision lands.
+    # tp_ocp2_fault = new TestPoint
+    # tp_ocp2_fault.p1 ~ ocp2.fault.line
+
+    # UVL-02 fault output: WIRED 2026-07-27, via fault_or3 above
+    # (uvlo_logic.fault.line ~ fault_or3.A1 -> fault_or3.Y1 ->
+    # fault_or3.B2 -> fault_or3.Y2 ~ latch.A1). LogicUVLOComparator
+    # (uvlo_logic) is a real, populated, spec-meeting circuit (see its own
+    # module docstring for the worst-case trip/recovery derivation); prior
+    # to this change its fault.line had nowhere to connect, because both
+    # SN74HC4075s were fully occupied on their SET-aggregation paths (the
+    # full survey that established this is preserved below for history).
+    # It remains ALSO brought to a test point for bench observability --
+    # the two are not exclusive; a net can carry both a functional
+    # connection and a probe pad.
+    tp_uvlo2_fault = new TestPoint
+    tp_uvlo2_fault.p1 ~ uvlo_logic.fault.line
+
+    # SUPERSEDED 2026-07-27 -- kept for history, describes the tree BEFORE
+    # fault_or3 was added. UVL-02's fault is wired now (above); OCP-02's is
+    # not, for the sensing-domain reason above, not for lack of capacity.
+    #
+    # "Surveyed both SN74HC4075s for a spare input before wiring, per
     # docs/hardware/OCP02_DESIGN.md's own instruction to do so:
     #
     #   fault_or gate 1 (A1/B1/C1->Y1): full -- ocp/ovp/thermal.
@@ -2765,26 +2846,7 @@ module SafetyInterlock:
     # runaway-cut), not just OCP-02, which is a timing-budget decision
     # for humans, not something to do silently here.
     #
-    # Per the design doc: "if none is free, a fourth OR input is needed,
-    # and that is a real part addition rather than a free one." No spare
-    # SET-path input exists. OCP-02's comparator output is therefore
-    # brought to a test point pending that decision, rather than wired
-    # into the wrong logic (fault_any_or.C2) or left electrically
-    # floating.
-    # tp_ocp2_fault = new TestPoint
-    # tp_ocp2_fault.p1 ~ ocp2.fault.line
-
-    # UVL-02 fault output: NOT wired into the fault OR-tree either.
-    #
-    # LogicUVLOComparator (uvlo_logic) IS instantiated and powered above --
-    # unlike ocp2, this is a real, populated circuit -- but its fault.line
-    # is deliberately left out of fault_or/fault_any_or. Re-surveyed both
-    # SN74HC4075s against THIS tree (which now includes THM-02 and the
-    # OCP-02 finding above; an earlier pass of this same survey was done
-    # against a stale worktree that still had fault_any_or.C1 grounded and
-    # wrongly concluded it was free -- it is not, see below):
-    #
-    #   fault_or gate 3 (A3/B3/C3->Y3): unchanged from the OCP-02 survey --
+    # fault_or gate 3 (A3/B3/C3->Y3): unchanged from the OCP-02 survey --
     #     all three inputs tied GND, Y3 has no consumer anywhere. Confirmed
     #     still a dead end, not a path into the SET aggregation.
     #   fault_any_or gate 1 (A1/B1/C1->Y1): full -- fault_or.Y2,
@@ -2811,15 +2873,9 @@ module SafetyInterlock:
     # capacity problem. See docs/hardware/UVL02_DESIGN.md SS7 for what a
     # fix would require (rework the existing two 3-input OR ICs into a
     # wider tree vs. adding a third SN74HC4075/74HC4078-class part) and why
-    # that decision is left to a human rather than made silently here.
-    #
-    # uvlo_logic.fault.line is instantiated (fault.line.required = true on
-    # LogicUVLOComparator) and must terminate somewhere, so it is brought
-    # to a test point for bench observability -- exactly the "flag it,
-    # don't fake a connection" outcome the OCP-02 finding already
-    # established as preferable to wiring into a colliding or dead input.
-    tp_uvlo2_fault = new TestPoint
-    tp_uvlo2_fault.p1 ~ uvlo_logic.fault.line
+    # that decision is left to a human rather than made silently here." --
+    # END SUPERSEDED BLOCK. The third-package remediation was implemented
+    # 2026-07-27.
 
     # LED indicators remain unassigned until their current-limiting circuits
     # are specified; they must not be used as safety logic.
