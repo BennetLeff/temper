@@ -587,7 +587,7 @@ class TestClearanceIntegration:
             f"({stats['coverage_ratio']:.1%}), "
             f"{stats['compiled_nets_total'] - stats['unclassified_nets_total']} of "
             f"{stats['compiled_nets_total']} compiled nets classified "
-            f"(legacy boundary set used by the hard check below: "
+            f"(boundary set ASSERTED by the hard check below: "
             f"{stats['matched_components_in_placement']} components / "
             f"{len(stats['classified_nets_present'])} nets)."
         )
@@ -641,14 +641,15 @@ class TestClearanceIntegration:
             stats["full_placement"], stats["full_voltage_domains"]
         )
         print(
-            f"FULL-COVERAGE INFORMATIONAL CHECK (not asserted): "
-            f"{full_result.error_count} REQ-SAFE-01 violation(s) if the "
-            f"legacy boundary set above were widened to the full "
-            f"{stats['declared_nets_total']}-net manifest declaration "
+            f"FULL-COVERAGE CROSS-CHECK: "
+            f"{full_result.error_count} REQ-SAFE-01 violation(s) over the "
+            f"full {stats['declared_nets_total']}-net manifest declaration "
             f"({stats['matched_components_in_placement_full']} components). "
-            "See docs/evidence/2026-07-27-domain-classification-coverage.md "
-            "sec 5 for the full list and why this needs a placement "
-            "re-solve, not a manifest change, to close."
+            "As of 2026-07-27 the asserted set above IS the full declared "
+            "set, so this figure should track it; a divergence between the "
+            "two means the fixture has started filtering again. "
+            "See docs/evidence/2026-07-27-clearance-resolve-full-coverage.md "
+            "for the re-solve that took this from 17 violations to 0."
         )
 
         result = verify_iec60335_compliance(placement, voltage_domains)

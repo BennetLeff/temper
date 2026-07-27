@@ -279,9 +279,24 @@ def load_real_board_placement() -> tuple[dict[str, Any], dict[str, VoltageDomain
         for n in net_names:
             if n in name_to_code:  # net exists in this compiled build
                 net_domains_full[n] = _domain_for_manifest_domain(domain_name, n)
-    net_domains_legacy = {
-        n: d for n, d in net_domains_full.items() if n in _LEGACY_CLEARANCE_NETS
-    }
+    # PROMOTED 2026-07-27: the hard check now runs on the FULL declared set,
+    # not the 10-net legacy subset.
+    #
+    # _LEGACY_CLEARANCE_NETS' own docstring names the precondition for this:
+    # "Widening this set is the natural next step alongside a placement
+    # re-solve, not a substitute for one." That re-solve has now happened --
+    # the board was re-placed against the full 47-net classification (11,725
+    # constraints, up from 7,843) and the 17 previously-invisible violations
+    # went to 0, with the R24 post-solve audit clean over 12,409 constraints.
+    # See docs/evidence/2026-07-27-clearance-resolve-full-coverage.md.
+    #
+    # Keeping the narrow set after the re-solve would mean the hard assertion
+    # still inspected 10 of 48 declared nets while the board is now actually
+    # compliant across all of them -- i.e. the subset blindness this fixture
+    # was rewritten to eliminate, preserved for no remaining reason. It also
+    # left safety.uvlo_logic-line (TP3) unclassified, which is what
+    # TestRealBoardTP3Coverage catches.
+    net_domains_legacy = dict(net_domains_full)
 
     all_net_to_refs = _net_to_refs(netlist)
     pcb_result = parse_kicad_pcb(_PCB_PATH)

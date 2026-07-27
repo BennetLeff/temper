@@ -158,6 +158,27 @@ domains:
                            # here specifically so the domain check exercises
                            # a *correctly fixed* crossing, not just the two
                            # still-open ones.
+      - safety.uvlo_logic-line  # UVL-02's LogicUVLOComparator fault line,
+                                # carried on TP3. Entirely SELV: the module
+                                # monitors power_3v3 against the TPS3700's
+                                # internal bandgap reference, and both its
+                                # power and sense divider are power.vcc /
+                                # power.gnd, i.e. power_3v3 -- no HV node is
+                                # read, driven or referenced anywhere in it
+                                # (SELV_ISOLATION_REDESIGN.md Sec 6 row 13).
+                                #
+                                # RESTORED 2026-07-27. b1e5f89c originally
+                                # classified this in _real_board_fixture's
+                                # hand-maintained _NET_DOMAINS dict; 70503e6d
+                                # then rewrote that fixture to derive
+                                # classification from THIS manifest -- which
+                                # had never carried the net -- silently
+                                # dropping it. TP3 became unclassified, so
+                                # the domain-clearance generator emitted zero
+                                # constraints for every pair touching it,
+                                # including TP3<->U7 (DC_BUS_RTN). The two
+                                # TestRealBoardTP3Coverage tests exist to
+                                # catch exactly that and did.
       - discharge.k_dis1-coil1  # discharge.k_dis1's own declared "coil"
                                 # group (below), pin_labels already call
                                 # both coil pins "SELV coil drive" -- listed
