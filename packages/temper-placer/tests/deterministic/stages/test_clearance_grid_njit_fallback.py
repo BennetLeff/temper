@@ -1,4 +1,4 @@
-"""Regression test for the njit fallback shim in clearance_grid.py.
+"""Regression test for the njit fallback shim in _grid_core.py.
 
 Covers the bug documented in docs/solutions/dependency-issues/
 njit-fallback-shim-discards-function-on-bare-decorator-2026-07-17.md:
@@ -20,7 +20,7 @@ function has the same call signature and would also accept these args).
 
 import numpy as np
 
-from temper_placer.deterministic.stages.clearance_grid import (
+from temper_placer.deterministic.stages._grid_core import (
     _block_circle_numba,
     _block_segment_numba,
 )
