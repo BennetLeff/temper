@@ -1,5 +1,4 @@
 ---
-<<<<<<< HEAD
 title: "feat: Seed Filtering by Channel Bottleneck Map"
 type: feat
 status: completed
@@ -240,13 +239,43 @@ The deterministic placer's seed-and-restart loop (in `phased_component_assignmen
 - **Building the bottleneck map.** `BottleneckAnalysisStage` is the producer; this plan only consumes. Quality or coverage changes to bottleneck analysis are a separate concern.
 - **Direct routing-completion scoring inside `filter_seed`.** The filter uses the bottleneck map only; mixing routing-completion signals into seed filtering couples it to the router and breaks the O(1) per-check budget.
 - **HV/LV guard strips, ghost-pad injection, channel-aware scoring, clearance obstacle expansion, isolation slot consumption, min-cut bottleneck detection.** All are sibling ideas from the ideation doc with their own plans or future plans; this plan touches only #4.
-=======
-title: "feat: Bottleneck-Map Seed Filtering for Phased Placement"
-type: feat
-status: active
-date: 2026-06-23
-origin: prior session — phased-placement quality retrofit
+
 ---
+
+## Appendix — alternative authoring, preserved from an unresolved merge
+
+This file was committed with an unresolved merge conflict spanning its entire
+437 lines (`<<<<<<< HEAD` at line 2, `=======` at 243, `>>>>>>> feat/seed-filtering`
+at 437), introduced by `cac98f5d` on 2026-07-25. The two sides were not two
+revisions of one document but **two independently authored plans for the same
+feature**, with different titles, origins, and structures.
+
+The version above is retained as the plan of record: it carries the supersession
+sweep's metadata (`swept: 2026-07-25`) and an `origin:` pointing at a brainstorm
+that exists on disk.
+
+This second authoring is preserved verbatim rather than discarded — it describes
+code that shipped. Every artifact it names was verified present at resolution
+time: `filter_seed` (`deterministic/seed_filter.py`), `BottleneckMap`
+(`deterministic/bottleneck_map.py`), `SeedFilterConfig`
+(`_constraint_types/config.py`), and `_apply_bottleneck_filter`
+(`deterministic/stages/_phase_zones.py:233`). Its own line-number citations are
+stale, as are the version above's — `phased_component_assignment.py` has since
+been decomposed to 49 lines.
+
+Its original frontmatter, which is superseded by the frontmatter at the top of
+this file:
+
+```yaml
+  title: "feat: Bottleneck-Map Seed Filtering for Phased Placement"
+  type: feat
+  status: active
+  date: 2026-06-23
+  origin: prior session — phased-placement quality retrofit
+```
+
+Content follows verbatim, including its original heading levels.
+
 
 # feat: Bottleneck-Map Seed Filtering for Phased Placement
 
@@ -434,4 +463,3 @@ Two design decisions sit between the requirements and the code:
 - **Multi-class thresholds beyond HV/LV** (e.g., `FinePitch` threshold) — additive change to `filter_seed`'s signature; the `hv_refs: frozenset[str]` pattern generalizes to a `threshold_by_class: dict[str, float]`.
 - **Failure attribution** (which ref triggered which hot spot when the router ultimately fails) — the per-ref R6 log line is the data source; a future plan can aggregate.
 - **Refactor of the unreachable `_get_allowed_zones` block in `sequential_routing.py`** — owned by the zone-confinement backlog, not the seed-filter backlog. Code review flagged it (P2, manual); a follow-up plan will either delete the unreachable block + unused imports + the `cost_map_weights` parameter, or gate it with an explicit feature flag.
->>>>>>> feat/seed-filtering
