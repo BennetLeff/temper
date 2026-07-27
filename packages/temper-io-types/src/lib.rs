@@ -1,8 +1,8 @@
 use pyo3::create_exception;
 use pyo3::prelude::*;
-use pyo3::types::{PyDict, PyList, PyTuple};
+use pyo3::types::{PyDict, PyList, PySet, PyTuple};
 use pyo3::IntoPyObject;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
 
 // ---------------------------------------------------------------------------
@@ -10,6 +10,7 @@ use std::path::PathBuf;
 // ---------------------------------------------------------------------------
 
 create_exception!(temper_io_types, FootprintParseError, pyo3::exceptions::PyException);
+create_exception!(temper_io_types, ConfigBoardMismatchError, pyo3::exceptions::PyValueError);
 
 // ---------------------------------------------------------------------------
 // export_types: TraceSegment
@@ -1036,6 +1037,136 @@ fn sha256_hex(py: Python<'_>, data: Vec<u8>) -> PyResult<String> {
 }
 
 // ---------------------------------------------------------------------------
+// config_board_binding: extract_config_refs, verify_config_matches_netlist
+// ---------------------------------------------------------------------------
+
+fn _is_single_ref_key(key: &str) -> bool {
+    matches!(
+        key,
+        "component"
+            | "component_ref"
+            | "signal_component"
+            | "target_component"
+            | "hv_component"
+            | "from_component"
+            | "to_component"
+    )
+}
+
+fn _is_list_ref_key(key: &str) -> bool {
+    matches!(key, "components" | "fixed_components")
+}
+
+fn _collect_config_refs(node: &Bound<'_, PyAny>, refs: &mut HashSet<String>) -> PyResult<()> {
+    if let Ok(dict) = node.cast::<PyDict>() {
+        for (key, value) in dict {
+            let key_str: String = key.extract()?;
+            if _is_single_ref_key(&key_str) {
+                if let Ok(s) = value.extract::<String>() {
+                    refs.insert(s);
+                }
+            } else if _is_list_ref_key(&key_str) {
+                _collect_ref_container(&value, refs)?;
+            } else {
+                _collect_config_refs(&value, refs)?;
+            }
+        }
+    } else if let Ok(tuple) = node.cast::<PyTuple>() {
+        for item in tuple {
+            _collect_config_refs(&item, refs)?;
+        }
+    } else if let Ok(list) = node.cast::<PyList>() {
+        for item in list {
+            _collect_config_refs(&item, refs)?;
+        }
+    }
+    Ok(())
+}
+
+fn _collect_ref_container(value: &Bound<'_, PyAny>, refs: &mut HashSet<String>) -> PyResult<()> {
+    if let Ok(dict) = value.cast::<PyDict>() {
+        for (key, _) in dict {
+            if let Ok(k) = key.extract::<String>() {
+                refs.insert(k);
+            }
+        }
+    } else if let Ok(tuple) = value.cast::<PyTuple>() {
+        for item in tuple {
+            if let Ok(s) = item.extract::<String>() {
+                refs.insert(s);
+            }
+        }
+    } else if let Ok(list) = value.cast::<PyList>() {
+        for item in list {
+            if let Ok(s) = item.extract::<String>() {
+                refs.insert(s);
+            }
+        }
+    }
+    Ok(())
+}
+
+#[pyfunction]
+fn extract_config_refs(py: Python<'_>, config: Bound<'_, PyAny>) -> PyResult<Py<PySet>> {
+    let mut refs: HashSet<String> = HashSet::new();
+    _collect_config_refs(&config, &mut refs)?;
+    Ok(PySet::new(py, refs.iter().map(|s| s.as_str()))?.unbind())
+}
+
+#[pyfunction]
+#[pyo3(signature = (config_refs, netlist_refs, *, config_name))]
+fn verify_config_matches_netlist(
+    config_refs: Bound<'_, PyAny>,
+    netlist_refs: Bound<'_, PyAny>,
+    config_name: String,
+) -> PyResult<()> {
+    let mut board_refs: HashSet<String> = HashSet::new();
+    for item in netlist_refs.try_iter()? {
+        board_refs.insert(item?.extract::<String>()?);
+    }
+
+    let mut missing: Vec<String> = Vec::new();
+    for item in config_refs.try_iter()? {
+        let s: String = item?.extract()?;
+        if !board_refs.contains(&s) {
+            missing.push(s);
+        }
+    }
+
+    if !missing.is_empty() {
+        missing.sort();
+        let sample = missing
+            .iter()
+            .take(10)
+            .map(|s| s.as_str())
+            .collect::<Vec<_>>()
+            .join(", ");
+        let more = if missing.len() > 10 {
+            format!(" (+{} more)", missing.len() - 10)
+        } else {
+            String::new()
+        };
+        let err = ConfigBoardMismatchError::new_err(format!(
+            "Config '{}' references {} component ref(s) not present in the board netlist: {}{}. This config was likely authored for a different board.",
+            config_name,
+            missing.len(),
+            sample,
+            more
+        ));
+        // Attach structured fields to the exception instance so callers can
+        // inspect `missing_refs` / `config_name` directly, matching the
+        // pre-Rust-port Python implementation's contract (and this module's
+        // test suite).
+        let py = config_refs.py();
+        err.value(py).setattr("missing_refs", missing.clone())?;
+        err.value(py).setattr("config_name", config_name)?;
+        Err(err)
+    } else {
+        Ok(())
+    }
+}
+
+// ---------------------------------------------------------------------------
 // Module definition
 // ---------------------------------------------------------------------------
 
@@ -1045,6 +1176,10 @@ fn temper_io_types(m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     // Exceptions
     m.add("FootprintParseError", m.py().get_type::<FootprintParseError>())?;
+    m.add(
+        "ConfigBoardMismatchError",
+        m.py().get_type::<ConfigBoardMismatchError>(),
+    )?;
 
     // Classes
     m.add_class::<TraceSegment>()?;
@@ -1068,6 +1203,8 @@ fn temper_io_types(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(serialize_connectivity_to_json, m)?)?;
     m.add_function(wrap_pyfunction!(dsn_list, m)?)?;
     m.add_function(wrap_pyfunction!(sha256_hex, m)?)?;
+    m.add_function(wrap_pyfunction!(extract_config_refs, m)?)?;
+    m.add_function(wrap_pyfunction!(verify_config_matches_netlist, m)?)?;
 
     // SERIALIZER_REGISTRY
     let registry = PyDict::new(m.py());
