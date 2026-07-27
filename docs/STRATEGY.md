@@ -472,6 +472,56 @@ Also surfaced: **`FUNCTIONAL_TEST_CRITERIA.md` §1.2 specifies a 200 W ±25%
 power tier that has no corresponding gate** in this document. That is an
 omitted requirement, not a lost qualifier.
 
+### Every fabricated part is now resolved — MPN gate 5 → 0 (2026-07-27)
+
+**Verified at HEAD**: `mpn_fabrication_gate.py` **PASSED, 0 violations**;
+`make netlist` **76 assertions, 0 failed**; `check_domain_partition`,
+`capacity_budget_gate` and `check_derived_doc_drift` all **exit 0**.
+
+**Seven fabricated MPNs have now been found in this design in total.** Four
+were found by accident while looking for something else; the last three were
+found by the gate built for the purpose.
+
+| Part | Was | Now |
+|---|---|---|
+| OCP-01 `r_ref_top` | 3.2 kΩ / `RC0603FR-073K2L` | **3.24 kΩ / `RC0603FR-073K24L`** |
+| UVL-02 `r_div_bot` | 100 kΩ, MPN encoding 10 kΩ | **`RC0603FR-07100KL`** |
+| `r_low_top` | 61.3 kΩ / `ERA-3AEB6132V` | **61.9 kΩ / `ERA-3AEB6192V`** |
+| `r_high_top` | 5.93 kΩ / `ERA-3AEB5931V` | **5.9 kΩ / `ERA-3AEB5901V`** |
+| `r_avdd_top` | 616 kΩ / `ERA-3AEB6163V` | **619 kΩ / `ERA-6AEB6193V`** |
+
+**UVL-02's diagnosis was settled by derivation, not preference.** The circuit
+was computed both ways: 100 kΩ reproduces the module's documented
+2.715 V / 3.222 V exactly, while 10 kΩ gives **23.6 V / 28.0 V — physically
+unreachable on a 3.3 V rail.** The value was right; the part number was wrong.
+
+**Three consequences that are not cosmetic:**
+
+1. **`ERA-3AEB5901V` is real but out of stock with a 33-week lead time.** A
+   sourcing risk, recorded rather than swapped away.
+2. **`r_avdd_top` forced a package change, 0603 → 0805.** Panasonic's ERA-3A
+   series does not stock *any* value in that decade — 604 k, 612 k, 619 k,
+   626 k and 634 k were each checked and none exists in 0603. **The board was
+   placed and clearance-solved before this change**, so the footprint swap must
+   propagate into the layout.
+3. **The RTD window's tightest margin narrows from 10.6 mV to 8.25 mV** under
+   combined worst-case tolerance and tempco. Reported, not hidden. The
+   TPS3700 rail-monitor trip moves 2.825 V → 2.837 V, still inside its corner.
+
+**A detail worth keeping:** for the 61.3 kΩ replacement, the *numerically
+nearest* E-series neighbour — 61.2 kΩ, `ERA-3AEB6122V` — **does not exist
+either.** Availability, not proximity, was the binding constraint. Choosing the
+closest legal value without checking stock would have produced an eighth
+fabricated part while fixing the seventh.
+
+**Process note, recorded because it nearly cost the work:** a `git checkout -B`
+instruction issued by the coordinator ran in the shared checkout rather than an
+isolated worktree, switching the main checkout onto an agent branch and
+stashing that agent's in-progress edits mid-task. The agent **caught it by
+re-running its gate and seeing exit 3 where it expected 0**, recovered from the
+stash, and re-verified. A command that repoints whatever branch you happen to
+be on is safe in a worktree and dangerous in a shared tree.
+
 ### Two more bad parts, both in protection circuits (2026-07-27)
 
 Audit and gate: `docs/evidence/2026-07-27-fabricated-mpn-audit.md`,
