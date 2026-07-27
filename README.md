@@ -113,28 +113,28 @@ For contributors working on architecture, verification, or toolchain internals:
 
 <!-- BEGIN GENERATED: repo-map -- edits here are overwritten by scripts/gen_repo_state.py -->
 
-*Every tracked top-level directory (18 of 18). Generated -- a new directory without a description fails CI.*
+*All 18 tracked top-level directories. Generated -- a new directory without a description fails CI.*
 
-| Directory | Files | Purpose |
-|---|---:|---|
-| `.github/` | 35 | CI workflows, issue templates, code owners |
-| `benchmarks/` | 5 | CP-SAT benchmark harness and external board corpora manifests |
-| `components/` | 87 | Local KiCad symbol/footprint libraries, one directory per part |
-| `configs/` | 2 | Named placer configurations (deterministic, production) |
-| `dashboard/` | 4 | Static HTML/JS dashboard for placer metrics |
-| `datasheets/` | 6 | Vendor PDFs for parts used in the design |
-| `docs/` | 654 | Plans, brainstorms, solutions, evidence, specs, and strategy |
-| `elec/` | 38 | Atopile electrical source -- the schematic's source of truth |
-| `firmware/` | 154 | ESP32-S3 firmware (C), 8-state machine and protection monitoring |
-| `max31865/` | 6 | KiCad library for the MAX31865 RTD front-end (predates components/) |
-| `metrics/` | 16 | Recorded routing/placement metric snapshots (JSON) |
-| `output_gerbers/` | 21 | Exported Gerber/drill artifacts from a past routed revision |
-| `packages/` | 1943 | Python and Rust workspace members -- placer, DRC, geometry, router |
-| `pcb/` | 91 | KiCad project: schematics, board, and project settings |
-| `power_pcb_dataset/` | 84 | Regression corpus, baselines, and DRC ceilings |
-| `scripts/` | 103 | CI gates, generators, and one-off analysis tooling |
-| `simulation/` | 28 | ngspice models and protection-gate simulation harnesses |
-| `tools/` | 30 | Developer utilities not wired into CI gates |
+| Directory | Purpose |
+|---|---|
+| `.github/` | CI workflows, issue templates, code owners |
+| `benchmarks/` | CP-SAT benchmark harness and external board corpora manifests |
+| `components/` | Local KiCad symbol/footprint libraries, one directory per part |
+| `configs/` | Named placer configurations (deterministic, production) |
+| `dashboard/` | Static HTML/JS dashboard for placer metrics |
+| `datasheets/` | Vendor PDFs for parts used in the design |
+| `docs/` | Plans, brainstorms, solutions, evidence, specs, and strategy |
+| `elec/` | Atopile electrical source -- the schematic's source of truth |
+| `firmware/` | ESP32-S3 firmware (C), 8-state machine and protection monitoring |
+| `max31865/` | KiCad library for the MAX31865 RTD front-end (predates components/) |
+| `metrics/` | Recorded routing/placement metric snapshots (JSON) |
+| `output_gerbers/` | Exported Gerber/drill artifacts from a past routed revision |
+| `packages/` | Python and Rust workspace members -- placer, DRC, geometry, router |
+| `pcb/` | KiCad project: schematics, board, and project settings |
+| `power_pcb_dataset/` | Regression corpus, baselines, and DRC ceilings |
+| `scripts/` | CI gates, generators, and one-off analysis tooling |
+| `simulation/` | ngspice models and protection-gate simulation harnesses |
+| `tools/` | Developer utilities not wired into CI gates |
 
 <!-- END GENERATED: repo-map -->
 

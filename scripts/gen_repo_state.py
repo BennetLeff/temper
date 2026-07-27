@@ -93,16 +93,28 @@ def _git(*args: str) -> list[str]:
     return [line for line in proc.stdout.splitlines() if line]
 
 
-def tracked_top_level_dirs() -> dict[str, int]:
-    """Tracked top-level directories mapped to their tracked file count."""
-    counts: dict[str, int] = {}
+def tracked_top_level_dirs() -> list[str]:
+    """Names of tracked top-level directories, sorted.
+
+    File *counts* are deliberately not returned. They change whenever anyone
+    adds or removes any file anywhere, which made `--check` fail on unrelated
+    work -- observed live when a concurrent session added one script and turned
+    the gate red. That is the same volatility problem that removed line counts
+    from the inventory block, one notch slower; a gate that fires without a
+    defect behind it is the one that gets `continue-on-error` bolted on.
+
+    Names alone change only when a top-level directory is added or removed,
+    which is a genuinely structural event worth a diff -- and it is the only
+    part that serves orientation anyway.
+    """
+    names = set()
     for path in _git("ls-files"):
         head, sep, _ = path.partition("/")
         if sep:
-            counts[head] = counts.get(head, 0) + 1
-    if not counts:
+            names.add(head)
+    if not names:
         raise GenError("git ls-files returned no paths under any directory")
-    return counts
+    return sorted(names)
 
 
 def parse_frontmatter_status(path: Path) -> str | None:
@@ -156,24 +168,21 @@ def _plan_title(path: Path) -> str:
 
 
 def render_repo_map() -> str:
-    counts = tracked_top_level_dirs()
-    undescribed = sorted(set(counts) - set(DIRECTORY_PURPOSE))
+    names = tracked_top_level_dirs()
+    undescribed = sorted(set(names) - set(DIRECTORY_PURPOSE))
     if undescribed:
         raise GenError(
             "tracked top-level directories have no description in "
             f"DIRECTORY_PURPOSE: {', '.join(undescribed)}. Add one so the map "
             "stays complete."
         )
-    rows = [
-        "| Directory | Files | Purpose |",
-        "|---|---:|---|",
-    ]
-    for name in sorted(counts):
-        rows.append(f"| `{name}/` | {counts[name]} | {DIRECTORY_PURPOSE[name]} |")
+    rows = ["| Directory | Purpose |", "|---|---|"]
+    for name in names:
+        rows.append(f"| `{name}/` | {DIRECTORY_PURPOSE[name]} |")
     return "\n".join(
         [
-            f"*Every tracked top-level directory ({len(counts)} of {len(counts)}). "
-            "Generated -- a new directory without a description fails CI.*",
+            f"*All {len(names)} tracked top-level directories. Generated -- a new "
+            "directory without a description fails CI.*",
             "",
             *rows,
         ]
