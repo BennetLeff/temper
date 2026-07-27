@@ -593,7 +593,11 @@ def test_solve_time_trend_warning(basic_netlist, basic_board, caplog):
     with (
         mock.patch("temper_placer.placer.cp_sat.encoder.solve_placement") as mock_solve,
         mock.patch.object(loop, "_route_placement") as mock_route,
-        mock.patch("temper_placer.placer.cp_sat.loop.time.monotonic") as mock_time,
+        # `loop` no longer imports `time` -- 5a17025b removed the import when the
+        # module was split into mixins, and the solve-timing calls now live in
+        # `_loop_core`. Patching the old target raised AttributeError, so this
+        # test errored instead of asserting anything.
+        mock.patch("temper_placer.placer.cp_sat._loop_core.time.monotonic") as mock_time,
     ):
 
         def different_placement(*args, **kwargs):

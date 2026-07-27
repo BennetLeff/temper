@@ -118,7 +118,16 @@ jobs:
     container:
       image: ghcr.io/bennetleff/temper-ci:latest
       options: --user root
-    timeout-minutes: 15
+    # Raised 15 -> 30. The 15-minute budget was only ever sufficient because
+    # tests were failing fast: runs that errored early finished in 4-7 min,
+    # while any run that got past them hit the wall (15.1 min here, 13.7 min on
+    # followup/post-344) and was killed mid-suite. With the ON_SIDE registry
+    # pollution and the uv-sync extension eviction fixed, the suite actually
+    # executes end-to-end and needs the headroom. Evidence: run 30291488317
+    # completed every step through "Coverage gate (temper-placer)" and was
+    # cancelled inside "Run extended test suites in parallel" -- real progress,
+    # not a hang.
+    timeout-minutes: 30
     env:
       XLA_PYTHON_CLIENT_MEM_FRACTION: 0.35
       JAX_PLATFORM_NAME: cpu
@@ -245,9 +254,25 @@ jobs:
             cargo clippy --manifest-path "packages/$crate/Cargo.toml" -- -D warnings
           done
 
+      # `uv sync` defaults to an *exact* sync: anything installed in the venv
+      # that is not part of this invocation's resolved target set gets
+      # uninstalled as "extraneous". `--no-install-package X` excludes X from
+      # that target set -- it does NOT mean "leave X alone". Without
+      # `--inexact`, the three flags below were therefore silently
+      # UNINSTALLING the release wheels that "Build and install ..." just
+      # built and "Verify ... loads" just confirmed importable, minutes
+      # earlier in this same job. Reproduced locally: `uv sync --all-packages
+      # --no-install-package temper-rust-router ...` (no --inexact) prints
+      # "Uninstalled 2 packages" and `- temper-rust-router==0.1.0` in its
+      # diff, and a subsequent bare import fails with ModuleNotFoundError.
+      # `--inexact` disables the extraneous-package removal, so these three
+      # packages are truly left untouched (mtimes unchanged, no rebuild)
+      # instead of evicted -- confirmed locally: with --inexact added, the
+      # same command reports "Audited N packages" (no install/uninstall) and
+      # the modules remain importable afterward.
       - name: Install dependencies
         run: >
-          uv sync --all-packages
+          uv sync --all-packages --inexact
           --no-install-package temper-rust-router
           --no-install-package temper-drc-rs
           --no-install-package temper-constraints
