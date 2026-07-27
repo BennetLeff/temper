@@ -228,6 +228,27 @@ def blocking_components():
     ]
 
 
+@pytest.fixture
+def accessible_components():
+    """Components positioned so they block no test point.
+
+    The counterpart to ``blocking_components``. All test points in
+    ``complete_test_points`` sit on the y = 10 row, and
+    ``check_test_point_accessibility`` treats a point as blocked when
+    ``|dx| <= width/2 + 2.54`` **and** ``|dy| <= height/2 + 2.54``. These
+    components are placed on distant rows so the y term alone clears for
+    every one of them, with a wide margin rather than a marginal pass:
+    the largest is 12 mm tall, giving a 8.54 mm clearance band against a
+    30 mm minimum separation.
+    """
+    return [
+        {"ref": "U10", "x": 10, "y": 40, "width": 10, "height": 10},
+        {"ref": "Q10", "x": 15, "y": 40, "width": 8, "height": 8},
+        {"ref": "U11", "x": 30, "y": 60, "width": 12, "height": 12},
+        {"ref": "C10", "x": 60, "y": 60, "width": 4, "height": 4},
+    ]
+
+
 # =============================================================================
 # Test Point Coverage Tests
 # =============================================================================
