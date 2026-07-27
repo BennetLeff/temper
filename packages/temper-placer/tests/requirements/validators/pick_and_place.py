@@ -98,8 +98,40 @@ SMD_TO_THT_MIN_MM = 1.0
 SMD_TO_THT_RECOMMENDED_MM = 2.0
 
 # ESP32-S3-WROOM specific requirements
+#
+# ESP32_ANTENNA_KEEPOUT_MM: Espressif ESP32-S3 Hardware Design Guidelines,
+# "General Principles of PCB Layout for Modules" -- both the "Keepout Zone
+# for ESP32-S3 Module's Antenna" figure ("Min15") and the accompanying text
+# ("A clearance of at least 15 mm is recommended in all directions") give
+# 15 mm, confirming this constant's value.
+# https://docs.espressif.com/projects/esp-hardware-design-guidelines/en/latest/esp32s3/pcb-layout-design.html
 ESP32_ANTENNA_KEEPOUT_MM = 15.0
 ESP32_MODULE_SIZE_MM = (16.0, 37.0)  # Width x Height
+
+# NOTE: ESP32_MODULE_SIZE_MM does not match the ESP32-S3-WROOM-1 datasheet
+# (18.0 x 25.5 mm, Section 10.1 "Module Dimensions", Figure 10-1:
+# https://documentation.espressif.com/esp32-s3-wroom-1_wroom-1u_datasheet_en.pdf).
+# It is left unchanged here because nothing in check_antenna_keepout
+# consumes it and a test (test_esp32_module_size) pins the current, wrong
+# value -- correcting it is a separate fix outside this function's scope;
+# see docs/evidence/2026-07-27-antenna-keepout-fix.md.
+
+# Module's long-axis dimension, used only to locate the antenna band below.
+# Source: ESP32-S3-WROOM-1 datasheet Section 10.1 "Module Dimensions"
+# (Figure 10-1): 18.0 (width) x 25.5 (length) x 3.1 mm.
+ESP32_MODULE_LENGTH_MM = 25.5
+
+# Depth of the antenna's own footprint, measured in from the module edge it
+# faces. Source: ESP32-S3-WROOM-1 datasheet Section 11.1 "PCB Land Pattern"
+# (Figure 11-1, the "Antenna Area" callout, dimension "6"); corroborated by
+# the Hardware Design Guidelines' "Keepout Zone for ESP32-S3 Module's
+# Antenna" figure, which uses the same 6 mm depth for the antenna trace band.
+ESP32_ANTENNA_BAND_DEPTH_MM = 6.0
+
+# Offset from the module's centre (the convention `esp32_position` uses --
+# see Defect 1 in the evidence doc) to the centre of the antenna's own
+# footprint, along the module's long axis.
+ESP32_ANTENNA_OFFSET_MM = ESP32_MODULE_LENGTH_MM / 2 - ESP32_ANTENNA_BAND_DEPTH_MM / 2
 
 
 def get_package_type(footprint: str) -> PackageType:
@@ -384,9 +416,28 @@ def check_antenna_keepout(
             )
         )
 
+    # The antenna is not at the module's centre -- it sits in a band at one
+    # END of the module (ESP32_ANTENNA_OFFSET_MM from centre; see the module
+    # docstring's "Ground pour under module (except antenna area)"
+    # requirement, and docs/evidence/2026-07-27-antenna-keepout-fix.md).
+    # Centering the keepout on esp32_position, as this function used to,
+    # checks the wrong location: it flags a compliant "ground pour under the
+    # module, clear of the antenna end" as a violation just because the pour
+    # covers the module's centroid.
+    #
+    # UNVERIFIED / known gap: this offsets along +Y unconditionally. Which
+    # direction the antenna actually faces depends on the module's
+    # `rotation`, which fixtures carry (see esp32_placement) but which is
+    # not threaded through to this function or applied here -- doing so
+    # correctly needs the offset vector (0, ESP32_ANTENNA_OFFSET_MM) rotated
+    # by the module's placed orientation, which no current caller supplies.
+    keepout_center = (
+        esp32_position[0],
+        esp32_position[1] + ESP32_ANTENNA_OFFSET_MM,
+    )
     keepout_zone = (
-        esp32_position[0] - ESP32_ANTENNA_KEEPOUT_MM / 2,
-        esp32_position[1] - ESP32_ANTENNA_KEEPOUT_MM / 2,
+        keepout_center[0] - ESP32_ANTENNA_KEEPOUT_MM / 2,
+        keepout_center[1] - ESP32_ANTENNA_KEEPOUT_MM / 2,
         ESP32_ANTENNA_KEEPOUT_MM,
         ESP32_ANTENNA_KEEPOUT_MM,
     )
@@ -396,7 +447,10 @@ def check_antenna_keepout(
         size = pour.get("size", (0, 0))
         if pos is None:
             continue
-        pour_rect = (pos[0], pos[1], size[0], size[1])
+        # `position` is the pour's centre, matching keepout_zone's convention
+        # above and the ESP32 component's own position -- convert to the
+        # corner-origin form `_rects_overlap` expects.
+        pour_rect = (pos[0] - size[0] / 2, pos[1] - size[1] / 2, size[0], size[1])
 
         if _rects_overlap(keepout_zone, pour_rect):
             violations.append(
