@@ -132,7 +132,16 @@ jobs:
     container:
       image: ghcr.io/bennetleff/temper-ci:latest
       options: --user root
-    timeout-minutes: 15
+    # Raised 15 -> 30. The 15-minute budget was only ever sufficient because
+    # tests were failing fast: runs that errored early finished in 4-7 min,
+    # while any run that got past them hit the wall (15.1 min here, 13.7 min on
+    # followup/post-344) and was killed mid-suite. With the ON_SIDE registry
+    # pollution and the uv-sync extension eviction fixed, the suite actually
+    # executes end-to-end and needs the headroom. Evidence: run 30291488317
+    # completed every step through "Coverage gate (temper-placer)" and was
+    # cancelled inside "Run extended test suites in parallel" -- real progress,
+    # not a hang.
+    timeout-minutes: 30
     env:
       XLA_PYTHON_CLIENT_MEM_FRACTION: 0.35
       JAX_PLATFORM_NAME: cpu
