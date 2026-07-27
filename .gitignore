@@ -115,6 +115,13 @@ run_clearance_sweep.sh
 # Pipeline run artifacts (regenerated per run — do not track)
 pipeline_execution.json
 
+# Generated mesh + scratch routing output (2026-07-26)
+# `/*.mesh` above only covers root-level files; these are directories.
+# temp_routing_test/ held 7 stale routing logs that were tracked despite being
+# throwaway output — listed here so it cannot return.
+mfem_mesh/
+temp_routing_test/
+
 # External PCB corpora (2026-07-26)
 # These are third-party repos cloned locally as benchmark/regression input.
 # They were previously recorded as 73 gitlinks with no .gitmodules, which broke
