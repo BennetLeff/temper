@@ -105,20 +105,6 @@ def tracked_top_level_dirs() -> dict[str, int]:
     return counts
 
 
-def count_source_lines(paths: list[str]) -> int:
-    total = 0
-    for rel in paths:
-        f = REPO_ROOT / rel
-        try:
-            with f.open("rb") as fh:
-                total += sum(1 for _ in fh)
-        except OSError:
-            # A tracked-but-absent path is a real inconsistency, not something to
-            # paper over with a silently low number.
-            raise GenError(f"tracked source file could not be read: {rel}") from None
-    return total
-
-
 def parse_frontmatter_status(path: Path) -> str | None:
     """Return the `status:` value from a document's YAML frontmatter, if present."""
     try:
@@ -195,20 +181,33 @@ def render_repo_map() -> str:
 
 
 def render_inventory() -> str:
+    """Package inventory. Deliberately excludes line counts -- see below.
+
+    Two kinds of fact were tried here and only one belongs in a gated block:
+
+    - **Line counts are too volatile to gate.** They change on nearly every
+      commit, so `--check` would fail on unrelated work and force a README
+      regeneration into every source PR. A gate that fires constantly for
+      no defect is the one that gets `continue-on-error: true` bolted on --
+      exactly the pattern this file exists to avoid. LOC is already reported,
+      per package and kept current automatically, by `ARCHITECTURE.svg` via
+      `gen_architecture_poster.py`; duplicating it here bought nothing.
+    - **Markdown counts were also self-referential.** This block renders into a
+      Markdown file, so reporting Markdown lines meant emitting the block
+      changed the number it reported, with no guaranteed fixpoint.
+
+    What remains changes only when a package is added or removed, which is a
+    real structural event worth a diff.
+    """
     pkg_dirs = sorted(p.name for p in (REPO_ROOT / "packages").iterdir() if p.is_dir())
-    py = _git("ls-files", "*.py")
-    rs = _git("ls-files", "*.rs")
-    # Markdown is deliberately NOT counted. This block is itself rendered into a
-    # Markdown file, so reporting Markdown line counts makes the output
-    # self-referential: emitting the block changes the count the block reports,
-    # which requires re-emitting it. There is no guarantee that iteration
-    # reaches a fixpoint, and `--check` would flap. Source LOC has no such loop
-    # because generating never writes a .py or .rs file.
     return "\n".join(
         [
-            f"- **{len(pkg_dirs)} workspace packages** under `packages/`",
-            f"- **{count_source_lines(py):,} lines** of Python across {len(py)} files",
-            f"- **{count_source_lines(rs):,} lines** of Rust across {len(rs)} files",
+            f"**{len(pkg_dirs)} workspace packages** under `packages/`:",
+            "",
+            *(f"- `{name}`" for name in pkg_dirs),
+            "",
+            "Sizes and dependency edges are in [`ARCHITECTURE.svg`](./ARCHITECTURE.svg),"
+            " regenerated automatically on push.",
         ]
     )
 
