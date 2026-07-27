@@ -98,7 +98,28 @@ that motivated this whole investigation, not track routine churn):
 
 ## Verification
 
-_Filled in after PR #361's own CI run completes — see the run links below
-once available. This PR is not intended to merge until every
-`invariant-*` job is confirmed to finish well within its 20-minute budget
-on a real run, not just "configured correctly."_
+First real run (PR #361, run 30310910370, all router_v6 groups at
+`timeout-minutes: 20`): `invariant-rest` passed in 2m58s, group 2 in 9m56s,
+group 3 in 16m57s. Group 1 was killed by the 20-minute timeout at **73%
+complete** (last passing test:
+`test_manufacturing_report_properties.py::test_composite_total_matches_sub_report_sum`,
+22:50:03Z) — close, not stuck, and a large improvement over the original
+21%-at-30-minutes measurement this fix responds to. Extrapolating from
+73%/20min put group 1 at roughly 27-28 minutes needed; raw per-file test
+count doesn't track wall-clock cost evenly (all three router_v6 groups are
+~724 tests, but real runtime spread 2-3x between them) — the earlier
+caution in this doc about count being a proxy, not a guarantee, held.
+
+Bumped the three router_v6 groups to `timeout-minutes: 30` (still a small
+fraction of the original ~2.5h monolithic run) and re-ran. Second run
+(30312170394), all four jobs genuinely green:
+
+| Job | Result | Time | Budget |
+|---|---|---:|---:|
+| `invariant-rest` | pass | 3m25s | 20 min |
+| `invariant-router-v6-2` | pass | 9m48s | 30 min |
+| `invariant-router-v6-3` | pass | 15m48s | 30 min |
+| `invariant-router-v6-1` | pass | 15m54s | 30 min |
+
+Every job has real margin (14+ minutes on the tightest, groups 1 and 3).
+Confirmed working on a real run, not just "configured correctly."
