@@ -108,6 +108,12 @@ def find_external_references(token, exclude_file, repo_root=REPO_ROOT):
         cwd=repo_root,
         capture_output=True,
         text=True,
+        # The repo contains files that are not valid UTF-8 (KiCad and vendored
+        # assets among them). git grep happily reports matches from them, and a
+        # strict decode of that output crashes the whole check -- which is how
+        # this gate died on a 0x85 byte. Lossy decoding degrades one line of
+        # output; strict decoding loses every result.
+        errors="replace",
     )
     if result.returncode not in (0, 1):
         return []
@@ -121,6 +127,7 @@ def git_diff(base, repo_root=REPO_ROOT):
         capture_output=True,
         text=True,
         check=True,
+        errors="replace",  # same hazard as find_external_references()
     )
     return result.stdout
 

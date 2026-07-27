@@ -4,8 +4,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-import pytest
-
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from literal_removal_check import (
     extract_literals,
@@ -170,6 +168,29 @@ class TestFindExternalReferences:
         refs = find_external_references('"F.Cu"', "adapter.py", repo_root=repo)
 
         assert refs == []
+
+    def test_survives_non_utf8_match(self, tmp_path):
+        """A match inside a non-UTF-8 file must not kill the whole check.
+
+        Regression: the gate ran with text=True and a strict decode, so a
+        single 0x85 byte in a matched file raised UnicodeDecodeError and the
+        run died with exit 1 -- losing every result, not just that line. The
+        repo has 206 tracked files that are not valid UTF-8.
+        """
+        repo = _init_repo(tmp_path)
+        # The bad bytes must sit on the MATCHED line: git grep prints only that
+        # line, so a non-UTF-8 byte anywhere else never reaches the decoder and
+        # the test would pass vacuously.
+        (repo / "legacy.txt").write_bytes(
+            b'DEFAULT_LAYER = "F.Cu"  # caf\xe9 \x85 note\n'
+        )
+        (repo / "adapter.py").write_text("layer = path_layer\n")
+        subprocess.run(["git", "add", "-A"], cwd=repo, check=True)
+        subprocess.run(["git", "commit", "-q", "-m", "init"], cwd=repo, check=True)
+
+        refs = find_external_references('"F.Cu"', "adapter.py", repo_root=repo)
+
+        assert any("legacy.txt" in ref for ref in refs)
 
     def test_no_references_returns_empty_list(self, tmp_path):
         repo = _init_repo(tmp_path)
