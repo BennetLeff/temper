@@ -1,10 +1,12 @@
 ---
 title: "feat: Physics-as-routing-constraints — PhysicsGate (W3)"
 type: feat
-status: active
+status: stale
 date: 2026-07-08
 origin: docs/brainstorms/2026-07-08-physics-as-routing-constraints-requirements.md
 contract: docs/brainstorms/2026-07-08-gate-contract.md
+swept: 2026-07-25
+swept_basis: "insufficient evidence - needs human triage"
 ---
 
 # feat: PhysicsGate — Physics as Routing Constraints (W3)

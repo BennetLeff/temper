@@ -1,8 +1,10 @@
 ---
 title: "feat: Mathematical rigor proofs for Rust SAT solver subsystems"
 type: feat
-status: active
+status: stale
 date: 2026-06-28
+swept: 2026-07-25
+swept_basis: "insufficient evidence - needs human triage"
 ---
 
 # Solver Rigor Proofs

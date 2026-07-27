@@ -2,9 +2,11 @@
 plan_id: 2026-06-28-004
 plan_type: feat
 title: "feat: Bidirectional PCL constraint IR — unified placement/routing/DRC constraint system"
-status: draft
+status: stale
 origin: docs/brainstorms/2026-06-28-bidirectional-pcl-constraint-ir-requirements.md
 tags: [pcl, sat, drc, constraint-ir, bridge, bidirectional, unsat-feedback]
+swept: 2026-07-25
+swept_basis: "insufficient evidence - needs human triage"
 ---
 
 # feat: Bidirectional PCL constraint IR

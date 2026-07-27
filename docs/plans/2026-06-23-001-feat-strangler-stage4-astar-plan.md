@@ -1,9 +1,11 @@
 ---
 title: "feat: Deploy Strangler to RouterV6 Stage 4 (A* Pathfinding) into 5 Micro-Stages"
 type: feat
-status: active
+status: completed
 date: 2026-06-23
 origin: prior session — pipeline strangler decomposition continuation
+swept: 2026-07-25
+swept_basis: "referenced in git history; 21/27 paths exist"
 ---
 
 # feat: Deploy Strangler to RouterV6 Stage 4 (A* Pathfinding)

@@ -4,6 +4,8 @@ type: feat
 status: completed
 date: 2026-07-22
 origin: docs/brainstorms/2026-07-20-router-tree-executor-resilience-and-zone-policy-requirements.md
+swept: 2026-07-25
+swept_basis: "already declared"
 ---
 
 # Hybrid Pour + Trace-Stitch Completion for High-Fanout Plane-Style Nets

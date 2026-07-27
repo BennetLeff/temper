@@ -12,7 +12,16 @@
   "bless_baselines.py": [],
   "bmc_adoption_gate.py": [],
   "calibrate_drc_ceiling.py": [],
+  "capacity_budget_gate.py": [
+    ".github/workflows/python-tests.yml"
+  ],
   "check_coverage_gate.py": [
+    ".github/workflows/python-tests.yml"
+  ],
+  "check_derived_doc_drift.py": [
+    ".github/workflows/python-tests.yml"
+  ],
+  "check_domain_partition.py": [
     ".github/workflows/python-tests.yml"
   ],
   "check_fault_list_consistency.py": [
@@ -32,12 +41,19 @@
   "check_regression.py": [
     ".github/workflows/regression.yml"
   ],
+  "check_rust_drc_presence.py": [
+    ".github/workflows/python-tests.yml",
+    "packages/temper-placer/tests/router_v6/test_clearance_rust_differential.py"
+  ],
   "check_script_sunset.py": [
     ".github/workflows/health-digest.yml",
     ".github/workflows/python-tests.yml"
   ],
   "check_traceability.py": [],
   "check_typecheck_gate.py": [
+    ".github/workflows/python-tests.yml"
+  ],
+  "check_vacuous_gates.py": [
     ".github/workflows/python-tests.yml"
   ],
   "check_workflow_pr_triggers.py": [
@@ -71,6 +87,9 @@
     "packages/temper-placer/src/temper_placer/core/netclass_rules_gen.py"
   ],
   "gen_pcb_skeleton.py": [],
+  "gen_repo_state.py": [
+    ".github/workflows/python-tests.yml"
+  ],
   "gen_schematics.py": [
     ".github/workflows/python-tests.yml",
     "Makefile",
@@ -93,6 +112,9 @@
   ],
   "kicad_fill_zones.py": [
     "packages/temper-placer/tests/placer/cp_sat/test_zone_pour_production_measurement.py"
+  ],
+  "literal_removal_check.py": [
+    ".github/workflows/literal-removal-advisory.yml"
   ],
   "pipeline_metrics.py": [
     ".github/workflows/firmware-perf-record.yml",
@@ -128,6 +150,7 @@
   ],
   "slo_evaluator.py": [],
   "spc_rules.py": [],
+  "sweep_plan_status.py": [],
   "test_root_hygiene.py": [
     ".github/workflows/python-tests.yml"
   ],
@@ -143,5 +166,6 @@
   "verify_proofs.py": [],
   "vulture_gate.py": [
     ".github/workflows/python-tests.yml"
-  ]
+  ],
+  "worktree_report.py": []
 }

@@ -2,7 +2,9 @@
 date: 2026-06-23
 type: feat
 origin: docs/brainstorms/2026-06-23-isolation-slots-requirements.md
-status: active
+status: completed
+swept: 2026-07-25
+swept_basis: "referenced in git history; 3/4 paths exist"
 ---
 # Plan: Consume Existing Isolation Slots in Slot Generation
 

@@ -4,8 +4,7 @@
 **Created**: 2025-12-29
 **Goal**: Zero-input automated PCB layout: netlist in → routed board out
 
----
-
+---status: abandoned
 ## Executive Summary
 
 The current placement-routing feedback loop achieves 31% completion with 1 conflict—a metric mismatch where the optimizer "games" the objective by making nets unroutable (failed nets produce zero conflicts). This document outlines a systematic plan to build a robust end-to-end automated PCB design system.
@@ -19,7 +18,8 @@ The current placement-routing feedback loop achieves 31% completion with 1 confl
 - **Completion**: 100% (16/16 nets routed)
 - **Conflicts**: ≤10 (resolvable by RRR)
 - **Automation**: No user input required
-
+swept: 2026-07-25
+swept_basis: "only 0/8 named paths exist"
 ---
 
 ## Root Cause Analysis

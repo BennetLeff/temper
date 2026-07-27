@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "measurement_date": "2026-07-26",
+  "invocation": "uv run python simulation/harness/run_ovp01_sim.py --runs 5",
+  "harness": "simulation/harness/run_ovp01_sim.py",
+  "netlist": "simulation/harness/nets/ovp01_trip_point.cir",
+  "simulator": {
+    "tool": "ngspice",
+    "determinism_runs": 5,
+    "deterministic": true,
+    "note": "5 identical byte-for-byte stdout runs; see docs/METHODOLOGY.md SS5 'the oracle is not exempt'."
+  },
+  "models_used": [
+    {
+      "file": "simulation/models/TLV3201_ngspice.lib",
+      "subckt": "TLV3201_NGSPICE",
+      "calibrated": false,
+      "note": "Vendor-provenance behavioural port. Its own header states it 'does not claim a timing, noise, or temperature model' -- propagation delay is NOT measurable with this model."
+    }
+  ],
+  "sourced_from_elec_read_only": {
+    "power_3v3_v": 3.3,
+    "r_div_top_total_ohm": 1290000,
+    "r_div_bot_ohm": 10000,
+    "r_ref_top_ohm": 1100,
+    "r_ref_bot_ohm": 10000,
+    "r_hyst_ohm": 287000,
+    "citation": "elec/src/modules.ato: OVPComparator"
+  },
+  "v_bus_line_node_identity": {
+    "wired_to": "dc_bus.line, the FULL DC bus (elec/src/main.ato: safety.dc_bus.line ~ dc_bus.line)",
+    "resolution_note": "RESOLVED 2026-07-26: the divider senses the full bus, not a half-bus requiring a x2 doubling assumption. An earlier revision of this harness carried a stale half-bus/doubling narrative left over from when main.ato's own comments contradicted each other; see docs/hardware/PROTECTION_CHAIN_REVIEW.md for the resolution history."
+  },
+  "measurements": {
+    "t_trip_s": 0.000199978,
+    "t_release_s": 0.0003074,
+    "v_bus_at_trip_v": 399.956,
+    "v_bus_at_release_v": 385.2
+  },
+  "derived": {
+    "v_bus_trip_from_ramp_time_v": 399.95599999999996,
+    "v_bus_trip_from_node_voltage_v": 399.956,
+    "v_bus_release_from_ramp_time_v": 385.20000000000005,
+    "v_bus_release_from_node_voltage_v": 385.2
+  },
+  "internal_consistency_check_trip_v": 5.684341886080802e-14,
+  "internal_consistency_check_release_v": 5.684341886080802e-14,
+  "verdict": {
+    "calibrated": false,
+    "measured_trip_v_bus_line_v": 399.956,
+    "measured_release_v_bus_line_v": 385.2,
+    "measured_hysteresis_v": 14.756,
+    "hand_derived_trip_v_bus_line_v": 399.85,
+    "hand_derived_release_v_bus_line_v": 385.02,
+    "hand_sim_trip_agreement_v": 0.106,
+    "hand_sim_release_agreement_v": 0.18,
+    "ovp01_spec_trip_window_v": [
+      390.0,
+      410.0
+    ],
+    "ovp01_spec_hysteresis_window_v": [
+      10.0,
+      20.0
+    ],
+    "within_ovp01_trip_window": true,
+    "within_ovp01_hysteresis_window": true,
+    "within_ovp01_spec": true,
+    "propagation_delay_measured": false,
+    "propagation_delay_reason": "TLV3201_ngspice.lib declares no timing model; a measured delay from this model would be a modelling artifact, not physical.",
+    "summary": "Simulated OVP-01 trip point at the v_bus.line node is 399.96 V and release point is 385.20 V (uncalibrated), giving 14.76 V of hysteresis. This is WITHIN the OVP-01 390-410V trip / 10-20V hysteresis requirement (FUNCTIONAL_TEST_CRITERIA.md SS2.2), matching the OVPComparator module's own inline hand-derivation (399.8V trip, 385.0V release) to within 0.11 V / 0.18 V."
+  }
+}

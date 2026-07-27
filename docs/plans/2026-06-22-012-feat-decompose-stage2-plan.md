@@ -1,9 +1,11 @@
 ---
 title: "feat: Decompose RouterV6 Stage 2 Channel Analysis into 8 Micro-Stages"
 type: feat
-status: active
+status: stale
 date: 2026-06-22
 origin: docs/brainstorms/2026-06-22-decompose-stage2-channel-analysis-requirements.md
+swept: 2026-07-25
+swept_basis: "insufficient evidence - needs human triage"
 ---
 
 # feat: Decompose RouterV6 Stage 2 Channel Analysis into 8 Micro-Stages

@@ -199,8 +199,20 @@ def test_generated_netlist_keeps_max31865_reference_and_force2_connected() -> No
     assert re.search(rf'\(node \(ref "{re.escape(adc_ref)}"\) \(pin "7"\)', ref_minus)
     assert re.search(rf'\(node \(ref "{re.escape(rref_ref)}"\) \(pin "2"\)', ref_minus)
 
+    # FORCE2 must return to SELV `gnd`, NOT to `PWR_RTN`.
+    #
+    # Do not "fix" this back to pwr_rtn. That assertion was correct only while
+    # the star-point join (`power_return ~ gnd`) merged the two into one
+    # compiled net; 7f3a11d9 changed it to pwr_rtn on 2026-07-17 for exactly
+    # that reason. Commit 6976ef44 floated the SELV control domain and removed
+    # the join, so they are separate nets now.
+    #
+    # elec/domain_manifest.yaml places PWR_RTN in the HV domain (the doubler
+    # midpoint) and gnd in SELV. The MAX31865 is SELV-side, so requiring its
+    # FORCE2 return on PWR_RTN would demand a direct HV-to-SELV crossing on a
+    # sensing pin -- the very short the isolation redesign eliminated.
     force2 = _net_block_with_node(netlist, adc_ref, 9)
-    assert 'name "pwr_rtn"' in force2.lower()
+    assert 'name "gnd"' in force2.lower()
 
 
 def test_generated_netlist_carries_default_high_rtd_fault_to_aggregate_or() -> None:

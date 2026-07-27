@@ -4,6 +4,8 @@ type: feat
 status: completed
 date: 2026-07-17
 origin: docs/brainstorms/2026-07-17-cp-sat-optimize-cli-wiring-requirements.md
+swept: 2026-07-25
+swept_basis: "already declared"
 ---
 
 # Wire CP-SAT Solver into temper-placer optimize --no-loop

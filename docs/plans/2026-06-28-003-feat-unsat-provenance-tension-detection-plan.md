@@ -1,9 +1,11 @@
 ---
 title: "feat: UNSAT provenance + pre-solve tension detection"
 type: feat
-status: planned
+status: stale
 date: 2026-06-28
 origin: docs/brainstorms/2026-06-28-unsat-provenance-tension-detection-requirements.md
+swept: 2026-07-25
+swept_basis: "insufficient evidence - needs human triage"
 ---
 
 # UNSAT Provenance + Pre-Solve Tension Detection

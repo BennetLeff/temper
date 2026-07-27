@@ -25,11 +25,19 @@ on:
       - 'scripts/gen_schematics.py'
       - 'elec/build/default.net'
       - '.importlinter'
-      - 'import-linter-baseline.yaml'
       - 'import-linter-allowlist.yaml'
       - 'scripts/import_linter_gate.py'
+      - 'scripts/capacity_budget_gate.py'
+      - 'scripts/capacity_budget_packages.yaml'
       - '.physics-provenance-allowlist'
       - 'scripts/check_physics_provenance.py'
+      - 'scripts/check_vacuous_gates.py'
+      - 'scripts/check_derived_doc_drift.py'
+      - 'scripts/derived_doc_gates.yaml'
+      - 'scripts/tests/test_check_derived_doc_drift.py'
+      - 'docs/FUNCTIONAL_TEST_CRITERIA.md'
+      - 'docs/STRATEGY.md'
+      - 'docs/hardware/PROTECTION_CHAIN_REVIEW.md'
       - 'docs/plans/**'
       - 'docs/traceability-registry.yaml'
       - '**/TRACEABILITY'
@@ -61,11 +69,19 @@ on:
       - 'scripts/gen_schematics.py'
       - 'elec/build/default.net'
       - '.importlinter'
-      - 'import-linter-baseline.yaml'
       - 'import-linter-allowlist.yaml'
       - 'scripts/import_linter_gate.py'
+      - 'scripts/capacity_budget_gate.py'
+      - 'scripts/capacity_budget_packages.yaml'
       - '.physics-provenance-allowlist'
       - 'scripts/check_physics_provenance.py'
+      - 'scripts/check_vacuous_gates.py'
+      - 'scripts/check_derived_doc_drift.py'
+      - 'scripts/derived_doc_gates.yaml'
+      - 'scripts/tests/test_check_derived_doc_drift.py'
+      - 'docs/FUNCTIONAL_TEST_CRITERIA.md'
+      - 'docs/STRATEGY.md'
+      - 'docs/hardware/PROTECTION_CHAIN_REVIEW.md'
       - 'docs/plans/**'
       - 'docs/traceability-registry.yaml'
       - '**/TRACEABILITY'
@@ -107,10 +123,21 @@ jobs:
       XLA_PYTHON_CLIENT_MEM_FRACTION: 0.35
       JAX_PLATFORM_NAME: cpu
       VIRTUAL_ENV: ${{ github.workspace }}/.venv
-    
+      # CI is the environment where the Rust DRC/clearance accelerator and
+      # its Python-equivalence proof are themselves under test, so a skip
+      # here must not be silent -- see the presence-gate step below and
+      # docs/evidence/2026-07-26-rust-backend-presence-gate.md.
+      TEMPER_REQUIRE_RUST_DRC: "1"
+
     steps:
       - uses: actions/checkout@v7
-      
+
+      # Container runs as root; workspace is owned by the runner user. Without
+      # this, every `git` call in a later `run:` step exits 128 on "dubious
+      # ownership" rather than doing its job.
+      - name: Mark workspace safe for git
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
       - name: Install uv
         uses: astral-sh/setup-uv@v4
         with:
@@ -162,6 +189,22 @@ jobs:
         run: uv run python3 -c "import temper_drc_rs; print('temper_drc_rs loaded OK')"
         env:
           RUST_BACKTRACE: full
+
+      # A bare import (above) cannot detect a *stale* wheel -- one built
+      # from an older revision of the crate that is missing a symbol the
+      # current source registers (e.g. verify_route_clearance, added
+      # 2026-07-26). This happened once already in the primary checkout:
+      # the module imported fine, but the differential proof that depends
+      # on the missing symbol silently skipped instead of failing. See
+      # docs/evidence/2026-07-26-rust-backend-presence-gate.md.
+      # TEMPER_REQUIRE_RUST_DRC=1 makes this step -- and the differential
+      # test itself -- fail loudly instead of skipping, because CI is
+      # exactly where the accelerator and its equivalence proof are the
+      # thing under test.
+      - name: Verify temper-drc-rs is fresh (presence + symbol gate)
+        run: uv run python3 scripts/check_rust_drc_presence.py
+        env:
+          TEMPER_REQUIRE_RUST_DRC: "1"
 
       - name: Cache Rust build (temper-constraints)
         uses: actions/cache@v4
@@ -220,6 +263,20 @@ jobs:
 
       - name: Run electronics validation tests
         run: uv run pytest elec/validation/ -v --tb=short
+
+      - name: Domain-partition gate unit tests
+        run: uv run pytest scripts/tests/test_check_domain_partition.py -v --tb=short
+
+      - name: Netlist domain-partition gate (galvanic isolation)
+        # Fail-closed: reads the compiled netlist against
+        # elec/domain_manifest.yaml and asserts the declared HV/SELV
+        # domains land in disjoint connected components, and that every
+        # declared isolator's own pin groups are mutually unreachable. This
+        # is the check that would have caught the aux_supply.psu star-join
+        # short (docs/hardware/IEC60335_CRITICAL_COMPONENTS.md Sec 2) --
+        # see docs/evidence/2026-07-26-domain-partition-check.md. Never
+        # `continue-on-error`: a gate that cannot run must exit non-zero.
+        run: uv run python scripts/check_domain_partition.py
 
       - name: Run temper-constraints integration tests
         working-directory: packages/temper-placer
@@ -334,11 +391,26 @@ jobs:
           uv run python ../../scripts/check_physics_provenance.py --allowlist ../../.physics-provenance-allowlist --physics-dir src/temper_placer/physics/
           uv run python ../../scripts/check_physics_provenance.py --check-shrink --allowlist ../../.physics-provenance-allowlist --physics-dir src/temper_placer/physics/
 
+      - name: Anti-vacuous-truth gate (gates/validators)
+        run: uv run python scripts/check_vacuous_gates.py
+
       - name: Import boundary enforcement
         run: uv run python scripts/import_linter_gate.py
         env:
           XLA_PYTHON_CLIENT_MEM_FRACTION: 0.15
           JAX_PLATFORM_NAME: cpu
+
+      - name: Derived-document drift gate tests
+        run: uv run pytest scripts/tests/test_check_derived_doc_drift.py -v --tb=short
+
+      - name: Derived-document drift gate (docs/STRATEGY.md vs FUNCTIONAL_TEST_CRITERIA.md)
+        run: uv run python scripts/check_derived_doc_drift.py
+
+      - name: Design capacity budget gate tests
+        run: uv run pytest scripts/tests/test_capacity_budget_gate.py -v --tb=short
+
+      - name: Design capacity budget gate (fault-tree fan-in)
+        run: uv run python scripts/capacity_budget_gate.py
 
       - name: Rebuild script invocation graph
         run: uv run python scripts/trace_invocations.py
@@ -406,7 +478,13 @@ jobs:
     
     steps:
       - uses: actions/checkout@v7
-      
+
+      # Container runs as root; workspace is owned by the runner user. Without
+      # this, every `git` call in a later `run:` step exits 128 on "dubious
+      # ownership" rather than doing its job.
+      - name: Mark workspace safe for git
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
       - name: Install uv
         uses: astral-sh/setup-uv@v4
         with:
@@ -473,6 +551,41 @@ jobs:
       - name: LOC cap gate
         run: uv run python tools/loc_cap_check.py
 
+  repo-state:
+    name: Generated Repo State
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      VIRTUAL_ENV: ${{ github.workspace }}/.venv
+
+    steps:
+      - uses: actions/checkout@v7
+        with: { fetch-depth: 0 }
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+          enable-cache: true
+
+      - name: Cache virtualenv
+        uses: actions/cache@v4
+        id: cache-venv
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
+
+      - name: Create virtualenv (cache miss)
+        if: steps.cache-venv.outputs.cache-hit != 'true'
+        run: uv venv
+
+      # Deliberately NOT continue-on-error and deliberately not soft-launched.
+      # The blocks are generated, so they start clean and there is nothing to
+      # grandfather. Exit 1 = drift, exit 2 = tool error (missing marker,
+      # undescribed directory) -- both block.
+      - name: Generated repo state matches committed
+        run: uv run python scripts/gen_repo_state.py --check
+
   type-check:
     name: Type Check
     runs-on: ubuntu-latest
@@ -482,7 +595,13 @@ jobs:
     
     steps:
       - uses: actions/checkout@v7
-      
+
+      # Container runs as root; workspace is owned by the runner user. Without
+      # this, every `git` call in a later `run:` step exits 128 on "dubious
+      # ownership" rather than doing its job.
+      - name: Mark workspace safe for git
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
       - name: Install uv
         uses: astral-sh/setup-uv@v4
         with:

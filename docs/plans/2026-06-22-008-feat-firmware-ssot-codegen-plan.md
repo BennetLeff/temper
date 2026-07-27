@@ -1,9 +1,11 @@
 ---
 title: "feat: Firmware SSOT — Config Codegen + X-Macro State Enum"
 type: feat
-status: active
+status: completed
 date: 2026-06-22
 origin: docs/brainstorms/2026-06-21-firmware-ssot-codegen-requirements.md
+swept: 2026-07-25
+swept_basis: "11/13 named paths exist"
 ---
 
 # feat: Firmware SSOT — Config Codegen + X-Macro State Enum

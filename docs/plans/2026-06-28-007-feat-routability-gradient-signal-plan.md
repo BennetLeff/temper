@@ -1,9 +1,11 @@
 ---
 title: "feat: Routability Gradient Signal for Differentiable Placement↔SAT Co-Optimization"
 type: feat
-status: active
+status: abandoned
 date: 2026-06-28
 origin: docs/brainstorms/2026-06-28-routability-gradient-signal-requirements.md
+swept: 2026-07-25
+swept_basis: "only 5/25 named paths exist"
 ---
 
 # Routability Gradient Signal

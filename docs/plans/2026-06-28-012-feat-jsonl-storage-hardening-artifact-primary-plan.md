@@ -3,6 +3,8 @@ title: "feat: JSONL Storage Hardening — Artifact-Primary with Git Commit as Qu
 type: feat
 status: completed
 date: 2026-06-28
+swept: 2026-07-25
+swept_basis: "already declared"
 ---
 
 # feat: JSONL Storage Hardening — Artifact-Primary

@@ -1,0 +1,19 @@
+# call-arg hard-gate baseline — HAND-CURATED ONLY, never touched by
+# `scripts/check_typecheck_gate.py --init`.
+#
+#
+# Every line here is a *known, pre-existing* mypy call-arg error: a call site
+# passing a keyword argument the callee's signature no longer has. These all
+# predate the 2026-07-26 investigation into check_routability's TypeError
+# (docs/evidence/2026-07-26-api-signature-drift-gate.md) and were found by
+# running `uv run mypy packages/temper-placer/src packages/temper-workflow/src
+# --ignore-missing-imports` on commit 11f859e5. They look like the SAME defect
+# class (an underscore-prefix lint autofix breaking a keyword caller — most
+# carry mypy's own "did you mean "_x"?" hint) and are almost certainly live,
+# unfixed bugs, not legitimate type debt. They are listed here, not fixed,
+# because fixing them is out of scope for this task; do not add to this list
+# without first checking whether the "new" entry is actually a live bug.
+#
+# Any call-arg error NOT listed here is an unconditional hard failure,
+# regardless of what .typecheck-allowlist says.
+

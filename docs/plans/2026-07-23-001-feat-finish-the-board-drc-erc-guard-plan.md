@@ -1,10 +1,12 @@
 ---
 title: "feat: Finish the Board — ERC-to-Zero + Portable DRC Gate + CI Anti-False-Zero Guard"
 type: feat
-status: active
+status: completed
 date: 2026-07-23
 origin: docs/plans/2026-07-10-001-feat-finish-the-board-plan.md
 supersedes: [2026-07-10-001]
+swept: 2026-07-25
+swept_basis: "referenced in git history; 5/6 paths exist"
 ---
 
 # feat: Finish the Board — ERC-to-Zero + Portable DRC Gate + CI Anti-False-Zero Guard

@@ -4,6 +4,8 @@ type: feat
 status: superseded
 date: 2026-07-10
 origin: docs/brainstorms/2026-07-10-finish-the-board-requirements.md
+swept: 2026-07-25
+swept_basis: "already declared"
 ---
 
 ## Superseded

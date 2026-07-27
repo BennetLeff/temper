@@ -1,9 +1,11 @@
 ---
 title: "feat: Dead-Path Re-enablement and Exercise-or-Delete Coverage Gate"
 type: feat
-status: needs-revision
+status: stale
 date: 2026-06-22 (revised 2026-06-22)
 origin: docs/brainstorms/2026-06-21-dead-path-coverage-gate-requirements.md
+swept: 2026-07-25
+swept_basis: "insufficient evidence - needs human triage"
 ---
 
 # feat: Dead-Path Re-enablement and Exercise-or-Delete Coverage Gate

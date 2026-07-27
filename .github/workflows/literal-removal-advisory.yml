@@ -7,6 +7,11 @@ jobs:
   advisory:
     runs-on: ubuntu-latest
     continue-on-error: true
+    # The check runs one `git grep` over the whole repo per removed literal, so
+    # a large PR diff makes it slow. It used to crash out in ~16s on a decode
+    # error, which hid that; with the crash fixed it runs to completion and
+    # would otherwise inherit the 6-hour default.
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
         with:

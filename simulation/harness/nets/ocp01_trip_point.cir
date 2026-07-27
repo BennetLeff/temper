@@ -1,0 +1,58 @@
+* OCP-01 trip-current transient: OCPComparator (elec/src/modules.ato), TLV3201
+* comparator model, CT_WITH_BURDEN current-transformer model.
+*
+* CALIBRATED: false. No bench measurement exists for this circuit. Every
+* component value below is either (a) copied read-only from the committed
+* atopile source (elec/src/modules.ato: OCPComparator, CurrentSensing) or
+* (b) a documented default from the vendor model file itself. Nothing here
+* was invented to make the answer come out a particular way.
+*
+* Sourced values (read-only, elec/src/modules.ato):
+*   - power_3v3 rail:            3.3 V   (ocp.power ~ power_3v3, main.ato)
+*   - r_ref_top / r_ref_bot:     3200 / 10000 ohm  (OCPComparator, line ~1505)
+*       -> Vref = 3.3 * 10000/13200 = 2.5000 V
+*   - CT turns ratio:            1:100   (CurrentSensing comment, line ~1188:
+*       "1:100 ratio: 4.99R puts the OCP trip at 2.5V/4.99R*100 = 50.1A")
+*   - r_burden:                  4.99 ohm (CurrentSensing, line ~1192)
+*
+* Model-default values (simulation/models/current_transformer.sub,
+* CT_WITH_BURDEN subckt) NOT sourced from the schematic, because the board
+* does not specify them:
+*   - RW (secondary winding resistance): 50 ohm (subckt default, unverified
+*     against the real CST2010-100L datasheet -- flagged uncalibrated)
+*
+* Known model-fidelity limit (simulation/models/TLV3201_ngspice.lib header):
+* "It intentionally does not claim a timing, noise, or temperature model."
+* This deck therefore measures only the DC/quasi-static trip THRESHOLD
+* (the ramp is slow enough that the comparator's near-zero internal RC,
+* ROUT*C_OUT = 60*0.5p = 30 ps, never limits the answer). It cannot and does
+* not attempt to validate OCP-01's <1 us propagation-delay budget -- that
+* requires a transistor-level comparator model or bench measurement.
+
+.include ../../models/current_transformer.sub
+.include ../../models/TLV3201_ngspice.lib
+
+.param RAMP_MAX_A=60
+.param RAMP_TIME=600u
+
+V_VCC VCC_3V3 0 DC 3.3
+I_PRI pri_p 0 PWL(0 0 {RAMP_TIME} {RAMP_MAX_A})
+
+X_CT pri_p 0 i_sense 0 CT_WITH_BURDEN PARAMS: N=100 RW=50 R_BURDEN=4.99
+
+R_REF_TOP VCC_3V3 vref 3200
+R_REF_BOT vref 0 10000
+
+X_COMP i_sense vref VCC_3V3 0 comp_out TLV3201_NGSPICE
+
+.control
+set noaskquit
+tran 100n 600u
+meas tran t_trip WHEN v(comp_out)=1.65 RISE=1
+meas tran v_sense_at_trip FIND v(i_sense) AT={t_trip}
+print t_trip
+print v_sense_at_trip
+quit
+.endc
+
+.end

@@ -6,6 +6,8 @@ date: 2026-06-28
 depends_on:
   - docs/plans/2026-06-28-010-feat-ci-profiling-regression-platform-plan.md   (completed; provides PipelineMetricsRecord and JSONL time-series store)
   - docs/plans/2026-06-22-022-feat-per-stage-timing-regression-gate-plan.md    (completed; provides timing_baselines.yaml manifest and temper timing CLI)
+swept: 2026-07-25
+swept_basis: "already declared"
 ---
 
 # feat: Auto-Baseline Tightening

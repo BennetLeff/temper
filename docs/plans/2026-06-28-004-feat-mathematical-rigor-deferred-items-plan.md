@@ -3,6 +3,8 @@ date: 2026-06-28
 status: active
 depth: standard
 tags: [router-v6, hypothesis, pbt, ci, traceability, refactor, induction]
+swept: 2026-07-25
+swept_basis: "pinned by live @req annotations"
 ---
 
 # feat: Mathematical rigor deferred items — CI benchmarks, traceability, induction dedup, segment edge-cases

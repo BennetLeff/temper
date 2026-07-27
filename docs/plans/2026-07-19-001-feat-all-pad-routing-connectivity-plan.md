@@ -5,6 +5,8 @@ status: completed
 date: 2026-07-19
 origin: docs/brainstorms/2026-07-19-all-pad-routing-connectivity-requirements.md
 plan_id: APC1
+swept: 2026-07-25
+swept_basis: "already declared"
 ---
 
 # All-Pad Routing Connectivity

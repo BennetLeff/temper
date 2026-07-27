@@ -3,6 +3,8 @@ date: 2026-06-22
 type: feat
 origin: docs/ideation/2026-06-22-pipeline-profiling-correctness-speed-ideation.md
 status: completed
+swept: 2026-07-25
+swept_basis: "already declared"
 ---
 
 # Plan: Pipeline Profiling & Validation Toolkit

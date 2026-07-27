@@ -1,9 +1,11 @@
 ---
 title: "A* Pathfinding Mathematical Validation Suite"
 date: 2026-06-28
-status: active
+status: completed
 depth: deep
 source: docs/brainstorms/2026-06-28-astar-pathfinding-validation-requirements.md
+swept: 2026-07-25
+swept_basis: "referenced in git history; 10/10 paths exist"
 ---
 
 ## Summary

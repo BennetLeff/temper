@@ -1,0 +1,327 @@
+* ZVS margin sweep: HalfBridge (elec/src/modules.ato) driving ResonantTank
+* (elec/src/modules.ato) through pan_load.sub, IGBT = IKW40N120H3.lib.
+*
+* CALIBRATED: false. No bench measurement exists for this circuit. Every
+* component value below is either (a) copied read-only from the committed
+* atopile source (elec/src/modules.ato, elec/src/main.ato) or (b) a
+* documented default from a vendor/model file that the schematic itself
+* does not specify (flagged individually below). Nothing here was invented
+* to make the answer come out a particular way.
+*
+* ============================================================================
+* ZVS MARGIN -- DEFINITION (required before any number below means anything)
+* ============================================================================
+* This deck defines ZVS margin as the collector-emitter voltage present on
+* a switch AT THE INSTANT ITS OWN GATE TURNS ON, expressed as a percentage
+* of the full DC bus differential (340V, see V_HALF below):
+*
+*   margin_hs_pct = 100 * V(hvp,sw)  / (2*V_HALF)   at Q_high's turn-on instant
+*   margin_ls_pct = 100 * V(sw,hvn)  / (2*V_HALF)   at Q_low's  turn-on instant
+*
+* Rationale: true zero-voltage turn-on requires the switch node to have
+* already completed its resonant transition to the opposite rail (driven by
+* tank current flowing through the OFF switch's antiparallel diode) before
+* the dead time expires and the gate commands ON. If the transition is
+* incomplete, the device turns on across whatever Vce remains, and turn-on
+* switching loss + dV/dt stress scale directly with that residual voltage.
+* Sampling Vce exactly at the gate's own turn-on edge is a direct measure
+* of exactly the quantity that determines whether ZVS held (0%) or was lost
+* (100% = full hard switching into the whole bus). This project's dead time
+* is fixed by hardware (t_dead_time, HalfBridge, below) and not adjustable
+* per operating point, so "dead time vs. resonant transition time" and
+* "Vce at turn-on" are the same underlying physics viewed two ways; Vce at
+* turn-on is used here because it is a single robust `.meas FIND ... AT=`
+* sample at an analytically-known time (this deck's own PWM generator),
+* rather than a threshold-crossing search that could be sensitive to noise
+* in a stiffer, more oscillatory circuit than OCP-01's.
+* Threshold used for a pass/fail label in the harness (not in this deck):
+* margin < 10% = "ZVS held", 10-50% = "degraded", >50% = "ZVS lost / hard
+* switching" (thresholds are a reporting convenience chosen by the harness,
+* not a datasheet or standard figure -- there is no such spec for this
+* board).
+*
+* ============================================================================
+* TOPOLOGY, AS ACTUALLY WIRED (read-only; do not confuse with a naive
+* single-ended 0-340V half bridge -- that is NOT what is committed)
+* ============================================================================
+* elec/src/modules.ato PowerInput is a split-capacitor voltage doubler:
+* d1/c_bus1(+c_bus1b) charge dc_bus.hv_plus to +170V relative to
+* dc_bus.gnd_ref; d2/c_bus2(+c_bus2b) charge dc_bus.hv_minus to -170V
+* relative to the same reference (modules.ato:563 `v_bus_half: voltage =
+* 170V`; connections modules.ato:612-631). elec/src/main.ato wires
+* `power_in.dc_bus.hv_plus ~ dc_bus_plus`, `hv_minus ~ dc_bus_minus`,
+* `hb.dc_bus.hv_plus ~ dc_bus_plus`, `hb.dc_bus.hv_minus ~ dc_bus_minus`,
+* and separately ties the doubler midpoint to system ground
+* (`power_return ~ power_in.dc_bus.gnd_ref`, `power_return ~ gnd`,
+* main.ato:247,283). So HalfBridge's own rails are +/-170V about system
+* ground, not 0V/340V -- the differential across the bridge (340V) matches
+* `v_bus_max`/`v_bus_nominal` (main.ato:49,65), but the switch node swings
+* +/-170V about ground, and (critically) the resonant tank's return path
+* (`tank.out ~ ct_sense.primary_in ~ ... ~ power_return`, main.ato:318-319)
+* returns to GROUND (the doubler midpoint), NOT to hv_minus. This deck
+* reproduces exactly that: V_HVP/V_HVN are +/-170V sources, the tank
+* returns to node 0 (gnd), and Q_low's emitter (hv_minus, node "hvn") is a
+* separate -170V rail that only the low-side IGBT and its gate drive see.
+* This distinction does not change the AC swing available to the tank
+* (still 340Vpp switch-node-to-ground) but does change which node each
+* .meas below must reference, and is recorded here so the deck is legible
+* against the real source instead of a simplified mental model of it.
+*
+* ============================================================================
+* Sourced values (read-only, elec/src/modules.ato / elec/src/main.ato)
+* ============================================================================
+*   - V_HALF = 170V           : PowerInput.v_bus_half, modules.ato:563
+*                               (differential V_HALF*2 = 340V matches
+*                               main.ato:49 v_bus_max / main.ato:65
+*                               v_bus_nominal)
+*   - RG (gate series R)      : 2.2 ohm, GateDriveHS.rg_on / GateDriveLS.rg_on
+*                               modules.ato:158, modules.ato:213
+*   - RGS (gate-emitter pulldown): 2200 ohm, GateDriveHS.rgs / GateDriveLS.rgs
+*                               modules.ato:164, modules.ato:219
+*   - T_DEAD = 305.4ns        : HalfBridge.t_dead_time, modules.ato:279
+*                               (derived from dt_res=34kohm, modules.ato:268,
+*                               TI UCC21550 eqn t_DT(ns)=8.6*R_DT(kohm)+13)
+*   - VGS_HS_OFF = -5.1V      : GateDriveHS.neg_bias_zener.voltage_rating,
+*                               modules.ato:150-152; HS gate referenced to
+*                               its own emitter (switch_node) via the zener
+*                               negative-bias network (modules.ato:182-197
+*                               design comment: "V_GS = -5.1V" off-state)
+*   - VGS_HS_ON = 9.9V        : derived, NOT a single line in modules.ato --
+*                               VDDA-VSSA = 15V (boot_cap charges to full
+*                               VDD per modules.ato:187 comment) minus the
+*                               5.1V negative-bias offset = 9.9V referenced
+*                               to switch_node. This is an inference from
+*                               two separate committed facts, not a single
+*                               sourced number; flagged as such.
+*   - VGS_LS_OFF = 0V, VGS_LS_ON = 15V : GateDriveLS has no negative-bias
+*                               zener (modules.ato:205-235), so its gate
+*                               swings 0V to power_15v_ls.voltage = 15V
+*                               (modules.ato:381), referenced to hv_minus
+*                               (modules.ato:369 `gate_ls.input_ref` ~ VSSB
+*                               ~ dc_bus.hv_minus).
+*   - C_TANK = 300nF          : c_tank1 (150nF, modules.ato:390) + c_tank2
+*                               (150nF, modules.ato:397), wired IN PARALLEL
+*                               (both directly between `in` and
+*                               `inductor_conn.p1`, modules.ato:411-414) --
+*                               NOT in series as the two-capacitor count
+*                               might suggest at a glance.
+*   - F_SW = 35kHz (baseline) : main.ato:71 `f_switching: frequency = 35kHz`
+*                               (nominal; asserted 20-100kHz, main.ato:72).
+*                               SWEPT by the harness; see run_zvs_sweep.py.
+*
+* ============================================================================
+* Values NOT in modules.ato -- model defaults used instead (flagged, R4)
+* ============================================================================
+*   - PAN_L1 = 80uH (coil inductance): elec/src/modules.ato's ResonantTank
+*     does not specify a coil inductance at all -- `inductor_conn` is a
+*     placeholder Resistor standing in for a physical Litz coil
+*     (mpn="CUSTOM_LITZ_COIL", modules.ato:407-409). 80uH is
+*     pan_load.sub's own PANLOAD_TRANSFORMER subckt default. Note
+*     pan_load.sub's own header text (line 9, "~50uH uncoupled") disagrees
+*     with its own subckt's coded default (80uH) -- an internal
+*     inconsistency in the vendor/model file, reported not resolved. The
+*     coded default is what actually executes and is what this deck uses.
+*   - PAN_L2 = 1uH (pan-side inductance): PANLOAD_TRANSFORMER's own default;
+*     pan_load.sub documents no per-material L2 guidance anywhere.
+*   - PAN_RCOIL = 0.1 ohm (coil series resistance): PANLOAD_TRANSFORMER's
+*     own default; no schematic source (the coil is unspecified, above).
+*
+* ============================================================================
+* Model substitution: PANLOAD_SIMPLE is NOT used, and this is a finding
+* ============================================================================
+* pan_load.sub ships three pan-load subckts. PANLOAD_SIMPLE and
+* PANLOAD_VARIABLE both declare an RPAN parameter in their .subckt line and
+* document it in the header comment ("RPAN = Pan equivalent resistance"),
+* but neither ever references RPAN in the subckt body:
+*   PANLOAD_SIMPLE:   R_ref N_rcoil B {K*K*80}        <- RPAN unused, dead
+*   PANLOAD_VARIABLE: R_ref N_r B {(K>0.01)?(K*K*100):10MEG}  <- also dead
+* Passing any RPAN value to either subckt is silently ignored -- a class-2
+* "computes the wrong function" defect (METHODOLOGY.md SS4) discovered by
+* reading the model, not assumed. Sweeping "pan resistance" through either
+* subckt would produce a flat line and a false negative ("resistance
+* doesn't matter"), not a null result.
+* PANLOAD_TRANSFORMER is used instead: it implements an actual mutual-
+* inductance transformer (ngspice K_couple statement) with a real R_pan in
+* the shorted secondary loop, so RPAN and K both have physical effect. Its
+* trade-off: it requires a secondary inductance L2 that the schematic and
+* pan_load.sub's documentation do not specify per pan material (flagged
+* above, PAN_L2 default 1uH).
+*
+* ============================================================================
+* Current-transformer model exclusion -- also a finding
+* ============================================================================
+* simulation/models/current_transformer.sub is NOT included in this deck's
+* tank loop, unlike the OCP-01 deck. Its CT_WITH_BURDEN/CURRENT_TRANSFORMER
+* primary path is `pri_p -> V_sense(0V) -> pri_int -> [L_mag=10mH || R_core]
+* -> pri_n`: the ONLY path from pri_int to pri_n is through a 10mH
+* magnetizing inductance. That is a correct model when the primary is
+* driven by an IDEAL CURRENT SOURCE (as OCP-01's deck does -- an ideal
+* current source is indifferent to the impedance it sees). It is NOT valid
+* wired directly into a voltage-driven series-resonant loop: 10mH at 35kHz
+* is ~2.2kohm of series impedance, ~28x this tank's own coil inductance,
+* and would swamp the resonant behavior this deck exists to measure. Tank
+* current is instead read directly from a 0V ammeter (V_ISENSE) in the
+* tank branch -- more accurate for this purpose than routing through a CT
+* behavioral model not designed for this insertion point, and it avoids
+* silently corrupting the resonant frequency being measured.
+*
+* ============================================================================
+* IGBT model fidelity limit (bounds what this sweep can claim)
+* ============================================================================
+* simulation/models/IKW40N120H3.lib is a behavioral macromodel: fixed
+* (non-Vce-dependent) Cge/Cce/Cgc, a linear on-resistance region, and a
+* single-pole RC approximation of diode reverse-recovery charge (B_qrr).
+* Real IGBT/diode capacitances are strongly nonlinear with Vce (Coss droops
+* by 5-10x from 0V to rated voltage), which is precisely the mechanism that
+* sets the actual resonant dV/dt during a ZVS transition. This model can
+* show whether tank current has the right sign and rough magnitude to force
+* a transition (a directionally correct ZVS/no-ZVS verdict) but its turn-on
+* Vce trajectory shape and any turn-off tail / switching-loss figure are
+* NOT claimed to be quantitatively accurate. Treat margin percentages as
+* ordinal (worse/better across operating points) rather than as calibrated
+* absolute switching-loss numbers.
+*
+* ============================================================================
+* Gate-drive fidelity limit
+* ============================================================================
+* No SPICE model exists anywhere in simulation/models/ for the UCC21550
+* gate-driver IC itself (UCC14140_behavioral.sub is the isolated 15V
+* SUPPLY feeding it, not the driver). Gate drive is therefore synthesized
+* here as an ideal PULSE source (representing the driver's output stage)
+* in series with the real RG=2.2ohm/RGS=2200ohm network, so the actual gate
+* voltage edge shape is set by RG charging the IGBT's own Cge/Cgc (a
+* physically motivated RC, time constant ~RG*Cge=5.1ns) rather than by an
+* arbitrarily chosen edge rate. The ideal source's own edge (1ns) is set
+* deliberately much faster than that RC so it does not itself become the
+* rate-limiting element.
+*
+* ============================================================================
+* Determinism (METHODOLOGY.md SS5, "the oracle is not exempt")
+* ============================================================================
+* Resonant circuits are stiffer than the OCP-01 comparator deck (multiple
+* energy-storage elements ringing together, tighter LTE control needed).
+* run_zvs_sweep.py runs the baseline point N times and asserts
+* byte-identical stdout before trusting any number from this deck; see that
+* script's determinism note for the measured result and which points were
+* checked (not full-grid, for compute reasons -- stated explicitly there).
+
+.include ../../models/IKW40N120H3.lib
+.include ../../models/pan_load.sub
+
+* --- Sourced from elec/ (read-only) ---
+.param V_HALF   = 170
+.param RG       = 2.2
+.param RGS      = 2200
+.param T_DEAD   = 305.4n
+.param VGS_HS_OFF = -5.1
+.param VGS_HS_ON  = 9.9
+.param VGS_LS_OFF = 0
+.param VGS_LS_ON  = 15
+.param C_TANK   = 300n
+
+* --- Model defaults, NOT from elec/ (see header) ---
+.param PAN_L1     = 80u
+.param PAN_L2     = 1u
+.param PAN_RCOIL  = 0.1
+
+* --- Sweep axes (baseline values here = the one demonstrated point this
+*     deck reproduces stand-alone; run_zvs_sweep.py overrides these) ---
+.param F_SW     = 35k
+.param PAN_K    = 0.5
+.param PAN_RPAN = 8
+
+* --- Simulation control ---
+.param N_CYCLES = 25
+.param PERIOD   = '1/F_SW'
+.param TD_LS    = 'PERIOD/2'
+.param ON_WIDTH = 'PERIOD/2 - T_DEAD'
+.param TSTOP    = 'N_CYCLES*PERIOD'
+
+* --- DC bus (split, see topology note above) ---
+V_HVP hvp 0 DC {V_HALF}
+V_HVN hvn 0 DC {-V_HALF}
+
+* --- Half bridge (PowerLoop.q_high/q_low = IKW40N120H3, modules.ato:76-82) ---
+X_QH hvp g_hs sw IKW40N120H3
+X_QL sw g_ls hvn IKW40N120H3
+
+* --- High-side gate drive: floats on switch node, negative-bias off-state ---
+VG_HS g_hs_drv sw PULSE({VGS_HS_OFF} {VGS_HS_ON} 0 1n 1n {ON_WIDTH} {PERIOD})
+RG_HS g_hs_drv g_hs {RG}
+RGS_HS g_hs sw {RGS}
+
+* --- Low-side gate drive: referenced to hv_minus (NOT ground -- see topology note) ---
+VG_LS g_ls_drv hvn PULSE({VGS_LS_OFF} {VGS_LS_ON} {TD_LS} 1n 1n {ON_WIDTH} {PERIOD})
+RG_LS g_ls_drv g_ls {RG}
+RGS_LS g_ls hvn {RGS}
+
+* --- Resonant tank: Ctank (switch-node side) in series with pan_load coil
+*     (ground side), current sensed by a 0V ammeter (see CT exclusion note) ---
+C_TANK sw tank_mid {C_TANK}
+V_ISENSE tank_mid tank_mid2 DC 0
+X_PAN tank_mid2 0 PANLOAD_TRANSFORMER L1={PAN_L1} L2={PAN_L2} K={PAN_K} RPAN={PAN_RPAN} RCOIL={PAN_RCOIL}
+
+* Numerical-stability options -- NOT a physics change. Default ngspice
+* settings hit "timestep too small... trouble with node v_isense#branch"
+* (verified empirically) during the hard switch-node transition at dead
+* time, a known stiffness issue for switched resonant circuits with the
+* device model's small fixed capacitances and no explicit snubber. ABSTOL
+* is loosened 1e-12->1e-9 (still far below the ~1-100A signal scale here)
+* and ITL4 (max Newton iterations/point) raised 10->200 so the solver is
+* given more attempts before giving up, rather than accepting a coarser
+* answer; GMIN is raised 1e-12->1e-11, adding at most ~1.7nA of leakage
+* per node at 170V -- twelve orders of magnitude below the tank currents
+* being measured, i.e. a convergence aid, not a smoothing-away of the
+* transition being studied. RELTOL is left at ngspice's own default value.
+.options reltol=1e-3 abstol=1e-9 vntol=1e-6 itl4=200 gmin=1e-11
+
+* Top-level (non-.control) .tran/.meas cards: ngspice's numparam brace/quote
+* substitution ({...}, '...') is only reliably applied to netlist cards, not
+* to the interactive-mode "tran"/"meas" commands inside .control (verified
+* empirically -- a control-block `tran 5n {TSTOP}` silently fails to
+* substitute TSTOP and aborts with "TSTOP is invalid"). Batch mode
+* (`ngspice -b`) auto-prints every .meas result after the run in a
+* `name = value [at=.../from=.../to=...]` format on its own line, which is
+* what run_zvs_sweep.py parses; no explicit `print` is needed for that.
+.tran 5n {TSTOP}
+
+* ZVS margin: Vce at each switch's own turn-on instant, last simulated cycle.
+* NOTE: ngspice .meas FIND does not accept the two-node differential
+* V(a,b) form used freely in `print`/`plot` -- verified empirically it
+* errors "no such vector as v(a,b)". PAR('V(a)-V(b)') is the form .meas
+* actually accepts.
+.meas tran vce_hs_last FIND PAR('V(hvp)-V(sw)') AT='(N_CYCLES-1)*PERIOD'
+.meas tran vce_ls_last FIND PAR('V(sw)-V(hvn)') AT='(N_CYCLES-1)*PERIOD + PERIOD/2'
+
+* Same, one cycle earlier -- convergence/ring-up check (is the last cycle
+* actually periodic, or still settling? see run_zvs_sweep.py)
+.meas tran vce_hs_prev FIND PAR('V(hvp)-V(sw)') AT='(N_CYCLES-2)*PERIOD'
+.meas tran vce_ls_prev FIND PAR('V(sw)-V(hvn)') AT='(N_CYCLES-2)*PERIOD + PERIOD/2'
+
+* Tank current and switch-node swing, last cycle (for power/sanity reporting)
+.meas tran i_tank_pk_last MAX i(V_ISENSE) FROM='(N_CYCLES-1)*PERIOD' TO='N_CYCLES*PERIOD'
+.meas tran i_tank_rms_last RMS i(V_ISENSE) FROM='(N_CYCLES-1)*PERIOD' TO='N_CYCLES*PERIOD'
+.meas tran v_sw_max MAX V(sw) FROM='(N_CYCLES-1)*PERIOD' TO='N_CYCLES*PERIOD'
+.meas tran v_sw_min MIN V(sw) FROM='(N_CYCLES-1)*PERIOD' TO='N_CYCLES*PERIOD'
+
+* Pan-secondary current, last cycle -- added for the L x f_sw x power sweep
+* (docs/hardware/TANK_COIL_SPECIFICATION.md). PANLOAD_TRANSFORMER's
+* secondary loop is L_sec -> R_pan -> V_short (0V, closes the "shorted
+* turn"), all in series, so the current through any one of them equals the
+* current through all three. V_short's branch current is addressable at
+* top level via ngspice's subcircuit-internal naming convention
+* `v.<instance>.<device>#branch` (verified empirically: a standalone probe
+* deck printed `v.x_pan.v_short#branch` as a valid vector; `i(x_pan.v_short)`
+* is NOT valid ngspice syntax and errors). Power delivered to the pan
+* model is purely resistive (R_pan is the only dissipative element in the
+* secondary loop): P_pan = i_pan_rms_last^2 * RPAN, computed in the harness
+* (not here) since RPAN is already tracked per grid point there.
+.meas tran i_pan_rms_last RMS v.x_pan.v_short#branch FROM='(N_CYCLES-1)*PERIOD' TO='N_CYCLES*PERIOD'
+
+.control
+set noaskquit
+run
+quit
+.endc
+
+.end

@@ -110,6 +110,10 @@ class RoutingResult:
     routed_pcb_content: str | None = None
     enable_zone_pours: bool = False
     connectivity: dict[str, Any] | None = None
+    # Always [] as of docs/plans/2026-07-24-001-fix-forced-segment-fail-closed-plan.md:
+    # no net class produces a forced segment anymore (all fail closed).
+    # Left in place -- removing it is a larger API-surface change tracked
+    # as separate follow-up work, not part of that plan.
     forced_segment_nets: list[str] = field(default_factory=list)
 
 

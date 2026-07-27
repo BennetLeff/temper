@@ -84,10 +84,56 @@ component CST2010_100L:
     Replaces Triad CST-1005 (5A, 50/60Hz only, 65C max) per BOM audit.
     Footprint hand-built from the Coilcraft datasheet land pattern
     (Document 1100-2); pads 1/2 = primary tabs (Coilcraft 11/12),
-    pads 3/4 = secondary (Coilcraft pins 2/4)."""
+    pads 3/4 = secondary (Coilcraft pins 2/4).
+
+    SUPERSEDED 2026-07-25 by CST3015_100E. Its 47A sensed-current limit is
+    below the OCP-01 45-55A window, so no burden value could satisfy both
+    the spec and the transformer. Retained for reference only -- do not
+    instantiate. See docs/hardware/PROTECTION_CHAIN_REVIEW.md."""
     designator_prefix = "T"
     footprint = "temper:CST2010"
     mpn = "CST2010-100L"
+    manufacturer = "Coilcraft"
+    ratio = 100
+
+    signal P1 ~ pin 1
+    signal P2 ~ pin 2
+    signal S1 ~ pin 3
+    signal S2 ~ pin 4
+
+component CST3015_100E:
+    """Coilcraft CST3015-100ED SMT current sense transformer, 1:100.
+
+    Selected 2026-07-25 to resolve the OCP-01 spec/transformer conflict.
+    Verified against Coilcraft Document 1608-1 (rev 09/08/25):
+
+      sensed current    88 A        (CST2010-100L: 47 A)
+      turns ratio       1:100       unchanged, so the burden math carries over
+      frequency         0.78 kHz to >1 MHz; the 35 kHz tank is in band
+      volt-time product 638 V-us    vs 35.7 V-us at the trip point -- 18x margin
+      DCR               0.0001 ohm primary, 1.54 ohm secondary
+      isolation         5000 Vrms 1 min, reinforced, >=8 mm creepage/clearance
+      temperature       -40..+125C, AEC-Q200 qualified
+
+    At the 4.99 ohm burden the trip is 50.1 A (worst case 49.4-50.9 A over
+    +/-1% parts), leaving 1.73x headroom to the 88 A sensed rating. The
+    5000 Vrms reinforced-insulation rating also improves the IEC 60335-1
+    position over the CST2010's 1500 Vrms.
+
+    Datasheet note 5: the sensed-current figure is a 40C-rise reference
+    point, not an absolute maximum.
+
+    Footprint temper:CST3015 drawn 2026-07-26 from the official Recommended
+    Land Pattern (Coilcraft Document 1608-2). Primary pads 9.0 x 4.8mm on
+    15.36mm centres; secondary pads 3.0 x 4.6mm on 13.76mm centres. Pad
+    numbering matches the datasheet pins directly, so P1/P2/S1/S2 map to
+    pads 1/2/3/4 with no remapping.
+
+    This part is physically larger than the CST2010 (body 23.0 x 30.0mm,
+    16.6-16.9 g) and will require board re-layout around T1."""
+    designator_prefix = "T"
+    footprint = "temper:CST3015"
+    mpn = "CST3015-100ED"
     manufacturer = "Coilcraft"
     ratio = 100
 
@@ -139,7 +185,22 @@ component MOSFET_N:
 # ==============================================================================
 
 component Fuse:
-    """Fuse holder with fuse"""
+    """Bare 5x20mm fuse LINK ONLY -- not a holder+fuse assembly.
+
+    Corrected 2026-07-26 (docs/evidence/2026-07-26-bom-availability-sweep.md,
+    Blocker 3 / docs/evidence/2026-07-26-bom-blocker-resolution.md): this
+    class's docstring previously claimed "Fuse holder with fuse", and BOM.md
+    described F1 as "AC Mains Fuse (holder+fuse)". Neither was true --
+    Schurter's 0034.xxxx numbering (this component's `mpn` field, e.g.
+    "0034.3129") is its FST fuse-LINK family; fuseholders are a separate
+    part family and a separate BOM line. This design had no PCB-mount
+    fuseholder anywhere in the 155-part count. See BOM.md Section 1.2 for
+    the added fuseholder line (Schurter FUP 0031.2510) that fills that gap.
+    The `footprint` below is a placeholder stub, not a real verified
+    footprint for either the link or a holder -- see the PCB stub's own
+    "(generator stub)" / "Stub for Schurter 0034.3128 fuse holder" comment
+    in temper.kicad_pcb.
+    """
     designator_prefix = "F"
     footprint = "Fuse:Fuse_Holder_5x20mm"
     current_rating: current
@@ -342,9 +403,110 @@ component MAX31865:
     signal NC3 ~ pin 20
 
 
+component INA240A1:
+    """TI INA240A1 bidirectional, zero-drift current-sense amplifier, G=20 V/V,
+    8-pin TSSOP (PW package). MPN INA240A1QPWRQ1 (AEC-Q100 automotive grade).
+
+    VERIFIED 2026-07-26 against two TI datasheets, both fetched and read
+    directly (the earlier PDF-fetch timeout + SnapEDA "no pinout data" gap
+    that blocked OCP-02 is resolved):
+      - INA240 (non-automotive): SBOS662A, July 2016, revised October 2016,
+        Section 6 "Pin Configuration and Functions", PW package.
+      - INA240-Q1 (this MPN's grade): SBOS808E, August 2016, revised
+        December 2021, Section 6, Figure 6-1 "INA240-Q1 PW Package 8-Pin
+        TSSOP Top View" + Table 6-1 "Pin Functions".
+    Both datasheets give an identical PW (TSSOP-8) pinout:
+
+        1 NC    reserved; non-Q1 says "connect to ground", Q1 says
+                "connect to ground or leave floating"
+        2 IN+   analog input, connect to supply side of shunt resistor
+        3 IN-   analog input, connect to load side of shunt resistor
+        4 GND   analog ground
+        5 VS    power supply, 2.7 V to 5.5 V
+        6 REF2  reference 2 voltage, 0 V to VS
+        7 REF1  reference 1 voltage, 0 V to VS
+        8 OUT   analog output
+
+    Device body size 3.00 mm x 4.40 mm (TI Device Information table) ->
+    KiCad Package_SO.pretty "TSSOP-8_4.4x3mm_P0.65mm" (JEDEC MO-153 Var AA,
+    0.65mm pitch), the standard upstream footprint for this body size.
+
+    Common-mode range is -4 V to +80 V (TI datasheet Description section /
+    Recommended Operating Conditions), independent of supply voltage. This
+    is the reason OCP-02 (docs/hardware/OCP02_DESIGN.md) requires the shunt
+    on the LOW side (DC bus return) rather than the high side: a high-side
+    placement across the 340V DC bus would put ~340V of common-mode on the
+    inputs and destroy the part. See SecondaryOCPComparator in modules.ato
+    for a flagged concern about how much common-mode voltage the low-side
+    placement actually leaves, given the DC_BUS_RTN topology as built.
+
+    Gain is fixed by grade (TI Device Comparison Table): A1=20 V/V (this
+    part), A2=50, A3=100, A4=200 V/V."""
+    designator_prefix = "U"
+    footprint = "Package_SO:TSSOP-8_4.4x3mm_P0.65mm"
+    mpn = "INA240A1QPWRQ1"
+    manufacturer = "Texas Instruments"
+
+    # Ratings
+    gain = 20  # V/V, fixed (A1 grade)
+    v_cm_min = -4V
+    v_cm_max = 80V
+    v_supply_min = 2.7V
+    v_supply_max = 5.5V
+
+    signal NC ~ pin 1
+    signal INP ~ pin 2
+    signal INN ~ pin 3
+    signal GND ~ pin 4
+    signal VS ~ pin 5
+    signal REF2 ~ pin 6
+    signal REF1 ~ pin 7
+    signal OUT ~ pin 8
+
 # ==============================================================================
 # SAFETY INTERLOCK COMPONENTS
 # ==============================================================================
+
+component H11L1:
+    """6-pin DIP Schmitt-trigger phototransistor optocoupler (H11LX family).
+
+    Carries the zero-crossing-detect signal across the HV/SELV isolation
+    barrier (docs/hardware/SELV_ISOLATION_REDESIGN.md, 2026-07-26): the LED
+    (pins 1/2) stays on the HV side, referenced to power_return/dc_bus.gnd_ref;
+    the Schmitt-trigger output (pins 4/5/6) is powered from and referenced to
+    the SELV domain. This is the part the project's own pre-existing TODO
+    (modules.ato, PowerInput ZCD section) already named as the fix.
+
+    VERIFIED 2026-07-26 directly against Everlight's H11LX-series datasheet
+    (DPC-0000022 Rev 5, fetched and read): 6-pin DIP, pin 1=Anode, 2=Cathode,
+    3=No Connection, 4=Vo, 5=GND, 6=Vcc. Isolation voltage Viso=5000Vrms
+    (1-minute AC withstand per the datasheet's own test note -- a dielectric
+    strength figure, NOT independently confirmed here as a certified
+    reinforced-insulation rating at this design's ~170-340V DC working
+    voltage; PCB creepage/clearance across the barrier still needs layout-
+    stage verification). UL recognized (File E214129), VDE approved (No.
+    132249). Output: Vcc range 3-15V, open-collector, sinks 16mA at
+    Vol<=0.4V (needs an external pull-up). LED: Vf ~1.15-1.5V @ 10mA, IF
+    abs max 60mA. H11L1 grade (of the L1/L2/L3 family): guaranteed turn-on
+    threshold current <=1.6mA -- the tightest/most sensitive of the three,
+    and the grade named by the pre-existing TODO.
+
+    MPN below is the bare, second-sourced industry part number -- Vishay,
+    onsemi, and Everlight all manufacture pin-compatible H11L1 devices per
+    their respective datasheets found during the same search. Confirm the
+    exact manufacturer and orderable suffix (through-hole vs SMD, temp
+    grade) at procurement; not done here."""
+    designator_prefix = "U"
+    footprint = "Package_DIP:DIP-6_W7.62mm"
+    mpn = "H11L1"
+    manufacturer = "Everlight (or pin-compatible Vishay/onsemi H11L1)"
+
+    signal A ~ pin 1    # LED anode -- HV side
+    signal K ~ pin 2    # LED cathode -- HV side
+    # pin 3: No Connection
+    signal VO ~ pin 4   # Open-collector output -- SELV side
+    signal GND ~ pin 5  # SELV side ground
+    signal VCC ~ pin 6  # SELV side supply, 3-15V
 
 component TLV3201:
     """40ns Rail-to-Rail Comparator"""
@@ -419,8 +581,21 @@ component TPS3823:
     
     # Ratings
     wdt_timeout = 1.6s
-    v_threshold = 3.08V  # Reset at 3.08V
-    
+    # VIT- (falling reset threshold), verified 2026-07-26 directly against
+    # TI's TPS382x datasheet (SLVS165O, rev March 2025), TPS3823-33/
+    # TPS3823A-33 row, -40C to 85C: min 2.86V, typ 2.93V, max 3.00V.
+    # V_HYS (VIT+ - VIT-) = 30mV typ, no min/max given -- i.e. not a
+    # guaranteed spec. Rising threshold VIT- + V_HYS = 2.89/2.96/3.03V
+    # min/typ/max. The previous value here (3.08V) did not match either the
+    # datasheet or docs/hardware/SAFETY_INTERLOCK_DESIGN.md's own secondhand
+    # citation (2.93V) and its source was never established -- corrected.
+    # This part fails UVL-02 (FUNCTIONAL_TEST_CRITERIA.md SS2.4: <2.9V
+    # falling / >3.0V rising) in both directions even at nominal: 2.93V typ
+    # falling trips ABOVE the 2.9V ceiling, and 2.96V typ rising recovers
+    # BELOW the 3.0V floor. See docs/hardware/UVL02_DESIGN.md.
+    v_threshold = 2.93V
+    v_threshold_hysteresis = 30mV
+
     signal GND ~ pin 1
     signal RESET_N ~ pin 2
     signal MR_N ~ pin 3

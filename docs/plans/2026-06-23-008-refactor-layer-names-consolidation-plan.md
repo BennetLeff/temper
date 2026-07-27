@@ -1,9 +1,11 @@
 ---
 title: Layer Names Consolidation
 type: refactor
-status: active
+status: stale
 date: 2026-06-23
 origin: docs/brainstorms/2026-06-23-layer-names-consolidation-requirements.md
+swept: 2026-07-25
+swept_basis: "insufficient evidence - needs human triage"
 ---
 
 # Layer Names Consolidation

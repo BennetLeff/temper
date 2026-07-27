@@ -1,10 +1,12 @@
 ---
 title: "feat: Human-Reference Corpus Oracle"
 type: feat
-status: active
+status: completed
 date: 2026-07-01
 origin: docs/brainstorms/2026-07-01-human-reference-corpus-oracle-requirements.md
 deepened: 2026-07-01
+swept: 2026-07-25
+swept_basis: "referenced in git history; 21/33 paths exist"
 ---
 
 # feat: Human-Reference Corpus Oracle

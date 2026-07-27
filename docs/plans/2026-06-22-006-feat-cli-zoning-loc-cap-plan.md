@@ -1,9 +1,11 @@
 ---
 title: "feat: CLI Zoning, 1000-Line LOC Cap, and entry_points Discovery"
 type: feat
-status: active
+status: abandoned
 date: 2026-06-22
 origin: docs/brainstorms/2026-06-21-cli-zoning-loc-cap-requirements.md
+swept: 2026-07-25
+swept_basis: "only 11/76 named paths exist"
 ---
 
 # feat: CLI Zoning, 1000-Line LOC Cap, and entry_points Discovery

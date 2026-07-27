@@ -14,6 +14,14 @@ from temper_placer.router_v6._check_report_base import BaseCheckReport
 from temper_placer.router_v6.clearance_engine import get_clearance
 from temper_placer.router_v6.routing_results import RoutingResults
 
+try:
+    import temper_drc_rs as _temper_drc_rs
+
+    _HAS_RUST_CLEARANCE = hasattr(_temper_drc_rs, "verify_route_clearance")
+except ImportError:  # pragma: no cover - exercised only without the Rust wheel
+    _temper_drc_rs = None
+    _HAS_RUST_CLEARANCE = False
+
 
 @dataclass
 class ClearanceViolation:
@@ -38,12 +46,22 @@ class ClearanceReport(BaseCheckReport):
 
     violations: list[ClearanceViolation]
     total_checks: int
+    # True iff the check crashed, OR the anti-vacuous-truth guard fired
+    # (total_checks == 0 on a board with routed copper -- METHODOLOGY.md
+    # Sec 5). Clearance carries HV safety meaning, so ManufacturingReport
+    # folds `errored` into critical_violations/total_violations as a
+    # fail-closed sentinel rather than reading this as "0 violations
+    # found". See
+    # docs/evidence/2026-07-25-manufacturing-drc-crash-swallow.md.
+    errored: bool = False
 
 
 def verify_clearance(
     routing_results: RoutingResults,
     min_clearance: float = 0.127,  # 5mil standard
     voltage_ratings: dict[str, float] | None = None,
+    *,
+    backend: str = "auto",
 ) -> ClearanceReport:
     """
     Verify clearance distances between all conductors.
@@ -56,6 +74,15 @@ def verify_clearance(
         min_clearance: Minimum clearance distance (mm)
         voltage_ratings: Optional dict of net_name -> voltage (V).
             Used to determine voltage-dependent HV clearance.
+        backend: ``"auto"`` (default) uses the Rust engine
+            (``temper_drc_rs.verify_route_clearance``) when the wheel is
+            importable, falling back to the pure-Python implementation
+            otherwise. ``"python"`` forces the reference implementation
+            (used by the differential test and as a documented fallback);
+            ``"rust"`` forces the Rust engine and raises ``RuntimeError``
+            if it is unavailable.  See
+            docs/evidence/2026-07-26-clearance-rust-port.md for the
+            differential-equivalence evidence backing this switch.
 
     Returns:
         ClearanceReport with violations
@@ -66,6 +93,33 @@ def verify_clearance(
         >>> report = verify_clearance(results)
         >>> report.violation_count >= 0
         True
+    """
+    if backend not in ("auto", "python", "rust"):
+        raise ValueError(f"backend must be 'auto', 'python', or 'rust', got {backend!r}")
+
+    if backend == "rust" and not _HAS_RUST_CLEARANCE:
+        raise RuntimeError(
+            "backend='rust' requested but temper_drc_rs.verify_route_clearance is "
+            "not available. Install/build the temper-drc-rs wheel, or use "
+            "backend='auto' (falls back to Python) / backend='python'."
+        )
+
+    use_rust = backend == "rust" or (backend == "auto" and _HAS_RUST_CLEARANCE)
+    if use_rust:
+        return _verify_clearance_rust(routing_results, min_clearance, voltage_ratings)
+    return _verify_clearance_python(routing_results, min_clearance, voltage_ratings)
+
+
+def _verify_clearance_python(
+    routing_results: RoutingResults,
+    min_clearance: float = 0.127,
+    voltage_ratings: dict[str, float] | None = None,
+) -> ClearanceReport:
+    """Pure-Python reference implementation of :func:`verify_clearance`.
+
+    Kept as the oracle: the Rust engine (:func:`_verify_clearance_rust`) is
+    differential-tested against this function and must produce identical
+    violation sets. See docs/evidence/2026-07-26-clearance-rust-port.md.
     """
     violations = []
     total_checks = 0
@@ -126,6 +180,83 @@ def verify_clearance(
     )
 
 
+def _route_to_rust_tuple(
+    net_name: str, route
+) -> tuple[
+    str,
+    float,
+    list[tuple[float, float, float, float, str]],
+    list[tuple[float, float, float, str, str]],
+    list[tuple[float, float, str, str]],
+]:
+    """Flatten one route into the plain-tuple shape
+    ``temper_drc_rs.verify_route_clearance`` expects.
+
+    Uses the same :func:`_extract_segments` / :func:`_extract_via_points`
+    helpers as the pure-Python implementation so both backends see
+    identical geometry. Explicit ``route.vias`` are flattened to
+    ``(x, y, diameter, from_layer, to_layer)`` tuples here (diameter
+    resolved on the Python side, matching ``via.diameter`` directly).
+    """
+    width_mm = getattr(route, "width_mm", 0.0)
+    segments = _extract_segments(route)
+    path_vias = _extract_via_points(route)
+    explicit_vias = [
+        (
+            via.position[0],
+            via.position[1],
+            via.diameter,
+            via.from_layer,
+            via.to_layer,
+        )
+        for via in getattr(route, "vias", [])
+    ]
+    return (net_name, width_mm, segments, explicit_vias, path_vias)
+
+
+def _verify_clearance_rust(
+    routing_results: RoutingResults,
+    min_clearance: float = 0.127,
+    voltage_ratings: dict[str, float] | None = None,
+) -> ClearanceReport:
+    """Rust-backed implementation of :func:`verify_clearance`.
+
+    Delegates the full algorithm (geometry + the unified multi-standard
+    required-clearance computation) to
+    ``temper_drc_rs.verify_route_clearance``, ported line-for-line from this
+    module. See docs/evidence/2026-07-26-clearance-rust-port.md for the
+    differential-equivalence evidence against :func:`_verify_clearance_python`.
+    """
+    if voltage_ratings is None:
+        voltage_ratings = {}
+
+    if math.isnan(min_clearance) or not math.isfinite(min_clearance):
+        raise ValueError(f"min_clearance must be a finite number, got {min_clearance!r}")
+
+    routes = [
+        _route_to_rust_tuple(net_name, route)
+        for net_name, route in routing_results.compiled_routes.items()
+    ]
+
+    raw_violations, total_checks = _temper_drc_rs.verify_route_clearance(
+        routes, min_clearance, voltage_ratings
+    )
+
+    violations = [
+        ClearanceViolation(
+            net1=net1,
+            net2=net2,
+            location=(loc_x, loc_y),
+            actual_clearance=actual_clearance,
+            required_clearance=required_clearance,
+            layer=layer,
+        )
+        for (net1, net2, loc_x, loc_y, actual_clearance, required_clearance, layer) in raw_violations
+    ]
+
+    return ClearanceReport(violations=violations, total_checks=total_checks)
+
+
 def _calculate_minimum_clearance_by_layer(
     route1,
     route2,
@@ -157,40 +288,8 @@ def _calculate_minimum_clearance_by_layer(
         if layer not in layer_info or edge_dist < layer_info[layer][0]:
             layer_info[layer] = (edge_dist, point)
 
-    # Extract same-layer segments (x1, y1, x2, y2, layer) from routes
-    def get_segments(route):
-        segs = []
-        path = route.path
-        if hasattr(path, "segments"):  # RoutePath3D
-            for i in range(len(path.segments) - 1):
-                p1, p2 = path.segments[i], path.segments[i + 1]
-                if p1[2] == p2[2]:  # Same layer segment
-                    x1, y1, x2, y2 = p1[0], p1[1], p2[0], p2[1]
-                    if all(math.isfinite(v) for v in (x1, y1, x2, y2)):
-                        segs.append((x1, y1, x2, y2, p1[2]))
-        elif hasattr(path, "coordinates"):  # RoutePath
-            layer = getattr(path, "layer_name", "F.Cu")
-            for i in range(len(path.coordinates) - 1):
-                p1, p2 = path.coordinates[i], path.coordinates[i + 1]
-                x1, y1, x2, y2 = p1[0], p1[1], p2[0], p2[1]
-                if all(math.isfinite(v) for v in (x1, y1, x2, y2)):
-                    segs.append((x1, y1, x2, y2, layer))
-        return segs
-
-    # Extract cross-layer (via) points: (x, y, from_layer, to_layer)
-    def get_via_points_from_path(route):
-        """Yield (x, y, layer1, layer2) for each layer-changing segment."""
-        points = []
-        path = route.path
-        if hasattr(path, "segments"):
-            for i in range(len(path.segments) - 1):
-                p1, p2 = path.segments[i], path.segments[i + 1]
-                if p1[2] != p2[2]:  # Layer change = via
-                    points.append((p1[0], p1[1], p1[2], p2[2]))
-        return points
-
-    segs1 = get_segments(route1)
-    segs2 = get_segments(route2)
+    segs1 = _extract_segments(route1)
+    segs2 = _extract_segments(route2)
 
     # --- Same-layer segment-to-segment checks ---
     for s1 in segs1:
@@ -250,13 +349,57 @@ def _calculate_minimum_clearance_by_layer(
             edge_dist = pt_dist - via_radius - (other_width / 2)
             _update_layer(seg[4], edge_dist, (vx, vy))
 
-    for vx, vy, l1, l2 in get_via_points_from_path(route1):
+    for vx, vy, l1, l2 in _extract_via_points(route1):
         _check_via_point_against_segs(vx, vy, via_diameter_default, {l1, l2}, segs2, width2)
 
-    for vx, vy, l1, l2 in get_via_points_from_path(route2):
+    for vx, vy, l1, l2 in _extract_via_points(route2):
         _check_via_point_against_segs(vx, vy, via_diameter_default, {l1, l2}, segs1, width1)
 
     return layer_info
+
+
+def _extract_segments(route) -> list[tuple[float, float, float, float, str]]:
+    """Extract same-layer segments ``(x1, y1, x2, y2, layer)`` from a route.
+
+    Shared by the pure-Python implementation and the Rust-backend adapter
+    (:func:`_route_to_rust_tuple`) so both paths see identical geometry.
+    """
+    segs = []
+    path = route.path
+    if hasattr(path, "segments"):  # RoutePath3D
+        for i in range(len(path.segments) - 1):
+            p1, p2 = path.segments[i], path.segments[i + 1]
+            if p1[2] == p2[2]:  # Same layer segment
+                x1, y1, x2, y2 = p1[0], p1[1], p2[0], p2[1]
+                if all(math.isfinite(v) for v in (x1, y1, x2, y2)):
+                    segs.append((x1, y1, x2, y2, p1[2]))
+    elif hasattr(path, "coordinates"):  # RoutePath
+        layer = getattr(path, "layer_name", "F.Cu")
+        for i in range(len(path.coordinates) - 1):
+            p1, p2 = path.coordinates[i], path.coordinates[i + 1]
+            x1, y1, x2, y2 = p1[0], p1[1], p2[0], p2[1]
+            if all(math.isfinite(v) for v in (x1, y1, x2, y2)):
+                segs.append((x1, y1, x2, y2, layer))
+    return segs
+
+
+def _extract_via_points(route) -> list[tuple[float, float, str, str]]:
+    """Extract cross-layer via points ``(x, y, from_layer, to_layer)`` from
+    a route's path (``RoutePath3D`` layer-changing segments only).
+
+    Shared by the pure-Python implementation and the Rust-backend adapter.
+    Deliberately has no finite-value guard, matching the original Python
+    behavior exactly (NaN/inf via coordinates propagate rather than being
+    filtered here).
+    """
+    points = []
+    path = route.path
+    if hasattr(path, "segments"):
+        for i in range(len(path.segments) - 1):
+            p1, p2 = path.segments[i], path.segments[i + 1]
+            if p1[2] != p2[2]:  # Layer change = via
+                points.append((p1[0], p1[1], p1[2], p2[2]))
+    return points
 
 
 def _calculate_minimum_clearance(

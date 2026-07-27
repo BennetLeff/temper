@@ -121,6 +121,7 @@ def route_pcb(
     enable_all_pad_tree: bool = False,
     enable_zone_pours: bool = True,
     enable_connectivity_verifier: bool = False,
+    enable_manufacturing_drc: bool = False,
 ) -> RoutingResult:
     """Route a PCB using the Router V6 pipeline.
 
@@ -143,6 +144,14 @@ def route_pcb(
             are enabled by default for multi-layer power/ground routing.
         enable_connectivity_verifier: Run post-write connectivity
             preflight via verify_net_connectivity (default False).
+        enable_manufacturing_drc: Run the Stage 5 manufacturing DRC
+            checks (acid_trap, annular_ring, teardrop, thermal_relief,
+            power_planes, copper_balance, creepage, clearance) and attach
+            a ManufacturingReport to the result. Reporting-only; never
+            raises. Default False -- verify_clearance is O(n^2) pure
+            Python and does not complete on a routed board (27 min,
+            9.2 GB, unfinished). See
+            docs/evidence/2026-07-26-manufacturing-drc-scalability.md.
 
     Returns:
         RoutingResult with completion_rate, routed_pcb_content, and
@@ -204,6 +213,32 @@ def route_pcb(
         enable_all_pad_tree=enable_all_pad_tree,
         enable_zone_pours=enable_zone_pours,
         enable_connectivity_verifier=enable_connectivity_verifier,
+        # Manufacturing DRC (acid_trap, annular_ring, teardrop,
+        # thermal_relief, power_planes, copper_balance, creepage,
+        # clearance). This never ran during production routing before
+        # 2026-07-25 -- it defaulted to False and nothing set it. See
+        # docs/evidence/2026-07-25-manufacturing-drc-crash-swallow.md.
+        #
+        # Reporting-only: dfm_fail_on="none" attaches the
+        # ManufacturingReport to the result without raising or changing
+        # routing behaviour.
+        #
+        # DEFAULT IS OFF because the stage does not currently complete on
+        # a real board. Enabling it on the temper board (149 footprints,
+        # ~3,265 emitted segments, 98 zones) ran 27 minutes at 98% CPU and
+        # 9.2 GB RSS without finishing. A stack sample showed pure-Python
+        # interpreter work -- float/tuple allocation and division, no
+        # numpy or Rust -- i.e. an O(n^2) pairwise geometry loop in
+        # verify_clearance. It was never discovered because the stage had
+        # never executed. See
+        # docs/evidence/2026-07-26-manufacturing-drc-scalability.md.
+        #
+        # Turning it on by default made every route unusable, which is a
+        # worse failure than the check being off. It stays off, but is now
+        # switchable and documented rather than silently dead. Restore the
+        # default to True once verify_clearance scales.
+        enable_manufacturing_drc=enable_manufacturing_drc,
+        dfm_fail_on="none",
     )
 
     # Resolve the net->class-name mapping from the caller's design_rules.
@@ -830,6 +865,8 @@ def _build_routing_result(
     # Each CompiledRoute.path is the original RoutePath/RoutePath3D which
     # carries forced_segment_count.  (The routed_paths dict lives on
     # PathfindingResult, replaced by compile_routing_results() in Stage 4.)
+    # Always empty as of docs/plans/2026-07-24-001-fix-forced-segment-fail-closed-plan.md:
+    # no net class produces forced_segment_count > 0 anymore.
     forced_segment_nets: list[str] = []
     compiled = getattr(routing_results, "compiled_routes", None)
     if compiled:

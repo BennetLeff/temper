@@ -55,9 +55,13 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 
 
-def _ensure_field_diverges(
+def _ensure_field_diverges(  # noqa: ARG001
     board: Any,
-    _netlist: Any,
+    # Keyword API — the caller passes `netlist=`. Do NOT re-prefix with an
+    # underscore; a ruff ARG001 autofix did, and the call raised TypeError.
+    # Currently accepted and ignored. See
+    # docs/evidence/2026-07-26-api-signature-drift-gate.md.
+    netlist: Any,
     fdm_config: Any,
     devices: dict[str, tuple[float, float]],
     power_map: dict[str, float],

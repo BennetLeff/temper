@@ -1,8 +1,10 @@
 ---
 type: feat
 origin: docs/brainstorms/2026-06-23-ghost-pad-injection-requirements.md
-status: active
+status: completed
 date: 2026-06-23
+swept: 2026-07-25
+swept_basis: "8/8 named paths exist"
 ---
 
 # Plan: Ghost-Pad Injection for HV Creepage

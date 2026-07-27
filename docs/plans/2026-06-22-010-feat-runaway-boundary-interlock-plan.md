@@ -1,9 +1,11 @@
 ---
 title: "feat: Add Runaway-Boundary Interlock to State Machine"
 type: feat
-status: active
+status: completed
 date: 2026-06-22
 origin: docs/ideation/2026-06-22-design-validation-ideation.md
+swept: 2026-07-25
+swept_basis: "15/15 named paths exist"
 ---
 
 # feat: Add Runaway-Boundary Interlock to State Machine

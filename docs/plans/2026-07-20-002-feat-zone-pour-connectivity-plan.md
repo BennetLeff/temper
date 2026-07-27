@@ -1,9 +1,11 @@
 ---
 title: "Zone/Pour Connectivity for Power/Ground/HV Nets (R10 follow-on)"
 type: feat
-status: active
+status: completed
 date: 2026-07-20
 origin: docs/brainstorms/2026-07-20-router-tree-executor-resilience-and-zone-policy-requirements.md
+swept: 2026-07-25
+swept_basis: "referenced in git history; 4/4 paths exist"
 ---
 
 # Zone/Pour Connectivity for Power/Ground/HV Nets

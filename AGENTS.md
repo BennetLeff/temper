@@ -157,6 +157,40 @@ verification pattern.
 
 ## Session Lifecycle
 
+### Base-Commit Assertion (Session Start — do this first)
+
+Before measuring, building, or concluding anything, confirm you are actually
+on the commit/branch you were told to work from:
+
+```bash
+scripts/assert-base.sh <expected-ref>
+```
+
+`<expected-ref>` is whatever you were dispatched against (a branch name, a
+SHA, `origin/main`, ...). Exit 0 means you match; exit 1 means you don't
+(it prints both SHAs and how far apart they are — the fix is almost always
+`git rebase <expected-ref>`, not a force-checkout); exit 2 means the ref
+itself doesn't resolve (typo, or you need to `git fetch` first).
+
+This exists because it kept not happening: four confirmed cases in one day
+of an agent measuring in a stale worktree and reporting the result as
+current state — a "broken" crate that builds fine one commit later, a
+fault-tree survey that was correct for a tree that no longer exists, two
+agents that started work from commits several patches behind the branch tip
+they thought they were on. See `docs/METHODOLOGY.md` Sec 5 ("a measurement
+carries the commit it was taken at, or it is not a measurement") and
+`docs/evidence/2026-07-26-measurement-provenance.md`. Every dispatch that
+names a base commit or branch should have the receiving agent run this
+before doing anything else.
+
+Note the check is exact-match, not ancestry: once you've legitimately
+rebased onto `<expected-ref>` and made your own commits on top, HEAD no
+longer equals it and a re-run correctly reports FAIL (you're ahead, not
+on it anymore) -- that's expected, not a bug. Re-run the assertion mid-session
+only if you suspect the *base* moved out from under you (e.g. a long-running
+session on a shared branch); if it fails with HEAD *behind* the expected
+ref, rebase before trusting anything you measured after that point.
+
 ### Issue Tracking & Management
 
 *   **Granularity is Critical**: Bias towards small, iterative tasks.
@@ -198,8 +232,6 @@ protocol before stopping:
 *   **No "Ready when you are"**: You must push your changes (`git push`).
 *   **Sandboxing**: Recommend enabling sandboxing for shell execution.
 *   **Context**: Read `AGENTS.md` for deep dives into specific subsystems.
-
-<!-- BEGIN:CLAUDE -->
 
 ## NetClassRules Fields (N4 — Single Source of Truth)
 
@@ -284,8 +316,9 @@ permanently excluded via `[tool.coverage.run] omit`.
 
 - `temper_placer/_constraint_types/` — generated constraint type stubs.
 - `temper_placer/profiling/` — production diagnostics, wall-clock instrumentation.
-These are excluded via `omit = ["**/_constraint_types/**", "**/profiling/**"]`
-in `[tool.coverage.run]` and via `--cov-config=../../pyproject.toml` in CI.
+These are excluded via `omit = ["*/_constraint_types/*", "*/profiling/*"]`
+in `[tool.coverage.run]` (root `pyproject.toml`) and via
+`--cov-config=../../pyproject.toml` in CI.
 
 ### Allowlist Format (`.coverage-allowlist`)
 
@@ -308,18 +341,6 @@ temper_placer/core/<module>.py::function_or_Class.method  # TODO: temper-xxx
   tickets are required for subsequent additions.
 - This ensures the allowlist shrinks over time — it is not a backdoor for
   ignoring uncovered code.
-
-### `--init` Workflow (for new phases)
-
-When expanding scope to new modules:
-1. Add the new module paths to `source` in `[tool.coverage.run]` in
-   `packages/temper-placer/pyproject.toml`.
-2. Run `uv run pytest ... --cov=<new.scope> --cov-report=json` to generate
-   `coverage.json`.
-3. Run `python scripts/check_coverage_gate.py --init --coverage-json
-   /path/to/coverage.json --allowlist .coverage-allowlist`.
-4. Commit the populated allowlist. Replace `# TODO: temper-xxx` placeholders
-   with real ticket IDs.
 
 ### Paydown Cadence
 
@@ -344,10 +365,6 @@ There is no env-var override to skip the gate. The allowlist **is** the recorded
 justification — a reviewer sees allowlist additions/removals in `git diff`. To
 skip the gate temporarily in an emergency, the CI step configuration
 (`python-tests.yml`) can be modified directly.
-
-<!-- END:CLAUDE -->
-
-<!-- BEGIN:GEMINI -->
 
 ## General Coding Principles
 
@@ -392,5 +409,3 @@ skip the gate temporarily in an emergency, the CI step configuration
     *   **Unity Framework**: Used for both unit (host-based) and integration
       tests.
     *   **Run Tests**: `cd firmware/test/build && make && ctest`.
-
-<!-- END:GEMINI -->

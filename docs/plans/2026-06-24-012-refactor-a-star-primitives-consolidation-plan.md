@@ -4,6 +4,8 @@ plan_id: 012
 topic: a-star-primitives-consolidation
 req_doc: docs/brainstorms/2026-06-24-a-star-primitives-consolidation-requirements.md
 status: completed
+swept: 2026-07-25
+swept_basis: "already declared"
 ---
 
 # A* Primitives Consolidation Plan (Doc 4 of 4)

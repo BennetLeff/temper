@@ -3,6 +3,8 @@ title: "feat: CI Profiling Regression Platform — Time-Series Storage, Dashboar
 type: feat
 status: completed
 date: 2026-06-28
+swept: 2026-07-25
+swept_basis: "already declared"
 ---
 
 # feat: CI Profiling Regression Platform

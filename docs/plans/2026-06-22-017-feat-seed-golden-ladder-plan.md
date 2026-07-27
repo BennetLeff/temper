@@ -1,11 +1,13 @@
 ---
 title: "feat: Seed Golden Ladder — 32 Stage 2 Micro-Stage Fixtures"
 type: feat
-status: active
+status: stale
 date: 2026-06-22
 origin: docs/ideation/2026-06-22-test-and-build-next-ideation.md
 depends_on:
   - docs/plans/2026-06-22-009-feat-golden-fixture-ladder-plan.md
+swept: 2026-07-25
+swept_basis: "insufficient evidence - needs human triage"
 ---
 
 # feat: Seed Golden Ladder — 32 Stage 2 Micro-Stage Fixtures

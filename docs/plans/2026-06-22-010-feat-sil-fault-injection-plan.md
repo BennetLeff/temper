@@ -1,9 +1,11 @@
 ---
 title: "SIL Fault Injection Testing for Firmware Test Suite"
 type: feat
-status: active
+status: completed
 date: 2026-06-22
 origin: docs/ideation/2026-06-22-design-validation-ideation.md
+swept: 2026-07-25
+swept_basis: "8/8 named paths exist"
 ---
 
 # Plan: SIL Fault Injection Testing for Firmware Test Suite

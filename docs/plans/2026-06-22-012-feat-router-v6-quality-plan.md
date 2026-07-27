@@ -2,7 +2,9 @@
 date: 2026-06-22
 type: feat
 origin: docs/ideation/2026-06-22-router-v6-quality-ideation.md
-status: active
+status: completed
+swept: 2026-07-25
+swept_basis: "5/6 named paths exist"
 ---
 
 # Plan: Router V6 Completion Rate Improvements

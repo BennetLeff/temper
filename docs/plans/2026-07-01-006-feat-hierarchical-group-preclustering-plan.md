@@ -1,9 +1,11 @@
 ---
 title: "Hierarchical Group-Centroid Pre-Clustering for Placement Initialization"
 date: 2026-07-01
-status: active
+status: abandoned
 depth: deep
 source: docs/brainstorms/2026-07-01-hierarchical-group-preclustering-requirements.md
+swept: 2026-07-25
+swept_basis: "only 0/11 named paths exist"
 ---
 
 ## Summary

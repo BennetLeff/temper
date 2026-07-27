@@ -8,6 +8,8 @@ depends_on:
   - docs/plans/2026-06-28-010-feat-ci-profiling-regression-platform-plan.md  (completed; provides PipelineMetricsRecord contract and profiling harness)
   - docs/plans/2026-06-22-015-feat-pipeline-profiling-validation-toolkit-plan.md  (UnifiedPipelineProfiler, ProfileReport)
   - docs/plans/2026-06-22-009-feat-golden-fixture-ladder-plan.md                   (Pattern: manifest + CLI + CI gate)
+swept: 2026-07-25
+swept_basis: "already declared"
 ---
 
 # feat: Per-Stage Timing Regression Gate

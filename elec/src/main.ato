@@ -88,11 +88,23 @@ module Top:
     assert eta_min >= 0.85  # Minimum efficiency target
     
     # --- Power Rails ---
-    signal gnd          # System ground
+    signal gnd          # SELV control-domain ground. Floated from
+    # power_return (the HV domain's internal reference) and DC-bonded to
+    # protective earth instead -- see the GROUND ARCHITECTURE block below
+    # and docs/hardware/SELV_ISOLATION_REDESIGN.md.
     # The shared ground is named by the generated netlist; assigning an
     # override here conflicts with nested ElectricPower reference nets.
-    signal dc_bus_plus  # +340V
-    dc_bus_plus.override_net_name = "+340V_BUS"
+    signal pe            # Protective earth, from the external AC connector
+    signal dc_bus_plus  # +170V half-bus (positive rail of the Delon/cascade
+    # voltage doubler in PowerInput), referenced to power_return -- the
+    # doubler MIDPOINT -- not to dc_bus_minus. dc_bus_plus - dc_bus_minus
+    # spans the full 340V bus; this node ALONE is +170V nominal, not 340V.
+    # This net used to be named "+340V_BUS" with a "+340V" comment here;
+    # that was wrong (dc_bus_plus cannot reach 340V) and had already caused
+    # OVP-01's reference divider to be tuned for a voltage this node can
+    # never reach in at least one revision of this design -- see
+    # OVPComparator's docstring and docs/hardware/SELV_ISOLATION_REDESIGN.md.
+    dc_bus_plus.override_net_name = "+170V_BUS"
     signal dc_bus_minus # Ground reference for DC bus
     dc_bus_minus.override_net_name = "DC_BUS_RTN"
     signal vcc_15v      # Gate driver supply
@@ -181,13 +193,29 @@ module Top:
     # Critical for IEC 60335-1 compliance
     # ===========================================================================
     
-    # OCP must trip before IGBT SOA limit
-    # IGBT rated 40A continuous, SOA allows 60A pulsed
-    # OCP trips at ~37.6A (per OCPComparator)
-    i_ocp_trip: current = 37.6A
+    # OCP must trip before IGBT SOA limit.
+    # IGBT rated 40A continuous, SOA allows 60A pulsed.
+    #
+    # OCP-01 is specified as a PEAK threshold (FUNCTIONAL_TEST_CRITERIA §2.1
+    # gives "50A Peak"), and there is no rectifier in the sense path, so the
+    # comparator trips on instantaneous tank current. Both quantities are
+    # carried here because the two limits they must clear are in different
+    # bases: the SOA pulsed limit is a peak rating, the 40A device rating is
+    # continuous.
+    #
+    # The previous form asserted a 37.6A trip against BOTH limits. That value
+    # was stale after the burden was corrected to 4.99R, and comparing a peak
+    # trip against a continuous rating was the wrong comparison regardless --
+    # at the true 50.1A peak it would fail 50.1 < 40 while the design is
+    # actually sound, because 50.1A peak is 35.4A RMS.
+    i_ocp_trip_peak: current = 50.1A          # 2.500V / 4.99R * 100
+    i_ocp_trip_rms: current = 35.4A           # peak / sqrt(2), sinusoidal tank
     i_igbt_soa_limit: current = 60A
-    assert i_ocp_trip < i_igbt_soa_limit
-    assert i_ocp_trip < hb.power_loop.q_high.current_rating
+
+    # Peak trip must clear the pulsed SOA limit.
+    assert i_ocp_trip_peak < i_igbt_soa_limit
+    # RMS-equivalent trip must clear the continuous device rating.
+    assert i_ocp_trip_rms < hb.power_loop.q_high.current_rating
     
     # OVP must trip before bus capacitor ratings exceeded
     # Bus caps rated 250V each, in series = 500V total
@@ -248,6 +276,8 @@ module Top:
     power_in.gnd ~ gnd  # PowerInput relay control return (SELV side)
     power_in.power_15v.vcc ~ vcc_15v
     # power_in already ties power_15v.gnd ~ gnd internally; redundant
+    power_in.vcc_3v3 ~ vcc_3v3  # SELV supply for the isolated ZCD opto output
+    power_in.pe ~ pe  # Protective earth, from the external AC connector
     
     # Auxiliary supply: 170VDC half-bus -> isolated 15V SELV rail
     # Replaces the floating power_mgmt.power_in_hv (P0-3)
@@ -266,27 +296,72 @@ module Top:
     # inside PowerManagement; connect the shared ground once.
     
     # ===========================================================================
-    # GROUND ARCHITECTURE — Single-Point Star Ground Join
+    # GROUND ARCHITECTURE — Floated SELV domain, PE-bonded (2026-07-26)
     #
-    # The SELV logic/signal ground (gnd) and the high-current power return
-    # (power_return, connected to the doubler midpoint) are joined at exactly
-    # ONE location near the doubler capacitors. This provides a common voltage
-    # reference while preventing power-stage current (25A tank return, gate
-    # driver transients) from flowing through the signal ground net.
+    # REMOVED: the star join (`power_return ~ gnd`) that used to sit here.
+    # That join made the AuxSupply transformer's SELV output ground (gnd) the
+    # SAME NET as power_return -- the doubler midpoint, which tracks AC
+    # Neutral through the common-mode choke (modules.ato: ac_n ~ cmc.W2_1 ~
+    # dc_bus.gnd_ref). It shorted the IRM-10-15's 4.2kVAC isolation barrier
+    # across, and is documented in full in
+    # docs/hardware/IEC60335_CRITICAL_COMPONENTS.md and the "isolation
+    # barrier is shorted" entry in docs/STRATEGY.md. See
+    # docs/hardware/SELV_ISOLATION_REDESIGN.md for the complete fix,
+    # including the exhaustive crossing survey this join's removal required.
     #
-    # With Option A (isolated SELV control domain, plan 003), the auxiliary
-    # supply transformer provides galvanic isolation between the HV power
-    # domain and the SELV control domain. The star-point join is the sole
-    # DC reference path; all other domain crossings use isolated interfaces
-    # (UCC21550 gate drivers).
+    # gnd is now referenced instead by bonding it DIRECTLY to protective
+    # earth (pe), which already exists at the AC input connector and already
+    # has a bond point on the power_return side (the Y1 capacitor,
+    # modules.ato: dc_bus.gnd_ref ~ y_cap_pe ~ pe). Rationale:
+    #   - A floating, unreferenced SELV domain is not safe either -- it
+    #     capacitively couples to nearby HV nodes and drifts with EMI. A
+    #     solid DC bond to a real, low-impedance reference (PE/chassis) is
+    #     the standard answer for a Class I appliance (has PE) with an
+    #     internal SELV domain, and it means a single HV->SELV insulation
+    #     fault has a low-impedance path to trip branch overcurrent
+    #     protection, rather than energizing an ungrounded domain that
+    #     includes the user-touchable RTD probe.
+    #   - This does NOT reintroduce the shorted-barrier problem: the Y1 cap
+    #     bond (power_return -> PE) stays exactly as it was, a 2.2nF
+    #     high-impedance AC/EMI-only path, doing its original common-mode
+    #     job undisturbed. The new gnd -> PE bond is a separate, direct
+    #     (0 ohm) DC path that never touches power_return. power_return and
+    #     gnd remain two different nets, coupled only through whatever
+    #     impedance exists from PE, through the Y-cap, back to power_return
+    #     -- i.e. still isolated at DC, unlike before.
+    #   - EMC: referencing the low-power digital domain to PE/chassis
+    #     (rather than to the internally-generated, AC-N-tracking
+    #     power_return) is the more common, generally quieter choice.
+    #     LAYOUT REQUIREMENT (UNVERIFIED at the schematic level -- this is a
+    #     PCB-layout concern, not a netlist one): the gnd->PE bond and the
+    #     Y-cap's power_return->PE bond should land at the same physical PE
+    #     stud/point near the AC inlet to keep the loop area between them
+    #     small; this schematic cannot enforce that.
     # ===========================================================================
-    power_return ~ gnd  # Single-star-point ground join near doubler caps
-    
+    gnd ~ pe  # SELV ground reference: bonded to protective earth, NOT to power_return
+
     # ===========================================================================
     # HALF-BRIDGE CONNECTIONS
     # ===========================================================================
     
     hb.dc_bus.hv_plus ~ dc_bus_plus
+    # OCP-02 IS NOT WIRED IN. The shunt splice that belongs here is removed
+    # deliberately -- as designed it would destroy the sense amplifier.
+    #
+    # docs/hardware/OCP02_DESIGN.md claimed a low-side shunt in DC_BUS_RTN
+    # keeps the INA240's common mode near ground. That is wrong. This is a
+    # voltage-doubler topology: `power_return` IS the doubler midpoint
+    # (main.ato:247) and IS signal ground (main.ato:283), so DC_BUS_RTN sits
+    # at roughly -170 V with respect to it. The INA240's common-mode range is
+    # -4 V to +80 V, so the part would see ~170 V of common mode -- far
+    # outside its absolute maximum.
+    #
+    # SecondaryOCPComparator remains defined in modules.ato with the
+    # verified INA240 pinout, ready to wire once the sensing domain is
+    # resolved. The options are a shunt at the doubler midpoint (common mode
+    # ~0 V, but that is the tank return, which erodes OCP-02's independence
+    # from OCP-01), an isolated amplifier (AMC1300 / ACPL-C79A class), or a
+    # high-common-mode part. That is a topology decision, not a value change.
     hb.dc_bus.hv_minus ~ dc_bus_minus
     hb.power_15v.vcc ~ vcc_15v
     hb.power_15v.gnd ~ gnd
@@ -419,9 +494,12 @@ module Top:
     mcu.discharge_ctrl.line ~ discharge.ctrl
     mcu.discharge_ctrl.line.override_net_name = "DISCHARGE_CTRL"
     
-    # Zero-crossing detection for soft-start timing
-    power_in.zcd ~ mcu.zcd_in.line
-    power_in.zcd.override_net_name = "ZCD"
+    # Zero-crossing detection for soft-start timing. Isolated via an H11L1
+    # optocoupler inside PowerInput (2026-07-26, SELV isolation redesign) --
+    # power_in.zcd (HV side, raw divider node) no longer leaves the module;
+    # power_in.zcd_out is the SELV-side, galvanically isolated signal.
+    power_in.zcd_out.line ~ mcu.zcd_in.line
+    power_in.zcd_out.line.override_net_name = "ZCD_ISO"
     
     # USB connections
     mcu.usb_dn ~ usb_dn

@@ -29,7 +29,6 @@ exclude = ["packages/temper-geometry-core", "packages/temper-dsn-core", "package
 [tool.uv.sources]
 temper-placer = { workspace = true }
 temper-workflow = { workspace = true }
-temper-autoprof = { workspace = true }
 temper-drc-rs = { workspace = true }
 temper-geometry = { workspace = true }
 temper-dsn = { workspace = true }
@@ -41,13 +40,11 @@ temper-design-bundle = { workspace = true }
 testpaths = [
     "packages/temper-placer/tests",
     "packages/temper-workflow/tests",
-    "packages/temper-autoprof/tests",
     "elec/validation"
 ]
 pythonpath = [
     "packages/temper-placer/src",
     "packages/temper-workflow/src",
-    "packages/temper-autoprof/src",
     "elec/validation"
 ]
 addopts = ["-v", "--tb=short"]

@@ -17,10 +17,16 @@ real-time power control and hardware-latched protection circuits; a **KiCad
 PCB design** optimized through a custom CP-SAT-based signal-integrity and
 thermal-aware placer pipeline; and a **Python/Rust placer toolchain**
 (CP-SAT solver, geometry/DRC/DSN/IPC crates, workflow DAG) that automates layout
-and checks placement against IPC standards. All safety gates —
-over-current, over-voltage, thermal shutdown, UVLO — are hardware-latched
-with firmware monitoring. See [docs/STRATEGY.md](docs/STRATEGY.md) for the
-full safety and performance gate matrix.
+and checks placement against IPC standards. Protection — over-current,
+over-voltage, thermal shutdown, UVLO — is *designed* to be hardware-latched with
+firmware monitoring.
+
+> **Implementation status is deliberately not summarized here.** As of this
+> writing not all protection gates are implemented, and none has been validated
+> on hardware. [`docs/STRATEGY.md`](docs/STRATEGY.md) holds the measured state
+> and the gate matrix; it churns by design, and this file does not restate it.
+> An earlier version of this paragraph asserted that all safety gates were
+> hardware-latched and monitored, which was not true when written.
 
 ```mermaid
 graph TD
@@ -105,13 +111,58 @@ For contributors working on architecture, verification, or toolchain internals:
 
 ## Project Structure
 
-| Directory | Description |
-|-----------|-------------|
-| `firmware/` | ESP32-S3 induction cooker firmware (C, 8-state machine) |
-| `packages/temper-placer/` | CP-SAT PCB placement optimizer with Rust geometry/DRC crates |
-| `packages/temper-*-rs`, `packages/temper-*-core` | Rust PyO3 crates (geometry, DRC, DSN, IPC, router, quality oracle, PCL-IR) |
-| `packages/temper-*` | Supporting Python packages (workflow, testing, validation) |
-| `elec/` | Atopile electrical schematics and constraints |
-| `docs/` | Plans, solutions, architecture, specs |
-| `scripts/` | CI gates, profiling, regression tools |
-| `.github/` | Workflows, templates, code owners |
+<!-- BEGIN GENERATED: repo-map -- edits here are overwritten by scripts/gen_repo_state.py -->
+
+*All 18 tracked top-level directories. Generated -- a new directory without a description fails CI.*
+
+| Directory | Purpose |
+|---|---|
+| `.github/` | CI workflows, issue templates, code owners |
+| `benchmarks/` | CP-SAT benchmark harness and external board corpora manifests |
+| `components/` | Local KiCad symbol/footprint libraries, one directory per part |
+| `configs/` | Named placer configurations (deterministic, production) |
+| `dashboard/` | Static HTML/JS dashboard for placer metrics |
+| `datasheets/` | Vendor PDFs for parts used in the design |
+| `docs/` | Plans, brainstorms, solutions, evidence, specs, and strategy |
+| `elec/` | Atopile electrical source -- the schematic's source of truth |
+| `firmware/` | ESP32-S3 firmware (C), 8-state machine and protection monitoring |
+| `max31865/` | KiCad library for the MAX31865 RTD front-end (predates components/) |
+| `metrics/` | Recorded routing/placement metric snapshots (JSON) |
+| `output_gerbers/` | Exported Gerber/drill artifacts from a past routed revision |
+| `packages/` | Python and Rust workspace members -- placer, DRC, geometry, router |
+| `pcb/` | KiCad project: schematics, board, and project settings |
+| `power_pcb_dataset/` | Regression corpus, baselines, and DRC ceilings |
+| `scripts/` | CI gates, generators, and one-off analysis tooling |
+| `simulation/` | ngspice models and protection-gate simulation harnesses |
+| `tools/` | Developer utilities not wired into CI gates |
+
+<!-- END GENERATED: repo-map -->
+
+## Inventory
+
+<!-- BEGIN GENERATED: inventory -- edits here are overwritten by scripts/gen_repo_state.py -->
+
+**18 workspace packages** under `packages/`:
+
+- `temper-constraint-compiler`
+- `temper-design-bundle`
+- `temper-drc-rs`
+- `temper-dsn`
+- `temper-dsn-core`
+- `temper-geometry`
+- `temper-geometry-core`
+- `temper-io-types`
+- `temper-ipc`
+- `temper-ipc-core`
+- `temper-pcl-ir`
+- `temper-placer`
+- `temper-py-bridge`
+- `temper-py-bridge-derive`
+- `temper-quality-oracle`
+- `temper-rust-router`
+- `temper-rust-router-core`
+- `temper-workflow`
+
+Sizes and dependency edges are in [`ARCHITECTURE.svg`](./ARCHITECTURE.svg), regenerated automatically on push.
+
+<!-- END GENERATED: inventory -->

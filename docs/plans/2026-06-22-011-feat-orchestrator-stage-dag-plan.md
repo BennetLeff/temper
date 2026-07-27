@@ -3,7 +3,9 @@ date: 2026-06-22
 plan_id: 011-feat-orchestrator-stage-dag
 title: PipelineOrchestrator → Declarative Stage DAG + Feedback Contracts
 origin: docs/brainstorms/2026-06-22-orchestrator-stage-dag-requirements.md
-status: planned
+status: stale
+swept: 2026-07-25
+swept_basis: "insufficient evidence - needs human triage"
 ---
 
 # Implementation Plan: Orchestrator Stage DAG

@@ -2,7 +2,9 @@
 date: 2026-06-22
 type: feat
 origin: docs/ideation/2026-06-22-test-and-build-next-ideation.md
-status: active
+status: stale
+swept: 2026-07-25
+swept_basis: "insufficient evidence - needs human triage"
 ---
 
 # Plan: Pipeline Quality Metrics Time-Series & Trend Detection

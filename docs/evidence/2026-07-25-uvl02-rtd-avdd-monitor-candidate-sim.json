@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "measurement_date": "2026-07-25",
+  "invocation": "uv run python simulation/harness/run_uvl02_sim.py --runs 5",
+  "harness": "simulation/harness/run_uvl02_sim.py",
+  "netlist": "simulation/harness/nets/uvl02_rtd_avdd_monitor_trip_point.cir",
+  "gate_scope_caveat": "This measures a CANDIDATE circuit (RTDSensing.rail_monitor / TPS3700), not a source-confirmed implementation of UVL-02. See this script's module docstring for the two candidates found and why neither is unambiguous. The literal whole-board logic-supply supervisor is TPS3823-33 (Watchdog module), which has no SPICE model and a fixed silicon threshold -- reported UNMEASURED, not simulated here.",
+  "simulator": {
+    "tool": "ngspice",
+    "determinism_runs": 5,
+    "deterministic": true,
+    "note": "5 identical byte-for-byte stdout runs; see docs/METHODOLOGY.md SS5 'the oracle is not exempt'."
+  },
+  "models_used": [
+    {
+      "file": "simulation/models/TPS3700_ngspice.lib",
+      "subckt": "TPS3700_NGSPICE",
+      "calibrated": false,
+      "note": "VIT_A=394.5mV is the model's own header default, sourced from TI's TPS3700 PSpice transient model (SBVM552B) and datasheet -- not read from elec/, since TPS3700 has no external threshold-setting pins."
+    }
+  ],
+  "sourced_from_elec_read_only": {
+    "power_3v3_v": 3.3,
+    "r_fb_ohm": 120,
+    "r_avdd_top_ohm": 616000,
+    "r_avdd_bot_ohm": 100000,
+    "r_pullup_ohm": 10000,
+    "citation": "elec/src/modules.ato: RTDSensing (rail_monitor, fb_power, r_avdd_top, r_avdd_bottom, r_rail_ok_pullup)"
+  },
+  "measurements": {
+    "t_trip_s": 4.746961e-05,
+    "v_ina_p_at_trip_v": 0.3945294,
+    "v_vcc_at_trip_v": 2.825304,
+    "v_avdd_post_fb_at_trip_v": 2.82483
+  },
+  "derived": {
+    "v_vcc_trip_from_ramp_time_v": 2.8253038999999998,
+    "v_vcc_trip_from_node_voltage_v": 2.825304,
+    "ferrite_bead_drop_at_trip_v": 0.00047400000000008546
+  },
+  "internal_consistency_check_v": 1.0000000028043132e-07,
+  "unmeasured_candidate": {
+    "circuit": "TPS3823-33 (Watchdog module, elec/src/modules.ato)",
+    "reason_unmeasured": "No SPICE model exists in simulation/models/ for TPS3823. Its VDD-brownout threshold (2.93V typical, per docs/hardware/SAFETY_INTERLOCK_DESIGN.md, itself citing the TI datasheet secondhand) is a fixed silicon parameter set by the '-33' part suffix, not a resistor divider read from elec/ -- there is no board-level circuit topology to build a .cir against.",
+    "measured": false
+  },
+  "verdict": {
+    "calibrated": false,
+    "measured_trip_v_vcc_v": 2.8253,
+    "hand_derived_trip_v_vcc_v": 2.825,
+    "hand_sim_agreement_v": 0.0003,
+    "uvl02_spec_trip_ceiling_v": 2.9,
+    "uvl02_spec_recover_floor_v": 3.0,
+    "candidate_below_uvl02_trip_ceiling": true,
+    "gate_confirmed_as_uvl02": false,
+    "summary": "The TPS3700 rail_monitor CANDIDATE circuit trips at V(power_3v3)=2.825 V (uncalibrated), matching the hand-derived 2.825 V to within 0.0003 V. That number sits BELOW the UVL-02 spec's 2.9V trip ceiling, i.e. on the conservative side: IF this circuit were confirmed as UVL-02, it would trip at 2.825V, before the rail falls all the way to the 2.9V line the spec treats as the last safe point -- earlier/more conservative than the spec requires, not a failure to trip in time. But this circuit monitors RTD_AVDD, a downstream RTD-subsystem rail, per its own component docstring -- it is not source-confirmed as the general 'Logic (3.3V) UVLO' gate. The more literal candidate (TPS3823-33 whole-board VDD supervisor, 2.93V typical) is UNMEASURED: no SPICE model exists for it."
+  }
+}

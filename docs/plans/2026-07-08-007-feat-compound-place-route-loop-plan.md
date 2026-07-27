@@ -2,8 +2,10 @@
 type: feat
 origin: docs/brainstorms/2026-07-08-compound-place-route-loop-requirements.md
 contract: docs/brainstorms/2026-07-08-gate-contract.md
-status: active
+status: abandoned
 depth: deep
+swept: 2026-07-25
+swept_basis: "only 0/16 named paths exist"
 ---
 # feat: The Compound Place→Route Loop — All Gates, Unattended Convergence (W5)
 

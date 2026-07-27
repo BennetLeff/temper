@@ -1,9 +1,11 @@
 ---
 title: "feat: Decompose Router God-Objects and Firmware State Machine (N6 U5-U8)"
 type: feat
-status: active
+status: stale
 date: 2026-06-22
 origin: docs/plans/2026-06-22-006-feat-cli-zoning-loc-cap-plan.md
+swept: 2026-07-25
+swept_basis: "insufficient evidence - needs human triage"
 ---
 
 # feat: Decompose Router God-Objects and Firmware State Machine

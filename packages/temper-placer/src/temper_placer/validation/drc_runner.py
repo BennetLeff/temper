@@ -291,13 +291,13 @@ class CheckRunner:
         """Get all checks in a specific category."""
         return [c for c in self.checks if c.category == category]
 
-    def run(
+    def run(  # noqa: ARG002
         self,
         placement: _Placement,
         constraints: _ConstraintSet,
         categories: list[str] | None = None,
         check_names: list[str] | None = None,
-        _modified_regions: list[tuple[float, float, float, float]] | None = None,
+        modified_regions: list[tuple[float, float, float, float]] | None = None,
     ) -> _RunResult:
         """
         Run DRC checks via the Rust engine.
@@ -305,6 +305,20 @@ class CheckRunner:
         Converts ``Placement`` / ``ConstraintSet`` to dicts, calls
         ``temper_drc_rs.run_drc()``, and maps the returned violation dicts
         to Python ``CheckResult`` objects.
+
+        ``modified_regions`` is part of this method's keyword API —
+        ``drc_fence.py:222`` passes it by name. **Do not re-prefix it with an
+        underscore.** A ruff ARG002 autofix did exactly that, and every
+        ``DRCFence`` invocation raised ``TypeError`` as a result; see
+        ``docs/evidence/2026-07-26-api-signature-drift-gate.md``.
+
+        KNOWN GAP, deliberately not closed here: the parameter is **accepted
+        and ignored** — it appears nowhere else in this module. Callers pass
+        modified regions expecting incremental, region-scoped re-checking, and
+        get a full re-check instead. That is conservative rather than unsafe
+        (nothing goes unchecked), but the intended incremental speed-up is not
+        happening. Wiring it through to ``run_drc()`` is a behaviour change and
+        is scoped as a follow-up, not folded into a signature repair.
         """
         try:
             import temper_drc_rs  # type: ignore[import-untyped]

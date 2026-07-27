@@ -52,15 +52,22 @@ class ValidationGatesResult:
 
     @property
     def all_passed(self) -> bool:
-        return all(
-            g is None or g.passed
-            for g in [
-                self.placement_complete,
-                self.routing_complete,
-                self.production_ready,
-                self.validated,
-            ]
-        )
+        """True iff every gate slot was actually checked and passed.
+
+        A gate slot left ``None`` means it was never run, not that it
+        is exempt.  The previous ``g is None or g.passed`` treated an
+        unrun gate the same as a passed one, so a default-constructed
+        (all-``None``) report -- the archetypal "evaluated nothing"
+        case -- reported PASS (docs/METHODOLOGY.md §4/§5,
+        anti-vacuous-truth).  Fail closed instead: unrun is not passed.
+        """
+        gates = [
+            self.placement_complete,
+            self.routing_complete,
+            self.production_ready,
+            self.validated,
+        ]
+        return all(g is not None and g.passed for g in gates)
 
     def summary(self) -> str:
         lines = ["=== Validation Gates ==="]

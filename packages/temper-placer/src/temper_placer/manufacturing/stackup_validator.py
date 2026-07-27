@@ -52,6 +52,15 @@ class StackupValidationReport:
 
     @property
     def all_passed(self) -> bool:
+        """A report holding zero check results has verified nothing.
+
+        ``all()`` over an empty ``results`` list is vacuously True in
+        Python, which would report PASS for a report that never ran a
+        single stackup check (docs/METHODOLOGY.md §4/§5,
+        anti-vacuous-truth).  Fail closed instead.
+        """
+        if not self.results:
+            return False
         return all(r.passed for r in self.results)
 
     @property

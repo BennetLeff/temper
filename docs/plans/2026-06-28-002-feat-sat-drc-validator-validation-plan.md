@@ -1,10 +1,12 @@
 ---
 title: "SAT Solver + DRC Validator Correctness Validation"
 date: "2026-06-28"
-status: active
+status: completed
 depth: deep
 source: "docs/brainstorms/2026-06-28-sat-drc-validator-validation-requirements.md"
 origin: "docs/ideation/2026-06-28-router-v6-mathematical-rigor-ideation.md"
+swept: 2026-07-25
+swept_basis: "referenced in git history; 22/25 paths exist"
 ---
 
 ## Summary

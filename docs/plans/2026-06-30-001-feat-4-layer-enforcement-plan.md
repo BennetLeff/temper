@@ -1,8 +1,10 @@
 ---
 type: feat
 origin: docs/brainstorms/2026-06-30-4-layer-enforcement-requirements.md
-status: active
+status: completed
 date: 2026-06-30
+swept: 2026-07-25
+swept_basis: "referenced in git history; 11/16 paths exist"
 ---
 
 # 4-Layer Board Enforcement

@@ -1,92 +1,54 @@
 _meta:
   last_audit_date: '2026-06-24'
-  total_scripts: 30
+  total_scripts: 64
   counts:
-    keep: 27
+    keep: 63
+    ticket: 1
   ticket_scripts_deleted: 40
 scripts:
 - path: kicad_fill_zones.py
-  purpose: "Fill zones via KiCad's pcbnew API before DRC (kicad-cli lacks --refill-zones pre-CI's KiCad 8.0.9)"
+  purpose: Fill zones via KiCad's pcbnew API before DRC (kicad-cli lacks --refill-zones pre-CI's KiCad
+    8.0.9)
   owner: zone-pour-u3-measurement
-  last_run: "2026-07-21"
-  category: keep
-  disposition: utility
-    imports:
-      - sys
-      - sys
-    - sys
-    - pcbnew
-- path: literal_removal_check.py
-  purpose: "Advisory check: flags literals removed by a diff that are still referenced elsewhere in the repo"
-  owner: unassigned
-  last_run: "2026-07-20"
+  last_run: '2026-07-21'
   category: keep
   disposition: utility
   imports:
-    - argparse
-    - re
-    - subprocess
-    - sys
-    - pathlib
-- path: bench_coarse_to_fine.py
-  purpose: "A/B benchmark: compare baseline vs coarse-to-fine corridor routing on temper.kicad_pcb"
-  owner: router-v6-closure-rate
-  last_run: "2026-06-29"
+  - sys
+- path: literal_removal_check.py
+  purpose: 'Advisory check: flags literals removed by a diff that are still referenced elsewhere in the
+    repo'
+  owner: unassigned
+  last_run: '2026-07-20'
   category: keep
   disposition: utility
-    imports:
-      - __future__
-      - argparse
-      - json
-      - pathlib
-      - sys
-      - time
-      - typing
-      - __future__
-      - argparse
-      - json
-      - pathlib
-      - sys
-      - time
-      - typing
-      - __future__
-      - argparse
-      - json
-      - pathlib
-      - sys
-      - time
-      - temper_placer.router_v6.pipeline
+  imports:
+  - argparse
+  - pathlib
+  - re
+  - subprocess
+  - sys
+- path: bench_coarse_to_fine.py
+  purpose: 'A/B benchmark: compare baseline vs coarse-to-fine corridor routing on temper.kicad_pcb'
+  owner: router-v6-closure-rate
+  last_run: '2026-06-29'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - argparse
+  - json
+  - pathlib
+  - sys
+  - time
+  - typing
 - path: add_power_planes.py
   purpose: Manually add power plane geometry to a KiCad PCB
   owner: unassigned
   last_run: '2026-06-22'
   category: keep
   disposition: utility
-    imports:
-      - pathlib
-      - re
-      - sys
-      - uuid
-      - pathlib
-      - re
-      - sys
-      - uuid
-      - pathlib
-      - re
-      - sys
-      - uuid
-      - pathlib
-      - re
-      - sys
-      - uuid
-      - pathlib
-      - re
-      - sys
-      - uuid
-  - pathlib
-  - re
-  - sys
-  - uuid
+  imports:
   - pathlib
   - re
   - sys
@@ -97,56 +59,8 @@ scripts:
   last_run: '2026-06-22'
   category: keep
   disposition: utility
-    imports:
-      - argparse
-      - json
-      - pathlib
-      - subprocess
-      - sys
-      - typing
-      - yaml
-      - argparse
-      - datetime
-      - json
-      - pathlib
-      - subprocess
-      - sys
-      - typing
-      - yaml
-      - argparse
-      - datetime
-      - json
-      - pathlib
-      - subprocess
-      - sys
-      - typing
-      - yaml
-      - argparse
-      - datetime
-      - json
-      - pathlib
-      - subprocess
-      - sys
-      - typing
-      - yaml
-      - argparse
-      - datetime
-      - json
-      - pathlib
-      - subprocess
-      - sys
-      - typing
-      - yaml
+  imports:
   - argparse
-  - datetime
-  - json
-  - pathlib
-  - subprocess
-  - sys
-  - typing
-  - yaml
-  - argparse
-  - datetime
   - json
   - pathlib
   - subprocess
@@ -159,68 +73,14 @@ scripts:
   last_run: '2026-06-22'
   category: keep
   disposition: ci-gate
-    imports:
-      - _lib.gate_allowlist
-      - _lib.repo
-      - argparse
-      - ast
-      - json
-      - pathlib
-      - rich.console
-      - sys
-      - argparse
-      - ast
-      - json
-      - os
-      - pathlib
-      - re
-      - rich.console
-      - subprocess
-      - sys
-      - argparse
-      - ast
-      - json
-      - os
-      - pathlib
-      - re
-      - rich.console
-      - subprocess
-      - sys
-      - argparse
-      - ast
-      - json
-      - os
-      - pathlib
-      - re
-      - rich.console
-      - subprocess
-      - sys
-      - argparse
-      - ast
-      - json
-      - os
-      - pathlib
-      - re
-      - rich.console
-      - subprocess
-      - sys
+  imports:
+  - _lib.gate_allowlist
+  - _lib.repo
   - argparse
   - ast
   - json
-  - os
   - pathlib
-  - re
   - rich.console
-  - subprocess
-  - sys
-  - argparse
-  - ast
-  - json
-  - os
-  - pathlib
-  - re
-  - rich.console
-  - subprocess
   - sys
 - path: check_physics_provenance.py
   purpose: 'Physics provenance gate: require # source: comments on module-level float constants in physics/'
@@ -228,123 +88,23 @@ scripts:
   last_run: '2026-07-22'
   category: keep
   disposition: ci-gate
-    imports:
-      - __future__
-      - _lib.gate_allowlist
-      - _lib.repo
-      - argparse
-      - ast
-      - pathlib
-      - re
-      - rich.console
-      - sys
-      - __future__
-      - argparse
-      - ast
-      - pathlib
-      - re
-      - rich.console
-      - subprocess
-      - sys
-      - __future__
-      - argparse
-      - ast
-      - pathlib
-      - re
-      - rich.console
-      - subprocess
-      - sys
+  imports:
+  - __future__
+  - _lib.gate_allowlist
+  - _lib.repo
+  - argparse
+  - ast
+  - pathlib
+  - re
+  - rich.console
+  - sys
 - path: check_perf_regression.py
   purpose: Performance regression check (called by Makefile)
   owner: unassigned
   last_run: '2026-06-22'
   category: keep
   disposition: shell-invoked
-    imports:
-      - argparse
-      - jax
-      - json
-      - os
-      - pathlib
-      - rich.console
-      - sys
-      - temper_placer.io.config_loader
-      - temper_placer.io.kicad_parser
-      - temper_placer.losses.base
-      - temper_placer.losses.boundary
-      - temper_placer.losses.overlap
-      - temper_placer.losses.regularization
-      - temper_placer.losses.wirelength
-      - argparse
-      - jax
-      - json
-      - os
-      - pathlib
-      - rich.console
-      - sys
-      - temper_placer.io.config_loader
-      - temper_placer.io.kicad_parser
-      - temper_placer.losses.base
-      - temper_placer.losses.boundary
-      - temper_placer.losses.overlap
-      - temper_placer.losses.regularization
-      - temper_placer.losses.wirelength
-      - argparse
-      - jax
-      - json
-      - os
-      - pathlib
-      - rich.console
-      - sys
-      - temper_placer.io.config_loader
-      - temper_placer.io.kicad_parser
-      - temper_placer.losses.base
-      - temper_placer.losses.boundary
-      - temper_placer.losses.overlap
-      - temper_placer.losses.regularization
-      - temper_placer.losses.wirelength
-      - argparse
-      - jax
-      - json
-      - os
-      - pathlib
-      - rich.console
-      - sys
-      - temper_placer.io.config_loader
-      - temper_placer.io.kicad_parser
-      - temper_placer.losses.base
-      - temper_placer.losses.boundary
-      - temper_placer.losses.overlap
-      - temper_placer.losses.regularization
-      - temper_placer.losses.wirelength
-      - argparse
-      - jax
-      - json
-      - os
-      - pathlib
-      - rich.console
-      - sys
-      - temper_placer.io.config_loader
-      - temper_placer.io.kicad_parser
-      - temper_placer.losses.base
-      - temper_placer.losses.boundary
-      - temper_placer.losses.overlap
-      - temper_placer.losses.regularization
-      - temper_placer.losses.wirelength
-  - argparse
-  - jax
-  - json
-  - os
-  - pathlib
-  - rich.console
-  - sys
-  - temper_placer.io.config_loader
-  - temper_placer.io.kicad_parser
-  - temper_placer.losses.base
-  - temper_placer.losses.boundary
-  - temper_placer.losses.overlap
-  - temper_placer.losses.regularization
-  - temper_placer.losses.wirelength
+  imports:
   - argparse
   - jax
   - json
@@ -365,29 +125,7 @@ scripts:
   last_run: '2026-06-22'
   category: keep
   disposition: shell-invoked
-    imports:
-      - sys
-      - sys
-      - sys
-      - sys
-      - sys
-  - argparse
-  - benchmark_baselines
-  - jax
-  - json
-  - pathlib
-  - rich.console
-  - rich.table
-  - statistics
-  - sys
-  - argparse
-  - benchmark_baselines
-  - jax
-  - json
-  - pathlib
-  - rich.console
-  - rich.table
-  - statistics
+  imports:
   - sys
 - path: check_traceability.py
   purpose: Verify @req() tags in code match plan requirements
@@ -395,37 +133,7 @@ scripts:
   last_run: '2026-06-22'
   category: keep
   disposition: utility
-    imports:
-      - __future__
-      - argparse
-      - pathlib
-      - subprocess
-      - sys
-      - __future__
-      - argparse
-      - pathlib
-      - subprocess
-      - sys
-      - __future__
-      - argparse
-      - pathlib
-      - subprocess
-      - sys
-      - __future__
-      - argparse
-      - pathlib
-      - subprocess
-      - sys
-      - __future__
-      - argparse
-      - pathlib
-      - subprocess
-      - sys
-  - __future__
-  - argparse
-  - pathlib
-  - subprocess
-  - sys
+  imports:
   - __future__
   - argparse
   - pathlib
@@ -437,21 +145,8 @@ scripts:
   last_run: '2026-06-22'
   category: keep
   disposition: ci-gate
-    imports:
-      - argparse
-      - pathlib
-      - sys
-      - argparse
-      - pathlib
-      - sys
-      - pathlib
-      - sys
-      - pathlib
-      - sys
-      - pathlib
-      - sys
-  - pathlib
-  - sys
+  imports:
+  - argparse
   - pathlib
   - sys
 - path: ci_closure_test.py
@@ -460,30 +155,9 @@ scripts:
   last_run: '2026-06-22'
   category: keep
   disposition: ci-gate
-    imports:
-      - argparse
-      - os
-      - pathlib
-      - sys
-      - argparse
-      - os
-      - pathlib
-      - sys
-      - argparse
-      - os
-      - pathlib
-      - sys
-      - argparse
-      - os
-      - pathlib
-      - sys
-      - argparse
-      - pathlib
-      - sys
+  imports:
   - argparse
-  - pathlib
-  - sys
-  - argparse
+  - os
   - pathlib
   - sys
 - path: check_manifest_gate.py
@@ -492,33 +166,9 @@ scripts:
   last_run: '2026-06-22'
   category: keep
   disposition: ci-gate
-    imports:
-      - argparse
-      - pathlib
-      - sys
-      - argparse
-      - pathlib
-      - re
-      - sys
-      - argparse
-      - pathlib
-      - re
-      - sys
-      - argparse
-      - pathlib
-      - re
-      - sys
-      - argparse
-      - pathlib
-      - re
-      - sys
+  imports:
   - argparse
   - pathlib
-  - re
-  - sys
-  - argparse
-  - pathlib
-  - re
   - sys
 - path: check_script_sunset.py
   purpose: 'CI gate: warn on stale scripts per the 30-day sunset clock'
@@ -526,37 +176,7 @@ scripts:
   last_run: '2026-06-22'
   category: keep
   disposition: ci-gate
-    imports:
-      - argparse
-      - datetime
-      - json
-      - pathlib
-      - sys
-      - argparse
-      - datetime
-      - json
-      - pathlib
-      - sys
-      - argparse
-      - datetime
-      - json
-      - pathlib
-      - sys
-      - argparse
-      - datetime
-      - json
-      - pathlib
-      - sys
-      - argparse
-      - datetime
-      - json
-      - pathlib
-      - sys
-  - argparse
-  - datetime
-  - json
-  - pathlib
-  - sys
+  imports:
   - argparse
   - datetime
   - json
@@ -568,66 +188,18 @@ scripts:
   last_run: '2026-06-22'
   category: keep
   disposition: shell-invoked
-    imports:
-      - dataclasses
-      - json
-      - pathlib
-      - sys
-      - dataclasses
-      - json
-      - pathlib
-      - sys
-      - typing
-      - dataclasses
-      - json
-      - pathlib
-      - sys
-      - typing
-      - dataclasses
-      - json
-      - pathlib
-      - sys
-      - typing
-      - dataclasses
-      - json
-      - pathlib
-      - sys
-      - typing
+  imports:
   - dataclasses
   - json
   - pathlib
   - sys
-  - typing
-  - dataclasses
-  - json
-  - pathlib
-  - sys
-  - typing
 - path: debug_diff_pair_path.py
   purpose: Debug differential pair path (shell-invoked)
   owner: unassigned
   last_run: '2026-06-22'
   category: keep
   disposition: shell-invoked
-    imports:
-      - pathlib
-      - sys
-      - temper_placer.io.kicad_parser
-      - pathlib
-      - sys
-      - temper_placer.io.kicad_parser
-      - pathlib
-      - sys
-      - temper_placer.io.kicad_parser
-      - pathlib
-      - sys
-      - temper_placer.io.kicad_parser
-      - pathlib
-      - sys
-      - temper_placer.io.kicad_parser
-  - pathlib
-  - sys
-  - temper_placer.io.kicad_parser
+  imports:
   - pathlib
   - sys
   - temper_placer.io.kicad_parser
@@ -637,51 +209,7 @@ scripts:
   last_run: '2026-06-22'
   category: keep
   disposition: utility
-    imports:
-      - sys
-      - sys
-      - argparse
-      - datetime
-      - jax
-      - json
-      - pathlib
-      - sys
-      - yaml
-      - argparse
-      - datetime
-      - jax
-      - json
-      - pathlib
-      - sys
-      - yaml
-      - argparse
-      - datetime
-      - jax
-      - json
-      - pathlib
-      - sys
-      - yaml
-  - argparse
-  - datetime
-  - jax
-  - json
-  - pathlib
-  - sys
-  - yaml
-  - argparse
-  - datetime
-  - jax
-  - json
-  - pathlib
-  - sys
-  - yaml
-      - pathlib
-      - sys
-      - pathlib
-      - sys
-  - pathlib
-  - sys
-  - pathlib
+  imports:
   - sys
 - path: generate_kicad_dru.py
   purpose: Generate KiCad design rules from config (used by temper-drc tests)
@@ -689,19 +217,7 @@ scripts:
   last_run: '2026-06-22'
   category: keep
   disposition: utility
-    imports:
-      - pathlib
-      - temper_placer.core.design_rules
-      - pathlib
-      - temper_placer.core.design_rules
-      - pathlib
-      - temper_placer.core.design_rules
-      - pathlib
-      - temper_placer.core.design_rules
-      - pathlib
-      - temper_placer.core.design_rules
-  - pathlib
-  - temper_placer.core.design_rules
+  imports:
   - pathlib
   - temper_placer.core.design_rules
 - path: import_linter_gate.py
@@ -710,53 +226,11 @@ scripts:
   last_run: '2026-06-22'
   category: keep
   disposition: ci-gate
-    imports:
-      - _lib.github_summary
-      - _lib.repo
-      - argparse
-      - datetime
-      - pathlib
-      - re
-      - subprocess
-      - sys
-      - argparse
-      - datetime
-      - os
-      - pathlib
-      - re
-      - subprocess
-      - sys
-      - argparse
-      - datetime
-      - os
-      - pathlib
-      - re
-      - subprocess
-      - sys
-      - argparse
-      - datetime
-      - os
-      - pathlib
-      - re
-      - subprocess
-      - sys
-      - argparse
-      - datetime
-      - os
-      - pathlib
-      - re
-      - subprocess
-      - sys
+  imports:
+  - _lib.github_summary
+  - _lib.repo
   - argparse
   - datetime
-  - os
-  - pathlib
-  - re
-  - subprocess
-  - sys
-  - argparse
-  - datetime
-  - os
   - pathlib
   - re
   - subprocess
@@ -767,92 +241,7 @@ scripts:
   last_run: '2026-06-22'
   category: keep
   disposition: shell-invoked
-    imports:
-      - argparse
-      - jax.numpy
-      - math
-      - pathlib
-      - rich.console
-      - sys
-      - temper_placer.core.loop
-      - temper_placer.io.kicad_parser
-      - temper_placer.io.trace_writer
-      - temper_placer.io.zone_manager
-      - temper_placer.router_v6.adapter
-      - temper_placer.routing.constraints.geometry
-      - temper_placer.routing.constraints.spatial_index
-      - temper_placer.routing.fanout
-      - temper_placer.routing.layer_assignment
-      - temper_placer.routing.net_ordering
-      - time
-      - argparse
-      - jax.numpy
-      - math
-      - pathlib
-      - rich.console
-      - sys
-      - temper_placer.core.loop
-      - temper_placer.io.kicad_parser
-      - temper_placer.io.trace_writer
-      - temper_placer.io.zone_manager
-      - temper_placer.router_v6.adapter
-      - temper_placer.routing.constraints.geometry
-      - temper_placer.routing.constraints.spatial_index
-      - temper_placer.routing.fanout
-      - temper_placer.routing.layer_assignment
-      - temper_placer.routing.net_ordering
-      - time
-      - argparse
-      - jax.numpy
-      - math
-      - pathlib
-      - rich.console
-      - sys
-      - temper_placer.core.loop
-      - temper_placer.io.kicad_parser
-      - temper_placer.io.trace_writer
-      - temper_placer.io.zone_manager
-      - temper_placer.router_v6.adapter
-      - temper_placer.routing.constraints.geometry
-      - temper_placer.routing.constraints.spatial_index
-      - temper_placer.routing.fanout
-      - temper_placer.routing.layer_assignment
-      - temper_placer.routing.net_ordering
-      - time
-      - argparse
-      - jax.numpy
-      - math
-      - pathlib
-      - rich.console
-      - sys
-      - temper_placer.core.loop
-      - temper_placer.io.kicad_parser
-      - temper_placer.io.trace_writer
-      - temper_placer.io.zone_manager
-      - temper_placer.router_v6.adapter
-      - temper_placer.routing.constraints.geometry
-      - temper_placer.routing.constraints.spatial_index
-      - temper_placer.routing.fanout
-      - temper_placer.routing.layer_assignment
-      - temper_placer.routing.net_ordering
-      - time
-      - argparse
-      - jax.numpy
-      - math
-      - pathlib
-      - rich.console
-      - sys
-      - temper_placer.core.loop
-      - temper_placer.io.kicad_parser
-      - temper_placer.io.trace_writer
-      - temper_placer.io.zone_manager
-      - temper_placer.router_v6.adapter
-      - temper_placer.routing.constraints.geometry
-      - temper_placer.routing.constraints.spatial_index
-      - temper_placer.routing.fanout
-      - temper_placer.routing.layer_assignment
-      - temper_placer.routing.net_ordering
-      - time
+  imports:
   - argparse
   - jax.numpy
   - math
@@ -863,29 +252,12 @@ scripts:
   - temper_placer.io.kicad_parser
   - temper_placer.io.trace_writer
   - temper_placer.io.zone_manager
-  - temper_placer.router_v6.constraints_geometry
-  - temper_placer.router_v6.constraints_spatial_index
-  - temper_placer.router_v6.fanout
-  - temper_placer.router_v6.layer_assignment
   - temper_placer.router_v6.adapter
-  - temper_placer.router_v6.net_ordering
-  - time
-  - argparse
-  - jax.numpy
-  - math
-  - pathlib
-  - rich.console
-  - sys
-  - temper_placer.core.loop
-  - temper_placer.io.kicad_parser
-  - temper_placer.io.trace_writer
-  - temper_placer.io.zone_manager
-  - temper_placer.router_v6.constraints_geometry
-  - temper_placer.router_v6.constraints_spatial_index
-  - temper_placer.router_v6.fanout
-  - temper_placer.router_v6.layer_assignment
-  - temper_placer.router_v6.adapter
-  - temper_placer.router_v6.net_ordering
+  - temper_placer.routing.constraints.geometry
+  - temper_placer.routing.constraints.spatial_index
+  - temper_placer.routing.fanout
+  - temper_placer.routing.layer_assignment
+  - temper_placer.routing.net_ordering
   - time
 - path: pipeline_metrics.py
   purpose: Record pipeline metrics to JSON for trend analysis (CI-invoked)
@@ -893,43 +265,7 @@ scripts:
   last_run: '2026-06-22'
   category: keep
   disposition: ci-gate
-    imports:
-      - __future__
-      - datetime
-      - json
-      - math
-      - pathlib
-      - sys
-      - __future__
-      - datetime
-      - json
-      - math
-      - pathlib
-      - sys
-      - __future__
-      - datetime
-      - json
-      - math
-      - pathlib
-      - sys
-      - __future__
-      - datetime
-      - json
-      - math
-      - pathlib
-      - sys
-      - __future__
-      - datetime
-      - json
-      - math
-      - pathlib
-      - sys
-  - __future__
-  - datetime
-  - json
-  - math
-  - pathlib
-  - sys
+  imports:
   - __future__
   - datetime
   - json
@@ -942,87 +278,7 @@ scripts:
   last_run: '2026-06-22'
   category: keep
   disposition: shell-invoked
-    imports:
-      - __future__
-      - argparse
-      - dataclasses
-      - datetime
-      - json
-      - pathlib
-      - subprocess
-      - sys
-      - temper_placer.core.netlist
-      - temper_placer.core.state
-      - temper_placer.io
-      - temper_placer.losses.base
-      - temper_placer.metrics.quality
-      - temper_placer.routing.analysis
-      - tempfile
-      - typing
-      - __future__
-      - argparse
-      - dataclasses
-      - datetime
-      - json
-      - pathlib
-      - subprocess
-      - sys
-      - temper_placer.core.netlist
-      - temper_placer.core.state
-      - temper_placer.io
-      - temper_placer.losses.base
-      - temper_placer.metrics.quality
-      - temper_placer.routing.analysis
-      - tempfile
-      - typing
-      - __future__
-      - argparse
-      - dataclasses
-      - datetime
-      - json
-      - pathlib
-      - subprocess
-      - sys
-      - temper_placer.core.netlist
-      - temper_placer.core.state
-      - temper_placer.io
-      - temper_placer.losses.base
-      - temper_placer.metrics.quality
-      - temper_placer.routing.analysis
-      - tempfile
-      - typing
-      - __future__
-      - argparse
-      - dataclasses
-      - datetime
-      - json
-      - pathlib
-      - subprocess
-      - sys
-      - temper_placer.core.netlist
-      - temper_placer.core.state
-      - temper_placer.io
-      - temper_placer.losses.base
-      - temper_placer.metrics.quality
-      - temper_placer.routing.analysis
-      - tempfile
-      - typing
-      - __future__
-      - argparse
-      - dataclasses
-      - datetime
-      - json
-      - pathlib
-      - subprocess
-      - sys
-      - temper_placer.core.netlist
-      - temper_placer.core.state
-      - temper_placer.io
-      - temper_placer.losses.base
-      - temper_placer.metrics.quality
-      - temper_placer.routing.analysis
-      - tempfile
-      - typing
+  imports:
   - __future__
   - argparse
   - dataclasses
@@ -1036,23 +292,7 @@ scripts:
   - temper_placer.io
   - temper_placer.losses.base
   - temper_placer.metrics.quality
-  - 
-  - tempfile
-  - typing
-  - __future__
-  - argparse
-  - dataclasses
-  - datetime
-  - json
-  - pathlib
-  - subprocess
-  - sys
-  - temper_placer.core.netlist
-  - temper_placer.core.state
-  - temper_placer.io
-  - temper_placer.losses.base
-  - temper_placer.metrics.quality
-  - 
+  - temper_placer.routing.analysis
   - tempfile
   - typing
 - path: run_feedback_loop.py
@@ -1061,92 +301,8 @@ scripts:
   last_run: '2026-06-22'
   category: keep
   disposition: shell-invoked
-    imports:
-      - argparse
-      - json
-      - logging
-      - pathlib
-      - subprocess
-      - sys
-      - temper_placer.deterministic
-      - temper_placer.deterministic.feedback
-      - temper_placer.io.config_loader
-      - temper_placer.io.kicad_metadata
-      - temper_placer.io.kicad_parser
-      - temper_placer.io.kicad_writer
-      - temper_placer.io.zone_manager
-      - argparse
-      - datetime
-      - json
-      - logging
-      - pathlib
-      - subprocess
-      - sys
-      - temper_placer.deterministic
-      - temper_placer.deterministic.feedback
-      - temper_placer.io.config_loader
-      - temper_placer.io.kicad_metadata
-      - temper_placer.io.kicad_parser
-      - temper_placer.io.kicad_writer
-      - temper_placer.io.zone_manager
-      - argparse
-      - datetime
-      - json
-      - logging
-      - pathlib
-      - subprocess
-      - sys
-      - temper_placer.deterministic
-      - temper_placer.deterministic.feedback
-      - temper_placer.io.config_loader
-      - temper_placer.io.kicad_metadata
-      - temper_placer.io.kicad_parser
-      - temper_placer.io.kicad_writer
-      - temper_placer.io.zone_manager
-      - argparse
-      - datetime
-      - json
-      - logging
-      - pathlib
-      - subprocess
-      - sys
-      - temper_placer.deterministic
-      - temper_placer.deterministic.feedback
-      - temper_placer.io.config_loader
-      - temper_placer.io.kicad_metadata
-      - temper_placer.io.kicad_parser
-      - temper_placer.io.kicad_writer
-      - temper_placer.io.zone_manager
-      - argparse
-      - datetime
-      - json
-      - logging
-      - pathlib
-      - subprocess
-      - sys
-      - temper_placer.deterministic
-      - temper_placer.deterministic.feedback
-      - temper_placer.io.config_loader
-      - temper_placer.io.kicad_metadata
-      - temper_placer.io.kicad_parser
-      - temper_placer.io.kicad_writer
-      - temper_placer.io.zone_manager
+  imports:
   - argparse
-  - datetime
-  - json
-  - logging
-  - pathlib
-  - subprocess
-  - sys
-  - temper_placer.deterministic
-  - temper_placer.deterministic.feedback
-  - temper_placer.io.config_loader
-  - temper_placer.io.kicad_metadata
-  - temper_placer.io.kicad_parser
-  - temper_placer.io.kicad_writer
-  - temper_placer.io.zone_manager
-  - argparse
-  - datetime
   - json
   - logging
   - pathlib
@@ -1165,88 +321,20 @@ scripts:
   last_run: '2026-06-22'
   category: keep
   disposition: ci-gate
-    imports:
-      - ast
-      - json
-      - pathlib
-      - re
-      - ast
-      - json
-      - os
-      - pathlib
-      - re
-      - sys
-      - ast
-      - json
-      - os
-      - pathlib
-      - re
-      - sys
-      - ast
-      - json
-      - os
-      - pathlib
-      - re
-      - sys
-      - ast
-      - json
-      - os
-      - pathlib
-      - re
-      - sys
+  imports:
   - ast
   - json
-  - os
   - pathlib
   - re
-  - sys
-  - ast
-  - json
-  - os
-  - pathlib
-  - re
-  - sys
+  - yaml
 - path: update_regression_cache.py
   purpose: Update .regression-cache.json from regression reports for incremental corpus regression
   owner: pipeline
   last_run: '2026-06-29'
   category: keep
   disposition: ci-gate
-    imports:
-      - __future__
-      - argparse
-      - json
-      - pathlib
-      - subprocess
-      - sys
-      - __future__
-      - argparse
-      - json
-      - pathlib
-      - subprocess
-      - sys
-      - __future__
-      - argparse
-      - json
-      - pathlib
-      - subprocess
-      - sys
-      - __future__
-      - argparse
-      - json
-      - pathlib
-      - subprocess
-      - sys
-      - argparse
-      - json
-      - pathlib
-      - subprocess
-      - sys
-  - argparse
-  - json
-  - pathlib
-  - subprocess
-  - sys
+  imports:
+  - __future__
   - argparse
   - json
   - pathlib
@@ -1258,80 +346,20 @@ scripts:
   last_run: '2026-06-22'
   category: keep
   disposition: shell-invoked
-    imports:
-      - argparse
-      - dataclasses
-      - pathlib
-      - re
-      - argparse
-      - dataclasses
-      - pathlib
-      - re
-      - typing
-      - argparse
-      - dataclasses
-      - pathlib
-      - re
-      - typing
-      - argparse
-      - dataclasses
-      - pathlib
-      - re
-      - typing
-      - argparse
-      - dataclasses
-      - pathlib
-      - re
-      - typing
+  imports:
   - argparse
   - dataclasses
   - pathlib
   - re
-  - typing
-  - argparse
-  - dataclasses
-  - pathlib
-  - re
-  - typing
 - path: vulture_gate.py
   purpose: 'Vulture dead-code CI gate: diff wrapper with baseline allowlist'
   owner: pipeline
   last_run: '2026-06-22'
   category: keep
   disposition: ci-gate
-    imports:
-      - _lib.github_summary
-      - _lib.repo
-      - argparse
-      - pathlib
-      - re
-      - subprocess
-      - sys
-      - argparse
-      - pathlib
-      - re
-      - subprocess
-      - sys
-      - argparse
-      - pathlib
-      - re
-      - subprocess
-      - sys
-      - argparse
-      - pathlib
-      - re
-      - subprocess
-      - sys
-      - argparse
-      - pathlib
-      - re
-      - subprocess
-      - sys
-  - argparse
-  - pathlib
-  - re
-  - subprocess
-  - sys
+  imports:
+  - _lib.github_summary
+  - _lib.repo
   - argparse
   - pathlib
   - re
@@ -1343,47 +371,8 @@ scripts:
   last_run: '2026-06-23'
   category: keep
   disposition: utility
-    imports:
-      - __future__
-      - argparse
-      - cProfile
-      - io
-      - pathlib
-      - pstats
-      - sys
-      - time
-      - __future__
-      - argparse
-      - cProfile
-      - io
-      - pathlib
-      - pstats
-      - sys
-      - time
-      - __future__
-      - argparse
-      - cProfile
-      - io
-      - pathlib
-      - pstats
-      - sys
-      - time
-      - __future__
-      - argparse
-      - cProfile
-      - io
-      - pathlib
-      - pstats
-      - sys
-      - time
-      - __future__
-      - argparse
-      - cProfile
-      - io
-      - pathlib
-      - pstats
-      - sys
-      - time
+  imports:
+  - __future__
   - argparse
   - cProfile
   - io
@@ -1391,764 +380,506 @@ scripts:
   - pstats
   - sys
   - time
-  - temper_placer.io.kicad_parser
-  - temper_placer.router_v6.pipeline
 - path: full_pipeline_profile.py
   purpose: Full closure-test profile with per-net A* logging; surfaces the actual SM1 baseline on temper.kicad_pcb
   owner: router-v6-closure-rate
   last_run: '2026-06-23'
   category: keep
   disposition: utility
-    imports:
-      - __future__
-      - argparse
-      - cProfile
-      - io
-      - json
-      - logging
-      - os
-      - pathlib
-      - pstats
-      - sys
-      - time
-      - typing
-      - __future__
-      - argparse
-      - cProfile
-      - io
-      - json
-      - logging
-      - os
-      - pathlib
-      - pstats
-      - sys
-      - time
-      - typing
-      - __future__
-      - argparse
-      - cProfile
-      - io
-      - json
-      - logging
-      - os
-      - pathlib
-      - pstats
-      - sys
-      - time
-      - typing
-      - __future__
-      - argparse
-      - cProfile
-      - io
-      - json
-      - logging
-      - os
-      - pathlib
-      - pstats
-      - sys
-      - time
-      - typing
-      - __future__
-      - argparse
-      - cProfile
-      - io
-      - json
-      - logging
-      - os
-      - pathlib
-      - pstats
-      - sys
-      - time
-      - typing
+  imports:
+  - __future__
   - argparse
   - cProfile
   - io
   - json
   - logging
+  - os
   - pathlib
   - pstats
   - sys
   - time
-  - temper_placer.io.kicad_parser
-  - temper_placer.regression.closure_test
-  - temper_placer.router_v6.astar_core_numba
-  - temper_placer.router_v6.astar_pathfinding
-  - temper_placer.validation.drc_runner
+  - typing
 - path: profile_rust_topology.py
   purpose: Compare Rust vs Python SAT solver backend performance on closure test
   owner: unassigned
   last_run: '2026-06-28'
   category: keep
   disposition: utility
-    imports:
-      - __future__
-      - json
-      - os
-      - pathlib
-      - subprocess
-      - sys
-      - time
-      - __future__
-      - json
-      - os
-      - pathlib
-      - subprocess
-      - sys
-      - time
-      - __future__
-      - json
-      - os
-      - pathlib
-      - subprocess
-      - sys
-      - time
-      - __future__
-      - json
-      - os
-      - pathlib
-      - subprocess
-      - sys
-      - time
-      - __future__
-      - json
-      - os
-      - pathlib
-      - subprocess
-      - sys
-      - time
+  imports:
+  - __future__
+  - json
+  - os
+  - pathlib
+  - subprocess
+  - sys
+  - time
 - path: benchmark_numba_los.py
   purpose: Before/after Numba LOS profiling (micro-benchmark + full pipeline cProfile)
   owner: temper-team
   last_run: '2026-06-29'
   category: ticket
   disposition: utility
-    imports:
-      - __future__
-      - argparse
-      - cProfile
-      - io
-      - json
-      - numpy
-      - pathlib
-      - pstats
-      - time
-      - __future__
-      - argparse
-      - cProfile
-      - io
-      - json
-      - numpy
-      - pathlib
-      - pstats
-      - sys
-      - time
-      - __future__
-      - argparse
-      - cProfile
-      - io
-      - json
-      - numpy
-      - pathlib
-      - pstats
-      - sys
-      - time
+  imports:
+  - __future__
+  - argparse
+  - cProfile
+  - io
+  - json
+  - numpy
+  - pathlib
+  - pstats
+  - time
 - path: bmc_adoption_gate.py
   purpose: 'CI gate: enforce ESL + BMC test coverage for every Constraint subclass'
   owner: pipeline
   last_run: '2026-06-29'
   category: keep
   disposition: ci-gate
-    imports:
-      - __future__
-      - ast
-      - pathlib
-      - sys
-      - __future__
-      - ast
-      - os
-      - pathlib
-      - sys
-      - __future__
-      - ast
-      - os
-      - pathlib
-      - sys
-      - __future__
-      - ast
-      - os
-      - pathlib
-      - sys
-      - ast
-      - os
-      - pathlib
-      - sys
+  imports:
+  - __future__
   - ast
-  - os
-  - pathlib
-  - sys
-  - ast
-  - os
   - pathlib
   - sys
 - path: check_fault_list_consistency.py
-  purpose: "CI cross-check: verify manifest.json fault codes are a subset of generated FAULT_LIST"
+  purpose: 'CI cross-check: verify manifest.json fault codes are a subset of generated FAULT_LIST'
   owner: firmware
-  last_run: "2026-06-29"
+  last_run: '2026-06-29'
   category: keep
   disposition: ci-gate
-    imports:
-      - json
-      - pathlib
-      - re
-      - sys
-      - yaml
-      - json
-      - pathlib
-      - re
-      - sys
-      - yaml
-      - json
-      - pathlib
-      - re
-      - sys
-      - yaml
-      - json
-      - pathlib
-      - re
-      - sys
-      - yaml
+  imports:
+  - json
+  - pathlib
+  - re
+  - sys
+  - yaml
 - path: check_typecheck_gate.py
-  purpose: "Type-check gate with per-file monotonic-shrink allowlist baseline"
+  purpose: Type-check gate with per-file monotonic-shrink allowlist baseline
   owner: pipeline
-  last_run: "2026-06-29"
+  last_run: '2026-06-29'
   category: keep
   disposition: ci-gate
-    imports:
-      - argparse
-      - collections
-      - pathlib
-      - re
-      - subprocess
-      - sys
-      - argparse
-      - collections
-      - os
-      - pathlib
-      - re
-      - subprocess
-      - sys
-      - argparse
-      - collections
-      - os
-      - pathlib
-      - re
-      - subprocess
-      - sys
-      - argparse
-      - collections
-      - os
-      - pathlib
-      - re
-      - subprocess
-      - sys
+  imports:
+  - argparse
+  - collections
+  - pathlib
+  - re
+  - subprocess
+  - sys
 - path: pipeline_report.py
-  purpose: "Generate self-contained static HTML pipeline report (R7, R8)"
+  purpose: Generate self-contained static HTML pipeline report (R7, R8)
   owner: pipeline
-  last_run: "2026-06-29"
+  last_run: '2026-06-29'
   category: keep
   disposition: utility
-    imports:
-      - __future__
-      - json
-      - pathlib
-      - sys
-      - __future__
-      - json
-      - pathlib
-      - sys
-      - __future__
-      - json
-      - pathlib
-      - sys
-      - __future__
-      - json
-      - pathlib
-      - sys
+  imports:
+  - __future__
+  - json
+  - pathlib
+  - sys
 - path: pr_perf_compare.py
-  purpose: "Compare PR performance metrics against main-branch JSONL baseline"
+  purpose: Compare PR performance metrics against main-branch JSONL baseline
   owner: pipeline
-  last_run: "2026-06-29"
+  last_run: '2026-06-29'
   category: keep
   disposition: ci-gate
-    imports:
-      - __future__
-      - argparse
-      - json
-      - pathlib
-      - statistics
-      - sys
-      - typing
-      - __future__
-      - argparse
-      - json
-      - pathlib
-      - statistics
-      - sys
-      - typing
-      - __future__
-      - argparse
-      - json
-      - pathlib
-      - statistics
-      - sys
-      - typing
-      - __future__
-      - argparse
-      - json
-      - pathlib
-      - statistics
-      - sys
-      - typing
+  imports:
+  - __future__
+  - argparse
+  - json
+  - pathlib
+  - statistics
+  - sys
+  - typing
 - path: pr_scorecard.py
-  purpose: "PR pipeline scorecard: compare pipeline_metrics.jsonl files, produce markdown delta table"
+  purpose: 'PR pipeline scorecard: compare pipeline_metrics.jsonl files, produce markdown delta table'
   owner: pipeline
-  last_run: "2026-06-29"
+  last_run: '2026-06-29'
   category: keep
   disposition: ci-gate
-    imports:
-      - __future__
-      - json
-      - logging
-      - pathlib
-      - sys
-      - typing
-      - __future__
-      - json
-      - logging
-      - pathlib
-      - sys
-      - typing
-      - __future__
-      - json
-      - logging
-      - pathlib
-      - sys
-      - typing
-      - __future__
-      - json
-      - logging
-      - pathlib
-      - sys
-      - typing
+  imports:
+  - __future__
+  - json
+  - logging
+  - pathlib
+  - sys
+  - typing
 - path: reconcile_metrics.py
-  purpose: "Reconcile pipeline metrics across multiple runs"
+  purpose: Reconcile pipeline metrics across multiple runs
   owner: pipeline
-  last_run: "2026-06-29"
+  last_run: '2026-06-29'
   category: keep
   disposition: utility
-    imports:
-      - json
-      - pathlib
-      - sys
-      - json
-      - pathlib
-      - sys
-      - json
-      - pathlib
-      - sys
-      - json
-      - pathlib
-      - sys
+  imports:
+  - json
+  - pathlib
+  - sys
 - path: slo_evaluator.py
-  purpose: "SLO definition schema and evaluation engine"
+  purpose: SLO definition schema and evaluation engine
   owner: pipeline
-  last_run: "2026-06-29"
+  last_run: '2026-06-29'
   category: keep
   disposition: utility
-    imports:
-      - __future__
-      - dataclasses
-      - typing
-      - yaml
-      - __future__
-      - dataclasses
-      - pathlib
-      - typing
-      - yaml
-      - __future__
-      - dataclasses
-      - pathlib
-      - typing
-      - yaml
-      - __future__
-      - dataclasses
-      - pathlib
-      - typing
-      - yaml
+  imports:
+  - __future__
+  - dataclasses
+  - typing
+  - yaml
 - path: spc_rules.py
-  purpose: "Western Electric SPC rules — pure Python, no external stats dependency"
+  purpose: Western Electric SPC rules — pure Python, no external stats dependency
   owner: pipeline
-  last_run: "2026-06-29"
+  last_run: '2026-06-29'
   category: keep
   disposition: utility
-    imports:
-      - __future__
-      - math
-      - __future__
-      - math
-      - __future__
-      - math
-      - __future__
-      - math
+  imports:
+  - __future__
+  - math
 - path: verify_proofs.py
-  purpose: "Verify PROOFS.toml completeness — CI gate"
+  purpose: Verify PROOFS.toml completeness — CI gate
   owner: pipeline
-  last_run: "2026-06-29"
+  last_run: '2026-06-29'
   category: keep
   disposition: ci-gate
-    imports:
-      - __future__
-      - pathlib
-      - re
-      - sys
-      - __future__
-      - os
-      - pathlib
-      - re
-      - sys
-      - __future__
-      - os
-      - pathlib
-      - re
-      - sys
-      - __future__
-      - os
-      - pathlib
-      - re
-      - sys
+  imports:
+  - __future__
+  - pathlib
+  - re
+  - sys
 - path: calibrate_drc_ceiling.py
-  purpose: "Calibrate DRC violation ceiling for Rust DRC engine"
+  purpose: Calibrate DRC violation ceiling for Rust DRC engine
   owner: pipeline
-  last_run: "2026-06-30"
+  last_run: '2026-06-30'
   category: keep
   disposition: utility
-    imports:
-      - argparse
-      - collections
-      - json
-      - pathlib
-      - sys
-      - argparse
-      - collections
-      - json
-      - pathlib
-      - sys
-      - argparse
-      - collections
-      - json
-      - pathlib
-      - sys
+  imports:
+  - argparse
+  - collections
+  - json
+  - pathlib
+  - sys
 - path: scan_external_corpus.py
-  purpose: "Scan downloads_digital_iot/ for .kicad_pcb files, profile parse success and difficulty tiers"
+  purpose: Scan downloads_digital_iot/ for .kicad_pcb files, profile parse success and difficulty tiers
   owner: pipeline
-  last_run: "2026-06-30"
+  last_run: '2026-06-30'
   category: keep
   disposition: utility
-    imports:
-      - __future__
-      - argparse
-      - pathlib
-      - sys
-      - time
-      - yaml
-      - __future__
-      - argparse
-      - pathlib
-      - sys
-      - time
-      - yaml
-      - argparse
-      - pathlib
-      - sys
-      - time
-      - yaml
-      - temper_placer.io.kicad_parser
+  imports:
+  - __future__
+  - argparse
+  - pathlib
+  - sys
+  - time
+  - yaml
 - path: quarantine_report.py
-  purpose: "Report on dead-letter quarantine status and taxonomy distribution (CI gate)"
+  purpose: Report on dead-letter quarantine status and taxonomy distribution (CI gate)
   owner: pipeline
-  last_run: "2026-06-30"
+  last_run: '2026-06-30'
   category: keep
   disposition: ci-gate
-    imports:
-      - __future__
-      - argparse
-      - json
-      - pathlib
-      - sys
-      - __future__
-      - argparse
-      - json
-      - pathlib
-      - sys
-      - argparse
-      - json
-      - pathlib
-      - sys
+  imports:
+  - __future__
+  - argparse
+  - json
+  - pathlib
+  - sys
 - path: human_reference_compare.py
-  purpose: "Generate human-reference PR comment comparing optimizer metrics to human placement"
+  purpose: Generate human-reference PR comment comparing optimizer metrics to human placement
   owner: pipeline
-  last_run: "2026-07-01"
+  last_run: '2026-07-01'
   category: keep
   disposition: ci-gate
-    imports:
-      - __future__
-      - pathlib
-      - sys
-      - yaml
-      - __future__
-      - pathlib
-      - sys
-      - yaml
-      - argparse
-      - json
-      - os
-      - pathlib
-      - sys
-      - yaml
+  imports:
+  - __future__
+  - pathlib
+  - sys
+  - yaml
+- path: gen_repo_state.py
+  purpose: Generate README.md and docs/plans/README.md state blocks from source; --check fails closed
+    on drift so hand-maintained state cannot go stale
+  owner: pipeline
+  last_run: '2026-07-26'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - pathlib
+  - subprocess
+  - sys
 - path: gen_architecture_poster.py
-  purpose: "Generate a deterministic SVG architecture poster from monorepo build manifests"
+  purpose: Generate a deterministic SVG architecture poster from monorepo build manifests
   owner: pipeline
-  last_run: "2026-07-13"
+  last_run: '2026-07-13'
   category: keep
   disposition: utility
-    imports:
-      - __future__
-      - argparse
-      - json
-      - math
-      - os
-      - pathlib
-      - re
-      - sys
-      - tomllib
-      - typing
-      - __future__
-      - argparse
-      - json
-      - math
-      - os
-      - pathlib
-      - re
-      - sys
-      - tomllib
-      - typing
-      - __future__
-      - argparse
-      - fnmatch
-      - heapq
-      - json
-      - math
-      - os
-      - pathlib
-      - re
-      - sys
-      - tomllib
+  imports:
+  - __future__
+  - argparse
+  - json
+  - math
+  - os
+  - pathlib
+  - re
+  - sys
+  - tomllib
+  - typing
 - path: test_root_hygiene.py
-  purpose: "CI gate: reject root-level artifact files that should live in subdirectories"
+  purpose: 'CI gate: reject root-level artifact files that should live in subdirectories'
   owner: pipeline
-  last_run: "2026-07-13"
+  last_run: '2026-07-13'
   category: keep
   disposition: ci-gate
-    imports:
-      - pathlib
-      - subprocess
-      - pathlib
-      - subprocess
-      - pathlib
-      - subprocess
-
+  imports:
+  - pathlib
+  - subprocess
 - path: gen_schematics.py
-  purpose: "Generate KiCad schematics from atopile netlist (default.net)"
+  purpose: Generate KiCad schematics from atopile netlist (default.net), with per-designator part identity
+    from default.csv (default.net's libsource is footprint-aliased); --check is the schematic-drift CI
+    gate
   owner: bennet
-  last_run: "2026-07-15"
+  last_run: '2026-07-15'
   category: keep
   disposition: ci-gate
-    imports:
-      - __future__
-      - argparse
-      - collections
-      - dataclasses
-      - hashlib
-      - json
-      - pathlib
-      - re
-      - subprocess
-      - sys
-      - tempfile
-      - typing
-      - __future__
-      - argparse
-      - collections
-      - dataclasses
-      - hashlib
-      - json
-      - pathlib
-      - re
-      - subprocess
-      - sys
-      - tempfile
-      - typing
-
+  imports:
+  - __future__
+  - argparse
+  - collections
+  - csv
+  - dataclasses
+  - hashlib
+  - json
+  - pathlib
+  - re
+  - subprocess
+  - sys
+  - tempfile
+  - typing
 - path: packages/temper-placer/scripts/gen_config_reference.py
-  purpose: "Generate docs/reference/config-reference.md from Pydantic model introspection (plan 2026-07-22-005)"
+  purpose: Generate docs/reference/config-reference.md from Pydantic model introspection (plan 2026-07-22-005)
   owner: bennet
-  last_run: "2026-07-22"
+  last_run: '2026-07-22'
   category: keep
   disposition: ci-gate
-    imports:
-      - __future__
-      - argparse
-      - sys
-      - pathlib
-      - typing
-      - pydantic
-      - temper_placer.constraint_types.config
-
+  imports:
+  - __future__
+  - argparse
+  - sys
+  - pathlib
+  - typing
+  - pydantic
+  - temper_placer.constraint_types.config
 - path: gen_domain_models.py
-  purpose: "Cross-language domain model codegen — NetClassRules SSOT from YAML manifest to Python+Rust (plan 2026-07-22-004)"
+  purpose: Cross-language domain model codegen — NetClassRules SSOT from YAML manifest to Python+Rust
+    (plan 2026-07-22-004)
   owner: bennet
-  last_run: "2026-07-22"
+  last_run: '2026-07-22'
   category: keep
   disposition: ci-gate
-    imports:
-      - argparse
-      - jinja2
-      - os
-      - pathlib
-      - sys
-      - typing
-      - yaml
-      - argparse
-      - os
-      - sys
-      - pathlib
-      - yaml
-      - jinja2
-
+  imports:
+  - argparse
+  - jinja2
+  - os
+  - pathlib
+  - sys
+  - typing
+  - yaml
 - path: ci_identity_check.py
-  purpose: "CI enforcement of the board identity gate (plan 2026-07-15-001, U7): rejects the quarantined fixture, verifies the production board once it exists"
+  purpose: 'CI enforcement of the board identity gate (plan 2026-07-15-001, U7): rejects the quarantined
+    fixture, verifies the production board once it exists'
   owner: bennet
-  last_run: "2026-07-15"
+  last_run: '2026-07-15'
   category: keep
   disposition: ci-gate
-    imports:
-      - __future__
-      - pathlib
-      - sys
-      - __future__
-      - pathlib
-      - sys
-      - temper_placer.io.design_bundle_preflight
-
+  imports:
+  - __future__
+  - pathlib
+  - sys
 - path: batch_pipeline_validate.py
-  purpose: "Batch pipeline validation — feed corpus boards through parse→placement→route and quarantine failures"
+  purpose: Batch pipeline validation — feed corpus boards through parse→placement→route and quarantine
+    failures
   owner: bennet
-  last_run: "2026-07-23"
+  last_run: '2026-07-23'
   category: keep
   disposition: utility
-    imports:
-      - __future__
-      - argparse
-      - pathlib
-      - sys
-      - time
-      - yaml
-      - __future__
-      - argparse
-      - sys
-      - time
-      - pathlib
-      - yaml
-      - temper_placer.io.kicad_parser
-
+  imports:
+  - __future__
+  - argparse
+  - pathlib
+  - sys
+  - time
+  - yaml
 - path: bench_rust_constraints.py
-  purpose: "Benchmark gate for Rust constraint engine extraction — compares Rust vs Python loss computation wall-clock performance"
+  purpose: Benchmark gate for Rust constraint engine extraction — compares Rust vs Python loss computation
+    wall-clock performance
   owner: bennet
-  last_run: "2026-07-23"
+  last_run: '2026-07-23'
   category: keep
   disposition: utility
-    imports:
-      - __future__
-      - argparse
-      - json
-      - pathlib
-      - statistics
-      - sys
-      - time
-      - __future__
-      - argparse
-      - json
-      - statistics
-      - sys
-      - time
-      - pathlib
-      - temper_constraints
-
+  imports:
+  - __future__
+  - argparse
+  - json
+  - pathlib
+  - statistics
+  - sys
+  - time
 - path: bench_rust_geometry.py
-  purpose: "Benchmark Rust-backed geometry functions vs pure-Python equivalents"
+  purpose: Benchmark Rust-backed geometry functions vs pure-Python equivalents
   owner: bennet
-  last_run: "2026-07-23"
+  last_run: '2026-07-23'
   category: keep
   disposition: utility
-    imports:
-      - math
-      - temper_geometry
-      - time
-      - math
-      - time
-      - temper_geometry
-
+  imports:
+  - math
+  - statistics
+  - temper_geometry
+  - time
 - path: gen_pcb_skeleton.py
-  purpose: "Generate a production KiCad PCB skeleton from the atopile netlist (CI-gate --check mode)"
+  purpose: Generate a production KiCad PCB skeleton from the atopile netlist (CI-gate --check mode)
   owner: bennet
-  last_run: "2026-07-23"
+  last_run: '2026-07-23'
   category: keep
   disposition: ci-gate
-    imports:
-      - __future__
-      - argparse
-      - collections
-      - dataclasses
-      - hashlib
-      - json
-      - pathlib
-      - re
-      - subprocess
-      - sys
-      - tempfile
-      - typing
-      - __future__
-      - argparse
-      - hashlib
-      - json
-      - re
-      - subprocess
-      - sys
-      - tempfile
-      - collections
-      - dataclasses
-      - pathlib
-      - typing
-
+  imports:
+  - __future__
+  - argparse
+  - collections
+  - dataclasses
+  - hashlib
+  - json
+  - pathlib
+  - re
+  - subprocess
+  - sys
+  - tempfile
+  - typing
 - path: check_workflow_pr_triggers.py
-  purpose: "CI gate: ensure workflow files with push triggers also declare pull_request (issue #315)"
+  purpose: 'CI gate: ensure workflow files with push triggers also declare pull_request (issue #315)'
   owner: pipeline
-  last_run: "2026-07-23"
+  last_run: '2026-07-23'
   category: keep
   disposition: ci-gate
-    imports:
-      - argparse
-      - pathlib
-      - re
-      - sys
-      - yaml
+  imports:
+  - argparse
+  - pathlib
+  - re
+  - sys
+  - yaml
+- path: sweep_plan_status.py
+  purpose: One-shot supersession sweep of docs/plans/ frontmatter status (2026-07-25); see docs/plans/README.md
+  owner: bennet
+  last_run: '2026-07-25'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - argparse
+  - collections
+  - pathlib
+  - re
+  - subprocess
+- path: check_vacuous_gates.py
+  purpose: 'CI gate: reject unguarded all() in gate and validator modules (docs/METHODOLOGY.md Sec 4/5,
+    anti-vacuous-truth); any() exempt (already fail-closed); asserts zero, no allowlist'
+  owner: bennet
+  last_run: '2026-07-25'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - ast
+  - pathlib
+  - re
+  - rich.console
+  - sys
+- path: capacity_budget_gate.py
+  purpose: 'CI gate: design-capacity budget check over the fault-tree''s SN74HC4075 fan-in -- reachability
+    over elec/build/default.net, not pin-occupancy counting; fails closed on missing/empty netlist or
+    BOM, an absent required package, or a real fault source wired into a dead-output gate (docs/evidence/2026-07-26-design-capacity-budget-gate.md)'
+  owner: bennet
+  last_run: '2026-07-26'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - csv
+  - dataclasses
+  - pathlib
+  - sys
+  - yaml
+- path: check_domain_partition.py
+  purpose: 'Netlist domain-partition CI gate: verify the compiled netlist''s HV/SELV domains are actually
+    disjoint (docs/hardware/IEC60335_CRITICAL_COMPONENTS.md Sec 2) against elec/domain_manifest.yaml;
+    fail-closed on missing/empty/stale netlist or manifest'
+  owner: bennet
+  last_run: '2026-07-26'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - collections
+  - dataclasses
+  - json
+  - pathlib
+  - re
+  - sys
+  - typing
+- path: check_rust_drc_presence.py
+  purpose: 'CI gate: fail-closed presence/freshness check for the temper_drc_rs PyO3 extension -- a bare
+    import cannot detect a stale wheel missing a symbol the current lib.rs registers (2026-07-26 incident:
+    verify_route_clearance silently absent, differential test silently skipped); TEMPER_REQUIRE_RUST_DRC=1
+    (CI) makes any gap fatal, unset (local dev) makes it a warning'
+  owner: bennet
+  last_run: '2026-07-26'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - importlib
+  - os
+  - pathlib
+  - re
+  - sys
+- path: check_derived_doc_drift.py
+  purpose: 'Derived-document drift gate: fail when a summary table silently drops a qualifier, column,
+    or value restated from docs/FUNCTIONAL_TEST_CRITERIA.md'
+  owner: bennet
+  last_run: '2026-07-26'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - dataclasses
+  - datetime
+  - pathlib
+  - re
+  - rich.console
+  - sys
+  - yaml
+- path: worktree_report.py
+  purpose: 'Worktree hygiene report: inventory each git worktree with HEAD, age, distance behind main,
+    and unique unmerged commits (read-only, prunes nothing)'
+  owner: bennet
+  last_run: '2026-07-26'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - _lib.repo
+  - argparse
+  - datetime
+  - json
+  - pathlib
+  - rich.console
+  - rich.table
+  - subprocess
+  - sys

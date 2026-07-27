@@ -1,9 +1,11 @@
 ---
 title: feat: Pipeline observability system
 type: feat
-status: active
+status: completed
 date: 2026-06-28
 origin: docs/brainstorms/2026-06-28-pipeline-observability-requirements.md
+swept: 2026-07-25
+swept_basis: "referenced in git history; 24/29 paths exist"
 ---
 
 # feat: Pipeline observability system

@@ -1,7 +1,9 @@
 ---
 type: feat
 origin: docs/brainstorms/2026-07-05-acceptance-gate-real-drc-and-unsat-ux-requirements.md
-status: active
+status: abandoned
+swept: 2026-07-25
+swept_basis: "only 0/9 named paths exist"
 ---
 # feat: Acceptance Gate — Two-Tier DRC + UNSAT as Product Feature + Oracle Hygiene
 

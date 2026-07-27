@@ -1,0 +1,98 @@
+# Package registry for the design-capacity budget gate
+# (scripts/capacity_budget_gate.py).
+#
+# Each entry under `packages` describes a FIXED, datasheet-defined pin map
+# for one MPN. Pin numbers are a physical-part fact (they never change
+# between boards using the same MPN) -- this is deliberately NOT read from
+# elec/src/*.ato, because the gate is a netlist-level checker: it must keep
+# working if the .ato module hierarchy is refactored, as long as the same
+# physical parts and wiring exist. See docs/evidence/
+# 2026-07-26-design-capacity-budget-gate.md for why identity is resolved
+# via elec/build/default.csv + default.net's `sheetpath`, never via
+# default.net's `libsource` (which aliases part identity by footprint).
+#
+# `gates`: for fan-in aggregator parts, the sets of input pins that combine
+# into one output pin. Availability of an input pin is only meaningful in
+# the context of the gate it belongs to -- an input is not "free" just
+# because it is unconnected; its gate's output must also lead somewhere.
+
+packages:
+  SN74HC4075DR:
+    description: "Triple 3-input OR gate (TI SN74HC4075, pin-compatible CD4075)"
+    pins:
+      A1: "1"
+      B1: "2"
+      A2: "3"
+      B2: "4"
+      C2: "5"
+      Y2: "6"
+      GND: "7"
+      C1: "8"
+      Y1: "9"
+      Y3: "10"
+      A3: "11"
+      B3: "12"
+      C3: "13"
+      VCC: "14"
+    gates:
+      - name: gate1
+        inputs: [A1, B1, C1]
+        output: Y1
+      - name: gate2
+        inputs: [A2, B2, C2]
+        output: Y2
+      - name: gate3
+        inputs: [A3, B3, C3]
+        output: Y3
+
+  SN74HC00DR:
+    description: "Quad 2-input NAND gate (TI SN74HC00)"
+    pins:
+      A1: "1"
+      B1: "2"
+      Y1: "3"
+      A2: "4"
+      B2: "5"
+      Y2: "6"
+      GND: "7"
+      Y3: "8"
+      A3: "9"
+      B3: "10"
+      Y4: "11"
+      A4: "12"
+      B4: "13"
+      VCC: "14"
+    # NAND gates are not monotonic fan-in OR aggregators (a NAND output is
+    # not "any input asserted -> output asserted"), so this package is not
+    # modeled as a fan-in source. It appears only as `destination_mpn`
+    # below -- the gate never needs to reason about *how* the latch
+    # computes SET, only whether a given net physically reaches its SET
+    # pin.
+    gates: []
+
+# The fault-aggregation tree (docs/hardware/UVL02_DESIGN.md SS7,
+# docs/hardware/OCP02_DESIGN.md "Fault integration"). `aggregator_mpns`
+# lists the fan-in packages surveyed for spare capacity; `destination_mpn`
+# + `set_pin` identify the single physical pin a new fault source's output
+# must eventually reach to actually trip hardware shutdown.
+#
+# There must be exactly one instance of `destination_mpn` in the design;
+# if there is zero or more than one, the destination is ambiguous and the
+# gate fails closed rather than guessing.
+fault_tree:
+  aggregator_mpns: [SN74HC4075DR]
+  destination_mpn: SN74HC00DR
+  set_pin: A1
+  reset_qualifier_pin: A3
+  reset_qualifier_reason: >-
+    this pin is the RESET qualifier (Y2 -> latch.A3, computing
+    OR(any_fault, reset_request)), not the SET input. A fault wired to a
+    gate whose output only reaches this pin can block firmware reset but
+    can never trip the latch -- worse than leaving the input unwired.
+
+# Anti-vacuity: these MPNs are expected to exist at least once in every
+# build of this design. If a build reports zero instances of one of
+# these, that is far more likely a parsing/build regression than a real
+# design change, and must fail closed rather than silently report "0
+# packages checked, nothing wrong."
+required_packages: [SN74HC4075DR, SN74HC00DR]

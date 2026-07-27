@@ -1,7 +1,7 @@
 ---
 title: "fix: Close mock-boundary blind spots in router_v6 test suite"
 type: fix
-status: planned
+status: stale
 date: 2026-07-23
 origin: docs/brainstorms/2026-07-23-mock-boundary-audit-requirements.md
 adversarial_review: true
@@ -10,6 +10,8 @@ review_findings:
   - "R5 (comment convention) is unenforceable without automation — same review process that missed a pass-stub test will miss a missing comment"
   - "The pass-stub harm mechanism is name-squatting, not false coverage confidence"
   - "test_router_integration.py:216 has a different risk profile than the design_rules mock — no 'decoy trap' dual-object pattern, but still has zero diagnostic value"
+swept: 2026-07-25
+swept_basis: "insufficient evidence - needs human triage"
 ---
 
 ## Summary

@@ -249,6 +249,57 @@ class TestStarGroundPoint:
         result = check_star_ground_point(ground_domains)
         assert result.passed
 
+    def test_direct_tie_into_isolated_domain_fails(self):
+        """A bare/direct connection into an isolated domain must fail, even
+        as the *only* connection (falsifier for SG-003).
+
+        This is the specific defect docs/hardware/SELV_ISOLATION_REDESIGN.md
+        removed: a single-point star join (`power_return ~ gnd`) that looked
+        like textbook "one connection = correct star ground" but actually
+        shorted a 4.2kVAC isolation barrier between an isolated SELV domain
+        and the HV return. A star-ground checker that treats "exactly one
+        connection" as always-correct would encode that removed defect as a
+        requirement -- this test asserts it does not.
+        """
+        ground_domains = {
+            "PGND": {"area": [(0, 0, 50, 100)]},
+            "ISOGND": {"area": [(50, 0, 100, 100)]},
+            "connections": [
+                # Bare tie, no isolation device -- exactly the shorted-barrier pattern.
+                {"from": "PGND", "to": "ISOGND", "location": (50, 50), "width": 10.0},
+            ],
+        }
+
+        result = check_star_ground_point(ground_domains)
+        assert not result.passed
+        assert result.error_count >= 1
+
+    def test_isolation_device_tie_into_isolated_domain_passes(self):
+        """A connection into an isolated domain marked as going through a
+        real isolation device (capacitor/transformer/optocoupler) is
+        correct, even though it is a "connection" in the naive sense."""
+        ground_domains = {
+            "PGND": {"area": [(0, 0, 50, 100)]},
+            "ISOGND": {"area": [(50, 0, 100, 100)], "isolated": True},
+            "connections": [
+                {
+                    "from": "PGND",
+                    "to": "ISOGND",
+                    "location": (50, 50),
+                    "component_type": "capacitor",
+                },
+                {
+                    "from": "PGND",
+                    "to": "ISOGND",
+                    "location": (50, 70),
+                    "component_type": "optocoupler",
+                },
+            ],
+        }
+
+        result = check_star_ground_point(ground_domains)
+        assert result.passed
+
 
 # =============================================================================
 # Via Stitching Tests
@@ -307,11 +358,94 @@ class TestGroundPlaneIntegration:
 
     @pytest.mark.slow
     def test_temper_board_ground_plane_compliance(self):
-        """Temper board ground plane should meet all REQ-EMC-01 requirements."""
-        # TODO: Load actual Temper board geometry
-        # TODO: Run all ground plane checks
-        # TODO: Verify compliance
-        pytest.skip("Temper board fixture not yet available")
+        """Temper board ground plane should meet all REQ-EMC-01 requirements.
+
+        Implemented 2026-07-26, replacing "Temper board fixture not yet
+        available". Full accounting in
+        docs/evidence/2026-07-26-emc-validators-implemented.md; summary:
+
+        - check_slot_lengths, check_via_stitching, check_signal_ground_reference:
+          NOT run against the real board. ``pcb/temper.kicad_pcb`` has zero
+          ``(zone ...)`` records (verified: ``grep -c '(zone' pcb/temper.kicad_pcb``
+          -> 0) -- no ground-plane copper pour has been created yet at this
+          stage of layout, so there is no slot geometry, no split-plane
+          boundary, and no ground-plane-vs-trace geometry to check. Feeding
+          these functions empty geometry would report a vacuous "0
+          violations" pass that misrepresents "no pour exists yet" as
+          "pour is compliant" -- reported honestly as not-yet-applicable
+          instead.
+        - check_star_ground_point: DOES run, and is the one function in this
+          module whose data is available today, because it operates on
+          net-topology facts (which nets exist and how they cross), not on
+          PCB copper geometry. See below.
+
+        check_star_ground_point validates the POST-SELV-float architecture,
+        not the removed star join. The `ground_domains` input below is
+        built from docs/hardware/SELV_ISOLATION_REDESIGN.md Sec 4 and Sec 6
+        (netlist evidence, re-verified there against
+        elec/build/default.net): `gnd` (SELV, now bonded to `pe`, no longer
+        to `power_return`) and `PWR_RTN` (the HV doubler-midpoint return)
+        are two separate nets, crossed only by four components the SELV doc
+        confirms are real isolation devices, never a direct/galvanic tie:
+        C6 (Y1 capacitor), PS1 (IRM-10-15 transformer), T1 (CST2010-100L
+        current-sense transformer), U3 (H11L1 optocoupler). This is
+        asserted to PASS -- correctly, because the design is not supposed
+        to have a bare connection between these two domains anymore.
+        """
+        ground_domains = {
+            "gnd": {"isolated": True},  # SELV domain, PE-bonded (main.ato: gnd ~ pe)
+            "PWR_RTN": {},  # HV doubler-midpoint return (power_return)
+            "connections": [
+                {
+                    "from": "gnd",
+                    "to": "PWR_RTN",
+                    "component_type": "capacitor",
+                    "ref": "C6",
+                },
+                {
+                    "from": "gnd",
+                    "to": "PWR_RTN",
+                    "component_type": "transformer",
+                    "ref": "PS1",
+                },
+                {
+                    "from": "gnd",
+                    "to": "PWR_RTN",
+                    "component_type": "transformer",
+                    "ref": "T1",
+                },
+                {
+                    "from": "gnd",
+                    "to": "PWR_RTN",
+                    "component_type": "optocoupler",
+                    "ref": "U3",
+                },
+            ],
+        }
+
+        result = check_star_ground_point(ground_domains)
+        assert result.passed, (
+            "Post-SELV-float architecture should pass: gnd/PWR_RTN cross only "
+            "through documented isolation devices, never a bare tie"
+        )
+        assert result.error_count == 0
+
+        # Counterfactual, to show this check actually would have caught the
+        # defect that was removed: the old `power_return ~ gnd` star join was
+        # a single, bare, unmarked connection between these same two
+        # domains -- exactly the SG-003 pattern.
+        old_defect_domains = {
+            "gnd": {"isolated": True},
+            "PWR_RTN": {},
+            "connections": [
+                {"from": "gnd", "to": "PWR_RTN", "location": (0, 0)},  # no isolation marker
+            ],
+        }
+        old_result = check_star_ground_point(old_defect_domains)
+        assert not old_result.passed, (
+            "Sanity check: the removed star join pattern (bare gnd~PWR_RTN tie) "
+            "must still be flagged by this checker"
+        )
 
     def test_validation_result_aggregation(self):
         """Multiple violations should aggregate correctly."""

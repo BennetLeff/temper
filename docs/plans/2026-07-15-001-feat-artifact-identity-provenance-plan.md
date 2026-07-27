@@ -3,11 +3,13 @@ date: "2026-07-15"
 plan_id: "2026-07-15-001"
 type: feat
 title: "Artifact Identity & Provenance Gate"
-status: active
+status: completed
 origin: docs/brainstorms/2026-07-15-artifact-identity-provenance-requirements.md
 prerequisites:
   - docs/plans/2026-07-11-001-feat-atopile-pcl-rust-design-bundle-plan.md
   - "docs/plans/2026-07-15-002-feat-schematic-generation-from-atopile-plan.md (shipped; schematics now generated, oracle-verified, CI-gated)"
+swept: 2026-07-25
+swept_basis: "referenced in git history; 20/25 paths exist"
 ---
 
 # feat: Artifact Identity & Provenance Gate

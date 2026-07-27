@@ -2,9 +2,11 @@
 plan_id: 2026-07-23-004
 title: CI Pipeline Speedup — Eliminate Redundant Work in Python Tests
 type: perf
-status: active
+status: stale
 created: 2026-07-23
 tags: [ci, github-actions, performance, python-tests]
+swept: 2026-07-25
+swept_basis: "insufficient evidence - needs human triage"
 ---
 
 ## Summary

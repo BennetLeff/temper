@@ -78,6 +78,10 @@ class CopperBalanceReport:
 
     layer_balances: list[LayerCopperBalance]
     total_area_mm2: float  # Board area computed once (width × height)
+    # True iff the check crashed and this report is a substituted
+    # empty/fallback report rather than a real result. See
+    # docs/evidence/2026-07-25-manufacturing-drc-crash-swallow.md.
+    errored: bool = False
 
     @property
     def balanced_layer_count(self) -> int:

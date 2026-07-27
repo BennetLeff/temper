@@ -1,9 +1,11 @@
 ---
 title: "feat: Board Capacity vs. BOM — Decision-Support Artifacts and Re-Verification Infrastructure"
 type: feat
-status: active
+status: completed
 date: 2026-07-18
 origin: docs/brainstorms/2026-07-18-board-capacity-bom-decision-requirements.md
+swept: 2026-07-25
+swept_basis: "10/11 named paths exist"
 ---
 
 # Board Capacity vs. BOM — Decision-Support Artifacts and Re-Verification Infrastructure

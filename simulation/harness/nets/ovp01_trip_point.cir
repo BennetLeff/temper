@@ -1,0 +1,100 @@
+* OVP-01 trip-point AND release-point transient: OVPComparator
+* (elec/src/modules.ato), TLV3201 comparator model.
+*
+* CALIBRATED: false. No bench measurement exists for this circuit. Every
+* component value below is copied read-only from the committed atopile
+* source (elec/src/modules.ato: OVPComparator). Nothing here was invented
+* to make the answer come out a particular way.
+*
+* Sourced values (read-only, elec/src/modules.ato: OVPComparator, as of the
+* 2026-07-26 hysteresis fix -- an earlier revision used r_ref_top=732 with
+* NO hysteresis resistor at all; the hysteresis column had been dropped
+* from the summary table, so the requirement was invisible when that value
+* was chosen):
+*   - power_3v3 rail (comp.VCC):         3.3 V
+*   - r_div_top1/top2/top3:              430 kohm each, in series (unchanged)
+*   - r_div_bot:                         10000 ohm (unchanged)
+*       -> V(comp.INP) = V_bus * 10000 / (3*430000 + 10000) = V_bus / 130
+*   - r_ref_top:                         1100 ohm  -- CHANGED from 732 ohm
+*   - r_ref_bot:                         10000 ohm (unchanged)
+*       -> V(comp.INN) = 3.3 * 10000 / (1100 + 10000) = 2.97297 V
+*   - r_hyst:                            287000 ohm, NEW -- from comp.INP
+*     (the bus-sense node) back to comp.OUT. Unlike ThermalComparator, the
+*     feedback lands on the SENSE side (INP) not the reference side (INN),
+*     because the bus divider is what's high-impedance here; see module
+*     comment "Feeding INN instead would move the threshold the wrong way."
+*
+* Hand-derived pre-trip (rising) trip point, comp.OUT ~ 0V (fault not yet
+* latched, so r_hyst pulls the sense node toward ground):
+*   G = 1/1290000 + 1/10000 + 1/287000 = 1.04259e-4 S
+*   V_bus_trip = V_ref / (G * 1290000) * ... equivalently, solving the INP
+*   node equation for V_bus at V(INP)=V_ref=2.97297V:
+*     (V_bus - V1)/1290000 + (0 - V1)/10000 + (0 - V1)/287000 = 0
+*     V_bus = V1 * 1290000 * G = 2.97297 * 134.494 = 399.85 V
+*   (module comment: trips 399.8V)
+*
+* Hand-derived post-trip (release, falling) point, comp.OUT ~ VCC = 3.3V
+* (fault latched high via r_hyst positive feedback):
+*     (V_bus - V1)/1290000 + (0 - V1)/10000 + (3.3 - V1)/287000 = 0
+*     V_bus = V1*134.494 - 3.3*1290000/287000 = 399.85 - 14.83 = 385.02 V
+*   (module comment: release 385.0V)
+* Hysteresis (hand): ~14.8V, inside the OVP-01 10-20V requirement
+* (FUNCTIONAL_TEST_CRITERIA.md SS2.2).
+*
+* What "v_bus.line" physically is
+* --------------------------------
+* main.ato wires `safety.dc_bus.line ~ dc_bus.line`, the FULL DC bus
+* (resolved 2026-07-26; see run_ovp01_sim.py). This deck ramps that node
+* directly and measures the trip/release thresholds at the node the
+* comparator actually senses.
+*
+* Ramp: this deck drives v_bus UP past the trip point, THEN DOWN past the
+* release point, in one transient run, so both thresholds are measured
+* from the same latched comparator state (the release threshold only
+* exists once the output has actually gone high via r_hyst).
+*   0V -> 500V over 250us, then back down to 0V over the next 250us. 500V
+*   gives >100V margin above the ~400V trip target, and returning to 0V
+*   gives full margin below the ~385V release target.
+*
+* Known model-fidelity limit (simulation/models/TLV3201_ngspice.lib header):
+* "It intentionally does not claim a timing, noise, or temperature model."
+* This deck therefore measures only the DC/quasi-static trip and release
+* THRESHOLDS, not response time.
+
+.include ../../models/TLV3201_ngspice.lib
+
+.param RAMP_MAX_V=500
+.param T_UP=250u
+.param T_DOWN=250u
+
+V_VCC VCC_3V3 0 DC 3.3
+V_BUS v_bus 0 PWL(0 0 {T_UP} {RAMP_MAX_V} {T_UP+T_DOWN} 0)
+
+R_DIV_TOP1 v_bus n1 430000
+R_DIV_TOP2 n1 n2 430000
+R_DIV_TOP3 n2 vinp 430000
+R_DIV_BOT vinp 0 10000
+
+R_REF_TOP VCC_3V3 vinn 1100
+R_REF_BOT vinn 0 10000
+
+* Hysteresis: positive feedback from output to INP (bus-sense node)
+R_HYST vinp comp_out 287000
+
+X_COMP vinp vinn VCC_3V3 0 comp_out TLV3201_NGSPICE
+
+.control
+set noaskquit
+tran 100n 500u
+meas tran t_trip WHEN v(comp_out)=1.65 RISE=1
+meas tran t_release WHEN v(comp_out)=1.65 FALL=1
+meas tran v_bus_at_trip FIND v(v_bus) AT={t_trip}
+meas tran v_bus_at_release FIND v(v_bus) AT={t_release}
+print t_trip
+print t_release
+print v_bus_at_trip
+print v_bus_at_release
+quit
+.endc
+
+.end

@@ -1,16 +1,34 @@
 #!/usr/bin/env python3
 """Import-linter boundary enforcement CI gate.
 
-Wraps import-linter (lint-imports), diffs violations against a ratchet baseline,
-applies an allowlist, and enforces a monotonic-shrinking ratchet.
+Wraps import-linter (lint-imports), applies an allowlist, and fails directly
+on any unallowlisted violation. (Previously diffed against a ratchet baseline
+file, import-linter-baseline.yaml; that baseline sat empty for 32 days
+(2026-06-23 -> 2026-07-25) and was collapsed per
+docs/plans/2026-07-25-002-refactor-baseline-burndown-plan.md R4 — the
+"zero violations" contract is now asserted directly instead of diffed
+against a committed empty file.)
+
+Every lint-imports run is classified into exactly one of three states
+(see `classify_lint_report`): "clean" (0 contracts broken), "contracts_broken"
+(>=1 contract broken with parseable violation detail -- the expected failure
+mode), or "tool_error" (crash, bad config, missing module, or any output that
+doesn't match the tool's own completion markers). Only "clean" may exit 0.
+A crash used to be silently read as "0 violations" because the violation
+parser found no violation-shaped lines in crash output; classification is
+now driven by whether the report's completion markers are present at all,
+so it fails closed on unknown-shaped crashes too.
 
 Exit codes:
-  0 - OK (no new violations, WARNING-only mode, or all violations baseline/allowed)
-  3 - New boundary violation (not in baseline or allowlist)
-  5 - Gate script error (tool failure, missing config, etc.)
+  0 - OK (state == clean, WARNING-only mode, or all violations allowed)
+  3 - New boundary violation (not allowlisted; state == contracts_broken)
+  5 - Gate script error (state == tool_error: tool failure, missing config,
+      missing module, unparseable output, etc.)
 
 Soft-launch (R14): Before CUTOVER_DATE, violations print as warnings and exit 0.
-After CUTOVER_DATE, new violations exit non-zero (merge-blocking).
+After CUTOVER_DATE, new violations exit non-zero (merge-blocking). This
+soft-launch window applies only to contracts_broken; tool_error always
+exits 5 regardless of date.
 
 Usage:
   uv run python scripts/import_linter_gate.py [--help]
@@ -84,7 +102,7 @@ def parse_violations(output: str) -> dict[str, set[tuple[str, str]]]:
 
 
 def parse_syntax_errors(output: str) -> list[str]:
-    """Extract syntax error lines from import-linter output."""
+    """Extract syntax error lines from import-linter output (diagnostic detail only)."""
     errors = []
     for line in output.splitlines():
         if "Syntax error" in line:
@@ -92,28 +110,126 @@ def parse_syntax_errors(output: str) -> list[str]:
     return errors
 
 
-def load_yaml_set(filepath: Path) -> set[tuple[str, str, str]]:
-    """Load a YAML file as set of (source, target, contract) tuples."""
-    import yaml
+# Markers that indicate lint-imports actually completed its analysis and
+# printed its standard report, as opposed to crashing before it got that far
+# (stale module in the config, a syntax error in scanned source, or any
+# other tool-level failure). Classification is anchored on the tool's own
+# completion markers -- not on substring-matching specific known crash
+# messages ("does not exist", "Syntax error", ...) -- so a *new*,
+# never-seen crash shape is caught by construction instead of silently
+# reading as "0 violations found". That silent misread was the actual bug:
+# a crash prints no violation-shaped lines, `parse_violations()` returns an
+# empty dict, and an empty dict used to be indistinguishable from a clean
+# run.
+ANALYZED_RE = re.compile(r"^Analyzed \d+ files?, \d+ dependenc(?:y|ies)\.\s*$", re.MULTILINE)
+CONTRACTS_SUMMARY_RE = re.compile(
+    r"^Contracts:\s+(?P<kept>\d+)\s+kept,\s+(?P<broken>\d+)\s+broken\.\s*$",
+    re.MULTILINE,
+)
 
-    if not filepath.is_file():
-        return set()
-    with open(filepath) as f:
-        try:
-            data = yaml.safe_load(f)
-        except Exception:
-            return set()
-    if not data or not isinstance(data, dict):
-        return set()
-    entries = data.get("violations", [])
-    result = set()
-    if isinstance(entries, list):
-        for entry in entries:
-            if isinstance(entry, dict) and all(
-                k in entry for k in ("source", "target", "contract")
-            ):
-                result.add((entry["source"], entry["target"], entry["contract"]))
-    return result
+
+class LintOutcome:
+    """Result of classifying one lint-imports run.
+
+    `state` is exactly one of three mutually exclusive, exhaustive values:
+
+      "clean"            - report parsed; 0 contracts broken; exit 0.
+                            The only state allowed to make the gate exit 0.
+      "contracts_broken" - report parsed; >=1 contract broken, with at
+                            least one parsed violation edge. This is the
+                            expected failure mode of a working gate.
+      "tool_error"        - anything else: crash, bad config, missing
+                            module, unparseable output, or an exit code
+                            inconsistent with what the parsed report says
+                            (e.g. "0 broken" but nonzero exit, or ">0
+                            broken" but exit 0). Never treated as "0
+                            violations" and never allowed to exit 0.
+    """
+
+    def __init__(self, state, *, kept=None, broken=None, violations=None, reason=""):
+        self.state = state
+        self.kept = kept
+        self.broken = broken
+        self.violations = violations or {}
+        self.reason = reason
+
+
+def classify_lint_report(exit_code: int, output: str) -> LintOutcome:
+    """Classify a lint-imports run as clean, contracts_broken, or tool_error.
+
+    Fixes the defect where lint-imports crashing (stale module referenced
+    in config, syntax error in scanned source, etc.) printed no
+    violation-shaped lines; `parse_violations()` returned an empty dict;
+    and an empty dict of violations was indistinguishable from "0
+    violations" -- so the gate printed PASSED on a crash.
+
+    Classification requires the tool's own completion markers ("Analyzed N
+    files...", "Contracts: X kept, Y broken.") to be present AND the exit
+    code to be consistent with what they say. Anything that fails either
+    check is a tool error, never a pass.
+    """
+    analyzed = ANALYZED_RE.search(output)
+    summary = CONTRACTS_SUMMARY_RE.search(output)
+
+    if not analyzed or not summary:
+        return LintOutcome(
+            state="tool_error",
+            reason=(
+                "lint-imports output does not contain the expected "
+                "'Analyzed N files...' / 'Contracts: X kept, Y broken.' "
+                "completion markers -- the tool did not finish a normal "
+                f"run (exit code {exit_code})."
+            ),
+        )
+
+    kept = int(summary.group("kept"))
+    broken = int(summary.group("broken"))
+
+    if broken == 0:
+        if exit_code != 0:
+            return LintOutcome(
+                state="tool_error",
+                kept=kept,
+                broken=broken,
+                reason=(
+                    f"lint-imports reported 0 broken contracts but exited "
+                    f"{exit_code} (expected 0 for a clean run)."
+                ),
+            )
+        return LintOutcome(state="clean", kept=kept, broken=broken)
+
+    if exit_code == 0:
+        return LintOutcome(
+            state="tool_error",
+            kept=kept,
+            broken=broken,
+            reason=(
+                f"lint-imports reported {broken} broken contract(s) but "
+                "exited 0 (expected non-zero for a broken-contracts run)."
+            ),
+        )
+
+    violations = parse_violations(output)
+    total_edges = sum(len(v) for v in violations.values())
+    if total_edges == 0:
+        # Anti-vacuous-truth guard (METHODOLOGY.md failure class 4): the
+        # report says contracts are broken, so zero parsed violation edges
+        # means our parser drifted from the tool's output format -- not
+        # that there is nothing to report.
+        return LintOutcome(
+            state="tool_error",
+            kept=kept,
+            broken=broken,
+            reason=(
+                f"lint-imports reported {broken} broken contract(s) but no "
+                "violation detail lines could be parsed from its output "
+                "(parser drift or an output-format change)."
+            ),
+        )
+
+    return LintOutcome(
+        state="contracts_broken", kept=kept, broken=broken, violations=violations
+    )
 
 
 def load_yaml_allowlist(filepath: Path) -> set[tuple[str, str, str]]:
@@ -269,12 +385,6 @@ def main():
         help="Path to import-linter config file",
     )
     parser.add_argument(
-        "--baseline",
-        type=str,
-        default=str(REPO_ROOT / "import-linter-baseline.yaml"),
-        help="Path to ratchet baseline",
-    )
-    parser.add_argument(
         "--allowlist",
         type=str,
         default=str(REPO_ROOT / "import-linter-allowlist.yaml"),
@@ -283,7 +393,6 @@ def main():
     args = parser.parse_args()
 
     config_path = args.config
-    baseline_path = Path(args.baseline)
     allowlist_path = Path(args.allowlist)
 
     if not Path(config_path).is_file():
@@ -299,36 +408,55 @@ def main():
     # Run import-linter
     exit_code, output = run_lint_imports(config_path)
 
-    syntax_errors = parse_syntax_errors(output)
-    if syntax_errors and exit_code != 0:
-        print("=== SYNTAX ERRORS IN SOURCE FILES ===")
-        for err in syntax_errors:
-            print(f"  {err}")
-        if is_warning_mode:
-            print("WARNING mode: syntax errors reported but not blocking.")
-            sys.exit(0)
-        else:
-            print("ERROR: Fix syntax errors to enable boundary checking.")
-            sys.exit(5)
+    outcome = classify_lint_report(exit_code, output)
 
-    if exit_code == 0:
-        baseline = load_yaml_set(baseline_path)
-        if baseline:
-            print("=== BASELINE SHRINK OPPORTUNITY ===")
-            print(
-                f"  {len(baseline)} baseline entries can be removed — "
-                "all violations resolved!"
-            )
-            print("  Commit the updated (empty) baseline to ratchet tighter.")
-        else:
-            print("Import boundary gate PASSED — 0 violations")
-        sys.exit(0)
+    if outcome.state == "tool_error":
+        # A tool error (crash, bad config, missing module, unparseable
+        # output) is never a pass and is never silently swallowed: the
+        # full raw stdout+stderr from lint-imports is echoed below, and
+        # this path always exits non-zero regardless of warn/block mode --
+        # the soft-launch warn window only ever applied to *violations*,
+        # not to the tool failing to run at all.
+        print("=== IMPORT-LINTER TOOL ERROR ===", file=sys.stderr)
+        print(
+            "GATE RESULT: ERROR — not PASSED, not a contract violation. "
+            "lint-imports did not complete a normal run.",
+            file=sys.stderr,
+        )
+        print(f"Reason: {outcome.reason}", file=sys.stderr)
+        print(f"lint-imports exit code: {exit_code}", file=sys.stderr)
+        extra_syntax_errors = parse_syntax_errors(output)
+        if extra_syntax_errors:
+            print("Syntax errors detected in scanned source:", file=sys.stderr)
+            for err in extra_syntax_errors:
+                print(f"  {err}", file=sys.stderr)
+        print("--- raw lint-imports output (stdout+stderr) ---", file=sys.stderr)
+        print(output, file=sys.stderr)
+        print("--- end raw output ---", file=sys.stderr)
 
-    # Parse violations from output
-    current_violations = parse_violations(output)
+        gh_summary_path = get_github_summary_path()
+        if gh_summary_path:
+            with open(gh_summary_path, "a") as gh_summary:
+                gh_summary.write("### Import Boundary Enforcement — TOOL ERROR\n")
+                gh_summary.write(
+                    f"`lint-imports` exited {exit_code} without producing a "
+                    "parseable contracts report.\n\n"
+                )
+                gh_summary.write(f"Reason: {outcome.reason}\n\n")
+                gh_summary.write("```\n" + output + "\n```\n")
 
-    # Load baseline and allowlist
-    baseline = load_yaml_set(baseline_path)
+        sys.exit(5)
+
+    # outcome.state is "clean" or "contracts_broken" here.
+    print(
+        f"lint-imports report: {outcome.kept} kept, {outcome.broken} broken "
+        f"(exit code {exit_code})."
+    )
+
+    # Parse violations from output (empty dict for the clean state)
+    current_violations = outcome.violations
+
+    # Load allowlist
     allowlist_raw = load_yaml_allowlist(allowlist_path)
 
     # Flatten current violations into (source, target, contract) tuples
@@ -343,9 +471,7 @@ def main():
         if matches_allowlist(*edge, allowlist_raw):
             allowed_edges.add(edge)
 
-    new_violations = current_edges - baseline - allowed_edges
-    resolved_violations = baseline - current_edges
-    matched_violations = current_edges & baseline
+    new_violations = current_edges - allowed_edges
 
     # Phase 3: scan tools/, simulation/
     # for temper_placer.* imports. These dirs aren't Python packages, so
@@ -422,28 +548,6 @@ def main():
                 gh_summary.write(
                     f"- `{src}` -> `{tgt}` (contract: `{contract}`)\n"
                 )
-
-    if resolved_violations:
-        print(
-            f"\n=== RESOLVED VIOLATIONS — BASELINE SHRINK "
-            f"({len(resolved_violations)}) ==="
-        )
-        for src, tgt, contract in sorted(resolved_violations)[:20]:
-            print(f"  {src} -> {tgt} ({contract})")
-        if len(resolved_violations) > 20:
-            print(f"  ... and {len(resolved_violations) - 20} more")
-        print("  Commit the updated baseline to ratchet tighter.")
-
-        if gh_summary:
-            gh_summary.write(
-                f"**RESOLVED ({len(resolved_violations)}):** can shrink baseline\n"
-            )
-
-    if matched_violations:
-        print(
-            f"\n=== KNOWN VIOLATIONS (baseline) — "
-            f"{len(matched_violations)} suppressed ==="
-        )
 
     if allowed_edges:
         print(

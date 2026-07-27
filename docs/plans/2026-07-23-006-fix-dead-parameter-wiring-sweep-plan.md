@@ -1,7 +1,7 @@
 ---
 title: "fix: Wire or retire dead/silently-discarded parameters in router_v6"
 type: fix
-status: planned
+status: completed
 date: 2026-07-23
 origin: docs/brainstorms/2026-07-23-dead-parameter-wiring-sweep-requirements.md
 adversarial_review: true
@@ -10,6 +10,8 @@ review_findings:
   - "Original grep scope (src/ + tests/) excluded exactly the directories where production callers live"
   - "Deletion option (R1 option a) would break 4 shell scripts + benchmark suite — not a clean no-op"
   - "The same narrow grep scope may have produced false negatives for other parameters assessed in this sweep"
+swept: 2026-07-25
+swept_basis: "referenced in git history; 3/4 paths exist"
 ---
 
 ## Summary

@@ -4,6 +4,8 @@ type: feat
 status: completed
 date: 2026-07-15
 origin: docs/brainstorms/2026-07-15-generated-kicad-schematics-from-atopile-requirements.md
+swept: 2026-07-25
+swept_basis: "already declared"
 ---
 
 # feat: Generated KiCad schematics from Atopile netlist

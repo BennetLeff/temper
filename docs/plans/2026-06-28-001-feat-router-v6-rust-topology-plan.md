@@ -1,9 +1,11 @@
 ---
 title: "feat: Router V6 Rust topology stage with PyO3 SAT solver"
 type: feat
-status: active
+status: completed
 date: 2026-06-28
 origin: docs/brainstorms/2026-06-28-router-v6-rust-topology-requirements.md
+swept: 2026-07-25
+swept_basis: "referenced in git history; 20/31 paths exist"
 ---
 
 # Router V6 Rust Topology Stage

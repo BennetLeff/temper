@@ -1,0 +1,292 @@
+# Derived-document drift gate configuration.
+#
+# Maps each gate ID to the row of docs/FUNCTIONAL_TEST_CRITERIA.md that
+# defines it (source of truth), and lists the derived documents that
+# restate that gate in summary form. For every (gate, derived document)
+# pair, `scripts/check_derived_doc_drift.py` verifies that every
+# `required_field.any_of` alternative for that gate appears somewhere in
+# the derived document's row for that gate.
+#
+# `any_of` entries are matched after normalization (lowercase, dash/space
+# collapsing around hyphens and comparison operators, digit-unit spacing
+# collapsed) -- see `normalize()` in the gate script. Write plausible
+# human forms; you do not need to hand-compute the normalized string.
+#
+# Self-validation: at least one `any_of` alternative for every required
+# field must also be found in the SOURCE row (header + data row text
+# combined, so column-header concepts like "Hysteresis" or "Falling"
+# count even though the data cell itself is just a number). If none of a
+# field's alternatives can be found in the source, the config no longer
+# reflects the source document and the gate fails closed (tool_error) --
+# this is the mechanism that keeps the mapping current per option B's
+# maintenance cost, rather than trusting it stays current.
+#
+# Historical basis: docs/solutions/best-practices/derived-documents-lose-qualifiers-2026-07-26.md
+# and docs/STRATEGY.md "Recovered gate qualifiers invalidate three of
+# today's fixes (2026-07-26)".
+
+source_document: docs/FUNCTIONAL_TEST_CRITERIA.md
+
+derived_documents:
+  - path: docs/STRATEGY.md
+    # STRATEGY.md's gate table covers every gate defined below. It also
+    # contains other tables that mention gate IDs (a measured-vs-verdict
+    # audit table, a "recovered qualifiers" appendix) -- header_contains
+    # scopes the search to the "## Non-negotiable safety and performance
+    # gates" tables specifically (header: "Gate | Description |
+    # Reference"), so an ambiguous match against those other tables is a
+    # tool_error rather than silently picking the wrong one.
+    gates: all
+    header_contains: ["Description", "Reference"]
+  - path: docs/hardware/PROTECTION_CHAIN_REVIEW.md
+    # This document only restates the seven protection gates, in a table
+    # headed "Gate | Requirement | As committed | Disposition".
+    gates:
+      - OCP-01
+      - OCP-02
+      - OVP-01
+      - THM-01
+      - THM-02
+      - UVL-01
+      - UVL-02
+    header_contains: ["Requirement", "Disposition"]
+
+# Stale-verdict checks: a row asserting a pass/fixed verdict that a
+# documented, superseding finding already contradicts, with no
+# acknowledgement in the same row. Unlike `gates:` (which checks that a
+# required field survived a restatement), this checks that a *retracted*
+# claim doesn't keep standing unqualified.
+#
+# Case: docs/STRATEGY.md's "Full protection-gate audit (2026-07-25)" table
+# (header "Gate | Requirement | Measured | Verdict") marks OVP-01 "FIXED"
+# at 399.88 V. Its own later "Recovered gate qualifiers invalidate three
+# of today's fixes" section, in the same document, found the OVP-01
+# comparator "has no feedback resistor" -- hysteresis "absent entirely" --
+# which is a FUNCTIONAL_TEST_CRITERIA.md SS2.2 requirement (10-20 V). The
+# audit row's "FIXED" verdict was never corrected to reflect this and
+# still reads as an unqualified pass.
+consistency_checks:
+  - id: ovp01-fixed-verdict-vs-missing-hysteresis
+    gate: OVP-01
+    doc: docs/STRATEGY.md
+    row_locator: ["OVP-01", "399.88"]
+    stale_tokens: ["FIXED"]
+    required_mitigating_tokens:
+      - "hysteresis absent"
+      - "no hysteresis"
+      - "lacks"
+      - "insufficient hysteresis"
+      - "fail-open"
+      - "half-bus"
+    message: >-
+      OVP-01 is marked FIXED at 399.88V with no acknowledgement that the
+      comparator has no hysteresis network (FUNCTIONAL_TEST_CRITERIA.md
+      SS2.2 requires 10-20V hysteresis; see STRATEGY.md "Recovered gate
+      qualifiers invalidate three of today's fixes"). This verdict is
+      stale.
+
+gates:
+  # --- Section 1: Performance ---
+  EFF-01:
+    source_row_locator: ["System Efficiency", "1000W Output"]
+    required_fields:
+      - name: threshold
+        any_of: [">90%", "> 90%", "90%"]
+      - name: condition
+        any_of: ["1000W", "1000 W"]
+
+  EFF-02:
+    source_row_locator: ["System Efficiency", "1800W Output"]
+    required_fields:
+      - name: threshold
+        any_of: [">92%", "> 92%", "92%"]
+      - name: condition
+        any_of: ["1800W", "1800 W"]
+
+  EFF-03:
+    source_row_locator: ["Standby Power"]
+    required_fields:
+      - name: threshold
+        any_of: ["<1.0W", "< 1.0 W", "1.0W", "1.0 W"]
+
+  PWR-01:
+    source_row_locator: ["1000 W", "±10%"]
+    required_fields:
+      # Note: the "Allowable Range" column (900-1100 W) is deliberately
+      # NOT required here -- it is arithmetically implied by "1000 W
+      # ±10%" (unlike Peak/RMS or hysteresis, which are independent
+      # facts a reader cannot re-derive from the rest of the row).
+      # Requiring it would just penalize a non-lossy compression.
+      - name: tolerance
+        any_of: ["±10%", "10%"]
+
+  PWR-02:
+    source_row_locator: ["1800 W", "±5%"]
+    required_fields:
+      - name: tolerance
+        any_of: ["±5%", "5%"]
+
+  PID-01:
+    source_row_locator: ["Accuracy", "100"]
+    required_fields:
+      - name: condition
+        any_of: ["100°C", "100 °C"]
+      - name: threshold
+        any_of: ["±2°C", "± 2°C", "2°C"]
+
+  PID-02:
+    source_row_locator: ["Stability"]
+    required_fields:
+      - name: condition
+        any_of: ["60°C", "30 min", "30min"]
+      - name: threshold
+        any_of: ["±1°C", "± 1°C", "1°C"]
+
+  PID-03:
+    source_row_locator: ["Overshoot"]
+    required_fields:
+      - name: threshold
+        any_of: ["<5°C", "< 5°C", "5°C"]
+
+  PID-04:
+    source_row_locator: ["Settling Time"]
+    required_fields:
+      - name: threshold
+        any_of: ["<5 min", "<5min", "5 min", "5min"]
+
+  # --- Section 2: Protection (the three historically-broken gates) ---
+  OCP-01:
+    source_row_locator: ["Primary OCP"]
+    required_fields:
+      - name: basis
+        any_of: ["peak", "Peak"]
+      - name: trip_threshold
+        any_of: ["45-55", "45 - 55"]
+      - name: response_time
+        any_of: ["<1µs", "< 1 µs", "<1us", "1 µs", "1µs"]
+
+  OCP-02:
+    source_row_locator: ["Secondary OCP"]
+    required_fields:
+      - name: basis
+        any_of: ["peak", "Peak"]
+      - name: trip_threshold
+        any_of: ["55-65", "55 - 65"]
+      - name: response_time
+        any_of: ["<5µs", "< 5 µs", "<5us", "5 µs", "5µs"]
+
+  OVP-01:
+    source_row_locator: ["DC Bus OVP"]
+    required_fields:
+      - name: trip_threshold
+        any_of: ["390-410", "390 - 410"]
+      - name: hysteresis_label
+        any_of: ["hysteresis"]
+      - name: hysteresis_value
+        any_of: ["10-20", "10 - 20"]
+
+  THM-01:
+    source_row_locator: ["Heatsink NTC"]
+    required_fields:
+      - name: trip_temp
+        any_of: ["85°C", "85 °C"]
+      - name: recovery_label
+        any_of: ["recovery", "release"]
+      - name: recovery_value
+        any_of: ["70°C", "70 °C"]
+
+  THM-02:
+    source_row_locator: ["Coil NTC"]
+    required_fields:
+      - name: trip_temp
+        any_of: ["120°C", "120 °C"]
+      - name: recovery_label
+        any_of: ["recovery", "release"]
+      - name: recovery_value
+        any_of: ["100°C", "100 °C"]
+
+  UVL-01:
+    source_row_locator: ["Gate Drive (15V)"]
+    required_fields:
+      - name: falling_label
+        any_of: ["falling"]
+      - name: falling_value
+        any_of: ["<12.0V", "< 12.0 V", "12.0V", "12.0 V"]
+      - name: rising_label
+        any_of: ["rising"]
+      - name: rising_value
+        any_of: [">13.0V", "> 13.0 V", "13.0V", "13.0 V"]
+
+  UVL-02:
+    source_row_locator: ["Logic (3.3V)"]
+    required_fields:
+      - name: falling_label
+        any_of: ["falling"]
+      - name: falling_value
+        any_of: ["<2.9V", "< 2.9 V", "2.9V", "2.9 V"]
+      - name: rising_label
+        any_of: ["rising"]
+      - name: rising_value
+        any_of: [">3.0V", "> 3.0 V", "3.0V", "3.0 V"]
+
+  # --- Section 3: EMC ---
+  EMC-01:
+    source_row_locator: ["150 - 500 kHz"]
+    required_fields:
+      - name: qp_label
+        any_of: ["quasi-peak", "quasi peak", "QP", "qp"]
+      - name: qp_value
+        any_of: ["66-56", "66→56", "66 - 56", "66/56"]
+      - name: avg_label
+        any_of: ["average", "avg"]
+      - name: avg_value
+        any_of: ["56-46", "56→46", "56 - 46", "56/46"]
+      - name: margin
+        any_of: [">3 dB", "> 3 dB", "3dB", "3 dB"]
+
+  EMC-02:
+    source_row_locator: ["0.5 - 5 MHz"]
+    required_fields:
+      - name: qp_label
+        any_of: ["quasi-peak", "quasi peak", "QP", "qp"]
+      - name: qp_value
+        any_of: ["56"]
+      - name: avg_label
+        any_of: ["average", "avg"]
+      - name: avg_value
+        any_of: ["46"]
+      - name: margin
+        any_of: [">3 dB", "> 3 dB", "3dB", "3 dB"]
+
+  EMC-03:
+    source_row_locator: ["5 - 30 MHz"]
+    required_fields:
+      - name: qp_label
+        any_of: ["quasi-peak", "quasi peak", "QP", "qp"]
+      - name: qp_value
+        any_of: ["60"]
+      - name: avg_label
+        any_of: ["average", "avg"]
+      - name: avg_value
+        any_of: ["50"]
+      - name: margin
+        any_of: [">3 dB", "> 3 dB", "3dB", "3 dB"]
+
+  # --- Section 4: Mechanical ---
+  MCH-01:
+    source_row_locator: ["Button Force"]
+    required_fields:
+      - name: threshold
+        any_of: ["2-5N", "2 - 5 N", "2-5 N"]
+
+  MCH-02:
+    source_row_locator: ["Knob Torque"]
+    required_fields:
+      - name: threshold
+        any_of: ["0.5-2", "0.5 - 2"]
+
+  MCH-03:
+    source_row_locator: ["Glass Load"]
+    required_fields:
+      - name: threshold
+        any_of: ["20kg", "20 kg"]

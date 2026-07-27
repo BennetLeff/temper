@@ -48,6 +48,14 @@
 | **Primary OCP** | 50A Peak | **45 - 55 A** | **< 1 µs** |
 | **Secondary OCP** | 60A Peak | **55 - 65 A** | **< 5 µs** |
 
+**Basis (clarified 2026-07-26):** Trip Threshold is on the same basis as
+Setting — instantaneous/peak current, not RMS. Two independent analyses
+(`docs/evidence/2026-07-26-ocp01-vs-full-power-current.md`,
+`docs/STRATEGY.md` honest-state §"OCP-01 versus full-power tank current")
+each had to re-derive this from OCP-02's window against the IGBT's continuous
+rating before it was resolvable; recorded here so it is not inferred a third
+time. No numeric threshold changes.
+
 ### 2.2 Over-Voltage Protection (OVP)
 **Goal:** Protect bus capacitors and IGBTs.
 

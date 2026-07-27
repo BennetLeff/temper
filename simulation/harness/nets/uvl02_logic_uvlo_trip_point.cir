@@ -1,0 +1,115 @@
+* UVL-02 trip-point AND recovery-point transient: LogicUVLOComparator
+* (elec/src/modules.ato), TPS3700 window-supervisor model, channel A only.
+*
+* CALIBRATED: false. No bench measurement exists for this circuit. Every
+* component value below is copied read-only from the committed atopile
+* source (elec/src/modules.ato: LogicUVLOComparator, added 2026-07-26).
+*
+* Scope: UVL-02 (FUNCTIONAL_TEST_CRITERIA.md SS2.4) previously had no
+* confirmed implementing circuit. Two candidates existed and were REJECTED:
+*   - TPS3823-33 (Watchdog module): fixed-silicon VIT- = 2.86/2.93/3.00V
+*     min/typ/max (TI datasheet SLVS165O, Mar 2025 rev) with V_HYS=30mV typ
+*     (no min/max given). Fails UVL-02 in BOTH directions even at nominal:
+*     2.93V typ falling is above the 2.9V ceiling, 2.96V typ rising is below
+*     the 3.0V floor. No SPICE model exists for it; UNMEASURED, not
+*     simulated here or anywhere.
+*   - RTDSensing.rail_monitor (TPS3700): monitors RTD_AVDD (a downstream
+*     RTD-subsystem rail), not power_3v3, and has no r_hyst -- see
+*     docs/evidence/2026-07-25-uvl02-rtd-avdd-monitor-candidate-sim.json.
+* LogicUVLOComparator is a NEW circuit: a second, independent TPS3700
+* instance, wired directly across power_3v3 (the actual board logic rail),
+* with a deliberately sized r_hyst positive-feedback resistor.
+*
+* Sourced values (read-only, elec/src/modules.ato: LogicUVLOComparator):
+*   - power_3v3 rail (mon.VDD, direct):     3.3 V nominal
+*   - r_div_top:                             698000 ohm
+*   - r_div_bot:                             100000 ohm
+*   - r_hyst (INA_P to OUTA):                3740000 ohm
+*   - r_outa_pullup (OUTA to VCC, open-drain pull-up):  10000 ohm
+*   - TPS3700 INA threshold VIT_A: 394.5 mV (simulation/models/
+*     TPS3700_ngspice.lib header default, sourced from TI's TPS3700 PSpice
+*     transient model (SBVM552B) and datasheet SBVS187G -- the model has no
+*     min/max spread; worst-case corners are analyzed separately in
+*     run_uvl02_logic_sim.py / docs/hardware/UVL02_DESIGN.md using the real
+*     datasheet's VIT- range of 387-400 mV, not simulated here.)
+*
+* Divider topology (OVPComparator's hysteresis pattern, not
+* ThermalComparator's: the externally-set node, INA_P, IS the sense node,
+* and the threshold it's compared against (VIT_A) is a fixed internal
+* reference -- so r_hyst loads INA_P directly from OUTA):
+*   VCC -> r_div_top -> INA_P -> r_div_bot -> GND      (sense divider)
+*   INA_P -> r_hyst -> OUTA                             (positive feedback)
+*   VCC -> r_outa_pullup -> OUTA                        (open-drain pull-up)
+*
+* Hand-derived pre-trip (OUTA ~ VCC, high, no fault):
+*   Gt=1/698000=1.43266e-6  Gb=1/100000=1e-5  Gh=1/3740000=2.67380e-7
+*   V(INA_P)_pretrip  = VCC*(Gt+Gh)/(Gt+Gb+Gh)
+*   Trip:  VIT_A = VCC_trip*(Gt+Gh)/(Gt+Gb+Gh)  =>  VCC_trip = VIT_A*(Gt+Gb+Gh)/(Gt+Gh)
+*        = 0.3945 * (1.43266e-6+1e-5+2.67380e-7) / (1.43266e-6+2.67380e-7)
+*        = 2.715 V
+* Hand-derived post-trip (OUTA ~ 0V, fault latched):
+*   Recover: VCC_recover = VIT_A*(Gt+Gb+Gh)/Gt = 3.222 V
+* Hysteresis (hand): 0.507 V. See LogicUVLOComparator's own docstring and
+* docs/hardware/UVL02_DESIGN.md for the worst-case (+/-1% resistors, full
+* datasheet VIT_A range) corner sweep: worst-case trip 2.800V (<2.9V
+* ceiling), worst-case recovery 3.106V (>3.0V floor).
+*
+* Ramp: this deck drives VCC DOWN past the trip point, THEN UP past the
+* recovery point, in one transient run, so both thresholds are measured
+* together from the same latched comparator state (same up/down-in-one-run
+* idea as thm02_trip_point.cir, applied to a falling-then-rising rail
+* instead of a rising-then-falling temperature).
+*   3.3V -> 2.0V over 300us (well below the 2.715V nominal trip), then
+*   2.0V -> 3.4V over the next 300us (above the 3.222V nominal recovery,
+*   with margin -- this is a simulation stimulus exercising the threshold,
+*   not a claim that the real board rail ever reaches 3.4V).
+*
+* Known model-fidelity limits:
+*   - TPS3700_ngspice.lib is a simplified behavioral macro: single VIT_A
+*     constant (394.5m), no separate VIT+ vs VIT- split, no internal
+*     hysteresis, no timing/propagation-delay model. All hysteresis in this
+*     circuit comes from the external r_hyst network, which this deck DOES
+*     exercise faithfully.
+*   - This deck measures only the trip/recovery VOLTAGE thresholds on an
+*     idealized PWL rail, not response time or real regulator dynamics.
+
+.include ../../models/TPS3700_ngspice.lib
+
+.param RAMP_DOWN=300u
+.param RAMP_UP=300u
+.param V_START=3.3
+.param V_LOW=2.0
+.param V_HIGH=3.4
+
+V_VCC vcc_3v3 0 PWL(0 {V_START} {RAMP_DOWN} {V_LOW} {RAMP_DOWN+RAMP_UP} {V_HIGH})
+
+R_DIV_TOP vcc_3v3 ina_p 698000
+R_DIV_BOT ina_p 0 100000
+R_HYST ina_p outa 3740000
+R_OUTA_PULLUP vcc_3v3 outa 10000
+* OUTB (channel B, unused -- LogicUVLOComparator ties INB_N to gnd, never
+* trips) needs a DC path to avoid a singular matrix; a large resistor to
+* ground has no bearing on the OUTA measurement this deck cares about.
+R_OUTB_TIEOFF outb_na 0 1meg
+
+X_MON vcc_3v3 ina_p 0 outa outb_na 0 TPS3700_NGSPICE
+
+.control
+set noaskquit
+tran 100n 600u
+meas tran t_trip WHEN v(outa)=1.65 FALL=1
+meas tran t_release WHEN v(outa)=1.65 RISE=1
+meas tran v_vcc_at_trip FIND v(vcc_3v3) AT={t_trip}
+meas tran v_vcc_at_release FIND v(vcc_3v3) AT={t_release}
+meas tran v_ina_p_at_trip FIND v(ina_p) AT={t_trip}
+meas tran v_ina_p_at_release FIND v(ina_p) AT={t_release}
+print t_trip
+print t_release
+print v_vcc_at_trip
+print v_vcc_at_release
+print v_ina_p_at_trip
+print v_ina_p_at_release
+quit
+.endc
+
+.end

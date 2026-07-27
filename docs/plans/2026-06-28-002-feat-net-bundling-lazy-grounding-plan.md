@@ -1,9 +1,11 @@
 ---
 title: "feat: Hierarchical Net Bundling with Type-Gated Lazy Grounding"
 type: feat
-status: draft
+status: stale
 date: 2026-06-28
 origin: docs/brainstorms/2026-06-28-net-bundling-lazy-grounding-requirements.md
+swept: 2026-07-25
+swept_basis: "insufficient evidence - needs human triage"
 ---
 
 # Hierarchical Net Bundling with Type-Gated Lazy Grounding

@@ -1,9 +1,11 @@
 ---
 title: "fix: Finalize Cython Twin Cleanup and Lock Pure-Python A* Performance"
 type: fix
-status: active
+status: abandoned
 date: 2026-06-22
 origin: docs/brainstorms/2026-06-21-cython-twin-measure-requirements.md
+swept: 2026-07-25
+swept_basis: "only 3/17 named paths exist"
 ---
 
 # fix: Finalize Cython Twin Cleanup and Lock Pure-Python A* Performance

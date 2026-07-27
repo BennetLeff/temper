@@ -2,9 +2,11 @@
 plan_id: 2026-06-28-008
 plan_type: feat
 title: "feat: Hypothesis invariant test suites for IO, deterministic pipeline, and loss functions"
-status: active
+status: stale
 origin: docs/brainstorms/2026-06-28-router-v6-hypothesis-invariant-tests-requirements.md
 tags: [hypothesis, pbt, invariants, testing, io, deterministic, losses]
+swept: 2026-07-25
+swept_basis: "insufficient evidence - needs human triage"
 ---
 
 # feat: Hypothesis invariant test suites for IO, deterministic pipeline, and loss functions

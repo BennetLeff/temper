@@ -1,10 +1,12 @@
 ---
 title: "feat: Human-Like Routing Quality Gate (W4)"
 type: feat
-status: active
+status: stale
 date: 2026-07-08
 origin: docs/brainstorms/2026-07-08-human-like-routing-quality-requirements.md
 gate-contract: docs/brainstorms/2026-07-08-gate-contract.md
+swept: 2026-07-25
+swept_basis: "insufficient evidence - needs human triage"
 ---
 
 # feat: Human-Like Routing Quality Gate (W4) — Octilinear, Via Budget, Corridor, Slop Linting

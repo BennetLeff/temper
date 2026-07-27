@@ -1,0 +1,465 @@
+# Netlist domain-partition manifest.
+#
+# Declares, explicitly and by hand, which compiled nets belong to which
+# electrical safety domain, and which components are legitimate galvanic
+# isolators between domains. This is a claim about *intended* topology,
+# reviewed against elec/src by a human; scripts/check_domain_partition.py
+# verifies the *actual* compiled netlist (elec/build/default.net) upholds it.
+#
+# Ground rule: every entry below is an exact, literal net name or component
+# instance path taken from elec/src / elec/build/default.net -- never a
+# pattern, prefix, or naming-convention guess. Net names are exactly what
+# lied in this design ("+340V_BUS" used to name a node that is actually the
+# ~170V half-bus -- see docs/hardware/IEC60335_CRITICAL_COMPONENTS.md Sec 2
+# and docs/hardware/SELV_ISOLATION_REDESIGN.md Sec 5), so domain membership
+# must never be inferred from how a net is spelled.
+#
+# History: the original star-point join (`power_return ~ gnd`, main.ato)
+# shorted the AuxSupply's isolation barrier outright -- see
+# docs/hardware/IEC60335_CRITICAL_COMPONENTS.md Sec 2 and the
+# 2026-07-26-domain-partition-check evidence doc for that (now-fixed)
+# finding. That join has been REMOVED (docs/hardware/SELV_ISOLATION_REDESIGN.md,
+# commit 6976ef44): `gnd` and `PWR_RTN` are separate compiled nets as of this
+# manifest's writing.
+#
+# RESOLVED 2026-07-26 (docs/evidence/2026-07-26-ovp-crossing-resolution.md):
+# the design's own audit (SELV_ISOLATION_REDESIGN.md Sec 4, rows 3-4) flagged
+# two plain resistive dividers running from the HV half-bus
+# (`dc_bus_plus`/`+170V_BUS`) into `gnd` as still-open gaps: the OVP-01
+# comparator-sense divider (3x430kohm + 10kohm, `OVPComparator`,
+# `main.ato:434-435`) and the OVP-01 ADC-sense divider (`OVPComparator.
+# adc_v_bus`). Investigated properly rather than either rubber-stamped or
+# reflexively isolated -- see the evidence doc for the full standard clause,
+# arithmetic, and single-fault analysis. Verdict: both are legitimate IEC
+# 60335-1 protective-impedance connections to a PE-bonded (earthed) SELV
+# circuit -- the same provision `power_in.y_cap_pe` (C6, below) already
+# relies on -- PROVIDED no single component failure removes the current-
+# limiting function. The comparator divider's 3x430kohm construction already
+# satisfied that. The ADC divider's PRIOR construction (a single 510kohm
+# resistor) did NOT -- one short removed 100% of its impedance -- so it was
+# split into 3x169kohm (elec/src/modules.ato, same change as this manifest
+# update) to match the comparator divider's pattern before being declared
+# below. Both dividers are declared as isolators below, each resistor
+# individually, with the standard clause and arithmetic in the comment
+# blocks preceding their entries. A third flagged crossing (the gate-driver
+# bootstrap network, D5/C17/U8) turned out to be a genuine wiring bug, not a
+# manifest gap: the bootstrap diode was fed from the wrong (gnd-referenced)
+# supply rail. Fixed in elec/src/modules.ato (HalfBridge) by rewiring it to
+# the already-declared, HV-referenced `power_15v_ls` rail -- no manifest
+# declaration needed for that one, because there is no crossing left.
+
+schema_version: 1
+
+domains:
+  # Mains / high-voltage power domain: AC line/neutral, the rectified DC
+  # bus, the doubler midpoint (power_return), and everything that floats on
+  # the half-bridge switch node or the negative DC rail.
+  HV:
+    nets:
+      - ac_l
+      - ac_n
+      - "+170V_BUS"        # dc_bus_plus. Renamed from "+340V_BUS" in the
+                           # SELV redesign: the old name is what caused
+                           # OVP-01's reference divider to be tuned for a
+                           # 340V full-bus reading it never actually sees
+                           # (SELV_ISOLATION_REDESIGN.md Sec 5) -- declared
+                           # here by its current exact compiled string, not
+                           # inferred from either name.
+      - DC_BUS_RTN         # dc_bus_minus
+      - PWR_RTN            # power_return, the doubler midpoint
+                           # (main.ato override_net_name). Confirmed a
+                           # SEPARATE net from `gnd` as of this manifest
+                           # (net 6, 17 pins) -- the star-join short that
+                           # used to merge them into one net has been
+                           # removed. Straddled only by the declared
+                           # isolators below (C6, PS1, T1, U3).
+      - w1_1               # CMC winding 1 taps (line side)
+      - w1_2
+      - "+15V_LS"          # low-side gate-driver rail; referenced to
+                           # DC_BUS_RTN, not gnd (modules.ato) -- floats
+                           # within the HV domain, not SELV.
+      - SW_NODE            # half-bridge switch node
+      - GATE_HS            # UCC21550 high-side gate output; floats on
+                           # SW_NODE (secondary side of the gate driver, HV
+                           # side of the barrier even though it is a
+                           # "secondary" winding of that isolator)
+      - GATE_LS            # UCC21550 low-side gate output; referenced to
+                           # DC_BUS_RTN
+      - zcd                # power_in's internal HV-side ZCD divider tap
+                           # (top-of-divider node feeding the new H11L1
+                           # opto's LED). Stays inside PowerInput/HV; does
+                           # NOT cross main.ato's module boundary any more
+                           # (see ZCD_ISO under SELV) -- this is the
+                           # isolation fix (SELV_ISOLATION_REDESIGN.md Sec 4
+                           # row 2) working as intended.
+      - a                  # auto-named net between the ZCD divider tap and
+                           # the H11L1 LED series resistor/anode (R9-U3),
+                           # still entirely HV-side.
+
+  # SELV control/logic domain: MCU, safety interlock, RTD sensing, and the
+  # isolated 15V/3.3V rails they are claimed to run from. `gnd` itself is
+  # now bonded directly to protective earth (`gnd ~ pe`, main.ato) rather
+  # than to power_return -- there is no separate `pe` net record any more
+  # (it is net 1, `gnd`, itself); see SELV_ISOLATION_REDESIGN.md Sec 3.
+  SELV:
+    nets:
+      - gnd
+      - "+15V"
+      - "+3V3"
+      - usb_dn
+      - usb_dp
+      - i2c_sda_ui
+      - i2c_scl_ui
+      - RTD_SCK
+      - RTD_SDO
+      - RTD_SDI
+      - RTD_CS_N
+      - RTD_DRDY
+      - RTD_HW_FAULT
+      - rtd_force_p
+      - rtd_force_n
+      - rtd_sense_p
+      - rtd_sense_n
+      - WDT_KICK
+      - WDT_RESET_N
+      - SHUTDOWN
+      - RELAY_CTRL
+      - DISCHARGE_CTRL
+      - V_BUS_SENSE        # mcu.adc_v_bus -- fed by OVPComparator's second,
+                           # independent resistive divider
+                           # (SELV_ISOLATION_REDESIGN.md Sec 4 row 4).
+                           # Declared protective-impedance crossing (see
+                           # r_adc_top1/2/3 / r_adc_bot isolator entries
+                           # below) after the divider was split from a
+                           # single 510kohm resistor to 3x169kohm to satisfy
+                           # the "no single failure removes the impedance"
+                           # construction requirement.
+      - PWM_HS             # MCU-side PWM output, primary side of the gate driver
+      - PWM_LS
+      - ZCD_ISO            # power_in.zcd_out -- the H11L1 opto's SELV-side
+                           # output feeding mcu.zcd_in. Newly isolated by
+                           # this design's own fix
+                           # (SELV_ISOLATION_REDESIGN.md Sec 4 row 2); listed
+                           # here specifically so the domain check exercises
+                           # a *correctly fixed* crossing, not just the two
+                           # still-open ones.
+
+# Components whose pins do NOT connect across the barrier they implement.
+# `instance_path` is the dotted atopile instance path as it appears after
+# "::" in the netlist's sheetpath (stable across ref-designator reshuffles
+# and across machines -- unlike the absolute path prefix, which is stripped
+# before matching). `groups` partitions every pin the component actually
+# has wired in the netlist; every wired pin must appear in exactly one
+# group or the gate fails closed (an isolator with an undeclared pin is a
+# gap in the model, not a clean bill of health).
+isolators:
+  - instance_path: aux_supply.psu
+    component: "Mean Well IRM-10-15 (IRM_10_15), aux supply transformer -- 4.2kVAC I/O withstand"
+    groups:
+      primary: ["1", "2"]     # ACL, ACN
+      secondary: ["3", "4"]   # VP, VN
+    pin_labels:
+      "1": "ACL (= aux_supply.power_in.vcc)"
+      "2": "ACN (= aux_supply.power_in.gnd, i.e. power_return -- main.ato:271)"
+      "3": "VP (= aux_supply.power_out.vcc)"
+      "4": "VN (= aux_supply.power_out.gnd, i.e. gnd -- main.ato:273)"
+
+  - instance_path: hb.gate_hs.driver
+    component: "TI UCC21550BDW (UCC21550BDWK), reinforced-isolation dual gate driver"
+    groups:
+      primary: ["1", "2", "3", "4", "5", "6", "7", "8"]       # INA,INB,VCCI_1,GNDI,DIS,DT,NC_7,VCCI_2
+      secondary: ["9", "10", "11", "12", "13", "14", "15", "16"]  # VSSB,OUTB,VDDB,NC_12,NC_13,VSSA,OUTA,VDDA
+    pin_labels:
+      "4": "GNDI (primary-side logic ground, should be SELV gnd)"
+      "9": "VSSB (low-side secondary ground, floats on DC_BUS_RTN)"
+
+  - instance_path: ct_sense.ct
+    component: "Coilcraft CST3015-100ED (CST3015_100E), current sense transformer"
+    groups:
+      primary: ["1", "2"]     # P1, P2
+      secondary: ["3", "4"]   # S1, S2
+    pin_labels:
+      "2": "P2 (primary return, in series with tank return)"
+      "4": "S2 (secondary bias reference)"
+
+  - instance_path: power_in.bypass_relay
+    component: "Omron G4A-1A-E DC12 (Relay_SPST), bypass relay"
+    groups:
+      coil: ["1", "2"]        # coil1, coil2
+      contacts: ["3", "4"]    # NO, COM
+    pin_labels:
+      "1": "coil1 (SELV coil drive)"
+      "2": "coil2 (SELV coil drive)"
+      "3": "NO (mains contact)"
+      "4": "COM (mains contact)"
+
+  - instance_path: discharge.k_dis1
+    component: "Omron G5LE-1 DC12 (Relay_SPDT), discharge relay 1"
+    groups:
+      coil: ["2", "5"]           # coil1, coil2
+      contacts: ["1", "3", "4"]  # COM, NO, NC
+    pin_labels:
+      "2": "coil1 (SELV coil drive)"
+      "5": "coil2 (SELV coil drive)"
+      "1": "COM (HV bus contact)"
+
+  - instance_path: discharge.k_dis2
+    component: "Omron G5LE-1 DC12 (Relay_SPDT), discharge relay 2"
+    groups:
+      coil: ["2", "5"]
+      contacts: ["1", "3", "4"]
+    pin_labels:
+      "2": "coil1 (SELV coil drive)"
+      "5": "coil2 (SELV coil drive)"
+      "1": "COM (HV bus contact)"
+
+  - instance_path: power_in.zcd_opto
+    component: "Everlight/Vishay/onsemi H11L1 (H11L1), Schmitt-trigger phototransistor optocoupler"
+    groups:
+      primary: ["1", "2"]        # A (anode), K (cathode) -- LED, HV side
+      secondary: ["4", "5", "6"] # VO, GND, VCC -- phototransistor output, SELV side
+    pin_labels:
+      "1": "A (LED anode, HV side, driven from the zcd divider tap)"
+      "2": "K (LED cathode, HV side, returns to PWR_RTN)"
+      "4": "VO (open-collector output, SELV side -- feeds ZCD_ISO)"
+      "5": "GND (SELV side ground)"
+      "6": "VCC (SELV side supply, +3V3)"
+
+  # --- Capacitor policy (stated and defended, not left implicit) ---
+  # By default, EVERY two-terminal passive (resistor, inductor, ferrite bead,
+  # zero-ohm link, ordinary capacitor) is treated as CONDUCTING by this
+  # check -- see scripts/check_domain_partition.py: only components declared
+  # here break connectivity. An ordinary bulk/decoupling capacitor bridging
+  # HV and SELV would be a real defect and must never be modeled away by
+  # adding it here.
+  #
+  # C6 is the one deliberate exception, and it is declared explicitly rather
+  # than silently exempted by any general "capacitors don't conduct" rule:
+  # it is a Y1-class, IEC 60384-14 safety-rated capacitor
+  # (docs/hardware/IEC60335_CRITICAL_COMPONENTS.md: "Y1 EMI/PE-bonding
+  # capacitor") whose entire regulatory purpose is to provide a bounded,
+  # high-impedance AC-only path across a safety barrier while blocking DC --
+  # that is what Y-cap agency approval certifies, unlike a generic capacitor.
+  # docs/hardware/SELV_ISOLATION_REDESIGN.md Sec 3 independently re-derives
+  # and defends this same bond as "without a DC short." Declaring it here
+  # (instead of leaving it to the default conducting rule) is what lets this
+  # gate distinguish "the one certified, documented, IEC-60335-legitimate
+  # EMI bond" from "an accidental short" -- treating it as conducting would
+  # make this gate permanently and uninformatively red over standards-
+  # required behavior; treating every future undeclared capacitor as
+  # non-conducting by default would hide a real fault the same way the
+  # original star join was hidden. This is the only capacitor granted this
+  # treatment in this manifest.
+  - instance_path: power_in.y_cap_pe
+    component: "Y1-class EMI/PE-bonding capacitor (IEC 60384-14) -- see capacitor policy above"
+    groups:
+      hv_side: ["1"]     # p1, bonded to power_return / PWR_RTN
+      selv_side: ["2"]   # p2, bonded to pe (now part of the gnd net)
+    pin_labels:
+      "1": "p1 (HV side, power_return / PWR_RTN)"
+      "2": "p2 (SELV side, pe -- merged into gnd since SELV_ISOLATION_REDESIGN.md Sec 3)"
+
+  # --- OVP-01 protective-impedance crossings (2026-07-26) ---
+  # Both dividers below run from the HV half-bus (+170V_BUS) into the
+  # PE-bonded SELV `gnd` domain through nothing but resistors. Declared as
+  # intentional IEC 60335-1 protective-impedance connections, not silently
+  # modeled away and not left undeclared as a "known gap" either -- see
+  # docs/evidence/2026-07-26-ovp-crossing-resolution.md for the full writeup,
+  # falsifier, and UNVERIFIED list.
+  #
+  # STANDARD CLAUSE (UNVERIFIED-at-primary: IEC 60335-1's primary text is
+  # paywalled; reconstructed from secondary sources -- a UL Solutions
+  # explainer, a clause-3 discussion of PELV/SELV separation, and a patent
+  # (US6084757) describing an equivalent series-resistor protective-
+  # impedance network built to the analogous EN 60730-1 provision):
+  #   - Protective impedance is a recognized alternative to basic/double/
+  #     reinforced insulation for bridging a mains-derived circuit to an
+  #     earthed (PE-bonded) low-voltage part, PROVIDED (a) it comprises at
+  #     least two independent current-limiting elements such that no single
+  #     component failure removes the current-limiting function, and (b) the
+  #     resulting touch current stays under the applicable limit in both
+  #     normal and single-fault operation.
+  #   - This design already relies on the identical provision for
+  #     `power_in.y_cap_pe` (C6, above) -- a Y1 capacitor bridging
+  #     `power_return` to this same PE-bonded `gnd`. These two resistor
+  #     dividers are the same technique in resistive rather than reactive
+  #     form, into the same earthed reference.
+  #   - Why protective impedance applies to a PE-BONDED SELV domain rather
+  #     than requiring full insulation: `gnd` is not attempting to be an
+  #     isolated-transformer-separated SELV/PELV circuit for THIS purpose --
+  #     `main.ato: gnd ~ pe` (SELV_ISOLATION_REDESIGN.md Sec 3) hard-bonds it
+  #     to protective earth, 0 ohm DC. That converts it into the same
+  #     category of "earthed reference" a Class I appliance's accessible
+  #     metal parts are: fault current pushed into it returns to earth
+  #     through the building's protective-earth conductor, not through a
+  #     person in series with much higher body impedance. Same reasoning
+  #     that already makes the C6 Y-cap acceptable, applied to a resistive
+  #     bridge into the identical net -- including the fact that this net
+  #     carries a user-touchable RTD probe: the probe sits at the same
+  #     earthed reference as the rest of `gnd`, not at an elevated floating
+  #     potential a fault could lift it to.
+  #     UNVERIFIED-at-primary: whether IEC 60335-1 formally distinguishes
+  #     "protective impedance into an earthed reference" from "protective
+  #     impedance into an accessible metal part" was not found in any source
+  #     reachable in this pass; treated as equivalent here on electrical
+  #     first principles, not confirmed against clause text.
+  #
+  # ARITHMETIC (comparator divider, r_div_top1-3 = 3x430k, r_div_bot = 10k,
+  # verified independently in this pass, not inherited without checking):
+  #   Normal:          170V / (3*430k + 10k) = 170V / 1.30M = 130.8uA
+  #   One top shorted: 170V / (2*430k + 10k) = 170V / 870k  = 195.4uA
+  #   Two top shorted: 170V / (430k + 10k)   = 170V / 440k  = 386.4uA
+  #   Applicable touch-current limit: IEC 60335-2-6, stationary heating
+  #   appliance, 0.75mA/kW capped at 5mA -> 0.75 * 1.8 = 1.35mA @ 1.8kW.
+  #   All three currents are 3.5x-10x under that limit, even with TWO of
+  #   three top resistors shorted simultaneously (a double fault, stricter
+  #   than the single-fault standard requires evaluating).
+  #   UNVERIFIED-at-primary: the 0.75mA/kW-capped-5mA figure was carried
+  #   forward from docs/evidence/2026-07-26-emc-validators-implemented.md
+  #   Sec 10 and re-derived here, not re-sourced against IEC 60335-2-6's
+  #   primary text in this pass (also paywalled).
+  #
+  # RESISTOR RATING (verified against the Yageo RC1206 (1/4W family)
+  # datasheet in this pass: rated/working voltage 200V, overload 400V,
+  # dielectric withstand 500V -- not assumed from the part merely appearing
+  # in the BOM):
+  #   Normal:        130.8uA * 430k = 56.2V per resistor  (28% of 200V rated)
+  #   One shorted:   195.4uA * 430k = 84.0V per resistor  (42% of 200V rated)
+  #   Two shorted:   386.4uA * 430k = 166.2V per resistor (83% of 200V rated)
+  #   Comfortably rated even in the two-shorted case. `.voltage_rating = 200V`
+  #   set explicitly on r_div_top1-3 in elec/src/modules.ato (this same
+  #   change, previously unset) to match the verified datasheet figure.
+  #   UNVERIFIED: whether IEC 60335-1 additionally requires resistors used in
+  #   a protective-impedance role to be a specifically qualified/tested
+  #   "safety" or flame-proof construction (analogous to Y-cap agency
+  #   approval) rather than a generic 1% thick-film chip resistor -- one
+  #   secondary source (summarizing patent US6084757 / EN 60730-1 practice)
+  #   mentions resistors being "checked by the test of 14.1 a) in IEC 60065"
+  #   in an equivalent protective-impedance context, suggesting such a
+  #   requirement may exist, but this was not confirmed against IEC
+  #   60335-1's own primary text or checked against this Yageo part's actual
+  #   certification. Flagged as a follow-up verification item, not blocking:
+  #   the arithmetic margin (56-166V against a 200V/400V/500V-rated part) is
+  #   generous even for a generic resistor, and the 1206 package's ~3.2mm
+  #   body length gives comfortable creepage across the part at these
+  #   voltages (basic-insulation creepage per IEC 60664-1, pollution degree
+  #   2, is on the order of 1.2-2mm at 170-400V working voltage) -- but no
+  #   specific safety-resistor part number was sourced or substituted here.
+  #
+  # SINGLE-FAULT DIRECTION WHEN r_div_bot (R54) OPENS (the failure originally
+  # flagged as the hazard -- confirmed fail-safe in this pass, not assumed):
+  #   With r_div_bot open, the sense node (comp.INP) has no path to `gnd`
+  #   except through the TLV3201's own input ESD structure (per TI's
+  #   datasheet: back-to-back diodes clamping ~300mV beyond VCC/GND, rated
+  #   for up to 10mA continuous). comp.VCC is `power_3v3` (3.3V), so the
+  #   clamp point is ~3.6V. Current through the divider is essentially
+  #   unchanged (170V / ~1.29M ~ 129uA, well under the ESD structure's 10mA
+  #   rating -- it survives). Clamped at ~3.6V, comp.INP sits ABOVE comp.INN
+  #   (2.973V reference), so comp.OUT goes HIGH -- fault.line asserts --
+  #   OVP-01 trips and latches (via fault_or -> latch, SafetyInterlock).
+  #   CONFIRMED fail-safe: r_div_bot opening trips a nuisance OVP fault
+  #   rather than silently disabling overvoltage detection.
+  #
+  # ISOLATOR-BARRIER CASCADE CHECK: before this fix, this gate reported 8
+  # isolator-barrier violations against 3 independent domain-crossing paths.
+  # After fixing the bootstrap wiring bug (elec/src/modules.ato, HalfBridge)
+  # and this divider's redundancy defect, re-running the gate showed all 8
+  # isolator-barrier violations are still produced by exactly the TWO
+  # remaining root paths (this divider and the ADC divider below) -- every
+  # `aux_supply.psu` / `hb.gate_hs.driver` / `ct_sense.ct` /
+  # `power_in.bypass_relay` / `discharge.k_dis1` / `discharge.k_dis2` /
+  # `power_in.zcd_opto` / `power_in.y_cap_pe` "barrier bridged" report shares
+  # one of these two paths as its evidence. They are cascade effects of
+  # these two root crossings, not independent findings -- confirmed by
+  # re-running the gate after each source fix and watching the reported
+  # bridge count drop from 3 to 2 (see the evidence doc for both outputs).
+  # --- OVP-01 ADC-sense divider (second, independent protective-impedance
+  # crossing) ---
+  # Same standard clause and PE-bonded-earth reasoning as the comparator
+  # divider above -- not repeated in full here. This divider feeds
+  # mcu.adc_v_bus (V_BUS_SENSE, SELV) rather than the comparator's INP pin.
+  #
+  # CONSTRUCTION DEFECT FOUND AND FIXED (2026-07-26, this same change): this
+  # divider was PREVIOUSLY a single 510k resistor (r_adc_top) in series with
+  # r_adc_bot (10k) -- only ONE current-limiting element on the HV side. A
+  # single short of that one resistor removes 100% of the divider's
+  # impedance, putting the full +170V_BUS directly across r_adc_bot alone:
+  # 170V / 10k = 17mA -- ~13x the 1.35mA touch-current limit derived above,
+  # and ~29x r_adc_bot's 0.1W power rating (170V * 17mA = 2.89W). That is
+  # exactly the single-point-of-failure protective impedance's own
+  # construction rule exists to prevent, and this divider did not satisfy
+  # it. Fixed by splitting r_adc_top into r_adc_top1/2/3 (3x169k, elec/src/
+  # modules.ato, same change as this manifest update) to match the
+  # comparator divider's redundant construction before declaring it here.
+  #
+  # ARITHMETIC (r_adc_top1-3 = 3x169k, r_adc_bot = 10k, post-fix):
+  #   Normal:          170V / (3*169k + 10k) = 170V / 517k = 328.8uA
+  #   One top shorted: 170V / (2*169k + 10k) = 170V / 348k = 488.5uA
+  #   Two top shorted: 170V / (169k + 10k)   = 170V / 179k = 949.7uA
+  #   All under the 1.35mA touch-current limit even with two of three top
+  #   resistors shorted (0.95mA, ~70% of the limit -- the tightest margin of
+  #   any crossing in this manifest, but still under the limit and still
+  #   satisfies "no single failure removes the impedance").
+  #
+  # RESISTOR RATING (same Yageo RC1206 1/4W family, 200V rated/working,
+  # verified against datasheet):
+  #   Normal:        328.8uA * 169k = 55.6V  (28% of 200V rated)
+  #   One shorted:   488.5uA * 169k = 82.6V  (41% of 200V rated)
+  #   Two shorted:   949.7uA * 169k = 160.5V (80% of 200V rated)
+  #   The PRIOR single-resistor version declared `.voltage_rating = 250V` in
+  #   elec/src/modules.ato, which did not match this part family's actual
+  #   200V datasheet rating -- corrected to 200V on all three new resistors
+  #   in this same change. Same UNVERIFIED safety-resistor-certification
+  #   caveat as the comparator divider above.
+  #
+  # SINGLE-FAULT DIRECTION WHEN r_adc_bot OPENS (not the originally-flagged
+  # hazard, checked here for completeness and symmetry with r_div_bot):
+  #   adc_v_bus feeds mcu.adc_v_bus, a plain ADC input (ESP32-S3), not a
+  #   comparator with a known reference to compare against. With r_adc_bot
+  #   open, the node floats up, clamped only by the ESP32-S3 GPIO/ADC pin's
+  #   own absolute-maximum input protection. UNVERIFIED: that clamp
+  #   behavior and current rating were not pulled from the ESP32-S3
+  #   datasheet in this pass. Firmware would read a pinned/saturated ADC
+  #   value rather than a physically meaningful bus voltage -- a
+  #   firmware-visible sensor fault, not a hidden hazard, since OVP-01's
+  #   actual trip path is the comparator divider above, entirely independent
+  #   of this ADC path. UNVERIFIED beyond that.
+# ---------------------------------------------------------------------------
+# Protective-impedance chains (2026-07-26)
+#
+# Declared here rather than under `isolators:` for a reason that matters.
+# An isolator declaration names ONE component as a barrier. The safety
+# property of these dividers is NOT carried by any one resistor -- it is
+# carried by the SERIES CHAIN, so that no single component failure removes
+# the impedance. Declaring one element would leave the gate blessing the path
+# even if the rest of the chain were later shorted or deleted.
+#
+# The gate therefore verifies the CONSTRUCTION: every listed element must
+# exist, be a genuine two-terminal part, and be wired in series to its
+# neighbour, and the chain must not fall below `min_length`. Shorten a chain
+# and the declaration stops being honoured, so the crossing reappears as a
+# violation.
+#
+# Full derivation, arithmetic, single-fault analysis and UNVERIFIED list:
+# docs/evidence/2026-07-26-ovp-crossing-resolution.md
+# ---------------------------------------------------------------------------
+protective_impedance_chains:
+  - name: ovp01_comparator_divider
+    component: "OVP-01 comparator sense divider: 3 x Yageo RC1206FR-07430KL (430k 1% 1206) in series + RC0603FR-0710KL (10k 1% 0603)"
+    chain:
+      - safety.ovp.r_div_top1
+      - safety.ovp.r_div_top2
+      - safety.ovp.r_div_top3
+    boundary_a: "+170V_BUS"
+    boundary_b: "safety.ovp.comp-inp"
+    min_length: 3
+
+  - name: ovp01_adc_sense_divider
+    component: "OVP-01 ADC-sense divider: 3 x 170k in series + RC0603FR-0710KL (10k 1% 0603). Split from a single 510k top resistor on 2026-07-26 -- one short removed the impedance entirely, which is not a valid protective-impedance construction."
+    chain:
+      - safety.ovp.r_adc_top1
+      - safety.ovp.r_adc_top2
+      - safety.ovp.r_adc_top3
+    boundary_a: "+170V_BUS"
+    boundary_b: "V_BUS_SENSE"
+    min_length: 3

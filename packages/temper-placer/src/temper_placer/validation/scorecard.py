@@ -297,11 +297,11 @@ def score_placement_via_oracle(
 # ---------------------------------------------------------------------------
 
 
-def _is_scorable_metric(
+def _is_scorable_metric(  # noqa: ARG001
     score: float,
-    _report: dict[str, Any],
+    report: dict[str, Any],
     *,
-    _key: str,
+    key: str,
     default_value: float = 1.0,
 ) -> bool:
     """Dynamic-range smoke test for a single metric.
@@ -313,5 +313,20 @@ def _is_scorable_metric(
     Returns ``False`` if the metric is at its default pass-through value,
     indicating the metric was not exercised and the margin is not a
     genuine validation signal.
+
+    ``report`` and ``key`` are part of this function's keyword API and are
+    passed by all four call sites. **Do not re-prefix them with underscores.**
+    A ruff ARG001 autofix did exactly that (`ce882acf`), which made every call
+    site raise ``TypeError`` — see
+    ``docs/evidence/2026-07-26-api-signature-drift-gate.md`` for the identical
+    incident in ``routability_check.py``.
+
+    KNOWN LIMITATION, deliberately not fixed here: both parameters are
+    currently unused, so the test reduces to ``score != default_value``. That
+    is a weak proxy — a genuinely-computed score that happens to equal the
+    default reads as "not exercised". Using ``report[key]`` to check whether
+    the metric was actually computed would be the real test. Changing that is
+    a behaviour change and is scoped as a follow-up, not folded into a
+    signature repair.
     """
     return score != default_value

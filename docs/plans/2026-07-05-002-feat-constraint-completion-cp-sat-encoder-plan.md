@@ -1,7 +1,9 @@
 ---
 type: feat
 origin: docs/brainstorms/2026-07-05-constraint-completion-cp-sat-encoder-requirements.md
-status: active
+status: abandoned
+swept: 2026-07-25
+swept_basis: "only 1/20 named paths exist"
 ---
 # feat: Constraint Completion — CP-SAT Encoder for 8/8 PCL Types + Discrete Rotation
 

@@ -4,6 +4,8 @@ date: "2026-06-25"
 type: feat
 status: completed
 origin: "docs/brainstorms/2026-06-25-dfm-property-tests-requirements.md"
+swept: 2026-07-25
+swept_basis: "already declared"
 ---
 
 ## Summary

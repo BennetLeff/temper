@@ -8,6 +8,8 @@ depends_on:
   - docs/plans/2026-06-22-022-feat-per-stage-timing-regression-gate-plan.md  (completed; provides timing gate CLI, TimingResult/measure_stage_timing contract, CI check step)
   - docs/plans/2026-06-22-015-feat-pipeline-profiling-validation-toolkit-plan.md  (PipelineProfiler with Stage2Orchestrator sub-step timers, RouteProfileStats)
   - docs/plans/2026-06-22-009-feat-golden-fixture-ladder-plan.md                   (non-breaking manifest addition pattern — R12)
+swept: 2026-07-25
+swept_basis: "already declared"
 ---
 
 # feat: Extend Timing Gate Coverage to RouterV6Pipeline and PipelineOrchestrator

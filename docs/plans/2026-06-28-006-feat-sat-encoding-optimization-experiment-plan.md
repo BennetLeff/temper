@@ -1,9 +1,11 @@
 ---
 title: "feat: Gated experiment — optimize SAT encoding for Temper PCB scale"
 type: feat
-status: active
+status: stale
 date: 2026-06-28
 origin: docs/brainstorms/2026-06-28-sat-encoding-optimization-experiment-requirements.md
+swept: 2026-07-25
+swept_basis: "insufficient evidence - needs human triage"
 ---
 
 # SAT Encoding Optimization Experiment

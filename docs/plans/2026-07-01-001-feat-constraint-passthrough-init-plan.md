@@ -2,10 +2,12 @@
 title: "feat: Constraint-Passthrough Init Pipeline"
 plan_id: "2026-07-01-001-feat-constraint-passthrough-init"
 type: feat
-status: planned
+status: abandoned
 date: 2026-07-01
 origin: docs/brainstorms/2026-07-01-constraint-passthrough-init-requirements.md
 related: docs/ideation/2026-07-01-placement-init-ideation.md (idea #1)
+swept: 2026-07-25
+swept_basis: "only 2/24 named paths exist"
 ---
 
 # feat: Constraint-Passthrough Init Pipeline
