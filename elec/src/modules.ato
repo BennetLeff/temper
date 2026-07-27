@@ -1710,8 +1710,16 @@ module OCPComparator:
     comp.OUT ~ fault.line
 
 module OVPComparator:
-    """Over-voltage protection, 390V (full-bus-equivalent) threshold (trips
-    399.7V, OVP-01 390-410V).
+    """Over-voltage protection, senses the +170V half-bus at half the
+    full-bus-equivalent threshold (OVP-01 spec: 390-410V trip / 10-20V
+    hysteresis on the FULL bus -> 195-205V trip / 5-10V hysteresis AT
+    dc_bus_plus). RE-TUNED 2026-07-27
+    (docs/evidence/2026-07-27-ovp01-half-bus-retune.md): r_ref_top=11.8k,
+    r_hyst=619k give a nominal trip of 199.9V and 6.9V of hysteresis, both
+    centred in their windows. See the SUPERSEDED block below for the
+    fail-open history this replaces, and SS[worst-case] further down for
+    why the *worst-case* window is NOT fully achievable at E96 1%
+    tolerance (arithmetic given, spec not weakened to hide it).
 
     NODE IDENTITY (2026-07-26, SELV isolation redesign -- read this before
     touching r_ref_top): v_bus.line is wired in main.ato to dc_bus_plus,
@@ -1724,8 +1732,10 @@ module OVPComparator:
     docs/hardware/VOLTAGE_DOUBLER_DESIGN.md and
     docs/hardware/SELV_ISOLATION_REDESIGN.md.
 
-    THIS REVISION'S VALUES ARE FAIL-OPEN. r_ref_top=1.1k (V_ref=2.973V) plus
-    the 287k hysteresis resistor below require dc_bus_plus to reach
+    SUPERSEDED 2026-07-27 -- kept verbatim for history, but the reasoning
+    below is WRONG and the values it describes are no longer in this file.
+    "THIS REVISION'S VALUES ARE FAIL-OPEN. r_ref_top=1.1k (V_ref=2.973V)
+    plus the 287k hysteresis resistor below require dc_bus_plus to reach
     ~386-400V to trip (see the inline derivation further down). dc_bus_plus
     physically cannot reach that -- it is the 170V-nominal half-bus, and the
     bus capacitors are rated 250V and fail well before 400V. The inline
@@ -1743,7 +1753,19 @@ module OVPComparator:
     per instruction not to unilaterally retune a value entangled with the
     still-open isolation decision below. See
     docs/hardware/SELV_ISOLATION_REDESIGN.md for the full derivation and two
-    remediation options with a recommendation.
+    remediation options with a recommendation." -- END SUPERSEDED BLOCK.
+    It IS re-tuned now, per explicit instruction to do so
+    (docs/evidence/2026-07-27-ovp01-half-bus-retune.md); the isolation
+    decision it was waiting on (below) was resolved 2026-07-26 and does not
+    change the half-bus sensing topology.
+
+    KNOWN LIMITATION (not fixed, stated per instruction): sensing only
+    dc_bus_plus (the +170V half relative to the doubler midpoint) is BLIND
+    to bus IMBALANCE -- a fault mode where one half-bus over-volts while
+    the other under-volts such that dc_bus_plus alone never crosses this
+    trip point even though the plus-to-minus differential is abnormal.
+    Detecting that requires a reference at dc_bus_minus (-170V), a second
+    SELV/HV domain-crossing problem this change does not take on.
 
     RESOLVED 2026-07-26 (docs/evidence/2026-07-26-ovp-crossing-resolution.md,
     supersedes the "UNRESOLVED"/"NOT implemented" framing that used to be
@@ -1822,26 +1844,52 @@ module OVPComparator:
     r_div_bot.footprint = "Resistor_SMD:R_0603_1608Metric"
     
     r_ref_top = new Resistor
-    # 1.1k sets V_ref = 3.3 * 10k/11.1k = 2.973V. With the 130:1 bus divider
-    # (3 x 430k over 10k) AND the 287k hysteresis resistor below, that gives
-    # trip 399.8V and release 385.0V -- 14.8V of hysteresis, centred in the
-    # OVP-01 10-20V window (FUNCTIONAL_TEST_CRITERIA §2.2).
+    # RE-TUNED 2026-07-27 for half-bus sensing at half the OVP-01 threshold
+    # (docs/evidence/2026-07-27-ovp01-half-bus-retune.md). 11.8k sets
+    # V_ref = 3.3 * 10k/21.8k = 1.5138V. With the 130:1 bus divider (3 x
+    # 430k over 10k, N = 1300k/10k = 130) and the 619k hysteresis resistor
+    # below (r_hyst), trip and hysteresis at dc_bus_plus are:
     #
-    # An earlier revision used 732R with NO hysteresis resistor at all. The
-    # hysteresis column had been dropped from STRATEGY's gate table, so the
-    # requirement was invisible when that value was chosen.
+    #   V_trip    = V_ref * (N + Rtop/Rhyst)
+    #             = 1.5138 * (130 + 1290000/619000) = 1.5138 * 132.084
+    #             = 199.9 V   (window: 195-205V, centred)
+    #   V_release = V_trip - VCC*Rtop/Rhyst = 199.9 - 3.3*1290000/619000
+    #             = 199.9 - 6.88 = 193.1 V
+    #   hysteresis = 6.88 V   (window: 5-10V, centred)
     #
-    # Was 12k -> V_ref 1.50V -> trip at 195V. The divider senses the FULL bus
-    # (modules.ato: ovp.v_bus.line ~ dc_bus.line, and main.ato declares
-    # dc_bus_plus as +340V_BUS with v_bus_max = 340V), so at the 340V nominal
-    # bus the sense node sat at 2.615V against a 1.50V reference and the OVP
-    # fault asserted permanently. The cooker could not have run.
+    # WORST CASE (every resistor in this path -- r_div_top1-3, r_div_bot,
+    # r_ref_top, r_ref_bot, r_hyst -- independently at +/-1%, all 32 corner
+    # combinations swept, see the evidence doc for the script):
+    #   trip:      193.9 - 206.2 V
+    #   hysteresis: 6.74 - 7.02 V   (comfortably inside 5-10V)
     #
-    # main.ato:195 already stated the intent: v_ovp_trip = 390V, with
-    # `assert v_ovp_trip > v_bus_max`. The reference divider never matched it.
-    # See docs/hardware/PROTECTION_CHAIN_REVIEW.md.
-    r_ref_top.value = 1.1kohm +/- 1%
-    r_ref_top.mpn = "RC0603FR-071K1L"
+    # Hysteresis clears its worst-case window with margin. Trip does NOT:
+    # the corner analysis exceeds the 195-205V window by up to ~1.2V at
+    # each end (193.9 < 195, 206.2 > 205). This is NOT hidden or rounded
+    # away: an exhaustive E96 search over r_ref_top/r_ref_bot/r_hyst (17k+
+    # combinations, evidence doc SS[worst-case]) found no combination that
+    # fits the full 10V window in worst case at 1% tolerance -- the
+    # irreducible term is the EXISTING r_div_top1-3/r_div_bot divider's own
+    # +/-1% tolerance amplified ~130x, independent of what r_ref_top/r_hyst
+    # are chosen to be. The values here (11.8k/619k) are the E96 pair that
+    # minimizes the worst-case excursion (+-~1.15V, the best achievable),
+    # not a value picked to make a nominal-only check pass.
+    #
+    # Was 1.1k (V_ref=2.973V) -- FAIL-OPEN, see the module docstring's
+    # SUPERSEDED block: that value assumed this divider senses the FULL
+    # 340V bus. It senses the +170V HALF-bus. 1.1k gave a ~399.8V trip at
+    # a node that never exceeds ~170V; the comparator could never fire.
+    #
+    # Before that, 12k -> V_ref 1.50V -> trip at 195V, with NO hysteresis
+    # resistor at all (r_hyst did not exist yet) -- correct on trip point,
+    # non-compliant on hysteresis (0V against a 5-10V requirement).
+    #
+    # main.ato:195 states the full-bus intent: v_ovp_trip = 390V, with
+    # `assert v_ovp_trip > v_bus_max`. On the half-bus this is 390V/2 =
+    # 195V nominal minimum, which is FUNCTIONAL_TEST_CRITERIA §2.2's
+    # 390-410V trip / 10-20V hysteresis window, halved.
+    r_ref_top.value = 11.8kohm +/- 1%
+    r_ref_top.mpn = "RC0603FR-0711K8L"
     r_ref_top.footprint = "Resistor_SMD:R_0603_1608Metric"
     
     r_ref_bot = new Resistor
@@ -1865,28 +1913,43 @@ module OVPComparator:
     r_ref_bot.p2 ~ power.gnd
 
     # Hysteresis: positive feedback from output to INP (the bus-sense node).
-    # OVP-01 requires 10-20V of hysteresis at the bus. INP's Thevenin
-    # resistance is (3 x 430k) || 10k = 9.92k, so a 287k feedback resistor
-    # shifts the sense node by 3.3 * 9.92k/(9.92k + 287k) = 0.114V, which the
-    # 130:1 divider refers back to 14.8V at the bus.
+    # RE-TUNED 2026-07-27 alongside r_ref_top for half-bus sensing (see its
+    # comment for the full trip/release derivation and worst-case sweep).
+    # OVP-01's 10-20V full-bus hysteresis window halves to 5-10V at
+    # dc_bus_plus. INP's Thevenin resistance is (3 x 430k) || 10k = 9.92k,
+    # so a 619k feedback resistor shifts the sense node by
+    # 3.3 * 9.92k/(9.92k + 619k) = 0.0517V, which the 130:1 divider refers
+    # back to ~6.7V at the bus (the exact figure, using the Rbot-independent
+    # closed form VCC*Rtop/Rhyst = 3.3*1290000/619000, is 6.88V -- see
+    # r_ref_top's comment for why that closed form is exact, not an
+    # approximation). 6.88V nominal, 6.74-7.02V worst case: centred in the
+    # 5-10V window with margin at both corners.
     #
     # Feedback goes to INP rather than INN: the bus drives INP, so pulling INP
     # up when the output is high reinforces the trip, requiring the bus to fall
     # further before release. Feeding INN instead would move the threshold the
     # wrong way.
+    #
+    # Was 287k, tuned against the fail-open 1.1k/2.973V reference (see
+    # r_ref_top's SUPERSEDED history) -- correct hysteresis math, wrong
+    # trip point underneath it, so it moved together with r_ref_top.
     r_hyst = new Resistor
-    r_hyst.value = 287kohm +/- 1%
-    r_hyst.mpn = "RC0603FR-07287KL"
+    r_hyst.value = 619kohm +/- 1%
+    r_hyst.mpn = "RC0603FR-07619KL"
     r_hyst.footprint = "Resistor_SMD:R_0603_1608Metric"
     comp.INP ~ r_hyst.p1
     r_hyst.p2 ~ comp.OUT
     comp.OUT ~ fault.line
-    
-    # Verify trip point: divider = 3x430k + 10k, ratio = 10k/(3*430k+10k) = 1/130
-    # Trip when V_bus_half * (1/130) = V_ref = 1.50V
-    # V_bus_half_trip = 1.50 * 130 = 195V
-    # V_bus_full_trip = 195V * 2 = 390V
-    assert 180V * (10000 / (3 * 430000 + 10000)) < 3.3V * (10000 / (12000 + 10000))
+
+    # Verify trip point stays below the OVP-01 window's low edge at a
+    # representative below-trip bus voltage (180V, close to the 170V
+    # half-bus nominal but with margin above it). Written symbolically
+    # against the actual component values (not hardcoded numbers) so it
+    # cannot go stale the way the previous version of this assert did: that
+    # version hardcoded "12000" and "1.50V" and kept passing, unchanged,
+    # all the way through the 1.1k fail-open revision, because it never
+    # referenced r_ref_top.value at all.
+    assert 180V * (r_div_bot.value / (r_div_top1.value + r_div_top2.value + r_div_top3.value + r_div_bot.value)) < 3.3V * (r_ref_bot.value / (r_ref_top.value + r_ref_bot.value))
     
     # Bus voltage ADC sense: separate divider from the same v_bus net.
     #
