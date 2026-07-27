@@ -190,7 +190,11 @@ def compute_drc_proxy_score(
     separated_dist = np.maximum(gap_x, gap_y)
     distances = np.where(both_negative, overlap_dist, separated_dist)
 
-    violations = smooth_relu(clearance_mm - distances, beta=beta)
+    # `smooth_relu`'s smoothing parameter is named `alpha` (geometry/smooth.py:114),
+    # not `beta`. This call passed `beta=` and raised TypeError on every
+    # invocation. Same default (10.0) and same role, so the value carries over
+    # unchanged. See docs/evidence/2026-07-26-api-signature-drift-gate.md.
+    violations = smooth_relu(clearance_mm - distances, alpha=beta)
     squared_violations = violations**2
 
     i_upper, j_upper = np.triu_indices(n, k=1)

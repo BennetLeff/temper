@@ -26,13 +26,13 @@ class ComparisonResult:
     """Human-readable description of where the models diverge."""
 
 
-def compare_fields(
+def compare_fields(  # noqa: ARG001
     fdm_field: np.ndarray,
     mfem_field: np.ndarray,
     tolerance_C: float = 5.0,
     *,
     devices: dict[str, tuple[int, int]] | None = None,
-    _cell_size_mm: float = 1.0,
+    cell_size_mm: float = 1.0,
     heatsink_edge: str = "TOP",
 ) -> ComparisonResult:
     """Compare MFEM and FDM temperature fields across the full board.
@@ -44,6 +44,18 @@ def compare_fields(
         devices: ``{name: (row, col)}`` device positions on the grid, for spot-checks.
         cell_size_mm: cell size in mm.
         heatsink_edge: which edge is the heatsink (TOP/BOTTOM/LEFT/RIGHT).
+
+    ``cell_size_mm`` is part of this function's keyword API —
+    ``mfem_gate.py:94`` passes it by name. **Do not re-prefix it with an
+    underscore.** A ruff ARG001 autofix did, and every gate invocation raised
+    ``TypeError``; see ``docs/evidence/2026-07-26-api-signature-drift-gate.md``.
+
+    KNOWN GAP, not closed here: the parameter is **accepted and ignored**. The
+    comparison runs entirely in grid-index space, so a caller supplying a real
+    cell size gets the same answer as one supplying the 1.0 default. Any future
+    metric expressed in physical units (gradient per mm, spatial correlation
+    length) must actually consume it. Scoped as a follow-up rather than folded
+    into a signature repair.
     """
     H, W = fdm_field.shape
     if mfem_field.shape != (H, W):

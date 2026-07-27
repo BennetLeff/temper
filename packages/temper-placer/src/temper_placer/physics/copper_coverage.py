@@ -253,16 +253,22 @@ SANITY_CEILING_C = 400.0
 # be investigated rather than silently accepted.
 
 
-def check_thermal_plausibility(
+def check_thermal_plausibility(  # noqa: ARG001
     field: np.ndarray | None,
-    _ambient_C: float = 40.0,
+    ambient_C: float = 40.0,
     ceiling_C: float = SANITY_CEILING_C,
 ) -> tuple[bool, str]:
     """Check if a thermal field is physically plausible.
 
     Args:
         field: Temperature field ``(height_cells, width_cells)`` or None.
-        ambient_C: Ambient temperature for comparison.
+        ambient_C: Ambient temperature for comparison. Part of this function's
+            keyword API (``battery_run.py`` passes it by name) — **do not
+            re-prefix with an underscore**; a ruff ARG001 autofix did, and the
+            call raised ``TypeError``. Currently **accepted and ignored**: the
+            plausibility test only checks against ``ceiling_C``, so a field
+            below ambient is not flagged. Scoped as a follow-up. See
+            ``docs/evidence/2026-07-26-api-signature-drift-gate.md``.
         ceiling_C: Maximum plausible temperature.
 
     Returns:
