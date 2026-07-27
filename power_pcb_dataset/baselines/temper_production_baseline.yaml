@@ -1,5 +1,41 @@
-component_count: 149
-net_count: 95
+# 2026-07-27: component_count 149 -> 169, net_count 95 -> 106.
+#
+# Not a regression. pcb/temper.kicad_pcb was resynced against the atopile
+# netlist (scripts/resync_pcb_netlist.py, commit 1461d944; evidence in
+# docs/evidence/2026-07-27-pcb-netlist-resync.md), adding components that
+# existed in the netlist but had never been placed on the board. The board
+# identity gate was failing on exactly this: "0 refs only in board, 20 refs
+# only in netlist".
+#
+# The +20 was verified by parsing the pre-resync board
+# (`git show 1461d944^:pcb/temper.kicad_pcb`) and the current one and diffing
+# reference designators: 20 added, 0 removed.
+#   R67 R68 R69 R70 R71 R72 R73 R74 R75 R76 R77 R78 R79 R80 R81
+#   TP3 U23 U24 U25 U26
+#
+# The +11 nets: 15 new >=2-pin net names appeared and 4 were removed, but the
+# 4 removals are renames matching 1:1 (+340V_BUS -> +170V_BUS, ZCD -> zcd,
+# ina_p -> rtd_pan.rail_monitor-ina_p, outa -> rtd_pan.rail_monitor-outa),
+# netting zero. The 11 genuinely new nets each trace to a documented addition:
+#   ZCD_ISO, a                              (new H11L1 opto + resistors)
+#   gnd                                     (ground net previously absent)
+#   safety-line-3                           (extra OR-tree fan-in slot)
+#   safety.coil_thermal-line, .comp-inp     (THM-02)
+#   safety.ovp.r_adc_top1-p2, ...top2-p2    (split OVP divider)
+#   safety.uvlo_logic-line, .mon-ina_p,
+#     .mon-outa                             (UVL-02)
+#
+# Updated by hand: scripts/bless_baselines.py and the Ceiling-Approval check in
+# placer-regression.yml govern only power_pcb_dataset/corpus/<id>/baseline.json
+# and do not reach this file (`bless_baselines.py --board temper_production`
+# errors with "not found in manifest"). Extending that machinery to cover
+# golden_manifest.yaml boards is the outstanding gap this edit works around.
+#
+# Only the two counts below are changed. deterministic_pipeline.placed_components
+# and every DRC/routing figure further down are recorded measurements from
+# specific runs and are NOT re-stated here, because they were not re-measured.
+component_count: 169
+net_count: 106
 drc_available: false
 drc_errors: 0
 drc_warnings: 0
