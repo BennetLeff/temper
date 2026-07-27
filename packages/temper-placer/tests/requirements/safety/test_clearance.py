@@ -499,32 +499,48 @@ class TestClearanceIntegration:
     """Integration tests for complete clearance validation."""
 
     @pytest.mark.slow
-    @pytest.mark.xfail(
-        strict=True,
-        reason=(
-            "REAL BOARD, NOT SYNTHETIC: as of 2026-07-26 the real board has "
-            "18 REQ-SAFE-01 violations across DC_BUS<->LV_CONTROL (reinforced, "
-            "10) and MAINS<->LV_CONTROL (basic 2, reinforced 6) boundaries -- "
-            "worst is F1 (mains fuse) to J1 (fan connector, SELV) at 0.836mm, "
-            "far under the 3mm/6mm IEC 60335-2-6 minimums. This is a real, "
-            "board-verified safety finding, not a flaky test -- see "
-            "docs/evidence/2026-07-26-safety-validators-implemented.md. "
-            "xfail(strict=True) so this stays visible (XPASS => failure) "
-            "rather than silently skipped, without turning normal CI red "
-            "for a known, already-tracked hardware violation (consistent "
-            "with the project's 616-known-critical-DRC-violations ceiling "
-            "elsewhere). Remove this marker only once the board is "
-            "re-laid-out to close these gaps."
-        ),
-    )
     def test_temper_board_clearance_compliance(self):
         """Temper board should meet all REQ-SAFE-01 requirements.
 
-        Falsifier: if this ever reports 0 violations while F1/J1 (or any
-        other MAINS/DC_BUS-to-LV_CONTROL pair) are still sub-mm apart on the
-        real board, the check is vacuous -- inspecting nothing and passing.
-        As implemented, it currently correctly reports 18 real violations
-        (see the xfail reason above), so the falsifier has NOT fired.
+        UPDATE 2026-07-27: this was `xfail(strict=True)`, first with a
+        reason citing 18 violations (2026-07-26 evidence doc), which turned
+        out to be computed on a **broken reference-designator join**: the
+        committed board's designators had drifted from the current netlist
+        for 78 of 149 shared refs (e.g. old `U3` was a SOT-23-6 buck
+        converter; the netlist's current `U3` is a DIP-6 H11L1
+        optocoupler) -- see
+        docs/evidence/2026-07-27-pcb-netlist-resync.md. After
+        `pcb/temper.kicad_pcb` was resynced against the current netlist by
+        reference designator/Sheetpath (0 components moved, 126/126
+        classifiable components up from 109/126), the real count was
+        **22** violations, not 18 -- re-derived directly, not assumed.
+
+        The placer itself had no voltage-domain-aware clearance constraint
+        (confirmed: no `hv_clearance`/`domain_clearance`/`isolation_gap`/
+        `VoltageDomain` anywhere in placer/cp_sat/_encoder_core.py or
+        model.py), so any hand-fix would have been silently reintroduced by
+        the next solve. `temper_placer.placer.cp_sat.domain_clearance` adds
+        a constraint generator that reuses this exact module's
+        IEC60335_REQUIREMENTS/VoltageDomain classifier (not a second one)
+        to emit per-pair SeparatedConstraint objects at the IEC 60335-2-6
+        margin, and the resynced board was re-solved with them (169/169
+        components, CP-SAT status=optimal). Re-running this exact check
+        against the re-solved, re-parsed `pcb/temper.kicad_pcb` now reports
+        0 violations -- see
+        docs/evidence/2026-07-27-domain-clearance-constraint.md for the
+        full 22->0 before/after count, the R24 soundness proof,
+        BMC-exhaustive validation, and the post-solve audit. This is now a
+        normal passing assertion, not an xfail: converting away from
+        `xfail(strict=True)` is required once the underlying defect closes
+        -- leaving the strict-xfail marker in place would have made this
+        specific test XPASS (a hard failure under `strict=True`) while
+        masking the fact the placer's actual capability changed.
+
+        Falsifier: if this ever reports >0 violations while
+        `pcb/temper.kicad_pcb` is the resynced-and-re-solved board, the
+        domain-clearance constraint (or its post-solve audit) has
+        regressed silently. As implemented, it currently correctly reports
+        0 violations, so the falsifier has NOT fired.
         """
         from ._real_board_fixture import RealBoardUnavailable, load_real_board_placement
 
