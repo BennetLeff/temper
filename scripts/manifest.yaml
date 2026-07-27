@@ -1,8 +1,9 @@
 _meta:
   last_audit_date: '2026-06-24'
-  total_scripts: 30
+  total_scripts: 64
   counts:
-    keep: 27
+    keep: 63
+    ticket: 1
   ticket_scripts_deleted: 40
 scripts:
 - path: kicad_fill_zones.py
@@ -844,4 +845,41 @@ scripts:
   - os
   - pathlib
   - re
+  - sys
+- path: check_derived_doc_drift.py
+  purpose: 'Derived-document drift gate: fail when a summary table silently drops a qualifier, column,
+    or value restated from docs/FUNCTIONAL_TEST_CRITERIA.md'
+  owner: bennet
+  last_run: '2026-07-26'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - dataclasses
+  - datetime
+  - pathlib
+  - re
+  - rich.console
+  - sys
+  - yaml
+- path: worktree_report.py
+  purpose: 'Worktree hygiene report: inventory each git worktree with HEAD, age, distance behind main,
+    and unique unmerged commits (read-only, prunes nothing)'
+  owner: bennet
+  last_run: '2026-07-26'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - _lib.repo
+  - argparse
+  - datetime
+  - json
+  - pathlib
+  - rich.console
+  - rich.table
+  - subprocess
   - sys

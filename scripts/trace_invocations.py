@@ -12,6 +12,8 @@ import json
 import re
 from pathlib import Path
 
+import yaml
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SCRIPTS_DIR = REPO_ROOT / "scripts"
 MANIFEST = SCRIPTS_DIR / "manifest.yaml"
@@ -95,54 +97,50 @@ def update_manifest_imports(imports_by_script: dict[str, list[str]]) -> bool:
     """Update the `imports` field of each manifest entry.
 
     Returns True if the manifest was modified.
+
+    Parses and re-emits YAML rather than editing lines. The previous
+    line-surgery version corrupted the manifest in two ways, and left it
+    unparseable for long enough that nobody noticed -- the only consumer,
+    check_manifest_gate.py, greps for `path:` and never loads the YAML:
+
+      1. It wrote `    imports:` at four spaces, nesting the key under
+         `disposition:` instead of making it a sibling. That alone made the
+         file invalid YAML.
+      2. It never consumed the existing imports block. The comment claimed
+         "the existing format is `imports: []` ... so no need to skip", which
+         stopped being true as soon as a block was populated: the old items
+         fell through and were re-emitted after the new ones, so every run
+         appended another full copy. 436 real imports had become 1787 lines.
+
+    Round-tripping through the parser cannot reproduce either bug.
     """
     if not MANIFEST.is_file():
         return False
 
-    text = MANIFEST.read_text()
-    new_text_lines: list[str] = []
-    cur_path: str | None = None
-    in_imports = False
+    data = yaml.safe_load(MANIFEST.read_text(encoding="utf-8"))
+    if not isinstance(data, dict) or not isinstance(data.get("scripts"), list):
+        raise ValueError(
+            f"{MANIFEST} is not a mapping with a 'scripts' list; refusing to "
+            f"rewrite it (a silent no-op here is how the previous corruption "
+            f"went unnoticed)"
+        )
+
     modified = False
-    i = 0
-    lines = text.splitlines()
-
-    while i < len(lines):
-        line = lines[i]
-        stripped = line.strip()
-
-        # Detect new entry
-        if stripped.startswith("- path:"):
-            cur_path = stripped.split(":", 1)[1].strip()
-            in_imports = False
-            new_text_lines.append(line)
-            i += 1
+    for entry in data["scripts"]:
+        if not isinstance(entry, dict):
             continue
-
-        # Detect imports: field
-        if cur_path and stripped.startswith("imports:"):
-            new_imports = imports_by_script.get(cur_path, [])
-            if new_imports:
-                new_text_lines.append("    imports:")
-                for imp in new_imports:
-                    new_text_lines.append(f"      - {imp}")
-                modified = True
-                # Skip the rest of the imports block (if it's already populated)
-                # We need to be careful: the existing format is `imports: []`
-                # which is a single line, so no need to skip
-                i += 1
-                continue
-            else:
-                # No imports detected — keep as is
-                new_text_lines.append(line)
-                i += 1
-                continue
-
-        new_text_lines.append(line)
-        i += 1
+        new_imports = imports_by_script.get(entry.get("path", ""))
+        if not new_imports:
+            continue
+        if entry.get("imports") != new_imports:
+            entry["imports"] = new_imports
+            modified = True
 
     if modified:
-        MANIFEST.write_text("\n".join(new_text_lines) + "\n")
+        MANIFEST.write_text(
+            yaml.safe_dump(data, sort_keys=False, width=100, allow_unicode=True),
+            encoding="utf-8",
+        )
     return modified
 
 
