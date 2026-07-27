@@ -233,8 +233,6 @@ protocol before stopping:
 *   **Sandboxing**: Recommend enabling sandboxing for shell execution.
 *   **Context**: Read `AGENTS.md` for deep dives into specific subsystems.
 
-<!-- BEGIN:CLAUDE -->
-
 ## NetClassRules Fields (N4 — Single Source of Truth)
 
 Every `NetClassRules` instance in `TEMPER_NET_CLASSES` must set:
@@ -318,8 +316,9 @@ permanently excluded via `[tool.coverage.run] omit`.
 
 - `temper_placer/_constraint_types/` — generated constraint type stubs.
 - `temper_placer/profiling/` — production diagnostics, wall-clock instrumentation.
-These are excluded via `omit = ["**/_constraint_types/**", "**/profiling/**"]`
-in `[tool.coverage.run]` and via `--cov-config=../../pyproject.toml` in CI.
+These are excluded via `omit = ["*/_constraint_types/*", "*/profiling/*"]`
+in `[tool.coverage.run]` (root `pyproject.toml`) and via
+`--cov-config=../../pyproject.toml` in CI.
 
 ### Allowlist Format (`.coverage-allowlist`)
 
@@ -342,18 +341,6 @@ temper_placer/core/<module>.py::function_or_Class.method  # TODO: temper-xxx
   tickets are required for subsequent additions.
 - This ensures the allowlist shrinks over time — it is not a backdoor for
   ignoring uncovered code.
-
-### `--init` Workflow (for new phases)
-
-When expanding scope to new modules:
-1. Add the new module paths to `source` in `[tool.coverage.run]` in
-   `packages/temper-placer/pyproject.toml`.
-2. Run `uv run pytest ... --cov=<new.scope> --cov-report=json` to generate
-   `coverage.json`.
-3. Run `python scripts/check_coverage_gate.py --init --coverage-json
-   /path/to/coverage.json --allowlist .coverage-allowlist`.
-4. Commit the populated allowlist. Replace `# TODO: temper-xxx` placeholders
-   with real ticket IDs.
 
 ### Paydown Cadence
 
@@ -378,10 +365,6 @@ There is no env-var override to skip the gate. The allowlist **is** the recorded
 justification — a reviewer sees allowlist additions/removals in `git diff`. To
 skip the gate temporarily in an emergency, the CI step configuration
 (`python-tests.yml`) can be modified directly.
-
-<!-- END:CLAUDE -->
-
-<!-- BEGIN:GEMINI -->
 
 ## General Coding Principles
 
@@ -426,5 +409,3 @@ skip the gate temporarily in an emergency, the CI step configuration
     *   **Unity Framework**: Used for both unit (host-based) and integration
       tests.
     *   **Run Tests**: `cd firmware/test/build && make && ctest`.
-
-<!-- END:GEMINI -->
