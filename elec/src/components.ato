@@ -333,9 +333,37 @@ component Relay_SPDT:
 
 component Relay_DPDT:
     """DPDT (2 Form C) relay, two independently-wired changeover poles on a
-    single coil, 8-pin THT layout. Replaces Relay_SPDT (Omron G5LE-1) for
-    K2/K3 (BusDischarge) -- 2026-07-28 discharge-relay-isolation fix
-    (docs/evidence/2026-07-28-discharge-relay-isolation.md,
+    single coil, 8-pin THT layout.
+
+    NOT CURRENTLY USED, KEPT UNREFERENCED -- 2026-07-28 QUARANTINE (see
+    docs/evidence/2026-07-28-relay-board-resync-decision.md and
+    elec/src/modules.ato's BusDischarge docstring, "RELAY REPLACEMENT
+    TRIED AND REVERTED"). This component was briefly instantiated for
+    K2/K3 (docs/evidence/2026-07-28-relay-replacement-implementation.md)
+    with the pin mapping below, backing Finder 40.52.7.012.0000, on the
+    strength of a claimed 9.2mm edge-to-edge coil<->contact PCB creepage
+    figure. That figure was RETRACTED
+    (docs/evidence/2026-07-28-pd3-retarget-relay.md): it was an invented
+    footprint layout, not measured from the real part's fixed pinout. The
+    manufacturer's real, fixed 7.5mm coil-to-nearest-contact center-to-
+    center pin pitch caps achievable edge-to-edge creepage at 5.3mm --
+    FAILS both the 8.0mm target (by 2.7mm) and the 12.6mm PD3 target (by
+    7.3mm), with no routed-slot remedy (the relay's own one-piece moulded
+    case sits over the entire coil-to-contact pin field). K2/K3 were
+    reverted to Relay_SPDT (Omron G5LE-1) below this component definition.
+    DO NOT re-instantiate this component for K2/K3 (or any other reinforced-
+    isolation role) without first fetching and citing a manufacturer
+    datasheet for a part with a coil-to-contact pin pitch of roughly
+    DOUBLE this part's 7.5mm (~14.4-14.8mm) -- no such part has been
+    verified as of this note. The pin mapping and terminal-numbering
+    convention below remain independently useful documentation (EN 50005
+    is real and general to this relay class) even though this specific
+    part does not clear this project's isolation requirement.
+
+    Original adoption rationale, preserved for context (superseded by the
+    quarantine above -- read that first): intended to replace Relay_SPDT
+    (Omron G5LE-1) for K2/K3 (BusDischarge) -- 2026-07-28 discharge-relay-
+    isolation fix (docs/evidence/2026-07-28-discharge-relay-isolation.md,
     docs/evidence/2026-07-28-relay-replacement-implementation.md). The
     G5LE-1 fails on: 6.32mm coil<->contact pad gap (3.50mm edge-to-edge)
     against an 8.0mm reinforced-creepage requirement, with the shortest
@@ -343,7 +371,8 @@ component Relay_DPDT:
     lengthen it); no creepage/clearance figure stated at all in its own
     datasheet; and only 2000VAC coil-to-contact dielectric strength,
     below IS 302-1 Table 7's reinforced-insulation requirement at any
-    applicable column.
+    applicable column. This gap is UNCHANGED and UNRESOLVED by the
+    quarantine of this component -- see the revert note above.
 
     Part: Finder 40.52.7.012.0000 (40 series, type 52 = 5.0mm pinning /
     2-pole, coil version 7 = sensitive DC 0.65W -> 0.5W coil, 12VDC).
