@@ -101,7 +101,7 @@ The diagram shows where authority sits, not the full rule; R7 and R8 carry it.
   - **Trigger:** An operator invokes place-and-route on the temper board.
   - **Steps:** The system reads the stackup and derives available signal layers; places and routes across all of them; declines any net whose safety it cannot discharge; regenerates pours from the routed result; runs DRC over the emitted board; reports the safe-emission invariant and the coverage number.
   - **Outcome:** A board carrying only proven copper, a list of declined nets with reasons, and two figures — invariant status and coverage.
-  - **Covers R1, R2, R3, R5, R6, R7, R8, R11.**
+  - **Covers R1, R2, R3, R4, R5, R6, R7, R8, R11.**
 
 - F2. A net the prover cannot discharge
   - **Trigger:** During routing, a net's candidate path cannot be shown to satisfy the clearance or creepage rule for its domain.
@@ -162,7 +162,7 @@ The diagram shows where authority sits, not the full rule; R7 and R8 carry it.
 - `docs/evidence/2026-07-28-stackup-partial-revert.md` — commit `a1fe623e` (merged `52ccd14c`) correctly fixed a phantom-layer substring match (`.endswith(".Cu")`, keep this) but also force-set F.Cu/B.Cu to `"signal"` per `docs/hardware/POWER_PLANE_DESIGN.md`'s stated intent. Completion dropped 38.54% → 3.12% (12×) because those layers were still 100%-occupied by existing zone fill. Root-cause diagnosis was correct; the fix's consequence was never measured before merge. **This is the load-bearing precedent for U2/U3 below**: declaring layer role independent of zone content is only safe once the zone content used to derive routing obstacles is also no longer the pre-existing hand-authored zones — the two fixes are coupled, not sequential-independent.
 - `packages/temper-placer/src/temper_placer/router_v6/_pipeline_verify.py:380-423` — the existing internal clearance/creepage verification stage already implements a fail-closed, anti-vacuous discipline (a checker that errors, or reports `total_checks == 0` on a board with real routed copper, is forced to `errored=True`). This is the internal "prover" KD2 refers to; it is explicitly *not* KiCad DRC, and per the vacuity precedent below is not sufficient on its own as final authority.
 - `packages/temper-placer/src/temper_placer/router_v6/_astar_reconstruct.py:180-220` — `_should_route` and `_allow_forced_segments`. The latter already unconditionally returns `False` (2026-07-24 fail-closed gate, still live) — this is R1's "emit no unprovable copper" already implemented for one code path, and the pattern U1 generalizes.
-- `packages/temper-placer/src/temper_placer/connectivity.py:28-33` — `NetDisposition` enum (`ROUTED`/`INCOMPLETE`/`PLANE_CONNECTED`/`EXEMPT`/`FAILED`), currently wired only for the tree-executor path (`terminal_tree_execution.py:123`), not the general router_v6 pipeline. This is the extension point U1 uses rather than inventing a new schema.
+- `packages/temper-placer/src/temper_placer/router_v6/connectivity.py:28-33` — `NetDisposition` enum (`ROUTED`/`INCOMPLETE`/`PLANE_CONNECTED`/`EXEMPT`/`FAILED`), currently wired only for the tree-executor path (`terminal_tree_execution.py:123`), not the general router_v6 pipeline. This is the extension point U1 uses rather than inventing a new schema.
 - `packages/temper-placer/src/temper_placer/regression/drc_ratchet.py` (`DrcRatchet._check_board`), `scripts/ci_check_drc.py`, `power_pcb_dataset/drc_ceiling.json` — the current DRC gate: a "may only shrink" ceiling with exhaustive per-category breakdown (implicit-zero for unlisted categories) and a `Ceiling-Approval:`-trailer-gated raise check. It is explicitly designed to absorb known violations on already-emitted copper as tolerable budget — the opposite of what R2 needs for copper this run itself emits.
 - `packages/temper-placer/src/temper_placer/validation/_drc_api.py` (`run_drc`) — the actual `kicad-cli`-backed external DRC invocation (the `"kicad-cli"` backend of `DrcRatchet`, which is what CI's `regression.yml:91` truth gate actually uses).
 - `packages/temper-placer/src/temper_placer/router_v6/zone_emission.py`, `io/_write_zones.py`, `io/zone_manager.py`, `io/zone_filler.py`, `scripts/kicad_fill_zones.py` — existing, already-fixed pour-generation machinery (cross-class clearance, KiCad `(priority N)` ordering, clustered convex hulls, `pcbnew.ZONE_FILLER` fill step). Not built from scratch for U3 — currently gated behind `enable_zone_pours` (default off) and invoked pre/parallel-to-routing rather than post-routing; U3 is orchestration, not new geometry logic.
@@ -185,11 +185,12 @@ The diagram shows where authority sits, not the full rule; R7 and R8 carry it.
 
 ### Key Technical Decisions (Planning)
 
-- **U2 (stackup SSOT) and U3 (pour regeneration) land as one reviewed change, gated on measured full-board completion and a `kicad-cli pcb drc` before/after delta** — not as independently mergeable units. Rationale: landing the stackup-role flip without simultaneously making zone content non-authoritative reproduces the already-recorded 12× completion regression (`docs/evidence/2026-07-28-stackup-partial-revert.md`). This is the single highest-risk sequencing decision in this plan.
+- **U2 (stackup SSOT) and U3 (pour regeneration) land as one reviewed change, enforced by a CI script measuring full-board completion and a `kicad-cli pcb drc` before/after delta** — not as independently mergeable units, and not as reviewer discipline alone. Rationale: landing the stackup-role flip without simultaneously making zone content non-authoritative reproduces the already-recorded 12× completion regression (`docs/evidence/2026-07-28-stackup-partial-revert.md`); relying only on "land together" as a procedural instruction gives this plan's single highest-risk item weaker enforcement than U4/U5's scripted gates, so it gets a script too. A completion drop is triaged against U1's decline-reason report before being called a regression — a drop backed by valid declines is KD1 (refusal is success) working correctly, not the 12× regression repeating.
 - **Decline-reason attribution (U1) extends `NetDisposition` and reuses the UNSAT-core "because"-field precedent** rather than inventing a new schema, and treats the already-fail-closed `_allow_forced_segments` as the base case to generalize, not a mechanism to replace.
 - **DRC-violation-to-emitted-copper attribution (U4) is built by geometric matching against this run's own emitted-item records**, not by trusting `kicad-cli`'s violation description text — prior work found KiCad's own violation text does not reliably name the zone/net involved (0 of 85 shorting violations named a zone in one prior investigation).
-- **The coverage ratchet (U5) is modeled on the existing DRC-ceiling / LOC-cap gate shape** (committed JSON baseline, distinct exit codes for a stale baseline vs. a real regression, a human-authored trailer required to relax it) but inverted: it blocks a *decrease* in proven-net count, never an increase.
-- **Every new gate this plan adds (U4, U5) ships with an explicit fault-injection/falsifier test, verified failing before the underlying defect exists**, before the gate is trusted in CI — required by this repo's documented history of gates structurally incapable of failing.
+- **The coverage ratchet (U5) is modeled on the existing DRC-ceiling / LOC-cap gate shape** (committed JSON baseline, distinct exit codes for a stale baseline vs. a real regression, a human-authored trailer required to relax it) but inverted: it blocks a *decrease* in proven-net count, never an increase. The initial baseline commit must print the measured N-proven/M-total figure directly in the PR description (not just the committed JSON) so a human reviewer sees the real starting number before merge — an honest low number is the correct outcome per this plan's own scope (see Dependencies and Assumptions), but it must be visible, not buried in a diff.
+- **Every new gate this plan adds (U4, U5, and the U2/U3 sequencing check above) ships with an explicit fault-injection/falsifier test, verified failing before the underlying defect exists**, before the gate is trusted in CI — required by this repo's documented history of gates structurally incapable of failing.
+- **R9 and R10 are cross-cutting constraints, not owned by a single unit** — U1's decline-reason schema, U2's stackup declaration, U4's attribution layer, and U5's ratchet script must all source board-specific facts (net-class names, domain labels, layer roles) from U2's declared data, never as literals in general pipeline code. Each of those units' Requirements line is updated to cite R9/R10 alongside its primary requirement, and each carries a verification check that no board-specific literal leaked into code outside U2's declared data source.
 
 ---
 
@@ -197,13 +198,13 @@ The diagram shows where authority sits, not the full rule; R7 and R8 carry it.
 
 #### Resolved During Planning
 
-- **Starting value for R6's coverage ratchet** (origin: Outstanding Questions) — resolved: the baseline is *measured*, not asserted here, at U5's implementation time, from a real run of U1-U4's landed code against the actual board. It is deliberately not the hand-stripped-zones 51/96 figure origin already flags as unrepresentative, and this plan does not pre-guess the number.
+- **Starting value for R6's coverage ratchet** (origin: Outstanding Questions) — resolved: the baseline is *measured*, not asserted here, at U5's implementation time, from a real run of U1-U4's landed code against the actual board. It is deliberately not the hand-stripped-zones figure origin already flags as unrepresentative, and this plan does not pre-guess the number. Note: the origin document itself cites two different values for that hand-stripped-zones figure — the Problem Frame says "52 of 96 nets with 46 vias" after removing zones, while the original Outstanding Question describes "today's 51-of-96 figure... measured with zones stripped." Neither number should be treated as authoritative for anything; U5's real re-measurement is what counts, and this discrepancy is flagged here so it isn't mistaken for a third data point.
 - **Where pour regeneration sits relative to the DRC check** (origin: Outstanding Questions) — resolved: U3 (pour regeneration) runs after routing and after U1's declines are finalized, but before U4 (DRC). DRC grades the fully emitted board — routed copper plus regenerated pours — matching origin's own note that derived pours are themselves copper R2 must grade.
 
 #### Deferred to Implementation
 
 - The exact mechanism for DRC-violation-to-emitted-copper attribution (geometric matching against emitted-item records is the planning-time direction; the specific algorithm is an execution-time discovery once real `kicad-cli` JSON output is examined against real emitted geometry).
-- Whether `kicad-cli`'s documented run-to-run jitter persists as a practical problem once U6's determinism fix lands, or whether U4's gate needs an explicit multi-sample tolerance — measure after U6 exists, don't assume either way now.
+- Whether `kicad-cli`'s documented run-to-run jitter persists as a practical problem once U6's determinism fix lands, or whether U4's gate needs an explicit multi-sample tolerance — measure after U6 exists, don't assume either way now. Note: this is distinct from the `--all-track-errors` kicad-cli invocation fix already landed in `validation/_drc_api.py` and recorded in `power_pcb_dataset/drc_ceiling.json`'s `_march` history (which already reduced clearance jitter to roughly ±1 over 5 runs) — that fix is a different layer (the kicad-cli invocation itself) from U6's router-pipeline hash-order determinism work, and both may be needed; don't assume U6 alone resolves residual jitter, and don't re-investigate the already-landed `--all-track-errors` fix as if it hadn't happened.
 - The exact location/shape of the board-data stackup declaration U2 introduces (a new small config file vs. extending an existing one) — an implementation-time discovery once the actual board-facts data source is examined directly.
 
 ---
@@ -214,12 +215,12 @@ The diagram shows where authority sits, not the full rule; R7 and R8 carry it.
 
 **Goal:** Generalize today's binary "unrouted" outcome into a structured decline: every net the system cannot prove safe carries a machine-readable reason naming the specific rule it could not discharge, wired through the general router_v6 pipeline (not just the tree-executor path `NetDisposition` is wired for today).
 
-**Requirements:** R1, R3, R4
+**Requirements:** R1, R3, R4, R10 (rule/domain identifiers in decline reasons must come from U2's declared board data, never a hardcoded literal)
 
 **Dependencies:** None
 
 **Files:**
-- Modify: `packages/temper-placer/src/temper_placer/connectivity.py` (extend `NetDisposition` with a decline-reason payload — rule id/description, not just a bare enum value)
+- Modify: `packages/temper-placer/src/temper_placer/router_v6/connectivity.py` (extend `NetDisposition` with a decline-reason payload — rule id/description, not just a bare enum value)
 - Modify: `packages/temper-placer/src/temper_placer/router_v6/_astar_reconstruct.py` (attach rule attribution at the point `_allow_forced_segments` and related failure paths currently produce a bare pass/fail)
 - Modify: `packages/temper-placer/src/temper_placer/router_v6/_pipeline_route.py` (thread decline reasons from Stage 3's UNSAT-core and Stage 4/5 failure paths into the final `RoutingResults`/`failed_nets` structure)
 - Test: `packages/temper-placer/tests/router_v6/test_adapter.py` (extend `TestHVACForcedSegmentFailClosed` to assert reason attribution, not just fail-closed behavior)
@@ -239,7 +240,7 @@ The diagram shows where authority sits, not the full rule; R7 and R8 carry it.
 - Error path: an internal exception during a discharge attempt → net is declined (fail-closed) and the reason is marked "prover error," never silently dropped or read as proven-safe.
 - Integration: full run over the real board → every declined net carries a non-empty, non-fabricated reason; a net with no identifiable reason fails an explicit "no unattributed declines" check rather than passing silently.
 
-**Verification:** A full-board run's declined-net report has a structured, non-empty reason on 100% of entries — either a specific rule/domain or an explicit "attribution gap" marker — with no blank entries.
+**Verification:** A full-board run's declined-net report has a structured, non-empty reason on 100% of entries — either a specific rule/domain or an explicit "attribution gap" marker — with no blank entries. No rule/domain identifier in the decline-reason code is a hardcoded temper-specific literal (R10) — a grep for the board's specific net-class or domain names outside U2's declared data source and its consumers returns nothing new.
 
 ---
 
@@ -247,7 +248,7 @@ The diagram shows where authority sits, not the full rule; R7 and R8 carry it.
 
 **Goal:** Layer role (signal/mixed/plane) comes from an explicit board-data declaration, not from what happens to be poured on a layer today. Routing-space computation stops treating a "signal"-declared layer's legacy, about-to-be-replaced zone fill as a permanent obstruction.
 
-**Requirements:** R8 (and groundwork for R7)
+**Requirements:** R8, R9, R10 (and groundwork for R7) — this unit is R9/R10's primary owner: it is where board-specific facts (stackup, net classes, domain separation) become data rather than a code path
 
 **Dependencies:** None standalone, but see the Key Technical Decision above — **must land in the same reviewed change as U3.** Landing this alone reproduces the recorded 12× completion regression.
 
@@ -257,8 +258,9 @@ The diagram shows where authority sits, not the full rule; R7 and R8 carry it.
 - Modify: `packages/temper-placer/src/temper_placer/router_v6/routing_space.py` (`compute_routing_space` — base layer availability on declared role plus "this layer's existing fill is pending regeneration," not on the raw occupancy snapshot of the un-regenerated input board)
 - Test: `packages/temper-placer/tests/router_v6/test_stackup_parsing.py`, `tests/core/test_stackup.py`, `tests/manufacturing/test_stackup_validator.py` (extend — do not just re-pass the existing 36/36)
 - Test: new full-board completion/DRC-delta measurement (not a unit test — a real run before/after, per the Execution note below)
+- Create: a CI-enforced before/after check (a script, not just a procedural instruction) that runs the full-board completion + `kicad-cli pcb drc` measurement and fails the build if the delta isn't recorded — the U2/U3 pairing is this plan's single highest-risk sequencing decision, and per this repo's documented history of gates that were structurally incapable of failing, "land as one reviewed change" is not itself a gate; it needs a script equivalent to U4/U5's, not reviewer discipline alone
 
-**Execution note:** Per `docs/solutions/architecture-patterns/via-aware-layer-transitions-completion-chain-2026-07-20.md`'s explicit guidance, run `kicad-cli pcb drc` and a real completion measurement before and after this change (combined with U3), and gate the merge on the delta. Unit tests alone did not catch the prior 12× regression.
+**Execution note:** Per `docs/solutions/architecture-patterns/via-aware-layer-transitions-completion-chain-2026-07-20.md`'s explicit guidance, run `kicad-cli pcb drc` and a real completion measurement before and after this change (combined with U3), and gate the merge on the delta with the CI check above, not a manual step alone. Unit tests alone did not catch the prior 12× regression.
 
 **Technical design:** *This illustrates the intended approach and is directional guidance for review, not implementation specification.*
 Today: `zone contents → inferred role → routing_space obstruction`.
@@ -270,10 +272,11 @@ Target: `declared board config → role → routing_space availability`, with th
 **Test scenarios:**
 - Happy path: stackup declares F.Cu/B.Cu as signal, In1/In2 as plane → `_extract_stackup` returns that exact role set regardless of current zone contents.
 - Edge case: a board with zero zones (already stripped) → role is unchanged from the zoned case, proving decoupling.
-- Regression guard (the falsifier): full-board run after this unit lands (combined with U3) must not regress completion below the 52/96-nets, 46-via figure already achieved by hand-stripping zones — this is the concrete check for "did we reproduce the 12× regression."
+- Error path: the declared-role data source is missing or malformed for a given board run → the run fails closed (aborts with a clear error) rather than silently falling back to the zone-content heuristic; falling back would reintroduce the exact coupling bug this unit exists to remove and violate R8.
+- Regression guard (the falsifier): full-board run after this unit lands (combined with U3) must not regress completion below the 52/96-nets, 46-via figure already achieved by hand-stripping zones, **unless the shortfall is fully accounted for by U1's decline-reason report** (i.e., every net below that floor carries a valid, non-fabricated decline reason) — a drop backed by genuine new refusals is the invariant working correctly, per KD1, not the 12× regression; an unexplained drop is the regression this check exists to catch.
 - Integration: `compute_routing_space` on F.Cu with declared role=signal and the legacy full-board zone fill still present in the input → returns available routing area, not "0 free cells."
 
-**Verification:** Real-board run produces via count > 0 deterministically (not on one lucky run), net completion at or above the hand-measured 52/96 baseline, and the `kicad-cli pcb drc` before/after delta is measured and recorded, not asserted from unit tests alone.
+**Verification:** Real-board run produces via count > 0 deterministically (not on one lucky run); net completion is at or above the hand-measured 52/96 baseline, or any shortfall is fully attributable to valid decline reasons in U1's report (not silently accepted as "fewer nets, same invariant"); and the `kicad-cli pcb drc` before/after delta is measured, recorded, and enforced by the CI check above — never asserted from unit tests alone.
 
 ---
 
@@ -313,7 +316,7 @@ Target: `declared board config → role → routing_space availability`, with th
 
 **Goal:** Every run's final emitted board (routed copper + U3's regenerated pours) is checked by external `kicad-cli` DRC; any violation attributable to copper this run emitted is an unconditional, non-absorbable failure charged to the prover. The run reports a standalone pass/fail fact — zero unproven emissions — never traded against completion.
 
-**Requirements:** R2, R5
+**Requirements:** R2, R5, R10 (the attribution layer resolves violations to emitted copper using geometry/identity, never a temper-specific rule name hardcoded in the attribution logic)
 
 **Dependencies:** U1 (decline reasons determine which nets are even eligible to count as "proven"), U3 (needs the final board including derived pours to grade)
 
@@ -339,7 +342,7 @@ Target: `declared board config → role → routing_space availability`, with th
 - Error path (Covers AE4, the falsifier): a deliberately injected clearance violation on a net the pipeline believes it discharged → gate fails, naming the emitted item and the rule DRC applied.
 - Integration: full board run → DRC executes against the exact board file this run wrote, using content-hash provenance so the gate cannot silently grade a stale board.
 
-**Verification:** The fault-injection test demonstrably fails pre-fix and passes only once the underlying violation is actually resolved; every run prints the safe-emission invariant as an explicit pass/fail line independent of the coverage number.
+**Verification:** The fault-injection test demonstrably fails pre-fix and passes only once the underlying violation is actually resolved; every run prints the safe-emission invariant as an explicit pass/fail line independent of the coverage number. The attribution layer identifies emitted copper by geometry/identity, not by a hardcoded temper-specific rule or net name (R10).
 
 ---
 
@@ -347,7 +350,7 @@ Target: `declared board config → role → routing_space availability`, with th
 
 **Goal:** A ratchet tracking how many of the board's nets are proven safe under U4's DRC authority, structured so it cannot be gamed by narrowing what the prover attempts, and prints its denominator every run.
 
-**Requirements:** R6
+**Requirements:** R6, R10 (the ratchet's per-domain/net-class breakdown reads class names from U2's declared data, not from a hardcoded temper-specific list)
 
 **Dependencies:** U1 (declined vs. proven classification), U4 (a net only counts once its emitted copper survives external DRC, per KD2 — not merely once the router "routed" it)
 
@@ -368,7 +371,7 @@ Target: `declared board config → role → routing_space availability`, with th
 - Error path: a baseline measured against a board that has since changed → gate fails distinctly (a staleness-reserved exit code), not a silent comparison against the wrong tree.
 - Integration: ratchet consumes U4's proven-net output directly, not a separately-computed router-only "routed" count, so a net that routes but fails DRC never counts toward coverage (structurally enforces KD4, not just by convention).
 
-**Verification:** The AE2 falsifier scenario is run and observed to fail before the gate is trusted in CI; the initial committed baseline value is measured from a real run of U1-U4's landed code (see Open Questions above), not asserted in this plan.
+**Verification:** The AE2 falsifier scenario is run and observed to fail before the gate is trusted in CI; the initial committed baseline value is measured from a real run of U1-U4's landed code (see Open Questions above), not asserted in this plan; the measured N-proven/M-total figure is printed in the PR that introduces the baseline, not only stored in the committed JSON. Per-domain/net-class breakdown keys come from U2's declared data, not a hardcoded temper-specific list (R10).
 
 ---
 
@@ -413,7 +416,7 @@ Target: `declared board config → role → routing_space availability`, with th
 
 | Risk | Likelihood | Impact | Mitigation |
 |------|-----------|--------|------------|
-| U2/U3 land out of sync, reproducing the already-recorded 12× completion regression | Med | High | Land as one reviewed change; gate merge on measured full-board completion + `kicad-cli` DRC delta, not unit tests alone |
+| U2/U3 land out of sync, reproducing the already-recorded 12× completion regression | Med | High | Land as one reviewed change; enforce via a CI script measuring full-board completion + `kicad-cli` DRC delta (not reviewer discipline alone); triage any completion drop against U1's decline-reason report first — a drop fully backed by valid declines is KD1 working correctly, not a regression, and must not be misclassified as one |
 | `kicad-cli`'s own ~3% run-to-run jitter is mistaken for a real coverage/DRC regression | Med | Med | U6's determinism work, plus running DRC/coverage gates only once the two-run identical-input test is itself green; residual jitter is a data-quality finding, never silently averaged |
 | DRC violation attribution (emitted vs. inherited copper) is unreliable because `kicad-cli`'s violation text doesn't consistently name zones/nets | High | High | Build attribution via geometric matching against this run's own emitted-item records, not the violation description text (per the missing-cross-class-zone-clearance precedent — 0 of 85 shorting violations named a zone) |
 | Coverage ratchet gamed by silently narrowing the attempted-net set | Med | High | AE2 falsifier test required before trusting the gate in CI; denominator always printed |
@@ -469,7 +472,7 @@ This plan owns the temper-specific v1 of a general place-and-route system. The b
 - The starting value for R6's coverage ratchet. Today's 51-of-96 figure counts nets the router emitted, not nets that survive R2's DRC check, and it was measured with zones stripped and outer layers recovered by hand. The real baseline is a measurement to take once R2 and R7 are in place.
 - Where pour regeneration sits relative to the DRC check in a run, given that R7's derived pours are themselves copper R2 must grade.
 
-**Resolved during planning** — see "Open Questions" under the Technical Plan below for the resolution and reasoning on both items.
+**Resolved during planning** — see "Open Questions" under the Technical Plan above for the resolution and reasoning on both items.
 
 ### Sources
 
@@ -483,7 +486,7 @@ This plan owns the temper-specific v1 of a general place-and-route system. The b
 
 - `packages/temper-placer/src/temper_placer/router_v6/occupancy_grid.py`, `router_v6/routing_space.py` — where a `"plane"`-typed layer is excluded from occupancy-grid construction, the root cause behind the U2 fallback bug.
 - `packages/temper-placer/src/temper_placer/router_v6/_pipeline_verify.py:380-423` — the existing internal clearance/creepage verification stage (the "prover" KD2 distinguishes from KiCad DRC).
-- `packages/temper-placer/src/temper_placer/router_v6/_astar_reconstruct.py:180-220`, `connectivity.py:28-33` — `_allow_forced_segments` and `NetDisposition`, the extension points for U1.
+- `packages/temper-placer/src/temper_placer/router_v6/_astar_reconstruct.py:180-220`, `router_v6/connectivity.py:28-33` — `_allow_forced_segments` and `NetDisposition`, the extension points for U1.
 - `packages/temper-placer/src/temper_placer/regression/drc_ratchet.py`, `scripts/ci_check_drc.py`, `validation/_drc_api.py` — the current ceiling-based DRC gate and external `kicad-cli` invocation U4 must supersede for emitted copper.
 - `packages/temper-placer/src/temper_placer/router_v6/zone_emission.py`, `io/_write_zones.py`, `io/zone_manager.py`, `io/zone_filler.py`, `scripts/kicad_fill_zones.py` — existing pour-generation and zone-fill machinery U3 orchestrates post-routing.
 - `tools/loc_cap_check.py`, `.loc-allowlist.txt`, `scripts/check_measurement_provenance.py` — ratchet and staleness-detection patterns U5 instantiates (inverted) and reuses.
