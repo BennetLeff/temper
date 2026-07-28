@@ -100,20 +100,90 @@ sharpest lesson was that ``maturin develop`` printed "Installed ... as
 editable" while the stale ``.so`` sat untouched. This gate only ever
 looks at real filesystem mtimes of real files it independently locates.
 
-False-positive avoidance
---------------------------
-``git checkout``/clone resets every tracked file's mtime to the checkout
-time, including ``.rs`` sources -- so a machine that already has a fresh
-build installed *before* switching branches, then switches to a branch
-whose sources are textually identical but newly checked out, could see
-source mtimes "newer" than an install that is not actually stale. This
-gate does not attempt to defeat that (would require content hashing or
-git-log timestamps, a materially heavier check); it inherits the same
-assumption every other freshness gate in this repo makes
-(``check_copper_net_consistency.py``'s netlist-vs-``.ato`` check,
-``check_rust_drc_presence.py``'s symbol check): the normal workflow
-builds AFTER checkout, which is exactly what CI does and is the
-environment ``TEMPER_REQUIRE_FRESH_EXTENSIONS=1`` (below) targets.
+Design decision: content hashing, with mtime as the fallback
+--------------------------------------------------------------------------
+This section used to be titled "False-positive avoidance" and named a
+limitation it declined to fix: ``git checkout``/clone resets every
+tracked file's mtime to the checkout time, including ``.rs`` sources, so
+a machine holding a perfectly valid build -- a restored ``.venv`` cache,
+a wheel baked into a CI image, an artifact carried between jobs -- sees
+every source as "newer" than the installed ``.so`` and is reported
+STALE, which in this gate is *unconditionally fatal*. Fixing it "would
+require content hashing or git-log timestamps, a materially heavier
+check", so the gate instead assumed the build-after-checkout workflow.
+
+That assumption is what blocks baking prebuilt Rust wheels into the CI
+image (~77s of ``maturin develop`` per job, across 5-6 jobs), and it has
+already cost this repo a gate: on 2026-07-28 enabling an ``actions/cache``
+skip for the netlist made check_domain_partition.py report a cached
+netlist STALE whose sources had not changed at all -- run 30383701486
+rebuilt and passed, run 30384514627 restored from cache and failed, same
+branch, same sources.
+
+It is now fixed here too, with the shared mechanism that fixed the
+netlist: ``scripts/_lib/freshness.py``. A successful build records a
+SHA-256 digest of the exact source set described above beside the
+installed artifact (``scripts/write_extension_stamps.py``); this gate
+recomputes that digest over the sources as they are now and compares.
+**When a stamp is present it is authoritative and mtimes are not
+consulted at all.** When it is absent the mtime comparison runs exactly
+as it did before -- a missing stamp means "installed by a path that
+predates this mechanism", which is the normal state of every developer's
+tree and of every artifact built before this landed. Failing closed
+there would turn a latent improvement into an immediate outage for every
+contributor, and the mtime check is exactly as good as it was yesterday.
+
+Content hashing is *strictly stronger* than the mtime rule, not merely
+more cache-tolerant. A source that is edited and then back-dated older
+than the ``.so`` -- ``os.utime``, a restored backup, an rsync/tar that
+preserves timestamps, a filesystem with coarse timestamp granularity --
+passes the mtime comparison and fails the content comparison. That is a
+case the old implementation got WRONG, not merely slowly, and there is a
+test for exactly it (``TestContentStamp``).
+
+Design decision: where the stamp lives (keyed on the .so's own bytes)
+--------------------------------------------------------------------------
+The netlist stamp sits beside its artifact so that whatever moves the
+artifact -- ``actions/cache``, an image layer, an upload-artifact tarball
+-- carries the stamp with it automatically. The same rule applies here,
+and the only location that satisfies it is the install directory,
+``.venv/lib/python3.12/site-packages/<module>/``, beside the very
+``.so`` this gate already resolves and stats. Anywhere in the repo tree
+is disqualified on its face: a checkout replaces the repo tree, and
+surviving a checkout is the entire point.
+
+That location survives the three transports that matter:
+
+  - ``maturin develop`` -- the stamp is written immediately after the
+    install it just performed, into the directory maturin wrote to.
+  - an ``actions/cache`` restore of ``.venv`` -- tar carries the stamp
+    out and back in beside the ``.so``, mtimes and all.
+  - a container image layer with a prebuilt wheel baked into
+    site-packages -- both files are copied in the same layer.
+
+One transport does NOT preserve the pairing, and it is the reason the
+stamp filename is not simply ``<artifact>.source-digest``: a wheel
+reinstall (``uv sync``, ``uv pip install``) replaces the ``.so`` but,
+because the stamp is not listed in the wheel's RECORD, leaves the old
+stamp behind as an orphan describing a binary that is no longer there.
+A stamp keyed only on the artifact's *filename* would then be believed
+for a different binary. So the stamp is keyed on the artifact's own
+content:
+
+    <module>.cpython-312-darwin.so.<sha256-of-the-so[:16]>.source-digest
+
+A replaced ``.so`` hashes differently, so no stamp is found for it and
+the gate falls back to mtime -- which is the right answer for a
+just-installed file. Writing a stamp prunes superseded siblings, so a
+crate carries exactly one. Hashing the ``.so`` costs one pass over ~1 MB
+per crate (temper_drc_rs.cpython-312-darwin.so is 1,118,544 bytes).
+
+What a stamp still does not protect against: it records the inputs a
+build *claimed*, so a build that produced a broken artifact and then
+stamped it is believed, and a hand-edited stamp is believed. That is why
+``write_extension_stamps.py`` refuses to stamp any crate this gate does
+not already consider fresh -- running the writer can never launder a
+stale artifact into a fresh one.
 
 The "is staleness fatal here" signal
 --------------------------------------
@@ -154,11 +224,15 @@ Exit codes:
 Usage:
   uv run python scripts/check_stale_extensions.py
   TEMPER_REQUIRE_FRESH_EXTENSIONS=1 uv run python scripts/check_stale_extensions.py
+
+Build side (writes the stamps this gate reads):
+  uv run python scripts/write_extension_stamps.py
 """
 
 from __future__ import annotations
 
 import argparse
+import hashlib
 import importlib.util
 import os
 import sys
@@ -169,6 +243,12 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+from _lib.freshness import (  # noqa: E402
+    STAMP_SUFFIX,
+    compute_inputs_digest,
+    read_stamp,
+    stamp_path_for,
+)
 from _lib.github_summary import get_github_summary_path  # noqa: E402
 from _lib.repo import find_repo_root  # noqa: E402
 
@@ -275,46 +355,39 @@ def _local_path_deps(cargo_data: dict, crate_root: Path) -> list[Path]:
     return out
 
 
-def newest_source_mtime(crate: Crate) -> tuple[float, Path]:
-    """Return (mtime, path) of the newest file among the crate's own
-    Cargo.toml/pyproject.toml/build.rs/src/**/*.rs, and the same set,
-    recursively, for every local path dependency. Raises GateError if no
-    source files are found at all (fail closed -- see module docstring).
+def crate_source_files(crate: Crate) -> list[Path]:
+    """Every file that participates in building this crate's extension.
+
+    The crate's own Cargo.toml/pyproject.toml/build.rs/src/**/*.rs, plus
+    the same set (minus pyproject.toml) recursively for every local path
+    dependency. This is the single definition of "this crate's source
+    files": both the mtime comparison and the content digest are derived
+    from it, so the two can never disagree about *what* they measured.
+    Raises GateError if no source files are found at all (fail closed --
+    see module docstring).
     """
     visited: set[Path] = set()
-    newest_mtime = -1.0
-    newest_path: Path | None = None
+    found: list[Path] = []
 
     def visit(root: Path, *, include_pyproject: bool) -> None:
-        nonlocal newest_mtime, newest_path
         root = root.resolve()
         if root in visited or not root.is_dir():
             return
         visited.add(root)
 
-        candidates: list[Path] = []
         cargo_toml = root / "Cargo.toml"
         if cargo_toml.is_file():
-            candidates.append(cargo_toml)
+            found.append(cargo_toml)
         if include_pyproject:
             pyproject = root / "pyproject.toml"
             if pyproject.is_file():
-                candidates.append(pyproject)
+                found.append(pyproject)
         build_rs = root / "build.rs"
         if build_rs.is_file():
-            candidates.append(build_rs)
+            found.append(build_rs)
         src_dir = root / "src"
         if src_dir.is_dir():
-            candidates.extend(src_dir.rglob("*.rs"))
-
-        for f in candidates:
-            try:
-                m = f.stat().st_mtime
-            except OSError:
-                continue
-            if m > newest_mtime:
-                newest_mtime = m
-                newest_path = f
+            found.extend(f for f in src_dir.rglob("*.rs") if f.is_file())
 
         cdata = _load_toml(cargo_toml) if cargo_toml.is_file() else {}
         for dep_root in _local_path_deps(cdata, root):
@@ -322,13 +395,55 @@ def newest_source_mtime(crate: Crate) -> tuple[float, Path]:
 
     visit(crate.root, include_pyproject=True)
 
-    if newest_path is None:
+    if not found:
         raise GateError(
             f"{crate.name}: no source files found under {crate.root} "
             "(Cargo.toml/pyproject.toml/build.rs/src/*.rs) -- cannot "
             "determine freshness; failing closed rather than skipping"
         )
+    return sorted(found)
+
+
+def newest_source_mtime(crate: Crate) -> tuple[float, Path]:
+    """Return (mtime, path) of the newest of ``crate_source_files``.
+
+    The mtime half of the freshness question -- used only when no build
+    stamp is present (see module docstring "Design decision: content
+    hashing, with mtime as the fallback").
+    """
+    newest_mtime = -1.0
+    newest_path: Path | None = None
+
+    for f in crate_source_files(crate):
+        try:
+            m = f.stat().st_mtime
+        except OSError:
+            continue
+        if m > newest_mtime:
+            newest_mtime = m
+            newest_path = f
+
+    if newest_path is None:
+        raise GateError(
+            f"{crate.name}: every source file under {crate.root} failed to "
+            "stat -- cannot determine freshness; failing closed rather "
+            "than skipping"
+        )
     return newest_mtime, newest_path
+
+
+def digest_root(source_files: list[Path]) -> Path:
+    """Directory the digest's relative paths are taken from.
+
+    ``compute_inputs_digest`` records each input's path relative to a root
+    so that a digest computed in a container matches one computed on a
+    developer's machine. The deepest common ancestor of the source set is
+    that root: it is derived from the files themselves, so writer and gate
+    always agree, it is identical on any machine with the same repo layout,
+    and -- unlike hard-coding the repo root -- it cannot raise for a path
+    dependency that resolves outside the repository.
+    """
+    return Path(os.path.commonpath([str(p.parent) for p in source_files]))
 
 
 # ---------------------------------------------------------------------------
@@ -350,12 +465,75 @@ def _resolve_native_artifact(module_name: str, origin: Path) -> Path:
     return candidates[0] if candidates else origin
 
 
+# ---------------------------------------------------------------------------
+# Build stamps (content hashing) -- see module docstring for the two
+# "Design decision" sections covering why these exist and where they live.
+# ---------------------------------------------------------------------------
+
+_ARTIFACT_KEY_CHARS = 16
+_HASH_CHUNK = 1 << 20
+
+
+def artifact_content_key(artifact: Path) -> str:
+    """Short SHA-256 of the compiled artifact's own bytes.
+
+    This is what binds a stamp to one specific binary rather than to a
+    filename, so a wheel reinstall that swaps the ``.so`` underneath an
+    orphaned stamp cannot inherit that stamp's claim.
+    """
+    digest = hashlib.sha256()
+    with artifact.open("rb") as fh:
+        while chunk := fh.read(_HASH_CHUNK):
+            digest.update(chunk)
+    return digest.hexdigest()[:_ARTIFACT_KEY_CHARS]
+
+
+def stamp_key_path(artifact: Path) -> Path:
+    """The path ``_lib.freshness.stamp_path_for`` is keyed on for *artifact*.
+
+    Not a file itself -- appending the artifact's content key here is what
+    makes the resulting ``.source-digest`` filename artifact-specific.
+    """
+    return artifact.with_name(f"{artifact.name}.{artifact_content_key(artifact)}")
+
+
+def stamp_file_for(artifact: Path) -> Path:
+    """Full path of the stamp file that describes *artifact*."""
+    return stamp_path_for(stamp_key_path(artifact))
+
+
+def superseded_stamps(artifact: Path) -> list[Path]:
+    """Stamps beside *artifact* that describe an earlier build of it.
+
+    Pruned when a new stamp is written, so one crate carries one stamp.
+    """
+    current = stamp_file_for(artifact)
+    pattern = f"{artifact.name}.*{STAMP_SUFFIX}"
+    return sorted(p for p in artifact.parent.glob(pattern) if p != current and p.is_file())
+
+
+def read_artifact_stamp(artifact: Path) -> str | None:
+    """Digest recorded for exactly these artifact bytes, or None.
+
+    None covers all of: no stamp (the normal pre-migration state), a
+    stamp orphaned by a wheel reinstall, a corrupt or wrong-version
+    stamp, and an unreadable artifact -- every one of which must fall
+    back to the mtime comparison rather than fail.
+    """
+    try:
+        key = stamp_key_path(artifact)
+    except OSError:
+        return None
+    return read_stamp(key)
+
+
 @dataclass
 class ModuleStatus:
     state: str  # "fresh" | "stale" | "missing" | "error"
     detail: str
     artifact: Path | None = None
     artifact_mtime: float | None = None
+    method: str = "mtime"  # "content" once a stamp decided it
 
 
 def _fmt(ts: float) -> str:
@@ -388,11 +566,57 @@ def check_module(crate: Crate) -> ModuleStatus:
     artifact = _resolve_native_artifact(crate.module_name, origin)
 
     try:
-        newest_mtime, newest_source = newest_source_mtime(crate)
+        sources = crate_source_files(crate)
     except GateError as exc:
         return ModuleStatus("error", str(exc))
 
     artifact_mtime = artifact.stat().st_mtime
+
+    # Content comparison when a stamp is present: authoritative, mtimes
+    # never consulted. That is what lets a cached/baked artifact whose
+    # sources were merely re-checked-out be trusted.
+    recorded = read_artifact_stamp(artifact)
+    if recorded is not None:
+        try:
+            current = compute_inputs_digest(sources, digest_root(sources))
+        except (OSError, ValueError) as exc:
+            return ModuleStatus(
+                "error",
+                f"{crate.name}: a build stamp is present for {artifact} but its "
+                f"source digest could not be recomputed ({exc!r}) -- refusing to "
+                "guess; this is a tool error, not a clean pass",
+                artifact=artifact,
+                artifact_mtime=artifact_mtime,
+                method="content",
+            )
+        if current == recorded:
+            return ModuleStatus(
+                "fresh",
+                f"{crate.module_name}: {artifact} matches its build stamp "
+                f"(digest {current[:12]}… over {len(sources)} source file(s); "
+                "mtimes not consulted)",
+                artifact=artifact,
+                artifact_mtime=artifact_mtime,
+                method="content",
+            )
+        return ModuleStatus(
+            "stale",
+            f"{crate.module_name}: installed artifact {artifact} "
+            f"(built {_fmt(artifact_mtime)}) was built from different sources -- "
+            f"current digest {current[:12]}… does not match its build stamp "
+            f"{recorded[:12]}… over {len(sources)} source file(s) -- "
+            f"rebuild with `uv run maturin develop --release --manifest-path "
+            f"{crate.cargo_toml}`",
+            artifact=artifact,
+            artifact_mtime=artifact_mtime,
+            method="content",
+        )
+
+    try:
+        newest_mtime, newest_source = newest_source_mtime(crate)
+    except GateError as exc:
+        return ModuleStatus("error", str(exc))
+
     if artifact_mtime < newest_mtime:
         age_days = (newest_mtime - artifact_mtime) / 86400.0
         return ModuleStatus(
@@ -400,6 +624,7 @@ def check_module(crate: Crate) -> ModuleStatus:
             f"{crate.module_name}: installed artifact {artifact} "
             f"(built {_fmt(artifact_mtime)}) predates {newest_source} "
             f"(modified {_fmt(newest_mtime)}, {age_days:.2f} day(s) newer) -- "
+            "no build stamp was present, so the mtime comparison was used -- "
             f"rebuild with `uv run maturin develop --release --manifest-path "
             f"{crate.cargo_toml}`",
             artifact=artifact,
@@ -408,7 +633,8 @@ def check_module(crate: Crate) -> ModuleStatus:
 
     return ModuleStatus(
         "fresh",
-        f"{crate.module_name}: {artifact} (built {_fmt(artifact_mtime)}) is fresh",
+        f"{crate.module_name}: {artifact} (built {_fmt(artifact_mtime)}) is fresh "
+        "(no build stamp; mtime comparison)",
         artifact=artifact,
         artifact_mtime=artifact_mtime,
     )
@@ -541,10 +767,15 @@ def main() -> int:
         f"crate(s) discovered under packages/, {len(report.results)} checked "
         "(every discovered crate is checked; the denominator is never a subset)."
     )
+    by_content = [r for r in report.results if r.status.method == "content"]
     print(
         f"  fresh={len(fresh)} stale={len(stale)} missing={len(missing)} "
         f"tool-errors={len(errors)}  "
         f"TEMPER_REQUIRE_FRESH_EXTENSIONS={'1 (strict)' if required else '0 (lenient)'}"
+    )
+    print(
+        f"  decided by content hash: {len(by_content)}; by mtime fallback "
+        f"(no build stamp): {len(report.results) - len(by_content) - len(missing)}"
     )
     for r in report.results:
         print(f"  [{_MARKER[r.status.state]}] {r.crate.name}: {r.status.detail}")
@@ -559,6 +790,7 @@ def main() -> int:
                 f"- Stale: {len(stale)}\n"
                 f"- Missing: {len(missing)}\n"
                 f"- Tool errors: {len(errors)}\n"
+                f"- Decided by content hash: {len(by_content)}\n"
                 f"- TEMPER_REQUIRE_FRESH_EXTENSIONS: {required}\n"
             )
 
