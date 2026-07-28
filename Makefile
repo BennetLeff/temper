@@ -7,7 +7,7 @@ BUILD_DIR = $(ELEC_DIR)/build
 BOM_FILE = $(ELEC_DIR)/build/default.csv
 BOM_PREV = $(ELEC_DIR)/build/default.csv.prev
 
-.PHONY: all build netlist clean drc route gerbers help diff visualize onboard clean-onboard onboard-status
+.PHONY: all build netlist clean drc route gerbers help diff visualize test test-fast onboard clean-onboard onboard-status
 
 # Show help for workflow commands
 help:
@@ -20,6 +20,8 @@ help:
 	@echo "  make visualize- Show graphical schematic view"
 	@echo "  make route    - Run the autorouter"
 	@echo "  make drc      - Run KiCad DRC validation"
+	@echo "  make test     - Run the full test suite"
+	@echo "  make test-fast- Run tests excluding 'slow' markers (inner loop)"
 	@echo "  make clean    - Remove build artifacts"
 	@echo "  make onboard  - Guided quick-start achievement run"
 	@echo "  make clean-onboard- Reset onboard checkpoints"
@@ -68,6 +70,25 @@ route: netlist
 drc:
 	@echo "Running KiCad DRC..."
 	kicad-cli pcb drc --exit-code-violations $(ROUTED_PCB)
+
+# Fast inner-loop test run: skips the 163 tests marked `slow` (of 6389).
+#
+# Deliberately a SEPARATE target rather than `-m "not slow"` in pyproject's
+# addopts. CI invokes plain `uv run pytest <path>` and would inherit a global
+# marker filter, silently shrinking what it checks -- and the slow set includes
+# test_astar_3d_production_scale_spike, whose production-board failures were
+# being actively investigated when this was added. A default that hides real
+# failures is the gate-subset-blindness pattern documented in
+# docs/solutions/best-practices/; opting IN to speed is safe, opting out of
+# coverage by default is not.
+#
+# `make test` remains the full run. Use `make test-fast` while iterating.
+test:
+	uv run --no-sync python -m pytest
+
+test-fast:
+	@echo "Running tests (excluding 'slow' markers -- use 'make test' for everything)..."
+	uv run --no-sync python -m pytest -m "not slow"
 
 gerbers: build
 	@echo "Exporting Gerbers..."

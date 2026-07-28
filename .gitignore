@@ -112,6 +112,9 @@ power_pcb_dataset/quarantine/
 
 # Rust build artifacts
 packages/*/target/
+# Shared cargo target dir (.cargo/config.toml [build] target-dir). Replaces the
+# per-crate target/ dirs above, which each worktree used to build from scratch.
+target-shared/
 
 # Pruned root files (2026-06-23 purge)
 /*.pkl

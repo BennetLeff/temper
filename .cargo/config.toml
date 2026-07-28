@@ -18,6 +18,25 @@
 # and the test harness links libpython normally. Only the cdylib needs this,
 # which is why the tests looked green while the extensions were stale.
 
+# Shared build cache across the main checkout AND every agent worktree.
+#
+# Without this, each worktree compiles all 9 pyo3 crates from zero: agents
+# reported "fresh worktree required rebuilding all 9 Rust extension crates",
+# and `uv sync` resetting .venv forced the 4 pyo3 rebuilds a second time. It
+# also drove .claude/worktrees to 51 GB -- 23 GB was reclaimed on 2026-07-27 by
+# deleting 258 per-worktree target/ and .venv directories, all of it
+# regenerable output that had been built independently many times over.
+#
+# Trade-off, deliberately accepted: cargo takes an exclusive lock on the target
+# directory, so concurrent builds in different worktrees serialise rather than
+# running in parallel. That is still far cheaper than each doing a cold build,
+# because after the first build the rest are incremental.
+#
+# Path is relative to this file, so it resolves to <repo>/target-shared for the
+# main checkout and for every worktree that inherits this config.
+[build]
+target-dir = "target-shared"
+
 [target.aarch64-apple-darwin]
 rustflags = ["-C", "link-arg=-undefined", "-C", "link-arg=dynamic_lookup"]
 
