@@ -32,6 +32,32 @@ was never reconciled. This gate catches both shapes:
    asserting a pass/fixed verdict that a documented, superseding finding
    already contradicts, with no acknowledgement in the same row.
 
+3. **Board-fact drift** (`board_facts:` in the config): a number that
+   `docs/STRATEGY.md` asserts about the committed board, compared against
+   `pcb/temper.kicad_pcb` measured structurally. On 2026-07-27 the board
+   was routed (`556ccf4f`, 2,338 segments) and the document went on saying
+   "The committed board carries no routing: 0 segments, 0 vias, 0 zones" --
+   true when written, and nothing re-checked it. The taxonomy in
+   `docs/evidence/2026-07-27-failure-mechanism-taxonomy.md` proposes this
+   as a seventh METHODOLOGY §4 class: *stale record -- ground truth changed
+   and the record that claims to track it didn't*.
+
+4. **Stale board prose** (`stale_board_claims:` in the config): the
+   negative counterpart to 3. This document deliberately keeps superseded
+   measurements, because its value is the record of how state moved; a
+   retained passage must carry a supersession marker so it cannot be read
+   as current.
+
+Locating a board claim: by an HTML-comment anchor plus an exact table row
+label -- never by matching the surrounding prose. A prose regex stops
+matching after a harmless reword, which is silent, and that failure *is*
+the bug this arm exists to prevent. Anchor missing or duplicated, row
+renamed, value unparseable, a table row nobody configured, and an
+unreadable PCB are all tool_error. Granularity for arm 4 is the single
+list item / table row / paragraph, not the blank-line block: at block
+granularity a sibling bullet's date masked the stale one (found by
+falsification -- see the tests).
+
 Design choice: **verify, don't generate.** `docs/STRATEGY.md` is a living
 narrative document (evidence links, running commentary, per-day sections)
 that several people edit concurrently; forcing its gate table to be
@@ -59,9 +85,14 @@ Exit codes (mirrors `scripts/import_linter_gate.py`):
       field survived. Also 0 during the soft-launch window (see
       CUTOVER_DATE) when the only failures are drift, not tool errors.
   3 - "drift": at least one required field is missing from a derived
-      document's restatement of a gate, or a stale verdict was found
-      unmitigated. This is the gate's expected failure mode once the
-      soft-launch window has closed.
+      document's restatement of a gate, a stale verdict was found
+      unmitigated, a board fact disagrees with `pcb/temper.kicad_pcb`, or
+      a retained board claim lacks its supersession marker. For the
+      `gates:` arm this is merge-blocking only once the soft-launch window
+      closes; **board-fact violations are never soft-launched** and always
+      exit 3. That arm merged against an already-reconciled tree, so it has
+      nothing to grandfather, and a warn-only board check would itself be
+      the "reports false" failure it exists to catch.
   5 - "tool_error": the gate could not actually check anything --
       missing config, missing source or derived document, zero tables
       parsed, a gate row not found (or found more than once, which is
@@ -632,8 +663,7 @@ def check_board_facts(cfg: dict, repo_root: Path, report: Report) -> None:
         report.tool_errors.append(
             ToolError(
                 "board_facts",
-                f"unknown metric(s) {unknown!r} -- known metrics are "
-                f"{list(KNOWN_BOARD_METRICS)!r}",
+                f"unknown metric(s) {unknown!r} -- known metrics are {list(KNOWN_BOARD_METRICS)!r}",
             )
         )
         return
@@ -723,8 +753,7 @@ def check_board_facts(cfg: dict, repo_root: Path, report: Report) -> None:
                     field=metric,
                     expected_any_of=[f"{actual:,}"],
                     source_hint=(
-                        f"{doc_rel} row {label!r} claims {claimed:,}; "
-                        f"{pcb_rel} measures {actual:,}"
+                        f"{doc_rel} row {label!r} claims {claimed:,}; {pcb_rel} measures {actual:,}"
                     ),
                     kind="board_fact",
                     remedy=(
@@ -753,37 +782,69 @@ def check_board_facts(cfg: dict, repo_root: Path, report: Report) -> None:
         )
 
 
-def _paragraphs(text: str) -> list[tuple[int, str]]:
-    """Split into blank-line-separated blocks as (1-based start line, text)."""
-    blocks: list[tuple[int, str]] = []
+_LIST_MARKER_RE = re.compile(r"^\s*(?:[-*+]|\d+[.)])\s")
+
+
+def _claim_units(text: str) -> list[tuple[int, str]]:
+    """Split *text* into independently-assessable claim units.
+
+    A unit is (1-based start line, text). Units are:
+
+    * each markdown list item, together with its indented continuation
+      lines;
+    * each pipe-table row;
+    * otherwise, each blank-line-separated prose paragraph.
+
+    Granularity is the whole correctness argument here, and paragraphs
+    alone are too coarse. The original defect --
+    "The committed board carries no routing: 0 segments, 0 vias, 0 zones"
+    -- sits in a tight bullet list with no blank lines between items, so
+    at paragraph granularity a *sibling* bullet's "as of 2026-07-25"
+    counted as that bullet's own supersession marker and the stale claim
+    passed. Verified by falsification before this function was rewritten.
+    Sibling rows of a table can mask each other the same way.
+    """
+    units: list[tuple[int, str]] = []
     current: list[str] = []
     start = 1
-    for lineno, line in enumerate(text.splitlines(), start=1):
-        if line.strip():
-            if not current:
-                start = lineno
-            current.append(line)
-        elif current:
-            blocks.append((start, "\n".join(current)))
+
+    def flush() -> None:
+        nonlocal current
+        if current:
+            units.append((start, "\n".join(current)))
             current = []
-    if current:
-        blocks.append((start, "\n".join(current)))
-    return blocks
+
+    for lineno, line in enumerate(text.splitlines(), start=1):
+        stripped = line.strip()
+        if not stripped:
+            flush()
+            continue
+        # A table row and a new list item each begin a fresh unit; an
+        # indented non-marker line continues the current one.
+        if stripped.startswith("|") or _LIST_MARKER_RE.match(line):
+            flush()
+            start = lineno
+            current = [line]
+            continue
+        if not current:
+            start = lineno
+        current.append(line)
+    flush()
+    return units
 
 
-def check_stale_board_claims(
-    checks_cfg: list[dict], repo_root: Path, report: Report
-) -> None:
+def check_stale_board_claims(checks_cfg: list[dict], repo_root: Path, report: Report) -> None:
     """Guard the doc's *historical* board claims against reading as current.
 
     The board-facts table above is the positive check. This is the negative
     one: passages that assert an obsolete board state (e.g. "entirely
     unrouted") must carry an explicit supersession marker in the same
-    paragraph, so a reader landing on them cannot mistake history for the
+    claim unit (bullet, table row, or paragraph), so a reader landing on them
+    cannot mistake history for the
     present.
 
     Fail-closed property: each configured check must match at least one
-    paragraph. If the prose it guards is reworded or deleted, the pattern
+    claim unit. If the prose it guards is reworded or deleted, the pattern
     stops matching and that is a `tool_error`, not a quiet pass -- the same
     self-validating-config rule the gate applies to `gates:`.
     """
@@ -801,7 +862,7 @@ def check_stale_board_claims(
                 ToolError(
                     f"{doc_rel}:{check['id']}",
                     "required_mitigating_tokens must be non-empty -- an empty list "
-                    "would mark every matching paragraph as acceptable",
+                    "would mark every matching claim unit as acceptable",
                 )
             )
             continue
@@ -814,7 +875,7 @@ def check_stale_board_claims(
         norm_mitigating = [normalize(m) for m in mitigating]
         total_hits = 0
 
-        for start_line, block in _paragraphs(text):
+        for start_line, block in _claim_units(text):
             norm_block = normalize(block)
             if not any(p in norm_block for p in norm_patterns):
                 continue
@@ -831,7 +892,7 @@ def check_stale_board_claims(
                     source_hint=check.get("message", ""),
                     kind="stale_board_claim",
                     remedy=(
-                        f"the paragraph at {doc_rel}:{start_line} asserts an obsolete "
+                        f"the claim at {doc_rel}:{start_line} asserts an obsolete "
                         "board state with no supersession marker; date it and add one "
                         f"of {mitigating!r}"
                     ),
@@ -842,7 +903,7 @@ def check_stale_board_claims(
             report.tool_errors.append(
                 ToolError(
                     f"{doc_rel}:{check['id']}",
-                    f"none of the patterns {patterns!r} matched any paragraph -- the "
+                    f"none of the patterns {patterns!r} matched any claim unit -- the "
                     "guarded passage was reworded or deleted, so this check is no "
                     "longer verifying anything; update scripts/derived_doc_gates.yaml",
                 )
@@ -939,8 +1000,7 @@ def run(config_path: Path, repo_root: Path) -> tuple[str, Report]:
         report.tool_errors.append(
             ToolError(
                 "<run>",
-                "0 board facts were checked against the PCB -- vacuous run, "
-                "not a clean pass",
+                "0 board facts were checked against the PCB -- vacuous run, not a clean pass",
             )
         )
 

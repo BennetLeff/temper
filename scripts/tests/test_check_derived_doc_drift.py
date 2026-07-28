@@ -216,9 +216,9 @@ class TestHistoricalDefectReconstruction:
 """,
         )
         state, report = _run(tmp_path, BASE_CONFIG)
-        assert state == "clean", [
-            (e.where, e.reason) for e in report.tool_errors
-        ] + [(v.gate, v.field) for v in report.violations]
+        assert state == "clean", [(e.where, e.reason) for e in report.tool_errors] + [
+            (v.gate, v.field) for v in report.violations
+        ]
         assert report.fields_checked > 0
         assert report.tool_errors == []
         assert report.violations == []
@@ -753,7 +753,9 @@ class TestBoardFactFailsClosed:
         _write(tmp_path, "board.md", BOARD_DOC_MD.replace("| Segments |", "| Copper segments |"))
         state, report = _run(tmp_path, BASE_CONFIG)
         assert state == "tool_error"
-        assert any("found 0 times" in e.reason and "segments" in e.where for e in report.tool_errors)
+        assert any(
+            "found 0 times" in e.reason and "segments" in e.where for e in report.tool_errors
+        )
 
     def test_table_detached_from_anchor_is_tool_error(self, tmp_path):
         self._setup(tmp_path)
@@ -829,9 +831,7 @@ class TestBoardFactFailsClosed:
 class TestStaleBoardClaimProse:
     """Retained history must stay marked as history."""
 
-    _HISTORICAL = (
-        "As of 2026-07-01 the board carried no routing. Superseded: it was routed later."
-    )
+    _HISTORICAL = "As of 2026-07-01 the board carried no routing. Superseded: it was routed later."
 
     def test_undated_unrouted_claim_is_violation(self, tmp_path):
         _write(tmp_path, "source.md", SOURCE_MD)
@@ -846,6 +846,52 @@ class TestStaleBoardClaimProse:
         v = [x for x in report.violations if x.kind == "stale_board_claim"]
         assert len(v) == 1
         assert v[0].field == "board-unrouted-prose"
+
+    def test_sibling_bullet_does_not_mask_a_stale_bullet(self, tmp_path):
+        """Regression: granularity must be the list ITEM, not the block.
+
+        Found by falsifying the gate against the real docs/STRATEGY.md. The
+        original defect --
+        "The committed board carries no routing: 0 segments, 0 vias, 0 zones"
+        -- is a bullet in a list with no blank lines between items. At
+        paragraph granularity the whole list was one unit, so the *sibling*
+        bullet's "as of 2026-07-25" satisfied the mitigating-token check and
+        the stale bullet passed. It must be assessed on its own.
+        """
+        _write(tmp_path, "source.md", SOURCE_MD)
+        _write(tmp_path, "derived.md", FAITHFUL_DERIVED_MD)
+        _write(
+            tmp_path,
+            "board.md",
+            BOARD_DOC_MD.replace(
+                self._HISTORICAL,
+                "- As of 2026-07-01 the outline was a placeholder. Superseded.\n"
+                "- The committed board carries no routing: 0 segments.\n",
+            ),
+        )
+        state, report = _run(tmp_path, BASE_CONFIG)
+        assert state == "drift"
+        v = [x for x in report.violations if x.kind == "stale_board_claim"]
+        assert len(v) == 1, "the stale bullet must not be masked by its sibling"
+
+    def test_sibling_table_row_does_not_mask_a_stale_row(self, tmp_path):
+        """Same granularity rule, applied to table rows."""
+        _write(tmp_path, "source.md", SOURCE_MD)
+        _write(tmp_path, "derived.md", FAITHFUL_DERIVED_MD)
+        _write(
+            tmp_path,
+            "board.md",
+            BOARD_DOC_MD.replace(
+                self._HISTORICAL,
+                "| Item | State |\n|---|---|\n"
+                "| Outline | placeholder, superseded 2026-07-02 |\n"
+                "| Copper | the board carries no routing |\n",
+            ),
+        )
+        state, report = _run(tmp_path, BASE_CONFIG)
+        assert state == "drift"
+        v = [x for x in report.violations if x.kind == "stale_board_claim"]
+        assert len(v) == 1
 
     def test_guarded_prose_removed_is_tool_error(self, tmp_path):
         """Fail-closed: if the guarded passage is reworded away, the check
@@ -872,6 +918,5 @@ class TestStaleBoardClaimProse:
         state, report = _run(tmp_path, cfg)
         assert state == "tool_error"
         assert any(
-            "required_mitigating_tokens must be non-empty" in e.reason
-            for e in report.tool_errors
+            "required_mitigating_tokens must be non-empty" in e.reason for e in report.tool_errors
         )

@@ -70,8 +70,14 @@ board_facts:
 # Negative counterpart to `board_facts`. STRATEGY.md deliberately keeps its
 # superseded measurements -- its value is the record of how state moved -- but
 # a retained passage must not read as a description of the board today. Each
-# paragraph matching `patterns` must carry one of `required_mitigating_tokens`
-# in the same paragraph.
+# *claim unit* matching `patterns` must carry one of
+# `required_mitigating_tokens` in that same unit.
+#
+# A claim unit is a single list item, a single table row, or a paragraph -- not
+# a whole blank-line-separated block. Granularity is load-bearing: the original
+# stale bullet lives in a tight list, and at paragraph granularity a sibling
+# bullet's "as of 2026-07-25" masked it and the gate passed. Found by
+# falsification; see TestStaleBoardClaimProse::test_sibling_bullet_does_not_mask.
 #
 # Fail-closed property: every check here must match at least one paragraph. If
 # the guarded prose is reworded or deleted the patterns stop matching, and that
@@ -91,7 +97,7 @@ stale_board_claims:
       - "predates"
       - "was routed"
     message: >-
-      A paragraph asserts the committed board is unrouted. The board was
+      A retained claim asserts the committed board is unrouted. The board was
       routed on 2026-07-27 (556ccf4f) and carries 2,338 segments. Keep the
       historical record, but date it and mark it superseded.
 
