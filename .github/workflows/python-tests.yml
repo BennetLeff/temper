@@ -66,6 +66,7 @@ on:
       - 'scripts/check_undeclared_imports.py'
       - 'scripts/tests/test_check_undeclared_imports.py'
       - 'scripts/check_stale_extensions.py'
+      - 'scripts/write_extension_stamps.py'
       - 'scripts/tests/test_check_stale_extensions.py'
       - 'scripts/check_net_classification.py'
       - 'scripts/tests/test_check_net_classification.py'
@@ -138,6 +139,7 @@ on:
       - 'scripts/check_undeclared_imports.py'
       - 'scripts/tests/test_check_undeclared_imports.py'
       - 'scripts/check_stale_extensions.py'
+      - 'scripts/write_extension_stamps.py'
       - 'scripts/tests/test_check_stale_extensions.py'
       - 'scripts/check_net_classification.py'
       - 'scripts/tests/test_check_net_classification.py'
@@ -335,6 +337,25 @@ jobs:
 
       - name: Stale-extension gate tests
         run: uv run pytest scripts/tests/test_check_stale_extensions.py -v --tb=short
+
+      # Build side of content-hash freshness (scripts/_lib/freshness.py).
+      # Every pyo3 crate has just been built or installed from THIS
+      # checkout, so the mtime comparison is correct right here and now --
+      # this records that verdict as a SHA-256 of each crate's sources,
+      # beside the installed .so, so it survives into a context where
+      # mtimes are not correct: a restored .venv cache, or a wheel baked
+      # into the CI image (~77s of `maturin develop` per job, 5-6 jobs).
+      # It stamps only crates the gate below already considers fresh, so
+      # it can never launder a stale artifact -- and it must therefore run
+      # AFTER every build step, never alongside one.
+      #
+      # `--no-sync`: a bare `uv run` may auto-sync and reinstall a package,
+      # which would replace the .so out from under the stamp just written
+      # for it (that exact auto-sync reinstalled a stale cached wheel over
+      # a freshly-built extension once already -- see
+      # docs/evidence/2026-07-27-stale-extension-gate.md).
+      - name: Record extension build stamps (content-hash freshness)
+        run: uv run --no-sync python scripts/write_extension_stamps.py
 
       # Every pyo3/maturin crate under packages/ is built by this point (the
       # three `maturin develop` steps above, plus everything `uv sync

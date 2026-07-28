@@ -40,6 +40,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+from _lib.freshness import write_stamp  # noqa: E402
 from check_stale_extensions import (  # noqa: E402
     EXIT_OK,
     EXIT_TOOL_ERROR,
@@ -51,12 +52,18 @@ from check_stale_extensions import (  # noqa: E402
     Report,
     _resolve_native_artifact,
     check_module,
+    crate_source_files,
     decide_exit_code,
+    digest_root,
     discover_crates,
     main,
     newest_source_mtime,
+    read_artifact_stamp,
     run,
+    stamp_file_for,
+    stamp_key_path,
 )
+from write_extension_stamps import main as write_extension_stamps_main  # noqa: E402
 
 
 def _write(path: Path, text: str = "") -> Path:
@@ -111,6 +118,50 @@ def _make_pyo3_crate(
     )
     _write(root / "src" / "lib.rs", "// minimal\n")
     return root
+
+
+def _crate_with_source(tmp_path: Path, source_mtime: float) -> Crate:
+    """A synthetic pyo3 crate whose every source file has *source_mtime*.
+
+    Shared by TestModuleStatus (mtime fallback) and TestContentStamp
+    (content hashing) so both measure the same crate shape.
+    """
+    root = tmp_path / "packages" / "fake-crate"
+    _make_pyo3_crate(root, package_name="fake-crate", module_name="fake_crate_ext")
+    lib_rs = root / "src" / "lib.rs"
+    os.utime(lib_rs, (source_mtime, source_mtime))
+    os.utime(root / "Cargo.toml", (source_mtime, source_mtime))
+    os.utime(root / "pyproject.toml", (source_mtime, source_mtime))
+    return Crate(
+        name="fake-crate",
+        root=root,
+        module_name="fake_crate_ext",
+        pyproject=root / "pyproject.toml",
+        cargo_toml=root / "Cargo.toml",
+    )
+
+
+def _install_wrapper_layout(
+    site_packages: Path,
+    module_name: str,
+    native_mtime: float,
+    wrapper_mtime: float | None = None,
+    native_bytes: bytes = b"\x00",
+) -> Path:
+    """Build maturin's real on-disk layout: <module>/__init__.py (thin
+    re-export) + <module>/<module>.cpython-*.so (the real artifact) --
+    confirmed empirically against every pyo3 crate in this repo (see
+    module docstring). Returns the __init__.py path (what find_spec
+    resolves to)."""
+    pkg_dir = site_packages / module_name
+    pkg_dir.mkdir(parents=True)
+    init_py = pkg_dir / "__init__.py"
+    init_py.write_text(f"from .{module_name} import *\n")
+    native = pkg_dir / f"{module_name}.cpython-312-darwin.so"
+    native.write_bytes(native_bytes)
+    os.utime(native, (native_mtime, native_mtime))
+    os.utime(init_py, (wrapper_mtime if wrapper_mtime is not None else native_mtime,) * 2)
+    return init_py
 
 
 # ---------------------------------------------------------------------------
@@ -309,37 +360,12 @@ class TestModuleStatus:
     """
 
     def _crate_with_source(self, tmp_path: Path, source_mtime: float) -> Crate:
-        root = tmp_path / "packages" / "fake-crate"
-        _make_pyo3_crate(root, package_name="fake-crate", module_name="fake_crate_ext")
-        lib_rs = root / "src" / "lib.rs"
-        os.utime(lib_rs, (source_mtime, source_mtime))
-        os.utime(root / "Cargo.toml", (source_mtime, source_mtime))
-        os.utime(root / "pyproject.toml", (source_mtime, source_mtime))
-        return Crate(
-            name="fake-crate",
-            root=root,
-            module_name="fake_crate_ext",
-            pyproject=root / "pyproject.toml",
-            cargo_toml=root / "Cargo.toml",
-        )
+        return _crate_with_source(tmp_path, source_mtime)
 
     def _install_wrapper_layout(
         self, site_packages: Path, module_name: str, native_mtime: float, wrapper_mtime: float | None = None
     ) -> Path:
-        """Build maturin's real on-disk layout: <module>/__init__.py (thin
-        re-export) + <module>/<module>.cpython-*.so (the real artifact) --
-        confirmed empirically against every pyo3 crate in this repo (see
-        module docstring). Returns the __init__.py path (what find_spec
-        resolves to)."""
-        pkg_dir = site_packages / module_name
-        pkg_dir.mkdir(parents=True)
-        init_py = pkg_dir / "__init__.py"
-        init_py.write_text(f"from .{module_name} import *\n")
-        native = pkg_dir / f"{module_name}.cpython-312-darwin.so"
-        native.write_bytes(b"\x00")
-        os.utime(native, (native_mtime, native_mtime))
-        os.utime(init_py, (wrapper_mtime if wrapper_mtime is not None else native_mtime,) * 2)
-        return init_py
+        return _install_wrapper_layout(site_packages, module_name, native_mtime, wrapper_mtime)
 
     def test_missing_when_not_importable(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         crate = self._crate_with_source(tmp_path, time.time())
@@ -542,3 +568,324 @@ class TestListCrates:
         )
         assert main() == EXIT_OK
         assert capsys.readouterr().out == ""
+
+
+# ---------------------------------------------------------------------------
+# TestContentStamp -- content hashing vs. the mtime comparison it replaces
+# ---------------------------------------------------------------------------
+
+
+class TestContentStamp:
+    """The cases where content and mtime DISAGREE, which is the whole
+    reason the stamp exists.
+
+    A suite that only checked "fresh build passes, edited source fails"
+    would pass equally well against the pure-mtime implementation this
+    replaces, so every test below either pins a verdict mtime gets wrong
+    or pins the fallback that must keep working when no stamp is present.
+    Each disagreement case runs its own mtime control in-place: same
+    filesystem state, stamp removed, opposite verdict.
+    """
+
+    def _installed(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        *,
+        source_mtime: float,
+        native_mtime: float,
+        native_bytes: bytes = b"\x00",
+    ) -> tuple[Crate, Path]:
+        crate = _crate_with_source(tmp_path, source_mtime)
+        init_py = _install_wrapper_layout(
+            tmp_path / "site-packages",
+            "fake_crate_ext",
+            native_mtime=native_mtime,
+            native_bytes=native_bytes,
+        )
+        artifact = init_py.parent / "fake_crate_ext.cpython-312-darwin.so"
+        fake_spec = importlib.util.spec_from_file_location("fake_crate_ext", init_py)
+        monkeypatch.setattr(
+            importlib.util,
+            "find_spec",
+            lambda name: fake_spec if name == "fake_crate_ext" else None,
+        )
+        return crate, artifact
+
+    def _stamp(self, crate: Crate, artifact: Path) -> str:
+        sources = crate_source_files(crate)
+        return write_stamp(stamp_key_path(artifact), sources, digest_root(sources))
+
+    def test_cached_artifact_with_newer_sources_is_fresh(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """THE case this change exists for: a restored .venv cache or a
+        prebuilt wheel baked into the CI image, after a checkout that
+        stamped every .rs source with the checkout time.
+
+        Sources are strictly newer than the .so and their content is
+        unchanged. mtime says STALE -- which in this gate is
+        unconditionally fatal -- and content says fresh. Content wins.
+        """
+        now = time.time()
+        crate, artifact = self._installed(
+            tmp_path, monkeypatch, source_mtime=now - 86400, native_mtime=now - 3600
+        )
+        self._stamp(crate, artifact)
+
+        checkout_time = now + 10_000
+        for src in crate_source_files(crate):
+            os.utime(src, (checkout_time, checkout_time))
+        assert all(
+            s.stat().st_mtime > artifact.stat().st_mtime for s in crate_source_files(crate)
+        )
+
+        status = check_module(crate)
+        assert status.state == "fresh"
+        assert status.method == "content"
+
+        # Control: identical filesystem state, stamp removed. This is the
+        # verdict CI gets today, and it is why a baked wheel cannot be used.
+        stamp_file_for(artifact).unlink()
+        assert check_module(crate).state == "stale"
+        assert check_module(crate).method == "mtime"
+
+    def test_stamp_still_catches_a_real_edit(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Content hashing must not weaken the gate it replaces: a source
+        genuinely changed after the build is still STALE, and STALE is
+        still unconditionally fatal."""
+        now = time.time()
+        crate, artifact = self._installed(
+            tmp_path, monkeypatch, source_mtime=now - 86400, native_mtime=now - 3600
+        )
+        self._stamp(crate, artifact)
+
+        (crate.root / "src" / "lib.rs").write_text("// a symbol the .so does not contain\n")
+
+        status = check_module(crate)
+        assert status.state == "stale"
+        assert status.method == "content"
+        assert "does not match its build stamp" in status.detail
+        assert decide_exit_code(
+            Report(1, [CrateResult(crate=crate, status=status)]), required=False
+        ) == EXIT_VIOLATION
+
+    def test_stamp_catches_an_edit_that_mtime_misses(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Strictly stronger, not merely cache-friendlier.
+
+        A source edited and then back-dated older than the .so -- os.utime,
+        a restored backup, a tar/rsync that preserves timestamps, a
+        coarse-granularity filesystem -- passes the mtime comparison. It
+        must fail the content comparison. This is a case the previous
+        implementation got WRONG, not merely slowly.
+        """
+        now = time.time()
+        crate, artifact = self._installed(
+            tmp_path, monkeypatch, source_mtime=now - 86400, native_mtime=now
+        )
+        self._stamp(crate, artifact)
+
+        (crate.root / "src" / "lib.rs").write_text("// edited, then back-dated\n")
+        past = now - 100_000
+        for src in crate_source_files(crate):
+            os.utime(src, (past, past))
+        assert all(s.stat().st_mtime < artifact.stat().st_mtime for s in crate_source_files(crate))
+
+        status = check_module(crate)
+        assert status.state == "stale"
+        assert status.method == "content"
+
+        # Control: same edit, same timestamps, no stamp -> mtime is fooled.
+        stamp_file_for(artifact).unlink()
+        fooled = check_module(crate)
+        assert fooled.state == "fresh"
+        assert fooled.method == "mtime"
+
+    def test_missing_stamp_falls_back_to_mtime_rather_than_failing(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """A missing stamp is the normal state of every developer tree and
+        of every artifact built before this landed. Failing closed there
+        would break everyone; the mtime answer is exactly as good as it
+        was yesterday."""
+        now = time.time()
+        crate, artifact = self._installed(
+            tmp_path, monkeypatch, source_mtime=now - 86400, native_mtime=now
+        )
+        assert read_artifact_stamp(artifact) is None
+        status = check_module(crate)
+        assert status.state == "fresh"
+        assert status.method == "mtime"
+
+    def test_corrupt_stamp_falls_back_to_mtime(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        now = time.time()
+        crate, artifact = self._installed(
+            tmp_path, monkeypatch, source_mtime=now - 86400, native_mtime=now
+        )
+        self._stamp(crate, artifact)
+        stamp_file_for(artifact).write_text("garbage\n")
+        status = check_module(crate)
+        assert status.state == "fresh"
+        assert status.method == "mtime"
+
+    def test_stamp_sits_beside_the_installed_artifact(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """It must travel with the .so through the transports that matter
+        -- an actions/cache restore of .venv, a container image layer with
+        a prebuilt wheel. Anywhere in the repo tree would be erased by the
+        very checkout this exists to survive."""
+        now = time.time()
+        crate, artifact = self._installed(
+            tmp_path, monkeypatch, source_mtime=now, native_mtime=now
+        )
+        self._stamp(crate, artifact)
+        stamp = stamp_file_for(artifact)
+        assert stamp.is_file()
+        assert stamp.parent == artifact.parent
+
+    def test_stamp_is_not_inherited_by_a_replaced_artifact(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """A wheel reinstall (uv sync / uv pip install) replaces the .so
+        but leaves the stamp behind -- it is not in the wheel's RECORD.
+
+        Keying the stamp filename on the .so's own bytes is what stops the
+        orphan from being believed for a binary it does not describe: the
+        replacement hashes differently, no stamp is found, and the gate
+        falls back to mtime, which is the right answer for a file that was
+        just installed.
+        """
+        now = time.time()
+        crate, artifact = self._installed(
+            tmp_path, monkeypatch, source_mtime=now - 86400, native_mtime=now - 3600
+        )
+        self._stamp(crate, artifact)
+        orphan = stamp_file_for(artifact)
+        assert read_artifact_stamp(artifact) is not None
+
+        artifact.write_bytes(b"\x00a different build of the same crate")
+        os.utime(artifact, (now, now))
+
+        assert orphan.is_file(), "the orphan is still on disk -- that is the hazard"
+        assert read_artifact_stamp(artifact) is None
+        status = check_module(crate)
+        assert status.method == "mtime"
+
+    def test_digest_root_is_repo_layout_relative(self, tmp_path: Path) -> None:
+        """The digest must be identical on a developer's machine and inside
+        a container that checked the repo out somewhere else, or a baked
+        wheel could never match. The root is derived from the source set,
+        so only the repo-relative layout enters the digest."""
+        crate = _crate_with_source(tmp_path, time.time())
+        sources = crate_source_files(crate)
+        root = digest_root(sources)
+        assert all(root in s.parents for s in sources)
+        assert root.is_dir()
+
+
+# ---------------------------------------------------------------------------
+# TestStampWriter -- the build side (scripts/write_extension_stamps.py)
+# ---------------------------------------------------------------------------
+
+
+class TestStampWriter:
+    """A stamp is authoritative, so writing one next to an artifact that
+    was not just built from those sources would permanently mask exactly
+    the staleness this gate exists to catch. These tests pin that the
+    writer can never do it.
+    """
+
+    def _repo_with_installed_crate(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        *,
+        source_mtime: float,
+        native_mtime: float,
+    ) -> tuple[Path, Path]:
+        _crate_with_source(tmp_path, source_mtime)
+        init_py = _install_wrapper_layout(
+            tmp_path / "site-packages", "fake_crate_ext", native_mtime=native_mtime
+        )
+        artifact = init_py.parent / "fake_crate_ext.cpython-312-darwin.so"
+        fake_spec = importlib.util.spec_from_file_location("fake_crate_ext", init_py)
+        monkeypatch.setattr(
+            importlib.util,
+            "find_spec",
+            lambda name: fake_spec if name == "fake_crate_ext" else None,
+        )
+        return tmp_path, artifact
+
+    def test_stamps_a_fresh_crate_and_the_gate_then_uses_it(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        now = time.time()
+        repo, artifact = self._repo_with_installed_crate(
+            tmp_path, monkeypatch, source_mtime=now - 86400, native_mtime=now
+        )
+        assert write_extension_stamps_main(["--repo-root", str(repo)]) == 0
+        assert stamp_file_for(artifact).is_file()
+
+        crate = discover_crates(repo)[0]
+        status = check_module(crate)
+        assert status.state == "fresh"
+        assert status.method == "content"
+
+    def test_refuses_to_stamp_a_stale_crate(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """The launder guard. If the writer stamped whatever happened to be
+        installed, running it once on a tree with a stale .so would make
+        that .so permanently 'fresh' -- a strictly worse outcome than
+        having no stamp at all."""
+        now = time.time()
+        repo, artifact = self._repo_with_installed_crate(
+            tmp_path, monkeypatch, source_mtime=now, native_mtime=now - 86400
+        )
+        crate = discover_crates(repo)[0]
+        assert check_module(crate).state == "stale"
+
+        # Exit 1: it stamped nothing, and "stamped 0" must never read as success.
+        assert write_extension_stamps_main(["--repo-root", str(repo)]) == 1
+        assert not stamp_file_for(artifact).is_file()
+        assert check_module(crate).state == "stale"
+
+    def test_not_installed_crate_is_skipped_not_stamped(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        _crate_with_source(tmp_path, time.time())
+        monkeypatch.setattr(importlib.util, "find_spec", lambda name: None)
+        assert write_extension_stamps_main(["--repo-root", str(tmp_path)]) == 1
+
+    def test_zero_crates_discovered_is_a_failure(self, tmp_path: Path) -> None:
+        """Same anti-vacuity rule as the gate: nothing to stamp is not a
+        clean run."""
+        assert write_extension_stamps_main(["--repo-root", str(tmp_path)]) == 1
+
+    def test_rewriting_prunes_the_superseded_stamp(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """One crate carries one stamp; the content-keyed filename must not
+        turn site-packages into a stamp midden."""
+        now = time.time()
+        repo, artifact = self._repo_with_installed_crate(
+            tmp_path, monkeypatch, source_mtime=now - 86400, native_mtime=now
+        )
+        assert write_extension_stamps_main(["--repo-root", str(repo)]) == 0
+        first = stamp_file_for(artifact)
+
+        # A rebuild: new .so bytes, still newer than the sources.
+        artifact.write_bytes(b"\x00rebuilt")
+        os.utime(artifact, (now, now))
+        assert write_extension_stamps_main(["--repo-root", str(repo)]) == 0
+
+        stamps = sorted(artifact.parent.glob(f"{artifact.name}.*.source-digest"))
+        assert stamps == [stamp_file_for(artifact)]
+        assert not first.is_file()
