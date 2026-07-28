@@ -21,10 +21,16 @@ on the routed board.
 
 Production board tests (:func:`test_production_board_drc_regression`,
 :func:`test_production_board_routing_drc_regression`) target the actual ship
-target ``pcb/temper.kicad_pcb`` (95 nets, 149 components).  The corpus board
-(~24 nets, CP-SAT placed) provides fast regression coverage; the production
-board tests provide a slow, real-product-validity smoke test with thresholds
-seeded from the first-ever routing run (U3, 2026-07-18).
+target ``pcb/temper.kicad_pcb``.  The corpus board (~24 nets, CP-SAT placed)
+provides fast regression coverage; the production board tests provide a slow,
+real-product-validity smoke test.
+
+Their two baselines measure two different artefacts and must never be
+conflated: ``PRODUCTION_COMMITTED_BOARD_*`` is kicad-cli DRC on the board file
+as committed, ``PRODUCTION_ROUTER_OUTPUT_*`` is kicad-cli DRC on what
+``route_pcb()`` emits.  Both were re-seeded on 2026-07-28 after the board was
+routed for the first time (556ccf4f, 2026-07-27) invalidated the 2026-07-18
+bare-board figures; see the provenance block above the constants.
 """
 
 from __future__ import annotations
@@ -32,8 +38,11 @@ from __future__ import annotations
 import contextlib
 import json
 import os
+import re
+import statistics
 import subprocess
 import tempfile
+from dataclasses import dataclass, field
 from pathlib import Path
 
 import pytest
@@ -468,82 +477,279 @@ def test_golden_board_routing_drc_regression(monkeypatch: pytest.MonkeyPatch):
     )
 
 
-# ---- Production board tests (U5, 2026-07-18) ----
+# ---- Production board tests (pcb/temper.kicad_pcb) ----
 
 PRODUCTION_BOARD_PATH = REPO_ROOT / "pcb" / "temper.kicad_pcb"
 
-# Thresholds seeded from U3's first production-board routing run
-# (2026-07-18, kicad-cli 10.0.4, router_v6.route_pcb with existing positions).
-# The production board (95 nets, 149 components) yields substantially more
-# DRC violations than the corpus board (~24 nets) — this is expected given
-# the 4x net count and coarser manual placement.
-PRODUCTION_PLACEMENT_ONLY_DVIOLATIONS = 800  # measured 747 on 2026-07-18 (kicad-cli 10.0.4)
-PRODUCTION_ROUTING_DVIOLATIONS = 1200  # measured 953 on 2026-07-18 (U3 baseline)
-# Was 149 (U3, 2026-07-18). U4 (2026-07-20) deleted the writer-stitch/
-# plane-MST fallback that fabricated copper for plane-style nets --
-# removing that fabricated copper raised the honest baseline to 260,
-# measured identically across PR #261 (2026-07-21T06:14Z) and PR #262
-# (2026-07-21T06:24Z) CI runs. This test was never updated to match; see
-# PRODUCTION_UNCONNECTED_POST_U4_BASELINE in
-# tests/placer/cp_sat/test_zone_pour_production_measurement.py, which
-# already uses the correct 260 figure as the baseline zone/pour must beat.
-PRODUCTION_ROUTING_UNCONNECTED_BASELINE = 260
+# ---------------------------------------------------------------------------
+# BASELINE PROVENANCE — read this before changing any number below.
+#
+# A DRC baseline is only meaningful against the board shape it was measured
+# on.  The original figures here (747 / 953 / 260) were taken on 2026-07-18,
+# when pcb/temper.kicad_pcb held 149 footprints and ZERO copper: no segments,
+# no vias, no zones.  On 2026-07-27 (556ccf4f) the board was routed for the
+# first time and gained 2,338 segments / 48 vias / 96 zones, and the same
+# constants kept being compared against it.  A bare-board budget was silently
+# reused as a routed-board budget: a category error, not a quality regression.
+# Verified by re-running kicad-cli DRC on `git show be14c878:pcb/temper.kicad_pcb`
+# (2026-07-28, kicad-cli 10.0.4): every violation class reproduced the 747
+# breakdown recorded in docs/STRATEGY.md exactly (199 silk_overlap, 199
+# silk_over_copper, 62 shorting_items, 57 solder_mask_bridge, 27
+# courtyards_overlap, 16 pth_inside_courtyard, 12 clearance, 10
+# silk_edge_clearance, 7 missing_courtyard, 5 copper_edge_clearance, 4
+# hole_clearance, 3 hole_to_hole) — 0 track/via/zone violations of any kind,
+# because there was no copper to violate anything.
+#
+# Two defences against this recurring:
+#   1. Names.  "COMMITTED_BOARD" (kicad-cli DRC on the file as committed) and
+#      "ROUTER_OUTPUT" (DRC on what route_pcb emits) say what is measured.
+#      There is no longer a "PLACEMENT_ONLY" number that a routed board can
+#      quietly be compared against.
+#   2. PRODUCTION_BOARD_BASELINE_SHAPE + _assert_baseline_board_shape(), which
+#      fails loudly the moment the board stops being the board these numbers
+#      were measured on.
+#
+# Reproduce (both categories):
+#   kicad-cli pcb drc --format json -o /tmp/drc.json pcb/temper.kicad_pcb
+#   uv run --no-sync python -m pytest \
+#     packages/temper-placer/tests/placer/cp_sat/test_regression_drc.py \
+#     -k production
+# ---------------------------------------------------------------------------
+
+# Shape of pcb/temper.kicad_pcb that every baseline below was measured against
+# (2026-07-28, commit 562bbabf).  Change the board, re-measure the numbers.
+PRODUCTION_BOARD_BASELINE_SHAPE = {
+    "footprints": 168,
+    "segments": 2338,
+    "vias": 48,
+    "zones": 96,
+}
+
+# KiCad's DRC is not reproducible run-to-run on this board: docs/STRATEGY.md
+# records five runs of the *same* file returning 124/113/119/120/123
+# shorting_items, and mandates "median and range over N ≥ 5 runs, never a
+# single before/after" for any figure gated on it (see also
+# docs/evidence/2026-07-25-shorting-items-diagnosis.md).  Every baseline below
+# is a MEDIAN over that many runs, and the gates below sample the same way —
+# otherwise a threshold set at a single reading either flakes or hides a real
+# move inside the scatter.
+PRODUCTION_DRC_SAMPLE_RUNS = 5
+
+# --- Category A: kicad-cli DRC on the committed board, exactly as it ships ---
+# Measured 2026-07-28 (kicad-cli 10.0.4) against the shape above, N=15 runs of
+#   kicad-cli pcb drc --format json -o out.json pcb/temper.kicad_pcb
+#   total              median 1483, range 1470–1494
+#   shorting_items     median  164, range  152– 175
+#   unconnected_items  382 in all 15 runs (no scatter at all)
+# Thresholds sit just above the median so a genuine move is caught while the
+# documented ±11 scatter is not mistaken for one.  For reference the old 800
+# was measured on the bare 149-footprint board (747 there, 634 when re-run
+# today — that 113 gap is fp-lib-table drift in lib_footprint_issues alone,
+# every other violation class reproduced exactly).
+PRODUCTION_COMMITTED_BOARD_TOTAL_DVIOLATIONS = 1495
+PRODUCTION_COMMITTED_BOARD_SHORTING_ITEMS = 170
+PRODUCTION_COMMITTED_BOARD_UNCONNECTED = 382
+
+# --- Category B: kicad-cli DRC on route_pcb()'s output for that board ---
+# Measured 2026-07-28 (kicad-cli 10.0.4) against the shape above, N=11 full
+# route_pcb() + DRC round-trips (completion_rate 0.3854 in all eleven):
+#   total              median 1784, range 1755–1808
+#   shorting_items     median  186, range  167– 199
+#   unconnected_items  396 in all eleven runs (no scatter at all)
+# NOTE these are NOT comparable line-for-line with the Category A numbers:
+# the router writes to a bare temp file with no adjacent .kicad_pro /
+# fp-lib-table, so footprint-library classes resolve differently (33
+# lib_footprint_issues + 88 lib_footprint_mismatch vs 8 + 107 in category A),
+# and the writer emits 96 zones_intersect that the committed board does not.
+#
+# The predecessors of these numbers (953 total / 260 unconnected) measured
+# route_pcb() starting from a BARE board.  It now starts from an already-routed
+# board and appends to existing copper, so neither figure is a like-for-like
+# comparison; both are re-seeded here, not "raised".  (Re-run today on the bare
+# 2026-07-18 board, route_pcb() completes 0.0000 of nets and emits no copper at
+# all — the 953 configuration does not reproduce, matching the "Retracted
+# figures" note in docs/STRATEGY.md.)
+#
+# The router-output shorting_items threshold is looser relative to its median
+# (+13) than the committed board's (+6) because its scatter is: 167–199 across
+# eleven runs, ~18% of the median, well beyond the ±11 STRATEGY.md records.
+# A tighter number would flake rather than gate.  It still catches a real move
+# of the magnitude STRATEGY.md has already had to diagnose once (+22 median,
+# the CST3015 re-place).  The tight shorts gate is the Category A one — that is
+# the board that actually ships.
+PRODUCTION_ROUTER_OUTPUT_TOTAL_DVIOLATIONS = 1810
+PRODUCTION_ROUTER_OUTPUT_SHORTING_ITEMS = 199
+PRODUCTION_ROUTER_OUTPUT_UNCONNECTED = 396
+
+
+@dataclass(frozen=True)
+class _DrcSample:
+    """Median-reduced DRC result over :data:`PRODUCTION_DRC_SAMPLE_RUNS` runs."""
+
+    runs: int
+    total: int
+    shorting_items: int
+    unconnected: int
+    totals: list[int] = field(default_factory=list)
+    shortings: list[int] = field(default_factory=list)
+    # repr=False: pytest prints the whole dataclass on assertion failure, and
+    # the raw DRC payload is megabytes of JSON that buries the actual message.
+    last_by_type: dict[str, int] = field(default_factory=dict, repr=False)
+    last_raw: dict = field(default_factory=dict, repr=False)
+
+
+def _drc_median(pcb_path: str, runs: int = PRODUCTION_DRC_SAMPLE_RUNS) -> _DrcSample:
+    """Run kicad-cli DRC ``runs`` times and reduce each metric to its median.
+
+    docs/STRATEGY.md: "Any figure gated on ``shorting_items`` is unreliable at
+    ±11 [...] A shorts fix must be validated over N ≥ 5 runs with median and
+    range, never a single before/after."  KiCad's DRC is not reproducible on
+    this board — five runs of the *same* file return different counts — so a
+    single reading cannot distinguish a real regression from measurement
+    scatter, in either direction.  These gates therefore assert the median of
+    a sample, which is what the baselines above were measured as.
+
+    DRC on this board is ~2 s, so the whole sample costs ~10 s.
+    """
+    totals: list[int] = []
+    shorting: list[int] = []
+    unconnected: list[int] = []
+    last: dict = {}
+    for _ in range(runs):
+        last = _run_drc(pcb_path)
+        violations = last.get("violations", [])
+        totals.append(len(violations))
+        shorting.append(sum(1 for v in violations if v.get("type") == "shorting_items"))
+        unconnected.append(len(last.get("unconnected_items", [])))
+
+    by_type: dict[str, int] = {}
+    for v in last.get("violations", []):
+        vtype = v.get("type", "other")
+        by_type[vtype] = by_type.get(vtype, 0) + 1
+
+    return _DrcSample(
+        runs=runs,
+        total=int(statistics.median(totals)),
+        shorting_items=int(statistics.median(shorting)),
+        unconnected=int(statistics.median(unconnected)),
+        totals=totals,
+        shortings=shorting,
+        last_by_type=by_type,
+        last_raw=last,
+    )
+
+
+def _board_shape(pcb_path: Path) -> dict[str, int]:
+    """Count the board elements the DRC baselines above are sensitive to.
+
+    Cheap regex counts, deliberately not a full s-expression parse: this runs
+    before every production baseline assertion and only has to detect "this is
+    not the board those numbers were measured on".
+    """
+    text = pcb_path.read_text(encoding="utf-8")
+    return {
+        f"{token}s": len(re.findall(r"\(\s*" + token + r"\b", text))
+        for token in ("footprint", "segment", "via", "zone")
+    }
+
+
+def _assert_baseline_board_shape() -> None:
+    """Fail loudly if the board is no longer the one the baselines describe.
+
+    Without this, pcb/temper.kicad_pcb gaining its first route (556ccf4f,
+    2026-07-27) silently repointed a bare-board DRC budget at a routed board.
+    A shape change is not automatically a regression — but it does invalidate
+    every number below, so it must stop the test rather than fold into one.
+    """
+    actual = _board_shape(PRODUCTION_BOARD_PATH)
+    assert actual == PRODUCTION_BOARD_BASELINE_SHAPE, (
+        f"pcb/temper.kicad_pcb has changed shape since the DRC baselines in this "
+        f"module were measured: baseline {PRODUCTION_BOARD_BASELINE_SHAPE}, "
+        f"actual {actual}. The baselines are only valid for the baseline shape "
+        f"(notably: a board with copper cannot be judged by a bare-board budget). "
+        f"Re-measure all six PRODUCTION_* numbers against the new board and update "
+        f"PRODUCTION_BOARD_BASELINE_SHAPE with them — do not simply raise a threshold."
+    )
 
 
 @pytest.mark.slow
 def test_production_board_drc_regression(monkeypatch: pytest.MonkeyPatch):
-    """Placement-only DRC gate for the production board (``pcb/temper.kicad_pcb``).
+    """DRC gate on the production board exactly as committed.
 
-    Unlike the corpus-board test, this does NOT run CP-SAT placement
-    (which would be infeasible at 149 components / 30s timeout).  Instead
-    it runs kicad-cli DRC on the board's existing (manual) placement and
-    asserts the violation count is below a generous threshold.
+    This runs kicad-cli DRC on ``pcb/temper.kicad_pcb`` as it sits in the
+    repo — placement *and* whatever copper is committed with it.  It does
+    NOT run CP-SAT placement (infeasible at 168 components / 30s timeout),
+    and since 556ccf4f (2026-07-27) it is no longer a placement-only
+    measurement: the committed board carries 2,338 segments, 48 vias and
+    96 zones.  See the provenance block above.
 
     The corpus board (<30 nets, CP-SAT placed) provides fast, stable
     regression coverage.  The production board test here provides a
     slow, real-product-validity smoke test covering the actual ship
     target.
+
+    ``shorting_items`` is asserted separately from the aggregate: copper
+    shorts are fatal defects on a mains-connected board (docs/STRATEGY.md),
+    so they must not be able to grow inside a four-figure total that is
+    dominated by silkscreen cosmetics.
     """
     if not _kicad_cli_available():
         pytest.skip("kicad-cli not available")
 
     assert PRODUCTION_BOARD_PATH.exists(), f"Production board not found: {PRODUCTION_BOARD_PATH}"
-    drc_data = _run_drc(str(PRODUCTION_BOARD_PATH))
-    violations = drc_data.get("violations", [])
-    total = len(violations)
+    _assert_baseline_board_shape()
+    sample = _drc_median(str(PRODUCTION_BOARD_PATH))
 
-    # Classify by type for diagnostics
-    by_type: dict[str, int] = {}
-    for v in violations:
-        vtype = v.get("type", "other")
-        by_type[vtype] = by_type.get(vtype, 0) + 1
+    assert sample.shorting_items <= PRODUCTION_COMMITTED_BOARD_SHORTING_ITEMS, (
+        f"Committed board shorting_items median {sample.shorting_items} exceeds "
+        f"the measured baseline {PRODUCTION_COMMITTED_BOARD_SHORTING_ITEMS} "
+        f"(2026-07-28: median 164, range 152–175 over N=15 DRC runs; "
+        f"this run's sample: {sample.shortings}). "
+        f"A copper short is a fatal defect on a mains-connected board "
+        f"(docs/STRATEGY.md) — this threshold is a ratchet, not a budget. "
+        f"Do not raise it to go green: the median already absorbs KiCad's DRC "
+        f"scatter, so a median that moved is a real move. Fix the shorts."
+    )
 
-    assert total <= PRODUCTION_PLACEMENT_ONLY_DVIOLATIONS, (
-        f"Production board placement DRC: {total} violations exceeds "
-        f"threshold {PRODUCTION_PLACEMENT_ONLY_DVIOLATIONS}. "
-        f"By type: {dict(sorted(by_type.items()))}"
+    assert sample.unconnected <= PRODUCTION_COMMITTED_BOARD_UNCONNECTED, (
+        f"Committed board unconnected_items {sample.unconnected} exceeds the "
+        f"measured baseline {PRODUCTION_COMMITTED_BOARD_UNCONNECTED} "
+        f"(2026-07-28: 382 in all 15 runs, zero scatter). The board is 51/96 "
+        f"nets routed; this number may only go down."
+    )
+
+    assert sample.total <= PRODUCTION_COMMITTED_BOARD_TOTAL_DVIOLATIONS, (
+        f"Committed board DRC total median {sample.total} exceeds threshold "
+        f"{PRODUCTION_COMMITTED_BOARD_TOTAL_DVIOLATIONS} "
+        f"(2026-07-28: median 1483, range 1470–1494 over N=15 runs; "
+        f"this run's sample: {sample.totals}). "
+        f"By type (last run): {dict(sorted(sample.last_by_type.items()))}"
     )
 
 
 @pytest.mark.slow
 @pytest.mark.routing
 def test_production_board_routing_drc_regression(monkeypatch: pytest.MonkeyPatch):
-    """Routing DRC gate for the production board.
+    """DRC gate on what ``route_pcb()`` emits for the production board.
 
-    Uses U3's route_pcb() baseline: runs routing with existing component
-    positions (no CP-SAT placement — same path as the corpus board test
-    but with the production board's 95-net netlist), then asserts the
-    post-route DRC violation count is within the threshold measured in
-    the first-ever production routing run (U3, 2026-07-18: 953 violations).
+    Runs routing with existing component positions (no CP-SAT placement —
+    same path as the corpus board test but with the production board's
+    netlist), then DRCs the router's output.
 
-    The threshold (1200) absorbs minor variation from A* non-determinism
-    while still catching regressions from the 953-violation U3 baseline.
+    This measures the *router's* output, which is a different artefact from
+    the committed board measured by
+    :func:`test_production_board_drc_regression`: the router now starts from
+    an already-routed board (556ccf4f) and appends to existing copper, and it
+    writes to a bare temp file whose footprint libraries resolve differently.
+    The baselines are therefore category-B numbers, re-seeded 2026-07-28; see
+    the provenance block above for why the old 953/260 no longer apply.
     """
     if not _kicad_cli_available():
         pytest.skip("kicad-cli not available")
 
     assert PRODUCTION_BOARD_PATH.exists(), f"Production board not found: {PRODUCTION_BOARD_PATH}"
     assert RULES_PATH.exists(), f"Rules not found: {RULES_PATH}"
+    _assert_baseline_board_shape()
 
     from temper_placer.io.kicad_parser import parse_kicad_pcb
     from temper_placer.io.netclass_loader import load_netclass_rules
@@ -571,25 +777,36 @@ def test_production_board_routing_drc_regression(monkeypatch: pytest.MonkeyPatch
     routed_tmp.close()
 
     try:
-        drc_data = _run_drc(routed_tmp.name)
+        # The router's geometry is deterministic (docs/STRATEGY.md); the
+        # scatter is KiCad's, so sampling DRC on the one routed file is enough
+        # and costs ~10 s against routing's ~55 s.
+        sample = _drc_median(routed_tmp.name)
     finally:
         os.unlink(routed_tmp.name)
 
-    violations = drc_data.get("violations", [])
-    total = len(violations)
-    unconnected = len(drc_data.get("unconnected_items", []))
-
-    assert unconnected <= PRODUCTION_ROUTING_UNCONNECTED_BASELINE, (
-        f"Production board routing raised unconnected_items above the U3 "
-        f"baseline ({unconnected} > {PRODUCTION_ROUTING_UNCONNECTED_BASELINE}) "
-        f"despite the router completion signal. KiCad details: "
-        f"{drc_data.get('unconnected_items', [])[:5]}"
+    assert sample.shorting_items <= PRODUCTION_ROUTER_OUTPUT_SHORTING_ITEMS, (
+        f"Router output shorting_items median {sample.shorting_items} exceeds "
+        f"the measured baseline {PRODUCTION_ROUTER_OUTPUT_SHORTING_ITEMS} "
+        f"(2026-07-28: median 186, range 167–199 over N=11 route+DRC runs; "
+        f"this run's sample: {sample.shortings}). "
+        f"A copper short is a fatal defect on a mains-connected board "
+        f"(docs/STRATEGY.md) — this threshold is a ratchet, not a budget. "
+        f"Do not raise it to go green."
     )
 
-    assert total <= PRODUCTION_ROUTING_DVIOLATIONS, (
-        f"Production board routing DRC: {total} violations exceeds "
-        f"threshold {PRODUCTION_ROUTING_DVIOLATIONS} "
-        f"(unconnected={unconnected}). "
-        f"This is a new, post-U3 routing regression from the "
-        f"2026-07-18 baseline (953 violations)."
+    assert sample.unconnected <= PRODUCTION_ROUTER_OUTPUT_UNCONNECTED, (
+        f"Router output unconnected_items {sample.unconnected} exceeds the "
+        f"measured baseline {PRODUCTION_ROUTER_OUTPUT_UNCONNECTED} "
+        f"(2026-07-28: 396 in all eleven runs, zero scatter) despite the "
+        f"router completion signal. KiCad details: "
+        f"{sample.last_raw.get('unconnected_items', [])[:5]}"
+    )
+
+    assert sample.total <= PRODUCTION_ROUTER_OUTPUT_TOTAL_DVIOLATIONS, (
+        f"Router output DRC total median {sample.total} exceeds threshold "
+        f"{PRODUCTION_ROUTER_OUTPUT_TOTAL_DVIOLATIONS} "
+        f"(2026-07-28: median 1784, range 1755–1808 over N=11 runs; "
+        f"this run's sample: {sample.totals}; "
+        f"unconnected={sample.unconnected}). "
+        f"By type (last run): {dict(sorted(sample.last_by_type.items()))}"
     )
