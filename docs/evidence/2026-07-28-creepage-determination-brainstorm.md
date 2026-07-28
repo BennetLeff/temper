@@ -186,7 +186,7 @@ the mains circuit by one of exactly three constructions:
 
 | Option | Available here? |
 |---|---|
-| (a) basic insulation **+ protective screening** | **Not for the lateral, same-layer barrier.** There is no earthed screen between an HV pad and an LV pad sitting side by side on `F.Cu`. It *is* potentially available for **vertical** separation: the board has a PE-bonded `GND` plane on `In1.Cu` (`netclass_rules.yaml`, `GND` class `layer: "In1.Cu"`), so HV on `F.Cu` over LV on `B.Cu` with that earthed plane between them is a legitimate protective-screening construction. Worth exploiting; irrelevant to the isolator pad gaps. |
+| (a) basic insulation **+ protective screening** | **Not available today, in either axis.** There is no earthed screen between an HV pad and an LV pad sitting side by side on `F.Cu`. Nor is there one vertically: **MEASURED — the board's 96 copper zones are all on `F.Cu`/`B.Cu`, none on `In1.Cu` or `In2.Cu`, and not one of them is on the `gnd` net.** The two inner layers carry no pour at all. `netclass_rules.yaml`'s `GND: layer: "In1.Cu"` is a router *preference*, not an existing plane. So this option is **an unexploited design opportunity, not a current construction** — see §11 item 6. |
 | (b) double insulation | Not the construction here. |
 | (c) **reinforced insulation** | **This is the one. Required for every lateral mains<->PELV crossing.** |
 
@@ -468,6 +468,20 @@ debunked. **Creepage is measured between conductive parts, i.e. copper edges**,
 so edge-to-edge is the correct measure throughout, and the corrected table above
 is what any pass/fail call must use.
 
+### Scope caveat: isolator pad gaps are a lower bound on the problem, not the problem
+
+Creepage is a property of *any* two conductors at different potential, not only
+of pads on the same component. **MEASURED: the board carries 96 copper pour
+zones on `F.Cu`/`B.Cu`, including pours on HV nets (`ac_l`, `ac_n`, `PWR_RTN`,
+`DC_BUS_RTN`, `SW_NODE`) and on SELV nets (`+3V3`, `vcc`, `+15V`) on the same
+two layers.** Pour-to-pour and trace-to-pour approaches may well be shorter than
+any isolator pad gap — the prior placement doc already reports a
+`C17`<->`R32` pair at **2.115 mm** and 11 cross-domain component pairs under
+8.0 mm. This section answers the BOM question the task posed ("do these parts
+have enough intrinsic separation"); it does **not** establish that the assembled
+board meets 8.0 mm anywhere else. Those are two different questions and only the
+first is closed here.
+
 ---
 
 ## 7. The keepout gate measures the wrong thing
@@ -664,10 +678,11 @@ Ordered by how much each moves the number.
    (<=0.1 ohm).** If not, the PELV classification itself is in question, and
    with it every argument in `domain_manifest.yaml` that leans on the earthed
    reference — including the OVP-01 protective-impedance justification.
-6. **Whether to accept the earthed-`In1.Cu`-plane protective-screening
-   construction (clause 3.4.4 option (a)) for vertical HV-over-LV separation.**
-   This is a real, clause-backed alternative to reinforced spacing in the
-   z-axis, entirely unexploited today.
+6. **Whether to add an earthed inner-layer screen and claim clause 3.4.4 option
+   (a) (basic insulation + protective screening) for vertical HV-over-LV
+   separation.** A real, clause-backed alternative to reinforced spacing in the
+   z-axis. **Entirely unexploited today: MEASURED, both inner layers are empty
+   and no `gnd` pour exists anywhere on the board.**
 7. **`K2`/`K3` (Omron G5LE-1) replacement or circuit change.** The only genuine
    sourced-part BOM exposure. Their coil-to-contact creepage is a package
    property; no board feature fixes it. Needs either a relay family with
