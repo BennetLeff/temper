@@ -98,36 +98,31 @@ domains:
       - a                  # auto-named net between the ZCD divider tap and
                            # the H11L1 LED series resistor/anode (R9-U3),
                            # still entirely HV-side.
-      - discharge.k_dis1-nc1 # discharge.k_dis1's own declared "contacts"
-                             # group (pin 12, NC1) -- below, the SAME group
-                             # as pin 11/21 (COM1/COM2), which that isolator
-                             # entry's own pin_labels already calls "HV bus
-                             # contact". The group is undifferentiated
-                             # (COM/NO/NC are one physical switch mechanism,
-                             # one domain); this just also lists the net
-                             # name so the domain check (this file) and the
-                             # isolator check (below) agree, instead of
-                             # leaving pin 12 unclassified despite pin 11 of
-                             # the same group already being HV. RENAMED
-                             # 2026-07-28 from discharge.k_dis1-nc (single
-                             # NC contact) to -nc1/-nc2 (both poles of the
-                             # replacement DPDT relay, wired NC-in-series --
-                             # see docs/evidence/
-                             # 2026-07-28-relay-replacement-implementation.md).
-                             # See 2026-07-27-domain-classification-coverage.md
+      - discharge.k_dis1-nc  # discharge.k_dis1's own declared "contacts"
+                             # group (pin 4, NC) -- below, the SAME group as
+                             # pin 1 (COM), which that isolator entry's own
+                             # pin_labels already calls "COM (HV bus contact)".
+                             # The group is undifferentiated (COM/NO/NC are
+                             # one physical switch mechanism, one domain);
+                             # this just also lists the net name so the
+                             # domain check (this file) and the isolator
+                             # check (below) agree, instead of leaving pin 4
+                             # unclassified despite pin 1 of the same group
+                             # already being HV. See
+                             # 2026-07-27-domain-classification-coverage.md
                              # for why this was previously unclassified.
-      - discharge.k_dis1-com1 # the two poles' series junction (COM1~NC2)
-                             # -- both nodes sit on the HV side of the
-                             # barrier (between the two now-in-series
-                             # contact gaps), same reasoning as -nc1 above.
-      - discharge.k_dis1-no1 # NO1, unconnected but same physical contact
-                             # group as COM1/NC1 -- HV-side, undifferentiated.
-      - discharge.k_dis1-no2 # NO2, unconnected, same group as COM2/NC2.
-      - discharge.k_dis2-nc1 # same reasoning, discharge.k_dis2's "contacts"
+                             # REVERTED 2026-07-28 to this single-NC-contact
+                             # form (docs/evidence/
+                             # 2026-07-28-relay-board-resync-decision.md): a
+                             # same-day DPDT relay swap (Finder 40.52) briefly
+                             # renamed this to -nc1/-nc2/-com1/-no1/-no2 (both
+                             # poles), then was retracted after the swap's
+                             # own creepage justification was found invalid
+                             # (docs/evidence/2026-07-28-pd3-retarget-relay.md)
+                             # -- see elec/src/modules.ato's BusDischarge
+                             # docstring for the full trail.
+      - discharge.k_dis2-nc  # same reasoning, discharge.k_dis2's "contacts"
                              # group (below).
-      - discharge.k_dis2-com1
-      - discharge.k_dis2-no1
-      - discharge.k_dis2-no2
       - hb.power_loop.q_high-g  # ADDED 2026-07-27 (docs/evidence/
                              # 2026-07-27-clearance-copper-balance.md Part B):
                              # Q_high's own Gate terminal (modules.ato:382,
@@ -384,26 +379,33 @@ isolators:
       "4": "COM (mains contact)"
 
   - instance_path: discharge.k_dis1
-    component: "Finder 40.52.7.012.0000 (Relay_DPDT), discharge relay 1 -- replaces Omron G5LE-1 (Relay_SPDT) 2026-07-28, docs/evidence/2026-07-28-relay-replacement-implementation.md"
+    # REVERTED 2026-07-28: a same-day Finder 40.52.7.012.0000 (Relay_DPDT)
+    # swap for this instance (docs/evidence/
+    # 2026-07-28-relay-replacement-implementation.md) was retracted after
+    # its own creepage justification was found invalid
+    # (docs/evidence/2026-07-28-pd3-retarget-relay.md,
+    # docs/evidence/2026-07-28-relay-board-resync-decision.md). Back to
+    # Omron G5LE-1 (Relay_SPDT) -- NOT a fix, this part's own isolation
+    # gap is unresolved, see elec/src/modules.ato BusDischarge docstring.
+    component: "Omron G5LE-1 DC12 (Relay_SPDT), discharge relay 1"
     groups:
-      coil: ["A1", "A2"]                        # coil1, coil2
-      contacts: ["11", "12", "14", "21", "22", "24"]  # COM1,NC1,NO1,COM2,NC2,NO2 -- both poles wired in series in the discharge string
+      coil: ["2", "5"]           # coil1, coil2
+      contacts: ["1", "3", "4"]  # COM, NO, NC
     pin_labels:
-      "A1": "coil1 (SELV coil drive)"
-      "A2": "coil2 (SELV coil drive)"
-      "11": "COM1 (HV bus contact, pole 1)"
-      "21": "COM2 (HV bus contact, pole 2)"
+      "2": "coil1 (SELV coil drive)"
+      "5": "coil2 (SELV coil drive)"
+      "1": "COM (HV bus contact)"
 
   - instance_path: discharge.k_dis2
-    component: "Finder 40.52.7.012.0000 (Relay_DPDT), discharge relay 2 -- replaces Omron G5LE-1 (Relay_SPDT) 2026-07-28, docs/evidence/2026-07-28-relay-replacement-implementation.md"
+    # REVERTED 2026-07-28 -- see discharge.k_dis1 above.
+    component: "Omron G5LE-1 DC12 (Relay_SPDT), discharge relay 2"
     groups:
-      coil: ["A1", "A2"]
-      contacts: ["11", "12", "14", "21", "22", "24"]
+      coil: ["2", "5"]
+      contacts: ["1", "3", "4"]
     pin_labels:
-      "A1": "coil1 (SELV coil drive)"
-      "A2": "coil2 (SELV coil drive)"
-      "11": "COM1 (HV bus contact, pole 1)"
-      "21": "COM2 (HV bus contact, pole 2)"
+      "2": "coil1 (SELV coil drive)"
+      "5": "coil2 (SELV coil drive)"
+      "1": "COM (HV bus contact)"
 
   - instance_path: power_in.zcd_opto
     component: "Everlight/Vishay/onsemi H11L1 (H11L1), Schmitt-trigger phototransistor optocoupler"
