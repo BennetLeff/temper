@@ -1,8 +1,10 @@
 name: PR Pipeline Scorecard
 
+# Grouped per commit so a push cannot cancel the previous commit's run.
+# See the rationale block in python-tests.yml.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.event.pull_request.head.sha || github.sha }}
+  cancel-in-progress: false
 
 on:
   pull_request:

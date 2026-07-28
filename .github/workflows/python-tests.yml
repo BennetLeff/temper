@@ -1,8 +1,27 @@
 name: Python Tests
 
+# Grouped per COMMIT, not per ref, so a push never cancels the run for the
+# commit before it.
+#
+# With `${{ github.ref }}`, every pull_request event on a branch shares one
+# group -- so on a branch with several agents pushing, each push killed the
+# previous run mid-flight. Measured 2026-07-28: five consecutive runs on
+# docs/methodology-loop-discipline cancelled inside ~20 minutes, none reaching
+# a verdict; and 16 of 24 runs cancelled over the preceding 15 hours. The
+# pipeline was not slow so much as unable to finish, which is why "is CI green"
+# had no answer -- the invariant shards were being killed at 2.7-3.7min against
+# 13-18min budgets, and the one shard that did survive only did so by finishing
+# before the next push landed.
+#
+# Trade-off, deliberately accepted: every pushed commit now gets its own full
+# run instead of only the newest surviving. That costs more minutes and can
+# queue behind the account's concurrent-job limit. It buys a verdict per commit,
+# which is the thing that was missing. If the queue becomes the new bottleneck,
+# the lever is push frequency or the `paths:` filters above -- not going back to
+# cancelling runs before they can report.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.event.pull_request.head.sha || github.sha }}
+  cancel-in-progress: false
 
 on:
   push:
