@@ -164,21 +164,22 @@ def _net_class_to_voltage_class(net_class: str) -> VoltageClass:
     upper = net_class.upper()
 
     if _kw_boundary_match(upper, ("HIGH_VOLTAGE", "HV", "MAINS_240V", "MAINS", "AC")):
-        # Distinguish 120 V vs 240 V when possible. "120"/"240" are bare
-        # digit sequences (typically followed by a "V" unit suffix, e.g.
-        # "MAINS_120V" -- not delimited by "_"/digit/end the way the
-        # alphabetic keywords above are), so they are intentionally left
-        # as plain substring checks: unlike "HV"/"AC", a 3-digit voltage
-        # figure has no realistic collision risk against unrelated net-
-        # class labels, and word-bounding it as "_120(?:$|[_\d])" would
-        # wrongly reject the common "..._120V" spelling.
-        if "120" in upper:
+        # Distinguish 120 V vs 240 V when possible. "120"/"240" are
+        # typically followed by a "V" unit suffix (e.g. "MAINS_120V"),
+        # which the standard trailing boundary (`$`/digit/`_`) does not
+        # cover -- so the trailing-boundary set is widened to also accept
+        # a literal "V" immediately after the digits, rather than falling
+        # back to an unanchored substring test (found by
+        # scripts/check_net_classification.py auditing this function a
+        # second time; see
+        # docs/evidence/2026-07-27-net-classification-gate.md).
+        if re.search(r"(?:^|_)120(?:V|$|[\d_])", upper):
             return VoltageClass.MAINS_120V
-        if "240" in upper or "MAINS" in upper:
+        if re.search(r"(?:^|_)240(?:V|$|[\d_])", upper) or _kw_boundary_match(upper, ("MAINS",)):
             return VoltageClass.MAINS_240V
         return VoltageClass.HIGH_VOLTAGE
 
-    if "120" in upper or "MAINS_120V" in upper:
+    if re.search(r"(?:^|_)120(?:V|$|[\d_])", upper) or _kw_boundary_match(upper, ("MAINS_120V",)):
         return VoltageClass.MAINS_120V
 
     if _kw_boundary_match(upper, ("LOW_VOLTAGE", "LV", "POWER")):
