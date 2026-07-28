@@ -271,12 +271,33 @@ def run_drc(pcb_path: Path) -> DrcResult:
         json_path = Path(tmp.name)
 
     try:
-        # Run kicad-cli DRC
+        # Run kicad-cli DRC.
+        #
+        # --all-track-errors is load-bearing, for determinism as much as for
+        # completeness. Without it KiCad reports only a SUBSET of the errors on
+        # each track, and which subset it picks varies between runs on a
+        # byte-identical board. Measured over 11 runs before adding it:
+        #
+        #     clearance       334 - 343      shorting_items  148 - 174
+        #     tracks_crossing   2 -   3
+        #
+        # With it, shorting_items and tracks_crossing are stable across every
+        # run and clearance varies by at most 1. The counts also rise --
+        # clearance 337 -> 499, shorting_items ~160 -> 199 -- because the
+        # earlier figures were a sample, not a measurement. 499 is the same
+        # clearance count docs/STRATEGY.md independently records for this
+        # board.
+        #
+        # A DRC number that moves on an unchanged board cannot be ratcheted:
+        # any tight ceiling fails intermittently and gets written off as flake,
+        # which is exactly how a removed placement capability stayed hidden
+        # behind a "nondeterministic on CI runners" comment for months.
         result = subprocess.run(
             [
                 "kicad-cli",
                 "pcb",
                 "drc",
+                "--all-track-errors",
                 "--format",
                 "json",
                 "--output",

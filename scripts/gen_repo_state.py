@@ -44,6 +44,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 # Hand-written purpose for each tracked top-level directory. Completeness is
 # machine-checked; the wording is not. Add an entry when you add a directory.
 DIRECTORY_PURPOSE: dict[str, str] = {
+    ".cargo": "Cargo config: shared target dir, macOS pyo3 link flags",
     ".github": "CI workflows, issue templates, code owners",
     "benchmarks": "CP-SAT benchmark harness and external board corpora manifests",
     "components": "Local KiCad symbol/footprint libraries, one directory per part",

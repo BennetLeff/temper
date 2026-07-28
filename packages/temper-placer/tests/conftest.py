@@ -14,6 +14,73 @@ from temper_placer.core.state import PlacementState
 from temper_placer.deterministic.state import BoardState
 from temper_placer.io.footprint_library import load_footprint_library
 
+# ── pytest-dependency clusters, pinned to one xdist worker (defensive) ────────
+#
+# READ THIS FIRST: as of 2026-07-28 `pytest-dependency` is NOT installed -- not
+# in the venv, not in any pyproject. So the 34 `@pytest.mark.dependency(...)`
+# marks in tests/router_v6/ are inert no-ops today, and the `depends=[...]`
+# edges below enforce nothing. packages/temper-placer/pyproject.toml registers
+# the marker as "pytest-dependency lattice ordering (NFR7)", so either the
+# requirement is real and the plugin is missing, or the marks are dead weight.
+# That question is open; this hook does not answer it.
+#
+# What this hook does is make the answer safe either way. IF the plugin is
+# installed, `depends=[...]` resolves only against tests that ran in the SAME
+# session -- and every xdist worker is its own session, so a dependent whose
+# provider landed on another worker SKIPS rather than fails. The suite would
+# then report green having executed strictly less: the silently-skipped class
+# in docs/METHODOLOGY.md §4, the same shape as the dead gates found on
+# 2026-07-27. Installing the plugin should not require also remembering to fix
+# the scheduler, so the grouping is in place ahead of it.
+#
+# The two clusters in tests/router_v6/:
+#
+#   induction -- "induction-base" is declared ONLY in test_induction_base.py and
+#                depended on by 8 sibling modules. Being cross-file, `--dist
+#                loadfile` would not be sufficient for it.
+#   sat       -- test_sat_solve_pbt.py's internal bmc-l0 / sat-l1..l4 chain.
+#                Same-file, but `loadgroup` distributes UNGROUPED tests
+#                per-test, which would break it -- so it needs a tag too.
+#
+# Measured 2026-07-28 on the invariant-router-v6-1 file list: serial vs
+# `-n 4 --dist loadgroup` gave identical per-test outcomes (728 tests;
+# 711 passed / 6 failed / 7 skipped / 4 xfailed), zero pass->skip transitions,
+# 356s vs 207s. With the plugin absent, `--dist load` matched too -- that
+# equivalence is what stops holding the moment pytest-dependency is installed.
+#
+# Adding a new cross-file `depends=` edge without adding its modules here would
+# reintroduce the hazard. Prefer keeping dependency edges within a module.
+_XDIST_GROUPS = {
+    "induction": {
+        "test_induction_base",
+        "test_acid_trap_induction",
+        "test_annular_ring_induction",
+        "test_clearance_induction",
+        "test_copper_balance_induction",
+        "test_creepage_induction",
+        "test_manufacturing_report_induction",
+        "test_teardrop_induction",
+        "test_thermal_relief_induction",
+    },
+    "sat": {"test_sat_solve_pbt"},
+}
+_MODULE_TO_GROUP = {
+    module: group for group, modules in _XDIST_GROUPS.items() for module in modules
+}
+
+
+def pytest_collection_modifyitems(items):
+    """Pin pytest-dependency clusters to a single xdist worker.
+
+    A no-op when running serially -- the marker is only consulted by
+    ``--dist loadgroup``.
+    """
+    for item in items:
+        module = item.nodeid.split("::")[0].rsplit("/", 1)[-1].removesuffix(".py")
+        group = _MODULE_TO_GROUP.get(module)
+        if group is not None:
+            item.add_marker(pytest.mark.xdist_group(group))
+
 
 def make_parsed_pcb_stub(source_path: Path, netlist) -> object:
     """Build the minimal ``route_pcb(parsed=...)`` stub, correctly.

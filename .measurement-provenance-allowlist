@@ -1,0 +1,10 @@
+# Measurement-provenance allowlist -- monotonically-shrinking baseline
+# Format: <artifact-relpath>#<record-id>  # TODO: temper-xxx
+#
+# An entry represents a measurement record (see
+# scripts/_lib/measurement_provenance.py) with no 'provenance' object
+# yet -- it predates this contract, or its measurement history could
+# not be reconstructed without fabricating input hashes. Entries may
+# only be removed once the record gains a real 'provenance' object or
+# the record/artifact is deleted. Entries may only be added with a
+# # TODO: temper-xxx ticket reference.

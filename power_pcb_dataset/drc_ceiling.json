@@ -3,20 +3,67 @@
   "_march": {
     "2026-07-27": "error_ceiling 158 -> 90. The 158 was set when the board measured 158; the domain-clearance re-solve cut actual errors to 90 and nobody ratcheted, leaving 68 errors of slack for a regression to hide in. violations_by_type is now populated AND enforced -- a category absent from it has an implicit ceiling of 0, so a new violation class cannot arrive for free under the aggregate.",
     "next": "clearance (10) and copper_edge_clearance (3) go to 0 first. They include HighVoltage netclass pairs at 0.336-0.85 mm against a 2.0 mm requirement (U7 pad9/pad11, TP3-U7, C23, R28) and three pads at 0.000 mm to the board edge. These pass today only because the aggregate ceiling is coarse enough to hide them.",
-    "2026-07-27b": "After merging followup/post-344 and re-measuring on the later board (043debdf, post r_avdd_top 0603->0805): three categories improved and were ratcheted down -- shorting_items 35->33, solder_mask_bridge 32->30, clearance 10->9 (TP3<->U7 resolved by that re-solve; no DRC error on this board involves TP3). Two REGRESSED and are deliberately HELD at their prior ceilings so the gate names them: courtyards_overlap now measures 15 vs ceiling 10, copper_edge_clearance 4 vs 3. Raising them would silently accept a regression introduced by the 0805 footprint change. error_ceiling is the sum of the per-type ceilings (85); the board measures 91, so this gate fails until those two are brought back."
+    "2026-07-27b": "After merging followup/post-344 and re-measuring on the later board (043debdf, post r_avdd_top 0603->0805): three categories improved and were ratcheted down -- shorting_items 35->33, solder_mask_bridge 32->30, clearance 10->9 (TP3<->U7 resolved by that re-solve; no DRC error on this board involves TP3). Two REGRESSED and are deliberately HELD at their prior ceilings so the gate names them: courtyards_overlap now measures 15 vs ceiling 10, copper_edge_clearance 4 vs 3. Raising them would silently accept a regression introduced by the 0805 footprint change. error_ceiling is the sum of the per-type ceilings (85); the board measures 91, so this gate fails until those two are brought back.",
+    "2026-07-28": "Added the 'provenance' block below (scripts/check_measurement_provenance.py, docs/evidence/2026-07-28-measurement-provenance.md) -- fields only, no ceiling value touched (no Ceiling-Approval trailer exists or is needed for this change). The recorded input hash is pcb/temper.kicad_pcb's content EXACTLY as committed at 3c391956 (same tree as 043debdf, which this entry's own numbers were measured against -- 3c391956 only edited this JSON, not the board). Reconstructed after the fact from git history (source=backfilled-historical), so 'dirty' is honestly UNKNOWN: the committed content is exact (git show 3c391956:pcb/temper.kicad_pcb), but whether the person who ran the DRC measurement also had unrelated uncommitted changes in their tree at that moment cannot be recovered. Per docs/evidence/2026-07-27-drc-truth-gate-discrepancy.md, three commits since (c6b1b463, 556ccf4f, 65bd0159) changed pcb/temper.kicad_pcb without a re-measurement -- the new gate will therefore correctly report this record as STALE (current board content hash != recorded hash) until someone re-measures with a Ceiling-Approval trailer. That is the honest, expected state, not a bug in the gate.",
+    "2026-07-28-routed-rebaseline": "RE-BASELINED against the routed board on the owner's explicit instruction. 556ccf4f committed the first route (51 of 96 nets), so the board now carries 2338 track segments and 48 vias; the previous ceilings (85 errors / 578 warnings) were measured on an UNROUTED board, so the gate was comparing two different artifacts. Errors 85 -> 736, warnings 578 -> 762. Measured through the gate's own run_drc path over 8 samples, NOT a raw kicad-cli call -- the two disagree because the gate fills zones first. Found while doing this: clearance and shorting_items are NON-DETERMINISTIC on an unchanged board (clearance 334-343, shorting_items 148-174 over 8 runs). Their ceilings are observed maxima and are NOT ratchetable until that is fixed; the other 9 error types were identical on every run and are. Warnings were stable at 762 on all 8 runs. _goal remains error_ceiling 0.",
+    "2026-07-28-determinism-fix": "DRC made reproducible. kicad-cli reports only a SUBSET of errors per track unless --all-track-errors is passed, and which subset it picks varied run-to-run on a byte-identical board: clearance 334-343, shorting_items 148-174, tracks_crossing 2-3 over 11 runs. The flag is now passed by _drc_api.run_drc. Residual variance is clearance alone at +/-1 over 5 runs; everything else is stable. Counts ROSE because the old figures were a sample, not a measurement -- clearance 337 -> 499, shorting_items ~160 -> 199, hole_clearance 24 -> 120. 499 is the clearance count STRATEGY.md already records independently for this board, which is corroboration that the higher number is the true one. Ceilings re-measured accordingly: errors 783 -> 1017, warnings 762 (unchanged, always stable). This is a reporting correction, not a regression: the board did not change, the measurement stopped undercounting. _goal remains error_ceiling 0, and per-type ratcheting is now actually possible."
   },
   "boards": [
     {
       "board_id": "temper",
       "path": "pcb/temper.kicad_pcb",
-      "error_ceiling": 85,
-      "warning_ceiling": 578,
+      "error_ceiling": 1017,
+      "warning_ceiling": 762,
       "violations_by_type": {
-        "shorting_items": 33,
-        "solder_mask_bridge": 30,
-        "courtyards_overlap": 10,
-        "clearance": 9,
-        "copper_edge_clearance": 3
+        "annular_width": 4,
+        "clearance": 502,
+        "copper_edge_clearance": 15,
+        "courtyards_overlap": 11,
+        "drill_out_of_range": 4,
+        "hole_clearance": 120,
+        "hole_to_hole": 1,
+        "shorting_items": 199,
+        "solder_mask_bridge": 154,
+        "tracks_crossing": 3,
+        "via_diameter": 4
+      },
+      "provenance": {
+        "measured_at_commit": "2d67ee4769b4ccee3188b21c8b1e4cb996b645ad",
+        "dirty": false,
+        "inputs": [
+          {
+            "path": "pcb/temper.kicad_pcb",
+            "sha256": "815512088fdb81b0b087fe6ed14339096644c2ccc57478f2270039f348098ef1"
+          }
+        ],
+        "tool_versions": {
+          "kicad-cli": "10.0.4"
+        },
+        "source": "measured-live-5-samples",
+        "measured_via": "temper_placer.validation._drc_api.run_drc with --all-track-errors"
+      },
+      "warnings_by_type": {
+        "holes_co_located": 2,
+        "lib_footprint_issues": 8,
+        "lib_footprint_mismatch": 107,
+        "missing_courtyard": 7,
+        "pth_inside_courtyard": 8,
+        "silk_edge_clearance": 199,
+        "silk_over_copper": 199,
+        "silk_overlap": 199,
+        "track_dangling": 28,
+        "via_dangling": 5
+      },
+      "nondeterministic_error_types": {
+        "clearance": {
+          "observed": [
+            499,
+            500,
+            501
+          ],
+          "samples": 5,
+          "note": "The ONLY category still varying, by +/-1. Was 334-343 before --all-track-errors. Ceiling carries 1 count of headroom for that. Every other error type and all 10 warning types were identical on every run and are exactly ratchetable."
+        }
       }
     }
   ]

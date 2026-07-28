@@ -1,8 +1,8 @@
 _meta:
   last_audit_date: '2026-07-28'
-  total_scripts: 72
+  total_scripts: 73
   counts:
-    keep: 71
+    keep: 72
     ticket: 1
   ticket_scripts_deleted: 40
 scripts:
@@ -932,6 +932,29 @@ scripts:
   - fnmatch
   - pathlib
   - sys
+- path: check_measurement_provenance.py
+  purpose: 'CI gate: fail closed when a measurement artifact (power_pcb_dataset/drc_ceiling.json today)
+    declares input-file content hashes that no longer match reality -- catches the DRC ceiling recording
+    91 errors for a board three commits (c6b1b463, 556ccf4f, 65bd0159) had since changed to ~710, with
+    the ceiling file byte-identical throughout (docs/evidence/2026-07-27-drc-truth-gate-discrepancy.md,
+    docs/evidence/2026-07-28-measurement-provenance.md); STALE is a GATE ERROR, not a violation, generalizing
+    the netlist-freshness precedent in check_domain_partition.py'
+  owner: bennet
+  last_run: '2026-07-28'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.gate_allowlist
+  - _lib.github_summary
+  - _lib.measurement_provenance
+  - _lib.repo
+  - argparse
+  - dataclasses
+  - json
+  - pathlib
+  - sys
+  - typing
 - path: worktree_report.py
   purpose: 'Worktree hygiene report: inventory each git worktree with HEAD, age, distance behind main,
     and unique unmerged commits (read-only, prunes nothing)'
@@ -986,6 +1009,28 @@ scripts:
   - re
   - rich.console
   - sys
+- path: check_isolation_keepout.py
+  purpose: 'Physical mains<->SELV isolation-barrier CI gate: verify a dedicated keepout region spans
+    all copper layers, is >=8.0mm wide (REINFORCED creepage) throughout, bisects the board into HV/SELV
+    sides, and that no copper (trace/via/pad/zone) intrudes -- pcb/temper.kicad_pcb has zero keepout zones
+    today, so this barrier exists only as declarations/after-the-fact checks; fail-closed on missing/empty
+    board or manifest, zero HV or SELV pads found, or a missing barrier zone (docs/evidence/2026-07-28-isolation-keepout.md)'
+  owner: bennet
+  last_run: '2026-07-28'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - kiutils.board
+  - math
+  - pathlib
+  - shapely.geometry
+  - shapely.ops
+  - sys
+  - yaml
 - path: check_stale_extensions.py
   purpose: 'CI gate: fail-closed freshness check for every pyo3/maturin Rust extension crate under packages/
     -- an installed .so older than its own crate''s source (or a crate whose extension is missing entirely)
@@ -1025,4 +1070,28 @@ scripts:
   - pathlib
   - re
   - sys
+  - typing
+- path: route_board.py
+  purpose: >-
+    Working entry point to route a .kicad_pcb through router_v6's
+    route_pcb() (make route and internal_route.py are dead ends -- see
+    module docstring). --output is mandatory and refuses to match --pcb,
+    so it can never overwrite the input board. --runs N routes N times
+    from identical input and reports the completion spread -- the
+    measurement instrument for the router's run-to-run non-determinism.
+  owner: bennet
+  last_run: '2026-07-28'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - argparse
+  - os
+  - pathlib
+  - statistics
+  - sys
+  - temper_placer.io.kicad_parser
+  - temper_placer.io.netclass_loader
+  - temper_placer.router_v6.adapter
+  - time
   - typing

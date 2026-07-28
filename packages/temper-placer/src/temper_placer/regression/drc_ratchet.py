@@ -30,6 +30,7 @@ class DrcCeilingEntry:
     error_ceiling: int
     warning_ceiling: int
     violations_by_type: dict[str, int] = field(default_factory=dict)
+    warnings_by_type: dict[str, int] = field(default_factory=dict)
 
 
 @dataclass
@@ -37,19 +38,25 @@ class DrcCategoryFailure:
     """One violation-type category that exceeded its ceiling.
 
     ``is_new`` distinguishes a category absent from ``violations_by_type``
-    entirely (an implicit ceiling of 0, by design -- see drc_ceiling.json's
-    ``_march`` notes) from one that is present in the file but regressed
-    past its recorded ceiling. Both are real ceiling violations, but a
-    brand-new violation class means the board grew a defect *type* the
-    ratchet has never seen before, which is a materially different signal
-    from "more of a kind we already track" and must not be folded into the
-    same bucket silently.
+    (or, for warnings, ``warnings_by_type``) entirely (an implicit ceiling
+    of 0, by design -- see drc_ceiling.json's ``_march`` notes) from one
+    that is present in the file but regressed past its recorded ceiling.
+    Both are real ceiling violations, but a brand-new violation class means
+    the board grew a defect *type* the ratchet has never seen before, which
+    is a materially different signal from "more of a kind we already
+    track" and must not be folded into the same bucket silently.
+
+    ``kind`` distinguishes an error-category failure from a warning-category
+    failure -- they come from separate exhaustive records
+    (``violations_by_type`` vs. ``warnings_by_type``) and must not be
+    conflated when reporting which dimension regressed.
     """
 
     rule: str
     count: int
     allowed: int
     is_new: bool
+    kind: str = "error"
 
     @property
     def delta(self) -> int:
@@ -111,6 +118,7 @@ class DrcRatchet:
                 error_ceiling=entry.get("error_ceiling", 0),
                 warning_ceiling=entry.get("warning_ceiling", 0),
                 violations_by_type=entry.get("violations_by_type", {}),
+                warnings_by_type=entry.get("warnings_by_type", {}),
             )
 
     def check(self, repo_root: Path) -> list[DrcRatchetResult]:
@@ -252,10 +260,12 @@ class DrcRatchet:
                 exit_code=1,
             )
 
-        # Per-error-type counts, when the backend can supply them. None means
-        # "this backend cannot break errors down", which is distinct from "no
-        # violations" and must never be treated as an all-clear.
+        # Per-error-type and per-warning-type counts, when the backend can
+        # supply them. None means "this backend cannot break this dimension
+        # down", which is distinct from "no violations" (``{}``) and must
+        # never be treated as an all-clear.
         current_by_type: dict[str, int] | None = None
+        current_warnings_by_type: dict[str, int] | None = None
 
         try:
             if self.backend == "rust":
@@ -270,6 +280,20 @@ class DrcRatchet:
                 for err in drc_result.errors:
                     rule = err.rule or "unknown"
                     current_by_type[rule] = current_by_type.get(rule, 0) + 1
+
+                # ``getattr`` (not a direct attribute access) because a
+                # result object that cannot supply a warnings breakdown --
+                # deliberately -- looks exactly like one that lacks the
+                # attribute entirely; both must resolve to None, never to a
+                # crash and never to an all-clear ``{}``.
+                raw_warnings = getattr(drc_result, "warnings", None)
+                if raw_warnings is not None:
+                    current_warnings_by_type = {}
+                    for warn in raw_warnings:
+                        rule = warn.rule or "unknown"
+                        current_warnings_by_type[rule] = (
+                            current_warnings_by_type.get(rule, 0) + 1
+                        )
             else:
                 return DrcRatchetResult(
                     passed=False,
@@ -324,6 +348,27 @@ class DrcRatchet:
                             count=count,
                             allowed=allowed,
                             is_new=rule not in entry.violations_by_type,
+                            kind="error",
+                        )
+                    )
+
+        # Per-type warning ceilings -- same semantics as errors above,
+        # mirrored exactly: ``warnings_by_type`` is an exhaustive record, a
+        # rule absent from it has an implicit ceiling of zero, and this only
+        # runs when the backend actually supplied a breakdown (``is not
+        # None``) so a backend that can't break warnings down never reads
+        # as "0 categories, therefore all clear".
+        if entry.warnings_by_type and current_warnings_by_type is not None:
+            for rule, count in sorted(current_warnings_by_type.items()):
+                allowed = entry.warnings_by_type.get(rule, 0)
+                if count > allowed:
+                    category_failures.append(
+                        DrcCategoryFailure(
+                            rule=rule,
+                            count=count,
+                            allowed=allowed,
+                            is_new=rule not in entry.warnings_by_type,
+                            kind="warning",
                         )
                     )
 
@@ -331,18 +376,28 @@ class DrcRatchet:
             lines = [f"{board_id}: DRC FAIL"]
             for failure in aggregate_failures:
                 lines.append(f"  aggregate {failure}")
-            if category_failures:
-                new_failures = [c for c in category_failures if c.is_new]
-                regressed_failures = [c for c in category_failures if not c.is_new]
-                n = len(category_failures)
+
+            def _render_category_block(label: str, failures: list[DrcCategoryFailure]) -> None:
+                if not failures:
+                    return
+                new_failures = [c for c in failures if c.is_new]
+                regressed_failures = [c for c in failures if not c.is_new]
+                n = len(failures)
                 lines.append(
-                    f"  per-type: {n} categor{'y' if n == 1 else 'ies'} over "
+                    f"  per-type {label}: {n} categor{'y' if n == 1 else 'ies'} over "
                     f"ceiling ({len(new_failures)} new, {len(regressed_failures)} "
                     "regressed):"
                 )
                 for c in new_failures + regressed_failures:
                     tag = "NEW" if c.is_new else "   "
                     lines.append(f"    [{tag}] {c.rule} {c.count} > {c.allowed} (+{c.delta})")
+
+            _render_category_block(
+                "errors", [c for c in category_failures if c.kind == "error"]
+            )
+            _render_category_block(
+                "warnings", [c for c in category_failures if c.kind == "warning"]
+            )
             return DrcRatchetResult(
                 passed=False,
                 board_id=board_id,
@@ -374,7 +429,19 @@ class DrcRatchet:
     def detect_ceiling_raise(
         self, old_ceiling: dict, new_ceiling: dict, commit_message: str = ""
     ) -> DrcRatchetResult | None:
-        """Detect if ceiling was raised without approval."""
+        """Detect if ceiling was raised without approval.
+
+        A raise is any of: the aggregate ``error_ceiling`` increasing, the
+        aggregate ``warning_ceiling`` increasing, or any single rule inside
+        ``warnings_by_type`` increasing -- including a rule that didn't
+        exist in the old record at all, which is a raise from its implicit
+        ceiling of 0 (the same implicit-zero semantics ``_check_board``
+        enforces at runtime). Editing the ceiling *file* to grant a rule
+        more room is exactly as much a raise as editing the aggregate
+        number, and must require the same ``Ceiling-Approval:`` trailer --
+        otherwise the per-type ceiling could be silently inflated in the
+        JSON itself, sidestepping the runtime check entirely.
+        """
         old_boards = {b["board_id"]: b for b in old_ceiling.get("boards", [])}
         new_boards = {b["board_id"]: b for b in new_ceiling.get("boards", [])}
 
@@ -388,13 +455,29 @@ class DrcRatchet:
             old_warnings = old_entry.get("warning_ceiling", 0)
             new_warnings = new_entry.get("warning_ceiling", 0)
 
-            if new_errors > old_errors or new_warnings > old_warnings:
+            reasons: list[str] = []
+            if new_errors > old_errors:
+                reasons.append(f"error_ceiling {old_errors} -> {new_errors}")
+            if new_warnings > old_warnings:
+                reasons.append(f"warning_ceiling {old_warnings} -> {new_warnings}")
+
+            old_warnings_by_type = old_entry.get("warnings_by_type") or {}
+            new_warnings_by_type = new_entry.get("warnings_by_type") or {}
+            for rule in sorted(new_warnings_by_type):
+                new_count = new_warnings_by_type[rule]
+                old_count = old_warnings_by_type.get(rule, 0)
+                if new_count > old_count:
+                    reasons.append(f"warnings_by_type[{rule}] {old_count} -> {new_count}")
+
+            if reasons:
                 has_approval = "Ceiling-Approval:" in commit_message
                 if not has_approval:
                     return DrcRatchetResult(
                         passed=False,
                         board_id=board_id,
-                        message=f"Ceiling increase {old_errors} -> {new_errors} requires explicit approval.",
+                        message=(
+                            f"Ceiling increase ({'; '.join(reasons)}) requires explicit approval."
+                        ),
                         exit_code=2,
                     )
 

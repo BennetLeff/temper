@@ -62,6 +62,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import argparse
 import datetime as _dt
 import json
+import shutil
 import subprocess
 
 from _lib.repo import find_repo_root
@@ -281,12 +282,82 @@ def do_prune(report: list[dict], target_path: str, confirmed: bool) -> int:
     return 0
 
 
+def clean_artifacts(report: list[dict], confirmed: bool) -> int:
+    """Delete regenerable dependency directories inside worktrees.
+
+    The disk problem here is a rate problem, not a backlog: agent worktrees
+    are created faster than anything reclaims them, and each carries its own
+    ``.venv``. On 2026-07-28 that was 12 GB across 58 agent worktrees, which
+    is most of the total.
+
+    Only ``.venv`` and ``node_modules`` are removed, and only when git itself
+    reports the path as ignored. ``target/`` is deliberately NOT in the list:
+    ``packages/*/target`` held 472 TRACKED files until 6f5a71f2, and any
+    worktree sitting on an older commit still has them. Deleting them there
+    destroys tracked content -- this function exists partly because that
+    mistake was made by hand and had to be undone twice.
+
+    The ignored-check is the real guard, not the name list: a path is removed
+    only if ``git check-ignore`` confirms git does not track it.
+    """
+    candidates: list[tuple[str, Path]] = []
+    for entry in report:
+        root = Path(entry["path"])
+        if not root.is_dir():
+            continue
+        for name in (".venv", "node_modules"):
+            for path in root.rglob(name):
+                if not path.is_dir():
+                    continue
+                code, _ = _run_git(["-C", str(root), "check-ignore", "-q", str(path)])
+                if code != 0:
+                    console.print(
+                        f"[yellow]SKIP {path}: not ignored by git -- refusing to "
+                        "delete anything git tracks.[/]"
+                    )
+                    continue
+                candidates.append((entry["path"], path))
+
+    if not candidates:
+        console.print("[green]No regenerable artifact directories found.[/]")
+        return 0
+
+    total_kb = 0
+    for _, path in candidates:
+        try:
+            total_kb += sum(f.stat().st_size for f in path.rglob("*") if f.is_file()) // 1024
+        except OSError:
+            pass
+
+    console.print(
+        f"[bold]{len(candidates)} regenerable director(ies), "
+        f"~{total_kb / 1024 / 1024:.1f} GB[/]"
+    )
+    if not confirmed:
+        console.print(
+            "[yellow]--clean-artifacts requires --yes to actually delete. "
+            "Nothing removed.[/]"
+        )
+        return 3
+
+    removed = 0
+    for _, path in candidates:
+        try:
+            shutil.rmtree(path)
+            removed += 1
+        except OSError as exc:
+            console.print(f"[red]failed to remove {path}: {exc}[/]")
+    console.print(f"[green]Removed {removed} regenerable director(ies).[/]")
+    return 0
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n", 1)[0])
     parser.add_argument("--main-ref", type=str, default=None, help="Override main-branch ref (default: auto-resolve origin/main, then main)")
     parser.add_argument("--json-out", type=Path, default=None, help="Also write the full report as JSON to this path")
     parser.add_argument("--prune", type=str, default=None, metavar="PATH", help="Remove exactly this worktree path, IF it holds no unique commits (requires --yes)")
-    parser.add_argument("--yes", action="store_true", help="Confirm the --prune removal")
+    parser.add_argument("--yes", action="store_true", help="Confirm the --prune or --clean-artifacts removal")
+    parser.add_argument("--clean-artifacts", action="store_true", help="Delete regenerable .venv/node_modules inside worktrees (git-ignored paths only; requires --yes)")
     args = parser.parse_args()
 
     main_ref = resolve_main_ref(args.main_ref)
@@ -303,6 +374,9 @@ def main() -> None:
         args.json_out.parent.mkdir(parents=True, exist_ok=True)
         args.json_out.write_text(json.dumps(payload, indent=2) + "\n")
         console.print(f"\nJSON report written to {args.json_out}")
+
+    if args.clean_artifacts:
+        sys.exit(clean_artifacts(report, args.yes))
 
     if args.prune:
         sys.exit(do_prune(report, args.prune, args.yes))

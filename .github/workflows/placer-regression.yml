@@ -1,8 +1,10 @@
 name: Placer Regression
 
+# Grouped per commit so a push cannot cancel the previous commit's run.
+# See the rationale block in python-tests.yml.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.head.sha || github.sha }}
+  cancel-in-progress: false
 
 on:
   pull_request:
@@ -32,8 +34,6 @@ jobs:
       matrix:
         board: ${{ github.event_name == 'pull_request' && fromJson('["temper"]') || fromJson('["temper", "minimal", "rp2040_designguide", "bitaxe_ultra", "piantor_right"]') }}
     env:
-      JAX_PLATFORM_NAME: cpu
-      XLA_PYTHON_CLIENT_MEM_FRACTION: 0.5
       VIRTUAL_ENV: ${{ github.workspace }}/.venv
 
     steps:

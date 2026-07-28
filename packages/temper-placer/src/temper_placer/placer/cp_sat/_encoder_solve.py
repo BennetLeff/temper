@@ -52,6 +52,9 @@ class CpSatPlacementResult:
     solve_time_ms: float = 0.0
     objective_value: float = 0.0
     unsat_core: list[dict] = field(default_factory=list)  # [{name, because}] when infeasible
+    # Populated only when solve_placement(isolation_barrier=...) was passed;
+    # see isolation_barrier.py::IsolationBarrierReport.
+    isolation_barrier_report: object | None = None
 
     def to_placements_dict(self) -> dict[str, tuple[float, float]]:
         """Return {component_ref: (x_mm, y_mm)} mapping (loop.py interface)."""
@@ -73,6 +76,7 @@ def solve_placement(
     loop_components: dict[str, list[str]] | None = None,
     zone_components: dict[str, list[str]] | None = None,
     hint_positions: dict[str, tuple[float, float, int]] | None = None,
+    isolation_barrier: dict | None = None,
 ) -> CpSatPlacementResult:
     """Build a CP-SAT model, encode constraints, solve, and return the result.
 
@@ -85,6 +89,15 @@ def solve_placement(
             ref to ``(x_mm, y_mm, rotation_0_3)``.  Hints are seeded via
             ``CpModel.AddHint()`` before solving so CP-SAT searches locally
             from the supplied positions rather than exploring the full space.
+        isolation_barrier: Optional kwargs forwarded to
+            ``isolation_barrier.add_isolation_barrier_to_model`` (minus
+            ``model``/``netlist``/``board_w_mm``/``board_h_mm``, which this
+            function supplies) -- e.g. ``{"manifest_path": Path(...),
+            "corridor_width_mm": 8.5, "orientation": "vertical"}``. When
+            given, registers the mains<->SELV physical isolation-barrier
+            HARD constraint (see ``isolation_barrier.py``) before encoding.
+            The resulting report is attached to the returned
+            ``CpSatPlacementResult.isolation_barrier_report``.
     """
     from ortools.sat.python import cp_model as cp
 
@@ -156,6 +169,23 @@ def solve_placement(
     # Wire up NoOverlap2D (redundant global for propagation — per-pair
     # SEPARATED-τ is added during constraint encoding in U2).
     model_wrapper.add_no_overlap_2d(comp_refs)
+
+    # Mains<->SELV physical isolation barrier (opt-in). Must run AFTER every
+    # real component is registered (above) — add_isolation_barrier_to_model
+    # calls model_wrapper.get_component(ref) for every HV/SELV/isolator ref
+    # and adds its constraints directly to the model; nothing further needs
+    # encoding for it.
+    isolation_barrier_report = None
+    if isolation_barrier is not None:
+        from temper_placer.placer.cp_sat.isolation_barrier import add_isolation_barrier_to_model
+
+        isolation_barrier_report = add_isolation_barrier_to_model(
+            model_wrapper,
+            netlist,
+            board_w_mm=board_w,
+            board_h_mm=board_h,
+            **isolation_barrier,
+        )
 
     # Warm-start: seed solver with hint positions so CP-SAT searches
     # locally from a known-feasible point rather than exploring the full
@@ -288,6 +318,7 @@ def solve_placement(
         solve_time_ms=elapsed_ms,
         objective_value=objective,
         unsat_core=unsat_core,
+        isolation_barrier_report=isolation_barrier_report,
     )
 
 

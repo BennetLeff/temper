@@ -1,8 +1,10 @@
 name: Regression Suite
 
+# Grouped per commit so a push cannot cancel the previous commit's run.
+# See the rationale block in python-tests.yml.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.head.sha || github.sha }}
+  cancel-in-progress: false
 
 on:
   push:
@@ -42,8 +44,6 @@ jobs:
     strategy:
       fail-fast: false
     env:
-      XLA_PYTHON_CLIENT_MEM_FRACTION: 0.35
-      JAX_PLATFORM_NAME: cpu
       VIRTUAL_ENV: ${{ github.workspace }}/.venv
 
     steps:
@@ -93,31 +93,19 @@ jobs:
       - name: Round-Trip Integrity Tests
         working-directory: packages/temper-placer
         run: uv run pytest tests/test_round_trip_integrity.py -v --tb=short -m "slow or l4_regression" --timeout=600
-        env:
-          XLA_PYTHON_CLIENT_MEM_FRACTION: 0.25
-          JAX_PLATFORM_NAME: cpu
 
       - name: Metamorphic Oracle Tests
         working-directory: packages/temper-placer
         run: uv run pytest tests/test_metamorphic_oracles.py -v --tb=short -m "slow or property" --timeout=600
         continue-on-error: true  # TODO: temper-NNN -- hard-fail after 2026-09-01
-        env:
-          XLA_PYTHON_CLIENT_MEM_FRACTION: 0.25
-          JAX_PLATFORM_NAME: cpu
 
       - name: CP-SAT Placer Tests
         working-directory: packages/temper-placer
         run: uv run pytest tests/placer/cp_sat/ tests/metrics/test_external_oracle.py tests/cli/test_cp_sat_flag.py -v --tb=short --ignore=tests/placer/cp_sat/test_zone_pour_production_measurement.py
-        env:
-          XLA_PYTHON_CLIENT_MEM_FRACTION: 0.25
-          JAX_PLATFORM_NAME: cpu
 
       - name: Zone/Pour Production Measurement
         working-directory: packages/temper-placer
         run: uv run pytest tests/placer/cp_sat/test_zone_pour_production_measurement.py -v --tb=short -rs -s
-        env:
-          XLA_PYTHON_CLIENT_MEM_FRACTION: 0.25
-          JAX_PLATFORM_NAME: cpu
 
       - name: Quarantine Report
         run: uv run python scripts/quarantine_report.py
