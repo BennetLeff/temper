@@ -472,6 +472,58 @@ Also surfaced: **`FUNCTIONAL_TEST_CRITERIA.md` §1.2 specifies a 200 W ±25%
 power tier that has no corresponding gate** in this document. That is an
 omitted requirement, not a lost qualifier.
 
+### The pan model's coupling is provably too low, and the geometry can't rescue it (2026-07-27)
+
+Full analysis: `docs/evidence/2026-07-27-coil-pan-coupling-resolution.md`.
+
+**The falsifier fired: the geometry is not specific enough to derive `L`.**
+`COIL_BRACKET_DESIGN.md` fixes only an OD ceiling (200 mm), a 3 ± 0.5 mm air
+gap and a coil height — **no turn count, inner diameter or wire spec** — and
+`modules.ato:463-465` confirms `inductor_conn` is still a placeholder. Even the
+disqualified doc's own 20–25 turn range implies a **4× spread in L** by N².
+
+**A second document looked like it had the answers and is circular.**
+`RESONANT_TANK_DESIGN.md` supplies 20–25 turns, 160–200 mm, 80 µH — but it is
+contradicted by the newer `TANK_COIL_SPECIFICATION.md` audit, **and its
+pan-material `k`/`R_pan` figures are verbatim copies of `pan_load.sub`'s own
+uncited header comments.** Using it to validate the model would be validating
+the model against itself.
+
+**But one thing is now provable without any geometry.** The loaded/unloaded
+inductance ratio has a hard floor of **1 − K²**, independent of `L2` and
+`RPAN`. Infineon's measured ratio of **0.40** therefore requires **K ≥ 0.775**.
+Verified:
+
+| K | best achievable L_loaded/L_unloaded |
+|---|---|
+| 0.4 *(model default)* | 0.840 |
+| 0.6 *(header's "typical" ceiling)* | 0.640 |
+| **0.775** | **0.399** |
+
+**Every K used anywhere in this project — default 0.4, the four pan presets at
+0.01–0.5, the header's own 0.6 ceiling — is below the floor.** The model
+cannot reproduce a real hob's measured behaviour at any of them, whatever else
+is tuned.
+
+Second, compounding defect: **`L2 = 1 µH`** (never overridden by any preset)
+keeps `ωL2` about **45× below `RPAN`**, suppressing coupling regardless of `K`.
+It needs to rise 45–200×. One self-consistent point satisfying both Infineon
+constraints at `RPAN = 10 Ω` is **`K ≈ 0.79`, `L2 ≈ 218 µH`** — explicitly one
+solution in an underdetermined family (3 unknowns, 2 equations), **not a
+specification**. `pan_load.sub` was read and deliberately not edited.
+
+**OCP-01 versus 1800 W: literature leans "no conflict", low-to-moderate
+confidence.** R_eff at 2.0–2.2 Ω clears the 1.43 Ω threshold by 40–54%. Only
+the project's own **uncited** 1.12 Ω figure fails it. No source measures R_eff
+at this design's actual frequency, coil and pan.
+
+**The bench spec is now executable**, and it carries a non-obvious requirement
+that falls out of the underdetermination: **three frequency points
+(25/35/45 kHz), not one** — a single-frequency measurement cannot separate `L2`
+from `RPAN`. With an LCR meter on the production coil across a pan/gap matrix,
+it yields `L_unloaded` (the coil spec directly), `R_eff` versus 1.43 Ω (the
+OCP-01 verdict), and a measured `(K, L2, RPAN)` triple (the bus-ripple check).
+
 ### Stage 3: 1,573.8 s → 52.67 s, and a feature deleted by refactor (2026-07-27)
 
 **The ~30× speedup came from refuting the hypothesis I supplied.**
