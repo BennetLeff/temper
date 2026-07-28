@@ -264,7 +264,7 @@ docstring):
 | Coil must-operate | <= ~11.7V | see above |
 | Contact duty | break ~21.8mA at up to **170VDC**, purely resistive, with an RC snubber (100R 2W + 470nF/630V PP) across each NC-COM gap | `modules.ato:875-890` |
 | Contacts nominal | 10A / 250VAC declared | vastly over-specified for a 22mA load; not a binding constraint |
-| Coil budget | 2 x ~33mA from the 15V rail while running | `modules.ato:894` |
+| Coil budget | 2 x ~33mA from the 15V rail while running | `modules.ato:889` |
 
 **The 170VDC break is already out-of-catalog on the G5LE-1** and the design
 knows it (`modules.ato:875-880`: "max switching voltage is 125VDC ... a
@@ -569,7 +569,7 @@ tube/`DW` variant. The comment on that line ("Fixed: was UCC21550BDWK
 another.
 
 **#3 -- U7's declared pins contradict its own footprint.**
-`components.ato:52-53` declares `signal NC_12 ~ pin 12` and
+`components.ato:56-57` declares `signal NC_12 ~ pin 12` and
 `signal NC_13 ~ pin 13`; the board footprint `lib:SOIC16W_Isolated` has no
 pads 12 or 13 (verified: pads are 1-11, 14-16). If a 16-pin DW part is
 actually populated, two leads land on bare laminate. Choosing
@@ -588,7 +588,7 @@ false as built.)
 
 **#5 (not a defect, checked and cleared) --** K2 pad 5 and K3 pad 5 are both
 on net `discharge.k_dis1-coil2`. That looked like a copy-paste error, but
-`modules.ato:1103-1110` deliberately ties both coils' low sides to the same
+`modules.ato:1099-1110` deliberately ties both coils' low sides to the same
 `q_dis_drv.D`, so a shared net is correct. No action.
 
 ---
