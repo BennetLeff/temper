@@ -28,6 +28,9 @@ from temper_placer.router_v6.astar_core import (
     _astar_search_lazy_theta_star,
     _astar_search_theta_star,
     _route_segment_3d,
+    append_exact_terminal_point,
+    append_grid_path_point,
+    grid_quantization_tolerance,
     log_los_bb_stats,
     reset_los_bb_stats,
 )
@@ -814,16 +817,18 @@ def _astar_route(
         fallback_count += fb
 
         if grid_path:
+            tolerance = grid_quantization_tolerance(grid.cell_size)
             if i == 0:
                 detailed_coords.append(start_world)
             for grid_cell in grid_path:
                 world_coord = grid.grid_to_world(grid_cell[0], grid_cell[1])
-                if not detailed_coords or detailed_coords[-1] != world_coord:
-                    detailed_coords.append(world_coord)
+                append_grid_path_point(detailed_coords, world_coord, tolerance)
             # A multi-terminal fallback is a serial incremental tree; every
             # target must be an actual path node, not merely the next search
-            # start coordinate.
-            detailed_coords.append(goal_world)
+            # start coordinate. Snap onto the exact terminal rather than
+            # duplicating it next to the last (approximate) grid-cell
+            # center -- see astar_core.append_exact_terminal_point.
+            append_exact_terminal_point(detailed_coords, goal_world, tolerance)
         else:
             if not allow_forced_segments:
                 failed_waypoint_indices.append(i + 1)
@@ -971,38 +976,54 @@ def _astar_route_multilayer(
                 if alternate_path:
                     primary_layer = primary_grid.layer_name
                     alternate_layer = alternate_grid.layer_name
+                    alt_tolerance = grid_quantization_tolerance(alternate_grid.cell_size)
                     if i == 0:
                         detailed_segments.append((start_world[0], start_world[1], primary_layer))
+                    # Real via (layer change at identical x, y) -- never
+                    # merged, append_grid_path_point/append_exact_terminal_point
+                    # only merge same-layer points.
                     detailed_segments.append((start_world[0], start_world[1], alternate_layer))
                     for node in alternate_path:
                         if hasattr(node, "layer_name"):
                             wx, wy = alternate_grid.grid_to_world(node.x, node.y)
-                            detailed_segments.append((wx, wy, node.layer_name))
+                            append_grid_path_point(
+                                detailed_segments, (wx, wy, node.layer_name), alt_tolerance
+                            )
                         else:
                             wx, wy = alternate_grid.grid_to_world(node[0], node[1])
-                            detailed_segments.append((wx, wy, alternate_layer))
-                    detailed_segments.append((goal_world[0], goal_world[1], alternate_layer))
+                            append_grid_path_point(
+                                detailed_segments, (wx, wy, alternate_layer), alt_tolerance
+                            )
+                    append_exact_terminal_point(
+                        detailed_segments, (goal_world[0], goal_world[1], alternate_layer), alt_tolerance
+                    )
                     detailed_segments.append((goal_world[0], goal_world[1], primary_layer))
                     via_positions.extend((start_world, goal_world))
                     continue
 
         if segment_path:
             layer_name = grid_to_use.layer_name
+            tolerance = grid_quantization_tolerance(grid_to_use.cell_size)
             if i == 0:
                 detailed_segments.append((start_world[0], start_world[1], layer_name))
 
             for node in segment_path:
                 if hasattr(node, "layer_name"):
                     wx, wy = grid_to_use.grid_to_world(node.x, node.y)
-                    detailed_segments.append((wx, wy, node.layer_name))
+                    append_grid_path_point(detailed_segments, (wx, wy, node.layer_name), tolerance)
                 else:
                     wx, wy = grid_to_use.grid_to_world(node[0], node[1])
-                    detailed_segments.append((wx, wy, layer_name))
+                    append_grid_path_point(detailed_segments, (wx, wy, layer_name), tolerance)
 
             # Preserve every terminal explicitly.  Without this, consecutive
             # grid paths can stop at adjacent cell centres and silently omit
-            # an intermediate pad from the emitted copper chain.
-            detailed_segments.append((goal_world[0], goal_world[1], layer_name))
+            # an intermediate pad from the emitted copper chain. Snap onto
+            # the exact terminal instead of duplicating it next to the
+            # last (approximate) grid-cell center -- that duplication is
+            # what generated a spurious acid-trap-shaped vertex at nearly
+            # every waypoint; see astar_core.append_exact_terminal_point
+            # and docs/evidence/2026-07-27-acid-trap-elimination.md.
+            append_exact_terminal_point(detailed_segments, (goal_world[0], goal_world[1], layer_name), tolerance)
             continue
 
         # U2 (docs/plans/2026-07-18-003-*): via-aware fallback tier. Both
