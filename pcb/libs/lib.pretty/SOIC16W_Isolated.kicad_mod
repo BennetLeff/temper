@@ -2,7 +2,7 @@
 	(version 20260206)
 	(generator "kicad-footprint-generator")
 	(layer "F.Cu")
-	(descr "TI UCC21550BDWK, 14-pin DWK package (SLUSE89C, Aug 2024). Table 13.1 of the datasheet confirms DWK shares the same land pattern envelope/pitch as the 16-pin DW package (both use the DW0016B SOIC-16W 7.5x10.3mm 1.27mm-pitch outline; reel/tape dimensions in the same table are otherwise identical). DWK is fabricated on the same 16-lead frame with 2 leads omitted at physical positions 12 and 13 for isolation creepage/clearance -- confirmed against the Pin Configuration diagram (Section 4), which lists DWK pin numbers as 1-11 then 14-16, skipping 12/13 entirely (no NC pin at those numbers -- they simply don't exist on this package). This footprint is the real Package_SO:SOIC-16W_7.5x10.3mm_P1.27mm.kicad_mod land pattern with pads 12 and 13 deleted; all 14 remaining pad positions/sizes are untouched from that verified real footprint. The 3D model reference below is the 16-pin DW step file kept as a visual approximation (it will render 2 phantom leads at the omitted positions) -- no DWK-specific step model was available in the fetched datasheet.")
+	(descr "TI UCC21550BDWK, 14-pin DWK package (SLUSE89C, Aug 2024). Table 13.1 of the datasheet confirms DWK shares the same land pattern envelope/pitch as the 16-pin DW package (both use the DW0016B SOIC-16W 7.5x10.3mm 1.27mm-pitch outline; reel/tape dimensions in the same table are otherwise identical). DWK is fabricated on the same 16-lead frame with 2 leads omitted at physical positions 12 and 13 for isolation creepage/clearance -- confirmed against the Pin Configuration diagram (Section 4), which lists DWK pin numbers as 1-11 then 14-16, skipping 12/13 entirely (no NC pin at those numbers -- they simply don't exist on this package). This footprint is the real Package_SO:SOIC-16W_7.5x10.3mm_P1.27mm.kicad_mod land pattern with pads 12 and 13 deleted; all 14 remaining pad positions/sizes are untouched from that verified real footprint. The 3D model reference below is the 16-pin DW step file kept as a visual approximation (it will render 2 phantom leads at the omitted positions) -- no DWK-specific step model was available in the fetched datasheet. CREEPAGE SLOT ADDED (docs/evidence/2026-07-28-isolator-creepage-slots.md): the entire 7.25mm inter-row gap sits under this package's own body outline (F.Fab x-span -3.75..3.75mm vs pad-inner-edge gap -3.625..3.625mm -- pads tuck 0.125mm under the body), which is exactly the geometry the datasheet's own SS5.6 footnote warns 'the mounting pads of the isolator... do not reduce this distance'. A 6.0x11.2mm through-board routed slot (Edge.Cuts polygon below, x=[-3.0,3.0] y=[-5.6,5.6], centred on the pin-row gap) forces the shortest surface path to detour around the slot's end rather than crossing straight across, per IS 15382 (Part 1):2003 = IEC 60664-1 (2002) cl. 4.2 Example 2 (a groove/slot of width >= dimension X is followed along its contour, not bridged; X = 1.0mm at pollution degree 2). Y-extent is capped at +/-5.6mm (not further, e.g. +/-5.8mm) because on the real board this part sits only 5.9mm from the board's left edge (Edge.Cuts at abs x=20.0) once its 270-degree placement rotation is applied -- +/-5.8mm would leave only 0.1mm slot-to-board-edge clearance; +/-5.6mm keeps 0.3mm, at JLCPCB's regular-precision +/-0.2mm outline tolerance. Computationally verified (visibility-graph shortest path around the slot, all 48 HV<->SELV pad-edge pairs): governing creepage = 8.627mm nominal (>= 8.0mm reinforced-creepage target with 0.627mm/7.8% margin), 8.124mm under worst-case JLCPCB regular-precision slot tolerance (+/-0.2mm/edge, still >= 8.0mm, ~1.5% margin). Slot-to-pad copper clearance 0.625mm nominal / 0.425mm worst-case (>= JLCPCB's 0.2mm minimum copper-to-routed-slot clearance). Slot does NOT extend clearance (through-air line-of-sight distance is unchanged by a surface-level groove/slot per the same standard) -- creepage only. See the evidence doc for the full geometric derivation, the board-edge placement constraint that caps this footprint's slot Y-extent at this specific board position, and the PD3 (12.6mm) sensitivity.")
 	(tags "SOIC SO DWK UCC21550")
 	(property "Reference" "REF**"
 		(at 0 -6.1 0)
@@ -226,6 +226,20 @@
 		)
 		(fill no)
 		(layer "F.Fab")
+	)
+	(fp_poly
+		(pts
+			(xy -3.0 -5.6)
+			(xy 3.0 -5.6)
+			(xy 3.0 5.6)
+			(xy -3.0 5.6)
+		)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(fill no)
+		(layer "Edge.Cuts")
 	)
 	(fp_text user "${REFERENCE}"
 		(at 0 0 0)

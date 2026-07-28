@@ -497,7 +497,13 @@ component H11L1:
     exact manufacturer and orderable suffix (through-hole vs SMD, temp
     grade) at procurement; not done here."""
     designator_prefix = "U"
-    footprint = "Package_DIP:DIP-6_W7.62mm"
+    # H11L1_DIP6_Isolated (pcb/libs/lib.pretty/H11L1_DIP6_Isolated.kicad_mod):
+    # the real DIP-6_W7.62mm land pattern with a routed creepage-extension
+    # slot added between the two pin rows -- same override pattern as
+    # SOIC16W_Isolated below. See docs/evidence/2026-07-28-isolator-creepage-slots.md:
+    # the whole HV<->SELV gap sits under this package's own moulded body, so
+    # 8.0mm reinforced creepage is a land-pattern fix, not a part change.
+    footprint = "H11L1_DIP6_Isolated"
     mpn = "H11L1"
     manufacturer = "Everlight (or pin-compatible Vishay/onsemi H11L1)"
 

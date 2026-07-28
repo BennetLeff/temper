@@ -21,6 +21,16 @@ module HighCurrentPad:
     # assert annular_ring >= (current_rating / 10A) * 0.5mm
 
 module CreepageSlot:
-    """Logic for generating internal PCB cutouts for safety."""
+    """Logic for generating internal PCB cutouts for safety.
+
+    width default = 1.0mm: this is IEC 60664-1 (2002) cl. 4.2's dimension X
+    at pollution degree 2 -- IS 15382 (Part 1):2003 = IEC 60664-1 (2002)
+    §4.2, Example 1/2 -- the MINIMUM groove width for the standard to treat
+    the groove as followed along its contour rather than bridged (measured
+    straight across, as if the groove weren't there). It is a floor, not a
+    target: a real slot sized only to this minimum buys almost no creepage
+    by itself (see docs/evidence/2026-07-28-isolator-creepage-slots.md for
+    the actual width/length figures needed per part, which are much larger
+    than this floor)."""
     width = 1.0mm
     length: length

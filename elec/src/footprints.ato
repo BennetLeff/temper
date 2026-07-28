@@ -31,18 +31,38 @@ module CST1005_Footprint:
 
 module SOIC16W_Isolated:
 
-    """Isolated SOIC-16W footprint with integrated creepage slot."""
+    """Isolated SOIC-16W footprint with integrated creepage slot.
+
+    NOTE: this module is a conceptual placeholder -- `make footprints` does
+    not actually generate KiCad geometry from it (see the Makefile's
+    `footprints` target). The REAL, verified footprint is the hand-built
+    pcb/libs/lib.pretty/SOIC16W_Isolated.kicad_mod, which is what
+    pcb/temper.kicad_pcb actually references (`lib:SOIC16W_Isolated`). The
+    values below are kept in sync with that real footprint's design, derived
+    in docs/evidence/2026-07-28-isolator-creepage-slots.md, rather than
+    guessed -- do not change one without the other.
+    """
     # Physical dimensions
     body_width = 7.5mm
     body_length = 10.3mm
     pitch = 1.27mm
-    
+
     # Isolation Barrier
-    # Reinforced insulation requires 8mm design target
+    # 100% of the 7.25mm inter-row pad gap sits under this package's own
+    # body outline (measured), so the slot must be wide/long enough that the
+    # shortest surface path is forced around its END (a through-board slot
+    # has no floor to walk "under", so IEC 60664-1's groove-contour rule
+    # applies as an around-the-end detour here, not a down/across/up path).
+    # Real design (visibility-graph verified): 6.0mm wide x 11.2mm long,
+    # centred on the pin-row gap, gives 8.627mm governing creepage (>=8.0mm
+    # reinforced-creepage target) -- length is capped below the geometric
+    # optimum (11.6mm) by this part's real board placement, which sits only
+    # 5.9mm from the board's left edge once its 270-degree rotation is
+    # applied.
     isolation_slot = new CreepageSlot
-    isolation_slot.length = body_length + 2.0mm
-    isolation_slot.width = 1.0mm
-    
+    isolation_slot.length = 11.2mm
+    isolation_slot.width = 6.0mm
+
     # Pads are generated here (conceptual placeholder)
     # Signal mapping to standard SOIC-16W pins
     signal pin1, pin2, pin3, pin4, pin5, pin6, pin7, pin8
