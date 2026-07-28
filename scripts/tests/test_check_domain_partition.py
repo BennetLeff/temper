@@ -460,6 +460,70 @@ class TestNetlistFreshness:
         with pytest.raises(GateError, match="not found"):
             check_netlist_freshness(tmp_path / "nope.net", src_dir)
 
+    def test_stamped_netlist_survives_newer_sources(self, tmp_path):
+        """A restored cache: sources newer than the netlist, content unchanged.
+
+        This is the case that broke the gate on 2026-07-28. `git checkout`
+        stamps every .ato with the checkout time, so a cached netlist is always
+        mtime-older than sources it in fact matches. Runs 30383701486 (rebuilt,
+        passed) and 30384514627 (cached, errored) differed only in that.
+        """
+        import os
+
+        from _lib.freshness import write_stamp
+
+        src_dir = tmp_path / "src"
+        src_dir.mkdir()
+        source = src_dir / "main.ato"
+        source.write_text("# source\n")
+        netlist = write_netlist(tmp_path, ISOLATED_COMPONENTS, _isolated_topology_nets())
+        write_stamp(netlist, [source], src_dir)
+
+        future = time.time() + 10_000
+        os.utime(source, (future, future))
+        assert source.stat().st_mtime > netlist.stat().st_mtime
+
+        check_netlist_freshness(netlist, src_dir)  # must not raise
+
+    def test_stamped_netlist_still_fails_on_real_edit(self, tmp_path):
+        """Content hashing must not weaken the gate: an actual source change
+        is still STALE even though the stamp exists."""
+        from _lib.freshness import write_stamp
+
+        src_dir = tmp_path / "src"
+        src_dir.mkdir()
+        source = src_dir / "main.ato"
+        source.write_text("# source\n")
+        netlist = write_netlist(tmp_path, ISOLATED_COMPONENTS, _isolated_topology_nets())
+        write_stamp(netlist, [source], src_dir)
+
+        source.write_text("# genuinely edited after the build\n")
+        with pytest.raises(GateError, match="STALE"):
+            check_netlist_freshness(netlist, src_dir)
+
+    def test_stamped_netlist_catches_backdated_edit(self, tmp_path):
+        """An edit back-dated older than the netlist passes the mtime check and
+        must still be caught -- content hashing is strictly stronger here, not
+        merely more cache-friendly."""
+        import os
+
+        from _lib.freshness import write_stamp
+
+        src_dir = tmp_path / "src"
+        src_dir.mkdir()
+        source = src_dir / "main.ato"
+        source.write_text("# source\n")
+        netlist = write_netlist(tmp_path, ISOLATED_COMPONENTS, _isolated_topology_nets())
+        write_stamp(netlist, [source], src_dir)
+
+        source.write_text("# edited, then back-dated\n")
+        past = time.time() - 10_000
+        os.utime(source, (past, past))
+        assert source.stat().st_mtime < netlist.stat().st_mtime
+
+        with pytest.raises(GateError, match="STALE"):
+            check_netlist_freshness(netlist, src_dir)
+
     def test_run_end_to_end_fails_closed_on_stale_netlist(self, tmp_path):
         """Same check exercised through run() (skip_freshness=False, the
         real CI default) end-to-end."""
