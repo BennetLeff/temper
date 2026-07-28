@@ -130,3 +130,48 @@ def test_multiple_lv_nets():
 
     # Should check AC_L against both SIG1 and SIG2
     assert report.total_checks == 2
+
+
+def test_creepage_violation_count_bounded_by_net_pair_not_segment_pair():
+    """Regression test: violation_count must not blow up per-segment-pair.
+
+    A routed net is internally decomposed into many short (grid-step)
+    segments. The old implementation appended one ``CreepageViolation``
+    per *segment-pair* that violated the required distance, so two long
+    parallel-routed nets produced one violation for every pair of
+    segments along their shared run -- hundreds or thousands of records
+    for what is physically a single isolation defect between one net
+    pair. On the committed board this produced 257,597 violations from
+    175 net-pair checks (~1,472 violations per check), a ratio nobody
+    could interpret as a count of real board defects (see
+    docs/evidence/2026-07-27-drc-checks-repaired.md).
+
+    This test builds two nets that run parallel and too close for their
+    *entire* length (20 points each, 0.05mm apart, well under the 3.2mm
+    required for a 230V default HV net) and asserts the check now
+    reports exactly one violation for the one net pair -- not one per
+    segment-pair. Fails before the fix (violation_count in the hundreds)
+    and passes after (violation_count == 1, matching total_checks == 1).
+    """
+    n_points = 20
+    hv_coords = [(float(i), 0.0) for i in range(n_points)]
+    lv_coords = [(float(i), 0.05) for i in range(n_points)]
+
+    hv_path = RoutePath("AC_L", hv_coords, "F.Cu", float(n_points - 1))
+    hv_route = CompiledRoute("AC_L", hv_path, 0.254, [], None)
+
+    lv_path = RoutePath("SIG1", lv_coords, "F.Cu", float(n_points - 1))
+    lv_route = CompiledRoute("SIG1", lv_path, 0.127, [], None)
+
+    results = RoutingResults(compiled_routes={"AC_L": hv_route, "SIG1": lv_route}, failed_nets=[])
+
+    report = verify_creepage(results)
+
+    assert report.total_checks == 1
+    # Exactly one net pair was checked, so at most one violation for it --
+    # never more than total_checks.
+    assert report.violation_count == 1
+    assert report.violation_count <= report.total_checks
+    # The reported violation must reflect the true worst-case (closest
+    # approach), not an arbitrary one of the many segment-pairs.
+    assert report.violations[0].actual_distance == pytest.approx(0.05, abs=1e-9)

@@ -380,17 +380,40 @@ def _find_clearance_violations(
     lv_net: str,
 ) -> list[CreepageViolation]:
     """
-    Find **all** clearance violations between two routes.
+    Find the worst-case (closest-approach) clearance violation, if any,
+    between two routes.
+
+    A routed net is typically decomposed internally into many short
+    (~0.1 mm grid-step) segments. Two nets running parallel for any
+    distance therefore have many segment-pairs that are all closer than
+    ``required_distance`` -- but they represent a *single* isolation
+    defect for this ``(hv_net, lv_net)`` pair, not one defect per
+    segment-pair. Returning one ``CreepageViolation`` per segment-pair
+    (the previous behaviour) produced counts in the hundreds of
+    thousands that could not be interpreted as a count of real board
+    defects (see docs/evidence/2026-07-27-drc-checks-repaired.md).
+
+    This mirrors ``clearance_check._calculate_minimum_clearance_by_layer``,
+    which already aggregates to one violation per (net-pair, layer) via
+    the same reasoning -- the worst-case (minimum) approach distance is
+    the number that determines pass/fail against a safety standard;
+    every closer segment-pair along the same parallel run is evidence of
+    the same defect, not a second one.
 
     Only segments residing on the **same layer** are compared.
     Cross-layer (via-to-via) creepage requires a separate pathfinding
     approach and is not computed here.
 
     Returns:
-        List of ``CreepageViolation`` records (one per violating
-        segment pair).
+        A single-element list with the closest-approach
+        ``CreepageViolation`` if the minimum same-layer distance between
+        the two routes is under ``required_distance``, else an empty
+        list. Never more than one element -- this keeps
+        ``violation_count`` bounded by ``total_checks`` (one check per
+        net pair), so the two numbers stay comparable.
     """
-    violations: list[CreepageViolation] = []
+    best_dist = float("inf")
+    best_loc: tuple[float, float] = (0.0, 0.0)
 
     segs1 = _extract_segments(route1)
     segs2 = _extract_segments(route2)
@@ -412,20 +435,23 @@ def _find_clearance_violations(
                 y4,
             )
 
-            if dist < required_distance:
+            if dist < best_dist:
+                best_dist = dist
                 # Midpoint of closest approach as violation location
-                loc = ((p1[0] + p2[0]) / 2.0, (p1[1] + p2[1]) / 2.0)
-                violations.append(
-                    CreepageViolation(
-                        hv_net=hv_net,
-                        lv_net=lv_net,
-                        location=loc,
-                        actual_distance=dist,
-                        required_distance=required_distance,
-                    )
-                )
+                best_loc = ((p1[0] + p2[0]) / 2.0, (p1[1] + p2[1]) / 2.0)
 
-    return violations
+    if best_dist < required_distance:
+        return [
+            CreepageViolation(
+                hv_net=hv_net,
+                lv_net=lv_net,
+                location=best_loc,
+                actual_distance=best_dist,
+                required_distance=required_distance,
+            )
+        ]
+
+    return []
 
 
 # ---------------------------------------------------------------------------
