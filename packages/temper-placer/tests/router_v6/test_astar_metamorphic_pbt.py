@@ -612,7 +612,7 @@ def test_mr9_no_redundant_nodes(gsp):
 
 def _line_of_sight_tolerant(p1, p2, grid, net_id=0):
     """Check LOS using the production _line_of_sight function."""
-    from temper_placer.router_v6.astar_core import _line_of_sight as los
+    from temper_placer.router_v6._astar_theta_star import _line_of_sight as los
 
     return los(p1, p2, grid, net_id)
 
@@ -633,7 +633,7 @@ def _path_cost_euclidean(path: list[tuple[int, int]]) -> float:
 @settings(max_examples=100, deadline=30000)
 def test_thetastar_subpath_optimality(gsp):
     """Theta* subpath optimality: cost of non-adjacent steps equals direct distance."""
-    from temper_placer.router_v6.astar_core import _astar_search_theta_star
+    from temper_placer.router_v6._astar_theta_star import _astar_search_theta_star
 
     grid, start, goal = gsp
     path = _astar_search_theta_star(grid, start, goal, net_id=0)
@@ -669,7 +669,7 @@ def test_thetastar_subpath_optimality(gsp):
 @settings(max_examples=100, deadline=30000)
 def test_thetastar_cell_count_le_astar(gsp):
     """Theta* produces any-angle shortcuts -> cell count <= standard A*."""
-    from temper_placer.router_v6.astar_core import _astar_search_theta_star
+    from temper_placer.router_v6._astar_theta_star import _astar_search_theta_star
 
     grid, start, goal = gsp
     theta_path = _astar_search_theta_star(grid, start, goal, net_id=0)
@@ -687,7 +687,7 @@ def test_thetastar_cell_count_le_astar(gsp):
 @settings(max_examples=100, deadline=30000)
 def test_thetastar_path_cells_free(gsp):
     """Theta* MR8: every cell in path is free."""
-    from temper_placer.router_v6.astar_core import _astar_search_theta_star
+    from temper_placer.router_v6._astar_theta_star import _astar_search_theta_star
 
     grid, start, goal = gsp
     path = _astar_search_theta_star(grid, start, goal, net_id=0)
@@ -705,7 +705,7 @@ def test_thetastar_path_cells_free(gsp):
 @settings(max_examples=100, deadline=30000)
 def test_thetastar_no_redundant_nodes(gsp):
     """Theta* MR9: no consecutive duplicate cells."""
-    from temper_placer.router_v6.astar_core import _astar_search_theta_star
+    from temper_placer.router_v6._astar_theta_star import _astar_search_theta_star
 
     grid, start, goal = gsp
     path = _astar_search_theta_star(grid, start, goal, net_id=0)
@@ -728,7 +728,7 @@ def test_thetastar_no_redundant_nodes(gsp):
 @settings(max_examples=100, deadline=30000)
 def test_lazy_thetastar_reachability_parity(gsp):
     """If Theta* finds a path, Lazy Theta* must also find a path."""
-    from temper_placer.router_v6.astar_core import (
+    from temper_placer.router_v6._astar_theta_star import (
         _astar_search_lazy_theta_star,
         _astar_search_theta_star,
     )
@@ -749,7 +749,7 @@ def test_lazy_thetastar_reachability_parity(gsp):
 @settings(max_examples=100, deadline=30000)
 def test_lazy_thetastar_path_cells_free(gsp):
     """Lazy Theta* MR8: every cell in path is free."""
-    from temper_placer.router_v6.astar_core import _astar_search_lazy_theta_star
+    from temper_placer.router_v6._astar_theta_star import _astar_search_lazy_theta_star
 
     grid, start, goal = gsp
     path = _astar_search_lazy_theta_star(grid, start, goal, net_id=0)
@@ -767,7 +767,7 @@ def test_lazy_thetastar_path_cells_free(gsp):
 @settings(max_examples=100, deadline=30000)
 def test_lazy_thetastar_no_redundant_nodes(gsp):
     """Lazy Theta* MR9: no consecutive duplicate cells."""
-    from temper_placer.router_v6.astar_core import _astar_search_lazy_theta_star
+    from temper_placer.router_v6._astar_theta_star import _astar_search_lazy_theta_star
 
     grid, start, goal = gsp
     path = _astar_search_lazy_theta_star(grid, start, goal, net_id=0)
@@ -785,7 +785,7 @@ def test_lazy_thetastar_no_redundant_nodes(gsp):
 @settings(max_examples=100, deadline=30000)
 def test_lazy_thetastar_empty_grid_optimality(gsp):
     """Lazy Theta* MR6: on empty grid, path cost equals Dijkstra oracle cost."""
-    from temper_placer.router_v6.astar_core import _astar_search_lazy_theta_star
+    from temper_placer.router_v6._astar_theta_star import _astar_search_lazy_theta_star
 
     grid, start, goal = gsp
     path = _astar_search_lazy_theta_star(grid, start, goal, net_id=0)
@@ -807,7 +807,7 @@ def test_lazy_thetastar_empty_grid_optimality(gsp):
 @settings(max_examples=100, deadline=30000)
 def test_lazy_thetastar_max_iter_cap(gsp):
     """Lazy Theta* with max_iter cap terminates even on hard grids."""
-    from temper_placer.router_v6.astar_core import _astar_search_lazy_theta_star
+    from temper_placer.router_v6._astar_theta_star import _astar_search_lazy_theta_star
 
     grid, start, goal = gsp
     # Run with a tight max_iter cap
@@ -824,7 +824,7 @@ def test_lazy_thetastar_max_iter_cap(gsp):
 
 def test_lazy_thetastar_max_iter_blocked_grid():
     """Lazy Theta* returns None on fully blocked grid with max_iter cap."""
-    from temper_placer.router_v6.astar_core import _astar_search_lazy_theta_star
+    from temper_placer.router_v6._astar_theta_star import _astar_search_lazy_theta_star
 
     # Create a grid with a wall separating start and goal
     blocked = {(5, y) for y in range(20)}
@@ -836,7 +836,7 @@ def test_lazy_thetastar_max_iter_blocked_grid():
 
 def test_theta_star_max_iter_blocked_grid():
     """Theta* returns None on fully blocked grid with max_iter cap."""
-    from temper_placer.router_v6.astar_core import _astar_search_theta_star
+    from temper_placer.router_v6._astar_theta_star import _astar_search_theta_star
 
     blocked = {(5, y) for y in range(20)}
     grid = _make_grid(20, 20, blocked)

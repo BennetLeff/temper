@@ -15,7 +15,7 @@ from pathlib import Path
 
 import numpy as np
 
-from temper_placer.router_v6.astar_core import (
+from temper_placer.router_v6._astar_theta_star import (
     _CONGESTION_CHECK_INTERVAL,
     _CONGESTION_GROWTH_THRESHOLD,
     _CONGESTION_PLATEAU_STRIKES,

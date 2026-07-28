@@ -14,7 +14,7 @@ import pytest
 from hypothesis import assume, given, settings
 from hypothesis import strategies as st
 
-from temper_placer.router_v6.astar_core import (
+from temper_placer.router_v6._astar_theta_star import (
     _LOS_BB_FALLS_THROUGH,
     _LOS_BB_HITS,
     _line_of_sight,

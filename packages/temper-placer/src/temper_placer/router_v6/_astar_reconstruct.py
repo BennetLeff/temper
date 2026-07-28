@@ -21,18 +21,20 @@ from dataclasses import dataclass, field
 logger = logging.getLogger(__name__)
 
 from temper_placer.router_v6._astar_ordering import _compute_net_order
+from temper_placer.router_v6._astar_theta_star import (
+    _astar_search_lazy_theta_star,
+    _astar_search_theta_star,
+    log_los_bb_stats,
+    reset_los_bb_stats,
+)
 from temper_placer.router_v6.astar_core import (
     RoutePath,
     RoutePath3D,
     _astar_search,
-    _astar_search_lazy_theta_star,
-    _astar_search_theta_star,
     _route_segment_3d,
     append_exact_terminal_point,
     append_grid_path_point,
     grid_quantization_tolerance,
-    log_los_bb_stats,
-    reset_los_bb_stats,
 )
 from temper_placer.router_v6.astar_grid import (
     _build_tht_pad_locations,
