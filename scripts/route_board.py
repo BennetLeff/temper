@@ -31,6 +31,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import statistics
 import subprocess
 import sys
@@ -62,12 +63,39 @@ def _make_parsed_stub(pcb_path: Path, netlist: Any) -> Any:
     )()
 
 
-def route_once(pcb_path: Path, rules_path: Path) -> dict[str, Any]:
+_SEGMENT_RE = re.compile(r"^\s*\((?:segment|via)\s.*\)\s*$", re.MULTILINE)
+
+
+def strip_existing_copper(content: str) -> tuple[str, int]:
+    """Remove committed (segment ...) and (via ...) lines from a board.
+
+    Routing an already-routed board is not the same experiment as routing a
+    bare one, and conflating them produced a badly misleading measurement.
+    pcb/temper.kicad_pcb currently carries 2338 segments; feeding it straight
+    back to route_pcb yields 4093 segments and "37/96 nets", and the output
+    was verified to contain all 2338 original segments unchanged. That 37 is
+    additional nets placed on an already-congested board -- not comparable to
+    the 51/96 in commit 556ccf4f, which explicitly began from a board that
+    "previously had 0 segments/vias/zones".
+
+    Component positions are untouched: only copper is removed, so routing
+    still runs against the real placement.
+    """
+    stripped, n = _SEGMENT_RE.subn("", content)
+    return stripped, n
+
+
+def route_once(
+    pcb_path: Path, rules_path: Path, *, keep_existing_copper: bool = False
+) -> dict[str, Any]:
     """Run one full route_pcb() pass and return measured results.
 
-    Uses the board's existing (already-placed) component positions --
-    an empty placements dict, matching the production call path and the
-    CI regression gate.
+    Component positions come from the board itself (an empty placements dict
+    means "route with existing board positions" -- see _adapter_convert.py:214).
+
+    By default existing copper is stripped first, so the run measures routing
+    the board from scratch and is comparable with the committed route. Pass
+    keep_existing_copper=True to route on top of what is already there.
     """
     from temper_placer.io.kicad_parser import parse_kicad_pcb
     from temper_placer.io.netclass_loader import load_netclass_rules
@@ -75,7 +103,21 @@ def route_once(pcb_path: Path, rules_path: Path) -> dict[str, Any]:
 
     rules = load_netclass_rules(rules_path)
     netlist = parse_kicad_pcb(pcb_path).netlist
-    parsed_stub = _make_parsed_stub(pcb_path, netlist)
+
+    stripped_count = 0
+    route_src = pcb_path
+    tmp_clean = None
+    if not keep_existing_copper:
+        content = pcb_path.read_text(encoding="utf-8")
+        cleaned, stripped_count = strip_existing_copper(content)
+        tmp_clean = tempfile.NamedTemporaryFile(
+            "w", suffix=".kicad_pcb", delete=False, encoding="utf-8"
+        )
+        tmp_clean.write(cleaned)
+        tmp_clean.close()
+        route_src = Path(tmp_clean.name)
+
+    parsed_stub = _make_parsed_stub(route_src, netlist)
 
     t0 = time.perf_counter()
     result = route_pcb(
