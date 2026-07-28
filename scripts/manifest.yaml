@@ -932,6 +932,29 @@ scripts:
   - fnmatch
   - pathlib
   - sys
+- path: check_measurement_provenance.py
+  purpose: 'CI gate: fail closed when a measurement artifact (power_pcb_dataset/drc_ceiling.json today)
+    declares input-file content hashes that no longer match reality -- catches the DRC ceiling recording
+    91 errors for a board three commits (c6b1b463, 556ccf4f, 65bd0159) had since changed to ~710, with
+    the ceiling file byte-identical throughout (docs/evidence/2026-07-27-drc-truth-gate-discrepancy.md,
+    docs/evidence/2026-07-28-measurement-provenance.md); STALE is a GATE ERROR, not a violation, generalizing
+    the netlist-freshness precedent in check_domain_partition.py'
+  owner: bennet
+  last_run: '2026-07-28'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.gate_allowlist
+  - _lib.github_summary
+  - _lib.measurement_provenance
+  - _lib.repo
+  - argparse
+  - dataclasses
+  - json
+  - pathlib
+  - sys
+  - typing
 - path: worktree_report.py
   purpose: 'Worktree hygiene report: inventory each git worktree with HEAD, age, distance behind main,
     and unique unmerged commits (read-only, prunes nothing)'

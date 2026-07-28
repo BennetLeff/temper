@@ -3,7 +3,8 @@
   "_march": {
     "2026-07-27": "error_ceiling 158 -> 90. The 158 was set when the board measured 158; the domain-clearance re-solve cut actual errors to 90 and nobody ratcheted, leaving 68 errors of slack for a regression to hide in. violations_by_type is now populated AND enforced -- a category absent from it has an implicit ceiling of 0, so a new violation class cannot arrive for free under the aggregate.",
     "next": "clearance (10) and copper_edge_clearance (3) go to 0 first. They include HighVoltage netclass pairs at 0.336-0.85 mm against a 2.0 mm requirement (U7 pad9/pad11, TP3-U7, C23, R28) and three pads at 0.000 mm to the board edge. These pass today only because the aggregate ceiling is coarse enough to hide them.",
-    "2026-07-27b": "After merging followup/post-344 and re-measuring on the later board (043debdf, post r_avdd_top 0603->0805): three categories improved and were ratcheted down -- shorting_items 35->33, solder_mask_bridge 32->30, clearance 10->9 (TP3<->U7 resolved by that re-solve; no DRC error on this board involves TP3). Two REGRESSED and are deliberately HELD at their prior ceilings so the gate names them: courtyards_overlap now measures 15 vs ceiling 10, copper_edge_clearance 4 vs 3. Raising them would silently accept a regression introduced by the 0805 footprint change. error_ceiling is the sum of the per-type ceilings (85); the board measures 91, so this gate fails until those two are brought back."
+    "2026-07-27b": "After merging followup/post-344 and re-measuring on the later board (043debdf, post r_avdd_top 0603->0805): three categories improved and were ratcheted down -- shorting_items 35->33, solder_mask_bridge 32->30, clearance 10->9 (TP3<->U7 resolved by that re-solve; no DRC error on this board involves TP3). Two REGRESSED and are deliberately HELD at their prior ceilings so the gate names them: courtyards_overlap now measures 15 vs ceiling 10, copper_edge_clearance 4 vs 3. Raising them would silently accept a regression introduced by the 0805 footprint change. error_ceiling is the sum of the per-type ceilings (85); the board measures 91, so this gate fails until those two are brought back.",
+    "2026-07-28": "Added the 'provenance' block below (scripts/check_measurement_provenance.py, docs/evidence/2026-07-28-measurement-provenance.md) -- fields only, no ceiling value touched (no Ceiling-Approval trailer exists or is needed for this change). The recorded input hash is pcb/temper.kicad_pcb's content EXACTLY as committed at 3c391956 (same tree as 043debdf, which this entry's own numbers were measured against -- 3c391956 only edited this JSON, not the board). Reconstructed after the fact from git history (source=backfilled-historical), so 'dirty' is honestly UNKNOWN: the committed content is exact (git show 3c391956:pcb/temper.kicad_pcb), but whether the person who ran the DRC measurement also had unrelated uncommitted changes in their tree at that moment cannot be recovered. Per docs/evidence/2026-07-27-drc-truth-gate-discrepancy.md, three commits since (c6b1b463, 556ccf4f, 65bd0159) changed pcb/temper.kicad_pcb without a re-measurement -- the new gate will therefore correctly report this record as STALE (current board content hash != recorded hash) until someone re-measures with a Ceiling-Approval trailer. That is the honest, expected state, not a bug in the gate."
   },
   "boards": [
     {
@@ -17,6 +18,20 @@
         "courtyards_overlap": 10,
         "clearance": 9,
         "copper_edge_clearance": 3
+      },
+      "provenance": {
+        "measured_at_commit": "3c391956f39165f41306591292a33dd3e3e174ee",
+        "dirty": "UNKNOWN",
+        "inputs": [
+          {
+            "path": "pcb/temper.kicad_pcb",
+            "sha256": "23dbc050ae5de3285924d9ec02ac3bd94e68bf1f6b76f4f4b78786b59f6f7249"
+          }
+        ],
+        "tool_versions": {
+          "kicad-cli": "UNKNOWN"
+        },
+        "source": "backfilled-historical"
       }
     }
   ]

@@ -68,6 +68,12 @@ on:
       - '.evidence-provenance-allowlist'
       - 'scripts/check_evidence_provenance.py'
       - 'scripts/_lib/provenance.py'
+      - '.measurement-provenance-allowlist'
+      - 'scripts/check_measurement_provenance.py'
+      - 'scripts/tests/test_check_measurement_provenance.py'
+      - 'scripts/_lib/measurement_provenance.py'
+      - 'scripts/tests/_lib/test_lib_measurement_provenance.py'
+      - 'power_pcb_dataset/drc_ceiling.json'
   pull_request:
     branches: [main]
     paths:
@@ -131,6 +137,12 @@ on:
       - '.evidence-provenance-allowlist'
       - 'scripts/check_evidence_provenance.py'
       - 'scripts/_lib/provenance.py'
+      - '.measurement-provenance-allowlist'
+      - 'scripts/check_measurement_provenance.py'
+      - 'scripts/tests/test_check_measurement_provenance.py'
+      - 'scripts/_lib/measurement_provenance.py'
+      - 'scripts/tests/_lib/test_lib_measurement_provenance.py'
+      - 'power_pcb_dataset/drc_ceiling.json'
   workflow_dispatch:
   schedule:
     - cron: '0 3 * * *'  # nightly at 3am UTC
@@ -591,6 +603,36 @@ jobs:
       # docs/evidence/2026-07-28-pll-defaults-and-range-gate.md.
       - name: PLL range consistency gate (firmware vs elec/src/main.ato)
         run: uv run python scripts/check_pll_range_consistency.py
+
+      - name: Measurement-provenance gate tests
+        run: uv run pytest scripts/tests/test_check_measurement_provenance.py scripts/tests/_lib/test_lib_measurement_provenance.py -v --tb=short
+
+      # Fail-closed, not soft-launched: catches a measurement artifact
+      # (power_pcb_dataset/drc_ceiling.json today) whose recorded input
+      # content hash no longer matches the file on disk -- the DRC ceiling
+      # incident this closes recorded 91 errors for a board that three
+      # later commits (c6b1b463, 556ccf4f, 65bd0159) changed to ~710
+      # errors' worth, with the ceiling file itself byte-identical
+      # throughout. STALE is a GATE ERROR here, not a violation --
+      # generalizing the same "netlist is STALE ... not PASSED, not a
+      # violation" semantic check_domain_partition.py already uses. See
+      # docs/evidence/2026-07-28-measurement-provenance.md.
+      #
+      # Deliberately placed last among the required gates in this job
+      # (not continue-on-error -- no masked steps): this step is expected
+      # to fail right now, because the real drc_ceiling.json genuinely is
+      # stale and has not been re-measured/re-approved. Placing it after
+      # every other required gate (domain-partition, rust-drc-presence,
+      # stale-extensions, undeclared-imports, net-classification,
+      # pll-range, mpn-fabrication, derived-doc-drift, capacity-budget)
+      # means this gate's honest failure does not prevent any of those
+      # from running and reporting in the same CI job -- only the
+      # non-gating "Rebuild script invocation graph" bookkeeping step
+      # after it is skipped as a result.
+      - name: Measurement-provenance gate (drc_ceiling.json input freshness)
+        run: |
+          uv run python scripts/check_measurement_provenance.py
+          uv run python scripts/check_measurement_provenance.py --check-shrink
 
       - name: Rebuild script invocation graph
         run: uv run python scripts/trace_invocations.py
