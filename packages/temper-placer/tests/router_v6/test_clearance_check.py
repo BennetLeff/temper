@@ -274,3 +274,57 @@ def test_required_clearance_default_for_non_manifest_selv_pair():
 
     required = _get_required_clearance("gnd", "+3V3", default_clearance=0.127)
     assert required == 0.127
+
+
+@pytest.mark.parametrize("backend", ["rust", "auto"])
+def test_manifest_hv_fix_reaches_rust_and_auto_backends(backend):
+    """Regression: the manifest-HV fix (test above) was applied ONLY to
+    ``_get_required_clearance``/``_classify_net_class`` (the Python
+    reference path). ``verify_clearance``'s own ``backend="auto"`` default
+    prefers the Rust engine (``temper_drc_rs.verify_route_clearance``)
+    whenever it is importable -- true in every environment this check
+    actually ships to -- and the Rust port's ``is_hv_gate``/
+    ``classify_net_class`` never consulted the manifest, so the fix was
+    DEAD CODE in production: a live re-route of the real board still
+    reported ``DC_BUS_RTN`` vs ``gnd`` at the plain 0.127mm default via
+    ``backend="rust"``/``"auto"``, even after the Python-only fix landed.
+    See docs/evidence/2026-07-27-clearance-copper-balance.md Part B.2.
+
+    Fails before the fix (required == 0.127mm via rust/auto for a
+    DC_BUS_RTN-vs-gnd pair); passes after (required == 14.0mm, matching
+    the Python backend -- see ``verify_route_clearance``'s new optional
+    ``hv_net_names`` parameter and ``clearance_check.py``'s
+    ``_verify_clearance_rust``, which now passes
+    ``_load_manifest_hv_net_names()`` through).
+
+    Skipped (not xfailed) if elec/domain_manifest.yaml is unavailable or
+    does not declare DC_BUS_RTN under HV, same reasoning as the sibling
+    Python-path test above.
+    """
+    pytest.importorskip("temper_drc_rs", reason="temper_drc_rs not built")
+    from temper_placer.router_v6.clearance_check import _load_manifest_hv_net_names
+
+    hv_nets = _load_manifest_hv_net_names()
+    if "DC_BUS_RTN" not in hv_nets:
+        pytest.skip(
+            "elec/domain_manifest.yaml not found or does not declare "
+            "DC_BUS_RTN under HV in this environment"
+        )
+
+    path1 = RoutePath("DC_BUS_RTN", [(0, 0), (10, 0)], "F.Cu", 10.0)
+    route1 = CompiledRoute("DC_BUS_RTN", path1, 0.127, [], None)
+    path2 = RoutePath("gnd", [(0, 0.05), (10, 0.05)], "F.Cu", 10.0)
+    route2 = CompiledRoute("gnd", path2, 0.127, [], None)
+    results = RoutingResults(
+        compiled_routes={"DC_BUS_RTN": route1, "gnd": route2}, failed_nets=[]
+    )
+
+    report = verify_clearance(results, min_clearance=0.127, backend=backend)
+
+    assert report.violation_count == 1
+    required = report.violations[0].required_clearance
+    assert required > 1.0, (
+        f"DC_BUS_RTN vs gnd via backend={backend!r} should require IEC "
+        f"60335 mains clearance, got {required}mm (looks like the "
+        f"0.127mm default -- the manifest fix did not reach this backend)"
+    )

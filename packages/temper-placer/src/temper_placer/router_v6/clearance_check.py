@@ -255,6 +255,18 @@ def _verify_clearance_rust(
     ``temper_drc_rs.verify_route_clearance``, ported line-for-line from this
     module. See docs/evidence/2026-07-26-clearance-rust-port.md for the
     differential-equivalence evidence against :func:`_verify_clearance_python`.
+
+    Passes ``_load_manifest_hv_net_names()`` through to the Rust engine as
+    its optional 4th (``hv_net_names``) argument. Before this, the manifest
+    fix (docs/evidence/2026-07-27-clearance-copper-balance.md Part B) had
+    been applied only to :func:`_get_required_clearance` /
+    :func:`_classify_net_class` (the Python reference path) -- ``verify_clearance``'s
+    own ``backend="auto"`` default prefers this Rust path whenever
+    ``temper_drc_rs`` is importable (true in every shipping environment),
+    so the fix was dead code in production until this call site threaded
+    the manifest names through. See ``is_hv_gate_named``/
+    ``classify_net_class_named`` in ``router_clearance.rs`` for the Rust
+    side of this fix.
     """
     if voltage_ratings is None:
         voltage_ratings = {}
@@ -265,7 +277,7 @@ def _verify_clearance_rust(
     routes = [_route_to_rust_tuple(net_name, route) for net_name, route in _all_routes(routing_results)]
 
     raw_violations, total_checks = _temper_drc_rs.verify_route_clearance(
-        routes, min_clearance, voltage_ratings
+        routes, min_clearance, voltage_ratings, sorted(_load_manifest_hv_net_names())
     )
 
     violations = [
