@@ -64,10 +64,7 @@ HV_INTERNAL_CLEARANCE_MM = 2.0
 
 # Reinforced creepage at Pollution Degree 2 (IEC 60335-1 clause 29.2.3 x
 # Table 17 row iv, working voltage >250-400V, material group IIIa/IIIb):
-# basic 4.0mm x2 = 8.0mm. NOT emitted as a KiCad rule below -- this
-# generator has no creepage constraint type today (only clearance and
-# track_width), so this figure is not enforced anywhere in the generated
-# file. Recorded here so the gap is visible rather than silent.
+# basic 4.0mm x2 = 8.0mm.
 #
 # IEC 60335-2-6 clause 29.2 Addition makes Pollution Degree 3 the DEFAULT
 # for this appliance class (cooking ranges/hobs); PD2 must be earned by
@@ -82,6 +79,50 @@ HV_INTERNAL_CLEARANCE_MM = 2.0
 # item and docs/evidence/2026-07-28-creepage-determination-brainstorm.md sec 5.
 HV_CREEPAGE_PD2_MM = 8.0
 HV_CREEPAGE_PD3_MM = 12.6  # flagged default per IEC 60335-2-6 cl. 29.2; UNRESOLVED
+
+# ---------------------------------------------------------------------------
+# Creepage IS NOW EMITTED as a real KiCad DRC constraint (2026-07-28) --
+# this used to be a documented, unenforced gap ("this generator has no
+# creepage constraint type today"). It is not a gap anymore.
+#
+# kicad-cli 10.0.4 DOES implement a `creepage` constraint
+# (CREEPAGE_CONSTRAINT / DRCE_CREEPAGE), confirmed two independent ways:
+# (1) against kicad-source-mirror @ the 10.0.4 tag itself --
+#     pcbnew/drc/drc_rule.h's DRC_CONSTRAINT_T enum, the `T_creepage` keyword
+#     mapping in pcbnew/drc/drc_rule_parser.cpp, and a dedicated, registered
+#     test provider, pcbnew/drc/drc_test_provider_creepage.cpp
+#     (`DRC_REGISTER_TEST_PROVIDER<DRC_TEST_PROVIDER_CREEPAGE>`) that runs a
+#     real surface-path graph solver (CREEPAGE_GRAPH), not an alias for
+#     clearance; (2) empirically, on an isolated kicad-cli 10.0.4 fixture:
+#     a lone `(constraint creepage (min 999mm))` rule produced a real
+#     `type: "creepage"` violation with a measured `actual` distance, and
+#     adding a board slot between two pads at a fixed 5.0mm straight-line
+#     gap changed the reported actual creepage from 5.0000mm to 41.0526mm --
+#     proof this is a genuine path-around-obstacles solver, not a relabeled
+#     clearance check. See docs/evidence/2026-07-28-drc-creepage-constraint.md.
+#
+# WHICH FIGURE TO EMIT: the PD2 (8.0mm) vs PD3 (12.6mm) question directly
+# above is UNRESOLVED and this file does not resolve it -- that determination
+# still belongs to a human. This constant is a SEPARATE, narrower decision:
+# which of the two unresolved figures the ACTUALLY-EMITTED .dru rule is
+# pinned to while the human question is open. Pinned to HV_CREEPAGE_PD3_MM,
+# reusing -- not re-deciding -- the identical call
+# scripts/check_isolation_keepout.py already made and cited for the same
+# barrier (IEC 60335-2-6 cl. 29.2 Addition: PD3 is this appliance class's
+# default; no enclosure/location argument earning PD2 exists anywhere in
+# this repo -- see that script's module docstring and
+# docs/evidence/2026-07-28-pd3-retarget-keepout.md). Reusing that decision
+# here, rather than letting these two enforcement points silently diverge,
+# also satisfies the "never emit a weaker figure than determined" rule: of
+# the two live candidates, 12.6mm is the one that cannot be an
+# under-enforcement if PD3 turns out to govern.
+#
+# If a human resolves PD2 with a documented enclosure/location argument,
+# change this ONE line to HV_CREEPAGE_PD2_MM -- and change
+# scripts/check_isolation_keepout.py's MIN_BARRIER_WIDTH_MM to match in the
+# same change, so the two gates never enforce two different figures for the
+# same requirement.
+HV_CREEPAGE_ENFORCED_MM = HV_CREEPAGE_PD3_MM
 
 # KiCad uses "Ground" as the net-class name; our Python dict uses "GND"
 KICAD_NAME_MAP = {
@@ -135,6 +176,64 @@ def generate_dru() -> str:
         "# enforces FAIL-CLOSED, uncoated clearance figures throughout. See"
     )
     lines.append("# docs/evidence/2026-07-28-conformal-coating-pd1.md.")
+    lines.append("#")
+    lines.append(
+        "# CREEPAGE IS ENFORCED HERE (2026-07-28): kicad-cli 10.0.4 supports a"
+        " real"
+    )
+    lines.append(
+        "# `creepage` constraint (confirmed against kicad-source-mirror @"
+        " 10.0.4 and"
+    )
+    lines.append(
+        "# empirically -- see docs/evidence/2026-07-28-drc-creepage-"
+        "constraint.md). RULES"
+    )
+    lines.append(
+        f"# 2 and 4 below enforce {fmt_mm(HV_CREEPAGE_ENFORCED_MM)} reinforced"
+        " creepage across the"
+    )
+    lines.append(
+        "# AC-Mains/HighVoltage <-> everything-else boundary, in addition to"
+        " their"
+    )
+    lines.append(
+        "# existing clearance figures. The pollution-degree question (PD2"
+        " 8.0mm vs"
+    )
+    lines.append(
+        "# PD3 12.6mm) is UNRESOLVED and this file does not resolve it --"
+        " see"
+    )
+    lines.append(
+        "# HV_CREEPAGE_ENFORCED_MM's own comment in this script for which"
+        " figure is"
+    )
+    lines.append(
+        "# currently pinned, why, and how to change it in one line once a"
+        " human"
+    )
+    lines.append(
+        "# settles the question. `scripts/check_isolation_keepout.py`"
+        " remains the"
+    )
+    lines.append(
+        "# other, independent creepage enforcement point on this board (a"
+        " conservative"
+    )
+    lines.append(
+        "# straight-line-corridor sufficient bound, not a surface-path"
+        " measure); this"
+    )
+    lines.append(
+        "# generator's new rules are the fab-authoritative KiCad DRC path,"
+        " and they now"
+    )
+    lines.append(
+        "# agree on the same pinned figure. See"
+        " docs/evidence/2026-07-28-creepage-"
+    )
+    lines.append("# determination-brainstorm.md for the full clause-cited derivation.")
     lines.append("#")
     lines.append(
         "# TO-247 IGBT packages have a 1.95mm edge-to-edge internal pin gap"
@@ -310,6 +409,28 @@ def generate_dru() -> str:
     lines.append(_SEP)
     lines.append("# RULE 2: AC Mains isolation - 6mm to everything except itself")
     lines.append("# IEC 60335-1 basic insulation for 240V AC")
+    lines.append("#")
+    lines.append(
+        "# CREEPAGE ADDED (2026-07-28): kicad-cli 10.0.4 supports a real"
+        " `creepage`"
+    )
+    lines.append(
+        "# constraint (see the HV_CREEPAGE_ENFORCED_MM comment near the top"
+        " of this"
+    )
+    lines.append(
+        "# script for the full derivation, the PD2/PD3 pin, and the"
+        " kicad-cli support"
+    )
+    lines.append(
+        "# evidence). This is the fab-authoritative DRC check for the"
+        " reinforced"
+    )
+    lines.append(
+        "# mains<->LV creepage requirement this net-class pair represents;"
+        " it did not"
+    )
+    lines.append("# exist in the generated file before this change.")
     lines.append(_SEP)
     lines.append('(rule "AC Mains to LV"')
     lines.append(
@@ -318,6 +439,7 @@ def generate_dru() -> str:
         " && B.NetClass != 'HighVoltage'\")"
     )
     lines.append("   (constraint clearance (min 6.0mm))")
+    lines.append(f"   (constraint creepage (min {fmt_mm(HV_CREEPAGE_ENFORCED_MM)}))")
     lines.append(")")
     lines.append("")
     lines.append(_SEP)
@@ -344,6 +466,24 @@ def generate_dru() -> str:
         "# NOTE: IEC 60664-1 at 400V working voltage may require"
         " 3.0mm+ clearance -- verify before HV bring-up"
     )
+    lines.append("#")
+    lines.append(
+        "# CREEPAGE ADDED (2026-07-28): same rationale as RULE 2 above --"
+        " see"
+    )
+    lines.append(
+        "# HV_CREEPAGE_ENFORCED_MM's comment near the top of this script."
+        " This is the"
+    )
+    lines.append(
+        "# other half of the mains<->LV / HV<->LV boundary"
+        " scripts/check_isolation_keepout.py"
+    )
+    lines.append(
+        "# already enforces at the board-construction level; this rule"
+        " now enforces the"
+    )
+    lines.append("# same figure at the fab-authoritative KiCad DRC level.")
     lines.append(_SEP)
     lines.append('(rule "HV to LV"')
     lines.append(
@@ -352,6 +492,7 @@ def generate_dru() -> str:
         " && B.NetClass != 'ACMains'\")"
     )
     lines.append("   (constraint clearance (min 2.0mm))")
+    lines.append(f"   (constraint creepage (min {fmt_mm(HV_CREEPAGE_ENFORCED_MM)}))")
     lines.append(")")
     lines.append("")
     lines.append(_SEP)
