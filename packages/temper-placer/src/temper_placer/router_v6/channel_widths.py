@@ -75,28 +75,32 @@ def _rasterize_boundary_mask(
         cell).  As cell_size → 0, the EDT converges to the true
         distance.
     """
-    import shapely.prepared
+    import shapely
 
     min_x, min_y, max_x, max_y = bounds
     w = int(np.ceil((max_x - min_x) / cell_size)) + 1
     h = int(np.ceil((max_y - min_y) / cell_size)) + 1
 
-    prepared = shapely.prepared.prep(available_area)
-    from shapely.geometry import Point as ShapelyPoint
-
     xs = np.linspace(min_x, min_x + (w - 1) * cell_size, w)
     ys = np.linspace(min_y, min_y + (h - 1) * cell_size, h)
     xx, yy = np.meshgrid(xs, ys, indexing="xy")
-    points = np.column_stack([xx.ravel(), yy.ravel()])
 
-    mask = np.zeros(h * w, dtype=bool)
-    batch_size = 100000
-    for i in range(0, len(points), batch_size):
-        batch = points[i : i + batch_size]
-        for j, (px, py) in enumerate(batch):
-            mask[i + j] = prepared.contains(ShapelyPoint(px, py))
+    # Vectorised, not looped. This previously built one shapely Point per grid
+    # cell and called prepared.contains() on it -- the nominal batching was
+    # cosmetic, since the inner loop still ran per-point in Python. A single
+    # test (test_empty_board_infinite_capacity, 20 Hypothesis examples) spent
+    # ~90s making 14,024,826 such calls, and this function was ~90% of the
+    # runtime of the four slowest tests in the invariant suite.
+    #
+    # shapely.contains_xy is the same `contains` predicate evaluated in C over
+    # arrays, so the boundary semantics the docstring's proof relies on are
+    # unchanged: contains excludes the boundary, boundary cells stay False, and
+    # the EDT keeps them as distance-zero sources. Verified bit-identical to
+    # the old implementation across plain, multi-cutout, boundary-aligned and
+    # fine-cell grids (80-104x faster on those cases).
+    mask = shapely.contains_xy(available_area, xx.ravel(), yy.ravel())
 
-    return mask.reshape(h, w)
+    return np.asarray(mask, dtype=bool).reshape(h, w)
 
 
 def _edt_width_lookup(
