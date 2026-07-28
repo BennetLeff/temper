@@ -570,11 +570,17 @@ class TestZonesReplacedNotAppended:
         from temper_placer.core.design_rules import DesignRules
         from temper_placer.router_v6.adapter import _write_routes_to_content
 
-        result = self._make_result("vcc")  # "vcc" -> Power: zone-eligible
+        # "ac_l" -> ACMains, whose netclass declares routing_strategy
+        # "plane_required" -- the only thing _zone_layers_for_net treats as
+        # zone-eligible. This test originally used "vcc" (Power), which was
+        # eligible under that function's old hardcoded 5-class list; once
+        # eligibility moved to the netclass SSOT, Power stopped producing
+        # pours and the fixture no longer exercised the replace path at all.
+        result = self._make_result("ac_l")
         dr = DesignRules()
         content = (
-            '(kicad_pcb (version 20240108) (net 1 "vcc")\n'
-            f"{self._STALE_ZONE.format(net='vcc')}\n"
+            '(kicad_pcb (version 20240108) (net 1 "ac_l")\n'
+            f"{self._STALE_ZONE.format(net='ac_l')}\n"
             ")"
         )
         output, _ = _write_routes_to_content(content, result, design_rules=dr)
@@ -584,7 +590,7 @@ class TestZonesReplacedNotAppended:
         assert "(xy 999.0 999.0)" not in output
         # A regenerated zone for the same net must be present instead.
         assert "(zone " in output
-        assert '(net_name "vcc")' in output
+        assert '(net_name "ac_l")' in output
 
     def test_no_zone_eligible_nets_still_drops_stale_zone(self):
         """Even when this run computes no new pour geometry for any net
