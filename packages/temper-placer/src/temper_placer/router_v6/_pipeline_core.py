@@ -105,6 +105,14 @@ class RouterV6Pipeline:
                 500_000 to match the SM1 measurement table
                 recorded in
                 docs/solutions/architecture-patterns/router-v6-closure-rate-100pct-2026-06-24.md.
+                That table was measured on a 24-net smoke subset --
+                re-swept on the full 96-net production board
+                (docs/evidence/2026-07-27-forced-segment-analysis.md):
+                500k/1M/2M/4M all produced the *same* 59-net failure
+                count (2M and 4M byte-identical), so 500k remains
+                justified as "no worse than 8x more compute," not
+                because it is a strict local optimum on this board --
+                raising this value is not a lever for completion here.
             enable_manufacturing_drc: Run DFM checks after routing
                 (teardrops, acid traps, annular rings, thermal
                 relief, copper balance, creepage, clearance).

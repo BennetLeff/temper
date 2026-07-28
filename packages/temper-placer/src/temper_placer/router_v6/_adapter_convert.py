@@ -362,6 +362,19 @@ def route_pcb(
             # 500k).  See
             # docs/solutions/architecture-patterns/router-v6-closure-rate-100pct-2026-06-24.md
             # for the iter-cap sweet-spot table.
+            #
+            # NOTE 2026-07-27: that table was measured on a 24-net
+            # smoke subset. Re-swept on today's full 96-net
+            # production board (docs/evidence/2026-07-27-forced-
+            # segment-analysis.md): 500k, 1M, 2M, and 4M all produce
+            # the identical 59-net failure count (2M and 4M are
+            # byte-identical output), with only *which* specific
+            # nets fail churning between 500k and 1M before
+            # stabilizing. Raising this value is not a completion
+            # lever on the current board -- the remaining forced-
+            # segment failures are congestion/placement-limited, not
+            # search-budget-limited. 500k remains the right choice
+            # (no worse than 8x more compute, and faster).
             result = pipeline.run(
                 Path(temp_path),
                 net_class_assignments=net_class_assignments,
