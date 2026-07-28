@@ -356,3 +356,276 @@ class TestPowerInternalConditionFix:
             "see docs/evidence/2026-07-28-drc-courtyard-condition-fix.md"
         )
         assert "A.Reference == B.Reference" in condition
+
+
+# ---------------------------------------------------------------------------
+# TestRule1NetclassDiscrimination -- RULE 1/1a redo
+# ---------------------------------------------------------------------------
+#
+# Background (docs/evidence/2026-07-28-drc-rule1-netclass-redo.md,
+# docs/evidence/2026-07-28-drc-rule1-netclass-discrimination.md): RULE 1
+# ("Same footprint pads") and RULE 1a ("Fine pitch IC pads") used
+# A.Footprint == B.Footprint as their same-footprint-instance test.
+# "Footprint" is not a property KiCad's PROPERTY_MANAGER registers on Pad
+# or Footprint (confirmed against pcbnew/pad.cpp and pcbnew/footprint.cpp
+# at kicad-cli 10.0.4/10.0.5), so this never bound -- on the isolated
+# fixture below AND on the real board (0 matches at a 999mm threshold,
+# same methodology as the sibling courtyard-condition fix).
+#
+# Two independent defects are fixed here, not one:
+#   1. The dead same-footprint test: A.Footprint == B.Footprint ->
+#      A.Reference == B.Reference (measured to bind: 215 lone-condition
+#      matches at 999mm against an unclassified-baseline copy of the real
+#      board, closely reproducing the 214 the task's own measurement
+#      reported).
+#   2. RULE 1a's A.Attribute == 'SMD' clause is ALSO not a registered
+#      property (pad.cpp registers this field as "Pad Type", not
+#      "Attribute") -> A.Pad_Type == 'SMD' (measured to bind: 483 lone-
+#      condition matches at 999mm vs. 0 for A.Attribute).
+#
+# A same-footprint-instance test alone is too broad: several isolators in
+# elec/domain_manifest.yaml (the gate driver, aux supply, Y-cap, relays)
+# put HV-side and SELV-side pins on the SAME footprint reference, and a
+# same-footprint rule must never grant THOSE pairs the 0.1mm
+# manufacturability allowance meant for a single package's own pin pitch.
+# KiCad's rule language cannot reference elec/domain_manifest.yaml
+# directly, so A.NetClass == B.NetClass (confirmed to bind: 499 lone-
+# condition matches) is used as the finest dynamically-expressible proxy
+# for "same domain" -- a NECESSARY but not SUFFICIENT proxy (see the
+# evidence doc's U7/UCC21550 discussion for a measured real-board
+# counterexample and how far the accompanying pcb/temper.kicad_pro fix
+# closes it), and a strict improvement over both the previous always-dead
+# condition and a hardcoded literal-net-name exclusion (which reproduces
+# the exact failure mode -- an unnoticed net rename orphaning the rule --
+# that produced the +340V_BUS defect this task is named after).
+
+
+def _build_cross_domain_fixture(tmp_path: Path, gap_mm: float) -> Path:
+    """A single footprint 'Q1' with two SMD pads on the SAME reference but
+    DIFFERENT net classes ('HighVoltage' vs 'Default'), gap_mm edge-to-edge
+    apart -- modeling an isolator's primary/secondary pins sharing one
+    physical package, the case RULE 1's cross-domain guard exists for."""
+    from kiutils.board import Board, LayerToken
+    from kiutils.footprint import Footprint, Pad
+    from kiutils.items.common import Net, Position
+    from kiutils.items.fpitems import FpRect
+    from kiutils.items.gritems import GrPoly
+
+    board = Board()
+    board.version = "20221018"
+    board.generator = "pytest-rule1-fixture"
+    board.layers = [
+        LayerToken(ordinal=0, name="F.Cu", type="signal"),
+        LayerToken(ordinal=31, name="B.Cu", type="signal"),
+        LayerToken(ordinal=44, name="Edge.Cuts", type="user"),
+        LayerToken(ordinal=47, name="F.CrtYd", type="user", userName="F.Courtyard"),
+    ]
+    board.nets = [
+        Net(number=0, name=""),
+        Net(number=1, name="HV_SIDE"),
+        Net(number=2, name="LV_SIDE"),
+    ]
+    board.graphicItems = [
+        GrPoly(
+            coordinates=[Position(0, 0), Position(50, 0), Position(50, 50), Position(0, 50)],
+            layer="Edge.Cuts",
+            width=0.1,
+        )
+    ]
+
+    half_gap = gap_mm / 2
+    pad_half_width = 1.0
+    fp = Footprint()
+    fp.entryName = "Test:Isolator_CrossDomain"
+    fp.layer = "F.Cu"
+    fp.position = Position(25, 25)
+    fp.properties = {"Reference": "Q1"}
+    fp.pads = [
+        Pad(
+            number="1", type="smd", shape="rect",
+            position=Position(-(half_gap + pad_half_width), 0), size=Position(2, 2),
+            layers=["F.Cu"], net=Net(number=1, name="HV_SIDE"),
+        ),
+        Pad(
+            number="2", type="smd", shape="rect",
+            position=Position(half_gap + pad_half_width, 0), size=Position(2, 2),
+            layers=["F.Cu"], net=Net(number=2, name="LV_SIDE"),
+        ),
+    ]
+    fp.graphicItems = [FpRect(start=Position(-4, -3), end=Position(4, 3), layer="F.CrtYd", width=0.05)]
+    board.footprints = [fp]
+
+    pcb_path = tmp_path / "rule1_fixture.kicad_pcb"
+    board.to_file(str(pcb_path))
+
+    proj = json.loads((REPO_ROOT / "pcb" / "temper_final_verified.kicad_pro").read_text())
+    ns = proj["net_settings"]
+    default_class = dict(ns["classes"][0])
+    hv_class = dict(default_class)
+    hv_class.update({"name": "HighVoltage", "clearance": 2.0, "track_width": 3.0})
+    ns["classes"] = [default_class, hv_class]
+    ns["netclass_assignments"] = {"HV_SIDE": "HighVoltage"}  # LV_SIDE stays Default
+    (tmp_path / "rule1_fixture.kicad_pro").write_text(json.dumps(proj))
+
+    return pcb_path
+
+
+# Edge-to-edge gap for the cross-domain fixture: bigger than RULE 1's 0.1mm
+# relaxed minimum (so an over-broad same-footprint-only rule would silently
+# PASS it) but smaller than the HighVoltage netclass's own 2.0mm baseline
+# clearance (so the CORRECT, netclass-discriminating rule -- which should
+# not match this cross-domain pair at all -- leaves the stricter baseline
+# in force and the pair correctly FAILS).
+_CROSS_DOMAIN_GAP_MM = 0.5
+
+
+@pytest.mark.skipif(KICAD_CLI is None, reason="kicad-cli not on PATH")
+class TestRule1CrossDomainGuard:
+    def test_bare_same_footprint_test_would_wrongly_pass_a_cross_domain_pair(
+        self, tmp_path: Path
+    ) -> None:
+        """Without the NetClass guard, a same-Reference-only test grants the
+        0.1mm relaxation to ANY same-footprint pair, including one that
+        spans an isolator's HV/SELV barrier -- demonstrating why the guard
+        is necessary, not merely a style choice."""
+        pcb_path = _build_cross_domain_fixture(tmp_path, _CROSS_DOMAIN_GAP_MM)
+        bare_condition = "A.Reference == B.Reference"  # no NetClass guard
+
+        violations = _run_drc(pcb_path, _rule(bare_condition, 0.1, name="Same footprint pads"))
+        clearance = [v for v in violations if v["type"] == "clearance"]
+        assert clearance == [], (
+            f"expected the bare same-Reference test to (wrongly) PASS a "
+            f"{_CROSS_DOMAIN_GAP_MM}mm cross-domain gap; got {clearance!r} -- "
+            f"if this fails, the danger this guard exists for is no longer "
+            f"reproducible and the fixture needs review"
+        )
+
+    def test_real_rule1_condition_correctly_rejects_the_cross_domain_pair(
+        self, tmp_path: Path
+    ) -> None:
+        """The EXACT condition generate_dru() emits for RULE 1 today must
+        NOT match the cross-domain pair (different NetClass), so RULE 1
+        contributes no constraint and the pair falls through to the
+        HighVoltage netclass's own stricter baseline clearance (2.0mm),
+        correctly failing at a 0.5mm gap."""
+        pcb_path = _build_cross_domain_fixture(tmp_path, _CROSS_DOMAIN_GAP_MM)
+        content = gen.generate_dru()
+        m = re.search(r'\(rule "Same footprint pads".*?\n\)\n', content, re.DOTALL)
+        assert m, "Same footprint pads rule not found in generated output"
+        condition_match = re.search(r'\(condition "([^"]+)"\)', m.group(0))
+        assert condition_match
+        real_condition = condition_match.group(1)
+        assert "A.Footprint" not in real_condition, (
+            "the broken A.Footprint == B.Footprint form was reintroduced -- "
+            "see docs/evidence/2026-07-28-drc-rule1-netclass-redo.md"
+        )
+        assert "A.Reference == B.Reference" in real_condition
+        assert "A.NetClass == B.NetClass" in real_condition
+
+        # Run the real generated DRU wholesale (RULE 1 plus the HighVoltage
+        # trace-width/clearance baseline already present in the file) so
+        # the fallthrough to the netclass baseline is the file's real
+        # behavior, not a hand-picked substitute rule.
+        violations = _run_drc(pcb_path, content)
+        clearance = [v for v in violations if v["type"] == "clearance"]
+        assert len(clearance) >= 1, (
+            f"expected the {_CROSS_DOMAIN_GAP_MM}mm cross-domain gap to FAIL "
+            f"now that RULE 1 correctly declines to match it; got no "
+            f"clearance violations -- RULE 1 may be over-matching again"
+        )
+
+    def test_genuine_same_domain_pair_still_gets_the_relaxation(self, tmp_path: Path) -> None:
+        """The guard must not make RULE 1 useless: two same-footprint,
+        same-netclass pads at a tight manufacturability pitch should still
+        pass at the relaxed 0.1mm minimum."""
+        from kiutils.board import Board, LayerToken
+        from kiutils.footprint import Footprint, Pad
+        from kiutils.items.common import Net, Position
+        from kiutils.items.fpitems import FpRect
+        from kiutils.items.gritems import GrPoly
+
+        gap_mm = 0.15  # fails Default's 0.2mm baseline, passes RULE 1's 0.1mm
+        board = Board()
+        board.version = "20221018"
+        board.generator = "pytest-rule1-samedomain-fixture"
+        board.layers = [
+            LayerToken(ordinal=0, name="F.Cu", type="signal"),
+            LayerToken(ordinal=31, name="B.Cu", type="signal"),
+            LayerToken(ordinal=44, name="Edge.Cuts", type="user"),
+            LayerToken(ordinal=47, name="F.CrtYd", type="user", userName="F.Courtyard"),
+        ]
+        board.nets = [
+            Net(number=0, name=""),
+            Net(number=1, name="SIG_A"),
+            Net(number=2, name="SIG_B"),
+        ]
+        board.graphicItems = [
+            GrPoly(
+                coordinates=[Position(0, 0), Position(50, 0), Position(50, 50), Position(0, 50)],
+                layer="Edge.Cuts",
+                width=0.1,
+            )
+        ]
+        half_gap = gap_mm / 2
+        pad_half_width = 1.0
+        fp = Footprint()
+        fp.entryName = "Test:SameDomain_TightPitch"
+        fp.layer = "F.Cu"
+        fp.position = Position(25, 25)
+        fp.properties = {"Reference": "U1"}
+        fp.pads = [
+            Pad(
+                number="1", type="smd", shape="rect",
+                position=Position(-(half_gap + pad_half_width), 0), size=Position(2, 2),
+                layers=["F.Cu"], net=Net(number=1, name="SIG_A"),
+            ),
+            Pad(
+                number="2", type="smd", shape="rect",
+                position=Position(half_gap + pad_half_width, 0), size=Position(2, 2),
+                layers=["F.Cu"], net=Net(number=2, name="SIG_B"),
+            ),
+        ]
+        fp.graphicItems = [FpRect(start=Position(-4, -3), end=Position(4, 3), layer="F.CrtYd", width=0.05)]
+        board.footprints = [fp]
+        pcb_path = tmp_path / "rule1_samedomain_fixture.kicad_pcb"
+        board.to_file(str(pcb_path))
+
+        proj = json.loads((REPO_ROOT / "pcb" / "temper_final_verified.kicad_pro").read_text())
+        (tmp_path / "rule1_samedomain_fixture.kicad_pro").write_text(json.dumps(proj))
+        # SIG_A/SIG_B both resolve to the project's Default netclass -- same
+        # domain by construction, no netclass_assignments override needed.
+
+        content = gen.generate_dru()
+        violations = _run_drc(pcb_path, content)
+        clearance = [v for v in violations if v["type"] == "clearance"]
+        assert clearance == [], (
+            f"expected a genuine same-footprint, same-netclass pair at "
+            f"{gap_mm}mm to PASS under RULE 1's relaxed 0.1mm minimum; got "
+            f"{clearance!r} -- the cross-domain guard may have made RULE 1 "
+            f"unusable for its original manufacturability-allowance purpose"
+        )
+
+
+class TestRule1aPadTypeConditionFix:
+    """RULE 1a's A.Attribute == 'SMD' clause is a second, independent
+    undefined-property defect (pad.cpp registers this field as "Pad Type",
+    not "Attribute") -- see docs/evidence/2026-07-28-drc-rule1-netclass-redo.md.
+    Static regression guard against both the A.Footprint and A.Attribute
+    forms coming back."""
+
+    def test_fine_pitch_condition_uses_pad_type_not_attribute(self) -> None:
+        content = gen.generate_dru()
+        m = re.search(r'\(rule "Fine pitch IC pads".*?\n\)\n', content, re.DOTALL)
+        assert m, "Fine pitch IC pads rule not found in generated output"
+        condition_match = re.search(r'\(condition "([^"]+)"\)', m.group(0))
+        assert condition_match
+        condition = condition_match.group(1)
+        assert "A.Attribute" not in condition and "B.Attribute" not in condition, (
+            "the undefined A.Attribute property was reintroduced -- see "
+            "docs/evidence/2026-07-28-drc-rule1-netclass-redo.md"
+        )
+        assert "A.Pad_Type == 'SMD'" in condition
+        assert "B.Pad_Type == 'SMD'" in condition
+        assert "A.Footprint" not in condition
+        assert "A.Reference == B.Reference" in condition
+        assert "A.NetClass == B.NetClass" in condition
