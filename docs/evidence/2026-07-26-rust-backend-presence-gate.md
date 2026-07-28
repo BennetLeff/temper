@@ -1,5 +1,7 @@
 # Rust DRC backend: presence gate, before/after, and silent-skip survey
 
+<!-- provenance: commit=db779c81c83de026331f013248e345b465716a41 dirty=UNKNOWN -->
+
 **Date:** 2026-07-26
 **Scope:** `packages/temper-drc-rs` (`verify_route_clearance`), its differential
 proof (`packages/temper-placer/tests/router_v6/test_clearance_rust_

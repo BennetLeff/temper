@@ -26,7 +26,10 @@
 # the design's own audit (SELV_ISOLATION_REDESIGN.md Sec 4, rows 3-4) flagged
 # two plain resistive dividers running from the HV half-bus
 # (`dc_bus_plus`/`+170V_BUS`) into `gnd` as still-open gaps: the OVP-01
-# comparator-sense divider (3x430kohm + 10kohm, `OVPComparator`,
+# comparator-sense divider (3x430kohm + 16.9kohm as of the 2026-07-27
+# REF2025 re-reference, was 10kohm -- see docs/evidence/
+# 2026-07-27-ovp01-ref2025-implementation.md; the change does not move
+# this chain's boundary, see the ARITHMETIC note below, `OVPComparator`,
 # `main.ato:434-435`) and the OVP-01 ADC-sense divider (`OVPComparator.
 # adc_v_bus`). Investigated properly rather than either rubber-stamped or
 # reflexively isolated -- see the evidence doc for the full standard clause,
@@ -95,6 +98,108 @@ domains:
       - a                  # auto-named net between the ZCD divider tap and
                            # the H11L1 LED series resistor/anode (R9-U3),
                            # still entirely HV-side.
+      - discharge.k_dis1-nc  # discharge.k_dis1's own declared "contacts"
+                             # group (pin 4, NC) -- below, the SAME group as
+                             # pin 1 (COM), which that isolator entry's own
+                             # pin_labels already calls "COM (HV bus contact)".
+                             # The group is undifferentiated (COM/NO/NC are
+                             # one physical switch mechanism, one domain);
+                             # this just also lists the net name so the
+                             # domain check (this file) and the isolator
+                             # check (below) agree, instead of leaving pin 4
+                             # unclassified despite pin 1 of the same group
+                             # already being HV. See
+                             # 2026-07-27-domain-classification-coverage.md
+                             # for why this was previously unclassified.
+      - discharge.k_dis2-nc  # same reasoning, discharge.k_dis2's "contacts"
+                             # group (below).
+      - hb.power_loop.q_high-g  # ADDED 2026-07-27 (docs/evidence/
+                             # 2026-07-27-clearance-copper-balance.md Part B):
+                             # Q_high's own Gate terminal (modules.ato:382,
+                             # `gate_hs.drive.out ~ power_loop.q_high.G`).
+                             # `drive.out` is wired to `driver.OUTA` (=
+                             # GATE_HS, already declared above) through
+                             # `rg_on` -- a plain 2.2ohm gate resistor
+                             # (modules.ato:179-180), not an isolator -- so
+                             # this net is the SAME floating HV/switch-node
+                             # potential as GATE_HS, one resistor downstream.
+                             # This exact net was flagged UNVERIFIED (not
+                             # independently traced) by the sibling
+                             # 2026-07-27-domain-classification-coverage.md
+                             # (Sec 7); that doc's own tentative grouping of
+                             # it under "primary-side" pins was a naming-
+                             # convention guess this manifest's ground rule
+                             # forbids -- direct wire tracing (above)
+                             # confirms it is secondary/HV-side, not primary.
+      - hb.gate_hs.driver-p1-1  # ADDED 2026-07-27, same evidence doc. UCC21550
+                             # (U7) pin 16, VDDA -- the isolated secondary-
+                             # side floating positive bias-supply rail
+                             # (components.ato:60 `signal VDDA ~ pin 16`,
+                             # under the component's own "Secondary side"
+                             # pin-group comment). `boot_cap.p1 ~
+                             # driver.VDDA` / `boot_diode.K ~ driver.VDDA`
+                             # (modules.ato:201-202); floats with the
+                             # switch node, same isolation side as GATE_HS/
+                             # SW_NODE. Also flagged UNVERIFIED by the
+                             # sibling coverage doc (Sec 7, as
+                             # `hb.gate_hs.driver-p1`, a DIFFERENT, primary-
+                             # side net -- see the DT entry note below for
+                             # why these must not be conflated).
+      - hb.gate_hs.driver-p2  # ADDED 2026-07-27, same evidence doc. UCC21550
+                             # (U7) pin 14, VSSA -- the isolated secondary-
+                             # side floating negative bias-supply
+                             # reference. `neg_bias_zener.A ~ driver.VSSA`,
+                             # `neg_bias_zener.K ~ drive.vss` (= switch
+                             # node) (modules.ato:198-199): this establishes
+                             # VSSA = switch_node - Vz (5.1V), i.e. still
+                             # floating with the switch node, HV-side of
+                             # the isolation barrier. NOT the same net as
+                             # `hb.gate_hs.driver-p1` (UCC21550 pin 6, DT --
+                             # primary-side, GNDI-referenced, correctly
+                             # left off this list; see components.ato:43-60
+                             # for the full primary/secondary pin split).
+      - power_in.ntc-no      # ADDED 2026-07-27, same evidence doc. The
+                             # bypass relay's own NO contact, wired
+                             # directly to the NTC inrush limiter's p2 pin
+                             # and the bridge rectifier's anode (modules.ato:
+                             # 700-704: `cmc.W1_2 ~ ntc.p1`, `ntc.p2 ~
+                             # d1.A`, `cmc.W1_2 ~ bypass_relay.COM`,
+                             # `bypass_relay.NO ~ d1.A`) -- this is the
+                             # rectified AC-mains node feeding the DC-bus
+                             # doubler (`d1` feeds `v_bus_half`/
+                             # `r_bleed1`), unambiguously mains-referenced.
+                             # Also flagged UNVERIFIED by the sibling
+                             # coverage doc (Sec 7).
+      - tank-out             # ADDED 2026-07-27, same evidence doc, found
+                             # while re-verifying `scripts/check_domain_
+                             # partition.py` and `test_temper_board_
+                             # clearance_compliance` after the 4 additions
+                             # above (adding `hb.gate_hs.driver-p1-1`
+                             # newly classified C17 -- `hb.gate_hs.
+                             # boot_cap` -- as HV, which surfaced a
+                             # previously-invisible proximity finding
+                             # against R30/`tank.inductor_conn`, itself
+                             # unclassified). Traced: `main.ato:442`
+                             # `hb.switch_node ~ tank.in` -- ResonantTank's
+                             # input IS the same net as the already-
+                             # declared `SW_NODE`. `modules.ato:441-471`
+                             # (`ResonantTank`): `inductor_conn.p2 ~ out`,
+                             # `v_tank_peak: voltage = 400V`, tank
+                             # capacitors rated 1600V -- unambiguously the
+                             # HV resonant tank driving the induction
+                             # coil. Also flagged UNVERIFIED by the
+                             # sibling coverage doc (Sec 7, "Misc:
+                             # ... tank-out, tank.c_tank1-p2 ...").
+      - tank.c_tank1-p2      # ADDED 2026-07-27, same evidence doc. Same
+                             # ResonantTank module: `c_tank1.p2 ~
+                             # inductor_conn.p1`, `c_tank2.p2 ~
+                             # inductor_conn.p1` (modules.ato:469-470) --
+                             # this is the SAME net as `tank.inductor_
+                             # conn`'s own p1 pin (R30, the Litz-coil
+                             # interface connector), one node of the
+                             # 400V-rated resonant tank. Also flagged
+                             # UNVERIFIED by the sibling coverage doc
+                             # (Sec 7).
 
   # SELV control/logic domain: MCU, safety interlock, RTD sensing, and the
   # isolated 15V/3.3V rails they are claimed to run from. `gnd` itself is
@@ -143,6 +248,67 @@ domains:
                            # here specifically so the domain check exercises
                            # a *correctly fixed* crossing, not just the two
                            # still-open ones.
+      - safety.uvlo_logic-line  # UVL-02's LogicUVLOComparator fault line,
+                                # carried on TP3. Entirely SELV: the module
+                                # monitors power_3v3 against the TPS3700's
+                                # internal bandgap reference, and both its
+                                # power and sense divider are power.vcc /
+                                # power.gnd, i.e. power_3v3 -- no HV node is
+                                # read, driven or referenced anywhere in it
+                                # (SELV_ISOLATION_REDESIGN.md Sec 6 row 13).
+                                #
+                                # RESTORED 2026-07-27. b1e5f89c originally
+                                # classified this in _real_board_fixture's
+                                # hand-maintained _NET_DOMAINS dict; 70503e6d
+                                # then rewrote that fixture to derive
+                                # classification from THIS manifest -- which
+                                # had never carried the net -- silently
+                                # dropping it. TP3 became unclassified, so
+                                # the domain-clearance generator emitted zero
+                                # constraints for every pair touching it,
+                                # including TP3<->U7 (DC_BUS_RTN). The two
+                                # TestRealBoardTP3Coverage tests exist to
+                                # catch exactly that and did.
+      - discharge.k_dis1-coil1  # discharge.k_dis1's own declared "coil"
+                                # group (below), pin_labels already call
+                                # both coil pins "SELV coil drive" -- listed
+                                # here too so the domain check and the
+                                # isolator check (below) do not disagree
+                                # about the same two pins' domain. See
+                                # 2026-07-27-domain-classification-coverage.md.
+      - discharge.k_dis1-coil2  # this net is shared with discharge.k_dis2's
+                                # own coil2 pin too (the two relay coils are
+                                # wired in series through a shared node;
+                                # confirmed directly from the compiled
+                                # netlist -- there is no separate
+                                # "discharge.k_dis2-coil2" net record) --
+                                # covers BOTH isolators' coil2 pin.
+      - discharge.k_dis2-coil1  # same reasoning, discharge.k_dis2's own
+                                # "coil" group (below).
+      - power_in.bypass_relay-coil1  # same reasoning, power_in.bypass_relay's
+                                     # own declared "coil" group (below);
+                                     # pin_labels already call both pins
+                                     # "SELV coil drive".
+      - power_in.bypass_relay-coil2
+      - safety.ovp.comp-inp  # OVP-01 comparator sense node -- the far end
+                             # of the ovp01_comparator_divider protective-
+                             # impedance chain (below). NOT inferred from
+                             # naming: this manifest's own single-fault
+                             # analysis two sections below (search
+                             # "SINGLE-FAULT DIRECTION WHEN r_div_bot (R54)
+                             # OPENS") already establishes this node sits at
+                             # ~1.4V normal / clamped ~3.6V under the single
+                             # fault originally flagged as the hazard --
+                             # genuinely SELV-range in both analyzed
+                             # conditions, fed from the SELV-referenced
+                             # TLV3201 (VCC = power_3v3). The chain's own
+                             # interior nodes upstream of this one
+                             # (r_div_top1-p2, r_div_top2-p2, sitting at
+                             # ~57-114V per the same arithmetic) are NOT
+                             # added here -- they are genuinely mid-chain,
+                             # neither HV nor SELV by voltage, and remain
+                             # deliberately unclassified; see
+                             # 2026-07-27-domain-classification-coverage.md.
 
 # Components whose pins do NOT connect across the barrier they implement.
 # `instance_path` is the dotted atopile instance path as it appears after
@@ -304,11 +470,14 @@ isolators:
   #     reachable in this pass; treated as equivalent here on electrical
   #     first principles, not confirmed against clause text.
   #
-  # ARITHMETIC (comparator divider, r_div_top1-3 = 3x430k, r_div_bot = 10k,
-  # verified independently in this pass, not inherited without checking):
-  #   Normal:          170V / (3*430k + 10k) = 170V / 1.30M = 130.8uA
-  #   One top shorted: 170V / (2*430k + 10k) = 170V / 870k  = 195.4uA
-  #   Two top shorted: 170V / (430k + 10k)   = 170V / 440k  = 386.4uA
+  # ARITHMETIC (comparator divider, r_div_top1-3 = 3x430k unchanged,
+  # r_div_bot = 16.9k as of the 2026-07-27 REF2025 re-reference (was 10k;
+  # docs/evidence/2026-07-27-ovp01-ref2025-implementation.md) -- re-derived
+  # here, not inherited without checking; the ~0.5% change in total series
+  # resistance does not materially move any of the figures below):
+  #   Normal:          170V / (3*430k + 16.9k) = 170V / 1.307M = 130.1uA
+  #   One top shorted: 170V / (2*430k + 16.9k) = 170V / 876.9k = 193.9uA
+  #   Two top shorted: 170V / (430k + 16.9k)   = 170V / 446.9k = 380.4uA
   #   Applicable touch-current limit: IEC 60335-2-6, stationary heating
   #   appliance, 0.75mA/kW capped at 5mA -> 0.75 * 1.8 = 1.35mA @ 1.8kW.
   #   All three currents are 3.5x-10x under that limit, even with TWO of
@@ -323,9 +492,9 @@ isolators:
   # datasheet in this pass: rated/working voltage 200V, overload 400V,
   # dielectric withstand 500V -- not assumed from the part merely appearing
   # in the BOM):
-  #   Normal:        130.8uA * 430k = 56.2V per resistor  (28% of 200V rated)
-  #   One shorted:   195.4uA * 430k = 84.0V per resistor  (42% of 200V rated)
-  #   Two shorted:   386.4uA * 430k = 166.2V per resistor (83% of 200V rated)
+  #   Normal:        130.1uA * 430k = 55.9V per resistor  (28% of 200V rated)
+  #   One shorted:   193.9uA * 430k = 83.4V per resistor  (42% of 200V rated)
+  #   Two shorted:   380.4uA * 430k = 163.6V per resistor (82% of 200V rated)
   #   Comfortably rated even in the two-shorted case. `.voltage_rating = 200V`
   #   set explicitly on r_div_top1-3 in elec/src/modules.ato (this same
   #   change, previously unset) to match the verified datasheet figure.
@@ -347,15 +516,23 @@ isolators:
   #   specific safety-resistor part number was sourced or substituted here.
   #
   # SINGLE-FAULT DIRECTION WHEN r_div_bot (R54) OPENS (the failure originally
-  # flagged as the hazard -- confirmed fail-safe in this pass, not assumed):
+  # flagged as the hazard -- confirmed fail-safe in this pass, not assumed).
+  # RE-VERIFIED 2026-07-27 for the REF2025 re-reference (docs/evidence/
+  # 2026-07-27-ovp01-ref2025-implementation.md): the comp.INN reference
+  # figure below is now REF2025's fixed 2.5V (was a divider off power_3v3,
+  # last correct value 1.5138V for the 2026-07-27 half-bus retune's
+  # 11.8k/10k divider -- this comment had drifted to a stale 2.973V figure
+  # from an even earlier, since-superseded fail-open 1.1k divider, and is
+  # corrected here rather than left to compound):
   #   With r_div_bot open, the sense node (comp.INP) has no path to `gnd`
   #   except through the TLV3201's own input ESD structure (per TI's
   #   datasheet: back-to-back diodes clamping ~300mV beyond VCC/GND, rated
   #   for up to 10mA continuous). comp.VCC is `power_3v3` (3.3V), so the
   #   clamp point is ~3.6V. Current through the divider is essentially
-  #   unchanged (170V / ~1.29M ~ 129uA, well under the ESD structure's 10mA
+  #   unchanged (170V / ~1.31M ~ 130uA, well under the ESD structure's 10mA
   #   rating -- it survives). Clamped at ~3.6V, comp.INP sits ABOVE comp.INN
-  #   (2.973V reference), so comp.OUT goes HIGH -- fault.line asserts --
+  #   (2.5V reference, REF2025.VREF -- an even larger margin than the
+  #   divider it replaced), so comp.OUT goes HIGH -- fault.line asserts --
   #   OVP-01 trips and latches (via fault_or -> latch, SafetyInterlock).
   #   CONFIRMED fail-safe: r_div_bot opening trips a nuisance OVP fault
   #   rather than silently disabling overvoltage detection.
@@ -445,7 +622,7 @@ isolators:
 # ---------------------------------------------------------------------------
 protective_impedance_chains:
   - name: ovp01_comparator_divider
-    component: "OVP-01 comparator sense divider: 3 x Yageo RC1206FR-07430KL (430k 1% 1206) in series + RC0603FR-0710KL (10k 1% 0603)"
+    component: "OVP-01 comparator sense divider: 3 x Yageo RC1206FR-07430KL (430k 1% 1206) in series + RT0603BRD0716K9L (16.9k 0.1% 0603, was RC0603FR-0710KL 10k 1% until the 2026-07-27 REF2025 re-reference -- docs/evidence/2026-07-27-ovp01-ref2025-implementation.md). r_div_bot is NOT itself part of this chain (only r_div_top1-3 are, min_length below); listed here for context only."
     chain:
       - safety.ovp.r_div_top1
       - safety.ovp.r_div_top2

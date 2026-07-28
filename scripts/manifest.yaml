@@ -1,8 +1,8 @@
 _meta:
-  last_audit_date: '2026-06-24'
-  total_scripts: 64
+  last_audit_date: '2026-07-28'
+  total_scripts: 72
   counts:
-    keep: 63
+    keep: 71
     ticket: 1
   ticket_scripts_deleted: 40
 scripts:
@@ -98,27 +98,6 @@ scripts:
   - re
   - rich.console
   - sys
-- path: check_perf_regression.py
-  purpose: Performance regression check (called by Makefile)
-  owner: unassigned
-  last_run: '2026-06-22'
-  category: keep
-  disposition: shell-invoked
-  imports:
-  - argparse
-  - jax
-  - json
-  - os
-  - pathlib
-  - rich.console
-  - sys
-  - temper_placer.io.config_loader
-  - temper_placer.io.kicad_parser
-  - temper_placer.losses.base
-  - temper_placer.losses.boundary
-  - temper_placer.losses.overlap
-  - temper_placer.losses.regularization
-  - temper_placer.losses.wirelength
 - path: check_regression.py
   purpose: Functional regression check (called by Makefile)
   owner: unassigned
@@ -235,6 +214,23 @@ scripts:
   - re
   - subprocess
   - sys
+- path: mpn_fabrication_gate.py
+  purpose: 'Fabricated-MPN CI gate: fails closed on non-E-series resistor/capacitor values and MPN/declared-value
+    disagreement in elec/src/*.ato'
+  owner: pipeline
+  last_run: '2026-07-27'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - dataclasses
+  - math
+  - pathlib
+  - re
+  - sys
+  - yaml
 - path: internal_route.py
   purpose: Internal route command (Makefile + shell-invoked)
   owner: unassigned
@@ -593,8 +589,8 @@ scripts:
   - sys
   - yaml
 - path: pytest_guard.py
-  purpose: Run pytest and fail if fewer than --min-tests actually executed; catches a
-    suite silently collapsing to zero (missing path, mass skip, bad deselect)
+  purpose: Run pytest and fail if fewer than --min-tests actually executed; catches a suite silently collapsing
+    to zero (missing path, mass skip, bad deselect)
   owner: pipeline
   last_run: '2026-07-27'
   category: keep
@@ -879,6 +875,63 @@ scripts:
   - rich.console
   - sys
   - yaml
+- path: check_undeclared_imports.py
+  purpose: 'CI gate: fail when a module-level import in scripts/ or a Python test tree is not resolvable
+    in the synced environment (undeclared third-party dependency) -- catches the jinja2/sympy class of
+    incident (docs/evidence/2026-07-27-undeclared-import-gate.md)'
+  owner: bennet
+  last_run: '2026-07-27'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - ast
+  - dataclasses
+  - fnmatch
+  - importlib.util
+  - pathlib
+  - sys
+- path: check_pll_range_consistency.py
+  purpose: 'CI gate: fail when firmware/components/control/pll_control.h''s PLL_MIN/MAX/DEFAULT_FREQ_HZ
+    and elec/src/main.ato''s declared f_switching/f_pll_tracking_min/max disagree -- main.ato asserted
+    a 20-100kHz tracking range 5x wider than the firmware''s real 30-50kHz clamp, and PLL_DEFAULT_FREQ_HZ
+    (35000) started the bridge at the frequency an independent ZVS analysis found loses 100.7% of ZVS
+    margin, while main.ato had already moved to 47kHz (docs/evidence/2026-07-28-pll-defaults-and-range-gate.md)'
+  owner: bennet
+  last_run: '2026-07-28'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - dataclasses
+  - pathlib
+  - re
+  - sys
+- path: check_net_classification.py
+  purpose: 'CI gate: fail when safety-relevant net classification (HV/SELV) is decided by plain substring
+    match against a hand-maintained keyword list, in parallel to elec/domain_manifest.yaml -- the defect
+    class confirmed three times in this repo (creepage_check.py false positives, clearance_check.py false
+    negatives, clearance_engine.py bare HV/AC substrings) (docs/evidence/2026-07-27-net-classification-gate.md)'
+  owner: bennet
+  last_run: '2026-07-27'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - ast
+  - dataclasses
+  - fnmatch
+  - pathlib
+  - sys
 - path: worktree_report.py
   purpose: 'Worktree hygiene report: inventory each git worktree with HEAD, age, distance behind main,
     and unique unmerged commits (read-only, prunes nothing)'
@@ -897,3 +950,79 @@ scripts:
   - rich.table
   - subprocess
   - sys
+- path: resync_pcb_netlist.py
+  purpose: Resync pcb/temper.kicad_pcb nets/designators/footprints against elec/build/default.net without
+    moving any existing footprint
+  owner: bennet
+  last_run: '2026-07-27'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - argparse
+  - copy
+  - dataclasses
+  - gen_pcb_skeleton
+  - json
+  - kiutils.board
+  - kiutils.footprint
+  - kiutils.items.common
+  - pathlib
+  - sys
+- path: check_evidence_provenance.py
+  purpose: 'Fail-closed provenance gate for docs/evidence/: every evidence file must declare how its numbers
+    were produced'
+  owner: bennet
+  last_run: '2026-07-27'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.gate_allowlist
+  - _lib.repo
+  - argparse
+  - json
+  - pathlib
+  - re
+  - rich.console
+  - sys
+- path: check_stale_extensions.py
+  purpose: 'CI gate: fail-closed freshness check for every pyo3/maturin Rust extension crate under packages/
+    -- an installed .so older than its own crate''s source (or a crate whose extension is missing entirely)
+    is reported; zero crates discovered is always a gate error, never a vacuous pass (2026-07-27 incident:
+    missing .cargo/config.toml broke every `maturin develop` on macOS, so temper_io_types.cpython-312-darwin.so
+    stayed frozen while lib.rs gained ConfigBoardMismatchError, silently failing two test modules'' collection;
+    see commit 02e907b9 and docs/evidence/2026-07-27-stale-extension-gate.md)'
+  owner: bennet
+  last_run: '2026-07-27'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - dataclasses
+  - datetime
+  - importlib.util
+  - os
+  - pathlib
+  - sys
+  - tomllib
+- path: check_copper_net_consistency.py
+  purpose: 'Board-copper / netlist consistency gate: catch corrupted net ordinals.'
+  owner: bennet
+  last_run: '2026-07-28'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - dataclasses
+  - json
+  - pathlib
+  - re
+  - sys
+  - typing

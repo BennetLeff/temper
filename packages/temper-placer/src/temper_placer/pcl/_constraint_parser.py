@@ -65,6 +65,16 @@ def _is_resolved(constraint: BaseConstraint, context: CompilationContext) -> boo
                 constraint.outer.isupper()
                 or _resolve_to_indices(constraint.outer, context.netlist, context.board)
             )
+            # EnclosingConstraint.__init__ does not enforce a minimum length
+            # on `inner` (unlike AlignedConstraint, which raises ValueError
+            # below 2), and the "enclosing" parse path in this module passes
+            # data["inner"] straight through with no length check either --
+            # a PCL author can write `inner: []` and reach here. Without this
+            # guard, all() over an empty `inner` is vacuously True, so a
+            # zero-component enclosing constraint would report "resolved"
+            # and proceed to compile instead of being treated as malformed.
+            if not constraint.inner:
+                return False
             inner_ok = all(
                 _resolve_to_indices(ref, context.netlist, context.board) or ref.isupper()
                 for ref in constraint.inner
@@ -76,6 +86,16 @@ def _is_resolved(constraint: BaseConstraint, context: CompilationContext) -> boo
                 or constraint.component.isupper()
             )
         elif isinstance(constraint, (AlignedConstraint, OnSideConstraint)):
+            # AlignedConstraint.__init__ raises ValueError below 2 components,
+            # so `components` can never be empty for that half of this
+            # isinstance check -- but OnSideConstraint enforces no minimum
+            # (see constraints.py OnSideConstraint.__init__) and the
+            # "on_side" parse path passes data["components"] through
+            # unchecked, so `components: []` is a reachable PCL input for
+            # OnSideConstraint specifically. Guard for the branch as a
+            # whole rather than special-casing by type.
+            if not constraint.components:
+                return False
             return all(
                 _resolve_to_indices(ref, context.netlist, context.board) or ref.isupper()
                 for ref in constraint.components

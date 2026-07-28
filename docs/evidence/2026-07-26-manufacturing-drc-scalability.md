@@ -1,5 +1,7 @@
 # Manufacturing DRC does not scale — `verify_clearance` is O(n²) pure Python
 
+**Provenance: commit=UNKNOWN dirty=UNKNOWN** -- backfilled prior to the provenance gate's introduction (2026-07-26); no self-declared commit exists in this file's own content and none was fabricated. See .evidence-provenance-allowlist.
+
 **Date:** 2026-07-26
 **Severity:** high — makes `route_pcb()` unusable when the stage is enabled
 **Status:** stage default reverted to off, now switchable and documented

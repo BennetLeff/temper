@@ -22,9 +22,14 @@
     "tree_mode_u2_u7": {
       "description": "Tree executor (U2 resilient + U7 writer wired), default-off in code, measured with flag override",
       "unconnected_items": "~54 nets fail with 'no legal tree edge'",
-      "failing_nets_classification": "power (PWR_RTN, +3V3, +15V, vcc), ground (DC_BUS_RTN), HV (+340V_BUS), and near-net interconnects — all congestion-limited, not single-edge-failure",
-      "u2_resilience_impact": "No measurable improvement — failure mode is grid congestion, not solitary-edge failure"
+      "failing_nets_classification": "power (PWR_RTN, +3V3, +15V, vcc), ground (DC_BUS_RTN), HV (+340V_BUS), and near-net interconnects \u2014 all congestion-limited, not single-edge-failure",
+      "u2_resilience_impact": "No measurable improvement \u2014 failure mode is grid congestion, not solitary-edge failure"
     }
   },
-  "verdict": "U2 resilience fix cannot close the gap alone. 54 nets need the classification called for in R8. Congestion-limited nets need zone/pour or re-planning; power/ground/HV nets need the plane-connected path that U4's stitch deletion removed."
+  "verdict": "U2 resilience fix cannot close the gap alone. 54 nets need the classification called for in R8. Congestion-limited nets need zone/pour or re-planning; power/ground/HV nets need the plane-connected path that U4's stitch deletion removed.",
+  "provenance": {
+    "commit": "UNKNOWN",
+    "dirty": "UNKNOWN",
+    "note": "backfilled prior to the provenance gate's introduction (2026-07-26); no self-declared commit exists in this file's own content and none was fabricated. See .evidence-provenance-allowlist."
+  }
 }

@@ -7,7 +7,7 @@ BUILD_DIR = $(ELEC_DIR)/build
 BOM_FILE = $(ELEC_DIR)/build/default.csv
 BOM_PREV = $(ELEC_DIR)/build/default.csv.prev
 
-.PHONY: all build netlist clean drc route gerbers help diff visualize regression perf-regression onboard clean-onboard onboard-status
+.PHONY: all build netlist clean drc route gerbers help diff visualize test test-fast onboard clean-onboard onboard-status
 
 # Show help for workflow commands
 help:
@@ -20,6 +20,8 @@ help:
 	@echo "  make visualize- Show graphical schematic view"
 	@echo "  make route    - Run the autorouter"
 	@echo "  make drc      - Run KiCad DRC validation"
+	@echo "  make test     - Run the full test suite"
+	@echo "  make test-fast- Run tests excluding 'slow' markers (inner loop)"
 	@echo "  make clean    - Remove build artifacts"
 	@echo "  make onboard  - Guided quick-start achievement run"
 	@echo "  make clean-onboard- Reset onboard checkpoints"
@@ -69,6 +71,25 @@ drc:
 	@echo "Running KiCad DRC..."
 	kicad-cli pcb drc --exit-code-violations $(ROUTED_PCB)
 
+# Fast inner-loop test run: skips the 163 tests marked `slow` (of 6389).
+#
+# Deliberately a SEPARATE target rather than `-m "not slow"` in pyproject's
+# addopts. CI invokes plain `uv run pytest <path>` and would inherit a global
+# marker filter, silently shrinking what it checks -- and the slow set includes
+# test_astar_3d_production_scale_spike, whose production-board failures were
+# being actively investigated when this was added. A default that hides real
+# failures is the gate-subset-blindness pattern documented in
+# docs/solutions/best-practices/; opting IN to speed is safe, opting out of
+# coverage by default is not.
+#
+# `make test` remains the full run. Use `make test-fast` while iterating.
+test:
+	uv run --no-sync python -m pytest
+
+test-fast:
+	@echo "Running tests (excluding 'slow' markers -- use 'make test' for everything)..."
+	uv run --no-sync python -m pytest -m "not slow"
+
 gerbers: build
 	@echo "Exporting Gerbers..."
 	# kicad-cli pcb export gerber ...
@@ -77,19 +98,17 @@ clean:
 	@echo "Cleaning build artifacts..."
 	rm -rf $(BUILD_DIR)
 
-REGRESSION_BOARD ?=
-
-regression:
-	@echo "Running optimization quality regression suite (corpus runner)..."
-	@if [ -n "$(REGRESSION_BOARD)" ]; then \
-		uv run python -m temper_placer.regression.cli run-corpus --board $(REGRESSION_BOARD) --json; \
-	else \
-		uv run python -m temper_placer.regression.cli run-corpus --json; \
-	fi
-
-perf-regression:
-	@echo "Running optimization performance regression suite..."
-	uv run python3 scripts/check_perf_regression.py
+# RETIRED 2026-07-27: `regression` and `perf-regression` both drove the
+# JAX/benders_loop placement path, which no longer exists.
+#   - run-corpus reaches corpus_runner.py:416-419, which raises
+#     NotImplementedError("JAX optimizer removed."), so every board failed at
+#     setup regardless of input.
+#   - check_perf_regression.py imported `jax` and `temper_placer.losses.*`;
+#     both are gone from the tree, so it died on ModuleNotFoundError before
+#     doing any work. The script is deleted.
+# Both were masked in CI as runner flakiness rather than a removed capability.
+# Restoring quality/perf regression coverage needs a placement strategy that
+# still exists; these targets could not provide it.
 
 # Onboarding
 

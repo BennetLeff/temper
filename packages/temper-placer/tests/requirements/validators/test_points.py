@@ -10,8 +10,13 @@ from enum import Enum
 from typing import Any
 
 
-class TestPointType(Enum):
-    """Types of test points in Temper PCB."""
+class TestPointType(str, Enum):
+    """Types of test points in Temper PCB.
+
+    Mixes in ``str`` so ``TestPointType.GROUND == "ground"`` is True. A bare
+    ``Enum`` compares False against its own value, which silently breaks any
+    caller or test that compares against the literal.
+    """
 
     POWER_RAIL = "power_rail"
     GROUND = "ground"
@@ -19,8 +24,17 @@ class TestPointType(Enum):
     PROGRAMMING_HEADER = "programming_header"
 
 
-class TestPointPadSize(Enum):
-    """Standard test point pad sizes."""
+class TestPointPadSize(float, Enum):
+    """Standard test point pad sizes.
+
+    Mixes in ``float`` so ``TestPointPadSize.MEDIUM_1_5MM == 1.5`` is True.
+
+    Fixed 2026-07-27: this was a bare ``Enum``, so comparisons against the
+    numeric literal were always False and the pad-size checks could not
+    actually pass. Identical defect to ``VoltageDomain``/``InsulationType`` in
+    ``clearance.py``, fixed earlier the same day — a bare ``Enum`` whose values
+    are meant to *be* the quantity, not merely label it.
+    """
 
     SMALL_1MM = 1.0  # For gate drives, enable, fault signals
     MEDIUM_1_5MM = 1.5  # For power rails, control ground

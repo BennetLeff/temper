@@ -214,13 +214,20 @@ def orientation_violation_placement():
 
 @pytest.fixture
 def esp32_placement():
-    """Placement with ESP32 module for antenna keepout testing."""
+    """Placement with ESP32 module for antenna keepout testing.
+
+    The GND pour sits under the module's non-antenna (southern) end only --
+    the antenna occupies a band at the module's north end (see
+    ESP32_ANTENNA_OFFSET_MM / docs/evidence/2026-07-27-antenna-keepout-fix.md),
+    so a pour spanning the *entire* module footprint would necessarily cover
+    the antenna too and could never legitimately pass this check.
+    """
     return {
         "components": [
             {"ref": "ESP32", "footprint": "ESP32-S3-WROOM-1", "position": (50, 50), "rotation": 0},
         ],
         "copper_pours": [
-            {"name": "GND", "type": "pour", "position": (50, 50), "size": (40, 30)},
+            {"name": "GND", "type": "pour", "position": (50, 43), "size": (16, 14)},
         ],
     }
 
@@ -635,18 +642,27 @@ class TestFiducialPlacement:
 class TestESP32AntennaKeepout:
     """Tests for ESP32-S3-WROOM antenna keepout requirements."""
 
-    def test_adequate_antenna_keepout_passes(self, esp32_placement):
-        """Placement with adequate antenna keepout should pass."""
+    def test_adequate_antenna_keepout_passes(self):
+        """Placement with adequate antenna keepout should pass.
+
+        The GND pour is sized and positioned to cover only the module's
+        non-antenna (southern) end -- a pour spanning the module's full
+        footprint would necessarily cover the antenna band too (the antenna
+        sits within/at the edge of the module's own 18 x 25.5mm envelope;
+        see docs/evidence/2026-07-27-antenna-keepout-fix.md), so it could
+        never legitimately represent "ground pour under module except
+        antenna area."
+        """
         board_dims = (100, 100)
         esp32_pos = (50, 50)
-        copper_pours = [{"name": "GND", "type": "pour", "position": (50, 50), "size": (40, 30)}]
+        copper_pours = [{"name": "GND", "type": "pour", "position": (50, 43), "size": (16, 14)}]
 
         result = check_antenna_keepout(esp32_pos, copper_pours, board_dims)
 
         assert result.passed
         assert result.error_count == 0
 
-    def test_copper_in_antenna_keepout_fails(self, esp32_antenna_violation):
+    def test_copper_in_antenna_keepout_fails(self):
         """Placement with copper in antenna keepout should fail."""
         board_dims = (100, 100)
         esp32_pos = (10, 10)
@@ -683,7 +699,7 @@ class TestESP32AntennaKeepout:
         # Should pass if no copper in keepout zone
         assert result.passed or not result.passed  # Depends on implementation
 
-    def test_antenna_keepout_violation_details(self, esp32_antenna_violation):
+    def test_antenna_keepout_violation_details(self):
         """Test that antenna keepout violations include required details."""
         board_dims = (100, 100)
         esp32_pos = (10, 10)
@@ -697,6 +713,26 @@ class TestESP32AntennaKeepout:
             assert violation.message is not None
             assert violation.violation_type == "antenna"
             assert violation.component_ref is not None
+
+    def test_pour_position_is_a_centre_not_a_corner(self):
+        """Pins the corner/centre convention for copper_pours' ``position``.
+
+        ``position`` is the pour's CENTRE (matching keepout_zone's own
+        convention and the ESP32 component's position) -- not its
+        corner-origin. This pour is constructed so the two interpretations
+        disagree: read as a centre, it sits clear of the keepout zone and
+        should pass; read as a corner (extending only in +x/+y from
+        ``position``), it pokes into the keepout zone and would wrongly
+        fail. If this regresses to corner-origin, this test starts failing.
+        """
+        board_dims = (100, 100)
+        esp32_pos = (50, 50)  # keepout_zone centred at (50, 59.75), a 15x15 box
+        copper_pours = [{"name": "GND", "type": "pour", "position": (50, 45), "size": (10, 10)}]
+
+        result = check_antenna_keepout(esp32_pos, copper_pours, board_dims)
+
+        assert result.passed
+        assert result.error_count == 0
 
 
 # =============================================================================

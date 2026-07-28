@@ -837,30 +837,54 @@ module BusDischarge:
     """Fail-safe active bus discharge (plan 2026-07-16-001, Option A).
 
     One relay-switched resistor string across each 170V half-bus:
-    NC contact + 2x 4.7k/5W wirewound in series (9.4k per string).
-    Both relay coils are held energized from the 15V SELV rail whenever
-    the unit runs, holding the NC contacts OPEN. ANY loss of power
-    (unplug, fuse, aux-supply fault, MCU dead) drops the coils and the
-    NC contacts close -> discharge engages with no MCU involvement.
+    NC contact + 2x 3.9k/5W wirewound in series (7.8k per string).
+    RESIZED 2026-07-27 from 2x 4.7k (9.4k per string) --
+    docs/evidence/2026-07-27-busdischarge-tolerance-retune.md. Both relay
+    coils are held energized from the 15V SELV rail whenever the unit
+    runs, holding the NC contacts OPEN. ANY loss of power (unplug, fuse,
+    aux-supply fault, MCU dead) drops the coils and the NC contacts close
+    -> discharge engages with no MCU involvement.
 
-    Sizing (per half-bus): tau = 9.4k x 3600uF = 33.8s; 170V -> <34V in
-    1.61 tau ~= 54s (<60s target). Peak power at contact closure:
-    170^2/9.4k = 3.1W per string, ~1.5W per 5W resistor -- the string
-    survives indefinitely even with a stuck-closed contact across an
-    energized bus (no single-point fire risk).
+    Sizing (per half-bus), per docs/hardware/BUS_CAPACITANCE_DERIVATION.md
+    SS5.3 and re-derived independently here with the resistor's OWN
+    tolerance included (the derivation doc's own worst case did not):
+    the bus capacitor (EKMQ251VSN182MA50S, 3600uF/half nominal) is
+    +/-20% tolerance, VERIFIED against its DigiKey product page (see the
+    derivation doc). At NOMINAL R and C: tau = 7.8k x 3600uF = 28.1s,
+    170V -> <34V in 1.61 tau ~= 45.2s. At the CAPACITOR's own +20%
+    tolerance alone (4320uF, R held at nominal): tau = 33.7s, t = 54.2s
+    (<60s target, restoring the ~10% margin the 9.4k design had nominally
+    and did not have at tolerance -- see the derivation doc SS5.1 for why
+    9.4k fails at 65.4s under this same test). At BOTH tolerances stacked
+    worst-case (resistor's own +5% AND capacitor's +20%, since a real
+    board can see both at once): R=8.19k, C=4320uF, tau=35.4s,
+    t=56.9s -- still <60s, ~3s of real margin. (2x 4.3k/8.6k, the
+    capacitor-tolerance-only answer, was evaluated first and REJECTED:
+    stacked with its own +5% resistor tolerance it gives t=62.8s, failing
+    the same way 9.4k did -- the point of this exercise. 3.9k is the
+    nearest standard value below that clears both.)
 
-    Contact stress: break at ~18mA / up to 170VDC, purely resistive.
-    VERIFIED 2026-07-16 (Omron G5LE datasheet K100-E1-08, ratings table
-    + max switching capacity curve): max switching voltage is 125VDC
-    (30VDC where UL/CSA is applied) and the DC load curve ends at 125V
-    -- a 170VDC break is out-of-catalog at ANY current. 18mA is far
-    below the ~0.4A minimum arc-sustain current of Ag contacts, but to
-    stay in-spec each NC contact gets an RC snubber (100R 2W
-    pulse-withstanding + 470nF/630V PP film, both already-on-BOM
-    families): opening dV/dt is limited to I/C ~= 38V/ms so the gap is
-    fully open long before it sees bus voltage; closure discharges
-    6.8mJ (1.7A pk, tau 47us) into the 100R, trivial for a
-    pulse-withstanding 2512 and well under the 10A contact rating.
+    Peak power at contact closure (worst case, nominal R since dissipation
+    should not be UNDER-estimated by assuming tolerance in resistor's
+    favour): 170^2/7.8k = 3.7W per string, 1.85W per 5W resistor (37% of
+    rating, vs. 1.54W/30.8% at the prior 9.4k) -- comfortable margin
+    retained on a part rated for continuous 5W, and this IS the peak (bus
+    voltage only falls from here as the cap discharges).
+
+    Contact stress: break at ~21.8mA (up from ~18mA at 9.4k) / up to
+    170VDC, purely resistive. VERIFIED 2026-07-16 (Omron G5LE datasheet
+    K100-E1-08, ratings table + max switching capacity curve): max
+    switching voltage is 125VDC (30VDC where UL/CSA is applied) and the DC
+    load curve ends at 125V -- a 170VDC break is out-of-catalog at ANY
+    current, unchanged conclusion at the new current. 21.8mA remains far
+    below the ~0.4A minimum arc-sustain current of Ag contacts (5.4% of
+    it, same order of magnitude as before), so each NC contact keeps its
+    RC snubber (100R 2W pulse-withstanding + 470nF/630V PP film, both
+    already-on-BOM families): opening dV/dt is limited to I/C ~= 38V/ms so
+    the gap is fully open long before it sees bus voltage -- this and the
+    6.8mJ/1.7A-peak/47us closure-discharge figures depend only on the
+    snubber RC and bus voltage, not on the discharge string resistance, so
+    they are unchanged by this resize.
 
     Coil budget: 2 x 33mA from the 15V rail, only while running. Each
     coil gets its own 100R dropper (15V -> ~11.7V at the 360R coil,
@@ -894,38 +918,40 @@ module BusDischarge:
     k_dis2.mpn = "G5LE-1 DC12"
     k_dis2.footprint = "Relay_THT:Relay_SPDT_Omron-G5LE-1"
 
-    # Discharge resistors: Vishay AC05 cemented wirewound, 4.7k 5% 5W,
-    # axial ~18mm body, AEC-Q200, all-welded (plan doc, verified
-    # 2026-07-16 against Vishay AC05 series / distributor listings).
-    # voltage_rating is the series' max continuous element voltage
-    # sqrt(P x R) = sqrt(5W x 4.7k) ~= 153V; each resistor sees at most
-    # half a half-bus (85V) in the stuck-contact steady state.
+    # Discharge resistors: Vishay AC05 cemented wirewound, 3.9k 5% 5W,
+    # axial ~18mm body, AEC-Q200, all-welded -- RESIZED 2026-07-27 from
+    # 4.7k (docs/evidence/2026-07-27-busdischarge-tolerance-retune.md;
+    # MPN verified 2026-07-27 via DigiKey product search, exact match,
+    # active/orderable, same Vishay AC05 family/footprint as the prior
+    # 4.7k part). voltage_rating is the series' max continuous element
+    # voltage sqrt(P x R) = sqrt(5W x 3.9k) ~= 139V; each resistor sees at
+    # most half a half-bus (85V) in the stuck-contact steady state.
     r_dis1a = new Resistor
-    r_dis1a.value = 4.7kohm +/- 5%
+    r_dis1a.value = 3.9kohm +/- 5%
     r_dis1a.power_rating = 5W
-    r_dis1a.voltage_rating = 153V
-    r_dis1a.mpn = "AC05000004701JAC00"
+    r_dis1a.voltage_rating = 139V
+    r_dis1a.mpn = "AC05000003901JAC00"
     r_dis1a.footprint = "Resistor_THT:R_Axial_DIN0918_L18.0mm_D9.0mm_P22.86mm_Horizontal"
 
     r_dis1b = new Resistor
-    r_dis1b.value = 4.7kohm +/- 5%
+    r_dis1b.value = 3.9kohm +/- 5%
     r_dis1b.power_rating = 5W
-    r_dis1b.voltage_rating = 153V
-    r_dis1b.mpn = "AC05000004701JAC00"
+    r_dis1b.voltage_rating = 139V
+    r_dis1b.mpn = "AC05000003901JAC00"
     r_dis1b.footprint = "Resistor_THT:R_Axial_DIN0918_L18.0mm_D9.0mm_P22.86mm_Horizontal"
 
     r_dis2a = new Resistor
-    r_dis2a.value = 4.7kohm +/- 5%
+    r_dis2a.value = 3.9kohm +/- 5%
     r_dis2a.power_rating = 5W
-    r_dis2a.voltage_rating = 153V
-    r_dis2a.mpn = "AC05000004701JAC00"
+    r_dis2a.voltage_rating = 139V
+    r_dis2a.mpn = "AC05000003901JAC00"
     r_dis2a.footprint = "Resistor_THT:R_Axial_DIN0918_L18.0mm_D9.0mm_P22.86mm_Horizontal"
 
     r_dis2b = new Resistor
-    r_dis2b.value = 4.7kohm +/- 5%
+    r_dis2b.value = 3.9kohm +/- 5%
     r_dis2b.power_rating = 5W
-    r_dis2b.voltage_rating = 153V
-    r_dis2b.mpn = "AC05000004701JAC00"
+    r_dis2b.voltage_rating = 139V
+    r_dis2b.mpn = "AC05000003901JAC00"
     r_dis2b.footprint = "Resistor_THT:R_Axial_DIN0918_L18.0mm_D9.0mm_P22.86mm_Horizontal"
 
     # Coil droppers: 15V rail -> 12V coil, one per coil so a single relay
@@ -1015,8 +1041,13 @@ module BusDischarge:
     # --- Sizing assertions ---
     v_bus_half: voltage = 170V
     # Steady dissipation per resistor with a stuck-closed contact across
-    # an energized half-bus: (170V)^2 / 9.4k / 2 ~= 1.54W
-    p_dis_resistor: power = v_bus_half * v_bus_half / 9.4kohm / 2
+    # an energized half-bus: (170V)^2 / 7.8k / 2 ~= 1.85W (was 9.4k/1.54W
+    # before the 2026-07-27 resize -- docs/evidence/
+    # 2026-07-27-busdischarge-tolerance-retune.md). Written against
+    # r_dis1a.value + r_dis1b.value (not a hardcoded resistance) so this
+    # assertion cannot go stale the way OVPComparator's trip-point assert
+    # did across a resistor-value change.
+    p_dis_resistor: power = v_bus_half * v_bus_half / (r_dis1a.value + r_dis1b.value) / 2
 
     # Power: 50% derating even in the abnormal continuous case
     assert r_dis1a.power_rating >= p_dis_resistor * 2
@@ -1037,13 +1068,13 @@ module BusDischarge:
     assert r_dis2b.voltage_rating >= v_bus_half * 0.625
 
     # --- Connections ---
-    # Half-bus 1 string: hv_plus -> 4.7k -> 4.7k -> NC contact -> mid
+    # Half-bus 1 string: hv_plus -> 3.9k -> 3.9k -> NC contact -> mid
     hv_plus ~ r_dis1a.p1
     r_dis1a.p2 ~ r_dis1b.p1
     r_dis1b.p2 ~ k_dis1.NC
     k_dis1.COM ~ mid
 
-    # Half-bus 2 string: mid -> 4.7k -> 4.7k -> NC contact -> hv_minus
+    # Half-bus 2 string: mid -> 3.9k -> 3.9k -> NC contact -> hv_minus
     mid ~ r_dis2a.p1
     r_dis2a.p2 ~ r_dis2b.p1
     r_dis2b.p2 ~ k_dis2.NC
@@ -1334,9 +1365,18 @@ module CurrentSensing:
     ct = new CST3015_100E
     
     r_burden = new Resistor
-    # 1:100 ratio: 4.99R puts the OCP trip at 2.5V/4.99R*100 = 50.1A, centred
-    # in the OCP-01 45-55A window. Worst case over +/-1% on the burden and both
-    # OCPComparator reference resistors is 49.4-50.9A.
+    # 1:100 ratio: 4.99R puts the OCP trip at 2.49V(comp ref)/4.99R*100 =
+    # 49.9A, centred in the OCP-01 45-55A window. RE-DERIVED 2026-07-27
+    # (docs/evidence/2026-07-27-ocp01-uvl02-part-resolution.md) alongside
+    # OCPComparator.r_ref_top: the reference divider's top leg moved from a
+    # fabricated 3.2kohm ("RC0603FR-073K2L", confirmed zero DigiKey hits, not
+    # an E96 member) to the real E96 neighbour 3.24kohm
+    # ("RC0603FR-073K24L", DigiKey-confirmed). Worst case over +/-1% initial
+    # tolerance AND +/-100ppm/C tempco (DT=60C, Yageo RC-series, matching
+    # docs/evidence/2026-07-27-threshold-sensitivity-tempco-budget.md's
+    # convention) on the burden and both OCPComparator reference resistors is
+    # 48.77-51.16A; see simulation/harness/run_ocp01_sim.py's
+    # worst_case_corners output for the full sweep.
     #
     # Was 6.65R (37.6A), 7.4A below the OCP-01 minimum. Raising the reference
     # instead is impossible: 50A across 6.65R/100 needs 3.325V from a 3.3V rail.
@@ -1359,10 +1399,15 @@ module CurrentSensing:
     r_burden.mpn = "RC1206FR-074R99L"
     r_burden.footprint = "Resistor_SMD:R_1206_3216Metric"
 
-    # Assert the burden voltage at the OCP trip lands on the comparator
-    # reference (3.3 * 10k/13.2k = 2.500V). The original assertion asserted
-    # 1.5-1.8V at 250mA -- a 25A design point inconsistent with any 45-55A
-    # OCP window, and one that masked the transformer conflict above.
+    # Assert the burden voltage at the OCP trip lands close to the comparator
+    # reference (3.3 * 10k/13.24k = 2.4925V, re-derived 2026-07-27 alongside
+    # r_ref_top's fabricated-MPN fix; see OCPComparator). This assertion only
+    # checks r_burden's own nominal drop at the fixed 500mA/50A design point,
+    # independent of the exact reference-divider value, so its 2.4V-2.6V
+    # window is unaffected by the r_ref_top correction. The original
+    # assertion asserted 1.5-1.8V at 250mA -- a 25A design point inconsistent
+    # with any 45-55A OCP window, and one that masked the transformer
+    # conflict above.
     i_ct_trip: current = 500mA  # 50A OCP trip / 100
     v_burden_trip: voltage = i_ct_trip * r_burden.value
     assert v_burden_trip within 2.4V to 2.6V
@@ -1586,15 +1631,26 @@ module RTDSensing:
     reference.EN ~ power.vcc
     reference.GND ~ power.gnd
 
+    # r_low_top/r_high_top were ERA-3AEB6132V (61.3k) and ERA-3AEB5931V
+    # (5.93k): neither value is an E96/E192 member and neither MPN exists at
+    # any distributor (confirmed 2026-07-27, DigiKey direct fetch -- "did not
+    # return any results" for both). Replaced with the nearest E192 values
+    # that are BOTH legal series members AND real, stocked/orderable Panasonic
+    # ERA-3A part numbers (verified by DigiKey product-page fetch, not by
+    # naming-pattern similarity alone -- see
+    # docs/evidence/2026-07-27-era-resistor-resolution.md for the distributor
+    # evidence, the rejected 61.2k/5.97k/5.83k candidates that do NOT exist as
+    # real parts, and the worst-case threshold-margin arithmetic including
+    # 25 ppm/C tempco at ΔT=60C).
     r_low_top = new Resistor
-    r_low_top.value = 61.3kohm +/- 0.1%
-    r_low_top.mpn = "ERA-3AEB6132V"
+    r_low_top.value = 61.9kohm +/- 0.1%
+    r_low_top.mpn = "ERA-3AEB6192V"
     r_low_bottom = new Resistor
     r_low_bottom.value = 10kohm +/- 0.1%
     r_low_bottom.mpn = "ERA-3AEB103V"
     r_high_top = new Resistor
-    r_high_top.value = 5.93kohm +/- 0.1%
-    r_high_top.mpn = "ERA-3AEB5931V"
+    r_high_top.value = 5.9kohm +/- 0.1%
+    r_high_top.mpn = "ERA-3AEB5901V"
     r_high_bottom = new Resistor
     r_high_bottom.value = 10kohm +/- 0.1%
     r_high_bottom.mpn = "ERA-3AEB103V"
@@ -1632,15 +1688,29 @@ module RTDSensing:
     r_window_ok_pulldown.p2 ~ power.gnd
 
     # TPS3700 is powered upstream of the ferrite.  OUTA is pulled high only
-    # while RTD_AVDD is above its approximately 2.82 V nominal UV threshold; it pulls low
+    # while RTD_AVDD is above its approximately 2.84 V nominal UV threshold
+    # (2026-07-27: was ~2.82 V before r_avdd_top's 616k->619k correction,
+    # see docs/evidence/2026-07-27-era-resistor-resolution.md); it pulls low
     # through brownout before the post-rail TLV3201 operation is unspecified.
     rail_monitor = new TPS3700
     rail_monitor.VDD ~ power.vcc
     rail_monitor.GND ~ power.gnd
     rail_monitor.INB_N ~ power.gnd
+    # r_avdd_top was ERA-3AEB6163V (616k): not an E96/E192 value and the MPN
+    # does not exist at DigiKey (confirmed 2026-07-27, direct fetch). 616k
+    # also turns out to be above the top of Panasonic's ERA-3A (0603) range
+    # for this decade -- 604k/612k/619k/626k/634k ERA-3A part numbers were
+    # individually checked and NONE exist in 0603; the same 3-digit values
+    # DO exist in the ERA-6A (0805) family (confirmed: ERA-6AEB6193V, 619k,
+    # in stock). Replaced with 619k/ERA-6AEB6193V and the footprint bumped to
+    # 0805 to match -- see docs/evidence/2026-07-27-era-resistor-resolution.md
+    # for the distributor evidence and TPS3700 trip-window arithmetic
+    # (including 25 ppm/C tempco) showing this still clears the required
+    # 2.70-2.97V corner with margin.
     r_avdd_top = new Resistor
-    r_avdd_top.value = 616kohm +/- 0.1%
-    r_avdd_top.mpn = "ERA-3AEB6163V"
+    r_avdd_top.value = 619kohm +/- 0.1%
+    r_avdd_top.mpn = "ERA-6AEB6193V"
+    r_avdd_top.footprint = "Resistor_SMD:R_0805_2012Metric"
     r_avdd_bottom = new Resistor
     r_avdd_bottom.value = 100kohm +/- 0.1%
     r_avdd_bottom.mpn = "ERA-3AEB104V"
@@ -1678,21 +1748,37 @@ module RTDSensing:
     adc.RTDIN_N ~ rtd_sense_n
 
 module OCPComparator:
-    """Over-current protection comparator, 50A threshold."""
-    
+    """Over-current protection comparator, 50A threshold.
+
+    r_ref_top RE-DERIVED 2026-07-27
+    (docs/evidence/2026-07-27-ocp01-uvl02-part-resolution.md): the previous
+    3.2kohm value/`RC0603FR-073K2L` MPN was fabricated -- 3.2kohm is not an
+    E24 or E96 member (nearest E96 neighbours 3.16k/3.24k), the MPN encodes
+    the same invented "3K2" figure, and DigiKey confirms zero hits for that
+    part number. Replaced with the real E96 neighbour 3.24kohm
+    (`RC0603FR-073K24L`, DigiKey-verified: 3.24k, +/-1%, 0603,
+    +/-100ppm/C, Yageo, in stock), chosen over the other real E96 neighbour
+    (3.16k) because it centres the nominal trip closer to the 45-55A
+    window's 50.0A midpoint (49.95A vs 50.25A). Worst-case tolerance
+    (+/-1%) plus tempco (+/-100ppm/C, DT=60C) on r_ref_top/r_ref_bot/
+    r_burden: 48.77-51.16A, comfortably inside 45-55A. See
+    simulation/harness/run_ocp01_sim.py and the evidence doc for the full
+    corner sweep, including a bonus check folding in the 3.3V rail's own
+    +/-5% regulation tolerance (46.34-53.71A, still inside spec)."""
+
     power = new ElectricPower
     i_sense = new ElectricSignal
     i_sense.reference ~ power.gnd
-    
+
     fault = new ElectricLogic
     fault.reference ~ power.gnd
     fault.line.required = true
-    
+
     comp = new TLV3201
-    
+
     r_ref_top = new Resistor
-    r_ref_top.value = 3200ohm +/- 1%
-    r_ref_top.mpn = "RC0603FR-073K2L"
+    r_ref_top.value = 3240ohm +/- 1%
+    r_ref_top.mpn = "RC0603FR-073K24L"
     r_ref_top.footprint = "Resistor_SMD:R_0603_1608Metric"
     
     r_ref_bot = new Resistor
@@ -1710,11 +1796,31 @@ module OCPComparator:
     comp.OUT ~ fault.line
 
 module OVPComparator:
-    """Over-voltage protection, 390V (full-bus-equivalent) threshold (trips
-    399.7V, OVP-01 390-410V).
+    """Over-voltage protection, senses the +170V half-bus at half the
+    full-bus-equivalent threshold (OVP-01 spec: 390-410V trip / 10-20V
+    hysteresis on the FULL bus -> 195-205V trip / 5-10V hysteresis AT
+    dc_bus_plus).
+
+    RE-REFERENCED 2026-07-27 (Option C, docs/evidence/
+    2026-07-27-ovp01-ref2025-implementation.md, selected in
+    docs/evidence/2026-07-27-threshold-sensitivity-tempco-budget.md): the
+    2026-07-27 RE-TUNED design below (docs/evidence/
+    2026-07-27-ovp01-half-bus-retune.md, r_ref_top=11.8k/r_ref_bot=10k
+    dividing power.vcc, r_hyst=619k) passed nominally (199.9V trip, 6.9V
+    hysteresis) but FAILED worst case once tempco was accounted for
+    alongside the pre-existing +/-1% tolerance (193.9-206.2V
+    tolerance-only, roughly tripling to ~190-210V once +/-100ppm/C tempco
+    at a 45-60C board rise is added -- an exhaustive E96 search over that
+    divider found no combination fitting the 195-205V window in that worst
+    case). r_ref_top/r_ref_bot are deleted; comp.INN is now driven directly
+    by the already-instantiated REF2025's VREF output (2.5V, +/-0.05%/
+    8ppm/C -- see r_div_bot's comment for the full re-derivation and
+    worst-case table, now clearing the window with margin even with
+    tempco). See the SUPERSEDED block below for the earlier fail-open
+    history, both of which this replaces.
 
     NODE IDENTITY (2026-07-26, SELV isolation redesign -- read this before
-    touching r_ref_top): v_bus.line is wired in main.ato to dc_bus_plus,
+    touching r_div_top1-3): v_bus.line is wired in main.ato to dc_bus_plus,
     which is the +170V HALF-bus (positive rail of the Delon/cascade voltage
     doubler in PowerInput), referenced to power_return/dc_bus.gnd_ref -- the
     doubler MIDPOINT -- not to dc_bus_minus. Proof independent of any
@@ -1724,8 +1830,10 @@ module OVPComparator:
     docs/hardware/VOLTAGE_DOUBLER_DESIGN.md and
     docs/hardware/SELV_ISOLATION_REDESIGN.md.
 
-    THIS REVISION'S VALUES ARE FAIL-OPEN. r_ref_top=1.1k (V_ref=2.973V) plus
-    the 287k hysteresis resistor below require dc_bus_plus to reach
+    SUPERSEDED 2026-07-27 -- kept verbatim for history, but the reasoning
+    below is WRONG and the values it describes are no longer in this file.
+    "THIS REVISION'S VALUES ARE FAIL-OPEN. r_ref_top=1.1k (V_ref=2.973V)
+    plus the 287k hysteresis resistor below require dc_bus_plus to reach
     ~386-400V to trip (see the inline derivation further down). dc_bus_plus
     physically cannot reach that -- it is the 170V-nominal half-bus, and the
     bus capacitors are rated 250V and fail well before 400V. The inline
@@ -1743,7 +1851,19 @@ module OVPComparator:
     per instruction not to unilaterally retune a value entangled with the
     still-open isolation decision below. See
     docs/hardware/SELV_ISOLATION_REDESIGN.md for the full derivation and two
-    remediation options with a recommendation.
+    remediation options with a recommendation." -- END SUPERSEDED BLOCK.
+    It IS re-tuned now, per explicit instruction to do so
+    (docs/evidence/2026-07-27-ovp01-half-bus-retune.md); the isolation
+    decision it was waiting on (below) was resolved 2026-07-26 and does not
+    change the half-bus sensing topology.
+
+    KNOWN LIMITATION (not fixed, stated per instruction): sensing only
+    dc_bus_plus (the +170V half relative to the doubler midpoint) is BLIND
+    to bus IMBALANCE -- a fault mode where one half-bus over-volts while
+    the other under-volts such that dc_bus_plus alone never crosses this
+    trip point even though the plus-to-minus differential is abnormal.
+    Detecting that requires a reference at dc_bus_minus (-170V), a second
+    SELV/HV domain-crossing problem this change does not take on.
 
     RESOLVED 2026-07-26 (docs/evidence/2026-07-26-ovp-crossing-resolution.md,
     supersedes the "UNRESOLVED"/"NOT implemented" framing that used to be
@@ -1815,78 +1935,121 @@ module OVPComparator:
     r_div_top3.mpn = "RC1206FR-07430KL"
     r_div_top3.footprint = "Resistor_SMD:R_1206_3216Metric"
     
+    # RE-REFERENCED 2026-07-27 (Option C, docs/evidence/
+    # 2026-07-27-ovp01-ref2025-implementation.md, selected in
+    # docs/evidence/2026-07-27-threshold-sensitivity-tempco-budget.md Part 3
+    # over a full 0.1% upgrade and a partial upgrade): the 619k/11.8k-era
+    # divider-derived reference below r_div_bot used to be r_ref_top/
+    # r_ref_bot, a resistor divider off `power.vcc` (see git history and the
+    # 2026-07-27-ovp01-half-bus-retune.md evidence doc for that design and
+    # its worst-case-tolerance-only 193.9-206.2V figure, which tempco alone
+    # roughly triples past the 195-205V window -- the reason it was
+    # replaced). That divider is deleted outright; `comp.INN` is now driven
+    # directly by `REF2025.VREF` (2.5V, +/-0.05% initial accuracy, 8ppm/C
+    # max tempco -- TI/DigiKey datasheet figures, an order of magnitude
+    # tighter than the 1% divider it replaces) via `vref_ext` below, wired
+    # at Top from `rtd_pan.reference.VREF` (RTDSensing's REF2025 instance;
+    # its VREF pin was otherwise completely unused). r_div_bot re-derived
+    # for the fixed 2.5V reference (was 10k for the divider-referenced
+    # design): with Rtop = 3x430k = 1,290,000 ohm unchanged (protective-
+    # impedance chain, not touched by this change) and
+    # V_trip = Vref*(1 + Rtop/r_div_bot + Rtop/r_hyst), 16.9k is the E96
+    # value (of an exhaustive E96 sweep over r_div_bot x r_hyst pairs) that
+    # jointly minimizes the worst-case tolerance+tempco excursion together
+    # with r_hyst below -- see that resistor's comment for the full
+    # trip/hysteresis derivation and worst-case table.
     r_div_bot = new Resistor
-    r_div_bot.value = 10000ohm +/- 1%
+    r_div_bot.value = 16.9kohm +/- 0.1%
     r_div_bot.power_rating = 0.1W
-    r_div_bot.mpn = "RC0603FR-0710KL"
+    r_div_bot.mpn = "RT0603BRD0716K9L"
     r_div_bot.footprint = "Resistor_SMD:R_0603_1608Metric"
-    
-    r_ref_top = new Resistor
-    # 1.1k sets V_ref = 3.3 * 10k/11.1k = 2.973V. With the 130:1 bus divider
-    # (3 x 430k over 10k) AND the 287k hysteresis resistor below, that gives
-    # trip 399.8V and release 385.0V -- 14.8V of hysteresis, centred in the
-    # OVP-01 10-20V window (FUNCTIONAL_TEST_CRITERIA §2.2).
-    #
-    # An earlier revision used 732R with NO hysteresis resistor at all. The
-    # hysteresis column had been dropped from STRATEGY's gate table, so the
-    # requirement was invisible when that value was chosen.
-    #
-    # Was 12k -> V_ref 1.50V -> trip at 195V. The divider senses the FULL bus
-    # (modules.ato: ovp.v_bus.line ~ dc_bus.line, and main.ato declares
-    # dc_bus_plus as +340V_BUS with v_bus_max = 340V), so at the 340V nominal
-    # bus the sense node sat at 2.615V against a 1.50V reference and the OVP
-    # fault asserted permanently. The cooker could not have run.
-    #
-    # main.ato:195 already stated the intent: v_ovp_trip = 390V, with
-    # `assert v_ovp_trip > v_bus_max`. The reference divider never matched it.
-    # See docs/hardware/PROTECTION_CHAIN_REVIEW.md.
-    r_ref_top.value = 1.1kohm +/- 1%
-    r_ref_top.mpn = "RC0603FR-071K1L"
-    r_ref_top.footprint = "Resistor_SMD:R_0603_1608Metric"
-    
-    r_ref_bot = new Resistor
-    r_ref_bot.value = 10000ohm +/- 1%
-    r_ref_bot.mpn = "RC0603FR-0710KL"
-    r_ref_bot.footprint = "Resistor_SMD:R_0603_1608Metric"
-    
+
+    # Fixed 2.5V reference for comp.INN, replacing the r_ref_top/r_ref_bot
+    # divider (see r_div_bot's comment and the 2026-07-27-ovp01-ref2025-
+    # implementation.md evidence doc). REF2025 is already instantiated in
+    # RTDSensing (main.ato's `rtd_pan`), on the same power_3v3 domain as
+    # this comparator (both ultimately `vcc_3v3`/`gnd` at Top); its VREF pin
+    # was unused elsewhere in the design and its 20mA output-current rating
+    # has enormous headroom against the ~pA of TLV3201 CMOS input bias
+    # current this connection actually draws (REF2025's VREF is a buffered,
+    # actively-driven output -- no loading resistor needed, unlike the
+    # resistive divider it replaces).
+    vref_ext = new ElectricSignal
+    vref_ext.reference ~ power.gnd
+
     power.vcc ~ comp.VCC
     power.gnd ~ comp.GND
-    
+
     v_bus.line ~ r_div_top1.p1
     r_div_top1.p2 ~ r_div_top2.p1
     r_div_top2.p2 ~ r_div_top3.p1
     r_div_top3.p2 ~ comp.INP
     comp.INP ~ r_div_bot.p1
     r_div_bot.p2 ~ power.gnd
-    
-    power.vcc ~ r_ref_top.p1
-    r_ref_top.p2 ~ comp.INN
-    comp.INN ~ r_ref_bot.p1
-    r_ref_bot.p2 ~ power.gnd
+
+    vref_ext.line ~ comp.INN
 
     # Hysteresis: positive feedback from output to INP (the bus-sense node).
-    # OVP-01 requires 10-20V of hysteresis at the bus. INP's Thevenin
-    # resistance is (3 x 430k) || 10k = 9.92k, so a 287k feedback resistor
-    # shifts the sense node by 3.3 * 9.92k/(9.92k + 287k) = 0.114V, which the
-    # 130:1 divider refers back to 14.8V at the bus.
+    # RE-DERIVED 2026-07-27 alongside r_div_bot for the REF2025 (2.5V fixed)
+    # reference (Option C -- see r_div_bot's comment and
+    # docs/evidence/2026-07-27-ovp01-ref2025-implementation.md). This
+    # feedback path does not involve Vref at all -- comp.OUT still swings
+    # rail-to-rail across the same 3.3V comp.VCC/GND supply regardless of
+    # what comp.INN is referenced to -- so the closed form is unchanged from
+    # the prior divider-referenced design:
+    #
+    #   N          = 1 + Rtop/r_div_bot = 1 + 1290000/16900 = 77.331
+    #   V_trip     = Vref * (N + Rtop/r_hyst)
+    #              = 2.5 * (77.331 + 1290000/487000) = 2.5 * 79.980
+    #              = 199.95 V   (window: 195-205V, centred)
+    #   hysteresis = VCC*Rtop/r_hyst = 3.3*1290000/487000 = 8.74 V
+    #              (window: 5-10V, centred)
+    #
+    # WORST CASE, independent corners over all 6 error sources (r_div_top1-3
+    # each +/-1% tol / +/-100ppm/C tempco, r_div_bot and r_hyst each +/-0.1%
+    # tol / +/-25ppm/C tempco -- both thin-film RT-series, matching this
+    # project's existing 0.1% parts, e.g. ERA-3AEB103V -- and REF2025's Vref
+    # itself at +/-0.05% initial accuracy / 8ppm/C max tempco), 64-corner
+    # exhaustive search (script + full E96 sweep in the evidence doc):
+    #
+    #   Tolerance only:            trip 197.68-202.23 V, hyst 8.65-8.84 V
+    #   Tolerance + tempco, dT=45: trip 196.51-203.42 V, hyst 8.60-8.89 V
+    #   Tolerance + tempco, dT=60: trip 196.11-203.81 V, hyst 8.58-8.90 V
+    #
+    # Both bounds clear the 195-205V / 5-10V windows with margin even in the
+    # worst case WITH tempco included at the more conservative 60C board
+    # rise -- unlike the divider-referenced design this replaces, which
+    # failed worst-case-tolerance-only (193.9-206.2V) before tempco was even
+    # considered. 16.9k/487k is the E96 pair (of an exhaustive sweep over
+    # both values together) that maximizes the worst-case margin to either
+    # window edge; it is not a value picked to make a nominal-only check
+    # pass.
     #
     # Feedback goes to INP rather than INN: the bus drives INP, so pulling INP
     # up when the output is high reinforces the trip, requiring the bus to fall
     # further before release. Feeding INN instead would move the threshold the
     # wrong way.
     r_hyst = new Resistor
-    r_hyst.value = 287kohm +/- 1%
-    r_hyst.mpn = "RC0603FR-07287KL"
+    r_hyst.value = 487kohm +/- 0.1%
+    r_hyst.mpn = "RT0603BRD07487KL"
     r_hyst.footprint = "Resistor_SMD:R_0603_1608Metric"
     comp.INP ~ r_hyst.p1
     r_hyst.p2 ~ comp.OUT
     comp.OUT ~ fault.line
-    
-    # Verify trip point: divider = 3x430k + 10k, ratio = 10k/(3*430k+10k) = 1/130
-    # Trip when V_bus_half * (1/130) = V_ref = 1.50V
-    # V_bus_half_trip = 1.50 * 130 = 195V
-    # V_bus_full_trip = 195V * 2 = 390V
-    assert 180V * (10000 / (3 * 430000 + 10000)) < 3.3V * (10000 / (12000 + 10000))
+
+    # Verify trip point stays below the OVP-01 window's low edge at a
+    # representative below-trip bus voltage (180V, close to the 170V
+    # half-bus nominal but with margin above it). Written symbolically
+    # against the actual component values (not hardcoded numbers) so it
+    # cannot go stale the way the previous version of this assert did: that
+    # version hardcoded "12000" and "1.50V" and kept passing, unchanged,
+    # all the way through the 1.1k fail-open revision, because it never
+    # referenced a live component value at all. RE-EXPRESSED 2026-07-27:
+    # r_ref_top/r_ref_bot no longer exist (deleted, see r_div_bot's
+    # comment); the right-hand side is now REF2025's fixed 2.5V VREF output
+    # (a literal, not a resistor ratio -- there is no component field to
+    # read it from, same reason VCC was already a 3.3V literal here).
+    assert 180V * (r_div_bot.value / (r_div_top1.value + r_div_top2.value + r_div_top3.value + r_div_bot.value)) < 2.5V
     
     # Bus voltage ADC sense: separate divider from the same v_bus net.
     #
@@ -2390,15 +2553,21 @@ module LogicUVLOComparator:
     SafetyInterlock's own SR-latch gate 1, and structurally identical to how
     RTDSensing's fault_nand inverts rail_monitor.OUTA.
 
-    NOT WIRED INTO THE INTERLOCK: this.fault.line is intentionally left out
-    of fault_or/fault_any_or in SafetyInterlock. By the time this module was
-    designed, THM-02 (coil_thermal) already occupied the one spare input in
-    the SET aggregation (fault_any_or.C1); no other input reaches
+    WIRED INTO THE INTERLOCK 2026-07-27: this.fault.line now reaches the
+    SET path via a third fan-in package, SafetyInterlock.fault_or3
+    (uvlo_logic.fault.line ~ fault_or3.A1 -> ... -> fault_or3.Y2 ~
+    latch.A1) -- see docs/evidence/
+    2026-07-27-fault-tree-capacity-expansion.md. Before that change, this
+    fault had nowhere to connect: by the time this module was designed,
+    THM-02 (coil_thermal) already occupied the one spare input in the SET
+    aggregation (fault_any_or.C1), and no other input reached
     fault_any_or.Y1 -> latch.A1 without adding a further OR stage. See the
-    "UVL-02 fault output" comment block near the end of SafetyInterlock and
-    docs/hardware/UVL02_DESIGN.md SS7 for the full survey and what a fix
-    would require. fault.line is brought to a test point
-    (SafetyInterlock.tp_uvlo2_fault) for bench observability instead."""
+    "UVL-02 fault output" comment block near the end of SafetyInterlock
+    (including the SUPERSEDED block preserved there) and
+    docs/hardware/UVL02_DESIGN.md SS7.1 for the full survey and the
+    remediation options it named. fault.line is ALSO still brought to a
+    test point (SafetyInterlock.tp_uvlo2_fault) for bench observability --
+    the functional connection and the probe pad are not exclusive."""
 
     power = new ElectricPower
     fault = new ElectricLogic
@@ -2413,8 +2582,21 @@ module LogicUVLOComparator:
     r_div_top.footprint = "Resistor_SMD:R_0603_1608Metric"
 
     r_div_bot = new Resistor
+    # MPN corrected 2026-07-27
+    # (docs/evidence/2026-07-27-ocp01-uvl02-part-resolution.md): was
+    # "RC0603FR-0710KL", which decodes (Yageo RC-series convention) to
+    # 10kohm -- a 10x mismatch against the declared 100kohm value used
+    # throughout this module's own derivation and worst-case corner sweep
+    # (see docstring above and docs/hardware/UVL02_DESIGN.md). Re-deriving
+    # from the circuit confirms the VALUE, not the MPN, was right: with
+    # r_div_bot actually at 10kohm, VCC_trip/VCC_recover come out to
+    # ~23.6V/~28.0V -- physically unreachable on a 3.3V logic rail, i.e. a
+    # UVLO that would never trip. Corrected to "RC0603FR-07100KL"
+    # (DigiKey-verified: 100kohm, +/-1%, 0603, +/-100ppm/C, Yageo, in
+    # stock -- the same MPN pattern already used for this file's other real
+    # 100kohm 1% 0603 parts, e.g. RTDSensing.r_window_ok_pulldown).
     r_div_bot.value = 100kohm +/- 1%
-    r_div_bot.mpn = "RC0603FR-0710KL"
+    r_div_bot.mpn = "RC0603FR-07100KL"
     r_div_bot.footprint = "Resistor_SMD:R_0603_1608Metric"
 
     # Positive feedback: loads the sense node (INA_P) from OUTA, exactly as
@@ -2544,6 +2726,17 @@ module SafetyInterlock:
     uvlo_logic = new LogicUVLOComparator
     fault_or = new SN74HC4075
     fault_any_or = new SN74HC4075
+    # Third fan-in package, added 2026-07-27 (docs/hardware/UVL02_DESIGN.md
+    # SS7.1 remediation option 2; docs/evidence/
+    # 2026-07-27-fault-tree-capacity-expansion.md). fault_or/fault_any_or
+    # were both fully occupied on their SET-aggregation paths -- see the
+    # OCP-02/UVL-02 survey comments further down for why. Chosen over
+    # reworking the existing two packages' spare Y3 gates into the chain
+    # (SS7.1 option 1) because that also adds a gate delay to every fault
+    # path while additionally requiring re-verification of all existing
+    # connections; a fresh package with a well-defined interface is the
+    # lower-risk way to add capacity on a board that is still unrouted.
+    fault_or3 = new SN74HC4075
     latch = new SN74HC00
 
     ocp.power ~ power_3v3
@@ -2611,7 +2804,31 @@ module SafetyInterlock:
     # the SET aggregation and is no longer available to it -- see the
     # UVL-02 fault-wiring note near the end of this module for the survey.
     coil_thermal.fault.line ~ fault_any_or.C1
-    fault_any_or.Y1 ~ latch.A1
+
+    # Third-package aggregation, added 2026-07-27: gate1 combines the new
+    # fault sources (UVL-02 wired now; one input reserved for OCP-02,
+    # tied GND until its sensing domain is resolved -- NOT wired here, see
+    # the OCP-02 note below; one input genuinely spare). gate2 merges that
+    # with the existing 7-source SET bus (fault_any_or.Y1) and now drives
+    # latch.A1 in place of the previous direct connection. This adds
+    # exactly one gate of delay to the pre-existing 7-source path -- see
+    # docs/evidence/2026-07-27-fault-tree-capacity-expansion.md for the
+    # propagation-delay recheck against OCP-01's <1us budget.
+    fault_or3.VCC ~ power_3v3.vcc
+    fault_or3.GND ~ power_3v3.gnd
+    uvlo_logic.fault.line ~ fault_or3.A1
+    power_3v3.gnd ~ fault_or3.B1  # reserved for OCP-02; NOT wired (deliberate)
+    power_3v3.gnd ~ fault_or3.C1  # spare
+    fault_any_or.Y1 ~ fault_or3.A2
+    fault_or3.Y1 ~ fault_or3.B2
+    power_3v3.gnd ~ fault_or3.C2  # spare
+    fault_or3.Y2 ~ latch.A1
+    # Third gate on this package is genuinely unused headroom beyond the
+    # slots above; inputs tied GND rather than left floating (same
+    # convention as fault_or gate 3 below).
+    power_3v3.gnd ~ fault_or3.A3
+    power_3v3.gnd ~ fault_or3.B3
+    power_3v3.gnd ~ fault_or3.C3
 
     # Set-dominant NAND SR latch. Gate 1 inverts the active-high fault bus;
     # gates 2 and 3 cross-couple Q/Q-bar. Reset is explicit and active-low.
@@ -2638,9 +2855,49 @@ module SafetyInterlock:
     tp_fault = new TestPoint
     tp_fault.p1 ~ fault_status.line
 
-    # OCP-02 fault output: NOT wired into the fault OR-tree.
+    # OCP-02 fault output: STILL NOT wired into the fault OR-tree.
     #
-    # Surveyed both SN74HC4075s for a spare input before wiring, per
+    # A third fan-in package (fault_or3, added 2026-07-27, see its
+    # instantiation comment above and docs/evidence/
+    # 2026-07-27-fault-tree-capacity-expansion.md) now provides SET-path
+    # capacity that did not exist when this was last surveyed
+    # (fault_or/fault_any_or were both fully occupied -- see
+    # docs/hardware/OCP02_DESIGN.md's original survey). fault_or3.B1 is
+    # reserved for OCP-02 (tied GND for now, a real spare input on a gate
+    # that DOES reach the SET path via fault_or3.Y1 -> fault_or3.B2 ->
+    # fault_or3.Y2 -> latch.A1) -- but OCP-02 is deliberately NOT wired
+    # here. Its sensing domain is still unresolved: the design places an
+    # INA240 shunt in DC_BUS_RTN, which sits at ~-170V common mode in this
+    # doubler topology against the INA240's -4..+80V input range. Wiring a
+    # fault source into working aggregation logic while the upstream
+    # sensing circuit cannot actually work would be worse than leaving it
+    # unwired -- it would look connected on inspection while never being
+    # able to assert correctly. SecondaryOCPComparator therefore stays
+    # un-instantiated (see main.ato), and its fault output has no source
+    # to wire in the first place; the reserved fault_or3.B1 input is
+    # capacity held ready for whenever that topology decision lands.
+    # tp_ocp2_fault = new TestPoint
+    # tp_ocp2_fault.p1 ~ ocp2.fault.line
+
+    # UVL-02 fault output: WIRED 2026-07-27, via fault_or3 above
+    # (uvlo_logic.fault.line ~ fault_or3.A1 -> fault_or3.Y1 ->
+    # fault_or3.B2 -> fault_or3.Y2 ~ latch.A1). LogicUVLOComparator
+    # (uvlo_logic) is a real, populated, spec-meeting circuit (see its own
+    # module docstring for the worst-case trip/recovery derivation); prior
+    # to this change its fault.line had nowhere to connect, because both
+    # SN74HC4075s were fully occupied on their SET-aggregation paths (the
+    # full survey that established this is preserved below for history).
+    # It remains ALSO brought to a test point for bench observability --
+    # the two are not exclusive; a net can carry both a functional
+    # connection and a probe pad.
+    tp_uvlo2_fault = new TestPoint
+    tp_uvlo2_fault.p1 ~ uvlo_logic.fault.line
+
+    # SUPERSEDED 2026-07-27 -- kept for history, describes the tree BEFORE
+    # fault_or3 was added. UVL-02's fault is wired now (above); OCP-02's is
+    # not, for the sensing-domain reason above, not for lack of capacity.
+    #
+    # "Surveyed both SN74HC4075s for a spare input before wiring, per
     # docs/hardware/OCP02_DESIGN.md's own instruction to do so:
     #
     #   fault_or gate 1 (A1/B1/C1->Y1): full -- ocp/ovp/thermal.
@@ -2671,26 +2928,7 @@ module SafetyInterlock:
     # runaway-cut), not just OCP-02, which is a timing-budget decision
     # for humans, not something to do silently here.
     #
-    # Per the design doc: "if none is free, a fourth OR input is needed,
-    # and that is a real part addition rather than a free one." No spare
-    # SET-path input exists. OCP-02's comparator output is therefore
-    # brought to a test point pending that decision, rather than wired
-    # into the wrong logic (fault_any_or.C2) or left electrically
-    # floating.
-    # tp_ocp2_fault = new TestPoint
-    # tp_ocp2_fault.p1 ~ ocp2.fault.line
-
-    # UVL-02 fault output: NOT wired into the fault OR-tree either.
-    #
-    # LogicUVLOComparator (uvlo_logic) IS instantiated and powered above --
-    # unlike ocp2, this is a real, populated circuit -- but its fault.line
-    # is deliberately left out of fault_or/fault_any_or. Re-surveyed both
-    # SN74HC4075s against THIS tree (which now includes THM-02 and the
-    # OCP-02 finding above; an earlier pass of this same survey was done
-    # against a stale worktree that still had fault_any_or.C1 grounded and
-    # wrongly concluded it was free -- it is not, see below):
-    #
-    #   fault_or gate 3 (A3/B3/C3->Y3): unchanged from the OCP-02 survey --
+    # fault_or gate 3 (A3/B3/C3->Y3): unchanged from the OCP-02 survey --
     #     all three inputs tied GND, Y3 has no consumer anywhere. Confirmed
     #     still a dead end, not a path into the SET aggregation.
     #   fault_any_or gate 1 (A1/B1/C1->Y1): full -- fault_or.Y2,
@@ -2717,15 +2955,9 @@ module SafetyInterlock:
     # capacity problem. See docs/hardware/UVL02_DESIGN.md SS7 for what a
     # fix would require (rework the existing two 3-input OR ICs into a
     # wider tree vs. adding a third SN74HC4075/74HC4078-class part) and why
-    # that decision is left to a human rather than made silently here.
-    #
-    # uvlo_logic.fault.line is instantiated (fault.line.required = true on
-    # LogicUVLOComparator) and must terminate somewhere, so it is brought
-    # to a test point for bench observability -- exactly the "flag it,
-    # don't fake a connection" outcome the OCP-02 finding already
-    # established as preferable to wiring into a colliding or dead input.
-    tp_uvlo2_fault = new TestPoint
-    tp_uvlo2_fault.p1 ~ uvlo_logic.fault.line
+    # that decision is left to a human rather than made silently here." --
+    # END SUPERSEDED BLOCK. The third-package remediation was implemented
+    # 2026-07-27.
 
     # LED indicators remain unassigned until their current-limiting circuits
     # are specified; they must not be used as safety logic.

@@ -309,7 +309,13 @@ def _run_stage3(self, pcb: ParsedPCB, stage2: Stage2Output) -> Stage3Output:
     else:
         from temper_rust_router import solve_topology_rust
 
-        rust_result = solve_topology_rust(py_vars, py_cons, net_names)
+        rust_result = solve_topology_rust(
+            py_vars,
+            py_cons,
+            net_names,
+            conflict_limit=self.sat_conflict_limit,
+            time_limit_ms=self.sat_time_limit_ms,
+        )
         cegar_iterations = 0
         budget_used = 0
         degraded_nets = []

@@ -250,6 +250,23 @@ def evaluate_skip_expr(
         _ctx: DataContext,
     ) -> Any:
         if isinstance(node.op, ast.And):
+            # Not a vacuous-truth risk, for two independent reasons:
+            #
+            # 1. Safe by construction: the only code that builds an
+            #    ast.BoolOp for this grammar is _Parser._and_expr /
+            #    _or_expr above, which is strictly left-associative binary
+            #    (`ast.BoolOp(op=..., values=[left, right])`) -- it never
+            #    constructs a unary or nullary BoolOp, so node.values is
+            #    always exactly length 2 here. evaluate_skip_expr is only
+            #    ever called with an ast.Expression produced by
+            #    parse_skip_expr's own _Parser (see dag_engine.py), never
+            #    an externally-constructed AST.
+            # 2. Not a gate at all: even hypothetically, all() over an
+            #    empty conjunction returning True is correct boolean-
+            #    algebra semantics for "no conjuncts to violate" -- this is
+            #    an expression evaluator, not a verification gate whose
+            #    "pass" is supposed to mean "something was checked."
+            assert node.values, "BoolOp(And) with zero values -- grammar invariant violated"
             return all(_eval(v) for v in node.values)
         if isinstance(node.op, ast.Or):
             return any(_eval(v) for v in node.values)

@@ -78,6 +78,13 @@ class ConstraintStatus:
         # Persistence check
         if len(self.violation_history) >= config.persistence_window:
             window = self.violation_history[-config.persistence_window :]
+            # EscalationConfig.__post_init__ enforces persistence_window >= 1,
+            # so window (a slice of exactly persistence_window entries, given
+            # the length check above) can never be empty here -- but guard
+            # explicitly rather than rely solely on a constructor-time check
+            # in a different class for a correctness property enforced here.
+            if not window:
+                return False
             all_violated = all(v > 0 for v in window)
             if all_violated:
                 self.escalation_reason = EscalationReason.PERSISTENT
@@ -112,6 +119,22 @@ class EscalationConfig:
 
     # How many consecutive violations trigger escalation
     persistence_window: int = 5
+
+    def __post_init__(self) -> None:
+        # ConstraintStatus.check_escalation() slices the last
+        # `persistence_window` entries of violation_history and does
+        # `all(v > 0 for v in window)`. With persistence_window <= 0, Python's
+        # negative-slice-of-zero (`lst[-0:]`) is the same as `lst[0:]`, so an
+        # *empty* violation_history combined with persistence_window == 0
+        # produces window == [] and all()-over-empty vacuously reports
+        # "persistently violated" with zero actual violations recorded.
+        # Reject the config outright rather than let that reach the all().
+        if self.persistence_window < 1:
+            raise ValueError(
+                f"persistence_window must be >= 1, got {self.persistence_window} "
+                "(a value <= 0 lets check_escalation()'s all() run over an "
+                "empty window and vacuously report persistent escalation)"
+            )
 
     # Auto-escalate constraints with these keywords in 'because'
     safety_keywords: list[str] = field(

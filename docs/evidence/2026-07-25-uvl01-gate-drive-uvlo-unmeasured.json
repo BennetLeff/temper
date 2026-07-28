@@ -20,5 +20,10 @@
     "grep -rn \"UVLO|uvlo|undervoltage|Undervoltage\" elec/src/*.ato",
     "grep -n \"^module|^component\" elec/src/modules.ato",
     "ls simulation/models/"
-  ]
+  ],
+  "provenance": {
+    "commit": "UNKNOWN",
+    "dirty": "UNKNOWN",
+    "note": "backfilled prior to the provenance gate's introduction (2026-07-26); no self-declared commit exists in this file's own content and none was fabricated. See .evidence-provenance-allowlist."
+  }
 }

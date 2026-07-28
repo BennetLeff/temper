@@ -441,6 +441,78 @@ class TestAntiVacuity:
         assert state == "tool_error"
         assert any("stale relative to the source" in e.reason for e in report.tool_errors)
 
+    def test_empty_source_row_locator_fails_closed(self, tmp_path):
+        """An empty source_row_locator must not vacuously "match" a row.
+
+        Before the check_vacuous_gates.py-driven fix, find_rows_by_locator's
+        `all(loc in ctx for loc in norm_locator)` was vacuously True for an
+        empty norm_locator, so an empty source_row_locator would match
+        every row of the source table -- including, in a source with
+        exactly one row, silently reporting a clean match instead of the
+        config error it actually is. This test fails on the pre-fix code
+        (state == "clean" or a mismatched match count, not the expected
+        "tool_error" naming the empty locator) and passes once
+        find_rows_by_locator raises on an empty locator.
+        """
+        _write(tmp_path, "source.md", SOURCE_MD)
+        _write(
+            tmp_path,
+            "derived.md",
+            "| Gate | Description | Reference |\n|---|---|---|\n"
+            "| OCP-01 | Primary OCP 45-55A peak, <1us | SS2.1 |\n",
+        )
+        cfg = {
+            "source_document": "source.md",
+            "derived_documents": [{"path": "derived.md", "gates": ["OCP-01"]}],
+            "gates": {
+                "OCP-01": {
+                    "source_row_locator": [],
+                    "required_fields": [{"name": "basis", "any_of": ["peak"]}],
+                }
+            },
+        }
+        state, report = _run(tmp_path, cfg)
+        assert state == "tool_error"
+        assert any("locator must be non-empty" in e.reason for e in report.tool_errors)
+
+    def test_empty_stale_tokens_fails_closed(self, tmp_path):
+        """An empty stale_tokens list must not vacuously mark every row stale.
+
+        Before the check_vacuous_gates.py-driven fix,
+        `all(normalize(t) in ctx for t in check["stale_tokens"])` was
+        vacuously True for an empty stale_tokens list, so every
+        consistency-check row would be reported "stale" regardless of
+        content (inverting the check's purpose) rather than the config
+        error it actually is. This test fails on the pre-fix code (no
+        tool_error is raised for the empty list) and passes once
+        check_consistency raises on an empty stale_tokens list.
+        """
+        _write(tmp_path, "source.md", SOURCE_MD)
+        _write(
+            tmp_path,
+            "derived.md",
+            "| Verdict | Component |\n|---|---|\n| FIXED | OVP-01 |\n",
+        )
+        cfg = {
+            "source_document": "source.md",
+            "derived_documents": [{"path": "derived.md", "gates": "all"}],
+            "gates": BASE_CONFIG["gates"],
+            "consistency_checks": [
+                {
+                    "id": "ovp01-stale-check",
+                    "doc": "derived.md",
+                    "row_locator": ["OVP-01"],
+                    "gate": "OVP-01",
+                    "stale_tokens": [],
+                    "required_mitigating_tokens": ["mitigated"],
+                    "message": "test consistency check with empty stale_tokens",
+                }
+            ],
+        }
+        state, report = _run(tmp_path, cfg)
+        assert state == "tool_error"
+        assert any("stale_tokens must be non-empty" in e.reason for e in report.tool_errors)
+
 
 class TestNormalizeAndTableParsing:
     """Unit-level checks on the primitives the integration tests rely on."""

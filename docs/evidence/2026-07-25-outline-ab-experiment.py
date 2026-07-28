@@ -1,3 +1,5 @@
+# Provenance: commit=UNKNOWN dirty=UNKNOWN -- backfilled prior to the provenance gate's introduction (2026-07-26); no self-declared commit exists in this file's own content and none was fabricated. See .evidence-provenance-allowlist.
+
 """Loop 1: does a valid board outline change the router's completion rate?
 
 Hypothesis: the router's 3.45% completion / 326 unconnected is caused by 113 of

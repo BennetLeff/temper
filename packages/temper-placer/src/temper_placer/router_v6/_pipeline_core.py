@@ -64,6 +64,8 @@ class RouterV6Pipeline:
         dfm_fail_on: str = "critical",
         max_sat_nets: int | None = None,
         enable_bundling: bool = False,
+        sat_conflict_limit: int | None = 20_000,
+        sat_time_limit_ms: int | None = None,
         enable_coarse_to_fine: bool = True,
         coarse_factor: int = 4,
         corridor_buffer_cells: int = 12,
@@ -103,6 +105,14 @@ class RouterV6Pipeline:
                 500_000 to match the SM1 measurement table
                 recorded in
                 docs/solutions/architecture-patterns/router-v6-closure-rate-100pct-2026-06-24.md.
+                That table was measured on a 24-net smoke subset --
+                re-swept on the full 96-net production board
+                (docs/evidence/2026-07-27-forced-segment-analysis.md):
+                500k/1M/2M/4M all produced the *same* 59-net failure
+                count (2M and 4M byte-identical), so 500k remains
+                justified as "no worse than 8x more compute," not
+                because it is a strict local optimum on this board --
+                raising this value is not a lever for completion here.
             enable_manufacturing_drc: Run DFM checks after routing
                 (teardrops, acid traps, annular rings, thermal
                 relief, copper balance, creepage, clearance).
@@ -114,6 +124,28 @@ class RouterV6Pipeline:
                 bundle equivalence classes and only Safety constraints
                 are encoded eagerly; Performance constraints are lazily
                 grounded via CEGAR loop. Deprecated max_sat_nets if set.
+            sat_conflict_limit: Bound the Stage 3 CaDiCaL SAT solve to
+                at most this many conflicts before giving up and
+                returning "unknown" (the pipeline already handles this
+                status by falling back to unguided A*, the same path
+                skip_stage3=True exercises). Before this bound existed,
+                the solve had no limit at all and measured 1,573.8s
+                (95.5% of full-board wall time) on temper.kicad_pcb --
+                see docs/evidence/2026-07-27-first-route-and-profile.md.
+                Default 20_000 conflicts, chosen from the sweep in
+                docs/evidence/2026-07-27-sat-bound-tradeoff.md.
+                Conflict count is deterministic given a fixed CNF
+                (unlike wall-clock time, it does not depend on machine
+                load), which is why it is the primary/default bound
+                rather than sat_time_limit_ms. Pass None for the old,
+                unbounded behavior.
+            sat_time_limit_ms: Secondary wall-clock bound on the same
+                solve, applied independently via a terminator callback
+                (CaDiCaL has no native wall-clock limit). None by
+                default -- sat_conflict_limit alone is the recommended
+                bound; set this in addition if a hard real-time ceiling
+                is also needed (e.g. in a CI job with its own timeout).
+                If both are set, whichever fires first wins.
             thermal_flat: U8 optional (N,) float32 thermal cost field
                 (from CostFieldInput.cost_flat).  Threaded to A*
                 kernel step-cost.
@@ -147,6 +179,8 @@ class RouterV6Pipeline:
         self.dfm_fail_on = dfm_fail_on
         self.max_sat_nets = max_sat_nets
         self.enable_bundling = enable_bundling
+        self.sat_conflict_limit = sat_conflict_limit
+        self.sat_time_limit_ms = sat_time_limit_ms
         self.enable_coarse_to_fine = enable_coarse_to_fine
         self.coarse_factor = coarse_factor
         self.corridor_buffer_cells = corridor_buffer_cells

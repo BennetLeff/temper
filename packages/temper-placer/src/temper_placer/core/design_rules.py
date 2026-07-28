@@ -5,6 +5,7 @@ This module provides net class and design rule specifications for
 controlling trace widths, clearances, and via sizes during routing.
 """
 
+import re
 from copy import deepcopy
 from dataclasses import dataclass, field
 from typing import TypeAlias
@@ -17,6 +18,28 @@ from temper_placer.core.bus_cohort import BusCohortConstraint
 from temper_placer.core.differential_pair import DifferentialPairConstraint
 from temper_placer.core.net_graph import NetGraph
 from temper_placer.core.netclass_rules_gen import NetClassRules
+
+
+def _hv_word_boundary_match(upper: str, patterns: tuple[str, ...]) -> bool:
+    """Word-boundary keyword match, delimited by ``_`` or start/end of
+    the (uppercased) name.
+
+    A pattern ending in a non-alphanumeric character (e.g. ``"DC_BUS+"``)
+    has no trailing boundary to anchor on and is matched with a leading
+    anchor only. Mirrors the identical helper in
+    ``router_v6.net_classification._matches_any`` and
+    ``router_v6.clearance_check._is_hv_keyword_match`` -- see those
+    modules' docstrings for the shared bug history (plain substring
+    matching of short net-classification keywords).
+    """
+    for p in patterns:
+        escaped = re.escape(p)
+        if p and not p[-1].isalnum():
+            if re.search(rf"(?:^|_){escaped}", upper):
+                return True
+        elif re.search(rf"(?:^|_){escaped}(?:$|[\d_])", upper):
+            return True
+    return False
 
 
 @dataclass
@@ -221,18 +244,35 @@ class DesignRules:
         return is_power_net(net_name)
 
     def _is_gate_net(self, net_name: str) -> bool:
-        """Check if net belongs to Gate Drive circuitry."""
+        """Check if net belongs to Gate Drive circuitry.
+
+        Word-boundary keyword match (delimited by ``_`` or start/end of the
+        uppercased name) -- see :func:`_is_high_current_net`'s docstring
+        for the bug history this shares.
+        """
         upper = net_name.upper()
         # GATE_H, GATE_L, PWM_H, PWM_L, SW_NODE (ref for gate)
-        patterns = ["GATE", "PWM", "SW_NODE"]
-        return any(p in upper for p in patterns)
+        patterns = ("GATE", "PWM", "SW_NODE")
+        return _hv_word_boundary_match(upper, patterns)
 
     def _is_high_current_net(self, net_name: str) -> bool:
-        """Check if net carries high switching current."""
+        """Check if net carries high switching current.
+
+        Bug history (2026-07-27): this previously matched ``"COIL"`` as a
+        plain substring (``p in upper``), which matched
+        ``discharge.k_dis1-coil1``/``...-coil2`` and
+        ``power_in.bypass_relay-coil1``/``...-coil2`` -- four relay-coil
+        nets declared SELV ("coil drive") in
+        ``elec/domain_manifest.yaml`` -- misclassifying them as
+        high-current/HV-adjacent. Same defect class as
+        ``creepage_check.py`` (merge 5076e715) and ``clearance_check.py``
+        (merge 466c7724); see
+        ``docs/evidence/2026-07-27-net-classification-gate.md``.
+        """
         upper = net_name.upper()
         # DC_BUS+, AC_L, AC_N, COIL
-        patterns = ["DC_BUS", "AC_L", "AC_N", "COIL"]
-        return any(p in upper for p in patterns)
+        patterns = ("DC_BUS", "AC_L", "AC_N", "COIL")
+        return _hv_word_boundary_match(upper, patterns)
 
     def get_diff_pair_for_net(self, net_name: str) -> DifferentialPairConstraint | None:
         """Get differential pair constraint if net is part of a pair.

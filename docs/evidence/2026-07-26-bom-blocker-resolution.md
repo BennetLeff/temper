@@ -1,5 +1,7 @@
 # BOM Blocker Resolution — 3 Confirmed Procurement Blockers
 
+**Provenance: commit=UNKNOWN dirty=UNKNOWN** -- backfilled prior to the provenance gate's introduction (2026-07-26); no self-declared commit exists in this file's own content and none was fabricated. See .evidence-provenance-allowlist.
+
 **Date:** 2026-07-26. **Scope:** resolves the 3 blockers found in `docs/evidence/2026-07-26-bom-availability-sweep.md` against `docs/hardware/BOM.md` rev 1.5 and `elec/src/*.ato`. **Method:** direct distributor/manufacturer page fetches and directly-read PDF datasheets (DigiKey, Schurter, EPCOS/TDK, KEMET), cross-checked against `elec/src/modules.ato`/`components.ato`, `elec/src/constraints.ato`, and `pcb/temper.kicad_pcb`. No component was drawn (footprints) — only described.
 
 **`ato build` could not be run in this environment** — it fails on this checkout with `atopile.address.AddressError: Cannot add instance to something without an entry section` regardless of edits (reproduced on a clean, unmodified checkout too, both with the installed `ato` 0.2.69 and with `ato` pinned to 0.2.68 via `uv tool run`). This is a pre-existing toolchain issue, unrelated to this change. Instance-count reconciliation below was therefore done by static analysis of the instantiation graph (every `main.ato` module instantiation traced by hand), not by generating `elec/build/default.net`.

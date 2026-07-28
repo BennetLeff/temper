@@ -1,0 +1,153 @@
+# MPN fabrication gate allowlist — hand-curated only.
+#
+# scripts/mpn_fabrication_gate.py has no --init/--regenerate mode and never
+# writes this file. Every entry below was added by a human after an actual
+# distributor/manufacturer page confirmed the part is real, despite tripping
+# the offline E-series or MPN-decode check. check_typecheck_gate.py's
+# auto-resynced allowlist is exactly the failure mode this is designed to
+# prevent (see docs/plans/2026-06-2x -- a live TypeError survived 3 days in
+# CI because --init silently re-baselined it); this file must never grow via
+# a script, only via a reviewed PR that cites where the part was verified.
+#
+# Each entry:
+#   file:   path relative to repo root
+#   ref:    the atopile variable name (e.g. r_ref_top)
+#   mpn:    the exact MPN string as it appears in source
+#   checks: which check(s) this entry suppresses -- "eseries" and/or "decode"
+#   reason: why this is a genuine exception, with a citation
+#
+# See docs/evidence/2026-07-27-fabricated-mpn-audit.md for the full audit
+# these entries came out of, including the network verification for each.
+
+allowlist:
+  # --- Round-number 1% values that are real, stocked SKUs despite not
+  # --- being members of the canonical E96 table (IEC 60063's textbook E96
+  # --- sequence does not perfectly match every manufacturer's extended
+  # --- catalog -- some vendors also stock "round" E24-style values at
+  # --- tighter tolerances as a customer convenience). Each was confirmed
+  # --- by a direct DigiKey product-page fetch on 2026-07-27, not a search
+  # --- snippet.
+
+  - file: elec/src/modules.ato
+    ref: r_filt_a
+    mpn: RC0603FR-0751RL
+    checks: [eseries]
+    reason: >
+      Yageo 51 ohm 1% 0603 -- DigiKey exact-match product page confirmed
+      2026-07-27 (51 Ohms, out-of-stock-but-real with listed in-stock
+      substitute AC0603FR-0751RL). EMI filter resistor, non-safety role.
+
+  - file: elec/src/modules.ato
+    ref: r_filt_b
+    mpn: RC0603FR-0751RL
+    checks: [eseries]
+    reason: >
+      Same part as r_filt_a (second EMI filter channel) -- see that entry.
+
+  - file: elec/src/modules.ato
+    ref: r_bleed1
+    mpn: CRGP2512F22K
+    checks: [eseries]
+    reason: >
+      Vishay CRGP 22 kOhm 1% 2512 -- DigiKey exact-match product page
+      confirmed 2026-07-27 (22,000 Ohms, in stock via TE Connectivity
+      listing). Bus-bleed/discharge resistor; wattage/pulse suitability
+      already verified 2026-07-16 per the inline source comment.
+
+  - file: elec/src/modules.ato
+    ref: r_bleed2
+    mpn: CRGP2512F22K
+    checks: [eseries]
+    reason: >
+      Same part as r_bleed1 (second bleed string) -- see that entry.
+
+  - file: elec/src/modules.ato
+    ref: r_sda_pullup
+    mpn: RC0603FR-074K7L
+    checks: [eseries]
+    reason: >
+      Yageo 4.7 kOhm 1% 0603 -- DigiKey exact-match product page confirmed
+      2026-07-27 (4.7 kOhms +/-1%, out-of-stock-but-real with listed
+      in-stock substitute AF0603FR-074K7L). I2C pull-up, non-safety role.
+
+  - file: elec/src/modules.ato
+    ref: r_scl_pullup
+    mpn: RC0603FR-074K7L
+    checks: [eseries]
+    reason: >
+      Same part as r_sda_pullup (second I2C line) -- see that entry.
+
+  # --- OVP-01 HV bus-sense divider (mains-adjacent, protective-impedance
+  # --- crossing per elec/domain_manifest.yaml). 430 kOhm is outside the
+  # --- canonical E96 table but is a real Yageo RC1206 catalog value.
+
+  - file: elec/src/modules.ato
+    ref: r_div_top1
+    mpn: RC1206FR-07430KL
+    checks: [eseries]
+    reason: >
+      Yageo 430 kOhm 1% 1206, 0.25W -- DigiKey exact-match product page
+      confirmed 2026-07-27 ("RES 430K OHM 1% 1/4W 1206", with listed
+      Panasonic substitute ERJ-8ENF4303V, itself decoding to 430k via the
+      same EIA convention). Part of the OVP-01 HV sense divider
+      (r_div_top1-3 + r_div_bot); voltage rating separately verified
+      against the Yageo RC1206 datasheet per the inline source comment.
+
+  - file: elec/src/modules.ato
+    ref: r_div_top2
+    mpn: RC1206FR-07430KL
+    checks: [eseries]
+    reason: >
+      Same part as r_div_top1 (second leg of the 3x430k series string) --
+      see that entry.
+
+  - file: elec/src/modules.ato
+    ref: r_div_top3
+    mpn: RC1206FR-07430KL
+    checks: [eseries]
+    reason: >
+      Same part as r_div_top1 (third leg of the 3x430k series string) --
+      see that entry.
+
+  # --- RTD reference resistor (MAX31865 R_REF). 430 ohm at 0.1% is outside
+  # --- the canonical E192 table but is a real Panasonic ERA-6A catalog
+  # --- value.
+
+  - file: elec/src/modules.ato
+    ref: r_ref
+    mpn: ERA-6AEB431V
+    checks: [eseries]
+    reason: >
+      Panasonic ERA-6A 430 Ohm 0.1% 0805 -- DigiKey exact-match product
+      page confirmed 2026-07-27 (430 Ohms, +/-0.1%, In-Stock: 10,954).
+      MAX31865 RTD current-source reference resistor.
+
+# FORMERLY not allowlisted, deliberately, so the gate would fail on the
+# tree per the audit's own falsifier. All five were fixed in-source (real
+# E-series values + distributor-verified MPNs), not suppressed here, so none
+# of them need an allowlist entry -- kept below as a resolution record:
+#   - r_ref_top / RC0603FR-073K2L (OCP-01, modules.ato:1695) -- no DigiKey
+#     or Mouser hit found; sibling OCP/thermal comparators all use genuine
+#     E96 values (3.16k, 3.74k) for the analogous divider leg. RESOLVED
+#     2026-07-27: re-derived to 3.24k / RC0603FR-073K24L (see
+#     docs/evidence/2026-07-27-ocp01-uvl02-part-resolution.md).
+#   - r_high_top / ERA-3AEB5931V (RTD window, modules.ato:1597) -- no
+#     DigiKey hit found. RESOLVED 2026-07-27: 5.9k / ERA-3AEB5901V,
+#     confirmed real (out of stock, 33wk lead time) -- see
+#     docs/evidence/2026-07-27-era-resistor-resolution.md.
+#   - r_avdd_top / ERA-3AEB6163V (rail monitor, modules.ato:1643) -- no
+#     DigiKey hit found. RESOLVED 2026-07-27: 619k / ERA-6AEB6193V (0805,
+#     the value is above ERA-3A/0603's stocked range), confirmed real and
+#     in stock -- see docs/evidence/2026-07-27-era-resistor-resolution.md.
+#   - r_low_top / ERA-3AEB6132V (modules.ato:1591) -- the already-known
+#     case-4 fabrication. RESOLVED 2026-07-27: 61.9k / ERA-3AEB6192V,
+#     confirmed real and in stock -- see
+#     docs/evidence/2026-07-27-era-resistor-resolution.md.
+#   - r_div_bot / RC0603FR-0710KL under LogicUVLOComparator
+#     (modules.ato:2415-2417) -- this is a real MPN (10 kOhm), but the
+#     declared value on the same lines says 100 kOhm. This is a
+#     value<->MPN *disagreement*, not a non-standard value, so the
+#     eseries check doesn't fire on it (10k and 100k are both E96
+#     members) -- it is caught by the decode check instead. RESOLVED
+#     2026-07-27: corrected to RC0603FR-07100KL (see
+#     docs/evidence/2026-07-27-ocp01-uvl02-part-resolution.md).

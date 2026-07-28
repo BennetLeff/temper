@@ -1,5 +1,7 @@
 # INVARIANT test suite parallel split — design data and verification
 
+<!-- provenance: commit=UNKNOWN dirty=UNKNOWN -->
+
 **Date:** 2026-07-27
 **PR:** #361
 

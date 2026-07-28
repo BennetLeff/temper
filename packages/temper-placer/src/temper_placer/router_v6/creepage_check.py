@@ -153,9 +153,49 @@ def _is_high_voltage_net(net_name: str) -> bool:
     Check whether *net_name* designates a high-voltage net.
 
     Matches a broad set of keywords commonly used in power-electronics
-    schematics.  ``AC`` and ``HV`` are matched on word boundaries so
-    that ``AC1``, ``HV_BUS``, ``_AC`` are recognised but ``TRACE`` is
-    not.
+    schematics.  Every keyword is matched on word boundaries (delimited
+    by ``_`` or start/end of the name) so that ``AC1``, ``HV_BUS``,
+    ``_AC`` are recognised but ``TRACE`` is not.
+
+    .. note:: **Bug history (2026-07-27).** Before this fix, only the
+       ``AC``/``HV`` checks below were word-bounded; ``broad_keywords``
+       used plain substring matching (``kw in name_upper``), which
+       silently matched ``"L1"``/``"L2"`` inside ``"COIL1"``/``"COIL2"``
+       (SELV relay-coil-drive nets, e.g. ``discharge.k_dis1-coil2``,
+       ``power_in.bypass_relay-coil2``) and ``"LINE"`` inside
+       ``"...-line"`` (internal safety-interlock fault signals, e.g.
+       ``safety.ovp-line``, ``safety.uvlo_logic-line`` -- the latter is
+       explicitly documented as SELV in ``elec/domain_manifest.yaml``,
+       with a multi-paragraph justification). On the live production
+       board this meant **14 of the 16** net names the check treated as
+       ``hv_net`` were false positives, and **all 24** of one measured
+       run's creepage violations involved one of those 14 -- zero
+       involved a genuine HV/mains conductor. Real HV nets in this
+       design happen to be delimited by ``_`` (``discharge.k_dis1-coil2``
+       uses ``-``, not ``_``, before ``coil2``), so word-bounding on
+       ``_`` -- the same discipline the AC/HV regex already used --
+       removes every one of these collisions without narrowing intended
+       matches (a net genuinely named e.g. ``PHASE_L1`` or ``BUS_L1``
+       still matches; ``COIL1``/``...-LINE`` no longer do, because ``L1``/
+       ``LINE`` are not preceded by ``_`` or string-start there). See
+       ``docs/evidence/2026-07-27-creepage-burndown.md`` Sec 4 for the
+       full derivation and the live before/after violation counts.
+
+       This fix does **not** add coverage for the real HV nets the old
+       heuristic also missed entirely (``+170V_BUS``, ``SW_NODE``,
+       ``DC_BUS_RTN``, ``GATE_HS``/``GATE_LS``, ``w1_1``/``w1_2``,
+       ``+15V_LS``, ``zcd``, ``a`` -- everything in
+       ``elec/domain_manifest.yaml``'s HV domain except ``ac_l``/
+       ``ac_n``). That is a separate, "Missing" (not "Wrong") gap in this
+       heuristic's design -- a name-pattern classifier structurally
+       cannot recognise nets whose *name* gives no voltage hint -- and is
+       out of scope for this fix, which only removes proven false
+       positives. Flagged as a ranked follow-up in the evidence doc:
+       driving this check's HV-net set from ``elec/domain_manifest.yaml``
+       (the same SSOT ``domain_clearance.py`` already reuses for the
+       placement-side clearance check) would close it properly, at the
+       cost of coupling this otherwise project-agnostic module to one
+       project's manifest file -- a real design decision, not made here.
 
     Args:
         net_name: Net name from the schematic / layout.
@@ -165,7 +205,9 @@ def _is_high_voltage_net(net_name: str) -> bool:
     """
     name_upper = net_name.upper()
 
-    # Broad-match keywords (substring match is safe for these)
+    # Word-boundary keywords, delimited by "_" or start/end-of-string --
+    # see the bug-history note above for why plain substring matching
+    # here was wrong.
     broad_keywords = [
         "HIGH_VOLTAGE",
         "MAINS",
@@ -178,9 +220,13 @@ def _is_high_voltage_net(net_name: str) -> bool:
         "L3",
         "PHASE",
         "VBUS",
-        "B+",
     ]
-    if any(kw in name_upper for kw in broad_keywords):
+    for kw in broad_keywords:
+        if re.search(rf"(?:^|_){re.escape(kw)}(?:$|[\d_])", name_upper):
+            return True
+    # "B+" has no alphanumeric trailing boundary to anchor on; anchored
+    # on the leading "_"/start side only (e.g. "DC_BUS+", "BUS+").
+    if re.search(r"(?:^|_)B\+", name_upper):
         return True
 
     # AC / HV with optional trailing underscore or digit
@@ -380,17 +426,40 @@ def _find_clearance_violations(
     lv_net: str,
 ) -> list[CreepageViolation]:
     """
-    Find **all** clearance violations between two routes.
+    Find the worst-case (closest-approach) clearance violation, if any,
+    between two routes.
+
+    A routed net is typically decomposed internally into many short
+    (~0.1 mm grid-step) segments. Two nets running parallel for any
+    distance therefore have many segment-pairs that are all closer than
+    ``required_distance`` -- but they represent a *single* isolation
+    defect for this ``(hv_net, lv_net)`` pair, not one defect per
+    segment-pair. Returning one ``CreepageViolation`` per segment-pair
+    (the previous behaviour) produced counts in the hundreds of
+    thousands that could not be interpreted as a count of real board
+    defects (see docs/evidence/2026-07-27-drc-checks-repaired.md).
+
+    This mirrors ``clearance_check._calculate_minimum_clearance_by_layer``,
+    which already aggregates to one violation per (net-pair, layer) via
+    the same reasoning -- the worst-case (minimum) approach distance is
+    the number that determines pass/fail against a safety standard;
+    every closer segment-pair along the same parallel run is evidence of
+    the same defect, not a second one.
 
     Only segments residing on the **same layer** are compared.
     Cross-layer (via-to-via) creepage requires a separate pathfinding
     approach and is not computed here.
 
     Returns:
-        List of ``CreepageViolation`` records (one per violating
-        segment pair).
+        A single-element list with the closest-approach
+        ``CreepageViolation`` if the minimum same-layer distance between
+        the two routes is under ``required_distance``, else an empty
+        list. Never more than one element -- this keeps
+        ``violation_count`` bounded by ``total_checks`` (one check per
+        net pair), so the two numbers stay comparable.
     """
-    violations: list[CreepageViolation] = []
+    best_dist = float("inf")
+    best_loc: tuple[float, float] = (0.0, 0.0)
 
     segs1 = _extract_segments(route1)
     segs2 = _extract_segments(route2)
@@ -412,20 +481,23 @@ def _find_clearance_violations(
                 y4,
             )
 
-            if dist < required_distance:
+            if dist < best_dist:
+                best_dist = dist
                 # Midpoint of closest approach as violation location
-                loc = ((p1[0] + p2[0]) / 2.0, (p1[1] + p2[1]) / 2.0)
-                violations.append(
-                    CreepageViolation(
-                        hv_net=hv_net,
-                        lv_net=lv_net,
-                        location=loc,
-                        actual_distance=dist,
-                        required_distance=required_distance,
-                    )
-                )
+                best_loc = ((p1[0] + p2[0]) / 2.0, (p1[1] + p2[1]) / 2.0)
 
-    return violations
+    if best_dist < required_distance:
+        return [
+            CreepageViolation(
+                hv_net=hv_net,
+                lv_net=lv_net,
+                location=best_loc,
+                actual_distance=best_dist,
+                required_distance=required_distance,
+            )
+        ]
+
+    return []
 
 
 # ---------------------------------------------------------------------------

@@ -68,5 +68,10 @@
     "response_time_measured": false,
     "response_time_reason": "TLV3201_ngspice.lib declares no timing model; the ramped 'temperature' driver is an idealized proxy, not a thermal time-constant simulation.",
     "summary": "Simulated THM-01 trip temperature is 84.91 degC (uncalibrated), within the THM-01 85 degC spec."
+  },
+  "provenance": {
+    "commit": "UNKNOWN",
+    "dirty": "UNKNOWN",
+    "note": "backfilled prior to the provenance gate's introduction (2026-07-26); no self-declared commit exists in this file's own content and none was fabricated. See .evidence-provenance-allowlist."
   }
 }

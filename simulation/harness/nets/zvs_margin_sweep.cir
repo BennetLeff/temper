@@ -105,9 +105,23 @@
 *                               `inductor_conn.p1`, modules.ato:411-414) --
 *                               NOT in series as the two-capacitor count
 *                               might suggest at a glance.
-*   - F_SW = 35kHz (baseline) : main.ato:71 `f_switching: frequency = 35kHz`
-*                               (nominal; asserted 20-100kHz, main.ato:72).
-*                               SWEPT by the harness; see run_zvs_sweep.py.
+*   - F_SW = 35kHz (baseline) : this deck's own committed .param default,
+*                               kept fixed as run_zvs_sweep.py's self-test
+*                               anchor point (grid_reproduces_independent_
+*                               baseline_run) -- it no longer equals
+*                               main.ato:71's declared nominal. CORRECTED
+*                               2026-07-27 (docs/evidence/2026-07-27-zvs-
+*                               operating-point.md): main.ato:71 moved
+*                               `f_switching` from 35kHz to 47kHz after
+*                               35kHz measured 100.7% ZVS margin LOST for
+*                               ferromagnetic pans under the corrected
+*                               K=0.79 pan model (asserted 20-100kHz,
+*                               main.ato:72 -- unchanged, still covers
+*                               47kHz). SWEPT by the harness; see
+*                               run_zvs_sweep.py's F_SWITCHING_NOMINAL_HZ
+*                               and FREQ_GRID_HZ comments for why this
+*                               .param's own value is deliberately not
+*                               bumped to match.
 *
 * ============================================================================
 * Values NOT in modules.ato -- model defaults used instead (flagged, R4)
@@ -121,8 +135,15 @@
 *     with its own subckt's coded default (80uH) -- an internal
 *     inconsistency in the vendor/model file, reported not resolved. The
 *     coded default is what actually executes and is what this deck uses.
-*   - PAN_L2 = 1uH (pan-side inductance): PANLOAD_TRANSFORMER's own default;
-*     pan_load.sub documents no per-material L2 guidance anywhere.
+*   - PAN_L2 = 218uH (pan-side inductance): CORRECTED 2026-07-27 (was 1uH).
+*     The 1uH default kept omega*L2 ~45x below every RPAN preset, which
+*     suppressed the coupling's effect on both L and R almost entirely
+*     regardless of K -- see docs/evidence/2026-07-27-coil-pan-coupling-
+*     resolution.md Sec 2.3. 218uH is the Infineon-anchored value derived
+*     in that document's Sec 2.5, held uniform across pan presets (see
+*     run_zvs_sweep.py's PAN_PRESETS comment for why). Still not measured
+*     for this project's coil/pan -- see
+*     docs/evidence/2026-07-27-pan-preset-correction.md.
 *   - PAN_RCOIL = 0.1 ohm (coil series resistance): PANLOAD_TRANSFORMER's
 *     own default; no schematic source (the coil is unspecified, above).
 *
@@ -143,9 +164,11 @@
 * PANLOAD_TRANSFORMER is used instead: it implements an actual mutual-
 * inductance transformer (ngspice K_couple statement) with a real R_pan in
 * the shorted secondary loop, so RPAN and K both have physical effect. Its
-* trade-off: it requires a secondary inductance L2 that the schematic and
-* pan_load.sub's documentation do not specify per pan material (flagged
-* above, PAN_L2 default 1uH).
+* trade-off: it requires a secondary inductance L2 that the schematic does
+* not specify per pan material (flagged above; PAN_L2 = 218uH, CORRECTED
+* 2026-07-27, held uniform across pan presets rather than per-material --
+* see run_zvs_sweep.py's PAN_PRESETS comment and
+* docs/evidence/2026-07-27-pan-preset-correction.md).
 *
 * ============================================================================
 * Current-transformer model exclusion -- also a finding
@@ -221,14 +244,22 @@
 
 * --- Model defaults, NOT from elec/ (see header) ---
 .param PAN_L1     = 80u
-.param PAN_L2     = 1u
+.param PAN_L2     = 218u
 .param PAN_RCOIL  = 0.1
 
 * --- Sweep axes (baseline values here = the one demonstrated point this
-*     deck reproduces stand-alone; run_zvs_sweep.py overrides these) ---
+*     deck reproduces stand-alone; run_zvs_sweep.py overrides these).
+*     PAN_K/PAN_RPAN/PAN_L2 baseline CORRECTED 2026-07-27 to the
+*     Infineon-anchored cast_iron/stainless point (K=0.79, RPAN=10,
+*     L2=218u -- see docs/evidence/2026-07-27-pan-preset-correction.md).
+*     The old baseline (K=0.5, RPAN=8, L2=1u) was the provably-impossible
+*     pre-correction default (pan_load.sub header table, uncited). This
+*     baseline must track run_zvs_sweep.py's cast_iron preset exactly, or
+*     the harness's own self-consistency check
+*     (grid_reproduces_independent_baseline_run) fails by design. ---
 .param F_SW     = 35k
-.param PAN_K    = 0.5
-.param PAN_RPAN = 8
+.param PAN_K    = 0.79
+.param PAN_RPAN = 10
 
 * --- Simulation control ---
 .param N_CYCLES = 25
@@ -317,6 +348,18 @@ X_PAN tank_mid2 0 PANLOAD_TRANSFORMER L1={PAN_L1} L2={PAN_L2} K={PAN_K} RPAN={PA
 * secondary loop): P_pan = i_pan_rms_last^2 * RPAN, computed in the harness
 * (not here) since RPAN is already tracked per grid point there.
 .meas tran i_pan_rms_last RMS v.x_pan.v_short#branch FROM='(N_CYCLES-1)*PERIOD' TO='N_CYCLES*PERIOD'
+
+* Tank capacitor voltage swing, last cycle -- added 2026-07-27
+* (docs/evidence/2026-07-27-zvs-operating-point.md) to check the knock-on
+* question of whether c_tank1/c_tank2's 1600V rating (modules.ato,
+* asserted >= v_tank_peak*1.43 = 572V against a DECLARED 400V design
+* figure, not a simulated one) still holds once f_switching is raised.
+* C_TANK sits between `sw` and `tank_mid` (see the topology comment
+* above), so the voltage ACROSS it is V(sw)-V(tank_mid), not V(sw) alone
+* (v_sw_max/min above are the switch-node's own swing against ground/hvn,
+* a different quantity).
+.meas tran v_ctank_max_last MAX PAR('V(sw)-V(tank_mid)') FROM='(N_CYCLES-1)*PERIOD' TO='N_CYCLES*PERIOD'
+.meas tran v_ctank_min_last MIN PAR('V(sw)-V(tank_mid)') FROM='(N_CYCLES-1)*PERIOD' TO='N_CYCLES*PERIOD'
 
 .control
 set noaskquit

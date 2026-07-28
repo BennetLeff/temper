@@ -54,5 +54,10 @@
     "candidate_below_uvl02_trip_ceiling": true,
     "gate_confirmed_as_uvl02": false,
     "summary": "The TPS3700 rail_monitor CANDIDATE circuit trips at V(power_3v3)=2.825 V (uncalibrated), matching the hand-derived 2.825 V to within 0.0003 V. That number sits BELOW the UVL-02 spec's 2.9V trip ceiling, i.e. on the conservative side: IF this circuit were confirmed as UVL-02, it would trip at 2.825V, before the rail falls all the way to the 2.9V line the spec treats as the last safe point -- earlier/more conservative than the spec requires, not a failure to trip in time. But this circuit monitors RTD_AVDD, a downstream RTD-subsystem rail, per its own component docstring -- it is not source-confirmed as the general 'Logic (3.3V) UVLO' gate. The more literal candidate (TPS3823-33 whole-board VDD supervisor, 2.93V typical) is UNMEASURED: no SPICE model exists for it."
+  },
+  "provenance": {
+    "commit": "UNKNOWN",
+    "dirty": "UNKNOWN",
+    "note": "backfilled prior to the provenance gate's introduction (2026-07-26); no self-declared commit exists in this file's own content and none was fabricated. See .evidence-provenance-allowlist."
   }
 }

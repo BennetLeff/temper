@@ -18,12 +18,14 @@ from pathlib import Path
 import pytest
 import yaml
 
+from temper_placer.core.netlist import Netlist
 from temper_placer.pcl import (
     AdjacentConstraint,
     AlignedConstraint,
     AnchoredConstraint,
     Axis,
     BoardSide,
+    CompilationContext,
     ConstraintTier,
     ConstraintType,
     DistanceMetric,
@@ -37,6 +39,7 @@ from temper_placer.pcl import (
     parse_constraint_dict,
     parse_pcl_file,
 )
+from temper_placer.pcl._constraint_parser import _is_resolved
 
 # ============================================================================
 # Distance Parsing Tests
@@ -542,3 +545,93 @@ def test_load_pcl_collection_not_a_directory():
 
     with pytest.raises(PCLParseError, match="Not a directory"):
         load_pcl_collection(fixture_path)
+
+
+# ============================================================================
+# _is_resolved vacuous-empty-collection tests
+#
+# EnclosingConstraint.inner and OnSideConstraint.components have no
+# construction-time or parse-time minimum-length check (unlike
+# AlignedConstraint, which raises ValueError below 2 components) --
+# `inner: []` / `components: []` is a reachable PCL input. Before the
+# check_vacuous_gates.py-driven fix, _is_resolved's `all(...)` over
+# those empty collections was vacuously True, so a zero-component
+# constraint was reported "resolved" instead of being rejected as
+# degenerate/malformed. These tests fail on the pre-fix code (asserting
+# False, they'd see True) and pass after the `if not constraint.inner`
+# / `if not constraint.components` guards were added.
+# ============================================================================
+
+
+def _empty_context() -> CompilationContext:
+    return CompilationContext(netlist=Netlist())
+
+
+def test_is_resolved_rejects_empty_enclosing_inner():
+    """An EnclosingConstraint with zero inner components must not resolve."""
+    constraint = EnclosingConstraint(
+        outer="HV_ZONE",
+        inner=[],
+        tier=ConstraintTier.HARD,
+        because="Regression test for vacuous all() over empty inner",
+    )
+    assert _is_resolved(constraint, _empty_context()) is False
+
+
+def test_is_resolved_rejects_empty_on_side_components():
+    """An OnSideConstraint with zero components must not resolve.
+
+    OnSideConstraint (unlike AlignedConstraint) enforces no minimum
+    component count at construction, so components=[] is reachable.
+    """
+    constraint = OnSideConstraint(
+        components=[],
+        side=BoardSide.LEFT,
+        edge=EdgeType.FLUSH,
+        tier=ConstraintTier.HARD,
+        because="Regression test for vacuous all() over empty components",
+    )
+    assert _is_resolved(constraint, _empty_context()) is False
+
+
+def test_is_resolved_still_resolves_non_empty_enclosing_and_on_side():
+    """Guard against over-correcting: non-empty inner/components with
+    actually-resolvable refs must still resolve."""
+    netlist = Netlist()
+    enclosing = EnclosingConstraint(
+        outer="HV_ZONE",
+        inner=["Q1"],
+        tier=ConstraintTier.HARD,
+        because="Zone refs resolve via uppercase convention",
+    )
+    on_side = OnSideConstraint(
+        components=["Q1"],
+        side=BoardSide.LEFT,
+        edge=EdgeType.FLUSH,
+        tier=ConstraintTier.HARD,
+        because="Zone refs resolve via uppercase convention",
+    )
+    context = CompilationContext(netlist=netlist)
+    # "Q1" is not upper() and not in the (empty) netlist, so this should
+    # resolve to False for a genuinely-unresolvable reference -- distinct
+    # from the empty-collection case, which must also be False but for a
+    # different reason (nothing to check, not "checked and failed").
+    assert _is_resolved(enclosing, context) is False
+    assert _is_resolved(on_side, context) is False
+
+    # Now with a ref the "is upper" convention accepts (zone-style name).
+    enclosing_zone_ref = EnclosingConstraint(
+        outer="HV_ZONE",
+        inner=["INNER_ZONE"],
+        tier=ConstraintTier.HARD,
+        because="Zone refs resolve via uppercase convention",
+    )
+    on_side_zone_ref = OnSideConstraint(
+        components=["INNER_ZONE"],
+        side=BoardSide.LEFT,
+        edge=EdgeType.FLUSH,
+        tier=ConstraintTier.HARD,
+        because="Zone refs resolve via uppercase convention",
+    )
+    assert _is_resolved(enclosing_zone_ref, context) is True
+    assert _is_resolved(on_side_zone_ref, context) is True

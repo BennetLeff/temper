@@ -1,5 +1,7 @@
 # Failure mechanism taxonomy: eight recurring shapes, verified instances
 
+<!-- provenance: commit=UNKNOWN dirty=UNKNOWN -->
+
 **Date:** 2026-07-27
 **Scope:** repo-wide survey of one day's worth of fixes (2026-07-26 through
 2026-07-27 on `main`), grouped by mechanism rather than by symptom. Every

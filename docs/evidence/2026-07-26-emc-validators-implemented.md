@@ -1,5 +1,7 @@
 # EMC Requirement Validators Implemented — emi_filter.py / ground_plane.py
 
+<!-- provenance: commit=cbe9a95ab61fc41fb591c884d7b3a1bb489245cc dirty=UNKNOWN -->
+
 **Date:** 2026-07-26
 **Scope:** `packages/temper-placer/tests/requirements/validators/emi_filter.py` (8
 stubs), `packages/temper-placer/tests/requirements/validators/ground_plane.py`

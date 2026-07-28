@@ -3,8 +3,13 @@
 #
 # This script was removed from active CI in favour of the corpus regression
 # runner (packages/temper-placer/src/temper_placer/regression/corpus_runner.py).
-# The `make regression` target and `python-tests.yml` regression job now call
-# the corpus runner directly.
+#
+# RETIRED 2026-07-27: the corpus runner that replaced it is itself no longer
+# reachable -- corpus_runner.py:454 calls create_default_phases(), which raises
+# NotImplementedError("JAX optimizer removed."). The `make regression` target
+# and the `python-tests.yml` regression job that called it are both retired, so
+# there is now no live caller of either script. Restoring this coverage needs a
+# placement strategy that still exists.
 #
 # This stub is kept so that callers who haven't migrated get a clear message.
 import sys

@@ -19,11 +19,57 @@ check that fires on correct code is a defect).
 
 Scope
 -----
-Only files that look like gates/validators are scanned: any ``.py`` file
-under ``packages/*/src`` whose repo-relative path contains ``gate`` or
-``valid`` as a path-component/filename substring (case-insensitive),
-excluding tests and the frozen ``router_v6`` package (out of scope per
-the forced-segment fail-closed plan).
+**2026-07-27 rewrite** (see docs/evidence/2026-07-27-gate-subset-blindness-audit.md):
+the previous scope was an *include-list* keyed on ``SCOPE_TOKENS = ("gate",
+"valid")`` matched against the repo-relative path substring, restricted to
+``packages/*/src``. Measured against the real validator surface it covered
+2 of 13 known validator modules -- worse, it structurally could not see
+``scripts/*.py`` at all (``find_scope_files`` only globbed
+``packages/*/src``), so every one of the CI gate scripts audited alongside
+this one (``check_domain_partition.py``, ``capacity_budget_gate.py``,
+``mpn_fabrication_gate.py``, ``check_derived_doc_drift.py``, this file
+itself, ...) was never scanned regardless of filename. A path substring is
+also both too broad (a directory named ``validation/`` sweeps in
+unrelated modules) and too narrow (``domain_clearance.py``,
+``drc_runner.py`` under ``deterministic/feedback/`` have neither token
+anywhere in their path).
+
+The scope is now a **default-include, narrow documented-exclude** union of:
+
+1. Every ``.py`` file under ``packages/*/src`` (recursive), except the
+   ``router_v6`` package -- excluded per the forced-segment fail-closed
+   plan (``docs/plans/2026-07-24-001-fix-forced-segment-fail-closed-plan.md``);
+   see that plan's current status before assuming this exclusion still
+   applies (UNVERIFIED as of this rewrite -- a concurrent agent is
+   actively working router_v6 code and this gate does not touch it).
+2. Every ``.py`` file under ``packages/*/tests`` (recursive) EXCEPT actual
+   test modules, matched by filename convention (``test_*.py``,
+   ``*_test.py``, ``conftest.py``) rather than by path substring -- the
+   previous ``"/tests/"`` substring exclusion silently dropped real
+   validator *implementation* modules that happen to live under a
+   ``tests/requirements/validators/`` tree (``isolation.py``,
+   ``emi_filter.py``, ``ground_plane.py``, ``pick_and_place.py``,
+   ``routability_check.py``, ``clearance_check.py``) even though they are
+   not test files themselves. Same ``router_v6`` exclusion applies.
+3. Every top-level ``.py`` file directly under ``scripts/`` (non-recursive
+   -- this naturally excludes ``scripts/_lib/``, ``scripts/tests/``,
+   ``scripts/spikes/``, ``scripts/templates/`` without a separate rule).
+
+Rationale for "default-include, narrow exclude" over an allowlist: an
+allowlist (of files, or of filename tokens) requires a maintainer to
+remember to add every new gate/validator module to it -- exactly the
+mechanism that produced the 2-of-13 blind spot in the first place. A
+denylist only has to name known non-validator conventions (test files);
+a new validator module added anywhere in scope is scanned automatically,
+with no action required and no PR-invisible omission possible.
+
+This is not free: the packages/*/tests union pulls in some fixture and
+helper modules that are not "validators" in spirit (Hypothesis strategy
+builders, golden-data generators). That is an accepted false-inclusion
+cost -- the detector below only flags unguarded ``all()`` calls, so a
+non-gate module with no such call produces no output either way. The
+asymmetry matters: false-inclusion costs nothing when there is nothing to
+flag; false-exclusion is silent forever.
 
 Detection
 ---------
@@ -69,11 +115,16 @@ console = Console()
 # fail-closed (returns False) -- see module docstring.
 AGGREGATORS = {"all"}
 
-# Path components (case-insensitive) that mark a file as a gate/validator.
-SCOPE_TOKENS = ("gate", "valid")
+# Package excluded from scope entirely (see module docstring: frozen per
+# the forced-segment fail-closed plan; UNVERIFIED whether still current).
+EXCLUDED_PACKAGE = "router_v6"
 
-# Packages/subtrees excluded from scope even if they match SCOPE_TOKENS.
-EXCLUDE_SUBSTRINGS = ("router_v6", "/tests/", "test_")
+# Filename conventions that mark a file as an actual test module rather
+# than a validator/gate implementation -- matched on the filename only,
+# never on path substring (see module docstring for why "/tests/" as a
+# path substring is wrong: it drops real validator implementations that
+# happen to live under a tests/requirements/validators/ tree).
+_TEST_FILENAME_RE = re.compile(r"^(test_.*|.*_test|conftest)\.py$")
 
 _GUARD_RE_TEMPLATES = [
     r"if\s+not\s+{expr}\b",
@@ -90,22 +141,52 @@ _STRIP_SUFFIX_RE = re.compile(r"\.(values|keys|items)\(\)$")
 # ---------------------------------------------------------------------------
 
 
-def in_scope(rel_path: str) -> bool:
-    """True when *rel_path* (posix, repo-relative) is a gate/validator file."""
-    low = rel_path.lower()
-    if any(ex in low for ex in EXCLUDE_SUBSTRINGS):
-        return False
-    return any(tok in low for tok in SCOPE_TOKENS)
+def _is_router_v6(rel_path: str) -> bool:
+    """True when *rel_path* falls under the excluded router_v6 package."""
+    parts = rel_path.split("/")
+    return EXCLUDED_PACKAGE in parts
 
 
-def find_scope_files(packages_dir: Path) -> list[Path]:
-    """Return every in-scope ``.py`` file under ``packages/*/src``."""
+def find_packages_scope_files(packages_dir: Path) -> list[Path]:
+    """Return every in-scope ``.py`` file under ``packages/*/src`` and
+    ``packages/*/tests`` (see module docstring for the exclusion rules)."""
     results: list[Path] = []
     for src_dir in sorted(packages_dir.glob("*/src")):
         for py_file in sorted(src_dir.rglob("*.py")):
             rel = py_file.relative_to(packages_dir.parent).as_posix()
-            if in_scope(rel):
-                results.append(py_file)
+            if _is_router_v6(rel):
+                continue
+            results.append(py_file)
+    for tests_dir in sorted(packages_dir.glob("*/tests")):
+        for py_file in sorted(tests_dir.rglob("*.py")):
+            rel = py_file.relative_to(packages_dir.parent).as_posix()
+            if _is_router_v6(rel):
+                continue
+            if _TEST_FILENAME_RE.match(py_file.name):
+                continue
+            results.append(py_file)
+    return results
+
+
+def find_scripts_scope_files(scripts_dir: Path) -> list[Path]:
+    """Return every top-level ``.py`` file directly under ``scripts/``.
+
+    Non-recursive by construction: this naturally excludes ``_lib/``,
+    ``tests/``, ``spikes/``, and ``templates/`` subdirectories without a
+    separate exclusion rule.
+    """
+    if not scripts_dir.is_dir():
+        return []
+    return sorted(
+        f for f in scripts_dir.glob("*.py") if f.is_file() and f.name != "__init__.py"
+    )
+
+
+def find_scope_files(packages_dir: Path, scripts_dir: Path | None = None) -> list[Path]:
+    """Return every in-scope ``.py`` file (packages + top-level scripts/)."""
+    results = find_packages_scope_files(packages_dir)
+    if scripts_dir is not None:
+        results.extend(find_scripts_scope_files(scripts_dir))
     return results
 
 
@@ -259,14 +340,32 @@ def find_violations(py_file: Path) -> list[tuple[int, str]]:
     return violations
 
 
-def find_all_violations(packages_dir: Path) -> dict[str, tuple[int, str]]:
-    """Scan every in-scope file. Returns ``{key: (lineno, snippet)}``."""
+def _rel_str(py_file: Path, repo_root: Path) -> str:
+    try:
+        return py_file.relative_to(repo_root).as_posix()
+    except ValueError:
+        return py_file.as_posix()
+
+
+def find_all_violations(
+    packages_dir: Path, scripts_dir: Path | None, repo_root: Path
+) -> tuple[dict[str, tuple[int, str]], int]:
+    """Scan every in-scope file.
+
+    Returns ``({key: (lineno, snippet)}, files_scanned)`` -- the second
+    element is the denominator this gate must report on both pass and
+    fail (see docs/evidence/2026-07-27-gate-subset-blindness-audit.md:
+    a gate reporting "0 violations" without also reporting how many
+    files it looked at cannot be distinguished from a gate that scanned
+    nothing).
+    """
     results: dict[str, tuple[int, str]] = {}
-    for py_file in find_scope_files(packages_dir):
-        rel = py_file.relative_to(packages_dir.parent).as_posix()
+    scope_files = find_scope_files(packages_dir, scripts_dir)
+    for py_file in scope_files:
+        rel = _rel_str(py_file, repo_root)
         for lineno, snippet in find_violations(py_file):
             results[f"{rel}:{lineno}"] = (lineno, snippet)
-    return results
+    return results, len(scope_files)
 
 
 # ---------------------------------------------------------------------------
@@ -286,6 +385,15 @@ def main() -> None:
         default="packages",
         help="Path to the packages/ directory (default: packages)",
     )
+    parser.add_argument(
+        "--scripts-dir",
+        type=Path,
+        default="scripts",
+        help="Path to the top-level scripts/ directory (default: scripts)."
+        " Pass a nonexistent path to disable this half of the scan"
+        " (used by falsifier tests) -- find_scripts_scope_files returns"
+        " an empty list for a non-directory rather than erroring.",
+    )
 
     args = parser.parse_args()
 
@@ -293,11 +401,30 @@ def main() -> None:
     if not packages_dir.is_absolute():
         packages_dir = Path.cwd() / packages_dir
 
+    scripts_dir = args.scripts_dir
+    if not scripts_dir.is_absolute():
+        scripts_dir = Path.cwd() / scripts_dir
+
     if not packages_dir.is_dir():
         console.print(f"[red]Packages directory not found: {packages_dir}[/]")
         sys.exit(1)
 
-    violations = find_all_violations(packages_dir)
+    repo_root = packages_dir.parent
+    violations, files_scanned = find_all_violations(packages_dir, scripts_dir, repo_root)
+
+    denominator = (
+        f"Scanned {files_scanned} file(s) in scope"
+        f" ({packages_dir}/*/src + */tests, {scripts_dir or '<disabled>'}/*.py)."
+    )
+
+    if files_scanned == 0:
+        console.print(
+            f"[red]FAIL (closed): {denominator} An anti-vacuous-truth gate that"
+            f" scans zero files cannot report a meaningful pass -- this is"
+            f" exactly the failure mode this gate exists to catch. Check"
+            f" --packages-dir/--scripts-dir.[/]"
+        )
+        sys.exit(1)
 
     if violations:
         for key in sorted(violations):
@@ -308,9 +435,10 @@ def main() -> None:
                 f" assert non-empty (or a per-item None check) before"
                 f" aggregating.[/]"
             )
+        console.print(f"[red]{denominator} {len(violations)} violation(s).[/]")
         sys.exit(1)
 
-    console.print("[green]Anti-vacuous-truth gate passed[/]")
+    console.print(f"[green]Anti-vacuous-truth gate passed. {denominator} 0 violations.[/]")
 
 
 if __name__ == "__main__":

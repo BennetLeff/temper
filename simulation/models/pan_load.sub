@@ -9,6 +9,14 @@
 *   - Primary: Induction coil (Litz wire spiral, ~50uH uncoupled)
 *   - Secondary: Pan bottom (acts as shorted turn)
 *   - Coupling coefficient k: 0.2 to 0.6 (depends on air gap, pan size)
+*     *** CORRECTED 2026-07-27 FOR PANLOAD_TRANSFORMER ONLY -- this
+*     *** 0.2-0.6 header range is PROVEN TOO LOW. See the "COUPLING
+*     *** PARAMETER CORRECTION" block right above PANLOAD_TRANSFORMER
+*     *** below, and docs/evidence/2026-07-27-pan-model-correction.md,
+*     *** for the derivation, the corrected point, and why this old
+*     *** range is left here (uncorrected) for PANLOAD_SIMPLE/
+*     *** PANLOAD_VARIABLE/the preset subckts, which this pass did not
+*     *** touch -- do not assume those are now trustworthy either.
 *
 * EQUIVALENT CIRCUIT (T-model):
 *
@@ -38,6 +46,10 @@
 *   Stainless:    Rpan = 15-50 ohm, k = 0.2-0.4
 *   Aluminum:     Rpan = 50-200 ohm, k = 0.1-0.2 (poor coupling)
 *   No pan:       Rpan = ∞,          k ≈ 0
+*   *** These per-material k/Rpan figures are UNCITED (no source ever
+*   *** given anywhere in this file's history) and are NOT corrected by
+*   *** this pass -- they are flagged, not fixed. See the correction
+*   *** block below PANLOAD_TRANSFORMER's header for what IS fixed.
 *
 ***************************************************************************
 * MODEL PARAMETERS (override with .param statements)
@@ -86,6 +98,52 @@ R_ref N_rcoil B {K*K*80}
 .ends PANLOAD_SIMPLE
 
 ***************************************************************************
+* COUPLING PARAMETER CORRECTION -- 2026-07-27 (PANLOAD_TRANSFORMER ONLY)
+***************************************************************************
+* The K=0.4 / L2=1u defaults this subckt shipped with were PROVABLY
+* IMPOSSIBLE, independent of any geometry assumption:
+*
+*   - The loaded/unloaded inductance ratio this topology can produce has a
+*     hard floor of (1 - K^2), regardless of L2 or RPAN (shorted-secondary
+*     limit, x=omega*L2 -> infinity). Infineon AN235020's MEASURED ratio on
+*     a real coil+pan is ~0.40, which requires K >= 0.775. K=0.4 (old
+*     default) gives a best-case floor of 0.84 -- it can never get there.
+*   - Separately, L2=1uH kept omega*L2 ~45x below RPAN at every preset in
+*     this file, which suppresses the coupling's effect on both L and R
+*     almost entirely regardless of K (the model sat in a "barely loaded"
+*     regime at every operating point ever swept with it).
+*   - Together these produced an implied tank Q of 143 in
+*     docs/hardware/TANK_COIL_SPECIFICATION.md's sweep, against a realistic
+*     induction-hob Q of roughly 10-20.
+*
+* THE FIX BELOW IS CONSTRAINT-SATISFYING, NOT MEASURED. It is one
+* self-consistent point in a family that three unknowns (K, L2, RPAN) and
+* two literature-derived equations (L-ratio=0.40, R_eff~=2.2 ohm) cannot
+* uniquely resolve -- holding RPAN at a different (equally uncited) value
+* yields a different (K, L2) pair fitting the same two constraints just as
+* well. It is derived from a measurement Infineon made at 90-150kHz on an
+* unstated-diameter stockpot -- a DIFFERENT frequency band and an
+* UNVERIFIED-to-transfer geometry, not this project's coil or pan. Full
+* arithmetic, the underdetermination, and a re-run of every dependent
+* simulation are in docs/evidence/2026-07-27-pan-model-correction.md and
+* docs/evidence/2026-07-27-coil-pan-coupling-resolution.md Sec 2.
+*
+* Chosen point (holding L1=80u, RPAN=10 -- both this file's own
+* pre-existing, still-uncited defaults -- fixed):
+*   K  = 0.79   (was 0.4)   -- satisfies L-ratio=0.40 jointly with L2 below
+*   L2 = 218u   (was 1u)    -- satisfies R_eff ~= 2.2 ohm jointly with K
+*
+* SUPERSEDED BY: the bench spec in
+* docs/evidence/2026-07-27-coil-pan-coupling-resolution.md Sec 4, which
+* requires THREE frequency points (25/35/45kHz) on the real coil+pan to
+* separate L2 from RPAN -- a single-frequency measurement cannot do this
+* (see Sec 2.5 of that document). Until that bench measurement exists,
+* treat K/L2/RPAN below as "no longer provably impossible," not as
+* "measured for this design."
+*
+* calibrated: false -- unchanged by this correction. This moves the model
+* from provably-wrong to plausibly-right; it does not calibrate it.
+***************************************************************************
 * SUBCIRCUIT: PANLOAD_TRANSFORMER
 * Full transformer model with mutual inductance
 *
@@ -94,12 +152,17 @@ R_ref N_rcoil B {K*K*80}
 *
 * Parameters:
 *   L1 = Primary inductance (default 80uH)
-*   L2 = Secondary inductance (default 1uH for pan)
-*   K  = Coupling coefficient (default 0.4)
-*   RPAN = Pan equivalent resistance (default 10 ohm)
+*   L2 = Secondary inductance (default 218uH -- corrected 2026-07-27, was
+*        1uH; see COUPLING PARAMETER CORRECTION block above)
+*   K  = Coupling coefficient (default 0.79 -- corrected 2026-07-27, was
+*        0.4; see COUPLING PARAMETER CORRECTION block above)
+*   RPAN = Pan equivalent resistance (default 10 ohm, unchanged -- still an
+*          uncited placeholder, held fixed as the anchor for this
+*          correction's arithmetic; see docs/evidence/2026-07-27-pan-model-
+*          correction.md)
 *   RCOIL = Coil series resistance (default 0.1 ohm)
 ***************************************************************************
-.subckt PANLOAD_TRANSFORMER A B L1=80u L2=1u K=0.4 RPAN=10 RCOIL=0.1
+.subckt PANLOAD_TRANSFORMER A B L1=80u L2=218u K=0.79 RPAN=10 RCOIL=0.1
 
 * Primary side
 R_coil A N_p1 {RCOIL}

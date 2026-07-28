@@ -472,6 +472,520 @@ Also surfaced: **`FUNCTIONAL_TEST_CRITERIA.md` §1.2 specifies a 200 W ±25%
 power tier that has no corresponding gate** in this document. That is an
 omitted requirement, not a lost qualifier.
 
+### The pan model's coupling is provably too low, and the geometry can't rescue it (2026-07-27)
+
+Full analysis: `docs/evidence/2026-07-27-coil-pan-coupling-resolution.md`.
+
+**The falsifier fired: the geometry is not specific enough to derive `L`.**
+`COIL_BRACKET_DESIGN.md` fixes only an OD ceiling (200 mm), a 3 ± 0.5 mm air
+gap and a coil height — **no turn count, inner diameter or wire spec** — and
+`modules.ato:463-465` confirms `inductor_conn` is still a placeholder. Even the
+disqualified doc's own 20–25 turn range implies a **4× spread in L** by N².
+
+**A second document looked like it had the answers and is circular.**
+`RESONANT_TANK_DESIGN.md` supplies 20–25 turns, 160–200 mm, 80 µH — but it is
+contradicted by the newer `TANK_COIL_SPECIFICATION.md` audit, **and its
+pan-material `k`/`R_pan` figures are verbatim copies of `pan_load.sub`'s own
+uncited header comments.** Using it to validate the model would be validating
+the model against itself.
+
+**But one thing is now provable without any geometry.** The loaded/unloaded
+inductance ratio has a hard floor of **1 − K²**, independent of `L2` and
+`RPAN`. Infineon's measured ratio of **0.40** therefore requires **K ≥ 0.775**.
+Verified:
+
+| K | best achievable L_loaded/L_unloaded |
+|---|---|
+| 0.4 *(model default)* | 0.840 |
+| 0.6 *(header's "typical" ceiling)* | 0.640 |
+| **0.775** | **0.399** |
+
+**Every K used anywhere in this project — default 0.4, the four pan presets at
+0.01–0.5, the header's own 0.6 ceiling — is below the floor.** The model
+cannot reproduce a real hob's measured behaviour at any of them, whatever else
+is tuned.
+
+Second, compounding defect: **`L2 = 1 µH`** (never overridden by any preset)
+keeps `ωL2` about **45× below `RPAN`**, suppressing coupling regardless of `K`.
+It needs to rise 45–200×. One self-consistent point satisfying both Infineon
+constraints at `RPAN = 10 Ω` is **`K ≈ 0.79`, `L2 ≈ 218 µH`** — explicitly one
+solution in an underdetermined family (3 unknowns, 2 equations), **not a
+specification**. `pan_load.sub` was read and deliberately not edited.
+
+**OCP-01 versus 1800 W: literature leans "no conflict", low-to-moderate
+confidence.** R_eff at 2.0–2.2 Ω clears the 1.43 Ω threshold by 40–54%. Only
+the project's own **uncited** 1.12 Ω figure fails it. No source measures R_eff
+at this design's actual frequency, coil and pan.
+
+**The bench spec is now executable**, and it carries a non-obvious requirement
+that falls out of the underdetermination: **three frequency points
+(25/35/45 kHz), not one** — a single-frequency measurement cannot separate `L2`
+from `RPAN`. With an LCR meter on the production coil across a pan/gap matrix,
+it yields `L_unloaded` (the coil spec directly), `R_eff` versus 1.43 Ω (the
+OCP-01 verdict), and a measured `(K, L2, RPAN)` triple (the bus-ripple check).
+
+### Stage 3: 1,573.8 s → 52.67 s, and a feature deleted by refactor (2026-07-27)
+
+**The ~30× speedup came from refuting the hypothesis I supplied.**
+`docs/evidence/2026-07-27-stage3-model-and-rewrite.md`.
+
+I handed the agent the O(n²) subsumption loop at `rewrite.rs:495-540` with
+arithmetic that matched the symptom almost exactly — 39,544² / 2 ≈ 782 M pairs
+≈ 250 s. It instrumented instead of accepting: **every one of the 20,734
+`CapacityConstraint`s has a unique `channel_id`**, so every group has size 1 and
+that loop measures **113–159 microseconds.**
+
+The real bottleneck was **an unnamed second O(n²) loop ninety lines later in the
+same function** — `cap_infos.iter().find(...)` rebuilding a `BTreeSet<String>`
+per candidate, for every dedup entry. **144.34 s at 15 nets.** Root cause:
+`cap_infos[i].orig_idx == i` always holds, because the vector is built by an
+order-preserving `.map()`. The search was never necessary.
+
+`cap_infos.get(orig_idx)` — O(1) — gives **144.34 s → 62.4 ms (~2,313×)** on
+that loop and **Stage 3 1,573.8 s → 52.67 s (~30×)** end to end, at **no
+completion-rate cost**, since it is a proven algorithmic equivalence. Full board
+now reaches SATISFIABLE with **0 conflicts and 0 decisions** — the "decided
+early" falsifier does generalise; it had simply never reached the solver.
+
+**Model size is explained exactly**: `variables = n_nets × (skeleton edges +
+via-anchor nodes)`, matching at both 15 and 108 nets. ~35,889 skeleton elements
+built once per board, so **every net gets a boolean for every channel edge
+regardless of proximity** — ~37,000 variables per net.
+
+### The bundled encoding was deleted by a refactor and nobody noticed (2026-07-27)
+
+`docs/evidence/2026-07-27-bundled-encoding.md`. **Do not enable
+`enable_bundling`. There is nothing behind the flag.**
+
+It was built and wired end to end on **2026-06-29**, PyO3 entrypoint included.
+On **2026-07-08** `packages/temper-rust-router/src/lib.rs` was replaced wholesale
+during the `temper-rust-router-core` crate split (`b27851fe`/`87bda65e`) and the
+entrypoint went with it.
+
+**762 lines of algorithm still compile as unused `pub` code** —
+`Watchdog::solve` (`watchdog.rs:96`, 415 lines) and
+`extract_bundled`/`expand_assignments` (`extraction.rs:107,160`, 347 lines).
+Verified at HEAD: **zero callers** in `temper-rust-router/src/`, and
+`from temper_rust_router import solve_topology_rust_bundled` raises
+`ImportError`. `route_pcb()` does not even expose the parameter.
+
+**It went undetected for three weeks because no test exercises the solve path.**
+The only bundling tests instantiate `ModelBuilder` directly and never touch
+`RouterV6Pipeline` — unit coverage over an integration that no longer exists.
+
+Flipping the flag today would not produce a smaller, worse or different model.
+It would **crash every route before Stage 3 built a single variable.**
+
+Restoring it is a real task — a new PyO3 binding over never-integration-tested
+CEGAR code, first-ever coverage for that loop, then the measurement plan against
+the 48/96 = 50.0% baseline. Not a wiring job.
+
+### Three-track consolidation, and a corrected profile (2026-07-27)
+
+All three landed and are verified at HEAD. **Two of the three overturned the
+premise they were dispatched on**, which is the useful part.
+
+**1. Clearance: 17 → 0.** The falsifier did *not* fire — none of the 9
+violating pairs existed in the old constraint set at all. The 10-net
+classification generated 7,843 constraints; the 47-net classification
+generates **11,725**, and only then do those pairs appear. The old solve was
+never asked to satisfy them. Re-solve: `optimal`, 170/170, 36.0 s, R24 audit
+**0 mismatches over 12,409 constraints**.
+
+The fail-closed guard earned itself: the first pass cleared all 17 and moved
+`R52` to **6.5 mm from HV part `C14`**, tripping the unclassified-near-HV
+assertion. Fixed with **684 keep-away constraints** and re-solved. The hard
+check now asserts over the **full 48-net declared set** (157/170 components,
+92.4%), not a tenth of it.
+
+**2. Vacuous aggregation: 6 of 13 were real bugs.** The falsifier did not fire.
+Best of them: `window = history[-persistence_window:]` with a window of 0 —
+`lst[-0:]` is **the whole list**, so `check_escalation()` reported a persistent
+violation from an empty history. Also an `EnclosingConstraint` with zero inner
+refs reported "resolved", and an empty `locator` config **vacuously matching
+every row**.
+
+The agent overruled its instruction correctly: told to allowlist the
+safe-by-construction cases, it found `check_vacuous_gates.py` documents having
+**no allowlist by design**, and used runtime `assert`s instead — strictly
+stronger, since they break loudly rather than persisting silently. **No gate's
+reported count changed**, so today's results stand and are now defended.
+
+**3. The SAT bound works — and the profile it was based on was wrong.**
+
+The bound is real and verified: `SolveLimits{conflict_limit, time_limit_ms}`,
+checked against the vendored `rustsat-cadical` source rather than assumed
+(**CaDiCaL has no native wall-clock API** — it needs a polled terminator).
+The `Unknown` → unguided-A\* fallback is proven at two levels: pigeonhole CNFs
+in Rust that provably require CDCL search, and a Python run forcing
+`sat_time_limit_ms=1` on a real 15-net subset, which completed at **identical
+completion rate (6/7) and route length (602.98 mm)**.
+
+**But it will not cut the 26 minutes, because the SAT solve is not where the
+time goes.** At 15- and 30-net subsets CaDiCaL needed **0 conflicts**
+regardless of bound. At full board, diagnostic timers showed
+`combinator::rewrite::rewrite` (`rewrite.rs:93`, a pre-solve simplification
+pass with a suspected O(n²) pairwise capacity-subsumption loop at `:433`)
+**still running past 250 s before `solve()` was ever reached** — on a model of
+**4,022,352 variables and 39,544 constraints**.
+
+So the earlier "Stage 3 SAT = 95.5% of wall time" figure, inferred from a
+single opaque cProfile frame, **conflated rewrite + encode + solve**. The
+solver was the visible name on the frame, not the cost inside it.
+
+**The real optimisation target is the rewrite pass, and behind it the model
+size.** Four million variables for a 108-net board is the number to interrogate
+first. The bound stays as a cheap safety net against pathological instances
+(`sat_conflict_limit=20_000`, `sat_time_limit_ms=None`), which is what it is
+actually good for.
+
+Verified: `cargo test --release` **101 passed, 0 failed** across 6 binaries;
+clippy 0 warnings; `make netlist` **76/76**; all gates exit 0.
+
+### The board is NOT clearance-clean — the check ran on 10 nets (2026-07-27)
+
+Detail: `docs/evidence/2026-07-27-domain-classification-coverage.md`. **This
+retracts the "0 clearance violations" result recorded below.**
+
+**There were two independently-drifting classifiers, not one:**
+
+1. `elec/domain_manifest.yaml` — 39 nets — feeding `check_domain_partition.py`
+   (galvanic isolation).
+2. **`_real_board_fixture.py` — a second, hand-maintained 10-net dict**, a
+   strict subset of the first — feeding `verify_iec60335_compliance` and
+   `domain_clearance.py`, i.e. **the actual clearance/creepage path.**
+
+So the clearance result was computed over **10 of 165 nets**. Not the 39 I
+reported, and not the 47 declared now.
+
+**The falsifier fired.** Three components sat inside the 8.0 mm largest IEC
+margin of a declared HV part: **R59 at 5.39 mm, R53 at 6.05 mm, D3 at 6.91 mm.**
+Two resolved on investigation — R59/R53 are interior nodes of already-declared
+protective-impedance chains, D3 is a relay flyback on an isolator's own SELV
+coil-drive pin. A manifest expansion traced to text the manifest already
+contained (39 → **47 nets**, not guessed net names) closed two; **R59 remains**,
+justified as a same-chain sibling rather than dismissed.
+
+**The disclosure that matters: at full coverage there are 17 real violations.**
+
+| | |
+|---|---|
+| Coverage before | 127/170 components (74.7%), **10 nets** |
+| Coverage now | **156/170 (91.8%)**, 47 nets |
+| Violations at full coverage | **17, across 9 component pairs** |
+| Worst | **2.26 mm where 3–6 mm is required** |
+
+These were always there. They were invisible because the check inspected a
+tenth of the board's nets. **They are printed on every test run** rather than
+asserted, because closing them needs a **placement re-solve** — and the board
+is currently owned by a concurrent routing agent. Reported, not hidden, and not
+forced green by narrowing scope.
+
+`test_clearance.py`'s guard is strengthened from
+`matched_components_in_placement > 0` — which a single matched component would
+satisfy — to **`coverage_ratio >= 0.85`**, plus a new fail-closed assertion on
+any unclassified component near HV.
+
+**63 nets remain undeclared** and are flagged UNVERIFIED: likely
+should-have-been-declared, not independently traced.
+
+### Every fabricated part is now resolved — MPN gate 5 → 0 (2026-07-27)
+
+**Verified at HEAD**: `mpn_fabrication_gate.py` **PASSED, 0 violations**;
+`make netlist` **76 assertions, 0 failed**; `check_domain_partition`,
+`capacity_budget_gate` and `check_derived_doc_drift` all **exit 0**.
+
+**Seven fabricated MPNs have now been found in this design in total.** Four
+were found by accident while looking for something else; the last three were
+found by the gate built for the purpose.
+
+| Part | Was | Now |
+|---|---|---|
+| OCP-01 `r_ref_top` | 3.2 kΩ / `RC0603FR-073K2L` | **3.24 kΩ / `RC0603FR-073K24L`** |
+| UVL-02 `r_div_bot` | 100 kΩ, MPN encoding 10 kΩ | **`RC0603FR-07100KL`** |
+| `r_low_top` | 61.3 kΩ / `ERA-3AEB6132V` | **61.9 kΩ / `ERA-3AEB6192V`** |
+| `r_high_top` | 5.93 kΩ / `ERA-3AEB5931V` | **5.9 kΩ / `ERA-3AEB5901V`** |
+| `r_avdd_top` | 616 kΩ / `ERA-3AEB6163V` | **619 kΩ / `ERA-6AEB6193V`** |
+
+**UVL-02's diagnosis was settled by derivation, not preference.** The circuit
+was computed both ways: 100 kΩ reproduces the module's documented
+2.715 V / 3.222 V exactly, while 10 kΩ gives **23.6 V / 28.0 V — physically
+unreachable on a 3.3 V rail.** The value was right; the part number was wrong.
+
+**Three consequences that are not cosmetic:**
+
+1. **`ERA-3AEB5901V` is real but out of stock with a 33-week lead time.** A
+   sourcing risk, recorded rather than swapped away.
+2. **`r_avdd_top` forced a package change, 0603 → 0805.** Panasonic's ERA-3A
+   series does not stock *any* value in that decade — 604 k, 612 k, 619 k,
+   626 k and 634 k were each checked and none exists in 0603. **The board was
+   placed and clearance-solved before this change**, so the footprint swap must
+   propagate into the layout.
+3. **The RTD window's tightest margin narrows from 10.6 mV to 8.25 mV** under
+   combined worst-case tolerance and tempco. Reported, not hidden. The
+   TPS3700 rail-monitor trip moves 2.825 V → 2.837 V, still inside its corner.
+
+**A detail worth keeping:** for the 61.3 kΩ replacement, the *numerically
+nearest* E-series neighbour — 61.2 kΩ, `ERA-3AEB6122V` — **does not exist
+either.** Availability, not proximity, was the binding constraint. Choosing the
+closest legal value without checking stock would have produced an eighth
+fabricated part while fixing the seventh.
+
+**Process note, recorded because it nearly cost the work:** a `git checkout -B`
+instruction issued by the coordinator ran in the shared checkout rather than an
+isolated worktree, switching the main checkout onto an agent branch and
+stashing that agent's in-progress edits mid-task. The agent **caught it by
+re-running its gate and seeing exit 3 where it expected 0**, recovered from the
+stash, and re-verified. A command that repoints whatever branch you happen to
+be on is safe in a worktree and dangerous in a shared tree.
+
+### Two more bad parts, both in protection circuits (2026-07-27)
+
+Audit and gate: `docs/evidence/2026-07-27-fabricated-mpn-audit.md`,
+`scripts/mpn_fabrication_gate.py`. **Both verified independently at HEAD.**
+
+**1. OCP-01's reference divider is a suspect-fabricated part.**
+`modules.ato` `OCPComparator.r_ref_top` declares **3.2 kΩ**, MPN
+`RC0603FR-073K2L`. Confirmed by computation: **3.2 kΩ is in neither E24 nor
+E96** — the E96 neighbours are 3.16 k and 3.24 k. The MPN encodes `3K2`, so
+value and part number are internally consistent and both invented — the exact
+signature of `ERA-3AEB6132V`. DigiKey returns zero hits; Mouser timed out, so
+this is **UNVERIFIED rather than certain**.
+
+This sets the threshold for **OCP-01, the primary 50 A over-current
+protection.**
+
+**2. UVL-02's sense divider names a real part with the wrong value — and this
+one is worse.** `LogicUVLOComparator.r_div_bot` declares **100 kΩ** with MPN
+`RC0603FR-0710KL`. Yageo's encoding makes `10KL` = **10 kΩ**; 100 kΩ would be
+`RC0603FR-07100KL`. **A 10× mismatch.**
+
+The module's entire worst-case corner analysis — the 2.800 V / 3.106 V bounds
+recorded earlier — is built on 100 kΩ. **Built to the MPN as written, the 3.3 V
+logic under-voltage lockout would essentially never trip.**
+
+**This is the more dangerous class.** The part is *real*. You would order it,
+receive exactly what you ordered, and assemble a board whose UVLO does not
+work — with no availability check, no distributor flag, and no supply-chain
+signal anywhere. Fabricated parts fail loudly at procurement; a *correct part
+with the wrong value* fails silently at the bench.
+
+Also flagged, unresolved: `ERA-3AEB5931V` (5.93 kΩ, RTD window chain) and
+`ERA-3AEB6163V` (616 kΩ, rail monitor) — same non-E-series, no-DigiKey-hit
+signature.
+
+**The gate**: 120 R/C value+MPN pairs parsed, **103 decoded**, 17
+unchecked-prefix **reported rather than silently passed**, 14 E-series
+violations of which 9 are confirmed-real round numbers allowlisted with
+citations. Exits **3** on today's tree with 5 unresolved findings. Its
+falsifier — reconstructing `61.3 kΩ` as a fixture — produces the E192 violation
+naming 61.2/61.9/60.4 exactly. Anti-vacuity holds: zero `.ato` files, zero
+parseable parts, and a malformed allowlist all exit 5, never 0.
+
+Allowlist is hand-curated with no auto-generation path, deliberately unlike
+`check_typecheck_gate.py`'s auto-resynced one.
+
+### Tempco was never analysed, and a fourth part is fabricated (2026-07-27)
+
+Full analysis: `docs/evidence/2026-07-27-threshold-sensitivity-tempco-budget.md`.
+
+**The falsifier did not fire: tempco is not negligible.** At an assumed
+45–60 °C board rise, thick-film drift is **0.45–0.6% per resistor** — comparable
+to the ±1% initial tolerance and stacking on top of it. For OVP-01 it roughly
+**triples** the window violation. Nothing in `elec/src` had ever accounted for
+it; `grep -c "tempco\|ppm"` returned **0**.
+
+**Recommendation: Option C — re-reference OVP-01 to the existing `REF2025`.**
+Verified usable: same 3.3 V domain, its 2.5 V output is **completely unused
+elsewhere**, 20 mA drive against ~150 µA needed, and **±0.05% / 8 ppm/°C** —
+far better than the divider it replaces. Deleting `r_ref_top`/`r_ref_bot` and
+retuning `r_div_bot`/`r_hyst` gives the **widest worst-case margin of any
+option, 195.25–202.91 V with tolerance and tempco combined**, at
+**+$0.063/board** at 1k. Cheaper *and* better than the partial 0.1% upgrade
+($0.123) or the full one ($0.479). Fewer parts, no new IC.
+
+**On correlation**: treating the three 430 kΩ parts as correlated versus
+independent yields the *identical* worst-case bound — a sum's extreme is the
+same either way. The real fork is **worst-case (fails) versus RSS (passes,
+197.2–202.7 V)**. The safety case must use worst-case; leaning on RSS without a
+supplier tracking agreement is not defensible.
+
+**THM-02 has a new problem.** Once the NTC's own **±1.5% B-value tolerance** is
+included — which dominates every resistor term — worst-case trip reaches
+**124.5 °C, within 0.5 °C of the sensor's own 125 °C maximum** cited in its
+docstring. A thermal cut-out that can trip essentially at its sensor's limit has
+no headroom. Unresolved discrepancy: DigiKey lists that same part at −40 to
+150 °C. Neither figure could be confirmed from the Vishay PDF text.
+
+**The 390–410 V spec has no derivation.** Traced: introduced in a bulk "commit
+all pending changes" with **zero supporting calculation** — the same pattern as
+the uncited `IEC60335_REQUIREMENTS` matrix and the bus capacitance's
+nonexistent simulation. It is *bounded* (between `v_bus_max = 340 V` and
+`v_cap_max = 500 V`) rather than arbitrary, but the exact window is uncited.
+Option C makes this moot; it would have mattered a great deal had the answer
+been "buy 0.1% parts to hit it."
+
+**Fourth fabricated part, and it is in the live design.**
+`modules.ato:1621-1622` specifies `r_low_top = 61.3 kΩ ±0.1%`, MPN
+`ERA-3AEB6132V`. **61.3 kΩ is not an E96 or E192 value** — confirmed by direct
+computation; the neighbours are 60.4, 61.2, 61.9. The MPN appears in neither
+DigiKey's nor Mouser's catalogue. Value and part number are internally
+consistent with each other and both invented. Real neighbour:
+`ERA-3AEB6192V` (61.9 kΩ).
+
+I had cited this part to the user as evidence that "the project already buys
+0.1% parts." It does not. Joining `EKZE251ELL332MM40S`, `DE2E3KH221MA3B` and
+the third already found, this is the **fourth** fabricated MPN — and the first
+found in a *precision* part where the wrong value would silently shift a
+threshold.
+
+### Clearance violations 22 → 0, and the placer can no longer produce them (2026-07-27)
+
+Full detail: `docs/evidence/2026-07-27-domain-clearance-constraint.md`.
+**Verified at HEAD**: safety suite **54 passed, 0 failed, 0 xfailed**; board
+still 169 footprints.
+
+**The placer had no voltage-domain awareness at all** — confirmed by direct
+inspection of `_encoder_core.py`, `model.py`, `encoder.py` and
+`_encoder_solve.py`. Its only clearance mechanism was a uniform
+`courtyard_clearance_mm` of ~0.3–0.6 mm applied to every pair regardless of
+domain. That is *why* mains sat 0.836 mm from SELV: the solver was never told
+those parts must stay apart, so the position was arbitrary rather than wrong.
+
+`domain_clearance.py` now generates ordinary `SeparatedConstraint` objects at
+`margin = max(clearance, creepage)` per `IEC60335_REQUIREMENTS` row, **reusing
+the existing `encode_separated` handler unmodified** and importing
+`VoltageDomain` and the pairing logic **from the validator itself** — one
+classifier, not two that can drift.
+
+**AGENTS.md R24 satisfied in all three parts:**
+
+1. **Soundness** — Chebyshev edge-to-edge separation at margin M implies
+   Euclidean centre-to-centre distance ≥ M. Conservative by construction.
+2. **BMC-exhaustive** — 9,375 size × margin × offset combinations swept against
+   the validator's own `_distance` oracle. **0 counterexamples.**
+3. **Post-solve audit** — recomputes real distance from solved coordinates
+   independent of solver status. **0 mismatches across 7,715 constraints.**
+
+Final solve: **169/169 components, status `optimal`, 27.6 s.** No board-size
+infeasibility; the falsifier did not fire.
+
+**The agent caught and discarded its own invalid result.** Its first solve ran
+against the pre-resync board and reported "16/18 → 0". When the resync landed
+and proved the designator join broken for 78 of 149 refs, it **rebased, dropped
+that commit, and re-derived everything** — rather than keeping a number that
+looked better. Corrected baseline: **22 violations, worse than the documented
+18**, because the broken join had been *hiding* some. F1↔J1 at 0.836 mm
+reconfirmed as real under correct identity.
+
+**After: 0 violations**, verified two independent ways — in memory, and by
+re-parsing the written `pcb/temper.kicad_pcb` from scratch.
+`test_temper_board_clearance_compliance` is converted from `xfail(strict=True)`
+to a real assertion, guarded by `assert matched_components_in_placement > 0` so
+a broken join cannot again produce zero violations by matching nothing.
+
+A pre-existing KiCad-DRC ratchet that was failing on both prior board states now
+passes as well.
+
+**Still open from this work**: `configs/pcl/temper_production.yaml` is stale
+against the netlist; the CLI's `optimize --no-loop` path has a latent
+origin-offset bug (worked around here, not patched at source);
+`VoltageDomain.ISOLATED` still has zero real candidates; REQ-SAFE-02
+(`isolation.py`) is still untested against real geometry; and the
+`IEC60335_REQUIREMENTS` matrix provenance remains uncited.
+
+### Protection chain closed out — three items, one honest shortfall (2026-07-27)
+
+Evidence: `docs/evidence/2026-07-27-protection-chain-closeout.md` and three
+per-item docs. **Verified at HEAD**: `make netlist` **76 assertions PASSED / 0
+FAILED**, `check_domain_partition.py` **exit 0 / 0 crossings**,
+`capacity_budget_gate.py` **exit 0**.
+
+**OVP-01: fail-open → in spec at nominal, marginal at worst case.**
+`r_ref_top` 1.1 kΩ → **11.8 kΩ**, `r_hyst` 287 kΩ → **619 kΩ**. Simulated trip
+**200.03 V** and hysteresis **6.83 V**, both centred in the 195–205 V / 5–10 V
+half-bus windows; hand-derived 199.94 V, agreeing to 0.089 V; deterministic
+across 5 runs.
+
+**But the worst-case corner does not fully clear.** Over ±1% on all five
+path resistors, hysteresis holds (6.74–7.02 V) while **trip spans
+193.9–206.2 V** against a 195–205 V window — about 0.6% outside at each end.
+An exhaustive E96 search confirms this is **not fixable at 1% tolerance** given
+the sense divider's own contribution. Closing it needs 0.1% parts on the
+divider, or a wider spec. Reported rather than buried, and the gate should be
+read as *nominally compliant, marginally non-compliant at tolerance*.
+
+Known limitation retained: sensing one half is blind to bus **imbalance**.
+
+**BusDischarge: my recommendation was wrong and the agent corrected it.** I
+proposed 8.6 kΩ from capacitor tolerance alone. Stacked with the resistor's own
+±5%, that still fails at **62.8 s**. Resized instead to **3.9 kΩ** per resistor
+(7.8 kΩ/string, `AC05000003901JAC00`, distributor-verified), giving **56.9 s**
+against the <60 s target with *both* tolerances stacked. Dissipation rises to
+1.85 W per 5 W part; relay contact stress unchanged at 21.8 mA.
+
+**Fault tree: capacity restored.** A third `SN74HC4075DR` added; **UVL-02's
+fault is now wired into the SET path** rather than terminating on a test point.
+Measured: **AVAILABLE SET-path inputs 0 → 3**, across 3 packages and 27
+evaluated inputs. Propagation delay against OCP-01's <1 µs budget goes
+**686 ns → 811 ns**, margin 31.4% → 18.9% — still clears, on datasheet
+worst-case figures.
+
+**OCP-02 remains deliberately un-instantiated** — its sensing domain is
+unresolved, and an INA240 at the doubler midpoint would see ~170 V common mode
+against a ±80 V limit.
+
+**Protection gate status: 5 of 7 now have a verified circuit** (OCP-01, THM-01,
+THM-02, OVP-01 nominal, UVL-02), OCP-02 blocked on topology, UVL-01
+vendor-internal. **Still zero validated on hardware.**
+
+### The clearance analysis was joining on the wrong components (2026-07-27)
+
+Full detail: `docs/evidence/2026-07-27-pcb-netlist-resync.md`. The board is
+resynced with the netlist, and doing so invalidated the violation count this
+document has been carrying.
+
+**Verified independently at HEAD** (re-parsed with `kiutils`, not the script's
+self-report):
+
+| | |
+|---|---|
+| Footprints | **169** (149 − 1 split + 21 new, fully accounted) |
+| Components moved | **0 of 148** persisting |
+| `+340V_BUS` | **0** occurrences |
+| `+170V_BUS` / `ZCD_ISO` | present |
+| Segments | 0 — still unrouted |
+
+`pe` correctly has no separate net record: `gnd ~ pe` merges it into the same
+compiled net, so its absence is right rather than missing.
+
+**The finding that matters: 77 of 148 persisting components had been assigned a
+new reference number, and 78 of 149 shared designators silently pointed at a
+different physical component.** Spot-checked directly: **old `U3` was a
+`SOT-23-6`** (buck converter); **new `U3` is a `DIP-6_W7.62mm`** (the H11L1
+optocoupler). Same label, different part, different package.
+
+Because the safety validators joined component positions to voltage domains **by
+reference designator**, roughly half those joins were matching the wrong
+physical part. **The "18 clearance violations" figure was computed on a broken
+join and should not be trusted.** Measured now: the untouched stale board
+against a fresh netlist gives **16**; the resynced board gives **22**, with
+matched components rising from **109/126 to 126/126** classifiable.
+
+The count moved because identity was wrong before, not because any requirement
+or classification changed — `classified_nets_present` is identical across both.
+At least one violation in the old set is provably a false positive, and several
+real ones were only detectable once identity was correct.
+
+**This is the same species as everything else this session**: an artifact that
+was internally consistent, passed its checks, and was joined to reality by a key
+that had silently stopped meaning what it used to. The resync keys on
+`Sheetpath` module-instance identity instead, per
+`docs/solutions/logic-errors/fixed-positions-ref-fragility-across-renumbering.md`.
+
+**Consequence:** the 0.836 mm F1↔J1 figure and the whole 18-violation list need
+re-deriving against the resynced board before any of it is acted on.
+
 ### Prior art narrows R_eff — and undermines the OCP-01 conflict I reported (2026-07-27)
 
 Full synthesis: `docs/evidence/2026-07-27-coil-pan-coupling-prior-art.md`.

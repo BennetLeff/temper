@@ -304,7 +304,26 @@ def main() -> None:
         )
         sys.exit(1)
 
-    undocumented = find_undocumented_constants(physics_dir)
+    all_constants = find_all_constants(physics_dir)
+    undocumented = {
+        k: (v, l) for k, (v, l, has_src) in all_constants.items() if not has_src
+    }
+    files_scanned = len(
+        {key.split("::", 1)[0] for key in all_constants} if all_constants else set()
+    )
+    denominator = (
+        f"Scanned {len(all_constants)} module-level float constant(s) across"
+        f" {files_scanned} file(s) under {physics_dir}: {len(undocumented)}"
+        f" undocumented."
+    )
+
+    if len(all_constants) == 0:
+        console.print(
+            f"[red]FAIL (closed): {denominator} A provenance gate that finds"
+            f" zero constants to check cannot report a meaningful pass --"
+            f" check --physics-dir.[/]"
+        )
+        sys.exit(1)
 
     if args.init:
         lines = [
@@ -377,10 +396,13 @@ def main() -> None:
         if shrink_failures:
             exit_code = 1
 
+    allowlist_denominator = f"Allowlist: {len(allowlist)} entries loaded from {allowlist_path}."
+
     if exit_code:
+        console.print(f"[red]{denominator} {allowlist_denominator} FAILED.[/]")
         sys.exit(1)
 
-    console.print("[green]Physics provenance gate passed[/]")
+    console.print(f"[green]Physics provenance gate passed. {denominator} {allowlist_denominator}[/]")
 
 
 if __name__ == "__main__":

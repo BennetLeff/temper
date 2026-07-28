@@ -121,6 +121,19 @@ violation it is designed to catch, and the RTD docstring's claim is exactly
 the kind of prose assertion it would make redundant by making the underlying
 fact machine-checked.
 
+**Update, 2026-07-27:** this gate shipped as `scripts/check_domain_partition.py`
+and is now the reference example a same-day gate audit measures every other
+gate against, specifically because it prints its own coverage ratio
+("Checked N declared nets ... over M compiled nets / K components") on every
+run, pass or fail, and fails closed on an empty domain declaration rather
+than passing vacuously. See
+`docs/solutions/best-practices/gate-subset-blindness-2026-07-27.md` — the
+same audit also found the *other* half of this incident's lesson recurring
+one layer over: the separate IEC 60335 clearance/creepage path was, at the
+time, still running against a second, hand-maintained 10-net classification
+that had drifted from this gate's own 39-net manifest, invisible to
+`check_domain_partition.py` itself because it is a different check entirely.
+
 ## Why This Matters
 
 This is not a hypothetical safety gap: a 4.2 kVAC-rated barrier is shorted,

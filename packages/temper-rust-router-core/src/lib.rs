@@ -20,7 +20,7 @@ pub mod tension;
 pub mod types;
 pub mod watchdog;
 
-pub use solver::solve_with_cadical;
+pub use solver::{solve_with_cadical, SolveLimits};
 pub use extraction::{extract_bundled, extract_topology, expand_assignments};
 pub use loop_extractor::extract::auto_extract_loops;
 pub use types::{

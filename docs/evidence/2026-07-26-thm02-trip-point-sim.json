@@ -85,5 +85,10 @@
     "response_time_measured": false,
     "response_time_reason": "TLV3201_ngspice.lib declares no timing model; the ramped 'temperature' driver is an idealized proxy, not a thermal time-constant simulation.",
     "summary": "Simulated THM-02 (coil NTC) trip temperature is 119.95 degC and recovery temperature is 100.13 degC (uncalibrated), giving 19.82 degC of hysteresis. This is WITHIN the THM-02 120C trip / 100C recovery requirement (FUNCTIONAL_TEST_CRITERIA.md SS2.3), matching CoilThermalComparator's own inline hand-derivation (120.0C trip, 100.1C recovery) to within 0.05 degC / 0.03 degC. The trip point sits 5.0 degC below the NTC's own +125C rated maximum -- close enough that the module itself flags it as a caveat."
+  },
+  "provenance": {
+    "commit": "UNKNOWN",
+    "dirty": "UNKNOWN",
+    "note": "backfilled prior to the provenance gate's introduction (2026-07-26); no self-declared commit exists in this file's own content and none was fabricated. See .evidence-provenance-allowlist."
   }
 }

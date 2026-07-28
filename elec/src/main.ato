@@ -68,12 +68,146 @@ module Top:
     v_bus_ripple_max: voltage = 20V
     assert v_bus_ripple_max < v_bus_nominal * 0.1  # <10% ripple
     
-    f_switching: frequency = 35kHz
-    assert f_switching within 20kHz to 100kHz  # Resonant tracking range
-    
+    # CORRECTED 2026-07-27 (docs/evidence/2026-07-27-zvs-operating-point.md,
+    # docs/evidence/2026-07-27-pan-preset-correction.md): the previous value
+    # here, 35kHz, was found to lose ZVS COMPLETELY for ferromagnetic pans
+    # (cast_iron/stainless) once the pan-coupling model was corrected to
+    # Infineon AN235020's measured K=0.79 -- 100.7% margin lost, i.e. full
+    # hard switching of a 1200V IGBT half-bridge, not a tuning shortfall.
+    # aluminum/no_pan were unaffected (their K was not raised).
+    #
+    # 47kHz is the best-evidenced replacement: at an ASSUMED coil L=150uH
+    # (see f_resonant_nominal below and inductor_conn's docstring --
+    # inductor_conn is still a placeholder; no coil has been specified),
+    # ratio~=1.25 over that assumption's K=0.79 loaded resonance
+    # (37.58kHz) delivers ~1804W, holds ZVS (0.8% margin, re-verified
+    # 2026-07-27 for ALL FOUR pan presets, not just cast_iron), and clears
+    # OCP-01's 50.1A peak trip by 43% (28.76A vs. 48.18A at the old 35kHz/
+    # same-L point). This number is CONTINGENT on L=150uH: a smaller real
+    # coil raises the required minimum further (e.g. at 80uH, the K=0.79
+    # loaded resonance is ~52kHz, which 47kHz would NOT clear) -- it must
+    # be re-derived once the coil is actually specified (see
+    # docs/hardware/TANK_COIL_SPECIFICATION.md).
+    f_switching: frequency = 47kHz
+    # NOTE (2026-07-28, docs/evidence/2026-07-28-pll-defaults-and-range-
+    # gate.md): this 20-100kHz window is an LC-TANK THEORETICAL bound, not
+    # the firmware's actual capability -- it overstates what the PLL can
+    # deliver by 5x at the top end. See f_pll_tracking_min/max immediately
+    # below for the real, firmware-matched range and the gate that
+    # cross-checks both.
+    assert f_switching within 20kHz to 100kHz  # LC tank theoretical bound (NOT firmware capability)
+
+    # --- PLL frequency tracking range: the firmware's ACTUAL capability ---
+    # DECLARED 2026-07-28 (docs/evidence/2026-07-28-pll-defaults-and-range-
+    # gate.md, docs/evidence/2026-07-28-pll-ratio-tracking-check.md). This
+    # mirrors firmware/components/control/pll_control.h's PLL_MIN_FREQ_HZ /
+    # PLL_MAX_FREQ_HZ exactly (30-50kHz) -- NOT the 20-100kHz "LC tank
+    # theoretical bound" above, which the firmware cannot reach.
+    # scripts/check_pll_range_consistency.py enforces that these two stay
+    # equal and that f_switching falls inside them; it fails the build if
+    # this file and pll_control.h ever disagree again.
+    #
+    # OPEN HARDWARE QUESTION -- NOT RESOLVED BY THIS DECLARATION:
+    # docs/evidence/2026-07-27-inductance-range-sweep.md Sec 3 finds that
+    # the ratio-tracking ZVS mitigation (retuning f_sw in real time to hold
+    # f_sw/f_res_loaded ~= 1.25 as L varies) needs 35.7-83.0kHz agility to
+    # hold ZVS across the plausible L in [50, 250]uH range, and every
+    # comparable real coil already cited in this project's own evidence
+    # (Infineon AN235020, Wurth 760308101303, APHO2025) measures 47-50uH --
+    # the LOW end of that range, where the required frequency (83.0kHz) is
+    # HIGHEST. The firmware's declared 30-50kHz is THEREFORE KNOWN TO BE
+    # INSUFFICIENT for that mitigation if the real coil lands anywhere near
+    # those references. This is a genuine, currently-unresolved capability
+    # gap, not a rounding difference.
+    #
+    # Raising PLL_MAX_FREQ_HZ toward 83-100kHz is explicitly NOT done here
+    # and must not be done by silently editing a constant: whether the
+    # bridge, gate drive and snubber network tolerate that frequency is a
+    # switching-loss / hardware question a human must decide, informed by
+    # bench data this project does not yet have. Widening the firmware to
+    # an unvalidated range just to make f_switching's assertion agree with
+    # the mitigation's requirement would recreate the exact failure mode
+    # (a declared value later readers trust) this gate exists to prevent.
+    f_pll_tracking_min: frequency = 30kHz
+    f_pll_tracking_max: frequency = 50kHz
+    assert f_pll_tracking_min < f_pll_tracking_max
+    assert f_switching >= f_pll_tracking_min
+    assert f_switching <= f_pll_tracking_max
+
+    # NOT changed by the 2026-07-27 correction above -- flagged, not
+    # resolved. 25kHz here, at the fixed 300nF C_TANK (c_tank1+c_tank2,
+    # modules.ato), algebraically implies L=135.1uH -- a THIRD coil-
+    # inductance assumption, distinct from both the simulation harness's
+    # own 80uH PANLOAD_TRANSFORMER default (implying an unloaded 32.5kHz,
+    # still within this assertion's band but not equal to the 25kHz
+    # declared here) and the 150uH assumption behind f_switching's 47kHz
+    # above (implying an unloaded 23.7kHz). None of the three has ever
+    # been measured against the real coil/pan, and this pass does not
+    # pick a winner among them: doing so by changing THIS value would
+    # just be inventing the same unspecified L via a different variable.
+    # See docs/evidence/2026-07-27-zvs-operating-point.md for the full
+    # three-way comparison, including that even using this line's OWN
+    # 25kHz-implied 135.1uH, the K=0.79 loaded resonance comes to
+    # ~39.7kHz -- ABOVE the pre-correction 35kHz f_switching -- so the
+    # ZVS-loss finding above does not depend on which of the three L
+    # assumptions is used.
+    # AMBIGUOUS AND UNRESOLVED (2026-07-27): this does not state whether it
+    # names the LOADED or UNLOADED resonance, and with the corrected pan
+    # coupling the two differ by roughly 60%. At L=150uH: unloaded 23.7kHz,
+    # loaded ~38kHz. Only the loaded figure is meaningful for the ZVS ratio --
+    # read as unloaded, f_switching=47kHz appears to sit at ~1.98x resonance
+    # (implying almost no power transfer) rather than the ~1.24x the analysis
+    # actually found.
+    #
+    # This same ambiguity already caused a real bug: run_tank_coil_sweep.py
+    # referenced its ratio against the UNLOADED resonance, silently
+    # reintroducing the under-loading error the moment K was corrected. It
+    # needed a self-consistent f_res_loaded_hz() fixed-point solver to fix.
+    #
+    # Also note 25kHz is a third value matching neither the simulation's 80uH
+    # default (32.5kHz) nor the L=150uH the ZVS analysis recommends (23.7kHz).
+    # All three fall inside the assertion window below, which is why the
+    # divergence was never caught. See
+    # docs/evidence/2026-07-27-zvs-operating-point.md.
+    #
+    # STATED EXPLICITLY (2026-07-27, docs/evidence/2026-07-27-inductance-
+    # range-sweep.md): this value is the UNLOADED resonance (L1/C_TANK
+    # only -- it is what "1/(2*pi*sqrt(L*C))" means with no pan on the
+    # coil). It is NOT the loaded resonance ZVS margin must be referenced
+    # against (loaded and unloaded differ by ~60% for ferromagnetic pans
+    # at K=0.79 -- see f_switching's comment above). This label does not
+    # change the number (that would just be picking a different
+    # unverified L again, per the note above); it only makes the
+    # loaded-vs-unloaded ambiguity impossible to miss on read.
     f_resonant_nominal: frequency = 25kHz
-    assert f_resonant_nominal within 20kHz to 35kHz  # LC tank range
-    
+    assert f_resonant_nominal within 20kHz to 35kHz  # LC tank range, UNLOADED
+
+    # DECLARED EXPLICITLY (2026-07-27, was previously invisible -- L only
+    # existed as an assumption buried in simulation harness constants and
+    # evidence-doc prose; `inductor_conn` below remains an unplaced Litz
+    # footprint placeholder, so this is still NOT a specified/measured
+    # coil). `150uH` is the exact assumption
+    # docs/evidence/2026-07-27-pan-preset-correction.md's ratio sweep used
+    # to land on f_switching=47kHz above; the range is a GEOMETRY-BOUNDED
+    # ESTIMATE (Wheeler/current-sheet spiral formula over plausible turn
+    # counts and inner diameters within COIL_BRACKET_DESIGN.md's OD<=200mm
+    # ceiling), cross-checked against real comparable-power-class flat
+    # coils (Infineon AN235020 ~48-50uH, Wurth 760308101303 ~47uH, both
+    # already cited in docs/evidence/2026-07-27-coil-pan-coupling-prior-
+    # art.md) -- NOT a measurement of this project's own coil.
+    #
+    # docs/evidence/2026-07-27-inductance-range-sweep.md sweeps this whole
+    # range at the COMMITTED, FIXED f_switching=47kHz above and finds ZVS
+    # is COMPLETELY LOST (100%+ margin, full hard-switching of the 1200V
+    # half-bridge) for ferromagnetic pans below ~97uH -- i.e. within, not
+    # outside, this declared range, and closer to the low end than the
+    # 150uH design point. If the real coil lands nearer the 48-50uH
+    # external references than the 150uH assumption, the design as
+    # committed today does NOT hold. Read that document before treating
+    # 150uH as settled.
+    l_tank_assumed: inductance = 150uH
+    assert l_tank_assumed within 50uH to 250uH  # bounded estimate, NOT measured -- see docs/evidence/2026-07-27-inductance-range-sweep.md
+
     t_ambient_max: temperature = 323.15K  # 50°C
     t_ambient_min: temperature = 273.15K  # 0°C
     assert t_ambient_max within 313.15K to 333.15K  # 40°C to 60°C
@@ -439,7 +573,16 @@ module Top:
     # safety already ties ntc_sense.reference ~ gnd internally; redundant
     mcu.adc_v_bus.override_net_name = "V_BUS_SENSE"
     safety.ovp.adc_v_bus.line ~ mcu.adc_v_bus
-    
+
+    # OVP-01 REF2025 re-reference (Option C, 2026-07-27, docs/evidence/
+    # 2026-07-27-ovp01-ref2025-implementation.md): OVPComparator's comp.INN
+    # is referenced to RTDSensing's REF2025.VREF (2.5V, +/-0.05%/8ppm/C)
+    # instead of a resistor divider off vcc_3v3 -- see OVPComparator's
+    # docstring and r_div_bot's comment for the full derivation. VREF was
+    # otherwise completely unused; this is the only place it is wired.
+    safety.ovp.vref_ext.line ~ rtd_pan.reference.VREF
+    safety.ovp.vref_ext.line.override_net_name = "OVP_VREF_2V5"
+
     # Watchdog
     mcu.wdt_kick.line ~ safety.wdt_kick.line
     mcu.wdt_kick.line.override_net_name = "WDT_KICK"

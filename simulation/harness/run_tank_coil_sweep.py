@@ -27,9 +27,13 @@ error). R_pan is the only dissipative element in that loop, so:
 is the real power delivered into the pan-load model. This is reported as
 "power delivered to the pan" throughout -- it is a MODEL quantity, not a
 calibrated wall-power or induction-heating figure; see
-TANK_COIL_SPECIFICATION.md for the fidelity bound (PANLOAD_TRANSFORMER's
-secondary inductance L2 has no per-material documentation in pan_load.sub
-and is left at its own 1uH default, exactly as run_zvs_sweep.py did).
+TANK_COIL_SPECIFICATION.md for the fidelity bound. PANLOAD_TRANSFORMER's
+secondary inductance L2 was CORRECTED 2026-07-27 (was 1uH, provably too
+small to express any coupling -- see docs/evidence/2026-07-27-coil-pan-
+coupling-resolution.md Sec 2.3) to an Infineon-anchored 218uH, held
+uniform across pan presets and now exposed as a PAN_L2 override, exactly
+as run_zvs_sweep.py does -- see that script's PAN_PRESETS comment and
+docs/evidence/2026-07-27-pan-preset-correction.md.
 
 Sweep axis: L_TARGET is the coil's absolute inductance in uH; it is
 written to the deck's PAN_L1 parameter (F_SW is also overridden, exactly
@@ -37,6 +41,34 @@ as run_zvs_sweep.py already does for both). No other .cir change was made
 beyond the one .meas line described above -- this script reuses
 override_params/run_ngspice_on_text/parse_measurements-style parsing from
 run_zvs_sweep.py directly.
+
+Ratio reference frequency -- CORRECTED 2026-07-27
+--------------------------------------------------
+Before the PAN_PRESETS correction, `ratio_f_sw_over_f_res` was computed
+against the UNLOADED tank resonance (f_res_hz(), L1/C_TANK only) because
+the broken K=0.15-0.5/L2=1uH presets barely loaded the tank at all --
+loaded and unloaded resonance were within a fraction of a percent of each
+other, so the distinction didn't matter numerically.
+
+That is no longer true for the corrected K=0.79 presets (cast_iron/
+stainless): docs/evidence/2026-07-27-coil-pan-coupling-resolution.md
+Sec 2.1 shows the loaded resonance is a SELF-CONSISTENT quantity --
+L_apparent/L1 depends on omega (via x=omega*L2), which is itself what
+you're solving for -- and docs/evidence/2026-07-27-pan-model-correction.md
+Sec 4 found this self-consistent point sits ~60% above the unloaded
+figure. Continuing to compute ratio against the unloaded resonance would
+silently reintroduce the exact bug this whole correction pass exists to
+fix (a ratio that means "at resonance" for the numbers actually swept,
+but doesn't for the physically loaded tank) -- confirmed empirically: a
+grid run at ratio=1.02 against the OLD (unloaded) reference put every
+cast_iron point at ~100.6% zvs_lost (deep in hard-switching territory,
+NOT near resonance) once PAN_L2 was corrected.
+
+f_res_loaded_hz() below iterates the exact (non-approximated) T-model
+relation from the resolution doc to a fixed point, and `ratio_f_sw_over_
+f_res` is now computed against THAT per-(L, pan_preset) value. The old
+unloaded figure is still reported, as `f_res_unloaded_hz`, for
+transparency and backward comparison against pre-correction evidence.
 
 Usage
 -----
@@ -70,11 +102,44 @@ import run_zvs_sweep as base  # noqa: E402  (reuse, not reimplement)
 REPO_ROOT = base.REPO_ROOT
 C_TANK_F = base.C_TANK_F  # 300nF, committed and fixed (modules.ato:391,398)
 
-PAN_PRESETS_BY_NAME = {n: (k, r, s) for n, k, r, s in base.PAN_PRESETS}
+PAN_PRESETS_BY_NAME = {n: (k, r, l2, s) for n, k, r, l2, s in base.PAN_PRESETS}
 
 
 def f_res_hz(l_henries: float) -> float:
+    """UNLOADED resonance (L1/C_TANK only, no pan coupling). Retained for
+    backward comparison against pre-2026-07-27-preset-correction evidence;
+    no longer used to set F_SW from ratio -- see f_res_loaded_hz()."""
     return 1.0 / (2 * math.pi * math.sqrt(l_henries * C_TANK_F))
+
+
+def f_res_loaded_hz(
+    l_henries: float, pan_k: float, pan_rpan: float, pan_l2_h: float,
+    tol: float = 1e-6, max_iter: int = 200,
+) -> float:
+    """Self-consistent LOADED resonance -- fixed-point iteration of the
+    exact T-model relation (docs/evidence/2026-07-27-coil-pan-coupling-
+    resolution.md Sec 2.1):
+
+        L_apparent / L1 = 1 - K^2 * x^2 / (RPAN^2 + x^2),   x = omega*L2
+
+    `omega` (what f_sw should be set to, at ratio=1.0) depends on
+    L_apparent, which itself depends on omega via x -- so this cannot be
+    solved in closed form for the general case and is iterated to a fixed
+    point starting from the unloaded resonance. Converges in a handful of
+    iterations for every (L, preset) combination this harness has been run
+    on (K<=0.79); not proven to converge for arbitrary K.
+    """
+    f = f_res_hz(l_henries)
+    for _ in range(max_iter):
+        omega = 2 * math.pi * f
+        x = omega * pan_l2_h
+        ratio = 1.0 - (pan_k * pan_k) * x * x / (pan_rpan * pan_rpan + x * x)
+        l_apparent = l_henries * ratio
+        f_new = f_res_hz(l_apparent)
+        if abs(f_new - f) < tol * f_new:
+            return f_new
+        f = f_new
+    return f
 
 
 def run_grid(l_list_uh, ratio_list, pan_names, base_text):
@@ -83,32 +148,47 @@ def run_grid(l_list_uh, ratio_list, pan_names, base_text):
     done = 0
     for l_uh in l_list_uh:
         l_h = l_uh * 1e-6
-        fres = f_res_hz(l_h)
-        for ratio in ratio_list:
-            f_sw = fres * ratio
-            for pan_name in pan_names:
-                pan_k, pan_rpan, _note = PAN_PRESETS_BY_NAME[pan_name]
+        fres_unloaded = f_res_hz(l_h)
+        for pan_name in pan_names:
+            pan_k, pan_rpan, pan_l2, _note = PAN_PRESETS_BY_NAME[pan_name]
+            # LOADED resonance depends on the pan preset (K, RPAN, L2), not
+            # just L -- see f_res_loaded_hz() docstring and the module
+            # docstring's "Ratio reference frequency" section. Computed
+            # once per (L, pan) rather than per (L, pan, ratio) since it
+            # does not depend on ratio.
+            fres_loaded = f_res_loaded_hz(l_h, pan_k, pan_rpan, pan_l2)
+            for ratio in ratio_list:
+                f_sw = fres_loaded * ratio
                 done += 1
                 # override_params does a literal ".param NAME = value" replace;
                 # ngspice needs a unit suffix on PAN_L1 (it's declared "80u" in
                 # the deck) or a fully-expanded float. Use an explicit
                 # micro-suffixed string so this matches the deck's own style.
+                # PAN_L2 is passed as a plain (non-suffixed) float in henries
+                # -- Python's str() of a value like 218e-6 renders as
+                # "0.000218", a fully-expanded float per the same rule, so no
+                # unit-suffix ambiguity exists there (unlike PAN_L1 above,
+                # which is overridden with bare integers like "70" that WOULD
+                # be ambiguous without a suffix).
                 overrides = {
                     "F_SW": f_sw,
                     "PAN_K": pan_k,
                     "PAN_RPAN": pan_rpan,
                     "PAN_L1": f"{l_uh}u",
+                    "PAN_L2": pan_l2,
                 }
                 cir_text = base.override_params(base_text, overrides)
                 stdout, stderr, code = base.run_ngspice_on_text(cir_text)
                 point = {
                     "l_uh": l_uh,
-                    "f_res_hz": round(fres, 1),
+                    "f_res_loaded_hz": round(fres_loaded, 1),
+                    "f_res_unloaded_hz": round(fres_unloaded, 1),
                     "ratio_f_sw_over_f_res": ratio,
                     "f_sw_hz": round(f_sw, 1),
                     "pan_preset": pan_name,
                     "pan_k": pan_k,
                     "pan_rpan_ohm": pan_rpan,
+                    "pan_l2_h": pan_l2,
                 }
                 print(
                     f"[{done}/{total}] L={l_uh}uH ratio={ratio} f_sw={f_sw:.0f}Hz "
@@ -140,7 +220,7 @@ def run_grid(l_list_uh, ratio_list, pan_names, base_text):
                     print("UNMEASURED (no power measurement)")
                     results.append(point)
                     continue
-                zvs = base.compute_point_result(pan_name, pan_k, pan_rpan, f_sw, meas)
+                zvs = base.compute_point_result(pan_name, pan_k, pan_rpan, f_sw, meas, pan_l2_h=pan_l2)
                 i_pan_rms = meas["i_pan_rms_last"]
                 p_pan_w = i_pan_rms * i_pan_rms * pan_rpan
                 point.update(
@@ -209,6 +289,7 @@ def main() -> int:
 
     evidence = {
         "schema_version": 1,
+        "provenance": base.collect_provenance(REPO_ROOT),
         "measurement_date": _dt.date.today().isoformat(),
         "harness": "simulation/harness/run_tank_coil_sweep.py",
         "netlist": "simulation/harness/nets/zvs_margin_sweep.cir (extended with i_pan_rms_last .meas)",
@@ -230,6 +311,23 @@ def main() -> int:
             "This is the model's power delivered to the pan-load "
             "equivalent circuit, NOT a calibrated induction-heating power "
             "figure -- see TANK_COIL_SPECIFICATION.md fidelity bounds."
+        ),
+        "ratio_reference_frequency_note": (
+            "CORRECTED 2026-07-27: ratio_f_sw_over_f_res is now computed "
+            "against f_res_loaded_hz (a self-consistent, per-(L,pan) fixed "
+            "point of the exact T-model relation, f_res_loaded_hz() in "
+            "this script), NOT the unloaded f_res_unloaded_hz (L1/C_TANK "
+            "only) used before the PAN_PRESETS correction. For the old "
+            "K=0.15-0.5/L2=1uH presets these were within a fraction of a "
+            "percent of each other; for the corrected K=0.79 presets "
+            "(cast_iron/stainless) f_res_loaded_hz is ~60% above "
+            "f_res_unloaded_hz (see docs/evidence/2026-07-27-pan-preset-"
+            "correction.md), so continuing to reference the unloaded "
+            "figure would put ratio=1.02 deep in zvs_lost territory "
+            "instead of near resonance -- confirmed empirically before "
+            "this fix (every cast_iron point at ratio=1.02-vs-unloaded "
+            "measured ~100.6% margin, not the near-ZVS-boundary value the "
+            "ratio label implies)."
         ),
         "grid": {
             "total_points": len(results),

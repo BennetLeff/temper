@@ -1,5 +1,7 @@
 # OCP-01 trip point versus the current 1800 W actually requires
 
+**Provenance: commit=UNKNOWN dirty=UNKNOWN** -- backfilled prior to the provenance gate's introduction (2026-07-26); no self-declared commit exists in this file's own content and none was fabricated. See .evidence-provenance-allowlist.
+
 **Date:** 2026-07-26
 **Method:** analytical, from committed values. No simulation, no pan model —
 this deliberately avoids `pan_load.sub`, whose reflected resistance was found

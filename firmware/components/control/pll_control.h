@@ -21,7 +21,19 @@ extern "C" {
  */
 #define PLL_MIN_FREQ_HZ     30000   /**< Minimum switching frequency */
 #define PLL_MAX_FREQ_HZ     50000   /**< Maximum switching frequency */
-#define PLL_DEFAULT_FREQ_HZ 35000   /**< Default startup frequency */
+/**
+ * @brief Default startup frequency.
+ *
+ * CORRECTED 2026-07-28 (was 35000, see
+ * docs/evidence/2026-07-28-pll-ratio-tracking-check.md and
+ * docs/evidence/2026-07-27-zvs-operating-point.md): 35kHz loses 100.7% of
+ * ZVS margin at the corrected pan-coupling model (K=0.79) for
+ * ferromagnetic pans -- full hard switching of a 1200V IGBT half-bridge.
+ * 47000 matches elec/src/main.ato's f_switching = 47kHz, the ZVS-holding
+ * operating point (0.84% margin at the L=150uH assumption). Startup must
+ * not begin the bridge at a frequency already known to hard-switch.
+ */
+#define PLL_DEFAULT_FREQ_HZ 47000
 
 /**
  * @brief PLL configuration structure

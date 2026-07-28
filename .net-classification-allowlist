@@ -1,0 +1,91 @@
+# Net-classification-by-substring gate allowlist
+# (scripts/check_net_classification.py). See
+# docs/evidence/2026-07-27-net-classification-gate.md.
+#
+# Format: <qualname>::<repo-relative file glob>  # justification
+# (required -- unjustified entries, or entries with no file-glob scope,
+# are a hard error; see load_allowlist() in the gate script). Both the
+# qualname and the file glob must match for an entry to apply -- a bare
+# qualname is deliberately not supported, so allowlisting a known gap in
+# one function cannot silently exempt an unrelated future function of the
+# same name elsewhere. Wildcards (fnmatch-style) are supported in both
+# fields, e.g. "Class.*" or "path/to/*.py".
+#
+# Every entry below was reviewed by hand and is a genuine non-safety use:
+# the flagged code does not classify a *net name* into the HV/SELV
+# electrical domain that elec/domain_manifest.yaml declares. Do not add an
+# entry here to punt on a real net-classification bug -- fix it instead
+# (word-boundary regex, or classify from elec/domain_manifest.yaml's exact
+# net-name set, per the two historical fixes this gate is modeled on).
+
+# Operates on a component REFERENCE DESIGNATOR (e.g. "R_GATE1"), not a net
+# name -- classifying whether a resistor is a "gate resistor" by its own
+# ref string. Component ref designators are not declared anywhere in
+# elec/domain_manifest.yaml (which declares net names only), so there is
+# no SSOT for this check to drift from in the way the historical defect
+# class describes.
+classify_component::packages/temper-placer/src/temper_placer/core/loop_extractor.py  # matches a component ref designator ("R_GATE1"), not a net name -- no domain_manifest.yaml counterpart
+
+# Both functions parse a small, closed CONFIG-SCHEMA vocabulary (a string
+# like "high_voltage"/"hv"/"selv" written by a human authoring a net-class
+# YAML config), not a net's own NAME pulled from the compiled netlist.
+# The subject string is the classification value itself, not something
+# whose accidental substring content could misclassify an unrelated net --
+# there is no net name involved on either side of the `in` test.
+_parse_net_type::packages/temper-placer/src/temper_placer/core/net_types.py  # parses a config-schema keyword value ("high_voltage"/"hv"), not a net name
+_parse_voltage_class::packages/temper-placer/src/temper_placer/core/net_types.py  # parses a config-schema keyword value ("selv"/"240"/"120"), not a net name
+
+# Classifies a connector's PURPOSE (power_input / power_output / debug /
+# signal) for PLACEMENT heuristics only (where to position a connector
+# relative to the board edge). Does not feed any clearance/creepage/DRC
+# safety decision -- elec/domain_manifest.yaml's HV/SELV boundary is not
+# what this determines. A misclassification here is a placement-quality
+# regression, not a safety gap.
+_classify_connector_purpose::packages/temper-placer/src/temper_placer/heuristics/structural.py  # connector-purpose placement heuristic only; does not feed clearance/creepage/DRC
+
+# Operates on an arbitrary, externally-supplied REFERENCE DESIGN used for
+# quality-config auto-inference/benchmarking -- not this project's own
+# board. Reference designs have no elec/domain_manifest.yaml counterpart
+# to parallel (the manifest declares this project's own compiled nets
+# only), so this cannot drift from an SSOT that does not exist for it.
+infer_quality_config::packages/temper-placer/src/temper_placer/io/reference_loader.py  # operates on arbitrary external reference designs, not this project's board; no domain_manifest.yaml to parallel
+
+# Diagnostic heuristic identifying which components to prioritize in
+# routing-failure FEEDBACK (the placer's iterative repair loop), not a
+# clearance/creepage safety verification path. A misclassification here
+# affects which component gets highlighted in a diagnostic message, not
+# whether a safety distance is enforced.
+FeedbackClassifier._find_critical_components::packages/temper-placer/src/temper_placer/placer/cp_sat/feedback.py  # diagnostic routing-failure feedback heuristic, not a safety verification path
+
+# Affects only the TIE-BREAK order nets are routed in within a conflict
+# cluster (is_power as a tiebreaker after bottleneck-width/area) -- has no
+# bearing on clearance/creepage safety verification, which is computed
+# independently in clearance_check.py/creepage_check.py from
+# elec/domain_manifest.yaml. A misclassification here changes routing
+# sequence, never a reported safety distance.
+_compute_net_order.cluster_sort_key::packages/temper-placer/src/temper_placer/router_v6/_astar_ordering.py  # routing-order tiebreaker only; independent of the safety verification path
+
+# `loops` is a dict keyed by loop-name strings; `"dc_bus" in loops` is
+# exact dict-KEY membership, not substring-of-string matching -- the same
+# Compare(in) AST shape as the real defect class but semantically
+# unrelated (dict `in` never does substring matching). Documented here
+# rather than silently special-cased in the detector: distinguishing
+# dict/set/list membership from string substring testing purely
+# statically (without type inference) is a known limitation of this gate,
+# not a claim that this code is otherwise verified safe.
+check_critical_loop_areas::packages/temper-placer/tests/requirements/validators/layout.py  # dict-key membership test ("dc_bus" in a loop-name-keyed dict), not string substring matching
+
+# Checks SILKSCREEN WARNING-LABEL TEXT content (e.g. "DANGER: HIGH
+# VOLTAGE") for required-marking phrases -- verifying a physical safety
+# marking is present on the board, not classifying a net's electrical
+# domain. Substring/phrase-presence matching is the correct tool for
+# free-form label text (unlike net-name classification, where the same
+# technique causes accidental word-fragment collisions); "HV" as a
+# substring of a whole warning sentence is the intended match, not an
+# accident.
+check_hv_warning_present::packages/temper-placer/tests/requirements/validators/markings.py  # matches silkscreen warning-label text content, not a net name
+
+# Checks a component's BOM "value" field text (e.g. "UCC21550") for
+# gate-driver-IC keyword presence, to confirm a gate driver IC exists in
+# the schematic -- not classifying a net name into an electrical domain.
+check_gate_driver_enable::packages/temper-placer/tests/requirements/validators/schematic.py  # matches component BOM "value" text for IC-presence detection, not a net name

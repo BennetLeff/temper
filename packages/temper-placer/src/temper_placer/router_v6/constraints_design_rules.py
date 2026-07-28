@@ -9,6 +9,7 @@ Part of temper-lueu.1
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
@@ -408,7 +409,14 @@ class ClearanceMatrix:
 
                 if poly:
                     clearance = 0.2
-                    if "HV" in z.name.upper():
+                    # Word-boundary match on the zone name (delimited by
+                    # "_" or start/end) -- bare "HV" as a substring risked
+                    # matching any zone name merely containing those two
+                    # letters. Same defect class confirmed three times
+                    # elsewhere in this repo; found here by
+                    # scripts/check_net_classification.py. See
+                    # docs/evidence/2026-07-27-net-classification-gate.md.
+                    if re.search(r"(?:^|_)HV(?:$|[\d_])", z.name.upper()):
                         clearance = 3.0  # Standard HV clearance for Temper
 
                     routing_zones.append(

@@ -22,17 +22,6 @@ from temper_placer.placer.cp_sat.model import ComponentVars, CpSatModel
 if TYPE_CHECKING:
     pass
 
-# ---- Import handler modules so they self-register via @register_handler ----
-# ruff: noqa: F811
-import temper_placer.placer.cp_sat.handlers.adjacent as _  # noqa: F401
-import temper_placer.placer.cp_sat.handlers.aligned as _  # noqa: F401
-import temper_placer.placer.cp_sat.handlers.anchored as _  # noqa: F401
-import temper_placer.placer.cp_sat.handlers.enclosing as _  # noqa: F401
-import temper_placer.placer.cp_sat.handlers.keepout as _  # noqa: F401
-import temper_placer.placer.cp_sat.handlers.loop_area as _  # noqa: F401
-import temper_placer.placer.cp_sat.handlers.onside as _  # noqa: F401
-import temper_placer.placer.cp_sat.handlers.separated as _  # noqa: F401
-
 logger = logging.getLogger(__name__)
 
 UNSUPPORTED_TYPES: set[ConstraintType] = set()

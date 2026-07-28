@@ -177,3 +177,45 @@ def test_copper_balance_violations():
     assert report.total_violations == 2
     assert report.critical_violations == 2
     assert not report.is_manufacturability_ok
+
+
+def test_errored_annular_ring_fails_closed():
+    """Regression test: an errored annular_ring must count as >= 1 violation.
+
+    Before this fix, ``AnnularRingReport.errored`` had no effect on
+    ``total_violations`` / ``critical_violations`` -- an errored check
+    with an (necessarily incomplete) empty ``violations`` list read as
+    "0 violations found", identical to a genuinely clean board. This is
+    exactly the vacuous-truth shape that let the pipeline's own
+    anti-vacuous-truth guard (``_pipeline_verify.py``) go unused for
+    annular_ring even after being wired up for creepage/clearance. This
+    mirrors the pre-existing creepage/clearance fail-closed folding
+    (see ``test_manufacturing_drc_integration.py``'s gate-logic tests).
+    """
+    acid = AcidTrapReport(acid_traps=[])
+    # errored=True with an empty violations list, as `_pipeline_verify.py`
+    # substitutes when the anti-vacuous-truth guard fires.
+    annular = AnnularRingReport(violations=[], total_vias_checked=0, errored=True)
+    teardrops = TeardropReport(teardrops=[Teardrop("NET1", (0, 0), "via", 0.3, 0.6, "F.Cu")])
+    thermal = ThermalReliefReport(
+        thermal_reliefs=[
+            ThermalRelief("GND", (0, 0), 4, 0.254, 0.254, pad_size=(0.0, 0.0), spoke_segments=[])
+        ]
+    )
+    copper = CopperBalanceReport(layer_balances=[], total_area_mm2=0.0)
+    creepage = CreepageReport(violations=[], total_checks=5)
+    clearance = ClearanceReport(violations=[], total_checks=20)
+
+    report = generate_manufacturing_report(
+        acid, annular, teardrops, thermal, copper, creepage, clearance
+    )
+
+    assert "annular_ring" in report.errored_checks
+    # An errored check must not read as clean: it must count as at least
+    # one violation, and the board must not be reported manufacturable.
+    assert report.total_violations >= 1
+    assert report.critical_violations >= 1
+    assert not report.is_manufacturability_ok
+
+    formatted = format_manufacturing_report(report)
+    assert "Annular Rings: 0 violations [ERRORED" in formatted

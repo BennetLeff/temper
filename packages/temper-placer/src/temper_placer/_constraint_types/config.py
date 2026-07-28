@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import re
+
 from pydantic import BaseModel, ConfigDict, Field
 
 from temper_placer.core.board import GroundDomain, LayerStackup, Zone
@@ -449,7 +451,14 @@ class PlacementConstraints(BaseModel):
             )
         ):
             return "Power"
-        elif "HV" in upper or "BUS" in upper or "DC_BUS" in upper:
+        # Word-boundary match (delimited by "_" or start/end of the
+        # uppercased net name) -- bare "HV"/"BUS" as plain substrings
+        # risked matching any net merely containing those letters. Same
+        # defect class confirmed three times elsewhere in this repo;
+        # found here by scripts/check_net_classification.py auditing
+        # every net-name classifier for the same shape. See
+        # docs/evidence/2026-07-27-net-classification-gate.md.
+        elif re.search(r"(?:^|_)(?:HV|BUS|DC_BUS)(?:$|[\d_])", upper):
             return "HighVoltage"
         else:
             return "Signal"

@@ -1,5 +1,7 @@
 # BOM-vs-Source Audit — `docs/hardware/BOM.md` against `elec/src/*.ato`
 
+**Provenance: commit=UNKNOWN dirty=UNKNOWN** -- backfilled prior to the provenance gate's introduction (2026-07-26); no self-declared commit exists in this file's own content and none was fabricated. See .evidence-provenance-allowlist.
+
 Scope: every BOM line item compared against `elec/src/{components,modules,main}.ato`.
 `elec/build/default.net` was checked for independent presence confirmation but is
 **stale** — it has only 40 `libpart` entries and is missing `TLV3201`, `TPS3823`,

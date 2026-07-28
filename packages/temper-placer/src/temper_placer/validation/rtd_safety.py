@@ -68,12 +68,20 @@ RTD_AVDD_NORMAL_MIN_V = 2.97
 # REF2025 VBIAS is 1.25 V. Its ±0.05% initial accuracy plus 8 ppm/C over the
 # -40..125 C design range is conservatively represented as ±0.13%; each thin
 # film threshold resistor is ±0.1%.
+# 2026-07-27: RTD_LOW_WINDOW_TOP_OHM and RTD_HIGH_WINDOW_TOP_OHM corrected
+# from the fabricated 61_300.0/ERA-3AEB6132V and 5_930.0/ERA-3AEB5931V
+# (neither an E96/E192 value, neither MPN real -- confirmed absent from
+# DigiKey's catalogue) to the nearest E192-legal values that are also real,
+# distributor-confirmed Panasonic ERA-3A part numbers: 61_900.0/ERA-3AEB6192V
+# and 5_900.0/ERA-3AEB5901V. See
+# docs/evidence/2026-07-27-era-resistor-resolution.md for the distributor
+# fetches and the worst-case threshold-margin arithmetic (incl. tempco).
 REF2025_VBIAS_NOMINAL_V = 1.25
 REF2025_VBIAS_TOLERANCE_FRACTION = 0.0013
 RTD_WINDOW_RESISTOR_TOLERANCE_FRACTION = 0.001
-RTD_LOW_WINDOW_TOP_OHM = 61_300.0
+RTD_LOW_WINDOW_TOP_OHM = 61_900.0
 RTD_LOW_WINDOW_BOTTOM_OHM = 10_000.0
-RTD_HIGH_WINDOW_TOP_OHM = 5_930.0
+RTD_HIGH_WINDOW_TOP_OHM = 5_900.0
 RTD_HIGH_WINDOW_BOTTOM_OHM = 10_000.0
 
 

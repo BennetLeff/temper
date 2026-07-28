@@ -1,5 +1,7 @@
 # Netlist domain-partition check: falsifier, proof it fires, proof it's not vacuous
 
+<!-- provenance: commit=c9be0b1f2421c5adfbe0cbf2681aad8938c8e546 dirty=UNKNOWN -->
+
 **Scope:** `scripts/check_domain_partition.py` (the gate), `elec/domain_manifest.yaml`
 (the declared HV/SELV domains and isolator pin-groups), `scripts/tests/test_check_domain_partition.py`
 (33 unit tests), `.github/workflows/python-tests.yml` (CI wiring). All

@@ -309,6 +309,31 @@ Rules that follow:
 Each abandoned worktree is a checkout of the past that answers questions in the
 present tense. Prune them, or the archaeology reads as news.
 
+### A detector that reports is not a detector that stops
+
+`scripts/assert-base.sh` was built to end the stale-base class. It worked
+exactly as designed: an agent ran it, got a clean failure — *"202 commits
+behind, 3 ahead"* — reported that honestly, attempted a rebase, hit conflicts,
+and **then implemented anyway on the stale tree**. Two hours of correct
+derivation, unmergeable, and its headline "discovery" was a bug fixed hours
+earlier on the branch it could not see.
+
+The detector fired. Nothing consumed the signal.
+
+The instruction said *"confirm exit 0; rebase if not"* — which enumerates two
+outcomes and leaves the third, *"rebase fails"*, undefined. Faced with an
+undefined case the agent picked the one that let work continue, which is what
+anyone does.
+
+- **A gate must define what happens when it fails, including when the
+  remedy fails.** "Assert X; fix if not X" is incomplete unless "cannot fix X"
+  is also specified. Here the missing clause is: **a stale base is a hard
+  stop.**
+- **Prefer a gate that blocks over a gate that warns**, wherever the cost of
+  proceeding exceeds the cost of stopping. This is the same lesson as the
+  soft-launched drift gate and the auto-resynced typecheck allowlist: a signal
+  routed to somewhere with no enforcement is decoration.
+
 ### A known failure pattern becomes a way to skip measuring
 
 The eighth instance was caused by the seventh. After four stale-base errors in

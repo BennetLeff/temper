@@ -9,11 +9,16 @@
 *
 * Sourced values (read-only, elec/src/modules.ato):
 *   - power_3v3 rail:            3.3 V   (ocp.power ~ power_3v3, main.ato)
-*   - r_ref_top / r_ref_bot:     3200 / 10000 ohm  (OCPComparator, line ~1505)
-*       -> Vref = 3.3 * 10000/13200 = 2.5000 V
-*   - CT turns ratio:            1:100   (CurrentSensing comment, line ~1188:
-*       "1:100 ratio: 4.99R puts the OCP trip at 2.5V/4.99R*100 = 50.1A")
-*   - r_burden:                  4.99 ohm (CurrentSensing, line ~1192)
+*   - r_ref_top / r_ref_bot:     3240 / 10000 ohm  (OCPComparator)
+*       RE-DERIVED 2026-07-27 (docs/evidence/
+*       2026-07-27-ocp01-uvl02-part-resolution.md): r_ref_top was 3200 ohm
+*       with a fabricated MPN ("RC0603FR-073K2L", not an E24/E96 value,
+*       zero DigiKey hits). Corrected to the real E96 neighbour 3240 ohm
+*       ("RC0603FR-073K24L", DigiKey-verified).
+*       -> Vref = 3.3 * 10000/13240 = 2.4925 V
+*   - CT turns ratio:            1:100   (CurrentSensing comment:
+*       "1:100 ratio: 4.99R puts the OCP trip at 2.49V(comp ref)/4.99R*100 = 49.9A")
+*   - r_burden:                  4.99 ohm (CurrentSensing)
 *
 * Model-default values (simulation/models/current_transformer.sub,
 * CT_WITH_BURDEN subckt) NOT sourced from the schematic, because the board
@@ -40,7 +45,7 @@ I_PRI pri_p 0 PWL(0 0 {RAMP_TIME} {RAMP_MAX_A})
 
 X_CT pri_p 0 i_sense 0 CT_WITH_BURDEN PARAMS: N=100 RW=50 R_BURDEN=4.99
 
-R_REF_TOP VCC_3V3 vref 3200
+R_REF_TOP VCC_3V3 vref 3240
 R_REF_BOT vref 0 10000
 
 X_COMP i_sense vref VCC_3V3 0 comp_out TLV3201_NGSPICE

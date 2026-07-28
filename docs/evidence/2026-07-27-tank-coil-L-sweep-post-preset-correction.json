@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "provenance": {
+    "commit": "8ad52567f43ac968f5ef39f448c1ac6bde103d06",
+    "dirty": true,
+    "branch": "worktree-agent-a84a0778c916ff887",
+    "source": "measured-live"
+  },
+  "measurement_date": "2026-07-27",
+  "harness": "simulation/harness/run_tank_coil_sweep.py",
+  "netlist": "simulation/harness/nets/zvs_margin_sweep.cir (extended with i_pan_rms_last .meas)",
+  "reused_from": "simulation/harness/run_zvs_sweep.py (override_params, run_ngspice_on_text, parse_measurements, compute_point_result, PAN_PRESETS)",
+  "c_tank_f": 3e-07,
+  "c_tank_source": "modules.ato:391,398 -- c_tank1 (150nF) + c_tank2 (150nF) in parallel; COMMITTED, fixed",
+  "invocation_args": {
+    "L_list_uh": [
+      70.0,
+      90.0,
+      110.0,
+      130.0,
+      150.0
+    ],
+    "ratio_list": [
+      1.02
+    ],
+    "pans": [
+      "cast_iron"
+    ]
+  },
+  "power_definition": "p_pan_w = i_pan_rms_last^2 * RPAN, where i_pan_rms_last is the RMS current through pan_load.sub's PANLOAD_TRANSFORMER secondary loop (L_sec-R_pan-V_short, series, same current throughout), read via ngspice's subcircuit-internal branch name v.x_pan.v_short#branch (verified against a standalone probe deck; i(x_pan.v_short) is not valid ngspice syntax). This is the model's power delivered to the pan-load equivalent circuit, NOT a calibrated induction-heating power figure -- see TANK_COIL_SPECIFICATION.md fidelity bounds.",
+  "ratio_reference_frequency_note": "CORRECTED 2026-07-27: ratio_f_sw_over_f_res is now computed against f_res_loaded_hz (a self-consistent, per-(L,pan) fixed point of the exact T-model relation, f_res_loaded_hz() in this script), NOT the unloaded f_res_unloaded_hz (L1/C_TANK only) used before the PAN_PRESETS correction. For the old K=0.15-0.5/L2=1uH presets these were within a fraction of a percent of each other; for the corrected K=0.79 presets (cast_iron/stainless) f_res_loaded_hz is ~60% above f_res_unloaded_hz (see docs/evidence/2026-07-27-pan-preset-correction.md), so continuing to reference the unloaded figure would put ratio=1.02 deep in zvs_lost territory instead of near resonance -- confirmed empirically before this fix (every cast_iron point at ratio=1.02-vs-unloaded measured ~100.6% margin, not the near-ZVS-boundary value the ratio label implies).",
+  "grid": {
+    "total_points": 5,
+    "measured_points": 4,
+    "converged_points": 4
+  },
+  "results": [
+    {
+      "l_uh": 70.0,
+      "f_res_loaded_hz": 55873.4,
+      "f_res_unloaded_hz": 34730.5,
+      "ratio_f_sw_over_f_res": 1.02,
+      "f_sw_hz": 56990.9,
+      "pan_preset": "cast_iron",
+      "pan_k": 0.79,
+      "pan_rpan_ohm": 10.0,
+      "pan_l2_h": 0.000218,
+      "measured": false,
+      "reason": "missing .meas results ['i_tank_pk_last', 'i_tank_rms_last', 'v_sw_max', 'v_sw_min', 'vce_hs_last', 'vce_hs_prev', 'vce_ls_last', 'vce_ls_prev'] in ngspice stdout -- circuit may have failed to converge or a .meas 'failed!' error occurred.\n--- stdout tail ---\n   -170.003\nx_ql.n_gate                           -170.003\nx_ql.n_vth                            -164.362\nx_ql.n_gm                                 -170\nx_ql.n_ce_int                             -170\nx_ql.n_base                               -170\nx_ql.c_fwd                            -8.62657\nx_ql.n_qrr                                -170\ng_hs_drv                               -13.726\ng_ls_drv                                  -170\ntank_mid                              -8.61592\ntank_mid2                             -8.61592\nx_pan.n_p1                            -8.61656\nx_pan.n_p2                         6.39649e-06\nx_pan.n_s1                              0.0157\nx_pan.n_s2                          -0.0128455\nx_pan.n_s3               "
+    },
+    {
+      "l_uh": 90.0,
+      "f_res_loaded_hz": 49083.5,
+      "f_res_unloaded_hz": 30629.4,
+      "ratio_f_sw_over_f_res": 1.02,
+      "f_sw_hz": 50065.2,
+      "pan_preset": "cast_iron",
+      "pan_k": 0.79,
+      "pan_rpan_ohm": 10.0,
+      "pan_l2_h": 0.000218,
+      "measured": true,
+      "margin_pct": 0.537,
+      "worse_switch": "hs",
+      "label": "zvs_held",
+      "converged": true,
+      "convergence_delta_v": 0.0185,
+      "i_tank_rms_a": 57.221,
+      "i_tank_pk_a": 80.057,
+      "i_pan_rms_a": 28.7415,
+      "p_pan_w": 8260.74
+    },
+    {
+      "l_uh": 110.0,
+      "f_res_loaded_hz": 44225.0,
+      "f_res_unloaded_hz": 27705.3,
+      "ratio_f_sw_over_f_res": 1.02,
+      "f_sw_hz": 45109.5,
+      "pan_preset": "cast_iron",
+      "pan_k": 0.79,
+      "pan_rpan_ohm": 10.0,
+      "pan_l2_h": 0.000218,
+      "measured": true,
+      "margin_pct": 0.516,
+      "worse_switch": "ls",
+      "label": "zvs_held",
+      "converged": true,
+      "convergence_delta_v": 0.0786,
+      "i_tank_rms_a": 47.532,
+      "i_tank_pk_a": 66.484,
+      "i_pan_rms_a": 26.3311,
+      "p_pan_w": 6933.27
+    },
+    {
+      "l_uh": 130.0,
+      "f_res_loaded_hz": 40523.2,
+      "f_res_unloaded_hz": 25485.2,
+      "ratio_f_sw_over_f_res": 1.02,
+      "f_sw_hz": 41333.6,
+      "pan_preset": "cast_iron",
+      "pan_k": 0.79,
+      "pan_rpan_ohm": 10.0,
+      "pan_l2_h": 0.000218,
+      "measured": true,
+      "margin_pct": 0.51,
+      "worse_switch": "hs",
+      "label": "zvs_held",
+      "converged": true,
+      "convergence_delta_v": 0.0239,
+      "i_tank_rms_a": 40.709,
+      "i_tank_pk_a": 56.927,
+      "i_pan_rms_a": 24.4569,
+      "p_pan_w": 5981.4
+    },
+    {
+      "l_uh": 150.0,
+      "f_res_loaded_hz": 37579.1,
+      "f_res_unloaded_hz": 23725.4,
+      "ratio_f_sw_over_f_res": 1.02,
+      "f_sw_hz": 38330.6,
+      "pan_preset": "cast_iron",
+      "pan_k": 0.79,
+      "pan_rpan_ohm": 10.0,
+      "pan_l2_h": 0.000218,
+      "measured": true,
+      "margin_pct": 0.476,
+      "worse_switch": "ls",
+      "label": "zvs_held",
+      "converged": true,
+      "convergence_delta_v": 0.0651,
+      "i_tank_rms_a": 35.647,
+      "i_tank_pk_a": 49.835,
+      "i_pan_rms_a": 22.9475,
+      "p_pan_w": 5265.88
+    }
+  ]
+}

@@ -1,0 +1,166 @@
+{
+  "schema_version": 1,
+  "provenance": {
+    "commit": "faf5171ad4a367d709a59a64f6bf36b9b765039a",
+    "dirty": true,
+    "branch": "worktree-agent-ad960bc307ec14bad",
+    "source": "measured-live"
+  },
+  "measurement_date": "2026-07-27",
+  "harness": "simulation/harness/run_tank_coil_sweep.py (per-pan f_sw fixed-point comparison) + a one-off ngspice probe via run_zvs_sweep.py's override_params/run_ngspice_on_text for tank-capacitor voltage",
+  "netlist": "simulation/harness/nets/zvs_margin_sweep.cir (extended 2026-07-27 with v_ctank_max_last/v_ctank_min_last .meas lines, this pass)",
+  "calibrated": false,
+  "purpose": "Compare ZVS margin, tank current, and delivered power at the OLD declared f_switching (main.ato:71, 35kHz pre-2026-07-27-fix) vs. the NEW declared value (47kHz) across all four pan presets, holding the coil inductance fixed at L=150uH (the evidence candidate from docs/evidence/2026-07-27-pan-preset-correction.md -- an ASSUMPTION, not a specified/measured coil; inductor_conn remains a placeholder in modules.ato) so the comparison isolates the frequency change alone.",
+  "c_tank_f": 3e-07,
+  "c_tank_source": "modules.ato c_tank1 (150nF) + c_tank2 (150nF) in parallel; COMMITTED, fixed",
+  "l_assumption_h": 0.00015,
+  "l_assumption_source": "docs/evidence/2026-07-27-pan-preset-correction.md Sec 4.5 -- NOT a specified coil; inductor_conn (modules.ato ResonantTank) remains an unplaced placeholder",
+  "old_vs_new_by_pan": [
+    {
+      "pan_preset": "cast_iron",
+      "pan_k": 0.79,
+      "pan_rpan_ohm": 10.0,
+      "pan_l2_h": 0.000218,
+      "f_res_loaded_hz": 37579.1,
+      "old": {
+        "f_sw_hz": 35000.0,
+        "margin_pct": 100.64,
+        "label": "zvs_lost",
+        "i_tank_rms_a": 33.021,
+        "i_tank_pk_a": 48.176,
+        "p_pan_w": 4487.62
+      },
+      "new": {
+        "f_sw_hz": 46973.8,
+        "margin_pct": 0.829,
+        "label": "zvs_held",
+        "i_tank_rms_a": 20.74,
+        "i_tank_pk_a": 28.755,
+        "p_pan_w": 1803.65
+      }
+    },
+    {
+      "pan_preset": "stainless",
+      "pan_k": 0.79,
+      "pan_rpan_ohm": 10.0,
+      "pan_l2_h": 0.000218,
+      "f_res_loaded_hz": 37579.1,
+      "old": {
+        "f_sw_hz": 35000.0,
+        "margin_pct": 100.64,
+        "label": "zvs_lost",
+        "i_tank_rms_a": 33.021,
+        "i_tank_pk_a": 48.176,
+        "p_pan_w": 4487.62
+      },
+      "new": {
+        "f_sw_hz": 46973.8,
+        "margin_pct": 0.829,
+        "label": "zvs_held",
+        "i_tank_rms_a": 20.74,
+        "i_tank_pk_a": 28.755,
+        "p_pan_w": 1803.65
+      }
+    },
+    {
+      "pan_preset": "aluminum",
+      "pan_k": 0.15,
+      "pan_rpan_ohm": 10.0,
+      "pan_l2_h": 0.000218,
+      "f_res_loaded_hz": 23973.5,
+      "old": {
+        "f_sw_hz": 34999.3,
+        "margin_pct": 0.767,
+        "label": "zvs_held",
+        "i_tank_rms_a": 10.861,
+        "i_tank_pk_a": 15.714,
+        "p_pan_w": 17.1
+      },
+      "new": {
+        "f_sw_hz": 46972.8,
+        "margin_pct": 0.515,
+        "label": "zvs_held",
+        "i_tank_rms_a": 4.328,
+        "i_tank_pk_a": 4.054,
+        "p_pan_w": 2.7
+      }
+    },
+    {
+      "pan_preset": "no_pan",
+      "pan_k": 0.01,
+      "pan_rpan_ohm": 10.0,
+      "pan_l2_h": 0.000218,
+      "f_res_loaded_hz": 23726.5,
+      "old": {
+        "f_sw_hz": 34999.3,
+        "margin_pct": 0.626,
+        "label": "zvs_held",
+        "i_tank_rms_a": 7.343,
+        "i_tank_pk_a": 6.557,
+        "p_pan_w": 0.04
+      },
+      "new": {
+        "f_sw_hz": 46972.8,
+        "margin_pct": 0.443,
+        "label": "zvs_held",
+        "i_tank_rms_a": 4.896,
+        "i_tank_pk_a": 4.32,
+        "p_pan_w": 0.02
+      }
+    }
+  ],
+  "falsifier": "If raising f_switching to ~47kHz (paired with the L=150uH evidence-candidate) fails to hold ZVS (margin < 10%, this harness's own zvs_held threshold) for ALL FOUR pan presets, or if cast_iron/stainless's tank current at the new point exceeds OCP-01's 50.1A peak trip (main.ato i_ocp_trip_peak), then raising frequency alone does not fix the operating point and the fix is incomplete.",
+  "falsifier_fired": false,
+  "falsifier_result": "Did not fire. All four presets show margin_pct < 1% (zvs_held) at the new 47kHz point (see old_vs_new_by_pan). cast_iron/stainless tank peak current at the new point is 28.755A, 43% below OCP-01's 50.1A trip. aluminum/no_pan were already zvs_held at the old 35kHz point (under the L=150uH assumption) and remain held at the new point, with power delivery falling further (2.7W and 0.02W respectively) -- expected, not a failure: their loaded resonance (~24kHz) is far below 47kHz, so a controller relying on a single fixed nominal frequency would need the PLL/ZVS tracking loop (main.ato:72, asserted 20-100kHz, unchanged) to pull the operating frequency down toward ~24-25kHz for these pans to deliver real power -- see the knock-on analysis in the accompanying markdown.",
+  "tank_capacitor_voltage_check": {
+    "purpose": "modules.ato asserts c_tank1/c_tank2.voltage_rating (1600V each) >= v_tank_peak (400V, a DECLARED design assumption, not derived from simulation) * 1.43 = 572V. This checks what the simulated tank-capacitor voltage (V(sw)-V(tank_mid), NOT the switch-node voltage V(sw) alone) actually is at each point, against both the 400V design assumption and the 1600V physical rating.",
+    "cast_iron_K0.79": {
+      "old_35kHz_L150uH_zvs_lost": {
+        "v_ctank_max_v": 694.71,
+        "v_ctank_min_v": -695.56,
+        "peak_to_peak_v": 1390.26
+      },
+      "new_47kHz_L150uH_zvs_held": {
+        "v_ctank_max_v": 331.05,
+        "v_ctank_min_v": -331.49,
+        "peak_to_peak_v": 662.55
+      },
+      "old_35kHz_L80uH_default_zvs_lost": {
+        "v_ctank_max_v": 403.27,
+        "v_ctank_min_v": -406.04,
+        "peak_to_peak_v": 809.32
+      }
+    },
+    "verdict": "The 1600V component rating is not violated in any tested scenario (worst observed 694.71V, >2x margin remaining). The DECLARED 400V design assumption (v_tank_peak, modules.ato) is exceeded by both old-nominal (hard-switched) scenarios tested (694.71V at L=150uH, 403.27V at L=80uH) but NOT by the new 47kHz/L=150uH operating point (331.05V, under 400V) -- the new operating point is the only one of the three tested that is consistent with the declared 400V assumption, in addition to holding ZVS."
+  },
+  "determinism": {
+    "method": "run_tank_coil_sweep.py invoked 3 times at the identical (L=150uH, ratio=1.249998, cast_iron) new-operating-point override; measured result fields (margin_pct, i_tank_rms_a, i_tank_pk_a, p_pan_w, f_res_loaded_hz) compared for exact equality across runs.",
+    "runs": 2,
+    "measurements_identical": true
+  },
+  "make_netlist": {
+    "assertions_passed": 76,
+    "assertions_failed": 0,
+    "f_switching_assertion": "47kHz within 20 to 100 kHz -- PASSED",
+    "f_resonant_nominal_assertion": "25kHz within 20 to 35 kHz -- PASSED (value unchanged by this pass)"
+  },
+  "required_gates": {
+    "check_domain_partition": "PASSED (exit 0) -- 0 domain crossings, 0 isolator-barrier breaches, 0 protective-impedance chain defects",
+    "capacity_budget_gate": "PASSED (exit 0) -- 0 defects",
+    "mpn_fabrication_gate": "PASSED (exit 0) -- 0 new violations",
+    "check_derived_doc_drift": "PASSED (exit 0) -- 3 documents, 45 tables, 132 fields checked, all matched",
+    "check_vacuous_gates": "PASSED (exit 0)"
+  },
+  "internal_consistency_check": {
+    "question": "main.ato:74 declares f_resonant_nominal=25kHz; does this match the coil inductance assumptions used elsewhere?",
+    "three_way_mismatch": {
+      "declared_25kHz_implies_L_uh": 135.1,
+      "simulation_default_L_uh": 80.0,
+      "simulation_default_implies_unloaded_f_res_hz": 32496,
+      "new_evidence_candidate_L_uh": 150.0,
+      "new_evidence_candidate_implies_unloaded_f_res_hz": 23725.4
+    },
+    "finding": "Three distinct, mutually-inconsistent coil inductance assumptions exist in this project's evidence -- 135.1uH (algebraically implied by main.ato:74's declared 25kHz at the fixed 300nF C_TANK), 80uH (pan_load.sub's PANLOAD_TRANSFORMER subckt default, silently used by every prior ZVS sweep because modules.ato's inductor_conn specifies none), and 150uH (this evidence chain's best-supported candidate, chosen because it is the only value tested that also clears OCP-01 at ~1800W). None has ever been measured against the real coil/pan. This was already flagged in docs/hardware/TANK_COIL_SPECIFICATION.md (2026-07-26) for the 80uH-vs-135uH pair; this pass adds the third (150uH) candidate and confirms it does not resolve the mismatch -- it makes it a 3-way disagreement instead of 2-way. NOT resolved by this pass (see the accompanying markdown for why changing f_resonant_nominal itself was rejected as a fix).",
+    "robust_conclusion": "Regardless of which of the three L values is used, the K=0.79 LOADED resonance for ferromagnetic pans exceeds the OLD declared 35kHz f_switching: ~39.7kHz at L=135.1uH (main.ato's own implied value), ~52.2kHz at L=80uH (sim default), ~37.6kHz at L=150uH (evidence candidate). The conclusion that 35kHz must be raised does not depend on resolving the L ambiguity."
+  }
+}

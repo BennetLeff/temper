@@ -48,7 +48,50 @@ static const char *TAG = "pll_control";
 /* Frequency boundary checking (safety limits) */
 #define FREQ_MARGIN_LOW_HZ      5000.0f /* Below resonance limit: f_res - 5kHz */
 #define FREQ_MARGIN_HIGH_HZ     10000.0f /* Above resonance limit: f_res + 10kHz */
-#define DEFAULT_RESONANT_FREQ   35800.0f /* Default: 35.8 kHz from RESONANT_TANK_DESIGN */
+/**
+ * Default expected resonant frequency, for lock detection (line ~266) and
+ * frequency-safety bounds checking (pll_is_frequency_safe()).
+ *
+ * RECONCILED 2026-07-28 (was 35800.0f "from RESONANT_TANK_DESIGN" -- a
+ * stale doc reference with no loaded/unloaded qualifier; see
+ * docs/evidence/2026-07-28-pll-defaults-and-range-gate.md and
+ * docs/evidence/2026-07-28-pll-ratio-tracking-check.md Sec 4).
+ *
+ * This is the LOADED resonant frequency at the project's L=150uH tank
+ * assumption (elec/src/main.ato's l_tank_assumed), K=0.79 pan coupling:
+ * 37.58 kHz, from docs/evidence/2026-07-27-inductance-range-sweep.md
+ * Sec 2.1 (L=150 row, "f_res,loaded"), cross-checked by
+ * docs/evidence/2026-07-27-zvs-operating-point.md ("loaded (~1.6x) ~
+ * 38 kHz" at the same L).
+ *
+ * Why LOADED and not UNLOADED (23.7 kHz at the same L, main.ato's
+ * f_resonant_nominal=25kHz is a third, separately-tracked UNLOADED
+ * number): verified against this file's own asymmetric safety window,
+ * not asserted from documentation alone. pll_is_frequency_safe() allows
+ * -5kHz below resonant_freq but +10kHz ABOVE it -- an asymmetric margin
+ * that only makes sense if resonant_freq is the frequency the converter
+ * is expected to run ABOVE (the loop runs above resonance for ZVS, per
+ * this file's own docstring). With the loaded value (37.58kHz), the
+ * corrected default operating point (PLL_DEFAULT_FREQ_HZ=47000, ratio
+ * ~1.25) sits +9.42kHz above resonant_freq -- inside the +10kHz margin.
+ * Read as UNLOADED (23.7kHz), the same 47kHz point would sit +23.3kHz
+ * above resonant_freq, blowing straight through the +10kHz safety
+ * ceiling and making pll_is_frequency_safe() permanently false. Only the
+ * LOADED reading is consistent with this file's own already-committed
+ * safety-margin constants.
+ *
+ * KNOWN OPEN ISSUE (not fixed here, out of this constant's scope): with
+ * this corrected value, the default 47kHz operating point sits 9.42kHz
+ * above resonant_freq, but FREQ_TOLERANCE_HZ (2000.0f, used only for LOCK
+ * CONFIRMATION, not frequency-safety bounds) requires current_freq within
+ * +-2kHz of resonant_freq to ever confirm lock. Steady-state operation at
+ * the corrected ratio (~1.25) therefore cannot satisfy the lock-confirm
+ * criterion as coded -- see docs/evidence/2026-07-28-pll-defaults-and-
+ * range-gate.md for the firmware-test evidence and why re-tuning
+ * FREQ_TOLERANCE_HZ/LOCK criteria is a control-loop decision left to a
+ * human, not silently changed by this constant-reconciliation pass.
+ */
+#define DEFAULT_RESONANT_FREQ   37580.0f
 
 /* Loss of lock detection */
 #define LOSS_OF_LOCK_COUNT  10      /* Consecutive out-of-range samples for unlock */

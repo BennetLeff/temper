@@ -16,5 +16,10 @@
     "grep -n \"OCP-02|secondary|60A|LM393|INA240|desat\" elec/src/modules.ato elec/src/main.ato",
     "grep -rn \"LM393|U_COMP2|Secondary OCP\" elec/src/*.ato",
     "grep -n \"^| U_\" docs/hardware/BOM.md"
-  ]
+  ],
+  "provenance": {
+    "commit": "UNKNOWN",
+    "dirty": "UNKNOWN",
+    "note": "backfilled prior to the provenance gate's introduction (2026-07-26); no self-declared commit exists in this file's own content and none was fabricated. See .evidence-provenance-allowlist."
+  }
 }

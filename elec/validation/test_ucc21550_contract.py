@@ -4,7 +4,15 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-MODULES = (ROOT / "elec/src/modules.ato").read_text()
+MODULES_RAW = (ROOT / "elec/src/modules.ato").read_text()
+
+# Connection assertions below are substring matches against the source, so they
+# must not be satisfiable by prose. `fault_or3.Y2 ~ latch.A1` appears both as a
+# real connection and inside a comment; breaking the real one left the test
+# green because the comment still matched. Strip comments so a connection named
+# only in prose cannot stand in for one that exists.
+# Use MODULES_RAW where a comment is genuinely the thing under test.
+MODULES = re.sub(r"#.*", "", MODULES_RAW)
 MAIN = (ROOT / "elec/src/main.ato").read_text()
 PINS = (ROOT / "firmware/components/hal/include/temper_pins.h").read_text()
 
@@ -74,7 +82,14 @@ def test_fault_bus_includes_watchdog_and_sr_feedback() -> None:
     assert "runaway_cut.line ~ fault_or.C2" in MODULES
     assert "fault_or.Y2 ~ fault_any_or.A1" in MODULES
     assert "rtd_hw_fault.line ~ fault_any_or.B1" in MODULES
-    assert "fault_any_or.Y1 ~ latch.A1" in MODULES
+    # The SET bus reaches latch.A1 through a third OR stage, not directly.
+    # `fault_any_or` ran out of fan-in when UVL-02's fault was wired in, so
+    # `fault_or3` was added between it and the latch (see
+    # docs/evidence/2026-07-27-fault-tree-capacity-expansion.md). Both hops are
+    # asserted so the path is still pinned end to end -- dropping either would
+    # let the SET bus be silently orphaned from the latch.
+    assert "fault_any_or.Y1 ~ fault_or3.A2" in MODULES
+    assert "fault_or3.Y2 ~ latch.A1" in MODULES
     assert "fault_any_or.Y1 ~ fault_any_or.A2" in MODULES
     assert "reset_n_in.line ~ fault_any_or.B2" in MODULES
     assert "fault_any_or.Y2 ~ latch.A3" in MODULES
@@ -133,7 +148,7 @@ def test_dt_uses_resistor_and_keeps_measurement_deferred() -> None:
     assert "dt_res.p1 ~ gate_hs.driver.DT" in MODULES
     assert "t_dead_time: time = 305.4ns" in MODULES
     assert "t_dt_hw_nominal: time = 305.4ns" in MAIN
-    assert "scope verification remains required" in MODULES.lower()
+    assert "scope verification remains required" in MODULES_RAW.lower()
 
 
 def test_max31865_four_wire_reference_and_current_sense_are_not_floating() -> None:

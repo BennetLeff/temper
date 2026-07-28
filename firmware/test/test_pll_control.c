@@ -10,7 +10,8 @@
  * - Frequency range: 30-50 kHz (PLL_MIN_FREQ_HZ to PLL_MAX_FREQ_HZ)
  * - Target phase lag: ~1.5µs for ZVS operation
  * - Lock tolerance: ±0.5µs phase error
- * - Default frequency: 35 kHz
+ * - Default frequency: 47 kHz (CORRECTED 2026-07-28, was 35 kHz -- see
+ *   docs/evidence/2026-07-28-pll-defaults-and-range-gate.md)
  */
 
 #include "unity/unity.h"
@@ -25,6 +26,28 @@
 static void reset_pll(void) {
     /* Reset PLL to known state before each test */
     pll_init(NULL);  /* Use defaults */
+    /* Calibrate the lock-detection resonant-frequency reference to the
+     * operating point these tests drive the loop toward.
+     *
+     * KNOWN GAP (docs/evidence/2026-07-28-pll-defaults-and-range-gate.md):
+     * at the shipped, UNCALIBRATED compile-time defaults
+     * (PLL_DEFAULT_FREQ_HZ=47000, DEFAULT_RESONANT_FREQ=37580, the
+     * corrected loaded resonance), the two sit 9.42kHz apart -- outside
+     * FREQ_TOLERANCE_HZ's +-2kHz lock-confirmation window -- so
+     * pll_is_locked() can never become true out of the box. There is no
+     * non-test caller of pll_set_resonant_frequency() in this firmware
+     * (confirmed by grep), so nothing recalibrates this in production
+     * either; see test_pll_never_locks_at_uncalibrated_defaults() below,
+     * which asserts that gap explicitly rather than hiding it.
+     *
+     * The tests in this file that exercise phase-lock CONFIRMATION
+     * (as opposed to the frequency-deviation criterion, which is a
+     * separate, already-flagged, human decision -- see pll_control.c's
+     * DEFAULT_RESONANT_FREQ comment) calibrate resonant_freq to the
+     * driven operating frequency here so they test the phase-tracking
+     * mechanism they are named for, not the compile-time gap above.
+     */
+    pll_set_resonant_frequency((float)PLL_DEFAULT_FREQ_HZ);
     pll_enable();
 }
 
@@ -38,7 +61,7 @@ static void reset_pll(void) {
 void test_pll_init_default_frequency(void) {
     pll_init(NULL);
     float freq = pll_get_frequency();
-    TEST_ASSERT_FLOAT_WITHIN(1.0f, 35000.0f, freq);  /* Default is 35kHz */
+    TEST_ASSERT_FLOAT_WITHIN(1.0f, 47000.0f, freq);  /* Default is 47kHz (corrected 2026-07-28) */
 }
 
 /**
@@ -197,6 +220,52 @@ void test_pll_unlocks_on_large_error(void) {
     TEST_ASSERT_FALSE(pll_is_locked());
 }
 
+/**
+ * Test: at the shipped, UNCALIBRATED compile-time defaults (no
+ * pll_set_resonant_frequency() call -- the production reality, since grep
+ * finds no non-test caller of that function anywhere in this firmware),
+ * the PLL can NEVER confirm lock, even at perfect target-phase tracking.
+ *
+ * This is a KNOWN, OPEN gap surfaced by the 2026-07-28 PLL_DEFAULT_FREQ_HZ
+ * correction (35000 -> 47000, docs/evidence/2026-07-28-pll-defaults-and-
+ * range-gate.md) combined with the DEFAULT_RESONANT_FREQ correction
+ * (35800 -> 37580, the loaded resonance) in pll_control.c: the corrected
+ * default operating point sits 9.42kHz above resonant_freq, outside
+ * FREQ_TOLERANCE_HZ's +-2kHz lock-confirmation window. This test asserts
+ * the CURRENT (broken) behavior on purpose -- so CI documents it as a
+ * tracked, visible limitation rather than a silent surprise -- and is
+ * NOT a green-washing of the underlying problem. Fixing it is a
+ * control-loop decision for a human (widen FREQ_TOLERANCE_HZ to allow
+ * for the intentional above-resonance operating offset, change the lock
+ * criterion to rely on phase error alone, or wire a real resonance
+ * calibration call), deliberately NOT made here, matching this task's
+ * instruction not to silently retune safety-adjacent constants to make
+ * a check pass.
+ */
+void test_pll_never_locks_at_uncalibrated_defaults(void) {
+    pll_init(NULL);  /* Defaults only */
+    pll_enable();
+
+    /* pll_ctx.resonant_freq is a file-static global that pll_init()/
+     * pll_reset() never touch (neither resets it -- itself part of this
+     * gap), so an earlier test's reset_pll() calibration call leaks into
+     * this one unless explicitly undone. There is no public "restore
+     * compile-time default" API (matching the finding that nothing in
+     * production ever recalibrates this field either), so this
+     * reproduces the true uncalibrated value by name: 37580.0f must
+     * match pll_control.c's DEFAULT_RESONANT_FREQ exactly -- if that
+     * constant changes, update this literal too. */
+    pll_set_resonant_frequency(37580.0f);
+
+    /* Feed exactly target phase for far longer than LOCK_CYCLES_REQUIRED
+     * (10) would need if the frequency-deviation criterion were met. */
+    for (int i = 0; i < 50; i++) {
+        pll_update_loop(1.5f, 0.001f);
+    }
+
+    TEST_ASSERT_FALSE(pll_is_locked());
+}
+
 /*============================================================================
  * Test Cases: Frequency Limits
  *============================================================================*/
@@ -310,7 +379,7 @@ void test_pll_reset_frequency(void) {
     pll_reset();
     
     float freq = pll_get_frequency();
-    TEST_ASSERT_FLOAT_WITHIN(1.0f, 35000.0f, freq);  /* Back to default */
+    TEST_ASSERT_FLOAT_WITHIN(1.0f, 47000.0f, freq);  /* Back to default (corrected 2026-07-28) */
 }
 
 /**
@@ -431,7 +500,8 @@ void run_pll_control_tests(void) {
     RUN_TEST(test_phase_lag_low_adjusts_frequency);
     RUN_TEST(test_pll_locks_at_target_phase);
     RUN_TEST(test_pll_unlocks_on_large_error);
-    
+    RUN_TEST(test_pll_never_locks_at_uncalibrated_defaults);
+
     /* Frequency limit tests */
     RUN_TEST(test_frequency_max_limit);
     RUN_TEST(test_frequency_min_limit);

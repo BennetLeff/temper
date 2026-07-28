@@ -7,54 +7,64 @@
 * to make the answer come out a particular way.
 *
 * Sourced values (read-only, elec/src/modules.ato: OVPComparator, as of the
-* 2026-07-26 hysteresis fix -- an earlier revision used r_ref_top=732 with
-* NO hysteresis resistor at all; the hysteresis column had been dropped
-* from the summary table, so the requirement was invisible when that value
-* was chosen):
+* 2026-07-27 REF2025 re-reference, Option C -- see docs/evidence/
+* 2026-07-27-ovp01-ref2025-implementation.md and
+* 2026-07-27-threshold-sensitivity-tempco-budget.md. The PRIOR
+* r_ref_top=11800/r_ref_bot=10000 divider (docs/evidence/
+* 2026-07-27-ovp01-half-bus-retune.md) passed nominally but failed worst
+* case once tempco was added to the pre-existing +/-1% tolerance. It is
+* deleted; comp.INN is now driven directly by REF2025's VREF output (2.5V
+* fixed, +/-0.05%/8ppm/C), modelled here as an ideal DC source since this
+* deck measures nominal-only thresholds (worst-case is the separate
+* hand/script analysis in the evidence doc, not a SPICE sweep):
 *   - power_3v3 rail (comp.VCC):         3.3 V
 *   - r_div_top1/top2/top3:              430 kohm each, in series (unchanged)
-*   - r_div_bot:                         10000 ohm (unchanged)
-*       -> V(comp.INP) = V_bus * 10000 / (3*430000 + 10000) = V_bus / 130
-*   - r_ref_top:                         1100 ohm  -- CHANGED from 732 ohm
-*   - r_ref_bot:                         10000 ohm (unchanged)
-*       -> V(comp.INN) = 3.3 * 10000 / (1100 + 10000) = 2.97297 V
-*   - r_hyst:                            287000 ohm, NEW -- from comp.INP
-*     (the bus-sense node) back to comp.OUT. Unlike ThermalComparator, the
-*     feedback lands on the SENSE side (INP) not the reference side (INN),
-*     because the bus divider is what's high-impedance here; see module
-*     comment "Feeding INN instead would move the threshold the wrong way."
+*   - r_div_bot:                         16900 ohm -- CHANGED from 10000 ohm
+*       -> V(comp.INP) = V_bus * 16900 / (3*430000 + 16900) = V_bus / 77.331
+*   - V(comp.INN):                       2.5 V fixed (REF2025.VREF, was a
+*     divider off power_3v3 -- see r_div_bot's comment in modules.ato)
+*   - r_hyst:                            487000 ohm -- CHANGED from 619000
+*     ohm, from comp.INP (the bus-sense node) back to comp.OUT. Unlike
+*     ThermalComparator, the feedback lands on the SENSE side (INP) not
+*     the reference side (INN), because the bus divider is what's
+*     high-impedance here; see module comment "Feeding INN instead would
+*     move the threshold the wrong way."
 *
 * Hand-derived pre-trip (rising) trip point, comp.OUT ~ 0V (fault not yet
 * latched, so r_hyst pulls the sense node toward ground):
-*   G = 1/1290000 + 1/10000 + 1/287000 = 1.04259e-4 S
-*   V_bus_trip = V_ref / (G * 1290000) * ... equivalently, solving the INP
-*   node equation for V_bus at V(INP)=V_ref=2.97297V:
-*     (V_bus - V1)/1290000 + (0 - V1)/10000 + (0 - V1)/287000 = 0
-*     V_bus = V1 * 1290000 * G = 2.97297 * 134.494 = 399.85 V
-*   (module comment: trips 399.8V)
+*   G = 1/1290000 + 1/16900 + 1/487000 = 6.1889e-5 + 5.9172e-5 + 2.0534e-6
+*     = 1.23112e-4 S
+*   Solving the INP node equation for V_bus at V(INP)=Vref=2.5V:
+*     (V_bus - V1)/1290000 + (0 - V1)/16900 + (0 - V1)/487000 = 0
+*     V_bus = V1 * 1290000 * G = 2.5 * 79.980 = 199.95 V
+*   (module comment: trips 199.95V)
 *
 * Hand-derived post-trip (release, falling) point, comp.OUT ~ VCC = 3.3V
 * (fault latched high via r_hyst positive feedback):
-*     (V_bus - V1)/1290000 + (0 - V1)/10000 + (3.3 - V1)/287000 = 0
-*     V_bus = V1*134.494 - 3.3*1290000/287000 = 399.85 - 14.83 = 385.02 V
-*   (module comment: release 385.0V)
-* Hysteresis (hand): ~14.8V, inside the OVP-01 10-20V requirement
-* (FUNCTIONAL_TEST_CRITERIA.md SS2.2).
+*     (V_bus - V1)/1290000 + (0 - V1)/16900 + (3.3 - V1)/487000 = 0
+*     V_bus = V1*79.980 - 3.3*1290000/487000 = 199.95 - 8.74 = 191.21 V
+*   (module comment: hysteresis = VCC*Rtop/r_hyst = 8.74V)
+* Hysteresis (hand): ~8.74V, inside the halved OVP-01 5-10V requirement.
 *
 * What "v_bus.line" physically is
 * --------------------------------
-* main.ato wires `safety.dc_bus.line ~ dc_bus.line`, the FULL DC bus
-* (resolved 2026-07-26; see run_ovp01_sim.py). This deck ramps that node
-* directly and measures the trip/release thresholds at the node the
-* comparator actually senses.
+* main.ato wires `safety.dc_bus.line ~ dc_bus_plus`, the +170V HALF-bus,
+* NOT dc_bus.line / the full bus (SUPERSEDED 2026-07-26 "resolution" --
+* see run_ovp01_sim.py and docs/STRATEGY.md "OVP-01 senses the half-bus
+* and is now fail-open" for why that resolution was wrong). This deck
+* ramps that node directly and measures the trip/release thresholds at
+* the node the comparator actually senses; the OVP-01 spec windows
+* applied to this measurement are therefore the HALVED ones (195-205V /
+* 5-10V), not the full-bus 390-410V/10-20V windows.
 *
 * Ramp: this deck drives v_bus UP past the trip point, THEN DOWN past the
 * release point, in one transient run, so both thresholds are measured
 * from the same latched comparator state (the release threshold only
 * exists once the output has actually gone high via r_hyst).
-*   0V -> 500V over 250us, then back down to 0V over the next 250us. 500V
-*   gives >100V margin above the ~400V trip target, and returning to 0V
-*   gives full margin below the ~385V release target.
+*   0V -> 350V over 250us, then back down to 0V over the next 250us. 350V
+*   gives >140V margin above the ~200V trip target (and above the 206.2V
+*   worst-case corner), and returning to 0V gives full margin below the
+*   ~193V release target.
 *
 * Known model-fidelity limit (simulation/models/TLV3201_ngspice.lib header):
 * "It intentionally does not claim a timing, noise, or temperature model."
@@ -63,7 +73,7 @@
 
 .include ../../models/TLV3201_ngspice.lib
 
-.param RAMP_MAX_V=500
+.param RAMP_MAX_V=350
 .param T_UP=250u
 .param T_DOWN=250u
 
@@ -73,13 +83,18 @@ V_BUS v_bus 0 PWL(0 0 {T_UP} {RAMP_MAX_V} {T_UP+T_DOWN} 0)
 R_DIV_TOP1 v_bus n1 430000
 R_DIV_TOP2 n1 n2 430000
 R_DIV_TOP3 n2 vinp 430000
-R_DIV_BOT vinp 0 10000
+R_DIV_BOT vinp 0 16900
 
-R_REF_TOP VCC_3V3 vinn 1100
-R_REF_BOT vinn 0 10000
+* comp.INN is driven directly by REF2025's VREF output (2.5V fixed,
+* +/-0.05%/8ppm/C on real hardware), modelled as an ideal DC source: this
+* deck measures nominal-only thresholds, and REF2025's own initial-accuracy
+* error is two orders of magnitude smaller than what an ideal source vs.
+* the real IC would introduce at this precision. Replaces the r_ref_top/
+* r_ref_bot divider off VCC_3V3 (deleted in modules.ato, this same change).
+V_VREF vinn 0 DC 2.5
 
 * Hysteresis: positive feedback from output to INP (bus-sense node)
-R_HYST vinp comp_out 287000
+R_HYST vinp comp_out 487000
 
 X_COMP vinp vinn VCC_3V3 0 comp_out TLV3201_NGSPICE
 

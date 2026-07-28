@@ -7,9 +7,33 @@ Part of temper-eixu (Stage 4 - Geometric Realization)
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 
 from temper_placer.router_v6.astar_pathfinding import PathfindingResult
+
+
+def _kw_boundary_match(upper: str, keywords: tuple[str, ...]) -> bool:
+    """Word-boundary keyword match, delimited by "_" or start/end of the
+    uppercased net name.
+
+    Bug history (2026-07-27): ``_determine_trace_width`` used to match
+    ``"AC_"``/``"HV_"``/``"HIGH_VOLTAGE"``/``"GATE"``/``"DRIVE"`` as plain
+    substrings (``kw in name_upper``) -- the same defect class confirmed
+    three times elsewhere in this repo (``creepage_check.py``,
+    ``clearance_check.py``, ``clearance_engine.py``; see
+    ``docs/evidence/2026-07-27-net-classification-gate.md``). Found by
+    ``scripts/check_net_classification.py`` auditing every net-name
+    classifier for the same shape. ``"AC_"``/``"HV_"`` collapse to bare
+    ``"AC"``/``"HV"`` here because the boundary regex already requires a
+    trailing ``"_"``/digit/end, making the explicit trailing ``"_"`` in
+    the original keyword redundant.
+    """
+    for kw in keywords:
+        kw = kw[:-1] if kw.endswith("_") else kw
+        if re.search(rf"(?:^|_){re.escape(kw)}(?:$|[\d_])", upper):
+            return True
+    return False
 
 
 @dataclass
@@ -110,7 +134,7 @@ def _determine_trace_width(
     name_upper = net_name.upper()
 
     # High voltage nets (AC, HV)
-    if any(kw in name_upper for kw in ["AC_", "HV_", "HIGH_VOLTAGE"]):
+    if _kw_boundary_match(name_upper, ("AC_", "HV_", "HIGH_VOLTAGE")):
         return TraceWidth(
             net_name=net_name,
             width_mm=hv_width,
@@ -126,7 +150,7 @@ def _determine_trace_width(
         )
 
     # Gate drive signals (medium current)
-    if any(kw in name_upper for kw in ["GATE", "DRIVE"]):
+    if _kw_boundary_match(name_upper, ("GATE", "DRIVE")):
         return TraceWidth(
             net_name=net_name,
             width_mm=power_width * 0.6,  # 60% of power width

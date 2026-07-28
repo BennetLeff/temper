@@ -135,7 +135,7 @@ def _extract_stackup(ki_board: KiBoard, warnings: list[str]) -> StackupInfo:
                         or "+" in zone.netName
                         or "PWR" in zone.netName
                     )
-                    if is_power and ".Cu" in layer:
+                    if is_power and layer.endswith(".Cu"):
                         plane_assignments[layer] = zone.netName
 
     setup_stackup = None
@@ -210,7 +210,15 @@ def _extract_stackup(ki_board: KiBoard, warnings: list[str]) -> StackupInfo:
     else:
         layer_count = 2
         if hasattr(ki_board, "layers") and ki_board.layers:
-            copper_layers = [ly for ly in ki_board.layers if ".Cu" in getattr(ly, "name", "")]
+            # NOTE: must be a suffix match, not `in`. A substring check matches
+            # "Edge.Cuts" (its tail ".Cuts" starts with ".Cu") as a spurious
+            # 5th "copper" layer on a real 4-layer board, which pushes this
+            # function into the "unusual layer count" branch below and
+            # fabricates a phantom "In3.Cu" that does not exist on the board.
+            # See docs/evidence/2026-07-27-phantom-layer-stackup.md.
+            copper_layers = [
+                ly for ly in ki_board.layers if getattr(ly, "name", "").endswith(".Cu")
+            ]
             layer_count = len(copper_layers)
 
         if layer_count == 2:
@@ -224,6 +232,35 @@ def _extract_stackup(ki_board: KiBoard, warnings: list[str]) -> StackupInfo:
             layer_names = ["F.Cu"] + [f"In{i}.Cu" for i in range(1, layer_count - 1)] + ["B.Cu"]
 
         for i, name in enumerate(layer_names):
+            # REVERTED 2026-07-28, deliberately. a1fe623e added a branch here
+            # forcing F.Cu/B.Cu to "signal" on a 4-layer board before the
+            # zone-netname heuristic ran, on the authority of
+            # docs/hardware/POWER_PLANE_DESIGN.md and the 4-layer enforcement
+            # plan (outer = signal, inner = GND/PWR planes).
+            #
+            # That is what the DESIGN DOCUMENTS say. It is not what the BOARD
+            # is. pcb/temper.kicad_pcb pours per-net copper fill on F.Cu/B.Cu
+            # for creepage and thermal reasons, so both outer layers are
+            # effectively occupied. Measured, same harness, only this file
+            # differing:
+            #
+            #     outer forced to signal : 3.12% completion, 93/96 unrouted
+            #     zone heuristic honoured: 38.54% completion, 59/96 unrouted
+            #
+            # A 12x regression -- layer assignment spread nets onto two blocked
+            # layers. test_astar_3d_production_scale_spike confirms the
+            # mechanism: with F.Cu present it cannot construct ANY free
+            # same-layer segment on it.
+            #
+            # The zone heuristic is therefore kept: it describes the artifact,
+            # and the artifact is what gets routed. The phantom-In3.Cu half of
+            # a1fe623e is RETAINED (see the .endswith(".Cu") fixes above) --
+            # that layer genuinely does not exist.
+            #
+            # OPEN DESIGN QUESTION, not a code defect: the docs and the board
+            # disagree about whether the outer layers should be poured at all.
+            # Resolving that is a board decision. Until then this code follows
+            # the board. See docs/evidence/2026-07-28-stackup-partial-revert.md.
             if name in plane_assignments:
                 layer_type = "plane"
                 plane_net = plane_assignments[name]

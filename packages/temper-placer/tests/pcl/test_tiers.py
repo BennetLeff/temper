@@ -240,6 +240,27 @@ class TestPersistenceEscalation:
         config = EscalationConfig()
         assert config.persistence_window == 5
 
+    def test_persistence_window_zero_rejected(self):
+        """persistence_window <= 0 must be rejected at construction time.
+
+        Before the check_vacuous_gates.py-driven fix, check_escalation()'s
+        `window = violation_history[-persistence_window:]` with
+        persistence_window == 0 produced `lst[-0:]` == `lst[0:]`, so an
+        *empty* violation_history sliced with persistence_window=0 gave
+        window == [] and `all(v > 0 for v in window)` vacuously reported
+        "persistently violated" for a constraint with zero recorded
+        violations. This test fails on the pre-fix code (no ValueError is
+        raised, and check_escalation returns True with zero violations) and
+        passes once EscalationConfig.__post_init__ rejects the value.
+        """
+        with pytest.raises(ValueError, match="persistence_window"):
+            EscalationConfig(persistence_window=0)
+
+    def test_persistence_window_negative_rejected(self):
+        """Negative persistence_window must also be rejected."""
+        with pytest.raises(ValueError, match="persistence_window"):
+            EscalationConfig(persistence_window=-1)
+
 
 class TestPenaltyCalculation:
     """Test penalty calculation scales with tier."""

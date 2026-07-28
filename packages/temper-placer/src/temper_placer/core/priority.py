@@ -10,12 +10,35 @@ Defines priority levels that mirror the professional PCB design workflow:
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 from enum import IntEnum
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from temper_placer.core.netlist import Netlist
+
+
+def _kw_boundary_match(upper: str, keywords: tuple[str, ...]) -> bool:
+    """Word-boundary keyword match, delimited by "_" or start/end of the
+    uppercased net name.
+
+    Bug history (2026-07-27): ``PriorityConfig.classify_net`` used to
+    match ``"HV"``/``"BUS"``/``"GATE"`` etc. as plain substrings
+    (``x in upper``) -- the same defect class confirmed three times
+    elsewhere in this repo (``creepage_check.py``, ``clearance_check.py``,
+    ``clearance_engine.py``; see
+    ``docs/evidence/2026-07-27-net-classification-gate.md``). Found by
+    ``scripts/check_net_classification.py`` auditing every net-name
+    classifier in the codebase for the same shape.
+    """
+    for kw in keywords:
+        if kw and not kw[-1].isalnum():
+            if re.search(rf"(?:^|_){re.escape(kw)}", upper):
+                return True
+        elif re.search(rf"(?:^|_){re.escape(kw)}(?:$|[\d_])", upper):
+            return True
+    return False
 
 
 class PlacementPriority(IntEnum):
@@ -129,9 +152,9 @@ class PriorityConfig:
         # Default classification by net name
         upper = net_name.upper()
 
-        if any(x in upper for x in ("BUS", "340V", "HV", "SW_NODE")):
+        if _kw_boundary_match(upper, ("BUS", "340V", "HV", "SW_NODE")):
             return RoutingPriority.POWER
-        elif any(x in upper for x in ("GATE", "+15V", "CGND")):
+        elif _kw_boundary_match(upper, ("GATE", "+15V", "CGND")):
             return RoutingPriority.GATE_DRIVE
         elif any(x in upper for x in ("SPI", "I2C", "USB", "CLK")):
             return RoutingPriority.HIGH_SPEED

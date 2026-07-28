@@ -152,6 +152,14 @@ coverage was not.
 
 ## Related
 
+- `docs/solutions/best-practices/gate-subset-blindness-2026-07-27.md` — a
+  fifth mechanism, found the following day: the collection scanned is
+  *nonempty* and the logic runs correctly over it, but that collection is
+  a silent, undisclosed minority of the true universe (2 of 13 validator
+  modules, 10 of 165 nets, 1 of 11 traceability plans). Distinct from
+  mechanism 4's empty-collection vacuous truth — this one doesn't trip
+  `check_vacuous_gates.py` at all, because nothing about the scan looks
+  empty.
 - `docs/solutions/best-practices/claimed-isolation-vs-actual-connectivity-2026-07-26.md`
   — the hardware-side instance of the same shape: netlist/BOM/ERC all green,
   none of them able to catch an isolation barrier shorted by a star-point

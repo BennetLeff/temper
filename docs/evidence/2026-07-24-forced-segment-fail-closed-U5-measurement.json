@@ -9,8 +9,17 @@
     "total_nets": 95,
     "excluded_from_astar_by_should_route": 11,
     "excluded_net_names": [
-      "ac_n", "+3V3", "PWR_RTN", "+340V_BUS", "+15V", "+15V_LS",
-      "DC_BUS_RTN", "SW_NODE", "vcc", "V_BUS_SENSE", "ac_l"
+      "ac_n",
+      "+3V3",
+      "PWR_RTN",
+      "+340V_BUS",
+      "+15V",
+      "+15V_LS",
+      "DC_BUS_RTN",
+      "SW_NODE",
+      "vcc",
+      "V_BUS_SENSE",
+      "ac_l"
     ],
     "astar_routable_nets": 84,
     "note": "The brainstorm's illustrative examples (vcc, +3V3, PWR_RTN) are present on the real board but are excluded from the plain A* pathfinder entirely by _should_route()'s power/ground/HV name-pattern matching -- handled by zone pours instead. This fix does not touch them; their disposition is unaffected by this change either way."
@@ -73,5 +82,10 @@
     "track_dangling_and_tracks_crossing_and_copper_sliver": "19+34+1 -> 0 (categories disappear entirely -- no forced/dangling copper left to cause them)",
     "unconnected_items": "298 -> 326 (+28, expected: honestly-failed nets have no copper at all now)"
   },
-  "verdict": "Necessary and working as intended -- shorting_items and clearance violations both genuinely decreased, confirming the fix eliminates real fabricated-copper shorts rather than just hiding them. But the honest A*-routable completion rate on this specific board is 0%, not merely lower: pre-fix, all 72 of this test's 'successes' were forced segments. This is the true, previously-fabricated baseline this plan's R4/R5 anticipated -- more severe than illustrated, not different in kind. Re-routing the newly-honest 84 unrouted nets is explicitly out of scope for this plan (see Scope Boundaries) and is real, separate follow-up work: the plain A* engine on this board's current channel/grid setup essentially never finds a legal path without the escape hatch it used to lean on."
+  "verdict": "Necessary and working as intended -- shorting_items and clearance violations both genuinely decreased, confirming the fix eliminates real fabricated-copper shorts rather than just hiding them. But the honest A*-routable completion rate on this specific board is 0%, not merely lower: pre-fix, all 72 of this test's 'successes' were forced segments. This is the true, previously-fabricated baseline this plan's R4/R5 anticipated -- more severe than illustrated, not different in kind. Re-routing the newly-honest 84 unrouted nets is explicitly out of scope for this plan (see Scope Boundaries) and is real, separate follow-up work: the plain A* engine on this board's current channel/grid setup essentially never finds a legal path without the escape hatch it used to lean on.",
+  "provenance": {
+    "commit": "UNKNOWN",
+    "dirty": "UNKNOWN",
+    "note": "backfilled prior to the provenance gate's introduction (2026-07-26); no self-declared commit exists in this file's own content and none was fabricated. See .evidence-provenance-allowlist."
+  }
 }

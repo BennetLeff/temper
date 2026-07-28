@@ -37,4 +37,35 @@ jobs:
         run: uv sync --all-packages
 
       - name: Run golden regression suite
-        run: uv run temper-placer regression
+        run: |
+          # pipefail is load-bearing: without it the pipeline returns tee's
+          # exit status (always 0) and this gate stops failing entirely.
+          set -o pipefail
+          uv run temper-placer regression 2>&1 | tee golden-output.txt
+
+      # A board whose baseline file is missing is reported SKIP, and skipped is
+      # excluded from the failure count (corpus_runner.py:110,252), so it can
+      # never fail this gate. bitaxe_ultra has had no baseline since it was
+      # added and nothing surfaced that. This step does not change pass/fail --
+      # it just stops the gap being invisible outside the raw logs.
+      - name: Summarize golden results
+        if: always()
+        run: |
+          {
+            echo "### Golden regression"
+            echo
+            if [ -f golden-output.txt ]; then
+              echo '```'
+              sed -n '/=== Regression Suite Results ===/,$p' golden-output.txt
+              echo '```'
+              if grep -q '\[SKIP\]' golden-output.txt; then
+                echo
+                echo "> **Skipped boards did not run and cannot fail this gate.**"
+                echo "> Each line below is a board with no baseline on disk:"
+                echo
+                grep '\[SKIP\]' golden-output.txt | sed 's/^ */> - /'
+              fi
+            else
+              echo "No golden output captured — the suite did not run."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"

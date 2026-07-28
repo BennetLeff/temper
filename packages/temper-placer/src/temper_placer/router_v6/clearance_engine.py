@@ -36,6 +36,8 @@ of all consumers is deferred (see ``feat/unified-clearance-engine``).
 
 from __future__ import annotations
 
+import re
+
 from temper_placer.core.net_types import VoltageClass
 from temper_placer.router_v6.creepage_check import _calculate_required_creepage
 
@@ -113,27 +115,74 @@ INTERNAL_LAYER_CREEPAGE_FACTOR: float = 0.30
 # ---------------------------------------------------------------------------
 
 
+def _kw_boundary_match(upper: str, keywords: tuple[str, ...]) -> bool:
+    """Word-boundary keyword match, delimited by ``_`` or start/end of string.
+
+    Bug history (2026-07-27, ``clearance_engine.py:125``, the third
+    confirmed instance of this defect class -- see
+    ``docs/evidence/2026-07-27-net-classification-gate.md``): this
+    function's predecessor used plain substring matching
+    (``kw in upper for kw in ("HIGH_VOLTAGE", "HV", "MAINS_240V", "MAINS",
+    "AC")``). Bare ``"HV"``/``"AC"`` as substrings match any label that
+    merely *contains* those two letters in sequence -- the exact same
+    class of bug already fixed twice elsewhere in this module family:
+    ``creepage_check._is_high_voltage_net`` (merge ``5076e715`` -- ``"L1"``/
+    ``"L2"``/``"LINE"`` substrings matched ``COIL1``/``COIL2``/``...-line``,
+    producing 24/24 false-positive creepage violations) and
+    ``clearance_check._get_required_clearance`` (merge ``466c7724`` -- a
+    narrow 4-keyword substring list under-matched 11 real HV-domain nets).
+    This function was not proven to have live false positives against the
+    project's actual net names (its only caller passes canonical labels
+    like ``"HV"``/``"GND"``/``"POWER"``/``"SIGNAL"``, none of which happen
+    to collide) but its own docstring documents it as accepting arbitrary
+    caller-supplied strings, so it carries the same latent risk and is
+    fixed with the same technique for consistency and defense-in-depth,
+    rather than left as the one unfixed instance of a defect class already
+    confirmed three times in this repo.
+
+    Mirrors ``creepage_check._is_high_voltage_net``'s regex exactly:
+    a keyword must be preceded by ``_``/start-of-string and followed by
+    ``_``/digit/end-of-string to count as a match.
+    """
+    for kw in keywords:
+        if re.search(rf"(?:^|_){re.escape(kw)}(?:$|[\d_])", upper):
+            return True
+    return False
+
+
 def _net_class_to_voltage_class(net_class: str) -> VoltageClass:
     """Map a free-form net-class string to an IEC 60335-1 ``VoltageClass``.
 
     The mapping is intentionally broad so callers can pass short labels
     (``"HV"``, ``"LV"``) or full names (``"HIGH_VOLTAGE"``) and still
-    get the right table-entry.
+    get the right table-entry. All keyword matching is word-boundary
+    (delimited by ``_`` or start/end of string) -- see
+    :func:`_kw_boundary_match`'s docstring for why plain substring
+    matching here would repeat a defect class already confirmed three
+    times in this repo.
     """
     upper = net_class.upper()
 
-    if any(kw in upper for kw in ("HIGH_VOLTAGE", "HV", "MAINS_240V", "MAINS", "AC")):
-        # Distinguish 120 V vs 240 V when possible
-        if "120" in upper:
+    if _kw_boundary_match(upper, ("HIGH_VOLTAGE", "HV", "MAINS_240V", "MAINS", "AC")):
+        # Distinguish 120 V vs 240 V when possible. "120"/"240" are
+        # typically followed by a "V" unit suffix (e.g. "MAINS_120V"),
+        # which the standard trailing boundary (`$`/digit/`_`) does not
+        # cover -- so the trailing-boundary set is widened to also accept
+        # a literal "V" immediately after the digits, rather than falling
+        # back to an unanchored substring test (found by
+        # scripts/check_net_classification.py auditing this function a
+        # second time; see
+        # docs/evidence/2026-07-27-net-classification-gate.md).
+        if re.search(r"(?:^|_)120(?:V|$|[\d_])", upper):
             return VoltageClass.MAINS_120V
-        if "240" in upper or "MAINS" in upper:
+        if re.search(r"(?:^|_)240(?:V|$|[\d_])", upper) or _kw_boundary_match(upper, ("MAINS",)):
             return VoltageClass.MAINS_240V
         return VoltageClass.HIGH_VOLTAGE
 
-    if "120" in upper or "MAINS_120V" in upper:
+    if re.search(r"(?:^|_)120(?:V|$|[\d_])", upper) or _kw_boundary_match(upper, ("MAINS_120V",)):
         return VoltageClass.MAINS_120V
 
-    if any(kw in upper for kw in ("LOW_VOLTAGE", "LV", "POWER")):
+    if _kw_boundary_match(upper, ("LOW_VOLTAGE", "LV", "POWER")):
         return VoltageClass.LOW_VOLTAGE
 
     # Everything else (Signal, GND, SELV, …) → SELV (lowest requirements)
