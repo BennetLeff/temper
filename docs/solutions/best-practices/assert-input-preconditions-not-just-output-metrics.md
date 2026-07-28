@@ -139,6 +139,11 @@ blind_to: board geometry validity                            # <-- the missing l
 
 ## Related
 
+- `docs/solutions/best-practices/gate-subset-blindness-2026-07-27.md` —
+  the follow-on audit's fifth failure shape: `check_traceability.py` (one
+  of the ten instances named below) turned out to be blind not just to an
+  uninvoked path but to all but one directory in the repo, printing "all
+  requirements are covered" while having parsed zero requirements.
 - `docs/METHODOLOGY.md` §4 (failure taxonomy), §5 (falsification axes),
   §7 (this incident, full figures)
 - `docs/solutions/logic-errors/polygon-edge-cuts-parser-invisible-bbox-2026-07-15.md`

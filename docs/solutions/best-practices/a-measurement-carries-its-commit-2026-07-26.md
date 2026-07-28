@@ -194,3 +194,59 @@ target branch, not the worktree's original branch point.
   seven-instance table (six pipeline reads plus the `temper-drc-rs` stale
   worktree) and the "record the commit" rule this document instantiates
   further.
+
+---
+
+## A fifth instance, one day later: two numbers, two different netlists, compared as if controlled
+
+Router V6 completion on `pcb/temper.kicad_pcb` was reported varying
+**37.5%–53.1%** across measurements and initially treated as
+non-determinism worth root-causing. Seventeen independent process
+launches of `route_pcb()` against a fixed commit did find one real,
+fixed source of run-to-run output difference — `uuid.uuid4()` generating
+KiCad `tstamp` fields, which carries no electrical, geometric, or DRC
+meaning — and confirmed it was **not** the completion-rate driver: 10
+pre-fix runs at randomized `PYTHONHASHSEED` all produced the exact same
+0.375 completion rate and the exact same 60-net failure set, differing
+only in `tstamp` values; a post-fix determinism proof (5 consecutive runs)
+was byte-identical.
+
+That leaves the 37.5%–53.1% spread itself unexplained by anything
+internal to the router, and the honest state of the evidence is
+**partial, not closed**: the deterministic code, run 17 times on one
+machine, never once reproduced the historical 53.1% figure — it produced
+37.5% every time. The same investigation separately, independently
+documented that `pcb/temper.kicad_pcb`'s footprint/netlist count changed
+during the day (a resync added, removed, and relabeled components — see
+`docs/evidence/2026-07-27-pcb-netlist-resync.md`), and flagged, but did
+**not** confirm, that the 53.1% figure and the 37.5% figures may have been
+measured against two different netlist revisions rather than the same
+input run twice. This is stated as **UNVERIFIED** in the router's own
+determinism evidence doc, not as a settled explanation — flagged here
+precisely because the temptation, mid-investigation, is to reach for
+"different netlist size" as a satisfying closure the moment two candidate
+explanations (code non-determinism, input drift) are both on the table,
+without actually pinning down which measurement ran against which commit.
+
+The lesson this instance adds, distinct from the four above: **a
+completion-rate, coverage, or count comparison across two points in time
+is only a comparison of the same experiment if both measurements are
+tied to the commit/artifact-state that produced them.** Where the four
+original instances were the *reader* trusting a stale checkout without
+checking its age, this one is the *investigator* comparing two numbers
+that look like repeated trials of one controlled experiment when they may
+be one trial each of two different experiments — and correctly refusing
+to collapse that ambiguity into a confident root cause just because a
+plausible one (netlist drift) was available. Guidance item 4 above
+("record the commit alongside every measured claim") is exactly the
+missing practice that would resolve this cleanly: neither the 53.1% board
+nor the 37.5% runs were logged against a specific netlist/footprint-count
+fingerprint at measurement time, so reconstructing which ran against which
+after the fact is now an archaeology problem rather than a lookup.
+
+**Related to this instance specifically:**
+`docs/evidence/2026-07-27-router-determinism.md` (the `uuid4`/`tstamp` root
+cause and the byte-identical post-fix proof), `docs/evidence/2026-07-27-committed-route.md`
+(the original 37.5%–53.1% four-run observation), `docs/evidence/2026-07-27-pcb-netlist-resync.md`
+(the footprint/netlist count changes during the same day, flagged but not
+tied to the completion-rate spread).
