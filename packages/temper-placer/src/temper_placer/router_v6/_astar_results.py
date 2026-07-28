@@ -25,6 +25,7 @@ __all__ = [
     "PathfindingResult",
     "RoutingFailureReport",
     "TreeRoutingFailure",
+    "_forced_segment_decline",
 ]
 
 # U1 (docs/plans/2026-07-28-001-feat-provable-safety-place-and-route-plan.md):
@@ -43,6 +44,19 @@ __all__ = [
 # for the candor discipline this follows.
 RULE_ID_FORCED_SEGMENT_FAIL_CLOSED = "forced_segment_fail_closed"
 FAILURE_REASON_PROVER_ERROR = "prover_error"
+
+
+def _forced_segment_decline(
+    blockers: list[str],
+    region: tuple[float, float] | None,
+) -> tuple[bool, str, list[str], tuple[float, float] | None, str | None]:
+    """Build the standard decline tuple for a forced-segment fail-closed refusal.
+
+    Every call site that reaches this shares the same reason and rule_id;
+    centralizing the pairing here means a future change to either only
+    needs to happen once, not in lockstep across every return site.
+    """
+    return False, "no_path", blockers, region, RULE_ID_FORCED_SEGMENT_FAIL_CLOSED
 
 
 @dataclass
