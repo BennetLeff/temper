@@ -109,14 +109,34 @@ def pin_world_layer(pin: "Pin") -> str:
 
 
 def pin_world_radius(pin: "Pin") -> float:
-    """Return the effective pad radius for a pin.
+    """Return the effective pad radius for a pin -- a fast, rotation-invariant
+    conservative bound for the router's hot paths (A* grid cell sizing,
+    congestion, obstacle-map fallback, escape-via clearance), NOT a
+    shape-agnostic circle.
 
-    Computed as `max(pin.width, pin.height) / 2.0`. If both dimensions
-    are zero, returns 0.5 mm (a common default for zero-sized pads).
+    This used to be ``max(pin.width, pin.height) / 2.0`` for every pad shape,
+    which under-reports extent at the corners of a square/near-square
+    rect/roundrect pad (a circle never contains a rectangle) and
+    over-reports on the short axis of an elongated pad. It is now
+    ``pad_geometry.pad_bounding_radius()`` -- the pad's EXACT, tight,
+    rotation-invariant circumscribing radius (not a further approximation):
+    for any point on the true pad boundary, its distance from the pad
+    center never exceeds this value, and the bound is achieved exactly at
+    the pad's true corner direction. See
+    ``temper_placer.core.pad_geometry`` module docstring for the full
+    closed-form derivation and never-under-reports proof (R2), and for why
+    this isotropic bound needs no rotation argument (R3 is satisfied by
+    proving the bound is rotation-invariant, not by ignoring rotation).
+
+    If both dimensions are zero, returns 0.5 mm (a common default for
+    zero-sized pads, unchanged from the prior behaviour).
     """
+    from temper_placer.core.pad_geometry import DEFAULT_ROUNDRECT_RATIO, pad_bounding_radius
+
     w = getattr(pin, "width", 0.0) or 0.0
     h = getattr(pin, "height", 0.0) or 0.0
-    radius = max(w, h) / 2.0
-    if radius == 0.0:
-        radius = 0.5
-    return radius
+    if w == 0.0 and h == 0.0:
+        return 0.5
+    shape = getattr(pin, "shape", None) or "rect"
+    ratio = getattr(pin, "roundrect_ratio", None) or DEFAULT_ROUNDRECT_RATIO
+    return pad_bounding_radius(w, h, shape, ratio)

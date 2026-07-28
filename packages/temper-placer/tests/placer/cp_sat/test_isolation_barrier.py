@@ -15,6 +15,7 @@ import pytest
 from temper_placer.core.netlist import Component, Netlist, Pin
 from temper_placer.placer.cp_sat.isolation_barrier import (
     IsolatorPadGroups,
+    Pad,
     add_isolation_barrier_to_model,
     classify_domain_partition,
     compute_pad_groups,
@@ -29,6 +30,16 @@ SELV = frozenset({"GND", "+3V3"})
 
 def _comp(ref, pins, w=5.0, h=5.0) -> Component:
     return Component(ref=ref, footprint="test:fp", bounds=(w, h), pins=pins)
+
+
+def _circle_pad(x: float, y: float, radius: float) -> Pad:
+    """A synthetic circular pad of the given isotropic radius -- used by
+    tests below that exercise the rotation-search/feasibility ALGORITHM
+    (not real pad-shape derivation, which is `compute_pad_groups`'s own
+    job, covered separately). A circle's exact axis-radius is the same
+    value in every direction and at every rotation, so these fixtures
+    reproduce exactly the pre-fix tests' isotropic-radius semantics."""
+    return Pad(x=x, y=y, width=2 * radius, height=2 * radius, shape="circle")
 
 
 # ---------------------------------------------------------------------------
@@ -69,8 +80,8 @@ def test_isolator_feasible_on_x_axis():
     SELV pad clusters 38.5mm apart in X -- comfortably clears an 8.5mm gap."""
     groups = IsolatorPadGroups(
         ref="PS1",
-        hv_pads=[(0.0, 0.0, 1.5), (0.0, 10.75, 1.5)],
-        selv_pads=[(38.5, 10.75, 1.5), (38.5, 2.75, 1.5)],
+        hv_pads=[_circle_pad(0.0, 0.0, 1.5), _circle_pad(0.0, 10.75, 1.5)],
+        selv_pads=[_circle_pad(38.5, 10.75, 1.5), _circle_pad(38.5, 2.75, 1.5)],
         other_pads=[],
     )
     feas = evaluate_isolator_feasibility(groups, corridor_width_mm=8.5)
@@ -92,8 +103,8 @@ def test_isolator_feasible_only_via_y_axis_rotation():
     UNSAT even at corridor widths the Y-axis gap should have cleared."""
     groups = IsolatorPadGroups(
         ref="K1",
-        hv_pads=[(-3.175, 9.5, 3.17), (3.175, 9.5, 3.17)],
-        selv_pads=[(-3.175, 0.0, 0.9), (3.175, 0.0, 0.9)],
+        hv_pads=[_circle_pad(-3.175, 9.5, 3.17), _circle_pad(3.175, 9.5, 3.17)],
+        selv_pads=[_circle_pad(-3.175, 0.0, 0.9), _circle_pad(3.175, 0.0, 0.9)],
         other_pads=[],
     )
     # gap_x (both clusters span the same X range) is negative/overlapping;
@@ -113,8 +124,8 @@ def test_isolator_infeasible_both_axes():
     provably cannot straddle an 8.5mm corridor on any axis or rotation."""
     groups = IsolatorPadGroups(
         ref="C6",
-        hv_pads=[(0.0, 0.0, 0.9)],
-        selv_pads=[(5.0, 0.0, 0.9)],
+        hv_pads=[_circle_pad(0.0, 0.0, 0.9)],
+        selv_pads=[_circle_pad(5.0, 0.0, 0.9)],
         other_pads=[],
     )
     feas = evaluate_isolator_feasibility(groups, corridor_width_mm=8.5)
@@ -129,8 +140,8 @@ def test_isolator_dip6_row_pitch_infeasible():
     radii: below 8.0mm regardless of orientation."""
     groups = IsolatorPadGroups(
         ref="U3",
-        hv_pads=[(0.0, 0.0, 0.8), (0.0, 2.54, 0.8)],
-        selv_pads=[(7.62, 5.08, 0.8), (7.62, 2.54, 0.8), (7.62, 0.0, 0.8)],
+        hv_pads=[_circle_pad(0.0, 0.0, 0.8), _circle_pad(0.0, 2.54, 0.8)],
+        selv_pads=[_circle_pad(7.62, 5.08, 0.8), _circle_pad(7.62, 2.54, 0.8), _circle_pad(7.62, 0.0, 0.8)],
         other_pads=[],
     )
     feas = evaluate_isolator_feasibility(groups, corridor_width_mm=8.0)
@@ -139,7 +150,7 @@ def test_isolator_dip6_row_pitch_infeasible():
 
 
 def test_evaluate_isolator_feasibility_rejects_non_isolator():
-    groups = IsolatorPadGroups(ref="R1", hv_pads=[(0, 0, 0.5)], selv_pads=[], other_pads=[])
+    groups = IsolatorPadGroups(ref="R1", hv_pads=[_circle_pad(0, 0, 0.5)], selv_pads=[], other_pads=[])
     with pytest.raises(ValueError, match="not a real isolator"):
         evaluate_isolator_feasibility(groups, corridor_width_mm=8.0)
 
@@ -154,9 +165,18 @@ def test_compute_pad_groups_splits_by_manifest_nets():
         ],
     )
     groups = compute_pad_groups(comp, HV, SELV)
-    assert groups.hv_pads == [(0.0, 0.0, 1.0)]  # radius = max(1,2)/2 = 1.0
-    assert groups.selv_pads == [(5.0, 0.0, 0.5)]
+    # compute_pad_groups carries the pad's REAL shape through uninterpreted
+    # (default Pin shape is "rect", default roundrect_ratio 0.25) -- it no
+    # longer collapses every pad to an isotropic "circle" radius.
+    assert groups.hv_pads == [Pad(0.0, 0.0, 1.0, 2.0, "rect", 0.25)]
+    assert groups.selv_pads == [Pad(5.0, 0.0, 1.0, 1.0, "rect", 0.25)]
     assert len(groups.other_pads) == 1
+
+    # And the exact axis radii derived from that shape are correct: for a
+    # 1x2mm rect pad, axis_radius(0)=width/2=0.5, axis_radius(1)=height/2=1.0
+    # -- NOT the old isotropic max(1,2)/2 = 1.0 in both directions.
+    assert groups.hv_pads[0].axis_radius(0) == pytest.approx(0.5)
+    assert groups.hv_pads[0].axis_radius(1) == pytest.approx(1.0)
 
 
 # ---------------------------------------------------------------------------

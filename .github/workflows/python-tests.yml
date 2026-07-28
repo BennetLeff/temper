@@ -66,6 +66,7 @@ on:
       - 'scripts/check_undeclared_imports.py'
       - 'scripts/tests/test_check_undeclared_imports.py'
       - 'scripts/check_stale_extensions.py'
+      - 'scripts/write_extension_stamps.py'
       - 'scripts/tests/test_check_stale_extensions.py'
       - 'scripts/check_net_classification.py'
       - 'scripts/tests/test_check_net_classification.py'
@@ -138,6 +139,7 @@ on:
       - 'scripts/check_undeclared_imports.py'
       - 'scripts/tests/test_check_undeclared_imports.py'
       - 'scripts/check_stale_extensions.py'
+      - 'scripts/write_extension_stamps.py'
       - 'scripts/tests/test_check_stale_extensions.py'
       - 'scripts/check_net_classification.py'
       - 'scripts/tests/test_check_net_classification.py'
@@ -196,6 +198,33 @@ jobs:
           rustc --version
           cargo --version
 
+  # ---------------------------------------------------------------------------
+  # 2026-07-28: this job used to hold every gate in the pipeline -- 58 workflow
+  # steps in one sequential job, most of them fail-closed gates. Because a
+  # non-`continue-on-error` step failure aborts the rest of the job, ONE red gate
+  # deleted the verdict of every gate behind it. Measured on main, run
+  # 30390466165: "Physical mains<->SELV isolation-barrier gate" failed at step
+  # 27 of 66 and steps 28-60 (33 real gate/test steps) never ran -- vulture, MPN
+  # fabrication, PLL range, net classification, undeclared imports, evidence
+  # provenance, capacity budget, derived-doc drift, board identity, coverage,
+  # script manifest, import-linter, requirements (safety/EMC/review/DFM), the
+  # extended suites. Earlier the same day a single clippy lint masked 43 steps
+  # including two safety gates. The isolation gate cannot be fixed in CI at all
+  # -- it reports that a physical keepout zone does not exist on the board -- so
+  # it stays red until hardware work lands, masking everything behind it the
+  # whole time.
+  #
+  # The gates are now split across independent jobs, grouped by the setup they
+  # share (container + three `maturin develop` builds + `uv sync` + netlist,
+  # ~130s) rather than one job per gate. No gate's command line, env, or
+  # pass/fail logic changed, and no `continue-on-error` was added: the split is
+  # purely about which gates can hide which. Within each job the known-red gate
+  # is ordered LAST so it masks nothing (isolation-keepout in board-gates;
+  # measurement-provenance in provenance-gates).
+  #
+  # What stays in this job: the Rust extension build chain and the suites that
+  # can only run once those wheels are installed.
+  # ---------------------------------------------------------------------------
   test:
     name: Core Tests
     runs-on: ubuntu-latest
@@ -217,7 +246,12 @@ jobs:
     # skipping via a phantom path is ~14 min on its own, and the newly wired
     # safety/EMC/review requirement tests added 137 more. 45 leaves real
     # headroom rather than another 4-second miss.
-    timeout-minutes: 45
+    # Lowered 45 -> 35 with the 2026-07-28 gate split: the two items that drove
+    # the 30 -> 45 raise (the extended suites at ~14 min, the 240 requirements
+    # tests) both left this job for `extended-suites` and `requirements-tests`.
+    # What remains is setup + the constraints/placer-core suites. 35 keeps the
+    # same kind of headroom against a smaller job rather than trimming to fit.
+    timeout-minutes: 35
     env:
       VIRTUAL_ENV: ${{ github.workspace }}/.venv
       # CI is the environment where the Rust DRC/clearance accelerator and
@@ -299,17 +333,6 @@ jobs:
         env:
           RUST_BACKTRACE: full
 
-      - name: Check temper-constraint-compiler compiles
-        run: cargo check --manifest-path packages/temper-constraint-compiler/Cargo.toml
-
-      - name: Clippy (non-PyO3 crates)
-        run: |
-          for crate in \
-                       temper-rust-router-core temper-pcl-ir temper-design-bundle; do
-            echo "=== clippy $crate ==="
-            cargo clippy --manifest-path "packages/$crate/Cargo.toml" -- -D warnings
-          done
-
       # `uv sync` defaults to an *exact* sync: anything installed in the venv
       # that is not part of this invocation's resolved target set gets
       # uninstalled as "extraneous". `--no-install-package X` excludes X from
@@ -336,6 +359,25 @@ jobs:
       - name: Stale-extension gate tests
         run: uv run pytest scripts/tests/test_check_stale_extensions.py -v --tb=short
 
+      # Build side of content-hash freshness (scripts/_lib/freshness.py).
+      # Every pyo3 crate has just been built or installed from THIS
+      # checkout, so the mtime comparison is correct right here and now --
+      # this records that verdict as a SHA-256 of each crate's sources,
+      # beside the installed .so, so it survives into a context where
+      # mtimes are not correct: a restored .venv cache, or a wheel baked
+      # into the CI image (~77s of `maturin develop` per job, 5-6 jobs).
+      # It stamps only crates the gate below already considers fresh, so
+      # it can never launder a stale artifact -- and it must therefore run
+      # AFTER every build step, never alongside one.
+      #
+      # `--no-sync`: a bare `uv run` may auto-sync and reinstall a package,
+      # which would replace the .so out from under the stamp just written
+      # for it (that exact auto-sync reinstalled a stale cached wheel over
+      # a freshly-built extension once already -- see
+      # docs/evidence/2026-07-27-stale-extension-gate.md).
+      - name: Record extension build stamps (content-hash freshness)
+        run: uv run --no-sync python scripts/write_extension_stamps.py
+
       # Every pyo3/maturin crate under packages/ is built by this point (the
       # three `maturin develop` steps above, plus everything `uv sync
       # --all-packages` just built/installed). TEMPER_REQUIRE_FRESH_EXTENSIONS=1
@@ -351,44 +393,15 @@ jobs:
           TEMPER_REQUIRE_FRESH_EXTENSIONS: "1"
 
       - name: Cache netlist
+        id: cache-netlist
         uses: actions/cache@v6
         with:
           path: elec/build
-          key: netlist-${{ hashFiles('elec/src/**') }}
+          key: netlist-${{ hashFiles('elec/src/**', 'elec/ato.yaml', 'Makefile') }}
 
       - name: Build electronics netlist
+        if: steps.cache-netlist.outputs.cache-hit != 'true'
         run: make netlist
-
-      - name: Run electronics validation tests
-        run: uv run pytest elec/validation/ -v --tb=short
-
-      - name: Domain-partition gate unit tests
-        run: uv run pytest scripts/tests/test_check_domain_partition.py -v --tb=short
-
-      - name: Netlist domain-partition gate (galvanic isolation)
-        # Fail-closed: reads the compiled netlist against
-        # elec/domain_manifest.yaml and asserts the declared HV/SELV
-        # domains land in disjoint connected components, and that every
-        # declared isolator's own pin groups are mutually unreachable. This
-        # is the check that would have caught the aux_supply.psu star-join
-        # short (docs/hardware/IEC60335_CRITICAL_COMPONENTS.md Sec 2) --
-        # see docs/evidence/2026-07-26-domain-partition-check.md. Never
-        # `continue-on-error`: a gate that cannot run must exit non-zero.
-        run: uv run python scripts/check_domain_partition.py
-
-      - name: Isolation-keepout gate unit tests
-        run: uv run pytest scripts/tests/test_check_isolation_keepout.py -v --tb=short
-
-      - name: Physical mains<->SELV isolation-barrier gate
-        # Fail-closed: verifies a dedicated keepout region (not just
-        # declarations/after-the-fact clearance checks) spans every copper
-        # layer, is >=8.0mm wide throughout, bisects the board into HV/SELV
-        # sides, and that no real copper intrudes -- pcb/temper.kicad_pcb
-        # has zero keepout zones today (docs/evidence/
-        # 2026-07-28-isolation-keepout.md). Never `continue-on-error`: a
-        # gate that cannot run, or that finds the barrier missing, must
-        # exit non-zero.
-        run: uv run python scripts/check_isolation_keepout.py
 
       - name: Run temper-constraints integration tests
         working-directory: packages/temper-placer
@@ -412,8 +425,916 @@ jobs:
           || echo "::warning title=Coverage Gate::Phase 1 paydown prerequisite not yet met; gate is warn-only."
         continue-on-error: true  # TODO: temper-NNN -- coverage gate remains warn-only pending Phase 1 paydown; hard-fail after 2026-09-01
 
+  # Split out of Core Tests 2026-07-28. These two cargo steps ran at position
+  # 16-17 of the old 58-step job, ahead of every Python gate in the pipeline. On
+  # 2026-07-28 a single clippy lint error in one crate therefore masked 43
+  # downstream steps -- including two safety gates -- for hours; fixing the lint
+  # moved the job from 15 to 29 executed steps, which is the measurement that
+  # says those 43 steps were hidden by clippy alone. A Rust lint verdict and a
+  # Python gate verdict are independent facts and now report independently.
+  #
+  # No `uv sync` / no maturin here: `cargo check` and `cargo clippy` need only
+  # the toolchain. The venv steps are kept because VIRTUAL_ENV is set job-wide
+  # and pyo3 build scripts resolve their interpreter through it, exactly as they
+  # did when these steps ran inside Core Tests. Note the cargo target dir is
+  # cold in this job (the workflow caches no Rust artifacts anywhere), so these
+  # steps compile their dependency graph from scratch -- hence 25 minutes.
+  rust-checks:
+    name: Rust Checks (cargo check + clippy)
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/bennetleff/temper-ci:latest
+      options: --user root
+    timeout-minutes: 25
+    env:
+      VIRTUAL_ENV: ${{ github.workspace }}/.venv
+      TEMPER_REQUIRE_RUST_DRC: "1"
+    steps:
+      - uses: actions/checkout@v7
+
+      # Container runs as root; workspace is owned by the runner user. Without
+      # this, every `git` call in a later `run:` step exits 128 on "dubious
+      # ownership" rather than doing its job.
+      - name: Mark workspace safe for git
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: "latest"
+          enable-cache: true
+
+      - name: Cache virtualenv
+        uses: actions/cache@v6
+        id: cache-venv
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
+
+      - name: Create virtualenv (cache miss)
+        if: steps.cache-venv.outputs.cache-hit != 'true'
+        run: uv venv
+
+      - name: Check temper-constraint-compiler compiles
+        run: cargo check --manifest-path packages/temper-constraint-compiler/Cargo.toml
+
+      - name: Clippy (non-PyO3 crates)
+        run: |
+          for crate in \
+                       temper-rust-router-core temper-pcl-ir temper-design-bundle; do
+            echo "=== clippy $crate ==="
+            cargo clippy --manifest-path "packages/$crate/Cargo.toml" -- -D warnings
+          done
+
+  # Split out of Core Tests 2026-07-28. Everything here reads the compiled
+  # netlist (elec/build/default.net, default.csv) or pcb/temper.kicad_pcb, so
+  # they share the `make netlist` setup and belong together.
+  #
+  # ORDERING IS LOAD-BEARING: "Physical mains<->SELV isolation-barrier gate" is
+  # LAST. It is the gate that is red on main right now (run 30390466165) and it
+  # cannot be fixed from CI -- pcb/temper.kicad_pcb has zero keepout zones and
+  # the fix is hardware work. Placed last, its honest failure masks nothing.
+  # Anything added to this job goes ABOVE it.
+  board-gates:
+    name: Board & Netlist Gates
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/bennetleff/temper-ci:latest
+      options: --user root
+    timeout-minutes: 25
+    env:
+      VIRTUAL_ENV: ${{ github.workspace }}/.venv
+      TEMPER_REQUIRE_RUST_DRC: "1"
+    steps:
+      - uses: actions/checkout@v7
+
+      # Container runs as root; workspace is owned by the runner user. Without
+      # this, every `git` call in a later `run:` step exits 128 on "dubious
+      # ownership" rather than doing its job.
+      - name: Mark workspace safe for git
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: "latest"
+          enable-cache: true
+
+      - name: Cache virtualenv
+        uses: actions/cache@v6
+        id: cache-venv
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
+
+      - name: Create virtualenv (cache miss)
+        if: steps.cache-venv.outputs.cache-hit != 'true'
+        run: uv venv
+
+      - name: Install maturin
+        run: uv pip install maturin
+
+      - name: Build and install Rust crate
+        run: uv run maturin develop --release --manifest-path packages/temper-rust-router/Cargo.toml
+
+      - name: Verify Rust module loads
+        run: uv run python3 -c "import temper_rust_router; print('temper_rust_router loaded OK')"
+        env:
+          RUST_BACKTRACE: full
+
+      - name: Build and install temper-drc-rs
+        run: uv run maturin develop --release --manifest-path packages/temper-drc-rs/Cargo.toml
+
+      - name: Verify temper-drc-rs loads
+        run: uv run python3 -c "import temper_drc_rs; print('temper_drc_rs loaded OK')"
+        env:
+          RUST_BACKTRACE: full
+
+      - name: Build and install temper-constraints
+        run: >
+          uv run maturin develop --release
+          --manifest-path packages/temper-placer/temper-constraints/Cargo.toml
+        env:
+          PYO3_USE_ABI3_FORWARD_COMPATIBILITY: "1"
+
+      - name: Verify temper-constraints loads
+        run: uv run python3 -c "import temper_constraints; print('temper_constraints loaded OK, version', temper_constraints.version_py())"
+        env:
+          RUST_BACKTRACE: full
+
+      # `uv sync` defaults to an *exact* sync: anything installed in the venv
+      # that is not part of this invocation's resolved target set gets
+      # uninstalled as "extraneous". `--no-install-package X` excludes X from
+      # that target set -- it does NOT mean "leave X alone". Without
+      # `--inexact`, the three flags below were therefore silently
+      # UNINSTALLING the release wheels that "Build and install ..." just
+      # built and "Verify ... loads" just confirmed importable, minutes
+      # earlier in this same job. Reproduced locally: `uv sync --all-packages
+      # --no-install-package temper-rust-router ...` (no --inexact) prints
+      # "Uninstalled 2 packages" and `- temper-rust-router==0.1.0` in its
+      # diff, and a subsequent bare import fails with ModuleNotFoundError.
+      # `--inexact` disables the extraneous-package removal, so these three
+      # packages are truly left untouched (mtimes unchanged, no rebuild)
+      # instead of evicted -- confirmed locally: with --inexact added, the
+      # same command reports "Audited N packages" (no install/uninstall) and
+      # the modules remain importable afterward.
+      - name: Install dependencies
+        run: >
+          uv sync --all-packages --inexact
+          --no-install-package temper-rust-router
+          --no-install-package temper-drc-rs
+          --no-install-package temper-constraints
+
+      - name: Cache netlist
+        id: cache-netlist
+        uses: actions/cache@v6
+        with:
+          path: elec/build
+          key: netlist-${{ hashFiles('elec/src/**', 'elec/ato.yaml', 'Makefile') }}
+
+      - name: Build electronics netlist
+        if: steps.cache-netlist.outputs.cache-hit != 'true'
+        run: make netlist
+
+      - name: Run electronics validation tests
+        run: uv run pytest elec/validation/ -v --tb=short
+
+      - name: Domain-partition gate unit tests
+        run: uv run pytest scripts/tests/test_check_domain_partition.py -v --tb=short
+
+      - name: Netlist domain-partition gate (galvanic isolation)
+        # Fail-closed: reads the compiled netlist against
+        # elec/domain_manifest.yaml and asserts the declared HV/SELV
+        # domains land in disjoint connected components, and that every
+        # declared isolator's own pin groups are mutually unreachable. This
+        # is the check that would have caught the aux_supply.psu star-join
+        # short (docs/hardware/IEC60335_CRITICAL_COMPONENTS.md Sec 2) --
+        # see docs/evidence/2026-07-26-domain-partition-check.md. Never
+        # `continue-on-error`: a gate that cannot run must exit non-zero.
+        run: uv run python scripts/check_domain_partition.py
+
+      - name: Design capacity budget gate tests
+        run: uv run pytest scripts/tests/test_capacity_budget_gate.py -v --tb=short
+
+      - name: Design capacity budget gate (fault-tree fan-in)
+        run: uv run python scripts/capacity_budget_gate.py
+
+      - name: Verify board identity gate (plan 2026-07-15-001, U7)
+        run: uv run python3 scripts/ci_identity_check.py
+
+      - name: Regenerate schematics and check drift
+        continue-on-error: true  # TODO: temper-NNN -- make netlist (atopile) invokes kicad-cli in container; hard-fail after 2026-09-01
+        run: |
+          uv run python3 scripts/gen_schematics.py --check --no-oracle
+          git diff --exit-code pcb/*.kicad_sch
+
+      - name: Isolation-keepout gate unit tests
+        run: uv run pytest scripts/tests/test_check_isolation_keepout.py -v --tb=short
+
+      - name: Physical mains<->SELV isolation-barrier gate
+        # Fail-closed: verifies a dedicated keepout region (not just
+        # declarations/after-the-fact clearance checks) spans every copper
+        # layer, is >=8.0mm wide throughout, bisects the board into HV/SELV
+        # sides, and that no real copper intrudes -- pcb/temper.kicad_pcb
+        # has zero keepout zones today (docs/evidence/
+        # 2026-07-28-isolation-keepout.md). Never `continue-on-error`: a
+        # gate that cannot run, or that finds the barrier missing, must
+        # exit non-zero.
+        run: uv run python scripts/check_isolation_keepout.py
+
+  # Split out of Core Tests 2026-07-28. Gates that compare two representations
+  # of the same fact and fail on drift: generated code vs its manifest, a
+  # derived doc vs its source doc, firmware constants vs elec/src/main.ato,
+  # BOM/MPN vs the .ato sources, net-name classifiers vs
+  # elec/domain_manifest.yaml. Each `*-gate tests` step is the unit-test suite
+  # for the gate immediately below it and stays adjacent to it.
+  consistency-gates:
+    name: Cross-Source Consistency Gates
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/bennetleff/temper-ci:latest
+      options: --user root
+    timeout-minutes: 20
+    env:
+      VIRTUAL_ENV: ${{ github.workspace }}/.venv
+      TEMPER_REQUIRE_RUST_DRC: "1"
+    steps:
+      - uses: actions/checkout@v7
+
+      # Container runs as root; workspace is owned by the runner user. Without
+      # this, every `git` call in a later `run:` step exits 128 on "dubious
+      # ownership" rather than doing its job.
+      - name: Mark workspace safe for git
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: "latest"
+          enable-cache: true
+
+      - name: Cache virtualenv
+        uses: actions/cache@v6
+        id: cache-venv
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
+
+      - name: Create virtualenv (cache miss)
+        if: steps.cache-venv.outputs.cache-hit != 'true'
+        run: uv venv
+
+      - name: Install maturin
+        run: uv pip install maturin
+
+      - name: Build and install Rust crate
+        run: uv run maturin develop --release --manifest-path packages/temper-rust-router/Cargo.toml
+
+      - name: Verify Rust module loads
+        run: uv run python3 -c "import temper_rust_router; print('temper_rust_router loaded OK')"
+        env:
+          RUST_BACKTRACE: full
+
+      - name: Build and install temper-drc-rs
+        run: uv run maturin develop --release --manifest-path packages/temper-drc-rs/Cargo.toml
+
+      - name: Verify temper-drc-rs loads
+        run: uv run python3 -c "import temper_drc_rs; print('temper_drc_rs loaded OK')"
+        env:
+          RUST_BACKTRACE: full
+
+      - name: Build and install temper-constraints
+        run: >
+          uv run maturin develop --release
+          --manifest-path packages/temper-placer/temper-constraints/Cargo.toml
+        env:
+          PYO3_USE_ABI3_FORWARD_COMPATIBILITY: "1"
+
+      - name: Verify temper-constraints loads
+        run: uv run python3 -c "import temper_constraints; print('temper_constraints loaded OK, version', temper_constraints.version_py())"
+        env:
+          RUST_BACKTRACE: full
+
+      # `uv sync` defaults to an *exact* sync: anything installed in the venv
+      # that is not part of this invocation's resolved target set gets
+      # uninstalled as "extraneous". `--no-install-package X` excludes X from
+      # that target set -- it does NOT mean "leave X alone". Without
+      # `--inexact`, the three flags below were therefore silently
+      # UNINSTALLING the release wheels that "Build and install ..." just
+      # built and "Verify ... loads" just confirmed importable, minutes
+      # earlier in this same job. Reproduced locally: `uv sync --all-packages
+      # --no-install-package temper-rust-router ...` (no --inexact) prints
+      # "Uninstalled 2 packages" and `- temper-rust-router==0.1.0` in its
+      # diff, and a subsequent bare import fails with ModuleNotFoundError.
+      # `--inexact` disables the extraneous-package removal, so these three
+      # packages are truly left untouched (mtimes unchanged, no rebuild)
+      # instead of evicted -- confirmed locally: with --inexact added, the
+      # same command reports "Audited N packages" (no install/uninstall) and
+      # the modules remain importable afterward.
+      - name: Install dependencies
+        run: >
+          uv sync --all-packages --inexact
+          --no-install-package temper-rust-router
+          --no-install-package temper-drc-rs
+          --no-install-package temper-constraints
+
+      - name: Cache netlist
+        id: cache-netlist
+        uses: actions/cache@v6
+        with:
+          path: elec/build
+          key: netlist-${{ hashFiles('elec/src/**', 'elec/ato.yaml', 'Makefile') }}
+
+      - name: Build electronics netlist
+        if: steps.cache-netlist.outputs.cache-hit != 'true'
+        run: make netlist
+
       - name: Check domain model codegen drift
         run: uv run python3 scripts/gen_domain_models.py --check
+
+      - name: Verify config reference doc is up-to-date (plan 2026-07-22-005, U7)
+        run: |
+          uv run python packages/temper-placer/scripts/gen_config_reference.py --check
+
+      - name: MPN fabrication gate tests
+        run: uv run pytest scripts/tests/test_mpn_fabrication_gate.py -v --tb=short
+
+      - name: MPN fabrication gate (elec/src/*.ato non-standard values and MPN/value drift)
+        run: uv run python scripts/mpn_fabrication_gate.py
+
+      - name: Derived-document drift gate tests
+        run: uv run pytest scripts/tests/test_check_derived_doc_drift.py -v --tb=short
+
+      # Covers all four arms in one invocation: STRATEGY.md and
+      # PROTECTION_CHAIN_REVIEW.md against FUNCTIONAL_TEST_CRITERIA.md, and
+      # STRATEGY.md's board facts against pcb/temper.kicad_pcb. Both
+      # `docs/STRATEGY.md` and `pcb/temper.kicad_pcb` are already in this
+      # workflow's push and pull_request `paths:` filters, so a change to
+      # either triggers this job.
+      - name: Derived-document drift gate (STRATEGY.md vs FUNCTIONAL_TEST_CRITERIA.md and temper.kicad_pcb)
+        run: uv run python scripts/check_derived_doc_drift.py
+
+      - name: Net-classification-by-substring gate tests
+        run: uv run pytest scripts/tests/test_check_net_classification.py -v --tb=short
+
+      # Fail-closed, not soft-launched: catches the "safety-relevant net
+      # classification by plain substring match, in parallel to
+      # elec/domain_manifest.yaml" defect class confirmed three times in
+      # this repo (creepage_check.py false positives, clearance_check.py
+      # false negatives, clearance_engine.py's still-live bare "HV"/"AC"
+      # substrings) -- and nine total once every net-name classifier in
+      # the codebase was audited for the same shape. See
+      # docs/evidence/2026-07-27-net-classification-gate.md.
+      - name: Net-classification-by-substring gate (placer/router net-name classifiers)
+        run: uv run python scripts/check_net_classification.py
+
+      - name: PLL range consistency gate tests
+        run: uv run pytest scripts/tests/test_check_pll_range_consistency.py -v --tb=short
+
+      # Fail-closed: catches firmware/components/control/pll_control.h's
+      # PLL frequency bounds/default drifting away from elec/src/main.ato's
+      # declared f_switching/f_pll_tracking_min/max -- the exact shape that
+      # let main.ato assert a 20-100kHz tracking range 5x wider than the
+      # firmware's real 30-50kHz clamp, and let PLL_DEFAULT_FREQ_HZ stay at
+      # 35000 (a frequency later shown to lose 100.7% of ZVS margin) after
+      # main.ato had already moved to 47kHz. See
+      # docs/evidence/2026-07-28-pll-defaults-and-range-gate.md.
+      - name: PLL range consistency gate (firmware vs elec/src/main.ato)
+        run: uv run python scripts/check_pll_range_consistency.py
+
+  # Split out of Core Tests 2026-07-28. Gates that check a claim can be traced
+  # to a measurement, plus the anti-vacuous-truth gate that checks a gate
+  # actually measured something.
+  #
+  # ORDERING IS LOAD-BEARING: "Measurement-provenance gate" is LAST, for the
+  # reason its own comment gives -- drc_ceiling.json genuinely is stale, so the
+  # gate is expected to fail until it is re-measured and re-approved. Last means
+  # its honest failure masks nothing. In the old single job it was "last among
+  # the required gates" but still masked "Rebuild script invocation graph"; that
+  # step now lives in `hygiene-gates` and is masked by nothing here.
+  provenance-gates:
+    name: Provenance & Anti-Vacuity Gates
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/bennetleff/temper-ci:latest
+      options: --user root
+    timeout-minutes: 20
+    env:
+      VIRTUAL_ENV: ${{ github.workspace }}/.venv
+      TEMPER_REQUIRE_RUST_DRC: "1"
+    steps:
+      - uses: actions/checkout@v7
+
+      # Container runs as root; workspace is owned by the runner user. Without
+      # this, every `git` call in a later `run:` step exits 128 on "dubious
+      # ownership" rather than doing its job.
+      - name: Mark workspace safe for git
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: "latest"
+          enable-cache: true
+
+      - name: Cache virtualenv
+        uses: actions/cache@v6
+        id: cache-venv
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
+
+      - name: Create virtualenv (cache miss)
+        if: steps.cache-venv.outputs.cache-hit != 'true'
+        run: uv venv
+
+      - name: Install maturin
+        run: uv pip install maturin
+
+      - name: Build and install Rust crate
+        run: uv run maturin develop --release --manifest-path packages/temper-rust-router/Cargo.toml
+
+      - name: Verify Rust module loads
+        run: uv run python3 -c "import temper_rust_router; print('temper_rust_router loaded OK')"
+        env:
+          RUST_BACKTRACE: full
+
+      - name: Build and install temper-drc-rs
+        run: uv run maturin develop --release --manifest-path packages/temper-drc-rs/Cargo.toml
+
+      - name: Verify temper-drc-rs loads
+        run: uv run python3 -c "import temper_drc_rs; print('temper_drc_rs loaded OK')"
+        env:
+          RUST_BACKTRACE: full
+
+      - name: Build and install temper-constraints
+        run: >
+          uv run maturin develop --release
+          --manifest-path packages/temper-placer/temper-constraints/Cargo.toml
+        env:
+          PYO3_USE_ABI3_FORWARD_COMPATIBILITY: "1"
+
+      - name: Verify temper-constraints loads
+        run: uv run python3 -c "import temper_constraints; print('temper_constraints loaded OK, version', temper_constraints.version_py())"
+        env:
+          RUST_BACKTRACE: full
+
+      # `uv sync` defaults to an *exact* sync: anything installed in the venv
+      # that is not part of this invocation's resolved target set gets
+      # uninstalled as "extraneous". `--no-install-package X` excludes X from
+      # that target set -- it does NOT mean "leave X alone". Without
+      # `--inexact`, the three flags below were therefore silently
+      # UNINSTALLING the release wheels that "Build and install ..." just
+      # built and "Verify ... loads" just confirmed importable, minutes
+      # earlier in this same job. Reproduced locally: `uv sync --all-packages
+      # --no-install-package temper-rust-router ...` (no --inexact) prints
+      # "Uninstalled 2 packages" and `- temper-rust-router==0.1.0` in its
+      # diff, and a subsequent bare import fails with ModuleNotFoundError.
+      # `--inexact` disables the extraneous-package removal, so these three
+      # packages are truly left untouched (mtimes unchanged, no rebuild)
+      # instead of evicted -- confirmed locally: with --inexact added, the
+      # same command reports "Audited N packages" (no install/uninstall) and
+      # the modules remain importable afterward.
+      - name: Install dependencies
+        run: >
+          uv sync --all-packages --inexact
+          --no-install-package temper-rust-router
+          --no-install-package temper-drc-rs
+          --no-install-package temper-constraints
+
+      - name: Cache netlist
+        id: cache-netlist
+        uses: actions/cache@v6
+        with:
+          path: elec/build
+          key: netlist-${{ hashFiles('elec/src/**', 'elec/ato.yaml', 'Makefile') }}
+
+      - name: Build electronics netlist
+        if: steps.cache-netlist.outputs.cache-hit != 'true'
+        run: make netlist
+
+      - name: Physics parameter provenance gate
+        working-directory: packages/temper-placer
+        run: |
+          uv run python ../../scripts/check_physics_provenance.py --allowlist ../../.physics-provenance-allowlist --physics-dir src/temper_placer/physics/
+          uv run python ../../scripts/check_physics_provenance.py --check-shrink --allowlist ../../.physics-provenance-allowlist --physics-dir src/temper_placer/physics/
+
+      - name: Evidence provenance gate (docs/evidence/)
+        run: |
+          uv run python scripts/check_evidence_provenance.py
+          uv run python scripts/check_evidence_provenance.py --check-shrink
+
+      - name: Anti-vacuous-truth gate (gates/validators)
+        run: uv run python scripts/check_vacuous_gates.py
+
+      - name: Measurement-provenance gate tests
+        run: uv run pytest scripts/tests/test_check_measurement_provenance.py scripts/tests/_lib/test_lib_measurement_provenance.py -v --tb=short
+
+      # Fail-closed, not soft-launched: catches a measurement artifact
+      # (power_pcb_dataset/drc_ceiling.json today) whose recorded input
+      # content hash no longer matches the file on disk -- the DRC ceiling
+      # incident this closes recorded 91 errors for a board that three
+      # later commits (c6b1b463, 556ccf4f, 65bd0159) changed to ~710
+      # errors' worth, with the ceiling file itself byte-identical
+      # throughout. STALE is a GATE ERROR here, not a violation --
+      # generalizing the same "netlist is STALE ... not PASSED, not a
+      # violation" semantic check_domain_partition.py already uses. See
+      # docs/evidence/2026-07-28-measurement-provenance.md.
+      #
+      # Deliberately placed last in its job (not continue-on-error -- no
+      # masked steps): this step is expected to fail right now, because
+      # the real drc_ceiling.json genuinely is stale and has not been
+      # re-measured/re-approved. Every other required gate used to be in
+      # this same job and had to be ordered ahead of it for that reason;
+      # since the 2026-07-28 split they are in sibling jobs and cannot be
+      # affected by this gate at all. Last-in-job now means it masks
+      # nothing whatsoever -- the "Rebuild script invocation graph"
+      # bookkeeping step it used to take down with it moved to
+      # `hygiene-gates`. Anything added to this job goes ABOVE this step.
+      - name: Measurement-provenance gate (drc_ceiling.json input freshness)
+        run: |
+          uv run python scripts/check_measurement_provenance.py
+          uv run python scripts/check_measurement_provenance.py --check-shrink
+
+  # Split out of Core Tests 2026-07-28. Whole-repo hygiene: dead code, script
+  # inventory, root-directory litter, import boundaries, undeclared imports.
+  # "Script manifest gate" stays ahead of "Rebuild script invocation graph",
+  # the same relative order they had in the old job and not an arbitrary one:
+  # trace_invocations.py rewrites scripts/manifest.yaml (the `imports` field)
+  # and scripts/invocation_graph.json in place, so the gate that reads the
+  # committed manifest has to run before the step that regenerates it.
+  hygiene-gates:
+    name: Repo Hygiene & Import Gates
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/bennetleff/temper-ci:latest
+      options: --user root
+    timeout-minutes: 20
+    env:
+      VIRTUAL_ENV: ${{ github.workspace }}/.venv
+      TEMPER_REQUIRE_RUST_DRC: "1"
+    steps:
+      - uses: actions/checkout@v7
+
+      # Container runs as root; workspace is owned by the runner user. Without
+      # this, every `git` call in a later `run:` step exits 128 on "dubious
+      # ownership" rather than doing its job.
+      - name: Mark workspace safe for git
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: "latest"
+          enable-cache: true
+
+      - name: Cache virtualenv
+        uses: actions/cache@v6
+        id: cache-venv
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
+
+      - name: Create virtualenv (cache miss)
+        if: steps.cache-venv.outputs.cache-hit != 'true'
+        run: uv venv
+
+      - name: Install maturin
+        run: uv pip install maturin
+
+      - name: Build and install Rust crate
+        run: uv run maturin develop --release --manifest-path packages/temper-rust-router/Cargo.toml
+
+      - name: Verify Rust module loads
+        run: uv run python3 -c "import temper_rust_router; print('temper_rust_router loaded OK')"
+        env:
+          RUST_BACKTRACE: full
+
+      - name: Build and install temper-drc-rs
+        run: uv run maturin develop --release --manifest-path packages/temper-drc-rs/Cargo.toml
+
+      - name: Verify temper-drc-rs loads
+        run: uv run python3 -c "import temper_drc_rs; print('temper_drc_rs loaded OK')"
+        env:
+          RUST_BACKTRACE: full
+
+      - name: Build and install temper-constraints
+        run: >
+          uv run maturin develop --release
+          --manifest-path packages/temper-placer/temper-constraints/Cargo.toml
+        env:
+          PYO3_USE_ABI3_FORWARD_COMPATIBILITY: "1"
+
+      - name: Verify temper-constraints loads
+        run: uv run python3 -c "import temper_constraints; print('temper_constraints loaded OK, version', temper_constraints.version_py())"
+        env:
+          RUST_BACKTRACE: full
+
+      # `uv sync` defaults to an *exact* sync: anything installed in the venv
+      # that is not part of this invocation's resolved target set gets
+      # uninstalled as "extraneous". `--no-install-package X` excludes X from
+      # that target set -- it does NOT mean "leave X alone". Without
+      # `--inexact`, the three flags below were therefore silently
+      # UNINSTALLING the release wheels that "Build and install ..." just
+      # built and "Verify ... loads" just confirmed importable, minutes
+      # earlier in this same job. Reproduced locally: `uv sync --all-packages
+      # --no-install-package temper-rust-router ...` (no --inexact) prints
+      # "Uninstalled 2 packages" and `- temper-rust-router==0.1.0` in its
+      # diff, and a subsequent bare import fails with ModuleNotFoundError.
+      # `--inexact` disables the extraneous-package removal, so these three
+      # packages are truly left untouched (mtimes unchanged, no rebuild)
+      # instead of evicted -- confirmed locally: with --inexact added, the
+      # same command reports "Audited N packages" (no install/uninstall) and
+      # the modules remain importable afterward.
+      - name: Install dependencies
+        run: >
+          uv sync --all-packages --inexact
+          --no-install-package temper-rust-router
+          --no-install-package temper-drc-rs
+          --no-install-package temper-constraints
+
+      - name: Cache netlist
+        id: cache-netlist
+        uses: actions/cache@v6
+        with:
+          path: elec/build
+          key: netlist-${{ hashFiles('elec/src/**', 'elec/ato.yaml', 'Makefile') }}
+
+      - name: Build electronics netlist
+        if: steps.cache-netlist.outputs.cache-hit != 'true'
+        run: make netlist
+
+      - name: Lint with ruff
+        continue-on-error: true  # TODO: temper-NNN -- 594 pre-existing ruff errors; hard-fail after 2026-09-01
+        run: uv run ruff check packages/
+
+      - name: Vulture dead-code gate
+        run: uv run python scripts/vulture_gate.py
+
+      - name: Script manifest gate
+        run: uv run python scripts/check_manifest_gate.py
+
+      - name: Script sunset check (warnings only)
+        run: uv run python scripts/check_script_sunset.py
+        continue-on-error: true  # TODO: temper-NNN -- sunset is informational; hard-fail after 2026-09-01
+
+      - name: Root artifact hygiene check
+        run: uv run pytest scripts/test_root_hygiene.py -v --tb=short
+        continue-on-error: true  # TODO: temper-NNN -- hard-fail after 2026-09-01
+
+      - name: Import boundary enforcement
+        run: uv run python scripts/import_linter_gate.py
+
+      - name: Undeclared-import gate tests
+        run: uv run pytest scripts/tests/test_check_undeclared_imports.py -v --tb=short
+
+      # Fail-closed, not soft-launched: catches the jinja2/sympy class of
+      # incident (a third-party module imported by first-party code but
+      # declared nowhere, silently dying inside a continue-on-error step).
+      # Must run after `uv sync --all-packages` above (never a plain
+      # `uv sync`, which prunes workspace packages) so resolvability
+      # reflects the same environment the rest of this job runs under. See
+      # docs/evidence/2026-07-27-undeclared-import-gate.md.
+      - name: Undeclared-import gate (scripts/ and Python test trees)
+        run: uv run python scripts/check_undeclared_imports.py
+
+      - name: Rebuild script invocation graph
+        run: uv run python scripts/trace_invocations.py
+
+  # Split out of Core Tests 2026-07-28. The encoded IEC 60335 / EMC / design
+  # review / DFM requirement suites -- 240+ tests on a mains-connected design,
+  # guarded by --min-tests so the suite cannot silently shrink to zero. In the
+  # old job these sat at step 49 of 58 and had not executed on main since the
+  # isolation gate went red. They get their own verdict.
+  requirements-tests:
+    name: Requirements Tests (safety / EMC / review / DFM)
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/bennetleff/temper-ci:latest
+      options: --user root
+    timeout-minutes: 25
+    env:
+      VIRTUAL_ENV: ${{ github.workspace }}/.venv
+      TEMPER_REQUIRE_RUST_DRC: "1"
+    steps:
+      - uses: actions/checkout@v7
+
+      # Container runs as root; workspace is owned by the runner user. Without
+      # this, every `git` call in a later `run:` step exits 128 on "dubious
+      # ownership" rather than doing its job.
+      - name: Mark workspace safe for git
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: "latest"
+          enable-cache: true
+
+      - name: Cache virtualenv
+        uses: actions/cache@v6
+        id: cache-venv
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
+
+      - name: Create virtualenv (cache miss)
+        if: steps.cache-venv.outputs.cache-hit != 'true'
+        run: uv venv
+
+      - name: Install maturin
+        run: uv pip install maturin
+
+      - name: Build and install Rust crate
+        run: uv run maturin develop --release --manifest-path packages/temper-rust-router/Cargo.toml
+
+      - name: Verify Rust module loads
+        run: uv run python3 -c "import temper_rust_router; print('temper_rust_router loaded OK')"
+        env:
+          RUST_BACKTRACE: full
+
+      - name: Build and install temper-drc-rs
+        run: uv run maturin develop --release --manifest-path packages/temper-drc-rs/Cargo.toml
+
+      - name: Verify temper-drc-rs loads
+        run: uv run python3 -c "import temper_drc_rs; print('temper_drc_rs loaded OK')"
+        env:
+          RUST_BACKTRACE: full
+
+      - name: Build and install temper-constraints
+        run: >
+          uv run maturin develop --release
+          --manifest-path packages/temper-placer/temper-constraints/Cargo.toml
+        env:
+          PYO3_USE_ABI3_FORWARD_COMPATIBILITY: "1"
+
+      - name: Verify temper-constraints loads
+        run: uv run python3 -c "import temper_constraints; print('temper_constraints loaded OK, version', temper_constraints.version_py())"
+        env:
+          RUST_BACKTRACE: full
+
+      # `uv sync` defaults to an *exact* sync: anything installed in the venv
+      # that is not part of this invocation's resolved target set gets
+      # uninstalled as "extraneous". `--no-install-package X` excludes X from
+      # that target set -- it does NOT mean "leave X alone". Without
+      # `--inexact`, the three flags below were therefore silently
+      # UNINSTALLING the release wheels that "Build and install ..." just
+      # built and "Verify ... loads" just confirmed importable, minutes
+      # earlier in this same job. Reproduced locally: `uv sync --all-packages
+      # --no-install-package temper-rust-router ...` (no --inexact) prints
+      # "Uninstalled 2 packages" and `- temper-rust-router==0.1.0` in its
+      # diff, and a subsequent bare import fails with ModuleNotFoundError.
+      # `--inexact` disables the extraneous-package removal, so these three
+      # packages are truly left untouched (mtimes unchanged, no rebuild)
+      # instead of evicted -- confirmed locally: with --inexact added, the
+      # same command reports "Audited N packages" (no install/uninstall) and
+      # the modules remain importable afterward.
+      - name: Install dependencies
+        run: >
+          uv sync --all-packages --inexact
+          --no-install-package temper-rust-router
+          --no-install-package temper-drc-rs
+          --no-install-package temper-constraints
+
+      - name: Cache netlist
+        id: cache-netlist
+        uses: actions/cache@v6
+        with:
+          path: elec/build
+          key: netlist-${{ hashFiles('elec/src/**', 'elec/ato.yaml', 'Makefile') }}
+
+      - name: Build electronics netlist
+        if: steps.cache-netlist.outputs.cache-hit != 'true'
+        run: make netlist
+
+      # Plan 2026-07-25-001 R2. `tests/requirements/` holds the encoded
+      # IEC 60335 / EMC / design-review checks and was named in NO workflow --
+      # 240 test functions with zero CI execution path on a mains-connected
+      # design. Measured on wiring: safety 53 passed, emc 57 passed,
+      # review 27 passed.
+      #
+      # `dfm/` joined 2026-07-28 once green. It had one real failure
+      # (DFM001-ANT-002, a copper pour inside the ESP32 antenna keepout on a
+      # fixture whose purpose is to represent adequate keepout), three tests
+      # requesting an `accessible_components` fixture that does not exist, and
+      # four assertion bugs. Wiring it now would add noise, not signal. It goes
+      # in once green -- not behind continue-on-error.
+      #
+      # Guarded so this cannot quietly regress to zero the way the extended
+      # suite did via a phantom path.
+      - name: Requirements tests (safety / EMC / review / DFM)
+        run: >
+          cd packages/temper-placer &&
+          uv run python ../../scripts/pytest_guard.py --min-tests 240 --
+          tests/requirements/safety/ tests/requirements/emc/
+          tests/requirements/review/ tests/requirements/dfm/
+          -v --tb=short -p no:cacheprovider
+
+  # Split out of Core Tests 2026-07-28. Four backgrounded suites that share one
+  # step. Kept `continue-on-error: true` exactly as it was -- this restructure
+  # does not change any gate's pass/fail logic in either direction. The old
+  # job's 30 -> 45 timeout raise names this suite at ~14 min on its own, which
+  # is why it gets its own budget here.
+  extended-suites:
+    name: Extended Test Suites (bundle / cp-sat / workflow / checks)
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/bennetleff/temper-ci:latest
+      options: --user root
+    timeout-minutes: 25
+    env:
+      VIRTUAL_ENV: ${{ github.workspace }}/.venv
+      TEMPER_REQUIRE_RUST_DRC: "1"
+    steps:
+      - uses: actions/checkout@v7
+
+      # Container runs as root; workspace is owned by the runner user. Without
+      # this, every `git` call in a later `run:` step exits 128 on "dubious
+      # ownership" rather than doing its job.
+      - name: Mark workspace safe for git
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: "latest"
+          enable-cache: true
+
+      - name: Cache virtualenv
+        uses: actions/cache@v6
+        id: cache-venv
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
+
+      - name: Create virtualenv (cache miss)
+        if: steps.cache-venv.outputs.cache-hit != 'true'
+        run: uv venv
+
+      - name: Install maturin
+        run: uv pip install maturin
+
+      - name: Build and install Rust crate
+        run: uv run maturin develop --release --manifest-path packages/temper-rust-router/Cargo.toml
+
+      - name: Verify Rust module loads
+        run: uv run python3 -c "import temper_rust_router; print('temper_rust_router loaded OK')"
+        env:
+          RUST_BACKTRACE: full
+
+      - name: Build and install temper-drc-rs
+        run: uv run maturin develop --release --manifest-path packages/temper-drc-rs/Cargo.toml
+
+      - name: Verify temper-drc-rs loads
+        run: uv run python3 -c "import temper_drc_rs; print('temper_drc_rs loaded OK')"
+        env:
+          RUST_BACKTRACE: full
+
+      - name: Build and install temper-constraints
+        run: >
+          uv run maturin develop --release
+          --manifest-path packages/temper-placer/temper-constraints/Cargo.toml
+        env:
+          PYO3_USE_ABI3_FORWARD_COMPATIBILITY: "1"
+
+      - name: Verify temper-constraints loads
+        run: uv run python3 -c "import temper_constraints; print('temper_constraints loaded OK, version', temper_constraints.version_py())"
+        env:
+          RUST_BACKTRACE: full
+
+      # `uv sync` defaults to an *exact* sync: anything installed in the venv
+      # that is not part of this invocation's resolved target set gets
+      # uninstalled as "extraneous". `--no-install-package X` excludes X from
+      # that target set -- it does NOT mean "leave X alone". Without
+      # `--inexact`, the three flags below were therefore silently
+      # UNINSTALLING the release wheels that "Build and install ..." just
+      # built and "Verify ... loads" just confirmed importable, minutes
+      # earlier in this same job. Reproduced locally: `uv sync --all-packages
+      # --no-install-package temper-rust-router ...` (no --inexact) prints
+      # "Uninstalled 2 packages" and `- temper-rust-router==0.1.0` in its
+      # diff, and a subsequent bare import fails with ModuleNotFoundError.
+      # `--inexact` disables the extraneous-package removal, so these three
+      # packages are truly left untouched (mtimes unchanged, no rebuild)
+      # instead of evicted -- confirmed locally: with --inexact added, the
+      # same command reports "Audited N packages" (no install/uninstall) and
+      # the modules remain importable afterward.
+      - name: Install dependencies
+        run: >
+          uv sync --all-packages --inexact
+          --no-install-package temper-rust-router
+          --no-install-package temper-drc-rs
+          --no-install-package temper-constraints
+
+      - name: Cache netlist
+        id: cache-netlist
+        uses: actions/cache@v6
+        with:
+          path: elec/build
+          key: netlist-${{ hashFiles('elec/src/**', 'elec/ato.yaml', 'Makefile') }}
+
+      - name: Build electronics netlist
+        if: steps.cache-netlist.outputs.cache-hit != 'true'
+        run: make netlist
 
       - name: Run extended test suites in parallel
         # The INVARIANT suite (tests/router_v6/ tests/io/ tests/deterministic/
@@ -467,175 +1388,6 @@ jobs:
           done
           exit $FAIL
         continue-on-error: true  # TODO: temper-NNN -- parallel test suite flakiness; hard-fail after 2026-09-01
-
-      - name: Regenerate schematics and check drift
-        continue-on-error: true  # TODO: temper-NNN -- make netlist (atopile) invokes kicad-cli in container; hard-fail after 2026-09-01
-        run: |
-          uv run python3 scripts/gen_schematics.py --check --no-oracle
-          git diff --exit-code pcb/*.kicad_sch
-
-      - name: Verify config reference doc is up-to-date (plan 2026-07-22-005, U7)
-        run: |
-          uv run python packages/temper-placer/scripts/gen_config_reference.py --check
-
-      - name: Verify board identity gate (plan 2026-07-15-001, U7)
-        run: uv run python3 scripts/ci_identity_check.py
-
-      - name: Lint with ruff
-        continue-on-error: true  # TODO: temper-NNN -- 594 pre-existing ruff errors; hard-fail after 2026-09-01
-        run: uv run ruff check packages/
-
-      - name: Vulture dead-code gate
-        run: uv run python scripts/vulture_gate.py
-
-      - name: Script manifest gate
-        run: uv run python scripts/check_manifest_gate.py
-
-      - name: Script sunset check (warnings only)
-        run: uv run python scripts/check_script_sunset.py
-        continue-on-error: true  # TODO: temper-NNN -- sunset is informational; hard-fail after 2026-09-01
-
-      - name: Root artifact hygiene check
-        run: uv run pytest scripts/test_root_hygiene.py -v --tb=short
-        continue-on-error: true  # TODO: temper-NNN -- hard-fail after 2026-09-01
-
-      - name: Physics parameter provenance gate
-        working-directory: packages/temper-placer
-        run: |
-          uv run python ../../scripts/check_physics_provenance.py --allowlist ../../.physics-provenance-allowlist --physics-dir src/temper_placer/physics/
-          uv run python ../../scripts/check_physics_provenance.py --check-shrink --allowlist ../../.physics-provenance-allowlist --physics-dir src/temper_placer/physics/
-
-      - name: Evidence provenance gate (docs/evidence/)
-        run: |
-          uv run python scripts/check_evidence_provenance.py
-          uv run python scripts/check_evidence_provenance.py --check-shrink
-
-      - name: Anti-vacuous-truth gate (gates/validators)
-        run: uv run python scripts/check_vacuous_gates.py
-
-      - name: Import boundary enforcement
-        run: uv run python scripts/import_linter_gate.py
-
-      - name: MPN fabrication gate tests
-        run: uv run pytest scripts/tests/test_mpn_fabrication_gate.py -v --tb=short
-
-      - name: MPN fabrication gate (elec/src/*.ato non-standard values and MPN/value drift)
-        run: uv run python scripts/mpn_fabrication_gate.py
-
-      - name: Derived-document drift gate tests
-        run: uv run pytest scripts/tests/test_check_derived_doc_drift.py -v --tb=short
-
-      # Covers all four arms in one invocation: STRATEGY.md and
-      # PROTECTION_CHAIN_REVIEW.md against FUNCTIONAL_TEST_CRITERIA.md, and
-      # STRATEGY.md's board facts against pcb/temper.kicad_pcb. Both
-      # `docs/STRATEGY.md` and `pcb/temper.kicad_pcb` are already in this
-      # workflow's push and pull_request `paths:` filters, so a change to
-      # either triggers this job.
-      - name: Derived-document drift gate (STRATEGY.md vs FUNCTIONAL_TEST_CRITERIA.md and temper.kicad_pcb)
-        run: uv run python scripts/check_derived_doc_drift.py
-
-      # Plan 2026-07-25-001 R2. `tests/requirements/` holds the encoded
-      # IEC 60335 / EMC / design-review checks and was named in NO workflow --
-      # 240 test functions with zero CI execution path on a mains-connected
-      # design. Measured on wiring: safety 53 passed, emc 57 passed,
-      # review 27 passed.
-      #
-      # `dfm/` joined 2026-07-28 once green. It had one real failure
-      # (DFM001-ANT-002, a copper pour inside the ESP32 antenna keepout on a
-      # fixture whose purpose is to represent adequate keepout), three tests
-      # requesting an `accessible_components` fixture that does not exist, and
-      # four assertion bugs. Wiring it now would add noise, not signal. It goes
-      # in once green -- not behind continue-on-error.
-      #
-      # Guarded so this cannot quietly regress to zero the way the extended
-      # suite did via a phantom path.
-      - name: Requirements tests (safety / EMC / review / DFM)
-        run: >
-          cd packages/temper-placer &&
-          uv run python ../../scripts/pytest_guard.py --min-tests 240 --
-          tests/requirements/safety/ tests/requirements/emc/
-          tests/requirements/review/ tests/requirements/dfm/
-          -v --tb=short -p no:cacheprovider
-
-      - name: Design capacity budget gate tests
-        run: uv run pytest scripts/tests/test_capacity_budget_gate.py -v --tb=short
-
-      - name: Design capacity budget gate (fault-tree fan-in)
-        run: uv run python scripts/capacity_budget_gate.py
-
-      - name: Undeclared-import gate tests
-        run: uv run pytest scripts/tests/test_check_undeclared_imports.py -v --tb=short
-
-      # Fail-closed, not soft-launched: catches the jinja2/sympy class of
-      # incident (a third-party module imported by first-party code but
-      # declared nowhere, silently dying inside a continue-on-error step).
-      # Must run after `uv sync --all-packages` above (never a plain
-      # `uv sync`, which prunes workspace packages) so resolvability
-      # reflects the same environment the rest of this job runs under. See
-      # docs/evidence/2026-07-27-undeclared-import-gate.md.
-      - name: Undeclared-import gate (scripts/ and Python test trees)
-        run: uv run python scripts/check_undeclared_imports.py
-
-      - name: Net-classification-by-substring gate tests
-        run: uv run pytest scripts/tests/test_check_net_classification.py -v --tb=short
-
-      # Fail-closed, not soft-launched: catches the "safety-relevant net
-      # classification by plain substring match, in parallel to
-      # elec/domain_manifest.yaml" defect class confirmed three times in
-      # this repo (creepage_check.py false positives, clearance_check.py
-      # false negatives, clearance_engine.py's still-live bare "HV"/"AC"
-      # substrings) -- and nine total once every net-name classifier in
-      # the codebase was audited for the same shape. See
-      # docs/evidence/2026-07-27-net-classification-gate.md.
-      - name: Net-classification-by-substring gate (placer/router net-name classifiers)
-        run: uv run python scripts/check_net_classification.py
-
-      - name: PLL range consistency gate tests
-        run: uv run pytest scripts/tests/test_check_pll_range_consistency.py -v --tb=short
-
-      # Fail-closed: catches firmware/components/control/pll_control.h's
-      # PLL frequency bounds/default drifting away from elec/src/main.ato's
-      # declared f_switching/f_pll_tracking_min/max -- the exact shape that
-      # let main.ato assert a 20-100kHz tracking range 5x wider than the
-      # firmware's real 30-50kHz clamp, and let PLL_DEFAULT_FREQ_HZ stay at
-      # 35000 (a frequency later shown to lose 100.7% of ZVS margin) after
-      # main.ato had already moved to 47kHz. See
-      # docs/evidence/2026-07-28-pll-defaults-and-range-gate.md.
-      - name: PLL range consistency gate (firmware vs elec/src/main.ato)
-        run: uv run python scripts/check_pll_range_consistency.py
-
-      - name: Measurement-provenance gate tests
-        run: uv run pytest scripts/tests/test_check_measurement_provenance.py scripts/tests/_lib/test_lib_measurement_provenance.py -v --tb=short
-
-      # Fail-closed, not soft-launched: catches a measurement artifact
-      # (power_pcb_dataset/drc_ceiling.json today) whose recorded input
-      # content hash no longer matches the file on disk -- the DRC ceiling
-      # incident this closes recorded 91 errors for a board that three
-      # later commits (c6b1b463, 556ccf4f, 65bd0159) changed to ~710
-      # errors' worth, with the ceiling file itself byte-identical
-      # throughout. STALE is a GATE ERROR here, not a violation --
-      # generalizing the same "netlist is STALE ... not PASSED, not a
-      # violation" semantic check_domain_partition.py already uses. See
-      # docs/evidence/2026-07-28-measurement-provenance.md.
-      #
-      # Deliberately placed last among the required gates in this job
-      # (not continue-on-error -- no masked steps): this step is expected
-      # to fail right now, because the real drc_ceiling.json genuinely is
-      # stale and has not been re-measured/re-approved. Placing it after
-      # every other required gate (domain-partition, rust-drc-presence,
-      # stale-extensions, undeclared-imports, net-classification,
-      # pll-range, mpn-fabrication, derived-doc-drift, capacity-budget)
-      # means this gate's honest failure does not prevent any of those
-      # from running and reporting in the same CI job -- only the
-      # non-gating "Rebuild script invocation graph" bookkeeping step
-      # after it is skipped as a result.
-      - name: Measurement-provenance gate (drc_ceiling.json input freshness)
-        run: |
-          uv run python scripts/check_measurement_provenance.py
-          uv run python scripts/check_measurement_provenance.py --check-shrink
-
-      - name: Rebuild script invocation graph
-        run: uv run python scripts/trace_invocations.py
 
   invariant-router-v6-1:
     name: Invariant tests (router_v6 group 1)
@@ -709,12 +1461,14 @@ jobs:
           --no-install-package temper-constraints
 
       - name: Cache netlist
+        id: cache-netlist
         uses: actions/cache@v6
         with:
           path: elec/build
-          key: netlist-${{ hashFiles('elec/src/**') }}
+          key: netlist-${{ hashFiles('elec/src/**', 'elec/ato.yaml', 'Makefile') }}
 
       - name: Build electronics netlist
+        if: steps.cache-netlist.outputs.cache-hit != 'true'
         run: make netlist
 
       - name: Run invariant tests (router_v6 group 1)
@@ -803,12 +1557,14 @@ jobs:
           --no-install-package temper-constraints
 
       - name: Cache netlist
+        id: cache-netlist
         uses: actions/cache@v6
         with:
           path: elec/build
-          key: netlist-${{ hashFiles('elec/src/**') }}
+          key: netlist-${{ hashFiles('elec/src/**', 'elec/ato.yaml', 'Makefile') }}
 
       - name: Build electronics netlist
+        if: steps.cache-netlist.outputs.cache-hit != 'true'
         run: make netlist
 
       - name: Run invariant tests (router_v6 group 2)
@@ -892,12 +1648,14 @@ jobs:
           --no-install-package temper-constraints
 
       - name: Cache netlist
+        id: cache-netlist
         uses: actions/cache@v6
         with:
           path: elec/build
-          key: netlist-${{ hashFiles('elec/src/**') }}
+          key: netlist-${{ hashFiles('elec/src/**', 'elec/ato.yaml', 'Makefile') }}
 
       - name: Build electronics netlist
+        if: steps.cache-netlist.outputs.cache-hit != 'true'
         run: make netlist
 
       - name: Run invariant tests (router_v6 group 3)
@@ -980,12 +1738,14 @@ jobs:
           --no-install-package temper-constraints
 
       - name: Cache netlist
+        id: cache-netlist
         uses: actions/cache@v6
         with:
           path: elec/build
-          key: netlist-${{ hashFiles('elec/src/**') }}
+          key: netlist-${{ hashFiles('elec/src/**', 'elec/ato.yaml', 'Makefile') }}
 
       - name: Build electronics netlist
+        if: steps.cache-netlist.outputs.cache-hit != 'true'
         run: make netlist
 
       - name: Run invariant tests (remaining directories)
@@ -1030,12 +1790,14 @@ jobs:
         run: uv sync --all-packages
 
       - name: Cache netlist
+        id: cache-netlist
         uses: actions/cache@v6
         with:
           path: elec/build
-          key: netlist-${{ hashFiles('elec/src/**') }}
+          key: netlist-${{ hashFiles('elec/src/**', 'elec/ato.yaml', 'Makefile') }}
 
       - name: Build electronics netlist
+        if: steps.cache-netlist.outputs.cache-hit != 'true'
         run: make netlist
 
       - name: Run closure test (truth-gated)

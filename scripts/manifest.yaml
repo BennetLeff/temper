@@ -820,6 +820,37 @@ scripts:
   - pathlib
   - sys
   - yaml
+- path: write_build_stamp.py
+  purpose: 'Build-side half of content-hash freshness: record the SHA-256 digest of a build''s
+    inputs beside its artifact, so freshness gates can compare content instead of mtimes and
+    a restored cache is no longer permanently STALE (see scripts/_lib/freshness.py)'
+  owner: bennet
+  last_run: '2026-07-28'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - argparse
+  - pathlib
+  - sys
+- path: write_extension_stamps.py
+  purpose: 'Build-side half of content-hash freshness for the pyo3/maturin Rust extension crates:
+    record a SHA-256 digest of each crate''s source set beside its installed .so (keyed on that
+    .so''s own bytes) so check_stale_extensions.py can compare content instead of mtimes -- a
+    restored .venv cache or a prebuilt wheel baked into the CI image is no longer permanently
+    STALE, which in that gate is unconditionally fatal. Stamps only crates the gate already
+    considers fresh, so it can never launder a stale artifact (see scripts/_lib/freshness.py)'
+  owner: bennet
+  last_run: '2026-07-28'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.freshness
+  - _lib.repo
+  - argparse
+  - check_stale_extensions
+  - pathlib
+  - sys
 - path: check_domain_partition.py
   purpose: 'Netlist domain-partition CI gate: verify the compiled netlist''s HV/SELV domains are actually
     disjoint (docs/hardware/IEC60335_CRITICAL_COMPONENTS.md Sec 2) against elec/domain_manifest.yaml;

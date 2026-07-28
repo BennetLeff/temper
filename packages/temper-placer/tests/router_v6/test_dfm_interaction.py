@@ -902,13 +902,22 @@ class TestExceptionTypes:
         assert issubclass(ManufacturingDRCViolationError, RuntimeError)
 
     def test_error_can_be_caught_as_runtime_error(self):
-        """Catching RuntimeError also catches ManufacturingDRCViolationError."""
+        """Catching RuntimeError also catches ManufacturingDRCViolationError.
+
+        No `else: pytest.fail(...)` clause here: ManufacturingDRCViolationError
+        subclasses RuntimeError (see _pipeline_types.py), so the `raise` above
+        is unconditionally caught by `except RuntimeError` and an else branch
+        can never execute -- confirmed dead code, not a vulture false
+        positive (docs/evidence/2026-07-28-vulture-dead-code-gate.md). If the
+        exception hierarchy ever changes so RuntimeError stops catching it,
+        this `raise` propagates uncaught and pytest reports this test as an
+        error, which still fails the suite -- the else added no coverage
+        the bare except doesn't already provide.
+        """
         try:
             raise ManufacturingDRCViolationError("test")
         except RuntimeError:
             pass  # expected
-        else:
-            pytest.fail("RuntimeError should have caught the exception")
 
     def test_invalid_dfm_fail_on_raises_valueerror(self):
         """Invalid dfm_fail_on raises ValueError at construction time."""

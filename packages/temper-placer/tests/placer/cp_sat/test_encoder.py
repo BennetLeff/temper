@@ -466,3 +466,42 @@ class TestValidateConstraintRefs:
             on_unresolved="warn",
         )
         assert report == {"enc_HV": ["GHOST"]}
+
+
+class TestUnresolvedRefPolicyIsReadLive:
+    """The unresolved-ref policy must have exactly one live definition.
+
+    ``_UNRESOLVED_REF_POLICY`` is defined in ``_encoder_core`` and consumed
+    at ``_encoder_solve.solve_placement``'s ``validate_constraint_refs``
+    call.  If ``_encoder_solve`` binds it with
+    ``from _encoder_core import _UNRESOLVED_REF_POLICY``, that binding
+    snapshots the value at import time and never changes again.  Tests that
+    downgrade the policy to "warn" then set an attribute nothing reads: the
+    fail-closed guard stays armed, the test still passes, and the downgrade
+    is silently vacuous.  These tests pin the live-read wiring.
+    """
+
+    def test_solve_module_holds_no_policy_snapshot(self) -> None:
+        from temper_placer.placer.cp_sat import _encoder_solve
+
+        assert "_UNRESOLVED_REF_POLICY" not in vars(_encoder_solve), (
+            "_encoder_solve has its own _UNRESOLVED_REF_POLICY binding, which "
+            "snapshots the value at import time. Read it as "
+            "_encoder_core._UNRESOLVED_REF_POLICY at call time instead, or "
+            "monkeypatching the policy becomes a silent no-op."
+        )
+
+    def test_solve_placement_reads_policy_through_the_core_module(self) -> None:
+        from temper_placer.placer.cp_sat._encoder_solve import solve_placement
+
+        names = solve_placement.__code__.co_names
+        assert "_encoder_core" in names and "_UNRESOLVED_REF_POLICY" in names, (
+            "solve_placement no longer reads "
+            "_encoder_core._UNRESOLVED_REF_POLICY as a module attribute; the "
+            "policy can no longer be overridden at runtime."
+        )
+
+    def test_core_is_the_sole_definition(self) -> None:
+        from temper_placer.placer.cp_sat import _encoder_core
+
+        assert isinstance(_encoder_core._UNRESOLVED_REF_POLICY, str)

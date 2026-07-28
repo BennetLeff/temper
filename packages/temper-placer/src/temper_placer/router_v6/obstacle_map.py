@@ -185,41 +185,35 @@ def _create_pad_polygon(pin: Pin, x: float, y: float, comp_angle: float) -> Poly
         pin: The Pin object.
         x, y: Absolute center coordinates.
         comp_angle: Component rotation in radians.
+
+    Delegates to the shared, shape-correct ``core.pad_geometry.pad_polygon``
+    (see that module's docstring for the exact circle/oval/rect/roundrect
+    Minkowski-sum model and its never-under-reports proof) instead of this
+    module's own prior ad hoc handling, which grouped "circle" and "oval"
+    together under a single ``max(width, height) / 2`` circle -- exact for
+    "circle" and (coincidentally, an oval's true furthest point IS along its
+    own long axis) also exact for "oval", but duplicated the same formula
+    this fix plan is removing from every other consumer (R4: one shared
+    implementation, not five copies that can silently drift apart).
+    ``pin.pad_rotation_deg`` (the pad's own intrinsic rotation, additive to
+    the component's -- zero on every real pad today, see
+    ``core.pad_geometry`` for why it is honoured rather than assumed away)
+    is added to ``comp_angle`` here.
     """
-    # Simple shape handling
-    if pin.shape in ["circle", "oval"]:
-        # Use circle approximation
-        radius = max(pin.width, pin.height) / 2.0
-        return Point(x, y).buffer(radius, quad_segs=8)
-    else:
-        # Rectangle / RoundedRect
-        # Create centered box
-        w = pin.width
-        h = pin.height
+    from temper_placer.core.pad_geometry import pad_polygon
 
-        # Vertices of unrotated rectangle centered at 0,0
-        coords = [(-w / 2, -h / 2), (w / 2, -h / 2), (w / 2, h / 2), (-w / 2, h / 2)]
-
-        # Rotate and translate
-        # Pad might have its own rotation? KiCad pads can.
-        # pin.rotation is likely relative to component.
-        # But Pin dataclass has 'rotation' field?
-        # Checking Pin definition in netlist.py:
-        # rotation: float = 0.0  # degrees
-
-        pin_rot_rad = math.radians(pin.rotation if hasattr(pin, "rotation") else 0.0)
-        total_angle = comp_angle + pin_rot_rad
-
-        cos_a = math.cos(total_angle)
-        sin_a = math.sin(total_angle)
-
-        transformed_coords = []
-        for cx, cy in coords:
-            rx = cx * cos_a - cy * sin_a + x
-            ry = cx * sin_a + cy * cos_a + y
-            transformed_coords.append((rx, ry))
-
-        return Polygon(transformed_coords)
+    pad_rot_rad = math.radians(getattr(pin, "pad_rotation_deg", 0.0) or 0.0)
+    total_angle = comp_angle + pad_rot_rad
+    roundrect_ratio = getattr(pin, "roundrect_ratio", None) or 0.25
+    return pad_polygon(
+        pin.width,
+        pin.height,
+        pin.shape,
+        cx=x,
+        cy=y,
+        rotation_rad=total_angle,
+        roundrect_ratio=roundrect_ratio,
+    )
 
 
 @register_validator("ObstacleMap")
