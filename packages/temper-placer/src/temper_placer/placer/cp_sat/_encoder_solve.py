@@ -11,8 +11,8 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 from temper_placer.pcl.constraints import BaseConstraint
+from temper_placer.placer.cp_sat import _encoder_core
 from temper_placer.placer.cp_sat._encoder_core import (
-    _UNRESOLVED_REF_POLICY,
     EncoderContext,
     encode_constraints,
     validate_constraint_refs,
@@ -250,7 +250,12 @@ def solve_placement(
         component_refs=set(model_wrapper.component_map.keys()),
         zone_names=set(resolved_zones.keys()),
         loop_names=set(ctx.loop_components.keys()),
-        on_unresolved=_UNRESOLVED_REF_POLICY,
+        # Read through the module rather than a `from ... import` binding.
+        # A module-level `from _encoder_core import _UNRESOLVED_REF_POLICY`
+        # snapshots the value at import time, so tests that downgrade the
+        # policy would set an attribute nothing ever reads -- green, and
+        # vacuous. One canonical location, read at call time.
+        on_unresolved=_encoder_core._UNRESOLVED_REF_POLICY,
     )
 
     encode_constraints(

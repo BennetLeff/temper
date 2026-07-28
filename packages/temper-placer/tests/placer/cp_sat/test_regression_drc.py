@@ -150,16 +150,20 @@ def _load_zones(config_path: Path) -> dict[str, tuple[float, float, float, float
 # per UnresolvedConstraintRefsError's own message -- rather than
 # resolving it with unverified guesswork. Patched directly on the
 # already-imported module (not via the TEMPER_UNRESOLVED_REF_POLICY env
-# var), since that constant is read once at encoder.py's import time --
+# var), since that constant is read once at _encoder_core's import time --
 # setting the env var from inside a test has no effect once the module
 # is already imported elsewhere in the same pytest session. See
 # docs/solutions/test-failures/regression-drc-tests-missing-zone-loop-wiring.md.
 
 
 def _downgrade_unresolved_ref_policy(monkeypatch: pytest.MonkeyPatch) -> None:
-    from temper_placer.placer.cp_sat import encoder
+    # Patch _encoder_core, the one module that defines the policy and the
+    # one _encoder_solve reads it from at call time. Patching the encoder
+    # facade instead would set an attribute nothing reads: the test would
+    # pass while the policy stayed "raise".
+    from temper_placer.placer.cp_sat import _encoder_core
 
-    monkeypatch.setattr(encoder, "_UNRESOLVED_REF_POLICY", "warn")
+    monkeypatch.setattr(_encoder_core, "_UNRESOLVED_REF_POLICY", "warn")
 
 
 @pytest.mark.slow
@@ -232,7 +236,14 @@ def test_golden_board_drc_regression(monkeypatch: pytest.MonkeyPatch):
         #    from placement-irreducible (intra-component).
         import re
 
-        PLACEMENT_IRREDUCIBLE_TYPES = {"lib_footprint_issues"}
+        # Violations no amount of re-placement can remove: they describe the
+        # footprint itself, not where it sits.  `lib_footprint_mismatch` (board
+        # footprint differs from the library's) is one character-class away
+        # from `lib_footprint_issues` and was missing here, so 32 library-drift
+        # violations were being counted as placement-fixable and charged
+        # against a placement budget the placer cannot influence.  They stay
+        # visible in `irreducible_counts` in the assertion message.
+        PLACEMENT_IRREDUCIBLE_TYPES = {"lib_footprint_issues", "lib_footprint_mismatch"}
 
         fixable_counts: dict[str, int] = {}
         irreducible_counts: dict[str, int] = {}
