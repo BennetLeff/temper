@@ -204,10 +204,12 @@ line net) appearing inside `"...-line"` signal names that the design
 itself names descriptively (e.g. `safety.ocp-line` is the OCP fault
 signal, not a mains conductor).
 
-**Meanwhile, real HV/mains-adjacent nets are *not* detected at all:**
+**Meanwhile, real HV/mains-adjacent nets are *not* detected at all:** all
+**13** other HV-domain nets in `elec/domain_manifest.yaml` --
 `+170V_BUS`, `DC_BUS_RTN`, `PWR_RTN`, `SW_NODE`, `GATE_HS`, `GATE_LS`,
-`w1_1`, `w1_2`, `+15V_LS`, `zcd`, `a` -- every HV-domain net in
-`elec/domain_manifest.yaml` except `ac_l`/`ac_n` -- is missed. (Contrast:
+`w1_1`, `w1_2`, `+15V_LS`, `zcd`, `a`, `discharge.k_dis1-nc`,
+`discharge.k_dis2-nc` -- every HV-domain net except `ac_l`/`ac_n` -- is
+missed. (Contrast:
 the sibling `clearance_check.py`'s outer HV gate is `["AC_", "HV_",
 "HIGH_VOLTAGE", "MAINS"]` -- stricter, and does not hit the `L1`/`L2`/
 `LINE` substring collisions, because it never runs its broader
@@ -235,8 +237,6 @@ not a threshold tune.
 ---
 
 ## 5. Per-violation origin classification
-
-<!-- FILLED IN BELOW ONCE RUNS COMPLETE -->
 
 ### Method
 
