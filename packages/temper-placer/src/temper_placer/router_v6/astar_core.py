@@ -55,6 +55,86 @@ def in_bounds(x: int, y: int, width_cells: int, height_cells: int) -> bool:
     return 0 <= x < width_cells and 0 <= y < height_cells
 
 
+# ---------------------------------------------------------------------------
+# Grid-quantization-aware path-point de-duplication.
+#
+# Root cause of docs/evidence/2026-07-27-acid-trap-elimination.md: pad,
+# via, and waypoint coordinates are exact floats from the netlist/footprint
+# layout; the routing grid is a fixed-pitch lattice.  ``grid_to_world``
+# returns a cell's CENTER, so converting the A* path's grid cells back to
+# world coordinates and then separately appending the exact terminal
+# (``start_world``/``goal_world``) at each waypoint boundary produced two
+# almost-but-not-quite-coincident points -- a near-zero-length "spur"
+# whose direction is essentially arbitrary relative to the grid-aligned
+# approach direction.  That spur's vertex reliably registers as an acute
+# angle (`acid_trap_detection.py`), on very nearly every routed net,
+# independent of any real routing decision.  These helpers collapse that
+# spur at the three call sites that build path geometry from a grid+exact
+# terminal pair (`_astar_route`, `_astar_route_multilayer`,
+# `_route_segment_3d`) instead of leaving it for a general corner-mitring
+# pass to paper over -- the double-vertex is never generated in the first
+# place.
+# ---------------------------------------------------------------------------
+
+
+def grid_quantization_tolerance(cell_size: float) -> float:
+    """Max distance between a world point and its grid cell's center.
+
+    ``OccupancyGrid.grid_to_world`` returns a cell's center; any point
+    inside that cell (e.g. an off-grid pad whose nearest cell is this
+    one) is at most half the cell's diagonal away from that center. Two
+    path points closer together than this cannot represent a real
+    direction change -- they are the same physical location to within
+    the grid's own quantization error, not a routing decision.
+    """
+    return cell_size * math.sqrt(2.0) / 2.0
+
+
+def _same_path_layer(a: tuple, b: tuple) -> bool:
+    """True if two path-point tuples share a layer.
+
+    Points are ``(x, y)`` (single-layer paths) or ``(x, y, layer)``
+    (multi-layer paths). 2-tuples are always same-layer by definition.
+    Never merge two 3-tuples on different layers -- that would erase a
+    real via transition, not a quantization artifact.
+    """
+    if len(a) > 2 and len(b) > 2:
+        return a[2] == b[2]
+    return True
+
+
+def append_grid_path_point(points: list[tuple], point: tuple, tolerance: float) -> None:
+    """Append a grid-derived ``point`` unless it duplicates ``points[-1]``
+    to within grid quantization noise.
+
+    Used while walking an A* grid path's cells. Keeps the existing last
+    point (typically an exact terminal appended just before this loop
+    started) rather than the new, merely-approximate grid-cell center.
+    """
+    if points and _same_path_layer(points[-1], point):
+        last = points[-1]
+        if math.hypot(point[0] - last[0], point[1] - last[1]) <= tolerance:
+            return
+    points.append(point)
+
+
+def append_exact_terminal_point(points: list[tuple], point: tuple, tolerance: float) -> None:
+    """Append an exact terminal ``point`` (pad/via/waypoint location),
+    replacing ``points[-1]`` instead of duplicating it when the two are
+    within grid quantization noise of each other.
+
+    Used when closing out a segment onto its exact goal coordinate: the
+    exact terminal is more authoritative than the grid-cell-center point
+    that preceded it, so it replaces rather than merely follows it.
+    """
+    if points and _same_path_layer(points[-1], point):
+        last = points[-1]
+        if math.hypot(point[0] - last[0], point[1] - last[1]) <= tolerance:
+            points[-1] = point
+            return
+    points.append(point)
+
+
 # 8-move direction encoding shared with neighbor_validity.DIRS_8.
 # Order: E, SE, S, SW, W, NW, N, NE.
 _DIRS_8: tuple[tuple[int, int], ...] = (
@@ -953,16 +1033,18 @@ def _route_segment_3d(
     # particular, do not discard the first or last bulk node: either can be
     # one half of a same-coordinate layer transition.  Removing it turns a
     # recorded via into an impossible cross-layer track at output time.
+    # (``append_grid_path_point``/``append_exact_terminal_point`` only ever
+    # merge same-layer points within grid quantization noise -- a real
+    # layer transition, same (x, y) but different layer, is never merged.)
+    tolerance = grid_quantization_tolerance(sample_grid.cell_size)
     world_path: list[tuple[float, float, str]] = []
     if bulk_path:
         world_path.append((start_world[0], start_world[1], start_layer))
         for point in bulk_path:
-            if point != world_path[-1]:
-                world_path.append(point)
+            append_grid_path_point(world_path, point, tolerance)
 
         goal_point = (goal_world[0], goal_world[1], goal_layer)
-        if goal_point != world_path[-1]:
-            world_path.append(goal_point)
+        append_exact_terminal_point(world_path, goal_point, tolerance)
 
     via_world_positions = []
     for gx, gy in via_grid_positions:
