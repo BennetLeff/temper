@@ -8,6 +8,11 @@ requires-python = ">=3.11"
 dev = [
     "pytest>=7.4.0",
     "pytest-cov>=4.1.0",
+    # Parallel test execution. Always pair `-n` with `--dist loadgroup`: the
+    # xdist_group tags applied in packages/temper-placer/tests/conftest.py keep
+    # pytest-dependency clusters on one worker, and any other --dist mode
+    # silently turns their dependents into skips.
+    "pytest-xdist>=3.6",
     "ruff>=0.1.6",
     "mypy>=1.7.0",
     "pytest-bdd>=8.1.0",

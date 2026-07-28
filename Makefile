@@ -83,12 +83,23 @@ drc:
 # coverage by default is not.
 #
 # `make test` remains the full run. Use `make test-fast` while iterating.
+#
+# `test` stays single-process on purpose: it is the authoritative reference run,
+# and a serial result is the baseline any parallel result gets checked against.
+# `test-fast` is the inner loop, so it opts in to xdist.
+#
+# `--dist loadgroup` is NOT optional when passing `-n`. tests/conftest.py tags
+# the pytest-dependency clusters with xdist_group; under any other --dist mode
+# their providers scatter across workers and the dependents SKIP rather than
+# fail -- a green run that executed less. Measured on the CI group-1 file list
+# (2026-07-28): serial 356s vs `-n 4 --dist loadgroup` 207s, with byte-identical
+# per-test outcomes (728 tests, zero pass->skip transitions).
 test:
 	uv run --no-sync python -m pytest
 
 test-fast:
-	@echo "Running tests (excluding 'slow' markers -- use 'make test' for everything)..."
-	uv run --no-sync python -m pytest -m "not slow"
+	@echo "Running tests (excluding 'slow' markers, parallel -- use 'make test' for the serial reference run)..."
+	uv run --no-sync python -m pytest -m "not slow" -n auto --dist loadgroup
 
 gerbers: build
 	@echo "Exporting Gerbers..."

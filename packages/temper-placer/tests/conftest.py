@@ -14,6 +14,63 @@ from temper_placer.core.state import PlacementState
 from temper_placer.deterministic.state import BoardState
 from temper_placer.io.footprint_library import load_footprint_library
 
+# ── pytest-dependency clusters that must not be split across xdist workers ────
+#
+# pytest-dependency resolves `depends=[...]` against tests that ran in the SAME
+# session. Under `pytest -n`, every worker is its own session -- so a dependent
+# whose provider was scheduled onto a different worker does not fail, it SKIPS.
+# The suite then reports green having executed strictly less, which is the
+# silently-skipped class in docs/METHODOLOGY.md §4 and the same shape as the
+# dead gates found on 2026-07-27.
+#
+# `--dist loadgroup` keeps same-named xdist_group tests on one worker, so the
+# hook below tags the two clusters that exist in tests/router_v6/:
+#
+#   induction -- "induction-base" is declared ONLY in test_induction_base.py and
+#                depended on by 8 sibling modules. Being cross-file, `--dist
+#                loadfile` is NOT sufficient for this one.
+#   sat       -- test_sat_solve_pbt.py's internal bmc-l0 / sat-l1..l4 chain.
+#                Same-file, but `loadgroup` distributes UNGROUPED tests
+#                per-test, which would break it -- so it needs a tag too.
+#
+# Verified 2026-07-28 on the invariant-router-v6-1 file list: serial and
+# `-n 4 --dist loadgroup` produced byte-identical per-test outcomes (728 tests;
+# 711 passed / 6 failed / 7 skipped / 4 xfailed) with zero pass->skip
+# transitions, at 356s vs 207s.
+#
+# Adding a new cross-file `depends=` edge without adding its modules here will
+# reintroduce the silent skip. Prefer keeping dependency edges within a module.
+_XDIST_GROUPS = {
+    "induction": {
+        "test_induction_base",
+        "test_acid_trap_induction",
+        "test_annular_ring_induction",
+        "test_clearance_induction",
+        "test_copper_balance_induction",
+        "test_creepage_induction",
+        "test_manufacturing_report_induction",
+        "test_teardrop_induction",
+        "test_thermal_relief_induction",
+    },
+    "sat": {"test_sat_solve_pbt"},
+}
+_MODULE_TO_GROUP = {
+    module: group for group, modules in _XDIST_GROUPS.items() for module in modules
+}
+
+
+def pytest_collection_modifyitems(items):
+    """Pin pytest-dependency clusters to a single xdist worker.
+
+    A no-op when running serially -- the marker is only consulted by
+    ``--dist loadgroup``.
+    """
+    for item in items:
+        module = item.nodeid.split("::")[0].rsplit("/", 1)[-1].removesuffix(".py")
+        group = _MODULE_TO_GROUP.get(module)
+        if group is not None:
+            item.add_marker(pytest.mark.xdist_group(group))
+
 
 def make_parsed_pcb_stub(source_path: Path, netlist) -> object:
     """Build the minimal ``route_pcb(parsed=...)`` stub, correctly.
