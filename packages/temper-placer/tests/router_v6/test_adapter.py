@@ -1236,6 +1236,14 @@ class TestHVACForcedSegmentFailClosed:
         assert "SW_NODE" not in result.routed_paths, (
             "HV-class net must not succeed via A*"
         )
+        # U1: _should_route's name-based exclusion is a routing-strategy
+        # decision, not a "declined net" in R3/R4's sense -- it must not
+        # produce a failure_reports entry (that would misrepresent a
+        # zone-pour-handled net as a prover decline).
+        assert "SW_NODE" not in (result.failure_reports or {}), (
+            "A net excluded by _should_route is not a decline and must not "
+            "appear in failure_reports"
+        )
 
     def test_ac_net_name_excluded_from_astar_by_should_route(self):
         """Canonical AC net names never reach A* at all (zone pours handle them)."""
@@ -1280,6 +1288,10 @@ class TestHVACForcedSegmentFailClosed:
 
         # AC net is excluded from A* routing by _should_route (handled by zone pours)
         assert "AC_L" not in result.routed_paths
+        assert "AC_L" not in (result.failure_reports or {}), (
+            "A net excluded by _should_route is not a decline and must not "
+            "appear in failure_reports"
+        )
 
     def test_hv_class_net_with_routable_name_fails_closed_via_gate(self):
         """An HV-class net whose *name* doesn't match the HV exclusion patterns
@@ -1334,6 +1346,27 @@ class TestHVACForcedSegmentFailClosed:
             "gate -- not _should_route()'s name exclusion -- caused this"
         )
 
+        # U1: reason attribution -- this is the forced-segment fail-closed
+        # gate specifically, not an unattributed gap.
+        from temper_placer.router_v6._astar_reconstruct import (
+            RULE_ID_FORCED_SEGMENT_FAIL_CLOSED,
+        )
+        from temper_placer.router_v6.net_classification import classify_net_type
+
+        report = result.failure_reports["ISO_FB_HIGH"]
+        assert report.rule_id == RULE_ID_FORCED_SEGMENT_FAIL_CLOSED, (
+            "Forced-segment refusal must name the specific fail-closed "
+            "mechanism, not a fabricated or generic reason"
+        )
+        assert report.attribution_gap is False, (
+            "A named rule_id and attribution_gap=True is a contradiction -- "
+            "this decline has a known cause"
+        )
+        assert report.domain == classify_net_type("ISO_FB_HIGH"), (
+            "domain must come from net_classification's canonical helper, "
+            "not a hardcoded or fabricated classification"
+        )
+
     def test_ac_class_net_with_routable_name_fails_closed_via_gate(self):
         """Same as above for an AC-class net with a non-excluded name."""
         import numpy as np
@@ -1383,6 +1416,19 @@ class TestHVACForcedSegmentFailClosed:
             "gate -- not _should_route()'s name exclusion -- caused this"
         )
 
+        from temper_placer.router_v6._astar_reconstruct import (
+            RULE_ID_FORCED_SEGMENT_FAIL_CLOSED,
+        )
+        from temper_placer.router_v6.net_classification import classify_net_type
+
+        report = result.failure_reports["ISO_FB_MAINS"]
+        assert report.rule_id == RULE_ID_FORCED_SEGMENT_FAIL_CLOSED, (
+            "Forced-segment refusal must name the specific fail-closed "
+            "mechanism, not a fabricated or generic reason"
+        )
+        assert report.attribution_gap is False
+        assert report.domain == classify_net_type("ISO_FB_MAINS")
+
     def test_signal_net_also_fails_closed(self):
         """R2: no net class is exempt -- plain signal nets fail closed too."""
         import numpy as np
@@ -1424,6 +1470,19 @@ class TestHVACForcedSegmentFailClosed:
         assert "SPI_MOSI" in result.failed_nets, (
             "Signal net must be honestly reported as failed"
         )
+
+        from temper_placer.router_v6._astar_reconstruct import (
+            RULE_ID_FORCED_SEGMENT_FAIL_CLOSED,
+        )
+        from temper_placer.router_v6.net_classification import classify_net_type
+
+        report = result.failure_reports["SPI_MOSI"]
+        assert report.rule_id == RULE_ID_FORCED_SEGMENT_FAIL_CLOSED, (
+            "Signal nets get the same specific fail-closed attribution as "
+            "any other class -- no net class is exempt"
+        )
+        assert report.attribution_gap is False
+        assert report.domain == classify_net_type("SPI_MOSI")
 
 
 class _RaisingDesignRules:
