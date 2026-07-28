@@ -12,6 +12,7 @@ applies_when:
   - "a code comment asserts 'substring match is safe for these' next to a keyword list"
   - "auditing a codebase for one instance of a defect class and deciding whether to also search for siblings"
   - "a module's docstring calls it 'the single source of truth' and a second, near-identical module exists elsewhere"
+  - "a substring-classification gate reports a file as clean, and the question that file's code answers (routability, layer classification, trace width) differs from the domain the gate's own keyword vocabulary was scoped to"
 tags:
   - net-classification
   - substring-matching
@@ -20,6 +21,7 @@ tags:
   - fail-silent-both-directions
   - ast-based-gate
   - systemic-fix
+  - vocabulary-scope-gap
 ---
 
 # A hand-maintained keyword list beside an SSOT will drift from it -- and substring matching fails silently in both directions
@@ -183,6 +185,34 @@ the same way the already-correct `AC`/`HV` regex checks in
    it via `.net-classification-allowlist`, exactly like
    `.undeclared-imports-allowlist`: every entry scoped to one function in
    one file, with a written justification a reviewer can check.
+7. **A gate scoped by vocabulary, not just by file, can still miss the exact
+   file it should have caught -- check whether "not found" means "not
+   present" or "not in the word list."** `check_net_classification.py`'s
+   `SAFETY_VOCAB` was deliberately restricted to HV/SELV mains-adjacent
+   keywords, by design, per its own docstring: "GND/VCC/VDD/POWER-style
+   low-voltage-domain checks are out of scope." On 2026-07-28, a **fourth**
+   instance of this exact defect shape was found in
+   `_parse_board.py:132-137` -- `"GND" in zone.netName or "VCC" in
+   zone.netName or "+" in zone.netName or "PWR" in zone.netName` -- sitting
+   in an already-scanned file (`packages/temper-placer/**/*.py`), matching
+   the detector's own AST shape exactly, and invisible anyway, because
+   `GND`/`VCC`/`PWR`/`"+"` were never in the vocabulary. This is a
+   **different question from the one the gate was built to answer** ("does
+   this net's copper make its layer non-routable," not "is this net HV or
+   SELV") sharing only the AST shape, not the domain -- so the original
+   scoping decision was reasoned, not careless, and still proved too
+   narrow. Widening `SAFETY_VOCAB` to include `GND`/`VCC`/`PWR`/`"+"`
+   surfaced **five more, already-partially-fixed-but-left-bare** live
+   instances in the same pass (`_constraint_types/config.py`,
+   `clearance_check.py`, `routing_demand.py`,
+   `trace_width_assignment.py`, plus one correctly allowlisted dict-key
+   match in `design_rules.py`) -- each in a file whose *other* keyword
+   branches (HV/gate-drive) had already been anchored in the 2026-07-27
+   sweep, left bare specifically for the vocabulary this gate didn't yet
+   cover. Full detail, including the bug's routing consequence (excluding
+   both outer copper layers from the router's grid) and the before/after
+   gate output proving the widened vocabulary would have caught it:
+   `docs/evidence/2026-07-28-zone-layer-classification-fix.md`.
 
 ## Why This Matters
 
@@ -244,6 +274,12 @@ def _classify_net_class(net_name: str) -> str:
 
 ## Related
 
+- `docs/evidence/2026-07-28-zone-layer-classification-fix.md` -- the
+  2026-07-28 fourth instance: `_parse_board.py`'s bare `"GND"`/`"VCC"`/
+  `"+"`/`"PWR"` substring test excluded whole copper layers from the
+  router's grid, missed by `check_net_classification.py`'s vocabulary
+  scope rather than its file scope, and the five sibling instances the
+  widened vocabulary then found in the same pass.
 - `docs/solutions/best-practices/net-name-is-a-claim-not-an-authority-2026-07-26.md`
   -- the sibling lesson: even the SSOT's own recorded net name can be
   wrong relative to the node's actual topology; this doc's lesson is
