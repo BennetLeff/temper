@@ -19,6 +19,15 @@ name: Python Tests
 # which is the thing that was missing. If the queue becomes the new bottleneck,
 # the lever is push frequency or the `paths:` filters above -- not going back to
 # cancelling runs before they can report.
+#
+# This supersedes #362, which fixed the same class of bug from the trunk side
+# (`cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}` -- exempt main,
+# keep cancelling everywhere else). That is strictly the better half of the
+# problem to fix first and its evidence stands, but it leaves pull_request runs
+# cancelling each other, and every cancellation that destroyed a measurement on
+# 2026-07-28 was a pull_request event. Grouping on the head SHA covers both
+# cases: main pushes and PR pushes each get their own group, so neither can
+# cancel the other. #362's Core Tests timeout raise (30 -> 45) is kept as-is.
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.head.sha || github.sha }}
   cancel-in-progress: false
@@ -202,7 +211,13 @@ jobs:
     # completed every step through "Coverage gate (temper-placer)" and was
     # cancelled inside "Run extended test suites in parallel" -- real progress,
     # not a hang.
-    timeout-minutes: 30
+    # Raised 30 -> 45. Run 30314210438 on main was killed at exactly
+    # 30m04s (23:27:49Z -> 23:57:53Z) with no failing step -- the timeout, not a
+    # defect. The job grew twice in one day: the extended suite it had been
+    # skipping via a phantom path is ~14 min on its own, and the newly wired
+    # safety/EMC/review requirement tests added 137 more. 45 leaves real
+    # headroom rather than another 4-second miss.
+    timeout-minutes: 45
     env:
       VIRTUAL_ENV: ${{ github.workspace }}/.venv
       # CI is the environment where the Rust DRC/clearance accelerator and
