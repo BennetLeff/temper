@@ -66,6 +66,17 @@ def _extract_components_from_pcb(
             if is_through_hole and pad_shape == "circle":
                 pad_shape = "thru_hole"
 
+            # Exact per-pad roundrect corner ratio, when the shape carries
+            # one (kiutils exposes it as `roundrectRatio`); KiCad's own
+            # 0.25 default otherwise. Pad-level rotation (`(at x y angle)`)
+            # on top of the footprint's own rotation -- 0.0 on every pad on
+            # the current production board, but read rather than assumed
+            # away (see core.pad_geometry / Pin.pad_rotation_deg).
+            pad_roundrect_ratio = getattr(pad, "roundrectRatio", None)
+            if pad_roundrect_ratio is None:
+                pad_roundrect_ratio = 0.25
+            pad_rotation_deg = getattr(pad.position, "angle", None) or 0.0
+
             raw_pins.append(
                 {
                     "name": pad.number or "",
@@ -82,6 +93,8 @@ def _extract_components_from_pcb(
                     "layer": layer,
                     "drill": pad_drill,
                     "is_pth": is_through_hole,
+                    "roundrect_ratio": pad_roundrect_ratio,
+                    "pad_rotation_deg": pad_rotation_deg,
                 }
             )
 
@@ -110,6 +123,8 @@ def _extract_components_from_pcb(
                     layer=p.get("layer", "F.Cu"),
                     drill=p.get("drill", 0.0),
                     is_pth=p.get("is_pth", False),
+                    roundrect_ratio=p.get("roundrect_ratio", 0.25),
+                    pad_rotation_deg=p.get("pad_rotation_deg", 0.0),
                 )
             )
 

@@ -151,6 +151,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from _lib.github_summary import get_github_summary_path  # noqa: E402
 from _lib.repo import find_repo_root  # noqa: E402
 
+from temper_placer.core.pad_geometry import pad_bounding_radius  # noqa: E402
+
 REPO_ROOT = find_repo_root()
 DEFAULT_BOARD = REPO_ROOT / "pcb" / "temper.kicad_pcb"
 DEFAULT_MANIFEST = REPO_ROOT / "elec" / "domain_manifest.yaml"
@@ -249,7 +251,17 @@ class PadInstance:
     number: str
     x: float
     y: float
-    radius: float  # conservative bounding-circle radius (max(size.X, size.Y)/2)
+    radius: float  # exact, tight, rotation-invariant circumscribing radius --
+    # see temper_placer.core.pad_geometry.pad_bounding_radius. NOT
+    # max(size.X, size.Y)/2 (the prior formula): that under-reports the
+    # true corner extent of a square/near-square rect/roundrect pad (a
+    # circle never contains a rectangle) -- measured worst case on this
+    # board: C2/C3/C4/C5 pad 1 (4x4mm roundrect), true bounding radius
+    # 2.725mm vs the old model's 2.000mm, a 0.725mm under-report; see
+    # docs/evidence/2026-07-28-pad-geometry-model-fix.md for the full
+    # per-pad survey (including a citation in the originating plan that
+    # did not hold up: R30 pad 1 is a genuine circle, not a rect/roundrect,
+    # so the old formula was already exact for it).
     layers: frozenset[str]  # copper layers only, wildcard-expanded
     net_name: str
 
@@ -378,14 +390,26 @@ def load_board(board_path: Path) -> BoardData:
             dx, dy = _rotate(lx, ly, fangle)
             ax, ay = fx + dx, fy + dy
             layers = _expand_copper_layers(pad.layers or [], copper_layers_ordered)
-            # Conservative bounding-circle radius: a safety intrusion check
-            # must never UNDER-approximate a pad's physical extent, so use
-            # the larger of the pad's two size dimensions regardless of
-            # rotation (matches the "over-approximate, never under" rule
-            # already applied to segments/vias below).
+            # Exact, shape-aware bounding-circle radius: a safety intrusion
+            # check must never UNDER-approximate a pad's physical extent
+            # (matches the "over-approximate, never under" rule already
+            # applied to segments/vias below). This used to be
+            # max(size.X, size.Y) / 2 for every pad shape, which describes
+            # no KiCad pad shape except "circle" -- it under-reports a
+            # square/near-square rect/roundrect pad's true corner extent (a
+            # circle never contains a rectangle; see PadInstance.radius's
+            # own docstring for the measured worst case on this board).
+            # `pad_bounding_radius` is the pad's EXACT, tight,
+            # rotation-invariant circumscribing radius -- see
+            # temper_placer.core.pad_geometry's module docstring for the
+            # closed-form derivation and never-under-reports proof.
             size_x = getattr(pad.size, "X", 0.0) or 0.0
             size_y = getattr(pad.size, "Y", 0.0) or 0.0
-            radius = max(size_x, size_y) / 2.0
+            pad_shape = getattr(pad, "shape", None) or "rect"
+            pad_roundrect_ratio = getattr(pad, "roundrectRatio", None)
+            if pad_roundrect_ratio is None:
+                pad_roundrect_ratio = 0.25
+            radius = pad_bounding_radius(size_x, size_y, pad_shape, pad_roundrect_ratio)
             pads.append(
                 PadInstance(
                     ref=ref, number=pad.number, x=ax, y=ay, radius=radius,

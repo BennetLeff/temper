@@ -51,13 +51,18 @@ the real, physical edge-to-edge distance between that isolator's HV pad
 cluster and its SELV pad cluster is at least the corridor width, on some
 axis, for some rotation.
 
-**This is a rotation- and position-independent, per-component fact**,
-computed once from the real board's pad geometry (``Component.pins`` from
-``io.kicad_parser.parse_kicad_pcb``) using the *same* conservative
-bounding-circle pad model ``check_isolation_keepout.py`` itself uses
-(``radius = max(size.X, size.Y) / 2``) -- so "feasible here" and "gate
-passes there" cannot disagree about the geometry, only about where the
-solver decides to put things. See ``evaluate_isolator_feasibility``.
+**This is a position-independent, per-component fact** (position-
+independent, not rotation-independent -- rotation changes which physical
+pad dimension faces the barrier axis, which is exactly what
+``_best_rotation_for_barrier`` searches over), computed once from the real
+board's pad geometry (``Component.pins`` from
+``io.kicad_parser.parse_kicad_pcb``) using the *same* shape-correct,
+rotation-aware pad model ``check_isolation_keepout.py`` itself uses
+(``temper_placer.core.pad_geometry`` -- exact circle/oval/rect/roundrect
+Minkowski-sum geometry, not a single isotropic
+``radius = max(size.X, size.Y) / 2`` circle) -- so "feasible here" and
+"gate passes there" cannot disagree about the geometry, only about where
+the solver decides to put things. See ``evaluate_isolator_feasibility``.
 
 **Isolator rotation is CHOSEN, then fixed, not left as a free CP-SAT
 variable** (``_best_rotation_for_barrier`` picks it; ``add_isolation_barrier_to_model``
@@ -103,6 +108,7 @@ real board's outcome).
 from __future__ import annotations
 
 import logging
+import math
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -225,7 +231,36 @@ def classify_domain_partition(
 # Isolator pad-group geometry and feasibility
 # ---------------------------------------------------------------------------
 
-Pad = tuple[float, float, float]  # (local_x_mm, local_y_mm, radius_mm)
+@dataclass(frozen=True)
+class Pad:
+    """A pad's position (in the component's local, pre-rotation frame, mm)
+    and its exact declared shape.
+
+    This used to be a plain ``(local_x_mm, local_y_mm, radius_mm)`` tuple,
+    with ``radius_mm = max(width, height) / 2`` -- a single isotropic
+    number that cannot be correct for both the X-axis gap and the Y-axis
+    gap of an elongated pad (see ``core.pad_geometry`` module docstring for
+    the full derivation), nor for a pad's true extent under a 90-degree
+    rotation swap. Carrying the real shape instead, and deferring the
+    radius computation to ``axis_radius()`` for the specific axis and
+    rotation being evaluated, is what makes both correct: see
+    ``pad_geometry.pad_axis_radius``.
+    """
+
+    x: float
+    y: float
+    width: float
+    height: float
+    shape: str = "circle"
+    roundrect_ratio: float = 0.25
+
+    def axis_radius(self, axis: int, rotation_rad: float = 0.0) -> float:
+        """Exact half-extent along a *world* axis (0=X, 1=Y), given the pad
+        has been rotated by ``rotation_rad`` (in addition to whatever local
+        orientation ``width``/``height``/``shape`` already encode)."""
+        from temper_placer.core.pad_geometry import pad_axis_radius
+
+        return pad_axis_radius(self.width, self.height, self.shape, axis, rotation_rad, self.roundrect_ratio)
 
 
 @dataclass
@@ -249,31 +284,42 @@ def compute_pad_groups(
     the recentring point does not matter here, only pairwise pad-to-pad
     distances do, which recentring does not change).
 
-    Radius uses the SAME conservative "bounding circle from the larger pad
-    dimension" model ``scripts/check_isolation_keepout.py`` uses
-    (``radius = max(size.X, size.Y) / 2``) so a pad this module judges
-    "clears the corridor" and the gate's own pad-intrusion check can never
-    disagree about the geometry.
+    Each pad's real declared shape (``Pin.shape``/``width``/``height``/
+    ``roundrect_ratio``) is carried through uninterpreted -- the exact,
+    shape-aware, rotation-aware radius is computed on demand by
+    ``Pad.axis_radius()`` for whichever axis/rotation a caller (``_axis_gap``,
+    ``_best_rotation_for_barrier``) actually needs, using the SAME shared
+    model (``core.pad_geometry``) ``scripts/check_isolation_keepout.py``
+    uses, so a pad this module judges "clears the corridor" and the gate's
+    own pad-intrusion check can never disagree about the geometry.
     """
     hv_pads: list[Pad] = []
     selv_pads: list[Pad] = []
     other_pads: list[Pad] = []
     for pin in comp.pins:
         x, y = pin.position
-        radius = max(pin.width, pin.height) / 2.0
-        rec = (x, y, radius)
+        pad = Pad(
+            x=x,
+            y=y,
+            width=pin.width,
+            height=pin.height,
+            shape=pin.shape or "rect",
+            roundrect_ratio=getattr(pin, "roundrect_ratio", None) or 0.25,
+        )
         if pin.net in hv_nets:
-            hv_pads.append(rec)
+            hv_pads.append(pad)
         elif pin.net in selv_nets:
-            selv_pads.append(rec)
+            selv_pads.append(pad)
         else:
-            other_pads.append(rec)
+            other_pads.append(pad)
     return IsolatorPadGroups(ref=comp.ref, hv_pads=hv_pads, selv_pads=selv_pads, other_pads=other_pads)
 
 
 def _axis_gap(hv_pads: list[Pad], selv_pads: list[Pad], axis_idx: int) -> float:
     """Worst-case (minimum, over every HV-pad x SELV-pad pair) edge-to-edge
-    separation projected onto one axis (0=X, 1=Y).
+    separation projected onto one *local*-frame axis (0=X, 1=Y; rotation=0,
+    matching this function's pre-existing "informational, unrotated"
+    contract -- ``_best_rotation_for_barrier`` is what searches rotations).
 
     This is the binding quantity: for the whole HV pad cluster to land on
     one side of a barrier and the whole SELV pad cluster to land on the
@@ -282,11 +328,11 @@ def _axis_gap(hv_pads: list[Pad], selv_pads: list[Pad], axis_idx: int) -> float:
     ``domain_clearance.py``'s own per-pair Chebyshev margin.
     """
     worst = float("inf")
-    for hx, hy, hr in hv_pads:
-        for sx, sy, sr in selv_pads:
-            h = (hx, hy)[axis_idx]
-            s = (sx, sy)[axis_idx]
-            gap = abs(h - s) - hr - sr
+    for hp in hv_pads:
+        for sp in selv_pads:
+            h = (hp.x, hp.y)[axis_idx]
+            s = (sp.x, sp.y)[axis_idx]
+            gap = abs(h - s) - hp.axis_radius(axis_idx) - sp.axis_radius(axis_idx)
             worst = min(worst, gap)
     return worst
 
@@ -348,11 +394,14 @@ def _best_rotation_for_barrier(
     best: tuple[int, float] | None = None
     fallback: tuple[int, float] | None = None
     for rot_value in (0, 1, 2, 3):
+        rot_rad = rot_value * math.pi / 2.0
         hv_proj = [
-            (_project_onto_barrier_axis(x, y, rot_value, barrier_axis), r) for x, y, r in hv_pads
+            (_project_onto_barrier_axis(p.x, p.y, rot_value, barrier_axis), p.axis_radius(barrier_axis, rot_rad))
+            for p in hv_pads
         ]
         selv_proj = [
-            (_project_onto_barrier_axis(x, y, rot_value, barrier_axis), r) for x, y, r in selv_pads
+            (_project_onto_barrier_axis(p.x, p.y, rot_value, barrier_axis), p.axis_radius(barrier_axis, rot_rad))
+            for p in selv_pads
         ]
         hv_mean = sum(p for p, _ in hv_proj) / len(hv_proj)
         selv_mean = sum(p for p, _ in selv_proj) / len(selv_proj)
@@ -548,11 +597,14 @@ def add_isolation_barrier_to_model(
         # (see _best_rotation_for_barrier -- it already restricted its
         # search to rotations preserving this, so hv_far_edge_mm here is
         # genuinely the "towards the corridor" edge of the HV cluster).
+        rot_rad = rot_value * math.pi / 2.0
         hv_far_edge_mm = max(
-            _project_onto_barrier_axis(x, y, rot_value, axis) + r for x, y, r in pad_groups.hv_pads
+            _project_onto_barrier_axis(p.x, p.y, rot_value, axis) + p.axis_radius(axis, rot_rad)
+            for p in pad_groups.hv_pads
         )
         selv_near_edge_mm = min(
-            _project_onto_barrier_axis(x, y, rot_value, axis) - r for x, y, r in pad_groups.selv_pads
+            _project_onto_barrier_axis(p.x, p.y, rot_value, axis) - p.axis_radius(axis, rot_rad)
+            for p in pad_groups.selv_pads
         )
 
         label = f"isolator_straddle_{ref}"

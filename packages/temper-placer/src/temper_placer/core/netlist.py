@@ -30,6 +30,18 @@ class Pin:
         height: Pad height in mm (for DSN export).
         shape: Pad shape (rect, circle, oval, roundrect, thru_hole).
         layer: Layer or "all" for through-hole pads.
+        roundrect_ratio: KiCad's own ``roundrect_rratio`` for this pad
+            (corner radius = ratio * min(width, height)). Only meaningful
+            when ``shape == "roundrect"``; ignored otherwise. Defaults to
+            KiCad's own default of 0.25 when the real per-pad value isn't
+            known -- see ``core.pad_geometry`` module docstring for why
+            that default is always a safe (never-under-reporting) choice
+            for axis-aligned queries, and a reasonable choice otherwise.
+        pad_rotation_deg: The pad's own intrinsic rotation in degrees, on
+            top of (added to) its component's rotation -- KiCad allows a
+            pad to carry an independent ``(at x y angle)``. Zero on every
+            pad on the current production board; not assumed away for
+            pad-shape extent computations (see ``core.pad_geometry``).
     """
 
     name: str
@@ -42,6 +54,8 @@ class Pin:
     layer: str = "F.Cu"
     drill: float = 0.0  # Drill diameter (0 = SMD)
     is_pth: bool = False  # Convenience flag for Plated Through-Hole
+    roundrect_ratio: float = 0.25  # KiCad's own default roundrect_rratio
+    pad_rotation_deg: float = 0.0  # Pad's own rotation, additive to component's
 
     @property
     def mask_expansion(self) -> float:
