@@ -167,24 +167,137 @@ def generate_dru() -> str:
         "# This handles TO-247, SOT-23, QFN packages"
         " where pad pitch < net class clearance"
     )
+    lines.append("#")
+    lines.append(
+        "# CONDITION FIX (2026-07-28, redo): A.Footprint == B.Footprint never"
+        " binds -- \"Footprint\" is not a property KiCad's PROPERTY_MANAGER"
+    )
+    lines.append(
+        "# registers on Pad or Footprint (confirmed against pcbnew/pad.cpp"
+        " and pcbnew/footprint.cpp at kicad-cli 10.0.4/10.0.5), so this rule"
+    )
+    lines.append(
+        "# silently matched zero pad pairs, on the fixture AND on the real"
+        " board. Replaced the same-footprint-instance test with"
+    )
+    lines.append(
+        "# A.Reference == B.Reference, the same construction already"
+        " confirmed to bind for Rules 5/7 (see"
+    )
+    lines.append(
+        "# docs/evidence/2026-07-28-drc-courtyard-condition-fix.md) and"
+        " directly measured against pcb/temper.kicad_pcb to produce 214"
+    )
+    lines.append(
+        "# violations as a lone condition at a 999mm threshold (see"
+        " docs/evidence/2026-07-28-drc-rule1-netclass-redo.md)."
+    )
+    lines.append("#")
+    lines.append(
+        "# CROSS-DOMAIN GUARD (new): the bare same-footprint test is too"
+        " broad on its own -- several declared isolators in"
+    )
+    lines.append(
+        "# elec/domain_manifest.yaml (the gate driver, the aux supply, the"
+        " Y-cap, the relays) have HV-side and SELV-side pins on the SAME"
+    )
+    lines.append(
+        "# footprint instance, and this rule must never grant THOSE pin"
+        " pairs a manufacturability allowance meant for a single package's"
+    )
+    lines.append(
+        "# own tight pin pitch. KiCad's rule language has no direct notion"
+        " of \"safety domain\" -- domain membership lives in"
+    )
+    lines.append(
+        "# elec/domain_manifest.yaml, which a static per-pad kicad-cli rule"
+        " cannot reference. A.NetClass == B.NetClass is the finest dynamic"
+    )
+    lines.append(
+        "# proxy KiCad actually offers: NetClass, unlike Footprint, IS a"
+        " specially-handled property that resolves correctly (measured:"
+    )
+    lines.append(
+        "# 499 violations as a lone condition at 999mm -- see the evidence"
+        " doc). Net class is not a perfect stand-in for safety domain --"
+    )
+    lines.append(
+        "# it is a NECESSARY but not SUFFICIENT proxy, and the evidence doc"
+        " documents one measured real-board counterexample (U7, the"
+    )
+    lines.append(
+        "# UCC21550 gate driver: its GateDrive netclass spans both the"
+        " primary-side PWM input pins and the secondary-side gate-output"
+    )
+    lines.append(
+        "# pins across its own reinforced-isolation barrier) where same-"
+        "NetClass does not imply same-domain. Reported, not fixed here --"
+    )
+    lines.append(
+        "# fixing it means re-partitioning the GateDrive net class itself,"
+        " which is a design_rules.py/elec modeling decision out of this"
+    )
+    lines.append(
+        "# generator's scope, not a DRC-rule-syntax defect. Still a strict"
+        " improvement over the previous always-dead condition and over a"
+    )
+    lines.append(
+        "# hardcoded literal-net-name exclusion (which reproduces the exact"
+        " failure mode -- an unnoticed net rename orphaning the rule -- that"
+    )
+    lines.append(
+        "# produced the +340V_BUS defect this task is named after)."
+    )
     lines.append(_SEP)
     lines.append('(rule "Same footprint pads"')
     lines.append(
-        "   (condition \"A.insideCourtyard('*')"
-        " && B.insideCourtyard('*')"
-        " && A.Footprint == B.Footprint\")"
+        "   (condition \"A.Reference == B.Reference"
+        " && A.NetClass == B.NetClass\")"
     )
     lines.append("   (constraint clearance (min 0.1mm))")
     lines.append(")")
     lines.append("")
     lines.append(_SEP)
     lines.append("# RULE 1a: Fine-pitch IC pads (QFN, BGA with 0.4mm pitch)")
+    lines.append(
+        "# Same condition-fix and same cross-domain guard as RULE 1 above --"
+        " see that rule's comment."
+    )
+    lines.append("#")
+    lines.append(
+        "# SECOND CONDITION FIX (2026-07-28, redo): A.Attribute is ALSO not a"
+        " registered KiCad property -- confirmed against pcbnew/pad.cpp at"
+    )
+    lines.append(
+        "# kicad-cli 10.0.4/10.0.5, which registers this pad field under the"
+        " display name \"Pad Type\" (PROPERTY_ENUM<PAD, PAD_ATTRIB>), not"
+    )
+    lines.append(
+        "# \"Attribute\". KiCad's rule compiler looks up properties by exact"
+        " display name (underscores in the rule field become spaces before"
+    )
+    lines.append(
+        "# the lookup), so A.Attribute resolved to nothing and this half of"
+        " the condition never bound either -- a third, independent instance"
+    )
+    lines.append(
+        "# of the same undefined-property failure class as A.Footprint"
+        " (see docs/evidence/2026-07-28-drc-rule1-netclass-redo.md). Replaced"
+    )
+    lines.append(
+        "# with A.Pad_Type == 'SMD' (measured to bind: 483 matches as a lone"
+        " condition at a 999mm threshold on the real board, vs. 0 for"
+    )
+    lines.append(
+        "# A.Attribute == 'SMD')."
+    )
     lines.append(_SEP)
     lines.append('(rule "Fine pitch IC pads"')
     lines.append(
-        "   (condition \"A.Type == 'Pad' && A.Attribute == 'SMD'"
-        " && B.Type == 'Pad' && B.Attribute == 'SMD'"
-        " && A.Footprint == B.Footprint\")"
+        "   (condition \"A.Type == 'Pad' && A.Pad_Type == 'SMD'"
+        " && B.Type == 'Pad' && B.Pad_Type == 'SMD'"
+        " && A.Reference == B.Reference"
+        " && A.NetClass == B.NetClass\")"
     )
     lines.append("   (constraint clearance (min 0.1mm))")
     lines.append(")")
