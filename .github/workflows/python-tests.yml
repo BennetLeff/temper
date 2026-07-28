@@ -525,7 +525,13 @@ jobs:
       - name: Derived-document drift gate tests
         run: uv run pytest scripts/tests/test_check_derived_doc_drift.py -v --tb=short
 
-      - name: Derived-document drift gate (docs/STRATEGY.md vs FUNCTIONAL_TEST_CRITERIA.md)
+      # Covers all four arms in one invocation: STRATEGY.md and
+      # PROTECTION_CHAIN_REVIEW.md against FUNCTIONAL_TEST_CRITERIA.md, and
+      # STRATEGY.md's board facts against pcb/temper.kicad_pcb. Both
+      # `docs/STRATEGY.md` and `pcb/temper.kicad_pcb` are already in this
+      # workflow's push and pull_request `paths:` filters, so a change to
+      # either triggers this job.
+      - name: Derived-document drift gate (STRATEGY.md vs FUNCTIONAL_TEST_CRITERIA.md and temper.kicad_pcb)
         run: uv run python scripts/check_derived_doc_drift.py
 
       # Plan 2026-07-25-001 R2. `tests/requirements/` holds the encoded
