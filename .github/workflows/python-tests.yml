@@ -555,55 +555,14 @@ jobs:
           name: closure-result
           path: closure-result.json
 
-  regression:
-    name: Performance & Quality Regression
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    timeout-minutes: 20
-    
-    steps:
-      - uses: actions/checkout@v7
-
-      # Container runs as root; workspace is owned by the runner user. Without
-      # this, every `git` call in a later `run:` step exits 128 on "dubious
-      # ownership" rather than doing its job.
-      - name: Mark workspace safe for git
-        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v4
-        with:
-          version: "latest"
-          enable-cache: true
-      
-      - name: Set up Python
-        run: uv python install 3.12
-
-      - name: Cache virtualenv
-        uses: actions/cache@v4
-        id: cache-venv
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
-
-      - name: Create virtualenv (cache miss)
-        if: steps.cache-venv.outputs.cache-hit != 'true'
-        run: uv venv
-
-      - name: Install dependencies
-        run: uv sync --all-packages
-
-      - name: Run regression check (temper board only)
-        run: make regression REGRESSION_BOARD=temper
-        continue-on-error: true  # JAX placer is nondeterministic on CI runners; temper-N6-U8 -- hard-fail after 2026-09-01
-        env:
-          GITHUB_STEP_SUMMARY: ${{ github.step_summary }}
-       
-      - name: Run performance regression check
-        run: make perf-regression
-        continue-on-error: true  # CI runner variance vs local baseline calibration; temper-N6-U8 -- hard-fail after 2026-09-01
-        env:
-          GITHUB_STEP_SUMMARY: ${{ github.step_summary }}
+# RETIRED 2026-07-27: the `regression` job ("Performance & Quality Regression")
+# had exactly two gates, `make regression` and `make perf-regression`, and both
+# drove the JAX/benders_loop placement path that no longer exists. run-corpus
+# reaches corpus_runner.py:416-419, which raises NotImplementedError("JAX
+# optimizer removed."); check_perf_regression.py imported `jax` and
+# `temper_placer.losses.*`, both deleted from the tree. With both gates retired
+# the job was setup steps and nothing else, so the job goes too. Restoring this
+# coverage requires a placement strategy that still exists.
 
   loc-cap:
     name: LOC Cap Gate

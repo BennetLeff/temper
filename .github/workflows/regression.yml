@@ -80,9 +80,12 @@ jobs:
       - name: Build electronics netlist
         run: make netlist
 
-      - name: Regression Suite
-        run: uv run python -m temper_placer.regression.cli run-corpus --json
-        continue-on-error: true  # JAX nondeterministic on CI runners; temper-N6-U8 -- hard-fail after 2026-09-01
+      # RETIRED 2026-07-27: this step invoked the JAX/benders_loop placement
+      # path, which was removed from the codebase. corpus_runner.py:416-419
+      # now raises NotImplementedError("JAX optimizer removed."), so every
+      # board failed at setup. It was masked as "JAX nondeterministic on CI
+      # runners" -- a description of flakiness, not of a deleted capability.
+      # Retired rather than left masked; see docs/evidence/ for the audit.
 
       - name: KiCad DRC truth gate
         run: uv run python scripts/ci_check_drc.py --backend kicad-cli

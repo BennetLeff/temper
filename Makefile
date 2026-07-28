@@ -7,7 +7,7 @@ BUILD_DIR = $(ELEC_DIR)/build
 BOM_FILE = $(ELEC_DIR)/build/default.csv
 BOM_PREV = $(ELEC_DIR)/build/default.csv.prev
 
-.PHONY: all build netlist clean drc route gerbers help diff visualize regression perf-regression onboard clean-onboard onboard-status
+.PHONY: all build netlist clean drc route gerbers help diff visualize onboard clean-onboard onboard-status
 
 # Show help for workflow commands
 help:
@@ -77,19 +77,17 @@ clean:
 	@echo "Cleaning build artifacts..."
 	rm -rf $(BUILD_DIR)
 
-REGRESSION_BOARD ?=
-
-regression:
-	@echo "Running optimization quality regression suite (corpus runner)..."
-	@if [ -n "$(REGRESSION_BOARD)" ]; then \
-		uv run python -m temper_placer.regression.cli run-corpus --board $(REGRESSION_BOARD) --json; \
-	else \
-		uv run python -m temper_placer.regression.cli run-corpus --json; \
-	fi
-
-perf-regression:
-	@echo "Running optimization performance regression suite..."
-	uv run python3 scripts/check_perf_regression.py
+# RETIRED 2026-07-27: `regression` and `perf-regression` both drove the
+# JAX/benders_loop placement path, which no longer exists.
+#   - run-corpus reaches corpus_runner.py:416-419, which raises
+#     NotImplementedError("JAX optimizer removed."), so every board failed at
+#     setup regardless of input.
+#   - check_perf_regression.py imported `jax` and `temper_placer.losses.*`;
+#     both are gone from the tree, so it died on ModuleNotFoundError before
+#     doing any work. The script is deleted.
+# Both were masked in CI as runner flakiness rather than a removed capability.
+# Restoring quality/perf regression coverage needs a placement strategy that
+# still exists; these targets could not provide it.
 
 # Onboarding
 

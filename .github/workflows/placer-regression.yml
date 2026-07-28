@@ -79,102 +79,19 @@ jobs:
             echo "Baseline-Approval found in commit message."
           fi
 
-      - name: Run corpus regression (${{ matrix.board }})
-        continue-on-error: true  # JAX nondeterministic on CI runners; temper-N6-U8 -- hard-fail after 2026-09-01
-        run: uv run python -m temper_placer.regression.cli run-corpus --board ${{ matrix.board }} --json --skip-unchanged
+      # RETIRED 2026-07-27: this step invoked the JAX/benders_loop placement
+      # path, which was removed from the codebase. corpus_runner.py:416-419
+      # now raises NotImplementedError("JAX optimizer removed."), so every
+      # board failed at setup. It was masked as "JAX nondeterministic on CI
+      # runners" -- a description of flakiness, not of a deleted capability.
+      # Retired rather than left masked; see docs/evidence/ for the audit.
 
-      - name: Generate summary table
-        if: always()
-        run: |
-          {
-            echo "## Placer Regression Results (${{ matrix.board }})"
-            echo ""
-            if [ -f regression-report.json ]; then
-              echo "| Board ID | Status | Skipped | Elapsed (s) |"
-              echo "| --- | --- | --- | --- |"
-              uv run python -c "
-          import json
-          with open('regression-report.json') as f:
-              report = json.load(f)
-          for b in report['boards']:
-              status = 'SKIP' if b['skipped'] else ('PASS' if b['passed'] else 'FAIL')
-              print(f\"| {b['board_id']} | {status} | {b['skipped']} | {b['elapsed_seconds']:.1f} |\")
-          failed = [b for b in report['boards'] if not b['passed'] and not b['skipped']]
-          if failed:
-              print()
-              print('> [!CAUTION]')
-              print(f'> Regression detected')
-          elif any(b['skipped'] for b in report['boards']):
-              print()
-              print('> [!NOTE]')
-              print('> Board skipped (no baseline, unchanged inputs, or missing files)')
-          else:
-              print()
-              print('> [!IMPORTANT]')
-              print('> Regression check passed.')
-              "
-            else
-              echo "No regression report generated."
-            fi
-          } >> "$GITHUB_STEP_SUMMARY"
+      # RETIRED 2026-07-27: the summary table and report upload both consumed
+      # regression-report.json, which was produced only by the corpus
+      # regression step retired above. Nothing writes that file now.
 
-      - name: Upload report
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: regression-report-${{ matrix.board }}
-          path: regression-report.json
-
-  update-cache:
-    name: Update Regression Cache
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    needs: regression
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v7
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v4
-        with:
-          version: "latest"
-          enable-cache: true
-
-      - name: Set up Python
-        run: uv python install 3.12
-
-      - name: Cache virtualenv
-        uses: actions/cache@v4
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
-
-      - name: Install dependencies
-        run: uv sync --all-packages
-
-      - name: Download regression reports
-        uses: actions/download-artifact@v8
-        with:
-          pattern: regression-report-*
-          path: ./reports
-          merge-multiple: true
-
-      - name: Update regression cache
-        continue-on-error: true  # cache update is best-effort; temper-N6-U8 -- hard-fail after 2026-09-01
-        run: uv run python scripts/update_regression_cache.py --reports-dir ./reports
-
-      - name: Commit and push cache
-        continue-on-error: true  # push may fail on fork PRs; temper-N6-U8 -- hard-fail after 2026-09-01
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add power_pcb_dataset/corpus/.regression-cache.json
-          if git diff --cached --quiet; then
-            echo "No cache changes to commit."
-            exit 0
-          fi
-          git commit -m "chore: update regression cache [skip ci]"
-          git pull --rebase origin main
-          git push origin main
+# RETIRED 2026-07-27: the update-cache job existed to fold regression-report
+# artifacts into power_pcb_dataset/corpus/.regression-cache.json. With the
+# corpus run retired there are no reports to fold, so it updated nothing.
+# The baseline-approval gate above is kept: corpus baselines still have live
+# consumers (scripts/quarantine_report.py, the PR scorecard tests).

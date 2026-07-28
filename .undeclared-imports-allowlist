@@ -13,14 +13,24 @@
 # forever. Remove an entry once its module is properly declared (or the
 # importing code is fixed/retired).
 
-# `jax` is imported top-level by these two scripts but is declared in no
-# pyproject.toml anywhere in the workspace and is not imported anywhere in
-# packages/temper-placer/src (i.e. not a transitive dependency of
-# production code) -- both scripts would ModuleNotFoundError on any
-# `uv run`. Discovered by this gate itself on 2026-07-27, pre-existing,
-# same failure shape as the jinja2/sympy incidents that motivated this
-# gate but out of this task's scope to fix (needs an owner decision:
-# declare jax as a dependency, or retire the script). See
-# docs/evidence/2026-07-27-undeclared-import-gate.md. TODO: temper-xxx
-jax::scripts/check_perf_regression.py  # TODO: temper-xxx -- undeclared jax, pre-existing (make perf-regression is continue-on-error)
-jax::scripts/internal_route.py  # TODO: temper-xxx -- undeclared jax, pre-existing (make route)
+# `jax` is imported top-level but is declared in no pyproject.toml anywhere
+# in the workspace and is not imported anywhere in packages/temper-placer/src
+# (i.e. not a transitive dependency of production code) -- the importing
+# script ModuleNotFoundErrors on any `uv run`. Discovered by this gate itself
+# on 2026-07-27, pre-existing, same failure shape as the jinja2/sympy
+# incidents that motivated this gate. See
+# docs/evidence/2026-07-27-undeclared-import-gate.md.
+#
+# 2026-07-27: the check_perf_regression.py entry was REMOVED rather than kept
+# -- that script was deleted by the JAX/benders_loop retirement, so its
+# exemption had become vacuous (an allowlist entry scoped to a file that no
+# longer exists exempts nothing, and reads as a live gap that is already
+# closed).
+#
+# internal_route.py remains, and it is a LIVE BREAKAGE, not a dormant one:
+# `make route` still invokes it, so the documented routing entry point exits
+# on ModuleNotFoundError before doing any work. All 7 `jnp.` uses are plain
+# array ops (array/where/maximum/expand_dims/float32) with exact numpy
+# equivalents -- no jit, grad or vmap -- so this is very likely a one-line
+# import swap rather than a dependency decision. TODO: temper-xxx
+jax::scripts/internal_route.py  # TODO: temper-xxx -- undeclared jax; `make route` is broken on it today
