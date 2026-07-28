@@ -113,10 +113,11 @@ For contributors working on architecture, verification, or toolchain internals:
 
 <!-- BEGIN GENERATED: repo-map -- edits here are overwritten by scripts/gen_repo_state.py -->
 
-*All 18 tracked top-level directories. Generated -- a new directory without a description fails CI.*
+*All 19 tracked top-level directories. Generated -- a new directory without a description fails CI.*
 
 | Directory | Purpose |
 |---|---|
+| `.cargo/` | Cargo config: shared target dir, macOS pyo3 link flags |
 | `.github/` | CI workflows, issue templates, code owners |
 | `benchmarks/` | CP-SAT benchmark harness and external board corpora manifests |
 | `components/` | Local KiCad symbol/footprint libraries, one directory per part |
