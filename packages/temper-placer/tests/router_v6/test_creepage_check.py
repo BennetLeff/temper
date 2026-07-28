@@ -10,6 +10,7 @@ from temper_placer.router_v6.astar_pathfinding import RoutePath
 from temper_placer.router_v6.creepage_check import (
     CreepageReport,
     CreepageViolation,
+    _is_high_voltage_net,
     verify_creepage,
 )
 from temper_placer.router_v6.routing_results import CompiledRoute, RoutingResults
@@ -175,3 +176,78 @@ def test_creepage_violation_count_bounded_by_net_pair_not_segment_pair():
     # The reported violation must reflect the true worst-case (closest
     # approach), not an arbitrary one of the many segment-pairs.
     assert report.violations[0].actual_distance == pytest.approx(0.05, abs=1e-9)
+
+
+# ---------------------------------------------------------------------------
+# _is_high_voltage_net word-boundary regression (2026-07-27)
+#
+# Before this fix, `broad_keywords` used plain substring matching, so "L1"/
+# "L2" matched inside "COIL1"/"COIL2" (SELV relay-coil nets) and "LINE"
+# matched inside "...-line" (internal safety-logic fault signals). On the
+# live production board this made 14 of 16 "hv_net" matches false positives,
+# and all 24 of one measured run's creepage violations involved one of them
+# -- zero involved a genuine HV/mains conductor. See
+# docs/evidence/2026-07-27-creepage-burndown.md Sec 4.
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "net_name",
+    [
+        # "L1"/"L2" substring-collision inside relay-coil net names
+        # (SELV per elec/domain_manifest.yaml).
+        "discharge.k_dis1-coil1",
+        "discharge.k_dis1-coil2",
+        "discharge.k_dis2-coil1",
+        "power_in.bypass_relay-coil1",
+        "power_in.bypass_relay-coil2",
+        # "LINE" substring-collision inside hyphen-delimited internal
+        # safety-logic fault signals (not AC line voltage).
+        "safety-line",
+        "safety-line-1",
+        "safety-line-2",
+        "safety-line-3",
+        "safety.coil_thermal-line",
+        "safety.ocp-line",
+        "safety.ovp-line",
+        "safety.thermal-line",
+        "safety.uvlo_logic-line",
+    ],
+)
+def test_is_high_voltage_net_rejects_known_false_positives(net_name):
+    """Regression: these 14 net names must NOT be classified HV.
+
+    Each was a real false positive on the live production board (verified
+    directly, not inferred) before the word-boundary fix. Fails before the
+    fix (all 14 return True); passes after.
+    """
+    assert _is_high_voltage_net(net_name) is False
+
+
+@pytest.mark.parametrize(
+    "net_name",
+    [
+        "ac_l",
+        "ac_n",
+        "AC_L",
+        "AC_N",
+        "HV_BUS",
+        "_AC",
+        "AC1",
+        "MAINS_L",
+        "PHASE_A",
+        # A genuinely standalone/word-bounded L1/L2/L3 net must still match
+        # -- the fix must not blanket-disable these keywords, only require
+        # a real boundary.
+        "BUS_L1",
+        "PHASE_L2",
+    ],
+)
+def test_is_high_voltage_net_still_matches_true_positives(net_name):
+    """The word-boundary fix must not lose genuine HV/mains matches."""
+    assert _is_high_voltage_net(net_name) is True
+
+
+def test_is_high_voltage_net_does_not_match_unrelated_trace():
+    """Pre-existing invariant (docstring example): TRACE is not HV."""
+    assert _is_high_voltage_net("TRACE") is False
