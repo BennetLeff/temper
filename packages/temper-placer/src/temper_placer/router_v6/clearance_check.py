@@ -687,14 +687,26 @@ def _get_required_clearance(
     if voltage_ratings is None:
         voltage_ratings = {}
 
-    hv_keywords = ["AC_", "HV_", "HIGH_VOLTAGE", "MAINS"]
+    # Bug history (2026-07-27): the fix in merge 466c7724 ORed in
+    # `hv_manifest_nets` (below) to close the false-NEGATIVE gap this
+    # function had, but left its own `hv_keywords` substring test
+    # ("AC_"/"HV_"/"HIGH_VOLTAGE"/"MAINS", via plain `kw in net_upper`)
+    # in place unfixed -- the same defect class, still live, found by
+    # scripts/check_net_classification.py auditing this file a second
+    # time. No live false positive proven against this project's current
+    # net names (see docs/evidence/2026-07-27-net-classification-gate.md),
+    # but fixed anyway: now that manifest membership already gives full,
+    # correct HV coverage, the substring test is redundant risk with no
+    # remaining coverage benefit. Reuses _is_hv_keyword_match (below) --
+    # its vocabulary is a superset of this one, so no separate keyword
+    # list needs to be kept in sync.
     hv_manifest_nets = _load_manifest_hv_net_names()
 
     net1_upper = net1.upper()
     net2_upper = net2.upper()
 
-    is_hv1 = any(kw in net1_upper for kw in hv_keywords) or net1 in hv_manifest_nets
-    is_hv2 = any(kw in net2_upper for kw in hv_keywords) or net2 in hv_manifest_nets
+    is_hv1 = _is_hv_keyword_match(net1_upper) or net1 in hv_manifest_nets
+    is_hv2 = _is_hv_keyword_match(net2_upper) or net2 in hv_manifest_nets
 
     if is_hv1 or is_hv2:
         # Determine the governing voltage: pick the HV net's voltage
