@@ -10,10 +10,18 @@ none -- the second agent should not have had to search. See
 docs/hardware/UVL02_DESIGN.md SS7/SS7.1 and docs/hardware/OCP02_DESIGN.md's
 "Fault integration" section for the manual survey this gate automates.
 
+That capacity problem was subsequently fixed (2026-07-27, `15b9a33b`) by
+adding a third `SN74HC4075DR`, `safety.fault_or3`, as a single merge point
+ahead of the latch SET pin; UVL-02's fault is wired into it and three
+SET-path inputs are now available. See docs/hardware/UVL02_DESIGN.md SS7.2
+for the current state -- SS7/SS7.1 are superseded there. This gate is what
+keeps that number honest, so it is written against reachability, not
+against any particular expected count.
+
 This is a reachability question over the netlist graph, not a pin-
-occupancy count. A naive "count unconnected pins" check on today's tree
-would report four free inputs on `fault_any_or` and be wrong about all
-four:
+occupancy count. A naive "count unconnected pins" check on the tree that
+motivated this gate would report four free inputs on `fault_any_or` and be
+wrong about all four:
   - `fault_or.A3/B3/C3`   -- GND-tied, but their gate's Y3 drives nothing.
   - `fault_any_or.C1`     -- looked free to two surveys; already claimed
                              by THM-02 (commit d99c88e2) on the current
@@ -793,9 +801,10 @@ def main() -> None:
         print(
             "\nWARNING: 0 genuinely available SET-path inputs across all "
             "tracked aggregator packages. This is a legitimate design "
-            "state (see docs/hardware/UVL02_DESIGN.md SS7.1) that requires "
-            "a human decision (rework the tree or add a package), not a "
-            "gate failure.",
+            "state (see docs/hardware/UVL02_DESIGN.md SS7.1 for the last "
+            "time the tree was in it) that requires a human decision "
+            "-- rework the tree or add a package, as SS7.2 records doing "
+            "-- not a gate failure.",
         )
 
     if report.defects:
