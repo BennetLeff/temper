@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import math
+import re
 from typing import TYPE_CHECKING
 
 from temper_placer.core.board import STANDARD_LAYER_ORDER, Board, MountingHole
@@ -99,6 +100,54 @@ def _extract_board_geometry(ki_board: KiBoard, warnings: list[str]) -> Board:
     )
 
 
+def _is_plane_required_net(net_name: str) -> bool:
+    """Whether a zone's net should mark its physical copper layer as a
+    non-routable "plane" layer -- routing_space.py:85 excludes any layer
+    whose ``layer_type`` is not ``"signal"``/``"mixed"`` from the router's
+    grid entirely, so this decision controls whether an *entire physical
+    layer* stays in the routing space.
+
+    Reads the netclass SSOT first: a net whose class (``TEMPER_NET_ASSIGNMENTS``)
+    declares ``routing_strategy == "plane_required"`` (``core/design_rules.py`` --
+    today only ``ACMains``/``HighVoltage``) is plane-worthy. This is the
+    same SSOT field ``_zone_layers_for_net()``
+    (``router_v6/_adapter_convert.py``) drives zone-*generation* eligibility
+    from, so the two decisions ("should this net get a pour" and "does a
+    pour on this net make its layer non-routable") stay in step by
+    construction instead of drifting independently.
+
+    Falls back to a word-boundary-anchored keyword match (never a bare
+    substring ``in`` test -- see
+    ``docs/solutions/best-practices/substring-net-classification-drifts-from-ssot-2026-07-27.md``)
+    for nets absent from the SSOT's per-net assignment table, so an
+    unrecognized or renamed net isn't silently treated as never plane-worthy.
+
+    FIXED 2026-07-28: the previous version tested bare
+    ``"GND" in netName or "VCC" in netName or "+" in netName or "PWR" in
+    netName``. A single ``"+"`` character matched *any* net containing
+    one, including ``+3V3`` (Power class -- a handful of sub-mm2
+    decoupling-cap zone islands, per
+    ``docs/evidence/2026-07-28-pour-strategy-audit.md``), flipping an
+    entire outer copper layer to "plane" and removing it from the
+    router's routing space over a single small, non-plane-worthy zone.
+    The old test was also case-sensitive (missed lowercase ``vcc``) and
+    unanchored (``"GND" in "CGND"`` matched a distinct net, chassis
+    ground, not literal GND).
+    """
+    from temper_placer.core.design_rules import TEMPER_NET_ASSIGNMENTS, TEMPER_NET_CLASSES
+
+    nc_name = TEMPER_NET_ASSIGNMENTS.get(net_name, "")
+    nc = TEMPER_NET_CLASSES.get(nc_name)
+    if nc is not None:
+        return nc.routing_strategy == "plane_required"
+
+    upper = net_name.upper()
+    for kw in ("GND", "VCC", "PWR"):
+        if re.search(rf"(?:^|_){kw}(?:$|[\d_])", upper):
+            return True
+    return False
+
+
 def _extract_stackup(ki_board: KiBoard, warnings: list[str]) -> StackupInfo:
     """
     Extract PCB layer stackup from KiCad board.
@@ -129,12 +178,7 @@ def _extract_stackup(ki_board: KiBoard, warnings: list[str]) -> StackupInfo:
                 and zone.netName
             ):
                 for layer in zone.layers:
-                    is_power = (
-                        "GND" in zone.netName
-                        or "VCC" in zone.netName
-                        or "+" in zone.netName
-                        or "PWR" in zone.netName
-                    )
+                    is_power = _is_plane_required_net(zone.netName)
                     if is_power and layer.endswith(".Cu"):
                         plane_assignments[layer] = zone.netName
 
