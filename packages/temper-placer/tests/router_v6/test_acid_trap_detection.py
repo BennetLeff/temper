@@ -9,8 +9,10 @@ from temper_placer.router_v6.acid_trap_detection import (
     AcidTrapReport,
     detect_acid_traps,
 )
+from temper_placer.router_v6.astar_core import RoutePath3D
 from temper_placer.router_v6.astar_pathfinding import RoutePath
 from temper_placer.router_v6.routing_results import CompiledRoute, RoutingResults
+from temper_placer.router_v6.via_placement import Via
 
 
 def test_detect_no_acid_traps():
@@ -122,3 +124,50 @@ def test_multiple_acid_traps():
 
     # Should detect both acute angles
     assert report.trap_count >= 0
+
+
+def test_detect_acid_traps_route_path_3d_does_not_crash():
+    """Regression test: RoutePath3D has ``.segments``, not ``.coordinates``.
+
+    Any board with vias produces at least one net whose compiled route's
+    ``path`` is a ``RoutePath3D`` (see ``_astar_reconstruct.py``'s
+    via-aware fallback tier). ``detect_acid_traps`` used to access
+    ``compiled_route.path.coordinates`` unconditionally, which raised
+    ``AttributeError`` on every such net -- meaning this check had never
+    produced a real result on any routed board with vias (see
+    docs/evidence/2026-07-27-committed-route.md, which measured 48 vias
+    on the committed board and an ``errored_checks = ('acid_trap',)``
+    crash). This test fails before the fix (AttributeError) and passes
+    after (real trap detected, no crash).
+    """
+    # A via-crossing multi-layer path: straight approach through the via
+    # at (5, 0), then a hairpin spike on B.Cu with a genuine acute angle
+    # (~26.6 degrees) at (10, 0) -- a real acid-trap-shaped defect.
+    path = RoutePath3D(
+        net_name="NET1",
+        segments=[
+            (0.0, 0.0, "F.Cu"),
+            (5.0, 0.0, "F.Cu"),
+            (5.0, 0.0, "B.Cu"),  # via: layer change at (5, 0)
+            (10.0, 0.0, "B.Cu"),
+            (9.0, 0.5, "B.Cu"),  # hairpin spike -- acute angle at (10, 0)
+        ],
+        via_positions=[(5.0, 0.0)],
+        path_length=15.0,
+        via_count=1,
+    )
+    via = Via(position=(5.0, 0.0), from_layer="F.Cu", to_layer="B.Cu", diameter=0.6, drill=0.3, net_name="NET1")
+    route = CompiledRoute("NET1", path, 0.127, [via], None)
+    results = RoutingResults(compiled_routes={"NET1": route}, failed_nets=[])
+
+    # Must not raise AttributeError('RoutePath3D' object has no
+    # attribute 'coordinates').
+    report = detect_acid_traps(results)
+
+    assert isinstance(report, AcidTrapReport)
+    assert report.errored is False
+    # The via-transition vertex (5.0, 0.0) is a straight pass-through (not
+    # a bend) so it wouldn't be flagged regardless; the hairpin spike is a
+    # real geometric defect and must be found.
+    assert report.trap_count >= 1
+    assert any(t.position == (10.0, 0.0) for t in report.acid_traps)

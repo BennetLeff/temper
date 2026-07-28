@@ -901,3 +901,62 @@ class TestExceptionTypes:
         """Invalid dfm_fail_on raises ValueError at construction time."""
         with pytest.raises(ValueError, match="dfm_fail_on"):
             RouterV6Pipeline(dfm_fail_on="invalid_mode")
+
+
+# ===================================================================
+# 9. annular_ring anti-vacuous-truth guard
+# ===================================================================
+
+
+class TestAnnularRingVacuousGuard:
+    """``_run_manufacturing_drc`` must fail closed when ``annular_ring``
+    reports zero vias checked on a board that actually has vias -- the
+    same anti-vacuous-truth pattern already wired up for creepage/
+    clearance (METHODOLOGY.md Sec 5). See
+    docs/evidence/2026-07-27-drc-checks-repaired.md: this is the
+    "0 violations over 0 checks on a board with 48 vias" defect.
+
+    This guard is deliberately independent of the ``annular_ring_check``
+    root-cause fix (tree-routed vias) -- it is a second line of defense
+    for any future via source the check doesn't yet walk.
+    """
+
+    def test_fires_when_board_has_vias_but_check_reports_zero(self):
+        """Simulates a residual gap: the board genuinely has vias (a real
+        via sits on a compiled route) but ``check_annular_rings`` itself
+        reports zero checked -- as it always used to, for tree-routed
+        vias, before the root-cause fix. The guard must catch this and
+        flip ``errored`` to True rather than let it read as clean.
+        """
+        p = RouterV6Pipeline(enable_manufacturing_drc=True, verbose=False)
+        route = _make_stub_route("NET1")  # _make_stub_route attaches a via by default
+        assert route.vias, "test setup: route must carry a real via"
+        rr = _make_routing_results(NET1=route)
+        pcb = _make_pcb_mock(width=100, height=80)
+
+        with mock.patch(
+            "temper_placer.router_v6.annular_ring_check.check_annular_rings",
+            return_value=AnnularRingReport(violations=[], total_vias_checked=0),
+        ):
+            report = p._run_manufacturing_drc(pcb=pcb, routing_results=rr)
+
+        assert report.annular_rings.errored is True
+        assert "annular_ring" in report.errored_checks
+        # Fails closed: counts as at least one violation, not zero.
+        assert report.total_violations >= 1
+
+    def test_does_not_fire_when_board_genuinely_has_no_vias(self):
+        """A board with routed copper but no vias at all (e.g. every net
+        is single-layer) legitimately produces total_vias_checked == 0.
+        The guard must not misfire on this honest zero.
+        """
+        p = RouterV6Pipeline(enable_manufacturing_drc=True, verbose=False)
+        route = _make_stub_route("NET1", vias=[])  # explicitly no vias
+        rr = _make_routing_results(NET1=route)
+        pcb = _make_pcb_mock(width=100, height=80)
+
+        report = p._run_manufacturing_drc(pcb=pcb, routing_results=rr)
+
+        assert report.annular_rings.total_vias_checked == 0
+        assert report.annular_rings.errored is False
+        assert "annular_ring" not in report.errored_checks

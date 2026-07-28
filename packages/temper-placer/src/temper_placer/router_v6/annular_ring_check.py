@@ -193,6 +193,28 @@ def check_annular_rings(
             if violation is not None:
                 violations.append(violation)
 
+    # ---- vias from tree-routed nets ----
+    # ``RoutingResults.tree_routes`` / ``.partial_tree_routes`` hold
+    # ``CompiledTreeRoute`` objects, which carry their own ``.vias`` list
+    # (populated by ``via_placement.place_vias`` from each branch's
+    # ``RoutePath3D.via_positions``, exactly like ``CompiledRoute.vias``
+    # above). These are NOT part of ``compiled_routes`` -- the U7 exporter
+    # change (``_adapter_convert.py``) folds tree-routed nets in when
+    # writing the physical ``(via ...)`` elements, but this check never
+    # did, so on a board where most copper comes from tree-routed nets it
+    # silently inspected zero vias while the board had dozens physically
+    # present (see docs/evidence/2026-07-27-drc-checks-repaired.md).
+    for tree_routes_dict in (
+        getattr(routing_results, "tree_routes", None) or {},
+        getattr(routing_results, "partial_tree_routes", None) or {},
+    ):
+        for net_name, tree_route in tree_routes_dict.items():
+            for via in tree_route.vias:
+                total_vias += 1
+                violation = _check_via(via, net_name, min_annular_ring, microvia_ring_mm)
+                if violation is not None:
+                    violations.append(violation)
+
     # ---- extra vias (outside compiled_routes) ----
     if extra_vias:
         for via in extra_vias:

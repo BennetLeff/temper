@@ -72,14 +72,19 @@ class ManufacturingReport:
     def total_violations(self) -> int:
         """Total number of violations across all checks, including partial failures.
 
-        ``creepage`` and ``clearance`` fail closed (METHODOLOGY.md Sec 5;
-        matches the ``_allow_forced_segments`` precedent): an errored
-        check counts as at least one violation even when its
-        (necessarily incomplete) violation list is empty, rather than
-        being read as "0 violations found".
+        ``creepage``, ``clearance``, and ``annular_ring`` fail closed
+        (METHODOLOGY.md Sec 5; matches the ``_allow_forced_segments``
+        precedent): an errored check counts as at least one violation
+        even when its (necessarily incomplete) violation list is empty,
+        rather than being read as "0 violations found".
         """
         teardrop_failure = 1 if self.teardrops.teardrop_count == 0 else 0
         thermal_failure = 1 if self.thermal_reliefs.relief_count == 0 else 0
+        annular_count = (
+            max(self.annular_rings.violation_count, 1)
+            if self.annular_rings.errored
+            else self.annular_rings.violation_count
+        )
         creepage_count = (
             max(self.creepage.violation_count, 1)
             if self.creepage.errored
@@ -92,7 +97,7 @@ class ManufacturingReport:
         )
         return (
             self.acid_traps.trap_count
-            + self.annular_rings.violation_count
+            + annular_count
             + creepage_count
             + clearance_count
             + self.copper_balance.unbalanced_layer_count
@@ -109,9 +114,14 @@ class ManufacturingReport:
     def critical_violations(self) -> int:
         """Number of critical violations (blocking manufacture).
 
-        Fails closed on an errored creepage/clearance check -- see
-        ``total_violations``.
+        Fails closed on an errored creepage/clearance/annular_ring check
+        -- see ``total_violations``.
         """
+        annular_count = (
+            max(self.annular_rings.violation_count, 1)
+            if self.annular_rings.errored
+            else self.annular_rings.violation_count
+        )
         creepage_count = (
             max(self.creepage.violation_count, 1)
             if self.creepage.errored
@@ -124,7 +134,7 @@ class ManufacturingReport:
         )
         return (
             self.acid_traps.critical_count
-            + self.annular_rings.violation_count
+            + annular_count
             + creepage_count
             + clearance_count
             + self.copper_balance.unbalanced_layer_count
@@ -222,7 +232,12 @@ def format_manufacturing_report(report: ManufacturingReport) -> str:
     lines.append("")
 
     # Annular Rings
-    lines.append(f"Annular Rings: {report.annular_rings.violation_count} violations")
+    annular_tag = (
+        " [ERRORED -- fail-closed, see CHECK ERRORS above]"
+        if report.annular_rings.errored
+        else ""
+    )
+    lines.append(f"Annular Rings: {report.annular_rings.violation_count} violations{annular_tag}")
     lines.append(f"  - Total vias checked: {report.annular_rings.total_vias_checked}")
     if report.annular_rings.total_vias_checked == 0:
         lines.append("  - Pass rate: N/A")
