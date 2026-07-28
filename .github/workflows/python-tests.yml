@@ -106,7 +106,7 @@ jobs:
       options: --user root
     timeout-minutes: 2
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Rust toolchain smoke
         run: |
           rustc --version
