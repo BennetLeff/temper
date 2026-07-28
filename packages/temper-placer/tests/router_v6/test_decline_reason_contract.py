@@ -201,12 +201,18 @@ class TestProverErrorFailsClosedHonestly:
 
 
 class TestRuleIdAttributionGapConsistency:
-    """No construction site can produce a fabricated-looking rule_id
-    without honestly setting attribution_gap=False, nor claim
-    attribution_gap=False without actually naming a rule_id."""
+    """attribution_gap is a computed property (``rule_id is None``), not a
+    separately-threaded field -- the rule_id/attribution_gap contradiction
+    the earlier __post_init__ validation rejected at runtime is now
+    structurally impossible: there is no ``attribution_gap`` constructor
+    parameter at all, so no call site can pass a value that disagrees with
+    ``rule_id``."""
 
-    def test_rule_id_and_attribution_gap_true_is_rejected(self):
-        with pytest.raises(ValueError, match="attribution_gap"):
+    def test_attribution_gap_is_not_a_constructor_parameter(self):
+        """The consistency invariant is enforced by construction, not by a
+        runtime check -- passing attribution_gap explicitly is a TypeError,
+        not a value that could silently disagree with rule_id."""
+        with pytest.raises(TypeError, match="attribution_gap"):
             RoutingFailureReport(
                 net_name="X",
                 failure_reason="no_path",
@@ -214,24 +220,12 @@ class TestRuleIdAttributionGapConsistency:
                 attempted_ripups=0,
                 congestion_region=None,
                 rule_id=RULE_ID_FORCED_SEGMENT_FAIL_CLOSED,
-                attribution_gap=True,
-            )
-
-    def test_no_rule_id_but_attribution_gap_false_is_rejected(self):
-        with pytest.raises(ValueError, match="rule_id"):
-            RoutingFailureReport(
-                net_name="X",
-                failure_reason="no_path",
-                blocking_nets=[],
-                attempted_ripups=0,
-                congestion_region=None,
-                rule_id=None,
-                attribution_gap=False,
+                attribution_gap=True,  # type: ignore[call-arg]
             )
 
     def test_default_construction_is_the_honest_gap_state(self):
-        """A caller that forgets to set the new fields entirely still gets
-        a valid, honest report -- never a silent implicit rule claim."""
+        """A caller that forgets to set rule_id entirely still gets a valid,
+        honest report -- never a silent implicit rule claim."""
         report = RoutingFailureReport(
             net_name="X",
             failure_reason="congestion",
@@ -242,7 +236,7 @@ class TestRuleIdAttributionGapConsistency:
         assert report.rule_id is None
         assert report.attribution_gap is True
 
-    def test_named_rule_with_gap_false_is_the_only_valid_named_state(self):
+    def test_named_rule_derives_attribution_gap_false(self):
         report = RoutingFailureReport(
             net_name="X",
             failure_reason="no_path",
@@ -250,7 +244,6 @@ class TestRuleIdAttributionGapConsistency:
             attempted_ripups=0,
             congestion_region=None,
             rule_id=RULE_ID_FORCED_SEGMENT_FAIL_CLOSED,
-            attribution_gap=False,
         )
         assert report.rule_id == RULE_ID_FORCED_SEGMENT_FAIL_CLOSED
         assert report.attribution_gap is False
