@@ -13,7 +13,7 @@ jobs:
     # would otherwise inherit the 6-hour default.
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
