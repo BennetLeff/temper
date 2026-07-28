@@ -11,7 +11,7 @@ import math
 from dataclasses import dataclass
 
 from temper_placer.core.netlist import Component
-from temper_placer.core.pin_geometry import pin_world_position
+from temper_placer.core.pin_geometry import pin_world_position, pin_world_radius
 from temper_placer.router_v6.dense_package_detection import DensePackage
 from temper_placer.router_v6.stage0_data import DesignRules
 
@@ -206,9 +206,13 @@ def _is_position_valid(
 
         p_pos = pin_world_position(pin, component)
 
-        # Approximate pin as circle with radius = max(width, height)/2
-        # This is conservative for rectangular pads.
-        pin_radius = max(pin.width, pin.height) / 2.0
+        # Shared, shape-correct conservative radius (core.pin_geometry's
+        # single implementation -- see its docstring for the exact
+        # circle/oval/rect/roundrect closed form and never-under-reports
+        # proof). This used to be max(width, height) / 2.0 duplicated here,
+        # which under-reports a square/near-square rect pad's true corner
+        # extent.
+        pin_radius = pin_world_radius(pin)
 
         dist = math.sqrt((x - p_pos[0]) ** 2 + (y - p_pos[1]) ** 2)
 

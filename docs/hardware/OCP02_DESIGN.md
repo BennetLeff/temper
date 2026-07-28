@@ -131,6 +131,16 @@ changes:
 | Isolated amplifier (`AMC1300`, `ACPL-C79A` class) | Preserves the sensing location and the independence; adds an isolated bias rail and cost |
 | High-common-mode current-shunt monitor | Needs a part rated well beyond ±170 V; check availability before assuming one exists |
 
+> **SUPERSEDED 2026-07-27 (`15b9a33b`) — capacity only.** The "no spare OR
+> input" finding below was true of the then-two fan-in packages. A third
+> `SN74HC4075DR` (`SafetyInterlock.fault_or3`) has since been added and
+> `fault_or3.B1` is a real, reachable SET-path input **reserved for
+> OCP-02** — see `docs/hardware/UVL02_DESIGN.md` SS7.2. OCP-02 is still not
+> wired, but the reason is now solely the sensing-domain blocker above, not
+> fault-tree capacity. Wiring OCP-02 into working aggregation logic while
+> its upstream INA240 cannot work would look connected on inspection while
+> never being able to assert.
+
 **Second finding: there is no spare OR input for the fault.** Every input on
 `fault_or` and `fault_any_or` in the latch SET path is occupied. `fault_or`
 gate 3 is free but its output drives nothing; `fault_any_or` C2 looks free but

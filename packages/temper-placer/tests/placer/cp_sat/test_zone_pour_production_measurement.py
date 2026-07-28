@@ -55,6 +55,15 @@ _RULES_PATH = _TEMPER_PLACER_ROOT / "configs" / "netclass_rules.yaml"
 # identically across PR #261 (2026-07-21T06:14Z) and PR #262 (2026-07-21T06:24Z)
 # CI runs. This is the honest baseline zone/pour must beat -- not the stale
 # 149 figure, which relied on fabricated copper that is gone for good.
+#
+# STALE-BOARD WARNING (2026-07-28): 260 was measured when pcb/temper.kicad_pcb
+# held 149 footprints and ZERO copper. Since 556ccf4f (2026-07-27) it carries
+# 2,338 segments / 48 vias / 96 zones, and route_pcb() on that board measures
+# 396 unconnected_items (N=11, zero scatter) before any zone pour. So this gate
+# now asks zone/pour to beat a number from a different board, and its failure
+# would NOT mean "zone/pour does not help". This test is skipped on macOS
+# (no pcbnew), so it has not been re-measured here; see the provenance block
+# in test_regression_drc.py for the same category error and how it was fixed.
 PRODUCTION_UNCONNECTED_POST_U4_BASELINE = 260
 
 

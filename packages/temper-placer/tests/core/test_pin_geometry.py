@@ -146,9 +146,25 @@ class TestPinWorldGeometry:
     # pin_world_radius
     # ------------------------------------------------------------------
 
-    def test_pin_world_radius_from_dimensions(self):
-        """Radius is max(width, height) / 2."""
-        pin = Pin("1", "1", (0.0, 0.0), width=2.0, height=1.0)
+    def test_pin_world_radius_rect_uses_exact_bounding_radius(self):
+        """A rect pad's radius is its exact circumscribing radius
+        (hypot(half-width, half-height)), NOT max(width, height) / 2 -- that
+        old formula under-reports a rect pad's true corner extent (see
+        core.pad_geometry module docstring / test_pad_geometry.py for the
+        full proof and the real-board 8x8mm rect-pad regression case)."""
+        pin = Pin("1", "1", (0.0, 0.0), width=2.0, height=1.0, shape="rect")
+        import math
+
+        assert pin_world_radius(pin) == pytest.approx(math.hypot(1.0, 0.5), abs=1e-6)
+        # And it must be strictly bigger than the old (wrong) formula.
+        assert pin_world_radius(pin) > max(2.0, 1.0) / 2.0
+
+    def test_pin_world_radius_oval_matches_old_formula(self):
+        """An oval pad's true circumscribing radius happens to equal
+        max(width, height) / 2 exactly (its furthest point IS along its own
+        long axis) -- this is the one shape where the old formula was
+        already correct, not a regression."""
+        pin = Pin("1", "1", (0.0, 0.0), width=2.0, height=1.0, shape="oval")
         assert pin_world_radius(pin) == pytest.approx(1.0, abs=1e-6)
 
     def test_pin_world_radius_zero_dimensions(self):

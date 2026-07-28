@@ -1,11 +1,22 @@
 # UVL-02 Design: Logic-Rail (3.3V) Under-Voltage Lockout
 
-**Date:** 2026-07-26
+**Date:** 2026-07-26 (fault integration superseded 2026-07-27, see SS7.2)
 **Status:** Circuit designed and simulated. First confirmed
 implementation of UVL-02 in this repository as a *monitor* circuit.
-**NOT wired into the fault interlock** — see SS7. `fault.line` terminates
-at a test point (`SafetyInterlock.tp_uvlo2_fault`) pending a
-fault-aggregation redesign, the same outcome already reached for OCP-02.
+**WIRED into the fault interlock** as of 2026-07-27 (`15b9a33b`), via the
+third fan-in package `SafetyInterlock.fault_or3` — see SS7.2. `fault.line`
+also still lands on `SafetyInterlock.tp_uvlo2_fault` (the test point is
+retained for bench observability; it is no longer the *only* destination).
+
+**Revision note (2026-07-27):** SS7 and SS7.1 below record the survey and
+the zero-capacity structural finding **as they stood on 2026-07-26**, and
+are preserved verbatim because SS7.1's capacity argument is what motivated
+`scripts/capacity_budget_gate.py` and the remediation that followed. That
+remediation (SS7.1 option 2 — add a third OR package) **was subsequently
+implemented**, so SS7's "no genuine spare SET-path input exists" and
+SS7.1's "zero SET-path capacity" are **no longer true of the current
+tree**. SS7.2 is the current state and supersedes both. Read SS7/SS7.1 as
+history, SS7.2 as ground truth.
 
 **Revision note (2026-07-26, post-review):** the first version of this
 document and its accompanying circuit wired `uvlo_logic.fault.line` into
@@ -318,7 +329,14 @@ node.
 - Bench/hardware calibration of any kind — every model used is marked
   `calibrated: false` in the evidence JSON.
 
-## 7. Fault integration
+## 7. Fault integration (2026-07-26 survey — SUPERSEDED by SS7.2)
+
+> **SUPERSEDED 2026-07-27 by SS7.2.** Everything in SS7 and SS7.1 was true of
+> the tree at `ca9281d1`+ and is preserved as the record of how the
+> capacity problem was found. It is **not** a description of the current
+> design: a third `SN74HC4075DR` (`fault_or3`) was added in `15b9a33b` and
+> UVL-02's fault **is now wired into the SET path**. Do not re-derive
+> "zero available SET-path inputs" from this section.
 
 **Corrected finding (this section replaces an earlier version that wired
 the fault in — see the revision note at the top of this document for why).**
@@ -365,7 +383,7 @@ unwired fault is a better result than tying a second comparator output
 onto an input a different comparator (THM-02) already drives, which would
 be a driver conflict, not just a logical one.
 
-### 7.1 Structural finding: two gates, zero SET-path capacity
+### 7.1 Structural finding: two gates, zero SET-path capacity (SUPERSEDED by SS7.2)
 
 **OCP-02 and UVL-02 are now both fully designed circuits with no available
 SET-path input.** This is not a coincidence of two unlucky gate surveys —
@@ -411,6 +429,73 @@ unilaterally. Until it's made, OCP-02 and UVL-02 both terminate at test
 points: real, simulated, spec-meeting circuits that do not yet participate
 in hardware shutdown.
 
+### 7.2 Current state (2026-07-27): third package added, UVL-02 wired
+
+**This section supersedes SS7 and SS7.1.** The decision SS7.1 flagged for a
+human was taken, and **option 2** (add a third OR IC) was chosen over
+option 1 (rework the existing dead gate 3s into a wider cascade): option 1
+adds the same one gate of propagation delay to the same path while
+additionally requiring re-verification of every existing connection it
+re-routes. Full write-up, including the falsifier and the
+propagation-delay recheck, in
+`docs/evidence/2026-07-27-fault-tree-capacity-expansion.md` (`15b9a33b`).
+
+**`SafetyInterlock.fault_or3`** — a third `SN74HC4075DR`, the same MPN
+already twice on the BOM, so no new part number — is wired in
+`elec/src/modules.ato` as:
+
+| Gate | Inputs | Output |
+|---|---|---|
+| `gate1` (new-source aggregator) | `A1 = uvlo_logic.fault.line` (UVL-02, **wired**), `B1` = GND (reserved for OCP-02, deliberately not wired), `C1` = GND (spare) | `Y1 -> fault_or3.B2` |
+| `gate2` (merge with the existing bus) | `A2 = fault_any_or.Y1` (the existing 7-source SET bus), `B2 = fault_or3.Y1`, `C2` = GND (spare) | `Y2 ~ latch.A1` (**the SET pin**) |
+| `gate3` | all three GND-tied, unused | `Y3` drives nothing (dead, same convention as the other two packages' gate 3s) |
+
+`fault_any_or.Y1`'s *other* consumer (`fault_any_or.Y1 ~ fault_any_or.A2`,
+the RESET-qualifier feed) is untouched — only its SET-path consumer moved
+from `latch.A1` to `fault_or3.A2`.
+
+**Capacity, before and after** (`scripts/capacity_budget_gate.py`, whose
+BFS reachability check is the automated form of the SS7 survey):
+
+| | 2026-07-26 (SS7/SS7.1) | Current |
+|---|---|---|
+| Aggregator packages | 2 | **3** |
+| SET-path inputs evaluated | 18 | **27** |
+| **AVAILABLE** | **0** | **3** |
+| UNUSABLE | 18 | 24 |
+| OCCUPIED | 11 | 14 |
+| Capacity defects | 0 | 0 |
+
+**The three available inputs are exactly `fault_or3.B1`, `fault_or3.C1`
+and `fault_or3.C2`** — each GND-tied today, each on a gate whose own
+output reaches `latch.A1` (`U26.A1`). `B1` is held for OCP-02; `C1` and
+`C2` are genuine spare capacity. This triple is asserted by name in
+`scripts/tests/test_capacity_budget_gate.py`, so this table and the gate
+cannot drift apart silently: if the tree changes, that test fails and
+sends the reader back here.
+
+**`fault_or3` gate 3's three inputs remain UNUSABLE** (`Y3` drives
+nothing), exactly like `fault_or` and `fault_any_or` gate 3. That is
+headroom for a *future* cascade stage, not usable capacity today — the
+same distinction SS7 drew, and the reason the honest count is 3 and not 6.
+
+**OCP-02 is still not wired, and that is deliberate** — not a capacity
+problem any more. `SecondaryOCPComparator` remains un-instantiated in
+`main.ato` because its sensing domain is unresolved (the INA240 sits at
+~170 V common mode against its −4 V…+80 V input range in the doubler
+topology). `fault_or3.B1` is capacity held ready for that decision, not a
+claim that OCP-02 works. `docs/hardware/OCP02_DESIGN.md`'s "there is no
+spare OR input for the fault" finding is superseded by this section; its
+sensing-domain blocker is not.
+
+**Timing cost.** The new gate adds one OR stage to every fault path.
+Against OCP-01's <1 µs budget, on datasheet worst case (VCC=2 V column,
+−40…85 °C, as a conservative stand-in — neither part is characterised at
+3.3 V): **686 ns → 811 ns**, margin **31.4% → 18.9%**. Still clears, with
+the reduction reported rather than absorbed. `SAFETY_INTERLOCK_DESIGN.md`
+SS9's lumped 50 ns logic budget undercounts the real gate depth and
+predates this change; flagged there, not corrected here.
+
 ## 8. Summary
 
 | Question | Answer |
@@ -422,7 +507,7 @@ in hardware shutdown.
 | Measured recovery (nominal) | 3.222 V (sim and hand) |
 | Worst-case trip (16-corner, ±1% + datasheet VIT_A range) | 2.800 V — 100mV inside the 2.9V ceiling |
 | Worst-case recovery | 3.106 V — 106mV inside the 3.0V floor |
-| **Fault wired into interlock?** | **No.** No spare SET-path input exists — THM-02 (`d99c88e2`) already owns the last one, `fault_any_or.C1`. `fault.line` terminates at `SafetyInterlock.tp_uvlo2_fault`. OCP-02 has the identical problem (SS7.1). A fault-tree capacity redesign is needed, not another input search. |
+| **Fault wired into interlock?** | **Yes, as of 2026-07-27 (`15b9a33b`)** — `uvlo_logic.fault.line ~ fault_or3.A1 -> Y1 -> B2 -> Y2 ~ latch.A1`. SS7/SS7.1 found zero SET-path capacity on the then-two fan-in packages (THM-02, `d99c88e2`, owned the last one); SS7.1's option 2 was taken and a third `SN74HC4075DR` added, restoring 3 available SET-path inputs. `fault.line` still also reaches `SafetyInterlock.tp_uvlo2_fault` for bench observability. See SS7.2. |
 | UVL-01 comparison | Also demanding (~8% hysteresis needed) and, unlike UVL-02, still left UNMEASURED with no dedicated circuit — inconsistent application of the same design intent, flagged not fixed here |
 
 **Remaining UNVERIFIED:**

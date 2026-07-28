@@ -67,6 +67,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from _lib.repo import find_repo_root
 from _lib.github_summary import get_github_summary_path
+from _lib.freshness import check_freshness
 
 REPO_ROOT = find_repo_root()
 DEFAULT_NETLIST = REPO_ROOT / "elec" / "build" / "default.net"
@@ -233,12 +234,24 @@ def parse_netlist(path: Path) -> Netlist:
 
 
 def check_netlist_freshness(netlist_path: Path, src_dir: Path) -> None:
-    """Fail closed if the compiled netlist predates any .ato source file.
+    """Fail closed if the compiled netlist was not built from current sources.
 
     A stale netlist checking yesterday's design and reporting "0 violations"
     is indistinguishable from a correct check on today's design -- and is
     exactly the failure mode this class of gate has hit repeatedly on this
     project. `elec/build/` is gitignored; nothing else guarantees freshness.
+
+    Freshness is decided by CONTENT when `make netlist` left a build stamp
+    beside the netlist, and by the legacy mtime comparison when it did not.
+    See scripts/_lib/freshness.py for why: mtime cannot distinguish "rebuilt
+    from unchanged sources" from "restored from cache", because `git checkout`
+    stamps every source with the checkout time. That made a cached netlist
+    permanently, wrongly STALE -- measured 2026-07-28, runs 30383701486
+    (rebuilt, passed) vs 30384514627 (cached, errored) on identical sources.
+
+    Content is also strictly stronger than mtime, not merely cache-friendly:
+    a source edited and then back-dated older than the netlist passes the
+    mtime check and fails the content check.
     """
     if not netlist_path.is_file():
         raise GateError(
@@ -246,22 +259,17 @@ def check_netlist_freshness(netlist_path: Path, src_dir: Path) -> None:
             "(elec/build/ is gitignored, so it must be built locally/in-CI, "
             "never assumed to already exist)"
         )
-    netlist_mtime = netlist_path.stat().st_mtime
     if not src_dir.is_dir():
         raise GateError(f"elec source directory not found: {src_dir}")
     source_files = sorted(src_dir.rglob("*.ato"))
     if not source_files:
         raise GateError(f"no .ato source files found under {src_dir}")
-    stale_against = [
-        f for f in source_files if f.stat().st_mtime > netlist_mtime
-    ]
-    if stale_against:
-        newest = max(stale_against, key=lambda f: f.stat().st_mtime)
+
+    result = check_freshness(netlist_path, source_files, src_dir)
+    if not result.fresh:
         raise GateError(
-            f"netlist is STALE: {newest} was modified after "
-            f"{netlist_path} was built. Run `make netlist` to rebuild "
-            f"before running this gate ({len(stale_against)} source "
-            "file(s) newer than the compiled netlist)."
+            f"netlist is STALE: {result.detail}. Run `make netlist` to rebuild "
+            f"before running this gate (freshness checked by {result.method})."
         )
 
 
