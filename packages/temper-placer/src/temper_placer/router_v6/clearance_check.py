@@ -801,15 +801,29 @@ def _is_hv_keyword_match(upper: str) -> bool:
 
 
 def _classify_net_class(net_name: str) -> str:
-    """Map a net name to a net-class label for the clearance engine."""
+    """Map a net name to a net-class label for the clearance engine.
+
+    FIXED 2026-07-28: the GND/POWER branches below were still a bare
+    ``kw in upper`` substring test even though the HV branch just above
+    (``_is_hv_keyword_match``) had already been anchored for the
+    identical reason on 2026-07-27. Found completing the audit
+    ``scripts/check_net_classification.py``'s 2026-07-28 vocabulary
+    extension prompted -- see
+    docs/evidence/2026-07-28-zone-layer-classification-fix.md.
+    """
     if net_name in _load_manifest_hv_net_names():
         return "HV"
     upper = net_name.upper()
     if _is_hv_keyword_match(upper):
         return "HV"
-    if any(kw in upper for kw in ("GND", "VSS", "PGND", "CGND", "AGND")):
+    if any(
+        re.search(rf"(?:^|_){re.escape(kw)}(?:$|[\d_])", upper)
+        for kw in ("GND", "VSS", "PGND", "CGND", "AGND")
+    ):
         return "GND"
-    if any(kw in upper for kw in ("VCC", "VDD", "+3V3", "+5V", "+12V", "+15V", "POWER")):
+    if any(
+        re.search(rf"(?:^|_){re.escape(kw)}(?:$|[\d_])", upper) for kw in ("VCC", "VDD", "POWER")
+    ) or re.search(r"^\+(?:3V3|5V|12V|15V)(?:$|_)", upper):
         return "POWER"
     return "SIGNAL"
 
