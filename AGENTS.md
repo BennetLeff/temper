@@ -110,6 +110,34 @@ cmake --build firmware/test/build
 ./firmware/test/build/test_state_machine_only
 ```
 
+## Rebuilding pyo3/maturin Rust Extensions
+
+This repo has 10 pyo3/maturin extension crates under `packages/`. A merge
+that touches Rust source leaves the *installed* `.so` stale — it still
+imports, so nothing looks broken until a symbol is missing or a test
+asserts against frozen behavior. `scripts/check_stale_extensions.py`
+detects this (STALE per crate); it does not fix it.
+
+```bash
+make extensions-check   # report only -- same gate CI runs
+make extensions          # rebuild every pyo3/maturin crate in one command
+```
+
+`make extensions` derives its crate list from
+`scripts/check_stale_extensions.py --list-crates`, the same
+`discover_crates()` scan the gate itself checks freshness against — it is
+not a hand-maintained list that can drift. Each crate is rebuilt with
+`uv run --no-sync maturin develop --release --manifest-path <path>`.
+`--no-sync` matters: a bare `uv run` can re-sync `.venv` against
+`uv.lock` and silently evict the very `.so` files this target just
+built (this bit a session in practice before this target existed).
+`temper-constraints` additionally needs
+`PYO3_USE_ABI3_FORWARD_COMPATIBILITY=1` (mirrors the equivalent step in
+`.github/workflows/python-tests.yml`).
+
+After `make extensions`, `uv run --no-sync python
+scripts/check_stale_extensions.py` should report 0 STALE.
+
 ## Documentation & Context Maintenance
 
 **Critical Rules for AI Agents:**

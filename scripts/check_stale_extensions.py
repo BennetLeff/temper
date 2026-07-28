@@ -485,8 +485,31 @@ def main() -> int:
     parser.add_argument(
         "--repo-root", type=Path, default=None, help="Override repo root (mainly for tests)."
     )
+    parser.add_argument(
+        "--list-crates",
+        action="store_true",
+        help=(
+            "Print '<crate-name>\\t<Cargo.toml path>' for every discovered pyo3/maturin "
+            "crate (one per line, tab-separated) and exit -- no freshness check is run. "
+            "Machine-readable consumer of the same discover_crates() source of truth used "
+            "by the gate itself, so a caller (e.g. `make extensions`) never hardcodes a "
+            "crate list that can drift from this scan. Does not honor "
+            "TEMPER_REQUIRE_FRESH_EXTENSIONS and never affects the gate's own exit codes."
+        ),
+    )
     args = parser.parse_args()
     repo_root = args.repo_root or find_repo_root()
+
+    if args.list_crates:
+        try:
+            crates = discover_crates(repo_root)
+        except OSError as exc:
+            print(f"failed to discover crates under {repo_root}: {exc}", file=sys.stderr)
+            return EXIT_TOOL_ERROR
+        for crate in crates:
+            print(f"{crate.name}\t{crate.cargo_toml}")
+        return EXIT_OK
+
     required = _required()
 
     gh = get_github_summary_path()
