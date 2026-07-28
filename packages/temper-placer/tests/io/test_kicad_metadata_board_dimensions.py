@@ -17,16 +17,24 @@ def _write_pcb(tmp_path: Path, name: str, content: str) -> Path:
 _REPO_ROOT = Path(__file__).resolve().parents[4]
 
 
-def test_real_board_dimensions_match_hardcoded_legacy_values():
-    """extract_kicad_metadata on the production board returns 100x150mm,
-    identical to the old hardcoded default — proves the new Edge.Cuts
-    parser does not change today's behavior."""
+def test_real_board_dimensions_match_corrected_outline():
+    """extract_kicad_metadata on the production board returns 152x234mm.
+
+    Edge.Cuts was originally a 100x150mm placeholder rectangle at the
+    origin while placement spanned x 31.5-145.9, y 30.7-240.4mm — 113 of
+    149 footprints (76%) lay outside it (docs/METHODOLOGY.md §7). It was
+    deliberately corrected on 2026-07-25 to (20, 20)-(172, 254),
+    152 x 234mm, derived from true pad extents plus a 10mm edge margin
+    (docs/STRATEGY.md, "Honest state (2026-07-25)" > Board). This test
+    pins the parser to that corrected outline rather than the stale
+    placeholder it replaced.
+    """
     pcb_path = _REPO_ROOT / "pcb" / "temper.kicad_pcb"
     if not pcb_path.exists():
         pytest.skip("Production PCB not available")
     meta = extract_kicad_metadata(pcb_path)
-    assert meta.board_width == 100.0
-    assert meta.board_height == 150.0
+    assert meta.board_width == 152.0
+    assert meta.board_height == 234.0
 
 
 # --- Synthetic: non-default dimensions ---

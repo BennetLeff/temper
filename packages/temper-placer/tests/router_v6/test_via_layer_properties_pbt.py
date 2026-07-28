@@ -21,8 +21,11 @@ and the #226 U1 spike findings):
   must form a single same-layer-connected component — the pure-Python
   version of the "8 unconnected items" DRC regression that shipped in
   PR #220's first U9 attempt, catchable without kicad-cli. Writing this
-  property immediately found a second real bug (#229, pinned below as a
-  strict xfail): pads 0<d<=0.5mm off-path are never stitched.
+  property immediately found a second real bug (#229): pads 0<d<=0.5mm
+  off-path were never stitched. Fixed same-day by an epsilon-based
+  stitch loop (8fc2fdb8), then that whole workaround was deleted
+  (e078771b) once the tree executor started producing complete-coverage
+  paths upstream -- see test_pad_exactly_at_stitch_threshold_is_connected.
 - P4 (green): `_assign_layer` is total and closed over routable layers.
   Explicit routable SSOT assignments are authoritative; Default, unassigned,
   and unsupported-plane assignments retain the completion-safe heuristic.
@@ -266,10 +269,16 @@ _lattice_pt = st.tuples(
 def _routing_scenario(draw):
     """1-2 nets, each 2-3 pads, mixed path/plane routes on a 0.5mm lattice.
 
-    Extra pads (beyond the two the fake path covers) are kept only when
-    they sit strictly more than CONNECTION_THRESHOLD_MM (0.5mm) from every
-    path vertex — pads inside that band hit the known stitch-threshold
-    hole (#229), which is pinned separately as a strict xfail below.
+    All declared pads are pads the fake path actually visits (see the
+    sequential Manhattan-hop construction in the test body below) --
+    unlike the pre-APC-U4 writer, nothing in ``_write_routes_to_content``
+    stitches an off-path pad back in anymore. Commit e078771b ("APC U4
+    full -- delete writer stitch and plane-MST workaround") deliberately
+    removed the CONNECTION_THRESHOLD_MM/STITCH_EPSILON_MM pad-stitch loop
+    this strategy used to work around (it "fabricated straight F.Cu stubs
+    after the fact, ignoring obstacles and layers"); full pad coverage is
+    now the tree executor's job upstream of the writer, so a path fed to
+    the writer must already be complete.
     """
     n_nets = draw(st.integers(min_value=1, max_value=2))
     sizes = [draw(st.integers(min_value=2, max_value=3)) for _ in range(n_nets)]
@@ -281,17 +290,7 @@ def _routing_scenario(draw):
         raw_pads = [(x * 0.5, y * 0.5) for x, y in pts[idx : idx + size]]
         idx += size
         is_plane = draw(st.booleans())
-        if is_plane or size == 2:
-            pads = raw_pads
-        else:
-            (x0, y0), (x1, y1) = raw_pads[0], raw_pads[1]
-            vertices = [(x0, y0), (x0, y1), (x1, y1)]
-            pads = raw_pads[:2] + [
-                (px, py)
-                for px, py in raw_pads[2:]
-                if min(((px - vx) ** 2 + (py - vy) ** 2) ** 0.5 for vx, vy in vertices) > 0.5
-            ]
-        nets.append((f"NET{ni}", pads, is_plane))
+        nets.append((f"NET{ni}", raw_pads, is_plane))
     return nets
 
 
@@ -318,13 +317,16 @@ def test_written_segments_connect_all_pads_per_net(nets):
         if is_plane:
             path = SimpleNamespace(path_length=0.0, layer_name="F.Cu")
         else:
-            (x0, y0), (x1, y1) = pads[0], pads[1]
-            segments = [
-                (x0, y0, "F.Cu"),
-                (x0, y1, "F.Cu"),
-                (x1, y1, "F.Cu"),
-            ]
-            length = abs(y1 - y0) + abs(x1 - x0)
+            # Sequential Manhattan-hop path visiting every pad in order --
+            # a stand-in for whatever legal A*/via geometry the real tree
+            # executor would have produced upstream (the writer itself no
+            # longer stitches pads the path doesn't already cover; see
+            # _routing_scenario's docstring).
+            segments = []
+            length = 0.0
+            for (xa, ya), (xb, yb) in zip(pads, pads[1:]):
+                segments.extend([(xa, ya, "F.Cu"), (xa, yb, "F.Cu"), (xb, yb, "F.Cu")])
+                length += abs(yb - ya) + abs(xb - xa)
             path = SimpleNamespace(path_length=max(length, 0.1), segments=segments)
         compiled[net_name] = SimpleNamespace(net_name=net_name, width_mm=0.25, path=path)
 
@@ -346,7 +348,14 @@ def test_written_segments_connect_all_pads_per_net(nets):
             )
         )
 
-    for idx, (net_name, pads, _is_plane) in enumerate(nets, start=1):
+    for idx, (net_name, pads, is_plane) in enumerate(nets, start=1):
+        if is_plane:
+            # Plane nets get their copper from zone pours
+            # (_emit_zone_pours, gated on result.enable_zone_pours), not
+            # from standalone (segment ...) entries -- a zero-length
+            # dummy path here correctly writes none. Pour connectivity
+            # is this property's zone-emission counterpart, not this one.
+            continue
         segs = segs_by_net.get(idx, [])
         assert segs, f"net {net_name}: no segments emitted"
 
@@ -389,7 +398,17 @@ def test_written_segments_connect_all_pads_per_net(nets):
 
 
 def test_pad_exactly_at_stitch_threshold_is_connected():
-    """#229 was the 0.5mm stitch-threshold hole — now fixed (epsilon 1e-4)."""
+    """Regression pin for #229 (the old 0.5mm stitch-threshold hole).
+
+    #229 was originally fixed with an epsilon-based pad-stitch loop in
+    the writer (commit 8fc2fdb8); that workaround was itself deleted
+    hours later by commit e078771b once the tree executor took over
+    producing complete-coverage paths upstream. This pins the same
+    3-pads-spaced-0.5mm-apart layout #229 was about, now via a path that
+    genuinely visits all three pads -- proving the dense-spacing case
+    that used to fall in the old epsilon dead zone connects cleanly
+    under the current architecture.
+    """
     nets = [("NET0", [(0.0, 0.0), (0.0, 0.5), (0.0, 1.0)], False)]
     test_written_segments_connect_all_pads_per_net.hypothesis.inner_test(nets)
 

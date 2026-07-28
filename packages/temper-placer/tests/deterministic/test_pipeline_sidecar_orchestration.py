@@ -485,7 +485,7 @@ class TestSidecarE2EWiringFromParsedPCB:
         assert pipeline.channel_map is not None
         assert pipeline.channel_map.has_grid()
 
-    def test_parsed_pcb_without_source_path_falls_back_to_none(self, _tmp_path):
+    def test_parsed_pcb_without_source_path_falls_back_to_none(self, tmp_path):
         """A parsed_pcb without source_path is treated as if not provided."""
         from types import SimpleNamespace
 
