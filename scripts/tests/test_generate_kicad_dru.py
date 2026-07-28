@@ -32,17 +32,18 @@ a single "violations went up" number:
   literal footprint reference in the courtyard test (``A.insideCourtyard
   ('Q1')``) and shows the value change alone flips PASS->FAIL for a 1.95mm
   gap, exactly as intended.
-* ``test_real_rule_as_committed_does_not_currently_bind`` uses the EXACT
-  condition string ``generate_dru()`` emits today
-  (``A.insideCourtyard(B.Reference)``) and documents that, on kicad-cli
-  10.0.4, this dynamic-reference form does not appear to match at all --
-  independent of and pre-existing this fix -- so old and new both produce
-  zero clearance violations for this rule on its own. This is the falsifier
-  behaving honestly: the coating text was still worth removing (it asserted
-  a false safety justification), but the exact rule it decorated was not,
-  by itself, the live enforcement mechanism for this pad pair. See
-  docs/evidence/2026-07-28-drc-coating-failopen-fix.md for the fuller
-  picture, including RULE 1's separate, broader "same footprint" exception.
+* ``test_real_rule_as_committed_now_binds_after_condition_fix`` used to
+  document that the EXACT condition string ``generate_dru()`` emitted
+  (``A.insideCourtyard(B.Reference)``) did not match at all in kicad-cli
+  10.0.4 -- a second, independent defect in RULE 5 beyond the coating value,
+  fixed separately (see docs/evidence/2026-07-28-drc-courtyard-condition-fix.md):
+  ``A.insideCourtyard(B.Reference)`` is not a valid dynamic same-footprint
+  test in KiCad's rule language (``intersectsCourtyard()``'s argument
+  resolves against a literal footprint reference/wildcard string, not
+  another matched item's property value); the condition is now
+  ``A.Reference == B.Reference``, confirmed to bind on both an isolated
+  fixture and the real board. This test now asserts the FIXED condition
+  fires correctly and that the broken form is not reintroduced.
 """
 
 from __future__ import annotations
@@ -279,32 +280,79 @@ class TestDrcFalsifier:
         )
         assert f"actual {_TO247_GAP_MM:.4f}" in new_clearance[0]["description"]
 
-    def test_real_rule_as_committed_does_not_currently_bind(self, tmp_path: Path) -> None:
-        """The EXACT rule generate_dru() emits today uses a dynamic
-        ``A.insideCourtyard(B.Reference)`` courtyard reference. On
-        kicad-cli 10.0.4 this does not appear to match at all -- a
-        separate, pre-existing defect independent of this fix. Old and new
-        both produce zero clearance violations for THIS rule in isolation.
-        Documented as a fact, not asserted as acceptable: see
-        docs/evidence/2026-07-28-drc-coating-failopen-fix.md for the
-        follow-up this implies (RULE 1's separate, broader same-footprint
-        exception is the thing actually governing this pad pair today)."""
+    def test_real_rule_as_committed_now_binds_after_condition_fix(self, tmp_path: Path) -> None:
+        """The EXACT rule generate_dru() emits today uses
+        ``A.Reference == B.Reference`` for the same-footprint test (fixed
+        from the historical ``A.insideCourtyard(B.Reference)``, which does
+        not match anything in kicad-cli 10.0.4/10.0.5 -- see
+        docs/evidence/2026-07-28-drc-courtyard-condition-fix.md). This test
+        asserts both that the broken dynamic-courtyard form is gone AND that
+        the corrected condition, taken verbatim from generate_dru()'s real
+        output (not a hand-written substitute), actually fires: the
+        1.5mm->2.0mm value correction flips PASS->FAIL for the 1.95mm
+        TO-247 gap, exactly as intended, using the real emitted condition."""
         pcb_path = _build_fixture(tmp_path, _TO247_GAP_MM)
         real_block = _hv_internal_rule_block(gen.generate_dru())
         condition_match = re.search(r'\(condition "([^"]+)"\)', real_block)
         assert condition_match
         real_condition = condition_match.group(1)
-        assert "B.Reference" in real_condition  # confirms this is the real, as-shipped form
+        assert "insideCourtyard(B.Reference)" not in real_condition, (
+            "the broken A.insideCourtyard(B.Reference) form was reintroduced -- "
+            "see docs/evidence/2026-07-28-drc-courtyard-condition-fix.md"
+        )
+        assert "A.Reference == B.Reference" in real_condition
 
         old_violations = _run_drc(
             pcb_path, _rule(real_condition, _HISTORICAL_RELAXED_CLEARANCE_MM)
         )
-        new_violations = _run_drc(pcb_path, _rule(real_condition, gen.HV_INTERNAL_CLEARANCE_MM))
         old_clearance = [v for v in old_violations if v["type"] == "clearance"]
-        new_clearance = [v for v in new_violations if v["type"] == "clearance"]
-        assert old_clearance == [] and new_clearance == [], (
-            "if this starts failing, kicad-cli's handling of "
-            "A.insideCourtyard(B.Reference) has changed -- re-check "
-            "whether RULE 5 is now load-bearing as committed and update "
-            "docs/evidence/2026-07-28-drc-coating-failopen-fix.md"
+        assert old_clearance == [], (
+            f"expected the {_TO247_GAP_MM}mm gap to PASS the historical "
+            f"{_HISTORICAL_RELAXED_CLEARANCE_MM}mm rule under the real, "
+            f"as-emitted condition; got {old_clearance!r}"
         )
+
+        new_violations = _run_drc(pcb_path, _rule(real_condition, gen.HV_INTERNAL_CLEARANCE_MM))
+        new_clearance = [v for v in new_violations if v["type"] == "clearance"]
+        assert len(new_clearance) == 1, (
+            f"expected the {_TO247_GAP_MM}mm gap to FAIL the corrected "
+            f"{gen.HV_INTERNAL_CLEARANCE_MM}mm rule (1 violation) under the "
+            f"real, as-emitted condition; got {new_clearance!r} -- if this "
+            f"fails, the condition fix stopped binding and RULE 5 is silently "
+            f"matching nothing again"
+        )
+        assert f"actual {_TO247_GAP_MM:.4f}" in new_clearance[0]["description"]
+
+
+# ---------------------------------------------------------------------------
+# TestPowerInternalConditionFix -- RULE 7 shares RULE 5's exact defect
+# ---------------------------------------------------------------------------
+
+
+class TestPowerInternalConditionFix:
+    """RULE 7 ("Power internal same footprint") used the identical
+    A.insideCourtyard(B.Reference) same-footprint test as RULE 5, and so
+    shares the identical defect (see
+    docs/evidence/2026-07-28-drc-courtyard-condition-fix.md). Not owned by
+    any other in-flight fix, so corrected alongside RULE 5 rather than only
+    reported. A full kicad-cli DRC re-verification isn't repeated here since
+    the underlying mechanism (A.Reference == B.Reference vs.
+    A.insideCourtyard(B.Reference)) is already proven by TestDrcFalsifier
+    above -- this is a static regression guard against the broken form
+    coming back."""
+
+    def test_power_internal_condition_uses_reference_equality_not_dynamic_courtyard(
+        self,
+    ) -> None:
+        content = gen.generate_dru()
+        m = re.search(r'\(rule "Power internal same footprint".*?\n\)\n', content, re.DOTALL)
+        assert m, "Power internal same footprint rule not found in generated output"
+        block = m.group(0)
+        condition_match = re.search(r'\(condition "([^"]+)"\)', block)
+        assert condition_match
+        condition = condition_match.group(1)
+        assert "insideCourtyard(B.Reference)" not in condition, (
+            "the broken A.insideCourtyard(B.Reference) form was reintroduced in RULE 7 -- "
+            "see docs/evidence/2026-07-28-drc-courtyard-condition-fix.md"
+        )
+        assert "A.Reference == B.Reference" in condition
