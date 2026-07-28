@@ -37,7 +37,7 @@ import MUR1560 from "components.ato"
 import ES1J from "components.ato"
 import CapPolarized from "components.ato"
 import Relay_SPST from "components.ato"
-import Relay_SPDT from "components.ato"
+import Relay_DPDT from "components.ato"
 import MOV_Varistor from "components.ato"
 import CommonModeChoke from "components.ato"
 
@@ -837,13 +837,43 @@ module BusDischarge:
     """Fail-safe active bus discharge (plan 2026-07-16-001, Option A).
 
     One relay-switched resistor string across each 170V half-bus:
-    NC contact + 2x 3.9k/5W wirewound in series (7.8k per string).
-    RESIZED 2026-07-27 from 2x 4.7k (9.4k per string) --
+    2x NC contacts in series (both poles of a DPDT relay, see below) +
+    2x 3.9k/5W wirewound in series (7.8k per string). RESIZED 2026-07-27
+    from 2x 4.7k (9.4k per string) --
     docs/evidence/2026-07-27-busdischarge-tolerance-retune.md. Both relay
     coils are held energized from the 15V SELV rail whenever the unit
-    runs, holding the NC contacts OPEN. ANY loss of power (unplug, fuse,
+    runs, holding all NC contacts OPEN. ANY loss of power (unplug, fuse,
     aux-supply fault, MCU dead) drops the coils and the NC contacts close
     -> discharge engages with no MCU involvement.
+
+    RELAY REPLACEMENT 2026-07-28 (docs/evidence/
+    2026-07-28-discharge-relay-isolation.md,
+    docs/evidence/2026-07-28-relay-replacement-implementation.md): K2/K3
+    were Omron G5LE-1 SPDT relays (Relay_SPDT, single NC contact per
+    relay). The G5LE-1 fails reinforced coil<->contact isolation on three
+    independent grounds -- 6.32mm pad gap (3.50mm edge-to-edge) against an
+    8.0mm requirement, with the shortest path running across the relay's
+    own case (unfixable by any board feature); no creepage/clearance
+    figure stated in its own datasheet at all; and only 2000VAC coil-to-
+    contact dielectric strength, below IS 302-1 Table 7's reinforced
+    figure at any applicable column. Replaced with Finder 40.52.7.012.0000
+    (Relay_DPDT), a genuinely 2-pole (DPDT) relay whose manufacturer
+    catalog states "Reinforced (8mm)" coil-to-contact-set insulation
+    (EN 61810-1) explicitly for both poles, plus an explicit DC1
+    breaking-capacity graph (single contact AND "2 contacts in series")
+    that this circuit's 21.8mA break current clears with an order of
+    magnitude of margin even on one contact at 200V. Both poles of each
+    relay are now wired in series in the discharge string (NC1 -> COM1 ~
+    NC2 -> COM2), per this task's re-scoping instruction: this converts
+    the "two contacts in series doubles the DC-break gap" mitigation
+    already used for the incumbent's un-rated DC duty into an actual,
+    explicit two-pole specification, on top of (not instead of) the
+    part's own already-adequate per-pole DC1 rating. Both relays'
+    coils are actuated by a single armature (standard DPDT construction),
+    so both poles of a given relay open/close in the same physical event
+    -- the existing per-relay RC snubber sizing (dV/dt, energy) is
+    unchanged by this, now spanning the two contacts in series rather
+    than one.
 
     Sizing (per half-bus), per docs/hardware/BUS_CAPACITANCE_DERIVATION.md
     SS5.3 and re-derived independently here with the resistor's OWN
@@ -886,9 +916,14 @@ module BusDischarge:
     snubber RC and bus voltage, not on the discharge string resistance, so
     they are unchanged by this resize.
 
-    Coil budget: 2 x 33mA from the 15V rail, only while running. Each
-    coil gets its own 100R dropper (15V -> ~11.7V at the 360R coil,
-    97.5% of rated; G5LE must-operate voltage is 75% of rated)."""
+    Coil budget: 2 x ~39mA from the 15V rail, only while running (RESIZED
+    2026-07-28 from 2 x 33mA -- see RELAY REPLACEMENT above; the new
+    Finder 40.52.7.012.0000 coil is 288 ohm/42mA rated at 12V vs. the
+    G5LE-1's 360 ohm/33.3mA). Each coil keeps its existing 100R dropper
+    unmodified (15V -> I=15/(288+100)=38.7mA -> ~11.1V at the coil, 93%
+    of rated; Finder's own must-operate voltage for this coil is 8.8V,
+    73% of rated -- 11.1V clears it with 26% margin, comparable to the
+    G5LE-1's prior 97.5%-of-rated/75%-must-operate margin profile)."""
 
     # HV side: half-bus taps (Top wires these to dc_bus_plus /
     # power_return / dc_bus_minus)
@@ -901,22 +936,29 @@ module BusDischarge:
     signal ctrl
     power_15v = new ElectricPower
 
-    # Discharge relays: Omron G5LE-1 DC12, SPDT so the NC contact is
-    # available (the existing bypass relay G4A-1A-E is NO-only).
-    # VERIFIED 2026-07-16 (Omron G5LE catalog): contacts 10A / 250VAC,
-    # NC contact rated 10A carry; 12VDC coil 360R / 33.3mA / 400mW;
-    # coil-contact dielectric 2000VAC, impulse 4.5kV.
-    k_dis1 = new Relay_SPDT
+    # Discharge relays: Finder 40.52.7.012.0000, DPDT so both NC contacts
+    # are available and wired in series (replaces Omron G5LE-1 SPDT --
+    # see RELAY REPLACEMENT note above and docs/evidence/
+    # 2026-07-28-relay-replacement-implementation.md). VERIFIED 2026-07-28
+    # (Finder "40 SERIES PCB/Plug-in relays 8-10-12-16A" catalog,
+    # https://cdn.findernet.com/app/uploads/S40EN.pdf, fetched directly):
+    # 2 CO (DPDT) contacts, 8A rated / 250VAC; coil-to-contact-set
+    # insulation stated as "Reinforced (8mm)" per EN 61810-1 for both
+    # poles; explicit DC1 breaking-capacity graph (single contact and
+    # "2 contacts in series") covers this circuit's 21.8mA/170-200VDC
+    # duty with an order of magnitude of margin; 12VDC sensitive coil
+    # 288R / 42mA / ~0.5W.
+    k_dis1 = new Relay_DPDT
     k_dis1.coil_voltage = 12V
-    k_dis1.contact_current = 10A
-    k_dis1.mpn = "G5LE-1 DC12"
-    k_dis1.footprint = "Relay_THT:Relay_SPDT_Omron-G5LE-1"
+    k_dis1.contact_current = 8A
+    k_dis1.mpn = "40.52.7.012.0000"
+    k_dis1.footprint = "temper:Relay_DPDT_Finder-40.52"
 
-    k_dis2 = new Relay_SPDT
+    k_dis2 = new Relay_DPDT
     k_dis2.coil_voltage = 12V
-    k_dis2.contact_current = 10A
-    k_dis2.mpn = "G5LE-1 DC12"
-    k_dis2.footprint = "Relay_THT:Relay_SPDT_Omron-G5LE-1"
+    k_dis2.contact_current = 8A
+    k_dis2.mpn = "40.52.7.012.0000"
+    k_dis2.footprint = "temper:Relay_DPDT_Finder-40.52"
 
     # Discharge resistors: Vishay AC05 cemented wirewound, 3.9k 5% 5W,
     # axial ~18mm body, AEC-Q200, all-welded -- RESIZED 2026-07-27 from
@@ -1068,27 +1110,36 @@ module BusDischarge:
     assert r_dis2b.voltage_rating >= v_bus_half * 0.625
 
     # --- Connections ---
-    # Half-bus 1 string: hv_plus -> 3.9k -> 3.9k -> NC contact -> mid
+    # Half-bus 1 string: hv_plus -> 3.9k -> 3.9k -> NC1 -> NC2 (both poles
+    # of k_dis1 in series, per the task's re-scoping instruction -- see
+    # RELAY REPLACEMENT above) -> mid
     hv_plus ~ r_dis1a.p1
     r_dis1a.p2 ~ r_dis1b.p1
-    r_dis1b.p2 ~ k_dis1.NC
-    k_dis1.COM ~ mid
+    r_dis1b.p2 ~ k_dis1.NC1
+    k_dis1.COM1 ~ k_dis1.NC2
+    k_dis1.COM2 ~ mid
 
-    # Half-bus 2 string: mid -> 3.9k -> 3.9k -> NC contact -> hv_minus
+    # Half-bus 2 string: mid -> 3.9k -> 3.9k -> NC1 -> NC2 (both poles of
+    # k_dis2 in series) -> hv_minus
     mid ~ r_dis2a.p1
     r_dis2a.p2 ~ r_dis2b.p1
-    r_dis2b.p2 ~ k_dis2.NC
-    k_dis2.COM ~ hv_minus
-    # NO contacts intentionally unconnected: energized = pole held on NO
-    # = discharge path open.
+    r_dis2b.p2 ~ k_dis2.NC1
+    k_dis2.COM1 ~ k_dis2.NC2
+    k_dis2.COM2 ~ hv_minus
+    # NO1/NO2 contacts intentionally unconnected: energized = both poles
+    # held on NO = discharge path open.
 
-    # Snubbers across the contact gaps
-    k_dis1.NC ~ r_snub1.p1
+    # Snubbers across the series-contact-pair gap (outer NC1 node to outer
+    # COM2 node -- both poles of a DPDT relay share one armature, so both
+    # contacts open/close in the same physical event and the existing
+    # per-relay RC snubber sizing (dV/dt, energy) is unchanged by having
+    # two contacts in series instead of one, see RELAY REPLACEMENT above)
+    k_dis1.NC1 ~ r_snub1.p1
     r_snub1.p2 ~ c_snub1.p1
-    c_snub1.p2 ~ k_dis1.COM
-    k_dis2.NC ~ r_snub2.p1
+    c_snub1.p2 ~ k_dis1.COM2
+    k_dis2.NC1 ~ r_snub2.p1
     r_snub2.p2 ~ c_snub2.p1
-    c_snub2.p2 ~ k_dis2.COM
+    c_snub2.p2 ~ k_dis2.COM2
 
     # Gate drive
     ctrl ~ r_gate.p1

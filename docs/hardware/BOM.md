@@ -83,9 +83,11 @@
 
 **Added 2026-07-26 — was entirely uncosted.** `BusDischarge` (`modules.ato:692-938`) is the sole fail-safe mechanism that discharges the ~340V bus to <34V within ~60s on any loss of power (unplug, fuse, aux-supply fault, or MCU death — `IO47` boots Hi-Z, which engages discharge by default). It runs in parallel with, not instead of, the passive `R_BLEED1/2` bleeders in §1.2.
 
+> **`K_DIS1`/`K_DIS2` corrected 2026-07-28** (`docs/evidence/2026-07-28-relay-replacement-implementation.md`): the prior `G5LE-1 DC12` (Omron, SPDT) fails reinforced coil↔contact isolation on three independent grounds — 6.32mm pad gap (3.50mm edge-to-edge) against an 8.0mm requirement, with the shortest path running across the relay's own case; no creepage/clearance figure stated in its own datasheet; and only 2000VAC coil-to-contact dielectric strength, below IS 302-1 Table 7's reinforced figure. Replaced with Finder `40.52.7.012.0000`, a genuinely 2-pole (DPDT) relay whose manufacturer catalog states "Reinforced (8mm)" coil-to-contact insulation (EN 61810-1) and gives an explicit DC1 breaking-capacity curve at this circuit's actual 170–200V duty. Both poles are now wired NC-in-series in the discharge string (converts the "two contacts in series" DC-break mitigation into an actual two-pole spec, per the task's re-scoping instruction) — footprint and `elec/src/components.ato` pin mapping both changed; neither candidate considered was a drop-in.
+
 | Ref | Description | Part Number | Manufacturer | Qty | Package | Notes |
 |-----|-------------|-------------|--------------|-----|---------|-------|
-| K_DIS1, K_DIS2 | Discharge Relay | G5LE-1 DC12 | Omron | 2 | THT, 5-pin SPDT | 12V coil, 10A contact — NC contact engages discharge fail-safe |
+| K_DIS1, K_DIS2 | Discharge Relay | 40.52.7.012.0000 | Finder | 2 | THT, 8-pin DPDT | 12V coil, 8A contact — both NC contacts wired in series, fail-safe (see corrected note below) |
 | R_DIS1A, R_DIS1B, R_DIS2A, R_DIS2B | Discharge Resistor | AC05000004701JAC00 | Vishay | 4 | Axial DIN0918 | 4.7kΩ 5% 5W — 2 in series per half-bus (9.4kΩ/half) |
 | R_COIL1, R_COIL2 | Relay Coil Dropper | RC1206FR-07100RL | Yageo | 2 | 1206 | 100Ω 1% 0.25W 200V |
 | Q_DIS_DRV | Discharge Relay Driver MOSFET | AO3400A | Alpha & Omega Semi | 1 | SOT-23 | Low-side switch, both coils |
