@@ -24,6 +24,19 @@ Groups:
                                      1.95mm edge-to-edge gap this rule used
                                      to reason about. Skipped if kicad-cli
                                      isn't on PATH.
+  TestCreepageConstraintEmitted    -- (2026-07-28) kicad-cli 10.0.4 DOES
+                                     support a real `creepage` DRC constraint
+                                     (confirmed against kicad-source-mirror @
+                                     10.0.4 and empirically -- see
+                                     docs/evidence/2026-07-28-drc-creepage-
+                                     constraint.md). RULE 2/RULE 4 now emit
+                                     one, pinned to HV_CREEPAGE_ENFORCED_MM
+                                     (currently the PD3/12.6mm figure -- the
+                                     PD2/PD3 question itself remains
+                                     unresolved). Static checks plus a real
+                                     kicad-cli DRC falsifier proving the
+                                     emitted constraint binds. Skipped if
+                                     kicad-cli isn't on PATH.
 
 TestDrcFalsifier's two cases record an honest, two-part finding rather than
 a single "violations went up" number:
@@ -121,11 +134,16 @@ class TestNoCoatingRelaxation:
     def test_coating_qualified_flag_is_false(self) -> None:
         assert gen.COATING_QUALIFIED is False
 
-    def test_creepage_figures_recorded_but_flagged_unresolved(self) -> None:
-        # Not emitted as an enforced KiCad rule (the generator has no
-        # creepage constraint type) -- recorded so the gap is visible.
+    def test_creepage_figures_recorded_and_pd2_pd3_question_still_unresolved(self) -> None:
+        # Both PD2 and PD3 candidate figures remain declared side by side --
+        # the generator must never silently collapse this to one value
+        # without recording the other (see docs/evidence/2026-07-28-drc-
+        # creepage-constraint.md). As of 2026-07-28 this IS emitted as a
+        # real KiCad `creepage` constraint (kicad-cli 10.0.4 supports one --
+        # see TestCreepageConstraintEmitted below), pinned to the PD3 figure.
         assert gen.HV_CREEPAGE_PD2_MM == 8.0
         assert gen.HV_CREEPAGE_PD3_MM == 12.6
+        assert gen.HV_CREEPAGE_ENFORCED_MM in (gen.HV_CREEPAGE_PD2_MM, gen.HV_CREEPAGE_PD3_MM)
 
 
 # ---------------------------------------------------------------------------
@@ -629,3 +647,186 @@ class TestRule1aPadTypeConditionFix:
         assert "A.Footprint" not in condition
         assert "A.Reference == B.Reference" in condition
         assert "A.NetClass == B.NetClass" in condition
+
+
+# ---------------------------------------------------------------------------
+# TestCreepageConstraintEmitted -- kicad-cli 10.0.4 DOES support `creepage`
+# ---------------------------------------------------------------------------
+#
+# Background (docs/evidence/2026-07-28-drc-creepage-constraint.md): this
+# generator's own header used to state plainly "this generator has no
+# creepage constraint type today (only clearance and track_width)". That
+# was true when written but is no longer the right conclusion: kicad-cli
+# 10.0.4 implements a real `creepage` DRC constraint (CREEPAGE_CONSTRAINT /
+# DRCE_CREEPAGE), confirmed against kicad-source-mirror @ the 10.0.4 tag
+# itself (pcbnew/drc/drc_rule.h's DRC_CONSTRAINT_T enum, the `T_creepage`
+# keyword in pcbnew/drc/drc_rule_parser.cpp, and a dedicated, registered
+# test provider in pcbnew/drc/drc_test_provider_creepage.cpp that solves a
+# real surface-path graph -- not an alias for clearance) and empirically
+# (a lone `(constraint creepage (min 999mm))` rule on an isolated fixture
+# produces a real `type: "creepage"` violation with a measured `actual`
+# distance; adding a board slot directly between two pads at a fixed
+# 5.0mm straight-line gap changes the reported actual creepage from
+# 5.0000mm to 41.0526mm, proving this is a genuine path-around-obstacles
+# solver).
+#
+# RULE 2 ("AC Mains to LV") and RULE 4 ("HV to LV") now each carry a second
+# `(constraint creepage ...)` clause alongside their existing clearance
+# constraint, pinned to HV_CREEPAGE_ENFORCED_MM. The PD2 (8.0mm) vs PD3
+# (12.6mm) pollution-degree question itself remains UNRESOLVED and is not
+# settled by this change -- HV_CREEPAGE_ENFORCED_MM is currently pinned to
+# HV_CREEPAGE_PD3_MM, reusing the same call
+# scripts/check_isolation_keepout.py already made for the same barrier, not
+# a new unilateral choice.
+
+
+def _rule_block(content: str, rule_name: str) -> str:
+    m = re.search(rf'\(rule "{re.escape(rule_name)}".*?\n\)\n', content, re.DOTALL)
+    assert m, f"{rule_name!r} rule not found in generated output"
+    return m.group(0)
+
+
+class TestCreepageConstraintEmitted:
+    def test_enforced_constant_is_one_of_the_two_declared_candidates(self) -> None:
+        assert gen.HV_CREEPAGE_ENFORCED_MM in (gen.HV_CREEPAGE_PD2_MM, gen.HV_CREEPAGE_PD3_MM)
+
+    def test_enforced_constant_currently_pinned_to_pd3(self) -> None:
+        # Documented, deliberate choice (matches
+        # scripts/check_isolation_keepout.py's MIN_BARRIER_WIDTH_MM) -- not
+        # an accident of declaration order. If a human resolves PD2, this
+        # is the one assertion (plus the constant itself) that should change.
+        assert gen.HV_CREEPAGE_ENFORCED_MM == gen.HV_CREEPAGE_PD3_MM
+
+    def test_ac_mains_to_lv_rule_emits_creepage_constraint(self) -> None:
+        block = _rule_block(gen.generate_dru(), "AC Mains to LV")
+        assert "(constraint clearance (min 6.0mm))" in block
+        assert f"(constraint creepage (min {gen.fmt_mm(gen.HV_CREEPAGE_ENFORCED_MM)}))" in block
+
+    def test_hv_to_lv_rule_emits_creepage_constraint(self) -> None:
+        block = _rule_block(gen.generate_dru(), "HV to LV")
+        assert "(constraint clearance (min 2.0mm))" in block
+        assert f"(constraint creepage (min {gen.fmt_mm(gen.HV_CREEPAGE_ENFORCED_MM)}))" in block
+
+    def test_header_documents_creepage_is_now_enforced(self) -> None:
+        content = gen.generate_dru()
+        assert "CREEPAGE IS ENFORCED HERE" in content
+        assert "check_isolation_keepout.py" in content
+
+
+@pytest.mark.skipif(KICAD_CLI is None, reason="kicad-cli not on PATH")
+class TestCreepageDrcFalsifier:
+    """Real kicad-cli DRC falsifier: the emitted `creepage` constraint must
+    actually bind (produce a real, measured violation), not just parse.
+    Reuses the cross-domain fixture shape (a HighVoltage-netclass pad vs. a
+    Default-netclass pad on one footprint) but at gaps well past RULE 1's
+    same-Reference/same-NetClass exemption, and past the 999mm/500mm
+    clearance-only clamp discussed in docs/evidence/2026-07-28-drc-rule1-
+    netclass-redo.md sec 2a (creepage is not observed to be clamped the
+    same way -- confirmed up to a 999mm creepage threshold in this repo's
+    own probe, docs/evidence/2026-07-28-drc-creepage-constraint.md)."""
+
+    def _fixture(self, tmp_path: Path, gap_mm: float) -> Path:
+        from kiutils.board import Board, LayerToken
+        from kiutils.footprint import Footprint, Pad
+        from kiutils.items.common import Net, Position
+        from kiutils.items.fpitems import FpRect
+        from kiutils.items.gritems import GrPoly
+
+        board = Board()
+        board.version = "20221018"
+        board.generator = "pytest-creepage-fixture"
+        board.layers = [
+            LayerToken(ordinal=0, name="F.Cu", type="signal"),
+            LayerToken(ordinal=31, name="B.Cu", type="signal"),
+            LayerToken(ordinal=44, name="Edge.Cuts", type="user"),
+            LayerToken(ordinal=47, name="F.CrtYd", type="user", userName="F.Courtyard"),
+        ]
+        board.nets = [
+            Net(number=0, name=""),
+            Net(number=1, name="HV_SIDE"),
+            Net(number=2, name="LV_SIDE"),
+        ]
+        board.graphicItems = [
+            GrPoly(
+                coordinates=[
+                    Position(0, 0), Position(60, 0), Position(60, 60), Position(0, 60),
+                ],
+                layer="Edge.Cuts",
+                width=0.1,
+            )
+        ]
+        half_gap = gap_mm / 2
+        pad_half_width = 1.0
+        fp = Footprint()
+        fp.entryName = "Test:Creepage_CrossDomain"
+        fp.layer = "F.Cu"
+        fp.position = Position(30, 30)
+        fp.properties = {"Reference": "Q1"}
+        fp.pads = [
+            Pad(
+                number="1", type="smd", shape="rect",
+                position=Position(-(half_gap + pad_half_width), 0), size=Position(2, 2),
+                layers=["F.Cu"], net=Net(number=1, name="HV_SIDE"),
+            ),
+            Pad(
+                number="2", type="smd", shape="rect",
+                position=Position(half_gap + pad_half_width, 0), size=Position(2, 2),
+                layers=["F.Cu"], net=Net(number=2, name="LV_SIDE"),
+            ),
+        ]
+        fp.graphicItems = [FpRect(start=Position(-6, -4), end=Position(6, 4), layer="F.CrtYd", width=0.05)]
+        board.footprints = [fp]
+
+        pcb_path = tmp_path / "creepage_fixture.kicad_pcb"
+        board.to_file(str(pcb_path))
+
+        proj = json.loads((REPO_ROOT / "pcb" / "temper_final_verified.kicad_pro").read_text())
+        ns = proj["net_settings"]
+        default_class = dict(ns["classes"][0])
+        hv_class = dict(default_class)
+        hv_class.update({"name": "HighVoltage", "clearance": 0.05, "track_width": 3.0})
+        ns["classes"] = [default_class, hv_class]
+        ns["netclass_assignments"] = {"HV_SIDE": "HighVoltage"}  # LV_SIDE -> Default
+        (tmp_path / "creepage_fixture.kicad_pro").write_text(json.dumps(proj))
+
+        return pcb_path
+
+    def test_real_hv_to_lv_rule_flags_a_gap_below_the_enforced_creepage_figure(
+        self, tmp_path: Path
+    ) -> None:
+        """The exact 'HV to LV' rule block generate_dru() emits today,
+        applied wholesale (not a hand-picked substitute), must produce a
+        real creepage violation for a HighVoltage<->Default pad pair whose
+        straight-line gap is well below HV_CREEPAGE_ENFORCED_MM (12.6mm)."""
+        gap_mm = 5.0
+        pcb_path = self._fixture(tmp_path, gap_mm)
+        content = gen.generate_dru()
+        violations = _run_drc(pcb_path, content)
+        creepage = [v for v in violations if v["type"] == "creepage"]
+        assert len(creepage) >= 1, (
+            f"expected the {gap_mm}mm cross-domain gap to FAIL the emitted "
+            f"{gen.HV_CREEPAGE_ENFORCED_MM}mm creepage constraint; got no "
+            f"creepage violations -- the emitted rule may not be binding"
+        )
+        expected_value_str = f"{gen.HV_CREEPAGE_ENFORCED_MM:.4f}"
+        assert any(expected_value_str in v["description"] for v in creepage), (
+            f"expected a creepage violation citing the {expected_value_str}mm "
+            f"threshold; got {[v['description'] for v in creepage]!r}"
+        )
+
+    def test_gap_past_the_enforced_creepage_figure_does_not_flag_creepage(
+        self, tmp_path: Path
+    ) -> None:
+        """Control: a pad pair far enough apart to clear
+        HV_CREEPAGE_ENFORCED_MM should NOT produce a creepage violation --
+        proves the rule discriminates on distance rather than always firing."""
+        gap_mm = gen.HV_CREEPAGE_ENFORCED_MM + 5.0
+        pcb_path = self._fixture(tmp_path, gap_mm)
+        content = gen.generate_dru()
+        violations = _run_drc(pcb_path, content)
+        creepage = [v for v in violations if v["type"] == "creepage"]
+        assert creepage == [], (
+            f"expected a {gap_mm}mm gap (past the "
+            f"{gen.HV_CREEPAGE_ENFORCED_MM}mm enforced figure) to PASS; got "
+            f"{creepage!r}"
+        )
