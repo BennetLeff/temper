@@ -43,6 +43,9 @@ on:
       - 'scripts/tests/test_check_net_classification.py'
       - 'scripts/check_pll_range_consistency.py'
       - 'scripts/tests/test_check_pll_range_consistency.py'
+      - 'scripts/check_isolation_keepout.py'
+      - 'scripts/tests/test_check_isolation_keepout.py'
+      - 'pcb/temper.kicad_pcb'
       - 'firmware/components/control/pll_control.h'
       - '.net-classification-allowlist'
       - '.undeclared-imports-allowlist'
@@ -112,6 +115,9 @@ on:
       - 'scripts/tests/test_check_net_classification.py'
       - 'scripts/check_pll_range_consistency.py'
       - 'scripts/tests/test_check_pll_range_consistency.py'
+      - 'scripts/check_isolation_keepout.py'
+      - 'scripts/tests/test_check_isolation_keepout.py'
+      - 'pcb/temper.kicad_pcb'
       - 'firmware/components/control/pll_control.h'
       - '.net-classification-allowlist'
       - '.undeclared-imports-allowlist'
@@ -337,6 +343,20 @@ jobs:
         # see docs/evidence/2026-07-26-domain-partition-check.md. Never
         # `continue-on-error`: a gate that cannot run must exit non-zero.
         run: uv run python scripts/check_domain_partition.py
+
+      - name: Isolation-keepout gate unit tests
+        run: uv run pytest scripts/tests/test_check_isolation_keepout.py -v --tb=short
+
+      - name: Physical mains<->SELV isolation-barrier gate
+        # Fail-closed: verifies a dedicated keepout region (not just
+        # declarations/after-the-fact clearance checks) spans every copper
+        # layer, is >=8.0mm wide throughout, bisects the board into HV/SELV
+        # sides, and that no real copper intrudes -- pcb/temper.kicad_pcb
+        # has zero keepout zones today (docs/evidence/
+        # 2026-07-28-isolation-keepout.md). Never `continue-on-error`: a
+        # gate that cannot run, or that finds the barrier missing, must
+        # exit non-zero.
+        run: uv run python scripts/check_isolation_keepout.py
 
       - name: Run temper-constraints integration tests
         working-directory: packages/temper-placer

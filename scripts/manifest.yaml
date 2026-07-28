@@ -1009,6 +1009,28 @@ scripts:
   - re
   - rich.console
   - sys
+- path: check_isolation_keepout.py
+  purpose: 'Physical mains<->SELV isolation-barrier CI gate: verify a dedicated keepout region spans
+    all copper layers, is >=8.0mm wide (REINFORCED creepage) throughout, bisects the board into HV/SELV
+    sides, and that no copper (trace/via/pad/zone) intrudes -- pcb/temper.kicad_pcb has zero keepout zones
+    today, so this barrier exists only as declarations/after-the-fact checks; fail-closed on missing/empty
+    board or manifest, zero HV or SELV pads found, or a missing barrier zone (docs/evidence/2026-07-28-isolation-keepout.md)'
+  owner: bennet
+  last_run: '2026-07-28'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - kiutils.board
+  - math
+  - pathlib
+  - shapely.geometry
+  - shapely.ops
+  - sys
+  - yaml
 - path: check_stale_extensions.py
   purpose: 'CI gate: fail-closed freshness check for every pyo3/maturin Rust extension crate under packages/
     -- an installed .so older than its own crate''s source (or a crate whose extension is missing entirely)
