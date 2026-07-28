@@ -5,7 +5,7 @@ from __future__ import annotations
 import math
 from typing import TYPE_CHECKING
 
-from temper_placer.core.board import STANDARD_LAYER_ORDER, Board, MountingHole, is_signal_layer
+from temper_placer.core.board import STANDARD_LAYER_ORDER, Board, MountingHole
 from temper_placer.io._parse_zones import _extract_zones_from_pcb
 
 if TYPE_CHECKING:
@@ -232,21 +232,36 @@ def _extract_stackup(ki_board: KiBoard, warnings: list[str]) -> StackupInfo:
             layer_names = ["F.Cu"] + [f"In{i}.Cu" for i in range(1, layer_count - 1)] + ["B.Cu"]
 
         for i, name in enumerate(layer_names):
-            if layer_count == 4 and is_signal_layer(name):
-                # Canonical 4-layer stackup (core/board.py STANDARD_LAYER_ORDER /
-                # PLANE_LAYER_INDICES, docs/hardware/POWER_PLANE_DESIGN.md): F.Cu
-                # and B.Cu are always the signal/routing layers and In1.Cu/In2.Cu
-                # are always the inner GND/PWR reference planes. This must be
-                # checked before the zone-netname heuristic below: this board
-                # pours per-net copper fill (creepage/thermal) for many nets,
-                # including power-ish ones like PWR_RTN, directly on the outer
-                # layers. Letting that heuristic override the outer layers to
-                # "plane" silently removed F.Cu/B.Cu from the router's routing
-                # space entirely. See
-                # docs/evidence/2026-07-27-phantom-layer-stackup.md.
-                layer_type = "signal"
-                plane_net = None
-            elif name in plane_assignments:
+            # REVERTED 2026-07-28, deliberately. a1fe623e added a branch here
+            # forcing F.Cu/B.Cu to "signal" on a 4-layer board before the
+            # zone-netname heuristic ran, on the authority of
+            # docs/hardware/POWER_PLANE_DESIGN.md and the 4-layer enforcement
+            # plan (outer = signal, inner = GND/PWR planes).
+            #
+            # That is what the DESIGN DOCUMENTS say. It is not what the BOARD
+            # is. pcb/temper.kicad_pcb pours per-net copper fill on F.Cu/B.Cu
+            # for creepage and thermal reasons, so both outer layers are
+            # effectively occupied. Measured, same harness, only this file
+            # differing:
+            #
+            #     outer forced to signal : 3.12% completion, 93/96 unrouted
+            #     zone heuristic honoured: 38.54% completion, 59/96 unrouted
+            #
+            # A 12x regression -- layer assignment spread nets onto two blocked
+            # layers. test_astar_3d_production_scale_spike confirms the
+            # mechanism: with F.Cu present it cannot construct ANY free
+            # same-layer segment on it.
+            #
+            # The zone heuristic is therefore kept: it describes the artifact,
+            # and the artifact is what gets routed. The phantom-In3.Cu half of
+            # a1fe623e is RETAINED (see the .endswith(".Cu") fixes above) --
+            # that layer genuinely does not exist.
+            #
+            # OPEN DESIGN QUESTION, not a code defect: the docs and the board
+            # disagree about whether the outer layers should be poured at all.
+            # Resolving that is a board decision. Until then this code follows
+            # the board. See docs/evidence/2026-07-28-stackup-partial-revert.md.
+            if name in plane_assignments:
                 layer_type = "plane"
                 plane_net = plane_assignments[name]
             elif i == 0 or i == layer_count - 1:
