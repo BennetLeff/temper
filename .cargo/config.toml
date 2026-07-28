@@ -1,0 +1,25 @@
+# macOS pyo3 extension linking.
+#
+# A pyo3 `cdylib` built with the `extension-module` feature deliberately does
+# NOT link libpython -- the CPython symbols (`__Py_TrueStruct`, `_PyList_Type`,
+# ...) are resolved at load time by the interpreter that dlopens the module.
+# Apple's linker rejects that by default, so every `maturin develop` on this
+# repo failed with "symbol(s) not found for architecture arm64" for EVERY
+# crate, not just one.
+#
+# Consequence while this was missing: no Rust extension could be rebuilt, so
+# each .so in .venv stayed frozen at its last successful build and source
+# changes silently did not take effect. It surfaced as `ImportError: cannot
+# import name 'ConfigBoardMismatchError' from 'temper_io_types'` -- a symbol
+# that exists in packages/temper-io-types/src/lib.rs:13 but not in the
+# installed build -- which made two test modules fail to collect.
+#
+# `cargo build`/`cargo test` are unaffected either way: they build the rlib
+# and the test harness links libpython normally. Only the cdylib needs this,
+# which is why the tests looked green while the extensions were stale.
+
+[target.aarch64-apple-darwin]
+rustflags = ["-C", "link-arg=-undefined", "-C", "link-arg=dynamic_lookup"]
+
+[target.x86_64-apple-darwin]
+rustflags = ["-C", "link-arg=-undefined", "-C", "link-arg=dynamic_lookup"]
