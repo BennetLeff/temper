@@ -49,14 +49,14 @@ FAILURE_REASON_PROVER_ERROR = "prover_error"
 class RoutingFailureReport:
     """Detailed failure report for a net that failed to route.
 
-    ``rule_id``/``domain``/``attribution_gap`` are U1's decline-reason
-    attribution. They follow the UNSAT-core "because"-field candor pattern
+    ``rule_id``/``domain`` are U1's decline-reason attribution, following
+    the UNSAT-core "because"-field candor pattern
     (docs/solutions/architecture-patterns/two-tier-acceptance-gate-unsat-surfacing-2026-07-05.md):
-    never fabricate a rule attribution. ``attribution_gap`` defaults to
-    ``True`` (no specific rule identified) so a construction site that
-    forgets to set it never silently implies a rule was named. ``rule_id``
-    is only ever non-``None`` when ``attribution_gap`` is ``False`` --
-    enforced in ``__post_init__`` so this can't drift silently.
+    never fabricate a rule attribution. ``attribution_gap`` is a computed
+    property (``rule_id is None``) rather than a separately-threaded field
+    -- there is exactly one source of truth for "was a specific rule
+    named," so it cannot drift out of sync with ``rule_id`` the way a
+    parallel stored field could.
     """
 
     net_name: str
@@ -69,23 +69,11 @@ class RoutingFailureReport:
     pin_count: int = 0  # Number of pins in the net
     rule_id: str | None = None  # Specific rule/mechanism name, e.g. RULE_ID_FORCED_SEGMENT_FAIL_CLOSED
     domain: str | None = None  # net_classification.classify_net_type(net_name) result
-    attribution_gap: bool = True  # True unless a specific rule_id is named
 
-    def __post_init__(self) -> None:
-        if self.rule_id is not None and self.attribution_gap:
-            raise ValueError(
-                f"RoutingFailureReport({self.net_name!r}): rule_id={self.rule_id!r} "
-                "names a specific rule but attribution_gap=True -- a decline "
-                "cannot both name a rule and admit it has no attribution. "
-                "This is the exact fabrication the because-field candor "
-                "pattern forbids (see class docstring)."
-            )
-        if self.rule_id is None and not self.attribution_gap:
-            raise ValueError(
-                f"RoutingFailureReport({self.net_name!r}): attribution_gap=False "
-                "but rule_id is None -- a decline claiming a known rule must "
-                "actually name it, never blank."
-            )
+    @property
+    def attribution_gap(self) -> bool:
+        """True unless a specific rule_id is named. Never set directly."""
+        return self.rule_id is None
 
 
 @dataclass(frozen=True)

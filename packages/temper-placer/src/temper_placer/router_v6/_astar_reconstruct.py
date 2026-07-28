@@ -56,6 +56,7 @@ from temper_placer.router_v6.astar_grid import (
     _unmark_route_blocked,
 )
 from temper_placer.router_v6.channel_mapping import ChannelMapping
+from temper_placer.router_v6.net_classification import classify_net_type
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 from temper_placer.router_v6.stage0_data import DesignRules
 from temper_placer.router_v6.tree_route_geometry import TreeRouteBranch, TreeRouteGeometry
@@ -73,6 +74,19 @@ _SEGMENT_3D_FALLBACK_MAX_ITER = 200_000
 # larger search budget; two-pad routing deliberately retains the value above.
 _TREE_SEGMENT_3D_FALLBACK_MAX_ITER = 10_000
 _MAX_REROUTE_ATTEMPTS_PER_NET = 2
+
+def _forced_segment_decline(
+    blockers: list[str],
+    region: tuple[float, float] | None,
+) -> tuple[bool, str, list[str], tuple[float, float] | None, str | None]:
+    """Build the standard decline tuple for a forced-segment fail-closed refusal.
+
+    Every call site that reaches this shares the same reason and rule_id;
+    centralizing the pairing here means a future change to either only
+    needs to happen once, not in lockstep across every return site.
+    """
+    return False, "no_path", blockers, region, RULE_ID_FORCED_SEGMENT_FAIL_CLOSED
+
 
 _SKIP_NET_PREFIXES = ("unconnected-", "NC-", "DNP-", "NC_", "TP_")
 
@@ -203,14 +217,14 @@ def run_astar_pathfinding(
 
     def attempt_route(
         net_name: str,
-    ) -> tuple[bool, str, list[str], tuple[float, float] | None, str | None, bool]:
+    ) -> tuple[bool, str, list[str], tuple[float, float] | None, str | None]:
         """Attempt to route one net.
 
-        Returns ``(success, reason, blockers, region, rule_id,
-        attribution_gap)``. ``rule_id``/``attribution_gap`` are only
-        meaningful when ``success`` is ``False`` -- see
-        ``RoutingFailureReport``'s docstring for the candor contract they
-        implement.
+        Returns ``(success, reason, blockers, region, rule_id)``. ``rule_id``
+        is only meaningful when ``success`` is ``False`` -- see
+        ``RoutingFailureReport``'s docstring for the candor contract it
+        implements (``attribution_gap`` is derived from it, never threaded
+        separately).
         """
         nonlocal fallback_count
         channel_path = channel_mapping.channel_paths[net_name]
@@ -272,7 +286,7 @@ def run_astar_pathfinding(
                 tree_routes[net_name] = completed_geometry
                 _restore_net_pads(restoration)
                 print(f"      ✓ {net_name} routed successfully", flush=True)
-                return True, "", [], None, None, True
+                return True, "", [], None, None
             if completed_geometry.branches:
                 partial_tree_routes[net_name] = completed_geometry
             failed_edge = execution.failed_edges[0]
@@ -298,27 +312,19 @@ def run_astar_pathfinding(
             if summary_reason == NO_ROUTABLE_LAYER:
                 # A layer-selection rejection is a distinct channel-topology
                 # gap, not the forced-segment fail-closed gate -- report the
-                # honest attribution_gap=True rather than a fabricated
-                # rule_id.
+                # honest gap (rule_id=None, so attribution_gap derives to
+                # True) rather than a fabricated rule_id.
                 return (
                     False,
                     summary_reason,
                     [],
                     (terminal.center.x, terminal.center.y),
                     None,
-                    True,
                 )
             # execute_terminal_tree always calls with allow_forced_segments=False
             # (terminal_tree_execution.py) -- this is the same fail-closed gate,
             # just reached via the tree-execution path rather than _astar_route.
-            return (
-                False,
-                summary_reason,
-                [],
-                (terminal.center.x, terminal.center.y),
-                RULE_ID_FORCED_SEGMENT_FAIL_CLOSED,
-                False,
-            )
+            return _forced_segment_decline([], (terminal.center.x, terminal.center.y))
 
         route_path, ripped_ids, fb = _astar_route_with_ripup(
             net_name,
@@ -370,14 +376,7 @@ def run_astar_pathfinding(
                     f"{channel_path.waypoints[failed_index]}",
                     flush=True,
                 )
-                return (
-                    False,
-                    "no_path",
-                    [],
-                    channel_path.waypoints[failed_index],
-                    RULE_ID_FORCED_SEGMENT_FAIL_CLOSED,
-                    False,
-                )
+                return _forced_segment_decline([], channel_path.waypoints[failed_index])
 
             # No net class is exempt from the forced-segment gate (see
             # _allow_forced_segments docstring, which is unconditional --
@@ -391,15 +390,11 @@ def run_astar_pathfinding(
                     f"(forced segment disallowed)",
                     flush=True,
                 )
-                return (
-                    False,
-                    "no_path",
+                return _forced_segment_decline(
                     [],
                     channel_path.waypoints[len(channel_path.waypoints) // 2]
                     if channel_path.waypoints
                     else None,
-                    RULE_ID_FORCED_SEGMENT_FAIL_CLOSED,
-                    False,
                 )
             if congestion_tensor is not None:
                 if hasattr(route_path, "coordinates"):
@@ -439,7 +434,7 @@ def run_astar_pathfinding(
             # forced_segment_count > 0 always returns above now (no net
             # class is exempt from the fail-closed gate) -- a route
             # reaching this point is genuinely legal, never forced.
-            return True, "", [], None, None, True
+            return True, "", [], None, None
 
         # Neither branch below currently has a rule-level attribution: a
         # None ``route_path`` only occurs when ``_astar_route`` /
@@ -452,10 +447,10 @@ def run_astar_pathfinding(
                 f"      ✗ {net_name} FAILED: congestion (blockers: {', '.join(blocker_names[:3])})",
                 flush=True,
             )
-            return False, "congestion", blocker_names, congestion_region(), None, True
+            return False, "congestion", blocker_names, congestion_region(), None
         else:
             print(f"      ✗ {net_name} FAILED: no path found", flush=True)
-            return False, "no_path", [], congestion_region(), None, True
+            return False, "no_path", [], congestion_region(), None
 
     def record_failure(
         net_name: str,
@@ -463,18 +458,16 @@ def run_astar_pathfinding(
         _blockers: list[str],
         region: tuple[float, float] | None,
         rule_id: str | None = None,
-        attribution_gap: bool = True,
     ) -> None:
         """Record a failure with all accumulated data.
 
-        ``rule_id``/``attribution_gap`` are U1's decline-reason attribution
-        (see ``RoutingFailureReport``'s docstring); ``domain`` is always
-        derived from ``net_classification``'s canonical name-pattern
-        helpers -- never a new ad hoc classifier -- independent of whether
-        a rule was attributed.
+        ``rule_id`` is U1's decline-reason attribution (see
+        ``RoutingFailureReport``'s docstring; ``attribution_gap`` is derived
+        from it, never passed separately). ``domain`` is always derived
+        from ``net_classification``'s canonical name-pattern helpers --
+        never a new ad hoc classifier -- independent of whether a rule was
+        attributed.
         """
-        from temper_placer.router_v6.net_classification import classify_net_type
-
         channel_path = channel_mapping.channel_paths.get(net_name)
         pin_count = len(channel_path.waypoints) if channel_path else 0
 
@@ -489,7 +482,6 @@ def run_astar_pathfinding(
             pin_count=pin_count,
             rule_id=rule_id,
             domain=classify_net_type(net_name),
-            attribution_gap=attribution_gap,
         )
 
     per_path_latency_ms: dict[str, float] = {}
@@ -499,14 +491,15 @@ def run_astar_pathfinding(
 
     def _attempt_route_fail_closed(
         net_name: str,
-    ) -> tuple[bool, str, list[str], tuple[float, float] | None, str | None, bool]:
+    ) -> tuple[bool, str, list[str], tuple[float, float] | None, str | None]:
         """Call ``attempt_route``, declining fail-closed on an unhandled exception.
 
         R4/candor: a net whose discharge attempt raised is never silently
         dropped or treated as proven-safe -- it is declined with
         ``failure_reason="prover_error"``. This is not a specific safety
         rule (we don't know whether clearance/creepage would have held),
-        so ``attribution_gap=True`` rather than inventing a rule_id.
+        so ``rule_id`` stays ``None`` (``attribution_gap`` derives to
+        ``True``) rather than inventing one.
         """
         try:
             return attempt_route(net_name)
@@ -516,19 +509,15 @@ def run_astar_pathfinding(
                 "rather than treating it as proven-safe.",
                 net_name,
             )
-            return False, FAILURE_REASON_PROVER_ERROR, [], None, None, True
+            return False, FAILURE_REASON_PROVER_ERROR, [], None, None
 
     for net_name in routable_nets:
         t0 = time.perf_counter()
-        success, reason, blockers, region, rule_id, attribution_gap = _attempt_route_fail_closed(
-            net_name
-        )
+        success, reason, blockers, region, rule_id = _attempt_route_fail_closed(net_name)
         _add_latency(net_name, (time.perf_counter() - t0) * 1000.0)
         if not success:
             failed_nets_set.add(net_name)
-            record_failure(
-                net_name, reason, blockers, region, rule_id=rule_id, attribution_gap=attribution_gap
-            )
+            record_failure(net_name, reason, blockers, region, rule_id=rule_id)
 
     max_reroute_attempts = len(routable_nets) * _MAX_REROUTE_ATTEMPTS_PER_NET
     attempts = 0
@@ -537,23 +526,19 @@ def run_astar_pathfinding(
         net_name = reroute_queue.popleft()
         attempts += 1
         t0 = time.perf_counter()
-        success, reason, blockers, region, rule_id, attribution_gap = _attempt_route_fail_closed(
-            net_name
-        )
+        success, reason, blockers, region, rule_id = _attempt_route_fail_closed(net_name)
         _add_latency(net_name, (time.perf_counter() - t0) * 1000.0)
         if not success:
             failed_nets_set.add(net_name)
-            record_failure(
-                net_name, reason, blockers, region, rule_id=rule_id, attribution_gap=attribution_gap
-            )
+            record_failure(net_name, reason, blockers, region, rule_id=rule_id)
 
     for net_name in reroute_queue:
         failed_nets_set.add(net_name)
         # Rip-up budget exhaustion is a specific, known mechanism, but it is
         # a routing-algorithm resource limit, not a safety rule the system
         # failed to discharge -- report the honest gap (rule_id=None,
-        # attribution_gap=True, both record_failure defaults) rather than
-        # naming a "rule" that doesn't exist.
+        # so attribution_gap derives to True) rather than naming a "rule"
+        # that doesn't exist.
         record_failure(net_name, "rip_up_limit", [], None)
 
     log_los_bb_stats()
