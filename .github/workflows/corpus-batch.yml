@@ -9,9 +9,6 @@ jobs:
   batch-validate:
     runs-on: ubuntu-latest
     timeout-minutes: 180
-    env:
-      XLA_PYTHON_CLIENT_MEM_FRACTION: 0.25
-      JAX_PLATFORM_NAME: cpu
 
     steps:
       - uses: actions/checkout@v7

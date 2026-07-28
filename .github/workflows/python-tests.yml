@@ -185,8 +185,6 @@ jobs:
     # not a hang.
     timeout-minutes: 30
     env:
-      XLA_PYTHON_CLIENT_MEM_FRACTION: 0.35
-      JAX_PLATFORM_NAME: cpu
       VIRTUAL_ENV: ${{ github.workspace }}/.venv
       # CI is the environment where the Rust DRC/clearance accelerator and
       # its Python-equivalence proof are themselves under test, so a skip
@@ -368,8 +366,6 @@ jobs:
         working-directory: packages/temper-placer
         run: uv run pytest tests/core/ -v --tb=short -p no:cacheprovider --maxfail=10 --cov=temper_placer --cov-report=json --cov-report=term --cov-config=../../pyproject.toml
         env:
-          XLA_PYTHON_CLIENT_MEM_FRACTION: 0.25
-          JAX_PLATFORM_NAME: cpu
           RUST_BACKTRACE: full
           PYTHONFAULTHANDLER: 1
 
@@ -417,7 +413,6 @@ jobs:
           BUNDLE_PID=$!
 
           (cd packages/temper-placer && \
-           export XLA_PYTHON_CLIENT_MEM_FRACTION=0.15 JAX_PLATFORM_NAME=cpu && \
            uv run pytest tests/placer/cp_sat/ tests/metrics/test_external_oracle.py \
              tests/cli/test_cp_sat_flag.py -v --tb=short -p no:cacheprovider --maxfail=10) &
           CPSAT_PID=$!
@@ -437,9 +432,6 @@ jobs:
             wait $pid || FAIL=1
           done
           exit $FAIL
-        env:
-          XLA_PYTHON_CLIENT_MEM_FRACTION: 0.15
-          JAX_PLATFORM_NAME: cpu
         continue-on-error: true  # TODO: temper-NNN -- parallel test suite flakiness; hard-fail after 2026-09-01
 
       - name: Regenerate schematics and check drift
@@ -489,9 +481,6 @@ jobs:
 
       - name: Import boundary enforcement
         run: uv run python scripts/import_linter_gate.py
-        env:
-          XLA_PYTHON_CLIENT_MEM_FRACTION: 0.15
-          JAX_PLATFORM_NAME: cpu
 
       - name: MPN fabrication gate tests
         run: uv run pytest scripts/tests/test_mpn_fabrication_gate.py -v --tb=short
@@ -615,8 +604,6 @@ jobs:
       options: --user root
     timeout-minutes: 30
     env:
-      XLA_PYTHON_CLIENT_MEM_FRACTION: 0.15
-      JAX_PLATFORM_NAME: cpu
       VIRTUAL_ENV: ${{ github.workspace }}/.venv
       TEMPER_REQUIRE_RUST_DRC: "1"
     steps:
@@ -706,8 +693,6 @@ jobs:
       options: --user root
     timeout-minutes: 30
     env:
-      XLA_PYTHON_CLIENT_MEM_FRACTION: 0.15
-      JAX_PLATFORM_NAME: cpu
       VIRTUAL_ENV: ${{ github.workspace }}/.venv
       TEMPER_REQUIRE_RUST_DRC: "1"
     steps:
@@ -797,8 +782,6 @@ jobs:
       options: --user root
     timeout-minutes: 30
     env:
-      XLA_PYTHON_CLIENT_MEM_FRACTION: 0.15
-      JAX_PLATFORM_NAME: cpu
       VIRTUAL_ENV: ${{ github.workspace }}/.venv
       TEMPER_REQUIRE_RUST_DRC: "1"
     steps:
@@ -888,8 +871,6 @@ jobs:
       options: --user root
     timeout-minutes: 20
     env:
-      XLA_PYTHON_CLIENT_MEM_FRACTION: 0.15
-      JAX_PLATFORM_NAME: cpu
       VIRTUAL_ENV: ${{ github.workspace }}/.venv
       TEMPER_REQUIRE_RUST_DRC: "1"
     steps:
@@ -1143,8 +1124,6 @@ jobs:
     if: github.event_name == 'schedule'
     env:
       RUN_NIGHTLY: 1
-      XLA_PYTHON_CLIENT_MEM_FRACTION: 0.35
-      JAX_PLATFORM_NAME: cpu
 
     steps:
       - uses: actions/checkout@v7
@@ -1178,6 +1157,4 @@ jobs:
           -v --tb=short -m nightly
           -p no:cacheprovider
         env:
-          XLA_PYTHON_CLIENT_MEM_FRACTION: 0.25
-          JAX_PLATFORM_NAME: cpu
           RUN_NIGHTLY: 1

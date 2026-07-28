@@ -297,3 +297,259 @@ class TestAggregateAndPerTypeEnumeration(TestPerTypeCeilings):
         assert not r.passed
         assert "warnings 50 exceeds ceiling" in r.message
         assert r.aggregate_warning_delta > 0
+
+
+class TestPerTypeWarningCeilings:
+    """`warnings_by_type` is enforced with the exact same semantics as
+    `violations_by_type` on the error side (see `TestPerTypeCeilings`).
+
+    The aggregate `warning_ceiling` is coarse enough that 517 of 696
+    measured warnings on the real board are cosmetic silkscreen findings
+    (silk_edge_clearance, silk_over_copper, silk_overlap, ...) pooling
+    together with structural findings like `missing_courtyard` and
+    `pth_inside_courtyard` -- exactly the failure mode the per-type ERROR
+    ceilings were added to prevent. This class mirrors that fix for
+    warnings.
+    """
+
+    @staticmethod
+    def _entry(tmp_path: Path, warnings_by_type: dict, warning_ceiling: int = 1000):
+        ceiling_path = tmp_path / "drc_ceiling.json"
+        ceiling_path.write_text(
+            json.dumps(
+                {
+                    "boards": [
+                        {
+                            "board_id": "b",
+                            "path": "pcb/b.kicad_pcb",
+                            "error_ceiling": 100,
+                            "warning_ceiling": warning_ceiling,
+                            "warnings_by_type": warnings_by_type,
+                        }
+                    ]
+                }
+            )
+        )
+        ratchet = DrcRatchet(ceiling_path, backend="kicad-cli")
+        ratchet.load()
+        return ratchet, ratchet.entries["b"]
+
+    def _check(self, tmp_path, warnings_by_type, current, monkeypatch, warning_ceiling=1000):
+        """Drive _check_board with a stubbed kicad-cli backend returning
+        zero errors and a warnings breakdown by rule.
+        """
+        import temper_placer.validation._drc_api as drc_api
+
+        ratchet, entry = self._entry(tmp_path, warnings_by_type, warning_ceiling)
+        warnings = [
+            type("W", (), {"rule": rule})()
+            for rule, n in current.items()
+            for _ in range(n)
+        ]
+        result_obj = type(
+            "R",
+            (),
+            {
+                "error_count": 0,
+                "warning_count": len(warnings),
+                "errors": [],
+                "warnings": warnings,
+            },
+        )()
+        monkeypatch.setattr(drc_api, "run_drc", lambda _p: result_obj)
+        pcb = tmp_path / "b.kicad_pcb"
+        pcb.write_text("(kicad_pcb)")
+        return ratchet._check_board("b", pcb, entry)
+
+    def test_within_per_type_ceilings_passes(self, tmp_path, monkeypatch):
+        r = self._check(tmp_path, {"silk_overlap": 119}, {"silk_overlap": 119}, monkeypatch)
+        assert r.passed, r.message
+
+    def test_category_over_its_ceiling_fails(self, tmp_path, monkeypatch):
+        r = self._check(tmp_path, {"silk_overlap": 119}, {"silk_overlap": 120}, monkeypatch)
+        assert not r.passed
+        assert "silk_overlap 120 > 119" in r.message
+
+    def test_new_category_has_implicit_zero_ceiling(self, tmp_path, monkeypatch):
+        """A warning class absent from the record must not arrive for free."""
+        r = self._check(
+            tmp_path,
+            {"silk_overlap": 119},
+            {"silk_overlap": 119, "missing_courtyard": 1},
+            monkeypatch,
+        )
+        assert not r.passed
+        assert "missing_courtyard 1 > 0" in r.message
+
+    def test_per_type_fails_even_when_aggregate_has_room(self, tmp_path, monkeypatch):
+        """The whole point: the aggregate warning_ceiling must not mask a
+        per-category regression, exactly like the error side.
+        """
+        r = self._check(
+            tmp_path,
+            {"silk_overlap": 119},
+            {"silk_overlap": 200},
+            monkeypatch,
+            warning_ceiling=1000,  # aggregate has tons of room
+        )
+        assert not r.passed, "aggregate warning slack masked a per-category regression"
+
+    def test_backend_cannot_break_down_does_not_read_as_clean(self, tmp_path, monkeypatch):
+        """When the backend can't supply a warnings breakdown (the rust
+        backend never can), the per-type warning check must be skipped --
+        never silently treated as '0 categories, so nothing regressed'.
+        The aggregate check must still run and still catch a real
+        regression; this is what stops "can't verify per-type" from ever
+        reading as "verified clean".
+        """
+        ceiling_path = tmp_path / "drc_ceiling.json"
+        ceiling_path.write_text(
+            json.dumps(
+                {
+                    "boards": [
+                        {
+                            "board_id": "b",
+                            "path": "pcb/b.kicad_pcb",
+                            "error_ceiling": 100,
+                            "warning_ceiling": 5,
+                            "warnings_by_type": {"silk_overlap": 0},
+                        }
+                    ]
+                }
+            )
+        )
+        ratchet = DrcRatchet(ceiling_path, backend="rust")
+        ratchet.load()
+        entry = ratchet.entries["b"]
+
+        # Stub the rust path directly -- it only ever returns aggregate
+        # counts, never a per-type breakdown.
+        monkeypatch.setattr(ratchet, "_run_rust_drc", lambda _p: (0, 50))
+        pcb = tmp_path / "b.kicad_pcb"
+        pcb.write_text("(kicad_pcb)")
+
+        r = ratchet._check_board("b", pcb, entry)
+
+        assert not r.passed
+        assert "warnings 50 exceeds ceiling 5" in r.message
+        # No per-type warning category can be fabricated when the backend
+        # supplied no breakdown -- this dimension was genuinely never
+        # checked, and must not masquerade as having been.
+        assert not any(c.kind == "warning" for c in r.category_failures)
+
+
+class TestPerTypeCeilingRaiseDetection:
+    """`detect_ceiling_raise` must catch a raise hidden inside
+    `warnings_by_type` even when the aggregate `warning_ceiling` itself
+    does not increase (or even decreases) -- otherwise the per-type
+    ceiling enforced by `_check_board` could be silently inflated in the
+    committed JSON, bypassing approval entirely.
+    """
+
+    def test_new_warning_category_raise_requires_approval(self):
+        ratchet = DrcRatchet(Path("dummy.json"))
+        old = {
+            "boards": [
+                {
+                    "board_id": "b1",
+                    "error_ceiling": 100,
+                    "warning_ceiling": 500,
+                    "warnings_by_type": {"silk_overlap": 119},
+                }
+            ]
+        }
+        new = {
+            "boards": [
+                {
+                    "board_id": "b1",
+                    "error_ceiling": 100,
+                    "warning_ceiling": 500,
+                    "warnings_by_type": {"silk_overlap": 119, "missing_courtyard": 5},
+                }
+            ]
+        }
+        result = ratchet.detect_ceiling_raise(old, new, commit_message="fix: whatever")
+        assert result is not None
+        assert result.exit_code == 2
+        assert "requires explicit approval" in result.message
+
+    def test_warning_category_raise_requires_approval_even_if_aggregate_drops(self):
+        """The whole point mirrored for the ceiling-raise detector: an
+        aggregate decrease must not mask a per-category increase.
+        """
+        ratchet = DrcRatchet(Path("dummy.json"))
+        old = {
+            "boards": [
+                {
+                    "board_id": "b1",
+                    "error_ceiling": 100,
+                    "warning_ceiling": 500,
+                    "warnings_by_type": {"silk_overlap": 119, "silk_edge_clearance": 199},
+                }
+            ]
+        }
+        new = {
+            "boards": [
+                {
+                    "board_id": "b1",
+                    "error_ceiling": 100,
+                    "warning_ceiling": 400,  # aggregate DROPPED
+                    "warnings_by_type": {"silk_overlap": 300, "silk_edge_clearance": 100},
+                }
+            ]
+        }
+        result = ratchet.detect_ceiling_raise(old, new, commit_message="fix: whatever")
+        assert result is not None
+        assert result.exit_code == 2
+
+    def test_warning_category_raise_approved_with_trailer(self):
+        ratchet = DrcRatchet(Path("dummy.json"))
+        old = {
+            "boards": [
+                {
+                    "board_id": "b1",
+                    "error_ceiling": 100,
+                    "warning_ceiling": 500,
+                    "warnings_by_type": {"silk_overlap": 119},
+                }
+            ]
+        }
+        new = {
+            "boards": [
+                {
+                    "board_id": "b1",
+                    "error_ceiling": 100,
+                    "warning_ceiling": 500,
+                    "warnings_by_type": {"silk_overlap": 200},
+                }
+            ]
+        }
+        result = ratchet.detect_ceiling_raise(
+            old, new, commit_message="Ceiling-Approval: reviewer-id\nfix: raise silk_overlap"
+        )
+        assert result is None
+
+    def test_warning_category_lowered_needs_no_approval(self):
+        ratchet = DrcRatchet(Path("dummy.json"))
+        old = {
+            "boards": [
+                {
+                    "board_id": "b1",
+                    "error_ceiling": 100,
+                    "warning_ceiling": 500,
+                    "warnings_by_type": {"silk_overlap": 200},
+                }
+            ]
+        }
+        new = {
+            "boards": [
+                {
+                    "board_id": "b1",
+                    "error_ceiling": 100,
+                    "warning_ceiling": 500,
+                    "warnings_by_type": {"silk_overlap": 100},
+                }
+            ]
+        }
+        result = ratchet.detect_ceiling_raise(old, new, commit_message="fix: lower ceiling")
+        assert result is None
