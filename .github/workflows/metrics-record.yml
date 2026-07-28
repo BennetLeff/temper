@@ -22,7 +22,7 @@ jobs:
       NDJSON_FILE: /tmp/pipeline-metrics-${{ github.run_id }}.ndjson
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v4
+      - uses: astral-sh/setup-uv@v7
         with:
           version: "latest"
           enable-cache: true
