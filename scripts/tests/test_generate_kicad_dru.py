@@ -82,6 +82,17 @@ def _hv_internal_rule_block(content: str) -> str:
     return m.group(0)
 
 
+def _hv_internal_rule_section(content: str) -> str:
+    """Like _hv_internal_rule_block, but starting at the '# RULE 5:' comment
+    marker rather than the '(rule ...)' statement -- the coating language
+    this fix removes lived in the COMMENT lines above the rule statement
+    (both before and after this fix), not inside the s-expr itself, so a
+    check for coating language must include them or it tests nothing."""
+    m = re.search(r"# RULE 5:.*?\n\)\n", content, re.DOTALL)
+    assert m, "RULE 5 section not found in generated output"
+    return m.group(0)
+
+
 # ---------------------------------------------------------------------------
 # TestNoCoatingRelaxation
 # ---------------------------------------------------------------------------
@@ -94,9 +105,9 @@ class TestNoCoatingRelaxation:
         assert "carries NO qualified conformal coating" in content
 
     def test_hv_internal_rule_has_no_coating_language(self) -> None:
-        block = _hv_internal_rule_block(gen.generate_dru())
-        assert "Conformal coating" not in block
-        assert "0.8mm" not in block
+        section = _hv_internal_rule_section(gen.generate_dru())
+        assert "Conformal coating" not in section
+        assert "0.8mm" not in section
 
     def test_hv_internal_clearance_is_2mm_not_the_historical_value(self) -> None:
         block = _hv_internal_rule_block(gen.generate_dru())
