@@ -37,6 +37,8 @@ on:
       - 'scripts/tests/test_check_derived_doc_drift.py'
       - 'scripts/check_undeclared_imports.py'
       - 'scripts/tests/test_check_undeclared_imports.py'
+      - 'scripts/check_stale_extensions.py'
+      - 'scripts/tests/test_check_stale_extensions.py'
       - '.undeclared-imports-allowlist'
       - 'docs/FUNCTIONAL_TEST_CRITERIA.md'
       - 'docs/STRATEGY.md'
@@ -92,6 +94,8 @@ on:
       - 'scripts/tests/test_check_derived_doc_drift.py'
       - 'scripts/check_undeclared_imports.py'
       - 'scripts/tests/test_check_undeclared_imports.py'
+      - 'scripts/check_stale_extensions.py'
+      - 'scripts/tests/test_check_stale_extensions.py'
       - '.undeclared-imports-allowlist'
       - 'docs/FUNCTIONAL_TEST_CRITERIA.md'
       - 'docs/STRATEGY.md'
@@ -298,6 +302,23 @@ jobs:
           --no-install-package temper-rust-router
           --no-install-package temper-drc-rs
           --no-install-package temper-constraints
+
+      - name: Stale-extension gate tests
+        run: uv run pytest scripts/tests/test_check_stale_extensions.py -v --tb=short
+
+      # Every pyo3/maturin crate under packages/ is built by this point (the
+      # three `maturin develop` steps above, plus everything `uv sync
+      # --all-packages` just built/installed). TEMPER_REQUIRE_FRESH_EXTENSIONS=1
+      # makes both STALE (always fatal regardless of this flag) and MISSING
+      # (fatal only under this flag) hard-block CI -- see
+      # scripts/check_stale_extensions.py and
+      # docs/evidence/2026-07-27-stale-extension-gate.md for the incident this
+      # closes: a missing .cargo/config.toml silently froze every installed
+      # .so on macOS while `cargo test` stayed green.
+      - name: Stale-compiled-extension gate (all pyo3 crates)
+        run: uv run python scripts/check_stale_extensions.py
+        env:
+          TEMPER_REQUIRE_FRESH_EXTENSIONS: "1"
 
       - name: Cache netlist
         uses: actions/cache@v4
