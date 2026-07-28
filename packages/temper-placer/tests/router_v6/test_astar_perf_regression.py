@@ -132,11 +132,11 @@ def test_lazy_vs_theta_star_los_reduction():
 
     import numpy as np
 
-    from temper_placer.router_v6.astar_core import (
+    from temper_placer.router_v6._astar_theta_star import (
         _astar_search_lazy_theta_star,
         _astar_search_theta_star,
     )
-    from temper_placer.router_v6.astar_core import (
+    from temper_placer.router_v6._astar_theta_star import (
         _line_of_sight as _los,
     )
     from temper_placer.router_v6.occupancy_grid import OccupancyGrid
@@ -150,9 +150,9 @@ def test_lazy_vs_theta_star_los_reduction():
         _los_count += 1
         return _orig_los(*args, **kwargs)
 
-    import temper_placer.router_v6.astar_core as ac
+    import temper_placer.router_v6._astar_theta_star as ats
 
-    ac._line_of_sight = _counted_los
+    ats._line_of_sight = _counted_los
 
     try:
         sizes = [(20, 20), (30, 30), (50, 50)]
@@ -218,4 +218,4 @@ def test_lazy_vs_theta_star_los_reduction():
                     # Lazy Theta* should have fewer LOS calls
                     pass  # Informational, not a hard gate
     finally:
-        ac._line_of_sight = _orig_los
+        ats._line_of_sight = _orig_los

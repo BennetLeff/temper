@@ -112,7 +112,7 @@ def test_monitor_no_overhead_when_inactive():
 
 def test_monitor_theta_star_no_single_expansion_check():
     """Theta* with monitor active -> single-expansion check is disabled by default."""
-    from temper_placer.router_v6.astar_core import _astar_search_theta_star
+    from temper_placer.router_v6._astar_theta_star import _astar_search_theta_star
 
     grid = _make_grid(10, 10)
     with astar_monitor() as state:
@@ -145,7 +145,7 @@ def test_monitor_lazy_theta_star_no_violations_empty_grid():
     LOS failures occur, hence no parent corrections and no violation
     of f-cost monotonicity.
     """
-    from temper_placer.router_v6.astar_core import _astar_search_lazy_theta_star
+    from temper_placer.router_v6._astar_theta_star import _astar_search_lazy_theta_star
 
     grid = _make_grid(10, 10)
     with astar_monitor() as state:
@@ -163,7 +163,7 @@ def test_monitor_lazy_theta_star_obstacle_grid():
     time. The monitor should detect this, but only f_cost_monotonicity
     violations (not structural ones like path_completeness).
     """
-    from temper_placer.router_v6.astar_core import _astar_search_lazy_theta_star
+    from temper_placer.router_v6._astar_theta_star import _astar_search_lazy_theta_star
 
     blocked = {(5, y) for y in range(9)} | {(5, 5)}
     grid = _make_grid(10, 10, blocked)
@@ -185,7 +185,7 @@ def test_monitor_lazy_theta_star_blocked_grid():
     Same as above — f_cost_monotonicity violations are expected due
     to optimistic parent corrections on blocked grids.
     """
-    from temper_placer.router_v6.astar_core import _astar_search_lazy_theta_star
+    from temper_placer.router_v6._astar_theta_star import _astar_search_lazy_theta_star
 
     blocked = {(5, y) for y in range(10)}
     grid = _make_grid(10, 10, blocked)
@@ -200,7 +200,7 @@ def test_monitor_lazy_theta_star_blocked_grid():
 
 def test_monitor_lazy_theta_star_path_completeness_ok():
     """Monitor validates Lazy Theta* path starts/ends correctly."""
-    from temper_placer.router_v6.astar_core import _astar_search_lazy_theta_star
+    from temper_placer.router_v6._astar_theta_star import _astar_search_lazy_theta_star
 
     grid = _make_grid(10, 10)
     with astar_monitor() as state:

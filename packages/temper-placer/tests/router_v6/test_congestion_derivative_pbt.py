@@ -17,7 +17,7 @@ import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from temper_placer.router_v6.astar_core import (
+from temper_placer.router_v6._astar_theta_star import (
     _astar_search_lazy_theta_star,
     _astar_search_theta_star,
 )

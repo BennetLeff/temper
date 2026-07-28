@@ -405,7 +405,7 @@ def test_l4_regression_boards():
 @pytest.mark.l1_exhaustive
 def test_l1_lazy_thetastar_2x2_reachability():
     """L1: Lazy Theta* finds a path on 2x2 iff plain A* does."""
-    from temper_placer.router_v6.astar_core import _astar_search_lazy_theta_star
+    from temper_placer.router_v6._astar_theta_star import _astar_search_lazy_theta_star
 
     for occ_bits in range(16):
         blocked: set[tuple[int, int]] = set()
@@ -430,7 +430,7 @@ def test_l1_lazy_thetastar_2x2_reachability():
 @pytest.mark.l2_exhaustive
 def test_l2_lazy_thetastar_3x3_reachability():
     """L2: Lazy Theta* finds a path on 3x3 iff plain A* does."""
-    from temper_placer.router_v6.astar_core import _astar_search_lazy_theta_star
+    from temper_placer.router_v6._astar_theta_star import _astar_search_lazy_theta_star
 
     for occ_bits in range(512):
         blocked: set[tuple[int, int]] = set()
@@ -457,7 +457,7 @@ def test_l2_lazy_thetastar_3x3_reachability():
 @settings(max_examples=100, deadline=30000)
 def test_l3_lazy_thetastar_cost_parity(gsp):
     """L3: Lazy Theta* path cost <= Dijkstra oracle cost (grids <=30x30)."""
-    from temper_placer.router_v6.astar_core import _astar_search_lazy_theta_star
+    from temper_placer.router_v6._astar_theta_star import _astar_search_lazy_theta_star
 
     grid, s, g = gsp
     n_cells = grid.width_cells * grid.height_cells

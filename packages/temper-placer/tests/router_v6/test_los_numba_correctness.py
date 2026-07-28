@@ -5,7 +5,7 @@ import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from temper_placer.router_v6.astar_core import _line_of_sight
+from temper_placer.router_v6._astar_theta_star import _line_of_sight
 from temper_placer.router_v6.astar_core_numba import _line_of_sight_numba
 
 
@@ -108,6 +108,66 @@ def test_los_net_id_negative_one():
     grid_arr = np.ones((5, 5), dtype=np.int32)
     grid = FakeGrid(grid_arr)
     assert _line_of_sight_numba((0, 0), (4, 4), grid, -1) is False
+
+
+def test_los_python_negative_coordinate_bb_shortcut_bug():
+    """Regression for the BB-shortcut negative-index-wrap defect.
+
+    ``_line_of_sight``'s bounding-box shortcut sliced
+    ``grid.grid[min(y0, y1) : max(y0, y1) + 1, ...]`` directly off the
+    raw (possibly negative) endpoint coordinates. Numpy treats a
+    negative slice bound as counting from the end of the axis rather
+    than "off the front of the grid", so on a 2x2 all-zero grid,
+    ``p1=(0, 0), p2=(0, -1)`` produced the slice ``grid[-1:1, 0:1]`` --
+    empty, hence "no obstruction" -- and the shortcut returned True for
+    an endpoint that is actually out of bounds. The Bresenham loop's
+    own ``in_bounds()`` check would (and now does) correctly reject it.
+
+    This is the minimal repro that was failing
+    ``test_numba_los_matches_python`` before the fix: Python returned
+    True, Numba (which has no BB shortcut, only the Bresenham loop)
+    correctly returned False.
+    """
+    grid_arr = np.zeros((2, 2), dtype=np.int32)
+    grid = FakeGrid(grid_arr)
+
+    p1, p2 = (0, 0), (0, -1)
+    python_result = _line_of_sight(p1, p2, grid, 0)
+    numba_result = _line_of_sight_numba(p1, p2, grid, 0)
+
+    assert python_result is False
+    assert numba_result is False
+    assert python_result == numba_result
+
+
+@pytest.mark.parametrize(
+    "p1,p2",
+    [
+        ((0, 0), (0, -1)),  # negative y endpoint, minimal repro
+        ((0, 0), (-1, 0)),  # negative x endpoint
+        ((-1, -1), (0, 0)),  # negative start point
+        ((0, 0), (5, 5)),  # x1 past width_cells (grid is 5x5, cols 0-4)
+        ((0, 0), (0, 5)),  # y1 past height_cells
+        ((-1, 0), (5, 5)),  # both endpoints out of bounds, opposite corners
+    ],
+)
+def test_los_python_matches_numba_out_of_bounds(p1, p2):
+    """Differential coverage for negative and past-the-edge endpoints.
+
+    ``test_numba_los_matches_python`` above is a property test over a
+    Hypothesis-generated input space that includes out-of-bounds
+    coordinates, but a shrunk failing example is not committed
+    anywhere -- this pins the specific negative/out-of-bounds shapes
+    that previously diverged as an explicit, always-run regression.
+    """
+    grid_arr = np.zeros((5, 5), dtype=np.int32)
+    grid = FakeGrid(grid_arr)
+
+    python_result = _line_of_sight(p1, p2, grid, 0)
+    numba_result = _line_of_sight_numba(p1, p2, grid, 0)
+    assert python_result == numba_result, (
+        f"Mismatch: Python={python_result}, Numba={numba_result}, p1={p1}, p2={p2}"
+    )
 
 
 @pytest.mark.skipif(

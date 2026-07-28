@@ -30,7 +30,7 @@ class FakeGrid:
 
 def run_micro_benchmark(output_dir: Path | None) -> dict:
     """Time LOS calls on representative segment lengths with varied occupancy."""
-    from temper_placer.router_v6.astar_core import _line_of_sight
+    from temper_placer.router_v6._astar_theta_star import _line_of_sight
     from temper_placer.router_v6.astar_core_numba import _line_of_sight_numba
 
     lengths = [5, 20, 50, 100, 200]

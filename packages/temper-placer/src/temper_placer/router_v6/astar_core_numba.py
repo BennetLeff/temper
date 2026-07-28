@@ -567,13 +567,13 @@ def _line_of_sight_numba(p1, p2, grid, net_id: int) -> bool:
         Falls back to Python LOS if Numba is unavailable.
     """
     if not _HAVE_NUMBA:
-        from temper_placer.router_v6.astar_core import _line_of_sight
+        from temper_placer.router_v6._astar_theta_star import _line_of_sight
 
         return _line_of_sight(p1, p2, grid, net_id)
 
     kernel = _get_los_kernel()
     if kernel is None:
-        from temper_placer.router_v6.astar_core import _line_of_sight
+        from temper_placer.router_v6._astar_theta_star import _line_of_sight
 
         return _line_of_sight(p1, p2, grid, net_id)
 
