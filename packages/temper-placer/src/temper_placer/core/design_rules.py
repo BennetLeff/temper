@@ -425,7 +425,23 @@ TEMPER_NET_ASSIGNMENTS = {
     "ac_l": "ACMains",
     "ac_n": "ACMains",
     "PE": "ACMains",
-    # HighVoltage - DC bus (300-400V DC)
+    # HighVoltage - DC bus
+    #
+    # FIXED 2026-07-28: "+340V_BUS" was the ONLY HighVoltage entry with no live
+    # counterpart in the netlist, and the rail it named carries 12 pads on the
+    # board under its current name. The net was renamed +340V_BUS -> +170V_BUS
+    # earlier the same day (the voltage-doubler correction: the topology is
+    # +/-170V about a grounded midpoint, 340V differential -- the old name
+    # described the differential and read as a rail voltage, which had already
+    # caused a fail-open over-voltage protection). The rename fixed the name and
+    # orphaned this classification, so the main HV rail belonged to NO netclass
+    # and every generated DRC rule conditioned on NetClass == 'HighVoltage' was
+    # inert for it. Verified: +340V_BUS has 0 occurrences in elec/build/
+    # default.net; +170V_BUS has 12 pads in pcb/temper.kicad_pcb.
+    #
+    # The old key is retained deliberately, like the AC_L/GATE_H aliases below:
+    # harmless if absent, and it keeps historical boards resolving.
+    "+170V_BUS": "HighVoltage",
     "+340V_BUS": "HighVoltage",
     "DC_BUS_RTN": "HighVoltage",
     "DC_BUS+": "HighVoltage",
