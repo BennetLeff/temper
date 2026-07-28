@@ -203,19 +203,87 @@ With slot:     Creepage = 2 × slot width + surface across slot
 - No ground plane under center of package
 - Place isolation slot under device if possible
 
-### 6.4 Conformal Coating Zones
+### 6.4 Conformal Coating — NOT IMPLEMENTED; corrected 2026-07-28
 
-For additional creepage in tight areas, apply conformal coating:
+**No coating exists on this board.** There is no coating process in the
+BOM or the assembly, notwithstanding this document's header claiming
+"Status: Implemented" for the specification as a whole. This section
+previously specified a coating scheme with a "Creepage Multiplier: ×1.5
+for coated surfaces" citing IPC-CC-830. That scheme was wrong on multiple
+independent grounds and is recorded here, not deleted, so the mistake is
+not repeated. Full primary-text determination:
+`docs/evidence/2026-07-28-conformal-coating-pd1.md`.
 
-**Coating Type:** Silicone or Acrylic (IPC-CC-830)
-**Thickness:** 25-75 µm
-**Creepage Multiplier:** ×1.5 for coated surfaces
+**What was wrong, specifically:**
 
-**Coating Zones:**
-1. Around IGBT TO-247 mounting pads
-2. UCC21550 package perimeter
-3. High-voltage connector area
-4. Bootstrap diode/capacitor area
+1. **No such multiplier exists in IEC 60335-1 or IEC 60664-3.** A qualified
+   Type A coating (IEC 60335-1 Annex J, which delegates to IEC 60664-3
+   cl. 4.3) grants Pollution Degree 1 under the coating — a change of
+   *pollution-degree column* in Table 17, not a ×1.5 scaling factor on a
+   distance. A ×1.5 multiplier is simultaneously **less generous** than the
+   real PD2→PD1 provision (8.0mm → 2.0mm, not 8.0mm → 5.3mm) and, on any
+   path the coating does not actually cover, **dangerously more generous**
+   than the true requirement (which gives zero credit there, not ×1.5).
+2. **IPC-CC-830 is the wrong standard to cite for this credit.** It
+   qualifies a coating *material*. The standard governing creepage credit
+   for a coated *assembly* is IEC 60664-3 (via IEC 60335-1 Annex J), and
+   neither vendor coating datasheet reviewed this session (MG Chemicals,
+   Electrolube) even mentions IEC 60664-3. Citing IPC-CC-830 here does not
+   discharge the Annex J requirement.
+3. **PD1 is earned per-path, all-or-nothing, and this board fails that
+   test everywhere it matters.** IEC 60664-3 cl. 4.3: one or both
+   conductive parts *and every spacing between them* must be covered by
+   the protection — there is no partial credit. Measured: for every
+   declared isolator on this board with a body outline, **100.0% of the
+   shortest HV↔PELV surface path lies under the seated component body**
+   (relay base, SOIC/DIP package, module case). A post-assembly liquid
+   coating does not reach under a seated body and, decisively, coverage
+   there **cannot be inspected** in production (the standard production QA
+   method, UV-tracer inspection, only sees the surface).
+4. **All four of the previously-listed "Coating Zones" are exactly the
+   zones this fails on.** IGBT TO-247 mounting pads and the UCC21550
+   package perimeter are both under-body paths by the argument above
+   (verified for the TO-247 and SOIC-16W package classes in
+   `docs/evidence/2026-07-28-conformal-coating-pd1.md` sec 4). The
+   high-voltage connector area is the one candidate that might genuinely be
+   an open-surface, coatable, inspectable path — but nothing in this repo
+   has qualified it, and no coating exists in the BOM regardless.
+5. **The `0.8mm at PD1` figure that leaked into the generated DRC rules
+   from this same reasoning matched no cell of Table 17** (the PD1 column
+   at the applicable row, >250–400V, is 1.0mm, not 0.8mm).
+
+**Where this showed up as a live defect, not just a documentation error:**
+`scripts/generate_kicad_dru.py` had already encoded this same broken
+justification into the *generated DRC rules themselves* — relaxing the "HV
+internal same footprint" clearance rule to 1.5mm with a comment citing
+"Conformal coating to achieve PD1 (needs 0.8mm for 400V)". That generator
+now enforces a fail-closed, uncoated **2.0mm** figure (IEC 60335-1 cl. 29.1:
+1.5mm reinforced clearance step + the clause's own +0.5mm
+soldered-construction adder), and gates any future coating-based relaxation
+behind an explicit `COATING_QUALIFIED` flag that defaults to `False` and
+raises loudly if flipped without a real qualification record. See
+`docs/evidence/2026-07-28-drc-coating-failopen-fix.md`.
+
+**Corrected creepage figures for the mains↔PELV barrier this coating was
+meant to help with** (uncoated, per the prior primary-text determination in
+`docs/evidence/2026-07-28-creepage-determination-brainstorm.md`):
+reinforced creepage at Pollution Degree 2 is **8.0mm** (IEC 60335-1
+cl. 29.2.3 × Table 17 row iv, working voltage >250–400V, material group
+IIIa/IIIb). **This is flagged, not resolved:** IEC 60335-2-6 cl. 29.2 makes
+Pollution Degree 3 the *default* for this appliance class (cooking
+ranges/hobs), which would instead require **12.6mm**; PD2 must be earned by
+showing the insulation is enclosed or unlikely to be exposed to pollution,
+which no document in this repo establishes today. A human must settle this
+before either number is asserted as final.
+
+**If a real coating programme is adopted in the future**, it must: (a)
+exist in the BOM and assembly process; (b) pass the IEC 60664-3 clause 5
+Annex J qualification test regime (six specimens, or three if production
+samples are used, with no failures permitted) on production-representative
+coupons; and (c) carry a per-path clause-4.3 coverage argument scoped to
+paths that are actually open-surface and inspectable — which excludes
+every declared isolator on this board today. It changes the *pollution
+degree* of the paths it covers; it is not a multiplier on any distance.
 
 ## 7. Component-Specific Clearances
 
@@ -350,3 +418,4 @@ Create keep-out zones in KiCad:
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
 | 1.0 | 2025-12-16 | AI Agent | Initial specification |
+| 1.1 | 2026-07-28 | AI Agent | §6.4 corrected: the coating scheme (×1.5 "Creepage Multiplier", IPC-CC-830) was unqualified, cited the wrong standard, and could not have delivered PD1 on this board's isolators even if built (100.0% of every declared isolator's shortest HV↔PELV path runs under its own component body — measured, `docs/evidence/2026-07-28-conformal-coating-pd1.md`). The same broken justification had already leaked into `scripts/generate_kicad_dru.py`'s generated DRC rules as a live fail-open; that generator now enforces a fail-closed 2.0mm figure gated behind an explicit, currently-`False` `COATING_QUALIFIED` flag. See `docs/evidence/2026-07-28-drc-coating-failopen-fix.md`. |

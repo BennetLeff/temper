@@ -42,9 +42,55 @@ Conditions for the device when packed in original packaging and not in operation
 | Standard | Rating | Description |
 |----------|--------|-------------|
 | **IP Rating** | IP20 | Protected against solid objects >12.5mm (fingers). No liquid ingress protection guaranteed (spill-resistant design required). |
-| **Pollution Degree** | PD2 | Normal household environment. Temporary conductivity caused by condensation is to be expected. |
+| **Pollution Degree** | **PD3** (macroenvironment, governing default) | See 3.1 -- corrected 2026-07-28. Was asserted as PD2 with no citation; PD2 is not earned on this design today. |
 | **Overvoltage Category** | CAT II | Appliance connected to mains. |
 | **Insulation Class** | Class I | Protective Earth (PE) required. |
+
+### 3.1 Pollution degree -- corrected, with citation
+
+**This row previously read "PD2 -- Normal household environment. Temporary
+conductivity caused by condensation is to be expected," with no clause
+citation and no supporting argument.** That assertion has been replaced with
+the standard's own governing rule, applied to this design as it exists today.
+
+IEC 60335-2-6 (the particular standard for cooking ranges/hobs, which
+overrides Part 1's default for this appliance class) clause 29.2 Addition
+-- CITED-PRIMARY, re-read and independently re-confirmed this session from
+IS 302-2-6:2009 (identical adoption), `pdftotext`-extracted directly from
+<https://law.resource.org/pub/in/bis/S05/is.302.2.6.2009.pdf>:
+
+> "The microenvironment is pollution degree 3 unless the insulation is
+> enclosed or located so that it is unlikely to be exposed to pollution
+> during normal use of the appliance."
+
+**PD3 is therefore the default for this appliance class. PD2 is an exception
+that must be earned**, by showing the insulation is enclosed or located away
+from pollution exposure. Checked against this repo for that showing, and it
+is not present:
+
+- This same table's own **IP20** rating states "No liquid ingress
+  protection guaranteed" -- the opposite of an enclosure argument.
+- `docs/CHASSIS_AIRFLOW_DESIGN.md` describes **forced airflow ducted through
+  the compartment** past the heatsink and coil -- a vented path that pulls
+  kitchen air (grease, steam, cooking aerosols) across the board, which is
+  the paradigm case for PD3, not an enclosure that excludes it.
+- No document in this repo (checked `docs/SENSOR_MOUNT_DESIGN.md`,
+  `docs/COIL_BRACKET_DESIGN.md`, `docs/CONNECTORS_AND_WIRING.md`,
+  `docs/ASSEMBLY_GUIDE.md`) specifies a sealed or gasketed PCB compartment.
+
+**Consequence:** at PD3, IEC 60335-1 Table 17 row iv (working voltage >250 V
+and <=400 V), material group IIIa/IIIb, gives **6.3 mm basic creepage**;
+clause 29.2.3 doubles it for reinforced insulation: **12.6 mm**, not the
+8.0 mm this repo's gates and specs otherwise use (which is the PD2 figure
+at the same row). This is the governing distance for every mains<->PELV
+surface path on this board that does not separately qualify for pollution
+degree 1 under a qualified Annex J Type A conformal coating (see
+`docs/evidence/2026-07-28-coating-supplemental-scope.md`).
+
+**PD2 (8.0 mm) remains available**, but only if a future revision adds and
+documents an actual enclosure/sealing argument for the PCB compartment --
+that argument does not exist today and this file must not assert PD2 again
+without it.
 
 ---
 

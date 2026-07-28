@@ -13,6 +13,76 @@ from temper_placer.core.design_rules import TEMPER_NET_CLASSES
 REPO_ROOT = Path(__file__).resolve().parent.parent
 OUTPUT_PATH = REPO_ROOT / "pcb" / "temper.kicad_dru"
 
+# ---------------------------------------------------------------------------
+# Coating qualification gate -- fail closed.
+#
+# This file used to relax the "HV internal same footprint" clearance rule
+# (below) on the strength of a conformal coating that does not exist: it is
+# absent from the BOM and the assembly process, and it also could not
+# deliver the credit it was claimed to, even if applied. IEC 60664-3 cl. 4.3
+# (the standard IEC 60335-1 Annex J delegates to) grants Pollution Degree 1
+# only for a creepage path whose ENTIRE length -- both conductive parts and
+# every spacing between them -- is covered. Measured in
+# docs/evidence/2026-07-28-conformal-coating-pd1.md: 100.0% of the shortest
+# HV<->PELV surface path lies under the component body for every declared
+# isolator with a body outline, and a post-reflow coating cannot be shown to
+# reach under a seated package (that document's own cl. 5.4 qualification
+# coupon is a bare, uncoated board). Separately, the old comment's "0.8mm at
+# PD1" figure matched no cell of Table 17: the PD1 column at row iv
+# (>250-400V) is 1.0mm, and clearance at PD1 is not derived from Table 17 at
+# all (see docs/evidence/2026-07-28-conformal-coating-pd1.md sec 3.1).
+#
+# COATING_QUALIFIED must remain False until a human has recorded, for every
+# path this flag would relax: (1) a coating process in the BOM, (2) an
+# IEC 60664-3 Annex J qualification report (clause 5's test regime), and
+# (3) a per-path IEC 60664-3 cl. 4.3 coverage argument. This board has none
+# of those today. Flipping this flag without also replacing the placeholder
+# figures below with a real, cited determination is exactly the defect this
+# gate exists to prevent, so it fails loudly instead of silently relaxing.
+COATING_QUALIFIED = False
+
+if COATING_QUALIFIED:
+    raise NotImplementedError(
+        "COATING_QUALIFIED=True is not implemented. Flipping this flag "
+        "requires a real IEC 60664-3 Annex J qualification (BOM entry, "
+        "clause-5 test report, and a per-path clause-4.3 coverage argument) "
+        "plus the corrected PD1 figures substituted into this script -- not "
+        "the unqualified 0.8mm this file previously asserted. See "
+        "docs/evidence/2026-07-28-conformal-coating-pd1.md and "
+        "docs/evidence/2026-07-28-drc-coating-failopen-fix.md."
+    )
+
+# Fail-closed reinforced clearance for the mains<->PELV barrier, uncoated.
+# IEC 60335-1 clause 29.1: rated impulse voltage 1500V (120V nominal, OVC II,
+# Table 15) -> Table 16 basic clearance 0.5mm at that step -> clause 29.1.3
+# "next higher step" for reinforced -> 1.5mm nominal, PLUS clause 29.1's
+# +0.5mm soldered-construction adder (this is a soldered PCB, one of the
+# clause's own named examples) = 2.0mm. See
+# docs/evidence/2026-07-28-creepage-determination-brainstorm.md sec 4 and
+# docs/evidence/2026-07-28-conformal-coating-pd1.md sec 3, item 3.
+HV_INTERNAL_CLEARANCE_MM = 2.0
+
+# Reinforced creepage at Pollution Degree 2 (IEC 60335-1 clause 29.2.3 x
+# Table 17 row iv, working voltage >250-400V, material group IIIa/IIIb):
+# basic 4.0mm x2 = 8.0mm. NOT emitted as a KiCad rule below -- this
+# generator has no creepage constraint type today (only clearance and
+# track_width), so this figure is not enforced anywhere in the generated
+# file. Recorded here so the gap is visible rather than silent.
+#
+# IEC 60335-2-6 clause 29.2 Addition makes Pollution Degree 3 the DEFAULT
+# for this appliance class (cooking ranges/hobs); PD2 must be earned by
+# showing the insulation is enclosed or unlikely to be exposed to pollution,
+# which no document in this repo establishes today (docs/ENVIRONMENTAL_SPEC.md
+# asserts PD2 with no citation, and docs/CHASSIS_AIRFLOW_DESIGN.md describes
+# forced airflow through the compartment, which argues the other way). If
+# PD3 stands, the reinforced creepage requirement is 2 x 6.3mm = 12.6mm, not
+# 8.0mm. THIS IS FLAGGED, NOT RESOLVED: a human must settle the pollution
+# degree of the macroenvironment before either number can be asserted as
+# correct. See docs/evidence/2026-07-28-conformal-coating-pd1.md sec "Verdict"
+# item and docs/evidence/2026-07-28-creepage-determination-brainstorm.md sec 5.
+HV_CREEPAGE_PD2_MM = 8.0
+HV_CREEPAGE_PD3_MM = 12.6  # flagged default per IEC 60335-2-6 cl. 29.2; UNRESOLVED
+
 # KiCad uses "Ground" as the net-class name; our Python dict uses "GND"
 KICAD_NAME_MAP = {
     "GND": "Ground",
@@ -44,10 +114,41 @@ def generate_dru() -> str:
     lines.append("# Custom Design Rules for Temper Induction Heater")
     lines.append("# IEC 60335-1 / IEC 60664-1 compliant")
     lines.append("#")
-    lines.append("# IMPORTANT: This board REQUIRES conformal coating for safety!")
+    lines.append("# NOTE: This board carries NO qualified conformal coating.")
     lines.append(
-        "# Without coating, TO-247 packages violate IEC 60664-1 clearances."
+        "# No coating process exists in the BOM or assembly, and IEC 60664-3"
+        " cl. 4.3"
     )
+    lines.append(
+        "# requires full-path coverage for any Pollution Degree 1 credit --"
+        " measured,"
+    )
+    lines.append(
+        "# 100.0% of every declared isolator's shortest HV<->PELV path lies"
+        " under its"
+    )
+    lines.append(
+        "# own component body and cannot be shown to be coated. This file"
+        " therefore"
+    )
+    lines.append(
+        "# enforces FAIL-CLOSED, uncoated clearance figures throughout. See"
+    )
+    lines.append("# docs/evidence/2026-07-28-conformal-coating-pd1.md.")
+    lines.append("#")
+    lines.append(
+        "# TO-247 IGBT packages have a 1.95mm edge-to-edge internal pin gap"
+        " (see RULE"
+    )
+    lines.append(
+        "# 5 below); this is a package-geometry fact, not something this"
+        " script or a"
+    )
+    lines.append(
+        "# coating can fix. Expect this rule to now flag those packages --"
+        " that is"
+    )
+    lines.append("# the correct, honest result of removing the prior relaxation.")
     lines.append("#")
     lines.append(
         "# Generated by scripts/generate_kicad_dru.py"
@@ -141,12 +242,51 @@ def generate_dru() -> str:
     lines.append(")")
     lines.append("")
     lines.append(_SEP)
-    lines.append("# RULE 5: High Voltage internal - relaxed for same footprint")
+    lines.append("# RULE 5: High Voltage internal - same footprint")
     lines.append("# TO-247 IGBTs have 5.45mm pin pitch (1.95mm edge-to-edge)")
     lines.append("#")
-    lines.append("# WARNING: This violates IEC 60664-1 PD2 (needs 2.0mm for 400V)")
     lines.append(
-        "# REQUIRES: Conformal coating to achieve PD1 (needs 0.8mm for 400V)"
+        "# FAIL-CLOSED: no conformal coating is qualified on this board, so"
+        " no"
+    )
+    lines.append(
+        "# coating-based relaxation is granted here. This constraint is the"
+    )
+    lines.append(
+        "# uncoated reinforced clearance requirement -- IEC 60335-1 cl. 29.1:"
+        " 1500V"
+    )
+    lines.append(
+        "# rated impulse voltage (120V nominal, OVC II) -> Table 16 basic"
+        " 0.5mm ->"
+    )
+    lines.append(
+        "# cl. 29.1.3 next-higher-step reinforced 1.5mm, + cl. 29.1's +0.5mm"
+    )
+    lines.append(
+        "# soldered-construction adder (this is a soldered PCB) = 2.0mm. See"
+    )
+    lines.append("# docs/evidence/2026-07-28-conformal-coating-pd1.md sec 3.")
+    lines.append("#")
+    lines.append(
+        "# TO-247's 1.95mm edge-to-edge gap is BELOW this requirement. That"
+        " is a real"
+    )
+    lines.append(
+        "# violation this rule is now expected to report, not a bug in this"
+        " rule --"
+    )
+    lines.append(
+        "# a coating was never a valid fix for it (see"
+        " docs/evidence/2026-07-28-"
+    )
+    lines.append(
+        "# conformal-coating-pd1.md sec 4, TO-247/SOIC-16W case). Resolving"
+        " it needs"
+    )
+    lines.append(
+        "# a BOM/footprint/placement change, none of which this script"
+        " performs."
     )
     lines.append(_SEP)
     lines.append('(rule "HV internal same footprint"')
@@ -155,7 +295,7 @@ def generate_dru() -> str:
         " && B.NetClass == 'HighVoltage'"
         " && A.insideCourtyard(B.Reference)\")"
     )
-    lines.append("   (constraint clearance (min 1.5mm))")
+    lines.append(f"   (constraint clearance (min {fmt_mm(HV_INTERNAL_CLEARANCE_MM)}))")
     lines.append(")")
     lines.append("")
     lines.append(_SEP)
