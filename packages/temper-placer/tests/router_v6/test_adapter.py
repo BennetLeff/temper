@@ -514,6 +514,98 @@ class TestCrossClassZoneClearance:
             os.unlink(temp_path)
 
 
+class TestZonesReplacedNotAppended:
+    """U3 (R7): a board's stored zones must be replaced by the regenerated
+    set, not left to coexist alongside it. Without this, any (zone ...)
+    blocks already present in the incoming content (e.g. the 96 committed
+    on pcb/temper.kicad_pcb) survive untouched into the written output
+    alongside the newly emitted ones -- the board ends up carrying both a
+    stale pour and a regenerated pour for the same net, and the stale one
+    is never anything but stale carryover, never re-derived from what was
+    actually routed.
+    """
+
+    # A stale zone with a priority value and a coordinate pair that no real
+    # pad in these tests is anywhere near -- distinguishing markers that
+    # only a *carried-over* zone (never a freshly computed one) could emit.
+    _STALE_ZONE = (
+        '  (zone (net 1) (net_name "{net}") (layer "F.Cu") (hatch full 0.5)\n'
+        "    (priority 999)\n"
+        "    (connect_pads yes (clearance 6))\n"
+        "    (min_thickness 0.25)\n"
+        "    (fill yes (thermal_gap 0.5) (thermal_bridge_width 0.5))\n"
+        "    (polygon\n"
+        "      (pts\n"
+        "        (xy 999.0 999.0)\n"
+        "        (xy 999.5 999.0)\n"
+        "        (xy 999.5 999.5)\n"
+        "      )\n"
+        "    )\n"
+        "  )"
+    )
+
+    def _make_result(self, net_name: str):
+        from types import SimpleNamespace
+
+        from temper_placer.core.netlist import Component
+
+        mock_path = SimpleNamespace(path_length=0.0, coordinates=[])
+        compiled_routes = {
+            net_name: SimpleNamespace(path=mock_path, width_mm=0.1, vias=[]),
+        }
+        routing_results = SimpleNamespace(
+            compiled_routes=compiled_routes,
+            tree_routes={},
+            partial_tree_routes={},
+        )
+        stage4 = SimpleNamespace(routing_results=routing_results)
+        comp = Component(
+            ref="C1", footprint="0805", bounds=(2.0, 1.25), initial_position=(50.0, 50.0)
+        )
+        nets = [SimpleNamespace(name=net_name, pins=[("C1", "1")])]
+        pcb = SimpleNamespace(components=[comp], nets=nets)
+        return SimpleNamespace(stage4=stage4, pcb=pcb, enable_zone_pours=True)
+
+    def test_stale_zone_is_removed_not_appended_to(self):
+        from temper_placer.core.design_rules import DesignRules
+        from temper_placer.router_v6.adapter import _write_routes_to_content
+
+        result = self._make_result("vcc")  # "vcc" -> Power: zone-eligible
+        dr = DesignRules()
+        content = (
+            '(kicad_pcb (version 20240108) (net 1 "vcc")\n'
+            f"{self._STALE_ZONE.format(net='vcc')}\n"
+            ")"
+        )
+        output, _ = _write_routes_to_content(content, result, design_rules=dr)
+
+        # The stale zone's distinguishing markers must not survive.
+        assert "(priority 999)" not in output
+        assert "(xy 999.0 999.0)" not in output
+        # A regenerated zone for the same net must be present instead.
+        assert "(zone " in output
+        assert '(net_name "vcc")' in output
+
+    def test_no_zone_eligible_nets_still_drops_stale_zone(self):
+        """Even when this run computes no new pour geometry for any net
+        (here: a net whose class isn't zone-eligible), a stale zone
+        inherited from the input board must not survive -- R7 forbids
+        treating it as authoritative just because nothing replaced it.
+        """
+        from temper_placer.core.design_rules import DesignRules
+        from temper_placer.router_v6.adapter import _write_routes_to_content
+
+        result = self._make_result("sclk")  # FinePitch: not zone-eligible
+        dr = DesignRules()
+        content = (
+            '(kicad_pcb (version 20240108) (net 1 "sclk")\n'
+            f"{self._STALE_ZONE.format(net='sclk')}\n"
+            ")"
+        )
+        output, _ = _write_routes_to_content(content, result, design_rules=dr)
+        assert "(zone " not in output
+
+
 class TestPriorityInversion:
     """U2: verify dru_priority → KiCad (priority N) inversion in emitted s-expr."""
 

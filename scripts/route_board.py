@@ -22,16 +22,19 @@ Usage:
     # Measure run-to-run completion variance (writes nothing to disk).
     uv run python3 scripts/route_board.py --runs 5
 
-Report fields (both modes): completion (routed/attempted nets), segment
-and via counts (grep-equivalent substring counts on the routed content),
-and wall time.
+Report fields (both modes): completion (routed/attempted nets), segment,
+via, and zone counts (grep-equivalent substring counts on the routed
+content), and wall time. Zones are U3's regenerated pours (R7) -- the
+board fed to route_pcb has its committed zones stripped first (see
+strip_existing_copper in temper_placer.router_v6._strip_copper), so any
+zones present in the output are this run's own regenerated output, never
+carried-over stale input.
 """
 from __future__ import annotations
 
 import argparse
 import json
 import os
-import re
 import statistics
 import subprocess
 import sys
@@ -63,26 +66,32 @@ def _make_parsed_stub(pcb_path: Path, netlist: Any) -> Any:
     )()
 
 
-_SEGMENT_RE = re.compile(r"^\s*\((?:segment|via)\s.*\)\s*$", re.MULTILINE)
-
-
 def strip_existing_copper(content: str) -> tuple[str, int]:
-    """Remove committed (segment ...) and (via ...) lines from a board.
+    """Remove committed (segment ...), (via ...), and (zone ...) blocks.
 
-    Routing an already-routed board is not the same experiment as routing a
-    bare one, and conflating them produced a badly misleading measurement.
-    pcb/temper.kicad_pcb currently carries 2338 segments; feeding it straight
-    back to route_pcb yields 4093 segments and "37/96 nets", and the output
-    was verified to contain all 2338 original segments unchanged. That 37 is
-    additional nets placed on an already-congested board -- not comparable to
-    the 51/96 in commit 556ccf4f, which explicitly began from a board that
-    "previously had 0 segments/vias/zones".
+    U3 (R7): thin re-export of the shared, paren-balanced implementation in
+    ``temper_placer.router_v6._strip_copper`` -- kept as a module-level name
+    here (rather than only inlined in ``route_once``) so this remains
+    directly importable/testable as ``route_board.strip_existing_copper``,
+    matching this script's prior art. The import itself is deferred inside
+    this function body, not hoisted to module scope: importing any
+    ``temper_placer.router_v6`` submodule executes that package's full
+    ``__init__.py`` (numba, the Rust router extension, etc.), which this
+    script otherwise avoids paying for argument parsing / ``--help``.
 
-    Component positions are untouched: only copper is removed, so routing
-    still runs against the real placement.
+    Previously this was its own single-line ``re.MULTILINE`` regex matching
+    only ``(segment ...)``/``(via ...)`` -- a pattern that could never have
+    matched a ``(zone ...)`` block, which is not single-line (see
+    ``pcb/temper.kicad_pcb``: every zone spans dozens of lines --
+    ``priority``, ``connect_pads``, ``min_thickness``, ``fill``, and a
+    nested ``(polygon (pts (xy ..) ...))``). That is why every "clean"
+    re-route still inherited all 96 committed zones.
     """
-    stripped, n = _SEGMENT_RE.subn("", content)
-    return stripped, n
+    from temper_placer.router_v6._strip_copper import (
+        strip_existing_copper as _strip_existing_copper,
+    )
+
+    return _strip_existing_copper(content)
 
 
 def route_once(
@@ -93,9 +102,10 @@ def route_once(
     Component positions come from the board itself (an empty placements dict
     means "route with existing board positions" -- see _adapter_convert.py:214).
 
-    By default existing copper is stripped first, so the run measures routing
-    the board from scratch and is comparable with the committed route. Pass
-    keep_existing_copper=True to route on top of what is already there.
+    By default existing copper -- segments, vias, AND zones -- is stripped
+    first, so the run measures routing the board from scratch and is
+    comparable with the committed route. Pass keep_existing_copper=True to
+    route on top of what is already there.
     """
     from temper_placer.io.kicad_parser import parse_kicad_pcb
     from temper_placer.io.netclass_loader import load_netclass_rules
@@ -134,6 +144,7 @@ def route_once(
     content = result.routed_pcb_content or ""
     segments = content.count("(segment ")
     vias = content.count("(via ")
+    zones = content.count("(zone ")
 
     unrouted = len(result.unrouted_nets)
     completion = result.completion_rate
@@ -157,6 +168,7 @@ def route_once(
         "unrouted_nets": list(result.unrouted_nets),
         "segments": segments,
         "vias": vias,
+        "zones": zones,
         "routed_pcb_content": content,
     }
 
@@ -165,7 +177,7 @@ def _format_run(label: str, r: dict[str, Any]) -> str:
     return (
         f"{label}: {r['routed']}/{r['attempted']} nets "
         f"({r['completion_rate'] * 100:.1f}%)  "
-        f"segments={r['segments']} vias={r['vias']}  "
+        f"segments={r['segments']} vias={r['vias']} zones={r['zones']}  "
         f"wall={r['wall_s']:.1f}s"
     )
 
