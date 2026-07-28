@@ -7,6 +7,7 @@ Part of temper-eccz (Stage 2 - Channel Analysis)
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, replace
 
 from temper_placer.deterministic.stages.base import Stage
@@ -89,9 +90,20 @@ def estimate_routing_demand(
             routable_nets += 1
             pin_counts.append(pin_count)
 
-            # Classify by name heuristics
+            # Classify by name heuristics -- diagnostic/estimation only
+            # (feeds a rough demand count, not a clearance/creepage/DRC or
+            # plane-eligibility decision), but anchored anyway: a bare
+            # "+"/"-" substring test matched almost every net on the
+            # board (most net names contain a hyphenated pin suffix like
+            # "-p2"), which silently inflated power_nets at the expense
+            # of signal_nets. FIXED 2026-07-28, found completing the
+            # audit scripts/check_net_classification.py's vocabulary
+            # extension prompted -- see
+            # docs/evidence/2026-07-28-zone-layer-classification-fix.md.
             net_upper = net_name.upper()
-            if any(x in net_upper for x in ["GND", "VCC", "VDD", "VSS", "+", "-"]):
+            if re.search(r"(?:^|_)(?:GND|VCC|VDD|VSS)(?:$|[\d_])", net_upper) or re.search(
+                r"^[+-]", net_upper
+            ):
                 power_nets += 1
             elif any(x in net_upper for x in ["_P", "_N", "DP", "DN"]):
                 diff_pair_nets += 1

@@ -75,20 +75,43 @@ A call site is a candidate if it is a ``Compare`` node with exactly one
     to a collection containing at least one string matching
     ``SAFETY_VOCAB``.
 
-``SAFETY_VOCAB`` is deliberately scoped to the HV/SELV mains-adjacent
-vocabulary this defect class actually uses (``HV``, ``AC``, ``MAINS``,
-``LINE``, ``COIL``, ``GATE``, ``PHASE``, ...) -- not every net-class
-keyword in the codebase. ``GND``/``VCC``/``VDD``/``POWER``-style
-low-voltage-domain checks are out of scope: ``elec/domain_manifest.yaml``
-(the SSOT this gate exists to keep classification in step with) declares
-exactly two domains, ``HV`` and ``SELV``; the defect class is the HV/SELV
-boundary specifically, not net classification in general. This also keeps
-the gate from flagging genuinely unrelated substring classification (via
-impedance-class keywords like ``USB``/``SPI``/``CLK``, or footprint-name
-keywords like ``soic``/``qfp``) that happens to share the "keyword list +
-substring test" shape but has nothing to do with the HV/SELV boundary --
-see ``docs/evidence/2026-07-27-net-classification-gate.md`` for the
-specific files this was checked against.
+``SAFETY_VOCAB`` was originally scoped to the HV/SELV mains-adjacent
+vocabulary this defect class first surfaced with (``HV``, ``AC``,
+``MAINS``, ``LINE``, ``COIL``, ``GATE``, ``PHASE``, ...) -- not every
+net-class keyword in the codebase, and ``GND``/``VCC``/``PWR``-style
+low-voltage-domain checks were explicitly called out of scope: the
+defect class was understood as "the HV/SELV boundary specifically", per
+``elec/domain_manifest.yaml``'s two declared domains.
+
+FOURTH INSTANCE, 2026-07-28, that scoping was too narrow: identical
+unanchored ``Compare(in)`` shape, same root cause (a hand-maintained
+keyword list drifting from an SSOT), but for a *different* classification
+question -- not "is this net HV or SELV" but "does this net's copper make
+its physical layer non-routable" (``_extract_stackup()``'s plane-detection
+heuristic, ``packages/temper-placer/src/temper_placer/io/_parse_board.py``,
+fixed the same day this gate was extended). A single bare
+``"+" in zone.netName`` matched ``+3V3`` (a Power-class net with no
+plane-worthy current budget) and flipped an entire outer copper layer to
+non-routable -- see
+``docs/evidence/2026-07-28-zone-layer-classification-fix.md``. This
+confirmed the pattern generalizes beyond the HV/SELV boundary to *any*
+safety- or routing-behavior-relevant net classification, so ``GND``,
+``VCC``, ``PWR``, and the single-character ``+`` (a real, if unusual,
+keyword literal in the pre-fix code -- short keywords are exactly the
+highest-risk case this gate exists to catch) were added to the matched
+vocabulary rather than kept out of scope. ``VDD``/``POWER`` remain
+unlisted only because no confirmed instance has used them yet as a bare
+``Compare(in)`` literal or loop-bound keyword -- add them the next time
+one does, per the "ask where else this shape occurs" discipline in
+``docs/solutions/best-practices/substring-net-classification-drifts-from-ssot-2026-07-27.md``.
+
+This still keeps the gate from flagging genuinely unrelated substring
+classification (via impedance-class keywords like ``USB``/``SPI``/
+``CLK``, or footprint-name keywords like ``soic``/``qfp``) that happens
+to share the "keyword list + substring test" shape but has nothing to do
+with any net's safety/routing classification -- see
+``docs/evidence/2026-07-27-net-classification-gate.md`` for the specific
+files this was checked against.
 
 Every ``Compare(in)`` call site found (matching the vocabulary or not) is
 counted in the denominators this gate prints -- unresolvable keyword
@@ -229,6 +252,14 @@ SAFETY_VOCAB: frozenset[str] = frozenset(
         "SELV",
         "RECT",
         "PE",
+        # Added 2026-07-28 -- fourth confirmed instance, a *different*
+        # classification question (plane/pour eligibility, not HV/SELV
+        # domain) sharing the identical bare-Compare(in) shape. See the
+        # module docstring's "FOURTH INSTANCE" note above.
+        "GND",
+        "VCC",
+        "PWR",
+        "+",
     }
 )
 

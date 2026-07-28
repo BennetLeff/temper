@@ -89,3 +89,25 @@ check_hv_warning_present::packages/temper-placer/tests/requirements/validators/m
 # gate-driver-IC keyword presence, to confirm a gate driver IC exists in
 # the schematic -- not classifying a net name into an electrical domain.
 check_gate_driver_enable::packages/temper-placer/tests/requirements/validators/schematic.py  # matches component BOM "value" text for IC-presence detection, not a net name
+
+# Added 2026-07-28, surfaced by extending SAFETY_VOCAB to also catch the
+# plane/pour-eligibility defect class (docs/evidence/2026-07-28-zone-layer-classification-fix.md).
+
+# `self.net_classes` is a dict[str, NetClassRules] keyed by class NAME
+# ("GND", "Power", ...); `"GND" in self.net_classes` is exact dict-KEY
+# membership, not substring-of-string matching against a net name -- the
+# real net-name classification happens one line above via
+# `self._is_ground_net(net_name)`, which already delegates to the fixed
+# `router_v6.net_classification.is_ground_net`. Same shape as the
+# pre-existing `check_critical_loop_areas` entry above.
+DesignRules.get_rules_for_net::packages/temper-placer/src/temper_placer/core/design_rules.py  # dict-key membership test ("GND" in a class-name-keyed dict), not string substring matching
+
+# Checks SILKSCREEN TEXT content (free-form label strings, e.g. "C1 +")
+# for polarity-marking phrase presence near a component reference -- not
+# classifying a net's electrical domain from a net name pulled from the
+# compiled netlist. Same shape as the pre-existing
+# `check_hv_warning_present` entry above: substring/phrase-presence
+# matching is the correct tool for free-form silkscreen text, where a
+# bare "+"/"-" appearing as an isolated polarity symbol is the intended
+# match, not an accidental word-fragment collision.
+check_polarity_markings::packages/temper-placer/tests/requirements/validators/markings.py  # matches silkscreen label text content for a polarity symbol, not a net name
