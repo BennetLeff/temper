@@ -439,7 +439,16 @@ module Top:
     # safety already ties ntc_sense.reference ~ gnd internally; redundant
     mcu.adc_v_bus.override_net_name = "V_BUS_SENSE"
     safety.ovp.adc_v_bus.line ~ mcu.adc_v_bus
-    
+
+    # OVP-01 REF2025 re-reference (Option C, 2026-07-27, docs/evidence/
+    # 2026-07-27-ovp01-ref2025-implementation.md): OVPComparator's comp.INN
+    # is referenced to RTDSensing's REF2025.VREF (2.5V, +/-0.05%/8ppm/C)
+    # instead of a resistor divider off vcc_3v3 -- see OVPComparator's
+    # docstring and r_div_bot's comment for the full derivation. VREF was
+    # otherwise completely unused; this is the only place it is wired.
+    safety.ovp.vref_ext.line ~ rtd_pan.reference.VREF
+    safety.ovp.vref_ext.line.override_net_name = "OVP_VREF_2V5"
+
     # Watchdog
     mcu.wdt_kick.line ~ safety.wdt_kick.line
     mcu.wdt_kick.line.override_net_name = "WDT_KICK"
