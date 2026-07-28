@@ -288,12 +288,32 @@ def generate_dru() -> str:
         "# a BOM/footprint/placement change, none of which this script"
         " performs."
     )
+    lines.append("#")
+    lines.append(
+        "# CONDITION FIX (2026-07-28): the same-footprint test used to be"
+        " A.insideCourtyard(B.Reference), which does not match anything in"
+    )
+    lines.append(
+        "# kicad-cli 10.0.4/10.0.5 -- intersectsCourtyard()'s argument is"
+        " matched against a footprint reference/wildcard string, but the"
+    )
+    lines.append(
+        "# dynamic B.Reference form (as opposed to a literal string) never"
+        " binds, so this rule silently matched zero pad pairs. Replaced"
+    )
+    lines.append(
+        "# with A.Reference == B.Reference, a direct property-equality test"
+        " confirmed (kicad-cli 10.0.4, isolated fixture) to fire correctly:"
+    )
+    lines.append(
+        "# see docs/evidence/2026-07-28-drc-courtyard-condition-fix.md."
+    )
     lines.append(_SEP)
     lines.append('(rule "HV internal same footprint"')
     lines.append(
         "   (condition \"A.NetClass == 'HighVoltage'"
         " && B.NetClass == 'HighVoltage'"
-        " && A.insideCourtyard(B.Reference)\")"
+        " && A.Reference == B.Reference\")"
     )
     lines.append(f"   (constraint clearance (min {fmt_mm(HV_INTERNAL_CLEARANCE_MM)}))")
     lines.append(")")
@@ -312,12 +332,21 @@ def generate_dru() -> str:
     lines.append("")
     lines.append(_SEP)
     lines.append("# RULE 7: Power nets internal - allow SOT-23 pitch")
+    lines.append("#")
+    lines.append(
+        "# CONDITION FIX (2026-07-28): same defect and same fix as RULE 5 --"
+        " A.insideCourtyard(B.Reference) does not match anything in kicad-cli"
+    )
+    lines.append(
+        "# 10.0.4/10.0.5; replaced with A.Reference == B.Reference. See"
+        " docs/evidence/2026-07-28-drc-courtyard-condition-fix.md."
+    )
     lines.append(_SEP)
     lines.append('(rule "Power internal same footprint"')
     lines.append(
         "   (condition \"A.NetClass == 'Power'"
         " && B.NetClass == 'Power'"
-        " && A.insideCourtyard(B.Reference)\")"
+        " && A.Reference == B.Reference\")"
     )
     lines.append("   (constraint clearance (min 0.2mm))")
     lines.append(")")
