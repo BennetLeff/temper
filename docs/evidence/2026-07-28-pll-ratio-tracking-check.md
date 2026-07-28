@@ -1,5 +1,7 @@
 # Does the PLL deliver the ratio-tracking mitigation? No.
 
+<!-- provenance: commit=8838d52474a3fc9b82dd7fbd6de2a85fe77208dc dirty=UNKNOWN -->
+
 **Date:** 2026-07-28
 **Question:** `docs/evidence/2026-07-27-inductance-range-sweep.md` found that the
 0.84% ZVS margin does not survive the plausible inductance range, but that a

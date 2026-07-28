@@ -9,7 +9,6 @@ license = "MIT"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-temper-geometry-core = { path = "../temper-geometry-core" }
 temper-py-bridge = { path = "../temper-py-bridge" }
 rand = "0.8"
 pyo3 = { version = "0.29", features = ["extension-module"] }

@@ -280,13 +280,6 @@ name = "temper-dsn"
 version = "0.1.0"
 dependencies = [
  "pyo3",
- "temper-dsn-core",
-]
-
-[[package]]
-name = "temper-dsn-core"
-version = "0.1.0"
-dependencies = [
  "regex",
  "serde_json",
  "sha2",

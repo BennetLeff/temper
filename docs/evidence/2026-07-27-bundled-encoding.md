@@ -1,5 +1,7 @@
 # Bundled/pruned SAT encoding: not wired, not runnable, not a flag-flip
 
+<!-- provenance: commit=cd56b5a667f231d49f361aa76c86d517e5818318 dirty=UNKNOWN -->
+
 **Date:** 2026-07-27
 **Task:** Determine why `enable_bundling` defaults to `False` in Router V6's
 `ModelBuilder`/`RouterV6Pipeline`, and whether it is safe to wire it into

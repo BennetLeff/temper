@@ -1,5 +1,7 @@
 # ZVS operating point: f_switching 35 kHz → 47 kHz
 
+<!-- provenance: commit=6b4210992e171d185257664cef4bcec86c572d08 dirty=UNKNOWN -->
+
 **Date:** 2026-07-27
 **Status:** change committed (`dd08c286`); this document is the analysis the
 implementing agent did not reach before dropping. Written by the coordinator

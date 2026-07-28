@@ -34,7 +34,7 @@ dev = [
 
 [tool.uv.workspace]
 members = ["packages/*"]
-exclude = ["packages/temper-geometry-core", "packages/temper-dsn-core", "packages/temper-ipc-core", "packages/temper-py-bridge", "packages/temper-py-bridge-derive"]
+exclude = ["packages/temper-py-bridge", "packages/temper-py-bridge-derive"]
 
 [tool.uv.sources]
 temper-placer = { workspace = true }

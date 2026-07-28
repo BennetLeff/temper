@@ -1,5 +1,7 @@
 # Why Stage 3 took 26 minutes: it was never the SAT solver, and it wasn't the loop the prior doc named either
 
+<!-- provenance: commit=56362d528d4c9aebc44b3a0534f4fa9c272a8b97 dirty=UNKNOWN -->
+
 **Date:** 2026-07-27
 **Task:** Find out why Stage 3 takes 26 minutes on `pcb/temper.kicad_pcb` (108
 nets), given `docs/evidence/2026-07-27-sat-bound-tradeoff.md` already showed

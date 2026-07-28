@@ -1,8 +1,8 @@
 _meta:
   last_audit_date: '2026-07-28'
-  total_scripts: 71
+  total_scripts: 72
   counts:
-    keep: 70
+    keep: 71
     ticket: 1
   ticket_scripts_deleted: 40
 scripts:
@@ -896,8 +896,8 @@ scripts:
   - sys
 - path: check_pll_range_consistency.py
   purpose: 'CI gate: fail when firmware/components/control/pll_control.h''s PLL_MIN/MAX/DEFAULT_FREQ_HZ
-    and elec/src/main.ato''s declared f_switching/f_pll_tracking_min/max disagree -- main.ato asserted a
-    20-100kHz tracking range 5x wider than the firmware''s real 30-50kHz clamp, and PLL_DEFAULT_FREQ_HZ
+    and elec/src/main.ato''s declared f_switching/f_pll_tracking_min/max disagree -- main.ato asserted
+    a 20-100kHz tracking range 5x wider than the firmware''s real 30-50kHz clamp, and PLL_DEFAULT_FREQ_HZ
     (35000) started the bridge at the frequency an independent ZVS analysis found loses 100.7% of ZVS
     margin, while main.ato had already moved to 47kHz (docs/evidence/2026-07-28-pll-defaults-and-range-gate.md)'
   owner: bennet
@@ -1009,3 +1009,20 @@ scripts:
   - pathlib
   - sys
   - tomllib
+- path: check_copper_net_consistency.py
+  purpose: 'Board-copper / netlist consistency gate: catch corrupted net ordinals.'
+  owner: bennet
+  last_run: '2026-07-28'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - dataclasses
+  - json
+  - pathlib
+  - re
+  - sys
+  - typing

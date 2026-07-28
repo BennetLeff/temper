@@ -1,5 +1,7 @@
 # The phantom-layer fix was half right: a 12× routing regression, partially reverted
 
+<!-- provenance: commit=60d441f2ff21eac8178a9c67fa87b8240c65fc22 dirty=UNKNOWN -->
+
 **Date:** 2026-07-28
 **Reverts:** the outer-layer half of `a1fe623e` (merged as `52ccd14c`)
 **Retains:** the phantom-`In3.Cu` half of the same commit

@@ -1,3 +1,4 @@
+pub mod types;
 pub mod primitives;
 pub mod smooth;
 pub mod polygon;

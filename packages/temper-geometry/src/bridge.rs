@@ -7,7 +7,7 @@
 
 use pyo3::prelude::*;
 use temper_py_bridge;
-use temper_geometry_core::types::*;
+use crate::types::*;
 
 // ---------------------------------------------------------------------------
 // Conversion helpers

@@ -1,7 +1,6 @@
 # Forced-segment-disallowed analysis: mechanism, falsifier, and why no fix was committed
 
-<!-- provenance: base commit=6b421099 (docs/methodology-loop-discipline canonical
-tip), worktree agent-ac9040ce7a4ff852b -->
+<!-- provenance: commit=84c02da611bea57784c5f79a2b70911fa4648d51 dirty=UNKNOWN -->
 
 **Date:** 2026-07-27
 

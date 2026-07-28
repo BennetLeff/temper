@@ -18,10 +18,10 @@ jobs:
       VIRTUAL_ENV: ${{ github.workspace }}/.venv
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v4
+      - uses: astral-sh/setup-uv@v7
         with: {version: "latest", enable-cache: true}
       - name: Cache virtualenv
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         id: cache-venv
         with:
           path: .venv

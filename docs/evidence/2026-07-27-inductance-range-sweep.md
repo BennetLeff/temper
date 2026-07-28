@@ -1,5 +1,7 @@
 # Inductance-range sweep: does the electrical design survive tank-coil L uncertainty?
 
+<!-- provenance: commit=96ec18c76de9ff824aab4a7a414a89b123af4484 dirty=UNKNOWN -->
+
 **Date:** 2026-07-27/28
 **Base commit:** `e87e8b90` (`docs/methodology-loop-discipline`). Work done on branch
 `inductance-range-sweep`, created from that commit in an isolated worktree

@@ -1,5 +1,7 @@
 # DRC ratchet: fixing the early-return that hid every failing category but one
 
+<!-- provenance: commit=7482c0f0c02fdd8c6e1dab2b2561d261867ebe39 dirty=UNKNOWN -->
+
 **Date:** 2026-07-28
 **Base commit:** `8838d524` (`docs/methodology-loop-discipline`)
 **Fix commit:** `8e265fde` on `fix/drc-ratchet-enumeration` (this worktree)

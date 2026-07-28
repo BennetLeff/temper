@@ -1,8 +1,6 @@
 # Router determinism: root cause, fix, and byte-identical proof
 
-<!-- provenance: commit=9abf7ef880f25eb7ba4b725e81423f0fc9e7ad7c
-dirty=packages/temper-placer/src/temper_placer/router_v6/_adapter_convert.py
-(the fix itself) -->
+<!-- provenance: commit=9abf7ef880f25eb7ba4b725e81423f0fc9e7ad7c dirty=UNKNOWN -->
 
 **Date:** 2026-07-27
 

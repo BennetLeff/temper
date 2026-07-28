@@ -1,5 +1,7 @@
 # DRC truth-gate discrepancy: 91 vs 729 — resolved
 
+<!-- provenance: commit=56a3e8949c78c32df87915f75d62ea34c11bb737 dirty=UNKNOWN -->
+
 **Date:** 2026-07-28
 **Commit under investigation:** `e87e8b90` (tip of `docs/methodology-loop-discipline` at time of writing)
 **Board:** `pcb/temper.kicad_pcb`, sha256 `81551208...098ef1` (verified identical between `git show e87e8b90:pcb/temper.kicad_pcb` and the working-tree file used for every "local" measurement below)

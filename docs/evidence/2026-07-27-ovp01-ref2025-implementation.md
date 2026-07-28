@@ -1,6 +1,6 @@
 # OVP-01 Option C implementation: re-reference comp.INN to REF2025
 
-<!-- provenance: commit=220fd89ac45b5e5efa8b3be365af3e1653ed2967 (base), dirty=true -->
+<!-- provenance: commit=220fd89ac45b5e5efa8b3be365af3e1653ed2967 dirty=true -->
 
 **Date:** 2026-07-27
 **Scope:** Implementation. Modifies `elec/src/modules.ato`, `elec/src/main.ato`,

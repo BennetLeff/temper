@@ -13,7 +13,7 @@
 // At evaluation time only pairwise AABB distance checks run — lightweight
 // and amortises the inflation step.
 
-use temper_geometry_core::types::*;
+use crate::types::*;
 use crate::primitives;
 use crate::smooth::*;
 

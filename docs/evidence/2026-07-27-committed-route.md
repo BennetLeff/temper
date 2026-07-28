@@ -1,8 +1,6 @@
 # Committed route of `pcb/temper.kicad_pcb`
 
-<!-- provenance: commit=afaf9000960f0ff141b849447c0d106c2fca26eb (repointed to
-docs/methodology-loop-discipline @ 220fd89ac45b5e5efa8b3be365af3e1653ed2967)
-dirty=UNKNOWN -->
+<!-- provenance: commit=556ccf4f02550d376c1d15dfe1fcf156e7586d1f dirty=UNKNOWN -->
 
 **Date:** 2026-07-27
 

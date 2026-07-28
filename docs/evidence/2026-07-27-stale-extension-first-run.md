@@ -1,5 +1,7 @@
 # The stale-extension gate's first real run: 7 of 10 crates stale
 
+<!-- provenance: commit=0b19a584b9203838f30d992f488b2ecc977c0ad6 dirty=UNKNOWN -->
+
 **Date:** 2026-07-27
 **Gate:** `scripts/check_stale_extensions.py` (merged in `f1c8f5b7`)
 

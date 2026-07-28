@@ -1,6 +1,6 @@
 # Creepage burn-down: are the 24 real, durable defects?
 
-<!-- provenance: commit=02e907b9a5e1dbca4eae9a0a53f8a2be6dc862c5 (base), branch creepage-burndown -->
+<!-- provenance: commit=41c57d51aef7c163df66a0c649939844bfb27570 dirty=UNKNOWN -->
 
 **Date:** 2026-07-27
 

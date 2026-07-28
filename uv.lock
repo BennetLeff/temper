@@ -1638,6 +1638,7 @@ dev = [
     { name = "pytest-bdd" },
     { name = "pytest-timeout" },
     { name = "python-sat" },
+    { name = "sympy" },
 ]
 
 [package.metadata]
@@ -1678,6 +1679,7 @@ dev = [
     { name = "pytest-bdd", specifier = ">=8.1.0" },
     { name = "pytest-timeout", specifier = ">=2.3.1" },
     { name = "python-sat", specifier = ">=1.8.dev14" },
+    { name = "sympy", specifier = ">=1.12" },
 ]
 
 [[package]]

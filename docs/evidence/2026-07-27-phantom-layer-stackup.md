@@ -1,5 +1,7 @@
 # Phantom `In3.Cu` / inverted plane-signal stackup: root cause, fix, and measured effect
 
+<!-- provenance: commit=926dff773990452accb85cd1ad68004cc1f2f7f2 dirty=UNKNOWN -->
+
 **Base commit:** `e87e8b90` (branch `docs/methodology-loop-discipline`), asserted via
 `scripts/assert-base.sh e87e8b90` at session start (`ASSERT-BASE OK`).
 **Fix commit (this task):** `a1fe623e` on `fix/phantom-layer-stackup`
