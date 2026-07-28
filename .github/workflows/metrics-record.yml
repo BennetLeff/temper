@@ -36,13 +36,11 @@ jobs:
       - name: Install dependencies
         run: uv sync --all-packages
       - name: Cache netlist
-        id: cache-netlist
         uses: actions/cache@v6
         with:
           path: elec/build
-          key: netlist-${{ hashFiles('elec/src/**', 'elec/ato.yaml', 'Makefile') }}
+          key: netlist-${{ hashFiles('elec/src/**') }}
       - name: Build electronics netlist
-        if: steps.cache-netlist.outputs.cache-hit != 'true'
         run: make netlist
       - name: Run closure test
         continue-on-error: true  # TODO: temper-NNN -- closure test best-effort; hard-fail after 2026-09-01

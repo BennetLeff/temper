@@ -351,14 +351,12 @@ jobs:
           TEMPER_REQUIRE_FRESH_EXTENSIONS: "1"
 
       - name: Cache netlist
-        id: cache-netlist
         uses: actions/cache@v6
         with:
           path: elec/build
-          key: netlist-${{ hashFiles('elec/src/**', 'elec/ato.yaml', 'Makefile') }}
+          key: netlist-${{ hashFiles('elec/src/**') }}
 
       - name: Build electronics netlist
-        if: steps.cache-netlist.outputs.cache-hit != 'true'
         run: make netlist
 
       - name: Run electronics validation tests
@@ -704,14 +702,12 @@ jobs:
           --no-install-package temper-constraints
 
       - name: Cache netlist
-        id: cache-netlist
         uses: actions/cache@v6
         with:
           path: elec/build
-          key: netlist-${{ hashFiles('elec/src/**', 'elec/ato.yaml', 'Makefile') }}
+          key: netlist-${{ hashFiles('elec/src/**') }}
 
       - name: Build electronics netlist
-        if: steps.cache-netlist.outputs.cache-hit != 'true'
         run: make netlist
 
       - name: Run invariant tests (router_v6 group 1)
@@ -795,14 +791,12 @@ jobs:
           --no-install-package temper-constraints
 
       - name: Cache netlist
-        id: cache-netlist
         uses: actions/cache@v6
         with:
           path: elec/build
-          key: netlist-${{ hashFiles('elec/src/**', 'elec/ato.yaml', 'Makefile') }}
+          key: netlist-${{ hashFiles('elec/src/**') }}
 
       - name: Build electronics netlist
-        if: steps.cache-netlist.outputs.cache-hit != 'true'
         run: make netlist
 
       - name: Run invariant tests (router_v6 group 2)
@@ -886,14 +880,12 @@ jobs:
           --no-install-package temper-constraints
 
       - name: Cache netlist
-        id: cache-netlist
         uses: actions/cache@v6
         with:
           path: elec/build
-          key: netlist-${{ hashFiles('elec/src/**', 'elec/ato.yaml', 'Makefile') }}
+          key: netlist-${{ hashFiles('elec/src/**') }}
 
       - name: Build electronics netlist
-        if: steps.cache-netlist.outputs.cache-hit != 'true'
         run: make netlist
 
       - name: Run invariant tests (router_v6 group 3)
@@ -977,14 +969,12 @@ jobs:
           --no-install-package temper-constraints
 
       - name: Cache netlist
-        id: cache-netlist
         uses: actions/cache@v6
         with:
           path: elec/build
-          key: netlist-${{ hashFiles('elec/src/**', 'elec/ato.yaml', 'Makefile') }}
+          key: netlist-${{ hashFiles('elec/src/**') }}
 
       - name: Build electronics netlist
-        if: steps.cache-netlist.outputs.cache-hit != 'true'
         run: make netlist
 
       - name: Run invariant tests (remaining directories)
@@ -1029,14 +1019,12 @@ jobs:
         run: uv sync --all-packages
 
       - name: Cache netlist
-        id: cache-netlist
         uses: actions/cache@v6
         with:
           path: elec/build
-          key: netlist-${{ hashFiles('elec/src/**', 'elec/ato.yaml', 'Makefile') }}
+          key: netlist-${{ hashFiles('elec/src/**') }}
 
       - name: Build electronics netlist
-        if: steps.cache-netlist.outputs.cache-hit != 'true'
         run: make netlist
 
       - name: Run closure test (truth-gated)
