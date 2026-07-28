@@ -237,6 +237,50 @@ freshly built, using `uv run --no-sync` throughout for the reason above:
   task's seven-gate verification list; none were touched to make this
   gate's own verification pass.
 
+## A third finding, organically hit during final verification: content-identical
+## rebuild reused a cached artifact and did not refresh its mtime
+
+After the falsifier sequence above completed and every gate had been
+re-verified green, a later, unrelated verification pass (after several
+intervening `git commit`s and doc writes, all using `uv run --no-sync`
+throughout) unexpectedly reported `temper-io-types` STALE again:
+
+```
+$ uv run --no-sync python scripts/check_stale_extensions.py
+[STALE] temper-io-types: ... (built 2026-07-27T22:46:30) predates
+  .../lib.rs (modified 2026-07-27T22:55:28, 0.01 day(s) newer) ...
+```
+
+Investigation: `md5` of the installed `.so` and of
+`packages/temper-io-types/target/release/libtemper_io_types.dylib` were
+identical (`ff4c7d47...`) -- both matched the ORIGINAL, pre-falsifier
+build, because the falsifier's comment edit had been reverted and Rust
+compilation is deterministic for this crate, so recompiling the reverted
+source reproduces the original artifact byte-for-byte. Despite a real
+`maturin develop` rebuild having run in between (triggered by the revert),
+the installed `.so`'s mtime never advanced past its very first build
+(`22:46:30`) -- some layer in the toolchain (most likely `uv`'s own
+content-addressed build cache, consistent with the auto-sync finding
+above) reused the existing file rather than truly overwriting it, because
+the content hash already matched something previously cached.
+
+This is not a bug in the gate -- it is a live instance of exactly the
+false-positive class the gate's own docstring already names and accepts
+("False-positive avoidance": a source file whose *content* reverts to
+something already built can have a *mtime* newer than the artifact that
+correctly reflects it). It resolved immediately on forcing a genuinely
+fresh install (`rm -rf .venv/.../temper_io_types && uv run --no-sync
+maturin develop --release --manifest-path
+packages/temper-io-types/Cargo.toml`), after which mtime correctly
+advanced (`23:09:14`) and the gate reported `PASSED` again. Left as
+evidence of the documented limitation actually occurring, not just a
+theoretical concern -- and a second illustration (independent of the `uv
+run` auto-sync finding above) of the module docstring's core message:
+never trust a build tool's report of success as proof of a fresh
+artifact; only the artifact's own timestamp is real evidence, and even
+that needs a codebase-level acknowledgment that identical content can
+legitimately have a "wrong-looking" mtime after an edit-then-revert.
+
 ## UNVERIFIED
 
 - The modified `.github/workflows/python-tests.yml` has not been run on a
