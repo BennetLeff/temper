@@ -125,13 +125,17 @@ __all__ = [
 ]
 
 # 0.5mm above scripts/check_isolation_keepout.py's MIN_BARRIER_WIDTH_MM
-# (8.0mm, REINFORCED creepage -- see that module's docstring for the full
-# IEC 60335-1 derivation). The margin exists so integer-unit rounding
-# (CpSatModel.mm_to_units rounds to the nearest *even* unit) and the gate's
-# own Shapely negative-buffer erosion test (a strict "> 0 everywhere", not
-# "== 0 at the edge") both have headroom -- never used to justify shrinking
-# the 8.0mm safety figure itself, which this module never touches.
-DEFAULT_CORRIDOR_WIDTH_MM = 8.5
+# (12.6mm, REINFORCED creepage at pollution degree 3 -- re-targeted
+# 2026-07-28 from the prior 8.0mm PD2 figure at the same IEC 60335-1 Table
+# 17 row; see that module's docstring for the full clause chain and
+# docs/evidence/2026-07-28-pd3-retarget-keepout.md for the enclosure-
+# exception determination that PD3 governs). The margin exists so
+# integer-unit rounding (CpSatModel.mm_to_units rounds to the nearest *even*
+# unit) and the gate's own Shapely negative-buffer erosion test (a strict
+# "> 0 everywhere", not "== 0 at the edge") both have headroom -- never used
+# to justify shrinking the 12.6mm safety figure itself, which this module
+# never touches.
+DEFAULT_CORRIDOR_WIDTH_MM = 13.1
 
 
 # ---------------------------------------------------------------------------
