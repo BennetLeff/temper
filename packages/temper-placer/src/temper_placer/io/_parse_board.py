@@ -5,7 +5,7 @@ from __future__ import annotations
 import math
 from typing import TYPE_CHECKING
 
-from temper_placer.core.board import STANDARD_LAYER_ORDER, Board, MountingHole
+from temper_placer.core.board import STANDARD_LAYER_ORDER, Board, MountingHole, is_signal_layer
 from temper_placer.io._parse_zones import _extract_zones_from_pcb
 
 if TYPE_CHECKING:
@@ -135,7 +135,7 @@ def _extract_stackup(ki_board: KiBoard, warnings: list[str]) -> StackupInfo:
                         or "+" in zone.netName
                         or "PWR" in zone.netName
                     )
-                    if is_power and ".Cu" in layer:
+                    if is_power and layer.endswith(".Cu"):
                         plane_assignments[layer] = zone.netName
 
     setup_stackup = None
@@ -210,7 +210,15 @@ def _extract_stackup(ki_board: KiBoard, warnings: list[str]) -> StackupInfo:
     else:
         layer_count = 2
         if hasattr(ki_board, "layers") and ki_board.layers:
-            copper_layers = [ly for ly in ki_board.layers if ".Cu" in getattr(ly, "name", "")]
+            # NOTE: must be a suffix match, not `in`. A substring check matches
+            # "Edge.Cuts" (its tail ".Cuts" starts with ".Cu") as a spurious
+            # 5th "copper" layer on a real 4-layer board, which pushes this
+            # function into the "unusual layer count" branch below and
+            # fabricates a phantom "In3.Cu" that does not exist on the board.
+            # See docs/evidence/2026-07-27-phantom-layer-stackup.md.
+            copper_layers = [
+                ly for ly in ki_board.layers if getattr(ly, "name", "").endswith(".Cu")
+            ]
             layer_count = len(copper_layers)
 
         if layer_count == 2:
@@ -224,7 +232,21 @@ def _extract_stackup(ki_board: KiBoard, warnings: list[str]) -> StackupInfo:
             layer_names = ["F.Cu"] + [f"In{i}.Cu" for i in range(1, layer_count - 1)] + ["B.Cu"]
 
         for i, name in enumerate(layer_names):
-            if name in plane_assignments:
+            if layer_count == 4 and is_signal_layer(name):
+                # Canonical 4-layer stackup (core/board.py STANDARD_LAYER_ORDER /
+                # PLANE_LAYER_INDICES, docs/hardware/POWER_PLANE_DESIGN.md): F.Cu
+                # and B.Cu are always the signal/routing layers and In1.Cu/In2.Cu
+                # are always the inner GND/PWR reference planes. This must be
+                # checked before the zone-netname heuristic below: this board
+                # pours per-net copper fill (creepage/thermal) for many nets,
+                # including power-ish ones like PWR_RTN, directly on the outer
+                # layers. Letting that heuristic override the outer layers to
+                # "plane" silently removed F.Cu/B.Cu from the router's routing
+                # space entirely. See
+                # docs/evidence/2026-07-27-phantom-layer-stackup.md.
+                layer_type = "signal"
+                plane_net = None
+            elif name in plane_assignments:
                 layer_type = "plane"
                 plane_net = plane_assignments[name]
             elif i == 0 or i == layer_count - 1:
