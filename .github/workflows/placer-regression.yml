@@ -54,7 +54,7 @@ jobs:
           enable-cache: true
 
       - name: Cache virtualenv
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         id: cache-venv
         with:
           path: .venv
@@ -147,7 +147,7 @@ jobs:
         run: uv python install 3.12
 
       - name: Cache virtualenv
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: .venv
           key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}

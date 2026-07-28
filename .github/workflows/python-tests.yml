@@ -154,7 +154,7 @@ jobs:
           enable-cache: true
       
       - name: Cache virtualenv
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         id: cache-venv
         with:
           path: .venv
@@ -168,7 +168,7 @@ jobs:
         run: uv pip install maturin
 
       - name: Cache Rust build
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: packages/temper-rust-router/target
           key: ${{ runner.os }}-rust-router-${{ hashFiles('packages/temper-rust-router/Cargo.lock') }}
@@ -184,7 +184,7 @@ jobs:
           RUST_BACKTRACE: full
 
       - name: Cache Rust build (temper-drc-rs)
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: packages/temper-drc-rs/target
           key: ${{ runner.os }}-drc-rs-${{ hashFiles('packages/temper-drc-rs/Cargo.lock') }}
@@ -216,7 +216,7 @@ jobs:
           TEMPER_REQUIRE_RUST_DRC: "1"
 
       - name: Cache Rust build (temper-constraints)
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: packages/temper-placer/temper-constraints/target
           key: ${{ runner.os }}-temper-constraints-${{ hashFiles('packages/temper-placer/temper-constraints/Cargo.lock') }}
@@ -236,7 +236,7 @@ jobs:
           RUST_BACKTRACE: full
 
       - name: Cache Rust build (temper-constraint-compiler)
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: packages/temper-constraint-compiler/target
           key: ${{ runner.os }}-constraint-compiler-${{ hashFiles('packages/temper-constraint-compiler/Cargo.lock') }}
@@ -278,7 +278,7 @@ jobs:
           --no-install-package temper-constraints
 
       - name: Cache netlist
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: elec/build
           key: netlist-${{ hashFiles('elec/src/**') }}
@@ -332,7 +332,7 @@ jobs:
         continue-on-error: true  # TODO: temper-NNN -- codegen drift from NetClassRules SSOT; hard-fail after 2026-09-01
 
       - name: Cache Rust build (temper-design-bundle)
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: packages/temper-design-bundle/target
           key: ${{ runner.os }}-design-bundle-${{ hashFiles('packages/temper-design-bundle/Cargo.lock') }}
@@ -492,7 +492,7 @@ jobs:
           enable-cache: true
 
       - name: Cache virtualenv
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         id: cache-venv
         with:
           path: .venv
@@ -506,7 +506,7 @@ jobs:
         run: uv pip install maturin
 
       - name: Cache Rust build
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: packages/temper-rust-router/target
           key: ${{ runner.os }}-rust-router-${{ hashFiles('packages/temper-rust-router/Cargo.lock') }}
@@ -522,7 +522,7 @@ jobs:
           RUST_BACKTRACE: full
 
       - name: Cache Rust build (temper-drc-rs)
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: packages/temper-drc-rs/target
           key: ${{ runner.os }}-drc-rs-${{ hashFiles('packages/temper-drc-rs/Cargo.lock') }}
@@ -538,7 +538,7 @@ jobs:
           RUST_BACKTRACE: full
 
       - name: Cache Rust build (temper-constraints)
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: packages/temper-placer/temper-constraints/target
           key: ${{ runner.os }}-temper-constraints-${{ hashFiles('packages/temper-placer/temper-constraints/Cargo.lock') }}
@@ -565,7 +565,7 @@ jobs:
           --no-install-package temper-constraints
 
       - name: Cache netlist
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: elec/build
           key: netlist-${{ hashFiles('elec/src/**') }}
@@ -607,7 +607,7 @@ jobs:
           enable-cache: true
 
       - name: Cache virtualenv
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         id: cache-venv
         with:
           path: .venv
@@ -621,7 +621,7 @@ jobs:
         run: uv pip install maturin
 
       - name: Cache Rust build
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: packages/temper-rust-router/target
           key: ${{ runner.os }}-rust-router-${{ hashFiles('packages/temper-rust-router/Cargo.lock') }}
@@ -637,7 +637,7 @@ jobs:
           RUST_BACKTRACE: full
 
       - name: Cache Rust build (temper-drc-rs)
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: packages/temper-drc-rs/target
           key: ${{ runner.os }}-drc-rs-${{ hashFiles('packages/temper-drc-rs/Cargo.lock') }}
@@ -653,7 +653,7 @@ jobs:
           RUST_BACKTRACE: full
 
       - name: Cache Rust build (temper-constraints)
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: packages/temper-placer/temper-constraints/target
           key: ${{ runner.os }}-temper-constraints-${{ hashFiles('packages/temper-placer/temper-constraints/Cargo.lock') }}
@@ -680,7 +680,7 @@ jobs:
           --no-install-package temper-constraints
 
       - name: Cache netlist
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: elec/build
           key: netlist-${{ hashFiles('elec/src/**') }}
@@ -722,7 +722,7 @@ jobs:
           enable-cache: true
 
       - name: Cache virtualenv
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         id: cache-venv
         with:
           path: .venv
@@ -736,7 +736,7 @@ jobs:
         run: uv pip install maturin
 
       - name: Cache Rust build
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: packages/temper-rust-router/target
           key: ${{ runner.os }}-rust-router-${{ hashFiles('packages/temper-rust-router/Cargo.lock') }}
@@ -752,7 +752,7 @@ jobs:
           RUST_BACKTRACE: full
 
       - name: Cache Rust build (temper-drc-rs)
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: packages/temper-drc-rs/target
           key: ${{ runner.os }}-drc-rs-${{ hashFiles('packages/temper-drc-rs/Cargo.lock') }}
@@ -768,7 +768,7 @@ jobs:
           RUST_BACKTRACE: full
 
       - name: Cache Rust build (temper-constraints)
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: packages/temper-placer/temper-constraints/target
           key: ${{ runner.os }}-temper-constraints-${{ hashFiles('packages/temper-placer/temper-constraints/Cargo.lock') }}
@@ -795,7 +795,7 @@ jobs:
           --no-install-package temper-constraints
 
       - name: Cache netlist
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: elec/build
           key: netlist-${{ hashFiles('elec/src/**') }}
@@ -837,7 +837,7 @@ jobs:
           enable-cache: true
 
       - name: Cache virtualenv
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         id: cache-venv
         with:
           path: .venv
@@ -851,7 +851,7 @@ jobs:
         run: uv pip install maturin
 
       - name: Cache Rust build
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: packages/temper-rust-router/target
           key: ${{ runner.os }}-rust-router-${{ hashFiles('packages/temper-rust-router/Cargo.lock') }}
@@ -867,7 +867,7 @@ jobs:
           RUST_BACKTRACE: full
 
       - name: Cache Rust build (temper-drc-rs)
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: packages/temper-drc-rs/target
           key: ${{ runner.os }}-drc-rs-${{ hashFiles('packages/temper-drc-rs/Cargo.lock') }}
@@ -883,7 +883,7 @@ jobs:
           RUST_BACKTRACE: full
 
       - name: Cache Rust build (temper-constraints)
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: packages/temper-placer/temper-constraints/target
           key: ${{ runner.os }}-temper-constraints-${{ hashFiles('packages/temper-placer/temper-constraints/Cargo.lock') }}
@@ -910,7 +910,7 @@ jobs:
           --no-install-package temper-constraints
 
       - name: Cache netlist
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: elec/build
           key: netlist-${{ hashFiles('elec/src/**') }}
@@ -946,7 +946,7 @@ jobs:
           enable-cache: true
 
       - name: Cache virtualenv
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         id: cache-venv
         with:
           path: .venv
@@ -960,7 +960,7 @@ jobs:
         run: uv sync --all-packages
 
       - name: Cache netlist
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: elec/build
           key: netlist-${{ hashFiles('elec/src/**') }}
@@ -1006,7 +1006,7 @@ jobs:
         run: uv python install 3.12
 
       - name: Cache virtualenv
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         id: cache-venv
         with:
           path: .venv
@@ -1049,7 +1049,7 @@ jobs:
           enable-cache: true
       
       - name: Cache virtualenv
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         id: cache-venv
         with:
           path: .venv
@@ -1080,7 +1080,7 @@ jobs:
           enable-cache: true
 
       - name: Cache virtualenv
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         id: cache-venv
         with:
           path: .venv
@@ -1120,7 +1120,7 @@ jobs:
           enable-cache: true
       
       - name: Cache virtualenv
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         id: cache-venv
         with:
           path: .venv
@@ -1155,7 +1155,7 @@ jobs:
         run: uv python install 3.12
 
       - name: Cache virtualenv
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         id: cache-venv
         with:
           path: .venv
