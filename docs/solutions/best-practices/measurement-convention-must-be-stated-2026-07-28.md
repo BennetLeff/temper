@@ -170,8 +170,57 @@ U3 @ 7.62mm (centre-to-centre, misread as the gap)  -> PASS  (7.62 >= 6.5)
 U3 @ 6.02mm (real edge-to-edge copper gap)          -> FAIL  (6.02 <  6.5, by 0.48mm)
 ```
 
+## Update, 2026-07-28 (later the same day): a designed number reported as a measured one, retracted
+
+A different creepage figure in this same investigation turned out to have a
+sharper defect than a convention mismatch: it was never a measurement at
+all. The K2/K3 relay footprint's 9.2mm coil-to-contact creepage (Finder
+40.52.7.012.0000, the prior session's own reported figure) was, by that
+session's own words, *"a deliberate design choice, not a trace of the
+manufacturer's own recommended PCB pattern"* — adopted because the
+catalog's dimension drawing "rendered ambiguously" under `pdftotext`
+extraction, since the drawing's dimension digits are vector-drawn glyphs
+that never entered the PDF's text layer at all (confirmed by grepping the
+extracted text for the exact tokens — none appear). **A number designed by
+this footprint's own author was relayed onward and reported as verified.**
+
+Resolving it properly needed a different extraction method entirely: the
+catalog page (Finder cat. S40EN, p.3) was rendered at 300dpi and
+pixel-calibrated two independent ways (two labelled reference-dimension
+chains anchored to the same datum; a joint solve against three
+independently-detected pin-position pixel lines), agreeing to 11.415
+px/mm against a theoretical 300dpi/25.4 = 11.811 px/mm. Both methods
+recovered the real pin positions to within 0.5mm of each other.
+
+**Real coil-to-nearest-contact spacing: 5.3mm edge-to-edge** (7.5mm
+center-to-center, MEASURED — not the invented 11mm the prior footprint
+used), a **2.7mm shortfall against the already-superseded 8.0mm/PD2 target**
+and a **7.3mm shortfall against 12.6mm/PD3**
+(`docs/solutions/best-practices/check-the-exception-before-the-default-2026-07-28.md`).
+The same re-measurement also caught two independent physical defects the
+invented geometry had been hiding: the real pin order is **NC–COM–NO**,
+not the COM–NC–NO the prior footprint placed (a genuine pad transposition,
+not just a distance error), and the real 1.5mm pin diameter needs a 1.7mm
+drill — the prior footprint specified a **1.0mm drill that cannot
+physically accept this part's real leads at all**.
+
+**This retracts a positive finding rather than confirming one** — the
+falsifier here ("the Finder 40.52 can reach the target within its fixed
+pinout") did not fire in the part's favor, and the retraction stands
+regardless of which pollution degree ultimately governs: 5.3mm fails both
+8.0mm and 12.6mm. It is the same family of error this doc already
+documents (a number that is real, correctly transcribed, and answers the
+wrong question) at one further remove: not two conventions for the same
+measurement, but a designed value standing in for a measurement that was
+never taken, because the artifact it should have been read from rendered
+ambiguously under the first extraction method tried. Full writeup:
+`docs/evidence/2026-07-28-pd3-retarget-relay.md`.
+
 ## Related
 
+- `docs/solutions/best-practices/check-the-exception-before-the-default-2026-07-28.md`
+  — the same-day determination (PD3 governs, 12.6mm is real) that this
+  update's retracted relay figure fails against either way.
 - `docs/solutions/best-practices/net-name-is-a-claim-not-an-authority-2026-07-26.md`
   — the sibling lesson: a label (a net's name; here, a bare distance
   figure) that shares surface form with the quantity actually needed, but
