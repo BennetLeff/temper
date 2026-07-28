@@ -652,7 +652,11 @@ else in this section.
   Table 2 conditioning row and does not exist today.
 - **`packages/temper-placer/configs/netclass_rules.yaml`** — the nine
   `ACMains-*` / `HighVoltage-*` `class_pairs` all carry
-  `clearance: 6.0, because: "IEC 60335-1 Table 16 working isolation at 400V"`.
+  `clearance: 6.0, because: "IEC 60335-1 Table 16 working isolation at 400V"`,
+  and the `ACMains` and `HighVoltage` classes each additionally carry
+  `creepage_mm: 6.0` under the same `because:` string — so **one number and one
+  citation are doing duty as both the clearance and the creepage figure**, which
+  is the exact confusion the prior determination catalogued.
   That attribution is wrong independently of this determination (Table 16 is
   indexed by rated impulse voltage; 400 V is not one of its rows; 6.0 is not
   one of its values — established in the prior brainstorm and re-confirmed
