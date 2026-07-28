@@ -79,6 +79,35 @@ def test_isolator_feasible_on_x_axis():
     assert feas.hv_is_lo is True
 
 
+def test_isolator_feasible_only_via_y_axis_rotation():
+    """Regression test for a real bug found via a corridor-width control
+    experiment against the real board (see docs/evidence/
+    2026-07-28-barrier-constrained-placement.md): a K1-shaped isolator
+    (bypass relay) whose HV/SELV clusters are 9.5mm apart in local Y but
+    OVERLAP in local X. Against a barrier whose own axis is X (0), this is
+    only feasible if a 90-degree rotation is chosen to bring the local-Y
+    separation onto the barrier's X axis -- an earlier version of this
+    module unconditionally fixed rotation to 0, which only ever tests
+    local X (here, infeasible), and wrongly reported/encoded this case as
+    UNSAT even at corridor widths the Y-axis gap should have cleared."""
+    groups = IsolatorPadGroups(
+        ref="K1",
+        hv_pads=[(-3.175, 9.5, 3.17), (3.175, 9.5, 3.17)],
+        selv_pads=[(-3.175, 0.0, 0.9), (3.175, 0.0, 0.9)],
+        other_pads=[],
+    )
+    # gap_x (both clusters span the same X range) is negative/overlapping;
+    # gap_y (9.5mm centre-to-centre minus radii) clears a 4mm corridor.
+    feas = evaluate_isolator_feasibility(groups, corridor_width_mm=4.0, barrier_axis=0)
+    assert feas.gap_x_mm < 0
+    assert feas.gap_y_mm >= 4.0
+    assert feas.feasible, (
+        "barrier_axis=0 (X) must still be satisfiable by rotating 90 degrees "
+        "to bring the Y-axis separation onto the X axis"
+    )
+    assert feas.chosen_rotation in (1, 3)  # a 90-degree family rotation, not 0
+
+
 def test_isolator_infeasible_both_axes():
     """5mm-pitch two-pad component (like the real board's C6 Y-cap stub):
     provably cannot straddle an 8.5mm corridor on any axis or rotation."""

@@ -59,20 +59,31 @@ bounding-circle pad model ``check_isolation_keepout.py`` itself uses
 passes there" cannot disagree about the geometry, only about where the
 solver decides to put things. See ``evaluate_isolator_feasibility``.
 
-**Isolator rotation is fixed to 0 in this module's encoding** (mirroring the
-existing ``_POLARIZED_REFS`` fixed-rotation mechanism in
-``_encoder_solve.py`` for diodes/electrolytics) -- not because isolators
-must physically be non-rotatable, but because it makes the per-isolator
-split constraint a plain linear inequality instead of a 4-way
-``AddElement`` dispatch, AND because it loses no feasibility for this
-question: the maximum achievable HV/SELV pad-cluster separation under any
-of the 4 axis-aligned rotations is exactly the larger of the two values
-``evaluate_isolator_feasibility`` already computes (gap along local X, gap
-along local Y) -- rotating 90 degrees only swaps which global axis sees
-which local value, it cannot create a larger value than the pair already
-sampled. Both axes are evaluated up front, so fixing rotation to 0 and
-choosing the axis that already clears the bar (if any) is complete, not a
-narrowing of the search.
+**Isolator rotation is CHOSEN, then fixed, not left as a free CP-SAT
+variable** (``_best_rotation_for_barrier`` picks it; ``add_isolation_barrier_to_model``
+then pins ``rot_ref`` to that value via a plain ``Add(rot_ref == ...)``,
+mirroring the existing ``_POLARIZED_REFS`` fixed-rotation mechanism in
+``_encoder_solve.py`` for diodes/electrolytics). This makes the
+per-isolator split constraint a plain linear inequality instead of a
+4-way ``AddElement`` dispatch, without losing any feasibility: of the
+model's 4 axis-aligned rotations, exactly 2 project the local X axis onto
+the corridor's own axis (rot 0/2, sign-flipped) and 2 project local Y
+(rot 1/3, sign-flipped), so only 2 *magnitudes* are reachable at all (the
+``gap_x``/``gap_y`` values), each reachable in either of 2 directions --
+one of which keeps this module's global HV=lo/SELV=hi convention, one of
+which inverts it. ``_best_rotation_for_barrier`` checks all 4 explicitly
+and picks the convention-preserving one with the larger achievable gap.
+Fixing rotation to a *constant* 0 (an earlier version of this module did
+this, reasoning that "both axes are sampled so no feasibility is lost")
+was a real bug: it silently always used the local-X-to-barrier-axis
+mapping regardless of which axis actually cleared the bar, so an isolator
+whose only adequate separation was along local Y (real example: K1, the
+bypass relay -- adequate along local Y at small corridor widths, always
+inadequate along local X) was wrongly reported/encoded as infeasible
+against a barrier axis it could have used with a 90-degree rotation. Caught
+by a corridor-width control experiment (docs/evidence/
+2026-07-28-barrier-constrained-placement.md) and fixed by actually
+enumerating the 4 rotations rather than assuming rot=0 is as good as any.
 
 **Orientation and corridor position are fixed constants, not solver
 variables**, for a documented reason that is *not* "simpler to implement":
@@ -280,29 +291,118 @@ def _axis_gap(hv_pads: list[Pad], selv_pads: list[Pad], axis_idx: int) -> float:
     return worst
 
 
+def _project_onto_barrier_axis(local_x: float, local_y: float, rot_value: int, barrier_axis: int) -> float:
+    """Global coordinate (along *barrier_axis*, 0=X/1=Y) a local pad offset
+    maps to under one of the model's 4 axis-aligned rotations.
+
+    Matches ``_rotate`` in ``scripts/check_isolation_keepout.py`` (and
+    ``io/_parse_modules.py``'s own rotation handling) exactly: rotation is
+    counterclockwise about the component centre, so
+    (lx, ly) -> (lx*cos(a) - ly*sin(a), lx*sin(a) + ly*cos(a)) for
+    a = rot_value * 90 degrees, i.e.:
+
+        rot=0:  (gx, gy) = ( lx,  ly)
+        rot=1:  (gx, gy) = (-ly,  lx)
+        rot=2:  (gx, gy) = (-lx, -ly)
+        rot=3:  (gx, gy) = ( ly, -lx)
+    """
+    gx, gy = {
+        0: (local_x, local_y),
+        1: (-local_y, local_x),
+        2: (-local_x, -local_y),
+        3: (local_y, -local_x),
+    }[rot_value]
+    return gx if barrier_axis == 0 else gy
+
+
+def _best_rotation_for_barrier(
+    hv_pads: list[Pad],
+    selv_pads: list[Pad],
+    barrier_axis: int,
+) -> tuple[int, float, bool]:
+    """Pick the rotation (of the model's 4) that gives the LARGEST HV/SELV
+    cluster gap projected onto *barrier_axis*, restricted to rotations where
+    the HV cluster's mean projection is <= the SELV cluster's (this
+    module's global "HV=lo side, SELV=hi side" convention -- see
+    ``add_isolation_barrier_to_model``'s docstring for why this must be a
+    single board-wide convention, not chosen independently per component).
+
+    Fixes a real bug an earlier version of this module had: unconditionally
+    fixing rotation to 0 only ever tests the local-X-onto-barrier-axis
+    mapping. An isolator whose only adequate HV/SELV separation is along
+    its local Y axis (true achievable magnitude: ``gap_y`` in
+    ``evaluate_isolator_feasibility``) needs a 90-degree rotation to bring
+    that separation onto the barrier's own axis -- rot=0 would silently use
+    the WRONG (inadequate) local axis and report a false infeasibility.
+    Caught by a corridor-width control experiment during development (see
+    docs/evidence/2026-07-28-barrier-constrained-placement.md) where an
+    isolator with an adequate Y-axis gap was still reported UNSAT at a
+    corridor width its Y-axis gap should have cleared.
+
+    Returns (rot_value, gap_mm) for the best eligible rotation. If NO
+    rotation keeps the HV=lo/SELV=hi convention (never observed on the real
+    board -- every isolator's HV/SELV clusters are cleanly ordered on at
+    least one axis), returns rot=0 and the (necessarily negative or
+    convention-violating) gap for rot=0 as a safe, still-checkable fallback.
+    """
+    best: tuple[int, float] | None = None
+    fallback: tuple[int, float] | None = None
+    for rot_value in (0, 1, 2, 3):
+        hv_proj = [
+            (_project_onto_barrier_axis(x, y, rot_value, barrier_axis), r) for x, y, r in hv_pads
+        ]
+        selv_proj = [
+            (_project_onto_barrier_axis(x, y, rot_value, barrier_axis), r) for x, y, r in selv_pads
+        ]
+        hv_mean = sum(p for p, _ in hv_proj) / len(hv_proj)
+        selv_mean = sum(p for p, _ in selv_proj) / len(selv_proj)
+        gap = min(abs(hp - sp) - hr - sr for hp, hr in hv_proj for sp, sr in selv_proj)
+        if fallback is None or gap > fallback[1]:
+            fallback = (rot_value, gap)
+        if hv_mean > selv_mean:
+            continue  # would invert the board-wide HV=lo/SELV=hi convention
+        if best is None or gap > best[1]:
+            best = (rot_value, gap)
+    if best is not None:
+        return (best[0], best[1], True)
+    return (fallback[0], fallback[1], False)
+
+
 @dataclass
 class IsolatorFeasibility:
     ref: str
-    gap_x_mm: float
-    gap_y_mm: float
+    gap_x_mm: float  # informational: raw local-X-axis gap (order-agnostic)
+    gap_y_mm: float  # informational: raw local-Y-axis gap (order-agnostic)
     corridor_width_mm: float
-    feasible_axis: int | None  # 0=X, 1=Y, None=infeasible on either
+    barrier_axis: int  # 0=X (vertical corridor), 1=Y (horizontal corridor)
+    achievable_gap_mm: float  # best gap over all 4 rotations consistent with HV=lo/SELV=hi
+    chosen_rotation: int  # the rotation that achieves achievable_gap_mm
+    feasible_axis: int | None  # 0=X, 1=Y: which LOCAL axis chosen_rotation projects, or None
     hv_is_lo: bool  # True if the HV pad cluster sits at the smaller local coordinate
 
     @property
     def feasible(self) -> bool:
-        return self.feasible_axis is not None
+        return self.achievable_gap_mm >= self.corridor_width_mm
 
 
 def evaluate_isolator_feasibility(
     pad_groups: IsolatorPadGroups,
     corridor_width_mm: float,
+    barrier_axis: int = 0,
 ) -> IsolatorFeasibility:
     """Can this isolator's HV/SELV pad clusters straddle a corridor this wide?
 
-    Checks both candidate split axes (X and Y) -- see module docstring for
-    why this covers all 4 axis-aligned rotations without needing to
-    enumerate them.
+    ``achievable_gap_mm`` is the TRUE achievable separation for THIS
+    specific corridor (``barrier_axis`` fixed, 0=vertical/X or
+    1=horizontal/Y) -- the best of the model's 4 axis-aligned rotations,
+    restricted to rotations that keep the HV cluster on the board-wide
+    "lo" side (see ``_best_rotation_for_barrier``). ``gap_x_mm``/
+    ``gap_y_mm`` remain as order-agnostic, rotation-agnostic diagnostic
+    values (the two distinct magnitudes achievable by SOME rotation on
+    SOME axis, regardless of which axis the actual corridor uses or which
+    side convention is in force) -- useful for reporting, but
+    ``achievable_gap_mm``/``feasible`` are what ``add_isolation_barrier_to_model``
+    actually encodes and must be checked for a specific corridor.
     """
     if not pad_groups.hv_pads or not pad_groups.selv_pads:
         raise ValueError(
@@ -312,22 +412,22 @@ def evaluate_isolator_feasibility(
     gap_x = _axis_gap(pad_groups.hv_pads, pad_groups.selv_pads, 0)
     gap_y = _axis_gap(pad_groups.hv_pads, pad_groups.selv_pads, 1)
 
-    feasible_axis: int | None = None
-    hv_is_lo = True
-    for axis_idx, gap in ((0, gap_x), (1, gap_y)):
-        if gap >= corridor_width_mm:
-            feasible_axis = axis_idx
-            hv_mean = sum(p[axis_idx] for p in pad_groups.hv_pads) / len(pad_groups.hv_pads)
-            selv_mean = sum(p[axis_idx] for p in pad_groups.selv_pads) / len(pad_groups.selv_pads)
-            hv_is_lo = hv_mean <= selv_mean
-            break
+    rot_value, achievable_gap, hv_is_lo = _best_rotation_for_barrier(
+        pad_groups.hv_pads, pad_groups.selv_pads, barrier_axis
+    )
+    # rot in {0, 2} projects local X onto the barrier axis; {1, 3} projects
+    # local Y -- see _project_onto_barrier_axis's table.
+    feasible_axis = 0 if rot_value in (0, 2) else 1
 
     return IsolatorFeasibility(
         ref=pad_groups.ref,
         gap_x_mm=gap_x,
         gap_y_mm=gap_y,
         corridor_width_mm=corridor_width_mm,
-        feasible_axis=feasible_axis,
+        barrier_axis=barrier_axis,
+        achievable_gap_mm=achievable_gap,
+        chosen_rotation=rot_value,
+        feasible_axis=feasible_axis if achievable_gap >= corridor_width_mm else None,
         hv_is_lo=hv_is_lo,
     )
 
@@ -421,7 +521,11 @@ def add_isolation_barrier_to_model(
         model.add_constraint_enforced(start >= barrier_hi_units, assumption)
         selv_assumption_labels.append(label)
 
-    # ---- isolators: per-component pad-cluster split, rotation fixed to 0 -
+    # ---- isolators: per-component pad-cluster split, rotation chosen per
+    # ``_best_rotation_for_barrier`` (NOT unconditionally fixed to 0 -- see
+    # that function's docstring for the real bug this fixes: an isolator
+    # whose only adequate separation is along its local Y axis needs a
+    # 90-degree rotation to bring it onto the corridor's own (here, X) axis).
     comp_by_ref = {c.ref: c for c in netlist.components}
     isolator_feasibility: list[IsolatorFeasibility] = []
     isolator_assumption_labels: list[str] = []
@@ -431,26 +535,25 @@ def add_isolation_barrier_to_model(
             continue
         comp = comp_by_ref[ref]
         pad_groups = compute_pad_groups(comp, hv_nets, selv_nets)
-        feas = evaluate_isolator_feasibility(pad_groups, corridor_width_mm)
+        feas = evaluate_isolator_feasibility(pad_groups, corridor_width_mm, barrier_axis=axis)
         isolator_feasibility.append(feas)
 
         cvars = model.get_component(ref)
+        rot_value = feas.chosen_rotation
         if cvars.rot_ref is not None:
-            model.model_ref.Add(cvars.rot_ref == 0)
+            model.model_ref.Add(cvars.rot_ref == rot_value)
 
-        # Same global side convention as every HV-only/SELV-only component
-        # above: HV cluster -> lo side, SELV cluster -> hi side. This is
-        # NOT the per-isolator "whichever side is closer" choice
-        # ``evaluate_isolator_feasibility.hv_is_lo`` reports (that field is
-        # only about which axis/orientation *can* achieve the required gap
-        # at all, order-agnostic) -- the actual encoded constraint must use
-        # the SAME global convention as every other component, or an
-        # isolator could straddle "backwards" relative to the rest of the
-        # board's domain split, which would make check 6 (far-side
-        # crossing) fail on the real board even though this module's own
-        # constraint was satisfied.
-        hv_far_edge_mm = max(p[axis] + p[2] for p in pad_groups.hv_pads)
-        selv_near_edge_mm = min(p[axis] - p[2] for p in pad_groups.selv_pads)
+        # Project every pad through the SAME rotation the constraint below
+        # assumes, using the module's global HV=lo/SELV=hi side convention
+        # (see _best_rotation_for_barrier -- it already restricted its
+        # search to rotations preserving this, so hv_far_edge_mm here is
+        # genuinely the "towards the corridor" edge of the HV cluster).
+        hv_far_edge_mm = max(
+            _project_onto_barrier_axis(x, y, rot_value, axis) + r for x, y, r in pad_groups.hv_pads
+        )
+        selv_near_edge_mm = min(
+            _project_onto_barrier_axis(x, y, rot_value, axis) - r for x, y, r in pad_groups.selv_pads
+        )
 
         label = f"isolator_straddle_{ref}"
         assumption = model.new_assumption(label)
