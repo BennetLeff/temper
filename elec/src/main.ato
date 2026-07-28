@@ -108,6 +108,24 @@ module Top:
     # ~39.7kHz -- ABOVE the pre-correction 35kHz f_switching -- so the
     # ZVS-loss finding above does not depend on which of the three L
     # assumptions is used.
+    # AMBIGUOUS AND UNRESOLVED (2026-07-27): this does not state whether it
+    # names the LOADED or UNLOADED resonance, and with the corrected pan
+    # coupling the two differ by roughly 60%. At L=150uH: unloaded 23.7kHz,
+    # loaded ~38kHz. Only the loaded figure is meaningful for the ZVS ratio --
+    # read as unloaded, f_switching=47kHz appears to sit at ~1.98x resonance
+    # (implying almost no power transfer) rather than the ~1.24x the analysis
+    # actually found.
+    #
+    # This same ambiguity already caused a real bug: run_tank_coil_sweep.py
+    # referenced its ratio against the UNLOADED resonance, silently
+    # reintroducing the under-loading error the moment K was corrected. It
+    # needed a self-consistent f_res_loaded_hz() fixed-point solver to fix.
+    #
+    # Also note 25kHz is a third value matching neither the simulation's 80uH
+    # default (32.5kHz) nor the L=150uH the ZVS analysis recommends (23.7kHz).
+    # All three fall inside the assertion window below, which is why the
+    # divergence was never caught. See
+    # docs/evidence/2026-07-27-zvs-operating-point.md.
     f_resonant_nominal: frequency = 25kHz
     assert f_resonant_nominal within 20kHz to 35kHz  # LC tank range
     
