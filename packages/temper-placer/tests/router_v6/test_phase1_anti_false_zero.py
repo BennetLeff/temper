@@ -106,17 +106,27 @@ class TestGatesProperlyConfigured:
         assert result.returncode == 0, "kicad-cli not available — DRC measurements degenerate"
 
     def test_kicad7_footprint_dir_resolves(self):
-        """Footprint library path in DrcGate (gates.py:182) exists.
+        """Footprint library dir used by DrcGate resolves to a real directory.
 
-        If this path doesn't exist, DrcGate.check() returns UNMEASURED,
+        Plan 2026-07-23-001 U1 replaced the macOS-hardcoded
+        ``KICAD7_FOOTPRINT_DIR`` literal in ``DrcGate`` with
+        ``_resolve_kicad_footprint_dir()`` — a portable env-var +
+        multi-path search (Linux package paths first, macOS dev path
+        last). This test must exercise that same resolver rather than
+        assert a single hardcoded OS-specific path, or it false-fails
+        on every platform but the one it was written on.
+
+        If no candidate resolves, DrcGate.check() returns UNMEASURED,
         not CLEAN — but the violation count would still be zero, a
         classic false-zero.
         """
-        import os
+        from temper_placer.placer.cp_sat.gates import _resolve_kicad_footprint_dir
 
-        fp_dir = "/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints"
-        assert os.path.isdir(fp_dir), (
-            f"KICAD7_FOOTPRINT_DIR={fp_dir} does not exist — kicad-cli DRC would be UNMEASURED"
+        fp_dir = _resolve_kicad_footprint_dir()
+        assert fp_dir is not None and fp_dir.is_dir(), (
+            f"No KiCad footprint library directory resolved (got {fp_dir!r}) — "
+            "kicad-cli DRC would be UNMEASURED. Set KICAD7_FOOTPRINT_DIR or "
+            "install kicad-footprints."
         )
 
     def test_production_board_routing_baseline_populated(self):

@@ -79,25 +79,43 @@ def test_r5_base_inflation_drops_clearance_at_occupancy_grid():
 
 
 def test_r6_stage4_has_sat_skipped_fallback():
-    """``_run_stage4`` creates a fallback ``ChannelPath`` for any net
+    """``_run_stage4`` calls ``fallback_channel_path`` for any net
     without a SAT channel assignment.
 
-    The fallback is the pad-to-pad direct path with
-    ``preferred_layer="F.Cu"``. This makes SAT-skipped nets visible
-    in the closure test's ``completion_rate`` instead of silently
-    dropping them.
+    The fallback is the pad-to-pad direct path with an empty
+    ``channel_sequence`` (no skeleton path) and a netclass-aware
+    ``preferred_layer`` (F.Cu for ordinary signal nets, B.Cu for
+    power/ground/HV -- see ``channel_mapping._assign_layer``). This
+    makes SAT-skipped nets visible in the closure test's
+    ``completion_rate`` instead of silently dropping them.
+
+    Was previously a source-text grep against ``_run_stage4`` itself
+    for a hardcoded ``preferred_layer="F.Cu"`` literal; the fallback
+    was extracted into ``channel_mapping.fallback_channel_path`` and
+    its layer choice generalized to respect netclass (so HV/power
+    fallback nets are no longer force-routed to F.Cu), which made that
+    literal-string check stale without changing the underlying R6
+    guarantee. Checks call-site wiring plus fallback_channel_path's
+    actual behavior instead.
     """
+    from temper_placer.router_v6.channel_mapping import fallback_channel_path
     from temper_placer.router_v6.pipeline import RouterV6Pipeline
 
     source = inspect.getsource(RouterV6Pipeline._run_stage4)
-    assert "Fallback" in source, (
-        "_run_stage4 must contain a fallback path for nets without "
+    assert "fallback_channel_path" in source, (
+        "_run_stage4 must call fallback_channel_path for nets without "
         "a SAT channel assignment. R6 depends on this."
     )
-    assert "channel_sequence=[]" in source or "channel_sequence=()" in source, (
+
+    fallback_source = inspect.getsource(fallback_channel_path)
+    assert "channel_sequence=[]" in fallback_source or "channel_sequence=()" in fallback_source, (
         "Fallback ChannelPath must have an empty channel_sequence "
         "(direct pad-to-pad waypoints, no skeleton path)."
     )
-    assert 'preferred_layer="F.Cu"' in source, (
-        "Fallback ChannelPath must use F.Cu as the preferred layer."
+
+    # An ordinary (non power/ground/HV) net's fallback path defaults to F.Cu.
+    path = fallback_channel_path("SIGNAL1", [(0.0, 0.0), (1.0, 1.0)], None)
+    assert path.channel_sequence == []
+    assert path.preferred_layer == "F.Cu", (
+        "Fallback ChannelPath must use F.Cu as the preferred layer for ordinary signal nets."
     )

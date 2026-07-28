@@ -2,11 +2,17 @@ import logging
 
 import pytest
 
-from temper_placer.core.geometry_types import Pad, Point, Track, Via
 from temper_placer.deterministic.stages.drc_validation import DRCValidationError, DRCValidationStage
 from temper_placer.deterministic.state import BoardState
 from temper_placer.router_v6.constraints_design_rules import ClearanceMatrix
 from temper_placer.router_v6.constraints_drc_oracle import DRCOracle
+
+# DRCOracle.validate_all() calls Track.to_segment() and Pad.rot_rect, which
+# only router_v6.constraints_spatial_index's dataclasses provide (commit
+# 411fb6e4 reverted deterministic/* production code back to importing these
+# from router_v6 lazily; core.geometry_types.Pad/Track are an orphaned
+# duplicate lacking both). Import the types the oracle actually expects.
+from temper_placer.router_v6.constraints_spatial_index import Pad, Point, Track, Via
 
 
 def test_validation_stage_returns_violations():

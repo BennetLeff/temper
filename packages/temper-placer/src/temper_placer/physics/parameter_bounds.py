@@ -309,9 +309,9 @@ def compute_thermal_soundness(
     devices: dict[str, tuple[float, float]] | None = None,
     power_map: dict[str, float] | None = None,
     T_j_max: float = 150.0,
-    _copper_grid: np.ndarray | None = None,
-    _h_field: np.ndarray | None = None,
-    _ambient_C: float | None = None,
+    copper_grid: np.ndarray | None = None,  # noqa: ARG001 -- public API, see docstring
+    h_field: np.ndarray | None = None,  # noqa: ARG001 -- public API, see docstring
+    ambient_C: float | None = None,  # noqa: ARG001 -- public API, see docstring
 ) -> ThermalSoundnessResult:
     """Check whether the worst-case corner T_j is below T_j_max.
 

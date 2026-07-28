@@ -154,29 +154,37 @@ class TestFinePitchProductionBoard:
 class TestKicadFootprintLibrary:
     """Footprint-library-table configuration for the production board.
 
-    ``KICAD7_FOOTPRINT_DIR`` is hardcoded as an env override in
-    ``DrcGate.check`` (gates.py:182) rather than exposed as a
-    module-level constant.  These tests verify the hardcoded path
-    exists on the current system so that ``kicad-cli pcb drc``
-    called by ``DrcGate`` can resolve footprints on the production
-    board.
+    Plan 2026-07-23-001 U1 replaced the macOS-hardcoded
+    ``KICAD7_FOOTPRINT_DIR`` literal in ``DrcGate.check`` with
+    ``_resolve_kicad_footprint_dir()`` — a portable env-var +
+    multi-path search (Linux package paths first, macOS dev path
+    last; see ``gates.py``). These tests exercise that same resolver
+    so that ``kicad-cli pcb drc`` called by ``DrcGate`` can resolve
+    footprints on the production board on any supported platform,
+    not only the one the test was originally written on.
     """
 
-    # Mirrors the hardcoded path in gates.py:182.
-    _FOOTPRINT_DIR = "/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints"
+    def _resolved_dir(self) -> str | None:
+        from temper_placer.placer.cp_sat.gates import _resolve_kicad_footprint_dir
+
+        fp_dir = _resolve_kicad_footprint_dir()
+        return str(fp_dir) if fp_dir is not None else None
 
     def test_kicad7_footprint_dir_exists(self):
-        """The footprint library path hardcoded in DrcGate exists."""
-        assert os.path.isdir(self._FOOTPRINT_DIR), (
-            f"KICAD7_FOOTPRINT_DIR={self._FOOTPRINT_DIR} does not exist "
-            f"on this system.  DrcGate.check() will fail to resolve "
-            f"footprints for the production board."
+        """The footprint library path resolved by DrcGate exists."""
+        fp_dir = self._resolved_dir()
+        assert fp_dir is not None and os.path.isdir(fp_dir), (
+            f"No KICAD7_FOOTPRINT_DIR resolved (got {fp_dir!r}) on this system. "
+            f"DrcGate.check() will fail to resolve footprints for the "
+            f"production board. Set KICAD7_FOOTPRINT_DIR or install "
+            f"kicad-footprints."
         )
 
     def test_kicad7_footprint_dir_contains_footprints(self):
         """The footprint library directory has footprint files."""
-        assert os.path.isdir(self._FOOTPRINT_DIR), (
+        fp_dir = self._resolved_dir()
+        assert fp_dir is not None and os.path.isdir(fp_dir), (
             "Footprint directory does not exist -- skipping content check"
         )
-        contents = os.listdir(self._FOOTPRINT_DIR)
-        assert len(contents) > 0, f"Footprint directory {self._FOOTPRINT_DIR} exists but is empty"
+        contents = os.listdir(fp_dir)
+        assert len(contents) > 0, f"Footprint directory {fp_dir} exists but is empty"

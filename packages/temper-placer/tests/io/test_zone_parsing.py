@@ -39,6 +39,11 @@ def test_zone_parsing_l_shape_warning():
     edge_cut.layer = "Edge.Cuts"
     edge_cut.start = Pt(0, 0)
     edge_cut.end = Pt(200, 200)  # Big board
+    # A real kiutils gr_line has no `mid`; a bare MagicMock auto-vends one
+    # (any attribute access succeeds), which false-triggers the gr_arc
+    # midpoint branch in _extract_board_geometry and compares a MagicMock
+    # against a float. Pin it to None to match real gr_line semantics.
+    edge_cut.mid = None
     mock_board.graphicItems = [edge_cut]
 
     warnings = []
@@ -79,6 +84,8 @@ def test_zone_parsing_rectangular_no_warning():
     edge_cut.layer = "Edge.Cuts"
     edge_cut.start = Pt(0, 0)
     edge_cut.end = Pt(200, 200)
+    # See test_zone_parsing_l_shape_warning for why `mid` must be pinned.
+    edge_cut.mid = None
     mock_board.graphicItems = [edge_cut]
 
     warnings = []

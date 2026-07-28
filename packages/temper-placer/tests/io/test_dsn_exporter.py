@@ -125,7 +125,7 @@ def test_export_pcb_full():
 
 
 def test_export_wiring():
-    from temper_placer.io.kicad_parser import TraceData
+    from temper_placer.io._kicad_types import TraceData
 
     board = Board(width=100, height=100)
     netlist = Netlist()

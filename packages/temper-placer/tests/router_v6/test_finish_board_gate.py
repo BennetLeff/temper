@@ -26,6 +26,13 @@ from temper_placer.placer.cp_sat.gates import (
 # ---------------------------------------------------------------------------
 _KICAD_AVAILABLE = _resolve_kicad_footprint_dir() is not None
 
+# Anchored to this file's location rather than the process cwd -- CI invokes
+# pytest with `working-directory: packages/temper-placer`, so a repo-root-
+# relative literal like "packages/temper-placer/configs/..." resolves to a
+# nonexistent doubled path there.
+_TEMPER_PLACER_ROOT = Path(__file__).resolve().parent.parent.parent
+_PCL_CONFIG = _TEMPER_PLACER_ROOT / "configs" / "constraints" / "temper_induction_cooker.yaml"
+
 
 class TestConstraintSetUnchanged:
     """R4: constraint-set-unchanged baseline check. Always runs."""
@@ -34,8 +41,7 @@ class TestConstraintSetUnchanged:
         """The constraint YAML has not been relaxed vs the proven baseline."""
         import yaml
 
-        cfg = Path("packages/temper-placer/configs/constraints/temper_induction_cooker.yaml")
-        data = yaml.safe_load(cfg.read_text())
+        data = yaml.safe_load(_PCL_CONFIG.read_text())
         # Key invariants: zones exist, netclass SEPARATED constraints exist
         zones = data.get("zones", [])
         assert len(zones) > 0, "Constraint zones missing -- baseline corrupted"

@@ -197,9 +197,13 @@ class TestAllModulesFail:
         assert isinstance(report.creepage, CreepageReport)
         assert isinstance(report.clearance, ClearanceReport)
 
-        # Fallback empty teardrops/thermal reliefs add 2 sentinel violations
-        assert report.total_violations == 2
-        assert report.critical_violations == 0
+        # Fallback empty teardrops/thermal reliefs add 2 sentinel violations,
+        # and creepage/clearance each fail closed (+1 each) when errored --
+        # an errored HV-safety check must never read as "0 violations found"
+        # (docs/evidence/2026-07-25-manufacturing-drc-crash-swallow.md;
+        # ManufacturingReport.total_violations docstring). 2 + 1 + 1 = 4.
+        assert report.total_violations == 4
+        assert report.critical_violations == 2
         assert report.is_manufacturability_ok is False
 
     def test_all_seven_raise_no_board_still_works(self):
@@ -730,50 +734,59 @@ class TestPipelineOrdering:
         orig = p._run_manufacturing_drc(pcb=pcb, routing_results=rr)
 
         # Reordered: manually invoke each function in swapped order and
-        # build the report ourselves.  We must replicate the try/except
-        # logic from _run_one.
+        # build the report ourselves.  We must replicate the *current*
+        # _run_one logic -- not just the try/except, but also folding
+        # `errored` into the substituted fallback report, and creepage/
+        # clearance's anti-vacuous-truth fail-closed guard (METHODOLOGY.md
+        # Sec 5; docs/evidence/2026-07-25-manufacturing-drc-crash-swallow.md).
+        # A plain try/except-without-errored-folding reproduces the exact
+        # crash-swallow defect that guard exists to prevent.
         def _safe(fn, *args, **kwargs):
             try:
-                return fn(*args, **kwargs)
+                return fn(*args, **kwargs), False
             except Exception:
-                return None
+                return None, True
+
+        has_routed_copper = bool(
+            getattr(rr, "compiled_routes", None) or getattr(rr, "tree_routes", None)
+        )
 
         # --- Swapped order: clearance first, acid_trap second ---
-        clearance = _safe(verify_clearance, rr) or ClearanceReport(
-            violations=[],
-            total_checks=0,
+        clearance_result, clearance_errored = _safe(verify_clearance, rr)
+        clearance = clearance_result or ClearanceReport(violations=[], total_checks=0, errored=True)
+        if not clearance_errored and clearance.total_checks == 0 and has_routed_copper:
+            clearance.errored = True
+
+        acid_traps_result, acid_traps_errored = _safe(detect_acid_traps, rr)
+        acid_traps = acid_traps_result or AcidTrapReport(acid_traps=[], errored=acid_traps_errored)
+        annular_result, annular_errored = _safe(check_annular_rings, rr)
+        annular_rings = annular_result or AnnularRingReport(
+            violations=[], total_vias_checked=0, errored=annular_errored
         )
-        acid_traps = _safe(detect_acid_traps, rr) or AcidTrapReport(
-            acid_traps=[],
-        )
-        annular_rings = _safe(check_annular_rings, rr) or AnnularRingReport(
-            violations=[],
-            total_vias_checked=0,
-        )
-        teardrops = _safe(insert_teardrops, rr) or TeardropReport(
-            teardrops=[],
-        )
-        thermal_reliefs = _safe(add_thermal_relief, rr, board=pcb.board) or ThermalReliefReport(
-            thermal_reliefs=[],
+        teardrops_result, teardrops_errored = _safe(insert_teardrops, rr)
+        teardrops = teardrops_result or TeardropReport(teardrops=[], errored=teardrops_errored)
+        thermal_result, thermal_errored = _safe(add_thermal_relief, rr, board=pcb.board)
+        thermal_reliefs = thermal_result or ThermalReliefReport(
+            thermal_reliefs=[], errored=thermal_errored
         )
         copper_balance = CopperBalanceReport(
             layer_balances=[],
             total_area_mm2=0.0,
         )
         if pcb.board is not None:
-            copper_balance = (
-                _safe(
-                    analyze_copper_balance,
-                    rr,
-                    board_width=pcb.board.width,
-                    board_height=pcb.board.height,
-                )
-                or copper_balance
+            cb_result, cb_errored = _safe(
+                analyze_copper_balance,
+                rr,
+                board_width=pcb.board.width,
+                board_height=pcb.board.height,
             )
-        creepage = _safe(verify_creepage, rr) or CreepageReport(
-            violations=[],
-            total_checks=0,
-        )
+            copper_balance = cb_result or CopperBalanceReport(
+                layer_balances=[], total_area_mm2=0.0, errored=cb_errored
+            )
+        creepage_result, creepage_errored = _safe(verify_creepage, rr)
+        creepage = creepage_result or CreepageReport(violations=[], total_checks=0, errored=True)
+        if not creepage_errored and creepage.total_checks == 0 and has_routed_copper:
+            creepage.errored = True
 
         swapped = generate_manufacturing_report(
             acid_traps,

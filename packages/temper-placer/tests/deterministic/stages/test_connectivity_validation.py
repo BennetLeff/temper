@@ -1,6 +1,5 @@
 import pytest
 
-from temper_placer.core.geometry_types import Pad, Point, Track, Via
 from temper_placer.deterministic.stages.connectivity_validation import (
     ConnectivityValidationError,
     ConnectivityValidationStage,
@@ -8,6 +7,13 @@ from temper_placer.deterministic.stages.connectivity_validation import (
 from temper_placer.deterministic.state import BoardState
 from temper_placer.router_v6.constraints_design_rules import ClearanceMatrix
 from temper_placer.router_v6.constraints_drc_oracle import DRCOracle
+
+# ConnectivityValidationStage (deterministic/stages/connectivity_validation.py)
+# constructs its Pad/Track/Via.rot_rect via router_v6.constraints_spatial_index
+# (commit 411fb6e4 reverted deterministic->core.geometry_types back to lazy
+# router_v6 imports; core.geometry_types.Pad has no `rot_rect`). Import the
+# same types the code under test actually uses, not the orphaned duplicate.
+from temper_placer.router_v6.constraints_spatial_index import Pad, Point, Track, Via
 
 
 def test_connectivity_stage_clean_board():

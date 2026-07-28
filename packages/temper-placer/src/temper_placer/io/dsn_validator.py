@@ -22,7 +22,19 @@ class DSNVersionMismatchError(Exception):
 
 
 def validate_dsn(dsn_text: str, expected_hash: str) -> None:
-    _td.validate_dsn(dsn_text, expected_hash)
+    """Validate the DSN schema-version header against ``expected_hash``.
+
+    ``temper_dsn``'s Rust implementation raises a plain ``ValueError`` on
+    mismatch; this wraps it in ``DSNVersionMismatchError`` so callers get
+    the typed, attribute-bearing exception this module has always
+    contracted for (``.expected`` / ``.received``, used by
+    ``validate_or_warn_dsn`` callers and downstream error handling).
+    """
+    try:
+        _td.validate_dsn(dsn_text, expected_hash)
+    except ValueError:
+        received = _td.extract_schema_hash(dsn_text)
+        raise DSNVersionMismatchError(expected_hash, received) from None
 
 
 def validate_or_warn_dsn(dsn_text: str, expected_hash: str) -> bool:
