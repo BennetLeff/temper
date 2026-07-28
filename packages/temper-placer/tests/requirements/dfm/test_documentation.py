@@ -197,7 +197,7 @@ class TestValidateBomCompleteness:
         assert len(result.warnings) > 0
         assert len(result.extra_components) > 0
 
-    def test_bom_with_comma_separated_refs(self, sample_netlist_refs):
+    def test_bom_with_comma_separated_refs(self):
         """BOM entry like "R1,R2,R3" should expand correctly."""
         bom_with_comma_refs = [
             BOMEntry(
@@ -229,7 +229,13 @@ class TestValidateBomCompleteness:
                 notes="",
             ),
         ]
-        result = validate_bom_completeness(bom_with_comma_refs, sample_netlist_refs)
+        # Netlist only carries U1: R1/R2/R3 are deliberately absent so they
+        # surface as extra_components, proving the comma-separated reference
+        # was split into three individual refs rather than kept as one
+        # literal "R1,R2,R3" string (which would appear as a single extra
+        # entry instead of three).
+        netlist_refs = {"U1"}
+        result = validate_bom_completeness(bom_with_comma_refs, netlist_refs)
 
         assert result.valid is True
         assert len(result.errors) == 0
@@ -275,7 +281,7 @@ class TestValidateBomCompleteness:
         assert any("Missing required field 'manufacturer'" in error for error in result.errors)
         assert any("Missing required field 'mpn'" in error for error in result.errors)
 
-    def test_bom_with_dnp_components(self, sample_netlist_refs):
+    def test_bom_with_dnp_components(self):
         """DNP components should still be validated."""
         bom_with_dnp = [
             BOMEntry(
@@ -307,9 +313,11 @@ class TestValidateBomCompleteness:
                 notes="Not populated",
             ),
         ]
-        # Add DNP component to netlist
-        netlist_with_dnp = sample_netlist_refs | {"R4"}
-        result = validate_bom_completeness(bom_with_dnp, netlist_with_dnp)
+        # R4 is DNP and not part of the routed netlist, so it should surface
+        # as an extra BOM entry rather than being silently dropped from
+        # completeness checking just because it isn't populated.
+        netlist_refs = {"U1"}
+        result = validate_bom_completeness(bom_with_dnp, netlist_refs)
 
         assert result.valid is True
         assert len(result.errors) == 0
@@ -726,7 +734,11 @@ class TestCheckDnpConsistency:
 
     def test_all_dnp_components(self, sample_cpl_entries):
         """All components DNP should pass if consistent."""
-        # Create BOM with all DNP components
+        # Create BOM with all DNP components. Must cover every designator in
+        # sample_cpl_entries (U1, R1-R3, C1, C2) -- check_dnp_consistency
+        # treats any designator absent from the BOM as DNP=False, so leaving
+        # C1/C2 out here would report them as inconsistent against the
+        # all-DNP CPL below, which is not what this test is exercising.
         bom_all_dnp = [
             BOMEntry(
                 item=1,
@@ -753,6 +765,20 @@ class TestCheckDnpConsistency:
                 mpn="RC0603FR-0710KL",
                 supplier="DigiKey",
                 supplier_pn="311-10KHRCT-ND",
+                dnp=True,
+                notes="Not populated",
+            ),
+            BOMEntry(
+                item=3,
+                qty=2,
+                reference="C1,C2",
+                value="10uF",
+                package="0805",
+                description="Capacitor",
+                manufacturer="Samsung",
+                mpn="CL21A106KOQNNNG",
+                supplier="DigiKey",
+                supplier_pn="1276-1000-1-ND",
                 dnp=True,
                 notes="Not populated",
             ),

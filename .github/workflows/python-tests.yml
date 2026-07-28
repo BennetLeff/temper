@@ -534,7 +534,7 @@ jobs:
       # design. Measured on wiring: safety 53 passed, emc 57 passed,
       # review 27 passed.
       #
-      # `dfm/` is deliberately NOT included yet: it has one real failure
+      # `dfm/` joined 2026-07-28 once green. It had one real failure
       # (DFM001-ANT-002, a copper pour inside the ESP32 antenna keepout on a
       # fixture whose purpose is to represent adequate keepout), three tests
       # requesting an `accessible_components` fixture that does not exist, and
@@ -543,12 +543,13 @@ jobs:
       #
       # Guarded so this cannot quietly regress to zero the way the extended
       # suite did via a phantom path.
-      - name: Requirements tests (safety / EMC / review)
+      - name: Requirements tests (safety / EMC / review / DFM)
         run: >
           cd packages/temper-placer &&
-          uv run python ../../scripts/pytest_guard.py --min-tests 130 --
+          uv run python ../../scripts/pytest_guard.py --min-tests 140 --
           tests/requirements/safety/ tests/requirements/emc/
-          tests/requirements/review/ -v --tb=short -p no:cacheprovider
+          tests/requirements/review/ tests/requirements/dfm/
+          -v --tb=short -p no:cacheprovider
 
       - name: Design capacity budget gate tests
         run: uv run pytest scripts/tests/test_capacity_budget_gate.py -v --tb=short
