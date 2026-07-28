@@ -17,7 +17,7 @@ jobs:
         working-directory: firmware
         run: idf.py build
       - name: Upload firmware to release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: firmware/build/temper.bin
 
@@ -29,6 +29,6 @@ jobs:
       - name: Build wheel
         run: uv build --package temper-placer
       - name: Upload wheel to release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: dist/*.whl
