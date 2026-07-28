@@ -113,8 +113,19 @@ def detect_acid_traps(
     acid_traps = []
 
     for net_name, compiled_route in routing_results.compiled_routes.items():
-        # Analyze path for acute angles
-        path_coords = compiled_route.path.coordinates  # type: ignore[union-attr]
+        # Analyze path for acute angles.
+        #
+        # ``compiled_route.path`` is ``RoutePath | RoutePath3D`` (see
+        # ``routing_results.CompiledRoute``). ``RoutePath`` exposes 2D
+        # ``.coordinates``; ``RoutePath3D`` (used whenever the router takes
+        # a multi-layer/via detour -- i.e. any board with vias, such as
+        # this one's 48) instead exposes ``.segments`` as
+        # ``list[(x, y, layer)]`` triples and has no ``.coordinates``
+        # attribute at all. Accessing ``.coordinates`` unconditionally
+        # raised ``AttributeError`` on every net that used a via, which is
+        # why this check has never produced a real result on a routed
+        # board (see docs/evidence/2026-07-27-committed-route.md).
+        path_coords = _extract_2d_coordinates(compiled_route.path)
 
         # ---- Filter duplicate consecutive points ---------------------------
         filtered: list[tuple[float, float]] = []
@@ -202,6 +213,32 @@ def detect_acid_traps(
                 )
 
     return AcidTrapReport(acid_traps=acid_traps)
+
+
+def _extract_2d_coordinates(path: object) -> list[tuple[float, float]]:
+    """Return a path's vertex coordinates as plain ``(x, y)`` tuples.
+
+    Handles both ``RoutePath`` (2D, has ``.coordinates``) and
+    ``RoutePath3D`` (per-segment layer info, has ``.segments`` as
+    ``(x, y, layer)`` triples and no ``.coordinates`` attribute).
+
+    Raises:
+        AttributeError: if ``path`` has neither attribute -- surfaced
+            rather than silently swallowed, since a check that can't see
+            its own input should fail loudly, not report a false zero.
+    """
+    coordinates = getattr(path, "coordinates", None)
+    if coordinates is not None:
+        return list(coordinates)
+
+    segments = getattr(path, "segments", None)
+    if segments is not None:
+        return [(seg[0], seg[1]) for seg in segments]
+
+    raise AttributeError(
+        f"{type(path).__name__!r} has neither '.coordinates' nor '.segments' "
+        "-- cannot extract path geometry for acid-trap detection."
+    )
 
 
 def _calculate_angle(
