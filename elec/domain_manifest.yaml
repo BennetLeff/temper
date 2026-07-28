@@ -113,6 +113,93 @@ domains:
                              # for why this was previously unclassified.
       - discharge.k_dis2-nc  # same reasoning, discharge.k_dis2's "contacts"
                              # group (below).
+      - hb.power_loop.q_high-g  # ADDED 2026-07-27 (docs/evidence/
+                             # 2026-07-27-clearance-copper-balance.md Part B):
+                             # Q_high's own Gate terminal (modules.ato:382,
+                             # `gate_hs.drive.out ~ power_loop.q_high.G`).
+                             # `drive.out` is wired to `driver.OUTA` (=
+                             # GATE_HS, already declared above) through
+                             # `rg_on` -- a plain 2.2ohm gate resistor
+                             # (modules.ato:179-180), not an isolator -- so
+                             # this net is the SAME floating HV/switch-node
+                             # potential as GATE_HS, one resistor downstream.
+                             # This exact net was flagged UNVERIFIED (not
+                             # independently traced) by the sibling
+                             # 2026-07-27-domain-classification-coverage.md
+                             # (Sec 7); that doc's own tentative grouping of
+                             # it under "primary-side" pins was a naming-
+                             # convention guess this manifest's ground rule
+                             # forbids -- direct wire tracing (above)
+                             # confirms it is secondary/HV-side, not primary.
+      - hb.gate_hs.driver-p1-1  # ADDED 2026-07-27, same evidence doc. UCC21550
+                             # (U7) pin 16, VDDA -- the isolated secondary-
+                             # side floating positive bias-supply rail
+                             # (components.ato:60 `signal VDDA ~ pin 16`,
+                             # under the component's own "Secondary side"
+                             # pin-group comment). `boot_cap.p1 ~
+                             # driver.VDDA` / `boot_diode.K ~ driver.VDDA`
+                             # (modules.ato:201-202); floats with the
+                             # switch node, same isolation side as GATE_HS/
+                             # SW_NODE. Also flagged UNVERIFIED by the
+                             # sibling coverage doc (Sec 7, as
+                             # `hb.gate_hs.driver-p1`, a DIFFERENT, primary-
+                             # side net -- see the DT entry note below for
+                             # why these must not be conflated).
+      - hb.gate_hs.driver-p2  # ADDED 2026-07-27, same evidence doc. UCC21550
+                             # (U7) pin 14, VSSA -- the isolated secondary-
+                             # side floating negative bias-supply
+                             # reference. `neg_bias_zener.A ~ driver.VSSA`,
+                             # `neg_bias_zener.K ~ drive.vss` (= switch
+                             # node) (modules.ato:198-199): this establishes
+                             # VSSA = switch_node - Vz (5.1V), i.e. still
+                             # floating with the switch node, HV-side of
+                             # the isolation barrier. NOT the same net as
+                             # `hb.gate_hs.driver-p1` (UCC21550 pin 6, DT --
+                             # primary-side, GNDI-referenced, correctly
+                             # left off this list; see components.ato:43-60
+                             # for the full primary/secondary pin split).
+      - power_in.ntc-no      # ADDED 2026-07-27, same evidence doc. The
+                             # bypass relay's own NO contact, wired
+                             # directly to the NTC inrush limiter's p2 pin
+                             # and the bridge rectifier's anode (modules.ato:
+                             # 700-704: `cmc.W1_2 ~ ntc.p1`, `ntc.p2 ~
+                             # d1.A`, `cmc.W1_2 ~ bypass_relay.COM`,
+                             # `bypass_relay.NO ~ d1.A`) -- this is the
+                             # rectified AC-mains node feeding the DC-bus
+                             # doubler (`d1` feeds `v_bus_half`/
+                             # `r_bleed1`), unambiguously mains-referenced.
+                             # Also flagged UNVERIFIED by the sibling
+                             # coverage doc (Sec 7).
+      - tank-out             # ADDED 2026-07-27, same evidence doc, found
+                             # while re-verifying `scripts/check_domain_
+                             # partition.py` and `test_temper_board_
+                             # clearance_compliance` after the 4 additions
+                             # above (adding `hb.gate_hs.driver-p1-1`
+                             # newly classified C17 -- `hb.gate_hs.
+                             # boot_cap` -- as HV, which surfaced a
+                             # previously-invisible proximity finding
+                             # against R30/`tank.inductor_conn`, itself
+                             # unclassified). Traced: `main.ato:442`
+                             # `hb.switch_node ~ tank.in` -- ResonantTank's
+                             # input IS the same net as the already-
+                             # declared `SW_NODE`. `modules.ato:441-471`
+                             # (`ResonantTank`): `inductor_conn.p2 ~ out`,
+                             # `v_tank_peak: voltage = 400V`, tank
+                             # capacitors rated 1600V -- unambiguously the
+                             # HV resonant tank driving the induction
+                             # coil. Also flagged UNVERIFIED by the
+                             # sibling coverage doc (Sec 7, "Misc:
+                             # ... tank-out, tank.c_tank1-p2 ...").
+      - tank.c_tank1-p2      # ADDED 2026-07-27, same evidence doc. Same
+                             # ResonantTank module: `c_tank1.p2 ~
+                             # inductor_conn.p1`, `c_tank2.p2 ~
+                             # inductor_conn.p1` (modules.ato:469-470) --
+                             # this is the SAME net as `tank.inductor_
+                             # conn`'s own p1 pin (R30, the Litz-coil
+                             # interface connector), one node of the
+                             # 400V-rated resonant tank. Also flagged
+                             # UNVERIFIED by the sibling coverage doc
+                             # (Sec 7).
 
   # SELV control/logic domain: MCU, safety interlock, RTD sensing, and the
   # isolated 15V/3.3V rails they are claimed to run from. `gnd` itself is

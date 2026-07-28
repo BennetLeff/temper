@@ -1,4 +1,4 @@
-# Clearance (16/666) and copper_balance (4 unbalanced layers) investigation
+# Clearance (16/666, corrected to 37/666) and copper_balance (4 unbalanced layers) investigation
 
 <!-- provenance: commit=02e907b9d19eab77a13cb63a390af18b1c1d7d10 dirty=true (work commit; base per task instructions) -->
 
@@ -37,8 +37,19 @@ one. For clearance, a **different**, previously-undiscovered "Missing"
 defect was found and fixed (tree-routed nets were entirely invisible to
 the check -- see Part B Sec 1) but it is currently dormant on this board
 (0/4 sampled live-route runs used tree routing), so it does not change the
-reported 16/666. The 16 violations themselves are then classified by
-origin (Part B Sec 2-3).
+reported 16/666 baseline directly. However, a **second, separate "Wrong"
+class bug** -- the HV-manifest fix (`7ad5b15c`) was applied only to the
+Python reference implementation and never reached the Rust backend that
+`backend="auto"` (the production default) actually uses -- meant the fix
+was **dead code in production**, and a **third** gap (the manifest itself
+was missing 6 real HV nets, found by direct netlist tracing) meant even
+the Python path under-classified. Both are fixed in this task (Part B.2);
+the corrected, reproducible measurement is **37/666**, monotonically up
+from 16/666 as the hard rule against shrinking denominators predicts. The
+falsifier's second clause **fires**: of the 37, 36 (97.3%) are routing
+artifacts of this specific incomplete route, geometrically provable via
+pad-to-pad distance (any re-route could satisfy clearance; see Part B.2).
+Full classification and the two backend/manifest fixes are in Part B.2.
 
 ---
 
@@ -463,8 +474,381 @@ task's 4 samples), kept because METHODOLOGY.md's user-memory guidance is
 explicit: a newly-discovered error *class* gets a systemic fix, not a
 one-board patch.
 
-### B.2 Classifying the 16 by origin
+### B.2 Re-measurement, the two backend/manifest fixes, and classifying the corrected 37 by origin
 
-*(This section is completed after the pad-position cross-reference and
-the N=4 identity-stability check -- see the run-3/4 update below for the
-final classification and denominators.)*
+**FALSIFIER for this section, stated up front:** *"With HV classification
+corrected, the surviving violations are real, durable, placement-derived
+defects requiring board changes. If instead they are overwhelmingly
+routing artifacts of an incomplete route, or if the corrected requirements
+are being applied to net pairs that are not actually in the same isolation
+domain, the honest deliverable is that finding."*
+
+**Verdict: the falsifier's second clause fires cleanly (36/37, 97.3%, are
+routing artifacts), and a narrow version of the third clause fires for the
+1 remaining case (a same-component pin pair, not actually a cross-domain
+requirement).** No violation in the corrected set is a durable,
+placement-forced defect in the sense the falsifier describes.
+
+#### B.2.0 The count did **not** move at first -- because the fix never reached production
+
+Before touching anything further, this task re-ran the exact B.1 invocation
+against the now-merged `7ad5b15c` (manifest-based HV fix). **Result:
+16/666, bit-identical to the pre-fix baseline.** Investigated rather than
+accepted at face value, because the task's own framing ("almost certainly
+moved, very likely upward") predicted otherwise:
+
+`verify_clearance`'s `backend="auto"` default prefers the Rust engine
+(`temper_drc_rs.verify_route_clearance`) whenever it is importable --
+true in every environment this check ships to, confirmed via
+`_HAS_RUST_CLEARANCE == True` in this task's own environment. `7ad5b15c`
+added `_load_manifest_hv_net_names()` and OR'd it into
+`_get_required_clearance`/`_classify_net_class` -- **but only in the
+Python reference implementation.** `router_clearance.rs`'s own
+`is_hv_gate`/`classify_net_class` still used the original 4-keyword gate
+(`AC_`/`HV_`/`HIGH_VOLTAGE`/`MAINS`) with no manifest awareness at all.
+Confirmed directly, before any fix, on the real board's `DC_BUS_RTN` vs
+`gnd` pair (a pair `7ad5b15c`'s own commit message uses as its worked
+example):
+
+| Backend | Required clearance (before this task's fix) |
+|---|---:|
+| `python` (forced) | 14.0mm |
+| `rust` (forced) | 0.127mm |
+| `auto` (production default) | 0.127mm |
+
+**The `7ad5b15c` fix was dead code in production.** Every one of that
+commit's own regression tests (`test_required_clearance_recognizes_
+manifest_hv_nets_not_matched_by_keywords`,
+`test_required_clearance_default_for_non_manifest_selv_pair`) called
+`_get_required_clearance` directly -- the Python function -- so they
+passed without ever exercising the code path `verify_clearance()` actually
+uses by default. The pre-existing Rust/Python **differential** test suite
+(`test_clearance_rust_differential.py`, 38 cases, asserts the two backends
+produce bit-identical violation sets) also passed throughout, for a
+subtler reason: none of its 38 fixtures use a manifest-only net name --
+its HV fixture names (`AC_L`, `HV_BUS`, `MAINS_LIVE`, `HV_BUS_1`) all match
+the keyword gate already, so both backends agreed on every case that suite
+actually exercises. This is the exact mirror of the task's own stated
+concern about net classification being "guilty until checked, in BOTH
+directions": here the check that was supposed to catch a Python/Rust
+divergence had a **coverage gap in its own fixtures**, not a logic bug.
+
+**Fixed in this task** (`packages/temper-drc-rs/src/router_clearance.rs`,
+`packages/temper-placer/src/temper_placer/router_v6/clearance_check.py`):
+`verify_route_clearance`'s PyO3 binding gained a 4th, optional
+`hv_net_names` parameter (additive -- no existing call site's signature
+had to change); `is_hv_gate_named`/`classify_net_class_named` OR keyword
+match with membership in that set, mirroring the Python fix exactly.
+`_verify_clearance_rust` now passes `_load_manifest_hv_net_names()`
+through. Verified fail-before/pass-after via `git checkout HEAD --` on
+both files (never `git stash`, per task instructions) at two levels: a
+standalone script, and a new parametrized regression test
+(`test_manifest_hv_fix_reaches_rust_and_auto_backends`, `backend` in
+`["rust", "auto"]`, `packages/temper-placer/tests/router_v6/
+test_clearance_check.py`) -- both fail with `required_clearance == 0.127`
+before this commit's diff and pass with `required_clearance == 14.0` for
+the same `DC_BUS_RTN` vs `gnd` pair after it. 57 Rust unit tests (`cargo
+test --release`), 16 Python `test_clearance_check.py` tests, and all 38
+`test_clearance_rust_differential.py` cases still pass after the change.
+
+#### B.2.1 A second gap: the manifest itself was missing 6 real HV nets
+
+Applying the backend fix alone (manifest still at its pre-existing 15
+declared HV nets) moved the count from 16/666 to **33/666** -- already a
+clean confirmation that the fix could only increase violations, never
+decrease them (0 violations were removed at this step; all 16 originals
+persisted; 17 new ones appeared as the correct HV threshold started
+applying to pairs it had silently exempted).
+
+Before accepting 33/666 as final, this task checked the manifest's own
+completeness the same way `7ad5b15c`'s commit message frames the original
+bug: by direct wire-tracing against `elec/src/*.ato`, not by trusting net
+spelling. Four of the 33 remaining violations involved
+`hb.gate_hs.driver-p1-1` and `hb.power_loop.q_high-g` -- names that
+*look* internal/primary-side by pattern, but tracing the actual
+connections (`modules.ato:179-182`, `driver.OUTA ~ rg_on.p1; rg_on.p2 ~
+drive.out`; `main.ato`-level `gate_hs.drive.out ~ power_loop.q_high.G`)
+shows both sit on the isolated **secondary** (HV) side of the gate
+driver, one plain 2.2ohm resistor downstream of the already-declared
+`GATE_HS` net, with no isolator between them. A concurrent sibling task
+(`docs/evidence/2026-07-27-domain-classification-coverage.md` Sec 7) had
+already flagged these exact two names as UNVERIFIED and -- worse --
+tentatively grouped `hb.power_loop.q_high-g` under a "primary-side"
+(implicitly SELV) heading, a naming-convention guess that direct tracing
+shows to be **wrong**. Two more genuinely HV nets were found the same way
+while re-verifying isolation-barrier gates after adding the first two (see
+below): `hb.gate_hs.driver-p2` (UCC21550 pin 14, VSSA) and `power_in.ntc-no`
+(the bypass relay's NO contact / bridge-rectifier anode, directly
+mains-referenced), plus `tank-out`/`tank.c_tank1-p2` (the 400V resonant
+tank driving the induction coil, `main.ato:442`: `hb.switch_node ~
+tank.in` -- literally the same net as the already-declared `SW_NODE`).
+All 6 additions are documented net-by-net with exact `.ato` line citations
+in `elec/domain_manifest.yaml` (committed separately, `3277ee94`).
+`scripts/check_domain_partition.py` re-verified **0 domain crossings**
+after each addition (54 declared nets, up from 48).
+
+With all 6 nets declared, the measurement moved once more, from 33/666 to
+the final **37/666** (4 more new violations, all four involving
+`hb.gate_hs.driver-p1-1`; 0 removed). The `tank-*` additions did not move
+the routed-clearance count at all (neither tank net appears among the
+37/96 nets this particular partial route successfully routed), but they
+were needed to keep a **separate** gate honest -- see B.2.4.
+
+#### B.2.2 Denominators, before and after, all three states
+
+| State | Violations | Total checks | Delta |
+|---|---:|---:|---:|
+| Original baseline (`7ad5b15c` merged, but dead in production) | 16 | 666 | -- |
+| + Rust backend fix (manifest at 15 HV nets) | 33 | 666 | +17 / -0 |
+| + manifest completeness fix (19 HV nets: +4 gate-driver/mains nets) | 37 | 666 | +4 / -0 |
+
+**Denominator (`total_checks`) is unchanged at 666 throughout** -- this
+fix only ever changes which *threshold* a pair is compared against, never
+which pairs are compared (`C(37,2) = 666` for the 37 successfully-compiled
+routes in every sample; 0 tree-routed nets in any sample, so
+`_all_routes()`'s tree-route fix, Part B.1, does not additionally change
+this denominator here). **0 violations were ever removed at any step** --
+consistent with the hard rule that a corrected classification can only
+increase a violation count, never decrease it.
+
+#### B.2.3 Determinism re-confirmed post-fix
+
+Per the task's instruction (prior N=4 already established determinism;
+N=2 is sufficient to re-confirm after a code change), this task ran the
+corrected invocation independently **twice** (separate process
+invocations, ~65s wall each via the now-fixed, fast `backend="auto"`
+path -- see B.2.5 for why this task avoided `backend="python"` for the
+full-board measurement). Both landed on **37/666**, and the full
+violation set (net pair, layer, location to full float precision,
+actual/required clearance) is **bit-identical** between the two runs. A
+third run (after the tank-net manifest addition, which does not touch any
+of the 37 pairs) reproduced the identical 37-entry set again. **Determinism
+holds after the fix, same as before it.**
+
+#### B.2.4 A side effect outside this task's scope, disclosed rather than hidden
+
+Adding `hb.gate_hs.driver-p1-1` (needed for B.2.1) makes C17
+(`hb.gate_hs.boot_cap`, which has that net on one pad) a "declared-HV
+component" for the first time in `packages/temper-placer/tests/
+requirements/safety/test_clearance.py::TestClearanceIntegration::
+test_temper_board_clearance_compliance` -- a **separate** check
+(`verify_iec60335_compliance` / `domain_clearance.py`'s placement-time CP-SAT
+constraint machinery, not `clearance_check.py`'s routed-copper check this
+task is scoped to). That test's own fail-closed proximity guard
+immediately found R30 (`tank.inductor_conn`) sitting 7.44mm from C17,
+under its 8.0mm IEC margin and previously invisible because C17 wasn't
+HV-classified. Tracing R30 (`main.ato:442`, `modules.ato:441-471`) showed
+it, too, is genuinely HV (the resonant-tank/coil connector) -- adding
+`tank-out`/`tank.c_tank1-p2` (B.2.1) closes that specific proximity
+finding correctly (not by loosening a threshold; by completing the
+classification), and `check_domain_partition.py` stays at 0 crossings.
+
+**However, this reopens a different assertion in the same test file.**
+That test's hard `assert result.passed` now runs against the FULL
+54-net manifest-derived classification (per a prior, unrelated task,
+`docs/evidence/2026-07-27-clearance-resolve-full-coverage.md`, that
+re-solved the board's placement specifically to satisfy the *previous*
+48-net set at 0 violations). This task's 6 new, correctly-traced HV nets
+were not part of that resolve's constraint set, and re-running the full
+check with them included surfaces **9 real REQ-SAFE-01 clearance/creepage
+violations** that were invisible before this task for the same reason
+the 37/666 number was invisible: the nets simply weren't classified yet.
+
+This is the exact same dynamic as the rest of this document (a corrected
+classification can only ever surface more true positives) playing out in
+a check this task was not asked to fix. **Not remediated here** -- fixing
+it requires a placement re-solve against the now-complete 54-net
+domain-crossing constraint set (`domain_clearance.py`'s
+`generate_domain_clearance_constraints`, which already consumes this same
+manifest transitively), a materially larger undertaking than Part B's
+scope, and exactly the kind of "outside this task's control" situation
+`docs/evidence/2026-07-27-domain-classification-coverage.md` Sec 5
+already established precedent for handling by disclosure rather than by
+reverting the classification fix that caused it. **Left failing,
+disclosed here rather than silently reverting the correct manifest
+entries to keep it green** -- reverting would mean re-hiding 6 confirmed
+real HV nets to make an unrelated gate pass, which the hard rule against
+shrinking a denominator to force a number down forbids in spirit as much
+as in letter. Flagged as a real, ranked follow-up.
+
+#### B.2.5 Why `backend="python"` was abandoned for the full-board measurement
+
+An initial attempt to compute `backend="rust"` / `"python"` / `"auto"`
+side-by-side on the same live re-route (to triple-confirm backend
+agreement beyond the synthetic `DC_BUS_RTN`-vs-`gnd` case) was killed
+after **14+ minutes** of a single pinned CPU core with no output, versus
+the ~60-65s the fixed `backend="auto"`/`"rust"` path takes for the entire
+pipeline including this check. This matches the pre-existing, documented
+concern in `_adapter_convert.py`'s own docstring ("`verify_clearance` is
+O(n^2) pure Python and does not complete on a routed board -- 27 min, 9.2
+GB, unfinished"). Not diagnosed further (root cause of the slowdown is
+out of scope for this task and the fast Rust path is both correct,
+per B.2.0's fail-before/pass-after proof, and now the actual production
+default) -- this task relied on `backend="auto"` (== `backend="rust"`
+whenever `temper_drc_rs` is present, confirmed) for every full-board
+measurement in B.2.0-B.2.3, and used the synthetic 2-route fixture (fast
+regardless of backend) for the direct 3-way backend comparison instead.
+
+#### B.2.6 Classifying the 37 by origin: placement vs. routing
+
+**Method.** `clearance_check.py`'s conductor model is trace segments and
+via cylinders only -- it never reads pad/footprint polygon geometry, so
+by the literal conductor type every violation this check can ever report
+is "trace vs. trace" (or via). The question the task actually asks
+("does this persist under any routing, or is it an artifact of this
+specific route") is answered by a different, more direct test: for each
+violated net pair, compute the **minimum pad-to-pad distance** between
+*any* pad of net1 and *any* pad of net2 (pure component-placement
+geometry, computed from `parse_kicad_pcb(PCB).pads`, with zero dependence
+on how -- or whether -- either net is routed).
+
+- If `pad_to_pad_distance < required_clearance`: **no routing choice**
+  could ever satisfy the requirement -- the two components are placed too
+  close together, full stop. **Placement-derived.**
+- If `pad_to_pad_distance >= required_clearance`: the placement leaves
+  enough room; the *routed traces* ended up closer than required only
+  because of this specific route's path choice. **Routing-derived** --
+  an artifact of the 38.5%-complete, zero-via route, not the board.
+
+**Result, over the corrected 37/666:**
+
+| Origin | Count | % |
+|---|---:|---:|
+| Routing-derived (pad-to-pad margin, all comfortably positive: +2.15mm to +72.4mm) | 36 | 97.3% |
+| Placement-derived (pad-to-pad < required) | 1 | 2.7% |
+| **Total** | **37** | **100%** |
+
+Of the 36 routing-derived, 9 are SELV-SELV pairs at the plain 0.127mm
+default (the original baseline's own composition, unaffected by the HV
+fixes) and 27 involve at least one HV net at the corrected 4.2mm
+internal-layer threshold. Full per-violation table (net pair, actual vs.
+required clearance in mm, pad-to-pad distance, margin):
+
+| Net 1 | Net 2 | Actual (mm) | Required (mm) | Pad-to-pad (mm) | Margin (mm) | Origin |
+|---|---|---:|---:|---:|---:|---|
+| safety.fault_any_or-a2 | sclk | 0.115 | 0.127 | 8.803 | +8.676 | routing |
+| discharge.k_dis2-coil1 | power_in.q_relay_drv-g | 0.011 | 0.127 | 6.858 | +6.731 | routing |
+| DISCHARGE_CTRL | power_in.q_relay_drv-g | 0.071 | 0.127 | 3.820 | +3.693 | routing |
+| power_in.q_relay_drv-g | cs_n | 0.021 | 0.127 | 41.547 | +41.420 | routing |
+| discharge.k_dis1-coil2 | power_in.bypass_relay-coil2 | 0.021 | 0.127 | 8.375 | +8.248 | routing |
+| RTD_SCK | cs_n | 0.120 | 0.127 | 46.623 | +46.496 | routing |
+| safety.uvlo_logic-line | sclk | 0.115 | 0.127 | 12.312 | +12.185 | routing |
+| safety.coil_thermal.comp-inp | input | 0.100 | 0.127 | 13.852 | +13.725 | routing |
+| rtd_pan.high_window-out | safety.ovp.r_adc_top2-p2 | 0.110 | 0.127 | 8.962 | +8.835 | routing |
+| safety.ovp.r_div_top2-p2 | hb.gate_hs.driver-p1-1 | 0.764 | 4.200 | 40.319 | +36.119 | routing |
+| discharge.r_snub1-p2 | a | 2.212 | 4.200 | 39.905 | +35.705 | routing |
+| w1_2 | cs_n | 0.150 | 4.200 | 76.588 | +72.388 | routing |
+| w1_2 | power_in.ntc-no | 0.296 | 4.200 | 6.350 | +2.150 | routing |
+| w1_2 | input | 0.550 | 4.200 | 20.973 | +16.773 | routing |
+| safety.ovp.r_div_top1-p2 | zcd | 1.735 | 4.200 | 38.561 | +34.361 | routing |
+| safety.ovp.r_div_top1-p2 | a | 0.050 | 4.200 | 44.100 | +39.900 | routing |
+| safety.ovp.r_div_top1-p2 | hb.gate_hs.driver-p1-1 | 0.523 | 4.200 | 37.609 | +33.409 | routing |
+| safety.ovp.r_div_top1-p2 | discharge.k_dis1-nc | 1.350 | 4.200 | 35.359 | +31.159 | routing |
+| zcd | safety.uvlo_logic.mon-outa | 0.135 | 4.200 | 15.846 | +11.646 | routing |
+| zcd | a | 0.934 | 4.200 | **1.650** | **-2.550** | **placement** |
+| SHUTDOWN | a | 4.050 | 4.200 | 46.518 | +42.318 | routing |
+| safety.uvlo_logic.mon-outa | a | 0.457 | 4.200 | 37.279 | +33.079 | routing |
+| safety.uvlo_logic.mon-outa | hb.gate_hs.driver-p1-1 | 0.123 | 4.200 | 10.485 | +6.285 | routing |
+| discharge.k_dis1-coil2 | a | 0.150 | 4.200 | 35.206 | +31.006 | routing |
+| discharge.k_dis1-coil2 | discharge.k_dis1-nc | 0.950 | 4.200 | 12.200 | +8.000 | routing |
+| cs_n | hb.power_loop.q_high-g | 0.021 | 4.200 | 25.647 | +21.447 | routing |
+| ina | a | 1.050 | 4.200 | 48.003 | +43.803 | routing |
+| power_in.ntc-no | hb.power_loop.q_high-g | -0.248 | 4.200 | 18.515 | +14.315 | routing |
+| power_in.ntc-no | hb.gate_hs.driver-p1-1 | 1.079 | 4.200 | 17.881 | +13.681 | routing |
+| power_in.bypass_relay-coil2 | a | 0.021 | 4.200 | 18.854 | +14.654 | routing |
+| power_in.bypass_relay-coil2 | discharge.k_dis1-nc | 0.421 | 4.200 | 30.225 | +26.025 | routing |
+| hb.power_loop.q_high-g | hb.gate_hs.driver-p1-1 | -0.006 | 4.200 | 35.235 | +31.035 | routing |
+| hb.power_loop.q_high-g | safety.ovp.r_adc_top2-p2 | 0.021 | 4.200 | 54.070 | +49.870 | routing |
+| a | discharge.k_dis1-nc | 0.150 | 4.200 | 36.546 | +32.346 | routing |
+| a | sdi | 3.134 | 4.200 | 21.944 | +17.744 | routing |
+| hb.gate_hs.driver-p1-1 | rtd_pan.high_window-out | 2.936 | 4.200 | 7.394 | +3.194 | routing |
+| discharge.k_dis1-nc | sdi | 2.634 | 4.200 | 40.817 | +36.617 | routing |
+
+**The 1 placement-derived case is itself not a real cross-domain
+defect.** `zcd` and `a` are R9's own two leads (pad 1 and pad 2 of a
+single 2-terminal resistor -- `pad1_ref`/`pad2_ref` = `R9.1`/`R9.2`,
+confirmed via `parse_kicad_pcb(PCB).pads`). A discrete component's own
+two pins are *always* closer together than any inter-component IEC 60335
+domain-crossing clearance figure; that is not a placement defect, it is
+package geometry. More importantly, `elec/domain_manifest.yaml`'s own
+existing text (predating this task) already documents that `a` is
+"*still entirely HV-side*" of R9 -- `zcd` and `a` are **not** actually on
+opposite sides of an isolation barrier, just two nodes of the same
+current-limiting resistor within one domain. `_get_required_clearance`
+nonetheless escalates to the full 4.2mm multi-standard HV figure because
+it classifies *any* pair where at least one side is HV-gated using a flat
+`voltage=230V` default (no per-node voltage-difference awareness), with
+no notion of "these two nodes are on the same floating domain, not
+crossing anything." **This is a narrow instance of the falsifier's third
+clause** ("corrected requirements applied to a pair not actually
+separated by an isolation domain") -- reported as a finding, not
+silently exempted or hardcoded away: `get_clearance`'s HV-vs-HV handling
+has no same-domain-adjacent-node concept anywhere in this codebase, and
+building one is a real, ranked follow-up (would need per-node working-voltage
+data this project does not currently track), not attempted here.
+
+#### B.2.7 Deliverable 3: acting on the split
+
+**Placement-derived (1 of 37): no board fix applied.** As B.2.6
+establishes, this is not a genuine placement defect -- it is a
+single component's own pin pitch, paired against a requirement that
+should not apply between two same-domain nodes in the first place. There
+is nothing for `domain_clearance.py`'s `SeparatedConstraint`
+machinery to encode here: that machinery generates constraints between
+*different components* crossing a *declared* domain boundary
+(`_domain_boundary_pairs`), and R9's own two pins are neither. Forcing a
+constraint here would be encoding a false requirement, not fixing a real
+one.
+
+**Routing-derived (36 of 37): explicitly deferred, not hand-patched.**
+Per the task's own instruction, a non-deterministic routing artifact must
+not be hand-patched. Three reasons this is the correct call, not merely
+the convenient one:
+
+1. **Nothing is actually broken in the repository.** The measurement in
+   this section comes from an **in-memory** re-route (`route_pcb(...,
+   placements={})`, this task's harness) -- confirmed via `pcb/
+   temper.kicad_pcb`'s unchanged mtime and `grep -c filled_polygon` before
+   and after every run in this task. The committed board file was never
+   written to. There is no committed defect to patch.
+2. **The route this measures is 38.5% complete with zero vias** -- by the
+   router's own admission (`docs/evidence/2026-07-27-committed-route.md`),
+   a materially different, more complete, in-progress route already
+   exists as the actual candidate for eventual commit. Patching traces in
+   *this* throwaway sample would not fix anything that ships.
+3. **All 36 pad-to-pad margins are large** (+2.15mm to +72.4mm) --
+   meaning ordinary clearance-aware routing (the router simply needs to
+   maintain the same margins it already achieves for the 629 non-violating
+   pairs) resolves every one of them without any placement change. This is
+   exactly the profile of "router quality on an unfinished pass," not "the
+   board cannot be routed compliantly."
+
+**Recommended action for a future task** (not performed here, out of Part
+B's scope): re-route to a higher completion percentage with the corrected
+HV thresholds active from the start (this task's fix is now the default,
+so any future `route_pcb(..., enable_manufacturing_drc=True)` call
+already benefits), and re-measure. If violations persist at that point
+with comfortably-positive pad-to-pad margins, the next step is tightening
+the router's own inter-net keepout radius during path planning (a router
+change, not a placement or manifest change) -- not attempted here because
+this task's scope is measurement and classification, not router
+path-planning quality.
+
+#### UNVERIFIED
+
+- **Root cause of `backend="python"`'s multi-minute-plus runtime**
+  (B.2.5) -- not diagnosed; only worked around by using the fast, now
+  fixed `backend="auto"` path for full-board measurement.
+- **Whether the 9 REQ-SAFE-01 violations newly surfaced in
+  `test_temper_board_clearance_compliance` (B.2.4) are themselves
+  placement- or routing-derived, or whether any involve the same
+  same-domain-adjacent-node misapplication documented in B.2.6** -- not
+  investigated; that check and its own violation set are outside this
+  task's scope (routed-copper clearance, not placement-time IEC 60335
+  compliance).
+- **Whether `get_clearance`'s flat `voltage=230V` HV default, rather
+  than a per-node working-voltage figure, causes similar
+  same-domain-misapplication findings elsewhere on the board** (B.2.6)
+  -- only the one instance surfaced in this task's 37-violation set was
+  investigated; a systematic sweep would require per-node voltage data
+  this project does not currently track.

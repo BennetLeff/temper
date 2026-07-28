@@ -256,6 +256,48 @@ fn classify_net_class(net_name: &str) -> NetClass {
     NetClass::Signal
 }
 
+// ---------------------------------------------------------------------------
+// Manifest-aware classification (ORs `elec/domain_manifest.yaml`'s declared
+// HV net names into the keyword gates above).
+//
+// Mirrors the Python fix in `clearance_check.py::_get_required_clearance` /
+// `_classify_net_class` (docs/evidence/2026-07-27-clearance-copper-balance.md
+// Part B): `_get_required_clearance`'s original 4-keyword substring gate
+// (`AC_`/`HV_`/`HIGH_VOLTAGE`/`MAINS`) matched only `ac_l`/`ac_n` on this
+// board's actual net names -- every other manifest-declared HV net
+// (`DC_BUS_RTN`, `+170V_BUS`, `PWR_RTN`, `SW_NODE`, `GATE_HS`, `GATE_LS`,
+// `+15V_LS`, `w1_1`, `w1_2`, `zcd`, `a`, ...) fell through to the plain
+// 0.127mm default. That fix was applied ONLY to the Python reference
+// implementation; this Rust port -- which `verify_clearance`'s `backend=
+// "auto"` (the production default whenever `temper_drc_rs` is importable,
+// which it is in every environment this check actually ships to) prefers
+// over Python -- was never updated to match, so the fix was DEAD CODE in
+// production: the differential test suite (`test_clearance_rust_
+// differential.py`) never caught this because its own fixture net names
+// (`AC_L`, `HV_BUS`, `MAINS_LIVE`, ...) are all keyword-matched already and
+// never exercise a manifest-only name. See
+// docs/evidence/2026-07-27-clearance-copper-balance.md Part B.2 for the
+// full finding and measurement.
+//
+// `hv_net_names` is passed in from Python (`_load_manifest_hv_net_names()`)
+// rather than parsed here, so this crate does not need a YAML dependency
+// and cannot silently drift from the Python loader's own manifest-parsing
+// behavior (missing/malformed manifest -> empty set -> falls back to the
+// keyword gates alone, exactly like the Python side degrades).
+fn is_hv_gate_named(net_name: &str, hv_net_names: &std::collections::HashSet<String>) -> bool {
+    is_hv_gate(net_name) || hv_net_names.contains(net_name)
+}
+
+fn classify_net_class_named(
+    net_name: &str,
+    hv_net_names: &std::collections::HashSet<String>,
+) -> NetClass {
+    if hv_net_names.contains(net_name) {
+        return NetClass::Hv;
+    }
+    classify_net_class(net_name)
+}
+
 fn is_internal_layer(layer_name: &str) -> bool {
     layer_name.contains("In")
 }
@@ -494,14 +536,22 @@ struct RouteMeta {
 
 impl RouteMeta {
     fn new(route: &RouteIn, voltage_ratings: &HashMap<String, f64>) -> Self {
+        Self::new_with_hv_names(route, voltage_ratings, &std::collections::HashSet::new())
+    }
+
+    fn new_with_hv_names(
+        route: &RouteIn,
+        voltage_ratings: &HashMap<String, f64>,
+        hv_net_names: &std::collections::HashSet<String>,
+    ) -> Self {
         let width = if route.width_mm.is_finite() {
             route.width_mm
         } else {
             0.0
         };
         RouteMeta {
-            is_hv_gate: is_hv_gate(&route.net_name),
-            class: classify_net_class(&route.net_name),
+            is_hv_gate: is_hv_gate_named(&route.net_name, hv_net_names),
+            class: classify_net_class_named(&route.net_name, hv_net_names),
             voltage: *voltage_ratings.get(&route.net_name).unwrap_or(&230.0),
             width,
         }
@@ -561,10 +611,29 @@ struct SegRef {
     y2: f64,
 }
 
+/// Backward-compatible entry point: no manifest names, keyword gates only.
+/// All existing call sites (internal tests, the pre-manifest-fix API)
+/// keep working unchanged via this thin wrapper -- see
+/// `verify_route_clearance_impl_ex` for the manifest-aware version the
+/// PyO3 binding now calls.
 pub fn verify_route_clearance_impl(
     routes: &[RouteIn],
     default_clearance: f64,
     voltage_ratings: &HashMap<String, f64>,
+) -> (Vec<ViolationOut>, u64) {
+    verify_route_clearance_impl_ex(
+        routes,
+        default_clearance,
+        voltage_ratings,
+        &std::collections::HashSet::new(),
+    )
+}
+
+pub fn verify_route_clearance_impl_ex(
+    routes: &[RouteIn],
+    default_clearance: f64,
+    voltage_ratings: &HashMap<String, f64>,
+    hv_net_names: &std::collections::HashSet<String>,
 ) -> (Vec<ViolationOut>, u64) {
     let n = routes.len();
     let total_checks: u64 = if n >= 2 {
@@ -575,7 +644,7 @@ pub fn verify_route_clearance_impl(
 
     let meta: Vec<RouteMeta> = routes
         .iter()
-        .map(|r| RouteMeta::new(r, voltage_ratings))
+        .map(|r| RouteMeta::new_with_hv_names(r, voltage_ratings, hv_net_names))
         .collect();
 
     // ---- Bucket segments per layer, FINE vs HV-gated ----------------------
@@ -889,12 +958,22 @@ type PyPathVia = (f64, f64, String, String);
 type PyRoute = (String, f64, Vec<PySegment>, Vec<PyExplicitVia>, Vec<PyPathVia>);
 
 #[pyfunction]
-#[pyo3(signature = (routes, default_clearance, voltage_ratings))]
+#[pyo3(signature = (routes, default_clearance, voltage_ratings, hv_net_names=None))]
 pub fn verify_route_clearance(
     routes: Vec<PyRoute>,
     default_clearance: f64,
     voltage_ratings: HashMap<String, f64>,
+    hv_net_names: Option<Vec<String>>,
 ) -> PyResult<(Vec<ViolationOut>, u64)> {
+    // Manifest-declared HV net names (`elec/domain_manifest.yaml`'s `HV`
+    // list, loaded Python-side by `_load_manifest_hv_net_names()`), ORed
+    // into the keyword-only HV gate below. Optional / defaults to empty so
+    // this binding stays source-compatible with any caller built against
+    // the pre-manifest-fix 3-argument signature. See
+    // `is_hv_gate_named`/`classify_net_class_named` docstring above for why
+    // this parameter exists.
+    let hv_net_names: std::collections::HashSet<String> =
+        hv_net_names.map(|v| v.into_iter().collect()).unwrap_or_default();
     let routes: Vec<RouteIn> = routes
         .into_iter()
         .map(|(net_name, width_mm, segments, explicit_vias, path_vias)| RouteIn {
@@ -927,7 +1006,7 @@ pub fn verify_route_clearance(
         .collect();
 
     let (violations, total_checks) =
-        verify_route_clearance_impl(&routes, default_clearance, &voltage_ratings);
+        verify_route_clearance_impl_ex(&routes, default_clearance, &voltage_ratings, &hv_net_names);
     Ok((violations, total_checks))
 }
 
