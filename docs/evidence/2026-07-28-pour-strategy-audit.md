@@ -38,7 +38,7 @@ snapshot into the board artifact.** Both halves of the provenance question are t
 simultaneously:
 
 1. **Generated at route time.** `route_pcb(..., enable_zone_pours=True)` calls
-   `_emit_zone_pours()` (`packages/temper-placer/src/temper_placer/router_v6/_adapter_convert.py:551`），
+   `_emit_zone_pours()` (`packages/temper-placer/src/temper_placer/router_v6/_adapter_convert.py:551`),
    which calls `_zone_layers_for_net()` (line 420) to decide, per net, whether it
    gets zone treatment, then `compute_zones_for_net()`
    (`router_v6/zone_emission.py:139`) to turn that net's pad positions into one
@@ -262,10 +262,12 @@ through the star point"). That design is **stale**: `elec/src/main.ato:435` reco
 "REMOVED: the star join (`power_return ~ gnd`) that used to sit here", and
 `elec/domain_manifest.yaml` confirms `gnd` and `PWR_RTN` are separate compiled nets
 today, `gnd ~ pe` (bonded to protective earth) rather than to `power_return`. The
-*only* declared connections from the HV domain into the SELV domain are: the Y1
-safety capacitor (`power_in.y_cap_pe`), 6 discrete isolator components (transformers,
-optocoupler, relays — `elec/domain_manifest.yaml` `isolators:`), and 2 explicitly
-audited protective-impedance resistor chains (`ovp01_comparator_divider`,
+*only* declared connections from the HV domain into the SELV domain are: the 10
+isolator entries `check_domain_partition.py` verifies against the compiled netlist
+(the Y1 safety capacitor `power_in.y_cap_pe`, plus discrete isolator components —
+transformers, optocoupler, relays — declared in `elec/domain_manifest.yaml`
+`isolators:`), and 2 explicitly audited protective-impedance resistor chains
+(`ovp01_comparator_divider`,
 `ovp01_adc_sense_divider`, 3-resistor series each, `min_length: 3`, so no single
 resistor failure removes the current-limiting function). **A single copper star-point
 bridge is not this design anymore — recreating it on an inner plane would
@@ -351,4 +353,21 @@ scratch copies specifically so no board or code edit was required to produce the
 - `uv sync --all-packages` was required in this fresh worktree (root `pyproject.toml`
   dev group does not pull `temper-placer`'s own dependencies — `numpy`/`scipy`/
   `shapely`/`kiutils`/`ortools` etc. are absent from a plain `uv sync`).
-- Gates / tests: *(run and results recorded below before this doc is finalized)*
+- **All 10/10 gates exit 0**, run individually and confirmed by `$?`:
+  `check_domain_partition` (0 crossings/breaches/chain defects, 54 declared nets/2
+  domains/10 isolators/2 protective-impedance chains checked against the compiled
+  netlist), `capacity_budget_gate` (0 defects), `mpn_fabrication_gate` (0 new
+  violations, 118 parts), `check_derived_doc_drift` (132 fields checked across 3
+  docs), `check_copper_net_consistency` (0 violations across all 2,482 copper items
+  — 2,338 segments + 48 vias + **96 zones** — confirming this audit's zone count
+  against the actual gate, not just `grep`), `check_rust_drc_presence`,
+  `check_undeclared_imports` (3,140 imports checked), `check_stale_extensions`
+  (9/10 fresh, 1 optional accelerator not built locally — expected, gate is
+  lenient outside CI), `check_net_classification` (0 violations), and
+  `check_pll_range_consistency` (4/4 checks agree).
+- `make netlist` passed (Atopile build succeeded, `elec/build/default.net`
+  regenerated; not committed, per instructions).
+- `uv run --no-sync python -m pytest elec/validation -q` — **30/30 passed**.
+- This audit added exactly one file, `docs/evidence/2026-07-28-pour-strategy-audit.md`;
+  `git status` is clean otherwise. No code, board, or config was modified — all
+  Task 2/3 measurements were taken against scratch copies outside the repo tree.
