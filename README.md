@@ -117,7 +117,7 @@ For contributors working on architecture, verification, or toolchain internals:
 
 | Directory | Purpose |
 |---|---|
-| `.cargo/` | Cargo config: shared target dir, macOS pyo3 link flags |
+| `.cargo/` | Cargo config -- macOS pyo3 `-undefined dynamic_lookup` link flags |
 | `.github/` | CI workflows, issue templates, code owners |
 | `benchmarks/` | CP-SAT benchmark harness and external board corpora manifests |
 | `components/` | Local KiCad symbol/footprint libraries, one directory per part |
