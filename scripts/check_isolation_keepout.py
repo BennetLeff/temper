@@ -27,8 +27,8 @@ vias, pads, pours) actually respects it. A keepout makes the violation
 *impossible to route into* rather than merely *detectable once routed* --
 the professional's-first-act framing this gate exists to enforce.
 
-Which clearance figure: BASIC clearance through REINFORCED creepage
----------------------------------------------------------------------
+Which clearance figure: REINFORCED creepage at PD3 (re-targeted 2026-07-28)
+---------------------------------------------------------------------------
 The DC bus is +-170V about a grounded midpoint (340V differential -- see
 ``elec/domain_manifest.yaml``'s ``+170V_BUS``/``PWR_RTN``/``DC_BUS_RTN``
 declarations and ``docs/hardware/POWER_PLANE_DESIGN.md`` Sec 2.1/6.1). The
@@ -47,28 +47,107 @@ this crossing).
 working isolation at 400V" -- note "working isolation": that figure is the
 BASIC/functional clearance between two HV-class nets of similar domain, not
 the reinforced mains<->user-accessible-SELV figure this barrier actually
-needs. Reusing it here would repeat the exact class of error flagged in this
-plan ("do NOT assume 3-6mm; that error was made earlier on this project").
+needs. Reusing it here would repeat the exact class of error already made
+once on this project ("do NOT assume 3-6mm").
 
-At <=400V working voltage, pollution degree 2, material group IIIb (the
-conservative, unverified-CTI assumption for generic FR4), the commonly
-cited (and industry-standard, e.g. widely used in offline/universal-input
-SMPS layout guides for the analogous IEC 60950-1/62368-1 "reinforced
-insulation, <=250Vac mains, post-doubler/PFC bus" case) figures are
-approximately 6.4mm CLEARANCE and 8.0mm CREEPAGE for reinforced insulation.
+**Clause chain (CITED-PRIMARY, re-derived 2026-07-28; supersedes the 8.0mm
+PD2 figure this constant previously carried):**
+
+1. IEC 60335-2-6 (the particular standard for cooking ranges/hobs --
+   overrides Part 1's default for this appliance class) clause 29.2
+   Addition: "The microenvironment is pollution degree 3 unless the
+   insulation is enclosed or located so that it is unlikely to be exposed
+   to pollution during normal use of the appliance." -- IS 302-2-6:2009,
+   identical adoption, <https://law.resource.org/pub/in/bis/S05/is.302.2.6.2009.pdf>.
+2. **PD3 is the default for this appliance class; PD2 is an exception that
+   must be earned by an enclosure/location argument.** Checked against this
+   design's mechanical documents (``docs/COIL_BRACKET_DESIGN.md``,
+   ``docs/CHASSIS_AIRFLOW_DESIGN.md``, ``docs/ASSEMBLY_GUIDE.md``,
+   ``docs/SENSOR_MOUNT_DESIGN.md``): the PCB is standoff-mounted directly
+   inside the same RCA 12A3 chassis cavity that the forced-air cooling path
+   uses (bottom vents -> intake plenum -> fan -> duct -> IGBT heatsink ->
+   rear exhaust); no document specifies a sealed or gasketed PCB
+   compartment separate from that airflow path (the only gasket in the
+   assembly is the glass-to-chassis lip, unrelated to the PCB); and
+   ``docs/ENVIRONMENTAL_SPEC.md`` Sec 3 independently carries an **IP20**
+   rating ("No liquid ingress protection guaranteed"). **The enclosure
+   exception does not apply on the evidence available: PD3 governs.** See
+   ``docs/evidence/2026-07-28-pd3-retarget-keepout.md`` Sec 1 for the full
+   determination and its explicit not-fully-closed caveats.
+3. IEC 60335-1 Table 17, working voltage >250V and <=400V (this barrier's
+   340V differential bus falls in this row), pollution degree 3, material
+   group IIIa/IIIb (still the conservative, unverified-CTI default for
+   generic FR4 -- unchanged from the PD2 analysis): **basic creepage
+   6.3mm**.
+4. IEC 60335-1 clause 29.2.3: "Creepage distances of reinforced insulation
+   shall be at least double those specified for basic insulation in Table
+   17." 2 x 6.3mm = **12.6mm reinforced creepage**.
+
 Creepage (surface distance) is always >= clearance (through-air distance)
 for the same voltage/pollution class, and a PCB keepout enforces surface
 distance directly (both sides of the gap are literally board surface), so
-the creepage figure is the binding one for sizing a physical keepout.
-MIN_BARRIER_WIDTH_MM below is therefore set to the top of the stated
-3.0-8.0mm range, not the middle: **8.0mm**.
-UNVERIFIED-at-primary (same epistemic status as several figures already
-carried in ``elec/domain_manifest.yaml``'s own OVP-01 protective-impedance
-writeup): IEC 60335-1's Table 16 / IEC 60664-1's creepage tables are
-paywalled primary text; this figure is reconstructed from secondary/industry
-sources, not read from the standard directly in this pass. Never shrunk to
-match this repo's existing (looser) 6.0mm netclass figure -- see the plan's
-hard rule against weakening a safety distance to get a green gate.
+creepage is the binding figure for sizing a physical keepout.
+MIN_BARRIER_WIDTH_MM is therefore **12.6mm**, not 8.0mm (the PD2 figure at
+the same Table 17 row, now superseded) and not the repo's unrelated,
+mislabelled 6.0mm/6.4mm netclass figures (neither of which is a real
+clearance value -- see ``docs/evidence/2026-07-28-creepage-determination-brainstorm.md``
+Sec 1 for the full audit of every creepage/clearance figure in this repo).
+Clearance at this voltage/OVC-II bracket is separately derived at
+1.5mm (2.0mm with the clause-29.1 soldered-construction adder) and is
+**not binding anywhere on this board** -- never conflate the two
+quantities; see the same evidence doc Sec 4.
+UNVERIFIED-at-primary, unchanged in kind from the PD2-era figure: the
+Table 17 transcription underlying both the 8.0mm and 12.6mm figures comes
+from an OCR'd 2008-era national adoption (IS 302-1:2008), independently
+cross-checked cell-for-cell against a manufacturer's IEC 60664-1
+reproduction (exact agreement) but not against the IEC's own current
+edition. Never shrunk to make this gate pass -- the gate is expected to
+keep failing on the real board until either the layout changes or a
+qualified Annex J Type A coating is adopted (which would drop the
+microenvironment to PD1 and the figure to 2.0mm; not implemented here).
+
+Corridor model: a documented, conservative SUFFICIENT condition -- not a
+true creepage-path measure
+---------------------------------------------------------------------------
+This gate enforces a straight-line, zero-copper corridor of width
+MIN_BARRIER_WIDTH_MM. That is a **clearance-shaped** constraint (through-air,
+straight-line) carrying a **creepage-derived** number. A corridor of width W
+guarantees creepage >= W across it, so the gate is sufficient for the
+requirement it cites -- but it is not necessary: creepage can equally be
+satisfied by a longer, non-straight surface path (a groove/slot lengthens
+creepage without widening the straight-line gap), by an earthed inner-layer
+screen (IEC 60335-1 clause 3.4.4 option (a), for the vertical case), or by a
+qualified Annex J coating that changes the pollution degree outright. None
+of those remedies can be expressed by a single corridor width, and this gate
+deliberately does not attempt to model them.
+
+**Decision, made explicitly rather than silently inherited: keep the
+straight-line corridor model, documented as a conservative sufficient
+bound, rather than implementing a true minimum-creepage-path measure.**
+Reasons:
+
+1. The corridor's own INFEASIBLE result (CP-SAT, see
+   ``packages/temper-placer/src/temper_placer/placer/cp_sat/isolation_barrier.py``)
+   is already known to be driven by isolator PACKAGE geometry (K2/K3's own
+   coil-to-COM-contact pinout, unconditionally infeasible on this footprint
+   at ANY corridor width down to 1.0mm), not by the corridor formulation. A
+   true surface-path measure cannot rescue a path that runs across a
+   relay's own plastic base -- no PCB feature lengthens that. Replacing the
+   model would not change the actionable finding for the binding case.
+2. A true creepage-path measure (accounting for grooves, screening planes,
+   and Annex J coating microenvironment changes) is a substantially larger
+   modeling effort than this re-target, and touches exactly the kind of
+   "make the safety model more permissive" territory this project's hard
+   rules require extra scrutiny on. Under-building it would be worse than
+   the current honest sufficient-bound framing.
+3. The corridor model fails in the SAFE direction (over-constrains rather
+   than under-constrains): every board that passes it is provably safe;
+   a board that fails it may still be compliant via an unmodeled remedy,
+   which is exactly the caveat this docstring and
+   ``docs/evidence/2026-07-28-pd3-retarget-keepout.md`` now state
+   explicitly, rather than letting a bare INFEASIBLE/VIOLATION result be
+   read as a BOM conclusion on its own (the error this project made once
+   already -- see the creepage-determination-brainstorm doc Sec 7).
 
 What this checks
 -----------------
@@ -164,11 +243,16 @@ EXIT_GATE_ERROR = 5
 # elsewhere on the board (e.g. under a connector) is never mistaken for it.
 BARRIER_ZONE_NAME = "MAINS_SELV_ISOLATION_BARRIER"
 
-# REINFORCED creepage, pollution degree 2, material group IIIb, <=400V
-# working voltage -- top of the plan's stated 3.0-8.0mm range. See module
-# docstring "Which clearance figure" for full derivation and UNVERIFIED
-# caveat. Never shrink this to make the gate pass (plan hard rule).
-MIN_BARRIER_WIDTH_MM = 8.0
+# REINFORCED creepage, pollution degree 3 (IEC 60335-2-6 cl. 29.2 Addition
+# default for this appliance class -- the cl. 29.2 enclosure exception was
+# checked against this design's mechanical docs and does not apply, see
+# docs/evidence/2026-07-28-pd3-retarget-keepout.md Sec 1), material group
+# IIIa/IIIb, >250-400V working voltage: IEC 60335-1 Table 17 basic 6.3mm x 2
+# (clause 29.2.3) = 12.6mm. Re-targeted 2026-07-28 from the prior 8.0mm PD2
+# figure at the same Table 17 row. See module docstring "Which clearance
+# figure" for the full clause chain and UNVERIFIED caveat. Never shrink this
+# to make the gate pass (plan hard rule).
+MIN_BARRIER_WIDTH_MM = 12.6
 
 _COPPER_LAYER_TYPE = "signal"
 
