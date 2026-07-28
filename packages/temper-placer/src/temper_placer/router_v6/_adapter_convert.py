@@ -8,6 +8,7 @@ import math
 import os
 import re
 import tempfile
+import uuid
 from pathlib import Path
 from typing import Any
 
@@ -31,6 +32,43 @@ __all__ = [
     "_zone_params_for_net",
     "route_pcb",
 ]
+
+# Fixed namespace for deriving synthetic KiCad ``tstamp`` UUIDs
+# deterministically (see ``_next_tstamp`` below).
+_TSTAMP_NAMESPACE = uuid.UUID("f8b1a2b0-6c4e-4a3a-9b7a-1a2b3c4d5e6f")
+
+
+def _next_tstamp(counter: list[int]) -> str:
+    """Return the next deterministic KiCad ``tstamp`` UUID.
+
+    A single ``route_pcb()`` call writes many synthetic ``(segment ...)``/
+    ``(via ...)`` elements. The previous implementation drew each
+    ``tstamp`` from ``uuid.uuid4()``, which reads ``os.urandom`` -- so
+    identical code and identical input produced a byte-different
+    ``.kicad_pcb`` on every single run. Measurement showed this was the
+    *only* source of that non-determinism: net topology, routed geometry,
+    and layer/via assignment were already stable across 8 independent
+    runs with default (randomized) ``PYTHONHASHSEED`` -- diffing two
+    such runs after normalizing ``tstamp`` fields to a placeholder
+    produced a zero-line diff (see
+    docs/evidence/2026-07-27-router-determinism.md).
+
+    ``tstamp`` is a KiCad object identifier only; it carries no
+    electrical, geometric, or DRC meaning, so replacing the random draw
+    with a value derived from a stable emission-order sequence number is
+    safe and does not change what gets routed.
+
+    This *does* depend on segment/via emission happening in a fixed
+    order within one ``route_pcb()`` call -- an explicit, documented
+    dependency rather than an incidental one. That order is already
+    deterministic today (net iteration in ``_write_routes_to_content``
+    walks a plain ``dict`` in insertion order, not a ``set``/``HashMap``
+    in hash order), so a monotonic counter over that order is sufficient;
+    it is not itself a tie-break.
+    """
+    n = counter[0]
+    counter[0] = n + 1
+    return str(uuid.uuid5(_TSTAMP_NAMESPACE, f"temper-router-v6-tstamp-{n}"))
 
 
 def _to_stage0_netclass_rules(rules: Any) -> Any:
@@ -416,13 +454,24 @@ def _stitch_isolated_pads(
     segments: list[str],
     net_name_to_number: dict[str, int],
     zone_points: dict[str, list[tuple[tuple[float, float], ...]]],
+    *,
+    tstamp_counter: list[int] | None = None,
 ) -> None:
     """U3: emit straight-line trace segments from pads outside every
     dense-cluster pour back to the nearest pour for that net.
 
     Uses the already-computed zone polygons (from the zone-emission
     loop above) rather than re-clustering independently.
+
+    ``tstamp_counter`` lets a caller (``_emit_zone_pours`` /
+    ``_write_routes_to_content``) share one deterministic tstamp
+    sequence across every element emitted in a single route_pcb() call.
+    Callers that invoke this function standalone (e.g. tests) get a
+    fresh, independent counter starting at 0.
     """
+    if tstamp_counter is None:
+        tstamp_counter = [0]
+
     from shapely.geometry import Point as ShapelyPoint
     from shapely.geometry import Polygon
 
@@ -476,14 +525,13 @@ def _stitch_isolated_pads(
         for px, py in outside:
             _dist, idx = tree.query((px, py))
             nearest_x, nearest_y = all_verts[idx]
-            import uuid
 
             segments.append(
                 f"  (segment (start {px:.4f} {py:.4f})"
                 f" (end {nearest_x:.4f} {nearest_y:.4f})"
                 f' (width {0.2:.4f}) (layer "{trace_layer}")'
                 f" (net {net_num})"
-                f' (tstamp "{uuid.uuid4()}"))'
+                f' (tstamp "{_next_tstamp(tstamp_counter)}"))'
             )
 
 
@@ -493,8 +541,15 @@ def _emit_zone_pours(
     net_name_to_number: dict[str, int],
     *,
     design_rules: Any = None,
+    tstamp_counter: list[int] | None = None,
 ) -> None:
-    """Emit filled-copper zone geometry for all zone-eligible nets."""
+    """Emit filled-copper zone geometry for all zone-eligible nets.
+
+    ``tstamp_counter``: see ``_stitch_isolated_pads`` -- threaded through
+    so the isolated-pad stitch segments this function emits (via
+    ``_stitch_isolated_pads``) continue the same deterministic tstamp
+    sequence as the caller's other segments/vias.
+    """
     from temper_placer.core.design_rules import (
         TEMPER_NET_ASSIGNMENTS,
         TEMPER_NET_CLASSES,
@@ -584,6 +639,7 @@ def _emit_zone_pours(
         segments,
         net_name_to_number,
         zone_points_by_net,
+        tstamp_counter=tstamp_counter,
     )
 
 
@@ -665,8 +721,12 @@ def _write_routes_to_content(
     (zero-length dummy paths) and for missing pins on multi-pin signal nets,
     creates direct connections using pad positions from the parsed PCB.
     """
-    import uuid
     from types import SimpleNamespace
+
+    # Single deterministic tstamp sequence shared by every segment/via
+    # this call emits (routed paths, vias, and -- via _emit_zone_pours --
+    # zone pours and isolated-pad stitch segments). See _next_tstamp.
+    tstamp_counter: list[int] = [0]
 
     pad_positions: dict[str, list[tuple[float, float]]] = {}
 
@@ -750,7 +810,7 @@ def _write_routes_to_content(
                     # is skipped for this branch by the `continue`), so this
                     # point-pair is dropped rather than drawn incorrectly.
                     continue
-                seg_id = uuid.uuid4()
+                seg_id = _next_tstamp(tstamp_counter)
                 segments.append(
                     f"  (segment (start {sx:.4f} {sy:.4f}) (end {ex:.4f} {ey:.4f})"
                     f' (width {tree_width:.4f}) (layer "{s_layer}") (net {net_num})'
@@ -822,7 +882,7 @@ def _write_routes_to_content(
                         j += 1
                     else:
                         break
-                seg_id = uuid.uuid4()
+                seg_id = _next_tstamp(tstamp_counter)
                 segments.append(
                     f"  (segment (start {x1:.4f} {y1:.4f}) (end {x2:.4f} {y2:.4f})"
                     f' (width {width:.4f}) (layer "{lyr}") (net {net_num})'
@@ -835,7 +895,7 @@ def _write_routes_to_content(
             segments.append(
                 f"  (via (at {vx:.4f} {vy:.4f}) (size {via.diameter:.4f})"
                 f' (drill {via.drill:.4f}) (layers "{via.from_layer}" "{via.to_layer}")'
-                f' (net {net_num}) (tstamp "{uuid.uuid4()}"))'
+                f' (net {net_num}) (tstamp "{_next_tstamp(tstamp_counter)}"))'
             )
 
     if getattr(result, "enable_zone_pours", False):
@@ -844,6 +904,7 @@ def _write_routes_to_content(
             segments,
             net_name_to_number,
             design_rules=design_rules,
+            tstamp_counter=tstamp_counter,
         )
 
     if not segments:
