@@ -546,7 +546,7 @@ jobs:
       - name: Requirements tests (safety / EMC / review / DFM)
         run: >
           cd packages/temper-placer &&
-          uv run python ../../scripts/pytest_guard.py --min-tests 140 --
+          uv run python ../../scripts/pytest_guard.py --min-tests 240 --
           tests/requirements/safety/ tests/requirements/emc/
           tests/requirements/review/ tests/requirements/dfm/
           -v --tb=short -p no:cacheprovider
