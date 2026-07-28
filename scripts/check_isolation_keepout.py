@@ -249,6 +249,7 @@ class PadInstance:
     number: str
     x: float
     y: float
+    radius: float  # conservative bounding-circle radius (max(size.X, size.Y)/2)
     layers: frozenset[str]  # copper layers only, wildcard-expanded
     net_name: str
 
@@ -377,8 +378,19 @@ def load_board(board_path: Path) -> BoardData:
             dx, dy = _rotate(lx, ly, fangle)
             ax, ay = fx + dx, fy + dy
             layers = _expand_copper_layers(pad.layers or [], copper_layers_ordered)
+            # Conservative bounding-circle radius: a safety intrusion check
+            # must never UNDER-approximate a pad's physical extent, so use
+            # the larger of the pad's two size dimensions regardless of
+            # rotation (matches the "over-approximate, never under" rule
+            # already applied to segments/vias below).
+            size_x = getattr(pad.size, "X", 0.0) or 0.0
+            size_y = getattr(pad.size, "Y", 0.0) or 0.0
+            radius = max(size_x, size_y) / 2.0
             pads.append(
-                PadInstance(ref=ref, number=pad.number, x=ax, y=ay, layers=layers, net_name=net_name)
+                PadInstance(
+                    ref=ref, number=pad.number, x=ax, y=ay, radius=radius,
+                    layers=layers, net_name=net_name,
+                )
             )
     if not pads:
         raise GateError(f"board has zero pads across {len(board.footprints)} footprint(s)")
@@ -709,8 +721,12 @@ def run(
     for pad in board.pads:
         if not (pad.layers & barrier_layers):
             continue
-        pt = Point(pad.x, pad.y)
-        if pt.intersects(barrier_poly):
+        # Buffered by the pad's own conservative bounding-circle radius, not
+        # just its center point -- a pad whose body overlaps the keepout
+        # while its center sits just outside must still be caught (never
+        # under-approximate a safety intrusion check).
+        geom = Point(pad.x, pad.y).buffer(pad.radius) if pad.radius > 0 else Point(pad.x, pad.y)
+        if geom.intersects(barrier_poly):
             report.violations.append(
                 Violation(
                     "intrusion",

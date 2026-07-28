@@ -379,6 +379,33 @@ class TestIntrusion:
         intrusions = [v for v in report.violations if v.check == "intrusion"]
         assert any("C99" in v.detail for v in intrusions)
 
+    def test_pad_body_overlaps_barrier_even_when_center_is_outside(self, tmp_path: Path) -> None:
+        """A large pad whose CENTER sits just outside the keepout but whose
+        physical body straddles the boundary must still be flagged -- a
+        safety intrusion check must never under-approximate a pad's real
+        extent by collapsing it to a single point."""
+        board = build_board()  # barrier spans x=[45,55]
+        extra_fp = Footprint()
+        extra_fp.entryName = "Test:LargePad"
+        extra_fp.layer = "F.Cu"
+        # Center at x=43 (2mm outside the barrier's left edge at x=45), but
+        # a 6mm-wide pad reaches to x=46 -- 1mm into the barrier.
+        extra_fp.position = Position(43, 50)
+        extra_fp.properties = {"Reference": "C98"}
+        extra_fp.pads = [
+            Pad(
+                number="1", type="smd", shape="rect", position=Position(0, 0), size=Position(6, 2),
+                layers=["F.Cu"], net=Net(number=1, name="ac_l"),
+            )
+        ]
+        board.footprints = list(board.footprints) + [extra_fp]
+        board_path = write_board(tmp_path, board)
+        manifest_path = write_manifest(tmp_path)
+        state, report = run(board_path, manifest_path)
+        assert state == "violation"
+        intrusions = [v for v in report.violations if v.check == "intrusion"]
+        assert any("C98" in v.detail for v in intrusions)
+
     def test_copper_pour_zone_crosses_barrier(self, tmp_path: Path) -> None:
         pour = Zone(
             net=1, netName="ac_l", layers=["F.Cu"], hatch=Hatch(style="none", pitch=0.0),
