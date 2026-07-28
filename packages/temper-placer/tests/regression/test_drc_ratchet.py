@@ -195,3 +195,105 @@ class TestPerTypeCeilings:
         )
         assert r.passed
         assert "85 error(s) of unratcheted slack" in r.message
+
+
+class TestAggregateAndPerTypeEnumeration(TestPerTypeCeilings):
+    """Fixing the early-return: the aggregate check must not short-circuit
+    the per-type breakdown.
+
+    This is the exact defect documented in
+    docs/evidence/2026-07-27-drc-truth-gate-discrepancy.md: on the real
+    board, ``current_errors > entry.error_ceiling`` returned before the
+    per-type loop ever ran, so six violation categories with an implicit
+    ceiling of zero were completely invisible in the gate's output. These
+    tests reproduce that shape on a synthetic board and would have failed
+    against the pre-fix ``_check_board`` (which returned immediately on the
+    aggregate-error check, before the per-type categories below it were
+    ever compared).
+    """
+
+    def test_aggregate_and_per_type_both_reported(self, tmp_path, monkeypatch):
+        """A board exceeding BOTH the aggregate and several per-type
+        ceilings must report all of them -- not just the aggregate.
+        """
+        r = self._check(
+            tmp_path,
+            by_type={"clearance": 9, "shorting_items": 33},
+            current={
+                "clearance": 340,  # regressed, present in ceiling file
+                "shorting_items": 152,  # regressed, present in ceiling file
+                "annular_width": 4,  # new category, implicit ceiling 0
+                "hole_to_hole": 1,  # new category, implicit ceiling 0
+            },
+            monkeypatch=monkeypatch,
+            error_ceiling=85,
+        )
+        assert not r.passed
+        assert r.exit_code == 1
+
+        # The aggregate line must still be present...
+        assert "errors 497 exceeds ceiling 85" in r.message
+        # ...AND every per-type category must be individually named. Before
+        # the fix, none of the four lines below could ever appear together
+        # with the aggregate line -- the early return meant only one of
+        # "aggregate" or "per-type" was ever reported, never both.
+        assert "clearance 340 > 9" in r.message
+        assert "shorting_items 152 > 33" in r.message
+        assert "annular_width 4 > 0" in r.message
+        assert "hole_to_hole 1 > 0" in r.message
+
+        # Structured fields carry the same information without needing to
+        # re-parse the message.
+        assert r.aggregate_error_delta == 497 - 85
+        by_rule = {c.rule: c for c in r.category_failures}
+        assert set(by_rule) == {"clearance", "shorting_items", "annular_width", "hole_to_hole"}
+        assert by_rule["clearance"].is_new is False
+        assert by_rule["shorting_items"].is_new is False
+        assert by_rule["annular_width"].is_new is True
+        assert by_rule["hole_to_hole"].is_new is True
+        assert r.violation_deltas["clearance"] == 340 - 9
+        assert r.violation_deltas["annular_width"] == 4
+
+    def test_new_categories_are_labeled_distinctly_from_regressions(
+        self, tmp_path, monkeypatch
+    ):
+        """A category absent from violations_by_type must be called out as
+        NEW, not folded silently into the regressed-category list.
+        """
+        r = self._check(
+            tmp_path,
+            by_type={"clearance": 9},
+            current={"clearance": 9, "via_diameter": 4},
+            monkeypatch=monkeypatch,
+            error_ceiling=200,
+        )
+        assert not r.passed
+        assert "1 new, 0 regressed" in r.message
+        assert "[NEW] via_diameter 4 > 0" in r.message
+        (failure,) = r.category_failures
+        assert failure.rule == "via_diameter"
+        assert failure.is_new is True
+        assert failure.delta == 4
+
+    def test_aggregate_warning_ceiling_reported_alongside_errors(
+        self, tmp_path, monkeypatch
+    ):
+        """The warning-ceiling check must not be skipped or short-circuit
+        the per-type report either.
+        """
+        import temper_placer.validation._drc_api as drc_api
+
+        ratchet, entry = self._entry(tmp_path, {"clearance": 9}, error_ceiling=200)
+        entry.warning_ceiling = 10
+        errors = [type("E", (), {"rule": "clearance"})() for _ in range(9)]
+        result_obj = type(
+            "R", (), {"error_count": len(errors), "warning_count": 50, "errors": errors}
+        )()
+        monkeypatch.setattr(drc_api, "run_drc", lambda _p: result_obj)
+        pcb = tmp_path / "b.kicad_pcb"
+        pcb.write_text("(kicad_pcb)")
+        r = ratchet._check_board("b", pcb, entry)
+
+        assert not r.passed
+        assert "warnings 50 exceeds ceiling" in r.message
+        assert r.aggregate_warning_delta > 0

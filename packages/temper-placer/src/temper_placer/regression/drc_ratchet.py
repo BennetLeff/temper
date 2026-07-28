@@ -33,14 +33,52 @@ class DrcCeilingEntry:
 
 
 @dataclass
+class DrcCategoryFailure:
+    """One violation-type category that exceeded its ceiling.
+
+    ``is_new`` distinguishes a category absent from ``violations_by_type``
+    entirely (an implicit ceiling of 0, by design -- see drc_ceiling.json's
+    ``_march`` notes) from one that is present in the file but regressed
+    past its recorded ceiling. Both are real ceiling violations, but a
+    brand-new violation class means the board grew a defect *type* the
+    ratchet has never seen before, which is a materially different signal
+    from "more of a kind we already track" and must not be folded into the
+    same bucket silently.
+    """
+
+    rule: str
+    count: int
+    allowed: int
+    is_new: bool
+
+    @property
+    def delta(self) -> int:
+        return self.count - self.allowed
+
+
+@dataclass
 class DrcRatchetResult:
-    """Result of a DRC ratchet check."""
+    """Result of a DRC ratchet check.
+
+    A failing result may fail along more than one dimension at once
+    (aggregate errors, aggregate warnings, and/or one or more per-type
+    categories) -- ``message`` composes all of them into one human-readable
+    report. ``category_failures`` and the two ``aggregate_*_delta`` fields
+    carry the same information in structured form for callers that want it
+    (e.g. a future CI step-summary table) without re-parsing ``message``.
+    Existing consumers (``scripts/ci_check_drc.py``, the test suite) only
+    read ``.passed``/``.message``/``.exit_code`` and are unaffected by the
+    additional fields.
+    """
 
     passed: bool
     board_id: str
     message: str
     exit_code: int = 0
     violation_deltas: dict[str, int] = field(default_factory=dict)
+    category_failures: list[DrcCategoryFailure] = field(default_factory=list)
+    aggregate_error_delta: int = 0
+    aggregate_warning_delta: int = 0
 
 
 class DrcRatchet:
@@ -247,22 +285,25 @@ class DrcRatchet:
                 exit_code=1,
             )
 
-        if current_errors > entry.error_ceiling:
-            delta = current_errors - entry.error_ceiling
-            return DrcRatchetResult(
-                passed=False,
-                board_id=board_id,
-                message=f"{board_id}: DRC {current_errors} exceeds ceiling {entry.error_ceiling} (+{delta} errors)",
-                exit_code=1,
+        # Evaluate every ceiling dimension -- aggregate errors, aggregate
+        # warnings, and per-type -- before deciding pass/fail. A failing run
+        # must show the complete picture in one shot: returning on the first
+        # exceeded dimension (the previous behavior) hid the per-type
+        # breakdown -- exactly the categories most worth seeing -- whenever
+        # the aggregate itself was also exceeded. See
+        # docs/evidence/2026-07-27-drc-truth-gate-discrepancy.md.
+        aggregate_failures: list[str] = []
+
+        error_delta = current_errors - entry.error_ceiling
+        if error_delta > 0:
+            aggregate_failures.append(
+                f"errors {current_errors} exceeds ceiling {entry.error_ceiling} (+{error_delta})"
             )
 
-        if current_warnings > entry.warning_ceiling:
-            delta = current_warnings - entry.warning_ceiling
-            return DrcRatchetResult(
-                passed=False,
-                board_id=board_id,
-                message=f"{board_id}: DRC {current_warnings} exceeds ceiling {entry.warning_ceiling} (+{delta} warnings)",
-                exit_code=1,
+        warning_delta = current_warnings - entry.warning_ceiling
+        if warning_delta > 0:
+            aggregate_failures.append(
+                f"warnings {current_warnings} exceeds ceiling {entry.warning_ceiling} (+{warning_delta})"
             )
 
         # Per-type ceilings. `violations_by_type` is an exhaustive record of the
@@ -272,22 +313,46 @@ class DrcRatchet:
         # This is what lets categories be driven to zero independently --
         # notably `clearance`, where the aggregate ceiling is far too coarse to
         # notice a HighVoltage net at 0.336mm against a 2.0mm requirement.
+        category_failures: list[DrcCategoryFailure] = []
         if entry.violations_by_type and current_by_type is not None:
-            regressions = []
             for rule, count in sorted(current_by_type.items()):
                 allowed = entry.violations_by_type.get(rule, 0)
                 if count > allowed:
-                    regressions.append(f"{rule} {count} > {allowed}")
-            if regressions:
-                return DrcRatchetResult(
-                    passed=False,
-                    board_id=board_id,
-                    message=(
-                        f"{board_id}: DRC per-type ceiling exceeded -- "
-                        + "; ".join(regressions)
-                    ),
-                    exit_code=1,
+                    category_failures.append(
+                        DrcCategoryFailure(
+                            rule=rule,
+                            count=count,
+                            allowed=allowed,
+                            is_new=rule not in entry.violations_by_type,
+                        )
+                    )
+
+        if aggregate_failures or category_failures:
+            lines = [f"{board_id}: DRC FAIL"]
+            for failure in aggregate_failures:
+                lines.append(f"  aggregate {failure}")
+            if category_failures:
+                new_failures = [c for c in category_failures if c.is_new]
+                regressed_failures = [c for c in category_failures if not c.is_new]
+                n = len(category_failures)
+                lines.append(
+                    f"  per-type: {n} categor{'y' if n == 1 else 'ies'} over "
+                    f"ceiling ({len(new_failures)} new, {len(regressed_failures)} "
+                    "regressed):"
                 )
+                for c in new_failures + regressed_failures:
+                    tag = "NEW" if c.is_new else "   "
+                    lines.append(f"    [{tag}] {c.rule} {c.count} > {c.allowed} (+{c.delta})")
+            return DrcRatchetResult(
+                passed=False,
+                board_id=board_id,
+                message="\n".join(lines),
+                exit_code=1,
+                violation_deltas={c.rule: c.delta for c in category_failures},
+                category_failures=category_failures,
+                aggregate_error_delta=max(error_delta, 0),
+                aggregate_warning_delta=max(warning_delta, 0),
+            )
 
         slack = entry.error_ceiling - current_errors
         slack_note = (
