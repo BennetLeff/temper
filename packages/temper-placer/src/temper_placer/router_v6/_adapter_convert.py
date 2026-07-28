@@ -18,6 +18,7 @@ from temper_placer.router_v6._adapter_types import (
     ParsedPcbLike,
     RoutingResult,
 )
+from temper_placer.router_v6._strip_copper import strip_existing_zones
 
 logger = logging.getLogger(__name__)
 
@@ -944,6 +945,7 @@ def _write_routes_to_content(
             )
 
     if getattr(result, "enable_zone_pours", False):
+        pcb_content, _ = strip_existing_zones(pcb_content)  # R7: replace, don't append
         _emit_zone_pours(
             pad_positions,
             segments,
