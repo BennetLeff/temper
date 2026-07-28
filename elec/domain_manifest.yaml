@@ -168,16 +168,25 @@ domains:
                              # primary-side, GNDI-referenced, correctly
                              # left off this list; see components.ato:43-60
                              # for the full primary/secondary pin split).
-      - "no"                 # ADDED 2026-07-27, same evidence doc, as
-                             # `power_in.ntc-no` -- RENAMED 2026-07-28
-                             # (unrelated to this session's K2/K3 relay
-                             # work, found and fixed while re-running this
-                             # gate: the compiled netlist names this net
-                             # `no`, not `power_in.ntc-no`; the manifest's
-                             # own name never matched the netlist's actual
-                             # auto-assigned name, a pre-existing stale
-                             # entry, see docs/evidence/
-                             # 2026-07-28-relay-replacement-implementation.md).
+      - power_in.ntc-no      # ADDED 2026-07-27, same evidence doc. RENAMED
+                             # 2026-07-28 to bare `"no"` during the (now-
+                             # reverted) Finder 40.52 K2/K3 swap, on the
+                             # claim that this was an "unrelated pre-
+                             # existing stale entry" -- that claim was
+                             # WRONG, found while reverting that swap
+                             # (docs/evidence/
+                             # 2026-07-28-relay-board-resync-decision.md):
+                             # atopile's net auto-namer collapses this net's
+                             # name to the bare pin name `no` only when
+                             # bypass_relay.NO is the ONLY signal in the
+                             # whole design literally named `NO` -- true
+                             # under Relay_DPDT (whose unconnected pins are
+                             # `NO1`/`NO2`), false under Relay_SPDT (whose
+                             # k_dis1.NO/k_dis2.NO collide with it), which is
+                             # why this net reverts to the longer,
+                             # instance-qualified `power_in.ntc-no` name
+                             # here. Genuinely coupled to the relay type,
+                             # not independent -- reverted alongside it.
                              # The bypass relay's own NO contact, wired
                              # directly to the NTC inrush limiter's p2 pin
                              # and the bridge rectifier's anode (modules.ato:
