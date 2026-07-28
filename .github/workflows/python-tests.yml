@@ -2,7 +2,7 @@ name: Python Tests
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 on:
   push:
@@ -165,7 +165,13 @@ jobs:
     # completed every step through "Coverage gate (temper-placer)" and was
     # cancelled inside "Run extended test suites in parallel" -- real progress,
     # not a hang.
-    timeout-minutes: 30
+    # Raised 30 -> 45. Run 30314210438 on main was killed at exactly
+    # 30m04s (23:27:49Z -> 23:57:53Z) with no failing step -- the timeout, not a
+    # defect. The job grew twice in one day: the extended suite it had been
+    # skipping via a phantom path is ~14 min on its own, and the newly wired
+    # safety/EMC/review requirement tests added 137 more. 45 leaves real
+    # headroom rather than another 4-second miss.
+    timeout-minutes: 45
     env:
       XLA_PYTHON_CLIENT_MEM_FRACTION: 0.35
       JAX_PLATFORM_NAME: cpu
