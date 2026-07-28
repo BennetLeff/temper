@@ -15,9 +15,17 @@ Covers:
     the same part.
   - the allowlist suppresses exactly the (file, ref, mpn, check) it names,
     and nothing else.
-  - integration: running the real gate against today's elec/src/*.ato
-    tree exits 3 (not 0) -- this project's fabricated parts must still be
-    caught by the shipped gate, not just by a synthetic fixture.
+  - integration: running the real gate against today's elec/src/*.ato tree
+    exits 0 (clean). The five fabrications the 2026-07-27 audit found --
+    including the case-4 anchor reconstructed above (r_low_top /
+    ERA-3AEB6132V) -- were independently fixed in source with cited
+    distributor verification (see
+    docs/evidence/2026-07-27-era-resistor-resolution.md and
+    docs/evidence/2026-07-27-ocp01-uvl02-part-resolution.md), not
+    allowlisted away. This proves the shipped CLI, not just the synthetic
+    analyze() fixtures above, still walks the real tree and does real,
+    non-vacuous work: parts inspected/decoded counts are nonzero and the
+    real hand-curated allowlist actually loads.
 """
 
 from __future__ import annotations
@@ -294,32 +302,71 @@ def test_allowlist_check_kind_is_scoped():
 
 
 # ---------------------------------------------------------------------------
-# Real-tree integration: the shipped gate must fail on today's tree.
+# Real-tree integration: the shipped gate must report a genuine, non-vacuous
+# clean pass on today's tree.
 # ---------------------------------------------------------------------------
 
 
-def test_gate_fails_on_real_tree_today():
-    """Prove the gate actually catches what's in the repo right now, not
-    just synthetic fixtures. If this ever starts passing, either every
-    finding below was independently fixed+allowlisted with cause, or the
-    gate regressed -- check docs/evidence/2026-07-27-fabricated-mpn-audit.md."""
+def _stdout_int_after(stdout: str, label: str) -> int:
+    """Pull the leading integer off the gate's ``"<label>: <n> ..."`` line."""
+    line = next(l for l in stdout.splitlines() if l.startswith(label))
+    return int(line.split(":", 1)[1].split()[0])
+
+
+def test_gate_reports_clean_on_real_tree_today():
+    """This test originally pinned the gate FAILING (exit 3) on the real
+    tree: it ran the shipped CLI (not the synthetic analyze() fixtures
+    above) against elec/src/*.ato and asserted the known case-4 fabrication
+    (r_low_top / ERA-3AEB6132V, see the falsifier tests above and
+    docs/evidence/2026-07-27-fabricated-mpn-audit.md) showed up in its
+    output -- proof the shipped binary, not just the library function,
+    catches it.
+
+    That fabrication, and the four others the same audit found, have since
+    been independently fixed in source with cited distributor verification
+    (docs/evidence/2026-07-27-era-resistor-resolution.md,
+    docs/evidence/2026-07-27-ocp01-uvl02-part-resolution.md, and the
+    resolution record at the bottom of mpn-fabrication-allowlist.yaml).
+    None of the five were suppressed via the allowlist -- r_low_top itself
+    now declares a real, distributor-confirmed 61.9 kOhm / ERA-3AEB6192V.
+    There is no longer a known fabrication in the tree for the shipped CLI
+    to catch end-to-end, so asserting failure here would be asserting a
+    falsehood about the current (fixed) state of the repo.
+
+    The right characterisation now is that the shipped gate exits clean,
+    while still proving it did real, non-vacuous work on the real tree
+    (parts inspected/decoded are nonzero, the real allowlist loads) rather
+    than a hollow "0 files, 0 violations" pass -- the fail-closed anti-
+    vacuity paths for *that* are covered separately above
+    (test_missing_ato_glob_fails_closed, test_zero_parts_parsed_fails_closed).
+
+    If this ever starts failing again, that is real signal -- a new
+    fabrication or a genuine regression -- not something to paper over by
+    padding the allowlist (that file's own header: hand-curated only, never
+    auto-resynced) or reverting this assertion back to exit 3.
+    """
     result = subprocess.run(
         [sys.executable, str(GATE_SCRIPT)],
         capture_output=True,
         text=True,
         cwd=str(REPO_ROOT),
     )
-    assert result.returncode == 3, (
-        f"expected the gate to fail (exit 3) on today's tree; got {result.returncode}\n"
+    assert result.returncode == 0, (
+        f"expected the shipped gate to pass (exit 0) on today's tree; got {result.returncode}\n"
         f"{result.stdout}\n{result.stderr}"
     )
-    assert "r_low_top" in result.stdout, "known case-4 fabrication no longer flagged"
-    assert "ERA-3AEB6132V" in result.stdout
-    # Parts-inspected / MPN-decoded counts must be reported, not just an
-    # exit code.
-    assert "Parts inspected:" in result.stdout
-    assert "MPNs decoded" in result.stdout
-    assert "MPNs unchecked" in result.stdout
+    assert "MPN fabrication gate PASSED" in result.stdout
+
+    # Anti-vacuity: prove this walked the real tree and did real work, not
+    # a hollow "0 files matched" pass.
+    assert _stdout_int_after(result.stdout, "Parts inspected") > 0
+    assert _stdout_int_after(result.stdout, "MPNs decoded") > 0
+
+    real_allowlist_entries = load_allowlist(REAL_ALLOWLIST)
+    assert real_allowlist_entries, "expected the hand-curated allowlist to be non-empty"
+    assert _stdout_int_after(result.stdout, "Allowlist entries loaded") == len(
+        real_allowlist_entries
+    )
 
 
 def test_real_allowlist_parses_and_is_hand_curated_shape():
