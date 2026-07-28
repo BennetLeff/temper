@@ -113,7 +113,6 @@ if str(_SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS_DIR))
 
 from check_domain_partition import (  # noqa: E402
-    GateError,
     Manifest,
     Netlist,
     build_name_to_code,
