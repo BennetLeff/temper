@@ -1,5 +1,7 @@
 # Copper-pour strategy audit: 96 zones, provenance, classification, and the falsifier
 
+<!-- provenance: commit=60d441f2ff21eac8178a9c67fa87b8240c65fc22 dirty=false -->
+
 **Date:** 2026-07-28
 **Base commit:** `60d441f2` (`docs/methodology-loop-discipline`) — "fix(placer): revert the
 outer-layer half of the stackup fix, keep the phantom-layer half"
