@@ -1236,9 +1236,9 @@ above). The reasoning below is retained because it is still the correct *test*:
 a routing run's in-memory result is not the committed artifact, and the two must
 be measured separately. What changed is the answer, not the method.
 
-Any claim about copper
-geometry — overlapping traces, pour coverage, via stitching, trace clearance —
-is therefore about a routing run, not about what is in the repository. The 18
+On that date, any claim about copper geometry — overlapping traces, pour
+coverage, via stitching, trace clearance — was therefore about a routing run,
+not about what was in the repository. The 18
 clearance violations recorded below stand, because they are **component-to-component**
 distances and do not depend on routing.
 
