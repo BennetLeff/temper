@@ -1,8 +1,8 @@
 _meta:
-  last_audit_date: '2026-06-24'
-  total_scripts: 68
+  last_audit_date: '2026-07-27'
+  total_scripts: 69
   counts:
-    keep: 67
+    keep: 68
     ticket: 1
   ticket_scripts_deleted: 40
 scripts:
@@ -948,3 +948,26 @@ scripts:
   - re
   - rich.console
   - sys
+- path: check_stale_extensions.py
+  purpose: 'CI gate: fail-closed freshness check for every pyo3/maturin Rust extension crate under packages/
+    -- an installed .so older than its own crate''s source (or a crate whose extension is missing entirely)
+    is reported; zero crates discovered is always a gate error, never a vacuous pass (2026-07-27 incident:
+    missing .cargo/config.toml broke every `maturin develop` on macOS, so temper_io_types.cpython-312-darwin.so
+    stayed frozen while lib.rs gained ConfigBoardMismatchError, silently failing two test modules'' collection;
+    see commit 02e907b9 and docs/evidence/2026-07-27-stale-extension-gate.md)'
+  owner: bennet
+  last_run: '2026-07-27'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - dataclasses
+  - datetime
+  - importlib.util
+  - os
+  - pathlib
+  - sys
+  - tomllib
