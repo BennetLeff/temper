@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import functools
 import math
+import re
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -686,14 +687,26 @@ def _get_required_clearance(
     if voltage_ratings is None:
         voltage_ratings = {}
 
-    hv_keywords = ["AC_", "HV_", "HIGH_VOLTAGE", "MAINS"]
+    # Bug history (2026-07-27): the fix in merge 466c7724 ORed in
+    # `hv_manifest_nets` (below) to close the false-NEGATIVE gap this
+    # function had, but left its own `hv_keywords` substring test
+    # ("AC_"/"HV_"/"HIGH_VOLTAGE"/"MAINS", via plain `kw in net_upper`)
+    # in place unfixed -- the same defect class, still live, found by
+    # scripts/check_net_classification.py auditing this file a second
+    # time. No live false positive proven against this project's current
+    # net names (see docs/evidence/2026-07-27-net-classification-gate.md),
+    # but fixed anyway: now that manifest membership already gives full,
+    # correct HV coverage, the substring test is redundant risk with no
+    # remaining coverage benefit. Reuses _is_hv_keyword_match (below) --
+    # its vocabulary is a superset of this one, so no separate keyword
+    # list needs to be kept in sync.
     hv_manifest_nets = _load_manifest_hv_net_names()
 
     net1_upper = net1.upper()
     net2_upper = net2.upper()
 
-    is_hv1 = any(kw in net1_upper for kw in hv_keywords) or net1 in hv_manifest_nets
-    is_hv2 = any(kw in net2_upper for kw in hv_keywords) or net2 in hv_manifest_nets
+    is_hv1 = _is_hv_keyword_match(net1_upper) or net1 in hv_manifest_nets
+    is_hv2 = _is_hv_keyword_match(net2_upper) or net2 in hv_manifest_nets
 
     if is_hv1 or is_hv2:
         # Determine the governing voltage: pick the HV net's voltage
@@ -723,28 +736,64 @@ def _get_required_clearance(
     return default_clearance
 
 
+# Word-boundary HV keywords for _classify_net_class, delimited by "_" or
+# start/end of the (uppercased) net name -- "AC_"/"HV_" collapse to bare
+# "AC"/"HV" here because the boundary regex below already requires a
+# trailing "_"/digit/end, making an explicit trailing "_" in the keyword
+# itself redundant (and, unlike the literal-substring form, this version
+# also recognises a bare trailing "AC"/"HV" with no underscore, e.g. a
+# net literally named "HV").
+_CLASSIFY_HV_KEYWORDS = (
+    "AC",
+    "HV",
+    "HIGH_VOLTAGE",
+    "MAINS",
+    "LINE",
+    "NEUTRAL",
+    "PRIMARY",
+    "HOT",
+    "L1",
+    "L2",
+    "L3",
+    "PHASE",
+    "VBUS",
+)
+
+
+def _is_hv_keyword_match(upper: str) -> bool:
+    """Word-boundary HV-keyword match for :func:`_classify_net_class`.
+
+    Bug history (2026-07-27): this function's predecessor matched
+    ``hv_keywords`` (including ``"L1"``, ``"L2"``, ``"L3"``, ``"LINE"``)
+    as plain substrings (``kw in upper``) -- the *identical* defect class
+    already fixed once in this same codebase, in
+    ``creepage_check._is_high_voltage_net`` (merge ``5076e715``). On this
+    board's real net names, plain-substring ``"L1"``/``"L2"``/``"LINE"``
+    matched ``discharge.k_dis1-coil1``/``...-coil2``,
+    ``power_in.bypass_relay-coil1``/``...-coil2`` (all four declared SELV
+    "coil drive" nets in ``elec/domain_manifest.yaml``) and
+    ``safety.uvlo_logic-line``/``safety.ovp-line`` (declared SELV,
+    entirely referenced to ``power_3v3``) -- reclassifying confirmed-SELV
+    nets as HV, the same false-positive shape as the creepage bug this
+    fix mirrors. See ``docs/evidence/2026-07-27-net-classification-gate.md``
+    for the full before/after proof against every net name in the
+    manifest.
+    """
+    for kw in _CLASSIFY_HV_KEYWORDS:
+        if re.search(rf"(?:^|_){re.escape(kw)}(?:$|[\d_])", upper):
+            return True
+    # "B+" has no alphanumeric trailing boundary to anchor on; anchored
+    # on the leading "_"/start side only (mirrors
+    # creepage_check._is_high_voltage_net's identical special case).
+    return bool(re.search(r"(?:^|_)B\+", upper))
+
+
 def _classify_net_class(net_name: str) -> str:
     """Map a net name to a net-class label for the clearance engine."""
     if net_name in _load_manifest_hv_net_names():
         return "HV"
     upper = net_name.upper()
-    hv_keywords = [
-        "AC_",
-        "HV_",
-        "HIGH_VOLTAGE",
-        "MAINS",
-        "LINE",
-        "NEUTRAL",
-        "PRIMARY",
-        "HOT",
-        "L1",
-        "L2",
-        "L3",
-        "PHASE",
-        "VBUS",
-        "B+",
-    ]
-    if any(kw in upper for kw in hv_keywords):
+    if _is_hv_keyword_match(upper):
         return "HV"
     if any(kw in upper for kw in ("GND", "VSS", "PGND", "CGND", "AGND")):
         return "GND"

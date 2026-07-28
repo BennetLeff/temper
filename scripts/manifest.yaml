@@ -1,8 +1,8 @@
 _meta:
   last_audit_date: '2026-07-27'
-  total_scripts: 69
+  total_scripts: 70
   counts:
-    keep: 68
+    keep: 69
     ticket: 1
   ticket_scripts_deleted: 40
 scripts:
@@ -892,6 +892,25 @@ scripts:
   - dataclasses
   - fnmatch
   - importlib.util
+  - pathlib
+  - sys
+- path: check_net_classification.py
+  purpose: 'CI gate: fail when safety-relevant net classification (HV/SELV) is decided by plain substring
+    match against a hand-maintained keyword list, in parallel to elec/domain_manifest.yaml -- the defect
+    class confirmed three times in this repo (creepage_check.py false positives, clearance_check.py false
+    negatives, clearance_engine.py bare HV/AC substrings) (docs/evidence/2026-07-27-net-classification-gate.md)'
+  owner: bennet
+  last_run: '2026-07-27'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - ast
+  - dataclasses
+  - fnmatch
   - pathlib
   - sys
 - path: worktree_report.py

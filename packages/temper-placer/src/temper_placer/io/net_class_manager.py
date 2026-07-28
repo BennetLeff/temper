@@ -9,6 +9,7 @@ Part of Phase 2: Design Rule Compliance (temper-1rt5).
 from __future__ import annotations
 
 import math
+import re
 
 from temper_placer.core.netlist import Netlist
 from temper_placer.router_v6.net_classification import (
@@ -322,12 +323,17 @@ def get_trace_width(
     """
     net_upper = net_name.upper()
 
-    # AC Power
-    if "AC_L" in net_upper or "AC_N" in net_upper:
+    # AC Power / DC Bus -- word-boundary match (delimited by "_" or
+    # start/end of the uppercased net name). Bare "DC_BUS" as a plain
+    # substring risked matching any net merely containing that sequence;
+    # found by scripts/check_net_classification.py auditing every
+    # net-name classifier for the same defect class confirmed three
+    # times elsewhere in this repo. See
+    # docs/evidence/2026-07-27-net-classification-gate.md.
+    if re.search(r"(?:^|_)AC_[LN](?:$|[\d_])", net_upper):
         return 2.0
 
-    # DC Bus
-    if "DC_BUS" in net_upper:
+    if re.search(r"(?:^|_)DC_BUS(?:$|[\d_])", net_upper):
         return 1.5
 
     # Power nets get wider traces

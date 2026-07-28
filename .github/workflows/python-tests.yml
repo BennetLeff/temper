@@ -39,6 +39,9 @@ on:
       - 'scripts/tests/test_check_undeclared_imports.py'
       - 'scripts/check_stale_extensions.py'
       - 'scripts/tests/test_check_stale_extensions.py'
+      - 'scripts/check_net_classification.py'
+      - 'scripts/tests/test_check_net_classification.py'
+      - '.net-classification-allowlist'
       - '.undeclared-imports-allowlist'
       - 'docs/FUNCTIONAL_TEST_CRITERIA.md'
       - 'docs/STRATEGY.md'
@@ -96,6 +99,9 @@ on:
       - 'scripts/tests/test_check_undeclared_imports.py'
       - 'scripts/check_stale_extensions.py'
       - 'scripts/tests/test_check_stale_extensions.py'
+      - 'scripts/check_net_classification.py'
+      - 'scripts/tests/test_check_net_classification.py'
+      - '.net-classification-allowlist'
       - '.undeclared-imports-allowlist'
       - 'docs/FUNCTIONAL_TEST_CRITERIA.md'
       - 'docs/STRATEGY.md'
@@ -517,6 +523,20 @@ jobs:
       # docs/evidence/2026-07-27-undeclared-import-gate.md.
       - name: Undeclared-import gate (scripts/ and Python test trees)
         run: uv run python scripts/check_undeclared_imports.py
+
+      - name: Net-classification-by-substring gate tests
+        run: uv run pytest scripts/tests/test_check_net_classification.py -v --tb=short
+
+      # Fail-closed, not soft-launched: catches the "safety-relevant net
+      # classification by plain substring match, in parallel to
+      # elec/domain_manifest.yaml" defect class confirmed three times in
+      # this repo (creepage_check.py false positives, clearance_check.py
+      # false negatives, clearance_engine.py's still-live bare "HV"/"AC"
+      # substrings) -- and nine total once every net-name classifier in
+      # the codebase was audited for the same shape. See
+      # docs/evidence/2026-07-27-net-classification-gate.md.
+      - name: Net-classification-by-substring gate (placer/router net-name classifiers)
+        run: uv run python scripts/check_net_classification.py
 
       - name: Rebuild script invocation graph
         run: uv run python scripts/trace_invocations.py

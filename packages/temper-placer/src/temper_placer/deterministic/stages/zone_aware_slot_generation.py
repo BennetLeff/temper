@@ -10,6 +10,7 @@ DRC oracle consumes (plan 2026-06-23-007, U2 / R2).
 """
 
 import logging
+import re
 from dataclasses import replace
 
 from ...io.isolation_slot_geometry import isolation_slot_aabb
@@ -386,7 +387,15 @@ class ZoneAwareSlotGenerationStage(SlotGenerationStage):
 
         for class_name, rule in rules.items():
             key = str(class_name).upper()
-            if "HV" in key or "HIGHVOLTAGE" in key:
+            # Word-boundary match (delimited by "_" or start/end of the
+            # uppercased class name) -- found by
+            # scripts/check_net_classification.py auditing every net/class
+            # name classifier for the same substring-match defect class
+            # confirmed elsewhere in this repo (see
+            # docs/evidence/2026-07-27-net-classification-gate.md). Bare
+            # "HV" as a substring risked matching any net-class name
+            # merely containing those two letters.
+            if re.search(r"(?:^|_)HV(?:$|[\d_])", key) or "HIGHVOLTAGE" in key:
                 clearance = getattr(rule, "clearance_mm", None)
                 if isinstance(clearance, (int, float)) and clearance > 0:
                     return float(clearance), float(clearance)
