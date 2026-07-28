@@ -7,7 +7,7 @@ BUILD_DIR = $(ELEC_DIR)/build
 BOM_FILE = $(ELEC_DIR)/build/default.csv
 BOM_PREV = $(ELEC_DIR)/build/default.csv.prev
 
-.PHONY: all build netlist clean drc route gerbers help diff visualize test test-fast onboard clean-onboard onboard-status extensions extensions-check
+.PHONY: all build netlist clean drc route gerbers help diff visualize test test-fast onboard clean-onboard onboard-status extensions extensions-check venv-isolate
 
 # Show help for workflow commands
 help:
@@ -24,6 +24,7 @@ help:
 	@echo "  make test-fast- Run tests excluding 'slow' markers (inner loop)"
 	@echo "  make extensions      - Rebuild every pyo3/maturin Rust extension crate (fixes stale .so files)"
 	@echo "  make extensions-check- Report stale/missing pyo3 extension crates without rebuilding"
+	@echo "  make venv-isolate    - Give THIS worktree its own .venv, independent of any shared checkout"
 	@echo "  make clean    - Remove build artifacts"
 	@echo "  make onboard  - Guided quick-start achievement run"
 	@echo "  make clean-onboard- Reset onboard checkpoints"
@@ -160,6 +161,39 @@ extensions:
 # `make extensions` as "check, then fix".
 extensions-check:
 	uv run --no-sync python3 scripts/check_stale_extensions.py
+
+# Give THIS worktree its own, independent `.venv` instead of pointing
+# UV_PROJECT_ENVIRONMENT at a shared checkout's -- see
+# docs/solutions/best-practices/shared-mutable-state-dominant-cost-multi-agent-repo-2026-07-28.md
+# and docs/evidence/2026-07-28-worktree-env-isolation.md for the incidents
+# this closes: a concurrent session's `uv sync`/bare `uv run` silently
+# reverting an extension THIS worktree just built (a shared-.venv failure
+# mode content hashing does not touch, because the artifact really is
+# replaced, just by someone else's build) -- and for the measured cost of
+# doing this (~700 MB disk, ~85s wall time with a warm uv/cargo cache,
+# because `.cargo/config.toml`'s shared `target-shared` build cache means
+# the Rust half compiles incrementally even into a brand-new venv).
+#
+# This is deliberately NOT the default for every worktree unconditionally
+# -- at fleet scale (dozens of agent worktrees, low double-digit GB free)
+# giving every one its own copy regardless of whether it is doing active
+# build/test work is the disk-multiplication problem this repo has already
+# hit twice. Run this once, in a worktree that will build or test Rust
+# extensions, at the start of that work.
+#
+# The stale-extension GATE itself (`make extensions-check`) does not
+# depend on this choice either way: content-hash freshness
+# (scripts/_lib/freshness.py) makes a shared `.venv` safe against the
+# git-checkout-mtime false positive regardless of isolation, so isolating
+# is about removing concurrent-mutation risk, not about the gate's own
+# correctness.
+venv-isolate:
+	@echo "Provisioning this worktree's own .venv (uv sync --all-packages)..."
+	uv sync --all-packages
+	@echo "Building pyo3 extensions into it..."
+	$(MAKE) extensions
+	@echo "Done -- this worktree's .venv is now independent of any other checkout's."
+	@echo "Run 'make extensions-check' any time to verify freshness."
 
 gerbers: build
 	@echo "Exporting Gerbers..."
