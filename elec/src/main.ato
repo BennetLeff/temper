@@ -68,9 +68,46 @@ module Top:
     v_bus_ripple_max: voltage = 20V
     assert v_bus_ripple_max < v_bus_nominal * 0.1  # <10% ripple
     
-    f_switching: frequency = 35kHz
+    # CORRECTED 2026-07-27 (docs/evidence/2026-07-27-zvs-operating-point.md,
+    # docs/evidence/2026-07-27-pan-preset-correction.md): the previous value
+    # here, 35kHz, was found to lose ZVS COMPLETELY for ferromagnetic pans
+    # (cast_iron/stainless) once the pan-coupling model was corrected to
+    # Infineon AN235020's measured K=0.79 -- 100.7% margin lost, i.e. full
+    # hard switching of a 1200V IGBT half-bridge, not a tuning shortfall.
+    # aluminum/no_pan were unaffected (their K was not raised).
+    #
+    # 47kHz is the best-evidenced replacement: at an ASSUMED coil L=150uH
+    # (see f_resonant_nominal below and inductor_conn's docstring --
+    # inductor_conn is still a placeholder; no coil has been specified),
+    # ratio~=1.25 over that assumption's K=0.79 loaded resonance
+    # (37.58kHz) delivers ~1804W, holds ZVS (0.8% margin, re-verified
+    # 2026-07-27 for ALL FOUR pan presets, not just cast_iron), and clears
+    # OCP-01's 50.1A peak trip by 43% (28.76A vs. 48.18A at the old 35kHz/
+    # same-L point). This number is CONTINGENT on L=150uH: a smaller real
+    # coil raises the required minimum further (e.g. at 80uH, the K=0.79
+    # loaded resonance is ~52kHz, which 47kHz would NOT clear) -- it must
+    # be re-derived once the coil is actually specified (see
+    # docs/hardware/TANK_COIL_SPECIFICATION.md).
+    f_switching: frequency = 47kHz
     assert f_switching within 20kHz to 100kHz  # Resonant tracking range
-    
+
+    # NOT changed by the 2026-07-27 correction above -- flagged, not
+    # resolved. 25kHz here, at the fixed 300nF C_TANK (c_tank1+c_tank2,
+    # modules.ato), algebraically implies L=135.1uH -- a THIRD coil-
+    # inductance assumption, distinct from both the simulation harness's
+    # own 80uH PANLOAD_TRANSFORMER default (implying an unloaded 32.5kHz,
+    # still within this assertion's band but not equal to the 25kHz
+    # declared here) and the 150uH assumption behind f_switching's 47kHz
+    # above (implying an unloaded 23.7kHz). None of the three has ever
+    # been measured against the real coil/pan, and this pass does not
+    # pick a winner among them: doing so by changing THIS value would
+    # just be inventing the same unspecified L via a different variable.
+    # See docs/evidence/2026-07-27-zvs-operating-point.md for the full
+    # three-way comparison, including that even using this line's OWN
+    # 25kHz-implied 135.1uH, the K=0.79 loaded resonance comes to
+    # ~39.7kHz -- ABOVE the pre-correction 35kHz f_switching -- so the
+    # ZVS-loss finding above does not depend on which of the three L
+    # assumptions is used.
     f_resonant_nominal: frequency = 25kHz
     assert f_resonant_nominal within 20kHz to 35kHz  # LC tank range
     

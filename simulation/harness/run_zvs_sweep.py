@@ -108,8 +108,32 @@ RG_OHM = 2.2             # GateDriveHS/LS.rg_on, modules.ato:158/:213
 RGS_OHM = 2200.0         # GateDriveHS/LS.rgs, modules.ato:164/:219
 T_DEAD_S = 305.4e-9      # HalfBridge.t_dead_time, modules.ato:279
 C_TANK_F = 300e-9        # c_tank1+c_tank2 in parallel, modules.ato:390/:397
-F_SWITCHING_NOMINAL_HZ = 35_000.0   # main.ato:71
-F_RESONANT_DECLARED_HZ = 25_000.0   # main.ato:74 (design intent)
+F_SWITCHING_NOMINAL_HZ = 47_000.0   # main.ato:71, CORRECTED 2026-07-27: the
+# 35kHz this constant used to hold (main.ato:71's original value) measured
+# 100.7% ZVS margin LOST (full hard switching of the half-bridge) for
+# cast_iron/stainless once PAN_PRESETS was corrected to the Infineon-
+# anchored K=0.79 -- see docs/evidence/2026-07-27-pan-preset-correction.md
+# Sec 4.1 and docs/evidence/2026-07-27-zvs-operating-point.md (this pass).
+# 47kHz is the best-evidenced replacement: at L=150uH (an ASSUMPTION, not
+# a specified coil -- ResonantTank.inductor_conn remains a placeholder),
+# ratio~=1.25 over that assumption's loaded resonance delivers ~1804W,
+# holds ZVS (0.8% margin) for ALL FOUR pan presets, and clears OCP-01's
+# 50.1A peak trip by 43% (28.76A) -- see docs/evidence/2026-07-27-zvs-
+# operating-point.md Sec on old-vs-new per-preset margins. This number is
+# CONTINGENT on the L=150uH assumption: a different real coil inductance
+# would require re-deriving it (a smaller L raises the required minimum
+# f_sw further -- e.g. at the harness's own 80uH default the same K=0.79
+# loaded resonance is ~52kHz, which 47kHz would NOT clear).
+F_SWITCHING_NOMINAL_HZ_PRE_FIX_2026_07_27 = 35_000.0  # historical; still the
+# .cir's own committed self-test anchor value (FREQ_GRID_HZ/baseline check
+# below) -- deliberately NOT changed to 47kHz, see FREQ_GRID_HZ comment.
+F_RESONANT_DECLARED_HZ = 25_000.0   # main.ato:74 (design intent; UNCHANGED
+# by this pass -- see docs/evidence/2026-07-27-zvs-operating-point.md for
+# why: 25kHz implies L=135.1uH at the fixed 300nF C_TANK, a THIRD value
+# distinct from both this file's 80uH model default and the 150uH
+# operating-point assumption above, none of which are reconciled. Changing
+# it would just be picking a different unverified L via a different
+# variable -- reported as an open inconsistency, not resolved here.)
 PAN_L1_DEFAULT_H = 80e-6            # pan_load.sub PANLOAD_TRANSFORMER default
 F_RESONANT_COMPUTED_HZ = 1.0 / (
     2 * 3.141592653589793 * (PAN_L1_DEFAULT_H * C_TANK_F) ** 0.5
@@ -219,7 +243,17 @@ PAN_PRESETS = [
 # still barely-loaded) transition. Points above 45kHz were added
 # specifically to locate the high-K transition; low points are kept for
 # the still-valid aluminum/no_pan comparison and for the (cast_iron,
-# 35kHz) baseline self-consistency check. ---
+# 35kHz) baseline self-consistency check.
+#
+# NOTE 2026-07-27 (docs/evidence/2026-07-27-zvs-operating-point.md):
+# main.ato:71's declared nominal moved from 35kHz to 47kHz (see
+# F_SWITCHING_NOMINAL_HZ above) once 35kHz was shown to lose ZVS
+# completely for ferromagnetic pans. 35kHz remains in this grid, and
+# remains the .cir's own committed .param default, ONLY as the fixed
+# self-test anchor the sanity check below needs (it must match a value
+# the committed deck already ships with) -- it no longer represents the
+# design's current nominal switching frequency. 47kHz is already inside
+# this grid's 45-48kHz bracket for the cast_iron/stainless comparison. ---
 FREQ_GRID_HZ = [
     28_000, 30_000, 31_000, 32_000, 33_000, 34_000, 35_000, 40_000, 45_000,
     48_000, 50_000, 52_000, 53_000, 54_000, 55_000, 60_000, 65_000,
@@ -747,22 +781,35 @@ def main() -> int:
             "f_resonant_declared_hz": F_RESONANT_DECLARED_HZ,
             "f_switching_nominal_hz": F_SWITCHING_NOMINAL_HZ,
             "finding": (
-                f"main.ato:74 declares f_resonant_nominal=25kHz, implying "
-                f"a 10kHz design margin below the 35kHz nominal switching "
-                f"frequency (main.ato:71). Computed from the ACTUAL "
-                f"committed tank capacitance (300nF, modules.ato c_tank1+"
-                f"c_tank2) and the coil inductance pan_load.sub assumes "
-                f"(80uH, itself uncalibrated -- see above), the tank's own "
-                f"resonance is {F_RESONANT_COMPUTED_HZ:.0f}Hz. This is the "
-                f"UNLOADED (no-pan-coupling) resonance -- per_preset_"
-                f"zvs_transition_hz below shows the LOADED transition is "
-                f"very different per preset after the 2026-07-27 PAN_"
-                f"PRESETS correction: aluminum/no_pan (low K, barely load "
-                f"the tank) still collapse near this unloaded figure, "
-                f"while cast_iron/stainless (K=0.79, Infineon-anchored) "
-                f"collapse near a loaded resonance ~60% higher -- NOT a "
-                f"single number, contradicting the pre-correction finding "
-                f"that all four presets shared one transition band."
+                f"CORRECTED 2026-07-27 (docs/evidence/2026-07-27-zvs-"
+                f"operating-point.md): main.ato:71's nominal switching "
+                f"frequency moved from 35kHz to {F_SWITCHING_NOMINAL_HZ/1000:.0f}kHz -- 35kHz measured "
+                f"100.7% ZVS margin LOST (full hard switching) for cast_"
+                f"iron/stainless once PAN_PRESETS was corrected to K=0.79 "
+                f"(docs/evidence/2026-07-27-pan-preset-correction.md Sec "
+                f"4.1). main.ato:74 still declares f_resonant_nominal="
+                f"{F_RESONANT_DECLARED_HZ/1000:.0f}kHz, UNCHANGED by this pass -- that value "
+                f"implies L=135.1uH at the fixed 300nF C_TANK (algebraically, "
+                f"not simulated), a THIRD coil-inductance assumption "
+                f"distinct from both this file's own 80uH model default "
+                f"(computed unloaded resonance {F_RESONANT_COMPUTED_HZ:.0f}Hz below) and the "
+                f"150uH assumption behind the new 47kHz nominal -- none of "
+                f"the three are reconciled, and none is a measurement of "
+                f"the actual (unspecified) coil. Even using main.ato's own "
+                f"25kHz-implied 135.1uH, the K=0.79 LOADED resonance comes "
+                f"to ~39.7kHz -- ABOVE the old 35kHz nominal -- so the "
+                f"ZVS-lost finding does not depend on which of the three L "
+                f"assumptions is used; it recurs for all of them. This is "
+                f"the UNLOADED (no-pan-coupling) resonance figure computed "
+                f"here -- per_preset_zvs_transition_hz below shows the "
+                f"LOADED transition is very different per preset after the "
+                f"2026-07-27 PAN_PRESETS correction: aluminum/no_pan (low "
+                f"K, barely load the tank) still collapse near their own "
+                f"unloaded figure, while cast_iron/stainless (K=0.79, "
+                f"Infineon-anchored) collapse near a loaded resonance ~60% "
+                f"higher -- NOT a single number, contradicting the pre-"
+                f"correction finding that all four presets shared one "
+                f"transition band."
             ),
         },
         "sweep_grid": {
