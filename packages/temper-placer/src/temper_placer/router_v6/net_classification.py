@@ -15,10 +15,30 @@ rather than defining local keyword lists.
 
 from __future__ import annotations
 
-# Net-name substring patterns. Matched case-insensitively against
-# `name.upper()`. A net is "ground" if any of these is a substring,
-# "power" if any power pattern matches, "hv" if any HV pattern matches.
-# The precedence is: ground > power > hv > signal.
+import re
+
+# Net-name word-boundary patterns, delimited by "_" or start/end of the
+# (uppercased) name. A net is "ground" if any of these matches, "power" if
+# any power pattern matches, "hv" if any HV pattern matches. The precedence
+# is: ground > power > hv > signal.
+#
+# Bug history (2026-07-27): this module's docstring calls it "the single
+# source of truth" superseding 20+ duplicate keyword lists elsewhere in the
+# codebase, and `_matches_any` used to test membership with plain substring
+# containment (`p in upper`) rather than the word-boundary regex used here.
+# `HV_NET_PATTERNS`'s bare 2-character `"PE"` is the sharpest example: as a
+# plain substring it matches any net name that merely *contains* "PE" --
+# "SPEED", "TYPE", "OPEN", "EXPECT", "PERIPHERAL" -- none of which are
+# remotely HV. This is the identical defect class already confirmed twice
+# elsewhere in this repo (`creepage_check.py`, merge 5076e715;
+# `clearance_check.py`, merge 466c7724) and fixed with the same technique:
+# see `docs/evidence/2026-07-27-net-classification-gate.md`. `"PE"` itself
+# currently matches nothing in this project's compiled netlist (the `pe`
+# net was merged into `gnd` -- `elec/domain_manifest.yaml`), so this was a
+# purely latent landmine for any future net name containing "PE", not a
+# proven live false positive today -- fixed anyway, for the same
+# defense-in-depth reason `clearance_engine._net_class_to_voltage_class`
+# was fixed despite no live caller triggering it.
 GROUND_NET_PATTERNS: frozenset[str] = frozenset({"GND", "PGND", "CGND", "AGND", "DGND", "VSS"})
 POWER_NET_PATTERNS: frozenset[str] = frozenset(
     {"+3V3", "+5V", "+12V", "+15V", "VCC", "VDD", "VBUS",
@@ -39,8 +59,23 @@ CLOCK_PIN_PATTERNS: frozenset[str] = frozenset(
 
 
 def _matches_any(name: str, patterns: frozenset[str]) -> bool:
+    """Word-boundary pattern match, delimited by "_" or start/end of string.
+
+    A pattern ending in a non-alphanumeric character (e.g. "DC_BUS+",
+    "DC_BUS-") has no trailing boundary to anchor on and is matched with a
+    leading anchor only -- mirrors the "B+" special case in
+    ``creepage_check._is_high_voltage_net`` /
+    ``clearance_check._is_hv_keyword_match``.
+    """
     upper = name.upper()
-    return any(p in upper for p in patterns)
+    for p in patterns:
+        escaped = re.escape(p)
+        if p and not p[-1].isalnum():
+            if re.search(rf"(?:^|_){escaped}", upper):
+                return True
+        elif re.search(rf"(?:^|_){escaped}(?:$|[\d_])", upper):
+            return True
+    return False
 
 
 _SINGLE_LAYER_MODE: bool = False
