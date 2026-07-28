@@ -302,10 +302,10 @@ class TestU9CompletionPreservation:
         constraints = load_constraints(_PCL_CONFIG)
         zones = {z.name: z.bounds for z in constraints.zones}
 
-        from temper_placer.placer.cp_sat import encoder
+        from temper_placer.placer.cp_sat import _encoder_core
 
-        old_policy = encoder._UNRESOLVED_REF_POLICY
-        encoder._UNRESOLVED_REF_POLICY = "warn"
+        old_policy = _encoder_core._UNRESOLVED_REF_POLICY
+        _encoder_core._UNRESOLVED_REF_POLICY = "warn"
         try:
             placement = solve_placement(
                 netlist=parse_result.netlist,
@@ -316,7 +316,7 @@ class TestU9CompletionPreservation:
                 zones=zones,
             )
         finally:
-            encoder._UNRESOLVED_REF_POLICY = old_policy
+            _encoder_core._UNRESOLVED_REF_POLICY = old_policy
 
         if placement.status not in ("optimal", "feasible"):
             pytest.skip(f"Placement solver returned {placement.status}")
