@@ -20,14 +20,27 @@ every 45-degree grid transition at a via or a T-junction registers as a
 trap — then the honest deliverable is that finding plus a corrected
 detection threshold, not a suppressed count."*
 
-**Falsifier did not fire.** All 33 flagged traps were traced to a single,
-identifiable, fixable bug in path-reconstruction geometry (below), proven
-both synthetically and against the live board's actual flagged vertices.
-The angle-classification thresholds in `acid_trap_detection.py` were not
-touched, and 45-degree grid transitions themselves (right-angle and
-diagonal bends with no quantization spur) are correctly *not* flagged —
-confirmed directly (see "What a real 45-degree grid transition looks like"
-below).
+**Verdict: falsifier did NOT fire.** Stated plainly, with the numbers that
+establish it (full derivation in §2):
+
+- **33/33 (100%) of flagged traps have an adjacent segment shorter than one
+  grid cell (0.1mm)** — every trap sits at the boundary between a full
+  grid step (~0.1mm or ~0.1414mm) and a much shorter, near-arbitrary-angle
+  "spur."
+- **33/33 (100%) of flagged traps sit within 3 vertices of their net's
+  start or end** — across 37 routed nets whose paths ranged from 16 to
+  2,991 vertices, not one flagged trap was found mid-route.
+- The *ordinary* grid-only interior vertices in the same paths (i.e. every
+  vertex that is not a start/end boundary artifact) are **135 degrees or
+  180 degrees — never below 90** (checked directly in the synthetic repro,
+  §2's "What a real 45-degree grid transition looks like").
+
+Together these three facts rule out "inherent to the grid pitch" (which
+would produce traps distributed throughout a path, at any vertex, not
+clustered 100% at path boundaries) and confirm "an identifiable, fixable
+stage" (path-reconstruction's terminal-snapping, fixed in §3). The
+angle-classification thresholds in `acid_trap_detection.py` were not
+touched.
 
 ## 1. Reproduction
 
@@ -270,21 +283,37 @@ or fail, and did not.
 
 | Test | Before | After |
 |---|---|---|
-| `test_astar_route_multilayer_off_grid_terminals_produce_no_acid_trap` | fails (`ImportError` on `grid_quantization_tolerance` when the fix's source changes are reverted via `git stash`) | pass |
+| `test_astar_route_multilayer_off_grid_terminals_produce_no_acid_trap` | fails (`ImportError` on `grid_quantization_tolerance`) | pass |
 | `test_astar_route_2d_off_grid_terminals_produce_no_acid_trap` | fails (same) | pass |
 | `test_grid_quantization_tolerance_matches_max_cell_diagonal` | fails (same) | pass |
 | `test_real_via_transition_never_merged_across_layers` | fails (same) | pass |
 
-Verified via `git stash push -- <the two source files>` (test file kept),
-re-running (collection `ImportError`), then `git stash pop` and
-re-running (4 passed). Independently, the synthetic repro script used for
-diagnosis (not committed, scratch-only) showed the pre-fix code producing
-a real assertion-level failure (45.00 degree / 33.69 degree critical
-angles) before any of the new symbols existed, confirming the "before"
-failure is behavioral, not merely an import-time artifact of adding new
-functions.
+Verified **without `git stash`** (see the process-incident note below for
+why): `git checkout 02e907b9 -- packages/temper-placer/src/temper_placer/
+router_v6/astar_core.py packages/temper-placer/src/temper_placer/
+router_v6/_astar_reconstruct.py` (the two changed source files, checked
+out from the unmodified base commit; the test file itself is untouched),
+re-run (collection `ImportError`, 1 error), then `git checkout HEAD --
+<the same two files>` to restore the fix, re-run (4 passed). Repeated a
+second time later in this task with identical results.
+
+Independently, the synthetic repro script used for diagnosis (not
+committed, scratch-only) showed the pre-fix code producing a real
+**assertion-level** failure, not merely an import-time one: with the base
+commit's unmodified `_astar_route_multilayer`, the off-grid two-terminal
+route showed a 45.00 degree trap 1 vertex from the start (adjacent
+segments 0.0283mm / 0.1000mm) and a 33.69 degree **critical** trap 1
+vertex from the goal (adjacent segments 0.1000mm / 0.0361mm) — both
+verified again, freshly, via the same `git checkout <base> -- <path>` /
+`git checkout HEAD -- <path>` method, immediately before finalizing this
+document.
 
 ## Gate verification
+
+All eight gates, `make netlist`, and `elec/validation` run with
+`uv run --no-sync` (per the note below on stale pyo3 extensions -- plain
+`uv run` can silently re-sync a fresh maturin build back to a cached
+stale wheel):
 
 | Check | Result |
 |---|---|
@@ -295,10 +324,138 @@ functions.
 | `scripts/check_copper_net_consistency.py` | exit 0 |
 | `scripts/check_rust_drc_presence.py` | exit 0 |
 | `scripts/check_undeclared_imports.py` | exit 0 |
+| `scripts/check_stale_extensions.py` (cherry-picked from `main` -- see below) | exit 0, **9/10 fresh**, 1 missing (`temper_constraints`, not imported anywhere under `router_v6/`, not on this fix's path) |
 | `make netlist` | 76 assertions, 76 passed |
-| `uv run python -m pytest elec/validation -q` | 30 passed |
-| `packages/temper-placer/tests/router_v6/` (targeted: acid_trap detection, multilayer/via-fallback, 3D production-scale spike, via-layer PBT, wave2 structural, ci-bug-regressions, geometric-invariants PBT, terminal-tree execution, all-pad-tree routing, clearance induction, forced-segment-fail-closed PBT, astar-pathfinding) | see final numbers below; all pre-existing failures confirmed identical before/after via `git stash` |
-| `packages/temper-placer/tests/router_v6/` (full directory, `-m "not slow"`) | see final numbers below |
+| `uv run --no-sync python -m pytest elec/validation -q` | 30 passed |
+| `packages/temper-placer/tests/router_v6/` full directory, `-m "not slow"`, no `-x` | **2140 passed, 8 failed, 14 skipped, 13 deselected, 23 xfailed** (632.71s) |
+
+### Stale pyo3 extensions -- checked and found NOT to have affected this task's measurements
+
+A sibling task found 7/10 pyo3 extensions stale in the main checkout
+(including `temper_rust_router`, 28 days stale, on `_pipeline_route.py`'s
+hot path). This worktree's `.venv` was built from scratch for this task
+(none of the 9 relevant `.so` files were cached — see Environment note
+below), and every one of the 9 crates the router imports was rebuilt via
+`uv run maturin develop --release` between 22:42 and 22:46 on 2026-07-27,
+**before** any of this task's measurement runs (pre-fix baseline started
+22:54:59; post-fix runs started 23:01). Confirmed directly with the
+cherry-picked `scripts/check_stale_extensions.py`: `fresh=9 stale=0
+missing=1` (the missing one, `temper_constraints`, is a different crate
+from `temper_constraint_compiler` and is not imported anywhere under
+`router_v6/`). **Both the pre-fix and post-fix measurement sets ran
+against the identical, fresh extension build** — not a source of
+inconsistency between the two sides.
+
+### The 8 `router_v6/` test failures -- all 8 confirmed pre-existing
+
+Every failure was independently reproduced against the unmodified base
+commit (`02e907b9`) by `git checkout 02e907b9 -- <the two changed source
+files>`, re-running the specific failing test, then `git checkout HEAD --
+<the two files>` to restore the fix — **not `git stash`** (see the
+incident note below for why). All 8 reproduce identically on the
+unmodified base, confirming zero regressions from this fix:
+
+| Test | Pre-existing failure (on `02e907b9`, unmodified) |
+|---|---|
+| `test_dfm_interaction.py::TestAllModulesFail::test_all_seven_raise_still_produces_report` | Same `RuntimeError: injected failure` -- documented in `docs/evidence/2026-07-27-drc-checks-repaired.md` as pre-existing (creepage/clearance anti-vacuous-truth guard false-positives on a stub board) |
+| `test_dfm_interaction.py::TestPipelineOrdering::test_swap_acid_trap_and_clearance_yields_same_result` | Same `assert 7 == 5` -- also documented pre-existing in the same prior evidence doc |
+| `test_grid_prep_pbt.py::test_grid_prep_dimensions` | Same `hypothesis.errors.InvalidArgument: test_grid_prep_dimensions() got an unexpected keyword argument 'board_width'` -- a test/Hypothesis API mismatch, unrelated to routing geometry |
+| `test_los_numba_correctness.py::test_numba_los_matches_python` | Same `AssertionError: Mismatch: Python=True, Numba=False` at `p1=(0,0), p2=(0,-1)` -- a pre-existing Numba/Python line-of-sight discrepancy in **Theta-star's** LOS check, a function not on `route_pcb()`'s call path (`enable_theta_star=False` in production, §2) |
+| `test_via_insertion_anti_false_zero.py::test_committed_u8_measurement_record_is_well_formed` | Same `AssertionError: Missing U8 measurement record` -- a missing/renamed evidence-doc file, unrelated to routing code |
+| `test_via_layer_properties_pbt.py::test_written_segments_connect_all_pads_per_net` | Same `AssertionError: net NET0: pad ... untouched by any emitted segment` |
+| `test_via_layer_properties_pbt.py::test_pad_exactly_at_stitch_threshold_is_connected` | Same failure via the same underlying property |
+| `test_wave2_structural_small.py::test_r6_stage4_has_sat_skipped_fallback` | Same `assert "Fallback" in source` (a source-text-content check unrelated to acid traps) |
+
+**Note on `test_via_layer_properties_pbt.py`'s two failures**: these are
+the *same class* of bug this task fixed (a real waypoint silently dropped
+from emitted segments when two are close together) but are **not fixed by
+this task's change** -- confirmed identical on the unmodified base. They
+live in a different code path (`_write_routes_to_content`'s
+tree-route/segment-stitching in `_adapter_convert.py`, not the
+`_astar_route*`/`_route_segment_3d` functions this task touched). Flagged
+as a related, unfixed, pre-existing defect below.
+
+## Related bug class checked: exact-float-equality / substring classification
+
+A sibling task found `creepage_check._is_high_voltage_net` matched net
+names by plain substring (`"L1" in "COIL1"`, `"LINE" in "...-line"`),
+producing 24 false-positive violations. This task's own root cause was a
+close cousin -- an exact-equality float comparison (`point != world_path[-1]`)
+that a grid-cell-center float can never satisfy against an independently
+computed pad-coordinate float. Per the coordinator's request, checked
+`acid_trap_detection.py` and everything this task touched for the same
+class of bug:
+
+- **Substring/keyword net-name matching**: none exists in
+  `acid_trap_detection.py` — it classifies purely by geometry (angle) and
+  via-position set membership, never by net name.
+- **Exact-float-equality via-position matching**: `acid_trap_detection.py`
+  skips an interior vertex as a via transition via
+  `if curr_point in via_positions` — a `set` membership test, i.e. exact
+  tuple equality, on independently-sourced floats (`via.position` from
+  `CompiledRoute.vias`, populated by `via_placement.place_vias()`, versus
+  the path coordinate from `compiled_route.path`). This is structurally
+  the same fragile pattern. **Checked directly against both
+  via-producing tiers this task touched** (the primary via-fallback tier,
+  `_route_segment_3d`, and the THT alternate-grid detour branch of
+  `_astar_route_multilayer`) with synthetic off-grid pad coordinates: in
+  both cases, `via.position` matched a path coordinate **exactly, 2/2
+  vias, in every test** — because `via.position` is always assigned
+  directly from the same list (`route_path.via_positions`) that also
+  produced the path's own via-transition point, so both sides trace back
+  to one write, not two independently-computed values. **Currently
+  correct, but fragile**: `via_placement._place_vias_for_path` itself
+  already uses a tolerance (`abs(sx - vx) < 1e-4`) to *locate* a via
+  within a path's segments for `from_layer`/`to_layer` lookup, implicitly
+  acknowledging exact float equality is not generally reliable — the one
+  place that still relies on it (`acid_trap_detection.py`'s
+  `via_positions` set) happens to hold today only because both sides
+  share one source value. A future refactor that recomputes either side
+  independently (e.g. serializing vias through JSON/DB and reloading,
+  or re-deriving `via.position` by geometry rather than carrying the
+  original tuple) would silently reintroduce exactly this task's bug
+  class, undetected, because the live board's 0-via runs never exercise
+  this path. **Not fixed** (out of this task's scope — no live defect
+  found) but flagged here as the honest, checked answer to "does the
+  same class of bug exist elsewhere in what you touched."
+- **`test_via_layer_properties_pbt.py`'s two pre-existing failures**
+  (`test_written_segments_connect_all_pads_per_net`,
+  `test_pad_exactly_at_stitch_threshold_is_connected`, both confirmed
+  pre-existing above) are **the same defect class this task fixed** — a
+  real pad silently dropped when two waypoints are close together — but
+  in a **different function** (`_write_routes_to_content` in
+  `_adapter_convert.py`, which builds its own segment list from
+  already-compiled `RoutePath`/`RoutePath3D` objects independently of
+  `_astar_route`/`_astar_route_multilayer`/`_route_segment_3d`). This
+  task's fix does not reach that function and does not fix these two
+  failures — confirmed by their identical reproduction on the unmodified
+  base commit. Flagged as a related, real, unfixed defect for separate
+  follow-up.
+
+## Process incident (resolved, zero data loss): shared `git stash` across worktrees
+
+Mid-task, a `git stash && git stash pop` cycle to check a test's
+pre-existing-failure status found "no local changes to save" (everything
+was already committed) but the subsequent `pop` still succeeded --
+because `refs/stash` is stored in this repo's **common** `.git` directory
+and is shared across every worktree, including the 90+ other concurrent
+agent worktrees active on this machine during this task. The pop grabbed
+and dropped a stash entry (`db7e7372...`, dated 2026-07-23, an unrelated
+one-line `enable_zone_pours` change) that belonged to a different,
+unrelated session. Recovered immediately: the exact commit hash was in
+the "Dropped refs/stash@{0} (...)" output; `git stash store` restored it
+to the top of the stack in its original position before anything could
+garbage-collect it, and `git checkout HEAD -- <path>` reverted the
+one file it had contaminated in this worktree. Verified via `git stash
+list` that the full 78-entry stack was intact afterward with the
+recovered entry back on top. **From that point on, this task used only
+`git checkout <ref> -- <path>` (never `git stash`) for every before/after
+comparison against the base commit** -- that command only reads from
+commit objects, never touches shared mutable state. Flagged here because
+a sibling task hit the identical hazard with a less fortunate outcome
+(its stash needed manual recovery from a dangling commit by the
+coordinator) — `git stash`/`git stash pop` should not be used in this
+repository while multiple worktrees are active.
 
 ## UNVERIFIED
 
