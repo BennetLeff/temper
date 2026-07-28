@@ -331,6 +331,84 @@ component Relay_SPDT:
     signal NO ~ pin 3
     signal NC ~ pin 4
 
+component Relay_DPDT:
+    """DPDT (2 Form C) relay, two independently-wired changeover poles on a
+    single coil, 8-pin THT layout. Replaces Relay_SPDT (Omron G5LE-1) for
+    K2/K3 (BusDischarge) -- 2026-07-28 discharge-relay-isolation fix
+    (docs/evidence/2026-07-28-discharge-relay-isolation.md,
+    docs/evidence/2026-07-28-relay-replacement-implementation.md). The
+    G5LE-1 fails on: 6.32mm coil<->contact pad gap (3.50mm edge-to-edge)
+    against an 8.0mm reinforced-creepage requirement, with the shortest
+    path running across the relay's own moulded case (no board feature can
+    lengthen it); no creepage/clearance figure stated at all in its own
+    datasheet; and only 2000VAC coil-to-contact dielectric strength,
+    below IS 302-1 Table 7's reinforced-insulation requirement at any
+    applicable column.
+
+    Part: Finder 40.52.7.012.0000 (40 series, type 52 = 5.0mm pinning /
+    2-pole, coil version 7 = sensitive DC 0.65W -> 0.5W coil, 12VDC).
+    VERIFIED 2026-07-28 by fetching the manufacturer's own catalog
+    directly (https://cdn.findernet.com/app/uploads/S40EN.pdf, "40 SERIES
+    PCB/Plug-in relays 8-10-12-16A"):
+      - Coil-to-contact-set insulation: catalog p.6 "Technical data"
+        states, verbatim, "Type of insulation: Reinforced (8mm)" for BOTH
+        the 1-pole and 2-pole (40.52) variants -- an explicit standards
+        classification (EN 61810-1, overvoltage category III, 6kV rated
+        impulse, 4000VAC dielectric strength), not just a raw mm figure.
+        This is stronger disclosure than either American Zettler
+        AZ770-1C-12D (8mm creepage/clearance, "Reinforced insulation, EN
+        60730-1" but no per-series table citation) or Panasonic
+        ALZN1B12W (10mm min, no "reinforced" wording found in its own
+        catalog) -- both real, independently-verified candidates from
+        the prior evidence doc, superseded here by this DPDT part.
+      - DC break: catalog p.8 "H 40.1 - Maximum DC1 breaking capacity"
+        gives an explicit manufacturer graph (types 40.31/51/52/61,
+        single contact AND "40.52 - 2 contacts in series", 20-220VDC)
+        that this application's 21.8mA discharge current clears by
+        roughly an order of magnitude even on a single contact at the
+        200V worst case -- neither AZ770 (30VDC catalog ceiling) nor
+        ALZN1B12W (no DC rating stated) offered an explicit rating this
+        far into the circuit's actual 170-200V operating range.
+      - Contact arrangement: catalog p.3/p.4, "2 CO (DPDT)" confirmed
+        for type 40.52 -- genuinely two independent changeover poles,
+        not derived or inferred.
+      - Coil: catalog p.9 coil table, code "7.012": 288 ohm, 42mA rated
+        current at 12V, operating range 8.8-18V -- closer to the
+        existing G5LE-1's coil (360 ohm/33.3mA) than the family's
+        "standard DC" 12V option (220 ohm/55mA), chosen so the existing
+        100 ohm/0.25W coil dropper (r_coil1/r_coil2 in BusDischarge)
+        keeps adequate margin unmodified (~11.1V at the coil, 93% of
+        rated, vs. 8.8V must-operate).
+    Full part number derived from the manufacturer's own published
+    ordering-code grammar (catalog p.5); both '40.52.9.024.0000'
+    (standard-DC, 24V) and '40.52.7.012.0000' (this exact sensitive-DC,
+    12V SKU) were independently found as real distributor listings this
+    session, corroborating the derivation.
+
+    Pin mapping: EN 50005 standard relay terminal numbering (industry-
+    wide convention for general-purpose power relays of this class, used
+    identically by Finder/Omron/Releco/Relpol/Songchuan): A1/A2 = coil
+    (non-polarized); pole 1 = 11 (COM) / 12 (NC) / 14 (NO); pole 2 = 21
+    (COM) / 22 (NC) / 24 (NO). Corroborated by this session's partial
+    read of the catalog's own bottom-view schematic for type 40.52
+    ("A1 12 14 / A2 22 24" visible in the extracted text; "11"/"21" COM
+    labels not distinctly rendered by this session's PDF text-extraction,
+    standard convention assumed for the two unread labels -- see the
+    footprint's own descr for the full caveat)."""
+    designator_prefix = "K"
+    footprint: str
+    coil_voltage: voltage
+    contact_current: current
+    mpn: str
+    signal coil1 ~ pin "A1"
+    signal coil2 ~ pin "A2"
+    signal COM1 ~ pin "11"
+    signal NC1 ~ pin "12"
+    signal NO1 ~ pin "14"
+    signal COM2 ~ pin "21"
+    signal NC2 ~ pin "22"
+    signal NO2 ~ pin "24"
+
 # ==============================================================================
 # POWER MANAGEMENT COMPONENTS
 # ==============================================================================
@@ -497,7 +575,13 @@ component H11L1:
     exact manufacturer and orderable suffix (through-hole vs SMD, temp
     grade) at procurement; not done here."""
     designator_prefix = "U"
-    footprint = "Package_DIP:DIP-6_W7.62mm"
+    # H11L1_DIP6_Isolated (pcb/libs/lib.pretty/H11L1_DIP6_Isolated.kicad_mod):
+    # the real DIP-6_W7.62mm land pattern with a routed creepage-extension
+    # slot added between the two pin rows -- same override pattern as
+    # SOIC16W_Isolated below. See docs/evidence/2026-07-28-isolator-creepage-slots.md:
+    # the whole HV<->SELV gap sits under this package's own moulded body, so
+    # 8.0mm reinforced creepage is a land-pattern fix, not a part change.
+    footprint = "H11L1_DIP6_Isolated"
     mpn = "H11L1"
     manufacturer = "Everlight (or pin-compatible Vishay/onsemi H11L1)"
 
