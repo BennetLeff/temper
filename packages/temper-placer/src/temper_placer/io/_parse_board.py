@@ -148,16 +148,43 @@ def _is_plane_required_net(net_name: str) -> bool:
     return False
 
 
-def _extract_stackup(ki_board: KiBoard, warnings: list[str]) -> StackupInfo:
+def _extract_stackup(
+    ki_board: KiBoard,
+    warnings: list[str],
+    *,
+    use_declared_layer_roles: bool = False,
+) -> StackupInfo:
     """
     Extract PCB layer stackup from KiCad board.
 
     Args:
         ki_board: Parsed KiCad board.
         warnings: List to append warnings.
+        use_declared_layer_roles: When ``True``, a layer's ``layer_type``
+            (R8) comes purely from its structural position in the declared
+            stackup (outer layers -- index 0 and the last copper index --
+            are "signal"; inner layers are "mixed") and is never overridden
+            by what happens to be poured on it. ``plane_net`` is still
+            populated from the zone scan when a plane-required net's zone
+            sits on that layer, so callers that want "does this layer carry
+            a plane-required pour" keep that information -- only the
+            *routability* classification stops reading zone content.
 
-    Returns:
-        StackupInfo with layer definitions.
+            Defaults to ``False``: today's behavior, unchanged. A zone on a
+            plane-required net (``_is_plane_required_net``) still forces its
+            whole physical layer to ``"plane"``, which
+            ``routing_space.py``'s ``compute_routing_space`` then excludes
+            from the router's routing space entirely (R8's bug).
+
+            NOT SAFE TO ENABLE ALONE IN PRODUCTION: this only changes
+            layer *role* classification. It does not stop the router's
+            obstacle map (``obstacle_map.py``) from treating the board's
+            existing, un-regenerated zones as opaque obstacles on every
+            layer they sit on -- so flipping this on before pours become
+            derived output (this plan's U3) reproduces the recorded 12x
+            completion regression in
+            ``docs/evidence/2026-07-28-stackup-partial-revert.md``. Land
+            this flag's flip to ``True`` in the same change as U3.
     """
     from temper_placer.router_v6.stage0_data import (
         DielectricInfo,
@@ -206,7 +233,15 @@ def _extract_stackup(ki_board: KiBoard, warnings: list[str]) -> StackupInfo:
         for i, layer in enumerate(copper_layers):
             name = layer.name
 
-            if name in plane_assignments:
+            if use_declared_layer_roles:
+                # R8: role comes from the stackup declaration -- structural
+                # position among this board's declared copper layers -- not
+                # from zone content. plane_net is still surfaced when a
+                # plane-required zone sits here, but it no longer decides
+                # layer_type.
+                layer_type = "signal" if i == 0 or i == layer_count - 1 else "mixed"
+                plane_net = plane_assignments.get(name)
+            elif name in plane_assignments:
                 layer_type = "plane"
                 plane_net = plane_assignments[name]
             elif i == 0 or i == layer_count - 1:
@@ -305,7 +340,18 @@ def _extract_stackup(ki_board: KiBoard, warnings: list[str]) -> StackupInfo:
             # disagree about whether the outer layers should be poured at all.
             # Resolving that is a board decision. Until then this code follows
             # the board. See docs/evidence/2026-07-28-stackup-partial-revert.md.
-            if name in plane_assignments:
+            #
+            # `use_declared_layer_roles=True` (U2, opt-in, default off) is the
+            # supported way out of this tension: role is read from structural
+            # position in the declared stackup, never from zone content, so
+            # a handful of small plane-required pours (e.g. 4 of 48 zones on
+            # F.Cu on the production board) no longer condemns the whole
+            # physical layer. It must not be turned on before pours become
+            # derived output (U3) -- see the docstring above.
+            if use_declared_layer_roles:
+                layer_type = "signal" if i == 0 or i == layer_count - 1 else "mixed"
+                plane_net = plane_assignments.get(name)
+            elif name in plane_assignments:
                 layer_type = "plane"
                 plane_net = plane_assignments[name]
             elif i == 0 or i == layer_count - 1:
