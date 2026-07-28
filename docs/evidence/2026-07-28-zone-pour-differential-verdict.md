@@ -55,6 +55,21 @@ Per-type deltas (ON − OFF):
 | `tracks_crossing` | −1 |
 | **`unconnected_items`** | **0** |
 
+## Independent corroboration
+
+`test_hybrid_pour_stitch_measurement.py` is a separate test with a different
+configuration (all-pad-tree **and** zone pours on, four seeds, three DRC
+samples per seed). Now that it can fill zones locally it reports, over 12
+samples per arm:
+
+| | flags OFF | flags ON |
+|---|---|---|
+| `unconnected_items` | mean 396.0 (396–396) | mean 395.5 (395–396) |
+| `shorting_items` | mean 186.6 (167–199) | mean 199.0 (199–199) |
+
+Half an unconnected item across 12 samples, from a test that knows nothing
+about the gate above. Same conclusion, independently arrived at.
+
 ## The cause
 
 The board already ships 96 filled zones. `enable_zone_pours=True` adds
