@@ -141,6 +141,43 @@ writing, zero of 22 have been measured.**
 
 ---
 
+## Board facts as committed
+
+The one block in this document that is *not* a dated snapshot. Every row below
+is re-measured from `pcb/temper.kicad_pcb` on every CI run by
+`scripts/check_derived_doc_drift.py`; a number here that disagrees with the file
+fails the build, and so does deleting, renaming, or reordering a row. When it
+fails, re-measure — do not hand-edit a number to make it green.
+
+<!-- BOARD-FACTS-TABLE: gated against pcb/temper.kicad_pcb. See the
+     `board_facts:` section of scripts/derived_doc_gates.yaml. Removing this
+     marker is a tool_error, not a pass. -->
+
+| Board fact | As committed |
+|---|---|
+| Footprints | **168** |
+| Net declarations | **164** |
+| Copper layers | **4** |
+| Route segments | **2,338** |
+| Vias | **48** |
+| Zones | **96** |
+
+Measured by parsing the file directly, counting only *top-level* forms — the
+children of `(kicad_pcb …)` at paren depth 2. The distinction matters for one
+row: net **declarations** are the 164 `(net N "name")` forms in the file header,
+whereas a naive `(net ` match over the whole file returns **3,160**, because it
+also counts every net *reference* inside every pad, segment, via and zone.
+Counting references as nets is the specific mistake this table exists to
+prevent. For footprints, segments, vias and zones the two methods agree.
+
+**The board was routed on 2026-07-27** — `556ccf4f` ("first route", 51/96 nets,
+53.1%), then resynced to the netlist in `65bd0159`, which is where 170→168
+footprints and 165→164 nets come from. **Every dated section below that reports
+zero segments predates `556ccf4f`.** Those figures are kept as the record of how
+the state moved; they are not descriptions of the board today.
+
+---
+
 ## Honest state (2026-07-25)
 
 All figures measured on this date unless noted. Figures without a reproducible
@@ -148,7 +185,10 @@ command are not recorded here.
 
 ### Board
 
-- `pcb/temper.kicad_pcb`: **149 footprints, 151 nets**, 4 copper layers.
+- `pcb/temper.kicad_pcb` **as of 2026-07-25**: **149 footprints, 151 nets**, 4
+  copper layers. **Superseded** — the netlist resyncs and re-placements of
+  2026-07-27 took this to 168 footprints / 164 nets; copper layers are
+  unchanged at 4. See "Board facts as committed" above for the current values.
 - **Router scope: 95 nets.** Power/ground/HV nets are excluded from A* by
   `_should_route()` (`router_v6/_astar_reconstruct.py`); they are handled by
   zone pours.
@@ -161,7 +201,12 @@ command are not recorded here.
   **0 of 149 footprints outside.** This is **rung 1** of the tightening ladder
   (`METHODOLOGY.md` §10) — deliberately loose, to be tightened toward the
   teardown enclosure envelope at rungs 3–4. It is not an enclosure decision.
-- The committed board carries **no routing**: 0 segments, 0 vias, 0 zones.
+- **As of 2026-07-25** the committed board carried **no routing**: 0 segments,
+  0 vias, 0 zones. **Superseded 2026-07-27** — the board was routed in
+  `556ccf4f` and now carries **2,338 segments, 48 vias, 96 zones**. The A/B and
+  rung measurements in the two subsections below were taken against the
+  unrouted board and are reports of a *router run's* output, not of the
+  committed artifact; they are left as recorded.
 
 ### Router
 
@@ -842,8 +887,10 @@ threshold.
 ### Clearance violations 22 → 0, and the placer can no longer produce them (2026-07-27)
 
 Full detail: `docs/evidence/2026-07-27-domain-clearance-constraint.md`.
-**Verified at HEAD**: safety suite **54 passed, 0 failed, 0 xfailed**; board
-still 169 footprints.
+**Verified at the time**: safety suite **54 passed, 0 failed, 0 xfailed**; board
+still 169 footprints. **Superseded** — the 2026-07-27 netlist resync
+(`65bd0159`) took the board to **168 footprints**; see "Board facts as
+committed" above.
 
 **The placer had no voltage-domain awareness at all** — confirmed by direct
 inspection of `_encoder_core.py`, `model.py`, `encoder.py` and
@@ -945,8 +992,10 @@ Full detail: `docs/evidence/2026-07-27-pcb-netlist-resync.md`. The board is
 resynced with the netlist, and doing so invalidated the violation count this
 document has been carrying.
 
-**Verified independently at HEAD** (re-parsed with `kiutils`, not the script's
-self-report):
+**Verified independently at the time** (re-parsed with `kiutils`, not the
+script's self-report). **Superseded** — this snapshot predates both the first
+route (`556ccf4f`) and the final resync (`65bd0159`); the board now carries
+**168 footprints and 2,338 segments**, per "Board facts as committed" above:
 
 | | |
 |---|---|
@@ -954,7 +1003,7 @@ self-report):
 | Components moved | **0 of 148** persisting |
 | `+340V_BUS` | **0** occurrences |
 | `+170V_BUS` / `ZCD_ISO` | present |
-| Segments | 0 — still unrouted |
+| Segments | 0 — still unrouted (superseded, see above) |
 
 `pe` correctly has no separate net record: `gnd ~ pe` merges it into the same
 compiled net, so its absence is right rather than missing.
@@ -1167,7 +1216,7 @@ maps cleanly to the stub's 4.4 nF default, but every reading puts the true
 ceiling *higher*, so the error is in the safe direction. Left unchanged rather
 than swapping one unverified number for another.
 
-### Correction: the committed board is UNROUTED (2026-07-26)
+### Correction: the committed board is UNROUTED (2026-07-26, superseded 2026-07-27)
 
 This document previously reported the board as **"76.2% routed with 616
 critical violations."** That describes a routing *run's* in-memory result, not
@@ -1180,7 +1229,14 @@ the committed artifact. Measured directly on `pcb/temper.kicad_pcb`:
 | `(via ` | **0** |
 | `(zone ` | **0** |
 
-**The committed board is placed and entirely unrouted.** Any claim about copper
+**As of 2026-07-26 the committed board was placed and entirely unrouted.**
+**Superseded 2026-07-27** — `556ccf4f` committed the first route, so the board
+now carries 2,338 segments, 48 vias and 96 zones ("Board facts as committed"
+above). The reasoning below is retained because it is still the correct *test*:
+a routing run's in-memory result is not the committed artifact, and the two must
+be measured separately. What changed is the answer, not the method.
+
+Any claim about copper
 geometry — overlapping traces, pour coverage, via stitching, trace clearance —
 is therefore about a routing run, not about what is in the repository. The 18
 clearance violations recorded below stand, because they are **component-to-component**

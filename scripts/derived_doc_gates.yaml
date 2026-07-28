@@ -27,6 +27,74 @@
 
 source_document: docs/FUNCTIONAL_TEST_CRITERIA.md
 
+# ---------------------------------------------------------------------------
+# Board facts: pcb/temper.kicad_pcb is the source of truth
+# ---------------------------------------------------------------------------
+#
+# Why this exists: on 2026-07-27 the board was routed (`556ccf4f`, 2,338
+# segments). docs/STRATEGY.md went on asserting "The committed board carries
+# no routing: 0 segments, 0 vias, 0 zones" -- a claim that had been true when
+# written and that nothing re-checked. This is the shape the failure-mechanism
+# taxonomy (docs/evidence/2026-07-27-failure-mechanism-taxonomy.md) proposes as
+# a seventh METHODOLOGY §4 class: "Stale record -- ground truth changed and the
+# record that claims to track it didn't."
+#
+# `rows` maps a metric measured structurally from the .kicad_pcb to the row
+# label that states it in the doc's anchored board-facts table. The claim is
+# located by `anchor` + row label, NOT by matching the surrounding prose: a
+# prose regex that stops matching after a harmless reword fails *open* and
+# reproduces the original bug. Anchor missing, anchor duplicated, row missing,
+# row unparseable, or a table row with no config entry are all tool_error (5).
+#
+# Known metrics: footprints, nets, segments, vias, zones, copper_layers.
+# `nets` counts top-level `(net N "name")` DECLARATIONS (164), not the ~3,160
+# net references nested in pads/segments/vias/zones.
+board_facts:
+  pcb: pcb/temper.kicad_pcb
+  doc: docs/STRATEGY.md
+  anchor: "BOARD-FACTS-TABLE"
+  rows:
+    footprints:
+      label: Footprints
+    nets:
+      label: Net declarations
+    copper_layers:
+      label: Copper layers
+    segments:
+      label: Route segments
+    vias:
+      label: Vias
+    zones:
+      label: Zones
+
+# Negative counterpart to `board_facts`. STRATEGY.md deliberately keeps its
+# superseded measurements -- its value is the record of how state moved -- but
+# a retained passage must not read as a description of the board today. Each
+# paragraph matching `patterns` must carry one of `required_mitigating_tokens`
+# in the same paragraph.
+#
+# Fail-closed property: every check here must match at least one paragraph. If
+# the guarded prose is reworded or deleted the patterns stop matching, and that
+# is a tool_error demanding a config update -- not a silent pass. This is the
+# same self-validating rule the `gates:` arm applies to its source rows.
+stale_board_claims:
+  - id: board-unrouted-prose
+    doc: docs/STRATEGY.md
+    patterns:
+      - "no routing"
+      - "entirely unrouted"
+      - "still unrouted"
+      - "is UNROUTED"
+    required_mitigating_tokens:
+      - "superseded"
+      - "as of 2026-07"
+      - "predates"
+      - "was routed"
+    message: >-
+      A paragraph asserts the committed board is unrouted. The board was
+      routed on 2026-07-27 (556ccf4f) and carries 2,338 segments. Keep the
+      historical record, but date it and mark it superseded.
+
 derived_documents:
   - path: docs/STRATEGY.md
     # STRATEGY.md's gate table covers every gate defined below. It also
