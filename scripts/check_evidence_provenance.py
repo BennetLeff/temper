@@ -118,6 +118,19 @@ PROVENANCE_LINE_RE = re.compile(
     re.IGNORECASE,
 )
 
+# The strict form above requires `dirty=` to follow `commit=` with nothing but
+# whitespace between them. In practice authors annotate inside the comment --
+# e.g. "commit=<sha> (repointed to <branch> @ <sha>) dirty=UNKNOWN" -- and the
+# whole stamp then reads as absent, which is a worse failure than the prose it
+# is objecting to. These two locate the fields independently *within a single
+# provenance construct*, so annotation is tolerated while both fields are still
+# required and still validated. Scoping to one block matters: searching the
+# whole file would happily pair a commit from one stamp with a dirty from
+# another.
+PROVENANCE_BLOCK_RE = re.compile(r"provenance:(.{0,400}?)(?:-->|\n\s*\n|\Z)", re.S | re.I)
+_COMMIT_FIELD_RE = re.compile(r"commit=`?([0-9a-fA-F]{40}|UNKNOWN)`?", re.I)
+_DIRTY_FIELD_RE = re.compile(r"dirty=`?(true|false|UNKNOWN)`?", re.I)
+
 
 class FileCheckResult:
     def __init__(self, ok: bool, commit: str | None = None, reason: str = ""):
@@ -174,15 +187,28 @@ def check_text_file(path: Path) -> FileCheckResult:
     except OSError as exc:
         return FileCheckResult(False, reason=f"could not read file: {exc}")
     m = PROVENANCE_LINE_RE.search(text)
-    if not m:
-        return FileCheckResult(
-            False,
-            reason=(
-                "no 'provenance: commit=<sha-or-UNKNOWN> dirty=<true|false|UNKNOWN>' "
-                "line found"
-            ),
-        )
-    commit_tok, _dirty_tok = m.group(1), m.group(2)
+    if m:
+        commit_tok, _dirty_tok = m.group(1), m.group(2)
+    else:
+        # Fall back to locating both fields inside one provenance block, so an
+        # annotated stamp is read rather than reported as missing. Both fields
+        # are still mandatory and still validated below.
+        commit_tok = None
+        for block in PROVENANCE_BLOCK_RE.finditer(text):
+            body = block.group(1)
+            c = _COMMIT_FIELD_RE.search(body)
+            d = _DIRTY_FIELD_RE.search(body)
+            if c and d:
+                commit_tok = c.group(1)
+                break
+        if commit_tok is None:
+            return FileCheckResult(
+                False,
+                reason=(
+                    "no 'provenance: commit=<sha-or-UNKNOWN> dirty=<true|false|UNKNOWN>' "
+                    "line found"
+                ),
+            )
     norm_commit = _normalize_commit(commit_tok if commit_tok == UNKNOWN else commit_tok.lower())
     if norm_commit is None:
         return FileCheckResult(
