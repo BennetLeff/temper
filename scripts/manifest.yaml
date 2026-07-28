@@ -1,8 +1,8 @@
 _meta:
   last_audit_date: '2026-07-28'
-  total_scripts: 72
+  total_scripts: 73
   counts:
-    keep: 71
+    keep: 72
     ticket: 1
   ticket_scripts_deleted: 40
 scripts:
@@ -1070,4 +1070,28 @@ scripts:
   - pathlib
   - re
   - sys
+  - typing
+- path: route_board.py
+  purpose: >-
+    Working entry point to route a .kicad_pcb through router_v6's
+    route_pcb() (make route and internal_route.py are dead ends -- see
+    module docstring). --output is mandatory and refuses to match --pcb,
+    so it can never overwrite the input board. --runs N routes N times
+    from identical input and reports the completion spread -- the
+    measurement instrument for the router's run-to-run non-determinism.
+  owner: bennet
+  last_run: '2026-07-28'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - argparse
+  - os
+  - pathlib
+  - statistics
+  - sys
+  - temper_placer.io.kicad_parser
+  - temper_placer.io.netclass_loader
+  - temper_placer.router_v6.adapter
+  - time
   - typing
