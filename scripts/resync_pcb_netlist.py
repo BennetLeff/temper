@@ -50,11 +50,26 @@ from kiutils.board import Board  # noqa: E402
 from kiutils.footprint import Footprint  # noqa: E402
 from kiutils.items.common import Net as KiNet  # noqa: E402
 from kiutils.items.common import Position  # noqa: E402
+from kiutils.items.zones import Zone  # noqa: E402
 
 STAGING_GAP_MM = 20.0  # clearance below the existing outline before staging new parts
 STAGING_ROW_PITCH_MM = 8.0
 STAGING_COL_PITCH_MM = 12.0
 STAGING_COLS = 10
+
+# KiCad reserves net ordinal 0 for "no net" (unconnected copper / keepout
+# zones) and does not list it in the board's own `(net ...)` table. Treat it
+# as a fixed synonym for the empty net name everywhere below so unrouted
+# copper passes through the remap untouched instead of erroring as
+# "unknown ordinal".
+NO_NET_NAME = ""
+
+
+class NetRemapError(RuntimeError):
+    """Raised when a copper item's net ordinal cannot be safely remapped by
+    name identity across a net-table rebuild. Fail-closed: this must never
+    be swallowed into a written board file (see resync()'s docstring note
+    on board.traceItems/board.zones)."""
 
 
 def _reset_pad_nets(fp: Footprint) -> None:
@@ -107,6 +122,24 @@ def resync(
 ) -> dict:
     netlist = parse_netlist(netlist_path)
     old_board = Board.from_file(str(board_path))
+
+    # Capture the OLD net ordinal->name table BEFORE `old_board.nets` is
+    # rebuilt below. Every segment/via/arc/zone in `old_board.traceItems`
+    # and `old_board.zones` stores its net as a bare ORDINAL INDEX into this
+    # table, not a name (kiutils' own Segment.net docstring: "the net token
+    # defines by the net ordinal number which net in the net section that
+    # the segment is part of"). Rebuilding board.nets (sorted alphabetically,
+    # renumbered 1..N) without remapping every copper item's ordinal by name
+    # identity leaves each item pointing at whatever net now happens to sit
+    # at its OLD number -- a silent, first-class corruption on any board
+    # that already has copper (see docs/evidence/2026-07-27-post-ovp-resync.md
+    # Sec 1: 79% of segments and 75% of vias would have been silently
+    # reassigned to the wrong net on the real board). This dict is the
+    # "before" half of the by-name remap performed after net_table (the
+    # "after" half) is built below.
+    old_net_name_by_number: dict[int, str] = {0: NO_NET_NAME}
+    for net in old_board.nets:
+        old_net_name_by_number[net.number] = net.name
 
     old_by_sheetpath: dict[str, Footprint] = {}
     old_by_libid: dict[str, Footprint] = {}
@@ -227,6 +260,88 @@ def resync(
     for comp, fp in result_footprints:
         _assign_pad_nets(fp, comp, netlist, net_table)
 
+    # Remap every copper item's net ordinal by NAME identity:
+    # old ordinal -> name (old_net_name_by_number, captured above) ->
+    # new ordinal (net_table, just built). This is the fix for the bug this
+    # script existed with: board.traceItems (Segment/Arc/Via) and
+    # board.zones were never touched by the net-table rebuild at all, so
+    # every one of their ordinals silently kept pointing at whatever net now
+    # occupies that OLD number.
+    new_number_by_name: dict[str, int] = {name: knet.number for name, knet in net_table.items()}
+    new_number_by_name[NO_NET_NAME] = 0
+
+    copper_items = list(old_board.traceItems) + list(old_board.zones)
+    copper_by_type: dict[str, int] = {}
+    remapped_count = 0
+    unchanged_count = 0
+    orphan_errors: list[str] = []
+
+    for item in copper_items:
+        kind = type(item).__name__
+        copper_by_type[kind] = copper_by_type.get(kind, 0) + 1
+        old_number = item.net
+        ident = getattr(item, "tstamp", None) or f"<{kind} with no tstamp>"
+
+        old_name = old_net_name_by_number.get(old_number)
+        if old_name is None:
+            # The item's own ordinal does not resolve against the PRE-resync
+            # board's own net table -- the board was already corrupt before
+            # this tool touched it. Fail closed rather than propagate it.
+            orphan_errors.append(
+                f"{kind} {ident}: net ordinal {old_number} does not exist "
+                "in the pre-resync board's own net table (board was already "
+                "corrupt before this resync)"
+            )
+            continue
+
+        if isinstance(item, Zone) and old_number != 0 and item.netName != old_name:
+            # Zones carry a second, redundant human-readable copy of the net
+            # name (`net_name`) alongside the ordinal. If it disagrees with
+            # what the ordinal itself resolves to, the pre-resync board's
+            # own bookkeeping is already inconsistent -- fail closed rather
+            # than pick one of the two disagreeing values silently.
+            orphan_errors.append(
+                f"{kind} {ident}: net_name {item.netName!r} disagrees with "
+                f"ordinal {old_number} (resolves to {old_name!r} in the "
+                "pre-resync board's own net table) -- pre-existing "
+                "inconsistency in the board file"
+            )
+            continue
+
+        new_number = new_number_by_name.get(old_name)
+        if new_number is None:
+            # Orphaned copper: this net existed in the pre-resync board and
+            # has real copper on it, but no net of that name exists in the
+            # rebuilt table (e.g. the deleted-resistor case -- a component
+            # whose own net was removed from the schematic, while copper for
+            # it is still routed on the board). There is no principled
+            # automatic remapping for this: net 0 would silently declare the
+            # copper unconnected (changes DRC semantics), and any other net
+            # would be a fabrication. Fail closed and require a human to
+            # resolve it (rip up the trace, or restore the net).
+            orphan_errors.append(
+                f"{kind} {ident}: net {old_name!r} (ordinal {old_number}) no "
+                "longer exists in the rebuilt netlist -- orphaned copper, "
+                "requires manual resolution"
+            )
+            continue
+
+        if new_number != old_number:
+            remapped_count += 1
+        else:
+            unchanged_count += 1
+        item.net = new_number
+
+    if orphan_errors:
+        raise NetRemapError(
+            f"{len(orphan_errors)} of {len(copper_items)} copper item(s) "
+            f"could not be safely remapped to the rebuilt net table; "
+            f"aborting WITHOUT writing {board_path}. Resolve these manually "
+            "(rip up the trace/via/zone, or restore the missing net) and "
+            "re-run:\n  " + "\n  ".join(orphan_errors[:20])
+            + ("\n  ... and more" if len(orphan_errors) > 20 else "")
+        )
+
     # Positions captured BEFORE mutating old_board.footprints, for the
     # zero-moved proof.
     old_positions = {
@@ -264,6 +379,11 @@ def resync(
         "moved_count": len(moved),
         "moved": moved,
         "net_count": len(net_table),
+        "copper_items_checked": len(copper_items),
+        "copper_by_type": copper_by_type,
+        "copper_net_remapped_count": remapped_count,
+        "copper_net_unchanged_count": unchanged_count,
+        "copper_orphaned_count": len(orphan_errors),  # always 0 -- NetRemapError raised above otherwise
     }
 
     if not dry_run:
@@ -289,7 +409,11 @@ def main() -> None:
         print(f"ERROR: board not found: {args.board}", file=sys.stderr)
         sys.exit(1)
 
-    report = resync(args.netlist, args.board, args.fp_lib_table, args.dry_run)
+    try:
+        report = resync(args.netlist, args.board, args.fp_lib_table, args.dry_run)
+    except NetRemapError as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        sys.exit(1)
     print(json.dumps(report, indent=2))
 
 
