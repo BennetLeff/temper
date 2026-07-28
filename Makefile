@@ -88,12 +88,16 @@ drc:
 # and a serial result is the baseline any parallel result gets checked against.
 # `test-fast` is the inner loop, so it opts in to xdist.
 #
-# `--dist loadgroup` is NOT optional when passing `-n`. tests/conftest.py tags
-# the pytest-dependency clusters with xdist_group; under any other --dist mode
-# their providers scatter across workers and the dependents SKIP rather than
-# fail -- a green run that executed less. Measured on the CI group-1 file list
-# (2026-07-28): serial 356s vs `-n 4 --dist loadgroup` 207s, with byte-identical
-# per-test outcomes (728 tests, zero pass->skip transitions).
+# Pass `--dist loadgroup` whenever passing `-n`. tests/conftest.py tags the
+# pytest-dependency clusters with xdist_group so their providers stay on one
+# worker. That is currently defensive rather than load-bearing -- as of
+# 2026-07-28 pytest-dependency is not installed, so the marks are inert -- but
+# once it is installed, any other --dist mode turns those dependents into
+# SKIPS rather than failures, i.e. a green run that executed less. See the
+# comment block in packages/temper-placer/tests/conftest.py.
+#
+# Measured on the CI group-1 file list (2026-07-28): serial 356s vs
+# `-n 4 --dist loadgroup` 207s, identical per-test outcomes across 728 tests.
 test:
 	uv run --no-sync python -m pytest
 

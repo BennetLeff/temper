@@ -14,32 +14,42 @@ from temper_placer.core.state import PlacementState
 from temper_placer.deterministic.state import BoardState
 from temper_placer.io.footprint_library import load_footprint_library
 
-# ── pytest-dependency clusters that must not be split across xdist workers ────
+# ── pytest-dependency clusters, pinned to one xdist worker (defensive) ────────
 #
-# pytest-dependency resolves `depends=[...]` against tests that ran in the SAME
-# session. Under `pytest -n`, every worker is its own session -- so a dependent
-# whose provider was scheduled onto a different worker does not fail, it SKIPS.
-# The suite then reports green having executed strictly less, which is the
-# silently-skipped class in docs/METHODOLOGY.md §4 and the same shape as the
-# dead gates found on 2026-07-27.
+# READ THIS FIRST: as of 2026-07-28 `pytest-dependency` is NOT installed -- not
+# in the venv, not in any pyproject. So the 34 `@pytest.mark.dependency(...)`
+# marks in tests/router_v6/ are inert no-ops today, and the `depends=[...]`
+# edges below enforce nothing. packages/temper-placer/pyproject.toml registers
+# the marker as "pytest-dependency lattice ordering (NFR7)", so either the
+# requirement is real and the plugin is missing, or the marks are dead weight.
+# That question is open; this hook does not answer it.
 #
-# `--dist loadgroup` keeps same-named xdist_group tests on one worker, so the
-# hook below tags the two clusters that exist in tests/router_v6/:
+# What this hook does is make the answer safe either way. IF the plugin is
+# installed, `depends=[...]` resolves only against tests that ran in the SAME
+# session -- and every xdist worker is its own session, so a dependent whose
+# provider landed on another worker SKIPS rather than fails. The suite would
+# then report green having executed strictly less: the silently-skipped class
+# in docs/METHODOLOGY.md §4, the same shape as the dead gates found on
+# 2026-07-27. Installing the plugin should not require also remembering to fix
+# the scheduler, so the grouping is in place ahead of it.
+#
+# The two clusters in tests/router_v6/:
 #
 #   induction -- "induction-base" is declared ONLY in test_induction_base.py and
 #                depended on by 8 sibling modules. Being cross-file, `--dist
-#                loadfile` is NOT sufficient for this one.
+#                loadfile` would not be sufficient for it.
 #   sat       -- test_sat_solve_pbt.py's internal bmc-l0 / sat-l1..l4 chain.
 #                Same-file, but `loadgroup` distributes UNGROUPED tests
 #                per-test, which would break it -- so it needs a tag too.
 #
-# Verified 2026-07-28 on the invariant-router-v6-1 file list: serial and
-# `-n 4 --dist loadgroup` produced byte-identical per-test outcomes (728 tests;
-# 711 passed / 6 failed / 7 skipped / 4 xfailed) with zero pass->skip
-# transitions, at 356s vs 207s.
+# Measured 2026-07-28 on the invariant-router-v6-1 file list: serial vs
+# `-n 4 --dist loadgroup` gave identical per-test outcomes (728 tests;
+# 711 passed / 6 failed / 7 skipped / 4 xfailed), zero pass->skip transitions,
+# 356s vs 207s. With the plugin absent, `--dist load` matched too -- that
+# equivalence is what stops holding the moment pytest-dependency is installed.
 #
-# Adding a new cross-file `depends=` edge without adding its modules here will
-# reintroduce the silent skip. Prefer keeping dependency edges within a module.
+# Adding a new cross-file `depends=` edge without adding its modules here would
+# reintroduce the hazard. Prefer keeping dependency edges within a module.
 _XDIST_GROUPS = {
     "induction": {
         "test_induction_base",
