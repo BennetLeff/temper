@@ -30,10 +30,19 @@ help:
 
 build: netlist footprints schematics route drc
 
+NETLIST_FILE = $(ELEC_DIR)/build/default.net
+
+# The stamp is chained with `&&`, never as a separate recipe line: a stamp
+# written next to a failed build would assert freshness for a broken netlist.
+# check_domain_partition.py reads it and compares content instead of mtimes,
+# which is what lets a restored netlist cache be trusted -- see
+# scripts/_lib/freshness.py.
 netlist:
 	@echo "Building Atopile project..."
 	@if [ -f $(BOM_FILE) ]; then cp $(BOM_FILE) $(BOM_PREV); fi
-	cd $(ELEC_DIR) && uv tool run --from 'atopile>=0.2,<0.3' ato --non-interactive build $(ATO_ENTRY)
+	cd $(ELEC_DIR) && uv tool run --from 'atopile>=0.2,<0.3' ato --non-interactive build $(ATO_ENTRY) \
+	  && cd .. && uv run --no-sync python scripts/write_build_stamp.py \
+	       --artifact $(NETLIST_FILE) --source-root $(ELEC_DIR)/src --glob '*.ato'
 
 schematics: netlist
 	@echo "Generating schematics from Atopile netlist..."
