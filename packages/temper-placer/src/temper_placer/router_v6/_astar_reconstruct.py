@@ -70,7 +70,8 @@ class RoutingFailureReport:
     """Detailed failure report for a net that failed to route."""
 
     net_name: str
-    failure_reason: str  # "congestion", "no_path", "rip_up_limit", "no_channel"
+    # "congestion", "no_path", "rip_up_limit", "no_channel", "no_routable_layer"
+    failure_reason: str
     blocking_nets: list[str]  # Which nets are blocking
     attempted_ripups: int
     congestion_region: tuple[float, float] | None  # Approximate (x, y) of stuck location
@@ -337,7 +338,10 @@ def run_astar_pathfinding(
         )
 
         if planned_tree_active:
-            from temper_placer.router_v6.terminal_tree_execution import execute_terminal_tree
+            from temper_placer.router_v6.terminal_tree_execution import (
+                NO_ROUTABLE_LAYER,
+                execute_terminal_tree,
+            )
 
             execution = execute_terminal_tree(
                 channel_path.terminal_tree,
@@ -367,14 +371,22 @@ def run_astar_pathfinding(
             terminal = next(
                 item for item in channel_path.terminals if item.identity == failed_edge.target
             )
+            # A layer-selection rejection carries its own diagnostic (which
+            # layers the pads share, which layers have grids).  Reporting it
+            # as a plain "no legal path" would hide a router configuration
+            # gap inside the congestion bucket.
+            edge_reason = execution.failure_reasons.get(failed_edge, "no_legal_path")
+            summary_reason = (
+                NO_ROUTABLE_LAYER if edge_reason.startswith(NO_ROUTABLE_LAYER) else "no_path"
+            )
             tree_failures[net_name] = TreeRoutingFailure(
                 unresolved_terminal=(terminal.center.x, terminal.center.y),
                 completed_edge_count=len(execution.completed_edges),
-                reason="no_legal_path",
+                reason=edge_reason,
             )
             _restore_net_pads(restoration)
-            print(f"      ✗ {net_name} INCOMPLETE: no legal tree edge", flush=True)
-            return False, "no_path", [], (terminal.center.x, terminal.center.y)
+            print(f"      ✗ {net_name} INCOMPLETE: {edge_reason}", flush=True)
+            return False, summary_reason, [], (terminal.center.x, terminal.center.y)
 
         route_path, ripped_ids, fb = _astar_route_with_ripup(
             net_name,
