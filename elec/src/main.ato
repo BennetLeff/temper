@@ -126,9 +126,45 @@ module Top:
     # All three fall inside the assertion window below, which is why the
     # divergence was never caught. See
     # docs/evidence/2026-07-27-zvs-operating-point.md.
+    #
+    # STATED EXPLICITLY (2026-07-27, docs/evidence/2026-07-27-inductance-
+    # range-sweep.md): this value is the UNLOADED resonance (L1/C_TANK
+    # only -- it is what "1/(2*pi*sqrt(L*C))" means with no pan on the
+    # coil). It is NOT the loaded resonance ZVS margin must be referenced
+    # against (loaded and unloaded differ by ~60% for ferromagnetic pans
+    # at K=0.79 -- see f_switching's comment above). This label does not
+    # change the number (that would just be picking a different
+    # unverified L again, per the note above); it only makes the
+    # loaded-vs-unloaded ambiguity impossible to miss on read.
     f_resonant_nominal: frequency = 25kHz
-    assert f_resonant_nominal within 20kHz to 35kHz  # LC tank range
-    
+    assert f_resonant_nominal within 20kHz to 35kHz  # LC tank range, UNLOADED
+
+    # DECLARED EXPLICITLY (2026-07-27, was previously invisible -- L only
+    # existed as an assumption buried in simulation harness constants and
+    # evidence-doc prose; `inductor_conn` below remains an unplaced Litz
+    # footprint placeholder, so this is still NOT a specified/measured
+    # coil). `150uH` is the exact assumption
+    # docs/evidence/2026-07-27-pan-preset-correction.md's ratio sweep used
+    # to land on f_switching=47kHz above; the range is a GEOMETRY-BOUNDED
+    # ESTIMATE (Wheeler/current-sheet spiral formula over plausible turn
+    # counts and inner diameters within COIL_BRACKET_DESIGN.md's OD<=200mm
+    # ceiling), cross-checked against real comparable-power-class flat
+    # coils (Infineon AN235020 ~48-50uH, Wurth 760308101303 ~47uH, both
+    # already cited in docs/evidence/2026-07-27-coil-pan-coupling-prior-
+    # art.md) -- NOT a measurement of this project's own coil.
+    #
+    # docs/evidence/2026-07-27-inductance-range-sweep.md sweeps this whole
+    # range at the COMMITTED, FIXED f_switching=47kHz above and finds ZVS
+    # is COMPLETELY LOST (100%+ margin, full hard-switching of the 1200V
+    # half-bridge) for ferromagnetic pans below ~97uH -- i.e. within, not
+    # outside, this declared range, and closer to the low end than the
+    # 150uH design point. If the real coil lands nearer the 48-50uH
+    # external references than the 150uH assumption, the design as
+    # committed today does NOT hold. Read that document before treating
+    # 150uH as settled.
+    l_tank_assumed: inductance = 150uH
+    assert l_tank_assumed within 50uH to 250uH  # bounded estimate, NOT measured -- see docs/evidence/2026-07-27-inductance-range-sweep.md
+
     t_ambient_max: temperature = 323.15K  # 50°C
     t_ambient_min: temperature = 273.15K  # 0°C
     assert t_ambient_max within 313.15K to 333.15K  # 40°C to 60°C
