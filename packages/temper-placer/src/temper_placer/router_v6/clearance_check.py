@@ -130,8 +130,8 @@ def _verify_clearance_python(
     if math.isnan(min_clearance) or not math.isfinite(min_clearance):
         raise ValueError(f"min_clearance must be a finite number, got {min_clearance!r}")
 
-    # Get all route pairs to check
-    routes = list(routing_results.compiled_routes.items())
+    # Get all route pairs to check.
+    routes = _all_routes(routing_results)
 
     for i in range(len(routes)):
         net1, route1 = routes[i]
@@ -178,6 +178,33 @@ def _verify_clearance_python(
         violations=violations,
         total_checks=total_checks,
     )
+
+
+def _all_routes(routing_results: RoutingResults) -> list[tuple[str, object]]:
+    """Every net's route object this check must inspect.
+
+    ``verify_clearance`` used to walk only ``routing_results.compiled_routes``
+    -- ``RoutingResults.tree_routes`` / ``.partial_tree_routes`` hold
+    ``CompiledTreeRoute`` objects (Steiner/multi-terminal routes), which are
+    NOT part of ``compiled_routes`` and carry their own copper geometry
+    (``.geometry: TreeRouteGeometry``) and their own ``.vias`` list. The
+    U7 exporter (``_adapter_convert.py``) folds tree-routed nets in when
+    writing real ``(segment ...)``/``(via ...)`` s-expressions, but this
+    check never did -- on a board where a net is tree-routed instead of
+    point-to-point, its copper was invisible to clearance checking
+    entirely (same class of bug as the ``annular_ring`` tree-route gap
+    fixed in docs/evidence/2026-07-27-drc-checks-repaired.md; see
+    docs/evidence/2026-07-27-clearance-copper-balance.md for this fix).
+
+    Returns ``(net_name, route)`` pairs from ``compiled_routes``,
+    ``tree_routes``, and ``partial_tree_routes`` combined. ``_extract_segments``
+    / ``_extract_via_points`` below duck-type on the route object (``.path``
+    for ``CompiledRoute``, ``.geometry`` for ``CompiledTreeRoute``).
+    """
+    routes: list[tuple[str, object]] = list(routing_results.compiled_routes.items())
+    routes += list((getattr(routing_results, "tree_routes", None) or {}).items())
+    routes += list((getattr(routing_results, "partial_tree_routes", None) or {}).items())
+    return routes
 
 
 def _route_to_rust_tuple(
@@ -233,10 +260,7 @@ def _verify_clearance_rust(
     if math.isnan(min_clearance) or not math.isfinite(min_clearance):
         raise ValueError(f"min_clearance must be a finite number, got {min_clearance!r}")
 
-    routes = [
-        _route_to_rust_tuple(net_name, route)
-        for net_name, route in routing_results.compiled_routes.items()
-    ]
+    routes = [_route_to_rust_tuple(net_name, route) for net_name, route in _all_routes(routing_results)]
 
     raw_violations, total_checks = _temper_drc_rs.verify_route_clearance(
         routes, min_clearance, voltage_ratings
@@ -363,8 +387,22 @@ def _extract_segments(route) -> list[tuple[float, float, float, float, str]]:
 
     Shared by the pure-Python implementation and the Rust-backend adapter
     (:func:`_route_to_rust_tuple`) so both paths see identical geometry.
+
+    Handles both ``CompiledRoute`` (``.path``: ``RoutePath``/``RoutePath3D``)
+    and ``CompiledTreeRoute`` (``.geometry: TreeRouteGeometry``, no
+    ``.path`` attribute at all -- a tree route has multiple independent
+    branch paths, so segments must come from
+    ``TreeRouteGeometry.iter_segments()`` rather than a single serial
+    ``.coordinates``/``.segments`` list, to avoid fabricating a false
+    connecting segment between unrelated branches).
     """
     segs = []
+    geometry = getattr(route, "geometry", None)
+    if geometry is not None and hasattr(geometry, "iter_segments"):
+        for (x1, y1, l1), (x2, y2, l2) in geometry.iter_segments():
+            if l1 == l2 and all(math.isfinite(v) for v in (x1, y1, x2, y2)):
+                segs.append((x1, y1, x2, y2, l1))
+        return segs
     path = route.path
     if hasattr(path, "segments"):  # RoutePath3D
         for i in range(len(path.segments) - 1):
@@ -391,8 +429,17 @@ def _extract_via_points(route) -> list[tuple[float, float, str, str]]:
     Deliberately has no finite-value guard, matching the original Python
     behavior exactly (NaN/inf via coordinates propagate rather than being
     filtered here).
+
+    Handles ``CompiledTreeRoute`` (``.geometry``) the same way
+    :func:`_extract_segments` does -- see its docstring.
     """
     points = []
+    geometry = getattr(route, "geometry", None)
+    if geometry is not None and hasattr(geometry, "iter_segments"):
+        for (x1, y1, l1), (_x2, _y2, l2) in geometry.iter_segments():
+            if l1 != l2:
+                points.append((x1, y1, l1, l2))
+        return points
     path = route.path
     if hasattr(path, "segments"):
         for i in range(len(path.segments) - 1):
