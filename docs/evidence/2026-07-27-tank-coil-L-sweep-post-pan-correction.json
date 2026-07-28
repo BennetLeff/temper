@@ -1,0 +1,133 @@
+{
+  "schema_version": 1,
+  "provenance": {
+    "commit": "f9bb27a173ad4f84a2b6b3cd617ef91492224559",
+    "dirty": true,
+    "branch": "worktree-agent-a17b18f067aa11675",
+    "source": "measured-live"
+  },
+  "measurement_date": "2026-07-27",
+  "harness": "simulation/harness/run_tank_coil_sweep.py",
+  "netlist": "simulation/harness/nets/zvs_margin_sweep.cir (extended with i_pan_rms_last .meas)",
+  "reused_from": "simulation/harness/run_zvs_sweep.py (override_params, run_ngspice_on_text, parse_measurements, compute_point_result, PAN_PRESETS)",
+  "c_tank_f": 3e-07,
+  "c_tank_source": "modules.ato:391,398 -- c_tank1 (150nF) + c_tank2 (150nF) in parallel; COMMITTED, fixed",
+  "invocation_args": {
+    "L_list_uh": [
+      70.0,
+      90.0,
+      110.0,
+      130.0,
+      150.0
+    ],
+    "ratio_list": [
+      1.02
+    ],
+    "pans": [
+      "cast_iron"
+    ]
+  },
+  "power_definition": "p_pan_w = i_pan_rms_last^2 * RPAN, where i_pan_rms_last is the RMS current through pan_load.sub's PANLOAD_TRANSFORMER secondary loop (L_sec-R_pan-V_short, series, same current throughout), read via ngspice's subcircuit-internal branch name v.x_pan.v_short#branch (verified against a standalone probe deck; i(x_pan.v_short) is not valid ngspice syntax). This is the model's power delivered to the pan-load equivalent circuit, NOT a calibrated induction-heating power figure -- see TANK_COIL_SPECIFICATION.md fidelity bounds.",
+  "grid": {
+    "total_points": 5,
+    "measured_points": 5,
+    "converged_points": 5
+  },
+  "results": [
+    {
+      "l_uh": 70.0,
+      "f_res_hz": 34730.5,
+      "ratio_f_sw_over_f_res": 1.02,
+      "f_sw_hz": 35425.1,
+      "pan_preset": "cast_iron",
+      "pan_k": 0.5,
+      "pan_rpan_ohm": 8.0,
+      "measured": true,
+      "margin_pct": 1.219,
+      "worse_switch": "hs",
+      "label": "zvs_held",
+      "converged": true,
+      "convergence_delta_v": 0.0427,
+      "i_tank_rms_a": 109.483,
+      "i_tank_pk_a": 154.826,
+      "i_pan_rms_a": 12.7718,
+      "p_pan_w": 1304.95
+    },
+    {
+      "l_uh": 90.0,
+      "f_res_hz": 30629.4,
+      "ratio_f_sw_over_f_res": 1.02,
+      "f_sw_hz": 31242.0,
+      "pan_preset": "cast_iron",
+      "pan_k": 0.5,
+      "pan_rpan_ohm": 8.0,
+      "measured": true,
+      "margin_pct": 1.384,
+      "worse_switch": "hs",
+      "label": "zvs_held",
+      "converged": true,
+      "convergence_delta_v": 0.0495,
+      "i_tank_rms_a": 107.621,
+      "i_tank_pk_a": 152.174,
+      "i_pan_rms_a": 12.5483,
+      "p_pan_w": 1259.68
+    },
+    {
+      "l_uh": 110.0,
+      "f_res_hz": 27705.3,
+      "ratio_f_sw_over_f_res": 1.02,
+      "f_sw_hz": 28259.4,
+      "pan_preset": "cast_iron",
+      "pan_k": 0.5,
+      "pan_rpan_ohm": 8.0,
+      "measured": true,
+      "margin_pct": 1.457,
+      "worse_switch": "hs",
+      "label": "zvs_held",
+      "converged": true,
+      "convergence_delta_v": 0.0649,
+      "i_tank_rms_a": 105.836,
+      "i_tank_pk_a": 149.66,
+      "i_pan_rms_a": 12.3363,
+      "p_pan_w": 1217.47
+    },
+    {
+      "l_uh": 130.0,
+      "f_res_hz": 25485.2,
+      "ratio_f_sw_over_f_res": 1.02,
+      "f_sw_hz": 25994.9,
+      "pan_preset": "cast_iron",
+      "pan_k": 0.5,
+      "pan_rpan_ohm": 8.0,
+      "measured": true,
+      "margin_pct": 1.519,
+      "worse_switch": "hs",
+      "label": "zvs_held",
+      "converged": true,
+      "convergence_delta_v": 0.0117,
+      "i_tank_rms_a": 104.254,
+      "i_tank_pk_a": 147.448,
+      "i_pan_rms_a": 12.149,
+      "p_pan_w": 1180.79
+    },
+    {
+      "l_uh": 150.0,
+      "f_res_hz": 23725.4,
+      "ratio_f_sw_over_f_res": 1.02,
+      "f_sw_hz": 24199.9,
+      "pan_preset": "cast_iron",
+      "pan_k": 0.5,
+      "pan_rpan_ohm": 8.0,
+      "measured": true,
+      "margin_pct": 1.629,
+      "worse_switch": "hs",
+      "label": "zvs_held",
+      "converged": true,
+      "convergence_delta_v": 0.1205,
+      "i_tank_rms_a": 102.799,
+      "i_tank_pk_a": 145.423,
+      "i_pan_rms_a": 11.9773,
+      "p_pan_w": 1147.65
+    }
+  ]
+}
