@@ -53,6 +53,7 @@ from check_stale_extensions import (  # noqa: E402
     check_module,
     decide_exit_code,
     discover_crates,
+    main,
     newest_source_mtime,
     run,
 )
@@ -479,3 +480,65 @@ class TestAntiVacuity:
         report = run(repo)
         assert report.crates_discovered == 2
         assert len(report.results) == report.crates_discovered
+
+
+# ---------------------------------------------------------------------------
+# TestListCrates
+# ---------------------------------------------------------------------------
+
+
+class TestListCrates:
+    """`--list-crates` is the machine-readable feed `make extensions`
+    consumes so that target never hardcodes a crate list that can drift
+    from this gate's own discover_crates() scan. It must reuse the exact
+    same discovery function the gate uses for its freshness check, and it
+    must never run (or be gated by) the freshness check itself."""
+
+    def test_list_crates_prints_name_and_manifest_path(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        _make_pyo3_crate(tmp_path / "packages" / "one", package_name="one")
+        _make_pyo3_crate(
+            tmp_path / "packages" / "temper-placer" / "temper-constraints",
+            package_name="temper-constraints",
+        )
+        monkeypatch.setattr(
+            sys, "argv", ["check_stale_extensions.py", "--list-crates", "--repo-root", str(tmp_path)]
+        )
+        exit_code = main()
+        assert exit_code == EXIT_OK
+        out = capsys.readouterr().out
+        lines = sorted(out.strip().splitlines())
+        assert lines == sorted(
+            [
+                f"one\t{tmp_path / 'packages' / 'one' / 'Cargo.toml'}",
+                "temper-constraints\t"
+                f"{tmp_path / 'packages' / 'temper-placer' / 'temper-constraints' / 'Cargo.toml'}",
+            ]
+        )
+
+    def test_list_crates_does_not_run_freshness_check(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """A crate with zero built artifact (MISSING in the normal gate)
+        must not turn `--list-crates` into a failure -- it's a discovery
+        dump, not a check."""
+        _make_pyo3_crate(tmp_path / "packages" / "never-built", package_name="never-built")
+        monkeypatch.setattr(
+            sys, "argv", ["check_stale_extensions.py", "--list-crates", "--repo-root", str(tmp_path)]
+        )
+        assert main() == EXIT_OK
+        assert "never-built" in capsys.readouterr().out
+
+    def test_list_crates_on_zero_crates_is_empty_not_an_error(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """Unlike the freshness gate, `--list-crates` must not fail closed
+        on zero crates -- callers like `make extensions` treat an empty
+        list as 'nothing to build', and the anti-vacuity backstop belongs
+        to the gate's own run(), not this discovery dump."""
+        monkeypatch.setattr(
+            sys, "argv", ["check_stale_extensions.py", "--list-crates", "--repo-root", str(tmp_path)]
+        )
+        assert main() == EXIT_OK
+        assert capsys.readouterr().out == ""

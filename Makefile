@@ -7,7 +7,7 @@ BUILD_DIR = $(ELEC_DIR)/build
 BOM_FILE = $(ELEC_DIR)/build/default.csv
 BOM_PREV = $(ELEC_DIR)/build/default.csv.prev
 
-.PHONY: all build netlist clean drc route gerbers help diff visualize test test-fast onboard clean-onboard onboard-status
+.PHONY: all build netlist clean drc route gerbers help diff visualize test test-fast onboard clean-onboard onboard-status extensions extensions-check
 
 # Show help for workflow commands
 help:
@@ -22,6 +22,8 @@ help:
 	@echo "  make drc      - Run KiCad DRC validation"
 	@echo "  make test     - Run the full test suite"
 	@echo "  make test-fast- Run tests excluding 'slow' markers (inner loop)"
+	@echo "  make extensions      - Rebuild every pyo3/maturin Rust extension crate (fixes stale .so files)"
+	@echo "  make extensions-check- Report stale/missing pyo3 extension crates without rebuilding"
 	@echo "  make clean    - Remove build artifacts"
 	@echo "  make onboard  - Guided quick-start achievement run"
 	@echo "  make clean-onboard- Reset onboard checkpoints"
@@ -113,6 +115,51 @@ test:
 test-fast:
 	@echo "Running tests (excluding 'slow' markers, parallel -- use 'make test' for the serial reference run)..."
 	uv run --no-sync python -m pytest -m "not slow" -n auto --dist loadgroup
+
+# Rebuild every pyo3/maturin Rust extension crate in the repo (fixes the
+# "stale .so" trap: a merge touches Rust source, the installed extension
+# still imports but is silently frozen at its last successful build --
+# scripts/check_stale_extensions.py detects this, this target fixes it).
+#
+# The crate list is NOT hardcoded here. `scripts/check_stale_extensions.py
+# --list-crates` is the same discover_crates() source of truth the gate
+# itself checks freshness against (a static scan of packages/ for
+# pyproject.toml+Cargo.toml pairs with a maturin backend, a cdylib
+# crate-type, and a pyo3 dependency) -- so this target can never drift
+# from "how many pyo3 crates does this repo actually have" the way a
+# hand-maintained list would. See extensions-crate-list-check below for
+# the fallback-hardcoding contingency this repo doesn't currently need.
+#
+# `uv run --no-sync` (not plain `uv run`) on every step: a bare `uv run`
+# re-resolves and can re-sync `.venv` against uv.lock, which -- for the
+# three crates below that `uv sync --all-packages` does not build itself
+# (temper-constraints is nested a level too deep for the
+# `packages/*` workspace-members glob; see pyproject.toml
+# [tool.uv.workspace]) -- would silently evict the very .so this target
+# just built. That happened once already recovering from this exact
+# staleness trap by hand.
+#
+# temper-constraints additionally needs PYO3_USE_ABI3_FORWARD_COMPATIBILITY=1
+# (see .github/workflows/python-tests.yml's "Build and install
+# temper-constraints" step) -- without it, its abi3 build fails against a
+# newer CPython than the abi3-forward-compat table in the pinned pyo3
+# version already knows about.
+extensions:
+	@echo "Rebuilding pyo3/maturin extension crates (crate list from 'scripts/check_stale_extensions.py --list-crates')..."
+	@uv run --no-sync python3 scripts/check_stale_extensions.py --list-crates | while read -r crate_name manifest_path; do \
+		echo "--- $$crate_name ($$manifest_path) ---"; \
+		if [ "$$crate_name" = "temper-constraints" ]; then \
+			PYO3_USE_ABI3_FORWARD_COMPATIBILITY=1 uv run --no-sync maturin develop --release --manifest-path "$$manifest_path" || exit 1; \
+		else \
+			uv run --no-sync maturin develop --release --manifest-path "$$manifest_path" || exit 1; \
+		fi; \
+	done
+	@echo "Done. Run 'make extensions-check' to verify every crate is now fresh."
+
+# Report-only: same gate CI runs, without rebuilding anything. Pair with
+# `make extensions` as "check, then fix".
+extensions-check:
+	uv run --no-sync python3 scripts/check_stale_extensions.py
 
 gerbers: build
 	@echo "Exporting Gerbers..."
