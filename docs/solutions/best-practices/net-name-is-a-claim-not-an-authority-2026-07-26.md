@@ -113,6 +113,31 @@ documentation-shaped defects on the same day, from two different mechanisms.
    envelope and must not be substituted for tracing it — "the node called
    `+340V_BUS`" is not evidence about what voltage the node reaches.
 
+## Update, 2026-07-28: the rename that fixed this net's name broke a second, different thing
+
+The net was renamed `+340V_BUS` → `+170V_BUS` as part of this fix. Two days
+later, commit `688c15bb` found that rename had **orphaned a machine-readable
+classification key**: `TEMPER_NET_ASSIGNMENTS`
+(`packages/temper-placer/src/temper_placer/core/design_rules.py:421`) still
+mapped `"+340V_BUS": "HighVoltage"` — a key with 0 occurrences in
+`elec/build/default.net` — while the real rail, `+170V_BUS`, carried 12 pads
+and resolved to *no* netclass at all. Every generated DRC rule conditioned
+on `NetClass == 'HighVoltage'` was inert for the board's main HV bus until
+this was fixed. An independent, same-day audit
+(`docs/evidence/2026-07-28-drc-courtyard-condition-fix.md` §3b) found the
+identical rename had orphaned a *second*, unrelated lookup too — the DRC
+rule generator's own `netclass_assignments`/`netclass_patterns` tables,
+which still referenced the retired names `DC_BUS+`/`SWITCH_NODE` and whose
+`DC_BUS*` wildcard does not match `+170V_BUS` or `SW_NODE` either.
+
+**Same net, second failure, different mechanism.** The first failure (above)
+was a name misleading a *human* into re-tuning a threshold from the wrong
+premise. The second was a rename that correctly fixed the misleading name
+and, in doing so, silently broke every string-keyed table elsewhere in the
+repo that still expected the old one — twice, in two independent files,
+found by two independent sessions on the same day. Full writeup:
+`docs/solutions/best-practices/rename-orphans-derived-keys-2026-07-28.md`.
+
 ## Why This Matters
 
 OVP-01 is the induction cooker's over-voltage protection gate. A fail-open
@@ -172,6 +197,10 @@ c_bus1.plus ~ dc_bus.hv_plus, c_bus1.minus ~ dc_bus.gnd_ref  (doubler midpoint)
 
 ## Related
 
+- `docs/solutions/best-practices/rename-orphans-derived-keys-2026-07-28.md`
+  — the 2026-07-28 update above, in full: this same net's rename orphaning
+  two independent machine-readable classification keys, plus the audit
+  discipline for telling a dead alias from a real defect.
 - `docs/solutions/best-practices/derived-documents-lose-qualifiers-2026-07-26.md`
   — the other independent defect that hit OVP-01 the same day (hysteresis
   dropped from a summary table); read together, they show one gate absorbing
