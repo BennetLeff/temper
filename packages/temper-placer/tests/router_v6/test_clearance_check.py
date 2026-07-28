@@ -219,3 +219,58 @@ def test_verify_clearance_checks_compiled_against_tree_routed(backend):
 
     assert report.total_checks == 1
     assert report.violation_count == 1
+
+
+def test_required_clearance_recognizes_manifest_hv_nets_not_matched_by_keywords():
+    """Regression: _get_required_clearance's HV gate was 4 hardcoded
+    substrings ("AC_", "HV_", "HIGH_VOLTAGE", "MAINS") matched against a
+    net's own spelling. On this project's real board, that matched ONLY
+    ac_l/ac_n -- every other real HV-domain net declared in
+    elec/domain_manifest.yaml (DC_BUS_RTN, +170V_BUS, PWR_RTN, SW_NODE,
+    GATE_HS, GATE_LS, +15V_LS, w1_1, w1_2, zcd, a) silently fell through
+    to the plain 0.127mm default instead of the true IEC 60335 mains
+    requirement -- on a mains-connected board, checked against an SELV
+    net (gnd), that is the single most safety-relevant gap this task
+    found. See docs/evidence/2026-07-27-clearance-copper-balance.md.
+
+    Fails before the fix (required == default_clearance, 0.127mm, for a
+    dc-bus-vs-gnd pair that must be treated as HV/SELV); passes after
+    (required is the multi-standard-max HV clearance, > 1mm).
+
+    This test depends on elec/domain_manifest.yaml existing at the repo
+    root with an 'HV' domain declaring DC_BUS_RTN -- true for this repo
+    checkout; skipped (not xfailed -- the absence is an environment fact,
+    not a code defect) if that file cannot be found, since
+    _load_manifest_hv_net_names() is explicitly designed to degrade
+    gracefully rather than crash when the manifest is absent (e.g. a
+    package built/tested outside this repo checkout).
+    """
+    from temper_placer.router_v6.clearance_check import (
+        _get_required_clearance,
+        _load_manifest_hv_net_names,
+    )
+
+    hv_nets = _load_manifest_hv_net_names()
+    if "DC_BUS_RTN" not in hv_nets:
+        pytest.skip(
+            "elec/domain_manifest.yaml not found or does not declare "
+            "DC_BUS_RTN under HV in this environment"
+        )
+
+    required = _get_required_clearance("DC_BUS_RTN", "gnd", default_clearance=0.127)
+
+    assert required > 1.0, (
+        f"DC_BUS_RTN (real HV net) vs gnd (SELV) should require IEC "
+        f"60335 mains clearance, got {required}mm (looks like the "
+        f"0.127mm default -- the HV gate did not recognize this net)"
+    )
+
+
+def test_required_clearance_default_for_non_manifest_selv_pair():
+    """Sanity check on the fix above: two ordinary SELV nets not declared
+    HV anywhere must still get the plain default clearance, not the HV
+    table -- the fix must not turn every net into an HV net."""
+    from temper_placer.router_v6.clearance_check import _get_required_clearance
+
+    required = _get_required_clearance("gnd", "+3V3", default_clearance=0.127)
+    assert required == 0.127

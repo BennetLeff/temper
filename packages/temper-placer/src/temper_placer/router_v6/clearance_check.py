@@ -7,8 +7,10 @@ Part of temper-8vjm (Stage 5 - Manufacturing DRC)
 
 from __future__ import annotations
 
+import functools
 import math
 from dataclasses import dataclass
+from pathlib import Path
 
 from temper_placer.router_v6._check_report_base import BaseCheckReport
 from temper_placer.router_v6.clearance_engine import get_clearance
@@ -590,6 +592,71 @@ def _segment_to_segment_dist(a, b, c, d):
     return best_dist, best_cp1, best_cp2
 
 
+@functools.lru_cache(maxsize=1)
+def _load_manifest_hv_net_names() -> frozenset[str]:
+    """Real HV-domain net names from ``elec/domain_manifest.yaml``.
+
+    ``_get_required_clearance`` used to classify a net as HV purely by
+    matching 4 hardcoded substrings (``"AC_"``, ``"HV_"``,
+    ``"HIGH_VOLTAGE"``, ``"MAINS"``) against the net's own spelling. On
+    this board's actual net names that matched **only** ``ac_l``/``ac_n``
+    (via the ``"AC_"`` substring after ``.upper()``) -- every other real
+    HV-domain net (``DC_BUS_RTN``, ``+170V_BUS``, ``PWR_RTN``,
+    ``SW_NODE``, ``GATE_HS``, ``GATE_LS``, ``+15V_LS``, ``w1_1``,
+    ``w1_2``, ``zcd``, ``a``) was silently treated as a plain
+    default-clearance (0.127mm) net pair instead of the true IEC 60335
+    3-14mm mains/DC-bus requirement -- on a mains-connected board, this
+    is the single most safety-relevant gap found in this check. See
+    docs/evidence/2026-07-27-clearance-copper-balance.md.
+
+    ``elec/domain_manifest.yaml`` is this project's own canonical,
+    human-reviewed HV/SELV declaration (``scripts/check_domain_partition.py``
+    uses the identical file to answer the identical question at the
+    netlist level). Reusing it here means this check's HV/SELV boundary
+    cannot silently drift from the project's single declared source of
+    truth the way a second hand-maintained keyword list would.
+
+    Self-contained parse (mirrors ``scripts/check_copper_net_consistency.py``'s
+    own stated reasoning for not depending on another script's internal
+    representation) -- deliberately forgiving: this is a reporting-only
+    DRC check, not a hard gate, so a missing/malformed/unreadable manifest
+    degrades to an **empty** result (falling back to the substring
+    heuristic alone) rather than raising and taking down the router
+    pipeline over a file this check has never depended on before.
+    """
+    try:
+        import yaml
+    except ImportError:
+        return frozenset()
+
+    manifest_path = None
+    for parent in Path(__file__).resolve().parents:
+        candidate = parent / "elec" / "domain_manifest.yaml"
+        if candidate.is_file():
+            manifest_path = candidate
+            break
+    if manifest_path is None:
+        return frozenset()
+
+    try:
+        data = yaml.safe_load(manifest_path.read_text(encoding="utf-8"))
+    except Exception:
+        return frozenset()
+
+    if not isinstance(data, dict):
+        return frozenset()
+    domains = data.get("domains")
+    if not isinstance(domains, dict):
+        return frozenset()
+    hv_domain = domains.get("HV")
+    if not isinstance(hv_domain, dict):
+        return frozenset()
+    nets = hv_domain.get("nets")
+    if not isinstance(nets, list):
+        return frozenset()
+    return frozenset(str(n) for n in nets)
+
+
 def _get_required_clearance(
     net1: str,
     net2: str,
@@ -620,12 +687,13 @@ def _get_required_clearance(
         voltage_ratings = {}
 
     hv_keywords = ["AC_", "HV_", "HIGH_VOLTAGE", "MAINS"]
+    hv_manifest_nets = _load_manifest_hv_net_names()
 
     net1_upper = net1.upper()
     net2_upper = net2.upper()
 
-    is_hv1 = any(kw in net1_upper for kw in hv_keywords)
-    is_hv2 = any(kw in net2_upper for kw in hv_keywords)
+    is_hv1 = any(kw in net1_upper for kw in hv_keywords) or net1 in hv_manifest_nets
+    is_hv2 = any(kw in net2_upper for kw in hv_keywords) or net2 in hv_manifest_nets
 
     if is_hv1 or is_hv2:
         # Determine the governing voltage: pick the HV net's voltage
@@ -657,6 +725,8 @@ def _get_required_clearance(
 
 def _classify_net_class(net_name: str) -> str:
     """Map a net name to a net-class label for the clearance engine."""
+    if net_name in _load_manifest_hv_net_names():
+        return "HV"
     upper = net_name.upper()
     hv_keywords = [
         "AC_",
