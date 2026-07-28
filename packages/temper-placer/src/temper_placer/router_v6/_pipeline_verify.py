@@ -270,6 +270,27 @@ def _run_manufacturing_drc(
             )
             return None, True
 
+    # Computed up front (not just before creepage/clearance below) because
+    # the anti-vacuous-truth guard now also applies to annular_ring.
+    has_routed_copper = bool(
+        getattr(routing_results, "compiled_routes", None)
+        or getattr(routing_results, "tree_routes", None)
+    )
+    has_vias = bool(
+        any(
+            getattr(cr, "vias", None)
+            for cr in getattr(routing_results, "compiled_routes", {}).values()
+        )
+        or any(
+            getattr(tr, "vias", None)
+            for tr in getattr(routing_results, "tree_routes", {}).values()
+        )
+        or any(
+            getattr(tr, "vias", None)
+            for tr in getattr(routing_results, "partial_tree_routes", {}).values()
+        )
+    )
+
     acid_traps_result, acid_traps_errored = _run_one(
         "acid_trap",
         detect_acid_traps,
@@ -285,6 +306,19 @@ def _run_manufacturing_drc(
     annular_rings = annular_result or AnnularRingReport(
         violations=[], total_vias_checked=0, errored=annular_errored
     )
+    # Anti-vacuous-truth guard (METHODOLOGY.md Sec 5), same pattern as
+    # creepage/clearance below: a check that ran without raising but
+    # inspected zero vias while the board actually has vias present is as
+    # untrustworthy as a crash. See
+    # docs/evidence/2026-07-27-drc-checks-repaired.md.
+    if not annular_errored and annular_rings.total_vias_checked == 0 and has_vias:
+        _logger.error(
+            "Manufacturing DRC: annular_ring check reported "
+            "total_vias_checked=0 on a board with vias present -- "
+            "anti-vacuous-truth guard (METHODOLOGY.md Sec 5) fired; "
+            "treating as errored/fail-closed."
+        )
+        annular_rings.errored = True
 
     teardrops_result, teardrops_errored = _run_one(
         "teardrop",
@@ -355,10 +389,8 @@ def _run_manufacturing_drc(
     # a check that ran without raising but examined zero conductor pairs
     # on a board that has actual routed copper is just as untrustworthy
     # as a crash, and is tagged `errored=True` too.
-    has_routed_copper = bool(
-        getattr(routing_results, "compiled_routes", None)
-        or getattr(routing_results, "tree_routes", None)
-    )
+    # (`has_routed_copper` computed once, up front -- also used by the
+    # annular_ring guard above.)
 
     creepage_result, creepage_errored = _run_one(
         "creepage",

@@ -12,7 +12,14 @@ from temper_placer.router_v6.annular_ring_check import (
     check_annular_rings,
 )
 from temper_placer.router_v6.astar_pathfinding import RoutePath
-from temper_placer.router_v6.routing_results import CompiledRoute, RoutingResults
+from temper_placer.router_v6.connectivity import PadIdentity
+from temper_placer.router_v6.routing_results import (
+    CompiledRoute,
+    CompiledTreeRoute,
+    RoutingResults,
+)
+from temper_placer.router_v6.terminal_tree import TerminalTreeEdge
+from temper_placer.router_v6.tree_route_geometry import TreeRouteBranch, TreeRouteGeometry
 from temper_placer.router_v6.via_placement import Via
 
 
@@ -122,3 +129,84 @@ def test_check_multiple_nets():
 
     assert report.total_vias_checked == 2
     assert report.violation_count == 1
+
+
+def test_check_annular_rings_inspects_tree_routed_vias():
+    """Regression test: tree-routed nets' vias were never inspected.
+
+    ``RoutingResults.tree_routes`` / ``.partial_tree_routes`` hold
+    ``CompiledTreeRoute`` objects with their own ``.vias`` list -- the
+    same kind of ``Via`` objects the exporter (``_adapter_convert.py``,
+    "U7") writes real ``(via ...)`` s-expressions from. On a board where
+    most copper is tree-routed (Steiner-style multi-terminal nets),
+    ``check_annular_rings`` used to only walk ``compiled_routes`` and
+    silently inspect zero vias while the exported board had dozens
+    physically present -- this is the "0 violations over 0 checks on a
+    board with 48 vias" bug from
+    docs/evidence/2026-07-27-committed-route.md. This test fails before
+    the fix (``total_vias_checked == 0``) and passes after
+    (``total_vias_checked == 1``, and the undersized via is caught).
+    """
+    net_name = "NET1"
+    root = PadIdentity("U1", "1", net_name, 0.0, 0.0, (0,))
+    leaf = PadIdentity("U2", "1", net_name, 10.0, 0.0, (0,))
+    geometry = TreeRouteGeometry(
+        net_name,
+        (
+            TreeRouteBranch(
+                TerminalTreeEdge(root, leaf),
+                RoutePath(net_name, [(0, 0), (10, 0)], "F.Cu", 10.0),
+            ),
+        ),
+    )
+    # Undersized via: 0.4mm pad, 0.35mm drill = 0.025mm ring < 0.1mm min.
+    bad_via = Via((5, 0), "F.Cu", "B.Cu", 0.4, 0.35, net_name)
+    tree_route = CompiledTreeRoute(
+        net_name=net_name,
+        geometry=geometry,
+        width_mm=0.127,
+        vias=[bad_via],
+    )
+    results = RoutingResults(
+        compiled_routes={},
+        tree_routes={net_name: tree_route},
+        failed_nets=[],
+    )
+
+    report = check_annular_rings(results, min_annular_ring=0.1)
+
+    assert report.total_vias_checked == 1
+    assert report.violation_count == 1
+
+
+def test_check_annular_rings_inspects_partial_tree_routed_vias():
+    """Same regression as above, for ``partial_tree_routes``."""
+    net_name = "NET1"
+    root = PadIdentity("U1", "1", net_name, 0.0, 0.0, (0,))
+    leaf = PadIdentity("U2", "1", net_name, 10.0, 0.0, (0,))
+    geometry = TreeRouteGeometry(
+        net_name,
+        (
+            TreeRouteBranch(
+                TerminalTreeEdge(root, leaf),
+                RoutePath(net_name, [(0, 0), (10, 0)], "F.Cu", 10.0),
+            ),
+        ),
+    )
+    good_via = Via((5, 0), "F.Cu", "B.Cu", 0.6, 0.3, net_name)
+    tree_route = CompiledTreeRoute(
+        net_name=net_name,
+        geometry=geometry,
+        width_mm=0.127,
+        vias=[good_via],
+    )
+    results = RoutingResults(
+        compiled_routes={},
+        partial_tree_routes={net_name: tree_route},
+        failed_nets=[],
+    )
+
+    report = check_annular_rings(results, min_annular_ring=0.1)
+
+    assert report.total_vias_checked == 1
+    assert report.violation_count == 0
