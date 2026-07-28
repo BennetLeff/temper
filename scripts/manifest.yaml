@@ -1,8 +1,8 @@
 _meta:
   last_audit_date: '2026-07-28'
-  total_scripts: 73
+  total_scripts: 75
   counts:
-    keep: 72
+    keep: 74
     ticket: 1
   ticket_scripts_deleted: 40
 scripts:
@@ -1126,3 +1126,33 @@ scripts:
   - temper_placer.router_v6.adapter
   - time
   - typing
+- path: install_git_stash_guard.py
+  purpose: Install the shared-hooks reference-transaction hook (scripts/git-hooks/reference-transaction)
+    that blocks git stash push/save/clear repo-wide, since the stash stack is shared
+    across all concurrent worktrees on this .git directory. See AGENTS.md "Git Stash
+    Guard".
+  owner: bennet
+  last_run: '2026-07-28'
+  category: keep
+  disposition: utility
+  imports:
+  - argparse
+  - pathlib
+  - shutil
+  - subprocess
+  - sys
+- path: check_stash_stack_gate.py
+  purpose: Detector for git stash activity the reference-transaction hook cannot block
+    (apply, and pop/drop of a non-terminal entry) -- snapshots the stash reflog and
+    flags additions/removals since the last run. Not a CI gate; run manually or on
+    a timer against the shared dev machine.
+  owner: bennet
+  last_run: '2026-07-28'
+  category: keep
+  disposition: utility
+  imports:
+  - argparse
+  - json
+  - pathlib
+  - subprocess
+  - sys

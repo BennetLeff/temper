@@ -1,0 +1,92 @@
+#!/bin/sh
+# git-stash-guard: reference-transaction hook
+#
+# WHY THIS EXISTS
+#   This repo runs 60+ concurrent agent worktrees against one shared .git
+#   directory. `git stash` is repo-global: the stash stack (refs/stash and
+#   its reflog) is shared across every worktree, so one session's
+#   `git stash pop` can steal another session's entry. Agents are told not
+#   to use `git stash` in their briefs, but "asking" does not hold at this
+#   concurrency -- an agent used it anyway on 2026-07-28 and got lucky.
+#   This hook makes the highest-value part of that mistake -- creating a
+#   NEW shared stash entry -- fail loudly instead of silently succeeding.
+#
+# WHAT THIS ACTUALLY BLOCKS (verified empirically, see docs/evidence or the
+#   PR that introduced this file for the throwaway-repo transcript):
+#   - `git stash`, `git stash push`, `git stash save`   -> ALWAYS blocked.
+#   - `git stash clear`                                  -> ALWAYS blocked.
+#   - `git stash drop <last remaining entry>`            -> blocked (this is
+#     the case where dropping requires deleting refs/stash entirely).
+#
+# WHAT THIS DOES NOT BLOCK (known, tested gap -- do not assume otherwise):
+#   - `git stash apply` never touches a ref at all, so no hook of any kind
+#     (this one included) ever fires for it. It cannot be blocked this way.
+#   - `git stash pop` / `git stash drop <entry>` when the stack has more
+#     than one entry left afterward: git rewrites the reflog and repoints
+#     refs/stash WITHOUT going through the transactional ref-update API,
+#     so this hook is never invoked for that case either. With 80+ existing
+#     entries in this repo's stack, this is the common case, not the edge
+#     case -- treat `pop`/`drop`/`apply` of EXISTING entries as still
+#     unenforced. The standing prohibition on touching `git stash` at all
+#     remains a policy rule for those subcommands, not a technical one.
+#
+# BYPASS (for a human who knows what they're doing, in a clean, single-
+#   worktree context -- not the concurrent-agent failure mode this guards
+#   against):
+#     ALLOW_GIT_STASH=1 git stash push -m "..."
+#
+# SAFE ALTERNATIVE (what to use instead, since the underlying need --
+#   comparing with/without your changes -- is real):
+#   - `git worktree add ../scratch-<name> -b scratch/<name>` and copy the
+#     change over, or
+#   - a scratch branch: `git branch wip/<name> && git commit -am wip`, or
+#   - `git diff > /tmp/patch.diff` (or your scratchpad dir) and `git apply`
+#     it back later.
+#
+# Git only aborts a ref-transaction when this hook is invoked with the
+# "prepared" state and exits non-zero; "committed"/"aborted" invocations
+# are notifications only and cannot change the outcome, so this hook is a
+# no-op for those states.
+state="$1"
+if [ "$state" != "prepared" ]; then
+  exit 0
+fi
+
+if [ -n "$ALLOW_GIT_STASH" ]; then
+  exit 0
+fi
+
+blocked=0
+while read -r old new refname; do
+  case "$refname" in
+    refs/stash)
+      blocked=1
+      ;;
+  esac
+done
+
+if [ "$blocked" = "1" ]; then
+  cat >&2 <<'EOF'
+git-stash-guard: BLOCKED a refs/stash update.
+
+`git stash` is disabled in this repo: the stash stack is shared across all
+60+ concurrent agent worktrees on this .git directory, and a mis-timed
+`git stash pop` can steal another session's entry (it has happened).
+
+Use one of these instead:
+  git worktree add ../scratch-<name> -b scratch/<name>   # isolated copy
+  git branch wip/<name> && git commit -am wip             # scratch branch
+  git diff > /tmp/patch.diff                               # patch file
+
+If you are a human, working alone, in a clean single-worktree context, and
+you are sure this is not the shared-stack failure mode above, bypass with:
+  ALLOW_GIT_STASH=1 git stash ...
+
+See AGENTS.md ("Git Stash Guard") for the full writeup, including the
+subcommands this hook cannot block (`apply`, and `pop`/`drop` of an entry
+that isn't the last one in the stack).
+EOF
+  exit 1
+fi
+
+exit 0
