@@ -153,9 +153,49 @@ def _is_high_voltage_net(net_name: str) -> bool:
     Check whether *net_name* designates a high-voltage net.
 
     Matches a broad set of keywords commonly used in power-electronics
-    schematics.  ``AC`` and ``HV`` are matched on word boundaries so
-    that ``AC1``, ``HV_BUS``, ``_AC`` are recognised but ``TRACE`` is
-    not.
+    schematics.  Every keyword is matched on word boundaries (delimited
+    by ``_`` or start/end of the name) so that ``AC1``, ``HV_BUS``,
+    ``_AC`` are recognised but ``TRACE`` is not.
+
+    .. note:: **Bug history (2026-07-27).** Before this fix, only the
+       ``AC``/``HV`` checks below were word-bounded; ``broad_keywords``
+       used plain substring matching (``kw in name_upper``), which
+       silently matched ``"L1"``/``"L2"`` inside ``"COIL1"``/``"COIL2"``
+       (SELV relay-coil-drive nets, e.g. ``discharge.k_dis1-coil2``,
+       ``power_in.bypass_relay-coil2``) and ``"LINE"`` inside
+       ``"...-line"`` (internal safety-interlock fault signals, e.g.
+       ``safety.ovp-line``, ``safety.uvlo_logic-line`` -- the latter is
+       explicitly documented as SELV in ``elec/domain_manifest.yaml``,
+       with a multi-paragraph justification). On the live production
+       board this meant **14 of the 16** net names the check treated as
+       ``hv_net`` were false positives, and **all 24** of one measured
+       run's creepage violations involved one of those 14 -- zero
+       involved a genuine HV/mains conductor. Real HV nets in this
+       design happen to be delimited by ``_`` (``discharge.k_dis1-coil2``
+       uses ``-``, not ``_``, before ``coil2``), so word-bounding on
+       ``_`` -- the same discipline the AC/HV regex already used --
+       removes every one of these collisions without narrowing intended
+       matches (a net genuinely named e.g. ``PHASE_L1`` or ``BUS_L1``
+       still matches; ``COIL1``/``...-LINE`` no longer do, because ``L1``/
+       ``LINE`` are not preceded by ``_`` or string-start there). See
+       ``docs/evidence/2026-07-27-creepage-burndown.md`` Sec 4 for the
+       full derivation and the live before/after violation counts.
+
+       This fix does **not** add coverage for the real HV nets the old
+       heuristic also missed entirely (``+170V_BUS``, ``SW_NODE``,
+       ``DC_BUS_RTN``, ``GATE_HS``/``GATE_LS``, ``w1_1``/``w1_2``,
+       ``+15V_LS``, ``zcd``, ``a`` -- everything in
+       ``elec/domain_manifest.yaml``'s HV domain except ``ac_l``/
+       ``ac_n``). That is a separate, "Missing" (not "Wrong") gap in this
+       heuristic's design -- a name-pattern classifier structurally
+       cannot recognise nets whose *name* gives no voltage hint -- and is
+       out of scope for this fix, which only removes proven false
+       positives. Flagged as a ranked follow-up in the evidence doc:
+       driving this check's HV-net set from ``elec/domain_manifest.yaml``
+       (the same SSOT ``domain_clearance.py`` already reuses for the
+       placement-side clearance check) would close it properly, at the
+       cost of coupling this otherwise project-agnostic module to one
+       project's manifest file -- a real design decision, not made here.
 
     Args:
         net_name: Net name from the schematic / layout.
@@ -165,7 +205,9 @@ def _is_high_voltage_net(net_name: str) -> bool:
     """
     name_upper = net_name.upper()
 
-    # Broad-match keywords (substring match is safe for these)
+    # Word-boundary keywords, delimited by "_" or start/end-of-string --
+    # see the bug-history note above for why plain substring matching
+    # here was wrong.
     broad_keywords = [
         "HIGH_VOLTAGE",
         "MAINS",
@@ -178,9 +220,13 @@ def _is_high_voltage_net(net_name: str) -> bool:
         "L3",
         "PHASE",
         "VBUS",
-        "B+",
     ]
-    if any(kw in name_upper for kw in broad_keywords):
+    for kw in broad_keywords:
+        if re.search(rf"(?:^|_){re.escape(kw)}(?:$|[\d_])", name_upper):
+            return True
+    # "B+" has no alphanumeric trailing boundary to anchor on; anchored
+    # on the leading "_"/start side only (e.g. "DC_BUS+", "BUS+").
+    if re.search(r"(?:^|_)B\+", name_upper):
         return True
 
     # AC / HV with optional trailing underscore or digit
