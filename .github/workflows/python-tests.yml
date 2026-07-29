@@ -13,24 +13,31 @@ name: Python Tests
 # 13-18min budgets, and the one shard that did survive only did so by finishing
 # before the next push landed.
 #
-# Trade-off, deliberately accepted: every pushed commit now gets its own full
-# run instead of only the newest surviving. That costs more minutes and can
-# queue behind the account's concurrent-job limit. It buys a verdict per commit,
-# which is the thing that was missing. If the queue becomes the new bottleneck,
-# the lever is push frequency or the `paths:` filters above -- not going back to
-# cancelling runs before they can report.
+# CORRECTION (2026-07-28, same day): grouping on the head SHA fixed the
+# cancellation but overcorrected. It preserves a run for EVERY pushed commit,
+# on a PR branch as well as on main -- and on a PR branch only the tip commit's
+# verdict is wanted. Observed cost within hours: PR #392 accumulated six full
+# 32-job runs from one branch (`b1935de3`, `9850be4f`, `86967af6`, `f5c28851`,
+# `03fb1093`, plus a rebase), none cancelled, all queued against the same
+# runner pool, delaying the verdict the change existed to deliver.
 #
-# This supersedes #362, which fixed the same class of bug from the trunk side
-# (`cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}` -- exempt main,
-# keep cancelling everywhere else). That is strictly the better half of the
-# problem to fix first and its evidence stands, but it leaves pull_request runs
-# cancelling each other, and every cancellation that destroyed a measurement on
-# 2026-07-28 was a pull_request event. Grouping on the head SHA covers both
-# cases: main pushes and PR pushes each get their own group, so neither can
-# cancel the other. #362's Core Tests timeout raise (30 -> 45) is kept as-is.
+# The two branches want opposite behaviour, so they now get it:
+#
+#   pull_request  -> group by PR NUMBER, cancel-in-progress TRUE.
+#                    A new push supersedes the old run. Only the tip matters;
+#                    an intermediate commit on a PR is not a thing anyone
+#                    bisects to.
+#   push (main)   -> group by SHA (unique), cancel-in-progress irrelevant.
+#                    Every trunk commit keeps its own run to completion,
+#                    because trunk commits ARE bisected to.
+#
+# This keeps what #362 established -- main must never have its runs cancelled,
+# evidenced there by 8 consecutive cancelled trunk runs -- and adds the PR-side
+# fix that motivated the head-SHA grouping, without the queue cost. #362's Core
+# Tests timeout raise (30 -> 45) is untouched.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.head.sha || github.sha }}
-  cancel-in-progress: false
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 on:
   push:
