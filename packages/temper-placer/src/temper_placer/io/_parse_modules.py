@@ -40,7 +40,25 @@ def _extract_components_from_pcb(
         rot_deg = fp.position.angle or 0.0
         rot_idx = round(rot_deg / 90.0) % 4
 
-        width, height = _calculate_footprint_bounds(fp)
+        # Pad-centroid offset, computed BEFORE bounds so the symmetric
+        # envelope below is centred on the SAME point `initial_position`
+        # uses (`ox + rotated(center_offset)`, below) -- not the
+        # footprint's raw KiCad anchor. This must be computed once, here,
+        # and threaded through, rather than derived twice from two
+        # different sources: see `_calculate_footprint_bounds`'s docstring
+        # for why a mismatch here is a real soundness gap, not a style
+        # nit. (The identical formula is repeated on `raw_pins` below only
+        # for backward-compatible clarity of that block; both read the
+        # same `fp.pads` positions and always agree.)
+        if fp.pads:
+            _pad_cx = [p.position.X for p in fp.pads]
+            _pad_cy = [p.position.Y for p in fp.pads]
+            center_offset_x = (min(_pad_cx) + max(_pad_cx)) / 2.0
+            center_offset_y = (min(_pad_cy) + max(_pad_cy)) / 2.0
+        else:
+            center_offset_x, center_offset_y = 0.0, 0.0
+
+        width, height = _calculate_footprint_bounds(fp, center_offset_x, center_offset_y)
 
         side = 1 if fp.layer in ["B.Cu", "Back", "Bottom"] else 0
 
@@ -105,13 +123,10 @@ def _extract_components_from_pcb(
                 }
             )
 
-        if raw_pins:
-            pad_xs = [p["position"][0] for p in raw_pins]
-            pad_ys = [p["position"][1] for p in raw_pins]
-            center_offset_x = (min(pad_xs) + max(pad_xs)) / 2.0
-            center_offset_y = (min(pad_ys) + max(pad_ys)) / 2.0
-        else:
-            center_offset_x, center_offset_y = 0.0, 0.0
+        # center_offset_x/y already computed above (before bounds), from
+        # the same `fp.pads` positions `raw_pins` was built from -- not
+        # recomputed here, so there is exactly one source of truth for
+        # the frame shift instead of two that could silently diverge.
 
         pins = []
         for p in raw_pins:
@@ -277,7 +292,9 @@ def _get_footprint_bounds(fp: Footprint) -> tuple[float, float]:
     return _calculate_footprint_bounds(fp)
 
 
-def _calculate_footprint_bounds(fp: Footprint) -> tuple[float, float]:
+def _calculate_footprint_bounds(
+    fp: Footprint, center_offset_x: float = 0.0, center_offset_y: float = 0.0
+) -> tuple[float, float]:
     """
     Calculate footprint bounding box from courtyard graphics or pads.
 
@@ -288,9 +305,42 @@ def _calculate_footprint_bounds(fp: Footprint) -> tuple[float, float]:
 
     Args:
         fp: Kiutils Footprint item.
+        center_offset_x: X of the point the returned box is symmetric
+            *around*, in the footprint's own local (unrotated) coordinate
+            frame -- i.e. the same ``center_offset_x`` computed in
+            ``_extract_components_from_pcb`` from this footprint's pad
+            centroid. Defaults to 0.0 (the footprint's raw KiCad anchor),
+            which is the historical, pre-2026-07-30 behaviour.
+        center_offset_y: Y counterpart of ``center_offset_x``.
 
     Returns:
-        (width, height) in mm.
+        (width, height) in mm: a box symmetric around
+        ``(center_offset_x, center_offset_y)`` that encloses every
+        courtyard/fabrication-layer graphic and every pad's copper extent.
+
+    **Why the offset argument exists (2026-07-30).** ``CpSatModel`` places
+    this box centred at the component's ``x_center``/``y_center``, which is
+    ``Component.initial_position`` -- and *that* point is the footprint's
+    raw KiCad anchor shifted by the pad centroid
+    (``_extract_components_from_pcb``: ``fp.position + rotated(center_offset)``),
+    not the raw anchor itself. A box computed symmetric around the raw
+    anchor (``center_offset=(0, 0)``, the old unconditional behaviour) is
+    being drawn around the WRONG point once the placement position is
+    shifted -- for a footprint whose pads are perfectly symmetric about
+    their own centroid this is harmless (the shift is zero), but for one
+    whose pad *sizes* are asymmetric enough that the centroid diverges
+    from the extent's own midpoint, the old box could fail to cover real
+    copper at the position the solver actually places it at -- silently
+    reintroducing the exact "off-centre pad offset defeats centered
+    component bounds" bug class this repo already fixed once (see
+    ``docs/solutions/logic-errors/off-center-pad-offset-defeats-centered-bounds-2026-07-08.md``),
+    just at a different origin than that fix addressed. See
+    ``docs/evidence/2026-07-30-domain-clearance-copper-aware-fix.md`` for
+    the synthetic counter-example, the proof this argument closes, and why
+    it does not manifest as an actual violation on the real board's
+    current footprints (measured directly: 0 of 168 components exhibit
+    positive overhang either way -- this fix is precautionary/proof-
+    restoring, not a reaction to an observed failure on this board).
     """
     if fp.graphicItems:
         layers_priority = ["F.CrtYd", "B.CrtYd", "F.Fab", "B.Fab"]
@@ -349,18 +399,18 @@ def _calculate_footprint_bounds(fp: Footprint) -> tuple[float, float]:
         y_min = min(gfx_bounds[1], pad_y_min)
         x_max = max(gfx_bounds[2], pad_x_max)
         y_max = max(gfx_bounds[3], pad_y_max)
-        hw = max(abs(x_min), abs(x_max))
-        hh = max(abs(y_min), abs(y_max))
+        hw = max(abs(x_min - center_offset_x), abs(x_max - center_offset_x))
+        hh = max(abs(y_min - center_offset_y), abs(y_max - center_offset_y))
         return (max(0.5, 2 * hw), max(0.5, 2 * hh))
 
     if gfx_bounds is not None:
-        hw = max(abs(gfx_bounds[0]), abs(gfx_bounds[2]))
-        hh = max(abs(gfx_bounds[1]), abs(gfx_bounds[3]))
+        hw = max(abs(gfx_bounds[0] - center_offset_x), abs(gfx_bounds[2] - center_offset_x))
+        hh = max(abs(gfx_bounds[1] - center_offset_y), abs(gfx_bounds[3] - center_offset_y))
         return (max(0.5, 2 * hw), max(0.5, 2 * hh))
 
     if pad_x_min != float("inf"):
-        hw = max(abs(pad_x_min), abs(pad_x_max))
-        hh = max(abs(pad_y_min), abs(pad_y_max))
+        hw = max(abs(pad_x_min - center_offset_x), abs(pad_x_max - center_offset_x))
+        hh = max(abs(pad_y_min - center_offset_y), abs(pad_y_max - center_offset_y))
         return (max(0.5, 2 * hw), max(0.5, 2 * hh))
 
     return (2.0, 2.0)
