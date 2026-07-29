@@ -173,6 +173,40 @@ class TestOverlap:
         b = Pad("2", "rect", "b", ("B.Cu",), cx=0.0, cy=0.0, width=2.0, height=2.0, angle_deg=0)
         assert check_pad_orientation._layers_intersect(a, b)
 
+    def test_pad_declaring_only_non_copper_layers_cannot_short(self) -> None:
+        """A pad that declares layers, none of them copper, has no copper.
+
+        K1's #250 Faston tabs are ``F.Fab`` only because the Omron G4A
+        datasheet says they carry no PCB copper connection at all.  Two
+        such pads sit at exactly 6.35 mm centres with 6.35 mm width, so
+        they coincide geometrically -- but there is no copper to short.
+        KiCad's own DRC reports zero intra-component shorts for K1.
+        """
+        a = Pad("13", "rect", "a", ("F.Fab",), cx=0.0, cy=0.0, width=6.35, height=1.2, angle_deg=0)
+        b = Pad("14", "rect", "b", ("F.Fab",), cx=6.35, cy=0.0, width=6.35, height=1.2, angle_deg=0)
+        assert check_pad_orientation.pads_overlap(a, b), "geometry must still overlap"
+        assert not check_pad_orientation._layers_intersect(a, b)
+
+    def test_one_copper_one_non_copper_pad_cannot_short(self) -> None:
+        a = Pad("1", "rect", "a", ("F.Cu",), cx=0.0, cy=0.0, width=2.0, height=2.0, angle_deg=0)
+        b = Pad("2", "rect", "b", ("F.Fab",), cx=0.0, cy=0.0, width=2.0, height=2.0, angle_deg=0)
+        assert not check_pad_orientation._layers_intersect(a, b)
+
+    def test_pad_declaring_no_layers_at_all_still_fails_closed(self) -> None:
+        """Absence of a layer list is unknown, not proven-safe.
+
+        This is the case the fail-closed rule exists for, and it must
+        survive the non-copper carve-out above.
+        """
+        a = Pad("1", "rect", "a", (), cx=0.0, cy=0.0, width=2.0, height=2.0, angle_deg=0)
+        b = Pad("2", "rect", "b", ("F.Cu",), cx=0.0, cy=0.0, width=2.0, height=2.0, angle_deg=0)
+        assert check_pad_orientation._layers_intersect(a, b)
+
+    def test_both_pads_declaring_no_layers_fail_closed(self) -> None:
+        a = Pad("1", "rect", "a", (), cx=0.0, cy=0.0, width=2.0, height=2.0, angle_deg=0)
+        b = Pad("2", "rect", "b", (), cx=0.0, cy=0.0, width=2.0, height=2.0, angle_deg=0)
+        assert check_pad_orientation._layers_intersect(a, b)
+
 
 class TestGeometry:
     def test_separated_rects_do_not_overlap(self) -> None:
