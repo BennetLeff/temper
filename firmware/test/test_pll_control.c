@@ -7,7 +7,15 @@
  * between PWM output and current zero-crossing.
  * 
  * Specifications (from design docs):
- * - Frequency range: 30-50 kHz (PLL_MIN_FREQ_HZ to PLL_MAX_FREQ_HZ)
+ * - Frequency range: 42-50 kHz (PLL_MIN_FREQ_HZ to PLL_MAX_FREQ_HZ).
+ *   The floor was RAISED from 30 kHz on 2026-07-29 (docs/evidence/
+ *   2026-07-29-pll-floor-above-resonance.md): 30 kHz sat below the tank's
+ *   loaded resonance, where a series-resonant bridge hard-switches. It is
+ *   now derived by scripts/check_pll_range_consistency.py from
+ *   elec/src/main.ato's declared L/C/coupling/tolerance, so tests below
+ *   assert against the MACROS rather than against literals -- a literal
+ *   here would silently stop testing the real bound the next time the
+ *   derivation moves it.
  * - Target phase lag: ~1.5µs for ZVS operation
  * - Lock tolerance: ±0.5µs phase error
  * - Default frequency: 47 kHz (CORRECTED 2026-07-28, was 35 kHz -- see
@@ -83,22 +91,28 @@ void test_pll_get_context_not_null(void) {
 
 /**
  * Test: Custom configuration is applied
+ *
+ * min_freq_hz here was 35000 until 2026-07-29. That is BELOW the tank's
+ * loaded resonance (37.58kHz) -- a hard-switching frequency. It only ever
+ * exercised config plumbing, but a test fixture is also an example, and
+ * this one demonstrated a bridge-destroying value. Changed to 43000 (above
+ * the derived floor) so the example is one a reader could safely copy.
  */
 void test_pll_init_custom_config(void) {
     pll_config_t config = {
         .kp = 5.0f,
         .ki = 100.0f,
         .target_phase_us = 2.0f,
-        .min_freq_hz = 35000,
+        .min_freq_hz = 43000,
         .max_freq_hz = 45000
     };
     pll_init(&config);
-    
+
     const pll_context_t *ctx = pll_get_context();
     TEST_ASSERT_FLOAT_WITHIN(0.01f, 5.0f, ctx->kp);
     TEST_ASSERT_FLOAT_WITHIN(0.01f, 100.0f, ctx->ki);
     TEST_ASSERT_FLOAT_WITHIN(0.01f, 2.0f, ctx->target_phase_us);
-    TEST_ASSERT_EQUAL_UINT32(35000, ctx->min_freq);
+    TEST_ASSERT_EQUAL_UINT32(43000, ctx->min_freq);
     TEST_ASSERT_EQUAL_UINT32(45000, ctx->max_freq);
 }
 
@@ -282,7 +296,7 @@ void test_frequency_max_limit(void) {
     }
     
     float freq = pll_get_frequency();
-    TEST_ASSERT_TRUE(freq <= 50000.0f);  /* Max is 50kHz */
+    TEST_ASSERT_TRUE(freq <= (float)PLL_MAX_FREQ_HZ);  /* see min-limit test's note */
 }
 
 /**
@@ -297,7 +311,13 @@ void test_frequency_min_limit(void) {
     }
     
     float freq = pll_get_frequency();
-    TEST_ASSERT_TRUE(freq >= 30000.0f);  /* Min is 30kHz */
+    /* Asserted against the MACRO, not a literal 30000.0f. The literal was
+     * a silent weakening waiting to happen: when the floor moved 30k ->
+     * 42k on 2026-07-29 the old assertion still "passed" while no longer
+     * testing the clamp at all. The clamp is a ZVS safety bound -- below
+     * PLL_MIN_FREQ_HZ the tank is capacitive and the bridge hard-switches
+     * -- so this must track whatever the derived floor currently is. */
+    TEST_ASSERT_TRUE(freq >= (float)PLL_MIN_FREQ_HZ);
 }
 
 /*============================================================================

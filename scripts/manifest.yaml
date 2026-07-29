@@ -933,9 +933,15 @@ scripts:
     and elec/src/main.ato''s declared f_switching/f_pll_tracking_min/max disagree -- main.ato asserted
     a 20-100kHz tracking range 5x wider than the firmware''s real 30-50kHz clamp, and PLL_DEFAULT_FREQ_HZ
     (35000) started the bridge at the frequency an independent ZVS analysis found loses 100.7% of ZVS
-    margin, while main.ato had already moved to 47kHz (docs/evidence/2026-07-28-pll-defaults-and-range-gate.md)'
+    margin, while main.ato had already moved to 47kHz (docs/evidence/2026-07-28-pll-defaults-and-range-gate.md).
+    EXTENDED 2026-07-29: also DERIVES the required PLL floor from main.ato''s declared l_tank_assumed
+    / l_pan_loaded_ratio / c_tank_total / l_tank_tolerance (1.05 x the worst-case loaded resonance)
+    and fails if PLL_MIN_FREQ_HZ is below it -- the previous checks only compared declarations against
+    each other and so were blind to both files agreeing on 30kHz, 7.6kHz BELOW the tank''s loaded
+    resonance, where a series-resonant bridge hard-switches (docs/evidence/2026-07-29-pll-floor-above-resonance.md).
+    Also cross-checks main.ato''s c_tank_total mirror against modules.ato''s c_tank1+c_tank2'
   owner: bennet
-  last_run: '2026-07-28'
+  last_run: '2026-07-29'
   category: keep
   disposition: ci-gate
   imports:
@@ -944,6 +950,7 @@ scripts:
   - _lib.repo
   - argparse
   - dataclasses
+  - math
   - pathlib
   - re
   - sys

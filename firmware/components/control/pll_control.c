@@ -46,6 +46,16 @@ static const char *TAG = "pll_control";
 #define FREQ_TOLERANCE_HZ       2000.0f /* Frequency tolerance from resonant freq */
 
 /* Frequency boundary checking (safety limits) */
+/* NOTE (2026-07-29): FREQ_MARGIN_LOW_HZ is now UNREACHABLE, and that is
+ * the intended outcome, not an oversight. It would allow 32.58kHz
+ * (37580 - 5000) -- below the loaded resonance, i.e. capacitive-mode hard
+ * switching. Since PLL_MIN_FREQ_HZ rose to 42000 the frequency clamp in
+ * pll_update_loop() is strictly tighter, so pll_is_frequency_safe()'s low
+ * bound can no longer be approached. It is left in place rather than
+ * retuned: changing this file's safety-window constants is a control-loop
+ * decision (see DEFAULT_RESONANT_FREQ's KNOWN OPEN ISSUE below), and the
+ * clamp already provides the protection. See docs/evidence/2026-07-29-
+ * pll-floor-above-resonance.md. */
 #define FREQ_MARGIN_LOW_HZ      5000.0f /* Below resonance limit: f_res - 5kHz */
 #define FREQ_MARGIN_HIGH_HZ     10000.0f /* Above resonance limit: f_res + 10kHz */
 /**
@@ -91,7 +101,44 @@ static const char *TAG = "pll_control";
  * FREQ_TOLERANCE_HZ/LOCK criteria is a control-loop decision left to a
  * human, not silently changed by this constant-reconciliation pass.
  */
-#define DEFAULT_RESONANT_FREQ   37580.0f
+/* Integer twin of DEFAULT_RESONANT_FREQ, used by the compile-time guard
+ * below (an integer constant expression cannot contain float operands in
+ * C99). DEFAULT_RESONANT_FREQ is derived from it rather than restated, so
+ * the two cannot drift apart. */
+#define DEFAULT_RESONANT_FREQ_HZ_INT 37580
+#define DEFAULT_RESONANT_FREQ   ((float)DEFAULT_RESONANT_FREQ_HZ_INT)
+
+/*
+ * COMPILE-TIME ZVS FLOOR GUARD (2026-07-29, docs/evidence/2026-07-29-pll-
+ * floor-above-resonance.md).
+ *
+ * This is a SERIES-resonant inverter: below the loaded resonance the tank
+ * is capacitive and the half-bridge hard-switches -- turn-on loss plus
+ * diode reverse recovery on a 1200V IGBT at the full 340V bus. Until
+ * 2026-07-29 PLL_MIN_FREQ_HZ was 30000, i.e. 7.58kHz BELOW the resonance
+ * declared two lines above, inside the same file. Nothing in the firmware
+ * compared them.
+ *
+ * This assert makes that comparison structural and free. It is
+ * deliberately the WEAKER of the two guards: it uses the NOMINAL
+ * resonance, because the firmware does not know the coil's tolerance.
+ * scripts/check_pll_range_consistency.py derives the same floor at the
+ * WORST-CASE (minimum) inductance from elec/src/main.ato and is the
+ * authority. Two independent paths, neither able to silently skip.
+ *
+ * Spelled as a negative-array-size typedef rather than _Static_assert
+ * because firmware/test builds with CMAKE_C_STANDARD 99, where
+ * _Static_assert is a C11 extension. The x100/x105 scaling keeps the
+ * whole expression integral, as C99 requires.
+ *
+ * If this stops compiling: PLL_MIN_FREQ_HZ is below 1.05x the loaded
+ * resonance, so the PLL's own legal range admits capacitive-mode hard
+ * switching of the IGBT half-bridge. Raise PLL_MIN_FREQ_HZ (and
+ * elec/src/main.ato's f_pll_tracking_min to match). Do not delete this.
+ */
+typedef char pll_min_freq_is_above_loaded_resonance_check[
+    (PLL_MIN_FREQ_HZ * 100 >= DEFAULT_RESONANT_FREQ_HZ_INT * 105) ? 1 : -1
+];
 
 /* Loss of lock detection */
 #define LOSS_OF_LOCK_COUNT  10      /* Consecutive out-of-range samples for unlock */
