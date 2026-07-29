@@ -71,6 +71,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import argparse
 import math
 import re
+from collections import defaultdict
 from dataclasses import dataclass, field
 
 from _lib.github_summary import get_github_summary_path
@@ -80,6 +81,12 @@ REPO_ROOT = find_repo_root()
 
 DEFAULT_ATO_GLOB = "elec/src/*.ato"
 DEFAULT_ALLOWLIST = "mpn-fabrication-allowlist.yaml"
+
+# Above this many UNCHECKED parts, the full per-part listing is replaced by
+# per-family counts only (plus a hint to force it). 19 today is fine to
+# always print in full; a few hundred would just be CI-log noise nobody
+# reads. --full-unchecked-list overrides this cap on request.
+UNCHECKED_LIST_CAP = 60
 
 # ---------------------------------------------------------------------------
 # Parsing: pull (ref, declared value, declared tolerance, mpn) tuples out of
@@ -361,6 +368,67 @@ def decode_mpn(mpn: str) -> Decoded | None:
     return None
 
 
+def _guess_prefix(mpn: str) -> str:
+    """Best-effort manufacturer-prefix guess for grouping UNCHECKED MPNs --
+    the leading run of letters (e.g. "EKMQ251VSN182MA50S" -> "EKMQ",
+    "DE1E3KX222MA4BA01" -> "DE"). Used only for report grouping, never for
+    decoding: an MPN that reaches this function has already failed every
+    real decoder pattern in decode_mpn()."""
+    m = re.match(r"^[A-Za-z]+", mpn)
+    return m.group(0) if m else mpn[:4]
+
+
+def classify_unchecked(mpn: str) -> tuple[str, str]:
+    """For an MPN that decode_mpn() returned None for, explain *why* --
+    distinguishing "shape matched a known family but the value segment
+    itself didn't parse" (a decoder bug worth fixing) from "no known
+    family's shape matched at all" (an MPN the decoder has never been
+    taught -- the actual reason for every part in the current UNCHECKED
+    set). Returns (group, reason); group is used to bucket the report by
+    manufacturer-prefix family per the task's design call -- that's
+    usually the more actionable axis than source file, since the fix is
+    normally "teach the decoder this family."
+
+    This mirrors decode_mpn()'s own regexes rather than calling it, so it
+    can report *which* stage failed for a shape that partially matches;
+    it must stay in sync with decode_mpn() by construction since both are
+    read together in this module."""
+    m = re.match(r"^RC(\d{4})([A-Z])[A-Z]?-(\d{2})([0-9A-Za-z]+)L$", mpn)
+    if m:
+        return "Yageo RC", f"matches Yageo RC part-number shape, but value segment {m.group(4)!r} did not parse as an R/K/M-coded number"
+
+    m = re.match(r"^RSF\d{3}([A-Z])[A-Z]-\d{2}-([0-9A-Za-z]+)$", mpn)
+    if m:
+        return "Yageo RSF", f"matches Yageo RSF part-number shape, but value segment {m.group(2)!r} did not parse as an R/K/M-coded number"
+
+    m = re.match(r"^CRCW(\d{4})([0-9A-Za-z]+?)([FJGD])([A-Z]{2,3})$", mpn)
+    if m:
+        return "Vishay CRCW", f"matches Vishay CRCW part-number shape, but value segment {m.group(2)!r} did not parse as an R/K/M-coded number"
+
+    m = re.match(r"^CRGP(\d{4})([FJGD])([0-9A-Za-z]+)$", mpn)
+    if m:
+        return "Vishay CRGP", f"matches Vishay CRGP part-number shape, but value segment {m.group(3)!r} did not parse as an R/K/M-coded number"
+
+    m = re.match(r"^ERA-(\d)AEB(\d{3,4})V$", mpn)
+    if m:
+        return "Panasonic ERA-xAEB", f"matches Panasonic ERA-xAEB part-number shape, but value segment {m.group(2)!r} did not parse as an EIA 3-digit code"
+
+    if re.match(r"^(GRM|GCM)\d", mpn) or re.match(r"^C\d{4}C", mpn):
+        return (
+            "Murata/Kemet 3-digit+tol",
+            "matches Murata/Kemet MLCC part-number shape (GRM/GCM prefix or C####C pattern), "
+            "but no <3-digit><tolerance-letter> EIA code segment was found in it",
+        )
+
+    prefix = _guess_prefix(mpn)
+    return (
+        prefix,
+        f"unrecognised manufacturer-prefix family (leading prefix {prefix!r} is not one of the "
+        "decoder's known families: Yageo RC/RSF, Vishay CRCW/CRGP, Panasonic ERA-xAEB, "
+        "Murata/Kemet 3-digit+tol)",
+    )
+
+
 # ---------------------------------------------------------------------------
 # Allowlist -- hand-curated only. No writer/generator function exists in
 # this module on purpose (see module docstring).
@@ -453,11 +521,22 @@ class Finding:
 
 
 @dataclass
+class UncheckedPart:
+    """One MPN whose manufacturer-prefix family decode_mpn() didn't
+    recognise -- reported, never silently passed. See classify_unchecked()."""
+
+    part: ParsedPart
+    group: str
+    reason: str
+
+
+@dataclass
 class Analysis:
     parts: list[ParsedPart]
     decoded_count: int
     unchecked_count: int
     findings: list[Finding] = field(default_factory=list)
+    unchecked: list[UncheckedPart] = field(default_factory=list)
 
     @property
     def new_violations(self) -> list[Finding]:
@@ -472,6 +551,7 @@ def analyze(parts: list[ParsedPart], allowlist: list[AllowlistEntry]) -> Analysi
     decoded_count = 0
     unchecked_count = 0
     findings: list[Finding] = []
+    unchecked: list[UncheckedPart] = []
 
     for part in parts:
         decoded = decode_mpn(part.mpn)
@@ -479,6 +559,8 @@ def analyze(parts: list[ParsedPart], allowlist: list[AllowlistEntry]) -> Analysi
         # --- MPN value-decode agreement ---
         if decoded is None:
             unchecked_count += 1
+            group, reason = classify_unchecked(part.mpn)
+            unchecked.append(UncheckedPart(part=part, group=group, reason=reason))
         else:
             decoded_count += 1
             if decoded.kind == part.kind and part.declared_value:
@@ -533,7 +615,13 @@ def analyze(parts: list[ParsedPart], allowlist: list[AllowlistEntry]) -> Analysi
                 )
             )
 
-    return Analysis(parts=parts, decoded_count=decoded_count, unchecked_count=unchecked_count, findings=findings)
+    return Analysis(
+        parts=parts,
+        decoded_count=decoded_count,
+        unchecked_count=unchecked_count,
+        findings=findings,
+        unchecked=unchecked,
+    )
 
 
 def _fmt(value: float, kind: str) -> str:
@@ -563,6 +651,15 @@ def main() -> None:
         "--allowlist",
         default=str(REPO_ROOT / DEFAULT_ALLOWLIST),
         help="Path to the hand-curated allowlist YAML",
+    )
+    parser.add_argument(
+        "--full-unchecked-list",
+        action="store_true",
+        help=(
+            "Force the full per-part UNCHECKED listing even past the "
+            f"{UNCHECKED_LIST_CAP}-part summary cap (default: print per-family "
+            "counts only above the cap)."
+        ),
     )
     args = parser.parse_args()
 
@@ -612,6 +709,26 @@ def main() -> None:
         print(f"\n=== ALLOWLISTED (suppressed, {len(allowlisted)}) ===")
         for f in allowlisted:
             print(f"  {f.part.file}:{f.part.line} {f.part.ref} ({f.part.mpn}) [{f.kind}] -- {f.allow_reason}")
+
+    if result.unchecked:
+        print(f"\n=== MPN UNCHECKED, BY MANUFACTURER-PREFIX FAMILY ({len(result.unchecked)}) ===")
+        groups: dict[str, list[UncheckedPart]] = defaultdict(list)
+        for u in result.unchecked:
+            groups[u.group].append(u)
+        listing_full = len(result.unchecked) <= UNCHECKED_LIST_CAP or args.full_unchecked_list
+        for group_name in sorted(groups):
+            items = sorted(groups[group_name], key=lambda u: (u.part.file, u.part.line))
+            print(f"  -- {group_name} ({len(items)}) --")
+            if listing_full:
+                for u in items:
+                    print(f"    {u.part.file}:{u.part.line}  {u.part.ref}  mpn={u.part.mpn!r}")
+                    print(f"      {u.reason}")
+        if not listing_full:
+            print(
+                f"  {len(result.unchecked)} unchecked parts exceed the {UNCHECKED_LIST_CAP}-part "
+                "detail cap -- per-family counts shown above. Re-run with --full-unchecked-list "
+                "to print every ref/MPN/reason."
+            )
 
     exit_code = 0
     gh_summary_path = get_github_summary_path()
