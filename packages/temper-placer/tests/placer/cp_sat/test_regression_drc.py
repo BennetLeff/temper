@@ -622,17 +622,20 @@ PRODUCTION_DRC_SAMPLE_RUNS = 5
 # 2026-07-30 RE-MEASUREMENT (kicad-cli 10.0.4, macOS arm64), against the new
 # 169-footprint shape above (docs/evidence/2026-07-30-board-resync-against-
 # source.md): resynced 13 drifted `C` designators (`3ae26dfe` added
-# `tank.c_tank3` upstream of them, board was never resynced), corrected 5
+# `tank.c_tank3` upstream of them, board was never resynced), corrected 6
 # stale embedded footprints (U3 DIP-6_W7.62mm -> W10.16mm, C6 the Y-cap
 # stub -> its real D12.5/P10.00 land, U7 pad geometry to match the already-
-# corrected `pcb/libs/lib.pretty/SOIC16W_Isolated.kicad_mod`, and — found by
-# the same by-Sheetpath verification, not in the original 3-footprint task
-# list — C25/C26 `tank.c_tank1`/`tank.c_tank2` from the old WIMA FKP1 rect
-# footprint to the CDE 942C16P1K-F axial footprint `3ae26dfe` itself already
-# specifies), and staged the previously-unplaced `tank.c_tank3` (2 pads, 0
-# routed copper) in the resync's staging row.  N=5 DRC runs:
-#   total              median 1251, range 1234–1261
-#   shorting_items     median   82, range   67–  87
+# corrected `pcb/libs/lib.pretty/SOIC16W_Isolated.kicad_mod`, C1 `power_in.
+# c_x2` disc stub -> the real C_Rect_L18.0mm_W7.0mm_P15.00mm_FKS3_FKP3 MKP
+# body (#452, landed mid-task) and — found by the same by-Sheetpath
+# verification, not in the original 3-footprint task list — C25/C26 `tank.
+# c_tank1`/`tank.c_tank2` from the old WIMA FKP1 rect footprint to the CDE
+# 942C16P1K-F axial footprint `3ae26dfe` itself already specifies), and
+# staged the previously-unplaced `tank.c_tank3` (2 pads, 0 routed copper) in
+# the resync's staging row.  N=5 DRC runs on the final board (all six fixes
+# applied):
+#   total              median 1255, range 1249–1262
+#   shorting_items     median   82, range   77–  89
 #   unconnected_items  390 in all 5 runs (no scatter)
 # `total`/`shorting_items` both still clear the existing 1260/90 ratchets, so
 # those two constants are UNCHANGED.  `unconnected` rose 388 -> 390 and does
