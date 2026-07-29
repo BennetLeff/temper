@@ -696,8 +696,14 @@ class TestESP32AntennaKeepout:
 
         result = check_antenna_keepout(esp32_pos, copper_pours, board_dims)
 
-        # Should pass if no copper in keepout zone
-        assert result.passed or not result.passed  # Depends on implementation
+        # ESP32 is centered on a 100x100 board (50mm to every edge, clear of
+        # the 15mm antenna-keepout-to-edge minimum) and copper_pours is
+        # empty, so check_antenna_keepout can raise neither DFM001-ANT-001
+        # (edge proximity) nor DFM001-ANT-002 (copper in the keepout zone).
+        # This case is deterministic, not implementation-dependent: no
+        # copper in the keepout zone means it must pass.
+        assert result.passed
+        assert result.error_count == 0
 
     def test_antenna_keepout_violation_details(self):
         """Test that antenna keepout violations include required details."""
