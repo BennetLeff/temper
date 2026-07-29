@@ -373,7 +373,7 @@ class TestFamilyComparison:
             "        creepage = 8.0mm  # IEC 60335-1 reinforced insulation\n",
         )
         decls = discover_ato(tmp_path)
-        families, flagged, unresolved, known_blind_spots = build_families(decls)
+        families, flagged, unresolved, known_blind_spots, declared_not_enforced = build_families(decls)
         assert len(families) == 1
         assert families[0].is_consistent
         assert not flagged
@@ -396,7 +396,7 @@ class TestFamilyComparison:
             "MIN_BARRIER_WIDTH_MM = 12.6\n",
         )
         decls = discover_ato(tmp_path) + discover_python(tmp_path)[0]
-        families, _, _, _ = build_families(decls)
+        families, _, _, _, _ = build_families(decls)
         assert len(families) == 1
         fam = families[0]
         assert not fam.is_consistent
@@ -409,7 +409,7 @@ class TestFamilyComparison:
             "module Constraints:\n    module HighVoltage:\n        clearance = 2.0mm\n",
         )
         decls = discover_ato(tmp_path)
-        families, flagged, _, _ = build_families(decls)
+        families, flagged, _, _, _ = build_families(decls)
         assert families == []
         assert len(flagged) == 1
 
@@ -430,7 +430,7 @@ class TestFamilyComparison:
             "        min_creepage = 8.0mm\n",
         )
         decls = discover_ato(tmp_path)
-        families, _, _, _ = build_families(decls)
+        families, _, _, _, _ = build_families(decls)
         assert len(families) == 2
         assert all(f.is_consistent for f in families)
         tiers = {f.tier for f in families}
@@ -447,7 +447,7 @@ class TestFamilyComparison:
             "        min_creepage = 8.0mm\n",
         )
         decls = discover_ato(tmp_path)
-        families, _, _, _ = build_families(decls)
+        families, _, _, _, _ = build_families(decls)
         metrics = {f.metric for f in families}
         assert metrics == {"clearance", "creepage"}
         for fam in families:
@@ -490,7 +490,7 @@ class TestKnownBlindSpots:
             "        min_clearance = 6.0mm\n",
         )
         decls = discover_ato(tmp_path) + discover_yaml(tmp_path)[0]
-        families, flagged, unresolved, known_blind_spots = build_families(decls)
+        families, flagged, unresolved, known_blind_spots, declared_not_enforced = build_families(decls)
         assert len(known_blind_spots) == 2
         assert {d.value_mm for d in known_blind_spots} == {0.25}
         clearance_reinforced = next(f for f in families if f.metric == "clearance" and f.tier == "reinforced")
@@ -545,8 +545,149 @@ class TestKnownBlindSpots:
             "        min_clearance = 6.0mm\n",
         )
         decls = discover_ato(tmp_path)
-        families, flagged, unresolved, known_blind_spots = build_families(decls)
+        families, flagged, unresolved, known_blind_spots, declared_not_enforced = build_families(decls)
         assert known_blind_spots == []
+
+
+# ---------------------------------------------------------------------------
+# Selection aliases (declared-candidates-vs-enforced-value, PR #443's
+# generate_kicad_dru.py HV_CREEPAGE_PD2_MM/PD3_MM/ENFORCED_MM shape)
+# ---------------------------------------------------------------------------
+
+
+class TestSelectionAliases:
+    def test_unselected_candidate_is_pulled_from_the_family_and_marked(self, tmp_path: Path) -> None:
+        """Reproduces generate_kicad_dru.py's exact shape: two declared
+        candidates plus a selection alias picking one. The unselected
+        candidate must not land in the comparable family, and must carry
+        the enforced value/site it lost to -- discovered and reported, not
+        dropped."""
+        _mk(
+            tmp_path,
+            "scripts/foo.py",
+            "# Reinforced creepage at Pollution Degree 2: 8.0mm.\n"
+            "HV_CREEPAGE_PD2_MM = 8.0\n"
+            "HV_CREEPAGE_PD3_MM = 12.6  # flagged default; UNRESOLVED\n"
+            "\n"
+            "HV_CREEPAGE_ENFORCED_MM = HV_CREEPAGE_PD2_MM\n",
+        )
+        decls, errors = discover_python(tmp_path)
+        assert not errors
+        by_name = {d.name: d for d in decls}
+        pd2 = by_name["HV_CREEPAGE_PD2_MM"]
+        pd3 = by_name["HV_CREEPAGE_PD3_MM"]
+        assert not pd2.declared_not_enforced
+        assert pd3.declared_not_enforced
+        assert pd3.enforced_value_mm == 8.0
+        assert pd3.enforced_site == pd2.site
+        assert pd3.enforcing_alias == "HV_CREEPAGE_ENFORCED_MM"
+
+        families, flagged, unresolved, known_blind_spots, declared_not_enforced = build_families(decls)
+        assert len(declared_not_enforced) == 1
+        assert declared_not_enforced[0].name == "HV_CREEPAGE_PD3_MM"
+        fam = next(f for f in families if f.metric == "creepage" and f.tier == "reinforced")
+        assert fam.is_consistent
+        assert set(fam.distinct_values.keys()) == {8.0}
+
+    def test_detection_is_structural_not_name_based(self, tmp_path: Path) -> None:
+        """A selector NOT named *ENFORCED* must be detected identically --
+        proves this is an ast.Name-referring-to-a-declared-constant test,
+        not a substring/naming-convention rule that would rot the day the
+        selector is renamed. (Named ``ACTIVE_CREEPAGE_MM`` rather than
+        something with no "creepage"/"clearance"/``_MM`` signal at all,
+        since discovering it as a declaration in the first place is this
+        gate's separate, orthogonal name/unit-marker requirement -- see
+        ``_is_mm_named`` in the module docstring -- not part of what this
+        test is checking.)"""
+        _mk(
+            tmp_path,
+            "scripts/foo.py",
+            "# Reinforced creepage at Pollution Degree 2: 8.0mm.\n"
+            "HV_CREEPAGE_PD2_MM = 8.0\n"
+            "HV_CREEPAGE_PD3_MM = 12.6  # flagged default; UNRESOLVED\n"
+            "\n"
+            "ACTIVE_CREEPAGE_MM = HV_CREEPAGE_PD2_MM\n",
+        )
+        decls, errors = discover_python(tmp_path)
+        assert not errors
+        by_name = {d.name: d for d in decls}
+        assert by_name["HV_CREEPAGE_PD3_MM"].declared_not_enforced
+        assert by_name["HV_CREEPAGE_PD3_MM"].enforcing_alias == "ACTIVE_CREEPAGE_MM"
+
+    def test_enforced_value_still_compared_across_files(self, tmp_path: Path) -> None:
+        """The selected candidate must still participate in cross-file
+        family comparison -- reproduces the merge/main-into-ato-net-ssot
+        case where the SSOT (.ato) disagrees with the alias-enforced value,
+        and that must still surface as a real MISMATCH, not disappear."""
+        _mk(
+            tmp_path,
+            "elec/src/constraints.ato",
+            "module Constraints:\n"
+            "    # HighVoltage to Default: Reinforced insulation\n"
+            "    module HV_to_LV:\n"
+            "        min_creepage = 8.0mm\n",
+        )
+        _mk(
+            tmp_path,
+            "scripts/foo.py",
+            "# Reinforced creepage at Pollution Degree 2: 8.0mm.\n"
+            "HV_CREEPAGE_PD2_MM = 8.0\n"
+            "HV_CREEPAGE_PD3_MM = 12.6  # flagged default; UNRESOLVED\n"
+            "\n"
+            "HV_CREEPAGE_ENFORCED_MM = HV_CREEPAGE_PD3_MM\n",
+        )
+        decls = discover_ato(tmp_path) + discover_python(tmp_path)[0]
+        families, flagged, unresolved, known_blind_spots, declared_not_enforced = build_families(decls)
+        fam = next(f for f in families if f.metric == "creepage" and f.tier == "reinforced")
+        assert not fam.is_consistent
+        assert set(fam.distinct_values.keys()) == {8.0, 12.6}
+        # The unselected PD2 candidate (8.0, matching the .ato figure only
+        # by coincidence of value) must NOT be sitting in this family --
+        # only the genuinely enforced PD3 (12.6) participates.
+        assert not any(d.name == "HV_CREEPAGE_PD2_MM" for d in fam.members)
+        assert any(d.name == "HV_CREEPAGE_PD3_MM" for d in fam.members)
+        assert "HV_CREEPAGE_PD2_MM" in {d.name for d in declared_not_enforced}
+
+    def test_alias_to_unresolvable_name_is_left_unresolved_not_marked(self, tmp_path: Path) -> None:
+        """An alias whose RHS name is not an in-file literal (e.g. an
+        imported symbol) must fall through to the pre-existing UNRESOLVED
+        handling (_resolve_python_aliases already leaves value_mm as None
+        in that case) rather than being silently treated as a clean
+        selection with nothing to mark."""
+        _mk(
+            tmp_path,
+            "scripts/foo.py",
+            "from other_module import SOME_IMPORTED_MM\nHV_CREEPAGE_ENFORCED_MM = SOME_IMPORTED_MM\n",
+        )
+        decls, errors = discover_python(tmp_path)
+        assert not errors
+        assert len(decls) == 1
+        d = decls[0]
+        assert d.value_mm is None
+        assert not d.declared_not_enforced
+
+    def test_stale_selection_alias_whose_target_loses_its_tier_is_gate_error(self, tmp_path: Path) -> None:
+        """Self-verification: if a refactor strips the enforced target's own
+        tier-giving comment (so the target itself now lands in `flagged`,
+        not a comparable family), the mechanism must fail loudly. Left
+        unchecked, this would silently stop comparing the enforced value
+        against anything while still claiming (via the declared-not-
+        enforced heading) that some other site enforces it -- the exact
+        "comparing nothing" degradation requirement 5 rules out."""
+        _mk(
+            tmp_path,
+            "scripts/foo.py",
+            "HV_CREEPAGE_PD2_MM = 8.0\n"  # no tier-giving comment at all
+            "HV_CREEPAGE_PD3_MM = 12.6  # flagged default; UNRESOLVED\n"
+            "\n"
+            "HV_CREEPAGE_ENFORCED_MM = HV_CREEPAGE_PD2_MM\n",
+        )
+        decls, errors = discover_python(tmp_path)
+        assert not errors
+        by_name = {d.name: d for d in decls}
+        assert by_name["HV_CREEPAGE_PD2_MM"].tier == "unspecified"
+        with pytest.raises(GateError):
+            build_families(decls)
 
 
 # ---------------------------------------------------------------------------
@@ -595,7 +736,7 @@ class TestEndToEnd:
 
     def test_agreeing_tree_is_clean(self, tmp_path: Path) -> None:
         self._write_agreeing_tree(tmp_path)
-        state, report, families, flagged, unresolved, known_blind_spots = run(tmp_path)
+        state, report, families, flagged, unresolved, known_blind_spots, declared_not_enforced = run(tmp_path)
         assert state == "clean"
         assert not known_blind_spots
         assert report.declarations
@@ -615,7 +756,7 @@ class TestEndToEnd:
             "# REINFORCED creepage, pollution degree 3 (PD3 GOVERNS)\n"
             "MIN_BARRIER_WIDTH_MM = 12.6\n",
         )
-        state, report, families, flagged, unresolved, known_blind_spots = run(tmp_path)
+        state, report, families, flagged, unresolved, known_blind_spots, declared_not_enforced = run(tmp_path)
         assert state == "violation"
         reinforced_creepage = next(f for f in families if f.metric == "creepage" and f.tier == "reinforced")
         assert not reinforced_creepage.is_consistent

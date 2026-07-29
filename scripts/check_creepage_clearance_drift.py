@@ -199,6 +199,31 @@ Known blind spots (stated, not hidden)
   "basic"-tagged pair, not just this one. Investigated and left flagged for
   continued human review, not silently resolved.
 
+Declared candidates vs. an enforced selection alias
+-----------------------------------------------------
+A module may deliberately declare more than one candidate figure for the
+same requirement -- e.g. ``scripts/generate_kicad_dru.py`` declares BOTH
+``HV_CREEPAGE_PD2_MM = 8.0`` and ``HV_CREEPAGE_PD3_MM = 12.6`` (an open,
+unresolved pollution-degree call) and then picks ONE via
+``HV_CREEPAGE_ENFORCED_MM = HV_CREEPAGE_PD2_MM``. Two same-tier, same-metric
+literals in one file would normally be a real MISMATCH, and would be here
+too, except that the second assignment structurally selects between them:
+its RHS is a bare name referring to another already-declared, literal
+module-level constant, not a literal itself -- the exact same shape this
+gate already treats specially for any non-literal RHS (see
+``DEFAULT_CORRIDOR_WIDTH_MM``, historically a ``BinOp``, moved to
+"unresolved, not compared"; a bare-``Name`` RHS is resolved to that name's
+own value instead of being left unresolved). See
+``_resolve_selection_aliases`` for the full mechanism: this is detected
+structurally (any ``NAME2 = NAME1`` where NAME1 is a declared in-file
+literal), never by matching the substring "ENFORCED" or any other naming
+convention, precisely so renaming the selector cannot silently stop it
+working. The selected candidate keeps participating in its family exactly
+as before; every OTHER same-file, same-family candidate is excluded from
+comparison and reported under a "declared but not enforced" heading naming
+the value that IS enforced instead -- discovered and counted, never
+silently dropped.
+
 Fail-closed contract
 ---------------------
 - Discovery running over zero files (a scan root missing) or finding zero
@@ -323,6 +348,18 @@ class Declaration:
     value_mm: float | None
     raw: str
     context: str
+    # Set only by _resolve_selection_aliases (Python discovery): this
+    # declaration is a sibling candidate that a same-file *selection alias*
+    # (see that function's docstring) did NOT select. It is a live,
+    # discovered declaration -- never dropped -- but is excluded from
+    # cross-file family comparison because the codebase itself says this
+    # value is not the one enforced. enforced_value_mm/enforced_site/
+    # enforcing_alias name the alias and the value it selected instead, so
+    # the report can always show "declared X, but Y is enforced via Z".
+    declared_not_enforced: bool = False
+    enforced_value_mm: float | None = None
+    enforced_site: str | None = None
+    enforcing_alias: str | None = None
 
     @property
     def site(self) -> str:
@@ -702,6 +739,86 @@ def _propagate_sibling_tier(decls: list[Declaration]) -> None:
             d.context = f"{d.context} [tier inherited from adjacent declaration at line {prev.line}]".strip()
 
 
+def _resolve_selection_aliases(decls: list[Declaration]) -> None:
+    """Third pass, within one file: mark unselected sibling candidates for
+    each *selection alias*.
+
+    A selection alias is nothing new -- it is the exact same structural
+    shape ``_resolve_python_aliases`` (two passes above this one) already
+    detects and resolves: an assignment whose RHS is a bare ``ast.Name``
+    referring to another declared, literal-valued, direct-metric constant in
+    the same file (recorded as ``_alias_of`` on the Declaration by
+    ``_PyDeclCollector._record`` when the RHS is an ``ast.Name`` rather than
+    a ``Constant``). There is deliberately no separate "is this an ENFORCED
+    constant" detector and no substring match on the assigned name --
+    ``HV_CREEPAGE_ENFORCED_MM = HV_CREEPAGE_PD2_MM`` is detected the same way
+    ``HV_CREEPAGE_ACTIVE_MM = HV_CREEPAGE_PD2_MM`` or
+    ``foo = HV_CREEPAGE_PD2_MM`` would be: any bare-name RHS pointing at
+    another in-file literal constant is, structurally, a selection between
+    that constant and whatever else shares its (metric, tier) family. This
+    is what keeps the mechanism from rotting the way a name-convention rule
+    would the day someone renames or adds a differently-named selector.
+
+    Given a selection alias A whose RHS resolves (via ``_alias_of``, already
+    populated with a literal value by ``_resolve_python_aliases``) to target
+    T, every OTHER literal, non-alias declaration in the SAME FILE sharing
+    T's already-classified (metric, tier) is a *declared but unselected
+    candidate*: T is the value A actually enforces, so cross-comparing the
+    others against T -- or against declarations in other files -- would be
+    comparing a figure the module's own source says is not live. Those
+    candidates are marked ``declared_not_enforced`` (never removed from
+    ``decls``, never hidden): ``build_families`` pulls them out of the
+    comparable pool by that flag and ``_print_report`` lists them under a
+    dedicated "declared but not enforced" heading, each tagged with T's
+    resolved value and site -- so a genuinely stale candidate cannot go
+    quiet, it can only stop being force-compared against a value it was
+    never actually enforcing.
+
+    T itself is untouched by this pass -- it keeps whatever (metric, tier)
+    its own attached text already gave it, and continues to participate in
+    family comparison exactly as any other declaration does. That is what
+    satisfies "the enforced value still participates in its family and must
+    still be compared against constants in other files": no special-casing
+    is needed for T, only for the candidates it is being distinguished from.
+    ``build_families`` additionally verifies T actually lands in a
+    comparable family (self-verification: see its docstring) -- if a future
+    refactor strips T's own tier/metric context, that must surface as a
+    GateError, not silently stop enforcing anything."""
+    literal_by_name: dict[str, Declaration] = {
+        d.name: d
+        for d in decls
+        if d.value_mm is not None
+        and d.__dict__.get("_alias_of") is None
+        and "." not in d.name
+        and " " not in d.name
+    }
+    for alias in decls:
+        alias_of = alias.__dict__.get("_alias_of")
+        if alias_of is None or alias.value_mm is None:
+            continue
+        target = literal_by_name.get(alias_of)
+        if target is None:
+            # The alias's RHS name did not resolve to an in-file literal
+            # constant this pass can see. `_resolve_python_aliases` already
+            # leaves such an alias's own value_mm as None when this happens
+            # (e.g. the RHS names an imported symbol), so it is reported
+            # under UNRESOLVED, not silently treated as a clean enforced
+            # figure -- nothing further to mark here.
+            continue
+        for other in decls:
+            if other is target or other is alias:
+                continue
+            if other.__dict__.get("_alias_of") is not None:
+                continue  # aliases are selectors, not candidates themselves
+            if other.value_mm is None:
+                continue
+            if other.metric == target.metric and other.tier == target.tier:
+                other.declared_not_enforced = True
+                other.enforced_value_mm = target.value_mm
+                other.enforced_site = target.site
+                other.enforcing_alias = alias.name
+
+
 def discover_python(repo_root: Path) -> tuple[list[Declaration], list[tuple[str, str]]]:
     decls: list[Declaration] = []
     errors: list[tuple[str, str]] = []
@@ -735,6 +852,7 @@ def discover_python(repo_root: Path) -> tuple[list[Declaration], list[tuple[str,
             }
             _resolve_python_aliases(collector.decls, literal_by_name)
             _propagate_sibling_tier(collector.decls)
+            _resolve_selection_aliases(collector.decls)
             decls.extend(collector.decls)
     return decls, errors
 
@@ -964,9 +1082,9 @@ class FamilyResult:
 
 def build_families(
     decls: list[Declaration],
-) -> tuple[list[FamilyResult], list[Declaration], list[Declaration], list[Declaration]]:
+) -> tuple[list[FamilyResult], list[Declaration], list[Declaration], list[Declaration], list[Declaration]]:
     """Returns (families, flagged_low_confidence, unresolved_no_value,
-    known_blind_spots).
+    known_blind_spots, declared_not_enforced).
 
     Only declarations with tier in {reinforced, basic, working}, a resolved
     numeric value, and high-confidence metric classification participate in
@@ -994,15 +1112,43 @@ def build_families(
     override at all -- safe by construction, not silent (the excluded
     declarations simply don't exist in that run to be silently dropped).
     Only a *matched-but-wrong* override is a correctness risk worth failing
-    on. See that constant's own comment for the rest of this reasoning."""
+    on. See that constant's own comment for the rest of this reasoning.
+
+    ``declared_not_enforced`` holds declarations ``_resolve_selection_aliases``
+    (Python discovery) marked as an unselected sibling of some same-file
+    selection alias's target -- e.g. ``HV_CREEPAGE_PD3_MM`` when
+    ``HV_CREEPAGE_ENFORCED_MM = HV_CREEPAGE_PD2_MM`` selects the other
+    candidate. Pulled out of the comparable pool the same way
+    ``known_blind_spots`` is (a live, discovered declaration, just not one
+    to cross-compare) and reported under its own heading, each entry naming
+    the value and site that IS enforced instead.
+
+    Self-verification for that mechanism: for every ``declared_not_enforced``
+    entry, the site its alias resolved to (``enforced_site``) must actually
+    appear as a member of that same (metric, tier) family in ``comparable``.
+    If it does not -- e.g. a refactor stripped the enforced target's own
+    tier/metric context so it now lands in ``flagged`` instead -- the
+    selection-alias mechanism has silently stopped keeping the enforced
+    value in comparison at all, which is worse than never having special-
+    cased it (requirement: the enforced value must still participate in its
+    family). That is raised as a GateError, not silently accepted, exactly
+    as a stale ``KNOWN_TIER_MISCLASSIFICATIONS`` entry is."""
     comparable: dict[tuple[str, str], list[Declaration]] = {}
     flagged: list[Declaration] = []
     unresolved: list[Declaration] = []
     known_blind_spots: list[Declaration] = []
+    declared_not_enforced: list[Declaration] = []
 
     for d in decls:
         if d.value_mm is None:
             unresolved.append(d)
+            continue
+        if d.declared_not_enforced:
+            # A live declaration, deliberately excluded from cross-file
+            # comparison because a same-file selection alias named a
+            # different sibling as enforced -- see
+            # _resolve_selection_aliases. Reported, not dropped.
+            declared_not_enforced.append(d)
             continue
         key = (d.file, d.name)
         if key in KNOWN_TIER_MISCLASSIFICATIONS:
@@ -1026,8 +1172,21 @@ def build_families(
             continue
         comparable.setdefault((d.metric, d.tier), []).append(d)
 
+    for d in declared_not_enforced:
+        family_members = comparable.get((d.metric, d.tier), [])
+        if not any(m.site == d.enforced_site for m in family_members):
+            raise GateError(
+                f"selection alias {d.enforcing_alias!r} in {d.file} resolves {d.site} to "
+                f"enforced site {d.enforced_site!r} (value {d.enforced_value_mm}mm), but that "
+                "site does not participate in a comparable (metric, tier) family -- the "
+                "selection-alias mechanism has silently stopped keeping the enforced value in "
+                "comparison (e.g. a refactor stripped its own tier/metric context). This must "
+                "be re-reviewed, not silently accepted (see "
+                "check_creepage_clearance_drift.py's _resolve_selection_aliases docstring)."
+            )
+
     families = [FamilyResult(metric=m, tier=t, members=members) for (m, t), members in sorted(comparable.items())]
-    return families, flagged, unresolved, known_blind_spots
+    return families, flagged, unresolved, known_blind_spots, declared_not_enforced
 
 
 # ---------------------------------------------------------------------------
@@ -1037,7 +1196,9 @@ def build_families(
 
 def run(
     repo_root: Path,
-) -> tuple[str, Report, list[FamilyResult], list[Declaration], list[Declaration], list[Declaration]]:
+) -> tuple[
+    str, Report, list[FamilyResult], list[Declaration], list[Declaration], list[Declaration], list[Declaration]
+]:
     for name in SCAN_ROOT_NAMES:
         if not (repo_root / name).is_dir():
             raise GateError(f"scan root missing: {repo_root / name}")
@@ -1061,7 +1222,7 @@ def run(
             "(anti-vacuous-truth: this is a gate error, not '0 violations')"
         )
 
-    families, flagged, unresolved, known_blind_spots = build_families(report.declarations)
+    families, flagged, unresolved, known_blind_spots, declared_not_enforced = build_families(report.declarations)
 
     state = "clean"
     if report.parse_errors:
@@ -1070,7 +1231,7 @@ def run(
         if not fam.is_consistent:
             state = "violation"
 
-    return state, report, families, flagged, unresolved, known_blind_spots
+    return state, report, families, flagged, unresolved, known_blind_spots, declared_not_enforced
 
 
 def _print_report(
@@ -1080,6 +1241,7 @@ def _print_report(
     flagged: list[Declaration],
     unresolved: list[Declaration],
     known_blind_spots: list[Declaration],
+    declared_not_enforced: list[Declaration],
     repo_root: Path,
 ) -> None:
     print(f"Repo root: {repo_root}")
@@ -1091,7 +1253,9 @@ def _print_report(
         f"(members: {sum(len(f.members) for f in families)}). "
         f"Flagged low-confidence/unspecified-tier: {len(flagged)}. "
         f"Unresolved (non-literal) values: {len(unresolved)}. "
-        f"Known blind spots (reviewed, excluded from comparison): {len(known_blind_spots)}."
+        f"Known blind spots (reviewed, excluded from comparison): {len(known_blind_spots)}. "
+        f"Declared but not enforced (superseded by a same-file selection alias): "
+        f"{len(declared_not_enforced)}."
     )
 
     if report.parse_errors:
@@ -1135,13 +1299,26 @@ def _print_report(
                 "in this gate's source"
             )
 
+    if declared_not_enforced:
+        print(
+            f"\n=== DECLARED BUT NOT ENFORCED (unselected candidate of a same-file "
+            f"selection alias): {len(declared_not_enforced)} ==="
+        )
+        for d in declared_not_enforced:
+            print(
+                f"  {d.site}: metric={d.metric} tier={d.tier} value={d.value_mm}mm -- "
+                f"NOT enforced; {d.enforcing_alias!r} in {d.file} selects "
+                f"{d.enforced_site} = {d.enforced_value_mm}mm instead"
+            )
+
     gh = get_github_summary_path()
     if state == "clean":
         msg = (
             f"PASSED -- {len(report.declarations)} declaration(s) discovered across "
             f"{report.files_scanned} file(s); {len(families)} comparable famil(y/ies), "
             f"0 mismatched. {len(flagged)} flagged for human classification, "
-            f"{len(unresolved)} unresolved, {len(known_blind_spots)} known blind spot(s)."
+            f"{len(unresolved)} unresolved, {len(known_blind_spots)} known blind spot(s), "
+            f"{len(declared_not_enforced)} declared-but-not-enforced candidate(s)."
         )
         print(f"\n{msg}")
         if gh:
@@ -1168,7 +1345,7 @@ def main() -> None:
     repo_root = args.repo_root or find_repo_root()
 
     try:
-        state, report, families, flagged, unresolved, known_blind_spots = run(repo_root)
+        state, report, families, flagged, unresolved, known_blind_spots, declared_not_enforced = run(repo_root)
     except GateError as exc:
         print("=== CREEPAGE/CLEARANCE DRIFT GATE ERROR ===", file=sys.stderr)
         print(f"Reason: {exc}", file=sys.stderr)
@@ -1183,7 +1360,7 @@ def main() -> None:
                 f.write(f"### Creepage/Clearance Drift Gate -- GATE ERROR\n{exc}\n")
         sys.exit(EXIT_GATE_ERROR)
 
-    _print_report(state, report, families, flagged, unresolved, known_blind_spots, repo_root)
+    _print_report(state, report, families, flagged, unresolved, known_blind_spots, declared_not_enforced, repo_root)
 
     sys.exit(EXIT_OK if state == "clean" else EXIT_VIOLATION)
 
