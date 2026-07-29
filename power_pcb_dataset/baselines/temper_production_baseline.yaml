@@ -51,7 +51,37 @@
 # requires a hand edit, which is precisely the drift-prone arrangement the
 # corpus baselines have machinery to prevent. Extending that machinery to
 # golden_manifest.yaml boards is the real fix; this is another workaround.
-component_count: 170
+#
+# 2026-07-28: component_count 170 -> 168. net_count unchanged (108).
+#
+# Not a regression -- a real, intentional, verified component deletion that
+# this file failed to track. Commit 75a708a8 (fix(elec): OVP-01 Option C --
+# re-reference comp.INN to REF2025) deleted two components from the
+# netlist:
+#   R55  safety.ovp.r_ref_top  11.8k ohm 1% (RC0603FR-0711K8L)
+#   R56  safety.ovp.r_ref_bot  10.0k ohm 1% (RC0603FR-0710KL)
+# These formed the 1% resistor divider off vcc_3v3 feeding
+# OVPComparator.comp.INN. The divider passed nominally (199.9V trip) but
+# failed worst-case tolerance+tempco (193.9-206.2V vs the 195-205V window,
+# per docs/evidence/2026-07-27-threshold-sensitivity-tempco-budget.md).
+# Option C replaces it by driving comp.INN directly from REF2025's fixed
+# VREF output (2.5V, +/-0.05%/8ppm/C -- already instantiated in
+# RTDSensing, previously unused), which clears the window under worst
+# case (196.11-203.81V). See
+# docs/evidence/2026-07-27-ovp01-ref2025-implementation.md.
+#
+# Commit 65bd0159 (fix(pcb): resync board to netlist after OVP-01 Option C
+# re-reference) then resynced pcb/temper.kicad_pcb to the now-168-component
+# netlist by Sheetpath identity (168/168 matched, 25 designators shifted --
+# all mechanical renumbering from the two deletions, 0 components moved,
+# 0 net-name/geometry mismatches across board.traceItems/zones). See
+# docs/evidence/2026-07-27-post-ovp-resync.md. Verified directly in this
+# re-record: neither "safety.ovp.r_ref_top" nor "safety.ovp.r_ref_bot"
+# Sheetpath exists anywhere in elec/src/modules.ato or pcb/temper.kicad_pcb
+# at HEAD, and `uv run temper-placer regression` reports no net_count,
+# drc_errors, or drc_warnings delta -- component_count is the only metric
+# this board's design change actually moved.
+component_count: 168
 net_count: 108
 drc_available: false
 drc_errors: 0
