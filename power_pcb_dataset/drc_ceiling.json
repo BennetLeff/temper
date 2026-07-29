@@ -39,8 +39,8 @@
         "tool_versions": {
           "kicad-cli": "10.0.4"
         },
-        "source": "measured-live-5-samples",
-        "measured_via": "temper_placer.validation._drc_api.run_drc with --all-track-errors"
+        "source": "measured-live",
+        "measured_via": "temper_placer.validation._drc_api.run_drc with --all-track-errors (5 samples; see nondeterministic_error_types.clearance.samples)"
       },
       "warnings_by_type": {
         "holes_co_located": 2,
