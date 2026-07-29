@@ -502,7 +502,12 @@ TEMPER_NET_ASSIGNMENTS = {
     "ac_n": "ACMains",
     "PE": "ACMains",
     # HighVoltage - DC bus (300-400V DC)
-    "+340V_BUS": "HighVoltage",
+    # RENAMED: the board and netlist call this rail "+170V_BUS" (12
+    # occurrences in pcb/temper.kicad_pcb; "+340V_BUS" appears zero
+    # times). The stale key left the live DC bus with no netclass at
+    # all, so it fell through to DesignRules' LV default clearance and
+    # creepage -- see scripts/check_hv_netclass_coverage.py.
+    "+170V_BUS": "HighVoltage",
     "DC_BUS_RTN": "HighVoltage",
     "DC_BUS+": "HighVoltage",
     "DC_BUS-": "HighVoltage",
