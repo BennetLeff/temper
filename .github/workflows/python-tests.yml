@@ -82,6 +82,9 @@ on:
       - 'scripts/check_isolation_keepout.py'
       - 'scripts/tests/test_check_isolation_keepout.py'
       - 'pcb/temper.kicad_pcb'
+      - 'scripts/check_hv_netclass_coverage.py'
+      - 'scripts/tests/test_check_hv_netclass_coverage.py'
+      - 'pcb/temper.kicad_pro'
       - 'firmware/components/control/pll_control.h'
       - '.net-classification-allowlist'
       - '.undeclared-imports-allowlist'
@@ -155,6 +158,9 @@ on:
       - 'scripts/check_isolation_keepout.py'
       - 'scripts/tests/test_check_isolation_keepout.py'
       - 'pcb/temper.kicad_pcb'
+      - 'scripts/check_hv_netclass_coverage.py'
+      - 'scripts/tests/test_check_hv_netclass_coverage.py'
+      - 'pcb/temper.kicad_pro'
       - 'firmware/components/control/pll_control.h'
       - '.net-classification-allowlist'
       - '.undeclared-imports-allowlist'
@@ -712,6 +718,23 @@ jobs:
         # see docs/evidence/2026-07-26-domain-partition-check.md. Never
         # `continue-on-error`: a gate that cannot run must exit non-zero.
         run: uv run python scripts/check_domain_partition.py
+
+      - name: HV netclass coverage gate unit tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_check_hv_netclass_coverage.py -v --tb=short
+
+      - name: HV netclass coverage gate (net assignment + rule-emission)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        # Fail-closed: asserts every elec/domain_manifest.yaml HV-domain
+        # net has a TEMPER_NET_ASSIGNMENTS entry, and every declared
+        # netclass (TEMPER_NET_CLASSES union pcb/temper.kicad_pro-described
+        # classes) emits at least one real rule from
+        # scripts/generate_kicad_dru.py. This is the check that would have
+        # caught +170V_BUS resolving to no netclass at all and
+        # HighVoltageIsolated existing with zero DRC rules (docs/evidence/
+        # 2026-07-29-hv-netclass-coverage-gate.md). Never
+        # `continue-on-error`: a gate that cannot run must exit non-zero.
+        run: uv run python scripts/check_hv_netclass_coverage.py
 
       - name: Design capacity budget gate tests
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
