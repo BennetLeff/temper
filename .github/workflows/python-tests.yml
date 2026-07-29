@@ -739,6 +739,35 @@ jobs:
         # `continue-on-error`: a gate that cannot run must exit non-zero.
         run: uv run python scripts/check_copper_net_consistency.py
 
+      - name: Footprint-drift gate unit tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_check_footprint_drift.py -v --tb=short
+
+      - name: Footprint-drift gate (source-corrected footprint never reached the board)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        # Fail-closed: reads pcb/temper.kicad_pcb directly and cross-checks
+        # every component's footprint string against the freshly compiled
+        # netlist, matched by SHEETPATH (not reference designator -- refdes
+        # renumbers, see docs/solutions/logic-errors/
+        # fixed-positions-ref-fragility-across-renumbering.md). This is the
+        # gate that would have caught (and on this repo's `main`, as of
+        # this change, DOES catch) a footprint corrected in elec/src/*.ato
+        # that never got propagated into the board: C6/U3 (corrected
+        # per-part in .ato, board still on the old land pattern -- docs/
+        # hardware/2026-07-29-open-safety-gate-actions.md) and C25/C26
+        # (tank.c_tank1/c_tank2, docs/evidence/
+        # 2026-07-28-tank-cap-and-isolator-footprints.md). Distinct from
+        # check_copper_net_consistency.py above: that gate reads electrical
+        # NET identity per pad and cannot see a pad-compatible footprint
+        # substitution with different creepage/clearance geometry at all --
+        # this gate compares the footprint string itself, which is what
+        # REQ-SAFE-01 reinforced-creepage margin actually depends on. Never
+        # `continue-on-error`, no allowlist: a footprint mismatch on a
+        # mains-connected board has no legitimate "expected" case to
+        # suppress -- the fix is to resync the board, not to silence this
+        # gate.
+        run: uv run python scripts/check_footprint_drift.py
+
       - name: Pad-orientation gate unit tests
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run pytest scripts/tests/test_check_pad_orientation.py -v --tb=short

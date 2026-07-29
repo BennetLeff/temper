@@ -16,6 +16,7 @@
     ".github/workflows/python-tests.yml"
   ],
   "check_copper_net_consistency.py": [
+    ".github/workflows/python-tests.yml",
     "packages/temper-placer/src/temper_placer/router_v6/clearance_check.py"
   ],
   "check_coverage_gate.py": [
@@ -29,11 +30,17 @@
     "packages/temper-placer/src/temper_placer/router_v6/clearance_check.py",
     "packages/temper-placer/tests/requirements/safety/_real_board_fixture.py"
   ],
+  "check_drc_ceiling_approval.py": [
+    ".github/workflows/python-tests.yml"
+  ],
   "check_evidence_provenance.py": [
     ".github/workflows/python-tests.yml"
   ],
   "check_fault_list_consistency.py": [
     ".github/workflows/firmware-tests.yml"
+  ],
+  "check_footprint_drift.py": [
+    ".github/workflows/python-tests.yml"
   ],
   "check_isolation_keepout.py": [
     ".github/workflows/python-tests.yml",
@@ -56,9 +63,12 @@
     "packages/temper-placer/src/temper_placer/router_v6/clearance_check.py",
     "packages/temper-placer/src/temper_placer/router_v6/clearance_engine.py",
     "packages/temper-placer/src/temper_placer/router_v6/constraints_design_rules.py",
+    "packages/temper-placer/src/temper_placer/router_v6/routing_demand.py",
     "packages/temper-placer/src/temper_placer/router_v6/trace_width_assignment.py"
   ],
-  "check_pad_orientation.py": [],
+  "check_pad_orientation.py": [
+    ".github/workflows/python-tests.yml"
+  ],
   "check_physics_provenance.py": [
     ".github/workflows/python-tests.yml",
     "packages/temper-placer/tests/scripts/test_check_physics_provenance.py"
@@ -96,6 +106,7 @@
     ".github/workflows/lint-workflows.yml"
   ],
   "ci_check_drc.py": [
+    ".github/workflows/python-tests.yml",
     ".github/workflows/regression.yml",
     "packages/temper-placer/src/temper_placer/regression/drc_ratchet.py"
   ],
@@ -189,7 +200,10 @@
     ".github/workflows/metrics-reconcile.yml"
   ],
   "resync_pcb_netlist.py": [],
-  "route_board.py": [],
+  "route_board.py": [
+    "packages/temper-placer/src/temper_placer/router_v6/_strip_copper.py",
+    "packages/temper-placer/tests/router_v6/test_strip_copper.py"
+  ],
   "run_feedback_loop.py": [
     "scripts/test_backpath_fix.sh"
   ],
