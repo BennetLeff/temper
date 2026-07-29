@@ -131,6 +131,15 @@ PROVENANCE_BLOCK_RE = re.compile(r"provenance:(.{0,400}?)(?:-->|\n\s*\n|\Z)", re
 _COMMIT_FIELD_RE = re.compile(r"commit=`?([0-9a-fA-F]{40}|UNKNOWN)`?", re.I)
 _DIRTY_FIELD_RE = re.compile(r"dirty=`?(true|false|UNKNOWN)`?", re.I)
 
+# Diagnostic-only, deliberately permissive: matches whatever a `commit=` field
+# actually contains so a malformed stamp can be reported as malformed instead of
+# as missing. An abbreviated SHA (`commit=4d73cad9`) fails both the strict line
+# regex and the block fallback above -- both require 40 hex chars -- so it used
+# to fall through to "no provenance line found", which sends the reader looking
+# for a line that is sitting right there. Never used for validation.
+_COMMIT_FIELD_LOOSE_RE = re.compile(r"commit=`?([^\s`>]+)", re.I)
+_DIRTY_FIELD_LOOSE_RE = re.compile(r"dirty=`?([^\s`>]+)", re.I)
+
 
 class FileCheckResult:
     def __init__(self, ok: bool, commit: str | None = None, reason: str = ""):
@@ -202,6 +211,37 @@ def check_text_file(path: Path) -> FileCheckResult:
                 commit_tok = c.group(1)
                 break
         if commit_tok is None:
+            # Distinguish "no stamp at all" from "stamp present but unparseable".
+            # Both fail, but they need different fixes, and conflating them cost
+            # real investigation time: an 8-char SHA was reported as a missing
+            # line, so the reader hunts for something already present.
+            for block in PROVENANCE_BLOCK_RE.finditer(text):
+                body = block.group(1)
+                loose_c = _COMMIT_FIELD_LOOSE_RE.search(body)
+                loose_d = _DIRTY_FIELD_LOOSE_RE.search(body)
+                if not (loose_c or loose_d):
+                    continue
+                found = []
+                if loose_c:
+                    tok = loose_c.group(1)
+                    hint = ""
+                    if re.fullmatch(r"[0-9a-fA-F]{4,39}", tok):
+                        hint = " (abbreviated SHA -- the full 40-char SHA is required)"
+                    elif re.fullmatch(r"[0-9a-fA-F]{40}", tok) is None and tok != UNKNOWN:
+                        hint = ' (not a 40-char hex SHA and not "UNKNOWN")'
+                    found.append(f"commit={tok!r}{hint}")
+                else:
+                    found.append("commit=<absent>")
+                found.append(f"dirty={loose_d.group(1)!r}" if loose_d else "dirty=<absent>")
+                return FileCheckResult(
+                    False,
+                    reason=(
+                        "a 'provenance:' stamp is present but could not be parsed -- found "
+                        + ", ".join(found)
+                        + "; expected 'provenance: commit=<40-char-sha-or-UNKNOWN> "
+                        "dirty=<true|false|UNKNOWN>'"
+                    ),
+                )
             return FileCheckResult(
                 False,
                 reason=(

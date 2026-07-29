@@ -95,3 +95,46 @@ class TestStillRejectsIncompleteStamps:
             "<!-- provenance: dirty=false -->\n",
         )
         assert not check_text_file(p).ok
+
+
+class TestDiagnosticDistinguishesMalformedFromMissing:
+    """A present-but-unparseable stamp must not be reported as a missing one.
+
+    These assert on the REASON, not just on rejection -- the outcomes above
+    already cover rejection. An abbreviated SHA was being reported as "no
+    provenance line found", which sends the reader hunting for a line that is
+    sitting in the file, and cost real investigation time on
+    docs/evidence/2026-07-28-netclass-defect-reconciliation.md.
+    """
+
+    def test_abbreviated_sha_says_abbreviated_not_missing(self, tmp_path: Path) -> None:
+        p = _write(tmp_path, f"# T\n\n<!-- provenance: commit={SHA[:8]} dirty=false -->\n")
+        r = check_text_file(p)
+        assert not r.ok
+        assert "abbreviated SHA" in r.reason
+        assert "no 'provenance" not in r.reason
+
+    def test_non_hex_commit_says_not_a_sha(self, tmp_path: Path) -> None:
+        p = _write(tmp_path, "# T\n\n<!-- provenance: commit=not-a-sha dirty=true -->\n")
+        r = check_text_file(p)
+        assert not r.ok
+        assert "could not be parsed" in r.reason
+        assert "not-a-sha" in r.reason
+
+    def test_genuinely_missing_stamp_keeps_the_original_message(self, tmp_path: Path) -> None:
+        """The missing-stamp path must be unchanged -- that message is correct."""
+        p = _write(tmp_path, "# T\n\nSome prose with no stamp.\n")
+        r = check_text_file(p)
+        assert not r.ok
+        assert "no 'provenance" in r.reason
+        assert "could not be parsed" not in r.reason
+
+    def test_diagnostic_reports_the_missing_field_by_name(self, tmp_path: Path) -> None:
+        p = _write(tmp_path, f"# T\n\n<!-- provenance: commit={SHA[:8]} -->\n")
+        r = check_text_file(p)
+        assert not r.ok
+        assert "dirty=<absent>" in r.reason
+
+    def test_valid_stamp_is_unaffected(self, tmp_path: Path) -> None:
+        p = _write(tmp_path, f"# T\n\n<!-- provenance: commit={SHA} dirty=false -->\n")
+        assert check_text_file(p).ok
