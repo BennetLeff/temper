@@ -48,7 +48,7 @@ import yaml
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-import temper_placer.router_v6._astar_reconstruct as astar_reconstruct_mod
+import temper_placer.router_v6._astar_search as astar_search_mod
 import temper_placer.router_v6.astar_pathfinding as astar_pathfinding_mod
 from temper_placer.router_v6.astar_core import _route_segment_3d as _real_route_segment_3d
 from temper_placer.router_v6.channel_mapping import ChannelPath
@@ -173,10 +173,10 @@ def test_fallback_tier_produces_via_positions_when_primary_and_alternate_fail():
 
     # Patch where the name is looked up, not where it is defined:
     # `_route_segment_3d` lives in astar_core and is imported into
-    # _astar_reconstruct, which is what calls it. It is not in
-    # astar_pathfinding's namespace at all since the module was split.
+    # _astar_search, whose `_astar_route_multilayer` is what calls it. It
+    # is in neither astar_pathfinding's nor _astar_reconstruct's namespace.
     with patch.object(
-        astar_reconstruct_mod,
+        astar_search_mod,
         "_route_segment_3d",
         wraps=_real_route_segment_3d,
     ) as spy:
@@ -223,10 +223,10 @@ def test_3d_fallback_legality_uses_each_netclass_via_envelope(net_class: str | N
 
     # Patch where the name is looked up, not where it is defined:
     # `_route_segment_3d` lives in astar_core and is imported into
-    # _astar_reconstruct, which is what calls it. It is not in
-    # astar_pathfinding's namespace at all since the module was split.
+    # _astar_search, whose `_astar_route_multilayer` is what calls it. It
+    # is in neither astar_pathfinding's nor _astar_reconstruct's namespace.
     with patch.object(
-        astar_reconstruct_mod,
+        astar_search_mod,
         "_route_segment_3d",
         wraps=_real_route_segment_3d,
     ) as spy:
@@ -277,10 +277,10 @@ def test_fallback_tier_not_invoked_when_primary_grid_succeeds():
 
     # Patch where the name is looked up, not where it is defined:
     # `_route_segment_3d` lives in astar_core and is imported into
-    # _astar_reconstruct, which is what calls it. It is not in
-    # astar_pathfinding's namespace at all since the module was split.
+    # _astar_search, whose `_astar_route_multilayer` is what calls it. It
+    # is in neither astar_pathfinding's nor _astar_reconstruct's namespace.
     with patch.object(
-        astar_reconstruct_mod,
+        astar_search_mod,
         "_route_segment_3d",
         wraps=_real_route_segment_3d,
     ) as spy:
@@ -327,10 +327,10 @@ def test_alternate_grid_success_has_explicit_endpoint_vias_not_implicit_transiti
 
     # Patch where the name is looked up, not where it is defined:
     # `_route_segment_3d` lives in astar_core and is imported into
-    # _astar_reconstruct, which is what calls it. It is not in
-    # astar_pathfinding's namespace at all since the module was split.
+    # _astar_search, whose `_astar_route_multilayer` is what calls it. It
+    # is in neither astar_pathfinding's nor _astar_reconstruct's namespace.
     with patch.object(
-        astar_reconstruct_mod,
+        astar_search_mod,
         "_route_segment_3d",
         wraps=_real_route_segment_3d,
     ) as spy:
