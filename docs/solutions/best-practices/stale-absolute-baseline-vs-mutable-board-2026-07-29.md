@@ -1,5 +1,5 @@
 ---
-title: "A baseline judges the board it was measured against, not the one committed today — three absolute thresholds that outlived the bare board that produced them"
+title: "A baseline judges the board it was measured against, not the one committed today — four absolute thresholds, one still red on main, that outlived the bare board that produced them"
 date: "2026-07-29"
 category: best-practices
 module: temper_placer
@@ -11,6 +11,7 @@ applies_when:
   - "a PCB, netlist, or other generated/committed artifact is about to be regenerated, re-placed, or re-routed"
   - "a doc or test comment cites a measurement date without also citing the commit or artifact state it was measured against"
   - "a gate compares today's artifact against a constant instead of against a second measurement of today's artifact"
+  - "considering a hand edit to a stale baseline/golden file to make a CI gate green again"
 tags:
   - stale-baseline
   - mutable-artifact
@@ -19,6 +20,8 @@ tags:
   - drc-thresholds
   - category-error
   - anti-vacuous-truth
+  - golden-regression
+  - manual-rebaseline-resets-the-clock
 ---
 
 # A baseline judges the board it was measured against, not the one committed today
@@ -28,10 +31,10 @@ tags:
 `pcb/temper.kicad_pcb` was bare — 149 footprints, zero copper (no segments,
 no vias, no zones) — through 2026-07-21. On 2026-07-27 (`556ccf4f`) it was
 routed for the first time (2,338 segments, 48 vias, 96 zones), then resynced
-to the netlist (`65bd0159`, 170→168 footprints, 165→164 nets). Three
-independent absolute thresholds, each written against the bare board, kept
-being compared to the routed one for up to six days after the board changed
-underneath them:
+to the netlist (`65bd0159`, 170→168 footprints, 165→164 nets). Four
+independent absolute thresholds, each written against an earlier board
+shape, kept being compared to a later one for as long as six days after the
+board changed underneath them:
 
 1. **`docs/STRATEGY.md`** asserted "The committed board carries no routing:
    0 segments, 0 vias, 0 zones" and "149 footprints, 151 nets" — both true
@@ -58,14 +61,73 @@ underneath them:
    across three DRC samples), because the board already ships 96 filled
    zones and the flag pours 96 more on top of them — exactly duplicating
    existing copper rather than connecting anything new.
+4. **`power_pcb_dataset/baselines/temper_production_baseline.yaml`**'s
+   `component_count: 170` — a different artifact from either of the above:
+   a hand-maintained YAML golden baseline consumed by the *Golden
+   Regression Check* workflow's `golden-check` job, not the DRC thresholds
+   or board-shape guard in `test_regression_drc.py`, and not something PR
+   #373 touched. Both track "how many footprints does the board have," but
+   they are two independent numbers in two independent files, chased by
+   two independent mechanisms. `pcb/temper.kicad_pcb` measures **168**
+   footprints (`grep -c '(footprint ' pcb/temper.kicad_pcb`); the golden
+   baseline still says 170. **This one is not historical — it is red on
+   `main` right now:**
 
-All three are the same shape: **a number was recorded against one revision
+   ```
+   REGRESSION: component_count: 168.0 vs baseline 170.0 (-2.0)
+   ERROR: Regression detected for temper_production: component_count: 168.0 vs baseline 170.0 (-2.0)
+   ```
+
+   (`gh run list --workflow "Golden Regression Check" --branch main --limit 3`,
+   confirmed failing on the run for `b39b382d`, the same commit PR #386
+   landed as, 2026-07-29T06:07:59Z.)
+
+   This instance is the strongest evidence in the set, because the file's
+   own header comments show the baseline already being hand-chased twice
+   in one day and failing a third time regardless:
+
+   ```
+   # 2026-07-27: component_count 149 -> 169, net_count 95 -> 106.
+   ...
+   # 2026-07-27 (second update): component_count 169 -> 170, net_count 106 -> 108.
+   ...
+   # This file has now gone stale twice in one day. It has no bless script and
+   # no Ceiling-Approval gate -- scripts/bless_baselines.py governs only
+   # power_pcb_dataset/corpus/<id>/baseline.json and errors with "not found in
+   # manifest" for temper_production. Every legitimate board change therefore
+   # requires a hand edit, which is precisely the drift-prone arrangement the
+   # corpus baselines have machinery to prevent.
+   ```
+
+   The file's own comments already diagnose the mechanism correctly
+   (`scripts/bless_baselines.py` doesn't reach `golden_manifest.yaml`
+   boards, so `temper_production`'s baseline has no automated re-bless
+   path and every legitimate board change requires a manual number edit).
+   What they demonstrate, that the other three instances don't, is the
+   *outcome* of trying to fix an absolute baseline by hand: two same-day
+   manual corrections (149→169, then 169→170) each made the gate pass
+   again, briefly, and neither addressed why the number would go stale
+   again the next time the board changed shape — which it did, a third
+   time, before this document was written. Chasing the number is not a
+   fix; it resets the clock.
+
+   **Not fixed here.** Per the discipline this document argues for
+   (guidance item 2, below), the correct repair is the differential
+   pattern PR #386 already demonstrated for the zone/pour baseline, or
+   wiring `bless_baselines.py`/an equivalent shape guard to
+   `golden_manifest.yaml` boards — not a fifth hand edit to the number.
+   Hand-editing `component_count` to `168` would make this specific gate
+   green again for exactly as long as the board's footprint count doesn't
+   change, which is the anti-pattern this whole document is about.
+
+All four are the same shape: **a number was recorded against one revision
 of a mutable, regenerable artifact, and nothing re-checked whether the
-artifact was still the one the number described.** None of the three
-constants were wrong when written. All three were wrong by the time they
-gated anything, and none of them said so.
+artifact was still the one the number described.** None of the four
+constants were wrong when written. All four were wrong by the time they
+gated anything (three now fixed, one still red), and none of them said so
+on its own.
 
-A fourth mechanism compounded #3 specifically:
+A further mechanism compounded instance 3 specifically:
 `_fill_zones_via_pcbnew` hardcoded `/usr/bin/python3` as the pcbnew
 interpreter. That path **exists** on macOS but has no `pcbnew` module, so
 the helper's own existence check passed and the import failed silently —
@@ -113,23 +175,49 @@ path's existence to imply the capability behind it.
    interpreter, tool, or binary should instead attempt the real capability
    and treat "exists but can't do the thing" as a distinct, loud failure —
    not a silent skip that leaves a stale baseline unverified indefinitely.
+6. **Hand-editing a stale absolute baseline to match today's artifact does
+   not fix the staleness — it resets the clock on the same failure.**
+   `power_pcb_dataset/baselines/temper_production_baseline.yaml`'s own
+   header comments record two same-day manual corrections
+   (`component_count` 149→169, then 169→170 the same day, 2026-07-27), and
+   the gate is red again regardless (168 vs. 170) as of this writing. Each
+   hand edit bought exactly as much time as it took for the next
+   legitimate board change to land. A baseline with no automated re-bless
+   path (`scripts/bless_baselines.py` reaches
+   `power_pcb_dataset/corpus/<id>/baseline.json` but errors "not found in
+   manifest" for `golden_manifest.yaml` boards like `temper_production`)
+   will keep needing this same manual correction on every board change,
+   forever — the fix is a shape guard or a differential gate, per items 1
+   and 2, not a fourth or fifth hand edit.
 
 ## Why This Matters
 
-None of these three thresholds were negligence at the time they were
-written — 800, 1200, and 260 were all real, correct measurements of the
-board that existed on 2026-07-21. The failure was structural: an absolute
-number has no way to say "this was true of a board that no longer exists."
-`pcb/temper.kicad_pcb` moved three times in six days (bare → routed →
-resynced) and three independent gates, in two different files plus a
-prose document, all kept judging the new board by the old one's numbers.
-The `/usr/bin/python3` bug compounded this specifically for the zone/pour
+None of these four thresholds were negligence at the time they were
+written — 800, 1200, 260, and 170 were all real, correct measurements of
+the board that existed when each was recorded. The failure was structural:
+an absolute number has no way to say "this was true of a board that no
+longer exists." `pcb/temper.kicad_pcb` moved at least four times in twelve
+days (149 footprints bare → 169 → 170 → routed at 170 → resynced to 168)
+and four independent gates, across three files plus a prose document, all
+kept judging the current board by an earlier one's numbers. The
+`/usr/bin/python3` bug compounded this specifically for the zone/pour
 constant: not only did nobody re-measure it, nobody *could*, because the
 test that would have caught the drift was silently not running at all on
-the machine most likely to be used to check it. The fix that generalizes
-is the one PR #386 landed for zone/pour: a gate that measures the
-relationship between two things computed *now* cannot drift, because it
-never remembers a fact about *then*.
+the machine most likely to be used to check it. The golden-baseline
+instance adds a fourth angle no code diff shows: **it is only visible by
+running the gate, not by reading a diff.** `git show`/`git log` on the
+five PRs this document otherwise draws from surface every other instance
+directly in a commit message or code change; this one required running
+`gh run list --workflow "Golden Regression Check"` and reading a live CI
+log, because the failure is a data file disagreeing with a board file,
+with no code change connecting them at all. Auditing "are our baselines
+stale" by scanning recent diffs would miss this instance entirely — it
+has to be asked of the gates themselves. The fix that generalizes is the
+one PR #386 landed for zone/pour: a gate that measures the relationship
+between two things computed *now* cannot drift, because it never
+remembers a fact about *then* — and the golden-baseline instance is the
+concrete proof that the manual alternative (re-chase the number by hand)
+was tried, twice, on the same day, and failed both times.
 
 ## When to Apply
 
@@ -148,6 +236,16 @@ never remembers a fact about *then*.
 - When a violation/defect count grows across a change: decompose it by
   category and by known causes (artifact growth vs. the change under test)
   before reporting the raw delta as a regression.
+- When a stale-baseline hunt relies on `git show`/`git log`/reading diffs:
+  also check whether any CI workflow is currently red on `main` for a
+  reason a diff wouldn't show — a hand-maintained baseline file compared
+  against a generated artifact by a scheduled or push-triggered gate can
+  drift with zero corresponding code change to find.
+- Before hand-editing any baseline/golden file to make a red gate green
+  again: check whether its own history (comments, prior commits) shows
+  this has been done before. A second or third manual correction to the
+  same number is itself the signal that the gate needs a shape guard or a
+  differential rewrite, not another edit.
 
 ## Examples
 
@@ -176,6 +274,22 @@ assert zones_emitted(on=True) > zones_emitted(on=False)   # anti-vacuous-truth
 # no stored baseline to compare against -- the relationship IS the gate
 ```
 
+```
+# power_pcb_dataset/baselines/temper_production_baseline.yaml -- hand-chased
+# twice in one day (2026-07-27), stale again by the time this doc was
+# written. Not fixed here: editing the "170" is the anti-pattern this
+# document argues against, not a resolution of it.
+# 2026-07-27: component_count 149 -> 169, net_count 95 -> 106.
+# 2026-07-27 (second update): component_count 169 -> 170, net_count 106 -> 108.
+# This file has now gone stale twice in one day. It has no bless script and
+# no Ceiling-Approval gate ...
+component_count: 170     # live board (pcb/temper.kicad_pcb): 168
+
+# gh run list --workflow "Golden Regression Check" --branch main --limit 3
+# REGRESSION: component_count: 168.0 vs baseline 170.0 (-2.0)
+# ERROR: Regression detected for temper_production: component_count: 168.0 vs baseline 170.0 (-2.0)
+```
+
 ## Related
 
 - `docs/solutions/best-practices/a-measurement-carries-its-commit-2026-07-26.md`
@@ -194,7 +308,18 @@ assert zones_emitted(on=True) > zones_emitted(on=False)   # anti-vacuous-truth
   stale zone/pour baseline by letting the gate run for the first time in
   CI in a while.
 - PR #371 (`df5e1db5`), PR #373 (`5b9c05db`), PR #386 (`b39b382d`) —
-  the three fixes this document generalizes from.
+  three of the four fixes this document generalizes from. The fourth
+  instance (the golden-regression baseline) is not tied to any of these
+  PRs — it is an independently discovered, still-open failure in a
+  separate file, included here for its own sake, not fixed as part of
+  this documentation pass.
 - `docs/evidence/2026-07-28-zone-pour-differential-verdict.md` — full
   measurement detail for the zone/pour instance, including the per-type
   violation deltas and the `/usr/bin/python3` root cause.
+- `power_pcb_dataset/baselines/temper_production_baseline.yaml` — the
+  live, still-red golden-regression baseline, including its own header
+  comments recording two same-day manual corrections that didn't hold.
+- `.github/workflows/golden-check.yml` (the *Golden Regression Check*
+  workflow) and `scripts/bless_baselines.py` — the gate this instance
+  fails in, and the re-bless mechanism that exists for corpus boards but
+  doesn't reach `golden_manifest.yaml` boards like `temper_production`.
