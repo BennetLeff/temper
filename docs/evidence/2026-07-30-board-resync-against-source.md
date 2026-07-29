@@ -451,7 +451,80 @@ placement or routing decision anywhere in this causal chain.
 
 `uv run temper-placer regression` now reports `[PASS] temper_production`
 locally; the pushed commit re-triggers `golden-check` on kicad-cli 10.0.5
-for the authoritative confirmation.
+for the authoritative confirmation. **Result: `golden-check` PASSED on CI**
+(run `30500192531`, kicad-cli 10.0.5) after this re-baseline.
+
+### A second, separate DRC gate also fails on this PR -- confirmed pre-existing, not touched
+
+A different CI job ("regression" workflow, step "KiCad DRC truth gate",
+`scripts/ci_check_drc.py` against `power_pcb_dataset/drc_ceiling.json`) also
+shows red on this PR:
+
+```
+FAIL: temper: DRC FAIL
+  aggregate errors 867 exceeds ceiling 820 (+47)
+  per-type errors: ... [NEW] creepage 32 > 0 (+32), plus the same
+  hole_clearance/shorting_items/courtyards_overlap/solder_mask_bridge/
+  copper_edge_clearance categories as above
+```
+
+This is a **different ceiling file with its own approval convention**
+(`Ceiling-Approval:` commit trailer, enforced by
+`scripts/check_drc_ceiling_approval.py`) than the `golden-check` ratchet
+fixed above, and it was investigated separately rather than folded into
+the same fix.
+
+**The `creepage` finding does NOT belong to this PR.** An initial
+reproduction attempt made exactly the same class of mistake flagged in §8
+above, one level worse: the two boards were compared using DRU files
+staged under a bare, non-namespaced `/tmp/...` path shared across every
+concurrent session on this machine (per `AGENTS.md`'s "shared mutable
+state" warnings) rather than this session's own scratchpad, and a
+different, stale `.kicad_dru` (6502 bytes, missing the `HighVoltageIsolated`
+rules and the `creepage` constraints on several rules -- an older generator
+output) ended up on one side of the comparison without a byte-for-byte
+check to catch it. Caught by hashing both `.kicad_dru` files immediately
+before and after each `kicad-cli` invocation and finding they diverged when
+they should not have; corrected by regenerating and hashing both copies
+from this session's own scratchpad path, confirmed identical
+(`8dfda5ac1fccad9...`) immediately before both runs. With that fixed:
+**`creepage` is 32 on both the old and the new board — 0 delta.**
+
+Definitive confirmation: `scripts/ci_check_drc.py --backend kicad-cli` was
+run directly (the actual gate script CI invokes, not a reimplementation)
+against the **unmodified, pre-this-PR board** (commit `ed5ee134`, restored
+in place, checked with `git status`/a snapshot diff before and after, then
+reverted with zero net changes to the working tree):
+
+```
+FAIL: temper: DRC FAIL
+  aggregate errors 842 exceeds ceiling 820 (+22)
+  per-type errors (source: kicad-cli): 1 category over ceiling (1 new, 0 regressed):
+    [NEW] creepage 32 > 0 (+32)
+```
+
+**This gate already fails on the board exactly as committed on `main`,
+before any change in this PR.** `drc_ceiling.json`'s `temper` entry was
+last measured at commit `66ae51fc`, and the `creepage` KiCad-native
+constraint was added to `scripts/generate_kicad_dru.py` afterward
+(2026-07-28, per that generator's own comments) — the ceiling has been
+stale against real design-rule additions for weeks, independent of
+anything this PR touches. This matches the task's own brief precisely:
+"main has known pre-existing failures (isolation keepout, stale
+drc_ceiling.json, the clearance violations)." Re-measuring `drc_ceiling.json`
+requires a `Ceiling-Approval:` trailer per its own governing gate
+(`scripts/check_drc_ceiling_approval.py`) and is explicitly named there as
+"a separate deliverable" — it is **not done here**, on purpose, to avoid
+folding an unrelated, already-red ceiling into this PR's diff under cover
+of the footprint resync.
+
+The five categories this ceiling shares with `golden-check`'s ratchet
+(`hole_clearance`, `shorting_items`, `courtyards_overlap`,
+`solder_mask_bridge`, `copper_edge_clearance`) move for the exact same,
+already-verified reason as §8 above (the 7 corrected/staged footprints,
+unchanged positions) — nothing new there. `creepage` is the one category
+in this second gate that is not shared with `golden-check`'s ratchet, and
+it is unchanged by this PR.
 
 ## Reproduction
 
