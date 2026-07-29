@@ -1,6 +1,8 @@
 # Tank RMS current reconciliation: inductance-range sweep (20.7 A) vs. bus-capacitor ripple (35.4–40 A)
 
-<!-- provenance: commit=fed05e82 dirty=true (this pass's own uncommitted-at-start work), branch tank-current-reconciliation, forked from docs/methodology-loop-discipline -->
+provenance: commit=fed05e82b45c7612a2f1e636b007511e7deda8c1 dirty=true
+
+<!-- fed05e82 dirty=true (this pass's own uncommitted-at-start work), branch tank-current-reconciliation, forked from docs/methodology-loop-discipline -->
 
 **Date:** 2026-07-28
 **Method:** Arithmetic reproduction from each source document's own stated

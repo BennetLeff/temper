@@ -1,5 +1,7 @@
 # Two zone/layer classification bugs fixed: a one-char substring match and a hardcoded netclass list
 
+provenance: commit=fed05e82b45c7612a2f1e636b007511e7deda8c1 dirty=true
+
 **Date:** 2026-07-28
 **Base commit:** `fed05e82` (`docs/methodology-loop-discipline`) -- "merge:
 barrier-constrained placement is INFEASIBLE -- and it is a BOM problem"
