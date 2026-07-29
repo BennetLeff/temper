@@ -414,6 +414,38 @@ TEMPER_NET_CLASSES = {
         required_layer=None,
         safety_category="HV",
     ),
+    # HighVoltageIsolated - gate-drive floating bootstrap supply (+5V_ISO,
+    # VBOOT_H, VBOOT_L, and the UCC21550 gate driver's own secondary bias
+    # nets hb.gate_hs.driver-p1-1 (VDDA) / hb.gate_hs.driver-p2 (VSSA)).
+    #
+    # FIXED 2026-07-28 (docs/evidence/2026-07-28-netclass-defect-reconciliation.md):
+    # this class was added to pcb/temper.kicad_pro and
+    # packages/temper-placer/configs/netclass_rules.yaml on 2026-07-28
+    # (docs/evidence/2026-07-28-hv-isolated-rules-and-creepage-triage.md,
+    # commit 71dba365) but never added HERE -- this table (the Python
+    # placer/router's own net-class model) had zero entries for it, so
+    # every net in this class fell through to Default for any Python-side
+    # (CP-SAT placer, router_v6) clearance/routing decision even though the
+    # real KiCad DRC truth-gate already enforced it correctly. Same drift
+    # shape as the +340V_BUS defect (commit 688c15bb) this evidence doc's
+    # own precedent cites -- a fix landing in some assignment tables and not
+    # others. Parameters mirror netclass_rules.yaml's own HighVoltageIsolated
+    # entry exactly (clearance/creepage 6.0mm, trace_width 2.0mm, voltage
+    # 20V, safety_category HV -- elec/domain_manifest.yaml puts every net in
+    # this class in the SAME HV domain as ac_l/+170V_BUS/SW_NODE).
+    "HighVoltageIsolated": NetClassRules(
+        name="HighVoltageIsolated",
+        trace_width=2.0,
+        clearance=6.0,
+        via_diameter=1.0,
+        via_drill=0.5,
+        via_template="Via1x1",
+        voltage_v=20.0,
+        creepage_mm=6.0,
+        dru_priority=25,
+        required_layer="F.Cu",
+        safety_category="HV",
+    ),
 }
 
 
@@ -447,6 +479,63 @@ TEMPER_NET_ASSIGNMENTS = {
     "DC_BUS+": "HighVoltage",
     "DC_BUS-": "HighVoltage",
     "SW_NODE": "HighVoltage",
+    # FIXED 2026-07-28 (docs/evidence/2026-07-28-netclass-defect-reconciliation.md):
+    # "+15V_LS" was misclassified below under "Power" despite
+    # elec/domain_manifest.yaml declaring it an HV-domain net ("low-side
+    # gate-driver rail; referenced to DC_BUS_RTN, not gnd -- floats within
+    # the HV domain, not SELV") -- an HV-domain net was being held to LV
+    # separation rules, and inflated the creepage violation count with 3
+    # false positives (HV-to-LV/HighVoltageIsolated-to-LV rules tripping on
+    # a same-domain pair). Moved here to match the manifest, not the name.
+    "+15V_LS": "HighVoltage",
+    # ADDED 2026-07-28, same evidence doc. "a" (U3's own primary/LED-anode
+    # net, between the ZCD divider tap and the H11L1 opto's series
+    # resistor -- elec/build/default.net net 24, U3 pin 1 <-> R9 pin 2) was
+    # entirely absent from this table, so it fell through to the
+    # unclassified "Default" class and no HV-to-LV creepage rule ever saw
+    # U3's real primary/secondary isolator crossing (the same 14.058mm slot
+    # this project fitted for it). elec/domain_manifest.yaml declares it
+    # HV-domain ("still entirely HV-side"). This closes that coverage gap;
+    # it does not touch the isolator declaration itself
+    # (elec/domain_manifest.yaml's own `power_in.zcd_opto` entry already
+    # correctly separates this pin from the SELV-side VO/GND/VCC group).
+    "a": "HighVoltage",
+    # ADDED 2026-07-28, sweep for siblings during the same evidence doc's
+    # investigation (docs/evidence/2026-07-28-netclass-defect-reconciliation.md
+    # sec "Sweep"). All 9 nets below are declared under
+    # elec/domain_manifest.yaml's domains.HV.nets (traced to real wiring in
+    # that file's own comments, not inferred from spelling) but were absent
+    # from this table entirely -- the same false-negative shape as "a"
+    # above, just not one of the two nets this task's own falsifier named.
+    # 7 of the 9 were already independently classed "HighVoltage" in
+    # configs/temper_production_config.yaml (an orphaned config not loaded
+    # by any code path today, but corroborating evidence the manifest's
+    # call is uncontroversial); the other 2 (hb.power_loop.q_high-g, zcd)
+    # have their own detailed wire-tracing directly in the manifest.
+    "w1_1": "HighVoltage",  # CMC winding 1 taps (line side)
+    "w1_2": "HighVoltage",
+    "zcd": "HighVoltage",  # power_in's internal HV-side ZCD divider tap
+    "tank-out": "HighVoltage",  # ResonantTank input == SW_NODE
+    "tank.c_tank1-p2": "HighVoltage",  # ResonantTank 400V-rated node
+    "power_in.ntc-no": "HighVoltage",  # bypass relay NO -> rectified mains
+    "discharge.k_dis1-nc": "HighVoltage",  # k_dis1 contacts group (HV bus)
+    "discharge.k_dis2-nc": "HighVoltage",  # k_dis2 contacts group (HV bus)
+    "hb.power_loop.q_high-g": "HighVoltage",  # Q_high gate, 1 resistor from GATE_HS
+    # ADDED 2026-07-28, same sweep. hb.gate_hs.driver-p1-1 (VDDA) /
+    # hb.gate_hs.driver-p2 (VSSA) are the two REAL, currently-compiled nets
+    # of the HighVoltageIsolated class defined above (elec/build/default.net
+    # net codes 57/55) -- already correctly classed HighVoltageIsolated in
+    # pcb/temper.kicad_pro since the sibling Task A fix (commit 71dba365),
+    # but never added here (see the HighVoltageIsolated class comment
+    # above for the full drift explanation). +5V_ISO/VBOOT_H/VBOOT_L have
+    # no live counterpart in the current compiled netlist (0 occurrences,
+    # verified) -- added anyway, harmless if absent, matching this table's
+    # own existing +340V_BUS/AC_L-style historical-alias convention.
+    "+5V_ISO": "HighVoltageIsolated",
+    "VBOOT_H": "HighVoltageIsolated",
+    "VBOOT_L": "HighVoltageIsolated",
+    "hb.gate_hs.driver-p1-1": "HighVoltageIsolated",
+    "hb.gate_hs.driver-p2": "HighVoltageIsolated",
     # FinePitch - U8 SSOP-20 (0.635mm) + RTD SPI peripherals
     "sclk": "FinePitch",
     "sdi": "FinePitch",
@@ -472,7 +561,6 @@ TEMPER_NET_ASSIGNMENTS = {
     "PWM_L": "GateDrive",
     # Power - DC supply rails
     "+15V": "Power",
-    "+15V_LS": "Power",
     "+3V3": "Power",
     "vcc": "Power",
     "V_BUS_SENSE": "Power",

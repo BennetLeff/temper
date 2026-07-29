@@ -377,9 +377,19 @@
       "GATE_L": "GateDrive",
       "GATE_HS": "GateDrive",
       "GATE_LS": "GateDrive",
-      "+15V_LS": "Power",
+      "+15V_LS": "HighVoltage",
       "hb.gate_hs.driver-p1-1": "HighVoltageIsolated",
-      "hb.gate_hs.driver-p2": "HighVoltageIsolated"
+      "hb.gate_hs.driver-p2": "HighVoltageIsolated",
+      "a": "HighVoltage",
+      "w1_1": "HighVoltage",
+      "w1_2": "HighVoltage",
+      "zcd": "HighVoltage",
+      "tank-out": "HighVoltage",
+      "tank.c_tank1-p2": "HighVoltage",
+      "power_in.ntc-no": "HighVoltage",
+      "discharge.k_dis1-nc": "HighVoltage",
+      "discharge.k_dis2-nc": "HighVoltage",
+      "hb.power_loop.q_high-g": "HighVoltage"
     },
     "netclass_patterns": [
       {
