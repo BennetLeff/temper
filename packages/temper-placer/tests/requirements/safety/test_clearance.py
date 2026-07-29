@@ -274,7 +274,18 @@ class TestDomainClearance:
         assert any("clearance" in v.message.lower() for v in result.violations)
 
     def test_mains_to_control_clearance(self, mains_placement):
-        """Test mains to control circuit clearance."""
+        """Mains-to-SELV at the REINFORCED 6mm minimum.
+
+        Previously ``assert result.passed or not result.passed`` -- true for
+        every possible implementation, so it tested nothing. F1 and U1 sit
+        10mm apart and this fixture carries no pad geometry, so the checker
+        measures 10mm origin-to-origin and passes. The fallback itself is
+        asserted, because measuring origins is the optimistic model this
+        module was fixed to stop using by default; a real board must never
+        reach it (see
+        test_temper_board_clearance_compliance's components_without_pads
+        assertion).
+        """
         result = check_domain_clearance(
             mains_placement,
             VoltageDomain.MAINS,
@@ -282,8 +293,9 @@ class TestDomainClearance:
             min_mm=6.0,  # Reinforced insulation requirement
         )
 
-        # Should check for 6mm minimum clearance
-        assert result.passed or not result.passed  # Depends on actual implementation
+        assert result.passed
+        assert result.stats["pairs_checked"] == 1
+        assert result.stats["components_without_pads"] == ["F1", "U1"]
 
     def test_clearance_violation_details(self, violation_placement):
         """Test that violations include required details."""
@@ -335,8 +347,27 @@ class TestCreepagePath:
         assert any("creepage" in v.message.lower() for v in result.violations)
 
     def test_surface_path_consideration(self):
-        """Test that creepage considers surface path, not just straight-line distance."""
-        # Components close in straight line but with long surface path
+        """Creepage is a surface-path metric, and says which model produced it.
+
+        Previously this asserted ``not result.passed or result.passed`` --
+        vacuously true for any implementation whatsoever, including one that
+        returned clearance under a different name (which is exactly what the
+        implementation did). It now pins the two things that make creepage a
+        distinct metric rather than a relabelling:
+
+        1. every creepage violation records its ``creepage_model``, and no
+           clearance violation does -- so the two can never be silently
+           identical even when they are numerically equal;
+        2. the physical invariant ``creepage >= clearance`` holds, because a
+           path along a surface cannot be shorter than the straight line
+           between its endpoints.
+
+        On an unbroken surface (no ``surface_cutouts``) the two ARE equal and
+        that equality is exact, not an approximation: the surface geodesic
+        between two coplanar points is the straight line. Slot-aware pathing
+        for a board that *does* have a cutout is covered in
+        test_clearance_copper.py::TestCreepageVsClearance.
+        """
         placement = {
             "components": [
                 {"ref": "U1", "footprint": "QFN-32", "position": (10, 10), "nets": ["LV_CONTROL"]},
@@ -348,15 +379,19 @@ class TestCreepagePath:
             },
         }
 
-        result = check_creepage_path(
-            placement,
-            VoltageDomain.DC_BUS,
-            VoltageDomain.LV_CONTROL,
-            min_mm=4.0,
+        # 5mm apart; ask for 8mm so both metrics report a measurement.
+        creepage = check_creepage_path(
+            placement, VoltageDomain.DC_BUS, VoltageDomain.LV_CONTROL, min_mm=8.0
+        )
+        clearance = check_domain_clearance(
+            placement, VoltageDomain.DC_BUS, VoltageDomain.LV_CONTROL, min_mm=8.0
         )
 
-        # Should fail if surface path is considered
-        assert not result.passed or result.passed  # Depends on implementation
+        assert len(creepage.violations) == 1
+        assert len(clearance.violations) == 1
+        assert creepage.violations[0].creepage_model is not None
+        assert clearance.violations[0].creepage_model is None
+        assert creepage.violations[0].measured_mm >= clearance.violations[0].measured_mm
 
     def test_creepage_violation_includes_path_info(self, violation_placement):
         """Test that creepage violations include path information."""
@@ -565,6 +600,30 @@ class TestClearanceIntegration:
         running placement/routing task) -- see the evidence doc sec 5 for
         the full list. That finding is reported, not hidden: it is computed
         and asserted-as-informational below every time this test runs.
+
+        UPDATE 2026-07-28 (the measurement itself was wrong): every number
+        this test has ever asserted on was computed as the straight line
+        between component **origins**. Copper extends outward from an origin,
+        so that is an *upper bound* on true copper-to-copper separation --
+        optimistic, in the unsafe direction, on every pair. The checker now
+        measures real pad copper (see
+        `temper_placer.requirements.validators.clearance`), and this test
+        correspondingly reports **more** violations than it did before, not
+        fewer: 9 violation records over 8 pairs became **56 records over 24
+        pairs** (19 inter-component + 5 intra-footprint). Nothing got worse
+        on the board -- `pcb/temper.kicad_pcb` is byte-identical -- the
+        checker simply stopped being unable to see them. Every one of the 8
+        originally-reported pairs survives and every one of them is worse;
+        zero verdicts improve. Full old-vs-new table, per-pair remediation
+        classification, and the reproduction procedure:
+        docs/evidence/2026-07-28-clearance-copper-to-copper.md.
+
+        This test is therefore expected to FAIL until the board is re-placed
+        against copper-extent-aware constraints. It is deliberately left
+        failing rather than xfailed, marked, or allowlisted: the violations
+        are real, they are mains-to-SELV barrier breaches, and 11 of the 24
+        pairs breach even the BASIC 3.0/4.0mm minima -- i.e. downgrading the
+        boundary from REINFORCED would not clear them either.
         """
         from ._real_board_fixture import RealBoardUnavailable, load_real_board_placement
 
@@ -614,22 +673,34 @@ class TestClearanceIntegration:
         # silently (the whole point of this task). The one exemption is a
         # same-declared-protective-impedance-chain sibling pair -- see
         # _real_board_fixture.py's _chain_sibling_exempt_pairs docstring.
+        #
+        # Collected rather than asserted inline: this and the REQ-SAFE-01
+        # result below are independent findings, and a bare `assert` on the
+        # first one hides the second entirely. Both are reported together at
+        # the end of the method. Nothing is downgraded -- either one still
+        # fails the test.
+        failures: list[str] = []
+
         non_exempt_proximity = [
             f
             for f in stats["proximity_findings"]
             if not f["exempt"] and f["distance_mm"] < stats["max_iec_margin_mm"]
         ]
-        assert not non_exempt_proximity, (
-            f"{len(non_exempt_proximity)} unclassified component(s) sit "
-            f"closer than the largest IEC margin "
-            f"({stats['max_iec_margin_mm']}mm) to a declared-HV component, "
-            "with no exemption on record: "
-            + "; ".join(
-                f"{f['ref']} ({f['instance_path']}) at {f['distance_mm']:.3f}mm "
-                f"from {f['nearest_hv_ref']} ({f['nearest_hv_instance_path']})"
-                for f in non_exempt_proximity
+        if non_exempt_proximity:
+            failures.append(
+                f"{len(non_exempt_proximity)} unclassified component(s) sit "
+                f"closer than the largest IEC margin "
+                f"({stats['max_iec_margin_mm']}mm) to a declared-HV component, "
+                "with no exemption on record (copper-to-copper; the "
+                "origin-to-origin figure this used to compare against is shown "
+                "alongside to make the old model's optimism visible): "
+                + "; ".join(
+                    f"{f['ref']} ({f['instance_path']}) at {f['distance_mm']:.3f}mm "
+                    f"(origins: {f['origin_distance_mm']:.3f}mm) "
+                    f"from {f['nearest_hv_ref']} ({f['nearest_hv_instance_path']})"
+                    for f in non_exempt_proximity
+                )
             )
-        )
 
         # --- Informational: what the FULL manifest-derived classification
         # would find if wired into the hard check above (see this method's
@@ -652,14 +723,56 @@ class TestClearanceIntegration:
             "for the re-solve that took this from 17 violations to 0."
         )
 
+        # --- The measurement must actually be a copper measurement. A
+        # component with no pad geometry silently falls back to the
+        # optimistic origin-to-origin proxy this whole check was fixed to
+        # stop using, so an empty list here is a precondition of trusting
+        # any number below -- asserted, not merely printed.
+        assert not stats["components_without_pads"], (
+            "These components reached the clearance checker with NO pad "
+            "geometry, so they were measured origin-to-origin -- an upper "
+            "bound on true copper separation, i.e. optimistic in the unsafe "
+            f"direction: {stats['components_without_pads']}"
+        )
+
+        # --- Creepage model, printed every run. Creepage equals clearance
+        # only while the insulating surface is unbroken; the moment an
+        # isolation slot is milled, the reported creepage becomes a
+        # conservative LOWER bound and slot-aware surface pathing has to be
+        # implemented before these figures can justify a placement. See
+        # check_creepage_path.
+        print(
+            f"CREEPAGE MODEL: board declares {stats['board_cutout_count']} "
+            f"Edge.Cuts cutout(s)/slot(s) "
+            f"({stats['board_geometry']['edge_cuts_items']} Edge.Cuts item(s), "
+            f"{stats['board_geometry']['edge_cuts_unrecognized']} uninterpretable). "
+            + (
+                "Surface is unbroken, so creepage == clearance EXACTLY."
+                if stats["board_cutout_count"] == 0
+                else "Surface is broken: reported creepage is a CONSERVATIVE "
+                "LOWER BOUND (straight line), not the true surface path."
+            )
+        )
+        print(f"MAX COMPONENT COPPER REACH: {stats['max_copper_reach_mm']:.3f}mm")
+
         result = verify_iec60335_compliance(placement, voltage_domains)
 
-        assert result.passed, (
-            f"{result.error_count} REQ-SAFE-01 clearance/creepage violations "
-            f"on the real board (components matched: "
-            f"{stats['matched_components_in_placement']}). See "
-            "docs/evidence/2026-07-26-safety-validators-implemented.md for "
-            "the full list."
+        if not result.passed:
+            failures.append(
+                f"{result.error_count} REQ-SAFE-01 clearance/creepage violations "
+                f"on the real board across {result.stats['violating_pairs']} pair(s) "
+                f"({result.stats['intra_component_violations']} of the records are "
+                f"intra-footprint, i.e. unfixable by moving anything). Components "
+                f"matched: {stats['matched_components_in_placement']}.\n\n"
+                + result.report()
+                + "\n\nThese are measured COPPER-TO-COPPER on exact pad geometry. "
+                "The checker previously measured origin-to-origin, which is an "
+                "upper bound on true separation and therefore hid violations; see "
+                "docs/evidence/2026-07-28-clearance-copper-to-copper.md."
+            )
+
+        assert not failures, "\n\n".join(
+            [f"{len(failures)} REQ-SAFE-01 finding(s) on the real board:", *failures]
         )
 
     def test_validation_result_aggregation(self):

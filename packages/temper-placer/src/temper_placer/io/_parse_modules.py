@@ -148,6 +148,15 @@ def _extract_components_from_pcb(
             attributes={
                 "_center_offset_x": str(center_offset_x),
                 "_center_offset_y": str(center_offset_y),
+                # The footprint's EXACT board rotation in degrees. `initial_rotation`
+                # above is quantized to a 0-3 quadrant index, which silently loses any
+                # non-multiple-of-90 angle -- fine for the placer (it only ever emits
+                # quadrant rotations) but not for consumers that must reconstruct a
+                # pad's true world position/orientation, e.g. the REQ-SAFE-01
+                # copper-to-copper clearance check. Kept as a raw attribute rather
+                # than a new Component field so nothing downstream of the dataclass
+                # shape changes.
+                "_rotation_deg": str(rot_deg),
             },
             sheetpath=(fp.properties.get("Sheetpath") if hasattr(fp, "properties") else None)
             or None,
