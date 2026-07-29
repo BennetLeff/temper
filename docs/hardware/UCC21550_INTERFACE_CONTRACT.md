@@ -5,7 +5,7 @@ legacy L6491 notes are historical reference only.
 
 | Signal/element | Contract |
 |---|---|
-| Device/package | UCC21550BDW, 16-pin DW |
+| Device/package | UCC21550BDWKR, 14-pin DWK (SOIC). Corrected 2026-07-28: `UCC21550BDW` is not a TI orderable (SLUSE89C packaging addendum lists only `...DWR`/`...DWKR` tape-and-reel parts), and the board's land pattern has 14 pads numbered 1–11, 14–16 — the DWK package, which per SLUSE89C Figure 4-2 has no pin numbers 12 or 13. |
 | VCCI | Control-side supply, 3.0–5.5 V; never the +15 V gate-power rail |
 | VDDA/VDDB | Gate-side supplies per the selected driver variant and measured bootstrap design |
 | DIS | Active-high disable; floating/open is safe (internal pull-up). The board net must be named and driven with active-high semantics. |

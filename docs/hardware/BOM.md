@@ -14,7 +14,7 @@
 | Ref | Description | Part Number | Manufacturer | Qty | Package | Notes |
 |-----|-------------|-------------|--------------|-----|---------|-------|
 | Q1, Q2 | 1200V 40A IGBT | IKW40N120H3 | Infineon | 2 | TO-247 | Half-bridge |
-| U_GD | Isolated Gate Driver | UCC21550BDW | Texas Instruments | 1 | SOIC-16W | Dual channel |
+| U_GD | Isolated Gate Driver | UCC21550BDWKR | Texas Instruments | 1 | SOIC-14 (DWK) | Dual channel — see note |
 | D_BOOT | Bootstrap Diode | ES1J | onsemi | 1 | SMA | 600V 1A ultrafast — see note |
 | C_BOOT | Bootstrap Capacitor | GRM32ER71H106KA12L | Murata | 1 | 1210 | 10µF 50V X7R |
 | RG_ON | Gate Turn-On Resistor | RC1206FR-072R2L | Yageo | 2 | 1206 | 2.2Ω 5% 0.5W |
@@ -29,7 +29,7 @@
 
 > **`D_BOOT` corrected 2026-07-26.** Previously `UJ3D1210TS` (SiC Schottky, TO-220, 1200V/10A) — a different device class entirely for what is a small bootstrap-recharge diode. Source (`components.ato:262-273`) uses `ES1J`, a 600V/1A SMA ultrafast rectifier sized to the boot-cap recharge pulse, not the main power path.
 >
-> **`U_GD` corrected**: `UCC21550BDW` (16-pin DW package), not `UCC21550BDWK` — `components.ato:30`: "Fixed: was UCC21550BDWK (14-pin), now correct 16-pin DW package."
+> **`U_GD` corrected again 2026-07-28: `UCC21550BDWKR`.** The previous value `UCC21550BDW` is not a TI orderable part number — TI SLUSE89C's PACKAGING INFORMATION addendum lists exactly five orderables, all tape-and-reel: `UCC21550ADWKR`, `UCC21550ADWR`, `UCC21550BDWKR`, `UCC21550BDWR`, `UCC21550CDWKR`. The prior note's claim that the board wanted the "correct 16-pin DW package" was also wrong in the other direction: the board footprint (`pcb/libs/lib.pretty/SOIC16W_Isolated.kicad_mod`, and the placed U7 instance) has **14 pads, numbered 1–11 and 14–16** — the DWK land pattern. SLUSE89C Figure 4-2 confirms the DWK package skips pin numbers 12 and 13 entirely. `UCC21550BDWKR` is Active/Production, SOIC (DWK) | 14 pins, part marking `21550B`, and keeps the "B" grade (rec. VDD supply min 9.2 V) the +15 V secondary rail needs.
 >
 > `D_ZENER`, `R_DT`, `C_VCCI1/2`, `C_VDDA/B`, `C_DC_HF` were wired in source but not costed here (Class B, 2026-07-25 audit). The two PWM-input EMI filter R/C pairs that also live inside the gate-drive module (`r_filt_a/b`, `c_filt_a/b`) are listed once, in §8, to avoid double-counting.
 >
@@ -56,7 +56,7 @@
 | D1, D2 | Ultrafast Rectifier | MUR1560G | ON Semiconductor | 2 | TO-220 | 15A 600V 35ns |
 | C_BUS1, C_BUS1B, C_BUS2, C_BUS2B | Bus Capacitors | EKMQ251VSN182MA50S | United Chemi-Con | 4 | Radial Snap-In 35mm | 1800µF 250V 105°C — 2 in parallel per half-bus (3600µF/half) |
 | R_BLEED1, R_BLEED2 | Bleeder Resistors | CRGP2512F22K | TE Connectivity | 2 | 2512 | 22kΩ 1% 2W — τ≈79s per half-bus, backstop for the active discharge in §1.3 |
-| Y_CAP_PE | PE Bonding Cap (Y1) | DE1E3KX222MA4BA01 | - | 1 | THT Disc 10mm | 2.2nF 20% Y1 250V — doubler midpoint to PE |
+| Y_CAP_PE | PE Bonding Cap (Y1) | VY1222M47Y5UQ6TV0 | Vishay BCcomponents | 1 | THT Disc D12mm, **10.0mm lead spacing** | 2.2nF 20% X1/Y1 (Y1 500VAC) — doubler midpoint to PE. MPN corrected 2026-07-28, see note |
 | R_ZCD_TOP1, R_ZCD_TOP2 | ZCD Divider High | RC1206FR-07220KL | Yageo | 2 | 1206 | 220kΩ 5% 0.25W 250V |
 | R_ZCD_BOT | ZCD Divider Low | RC0603FR-0710KL | Yageo | 1 | 0603 | 10kΩ 5% 0.1W |
 | D_ZCD_CLAMP | ZCD Clamp Zener | BZT52C3V3-7-F | - | 1 | SOD-123 | 3.3V — protects MCU ADC input |
@@ -76,6 +76,10 @@
 > **Fuse rating / I²t coordination — open question, not resolved by this pass.** 16A/250V on a 15A continuous branch load (1800W/120V, `constraints.i_max` in `elec/src/constraints.ato`) is only ~7% headroom above full-load current for a time-lag fuse expected to ride through NTC-limited inrush without nuisance-tripping at legitimate steady-state load. No I²t/time-current coordination analysis between `F1`, `NTC_INRUSH`, and `K_BYPASS`'s switch-in timing was found anywhere in this repo. Flagging for follow-up, not fixing here.
 >
 > **`C_X2` corrected 2026-07-26 (Blocker 2).** `DE2E3KH221MA3B` was not found at any distributor, and Murata's own DE2-series "221" suffix convention decodes to 220**pF** (confirmed against sibling `DE2B3SA221KA3BT02F` = 220pF) — 1000× off the 0.22µF/220nF this circuit actually needs; Murata's DE2 leaded safety-disc line tops out around 10nF and cannot make this value in that family at all. The 220nF **value** was correct (standard X2 line-EMI value for this position); only the MPN was fictional. Replaced with EPCOS/TDK `B32922C3224M289` — confirmed Active, 28,179 units at DigiKey, 2026-07-26. Approvals read directly from EPCOS's own B32921...B32926 X2/305VAC datasheet: EN132400/IEC 60384-14 (cert 40005536/40010694), UL 1414/UL 1283 (E97863/E157153), CSA C22.2 No.1/No.8 (E97863/E157153, approved by UL), CQC GB/T14472-1998 (CQC001007-14859). Rated 305VAC per IEC 60384-14 with 310VAC maximum continuous — matches this design's original 310V spec exactly. **New footprint required, not yet drawn**: the disc footprint this BOM/source previously carried matched the fictional disc-style part, not the real MKP box-style replacement (2-pin THT radial box, 15mm lead pitch, body ~7.0×12.5×18.0mm). Full evidence and falsifier: `docs/evidence/2026-07-26-bom-blocker-resolution.md`.
+>
+> **`Y_CAP_PE` corrected 2026-07-28 (fabricated MPN).** `DE1E3KX222MA4BA01` does not exist: it pairs Murata's current lead-style code `A4B` with the legacy individual-specification suffix `A01`, a combination that appears in no Murata document and at no distributor. Murata's own datasheets pair `A4B` with `N01F`/`Q01F` and `A01` with `A5B`. Both real spellings are dead ends for new design: `DE1E3KX222MA4BN01F` is "Obsolete — no longer manufactured", 0 stock (DigiKey 4421160, fetched 2026-07-28; its listed substitute `DE1E3RA222MA4BN01F` is also 0 stock), and Mouser redirects `DE1E3KX222MA5BA01` to that same obsolete part. Replaced with Vishay BCcomponents **`VY1222M47Y5UQ6TV0`** — Active, 365 in stock at DigiKey (2824499, fetched 2026-07-28), 2200pF ±20%, X1/Y1 per IEC 60384-14, **Y1 at 500VAC** (X1 760VAC) vs the 250VAC this node requires, lead spacing 0.394" (10.00mm), body 12.0mm dia. Ordering code decoded against Vishay datasheet 28537 (`VY1222#47Y5UQ6###` is the datasheet's own 2200pF Y5U row; `M`=±20%, `T`=tape and reel, `V`=inline kinked leads, `0`=10.0mm spacing). Safety class is preserved and its voltage margin increased; capacitance and tolerance are unchanged.
+>
+> **`Y_CAP_PE` footprint is still wrong (not fixed — needs a PCB edit).** Every 2.2nF Y1 disc, including both real Murata spellings, has 10mm lead spacing, but the land on the board is a 5.00mm-pitch stub whose own `descr` says "Created to resolve netlist reference" (and says Y2, a different safety class). The part will not fit as drawn, and that same 5mm pitch is why C6 fails the 8.0mm mains↔SELV barrier gate at 3.200mm. See `docs/evidence/2026-07-28-isolator-sourcing-brief.md`.
 >
 > `RV1`, `C_X2`, `Y_CAP_PE`, `F1`, the `K_BYPASS` driver (`Q_RLY_DRV`/`R_RLY_DROP`/`R_RLY_GATE`/`R_RLY_GATE_PD`/`D_RLY_FLYBACK`), and the ZCD divider+clamp were wired in source but not costed (Class B, 2026-07-25 audit).
 
@@ -500,7 +504,7 @@ Chassis BOM (§11, not in the 155): heatsink, fan, TIM ×2, mounting hardware, t
 |-----------|-----------|-------------|
 | IKW40N120H3 | In stock | - |
 | ESP32-S3-WROOM-1-N8R8 | 4-8 weeks | N4 variant (loses PSRAM) |
-| UCC21550BDW | 4-8 weeks | - |
+| UCC21550BDWKR | 4-8 weeks | - |
 | CST3015-100ED | Verify stock | CST3015 family variants — board re-layout already required regardless, see §4.3 |
 | EKMQ251VSN182MA50S (×4) | Verify stock | Physically large snap-in electrolytics; confirm before layout freeze |
 | 0031.2510 (F1_HOLDER) | 12-week mfr. lead time (DigiKey), 83 units on hand | New line 2026-07-26 — order early; footprint not yet drawn, see §1.2 |

@@ -331,10 +331,14 @@ isolators:
       "4": "VN (= aux_supply.power_out.gnd, i.e. gnd -- main.ato:273)"
 
   - instance_path: hb.gate_hs.driver
-    component: "TI UCC21550BDW (UCC21550BDWK), reinforced-isolation dual gate driver"
+    component: "TI UCC21550BDWKR (UCC21550BDWK), reinforced-isolation dual gate driver"
     groups:
       primary: ["1", "2", "3", "4", "5", "6", "7", "8"]       # INA,INB,VCCI_1,GNDI,DIS,DT,NC_7,VCCI_2
-      secondary: ["9", "10", "11", "12", "13", "14", "15", "16"]  # VSSB,OUTB,VDDB,NC_12,NC_13,VSSA,OUTA,VDDA
+      # Pins 12/13 removed 2026-07-28: the DWK (14-pin) package has no such
+      # pin numbers -- TI SLUSE89C Figure 4-2 numbers DWK 1-11,14-16 -- and
+      # the board footprint has no pads there. They were carried over from
+      # the DW (16-pin) pinout of Figure 4-1.
+      secondary: ["9", "10", "11", "14", "15", "16"]  # VSSB,OUTB,VDDB,VSSA,OUTA,VDDA
     pin_labels:
       "4": "GNDI (primary-side logic ground, should be SELV gnd)"
       "9": "VSSB (low-side secondary ground, floats on DC_BUS_RTN)"

@@ -25,10 +25,29 @@ component IKW40N120H3:
     signal E ~ pin 3
 
 component UCC21550BDWK:
-    """TI Isolated Dual Gate Driver"""
+    """TI Isolated Dual Gate Driver, 14-pin DWK (SOIC) package.
+
+    Package/MPN VERIFIED 2026-07-28 against TI SLUSE89C (May 2023, rev.
+    Aug 2024), https://www.ti.com/lit/ds/symlink/ucc21550.pdf:
+      - PACKAGING INFORMATION addendum lists exactly five orderable part
+        numbers, all tape-and-reel: UCC21550ADWKR, UCC21550ADWR,
+        UCC21550BDWKR, UCC21550BDWR, UCC21550CDWKR. `UCC21550BDW` (no
+        trailing R) is not among them and is not a TI orderable.
+      - UCC21550BDWKR: "Active / Production / SOIC (DWK) | 14 /
+        2000 | LARGE T&R / -40 to 150 / part marking 21550B".
+      - Section 4 Figure 4-2 "DWK Package 14-Pin SOIC Top View" numbers the
+        DWK pins 1-11 and 14-16; positions 12 and 13 do not exist on this
+        package (they are the DW-only NC pins of Figure 4-1).
+      - Device Information: UCC21550BDWKR = DWK (SOIC, 14), rec. VDD supply
+        min 9.2V -- the "B" grade the +15V_LS secondary rail requires.
+    The board footprint (pcb/libs/lib.pretty/SOIC16W_Isolated.kicad_mod and
+    the placed instance in pcb/temper.kicad_pcb) has 14 pads numbered
+    1-11, 14-16 -- i.e. it is the DWK land pattern, so the previous comment
+    claiming a "correct 16-pin DW package" contradicted the actual board.
+    """
     footprint = "SOIC16W_Isolated"
-    mpn = "UCC21550BDW"  # Fixed: was UCC21550BDWK (14-pin), now correct 16-pin DW package (temper-3q4)
-    
+    mpn = "UCC21550BDWKR"  # was "UCC21550BDW" -- not a TI orderable (SLUSE89C packaging addendum); DWK 14-pin matches the board footprint
+
     # Ratings
     voltage_rating = 5000V # Isolation
 
@@ -53,8 +72,9 @@ component UCC21550BDWK:
     signal VSSB ~ pin 9
     signal OUTB ~ pin 10
     signal VDDB ~ pin 11
-    signal NC_12 ~ pin 12
-    signal NC_13 ~ pin 13
+    # No pins 12/13: the DWK package skips those positions entirely
+    # (SLUSE89C Figure 4-2), and the board footprint has no pads there.
+    # They were declared here from the DW (16-pin) pinout of Figure 4-1.
     signal VSSA ~ pin 14
     signal OUTA ~ pin 15
     signal VDDA ~ pin 16

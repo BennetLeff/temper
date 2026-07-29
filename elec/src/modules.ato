@@ -744,8 +744,40 @@ module PowerInput:
     y_cap_pe = new Capacitor
     y_cap_pe.value = 2.2nF +/- 20%
     y_cap_pe.dielectric = "Y1"
-    y_cap_pe.voltage_rating = 250V  # Y1 certified 250VAC line-to-ground
-    y_cap_pe.mpn = "DE1E3KX222MA4BA01"
+    y_cap_pe.voltage_rating = 250V  # requirement: Y1 certified >=250VAC line-to-ground
+    # MPN VERIFIED 2026-07-28. Was "DE1E3KX222MA4BA01" -- fabricated: it
+    # pairs Murata's current lead-style code A4B with the legacy individual-
+    # specification suffix A01, a combination that appears in no Murata
+    # document and at no distributor. Murata's own datasheets pair A4B with
+    # N01F/Q01F (DE1E3KX222MA4BN01F) and A01 with A5B (DE1E3KX222MA5BA01,
+    # Murata datasheet https://www.farnell.com/datasheets/1694675.pdf --
+    # 2200pF +/-20%, 250Vac, X1/Y1 certified, F = 10 +/-1.0mm). Neither
+    # real Murata spelling is buyable: DE1E3KX222MA4BN01F is "Obsolete --
+    # no longer manufactured", 0 stock, DigiKey 4421160 (its listed
+    # substitute DE1E3RA222MA4BN01F is also 0 stock), and Mouser redirects
+    # DE1E3KX222MA5BA01 to that same obsolete A4BN01F.
+    #
+    # Replacement: Vishay BCcomponents VY1 series, X1/Y1 per IEC 60384-14.
+    #   - Vishay datasheet doc 28537 ("Class X1, 760 VAC, Class Y1, 500 VAC"),
+    #     https://www.vishay.com/docs/28537/vy1series.pdf: the 2200pF Y5U row
+    #     is "VY1222#47Y5UQ6###", Dmax 12.0mm, Tmax 5.0mm, lead spacing F =
+    #     10.0 or 12.5mm. Ordering code: 222 = 2200pF, M = +/-20%, 47 = size
+    #     code, Y5U dielectric, Q = X1/Y1 500VAC, 6 = lead-wire diameter,
+    #     T = tape and reel, V = inline kinked leads, 0 = 10.0mm spacing.
+    #   - DigiKey 2824499 (fetched 2026-07-28): VY1222M47Y5UQ6TV0, Active,
+    #     365 in stock, 2200pF +/-20%, X1/Y1, 760VAC, lead spacing 0.394"
+    #     (10.00mm), body dia 0.472" (12.00mm), through hole.
+    # Safety class is preserved and its margin increased: Y1 at 500VAC vs
+    # the 250VAC this node requires. Capacitance/tolerance are unchanged.
+    #
+    # KNOWN, PRE-EXISTING FOOTPRINT DEFECT (not fixed here -- fixing it means
+    # editing pcb/temper.kicad_pcb): every 2.2nF Y1 disc, including both real
+    # Murata spellings above, has 10mm lead spacing, but the land below is a
+    # 5.00mm-pitch stub ("Created to resolve netlist reference"). The part
+    # will not fit the board as drawn, and the same 5mm pitch is why C6 is
+    # one of the mains<->SELV barrier blockers (3.200mm vs the 8.0mm gate).
+    # See docs/evidence/2026-07-28-isolator-sourcing-brief.md.
+    y_cap_pe.mpn = "VY1222M47Y5UQ6TV0"
     y_cap_pe.footprint = "Capacitor_THT:C_Disc_D10.0mm_W5.0mm_P5.00mm"
     
     dc_bus.gnd_ref ~ y_cap_pe.p1
