@@ -124,9 +124,18 @@ net_classes:
   # OVP HV divider chain (top resistors live with the HV nets they touch)
   "safety.ovp.r_div_top1-p2": "HighVoltage"
   "safety.ovp.r_div_top2-p2": "HighVoltage"
+  # +15V_LS: HV-domain low-side gate-driver rail (elec/domain_manifest.yaml
+  # -- referenced to DC_BUS_RTN, not gnd; floats within HV, not SELV).
+  # FIXED 2026-07-28 (docs/evidence/2026-07-28-netclass-defect-reconciliation.md):
+  # was misfiled under "Power" below, a fourth independent-drift copy of the
+  # same defect found in TEMPER_NET_ASSIGNMENTS / pcb/temper.kicad_pro. This
+  # file is not loaded by any code path in this repo today (verified by
+  # repo-wide grep for its filename) so the fix has no runtime effect, but
+  # is corrected anyway so it cannot silently reactivate the same
+  # misclassification if this config is ever wired up.
+  "+15V_LS": "HighVoltage"
   # Rails
   "+15V": "Power"
-  "+15V_LS": "Power"
   # +3V3 (37 pins) deliberately unclassed: decouplers follow their ICs.
   "power_in.bypass_relay-coil1": "Power"
   "power_in.bypass_relay-coil2": "Power"
