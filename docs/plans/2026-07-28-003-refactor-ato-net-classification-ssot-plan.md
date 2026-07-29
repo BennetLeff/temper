@@ -4,7 +4,7 @@ type: refactor
 date: 2026-07-28
 topic: ato-net-classification-ssot
 artifact_contract: ce-unified-plan/v1
-artifact_readiness: requirements-only
+artifact_readiness: implementation-ready
 product_contract_source: ce-brainstorm
 execution: code
 ---
@@ -152,3 +152,334 @@ flowchart TB
 - `docs/evidence/2026-07-28-hv-isolated-rules-and-creepage-triage.md` — `HighVoltageIsolated` reaching two surfaces and not the third, same day.
 - `scripts/gen_domain_models.py`, `.github/workflows/python-tests.yml:753` — the existing generate-and-`--check` pattern to follow.
 - `elec/src/main.ato:241` — `override_net_name`, the existing precedent for a signal-level attribute, and the site of the rename that orphaned `+340V_BUS`.
+
+---
+
+## Planning Contract
+
+### Summary
+
+Build one generator that reads `.ato` declarations through atopile's instance API and emits four consumers, following `scripts/gen_domain_models.py`'s established shape: render, byte-compare, replace only on change, and a `--check` mode that fails on drift. The fail-closed behavior lands in two steps — warn first, hard-fail after the classification pass — because the reader it depends on does not exist yet.
+
+### Key Technical Decisions
+
+- **Mirror `gen_domain_models.py` rather than invent a generator shape.** It already solves atomic full-file writes, delimited-block partial writes, `--check` byte-diffing, and CI wiring without `continue-on-error`. Governs U3.
+- **`.kicad_pro` needs dict-key surgery, not delimited markers.** JSON cannot carry comment markers and KiCad re-serializes the file. Replace the `netclass_assignments` key and leave every sibling key byte-identical. Governs U5.
+- **Generation is the sole writer of record for net-class assignment.** KiCad's Net Inspector writes the same field a human can edit through normal EDA workflow. A KiCad-side change is drift the check reports, not an accepted edit. Governs U5.
+- **`netclass_patterns` is removed, not generated.** Four of its seven entries match zero live nets — `VCC*`, `VDD*`, `VBOOT_*`, `AC_*` — because the real nets are lowercase. Wildcard name-matching is the drift class this work eliminates, and explicit generated assignments make it redundant. Governs U5.
+- **`safety_category` in the netclass config is a fifth generated surface.** The Product Contract scoped that file out as "rule values", but `safety_category` is a domain classification, not a clearance figure: `router_v6/_adapter_convert.py` carries it for the forced-segment gate and `router_v6/bottleneck_geometry.py` ranks it numerically. Splitting the gate-drive class without differentiating it leaves the HV-side class marked `LV`. Governs U7.
+- **Declare fields explicitly rather than assigning implicitly.** Implicit assignment emits `Implicit Declaration Future Deprecation Warning`; the build carries 4 today and per-net attributes would add roughly 328. `elec/src/fac_utils.ato` already declares typed fields with no value. Governs U2.
+- **Freshness reuses `scripts/_lib/freshness.py`.** Generation reads `.ato` for declarations and the compiled netlist for the net universe — the same two-input staleness problem `check_domain_partition.py` already solved. CI caches the netlist, so a rename can otherwise produce a green run against a stale net name. Governs U3, U9.
+- **Retired aliases survive regeneration through an explicit list.** `TEMPER_NET_ASSIGNMENTS` deliberately keeps `+340V_BUS`, `AC_L`, `GATE_H` for backward compatibility; a naive regenerate drops them silently. Governs U4.
+- **Disagreement between merged signals is a generation error.** Several `.ato` signals joined with `~` become one net; if they declare different domains, generation stops rather than picking a winner. Governs U3.
+
+### Context & Research
+
+**Patterns to follow**
+
+- `scripts/gen_domain_models.py` — `atomic_write()` (render to tmp, byte-compare, `os.replace` only on change), `replace_rust_block()` (validates marker presence, uniqueness, order), `--check` renders in memory and diffs. Wired at `.github/workflows/python-tests.yml:753`, not `continue-on-error`.
+- `scripts/check_stale_extensions.py` — gate exit discipline: `EXIT_OK = 0`, violation `3`, `GateError` → `5`. Denominator printed every run. Zero discovered raises rather than passing.
+- `scripts/check_domain_partition.py` — two-input freshness via `check_freshness`, and the "GATE ERROR, not a violation" distinction for untrustworthy input.
+- `scripts/tests/test_check_stale_extensions.py` — `sys.path.insert` then import the gate's internals directly; test classes grouped by concern including an explicit anti-vacuity class; `tmp_path` fixtures with small builders.
+- `Makefile` `netlist` target — `&&`-chaining so a freshness stamp never lands next to a failed build.
+- `elec/src/fac_utils.ato` — declaration-only typed fields (`rows: int`, `current_rating: current`).
+
+**Institutional learnings that shape this plan**
+
+- `rename-orphans-derived-keys-2026-07-28.md` — a rename is two edits: the declaration and every derived key. Migration must prove no orphaned key survives, and must distinguish a dead alias with a live counterpart from a net with no classification anywhere.
+- `a-rule-that-matches-nothing-reads-as-coverage-2026-07-28.md` — two DRU rules on this board have matched nothing, ever. Verify generated rules by forcing an absurd threshold and confirming a nonzero match; `0 → 0` at intended thresholds proves nothing.
+- `fail-soft-defaults-hide-the-failure-2026-07-28.md` — no `.get(net, default_domain)` anywhere in the generators, not only at the top-level gate.
+- `substring-net-classification-drifts-from-ssot-2026-07-27.md` — the same defect recurred nine times because each fix addressed only the reported instance. Sweep for remaining hand-maintained classifiers after cutover.
+- `net-name-is-a-claim-not-an-authority-2026-07-26.md` — a declared domain is still a claim. The check should flag self-contradiction rather than trusting the declaration because it is now the single site.
+
+### Open Questions
+
+**Resolved during planning**
+
+- Can `.ato` declare arbitrary attributes? Yes — atopile 0.2.69 keeps `instance.assignments` as a plain dict with no closed vocabulary; `override_net_name` has no special status.
+- Are type annotations enforced? No — `_get_type_info` returns the annotation as raw text and the type-checking code below it is unreachable. Declaration gives syntactic discipline, not validation; the generator validates.
+- Do the mains nets have a live classification hole? No — `ac_l`/`ac_n` are covered by explicit assignments, so the dead `AC_*` pattern is redundant rather than a live gap. `vcc` has neither, and falls in the already-flagged unclassified-SELV set.
+
+**Deferred to implementation**
+
+- Exact syntax for declaring a field on an existing signal (a short spike in U2, not a research question).
+- Whether the reader runs in-process or as a sidecar beside `make netlist` — U1 decides it by trying the cheaper one first.
+- Names for the two classes the gate-drive class splits into.
+
+---
+
+## Implementation Units
+
+### U1. Prove the `.ato` reader round-trips
+
+**Goal:** Establish that a declaration written in `.ato` is readable from Python, before anything depends on it.
+
+**Requirements:** R1, R2
+
+**Dependencies:** None
+
+**Files:**
+- Create: `scripts/_lib/ato_declarations.py`
+- Test: `scripts/tests/_lib/test_ato_declarations.py`
+
+**Approach:**
+- Read declarations through atopile's instance API; the compiled netlist carries no property slot, so `elec/build/default.net` is not a viable source.
+- Decide in-process versus sidecar here by trying in-process first and falling back if atopile's front-end cannot be driven from an already-running interpreter.
+- Isolate every atopile import behind this one module. The pinned range is `>=0.2,<0.3`, and a later atopile closes the attribute vocabulary this design depends on — one module is the whole blast radius of that upgrade.
+
+**Execution note:** Start with a failing test that asserts one known signal's declaration is readable.
+
+**Test scenarios:**
+- Happy path: a signal carrying a declared domain returns that value.
+- Edge case: a signal with no declaration returns absent, distinguishable from a declared empty value.
+- Error path: an unreadable or unparseable `.ato` raises rather than returning empty.
+- Integration: the existing `override_net_name` assignments are readable through the same call, confirming the mechanism against data already in the tree.
+
+**Verification:** A test proves a declaration written in `.ato` arrives in Python with its value intact.
+
+### U2. Declare the fields in `.ato` for a pilot set
+
+**Goal:** Establish the declaration syntax without flooding the build with deprecation warnings.
+
+**Requirements:** R1, R2, R3
+
+**Dependencies:** U1
+
+**Files:**
+- Modify: `elec/src/main.ato`, `elec/src/modules.ato`
+
+**Approach:**
+- Declare the fields explicitly rather than assigning implicitly. `elec/src/fac_utils.ato` shows the declaration-only form.
+- Apply to the known HV set first, not all 164 nets — this unit establishes shape, U8 does volume.
+- Count `Implicit Declaration Future Deprecation Warning` occurrences before and after; the count must not grow.
+
+**Test scenarios:**
+- Happy path: `make netlist` succeeds and the pilot declarations are readable through U1's module.
+- Edge case: the implicit-declaration warning count is unchanged from its baseline of 4.
+- Error path: a declaration with an unrecognized domain value is rejected by the generator, not silently carried.
+
+**Verification:** Pilot nets carry declarations, the build is no noisier than before, and U1's reader returns them.
+
+### U3. Generator core and the safety manifest
+
+**Goal:** One generator that reads declarations and emits `elec/domain_manifest.yaml`, with `--check`.
+
+**Requirements:** R5, R10, R11
+
+**Dependencies:** U1, U2
+
+**Files:**
+- Create: `scripts/gen_net_classification.py`
+- Modify: `scripts/manifest.yaml`
+- Test: `scripts/tests/test_gen_net_classification.py`
+
+**Approach:**
+- Mirror `gen_domain_models.py`: render, byte-compare, replace only on change, `--check` diffs in memory.
+- Denominator on every run — nets in the compiled netlist versus nets carrying a declaration.
+- Undeclared nets **warn** in this unit. The hard-fail flip is U9, so there is a working middle state rather than only "gate off" or "build broken".
+- Call `check_freshness` from `scripts/_lib/freshness.py` against both inputs before generating.
+- Merged-signal disagreement is an error naming both signals and the net they join into.
+
+**Test scenarios:**
+- Happy path: declarations in, manifest out, byte-identical on a second run.
+- Edge case: zero nets discovered raises a gate error rather than emitting an empty manifest.
+- Edge case: two signals merging into one net with different domains halts generation and names both.
+- Error path: a stale netlist relative to `.ato` sources is a gate error, not a violation.
+- Error path: no `.get(net, default)` fallback exists anywhere — an undeclared net is never silently assigned a domain.
+- Integration: the generated manifest is accepted unchanged by `scripts/check_domain_partition.py`.
+
+**Verification:** The manifest regenerates byte-identically, `--check` passes on a clean tree and fails on a hand-edit.
+
+### U4. Generate the Python assignment table
+
+**Goal:** `TEMPER_NET_ASSIGNMENTS` becomes generated, preserving deliberately-retained aliases; the dead config file is removed.
+
+**Requirements:** R6, R9, R11
+
+**Dependencies:** U3
+
+**Files:**
+- Modify: `packages/temper-placer/src/temper_placer/core/design_rules.py`, `scripts/gen_net_classification.py`
+- Delete: `configs/temper_production_config.yaml`
+- Test: `scripts/tests/test_gen_net_classification.py`
+
+**Approach:**
+- Delimited-block replacement, as `board.rs` uses — this file holds much more than the table. Validate marker presence, uniqueness, and order, erroring on any violation.
+- Carry retired aliases through an explicit list rather than dropping them; `+340V_BUS`, `AC_L`, `GATE_H` are kept on purpose.
+- Delete `configs/temper_production_config.yaml` — a fourth assignment surface no code loads. Confirm no importer exists before removing.
+- Every emitted class must carry a non-`None` `safety_category` so the DRC-side keyword fallback documented in `AGENTS.md` never fires.
+
+**Test scenarios:**
+- Happy path: the generated block matches what the declarations imply.
+- Edge case: a retired alias with no live counterpart survives regeneration.
+- Edge case: a missing, duplicated, or out-of-order marker errors rather than corrupting the file.
+- Integration: `grep -c` each retired net name across all consumers before and after — no orphaned key appears.
+
+**Verification:** The table regenerates byte-identically and no retired alias is lost.
+
+### U5. Generate KiCad's project file and remove the pattern mechanism
+
+**Goal:** `netclass_assignments` becomes generated; `netclass_patterns` is removed.
+
+**Requirements:** R7, R11
+
+**Dependencies:** U3
+
+**Files:**
+- Modify: `pcb/temper.kicad_pro`, `scripts/gen_net_classification.py`
+- Test: `scripts/tests/test_gen_net_classification.py`
+
+**Approach:**
+- Dict-key surgery: replace `net_settings.netclass_assignments`, leave `net_settings.classes`, `meta`, and every other key byte-identical. Markers are not available in JSON and KiCad re-serializes.
+- Remove `netclass_patterns`. Four of seven entries match zero live nets, and generated explicit assignments make the mechanism redundant.
+- Generation is the sole writer of record. A net-class edit made through KiCad's Net Inspector is drift reported by `--check`.
+
+**Test scenarios:**
+- Happy path: assignments replaced, sibling keys byte-identical.
+- Edge case: a KiCad-rewritten file with reordered keys and changed unrelated fields still round-trips with only assignments replaced.
+- Edge case: removing the pattern mechanism does not orphan any net that relied on it — every previously pattern-matched net has an explicit assignment.
+- Error path: a hand edit to a net-class assignment is reported as drift, not accepted.
+
+**Verification:** KiCad opens the project without complaint, and `--check` reports a manual assignment edit.
+
+### U6. Generate the DRC rule generator's tables
+
+**Goal:** `generate_kicad_dru.py` reads generated classification instead of its own hand-maintained tables.
+
+**Requirements:** R8, R11
+
+**Dependencies:** U3
+
+**Files:**
+- Modify: `scripts/generate_kicad_dru.py`
+- Test: `scripts/tests/test_generate_kicad_dru.py`
+
+**Approach:**
+- Replace the local `netclass_assignments`/`netclass_patterns` tables — which still reference retired names — with the generated source.
+- Emitted rule conditions must keep using forms measured to bind: `A.NetClass`, `A.Reference`, `A.Pad_Type`. `A.Footprint` and `insideCourtyard(B.Reference)` match nothing.
+
+**Test scenarios:**
+- Happy path: generated rules reference only live net classes.
+- Edge case: every classification-dependent rule produces a nonzero match when its threshold is forced to an absurd value — a rule silent at 999 mm has a broken condition, not zero violations.
+- Integration: rule count and per-class coverage before and after, with denominators.
+
+**Verification:** No retired net name survives in the generator, and every emitted rule is shown to bind.
+
+### U7. Split the gate-drive class and differentiate `safety_category`
+
+**Goal:** One netclass belongs to one domain, including in the field the router consumes.
+
+**Requirements:** R4
+
+**Dependencies:** U3
+
+**Files:**
+- Modify: `packages/temper-placer/configs/netclass_rules.yaml`, `elec/src/main.ato`, `scripts/gen_net_classification.py`
+- Test: `packages/temper-placer/tests/router_v6/test_adapter.py`
+
+**Approach:**
+- Split the gate-drive class into HV-side and SELV-side classes; the HV-side outputs and the SELV-side inputs sit on opposite sides of a reinforced barrier.
+- Set differentiated `safety_category` on the two new classes. Both currently read `LV`; leaving the HV-side class as `LV` reproduces the exact failure this split exists to fix, one file deeper than the four generated surfaces reach.
+- Generation validates that every class maps to exactly one domain and errors otherwise.
+
+**Test scenarios:**
+- Happy path: the two split classes carry different `safety_category` values in the direction the domain split demands.
+- Edge case: a class assigned to nets in two domains halts generation and names the class.
+- Integration: the router's forced-segment gate sees the HV-side class as HV, not LV.
+
+**Verification:** The split classes differ in `safety_category`, and the router consumes the corrected value.
+
+### U8. Classify the remaining nets
+
+**Goal:** Every net in the compiled netlist carries one of the three declared states.
+
+**Requirements:** R1
+
+**Dependencies:** U2, U3
+
+**Files:**
+- Modify: `elec/src/main.ato`, `elec/src/modules.ato`
+
+**Approach:**
+- 164 nets compiled, 54 declared today. The remainder need a declaration, most of them the explicit "reviewed, not safety-relevant" state.
+- Work from the generator's own undeclared-net report, so the denominator is measured rather than assumed.
+- Two flagged items stay unresolved and are declared as such rather than guessed: `PWR_RTN`'s classification and the unclassified SELV set.
+
+**Test scenarios:**
+- Happy path: the generator reports zero undeclared nets.
+- Edge case: a net declared "not safety-relevant" appears in no domain list.
+- Integration: the domain-partition check still passes, and its own denominator grows to the full net count.
+
+**Verification:** The undeclared count reaches zero with every declaration attributable to a deliberate choice.
+
+### U9. Flip to fail-closed and wire CI
+
+**Goal:** Undeclared nets stop the build; drift stops CI.
+
+**Requirements:** R10, R11, R12, R13
+
+**Dependencies:** U4, U5, U6, U7, U8
+
+**Files:**
+- Modify: `scripts/gen_net_classification.py`, `.github/workflows/python-tests.yml`, `Makefile`, `AGENTS.md`
+- Test: `scripts/tests/test_gen_net_classification.py`
+
+**Approach:**
+- Flip undeclared nets from warn to error. This is a separate commit from U3 on purpose.
+- Chain generation after `netlist` with `&&` so it never runs against a failed or absent build.
+- Wire `--check` into CI without `continue-on-error`, beside the existing generator's check step.
+- Update the `AGENTS.md` section documenting the hand-maintained tables this work replaces — the repo's documentation-sync rule requires it.
+- Sweep for any remaining hand-maintained classifier the four surfaces did not cover.
+
+**Test scenarios:**
+- Happy path: a clean tree passes both generation and `--check`.
+- Error path: one undeclared net fails generation and names it.
+- Error path: a hand edit to any generated surface fails `--check` and names the surface.
+- Integration: all currently-green gates stay green; `check_domain_partition` and `check_copper_net_consistency` are unaffected.
+
+**Verification:** Generation and `--check` both fail closed, CI runs them unmasked, and no gate regresses.
+
+---
+
+## System-Wide Impact
+
+- **Interaction graph:** the router consumes `safety_category` for its forced-segment gate and ranks it in bottleneck geometry; the DRC side resolves it with a keyword fallback when absent. Generated classes must never leave it `None`.
+- **Error propagation:** generation errors are gate errors (exit 5), not violations (exit 3) — a stale or unreadable input means the check could not run, which is different from a rule being broken.
+- **State lifecycle risks:** the generated surfaces and the compiled netlist can drift independently; freshness is checked against both inputs before generating.
+- **Unchanged invariants:** copper-against-netlist, extension freshness, board geometry, and the clearance and creepage figures in the netclass config are untouched.
+
+---
+
+## Risks & Dependencies
+
+| Risk | Mitigation |
+|---|---|
+| A later atopile closes the attribute vocabulary this design depends on — the newer line already defines a fixed attribute list | Every atopile import sits behind one module, so the upgrade blast radius is one file |
+| The gate-drive split changes DRC rule targets and may change routing outcomes | Routing re-verification is named as downstream work, not folded into this plan |
+| A generated rule can be syntactically valid and match nothing, as two existing rules already do | Every classification-dependent rule is verified to bind by forcing an absurd threshold |
+| CI's netlist cache can serve a stale netlist, producing a green run against an old net name | Generation and `--check` call the shared freshness helper against both inputs |
+| The classification pass touches many nets at once and could bury a wrong call | The fail-closed flip is a separate commit, so the pass lands reviewable while the gate still warns |
+
+---
+
+## Verification Contract
+
+| Check | Applies to | Signal |
+|---|---|---|
+| `make netlist` | U2, U8 | Build succeeds; implicit-declaration warning count unchanged |
+| `uv run --no-sync python scripts/gen_net_classification.py --check` | U3–U9 | Exit 0 on a clean tree, non-zero on any hand edit |
+| `uv run --no-sync python -m pytest scripts/tests/test_gen_net_classification.py` | U3–U9 | All pass, anti-vacuity cases included |
+| The ten currently-green gates | U9 | No regression |
+| `uv run --no-sync python -m pytest elec/validation` | U2, U7, U8 | Safety assertions hold |
+| Absurd-threshold rule audit | U6 | Every classification-dependent rule matches non-zero |
+
+---
+
+## Definition of Done
+
+- Every net in the compiled netlist carries one of three declared states, and the generator reports zero undeclared.
+- All five surfaces regenerate byte-identically from `.ato`, and `--check` fails on a hand edit to any of them.
+- No retired net name survives as an orphaned key in any consumer.
+- The two split gate-drive classes carry differentiated `safety_category`, and the router reads the corrected value.
+- `netclass_patterns` is gone, with every net that relied on it explicitly assigned.
+- Generation and `--check` run in CI without `continue-on-error`, and the ten currently-green gates stay green.
