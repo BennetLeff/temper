@@ -94,6 +94,106 @@ allowlist. Once a gate/validator module ships with an unguarded
 ``all()``, fix it; don't accumulate an exception file (see commit
 df862924, which collapsed ``import-linter-baseline.yaml`` the same way
 once it reached zero).
+
+Tautological assertions
+------------------------
+**2026-07-28 addition.** A second, related failure class: an ``assert``
+whose truth value cannot depend on the code under test --
+``packages/temper-placer/tests/requirements/safety/test_clearance.py``
+shipped, verbatim, ``assert result.passed or not result.passed  #
+Depends on actual implementation`` in the safety clearance suite. It
+reads like coverage in a diff and a test-count summary and asserts
+nothing: the expression is ``True`` for every possible ``result``. This
+gate's own scope (above) would not have caught it even if it checked
+assertions, because that scope deliberately *excludes* ``test_*.py``
+files -- they are exactly where a tautological ``assert`` does its
+damage (a vacuous ``all()`` lives in a validator; a vacuous ``assert``
+lives in the test that is supposed to catch the validator being wrong).
+So tautological-assertion detection uses its **own**, wider scope:
+``find_tautology_scope_files`` (see below) includes test-named files.
+
+Patterns detected (four; each chosen because it is a syntactic shape
+that is *always* true independent of runtime values, not merely true
+today):
+
+1. ``assert X or not X`` / ``assert not X or X`` -- direct tautology.
+   Flagged only when the shared core expression ``X`` is Call-free.
+   Rationale: with a bare ``Call`` (e.g. ``assert f() or not f()``),
+   Python evaluates the call fresh each time it is reached, so the two
+   occurrences are not guaranteed to observe the same value (a mocked,
+   stateful, or genuinely nondeterministic ``f`` could return
+   differently across the two evaluations) -- the syntactic tautology
+   argument no longer goes through. Excluding calls trades a
+   (currently unobserved in this repo) false negative for eliminating
+   that false-positive class outright.
+
+2. ``assert X or True`` / ``assert True or X`` (also literal ``1`` in
+   the ``True`` position) -- the assertion is vacuously true regardless
+   of ``X``, and unlike (1) this holds even when ``X`` contains a call:
+   either ``X`` is evaluated and its result discarded (``X or True``),
+   or it is never evaluated at all (``True or X``, short-circuited) --
+   both are always-pass by construction, no exception needed.
+
+3. ``assert X is X`` -- flagged only when Call-free. ``is`` on a
+   syntactically identical Call-free expression re-reads the exact same
+   object twice (no allocation in between), so it is always ``True`` --
+   **and, unlike ``==``, this holds for every type, including NaN
+   floats** (``is`` compares identity, not value; a NaN *is* itself even
+   though it does not *equal* itself). There is therefore no legitimate
+   NaN-check reading of ``X is X``, which is why it is flagged
+   unconditionally (modulo the Call exclusion) while ``X == X`` is not
+   (next).
+
+4. ``assert X == X`` -- flagged **only when both sides are pure
+   literals** (``ast.Constant``, or a ``Tuple``/``List``/``Set`` built
+   only from pure literals, recursively) -- e.g. ``assert (1, 2) == (1,
+   2)``. **Deliberately not flagged for a bare name/attribute/subscript**
+   (``assert x == x``, ``assert result.value == result.value``): this
+   is the idiomatic self-equality NaN guard (``nan == nan`` is
+   ``False`` in IEEE 754; ``x == x`` is a real, if terse, "``x`` is not
+   NaN" assertion for any variable that might hold a float). A checker
+   that flagged this shape would fire on legitimate numeric code
+   -- exactly the "gets disabled" failure mode this gate's own docstring
+   warns about elsewhere. Literal-vs-itself has no such reading (a
+   written-out literal cannot be NaN -- Python has no NaN literal
+   syntax), so it is safe to flag.
+
+**Deliberately not attempted, and why:**
+
+- ``assert X >= X`` / ``assert X <= X`` -- these have the *same* NaN-guard
+  reading as ``X == X`` (``nan >= nan`` and ``nan <= nan`` are both
+  ``False`` in IEEE 754, so ``x >= x`` is exactly as legitimate a
+  "not NaN" idiom as ``x == x``). Extending the literal-only carve-out to
+  these operators was considered and rejected: zero real hits in this
+  repo made the extra surface area not worth the risk of a future false
+  positive on a genuine range/monotonicity check shaped like ``lo <= lo``.
+- A general "structurally always-true comparison" prover (e.g. symbolic
+  simplification of arbitrary boolean expressions) -- out of scope for a
+  syntactic heuristic; the four shapes above were chosen because each is
+  a *literal* pattern seen (or, for ``is``/literal-``==``, a direct
+  generalization of one seen) in this repo, not a speculative case.
+- ``assert True`` / ``assert 1`` **bare, with something before them in
+  the same block** -- deliberately NOT flagged. A test that calls a
+  risky operation and then writes a bare ``assert True`` afterward is
+  using it as an (unidiomatic but real) smoke test: "the line above
+  would have raised if this were broken." Three such cases exist in
+  this repo today (``test_loop_termination_pbt.py``,
+  ``test_finish_board_gate.py``, ``test_hv_lv_golden_fixture.py``), all
+  preceded by a real operation (an assertion on a prior result, a
+  skip-guard, a snapshot-regeneration branch) -- all correctly excluded.
+  ``assert True`` / ``assert 1`` **is** flagged when it is the block's
+  first substantive statement (no non-docstring, non-``pass``
+  statement precedes it) -- nothing ran that this could even
+  implicitly be smoke-testing, so it is unconditionally vacuous.
+
+Combined with pattern (1)'s Call exclusion, this also correctly leaves
+alone ``assert sha256_file(f) == sha256_file(f)`` (in
+``scripts/tests/_lib/test_lib_measurement_provenance.py``) and the
+analogous ``compute_inputs_digest`` case in
+``test_lib_freshness.py``: syntactically self-identical, but both sides
+are calls, and the assertion is testing something real -- that the
+function is *deterministic* (same input -> same output across two
+independent invocations) -- not asserting a tautology.
 """
 
 from __future__ import annotations
@@ -340,6 +440,268 @@ def find_violations(py_file: Path) -> list[tuple[int, str]]:
     return violations
 
 
+# ---------------------------------------------------------------------------
+# tautological-assertion scope
+# ---------------------------------------------------------------------------
+
+
+def find_tautology_scope_files(
+    packages_dir: Path, scripts_dir: Path | None = None
+) -> list[Path]:
+    """Return every in-scope ``.py`` file for tautological-assertion detection.
+
+    Deliberately **wider** than ``find_scope_files`` above: this scope
+    *includes* files matching the test-module naming convention
+    (``test_*.py`` / ``*_test.py`` / ``conftest.py``) that the all()-scope
+    excludes, and it walks ``scripts/`` recursively rather than
+    top-level-only. Both differences exist for the same reason: a
+    tautological ``assert`` does its damage precisely inside test
+    functions (that is where both real hits in this repo live -- see
+    module docstring), so excluding test-named files here -- as is
+    correct for the all()-aggregation scope, which targets validator
+    *implementations* -- would silently exempt the exact files this
+    detector exists to cover. The ``router_v6`` exclusion carries over
+    unchanged (same frozen-package rationale as ``find_scope_files``).
+    """
+    results: list[Path] = []
+    for src_dir in sorted(packages_dir.glob("*/src")):
+        for py_file in sorted(src_dir.rglob("*.py")):
+            rel = py_file.relative_to(packages_dir.parent).as_posix()
+            if _is_router_v6(rel):
+                continue
+            results.append(py_file)
+    for tests_dir in sorted(packages_dir.glob("*/tests")):
+        for py_file in sorted(tests_dir.rglob("*.py")):
+            rel = py_file.relative_to(packages_dir.parent).as_posix()
+            if _is_router_v6(rel):
+                continue
+            results.append(py_file)
+    if scripts_dir is not None and scripts_dir.is_dir():
+        for py_file in sorted(scripts_dir.rglob("*.py")):
+            if py_file.name == "__init__.py":
+                continue
+            results.append(py_file)
+    return results
+
+
+# ---------------------------------------------------------------------------
+# tautological-assertion detection
+# ---------------------------------------------------------------------------
+
+# Constant values that make an ``X or <literal>`` / ``<literal> or X``
+# disjunction vacuously true regardless of X (see module docstring,
+# pattern 2). Only True/1 per the patterns actually specified/observed;
+# not generalized to arbitrary truthy literals (e.g. non-empty strings)
+# to keep the flagged shape recognizable as the ``or True`` idiom rather
+# than catching unrelated "assert X or <fallback-ish literal>" code this
+# gate has no evidence is vacuous in practice.
+_OR_TRUE_VALUES = (True, 1)
+
+
+def _dump(node: ast.AST) -> str:
+    """Structural fingerprint of *node*, position-independent."""
+    return ast.dump(node, annotate_fields=False)
+
+
+def _contains_call(node: ast.AST) -> bool:
+    return any(isinstance(n, ast.Call) for n in ast.walk(node))
+
+
+def _strip_not(node: ast.expr) -> tuple[ast.expr, bool]:
+    """Return ``(core, was_negated)``, unwrapping one leading ``not``."""
+    if isinstance(node, ast.UnaryOp) and isinstance(node.op, ast.Not):
+        return node.operand, True
+    return node, False
+
+
+def _is_pure_literal(node: ast.AST) -> bool:
+    """True for a literal with no runtime-dependent sub-expression.
+
+    Covers ``ast.Constant`` and literal ``Tuple``/``List``/``Set``
+    built only from pure literals (recursively). Used to gate the
+    ``X == X`` self-equality pattern to the shapes that can never be
+    the legitimate float-NaN self-equality idiom (see module docstring
+    pattern 4) -- a hand-written literal cannot be NaN, since Python
+    has no NaN literal syntax.
+    """
+    if isinstance(node, ast.Constant):
+        return True
+    if isinstance(node, (ast.Tuple, ast.List, ast.Set)):
+        if not node.elts:
+            # Empty tuple/list/set literal -- trivially a pure literal (no
+            # element to fail the check). This all() would otherwise be an
+            # unguarded aggregation over a reachable-empty collection; here
+            # the vacuous-True IS the correct answer, made explicit rather
+            # than left for check_vacuous_gates.py to flag as a maybe-bug.
+            return True
+        return all(_is_pure_literal(elt) for elt in node.elts)
+    return False
+
+
+def _is_or_true(test: ast.expr) -> bool:
+    """True if *test* is ``... or True``-shaped (module docstring #2)."""
+    if not (isinstance(test, ast.BoolOp) and isinstance(test.op, ast.Or)):
+        return False
+    return any(
+        isinstance(v, ast.Constant) and v.value in _OR_TRUE_VALUES
+        for v in test.values
+    )
+
+
+def _is_or_not_self(test: ast.expr) -> bool:
+    """True if *test* is ``X or not X`` / ``not X or X`` (docstring #1)."""
+    if not (
+        isinstance(test, ast.BoolOp)
+        and isinstance(test.op, ast.Or)
+        and len(test.values) == 2
+    ):
+        return False
+    a, b = test.values
+    a_core, a_neg = _strip_not(a)
+    b_core, b_neg = _strip_not(b)
+    if a_neg == b_neg:
+        return False
+    if _contains_call(a_core) or _contains_call(b_core):
+        return False
+    return _dump(a_core) == _dump(b_core)
+
+
+def _self_compare_kind(test: ast.expr) -> str | None:
+    """Return ``"is-self"``/``"eq-self-literal"`` for a self-comparison
+    (docstring #3/#4), else ``None``."""
+    if not (isinstance(test, ast.Compare) and len(test.ops) == 1):
+        return None
+    left, op, right = test.left, test.ops[0], test.comparators[0]
+    if _dump(left) != _dump(right):
+        return None
+    if _contains_call(left):
+        return None
+    if isinstance(op, ast.Is):
+        return "is-self"
+    if isinstance(op, ast.Eq) and _is_pure_literal(left):
+        return "eq-self-literal"
+    return None
+
+
+def _is_bare_truthy_literal(test: ast.expr) -> bool:
+    """True for a bare ``True``/``1`` assert target (docstring pattern 5,
+    subject to the sole-statement guard applied by the caller)."""
+    return isinstance(test, ast.Constant) and test.value in _OR_TRUE_VALUES
+
+
+def _is_inert_stmt(stmt: ast.stmt) -> bool:
+    """True for a statement with no runtime effect: a docstring/bare
+    string-literal expression, or ``pass``. Used to decide whether a
+    bare ``assert True`` has anything real preceding it in its block."""
+    if isinstance(stmt, ast.Pass):
+        return True
+    if isinstance(stmt, ast.Expr) and isinstance(stmt.value, ast.Constant):
+        return isinstance(stmt.value.value, str)
+    return False
+
+
+_TAUTOLOGY_MESSAGES = {
+    "or-not": (
+        "tautological assertion: {snippet!r}. `X or not X` is true for"
+        " every value of X; this asserts nothing about the code under"
+        " test. Assert a concrete expected outcome instead."
+    ),
+    "or-true": (
+        "tautological assertion: {snippet!r}. An `or True`/`True or`"
+        " disjunct makes this assertion pass unconditionally regardless"
+        " of the other operand."
+    ),
+    "is-self": (
+        "tautological assertion: {snippet!r}. `X is X` re-reads the same"
+        " object twice and is always true; it does not check anything"
+        " about X's value."
+    ),
+    "eq-self-literal": (
+        "tautological assertion: {snippet!r}. Both sides of `==` are the"
+        " same literal; this is always true regardless of the code"
+        " under test."
+    ),
+    "bare-literal": (
+        "vacuous assertion: {snippet!r} asserts a hardcoded literal with"
+        " nothing preceding it in this block -- it cannot even function"
+        " as an implicit smoke test for a prior operation. Assert a real"
+        " invariant, or remove it."
+    ),
+}
+
+
+def find_tautology_violations(py_file: Path) -> list[tuple[int, str, str]]:
+    """Return ``[(lineno, snippet, kind), ...]`` of tautological asserts."""
+    try:
+        source = py_file.read_text()
+        tree = ast.parse(source, filename=str(py_file))
+    except SyntaxError:
+        console.print(f"[yellow]WARNING: syntax error in {py_file}, skipping[/]")
+        return []
+
+    lines = source.splitlines()
+
+    def snippet_for(lineno: int) -> str:
+        return lines[lineno - 1].strip() if lineno <= len(lines) else ""
+
+    violations: list[tuple[int, str, str]] = []
+
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Assert):
+            continue
+        test = node.test
+        kind: str | None = None
+        if _is_or_not_self(test):
+            kind = "or-not"
+        elif _is_or_true(test):
+            kind = "or-true"
+        else:
+            kind = _self_compare_kind(test)
+        if kind is not None:
+            violations.append((node.lineno, snippet_for(node.lineno), kind))
+
+    # Bare `assert True` / `assert 1`: only when nothing substantive
+    # precedes it in its own statement block (module docstring pattern 5).
+    for stmt_node in ast.walk(tree):
+        for _field, value in ast.iter_fields(stmt_node):
+            if not isinstance(value, list):
+                continue
+            if not value:
+                continue
+            if not all(isinstance(v, ast.stmt) for v in value):
+                continue
+            for idx, stmt in enumerate(value):
+                if not (isinstance(stmt, ast.Assert) and _is_bare_truthy_literal(stmt.test)):
+                    continue
+                preceding = value[:idx]
+                # `not preceding` (idx == 0, this assert is the block's
+                # first statement) makes the all() vacuously True on
+                # purpose: "nothing precedes it" is exactly the condition
+                # this pattern targets, so the vacuous-True case IS a hit,
+                # not a checker blind spot -- written explicitly so
+                # check_vacuous_gates.py's own guard heuristic recognizes it.
+                if not preceding or all(_is_inert_stmt(s) for s in preceding):
+                    violations.append(
+                        (stmt.lineno, snippet_for(stmt.lineno), "bare-literal")
+                    )
+
+    return violations
+
+
+def find_all_tautology_violations(
+    packages_dir: Path, scripts_dir: Path | None, repo_root: Path
+) -> tuple[dict[str, tuple[int, str, str]], int]:
+    """Scan every tautology-scope file. Same ``(results, files_scanned)``
+    contract as ``find_all_violations`` (see its docstring)."""
+    results: dict[str, tuple[int, str, str]] = {}
+    scope_files = find_tautology_scope_files(packages_dir, scripts_dir)
+    for py_file in scope_files:
+        rel = _rel_str(py_file, repo_root)
+        for lineno, snippet, kind in find_tautology_violations(py_file):
+            results[f"{rel}:{lineno}"] = (lineno, snippet, kind)
+    return results, len(scope_files)
+
+
 def _rel_str(py_file: Path, repo_root: Path) -> str:
     try:
         return py_file.relative_to(repo_root).as_posix()
@@ -377,7 +739,9 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description="Anti-vacuous-truth gate: require a non-empty guard"
         " (or per-item None check) in front of every all() in gate and"
-        " validator modules"
+        " validator modules, and reject tautological assert expressions"
+        " (X or not X, X or True, X is X, literal X == X, bare assert"
+        " True/1) anywhere in packages/scripts, including test files"
     )
     parser.add_argument(
         "--packages-dir",
@@ -411,18 +775,26 @@ def main() -> None:
 
     repo_root = packages_dir.parent
     violations, files_scanned = find_all_violations(packages_dir, scripts_dir, repo_root)
+    taut_violations, taut_files_scanned = find_all_tautology_violations(
+        packages_dir, scripts_dir, repo_root
+    )
 
     denominator = (
         f"Scanned {files_scanned} file(s) in scope"
         f" ({packages_dir}/*/src + */tests, {scripts_dir or '<disabled>'}/*.py)."
     )
+    taut_denominator = (
+        f"Scanned {taut_files_scanned} file(s) in tautology scope"
+        f" ({packages_dir}/*/src + */tests (incl. test-named files),"
+        f" {scripts_dir or '<disabled>'}/**/*.py)."
+    )
 
-    if files_scanned == 0:
+    if files_scanned == 0 or taut_files_scanned == 0:
         console.print(
-            f"[red]FAIL (closed): {denominator} An anti-vacuous-truth gate that"
-            f" scans zero files cannot report a meaningful pass -- this is"
-            f" exactly the failure mode this gate exists to catch. Check"
-            f" --packages-dir/--scripts-dir.[/]"
+            f"[red]FAIL (closed): {denominator} {taut_denominator} An"
+            f" anti-vacuous-truth gate that scans zero files cannot report a"
+            f" meaningful pass -- this is exactly the failure mode this gate"
+            f" exists to catch. Check --packages-dir/--scripts-dir.[/]"
         )
         sys.exit(1)
 
@@ -435,10 +807,26 @@ def main() -> None:
                 f" assert non-empty (or a per-item None check) before"
                 f" aggregating.[/]"
             )
-        console.print(f"[red]{denominator} {len(violations)} violation(s).[/]")
+
+    if taut_violations:
+        for key in sorted(taut_violations):
+            lineno, snippet, kind = taut_violations[key]
+            message = _TAUTOLOGY_MESSAGES[kind].format(snippet=snippet)
+            console.print(f"[red]FAIL: {key} — {message}[/]")
+
+    total = len(violations) + len(taut_violations)
+    if total:
+        console.print(
+            f"[red]{denominator} {len(violations)} unguarded-aggregation"
+            f" violation(s). {taut_denominator} {len(taut_violations)}"
+            f" tautological-assertion violation(s).[/]"
+        )
         sys.exit(1)
 
-    console.print(f"[green]Anti-vacuous-truth gate passed. {denominator} 0 violations.[/]")
+    console.print(
+        f"[green]Anti-vacuous-truth gate passed. {denominator} 0 violations."
+        f" {taut_denominator} 0 violations.[/]"
+    )
 
 
 if __name__ == "__main__":

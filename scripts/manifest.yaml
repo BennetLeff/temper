@@ -789,9 +789,12 @@ scripts:
   - subprocess
 - path: check_vacuous_gates.py
   purpose: 'CI gate: reject unguarded all() in gate and validator modules (docs/METHODOLOGY.md Sec 4/5,
-    anti-vacuous-truth); any() exempt (already fail-closed); asserts zero, no allowlist'
+    anti-vacuous-truth); any() exempt (already fail-closed); asserts zero, no allowlist.
+    Also rejects tautological assert expressions (X or not X, X or True, X is X, literal
+    X == X, bare assert True/1 with nothing preceding it) anywhere in packages/scripts,
+    including test_*.py -- added 2026-07-28 after test_clearance.py shipped one uncaught.'
   owner: bennet
-  last_run: '2026-07-25'
+  last_run: '2026-07-28'
   category: keep
   disposition: ci-gate
   imports:
