@@ -387,11 +387,10 @@ scripts:
   - subprocess
   - sys
 - path: deadcode-baseline.py
-  purpose: 'Vulture whitelist/baseline data file: one accepted dead-code finding
-    per line (name + comment), diffed against by vulture_gate.py. Needs a .py
-    extension because vulture parses whitelist files as Python source; moved
-    here from the repo root 2026-07-29 (scripts/test_root_hygiene.py flags any
-    tracked *.py file at root).'
+  purpose: 'Vulture whitelist/baseline data file: one accepted dead-code finding per line (name + comment),
+    diffed against by vulture_gate.py. Needs a .py extension because vulture parses whitelist files as
+    Python source; moved here from the repo root 2026-07-29 (scripts/test_root_hygiene.py flags any tracked
+    *.py file at root).'
   owner: pipeline
   last_run: '2026-07-29'
   category: keep
@@ -975,10 +974,10 @@ scripts:
     (35000) started the bridge at the frequency an independent ZVS analysis found loses 100.7% of ZVS
     margin, while main.ato had already moved to 47kHz (docs/evidence/2026-07-28-pll-defaults-and-range-gate.md).
     EXTENDED 2026-07-29: also DERIVES the required PLL floor from main.ato''s declared l_tank_assumed
-    / l_pan_loaded_ratio / c_tank_total / l_tank_tolerance (1.05 x the worst-case loaded resonance)
-    and fails if PLL_MIN_FREQ_HZ is below it -- the previous checks only compared declarations against
-    each other and so were blind to both files agreeing on 30kHz, 7.6kHz BELOW the tank''s loaded
-    resonance, where a series-resonant bridge hard-switches (docs/evidence/2026-07-29-pll-floor-above-resonance.md).
+    / l_pan_loaded_ratio / c_tank_total / l_tank_tolerance (1.05 x the worst-case loaded resonance) and
+    fails if PLL_MIN_FREQ_HZ is below it -- the previous checks only compared declarations against each
+    other and so were blind to both files agreeing on 30kHz, 7.6kHz BELOW the tank''s loaded resonance,
+    where a series-resonant bridge hard-switches (docs/evidence/2026-07-29-pll-floor-above-resonance.md).
     Also cross-checks main.ato''s c_tank_total mirror against modules.ato''s c_tank1+c_tank2'
   owner: bennet
   last_run: '2026-07-29'
@@ -1014,11 +1013,11 @@ scripts:
   - pathlib
   - sys
 - path: check_drc_ceiling_approval.py
-  purpose: 'CI gate: fail a PR that raises any power_pcb_dataset/drc_ceiling.json ceiling value
-    (aggregate error_ceiling/warning_ceiling, or any violations_by_type/warnings_by_type rule)
-    relative to the merge base unless a commit in the PR carries a Ceiling-Approval: trailer --
-    wires DrcRatchet.detect_ceiling_raise (temper_placer.regression.drc_ratchet), which existed
-    and was unit-tested but had no CI caller, into the Provenance & Anti-Vacuity Gates job'
+  purpose: 'CI gate: fail a PR that raises any power_pcb_dataset/drc_ceiling.json ceiling value (aggregate
+    error_ceiling/warning_ceiling, or any violations_by_type/warnings_by_type rule) relative to the merge
+    base unless a commit in the PR carries a Ceiling-Approval: trailer -- wires DrcRatchet.detect_ceiling_raise
+    (temper_placer.regression.drc_ratchet), which existed and was unit-tested but had no CI caller, into
+    the Provenance & Anti-Vacuity Gates job'
   owner: bennet
   last_run: '2026-07-29'
   category: keep
@@ -1029,6 +1028,7 @@ scripts:
   - argparse
   - json
   - pathlib
+  - rich.console
   - subprocess
   - sys
 - path: check_measurement_provenance.py
@@ -1172,6 +1172,24 @@ scripts:
   - re
   - sys
   - typing
+- path: check_footprint_drift.py
+  purpose: 'Footprint-drift gate: catch a footprint corrected in elec/src/*.ato that never propagated
+    into pcb/temper.kicad_pcb, matched by sheetpath (designator-renumbering-safe), not refdes.'
+  owner: bennet
+  last_run: '2026-07-30'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - dataclasses
+  - json
+  - pathlib
+  - re
+  - sys
+  - typing
 - path: route_board.py
   purpose: Working entry point to route a .kicad_pcb through router_v6's route_pcb() (make route and internal_route.py
     are dead ends -- see module docstring). --output is mandatory and refuses to match --pcb, so it can
@@ -1187,7 +1205,6 @@ scripts:
   - json
   - os
   - pathlib
-  - re
   - statistics
   - subprocess
   - sys
