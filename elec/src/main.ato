@@ -88,6 +88,17 @@ module Top:
     # loaded resonance is ~52kHz, which 47kHz would NOT clear) -- it must
     # be re-derived once the coil is actually specified (see
     # docs/hardware/TANK_COIL_SPECIFICATION.md).
+    #
+    # LOWER BOUND ON THIS VALUE IS NOW MACHINE-DERIVED (2026-07-29,
+    # docs/evidence/2026-07-29-pll-floor-above-resonance.md): f_switching
+    # must stay above f_pll_tracking_min, which
+    # scripts/check_pll_range_consistency.py derives from
+    # l_tank_assumed / l_pan_loaded_ratio / c_tank_total / l_tank_tolerance
+    # below as 1.05 x the WORST-CASE (minimum-L) loaded resonance. Below
+    # the loaded resonance the series tank is CAPACITIVE and the bridge
+    # hard-switches; 47kHz sits at ratio 1.25 over the nominal loaded
+    # resonance (37.58kHz) and at 1.18 over the -10%-coil worst case
+    # (39.73kHz). Do not lower f_switching without re-running that gate.
     f_switching: frequency = 47kHz
     # NOTE (2026-07-28, docs/evidence/2026-07-28-pll-defaults-and-range-
     # gate.md): this 20-100kHz window is an LC-TANK THEORETICAL bound, not
@@ -101,24 +112,63 @@ module Top:
     # DECLARED 2026-07-28 (docs/evidence/2026-07-28-pll-defaults-and-range-
     # gate.md, docs/evidence/2026-07-28-pll-ratio-tracking-check.md). This
     # mirrors firmware/components/control/pll_control.h's PLL_MIN_FREQ_HZ /
-    # PLL_MAX_FREQ_HZ exactly (30-50kHz) -- NOT the 20-100kHz "LC tank
-    # theoretical bound" above, which the firmware cannot reach.
+    # PLL_MAX_FREQ_HZ exactly -- NOT the 20-100kHz "LC tank theoretical
+    # bound" above, which the firmware cannot reach.
     # scripts/check_pll_range_consistency.py enforces that these two stay
     # equal and that f_switching falls inside them; it fails the build if
     # this file and pll_control.h ever disagree again.
+    #
+    # FLOOR RAISED 30kHz -> 42kHz, 2026-07-29 (docs/evidence/2026-07-29-
+    # pll-floor-above-resonance.md). The 30kHz floor sat 7.6kHz BELOW the
+    # loaded resonance (37.58kHz at the declared L/K/C below). This is a
+    # SERIES-resonant inverter: above resonance the tank is inductive and
+    # the bridge switches at zero voltage; below resonance the tank is
+    # CAPACITIVE and the bridge hard-switches -- turn-on loss plus diode
+    # reverse recovery on a 1200V IGBT half-bridge at full bus. The old
+    # range therefore declared a device-destroying regime legal. Worse,
+    # 30kHz delivers ~1783W under this repo's own committed T-model, i.e.
+    # essentially the rated 1800W: a power-seeking control loop could
+    # settle there and read as nominal while hard-switching.
+    #
+    # 42kHz IS NOT HAND-PICKED. scripts/check_pll_range_consistency.py
+    # DERIVES the required floor from l_tank_assumed, l_pan_loaded_ratio,
+    # c_tank_total and l_tank_tolerance (all declared below) as
+    #     1.05 x 1/(2*pi*sqrt(l_tank_assumed*(1-l_tank_tolerance)
+    #                         * l_pan_loaded_ratio * c_tank_total))
+    # = 1.05 x 39.59kHz = 41.57kHz, and FAILS if PLL_MIN_FREQ_HZ is below
+    # it. The 1.05 is the ZVS cliff from docs/hardware/TANK_COIL_
+    # SPECIFICATION.md, confirmed a threshold (not a gradient) in
+    # docs/evidence/2026-07-27-inductance-range-sweep.md Sec 2.3. The gate
+    # keys off the WORST-CASE (minimum) coil inductance, not nominal,
+    # because f_res scales as 1/sqrt(L): a low-tolerance coil raises
+    # resonance, so nominal-L would under-protect exactly the unit that
+    # needs protecting most.
+    #
+    # WHAT THE RAISED FLOOR COSTS: for a series-resonant inverter lower
+    # f_sw means MORE power, so the floor caps maximum deliverable power.
+    # It does not threaten 1800W -- that point is at 47.1kHz nominal, and
+    # the floor still admits ~3.7kW (2.1x rated). The band removed
+    # (30-42kHz) was entirely either hard-switching (<37.6kHz) or
+    # 3.7-5.7kW at 42-52A peak against OCP-01's 50.1A trip (37.6-42kHz).
+    # Nothing usable was given up.
     #
     # OPEN HARDWARE QUESTION -- NOT RESOLVED BY THIS DECLARATION:
     # docs/evidence/2026-07-27-inductance-range-sweep.md Sec 3 finds that
     # the ratio-tracking ZVS mitigation (retuning f_sw in real time to hold
     # f_sw/f_res_loaded ~= 1.25 as L varies) needs 35.7-83.0kHz agility to
-    # hold ZVS across the plausible L in [50, 250]uH range, and every
-    # comparable real coil already cited in this project's own evidence
-    # (Infineon AN235020, Wurth 760308101303, APHO2025) measures 47-50uH --
-    # the LOW end of that range, where the required frequency (83.0kHz) is
-    # HIGHEST. The firmware's declared 30-50kHz is THEREFORE KNOWN TO BE
-    # INSUFFICIENT for that mitigation if the real coil lands anywhere near
-    # those references. This is a genuine, currently-unresolved capability
-    # gap, not a rounding difference.
+    # hold ZVS across the plausible L in [50, 250]uH range. That sweep
+    # cited "every comparable real coil ... (Infineon AN235020, Wurth
+    # 760308101303, APHO2025) measures 47-50uH" -- CORRECTED 2026-07-28 by
+    # docs/evidence/2026-07-28-coil-selection-research.md Sec 2.4: the
+    # Wurth part is a 26mm/1.5A/20W Qi wireless-power receiver coil and
+    # APHO2025's bench coil was validated against it, so that "cluster of
+    # three independent sources" is ONE comparable coil, measured only at
+    # 90-150kHz for a 100-140kHz inverter. At this design's 20-50kHz band
+    # the same manufacturer publishes ~88uH unloaded / ~60uH loaded for a
+    # 2kW cooking coil -- which lands on the SAME L_loaded ~= 60uH this
+    # file's 150uH x 0.399 already assumes. The capability gap above is
+    # therefore weaker evidenced than when written, but it is deliberately
+    # NOT declared closed here.
     #
     # Raising PLL_MAX_FREQ_HZ toward 83-100kHz is explicitly NOT done here
     # and must not be done by silently editing a constant: whether the
@@ -128,7 +178,13 @@ module Top:
     # an unvalidated range just to make f_switching's assertion agree with
     # the mitigation's requirement would recreate the exact failure mode
     # (a declared value later readers trust) this gate exists to prevent.
-    f_pll_tracking_min: frequency = 30kHz
+    # The 2026-07-29 floor change did NOT widen the top of the window to
+    # compensate: f_pll_tracking_max is unchanged at 50kHz. One consequence
+    # is recorded rather than fixed -- at -10% coil the 1800W point moves
+    # to 50.05kHz, i.e. marginally ABOVE the ceiling, so a low-tolerance
+    # coil trades full power, not ZVS. That is the correct direction to
+    # fail, and widening the ceiling to recover it is a separate decision.
+    f_pll_tracking_min: frequency = 42kHz
     f_pll_tracking_max: frequency = 50kHz
     assert f_pll_tracking_min < f_pll_tracking_max
     assert f_switching >= f_pll_tracking_min
@@ -207,6 +263,61 @@ module Top:
     # 150uH as settled.
     l_tank_assumed: inductance = 150uH
     assert l_tank_assumed within 50uH to 250uH  # bounded estimate, NOT measured -- see docs/evidence/2026-07-27-inductance-range-sweep.md
+
+    # --- Inputs to the DERIVED PLL floor (2026-07-29, docs/evidence/
+    # 2026-07-29-pll-floor-above-resonance.md) ---
+    # These three make the loaded resonance computable from THIS file.
+    # Before they existed, f_res lived only in simulation-harness constants
+    # and evidence prose, so f_pll_tracking_min / PLL_MIN_FREQ_HZ could be
+    # (and were) set 7.6kHz below it with nothing able to notice.
+    # scripts/check_pll_range_consistency.py reads all three plus
+    # l_tank_assumed above and fails closed if any is missing, unparseable,
+    # or outside its sanity band -- it never skips.
+
+    # Total series tank capacitance. MIRRORS modules.ato's c_tank1.value +
+    # c_tank2.value (150nF + 150nF in parallel) and the gate CROSS-CHECKS
+    # it against those two declarations, so this mirror cannot drift into
+    # the same class of untethered restatement that produced the +340V_BUS
+    # and 20-100kHz defects. UNCHANGED VALUE -- the 300nF commitment is
+    # under separate review (docs/evidence/2026-07-28-coil-selection-
+    # research.md Sec 5.2 proposes 470nF); this only makes it visible here.
+    c_tank_total: capacitance = 300nF
+    assert c_tank_total within 150nF to 600nF  # tank-design band, not a part tolerance
+
+    # Loaded/unloaded coil-inductance ratio with a ferromagnetic pan --
+    # the ONLY way pan coupling enters the resonance. L_loaded =
+    # l_tank_assumed * this, and L_loaded is what resonates with
+    # c_tank_total. 0.399 is the fixed point of simulation/harness/
+    # run_tank_coil_sweep.py's f_res_loaded_hz() T-model relation
+    #   L_app/L1 = 1 - K^2*x^2/(RPAN^2+x^2),  x = omega*L2
+    # at run_zvs_sweep.py's committed cast_iron/stainless preset
+    # (K=0.79, RPAN=10ohm, L2=218uH), evaluated at the resulting 37.58kHz.
+    # It is WEAKLY L-dependent (0.3963 at -10% L, 0.4009 at +10% L, i.e.
+    # +-0.6%, propagating to only -+0.3% in f_res) -- an order of magnitude
+    # inside the 1.05 ZVS margin the derived floor carries, and inside the
+    # floor's actual 1.057 worst-case margin. Declaring the ratio rather
+    # than (K, RPAN, L2) keeps ONE mirrored quantity instead of three.
+    # CORROBORATION, not independence: the 88uH/0.68 measured coil of
+    # docs/evidence/2026-07-28-coil-selection-research.md Sec 4.4 gives
+    # L_loaded = 59.8uH against this model's 59.8uH -- the two models
+    # disagree about the coil by 1.7x and about the pan by 1.7x the other
+    # way, and agree about f_res to 0.7%. That is why the floor below is
+    # robust even though the coil is not specified.
+    l_pan_loaded_ratio: dimensionless = 0.399
+    assert l_pan_loaded_ratio within 0.2 to 0.8  # ferromagnetic-pan coupling band
+
+    # Coil inductance tolerance used ONLY to pick the worst case for the
+    # PLL floor. f_res scales as 1/sqrt(L), so MINIMUM L is the hazardous
+    # end (highest resonance, so the floor must be highest) -- the gate
+    # derives against l_tank_assumed*(1-this), never against nominal.
+    # +-10% is the acceptance tolerance docs/evidence/2026-07-28-coil-
+    # selection-research.md Sec 5.1 recommends specifying the coil to. It
+    # is NOT the [50,250]uH assumption band asserted above: that band is
+    # "which coil might we end up with", this is "how much does one
+    # specified coil vary". Both matter; only this one belongs in a
+    # unit-to-unit safety guard.
+    l_tank_tolerance: dimensionless = 0.10
+    assert l_tank_tolerance within 0.05 to 0.30  # a plausible part tolerance, never 0
 
     t_ambient_max: temperature = 323.15K  # 50°C
     t_ambient_min: temperature = 273.15K  # 0°C

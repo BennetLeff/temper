@@ -18,8 +18,45 @@ extern "C" {
 
 /**
  * @brief PLL frequency limits
+ *
+ * PLL_MIN_FREQ_HZ RAISED 30000 -> 42000 on 2026-07-29
+ * (docs/evidence/2026-07-29-pll-floor-above-resonance.md).
+ *
+ * THIS FLOOR IS NOT A TUNING CONSTANT; IT IS A SAFETY BOUND, AND IT IS
+ * MACHINE-DERIVED. scripts/check_pll_range_consistency.py recomputes the
+ * required value from elec/src/main.ato's declared l_tank_assumed,
+ * l_pan_loaded_ratio, c_tank_total and l_tank_tolerance and FAILS THE
+ * BUILD if this number drops below it. Do not lower it here; lower the
+ * physics in main.ato (if it is wrong) and let the gate re-derive.
+ *
+ * Why: this is a SERIES-resonant inverter. Above the loaded resonance the
+ * tank is inductive and the half-bridge switches at zero voltage. BELOW
+ * resonance the tank is capacitive and the bridge HARD-SWITCHES -- turn-on
+ * loss plus diode reverse recovery on a 1200V IGBT half-bridge at the full
+ * 340V bus and ~1.8kW. That is a device-destroying regime, not an
+ * efficiency penalty. The old 30000 sat 7.58kHz BELOW the loaded resonance
+ * (37.58kHz, the same number as pll_control.c's DEFAULT_RESONANT_FREQ), so
+ * the firmware's own declared legal range contained it.
+ *
+ * The trap that makes it worth a hard guard: at 30kHz this tank delivers
+ * ~1783W -- essentially the 1800W rating -- while hard-switching. A
+ * power-seeking outer loop can settle there and every power reading looks
+ * correct.
+ *
+ * Derivation (arithmetic in the evidence doc):
+ *   L_loaded(worst case) = 150uH * (1 - 0.10) * 0.399   = 53.87uH
+ *   f_res,loaded         = 1/(2*pi*sqrt(53.87uH*300nF)) = 39.59kHz
+ *   required floor       = 1.05 * 39.59kHz              = 41.57kHz
+ *   PLL_MIN_FREQ_HZ      = 42000                        -> ratio 1.057
+ * Keyed off MINIMUM coil L, not nominal: f_res ~ 1/sqrt(L), so the
+ * low-tolerance unit resonates highest and needs the highest floor.
+ *
+ * Cost, stated: for a series-resonant inverter lower frequency means MORE
+ * power, so raising the floor lowers maximum deliverable power. 1800W is
+ * unaffected (it lands at 47.1kHz nominal, and 42kHz still admits ~3.7kW).
+ * PLL_MAX_FREQ_HZ was deliberately NOT widened to compensate.
  */
-#define PLL_MIN_FREQ_HZ     30000   /**< Minimum switching frequency */
+#define PLL_MIN_FREQ_HZ     42000   /**< Minimum switching frequency: derived ZVS floor, 1.05x worst-case loaded resonance. See block comment. */
 #define PLL_MAX_FREQ_HZ     50000   /**< Maximum switching frequency */
 /**
  * @brief Default startup frequency.
@@ -65,13 +102,20 @@ typedef struct {
 
 /**
  * @brief Default PLL configuration
+ *
+ * min/max are the MACROS above, not repeated literals. They used to be
+ * hardcoded 30000/50000 here -- a second, uncrosschecked declaration of
+ * the same safety bound, which is the exact defect shape
+ * scripts/check_pll_range_consistency.py exists to catch (and which that
+ * gate could not see, because it only reads the #defines). Referencing
+ * the macros removes the drift by construction rather than by checking.
  */
 #define PLL_DEFAULT_CONFIG() { \
     .kp = 2.0f,                \
     .ki = 50.0f,               \
     .target_phase_us = 1.5f,   \
-    .min_freq_hz = 30000,      \
-    .max_freq_hz = 50000       \
+    .min_freq_hz = PLL_MIN_FREQ_HZ, \
+    .max_freq_hz = PLL_MAX_FREQ_HZ  \
 }
 
 /**
