@@ -97,7 +97,9 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from temper_placer.core.pad_geometry import pad_bounding_radius
 from temper_placer.io.kicad_parser import parse_kicad_pcb
+from temper_placer.requirements.validators.clearance import _CopperModel
 from tests.requirements.validators.clearance import IEC60335_REQUIREMENTS, VoltageDomain
 
 _REPO_ROOT = Path(__file__).resolve().parents[5]
@@ -213,9 +215,7 @@ def _net_to_refs(netlist: Netlist) -> dict[str, set[str]]:
     return out
 
 
-def _chain_sibling_exempt_pairs(
-    netlist: Netlist, manifest: Manifest
-) -> set[frozenset[str]]:
+def _chain_sibling_exempt_pairs(netlist: Netlist, manifest: Manifest) -> set[frozenset[str]]:
     """Every unordered ref pair that are both members of the SAME declared
     ``protective_impedance_chains`` entry. See module docstring's
     "Unclassified components are no longer invisible" section for why this
@@ -227,6 +227,143 @@ def _chain_sibling_exempt_pairs(
             for j in range(i + 1, len(refs)):
                 pairs.add(frozenset({refs[i], refs[j]}))
     return pairs
+
+
+def _rotation_deg_for_component(comp: Any) -> float:
+    """The footprint's EXACT board rotation in degrees.
+
+    ``Component.initial_rotation`` is quantized to a 0-3 quadrant index by
+    ``io/_parse_modules.py``, which silently loses any non-multiple-of-90
+    angle. That parser now also records the raw angle in
+    ``attributes["_rotation_deg"]``; this reads it and falls back to the
+    quadrant index (with the quantization made explicit) only for
+    Components built by something other than the KiCad parser.
+    """
+    raw = comp.attributes.get("_rotation_deg") if comp.attributes else None
+    if raw is not None:
+        return float(raw)
+    return float((comp.initial_rotation or 0) * 90)
+
+
+def _pads_for_component(comp: Any) -> list[dict[str, Any]]:
+    """Serialize a parsed ``Component``'s pins into the validator's pad schema.
+
+    ``Pin.position`` is the pad's offset from the footprint's pad-bounding-box
+    centre in the footprint's UNROTATED frame, and ``Component.initial_position``
+    is that centre in board coordinates, so the validator's
+    ``world = position + R(theta) * offset`` reconstructs the pad's true board
+    position exactly (see ``clearance._rotate`` for the sign convention and why
+    it must match this repo's parser).
+    """
+    pads: list[dict[str, Any]] = []
+    for pin in comp.pins:
+        pads.append(
+            {
+                "number": pin.number or pin.name,
+                "net": pin.net,
+                "offset": pin.position,
+                "width": pin.width,
+                "height": pin.height,
+                "shape": pin.shape,
+                "roundrect_ratio": pin.roundrect_ratio,
+                "pad_rotation_deg": pin.pad_rotation_deg,
+                "layer": pin.layer,
+            }
+        )
+    return pads
+
+
+def _copper_reach_mm(pads: list[dict[str, Any]], rotation_deg: float) -> float:
+    """How far this component's copper extends from its own origin.
+
+    ``max over pads of (|rotated offset| + pad bounding radius)``. Rotation
+    does not change ``|offset|`` and ``pad_bounding_radius`` is provably
+    rotation-invariant (see ``core.pad_geometry``), so this figure is
+    rotation-independent -- ``rotation_deg`` is accepted only to make that
+    explicit at the call site. Used by the HV-proximity check below to turn
+    an origin-to-origin distance into a sound lower bound on copper-to-copper
+    separation.
+    """
+    del rotation_deg  # provably irrelevant; see docstring
+    if not pads:
+        return 0.0
+    return max(
+        math.hypot(*p["offset"])
+        + pad_bounding_radius(p["width"], p["height"], p["shape"], p["roundrect_ratio"])
+        for p in pads
+    )
+
+
+def _board_surface_geometry(pcb_path: Path) -> dict[str, Any]:
+    """Board outline + any interior cutouts, from the real ``Edge.Cuts`` layer.
+
+    The validator only needs to know whether the insulating surface is
+    unbroken: with no cutout the surface geodesic between two coplanar points
+    IS the straight line, so creepage is exactly the clearance figure; with a
+    cutout it is strictly longer and the checker must say so rather than
+    silently report clearance as creepage (see
+    ``clearance.check_creepage_path``).
+
+    Rings are recovered from the graphic items on ``Edge.Cuts``. Polygons and
+    rectangles are rings directly; loose lines/arcs are conservatively treated
+    as one ring each **only** for counting purposes. Anything this function
+    cannot interpret is reported as a cutout, so an unrecognized outline makes
+    the creepage model MORE conservative and louder, never less.
+    """
+    from kiutils.board import Board as KiBoard
+
+    ki_board = KiBoard.from_file(str(pcb_path))
+    items = [g for g in ki_board.graphicItems if getattr(g, "layer", None) == "Edge.Cuts"]
+
+    rings: list[list[tuple[float, float]]] = []
+    unrecognized = 0
+    for item in items:
+        coords = getattr(item, "coordinates", None)
+        if coords:
+            rings.append([(float(p.X), float(p.Y)) for p in coords])
+            continue
+        start, end = getattr(item, "start", None), getattr(item, "end", None)
+        if start is not None and end is not None and type(item).__name__ in ("GrRect",):
+            x0, y0, x1, y1 = float(start.X), float(start.Y), float(end.X), float(end.Y)
+            rings.append([(x0, y0), (x1, y0), (x1, y1), (x0, y1)])
+            continue
+        unrecognized += 1
+
+    # Largest-area ring is the board outline; every other ring is a cutout.
+    def _area(ring: list[tuple[float, float]]) -> float:
+        n = len(ring)
+        return (
+            abs(
+                sum(
+                    ring[i][0] * ring[(i + 1) % n][1] - ring[(i + 1) % n][0] * ring[i][1]
+                    for i in range(n)
+                )
+            )
+            / 2.0
+        )
+
+    outline: list[tuple[float, float]] = []
+    cutouts: list[list[tuple[float, float]]] = []
+    if rings:
+        rings_sorted = sorted(rings, key=_area, reverse=True)
+        outline = rings_sorted[0]
+        # An Edge.Cuts item this function could not turn into a ring means the
+        # outline is more complex than the rings it did recover. Treat every
+        # recovered ring as a potential cutout in that case, so the creepage
+        # model takes its conservative, loud branch rather than concluding the
+        # insulating surface is unbroken.
+        cutouts = rings_sorted[1:] if unrecognized == 0 else rings_sorted
+    elif unrecognized:
+        # No ring recoverable at all: the outline is entirely uninterpretable.
+        # One empty marker ring forces the conservative creepage branch.
+        cutouts = [[]]
+
+    return {
+        "outline": outline,
+        "surface_cutouts": cutouts,
+        "edge_cuts_items": len(items),
+        "edge_cuts_unrecognized": unrecognized,
+    }
 
 
 def load_real_board_placement() -> tuple[dict[str, Any], dict[str, VoltageDomain], dict[str, Any]]:
@@ -304,6 +441,20 @@ def load_real_board_placement() -> tuple[dict[str, Any], dict[str, VoltageDomain
         for c in pcb_result.netlist.components
         if c.initial_position is not None
     }
+    ref_to_pads = {
+        c.ref: _pads_for_component(c)
+        for c in pcb_result.netlist.components
+        if c.initial_position is not None
+    }
+    ref_to_rotation_deg = {
+        c.ref: _rotation_deg_for_component(c)
+        for c in pcb_result.netlist.components
+        if c.initial_position is not None
+    }
+    board_geometry = _board_surface_geometry(_PCB_PATH)
+    ref_to_copper_reach = {
+        ref: _copper_reach_mm(ref_to_pads[ref], ref_to_rotation_deg[ref]) for ref in ref_to_pads
+    }
 
     def _build_placement(
         net_domains: dict[str, VoltageDomain],
@@ -325,11 +476,22 @@ def load_real_board_placement() -> tuple[dict[str, Any], dict[str, VoltageDomain
             if not nets:
                 continue
             matched += 1
-            components.append({"ref": ref, "position": position, "nets": nets})
+            components.append(
+                {
+                    "ref": ref,
+                    "position": position,
+                    "nets": nets,
+                    # Real pad copper + the footprint's exact board rotation.
+                    # Without these the validator falls back to the optimistic
+                    # origin-to-origin proxy (and says so, loudly).
+                    "rotation_deg": ref_to_rotation_deg[ref],
+                    "pads": ref_to_pads[ref],
+                }
+            )
 
         nets_dict = {name: {"domain": d} for name, d in classified_nets_present.items()}
         return (
-            {"components": components, "nets": nets_dict},
+            {"components": components, "nets": nets_dict, "board": board_geometry},
             dict(classified_nets_present),
             ref_to_domain_nets,
             matched,
@@ -374,18 +536,50 @@ def load_real_board_placement() -> tuple[dict[str, Any], dict[str, VoltageDomain
 
     exempt_pairs = _chain_sibling_exempt_pairs(netlist, manifest)
 
+    # Copper-aware, like the validator itself. This check carried exactly the
+    # same defect the validator did: it ranked "nearest HV part" by
+    # origin-to-origin distance and compared THAT to an IEC margin. Copper
+    # extends outward from an origin, so that figure is an upper bound on true
+    # separation -- optimistic, in the unsafe direction. It now measures real
+    # copper, through the validator's own ``_CopperModel`` rather than a second
+    # geometry implementation. Passing an empty net-domain map makes
+    # ``pads_in_domain`` fall back to every pad of each component, which is what
+    # this check wants: an unclassified component has no domain, so all of its
+    # copper counts.
+    proximity_model = _CopperModel(
+        {
+            "components": [
+                {
+                    "ref": ref,
+                    "position": ref_to_position[ref],
+                    "rotation_deg": ref_to_rotation_deg[ref],
+                    "pads": ref_to_pads[ref],
+                    "nets": [],
+                }
+                for ref in ref_to_position
+            ]
+        }
+    )
+    _ANY = VoltageDomain.ISOLATED  # unused as a domain; see comment above
+
     proximity_findings: list[dict[str, Any]] = []
     for ref in unclassified_refs:
         pos = ref_to_position[ref]
         best_dist: float | None = None
         best_ref: str | None = None
+        best_origin_dist: float = math.inf
         for href in hv_refs_with_pos:
             if href == ref:
                 continue
-            d = math.dist(pos, ref_to_position[href])
+            # Cheap sound prefilter first: if even the lower bound cannot beat
+            # the incumbent, the exact measurement cannot either.
+            if best_dist is not None and proximity_model.lower_bound(ref, href) >= best_dist:
+                continue
+            d, _model, _label = proximity_model.copper_distance(ref, _ANY, href, _ANY, {})
             if best_dist is None or d < best_dist:
                 best_dist = d
                 best_ref = href
+                best_origin_dist = math.dist(pos, ref_to_position[href])
         if best_dist is None or best_ref is None:
             continue  # no HV-classified component with a position at all
         exempt = frozenset({ref, best_ref}) in exempt_pairs
@@ -396,7 +590,11 @@ def load_real_board_placement() -> tuple[dict[str, Any], dict[str, VoltageDomain
                 "nets": sorted(ref_to_all_nets.get(ref, [])),
                 "nearest_hv_ref": best_ref,
                 "nearest_hv_instance_path": ref_to_instance_path.get(best_ref, ""),
+                # EXACT copper-to-copper separation (see comment above). The
+                # origin-to-origin figure this used to report is kept alongside
+                # so the difference is visible rather than silently swapped.
                 "distance_mm": best_dist,
+                "origin_distance_mm": best_origin_dist,
                 "exempt": exempt,
                 "exempt_reason": (
                     f"{ref} and {best_ref} are both members of the same "
@@ -445,5 +643,14 @@ def load_real_board_placement() -> tuple[dict[str, Any], dict[str, VoltageDomain
         # (distance_mm < max_iec_margin_mm and not exempt), so the margin
         # itself lives in one place, not duplicated here.
         "proximity_findings": proximity_findings,
+        # --- Copper geometry (added with the copper-to-copper clearance fix) ---
+        # Every component now carries real pad geometry, so a fallback to the
+        # optimistic origin-to-origin proxy anywhere is a defect, not a
+        # tolerable simplification -- asserted in
+        # test_temper_board_clearance_compliance rather than merely reported.
+        "components_without_pads": sorted(ref for ref, pads in ref_to_pads.items() if not pads),
+        "board_geometry": board_geometry,
+        "board_cutout_count": len(board_geometry["surface_cutouts"]),
+        "max_copper_reach_mm": max(ref_to_copper_reach.values(), default=0.0),
     }
     return placement, voltage_domains, stats

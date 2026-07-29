@@ -94,7 +94,9 @@ __all__ = [
     "pad_axis_radius",
     "pad_bounding_radius",
     "pad_core_half_extents",
+    "pad_core_polygon",
     "pad_corner_radius",
+    "pad_pair_distance",
     "pad_polygon",
     "pad_support_radius",
 ]
@@ -236,6 +238,81 @@ def pad_bounding_radius(
     hw, hh = pad_core_half_extents(width, height, shape, roundrect_ratio)
     r = pad_corner_radius(width, height, shape, roundrect_ratio)
     return math.hypot(hw, hh) + r
+
+
+def pad_core_polygon(
+    width: float,
+    height: float,
+    shape: str,
+    cx: float,
+    cy: float,
+    rotation_rad: float = 0.0,
+    roundrect_ratio: float = DEFAULT_ROUNDRECT_RATIO,
+):
+    """Return the pad's **core** as an EXACT world-space Shapely geometry.
+
+    The core is the rectangle the pad's corner disk is Minkowski-summed with
+    (module docstring). Unlike ``pad_polygon`` it involves no arc
+    approximation at all, because a (possibly degenerate) rotated rectangle
+    is exactly representable: a ``Polygon`` when both half-extents are
+    positive, a ``LineString`` when one collapses (``oval``), a ``Point``
+    when both do (``circle``). Shapely handles all three uniformly in
+    ``.distance()``, which is what makes :func:`pad_pair_distance` exact.
+    """
+    from shapely.affinity import rotate, translate
+    from shapely.geometry import LineString, Point, box
+
+    hw, hh = pad_core_half_extents(width, height, shape, roundrect_ratio)
+    if hw <= 0.0 and hh <= 0.0:
+        core = Point(0.0, 0.0)
+    elif hh <= 0.0:
+        core = LineString([(-hw, 0.0), (hw, 0.0)])
+    elif hw <= 0.0:
+        core = LineString([(0.0, -hh), (0.0, hh)])
+    else:
+        core = box(-hw, -hh, hw, hh)
+
+    rotated = rotate(core, math.degrees(rotation_rad), origin=(0, 0), use_radians=False)
+    return translate(rotated, xoff=cx, yoff=cy)
+
+
+def pad_pair_distance(
+    pad_a: tuple[float, float, str, float, float, float, float],
+    pad_b: tuple[float, float, str, float, float, float, float],
+) -> float:
+    """EXACT copper-to-copper distance between two pads. 0.0 if they overlap.
+
+    Each pad is ``(width, height, shape, cx, cy, rotation_rad,
+    roundrect_ratio)``.
+
+    **Why this is exact rather than approximate.** Every KiCad pad shape this
+    module models is ``core ⊕ D_r`` -- a rectangle Minkowski-summed with a
+    disk of radius ``r`` (module docstring). Writing the sum as a sublevel
+    set, ``S ⊕ D_r = {x : dist(x, S) <= r}``, gives directly
+
+        dist(A ⊕ D_ra, B ⊕ D_rb) = max(0, dist(A, B) - ra - rb)
+
+    and ``dist(A, B)`` between two rotated rectangles (or their degenerate
+    segment/point forms) is computed exactly by Shapely on
+    :func:`pad_core_polygon`. No arc is ever polygonised, so unlike
+    ``pad_polygon`` -- whose circumscribing buffer is deliberately short of
+    the truth by up to ``r * (1/cos(pi/(2*quad_segs)) - 1)`` -- this function
+    has no shape-dependent error term at all.
+
+    That matters at zero margin. On ``pcb/temper.kicad_pcb`` the K1
+    HV<->SELV pad pair sits at exactly 8.000mm against an 8.000mm REINFORCED
+    creepage requirement; ``pad_polygon`` at ``quad_segs=32`` reports
+    7.9989mm and would manufacture a violation out of the approximation.
+    This function reports 8.000mm.
+    """
+    wa, ha, sa, cxa, cya, rota, rra = pad_a
+    wb, hb, sb, cxb, cyb, rotb, rrb = pad_b
+    core_a = pad_core_polygon(wa, ha, sa, cxa, cya, rota, rra)
+    core_b = pad_core_polygon(wb, hb, sb, cxb, cyb, rotb, rrb)
+    gap = core_a.distance(core_b)
+    ra = pad_corner_radius(wa, ha, sa, rra)
+    rb = pad_corner_radius(wb, hb, sb, rrb)
+    return max(gap - ra - rb, 0.0)
 
 
 def pad_polygon(
