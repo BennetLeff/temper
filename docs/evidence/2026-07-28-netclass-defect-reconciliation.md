@@ -1,4 +1,4 @@
-<!-- provenance: commit=4d73cad9 dirty=false (base) -->
+<!-- provenance: commit=4d73cad92d94b25477c693a03e4c470140fbc552 dirty=false (base) -->
 
 # Reconciling two safety-relevant netclass defects (`+15V_LS`, U3's `a`)
 against `elec/domain_manifest.yaml`, and sweeping for siblings

@@ -1,4 +1,4 @@
-<!-- provenance: branch fix/reconcile-creepage-requirement, from origin/main -->
+<!-- provenance: commit=9b666d3be3eaf09e398a52f546da8ec5917c41dd dirty=true (branch fix/reconcile-creepage-requirement; base = PR #442's baseRefOid; doc states no self-measured commit in prose) -->
 
 # Creepage requirement reconciliation: DC_BUS<->LV_CONTROL (and siblings) were checked against the wrong Table 16 row
 
