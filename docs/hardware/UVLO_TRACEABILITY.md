@@ -19,14 +19,19 @@ each part's electrical characteristics table.
 
 ## UVL-01 — gate-drive UVLO, spec **<12.0 V**
 
-**Part:** `UCC21550BDW` — confirmed as the correct MPN. TI's device table
-(`UCC21550`, SLUSE89C, May 2023, rev. Aug 2024, §"Device Information") lists
-`UCC21550BDWR` = **DW package, 16-pin SOIC**; `UCC21550BDWKR` = **DWK package,
-14-pin SOIC**. `components.ato:30`'s comment ("was UCC21550BDWK (14-pin), now
-correct 16-pin DW package") is correct — verified against the datasheet, not
-assumed. The BOM's `UCC21550BDWK` (`BOM:17` per the audit) is the 14-pin part
-and does not match the 16-pin schematic footprint; that reconciliation is
-tracked separately in the BOM audit, not repeated here.
+**Part:** `UCC21550BDWKR` (**corrected 2026-07-28** — this section previously
+asserted `UCC21550BDW`). TI's device table (`UCC21550`, SLUSE89C, May 2023,
+rev. Aug 2024, §"Device Information") lists `UCC21550BDWR` = **DW package,
+16-pin SOIC** and `UCC21550BDWKR` = **DWK package, 14-pin SOIC**. `...BDW`
+with no trailing `R` is in neither that table nor the PACKAGING INFORMATION
+addendum, which lists only five orderables, all tape-and-reel. Two things this
+section previously got wrong: (1) `UCC21550BDW` is not orderable at all, and
+(2) the board footprint is **not** 16-pin — `pcb/libs/lib.pretty/SOIC16W_Isolated.kicad_mod`
+and the placed U7 instance have 14 pads numbered 1–11, 14–16, i.e. the DWK
+land pattern (SLUSE89C Figure 4-2 numbers DWK pins 1–11, 14–16; positions 12
+and 13 do not exist on that package). The UVLO grade argument below is
+unaffected: grade **B** is preserved, and SLUSE89C's Electrical
+Characteristics do not split VDD UVLO by package.
 
 The "B" in the MPN is a UVLO-threshold grade, not a package option — TI sells
 A/B/C grades of this family at 5 V/8 V/12 V secondary-side UVLO. This BOM
@@ -62,7 +67,9 @@ actually grade B, not C, is the one thing this closure depends on** — it is
 a BOM/procurement check, not a bench test.
 
 **What remains:** confirm at receiving inspection that the ordered part
-marking reads `UCC21550BDW` (not `...ADW` or `...CDW`) — grade C's secondary
+marking reads `21550B` — SLUSE89C's PACKAGING INFORMATION addendum gives the
+part marking for `UCC21550BDWKR` as `21550B` (the 16-pin DW parts mark as
+`UCC21550B`) — and not the `A` or `C` grade; grade C's secondary
 UVLO (11.7–13.3 V rising) would fail this gate outright. Everything else is
 vendor-guaranteed.
 
