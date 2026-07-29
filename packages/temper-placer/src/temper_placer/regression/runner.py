@@ -105,27 +105,22 @@ class RegressionRunner:
         current_component_count = len(netlist.components)
         current_net_count = len(netlist.nets)
 
+        # component_count and net_count are DESCRIPTIONS of the board, not
+        # quality metrics -- a board legitimately gains and loses parts and
+        # nets as the design changes underneath it. Comparing them to a
+        # frozen number stored in the baseline YAML guarantees a recurring
+        # false failure on every legitimate board change: this exact
+        # baseline was hand-corrected three times chasing that failure (see
+        # docs/solutions/best-practices/stale-absolute-baseline-vs-mutable-board-2026-07-29.md).
+        # They are measured live from the checked-in board on every run and
+        # reported for visibility below; they never gate pass/fail. Real
+        # quality ratchets (drc_errors, drc_warnings below) remain pinned.
+        board_shape = {
+            "component_count": current_component_count,
+            "net_count": current_net_count,
+        }
+
         deltas: list[MetricDelta] = []
-
-        comp_delta = MetricDelta(
-            name="component_count",
-            baseline=float(baseline.component_count),
-            current=float(current_component_count),
-            delta=float(current_component_count - baseline.component_count),
-        )
-        deltas.append(comp_delta)
-        if current_component_count != baseline.component_count:
-            comp_delta.regression = True
-
-        net_delta = MetricDelta(
-            name="net_count",
-            baseline=float(baseline.net_count),
-            current=float(current_net_count),
-            delta=float(current_net_count - baseline.net_count),
-        )
-        deltas.append(net_delta)
-        if current_net_count != baseline.net_count:
-            net_delta.regression = True
 
         quality_available = (
             importlib.util.find_spec("temper_placer.metrics.quality_score") is not None
@@ -176,7 +171,16 @@ class RegressionRunner:
                 passed=False,
                 deltas=deltas,
                 warnings=warnings,
-                errors=[f"Regression detected for {board_id}: {msg}"],
+                errors=[
+                    f"Regression detected for {board_id}: {msg}. "
+                    "drc_errors/drc_warnings are genuine quality ratchets, not board "
+                    "descriptions -- do not silently bump the baseline number to match. "
+                    "Re-measure the DRC run, confirm the increase is explained by an "
+                    "intentional, reviewed design change (not a placer/router "
+                    "regression), and record that justification alongside the new "
+                    f"number in {baseline_yaml.relative_to(self.repo_root)}."
+                ],
+                board_shape=board_shape,
             )
 
         return BoardResult(
@@ -184,4 +188,5 @@ class RegressionRunner:
             passed=True,
             deltas=deltas,
             warnings=warnings,
+            board_shape=board_shape,
         )
