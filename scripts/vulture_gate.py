@@ -144,7 +144,7 @@ def main():
     args = parser.parse_args()
 
     packages_dir = REPO_ROOT / "packages"
-    baseline_path = REPO_ROOT / "deadcode-baseline.py"
+    baseline_path = REPO_ROOT / "scripts" / "deadcode-baseline.py"
 
     if not packages_dir.is_dir():
         print(f"[VULTURE-ERROR] packages/ directory not found at {packages_dir}",
@@ -152,7 +152,7 @@ def main():
         sys.exit(5)
 
     if not baseline_path.is_file():
-        print(f"[VULTURE-ERROR] deadcode-baseline.py not found at {baseline_path}",
+        print(f"[VULTURE-ERROR] scripts/deadcode-baseline.py not found at {baseline_path}",
               file=sys.stderr)
         sys.exit(5)
 
