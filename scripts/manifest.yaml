@@ -82,6 +82,29 @@ scripts:
   - pathlib
   - rich.console
   - sys
+- path: check_pad_orientation.py
+  purpose: 'Pad-orientation gate: catch footprint rotations that never reached the pads. Check 1 -- a
+    footprint rotated by a non-multiple of 180 deg whose pads ALL carry absolute angle 0 is the signature
+    of a serializer that rotated pad positions but not pad bodies (docs/evidence/2026-07-29-intra-component-shorts-root-cause.md).
+    Check 2 -- separating-axis test for intra-footprint copper overlap between different-net pads. Reads
+    the board bytes directly (no kiutils, no kicad-cli) so the ABSENCE of an optional angle token is visible.
+    Fail-closed on a missing/unparseable board, zero footprints, zero pads, or zero pad pairs compared.
+    NOT YET CI-WIRED: check 1 passes on the regenerated board but check 2 still reports K1, whose two
+    F.Fab-only pads hit the "no declared copper layer -> assume sharing" fail-closed rule -- a gap in
+    this gate''s own contract, analysed in docs/evidence/2026-07-29-board-regeneration-corrected-footprints.md
+    Sec 7. Wire it in the change that closes that gap.'
+  owner: bennet
+  last_run: '2026-07-29'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - dataclasses
+  - math
+  - pathlib
+  - re
+  - sys
 - path: check_physics_provenance.py
   purpose: 'Physics provenance gate: require # source: comments on module-level float constants in physics/'
   owner: pipeline
@@ -222,15 +245,17 @@ scripts:
   category: keep
   disposition: ci-gate
   imports:
+  - __future__
   - _lib.github_summary
   - _lib.repo
   - argparse
+  - collections
+  - collections.abc
   - dataclasses
   - math
   - pathlib
   - re
   - sys
-  - yaml
 - path: internal_route.py
   purpose: Internal route command (Makefile + shell-invoked)
   owner: unassigned
@@ -596,12 +621,13 @@ scripts:
   category: keep
   disposition: ci-gate
   imports:
+  - __future__
   - argparse
+  - pathlib
   - subprocess
   - sys
   - tempfile
   - xml.etree.ElementTree
-  - pathlib
 - path: gen_repo_state.py
   purpose: Generate README.md and docs/plans/README.md state blocks from source; --check fails closed
     on drift so hand-maintained state cannot go stale
@@ -789,10 +815,10 @@ scripts:
   - subprocess
 - path: check_vacuous_gates.py
   purpose: 'CI gate: reject unguarded all() in gate and validator modules (docs/METHODOLOGY.md Sec 4/5,
-    anti-vacuous-truth); any() exempt (already fail-closed); asserts zero, no allowlist.
-    Also rejects tautological assert expressions (X or not X, X or True, X is X, literal
-    X == X, bare assert True/1 with nothing preceding it) anywhere in packages/scripts,
-    including test_*.py -- added 2026-07-28 after test_clearance.py shipped one uncaught.'
+    anti-vacuous-truth); any() exempt (already fail-closed); asserts zero, no allowlist. Also rejects
+    tautological assert expressions (X or not X, X or True, X is X, literal X == X, bare assert True/1
+    with nothing preceding it) anywhere in packages/scripts, including test_*.py -- added 2026-07-28 after
+    test_clearance.py shipped one uncaught.'
   owner: bennet
   last_run: '2026-07-28'
   category: keep
@@ -824,24 +850,26 @@ scripts:
   - sys
   - yaml
 - path: write_build_stamp.py
-  purpose: 'Build-side half of content-hash freshness: record the SHA-256 digest of a build''s
-    inputs beside its artifact, so freshness gates can compare content instead of mtimes and
-    a restored cache is no longer permanently STALE (see scripts/_lib/freshness.py)'
+  purpose: 'Build-side half of content-hash freshness: record the SHA-256 digest of a build''s inputs
+    beside its artifact, so freshness gates can compare content instead of mtimes and a restored cache
+    is no longer permanently STALE (see scripts/_lib/freshness.py)'
   owner: bennet
   last_run: '2026-07-28'
   category: keep
   disposition: ci-gate
   imports:
+  - __future__
+  - _lib.freshness
   - argparse
   - pathlib
   - sys
 - path: write_extension_stamps.py
-  purpose: 'Build-side half of content-hash freshness for the pyo3/maturin Rust extension crates:
-    record a SHA-256 digest of each crate''s source set beside its installed .so (keyed on that
-    .so''s own bytes) so check_stale_extensions.py can compare content instead of mtimes -- a
-    restored .venv cache or a prebuilt wheel baked into the CI image is no longer permanently
-    STALE, which in that gate is unconditionally fatal. Stamps only crates the gate already
-    considers fresh, so it can never launder a stale artifact (see scripts/_lib/freshness.py)'
+  purpose: 'Build-side half of content-hash freshness for the pyo3/maturin Rust extension crates: record
+    a SHA-256 digest of each crate''s source set beside its installed .so (keyed on that .so''s own bytes)
+    so check_stale_extensions.py can compare content instead of mtimes -- a restored .venv cache or a
+    prebuilt wheel baked into the CI image is no longer permanently STALE, which in that gate is unconditionally
+    fatal. Stamps only crates the gate already considers fresh, so it can never launder a stale artifact
+    (see scripts/_lib/freshness.py)'
   owner: bennet
   last_run: '2026-07-28'
   category: keep
@@ -864,6 +892,7 @@ scripts:
   disposition: ci-gate
   imports:
   - __future__
+  - _lib.freshness
   - _lib.github_summary
   - _lib.repo
   - argparse
@@ -1005,6 +1034,7 @@ scripts:
   - pathlib
   - rich.console
   - rich.table
+  - shutil
   - subprocess
   - sys
 - path: resync_pcb_netlist.py
@@ -1024,6 +1054,7 @@ scripts:
   - kiutils.board
   - kiutils.footprint
   - kiutils.items.common
+  - kiutils.items.zones
   - pathlib
   - sys
 - path: check_evidence_provenance.py
@@ -1044,11 +1075,11 @@ scripts:
   - rich.console
   - sys
 - path: check_isolation_keepout.py
-  purpose: 'Physical mains<->SELV isolation-barrier CI gate: verify a dedicated keepout region spans
-    all copper layers, is >=8.0mm wide (REINFORCED creepage) throughout, bisects the board into HV/SELV
-    sides, and that no copper (trace/via/pad/zone) intrudes -- pcb/temper.kicad_pcb has zero keepout zones
-    today, so this barrier exists only as declarations/after-the-fact checks; fail-closed on missing/empty
-    board or manifest, zero HV or SELV pads found, or a missing barrier zone (docs/evidence/2026-07-28-isolation-keepout.md)'
+  purpose: 'Physical mains<->SELV isolation-barrier CI gate: verify a dedicated keepout region spans all
+    copper layers, is >=8.0mm wide (REINFORCED creepage) throughout, bisects the board into HV/SELV sides,
+    and that no copper (trace/via/pad/zone) intrudes -- pcb/temper.kicad_pcb has zero keepout zones today,
+    so this barrier exists only as declarations/after-the-fact checks; fail-closed on missing/empty board
+    or manifest, zero HV or SELV pads found, or a missing barrier zone (docs/evidence/2026-07-28-isolation-keepout.md)'
   owner: bennet
   last_run: '2026-07-28'
   category: keep
@@ -1058,13 +1089,11 @@ scripts:
   - _lib.github_summary
   - _lib.repo
   - argparse
-  - kiutils.board
+  - dataclasses
   - math
   - pathlib
-  - shapely.geometry
-  - shapely.ops
   - sys
-  - yaml
+  - temper_placer.core.pad_geometry
 - path: check_stale_extensions.py
   purpose: 'CI gate: fail-closed freshness check for every pyo3/maturin Rust extension crate under packages/
     -- an installed .so older than its own crate''s source (or a crate whose extension is missing entirely)
@@ -1078,11 +1107,13 @@ scripts:
   disposition: ci-gate
   imports:
   - __future__
+  - _lib.freshness
   - _lib.github_summary
   - _lib.repo
   - argparse
   - dataclasses
   - datetime
+  - hashlib
   - importlib.util
   - os
   - pathlib
@@ -1106,13 +1137,10 @@ scripts:
   - sys
   - typing
 - path: route_board.py
-  purpose: >-
-    Working entry point to route a .kicad_pcb through router_v6's
-    route_pcb() (make route and internal_route.py are dead ends -- see
-    module docstring). --output is mandatory and refuses to match --pcb,
-    so it can never overwrite the input board. --runs N routes N times
-    from identical input and reports the completion spread -- the
-    measurement instrument for the router's run-to-run non-determinism.
+  purpose: Working entry point to route a .kicad_pcb through router_v6's route_pcb() (make route and internal_route.py
+    are dead ends -- see module docstring). --output is mandatory and refuses to match --pcb, so it can
+    never overwrite the input board. --runs N routes N times from identical input and reports the completion
+    spread -- the measurement instrument for the router's run-to-run non-determinism.
   owner: bennet
   last_run: '2026-07-28'
   category: keep
@@ -1120,20 +1148,20 @@ scripts:
   imports:
   - __future__
   - argparse
+  - json
   - os
   - pathlib
+  - re
   - statistics
+  - subprocess
   - sys
-  - temper_placer.io.kicad_parser
-  - temper_placer.io.netclass_loader
-  - temper_placer.router_v6.adapter
+  - tempfile
   - time
   - typing
 - path: install_git_stash_guard.py
   purpose: Install the shared-hooks reference-transaction hook (scripts/git-hooks/reference-transaction)
-    that blocks git stash push/save/clear repo-wide, since the stash stack is shared
-    across all concurrent worktrees on this .git directory. See AGENTS.md "Git Stash
-    Guard".
+    that blocks git stash push/save/clear repo-wide, since the stash stack is shared across all concurrent
+    worktrees on this .git directory. See AGENTS.md "Git Stash Guard".
   owner: bennet
   last_run: '2026-07-28'
   category: keep
@@ -1145,10 +1173,9 @@ scripts:
   - subprocess
   - sys
 - path: check_stash_stack_gate.py
-  purpose: Detector for git stash activity the reference-transaction hook cannot block
-    (apply, and pop/drop of a non-terminal entry) -- snapshots the stash reflog and
-    flags additions/removals since the last run. Not a CI gate; run manually or on
-    a timer against the shared dev machine.
+  purpose: Detector for git stash activity the reference-transaction hook cannot block (apply, and pop/drop
+    of a non-terminal entry) -- snapshots the stash reflog and flags additions/removals since the last
+    run. Not a CI gate; run manually or on a timer against the shared dev machine.
   owner: bennet
   last_run: '2026-07-28'
   category: keep
