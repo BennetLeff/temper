@@ -225,9 +225,40 @@ jobs:
   # share (container + three `maturin develop` builds + `uv sync` + netlist,
   # ~130s) rather than one job per gate. No gate's command line, env, or
   # pass/fail logic changed, and no `continue-on-error` was added: the split is
-  # purely about which gates can hide which. Within each job the known-red gate
-  # is ordered LAST so it masks nothing (isolation-keepout in board-gates;
-  # measurement-provenance in provenance-gates).
+  # purely about which gates can hide which.
+  #
+  # SECOND-ORDER FIX, same day: the split fixed masking ACROSS jobs but each job
+  # was still internally sequential, so the pipeline reported at most one failure
+  # per job per run. Demonstrated within hours -- three gates were fixed and each
+  # fix immediately revealed a DIFFERENT failure in the same job (board-gates:
+  # capacity budget #385 -> isolation barrier; provenance-gates: evidence
+  # provenance #383 -> measurement provenance; hygiene-gates: vulture #387 ->
+  # undeclared-import tests). Each of those was a gate that had been red all
+  # along and could not be seen.
+  #
+  # Every gate step in the 8 split jobs now carries
+  #     if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+  # An `if:` containing a status-check function suppresses the implicit
+  # `success()` GitHub prepends, so the step runs even though an earlier step in
+  # the job failed -- and because none of these steps is `continue-on-error`, a
+  # failed gate still sets the JOB conclusion to `failure`. Independence here is
+  # about reporting, never about tolerance.
+  #
+  # `steps.setup` is an explicit no-op barrier step placed at the end of each
+  # job's setup region, and it deliberately has NO `if:` of its own. That is what
+  # keeps setup fail-fast: if `maturin develop`, `uv sync` or `make netlist`
+  # fails, the barrier never runs, `steps.setup.outcome` is not `success`, and
+  # every gate below is SKIPPED rather than executed against a half-built
+  # environment and reported as a gate verdict. The barrier must assert success
+  # affirmatively -- `outcome != 'failure'` would be wrong, because a step the
+  # runner never reached has an EMPTY outcome, which also satisfies
+  # `!= 'failure'`.
+  #
+  # Consequence for ordering: putting a known-red gate last is no longer
+  # load-bearing (it masks nothing wherever it sits). The existing orderings are
+  # kept as-is anyway, because reordering them would be churn with no verdict
+  # attached, and because two of them encode a real data dependency
+  # (`Script manifest gate` before `Rebuild script invocation graph`).
   #
   # What stays in this job: the Rust extension build chain and the suites that
   # can only run once those wheels are installed.
@@ -363,7 +394,18 @@ jobs:
           --no-install-package temper-drc-rs
           --no-install-package temper-constraints
 
+      # ---- SETUP / GATE BOUNDARY -------------------------------------------
+      # Everything ABOVE is setup and stays fail-fast: it has no `if:`, so if
+      # any of it fails this step never runs, `steps.setup_env.outcome` is not
+      # `success`, and every gate below is SKIPPED rather than run against a
+      # half-built environment. Everything BELOW is a gate and reports
+      # independently.
+      - name: Setup barrier -- extension build chain complete
+        id: setup_env
+        run: echo "extensions built and installed; gates below report independently"
+
       - name: Stale-extension gate tests
+        if: ${{ !cancelled() && steps.setup_env.outcome == 'success' }}
         run: uv run pytest scripts/tests/test_check_stale_extensions.py -v --tb=short
 
       # Build side of content-hash freshness (scripts/_lib/freshness.py).
@@ -383,6 +425,7 @@ jobs:
       # a freshly-built extension once already -- see
       # docs/evidence/2026-07-27-stale-extension-gate.md).
       - name: Record extension build stamps (content-hash freshness)
+        if: ${{ !cancelled() && steps.setup_env.outcome == 'success' }}
         run: uv run --no-sync python scripts/write_extension_stamps.py
 
       # Every pyo3/maturin crate under packages/ is built by this point (the
@@ -395,28 +438,44 @@ jobs:
       # closes: a missing .cargo/config.toml silently froze every installed
       # .so on macOS while `cargo test` stayed green.
       - name: Stale-compiled-extension gate (all pyo3 crates)
+        if: ${{ !cancelled() && steps.setup_env.outcome == 'success' }}
         run: uv run python scripts/check_stale_extensions.py
         env:
           TEMPER_REQUIRE_FRESH_EXTENSIONS: "1"
 
       - name: Cache netlist
         id: cache-netlist
+        if: ${{ !cancelled() && steps.setup_env.outcome == 'success' }}
         uses: actions/cache@v6
         with:
           path: elec/build
           key: netlist-${{ hashFiles('elec/src/**', 'elec/ato.yaml', 'Makefile') }}
 
       - name: Build electronics netlist
-        if: steps.cache-netlist.outputs.cache-hit != 'true'
+        id: netlist
+        if: ${{ !cancelled() && steps.setup_env.outcome == 'success' && steps.cache-netlist.outputs.cache-hit != 'true' }}
         run: make netlist
 
+      # Second barrier: the netlist steps above are SETUP, but they sit after
+      # three gate steps, so they carry the same `!cancelled()` guard to reach
+      # them at all. `steps.netlist.outcome != 'failure'` is safe only because
+      # the first conjunct already establishes that `netlist` was reached: on a
+      # cache hit its outcome is `skipped`, never the empty string a
+      # never-evaluated step would give.
+      - name: Setup barrier -- netlist available
+        id: setup
+        if: ${{ !cancelled() && steps.setup_env.outcome == 'success' && steps.netlist.outcome != 'failure' }}
+        run: echo "netlist available; gates below report independently"
+
       - name: Run temper-constraints integration tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         working-directory: packages/temper-placer
         run: uv run pytest tests/rust_integration/ -v --tb=short -p no:cacheprovider -m "not benchmark"
         env:
           RUST_BACKTRACE: full
 
       - name: Run temper-placer tests (core only for CI speed)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         working-directory: packages/temper-placer
         run: uv run pytest tests/core/ -v --tb=short -p no:cacheprovider --maxfail=10 --cov=temper_placer --cov-report=json --cov-report=term --cov-config=../../pyproject.toml
         env:
@@ -424,6 +483,7 @@ jobs:
           PYTHONFAULTHANDLER: 1
 
       - name: Coverage gate (temper-placer)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         working-directory: packages/temper-placer
         run: >
           uv run python ../../scripts/check_coverage_gate.py
@@ -482,10 +542,25 @@ jobs:
         if: steps.cache-venv.outputs.cache-hit != 'true'
         run: uv venv
 
+      # ---- SETUP / GATE BOUNDARY -------------------------------------------
+      # Everything ABOVE is setup and stays fail-fast: it has no `if:`, so if
+      # any of it fails (maturin, uv sync, make netlist) this step never runs,
+      # `steps.setup.outcome` is not `success`, and every gate below is SKIPPED
+      # rather than run against a half-built environment and reported as a gate
+      # verdict. Everything BELOW is a gate: each carries
+      # `if: !cancelled() && steps.setup.outcome == 'success'` so a red gate no
+      # longer deletes the verdict of the gates behind it. None of them is
+      # `continue-on-error`, so the job still concludes `failure` if any fails.
+      - name: Setup barrier -- environment ready
+        id: setup
+        run: echo "setup complete; gates below report independently"
+
       - name: Check temper-constraint-compiler compiles
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: cargo check --manifest-path packages/temper-constraint-compiler/Cargo.toml
 
       - name: Clippy (non-PyO3 crates)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: |
           for crate in \
                        temper-rust-router-core temper-pcl-ir temper-design-bundle; do
@@ -497,11 +572,13 @@ jobs:
   # netlist (elec/build/default.net, default.csv) or pcb/temper.kicad_pcb, so
   # they share the `make netlist` setup and belong together.
   #
-  # ORDERING IS LOAD-BEARING: "Physical mains<->SELV isolation-barrier gate" is
-  # LAST. It is the gate that is red on main right now (run 30390466165) and it
-  # cannot be fixed from CI -- pcb/temper.kicad_pcb has zero keepout zones and
-  # the fix is hardware work. Placed last, its honest failure masks nothing.
-  # Anything added to this job goes ABOVE it.
+  # "Physical mains<->SELV isolation-barrier gate" is LAST. It is the gate that
+  # is red on main right now (run 30390466165) and it cannot be fixed from CI --
+  # pcb/temper.kicad_pcb has zero keepout zones and the fix is hardware work.
+  # Its position is no longer load-bearing: since every gate step below the
+  # setup barrier carries `if: !cancelled() && steps.setup.outcome == 'success'`,
+  # this gate masks nothing wherever it sits, and a step added after it will run
+  # and report on its own. Kept last because that is where it reads best.
   board-gates:
     name: Board & Netlist Gates
     runs-on: ubuntu-latest
@@ -603,13 +680,29 @@ jobs:
         if: steps.cache-netlist.outputs.cache-hit != 'true'
         run: make netlist
 
+      # ---- SETUP / GATE BOUNDARY -------------------------------------------
+      # Everything ABOVE is setup and stays fail-fast: it has no `if:`, so if
+      # any of it fails (maturin, uv sync, make netlist) this step never runs,
+      # `steps.setup.outcome` is not `success`, and every gate below is SKIPPED
+      # rather than run against a half-built environment and reported as a gate
+      # verdict. Everything BELOW is a gate: each carries
+      # `if: !cancelled() && steps.setup.outcome == 'success'` so a red gate no
+      # longer deletes the verdict of the gates behind it. None of them is
+      # `continue-on-error`, so the job still concludes `failure` if any fails.
+      - name: Setup barrier -- environment ready
+        id: setup
+        run: echo "setup complete; gates below report independently"
+
       - name: Run electronics validation tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run pytest elec/validation/ -v --tb=short
 
       - name: Domain-partition gate unit tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run pytest scripts/tests/test_check_domain_partition.py -v --tb=short
 
       - name: Netlist domain-partition gate (galvanic isolation)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         # Fail-closed: reads the compiled netlist against
         # elec/domain_manifest.yaml and asserts the declared HV/SELV
         # domains land in disjoint connected components, and that every
@@ -621,24 +714,30 @@ jobs:
         run: uv run python scripts/check_domain_partition.py
 
       - name: Design capacity budget gate tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run pytest scripts/tests/test_capacity_budget_gate.py -v --tb=short
 
       - name: Design capacity budget gate (fault-tree fan-in)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python scripts/capacity_budget_gate.py
 
       - name: Verify board identity gate (plan 2026-07-15-001, U7)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python3 scripts/ci_identity_check.py
 
       - name: Regenerate schematics and check drift
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         continue-on-error: true  # TODO: temper-NNN -- make netlist (atopile) invokes kicad-cli in container; hard-fail after 2026-09-01
         run: |
           uv run python3 scripts/gen_schematics.py --check --no-oracle
           git diff --exit-code pcb/*.kicad_sch
 
       - name: Isolation-keepout gate unit tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run pytest scripts/tests/test_check_isolation_keepout.py -v --tb=short
 
       - name: Physical mains<->SELV isolation-barrier gate
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         # Fail-closed: verifies a dedicated keepout region (not just
         # declarations/after-the-fact clearance checks) spans every copper
         # layer, is >=8.0mm wide throughout, bisects the board into HV/SELV
@@ -756,26 +855,46 @@ jobs:
         if: steps.cache-netlist.outputs.cache-hit != 'true'
         run: make netlist
 
+      # ---- SETUP / GATE BOUNDARY -------------------------------------------
+      # Everything ABOVE is setup and stays fail-fast: it has no `if:`, so if
+      # any of it fails (maturin, uv sync, make netlist) this step never runs,
+      # `steps.setup.outcome` is not `success`, and every gate below is SKIPPED
+      # rather than run against a half-built environment and reported as a gate
+      # verdict. Everything BELOW is a gate: each carries
+      # `if: !cancelled() && steps.setup.outcome == 'success'` so a red gate no
+      # longer deletes the verdict of the gates behind it. None of them is
+      # `continue-on-error`, so the job still concludes `failure` if any fails.
+      - name: Setup barrier -- environment ready
+        id: setup
+        run: echo "setup complete; gates below report independently"
+
       - name: Check domain model codegen drift
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python3 scripts/gen_domain_models.py --check
 
       - name: Verify config reference doc is up-to-date (plan 2026-07-22-005, U7)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: |
           uv run python packages/temper-placer/scripts/gen_config_reference.py --check
 
       - name: MPN fabrication gate tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run pytest scripts/tests/test_mpn_fabrication_gate.py -v --tb=short
 
       - name: MPN fabrication gate (elec/src/*.ato non-standard values and MPN/value drift)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python scripts/mpn_fabrication_gate.py
 
       - name: Derived-document drift gate tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run pytest scripts/tests/test_check_derived_doc_drift.py -v --tb=short
 
       - name: Derived-document drift gate (docs/STRATEGY.md vs FUNCTIONAL_TEST_CRITERIA.md)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python scripts/check_derived_doc_drift.py
 
       - name: Net-classification-by-substring gate tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run pytest scripts/tests/test_check_net_classification.py -v --tb=short
 
       # Fail-closed, not soft-launched: catches the "safety-relevant net
@@ -787,9 +906,11 @@ jobs:
       # the codebase was audited for the same shape. See
       # docs/evidence/2026-07-27-net-classification-gate.md.
       - name: Net-classification-by-substring gate (placer/router net-name classifiers)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python scripts/check_net_classification.py
 
       - name: PLL range consistency gate tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run pytest scripts/tests/test_check_pll_range_consistency.py -v --tb=short
 
       # Fail-closed: catches firmware/components/control/pll_control.h's
@@ -801,18 +922,20 @@ jobs:
       # main.ato had already moved to 47kHz. See
       # docs/evidence/2026-07-28-pll-defaults-and-range-gate.md.
       - name: PLL range consistency gate (firmware vs elec/src/main.ato)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python scripts/check_pll_range_consistency.py
 
   # Split out of Core Tests 2026-07-28. Gates that check a claim can be traced
   # to a measurement, plus the anti-vacuous-truth gate that checks a gate
   # actually measured something.
   #
-  # ORDERING IS LOAD-BEARING: "Measurement-provenance gate" is LAST, for the
-  # reason its own comment gives -- drc_ceiling.json genuinely is stale, so the
-  # gate is expected to fail until it is re-measured and re-approved. Last means
-  # its honest failure masks nothing. In the old single job it was "last among
+  # "Measurement-provenance gate" is LAST, for the reason its own comment gives
+  # -- drc_ceiling.json genuinely is stale, so the gate is expected to fail until
+  # it is re-measured and re-approved. In the old single job it was "last among
   # the required gates" but still masked "Rebuild script invocation graph"; that
-  # step now lives in `hygiene-gates` and is masked by nothing here.
+  # step now lives in `hygiene-gates`. Its position is no longer load-bearing
+  # either: the `!cancelled() && steps.setup.outcome == 'success'` guard on every
+  # gate step below the setup barrier means it masks nothing wherever it sits.
   provenance-gates:
     name: Provenance & Anti-Vacuity Gates
     runs-on: ubuntu-latest
@@ -914,21 +1037,38 @@ jobs:
         if: steps.cache-netlist.outputs.cache-hit != 'true'
         run: make netlist
 
+      # ---- SETUP / GATE BOUNDARY -------------------------------------------
+      # Everything ABOVE is setup and stays fail-fast: it has no `if:`, so if
+      # any of it fails (maturin, uv sync, make netlist) this step never runs,
+      # `steps.setup.outcome` is not `success`, and every gate below is SKIPPED
+      # rather than run against a half-built environment and reported as a gate
+      # verdict. Everything BELOW is a gate: each carries
+      # `if: !cancelled() && steps.setup.outcome == 'success'` so a red gate no
+      # longer deletes the verdict of the gates behind it. None of them is
+      # `continue-on-error`, so the job still concludes `failure` if any fails.
+      - name: Setup barrier -- environment ready
+        id: setup
+        run: echo "setup complete; gates below report independently"
+
       - name: Physics parameter provenance gate
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         working-directory: packages/temper-placer
         run: |
           uv run python ../../scripts/check_physics_provenance.py --allowlist ../../.physics-provenance-allowlist --physics-dir src/temper_placer/physics/
           uv run python ../../scripts/check_physics_provenance.py --check-shrink --allowlist ../../.physics-provenance-allowlist --physics-dir src/temper_placer/physics/
 
       - name: Evidence provenance gate (docs/evidence/)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: |
           uv run python scripts/check_evidence_provenance.py
           uv run python scripts/check_evidence_provenance.py --check-shrink
 
       - name: Anti-vacuous-truth gate (gates/validators)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python scripts/check_vacuous_gates.py
 
       - name: Measurement-provenance gate tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run pytest scripts/tests/test_check_measurement_provenance.py scripts/tests/_lib/test_lib_measurement_provenance.py -v --tb=short
 
       # Fail-closed, not soft-launched: catches a measurement artifact
@@ -942,17 +1082,19 @@ jobs:
       # violation" semantic check_domain_partition.py already uses. See
       # docs/evidence/2026-07-28-measurement-provenance.md.
       #
-      # Deliberately placed last in its job (not continue-on-error -- no
-      # masked steps): this step is expected to fail right now, because
-      # the real drc_ceiling.json genuinely is stale and has not been
-      # re-measured/re-approved. Every other required gate used to be in
-      # this same job and had to be ordered ahead of it for that reason;
-      # since the 2026-07-28 split they are in sibling jobs and cannot be
-      # affected by this gate at all. Last-in-job now means it masks
-      # nothing whatsoever -- the "Rebuild script invocation graph"
-      # bookkeeping step it used to take down with it moved to
-      # `hygiene-gates`. Anything added to this job goes ABOVE this step.
+      # Placed last in its job, and never continue-on-error: this step is
+      # expected to fail right now, because the real drc_ceiling.json
+      # genuinely is stale and has not been re-measured/re-approved. Every
+      # other required gate used to be in this same job and had to be
+      # ordered ahead of it for that reason; since the 2026-07-28 split
+      # they are in sibling jobs and cannot be affected by this gate at
+      # all, and since the same day's independent-gate-reporting change
+      # every gate step in this job runs under
+      # `if: !cancelled() && steps.setup.outcome == 'success'` -- so this
+      # gate masks nothing regardless of where it sits, and a step added
+      # after it will run and report on its own.
       - name: Measurement-provenance gate (drc_ceiling.json input freshness)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: |
           uv run python scripts/check_measurement_provenance.py
           uv run python scripts/check_measurement_provenance.py --check-shrink
@@ -1065,28 +1207,48 @@ jobs:
         if: steps.cache-netlist.outputs.cache-hit != 'true'
         run: make netlist
 
+      # ---- SETUP / GATE BOUNDARY -------------------------------------------
+      # Everything ABOVE is setup and stays fail-fast: it has no `if:`, so if
+      # any of it fails (maturin, uv sync, make netlist) this step never runs,
+      # `steps.setup.outcome` is not `success`, and every gate below is SKIPPED
+      # rather than run against a half-built environment and reported as a gate
+      # verdict. Everything BELOW is a gate: each carries
+      # `if: !cancelled() && steps.setup.outcome == 'success'` so a red gate no
+      # longer deletes the verdict of the gates behind it. None of them is
+      # `continue-on-error`, so the job still concludes `failure` if any fails.
+      - name: Setup barrier -- environment ready
+        id: setup
+        run: echo "setup complete; gates below report independently"
+
       - name: Lint with ruff
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         continue-on-error: true  # TODO: temper-NNN -- 594 pre-existing ruff errors; hard-fail after 2026-09-01
         run: uv run ruff check packages/
 
       - name: Vulture dead-code gate
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python scripts/vulture_gate.py
 
       - name: Script manifest gate
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python scripts/check_manifest_gate.py
 
       - name: Script sunset check (warnings only)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python scripts/check_script_sunset.py
         continue-on-error: true  # TODO: temper-NNN -- sunset is informational; hard-fail after 2026-09-01
 
       - name: Root artifact hygiene check
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run pytest scripts/test_root_hygiene.py -v --tb=short
         continue-on-error: true  # TODO: temper-NNN -- hard-fail after 2026-09-01
 
       - name: Import boundary enforcement
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python scripts/import_linter_gate.py
 
       - name: Undeclared-import gate tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run pytest scripts/tests/test_check_undeclared_imports.py -v --tb=short
 
       # Fail-closed, not soft-launched: catches the jinja2/sympy class of
@@ -1097,9 +1259,11 @@ jobs:
       # reflects the same environment the rest of this job runs under. See
       # docs/evidence/2026-07-27-undeclared-import-gate.md.
       - name: Undeclared-import gate (scripts/ and Python test trees)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python scripts/check_undeclared_imports.py
 
       - name: Rebuild script invocation graph
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python scripts/trace_invocations.py
 
   # Split out of Core Tests 2026-07-28. The encoded IEC 60335 / EMC / design
@@ -1208,6 +1372,19 @@ jobs:
         if: steps.cache-netlist.outputs.cache-hit != 'true'
         run: make netlist
 
+      # ---- SETUP / GATE BOUNDARY -------------------------------------------
+      # Everything ABOVE is setup and stays fail-fast: it has no `if:`, so if
+      # any of it fails (maturin, uv sync, make netlist) this step never runs,
+      # `steps.setup.outcome` is not `success`, and every gate below is SKIPPED
+      # rather than run against a half-built environment and reported as a gate
+      # verdict. Everything BELOW is a gate: each carries
+      # `if: !cancelled() && steps.setup.outcome == 'success'` so a red gate no
+      # longer deletes the verdict of the gates behind it. None of them is
+      # `continue-on-error`, so the job still concludes `failure` if any fails.
+      - name: Setup barrier -- environment ready
+        id: setup
+        run: echo "setup complete; gates below report independently"
+
       # Plan 2026-07-25-001 R2. `tests/requirements/` holds the encoded
       # IEC 60335 / EMC / design-review checks and was named in NO workflow --
       # 240 test functions with zero CI execution path on a mains-connected
@@ -1224,6 +1401,7 @@ jobs:
       # Guarded so this cannot quietly regress to zero the way the extended
       # suite did via a phantom path.
       - name: Requirements tests (safety / EMC / review / DFM)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: >
           cd packages/temper-placer &&
           uv run python ../../scripts/pytest_guard.py --min-tests 240 --
@@ -1337,7 +1515,21 @@ jobs:
         if: steps.cache-netlist.outputs.cache-hit != 'true'
         run: make netlist
 
+      # ---- SETUP / GATE BOUNDARY -------------------------------------------
+      # Everything ABOVE is setup and stays fail-fast: it has no `if:`, so if
+      # any of it fails (maturin, uv sync, make netlist) this step never runs,
+      # `steps.setup.outcome` is not `success`, and every gate below is SKIPPED
+      # rather than run against a half-built environment and reported as a gate
+      # verdict. Everything BELOW is a gate: each carries
+      # `if: !cancelled() && steps.setup.outcome == 'success'` so a red gate no
+      # longer deletes the verdict of the gates behind it. None of them is
+      # `continue-on-error`, so the job still concludes `failure` if any fails.
+      - name: Setup barrier -- environment ready
+        id: setup
+        run: echo "setup complete; gates below report independently"
+
       - name: Run extended test suites in parallel
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         # The INVARIANT suite (tests/router_v6/ tests/io/ tests/deterministic/
         # tests/physics/ tests/fields/ tests/validation/ tests/placer/cp_sat/,
         # ~3,500 tests once tests/losses/ stopped aborting collection -- see
