@@ -55,7 +55,23 @@ CALL_ARG_CODE = "call-arg"
 
 
 def run_mypy() -> tuple[dict[str, int], list[tuple[str, str, str]]]:
-    """Run mypy once and split results into (per-file counts, call-arg entries).
+    """Run mypy once per SCOPE entry and split results into (per-file counts,
+    call-arg entries).
+
+    SCOPE entries are separate packages, not a partition of the import graph:
+    mypy's default ``follow_imports=normal`` means running it against
+    ``packages/temper-workflow/src`` also type-checks (and re-reports errors
+    for) any ``packages/temper-placer/src/...`` file that temper-workflow
+    imports, under the exact same path string mypy uses when
+    ``packages/temper-placer/src`` is scanned directly. Without
+    deduplication, every error in a file imported across a SCOPE boundary is
+    counted once per importing scope -- observed 2026-07-29: nearly every
+    file with a temper-workflow -> temper-placer import edge had its mypy
+    error count exactly double its ``.typecheck-allowlist`` baseline (e.g.
+    core/board.py 1 -> 2, _loop_core.py 63 -> 126), which is duplicate
+    reporting of the identical (file, line, message, code) tuple, not new
+    errors. Deduplicating on that tuple before counting fixes it without
+    hiding a genuine regression, which would still add a *new* tuple.
 
     ``call-arg`` errors ("unexpected keyword argument" / "too many arguments"
     / etc.) are deliberately excluded from the returned counts dict — they
@@ -63,6 +79,7 @@ def run_mypy() -> tuple[dict[str, int], list[tuple[str, str, str]]]:
     the generic monotonic-shrink mechanism. Returns
     ``(counts, [(filepath, line, message), ...])``.
     """
+    seen: set[tuple[str, str, str, str | None]] = set()
     counts: dict[str, int] = defaultdict(int)
     call_arg_entries: list[tuple[str, str, str]] = []
     for scope in SCOPE:
@@ -78,6 +95,10 @@ def run_mypy() -> tuple[dict[str, int], list[tuple[str, str, str]]]:
             if not m:
                 continue
             filepath, lineno, message, code = m.group(1), m.group(2), m.group(3), m.group(4)
+            key = (filepath, lineno, message.strip(), code)
+            if key in seen:
+                continue
+            seen.add(key)
             if code == CALL_ARG_CODE:
                 call_arg_entries.append((filepath, lineno, message.strip()))
             else:

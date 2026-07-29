@@ -73,8 +73,16 @@ class DRCOracleSetupStage(Stage):
                     matrix.add_net_class_rules(net_class_rules)
 
                 # net_classes is {net_name: class_name} (both plain strings)
+                # here, because this branch (hasattr net_class_rules) means
+                # self.design_rules is duck-typed as PlacementConstraints, not
+                # the statically-declared DesignRules -- whose OWN .net_classes
+                # is {name: NetClassRules}, which is the type mypy can see and
+                # why it flags this. Same duck-typing mismatch as the
+                # DesignRules branch's set_net_class call below; matching its
+                # existing suppression rather than leaving one of the two
+                # branches unmarked.
                 for net, class_name in self.design_rules.net_classes.items():
-                    matrix.set_net_class(net, class_name)
+                    matrix.set_net_class(net, class_name)  # type: ignore[arg-type]
             else:
                 # This is a DesignRules object
                 for _name, rules in self.design_rules.net_classes.items():
