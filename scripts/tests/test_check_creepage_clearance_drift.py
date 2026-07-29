@@ -37,6 +37,7 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from check_creepage_clearance_drift import (  # noqa: E402
+    KNOWN_TIER_MISCLASSIFICATIONS,
     GateError,
     build_families,
     discover_ato,
@@ -372,11 +373,12 @@ class TestFamilyComparison:
             "        creepage = 8.0mm  # IEC 60335-1 reinforced insulation\n",
         )
         decls = discover_ato(tmp_path)
-        families, flagged, unresolved = build_families(decls)
+        families, flagged, unresolved, known_blind_spots = build_families(decls)
         assert len(families) == 1
         assert families[0].is_consistent
         assert not flagged
         assert not unresolved
+        assert not known_blind_spots
 
     def test_mismatched_family_reports_all_distinct_values(self, tmp_path: Path) -> None:
         _mk(
@@ -394,7 +396,7 @@ class TestFamilyComparison:
             "MIN_BARRIER_WIDTH_MM = 12.6\n",
         )
         decls = discover_ato(tmp_path) + discover_python(tmp_path)[0]
-        families, _, _ = build_families(decls)
+        families, _, _, _ = build_families(decls)
         assert len(families) == 1
         fam = families[0]
         assert not fam.is_consistent
@@ -407,7 +409,7 @@ class TestFamilyComparison:
             "module Constraints:\n    module HighVoltage:\n        clearance = 2.0mm\n",
         )
         decls = discover_ato(tmp_path)
-        families, flagged, _ = build_families(decls)
+        families, flagged, _, _ = build_families(decls)
         assert families == []
         assert len(flagged) == 1
 
@@ -428,7 +430,7 @@ class TestFamilyComparison:
             "        min_creepage = 8.0mm\n",
         )
         decls = discover_ato(tmp_path)
-        families, _, _ = build_families(decls)
+        families, _, _, _ = build_families(decls)
         assert len(families) == 2
         assert all(f.is_consistent for f in families)
         tiers = {f.tier for f in families}
@@ -445,11 +447,106 @@ class TestFamilyComparison:
             "        min_creepage = 8.0mm\n",
         )
         decls = discover_ato(tmp_path)
-        families, _, _ = build_families(decls)
+        families, _, _, _ = build_families(decls)
         metrics = {f.metric for f in families}
         assert metrics == {"clearance", "creepage"}
         for fam in families:
             assert fam.is_consistent  # each metric has exactly one member here
+
+
+# ---------------------------------------------------------------------------
+# Known tier misclassifications (Task 2, GateDriveHV/GateDriveSELV)
+# ---------------------------------------------------------------------------
+
+
+class TestKnownBlindSpots:
+    def _gate_drive_yaml(self) -> str:
+        return (
+            "classes:\n"
+            "  GateDriveHV:\n"
+            "    clearance: 0.25\n"
+            '    because: "secondary (HV) side of a reinforced barrier"\n'
+            "  GateDriveSELV:\n"
+            "    clearance: 0.25\n"
+            '    because: "primary (SELV) side of a reinforced barrier"\n'
+        )
+
+    def test_registered_sites_are_excluded_from_family_comparison(self, tmp_path: Path) -> None:
+        """The two registered GateDriveHV/GateDriveSELV sites must not be
+        force-compared against a real reinforced-tier barrier figure (6.0mm)
+        even though the keyword classifier alone would tier-tag both
+        "reinforced"."""
+        _mk(
+            tmp_path,
+            "packages/temper-placer/configs/netclass_rules.yaml",
+            self._gate_drive_yaml(),
+        )
+        _mk(
+            tmp_path,
+            "elec/src/constraints.ato",
+            "module Constraints:\n"
+            "    # HighVoltage to Default: Reinforced insulation\n"
+            "    module HV_to_LV:\n"
+            "        min_clearance = 6.0mm\n",
+        )
+        decls = discover_ato(tmp_path) + discover_yaml(tmp_path)[0]
+        families, flagged, unresolved, known_blind_spots = build_families(decls)
+        assert len(known_blind_spots) == 2
+        assert {d.value_mm for d in known_blind_spots} == {0.25}
+        clearance_reinforced = next(f for f in families if f.metric == "clearance" and f.tier == "reinforced")
+        # Only the real barrier figure remains in the family -- it is
+        # consistent because the two 0.25mm misclassified entries were
+        # pulled out before comparison, not because they happened to agree.
+        assert clearance_reinforced.is_consistent
+        assert set(clearance_reinforced.distinct_values.keys()) == {6.0}
+
+    def test_registry_entries_match_real_declaration_names(self) -> None:
+        """Sanity: every (file, name) in the registry must be shaped like a
+        real Declaration.site would render it -- catches a typo'd override
+        that would silently never match anything."""
+        for file, name in KNOWN_TIER_MISCLASSIFICATIONS:
+            assert file.endswith(".yaml")
+            assert name.startswith("classes.")
+
+    def test_stale_override_whose_tier_no_longer_resolves_reinforced_is_gate_error(
+        self, tmp_path: Path
+    ) -> None:
+        """If a registered site's own text no longer says "reinforced" (the
+        because field was reworded, or the comment removed), the override
+        would silently protect nothing -- this must fail loudly instead of
+        going quiet."""
+        _mk(
+            tmp_path,
+            "packages/temper-placer/configs/netclass_rules.yaml",
+            "classes:\n"
+            "  GateDriveHV:\n"
+            "    clearance: 0.25\n"
+            '    because: "ordinary intra-class spacing, no barrier mentioned"\n'
+            "  GateDriveSELV:\n"
+            "    clearance: 0.25\n"
+            '    because: "primary (SELV) side of a reinforced barrier"\n',
+        )
+        decls = discover_yaml(tmp_path)[0]
+        with pytest.raises(GateError):
+            build_families(decls)
+
+    def test_a_site_registered_but_absent_from_this_run_is_not_an_error(self, tmp_path: Path) -> None:
+        """A tree that never mentions GateDriveHV/GateDriveSELV at all (a
+        synthetic fixture, or a real tree like origin/main that predates the
+        netclass split this override targets) must not fail just because
+        the override never matched anything -- see build_families()'s own
+        docstring for why this direction is safe."""
+        _mk(
+            tmp_path,
+            "elec/src/constraints.ato",
+            "module Constraints:\n"
+            "    # HighVoltage to Default: Reinforced insulation\n"
+            "    module HV_to_LV:\n"
+            "        min_clearance = 6.0mm\n",
+        )
+        decls = discover_ato(tmp_path)
+        families, flagged, unresolved, known_blind_spots = build_families(decls)
+        assert known_blind_spots == []
 
 
 # ---------------------------------------------------------------------------
@@ -498,8 +595,9 @@ class TestEndToEnd:
 
     def test_agreeing_tree_is_clean(self, tmp_path: Path) -> None:
         self._write_agreeing_tree(tmp_path)
-        state, report, families, flagged, unresolved = run(tmp_path)
+        state, report, families, flagged, unresolved, known_blind_spots = run(tmp_path)
         assert state == "clean"
+        assert not known_blind_spots
         assert report.declarations
         assert any(f.metric == "creepage" and f.tier == "reinforced" for f in families)
         for fam in families:
@@ -517,7 +615,7 @@ class TestEndToEnd:
             "# REINFORCED creepage, pollution degree 3 (PD3 GOVERNS)\n"
             "MIN_BARRIER_WIDTH_MM = 12.6\n",
         )
-        state, report, families, flagged, unresolved = run(tmp_path)
+        state, report, families, flagged, unresolved, known_blind_spots = run(tmp_path)
         assert state == "violation"
         reinforced_creepage = next(f for f in families if f.metric == "creepage" and f.tier == "reinforced")
         assert not reinforced_creepage.is_consistent

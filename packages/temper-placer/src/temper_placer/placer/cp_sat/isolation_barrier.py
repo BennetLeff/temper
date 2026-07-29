@@ -113,6 +113,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from temper_placer.core.isolation_constants import MIN_BARRIER_WIDTH_MM
+
 if TYPE_CHECKING:
     from temper_placer.core.netlist import Component, Netlist
     from temper_placer.placer.cp_sat.model import CpSatModel
@@ -130,14 +132,19 @@ __all__ = [
     "load_domain_manifest_nets",
 ]
 
-# 0.5mm above scripts/check_isolation_keepout.py's MIN_BARRIER_WIDTH_MM
-# (8.0mm, REINFORCED creepage -- see that module's docstring for the full
-# IEC 60335-1 derivation). The margin exists so integer-unit rounding
+# 0.5mm above the SSOT REINFORCED creepage figure, MIN_BARRIER_WIDTH_MM
+# (temper_placer.core.isolation_constants -- scripts/check_isolation_keepout.py's
+# module docstring has the full IEC 60335-1 derivation; never restated here
+# as a literal). The margin exists so integer-unit rounding
 # (CpSatModel.mm_to_units rounds to the nearest *even* unit) and the gate's
 # own Shapely negative-buffer erosion test (a strict "> 0 everywhere", not
 # "== 0 at the edge") both have headroom -- never used to justify shrinking
-# the 8.0mm safety figure itself, which this module never touches.
-DEFAULT_CORRIDOR_WIDTH_MM = 8.5
+# MIN_BARRIER_WIDTH_MM itself, which this module never touches. Computed,
+# not restated: a future retarget of MIN_BARRIER_WIDTH_MM now moves this
+# value for free instead of relying on someone finding and hand-updating a
+# duplicated literal -- see docs/solutions/design-patterns/derived-constant-
+# in-prose-drifts-make-the-gate-emit-it-2026-07-29.md.
+DEFAULT_CORRIDOR_WIDTH_MM = MIN_BARRIER_WIDTH_MM + 0.5
 
 
 # ---------------------------------------------------------------------------

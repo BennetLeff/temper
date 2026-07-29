@@ -139,14 +139,65 @@ Known blind spots (stated, not hidden)
   spacing) with a ``because`` field explaining that the class sits on the
   HV side of a *reinforced* barrier -- the 0.25mm figure is not itself a
   barrier-crossing distance, but it is tier-tagged "reinforced" anyway and
-  compared against real barrier-crossing figures (2.0mm, 6.0mm). This
-  produces a family with a mix of "the barrier distance itself" and
-  "a same-side routing spacing that merely cites the barrier's existence".
-  This is a real, observed limitation (not a hypothetical one) -- flagged
-  in this gate's own delivery report as a case requiring human judgement,
-  not resolved here, because resolving it mechanically would require
-  parsing which noun phrase in a free-text justification the number
-  actually refers to, which is out of reach for a keyword search.
+  would otherwise be compared against real barrier-crossing figures (2.0mm,
+  6.0mm). This produces a family with a mix of "the barrier distance
+  itself" and "a same-side routing spacing that merely cites the barrier's
+  existence". This is a real, observed limitation (not a hypothetical one),
+  and resolving it *mechanically, in general* would require parsing which
+  noun phrase in a free-text justification the number actually refers to,
+  which is out of reach for a keyword search -- that general problem is NOT
+  solved here.
+
+  What IS done: the two specific sites this shape was found on
+  (``GateDriveHV.clearance``, ``GateDriveSELV.clearance``, both 0.25mm) were
+  investigated by hand 2026-07-29 and confirmed to be ordinary intra-class
+  routing spacing -- consistent with every LV-tier sibling class in the same
+  file (FinePitch 0.1mm, Power 0.25mm, GND 0.3mm, none tier-tagged), and
+  categorically too small to be a barrier-crossing figure under any voltage
+  domain this board declares (the smallest REINFORCED clearance this
+  project's own tables carry, at 50V, is 1.0mm -- see
+  ``docs/specs/HIGH_VOLTAGE_CLEARANCE_SPEC.md`` Sec 4.1). Those two exact
+  sites are carried in ``KNOWN_TIER_MISCLASSIFICATIONS`` below and excluded
+  from family comparison, so they read in the report as a named, cited
+  "known blind spot" rather than a live MISMATCH a reviewer has to
+  re-investigate on every run. This is a closed set of two, not a general
+  "ignore reinforced near GateDrive" rule -- see that constant's own
+  docstring for why it is deliberately narrow and how it guards against
+  becoming its own hand-maintained blind spot (the failure mode
+  ``docs/solutions/best-practices/gate-scope-hand-maintained-blind-spot-
+  2026-07-29.md`` documents).
+- A tier label alone ("basic", "reinforced", ...) does not imply two
+  same-tier declarations govern the same voltage pair or the same kind of
+  requirement. Investigated 2026-07-29: ``elec/src/constraints.ato``'s
+  ``AC_to_LV`` (3.0mm clearance / 5.0mm creepage, "Basic insulation") and
+  ``configs/temper_deterministic_config.yaml``'s
+  ``net_class_rules.HighVoltage`` (6.0mm / 6.0mm, "Table 17 (basic
+  insulation)") both land in the ``[clearance/basic]``/``[creepage/basic]``
+  families and both genuinely say "basic" -- but they are not the same
+  requirement. ``AC_to_LV`` is the atopile-compiled SSOT's own
+  cross-domain-pair barrier between the 135V ACMains net class
+  (``elec/src/constraints.ato``'s ``ACMainsConstraints.v_max``) and
+  Default/LV. ``net_class_rules.HighVoltage`` is a single net class's own
+  general routing-clearance figure consumed only by the separate, legacy
+  deterministic-placement pipeline (``scripts/run_feedback_loop.py`` ->
+  ``temper_placer.io.config_loader``), and that class lumps AC_L/AC_N
+  together with DC_BUS+/DC_BUS-/SW_NODE under one higher voltage bucket
+  (``voltage_class: mains_240v`` in that same file) -- i.e. a materially
+  higher working voltage than the 135V AC_to_LV pair governs. IEC 60335-1's
+  basic-insulation clearance/creepage figures are working-voltage-indexed
+  (``docs/specs/HIGH_VOLTAGE_CLEARANCE_SPEC.md`` Sec 4.1/5.1's own tables),
+  so a larger "basic" figure at a higher declared voltage bucket is the
+  expected direction, not drift. This gate still reports the two as a
+  MISMATCH (deliberately -- see below) rather than special-casing them the
+  way ``KNOWN_TIER_MISCLASSIFICATIONS`` special-cases GateDriveHV/SELV:
+  those two are a confirmed classifier bug on a single field whose own
+  value cannot plausibly be the tier it was tagged; this pair is two
+  different subsystems each correctly describing their own genuinely
+  different requirement, and collapsing "basic" into a
+  voltage/subsystem-aware family key would require the same kind of
+  free-text-provenance parsing already ruled out above, on every future
+  "basic"-tagged pair, not just this one. Investigated and left flagged for
+  continued human review, not silently resolved.
 
 Fail-closed contract
 ---------------------
@@ -223,6 +274,38 @@ TIER_ORDER = ("reinforced", "basic", "working")  # most-specific first
 
 _NAME_TOKEN_RE = re.compile(r"(?:^|_)(creepage|clearance)(?:_mm)?(?:_|$)", re.IGNORECASE)
 _MM_SUFFIX_RE = re.compile(r"(?:^|_)mm$", re.IGNORECASE)
+
+# Known, human-reviewed tier misclassifications -- see the module docstring
+# "Known blind spots" section for the full investigation. This is
+# deliberately NOT a hand-maintained *scope* list (discovery above always
+# walks every file under SCAN_ROOT_NAMES; nothing here shrinks what is
+# found, counted, or reported) -- it is a narrow override of the TIER this
+# gate's own keyword classifier assigned to two already-discovered
+# declarations, applied only after discovery, and verified in
+# build_families() so it cannot become the silent, stale-but-still-applied
+# blind spot ``docs/solutions/best-practices/gate-scope-hand-maintained-
+# blind-spot-2026-07-29.md`` warns about: the gate ERRORS (fails closed) if
+# a listed site IS discovered but no longer classifies as "reinforced" on
+# its own (the override would then be silently protecting nothing, or
+# worse, hiding a since-changed value). A listed site simply not appearing
+# in a given run (a synthetic test tree, or a real tree -- e.g.
+# origin/main -- that predates the GateDrive/HV split this override
+# targets) is not an error: this override can only narrow an
+# already-discovered declaration, so its absence changes nothing.
+#
+# Each entry is (file, name) exactly as Declaration.file/.name render them.
+KNOWN_TIER_MISCLASSIFICATIONS: frozenset[tuple[str, str]] = frozenset(
+    {
+        (
+            "packages/temper-placer/configs/netclass_rules.yaml",
+            "classes.GateDriveHV.clearance",
+        ),
+        (
+            "packages/temper-placer/configs/netclass_rules.yaml",
+            "classes.GateDriveSELV.clearance",
+        ),
+    }
+)
 
 
 class GateError(Exception):
@@ -879,20 +962,58 @@ class FamilyResult:
         return len(self.distinct_values) <= 1
 
 
-def build_families(decls: list[Declaration]) -> tuple[list[FamilyResult], list[Declaration], list[Declaration]]:
-    """Returns (families, flagged_low_confidence, unresolved_no_value).
+def build_families(
+    decls: list[Declaration],
+) -> tuple[list[FamilyResult], list[Declaration], list[Declaration], list[Declaration]]:
+    """Returns (families, flagged_low_confidence, unresolved_no_value,
+    known_blind_spots).
 
     Only declarations with tier in {reinforced, basic, working}, a resolved
     numeric value, and high-confidence metric classification participate in
     a family comparison. Everything else is reported separately -- never
-    silently dropped, never silently force-compared."""
+    silently dropped, never silently force-compared.
+
+    ``known_blind_spots`` holds the (small, closed) set of declarations
+    matching ``KNOWN_TIER_MISCLASSIFICATIONS`` -- pulled out of the
+    comparable pool entirely (not into ``flagged``, which is for
+    low-confidence/unspecified-tier findings still worth a human glance;
+    these have already had that glance, 2026-07-29, see the module
+    docstring) and reported under their own heading.
+
+    Raises GateError if a registered ``KNOWN_TIER_MISCLASSIFICATIONS`` entry
+    IS found among ``decls`` but no longer classifies as tier ==
+    "reinforced" -- that means the override no longer applies to what it
+    claims to (the classifier's own behaviour or the site's own comment
+    text changed) and must be re-reviewed rather than silently kept. The
+    opposite case -- an entry simply not present at all in a given run
+    (e.g. a synthetic test tree, a --repo-root subset, or a real tree
+    predating the netclass split this override targets, such as
+    ``origin/main``) is deliberately NOT an error: this override only ever
+    narrows an already-matched declaration's classification, so a run
+    where it never matches anything is identical to a run without the
+    override at all -- safe by construction, not silent (the excluded
+    declarations simply don't exist in that run to be silently dropped).
+    Only a *matched-but-wrong* override is a correctness risk worth failing
+    on. See that constant's own comment for the rest of this reasoning."""
     comparable: dict[tuple[str, str], list[Declaration]] = {}
     flagged: list[Declaration] = []
     unresolved: list[Declaration] = []
+    known_blind_spots: list[Declaration] = []
 
     for d in decls:
         if d.value_mm is None:
             unresolved.append(d)
+            continue
+        key = (d.file, d.name)
+        if key in KNOWN_TIER_MISCLASSIFICATIONS:
+            if d.tier != "reinforced":
+                raise GateError(
+                    f"KNOWN_TIER_MISCLASSIFICATIONS entry {key} no longer classifies as "
+                    f"tier='reinforced' (now tier={d.tier!r}) -- the override is stale and "
+                    "must be re-reviewed, not silently kept (see check_creepage_clearance_drift.py's "
+                    "KNOWN_TIER_MISCLASSIFICATIONS docstring)"
+                )
+            known_blind_spots.append(d)
             continue
         if d.tier == "unspecified":
             flagged.append(d)
@@ -906,7 +1027,7 @@ def build_families(decls: list[Declaration]) -> tuple[list[FamilyResult], list[D
         comparable.setdefault((d.metric, d.tier), []).append(d)
 
     families = [FamilyResult(metric=m, tier=t, members=members) for (m, t), members in sorted(comparable.items())]
-    return families, flagged, unresolved
+    return families, flagged, unresolved, known_blind_spots
 
 
 # ---------------------------------------------------------------------------
@@ -914,7 +1035,9 @@ def build_families(decls: list[Declaration]) -> tuple[list[FamilyResult], list[D
 # ---------------------------------------------------------------------------
 
 
-def run(repo_root: Path) -> tuple[str, Report, list[FamilyResult], list[Declaration], list[Declaration]]:
+def run(
+    repo_root: Path,
+) -> tuple[str, Report, list[FamilyResult], list[Declaration], list[Declaration], list[Declaration]]:
     for name in SCAN_ROOT_NAMES:
         if not (repo_root / name).is_dir():
             raise GateError(f"scan root missing: {repo_root / name}")
@@ -938,7 +1061,7 @@ def run(repo_root: Path) -> tuple[str, Report, list[FamilyResult], list[Declarat
             "(anti-vacuous-truth: this is a gate error, not '0 violations')"
         )
 
-    families, flagged, unresolved = build_families(report.declarations)
+    families, flagged, unresolved, known_blind_spots = build_families(report.declarations)
 
     state = "clean"
     if report.parse_errors:
@@ -947,7 +1070,7 @@ def run(repo_root: Path) -> tuple[str, Report, list[FamilyResult], list[Declarat
         if not fam.is_consistent:
             state = "violation"
 
-    return state, report, families, flagged, unresolved
+    return state, report, families, flagged, unresolved, known_blind_spots
 
 
 def _print_report(
@@ -956,6 +1079,7 @@ def _print_report(
     families: list[FamilyResult],
     flagged: list[Declaration],
     unresolved: list[Declaration],
+    known_blind_spots: list[Declaration],
     repo_root: Path,
 ) -> None:
     print(f"Repo root: {repo_root}")
@@ -966,7 +1090,8 @@ def _print_report(
         f"Comparable families: {len(families)} "
         f"(members: {sum(len(f.members) for f in families)}). "
         f"Flagged low-confidence/unspecified-tier: {len(flagged)}. "
-        f"Unresolved (non-literal) values: {len(unresolved)}."
+        f"Unresolved (non-literal) values: {len(unresolved)}. "
+        f"Known blind spots (reviewed, excluded from comparison): {len(known_blind_spots)}."
     )
 
     if report.parse_errors:
@@ -997,13 +1122,26 @@ def _print_report(
         for d in unresolved:
             print(f"  {d.site}: {d.raw}")
 
+    if known_blind_spots:
+        print(
+            f"\n=== KNOWN BLIND SPOTS (tier misclassification, human-reviewed "
+            f"2026-07-29, excluded from comparison): {len(known_blind_spots)} ==="
+        )
+        for d in known_blind_spots:
+            print(
+                f"  {d.site}: metric={d.metric} tier={d.tier} value={d.value_mm}mm -- "
+                "own value is an intra-class routing spacing, not the barrier-crossing "
+                "figure its 'because' text mentions; see KNOWN_TIER_MISCLASSIFICATIONS "
+                "in this gate's source"
+            )
+
     gh = get_github_summary_path()
     if state == "clean":
         msg = (
             f"PASSED -- {len(report.declarations)} declaration(s) discovered across "
             f"{report.files_scanned} file(s); {len(families)} comparable famil(y/ies), "
             f"0 mismatched. {len(flagged)} flagged for human classification, "
-            f"{len(unresolved)} unresolved."
+            f"{len(unresolved)} unresolved, {len(known_blind_spots)} known blind spot(s)."
         )
         print(f"\n{msg}")
         if gh:
@@ -1030,7 +1168,7 @@ def main() -> None:
     repo_root = args.repo_root or find_repo_root()
 
     try:
-        state, report, families, flagged, unresolved = run(repo_root)
+        state, report, families, flagged, unresolved, known_blind_spots = run(repo_root)
     except GateError as exc:
         print("=== CREEPAGE/CLEARANCE DRIFT GATE ERROR ===", file=sys.stderr)
         print(f"Reason: {exc}", file=sys.stderr)
@@ -1045,7 +1183,7 @@ def main() -> None:
                 f.write(f"### Creepage/Clearance Drift Gate -- GATE ERROR\n{exc}\n")
         sys.exit(EXIT_GATE_ERROR)
 
-    _print_report(state, report, families, flagged, unresolved, repo_root)
+    _print_report(state, report, families, flagged, unresolved, known_blind_spots, repo_root)
 
     sys.exit(EXIT_OK if state == "clean" else EXIT_VIOLATION)
 
