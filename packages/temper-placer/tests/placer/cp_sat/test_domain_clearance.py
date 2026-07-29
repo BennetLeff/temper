@@ -67,10 +67,13 @@ class TestGeneratorNotVacuous:
         placement, voltage_domains = self._two_domain_placement()
         constraints = generate_domain_clearance_constraints(placement, voltage_domains)
         [c] = [c for c in constraints if {c.a, c.b} == {"F1", "J1"}]
-        # MAINS<->LV_CONTROL: basic (3.0/4.0) and reinforced (6.0/8.0) both
+        # MAINS<->LV_CONTROL: basic (3.0/5.0) and reinforced (6.0/10.0) both
         # apply; the stricter (max of clearance/creepage across both rows)
-        # must win.
-        assert c.min_distance_mm == 8.0
+        # must win. Creepage figures are the IEC 60335-1 Table 16 400V row
+        # (MAINS's own working voltage, 340V peak/transient, is >300V and
+        # the table is not interpolated) -- see
+        # docs/evidence/2026-07-30-creepage-requirement-reconciliation.md.
+        assert c.min_distance_mm == 10.0
         assert c.tier == ConstraintTier.HARD
         assert c.id == "domain_clearance_F1_J1"
 
@@ -180,14 +183,16 @@ class TestChebyshevSoundnessBMC:
         # Bounded N: three courtyard half-size pairs (covering degenerate
         # 0-size point components, small, and asymmetric footprints), full
         # integer-mm offset sweep over a window comfortably larger than
-        # every IEC60335_REQUIREMENTS margin (up to 8.0mm), at two margins
-        # spanning the matrix's actual values.
+        # every IEC60335_REQUIREMENTS margin (up to 10.0mm -- corrected from
+        # 8.0mm, see
+        # docs/evidence/2026-07-30-creepage-requirement-reconciliation.md),
+        # at margins spanning the matrix's actual values.
         half_size_pairs = [
             ((0.0, 0.0), (0.0, 0.0)),
             ((0.5, 0.5), (1.0, 0.5)),
             ((1.5, 2.0), (0.75, 0.75)),
         ]
-        margins = [1.0, 3.0, 4.0, 6.0, 8.0]
+        margins = [1.0, 3.0, 4.0, 5.0, 6.0, 8.0, 10.0]
         offsets = range(-12, 13)  # -12mm..+12mm inclusive, 1mm steps
 
         checked = 0
@@ -347,7 +352,12 @@ class TestRealBoardTP3Coverage:
         """The DRC finding this session investigated was specifically
         TP3<->U7 (kicad-cli: HighVoltage netclass, 2.0mm required, 0.336mm
         actual). Confirm the generator emits a constraint for this pair at
-        the DC_BUS<->LV_CONTROL margin (8.0mm).
+        the DC_BUS<->LV_CONTROL margin (10.0mm -- corrected from 8.0mm, see
+        docs/evidence/2026-07-30-creepage-requirement-reconciliation.md:
+        DC_BUS's working voltage, peak/transient 400V, is >300V, and IEC
+        60335-1 Table 16 is not interpolated, so the 400V row (reinforced
+        creepage 10.0mm) applies, not the 300V row (8.0mm) this test
+        previously checked against).
 
         U7 genuinely straddles domains (it carries `gnd`/`+3V3` -- both
         LV_CONTROL -- *and* `DC_BUS_RTN`, i.e. it is a level-shifting gate
@@ -357,15 +367,15 @@ class TestRealBoardTP3Coverage:
         rather than a canonicalized/unordered one, the same physical
         TP3/U7 pair can be emitted under two different keys when it
         matches rows from different domain groupings with reversed
-        ref order -- here, ``domain_clearance_U7_TP3`` (8.0mm, from the
+        ref order -- here, ``domain_clearance_U7_TP3`` (10.0mm, from the
         DC_BUS<->LV_CONTROL cross-domain rows, where U7 is drawn from the
         DC_BUS group) *and* ``domain_clearance_TP3_U7`` (1.0mm, from the
         LV_CONTROL<->LV_CONTROL functional same-domain row, where both are
         drawn from the LV_CONTROL group and happen to be visited in that
-        order). This does not lose safety margin -- the stricter 8.0mm
+        order). This does not lose safety margin -- the stricter 10.0mm
         constraint is still emitted and still audited under its own id --
         so this test checks that the *strictest* margin among any
-        constraint touching this unordered pair is the expected 8.0mm,
+        constraint touching this unordered pair is the expected 10.0mm,
         rather than assuming a single key.
         """
         placement, voltage_domains, _stats = self._load()
@@ -376,7 +386,7 @@ class TestRealBoardTP3Coverage:
             "either TP3's net is unclassified again, or U7 no longer "
             "carries a DC_BUS-domain net (DC_BUS_RTN)."
         )
-        # DC_BUS<->LV_CONTROL: max across basic (3.0/4.0) and reinforced
-        # (6.0/8.0) rows is 8.0mm. This must appear among the (possibly
+        # DC_BUS<->LV_CONTROL: max across basic (3.0/5.0) and reinforced
+        # (6.0/10.0) rows is 10.0mm. This must appear among the (possibly
         # multiple, see docstring) constraints for this pair.
-        assert max(c.min_distance_mm for c in matches) == 8.0
+        assert max(c.min_distance_mm for c in matches) == 10.0
