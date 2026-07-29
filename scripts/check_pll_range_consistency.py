@@ -43,9 +43,10 @@ Also from ``main.ato``, the five physical quantities the derived ZVS floor
 ``F``/``uF``/``nF``/``pF``), ``l_pan_loaded_ratio``, ``l_tank_tolerance``
 and ``c_tank_tolerance`` (the last three ``dimensionless``).
 
-Tank capacitance (``elec/src/modules.ato``): ``c_tank1.value`` and
-``c_tank2.value``, summed (they are in parallel). Read ONLY to cross-check
-``main.ato``'s ``c_tank_total`` mirror -- see check 6.
+Tank capacitance (``elec/src/modules.ato``): ``c_tank1.value``,
+``c_tank2.value`` and ``c_tank3.value``, summed (they are in parallel).
+Read ONLY to cross-check ``main.ato``'s ``c_tank_total`` mirror -- see
+check 6.
 
 Tank coil inductance (``elec/src/modules.ato``): ``inductor_conn.value``,
 the ``ResonantTank`` coil. Read ONLY to cross-check ``main.ato``'s
@@ -171,10 +172,10 @@ Checks performed (all eight must pass)
 5. ``PLL_MIN_FREQ_HZ`` >= ``ZVS_MARGIN_MIN`` x the worst-case loaded
    resonance derived from main.ato's L, C, coupling ratio and BOTH the
    coil and capacitor tolerances (the derived ZVS floor, above)
-6. ``c_tank_total`` (main.ato) == ``c_tank1.value + c_tank2.value``
-   (modules.ato) -- the derived floor is only as trustworthy as the
-   capacitance it is derived from, and main.ato's declaration is a mirror
-   of the two physical parts
+6. ``c_tank_total`` (main.ato) == ``c_tank1.value + c_tank2.value +
+   c_tank3.value`` (modules.ato) -- the derived floor is only as
+   trustworthy as the capacitance it is derived from, and main.ato's
+   declaration is a mirror of the physical parts
 7. ``l_tank_assumed`` (main.ato) == ``inductor_conn.value`` (modules.ato)
    -- same argument, for the inductance half of the same resonance
 8. The ``L_loaded >= <value> uH`` acceptance threshold written in
@@ -252,9 +253,11 @@ ATO_PHYSICS_NAMES = {
     "c_tank_tolerance": "dimensionless",
 }
 
-# The two parallel tank capacitors, read from modules.ato purely to
-# cross-check main.ato's c_tank_total mirror (check 6).
-MODULES_CAPACITOR_NAMES = ("c_tank1", "c_tank2")
+# The parallel tank capacitors, read from modules.ato purely to
+# cross-check main.ato's c_tank_total mirror (check 6). 2026-07-29: bank
+# widened 2 -> 3 (WIMA FKP 1 -> CDE 942C16P1K-F re-source, PR #410) --
+# c_tank3 added alongside c_tank1/c_tank2.
+MODULES_CAPACITOR_NAMES = ("c_tank1", "c_tank2", "c_tank3")
 
 # The tank coil, read from modules.ato purely to cross-check main.ato's
 # l_tank_assumed mirror (check 7).
@@ -449,7 +452,8 @@ def parse_ato_physics(path: Path) -> dict[str, DiscoveredQuantity]:
 
 
 def parse_modules_tank_capacitors(path: Path) -> dict[str, DiscoveredQuantity]:
-    """Parse ``c_tank1.value``/``c_tank2.value`` from modules.ato (farads)."""
+    """Parse ``c_tank1.value``/``c_tank2.value``/``c_tank3.value`` from
+    modules.ato (farads)."""
     if not path.is_file():
         raise GateError(f"modules.ato not found: {path}")
 

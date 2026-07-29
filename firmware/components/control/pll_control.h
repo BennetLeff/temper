@@ -22,7 +22,11 @@ extern "C" {
  * PLL_MIN_FREQ_HZ RAISED 30000 -> 42000 on 2026-07-29
  * (docs/evidence/2026-07-29-pll-floor-above-resonance.md), then
  * 42000 -> 43000 later the same day
- * (docs/evidence/2026-07-29-pll-floor-cap-tolerance.md).
+ * (docs/evidence/2026-07-29-pll-floor-cap-tolerance.md), then
+ * 43000 -> 44000 later still the same day, when PR #410 re-sourced
+ * elec/src/modules.ato's c_tank1/c_tank2 from WIMA FKP 1 (+/-5%) to CDE
+ * 942C16P1K-F (+/-10%) and added a third parallel capacitor, c_tank3,
+ * raising elec/src/main.ato's c_tank_tolerance 0.05 -> 0.10.
  *
  * THIS FLOOR IS NOT A TUNING CONSTANT; IT IS A SAFETY BOUND, AND IT IS
  * MACHINE-DERIVED. scripts/check_pll_range_consistency.py recomputes the
@@ -46,24 +50,31 @@ extern "C" {
  * power-seeking outer loop can settle there and every power reading looks
  * correct.
  *
- * Derivation, worst-casing BOTH tank components (arithmetic in the
- * evidence doc):
+ * Derivation, worst-casing BOTH tank components (arithmetic in
+ * docs/evidence/2026-07-29-pll-floor-cap-tolerance.md, updated for the
+ * CDE re-source):
  *   L_loaded(worst case) = 88uH * (1 - 0.10) * 0.68       = 53.856uH
- *   C(worst case)        = 300nF * (1 - 0.05)             = 285nF
- *   f_res,loaded         = 1/(2*pi*sqrt(53.856uH*285nF))  = 40.624kHz
- *   required floor       = 1.05 * 40.624kHz               = 42.655kHz
- *   PLL_MIN_FREQ_HZ      = 43000  -> smallest round kHz above the floor
+ *   C(worst case)        = 300nF * (1 - 0.10)             = 270nF
+ *   f_res,loaded         = 1/(2*pi*sqrt(53.856uH*270nF))  = 41.737kHz
+ *   required floor       = 1.05 * 41.737kHz               = 43.824kHz
+ *   PLL_MIN_FREQ_HZ      = 44000  -> smallest round kHz above the floor
  * Keyed off MINIMUM coil L *and* MINIMUM capacitance C, not nominal:
  * f_res ~ 1/sqrt(L*C), so a low-tolerance part on EITHER side resonates
  * higher and needs the highest floor. Until 2026-07-29 this gate
  * worst-cased L only and took C at nominal (300nF), which derived a
  * floor of only 41.575kHz -- correct FOR L alone, but silently assuming
- * a 0%-tolerance capacitor while c_tank1/c_tank2 (elec/src/modules.ato,
- * MPN FKP1T031507G00JSSD, WIMA FKP 1) are actually +/-5% parts per
- * WIMA's own ordering table. A capacitor 5% low raises f_res enough
- * (39.595kHz -> 40.624kHz at this L) that the un-corrected 42000 floor
- * would have sat only 345Hz above a real worst-case unit -- inside the
- * kind of margin a single rounding choice could have erased.
+ * a 0%-tolerance capacitor. c_tank1/c_tank2/c_tank3 (elec/src/modules.ato,
+ * MPN 942C16P1K-F, CDE Type 942C) are +/-10% parts -- confirmed from TWO
+ * independent primary sources: CDE's own catalog (942C.pdf, catalog p.1
+ * Specifications table: "Capacitance Tolerance: +/-10% (K) Standard;
+ * +/-5% (J) Optional"; p.2 Part Numbering System diagram maps the `K` in
+ * this MPN to the tolerance field directly) and DigiKey's distributor
+ * listing for this exact part (product 1929475: "Tolerance: +/-10%").
+ * (The WIMA FKP 1 part this replaces was +/-5% per its own ordering
+ * table -- see git history for that decode.) A capacitor 10% low raises
+ * f_res enough (39.595kHz -> 41.737kHz at this L) that a floor derived
+ * without honoring the real tolerance would sit dangerously close to a
+ * real worst-case unit.
  *
  * The L-only inputs were 150uH * 0.399 = 53.87uH -> floor 41.571kHz until
  * 2026-07-29, when the coil was actually specified (88uH +/-10%) and the
@@ -72,9 +83,9 @@ extern "C" {
  * tank-coil-specification.md.
  *
  * WHAT THIS FLOOR REQUIRES OF A DELIVERED COIL: inverting the derivation
- * (now against worst-case C too), 43000/1.05 = 40952.4Hz is the highest
+ * (now against worst-case C too), 44000/1.05 = 41904.8Hz is the highest
  * loaded resonance this floor still guards, i.e. L_loaded must be >=
- * 53.00uH as MEASURED WITH A PAN (against C_worst = 285nF). A coil that
+ * 53.43uH as MEASURED WITH A PAN (against C_worst = 270nF). A coil that
  * is -10% on inductance and only meets the commonly-quoted
  * "L_loaded >= 0.60 x L_unloaded" screen lands at 47.5uH and resonates at
  * 42.15kHz -- above this floor. The CI gate cannot see that (it treats
@@ -86,14 +97,11 @@ extern "C" {
  * Cost, stated: for a series-resonant inverter lower frequency means MORE
  * power, so raising the floor lowers maximum deliverable power. 1800W is
  * unaffected (it lands at 47.1kHz nominal; the ZVS margin there against
- * the worst-case-C loaded resonance is 1.157x, comfortably above the
+ * the worst-case-C loaded resonance is 1.126x, comfortably above the
  * 1.05 cliff). PLL_MAX_FREQ_HZ was deliberately NOT widened to
- * compensate. If HELD PR #410 (re-source c_tank1/c_tank2 to CDE
- * 942C16P1K-F, +/-10%) merges, c_tank_tolerance becomes 0.10 and this
- * gate will fail again until PLL_MIN_FREQ_HZ is re-raised to ~44000 --
- * that is expected, not a regression to silently work around.
+ * compensate.
  */
-#define PLL_MIN_FREQ_HZ     43000   /**< Minimum switching frequency: derived ZVS floor, 1.05x worst-case loaded resonance (worst-case L AND C). See block comment. */
+#define PLL_MIN_FREQ_HZ     44000   /**< Minimum switching frequency: derived ZVS floor, 1.05x worst-case loaded resonance (worst-case L AND C). See block comment. */
 #define PLL_MAX_FREQ_HZ     50000   /**< Maximum switching frequency */
 /**
  * @brief Default startup frequency.
