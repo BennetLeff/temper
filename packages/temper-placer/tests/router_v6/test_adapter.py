@@ -1573,3 +1573,80 @@ class TestAllowForcedSegmentsGate:
         assert result.routed_paths["SPI_CLK"].forced_segment_count == 0, (
             "A legally-routed net must not carry a forced segment"
         )
+
+
+# ============================================================================
+# R4 (U7) — GateDrive splits into GateDriveHV/GateDriveSELV
+# ============================================================================
+
+
+class TestGateDriveSplitSeenAsHVNotLV:
+    """R4/U7: GATE_HS/GATE_LS sit on the HV (switching) side of U7's
+    reinforced barrier and must convert through to the router as
+    ``safety_category == "HV"``, not "LV". Leaving the HV-side class "LV"
+    reproduces the exact failure the split exists to fix, one file deeper
+    than the four generated surfaces reach (docs/plans/
+    2026-07-28-003-refactor-ato-net-classification-ssot-plan.md U7).
+    """
+
+    def test_gatedrive_hv_class_converts_to_stage0_as_hv(self):
+        """The real production GateDriveHV class -- not a synthetic
+        fixture -- must survive ``_to_stage0_netclass_rules`` as "HV"."""
+        from temper_placer.core.design_rules import TEMPER_NET_CLASSES
+
+        core_rules = TEMPER_NET_CLASSES["GateDriveHV"]
+        stage0 = _to_stage0_netclass_rules(core_rules)
+        assert stage0.safety_category == "HV"
+        assert stage0.safety_category != "LV"
+
+    def test_gatedrive_selv_class_converts_to_stage0_as_lv(self):
+        """The SELV-side (MCU/PWM) half keeps 'LV' -- there is no separate
+        SELV value in the safety_category vocabulary (HV/LV/AC/iso)."""
+        from temper_placer.core.design_rules import TEMPER_NET_CLASSES
+
+        core_rules = TEMPER_NET_CLASSES["GateDriveSELV"]
+        stage0 = _to_stage0_netclass_rules(core_rules)
+        assert stage0.safety_category == "LV"
+
+    def test_gatedrive_hv_outranks_gatedrive_selv_in_bottleneck_geometry(self):
+        """The forced-segment/bottleneck discount ranks by safety_category
+        (router_v6.bottleneck_geometry._SAFETY_RANK); GateDriveHV must now
+        rank as HV (2), strictly above GateDriveSELV's LV (1) -- before the
+        split both ranked identically as LV(1), which is the defect this
+        unit fixes."""
+        from temper_placer.core.design_rules import TEMPER_NET_CLASSES
+        from temper_placer.router_v6.bottleneck_geometry import _SAFETY_RANK
+
+        hv_rank = _SAFETY_RANK[TEMPER_NET_CLASSES["GateDriveHV"].safety_category]
+        selv_rank = _SAFETY_RANK[TEMPER_NET_CLASSES["GateDriveSELV"].safety_category]
+        assert hv_rank > selv_rank
+
+    def test_gate_hs_and_gate_ls_resolve_through_the_full_chain_to_hv(self):
+        """End-to-end: the real net name -> assignment table -> class table
+        -> stage0 conversion chain used by the router must resolve GATE_HS
+        and GATE_LS to safety_category "HV"."""
+        from temper_placer.core.design_rules import (
+            TEMPER_NET_ASSIGNMENTS,
+            TEMPER_NET_CLASSES,
+        )
+
+        for net_name in ("GATE_HS", "GATE_LS"):
+            class_name = TEMPER_NET_ASSIGNMENTS[net_name]
+            stage0 = _to_stage0_netclass_rules(TEMPER_NET_CLASSES[class_name])
+            assert stage0.safety_category == "HV", (
+                f"{net_name} (class {class_name!r}) must resolve to HV, not "
+                f"{stage0.safety_category!r}"
+            )
+
+    def test_pwm_hs_and_pwm_ls_resolve_through_the_full_chain_to_lv(self):
+        """Same chain for the SELV-side names -- must not accidentally
+        become HV in the split."""
+        from temper_placer.core.design_rules import (
+            TEMPER_NET_ASSIGNMENTS,
+            TEMPER_NET_CLASSES,
+        )
+
+        for net_name in ("PWM_HS", "PWM_LS"):
+            class_name = TEMPER_NET_ASSIGNMENTS[net_name]
+            stage0 = _to_stage0_netclass_rules(TEMPER_NET_CLASSES[class_name])
+            assert stage0.safety_category == "LV"

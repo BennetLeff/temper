@@ -129,13 +129,18 @@ class TestTemperNetClasses:
     """Tests for Temper-specific net class definitions."""
 
     def test_all_expected_classes_defined(self):
-        """Test that all 9 expected net classes are defined."""
+        """Test that all 10 expected net classes are defined.
+
+        10, not 9: GateDrive split into GateDriveHV/GateDriveSELV
+        2026-07-28 (R4) -- see the split-class comment in TEMPER_NET_CLASSES.
+        """
         expected = [
             "ACMains",
             "HighVoltage",
             "FinePitch",
             "Power",
-            "GateDrive",
+            "GateDriveHV",
+            "GateDriveSELV",
             "GND",
             "HighSpeed",
             "Signal",
@@ -172,7 +177,13 @@ class TestCreateTemperDesignRules:
         """Test that factory creates valid design rules."""
         rules = create_temper_design_rules()
         assert isinstance(rules, DesignRules)
-        assert len(rules.net_classes) == 9
+        # 11, not 10: HighVoltageIsolated (added 2026-07-28, docs/evidence/
+        # 2026-07-28-netclass-defect-reconciliation.md) brought
+        # TEMPER_NET_CLASSES into parity with pcb/temper.kicad_pro and
+        # packages/temper-placer/configs/netclass_rules.yaml, both of which
+        # already had it (9 -> 10). GateDrive then split into
+        # GateDriveHV/GateDriveSELV, also 2026-07-28 (R4), 10 -> 11.
+        assert len(rules.net_classes) == 11
 
     def test_rules_are_independent(self):
         """Test that factory creates independent instances."""

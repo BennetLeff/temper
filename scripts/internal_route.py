@@ -688,7 +688,15 @@ def main():
             if not result.success:
                 continue
 
-            is_target = design_rules._net_to_class.get(net_name, "Default") in ["Power", "HighCurrent", "GateDrive"]
+            # "GateDrive" split into "GateDriveHV"/"GateDriveSELV" 2026-07-28
+            # (R4) -- both must be listed or GATE_*/PWM_* nets silently stop
+            # getting the ballooning treatment this list grants them.
+            is_target = design_rules._net_to_class.get(net_name, "Default") in [
+                "Power",
+                "HighCurrent",
+                "GateDriveHV",
+                "GateDriveSELV",
+            ]
             if is_target:
                 target_nets.append(net_name)
 
