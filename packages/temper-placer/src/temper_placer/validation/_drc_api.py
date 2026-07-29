@@ -103,6 +103,36 @@ def is_kicad_cli_available() -> bool:
     return shutil.which("kicad-cli") is not None
 
 
+def get_kicad_cli_version() -> str | None:
+    """
+    Return the running ``kicad-cli`` version string (e.g. ``"10.0.4"``),
+    or ``None`` if the binary is unavailable or its version can't be read.
+
+    This exists so a DRC ratchet result can compare "what actually measured
+    this run" against a ceiling's recorded provenance -- kicad-cli's DRC
+    engine changes behavior across versions (see
+    docs/evidence/2026-07-27-drc-truth-gate-discrepancy.md), so silently
+    measuring with a different binary than the one the ceiling was
+    calibrated against is a real, previously-unflagged source of
+    irreproducibility, not just a hypothetical one.
+    """
+    if not is_kicad_cli_available():
+        return None
+    try:
+        result = subprocess.run(
+            ["kicad-cli", "version"],
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+    except (subprocess.SubprocessError, OSError):
+        return None
+    if result.returncode != 0:
+        return None
+    version = result.stdout.strip()
+    return version or None
+
+
 def _get_drc_json_path(pcb_path: Path) -> Path:
     """
     Get the path where DRC JSON output will be written.
