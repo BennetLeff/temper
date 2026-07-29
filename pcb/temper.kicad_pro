@@ -377,9 +377,10 @@
       "GATE_L": "GateDrive",
       "GATE_HS": "GateDrive",
       "GATE_LS": "GateDrive",
-      "+15V_LS": "Power",
+      "+15V_LS": "HighVoltage",
       "hb.gate_hs.driver-p1-1": "HighVoltageIsolated",
-      "hb.gate_hs.driver-p2": "HighVoltageIsolated"
+      "hb.gate_hs.driver-p2": "HighVoltageIsolated",
+      "a": "HighVoltage"
     },
     "netclass_patterns": [
       {

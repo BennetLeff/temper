@@ -447,6 +447,27 @@ TEMPER_NET_ASSIGNMENTS = {
     "DC_BUS+": "HighVoltage",
     "DC_BUS-": "HighVoltage",
     "SW_NODE": "HighVoltage",
+    # FIXED 2026-07-28 (docs/evidence/2026-07-28-netclass-defect-reconciliation.md):
+    # "+15V_LS" was misclassified below under "Power" despite
+    # elec/domain_manifest.yaml declaring it an HV-domain net ("low-side
+    # gate-driver rail; referenced to DC_BUS_RTN, not gnd -- floats within
+    # the HV domain, not SELV") -- an HV-domain net was being held to LV
+    # separation rules, and inflated the creepage violation count with 3
+    # false positives (HV-to-LV/HighVoltageIsolated-to-LV rules tripping on
+    # a same-domain pair). Moved here to match the manifest, not the name.
+    "+15V_LS": "HighVoltage",
+    # ADDED 2026-07-28, same evidence doc. "a" (U3's own primary/LED-anode
+    # net, between the ZCD divider tap and the H11L1 opto's series
+    # resistor -- elec/build/default.net net 24, U3 pin 1 <-> R9 pin 2) was
+    # entirely absent from this table, so it fell through to the
+    # unclassified "Default" class and no HV-to-LV creepage rule ever saw
+    # U3's real primary/secondary isolator crossing (the same 14.058mm slot
+    # this project fitted for it). elec/domain_manifest.yaml declares it
+    # HV-domain ("still entirely HV-side"). This closes that coverage gap;
+    # it does not touch the isolator declaration itself
+    # (elec/domain_manifest.yaml's own `power_in.zcd_opto` entry already
+    # correctly separates this pin from the SELV-side VO/GND/VCC group).
+    "a": "HighVoltage",
     # FinePitch - U8 SSOP-20 (0.635mm) + RTD SPI peripherals
     "sclk": "FinePitch",
     "sdi": "FinePitch",
@@ -472,7 +493,6 @@ TEMPER_NET_ASSIGNMENTS = {
     "PWM_L": "GateDrive",
     # Power - DC supply rails
     "+15V": "Power",
-    "+15V_LS": "Power",
     "+3V3": "Power",
     "vcc": "Power",
     "V_BUS_SENSE": "Power",
