@@ -159,34 +159,43 @@ class TestRequirementMatrix:
     @pytest.mark.parametrize(
         "domain_a,domain_b,insulation_type,expected_clearance,expected_creepage,expected_design",
         [
-            # Mains to SELV (LV_CONTROL)
-            (VoltageDomain.MAINS, VoltageDomain.LV_CONTROL, InsulationType.BASIC, 3.0, 4.0, 6.0),
+            # Mains to SELV (LV_CONTROL). Creepage/design figures are the
+            # IEC 60335-1 Table 16 400V row (PD2, Material Group IIIb), not
+            # the 300V row: MAINS's own peak/transient working voltage is
+            # 340V (docs/specs/HIGH_VOLTAGE_CLEARANCE_SPEC.md Sec 2.1), and
+            # IEC 60664/60335 tables round a working voltage up to the next
+            # tabulated row rather than interpolating. See
+            # docs/evidence/2026-07-30-creepage-requirement-reconciliation.md.
+            (VoltageDomain.MAINS, VoltageDomain.LV_CONTROL, InsulationType.BASIC, 3.0, 5.0, 7.0),
             (
                 VoltageDomain.MAINS,
                 VoltageDomain.LV_CONTROL,
                 InsulationType.REINFORCED,
                 6.0,
-                8.0,
                 10.0,
+                12.0,
             ),
-            # DC Bus to Control
-            (VoltageDomain.DC_BUS, VoltageDomain.LV_CONTROL, InsulationType.BASIC, 3.0, 4.0, 6.0),
+            # DC Bus to Control. Same 400V-row basis: DC_BUS's peak/transient
+            # working voltage is 400V (spec Sec 2.1).
+            (VoltageDomain.DC_BUS, VoltageDomain.LV_CONTROL, InsulationType.BASIC, 3.0, 5.0, 7.0),
             (
                 VoltageDomain.DC_BUS,
                 VoltageDomain.LV_CONTROL,
                 InsulationType.REINFORCED,
                 6.0,
-                8.0,
                 10.0,
+                12.0,
             ),
-            # Across Isolation Barrier
+            # Across Isolation Barrier. Gate Drive Isolated's peak-to-earth
+            # working voltage is 355V (spec Sec 2.1) -- also rounds up to the
+            # 400V row.
             (
                 VoltageDomain.MAINS,
                 VoltageDomain.ISOLATED,
                 InsulationType.REINFORCED,
                 6.0,
-                8.0,
                 10.0,
+                12.0,
             ),
             # Within LV Domain
             (

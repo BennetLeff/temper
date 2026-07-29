@@ -140,11 +140,22 @@ Based on IEC 60335-1 Table 16, Pollution Degree 2, Material Group IIIb:
 | 300 | 4.0 | 8.0 | 10.0 |
 | 400 | 5.0 | 10.0 | 12.0 |
 
+**No interpolation between rows.** IEC 60664-1/60335-1 clearance and creepage
+tables are not interpolated: a working voltage that falls between two
+tabulated rows takes the *next row up*, never a value in between. Every
+boundary below whose working voltage exceeds 300V (all three: 340V, 355V,
+400V) therefore reads off the **400V** row, not the 300V row, even though
+none of them equal 400V exactly. See
+`docs/evidence/2026-07-30-creepage-requirement-reconciliation.md` for the
+full derivation -- this table's own §5.2 previously mis-read the AC Mains
+row against the 300V row despite 340V being the same >300V case as DC Bus
+and Gate Iso below, which is corrected here.
+
 ### 5.2 Design Creepage
 
 | Boundary | Insulation | Working V | Min Required | Design Value |
 |----------|------------|-----------|--------------|--------------|
-| AC Mains to SELV | Reinforced | 340V pk | 8.0mm | 10.0mm |
+| AC Mains to SELV | Reinforced | 340V pk | 10.0mm | 12.0mm |
 | DC Bus to SELV | Reinforced | 400V pk | 10.0mm | 12.0mm |
 | Across UCC21550 | Reinforced | 400V | 10.0mm | Per device spec |
 | IGBT tab to LV trace | Reinforced | 400V | 10.0mm | 12.0mm |
