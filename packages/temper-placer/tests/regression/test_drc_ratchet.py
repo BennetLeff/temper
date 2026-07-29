@@ -553,3 +553,156 @@ class TestPerTypeCeilingRaiseDetection:
         }
         result = ratchet.detect_ceiling_raise(old, new, commit_message="fix: lower ceiling")
         assert result is None
+
+
+class TestKicadCliVersionPin:
+    """`drc_ceiling.json` records the kicad-cli version a board was
+    measured with (``provenance.tool_versions.kicad-cli``), but nothing
+    previously compared it against the version actually running the gate --
+    a CI image bump or a different local install could silently measure
+    with a different DRC engine and the gate would never say so. See the
+    task's own falsifier: two patch versions (10.0.4 vs 10.0.5) were shown
+    to agree on this board within noise (docs/evidence/
+    2026-07-27-drc-truth-gate-discrepancy.md section 2), so a mismatch must
+    be reported loudly rather than hard-failing the whole gate -- but it
+    must never again go unmentioned.
+    """
+
+    @staticmethod
+    def _entry(tmp_path: Path, recorded_version: str | None, error_ceiling: int = 100):
+        board: dict = {
+            "board_id": "b",
+            "path": "pcb/b.kicad_pcb",
+            "error_ceiling": error_ceiling,
+            "warning_ceiling": 1000,
+        }
+        if recorded_version is not None:
+            board["provenance"] = {"tool_versions": {"kicad-cli": recorded_version}}
+        ceiling_path = tmp_path / "drc_ceiling.json"
+        ceiling_path.write_text(json.dumps({"boards": [board]}))
+        ratchet = DrcRatchet(ceiling_path, backend="kicad-cli")
+        ratchet.load()
+        return ratchet, ratchet.entries["b"]
+
+    def _check(self, tmp_path, recorded_version, running_version, monkeypatch, error_ceiling=100):
+        import temper_placer.validation._drc_api as drc_api
+
+        ratchet, entry = self._entry(tmp_path, recorded_version, error_ceiling)
+        result_obj = type("R", (), {"error_count": 0, "warning_count": 0, "errors": []})()
+        monkeypatch.setattr(drc_api, "run_drc", lambda _p: result_obj)
+        monkeypatch.setattr(drc_api, "get_kicad_cli_version", lambda: running_version)
+        pcb = tmp_path / "b.kicad_pcb"
+        pcb.write_text("(kicad_pcb)")
+        return ratchet._check_board("b", pcb, entry)
+
+    def test_loaded_entry_carries_recorded_version(self, tmp_path):
+        _ratchet, entry = self._entry(tmp_path, "10.0.4")
+        assert entry.tool_versions == {"kicad-cli": "10.0.4"}
+
+    def test_matching_version_is_silent(self, tmp_path, monkeypatch):
+        r = self._check(tmp_path, "10.0.4", "10.0.4", monkeypatch)
+        assert r.passed
+        assert not r.kicad_cli_version_mismatch
+        assert "mismatch" not in r.message.lower()
+
+    def test_mismatched_version_reported_prominently_on_pass(self, tmp_path, monkeypatch):
+        """Even a passing run must not silently measure with a different
+        engine than the one the ceiling was calibrated against."""
+        r = self._check(tmp_path, "10.0.4", "10.0.5", monkeypatch)
+        assert r.passed  # a version bump alone does not fail the gate
+        assert r.kicad_cli_version_mismatch
+        assert r.kicad_cli_version_running == "10.0.5"
+        assert r.kicad_cli_version_expected == "10.0.4"
+        assert "kicad-cli version mismatch" in r.message.lower()
+        assert "10.0.4" in r.message
+        assert "10.0.5" in r.message
+
+    def test_mismatched_version_reported_prominently_on_fail(self, tmp_path, monkeypatch):
+        """The mismatch note must also surface on a FAIL result -- not just
+        the pass path -- since a red gate is exactly when a reader most
+        needs to know the measuring instrument changed."""
+        r = self._check(tmp_path, "10.0.4", "10.0.5", monkeypatch, error_ceiling=-1)
+        assert not r.passed
+        assert r.kicad_cli_version_mismatch
+        assert "kicad-cli version mismatch" in r.message.lower()
+
+    def test_missing_recorded_version_does_not_fabricate_a_mismatch(self, tmp_path, monkeypatch):
+        """An older ceiling entry with no provenance block at all must not
+        be treated as a mismatch -- there is nothing to compare against."""
+        r = self._check(tmp_path, None, "10.0.5", monkeypatch)
+        assert r.passed
+        assert not r.kicad_cli_version_mismatch
+
+
+class TestCategorySourceLabeling:
+    """`violations_by_type`/`warnings_by_type` in the ceiling file, and the
+    per-type failures the ratchet reports at runtime, can come from
+    different DRC engines (kicad-cli's native rule checker vs.
+    ``temper_drc_rs``'s own safety checks, e.g. its ``creepage`` rule --
+    not a KiCad DRC violation type at all). Mixing them without saying
+    which produced which number lets a reader mistake one engine's finding
+    for the other's -- this is what closes that gap.
+    """
+
+    def test_ceiling_category_source_is_loaded(self, tmp_path):
+        ceiling_path = tmp_path / "drc_ceiling.json"
+        ceiling_path.write_text(
+            json.dumps(
+                {
+                    "boards": [
+                        {
+                            "board_id": "b",
+                            "path": "pcb/b.kicad_pcb",
+                            "error_ceiling": 100,
+                            "warning_ceiling": 1000,
+                            "category_source": "kicad-cli",
+                            "violations_by_type": {"clearance": 10},
+                        }
+                    ]
+                }
+            )
+        )
+        ratchet = DrcRatchet(ceiling_path, backend="kicad-cli")
+        ratchet.load()
+        assert ratchet.entries["b"].category_source == "kicad-cli"
+
+    def test_category_failure_records_its_source(self, tmp_path, monkeypatch):
+        """Every DrcCategoryFailure produced by the kicad-cli backend must
+        say so -- it is the only backend that currently supplies a
+        per-type breakdown at all (see _run_rust_drc, which returns only
+        an aggregate (errors, warnings) tuple)."""
+        import temper_placer.validation._drc_api as drc_api
+
+        ceiling_path = tmp_path / "drc_ceiling.json"
+        ceiling_path.write_text(
+            json.dumps(
+                {
+                    "boards": [
+                        {
+                            "board_id": "b",
+                            "path": "pcb/b.kicad_pcb",
+                            "error_ceiling": 100,
+                            "warning_ceiling": 1000,
+                            "violations_by_type": {"clearance": 9},
+                        }
+                    ]
+                }
+            )
+        )
+        ratchet = DrcRatchet(ceiling_path, backend="kicad-cli")
+        ratchet.load()
+        entry = ratchet.entries["b"]
+
+        errors = [type("E", (), {"rule": "clearance"})() for _ in range(10)]
+        result_obj = type(
+            "R", (), {"error_count": len(errors), "warning_count": 0, "errors": errors}
+        )()
+        monkeypatch.setattr(drc_api, "run_drc", lambda _p: result_obj)
+        pcb = tmp_path / "b.kicad_pcb"
+        pcb.write_text("(kicad_pcb)")
+
+        r = ratchet._check_board("b", pcb, entry)
+        assert not r.passed
+        (failure,) = r.category_failures
+        assert failure.source == "kicad-cli"
+        assert "source: kicad-cli" in r.message

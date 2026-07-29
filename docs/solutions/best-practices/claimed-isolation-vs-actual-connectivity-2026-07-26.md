@@ -134,6 +134,39 @@ time, still running against a second, hand-maintained 10-net classification
 that had drifted from this gate's own 39-net manifest, invisible to
 `check_domain_partition.py` itself because it is a different check entirely.
 
+**Update, 2026-07-28: the same gap recurred one layer down — in copper, not
+netlist.** `check_domain_partition.py` answers "does the *compiled netlist*
+connect HV and SELV outside a declared isolator." It says nothing about
+whether the *board* keeps any physical distance between them. That distance
+requirement existed in exactly three places — `elec/domain_manifest.yaml`'s
+HV/SELV net lists, `main.ato`'s floated domain declarations, and
+`packages/temper-placer/configs/netclass_rules.yaml`'s clearance figures —
+and in zero copper. `scripts/check_isolation_keepout.py`
+(`docs/evidence/2026-07-28-isolation-keepout.md`) is the first check ever
+written against the board's actual pad geometry for this property, and it
+found the barrier does not exist: the board's 97 HV pads and 221 SELV pads
+(168 footprints total) are interleaved across **14 of 15** 10mm-wide
+vertical strips spanning the full board height, both domains' bounding boxes
+sit within ~1.5mm of every board edge, and **11 distinct HV/SELV component
+pairs are already closer than the required 8.0mm** today (nearest:
+`C17`↔`R32` at 2.115mm). No contiguous copper-free corridor can be drawn on
+the current placement without cutting through existing components of one
+domain or the other. The gate fails closed, correctly, with exit 3, on a
+genuinely examined 519 pads / 2,482 copper items — not a vacuous pass —
+because Task 1's own finding says a keepout cannot honestly be added yet.
+
+This is the same lesson as the netlist-level incident above, one level of
+representation further down: a domain-separation *declaration* is a claim
+about an artifact (the netlist there, the board here) until something
+actually walks that artifact and compares the two. Three human-reviewed
+documents agreeing with each other is not evidence the property holds in
+copper any more than a docstring agreeing with itself is evidence a
+star-point join doesn't bridge a barrier — both are single-representation
+consistency, and the isolation claim is a cross-representation one. See
+`docs/solutions/best-practices/sufficient-condition-infeasible-is-not-requirement-infeasible-2026-07-28.md`
+for what happened when this same board was then re-solved with the barrier
+as a hard placement constraint.
+
 ## Why This Matters
 
 This is not a hypothetical safety gap: a 4.2 kVAC-rated barrier is shorted,
@@ -195,6 +228,15 @@ for net_a, net_b in all_directly_connected_net_pairs():
 
 ## Related
 
+- `docs/evidence/2026-07-28-isolation-keepout.md` — the 2026-07-28 update
+  above: the physical/copper-level recurrence of this incident's shape,
+  the new `check_isolation_keepout.py` gate, and the honest FALSIFIED
+  result (barrier cannot be drawn on the current placement).
+- `docs/solutions/best-practices/sufficient-condition-infeasible-is-not-requirement-infeasible-2026-07-28.md`
+  — what followed when the barrier was re-tried as a hard CP-SAT placement
+  constraint: an INFEASIBLE result correctly proved a *stronger*,
+  corridor-shaped version of this requirement unsatisfiable, and was
+  initially over-read as proving the requirement itself unsatisfiable.
 - `docs/solutions/best-practices/net-name-is-a-claim-not-an-authority-2026-07-26.md`
   — same class of failure (a naming/documentation claim outranking the actual
   net graph in someone's reasoning), applied to a threshold instead of a
