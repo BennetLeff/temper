@@ -464,10 +464,10 @@ class TestClassificationUnits:
 class TestRealRepoIntegration:
     def test_real_repo_is_clean(self):
         """Against the real, current tree (jinja2/sympy declared, jax
-        precisely allowlisted for its two known files), the gate must
-        report clean with zero tool errors and zero violations -- proving
-        it isn't vacuous (files were actually inspected, imports actually
-        checked) while also not being a false-positive machine.
+        precisely allowlisted for its one remaining known file), the gate
+        must report clean with zero tool errors and zero violations --
+        proving it isn't vacuous (files were actually inspected, imports
+        actually checked) while also not being a false-positive machine.
         """
         from check_undeclared_imports import DEFAULT_ALLOWLIST_NAME, run
 
@@ -479,8 +479,16 @@ class TestRealRepoIntegration:
         assert state == "clean"
         assert report.files_inspected > 100
         assert report.import_statements_seen > 1000
-        # The two known, precisely-scoped jax entries are expected to be
-        # exercised every run -- if this drops to 0, either the files
-        # were removed/fixed (update the allowlist) or the scan stopped
-        # reaching them (investigate).
-        assert report.allowlisted_count == 2
+        # Only one precisely-scoped jax entry remains
+        # (jax::scripts/internal_route.py). The former second entry,
+        # jax::scripts/check_perf_regression.py, was deliberately removed
+        # in 64923d7d ("commit the 4/5 of the JAX retirement that never
+        # got staged") because that script was deleted by the JAX/
+        # benders_loop retirement -- an allowlist entry scoped to a file
+        # that no longer exists exempts nothing while reading as an open
+        # gap, so it was dropped rather than kept. This assertion was left
+        # asserting the pre-retirement count of 2 instead of being updated
+        # alongside that commit. If this drops to 0, either
+        # internal_route.py was fixed/retired too (update the allowlist)
+        # or the scan stopped reaching it (investigate).
+        assert report.allowlisted_count == 1
