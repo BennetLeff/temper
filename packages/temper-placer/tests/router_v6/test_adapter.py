@@ -514,6 +514,98 @@ class TestCrossClassZoneClearance:
             os.unlink(temp_path)
 
 
+class TestZonesReplacedNotAppended:
+    """U3 (R7): a board's stored zones must be replaced by the regenerated
+    set, not left to coexist alongside it. Without this, any (zone ...)
+    blocks already present in the incoming content (e.g. the 96 committed
+    on pcb/temper.kicad_pcb) survive untouched into the written output
+    alongside the newly emitted ones -- the board ends up carrying both a
+    stale pour and a regenerated pour for the same net, and the stale one
+    is never anything but stale carryover, never re-derived from what was
+    actually routed.
+    """
+
+    # A stale zone with a priority value and a coordinate pair that no real
+    # pad in these tests is anywhere near -- distinguishing markers that
+    # only a *carried-over* zone (never a freshly computed one) could emit.
+    _STALE_ZONE = (
+        '  (zone (net 1) (net_name "{net}") (layer "F.Cu") (hatch full 0.5)\n'
+        "    (priority 999)\n"
+        "    (connect_pads yes (clearance 6))\n"
+        "    (min_thickness 0.25)\n"
+        "    (fill yes (thermal_gap 0.5) (thermal_bridge_width 0.5))\n"
+        "    (polygon\n"
+        "      (pts\n"
+        "        (xy 999.0 999.0)\n"
+        "        (xy 999.5 999.0)\n"
+        "        (xy 999.5 999.5)\n"
+        "      )\n"
+        "    )\n"
+        "  )"
+    )
+
+    def _make_result(self, net_name: str):
+        from types import SimpleNamespace
+
+        from temper_placer.core.netlist import Component
+
+        mock_path = SimpleNamespace(path_length=0.0, coordinates=[])
+        compiled_routes = {
+            net_name: SimpleNamespace(path=mock_path, width_mm=0.1, vias=[]),
+        }
+        routing_results = SimpleNamespace(
+            compiled_routes=compiled_routes,
+            tree_routes={},
+            partial_tree_routes={},
+        )
+        stage4 = SimpleNamespace(routing_results=routing_results)
+        comp = Component(
+            ref="C1", footprint="0805", bounds=(2.0, 1.25), initial_position=(50.0, 50.0)
+        )
+        nets = [SimpleNamespace(name=net_name, pins=[("C1", "1")])]
+        pcb = SimpleNamespace(components=[comp], nets=nets)
+        return SimpleNamespace(stage4=stage4, pcb=pcb, enable_zone_pours=True)
+
+    def test_stale_zone_is_removed_not_appended_to(self):
+        from temper_placer.core.design_rules import DesignRules
+        from temper_placer.router_v6.adapter import _write_routes_to_content
+
+        result = self._make_result("vcc")  # "vcc" -> Power: zone-eligible
+        dr = DesignRules()
+        content = (
+            '(kicad_pcb (version 20240108) (net 1 "vcc")\n'
+            f"{self._STALE_ZONE.format(net='vcc')}\n"
+            ")"
+        )
+        output, _ = _write_routes_to_content(content, result, design_rules=dr)
+
+        # The stale zone's distinguishing markers must not survive.
+        assert "(priority 999)" not in output
+        assert "(xy 999.0 999.0)" not in output
+        # A regenerated zone for the same net must be present instead.
+        assert "(zone " in output
+        assert '(net_name "vcc")' in output
+
+    def test_no_zone_eligible_nets_still_drops_stale_zone(self):
+        """Even when this run computes no new pour geometry for any net
+        (here: a net whose class isn't zone-eligible), a stale zone
+        inherited from the input board must not survive -- R7 forbids
+        treating it as authoritative just because nothing replaced it.
+        """
+        from temper_placer.core.design_rules import DesignRules
+        from temper_placer.router_v6.adapter import _write_routes_to_content
+
+        result = self._make_result("sclk")  # FinePitch: not zone-eligible
+        dr = DesignRules()
+        content = (
+            '(kicad_pcb (version 20240108) (net 1 "sclk")\n'
+            f"{self._STALE_ZONE.format(net='sclk')}\n"
+            ")"
+        )
+        output, _ = _write_routes_to_content(content, result, design_rules=dr)
+        assert "(zone " not in output
+
+
 class TestPriorityInversion:
     """U2: verify dru_priority → KiCad (priority N) inversion in emitted s-expr."""
 
@@ -1236,6 +1328,14 @@ class TestHVACForcedSegmentFailClosed:
         assert "SW_NODE" not in result.routed_paths, (
             "HV-class net must not succeed via A*"
         )
+        # U1: _should_route's name-based exclusion is a routing-strategy
+        # decision, not a "declined net" in R3/R4's sense -- it must not
+        # produce a failure_reports entry (that would misrepresent a
+        # zone-pour-handled net as a prover decline).
+        assert "SW_NODE" not in (result.failure_reports or {}), (
+            "A net excluded by _should_route is not a decline and must not "
+            "appear in failure_reports"
+        )
 
     def test_ac_net_name_excluded_from_astar_by_should_route(self):
         """Canonical AC net names never reach A* at all (zone pours handle them)."""
@@ -1280,6 +1380,10 @@ class TestHVACForcedSegmentFailClosed:
 
         # AC net is excluded from A* routing by _should_route (handled by zone pours)
         assert "AC_L" not in result.routed_paths
+        assert "AC_L" not in (result.failure_reports or {}), (
+            "A net excluded by _should_route is not a decline and must not "
+            "appear in failure_reports"
+        )
 
     def test_hv_class_net_with_routable_name_fails_closed_via_gate(self):
         """An HV-class net whose *name* doesn't match the HV exclusion patterns
@@ -1334,6 +1438,27 @@ class TestHVACForcedSegmentFailClosed:
             "gate -- not _should_route()'s name exclusion -- caused this"
         )
 
+        # U1: reason attribution -- this is the forced-segment fail-closed
+        # gate specifically, not an unattributed gap.
+        from temper_placer.router_v6._astar_reconstruct import (
+            RULE_ID_FORCED_SEGMENT_FAIL_CLOSED,
+        )
+        from temper_placer.router_v6.net_classification import classify_net_type
+
+        report = result.failure_reports["ISO_FB_HIGH"]
+        assert report.rule_id == RULE_ID_FORCED_SEGMENT_FAIL_CLOSED, (
+            "Forced-segment refusal must name the specific fail-closed "
+            "mechanism, not a fabricated or generic reason"
+        )
+        assert report.attribution_gap is False, (
+            "A named rule_id and attribution_gap=True is a contradiction -- "
+            "this decline has a known cause"
+        )
+        assert report.domain == classify_net_type("ISO_FB_HIGH"), (
+            "domain must come from net_classification's canonical helper, "
+            "not a hardcoded or fabricated classification"
+        )
+
     def test_ac_class_net_with_routable_name_fails_closed_via_gate(self):
         """Same as above for an AC-class net with a non-excluded name."""
         import numpy as np
@@ -1383,6 +1508,19 @@ class TestHVACForcedSegmentFailClosed:
             "gate -- not _should_route()'s name exclusion -- caused this"
         )
 
+        from temper_placer.router_v6._astar_reconstruct import (
+            RULE_ID_FORCED_SEGMENT_FAIL_CLOSED,
+        )
+        from temper_placer.router_v6.net_classification import classify_net_type
+
+        report = result.failure_reports["ISO_FB_MAINS"]
+        assert report.rule_id == RULE_ID_FORCED_SEGMENT_FAIL_CLOSED, (
+            "Forced-segment refusal must name the specific fail-closed "
+            "mechanism, not a fabricated or generic reason"
+        )
+        assert report.attribution_gap is False
+        assert report.domain == classify_net_type("ISO_FB_MAINS")
+
     def test_signal_net_also_fails_closed(self):
         """R2: no net class is exempt -- plain signal nets fail closed too."""
         import numpy as np
@@ -1424,6 +1562,19 @@ class TestHVACForcedSegmentFailClosed:
         assert "SPI_MOSI" in result.failed_nets, (
             "Signal net must be honestly reported as failed"
         )
+
+        from temper_placer.router_v6._astar_reconstruct import (
+            RULE_ID_FORCED_SEGMENT_FAIL_CLOSED,
+        )
+        from temper_placer.router_v6.net_classification import classify_net_type
+
+        report = result.failure_reports["SPI_MOSI"]
+        assert report.rule_id == RULE_ID_FORCED_SEGMENT_FAIL_CLOSED, (
+            "Signal nets get the same specific fail-closed attribution as "
+            "any other class -- no net class is exempt"
+        )
+        assert report.attribution_gap is False
+        assert report.domain == classify_net_type("SPI_MOSI")
 
 
 class _RaisingDesignRules:
