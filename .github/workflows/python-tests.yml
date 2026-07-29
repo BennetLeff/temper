@@ -947,7 +947,16 @@ jobs:
       VIRTUAL_ENV: ${{ github.workspace }}/.venv
       TEMPER_REQUIRE_RUST_DRC: "1"
     steps:
+      # fetch-depth: 0 (full history, not the default shallow depth-1 clone):
+      # the DRC ceiling approval gate below needs `origin/main` and a real
+      # merge-base to diff drc_ceiling.json and enumerate this PR's commits
+      # for a Ceiling-Approval: trailer -- a shallow clone would make that
+      # merge-base unresolvable and the gate would have to fail closed on
+      # every run. Same convention already used by the loc-cap and
+      # repo-state jobs below, which have the same need.
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
 
       # Container runs as root; workspace is owned by the runner user. Without
       # this, every `git` call in a later `run:` step exits 128 on "dubious
@@ -1098,6 +1107,27 @@ jobs:
         run: |
           uv run python scripts/check_measurement_provenance.py
           uv run python scripts/check_measurement_provenance.py --check-shrink
+
+      - name: DRC ceiling approval gate tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_check_drc_ceiling_approval.py packages/temper-placer/tests/regression/test_drc_ratchet.py -v --tb=short
+
+      # drc_ceiling.json's own header states the policy: "Ceilings may only
+      # decrease; raising one requires a 'Ceiling-Approval:' commit trailer
+      # (drc_ratchet.detect_ceiling_raise)." That detection logic has
+      # existed -- and been unit-tested -- since it was written, but no CI
+      # workflow ever called it (scripts/ci_check_drc.py only calls
+      # DrcRatchet.check(), never detect_ceiling_raise()). A documented,
+      # implemented, unit-tested policy with no caller is exactly the
+      # vacuous-gate failure class this job exists to catch; this step is
+      # the missing caller. Compares drc_ceiling.json at HEAD against
+      # origin/main's merge-base and fails if any ceiling value (aggregate
+      # or per-type, errors or warnings) increased without a
+      # Ceiling-Approval: trailer on a commit in this PR. See
+      # scripts/check_drc_ceiling_approval.py's module docstring.
+      - name: "DRC ceiling approval gate (Ceiling-Approval: trailer required on any raise)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python scripts/check_drc_ceiling_approval.py
 
   # Split out of Core Tests 2026-07-28. Whole-repo hygiene: dead code, script
   # inventory, root-directory litter, import boundaries, undeclared imports.

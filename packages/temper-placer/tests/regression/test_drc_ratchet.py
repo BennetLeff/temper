@@ -555,6 +555,131 @@ class TestPerTypeCeilingRaiseDetection:
         assert result is None
 
 
+class TestPerTypeErrorCeilingRaiseDetection:
+    """Mirrors `TestPerTypeCeilingRaiseDetection` for `violations_by_type`
+    (the error side) rather than `warnings_by_type`.
+
+    Before this coverage existed, `detect_ceiling_raise` only inspected
+    `warnings_by_type` for a per-category raise -- a per-type *error*
+    ceiling (e.g. `clearance`, `hole_clearance`) could be raised directly in
+    the committed JSON with no `Ceiling-Approval:` trailer and this
+    detector would say nothing, even though `_check_board` enforces that
+    exact ceiling at runtime. That is precisely the same class of gap the
+    `warnings_by_type` tests above exist to prevent, just on the other
+    exhaustive record.
+    """
+
+    def test_new_violation_category_raise_requires_approval(self):
+        ratchet = DrcRatchet(Path("dummy.json"))
+        old = {
+            "boards": [
+                {
+                    "board_id": "b1",
+                    "error_ceiling": 100,
+                    "warning_ceiling": 500,
+                    "violations_by_type": {"clearance": 9},
+                }
+            ]
+        }
+        new = {
+            "boards": [
+                {
+                    "board_id": "b1",
+                    "error_ceiling": 100,
+                    "warning_ceiling": 500,
+                    "violations_by_type": {"clearance": 9, "hole_to_hole": 1},
+                }
+            ]
+        }
+        result = ratchet.detect_ceiling_raise(old, new, commit_message="fix: whatever")
+        assert result is not None
+        assert result.exit_code == 2
+        assert "requires explicit approval" in result.message
+        assert "violations_by_type[hole_to_hole] 0 -> 1" in result.message
+
+    def test_violation_category_raise_requires_approval_even_if_aggregate_drops(self):
+        """An aggregate error_ceiling decrease must not mask a per-category
+        increase hidden in violations_by_type.
+        """
+        ratchet = DrcRatchet(Path("dummy.json"))
+        old = {
+            "boards": [
+                {
+                    "board_id": "b1",
+                    "error_ceiling": 1017,
+                    "warning_ceiling": 762,
+                    "violations_by_type": {"clearance": 502, "shorting_items": 199},
+                }
+            ]
+        }
+        new = {
+            "boards": [
+                {
+                    "board_id": "b1",
+                    "error_ceiling": 900,  # aggregate DROPPED
+                    "warning_ceiling": 762,
+                    "violations_by_type": {"clearance": 600, "shorting_items": 150},
+                }
+            ]
+        }
+        result = ratchet.detect_ceiling_raise(old, new, commit_message="fix: whatever")
+        assert result is not None
+        assert result.exit_code == 2
+        assert "violations_by_type[clearance] 502 -> 600" in result.message
+
+    def test_violation_category_raise_approved_with_trailer(self):
+        ratchet = DrcRatchet(Path("dummy.json"))
+        old = {
+            "boards": [
+                {
+                    "board_id": "b1",
+                    "error_ceiling": 100,
+                    "warning_ceiling": 500,
+                    "violations_by_type": {"clearance": 9},
+                }
+            ]
+        }
+        new = {
+            "boards": [
+                {
+                    "board_id": "b1",
+                    "error_ceiling": 100,
+                    "warning_ceiling": 500,
+                    "violations_by_type": {"clearance": 20},
+                }
+            ]
+        }
+        result = ratchet.detect_ceiling_raise(
+            old, new, commit_message="Ceiling-Approval: reviewer-id\nfix: raise clearance"
+        )
+        assert result is None
+
+    def test_violation_category_lowered_needs_no_approval(self):
+        ratchet = DrcRatchet(Path("dummy.json"))
+        old = {
+            "boards": [
+                {
+                    "board_id": "b1",
+                    "error_ceiling": 100,
+                    "warning_ceiling": 500,
+                    "violations_by_type": {"clearance": 200},
+                }
+            ]
+        }
+        new = {
+            "boards": [
+                {
+                    "board_id": "b1",
+                    "error_ceiling": 100,
+                    "warning_ceiling": 500,
+                    "violations_by_type": {"clearance": 100},
+                }
+            ]
+        }
+        result = ratchet.detect_ceiling_raise(old, new, commit_message="fix: lower ceiling")
+        assert result is None
+
+
 class TestKicadCliVersionPin:
     """`drc_ceiling.json` records the kicad-cli version a board was
     measured with (``provenance.tool_versions.kicad-cli``), but nothing

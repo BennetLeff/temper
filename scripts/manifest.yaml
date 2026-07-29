@@ -1002,6 +1002,24 @@ scripts:
   - fnmatch
   - pathlib
   - sys
+- path: check_drc_ceiling_approval.py
+  purpose: 'CI gate: fail a PR that raises any power_pcb_dataset/drc_ceiling.json ceiling value
+    (aggregate error_ceiling/warning_ceiling, or any violations_by_type/warnings_by_type rule)
+    relative to the merge base unless a commit in the PR carries a Ceiling-Approval: trailer --
+    wires DrcRatchet.detect_ceiling_raise (temper_placer.regression.drc_ratchet), which existed
+    and was unit-tested but had no CI caller, into the Provenance & Anti-Vacuity Gates job'
+  owner: bennet
+  last_run: '2026-07-29'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.repo
+  - argparse
+  - json
+  - pathlib
+  - subprocess
+  - sys
 - path: check_measurement_provenance.py
   purpose: 'CI gate: fail closed when a measurement artifact (power_pcb_dataset/drc_ceiling.json today)
     declares input-file content hashes that no longer match reality -- catches the DRC ceiling recording

@@ -513,14 +513,21 @@ class DrcRatchet:
 
         A raise is any of: the aggregate ``error_ceiling`` increasing, the
         aggregate ``warning_ceiling`` increasing, or any single rule inside
-        ``warnings_by_type`` increasing -- including a rule that didn't
-        exist in the old record at all, which is a raise from its implicit
-        ceiling of 0 (the same implicit-zero semantics ``_check_board``
-        enforces at runtime). Editing the ceiling *file* to grant a rule
-        more room is exactly as much a raise as editing the aggregate
-        number, and must require the same ``Ceiling-Approval:`` trailer --
-        otherwise the per-type ceiling could be silently inflated in the
-        JSON itself, sidestepping the runtime check entirely.
+        ``violations_by_type`` (errors) or ``warnings_by_type`` (warnings)
+        increasing -- including a rule that didn't exist in the old record
+        at all, which is a raise from its implicit ceiling of 0 (the same
+        implicit-zero semantics ``_check_board`` enforces at runtime).
+        Editing the ceiling *file* to grant a rule more room is exactly as
+        much a raise as editing the aggregate number, and must require the
+        same ``Ceiling-Approval:`` trailer -- otherwise the per-type
+        ceiling could be silently inflated in the JSON itself, sidestepping
+        the runtime check entirely. This applies symmetrically to
+        ``violations_by_type`` and ``warnings_by_type``: an earlier version
+        of this method checked only the warnings side, which meant a
+        per-type *error* ceiling (e.g. ``clearance``) could be raised in
+        the committed JSON with no trailer and this detector would not
+        notice, even though ``_check_board`` enforces that exact ceiling at
+        runtime.
         """
         old_boards = {b["board_id"]: b for b in old_ceiling.get("boards", [])}
         new_boards = {b["board_id"]: b for b in new_ceiling.get("boards", [])}
@@ -540,6 +547,14 @@ class DrcRatchet:
                 reasons.append(f"error_ceiling {old_errors} -> {new_errors}")
             if new_warnings > old_warnings:
                 reasons.append(f"warning_ceiling {old_warnings} -> {new_warnings}")
+
+            old_violations_by_type = old_entry.get("violations_by_type") or {}
+            new_violations_by_type = new_entry.get("violations_by_type") or {}
+            for rule in sorted(new_violations_by_type):
+                new_count = new_violations_by_type[rule]
+                old_count = old_violations_by_type.get(rule, 0)
+                if new_count > old_count:
+                    reasons.append(f"violations_by_type[{rule}] {old_count} -> {new_count}")
 
             old_warnings_by_type = old_entry.get("warnings_by_type") or {}
             new_warnings_by_type = new_entry.get("warnings_by_type") or {}
