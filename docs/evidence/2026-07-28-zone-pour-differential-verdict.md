@@ -1,5 +1,7 @@
 # Zone/pour does not reduce unconnected items — measured differentially, U4 should not promote
 
+<!-- provenance: commit=0a3d2af8c2480887abe9b0e1c732a4bbfe424bef dirty=true -->
+
 **Date:** 2026-07-28
 **Board:** `pcb/temper.kicad_pcb` @ 168 footprints / 2,338 segments / 48 vias / 96 zones
 **Tool:** kicad-cli 10.0.4, zones pre-filled with `pcbnew.ZONE_FILLER` (KiCad 10.0.4 bundled Python)
