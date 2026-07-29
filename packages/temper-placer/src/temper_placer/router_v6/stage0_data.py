@@ -132,6 +132,15 @@ class ParsedPCB:
         design_rules: Extracted design rules and net class assignments
         stackup: Layer stackup information
         source_path: Path to source .kicad_pcb file
+        tracks: Pre-routed copper track segments already on the board
+        vias: Pre-existing vias already on the board (ViaData: position,
+            diameter, drill, net, layers). Populated so the obstacle map
+            (see obstacle_map.py) can treat other-net vias as blocking
+            geometry -- until this field existed, a re-route pass over an
+            already-routed board had zero visibility into via positions
+            at all, letting new copper land directly on top of existing
+            vias belonging to a different net (see
+            docs/evidence/2026-07-30-router-copper-shorts.md).
     """
 
     components: list[Component]
@@ -142,6 +151,7 @@ class ParsedPCB:
     stackup: StackupInfo
     source_path: Path
     tracks: list = field(default_factory=list)  # Pre-routed tracks
+    vias: list = field(default_factory=list)  # Pre-existing vias (ViaData)
     warnings: list[str] = field(default_factory=list)
 
     def validate_placement(self) -> list[str]:

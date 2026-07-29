@@ -215,5 +215,6 @@ def parse_kicad_pcb_v6(pcb_path: Path) -> ParsedPCB:
         stackup=stackup,
         source_path=pcb_path,
         tracks=legacy_result.traces,
+        vias=legacy_result.vias,
         warnings=warnings,
     )
