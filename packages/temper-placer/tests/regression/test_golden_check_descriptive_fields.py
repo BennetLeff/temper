@@ -198,6 +198,84 @@ class TestGenuineRatchetStillFails:
         assert not result.passed
         assert any(d.name == "drc_warnings" and d.regression for d in result.deltas)
 
+    def test_drc_is_sampled_and_medianed_not_read_once(self, tmp_path, monkeypatch):
+        """KiCad's DRC scatters run-to-run on an unchanged board
+        (test_regression_drc.py documents shorting_items varying by ~20) --
+        a single reading can't tell a real regression from noise. This
+        proves _run_board takes the median of DRC_SAMPLE_RUNS samples
+        rather than a single `run_drc()` call.
+        """
+        import temper_placer.validation._drc_api as drc_api
+        from temper_placer.regression import runner as runner_module
+
+        runner, board_entry = _make_runner(
+            tmp_path,
+            {
+                "component_count": _FIXTURE_COMPONENT_COUNT,
+                "net_count": _FIXTURE_NET_COUNT,
+                "drc_available": True,
+                "drc_errors": 10,
+                "drc_warnings": 0,
+            },
+        )
+        # Scatter: median of [9, 9, 9, 20, 20] is 9 -- passes. A
+        # single-sample implementation would sometimes read 20 and fail.
+        samples = iter(
+            [
+                type("R", (), {"error_count": 9, "warning_count": 0})(),
+                type("R", (), {"error_count": 20, "warning_count": 0})(),
+                type("R", (), {"error_count": 9, "warning_count": 0})(),
+                type("R", (), {"error_count": 20, "warning_count": 0})(),
+                type("R", (), {"error_count": 9, "warning_count": 0})(),
+            ]
+        )
+        calls = []
+
+        def _fake_run_drc(_p):
+            calls.append(1)
+            return next(samples)
+
+        monkeypatch.setattr(drc_api, "run_drc", _fake_run_drc)
+
+        result = runner._run_board(board_entry)
+        assert len(calls) == runner_module.DRC_SAMPLE_RUNS == 5
+        assert result.passed, result.errors
+        (err_delta,) = [d for d in result.deltas if d.name == "drc_errors"]
+        assert err_delta.current == 9  # median, not the last/first/max sample
+
+    def test_drc_available_but_unmeasurable_hard_fails_not_silent_zero(self, tmp_path, monkeypatch):
+        """drc_available: true means the baseline was measured WITH real
+        DRC data. If DRC can't actually run (kicad-cli missing, crashes,
+        whatever), silently falling back to comparing a fabricated 0
+        against the pinned ceiling would always pass -- turning a genuine
+        ratchet vacuous exactly the way golden-check went vacuous when it
+        ran on an image with no kicad-cli at all. This must be a hard
+        failure, not a skip that reads as clean.
+        """
+        import temper_placer.validation._drc_api as drc_api
+
+        runner, board_entry = _make_runner(
+            tmp_path,
+            {
+                "component_count": _FIXTURE_COMPONENT_COUNT,
+                "net_count": _FIXTURE_NET_COUNT,
+                "drc_available": True,
+                "drc_errors": 999999,  # would trivially "pass" against a fake 0
+                "drc_warnings": 999999,
+            },
+        )
+
+        def _boom(_p):
+            raise RuntimeError("kicad-cli: command not found")
+
+        monkeypatch.setattr(drc_api, "run_drc", _boom)
+
+        result = runner._run_board(board_entry)
+        assert not result.passed
+        assert not result.skipped  # a hard failure, not a soft skip
+        assert "hard failure" in result.errors[0].lower()
+        assert "kicad-cli" in result.errors[0].lower()
+
 
 class TestBothTogether:
     """The realistic case: the board's descriptive shape changed AND a

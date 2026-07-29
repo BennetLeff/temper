@@ -7,6 +7,7 @@ pass/fail per board.
 from __future__ import annotations
 
 import importlib.util
+import statistics
 from pathlib import Path
 
 from temper_placer.regression.manifest import GoldenManifest
@@ -15,6 +16,15 @@ from temper_placer.regression.reporter import (
     MetricDelta,
     RegressionReporter,
 )
+
+# KiCad's DRC is not reproducible run-to-run on the production board --
+# packages/temper-placer/tests/placer/cp_sat/test_regression_drc.py documents
+# shorting_items scattering by ~20 on a byte-identical file across repeated
+# `kicad-cli pcb drc` invocations. A single reading here cannot distinguish a
+# real regression from measurement noise, so drc_errors/drc_warnings are
+# compared on the median of DRC_SAMPLE_RUNS samples, matching the discipline
+# that test module uses (PRODUCTION_DRC_SAMPLE_RUNS = 5).
+DRC_SAMPLE_RUNS = 5
 
 
 class RegressionRunner:
@@ -133,11 +143,40 @@ class RegressionRunner:
                 try:
                     from temper_placer.validation._drc_api import run_drc
 
-                    drc_result = run_drc(pcb_path)
-                    current_drc_errors = drc_result.error_count
-                    current_drc_warnings = drc_result.warning_count
-                except Exception:
-                    warnings.append("DRC not available; skipping DRC comparison")
+                    error_samples = []
+                    warning_samples = []
+                    for _ in range(DRC_SAMPLE_RUNS):
+                        drc_result = run_drc(pcb_path)
+                        error_samples.append(drc_result.error_count)
+                        warning_samples.append(drc_result.warning_count)
+                    current_drc_errors = int(statistics.median(error_samples))
+                    current_drc_warnings = int(statistics.median(warning_samples))
+                except Exception as e:
+                    # drc_available: true means this board's baseline was
+                    # measured WITH real DRC data -- an unmeasured run here
+                    # must never silently read as a clean one. Falling back
+                    # to a fabricated 0 would always pass against a real
+                    # pinned threshold, quietly turning a genuine ratchet
+                    # into a vacuous one (the exact failure this method
+                    # exists to prevent -- see docs/solutions/best-practices/
+                    # stale-absolute-baseline-vs-mutable-board-2026-07-29.md
+                    # and docs/solutions/best-practices/
+                    # falsify-the-fix-before-believing-it-2026-07-29.md).
+                    # Fail the whole board instead of skipping the metric.
+                    return BoardResult(
+                        board_id=board_id,
+                        passed=False,
+                        warnings=warnings,
+                        errors=[
+                            f"DRC required for {board_id} (drc_available: true in "
+                            f"the baseline) but kicad-cli DRC could not be run: "
+                            f"{e!r}. This is a hard failure, not a skip -- an "
+                            "unmeasured DRC run must never be silently treated "
+                            "as a clean one. Ensure kicad-cli is installed and "
+                            "on PATH in this job."
+                        ],
+                        board_shape=board_shape,
+                    )
 
             err_delta = MetricDelta(
                 name="drc_errors",

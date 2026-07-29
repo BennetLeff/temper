@@ -27,15 +27,70 @@
 # Full detail:
 # docs/solutions/best-practices/stale-absolute-baseline-vs-mutable-board-2026-07-29.md
 #
-# drc_errors/drc_warnings below are NOT the same kind of field and were
-# deliberately left alone: they are genuine quality ratchets (an increase
-# means the board actually got worse, not merely different), so they stay
-# pinned. Re-measure and justify any change to them the same way a
-# corpus-board Ceiling-Approval bless would require -- see the runner's
-# failure message for what's expected.
-drc_available: false
-drc_errors: 0
-drc_warnings: 0
+# drc_errors/drc_warnings below are NOT the same kind of field as
+# component_count/net_count and were deliberately left alone at first pass:
+# they are genuine quality ratchets (an increase means the board actually
+# got worse, not merely different), so they stay pinned. Re-measure and
+# justify any change to them the same way a corpus-board Ceiling-Approval
+# bless would require -- see the runner's failure message for what's
+# expected.
+#
+# --- drc_available flipped false -> true (2026-07-29, same day) ---
+#
+# Leaving drc_available: false made the two lines above vacuous: with
+# component_count/net_count no longer gating either, golden-check asserted
+# approximately nothing beyond "the board parses" -- a green-and-empty gate,
+# worse than the false failure it replaced, because nobody investigates a
+# passing check. Root cause: golden-check ran on bare ubuntu-latest with no
+# kicad-cli installed at all, so `drc_available: true` would have made
+# RegressionRunner._run_board's run_drc() call raise -- and the runner's own
+# try/except silently fell back to comparing a fabricated 0 against whatever
+# ceiling was pinned here, always passing regardless of the board's actual
+# DRC state. Two fixes landed together: (1) golden-check.yml now runs in
+# the same container image (ghcr.io/bennetleff/temper-ci:latest) the
+# board-gates job in python-tests.yml uses, which has kicad-cli
+# preinstalled; (2) RegressionRunner._run_board now hard-fails the board
+# (not a silent skip) if drc_available: true but DRC still can't be run for
+# any reason -- an unmeasured run must never read as a clean one.
+#
+# MEASURED VALUES. kicad-cli 10.0.4 (Darwin arm64 25.5.0, matching the CI
+# image's KiCad 10.0 PPA install), against the board shape below (verified
+# via `grep -c '(footprint '/'(segment '/'(via '/'(zone ' pcb/temper.kicad_pcb`,
+# same shape test_regression_drc.py's PRODUCTION_BOARD_BASELINE_SHAPE records
+# for this commit): footprints 168, segments 2338, vias 48, zones 96.
+#
+# `run_drc()` (packages/temper-placer/src/temper_placer/validation/_drc_api.py,
+# the function RegressionRunner actually calls) uses `--all-track-errors`,
+# unlike test_regression_drc.py's own `_run_drc` helper -- the two modules'
+# violation counts are NOT directly comparable even on the identical board;
+# do not cross-check one against the other without accounting for that flag.
+#
+# N=15 `run_drc()` samples, all on the unmodified committed board:
+#   errors    all 15 runs: 817 x10, 818 x5  ->  median 817, range 817-818
+#   warnings  all 15 runs: 683 (zero scatter)
+# RegressionRunner now samples DRC_SAMPLE_RUNS=5 per run and compares
+# medians (same discipline as test_regression_drc.py's
+# PRODUCTION_DRC_SAMPLE_RUNS); every 5-of-15 subset of the sample above has
+# a median of 817 or 818, never higher. Thresholds set just above the worst
+# observed median-of-5, same rule test_regression_drc.py uses -- not so
+# loose that a real regression could hide inside the margin:
+#   drc_errors:   worst median-of-5 = 818  -> ceiling 820  (margin 2)
+#   drc_warnings: worst median-of-5 = 683  -> ceiling 685  (margin 2)
+#
+# `deterministic_pipeline.kicad_cli_drc_errors: 142` /
+# `kicad_cli_drc_warnings: 454` below are NOT the right figures for this
+# comparison and were left untouched deliberately: they're dated
+# extraction_date 2026-07-17, measured on the 149-footprint, ZERO-copper
+# board before it was ever routed (see docs/solutions/best-practices/
+# stale-absolute-baseline-vs-mutable-board-2026-07-29.md, instance 2, for
+# the same bare-vs-routed category error on test_regression_drc.py's old
+# PRODUCTION_PLACEMENT_ONLY_DRC_VIOLATIONS constants). They describe a board
+# that no longer exists and are kept only as a historical record inside
+# deterministic_pipeline, not as a live ratchet -- do not use them to
+# sanity-check drc_errors/drc_warnings above.
+drc_available: true
+drc_errors: 820
+drc_warnings: 685
 extraction_date: '2026-07-17'
 extraction_method: deterministic-pipeline
 deterministic_pipeline:

@@ -15,17 +15,37 @@ on:
 jobs:
   golden-check:
     runs-on: ubuntu-latest
+    # Runs in the same CI image python-tests.yml's board-gates/consistency-gates
+    # jobs use (.github/docker/ci.Dockerfile), which has kicad-cli preinstalled
+    # (KiCad 10.0 PPA). Before this, golden-check ran on bare ubuntu-latest with
+    # no KiCad at all: drc_available: true in the baseline would have made
+    # RegressionRunner._run_board's `run_drc()` call raise, and the old
+    # try/except there silently fell back to comparing a fabricated 0 against
+    # the pinned drc_errors/drc_warnings ceiling -- always passing, regardless
+    # of the board's actual DRC state. With component_count/net_count no
+    # longer gating either (2026-07-29), that left this job asserting
+    # approximately nothing beyond "the board parses" -- a green-and-empty
+    # gate, worse than the red-but-meaningless one it replaced because nobody
+    # investigates a passing check. See docs/solutions/best-practices/
+    # stale-absolute-baseline-vs-mutable-board-2026-07-29.md and
+    # docs/solutions/best-practices/falsify-the-fix-before-believing-it-2026-07-29.md.
+    container:
+      image: ghcr.io/bennetleff/temper-ci:latest
+      options: --user root
     steps:
       - uses: actions/checkout@v7
+
+      # Container runs as root; workspace is owned by the runner user --
+      # same pattern as board-gates in python-tests.yml. Without this, every
+      # `git` call in a later step exits 128 on "dubious ownership".
+      - name: Mark workspace safe for git
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
       - name: Install uv
         uses: astral-sh/setup-uv@v7
         with:
           version: "latest"
           enable-cache: true
-
-      - name: Set up Python
-        run: uv python install 3.12
 
       - name: Cache virtualenv
         uses: actions/cache@v6
@@ -35,6 +55,13 @@ jobs:
 
       - name: Install dependencies
         run: uv sync --all-packages
+
+      # Fail loudly, here, if the image ever stops shipping kicad-cli --
+      # rather than letting RegressionRunner._run_board discover it via a
+      # caught exception and (per the hardening above) hard-fail the whole
+      # board with a less obvious message.
+      - name: Verify kicad-cli is available
+        run: kicad-cli --version
 
       - name: Run golden regression suite
         run: |
