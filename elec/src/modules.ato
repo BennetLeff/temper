@@ -442,20 +442,55 @@ module ResonantTank:
     signal in
     signal out
     
+    # MPN AND FOOTPRINT CORRECTED 2026-07-28 (docs/evidence/
+    # 2026-07-28-tank-cap-and-isolator-footprints.md). The value below,
+    # 150nF each / 300nF in parallel, is UNCHANGED and is the value the
+    # whole resonant design is built on -- it was the MPN and the land
+    # pattern that disagreed with it, by 10x.
+    #
+    # Was: mpn = "FKP1U021507E00JSSD" on a P27.50mm/L31.5mm land.
+    #   WIMA's FKP 1 datasheet (rev. 03.26, https://www.wima.de/wp-content/
+    #   uploads/media/e_WIMA_FKP_1.pdf) and its 18-digit part-number system
+    #   (p.136) decode that string as fields "FKP1" | "U0" = 2000 VDC |
+    #   "2150" = 0.015 uF | size "7E" | "00JSSD". That is 15nF at 2000V --
+    #   a tenth of the declared value at the wrong voltage. Worse, the
+    #   2000 VDC table has no 0.015 uF row in a size-7 (PCM 37.5) case at
+    #   all: its only 0.015 uF row is FKP1U021506D (13 x 24 x 31.5, PCM
+    #   27.5). The old land pattern, C_Rect_L31.5mm_W13.0mm_P27.50mm, is
+    #   exactly that 6D case -- i.e. the board was drawn for the
+    #   mis-decoded part, not for the declared 150nF.
+    #
+    # Now: FKP1T031507G00JSSD, read off WIMA's own 1600 VDC ordering table
+    #   (same datasheet, continuation page 67): "0.15 uF | W 20 | H 39.5 |
+    #   L 41.5 | PCM 37.5 | FKP1T031507G_ _ _ _ _ _". The six trailing
+    #   digits are the datasheet's "Part number completion" box and are
+    #   carried over UNCHANGED from the previous declaration: 00 = 2-pin
+    #   version, J = +/-5 % tolerance, S = bulk packing, SD = 6-2 pin
+    #   length. Rated voltage 1600 VDC now matches voltage_rating below
+    #   instead of contradicting it. Lead diameter is 1.0mm at PCM 37.5
+    #   (datasheet 2-pin mechanical table, continuation page 66).
+    #   Confirm stock/orderability at procurement; the base part number is
+    #   cited to the manufacturer table, not to a distributor listing.
+    #
+    # BOARD REWORK REQUIRED, NOT DONE HERE: the case grows from
+    # 31.5 x 13.0mm (PCM 27.5) to 41.5 x 20.0mm (PCM 37.5), and 39.5mm
+    # tall. pcb/temper.kicad_pcb still carries the old 27.5mm-pitch land
+    # for C4/C5 and is deliberately untouched -- see the evidence doc for
+    # the neighbour analysis.
     c_tank1 = new Capacitor
     c_tank1.value = 150nF
     c_tank1.dielectric = "PP"
     c_tank1.voltage_rating = 1600V
-    c_tank1.mpn = "FKP1U021507E00JSSD"
-    c_tank1.footprint = "Capacitor_THT:C_Rect_L31.5mm_W13.0mm_P27.50mm_MKS4"
-    
+    c_tank1.mpn = "FKP1T031507G00JSSD"  # WIMA FKP 1, 0.15uF/1600VDC, PCM 37.5 -- datasheet rev. 03.26 ordering table
+    c_tank1.footprint = "Capacitor_THT:C_Rect_L41.5mm_W20.0mm_P37.50mm_MKS4"  # L41.5 x W20.0, pitch 37.5 -- matches the FKP1T031507G case exactly
+
     c_tank2 = new Capacitor
     c_tank2.value = 150nF
     c_tank2.dielectric = "PP"
     c_tank2.voltage_rating = 1600V
-    c_tank2.mpn = "FKP1U021507E00JSSD"
-    c_tank2.footprint = "Capacitor_THT:C_Rect_L31.5mm_W13.0mm_P27.50mm_MKS4"
-    
+    c_tank2.mpn = "FKP1T031507G00JSSD"  # same part as c_tank1; the two are in parallel for 300nF total
+    c_tank2.footprint = "Capacitor_THT:C_Rect_L41.5mm_W20.0mm_P37.50mm_MKS4"
+
     v_tank_peak: voltage = 400V
     assert c_tank1.voltage_rating >= v_tank_peak * 1.43
     assert c_tank2.voltage_rating >= v_tank_peak * 1.43
@@ -770,15 +805,32 @@ module PowerInput:
     # Safety class is preserved and its margin increased: Y1 at 500VAC vs
     # the 250VAC this node requires. Capacitance/tolerance are unchanged.
     #
-    # KNOWN, PRE-EXISTING FOOTPRINT DEFECT (not fixed here -- fixing it means
-    # editing pcb/temper.kicad_pcb): every 2.2nF Y1 disc, including both real
-    # Murata spellings above, has 10mm lead spacing, but the land below is a
-    # 5.00mm-pitch stub ("Created to resolve netlist reference"). The part
-    # will not fit the board as drawn, and the same 5mm pitch is why C6 is
-    # one of the mains<->SELV barrier blockers (3.200mm vs the 8.0mm gate).
-    # See docs/evidence/2026-07-28-isolator-sourcing-brief.md.
+    # FOOTPRINT CORRECTED 2026-07-28 (docs/evidence/
+    # 2026-07-28-tank-cap-and-isolator-footprints.md). Was
+    # "Capacitor_THT:C_Disc_D10.0mm_W5.0mm_P5.00mm" -- a 5.00mm-pitch stub
+    # ("Created to resolve netlist reference", pcb/temper.kicad_pcb:205)
+    # that no 2.2nF Y1 disc fits: VY1222M47Y5UQ6TV0 is 10.00mm lead
+    # spacing / 12.00mm body diameter (DigiKey 2824499; Vishay 28537 p.2,
+    # F = 10.0mm, Dmax 12.0, Tmax 5.0), and so are both real Murata
+    # spellings above. Every candidate part for this slot has 10mm leads.
+    # C_Disc_D12.5mm_W5.0mm_P10.00mm is stock KiCad 9 and its own descr
+    # cites Vishay's sibling VY2 datasheet (doc 28535); D12.5 >= the
+    # 12.0mm body and W5.0 >= the 5.0mm thickness.
+    #
+    # Barrier consequence (repo's own pad model, pad_geometry.py): the
+    # 5.00mm stub with 1.8mm pads measured 3.200mm HV<->SELV, vs the
+    # 8.0mm MIN_BARRIER_WIDTH_MM in scripts/check_isolation_keepout.py.
+    # This land is 10.00mm pitch with 2.0mm pads = 8.000mm, which clears
+    # the 8.0mm safety gate EXACTLY and does NOT clear the CP-SAT
+    # placer's 8.5mm working corridor. Shrinking the pads to 1.4mm
+    # (0.8mm drill on a 0.6mm lead) would give 8.600mm, but Vishay
+    # publishes no recommended land pattern for this part, so that pad
+    # size would be an unsourced choice; it is left to a human.
+    #
+    # BOARD REWORK REQUIRED, NOT DONE HERE: pcb/temper.kicad_pcb still
+    # carries the 5.00mm stub for C6 and is deliberately untouched.
     y_cap_pe.mpn = "VY1222M47Y5UQ6TV0"
-    y_cap_pe.footprint = "Capacitor_THT:C_Disc_D10.0mm_W5.0mm_P5.00mm"
+    y_cap_pe.footprint = "Capacitor_THT:C_Disc_D12.5mm_W5.0mm_P10.00mm"
     
     dc_bus.gnd_ref ~ y_cap_pe.p1
     y_cap_pe.p2 ~ pe

@@ -384,7 +384,12 @@ isolators:
       "1": "COM (HV bus contact)"
 
   - instance_path: power_in.zcd_opto
-    component: "Everlight/Vishay/onsemi H11L1 (H11L1), Schmitt-trigger phototransistor optocoupler"
+    # MPN and lead form resolved 2026-07-28: onsemi H11L1TVM, the 0.4"/10.16mm
+    # lead-spacing (`T`) + VDE 0884 (`V`) variant of the same die and pinout.
+    # The 300-mil DIP-6 land it was on gave 6.020mm of HV<->SELV pad
+    # separation; the 400-mil one gives 8.560mm. See docs/evidence/
+    # 2026-07-28-tank-cap-and-isolator-footprints.md.
+    component: "onsemi H11L1TVM (H11L1 family), Schmitt-trigger phototransistor optocoupler, 0.4in lead spacing"
     groups:
       primary: ["1", "2"]        # A (anode), K (cathode) -- LED, HV side
       secondary: ["4", "5", "6"] # VO, GND, VCC -- phototransistor output, SELV side
