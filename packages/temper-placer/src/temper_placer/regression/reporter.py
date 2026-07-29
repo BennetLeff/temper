@@ -54,6 +54,13 @@ class BoardResult:
     errors: list[str] = field(default_factory=list)
     skipped: bool = False
     skip_reason: str = ""
+    # Descriptive facts about the board (component_count, net_count, ...)
+    # measured live from the checked-in artifact on this run. These are
+    # NOT compared to a stored baseline and never affect `passed` -- see
+    # docs/solutions/best-practices/stale-absolute-baseline-vs-mutable-board-2026-07-29.md
+    # for why pinning them as absolutes only guarantees recurring false
+    # failures on legitimate board changes.
+    board_shape: dict[str, int] = field(default_factory=dict)
 
 
 @dataclass
@@ -100,6 +107,12 @@ class RegressionReporter:
         for result in self.results:
             status = "SKIP" if result.skipped else ("PASS" if result.passed else "FAIL")
             lines.append(f"  [{status}] {result.board_id}")
+
+            if result.board_shape:
+                shape_str = ", ".join(f"{k}={v}" for k, v in sorted(result.board_shape.items()))
+                lines.append(
+                    f"         BOARD: {shape_str} (descriptive, measured live -- not gated)"
+                )
 
             if result.skipped and result.skip_reason:
                 lines.append(f"         Reason: {result.skip_reason}")
