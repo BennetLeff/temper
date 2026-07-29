@@ -141,6 +141,185 @@ def generate_dru() -> str:
     lines.append(")")
     lines.append("")
     lines.append(_SEP)
+    lines.append(
+        "# RULE 4a/4b: HighVoltageIsolated -- the gate-drive floating"
+        " bootstrap supply"
+    )
+    lines.append("#")
+    lines.append(
+        "# GAP CLOSED (2026-07-28): this netclass carried ZERO clearance or"
+        " creepage"
+    )
+    lines.append(
+        "# rules anywhere in this generator until now (grep -c"
+        " HighVoltageIsolated"
+    )
+    lines.append(
+        "# scripts/generate_kicad_dru.py returned 0) -- the exact class RULE"
+        " 1's own"
+    )
+    lines.append(
+        "# cross-domain guard fix used to re-home U7's secondary bias nets"
+        " (VSSA/VDDA,"
+    )
+    lines.append(
+        "# hb.gate_hs.driver-p2/-p1-1) into, per"
+        " docs/evidence/2026-07-28-drc-rule1-"
+    )
+    lines.append(
+        "# netclass-redo.md sec 5. Moving those nets into a netclass that"
+        " itself"
+    )
+    lines.append(
+        "# enforced nothing left them with only KiCad's per-netclass"
+        " baseline (6.0mm"
+    )
+    lines.append(
+        "# clearance, from pcb/temper.kicad_pro's own"
+        " net_settings.classes/packages/"
+    )
+    lines.append(
+        "# temper-placer/configs/netclass_rules.yaml) and NO creepage"
+        " protection at all."
+    )
+    lines.append("#")
+    lines.append(
+        "# WHAT THE CLASS ACTUALLY IS: elec/domain_manifest.yaml declares"
+        " +5V_ISO,"
+    )
+    lines.append(
+        "# VBOOT_H, VBOOT_L, hb.gate_hs.driver-p1-1 (VDDA) and"
+        " hb.gate_hs.driver-p2"
+    )
+    lines.append(
+        "# (VSSA) -- every net this project assigns to the"
+        " HighVoltageIsolated"
+    )
+    lines.append(
+        "# netclass -- as members of the SAME `HV` domain as ac_l/+170V_BUS/"
+        "SW_NODE,"
+    )
+    lines.append(
+        "# not a third, separate domain. \"Isolated\" here names a"
+        " gate-driver-internal"
+    )
+    lines.append(
+        "# galvanic barrier (the UCC21550's own primary/secondary split),"
+        " not a"
+    )
+    lines.append(
+        "# barrier this netclass's nets sit on the far side of relative to"
+        " the rest of"
+    )
+    lines.append(
+        "# HV -- they float WITH the switch node, one gate-drive-current"
+        " resistor"
+    )
+    lines.append(
+        "# downstream of GATE_HS/SW_NODE (see the redo doc's own tracing)."
+        " That means"
+    )
+    lines.append(
+        "# this class needs exactly the asymmetric treatment"
+        " docs/evidence/2026-07-28-"
+    )
+    lines.append(
+        "# hv-isolated-rules-and-creepage-triage.md sets out: REINFORCED"
+        " separation from"
+    )
+    lines.append(
+        "# the LV/SELV side (the real barrier), but only FUNCTIONAL"
+        " separation from its"
+    )
+    lines.append(
+        "# own HV/ACMains neighbours (same side of that barrier -- exactly"
+        " the relationship"
+    )
+    lines.append(
+        "# RULE 3 (\"AC Mains to HV\") already models for ACMains vs."
+        " HighVoltage)."
+    )
+    lines.append("#")
+    lines.append(
+        "# 4a relaxes the pair to the same 2.0mm figure RULE 4 (\"HV to"
+        " LV\") already"
+    )
+    lines.append(
+        "# uses for intra-HV-domain separation -- a documented, deliberate"
+        " reduction below"
+    )
+    lines.append(
+        "# the 6.0mm per-netclass baseline that would otherwise apply,"
+        " justified because"
+    )
+    lines.append(
+        "# both sides sit on the same side of the reinforced barrier (same"
+        " category of"
+    )
+    lines.append(
+        "# reduction RULE 3 already makes, not a safety loosening -- see the"
+        " evidence doc)."
+    )
+    lines.append(
+        "# 4b is the real, new protection: reinforced clearance against"
+        " every other"
+    )
+    lines.append(
+        "# (LV/SELV) netclass, at the same 2.0mm figure RULE 4 uses for"
+        " HighVoltage."
+    )
+    lines.append(
+        "# NOTE: this generator has no creepage-constraint concept yet"
+        " (no rule anywhere"
+    )
+    lines.append(
+        "# in this file emits KiCad's `creepage` constraint kind, and no"
+        " PD2/PD3"
+    )
+    lines.append(
+        "# pollution-degree figure has been derived for this class) --"
+        " HighVoltageIsolated"
+    )
+    lines.append(
+        "# gets the same clearance-only treatment every other class in"
+        " this file has today."
+    )
+    lines.append(
+        "# Creepage enforcement (HV_CREEPAGE_ENFORCED_MM) is a separate,"
+        " larger unit that"
+    )
+    lines.append(
+        "# adds the constraint kind generator-wide and derives its own"
+        " cited figure; when"
+    )
+    lines.append(
+        "# it lands, this class should get the same reinforced creepage"
+        " every other"
+    )
+    lines.append("# HV-domain-to-LV rule in this file gets.")
+    lines.append(_SEP)
+    # Matches RULE 4's existing "HV to LV" clearance figure (this file,
+    # unchanged) -- not a new number, just this class's share of it.
+    _HV_ISOLATED_CLEARANCE_MM = 2.0
+    lines.append('(rule "HighVoltageIsolated same side"')
+    lines.append(
+        "   (condition \"A.NetClass == 'HighVoltageIsolated'"
+        " && (B.NetClass == 'HighVoltage' || B.NetClass == 'ACMains')\")"
+    )
+    lines.append(f"   (constraint clearance (min {fmt_mm(_HV_ISOLATED_CLEARANCE_MM)}))")
+    lines.append(")")
+    lines.append("")
+    lines.append('(rule "HighVoltageIsolated to LV"')
+    lines.append(
+        "   (condition \"A.NetClass == 'HighVoltageIsolated'"
+        " && B.NetClass != 'HighVoltageIsolated'"
+        " && B.NetClass != 'HighVoltage'"
+        " && B.NetClass != 'ACMains'\")"
+    )
+    lines.append(f"   (constraint clearance (min {fmt_mm(_HV_ISOLATED_CLEARANCE_MM)}))")
+    lines.append(")")
+    lines.append("")
+    lines.append(_SEP)
     lines.append("# RULE 5: High Voltage internal - relaxed for same footprint")
     lines.append("# TO-247 IGBTs have 5.45mm pin pitch (1.95mm edge-to-edge)")
     lines.append("#")
@@ -161,10 +340,34 @@ def generate_dru() -> str:
     lines.append(_SEP)
     lines.append("# RULE 6: Gate drive signals near HV - 0.5mm minimum")
     lines.append("# Gate resistors placed close to IGBTs")
-    lines.append(_SEP)
-    lines.append('(rule "GateDrive near HV"')
+    lines.append("#")
     lines.append(
-        "   (condition \"A.NetClass == 'GateDrive'"
+        "# Split into two rules 2026-07-28 (R4) alongside the GateDrive ->"
+        " GateDriveHV/GateDriveSELV class split -- a single condition"
+    )
+    lines.append(
+        "# naming the old 'GateDrive' string would now match zero nets"
+        " (silent, always-dead coverage; see docs/solutions/best-practices/"
+    )
+    lines.append(
+        "# a-rule-that-matches-nothing-reads-as-coverage-2026-07-28.md)."
+        " Both halves keep the original 0.5mm figure -- this unit changes"
+    )
+    lines.append(
+        "# the class model, not the clearance value."
+    )
+    lines.append(_SEP)
+    lines.append('(rule "GateDriveHV near HV"')
+    lines.append(
+        "   (condition \"A.NetClass == 'GateDriveHV'"
+        " && B.NetClass == 'HighVoltage'\")"
+    )
+    lines.append("   (constraint clearance (min 0.5mm))")
+    lines.append(")")
+    lines.append("")
+    lines.append('(rule "GateDriveSELV near HV"')
+    lines.append(
+        "   (condition \"A.NetClass == 'GateDriveSELV'"
         " && B.NetClass == 'HighVoltage'\")"
     )
     lines.append("   (constraint clearance (min 0.5mm))")
@@ -231,7 +434,11 @@ def generate_dru() -> str:
         "HighVoltage",
         "FinePitch",
         "Power",
-        "GateDrive",
+        # Split 2026-07-28 (R4): "GateDrive" no longer exists as a key in
+        # TEMPER_NET_CLASSES -- both halves must be listed or this loop
+        # KeyErrors.
+        "GateDriveHV",
+        "GateDriveSELV",
         "GND",
         "HighSpeed",
         "Signal",

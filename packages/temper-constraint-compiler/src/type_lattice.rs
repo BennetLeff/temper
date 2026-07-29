@@ -252,7 +252,13 @@ mod tests {
             make_metadata("HighVoltage", "HV", 6.0, 6.0, Some("B.Cu"), 20),
             make_metadata("FinePitch", "LV", 0.1, 0.0, None, 30),
             make_metadata("Power", "LV", 0.25, 0.0, None, 40),
-            make_metadata("GateDrive", "LV", 0.25, 0.0, Some("F.Cu"), 50),
+            // Split 2026-07-28 (R4): "GateDrive" no longer exists as a
+            // netclass in packages/temper-placer/configs/netclass_rules.yaml
+            // -- mirrored here so this fixture stays in step with the real
+            // 10-class set. GateDriveHV must NOT be "LV": GATE_HS/GATE_LS
+            // float on SW_NODE, same HV domain as HighVoltage.
+            make_metadata("GateDriveHV", "HV", 0.25, 0.0, Some("F.Cu"), 50),
+            make_metadata("GateDriveSELV", "LV", 0.25, 0.0, Some("F.Cu"), 51),
             make_metadata("GND", "LV", 0.3, 0.0, None, 60),
             make_metadata("HighSpeed", "LV", 0.2, 0.0, None, 70),
             make_metadata("Signal", "LV", 0.15, 0.0, None, 80),

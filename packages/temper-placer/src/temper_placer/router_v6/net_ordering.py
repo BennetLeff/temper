@@ -135,6 +135,15 @@ def get_net_class_from_string(net_class_str: str) -> NetClass:
         "GateDrive": NetClass.GATE_DRIVE,
         "gatedrive": NetClass.GATE_DRIVE,
         "Gate": NetClass.GATE_DRIVE,
+        # Split 2026-07-28 (R4): "GateDrive" no longer exists as a netclass
+        # name in packages/temper-placer/configs/netclass_rules.yaml --
+        # without these entries, GATE_*/PWM_* nets would silently fall
+        # through to the NetClass.SIGNAL default below and lose their
+        # routing-priority boost.
+        "GateDriveHV": NetClass.GATE_DRIVE,
+        "gatedrivehv": NetClass.GATE_DRIVE,
+        "GateDriveSELV": NetClass.GATE_DRIVE,
+        "gatedriveselv": NetClass.GATE_DRIVE,
         # Signal nets (default, includes FinePitch)
         "Signal": NetClass.SIGNAL,
         "signal": NetClass.SIGNAL,

@@ -142,7 +142,19 @@ def _determine_trace_width(
         )
 
     # Power nets (GND, VCC, etc.)
-    if any(kw in name_upper for kw in ["GND", "VCC", "VDD", "VSS", "+", "POWER"]):
+    # FIXED 2026-07-28: this branch was still a bare `kw in name_upper`
+    # substring test even though the HV/gate-drive branches above and
+    # below it had already been anchored via _kw_boundary_match for the
+    # identical reason on 2026-07-27. A bare "+" matched almost any net
+    # with a "+" anywhere in its name (e.g. "DC_BUS+"'s HV classification
+    # above already short-circuits it, but a hypothetical non-HV net
+    # merely containing "+" would have been silently over-widened).
+    # Found completing the audit scripts/check_net_classification.py's
+    # 2026-07-28 vocabulary extension prompted -- see
+    # docs/evidence/2026-07-28-zone-layer-classification-fix.md.
+    if _kw_boundary_match(name_upper, ("GND", "VCC", "VDD", "VSS", "POWER")) or re.search(
+        r"^\+", name_upper
+    ):
         return TraceWidth(
             net_name=net_name,
             width_mm=power_width,

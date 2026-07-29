@@ -420,11 +420,27 @@ def route_pcb(
 
 def _zone_layers_for_net(net_name: str) -> list[str]:
     """Resolve the zone/pour layer(s) for a net from the netclass SSOT.
-    Returns empty list for nets that don't get zone treatment."""
-    from temper_placer.core.design_rules import TEMPER_NET_ASSIGNMENTS
+    Returns empty list for nets that don't get zone treatment.
 
-    nc = TEMPER_NET_ASSIGNMENTS.get(net_name, "")
-    if nc in ("GND", "Power", "GateDrive", "HighVoltage", "ACMains"):
+    FIXED 2026-07-28: this used to hardcode its own 5-class eligibility
+    list (``GND``, ``Power``, ``GateDrive``, ``HighVoltage``, ``ACMains``)
+    instead of consulting ``NetClassRules.routing_strategy`` -- the
+    project's own declared design intent, which marks only ``ACMains``
+    and ``HighVoltage`` ``"plane_required"`` (``core/design_rules.py``).
+    That drift is why ``Power`` (``+3V3``, ``vcc``, ``+15V``, ``+15V_LS``,
+    ``V_BUS_SENSE``) and ``GateDrive`` (``GATE_HS``/``GATE_LS``/
+    ``PWM_HS``/``PWM_LS``) nets carried zone pours the netclass metadata
+    never requested -- see
+    docs/evidence/2026-07-28-pour-strategy-audit.md Task 0. Driving
+    eligibility from ``routing_strategy`` keeps this in step with the
+    metadata by construction instead of by two hand-maintained lists
+    happening to agree.
+    """
+    from temper_placer.core.design_rules import TEMPER_NET_ASSIGNMENTS, TEMPER_NET_CLASSES
+
+    nc_name = TEMPER_NET_ASSIGNMENTS.get(net_name, "")
+    nc = TEMPER_NET_CLASSES.get(nc_name)
+    if nc is not None and nc.routing_strategy == "plane_required":
         return ["F.Cu", "B.Cu"]
     return []
 
@@ -460,6 +476,15 @@ def _zone_params_for_net(net_name: str) -> tuple[float, float]:
 
 # U1: netclasses where clustering would fragment a continuous return/ground
 # plane and undermine EMI/loop-area control for switching-power-supply nets.
+# NOTE 2026-07-28: "GND" is currently dormant here -- _zone_layers_for_net()
+# now drives zone eligibility from routing_strategy=="plane_required", which
+# GND does not declare (only ACMains/HighVoltage do), so a GND net never
+# reaches this membership check today (the zone-emission loop above skips
+# it before this constant is consulted). Left in place rather than removed:
+# it is not wrong, only unreachable under the current netclass SSOT, and
+# would immediately reactivate if GND's routing_strategy is ever set to
+# "plane_required" (e.g. per the pour audit's inner-layer-return-plane
+# recommendation, docs/evidence/2026-07-28-pour-strategy-audit.md Task 3).
 _CONTINUITY_EXEMPT_CLASSES = frozenset({"GND", "ACMains", "HighVoltage"})
 
 
@@ -489,13 +514,20 @@ def _stitch_isolated_pads(
     from shapely.geometry import Point as ShapelyPoint
     from shapely.geometry import Polygon
 
-    from temper_placer.core.design_rules import (
-        TEMPER_NET_ASSIGNMENTS,
-    )
-
     for net_name, positions in pad_positions.items():
-        nc = TEMPER_NET_ASSIGNMENTS.get(net_name, "")
-        if nc not in ("GND", "Power", "GateDrive", "HighVoltage", "ACMains"):
+        # Zone-eligibility check delegates to _zone_layers_for_net() rather
+        # than repeating its own copy of the netclass list -- this file
+        # previously carried three independent hardcoded copies of "which
+        # netclasses get zone treatment" (this function,
+        # _zone_layers_for_net(), and _emit_zone_pours()'s own loop), which
+        # is exactly the duplicate-hand-maintained-list drift shape fixed
+        # in _zone_layers_for_net() itself on 2026-07-28 -- see
+        # docs/evidence/2026-07-28-zone-layer-classification-fix.md. A net
+        # with no zone_layers never gets a zone_points entry below anyway
+        # (the `if not zps: continue` guard), so this was always
+        # semantically redundant with _zone_layers_for_net(), just not
+        # mechanically tied to it.
+        if not _zone_layers_for_net(net_name):
             continue
         net_num = net_name_to_number.get(net_name, 0)
         if net_num <= 0 or len(positions) <= 1:
