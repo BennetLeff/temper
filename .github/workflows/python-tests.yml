@@ -1462,13 +1462,191 @@ jobs:
           tests/requirements/review/ tests/requirements/dfm/
           -v --tb=short -p no:cacheprovider
 
-  # Split out of Core Tests 2026-07-28. Four backgrounded suites that share one
-  # step. Kept `continue-on-error: true` exactly as it was -- this restructure
-  # does not change any gate's pass/fail logic in either direction. The old
-  # job's 30 -> 45 timeout raise names this suite at ~14 min on its own, which
-  # is why it gets its own budget here.
-  extended-suites:
-    name: Extended Test Suites (bundle / cp-sat / workflow / checks)
+  # Split out of Core Tests 2026-07-28, then split again 2026-07-29. The four
+  # suites below (bundle / cp-sat / workflow / checks) used to share one
+  # `extended-suites` job as four backgrounded processes racing for one
+  # container's CPU, with a combined 25-minute budget. Measured bimodal
+  # around that budget: 18m05s on run 30429718944 (main), 25m03s -- killed by
+  # `timeout-minutes`, GitHub reporting it as "The operation was canceled" --
+  # on a PR re-running the identical commit, then 24m31s (29s of headroom) on
+  # a second re-run of that same commit. Every test in every one of those
+  # runs had PASSED; the job was failing on its own clock, not on defects.
+  #
+  # `--durations`/log-timestamp analysis of the 18m05s run (see
+  # docs/evidence/2026-07-29-extended-suites-timeout-split.md) attributes
+  # essentially the entire wall-clock to three cp-sat tests:
+  #   tests/placer/cp_sat/test_hybrid_pour_stitch_measurement.py
+  #     ::test_hybrid_pour_reduces_unconnected_without_shorting_regression  ~665s
+  #   tests/placer/cp_sat/test_zone_pour_production_measurement.py
+  #     ::test_zone_pours_reduce_unconnected_items                          ~163s
+  #   tests/placer/cp_sat/test_regression_drc.py
+  #     ::test_production_board_routing_drc_regression                      ~74s
+  # (~902s of the ~15m20s the cp-sat pytest invocation ran, out of an 18m05s
+  # job). bundle/workflow/checks together account for well under a minute.
+  # These three all shell out to kicad-cli for DRC sampling ("median of 3 DRC
+  # samples each"), so their wall-clock varies with whatever else is
+  # contending for CPU on the runner -- including the other three suites this
+  # job used to background alongside them. That shared contention, not a
+  # defect in any test, is what pushed the same commit from 18m05s to 25m03s
+  # between re-runs.
+  #
+  # Fix: give cp-sat its own job on its own runner, so its DRC-subprocess
+  # tests are no longer competing with bundle/workflow/checks for the same
+  # container's CPU, and so a slow cp-sat run no longer puts the fast suites
+  # at risk of the same shared clock (or vice versa). bundle/workflow/checks
+  # keep a combined budget since together they cost under a minute; cp-sat
+  # gets the old job's full 25-minute budget to itself. Per-test outcomes are
+  # unchanged -- each suite runs the exact same pytest/cargo invocation it did
+  # as a backgrounded process before, `continue-on-error: true` preserved
+  # exactly as it was on the old combined step (TODO: temper-NNN -- parallel
+  # test suite flakiness; hard-fail after 2026-09-01).
+  extended-bundle-workflow-checks:
+    name: Extended Test Suites (bundle / workflow / checks)
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/bennetleff/temper-ci:latest
+      options: --user root
+    timeout-minutes: 15
+    env:
+      VIRTUAL_ENV: ${{ github.workspace }}/.venv
+      TEMPER_REQUIRE_RUST_DRC: "1"
+    steps:
+      - uses: actions/checkout@v7
+
+      # Container runs as root; workspace is owned by the runner user. Without
+      # this, every `git` call in a later `run:` step exits 128 on "dubious
+      # ownership" rather than doing its job.
+      - name: Mark workspace safe for git
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: "latest"
+          enable-cache: true
+
+      - name: Cache virtualenv
+        uses: actions/cache@v6
+        id: cache-venv
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
+
+      - name: Create virtualenv (cache miss)
+        if: steps.cache-venv.outputs.cache-hit != 'true'
+        run: uv venv
+
+      - name: Install maturin
+        run: uv pip install maturin
+
+      - name: Build and install Rust crate
+        run: uv run maturin develop --release --manifest-path packages/temper-rust-router/Cargo.toml
+
+      - name: Verify Rust module loads
+        run: uv run python3 -c "import temper_rust_router; print('temper_rust_router loaded OK')"
+        env:
+          RUST_BACKTRACE: full
+
+      - name: Build and install temper-drc-rs
+        run: uv run maturin develop --release --manifest-path packages/temper-drc-rs/Cargo.toml
+
+      - name: Verify temper-drc-rs loads
+        run: uv run python3 -c "import temper_drc_rs; print('temper_drc_rs loaded OK')"
+        env:
+          RUST_BACKTRACE: full
+
+      - name: Build and install temper-constraints
+        run: >
+          uv run maturin develop --release
+          --manifest-path packages/temper-placer/temper-constraints/Cargo.toml
+        env:
+          PYO3_USE_ABI3_FORWARD_COMPATIBILITY: "1"
+
+      - name: Verify temper-constraints loads
+        run: uv run python3 -c "import temper_constraints; print('temper_constraints loaded OK, version', temper_constraints.version_py())"
+        env:
+          RUST_BACKTRACE: full
+
+      # `uv sync` defaults to an *exact* sync: anything installed in the venv
+      # that is not part of this invocation's resolved target set gets
+      # uninstalled as "extraneous". `--no-install-package X` excludes X from
+      # that target set -- it does NOT mean "leave X alone". Without
+      # `--inexact`, the three flags below were therefore silently
+      # UNINSTALLING the release wheels that "Build and install ..." just
+      # built and "Verify ... loads" just confirmed importable, minutes
+      # earlier in this same job. Reproduced locally: `uv sync --all-packages
+      # --no-install-package temper-rust-router ...` (no --inexact) prints
+      # "Uninstalled 2 packages" and `- temper-rust-router==0.1.0` in its
+      # diff, and a subsequent bare import fails with ModuleNotFoundError.
+      # `--inexact` disables the extraneous-package removal, so these three
+      # packages are truly left untouched (mtimes unchanged, no rebuild)
+      # instead of evicted -- confirmed locally: with --inexact added, the
+      # same command reports "Audited N packages" (no install/uninstall) and
+      # the modules remain importable afterward.
+      - name: Install dependencies
+        run: >
+          uv sync --all-packages --inexact
+          --no-install-package temper-rust-router
+          --no-install-package temper-drc-rs
+          --no-install-package temper-constraints
+
+      - name: Cache netlist
+        id: cache-netlist
+        uses: actions/cache@v6
+        with:
+          path: elec/build
+          key: netlist-${{ hashFiles('elec/src/**', 'elec/ato.yaml', 'Makefile') }}
+
+      - name: Build electronics netlist
+        if: steps.cache-netlist.outputs.cache-hit != 'true'
+        run: make netlist
+
+      # ---- SETUP / GATE BOUNDARY -------------------------------------------
+      # Everything ABOVE is setup and stays fail-fast: it has no `if:`, so if
+      # any of it fails (maturin, uv sync, make netlist) this step never runs,
+      # `steps.setup.outcome` is not `success`, and every gate below is SKIPPED
+      # rather than run against a half-built environment and reported as a gate
+      # verdict. Everything BELOW is a gate: each carries
+      # `if: !cancelled() && steps.setup.outcome == 'success'` so a red gate no
+      # longer deletes the verdict of the gates behind it. None of them is
+      # `continue-on-error`, so the job still concludes `failure` if any fails.
+      - name: Setup barrier -- environment ready
+        id: setup
+        run: echo "setup complete; gates below report independently"
+
+      - name: Run bundle / workflow / checks suites in parallel
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        # cp-sat split into its own job (extended-cpsat, below) 2026-07-29 --
+        # see the comment above this job for why. What remains here is the
+        # same three backgrounded suites, unchanged, still racing each other
+        # for this container's CPU (that contention is fine: together they
+        # cost well under a minute, so it was never the source of the
+        # timeout risk cp-sat was).
+        run: |
+          set +e
+          (cargo test --manifest-path packages/temper-design-bundle/Cargo.toml && \
+           uv run python3 -c "import temper_design_bundle_python; print('temper_design_bundle_python loaded OK')") &
+          BUNDLE_PID=$!
+
+          (cd packages/temper-workflow && uv run pytest tests/ -v --tb=short) &
+          WORKFLOW_PID=$!
+
+          (uv run python tools/check_kicad_layers.py && \
+           cd packages/temper-placer && \
+           uv run pytest tests/io/test_4layer_output_properties.py -v --tb=short && \
+           uv run python3 firmware/test/gen_transition_table.py --generate && \
+           git diff --exit-code firmware/test/test_transition_table_generated.c) &
+          CHECKS_PID=$!
+
+          FAIL=0
+          for pid in $BUNDLE_PID $WORKFLOW_PID $CHECKS_PID; do
+            wait $pid || FAIL=1
+          done
+          exit $FAIL
+        continue-on-error: true  # TODO: temper-NNN -- parallel test suite flakiness; hard-fail after 2026-09-01
+
+  extended-cpsat:
+    name: Extended Test Suites (cp-sat)
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/bennetleff/temper-ci:latest
@@ -1581,58 +1759,25 @@ jobs:
         id: setup
         run: echo "setup complete; gates below report independently"
 
-      - name: Run extended test suites in parallel
+      - name: Run cp-sat suite
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
-        # The INVARIANT suite (tests/router_v6/ tests/io/ tests/deterministic/
-        # tests/physics/ tests/fields/ tests/validation/ tests/placer/cp_sat/,
-        # ~3,500 tests once tests/losses/ stopped aborting collection -- see
-        # docs/evidence/2026-07-27-invariant-suite-parallel-split.md) used to
-        # run here as a fifth backgrounded process. Measured at only 21% done
-        # after this job's full 30-minute timeout (run 30305743267, killed
-        # 2026-07-27T22:16Z) -- a genuine ~2.5h suite, not a hang. Keeping it
-        # in this job meant the timeout killed every later step too (board
-        # identity gate, vulture, MPN gates, etc.), not just the slow suite.
-        # It now runs as four separate parallel jobs (invariant-router-v6-1/2/3
-        # and invariant-rest, below) so this job's own budget covers only
-        # BUNDLE/CPSAT/WORKFLOW/CHECKS again.
-        #
-        # 2026-07-28: that split was documented here but never actually
-        # finished -- the INVARIANT_PID launch stayed in this script. It re-ran
-        # all seven directories (the exact union of invariant-router-v6-1/2/3 +
-        # invariant-rest) as a fifth background process that was NOT in the
-        # `wait` list below, so its exit code -- and its own --min-tests 2500
-        # guard -- were discarded, and it was killed outright when the step
-        # ended. Its only observable effect was stealing CPU from the four
-        # suites this step does wait on, for the whole step: measured 1328s of
-        # a 27-minute Core Tests job (run 30332849229) on a 4-vCPU runner,
-        # after which the job failed on a 1-second gate. Removed; the four
-        # dedicated jobs are the single execution path for the invariant suite.
-        run: |
-          set +e
-          (cargo test --manifest-path packages/temper-design-bundle/Cargo.toml && \
-           uv run python3 -c "import temper_design_bundle_python; print('temper_design_bundle_python loaded OK')") &
-          BUNDLE_PID=$!
-
-          (cd packages/temper-placer && \
-           uv run pytest tests/placer/cp_sat/ tests/metrics/test_external_oracle.py \
-             tests/cli/test_cp_sat_flag.py -v --tb=short -p no:cacheprovider --maxfail=10) &
-          CPSAT_PID=$!
-
-          (cd packages/temper-workflow && uv run pytest tests/ -v --tb=short) &
-          WORKFLOW_PID=$!
-
-          (uv run python tools/check_kicad_layers.py && \
-           cd packages/temper-placer && \
-           uv run pytest tests/io/test_4layer_output_properties.py -v --tb=short && \
-           uv run python3 firmware/test/gen_transition_table.py --generate && \
-           git diff --exit-code firmware/test/test_transition_table_generated.c) &
-          CHECKS_PID=$!
-
-          FAIL=0
-          for pid in $BUNDLE_PID $CPSAT_PID $WORKFLOW_PID $CHECKS_PID; do
-            wait $pid || FAIL=1
-          done
-          exit $FAIL
+        # Split out of the combined extended-suites job 2026-07-29: this
+        # single suite owned ~902s of the old job's ~920s (18m05s run
+        # 30429718944), almost entirely tests/placer/cp_sat/test_hybrid_pour_
+        # stitch_measurement.py, test_zone_pour_production_measurement.py, and
+        # test_regression_drc.py, each of which shells out to kicad-cli for a
+        # DRC sample (median of 3 per test). Giving it a dedicated runner
+        # removes the CPU contention it used to have with bundle/workflow/
+        # checks backgrounded alongside it on the same container, which is
+        # what pushed the same commit from 18m05s to a 25m03s timeout kill
+        # between re-runs. Same pytest invocation, same flags, same
+        # `continue-on-error` as the old backgrounded process --
+        # TODO: temper-NNN -- parallel test suite flakiness; hard-fail after
+        # 2026-09-01.
+        run: >
+          cd packages/temper-placer &&
+          uv run pytest tests/placer/cp_sat/ tests/metrics/test_external_oracle.py
+          tests/cli/test_cp_sat_flag.py -v --tb=short -p no:cacheprovider --maxfail=10
         continue-on-error: true  # TODO: temper-NNN -- parallel test suite flakiness; hard-fail after 2026-09-01
 
   invariant-router-v6-1:
