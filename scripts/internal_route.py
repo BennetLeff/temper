@@ -113,9 +113,13 @@ def populate_oracle_from_board(oracle, board):
             abs_x = fp_x + rot_x
             abs_y = fp_y + rot_y
 
-            # Pad Absolute Rotation
-            pad_rel_angle = pad.position.angle if pad.position.angle is not None else 0.0
-            pad_abs_angle = fp_angle + pad_rel_angle
+            # Pad Absolute Rotation. In a .kicad_pcb the pad's `(at x y angle)`
+            # angle is ALREADY the pad's absolute world orientation -- KiCad's
+            # parser does not add the parent footprint's angle to it (that is
+            # only true of .kicad_mod library files). Adding fp_angle here
+            # double-counts the footprint rotation. See
+            # docs/evidence/2026-07-29-intra-component-shorts-root-cause.md.
+            pad_abs_angle = pad.position.angle if pad.position.angle is not None else 0.0
 
             # Pad size
             w = pad.size.X

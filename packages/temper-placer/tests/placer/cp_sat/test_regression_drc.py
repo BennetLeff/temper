@@ -30,7 +30,9 @@ conflated: ``PRODUCTION_COMMITTED_BOARD_*`` is kicad-cli DRC on the board file
 as committed, ``PRODUCTION_ROUTER_OUTPUT_*`` is kicad-cli DRC on what
 ``route_pcb()`` emits.  Both were re-seeded on 2026-07-28 after the board was
 routed for the first time (556ccf4f, 2026-07-27) invalidated the 2026-07-18
-bare-board figures; see the provenance block above the constants.
+bare-board figures, and again on 2026-07-29 after the corrected library
+footprints and the absolute pad angles were propagated into the board
+(issue #374); see the provenance block above the constants.
 """
 
 from __future__ import annotations
@@ -528,7 +530,20 @@ PRODUCTION_BOARD_PATH = REPO_ROOT / "pcb" / "temper.kicad_pcb"
 # ---------------------------------------------------------------------------
 
 # Shape of pcb/temper.kicad_pcb that every baseline below was measured against
-# (2026-07-28, commit 562bbabf).  Change the board, re-measure the numbers.
+# (re-verified 2026-07-29 after the corrected-footprint propagation).  Change
+# the board, re-measure the numbers.
+#
+# 2026-07-29: all four numbers are UNCHANGED by the corrected-footprint
+# propagation, and that is the point.  That change rewrote 330 pad lines inside
+# the embedded footprints (327 absolute pad angles + U27's 33 transposed pad
+# sizes + R30 pad 2's pitch + K1 pads 13/14's layer list) and touched nothing
+# else: no footprint moved or rotated, no segment/via/zone was added, removed or
+# repointed, and every copper item's net still resolves to the same NAME it did
+# before (proved item-by-item over all 2,482 copper items — 2338 segments, 48
+# vias, 96 zones — in docs/evidence/2026-07-29-board-regeneration-corrected-
+# footprints.md Sec 2).  A shape guard that stayed green while the pad geometry
+# changed underneath it is doing exactly its job: it guards against a board
+# whose COPPER budget is no longer comparable, and the copper is identical.
 PRODUCTION_BOARD_BASELINE_SHAPE = {
     "footprints": 168,
     "segments": 2338,
@@ -547,31 +562,105 @@ PRODUCTION_BOARD_BASELINE_SHAPE = {
 PRODUCTION_DRC_SAMPLE_RUNS = 5
 
 # --- Category A: kicad-cli DRC on the committed board, exactly as it ships ---
-# Measured 2026-07-28 (kicad-cli 10.0.4) against the shape above, N=15 runs of
+# RE-MEASURED 2026-07-29 (kicad-cli 10.0.4, macOS arm64 / Darwin 25.5.0),
+# against the shape above, N=15 runs of
 #   kicad-cli pcb drc --format json -o out.json pcb/temper.kicad_pcb
-#   total              median 1483, range 1470–1494
-#   shorting_items     median  164, range  152– 175
-#   unconnected_items  382 in all 15 runs (no scatter at all)
-# Thresholds sit just above the median so a genuine move is caught while the
-# documented ±11 scatter is not mistaken for one.  For reference the old 800
-# was measured on the bare 149-footprint board (747 there, 634 when re-run
-# today — that 113 gap is fp-lib-table drift in lib_footprint_issues alone,
-# every other violation class reproduced exactly).
-PRODUCTION_COMMITTED_BOARD_TOTAL_DVIOLATIONS = 1495
-PRODUCTION_COMMITTED_BOARD_SHORTING_ITEMS = 170
-PRODUCTION_COMMITTED_BOARD_UNCONNECTED = 382
+#   total              median 1234, range 1232–1258
+#   shorting_items     median   68, range   66–  87
+#   unconnected_items  388 in all 15 runs (no scatter at all)
+# Previous seeding (2026-07-28, same tool/host): median 1483 / 164 / 382.
+#
+# WHAT MOVED AND WHY.  pcb/temper.kicad_pcb was re-baselined by propagating
+# three corrected library footprints into its embedded copies and writing the
+# absolute pad angles the writer had been omitting (issue #374; root cause in
+# docs/evidence/2026-07-29-intra-component-shorts-root-cause.md, propagation
+# and diff-scope proof in docs/evidence/2026-07-29-board-regeneration-
+# corrected-footprints.md).  A .kicad_pcb pad's `(at x y angle)` angle is
+# ABSOLUTE; the old file rotated 99 footprints without ever rotating the 327
+# pad bodies inside them, so fine-pitch pads physically overlapped in copper.
+#   total              1483 -> 1234  (-249)
+#   shorting_items      164 ->   68  ( -96), of which the deterministic
+#                                     intra-component subset is 60 -> 0
+#   solder_mask_bridge  154 ->   64  ( -90)
+#   lib_footprint_mismatch 108 -> 28 ( -80), zero NEW mismatches; the 28
+#                                     survivors are the same rotation-0/180
+#                                     THT parts, at identical counts, that
+#                                     were already mismatching before
+#   unconnected_items   382 ->  388  (  +6)  <-- the only number that ROSE
+#
+# The +6 is a truth correction, not a regression.  Pads whose oversized or
+# unrotated copper bodies physically overlapped were being counted by KiCad's
+# connectivity engine as CONNECTED; correcting the geometry makes them
+# correctly reported as unrouted.  All 36 newly-reported pairs were checked
+# individually and every one is SAME-NET (0 cross-net); the classic examples
+# are `Pad 2 [vcc] of U9` / `Pad 3 [vcc] of U9` and `Pad 18 [gnd] of U9` /
+# `Pad 19 [gnd] of U9`.  They were never routed — the short was standing in
+# for a trace.  30 previously-reported pairs disappeared over the same edit
+# (KiCad re-chooses the nearest item for a ratsnest line), hence +6 net.
+#
+# THRESHOLD RULE (unchanged in spirit, now stated explicitly): these gates
+# assert the MEDIAN OF 5 runs, so the threshold is set just above the worst
+# median-of-5 obtainable from the N=15 sample, not above the worst single run.
+# Bootstrapped over all 3003 five-run subsets of the sample above:
+#   total            median-of-5 spans 1232–1250  -> threshold 1260
+#   shorting_items   median-of-5 spans   67–  83  -> threshold   90
+#   unconnected      median-of-5 spans  388– 388  -> threshold  388
+# Every one of these is a RATCHET DOWN from the 2026-07-28 seeding except
+# `unconnected`, which is raised by exactly the +6 justified above.
+PRODUCTION_COMMITTED_BOARD_TOTAL_DVIOLATIONS = 1260
+PRODUCTION_COMMITTED_BOARD_SHORTING_ITEMS = 90
+PRODUCTION_COMMITTED_BOARD_UNCONNECTED = 388
 
 # --- Category B: kicad-cli DRC on route_pcb()'s output for that board ---
-# Measured 2026-07-28 (kicad-cli 10.0.4) against the shape above, N=11 full
-# route_pcb() + DRC round-trips (completion_rate 0.3854 in all eleven):
-#   total              median 1784, range 1755–1808
-#   shorting_items     median  186, range  167– 199
-#   unconnected_items  396 in all eleven runs (no scatter at all)
+# RE-MEASURED 2026-07-29 (kicad-cli 10.0.4, macOS arm64), against the shape
+# above.  route_pcb() was run 3x and its output byte-hashed to confirm the
+# router's geometry is deterministic (all three SHA-256 digests identical,
+# completion_rate 0.3750 each time), then DRC was sampled N=11 on that one
+# routed file — the protocol this test itself documents ("the router's
+# geometry is deterministic; the scatter is KiCad's").
+#   total              median 1551, range 1508–1558
+#   shorting_items     median  115, range   89– 122
+#   unconnected_items  405 in all eleven runs (no scatter at all)
+# Previous seeding (2026-07-28): median 1784 / 186 / 396.
+#
+# WHAT MOVED AND WHY.  Two separate causes, and they must not be conflated:
+#
+#   (a) The already-merged reader fix (1979fcc8, `Pin.pad_rotation_deg` is now
+#       recovered as `pad_at_angle - fp_angle`) changed what the router SEES on
+#       an unchanged board.  Re-running route_pcb() today against the OLD
+#       committed board (extracted with `git show`) gives completion_rate
+#       0.3646 and unconnected_items 402 — which is exactly the failure PR #412
+#       reports ("Router output unconnected_items 402 exceeds the measured
+#       baseline 396").  That +6 predates this change and is the placer no
+#       longer modelling a board that does not exist on disk.
+#   (b) This change (corrected footprints on the board) then moves it again:
+#       402 -> 405, and completion_rate 0.3646 -> 0.3750 (the router routes
+#       MORE, not less, once the pad geometry it plans against is real).
+#
+# Measured on this host, all three configurations, so the attribution is not
+# inferred:
+#   board / reader state          completion  total  shorting  unconnected
+#   old board, 2026-07-28 seeding    0.3854    1784      186          396
+#   old board, today (cause a)       0.3646    1821      199          402
+#   new board, today (a + b)         0.3750    1551      115          405
+# The +3 from (b) was checked pair-by-pair: all 55 newly-reported unconnected
+# pairs are SAME-NET (0 cross-net), same truth-correction mechanism as
+# Category A.  Everything else ratchets DOWN hard: total -270, shorting_items
+# -84, intra-component shorting_items 50 -> 0, lib_footprint_mismatch 88 -> 14.
+#
+# Threshold rule as in Category A — just above the worst median-of-5 over all
+# 462 five-run subsets of the N=11 sample:
+#   total            median-of-5 spans 1526–1558 -> threshold 1560
+#   shorting_items   median-of-5 spans   89– 122 -> threshold  125
+#   unconnected      median-of-5 spans  405– 405 -> threshold  405
+#
 # NOTE these are NOT comparable line-for-line with the Category A numbers:
 # the router writes to a bare temp file with no adjacent .kicad_pro /
-# fp-lib-table, so footprint-library classes resolve differently (33
-# lib_footprint_issues + 88 lib_footprint_mismatch vs 8 + 107 in category A),
-# and the writer emits 96 zones_intersect that the committed board does not.
+# fp-lib-table, so footprint-library classes resolve differently (2026-07-29:
+# 33 lib_footprint_issues + 14 lib_footprint_mismatch here vs 8 + 28 in
+# category A; the `lib:` and `temper:` project nicknames simply do not resolve
+# in the temp directory), and the writer emits 96 zones_intersect that the
+# committed board does not.
 #
 # The predecessors of these numbers (953 total / 260 unconnected) measured
 # route_pcb() starting from a BARE board.  It now starts from an already-routed
@@ -582,15 +671,16 @@ PRODUCTION_COMMITTED_BOARD_UNCONNECTED = 382
 # figures" note in docs/STRATEGY.md.)
 #
 # The router-output shorting_items threshold is looser relative to its median
-# (+13) than the committed board's (+6) because its scatter is: 167–199 across
-# eleven runs, ~18% of the median, well beyond the ±11 STRATEGY.md records.
-# A tighter number would flake rather than gate.  It still catches a real move
-# of the magnitude STRATEGY.md has already had to diagnose once (+22 median,
-# the CST3015 re-place).  The tight shorts gate is the Category A one — that is
-# the board that actually ships.
-PRODUCTION_ROUTER_OUTPUT_TOTAL_DVIOLATIONS = 1810
-PRODUCTION_ROUTER_OUTPUT_SHORTING_ITEMS = 199
-PRODUCTION_ROUTER_OUTPUT_UNCONNECTED = 396
+# (+10) than the committed board's (+22 nominal but only +7 over the worst
+# median-of-5) because its scatter is wider: 89–122 across eleven runs, ~29% of
+# the median, well beyond the ±11 STRATEGY.md records.  A tighter number would
+# flake rather than gate.  It still catches a real move of the magnitude
+# STRATEGY.md has already had to diagnose once (+22 median, the CST3015
+# re-place).  The tight shorts gate is the Category A one — that is the board
+# that actually ships.
+PRODUCTION_ROUTER_OUTPUT_TOTAL_DVIOLATIONS = 1560
+PRODUCTION_ROUTER_OUTPUT_SHORTING_ITEMS = 125
+PRODUCTION_ROUTER_OUTPUT_UNCONNECTED = 405
 
 
 @dataclass(frozen=True)
@@ -714,7 +804,7 @@ def test_production_board_drc_regression(monkeypatch: pytest.MonkeyPatch):
     assert sample.shorting_items <= PRODUCTION_COMMITTED_BOARD_SHORTING_ITEMS, (
         f"Committed board shorting_items median {sample.shorting_items} exceeds "
         f"the measured baseline {PRODUCTION_COMMITTED_BOARD_SHORTING_ITEMS} "
-        f"(2026-07-28: median 164, range 152–175 over N=15 DRC runs; "
+        f"(2026-07-29: median 68, range 66–87 over N=15 DRC runs; "
         f"this run's sample: {sample.shortings}). "
         f"A copper short is a fatal defect on a mains-connected board "
         f"(docs/STRATEGY.md) — this threshold is a ratchet, not a budget. "
@@ -725,14 +815,21 @@ def test_production_board_drc_regression(monkeypatch: pytest.MonkeyPatch):
     assert sample.unconnected <= PRODUCTION_COMMITTED_BOARD_UNCONNECTED, (
         f"Committed board unconnected_items {sample.unconnected} exceeds the "
         f"measured baseline {PRODUCTION_COMMITTED_BOARD_UNCONNECTED} "
-        f"(2026-07-28: 382 in all 15 runs, zero scatter). The board is 51/96 "
-        f"nets routed; this number may only go down."
+        f"(2026-07-29: 388 in all 15 runs, zero scatter). This number may only "
+        f"go down FOR A FIXED BOARD GEOMETRY — routing can only ever close "
+        f"connections. It legitimately rose once, 382 -> 388 on 2026-07-29, "
+        f"when correcting the pad geometry removed copper overlaps that KiCad's "
+        f"connectivity engine had been counting as connections; all 36 newly "
+        f"reported pairs were verified SAME-NET. If you believe you are in that "
+        f"case again, prove it pair-by-pair in docs/evidence/ before touching "
+        f"this constant. KiCad details: "
+        f"{sample.last_raw.get('unconnected_items', [])[:5]}"
     )
 
     assert sample.total <= PRODUCTION_COMMITTED_BOARD_TOTAL_DVIOLATIONS, (
         f"Committed board DRC total median {sample.total} exceeds threshold "
         f"{PRODUCTION_COMMITTED_BOARD_TOTAL_DVIOLATIONS} "
-        f"(2026-07-28: median 1483, range 1470–1494 over N=15 runs; "
+        f"(2026-07-29: median 1234, range 1232–1258 over N=15 runs; "
         f"this run's sample: {sample.totals}). "
         f"By type (last run): {dict(sorted(sample.last_by_type.items()))}"
     )
@@ -752,8 +849,10 @@ def test_production_board_routing_drc_regression(monkeypatch: pytest.MonkeyPatch
     :func:`test_production_board_drc_regression`: the router now starts from
     an already-routed board (556ccf4f) and appends to existing copper, and it
     writes to a bare temp file whose footprint libraries resolve differently.
-    The baselines are therefore category-B numbers, re-seeded 2026-07-28; see
-    the provenance block above for why the old 953/260 no longer apply.
+    The baselines are therefore category-B numbers, re-seeded 2026-07-28 and
+    again 2026-07-29; see the provenance block above for why the old 953/260
+    no longer apply, and for the two-cause attribution of the 396 -> 405
+    ``unconnected_items`` move.
     """
     if not _kicad_cli_available():
         pytest.skip("kicad-cli not available")
@@ -798,8 +897,8 @@ def test_production_board_routing_drc_regression(monkeypatch: pytest.MonkeyPatch
     assert sample.shorting_items <= PRODUCTION_ROUTER_OUTPUT_SHORTING_ITEMS, (
         f"Router output shorting_items median {sample.shorting_items} exceeds "
         f"the measured baseline {PRODUCTION_ROUTER_OUTPUT_SHORTING_ITEMS} "
-        f"(2026-07-28: median 186, range 167–199 over N=11 route+DRC runs; "
-        f"this run's sample: {sample.shortings}). "
+        f"(2026-07-29: median 115, range 89–122 over N=11 DRC runs on the "
+        f"router's deterministic output; this run's sample: {sample.shortings}). "
         f"A copper short is a fatal defect on a mains-connected board "
         f"(docs/STRATEGY.md) — this threshold is a ratchet, not a budget. "
         f"Do not raise it to go green."
@@ -808,15 +907,18 @@ def test_production_board_routing_drc_regression(monkeypatch: pytest.MonkeyPatch
     assert sample.unconnected <= PRODUCTION_ROUTER_OUTPUT_UNCONNECTED, (
         f"Router output unconnected_items {sample.unconnected} exceeds the "
         f"measured baseline {PRODUCTION_ROUTER_OUTPUT_UNCONNECTED} "
-        f"(2026-07-28: 396 in all eleven runs, zero scatter) despite the "
-        f"router completion signal. KiCad details: "
+        f"(2026-07-29: 405 in all eleven runs, zero scatter) despite the "
+        f"router completion signal. Same caveat as the Category A gate: this "
+        f"rose 396 -> 402 (reader fix 1979fcc8) -> 405 (corrected board, "
+        f"2026-07-29) as phantom copper connections were removed, every newly "
+        f"reported pair verified SAME-NET. KiCad details: "
         f"{sample.last_raw.get('unconnected_items', [])[:5]}"
     )
 
     assert sample.total <= PRODUCTION_ROUTER_OUTPUT_TOTAL_DVIOLATIONS, (
         f"Router output DRC total median {sample.total} exceeds threshold "
         f"{PRODUCTION_ROUTER_OUTPUT_TOTAL_DVIOLATIONS} "
-        f"(2026-07-28: median 1784, range 1755–1808 over N=11 runs; "
+        f"(2026-07-29: median 1551, range 1508–1558 over N=11 runs; "
         f"this run's sample: {sample.totals}; "
         f"unconnected={sample.unconnected}). "
         f"By type (last run): {dict(sorted(sample.last_by_type.items()))}"

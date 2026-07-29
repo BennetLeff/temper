@@ -20,6 +20,42 @@ from temper_placer.io._write_types import (
 from temper_placer.io.kicad_exporter import _validate_4_layer_output
 
 
+def _reorient_pads(fp, old_fp_angle: float, new_fp_angle: float) -> None:
+    """Rotate a footprint's pad *bodies* to match its new board rotation.
+
+    In a ``.kicad_pcb`` file a pad's ``(at x y angle)`` angle is the pad's
+    **absolute** (world) orientation, not an offset from the parent
+    footprint's angle -- KiCad's parser does not add the footprint angle to
+    it. So changing ``footprint.at`` rotation moves every pad's *position*
+    (KiCad rotates ``at`` offsets at load time) but leaves every pad *body*
+    pointing the way it did before, unless the pad angles are rewritten too.
+
+    Failing to rewrite them silently squashes fine-pitch packages: an
+    SSOP-20 rotated 270 degrees keeps 1.2mm-long pad bodies lying along the
+    0.635mm pitch axis, so every adjacent pad pair physically overlaps and
+    KiCad reports ``shorting_items``. Measured on ``pcb/temper.kicad_pcb``:
+    55 of 60 intra-component shorts, plus 76 solder-mask bridges and 93
+    ``lib_footprint_mismatch`` violations, all from this one omission. See
+    ``docs/evidence/2026-07-29-intra-component-shorts-root-cause.md``.
+
+    Each pad's *intrinsic* orientation (its angle relative to its parent, as
+    defined by the library footprint) is preserved: ``intrinsic =
+    old_pad_angle - old_fp_angle``, and the new absolute angle is
+    ``new_fp_angle + intrinsic``.
+    """
+    delta = new_fp_angle - old_fp_angle
+    if delta % 360.0 == 0.0:
+        return
+    for pad in fp.pads or []:
+        if pad.position is None:
+            continue
+        current = pad.position.angle or 0.0
+        new_angle = (current + delta) % 360.0
+        # kiutils omits the angle token when it is None; an absent angle
+        # means 0 in KiCad, so only write None when the result really is 0.
+        pad.position.angle = None if new_angle == 0.0 else new_angle
+
+
 def write_placements_to_pcb(
     template_pcb: Path,
     output_pcb: Path,
@@ -100,13 +136,18 @@ def write_placements_to_pcb(
             x -= rotated_cx
             y -= rotated_cy
 
-        # Update position
+        # Update position. Pad bodies must be re-oriented alongside the
+        # footprint: a .kicad_pcb pad angle is absolute, so rotating only the
+        # footprint leaves every pad body unrotated (see _reorient_pads).
         if fp.position is None:
             fp.position = Position(X=x, Y=y, angle=rotation_deg)
+            _reorient_pads(fp, 0.0, rotation_deg)
         else:
+            old_angle = fp.position.angle or 0.0
             fp.position.X = x
             fp.position.Y = y
             fp.position.angle = rotation_deg
+            _reorient_pads(fp, old_angle, rotation_deg)
 
         components_updated += 1
 

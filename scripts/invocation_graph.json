@@ -15,6 +15,9 @@
   "capacity_budget_gate.py": [
     ".github/workflows/python-tests.yml"
   ],
+  "check_copper_net_consistency.py": [
+    "packages/temper-placer/src/temper_placer/router_v6/clearance_check.py"
+  ],
   "check_coverage_gate.py": [
     ".github/workflows/python-tests.yml"
   ],
@@ -22,21 +25,46 @@
     ".github/workflows/python-tests.yml"
   ],
   "check_domain_partition.py": [
+    ".github/workflows/python-tests.yml",
+    "packages/temper-placer/src/temper_placer/router_v6/clearance_check.py",
+    "packages/temper-placer/tests/requirements/safety/_real_board_fixture.py"
+  ],
+  "check_evidence_provenance.py": [
     ".github/workflows/python-tests.yml"
   ],
   "check_fault_list_consistency.py": [
     ".github/workflows/firmware-tests.yml"
   ],
+  "check_isolation_keepout.py": [
+    ".github/workflows/python-tests.yml",
+    "packages/temper-placer/src/temper_placer/placer/cp_sat/isolation_barrier.py",
+    "packages/temper-placer/tests/placer/cp_sat/test_isolation_barrier.py"
+  ],
   "check_manifest_gate.py": [
     ".github/workflows/python-tests.yml"
   ],
-  "check_perf_regression.py": [
-    "Makefile",
-    "packages/temper-placer/src/temper_placer/profiling/pipeline_metrics.py"
+  "check_measurement_provenance.py": [
+    ".github/workflows/python-tests.yml"
   ],
+  "check_net_classification.py": [
+    ".github/workflows/python-tests.yml",
+    "packages/temper-placer/src/temper_placer/_constraint_types/config.py",
+    "packages/temper-placer/src/temper_placer/core/net_classification.py",
+    "packages/temper-placer/src/temper_placer/core/priority.py",
+    "packages/temper-placer/src/temper_placer/deterministic/stages/zone_aware_slot_generation.py",
+    "packages/temper-placer/src/temper_placer/io/net_class_manager.py",
+    "packages/temper-placer/src/temper_placer/router_v6/clearance_check.py",
+    "packages/temper-placer/src/temper_placer/router_v6/clearance_engine.py",
+    "packages/temper-placer/src/temper_placer/router_v6/constraints_design_rules.py",
+    "packages/temper-placer/src/temper_placer/router_v6/trace_width_assignment.py"
+  ],
+  "check_pad_orientation.py": [],
   "check_physics_provenance.py": [
     ".github/workflows/python-tests.yml",
     "packages/temper-placer/tests/scripts/test_check_physics_provenance.py"
+  ],
+  "check_pll_range_consistency.py": [
+    ".github/workflows/python-tests.yml"
   ],
   "check_regression.py": [
     ".github/workflows/regression.yml"
@@ -49,8 +77,16 @@
     ".github/workflows/health-digest.yml",
     ".github/workflows/python-tests.yml"
   ],
+  "check_stale_extensions.py": [
+    ".github/workflows/python-tests.yml",
+    "Makefile"
+  ],
+  "check_stash_stack_gate.py": [],
   "check_traceability.py": [],
   "check_typecheck_gate.py": [
+    ".github/workflows/python-tests.yml"
+  ],
+  "check_undeclared_imports.py": [
     ".github/workflows/python-tests.yml"
   ],
   "check_vacuous_gates.py": [
@@ -60,7 +96,8 @@
     ".github/workflows/lint-workflows.yml"
   ],
   "ci_check_drc.py": [
-    ".github/workflows/regression.yml"
+    ".github/workflows/regression.yml",
+    "packages/temper-placer/src/temper_placer/regression/drc_ratchet.py"
   ],
   "ci_closure_test.py": [
     ".github/workflows/metrics-record.yml",
@@ -102,6 +139,7 @@
   "import_linter_gate.py": [
     ".github/workflows/python-tests.yml"
   ],
+  "install_git_stash_guard.py": [],
   "internal_route.py": [
     "Makefile",
     "packages/temper-placer/tests/pipeline/stages/test_input_stage_identity_preflight.py",
@@ -115,6 +153,9 @@
   ],
   "literal_removal_check.py": [
     ".github/workflows/literal-removal-advisory.yml"
+  ],
+  "mpn_fabrication_gate.py": [
+    ".github/workflows/python-tests.yml"
   ],
   "pipeline_metrics.py": [
     ".github/workflows/firmware-perf-record.yml",
@@ -135,13 +176,19 @@
   ],
   "profile_router_v6_sampling.py": [],
   "profile_rust_topology.py": [],
+  "pytest_guard.py": [
+    ".github/workflows/python-tests.yml"
+  ],
   "quarantine_report.py": [
     ".github/workflows/corpus-batch.yml",
+    ".github/workflows/placer-regression.yml",
     ".github/workflows/regression.yml"
   ],
   "reconcile_metrics.py": [
     ".github/workflows/metrics-reconcile.yml"
   ],
+  "resync_pcb_netlist.py": [],
+  "route_board.py": [],
   "run_feedback_loop.py": [
     "scripts/test_backpath_fix.sh"
   ],
@@ -157,9 +204,7 @@
   "trace_invocations.py": [
     ".github/workflows/python-tests.yml"
   ],
-  "update_regression_cache.py": [
-    ".github/workflows/placer-regression.yml"
-  ],
+  "update_regression_cache.py": [],
   "validate_footprints.py": [
     "scripts/sprint1_validation.sh"
   ],
@@ -167,5 +212,11 @@
   "vulture_gate.py": [
     ".github/workflows/python-tests.yml"
   ],
-  "worktree_report.py": []
+  "worktree_report.py": [],
+  "write_build_stamp.py": [
+    "Makefile"
+  ],
+  "write_extension_stamps.py": [
+    ".github/workflows/python-tests.yml"
+  ]
 }
