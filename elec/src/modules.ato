@@ -1099,10 +1099,17 @@ module BusDischarge:
     40.52.7.012.0000 footprint for K2/K3 without first fetching and
     citing a manufacturer datasheet proving that pitch (see
     scripts/mpn_fabrication_gate.py's hard rule against unverified MPNs).
-    Relay_DPDT and pcb/libs/temper.pretty/Relay_DPDT_Finder-40.52.kicad_mod
-    are left in the tree, unused, with their own geometry corrected to the
-    real part (in case a same-pitch-family part is ever useful elsewhere)
-    but flagged in their own docstrings as inadequate for this role.
+    No `Relay_DPDT` component is defined in this design. It deliberately
+    does not exist: an instantiable definition of a part measured to fail
+    reinforced insulation is a trap whose only safeguard would be a human
+    reading a docstring first. The part is fully described instead in
+    docs/evidence/2026-07-28-pd3-retarget-relay.md (geometry, the 5.300mm
+    measurement, and the method), which is the record without the hazard.
+    Only pcb/libs/temper.pretty/Relay_DPDT_Finder-40.52.kicad_mod remains
+    in the tree -- an inert library footprint that nothing references, with
+    its geometry corrected to the real part in case a same-pitch-family
+    part is ever useful elsewhere, and flagged in its own descr as
+    inadequate for this role.
 
     Sizing (per half-bus), per docs/hardware/BUS_CAPACITANCE_DERIVATION.md
     SS5.3 and re-derived independently here with the resistor's OWN
