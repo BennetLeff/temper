@@ -102,6 +102,76 @@ CI `check_manifest_gate` rejects new scripts without a manifest entry.
 
 See `docs/plans/2026-06-22-021-feat-script-triage-sunset-plan.md`.
 
+## Git Stash Guard
+
+**Never use `git stash`, in any form, in this repo.** This repo runs 60+
+concurrent agent worktrees against one shared `.git` directory, and the
+stash stack is repo-global — it is not per-worktree. A `git stash pop` run
+from your worktree can apply *another session's* stashed changes into your
+working tree, and a `git stash drop`/`clear` can destroy another session's
+unrecovered work. This has already happened more than once; the stash list
+currently sits 80+ entries deep, including rescue records from prior
+incidents. Asking politely does not hold at this concurrency: an agent used
+`git stash` anyway on 2026-07-28 despite an explicit brief prohibition, and
+avoided data loss only by luck (its push/pop happened to balance).
+
+**Enforcement**: `scripts/git-hooks/reference-transaction`, installed into
+the shared `.git/hooks/` directory by `scripts/install_git_stash_guard.py`,
+blocks `git stash` / `git stash push` / `git stash save` / `git stash clear`
+outright (exit 128, `fatal: ref updates aborted by hook`). This is a real,
+tested block — verified to fire under non-interactive, direct `git`
+invocation, from every worktree sharing this repo's `.git` directory,
+without relying on any shell alias or `PATH` trick (a git hook is invoked by
+the `git` binary itself, regardless of what invoked `git`).
+
+**Known, tested gap — read before assuming full coverage**: the hook
+*cannot* block `git stash apply`, because `apply` never performs a ref
+transaction (no hook of any kind fires for it). It also cannot reliably
+block `git stash pop` / `git stash drop <entry>` except in the edge case
+where the entry being removed is the *only* one left on the stack — with
+80+ existing entries, dropping/popping any one of them rewrites the reflog
+directly, bypassing the hookable ref-transaction API entirely. **Do not
+treat the hook as covering `apply`, `pop`, or `drop` of existing stack
+entries — the prohibition on those remains a policy rule, not an enforced
+one.** See the comments at the top of
+`scripts/git-hooks/reference-transaction` for the full empirical writeup
+(what was tested, in a throwaway `/tmp` repo, and what the results were).
+
+**Detector (defense in depth for the gap above)**:
+`uv run python scripts/check_stash_stack_gate.py` snapshots the stash
+reflog and diffs it against the last snapshot, flagging any addition or
+disappearance since the last run. It is not a CI gate (CI runners don't
+share this `.git` directory) — run it manually, on a timer, or from a
+`/loop` against the actual dev machine.
+
+**Bypass** (for a human, working alone, in a clean single-worktree
+context — not the concurrent-agent failure mode this guards against):
+
+```bash
+ALLOW_GIT_STASH=1 git stash push -m "..."
+```
+
+**Safe alternative** (the underlying need — comparing with/without your
+changes — is real and not disabled, just routed elsewhere):
+
+```bash
+git worktree add ../scratch-<name> -b scratch/<name>   # isolated copy
+git branch wip/<name> && git commit -am wip             # scratch branch
+git diff > /tmp/patch.diff                               # patch file, git apply later
+```
+
+**What was ruled out and why** (see the PR that introduced this section for
+the full test transcript): a `pre-commit` hook never fires for stash (it's
+not a commit operation). A shell alias/function shadowing `git stash` only
+protects interactive shells that source it, and agents invoke `git`
+directly. A `git config alias.stash=...` override was tested empirically
+and does **not** work — this git version resolves built-in commands
+(`stash`, `status`, `log`, ...) before consulting aliases, so an alias can
+never shadow an existing subcommand, only add a new one. A `PATH` wrapper
+earlier than the real `git` was not pursued: it requires modifying the
+user's shell environment (not something a repo-scoped fix should assume or
+require) and offers no more coverage than the hook already provides.
+
 ## Building and Running Firmware Tests
 
 ```bash
