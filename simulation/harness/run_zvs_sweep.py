@@ -107,7 +107,11 @@ V_BUS_FULL = 2 * V_HALF  # 340V differential, main.ato:49/:65
 RG_OHM = 2.2             # GateDriveHS/LS.rg_on, modules.ato:158/:213
 RGS_OHM = 2200.0         # GateDriveHS/LS.rgs, modules.ato:164/:219
 T_DEAD_S = 305.4e-9      # HalfBridge.t_dead_time, modules.ato:279
-C_TANK_F = 300e-9        # c_tank1+c_tank2 in parallel, modules.ato:390/:397
+C_TANK_F = 300e-9        # c_tank1+c_tank2+c_tank3 in parallel (3 x 100nF CDE
+                         # 942C16P1K-F as of 2026-07-29; was 2 x 150nF WIMA
+                         # FKP 1, re-sourced on AC current not value -- see
+                         # docs/evidence/2026-07-29-tank-cap-cde-942c-
+                         # verification.md). The 300nF total is UNCHANGED.
 F_SWITCHING_NOMINAL_HZ = 47_000.0   # main.ato:71, CORRECTED 2026-07-27: the
 # 35kHz this constant used to hold (main.ato:71's original value) measured
 # 100.7% ZVS margin LOST (full hard switching of the half-bridge) for

@@ -23,15 +23,16 @@ Covers:
   - the two families deliberately left unimplemented (Murata DE, Vishay VY2)
     stay UNCHECKED, with the reasoning pinned in the test docstrings.
   - integration: running the real gate against today's elec/src/*.ato tree
-    exits 3, naming c_tank1/c_tank2 (WIMA FKP1U021507E00JSSD encodes 15 nF
-    against a declared 150 nF) -- a defect the decoder could not see before
-    the WIMA family was added, left unfixed and unallowlisted on purpose.
-    The five fabrications the 2026-07-27 audit found -- including the case-4
-    anchor reconstructed above (r_low_top / ERA-3AEB6132V) -- were
-    independently fixed in source with cited distributor verification (see
+    exits 0 with zero UNCHECKED MPNs. Every defect this gate has surfaced was
+    fixed in *source* with cited distributor verification, never allowlisted
+    away: the five fabrications of the 2026-07-27 audit -- including the
+    case-4 anchor reconstructed above (r_low_top / ERA-3AEB6132V) -- per
     docs/evidence/2026-07-27-era-resistor-resolution.md and
-    docs/evidence/2026-07-27-ocp01-uvl02-part-resolution.md), not allowlisted
-    away.
+    docs/evidence/2026-07-27-ocp01-uvl02-part-resolution.md, and the tank
+    capacitor (WIMA FKP1U021507E00JSSD encoding 15 nF against a declared
+    150 nF) per docs/evidence/2026-07-29-tank-cap-cde-942c-verification.md.
+    See test_gate_is_clean_on_real_tree_today for the full move history of
+    that integration assertion.
 """
 
 from __future__ import annotations
@@ -555,6 +556,70 @@ def test_wima_fkp1_flags_the_tank_capacitor_as_declared_in_this_repo():
     assert "15nF" in findings[0].detail and "150nF" in findings[0].detail
 
 
+# --- CDE Type 942C polypropylene pulse (942C.pdf part-numbering system) ----
+
+
+def test_cde_942c_decodes_true_positives_across_all_three_decimal_letters():
+    """CDE's "Part Numbering System" diagram (942C.pdf printed p.2) gives the
+    capacitance as a decimal-point letter (S = "0.0", P = "0.", W = "no
+    decimal point") prefixed to the significant figures. Every row below is
+    printed verbatim in CDE's own ratings tables on pp.2-3, and none of them
+    except 942C16P1K-F appears anywhere in elec/src -- so decoding them is
+    evidence the rule came from the manufacturer's diagram and not from the
+    one string this repo happens to contain."""
+    cases = {
+        "942C16S22K-F": 22e-9,     # 1600 Vdc block, 0.022 uF
+        "942C20S1K-F": 10e-9,      # 2000 Vdc block, 0.01 uF
+        "942C16S47K-F": 47e-9,
+        "942C12P9K-F": 900e-9,     # 1200 Vdc block, 0.90 uF
+        "942C6W1K-F": 1e-6,        # 600 Vdc block, 1.00 uF
+        "942C8W1P5K-F": 1.5e-6,    # embedded-P decimal point inside W
+        "942C6W2P5K-F": 2.5e-6,
+        "942C10W1P4K-F": 1.4e-6,
+    }
+    for mpn, expected in cases.items():
+        d = decode_mpn(mpn)
+        assert d is not None, f"{mpn} should decode"
+        assert d.kind == "C"
+        assert d.value == pytest.approx(expected), mpn
+
+    # And the part the ResonantTank actually calls for, with its voltage code.
+    d = decode_mpn("942C16P1K-F")
+    assert d is not None and d.value == pytest.approx(100e-9)
+    assert "1600 Vdc" in d.family
+
+
+def test_cde_942c_decodes_without_the_rohs_suffix():
+    """CDE's older sheet PULSE-942C.pdf prints the same rows without the "-F"
+    RoHS indicator, so both spellings must decode identically."""
+    assert decode_mpn("942C16P1K").value == pytest.approx(100e-9)
+    assert decode_mpn("942C16P1K-F").value == pytest.approx(100e-9)
+
+
+def test_cde_942c_rejects_malformed():
+    # 14 is not one of the six published voltage codes (6/8/10/12/16/20).
+    assert decode_mpn("942C14P1K-F") is None
+    # Q is not a published tolerance code (K/J).
+    assert decode_mpn("942C16P1Q-F") is None
+    # X is not a published termination code (C/F/H).
+    assert decode_mpn("942X16P1K-F") is None
+    # R is not a published decimal-point letter (S/P/W).
+    assert decode_mpn("942C16R1K-F") is None
+    # The embedded-P decimal point is a W-only convention in CDE's rows;
+    # accepting it after P or S would invent values the catalogue never lists.
+    assert decode_mpn("942C16P1P5K-F") is None
+    assert decode_mpn("942C16S1P5K-F") is None
+
+
+def test_cde_942c_flags_a_value_that_disagrees_with_its_own_encoding():
+    """942C16P1K-F encodes 0.10 uF. Declaring it as the 150 nF the tank used
+    to be built from must be reported, not silently accepted -- this is the
+    check that would have caught a "swap the part, forget the value" edit."""
+    findings = _decode_findings(_mismatch_part("942C16P1K-F", "C", 150e-9, None))
+    assert len(findings) == 1
+    assert "100nF" in findings[0].detail and "150nF" in findings[0].detail
+
+
 # --- Yageo RT thin film (RT series data sheet, ordering information) -------
 
 
@@ -739,12 +804,11 @@ def _stdout_int_after(stdout: str, label: str) -> int:
     return int(line.split(":", 1)[1].split()[0])
 
 
-def test_gate_flags_the_resonant_tank_capacitor_on_real_tree_today():
-    """The shipped CLI must FAIL (exit 3) on today's tree, naming c_tank1 /
-    c_tank2 (elec/src/modules.ato, ResonantTank) as a decode mismatch.
+def test_gate_is_clean_on_real_tree_today():
+    """The shipped CLI must PASS (exit 0) on today's tree.
 
-    History of this assertion, because it has now moved twice and each move
-    has to be justifiable on its own evidence:
+    History of this assertion, because it has now moved four times and each
+    move has to be justifiable on its own evidence:
 
       1. Originally it pinned the gate failing on the case-4 fabrication
          (r_low_top / ERA-3AEB6132V, docs/evidence/2026-07-27-fabricated-mpn-
@@ -753,31 +817,44 @@ def test_gate_flags_the_resonant_tank_capacitor_on_real_tree_today():
          cited distributor verification -- none of them allowlisted -- it was
          moved to pinning a clean exit 0, since asserting failure would then
          have been asserting a falsehood about the repo.
-      3. It now pins failure again, because extending the decoder to the
+      3. It pinned failure again, because extending the decoder to the
          previously-UNCHECKED families surfaced a *new*, previously invisible
-         defect. This is not a reversion to (1); it is the gate doing the job
-         it was built for on a part it could not read before.
+         defect: `c_tank1.mpn = "FKP1U021507E00JSSD"` declared as 150 nF,
+         where WIMA's own ordering tables
+         (https://www.wima.de/wp-content/uploads/media/e_WIMA_FKP_1.pdf,
+         pages 63-68) decode that string as decade group 2 + significant
+         figures 150 = 150 x 10^2 pF = 0.015 uF at rated-voltage letter
+         U = 2000 VDC -- ten times smaller than declared, at the wrong
+         voltage.
+      4. It pins a clean pass again now. Move (3)'s finding was resolved in
+         source, twice over, and neither time by an allowlist entry:
 
-    The finding: `c_tank1.mpn = "FKP1U021507E00JSSD"` with
-    `c_tank1.value = 150nF`. Decoded against WIMA's own FKP 1 ordering tables
-    (https://www.wima.de/wp-content/uploads/media/e_WIMA_FKP_1.pdf, pages
-    63-68), the string says decade group 2 + significant figures 150, i.e.
-    150 x 10^2 pF = 0.015 uF -- ten times smaller than declared -- at rated
-    voltage letter U = 2000 VDC, while the source declares 1600 V. WIMA's own
-    row for 0.15 uF at 1600 VDC is FKP1T031507G.
+           * 2026-07-28 (4696427a) replaced the mis-decoding MPN with
+             FKP1T031507G00JSSD, WIMA's own 0.15 uF / 1600 VDC row. That
+             alone made the gate exit 0 -- and this assertion, still
+             demanding exit 3, went red at that commit and stayed red, which
+             is exactly the failure mode the old docstring's closing
+             paragraph warned about and nobody acted on.
+           * 2026-07-29 replaced the WIMA part outright. FKP 1 in that case
+             size is a *pulse* capacitor, and it was ~2x over its permissible
+             AC current at 47 kHz under this tank's continuous duty
+             (docs/evidence/2026-07-28-reference-appliance-and-cap-rating.md
+             -- WIMA publishes no permissible-current curve at all for that
+             part, and the whole bracketing 4.0-6.2 A range sits below the
+             10.37 A required). The tank is now 3 x Cornell Dubilier
+             942C16P1K-F, 0.10 uF / 1600 Vdc; 3 x 0.10 = 0.300 uF, so the
+             committed 300 nF tank value is unchanged. Verified against CDE's
+             own ratings TABLE (https://www.cde.com/resources/catalogs/942C.pdf,
+             printed p.2, 1600 Vdc block) and against a DigiKey listing that
+             is Active and in stock (product 1929475) -- i.e. the distributor
+             check the old docstring asked for. Full derivation, including
+             the 100 kHz -> 47 kHz permissible-current transfer, in
+             docs/evidence/2026-07-29-tank-cap-cde-942c-verification.md.
 
-    Deliberately NOT resolved here: fixing it means editing elec/src, which
-    is a design change with a resonant-frequency consequence
-    (f0 ~ 1/sqrt(LC): a 10x tank-capacitance error moves f0 by ~3.16x) and
-    belongs to whoever owns the ResonantTank module -- and allowlisting it
-    would be exactly the "pad the allowlist until CI is green" move that the
-    allowlist file's own hand-curated-only header exists to prevent.
-
-    So: if this test starts failing because the gate now exits 0, that means
-    someone changed the design or the MPN -- check that the fix was verified
-    against a distributor, then move this assertion back to a clean pass with
-    that evidence cited. If it fails because a *different* part is reported,
-    that is a new finding and must be investigated, not silenced.
+    So: if this test starts failing because the gate exits 3, that is a real
+    finding on a real part. Read the violation, verify the part against a
+    distributor, and fix it in elec/src -- do not move this assertion, and do
+    not reach for the allowlist.
     """
     result = subprocess.run(
         [sys.executable, str(GATE_SCRIPT)],
@@ -785,22 +862,23 @@ def test_gate_flags_the_resonant_tank_capacitor_on_real_tree_today():
         text=True,
         cwd=str(REPO_ROOT),
     )
-    assert result.returncode == 3, (
-        f"expected the shipped gate to report violations (exit 3) on today's tree; "
+    assert result.returncode == 0, (
+        f"expected the shipped gate to pass (exit 0) on today's tree; "
         f"got {result.returncode}\n{result.stdout}\n{result.stderr}"
     )
-    assert "NEW VIOLATIONS" in result.stdout
-    assert "c_tank1" in result.stdout
-    assert "c_tank2" in result.stdout
-    assert "FKP1U021507E00JSSD" in result.stdout
-    # The specific numbers, so a decoder regression that merely reports *a*
-    # violation on this part cannot pass this test.
-    assert "encodes 15nF" in result.stdout
-    assert "declared value is 150nF" in result.stdout
-
-    # ...and nothing else. A newly-broken decoder that flags half the BOM
-    # must not slip through under cover of this expected finding.
-    assert "=== NEW VIOLATIONS (2) ===" in result.stdout
+    assert "NEW VIOLATIONS" not in result.stdout
+    assert "MPN fabrication gate PASSED" in result.stdout
+    # Both WIMA strings this assertion has pinned in the past are gone from
+    # the tree. If either reappears, that is a revert of the current-rating
+    # fix, not a cosmetic change.
+    assert "FKP1U021507E00JSSD" not in result.stdout
+    assert "FKP1T031507G00JSSD" not in result.stdout
+    # The parts that replaced them, so a decoder that silently stops seeing
+    # the tank bank cannot pass this test.
+    assert "942C16P1K-F" not in result.stdout, (
+        "942C16P1K-F must decode cleanly and therefore never be named in the "
+        "gate's violation/unchecked output"
+    )
 
     # Anti-vacuity: prove this walked the real tree and did real work, not
     # a hollow "0 files matched" run.

@@ -442,59 +442,100 @@ module ResonantTank:
     signal in
     signal out
     
-    # MPN AND FOOTPRINT CORRECTED 2026-07-28 (docs/evidence/
-    # 2026-07-28-tank-cap-and-isolator-footprints.md). The value below,
-    # 150nF each / 300nF in parallel, is UNCHANGED and is the value the
-    # whole resonant design is built on -- it was the MPN and the land
-    # pattern that disagreed with it, by 10x.
+    # TANK CAPACITOR RE-SOURCED 2026-07-29 (docs/evidence/
+    # 2026-07-29-tank-cap-cde-942c-verification.md). The bank total,
+    # 300nF, is UNCHANGED -- it is the value the whole resonant design is
+    # built on and is hard-coded as C_TANK_F = 300e-9 in both simulation
+    # harnesses. What changed is the part and the topology: 2 x 150nF
+    # WIMA FKP 1 -> 3 x 100nF Cornell Dubilier 942C. 3 x 0.10uF = 0.300uF
+    # exactly, so the committed value survives the swap unmodified.
     #
-    # Was: mpn = "FKP1U021507E00JSSD" on a P27.50mm/L31.5mm land.
-    #   WIMA's FKP 1 datasheet (rev. 03.26, https://www.wima.de/wp-content/
-    #   uploads/media/e_WIMA_FKP_1.pdf) and its 18-digit part-number system
-    #   (p.136) decode that string as fields "FKP1" | "U0" = 2000 VDC |
-    #   "2150" = 0.015 uF | size "7E" | "00JSSD". That is 15nF at 2000V --
-    #   a tenth of the declared value at the wrong voltage. Worse, the
-    #   2000 VDC table has no 0.015 uF row in a size-7 (PCM 37.5) case at
-    #   all: its only 0.015 uF row is FKP1U021506D (13 x 24 x 31.5, PCM
-    #   27.5). The old land pattern, C_Rect_L31.5mm_W13.0mm_P27.50mm, is
-    #   exactly that 6D case -- i.e. the board was drawn for the
-    #   mis-decoded part, not for the declared 150nF.
+    # Was: 2 x FKP1T031507G00JSSD (WIMA FKP 1, 0.15uF/1600VDC, PCM 37.5).
+    #   Correct value, correct voltage, correct land pattern -- and about
+    #   2x over its permissible AC current at 47 kHz. Established in
+    #   docs/evidence/2026-07-28-reference-appliance-and-cap-rating.md:
+    #   WIMA publishes permissible current only as curves and publishes
+    #   NO curve for this part; the bracketing published curves give
+    #   4.0-6.2 A and two independent interpolations both land at ~5.2 A,
+    #   against 10.37 A required per capacitor. The whole bracket is
+    #   below the requirement. Worse, that curve is a 15 K *internal*
+    #   rise with no ambient allowance, footnoted "for ordinary assembly
+    #   and ventilation conditions avoiding radiant heat within the
+    #   chassis" -- which is not a part beside an IGBT half-bridge. The
+    #   failure mode is thermal, not dielectric: FKP 1 in this case size
+    #   is a *pulse* capacitor and this is continuous HF duty.
     #
-    # Now: FKP1T031507G00JSSD, read off WIMA's own 1600 VDC ordering table
-    #   (same datasheet, continuation page 67): "0.15 uF | W 20 | H 39.5 |
-    #   L 41.5 | PCM 37.5 | FKP1T031507G_ _ _ _ _ _". The six trailing
-    #   digits are the datasheet's "Part number completion" box and are
-    #   carried over UNCHANGED from the previous declaration: 00 = 2-pin
-    #   version, J = +/-5 % tolerance, S = bulk packing, SD = 6-2 pin
-    #   length. Rated voltage 1600 VDC now matches voltage_rating below
-    #   instead of contradicting it. Lead diameter is 1.0mm at PCM 37.5
-    #   (datasheet 2-pin mechanical table, continuation page 66).
-    #   Confirm stock/orderability at procurement; the base part number is
-    #   cited to the manufacturer table, not to a distributor listing.
+    # Now: 3 x 942C16P1K-F, read off Cornell Dubilier's own "Ratings and
+    #   Dimensions" TABLE -- not a chart -- in catalog 942C.pdf
+    #   (https://www.cde.com/resources/catalogs/942C.pdf), printed page 2,
+    #   1600 Vdc (460 Vac) block:
+    #     ".10 | 942C16P1K-F | D 22.5 | L 34.0 | d 1.0 | ESR 4 mOhm |
+    #      ESL 24 nH | dV/dt 3425 V/us | Ipeak 342 A | IRMS 70C/100kHz 11.4 A"
+    #   The same row appears in CDE's older PULSE-942C.pdf in inches.
+    #   The MPN is not pattern-matched: it is printed verbatim in that
+    #   table, it decodes cleanly under CDE's own published Part Numbering
+    #   System on the same page (942 | C = tinned copper wire | 16 =
+    #   1600 Vdc | P = "0." decimal point | 1 = significant figures |
+    #   K = +/-10% | -F = RoHS), and DigiKey lists it Active with stock
+    #   (https://www.digikey.com/en/products/detail/
+    #    cornell-dubilier-electronics-cde/942C16P1K-F/1929475).
     #
-    # BOARD REWORK REQUIRED, NOT DONE HERE: the case grows from
-    # 31.5 x 13.0mm (PCM 27.5) to 41.5 x 20.0mm (PCM 37.5), and 39.5mm
-    # tall. pcb/temper.kicad_pcb still carries the old 27.5mm-pitch land
-    # for C4/C5 and is deliberately untouched -- see the evidence doc for
-    # the neighbour analysis.
+    # THE NUMBER THAT MATTERS. 11.4 A is quoted at 100 kHz; this tank runs
+    #   at 47 kHz, so it must be transferred, not copied. Two independent
+    #   readings of CDE's own published curves agree on the transfer
+    #   factor: the constant-current asymptotes of the 942C/943C "RMS
+    #   Voltage vs Frequency" panels give I(47k)/I(100k) = 0.84 worst-case
+    #   over ten curves (1.00 on both 1600 Vdc curves), and CDE's generic
+    #   polypropylene DF-vs-frequency curve gives 0.845. Conservative
+    #   permissible current at 47 kHz: 9.5 A per capacitor.
+    #   Required: 20.75 A tank / 3 = 6.92 A each -> 1.38x margin.
+    #   (At the 22.5 A stress point of the 88 uH coil candidate in
+    #   docs/evidence/2026-07-28-coil-selection-research.md: 7.50 A each,
+    #   1.27x.) Applied stress is far from every other rated axis:
+    #   234 Vrms / 331 V peak against 1600 Vdc, 98 V/us against 3425 V/us,
+    #   9.8 A peak against 342 A.
+    #
+    # TOLERANCE REGRESSION, DELIBERATELY NOT PAPERED OVER: the catalogue
+    #   942C tolerance is K = +/-10%, against the WIMA part's J = +/-5%.
+    #   Worst-case bank is 270-330nF instead of 285-315nF, i.e. resonant
+    #   frequency spread widens from +2.6/-2.4% to +5.4/-4.7%. CDE's
+    #   specification page offers "+/-5% (J) Optional", but no J part
+    #   number appears in any CDE catalogue table, so acquiring one is a
+    #   procurement conversation with CDE -- NOT an MPN to be constructed
+    #   by swapping the K. Flagged here for the PLL/ZVS-window owner.
+    #
+    # BOARD REWORK REQUIRED, NOT DONE HERE: three axial cans on a 40.00mm
+    # land pitch replace two 37.50mm-pitch boxes. Height DROPS from 39.5mm
+    # standing to 22.5mm lying down; footprint area GROWS from 2 x 830 to
+    # 3 x 968 mm^2. pcb/temper.kicad_pcb still carries two 37.5mm-pitch
+    # lands for C25/C26 and is deliberately untouched -- a separate
+    # placement pass owns re-placing this bank.
     c_tank1 = new Capacitor
-    c_tank1.value = 150nF
+    c_tank1.value = 100nF
     c_tank1.dielectric = "PP"
     c_tank1.voltage_rating = 1600V
-    c_tank1.mpn = "FKP1T031507G00JSSD"  # WIMA FKP 1, 0.15uF/1600VDC, PCM 37.5 -- datasheet rev. 03.26 ordering table
-    c_tank1.footprint = "Capacitor_THT:C_Rect_L41.5mm_W20.0mm_P37.50mm_MKS4"  # L41.5 x W20.0, pitch 37.5 -- matches the FKP1T031507G case exactly
+    c_tank1.mpn = "942C16P1K-F"  # CDE 942C, 0.10uF/1600VDC axial -- 942C.pdf p.2 ratings table, IRMS 11.4 A @ 70C/100kHz
+    c_tank1.footprint = "temper:C_Axial_L34.0mm_D22.5mm_P40.00mm_Horizontal"  # D22.5 x L34.0, lead d1.0 -- matches the 942C16P1K-F case exactly
 
     c_tank2 = new Capacitor
-    c_tank2.value = 150nF
+    c_tank2.value = 100nF
     c_tank2.dielectric = "PP"
     c_tank2.voltage_rating = 1600V
-    c_tank2.mpn = "FKP1T031507G00JSSD"  # same part as c_tank1; the two are in parallel for 300nF total
-    c_tank2.footprint = "Capacitor_THT:C_Rect_L41.5mm_W20.0mm_P37.50mm_MKS4"
+    c_tank2.mpn = "942C16P1K-F"  # same part as c_tank1
+    c_tank2.footprint = "temper:C_Axial_L34.0mm_D22.5mm_P40.00mm_Horizontal"
+
+    c_tank3 = new Capacitor
+    c_tank3.value = 100nF
+    c_tank3.dielectric = "PP"
+    c_tank3.voltage_rating = 1600V
+    c_tank3.mpn = "942C16P1K-F"  # same part as c_tank1; the three are in parallel for 300nF total
+    c_tank3.footprint = "temper:C_Axial_L34.0mm_D22.5mm_P40.00mm_Horizontal"
 
     v_tank_peak: voltage = 400V
     assert c_tank1.voltage_rating >= v_tank_peak * 1.43
     assert c_tank2.voltage_rating >= v_tank_peak * 1.43
-    
+    assert c_tank3.voltage_rating >= v_tank_peak * 1.43
+
     # THE RESONANT TANK COIL. Declared as an `Inductor` 2026-07-29
     # (docs/evidence/2026-07-29-tank-coil-specification.md); it was
     # `new Resistor` with no value until then, so the one component whose
@@ -583,8 +624,10 @@ module ResonantTank:
 
     in ~ c_tank1.p1
     in ~ c_tank2.p1
+    in ~ c_tank3.p1
     c_tank1.p2 ~ inductor_conn.p1
     c_tank2.p2 ~ inductor_conn.p1
+    c_tank3.p2 ~ inductor_conn.p1
     inductor_conn.p2 ~ out
 
 module PowerInput:

@@ -193,7 +193,11 @@ domains:
       - tank.c_tank1-p2      # ADDED 2026-07-27, same evidence doc. Same
                              # ResonantTank module: `c_tank1.p2 ~
                              # inductor_conn.p1`, `c_tank2.p2 ~
-                             # inductor_conn.p1` (modules.ato:469-470) --
+                             # inductor_conn.p1`, and as of 2026-07-29
+                             # `c_tank3.p2 ~ inductor_conn.p1` (the tank
+                             # bank went 2 x 150nF -> 3 x 100nF; same
+                             # 300nF total, same two nets, one more
+                             # component on each) --
                              # this is the SAME net as `tank.inductor_
                              # conn`'s own p1 pin (R30, the Litz-coil
                              # interface connector), one node of the

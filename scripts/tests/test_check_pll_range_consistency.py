@@ -201,8 +201,9 @@ def _main_ato(
 def _modules_ato(
     tmp_path: Path,
     *,
-    c_tank1: str | None = "150nF",
-    c_tank2: str | None = "150nF",
+    c_tank1: str | None = "100nF",
+    c_tank2: str | None = "100nF",
+    c_tank3: str | None = "100nF",
     coil: str | None = "88uH +/- 10%",
 ) -> Path:
     lines = [
@@ -212,7 +213,7 @@ def _modules_ato(
         "    l_filter = new Inductor",
         "    l_filter.value = 999uH  # unrelated decoy",
     ]
-    for name, value in (("c_tank1", c_tank1), ("c_tank2", c_tank2)):
+    for name, value in (("c_tank1", c_tank1), ("c_tank2", c_tank2), ("c_tank3", c_tank3)):
         if value is not None:
             lines.append(f"    {name} = new Capacitor")
             lines.append(f"    {name}.value = {value}")
@@ -267,7 +268,7 @@ def _repo(tmp_path: Path, **kwargs) -> Path:
     doc_threshold_uh = kwargs.pop("doc_threshold_uh", None)
     write_doc = kwargs.pop("write_doc", True)
     fw = {k: v for k, v in kwargs.items() if k in ("min_hz", "max_hz", "default_hz")}
-    mods = {k: v for k, v in kwargs.items() if k in ("c_tank1", "c_tank2", "coil")}
+    mods = {k: v for k, v in kwargs.items() if k in ("c_tank1", "c_tank2", "c_tank3", "coil")}
     ato = {k: v for k, v in kwargs.items() if k not in fw and k not in mods}
     _firmware_header(tmp_path, **fw)
     ato_path = _main_ato(tmp_path, **ato)
@@ -377,10 +378,10 @@ class TestParsing:
         )
         assert "l_tank_assumed" not in parse_ato_physics(ato)
 
-    def test_parses_both_modules_tank_capacitors(self, tmp_path: Path) -> None:
+    def test_parses_all_modules_tank_capacitors(self, tmp_path: Path) -> None:
         found = parse_modules_tank_capacitors(_modules_ato(tmp_path))
-        assert set(found) == {"c_tank1", "c_tank2"}
-        assert found["c_tank1"].value == pytest.approx(150e-9)
+        assert set(found) == {"c_tank1", "c_tank2", "c_tank3"}
+        assert found["c_tank1"].value == pytest.approx(100e-9)
         assert "c_bypass" not in found
 
     def test_missing_modules_ato_raises(self, tmp_path: Path) -> None:
@@ -531,8 +532,9 @@ class TestDerivedZvsFloor:
                 min_hz=42000,
                 tracking_min="42kHz",
                 c_tank="150nF",
-                c_tank1="75nF",
-                c_tank2="75nF",
+                c_tank1="50nF",
+                c_tank2="50nF",
+                c_tank3="50nF",
             )
         )
         by_name = {c.name: c.passed for c in report.checks}
@@ -986,7 +988,7 @@ class TestAntiVacuity:
         assert len(report.firmware_constants) == 3
         assert len(report.ato_constants) == 3
         assert len(report.ato_physics) == 5
-        assert len(report.modules_caps) == 2
+        assert len(report.modules_caps) == 3
         assert report.modules_coil is not None
         assert report.doc_threshold is not None
         assert len(report.checks) == 8
