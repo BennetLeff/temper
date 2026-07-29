@@ -28,7 +28,10 @@ EXPECTED_CLASS_LAYERS = {
     "ACMains": "F.Cu",
     "HighVoltage": "F.Cu",
     "HighCurrent": "F.Cu",
-    "GateDrive": "B.Cu",
+    # GateDrive split into GateDriveHV/GateDriveSELV 2026-07-28 (R4) -- both
+    # keep the pre-split "B.Cu" layer value.
+    "GateDriveHV": "B.Cu",
+    "GateDriveSELV": "B.Cu",
     "Power": "B.Cu",
     "Signal": "F.Cu",
     "GND": "In1.Cu",

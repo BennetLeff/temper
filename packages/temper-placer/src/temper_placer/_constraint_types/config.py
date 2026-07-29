@@ -439,16 +439,16 @@ class PlacementConstraints(BaseModel):
             return self.net_classes[net_name]
 
         upper = net_name.upper()
-        if (
-            "GND" in upper
-            or "VSS" in upper
-            or (
-                "VCC" in upper
-                or "VDD" in upper
-                or "+3V3" in upper
-                or "+5V" in upper
-                or "+15V" in upper
-            )
+        # FIXED 2026-07-28: this branch was still a bare `in` substring
+        # test (e.g. "GND" in "SIGNAL" is False, but "GND" in "CGND"/
+        # "BACKGND" is a false-positive collision) even though the HV/BUS
+        # branch just below it had already been anchored for the
+        # identical reason. Found completing the audit
+        # scripts/check_net_classification.py's 2026-07-28 vocabulary
+        # extension prompted -- see
+        # docs/evidence/2026-07-28-zone-layer-classification-fix.md.
+        if re.search(r"(?:^|_)(?:GND|VSS|VCC|VDD)(?:$|[\d_])", upper) or re.search(
+            r"^\+(?:3V3|5V|15V)(?:$|_)", upper
         ):
             return "Power"
         # Word-boundary match (delimited by "_" or start/end of the

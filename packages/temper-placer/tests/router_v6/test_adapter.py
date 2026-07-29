@@ -112,21 +112,28 @@ class TestZoneLayersForNet:
     def test_dc_bus_minus_is_zone_eligible(self):
         assert _zone_layers_for_net("DC_BUS-") == ["F.Cu", "B.Cu"]
 
-    def test_cgnd_is_zone_eligible(self):
-        assert _zone_layers_for_net("CGND") == ["F.Cu", "B.Cu"]
+    def test_cgnd_is_not_zone_eligible(self):
+        """FIXED 2026-07-28: eligibility is now driven by
+        routing_strategy=="plane_required" (core/design_rules.py), which
+        GND does not declare (only ACMains/HighVoltage do) -- see
+        docs/evidence/2026-07-28-zone-layer-classification-fix.md. GND
+        nets no longer get automatic zone treatment from this function."""
+        assert _zone_layers_for_net("CGND") == []
 
-    def test_gate_l_short_form_is_zone_eligible(self):
-        assert _zone_layers_for_net("GATE_L") == ["F.Cu", "B.Cu"]
+    def test_gate_l_short_form_is_not_zone_eligible(self):
+        """GateDrive does not declare routing_strategy=="plane_required"."""
+        assert _zone_layers_for_net("GATE_L") == []
 
-    def test_gate_h_short_form_is_zone_eligible(self):
-        assert _zone_layers_for_net("GATE_H") == ["F.Cu", "B.Cu"]
+    def test_gate_h_short_form_is_not_zone_eligible(self):
+        assert _zone_layers_for_net("GATE_H") == []
 
-    def test_pwm_l_short_form_is_zone_eligible(self):
-        assert _zone_layers_for_net("PWM_L") == ["F.Cu", "B.Cu"]
+    def test_pwm_l_short_form_is_not_zone_eligible(self):
+        assert _zone_layers_for_net("PWM_L") == []
 
-    def test_gate_ls_long_form_still_zone_eligible(self):
-        """Existing long-form names must keep working -- additive fix only."""
-        assert _zone_layers_for_net("GATE_LS") == ["F.Cu", "B.Cu"]
+    def test_gate_ls_long_form_also_not_zone_eligible(self):
+        """Short-form and long-form GateDrive names behave identically --
+        neither gets automatic zone treatment post-fix."""
+        assert _zone_layers_for_net("GATE_LS") == []
 
     def test_spi_mosi_is_not_zone_eligible(self):
         """SPI signal lines must never get a copper pour -- signal integrity,
@@ -361,56 +368,78 @@ class TestCrossClassZoneClearance:
         return dr
 
     def test_power_and_hv_resolve_to_stricter_cross_class(self):
-        """vcc (Power, 0.25mm) + +340V_BUS (HV, 6.0mm) -> effective 6.0mm."""
+        """ac_l (ACMains, 6.0mm) + +340V_BUS (HV, 6.0mm), with a class_pairs
+        override to a stricter 8.0mm -> effective 8.0mm.
+
+        FIXED 2026-07-28: previously used vcc (Power), which after the
+        routing_strategy-driven eligibility fix
+        (docs/evidence/2026-07-28-zone-layer-classification-fix.md) no
+        longer gets a zone at all -- Power is not "plane_required". Only
+        ACMains/HighVoltage remain zone-eligible, and both declare an
+        identical 6.0mm own clearance, so a class_pairs override is
+        needed to actually exercise the cross-class lookup path (rather
+        than coincidentally matching each class's own clearance)."""
         from temper_placer.router_v6.adapter import _write_routes_to_content
 
         result = self._make_result_with_zones(
-            ["vcc", "+340V_BUS"],
-            {"vcc": [("C1", "1")], "+340V_BUS": [("C2", "1")]},
+            ["ac_l", "+340V_BUS"],
+            {"ac_l": [("C1", "1")], "+340V_BUS": [("C2", "1")]},
         )
-        dr = self._build_dr({("HighVoltage", "Power"): {"clearance": 6.0}})
-        content = '(kicad_pcb (version 20240108) (net 1 "vcc") (net 2 "+340V_BUS"))'
+        dr = self._build_dr({("ACMains", "HighVoltage"): {"clearance": 8.0}})
+        content = '(kicad_pcb (version 20240108) (net 1 "ac_l") (net 2 "+340V_BUS"))'
+        output, _ = _write_routes_to_content(content, result, design_rules=dr)
+        assert "(clearance 8.0000)" in output
+
+    def test_same_class_nets_keep_own_clearance(self):
+        """Two ACMains-class nets resolve to ACMains's own 6.0mm (never
+        weaken).
+
+        FIXED 2026-07-28: previously used two GND-class nets (PWR_RTN/
+        CGND); GND is no longer zone-eligible post-fix (see above)."""
+        from temper_placer.router_v6.adapter import _write_routes_to_content
+
+        result = self._make_result_with_zones(
+            ["ac_l", "ac_n"],
+            {"ac_l": [("C1", "1")], "ac_n": [("C2", "1")]},
+        )
+        dr = self._build_dr()
+        content = '(kicad_pcb (version 20240108) (net 1 "ac_l") (net 2 "ac_n"))'
         output, _ = _write_routes_to_content(content, result, design_rules=dr)
         assert "(clearance 6.0000)" in output
 
-    def test_same_class_nets_keep_own_clearance(self):
-        """Two GND-class nets resolve to GND's own 0.3mm (never weaken)."""
-        from temper_placer.router_v6.adapter import _write_routes_to_content
-
-        result = self._make_result_with_zones(
-            ["PWR_RTN", "CGND"],
-            {"PWR_RTN": [("C1", "1")], "CGND": [("C2", "1")]},
-        )
-        dr = self._build_dr()
-        content = '(kicad_pcb (version 20240108) (net 1 "PWR_RTN") (net 2 "CGND"))'
-        output, _ = _write_routes_to_content(content, result, design_rules=dr)
-        assert "(clearance 0.3000)" in output
-
     def test_fallback_to_max_clearance_no_class_pair(self):
-        """No class_pairs entry -> fallback to max(own, other)."""
+        """No class_pairs entry -> fallback to max(own, other).
+
+        FIXED 2026-07-28: previously used vcc/+15V (both Power), which no
+        longer get zones. Uses ACMains/HighVoltage instead -- both
+        declare 6.0mm, so max(6.0, 6.0) == 6.0 exercises the fallback
+        branch even though the two classes carry equal clearance."""
         from temper_placer.router_v6.adapter import _write_routes_to_content
 
         result = self._make_result_with_zones(
-            ["vcc", "+15V"],
-            {"vcc": [("C1", "1")], "+15V": [("C2", "1")]},
+            ["ac_l", "+340V_BUS"],
+            {"ac_l": [("C1", "1")], "+340V_BUS": [("C2", "1")]},
         )
         dr = self._build_dr()
-        content = '(kicad_pcb (version 20240108) (net 1 "vcc") (net 2 "+15V"))'
+        content = '(kicad_pcb (version 20240108) (net 1 "ac_l") (net 2 "+340V_BUS"))'
         output, _ = _write_routes_to_content(content, result, design_rules=dr)
-        assert "(clearance 0.2500)" in output
+        assert "(clearance 6.0000)" in output
 
     def test_single_netclass_no_cross_class(self):
-        """Only one zone-eligible netclass: clearance equals own."""
+        """Only one zone-eligible netclass: clearance equals own.
+
+        FIXED 2026-07-28: previously used vcc (Power, 0.25mm), no longer
+        zone-eligible. Uses ac_l (ACMains, 6.0mm) instead."""
         from temper_placer.router_v6.adapter import _write_routes_to_content
 
         result = self._make_result_with_zones(
-            ["vcc"],
-            {"vcc": [("C1", "1")]},
+            ["ac_l"],
+            {"ac_l": [("C1", "1")]},
         )
         dr = self._build_dr()
-        content = '(kicad_pcb (version 20240108) (net 1 "vcc"))'
+        content = '(kicad_pcb (version 20240108) (net 1 "ac_l"))'
         output, _ = _write_routes_to_content(content, result, design_rules=dr)
-        assert "(clearance 0.2500)" in output
+        assert "(clearance 6.0000)" in output
 
     def test_route_pcb_e2e_threads_design_rules_to_zone_pours_and_pipeline(self):
         """End-to-end: route_pcb + enable_zone_pours reflects cross-class
@@ -560,19 +589,26 @@ class TestPriorityInversion:
         pcb = SimpleNamespace(components=components, nets=nets)
         return SimpleNamespace(stage4=stage4, pcb=pcb, enable_zone_pours=True)
 
-    def test_acmains_priority_higher_than_power_in_emitted_zones(self):
-        """ACMains (dru=10→KiCad 80) > Power (dru=40→KiCad 50) in s-expr."""
+    def test_acmains_priority_higher_than_highvoltage_in_emitted_zones(self):
+        """ACMains (dru=10→KiCad 80) > HighVoltage (dru=20→KiCad 70) in s-expr.
+
+        FIXED 2026-07-28: previously compared ACMains against Power
+        ("vcc"); Power no longer gets a zone at all post-fix (only
+        ACMains/HighVoltage declare routing_strategy=="plane_required" --
+        see docs/evidence/2026-07-28-zone-layer-classification-fix.md).
+        Compares against HighVoltage ("SW_NODE") instead, the other
+        remaining zone-eligible class."""
         import re
 
         from temper_placer.core.design_rules import DesignRules
         from temper_placer.router_v6.adapter import _write_routes_to_content
 
         result = self._make_result(
-            ["AC_L", "vcc"],
-            {"AC_L": [("C1", "1")], "vcc": [("C2", "1")]},
+            ["AC_L", "SW_NODE"],
+            {"AC_L": [("C1", "1")], "SW_NODE": [("C2", "1")]},
         )
         dr = DesignRules()
-        content = '(kicad_pcb (version 20240108) (net 1 "AC_L") (net 2 "vcc"))'
+        content = '(kicad_pcb (version 20240108) (net 1 "AC_L") (net 2 "SW_NODE"))'
         output, _ = _write_routes_to_content(content, result, design_rules=dr)
 
         # Each net gets 2 zones (F.Cu + B.Cu); extract priority per net
@@ -585,30 +621,40 @@ class TestPriorityInversion:
             priorities_by_net.setdefault(m.group(1), set()).add(int(m.group(2)))
 
         assert "AC_L" in priorities_by_net
-        assert "vcc" in priorities_by_net
+        assert "SW_NODE" in priorities_by_net
         ac_max = max(priorities_by_net["AC_L"])
-        pwr_max = max(priorities_by_net["vcc"])
-        assert ac_max > pwr_max, f"ACMains ({ac_max}) should be > Power ({pwr_max})"
+        hv_max = max(priorities_by_net["SW_NODE"])
+        assert ac_max > hv_max, f"ACMains ({ac_max}) should be > HighVoltage ({hv_max})"
         assert ac_max == 80
-        assert pwr_max == 50
+        assert hv_max == 70
 
 
 class TestStitchIsolatedPads:
-    """U3: trace-stitch pads outside pour polygons."""
+    """U3: trace-stitch pads outside pour polygons.
+
+    Uses "ac_l" (ACMains) as the generic zone-eligible fixture net.
+    FIXED 2026-07-28: previously used "vcc" (Power), which after the
+    routing_strategy-driven eligibility fix
+    (docs/evidence/2026-07-28-zone-layer-classification-fix.md) is no
+    longer zone-eligible -- _stitch_isolated_pads() now delegates its own
+    eligibility check to _zone_layers_for_net(), so a "vcc" fixture would
+    exercise the ineligibility short-circuit instead of the geometry
+    logic these tests exist to check.
+    """
 
     def test_pad_inside_zone_is_not_stitched(self):
         segments: list[str] = []
-        pad_positions = {"vcc": [(5.0, 5.0)]}
-        net_map = {"vcc": 1}
-        zone_points = {"vcc": [((0.0, 0.0), (10.0, 0.0), (10.0, 10.0), (0.0, 10.0))]}
+        pad_positions = {"ac_l": [(5.0, 5.0)]}
+        net_map = {"ac_l": 1}
+        zone_points = {"ac_l": [((0.0, 0.0), (10.0, 0.0), (10.0, 10.0), (0.0, 10.0))]}
         _stitch_isolated_pads(pad_positions, segments, net_map, zone_points)
         assert len(segments) == 0
 
     def test_pad_outside_zone_gets_stitch_trace(self):
         segments: list[str] = []
-        pad_positions = {"vcc": [(5.0, 5.0), (50.0, 50.0)]}
-        net_map = {"vcc": 1}
-        zone_points = {"vcc": [((0.0, 0.0), (10.0, 0.0), (10.0, 10.0), (0.0, 10.0))]}
+        pad_positions = {"ac_l": [(5.0, 5.0), (50.0, 50.0)]}
+        net_map = {"ac_l": 1}
+        zone_points = {"ac_l": [((0.0, 0.0), (10.0, 0.0), (10.0, 10.0), (0.0, 10.0))]}
         _stitch_isolated_pads(pad_positions, segments, net_map, zone_points)
         assert len(segments) == 1
         assert "(segment " in segments[0]
@@ -626,13 +672,13 @@ class TestStitchIsolatedPads:
 
     def test_empty_zone_points_skipped(self):
         segments: list[str] = []
-        _stitch_isolated_pads({"vcc": [(50.0, 50.0)]}, segments, {"vcc": 1}, {})
+        _stitch_isolated_pads({"ac_l": [(50.0, 50.0)]}, segments, {"ac_l": 1}, {})
         assert len(segments) == 0
 
     def test_single_pad_inside_is_noop(self):
         segments: list[str] = []
-        zone_points = {"vcc": [((0.0, 0.0), (10.0, 0.0), (10.0, 10.0), (0.0, 10.0))]}
-        _stitch_isolated_pads({"vcc": [(5.0, 5.0)]}, segments, {"vcc": 1}, zone_points)
+        zone_points = {"ac_l": [((0.0, 0.0), (10.0, 0.0), (10.0, 10.0), (0.0, 10.0))]}
+        _stitch_isolated_pads({"ac_l": [(5.0, 5.0)]}, segments, {"ac_l": 1}, zone_points)
         assert len(segments) == 0  # pad inside, no stitch
 
 
@@ -1527,3 +1573,80 @@ class TestAllowForcedSegmentsGate:
         assert result.routed_paths["SPI_CLK"].forced_segment_count == 0, (
             "A legally-routed net must not carry a forced segment"
         )
+
+
+# ============================================================================
+# R4 (U7) — GateDrive splits into GateDriveHV/GateDriveSELV
+# ============================================================================
+
+
+class TestGateDriveSplitSeenAsHVNotLV:
+    """R4/U7: GATE_HS/GATE_LS sit on the HV (switching) side of U7's
+    reinforced barrier and must convert through to the router as
+    ``safety_category == "HV"``, not "LV". Leaving the HV-side class "LV"
+    reproduces the exact failure the split exists to fix, one file deeper
+    than the four generated surfaces reach (docs/plans/
+    2026-07-28-003-refactor-ato-net-classification-ssot-plan.md U7).
+    """
+
+    def test_gatedrive_hv_class_converts_to_stage0_as_hv(self):
+        """The real production GateDriveHV class -- not a synthetic
+        fixture -- must survive ``_to_stage0_netclass_rules`` as "HV"."""
+        from temper_placer.core.design_rules import TEMPER_NET_CLASSES
+
+        core_rules = TEMPER_NET_CLASSES["GateDriveHV"]
+        stage0 = _to_stage0_netclass_rules(core_rules)
+        assert stage0.safety_category == "HV"
+        assert stage0.safety_category != "LV"
+
+    def test_gatedrive_selv_class_converts_to_stage0_as_lv(self):
+        """The SELV-side (MCU/PWM) half keeps 'LV' -- there is no separate
+        SELV value in the safety_category vocabulary (HV/LV/AC/iso)."""
+        from temper_placer.core.design_rules import TEMPER_NET_CLASSES
+
+        core_rules = TEMPER_NET_CLASSES["GateDriveSELV"]
+        stage0 = _to_stage0_netclass_rules(core_rules)
+        assert stage0.safety_category == "LV"
+
+    def test_gatedrive_hv_outranks_gatedrive_selv_in_bottleneck_geometry(self):
+        """The forced-segment/bottleneck discount ranks by safety_category
+        (router_v6.bottleneck_geometry._SAFETY_RANK); GateDriveHV must now
+        rank as HV (2), strictly above GateDriveSELV's LV (1) -- before the
+        split both ranked identically as LV(1), which is the defect this
+        unit fixes."""
+        from temper_placer.core.design_rules import TEMPER_NET_CLASSES
+        from temper_placer.router_v6.bottleneck_geometry import _SAFETY_RANK
+
+        hv_rank = _SAFETY_RANK[TEMPER_NET_CLASSES["GateDriveHV"].safety_category]
+        selv_rank = _SAFETY_RANK[TEMPER_NET_CLASSES["GateDriveSELV"].safety_category]
+        assert hv_rank > selv_rank
+
+    def test_gate_hs_and_gate_ls_resolve_through_the_full_chain_to_hv(self):
+        """End-to-end: the real net name -> assignment table -> class table
+        -> stage0 conversion chain used by the router must resolve GATE_HS
+        and GATE_LS to safety_category "HV"."""
+        from temper_placer.core.design_rules import (
+            TEMPER_NET_ASSIGNMENTS,
+            TEMPER_NET_CLASSES,
+        )
+
+        for net_name in ("GATE_HS", "GATE_LS"):
+            class_name = TEMPER_NET_ASSIGNMENTS[net_name]
+            stage0 = _to_stage0_netclass_rules(TEMPER_NET_CLASSES[class_name])
+            assert stage0.safety_category == "HV", (
+                f"{net_name} (class {class_name!r}) must resolve to HV, not "
+                f"{stage0.safety_category!r}"
+            )
+
+    def test_pwm_hs_and_pwm_ls_resolve_through_the_full_chain_to_lv(self):
+        """Same chain for the SELV-side names -- must not accidentally
+        become HV in the split."""
+        from temper_placer.core.design_rules import (
+            TEMPER_NET_ASSIGNMENTS,
+            TEMPER_NET_CLASSES,
+        )
+
+        for net_name in ("PWM_HS", "PWM_LS"):
+            class_name = TEMPER_NET_ASSIGNMENTS[net_name]
+            stage0 = _to_stage0_netclass_rules(TEMPER_NET_CLASSES[class_name])
+            assert stage0.safety_category == "LV"
