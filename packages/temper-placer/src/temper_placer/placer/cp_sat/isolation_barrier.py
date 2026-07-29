@@ -414,6 +414,16 @@ def _best_rotation_for_barrier(
             best = (rot_value, gap)
     if best is not None:
         return (best[0], best[1], True)
+    # `fallback` is assigned on the first pass of the loop above -- the rotation
+    # sweep is a non-empty literal tuple and the first iteration always takes the
+    # `fallback is None` branch -- so this is unreachable by construction. mypy
+    # cannot narrow that, hence the explicit assert.
+    #
+    # Deliberately NOT `fallback or (0, 0.0)`: a None here would mean the sweep
+    # stopped running, and a 0.0 gap is not a neutral default on a safety
+    # barrier -- it is a fabricated separation that downstream feasibility
+    # checks would read as a real measurement. Fail loudly instead.
+    assert fallback is not None, "rotation sweep produced no fallback -- loop did not execute"
     return (fallback[0], fallback[1], False)
 
 
