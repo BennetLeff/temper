@@ -81,6 +81,8 @@ on:
       - 'scripts/tests/test_check_pll_range_consistency.py'
       - 'scripts/check_isolation_keepout.py'
       - 'scripts/tests/test_check_isolation_keepout.py'
+      - 'scripts/check_pad_orientation.py'
+      - 'scripts/tests/test_check_pad_orientation.py'
       - 'pcb/temper.kicad_pcb'
       - 'firmware/components/control/pll_control.h'
       - '.net-classification-allowlist'
@@ -154,6 +156,8 @@ on:
       - 'scripts/tests/test_check_pll_range_consistency.py'
       - 'scripts/check_isolation_keepout.py'
       - 'scripts/tests/test_check_isolation_keepout.py'
+      - 'scripts/check_pad_orientation.py'
+      - 'scripts/tests/test_check_pad_orientation.py'
       - 'pcb/temper.kicad_pcb'
       - 'firmware/components/control/pll_control.h'
       - '.net-classification-allowlist'
@@ -712,6 +716,25 @@ jobs:
         # see docs/evidence/2026-07-26-domain-partition-check.md. Never
         # `continue-on-error`: a gate that cannot run must exit non-zero.
         run: uv run python scripts/check_domain_partition.py
+
+      - name: Pad-orientation gate unit tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_check_pad_orientation.py -v --tb=short
+
+      - name: Pad-orientation gate (intra-footprint copper shorts)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        # Fail-closed. Catches the two mechanisms behind the 60 intra-
+        # component copper shorts fixed in #412/#420/#426: a writer that
+        # rotated pad positions but not pad bodies (a .kicad_pcb pad angle
+        # is ABSOLUTE, unlike .kicad_mod), and library footprints whose
+        # pads overlap in their own local frame. Both produced solid copper
+        # between different nets inside one footprint -- a fatal defect on
+        # a mains-connected board (docs/STRATEGY.md). Verified to fail on
+        # the pre-fix board (c369bc72) and to pass on both the corrected
+        # board and the KiCad-authored bitaxeUltra control, so it
+        # discriminates rather than merely firing. Never
+        # `continue-on-error`: a gate that cannot run must exit non-zero.
+        run: uv run python scripts/check_pad_orientation.py pcb/temper.kicad_pcb
 
       - name: Design capacity budget gate tests
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}

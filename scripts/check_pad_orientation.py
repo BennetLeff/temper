@@ -240,8 +240,25 @@ def _layers_intersect(a: Pad, b: Pad) -> bool:
         return out
 
     la, lb = expand(a.layers), expand(b.layers)
+
+    # Two distinct cases were previously conflated, both landing in the
+    # fail-closed branch below:
+    #
+    #   1. The pad DECLARES layers, none of them copper -- e.g. K1's #250
+    #      Faston tabs, which are `F.Fab` only because the Omron datasheet
+    #      says they carry no PCB copper at all. Such a pad provably has no
+    #      copper on any layer, so it cannot short to anything. Reporting it
+    #      is a false positive, and KiCad's own DRC agrees: it reports zero
+    #      intra-component shorts for K1.
+    #
+    #   2. The pad declares NO layers at all. That is genuinely unknown, and
+    #      still fails closed.
+    #
+    # Only the second deserves the benefit of the doubt.
+    if (a.layers and not la) or (b.layers and not lb):
+        return False
     if not la or not lb:
-        # A pad with no declared copper layer cannot be proven separate;
+        # A pad with no declared layers at all cannot be proven separate;
         # treat it as sharing (fail-closed) rather than silently skipping.
         return True
     return bool(la & lb)
