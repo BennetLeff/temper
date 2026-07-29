@@ -16,11 +16,31 @@ from typing import Any
 
 def _zone_layers_for_net(net_name: str) -> list[str]:
     """Resolve the zone/pour layer(s) for a net from the netclass SSOT.
-    Returns empty list for nets that don't get zone treatment."""
-    from temper_placer.core.design_rules import TEMPER_NET_ASSIGNMENTS
+    Returns empty list for nets that don't get zone treatment.
 
-    nc = TEMPER_NET_ASSIGNMENTS.get(net_name, "")
-    if nc in ("GND", "Power", "GateDrive", "HighVoltage", "ACMains"):
+    RESTORED 2026-07-29: this had regressed back to a hardcoded 5-class
+    eligibility list (``GND``, ``Power``, ``GateDrive``, ``HighVoltage``,
+    ``ACMains``) instead of consulting ``NetClassRules.routing_strategy``
+    -- the project's own declared design intent, which marks only
+    ``ACMains`` and ``HighVoltage`` ``"plane_required"``
+    (``core/design_rules.py``). This exact drift was already found and
+    fixed once, in commit 27368038 ("stop a one-char substring match and
+    a hardcoded netclass list from misclassifying planes"), but that fix
+    landed on a sibling branch that this file's 2026-07-29 pure-code-move
+    extraction (out of ``_adapter_convert.py``) was scripted from a parent
+    predating it -- so the AST-identical extraction faithfully moved the
+    *stale* version forward. R7 requires pours to be regenerated only for
+    nets the netclass SSOT actually declares plane-required; a hardcoded
+    list here can drift from that declaration again exactly like this,
+    silently carrying pours for netclasses (Power, GateDrive, GND) the
+    metadata never requested. Driving eligibility from ``routing_strategy``
+    keeps this in step with the metadata by construction.
+    """
+    from temper_placer.core.design_rules import TEMPER_NET_ASSIGNMENTS, TEMPER_NET_CLASSES
+
+    nc_name = TEMPER_NET_ASSIGNMENTS.get(net_name, "")
+    nc = TEMPER_NET_CLASSES.get(nc_name)
+    if nc is not None and nc.routing_strategy == "plane_required":
         return ["F.Cu", "B.Cu"]
     return []
 
@@ -56,6 +76,14 @@ def _zone_params_for_net(net_name: str) -> tuple[float, float]:
 
 # U1: netclasses where clustering would fragment a continuous return/ground
 # plane and undermine EMI/loop-area control for switching-power-supply nets.
+# NOTE 2026-07-29: "GND" is currently dormant here -- _zone_layers_for_net()
+# drives zone eligibility from routing_strategy=="plane_required", which GND
+# does not declare (only ACMains/HighVoltage do), so a GND net never reaches
+# this membership check today (the zone-emission loop above skips it before
+# this constant is consulted). Left in place rather than removed: it is not
+# wrong, only unreachable under the current netclass SSOT, and would
+# immediately reactivate if GND's routing_strategy is ever set to
+# "plane_required".
 _CONTINUITY_EXEMPT_CLASSES = frozenset({"GND", "ACMains", "HighVoltage"})
 
 
@@ -87,13 +115,17 @@ def _stitch_isolated_pads(
     from shapely.geometry import Point as ShapelyPoint
     from shapely.geometry import Polygon
 
-    from temper_placer.core.design_rules import (
-        TEMPER_NET_ASSIGNMENTS,
-    )
-
     for net_name, positions in pad_positions.items():
-        nc = TEMPER_NET_ASSIGNMENTS.get(net_name, "")
-        if nc not in ("GND", "Power", "GateDrive", "HighVoltage", "ACMains"):
+        # Delegates to _zone_layers_for_net() rather than keeping its own
+        # copy of the netclass eligibility list -- this file previously
+        # carried independent hardcoded copies of "which netclasses get
+        # zone treatment" here and in _zone_layers_for_net(), which is
+        # exactly the duplicate-hand-maintained-list drift that regressed
+        # 2026-07-29 (see _zone_layers_for_net()'s docstring). A net with
+        # no zone_layers never gets a zone_points entry below anyway (the
+        # `if not zps: continue` guard), so this was always semantically
+        # redundant, just not mechanically tied to it.
+        if not _zone_layers_for_net(net_name):
             continue
         net_num = net_name_to_number.get(net_name, 0)
         if net_num <= 0 or len(positions) <= 1:

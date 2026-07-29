@@ -8,7 +8,7 @@
 
 <!-- BEGIN GENERATED: plan-status -- edits here are overwritten by scripts/gen_repo_state.py -->
 
-*146 plan documents. Generated from frontmatter.*
+*147 plan documents. Generated from frontmatter.*
 
 | Status | Count | Meaning |
 |---|---:|---|
@@ -17,7 +17,7 @@
 | `stale` | 52 | Insufficient evidence -- needs human triage. |
 | `abandoned` | 17 | Named deliverables largely absent; work never landed. |
 | `superseded` | 5 | Replaced by a later plan or by STRATEGY.md. |
-| *(no frontmatter)* | 7 | Legacy documents predating the plan format. |
+| *(no frontmatter)* | 8 | Legacy documents predating the plan format. |
 
 **Active plans (4):**
 
