@@ -130,12 +130,17 @@
 > measurement**.
 >
 > **⚠ Acceptance is on LOADED inductance, and the ratio test alone is not
-> enough.** Accept if **`L_loaded ≥ 52.8µH`** measured at 40 kHz with a
-> ferromagnetic reference pan at the production gap (target 59.8µH). A coil
-> that is −10% on unloaded inductance *and* only meets the commonly-quoted
+> enough.** Accept if **`L_loaded ≥ 53.00µH`** measured at 40 kHz with a
+> ferromagnetic reference pan at the production gap (target 59.8µH). This
+> threshold was raised from 52.8µH on 2026-07-29 to also worst-case
+> `c_tank1`/`c_tank2`'s own +/-5% tolerance (previously the derivation used
+> nominal 300nF capacitance while worst-casing only the coil) --
+> `scripts/check_pll_range_consistency.py` check 8 derives it and fails the
+> build if spec doc §2's stated number ever disagrees. A coil that is −10%
+> on unloaded inductance *and* only meets the commonly-quoted
 > `L_loaded ≥ 0.60 × L_unloaded` screen resonates at 42.15 kHz — above
-> `PLL_MIN_FREQ_HZ` — which puts a hard-switching regime inside the firmware's
-> legal range. Full procedure and derivation: spec doc §2.
+> `PLL_MIN_FREQ_HZ` (now 43kHz) — which puts a hard-switching regime inside
+> the firmware's legal range. Full procedure and derivation: spec doc §2.
 >
 > **⚠ Coil thermal design does not exist.** ~150–200 W of the coil's own copper
 > loss at 1800 W, and `LitzPad_15A` declares a 15 A pad against a 20.7–22.5 A

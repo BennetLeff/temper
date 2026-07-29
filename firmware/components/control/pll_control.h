@@ -20,14 +20,17 @@ extern "C" {
  * @brief PLL frequency limits
  *
  * PLL_MIN_FREQ_HZ RAISED 30000 -> 42000 on 2026-07-29
- * (docs/evidence/2026-07-29-pll-floor-above-resonance.md).
+ * (docs/evidence/2026-07-29-pll-floor-above-resonance.md), then
+ * 42000 -> 43000 later the same day
+ * (docs/evidence/2026-07-29-pll-floor-cap-tolerance.md).
  *
  * THIS FLOOR IS NOT A TUNING CONSTANT; IT IS A SAFETY BOUND, AND IT IS
  * MACHINE-DERIVED. scripts/check_pll_range_consistency.py recomputes the
  * required value from elec/src/main.ato's declared l_tank_assumed,
- * l_pan_loaded_ratio, c_tank_total and l_tank_tolerance and FAILS THE
- * BUILD if this number drops below it. Do not lower it here; lower the
- * physics in main.ato (if it is wrong) and let the gate re-derive.
+ * l_pan_loaded_ratio, c_tank_total, l_tank_tolerance AND c_tank_tolerance
+ * and FAILS THE BUILD if this number drops below it. Do not lower it
+ * here; lower the physics in main.ato (if it is wrong) and let the gate
+ * re-derive.
  *
  * Why: this is a SERIES-resonant inverter. Above the loaded resonance the
  * tank is inductive and the half-bridge switches at zero voltage. BELOW
@@ -43,35 +46,54 @@ extern "C" {
  * power-seeking outer loop can settle there and every power reading looks
  * correct.
  *
- * Derivation (arithmetic in the evidence doc):
- *   L_loaded(worst case) = 88uH * (1 - 0.10) * 0.68     = 53.86uH
- *   f_res,loaded         = 1/(2*pi*sqrt(53.86uH*300nF)) = 39.595kHz
- *   required floor       = 1.05 * 39.595kHz             = 41.575kHz
- *   PLL_MIN_FREQ_HZ      = 42000                        -> ratio 1.061
- * Keyed off MINIMUM coil L, not nominal: f_res ~ 1/sqrt(L), so the
- * low-tolerance unit resonates highest and needs the highest floor.
+ * Derivation, worst-casing BOTH tank components (arithmetic in the
+ * evidence doc):
+ *   L_loaded(worst case) = 88uH * (1 - 0.10) * 0.68       = 53.856uH
+ *   C(worst case)        = 300nF * (1 - 0.05)             = 285nF
+ *   f_res,loaded         = 1/(2*pi*sqrt(53.856uH*285nF))  = 40.624kHz
+ *   required floor       = 1.05 * 40.624kHz               = 42.655kHz
+ *   PLL_MIN_FREQ_HZ      = 43000  -> smallest round kHz above the floor
+ * Keyed off MINIMUM coil L *and* MINIMUM capacitance C, not nominal:
+ * f_res ~ 1/sqrt(L*C), so a low-tolerance part on EITHER side resonates
+ * higher and needs the highest floor. Until 2026-07-29 this gate
+ * worst-cased L only and took C at nominal (300nF), which derived a
+ * floor of only 41.575kHz -- correct FOR L alone, but silently assuming
+ * a 0%-tolerance capacitor while c_tank1/c_tank2 (elec/src/modules.ato,
+ * MPN FKP1T031507G00JSSD, WIMA FKP 1) are actually +/-5% parts per
+ * WIMA's own ordering table. A capacitor 5% low raises f_res enough
+ * (39.595kHz -> 40.624kHz at this L) that the un-corrected 42000 floor
+ * would have sat only 345Hz above a real worst-case unit -- inside the
+ * kind of margin a single rounding choice could have erased.
  *
- * Those inputs were 150uH * 0.399 = 53.87uH -> floor 41.571kHz until
+ * The L-only inputs were 150uH * 0.399 = 53.87uH -> floor 41.571kHz until
  * 2026-07-29, when the coil was actually specified (88uH +/-10%) and the
  * pan coupling ratio moved WITH it, as a matched pair -- only the LOADED
- * inductance resonates, so the floor moved 3.5Hz. Nothing in this file
- * changed. docs/evidence/2026-07-29-tank-coil-specification.md.
+ * inductance resonates, so the floor moved 3.5Hz. docs/evidence/2026-07-29-
+ * tank-coil-specification.md.
  *
- * WHAT THIS FLOOR REQUIRES OF A DELIVERED COIL: inverting the derivation,
- * 42000/1.05 = 40000Hz is the highest loaded resonance this floor still
- * guards, i.e. L_loaded must be >= 52.8uH as MEASURED WITH A PAN. A coil
- * that is -10% on inductance and only meets the commonly-quoted
+ * WHAT THIS FLOOR REQUIRES OF A DELIVERED COIL: inverting the derivation
+ * (now against worst-case C too), 43000/1.05 = 40952.4Hz is the highest
+ * loaded resonance this floor still guards, i.e. L_loaded must be >=
+ * 53.00uH as MEASURED WITH A PAN (against C_worst = 285nF). A coil that
+ * is -10% on inductance and only meets the commonly-quoted
  * "L_loaded >= 0.60 x L_unloaded" screen lands at 47.5uH and resonates at
  * 42.15kHz -- above this floor. The CI gate cannot see that (it treats
  * l_pan_loaded_ratio as exact); incoming inspection carries it, per
- * docs/hardware/TANK_COIL_SPECIFICATION.md Sec 2.
+ * docs/hardware/TANK_COIL_SPECIFICATION.md Sec 2, and
+ * scripts/check_pll_range_consistency.py check 8 fails the build if that
+ * document's written threshold drifts from what this derivation computes.
  *
  * Cost, stated: for a series-resonant inverter lower frequency means MORE
  * power, so raising the floor lowers maximum deliverable power. 1800W is
- * unaffected (it lands at 47.1kHz nominal, and 42kHz still admits ~3.7kW).
- * PLL_MAX_FREQ_HZ was deliberately NOT widened to compensate.
+ * unaffected (it lands at 47.1kHz nominal; the ZVS margin there against
+ * the worst-case-C loaded resonance is 1.157x, comfortably above the
+ * 1.05 cliff). PLL_MAX_FREQ_HZ was deliberately NOT widened to
+ * compensate. If HELD PR #410 (re-source c_tank1/c_tank2 to CDE
+ * 942C16P1K-F, +/-10%) merges, c_tank_tolerance becomes 0.10 and this
+ * gate will fail again until PLL_MIN_FREQ_HZ is re-raised to ~44000 --
+ * that is expected, not a regression to silently work around.
  */
-#define PLL_MIN_FREQ_HZ     42000   /**< Minimum switching frequency: derived ZVS floor, 1.05x worst-case loaded resonance. See block comment. */
+#define PLL_MIN_FREQ_HZ     43000   /**< Minimum switching frequency: derived ZVS floor, 1.05x worst-case loaded resonance (worst-case L AND C). See block comment. */
 #define PLL_MAX_FREQ_HZ     50000   /**< Maximum switching frequency */
 /**
  * @brief Default startup frequency.

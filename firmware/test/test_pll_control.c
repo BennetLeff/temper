@@ -7,12 +7,15 @@
  * between PWM output and current zero-crossing.
  * 
  * Specifications (from design docs):
- * - Frequency range: 42-50 kHz (PLL_MIN_FREQ_HZ to PLL_MAX_FREQ_HZ).
- *   The floor was RAISED from 30 kHz on 2026-07-29 (docs/evidence/
+ * - Frequency range: 43-50 kHz (PLL_MIN_FREQ_HZ to PLL_MAX_FREQ_HZ).
+ *   The floor was RAISED from 30 kHz to 42 kHz on 2026-07-29 (docs/evidence/
  *   2026-07-29-pll-floor-above-resonance.md): 30 kHz sat below the tank's
- *   loaded resonance, where a series-resonant bridge hard-switches. It is
- *   now derived by scripts/check_pll_range_consistency.py from
- *   elec/src/main.ato's declared L/C/coupling/tolerance, so tests below
+ *   loaded resonance, where a series-resonant bridge hard-switches; then
+ *   from 42 kHz to 43 kHz later the same day (docs/evidence/2026-07-29-
+ *   pll-floor-cap-tolerance.md) once the derivation was corrected to also
+ *   worst-case the tank capacitor's own tolerance, not just the coil's. It
+ *   is derived by scripts/check_pll_range_consistency.py from
+ *   elec/src/main.ato's declared L/C/coupling/tolerances, so tests below
  *   assert against the MACROS rather than against literals -- a literal
  *   here would silently stop testing the real bound the next time the
  *   derivation moves it.

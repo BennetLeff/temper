@@ -37,11 +37,11 @@ Design-as-code (``elec/src/main.ato``): the three ``<name>: frequency =
 ``f_pll_tracking_max`` -- atopile's own declaration syntax, matched by
 name for the same reason. Units ``Hz``/``kHz``/``MHz`` are normalized to Hz.
 
-Also from ``main.ato``, the four physical quantities the derived ZVS floor
+Also from ``main.ato``, the five physical quantities the derived ZVS floor
 (check 5 below) is computed from: ``l_tank_assumed`` (inductance,
 ``H``/``mH``/``uH``/``nH``), ``c_tank_total`` (capacitance,
-``F``/``uF``/``nF``/``pF``), ``l_pan_loaded_ratio`` and
-``l_tank_tolerance`` (both ``dimensionless``).
+``F``/``uF``/``nF``/``pF``), ``l_pan_loaded_ratio``, ``l_tank_tolerance``
+and ``c_tank_tolerance`` (the last three ``dimensionless``).
 
 Tank capacitance (``elec/src/modules.ato``): ``c_tank1.value`` and
 ``c_tank2.value``, summed (they are in parallel). Read ONLY to cross-check
@@ -53,6 +53,10 @@ the ``ResonantTank`` coil. Read ONLY to cross-check ``main.ato``'s
 (``= 88uH +/- 10%``) is accepted and ignored: the tolerance main.ato
 derives against is its own ``l_tank_tolerance``, and check 7 is about the
 NOMINAL value being the same number in both files.
+
+Coil acceptance threshold (``docs/hardware/TANK_COIL_SPECIFICATION.md``):
+the ``L_loaded >= <value> uH`` incoming-inspection threshold, read ONLY to
+cross-check it against the gate's own inverted derivation -- see check 8.
 
 Design decision: require ALL named constants, not "whatever is found"
 ---------------------------------------------------------------------
@@ -78,7 +82,8 @@ other -- both files agreed on 30kHz, and 30kHz was wrong.
 So this gate no longer only cross-checks; it DERIVES:
 
     L_loaded_worst = l_tank_assumed * (1 - l_tank_tolerance) * l_pan_loaded_ratio
-    f_res_loaded   = 1 / (2*pi*sqrt(L_loaded_worst * c_tank_total))
+    C_worst        = c_tank_total * (1 - c_tank_tolerance)
+    f_res_loaded   = 1 / (2*pi*sqrt(L_loaded_worst * C_worst))
     required_floor = ZVS_MARGIN_MIN * f_res_loaded
 
 and fails if ``PLL_MIN_FREQ_HZ`` is below ``required_floor``.
@@ -89,14 +94,22 @@ Two deliberate choices:
   the physics (what the tank is); this gate owns the safety threshold (how
   much margin above the cliff is required). A margin declared in the file
   under test can be relaxed from the side being checked.
-- The floor is derived at the WORST-CASE (minimum) coil inductance, not at
-  nominal, because ``f_res ~ 1/sqrt(L)``: a low-tolerance coil resonates
-  HIGHER, so nominal-L would under-protect precisely the unit most at risk.
+- The floor is derived at the WORST-CASE (minimum) coil inductance AND the
+  WORST-CASE (minimum) tank capacitance, not at nominal for either, because
+  ``f_res ~ 1/sqrt(L*C)``: a low-tolerance part on EITHER side resonates
+  HIGHER, so nominal-L-and-C would under-protect precisely the unit most
+  at risk. (Added 2026-07-29, docs/evidence/2026-07-29-pll-floor-cap-
+  tolerance.md: until then this gate worst-cased L only and took C at
+  nominal, which under-derived the floor whenever the capacitor's own
+  tolerance -- WIMA FKP 1 +/-5% for the part actually on
+  ``elec/src/modules.ato``'s ``c_tank1``/``c_tank2`` -- pushed a real unit's
+  capacitance below the value the floor was computed against.)
 
 Every derived-floor input is sanity-bounded (positive L/C, ratio in (0,1],
-tolerance in [0,1)) and a value outside its bound is a GATE ERROR, not a
-violation -- otherwise ``l_tank_tolerance = 0`` or a negative capacitance
-would silently soften the floor rather than fail.
+both tolerances in [0,1)) and a value outside its bound is a GATE ERROR,
+not a violation -- otherwise ``l_tank_tolerance = 0``, ``c_tank_tolerance
+= 0`` or a negative capacitance would silently soften the floor rather
+than fail.
 
 Check 7, the coil-inductance mirror (added 2026-07-29)
 ------------------------------------------------------
@@ -121,7 +134,30 @@ floor above ``PLL_MIN_FREQ_HZ`` and fails, which is the hazardous
 and passes -- a power/turndown defect, not a safety one. Stated here so
 the asymmetry is a known property rather than a surprise.
 
-Checks performed (all seven must pass)
+Check 8, the coil acceptance-threshold mirror (added 2026-07-29)
+-----------------------------------------------------------------
+Motivating gap, named but deliberately left open in
+``docs/hardware/TANK_COIL_SPECIFICATION.md`` Sec 8 item 0: the incoming-
+inspection threshold that document issues to a supplier (``L_loaded >=
+<value> uH``) was HAND-DERIVED from the floor once, and nothing kept it in
+sync -- it is exactly the same untethered-mirror shape check 6 and check 7
+close for capacitance and inductance, applied to a THRESHOLD instead of a
+component value. Inverting the derived-floor formula gives the highest
+loaded resonance the floor still guards, and therefore the minimum loaded
+inductance a delivered coil may have (against the SAME worst-case
+capacitance check 5 uses):
+
+    f_res_max_guarded = PLL_MIN_FREQ_HZ / ZVS_MARGIN_MIN
+    L_loaded_min      = 1 / ((2*pi*f_res_max_guarded)**2 * C_worst)
+
+This gate computes and prints ``L_loaded_min``, then parses the threshold
+TANK_COIL_SPECIFICATION.md actually states (the ``L_loaded >= <value> uH``
+sentence identifying itself as "requirement #3") and fails if the two
+disagree by more than a small rounding allowance. The document's number
+must now move automatically whenever L, C, either tolerance, or
+PLL_MIN_FREQ_HZ moves -- it is emitted by this gate, not hand-copied.
+
+Checks performed (all eight must pass)
 ---------------------------------------
 1. ``f_pll_tracking_min`` (main.ato) == ``PLL_MIN_FREQ_HZ`` (pll_control.h)
 2. ``f_pll_tracking_max`` (main.ato) == ``PLL_MAX_FREQ_HZ`` (pll_control.h)
@@ -133,14 +169,18 @@ Checks performed (all seven must pass)
    not what this gate is chartered to reconcile)
 4. ``PLL_DEFAULT_FREQ_HZ`` (pll_control.h) == ``f_switching`` (main.ato)
 5. ``PLL_MIN_FREQ_HZ`` >= ``ZVS_MARGIN_MIN`` x the worst-case loaded
-   resonance derived from main.ato's L, C, coupling ratio and coil
-   tolerance (the derived ZVS floor, above)
+   resonance derived from main.ato's L, C, coupling ratio and BOTH the
+   coil and capacitor tolerances (the derived ZVS floor, above)
 6. ``c_tank_total`` (main.ato) == ``c_tank1.value + c_tank2.value``
    (modules.ato) -- the derived floor is only as trustworthy as the
    capacitance it is derived from, and main.ato's declaration is a mirror
    of the two physical parts
 7. ``l_tank_assumed`` (main.ato) == ``inductor_conn.value`` (modules.ato)
    -- same argument, for the inductance half of the same resonance
+8. The ``L_loaded >= <value> uH`` acceptance threshold written in
+   ``docs/hardware/TANK_COIL_SPECIFICATION.md`` matches this gate's own
+   inverted derivation of that threshold (the coil acceptance-threshold
+   mirror, above)
 
 Anti-vacuous-truth contract
 -----------------------------
@@ -148,11 +188,12 @@ Anti-vacuous-truth contract
 docs/solutions/best-practices/ documents this repo's history of gates that
 checked an empty set and reported success. Exits non-zero (GATE_ERROR) for:
 
-  - any of the three source files missing
+  - any of the four source files missing
   - any named constant not found in its file
   - a found constant whose value fails to parse as a number
   - a derived-floor input outside its sanity band (non-positive L or C,
-    coupling ratio outside (0, 1], tolerance outside [0, 1))
+    coupling ratio outside (0, 1], either tolerance outside [0, 1))
+  - the coil acceptance threshold not found in TANK_COIL_SPECIFICATION.md
 
 That last one matters: if the declared quantities are insufficient or
 nonsensical, the floor CANNOT be computed, and this gate fails closed with
@@ -161,9 +202,9 @@ never skips check 5 -- a freshness gate that passes when it cannot evaluate
 is the failure mode this repo has hit repeatedly.
 
 Exit codes:
-  0 - PASSED: all three files found, every constant discovered, and all
-      seven checks pass.
-  3 - VIOLATION: every constant discovered, but at least one of the seven
+  0 - PASSED: all four files found, every constant discovered, and all
+      eight checks pass.
+  3 - VIOLATION: every constant discovered, but at least one of the eight
       checks disagrees.
   5 - GATE ERROR: a source file is missing, or a named constant could not
       be found/parsed, or a derived-floor input is outside its sanity band
@@ -194,6 +235,7 @@ EXIT_GATE_ERROR = 5
 FIRMWARE_HEADER_REL = "firmware/components/control/pll_control.h"
 MAIN_ATO_REL = "elec/src/main.ato"
 MODULES_ATO_REL = "elec/src/modules.ato"
+TANK_COIL_SPEC_REL = "docs/hardware/TANK_COIL_SPECIFICATION.md"
 
 FIRMWARE_CONSTANT_NAMES = ("PLL_MIN_FREQ_HZ", "PLL_MAX_FREQ_HZ", "PLL_DEFAULT_FREQ_HZ")
 ATO_DECLARATION_NAMES = ("f_switching", "f_pll_tracking_min", "f_pll_tracking_max")
@@ -207,6 +249,7 @@ ATO_PHYSICS_NAMES = {
     "c_tank_total": "capacitance",
     "l_pan_loaded_ratio": "dimensionless",
     "l_tank_tolerance": "dimensionless",
+    "c_tank_tolerance": "dimensionless",
 }
 
 # The two parallel tank capacitors, read from modules.ato purely to
@@ -465,6 +508,45 @@ def parse_modules_tank_coil(path: Path) -> DiscoveredQuantity | None:
     return None
 
 
+# The sentence TANK_COIL_SPECIFICATION.md uses to state its acceptance
+# threshold in a form unambiguous enough to regex-match: a backtick-quoted
+# `L_loaded >= <value> µH` immediately followed by "is requirement #3".
+# This is deliberately NOT "any occurrence of a number near L_loaded" --
+# the document repeats the threshold in a table, a procedure step and a
+# BOM cross-reference, and matching all of those informally risks a false
+# match against an unrelated number. Anchoring on the one sentence that
+# names itself as the binding requirement keeps the parse targeted, the
+# same convention as every other named lookup in this gate.
+_TANK_COIL_SPEC_THRESHOLD_PATTERN = re.compile(
+    r"L_loaded\s*≥\s*(\d+(?:\.\d+)?)\s*µH`\s*is requirement #3"
+)
+
+
+def parse_tank_coil_spec_threshold(path: Path) -> DiscoveredQuantity | None:
+    """Parse the ``L_loaded >= <value> uH`` acceptance threshold sentence
+    from ``docs/hardware/TANK_COIL_SPECIFICATION.md`` (henries).
+
+    Returns ``None`` if the anchor sentence is absent, which ``run()``
+    turns into a GateError -- never a skipped check 8.
+    """
+    if not path.is_file():
+        raise GateError(f"{TANK_COIL_SPEC_REL} not found: {path}")
+
+    lines = path.read_text(encoding="utf-8").splitlines()
+    for lineno, line in enumerate(lines, start=1):
+        m = _TANK_COIL_SPEC_THRESHOLD_PATTERN.search(line)
+        if m:
+            return DiscoveredQuantity(
+                name="L_loaded_min (TANK_COIL_SPECIFICATION.md)",
+                kind="inductance",
+                value=float(m.group(1)) * 1e-6,
+                raw=line.strip(),
+                file=str(path),
+                lineno=lineno,
+            )
+    return None
+
+
 # ---------------------------------------------------------------------------
 # Derived ZVS floor
 # ---------------------------------------------------------------------------
@@ -477,6 +559,7 @@ _PHYSICS_SANITY_BOUNDS: tuple[tuple[str, str], ...] = (
     ("c_tank_total", "must be > 0 F"),
     ("l_pan_loaded_ratio", "must be in (0, 1] -- a loaded/unloaded inductance ratio"),
     ("l_tank_tolerance", "must be in [0, 1) -- a fractional part tolerance"),
+    ("c_tank_tolerance", "must be in [0, 1) -- a fractional part tolerance"),
 )
 
 
@@ -485,7 +568,7 @@ def _sanity_ok(name: str, value: float) -> bool:
         return value > 0.0
     if name == "l_pan_loaded_ratio":
         return 0.0 < value <= 1.0
-    if name == "l_tank_tolerance":
+    if name in ("l_tank_tolerance", "c_tank_tolerance"):
         return 0.0 <= value < 1.0
     raise AssertionError(f"no sanity bound defined for {name!r}")
 
@@ -495,12 +578,37 @@ class DerivedFloor:
     l_nominal_h: float
     l_worst_case_h: float
     l_loaded_worst_case_h: float
-    c_farads: float
+    c_nominal_farads: float
+    c_worst_case_farads: float
     loaded_ratio: float
-    tolerance: float
+    l_tolerance: float
+    c_tolerance: float
     f_res_nominal_hz: float
     f_res_worst_case_hz: float
     required_floor_hz: float
+
+    @property
+    def c_farads(self) -> float:
+        """Backwards-compatible alias for the nominal capacitance -- kept
+        because check 6 (the c_tank_total mirror against modules.ato)
+        compares against NOMINAL capacitance, not worst-case; only the
+        derived-floor arithmetic itself uses c_worst_case_farads."""
+        return self.c_nominal_farads
+
+
+def coil_acceptance_l_loaded_min_h(floor: DerivedFloor, pll_min_hz: float) -> float:
+    """Invert the derived-floor formula to the minimum LOADED coil
+    inductance (henries) a delivered unit may have, given the worst-case
+    tank capacitance the floor is already derived against.
+
+        f_res_max_guarded = PLL_MIN_FREQ_HZ / ZVS_MARGIN_MIN
+        L_loaded_min      = 1 / ((2*pi*f_res_max_guarded)**2 * C_worst)
+
+    This is the number docs/hardware/TANK_COIL_SPECIFICATION.md's incoming
+    acceptance test must state (check 8) -- see module docstring.
+    """
+    f_res_max_guarded = pll_min_hz / ZVS_MARGIN_MIN
+    return 1.0 / ((2.0 * math.pi * f_res_max_guarded) ** 2 * floor.c_worst_case_farads)
 
 
 def derive_zvs_floor(physics: dict[str, DiscoveredQuantity]) -> DerivedFloor:
@@ -530,29 +638,34 @@ def derive_zvs_floor(physics: dict[str, DiscoveredQuantity]) -> DerivedFloor:
             )
 
     l_nom = physics["l_tank_assumed"].value
-    c = physics["c_tank_total"].value
+    c_nom = physics["c_tank_total"].value
     ratio = physics["l_pan_loaded_ratio"].value
-    tol = physics["l_tank_tolerance"].value
+    l_tol = physics["l_tank_tolerance"].value
+    c_tol = physics["c_tank_tolerance"].value
 
-    # Worst case for a ZVS floor is MINIMUM inductance: f_res ~ 1/sqrt(L),
-    # so the low-tolerance coil resonates highest and needs the highest
-    # floor. Deriving at nominal would under-protect exactly that unit.
-    l_worst = l_nom * (1.0 - tol)
+    # Worst case for a ZVS floor is MINIMUM inductance AND MINIMUM
+    # capacitance: f_res ~ 1/sqrt(L*C), so a low-tolerance part on EITHER
+    # side resonates highest and needs the highest floor. Deriving at
+    # nominal for either would under-protect exactly that unit.
+    l_worst = l_nom * (1.0 - l_tol)
     l_loaded_worst = l_worst * ratio
+    c_worst = c_nom * (1.0 - c_tol)
 
-    def _f_res(l_henries: float) -> float:
-        return 1.0 / (2.0 * math.pi * math.sqrt(l_henries * c))
+    def _f_res(l_henries: float, c_farads: float) -> float:
+        return 1.0 / (2.0 * math.pi * math.sqrt(l_henries * c_farads))
 
     return DerivedFloor(
         l_nominal_h=l_nom,
         l_worst_case_h=l_worst,
         l_loaded_worst_case_h=l_loaded_worst,
-        c_farads=c,
+        c_nominal_farads=c_nom,
+        c_worst_case_farads=c_worst,
         loaded_ratio=ratio,
-        tolerance=tol,
-        f_res_nominal_hz=_f_res(l_nom * ratio),
-        f_res_worst_case_hz=_f_res(l_loaded_worst),
-        required_floor_hz=ZVS_MARGIN_MIN * _f_res(l_loaded_worst),
+        l_tolerance=l_tol,
+        c_tolerance=c_tol,
+        f_res_nominal_hz=_f_res(l_nom * ratio, c_nom),
+        f_res_worst_case_hz=_f_res(l_loaded_worst, c_worst),
+        required_floor_hz=ZVS_MARGIN_MIN * _f_res(l_loaded_worst, c_worst),
     )
 
 
@@ -574,19 +687,22 @@ def run_checks(
     floor: DerivedFloor | None = None,
     modules_caps: dict[str, DiscoveredQuantity] | None = None,
     modules_coil: DiscoveredQuantity | None = None,
+    coil_accept_min_h: float | None = None,
+    doc_threshold: DiscoveredQuantity | None = None,
 ) -> list[CheckResult]:
     """Pure decision function (isolated from I/O for unit testing). Assumes
     all six required constants are already present in *firmware*/*ato* --
     callers must have failed closed on missing constants before calling
     this.
 
-    *floor*, *modules_caps* and *modules_coil* add checks 5, 6 and 7. They
+    *floor*, *modules_caps* and *modules_coil* add checks 5, 6 and 7.
+    *coil_accept_min_h* and *doc_threshold* together add check 8. They
     default to ``None`` ONLY so the four original cross-checks stay
-    independently testable; ``run()`` always supplies all three, and a
+    independently testable; ``run()`` always supplies all of them, and a
     ``None`` here is never reachable from the CLI. It is not an "if we
     happened to find it" opt-out: an underivable floor raises in
-    ``derive_zvs_floor``, and a missing coil declaration raises in
-    ``run()``, before this is called.
+    ``derive_zvs_floor``, and a missing coil declaration or missing doc
+    threshold raises in ``run()``, before this is called.
     """
     fw_min = firmware["PLL_MIN_FREQ_HZ"].value_hz
     fw_max = firmware["PLL_MAX_FREQ_HZ"].value_hz
@@ -650,12 +766,15 @@ def run_checks(
                     f"{floor.required_floor_hz:.0f}Hz "
                     f"(= {ZVS_MARGIN_MIN} x {floor.f_res_worst_case_hz:.0f}Hz "
                     f"worst-case loaded resonance, from main.ato "
-                    f"L={floor.l_nominal_h * 1e6:.1f}uH -{floor.tolerance * 100:.0f}% "
+                    f"L={floor.l_nominal_h * 1e6:.1f}uH -{floor.l_tolerance * 100:.0f}% "
                     f"x ratio {floor.loaded_ratio:.4f} = "
                     f"{floor.l_loaded_worst_case_h * 1e6:.2f}uH with "
-                    f"C={floor.c_farads * 1e9:.1f}nF; nominal-L resonance would be "
-                    f"{floor.f_res_nominal_hz:.0f}Hz). Below the loaded resonance "
-                    "the series tank is capacitive and the bridge hard-switches."
+                    f"C={floor.c_nominal_farads * 1e9:.1f}nF "
+                    f"-{floor.c_tolerance * 100:.0f}% = "
+                    f"{floor.c_worst_case_farads * 1e9:.1f}nF; nominal-L,nominal-C "
+                    f"resonance would be {floor.f_res_nominal_hz:.0f}Hz). Below the "
+                    "loaded resonance the series tank is capacitive and the bridge "
+                    "hard-switches."
                 ),
             )
         )
@@ -696,6 +815,30 @@ def run_checks(
             )
         )
 
+    if coil_accept_min_h is not None and doc_threshold is not None and floor is not None:
+        results.append(
+            CheckResult(
+                name=(
+                    "TANK_COIL_SPECIFICATION.md's L_loaded acceptance threshold "
+                    "matches the gate-derived value"
+                ),
+                passed=math.isclose(
+                    coil_accept_min_h, doc_threshold.value, rel_tol=0.0, abs_tol=0.01e-6
+                ),
+                detail=(
+                    f"gate-derived L_loaded_min={coil_accept_min_h * 1e6:.2f}uH "
+                    f"(= 1 / ((2*pi * {fw_min:.0f}Hz/{ZVS_MARGIN_MIN})^2 * "
+                    f"{floor.c_worst_case_farads * 1e9:.1f}nF worst-case C)) vs "
+                    f"{TANK_COIL_SPEC_REL}:{doc_threshold.lineno} states "
+                    f"{doc_threshold.value * 1e6:.2f}uH (+/-0.01uH rounding "
+                    "allowance). The document's acceptance threshold must move "
+                    "automatically whenever L, C, either tolerance, or "
+                    "PLL_MIN_FREQ_HZ moves -- this check is what makes that true "
+                    "instead of aspirational."
+                ),
+            )
+        )
+
     return results
 
 
@@ -712,23 +855,27 @@ class Report:
     modules_caps: dict[str, DiscoveredQuantity] = field(default_factory=dict)
     modules_coil: DiscoveredQuantity | None = None
     floor: DerivedFloor | None = None
+    coil_accept_min_h: float | None = None
+    doc_threshold: DiscoveredQuantity | None = None
     checks: list[CheckResult] = field(default_factory=list)
 
 
 def run(repo_root: Path) -> Report:
     """Raises GateError (fail closed) on any missing file/constant, or on
     any derived-floor input that is missing or outside its sanity band.
-    Otherwise returns a Report with all seven checks evaluated.
+    Otherwise returns a Report with all eight checks evaluated.
     """
     header_path = repo_root / FIRMWARE_HEADER_REL
     ato_path = repo_root / MAIN_ATO_REL
     modules_path = repo_root / MODULES_ATO_REL
+    tank_coil_spec_path = repo_root / TANK_COIL_SPEC_REL
 
     firmware = parse_firmware_header(header_path)
     ato = parse_main_ato(ato_path)
     physics = parse_ato_physics(ato_path)
     modules_caps = parse_modules_tank_capacitors(modules_path)
     modules_coil = parse_modules_tank_coil(modules_path)
+    doc_threshold = parse_tank_coil_spec_threshold(tank_coil_spec_path)
 
     if not firmware and not ato:
         raise GateError(
@@ -775,8 +922,22 @@ def run(repo_root: Path) -> Report:
             "unmirrored restatement of an inductance no declared part carries."
         )
 
+    if doc_threshold is None:
+        raise GateError(
+            f"{TANK_COIL_SPEC_REL} has no sentence matching "
+            "'`L_loaded >= <value> µH` is requirement #3'. This is check 8's only "
+            "anchor into the document; its absence is a GATE ERROR, not a skipped "
+            "check -- an un-cross-checked acceptance threshold is exactly the "
+            "untethered-mirror shape checks 6 and 7 exist to close for the "
+            "capacitance and inductance declarations, applied to this threshold "
+            "instead."
+        )
+
     # Raises (fail closed) if any physics input is missing or nonsensical.
     floor = derive_zvs_floor(physics)
+
+    fw_min_hz = firmware["PLL_MIN_FREQ_HZ"].value_hz
+    coil_accept_min_h = coil_acceptance_l_loaded_min_h(floor, fw_min_hz)
 
     checks = run_checks(
         firmware,
@@ -784,6 +945,8 @@ def run(repo_root: Path) -> Report:
         floor=floor,
         modules_caps=modules_caps,
         modules_coil=modules_coil,
+        coil_accept_min_h=coil_accept_min_h,
+        doc_threshold=doc_threshold,
     )
     return Report(
         firmware_constants=firmware,
@@ -792,6 +955,8 @@ def run(repo_root: Path) -> Report:
         modules_caps=modules_caps,
         modules_coil=modules_coil,
         floor=floor,
+        coil_accept_min_h=coil_accept_min_h,
+        doc_threshold=doc_threshold,
         checks=checks,
     )
 
@@ -845,14 +1010,25 @@ def main() -> int:
     if report.modules_coil is not None:
         q = report.modules_coil
         print(f"  [modules.ato] {q.name}.value = {q.value * 1e6:.2f}uH  ({q.file}:{q.lineno})")
+    if report.doc_threshold is not None:
+        q = report.doc_threshold
+        print(f"  [{TANK_COIL_SPEC_REL}] L_loaded_min = {q.value * 1e6:.2f}uH  ({q.file}:{q.lineno})")
     if report.floor is not None:
         fl = report.floor
         print(
-            f"  [derived] L_loaded(worst case, -{fl.tolerance * 100:.0f}%) = "
-            f"{fl.l_loaded_worst_case_h * 1e6:.2f}uH -> f_res,loaded = "
+            f"  [derived] L_loaded(worst case, -{fl.l_tolerance * 100:.0f}%) = "
+            f"{fl.l_loaded_worst_case_h * 1e6:.2f}uH, "
+            f"C(worst case, -{fl.c_tolerance * 100:.0f}%) = "
+            f"{fl.c_worst_case_farads * 1e9:.1f}nF -> f_res,loaded = "
             f"{fl.f_res_worst_case_hz:.0f}Hz (nominal {fl.f_res_nominal_hz:.0f}Hz) -> "
             f"required PLL floor = {ZVS_MARGIN_MIN} x {fl.f_res_worst_case_hz:.0f} = "
             f"{fl.required_floor_hz:.0f}Hz"
+        )
+    if report.coil_accept_min_h is not None:
+        print(
+            f"  [derived] coil acceptance threshold L_loaded_min = "
+            f"{report.coil_accept_min_h * 1e6:.2f}uH (inverted from PLL_MIN_FREQ_HZ "
+            f"and worst-case C; must match {TANK_COIL_SPEC_REL})"
         )
 
     failures = [c for c in report.checks if not c.passed]
@@ -877,6 +1053,9 @@ def main() -> int:
                 f"- Derived ZVS floor: {report.floor.required_floor_hz:.0f}Hz "
                 f"({ZVS_MARGIN_MIN} x {report.floor.f_res_worst_case_hz:.0f}Hz "
                 f"worst-case loaded resonance)\n"
+                f"- Derived coil acceptance threshold: "
+                f"{report.coil_accept_min_h * 1e6:.2f}uH "
+                f"(must match {TANK_COIL_SPEC_REL})\n"
                 f"- Checks performed: {len(report.checks)}\n"
                 f"- Checks failed: {len(failures)}\n"
             )

@@ -49,7 +49,9 @@ static const char *TAG = "pll_control";
 /* NOTE (2026-07-29): FREQ_MARGIN_LOW_HZ is now UNREACHABLE, and that is
  * the intended outcome, not an oversight. It would allow 32.58kHz
  * (37580 - 5000) -- below the loaded resonance, i.e. capacitive-mode hard
- * switching. Since PLL_MIN_FREQ_HZ rose to 42000 the frequency clamp in
+ * switching. Since PLL_MIN_FREQ_HZ rose to 42000 (and, 2026-07-29, to
+ * 43000 to also worst-case tank capacitor tolerance -- docs/evidence/
+ * 2026-07-29-pll-floor-cap-tolerance.md) the frequency clamp in
  * pll_update_loop() is strictly tighter, so pll_is_frequency_safe()'s low
  * bound can no longer be approached. It is left in place rather than
  * retuned: changing this file's safety-window constants is a control-loop
