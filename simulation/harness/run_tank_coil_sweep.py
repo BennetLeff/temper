@@ -100,7 +100,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import run_zvs_sweep as base  # noqa: E402  (reuse, not reimplement)
 
 REPO_ROOT = base.REPO_ROOT
-C_TANK_F = base.C_TANK_F  # 300nF, committed and fixed (modules.ato:391,398)
+C_TANK_F = base.C_TANK_F  # 300nF, committed and fixed. Realised as 3 x 100nF
+                          # in parallel (c_tank1..c_tank3) since 2026-07-29;
+                          # the total is unchanged, only the part count.
 
 PAN_PRESETS_BY_NAME = {n: (k, r, l2, s) for n, k, r, l2, s in base.PAN_PRESETS}
 
