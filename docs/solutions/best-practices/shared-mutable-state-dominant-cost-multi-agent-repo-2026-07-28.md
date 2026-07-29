@@ -285,3 +285,59 @@ dc8de067 (01:07): worktrees at 51 GB -> 28 GB (23 GB reclaimed,
 - `docs/STRATEGY.md` (§ "Tempco was never analysed, and a fourth part is
   fabricated") — the coordinator `git checkout -B`-in-the-shared-checkout
   precedent.
+
+---
+
+## A sixth incident, 2026-07-29: a stash killed by its own timeout, recovered by luck rather than by process
+
+A `git stash` used for an A/B baseline comparison (route the board, stash,
+route again, compare) was followed by a command that ran past a 10-minute
+timeout; the shell that would have run `git stash pop` was killed before it
+executed. The stashed work survived only because `stash@{0}` had not yet
+been touched by anything else — in a stash list already **82 entries deep**
+in this shared checkout — and `HEAD` had advanced in the meantime (a
+different session committed) while the working tree sat clean, showing no
+sign anything was missing. Recovery worked: `git stash show -p stash@{0} |
+git apply` restored the work without needing `git stash pop` at all.
+Recovery working is not the same as recovery being safe — an 82-entry
+stash list is exactly the depth at which "just pop it back" stops being a
+reasonable assumption, because any of the other 81 entries could have been
+reordered, dropped by GC, or popped by a concurrent session in the interval
+between push and the intended pop, as instance 2 above already
+demonstrates happened for real. This session separately had staged
+(uncommitted, not stashed) work swept into another session's commit three
+separate times in the same shared checkout — a distinct mechanism from the
+stash-ref race (index/working-tree state shared across sessions rather than
+the stash ref specifically) but the identical root cause: state assumed to
+be session-local that is not.
+
+**The addition to guidance point 3 this incident earns:** for any
+before/after or A/B comparison in a checkout shared with other active
+sessions, use `git worktree add --detach <ref>` to materialize the
+comparison point in an isolated directory, measure there, and remove the
+worktree when done — never `git stash`, even briefly, even for a comparison
+expected to take seconds. A worktree's isolation does not depend on timing,
+a shared ref staying quiet, or the triggering command finishing before a
+timeout; `git stash` depends on all three.
+
+```bash
+# WRONG -- even a "quick" A/B stash is exposed to a killed shell, a shared
+# 82-deep stash list, and a HEAD that can move under you before the pop:
+git stash push -m "baseline A"
+route_and_measure()          # if this exceeds the command timeout, the
+git stash pop                # pop below never runs
+route_and_measure()
+
+# RIGHT -- isolated by construction, no shared ref involved at any point:
+git worktree add --detach /tmp/baseline-a HEAD
+(cd /tmp/baseline-a && route_and_measure())
+route_and_measure()           # measure "B" in the current checkout, untouched
+git worktree remove /tmp/baseline-a
+```
+
+**Related to this instance specifically:** guidance point 3 above (now
+extended with the `git worktree add --detach` recommendation) and instance 2
+in this same document (the stash-ref race with real cross-session damage) —
+the shared thread across both is that a shared checkout's stash ref and
+index are never actually safe to use for a task's own bookkeeping,
+regardless of how briefly.
