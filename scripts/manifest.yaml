@@ -218,7 +218,7 @@ scripts:
   purpose: 'Fabricated-MPN CI gate: fails closed on non-E-series resistor/capacitor values and MPN/declared-value
     disagreement in elec/src/*.ato'
   owner: pipeline
-  last_run: '2026-07-27'
+  last_run: '2026-07-28'
   category: keep
   disposition: ci-gate
   imports:
