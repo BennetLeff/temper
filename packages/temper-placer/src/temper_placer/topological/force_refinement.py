@@ -240,7 +240,14 @@ def apply_force_refinement(
     for i, ref in enumerate(refs):
         zone_name = zone_assignments.get(ref, "")
         if zone_name in zones:
-            zone_bounds[i] = zones[zone_name].bounds
+            # zones[zone_name].bounds is typed Rect | tuple[float, ...]:
+            # Rect implements __len__/__getitem__/__iter__ and is a documented
+            # drop-in for the legacy tuple (core/board.py), but its __getitem__
+            # only accepts int, not slice, so it doesn't structurally satisfy
+            # numpy's ndarray.__setitem__ Sequence protocol. Coercing to a
+            # plain tuple here is a type-boundary conversion, not a behavior
+            # change -- Rect unpacks to the identical 4 floats either way.
+            zone_bounds[i] = tuple(zones[zone_name].bounds)
         else:
             # Default to large bounds if zone not found
             zone_bounds[i] = [-1000, -1000, 1000, 1000]

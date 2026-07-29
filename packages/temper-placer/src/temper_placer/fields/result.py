@@ -14,6 +14,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     import numpy as np
 
+    from temper_placer.fields.field import CostField
     from temper_placer.placer.cp_sat.gates import GateResult
 
 
@@ -33,10 +34,20 @@ class FieldResult:
 
     Callers that need the routing-format cost data call ``to_cost_field_input()``,
     which raises ``FieldNotReadyError`` when the status is ``UNMEASURED``.
+
+    ``field`` is typed as a union rather than plain ``np.ndarray`` because
+    both shapes are real, not aspirational: every CLEAN/VIOLATIONS producer
+    in this codebase (``thermal_fdm.solve_thermal_fdm``, ...) constructs a
+    ``CostField`` wrapper carrying ``.grid``/``.cell_size_mm``/``.origin_mm``
+    plus a ``.to_flat()`` method, and ``to_cost_field_input()`` below
+    branches on ``hasattr(self.field, "to_flat")`` specifically to also
+    accept a bare ``np.ndarray`` (falling back to ``.ravel()``). Narrowing
+    this to ``CostField`` alone would be a fix for the type checker at the
+    cost of describing a contract this class does not actually enforce.
     """
 
     gate_result: GateResult
-    field: np.ndarray | None = None
+    field: CostField | np.ndarray | None = None
     weight: float = 1.0
 
     def __post_init__(self) -> None:

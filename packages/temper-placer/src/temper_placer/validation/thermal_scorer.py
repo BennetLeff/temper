@@ -714,6 +714,17 @@ class ThermalScorer:
                 f"UNMEASURED means 'could not measure,' not '0 deg-C everywhere'"
             )
 
+        # u5_result always comes from solve_thermal_fdm() (see docstring above),
+        # which returns a CostField (never a bare ndarray) on every non-UNMEASURED
+        # path -- see temper_placer.fields.result.FieldResult's field union and
+        # thermal_fdm.solve_thermal_fdm's own "CLEAN status and a CostField grid
+        # on success" contract. Narrow explicitly rather than widening FieldResult
+        # itself with an ndarray-safe accessor this call site does not need.
+        from temper_placer.fields.field import CostField
+
+        assert isinstance(u5_result.field, CostField), (
+            f"solve_thermal_fdm() must return a CostField on success, got {type(u5_result.field)!r}"
+        )
         u5_grid = np.asarray(u5_result.field.grid, dtype=np.float64)
         u5_peak = float(np.max(u5_grid))
         u5_mean = float(np.mean(u5_grid))
