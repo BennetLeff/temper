@@ -64,6 +64,13 @@ jobs:
         run: kicad-cli --version
 
       - name: Run golden regression suite
+        # `shell: bash` is load-bearing now that this job runs in a
+        # container: the container's default shell is dash, where
+        # `set -o pipefail` is not a valid option and the step dies with
+        # "Illegal option -o pipefail" before the suite ever runs. On the
+        # bare ubuntu-latest runner this job used previously, the default
+        # was already bash and the directive was unnecessary.
+        shell: bash
         run: |
           # pipefail is load-bearing: without it the pipeline returns tee's
           # exit status (always 0) and this gate stops failing entirely.
