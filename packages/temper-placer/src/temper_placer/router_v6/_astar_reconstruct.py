@@ -46,6 +46,7 @@ from temper_placer.router_v6.astar_core import (
 )
 from temper_placer.router_v6.astar_grid import (
     _build_tht_pad_locations,
+    _extract_existing_via_centers_per_net,
     _extract_pad_centers_per_net,
     _identify_blocking_nets,
     _mark_route_blocked,
@@ -164,12 +165,14 @@ def run_astar_pathfinding(
 
     tht_locations: set = set()
     pad_centers_per_net: dict[str, list[tuple[float, float, float, str]]] = {}
+    existing_vias_per_net: dict[str, list[tuple[float, float, float]]] = {}
 
     if pcb:
         tht_locations = _build_tht_pad_locations(pcb)
         if tht_locations:
             print(f"  Found {len(tht_locations)} THT pads for layer switching")
         pad_centers_per_net = _extract_pad_centers_per_net(pcb)
+        existing_vias_per_net = _extract_existing_via_centers_per_net(pcb)
 
     net_order = _compute_net_order(channel_mapping, bottleneck_widths=bottleneck_widths)
     routable_nets = [n for n in net_order if _should_route(n)]
@@ -232,6 +235,7 @@ def run_astar_pathfinding(
             all_grids,
             inflation_mm=base_inflation,
             escape_vias_map=escape_vias_map,
+            existing_vias_map=existing_vias_per_net,
         )
 
         if planned_tree_active:
