@@ -1054,6 +1054,56 @@ module BusDischarge:
     aux-supply fault, MCU dead) drops the coils and the NC contacts close
     -> discharge engages with no MCU involvement.
 
+    RELAY REPLACEMENT TRIED AND REVERTED 2026-07-28 -- READ BEFORE
+    TOUCHING K2/K3 AGAIN. K2/K3 are Omron G5LE-1 SPDT relays (Relay_SPDT,
+    single NC contact per relay), same as always. A same-day attempt to
+    replace them with Finder 40.52.7.012.0000 (Relay_DPDT, 2-pole) was
+    implemented, then RETRACTED after a follow-up measurement invalidated
+    its own stated justification. Full trail:
+    docs/evidence/2026-07-28-discharge-relay-isolation.md (candidate
+    search) -> docs/evidence/2026-07-28-relay-replacement-implementation.md
+    (adopted Finder, claimed 9.2mm edge-to-edge coil<->contact PCB
+    creepage, "clearing the 8.0mm target with 1.2mm margin") ->
+    docs/evidence/2026-07-28-pd3-retarget-relay.md (retraction: that
+    9.2mm figure was an INVENTED footprint layout, not measured from the
+    real part's fixed pinout; pixel-calibrating the manufacturer's own
+    catalog drawing gives a real, fixed 7.5mm coil-to-nearest-contact
+    center-to-center spacing, worth only 5.3mm edge-to-edge at realistic
+    pad sizing -- FAILS the then-current 8.0mm target by 2.7mm and the
+    later-established 12.6mm PD3 target by 7.3mm. No slot helps: the
+    relay's own one-piece moulded case sits over the entire coil-to-
+    contact pin field, the same failure mode already on record for the
+    G5LE-1 below) -> docs/evidence/2026-07-28-relay-board-resync-decision.md
+    (this decision: REVERTED rather than resynced the board to the
+    inadequate part -- see that doc for the full reasoning).
+
+    NET EFFECT OF THE REVERT: G5LE-1 is restored, unchanged from before
+    this excursion. This is NOT a fix -- the G5LE-1's own isolation gap
+    (below) is exactly as unresolved as it was before the Finder attempt.
+    The Finder part was not worse on isolation (5.3mm > 3.5mm edge-to-
+    edge, though both fail both targets) and was a genuine improvement on
+    DC-break disclosure (an explicit manufacturer DC1 graph vs. the
+    G5LE-1's total silence above 125VDC) -- but it did not satisfy this
+    project's own three-way bar (reinforced isolation AND rated DC break
+    AND fail-safe NC topology, all three) any more than the G5LE-1 does,
+    so swapping to it would not have made this circuit safety-compliant,
+    only differently non-compliant, while ALSO making the board/netlist
+    inconsistency the new "must fix eventually" instead of the isolation
+    gap itself. A real fix requires a DPDT or SPDT relay with reinforced
+    coil-to-contact isolation AND a rated DC break at 170-200V AND NC
+    fail-safe topology, with a coil-to-nearest-contact pin pitch of
+    roughly DOUBLE the Finder 40.52's 7.5mm (~14.4-14.8mm) so the PCB
+    surface path itself can clear 12.6mm without depending on any
+    internal-vs-external-path argument. No such part has been found and
+    verified as of this note -- do not resurrect Relay_DPDT/the Finder
+    40.52.7.012.0000 footprint for K2/K3 without first fetching and
+    citing a manufacturer datasheet proving that pitch (see
+    scripts/mpn_fabrication_gate.py's hard rule against unverified MPNs).
+    Relay_DPDT and pcb/libs/temper.pretty/Relay_DPDT_Finder-40.52.kicad_mod
+    are left in the tree, unused, with their own geometry corrected to the
+    real part (in case a same-pitch-family part is ever useful elsewhere)
+    but flagged in their own docstrings as inadequate for this role.
+
     Sizing (per half-bus), per docs/hardware/BUS_CAPACITANCE_DERIVATION.md
     SS5.3 and re-derived independently here with the resistor's OWN
     tolerance included (the derivation doc's own worst case did not):
@@ -1114,7 +1164,17 @@ module BusDischarge:
     # available (the existing bypass relay G4A-1A-E is NO-only).
     # VERIFIED 2026-07-16 (Omron G5LE catalog): contacts 10A / 250VAC,
     # NC contact rated 10A carry; 12VDC coil 360R / 33.3mA / 400mW;
-    # coil-contact dielectric 2000VAC, impulse 4.5kV.
+    # coil-contact dielectric 2000VAC, impulse 4.5kV. NOT REINFORCED
+    # ISOLATION -- see RELAY REPLACEMENT TRIED AND REVERTED above: this
+    # part fails the 8.0/12.6mm coil<->contact creepage requirement
+    # (3.50mm edge-to-edge measured) and has no DC contact-voltage rating
+    # at this circuit's actual 170-200V duty at all. A same-day attempt
+    # to replace it (Finder 40.52.7.012.0000) was tried and reverted --
+    # this is a KNOWN, TRACKED, UNRESOLVED gap, not a silently-dropped
+    # requirement. Do not re-introduce Relay_DPDT here without a
+    # manufacturer-verified part at ~14.4-14.8mm coil-to-contact pin
+    # pitch (see the note above and
+    # docs/evidence/2026-07-28-relay-board-resync-decision.md).
     k_dis1 = new Relay_SPDT
     k_dis1.coil_voltage = 12V
     k_dis1.contact_current = 10A
