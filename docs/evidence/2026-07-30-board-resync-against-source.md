@@ -337,6 +337,122 @@ convention already established in this file.
   fixing footprints toward their real physical size, not a regression this
   task introduced in the sense of "making something wrong."
 
+## 8. `golden-check` / `temper_production_baseline.yaml` ratchet: 820 -> 845
+
+`golden-check` (a separate CI job from everything in §5, driven by
+`uv run temper-placer regression` against
+`power_pcb_dataset/baselines/temper_production_baseline.yaml`) failed on
+this PR:
+
+```
+[FAIL] temper_production
+REGRESSION: drc_errors: 842.0 vs baseline 820.0 (+22.0)
+```
+
+This is a different measurement than §5's `kicad-cli pcb drc` figures: the
+runner's `run_drc()` (`packages/temper-placer/src/temper_placer/validation/
+_drc_api.py`) invokes `kicad-cli pcb drc --all-track-errors`, which the
+existing baseline file itself already documents as NOT directly comparable
+to a bare `kicad-cli pcb drc` invocation. `drc_errors` counts error-severity
+violations only (`drc_warnings` is tracked separately); both are sampled
+median-of-5 by the runner.
+
+**The gate was correctly right to fail, and the fix is a re-baseline with a
+justification, not a workaround.**
+
+### Whose number is authoritative
+
+CI's container runs kicad-cli **10.0.5**; this box has **10.0.4**. Per the
+gate's own instruction, the CI-reported figure is used directly, not
+re-derived or blended:
+
+- **CI-measured (authoritative, kicad-cli 10.0.5)**: `drc_errors: 842.0`
+  (golden-check run `30498739994`, this exact commit).
+- **Locally measured (kicad-cli 10.0.4, corroboration only, NOT what the
+  ratchet evaluates)**: N=15 `run_drc()` samples, errors `842 x9, 843 x6`
+  (median 842, worst median-of-5 over all 3003 five-run subsets = 843);
+  `drc_warnings` 680 (zero scatter over N=15) vs. the pinned 685 — an
+  *improvement*, and CI's own output confirms this (no `drc_warnings`
+  regression line was printed).
+
+Both kicad-cli versions land on the same median (842) for `drc_errors`, so
+this is not a case of the two disagreeing and needing a guessed compromise.
+
+### Verifying the composition, not just adopting a claimed reading
+
+An initial reading attributed the increase to "bigger corrected footprints,
+unchanged positions" with a specific per-category table. That table was
+re-derived independently here rather than taken on faith, using the exact
+measurement path the ratchet uses (`run_drc()`, i.e. `--all-track-errors`)
+— **the first attempt at this reproduction used a bare copy of the old
+board file with no adjacent `.kicad_pro`/`fp-lib-table`, which silently
+made kicad-cli fall back to its own built-in default rule severities
+instead of this project's `rule_severities` overrides** (`pcb/temper.
+kicad_pro`, e.g. `"pth_inside_courtyard": "warning"`) — flipping that one
+rule's severity between the two runs as a pure measurement artefact having
+nothing to do with the board. Caught by checking `pth_inside_courtyard`'s
+raw severity field directly against both boards and finding the *same 8
+component pairs* reported as `error` (no project file) vs `warning` (with
+the project file) — not a real design change. Corrected by running both
+boards from a full copy of `pcb/` (with `.kicad_pro`, `fp-lib-table`,
+`libs/`), which reproduces the historical baseline almost exactly on the
+unmodified board (817 median / 683 median vs. the recorded 817-818 / 683)
+— confirming the corrected methodology, not just assuming it.
+
+With that fixed, every one of the ~25-29 new error-severity violations
+(single-paired-run comparison; the ratchet itself uses median-of-N, see
+above) was checked against the 7 changed components' reference
+designators (U3, C6, C1, C25, C26, U7, and the staged `tank.c_tank3`/C27).
+**Zero involve any other, unchanged component:**
+
+| rule | old | new | delta | driven by (ref: instance count) |
+|---|---|---|---|---|
+| `hole_clearance` | 101 | 109 | **+8** | U3:8, U7:2 |
+| `shorting_items` | 113 | 118 | **+5** | U3:4, U7:1, C1:1 |
+| `courtyards_overlap` | 11 | 16 | **+5** | C25:3, C26:2, C1:1 |
+| `solder_mask_bridge` | 64 | 69 | **+5** | U3:4, U7:1, C1:1 |
+| `copper_edge_clearance` | 13 | 15 | **+2** | C1:2 |
+| `clearance` | 499 | 499 | 0 | — |
+| everything else (6 rules) | — | — | 0 | — |
+
+This table differs from an initial reading that attributed the increase to
+a mix including `shorting_items` improving by 3 and `clearance` improving
+by 6: neither holds up under the corrected, project-connected measurement
+— `shorting_items` moved **up** 5 (not down 3), and `clearance` is flat
+(not down 6). `lib_footprint_mismatch`, cited as a −2 contributor, is a
+`warning`-severity rule under `--all-track-errors` (28→25, an improvement
+— matching §5's DRC table) and was never part of `drc_errors` to begin
+with. The categories that *do* match the initial
+reading exactly — `courtyards_overlap` +5, `solder_mask_bridge` +5,
+`copper_edge_clearance` +2 — are the ones this independent re-derivation
+also confirms.
+
+Every one of the five moved categories has a direct physical cause, none
+of it router/placer behavior (nothing was placed or routed in this
+change — §4 already proves 0 of 168 pre-existing components moved):
+U3's DIP-6 body is now 10.16mm wide, not 7.62mm (closer to whatever sits
+adjacent on the wider side — `hole_clearance`, `shorting_items`,
+`solder_mask_bridge`); C1's pads are now 15mm apart on a physically larger
+MKP box, not a 5mm disc stub (`shorting_items`, `copper_edge_clearance`);
+C25/C26 are now real axial capacitor bodies, not the WIMA rect footprint's
+shape (`courtyards_overlap`). A bigger, datasheet-correct part sitting at
+an unchanged anchor point necessarily has less clearance to unchanged
+neighbours than the smaller, wrong part it replaced — there is no
+placement or routing decision anywhere in this causal chain.
+
+### Re-baseline applied
+
+`power_pcb_dataset/baselines/temper_production_baseline.yaml`:
+
+| field | old | new | why |
+|---|---|---|---|
+| `drc_errors` | 820 | **845** | CI-measured 842.0 (kicad-cli 10.0.5, this commit) + margin 2 (same convention as the existing 818→820 derivation), corroborated by an identical local median (842, kicad-cli 10.0.4, N=15, worst median-of-5 = 843) |
+| `drc_warnings` | 685 | **685 (unchanged)** | did not regress (no CI regression line); locally measured 680 (improvement) but not confirmed on CI's kicad-cli 10.0.5 and not gating anything, so left as-is rather than writing an unconfirmed cross-version number |
+
+`uv run temper-placer regression` now reports `[PASS] temper_production`
+locally; the pushed commit re-triggers `golden-check` on kicad-cli 10.0.5
+for the authoritative confirmation.
+
 ## Reproduction
 
 ```bash
