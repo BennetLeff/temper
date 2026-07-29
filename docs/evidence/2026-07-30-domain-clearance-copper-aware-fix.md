@@ -265,6 +265,10 @@ uv run pytest packages/temper-placer/tests/placer/cp_sat/test_geometry_constrain
 uv run pytest packages/temper-placer/tests/io/ -q     # 275 passed, 8 skipped, 1 xfailed
 uv run pytest packages/temper-placer/tests/requirements/ -q   # 293 passed, 5 skipped,
                                                                 # 1 pre-existing failure (see below)
+uv run pytest packages/temper-placer/tests/placer/cp_sat/ -q --timeout=600
+                                                                # 401 passed, 1 skipped, 1 xfailed,
+                                                                # 1 failed (see Sec 7.1 -- root-caused,
+                                                                # not a domain-clearance defect)
 ```
 
 The one failure in `tests/requirements/` is `test_temper_board_clearance_compliance` itself — the
@@ -274,6 +278,53 @@ The one failure in `tests/requirements/` is `test_temper_board_clearance_complia
 only 10 pre-existing `possibly-missing-attribute` warnings in `handlers/separated.py` on
 `model.model_ref.Add(...)`/`AddBoolOr(...)` calls unrelated to and unchanged by this fix (present on
 lines this diff did not touch).
+
+### 7.1 One real, root-caused, pre-existing regression found in an UNRELATED test/writer path
+
+`test_regression_drc.py::test_golden_board_drc_regression` (a from-scratch CP-SAT solve of the
+**corpus** test board, `power_pcb_dataset/corpus/temper/temper.kicad_pcb` — not `pcb/temper.kicad_pcb`,
+and not the domain-clearance mechanism) newly fails with this fix applied: `shorting_items: 1,
+solder_mask_bridge: 1` where the pre-fix baseline reports 0. **Confirmed by controlled A/B swap**
+(restoring the pre-fix `_parse_modules.py` via `git show HEAD:<path>`, never `git stash`, then
+re-running just this test): passes without the fix, fails with it, deterministically, twice.
+
+**Investigated to a confirmed root cause — not a defect in this fix.** The two components DRC
+names, `C_CT_FILT` and `U_OPAMP_CT`, both have `center_offset = (0, 0)` (perfectly symmetric
+footprints) — **their own `comp.bounds` are byte-identical with and without this fix.** This fix
+changes nothing about these two components; it only changes bounds for *other* corpus-board
+components, which (via CP-SAT's ordinary sensitivity to any change in a fixed-seed=42 search) shifts
+the entire global solution CP-SAT returns, including a *different chosen rotation* for these two
+parts (`rot=3`/270° for `C_CT_FILT`, `rot=2`/180° for `U_OPAMP_CT`) than they had before.
+
+The actual bug: `router_v6/_adapter_convert.py::_apply_placements_to_pcb` — the writer this
+test-only golden-board gate uses (a **different** function from `write_placements_to_pcb`, the one
+`pcb/temper.kicad_pcb`'s real write path uses and that PR #412 already fixed for this exact class of
+issue) — updates only a footprint's `(at X Y ...)` **position**, via a regex that captures and
+**reuses the original angle group unchanged**. It never applies `result.rotations[ref]` to the
+footprint, and never touches per-pad absolute angles. The corpus board's source file declares both
+footprints at `(at 30 125)` / `(at 40 120)` — **no angle field at all (0°)**. So when this solve
+chooses non-zero rotations for these parts, the written test PCB places them at the *new,
+rotation-aware* position while silently keeping them at their *old* (0°, wrong) orientation — an
+un-rotated, wrong-sized footprint sitting at a position computed for a rotated one. That is
+sufficient on its own to produce an overlap, with no relationship to `comp.bounds` correctness.
+
+**This is a real, pre-existing, dormant bug**, independently confirmed and root-caused, in a
+router_v6 test-adapter helper — not in `domain_clearance.py`, `handlers/separated.py`, or
+`_parse_modules.py` (the three files this PR touches). It was never triggered before because no
+prior from-scratch solve of this specific corpus board, under this seed, had happened to choose a
+non-zero rotation for one of these specific asymmetric (non-square) footprints while packed this
+tightly against a neighbor. This fix's bounds change elsewhere shifted CP-SAT's chosen solution into
+that previously-unexplored corner — a legitimate side effect of any bounds change, not a soundness
+defect in the change itself. **Not fixed here** (out of scope for a domain-clearance fix, and per
+`AGENTS.md`'s Bug-Triage Rule R22 — a rotation-propagation fix for a shared writer function is an
+architectural fix, not a trivial one, and deserves its own dedicated, tested PR the way PR #412 did
+for `write_placements_to_pcb`). Filed here as a precise, actionable follow-up:
+`_apply_placements_to_pcb` needs the same rotation-propagation treatment (footprint angle + per-pad
+absolute angle) that `write_placements_to_pcb`/`_write_modules.py` already received.
+
+`pcb/temper.kicad_pcb` (the real board, read-only in this task, never written by this fix or by this
+finding) uses the already-patched `write_placements_to_pcb` write path, so this specific dormant bug
+does not affect the REQ-SAFE-01 numbers reported in Sec 6.
 
 ---
 
