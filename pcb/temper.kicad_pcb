@@ -13573,4 +13573,17 @@
       )
     )
   )
+  (zone (net 0) (net_name "") (layers "F.Cu" "In1.Cu" "In2.Cu" "B.Cu") (tstamp mains-selv-isolation-barrier-0001) (name "MAINS_SELV_ISOLATION_BARRIER") (hatch none 0.0)
+    (connect_pads (clearance 0.254))
+    (min_thickness 0.254)
+    (keepout (tracks not_allowed) (vias not_allowed) (pads not_allowed ) (copperpour not_allowed) (footprints not_allowed))
+    (polygon
+      (pts
+        (xy 90.203 0.0)
+        (xy 99.203 0.0)
+        (xy 99.203 274.0)
+        (xy 90.203 274.0)
+      )
+    )
+  )
 )
