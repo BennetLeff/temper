@@ -39,6 +39,31 @@ Six groups:
    moves the derived floor by 3.5Hz. Pins both the cancellation and the
    gate's deliberate asymmetry about half-fixes (it catches the
    hard-switching direction, it cannot catch the other one).
+7. ``TestCapacitorToleranceWorstCase`` -- the SAME-DAY follow-up defect:
+   the floor was worst-cased for L but not for C, so a capacitor at the
+   bottom of its own tolerance band raised f_res without the floor moving
+   to cover it. Pins that ``c_tank_tolerance`` is now a required physics
+   input, that it raises the derived floor exactly as arithmetic predicts,
+   and -- the sharpest regression test -- that a PLL_MIN_FREQ_HZ which
+   passed under the L-only (nominal-C) derivation FAILS once the real
+   capacitor tolerance is honored.
+8. ``TestCoilAcceptanceThresholdMirror`` -- check 8: the gate inverts its
+   own floor derivation into a minimum LOADED coil inductance and fails
+   the build if ``docs/hardware/TANK_COIL_SPECIFICATION.md``'s stated
+   acceptance threshold (parsed from its own prose) disagrees.
+
+Fixture note: ``_repo()`` (and the underlying ``_main_ato()``) default
+``c_tank_tolerance`` to ``"0.0"`` -- NOT the real repo's committed 0.05 --
+so every pre-existing floor/derivation test above keeps its original,
+hand-verified expected numbers unchanged; capacitor-tolerance behaviour is
+exercised by explicitly passing ``c_tank_tolerance="0.05"`` (or another
+value) in the new test classes. ``_repo()`` also now auto-writes a
+``docs/hardware/TANK_COIL_SPECIFICATION.md`` fixture whose acceptance
+sentence is computed from the SAME physics/firmware values it was just
+given (via the gate's own ``derive_zvs_floor``/``coil_acceptance_l_loaded_
+min_h``), so every existing ``run()``-based test keeps passing check 8
+without having to hand-compute a matching threshold; tests that want to
+exercise check 8 itself pass ``doc_threshold_uh=`` to override it.
 """
 
 from __future__ import annotations
@@ -57,19 +82,23 @@ from check_pll_range_consistency import (  # noqa: E402
     EXIT_VIOLATION,
     ZVS_MARGIN_MIN,
     GateError,
+    coil_acceptance_l_loaded_min_h,
     derive_zvs_floor,
     parse_ato_physics,
     parse_firmware_header,
     parse_main_ato,
     parse_modules_tank_capacitors,
     parse_modules_tank_coil,
+    parse_tank_coil_spec_threshold,
     run,
     run_checks,
 )
 
 # Derived-floor arithmetic for the as-committed declarations, recomputed
 # by hand here rather than imported, so a bug in the gate's own formula
-# cannot make these tests agree with it:
+# cannot make these tests agree with it. This one is L-ONLY worst-cased
+# (c_tank_tolerance = 0, which is the fixture DEFAULT below -- see
+# TestCapacitorToleranceWorstCase for the c_tank_tolerance=0.05 figures):
 #   L_loaded(worst) = 88uH * (1 - 0.10) * 0.68 = 53.856uH
 #   f_res           = 1/(2*pi*sqrt(53.856uH * 300nF)) = 39.595kHz
 #   required floor  = 1.05 * 39.595kHz = 41.575kHz
@@ -79,6 +108,17 @@ from check_pll_range_consistency import (  # noqa: E402
 # moved 3.5Hz. That is the whole point of the change and is pinned as a
 # test in TestMatchedPairCancellation below.
 EXPECTED_FLOOR_HZ = 41575.0
+
+# The SAME arithmetic, now also worst-casing the tank capacitor at its
+# real committed tolerance (+/-5%, WIMA FKP 1 per c_tank1/c_tank2's MPN --
+# see docs/hardware/TANK_COIL_SPECIFICATION.md and elec/src/main.ato's
+# c_tank_tolerance comment):
+#   C_worst        = 300nF * (1 - 0.05) = 285nF
+#   f_res          = 1/(2*pi*sqrt(53.856uH * 285nF)) = 40.624kHz
+#   required floor = 1.05 * 40.624kHz = 42.655kHz
+# The real, as-committed PLL_MIN_FREQ_HZ is 43000 (smallest round kHz
+# above this), not 42000 -- see TestCapacitorToleranceWorstCase.
+EXPECTED_FLOOR_HZ_WORST_C = 42655.0
 
 
 def _write(path: Path, text: str) -> Path:
@@ -119,10 +159,17 @@ def _main_ato(
     c_tank: str | None = "300nF",
     loaded_ratio: str | None = "0.68",
     tolerance: str | None = "0.10",
+    c_tank_tolerance: str | None = "0.0",
 ) -> Path:
-    """Synthetic main.ato. Any of the four derived-floor physics quantities
+    """Synthetic main.ato. Any of the five derived-floor physics quantities
     can be passed ``None`` to omit it, or a raw string to declare a bad
     one -- both must make the gate fail closed, never skip.
+
+    ``c_tank_tolerance`` defaults to ``"0.0"`` (NOT the real repo's
+    committed 0.05) so that every pre-existing test's hand-verified
+    L-only-worst-case numbers (``EXPECTED_FLOOR_HZ`` etc.) stay correct
+    without editing them; capacitor-tolerance behaviour is exercised by
+    passing ``c_tank_tolerance="0.05"`` explicitly.
     """
     lines = [
         "module Top:",
@@ -146,6 +193,8 @@ def _main_ato(
         lines.append(f"    l_pan_loaded_ratio: dimensionless = {loaded_ratio}")
     if tolerance is not None:
         lines.append(f"    l_tank_tolerance: dimensionless = {tolerance}")
+    if c_tank_tolerance is not None:
+        lines.append(f"    c_tank_tolerance: dimensionless = {c_tank_tolerance}")
     return _write(tmp_path / "elec" / "src" / "main.ato", "\n".join(lines) + "\n")
 
 
@@ -173,14 +222,76 @@ def _modules_ato(
     return _write(tmp_path / "elec" / "src" / "modules.ato", "\n".join(lines) + "\n")
 
 
+def _tank_coil_spec(
+    tmp_path: Path,
+    *,
+    threshold_uh: float | str | None,
+    include_anchor: bool = True,
+) -> Path:
+    """Synthetic ``docs/hardware/TANK_COIL_SPECIFICATION.md``, carrying only
+    the one sentence check 8 actually parses: a backtick-quoted
+    ``L_loaded >= <value> uH`` immediately followed by "is requirement #3".
+
+    ``include_anchor=False`` omits that sentence entirely (surrounding prose
+    still present), to test the "anchor not found" gate-error path.
+    """
+    if include_anchor:
+        body = (
+            "# Tank Coil -- Specification and Incoming Acceptance Test\n\n"
+            "Some unrelated prose mentioning L_loaded 999 uH so a naive "
+            "any-number-near-L_loaded match would pick up the wrong value.\n\n"
+            f"**`L_loaded ≥ {threshold_uh} µH` is requirement #3.** "
+            "Requirement #3b is a secondary screen.\n"
+        )
+    else:
+        body = (
+            "# Tank Coil -- Specification and Incoming Acceptance Test\n\n"
+            "This fixture deliberately omits the anchor sentence check 8 "
+            "requires, to test the gate-error path.\n"
+        )
+    return _write(tmp_path / "docs" / "hardware" / "TANK_COIL_SPECIFICATION.md", body)
+
+
 def _repo(tmp_path: Path, **kwargs) -> Path:
-    """Write all three source files a full ``run()`` needs."""
+    """Write all four source files a full ``run()`` needs.
+
+    By default this also writes ``TANK_COIL_SPECIFICATION.md`` with an
+    acceptance threshold computed from the SAME physics/firmware values
+    just written (via the gate's own ``derive_zvs_floor``/
+    ``coil_acceptance_l_loaded_min_h``), so check 8 passes automatically
+    and every pre-existing ``run()``-based test does not need to know
+    about it. Pass ``doc_threshold_uh=<value>`` to override with an
+    explicit (e.g. deliberately wrong, or stale) number instead, or
+    ``write_doc=False`` to omit the file entirely.
+    """
+    doc_threshold_uh = kwargs.pop("doc_threshold_uh", None)
+    write_doc = kwargs.pop("write_doc", True)
     fw = {k: v for k, v in kwargs.items() if k in ("min_hz", "max_hz", "default_hz")}
     mods = {k: v for k, v in kwargs.items() if k in ("c_tank1", "c_tank2", "coil")}
     ato = {k: v for k, v in kwargs.items() if k not in fw and k not in mods}
     _firmware_header(tmp_path, **fw)
-    _main_ato(tmp_path, **ato)
+    ato_path = _main_ato(tmp_path, **ato)
     _modules_ato(tmp_path, **mods)
+
+    if write_doc:
+        if doc_threshold_uh is not None:
+            threshold = doc_threshold_uh
+        else:
+            # Auto-derive the matching threshold from what was just
+            # written, using the gate's OWN functions -- this is fixture
+            # plumbing (making unrelated tests not have to know check 8
+            # exists), not a test of check 8 itself. Tests of check 8
+            # pass doc_threshold_uh explicitly instead. If the physics are
+            # deliberately missing/invalid (some tests do this on purpose,
+            # to exercise GateError paths), this raises the SAME GateError
+            # run() would -- which is fine, since callers wrap the whole
+            # `run(_repo(...))` expression in `pytest.raises`.
+            physics = parse_ato_physics(ato_path)
+            floor = derive_zvs_floor(physics)
+            pll_min_hz = float(fw.get("min_hz", 42000))
+            threshold = coil_acceptance_l_loaded_min_h(floor, pll_min_hz) * 1e6
+        _tank_coil_spec(tmp_path, threshold_uh=threshold)
+
     return tmp_path
 
 
@@ -220,18 +331,20 @@ class TestParsing:
         found = parse_main_ato(ato)
         assert "f_line" not in found
 
-    def test_parses_all_four_physics_quantities(self, tmp_path: Path) -> None:
+    def test_parses_all_five_physics_quantities(self, tmp_path: Path) -> None:
         found = parse_ato_physics(_main_ato(tmp_path))
         assert set(found) == {
             "l_tank_assumed",
             "c_tank_total",
             "l_pan_loaded_ratio",
             "l_tank_tolerance",
+            "c_tank_tolerance",
         }
         assert found["l_tank_assumed"].value == pytest.approx(88e-6)
         assert found["c_tank_total"].value == pytest.approx(300e-9)
         assert found["l_pan_loaded_ratio"].value == pytest.approx(0.68)
         assert found["l_tank_tolerance"].value == pytest.approx(0.10)
+        assert found["c_tank_tolerance"].value == pytest.approx(0.0)
 
     def test_physics_units_normalize_to_si(self, tmp_path: Path) -> None:
         found = parse_ato_physics(_main_ato(tmp_path, l_tank="0.15mH", c_tank="0.3uF"))
@@ -427,7 +540,7 @@ class TestDerivedZvsFloor:
 
     @pytest.mark.parametrize(
         "omitted",
-        ["l_tank", "c_tank", "loaded_ratio", "tolerance"],
+        ["l_tank", "c_tank", "loaded_ratio", "tolerance", "c_tank_tolerance"],
     )
     def test_missing_physics_input_fails_closed(self, tmp_path: Path, omitted: str) -> None:
         """Each derived-floor input, omitted one at a time, must produce a
@@ -444,13 +557,14 @@ class TestDerivedZvsFloor:
             {"loaded_ratio": "0.0"},
             {"loaded_ratio": "1.5"},
             {"tolerance": "1.0"},
+            {"c_tank_tolerance": "1.0"},
         ],
     )
     def test_out_of_band_physics_input_fails_closed(self, tmp_path: Path, kwargs) -> None:
         """A nonsensical input must be a GATE ERROR, never a softer floor.
-        ``l_pan_loaded_ratio = 0`` or ``l_tank_tolerance = 1.0`` would
-        otherwise drive the derived floor toward infinity or the division
-        toward zero -- both silently."""
+        ``l_pan_loaded_ratio = 0`` or ``l_tank_tolerance = 1.0`` (or now
+        ``c_tank_tolerance = 1.0``) would otherwise drive the derived floor
+        toward infinity or the division toward zero -- both silently."""
         with pytest.raises(GateError, match="sanity band"):
             run(_repo(tmp_path, **kwargs))
 
@@ -597,6 +711,237 @@ class TestMatchedPairCancellation:
 
 
 # ---------------------------------------------------------------------------
+# TestCapacitorToleranceWorstCase -- 2026-07-29 (same-day) addition
+# ---------------------------------------------------------------------------
+
+
+class TestCapacitorToleranceWorstCase:
+    """The floor was worst-cased for L but not for C: ``c_tank_total`` was
+    read at NOMINAL, so a capacitor at the bottom of its own tolerance band
+    raised f_res without the floor moving to cover it. These tests pin the
+    corrected arithmetic and, sharpest of all, prove the gate now catches
+    the exact regression shape: a PLL_MIN_FREQ_HZ that was sufficient
+    under the L-only (nominal-C) derivation but is NOT sufficient once the
+    real capacitor tolerance is honored.
+    """
+
+    def test_capacitor_tolerance_raises_the_required_floor(self, tmp_path: Path) -> None:
+        """Same L, same everything else; only c_tank_tolerance changes from
+        0 to 0.05. The floor must move from EXPECTED_FLOOR_HZ to
+        EXPECTED_FLOOR_HZ_WORST_C -- not stay put."""
+        floor_nominal_c = derive_zvs_floor(
+            parse_ato_physics(_main_ato(tmp_path, c_tank_tolerance="0.0"))
+        )
+        floor_worst_c = derive_zvs_floor(
+            parse_ato_physics(_main_ato(tmp_path, c_tank_tolerance="0.05"))
+        )
+        assert floor_nominal_c.required_floor_hz == pytest.approx(EXPECTED_FLOOR_HZ, rel=1e-4)
+        assert floor_worst_c.required_floor_hz == pytest.approx(
+            EXPECTED_FLOOR_HZ_WORST_C, rel=1e-4
+        )
+        assert floor_worst_c.required_floor_hz > floor_nominal_c.required_floor_hz
+        assert floor_worst_c.c_worst_case_farads == pytest.approx(285e-9)
+        assert floor_worst_c.c_worst_case_farads < floor_worst_c.c_nominal_farads
+
+    def test_zero_capacitor_tolerance_reduces_to_the_old_l_only_floor(
+        self, tmp_path: Path
+    ) -> None:
+        """c_tank_tolerance = 0 must be numerically identical to the
+        pre-2026-07-29 (L-only) derivation -- confirms the new term is
+        additive/multiplicative, not a hidden behaviour change at the
+        boundary."""
+        floor = derive_zvs_floor(parse_ato_physics(_main_ato(tmp_path, c_tank_tolerance="0.0")))
+        assert floor.required_floor_hz == pytest.approx(EXPECTED_FLOOR_HZ, rel=1e-4)
+        assert floor.c_worst_case_farads == pytest.approx(floor.c_nominal_farads)
+
+    def test_regression_to_nominal_c_is_caught_by_the_floor_check(self, tmp_path: Path) -> None:
+        """THE regression test the task requires: PLL_MIN_FREQ_HZ=42000
+        was sufficient when the gate derived the floor at nominal C
+        (41575Hz < 42000Hz). With the real capacitor tolerance (+/-5%)
+        honored, the required floor is 42655Hz > 42000Hz, so the SAME
+        PLL_MIN_FREQ_HZ must now be a VIOLATION. If a future edit ever
+        reverted the gate to ignoring c_tank_tolerance (i.e. always
+        deriving at nominal C), this is exactly the case that would start
+        passing again -- silently re-opening the defect this PR fixes."""
+        report = run(
+            _repo(
+                tmp_path,
+                min_hz=42000,
+                tracking_min="42kHz",
+                c_tank_tolerance="0.05",
+            )
+        )
+        by_name = {c.name: c.passed for c in report.checks}
+        assert by_name["PLL_MIN_FREQ_HZ above the derived ZVS floor"] is False
+
+    def test_the_real_committed_floor_43000_passes_with_capacitor_tolerance(
+        self, tmp_path: Path
+    ) -> None:
+        """The actual fix: raising PLL_MIN_FREQ_HZ to 43000 (smallest round
+        kHz above 42655Hz) passes once c_tank_tolerance=0.05 is honored."""
+        report = run(
+            _repo(
+                tmp_path,
+                min_hz=43000,
+                tracking_min="43kHz",
+                c_tank_tolerance="0.05",
+            )
+        )
+        by_name = {c.name: c.passed for c in report.checks}
+        assert by_name["PLL_MIN_FREQ_HZ above the derived ZVS floor"] is True
+        assert all(c.passed for c in report.checks)
+
+    def test_capacitor_tolerance_alone_does_not_affect_nominal_resonance(
+        self, tmp_path: Path
+    ) -> None:
+        """f_res_nominal_hz is computed at NOMINAL L and NOMINAL C (the
+        design's target operating point), so it must be unaffected by
+        c_tank_tolerance -- only the WORST-CASE figures move."""
+        floor_a = derive_zvs_floor(
+            parse_ato_physics(_main_ato(tmp_path, c_tank_tolerance="0.0"))
+        )
+        floor_b = derive_zvs_floor(
+            parse_ato_physics(_main_ato(tmp_path, c_tank_tolerance="0.05"))
+        )
+        assert floor_a.f_res_nominal_hz == pytest.approx(floor_b.f_res_nominal_hz)
+
+
+# ---------------------------------------------------------------------------
+# TestCoilAcceptanceThresholdMirror -- check 8, 2026-07-29
+# ---------------------------------------------------------------------------
+
+
+class TestCoilAcceptanceThresholdMirror:
+    """Check 8: the gate inverts its own derived floor into a minimum
+    LOADED coil inductance and fails the build if
+    ``docs/hardware/TANK_COIL_SPECIFICATION.md``'s stated acceptance
+    threshold disagrees -- the untethered-mirror shape checks 6/7 close for
+    the capacitance/inductance declarations, applied to a threshold.
+    """
+
+    def test_coil_acceptance_min_matches_hand_derivation(self, tmp_path: Path) -> None:
+        """f_res_max_guarded = 43000/1.05 = 40952.4Hz;
+        L_loaded_min = 1/((2*pi*40952.4)^2 * 285nF) = 52.995uH."""
+        floor = derive_zvs_floor(
+            parse_ato_physics(_main_ato(tmp_path, c_tank_tolerance="0.05"))
+        )
+        l_loaded_min = coil_acceptance_l_loaded_min_h(floor, pll_min_hz=43000.0)
+        assert l_loaded_min * 1e6 == pytest.approx(52.995, rel=1e-3)
+
+    def test_coil_acceptance_min_moves_with_pll_min(self, tmp_path: Path) -> None:
+        """The property this check exists to guarantee: the threshold is
+        NOT a constant -- it moves automatically with PLL_MIN_FREQ_HZ.
+        Direction: a HIGHER PLL_MIN_FREQ_HZ guards a higher resonance
+        (f_res_max_guarded = PLL_MIN/ZVS_MARGIN_MIN rises), so a coil is
+        allowed to resonate higher too, i.e. L_loaded_min is LOWER, not
+        higher -- L_loaded_min ~ 1/PLL_MIN^2."""
+        floor = derive_zvs_floor(
+            parse_ato_physics(_main_ato(tmp_path, c_tank_tolerance="0.05"))
+        )
+        at_43000 = coil_acceptance_l_loaded_min_h(floor, pll_min_hz=43000.0)
+        at_44000 = coil_acceptance_l_loaded_min_h(floor, pll_min_hz=44000.0)
+        assert at_44000 < at_43000
+
+    def test_doc_threshold_matching_derivation_passes(self, tmp_path: Path) -> None:
+        """_repo()'s default auto-computed doc threshold matches exactly,
+        so check 8 passes (this is what every other run()-based test in
+        this file implicitly relies on)."""
+        report = run(
+            _repo(tmp_path, min_hz=43000, tracking_min="43kHz", c_tank_tolerance="0.05")
+        )
+        by_name = {c.name: c.passed for c in report.checks}
+        assert (
+            by_name[
+                "TANK_COIL_SPECIFICATION.md's L_loaded acceptance threshold "
+                "matches the gate-derived value"
+            ]
+            is True
+        )
+
+    def test_doc_threshold_mismatch_is_a_violation(self, tmp_path: Path) -> None:
+        """The exact scenario the task named: TANK_COIL_SPECIFICATION.md
+        still states the OLD (pre-capacitor-tolerance) value, 52.77uH,
+        while the gate now derives 53.00uH. That drift must be caught, not
+        silently tolerated."""
+        report = run(
+            _repo(
+                tmp_path,
+                min_hz=43000,
+                tracking_min="43kHz",
+                c_tank_tolerance="0.05",
+                doc_threshold_uh=52.77,
+            )
+        )
+        by_name = {c.name: c.passed for c in report.checks}
+        assert (
+            by_name[
+                "TANK_COIL_SPECIFICATION.md's L_loaded acceptance threshold "
+                "matches the gate-derived value"
+            ]
+            is False
+        )
+        # ...and ONLY that check -- a stale doc number must not be mistaken
+        # for a firmware/main.ato disagreement.
+        assert by_name["PLL_MIN_FREQ_HZ above the derived ZVS floor"] is True
+
+    def test_doc_threshold_small_rounding_is_tolerated(self, tmp_path: Path) -> None:
+        """The doc is allowed to state a sensibly-ROUNDED value (e.g.
+        53.00 for an exact 52.9953) without failing -- the check has a
+        small allowance for that, not bit-for-bit equality."""
+        floor = derive_zvs_floor(
+            parse_ato_physics(_main_ato(tmp_path, c_tank_tolerance="0.05"))
+        )
+        exact_uh = coil_acceptance_l_loaded_min_h(floor, pll_min_hz=43000.0) * 1e6
+        assert exact_uh == pytest.approx(52.995, abs=0.01)
+        report = run(
+            _repo(
+                tmp_path,
+                min_hz=43000,
+                tracking_min="43kHz",
+                c_tank_tolerance="0.05",
+                doc_threshold_uh=round(exact_uh, 2),
+            )
+        )
+        by_name = {c.name: c.passed for c in report.checks}
+        assert (
+            by_name[
+                "TANK_COIL_SPECIFICATION.md's L_loaded acceptance threshold "
+                "matches the gate-derived value"
+            ]
+            is True
+        )
+
+    def test_missing_doc_anchor_sentence_is_gate_error(self, tmp_path: Path) -> None:
+        """The document existing but lacking the one sentence check 8
+        parses must fail closed -- never silently skip check 8."""
+        _firmware_header(tmp_path, min_hz=43000)
+        _main_ato(tmp_path, tracking_min="43kHz", c_tank_tolerance="0.05")
+        _modules_ato(tmp_path)
+        _tank_coil_spec(tmp_path, threshold_uh=None, include_anchor=False)
+        with pytest.raises(GateError, match="requirement #3"):
+            run(tmp_path)
+
+    def test_missing_doc_file_is_gate_error(self, tmp_path: Path) -> None:
+        """The document missing entirely (never written) must fail closed,
+        same as any other of this gate's four required source files."""
+        _firmware_header(tmp_path, min_hz=43000)
+        _main_ato(tmp_path, tracking_min="43kHz", c_tank_tolerance="0.05")
+        _modules_ato(tmp_path)
+        with pytest.raises(GateError, match="TANK_COIL_SPECIFICATION"):
+            run(tmp_path)
+
+    def test_parse_tank_coil_spec_threshold_ignores_unrelated_numbers(
+        self, tmp_path: Path
+    ) -> None:
+        """The fixture's own decoy (an unrelated '999 uH' near 'L_loaded')
+        must not be picked up -- only the anchored sentence counts."""
+        path = _tank_coil_spec(tmp_path, threshold_uh=53.0)
+        found = parse_tank_coil_spec_threshold(path)
+        assert found is not None
+        assert found.value == pytest.approx(53.0e-6)
+
+
+# ---------------------------------------------------------------------------
 # TestAntiVacuity
 # ---------------------------------------------------------------------------
 
@@ -640,10 +985,11 @@ class TestAntiVacuity:
         report = run(_repo(tmp_path))
         assert len(report.firmware_constants) == 3
         assert len(report.ato_constants) == 3
-        assert len(report.ato_physics) == 4
+        assert len(report.ato_physics) == 5
         assert len(report.modules_caps) == 2
         assert report.modules_coil is not None
-        assert len(report.checks) == 7
+        assert report.doc_threshold is not None
+        assert len(report.checks) == 8
         assert all(c.passed for c in report.checks)
 
 

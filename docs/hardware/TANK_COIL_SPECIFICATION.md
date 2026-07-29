@@ -2,6 +2,9 @@
 
 **Status:** ISSUED 2026-07-29. Supersedes the 2026-07-26 attempt, which
 withheld a value; that attempt and why it failed are preserved in §7.
+Acceptance threshold corrected 2026-07-29 (later the same day) to also
+worst-case the tank capacitor's own tolerance -- see the note at §2 and
+`docs/evidence/2026-07-29-pll-floor-cap-tolerance.md`.
 
 **What this document is.** A coil specification a magnetics house can quote
 against, plus the incoming test that decides whether a delivered coil is
@@ -12,7 +15,9 @@ test, not a purchase order line.
 **Where it is enforced.** `elec/src/modules.ato`'s `ResonantTank.inductor_conn`
 declares `88uH +/- 10%`; `elec/src/main.ato`'s `l_tank_assumed` mirrors it;
 `scripts/check_pll_range_consistency.py` check 7 fails the build if the two
-disagree, and check 5 derives the PLL frequency floor from it.
+disagree, and check 5 derives the PLL frequency floor from it. Check 8
+derives the acceptance threshold below (§2) from that same floor and fails
+the build if this document's stated number ever drifts from it.
 
 ---
 
@@ -25,7 +30,7 @@ domestic induction hob operating at 42–50 kHz.
 |---|---|---|---|
 | 1 | **Inductance, unloaded** | **88 µH ±10 %** (79.2 – 96.8 µH) | LCR bridge, **40 kHz**, coil free in air, no vessel, ≥100 mm from any ferrous surface |
 | 2 | **Measurement frequency** | **40 kHz**, and inductance shall be **flat within ±3 % over 20–50 kHz** | Sweep 20/30/40/50 kHz on the same bridge |
-| 3 | **Loaded inductance — the binding criterion** | **L_loaded ≥ 52.8 µH** at 40 kHz with the reference pan of §2 (target 59.8 µH) | §2 |
+| 3 | **Loaded inductance — the binding criterion** | **L_loaded ≥ 53.00 µH** at 40 kHz with the reference pan of §2 (target 59.8 µH) | §2 |
 | 3b | **Loaded/unloaded ratio — coupling screen** | **L_loaded ≥ 0.60 × L_unloaded** at 40 kHz, same measurement | §2 |
 | 4 | **DC resistance** | **≤ 0.12 Ω** (target 0.10 Ω) | 4-wire DC milliohmmeter at 25 °C |
 | 5 | **AC resistance, unloaded** | **≤ 0.40 Ω at 40 kHz** | Same LCR sweep as #1, series-R reading |
@@ -43,10 +48,10 @@ their ratio, R_dc, and R_ac @ 40 kHz.
 
 ### Why 88 µH, in one line
 
-Because at the committed 300 nF tank capacitance it puts the **loaded**
-resonance at 37.56 kHz, and the whole frequency plan (`f_switching` =
-47 kHz at ratio 1.25, `PLL_MIN_FREQ_HZ` = 42 kHz) is built on that. The
-provenance of the number itself is §5.
+Because at the committed 300 nF nominal tank capacitance it puts the
+**loaded** resonance at 37.56 kHz, and the whole frequency plan
+(`f_switching` = 47 kHz at ratio 1.25, `PLL_MIN_FREQ_HZ` = 43 kHz) is built
+on that. The provenance of the number itself is §5.
 
 ---
 
@@ -79,9 +84,9 @@ against a coil that is simultaneously at the **bottom** of requirement #1:
 L_unloaded = 79.2 µH  (−10 %, in spec)
 ratio      = 0.60     (passes the ratio screen)
 L_loaded   = 47.52 µH
-f_res      = 42 152 Hz
+f_res      = 42 152 Hz  (at nominal 300 nF C)
 required PLL floor = 1.05 × 42 152 = 44 260 Hz
-PLL_MIN_FREQ_HZ    = 42 000 Hz          ← BELOW resonance
+PLL_MIN_FREQ_HZ    = 43 000 Hz          ← BELOW resonance
 ```
 
 That coil passes both #1 and a bare 0.60 ratio screen and still puts a
@@ -91,29 +96,54 @@ was written to close. The two screens are individually satisfiable and
 jointly insufficient because they multiply.
 
 The criterion that is neither is **absolute loaded inductance**, and it
-falls straight out of the committed constants:
+falls straight out of the committed constants -- now worst-casing BOTH
+tank components, not just the coil (corrected 2026-07-29, same day as
+issue, see the note below the table):
 
 ```
-PLL_MIN_FREQ_HZ / ZVS_MARGIN_MIN = 42 000 / 1.05 = 40 000 Hz
+PLL_MIN_FREQ_HZ / ZVS_MARGIN_MIN = 43 000 / 1.05 = 40 952.4 Hz
                                                    (highest loaded
                                                     resonance the floor
                                                     still guards)
-L_loaded_min = 1 / ((2π × 40 000)² × 300 nF)      = 52.77 µH
+C_worst = c_tank_total × (1 − c_tank_tolerance) = 300 nF × 0.95 = 285 nF
+L_loaded_min = 1 / ((2π × 40 952.4 Hz)² × 285 nF) = 53.00 µH
 ```
 
-**`L_loaded ≥ 52.8 µH` is requirement #3.** Requirement #3b is retained
-as a coupling-quality screen — a coil that reaches 52.8 µH only because
+`c_tank_tolerance = 0.05` is decoded from `c_tank1`/`c_tank2`'s MPN,
+`FKP1T031507G00JSSD` (WIMA FKP 1), against WIMA's own ordering table:
+the trailing `00JSSD` reads as `00` (2-pin) + `J` (**5 % tolerance**) +
+`S` (bulk) + `SD` (6-2 mm pin length) -- confirmed against both the
+Mouser-hosted (rev 01.19) and current WIMA-hosted (rev 03.26) FKP 1
+datasheets, which both list this exact part on their 1600 VDC / 0.15 µF
+row as `FKP1T031507G______` and both give the tolerance-letter table
+20 %=M, 10 %=K, 5 %=J. (The `G` earlier in the base code is NOT the
+tolerance letter -- it is part of the fixed size-variant code, confirmed
+by the datasheet printing that row's base code as `FKP1T031507G______`,
+i.e. the six trailing underscores -- not the `G` -- are the completion
+box.) `docs/hardware/BOM.md` §1.4 independently decoded the same MPN's
+tolerance character the same way.
+
+**`L_loaded ≥ 53.00 µH` is requirement #3.** Requirement #3b is retained
+as a coupling-quality screen — a coil that reaches 53.00 µH only because
 its unloaded inductance is at the top of tolerance has poor coupling and
 will behave differently on a different pan — but #3 is the one that binds.
+This value is **machine-derived**: `scripts/check_pll_range_consistency.py`
+check 8 computes it from `PLL_MIN_FREQ_HZ`, `ZVS_MARGIN_MIN`,
+`c_tank_total` and `c_tank_tolerance` and fails the build if the number
+above ever drifts from what the gate derives -- do not hand-edit it
+without re-running that gate.
 
-For reference, where the thresholds sit:
+For reference, where the thresholds sit (rows other than the acceptance
+floor use **nominal** 300 nF C, for illustration of a real coil's own
+resonance; the acceptance floor row is the one worst-cased against BOTH
+tank components, since that is the number that must guard every unit):
 
 | L_loaded | f_res,loaded | f_sw/f_res at 47 kHz | Verdict |
 |---|---|---|---|
 | 65.8 µH (+10 % L, nominal ratio) | 35.8 kHz | 1.31 | Top of the design band |
 | **59.84 µH** (nominal) | **37.56 kHz** | **1.25** | **Target** |
-| 53.86 µH (−10 % L, nominal ratio) | 39.60 kHz | 1.19 | Bottom of the design band; derived floor 41 575 Hz |
-| **52.77 µH** | **40.00 kHz** | **1.175** | **ACCEPTANCE FLOOR** — derived floor = 42 000 Hz exactly |
+| 53.86 µH (−10 % L, nominal ratio) | 39.60 kHz | 1.19 | Bottom of the design band; derived floor 41 575 Hz at nominal C, 42 655 Hz at worst-case C |
+| **53.00 µH** | **40.95 kHz** | **1.148** | **ACCEPTANCE FLOOR** — derived floor = 43 000 Hz exactly (worst-case 285 nF C) |
 | 47.52 µH (−10 % L, ratio 0.60) | 42.15 kHz | 1.115 | **REJECT** — resonance above PLL_MIN_FREQ_HZ |
 | 42.14 µH | 44.76 kHz | **1.05** | ZVS cliff at the committed f_switching |
 
@@ -144,7 +174,7 @@ workpiece:
    set by `docs/COIL_BRACKET_DESIGN.md`; record the value used).
 4. Centre the reference pan on the coil, empty and at room temperature.
 5. Measure **L_loaded at 40 kHz**, same drive level. Record.
-6. **ACCEPT if `L_loaded ≥ 52.8 µH`. Reject otherwise.** Target 59.8 µH;
+6. **ACCEPT if `L_loaded ≥ 53.00 µH`. Reject otherwise.** Target 59.8 µH;
    the design band is 53.9 – 65.8 µH.
 7. Compute `ratio = L_loaded / L_unloaded` and record it. **`ratio ≥ 0.60`
    is a secondary screen.** A part that passes step 6 but fails here has
@@ -162,11 +192,11 @@ No waiver on step 6 without re-deriving `l_pan_loaded_ratio`,
 | Ratio the design is specified at | **0.68** | Infineon EVAL-IHW25N140R5L Fig. 16, 40 kHz (§5) |
 | Ratio at 30 kHz / 50 kHz, same chart | 0.71 / 0.66 | same |
 | Secondary screen | **0.60** | this document |
-| Minimum ratio at **nominal** 88 µH that still meets `L_loaded ≥ 52.8 µH` | **0.600** | derived above |
-| Minimum ratio at **−10 %** (79.2 µH) that still meets it | **0.666** | derived above |
+| Minimum ratio at **nominal** 88 µH that still meets `L_loaded ≥ 53.00 µH` | **0.602** | derived above |
+| Minimum ratio at **−10 %** (79.2 µH) that still meets it | **0.669** | derived above |
 | Ratio at which `f_sw` = 47 kHz reaches the 1.05 ZVS cliff, at 88 µH | **0.479** | `L_loaded = 42.14 µH` |
 
-The near-exact agreement between the 0.60 screen and the 0.600 required at
+The near-exact agreement between the 0.60 screen and the 0.602 required at
 nominal L is a **coincidence**, not a design: it is why the ratio screen
 looks adequate at first glance and is not.
 
@@ -308,16 +338,25 @@ OCP-01's 50.1 A peak trip. It does, but see §8.
 
 ## 8. Open items this specification does NOT close
 
-0. **The gate derives the PLL floor from the NOMINAL coupling ratio.**
-   `scripts/check_pll_range_consistency.py` applies `l_tank_tolerance` to
-   the inductance and treats `l_pan_loaded_ratio` as exact. There is no
-   declared tolerance on the ratio, so the §2 arithmetic — that an
-   in-tolerance coil with a merely-adequate ratio can resonate above
-   `PLL_MIN_FREQ_HZ` — is enforced by this document and by incoming
-   inspection, **not by CI**. Closing it properly means declaring the
-   acceptance minimum (`L_loaded ≥ 52.8 µH`) in `main.ato` and adding an
-   eighth check that the declared floor is consistent with it. Not done
-   here rather than done with an invented ratio tolerance.
+0. **CLOSED 2026-07-29 (partially) — the acceptance minimum is now
+   machine-derived and cross-checked, but the coupling ratio is still
+   NOT.** As originally written, this item flagged two separate gaps: (a)
+   the acceptance threshold in §2/§1 was hand-derived once and nothing
+   kept it in sync with the gate, and (b) the gate treats
+   `l_pan_loaded_ratio` as exact, with no declared tolerance on it. (a) is
+   now closed: `scripts/check_pll_range_consistency.py` check 8 computes
+   `L_loaded ≥ 53.00 µH` itself (from `PLL_MIN_FREQ_HZ`, `ZVS_MARGIN_MIN`,
+   `c_tank_total` and the newly-declared `c_tank_tolerance`) and fails the
+   build if the number stated above ever disagrees — the threshold now
+   moves automatically whenever L, C, either tolerance, or
+   `PLL_MIN_FREQ_HZ` moves, rather than living only in this document's
+   prose. (b) remains open: there is still no declared tolerance on
+   `l_pan_loaded_ratio`, so the §2 arithmetic — that an in-tolerance coil
+   with a merely-adequate ratio can resonate above `PLL_MIN_FREQ_HZ` — is
+   enforced by this document and by incoming inspection, **not by CI**.
+   Closing that would mean declaring a ratio tolerance in `main.ato` and
+   widening check 5's worst-case derivation to use it; not done here
+   rather than done with an invented number.
 1. **Two declared ratings are exceeded by the tank current at 1800 W, and
    both were exceeded before this change.** `LitzPad_15A` declares
    `current_rating = 15A` (`elec/src/footprints.ato`) and
