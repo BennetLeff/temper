@@ -106,6 +106,16 @@ net_classes:
   w1_2: "HighVoltage"
   "+340V_BUS": "HighVoltage"
   DC_BUS_RTN: "HighVoltage"
+  # zcd, hb.power_loop.q_high-g: ADDED 2026-07-28 (docs/evidence/
+  # 2026-07-28-netclass-defect-reconciliation.md sweep) -- the other 7 HV
+  # nets classed below already existed in this file; these 2 did not,
+  # even though elec/domain_manifest.yaml declares both HV domain with
+  # their own wire-tracing (zcd: power_in's internal HV-side ZCD divider
+  # tap; hb.power_loop.q_high-g: Q_high's own gate terminal, one resistor
+  # from GATE_HS/SW_NODE). Fixed for the same reason as +15V_LS below --
+  # this file is not loaded by any code path today, corrected anyway.
+  zcd: "HighVoltage"
+  "hb.power_loop.q_high-g": "HighVoltage"
   # NOTE: PWR_RTN is the star-point-merged system ground (85 pins) -
   # classing it HighVoltage would drag every grounded part into HV.
   SW_NODE: "HighVoltage"

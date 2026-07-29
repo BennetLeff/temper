@@ -17,10 +17,21 @@ class TestNetclassLoader:
         self.dr = self.ncr.design_rules
 
     def test_loads_all_9_classes(self):
-        """All 9 net classes are loaded into DesignRules.net_classes."""
+        """All net classes in configs/netclass_rules.yaml are loaded into
+        DesignRules.net_classes.
+
+        10, not 9: this fixture's own netclass_rules.yaml has carried
+        HighVoltageIsolated since 2026-07-28 (docs/evidence/
+        2026-07-28-hv-isolated-rules-and-creepage-triage.md), which this
+        test's expected set was never updated to match -- pre-existing
+        staleness, found and fixed alongside the same class's addition to
+        TEMPER_NET_CLASSES in design_rules.py (docs/evidence/
+        2026-07-28-netclass-defect-reconciliation.md).
+        """
         expected = {
             "ACMains",
             "HighVoltage",
+            "HighVoltageIsolated",
             "FinePitch",
             "Power",
             "GateDrive",

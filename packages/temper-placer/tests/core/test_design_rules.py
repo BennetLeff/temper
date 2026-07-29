@@ -172,7 +172,12 @@ class TestCreateTemperDesignRules:
         """Test that factory creates valid design rules."""
         rules = create_temper_design_rules()
         assert isinstance(rules, DesignRules)
-        assert len(rules.net_classes) == 9
+        # 10, not 9: HighVoltageIsolated (added 2026-07-28, docs/evidence/
+        # 2026-07-28-netclass-defect-reconciliation.md) brought
+        # TEMPER_NET_CLASSES into parity with pcb/temper.kicad_pro and
+        # packages/temper-placer/configs/netclass_rules.yaml, both of which
+        # already had it.
+        assert len(rules.net_classes) == 10
 
     def test_rules_are_independent(self):
         """Test that factory creates independent instances."""
