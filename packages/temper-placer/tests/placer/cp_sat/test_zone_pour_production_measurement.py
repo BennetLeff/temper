@@ -37,9 +37,15 @@ there are none left to protect here.
 -- anti-false-zero discipline --
 * Confirms the routed board is non-trivial (mirrors
   ``test_temper_production_board_routing.py``'s pattern).
-* Confirms zones actually fired in the pours-on arm, and that it emitted
-  strictly more of them than the pours-off arm -- otherwise the two arms
-  are the same measurement and the comparison is vacuous.
+* Confirms zones actually fired in the pours-on arm (``zone_entries > 0``),
+  that its zone-covered net set differs from the untouched pours-off arm's
+  (otherwise the two arms are the same measurement and the comparison is
+  vacuous), and that every net it poured belongs to a netclass the SSOT
+  declares ``routing_strategy == "plane_required"`` -- since R7 (2026-07-28)
+  pours are *derived*, not additive, so "more zone entries than the
+  untouched board" is no longer the correctness signal; "only the SSOT's
+  plane-required nets" is. See the inline comment at the assertion for the
+  regression (stale hardcoded eligibility list) this replaced.
 * Confirms KiCad DRC actually ran (not skipped/errored) in both arms
   before drawing any conclusion from either.
 * Samples DRC ``_DRC_SAMPLE_RUNS`` times per arm and compares medians.
@@ -59,6 +65,7 @@ from __future__ import annotations
 import contextlib
 import json
 import os
+import re
 import statistics
 import subprocess
 import tempfile
@@ -250,6 +257,7 @@ class _ArmMeasurement:
 
     pours_enabled: bool
     zone_entries: int
+    zone_net_names: frozenset[str]
     completion_rate: float
     unconnected_samples: tuple[int, ...]
     total_samples: tuple[int, ...]
@@ -319,7 +327,15 @@ class TestZonePourProductionMeasurement:
         assert len(content) > 1000, f"Routed content suspiciously small ({len(content)} bytes)"
 
         zone_entries = content.count("(zone ")
-        print(f"    Zone entries in output: {zone_entries}")
+        # Every emitted zone carries its own `(net_name "...")` field
+        # (see zone_emission.emit_zone_s_expr) regardless of whether the
+        # block is a freshly regenerated single-line pour or a multi-line
+        # committed zone read through untouched from the board file --
+        # this is what lets the R7 SSOT-compliance check below name
+        # exactly which nets got a pour, not just how many zone blocks
+        # exist.
+        zone_net_names = frozenset(re.findall(r'\(net_name "([^"]+)"\)', content))
+        print(f"    Zone entries in output: {zone_entries} (nets: {sorted(zone_net_names)})")
 
         routed_tmp = tempfile.NamedTemporaryFile(  # noqa: SIM115
             suffix=".kicad_pcb",
@@ -365,6 +381,7 @@ class TestZonePourProductionMeasurement:
         return _ArmMeasurement(
             pours_enabled=pours_enabled,
             zone_entries=zone_entries,
+            zone_net_names=zone_net_names,
             completion_rate=routing_result.completion_rate,
             unconnected_samples=tuple(unconnected_samples),
             total_samples=tuple(total_samples),
@@ -393,13 +410,65 @@ class TestZonePourProductionMeasurement:
         print(f"  Violation deltas (ON - OFF), first DRC sample: {changed}")
         print(f"  unconnected_items: {on.unconnected} (ON) vs {off.unconnected} (OFF)")
 
-        # Anti-vacuous-truth: the two arms must actually differ, or this is
-        # one measurement compared against itself and the verdict is
-        # meaningless regardless of which way it lands.
-        assert on.zone_entries > off.zone_entries, (
-            f"enable_zone_pours=True emitted {on.zone_entries} zone entries and "
-            f"enable_zone_pours=False emitted {off.zone_entries} -- the pours "
-            f"arm added nothing, so this comparison measures nothing"
+        # Anti-vacuous-truth + R7 SSOT compliance.
+        #
+        # This used to be `assert on.zone_entries > off.zone_entries`: the
+        # pours-on arm must add strictly *more* zone entries than the
+        # pours-off arm. That assumed pours were purely additive on top of
+        # an unzoned board. Since R7 (copper pours are regenerated from the
+        # routed result; the board file's stored zones stop being
+        # authoritative input -- docs/plans/2026-07-28-001-...-plan.md) that
+        # assumption no longer holds: `enable_zone_pours=False` leaves the
+        # board's checked-in zones untouched (a historical, non-derived
+        # artifact -- currently 96 entries spanning every netclass ever
+        # hand-authored on this board), while `enable_zone_pours=True`
+        # *replaces* them with a narrower, safety-scoped set covering only
+        # netclasses the SSOT actually declares plane-required (ACMains,
+        # HighVoltage today) -- correctly *fewer* entries, not more.
+        #
+        # A raw ">" count comparison is exactly the kind of check that can
+        # pass or fail by coincidence of cardinality rather than by
+        # correctness of content -- which is precisely how this went
+        # undetected: a hardcoded eligibility list (GND/Power/GateDrive
+        # wrongly included, commit 27368038's fix having been dropped by a
+        # sibling-branch code move) happened to regenerate exactly 96 zone
+        # entries again -- the same *count* as the untouched board, but the
+        # wrong net set entirely. Both arms reporting zone_entries=96 was
+        # the symptom; comparing only counts is why it wasn't caught by
+        # construction.
+        #
+        # The invariant that survives R7 is content identity and SSOT
+        # compliance, not a direction on raw counts:
+        assert on.zone_entries > 0, (
+            "enable_zone_pours=True emitted zero zone entries -- pours never "
+            "fired for any net, so this comparison measures nothing"
+        )
+        assert on.zone_net_names != off.zone_net_names, (
+            f"enable_zone_pours=True regenerated the exact same zone-covered "
+            f"net set as the untouched board ({sorted(on.zone_net_names)}) -- "
+            f"the two arms are the same measurement and the comparison is "
+            f"vacuous"
+        )
+        from temper_placer.core.design_rules import (
+            TEMPER_NET_ASSIGNMENTS,
+            TEMPER_NET_CLASSES,
+        )
+
+        ineligible_nets = {
+            net_name
+            for net_name in on.zone_net_names
+            if not (
+                (nc := TEMPER_NET_CLASSES.get(TEMPER_NET_ASSIGNMENTS.get(net_name, "")))
+                and nc.routing_strategy == "plane_required"
+            )
+        }
+        assert not ineligible_nets, (
+            f"enable_zone_pours=True regenerated pours for nets whose netclass "
+            f"does not declare routing_strategy=='plane_required': "
+            f"{sorted(ineligible_nets)} -- R7 requires pours be regenerated "
+            f"only for SSOT-declared plane-required nets, never carried over "
+            f"from whatever netclasses happened to have pours before "
+            f"(zone-covered nets this run: {sorted(on.zone_net_names)})"
         )
 
         # U3 gate: zone/pour must measurably help, or this fails loudly
