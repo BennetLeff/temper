@@ -3,7 +3,7 @@
 	(generator "temper-hand")
 	(generator_version "8.0")
 	(layer "F.Cu")
-	(descr "Omron G4A-1A-E PCB power relay, #250 Faston quick-connect contacts + PCB coil terminals. Dimensions from official Omron datasheet (https://omronfs.omron.com/en_US/ecb/products/pdf/en-g4a.pdf, Cat. No. J056-E1-09, page 2 'Dimensions' section): body envelope 30.5 x 16 x 23.5mm max; coil pins (A1,A2) at 6.35mm pitch, standard 0.25in relay coil spacing; 4x mounting/locating holes, 1.8mm dia, in a 22mm(X) x 12mm(Y, asymmetric 6.25/5.75 split) pattern -- both sub-dimensions confirmed internally consistent (6.25+5.75=12.00mm exactly matches the datasheet's labeled 12mm total). Pad numbers match the real EN50005 relay pinout used by the placed KiCad symbol (Relay:Relay_SPST-NO): A1/A2 = coil, 13/14 = contacts (COM/NO). Contact terminals (13=COM, 14=NO) are #250 (6.35mm, SAE/AMP industry-standard width, not vendor-specific) Faston quick-connect tabs -- the datasheet's own Model Number Legend confirms both terminal-shape variants (E vs PE) share identical 'PCB coil terminals' wording and differ only in contact terminal type, so these tabs have zero PCB copper connection on this variant; they mate externally with a push-on spade connector, not a PCB trace. Modeled here as SMD (no-drill) landing pads purely for netlist/footprint pin-count parity and courtyard/placement-clearance purposes -- NOT a claim that solder-in-hole geometry exists at these exact coordinates. Relative layout (tabs on the opposite long edge from the coil row, mirroring the coil's left/right split) is taken directly from the datasheet's own Terminal Arrangement diagram; the tabs' precise Y-offset from the coil row is a reasonable placement within the confirmed courtyard bounds, not a measured value -- verify against the physical part before hand-soldering wires to pads 13/14. Mounting holes are NPTH (mechanical only, no net); their pattern's position relative to the coil pins is datasheet-derived from a linearized reading, not a pixel-exact trace -- cross-check against the datasheet page 2 drawing before fabrication.")
+	(descr "Omron G4A-1A-E PCB power relay, #250 Faston quick-connect contacts + PCB coil terminals. Dimensions from official Omron datasheet (https://omronfs.omron.com/en_US/ecb/products/pdf/en-g4a.pdf, Cat. No. J056-E1-09, page 2 'Dimensions' section): body envelope 30.5 x 16 x 23.5mm max; coil pins (A1,A2) at 6.35mm pitch, standard 0.25in relay coil spacing; 4x mounting/locating holes, 1.8mm dia, in a 22mm(X) x 12mm(Y, asymmetric 6.25/5.75 split) pattern -- both sub-dimensions confirmed internally consistent (6.25+5.75=12.00mm exactly matches the datasheet's labeled 12mm total). Pad numbers match the real EN50005 relay pinout used by the placed KiCad symbol (Relay:Relay_SPST-NO): A1/A2 = coil, 13/14 = contacts (COM/NO). CORRECTION 2026-07-29 (docs/brainstorms/2026-07-29-hv-footprint-copper-shorts-requirements.md): the datasheet's Model Number Legend (page 1) was re-read directly -- field 3 ('Terminal Shape') is 'None' (blank) for G4A-1A-E, meaning '#250 quick-connect/PCB coil terminals'; field 4 ('E') is a SEPARATE 'Special Function: For long endurance' designator, not a terminal-shape suffix. The prior text here conflated the two fields but the underlying claim was right: the datasheet's own page-2 'Terminal Arrangement/Internal Connections' diagram for G4A-1A-E explicitly labels contact pins 3/4 (COM/NO, our 13/14) 'Tab Terminal' and coil pins 1/2 (our A1/A2) 'PCB Terminal' -- two different categories, confirming the #250 Faston contact tabs have ZERO PCB copper connection on this variant (the side-view drawing shows them protruding from the opposite face of the relay body from the PCB coil pins). The PE variant's equivalent diagram shows all four pins undifferentiated (real PCB thru-hole for all). Consequence: representing pads 13/14 as F.Cu copper (as this footprint did until 2026-07-29) manufactured a fictitious PCB land that doesn't exist on the real part, and at the geometry previously declared here (6.35mm-wide pads on a 6.35mm pitch) shorted two mains-adjacent nets (power_in.ntc-no, w1_2) together with zero air gap -- pcb/temper.kicad_pcb's K1 intra-component short (docs/evidence/2026-07-29-intra-component-shorts-root-cause.md). Pads 13/14 are now on F.Fab only (no *.Cu/*.Mask/*.Paste layer) -- same pad NUMBER, TYPE (smd) and size/position as before, so netlist/pin-count parity is unchanged (scripts/resync_pcb_netlist.py's positional-fallback pad matching keys off pad.type and pad.number, never layers; scripts/check_copper_net_consistency.py already special-cases K1's 13/14 as SKIPPED/positional-fallback, not exact-matched). Verified empirically: kicad-cli 10.0.4 accepts an smd pad on F.Fab-only carrying a net with zero DRC violations and zero unconnected-item reports (scratch fixture, not committed). scripts/check_pad_orientation.py's copper-overlap check requires a shared copper layer to flag a pair, so it no longer reports this pair at all -- correctly, since there is no copper there to overlap. HOW nets power_in.ntc-no/w1_2 physically reach K1's tabs (bypass_relay.COM/NO in elec/src/modules.ato:738-739, on the same nets as L1/RT1/U1/U2 elsewhere on the board) -- external hand-wired spade jumper vs. some other path -- is NOT decided by this change and remains open; see the requirements doc. Relative layout (tabs on the opposite long edge from the coil row, mirroring the coil's left/right split) is taken directly from the datasheet's own Terminal Arrangement diagram; the tabs' precise Y-offset from the coil row is a reasonable placement within the confirmed courtyard bounds, not a measured value -- verify against the physical part before hand-soldering wires to pads 13/14. Mounting holes are NPTH (mechanical only, no net); their pattern's position relative to the coil pins is datasheet-derived from a linearized reading, not a pixel-exact trace -- cross-check against the datasheet page 2 drawing before fabrication.")
 	(tags "relay SPST G4A Omron power relay")
 	(attr through_hole)
 	(property "Reference" "REF**"
@@ -58,21 +58,27 @@
 		(uuid "b8a2c021-0000-0000-0000-000000000001")
 	)
 	;; Contact terminals -- 13 (COM), 14 (NO). #250 Faston tabs, no PCB drill (see descr).
-	;; Standard #250 blade width = 6.35mm (industry standard, not datasheet-specific);
-	;; modeled as an SMD landing pad on F.Cu for netlist/pin-count parity only.
+	;; Standard #250 blade width = 6.35mm (industry standard, not datasheet-specific).
+	;; NO COPPER (F.Fab only, no *.Cu/*.Mask/*.Paste) -- the datasheet's own Terminal
+	;; Arrangement diagram labels these "Tab Terminal" (zero PCB land on the G4A-1A-E
+	;; variant), distinct from "PCB Terminal" (A1/A2, real thru-hole below). Pad
+	;; number/type/size/position unchanged from the prior F.Cu version, so netlist and
+	;; pin-count parity are unaffected -- only the fictitious copper was removed. See
+	;; descr and docs/brainstorms/2026-07-29-hv-footprint-copper-shorts-requirements.md
+	;; Case 1 for the full derivation, KiCad-behavior verification, and open item.
 	;; Placed on the long edge opposite the coil row, mirroring the coil's left/right
 	;; split per the datasheet's Terminal Arrangement diagram -- Y offset is a
 	;; reasonable placement, not a measured value (see CAUTION in descr).
 	(pad "13" smd rect
 		(at -3.175 9.5)
 		(size 6.35 1.2)
-		(layers "F.Cu")
+		(layers "F.Fab")
 		(uuid "b8a2c040-0000-0000-0000-000000000001")
 	)
 	(pad "14" smd rect
 		(at 3.175 9.5)
 		(size 6.35 1.2)
-		(layers "F.Cu")
+		(layers "F.Fab")
 		(uuid "b8a2c041-0000-0000-0000-000000000001")
 	)
 	;; Mounting/locating holes (NPTH, no net) -- 22mm x 12mm(6.25/5.75 asymmetric) pattern, datasheet-derived
