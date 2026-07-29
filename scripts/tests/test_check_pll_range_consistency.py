@@ -7,12 +7,13 @@ depending on the real repo files (matching the convention in
 -- the real files are exercised directly by running the gate itself
 (``docs/evidence/2026-07-28-pll-defaults-and-range-gate.md``).
 
-Five groups:
+Six groups:
 
 1. ``TestParsing`` -- ``parse_firmware_header``/``parse_main_ato``/
-   ``parse_ato_physics``/``parse_modules_tank_capacitors`` find the right
-   named constants, handle unit conversion (Hz/kHz/MHz, H/uH/nH,
-   F/uF/nF/pF), and ignore unrelated ``#define``/declaration noise.
+   ``parse_ato_physics``/``parse_modules_tank_capacitors``/
+   ``parse_modules_tank_coil`` find the right named constants, handle unit
+   conversion (Hz/kHz/MHz, H/uH/nH, F/uF/nF/pF), and ignore unrelated
+   ``#define``/declaration noise.
 2. ``TestChecks`` -- ``run_checks()``'s comparisons, each independently
    falsifiable.
 3. ``TestDerivedZvsFloor`` -- the 2026-07-29 addition: the floor is
@@ -32,6 +33,12 @@ Five groups:
    defect shape: the *2026-07-28 fix itself* -- 30kHz agreed on both
    sides -- passes all four original checks and fails the derived floor,
    because both files agreed on a frequency 7.6kHz below resonance.
+6. ``TestMatchedPairCancellation`` -- the 2026-07-29 coil specification:
+   ``l_tank_assumed`` and ``l_pan_loaded_ratio`` are a matched pair whose
+   PRODUCT is the physics, so replacing 150uH x 0.399 with 88uH x 0.68
+   moves the derived floor by 3.5Hz. Pins both the cancellation and the
+   gate's deliberate asymmetry about half-fixes (it catches the
+   hard-switching direction, it cannot catch the other one).
 """
 
 from __future__ import annotations
@@ -55,6 +62,7 @@ from check_pll_range_consistency import (  # noqa: E402
     parse_firmware_header,
     parse_main_ato,
     parse_modules_tank_capacitors,
+    parse_modules_tank_coil,
     run,
     run_checks,
 )
@@ -62,10 +70,15 @@ from check_pll_range_consistency import (  # noqa: E402
 # Derived-floor arithmetic for the as-committed declarations, recomputed
 # by hand here rather than imported, so a bug in the gate's own formula
 # cannot make these tests agree with it:
-#   L_loaded(worst) = 150uH * (1 - 0.10) * 0.399 = 53.865uH
-#   f_res           = 1/(2*pi*sqrt(53.865uH * 300nF)) = 39.59kHz
-#   required floor  = 1.05 * 39.59kHz = 41.57kHz
-EXPECTED_FLOOR_HZ = 41571.0
+#   L_loaded(worst) = 88uH * (1 - 0.10) * 0.68 = 53.856uH
+#   f_res           = 1/(2*pi*sqrt(53.856uH * 300nF)) = 39.595kHz
+#   required floor  = 1.05 * 39.595kHz = 41.575kHz
+#
+# Was 41571.0 (150uH * 0.399 = 53.865uH) until 2026-07-29, when the coil
+# was specified at 88uH and the pan ratio moved to 0.68 with it. The floor
+# moved 3.5Hz. That is the whole point of the change and is pinned as a
+# test in TestMatchedPairCancellation below.
+EXPECTED_FLOOR_HZ = 41575.0
 
 
 def _write(path: Path, text: str) -> Path:
@@ -102,9 +115,9 @@ def _main_ato(
     switching: str = "47kHz",
     tracking_min: str | None = "42kHz",
     tracking_max: str | None = "50kHz",
-    l_tank: str | None = "150uH",
+    l_tank: str | None = "88uH",
     c_tank: str | None = "300nF",
-    loaded_ratio: str | None = "0.399",
+    loaded_ratio: str | None = "0.68",
     tolerance: str | None = "0.10",
 ) -> Path:
     """Synthetic main.ato. Any of the four derived-floor physics quantities
@@ -141,23 +154,29 @@ def _modules_ato(
     *,
     c_tank1: str | None = "150nF",
     c_tank2: str | None = "150nF",
+    coil: str | None = "88uH +/- 10%",
 ) -> Path:
     lines = [
         "module ResonantTank:",
         "    c_bypass = new Capacitor",
         "    c_bypass.value = 100nF  # unrelated decoy",
+        "    l_filter = new Inductor",
+        "    l_filter.value = 999uH  # unrelated decoy",
     ]
     for name, value in (("c_tank1", c_tank1), ("c_tank2", c_tank2)):
         if value is not None:
             lines.append(f"    {name} = new Capacitor")
             lines.append(f"    {name}.value = {value}")
+    if coil is not None:
+        lines.append("    inductor_conn = new Inductor")
+        lines.append(f"    inductor_conn.value = {coil}")
     return _write(tmp_path / "elec" / "src" / "modules.ato", "\n".join(lines) + "\n")
 
 
 def _repo(tmp_path: Path, **kwargs) -> Path:
     """Write all three source files a full ``run()`` needs."""
     fw = {k: v for k, v in kwargs.items() if k in ("min_hz", "max_hz", "default_hz")}
-    mods = {k: v for k, v in kwargs.items() if k in ("c_tank1", "c_tank2")}
+    mods = {k: v for k, v in kwargs.items() if k in ("c_tank1", "c_tank2", "coil")}
     ato = {k: v for k, v in kwargs.items() if k not in fw and k not in mods}
     _firmware_header(tmp_path, **fw)
     _main_ato(tmp_path, **ato)
@@ -209,9 +228,9 @@ class TestParsing:
             "l_pan_loaded_ratio",
             "l_tank_tolerance",
         }
-        assert found["l_tank_assumed"].value == pytest.approx(150e-6)
+        assert found["l_tank_assumed"].value == pytest.approx(88e-6)
         assert found["c_tank_total"].value == pytest.approx(300e-9)
-        assert found["l_pan_loaded_ratio"].value == pytest.approx(0.399)
+        assert found["l_pan_loaded_ratio"].value == pytest.approx(0.68)
         assert found["l_tank_tolerance"].value == pytest.approx(0.10)
 
     def test_physics_units_normalize_to_si(self, tmp_path: Path) -> None:
@@ -226,7 +245,7 @@ class TestParsing:
         found = parse_ato_physics(_main_ato(tmp_path))
         assert "l_tank_assumed_old" not in found
         assert "v_bus_nominal" not in found
-        assert found["l_tank_assumed"].value == pytest.approx(150e-6)
+        assert found["l_tank_assumed"].value == pytest.approx(88e-6)
 
     def test_physics_quantity_with_wrong_type_keyword_is_not_found(
         self, tmp_path: Path
@@ -346,9 +365,9 @@ class TestDerivedZvsFloor:
 
     def test_derives_the_committed_floor(self, tmp_path: Path) -> None:
         floor = derive_zvs_floor(parse_ato_physics(_main_ato(tmp_path)))
-        assert floor.l_loaded_worst_case_h == pytest.approx(53.865e-6)
-        assert floor.f_res_worst_case_hz == pytest.approx(39592.0, rel=1e-4)
-        assert floor.f_res_nominal_hz == pytest.approx(37560.0, rel=1e-4)
+        assert floor.l_loaded_worst_case_h == pytest.approx(53.856e-6)
+        assert floor.f_res_worst_case_hz == pytest.approx(39595.0, rel=1e-4)
+        assert floor.f_res_nominal_hz == pytest.approx(37563.0, rel=1e-4)
         assert floor.required_floor_hz == pytest.approx(EXPECTED_FLOOR_HZ, rel=1e-4)
 
     def test_floor_keys_off_worst_case_not_nominal_L(self, tmp_path: Path) -> None:
@@ -469,6 +488,113 @@ class TestDerivedZvsFloor:
         with pytest.raises(GateError, match="modules.ato not found"):
             run(tmp_path)
 
+    def test_coil_mirror_mismatch_is_a_violation(self, tmp_path: Path) -> None:
+        """Check 7. main.ato's l_tank_assumed and modules.ato's
+        inductor_conn.value are two declarations of one coil. Before
+        2026-07-29 the coil was a valueless `new Resistor` and there was
+        nothing to compare; now a drift between them is a violation."""
+        report = run(_repo(tmp_path, coil="150uH +/- 10%"))
+        by_name = {c.name: c.passed for c in report.checks}
+        assert by_name["main.ato l_tank_assumed mirrors modules.ato's tank coil"] is False
+        # ...and ONLY that check -- the floor is derived from main.ato, so
+        # a modules.ato-side drift must not be mistaken for a floor problem.
+        assert by_name["PLL_MIN_FREQ_HZ above the derived ZVS floor"] is True
+
+    def test_coil_mirror_ignores_the_declared_tolerance(self, tmp_path: Path) -> None:
+        """`88uH +/- 10%` and a bare `88uH` are the same nominal value.
+        The tolerance the floor derives against is main.ato's own
+        l_tank_tolerance, not this suffix."""
+        report = run(_repo(tmp_path, coil="88uH"))
+        by_name = {c.name: c.passed for c in report.checks}
+        assert by_name["main.ato l_tank_assumed mirrors modules.ato's tank coil"] is True
+
+    def test_missing_modules_coil_fails_closed(self, tmp_path: Path) -> None:
+        """The pre-2026-07-29 state -- a coil with no inductance in
+        elec/src at all -- is now a GATE ERROR, not a skipped check."""
+        with pytest.raises(GateError, match="no `inductor_conn.value"):
+            run(_repo(tmp_path, coil=None))
+
+    def test_coil_parser_ignores_other_inductors(self, tmp_path: Path) -> None:
+        """The fixture carries an unrelated 999uH `l_filter` inductor. The
+        parser is keyed on the name, not on "any inductance in the file"."""
+        found = parse_modules_tank_coil(_modules_ato(tmp_path))
+        assert found is not None
+        assert found.name == "inductor_conn"
+        assert found.value == pytest.approx(88e-6)
+
+    def test_coil_parser_returns_none_when_absent(self, tmp_path: Path) -> None:
+        assert parse_modules_tank_coil(_modules_ato(tmp_path, coil=None)) is None
+
+
+# ---------------------------------------------------------------------------
+# TestMatchedPairCancellation
+# ---------------------------------------------------------------------------
+
+
+class TestMatchedPairCancellation:
+    """Only the LOADED inductance resonates, so l_tank_assumed and
+    l_pan_loaded_ratio are a matched pair (docs/solutions/design-patterns/
+    resonant-tank-only-loaded-inductance-resonates-2026-07-28.md).
+
+    These tests pin what the gate can and cannot see about that pairing.
+    The asymmetry is deliberate and is documented in the gate's docstring;
+    it is pinned here so it stays a known property rather than becoming a
+    surprise.
+    """
+
+    def test_the_two_declared_pairs_derive_the_same_floor(self, tmp_path: Path) -> None:
+        """150uH x 0.399 (declared until 2026-07-29) and 88uH x 0.68
+        (declared now) are 1.7x apart on each factor and agree on the
+        product, hence on the floor, to better than 0.01%."""
+        old = derive_zvs_floor(
+            parse_ato_physics(_main_ato(tmp_path, l_tank="150uH", loaded_ratio="0.399"))
+        )
+        new = derive_zvs_floor(parse_ato_physics(_main_ato(tmp_path)))
+        assert old.required_floor_hz == pytest.approx(41571.0, rel=1e-4)
+        assert new.required_floor_hz == pytest.approx(41575.0, rel=1e-4)
+        assert new.required_floor_hz == pytest.approx(old.required_floor_hz, rel=1e-4)
+
+    def test_changing_L_alone_fails_the_floor_check(self, tmp_path: Path) -> None:
+        """The hazardous half-fix: a smaller coil with the old, too-strong
+        coupling ratio puts the worst-case loaded resonance at ~51.7kHz,
+        so the derived floor (~54.3kHz) rises above PLL_MIN_FREQ_HZ and
+        check 5 fails. The gate DOES see this direction."""
+        report = run(
+            _repo(
+                tmp_path,
+                min_hz=42000,
+                tracking_min="42kHz",
+                l_tank="88uH",
+                loaded_ratio="0.399",
+            )
+        )
+        by_name = {c.name: c.passed for c in report.checks}
+        assert by_name["PLL_MIN_FREQ_HZ above the derived ZVS floor"] is False
+
+    def test_changing_the_ratio_alone_is_NOT_caught(self, tmp_path: Path) -> None:
+        """The other half-fix, recorded as a known blind spot rather than
+        claimed as coverage: keeping 150uH while adopting the in-band 0.68
+        ratio drops the loaded resonance to ~28.8kHz and the floor to
+        ~31.8kHz, which is BELOW PLL_MIN_FREQ_HZ, so every check passes.
+        The design would be wrong -- f_sw at ratio 1.63, well off the
+        1800W point -- in a way that is a power defect, not a
+        hard-switching one. No gate adjudicates the pairing; the solutions
+        doc is the control."""
+        report = run(
+            _repo(
+                tmp_path,
+                min_hz=42000,
+                tracking_min="42kHz",
+                l_tank="150uH",
+                loaded_ratio="0.68",
+                coil="150uH +/- 10%",
+            )
+        )
+        assert all(c.passed for c in report.checks)
+        floor = report.floor
+        assert floor is not None
+        assert floor.f_res_nominal_hz == pytest.approx(28771.0, rel=1e-3)
+
 
 # ---------------------------------------------------------------------------
 # TestAntiVacuity
@@ -516,7 +642,8 @@ class TestAntiVacuity:
         assert len(report.ato_constants) == 3
         assert len(report.ato_physics) == 4
         assert len(report.modules_caps) == 2
-        assert len(report.checks) == 6
+        assert report.modules_coil is not None
+        assert len(report.checks) == 7
         assert all(c.passed for c in report.checks)
 
 
