@@ -1158,7 +1158,7 @@ scripts:
 - path: check_copper_net_consistency.py
   purpose: 'Board-copper / netlist consistency gate: catch corrupted net ordinals.'
   owner: bennet
-  last_run: '2026-07-28'
+  last_run: '2026-07-30'
   category: keep
   disposition: ci-gate
   imports:

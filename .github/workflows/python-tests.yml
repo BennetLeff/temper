@@ -717,6 +717,28 @@ jobs:
         # `continue-on-error`: a gate that cannot run must exit non-zero.
         run: uv run python scripts/check_domain_partition.py
 
+      - name: Copper-net consistency gate unit tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_check_copper_net_consistency.py -v --tb=short
+
+      - name: Board-copper / netlist consistency gate (designator + net drift)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        # Fail-closed: reads pcb/temper.kicad_pcb directly (the only gate in
+        # this job that does) and cross-checks it against the freshly
+        # compiled netlist -- dangling net-table ordinals, copper orphaned
+        # off a deleted net, and per-pad (Reference, pad number) exact
+        # identity agreement. This is the check that would have caught (and
+        # on 2026-07-30 did catch, see docs/evidence/
+        # 2026-07-30-copper-net-consistency-drift.md) the board never being
+        # resynced after tank.c_tank3 was added (commit 3ae26dfe): C27 on
+        # the board is still the OLD ct_sense.c_filter footprint while the
+        # netlist now assigns C27 to the HV tank capacitor. Registered
+        # `disposition: ci-gate` in scripts/manifest.yaml since 2026-07-28
+        # but never actually wired into a workflow until this step -- a
+        # silent-skip hole of the same class as commit db779c81. Never
+        # `continue-on-error`: a gate that cannot run must exit non-zero.
+        run: uv run python scripts/check_copper_net_consistency.py
+
       - name: Pad-orientation gate unit tests
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run pytest scripts/tests/test_check_pad_orientation.py -v --tb=short
