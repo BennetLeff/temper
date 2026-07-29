@@ -1,6 +1,6 @@
 # Extended Test Suites timeout split — diagnosis and fix
 
-<!-- provenance: commit=UNKNOWN dirty=UNKNOWN -->
+<!-- provenance: commit=8a7474afd0e15eb0a2c4785c7bbf87f6b175f543 dirty=true -->
 
 **Date:** 2026-07-29
 
