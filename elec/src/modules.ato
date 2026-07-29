@@ -715,19 +715,30 @@ module PowerInput:
     # No.1/No.8, CQC GB/T14472-1998 (CQC001007-14859), per EPCOS's own
     # B32921...B32926 X2/305VAC datasheet, confirmed 2026-07-26.
     #
-    # FOOTPRINT CHANGE REQUIRED: the disc footprint below matched the old
-    # (fictional) disc-style part and does NOT fit the real MKP box-style
-    # replacement. New footprint needed, not yet drawn: 2-pin THT radial box,
-    # 15mm lead pitch, body envelope ~7.0(w) x 12.5(h) x 18.0(l) mm, 0.8mm
-    # lead diameter (EPCOS B32922 dimensional table, 15mm-pitch row). Do not
-    # fab until this footprint exists and has been checked in the KiCad
-    # footprint editor -- same caveat CT1/CST3015 already carries.
+    # FOOTPRINT FIXED (this change): the disc footprint below matched the old
+    # (fictional) disc-style part and did NOT fit the real MKP box-style
+    # replacement. Body envelope 18.0(L) x 7.0(W) x 12.5(H) mm, 15.00mm lead
+    # pitch -- confirmed directly against DigiKey's own product page for this
+    # exact MPN (Length 18.00mm / Width 7.00mm / Height 12.50mm / Lead Spacing
+    # 15.00mm, https://www.digikey.com/en/products/detail/epcos-tdk-electronics/B32922C3224M289/2504694),
+    # matching the EPCOS B32921...B32926 dimensional table row already cited
+    # above. Replaced with "Capacitor_THT:C_Rect_L18.0mm_W7.0mm_P15.00mm_FKS3_FKP3"
+    # -- confirmed to exist in the standard KiCad footprint library (present
+    # in this machine's installed KiCad footprint set at
+    # Capacitor_THT.pretty/C_Rect_L18.0mm_W7.0mm_P15.00mm_FKS3_FKP3.kicad_mod,
+    # and in the upstream kicad-footprints repo), whose own descr string
+    # ("length*width=18*7mm^2, pin pitch=15.00mm") matches this part's
+    # envelope and pitch exactly; two THT round pads (2.4mm pad / 1.2mm
+    # drill) at 0mm and 15mm, consistent with the part's 0.8mm lead diameter.
+    # Still not yet propagated into pcb/temper.kicad_pcb -- see the C6/U3
+    # resync precedent (docs/evidence/2026-07-29-board-regeneration-corrected-footprints.md);
+    # that PCB-side resync is out of scope for this change.
     c_x2 = new Capacitor
     c_x2.value = 0.22uF +/- 20%
     c_x2.dielectric = "X2"
     c_x2.voltage_rating = 310V
     c_x2.mpn = "B32922C3224M289"
-    c_x2.footprint = "Capacitor_THT:C_Disc_D10.0mm_W5.0mm_P5.00mm"  # TODO: wrong footprint, see comment above
+    c_x2.footprint = "Capacitor_THT:C_Rect_L18.0mm_W7.0mm_P15.00mm_FKS3_FKP3"
 
     # CMC: common-mode choke for conducted EMI suppression.
     # ONE physical 4-pin part (TDK B82726S2163N030) — previously modeled as
