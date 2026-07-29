@@ -139,6 +139,35 @@ after:  median 121, range 114-125 (N=5)
 claim:  "no measurable change" -- delta smaller than the noise floor
 ```
 
+### Recurrence, 2026-07-29: caught by re-running the control
+
+The same trap, on the same tool, three days later -- and this time it was
+caught before it became a claim. While deciding whether two netclasses
+(`Ground`, `HighSpeed`) could be safely defined in `pcb/temper.kicad_pro`,
+the measurement was a DRC violation count before and after adding them:
+
+```
+baseline           2042
+after adding       2043            <- looks like "+1 violation, the change costs something"
+baseline, re-run   2044            <- the CONTROL moved by 2 on its own
+```
+
+The +1 was inside the tool's own noise. Re-running the *unmodified*
+baseline is what exposed it; comparing only before-vs-after would have
+produced a plausible, precise, wrong finding and probably blocked a
+correct change.
+
+The recovery that made it decisive: instead of comparing raw totals at
+all, the report was filtered to violations naming the two rules in
+question -- **0 before, 0 after**, an attributable delta rather than a
+global one. Where a global count is noisy, an attributable subset can
+still be exact.
+
+Two rules worth carrying: re-run the control, not just the treatment; and
+prefer a delta you can attribute to the thing you changed over a total
+that anything on the board can move. See
+`docs/evidence/2026-07-28-orphan-net-class-ground-highspeed.md`.
+
 ## Related
 
 - `docs/METHODOLOGY.md` §5, "The oracle is not exempt" — the rule this doc
