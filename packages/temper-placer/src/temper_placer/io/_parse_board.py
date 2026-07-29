@@ -202,12 +202,7 @@ def _extract_stackup(
                 and zone.netName
             ):
                 for layer in zone.layers:
-                    is_power = (
-                        "GND" in zone.netName
-                        or "VCC" in zone.netName
-                        or "+" in zone.netName
-                        or "PWR" in zone.netName
-                    )
+                    is_power = _is_plane_required_net(zone.netName)
                     if is_power and layer.endswith(".Cu"):
                         plane_assignments[layer] = zone.netName
 
