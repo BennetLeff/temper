@@ -15,7 +15,7 @@ branches.  ``verify_net_connectivity`` remains the sole authority for
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from temper_placer.router_v6.astar_core import RoutePath
 
@@ -30,6 +30,17 @@ from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 from temper_placer.router_v6.terminal_tree import TerminalTreeEdge, TerminalTreePlan, TreeTerminal
 
 
+#: ``failure_reasons`` prefix for an edge whose terminals share no conductive
+#: layer at all — a genuine geometry gap that needs a via-aware transition.
+NO_SHARED_LAYER = "no_shared_layer"
+
+#: ``failure_reasons`` prefix for an edge whose terminals *do* share a
+#: conductive layer, but the router was handed no occupancy grid for it.
+#: This is a router configuration gap, not a board geometry one, and it is
+#: reported separately so it can never be mistaken for congestion.
+NO_ROUTABLE_LAYER = "no_routable_layer"
+
+
 @dataclass(frozen=True)
 class TerminalTreeExecution:
     """Complete legal branches or a truthful report of failed planned edges."""
@@ -37,13 +48,26 @@ class TerminalTreeExecution:
     disposition: NetDisposition
     completed_edges: tuple[tuple[TerminalTreeEdge, RoutePath], ...]
     failed_edges: tuple[TerminalTreeEdge, ...] = ()
+    #: Per-edge diagnostic for everything in ``failed_edges``.  Edges that
+    #: failed inside A* carry no entry; layer-selection failures always do,
+    #: so an unroutable-layer edge is never indistinguishable from a
+    #: congested one.
+    failure_reasons: dict[TerminalTreeEdge, str] = field(default_factory=dict)
 
 
-def _pick_route_layer(
+def _shared_pad_layers(
     source: TreeTerminal,
     target: TreeTerminal,
     single_grid_layer: str,
-) -> str | None:
+) -> tuple[str, ...]:
+    """Conductive layers both terminals sit on, in preference order.
+
+    Source declaration order wins (a PTH pad listing ``("F.Cu", "B.Cu")``
+    prefers ``F.Cu``); any remaining shared layers follow in sorted order so
+    the result is deterministic.  Terminals that declare no layers at all
+    (synthetic fixtures) fall back to the single-grid layer, preserving the
+    executor's original single-grid behaviour.
+    """
     src = getattr(source, "layer_names", None)
     tgt = getattr(target, "layer_names", None)
     if src is None and tgt is None:
@@ -53,12 +77,66 @@ def _pick_route_layer(
         tgt_set = set(tgt or ()) or {single_grid_layer}
         shared = src_set & tgt_set
     if not shared:
-        return None
-    if src:
-        for candidate in src:
-            if candidate in shared:
-                return candidate
-    return sorted(shared)[0]
+        return ()
+    ordered = [candidate for candidate in (src or ()) if candidate in shared]
+    ordered.extend(sorted(shared.difference(ordered)))
+    return tuple(ordered)
+
+
+def _pick_route_layer(
+    source: TreeTerminal,
+    target: TreeTerminal,
+    single_grid_layer: str,
+    routable_layers: frozenset[str],
+) -> str | None:
+    """Return a layer both terminals sit on *that the router can route on*.
+
+    ``routable_layers`` is the set of layers with an occupancy grid.  Without
+    that intersection the executor would hand ``grids[...]`` a layer it was
+    never given — the ``KeyError: 'F.Cu'`` this guard exists to prevent, which
+    fires whenever a board's outer layers are classified as poured planes
+    (``_parse_board.py``) so only inner layers get routing spaces, while SMD
+    terminals still, correctly, declare their physical outer pad layer.
+
+    Filtering here can only ever reject an edge whose shared layers have *no*
+    occupancy grid — the router cannot route those under any policy.  It never
+    rejects work that some other layer choice could have completed, so it
+    cannot silently lower completion.  Routing such an edge on an arbitrary
+    grid-backed layer instead was measured and rejected: it raises reported
+    completion while leaving copper that does not touch the pads (see
+    ``docs/evidence/2026-07-28-tree-executor-grid-layer-mismatch.md``).
+    """
+    for candidate in _shared_pad_layers(source, target, single_grid_layer):
+        if candidate in routable_layers:
+            return candidate
+    return None
+
+
+def _describe_layer_failure(
+    source: TreeTerminal,
+    target: TreeTerminal,
+    single_grid_layer: str,
+    routable_layers: frozenset[str],
+) -> str:
+    """Name the layers involved so a rejected edge is never a bare failure.
+
+    Distinguishes the two causes: terminals that share no layer at all
+    (``NO_SHARED_LAYER`` — needs via-aware transitions) from terminals that
+    share one the router holds no occupancy grid for (``NO_ROUTABLE_LAYER``
+    — needs the grid, or an explicit layer-transition policy).
+    """
+    shared = _shared_pad_layers(source, target, single_grid_layer)
+    grids_text = sorted(routable_layers)
+    if not shared:
+        return (
+            f"{NO_SHARED_LAYER}: source={list(getattr(source, 'layer_names', ()) or ())} "
+            f"target={list(getattr(target, 'layer_names', ()) or ())} "
+            f"grids={grids_text}"
+        )
+    return (
+        f"{NO_ROUTABLE_LAYER}: pads share {list(shared)} but no occupancy grid "
+        f"exists for any of them; grids={grids_text}"
+    )
 
 
 def execute_terminal_tree(
@@ -87,9 +165,11 @@ def execute_terminal_tree(
         raise ValueError("at least one occupancy grid is required")
 
     single_grid_layer = next(iter(grids.keys()))
+    routable_layers = frozenset(grids)
     terminals: dict[PadIdentity, TreeTerminal] = {pad.identity: pad for pad in pads}
     completed: list[tuple[TerminalTreeEdge, RoutePath]] = []
     failed: list[TerminalTreeEdge] = []
+    failure_reasons: dict[TerminalTreeEdge, str] = {}
     connected: set[PadIdentity] = {plan.root}
 
     for edge in plan.edges:
@@ -100,9 +180,12 @@ def execute_terminal_tree(
         if edge.source not in connected:
             continue
 
-        route_layer = _pick_route_layer(source, target, single_grid_layer)
+        route_layer = _pick_route_layer(source, target, single_grid_layer, routable_layers)
         if route_layer is None:
             failed.append(edge)
+            failure_reasons[edge] = _describe_layer_failure(
+                source, target, single_grid_layer, routable_layers
+            )
             continue
 
         active_grid = grids[route_layer]
@@ -139,4 +222,5 @@ def execute_terminal_tree(
         disposition=disposition,
         completed_edges=tuple(completed),
         failed_edges=tuple(failed),
+        failure_reasons=failure_reasons,
     )

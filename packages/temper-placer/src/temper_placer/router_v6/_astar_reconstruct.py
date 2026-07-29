@@ -16,11 +16,19 @@ import logging
 import math
 import time
 from collections import deque
-from dataclasses import dataclass, field
 
 logger = logging.getLogger(__name__)
 
 from temper_placer.router_v6._astar_ordering import _compute_net_order
+
+# Result/report types live in _astar_results (temper-N8-split extraction) and
+# are re-exported here so every existing `from ..._astar_reconstruct import
+# PathfindingResult` import keeps working.
+from temper_placer.router_v6._astar_results import (
+    PathfindingResult,
+    RoutingFailureReport,
+    TreeRoutingFailure,
+)
 from temper_placer.router_v6._astar_theta_star import (
     _astar_search_lazy_theta_star,
     _astar_search_theta_star,
@@ -63,116 +71,6 @@ _SEGMENT_3D_FALLBACK_MAX_ITER = 200_000
 # larger search budget; two-pad routing deliberately retains the value above.
 _TREE_SEGMENT_3D_FALLBACK_MAX_ITER = 10_000
 _MAX_REROUTE_ATTEMPTS_PER_NET = 2
-
-
-@dataclass
-class RoutingFailureReport:
-    """Detailed failure report for a net that failed to route."""
-
-    net_name: str
-    failure_reason: str  # "congestion", "no_path", "rip_up_limit", "no_channel"
-    blocking_nets: list[str]  # Which nets are blocking
-    attempted_ripups: int
-    congestion_region: tuple[float, float] | None  # Approximate (x, y) of stuck location
-    pin_count: int = 0  # Number of pins in the net
-
-
-@dataclass(frozen=True)
-class TreeRoutingFailure:
-    """Honest terminal-level outcome for a partially attempted route tree."""
-
-    unresolved_terminal: tuple[float, float]
-    completed_edge_count: int
-    reason: str
-
-
-@dataclass
-class PathfindingResult:
-    """Result of A* pathfinding."""
-
-    routed_paths: dict[str, RoutePath | RoutePath3D]  # net_name -> RoutePath
-    failed_nets: list[str]  # Nets that failed to route
-    failure_reports: dict[str, RoutingFailureReport] | None = None  # Detailed failures
-    net_ids: dict[str, int] | None = None  # Map of net_name -> net_id used in grid
-    per_path_latency_ms: dict[str, float] | None = None  # Per-net routing latency
-    coarse_to_fine_fallbacks: int = 0  # Number of times coarse-to-fine fell back to unrestricted A*
-    tree_failures: dict[str, TreeRoutingFailure] = field(default_factory=dict)
-    partial_paths: dict[str, RoutePath | RoutePath3D] = field(default_factory=dict)
-    tree_routes: dict[str, TreeRouteGeometry] = field(default_factory=dict)
-    partial_tree_routes: dict[str, TreeRouteGeometry] = field(default_factory=dict)
-
-    @property
-    def success_count(self) -> int:
-        """Number of successfully routed nets."""
-        return len(self.routed_paths) + len(self.tree_routes)
-
-    @property
-    def failure_count(self) -> int:
-        """Number of failed nets."""
-        return len(self.failed_nets)
-
-    @property
-    def completion_rate(self) -> float:
-        total = self.success_count + self.failure_count
-        if total == 0:
-            return 0.0
-        return self.success_count / total
-
-    @property
-    def total_forced_segments(self) -> int:
-        """Total number of forced segments across all routes.
-
-        Always 0 as of docs/plans/2026-07-24-001-fix-forced-segment-fail-closed-plan.md:
-        no route with forced_segment_count > 0 reaches routed_paths anymore
-        (every net class fails closed instead). Left in place rather than
-        removed -- deleting it is a larger API-surface change tracked as
-        separate follow-up work, not part of that plan.
-        """
-        return sum(path.forced_segment_count for path in self.routed_paths.values())
-
-    def get_path(self, net_name: str) -> RoutePath | RoutePath3D | None:
-        """Get routed path for a specific net."""
-        return self.routed_paths.get(net_name)
-
-    def print_failure_analysis(self) -> None:
-        """Print a diagnostic summary of routing failures."""
-        if not self.failure_reports:
-            print("No detailed failure reports available.")
-            return
-
-        print(f"\n{'=' * 60}")
-        print(f"ROUTING FAILURE ANALYSIS ({len(self.failed_nets)} failures)")
-        print(f"{'=' * 60}")
-
-        reasons: dict[str, int] = {}
-        blocking_counts: dict[str, int] = {}
-
-        for report in self.failure_reports.values():
-            reasons[report.failure_reason] = reasons.get(report.failure_reason, 0) + 1
-            for blocker in report.blocking_nets:
-                blocking_counts[blocker] = blocking_counts.get(blocker, 0) + 1
-
-        print("\n1. FAILURE REASONS:")
-        for reason, count in sorted(reasons.items(), key=lambda x: -x[1]):
-            print(f"   {reason}: {count} nets")
-
-        print("\n2. TOP BLOCKING NETS (most frequently blocking others):")
-        for net, count in sorted(blocking_counts.items(), key=lambda x: -x[1])[:10]:
-            print(f"   {net}: blocked {count} other nets")
-
-        print("\n3. INDIVIDUAL FAILURES:")
-        for report in self.failure_reports.values():
-            region = (
-                f"({report.congestion_region[0]:.1f}, {report.congestion_region[1]:.1f})"
-                if report.congestion_region
-                else "N/A"
-            )
-            print(f"   {report.net_name} ({report.pin_count} pins): {report.failure_reason}")
-            print(f"      Region: {region}, Ripups: {report.attempted_ripups}")
-            if report.blocking_nets:
-                print(f"      Blocked by: {', '.join(report.blocking_nets[:5])}")
-        print()
-
 
 _SKIP_NET_PREFIXES = ("unconnected-", "NC-", "DNP-", "NC_", "TP_")
 
@@ -337,7 +235,10 @@ def run_astar_pathfinding(
         )
 
         if planned_tree_active:
-            from temper_placer.router_v6.terminal_tree_execution import execute_terminal_tree
+            from temper_placer.router_v6.terminal_tree_execution import (
+                NO_ROUTABLE_LAYER,
+                execute_terminal_tree,
+            )
 
             execution = execute_terminal_tree(
                 channel_path.terminal_tree,
@@ -367,14 +268,22 @@ def run_astar_pathfinding(
             terminal = next(
                 item for item in channel_path.terminals if item.identity == failed_edge.target
             )
+            # A layer-selection rejection carries its own diagnostic (which
+            # layers the pads share, which layers have grids).  Reporting it
+            # as a plain "no legal path" would hide a router configuration
+            # gap inside the congestion bucket.
+            edge_reason = execution.failure_reasons.get(failed_edge, "no_legal_path")
+            summary_reason = (
+                NO_ROUTABLE_LAYER if edge_reason.startswith(NO_ROUTABLE_LAYER) else "no_path"
+            )
             tree_failures[net_name] = TreeRoutingFailure(
                 unresolved_terminal=(terminal.center.x, terminal.center.y),
                 completed_edge_count=len(execution.completed_edges),
-                reason="no_legal_path",
+                reason=edge_reason,
             )
             _restore_net_pads(restoration)
-            print(f"      ✗ {net_name} INCOMPLETE: no legal tree edge", flush=True)
-            return False, "no_path", [], (terminal.center.x, terminal.center.y)
+            print(f"      ✗ {net_name} INCOMPLETE: {edge_reason}", flush=True)
+            return False, summary_reason, [], (terminal.center.x, terminal.center.y)
 
         route_path, ripped_ids, fb = _astar_route_with_ripup(
             net_name,

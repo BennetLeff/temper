@@ -33,6 +33,7 @@ from temper_placer.router_v6.constraint_model import (
 )
 from temper_placer.router_v6.diff_pair_inference import infer_differential_pairs
 from temper_placer.router_v6.escape_via_generator import EscapeVia
+from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 from temper_placer.router_v6.routing_results import compile_routing_results
 from temper_placer.router_v6.stage0_data import ParsedPCB
 from temper_placer.router_v6.stage4_orchestrator import Stage4Orchestrator
@@ -443,6 +444,33 @@ def _run_stage3(self, pcb: ParsedPCB, stage2: Stage2Output) -> Stage3Output:
     )
 
 
+def select_routing_grids(
+    occupancy_grids: dict[str, OccupancyGrid] | None,
+) -> tuple[OccupancyGrid, OccupancyGrid | None]:
+    """Pick the (primary, alternate) occupancy grids handed to A*.
+
+    Outer layers are preferred because most boards route on them, but they are
+    only *preferences*: a board whose F.Cu/B.Cu carry copper pours has those
+    layers classified as planes (``_parse_board.py``), so they get no routing
+    space and therefore no occupancy grid at all, and routing happens on the
+    inner layers instead.
+
+    The alternate must be a different *layer* from the primary.  Selecting it
+    by excluding the literal name ``"F.Cu"`` — rather than the primary grid's
+    actual layer — returned the primary grid a second time on exactly those
+    plane-outer boards, so the router was handed one layer twice and the
+    second real inner layer was dropped before pathfinding ever saw it.
+    """
+    if not occupancy_grids:
+        raise ValueError("No occupancy grid available for A* pathfinding")
+    primary = occupancy_grids.get("F.Cu") or next(iter(occupancy_grids.values()))
+    alternate = occupancy_grids.get("B.Cu") or next(
+        (candidate for name, candidate in occupancy_grids.items() if name != primary.layer_name),
+        None,
+    )
+    return primary, alternate
+
+
 def _run_stage4(
     self,
     pcb: ParsedPCB,
@@ -540,14 +568,7 @@ def _run_stage4(
     pathfinding_result = orchestrated.assemble_pathfinding_result(state)
 
     if pathfinding_result is None:
-        fcu_grid = stage2.occupancy_grids.get("F.Cu") or next(
-            iter(stage2.occupancy_grids.values()), None
-        )
-        bcu_grid = stage2.occupancy_grids.get("B.Cu") or next(
-            (g for n, g in stage2.occupancy_grids.items() if n != "F.Cu"), None
-        )
-        if fcu_grid is None:
-            raise ValueError("No occupancy grid available for A* pathfinding")
+        fcu_grid, bcu_grid = select_routing_grids(stage2.occupancy_grids)
 
         pathfinding_result = run_astar_pathfinding(
             channel_mapping,
