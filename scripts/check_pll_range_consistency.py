@@ -47,6 +47,13 @@ Tank capacitance (``elec/src/modules.ato``): ``c_tank1.value`` and
 ``c_tank2.value``, summed (they are in parallel). Read ONLY to cross-check
 ``main.ato``'s ``c_tank_total`` mirror -- see check 6.
 
+Tank coil inductance (``elec/src/modules.ato``): ``inductor_conn.value``,
+the ``ResonantTank`` coil. Read ONLY to cross-check ``main.ato``'s
+``l_tank_assumed`` mirror -- see check 7. A trailing tolerance
+(``= 88uH +/- 10%``) is accepted and ignored: the tolerance main.ato
+derives against is its own ``l_tank_tolerance``, and check 7 is about the
+NOMINAL value being the same number in both files.
+
 Design decision: require ALL named constants, not "whatever is found"
 ---------------------------------------------------------------------
 Each name above is looked up specifically; a missing one is a GATE ERROR,
@@ -91,8 +98,31 @@ tolerance in [0,1)) and a value outside its bound is a GATE ERROR, not a
 violation -- otherwise ``l_tank_tolerance = 0`` or a negative capacitance
 would silently soften the floor rather than fail.
 
-Checks performed (all six must pass)
--------------------------------------
+Check 7, the coil-inductance mirror (added 2026-07-29)
+------------------------------------------------------
+Motivating change (docs/evidence/2026-07-29-tank-coil-specification.md):
+until 2026-07-29 the tank coil was ``inductor_conn = new Resistor`` with no
+value, so ``l_tank_assumed`` was the ONLY inductance in the design and had
+nothing to be checked against. It is now a real ``Inductor`` with a
+declared ``value``, which creates a second declaration of the same physical
+quantity -- exactly the untethered-mirror shape that produced the
+``+340V_BUS`` and ``20-100kHz`` defects, and that check 6 already closes
+for the tank capacitance. Check 7 closes it for the inductance.
+
+Note what this does NOT check: that ``l_tank_assumed`` and
+``l_pan_loaded_ratio`` are a physically matched pair. They are (a coil
+value from one band with a coupling ratio from another cancels to the same
+loaded resonance), and no gate can adjudicate that -- it is the review
+discipline in docs/solutions/design-patterns/resonant-tank-only-loaded-
+inductance-resonates-2026-07-28.md. What check 5 *does* provide is
+asymmetric protection: changing L without the ratio raises the derived
+floor above ``PLL_MIN_FREQ_HZ`` and fails, which is the hazardous
+(hard-switching) direction. Changing the ratio without L lowers the floor
+and passes -- a power/turndown defect, not a safety one. Stated here so
+the asymmetry is a known property rather than a surprise.
+
+Checks performed (all seven must pass)
+---------------------------------------
 1. ``f_pll_tracking_min`` (main.ato) == ``PLL_MIN_FREQ_HZ`` (pll_control.h)
 2. ``f_pll_tracking_max`` (main.ato) == ``PLL_MAX_FREQ_HZ`` (pll_control.h)
 3. ``f_switching`` (main.ato) falls within
@@ -109,6 +139,8 @@ Checks performed (all six must pass)
    (modules.ato) -- the derived floor is only as trustworthy as the
    capacitance it is derived from, and main.ato's declaration is a mirror
    of the two physical parts
+7. ``l_tank_assumed`` (main.ato) == ``inductor_conn.value`` (modules.ato)
+   -- same argument, for the inductance half of the same resonance
 
 Anti-vacuous-truth contract
 -----------------------------
@@ -129,9 +161,9 @@ never skips check 5 -- a freshness gate that passes when it cannot evaluate
 is the failure mode this repo has hit repeatedly.
 
 Exit codes:
-  0 - PASSED: all three files found, every constant discovered, and all six
-      checks pass.
-  3 - VIOLATION: every constant discovered, but at least one of the six
+  0 - PASSED: all three files found, every constant discovered, and all
+      seven checks pass.
+  3 - VIOLATION: every constant discovered, but at least one of the seven
       checks disagrees.
   5 - GATE ERROR: a source file is missing, or a named constant could not
       be found/parsed, or a derived-floor input is outside its sanity band
@@ -180,6 +212,10 @@ ATO_PHYSICS_NAMES = {
 # The two parallel tank capacitors, read from modules.ato purely to
 # cross-check main.ato's c_tank_total mirror (check 6).
 MODULES_CAPACITOR_NAMES = ("c_tank1", "c_tank2")
+
+# The tank coil, read from modules.ato purely to cross-check main.ato's
+# l_tank_assumed mirror (check 7).
+MODULES_COIL_NAME = "inductor_conn"
 
 # Minimum f_sw / f_res,loaded required for zero-voltage switching. Lives in
 # the GATE, not in the file under test -- see module docstring. Source:
@@ -398,6 +434,37 @@ def parse_modules_tank_capacitors(path: Path) -> dict[str, DiscoveredQuantity]:
     return found
 
 
+def parse_modules_tank_coil(path: Path) -> DiscoveredQuantity | None:
+    """Parse ``inductor_conn.value`` from modules.ato (henries).
+
+    Accepts and ignores a trailing atopile tolerance (``+/- 10%``): check 7
+    compares NOMINAL inductance between the two files. Returns ``None`` if
+    the declaration is absent, which ``run()`` turns into a GateError --
+    never a skipped check.
+    """
+    if not path.is_file():
+        raise GateError(f"modules.ato not found: {path}")
+
+    lines = path.read_text(encoding="utf-8").splitlines()
+    unit_alt = "|".join(re.escape(u) for u in sorted(_UNIT_TO_HENRY, key=len, reverse=True))
+    pattern = re.compile(
+        rf"^\s*{re.escape(MODULES_COIL_NAME)}\.value\s*=\s*(\d+(?:\.\d+)?)\s*({unit_alt})\b"
+    )
+
+    for lineno, line in enumerate(lines, start=1):
+        m = pattern.match(line)
+        if m:
+            return DiscoveredQuantity(
+                name=MODULES_COIL_NAME,
+                kind="inductance",
+                value=float(m.group(1)) * _UNIT_TO_HENRY[m.group(2)],
+                raw=line.strip(),
+                file=str(path),
+                lineno=lineno,
+            )
+    return None
+
+
 # ---------------------------------------------------------------------------
 # Derived ZVS floor
 # ---------------------------------------------------------------------------
@@ -506,17 +573,20 @@ def run_checks(
     ato: dict[str, DiscoveredConstant],
     floor: DerivedFloor | None = None,
     modules_caps: dict[str, DiscoveredQuantity] | None = None,
+    modules_coil: DiscoveredQuantity | None = None,
 ) -> list[CheckResult]:
     """Pure decision function (isolated from I/O for unit testing). Assumes
     all six required constants are already present in *firmware*/*ato* --
     callers must have failed closed on missing constants before calling
     this.
 
-    *floor* and *modules_caps* add checks 5 and 6. They default to ``None``
-    ONLY so the four original cross-checks stay independently testable;
-    ``run()`` always supplies both, and a ``None`` here is never reachable
-    from the CLI. It is not an "if we happened to find it" opt-out: an
-    underivable floor raises in ``derive_zvs_floor`` before this is called.
+    *floor*, *modules_caps* and *modules_coil* add checks 5, 6 and 7. They
+    default to ``None`` ONLY so the four original cross-checks stay
+    independently testable; ``run()`` always supplies all three, and a
+    ``None`` here is never reachable from the CLI. It is not an "if we
+    happened to find it" opt-out: an underivable floor raises in
+    ``derive_zvs_floor``, and a missing coil declaration raises in
+    ``run()``, before this is called.
     """
     fw_min = firmware["PLL_MIN_FREQ_HZ"].value_hz
     fw_max = firmware["PLL_MAX_FREQ_HZ"].value_hz
@@ -608,6 +678,24 @@ def run_checks(
             )
         )
 
+    if modules_coil is not None and floor is not None:
+        results.append(
+            CheckResult(
+                name="main.ato l_tank_assumed mirrors modules.ato's tank coil",
+                passed=math.isclose(
+                    floor.l_nominal_h, modules_coil.value, rel_tol=1e-9, abs_tol=0.0
+                ),
+                detail=(
+                    f"main.ato l_tank_assumed={floor.l_nominal_h * 1e6:.2f}uH vs "
+                    f"{MODULES_ATO_REL} {modules_coil.name}.value="
+                    f"{modules_coil.value * 1e6:.2f}uH. Two declarations of one "
+                    "physical quantity; the derived floor is computed from the "
+                    "main.ato one and the part that gets built is the modules.ato "
+                    "one."
+                ),
+            )
+        )
+
     return results
 
 
@@ -622,6 +710,7 @@ class Report:
     ato_constants: dict[str, DiscoveredConstant] = field(default_factory=dict)
     ato_physics: dict[str, DiscoveredQuantity] = field(default_factory=dict)
     modules_caps: dict[str, DiscoveredQuantity] = field(default_factory=dict)
+    modules_coil: DiscoveredQuantity | None = None
     floor: DerivedFloor | None = None
     checks: list[CheckResult] = field(default_factory=list)
 
@@ -629,7 +718,7 @@ class Report:
 def run(repo_root: Path) -> Report:
     """Raises GateError (fail closed) on any missing file/constant, or on
     any derived-floor input that is missing or outside its sanity band.
-    Otherwise returns a Report with all six checks evaluated.
+    Otherwise returns a Report with all seven checks evaluated.
     """
     header_path = repo_root / FIRMWARE_HEADER_REL
     ato_path = repo_root / MAIN_ATO_REL
@@ -639,6 +728,7 @@ def run(repo_root: Path) -> Report:
     ato = parse_main_ato(ato_path)
     physics = parse_ato_physics(ato_path)
     modules_caps = parse_modules_tank_capacitors(modules_path)
+    modules_coil = parse_modules_tank_coil(modules_path)
 
     if not firmware and not ato:
         raise GateError(
@@ -674,15 +764,33 @@ def run(repo_root: Path) -> Report:
             "and the derived ZVS floor rests on an unverified capacitance."
         )
 
+    if modules_coil is None:
+        raise GateError(
+            f"{MODULES_ATO_REL} has no `{MODULES_COIL_NAME}.value = <number><unit>` "
+            "declaration for the resonant tank coil. Until 2026-07-29 this was "
+            "genuinely absent (the coil was a valueless `new Resistor` "
+            "placeholder) and that was the defect docs/evidence/2026-07-29-tank-"
+            "coil-specification.md fixed -- so its absence is a GATE ERROR now, "
+            "not a skipped check. main.ato's l_tank_assumed would otherwise be an "
+            "unmirrored restatement of an inductance no declared part carries."
+        )
+
     # Raises (fail closed) if any physics input is missing or nonsensical.
     floor = derive_zvs_floor(physics)
 
-    checks = run_checks(firmware, ato, floor=floor, modules_caps=modules_caps)
+    checks = run_checks(
+        firmware,
+        ato,
+        floor=floor,
+        modules_caps=modules_caps,
+        modules_coil=modules_coil,
+    )
     return Report(
         firmware_constants=firmware,
         ato_constants=ato,
         ato_physics=physics,
         modules_caps=modules_caps,
+        modules_coil=modules_coil,
         floor=floor,
         checks=checks,
     )
@@ -720,7 +828,8 @@ def main() -> int:
         f"{len(ATO_DECLARATION_NAMES)} main.ato declaration(s) + "
         f"{len(report.ato_physics)}/{len(ATO_PHYSICS_NAMES)} physics quantity(ies) "
         f"discovered ({MAIN_ATO_REL}), {len(report.modules_caps)}/"
-        f"{len(MODULES_CAPACITOR_NAMES)} tank capacitor(s) discovered "
+        f"{len(MODULES_CAPACITOR_NAMES)} tank capacitor(s) + "
+        f"{1 if report.modules_coil else 0}/1 tank coil discovered "
         f"({MODULES_ATO_REL}), {len(report.checks)} check(s) performed "
         "(every required constant is discovered and every check is run; "
         "the denominator is never a subset)."
@@ -733,6 +842,9 @@ def main() -> int:
         print(f"  [main.ato] {name} = {q.value!r} ({q.kind})  ({q.file}:{q.lineno})")
     for name, q in sorted(report.modules_caps.items()):
         print(f"  [modules.ato] {name}.value = {q.value * 1e9:.1f}nF  ({q.file}:{q.lineno})")
+    if report.modules_coil is not None:
+        q = report.modules_coil
+        print(f"  [modules.ato] {q.name}.value = {q.value * 1e6:.2f}uH  ({q.file}:{q.lineno})")
     if report.floor is not None:
         fl = report.floor
         print(
@@ -760,6 +872,8 @@ def main() -> int:
                 f"{len(ATO_PHYSICS_NAMES)}\n"
                 f"- modules.ato tank capacitors discovered: {len(report.modules_caps)}/"
                 f"{len(MODULES_CAPACITOR_NAMES)}\n"
+                f"- modules.ato tank coil discovered: "
+                f"{1 if report.modules_coil else 0}/1\n"
                 f"- Derived ZVS floor: {report.floor.required_floor_hz:.0f}Hz "
                 f"({ZVS_MARGIN_MIN} x {report.floor.f_res_worst_case_hz:.0f}Hz "
                 f"worst-case loaded resonance)\n"

@@ -495,10 +495,92 @@ module ResonantTank:
     assert c_tank1.voltage_rating >= v_tank_peak * 1.43
     assert c_tank2.voltage_rating >= v_tank_peak * 1.43
     
-    inductor_conn = new Resistor # Placeholder for Litz interface
+    # THE RESONANT TANK COIL. Declared as an `Inductor` 2026-07-29
+    # (docs/evidence/2026-07-29-tank-coil-specification.md); it was
+    # `new Resistor` with no value until then, so the one component whose
+    # inductance the entire frequency plan is computed from carried no
+    # inductance at all. `main.ato:l_tank_assumed` is the same quantity
+    # and scripts/check_pll_range_consistency.py now cross-checks the two
+    # (check 7), so this value and that one cannot drift apart.
+    #
+    # STILL NOT A PURCHASED PART. `mpn = "CUSTOM_LITZ_COIL"` is unchanged
+    # and deliberately not replaced with a part number: no orderable coil
+    # in this class publishes an inductance (docs/evidence/2026-07-28-
+    # coil-selection-research.md Sec 2 checked Infineon, Wurth, OEM
+    # appliance spares and the custom-wind channel -- the one 2 kW cooking
+    # coil with manufacturer-published L/R across this design's band ships
+    # only as a kit item with no MPN of its own). What replaces the
+    # placeholder is a SPECIFICATION plus an incoming acceptance test:
+    # docs/hardware/TANK_COIL_SPECIFICATION.md, issuable to a magnetics
+    # house as-is.
+    #
+    # 88uH +/-10% @ 40kHz: read off Fig. 16 of Infineon's EVAL-
+    # IHW25N140R5L user guide (rev 1.0, 2023-08-04, docs.rs-online.com/
+    # e357/A700000012089135.pdf) for its 2kW cooking coil, ~87uH flat over
+    # 15-50kHz -- i.e. measured IN THIS DESIGN'S BAND, not extrapolated
+    # into it. It is a CHART READING of an unspecified part (+/-5% on the
+    # read, part-to-part spread unknown), not a datasheet line item.
+    #
+    # WHY THIS IS NOT A 1.7x CHANGE TO THE FREQUENCY PLAN: only the LOADED
+    # inductance resonates with c_tank1||c_tank2. This value moves with
+    # main.ato's l_pan_loaded_ratio as a MATCHED PAIR, and the product is
+    # what is conserved:
+    #     150uH x 0.399 = 59.850uH -> f_res = 37560.2Hz  (was)
+    #      88uH x 0.68  = 59.840uH -> f_res = 37563.3Hz  (now)  = +0.008%
+    # See docs/solutions/design-patterns/resonant-tank-only-loaded-
+    # inductance-resonates-2026-07-28.md. Changing either factor alone
+    # breaks the design; check_pll_range_consistency.py's check 5 catches
+    # the hazardous direction (a smaller coil with the old, too-strong
+    # ratio) and provably cannot catch the other one.
+    #
+    # dcr = 0.1ohm is the DC figure from the same chart (R, no vessel, at
+    # DC). It is NOT the resistance that matters in operation: the same
+    # curve gives ~0.34ohm at 40kHz once skin and proximity effect are in,
+    # which is ~193W of self-heating at the 1800W operating point and is
+    # the number the coil's thermal design must be sized to. The Inductor
+    # component has no AC-resistance field, so that figure lives in
+    # TANK_COIL_SPECIFICATION.md, which is where a supplier reads it.
+    #
+    # current_rating = 25A is an RMS THERMAL requirement this design
+    # imposes, not a value read from any part: 22.5A rms at the 1800W
+    # point (first-harmonic solve, coil-selection-research Sec 4.2)
+    # against 20.7A rms from this repo's own ngspice harness, x ~1.11
+    # margin. UNRESOLVED AND RECORDED, NOT FIXED HERE: the corresponding
+    # PEAK is 28.7-31.9A, which is above BOTH `LitzPad_15A`'s declared
+    # 15A pad rating (footprints.ato) and Top.i_peak_max / Highvoltage-
+    # Constraints.i_max = 25A. Both were already exceeded by the
+    # PREVIOUS 150uH model's own committed 28.71A peak -- this
+    # declaration surfaces the conflict, it does not create it, and
+    # raising either rating to match is exactly the move that must not be
+    # made without a thermal/geometry basis. See the evidence doc Sec 6.
+    #
+    # DESIGNATOR PINNED TO "R30" ON PURPOSE, AND IT IS WRONG ON PURPOSE.
+    # An inductor's designator prefix is "L", and atopile assigns this part
+    # L3 the moment the pin is removed. The pin exists because
+    # pcb/temper.kicad_pcb is out of scope for this change and atopile
+    # assigns designators POSITIONALLY per prefix: taking one component out
+    # of the "R" pool renumbers every later resistor down by one. Measured,
+    # not assumed -- building without this line moves 49 unrelated
+    # resistors (ct_sense.r_burden R31->R30 ... thermal.r_fan_drop
+    # R79->R78) and turns scripts/check_copper_net_consistency.py from 0 to
+    # 82 violations, because the board's R31 pads then carry a different
+    # component's nets than the netlist's R31 declares.
+    #
+    # REMOVE THIS LINE in the same commit that runs
+    # scripts/resync_pcb_netlist.py (which matches footprints by stable
+    # sheetpath identity and therefore survives renumbering -- see
+    # docs/solutions/logic-errors/fixed-positions-ref-fragility-across-
+    # renumbering.md) or regenerates the board. Keeping a wrong PREFIX on
+    # a part whose TYPE and VALUE are now right is the smaller of the two
+    # errors, and it is the one the board already had.
+    inductor_conn = new Inductor
+    inductor_conn.designator = "R30"
+    inductor_conn.value = 88uH +/- 10%
+    inductor_conn.current_rating = 25A
+    inductor_conn.dcr = 0.1ohm
     inductor_conn.mpn = "CUSTOM_LITZ_COIL"
     inductor_conn.footprint = "LitzPad_15A"
-    
+
     in ~ c_tank1.p1
     in ~ c_tank2.p1
     c_tank1.p2 ~ inductor_conn.p1

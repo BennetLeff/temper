@@ -67,16 +67,25 @@ static const char *TAG = "pll_control";
  * docs/evidence/2026-07-28-pll-defaults-and-range-gate.md and
  * docs/evidence/2026-07-28-pll-ratio-tracking-check.md Sec 4).
  *
- * This is the LOADED resonant frequency at the project's L=150uH tank
- * assumption (elec/src/main.ato's l_tank_assumed), K=0.79 pan coupling:
- * 37.58 kHz, from docs/evidence/2026-07-27-inductance-range-sweep.md
- * Sec 2.1 (L=150 row, "f_res,loaded"), cross-checked by
- * docs/evidence/2026-07-27-zvs-operating-point.md ("loaded (~1.6x) ~
- * 38 kHz" at the same L).
+ * This is the LOADED resonant frequency of the tank: 37.58 kHz, from
+ * docs/evidence/2026-07-27-inductance-range-sweep.md Sec 2.1 (L=150 row,
+ * "f_res,loaded"), cross-checked by docs/evidence/2026-07-27-zvs-
+ * operating-point.md ("loaded (~1.6x) ~ 38 kHz" at the same L).
  *
- * Why LOADED and not UNLOADED (23.7 kHz at the same L, main.ato's
- * f_resonant_nominal=25kHz is a third, separately-tracked UNLOADED
- * number): verified against this file's own asymmetric safety window,
+ * STILL CORRECT AFTER THE 2026-07-29 COIL SPECIFICATION, and the reason
+ * is worth stating: elec/src/main.ato's l_tank_assumed moved 150uH ->
+ * 88uH and l_pan_loaded_ratio moved 0.399 -> 0.68 in the same commit, as
+ * a matched pair. Only the LOADED inductance resonates, and
+ * 150 x 0.399 = 59.850uH against 88 x 0.68 = 59.840uH, so the loaded
+ * resonance moved from 37 560 Hz to 37 563 Hz -- 0.008%, four orders of
+ * magnitude inside this constant's own FREQ_TOLERANCE_HZ. No firmware
+ * constant changed. See docs/evidence/2026-07-29-tank-coil-
+ * specification.md.
+ *
+ * Why LOADED and not UNLOADED (31.0 kHz at the declared 88uH/300nF;
+ * main.ato's f_resonant_nominal=31kHz tracks that separately, and was
+ * 25kHz until the coil was specified): verified against this file's own
+ * asymmetric safety window,
  * not asserted from documentation alone. pll_is_frequency_safe() allows
  * -5kHz below resonant_freq but +10kHz ABOVE it -- an asymmetric margin
  * that only makes sense if resonant_freq is the frequency the converter
@@ -84,9 +93,11 @@ static const char *TAG = "pll_control";
  * this file's own docstring). With the loaded value (37.58kHz), the
  * corrected default operating point (PLL_DEFAULT_FREQ_HZ=47000, ratio
  * ~1.25) sits +9.42kHz above resonant_freq -- inside the +10kHz margin.
- * Read as UNLOADED (23.7kHz), the same 47kHz point would sit +23.3kHz
- * above resonant_freq, blowing straight through the +10kHz safety
- * ceiling and making pll_is_frequency_safe() permanently false. Only the
+ * Read as UNLOADED (31.0kHz at the declared coil, 23.7kHz under the
+ * pre-2026-07-29 150uH assumption), the same 47kHz point would sit
+ * +16.0kHz (or +23.3kHz) above resonant_freq, blowing straight through
+ * the +10kHz safety ceiling and making pll_is_frequency_safe()
+ * permanently false. Under EITHER unloaded reading. Only the
  * LOADED reading is consistent with this file's own already-committed
  * safety-margin constants.
  *

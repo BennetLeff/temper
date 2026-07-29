@@ -44,12 +44,27 @@ extern "C" {
  * correct.
  *
  * Derivation (arithmetic in the evidence doc):
- *   L_loaded(worst case) = 150uH * (1 - 0.10) * 0.399   = 53.87uH
- *   f_res,loaded         = 1/(2*pi*sqrt(53.87uH*300nF)) = 39.59kHz
- *   required floor       = 1.05 * 39.59kHz              = 41.57kHz
- *   PLL_MIN_FREQ_HZ      = 42000                        -> ratio 1.057
+ *   L_loaded(worst case) = 88uH * (1 - 0.10) * 0.68     = 53.86uH
+ *   f_res,loaded         = 1/(2*pi*sqrt(53.86uH*300nF)) = 39.595kHz
+ *   required floor       = 1.05 * 39.595kHz             = 41.575kHz
+ *   PLL_MIN_FREQ_HZ      = 42000                        -> ratio 1.061
  * Keyed off MINIMUM coil L, not nominal: f_res ~ 1/sqrt(L), so the
  * low-tolerance unit resonates highest and needs the highest floor.
+ *
+ * Those inputs were 150uH * 0.399 = 53.87uH -> floor 41.571kHz until
+ * 2026-07-29, when the coil was actually specified (88uH +/-10%) and the
+ * pan coupling ratio moved WITH it, as a matched pair -- only the LOADED
+ * inductance resonates, so the floor moved 3.5Hz. Nothing in this file
+ * changed. docs/evidence/2026-07-29-tank-coil-specification.md.
+ *
+ * WHAT THIS FLOOR REQUIRES OF A DELIVERED COIL: inverting the derivation,
+ * 42000/1.05 = 40000Hz is the highest loaded resonance this floor still
+ * guards, i.e. L_loaded must be >= 52.8uH as MEASURED WITH A PAN. A coil
+ * that is -10% on inductance and only meets the commonly-quoted
+ * "L_loaded >= 0.60 x L_unloaded" screen lands at 47.5uH and resonates at
+ * 42.15kHz -- above this floor. The CI gate cannot see that (it treats
+ * l_pan_loaded_ratio as exact); incoming inspection carries it, per
+ * docs/hardware/TANK_COIL_SPECIFICATION.md Sec 2.
  *
  * Cost, stated: for a series-resonant inverter lower frequency means MORE
  * power, so raising the floor lowers maximum deliverable power. 1800W is
@@ -67,7 +82,10 @@ extern "C" {
  * ZVS margin at the corrected pan-coupling model (K=0.79) for
  * ferromagnetic pans -- full hard switching of a 1200V IGBT half-bridge.
  * 47000 matches elec/src/main.ato's f_switching = 47kHz, the ZVS-holding
- * operating point (0.84% margin at the L=150uH assumption). Startup must
+ * operating point (0.84% margin as measured at the then-assumed L=150uH;
+ * the coil was specified at 88uH on 2026-07-29 with the pan ratio moving
+ * with it, which left the loaded resonance -- and therefore this
+ * operating point -- unchanged to 0.008%). Startup must
  * not begin the bridge at a frequency already known to hard-switch.
  */
 #define PLL_DEFAULT_FREQ_HZ 47000

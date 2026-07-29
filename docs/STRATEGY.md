@@ -482,6 +482,12 @@ gap and a coil height — **no turn count, inner diameter or wire spec** — and
 `modules.ato:463-465` confirms `inductor_conn` is still a placeholder. Even the
 disqualified doc's own 20–25 turn range implies a **4× spread in L** by N².
 
+> **Partly superseded 2026-07-29** (`docs/evidence/2026-07-29-tank-coil-specification.md`):
+> `inductor_conn` is no longer a placeholder — it is an `Inductor` declaring
+> 88 µH ±10 %. The route taken was *not* derivation from geometry (that
+> falsifier still stands) but a manufacturer measurement in this design's own
+> 20–50 kHz band plus an incoming acceptance test on **loaded** inductance.
+
 **A second document looked like it had the answers and is circular.**
 `RESONANT_TANK_DESIGN.md` supplies 20–25 turns, 160–200 mm, 80 µH — but it is
 contradicted by the newer `TANK_COIL_SPECIFICATION.md` audit, **and its
@@ -1825,6 +1831,17 @@ which is why the coil value matters more than the pan model.
 **Fidelity bound, stated rather than buried:** the IGBT model is behavioural
 with fixed capacitances, so margins are ordinal, not calibrated
 switching-loss figures. All models remain `calibrated: false`.
+
+> **RESOLVED 2026-07-29** (`docs/evidence/2026-07-29-tank-coil-specification.md`).
+> The coil is no longer undefined: `modules.ato`'s `inductor_conn` is an
+> `Inductor` declaring **88 µH ±10 % @ 40 kHz**, `main.ato`'s `l_tank_assumed`
+> mirrors it, and `check_pll_range_consistency.py` check 7 fails the build if
+> they diverge. `f_resonant_nominal` moved 25 kHz → **31 kHz**, which is now
+> *derived* from the declared L and C rather than being a fourth independent
+> number. The "135 µH to make 25 kHz true" reasoning above is what that change
+> retired. Note that the entry above reasons about the **unloaded** resonance
+> throughout; the quantity that sets ZVS margin is the **loaded** one
+> (37.56 kHz), and `f_switching` = 47 kHz sits at ratio 1.25 over it.
 
 ### BOM vs. source audit (2026-07-25)
 

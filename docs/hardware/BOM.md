@@ -105,14 +105,41 @@
 
 | Ref | Description | Part Number | Manufacturer | Qty | Package | Notes |
 |-----|-------------|-------------|--------------|-----|---------|-------|
-| L_TANK | Tank Inductor | CUSTOM_LITZ_COIL | - | 1 | - | Hand-wound Litz coil — see caveat below |
+| L_TANK | Tank Inductor | CUSTOM_LITZ_COIL | — (custom-wound) | 1 | Flat spiral, ferrite-backed, OD ≤ 200mm, 2 leads to `LitzPad_15A` pads | **88µH ±10% @ 40kHz**, DCR ≤ 0.12Ω, R_ac ≤ 0.40Ω @ 40kHz, 25A rms — **must pass the incoming acceptance test** in `docs/hardware/TANK_COIL_SPECIFICATION.md` §2 |
 | C_TANK1, C_TANK2 | Tank Capacitor | FKP1T031507G00JSSD | WIMA | 2 | Radial 41.5×20mm, **PCM 37.5mm**, 39.5mm tall | 150nF 1600VDC PP FKP1 — wired in parallel (300nF combined). MPN and package corrected 2026-07-28, see note |
 
 > **`C_TANK1/2` MPN corrected again 2026-07-28 (10× value error).** The previous value `FKP1U021507E00JSSD` decodes, against WIMA's own 18-digit part-number system (FKP 1 datasheet rev. 03.26, p.136), as `FKP1` | `U0` = **2000 VDC** | `2150` = **0.015 µF** | size `7E` | `00JSSD` — a tenth of the declared 150nF, at the wrong voltage. `scripts/mpn_fabrication_gate.py`'s WIMA decoder (PR #397) flags exactly this. The 2000 VDC table has no 0.015 µF row in a size-7 (PCM 37.5) case at all — its only 0.015 µF row is `FKP1U021506D` (13 × 24 × 31.5, PCM 27.5) — and the land pattern the board carried, `C_Rect_L31.5mm_W13.0mm_P27.50mm_MKS4`, is precisely that case, i.e. the board was drawn for the mis-decoded part rather than for the declared value. Corrected to **`FKP1T031507G00JSSD`**, read off WIMA's 1600 VDC ordering table: "0.15 µF | W 20 | H 39.5 | L 41.5 | PCM 37.5 | `FKP1T031507G_ _ _ _ _ _`". The six trailing digits are the datasheet's own "Part number completion" box and are carried over unchanged (`00` 2-pin, `J` ±5 %, `S` bulk, `SD` 6-2 pin length). **Capacitance is unchanged at 150nF each / 300nF combined** — that value was never in doubt; it is what `RESONANT_TANK_DESIGN.md`, every ZVS/inductance sweep in `simulation/harness/`, and `main.ato`'s 47kHz switching point are all built on. The KEMET R76-series "(alt)" second-source line from an earlier revision remains dropped.
 >
 > **⚠ `C_TANK1/2` needs board rework, not yet done.** The correct part is a materially bigger can: 41.5 × 20mm on a **37.5mm** lead pitch (was 31.5 × 13mm on 27.5mm), and 39.5mm tall. `pcb/temper.kicad_pcb` still carries the 27.5mm land for both. At the current placement the enlarged `C25` outline overlaps `C5` (a D35 snap-in bus electrolytic) by 7.6 × 1.3mm, and the enlarged `C26` outline runs 3.0mm past the board edge at y=20. Both must be re-placed. See `docs/evidence/2026-07-28-tank-cap-and-isolator-footprints.md`.
 >
-> **⚠ `L_TANK` inductance is undetermined, not 80µH.** `docs/hardware/TANK_COIL_SPECIFICATION.md`: "`elec/src/*.ato` contains no inductance value for the coil." The "80µH, 50A, ferrite" note carried over from earlier revisions is a placeholder, not a source-verified value — `f_resonant_nominal = 25kHz` (`main.ato:74`) against the 300nF combined tank capacitance above implies ≈135µH, not 80µH, and the coil has not been wound or bench-measured. **Do not order magnet wire or wind to 80µH before this is resolved** — see the spec doc for what closes it out.
+> **`L_TANK` is now specified — 88µH ±10% @ 40kHz (2026-07-29).** It was
+> undetermined until then (`elec/src/*.ato` contained no inductance value at
+> all; `inductor_conn` was a valueless `new Resistor` placeholder, and the
+> "80µH, 50A, ferrite" note carried over from earlier BOM revisions was never
+> source-verified). It is now `new Inductor`, `88uH +/- 10%`, and
+> `scripts/check_pll_range_consistency.py` check 7 fails the build if that
+> declaration and `main.ato`'s `l_tank_assumed` disagree. See
+> `docs/evidence/2026-07-29-tank-coil-specification.md`.
+>
+> **⚠ There is still no part number, and this coil cannot be ordered from a
+> catalogue.** No orderable coil in this class publishes an inductance
+> (`docs/evidence/2026-07-28-coil-selection-research.md` §2 searched Infineon,
+> Würth, OEM appliance spares and the custom-wind channel). `CUSTOM_LITZ_COIL`
+> is a placeholder identifier, not an MPN. The route is: specify to a magnetics
+> house against `docs/hardware/TANK_COIL_SPECIFICATION.md` §1, then **accept on
+> measurement**.
+>
+> **⚠ Acceptance is on LOADED inductance, and the ratio test alone is not
+> enough.** Accept if **`L_loaded ≥ 52.8µH`** measured at 40 kHz with a
+> ferromagnetic reference pan at the production gap (target 59.8µH). A coil
+> that is −10% on unloaded inductance *and* only meets the commonly-quoted
+> `L_loaded ≥ 0.60 × L_unloaded` screen resonates at 42.15 kHz — above
+> `PLL_MIN_FREQ_HZ` — which puts a hard-switching regime inside the firmware's
+> legal range. Full procedure and derivation: spec doc §2.
+>
+> **⚠ Coil thermal design does not exist.** ~150–200 W of the coil's own copper
+> loss at 1800 W, and `LitzPad_15A` declares a 15 A pad against a 20.7–22.5 A
+> rms tank current. Neither is resolved — spec doc §3 and §8.
 
 ---
 
