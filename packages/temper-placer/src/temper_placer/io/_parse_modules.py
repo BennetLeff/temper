@@ -68,14 +68,21 @@ def _extract_components_from_pcb(
 
             # Exact per-pad roundrect corner ratio, when the shape carries
             # one (kiutils exposes it as `roundrectRatio`); KiCad's own
-            # 0.25 default otherwise. Pad-level rotation (`(at x y angle)`)
-            # on top of the footprint's own rotation -- 0.0 on every pad on
-            # the current production board, but read rather than assumed
-            # away (see core.pad_geometry / Pin.pad_rotation_deg).
+            # 0.25 default otherwise.
             pad_roundrect_ratio = getattr(pad, "roundrectRatio", None)
             if pad_roundrect_ratio is None:
                 pad_roundrect_ratio = 0.25
-            pad_rotation_deg = getattr(pad.position, "angle", None) or 0.0
+            # A pad's `(at x y angle)` angle in a .kicad_pcb is its ABSOLUTE
+            # world orientation, not an offset from the parent footprint's
+            # angle -- verified against KiCad-authored boards and by
+            # measurement (docs/evidence/2026-07-29-intra-component-shorts-
+            # root-cause.md). `Pin.pad_rotation_deg` is the pad's intrinsic
+            # rotation *relative to its footprint*, which every consumer adds
+            # to the component rotation, so recover it by subtracting the
+            # footprint angle here. Getting this backwards double-counts the
+            # footprint rotation on every rotated part.
+            pad_abs_rotation_deg = getattr(pad.position, "angle", None) or 0.0
+            pad_rotation_deg = (pad_abs_rotation_deg - rot_deg) % 360.0
 
             raw_pins.append(
                 {

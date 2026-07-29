@@ -23,7 +23,17 @@ from typing import Any
 
 @dataclass
 class DrcCeilingEntry:
-    """A single board entry in the DRC ceiling file."""
+    """A single board entry in the DRC ceiling file.
+
+    ``tool_versions`` and ``category_source`` are read from the file's
+    ``provenance`` block and top level respectively -- pure metadata, never
+    ceiling values -- and exist so the ratchet can (1) tell the reader which
+    engine produced ``violations_by_type``/``warnings_by_type`` (currently
+    always kicad-cli; see ``_check_board``'s kicad-cli branch, the only one
+    that ever populates a per-type breakdown) and (2) detect when the
+    running ``kicad-cli`` differs from the one the ceiling was measured
+    with, rather than silently comparing against a different engine.
+    """
 
     board_id: str
     path: str
@@ -31,6 +41,8 @@ class DrcCeilingEntry:
     warning_ceiling: int
     violations_by_type: dict[str, int] = field(default_factory=dict)
     warnings_by_type: dict[str, int] = field(default_factory=dict)
+    tool_versions: dict[str, str] = field(default_factory=dict)
+    category_source: str | None = None
 
 
 @dataclass
@@ -50,6 +62,15 @@ class DrcCategoryFailure:
     failure -- they come from separate exhaustive records
     (``violations_by_type`` vs. ``warnings_by_type``) and must not be
     conflated when reporting which dimension regressed.
+
+    ``source`` names the DRC engine that produced this category's count
+    (currently always ``"kicad-cli"`` at runtime -- the ``rust`` backend
+    never supplies a per-type breakdown, see ``_check_board``). This exists
+    because ``creepage``, for example, is a real category the Rust engine
+    (``temper_drc_rs``) reports under its own ``check_name``, but it is not
+    a KiCad DRC violation type at all -- bare kicad-cli never emits it. A
+    category list mixing engines without saying which is which lets a
+    reader mistake one engine's finding for the other's.
     """
 
     rule: str
@@ -57,6 +78,7 @@ class DrcCategoryFailure:
     allowed: int
     is_new: bool
     kind: str = "error"
+    source: str = "unknown"
 
     @property
     def delta(self) -> int:
@@ -86,6 +108,9 @@ class DrcRatchetResult:
     category_failures: list[DrcCategoryFailure] = field(default_factory=list)
     aggregate_error_delta: int = 0
     aggregate_warning_delta: int = 0
+    kicad_cli_version_running: str | None = None
+    kicad_cli_version_expected: str | None = None
+    kicad_cli_version_mismatch: bool = False
 
 
 class DrcRatchet:
@@ -112,6 +137,7 @@ class DrcRatchet:
 
         for entry in data.get("boards", []):
             board_id = entry["board_id"]
+            provenance = entry.get("provenance") or {}
             self.entries[board_id] = DrcCeilingEntry(
                 board_id=board_id,
                 path=entry["path"],
@@ -119,6 +145,8 @@ class DrcRatchet:
                 warning_ceiling=entry.get("warning_ceiling", 0),
                 violations_by_type=entry.get("violations_by_type", {}),
                 warnings_by_type=entry.get("warnings_by_type", {}),
+                tool_versions=provenance.get("tool_versions") or {},
+                category_source=entry.get("category_source"),
             )
 
     def check(self, repo_root: Path) -> list[DrcRatchetResult]:
@@ -309,6 +337,31 @@ class DrcRatchet:
                 exit_code=1,
             )
 
+        # kicad-cli version pin: the ceiling's provenance records the
+        # kicad-cli version it was measured with, but nothing previously
+        # enforced that CI (or a local run) uses that same version -- a
+        # patch bump changes the DRC engine, which means a red gate could
+        # be silently comparing against a different measuring instrument
+        # rather than an actual regression. Reported prominently rather
+        # than hard-failed: a version bump alone was already shown not to
+        # explain the report count on this board (see
+        # docs/evidence/2026-07-27-drc-truth-gate-discrepancy.md section 2),
+        # so failing the whole gate on any patch mismatch would be its own
+        # false positive -- but it must never again pass through unnoted.
+        running_kicad_cli_version: str | None = None
+        expected_kicad_cli_version: str | None = None
+        version_mismatch = False
+        if self.backend == "kicad-cli":
+            from temper_placer.validation._drc_api import get_kicad_cli_version
+
+            running_kicad_cli_version = get_kicad_cli_version()
+            expected_kicad_cli_version = entry.tool_versions.get("kicad-cli")
+            version_mismatch = bool(
+                running_kicad_cli_version
+                and expected_kicad_cli_version
+                and running_kicad_cli_version != expected_kicad_cli_version
+            )
+
         # Evaluate every ceiling dimension -- aggregate errors, aggregate
         # warnings, and per-type -- before deciding pass/fail. A failing run
         # must show the complete picture in one shot: returning on the first
@@ -349,6 +402,7 @@ class DrcRatchet:
                             allowed=allowed,
                             is_new=rule not in entry.violations_by_type,
                             kind="error",
+                            source=self.backend,
                         )
                     )
 
@@ -369,11 +423,22 @@ class DrcRatchet:
                             allowed=allowed,
                             is_new=rule not in entry.warnings_by_type,
                             kind="warning",
+                            source=self.backend,
                         )
                     )
 
+        version_note = (
+            f"  NOTE: kicad-cli version mismatch -- running {running_kicad_cli_version}, "
+            f"ceiling measured with {expected_kicad_cli_version} (numbers may not be "
+            "directly comparable; see drc_ceiling.json provenance.tool_versions)"
+            if version_mismatch
+            else None
+        )
+
         if aggregate_failures or category_failures:
             lines = [f"{board_id}: DRC FAIL"]
+            if version_note:
+                lines.append(version_note)
             for failure in aggregate_failures:
                 lines.append(f"  aggregate {failure}")
 
@@ -383,10 +448,16 @@ class DrcRatchet:
                 new_failures = [c for c in failures if c.is_new]
                 regressed_failures = [c for c in failures if not c.is_new]
                 n = len(failures)
+                # All failures in one block share a single run's backend, so
+                # the source is reported once per block rather than once per
+                # line -- see DrcCategoryFailure.source's docstring for why
+                # this must never be left implicit (creepage vs. track_width
+                # style engine ambiguity).
+                source = failures[0].source
                 lines.append(
-                    f"  per-type {label}: {n} categor{'y' if n == 1 else 'ies'} over "
-                    f"ceiling ({len(new_failures)} new, {len(regressed_failures)} "
-                    "regressed):"
+                    f"  per-type {label} (source: {source}): {n} categor"
+                    f"{'y' if n == 1 else 'ies'} over ceiling ({len(new_failures)} new, "
+                    f"{len(regressed_failures)} regressed):"
                 )
                 for c in new_failures + regressed_failures:
                     tag = "NEW" if c.is_new else "   "
@@ -407,6 +478,9 @@ class DrcRatchet:
                 category_failures=category_failures,
                 aggregate_error_delta=max(error_delta, 0),
                 aggregate_warning_delta=max(warning_delta, 0),
+                kicad_cli_version_running=running_kicad_cli_version,
+                kicad_cli_version_expected=expected_kicad_cli_version,
+                kicad_cli_version_mismatch=version_mismatch,
             )
 
         slack = entry.error_ceiling - current_errors
@@ -416,14 +490,20 @@ class DrcRatchet:
             if slack > 0
             else ""
         )
+        pass_message = (
+            f"{board_id}: DRC {current_errors}/{entry.error_ceiling} errors, "
+            f"{current_warnings}/{entry.warning_ceiling} warnings within ceiling"
+            f"{slack_note}"
+        )
+        if version_note:
+            pass_message = f"{pass_message}\n{version_note.strip()}"
         return DrcRatchetResult(
             passed=True,
             board_id=board_id,
-            message=(
-                f"{board_id}: DRC {current_errors}/{entry.error_ceiling} errors, "
-                f"{current_warnings}/{entry.warning_ceiling} warnings within ceiling"
-                f"{slack_note}"
-            ),
+            message=pass_message,
+            kicad_cli_version_running=running_kicad_cli_version,
+            kicad_cli_version_expected=expected_kicad_cli_version,
+            kicad_cli_version_mismatch=version_mismatch,
         )
 
     def detect_ceiling_raise(
@@ -433,14 +513,21 @@ class DrcRatchet:
 
         A raise is any of: the aggregate ``error_ceiling`` increasing, the
         aggregate ``warning_ceiling`` increasing, or any single rule inside
-        ``warnings_by_type`` increasing -- including a rule that didn't
-        exist in the old record at all, which is a raise from its implicit
-        ceiling of 0 (the same implicit-zero semantics ``_check_board``
-        enforces at runtime). Editing the ceiling *file* to grant a rule
-        more room is exactly as much a raise as editing the aggregate
-        number, and must require the same ``Ceiling-Approval:`` trailer --
-        otherwise the per-type ceiling could be silently inflated in the
-        JSON itself, sidestepping the runtime check entirely.
+        ``violations_by_type`` (errors) or ``warnings_by_type`` (warnings)
+        increasing -- including a rule that didn't exist in the old record
+        at all, which is a raise from its implicit ceiling of 0 (the same
+        implicit-zero semantics ``_check_board`` enforces at runtime).
+        Editing the ceiling *file* to grant a rule more room is exactly as
+        much a raise as editing the aggregate number, and must require the
+        same ``Ceiling-Approval:`` trailer -- otherwise the per-type
+        ceiling could be silently inflated in the JSON itself, sidestepping
+        the runtime check entirely. This applies symmetrically to
+        ``violations_by_type`` and ``warnings_by_type``: an earlier version
+        of this method checked only the warnings side, which meant a
+        per-type *error* ceiling (e.g. ``clearance``) could be raised in
+        the committed JSON with no trailer and this detector would not
+        notice, even though ``_check_board`` enforces that exact ceiling at
+        runtime.
         """
         old_boards = {b["board_id"]: b for b in old_ceiling.get("boards", [])}
         new_boards = {b["board_id"]: b for b in new_ceiling.get("boards", [])}
@@ -460,6 +547,14 @@ class DrcRatchet:
                 reasons.append(f"error_ceiling {old_errors} -> {new_errors}")
             if new_warnings > old_warnings:
                 reasons.append(f"warning_ceiling {old_warnings} -> {new_warnings}")
+
+            old_violations_by_type = old_entry.get("violations_by_type") or {}
+            new_violations_by_type = new_entry.get("violations_by_type") or {}
+            for rule in sorted(new_violations_by_type):
+                new_count = new_violations_by_type[rule]
+                old_count = old_violations_by_type.get(rule, 0)
+                if new_count > old_count:
+                    reasons.append(f"violations_by_type[{rule}] {old_count} -> {new_count}")
 
             old_warnings_by_type = old_entry.get("warnings_by_type") or {}
             new_warnings_by_type = new_entry.get("warnings_by_type") or {}

@@ -79,6 +79,35 @@ _RULES_PATH = _TEMPER_PLACER_ROOT / "configs" / "netclass_rules.yaml"
 # discipline of PRODUCTION_DRC_SAMPLE_RUNS in test_regression_drc.py.
 _DRC_SAMPLE_RUNS = 3
 
+# Minimum unconnected_items improvement (OFF - ON) required to call
+# zone/pour a real win, rather than a noise-level wash.
+#
+# Grounded in observed data, not a round number.  Six CI runs on `main`
+# between 2026-07-29T06:32 and 2026-07-29T17:23 -- spanning multiple
+# unrelated commits (router/DRC-gate fixes, no change to zone/pour itself
+# or to the checked-in board) -- measured this same differential:
+#
+#   run          OFF   ON   delta (OFF-ON)
+#   30427182910  394   394   0
+#   30442750275  394   395  -1
+#   30466675129  395   394  +1
+#   30469095141  394   394   0
+#   30472345364  394   394   0
+#   30473164714  394   394   0
+#
+# Every within-run sample set had zero scatter (3/3 DRC samples identical
+# per arm, per run) -- all of the +-1 spread above is *between* runs, i.e.
+# genuine measurement noise in an otherwise-unchanged comparison, not
+# sampling variance _DRC_SAMPLE_RUNS already averages out. The largest
+# noise-driven delta observed is 1 unconnected item in either direction.
+# A bare ``on.unconnected < off.unconnected`` (delta >= 1) therefore calls
+# a coin-flip a win. The margin below is the smallest integer that
+# excludes that observed noise band, so a delta of 1 reads as "no
+# improvement" and only a delta of >= 2 -- twice the largest noise
+# excursion seen across this sample -- counts as zone/pour genuinely
+# helping.
+_MIN_UNCONNECTED_IMPROVEMENT = 2
+
 
 _FILL_ZONES_SCRIPT = _REPO_ROOT / "scripts" / "kicad_fill_zones.py"
 
@@ -371,6 +400,39 @@ class TestZonePourProductionMeasurement:
             by_type=by_type,
         )
 
+    # xfail(strict=True), not a skip or a weakened assertion: the assertion
+    # below is untouched and still runs on every CI invocation. This is a
+    # KNOWN, MEASURED, and ACCEPTED negative result, not an unmanaged
+    # failure -- see docs/plans/2026-07-20-002-feat-zone-pour-connectivity-plan.md
+    # (U3 = this measurement, U4 = "enable zone pours by default", gated on
+    # U3 showing improvement) and the confirming measurements in
+    # docs/evidence/2026-07-28-zone-pour-differential-verdict.md and
+    # docs/evidence/2026-07-28-pour-strategy-audit.md: on the board as
+    # committed, `enable_zone_pours=True` re-pours nets that already have a
+    # committed zone, adding ~96 `zones_intersect` violations and connecting
+    # nothing that wasn't already connected -- U4 promotion does not
+    # proceed. Confirmed still reproducing in CI (2026-07-29, runs
+    # 30427182910 / 30442750275 / 30469095141 / 30472345364 / 30473164714:
+    # 394 vs 394, or a marginal 394 vs 395 one-item wash) -- this is a
+    # standing, accepted state of the capability, not a live regression.
+    #
+    # strict=True is deliberate: if `_zone_layers_for_net()` is ever fixed to
+    # stop re-pouring already-zoned nets (Task 3 of the pour-strategy audit,
+    # "fix the generator, not just the artifact"), or the board changes such
+    # that zone/pour genuinely reduces unconnected_items, this xfail flips to
+    # XPASS and CI goes red -- which is the correct signal to reopen the U4
+    # promotion decision. Do not add `strict=False` or remove this marker to
+    # silence that signal without re-evaluating U4.
+    @pytest.mark.xfail(
+        strict=True,
+        reason=(
+            "U3 measured, accepted negative result: enable_zone_pours=True "
+            "does not reduce unconnected_items on the committed production "
+            "board (see docs/plans/2026-07-20-002-feat-zone-pour-connectivity-plan.md "
+            "U4 and docs/evidence/2026-07-28-zone-pour-differential-verdict.md). "
+            "U4 promotion should not proceed until this flips to XPASS."
+        ),
+    )
     def test_zone_pours_reduce_unconnected_items(self):
         if not _kicad_cli_available():
             pytest.skip("kicad-cli not available")
@@ -402,12 +464,25 @@ class TestZonePourProductionMeasurement:
             f"arm added nothing, so this comparison measures nothing"
         )
 
-        # U3 gate: zone/pour must measurably help, or this fails loudly
-        # rather than reporting a non-improving number as a quiet pass.
-        assert on.unconnected < off.unconnected, (
-            f"enable_zone_pours=True did not reduce unconnected_items on the "
-            f"current board ({on.unconnected} with pours vs {off.unconnected} "
-            f"without, median of {_DRC_SAMPLE_RUNS} DRC samples each).\n"
+        # U3 gate: zone/pour must measurably help -- by more than the
+        # observed noise band (see _MIN_UNCONNECTED_IMPROVEMENT) -- or this
+        # fails loudly rather than reporting a noise-level wash as a pass.
+        # A bare `on.unconnected < off.unconnected` would call a 1-item
+        # delta a win; six CI runs show +-1 is exactly the run-to-run noise
+        # on this comparison with no real change underneath it, so a delta
+        # of 1 must fail here, and only >= _MIN_UNCONNECTED_IMPROVEMENT
+        # counts as improvement.
+        improvement = off.unconnected - on.unconnected
+        assert improvement >= _MIN_UNCONNECTED_IMPROVEMENT, (
+            f"enable_zone_pours=True improved unconnected_items by only "
+            f"{improvement} on the current board ({on.unconnected} with "
+            f"pours vs {off.unconnected} without, median of "
+            f"{_DRC_SAMPLE_RUNS} DRC samples each) -- below the "
+            f"_MIN_UNCONNECTED_IMPROVEMENT={_MIN_UNCONNECTED_IMPROVEMENT} "
+            f"margin, which exists because observed run-to-run noise on "
+            f"this exact comparison is +-1 unconnected item (see the "
+            f"module-level data table), so a delta this small is not "
+            f"distinguishable from noise.\n"
             f"  ON : {on.describe()}\n"
             f"  OFF: {off.describe()}\n"
             f"  violation deltas (ON - OFF): {changed}\n"

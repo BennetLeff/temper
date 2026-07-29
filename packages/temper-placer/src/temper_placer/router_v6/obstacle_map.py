@@ -36,7 +36,9 @@ def build_obstacle_map(pcb: ParsedPCB, escape_vias: list[EscapeVia]) -> dict[str
     1. Component pads (on their respective layers).
     2. Escape vias (on all layers, assuming through-hole for now).
     3. Keepout zones (from PCB data).
-    4. Board edge (optional: treated as outer boundary or inverted obstacle).
+    4. Pre-routed tracks already on the board.
+    5. Pre-existing vias already on the board.
+    6. Board edge (optional: treated as outer boundary or inverted obstacle).
 
     Args:
         pcb: Parsed PCB data containing components, nets, and design rules.
@@ -137,7 +139,38 @@ def build_obstacle_map(pcb: ParsedPCB, escape_vias: list[EscapeVia]) -> dict[str
             except Exception:
                 continue
 
-    # 5. Board Edge (Constraint)
+    # 5. Pre-existing Vias
+    #
+    # Before this, ``ParsedPCB`` carried no via list at all (see stage0_data.py
+    # / kicad_parser.py) -- a re-route pass over an already-routed board had
+    # zero visibility into where existing vias sat, so new copper (tracks or
+    # new vias) could land directly on top of a different net's via with no
+    # clearance check whatsoever. That is a straightforward missing-obstacle
+    # bug, not a net-scoping one: unlike pads and tracks below, vias are not
+    # filtered by net here -- the routing net's own vias are re-opened later,
+    # at route time, in ``_unblock_net_pads`` (astar_grid.py), which mirrors
+    # the existing pad/escape-via unblock pattern. See
+    # docs/evidence/2026-07-30-router-copper-shorts.md.
+    if hasattr(pcb, "vias") and pcb.vias:
+        for via in pcb.vias:
+            try:
+                via_poly = Point(via.position).buffer(via.diameter / 2.0, quad_segs=8)
+            except Exception:
+                continue
+
+            # A drilled through-hole via's declared ``layers`` names only its
+            # two connected endpoint layers (e.g. "F.Cu"/"B.Cu"), matching
+            # KiCad's own file convention -- but the physical drill passes
+            # through every copper layer in between, including inner
+            # signal/mixed layers. Escape vias two sections up already treat
+            # through-hole vias as blocking all signal/mixed layers for
+            # exactly this reason; pre-existing vias get the same treatment
+            # for consistency, not just their two declared endpoints.
+            for layer_info in pcb.stackup.layers:
+                if layer_info.layer_type in ["signal", "mixed"]:
+                    layer_obstacles[layer_info.name].append(via_poly)
+
+    # 6. Board Edge (Constraint)
     # Usually we route *inside* the board. The obstacle map represents *blocked* areas.
     # The inverse of the board polygon is the "infinite" obstacle.
     # For this function, we return internal obstacles.

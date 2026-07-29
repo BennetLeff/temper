@@ -35,9 +35,12 @@ that domain's copper: a DC_BUS component's GND pad is not DC_BUS copper.
 exploits the fact that every KiCad pad shape is ``core_rectangle ⊕ disk(r)``
 to compute ``max(0, dist(core_a, core_b) - r_a - r_b)`` on exactly
 representable rotated rectangles. No arc is polygonised, so there is no
-approximation error term -- which matters, because K1's HV<->SELV pad pair
-sits at *exactly* the 8.000mm creepage requirement and a polygonised model
-would turn zero margin into a fabricated violation.
+approximation error term -- which matters because sub-millimeter shortfalls
+(e.g. K1's HV<->SELV pad pair, exactly 8.000mm against the REINFORCED
+creepage requirement corrected to 10.0mm -- see
+``docs/evidence/2026-07-30-creepage-requirement-reconciliation.md`` --
+a 2.000mm shortfall) must be reported exactly, not smeared by a polygonised
+approximation's error term in either direction.
 
 **Layers.** Distances are measured in the board plane (2D). Two pads on
 opposite copper layers are separated in 3D by at least the dielectric
@@ -177,31 +180,66 @@ class ClearanceResult:
 
 
 # IEC 60335-2-6 Requirements Matrix
+#
+# Creepage figures (``min_creepage_mm``/``design_value_mm``) for every HV<->SELV
+# and HV<->ISOLATED row below are read off IEC 60335-1 Table 16 (Pollution
+# Degree 2, Material Group IIIb -- see
+# ``docs/specs/HIGH_VOLTAGE_CLEARANCE_SPEC.md`` Sec 5.1) at the **400V** row,
+# not the 300V row a prior version of this table used. Every domain this
+# table's HV side can classify -- MAINS (peak/transient 340V, spec Sec 2.1),
+# DC_BUS (peak/transient 400V, spec Sec 2.1 -- and, per
+# ``tests/requirements/safety/_real_board_fixture.py``, the bucket every
+# declared-HV net that isn't literally ``ac_l``/``ac_n`` falls into, so it
+# also covers HV nets that sit at raw mains potential, e.g. the CMC winding
+# taps), and Gate Drive Isolated (peak-to-earth 355V, spec Sec 2.1) -- has a
+# working voltage over 300V. IEC 60664-1/60335-1 tables are not
+# interpolated: a working voltage between two tabulated rows takes the
+# *next row up*, never a value in between. 340V, 355V, and 400V all round up
+# to the same 400V row: Basic 5.0mm, Reinforced 10.0mm, Design 12.0mm --
+# never the 300V row's 4.0/8.0/10.0. See
+# ``docs/evidence/2026-07-30-creepage-requirement-reconciliation.md`` for the
+# full derivation (this was previously pinned to the 300V row across every
+# entry below, silently under-stating every one of these boundaries'
+# reinforced creepage requirement by 2.0mm and understating the true
+# REQ-SAFE-01 violation count as a result).
+#
+# ``design_value_mm`` is not read by ``verify_iec60335_compliance`` (only
+# ``min_clearance_mm``/``min_creepage_mm`` gate anything); it is a
+# documentary "add 2.0mm over the creepage minimum" design target, tested
+# directly by ``test_requirement_matrix_values``.
+#
+# ``min_clearance_mm`` is intentionally NOT changed by this correction: the
+# clearance table (spec Sec 4.1) also rounds 340V/400V up to its 400V row
+# (Reinforced 5.0mm), and every clearance figure below (6.0mm reinforced,
+# 3.0mm basic) already meets or exceeds that -- i.e. clearance was already
+# conservative, only creepage was under-specified. See the evidence doc for
+# the full reconciliation of Sec 4.2's inconsistent "Design Value" column,
+# which is not used as a basis for anything in this table.
 IEC60335_REQUIREMENTS = {
     (VoltageDomain.MAINS, VoltageDomain.LV_CONTROL, InsulationType.BASIC): {
         "min_clearance_mm": 3.0,
-        "min_creepage_mm": 4.0,
-        "design_value_mm": 6.0,
+        "min_creepage_mm": 5.0,
+        "design_value_mm": 7.0,
     },
     (VoltageDomain.MAINS, VoltageDomain.LV_CONTROL, InsulationType.REINFORCED): {
         "min_clearance_mm": 6.0,
-        "min_creepage_mm": 8.0,
-        "design_value_mm": 10.0,
+        "min_creepage_mm": 10.0,
+        "design_value_mm": 12.0,
     },
     (VoltageDomain.DC_BUS, VoltageDomain.LV_CONTROL, InsulationType.BASIC): {
         "min_clearance_mm": 3.0,
-        "min_creepage_mm": 4.0,
-        "design_value_mm": 6.0,
+        "min_creepage_mm": 5.0,
+        "design_value_mm": 7.0,
     },
     (VoltageDomain.DC_BUS, VoltageDomain.LV_CONTROL, InsulationType.REINFORCED): {
         "min_clearance_mm": 6.0,
-        "min_creepage_mm": 8.0,
-        "design_value_mm": 10.0,
+        "min_creepage_mm": 10.0,
+        "design_value_mm": 12.0,
     },
     (VoltageDomain.MAINS, VoltageDomain.ISOLATED, InsulationType.REINFORCED): {
         "min_clearance_mm": 6.0,
-        "min_creepage_mm": 8.0,
-        "design_value_mm": 10.0,
+        "min_creepage_mm": 10.0,
+        "design_value_mm": 12.0,
     },
     (VoltageDomain.LV_CONTROL, VoltageDomain.LV_CONTROL, InsulationType.FUNCTIONAL): {
         "min_clearance_mm": 0.5,

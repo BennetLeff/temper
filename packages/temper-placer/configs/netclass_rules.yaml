@@ -31,6 +31,39 @@ classes:
     safety_category: "HV"
     because: "IEC 60335-1 Table 16 working isolation at 400V"
 
+  # Gate-drive floating bootstrap supply (+5V_ISO, VBOOT_H, VBOOT_L, and the
+  # UCC21550 gate driver's own secondary bias nets hb.gate_hs.driver-p1-1
+  # (VDDA) / hb.gate_hs.driver-p2 (VSSA)). Added 2026-07-28 -- this class
+  # previously had NO entry in this file at all (0 clearance/creepage
+  # protection beyond default_clearance_mm: 0.2, despite being exactly the
+  # class RULE 1's cross-domain-guard fix moved U7's secondary bias nets
+  # into -- see docs/evidence/2026-07-28-drc-rule1-netclass-redo.md sec 5).
+  #
+  # elec/domain_manifest.yaml declares every net in this class a member of
+  # the SAME `HV` domain as ac_l/+170V_BUS/SW_NODE (they float WITH the
+  # switch node, one gate resistor downstream) -- "isolated" names the gate
+  # driver's own internal primary/secondary barrier, not a barrier this
+  # class's own nets sit on the far side of relative to the rest of HV. Same
+  # 6.0mm figure used for every other HV-domain-to-LV class_pair entry in
+  # this file below, for internal consistency with that convention -- see
+  # docs/evidence/2026-07-28-hv-isolated-rules-and-creepage-triage.md for the
+  # full derivation and the caveat that this 6.0mm figure (like its ACMains/
+  # HighVoltage siblings above) is a legacy, not primary-cited, number; the
+  # fab-authoritative enforcement point is scripts/generate_kicad_dru.py's
+  # HV_CREEPAGE_ENFORCED_MM (12.6mm, PD3-pinned, cited) plus
+  # HV_INTERNAL_CLEARANCE_MM (2.0mm, cited) -- not this placer-feasibility
+  # config.
+  HighVoltageIsolated:
+    clearance: 6.0
+    trace_width: 2.0
+    via_diameter: 1.0
+    via_drill: 0.5
+    creepage_mm: 6.0
+    voltage_v: 20.0
+    layer: "F.Cu"
+    safety_category: "HV"
+    because: "Floating gate-drive bootstrap supply, same HV domain as ac_l/+170V_BUS/SW_NODE (elec/domain_manifest.yaml) -- reinforced separation to LV/SELV, functional-only to its own HV/ACMains neighbours (see class_pairs below)"
+
   FinePitch:
     clearance: 0.1
     trace_width: 0.127
@@ -47,13 +80,33 @@ classes:
     layer: "B.Cu"
     safety_category: "LV"
 
-  GateDrive:
+  # Split 2026-07-28 from the single "GateDrive" class (R4,
+  # docs/plans/2026-07-28-003-refactor-ato-net-classification-ssot-plan.md
+  # U7): the old class spanned U7's (the UCC21550 gate driver's) own
+  # reinforced isolation barrier -- GATE_HS/GATE_LS are the secondary-side
+  # gate outputs, floating on SW_NODE (same HV domain as HighVoltage,
+  # elec/domain_manifest.yaml), while PWM_HS/PWM_LS are the primary-side
+  # MCU PWM inputs (SELV domain). One class spanning two domains left every
+  # rule keyed on "GateDrive" unable to answer which side of the barrier it
+  # protected. Every clearance/width/via VALUE below is unchanged from the
+  # pre-split class -- this is a class-model change, not a numbers change.
+  GateDriveHV:
+    clearance: 0.25
+    trace_width: 0.4
+    via_diameter: 0.8
+    via_drill: 0.4
+    layer: "B.Cu"
+    safety_category: "HV"
+    because: "GATE_HS/GATE_LS float on SW_NODE, secondary (HV) side of U7's reinforced barrier -- same HV domain as HighVoltage/HighVoltageIsolated, per elec/domain_manifest.yaml. Not 'LV': that was the exact defect this split exists to fix, one file deeper than the four generated surfaces reach."
+
+  GateDriveSELV:
     clearance: 0.25
     trace_width: 0.4
     via_diameter: 0.8
     via_drill: 0.4
     layer: "B.Cu"
     safety_category: "LV"
+    because: "PWM_HS/PWM_LS are the MCU-side PWM outputs, primary (SELV) side of U7's reinforced barrier, per elec/domain_manifest.yaml. 'LV' is the correct category for SELV in this vocabulary -- there is no separate SELV value in the safety_category enum (HV/LV/AC/iso)."
 
   GND:
     clearance: 0.3
@@ -98,3 +151,17 @@ class_pairs:
   HighVoltage-Power: {clearance: 6.0, because: "IEC 60335-1 Table 16 working isolation at 400V — 6.0mm between HV and power"}
   HighVoltage-FinePitch: {clearance: 6.0, because: "IEC 60335-1 Table 16 working isolation at 400V — 6.0mm between HV and fine-pitch"}
   ACMains-HighVoltage: {clearance: 6.0, because: "Both HV domains — conservative 6.0mm"}
+  # Added 2026-07-28 alongside the HighVoltageIsolated class entry above.
+  # Same 6.0mm figure as the other HV-domain-to-LV pairs immediately above,
+  # for consistency with this file's existing convention. No
+  # HighVoltageIsolated-HighVoltage / HighVoltageIsolated-ACMains pair is
+  # added here, deliberately mirroring this file's own existing choice not
+  # to reduce ACMains-HighVoltage below 6.0 either (this file's placer-
+  # feasibility model stays conservative for same-domain neighbours; the
+  # fab-authoritative KiCad DRC rule in scripts/generate_kicad_dru.py is the
+  # one that applies the reduced, cited 2.0mm same-side figure -- see
+  # docs/evidence/2026-07-28-hv-isolated-rules-and-creepage-triage.md).
+  HighVoltageIsolated-Signal: {clearance: 6.0, because: "Reinforced HV-domain-to-LV separation — 6.0mm between the floating bootstrap supply and signal traces (same figure as HighVoltage-Signal above)"}
+  HighVoltageIsolated-GND: {clearance: 6.0, because: "Reinforced HV-domain-to-LV separation — 6.0mm between the floating bootstrap supply and ground (same figure as HighVoltage-GND above)"}
+  HighVoltageIsolated-Power: {clearance: 6.0, because: "Reinforced HV-domain-to-LV separation — 6.0mm between the floating bootstrap supply and power (same figure as HighVoltage-Power above)"}
+  HighVoltageIsolated-FinePitch: {clearance: 6.0, because: "Reinforced HV-domain-to-LV separation — 6.0mm between the floating bootstrap supply and fine-pitch (same figure as HighVoltage-FinePitch above)"}

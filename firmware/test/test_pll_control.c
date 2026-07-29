@@ -7,18 +7,20 @@
  * between PWM output and current zero-crossing.
  * 
  * Specifications (from design docs):
- * - Frequency range: 43-50 kHz (PLL_MIN_FREQ_HZ to PLL_MAX_FREQ_HZ).
+ * - Frequency range: 44-50 kHz (PLL_MIN_FREQ_HZ to PLL_MAX_FREQ_HZ).
  *   The floor was RAISED from 30 kHz to 42 kHz on 2026-07-29 (docs/evidence/
  *   2026-07-29-pll-floor-above-resonance.md): 30 kHz sat below the tank's
  *   loaded resonance, where a series-resonant bridge hard-switches; then
  *   from 42 kHz to 43 kHz later the same day (docs/evidence/2026-07-29-
  *   pll-floor-cap-tolerance.md) once the derivation was corrected to also
- *   worst-case the tank capacitor's own tolerance, not just the coil's. It
- *   is derived by scripts/check_pll_range_consistency.py from
- *   elec/src/main.ato's declared L/C/coupling/tolerances, so tests below
- *   assert against the MACROS rather than against literals -- a literal
- *   here would silently stop testing the real bound the next time the
- *   derivation moves it.
+ *   worst-case the tank capacitor's own tolerance, not just the coil's;
+ *   then from 43 kHz to 44 kHz later still the same day when PR #410
+ *   re-sourced the tank capacitors (WIMA FKP 1 +/-5% -> CDE 942C16P1K-F
+ *   +/-10%), raising that same tolerance further. It is derived by
+ *   scripts/check_pll_range_consistency.py from elec/src/main.ato's
+ *   declared L/C/coupling/tolerances, so tests below assert against the
+ *   MACROS rather than against literals -- a literal here would silently
+ *   stop testing the real bound the next time the derivation moves it.
  * - Target phase lag: ~1.5µs for ZVS operation
  * - Lock tolerance: ±0.5µs phase error
  * - Default frequency: 47 kHz (CORRECTED 2026-07-28, was 35 kHz -- see
@@ -99,15 +101,18 @@ void test_pll_get_context_not_null(void) {
  * loaded resonance (37.58kHz) -- a hard-switching frequency. It only ever
  * exercised config plumbing, but a test fixture is also an example, and
  * this one demonstrated a bridge-destroying value. Changed to 43000 (above
- * the derived floor) so the example is one a reader could safely copy.
+ * the derived floor) the same day, then to 44000 later still the same day
+ * when PR #410 re-sourced the tank capacitors (WIMA FKP 1 +/-5% -> CDE
+ * 942C16P1K-F +/-10%) and raised the derived floor to 43824Hz, so the
+ * example remains one a reader could safely copy.
  */
 void test_pll_init_custom_config(void) {
     pll_config_t config = {
         .kp = 5.0f,
         .ki = 100.0f,
         .target_phase_us = 2.0f,
-        .min_freq_hz = 43000,
-        .max_freq_hz = 45000
+        .min_freq_hz = 44000,
+        .max_freq_hz = 46000
     };
     pll_init(&config);
 
@@ -115,8 +120,8 @@ void test_pll_init_custom_config(void) {
     TEST_ASSERT_FLOAT_WITHIN(0.01f, 5.0f, ctx->kp);
     TEST_ASSERT_FLOAT_WITHIN(0.01f, 100.0f, ctx->ki);
     TEST_ASSERT_FLOAT_WITHIN(0.01f, 2.0f, ctx->target_phase_us);
-    TEST_ASSERT_EQUAL_UINT32(43000, ctx->min_freq);
-    TEST_ASSERT_EQUAL_UINT32(45000, ctx->max_freq);
+    TEST_ASSERT_EQUAL_UINT32(44000, ctx->min_freq);
+    TEST_ASSERT_EQUAL_UINT32(46000, ctx->max_freq);
 }
 
 /*============================================================================

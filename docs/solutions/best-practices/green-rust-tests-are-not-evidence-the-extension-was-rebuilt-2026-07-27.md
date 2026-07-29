@@ -94,6 +94,61 @@ source tree.** For a pyo3 crate specifically:
    build and can look fresh even when the real `.so` beside it was not
    replaced. Resolve past it.
 
+## Update, 2026-07-27 (later the same day): the gate's first real run, and a third recurrence of the same reversion
+
+`scripts/check_stale_extensions.py` merged, then ran against a clean tree
+for the first time: **exit 3, 10 crates discovered, 7 stale**
+(`docs/evidence/2026-07-27-stale-extension-first-run.md`). This was not a
+backlog of housekeeping — two of the seven sat on the routing hot path:
+
+| Crate | Installed | Source moved | Stale by |
+|---|---|---|---|
+| `temper_rust_router` | 2026-06-29 | 2026-07-27 | **28.2 days** |
+| `temper_constraint_compiler` | 2026-07-06 | 2026-07-27 | **21.0 days** |
+
+`temper_rust_router` is imported directly on the router's critical path
+(`router_v6/_pipeline_route.py:289,310,405` —
+`solve_topology_rust_bundled`, `solve_topology_rust`, `audit_result`), and
+`temper_constraint_compiler`'s staleness traced to a same-day edit in
+`packages/temper-rust-router-core/src/combinator/rewrite.rs`
+(`cap_infos.iter().find(...)` → `cap_infos.get(orig_idx)`) that was
+therefore **never in the binary any Python process that day had imported**.
+This called into question, and required re-measurement of, the day's own
+38.5% completion figure, its iteration-cap sweep, and its determinism
+runs — all of which exercised `solve_topology_rust`. What did *not* need
+re-checking: the fail-closed argument for the 45 unrouted nets, because
+`_allow_forced_segments()`'s hard-coded `False` lives in
+`_astar_reconstruct.py`, pure Python, unaffected by any extension's
+staleness.
+
+The same investigation also caught a **third, independent instance** of
+the `uv run` auto-sync reversion this doc already documents twice above
+(the "Installed" message that lied, and the immediate `uv run python -c
+"pass"` clobber): after the falsifier sequence had completed and every
+gate had re-verified green, a later, unrelated verification pass reported
+`temper-io-types` STALE *again*. Investigation found the installed `.so`'s
+content was correct (md5-identical to the freshly rebuilt artifact — a
+source edit had been reverted, and Rust compilation is deterministic, so
+recompiling the reverted source reproduced the original binary
+byte-for-byte) but its **mtime never advanced** past its very first build,
+because some layer of `uv`'s content-addressed build cache reused the
+existing file rather than truly overwriting it once the content hash
+matched something already cached
+(`docs/evidence/2026-07-27-stale-extension-gate.md`). Three independent
+reversion mechanisms in one day — a wrapping tool's own auto-sync, and now
+a content-addressed cache short-circuiting a real rebuild — both hitting
+the same crate, both invisible to anything short of an independent
+mtime/hash comparison against source.
+
+Two independent failures had to combine to hide a month of accumulated
+staleness in the first place: the macOS link failure (no
+`.cargo/config.toml`) meant the seven crates' `cdylib` halves silently
+could not be rebuilt at all, and `cargo test` linking libpython normally
+meant their `rlib` test suites stayed green throughout, giving no signal
+that anything was wrong. All seven were rebuilt once found; the gate now
+exits 0 and is wired into CI so a month-long accumulation cannot recur
+silently.
+
 ## Why This Matters
 
 The Rust-suite-green signal and the Python-import-succeeds signal are both
@@ -152,7 +207,12 @@ $ uv run --no-sync python scripts/check_stale_extensions.py
   crate in the repo, never a vacuous pass on zero crates discovered.
 - `docs/evidence/2026-07-27-stale-extension-gate.md` — full falsifier
   demonstration (FAIL on a reconstructed staleness, PASS after a real
-  rebuild) plus the `uv run` auto-sync finding in detail.
+  rebuild) plus the `uv run` auto-sync finding and the third,
+  content-addressed-cache reversion in detail.
+- `docs/evidence/2026-07-27-stale-extension-first-run.md` — the gate's
+  first run against a clean tree: 7 of 10 crates stale, including
+  `temper_rust_router` at 28.2 days on the routing hot path, and what that
+  called into question about the same day's own routing measurements.
 - `scripts/check_rust_drc_presence.py` — the narrower, symbol-diff
   precursor gate for `temper_drc_rs` specifically (2026-07-26), which
   established the `TEMPER_REQUIRE_*`-env-var optional/required convention

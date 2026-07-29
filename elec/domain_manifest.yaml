@@ -111,6 +111,16 @@ domains:
                              # already being HV. See
                              # 2026-07-27-domain-classification-coverage.md
                              # for why this was previously unclassified.
+                             # REVERTED 2026-07-28 to this single-NC-contact
+                             # form (docs/evidence/
+                             # 2026-07-28-relay-board-resync-decision.md): a
+                             # same-day DPDT relay swap (Finder 40.52) briefly
+                             # renamed this to -nc1/-nc2/-com1/-no1/-no2 (both
+                             # poles), then was retracted after the swap's
+                             # own creepage justification was found invalid
+                             # (docs/evidence/2026-07-28-pd3-retarget-relay.md)
+                             # -- see elec/src/modules.ato's BusDischarge
+                             # docstring for the full trail.
       - discharge.k_dis2-nc  # same reasoning, discharge.k_dis2's "contacts"
                              # group (below).
       - hb.power_loop.q_high-g  # ADDED 2026-07-27 (docs/evidence/
@@ -158,8 +168,26 @@ domains:
                              # primary-side, GNDI-referenced, correctly
                              # left off this list; see components.ato:43-60
                              # for the full primary/secondary pin split).
-      - power_in.ntc-no      # ADDED 2026-07-27, same evidence doc. The
-                             # bypass relay's own NO contact, wired
+      - power_in.ntc-no      # ADDED 2026-07-27, same evidence doc. RENAMED
+                             # 2026-07-28 to bare `"no"` during the (now-
+                             # reverted) Finder 40.52 K2/K3 swap, on the
+                             # claim that this was an "unrelated pre-
+                             # existing stale entry" -- that claim was
+                             # WRONG, found while reverting that swap
+                             # (docs/evidence/
+                             # 2026-07-28-relay-board-resync-decision.md):
+                             # atopile's net auto-namer collapses this net's
+                             # name to the bare pin name `no` only when
+                             # bypass_relay.NO is the ONLY signal in the
+                             # whole design literally named `NO` -- true
+                             # under Relay_DPDT (whose unconnected pins are
+                             # `NO1`/`NO2`), false under Relay_SPDT (whose
+                             # k_dis1.NO/k_dis2.NO collide with it), which is
+                             # why this net reverts to the longer,
+                             # instance-qualified `power_in.ntc-no` name
+                             # here. Genuinely coupled to the relay type,
+                             # not independent -- reverted alongside it.
+                             # The bypass relay's own NO contact, wired
                              # directly to the NTC inrush limiter's p2 pin
                              # and the bridge rectifier's anode (modules.ato:
                              # 700-704: `cmc.W1_2 ~ ntc.p1`, `ntc.p2 ~
@@ -193,7 +221,11 @@ domains:
       - tank.c_tank1-p2      # ADDED 2026-07-27, same evidence doc. Same
                              # ResonantTank module: `c_tank1.p2 ~
                              # inductor_conn.p1`, `c_tank2.p2 ~
-                             # inductor_conn.p1` (modules.ato:469-470) --
+                             # inductor_conn.p1`, and as of 2026-07-29
+                             # `c_tank3.p2 ~ inductor_conn.p1` (the tank
+                             # bank went 2 x 150nF -> 3 x 100nF; same
+                             # 300nF total, same two nets, one more
+                             # component on each) --
                              # this is the SAME net as `tank.inductor_
                              # conn`'s own p1 pin (R30, the Litz-coil
                              # interface connector), one node of the
@@ -364,6 +396,14 @@ isolators:
       "4": "COM (mains contact)"
 
   - instance_path: discharge.k_dis1
+    # REVERTED 2026-07-28: a same-day Finder 40.52.7.012.0000 (Relay_DPDT)
+    # swap for this instance (docs/evidence/
+    # 2026-07-28-relay-replacement-implementation.md) was retracted after
+    # its own creepage justification was found invalid
+    # (docs/evidence/2026-07-28-pd3-retarget-relay.md,
+    # docs/evidence/2026-07-28-relay-board-resync-decision.md). Back to
+    # Omron G5LE-1 (Relay_SPDT) -- NOT a fix, this part's own isolation
+    # gap is unresolved, see elec/src/modules.ato BusDischarge docstring.
     component: "Omron G5LE-1 DC12 (Relay_SPDT), discharge relay 1"
     groups:
       coil: ["2", "5"]           # coil1, coil2
@@ -374,6 +414,7 @@ isolators:
       "1": "COM (HV bus contact)"
 
   - instance_path: discharge.k_dis2
+    # REVERTED 2026-07-28 -- see discharge.k_dis1 above.
     component: "Omron G5LE-1 DC12 (Relay_SPDT), discharge relay 2"
     groups:
       coil: ["2", "5"]

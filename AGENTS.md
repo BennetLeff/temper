@@ -208,6 +208,45 @@ built (this bit a session in practice before this target existed).
 After `make extensions`, `uv run --no-sync python
 scripts/check_stale_extensions.py` should report 0 STALE.
 
+### Worktree `.venv`: shared vs. isolated
+
+Multiple agent worktrees historically pointed `UV_PROJECT_ENVIRONMENT` at
+the main checkout's already-synced `.venv` to save disk/build time. This
+was the dominant infrastructure cost in this repo on 2026-07-28 (see
+`docs/solutions/best-practices/shared-mutable-state-dominant-cost-multi-agent-repo-2026-07-28.md`):
+a concurrent session's `uv sync` (or a bare `uv run`'s implicit auto-sync)
+can silently revert an extension a *different* worktree just built, and
+`check_stale_extensions.py`'s old mtime comparison false-positived on
+every fresh `git checkout -b` regardless of real staleness.
+
+Two independent fixes, addressing two independent hazards:
+
+1. **The gate no longer trusts mtimes when a build stamp is present.**
+   `scripts/write_extension_stamps.py` records a content-hash of each
+   crate's sources beside its installed `.so`; `check_stale_extensions.py`
+   compares against that first and only falls back to mtime when no stamp
+   exists. This makes a *shared* `.venv` safe against the checkout-mtime
+   false positive — it does **not** protect against a concurrent session's
+   build genuinely evicting yours; that is a different failure mode (see
+   `scripts/_lib/freshness.py`, and
+   `docs/solutions/best-practices/green-rust-tests-are-not-evidence-the-extension-was-rebuilt-2026-07-27.md`).
+2. **`make venv-isolate` gives a worktree its own `.venv`**, immune to
+   *any* other checkout's `uv sync`/`uv run`, at a measured cost of
+   ~700 MB disk and ~85s wall time with a warm `uv`/cargo cache (the
+   shared `target-shared` Cargo build directory from `.cargo/config.toml`
+   means the Rust half compiles incrementally even into a brand-new venv
+   — see `docs/evidence/2026-07-28-worktree-env-isolation.md` for the
+   measurement). Run it once, at the start of any session that will build
+   or test Rust extensions.
+
+**This is not the default for every worktree unconditionally.** At fleet
+scale (dozens of agent worktrees existing at once, low double-digit GB
+free) giving every one its own copy regardless of whether it does active
+build/test work is the same disk-multiplication hazard that has already
+exhausted disk twice. Isolate the worktrees that are actually building or
+testing Rust extensions; rely on the content-hash gate (unconditional,
+zero downside) everywhere else.
+
 ## Documentation & Context Maintenance
 
 **Critical Rules for AI Agents:**

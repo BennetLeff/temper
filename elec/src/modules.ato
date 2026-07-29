@@ -442,59 +442,100 @@ module ResonantTank:
     signal in
     signal out
     
-    # MPN AND FOOTPRINT CORRECTED 2026-07-28 (docs/evidence/
-    # 2026-07-28-tank-cap-and-isolator-footprints.md). The value below,
-    # 150nF each / 300nF in parallel, is UNCHANGED and is the value the
-    # whole resonant design is built on -- it was the MPN and the land
-    # pattern that disagreed with it, by 10x.
+    # TANK CAPACITOR RE-SOURCED 2026-07-29 (docs/evidence/
+    # 2026-07-29-tank-cap-cde-942c-verification.md). The bank total,
+    # 300nF, is UNCHANGED -- it is the value the whole resonant design is
+    # built on and is hard-coded as C_TANK_F = 300e-9 in both simulation
+    # harnesses. What changed is the part and the topology: 2 x 150nF
+    # WIMA FKP 1 -> 3 x 100nF Cornell Dubilier 942C. 3 x 0.10uF = 0.300uF
+    # exactly, so the committed value survives the swap unmodified.
     #
-    # Was: mpn = "FKP1U021507E00JSSD" on a P27.50mm/L31.5mm land.
-    #   WIMA's FKP 1 datasheet (rev. 03.26, https://www.wima.de/wp-content/
-    #   uploads/media/e_WIMA_FKP_1.pdf) and its 18-digit part-number system
-    #   (p.136) decode that string as fields "FKP1" | "U0" = 2000 VDC |
-    #   "2150" = 0.015 uF | size "7E" | "00JSSD". That is 15nF at 2000V --
-    #   a tenth of the declared value at the wrong voltage. Worse, the
-    #   2000 VDC table has no 0.015 uF row in a size-7 (PCM 37.5) case at
-    #   all: its only 0.015 uF row is FKP1U021506D (13 x 24 x 31.5, PCM
-    #   27.5). The old land pattern, C_Rect_L31.5mm_W13.0mm_P27.50mm, is
-    #   exactly that 6D case -- i.e. the board was drawn for the
-    #   mis-decoded part, not for the declared 150nF.
+    # Was: 2 x FKP1T031507G00JSSD (WIMA FKP 1, 0.15uF/1600VDC, PCM 37.5).
+    #   Correct value, correct voltage, correct land pattern -- and about
+    #   2x over its permissible AC current at 47 kHz. Established in
+    #   docs/evidence/2026-07-28-reference-appliance-and-cap-rating.md:
+    #   WIMA publishes permissible current only as curves and publishes
+    #   NO curve for this part; the bracketing published curves give
+    #   4.0-6.2 A and two independent interpolations both land at ~5.2 A,
+    #   against 10.37 A required per capacitor. The whole bracket is
+    #   below the requirement. Worse, that curve is a 15 K *internal*
+    #   rise with no ambient allowance, footnoted "for ordinary assembly
+    #   and ventilation conditions avoiding radiant heat within the
+    #   chassis" -- which is not a part beside an IGBT half-bridge. The
+    #   failure mode is thermal, not dielectric: FKP 1 in this case size
+    #   is a *pulse* capacitor and this is continuous HF duty.
     #
-    # Now: FKP1T031507G00JSSD, read off WIMA's own 1600 VDC ordering table
-    #   (same datasheet, continuation page 67): "0.15 uF | W 20 | H 39.5 |
-    #   L 41.5 | PCM 37.5 | FKP1T031507G_ _ _ _ _ _". The six trailing
-    #   digits are the datasheet's "Part number completion" box and are
-    #   carried over UNCHANGED from the previous declaration: 00 = 2-pin
-    #   version, J = +/-5 % tolerance, S = bulk packing, SD = 6-2 pin
-    #   length. Rated voltage 1600 VDC now matches voltage_rating below
-    #   instead of contradicting it. Lead diameter is 1.0mm at PCM 37.5
-    #   (datasheet 2-pin mechanical table, continuation page 66).
-    #   Confirm stock/orderability at procurement; the base part number is
-    #   cited to the manufacturer table, not to a distributor listing.
+    # Now: 3 x 942C16P1K-F, read off Cornell Dubilier's own "Ratings and
+    #   Dimensions" TABLE -- not a chart -- in catalog 942C.pdf
+    #   (https://www.cde.com/resources/catalogs/942C.pdf), printed page 2,
+    #   1600 Vdc (460 Vac) block:
+    #     ".10 | 942C16P1K-F | D 22.5 | L 34.0 | d 1.0 | ESR 4 mOhm |
+    #      ESL 24 nH | dV/dt 3425 V/us | Ipeak 342 A | IRMS 70C/100kHz 11.4 A"
+    #   The same row appears in CDE's older PULSE-942C.pdf in inches.
+    #   The MPN is not pattern-matched: it is printed verbatim in that
+    #   table, it decodes cleanly under CDE's own published Part Numbering
+    #   System on the same page (942 | C = tinned copper wire | 16 =
+    #   1600 Vdc | P = "0." decimal point | 1 = significant figures |
+    #   K = +/-10% | -F = RoHS), and DigiKey lists it Active with stock
+    #   (https://www.digikey.com/en/products/detail/
+    #    cornell-dubilier-electronics-cde/942C16P1K-F/1929475).
     #
-    # BOARD REWORK REQUIRED, NOT DONE HERE: the case grows from
-    # 31.5 x 13.0mm (PCM 27.5) to 41.5 x 20.0mm (PCM 37.5), and 39.5mm
-    # tall. pcb/temper.kicad_pcb still carries the old 27.5mm-pitch land
-    # for C4/C5 and is deliberately untouched -- see the evidence doc for
-    # the neighbour analysis.
+    # THE NUMBER THAT MATTERS. 11.4 A is quoted at 100 kHz; this tank runs
+    #   at 47 kHz, so it must be transferred, not copied. Two independent
+    #   readings of CDE's own published curves agree on the transfer
+    #   factor: the constant-current asymptotes of the 942C/943C "RMS
+    #   Voltage vs Frequency" panels give I(47k)/I(100k) = 0.84 worst-case
+    #   over ten curves (1.00 on both 1600 Vdc curves), and CDE's generic
+    #   polypropylene DF-vs-frequency curve gives 0.845. Conservative
+    #   permissible current at 47 kHz: 9.5 A per capacitor.
+    #   Required: 20.75 A tank / 3 = 6.92 A each -> 1.38x margin.
+    #   (At the 22.5 A stress point of the 88 uH coil candidate in
+    #   docs/evidence/2026-07-28-coil-selection-research.md: 7.50 A each,
+    #   1.27x.) Applied stress is far from every other rated axis:
+    #   234 Vrms / 331 V peak against 1600 Vdc, 98 V/us against 3425 V/us,
+    #   9.8 A peak against 342 A.
+    #
+    # TOLERANCE REGRESSION, DELIBERATELY NOT PAPERED OVER: the catalogue
+    #   942C tolerance is K = +/-10%, against the WIMA part's J = +/-5%.
+    #   Worst-case bank is 270-330nF instead of 285-315nF, i.e. resonant
+    #   frequency spread widens from +2.6/-2.4% to +5.4/-4.7%. CDE's
+    #   specification page offers "+/-5% (J) Optional", but no J part
+    #   number appears in any CDE catalogue table, so acquiring one is a
+    #   procurement conversation with CDE -- NOT an MPN to be constructed
+    #   by swapping the K. Flagged here for the PLL/ZVS-window owner.
+    #
+    # BOARD REWORK REQUIRED, NOT DONE HERE: three axial cans on a 40.00mm
+    # land pitch replace two 37.50mm-pitch boxes. Height DROPS from 39.5mm
+    # standing to 22.5mm lying down; footprint area GROWS from 2 x 830 to
+    # 3 x 968 mm^2. pcb/temper.kicad_pcb still carries two 37.5mm-pitch
+    # lands for C25/C26 and is deliberately untouched -- a separate
+    # placement pass owns re-placing this bank.
     c_tank1 = new Capacitor
-    c_tank1.value = 150nF
+    c_tank1.value = 100nF
     c_tank1.dielectric = "PP"
     c_tank1.voltage_rating = 1600V
-    c_tank1.mpn = "FKP1T031507G00JSSD"  # WIMA FKP 1, 0.15uF/1600VDC, PCM 37.5 -- datasheet rev. 03.26 ordering table
-    c_tank1.footprint = "Capacitor_THT:C_Rect_L41.5mm_W20.0mm_P37.50mm_MKS4"  # L41.5 x W20.0, pitch 37.5 -- matches the FKP1T031507G case exactly
+    c_tank1.mpn = "942C16P1K-F"  # CDE 942C, 0.10uF/1600VDC axial -- 942C.pdf p.2 ratings table, IRMS 11.4 A @ 70C/100kHz
+    c_tank1.footprint = "temper:C_Axial_L34.0mm_D22.5mm_P40.00mm_Horizontal"  # D22.5 x L34.0, lead d1.0 -- matches the 942C16P1K-F case exactly
 
     c_tank2 = new Capacitor
-    c_tank2.value = 150nF
+    c_tank2.value = 100nF
     c_tank2.dielectric = "PP"
     c_tank2.voltage_rating = 1600V
-    c_tank2.mpn = "FKP1T031507G00JSSD"  # same part as c_tank1; the two are in parallel for 300nF total
-    c_tank2.footprint = "Capacitor_THT:C_Rect_L41.5mm_W20.0mm_P37.50mm_MKS4"
+    c_tank2.mpn = "942C16P1K-F"  # same part as c_tank1
+    c_tank2.footprint = "temper:C_Axial_L34.0mm_D22.5mm_P40.00mm_Horizontal"
+
+    c_tank3 = new Capacitor
+    c_tank3.value = 100nF
+    c_tank3.dielectric = "PP"
+    c_tank3.voltage_rating = 1600V
+    c_tank3.mpn = "942C16P1K-F"  # same part as c_tank1; the three are in parallel for 300nF total
+    c_tank3.footprint = "temper:C_Axial_L34.0mm_D22.5mm_P40.00mm_Horizontal"
 
     v_tank_peak: voltage = 400V
     assert c_tank1.voltage_rating >= v_tank_peak * 1.43
     assert c_tank2.voltage_rating >= v_tank_peak * 1.43
-    
+    assert c_tank3.voltage_rating >= v_tank_peak * 1.43
+
     # THE RESONANT TANK COIL. Declared as an `Inductor` 2026-07-29
     # (docs/evidence/2026-07-29-tank-coil-specification.md); it was
     # `new Resistor` with no value until then, so the one component whose
@@ -583,8 +624,10 @@ module ResonantTank:
 
     in ~ c_tank1.p1
     in ~ c_tank2.p1
+    in ~ c_tank3.p1
     c_tank1.p2 ~ inductor_conn.p1
     c_tank2.p2 ~ inductor_conn.p1
+    c_tank3.p2 ~ inductor_conn.p1
     inductor_conn.p2 ~ out
 
 module PowerInput:
@@ -672,19 +715,30 @@ module PowerInput:
     # No.1/No.8, CQC GB/T14472-1998 (CQC001007-14859), per EPCOS's own
     # B32921...B32926 X2/305VAC datasheet, confirmed 2026-07-26.
     #
-    # FOOTPRINT CHANGE REQUIRED: the disc footprint below matched the old
-    # (fictional) disc-style part and does NOT fit the real MKP box-style
-    # replacement. New footprint needed, not yet drawn: 2-pin THT radial box,
-    # 15mm lead pitch, body envelope ~7.0(w) x 12.5(h) x 18.0(l) mm, 0.8mm
-    # lead diameter (EPCOS B32922 dimensional table, 15mm-pitch row). Do not
-    # fab until this footprint exists and has been checked in the KiCad
-    # footprint editor -- same caveat CT1/CST3015 already carries.
+    # FOOTPRINT FIXED (this change): the disc footprint below matched the old
+    # (fictional) disc-style part and did NOT fit the real MKP box-style
+    # replacement. Body envelope 18.0(L) x 7.0(W) x 12.5(H) mm, 15.00mm lead
+    # pitch -- confirmed directly against DigiKey's own product page for this
+    # exact MPN (Length 18.00mm / Width 7.00mm / Height 12.50mm / Lead Spacing
+    # 15.00mm, https://www.digikey.com/en/products/detail/epcos-tdk-electronics/B32922C3224M289/2504694),
+    # matching the EPCOS B32921...B32926 dimensional table row already cited
+    # above. Replaced with "Capacitor_THT:C_Rect_L18.0mm_W7.0mm_P15.00mm_FKS3_FKP3"
+    # -- confirmed to exist in the standard KiCad footprint library (present
+    # in this machine's installed KiCad footprint set at
+    # Capacitor_THT.pretty/C_Rect_L18.0mm_W7.0mm_P15.00mm_FKS3_FKP3.kicad_mod,
+    # and in the upstream kicad-footprints repo), whose own descr string
+    # ("length*width=18*7mm^2, pin pitch=15.00mm") matches this part's
+    # envelope and pitch exactly; two THT round pads (2.4mm pad / 1.2mm
+    # drill) at 0mm and 15mm, consistent with the part's 0.8mm lead diameter.
+    # Still not yet propagated into pcb/temper.kicad_pcb -- see the C6/U3
+    # resync precedent (docs/evidence/2026-07-29-board-regeneration-corrected-footprints.md);
+    # that PCB-side resync is out of scope for this change.
     c_x2 = new Capacitor
     c_x2.value = 0.22uF +/- 20%
     c_x2.dielectric = "X2"
     c_x2.voltage_rating = 310V
     c_x2.mpn = "B32922C3224M289"
-    c_x2.footprint = "Capacitor_THT:C_Disc_D10.0mm_W5.0mm_P5.00mm"  # TODO: wrong footprint, see comment above
+    c_x2.footprint = "Capacitor_THT:C_Rect_L18.0mm_W7.0mm_P15.00mm_FKS3_FKP3"
 
     # CMC: common-mode choke for conducted EMI suppression.
     # ONE physical 4-pin part (TDK B82726S2163N030) — previously modeled as
@@ -1011,6 +1065,63 @@ module BusDischarge:
     aux-supply fault, MCU dead) drops the coils and the NC contacts close
     -> discharge engages with no MCU involvement.
 
+    RELAY REPLACEMENT TRIED AND REVERTED 2026-07-28 -- READ BEFORE
+    TOUCHING K2/K3 AGAIN. K2/K3 are Omron G5LE-1 SPDT relays (Relay_SPDT,
+    single NC contact per relay), same as always. A same-day attempt to
+    replace them with Finder 40.52.7.012.0000 (Relay_DPDT, 2-pole) was
+    implemented, then RETRACTED after a follow-up measurement invalidated
+    its own stated justification. Full trail:
+    docs/evidence/2026-07-28-discharge-relay-isolation.md (candidate
+    search) -> docs/evidence/2026-07-28-relay-replacement-implementation.md
+    (adopted Finder, claimed 9.2mm edge-to-edge coil<->contact PCB
+    creepage, "clearing the 8.0mm target with 1.2mm margin") ->
+    docs/evidence/2026-07-28-pd3-retarget-relay.md (retraction: that
+    9.2mm figure was an INVENTED footprint layout, not measured from the
+    real part's fixed pinout; pixel-calibrating the manufacturer's own
+    catalog drawing gives a real, fixed 7.5mm coil-to-nearest-contact
+    center-to-center spacing, worth only 5.3mm edge-to-edge at realistic
+    pad sizing -- FAILS the then-current 8.0mm target by 2.7mm and the
+    later-established 12.6mm PD3 target by 7.3mm. No slot helps: the
+    relay's own one-piece moulded case sits over the entire coil-to-
+    contact pin field, the same failure mode already on record for the
+    G5LE-1 below) -> docs/evidence/2026-07-28-relay-board-resync-decision.md
+    (this decision: REVERTED rather than resynced the board to the
+    inadequate part -- see that doc for the full reasoning).
+
+    NET EFFECT OF THE REVERT: G5LE-1 is restored, unchanged from before
+    this excursion. This is NOT a fix -- the G5LE-1's own isolation gap
+    (below) is exactly as unresolved as it was before the Finder attempt.
+    The Finder part was not worse on isolation (5.3mm > 3.5mm edge-to-
+    edge, though both fail both targets) and was a genuine improvement on
+    DC-break disclosure (an explicit manufacturer DC1 graph vs. the
+    G5LE-1's total silence above 125VDC) -- but it did not satisfy this
+    project's own three-way bar (reinforced isolation AND rated DC break
+    AND fail-safe NC topology, all three) any more than the G5LE-1 does,
+    so swapping to it would not have made this circuit safety-compliant,
+    only differently non-compliant, while ALSO making the board/netlist
+    inconsistency the new "must fix eventually" instead of the isolation
+    gap itself. A real fix requires a DPDT or SPDT relay with reinforced
+    coil-to-contact isolation AND a rated DC break at 170-200V AND NC
+    fail-safe topology, with a coil-to-nearest-contact pin pitch of
+    roughly DOUBLE the Finder 40.52's 7.5mm (~14.4-14.8mm) so the PCB
+    surface path itself can clear 12.6mm without depending on any
+    internal-vs-external-path argument. No such part has been found and
+    verified as of this note -- do not resurrect Relay_DPDT/the Finder
+    40.52.7.012.0000 footprint for K2/K3 without first fetching and
+    citing a manufacturer datasheet proving that pitch (see
+    scripts/mpn_fabrication_gate.py's hard rule against unverified MPNs).
+    No `Relay_DPDT` component is defined in this design. It deliberately
+    does not exist: an instantiable definition of a part measured to fail
+    reinforced insulation is a trap whose only safeguard would be a human
+    reading a docstring first. The part is fully described instead in
+    docs/evidence/2026-07-28-pd3-retarget-relay.md (geometry, the 5.300mm
+    measurement, and the method), which is the record without the hazard.
+    Only pcb/libs/temper.pretty/Relay_DPDT_Finder-40.52.kicad_mod remains
+    in the tree -- an inert library footprint that nothing references, with
+    its geometry corrected to the real part in case a same-pitch-family
+    part is ever useful elsewhere, and flagged in its own descr as
+    inadequate for this role.
+
     Sizing (per half-bus), per docs/hardware/BUS_CAPACITANCE_DERIVATION.md
     SS5.3 and re-derived independently here with the resistor's OWN
     tolerance included (the derivation doc's own worst case did not):
@@ -1071,7 +1182,17 @@ module BusDischarge:
     # available (the existing bypass relay G4A-1A-E is NO-only).
     # VERIFIED 2026-07-16 (Omron G5LE catalog): contacts 10A / 250VAC,
     # NC contact rated 10A carry; 12VDC coil 360R / 33.3mA / 400mW;
-    # coil-contact dielectric 2000VAC, impulse 4.5kV.
+    # coil-contact dielectric 2000VAC, impulse 4.5kV. NOT REINFORCED
+    # ISOLATION -- see RELAY REPLACEMENT TRIED AND REVERTED above: this
+    # part fails the 8.0/12.6mm coil<->contact creepage requirement
+    # (3.50mm edge-to-edge measured) and has no DC contact-voltage rating
+    # at this circuit's actual 170-200V duty at all. A same-day attempt
+    # to replace it (Finder 40.52.7.012.0000) was tried and reverted --
+    # this is a KNOWN, TRACKED, UNRESOLVED gap, not a silently-dropped
+    # requirement. Do not re-introduce Relay_DPDT here without a
+    # manufacturer-verified part at ~14.4-14.8mm coil-to-contact pin
+    # pitch (see the note above and
+    # docs/evidence/2026-07-28-relay-board-resync-decision.md).
     k_dis1 = new Relay_SPDT
     k_dis1.coil_voltage = 12V
     k_dis1.contact_current = 10A

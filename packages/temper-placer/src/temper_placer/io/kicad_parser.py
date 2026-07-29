@@ -173,7 +173,7 @@ def extract_footprint_positions(content: str) -> dict[str, dict]:
     return positions
 
 
-def parse_kicad_pcb_v6(pcb_path: Path) -> ParsedPCB:
+def parse_kicad_pcb_v6(pcb_path: Path, *, use_declared_layer_roles: bool = False) -> ParsedPCB:
     """Parse KiCad PCB for Router V6 Stage 0.1: Load KiCad PCB File.
 
     Extracts complete ParsedPCB structure including:
@@ -183,6 +183,12 @@ def parse_kicad_pcb_v6(pcb_path: Path) -> ParsedPCB:
 
     Args:
         pcb_path: Path to .kicad_pcb file.
+        use_declared_layer_roles: Forwarded to ``_extract_stackup`` (R8,
+            default ``False`` -- today's zone-content-driven classification,
+            unchanged). See that function's docstring: this must not be set
+            to ``True`` in production before pours become derived output
+            (this plan's U3), or it reproduces the recorded 12x completion
+            regression in ``docs/evidence/2026-07-28-stackup-partial-revert.md``.
 
     Returns:
         ParsedPCB with all required data for Router V6.
@@ -204,7 +210,9 @@ def parse_kicad_pcb_v6(pcb_path: Path) -> ParsedPCB:
 
     design_rules = _extract_design_rules(ki_board, warnings, pcb_content)
 
-    stackup = _extract_stackup(ki_board, warnings)
+    stackup = _extract_stackup(
+        ki_board, warnings, use_declared_layer_roles=use_declared_layer_roles
+    )
 
     return ParsedPCB(
         components=legacy_result.netlist.components,
@@ -215,5 +223,6 @@ def parse_kicad_pcb_v6(pcb_path: Path) -> ParsedPCB:
         stackup=stackup,
         source_path=pcb_path,
         tracks=legacy_result.traces,
+        vias=legacy_result.vias,
         warnings=warnings,
     )

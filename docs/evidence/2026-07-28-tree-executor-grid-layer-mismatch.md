@@ -1,5 +1,7 @@
 # `KeyError: 'F.Cu'` — the tree executor picked a layer nobody built a grid for
 
+<!-- provenance: commit=65fc5df7cfee43eca1a3a6cfe1b81f235610aea2 dirty=true -->
+
 **Date:** 2026-07-28
 **Board:** `pcb/temper.kicad_pcb` (all-pad-tree + zone pours)
 **Fixes:** `terminal_tree_execution.py`, `_pipeline_route.py`, `_astar_reconstruct.py`

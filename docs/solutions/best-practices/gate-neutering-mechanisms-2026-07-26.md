@@ -160,6 +160,13 @@ coverage was not.
   mechanism 4's empty-collection vacuous truth — this one doesn't trip
   `check_vacuous_gates.py` at all, because nothing about the scan looks
   empty.
+- `docs/solutions/best-practices/a-rule-that-matches-nothing-reads-as-coverage-2026-07-28.md`
+  — a sixth mechanism, found two days later: the rule is wired in, invoked,
+  and its own aggregation is sound, but its *condition* (a dynamic-property
+  argument to a geometry function; a comparison on an unregistered property
+  name) never binds, on any board, at any threshold. Distinct from all five
+  above — none of them inspect whether a condition's argument is actually
+  consulted by the function it's passed to.
 - `docs/solutions/best-practices/claimed-isolation-vs-actual-connectivity-2026-07-26.md`
   — the hardware-side instance of the same shape: netlist/BOM/ERC all green,
   none of them able to catch an isolation barrier shorted by a star-point

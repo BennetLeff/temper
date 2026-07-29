@@ -39,9 +39,10 @@ declared in ``elec/src/*.ato``:
      Murata/Kemet 3-digit-EIA-coded MLCCs, Vishay AC/AC-AT/AC-NI cemented
      wirewound, TDK/EPCOS B32xxx/B81xxx film and EMI-suppression capacitors,
      Murata BLM/BLA chip ferrite beads, Nippon Chemi-Con 18-field aluminium
-     electrolytic/polymer capacitors, WIMA FKP 1 pulse capacitors, Yageo RT
-     thin-film resistors, Vishay VY1 ceramic disc safety capacitors and
-     Vishay WSLP Power Metal Strip shunts.
+     electrolytic/polymer capacitors, WIMA FKP 1 pulse capacitors, Cornell
+     Dubilier (Knowles) Type 942C polypropylene pulse/snubber capacitors,
+     Yageo RT thin-film resistors, Vishay VY1 ceramic disc safety capacitors
+     and Vishay WSLP Power Metal Strip shunts.
 
 WHAT CHECK 2 IS NOT: it is a *consistency* check, not an *existence* check.
 A well-formed MPN for a part that no manufacturer ever built will decode
@@ -455,6 +456,17 @@ WIMA_FKP1_VOLTAGE = {
     "T": "1600 VDC", "U": "2000 VDC", "X": "4000 VDC", "Y": "6000 VDC",
 }
 
+# Cornell Dubilier (Knowles) Type 942C VOLTAGE CODE field, transcribed from the
+# "Part Numbering System" diagram on printed page 2 of CDE catalog 942C.pdf.
+# The block headings in the same document's ratings table repeat each code's
+# AC counterpart, kept here because it is the figure a reader is most likely to
+# reach for by mistake -- it is a 60 Hz rating, not an HF one.
+CDE_942C_VOLTAGE = {
+    "6": "600 Vdc (300 Vac, 60 Hz)", "8": "850 Vdc (360 Vac, 60 Hz)",
+    "10": "1000 Vdc (400 Vac, 60 Hz)", "12": "1200 Vdc (430 Vac, 60 Hz)",
+    "16": "1600 Vdc (460 Vac, 60 Hz)", "20": "2000 Vdc (500 Vac, 60 Hz)",
+}
+
 # Vishay AC/AC-AT/AC-NI resistance multiplier digit (the 4th digit of the
 # 4-digit VALUE field). Note the negative powers -- "1509" is 15 ohm, not
 # 150 x 10^9 -- which is why this family cannot be guessed.
@@ -676,6 +688,73 @@ def _dec_wima_fkp1(m: re.Match) -> Decoded | None:
     return Decoded(val * 1e-12, "C", None, f"WIMA FKP1 ({m.group('volt')} = {voltage})")
 
 
+def _dec_cde_942c(m: re.Match) -> Decoded | None:
+    """Cornell Dubilier (Knowles) Type 942C polypropylene pulse/snubber
+    capacitors, axial leaded.
+
+    Source: CDE, "Type 942, Polypropylene Capacitors, for High Pulse,
+    Snubber", catalog 942C.pdf -- https://www.cde.com/resources/catalogs/942C.pdf
+    -- printed page 2, the "Part Numbering System" diagram, read together with
+    the "Ratings" tables on printed pages 2-3. The same rows (without the
+    RoHS "-F" suffix) appear in CDE's older sheet PULSE-942C.pdf.
+
+    Layout, verbatim field names from the diagram:
+      942 | Termination Code | Voltage Code | Capacitance Decimal Point |
+      Significant Figures uF | Tolerance Code | RoHS Compliant Indicator
+
+      Termination Code:  C = Tinned Copper Wire, F = Insulated Stranded Wire,
+                         H = Copper Lugs
+      Voltage Code:      6 = 600 Vdc, 8 = 850, 10 = 1000, 12 = 1200,
+                         16 = 1600, 20 = 2000 Vdc
+      Decimal Point:     S = "0.0", P = "0.", W = "No decimal point"
+      Tolerance Code:    K = +/-10%, J = +/-5%
+
+    CAPACITANCE. The decimal-point letter is prefixed to the significant
+    figures and the result read as microfarads. Worked against CDE's own
+    ratings rows, covering all three decimal-point letters:
+      942C16S22K-F = 0.0 + "22"  = 0.022 uF   (its listed capacitance)
+      942C20S1K-F  = 0.0 + "1"   = 0.01 uF
+      942C16P1K-F  = 0.  + "1"   = 0.10 uF
+      942C12P9K-F  = 0.  + "9"   = 0.90 uF
+      942C6W1K-F   =       "1"   = 1.00 uF
+    In the W (no-decimal-point) rows the significant-figures field may itself
+    carry an embedded "P" as its decimal point, which the same table fixes:
+      942C8W1P5K-F = "1P5" = 1.50 uF;  942C6W2P5K-F = "2P5" = 2.50 uF;
+      942C10W1P4K-F = "1P4" = 1.40 uF.
+    That embedded-P convention is only ever seen after W in the published
+    rows, so it is accepted only there -- "P1P5" is not a shape CDE prints.
+
+    DECODED: series, termination code, voltage code, decimal-point letter +
+    significant figures, tolerance letter. DELIBERATELY IGNORED: nothing --
+    every field in CDE's diagram is consumed by the regex, so a well-formed
+    942C number cannot slip through with an unparsed tail.
+
+    Note this is a *consistency* decoder like every other family here. It says
+    the string's own encoding agrees with the declared value; it does not say
+    CDE builds it. 942C16P1K-F was separately confirmed to exist as a printed
+    row in CDE's ratings table AND as an Active, in-stock DigiKey line item
+    (https://www.digikey.com/en/products/detail/cornell-dubilier-electronics-cde/942C16P1K-F/1929475)
+    before this decoder was written -- the scheme was transcribed from CDE's
+    diagram, never inferred from the MPN it is about to check."""
+    dp, sig = m.group("dp"), m.group("sig")
+    if dp == "W":
+        text = sig.replace("P", ".", 1) if sig.count("P") <= 1 else None
+    elif "P" in sig:
+        text = None          # embedded decimal point is a W-only convention
+    else:
+        text = ("0.0" if dp == "S" else "0.") + sig
+    if not text:
+        return None
+    try:
+        val_uf = float(text)
+    except ValueError:
+        return None
+    if val_uf <= 0:
+        return None
+    voltage = CDE_942C_VOLTAGE[m.group("volt")]
+    return Decoded(val_uf * 1e-6, "C", None, f"CDE 942C ({m.group('volt')} = {voltage})")
+
+
 def _dec_yageo_rt(m: re.Match) -> Decoded | None:
     """Yageo RT series thin-film chip resistors.
 
@@ -860,6 +939,16 @@ FAMILIES: list[tuple[str, re.Pattern[str], Callable[[re.Match[str]], Decoded | N
         ),
         _dec_wima_fkp1,
         "decade-group digit {group!r} + significant figures {sig!r} did not parse",
+    ),
+    (
+        "CDE 942C polypropylene pulse",
+        re.compile(
+            r"^942(?P<term>[CFH])(?P<volt>10|12|16|20|6|8)(?P<dp>[SPW])"
+            r"(?P<sig>[0-9P]{1,4})(?P<tol>[KJ])(?:-F)?$"
+        ),
+        _dec_cde_942c,
+        "decimal-point letter {dp!r} + significant figures {sig!r} did not "
+        "parse as a published microfarad capacitance code",
     ),
     (
         "Yageo RT thin film",
