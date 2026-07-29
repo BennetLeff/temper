@@ -2,7 +2,7 @@
 	(version 20260206)
 	(generator "kicad-footprint-generator")
 	(layer "F.Cu")
-	(descr "TI UCC21550BDWK, 14-pin DWK package (SLUSE89C, Aug 2024). Table 13.1 of the datasheet confirms DWK shares the same land pattern envelope/pitch as the 16-pin DW package (both use the DW0016B SOIC-16W 7.5x10.3mm 1.27mm-pitch outline; reel/tape dimensions in the same table are otherwise identical). DWK is fabricated on the same 16-lead frame with 2 leads omitted at physical positions 12 and 13 for isolation creepage/clearance -- confirmed against the Pin Configuration diagram (Section 4), which lists DWK pin numbers as 1-11 then 14-16, skipping 12/13 entirely (no NC pin at those numbers -- they simply don't exist on this package). This footprint is the real Package_SO:SOIC-16W_7.5x10.3mm_P1.27mm.kicad_mod land pattern with pads 12 and 13 deleted; all 14 remaining pad positions/sizes are untouched from that verified real footprint. The 3D model reference below is the 16-pin DW step file kept as a visual approximation (it will render 2 phantom leads at the omitted positions) -- no DWK-specific step model was available in the fetched datasheet.")
+	(descr "TI UCC21550BDWK, 14-pin DWK package, on TI's HV / ISOLATION OPTION land pattern (SLUSE89C, Aug 2024; land-pattern drawing 4224374/A). SLUSE89C publishes TWO land patterns side by side for DWK0014A: 'IPC-7351 NOMINAL' (14X 2mm x 0.6mm pads on a 9.3mm centre span, stated 7.3 mm CLEARANCE/CREEPAGE) and 'HV / ISOLATION OPTION' (14X 1.65mm x 0.6mm pads on a 9.75mm centre span, stated 8.1 mm CLEARANCE/CREEPAGE); both use 11X 1.27mm pitch. THIS FOOTPRINT IS THE HV / ISOLATION OPTION. It was previously the IPC-7351 nominal geometry (KiCad Package_SO:SOIC-16W_7.5x10.3mm_P1.27mm with pads 12/13 deleted), which measured 9.30 - 1.025 - 1.025 = 7.250mm of HV-to-SELV copper separation and so threw away ~0.85mm of the part's own >8mm external clearance and creepage (SLUSE89C section 5.6, CLR and CPG), against the 8.0mm MIN_BARRIER_WIDTH_MM enforced by scripts/check_isolation_keepout.py. SLUSE89C footnote (1) to the Insulation Specifications table states the requirement directly: 'Care should be taken to maintain the creepage and clearance distance of a board design to ensure that the mounting pads of the isolator on the printed-circuit board do not reduce this distance.' On this land the same measurement is 9.75 - 0.825 - 0.825 = 8.100mm. CHANGED 2026-07-28: pad size 2.05x0.6 -> 1.65x0.6, pad row centres +/-4.65 -> +/-4.875, courtyard X +/-5.93 -> +/-5.95, pin-1 silk marker moved with pad 1. Pad Y positions, pitch, numbering (1-11, 14-16), body silk and F.Fab outline are unchanged. DWK is fabricated on the same 16-lead frame with 2 leads omitted at physical positions 12 and 13 -- per SLUSE89C's absolute-maximum table that omission buys channel-A-to-channel-B isolation (|VSSA-VSSB| in DWK = 1850 V), NOT primary-to-secondary creepage, which is what the land pattern above governs. The Pin Configuration diagram (Section 4, Figure 4-2) lists DWK pin numbers as 1-11 then 14-16, skipping 12/13 entirely. The 3D model reference below is the 16-pin DW step file kept as a visual approximation (it will render 2 phantom leads at the omitted positions) -- no DWK-specific step model was available in the fetched datasheet.")
 	(tags "SOIC SO DWK UCC21550")
 	(property "Reference" "REF**"
 		(at 0 -6.1 0)
@@ -93,9 +93,9 @@
 	)
 	(fp_poly
 		(pts
-			(xy -4.65 -5.01)
-			(xy -4.99 -5.48)
-			(xy -4.31 -5.48)
+			(xy -4.875 -5.01)
+			(xy -5.215 -5.48)
+			(xy -4.535 -5.48)
 		)
 		(stroke
 			(width 0.12)
@@ -105,7 +105,7 @@
 		(layer "F.SilkS")
 	)
 	(fp_line
-		(start -5.93 -5)
+		(start -5.95 -5)
 		(end -4 -5)
 		(stroke
 			(width 0.05)
@@ -114,8 +114,8 @@
 		(layer "F.CrtYd")
 	)
 	(fp_line
-		(start -5.93 5)
-		(end -5.93 -5)
+		(start -5.95 5)
+		(end -5.95 -5)
 		(stroke
 			(width 0.05)
 			(type solid)
@@ -142,7 +142,7 @@
 	)
 	(fp_line
 		(start -4 5)
-		(end -5.93 5)
+		(end -5.95 5)
 		(stroke
 			(width 0.05)
 			(type solid)
@@ -169,7 +169,7 @@
 	)
 	(fp_line
 		(start 4 -5)
-		(end 5.93 -5)
+		(end 5.95 -5)
 		(stroke
 			(width 0.05)
 			(type solid)
@@ -195,8 +195,8 @@
 		(layer "F.CrtYd")
 	)
 	(fp_line
-		(start 5.93 -5)
-		(end 5.93 5)
+		(start 5.95 -5)
+		(end 5.95 5)
 		(stroke
 			(width 0.05)
 			(type solid)
@@ -204,7 +204,7 @@
 		(layer "F.CrtYd")
 	)
 	(fp_line
-		(start 5.93 5)
+		(start 5.95 5)
 		(end 4 5)
 		(stroke
 			(width 0.05)
@@ -238,86 +238,86 @@
 		)
 	)
 	(pad "1" smd roundrect
-		(at -4.65 -4.445)
-		(size 2.05 0.6)
+		(at -4.875 -4.445)
+		(size 1.65 0.6)
 		(layers "F.Cu" "F.Mask" "F.Paste")
 		(roundrect_rratio 0.25)
 	)
 	(pad "2" smd roundrect
-		(at -4.65 -3.175)
-		(size 2.05 0.6)
+		(at -4.875 -3.175)
+		(size 1.65 0.6)
 		(layers "F.Cu" "F.Mask" "F.Paste")
 		(roundrect_rratio 0.25)
 	)
 	(pad "3" smd roundrect
-		(at -4.65 -1.905)
-		(size 2.05 0.6)
+		(at -4.875 -1.905)
+		(size 1.65 0.6)
 		(layers "F.Cu" "F.Mask" "F.Paste")
 		(roundrect_rratio 0.25)
 	)
 	(pad "4" smd roundrect
-		(at -4.65 -0.635)
-		(size 2.05 0.6)
+		(at -4.875 -0.635)
+		(size 1.65 0.6)
 		(layers "F.Cu" "F.Mask" "F.Paste")
 		(roundrect_rratio 0.25)
 	)
 	(pad "5" smd roundrect
-		(at -4.65 0.635)
-		(size 2.05 0.6)
+		(at -4.875 0.635)
+		(size 1.65 0.6)
 		(layers "F.Cu" "F.Mask" "F.Paste")
 		(roundrect_rratio 0.25)
 	)
 	(pad "6" smd roundrect
-		(at -4.65 1.905)
-		(size 2.05 0.6)
+		(at -4.875 1.905)
+		(size 1.65 0.6)
 		(layers "F.Cu" "F.Mask" "F.Paste")
 		(roundrect_rratio 0.25)
 	)
 	(pad "7" smd roundrect
-		(at -4.65 3.175)
-		(size 2.05 0.6)
+		(at -4.875 3.175)
+		(size 1.65 0.6)
 		(layers "F.Cu" "F.Mask" "F.Paste")
 		(roundrect_rratio 0.25)
 	)
 	(pad "8" smd roundrect
-		(at -4.65 4.445)
-		(size 2.05 0.6)
+		(at -4.875 4.445)
+		(size 1.65 0.6)
 		(layers "F.Cu" "F.Mask" "F.Paste")
 		(roundrect_rratio 0.25)
 	)
 	(pad "9" smd roundrect
-		(at 4.65 4.445)
-		(size 2.05 0.6)
+		(at 4.875 4.445)
+		(size 1.65 0.6)
 		(layers "F.Cu" "F.Mask" "F.Paste")
 		(roundrect_rratio 0.25)
 	)
 	(pad "10" smd roundrect
-		(at 4.65 3.175)
-		(size 2.05 0.6)
+		(at 4.875 3.175)
+		(size 1.65 0.6)
 		(layers "F.Cu" "F.Mask" "F.Paste")
 		(roundrect_rratio 0.25)
 	)
 	(pad "11" smd roundrect
-		(at 4.65 1.905)
-		(size 2.05 0.6)
+		(at 4.875 1.905)
+		(size 1.65 0.6)
 		(layers "F.Cu" "F.Mask" "F.Paste")
 		(roundrect_rratio 0.25)
 	)
 	(pad "14" smd roundrect
-		(at 4.65 -1.905)
-		(size 2.05 0.6)
+		(at 4.875 -1.905)
+		(size 1.65 0.6)
 		(layers "F.Cu" "F.Mask" "F.Paste")
 		(roundrect_rratio 0.25)
 	)
 	(pad "15" smd roundrect
-		(at 4.65 -3.175)
-		(size 2.05 0.6)
+		(at 4.875 -3.175)
+		(size 1.65 0.6)
 		(layers "F.Cu" "F.Mask" "F.Paste")
 		(roundrect_rratio 0.25)
 	)
 	(pad "16" smd roundrect
-		(at 4.65 -4.445)
-		(size 2.05 0.6)
+		(at 4.875 -4.445)
+		(size 1.65 0.6)
 		(layers "F.Cu" "F.Mask" "F.Paste")
 		(roundrect_rratio 0.25)
 	)

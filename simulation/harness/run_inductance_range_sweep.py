@@ -83,12 +83,16 @@ F_SW_COMMITTED_HZ = base.F_SWITCHING_NOMINAL_HZ  # 47kHz, main.ato:91
 PAN_PRESETS_BY_NAME = {n: (k, r, l2, s) for n, k, r, l2, s in base.PAN_PRESETS}
 
 # Tank-capacitor part rating -- committed part per elec/src/modules.ato
-# (c_tank1/c_tank2, FKP1U021507E00JSSD, both lines declare
+# (c_tank1/c_tank2, FKP1T031507G00JSSD as of 2026-07-28 -- was
+# FKP1U021507E00JSSD, which decoded to 0.015uF/2000V, a 10x value error
+# against the declared 150nF; see docs/evidence/2026-07-28-tank-cap-and-
+# isolator-footprints.md. The 1600V figure below is unchanged, and is now
+# the part's actual rating rather than contradicting it -- both lines declare
 # `voltage_rating = 1600V`; modules.ato also declares a design intent
 # `v_tank_peak = 400V` with `assert c_tank1.voltage_rating >= v_tank_peak
 # * 1.43` i.e. a committed 572V design floor against a 1600V-rated part).
 # Quoted here only for the margin comparison printed in the evidence JSON.
-C_TANK_RATED_V = 1600.0  # elec/src/modules.ato:448/455 c_tank1/c_tank2.voltage_rating
+C_TANK_RATED_V = 1600.0  # elec/src/modules.ato:483/490 c_tank1/c_tank2.voltage_rating
 
 
 def run_one_point(l_uh: float, pan_name: str, f_sw_hz: float, base_text: str) -> dict:

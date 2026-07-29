@@ -511,15 +511,44 @@ component H11L1:
     threshold current <=1.6mA -- the tightest/most sensitive of the three,
     and the grade named by the pre-existing TODO.
 
-    MPN below is the bare, second-sourced industry part number -- Vishay,
-    onsemi, and Everlight all manufacture pin-compatible H11L1 devices per
-    their respective datasheets found during the same search. Confirm the
-    exact manufacturer and orderable suffix (through-hole vs SMD, temp
-    grade) at procurement; not done here."""
+    LEAD FORM AND ORDERABLE SUFFIX RESOLVED 2026-07-28 (docs/evidence/
+    2026-07-28-tank-cap-and-isolator-footprints.md). This was previously the
+    bare family string "H11L1" on a 300-mil DIP-6 land, with an explicit
+    "confirm the orderable suffix at procurement; not done here" note. It is
+    now confirmed, and the lead form changed -- SAME PINOUT, SAME GRADE,
+    wider lead span, but note the manufacturer is now onsemi rather than the
+    Everlight part the paragraph above was verified against (the two are
+    pin- and function-compatible members of the same industry family; the
+    UL/VDE file numbers above are Everlight's, onsemi's are UL E90700 vol.2
+    and VDE #102497 per the H11LxM datasheet Features section):
+      - The H11L1M/H11L2M/H11L3M datasheet (Fairchild/onsemi, rev. 1.0.0)
+        ordering table defines the lead-form suffixes: `T` = 0.4" lead
+        spacing, `V` = VDE 0884, `TV` = both. Its package drawing gives the
+        wide form's lead span as 0.400 (10.16) / 0.425 (10.80) in/mm.
+      - onsemi H11L1TVM, DigiKey 401266 (fetched 2026-07-28): Active,
+        1,701 in stock + 6,000 factory stock, package "6-DIP (0.400\",
+        10.16mm)", isolation 4170 Vrms, supply 3V-15V, open-collector
+        output. L1 grade (<=1.6mA turn-on threshold) preserved.
+    Why the wider lead form: on Package_DIP:DIP-6_W7.62mm the LED anode
+    (pin 1, HV) and the ZCD output (pin 4, SELV) are 7.62mm centre-to-centre
+    with 1.6mm pads = 6.020mm of copper-to-copper separation, against the
+    8.0mm MIN_BARRIER_WIDTH_MM in scripts/check_isolation_keepout.py. On
+    DIP-6_W10.16mm the same pads give 10.16 - 0.8 - 0.8 = 8.560mm. Note the
+    SMD (`S`) lead forms are the WRONG direction here -- gullwing pads
+    extend inboard under the body and would shrink the gap.
+
+    STILL OPEN (flagged, not resolved): the datasheet publishes V_ISO and a
+    VDE 0884 file number but NO creepage/clearance figure for the package,
+    and the body is only ~6.1-6.6mm wide, so creepage over the body surface
+    is materially less than 10.16mm. Whether this device is certified for
+    REINFORCED insulation at this crossing's working voltage is a separate
+    question from the board geometry fixed here."""
     designator_prefix = "U"
-    footprint = "Package_DIP:DIP-6_W7.62mm"
-    mpn = "H11L1"
-    manufacturer = "Everlight (or pin-compatible Vishay/onsemi H11L1)"
+    # 0.4"/10.16mm lead form -- see the lead-form paragraph above. Was
+    # DIP-6_W7.62mm (6.020mm HV<->SELV pad separation, under the 8.0mm gate).
+    footprint = "Package_DIP:DIP-6_W10.16mm"
+    mpn = "H11L1TVM"  # onsemi; TV = VDE 0884 + 0.4" lead spacing (H11LxM datasheet ordering table); DigiKey 401266, Active
+    manufacturer = "onsemi"
 
     signal A ~ pin 1    # LED anode -- HV side
     signal K ~ pin 2    # LED cathode -- HV side
