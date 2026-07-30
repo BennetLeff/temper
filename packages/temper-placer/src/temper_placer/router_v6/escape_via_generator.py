@@ -12,6 +12,7 @@ from dataclasses import dataclass
 
 from temper_placer.core.netlist import Component
 from temper_placer.core.pin_geometry import pin_world_position, pin_world_radius
+from temper_placer.geometry.kicad_transform import rotate_local_to_world
 from temper_placer.router_v6.dense_package_detection import DensePackage
 from temper_placer.router_v6.stage0_data import DesignRules
 
@@ -122,13 +123,19 @@ def generate_escape_vias(
             chosen_pos = None
 
             for dx, dy in candidates:
-                # Rotate the offset to match component rotation
-                cos_r = math.cos(angle)
-                sin_r = math.sin(angle)
-
-                # Apply rotation
-                rot_dx = dx * cos_r - dy * sin_r
-                rot_dy = dx * sin_r + dy * cos_r
+                # Rotate the offset to match component rotation. `angle`
+                # is the component's real board rotation (radians) and
+                # `pin_abs_pos` below is KiCad-derived (core.pin_geometry),
+                # so this must use KiCad's footprint-child rotation
+                # convention, R(-theta) -- see
+                # temper_placer.geometry.kicad_transform's module
+                # docstring. Masked today because `angle` is always an
+                # exact quadrant value (Component.initial_rotation is a
+                # 0-3 index), at which this symmetric 4-way candidate set
+                # is set-invariant to R(+theta) vs R(-theta); fixed anyway
+                # so a non-quadrant future caller does not inherit a
+                # mirrored escape direction.
+                rot_dx, rot_dy = rotate_local_to_world(dx, dy, angle)
 
                 # Candidate absolute position
                 cand_x = pin_abs_pos[0] + rot_dx

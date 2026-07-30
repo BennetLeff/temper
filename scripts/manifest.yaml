@@ -15,6 +15,19 @@ scripts:
   disposition: utility
   imports:
   - sys
+- path: kicad_pad_rotation_oracle.py
+  purpose: 'Oracle for the rotation-convention differential tests (packages/temper-placer/tests/requirements/safety/test_rotation_convention_oracle.py):
+    places a pad via real pcbnew (KiCad''s own footprint-placement engine) and reports where it actually
+    lands, given a local offset and a footprint rotation. Must run under a Python interpreter with KiCad''s
+    pcbnew bindings, not the project uv venv.'
+  owner: bennet
+  last_run: '2026-07-30'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - json
+  - sys
 - path: literal_removal_check.py
   purpose: 'Advisory check: flags literals removed by a diff that are still referenced elsewhere in the
     repo'
@@ -271,6 +284,7 @@ scripts:
   - rich.console
   - sys
   - temper_placer.core.loop
+  - temper_placer.geometry.kicad_transform
   - temper_placer.io.kicad_parser
   - temper_placer.io.trace_writer
   - temper_placer.io.zone_manager

@@ -225,7 +225,7 @@ class TestFailBeforePassAfter:
 
 
 class TestRealRepo:
-    """Pins the real repo's post-migration state: the 12 guarded files as
+    """Pins the real repo's post-migration state: the 18 guarded files as
     they exist in this tree today must be clean."""
 
     def test_real_guarded_files_are_clean(self):

@@ -70,27 +70,87 @@ project's PR description), and mirrors this repo's own precedent for
 consistency.py``): a guarded file that goes missing is a GATE ERROR, not a
 silently smaller check.
 
-Known, deliberately out-of-scope gap
---------------------------------------
-This audit also found the *same-shaped* latent bug (R(+theta) instead of
-R(-theta) applied to a symmetric rectangle's own corners around an
-already-resolved absolute center -- as opposed to a local offset relative
-to a parent origin) in ``router_v6/constraints_geometry.py``
-(``RotatedRect.corners``, ``point_to_rotated_rect_distance``),
-``router_v6/escape_via_generator.py``'s dog-bone candidate rotation, and
-the rendering-only ``visualization/board_renderer.py`` /
-``visualization/model.py``. All four are currently dormant, not live
-wrong: this board's components sit only at 90-degree-multiple rotations,
-and a symmetric point set's corner SET is provably invariant to R(+theta)
-vs R(-theta) at those exact angles (the same reason
-``core/courtyard.py``'s pre-fix bug was a no-op for the common
-axis-aligned-rectangle-at-90-degrees case -- see that module's docstring).
-Deliberately left OUT of ``GUARDED_FILES`` and NOT fixed by this task:
-fixing them would need the same kind of real ``kicad-cli`` DRC
-ground-truth verification PR #479 did for the original 12, which is a
-separate, unverified piece of work this task's brief did not cover.
-Flagged here, in the open, rather than silently patched or silently
-ignored.
+Second sweep: 12 call sites in 9 candidate areas, none in the original 12 plus 1
+pre-existing call site
+-------------------------------------------------------------------------------
+A follow-up audit (see ``docs/evidence/2026-07-30-rotation-sign-remaining-
+sites.md``) found 12 additional call sites carrying the same shape of bug,
+grouped into 9 candidate areas, none in PR #479's 12 or
+``check_pad_orientation.py``'s pre-existing 13th call site.
+Classified individually against the same test this whole gate exists to
+apply -- does the site transform something that must agree with KiCad's
+own placement -- and against real ``pcbnew``/``kicad-cli`` ground truth via
+``scripts/kicad_pad_rotation_oracle.py`` where the fix touches a value
+KiCad itself would place:
+
+  * ``check_pad_orientation.py::_corners`` -- the previously-exempted
+    function above. Fixed, not left exempt: this gate is a live CI check
+    on real pad geometry, and "identical corner SET at 90-degree multiples"
+    is not the same claim as "correct at every angle". The exemption entry
+    for it is removed below now that it contains no raw trig to exempt.
+  * ``router_v6/constraints_geometry.py`` (``RotatedRect.corners``,
+    ``point_to_rotated_rect_distance``) -- ``RotatedRect.rotation`` is
+    populated from real board pad/component rotation
+    (``deterministic/stages/setup.py``), so this is KiCad-derived geometry,
+    not an isolated utility. Fixed. ``point_to_rotated_rect_distance`` was
+    additionally not a simple sign flip: it inverted the *old, wrong*
+    R(+theta) convention (negate the angle, reapply the same R(+theta)
+    formula) rather than the real inverse of the corrected R(-theta)
+    convention, so it silently computed the forward transform again
+    instead of the world-to-local inverse.
+  * ``router_v6/connectivity.py`` (``_to_pad_coordinates``) -- same
+    forward/inverse confusion as above, on ``CopperPad.rotation`` (not yet
+    wired from real board data by any production caller today, but the
+    field exists specifically to hold KiCad pad orientation). Fixed.
+  * ``router_v6/escape_via_generator.py``'s dog-bone candidate rotation --
+    rotates a symmetric 4-way offset by the component's real board
+    rotation to place a via next to a real pin (``core.pin_geometry``,
+    itself KiCad-derived). Fixed.
+  * ``visualization/board_renderer.py`` / ``visualization/model.py``
+    (``Rectangle.corners``) -- render a visual proxy of the real board;
+    ``ComponentView.rotation``/``PadView.rotation`` are meant to hold real
+    board orientation. Fixed for correctness even though today's discrete
+    quadrant-only rotation state (and ``PadView`` having no production
+    constructor yet) makes both currently a no-op.
+  * ``scripts/internal_route.py`` -- reads a real ``kiutils`` board and
+    registers real pad positions with a routing oracle. Fixed for
+    correctness. Note: this script currently cannot import at all for
+    unrelated reasons (``jax`` was removed from the dependency set, and it
+    imports a ``temper_placer.routing`` package that no longer exists --
+    presumably renamed to ``router_v6`` without this script being updated).
+    That breakage is pre-existing and out of scope for this gate; flagged
+    here rather than silently fixed or silently ignored.
+  * ``packages/temper-geometry/src/polygon.rs::rotate_polygon`` and
+    ``scripts/bench_rust_geometry.py``'s ``_py_rotate_point`` -- audited
+    and left alone. ``rotate_polygon`` rotates a polygon about its own
+    centroid with no KiCad correspondence anywhere in or out (zero
+    production callers in Rust or through the pyo3 bridge; used only by
+    property-based tests asserting rotation-invariant area, which holds
+    under either sign). ``bench_rust_geometry.py`` times that same generic
+    Rust ``rotate_point`` (``transform.rs::rotate_point``, NOT the already-
+    correct KiCad-specific ``transform_pin_position``) against a matching
+    plain-Python CCW reimplementation -- both sides intentionally agree on
+    the generic convention being benchmarked, and neither touches KiCad
+    data. Neither is a raw-trig regression risk for this gate's own
+    purpose, so neither is in ``GUARDED_FILES``; this AST lint has no Rust
+    equivalent, deliberately -- see the docstring above this section for
+    why an enumerated Python file list is the chosen mechanism, and there
+    is no comparable "13 proven-vulnerable files" precedent on the Rust
+    side yet.
+  * ``core/state.py`` (``rotation_matrix``, ``rotate_points``) -- dead,
+    unused JAX-era leftover (``sample_rotation`` two functions above it is
+    already marked ``DEPRECATED``); zero production callers. Not fixed,
+    not guarded: nothing calls it, so there is nothing to protect.
+
+All newly-fixed sites that carry KiCad-derived rotation are added to
+``GUARDED_FILES`` below.
+
+The arithmetic is explicit: 8 call sites were updated -- 7 live
+KiCad-derived call sites across 6 files, plus the dead
+``scripts/internal_route.py`` registration formula. Four call sites in 3
+candidate areas were investigated and left unchanged: the Rust polygon
+helper, the Rust benchmark helper, and the two dead JAX-era functions in
+``core/state.py``.
 
 Exit codes (mirrors scripts/check_undeclared_imports.py, scripts/
 check_pll_range_consistency.py):
@@ -123,6 +183,13 @@ from _lib.repo import find_repo_root  # noqa: E402
 # kicad_transform directly). check_pad_orientation.py is a 13th,
 # independently-authored-and-already-correct implementation folded into
 # the same sanctioned module; guarded for the same reason.
+#
+# The 6 entries below were added by the second sweep documented in this
+# module's own docstring (12 call sites in 9 candidate areas). They cover
+# 7 live KiCad-derived call sites across 6 files plus the dead
+# scripts/internal_route.py registration formula; the Rust benchmark and
+# polygon helper, and core/state.py's two dead functions, were investigated
+# and deliberately not guarded (see that section for why: isolated or dead).
 GUARDED_FILES: tuple[str, ...] = (
     "packages/temper-placer/src/temper_placer/core/courtyard.py",
     "packages/temper-placer/src/temper_placer/core/pin_geometry.py",
@@ -134,8 +201,14 @@ GUARDED_FILES: tuple[str, ...] = (
     "packages/temper-placer/src/temper_placer/placer/cp_sat/isolation_barrier.py",
     "packages/temper-placer/src/temper_placer/placer/template.py",
     "packages/temper-placer/src/temper_placer/requirements/validators/_copper.py",
+    "packages/temper-placer/src/temper_placer/router_v6/connectivity.py",
+    "packages/temper-placer/src/temper_placer/router_v6/constraints_geometry.py",
+    "packages/temper-placer/src/temper_placer/router_v6/escape_via_generator.py",
+    "packages/temper-placer/src/temper_placer/visualization/board_renderer.py",
+    "packages/temper-placer/src/temper_placer/visualization/model.py",
     "scripts/check_isolation_keepout.py",
     "scripts/check_pad_orientation.py",
+    "scripts/internal_route.py",
 )
 
 # (file, function name) pairs inside a guarded file that are exempt --
@@ -146,25 +219,14 @@ GUARDED_FILES: tuple[str, ...] = (
 # repo (``.undeclared-imports-allowlist``'s convention) -- see the comment
 # on each entry, not just this preamble.
 #
-#   check_pad_orientation.py::_corners -- rotates a pad's OWN body
-#   rectangle around its OWN already-resolved absolute center (using the
-#   pad's own absolute angle_deg, already read straight off the board),
-#   not a local offset relative to a parent footprint's origin. For an
-#   origin-symmetric rectangle at an exact 90-degree-multiple rotation
-#   (both true of every real pad on this board), R(+theta) and R(-theta)
-#   produce the identical corner SET -- proven in this gate's own
-#   docstring's "known, deliberately out-of-scope gap" section, and this
-#   specific function is additionally validated empirically: 57/57 against
-#   real kicad-cli DRC shorting_items pairs (docs/evidence/2026-07-29-
-#   intra-component-shorts-root-cause.md). Not migrated because there is
-#   nothing to fix, and rewriting working, validated code to route through
-#   kicad_transform for a sign that provably does not matter here would be
-#   change for its own sake.
-EXEMPT_FUNCTIONS: frozenset[tuple[str, str]] = frozenset(
-    {
-        ("scripts/check_pad_orientation.py", "_corners"),
-    }
-)
+# (currently empty: check_pad_orientation.py::_corners was the only entry
+# and has been fixed to route through kicad_transform instead of carrying
+# raw trig -- see this module's docstring, "Second sweep" section, first
+# bullet. An empty frozenset is deliberate, not a placeholder: it is not
+# vacuous the way GUARDED_FILES being empty would be, since exemptions are
+# an opt-out layered on top of a non-empty guarded-file list, checked by
+# `_exempt_line_ranges` for whichever GUARDED_FILES entries exist.)
+EXEMPT_FUNCTIONS: frozenset[tuple[str, str]] = frozenset()
 
 _TRIG_MODULES = frozenset({"math", "np", "numpy"})
 _TRIG_FUNCS = frozenset({"cos", "sin"})
