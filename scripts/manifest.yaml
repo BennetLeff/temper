@@ -1207,6 +1207,22 @@ scripts:
   - re
   - sys
   - typing
+- path: check_creepage_clearance_drift.py
+  purpose: 'Safety-constant SSOT drift gate: compare declared creepage and clearance figures across electrical source, scripts, packages, and configuration.'
+  owner: bennet
+  last_run: '2026-07-30'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - ast
+  - dataclasses
+  - pathlib
+  - re
+  - sys
 - path: check_footprint_drift.py
   purpose: 'Footprint-drift gate: catch a footprint corrected in elec/src/*.ato that never propagated
     into pcb/temper.kicad_pcb, matched by sheetpath (designator-renumbering-safe), not refdes.'
