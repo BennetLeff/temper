@@ -90,6 +90,7 @@ def solve_placement(
     loop_components: dict[str, list[str]] | None = None,
     zone_components: dict[str, list[str]] | None = None,
     hint_positions: dict[str, tuple[float, float, int]] | None = None,
+    minimize_displacement_to: dict[str, tuple[float, float]] | None = None,
     isolation_barrier: dict | None = None,
 ) -> CpSatPlacementResult:
     """Build a CP-SAT model, encode constraints, solve, and return the result.
@@ -103,6 +104,10 @@ def solve_placement(
             ref to ``(x_mm, y_mm, rotation_0_3)``.  Hints are seeded via
             ``CpModel.AddHint()`` before solving so CP-SAT searches locally
             from the supplied positions rather than exploring the full space.
+        minimize_displacement_to: Optional reference coordinates for an
+            opt-in Manhattan-distance objective.  Dict mapping component ref
+            to ``(x_mm, y_mm)``.  This keeps repair solves near the current
+            placement while leaving hard constraints authoritative.
         isolation_barrier: Optional kwargs forwarded to
             ``isolation_barrier.add_isolation_barrier_to_model`` (minus
             ``model``/``netlist``/``board_w_mm``/``board_h_mm``, which this
@@ -216,6 +221,14 @@ def solve_placement(
                 if cv.rot_ref is not None:
                     model_wrapper.model_ref.AddHint(cv.rot_ref, rot)
 
+    if minimize_displacement_to:
+        for ref, (x_mm, y_mm) in minimize_displacement_to.items():
+            model_wrapper.add_displacement_objective(
+                ref,
+                model_wrapper.mm_to_units(x_mm),
+                model_wrapper.mm_to_units(y_mm),
+            )
+
     # Build EncoderContext from board and netlist data.
     # Coerce every zone rectangle to a validated Rect (x_min,y_min,x_max,y_max)
     # so an inverted/degenerate zone — the (x,y,w,h) convention mismatch —
@@ -280,7 +293,8 @@ def solve_placement(
         netclass_rules_data=loaded_netclass_rules,
     )
 
-    # Phase 1 (feasibility): no objective — find any valid placement.
+    # Phase 1 (feasibility): no objective — find any valid placement, unless
+    # the caller explicitly requested the repair objective above.
     # Phase 2 (wirelength polish) runs separately with a longer timeout
     # and bounded pair count.  The full O(n²) objective with 33 components
     # creates ~2100 extra variables and makes the solver hit the timeout.

@@ -2,6 +2,7 @@
 title: Resolve Current Board Clearance Debt - Plan
 type: fix
 date: 2026-07-30
+status: active
 topic: current-board-clearance-debt
 artifact_contract: ce-unified-plan/v1
 artifact_readiness: requirements-only

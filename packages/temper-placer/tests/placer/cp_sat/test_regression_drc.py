@@ -574,20 +574,15 @@ PRODUCTION_BOARD_PATH = REPO_ROOT / "pcb" / "temper.kicad_pcb"
 # changed underneath it is doing exactly its job: it guards against a board
 # whose COPPER budget is no longer comparable, and the copper is identical.
 #
-# 2026-07-30: footprints 168 -> 169.  `tank.c_tank3` (added to `elec/src` by
-# `3ae26dfe`, "re-source the tank capacitors on AC current") had never been
-# placed on the board at all; it is added here in the resync's staging row
-# (`STAGING_GAP_MM` below the board outline, position/rotation left to a human
-# per docs/evidence/2026-07-30-board-resync-against-source.md — placing a
-# resonant-tank HV component is a PCB design decision, not a resync mechanic).
-# segments/vias/zones are UNCHANGED (2338/48/96): this is a pure
-# designator/footprint-identity resync plus one additive staged part, not a
-# re-route. Every existing footprint's position/rotation/UUID and every
-# copper item's net-by-NAME are proved unchanged in that same evidence doc.
+# 2026-07-30 handoff-actionables reconciliation: the current board is 162
+# footprints / 2193 segments / 44 vias / 96 zones. The seven obsolete
+# mains-ZCD footprints and their orphaned copper were removed after rebuilding
+# the source netlist. This is a new physical board shape, so all six production
+# DRC baselines below were re-measured rather than carried forward.
 PRODUCTION_BOARD_BASELINE_SHAPE = {
-    "footprints": 169,
-    "segments": 2338,
-    "vias": 48,
+    "footprints": 162,
+    "segments": 2193,
+    "vias": 44,
     "zones": 96,
 }
 
@@ -676,9 +671,12 @@ PRODUCTION_DRC_SAMPLE_RUNS = 5
 # `C27(tank.c_tank1-p2) <-> R30 pad1(tank.c_tank1-p2)`) — exactly the honest,
 # designed-for consequence of staging a real, unrouted HV component rather
 # than inventing a placement for it. 0 cross-net.
-PRODUCTION_COMMITTED_BOARD_TOTAL_DVIOLATIONS = 1260
-PRODUCTION_COMMITTED_BOARD_SHORTING_ITEMS = 90
-PRODUCTION_COMMITTED_BOARD_UNCONNECTED = 390
+# 2026-07-30 handoff-actionables remeasurement (kicad-cli 10.0.4, N=15):
+# totals 1169--1189, shorting_items 54--72, unconnected_items 374. Thresholds
+# are one above the observed maximum for the nondeterministic categories.
+PRODUCTION_COMMITTED_BOARD_TOTAL_DVIOLATIONS = 1190
+PRODUCTION_COMMITTED_BOARD_SHORTING_ITEMS = 73
+PRODUCTION_COMMITTED_BOARD_UNCONNECTED = 374
 
 # --- Category B: kicad-cli DRC on route_pcb()'s output for that board ---
 # RE-MEASURED 2026-07-29 (kicad-cli 10.0.4, macOS arm64), against the shape
@@ -763,9 +761,11 @@ PRODUCTION_COMMITTED_BOARD_UNCONNECTED = 390
 # SW_NODE / tank.c_tank1-p2 pair as Category A) plus ordinary router-noise
 # relabeling of the same 13 renumbered designators; 0 cross-net over all new
 # pairs, verified directly against both DRC JSON outputs.
-PRODUCTION_ROUTER_OUTPUT_TOTAL_DVIOLATIONS = 1560
-PRODUCTION_ROUTER_OUTPUT_SHORTING_ITEMS = 125
-PRODUCTION_ROUTER_OUTPUT_UNCONNECTED = 407
+# 2026-07-30 handoff-actionables remeasurement (route_pcb + kicad-cli 10.0.4,
+# N=11): totals 1420--1439, shorting_items 75--96, unconnected_items 388.
+PRODUCTION_ROUTER_OUTPUT_TOTAL_DVIOLATIONS = 1440
+PRODUCTION_ROUTER_OUTPUT_SHORTING_ITEMS = 97
+PRODUCTION_ROUTER_OUTPUT_UNCONNECTED = 388
 
 
 @dataclass(frozen=True)

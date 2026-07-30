@@ -23,3 +23,5 @@ It does **not** verify clause numbering, protective-impedance requirements,
 or any PD2/PD3 construction conclusion against the current text. Those
 decisions remain deferred until the applicable current Part 2 and the current
 IEC 60335-1 text are obtained and reviewed.
+
+<!-- provenance: commit=d789cd12f84872fcfe1be7f9707e5044d9e739f4 dirty=false -->

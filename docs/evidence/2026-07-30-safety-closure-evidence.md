@@ -227,3 +227,5 @@ Validation on the follow-up branch:
 - The original ADC arithmetic and its +170 V operating-envelope caveat are
   unchanged; the metadata correction only prevents a future rating check from
   treating the 1206 parts as 100 mW parts.
+
+<!-- provenance: commit=5794d22f7ec4fa63291715a7b0526c2f01c5591f dirty=false -->

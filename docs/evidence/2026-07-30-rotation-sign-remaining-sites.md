@@ -121,3 +121,5 @@ quantity (a pad/rect's own corners about its own center, or a fully symmetric 4-
 offset), for which R(+theta) and R(-theta) coincide exactly at 0/180 and produce the same
 mirrored-but-symmetric result at 90/270. `check_pad_orientation.py`'s own PASS/PASS/FAIL
 discrimination (Sec. 4) is unchanged from before this change, confirming no measurement moved.
+
+<!-- provenance: commit=8d89069c24494fdd4cf6d40a32fda15c8c440251 dirty=false -->

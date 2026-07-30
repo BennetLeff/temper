@@ -122,6 +122,24 @@ class TestSolve:
         assert sol.feasible
         assert "Q1" in sol.positions
 
+    def test_displacement_objective_prefers_reference_position(self) -> None:
+        model = CpSatModel(units_per_mm=100)
+        model.add_component("Q1", x_start_val=0, y_start_val=0, width=100, height=100)
+        model.set_bounds(x_min=0, y_min=0, x_max=2000, y_max=2000)
+        model.add_displacement_objective("Q1", x_target_units=1200, y_target_units=1400)
+
+        sol = model.solve(time_limit_s=1.0)
+
+        assert sol.feasible
+        assert sol.positions["Q1"] == (1200, 1400)
+
+    def test_displacement_objective_rejects_nonpositive_weight(self) -> None:
+        model = CpSatModel(units_per_mm=100)
+        model.add_component("Q1", x_start_val=0, y_start_val=0, width=100, height=100)
+
+        with pytest.raises(ValueError, match="weight must be positive"):
+            model.add_displacement_objective("Q1", 0, 0, weight=0)
+
     def test_two_components_no_overlap(self) -> None:
         model = CpSatModel()
         model.add_component("A", x_start_val=0, y_start_val=0, width=50, height=50)

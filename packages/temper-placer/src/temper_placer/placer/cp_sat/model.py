@@ -257,6 +257,34 @@ class CpSatModel:
         """Accumulate a weighted term for the linear objective (minimised)."""
         self._objective_terms.append((var, weight))
 
+    def add_displacement_objective(
+        self,
+        ref: str,
+        x_target_units: int,
+        y_target_units: int,
+        weight: int = 1,
+    ) -> None:
+        """Minimise Manhattan displacement from a reference position.
+
+        The target is a warm-start/reference coordinate, not a constraint:
+        the placement remains free to move when required by hard geometry or
+        safety constraints.  Coordinates are measured in model grid units so
+        the objective is deterministic and does not lose sub-millimetre moves
+        to floating-point arithmetic.
+        """
+        if weight <= 0:
+            raise ValueError("displacement objective weight must be positive")
+        component = self.get_component(ref)
+        for axis, variable, target in (
+            ("x", component.x_center, x_target_units),
+            ("y", component.y_center, y_target_units),
+        ):
+            distance = self.model_ref.NewIntVar(
+                0, 1_000_000, f"displacement_{axis}_{ref}"
+            )
+            self.model_ref.AddAbsEquality(distance, variable - target)
+            self.add_objective_term(distance, weight)
+
     # ------------------------------------------------------------------
     # Assumptions
     # ------------------------------------------------------------------

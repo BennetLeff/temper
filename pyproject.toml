@@ -31,6 +31,10 @@ dev = [
     # continue-on-error.
     "sympy>=1.12",
     "python-sat>=1.9.dev5",
+    # scripts/known_failure_pins.py is a root-level CI gate and imports PyYAML
+    # directly; declaring it here keeps the gate runnable outside the placer
+    # workspace package.
+    "pyyaml>=6.0",
     "temper-geometry",
     "temper-dsn",
     "temper-ipc",

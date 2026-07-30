@@ -1,6 +1,6 @@
 # Current-board clearance debt after handoff-actionables reconciliation
 
-<!-- provenance: commit=c2cdab7a37841061f0b31e638b71fdb98524b7dc dirty=false -->
+<!-- provenance: commit=63f3ccd7b1ffff12e63b6437c9644e554e3be222 dirty=true -->
 
 **Date:** 2026-07-30
 **Board:** `pcb/temper.kicad_pcb` after the source/netlist reconciliation that removed the unused mains-ZCD U3 circuit.
@@ -29,3 +29,17 @@ The earlier copper-aware re-solve evidence records the same failure mode and mea
 The next safe change must add either a minimum-displacement objective/repair mode to the placement model or a placement-and-routing loop that evaluates copper after each candidate. It must preserve the full domain constraint set, keep the validator fail-closed for unclassified parts, and run the board DRC ceiling remeasurement in the same change. Same-footprint findings require footprint/source dispositions and cannot be solved by moving component origins.
 
 No candidate from this investigation is a shippable board change.
+
+## Minimum-displacement prototype
+
+The CP-SAT entry point now accepts an opt-in `minimize_displacement_to` map
+of reference coordinates. It adds Manhattan-distance objective terms in model
+grid units while leaving all hard constraints authoritative; the existing
+`hint_positions` warm start remains independent. The model-level tests pass.
+
+A read-only run against the current board and full configured constraint set
+returned `unknown` after the 30-second budget, with the existing configuration
+to netlist/loop reference drift reported before solve. No placement or PCB
+output was written. The next implementation step is to wire the current
+domain names correctly, then use this objective for a bounded candidate and
+measure its routed DRC before considering any board change.
