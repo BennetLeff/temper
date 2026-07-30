@@ -674,8 +674,8 @@ class TestRealBoardIsolatorFigures:
         assert inter.shortfall_mm == pytest.approx(1.070, abs=1e-3)
 
     @pytest.mark.slow
-    def test_the_seven_known_intra_footprint_blockers_are_now_visible(self):
-        """C6, K2, K3, U3 and U7 each have their own pads on opposite sides of
+    def test_the_six_known_intra_footprint_blockers_are_now_visible(self):
+        """C6, K2, K3 and U6 each have their own pads on opposite sides of
         the mains<->SELV barrier, and were already visible under the old
         (incorrect, 300V-row) 8.0mm REINFORCED creepage requirement. K1
         (8.000mm) and T1 (9.100mm) join them now that the requirement is
@@ -683,8 +683,10 @@ class TestRealBoardIsolatorFigures:
         docs/evidence/2026-07-30-creepage-requirement-reconciliation.md):
         both previously "passed" only because the requirement they were
         checked against was too lenient, not because either one actually
-        clears the standard. No placement can fix any of these seven --
-        they are pad-to-pad gaps within a single footprint."""
+        clears the standard. No placement can fix any of these six --
+        they are pad-to-pad gaps within a single footprint. U6 is the
+        post-resync designator for the surviving gate-driver footprint that
+        was U7 before the U3/ZCD deletion."""
         from ._real_board_fixture import RealBoardUnavailable, load_real_board_placement
 
         try:
@@ -694,7 +696,7 @@ class TestRealBoardIsolatorFigures:
 
         result = verify_iec60335_compliance(placement, domains)
         intra = {v.ref_a for v in result.violations if v.pair_kind == "intra"}
-        assert intra == {"C6", "K1", "K2", "K3", "T1", "U3", "U7"}
+        assert intra == {"C6", "K1", "K2", "K3", "T1", "U6"}
         assert all(
             v.insulation_type in (InsulationType.BASIC, InsulationType.REINFORCED)
             for v in result.violations

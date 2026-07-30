@@ -1,5 +1,17 @@
 <!-- provenance: commit=d510f4ede1ce0f3db343776f024c0f8a36085675 dirty=true -->
 
+> **Update 2026-07-30 (handoff-actionables integration):** The deferred board
+> step described below is now complete in `codex/handoff-actionables`. After
+> rebuilding the netlist, the integration removed exactly seven obsolete ZCD
+> footprints and 149 orphaned copper items, then ran the board resync with no
+> footprint moves. The post-resync gates now pass: domain partition (51 nets,
+> 9 isolators), footprint drift (162 matched components), and copper-net
+> consistency (2,333 copper items, 0 violations). The fresh creepage measurement
+> reports 45 violations at 8.0 mm and 178 at 12.6 mm; this is recorded as the
+> current board result, not as a claim that the board meets the 12.6 mm target.
+> The accompanying 120-sample DRC remeasurement is recorded in
+> `power_pcb_dataset/drc_ceiling.json`.
+
 # Delete U3 (H11L1 mains-ZCD optocoupler) and its dedicated circuitry
 
 Base commit: `d510f4ede1ce0f3db343776f024c0f8a36085675` (`main` tip,
@@ -332,7 +344,7 @@ called out by the task itself) and are expected to clear once
 `pcb/temper.kicad_pcb` is resynced to remove U3, R6-R10, D2 and their
 copper.
 
-## What remains: board-level resync (explicitly NOT done here)
+## What remained at the source-only commit (historical; completed by the update above)
 
 `pcb/temper.kicad_pcb` still carries U3's DIP-6 footprint, R6/R7/R8/R9/R10,
 D2, and their copper (traces/zones on `zcd`/`a`/`ZCD_ISO`), per the task's

@@ -99,6 +99,13 @@ The handoff also surfaced protective-impedance conclusions read from an older IE
 - **Deferred for later:** Any PD2/PD3 insulation redesign, C6 topology change, protective-earth construction, or clause-level compliance decision requiring current IEC text.
 - **Outside this work:** Remote PR merge coordination when GitHub is unreachable and unrelated board-placement or routing redesign.
 
+### Standards Status
+
+- The current-edition metadata and access limitation are recorded in
+  [`docs/evidence/2026-07-30-iec-60335-1-current-status.md`](../evidence/2026-07-30-iec-60335-1-current-status.md).
+- No clause-level conclusion from the withdrawn Edition 5.2 text is promoted
+  as a current Edition 6.0 requirement.
+
 ### Dependencies / Assumptions
 
 - The repository's electrical build tooling is available in this environment.
