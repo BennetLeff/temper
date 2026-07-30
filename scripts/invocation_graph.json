@@ -190,6 +190,7 @@
   "literal_removal_check.py": [
     ".github/workflows/literal-removal-advisory.yml"
   ],
+  "measure_cross_domain_creepage.py": [],
   "mpn_fabrication_gate.py": [
     ".github/workflows/python-tests.yml"
   ],
