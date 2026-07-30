@@ -32,12 +32,17 @@ class DRCOracleSetupStage(Stage):
     def _rotate_point(
         self, point: tuple[float, float], angle_degrees: float
     ) -> tuple[float, float]:
-        """Rotate a point by angle_degrees around (0,0)."""
+        """Rotate a point by angle_degrees around (0,0), matching KiCad's
+        real R(-theta) footprint-child rotation convention (confirmed
+        against real kicad-cli 10.0.4 pcb drc ground truth, see
+        docs/evidence/2026-07-29-cross-domain-creepage-rotation-convention.md
+        Sec. 2). Currently unused within this class; fixed for correctness
+        so a future caller does not inherit the R(+theta) bug this had."""
         angle_rad = math.radians(angle_degrees)
         x, y = point
         cos_a = math.cos(angle_rad)
         sin_a = math.sin(angle_rad)
-        return (x * cos_a - y * sin_a, x * sin_a + y * cos_a)
+        return (x * cos_a + y * sin_a, -x * sin_a + y * cos_a)
 
     def run(self, state: BoardState) -> BoardState:
         from temper_placer.router_v6.constraints_design_rules import ClearanceMatrix, DesignRulesParser

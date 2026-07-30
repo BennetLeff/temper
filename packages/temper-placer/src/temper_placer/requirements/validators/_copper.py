@@ -70,24 +70,28 @@ class _Pad:
 
 
 def _rotate(x: float, y: float, theta_rad: float) -> tuple[float, float]:
-    """R(+theta) -- the convention this repo's own KiCad parser
-    (``io/_parse_modules.py``, which builds ``Component.initial_position``
-    as ``fp.position + R(+theta) * center_offset``) and writer
-    (``io/_write_modules.py``) both use.
+    """R(-theta) -- KiCad's real footprint-child rotation convention,
+    confirmed against real ``kicad-cli 10.0.4 pcb drc`` ground truth (see
+    docs/evidence/2026-07-29-cross-domain-creepage-rotation-convention.md
+    Sec. 2), and matching ``scripts/check_pad_orientation.py``'s
+    independently-validated (57/57 against real DRC) ``_rotate``.
 
+    This repo's own KiCad parser (``io/_parse_modules.py``, which builds
+    ``Component.initial_position`` as ``fp.position + R(-theta) *
+    center_offset``) and writer (``io/_write_modules.py``,
+    ``io/_write_board.py``) now all use this same corrected convention --
+    this function previously used R(+theta) to deliberately match a bug in
+    those two, not because R(+theta) was independently believed correct.
     Using the same sign here is what makes
-    ``world_pad = position + R(+theta) * local_offset`` consistent with the
+    ``world_pad = position + R(-theta) * local_offset`` consistent with the
     ``position`` this validator is handed: substituting
     ``local_offset = pad_local - center_offset`` recovers
-    ``fp.position + R(+theta) * pad_local`` exactly. Picking the opposite
+    ``fp.position + R(-theta) * pad_local`` exactly. Picking the opposite
     sign for pads only would make the pad set inconsistent with its own
-    reported origin. See the evidence doc's rotation-convention note: on
-    ``pcb/temper.kicad_pcb`` every footprint sits at a multiple of 90
-    degrees, and the two conventions differ only in the sign of Y-vs-X for
-    footprints at 90/270 degrees.
+    reported origin.
     """
     c, s = math.cos(theta_rad), math.sin(theta_rad)
-    return (x * c - y * s, x * s + y * c)
+    return (x * c + y * s, -x * s + y * c)
 
 
 def _component_pads(comp: dict[str, Any]) -> list[_Pad]:

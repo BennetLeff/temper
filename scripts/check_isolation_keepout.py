@@ -317,8 +317,14 @@ class BoardData:
 
 
 def _rotate(x: float, y: float, angle_deg: float | None) -> tuple[float, float]:
+    """KiCad's footprint-child rotation (y-down board frame): R(-theta), not
+    the R(+theta) this function used before. Confirmed against real
+    ``kicad-cli 10.0.4 pcb drc`` ground truth in
+    docs/evidence/2026-07-29-cross-domain-creepage-rotation-convention.md
+    (Sec. 2) and matches ``scripts/check_pad_orientation.py``'s
+    independently-validated (57/57 against real DRC) ``_rotate``."""
     a = math.radians(angle_deg or 0.0)
-    return (x * math.cos(a) - y * math.sin(a), x * math.sin(a) + y * math.cos(a))
+    return (x * math.cos(a) + y * math.sin(a), -x * math.sin(a) + y * math.cos(a))
 
 
 def _expand_copper_layers(raw_layers: list[str], copper_layers_ordered: list[str]) -> frozenset[str]:
