@@ -47,6 +47,8 @@
     "scripts/tests/test_check_isolation_keepout.py",
     "scripts/check_pad_orientation.py",
     "scripts/tests/test_check_pad_orientation.py",
+    "scripts/check_no_raw_rotation_trig.py",
+    "scripts/tests/test_check_no_raw_rotation_trig.py",
     "pcb/temper.kicad_pcb",
     "firmware/components/control/pll_control.h",
     ".net-classification-allowlist",
