@@ -621,16 +621,30 @@ class TestRealBoardIsolatorFigures:
 
     @pytest.mark.slow
     def test_k1_is_a_genuine_creepage_violation_after_the_400v_correction(self):
-        """K1's copper gap (8.000mm, exact -- see ``test_isolator_pad_gap``)
-        does not move. What changed is the requirement it is measured
-        against: REINFORCED DC_BUS<->LV_CONTROL creepage is 10.0mm (IEC
-        60335-1 Table 16's 400V row -- DC_BUS's working voltage is >300V,
-        and the table is not interpolated), not the 8.0mm figure (the 300V
-        row) this test used to check K1 against. K1 now falls exactly
-        2.0mm short -- a real, exact shortfall, not a model artifact. This
-        test fails if the exact-geometry model (``pad_pair_distance``)
-        stops being exact, which would perturb this figure away from
-        exactly 2.000mm.
+        """K1's intra-footprint copper gap (8.000mm, exact -- see
+        ``test_isolator_pad_gap``) does not move. What changed is the
+        requirement it is measured against: REINFORCED DC_BUS<->LV_CONTROL
+        creepage is now 12.6mm (corrected 2026-07-30 from 10.0mm -- see
+        docs/evidence/2026-07-30-pollution-degree-determination.md: IEC
+        60335-2-6 cl. 29.2 Addition makes Pollution Degree 3 the default
+        for this appliance class and no enclosure/sealing argument earns
+        the PD2 exception on this design's own mechanical documents; IEC
+        60335-1 Table 17 row iv, Material Group IIIa/IIIb, PD3, gives
+        6.3mm basic / 12.6mm reinforced). K1's intra-footprint gap now
+        falls exactly 4.6mm short (was 2.0mm short at the PD2 10.0mm
+        figure) -- a real, exact shortfall, not a model artifact.
+
+        At this stricter 12.6mm figure, K1 now ALSO shows a second, genuine
+        inter-component violation that did not exist at 10.0mm: K1
+        (DC_BUS, via w1_2) sits 11.530mm from R78 (LV_CONTROL, +3V3) --
+        below the required minimum 12.6mm, but above the prior 10.0mm
+        minimum, so it only becomes visible now that the pollution-degree
+        correction has raised the bar. Both violations are asserted here,
+        not just the pre-existing intra-footprint one, since silently
+        checking only the first would hide a real, newly-surfaced
+        shortfall. This test fails if the exact-geometry model
+        (``pad_pair_distance``) stops being exact, which would perturb
+        either figure away from its exact value.
         """
         from ._real_board_fixture import RealBoardUnavailable, load_real_board_placement
 
@@ -641,12 +655,23 @@ class TestRealBoardIsolatorFigures:
 
         result = verify_iec60335_compliance(placement, domains)
         k1 = [v for v in result.violations if v.ref_a == "K1" or v.ref_b == "K1"]
-        assert len(k1) == 1, f"expected exactly one K1 violation, got: {k1}"
-        assert k1[0].metric == "creepage"
-        assert k1[0].insulation_type == InsulationType.REINFORCED
-        assert k1[0].measured_mm == pytest.approx(8.000, abs=1e-6)
-        assert k1[0].required_mm == pytest.approx(10.0, abs=1e-9)
-        assert k1[0].shortfall_mm == pytest.approx(2.000, abs=1e-6)
+        assert len(k1) == 2, f"expected exactly two K1 violations, got: {k1}"
+        by_pair_kind = {v.pair_kind: v for v in k1}
+        assert set(by_pair_kind) == {"intra", "inter"}
+
+        intra = by_pair_kind["intra"]
+        assert intra.metric == "creepage"
+        assert intra.insulation_type == InsulationType.REINFORCED
+        assert intra.measured_mm == pytest.approx(8.000, abs=1e-6)
+        assert intra.required_mm == pytest.approx(12.6, abs=1e-9)
+        assert intra.shortfall_mm == pytest.approx(4.600, abs=1e-6)
+
+        inter = by_pair_kind["inter"]
+        assert inter.metric == "creepage"
+        assert inter.insulation_type == InsulationType.REINFORCED
+        assert inter.measured_mm == pytest.approx(11.530, abs=1e-3)
+        assert inter.required_mm == pytest.approx(12.6, abs=1e-9)
+        assert inter.shortfall_mm == pytest.approx(1.070, abs=1e-3)
 
     @pytest.mark.slow
     def test_the_seven_known_intra_footprint_blockers_are_now_visible(self):
