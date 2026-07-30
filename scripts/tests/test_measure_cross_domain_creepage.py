@@ -6,7 +6,7 @@ Deliberately do NOT rely on the real ``pcb/temper.kicad_pcb`` or the real
 Python API, round-tripped through ``Board.to_file``/``Board.from_file`` so
 every fixture exercises the exact same parser the tool itself uses). The
 real board/manifest pair is exercised directly by running the tool (see
-docs/evidence/2026-07-30-cross-domain-creepage-pd2-vs-pd3.md), including a
+docs/evidence/2026-07-29-cross-domain-creepage-pd2-vs-pd3.md), including a
 cross-check against previously-published exact ground-truth figures
 (T1 = 9.100mm, K1 = 8.000mm, C17-R32 = ~0.905mm) that this synthetic suite
 cannot reproduce on its own.
