@@ -616,6 +616,7 @@ def _run_stage5(
     width_assignment = assign_trace_widths(
         pathfinding_result,
         default_width=pcb.design_rules.default_trace_width_mm,
+        design_rules=pcb.design_rules,
     )
 
     if self.verbose:

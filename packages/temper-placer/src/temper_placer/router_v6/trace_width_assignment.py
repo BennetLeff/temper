@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
+from typing import Any
 
 from temper_placer.router_v6.astar_pathfinding import PathfindingResult
 
@@ -67,6 +68,7 @@ def assign_trace_widths(
     default_width: float = 0.127,  # 5mil standard
     power_width: float = 0.508,  # 20mil for power
     hv_width: float = 0.635,  # 25mil for HV
+    design_rules: Any | None = None,
 ) -> TraceWidthAssignment:
     """
     Assign trace widths based on net class and requirements.
@@ -76,6 +78,13 @@ def assign_trace_widths(
         default_width: Default trace width (mm)
         power_width: Width for power nets (mm)
         hv_width: Width for high-voltage nets (mm)
+        design_rules: Optional netclass-aware design rules (duck-typed:
+            needs ``.net_class_assignments`` and ``.net_classes`` dicts,
+            e.g. ``router_v6.stage0_data.DesignRules`` as populated by
+            ``route_pcb()``'s ``design_rules``/``net_classes`` injection).
+            When a routed net has an *explicit* netclass assignment here,
+            that class's ``trace_width_mm`` is authoritative and wins over
+            the keyword heuristic below -- see ``_determine_trace_width``.
 
     Returns:
         TraceWidthAssignment with all width assignments
@@ -106,6 +115,7 @@ def assign_trace_widths(
             default_width,
             power_width,
             hv_width,
+            design_rules,
         )
 
         assignments[net_name] = width
@@ -118,6 +128,7 @@ def _determine_trace_width(
     default_width: float,
     power_width: float,
     hv_width: float,
+    design_rules: Any | None = None,
 ) -> TraceWidth:
     """
     Determine appropriate trace width for a net.
@@ -127,10 +138,49 @@ def _determine_trace_width(
         default_width: Default width
         power_width: Power net width
         hv_width: High voltage width
+        design_rules: Optional netclass-aware design rules -- see
+            ``assign_trace_widths``. Consulted first; the keyword
+            heuristic below is only a fallback for nets with no explicit
+            netclass assignment (e.g. callers with no design_rules
+            threaded at all, which keeps existing behavior/tests
+            unchanged).
 
     Returns:
         TraceWidth assignment
+
+    Bug history (2026-07-29): this function used to be the *only* source
+    of truth for routed trace width -- pure net-name substring/keyword
+    matching against three hardcoded literals (default/power/hv_width),
+    with zero knowledge of the real per-netclass minimums in
+    ``core/design_rules.py`` (``TEMPER_NET_CLASSES``). GATE_H/GATE_L/
+    GATE_HS/GATE_LS matched the "GATE"/"DRIVE" keyword branch and got
+    ``power_width * 0.6`` = 0.3048mm (12 mil) -- a router-internal
+    heuristic constant that happens to be exactly the DRC minimum-width
+    violation width measured for GateDriveHV (0.4mm minimum,
+    ``design_rules.py:391-403``) on every one of the 39 GATE_LS segments
+    already on the board. The 0.3048mm figure was never derived from any
+    netclass minimum at all; it was a coincidence of the 60%-of-power-
+    width heuristic. Fixed by consulting the caller's netclass-aware
+    ``design_rules`` (threaded from ``pcb.design_rules`` in
+    ``_pipeline_route.py``'s Stage 4.4 call, itself populated by
+    ``route_pcb()``'s ``net_classes``/``net_class_assignments``
+    injection in ``_pipeline_core.py``) before ever falling back to the
+    keyword heuristic.
     """
+    if design_rules is not None:
+        class_assignments = getattr(design_rules, "net_class_assignments", None) or {}
+        net_classes = getattr(design_rules, "net_classes", None) or {}
+        class_name = class_assignments.get(net_name)
+        if class_name and class_name in net_classes:
+            rules = net_classes[class_name]
+            trace_width_mm = getattr(rules, "trace_width_mm", None)
+            if trace_width_mm is not None:
+                return TraceWidth(
+                    net_name=net_name,
+                    width_mm=trace_width_mm,
+                    reason=f"Netclass minimum ({class_name})",
+                )
+
     name_upper = net_name.upper()
 
     # High voltage nets (AC, HV)
