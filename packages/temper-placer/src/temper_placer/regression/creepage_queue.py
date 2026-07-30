@@ -5,11 +5,26 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import re
 from collections.abc import Collection, Iterable
 from dataclasses import dataclass
 from typing import Literal
 
+from temper_placer.validation._drc_api import DrcError
+
 FixClass = Literal["layout_routing", "same_package_bom", "rule_policy"]
+
+_NUMBER = r"\d+(?:\.\d+)?(?:[eE][+-]?\d+)?"
+_LABELLED_DISTANCE_RE = re.compile(
+    rf"\bactual\s*[:=]?\s*(?P<actual>{_NUMBER})\s*mm\b.*?"
+    rf"\brequired\s*[:=]?\s*(?P<required>{_NUMBER})\s*mm\b",
+    re.IGNORECASE,
+)
+_INEQUALITY_DISTANCE_RE = re.compile(
+    r"(?P<actual>\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)\s*mm\s*<\s*"
+    r"(?P<required>\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)\s*mm",
+    re.IGNORECASE,
+)
 
 
 def _normalize_labels(values: Iterable[str]) -> tuple[str, ...]:
@@ -135,6 +150,59 @@ def classify_creepage(
         fix_class, rationale = _classify(observation, policy_ids)
         items.append(CreepageQueueItem(observation, fix_class, rationale))
     return tuple(items)
+
+
+def observation_from_drc_error(error: DrcError) -> CreepageObservation:
+    """Convert one KiCad creepage error into queue evidence.
+
+    Only the creepage rule is accepted. Distance fields are parsed when the
+    message uses explicit labels or a strict ``actual mm < required mm``
+    inequality; unknown message formats deliberately produce incomplete
+    evidence so the classifier sends them to investigation.
+    """
+    if error.rule.strip().casefold() != "creepage":
+        raise ValueError(f"expected a creepage DRC error, got {error.rule!r}")
+
+    actual, required = _parse_distances(error.message)
+    return CreepageObservation(
+        rule=error.rule,
+        location=error.location,
+        message=error.message,
+        components=tuple(error.components),
+        nets=tuple(error.nets),
+        actual_distance_mm=actual,
+        required_distance_mm=required,
+    )
+
+
+def creepage_observations_from_errors(
+    errors: Iterable[DrcError],
+) -> tuple[CreepageObservation, ...]:
+    """Extract creepage observations without mixing in other DRC rules."""
+    return tuple(
+        observation_from_drc_error(error)
+        for error in errors
+        if error.rule.strip().casefold() == "creepage"
+    )
+
+
+def _parse_distances(message: str) -> tuple[float | None, float | None]:
+    match = _LABELLED_DISTANCE_RE.search(message)
+    if match:
+        return _valid_distance_pair(
+            float(match.group("actual")), float(match.group("required"))
+        )
+
+    match = _INEQUALITY_DISTANCE_RE.search(message)
+    if match:
+        return _valid_distance_pair(float(match.group("actual")), float(match.group("required")))
+    return None, None
+
+
+def _valid_distance_pair(actual: float, required: float) -> tuple[float | None, float | None]:
+    if math.isfinite(actual) and math.isfinite(required) and 0 <= actual < required:
+        return actual, required
+    return None, None
 
 
 def _observation_sort_key(

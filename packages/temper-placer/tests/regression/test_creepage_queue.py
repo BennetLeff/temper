@@ -11,7 +11,10 @@ from hypothesis import strategies as st
 from temper_placer.regression.creepage_queue import (
     CreepageObservation,
     classify_creepage,
+    creepage_observations_from_errors,
+    observation_from_drc_error,
 )
+from temper_placer.validation._drc_api import DrcError
 
 
 def _observation(
@@ -147,3 +150,82 @@ def test_unrelated_observation_does_not_change_existing_items() -> None:
     assert baseline[0] == next(
         item for item in expanded if item.stable_identity == original.stable_identity
     )
+
+
+def test_drc_error_adapter_parses_labelled_distances() -> None:
+    error = DrcError(
+        rule="creepage",
+        severity="error",
+        location=(10.0, 20.0),
+        message="Creepage violation: actual 4.0 mm, required 12.6 mm",
+        components=["U1", "U2"],
+        nets=["HV", "LV"],
+    )
+
+    observation = observation_from_drc_error(error)
+
+    assert observation.actual_distance_mm == pytest.approx(4.0)
+    assert observation.required_distance_mm == pytest.approx(12.6)
+    assert observation.components == ("U1", "U2")
+
+
+def test_drc_error_adapter_parses_strict_inequality() -> None:
+    error = DrcError(
+        rule="creepage",
+        severity="error",
+        location=(10.0, 20.0),
+        message="Creepage violation (4.0 mm < 12.6 mm)",
+    )
+
+    observation = observation_from_drc_error(error)
+
+    assert observation.actual_distance_mm == pytest.approx(4.0)
+    assert observation.required_distance_mm == pytest.approx(12.6)
+
+
+def test_drc_error_without_structured_distance_remains_investigation() -> None:
+    error = DrcError(
+        rule="creepage",
+        severity="error",
+        location=(10.0, 20.0),
+        message="Creepage violation; inspect package geometry",
+        components=["U1", "U2"],
+        nets=["HV", "LV"],
+    )
+
+    item = classify_creepage([observation_from_drc_error(error)])[0]
+
+    assert item.fix_class == "rule_policy"
+    assert "insufficient" in item.rationale
+
+
+def test_drc_error_adapter_rejects_non_creepage_rule() -> None:
+    error = DrcError(
+        rule="clearance",
+        severity="error",
+        location=(10.0, 20.0),
+        message="Clearance violation (0.1 mm < 0.2 mm)",
+    )
+
+    with pytest.raises(ValueError, match="creepage"):
+        observation_from_drc_error(error)
+
+
+def test_batch_adapter_ignores_unrelated_drc_errors() -> None:
+    creepage = DrcError(
+        rule="creepage",
+        severity="error",
+        location=(10.0, 20.0),
+        message="Creepage violation (4.0 mm < 12.6 mm)",
+    )
+    unrelated = DrcError(
+        rule="clearance",
+        severity="error",
+        location=(11.0, 20.0),
+        message="Clearance violation (0.1 mm < 0.2 mm)",
+    )
+
+    baseline = creepage_observations_from_errors([creepage])
+    with_unrelated = creepage_observations_from_errors([creepage, unrelated])
+
+    assert with_unrelated == baseline
