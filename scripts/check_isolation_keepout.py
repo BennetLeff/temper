@@ -166,11 +166,29 @@ EXIT_GATE_ERROR = 5
 # elsewhere on the board (e.g. under a connector) is never mistaken for it.
 BARRIER_ZONE_NAME = "MAINS_SELV_ISOLATION_BARRIER"
 
-# REINFORCED creepage, pollution degree 2, material group IIIb, <=400V
-# working voltage -- top of the plan's stated 3.0-8.0mm range. See module
-# docstring "Which clearance figure" for full derivation and UNVERIFIED
-# caveat. Never shrink this to make the gate pass (plan hard rule).
-MIN_BARRIER_WIDTH_MM = 8.0
+# REINFORCED creepage, pollution degree 3, material group IIIa/IIIb, >250V
+# <=400V working voltage -- IEC 60335-1 Table 17 row iv doubled per clause
+# 29.2.3 (6.3mm basic x2 = 12.6mm). Raised from the prior 8.0mm (PD2) figure
+# 2026-07-30: IEC 60335-2-6 cl. 29.2 Addition makes PD3 the default
+# microenvironment for this appliance class, and this project's own
+# mechanical documents (CHASSIS_AIRFLOW_DESIGN.md, COIL_BRACKET_DESIGN.md,
+# ASSEMBLY_GUIDE.md, the board's IP20 rating) do not earn the PD2
+# enclosure/sealing exception -- see
+# docs/evidence/2026-07-30-pollution-degree-determination.md. Changed in the
+# same commit as scripts/generate_kicad_dru.py's HV_CREEPAGE_ENFORCED_MM so
+# the two gates never enforce two different figures for the same
+# requirement. Never shrink this to make the gate pass (plan hard rule).
+#
+# NOTE: this board cannot meet 12.6mm reinforced creepage at U3/U7 by parts
+# or placement alone (docs/brainstorms/2026-07-30-hv-isolation-architecture-
+# options.md) -- the physical slot/keepout geometry on pcb/temper.kicad_pcb
+# is out of reach for this script and was not changed here. This gate
+# already fails today for an unrelated, prior reason (no
+# MAINS_SELV_ISOLATION_BARRIER keepout zone exists on the board at all), so
+# raising this figure does not change this gate's own PASS/FAIL outcome; it
+# changes the required width a human will need to satisfy once the keepout
+# zone itself is added.
+MIN_BARRIER_WIDTH_MM = 12.6
 
 _COPPER_LAYER_TYPE = "signal"
 

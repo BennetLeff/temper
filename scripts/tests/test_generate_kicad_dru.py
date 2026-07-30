@@ -38,13 +38,17 @@ four independent fail-opens on a live mains-connected board:
    ``(constraint creepage ...)`` clause pinned to ``HV_CREEPAGE_ENFORCED_MM``.
 
 PD2-vs-PD3 note: ``HV_CREEPAGE_ENFORCED_MM`` is pinned to
-``HV_CREEPAGE_PD2_MM`` (8.0mm), mirroring
+``HV_CREEPAGE_PD3_MM`` (12.6mm), mirroring
 ``scripts/check_isolation_keepout.py``'s current ``MIN_BARRIER_WIDTH_MM``
-(also 8.0mm/PD2). The PD2-vs-PD3 pollution-degree question itself remains
-UNRESOLVED and is NOT settled by this slice -- retargeting to PD3 (12.6mm)
-is a separate, larger change (constant here, that script's
-``MIN_BARRIER_WIDTH_MM``, and the physical U3/U7 creepage-slot geometry, all
-at once) and is out of scope.
+(also 12.6mm/PD3). The PD2-vs-PD3 pollution-degree question was SETTLED
+2026-07-30 (docs/evidence/2026-07-30-pollution-degree-determination.md):
+IEC 60335-2-6 cl. 29.2 Addition makes PD3 the default for this appliance
+class, and this project's own mechanical documents do not earn the PD2
+enclosure/sealing exception. What remains out of scope for this generator
+is the physical U3/U7 creepage-slot geometry on the real board, which
+cannot meet 12.6mm by parts or placement alone
+(docs/brainstorms/2026-07-30-hv-isolation-architecture-options.md) -- a
+separate, larger change this script does not make.
 
 Groups:
   TestHighVoltageIsolatedRulesEmitted/NetclassRulesYaml -- carried over from
@@ -738,26 +742,31 @@ class TestRule1aPadTypeConditionFix:
 # ("HighVoltageIsolated to LV") each carry a second `(constraint
 # creepage ...)` clause alongside their existing clearance constraint,
 # pinned to HV_CREEPAGE_ENFORCED_MM. The PD2 (8.0mm) vs PD3 (12.6mm)
-# pollution-degree question itself remains UNRESOLVED and is not settled
-# by this change -- HV_CREEPAGE_ENFORCED_MM is currently pinned to
-# HV_CREEPAGE_PD2_MM, matching the figure
-# scripts/check_isolation_keepout.py's MIN_BARRIER_WIDTH_MM already
-# enforces for the same barrier, not a new unilateral choice.
+# pollution-degree question is SETTLED as of 2026-07-30
+# (docs/evidence/2026-07-30-pollution-degree-determination.md; commit
+# 96726eac corrected docs/specs/HIGH_VOLTAGE_CLEARANCE_SPEC.md and the
+# REQ-SAFE-01 validator matrix to match): PD3 governs, so
+# HV_CREEPAGE_ENFORCED_MM is now pinned to HV_CREEPAGE_PD3_MM, matching
+# scripts/check_isolation_keepout.py's MIN_BARRIER_WIDTH_MM (also raised to
+# 12.6mm in the same change).
 
 
 class TestCreepageConstraintEmitted:
     def test_enforced_constant_is_one_of_the_two_declared_candidates(self) -> None:
         assert gen.HV_CREEPAGE_ENFORCED_MM in (gen.HV_CREEPAGE_PD2_MM, gen.HV_CREEPAGE_PD3_MM)
 
-    def test_enforced_constant_currently_pinned_to_pd2(self) -> None:
-        # Documented, deliberate choice (matches
-        # scripts/check_isolation_keepout.py's current MIN_BARRIER_WIDTH_MM,
-        # 8.0mm) -- not an accident of declaration order, and NOT a retarget
-        # to PD3 (that is a separate, larger, out-of-scope change -- see the
-        # module docstring on HV_CREEPAGE_ENFORCED_MM). If a human resolves
-        # PD3, this is the one assertion (plus the constant itself) that
-        # should change, alongside check_isolation_keepout.py's figure.
-        assert gen.HV_CREEPAGE_ENFORCED_MM == gen.HV_CREEPAGE_PD2_MM
+    def test_enforced_constant_pinned_to_pd3(self) -> None:
+        # Documented, deliberate choice, matching
+        # scripts/check_isolation_keepout.py's MIN_BARRIER_WIDTH_MM (12.6mm)
+        # -- not an accident of declaration order. PD3 was settled
+        # 2026-07-30 (docs/evidence/2026-07-30-pollution-degree-
+        # determination.md): IEC 60335-2-6 cl. 29.2 Addition makes PD3 the
+        # default for this appliance class, and no mechanical document here
+        # earns the PD2 enclosure/sealing exception. See the module
+        # docstring on HV_CREEPAGE_ENFORCED_MM for the full derivation and
+        # what this does NOT fix (the physical U3/U7 creepage-slot
+        # geometry, out of reach for this generator).
+        assert gen.HV_CREEPAGE_ENFORCED_MM == gen.HV_CREEPAGE_PD3_MM
 
     def test_ac_mains_to_lv_rule_emits_creepage_constraint(self) -> None:
         block = _rule_block(gen.generate_dru(), "AC Mains to LV")
@@ -859,7 +868,7 @@ class TestCreepageDrcFalsifier:
         """The exact 'HV to LV' rule block generate_dru() emits today,
         applied wholesale (not a hand-picked substitute), must produce a
         real creepage violation for a HighVoltage<->Default pad pair whose
-        straight-line gap is well below HV_CREEPAGE_ENFORCED_MM (8.0mm)."""
+        straight-line gap is well below HV_CREEPAGE_ENFORCED_MM (12.6mm)."""
         gap_mm = 3.0
         pcb_path = self._fixture(tmp_path, gap_mm)
         content = gen.generate_dru()

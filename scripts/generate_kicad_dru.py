@@ -78,7 +78,7 @@ HV_INTERNAL_CLEARANCE_MM = 2.0
 # correct. See docs/evidence/2026-07-28-conformal-coating-pd1.md sec "Verdict"
 # item and docs/evidence/2026-07-28-creepage-determination-brainstorm.md sec 5.
 HV_CREEPAGE_PD2_MM = 8.0
-HV_CREEPAGE_PD3_MM = 12.6  # flagged default per IEC 60335-2-6 cl. 29.2; UNRESOLVED
+HV_CREEPAGE_PD3_MM = 12.6  # settled 2026-07-30 per IEC 60335-2-6 cl. 29.2 Addition (see below)
 
 # ---------------------------------------------------------------------------
 # Creepage IS NOW EMITTED as a real KiCad DRC constraint (2026-07-28) --
@@ -102,29 +102,33 @@ HV_CREEPAGE_PD3_MM = 12.6  # flagged default per IEC 60335-2-6 cl. 29.2; UNRESOL
 #     clearance check. See docs/evidence/2026-07-28-drc-creepage-constraint.md.
 #
 # WHICH FIGURE TO EMIT: the PD2 (8.0mm) vs PD3 (12.6mm) question directly
-# above is UNRESOLVED and this file does not resolve it -- that determination
-# still belongs to a human. This constant is a SEPARATE, narrower decision:
-# which of the two unresolved figures the ACTUALLY-EMITTED .dru rule is
-# pinned to while the human question is open. Pinned to HV_CREEPAGE_PD2_MM,
-# reusing -- not re-deciding -- the identical call
-# scripts/check_isolation_keepout.py's MIN_BARRIER_WIDTH_MM already makes
-# for the same barrier (8.0mm, PD2). The PD2-vs-PD3 re-target itself (should
-# a human resolve the pollution-degree question in PD3's favor) is a
-# separate, larger change -- it touches this constant, that script's
-# MIN_BARRIER_WIDTH_MM, and the physical U3/U7 creepage-slot geometry on the
-# board simultaneously, and is explicitly out of scope here. Emitting this
-# generator's own unilateral PD3 figure while check_isolation_keepout.py and
-# the board's physical slots stayed at PD2 would make the two enforcement
-# points disagree, which is worse than emitting nothing -- so this constant
-# mirrors whatever check_isolation_keepout.py currently enforces, not a new
-# decision.
+# above is RESOLVED as of 2026-07-30 (docs/evidence/2026-07-30-pollution-
+# degree-determination.md, and commit 96726eac which corrected
+# docs/specs/HIGH_VOLTAGE_CLEARANCE_SPEC.md and the REQ-SAFE-01 validator
+# matrix to match): IEC 60335-2-6 cl. 29.2 Addition makes PD3 the default
+# microenvironment for this appliance class (cooking ranges/hobs), and none
+# of this project's own mechanical documents (CHASSIS_AIRFLOW_DESIGN.md's
+# forced-air-vented cavity, COIL_BRACKET_DESIGN.md's air-permeable baffle,
+# ASSEMBLY_GUIDE.md's unsealed standoff-mounted PCB, the board's own IP20
+# rating) earn the PD2 enclosure/sealing exception. PD3 governs; 12.6mm
+# reinforced creepage is the correct figure at this design's >250-400V
+# boundary, not 8.0mm.
 #
-# If a human resolves PD3 (or the board's physical slot geometry is
-# re-targeted for it), change this ONE line to HV_CREEPAGE_PD3_MM -- and
-# change scripts/check_isolation_keepout.py's MIN_BARRIER_WIDTH_MM to match
-# in the same change, so the two gates never enforce two different figures
-# for the same requirement.
-HV_CREEPAGE_ENFORCED_MM = HV_CREEPAGE_PD2_MM
+# This constant now mirrors that resolution -- pinned to HV_CREEPAGE_PD3_MM,
+# matching scripts/check_isolation_keepout.py's MIN_BARRIER_WIDTH_MM, changed
+# in the same commit so the two gates never enforce two different figures
+# for the same requirement (see that script's own comment).
+#
+# WHAT THIS DOES NOT FIX: docs/brainstorms/2026-07-30-hv-isolation-
+# architecture-options.md establishes that this board CANNOT meet 12.6mm
+# reinforced creepage at U3/U7 by parts or placement alone -- the physical
+# slot/keepout geometry on pcb/temper.kicad_pcb is a separate, larger change
+# (component selection, placement, or barrier redesign) that is out of reach
+# for this generator script and was not attempted here. Raising this constant
+# is expected to raise measured creepage violations on the real board; that
+# is the correct, honest result of closing a gap between the enforced figure
+# and the settled pollution-degree determination, not a regression to soften.
+HV_CREEPAGE_ENFORCED_MM = HV_CREEPAGE_PD3_MM
 
 # KiCad uses "Ground" as the net-class name; our Python dict uses "GND"
 KICAD_NAME_MAP = {
@@ -204,20 +208,21 @@ def generate_dru() -> str:
         " 8.0mm vs"
     )
     lines.append(
-        "# PD3 12.6mm) is UNRESOLVED and this file does not resolve it --"
-        " see"
+        "# PD3 12.6mm) is SETTLED as of 2026-07-30 (docs/evidence/2026-07-30-"
     )
     lines.append(
-        "# HV_CREEPAGE_ENFORCED_MM's own comment in this script for which"
-        " figure is"
+        "# pollution-degree-determination.md; see HV_CREEPAGE_ENFORCED_MM's"
+        " own"
     )
     lines.append(
-        "# currently pinned, why, and how to change it in one line once a"
-        " human"
+        "# comment in this script for the full derivation): PD3 governs, and"
     )
     lines.append(
-        "# settles the question. `scripts/check_isolation_keepout.py`"
-        " remains the"
+        "# this file enforces the 12.6mm reinforced figure that follows."
+        " `scripts/"
+    )
+    lines.append(
+        "# check_isolation_keepout.py` remains the"
     )
     lines.append(
         "# other, independent creepage enforcement point on this board (a"
