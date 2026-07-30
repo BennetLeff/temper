@@ -7,6 +7,38 @@ document does not choose for you — it lays out what each option costs, what
 it clears, and what a human needs to know to choose. Ranking given at the end
 is reasoning, not authority.
 
+**UPDATE (2026-07-30), resolved:** the "PD2 row-iv figure: 8.0mm or 10.0mm?"
+question this document lists below as the top-ranked, "resolve first" item
+and as the first "question only a human can answer" is now settled from
+primary text, not assessed reading. `docs/evidence/2026-07-30-pd2-creepage-row-determination.md`
+independently read a legible page render of IS 302-1:2008 (identical
+adoption of IEC 60335-1) Table 17 directly: row iv is stated verbatim as
+"**>250** and **<=400**," a closed range, not a discrete point — 400V sits
+inside it, not between rows. PD2, Material Group IIIa/IIIb, row iv:
+**4.0mm basic / 8.0mm reinforced.** PR #442's 10.0mm was an off-by-one-row
+error (it matches row v, ">400, <=500V," not row iv). **This confirms the
+favorable reading this document already leaned toward** — Option 2, if
+chosen and if the PD2 exception is legitimately earned, would need to clear
+8.0mm, not 10.0mm, so U3 (8.560mm) and U7 (8.100mm) both still clear
+(barely) under that scenario, exactly as this document's "favorable reading"
+paragraphs above already assumed.
+
+**This does not change what's operative today.** PR #464 (merged since this
+document was written) established PD3, not PD2, governs this design as
+currently built (no sealed/gasketed PCB compartment exists — same finding
+this document's own "Facts recap" section already states), so the
+**enforced REQ-SAFE-01 requirement today is 12.6mm reinforced** (Table 17
+row iv, PD3, Material Group IIIa/IIIb: 6.3mm basic, doubled), and U3/U7 do
+not clear it. The PD2 figure resolved here is what Option 2 would need to
+earn *if* a real sealed-compartment argument is built — it is not a
+retroactive loosening of the currently-operative constant, and does not by
+itself make Option 2 live; the mechanical/thermal questions this document
+already raises about Option 2 (sealed-compartment-vs-IGBT-heatsink-airflow
+tension, cable/connector penetration sealing, the "earned uniformly across
+the whole board's insulation, not per-component" caveat) are unchanged and
+still need a human. What this resolves is only the arithmetic Option 2's
+payoff depends on, per this document's own "Ranking" item 1.
+
 ## Read this first: two corrections to the task's own framing, up front
 
 Both are "don't bury it" items. Neither changes the bottom line (this board
