@@ -14,6 +14,8 @@ from unittest import mock
 
 import numpy as np
 import pytest
+from hypothesis import given, settings
+from hypothesis import strategies as st
 
 from temper_placer.router_v6._astar_reconstruct import (
     FAILURE_REASON_PROVER_ERROR,
@@ -295,3 +297,95 @@ class TestFullRunNoUnattributedDeclines:
                     f"{net_name}: attribution_gap=False but rule_id is falsy"
                 )
             assert report.domain in {"ground", "power", "hv", "signal"}
+
+
+def _compiled_result_with_decline(net_name: str):
+    from temper_placer.router_v6._routing_reports import PathfindingResult
+    from temper_placer.router_v6.routing_results import compile_routing_results
+    from temper_placer.router_v6.trace_width_assignment import TraceWidthAssignment
+    from temper_placer.router_v6.via_placement import ViaPlacement
+
+    report = RoutingFailureReport(
+        net_name=net_name,
+        failure_reason="no_path",
+        blocking_nets=[],
+        attempted_ripups=0,
+        congestion_region=None,
+    )
+    result = PathfindingResult(
+        routed_paths={},
+        failed_nets=[net_name],
+        failure_reports={net_name: report},
+    )
+    return compile_routing_results(
+        result,
+        TraceWidthAssignment(assignments={}),
+        ViaPlacement(vias=[]),
+    )
+
+
+def test_compiled_result_preserves_decline_report_and_completeness() -> None:
+    compiled = _compiled_result_with_decline("HV_NET")
+
+    assert compiled.failure_reports["HV_NET"].failure_reason == "no_path"
+    assert compiled.unattributed_failed_nets == ()
+    assert compiled.decline_reports_complete is True
+
+
+def test_missing_compiled_decline_report_is_observable() -> None:
+    from temper_placer.router_v6._routing_reports import PathfindingResult
+    from temper_placer.router_v6.routing_results import compile_routing_results
+    from temper_placer.router_v6.trace_width_assignment import TraceWidthAssignment
+    from temper_placer.router_v6.via_placement import ViaPlacement
+
+    compiled = compile_routing_results(
+        PathfindingResult(routed_paths={}, failed_nets=["MISSING_REPORT"]),
+        TraceWidthAssignment(assignments={}),
+        ViaPlacement(vias=[]),
+    )
+
+    assert compiled.unattributed_failed_nets == ("MISSING_REPORT",)
+    assert compiled.decline_reports_complete is False
+
+
+@given(
+    failed_nets=st.lists(
+        st.from_regex(r"NET_[A-Z]{1,5}", fullmatch=True),
+        min_size=1,
+        max_size=8,
+        unique=True,
+    )
+)
+@settings(max_examples=30, deadline=None)
+def test_failed_net_order_does_not_change_compiled_decline_evidence(
+    failed_nets: list[str],
+) -> None:
+    """Permutation metamorphism: evidence is keyed by net, not list order."""
+    from temper_placer.router_v6._routing_reports import PathfindingResult
+    from temper_placer.router_v6.routing_results import compile_routing_results
+    from temper_placer.router_v6.trace_width_assignment import TraceWidthAssignment
+    from temper_placer.router_v6.via_placement import ViaPlacement
+
+    reports = {
+        net: RoutingFailureReport(
+            net_name=net,
+            failure_reason="no_path",
+            blocking_nets=[],
+            attempted_ripups=0,
+            congestion_region=None,
+        )
+        for net in failed_nets
+    }
+
+    def compile_ordered(order: list[str]):
+        return compile_routing_results(
+            PathfindingResult(
+                routed_paths={}, failed_nets=order, failure_reports=reports
+            ),
+            TraceWidthAssignment(assignments={}),
+            ViaPlacement(vias=[]),
+        )
+
+    assert compile_ordered(failed_nets).failure_reports == compile_ordered(
+        list(reversed(failed_nets))
+    ).failure_reports

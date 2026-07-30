@@ -94,7 +94,7 @@ def build_obstacle_map(pcb: ParsedPCB, escape_vias: list[EscapeVia]) -> dict[str
                 layer_obstacles[layer_info.name].append(via_poly)
 
     # 3. Zones / Keepouts
-    if hasattr(pcb, "zones") and pcb.zones:
+    if pcb.zones_are_authoritative and hasattr(pcb, "zones") and pcb.zones:
         for zone in pcb.zones:
             # Skip if no polygon data
             if not hasattr(zone, "polygon") or not zone.polygon:

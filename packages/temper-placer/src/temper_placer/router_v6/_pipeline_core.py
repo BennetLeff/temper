@@ -240,7 +240,11 @@ class RouterV6Pipeline:
             print("Stage 0: Loading PCB...")
         from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
 
-        pcb = parse_kicad_pcb_v6(pcb_path)
+        pcb = parse_kicad_pcb_v6(
+            pcb_path,
+            use_declared_layer_roles=self.enable_zone_pours,
+            zones_are_authoritative=not self.enable_zone_pours,
+        )
         if pcb_override is not None:
             pcb = pcb_override
 

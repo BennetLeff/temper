@@ -1,3 +1,5 @@
+from dataclasses import replace
+
 import pytest
 from shapely.geometry import Point
 
@@ -127,3 +129,31 @@ def test_union_overlapping(empty_pcb):
     # Area should be less than sum of individual areas
     area1 = Point(0, 0).buffer(1.0).area
     assert poly.area < area1 * 2
+
+
+def test_derived_zones_are_not_routing_obstacles(empty_pcb):
+    """Metamorphic P2 relation: derived input zones cannot block routing.
+
+    The same routed-input state with a legacy zone present or absent must
+    produce the same obstacle map once zones are declared derived output.
+    """
+
+    class Zone:
+        polygon = [(0.0, 0.0), (20.0, 0.0), (20.0, 20.0), (0.0, 20.0)]
+        layers = ["F.Cu"]
+
+    with_legacy_zone = replace(
+        empty_pcb,
+        zones=[Zone()],
+        zones_are_authoritative=False,
+    )
+    without_legacy_zone = replace(
+        empty_pcb,
+        zones=[],
+        zones_are_authoritative=False,
+    )
+
+    derived_with_zone = build_obstacle_map(with_legacy_zone, [])
+    derived_without_zone = build_obstacle_map(without_legacy_zone, [])
+
+    assert derived_with_zone == derived_without_zone

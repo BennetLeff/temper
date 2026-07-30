@@ -153,6 +153,10 @@ class ParsedPCB:
     tracks: list = field(default_factory=list)  # Pre-routed tracks
     vias: list = field(default_factory=list)  # Pre-existing vias (ViaData)
     warnings: list[str] = field(default_factory=list)
+    # True while source-board zones are authoritative routing obstacles. The
+    # full route pipeline sets this false when zones will be regenerated from
+    # emitted copper after routing.
+    zones_are_authoritative: bool = True
 
     def validate_placement(self) -> list[str]:
         """

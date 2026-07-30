@@ -5,7 +5,10 @@ from __future__ import annotations
 from collections.abc import Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+
+if TYPE_CHECKING:
+    from temper_placer.router_v6._routing_reports import RoutingFailureReport
 
 __all__ = [
     "_AdapterRoutePath",
@@ -101,12 +104,14 @@ class RoutingResult:
             and optional manufacturing report.
         congestion_regions: List of CongestionRegion details from
             bottleneck geometry analysis.
+        failure_reports: Structured decline evidence keyed by net name.
     """
 
     completion_rate: float = 0.0
     unrouted_nets: list[str] = field(default_factory=list)
     drc_violations: list[DrcViolation] = field(default_factory=list)
     congestion_regions: list[CongestionRegion] = field(default_factory=list)
+    failure_reports: dict[str, RoutingFailureReport] = field(default_factory=dict)
     routed_pcb_content: str | None = None
     enable_zone_pours: bool = False
     connectivity: dict[str, Any] | None = None

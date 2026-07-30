@@ -173,7 +173,12 @@ def extract_footprint_positions(content: str) -> dict[str, dict]:
     return positions
 
 
-def parse_kicad_pcb_v6(pcb_path: Path, *, use_declared_layer_roles: bool = False) -> ParsedPCB:
+def parse_kicad_pcb_v6(
+    pcb_path: Path,
+    *,
+    use_declared_layer_roles: bool = False,
+    zones_are_authoritative: bool = True,
+) -> ParsedPCB:
     """Parse KiCad PCB for Router V6 Stage 0.1: Load KiCad PCB File.
 
     Extracts complete ParsedPCB structure including:
@@ -189,6 +194,9 @@ def parse_kicad_pcb_v6(pcb_path: Path, *, use_declared_layer_roles: bool = False
             to ``True`` in production before pours become derived output
             (this plan's U3), or it reproduces the recorded 12x completion
             regression in ``docs/evidence/2026-07-28-stackup-partial-revert.md``.
+        zones_are_authoritative: Whether source-board zones remain routing
+            obstacles. Set false only when the caller will replace them with
+            derived post-route pours.
 
     Returns:
         ParsedPCB with all required data for Router V6.
@@ -225,4 +233,5 @@ def parse_kicad_pcb_v6(pcb_path: Path, *, use_declared_layer_roles: bool = False
         tracks=legacy_result.traces,
         vias=legacy_result.vias,
         warnings=warnings,
+        zones_are_authoritative=zones_are_authoritative,
     )

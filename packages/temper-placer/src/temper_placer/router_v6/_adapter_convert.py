@@ -740,6 +740,7 @@ def _build_routing_result(
         unrouted_nets=unrouted_nets,
         drc_violations=drc_violations,
         congestion_regions=congestion_regions,
+        failure_reports=dict(sorted((getattr(routing_results, "failure_reports", {}) or {}).items())),
         routed_pcb_content=routed_content,
         connectivity=connectivity,
         forced_segment_nets=forced_segment_nets,

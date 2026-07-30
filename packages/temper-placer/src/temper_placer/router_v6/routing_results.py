@@ -18,6 +18,7 @@ from temper_placer.router_v6.tree_route_geometry import TreeRouteGeometry
 from temper_placer.router_v6.via_placement import ViaPlacement
 
 if TYPE_CHECKING:
+    from temper_placer.router_v6._routing_reports import RoutingFailureReport
     from temper_placer.router_v6.diagnostics import NetRoutingReport
 
 
@@ -53,6 +54,10 @@ class RoutingResults:
     partial_routes: dict[str, CompiledRoute] = field(default_factory=dict)
     tree_routes: dict[str, CompiledTreeRoute] = field(default_factory=dict)
     partial_tree_routes: dict[str, CompiledTreeRoute] = field(default_factory=dict)
+    # U1: preserve the structured reason for every declined net through the
+    # Stage 5 compilation boundary. This is keyed by net name so list order
+    # cannot change or lose the evidence.
+    failure_reports: dict[str, RoutingFailureReport] = field(default_factory=dict)
     # U3: per-net connectivity verification. When populated, success_count
     # derives from NetDisposition rather than raw path count.
     connectivity: dict[str, NetConnectivity] | None = None
@@ -83,6 +88,26 @@ class RoutingResults:
                 if nc.disposition in (NetDisposition.INCOMPLETE, NetDisposition.FAILED)
             )
         return len(self.failed_nets)
+
+    @property
+    def unattributed_failed_nets(self) -> tuple[str, ...]:
+        """Failed nets that lack structured decline evidence.
+
+        This is intentionally observable rather than silently synthesized:
+        callers can fail closed on an attribution gap without fabricating a
+        rule or domain. The tuple is sorted for deterministic reports.
+        """
+        reported = self.failure_reports.keys()
+        return tuple(sorted(set(self.failed_nets).difference(reported)))
+
+    @property
+    def decline_reports_complete(self) -> bool:
+        """Whether every failed net has a report keyed by its own net name."""
+        return not self.unattributed_failed_nets and all(
+            report.net_name == net_name
+            for net_name, report in self.failure_reports.items()
+            if net_name in self.failed_nets
+        )
 
     @property
     def total_route_length(self) -> float:
@@ -229,5 +254,6 @@ def compile_routing_results(
         partial_routes=partial_routes,
         tree_routes=tree_routes,
         partial_tree_routes=partial_tree_routes,
+        failure_reports=dict(sorted((pathfinding_result.failure_reports or {}).items())),
         connectivity=connectivity,
     )
