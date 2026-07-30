@@ -1,6 +1,6 @@
 # Clearance (16/666, corrected to 37/666) and copper_balance (4 unbalanced layers) investigation
 
-<!-- provenance: commit=02e907b9d19eab77a13cb63a390af18b1c1d7d10 dirty=true (work commit; base per task instructions) -->
+<!-- provenance: commit=02e907b9a5e1dbca4eae9a0a53f8a2be6dc862c5 dirty=true (work commit; base per task instructions. Corrected: the previously-recorded commit=02e907b9d19eab77a13cb63a390af18b1c1d7d10 does not resolve via `git cat-file -t` -- it is a mistranscribed tail after a valid 8-char abbreviation. `02e907b9` is the prefix of exactly one commit in this repository's history, `02e907b9a5e1dbca4eae9a0a53f8a2be6dc862c5` ("fix(build): no pyo3 extension in this repo could be rebuilt on macOS", 2026-07-27), which is also an ancestor of this doc's own introducing commit 94fcc741 -- used here as the corrected value, not a fabricated one.) -->
 
 **Date:** 2026-07-27
 
