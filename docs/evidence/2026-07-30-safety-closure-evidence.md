@@ -3,11 +3,11 @@ date: 2026-07-30
 topic: safety-closure-evidence
 status: measured-open-decisions
 provenance:
-  measured_at_commit: 61b342022
-  base_commit: 8d89069c2
+  measured_at_commit: 4fd1fb6f5301e82ab4d24ebc3beb305b24e7024f
+  base_commit: bb7592755
   branch: codex/safety-closure
   dirty: false
-  note: tracked tree clean; make netlist created ignored elec/build and .venv artifacts
+  note: "Measurements were re-run after rebasing onto bb7592755; tracked tree was clean at measurement time; make netlist created ignored elec/build and .venv artifacts."
 ---
 
 # Safety-closure evidence pass
