@@ -24,6 +24,26 @@ The current main commit is `d510f4ede`. This plan was written in the isolated
 detached worktree `/private/tmp/temper-drc-burndown-plan`; the shared checkout
 is intentionally left untouched.
 
+## Measurement and integration notes
+
+The canonical DRC invocation can be environment-sensitive on macOS. In the
+restricted Codex execution environment, KiCad 10.0.4 has intermittently
+aborted before writing JSON with `exit 133` and
+`SwiftNativeNSArray.swift:78: Fatal error: Array index out of range`,
+including on a benchmark fixture. This is not evidence that KiCad 10.0.4 or
+the board is intrinsically unmeasurable: an unrestricted run on the same
+branch produced a valid report. A ceiling baseline must therefore carry the
+environment/tool invocation that actually produced it and must not substitute
+the non-canonical no-`--all-track-errors` path for the repository's required
+measurement protocol.
+
+For integration, this branch is the gates/netclass/PD3 trunk. Bring over only
+unique board-geometry changes from `#474`, then reconcile the overlapping
+`pcb/temper.kicad_pro` and `scripts/generate_kicad_dru.py` changes once. Do not
+merge the stale `#474` branch wholesale: it contains unrelated historical
+reversions. Any resulting board or rule-input change requires a fresh
+measurement before the ceiling is considered.
+
 ## Non-negotiable ordering
 
 1. **Prerequisite convergence.** Confirm the exact `#474` and `#486` inputs,
