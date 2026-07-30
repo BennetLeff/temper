@@ -1,0 +1,29 @@
+# Known-failure-reason pin registry -- see scripts/known_failure_pins.py.
+#
+# A pin declares the *exact signature* a known-failing test currently fails
+# with, so a DIFFERENT failure in the same test is reported loudly instead of
+# being silently absorbed by "yeah, that test's always red." See
+# docs/solutions/best-practices/pin-known-failure-reasons-2026-07-30.md for
+# the full rationale (the PR #460 near-miss this mechanism exists to prevent).
+#
+# Format:
+#
+#   <pytest nodeid>:
+#     issue: docs/evidence/<file>.md   # must exist on disk (checked by the gate)
+#     declared: YYYY-MM-DD
+#     expires: YYYY-MM-DD              # <= 21 days after declared (checked by the gate)
+#     reason: >
+#       Human-readable explanation of the known defect.
+#     signature:
+#       <violation-type>: <count>      # exact dict, compared by equality
+#
+# Ratchet: `uv run python scripts/known_failure_pins.py` fails CI if the
+# live-pin count exceeds MAX_LIVE_PINS, if any pin is past its expiry, if a
+# pin's lifetime exceeds MAX_PIN_LIFETIME_DAYS, if an `issue` link is
+# dangling, or if a pinned nodeid no longer resolves to a real test.
+#
+# Empty today: test_golden_board_drc_regression currently passes on `main`
+# (no rotation-writer-induced short is live on this board/seed), so there is
+# no legitimate known-failure signature to pin. Add an entry here only when
+# the test is ACTUALLY red for a diagnosed, evidence-linked reason -- never
+# pre-emptively.
