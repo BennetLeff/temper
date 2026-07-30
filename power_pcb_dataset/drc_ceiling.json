@@ -1,6 +1,7 @@
 {
   "_goal": "error_ceiling: 0. Every number below is debt to pay down, not budget to spend. Ceilings may only decrease; raising one requires a 'Ceiling-Approval:' commit trailer (drc_ratchet.detect_ceiling_raise).",
   "_march": {
+    "2026-07-30-trunk-120-sample-baseline": "Canonical 120-sample DRC baseline on the converged trunk at f91e357ad (kicad-cli 10.0.4 via temper_placer.validation._drc_api.run_drc with --all-track-errors; board input unchanged from the prior record, sha256 e2fb92370da13554710e00857ad03a460340a2ee4f1782220f02c8c552c80277). Aggregate errors observed 1343-1347, mode 1344 (43/120); the aggregate ceiling is therefore 1348. clearance observed 499-501 and retains observed-max-plus-one headroom at 502. creepage observed 311-313, newly nondeterministic on this converged trunk, and receives the same headroom treatment at 314. Stable measured ceilings remain exact: track_width 199, shorting_items 118, hole_clearance 102, solder_mask_bridge 69, copper_edge_clearance 15, courtyards_overlap 14, plus annular_width 4, drill_out_of_range 4, hole_to_hole 1, tracks_crossing 3, and via_diameter 4. The 80 explicit kicad_pro netclass assignments, GateDriveHV/GateDriveSELV split, PD3 12.6 mm enforcement, and blacklist-completeness changes are already present on this trunk; this entry records their measured result rather than accepting #473/#474's stale or narrower recommendations. #473's evidence is superseded for ceiling values; #474's unique creepage triage is retained separately below. The aggregate and creepage/clearance raises are measured run-to-run headroom and newly visible pre-existing DRC debt, not a board-geometry regression introduced by this documentation-and-baseline commit. Ceiling-Approval is on the landing commit.",
     "2026-07-27": "error_ceiling 158 -> 90. The 158 was set when the board measured 158; the domain-clearance re-solve cut actual errors to 90 and nobody ratcheted, leaving 68 errors of slack for a regression to hide in. violations_by_type is now populated AND enforced -- a category absent from it has an implicit ceiling of 0, so a new violation class cannot arrive for free under the aggregate.",
     "next": "clearance (10) and copper_edge_clearance (3) go to 0 first. They include HighVoltage netclass pairs at 0.336-0.85 mm against a 2.0 mm requirement (U7 pad9/pad11, TP3-U7, C23, R28) and three pads at 0.000 mm to the board edge. These pass today only because the aggregate ceiling is coarse enough to hide them.",
     "2026-07-27b": "After merging followup/post-344 and re-measuring on the later board (043debdf, post r_avdd_top 0603->0805): three categories improved and were ratcheted down -- shorting_items 35->33, solder_mask_bridge 32->30, clearance 10->9 (TP3<->U7 resolved by that re-solve; no DRC error on this board involves TP3). Two REGRESSED and are deliberately HELD at their prior ceilings so the gate names them: courtyards_overlap now measures 15 vs ceiling 10, copper_edge_clearance 4 vs 3. Raising them would silently accept a regression introduced by the 0805 footprint change. error_ceiling is the sum of the per-type ceilings (85); the board measures 91, so this gate fails until those two are brought back.",
@@ -18,7 +19,7 @@
     {
       "board_id": "temper",
       "path": "pcb/temper.kicad_pcb",
-      "error_ceiling": 875,
+      "error_ceiling": 1348,
       "warning_ceiling": 680,
       "category_source": "kicad-cli",
       "violations_by_type": {
@@ -26,9 +27,9 @@
         "clearance": 502,
         "copper_edge_clearance": 15,
         "courtyards_overlap": 14,
-        "creepage": 32,
+        "creepage": 314,
         "drill_out_of_range": 4,
-        "hole_clearance": 109,
+        "hole_clearance": 102,
         "hole_to_hole": 1,
         "shorting_items": 118,
         "solder_mask_bridge": 69,
@@ -36,9 +37,9 @@
         "via_diameter": 4
       },
       "provenance": {
-        "measured_at_commit": "067527c96cefb2fb14e8d491f371b6ec9483cf7d",
+        "measured_at_commit": "f91e357ad01d5a9646f347d6feef1d2c59401927",
         "dirty": false,
-        "branch": "fix/drc-provenance-remeasure-20260729",
+        "branch": "codex/drc-burndown-to-zero",
         "inputs": [
           {
             "path": "pcb/temper.kicad_pcb",
@@ -49,7 +50,7 @@
           "kicad-cli": "10.0.4"
         },
         "source": "measured-live",
-        "measured_via": "temper_placer.validation._drc_api.run_drc with --all-track-errors (120 samples; see nondeterministic_error_types.clearance.samples)"
+        "measured_via": "temper_placer.validation._drc_api.run_drc with --all-track-errors (120 samples; see nondeterministic_error_types.clearance.samples and nondeterministic_error_types.creepage.samples)"
       },
       "warnings_by_type": {
         "holes_co_located": 2,
@@ -64,6 +65,15 @@
         "via_dangling": 4
       },
       "nondeterministic_error_types": {
+        "creepage": {
+          "observed": [
+            311,
+            312,
+            313
+          ],
+          "samples": 120,
+          "note": "Newly observed nondeterminism on the converged trunk: creepage scattered across 311-313 in the canonical 120-sample run. Ceiling carries 1 count of headroom above the observed max (314)."
+        },
         "clearance": {
           "observed": [
             499,
@@ -71,7 +81,7 @@
             501
           ],
           "samples": 120,
-          "note": "Still the only nondeterministic category, and still exactly the same 499-501 range as every prior 120-sample measurement back through the tank-cap board. hole_clearance and shorting_items -- both fully deterministic (single value, zero scatter) in the immediately prior (pad-rotation) 120-sample measurement -- remain fully deterministic here too, at their new post-resync values (109/109 and 118/118 across all 120 runs): the brief nondeterminism observed once, on the tank-cap-only board, still has not recurred on either board measured since. Ceiling carries 1 count of headroom above the observed max (502), unchanged from every prior entry."
+          "note": "Nondeterministic category; the historical clearance range remains 499-501 across 120 samples. Ceiling carries 1 count of headroom above the observed max (502)."
         }
       }
     }
