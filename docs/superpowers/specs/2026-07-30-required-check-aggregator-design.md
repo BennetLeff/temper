@@ -28,7 +28,9 @@ the merge commit, and will:
 6. Verify that the push and pull_request Python Tests path lists remain exactly
    synchronized with the manifest, so future additions cannot silently drift.
 
-The known-red hardware and requirements jobs remain advisory in this phase;
+The polling budget is 2700 seconds (45 minutes): this leaves headroom for the
+observed queue delay while still bounding a missing workflow. The known-red
+hardware and requirements jobs remain advisory in this phase;
 they are not included in the candidate list. They will be added to the
 manifest only after their underlying defects are resolved and main is green.
 
@@ -51,8 +53,9 @@ manifest only after their underlying defects are resolved and main is green.
 The aggregator never converts an applicable failure into success. A skipped
 Python Tests workflow is acceptable only when no manifest trigger path
 matches. API errors, malformed event data, malformed manifest data, and
-timeouts are hard failures. The polling timeout is bounded so a missing
-workflow cannot consume a runner indefinitely.
+timeouts are hard failures. The 45-minute polling timeout accounts for queue
+time plus the observed roughly 20-minute slow CP-SAT shard while remaining
+bounded so a missing workflow cannot consume a runner indefinitely.
 
 ## Verification
 

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "timeout_seconds": 1800,
+  "timeout_seconds": 2700,
   "poll_interval_seconds": 15,
   "trigger_paths": [
     "packages/**",
