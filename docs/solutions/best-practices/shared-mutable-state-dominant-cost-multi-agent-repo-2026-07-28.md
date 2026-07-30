@@ -285,3 +285,31 @@ dc8de067 (01:07): worktrees at 51 GB -> 28 GB (23 GB reclaimed,
 - `docs/STRATEGY.md` (§ "Tempco was never analysed, and a fourth part is
   fabricated") — the coordinator `git checkout -B`-in-the-shared-checkout
   precedent.
+
+---
+
+## A sixth incident, 2026-07-29: a stash killed by its own timeout, recovered by luck rather than by process
+
+A `git stash` used for an A/B baseline comparison (route the board, stash,
+route again, compare) was followed by a command that ran past a 10-minute
+timeout; the shell that would have run `git stash pop` was killed before it
+executed. The stashed work survived only because `stash@{0}` had not yet
+been touched by anything else — in a stash list already **82 entries deep**
+in this shared checkout — and `HEAD` had advanced in the meantime (a
+different session committed) while the working tree sat clean, showing no
+sign anything was missing. Recovery worked: `git stash show -p stash@{0} |
+git apply` restored the work without needing `git stash pop` at all.
+
+This is the same class of incident this document already names —
+`git stash` in a shared checkout is unsafe not only because a *concurrent
+session* can pop, drop, or reorder someone else's entry, but because a
+single session's own tooling (a timeout, a crash, an interrupted agent
+turn) can just as easily strand the pop step. The fix already recorded
+elsewhere in this repository's process — never `git stash`; use
+`git worktree add --detach <ref>` for before/after comparisons — removes
+this failure mode entirely rather than reducing its odds: a worktree has
+no pop step to strand, so there is nothing for a timeout to interrupt
+partway through. An 82-entry-deep stash list in a shared checkout is itself
+a signal the discipline had already lapsed well before this specific
+incident; treat a growing stash list as a leading indicator, not just a
+place recoveries happen to succeed.
