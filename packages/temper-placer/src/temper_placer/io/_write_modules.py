@@ -9,6 +9,7 @@ from kiutils.board import Board as KiBoard
 from kiutils.items.common import Position
 from kiutils.items.gritems import GrRect, GrText
 
+from temper_placer.geometry.kicad_transform import rotate_local_to_world
 from temper_placer.io._write_types import _get_footprint_reference
 from temper_placer.io.kicad_exporter import _validate_4_layer_output
 
@@ -67,14 +68,11 @@ def add_bounding_boxes_to_pcb(
             local_x = pad.position.X if pad.position else 0.0
             local_y = pad.position.Y if pad.position else 0.0
 
-            # Rotate local position by footprint angle
+            # Rotate local position by footprint angle, using KiCad's real
+            # rotation convention -- see
+            # temper_placer.geometry.kicad_transform's docstring.
             if abs(fp_angle) > 0.1:
-                # KiCad's real footprint-child rotation is R(-theta), not
-                # R(+theta) -- see
-                # docs/evidence/2026-07-29-cross-domain-creepage-rotation-convention.md
-                # Sec. 2.
-                rotated_x = local_x * math.cos(angle_rad) + local_y * math.sin(angle_rad)
-                rotated_y = -local_x * math.sin(angle_rad) + local_y * math.cos(angle_rad)
+                rotated_x, rotated_y = rotate_local_to_world(local_x, local_y, angle_rad)
             else:
                 rotated_x, rotated_y = local_x, local_y
 
@@ -181,12 +179,9 @@ def add_silkscreen_labels(
             local_y = pad.position.Y if pad.position else 0.0
 
             if abs(fp_angle) > 0.1:
-                # KiCad's real footprint-child rotation is R(-theta), not
-                # R(+theta) -- see
-                # docs/evidence/2026-07-29-cross-domain-creepage-rotation-convention.md
-                # Sec. 2.
-                rotated_x = local_x * math.cos(angle_rad) + local_y * math.sin(angle_rad)
-                rotated_y = -local_x * math.sin(angle_rad) + local_y * math.cos(angle_rad)
+                # KiCad's real rotation convention -- see
+                # temper_placer.geometry.kicad_transform's docstring.
+                rotated_x, rotated_y = rotate_local_to_world(local_x, local_y, angle_rad)
             else:
                 rotated_x, rotated_y = local_x, local_y
 

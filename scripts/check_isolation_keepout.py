@@ -141,7 +141,6 @@ Usage:
 from __future__ import annotations
 
 import argparse
-import math
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -152,6 +151,7 @@ from _lib.github_summary import get_github_summary_path  # noqa: E402
 from _lib.repo import find_repo_root  # noqa: E402
 
 from temper_placer.core.pad_geometry import pad_bounding_radius  # noqa: E402
+from temper_placer.geometry.kicad_transform import rotate_local_to_world_deg  # noqa: E402
 
 REPO_ROOT = find_repo_root()
 DEFAULT_BOARD = REPO_ROOT / "pcb" / "temper.kicad_pcb"
@@ -317,14 +317,10 @@ class BoardData:
 
 
 def _rotate(x: float, y: float, angle_deg: float | None) -> tuple[float, float]:
-    """KiCad's footprint-child rotation (y-down board frame): R(-theta), not
-    the R(+theta) this function used before. Confirmed against real
-    ``kicad-cli 10.0.4 pcb drc`` ground truth in
-    docs/evidence/2026-07-29-cross-domain-creepage-rotation-convention.md
-    (Sec. 2) and matches ``scripts/check_pad_orientation.py``'s
-    independently-validated (57/57 against real DRC) ``_rotate``."""
-    a = math.radians(angle_deg or 0.0)
-    return (x * math.cos(a) + y * math.sin(a), -x * math.sin(a) + y * math.cos(a))
+    """KiCad's footprint-child rotation (y-down board frame) -- see
+    ``temper_placer.geometry.kicad_transform``'s module docstring for the
+    confirming evidence."""
+    return rotate_local_to_world_deg(x, y, angle_deg or 0.0)
 
 
 def _expand_copper_layers(raw_layers: list[str], copper_layers_ordered: list[str]) -> frozenset[str]:

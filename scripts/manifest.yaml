@@ -15,6 +15,19 @@ scripts:
   disposition: utility
   imports:
   - sys
+- path: kicad_pad_rotation_oracle.py
+  purpose: 'Oracle for the rotation-convention differential tests (packages/temper-placer/tests/requirements/safety/test_rotation_convention_oracle.py):
+    places a pad via real pcbnew (KiCad''s own footprint-placement engine) and reports where it actually
+    lands, given a local offset and a footprint rotation. Must run under a Python interpreter with KiCad''s
+    pcbnew bindings, not the project uv venv.'
+  owner: bennet
+  last_run: '2026-07-30'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - json
+  - sys
 - path: literal_removal_check.py
   purpose: 'Advisory check: flags literals removed by a diff that are still referenced elsewhere in the
     repo'
@@ -105,6 +118,7 @@ scripts:
   - pathlib
   - re
   - sys
+  - temper_placer.geometry.kicad_transform
 - path: check_physics_provenance.py
   purpose: 'Physics provenance gate: require # source: comments on module-level float constants in physics/'
   owner: pipeline
@@ -270,6 +284,7 @@ scripts:
   - rich.console
   - sys
   - temper_placer.core.loop
+  - temper_placer.geometry.kicad_transform
   - temper_placer.io.kicad_parser
   - temper_placer.io.trace_writer
   - temper_placer.io.zone_manager
@@ -1110,6 +1125,24 @@ scripts:
   - re
   - rich.console
   - sys
+- path: check_no_raw_rotation_trig.py
+  purpose: 'CI gate: fail if any of the 12 files that have already carried KiCad''s R(+theta)/R(-theta)
+    footprint-child rotation sign bug (see docs/evidence/2026-07-29-cross-domain-creepage-rotation-convention.md)
+    contains a raw math.cos/math.sin/np.cos/np.sin call instead of importing temper_placer.geometry.kicad_transform,
+    the single sanctioned implementation those 12 sites were consolidated into'
+  owner: bennet
+  last_run: '2026-07-30'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - ast
+  - dataclasses
+  - pathlib
+  - sys
 - path: check_isolation_keepout.py
   purpose: 'Physical mains<->SELV isolation-barrier CI gate: verify a dedicated keepout region spans all
     copper layers, is >=8.0mm wide (REINFORCED creepage) throughout, bisects the board into HV/SELV sides,
@@ -1126,10 +1159,10 @@ scripts:
   - _lib.repo
   - argparse
   - dataclasses
-  - math
   - pathlib
   - sys
   - temper_placer.core.pad_geometry
+  - temper_placer.geometry.kicad_transform
 - path: check_stale_extensions.py
   purpose: 'CI gate: fail-closed freshness check for every pyo3/maturin Rust extension crate under packages/
     -- an installed .so older than its own crate''s source (or a crate whose extension is missing entirely)
@@ -1244,8 +1277,8 @@ scripts:
     signature) as a monotonic-shrink ratchet -- live-pin cap, forced expiry/renewal, required evidence-doc
     link, orphan-nodeid detection -- and provide annotate_failure()/check_signature() for a test to compare
     its actual failure signature against the declared one, distinguishing "known reason" from "changed
-    reason" without xfail (docs/solutions/best-practices/pin-known-failure-reasons-2026-07-30.md, the PR
-    #460 near-miss).'
+    reason" without xfail (docs/solutions/best-practices/pin-known-failure-reasons-2026-07-30.md, the
+    PR #460 near-miss).'
   owner: bennet
   last_run: '2026-07-30'
   category: keep

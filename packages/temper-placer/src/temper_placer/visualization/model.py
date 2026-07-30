@@ -72,25 +72,31 @@ class Rectangle:
 
     @property
     def corners(self) -> list[Point]:
-        """Get the four corners of the rectangle (for rendering)."""
+        """Get the four corners of the rectangle (for rendering).
+
+        Renders a visual proxy of the real board -- ``self.rotation`` is
+        meant to hold real component/board orientation (``ComponentView``'s
+        own docstring), so this uses KiCad's footprint-child rotation
+        convention, R(-theta). Currently a no-op either way: the placer's
+        rotation state is always a 0/90/180/270 quadrant value, and an
+        origin-symmetric rectangle's corner SET is invariant to R(+theta)
+        vs R(-theta) at those exact angles -- see
+        ``temper_placer.geometry.kicad_transform``'s module docstring.
+        Fixed anyway so a future non-quadrant caller does not inherit a
+        mirrored rendering.
+        """
         import math
+
+        from temper_placer.geometry.kicad_transform import place_local_to_world
 
         cx, cy = self.center.x, self.center.y
         w, h = self.width / 2, self.height / 2
-        angle = math.radians(self.rotation)
-        cos_a, sin_a = math.cos(angle), math.sin(angle)
+        theta_rad = math.radians(self.rotation)
 
         # Corners relative to center
         corners_rel = [(-w, -h), (w, -h), (w, h), (-w, h)]
 
-        # Rotate and translate
-        corners = []
-        for dx, dy in corners_rel:
-            rx = dx * cos_a - dy * sin_a + cx
-            ry = dx * sin_a + dy * cos_a + cy
-            corners.append(Point(rx, ry))
-
-        return corners
+        return [Point(*place_local_to_world(dx, dy, cx, cy, theta_rad)) for dx, dy in corners_rel]
 
 
 @dataclass(frozen=True)
