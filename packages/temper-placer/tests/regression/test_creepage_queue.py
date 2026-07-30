@@ -13,6 +13,7 @@ from temper_placer.regression.creepage_queue import (
     classify_creepage,
     creepage_observations_from_errors,
     observation_from_drc_error,
+    select_layout_slice,
 )
 from temper_placer.validation._drc_api import DrcError
 
@@ -249,3 +250,59 @@ def test_batch_adapter_ignores_unrelated_drc_errors() -> None:
     with_unrelated = creepage_observations_from_errors([creepage, unrelated])
 
     assert with_unrelated == baseline
+
+
+def test_layout_slice_selects_highest_deficiency_and_excludes_escalations() -> None:
+    observations = [
+        _observation(location=(10.0, 20.0)),
+        replace(
+            _observation(location=(11.0, 20.0), components=("U7", "U8")),
+            actual_distance_mm=1.0,
+        ),
+        replace(
+            _observation(location=(12.0, 20.0), nets=(), components=()),
+            actual_distance_mm=1.0,
+        ),
+    ]
+    queue = classify_creepage(observations)
+
+    selected = select_layout_slice(queue, limit=1)
+
+    assert len(selected) == 1
+    assert selected[0].observation.location == (11.0, 20.0)
+    assert selected[0].fix_class == "layout_routing"
+
+
+def test_layout_slice_rejects_non_positive_limit() -> None:
+    with pytest.raises(ValueError, match="positive"):
+        select_layout_slice(classify_creepage([_observation()]), limit=0)
+
+
+@given(st.permutations([0, 1, 2]))
+def test_layout_slice_is_invariant_to_queue_input_order(
+    permutation: tuple[int, ...],
+) -> None:
+    observations = [
+        _observation(location=(10.0, 20.0)),
+        replace(_observation(location=(11.0, 20.0)), actual_distance_mm=1.0),
+        replace(_observation(location=(12.0, 20.0)), actual_distance_mm=8.0),
+    ]
+    queues = classify_creepage([observations[index] for index in permutation])
+
+    selected = select_layout_slice(queues, limit=2)
+
+    assert [item.stable_identity for item in selected] == [
+        item.stable_identity
+        for item in select_layout_slice(classify_creepage(observations), limit=2)
+    ]
+
+
+def test_non_layout_queue_items_do_not_displace_layout_slice() -> None:
+    layout = classify_creepage([_observation()])
+    same_package = classify_creepage(
+        [_observation(location=(11.0, 20.0), components=("U7",))]
+    )
+
+    assert select_layout_slice(layout + same_package, limit=1) == select_layout_slice(
+        layout, limit=1
+    )

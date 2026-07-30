@@ -101,6 +101,13 @@ class CreepageObservation:
         encoded = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
         return hashlib.sha256(encoded).hexdigest()
 
+    @property
+    def deficiency_mm(self) -> float | None:
+        """Return the measured creepage shortfall, when both distances exist."""
+        if self.actual_distance_mm is None or self.required_distance_mm is None:
+            return None
+        return self.required_distance_mm - self.actual_distance_mm
+
 
 @dataclass(frozen=True, slots=True)
 class CreepageQueueItem:
@@ -165,6 +172,34 @@ def classify_creepage(
         fix_class, rationale = _classify(observation, policy_ids)
         items.append(CreepageQueueItem(observation, fix_class, rationale))
     return tuple(items)
+
+
+def select_layout_slice(
+    queue: Iterable[CreepageQueueItem], *, limit: int
+) -> tuple[CreepageQueueItem, ...]:
+    """Select the most deficient layout-fixable items deterministically.
+
+    Same-package/BOM and rule/policy items are intentionally excluded from a
+    layout-only slice. A layout-classified item without measured distances is
+    rejected rather than silently omitted because that would corrupt the
+    campaign's accounting.
+    """
+    if limit <= 0:
+        raise ValueError("layout slice limit must be positive")
+
+    ranked: list[tuple[float, CreepageQueueItem]] = []
+    for item in queue:
+        if item.fix_class != "layout_routing":
+            continue
+        deficiency = item.observation.deficiency_mm
+        if deficiency is None:
+            raise ValueError(
+                f"layout item {item.stable_identity} lacks measured distances"
+            )
+        ranked.append((deficiency, item))
+
+    ranked.sort(key=lambda entry: (-entry[0], entry[1].stable_identity))
+    return tuple(item for _, item in ranked[:limit])
 
 
 def observation_from_drc_error(error: DrcError) -> CreepageObservation:
