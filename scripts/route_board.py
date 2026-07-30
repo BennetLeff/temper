@@ -33,6 +33,7 @@ carried-over stale input.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import statistics
@@ -169,6 +170,7 @@ def route_once(
         "segments": segments,
         "vias": vias,
         "zones": zones,
+        "content_sha256": hashlib.sha256(content.encode("utf-8")).hexdigest(),
         "routed_pcb_content": content,
     }
 
@@ -180,6 +182,11 @@ def _format_run(label: str, r: dict[str, Any]) -> str:
         f"segments={r['segments']} vias={r['vias']} zones={r['zones']}  "
         f"wall={r['wall_s']:.1f}s"
     )
+
+
+def outputs_are_identical(content_hashes: list[str]) -> bool:
+    """Return whether every full emitted-board hash is identical."""
+    return len(set(content_hashes)) <= 1
 
 
 def run_single(pcb_path: Path, rules_path: Path, output_path: Path) -> int:
@@ -247,11 +254,13 @@ def run_measurement(pcb_path: Path, rules_path: Path, n: int) -> int:
     completions: list[float] = []
     routed_counts: list[int] = []
     unrouted_sets: list[frozenset[str]] = []
+    content_hashes: list[str] = []
     for i in range(1, n + 1):
         r = _run_worker_subprocess(pcb_path, rules_path)
         completions.append(r["completion_rate"])
         routed_counts.append(r["routed"])
         unrouted_sets.append(frozenset(r["unrouted_nets"]))
+        content_hashes.append(r["content_sha256"])
         print(_format_run(f"Run {i}/{n}", r))
 
     lo, hi = min(completions), max(completions)
@@ -265,14 +274,24 @@ def run_measurement(pcb_path: Path, rules_path: Path, n: int) -> int:
     if n > 1:
         print(f"stdev(completion_rate) = {statistics.pstdev(completions):.4f}")
     same_set = len(set(unrouted_sets)) <= 1
-    if hi_n == lo_n and same_set:
-        print("All runs identical -- no variance observed (same completion, same failed-net set).")
+    same_content = outputs_are_identical(content_hashes)
+    if hi_n == lo_n and same_set and same_content:
+        print(
+            "All runs identical -- no variance observed (same completion, "
+            "failed-net set, and emitted-board SHA-256)."
+        )
     elif hi_n == lo_n and not same_set:
         print(
             "Completion COUNT identical across runs, but the SPECIFIC "
             "failed-net set differs between runs -- which nets route is "
             "non-deterministic even though how many route is not."
         )
+    if not same_content:
+        print(
+            "FAIL: emitted-board content differs across identical-input runs "
+            f"({len(set(content_hashes))} distinct SHA-256 values)."
+        )
+        return 1
     return 0
 
 

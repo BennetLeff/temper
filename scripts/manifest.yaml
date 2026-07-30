@@ -1227,6 +1227,7 @@ scripts:
   imports:
   - __future__
   - argparse
+  - hashlib
   - json
   - os
   - pathlib
