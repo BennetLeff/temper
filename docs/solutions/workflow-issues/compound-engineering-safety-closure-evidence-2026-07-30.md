@@ -238,11 +238,16 @@ the ADC input behaviour, resistor safety qualification, or the interpretation
 of protective impedance. Mark those as unverified rather than allowing the
 arithmetic to launder them into approval.
 
-The pass also exposed a metadata follow-up: the ADC top resistors declare
-0.1 W while the same RC1206 family used by the comparator divider declares
-0.25 W. Do not silently “correct” that field while recording the calculation;
-it is a separate source change requiring its own review and regenerated
-artifacts.
+The pass also exposed a fault-survival defect in the source metadata. The ADC
+top resistors originally declared 0.1 W while the same RC1206 family used by
+the comparator divider declared 0.25 W. Under the source's own two-top-short
+fault, the surviving ADC top resistor dissipates about 152.4 mW: 152% of the
+declared rating, but 61% of the family rating. The 0.1 W value was therefore
+not a cosmetic BOM discrepancy; it described a part that could fail in the
+fault case the three-resistor protective-impedance construction exists to
+survive. PR #503 corrected all three source fields to 0.25 W, regenerated the
+netlist, and reran the domain gate. The arithmetic and its operating-envelope
+caveat remain unchanged.
 
 ### 7. Treat DRC ceilings as provenance, not a quality target
 
@@ -269,7 +274,42 @@ large error count represent unresolved debt even though the provenance gate
 passes. If a board change raises any ceiling, attribute the delta and include
 the required `Ceiling-Approval:` trailer. If the cause is unknown, stop.
 
-### 8. Publish the evidence with the unresolved decisions visible
+### 8. The enforcement split is a fabrication-safety failure
+
+The PD2/PD3 disagreement is stronger than documentation drift because the
+three enforcement points govern different layers of the built artifact:
+
+| Enforcement point | Value on the current mainline | What it does |
+|---|---:|---|
+| `requirements/validators/clearance.py` | 12.6 mm, PD3 | Reports REQ-SAFE-01 findings |
+| `pcb/temper.kicad.dru` | 8.0 mm, PD2 | KiCad's fabrication-board DRC rule |
+| `check_isolation_keepout.py::MIN_BARRIER_WIDTH_MM` | 8.0 mm, PD2 | Physical keepout validation |
+
+That permits a board to pass both artifact-governing checks at 8.0 mm while
+the requirements layer reports it against 12.6 mm. The result is the worst
+state: the project has concluded PD3 applies, but the physical gates enforce
+PD2; the red requirement count cannot drive the artifact toward the governing
+standard, and a green fabrication result can be misread as safety closure.
+
+This is not solved by replacing `8.0` with `12.6` in three files. The number
+is a consequence of the physical configuration:
+
+- **PD3 path:** retain the unsealed, vented IP20 construction and retarget
+  the KiCad DRC rule, keepout width, and board slot/placement geometry to
+  12.6 mm. Existing components and the current floorplan will then produce
+  real, actionable failures that must be designed out.
+- **PD2 path:** earn a sealed electronics compartment with a credible
+  pollution, thermal, cable, connector, assembly, and manufacturing argument;
+  then keep the 8.0 mm artifact gates and retarget the reporting layer to the
+  same PD2 construction assumption.
+
+Until one physical configuration is approved, do not land a unilateral
+retarget. The invariant to enforce after the decision is not merely “three
+constants are equal”; it is “the selected physical configuration, the
+requirements matrix, the generated `.kicad_dru`, and the keepout gate all
+describe the same insulation requirement.”
+
+### 9. Publish the evidence with the unresolved decisions visible
 
 An evidence record should end with a short owner-decision table, not a green
 headline. The current decision surface is:
@@ -278,9 +318,10 @@ headline. The current decision surface is:
    the actual construction.
 2. Approve a real C27 placement and rerun board, netlist, keepout, DRC, and
    provenance gates in the same board-changing PR.
-3. Decide whether the ADC resistor metadata is correct and whether the
-   protective-impedance claim is cited only at +170 V or across a higher bus
-   envelope.
+3. Decide whether the protective-impedance claim is cited only at +170 V or
+   across a higher bus envelope. The ADC top-resistor metadata correction is
+   landed in PR #503; it does not resolve the standard interpretation or
+   operating-envelope question.
 4. Resolve the 123 REQ-SAFE-01 findings through placement, package,
    classification, routing, and architecture work; never by making the gate
    less discriminating.
@@ -305,6 +346,10 @@ The recurring defect was claim drift rather than one isolated logic bug:
   failures;
 - a logical source/netlist gate could pass while the physical board lacked an
   isolation keepout;
+- the requirements layer could report PD3 while KiCad and the physical
+  keepout gate enforced PD2, allowing the artifact to pass the weaker rule;
+- the ADC divider's 0.1 W metadata could pass normal-operation arithmetic while
+  failing the two-top-short fault that justified the redundancy;
 - a nominal ADC calculation could be repeated as an absolute-bus claim after
   its voltage assumption had disappeared;
 - a staged component could be identity-consistent yet still sit outside the
@@ -348,8 +393,11 @@ remaining failure is still actionable. It also prevents a docs-only evidence
 pass from silently changing a board, a ceiling, or a safety threshold.
 
 It does not decide whether PD2 or PD3 is the correct product architecture. It
-does not approve the 1.35 mA standard interpretation, qualify the resistor
-parts, place C27, route the board, or resolve the 123 REQ-SAFE-01 findings.
+does not approve the 1.35 mA standard interpretation, place C27, route the
+board, or resolve the REQ-SAFE-01 findings. The ADC metadata correction is
+landed, but it does not by itself qualify the protective-impedance standard
+interpretation or make the 1.4× figure valid outside its stated voltage
+envelope.
 Those are design decisions and implementation tasks that must follow the
 owner-decision sequence above.
 
@@ -359,6 +407,8 @@ owner-decision sequence above.
   current open decisions.
 - `docs/superpowers/specs/2026-07-30-safety-closure-evidence-design.md` —
   approved scope for the evidence pass.
+- PR #503 — ADC top-resistor metadata correction and regenerated-netlist
+  validation.
 - `docs/solutions/best-practices/falsify-the-fix-before-believing-it-2026-07-29.md`
   — require a motivating failure before trusting a new gate.
 - `docs/solutions/best-practices/citation-loop-validates-a-model-against-itself-2026-07-27.md`
