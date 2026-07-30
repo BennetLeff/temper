@@ -496,7 +496,7 @@ class TestCrossClassZoneClearance:
         return dr
 
     def test_power_and_hv_resolve_to_stricter_cross_class(self):
-        """ac_l (ACMains, 6.0mm) + +340V_BUS (HV, 6.0mm), with a class_pairs
+        """ac_l (ACMains, 6.0mm) + +170V_BUS (HV, 6.0mm), with a class_pairs
         override to a stricter 8.0mm -> effective 8.0mm.
 
         FIXED 2026-07-28: previously used vcc (Power), which after the
@@ -506,15 +506,27 @@ class TestCrossClassZoneClearance:
         ACMains/HighVoltage remain zone-eligible, and both declare an
         identical 6.0mm own clearance, so a class_pairs override is
         needed to actually exercise the cross-class lookup path (rather
-        than coincidentally matching each class's own clearance)."""
+        than coincidentally matching each class's own clearance).
+
+        RE-FIXED 2026-07-30: the first fix's replacement net, "+340V_BUS",
+        does not appear anywhere in TEMPER_NET_ASSIGNMENTS (that key was
+        itself renamed to "+170V_BUS" per design_rules.py's own comment --
+        the live board and netlist call this rail "+170V_BUS"). An
+        unassigned net resolves to netclass "" -- not "HighVoltage" -- so
+        _zone_layers_for_net() returns [] for it, no HV zone is emitted at
+        all, and the cross-class lookup this test exists to exercise was
+        never reached. Confirmed empirically via
+        _zone_layers_for_net("+340V_BUS") == [] vs
+        _zone_layers_for_net("+170V_BUS") == ["F.Cu", "B.Cu"]. Swapped to
+        the net name that is actually assigned to HighVoltage."""
         from temper_placer.router_v6.adapter import _write_routes_to_content
 
         result = self._make_result_with_zones(
-            ["ac_l", "+340V_BUS"],
-            {"ac_l": [("C1", "1")], "+340V_BUS": [("C2", "1")]},
+            ["ac_l", "+170V_BUS"],
+            {"ac_l": [("C1", "1")], "+170V_BUS": [("C2", "1")]},
         )
         dr = self._build_dr({("ACMains", "HighVoltage"): {"clearance": 8.0}})
-        content = '(kicad_pcb (version 20240108) (net 1 "ac_l") (net 2 "+340V_BUS"))'
+        content = '(kicad_pcb (version 20240108) (net 1 "ac_l") (net 2 "+170V_BUS"))'
         output, _ = _write_routes_to_content(content, result, design_rules=dr)
         assert "(clearance 8.0000)" in output
 
@@ -576,6 +588,31 @@ class TestCrossClassZoneClearance:
         Verifies both downstream consumers of the design_rules parameter:
         1. The writer's zone-pour clearance resolution (zone geometry).
         2. The pipeline's layer-constraint resolution (constructor kwargs).
+
+        RE-FIXED 2026-07-30: previously used "vcc" (Power) and "+340V_BUS".
+        Neither is zone-eligible today: "vcc" resolves to netclass Power,
+        which does not declare routing_strategy=="plane_required"
+        (_zone_layers_for_net("vcc") == []), and "+340V_BUS" is not a key
+        in TEMPER_NET_ASSIGNMENTS at all (the live rail was renamed to
+        "+170V_BUS" -- see design_rules.py's own comment on that key).
+        With no zone-eligible net in the fixture, _emit_zone_pours() never
+        emitted a "(zone " block at all, so "(clearance ...)" was never
+        reached. Swapped to "ac_l" (ACMains) + "+170V_BUS" (HighVoltage) --
+        confirmed via _zone_layers_for_net() to be the only two genuinely
+        eligible classes. The class_pairs override is also bumped from
+        6.0mm to 9.0mm: ACMains and HighVoltage both declare an identical
+        6.0mm own clearance, so a 6.0mm override was indistinguishable from
+        the no-override fallback max(own, other) == 6.0mm -- it proved
+        nothing about design_rules actually threading through. 9.0mm
+        differs from both classes' own clearance, so only a correctly
+        threaded override can produce it.
+
+        The `parsed` stub below keeps `"nets": nets` (not just
+        `source_path`) deliberately -- see
+        docs/solutions/logic-errors/parsed-stub-missing-nets-silently-disables-layer-constraints-2026-07-22.md.
+        A stub missing `.nets` makes `layer_constraints` silently resolve
+        to `{}` with no error, which this test's `layer_constraints`
+        assertions below exist to catch.
         """
         import os
         import tempfile
@@ -587,7 +624,7 @@ class TestCrossClassZoneClearance:
         from temper_placer.core.netlist import Component
 
         dr = DesignRules()
-        dr.class_pairs = {("HighVoltage", "Power"): {"clearance": 6.0}}
+        dr.class_pairs = {("ACMains", "HighVoltage"): {"clearance": 9.0}}
 
         components = [
             Component(
@@ -598,15 +635,15 @@ class TestCrossClassZoneClearance:
             ),
         ]
         nets = [
-            SimpleNamespace(name="vcc", pins=[("C1", "1")]),
-            SimpleNamespace(name="+340V_BUS", pins=[("C2", "1")]),
+            SimpleNamespace(name="ac_l", pins=[("C1", "1")]),
+            SimpleNamespace(name="+170V_BUS", pins=[("C2", "1")]),
         ]
         pcb_mock = SimpleNamespace(components=components, nets=nets)
 
         mock_path = SimpleNamespace(path_length=1.0, segments=[(0, 0, "F.Cu"), (10, 0, "F.Cu")])
         compiled_routes = {
-            "vcc": SimpleNamespace(path=mock_path, width_mm=0.5, vias=[]),
-            "+340V_BUS": SimpleNamespace(path=mock_path, width_mm=0.5, vias=[]),
+            "ac_l": SimpleNamespace(path=mock_path, width_mm=0.5, vias=[]),
+            "+170V_BUS": SimpleNamespace(path=mock_path, width_mm=0.5, vias=[]),
         }
         rr = SimpleNamespace(
             compiled_routes=compiled_routes,
@@ -630,7 +667,7 @@ class TestCrossClassZoneClearance:
 
         try:
             with tempfile.NamedTemporaryFile(suffix=".kicad_pcb", mode="w", delete=False) as f:
-                f.write('(kicad_pcb (version 20240108) (net 1 "vcc") (net 2 "+340V_BUS"))\n')
+                f.write('(kicad_pcb (version 20240108) (net 1 "ac_l") (net 2 "+170V_BUS"))\n')
                 temp_path = f.name
 
             parsed = type("ParsedPCB", (), {"source_path": temp_path, "nets": nets})()
@@ -644,7 +681,7 @@ class TestCrossClassZoneClearance:
             # Zone-pour output: cross-class clearance emitted in PCB content.
             assert result.routed_pcb_content is not None
             assert "(zone " in result.routed_pcb_content
-            assert "(clearance 6.0000)" in result.routed_pcb_content
+            assert "(clearance 9.0000)" in result.routed_pcb_content
 
             # Pipeline wiring: constructor receives layer_constraints from
             # the design_rules SSOT and enable_zone_pours flag.
@@ -658,8 +695,8 @@ class TestCrossClassZoneClearance:
                 "layer_constraints must not be empty when parsed.nets is "
                 "populated and design_rules is provided"
             )
-            assert "vcc" in layer_constraints
-            assert "+340V_BUS" in layer_constraints
+            assert "ac_l" in layer_constraints
+            assert "+170V_BUS" in layer_constraints
 
             # Pipeline invocation: run() receives the PCB path.
             mock_pipe.run.assert_called_once()
@@ -724,14 +761,28 @@ class TestZonesReplacedNotAppended:
         return SimpleNamespace(stage4=stage4, pcb=pcb, enable_zone_pours=True)
 
     def test_stale_zone_is_removed_not_appended_to(self):
+        """RE-FIXED 2026-07-30: previously used "vcc", assumed "Power:
+        zone-eligible". It no longer is -- _zone_layers_for_net("vcc") == []
+        since Power does not declare routing_strategy=="plane_required"
+        (only ACMains/HighVoltage do; see
+        docs/evidence/2026-07-28-zone-layer-classification-fix.md). With no
+        eligible net, no regenerated "(zone " ever gets emitted, so the
+        "must be present instead" assertion below had nothing to find and
+        this test could never distinguish "stale zone replaced by a fresh
+        one" from "stale zone removed and nothing took its place" -- the
+        latter is exactly what test_no_zone_eligible_nets_still_drops_stale_zone
+        (this class's sibling) already covers. Swapped to "ac_l" (ACMains),
+        confirmed zone-eligible via _zone_layers_for_net(), so this test
+        actually exercises the replace-not-append path it's named for.
+        """
         from temper_placer.core.design_rules import DesignRules
         from temper_placer.router_v6.adapter import _write_routes_to_content
 
-        result = self._make_result("vcc")  # "vcc" -> Power: zone-eligible
+        result = self._make_result("ac_l")  # ACMains: zone-eligible
         dr = DesignRules()
         content = (
-            '(kicad_pcb (version 20240108) (net 1 "vcc")\n'
-            f"{self._STALE_ZONE.format(net='vcc')}\n"
+            '(kicad_pcb (version 20240108) (net 1 "ac_l")\n'
+            f"{self._STALE_ZONE.format(net='ac_l')}\n"
             ")"
         )
         output, _ = _write_routes_to_content(content, result, design_rules=dr)
@@ -741,7 +792,7 @@ class TestZonesReplacedNotAppended:
         assert "(xy 999.0 999.0)" not in output
         # A regenerated zone for the same net must be present instead.
         assert "(zone " in output
-        assert '(net_name "vcc")' in output
+        assert '(net_name "ac_l")' in output
 
     def test_no_zone_eligible_nets_still_drops_stale_zone(self):
         """Even when this run computes no new pour geometry for any net
