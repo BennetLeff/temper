@@ -433,12 +433,45 @@ def generate_dru() -> str:
         " it did not"
     )
     lines.append("# exist in the generated file before this change.")
+    lines.append("#")
+    lines.append(
+        "# BLACKLIST-COMPLETENESS FIX (2026-07-30): B's exclusion list named"
+        " only 'HighVoltage', but two OTHER netclasses are the SAME"
+    )
+    lines.append(
+        "# physical HV domain per elec/domain_manifest.yaml -- GateDriveHV"
+        " (GATE_HS/GATE_LS, floats on SW_NODE) and HighVoltageIsolated"
+    )
+    lines.append(
+        "# (the gate-driver floating bootstrap supply, same HV domain per"
+        " that class's own comment in design_rules.py). Leaving them out of"
+    )
+    lines.append(
+        "# this exclusion made every ACMains<->GateDriveHV and"
+        " ACMains<->HighVoltageIsolated pair look like a genuine mains<->LV"
+    )
+    lines.append(
+        "# crossing and get the full reinforced creepage figure, when both"
+        " sides are the SAME domain -- exactly the over-application"
+    )
+    lines.append(
+        "# docs/evidence/2026-07-30-creepage-205-triage.md Sec 3 measured"
+        " (see that doc for the net-pair evidence). HighCurrent is also"
+    )
+    lines.append(
+        "# excluded below for model consistency with design_rules.py's"
+        " safety_category=='HV' even though no live kicad_pro netclass"
+    )
+    lines.append("# uses that name today (harmless if absent).")
     lines.append(_SEP)
     lines.append('(rule "AC Mains to LV"')
     lines.append(
         "   (condition \"A.NetClass == 'ACMains'"
         " && B.NetClass != 'ACMains'"
-        " && B.NetClass != 'HighVoltage'\")"
+        " && B.NetClass != 'HighVoltage'"
+        " && B.NetClass != 'GateDriveHV'"
+        " && B.NetClass != 'HighVoltageIsolated'"
+        " && B.NetClass != 'HighCurrent'\")"
     )
     lines.append("   (constraint clearance (min 6.0mm))")
     lines.append(f"   (constraint creepage (min {fmt_mm(HV_CREEPAGE_ENFORCED_MM)}))")
@@ -486,12 +519,42 @@ def generate_dru() -> str:
         " now enforces the"
     )
     lines.append("# same figure at the fab-authoritative KiCad DRC level.")
+    lines.append("#")
+    lines.append(
+        "# BLACKLIST-COMPLETENESS FIX (2026-07-30): same defect and same fix"
+        " as RULE 2 above -- B's exclusion list named only 'HighVoltage'/"
+    )
+    lines.append(
+        "# 'ACMains', missing GateDriveHV and HighVoltageIsolated (both the"
+        " SAME HV domain per elec/domain_manifest.yaml -- GATE_HS/GATE_LS"
+    )
+    lines.append(
+        "# float on SW_NODE, and the isolated bootstrap supply floats WITH"
+        " the switch node, one gate-drive resistor downstream). Measured on"
+    )
+    lines.append(
+        "# the real board: this single omission alone produced 14 of the"
+        " 205 raw creepage violations "
+        "docs/evidence/2026-07-30-creepage-205-triage.md"
+    )
+    lines.append(
+        "# Sec 3 catalogs (HighVoltage<->GateDriveHV and"
+        " HighVoltage<->HighVoltageIsolated pairs) -- same-domain pairs"
+        " mislabeled as a"
+    )
+    lines.append(
+        "# genuine HV<->LV crossing. HighCurrent excluded too, for the same"
+        " model-consistency reason as RULE 2."
+    )
     lines.append(_SEP)
     lines.append('(rule "HV to LV"')
     lines.append(
         "   (condition \"A.NetClass == 'HighVoltage'"
         " && B.NetClass != 'HighVoltage'"
-        " && B.NetClass != 'ACMains'\")"
+        " && B.NetClass != 'ACMains'"
+        " && B.NetClass != 'GateDriveHV'"
+        " && B.NetClass != 'HighVoltageIsolated'"
+        " && B.NetClass != 'HighCurrent'\")"
     )
     lines.append("   (constraint clearance (min 2.0mm))")
     lines.append(f"   (constraint creepage (min {fmt_mm(HV_CREEPAGE_ENFORCED_MM)}))")
@@ -654,6 +717,27 @@ def generate_dru() -> str:
         " rule, just keyed"
     )
     lines.append("# on HighVoltageIsolated instead of ACMains/HighVoltage.")
+    lines.append("#")
+    lines.append(
+        "# BLACKLIST-COMPLETENESS FIX (2026-07-30): same defect class as"
+        " RULE 2/4 above. GateDriveHV (GATE_HS/GATE_LS) is the SAME HV"
+    )
+    lines.append(
+        "# domain as HighVoltageIsolated's own nets (both float on"
+        " SW_NODE/the switch node), so it belongs on the 'same side' rule"
+    )
+    lines.append(
+        "# below, not on the 'to LV' one. Previously 'HighVoltageIsolated"
+        " to LV' had no GateDriveHV exclusion, so a GATE_HS/GATE_LS net"
+    )
+    lines.append(
+        "# near a HighVoltageIsolated net was wrongly held to the full"
+        " reinforced HV<->SELV creepage figure -- measured as 10 of the 205"
+    )
+    lines.append(
+        "# raw creepage violations, docs/evidence/2026-07-30-creepage-205-"
+        "triage.md Sec 3."
+    )
     lines.append(_SEP)
     # Matches RULE 4's existing "HV to LV" clearance figure (this file,
     # unchanged) -- not a new number, just this class's share of it.
@@ -661,7 +745,10 @@ def generate_dru() -> str:
     lines.append('(rule "HighVoltageIsolated same side"')
     lines.append(
         "   (condition \"A.NetClass == 'HighVoltageIsolated'"
-        " && (B.NetClass == 'HighVoltage' || B.NetClass == 'ACMains')\")"
+        " && (B.NetClass == 'HighVoltage'"
+        " || B.NetClass == 'ACMains'"
+        " || B.NetClass == 'GateDriveHV'"
+        " || B.NetClass == 'HighCurrent')\")"
     )
     lines.append(f"   (constraint clearance (min {fmt_mm(_HV_ISOLATED_CLEARANCE_MM)}))")
     lines.append(")")
@@ -671,7 +758,9 @@ def generate_dru() -> str:
         "   (condition \"A.NetClass == 'HighVoltageIsolated'"
         " && B.NetClass != 'HighVoltageIsolated'"
         " && B.NetClass != 'HighVoltage'"
-        " && B.NetClass != 'ACMains'\")"
+        " && B.NetClass != 'ACMains'"
+        " && B.NetClass != 'GateDriveHV'"
+        " && B.NetClass != 'HighCurrent'\")"
     )
     lines.append(f"   (constraint clearance (min {fmt_mm(_HV_ISOLATED_CLEARANCE_MM)}))")
     lines.append(f"   (constraint creepage (min {fmt_mm(HV_CREEPAGE_ENFORCED_MM)}))")
