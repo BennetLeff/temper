@@ -60,6 +60,20 @@ class CpSatPlacementResult:
         """Return {component_ref: (x_mm, y_mm)} mapping (loop.py interface)."""
         return dict(self.positions)
 
+    def to_rotations_dict(self) -> dict[str, float]:
+        """Return {component_ref: rotation_degrees}, converting each solved
+        rotation index (0-3) to degrees via ``index * 90.0`` -- the same
+        convention already used ad hoc at the one existing call site
+        (``cli/__init__.py``'s ``optimize`` command). Only refs with a
+        nonzero rotation index are included; a ref absent from this dict
+        should be treated as "no rotation change" by a consumer such as
+        ``_apply_placements_to_pcb``'s ``rotations=`` parameter, not as an
+        explicit 0 degrees -- absence and explicit-zero are handled
+        identically by that consumer, but keeping the dict sparse here
+        avoids implying every omitted ref was solved at 0 degrees.
+        """
+        return {ref: idx * 90.0 for ref, idx in self.rotations.items() if idx}
+
 
 # ---------------------------------------------------------------------------
 # Solver entry point
