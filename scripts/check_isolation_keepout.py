@@ -150,6 +150,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from _lib.github_summary import get_github_summary_path  # noqa: E402
 from _lib.repo import find_repo_root  # noqa: E402
 
+from temper_placer.core.isolation_constants import MIN_BARRIER_WIDTH_MM  # noqa: E402
 from temper_placer.core.pad_geometry import pad_bounding_radius  # noqa: E402
 from temper_placer.geometry.kicad_transform import rotate_local_to_world_deg  # noqa: E402
 
@@ -166,11 +167,14 @@ EXIT_GATE_ERROR = 5
 # elsewhere on the board (e.g. under a connector) is never mistaken for it.
 BARRIER_ZONE_NAME = "MAINS_SELV_ISOLATION_BARRIER"
 
-# REINFORCED creepage, pollution degree 2, material group IIIb, <=400V
-# working voltage -- top of the plan's stated 3.0-8.0mm range. See module
-# docstring "Which clearance figure" for full derivation and UNVERIFIED
-# caveat. Never shrink this to make the gate pass (plan hard rule).
-MIN_BARRIER_WIDTH_MM = 8.0
+# MIN_BARRIER_WIDTH_MM itself now lives in temper_placer.core.isolation_constants
+# (imported above) so packages/temper-placer's own CP-SAT corridor-width
+# constraint (isolation_barrier.py) can derive DEFAULT_CORRIDOR_WIDTH_MM
+# from it directly instead of restating the figure -- see that module's own
+# comment. This module remains the derivation's home: full IEC 60335-1
+# rationale and UNVERIFIED-at-primary caveat are in the "Which clearance
+# figure" section of THIS docstring above. Never shrink the constant to make
+# the gate pass (plan hard rule).
 
 _COPPER_LAYER_TYPE = "signal"
 
