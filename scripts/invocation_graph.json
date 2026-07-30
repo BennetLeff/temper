@@ -24,6 +24,7 @@
   "check_coverage_gate.py": [
     ".github/workflows/python-tests.yml"
   ],
+  "check_creepage_clearance_drift.py": [],
   "check_derived_doc_drift.py": [
     ".github/workflows/python-tests.yml",
     "packages/temper-placer/tests/requirements/safety/test_creepage_spec_row_form.py"
@@ -47,6 +48,7 @@
   ],
   "check_isolation_keepout.py": [
     ".github/workflows/python-tests.yml",
+    "packages/temper-placer/src/temper_placer/core/isolation_constants.py",
     "packages/temper-placer/src/temper_placer/geometry/kicad_transform.py",
     "packages/temper-placer/src/temper_placer/placer/cp_sat/isolation_barrier.py",
     "packages/temper-placer/tests/placer/cp_sat/test_isolation_barrier.py",
@@ -88,6 +90,7 @@
   "check_pll_range_consistency.py": [
     ".github/workflows/python-tests.yml"
   ],
+  "check_refdes_identity_stability.py": [],
   "check_regression.py": [
     ".github/workflows/regression.yml"
   ],

@@ -1124,6 +1124,7 @@ scripts:
   - pathlib
   - re
   - rich.console
+  - subprocess
   - sys
 - path: check_no_raw_rotation_trig.py
   purpose: 'CI gate: fail if any of the 12 files that have already carried KiCad''s R(+theta)/R(-theta)
@@ -1161,6 +1162,7 @@ scripts:
   - dataclasses
   - pathlib
   - sys
+  - temper_placer.core.isolation_constants
   - temper_placer.core.pad_geometry
   - temper_placer.geometry.kicad_transform
 - path: check_stale_extensions.py
@@ -1314,3 +1316,26 @@ scripts:
   - urllib.error
   - urllib.parse
   - urllib.request
+- path: check_refdes_identity_stability.py
+  purpose: Discovers safety-relevant test/fixture assertions keyed to a ref-designator string literal
+    (e.g. "U3", "K1") instead of instance_path, and cross-checks real-board-bound ones against the current
+    compiled netlist plus elec/domain_manifest.yaml to flag an ACTUAL identity mismatch, not just presence
+    -- built after a ZCD-optocoupler deletion reshuffled U-prefix refs and left test_the_seven_known_intra_footprint_blockers_are_now_visible
+    checking different real components than its own name/docstring claim while still passing. Reports
+    a full denominator (raw literals, safety-keyword context, assert-reachable, load-bearing, real-board-bound)
+    at every stage; never wired into CI (false-positive rate unmeasured on first pass) -- see docs/evidence/2026-07-30-refdes-identity-stability-gate.md.
+  owner: bennet
+  last_run: '2026-07-30'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - ast
+  - check_domain_partition
+  - dataclasses
+  - pathlib
+  - re
+  - sys
