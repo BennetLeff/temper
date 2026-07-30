@@ -8,6 +8,8 @@ provenance:
   branch: codex/safety-closure
   dirty: false
   note: "Measurements were re-run after rebasing onto bb7592755; tracked tree was clean at measurement time; make netlist created ignored elec/build and .venv artifacts."
+  follow_up_source_commit: fb5dbf5d5
+  follow_up_note: "ADC top-resistor power_rating metadata corrected from 0.1W to 0.25W; netlist and domain gate rerun successfully; no PCB geometry changed."
 ---
 
 # Safety-closure evidence pass
@@ -31,8 +33,9 @@ citing the electrical claims externally.
 
 ### Committed construction
 
-The source declares `r_adc_top1/2/3 = 169 kΩ ±1%`, `r_adc_bot = 10 kΩ ±1%`,
-and `power_rating = 0.1 W` for each resistor. The three top resistors are in
+The source at the time of the measurement recorded below declared
+`r_adc_top1/2/3 = 169 kΩ ±1%`, `r_adc_bot = 10 kΩ ±1%`, and
+`power_rating = 0.1 W` for each top resistor. The three top resistors are in
 series from `+170V_BUS` to `V_BUS_SENSE`; the bottom resistor returns the sense
 node to `gnd`.
 
@@ -73,10 +76,11 @@ The protective-impedance standard interpretation, the 1.35 mA limit, the
 ESP32 ADC input behaviour on `r_adc_bot` open, and safety-resistor qualification
 remain the source's documented `UNVERIFIED` items.
 
-The source fields also deserve a follow-up review: the ADC top parts are
-`RC1206FR-07169KL` in 1206 footprints but declare 0.1 W, while the same
-RC1206 family used by the comparator divider declares 0.25 W. This pass did
-not silently change that field or treat the discrepancy as resolved.
+The source fields also deserved a follow-up review: the ADC top parts are
+`RC1206FR-07169KL` in 1206 footprints but declared 0.1 W, while the same
+RC1206 family used by the comparator divider declared 0.25 W. The follow-up
+correction below resolves that metadata discrepancy without changing the
+arithmetic or the board.
 
 ## 2. Domain and physical-isolation checks
 
@@ -205,3 +209,21 @@ stale provenance.
 4. Fix the 123 REQ-SAFE-01 findings through an approved placement/package/
    architecture plan; do not reduce the requirement or add exemptions to make
    the count disappear.
+
+## Follow-up: ADC top-resistor metadata correction
+
+The three `RC1206FR-07169KL` top resistors now declare `power_rating = 0.25W`,
+matching the datasheet-backed RC1206 family record and the identical
+`r_div_top1/2/3` declarations. No value, voltage rating, footprint, topology,
+board geometry, safety threshold, or DRC ceiling changed.
+
+Validation on the follow-up branch:
+
+- `make netlist` completed successfully; all Atopile assertions passed.
+- The regenerated netlist retained R56/R57/R58 as the three ADC top parts,
+  with the expected 1206 footprint and `RC1206FR-07169KL` BOM grouping.
+- The domain partition gate passed: 0 domain crossings, 0 isolator-barrier
+  breaches, and 0 protective-impedance chain defects across 54 declared nets.
+- The original ADC arithmetic and its +170 V operating-envelope caveat are
+  unchanged; the metadata correction only prevents a future rating check from
+  treating the 1206 parts as 100 mW parts.
