@@ -219,10 +219,20 @@ def test_golden_board_drc_regression(monkeypatch: pytest.MonkeyPatch):
     raw = BOARD_PATH.read_text(encoding="utf-8")
     from temper_placer.router_v6.adapter import _apply_placements_to_pcb
 
+    # rotations= and components= are required TOGETHER: a solved footprint's
+    # box-centre coordinate is only a valid KiCad anchor once both its
+    # rotation (angle + pad reorientation) and its pad-centroid offset
+    # (center_offset, for an asymmetric footprint like a TO-247) are
+    # accounted for -- passing either alone can make things worse (see
+    # docs/evidence/2026-07-30-placement-writer-rotation.md's own
+    # NO-ROTATION-vs-WITH-ROTATION measurement). See
+    # docs/evidence/2026-07-30-generic-separation-writer-frame-fix.md.
     placed = _apply_placements_to_pcb(
         raw,
         result.to_placements_dict(),
         design_rules=rules.design_rules,
+        rotations=result.to_rotations_dict(),
+        components=netlist.components,
     )
 
     with tempfile.NamedTemporaryFile(suffix=".kicad_pcb", mode="w", delete=False) as tmp:

@@ -152,8 +152,29 @@ def _extract_components_from_pcb(
 
         cx_to_rotate = -center_offset_x if side == 1 else center_offset_x
         rot_rad = math.radians(rot_deg)
-        rotated_cx = cx_to_rotate * math.cos(rot_rad) - center_offset_y * math.sin(rot_rad)
-        rotated_cy = cx_to_rotate * math.sin(rot_rad) + center_offset_y * math.cos(rot_rad)
+        # Rotation sign: a KiCad footprint's `(at X Y ANGLE)` rotates each
+        # pad's stored local offset *clockwise* by ANGLE to reach its
+        # absolute board position -- R(-ANGLE) in the standard
+        # (CCW-positive) trig convention below, not R(+ANGLE). Verified
+        # directly against pcbnew (KiCad's own placement engine): see
+        # `io/_write_board.py::write_placements_to_pcb`'s docstring for the
+        # measurement this mirrors (this is that computation's exact
+        # inverse -- anchor -> centre here, centre -> anchor there -- and
+        # both must use the same sign for a read/write round-trip to
+        # recover the original anchor). Previously used R(+ANGLE), which is
+        # a no-op error whenever rot_deg is a multiple of 180 deg (sin=0)
+        # but silently mis-locates `initial_position` for any footprint
+        # parsed at a 90/270 rotation with a nonzero center_offset -- true
+        # today for 18 components on pcb/temper.kicad_pcb (C1, C24, C25,
+        # C4, C8, F1, K3, PS1, R1, R11, R12, R13, R60, RT1, T1, U1, U6).
+        # `initial_position` only feeds CP-SAT's `AddHint` (a warm-start,
+        # not a hard constraint) and is not consumed by the REQ-SAFE-01
+        # validator (`Pin.position` is computed separately, in the
+        # footprint's own unrotated local frame, and is unaffected by this
+        # fix) -- see
+        # docs/evidence/2026-07-30-generic-separation-writer-frame-fix.md.
+        rotated_cx = cx_to_rotate * math.cos(rot_rad) + center_offset_y * math.sin(rot_rad)
+        rotated_cy = -cx_to_rotate * math.sin(rot_rad) + center_offset_y * math.cos(rot_rad)
 
         comp = Component(
             ref=ref,

@@ -70,24 +70,35 @@ class _Pad:
 
 
 def _rotate(x: float, y: float, theta_rad: float) -> tuple[float, float]:
-    """R(+theta) -- the convention this repo's own KiCad parser
-    (``io/_parse_modules.py``, which builds ``Component.initial_position``
-    as ``fp.position + R(+theta) * center_offset``) and writer
-    (``io/_write_modules.py``) both use.
+    """R(-theta) -- KiCad's actual footprint-rotation convention: a
+    footprint's ``(at X Y ANGLE)`` rotates each pad's stored local offset
+    *clockwise* by ANGLE to reach its absolute board position. Verified
+    directly against ``pcbnew`` (KiCad's own placement engine, not a
+    re-derivation): a footprint at 37 deg with local pad offset (10, 4)
+    places that pad at (10.393615, -2.823608) mm -- the R(-theta)
+    prediction to 6 decimal places. The standard-CCW R(+theta) this
+    function previously used predicts a different point, (5.579095,
+    9.212693), and was wrong -- see
+    docs/evidence/2026-07-30-generic-separation-writer-frame-fix.md.
 
-    Using the same sign here is what makes
-    ``world_pad = position + R(+theta) * local_offset`` consistent with the
+    Using the *same* sign as ``io/_parse_modules.py``'s
+    ``Component.initial_position`` (``fp.position + R(-theta) *
+    center_offset``, fixed to match this) is what makes
+    ``world_pad = position + R(-theta) * local_offset`` consistent with the
     ``position`` this validator is handed: substituting
     ``local_offset = pad_local - center_offset`` recovers
-    ``fp.position + R(+theta) * pad_local`` exactly. Picking the opposite
-    sign for pads only would make the pad set inconsistent with its own
-    reported origin. See the evidence doc's rotation-convention note: on
-    ``pcb/temper.kicad_pcb`` every footprint sits at a multiple of 90
-    degrees, and the two conventions differ only in the sign of Y-vs-X for
-    footprints at 90/270 degrees.
+    ``fp.position + R(-theta) * pad_local`` exactly, and both R(-theta)
+    factors need the SAME sign for the ``center_offset`` terms to cancel --
+    self-consistency alone (matching sign between the two call sites)
+    doesn't make the result correct if that shared sign is itself wrong,
+    which it was: on ``pcb/temper.kicad_pcb``, 18 real components (C1, C24,
+    C25, C4, C8, F1, J1, K3, PS1, R1, R11, R12, R13, R60, RT1, T1, U1, U6)
+    sit at a 90/270 degree rotation with a nonzero ``center_offset``, and
+    R(+theta) computed each of their pads at the wrong point -- the
+    ``+theta``/``-theta`` conventions only coincide at 0/180 degrees.
     """
     c, s = math.cos(theta_rad), math.sin(theta_rad)
-    return (x * c - y * s, x * s + y * c)
+    return (x * c + y * s, -x * s + y * c)
 
 
 def _component_pads(comp: dict[str, Any]) -> list[_Pad]:

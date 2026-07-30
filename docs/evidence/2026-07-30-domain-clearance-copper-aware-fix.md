@@ -326,6 +326,20 @@ absolute angle) that `write_placements_to_pcb`/`_write_modules.py` already recei
 finding) uses the already-patched `write_placements_to_pcb` write path, so this specific dormant bug
 does not affect the REQ-SAFE-01 numbers reported in Sec 6.
 
+**UPDATE (2026-07-30, follow-up task):** the golden-board short this section's dormant bug predicted
+did materialize for a different pair (Q1/Q2, the HV half-bridge) once the box-tightening in this PR
+shifted CP-SAT's chosen rotation for an asymmetric-`center_offset` component for the first time.
+Root-caused to the SAME class of defect described here (a footprint's solved rotation and its
+`center_offset` position-frame correction not being applied together in `_apply_placements_to_pcb`)
+plus a previously-undiscovered **sign** bug in the rotation formula itself, present in
+`write_placements_to_pcb` too (this doc's "already-patched" characterization of that function was
+correct about it applying `center_offset`, but not about the sign it used being right) and in the
+REQ-SAFE-01 validator's own `_copper.py::_rotate`. Fixed, measured, and reported in
+`docs/evidence/2026-07-30-generic-separation-writer-frame-fix.md` — REQ-SAFE-01 moves 98 -> 102 as a
+direct, measured result (net *more* violations surface, not fewer: the sign bug was hiding real
+hazards for 18 real production components at 90/270 rotation with nonzero `center_offset`, not
+manufacturing false ones). The domain-clearance box/proof this PR corrects is unaffected either way.
+
 ---
 
 ## 8. Reproduction
