@@ -52,11 +52,13 @@ def test_queue_classifies_layout_package_and_investigation_items() -> None:
         ]
     )
 
-    assert [item.fix_class for item in queue] == [
-        "layout_routing",
-        "same_package_bom",
-        "rule_policy",
-    ]
+    assert {
+        item.observation.location: item.fix_class for item in queue
+    } == {
+        (10.0, 20.0): "layout_routing",
+        (11.0, 20.0): "same_package_bom",
+        (12.0, 20.0): "rule_policy",
+    }
     assert all(item.rationale for item in queue)
 
 
@@ -129,6 +131,7 @@ def test_component_reference_renaming_does_not_change_identity() -> None:
     [
         {"nets": ("HV", "PE")},
         {"location": (10.01, 20.0)},
+        {"actual_distance_mm": 4.1},
     ],
 )
 def test_physical_identity_change_changes_queue_identity(
@@ -180,6 +183,23 @@ def test_drc_error_adapter_parses_strict_inequality() -> None:
     observation = observation_from_drc_error(error)
 
     assert observation.actual_distance_mm == pytest.approx(4.0)
+    assert observation.required_distance_mm == pytest.approx(12.6)
+
+
+def test_drc_error_adapter_parses_kicad_creepage_message() -> None:
+    error = DrcError(
+        rule="creepage",
+        severity="error",
+        location=(10.0, 20.0),
+        message=(
+            "Creepage violation (rule 'HV to LV' creepage 12.6000 mm; "
+            "actual 0.9458 mm)"
+        ),
+    )
+
+    observation = observation_from_drc_error(error)
+
+    assert observation.actual_distance_mm == pytest.approx(0.9458)
     assert observation.required_distance_mm == pytest.approx(12.6)
 
 

@@ -20,6 +20,11 @@ _LABELLED_DISTANCE_RE = re.compile(
     rf"\brequired\s*[:=]?\s*(?P<required>{_NUMBER})\s*mm\b",
     re.IGNORECASE,
 )
+_KICAD_CREEPAGE_DISTANCE_RE = re.compile(
+    rf"\bcreepage\s+(?P<required>{_NUMBER})\s*mm\s*;\s*"
+    rf"actual\s+(?P<actual>{_NUMBER})\s*mm\b",
+    re.IGNORECASE,
+)
 _INEQUALITY_DISTANCE_RE = re.compile(
     r"(?P<actual>\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)\s*mm\s*<\s*"
     r"(?P<required>\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)\s*mm",
@@ -79,8 +84,18 @@ class CreepageObservation:
         # Component references are deliberately excluded: they are useful
         # evidence for a reviewer but are not stable physical identity.
         payload = {
+            "actual_distance_mm": (
+                None
+                if self.actual_distance_mm is None
+                else round(self.actual_distance_mm, 3)
+            ),
             "location_mm": [round(value, 3) for value in self.location],
             "nets": self.nets,
+            "required_distance_mm": (
+                None
+                if self.required_distance_mm is None
+                else round(self.required_distance_mm, 3)
+            ),
             "rule": self.rule,
         }
         encoded = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
@@ -195,7 +210,15 @@ def _parse_distances(message: str) -> tuple[float | None, float | None]:
 
     match = _INEQUALITY_DISTANCE_RE.search(message)
     if match:
-        return _valid_distance_pair(float(match.group("actual")), float(match.group("required")))
+        return _valid_distance_pair(
+            float(match.group("actual")), float(match.group("required"))
+        )
+
+    match = _KICAD_CREEPAGE_DISTANCE_RE.search(message)
+    if match:
+        return _valid_distance_pair(
+            float(match.group("actual")), float(match.group("required"))
+        )
     return None, None
 
 
