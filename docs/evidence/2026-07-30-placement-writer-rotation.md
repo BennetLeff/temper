@@ -1,6 +1,7 @@
 # `_apply_placements_to_pcb` dropped solved rotation: fix, measurement, and why it is not wired on by default
 
-<!-- provenance: base=origin/main 251589a4, worktree fix/placement-writer-rotation -->
+<!-- provenance: commit=27bc79bc9de021ceaf966c6b05af4ae480a28d56 dirty=UNKNOWN -->
+<!-- base=origin/main 251589a4, worktree fix/placement-writer-rotation -->
 
 **Date:** 2026-07-30
 **Scope:** `pcb/**` and `elec/src/**` read-only throughout. No placement was written to any
