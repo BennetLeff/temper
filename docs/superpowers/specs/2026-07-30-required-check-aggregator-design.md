@@ -29,7 +29,8 @@ the merge commit, and will:
    synchronized with the manifest, so future additions cannot silently drift.
 
 The polling budget is 2700 seconds (45 minutes): this leaves headroom for the
-observed queue delay while still bounding a missing workflow. The known-red
+observed queue delay while still bounding a missing workflow. The workflow job
+has a 50-minute timeout so runner setup and cleanup do not truncate that budget. The known-red
 hardware and requirements jobs remain advisory in this phase;
 they are not included in the candidate list. They will be added to the
 manifest only after their underlying defects are resolved and main is green.
