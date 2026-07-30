@@ -1,4 +1,4 @@
-<!-- provenance: branch docs/insulation-tier-audit, from origin/main at bd352015 -->
+<!-- provenance: commit=bd3520157ac20097dff2685421694603baaec72e dirty=true (branch docs/insulation-tier-audit, measured against origin/main at bd352015) -->
 
 # Insulation tier audit: is `BASIC` vs `REINFORCED` correctly assigned in `IEC60335_REQUIREMENTS`?
 

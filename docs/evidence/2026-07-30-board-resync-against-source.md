@@ -1,4 +1,4 @@
-<!-- provenance: commit=ed5ee134282083 dirty=true -->
+<!-- provenance: commit=ed5ee134bc0ef1bdcb64a884af266afd66314529 dirty=true -->
 
 # Resyncing `pcb/temper.kicad_pcb` against `elec/src` / `pcb/libs`: 6 stale embedded footprints, 13 drifted designators, `tank.c_tank3` staged
 
