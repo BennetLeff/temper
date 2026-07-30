@@ -98,11 +98,14 @@ def extract_pad_centers(board: KiBoard) -> dict[str, list[tuple[float, float]]]:
             if not net_name:
                 continue
 
-            # Apply footprint rotation to pad position
+            # Apply footprint rotation to pad position. KiCad's real
+            # footprint-child rotation is R(-theta), not R(+theta) -- see
+            # docs/evidence/2026-07-29-cross-domain-creepage-rotation-convention.md
+            # Sec. 2.
             rel_x, rel_y = pad.position.X, pad.position.Y
             rad = math.radians(fp_angle)
-            rot_x = rel_x * math.cos(rad) - rel_y * math.sin(rad)
-            rot_y = rel_x * math.sin(rad) + rel_y * math.cos(rad)
+            rot_x = rel_x * math.cos(rad) + rel_y * math.sin(rad)
+            rot_y = -rel_x * math.sin(rad) + rel_y * math.cos(rad)
             abs_x = fp_x + rot_x
             abs_y = fp_y + rot_y
 

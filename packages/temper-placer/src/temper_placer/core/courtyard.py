@@ -25,12 +25,24 @@ class Courtyard:
     def get_global_polygon(self, x: float, y: float, rotation_idx: int) -> Polygon:
         """
         Transform local courtyard to global coordinates.
-        rotation_idx: 0=0deg, 1=90deg, 2=180deg, 3=270deg (CCW)
+        rotation_idx: 0=0deg, 1=90deg, 2=180deg, 3=270deg, matching a
+        footprint's raw KiCad board rotation (``fp.position.angle``).
+
+        KiCad's real footprint-child rotation is R(-theta), not the
+        R(+theta)/CCW this used before -- confirmed against real
+        kicad-cli 10.0.4 pcb drc ground truth, see
+        docs/evidence/2026-07-29-cross-domain-creepage-rotation-convention.md
+        Sec. 2. ``shapely.affinity.rotate``'s ``angle`` is CCW-positive
+        (standard math convention), so R(-theta) is ``rotate(..., -angle)``.
+        For a courtyard polygon symmetric about its own local origin (the
+        common case: an axis-aligned rectangle centered on the footprint
+        origin) this sign was a no-op; for an asymmetric/offset courtyard
+        polygon it was not, and this is the fix.
         """
         # Rotate first (relative to 0,0 center)
-        # 90 degrees CCW * rotation_idx
+        # 90 degrees CCW * rotation_idx, negated -- see docstring above.
         angle = rotation_idx * 90.0
-        rotated = rotate(self._polygon, angle, origin=(0, 0))
+        rotated = rotate(self._polygon, -angle, origin=(0, 0))
 
         # Translate to global position
         return translate(rotated, xoff=x, yoff=y)

@@ -90,9 +90,14 @@ def pin_world_position_at(
     if side == 1:
         px = -px
 
-    # Rotate pin offset
-    rx = px * cos_r - py * sin_r
-    ry = px * sin_r + py * cos_r
+    # Rotate pin offset. KiCad's real footprint-child rotation is R(-theta),
+    # not R(+theta) -- confirmed against real kicad-cli 10.0.4 pcb drc
+    # ground truth, see
+    # docs/evidence/2026-07-29-cross-domain-creepage-rotation-convention.md
+    # Sec. 2. This was previously R(+theta), a real bug for any 90/270
+    # degree rotation.
+    rx = px * cos_r + py * sin_r
+    ry = -px * sin_r + py * cos_r
 
     # Add component position (use override if provided)
     cpos = pos_override if pos_override is not None else comp.initial_position or (0.0, 0.0)

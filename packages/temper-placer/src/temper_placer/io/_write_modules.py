@@ -69,8 +69,12 @@ def add_bounding_boxes_to_pcb(
 
             # Rotate local position by footprint angle
             if abs(fp_angle) > 0.1:
-                rotated_x = local_x * math.cos(angle_rad) - local_y * math.sin(angle_rad)
-                rotated_y = local_x * math.sin(angle_rad) + local_y * math.cos(angle_rad)
+                # KiCad's real footprint-child rotation is R(-theta), not
+                # R(+theta) -- see
+                # docs/evidence/2026-07-29-cross-domain-creepage-rotation-convention.md
+                # Sec. 2.
+                rotated_x = local_x * math.cos(angle_rad) + local_y * math.sin(angle_rad)
+                rotated_y = -local_x * math.sin(angle_rad) + local_y * math.cos(angle_rad)
             else:
                 rotated_x, rotated_y = local_x, local_y
 
@@ -177,8 +181,12 @@ def add_silkscreen_labels(
             local_y = pad.position.Y if pad.position else 0.0
 
             if abs(fp_angle) > 0.1:
-                rotated_x = local_x * math.cos(angle_rad) - local_y * math.sin(angle_rad)
-                rotated_y = local_x * math.sin(angle_rad) + local_y * math.cos(angle_rad)
+                # KiCad's real footprint-child rotation is R(-theta), not
+                # R(+theta) -- see
+                # docs/evidence/2026-07-29-cross-domain-creepage-rotation-convention.md
+                # Sec. 2.
+                rotated_x = local_x * math.cos(angle_rad) + local_y * math.sin(angle_rad)
+                rotated_y = -local_x * math.sin(angle_rad) + local_y * math.cos(angle_rad)
             else:
                 rotated_x, rotated_y = local_x, local_y
 

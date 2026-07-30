@@ -33,7 +33,15 @@ class TestPinWorldGeometry:
         assert y == pytest.approx(20.0, abs=1e-6)
 
     def test_90deg_rotation_top_side(self):
-        """90° rotation (index 1), top side: pin offset rotated CCW."""
+        """90° rotation (index 1), top side: pin offset rotated by KiCad's
+        real R(-theta) footprint-child convention, not CCW/R(+theta).
+
+        Confirmed against real kicad-cli 10.0.4 pcb drc ground truth, see
+        docs/evidence/2026-07-29-cross-domain-creepage-rotation-convention.md
+        Sec. 2. R(-90): (x, y) -> (x*cos(-90) - y*sin(-90), x*sin(-90) + y*cos(-90))
+        = (y, -x). Pin at (1, 0) -> (0, -1).
+        World: (10+0, 20-1) = (10, 19).
+        """
         pin = Pin("1", "1", (1.0, 0.0))
         comp = Component(
             ref="U1",
@@ -44,10 +52,8 @@ class TestPinWorldGeometry:
             initial_side=0,
         )
         x, y = pin_world_position(pin, comp)
-        # Pin at (1,0) rotated 90° CCW → (0, 1)
-        # World: (10+0, 20+1) = (10, 21)
         assert x == pytest.approx(10.0, abs=1e-6)
-        assert y == pytest.approx(21.0, abs=1e-6)
+        assert y == pytest.approx(19.0, abs=1e-6)
 
     def test_zero_rotation_bottom_side(self):
         """Zero rotation, bottom side: pin X mirrored."""
@@ -67,8 +73,14 @@ class TestPinWorldGeometry:
         assert y == pytest.approx(20.0, abs=1e-6)
 
     def test_90deg_rotation_bottom_side(self):
-        """90° rotation (index 1), bottom side: X mirrored then rotated."""
+        """90° rotation (index 1), bottom side: X mirrored then rotated by
+        KiCad's real R(-theta) convention (see test_90deg_rotation_top_side
+        docstring for the ground-truth citation).
 
+        Pin at (1,0), bottom-side: X mirrored -> (-1, 0).
+        R(-90): (x, y) -> (y, -x). (-1, 0) -> (0, 1).
+        World: (10+0, 20+1) = (10, 21).
+        """
         pin = Pin("1", "1", (1.0, 0.0))
         comp = Component(
             ref="U1",
@@ -79,11 +91,8 @@ class TestPinWorldGeometry:
             initial_side=1,
         )
         x, y = pin_world_position(pin, comp)
-        # Pin at (1,0), bottom-side: X mirrored → (-1, 0)
-        # Rotated 90° CCW: rx = 0, ry = -1
-        # World: (10+0, 20-1) = (10, 19)
         assert x == pytest.approx(10.0, abs=1e-6)
-        assert y == pytest.approx(19.0, abs=1e-6)
+        assert y == pytest.approx(21.0, abs=1e-6)
 
     # ------------------------------------------------------------------
     # Edge cases

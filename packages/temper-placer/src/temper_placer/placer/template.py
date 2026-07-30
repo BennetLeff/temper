@@ -81,10 +81,15 @@ class ParametricTemplate:
             rel_x = comp.x_ratio * target_width - anchor_off_x
             rel_y = comp.y_ratio * target_height - anchor_off_y
 
-            # Rotate around anchor
+            # Rotate around anchor. KiCad's real footprint/group rotation
+            # convention is R(-theta), not R(+theta) -- see
+            # docs/evidence/2026-07-29-cross-domain-creepage-rotation-convention.md
+            # Sec. 2. (All current call sites pass rotation=0, where the two
+            # conventions coincide, so this had no observed effect yet --
+            # fixed so a future nonzero-rotation caller is correct.)
             if rotation != 0:
-                rotated_x = rel_x * math.cos(rot_rad) - rel_y * math.sin(rot_rad)
-                rotated_y = rel_x * math.sin(rot_rad) + rel_y * math.cos(rot_rad)
+                rotated_x = rel_x * math.cos(rot_rad) + rel_y * math.sin(rot_rad)
+                rotated_y = -rel_x * math.sin(rot_rad) + rel_y * math.cos(rot_rad)
             else:
                 rotated_x, rotated_y = rel_x, rel_y
 
@@ -199,10 +204,15 @@ class ComponentTemplate:
             rel_x = comp.x - anchor_offset_x
             rel_y = comp.y - anchor_offset_y
 
-            # Rotate around anchor
+            # Rotate around anchor. KiCad's real footprint/group rotation
+            # convention is R(-theta), not R(+theta) -- see
+            # docs/evidence/2026-07-29-cross-domain-creepage-rotation-convention.md
+            # Sec. 2. (All current call sites pass rotation=0, where the two
+            # conventions coincide, so this had no observed effect yet --
+            # fixed so a future nonzero-rotation caller is correct.)
             if rotation != 0:
-                rotated_x = rel_x * math.cos(rot_rad) - rel_y * math.sin(rot_rad)
-                rotated_y = rel_x * math.sin(rot_rad) + rel_y * math.cos(rot_rad)
+                rotated_x = rel_x * math.cos(rot_rad) + rel_y * math.sin(rot_rad)
+                rotated_y = -rel_x * math.sin(rot_rad) + rel_y * math.cos(rot_rad)
             else:
                 rotated_x, rotated_y = rel_x, rel_y
 
