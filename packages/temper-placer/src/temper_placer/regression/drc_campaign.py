@@ -44,13 +44,23 @@ def evaluate_campaign(
     *,
     ceiling_approval: bool = False,
 ) -> CampaignResult:
-    """Evaluate one run without silently absorbing a category increase."""
-    categories = set(baseline_by_type) | set(current_by_type) | set(state.order)
+    """Evaluate one explicit baseline/current snapshot pair.
+
+    A category omitted from a DRC report is not evidence of zero violations.
+    Requiring matching, complete snapshots keeps a missing parser field from
+    masquerading as campaign progress or an inactive-category improvement.
+    """
+    _validate_snapshot(state, baseline_by_type, "baseline")
+    _validate_snapshot(state, current_by_type, "current")
+    if set(baseline_by_type) != set(current_by_type):
+        raise ValueError("baseline and current snapshots must contain the same categories")
+
+    categories = set(baseline_by_type)
     increases = tuple(
         sorted(
-            (name, current_by_type.get(name, 0) - baseline_by_type.get(name, 0))
+            (name, current_by_type[name] - baseline_by_type[name])
             for name in categories
-            if current_by_type.get(name, 0) > baseline_by_type.get(name, 0)
+            if current_by_type[name] > baseline_by_type[name]
         )
     )
     if increases and not ceiling_approval:
@@ -63,8 +73,8 @@ def evaluate_campaign(
         )
 
     active = state.active_category
-    baseline_active = baseline_by_type.get(active, 0)
-    current_active = current_by_type.get(active, 0)
+    baseline_active = baseline_by_type[active]
+    current_active = current_by_type[active]
     if current_active > 0 and current_active >= baseline_active:
         return CampaignResult(
             passed=False,
@@ -75,7 +85,7 @@ def evaluate_campaign(
             ),
             tightened_ceilings=tuple(
                 sorted(
-                    (name, min(baseline_by_type.get(name, 0), current_by_type.get(name, 0)))
+                    (name, min(baseline_by_type[name], current_by_type[name]))
                     for name in categories
                 )
             ),
@@ -84,7 +94,7 @@ def evaluate_campaign(
 
     tightened = tuple(
         sorted(
-            (name, min(baseline_by_type.get(name, 0), current_by_type.get(name, 0)))
+            (name, min(baseline_by_type[name], current_by_type[name]))
             for name in categories
         )
     )
@@ -99,3 +109,22 @@ def evaluate_campaign(
         tightened_ceilings=tightened,
         increases=increases,
     )
+
+
+def _validate_snapshot(
+    state: CampaignState,
+    snapshot: Mapping[str, int],
+    label: str,
+) -> None:
+    missing = set(state.order) - set(snapshot)
+    if missing:
+        missing_names = ", ".join(sorted(missing))
+        raise ValueError(f"{label} snapshot is missing categories: {missing_names}")
+    invalid = [
+        name
+        for name, count in snapshot.items()
+        if isinstance(count, bool) or not isinstance(count, int) or count < 0
+    ]
+    if invalid:
+        names = ", ".join(sorted(invalid))
+        raise ValueError(f"{label} snapshot has invalid counts: {names}")

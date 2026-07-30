@@ -178,6 +178,68 @@ flowchart TB
 - `docs/brainstorms/2026-07-30-hv-isolation-architecture-options.md` — package, placement, and BOM escalation context.
 - `docs/evidence/2026-07-30-creepage-205-triage.md` — prior rule-artifact and same-package classification evidence; current queue must revalidate it against the converged trunk.
 
+## Planning Contract
+
+### Delivery approach
+
+Implement the campaign in two bounded layers. First, add a typed, deterministic creepage queue model that can preserve evidence and classify layout, same-package, and rule/policy candidates. Second, connect that model to the existing safety-ordered campaign evaluator without changing ordinary ceiling-ratchet behavior. Campaign evaluation remains an explicit operation over a baseline snapshot and a candidate snapshot; an ordinary DRC ceiling check must not require every unrelated pull request to reduce creepage.
+
+### Planning decisions
+
+- **Stable identity:** Queue identity is derived from normalized rule, nets, physical location, and measured geometry, not component reference designators alone. This makes reruns and reference-designator renumbering observable without pretending two materially different violations are the same item.
+- **Evidence before classification:** A queue item retains the raw human-readable message and structured fields. Classification is a typed disposition, not an inferred claim that can erase missing evidence.
+- **Same-package handling:** A single-component violation is an escalation candidate, not an automatic waiver. It remains open until layout-first analysis or a human BOM/footprint decision supplies closure evidence.
+- **Campaign boundary:** The existing ceiling ratchet remains the safety floor. The campaign evaluator compares explicit baseline/current category snapshots and reports approval requirements; it does not mutate ceilings or author `Ceiling-Approval:` trailers.
+- **Measurement policy:** Missing category keys are not silently treated as measured zero in queue or campaign evidence. Tests must cover omitted, permuted, duplicated, and unchanged inputs.
+
+### Assumptions and risks
+
+- Current KiCad JSON exposes enough structured context for the queue adapter; if a future KiCad version omits a field, the adapter must retain the raw message and emit an investigation disposition rather than fabricate geometry.
+- The first implementation will not decide the numeric router/board reconciliation tolerance. It will carry an explicit `reconciliation_status` boundary so that tolerance selection remains a reviewable follow-up rather than an accidental constant.
+- The queue classifier is deliberately conservative. A false escalation is reviewable; a false claim that a violation is layout-fixable would corrupt campaign accounting.
+
+## Implementation Units
+
+### U1. Typed creepage evidence and queue
+
+- **Goal:** Represent normalized creepage observations, stable identities, and explicit fix dispositions with immutable, validated types.
+- **Files:** `packages/temper-placer/src/temper_placer/regression/creepage_queue.py`, `packages/temper-placer/tests/regression/test_creepage_queue.py`.
+- **TDD sequence:** Add failing validation, identity, classification, and ordering tests; implement the smallest frozen dataclasses and pure functions; then refactor normalization without changing the contract.
+- **Property-based coverage:** Generate permutations, duplicate observations, optional component/net names, and floating-point measurements. Assert deterministic ordering, identity invariance under input permutation, and rejection of invalid measurements.
+- **Metamorphic coverage:** Renaming only a component reference must not change the stable identity; changing a net or location must change it; adding an unrelated observation must not change existing queue items; classifying the same normalized observation twice must be idempotent.
+
+### U2. Explicit campaign evaluation boundary
+
+- **Goal:** Make campaign-vs-ceiling evaluation explicit and typed, preserving inactive-category guardrails and approval semantics already established by `drc_campaign.py`.
+- **Files:** `packages/temper-placer/src/temper_placer/regression/drc_campaign.py`, `packages/temper-placer/tests/regression/test_drc_campaign.py`, and only the smallest necessary adapter in `scripts/ci_check_drc.py` if an existing invocation can consume the explicit campaign input without changing default CI behavior.
+- **TDD sequence:** Add failing tests for omitted categories, explicit campaign snapshots, and no mutation of the ceiling path; implement the boundary; run existing property tests and the new metamorphic cases.
+- **Non-goal:** Do not make a normal ceiling check demand active-category progress, and do not write `drc_ceiling.json` from the campaign evaluator.
+
+### U3. Evidence/report handoff
+
+- **Goal:** Ensure a campaign result can report board DRC counts, router/prover attribution, reconciliation status, and BOM escalation separately.
+- **Files:** Extend the smallest existing regression result type and tests; add no new `scripts/*.py` entry unless the current invocation graph proves a script is necessary, in which case update `scripts/manifest.yaml` in the same change.
+- **TDD sequence:** Add failing serialization and anti-vacuity tests first. A result with no board evidence, no attribution, or an unresolved same-package item must remain visibly incomplete rather than pass.
+- **Deferred decision:** Numeric reconciliation tolerance and the exact canonical report filename remain review inputs; this unit may expose typed fields without selecting a tolerance.
+- **Delivery status:** Deferred from this work unit; tracked as GitHub issue #499. The current repository has no committed router/prover snapshot interchange format or canonical campaign-report filename, so implementing a serializer now would create an unowned format. The typed queue and explicit campaign boundary land first; this unit is the concrete follow-up once those two external inputs are chosen.
+
+## Verification Contract
+
+- **Unit tests:** Run the focused regression tests for queue and campaign behavior.
+- **Property-based tests:** Hypothesis tests cover permutation invariance, duplicate stability, category monotonicity, and invalid-input rejection.
+- **Metamorphic tests:** Verify component-reference renaming, unrelated-observation addition, repeated classification, and category-key permutation properties.
+- **Static checks:** Run `ruff check` on changed Python files, `ty` on the package scope when available, and the repository import-boundary gate.
+- **Repository gates:** Run the relevant manifest/provenance checks; no PCB change is expected in this work unit, so no DRC remeasurement is authorized by this plan.
+- **Evidence review:** Confirm the final diff preserves typed raw evidence, does not lower PD3/12.6 constraints, does not silently classify missing data as zero, and leaves the worktree clean after commit.
+
+## Definition of Done
+
+- U1 is implemented with frozen validated types, deterministic stable identity, explicit dispositions, and focused/PBT/metamorphic tests.
+- U2 preserves the existing ceiling-ratchet default while making campaign progress evaluation explicit and regression-tested.
+- U3 is recorded as a concrete follow-up with its missing external decision; no unsupported campaign progress is claimed.
+- All verification commands that are available in the worktree pass, and any environment-specific limitation is reported with the exact command and reason.
+- The implementation is committed and pushed from the isolated worktree, with no board or ceiling changes outside this scope.
+
 <!-- ce-section: work-relationships -->
 ### How This Work Fits Together
 
