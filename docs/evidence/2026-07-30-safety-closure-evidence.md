@@ -8,6 +8,8 @@ provenance:
   branch: codex/safety-closure
   dirty: false
   note: "Measurements were re-run after rebasing onto bb7592755; tracked tree was clean at measurement time; make netlist created ignored elec/build and .venv artifacts."
+  follow_up_source_commit: fb5dbf5d5
+  follow_up_note: "ADC top-resistor power_rating metadata corrected from 0.1W to 0.25W; netlist and domain gate rerun successfully; no PCB geometry changed."
 ---
 
 # Safety-closure evidence pass
