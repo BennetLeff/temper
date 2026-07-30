@@ -13,9 +13,11 @@ from pathlib import Path
 import pytest
 
 from temper_placer.core.netlist import Component, Netlist, Pin
+from temper_placer.geometry.kicad_transform import rotate_local_to_world_deg
 from temper_placer.placer.cp_sat.isolation_barrier import (
     IsolatorPadGroups,
     Pad,
+    _project_onto_barrier_axis,
     add_isolation_barrier_to_model,
     classify_domain_partition,
     compute_pad_groups,
@@ -373,3 +375,31 @@ def test_barrier_feasible_isolator_can_straddle(tmp_path: Path):
     selv_edge_mm = ps1_x_mm + 38.5 - 1.5
     assert hv_edge_mm <= corridor_lo + 0.02
     assert selv_edge_mm >= corridor_hi - 0.02
+
+
+# ---------------------------------------------------------------------------
+# Consistency: _project_onto_barrier_axis's hand-unrolled 4-way dict must
+# stay pinned to the sanctioned kicad_transform convention it claims to be
+# an exact closed form of (see that function's own docstring for why it is
+# not simply routed through kicad_transform's floating-point trig).
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("local_x", "local_y"),
+    [
+        (0.0, 0.0),
+        (1.0, 0.0),
+        (0.0, 1.0),
+        (3.7, -2.1),
+        (-5.0, 5.0),
+        (12.34, -0.001),
+    ],
+)
+@pytest.mark.parametrize("rot_value", [0, 1, 2, 3])
+def test_isolation_barrier_matches_kicad_transform(rot_value, local_x, local_y):
+    expected_x, expected_y = rotate_local_to_world_deg(local_x, local_y, rot_value * 90.0)
+    got_x = _project_onto_barrier_axis(local_x, local_y, rot_value, barrier_axis=0)
+    got_y = _project_onto_barrier_axis(local_x, local_y, rot_value, barrier_axis=1)
+    assert got_x == pytest.approx(expected_x, abs=1e-9)
+    assert got_y == pytest.approx(expected_y, abs=1e-9)

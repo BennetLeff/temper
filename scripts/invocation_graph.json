@@ -23,7 +23,8 @@
     ".github/workflows/python-tests.yml"
   ],
   "check_derived_doc_drift.py": [
-    ".github/workflows/python-tests.yml"
+    ".github/workflows/python-tests.yml",
+    "packages/temper-placer/tests/requirements/safety/test_creepage_spec_row_form.py"
   ],
   "check_domain_partition.py": [
     ".github/workflows/python-tests.yml",
@@ -44,6 +45,7 @@
   ],
   "check_isolation_keepout.py": [
     ".github/workflows/python-tests.yml",
+    "packages/temper-placer/src/temper_placer/geometry/kicad_transform.py",
     "packages/temper-placer/src/temper_placer/placer/cp_sat/isolation_barrier.py",
     "packages/temper-placer/tests/placer/cp_sat/test_isolation_barrier.py"
   ],
@@ -66,8 +68,12 @@
     "packages/temper-placer/src/temper_placer/router_v6/routing_demand.py",
     "packages/temper-placer/src/temper_placer/router_v6/trace_width_assignment.py"
   ],
+  "check_no_raw_rotation_trig.py": [
+    "packages/temper-placer/src/temper_placer/geometry/kicad_transform.py"
+  ],
   "check_pad_orientation.py": [
-    ".github/workflows/python-tests.yml"
+    ".github/workflows/python-tests.yml",
+    "packages/temper-placer/src/temper_placer/geometry/kicad_transform.py"
   ],
   "check_physics_provenance.py": [
     ".github/workflows/python-tests.yml",
@@ -162,6 +168,10 @@
   ],
   "kicad_fill_zones.py": [
     "packages/temper-placer/tests/placer/cp_sat/test_zone_pour_production_measurement.py"
+  ],
+  "known_failure_pins.py": [
+    ".github/workflows/python-tests.yml",
+    "packages/temper-placer/tests/placer/cp_sat/test_regression_drc.py"
   ],
   "literal_removal_check.py": [
     ".github/workflows/literal-removal-advisory.yml"
