@@ -207,6 +207,7 @@ Implement the campaign in two bounded layers. First, add a typed, deterministic 
 - **TDD sequence:** Add failing validation, identity, classification, and ordering tests; implement the smallest frozen dataclasses and pure functions; then refactor normalization without changing the contract.
 - **Property-based coverage:** Generate permutations, duplicate observations, optional component/net names, and floating-point measurements. Assert deterministic ordering, identity invariance under input permutation, and rejection of invalid measurements.
 - **Metamorphic coverage:** Renaming only a component reference must not change the stable identity; changing a net or location must change it; adding an unrelated observation must not change existing queue items; classifying the same normalized observation twice must be idempotent.
+- **First-slice result:** The live board queue was measured at 312–313 creepage errors across repeat samples. The selector produced a deterministic 16-item layout-only slice, ordered by measured deficiency; same-package and rule/policy items were excluded from that slice.
 
 ### U2. Explicit campaign evaluation boundary
 
@@ -214,6 +215,7 @@ Implement the campaign in two bounded layers. First, add a typed, deterministic 
 - **Files:** `packages/temper-placer/src/temper_placer/regression/drc_campaign.py`, `packages/temper-placer/tests/regression/test_drc_campaign.py`, and only the smallest necessary adapter in `scripts/ci_check_drc.py` if an existing invocation can consume the explicit campaign input without changing default CI behavior.
 - **TDD sequence:** Add failing tests for omitted categories, explicit campaign snapshots, and no mutation of the ceiling path; implement the boundary; run existing property tests and the new metamorphic cases.
 - **Non-goal:** Do not make a normal ceiling check demand active-category progress, and do not write `drc_ceiling.json` from the campaign evaluator.
+- **Router handoff:** The current full-board production router did not emit a review-path candidate in two isolated attempts; bounded/net-scoped routing is tracked as GitHub issue #505. No layout progress is credited until that candidate exists and passes canonical DRC reconciliation.
 
 ### U3. Evidence/report handoff
 
