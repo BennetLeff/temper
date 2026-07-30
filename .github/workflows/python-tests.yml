@@ -2323,6 +2323,12 @@ jobs:
         if: steps.cache-venv.outputs.cache-hit != 'true'
         run: uv venv
 
+      # Unit tests for the generator itself -- includes an anti-vacuity check
+      # that mutates DIRECTORY_PURPOSE for one real, currently-described
+      # directory and asserts the completeness check still fires (exit 2).
+      - name: Generator unit tests
+        run: uv run pytest scripts/tests/test_gen_repo_state.py -v --tb=short
+
       # Deliberately NOT continue-on-error and deliberately not soft-launched.
       # The blocks are generated, so they start clean and there is nothing to
       # grandfather. Exit 1 = drift, exit 2 = tool error (missing marker,
