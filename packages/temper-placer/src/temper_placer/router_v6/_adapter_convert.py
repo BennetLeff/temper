@@ -176,6 +176,7 @@ def route_pcb(
     enable_manufacturing_drc: bool = False,
     sat_conflict_limit: int | None = 20_000,
     sat_time_limit_ms: int | None = None,
+    rotations: dict[str, float] | None = None,
 ) -> RoutingResult:
     """Route a PCB using the Router V6 pipeline.
 
@@ -187,6 +188,13 @@ def route_pcb(
             form injection into the output PCB. net_class_assignments and
             net_classes are both derived from this object and threaded
             into the pipeline automatically -- see the block below.
+        rotations: Optional dict mapping component ref -> new absolute
+            footprint rotation in degrees (see
+            ``CpSatPlacementResult.to_rotations_dict()``). Threaded
+            straight through to ``_apply_placements_to_pcb`` -- see its
+            docstring for exactly what is and is not rewritten. A ref
+            with no entry here keeps its existing angle unchanged,
+            matching this parameter's pre-existing absence entirely.
         thermal_flat: U9 optional (N,) float32 thermal cost field from
             the previous round's field.  Threaded to A* kernel.
         thermal_weight: U9 multiplier on per-cell thermal cost
@@ -343,7 +351,7 @@ def route_pcb(
     if placements:
         raw_content = pcb_path.read_text(encoding="utf-8")
         modified_content = _apply_placements_to_pcb(
-            raw_content, placements, design_rules=design_rules
+            raw_content, placements, design_rules=design_rules, rotations=rotations
         )
 
         fd, temp_path = tempfile.mkstemp(suffix=".kicad_pcb")
@@ -738,12 +746,62 @@ def _build_routing_result(
     )
 
 
+# A .kicad_pcb pad's `(at x y angle)` angle is its ABSOLUTE (world)
+# orientation -- unlike a .kicad_mod's, it is not an offset added to the
+# parent footprint's angle at load time (see _write_board.py::_reorient_pads,
+# the kiutils-based precedent for this same rule on a parsed board tree).
+# Matches pad shapes across pad kinds actually present in this repo's boards
+# (thru_hole/np_thru_hole/smd/connect x circle/rect/oval/roundrect/
+# trapezoid/custom): `(pad "<num-or-empty>" <type> <shape> (at X Y [ANGLE])`.
+_PAD_AT_RE = re.compile(
+    r'(\(pad\s+"[^"]*"\s+\S+\s+\S+\s+\(at\s+[\d.-]+\s+[\d.-]+)(?:\s+([\d.-]+))?(\))'
+)
+
+
+def _reorient_pads_in_footprint_block(block: str, delta_deg: float) -> str:
+    """Rewrite every pad's absolute angle in *block* by *delta_deg*.
+
+    Raw-string-content counterpart of ``_write_board.py::_reorient_pads``:
+    same rule (pad angle is absolute, not footprint-relative), applied to
+    ``.kicad_pcb`` s-expression text instead of a parsed ``kiutils`` tree.
+    Each pad's *intrinsic* orientation (its angle relative to its parent, as
+    defined by the library footprint) is preserved -- only the absolute
+    angle shifts by the footprint's own rotation delta. Skipping this step
+    was the root cause of 60 intra-component copper shorts on this board
+    (PRs #412/#420/#426); see
+    docs/evidence/2026-07-29-intra-component-shorts-root-cause.md.
+    """
+
+    def _shift(m: re.Match[str]) -> str:
+        old_angle = float(m.group(2)) if m.group(2) else 0.0
+        new_angle = (old_angle + delta_deg) % 360.0
+        # kiutils/KiCad omit the angle token when it is 0; write it back
+        # only when the result really is nonzero, matching _reorient_pads.
+        angle_token = "" if new_angle == 0.0 else f" {new_angle:.4f}"
+        return f"{m.group(1)}{angle_token}{m.group(3)}"
+
+    return _PAD_AT_RE.sub(_shift, block)
+
+
 def _apply_placements_to_pcb(
     raw_content: str,
     placements: dict[str, tuple[float, float]],
     design_rules: Any = None,
+    rotations: dict[str, float] | None = None,
 ) -> str:
-    """Modify footprint (at X Y [ANGLE]) positions in KiCad PCB raw content."""
+    """Modify footprint (at X Y [ANGLE]) positions in KiCad PCB raw content.
+
+    ``rotations``, if given, maps component ref -> new absolute footprint
+    rotation in degrees (the same convention as
+    ``CpSatPlacementResult.rotations[ref] * 90.0``, see cli/__init__.py).
+    A ref present in ``placements`` but absent from ``rotations`` (or
+    passed with ``rotations=None`` entirely) keeps its existing angle
+    byte-for-byte unchanged -- the pre-existing, position-only behavior.
+    When a ref's target angle differs from its current one, every pad in
+    that footprint is re-oriented by the same delta so pad geometry keeps
+    matching where the footprint visually points (see
+    ``_reorient_pads_in_footprint_block`` above).
+    """
     foot_starts = [m.start() for m in re.finditer(r'\(footprint\s+"[^"]+"\s+\(layer', raw_content)]
 
     if not foot_starts:
@@ -761,12 +819,37 @@ def _apply_placements_to_pcb(
             ref = ref_match.group(1)
             if ref in placements:
                 x, y = placements[ref]
-                block = re.sub(
-                    r"(\(at\s+)[\d.-]+\s+[\d.-]+(\s*[\d.-]*\s*\))",
-                    rf"\g<1>{x:.4f} {y:.4f}\2",
-                    block,
-                    count=1,
-                )
+                target_angle = rotations.get(ref) if rotations else None
+
+                if target_angle is None:
+                    # No solved rotation for this ref: preserve its existing
+                    # angle exactly, unchanged from the pre-fix behavior.
+                    block = re.sub(
+                        r"(\(at\s+)[\d.-]+\s+[\d.-]+(\s*[\d.-]*\s*\))",
+                        rf"\g<1>{x:.4f} {y:.4f}\2",
+                        block,
+                        count=1,
+                    )
+                else:
+                    fp_at_match = re.search(
+                        r"\(at\s+[\d.-]+\s+[\d.-]+(?:\s+([\d.-]+))?\s*\)", block
+                    )
+                    old_angle = 0.0
+                    if fp_at_match and fp_at_match.group(1):
+                        old_angle = float(fp_at_match.group(1))
+
+                    new_angle = target_angle % 360.0
+                    angle_token = "" if new_angle == 0.0 else f" {new_angle:.4f}"
+                    block = re.sub(
+                        r"(\(at\s+)[\d.-]+\s+[\d.-]+(\s*[\d.-]*\s*\))",
+                        rf"\g<1>{x:.4f} {y:.4f}{angle_token})",
+                        block,
+                        count=1,
+                    )
+
+                    delta = target_angle - old_angle
+                    if delta % 360.0 != 0.0:
+                        block = _reorient_pads_in_footprint_block(block, delta)
 
         result_parts.append(raw_content[prev_end:start])
         result_parts.append(block)

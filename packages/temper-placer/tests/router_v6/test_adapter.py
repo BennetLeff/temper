@@ -94,6 +94,134 @@ class TestApplyPlacementsToPcb:
         assert "at 100.0000 200.0000" in result
 
 
+class TestApplyPlacementsToPcbRotation:
+    """Item 1: a solved CP-SAT rotation must not be structurally discarded
+    by the writer, and when it IS applied, every pad's absolute angle must
+    shift by the same delta as the footprint (see
+    _write_board.py::_reorient_pads for the kiutils-based precedent this
+    mirrors on raw string content -- a .kicad_pcb pad angle is ABSOLUTE,
+    not footprint-relative)."""
+
+    _CONTENT_TEMPLATE = """(kicad_pcb (version 20240108)
+  (footprint "Test:SOIC" (layer "F.Cu")
+    (tstamp 00000000-0000-0000-0000-000000000001)
+    (at 10.0 20.0{fp_angle_suffix})
+    (property "Reference" "U1" (at 0 0 0) (layer "F.SilkS"))
+    (pad "1" smd rect (at -0.775 0{pad1_angle_suffix}) (size 0.6 1.2) (layers "F.Cu" "F.Paste" "F.Mask")
+      (net 1 "vcc"))
+    (pad "2" smd rect (at 0.775 0{pad2_angle_suffix}) (size 0.6 1.2) (layers "F.Cu" "F.Paste" "F.Mask")
+      (net 2 "gnd"))
+  )
+)"""
+
+    def test_no_rotations_arg_preserves_angle_exactly(self):
+        """Without a `rotations=` mapping at all, behavior is byte-for-byte
+        identical to the pre-fix writer: solved rotation is not applied."""
+        content = self._CONTENT_TEMPLATE.format(
+            fp_angle_suffix=" 90.0", pad1_angle_suffix=" 90", pad2_angle_suffix=" 90"
+        )
+        result = _apply_placements_to_pcb(content, {"U1": (50.0, 60.0)})
+
+        assert "at 50.0000 60.0000 90.0" in result
+        assert "at -0.775 0 90" in result
+        assert "at 0.775 0 90" in result
+
+    def test_ref_absent_from_rotations_preserves_angle(self):
+        """A ref in `placements` but not in `rotations` keeps its angle,
+        exactly like the no-`rotations`-at-all case."""
+        content = self._CONTENT_TEMPLATE.format(
+            fp_angle_suffix=" 90.0", pad1_angle_suffix=" 90", pad2_angle_suffix=" 90"
+        )
+        result = _apply_placements_to_pcb(
+            content, {"U1": (50.0, 60.0)}, rotations={"OTHER_REF": 180.0}
+        )
+
+        assert "at 50.0000 60.0000 90.0" in result
+        assert "at -0.775 0 90" in result
+        assert "at 0.775 0 90" in result
+
+    def test_solved_rotation_is_written_to_footprint_angle(self):
+        """This is the bug: before the fix, a solved rotation never reached
+        the footprint's own (at X Y ANGLE) at all -- this assertion is
+        exactly what `_apply_placements_to_pcb` (pre-fix, no `rotations`
+        parameter) could not do."""
+        content = self._CONTENT_TEMPLATE.format(
+            fp_angle_suffix="", pad1_angle_suffix="", pad2_angle_suffix=""
+        )
+        result = _apply_placements_to_pcb(
+            content, {"U1": (50.0, 60.0)}, rotations={"U1": 90.0}
+        )
+
+        assert "at 50.0000 60.0000 90.0000" in result
+
+    def test_pad_bodies_reorient_with_footprint(self):
+        """The pad-shorting regression (PRs #412/#420/#426): rotating the
+        footprint without rotating pad bodies leaves fine-pitch pads
+        physically overlapping. Footprint 0 -> 90 must shift every pad's
+        absolute angle by +90 too."""
+        content = self._CONTENT_TEMPLATE.format(
+            fp_angle_suffix="", pad1_angle_suffix="", pad2_angle_suffix=""
+        )
+        result = _apply_placements_to_pcb(
+            content, {"U1": (50.0, 60.0)}, rotations={"U1": 90.0}
+        )
+
+        assert "at -0.775 0 90.0000" in result
+        assert "at 0.775 0 90.0000" in result
+
+    def test_pad_reorientation_preserves_intrinsic_offset(self):
+        """Pads that already carry a non-footprint angle (e.g. a part whose
+        library footprint itself defines pads at a relative angle) must
+        keep that intrinsic offset -- only the delta shifts them, matching
+        `_reorient_pads`'s `intrinsic = old_pad_angle - old_fp_angle`
+        invariant."""
+        content = self._CONTENT_TEMPLATE.format(
+            fp_angle_suffix=" 90.0", pad1_angle_suffix=" 90", pad2_angle_suffix=" 180"
+        )
+        # Footprint rotates 90 -> 180: delta = +90.
+        result = _apply_placements_to_pcb(
+            content, {"U1": (50.0, 60.0)}, rotations={"U1": 180.0}
+        )
+
+        assert "at 50.0000 60.0000 180.0000" in result
+        # pad 1: 90 + 90 = 180
+        assert "at -0.775 0 180.0000" in result
+        # pad 2: 180 + 90 = 270
+        assert "at 0.775 0 270.0000" in result
+
+    def test_rotation_normalizing_to_zero_omits_angle_token(self):
+        """KiCad/kiutils omit the angle token entirely when it is 0 --
+        `_reorient_pads` documents this convention explicitly; the raw-
+        string writer must match it rather than emit a literal `0.0000`
+        angle that downstream tooling has never had to parse before."""
+        content = self._CONTENT_TEMPLATE.format(
+            fp_angle_suffix=" 270.0", pad1_angle_suffix=" 270", pad2_angle_suffix=" 270"
+        )
+        # Footprint rotates 270 -> 360 (== 0): delta = +90, pads 270 -> 360 (== 0).
+        result = _apply_placements_to_pcb(
+            content, {"U1": (50.0, 60.0)}, rotations={"U1": 360.0}
+        )
+
+        assert "at 50.0000 60.0000)" in result
+        assert "at -0.775 0)" in result
+        assert "at 0.775 0)" in result
+
+    def test_zero_delta_does_not_touch_pads(self):
+        """Same target angle as the current one: delta is 0, so pads are
+        left completely untouched (not merely re-written to the same
+        value) -- this is the `delta % 360.0 != 0.0` guard."""
+        content = self._CONTENT_TEMPLATE.format(
+            fp_angle_suffix=" 90.0", pad1_angle_suffix=" 45", pad2_angle_suffix=" 135"
+        )
+        result = _apply_placements_to_pcb(
+            content, {"U1": (50.0, 60.0)}, rotations={"U1": 90.0}
+        )
+
+        assert "at 50.0000 60.0000 90.0000" in result
+        assert "at -0.775 0 45" in result
+        assert "at 0.775 0 135" in result
+
+
 class TestRoutePcbErrorHandling:
     def test_no_source_path_raises_value_error(self):
         parsed = type("FakeParsed", (), {})()
