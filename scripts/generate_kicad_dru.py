@@ -66,19 +66,16 @@ HV_INTERNAL_CLEARANCE_MM = 2.0
 # Table 17 row iv, working voltage >250-400V, material group IIIa/IIIb):
 # basic 4.0mm x2 = 8.0mm.
 #
-# IEC 60335-2-6 clause 29.2 Addition makes Pollution Degree 3 the DEFAULT
-# for this appliance class (cooking ranges/hobs); PD2 must be earned by
-# showing the insulation is enclosed or unlikely to be exposed to pollution,
-# which no document in this repo establishes today (docs/ENVIRONMENTAL_SPEC.md
-# asserts PD2 with no citation, and docs/CHASSIS_AIRFLOW_DESIGN.md describes
-# forced airflow through the compartment, which argues the other way). If
-# PD3 stands, the reinforced creepage requirement is 2 x 6.3mm = 12.6mm, not
-# 8.0mm. THIS IS FLAGGED, NOT RESOLVED: a human must settle the pollution
-# degree of the macroenvironment before either number can be asserted as
-# correct. See docs/evidence/2026-07-28-conformal-coating-pd1.md sec "Verdict"
-# item and docs/evidence/2026-07-28-creepage-determination-brainstorm.md sec 5.
+# IEC 60335-2-6 clause 29.2 Addition makes Pollution Degree 3 the default
+# for this appliance class (cooking ranges/hobs). The project owner has
+# selected the PD2 exception for the production architecture, conditional on
+# a documented, gasketed PCB compartment that is outside the coil/heatsink
+# airflow path. If that mechanical prerequisite is not implemented and
+# verified, PD3 remains the fallback requirement and this selection must be
+# revisited before release. See docs/evidence/2026-07-30-pd2-enclosure-
+# decision.md.
 HV_CREEPAGE_PD2_MM = 8.0
-HV_CREEPAGE_PD3_MM = 12.6  # flagged default per IEC 60335-2-6 cl. 29.2; UNRESOLVED
+HV_CREEPAGE_PD3_MM = 12.6  # fallback if the PD2 enclosure prerequisite fails
 
 # ---------------------------------------------------------------------------
 # Creepage IS NOW EMITTED as a real KiCad DRC constraint (2026-07-28) --
@@ -101,29 +98,11 @@ HV_CREEPAGE_PD3_MM = 12.6  # flagged default per IEC 60335-2-6 cl. 29.2; UNRESOL
 #     proof this is a genuine path-around-obstacles solver, not a relabeled
 #     clearance check. See docs/evidence/2026-07-28-drc-creepage-constraint.md.
 #
-# WHICH FIGURE TO EMIT: the PD2 (8.0mm) vs PD3 (12.6mm) question directly
-# above is UNRESOLVED and this file does not resolve it -- that determination
-# still belongs to a human. This constant is a SEPARATE, narrower decision:
-# which of the two unresolved figures the ACTUALLY-EMITTED .dru rule is
-# pinned to while the human question is open. Pinned to HV_CREEPAGE_PD2_MM,
-# reusing -- not re-deciding -- the identical call
-# scripts/check_isolation_keepout.py's MIN_BARRIER_WIDTH_MM already makes
-# for the same barrier (8.0mm, PD2). The PD2-vs-PD3 re-target itself (should
-# a human resolve the pollution-degree question in PD3's favor) is a
-# separate, larger change -- it touches this constant, that script's
-# MIN_BARRIER_WIDTH_MM, and the physical U3/U7 creepage-slot geometry on the
-# board simultaneously, and is explicitly out of scope here. Emitting this
-# generator's own unilateral PD3 figure while check_isolation_keepout.py and
-# the board's physical slots stayed at PD2 would make the two enforcement
-# points disagree, which is worse than emitting nothing -- so this constant
-# mirrors whatever check_isolation_keepout.py currently enforces, not a new
-# decision.
-#
-# If a human resolves PD3 (or the board's physical slot geometry is
-# re-targeted for it), change this ONE line to HV_CREEPAGE_PD3_MM -- and
-# change scripts/check_isolation_keepout.py's MIN_BARRIER_WIDTH_MM to match
-# in the same change, so the two gates never enforce two different figures
-# for the same requirement.
+# WHICH FIGURE TO EMIT: PD2 is the selected production target, and it must
+# remain aligned with check_isolation_keepout.py's MIN_BARRIER_WIDTH_MM.
+# Both enforcement points therefore emit/enforce 8.0mm. The PD3 constant is
+# retained as an explicit fallback so a future mechanical reclassification
+# changes both points together rather than silently carrying the PD2 number.
 HV_CREEPAGE_ENFORCED_MM = HV_CREEPAGE_PD2_MM
 
 # KiCad uses "Ground" as the net-class name; our Python dict uses "GND"
@@ -200,24 +179,22 @@ def generate_dru() -> str:
         " their"
     )
     lines.append(
-        "# existing clearance figures. The pollution-degree question (PD2"
-        " 8.0mm vs"
+        "# existing clearance figures. The selected production architecture"
+        " uses PD2"
     )
     lines.append(
-        "# PD3 12.6mm) is UNRESOLVED and this file does not resolve it --"
-        " see"
+        "# (8.0mm). PD3 (12.6mm) remains the fallback if the documented"
+        " enclosure"
     )
     lines.append(
-        "# HV_CREEPAGE_ENFORCED_MM's own comment in this script for which"
-        " figure is"
+        "# prerequisite is not implemented; see the source comment on"
+        " HV_CREEPAGE_ENFORCED_MM for the"
     )
     lines.append(
-        "# currently pinned, why, and how to change it in one line once a"
-        " human"
+        "# selection rule and"
     )
     lines.append(
-        "# settles the question. `scripts/check_isolation_keepout.py`"
-        " remains the"
+        "# `scripts/check_isolation_keepout.py` remains the"
     )
     lines.append(
         "# other, independent creepage enforcement point on this board (a"

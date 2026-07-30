@@ -46,8 +46,14 @@
 
 ### Phase 4: Final Integration
 1. **Ducting**: Install the 3D printed duct between the 80mm fan and the IGBT heatsink.
-2. **Main Board Mounting**: Secure the PCB into the chassis using M3 standoffs.
-3. **Internal Wiring**:
+2. **PCB Pollution Barrier**: Install the covered, gasketed PCB compartment
+   and verify that the coil/heatsink airflow path does not enter it. Do not
+   release the assembly as PD2 if the cover, gasket, or partition is absent
+   or damaged.
+3. **Main Board Mounting**: Secure the PCB inside the protected compartment
+   using M3 standoffs. Keep the mains-to-SELV board barrier and its 8.0 mm
+   PD2 keepout free of hardware and wiring.
+4. **Internal Wiring**:
    - Connect AC Mains (L, N, PE) to the input lugs.
    - Connect the induction coil leads to the resonant tank terminals.
    - Connect the fan PWM header.
