@@ -75,7 +75,10 @@ domains:
                            # (net 6, 17 pins) -- the star-join short that
                            # used to merge them into one net has been
                            # removed. Straddled only by the declared
-                           # isolators below (C6, PS1, T1, U3).
+                           # isolators below (C6, PS1, T1). U3 (the H11L1
+                           # ZCD opto, formerly also straddling this net)
+                           # was removed 2026-07-30 -- see
+                           # docs/evidence/2026-07-30-zcd-optocoupler-removal.md.
       - w1_1               # CMC winding 1 taps (line side)
       - w1_2
       - "+15V_LS"          # low-side gate-driver rail; referenced to
@@ -88,16 +91,6 @@ domains:
                            # "secondary" winding of that isolator)
       - GATE_LS            # UCC21550 low-side gate output; referenced to
                            # DC_BUS_RTN
-      - zcd                # power_in's internal HV-side ZCD divider tap
-                           # (top-of-divider node feeding the new H11L1
-                           # opto's LED). Stays inside PowerInput/HV; does
-                           # NOT cross main.ato's module boundary any more
-                           # (see ZCD_ISO under SELV) -- this is the
-                           # isolation fix (SELV_ISOLATION_REDESIGN.md Sec 4
-                           # row 2) working as intended.
-      - a                  # auto-named net between the ZCD divider tap and
-                           # the H11L1 LED series resistor/anode (R9-U3),
-                           # still entirely HV-side.
       - discharge.k_dis1-nc  # discharge.k_dis1's own declared "contacts"
                              # group (pin 4, NC) -- below, the SAME group as
                              # pin 1 (COM), which that isolator entry's own
@@ -273,13 +266,6 @@ domains:
                            # construction requirement.
       - PWM_HS             # MCU-side PWM output, primary side of the gate driver
       - PWM_LS
-      - ZCD_ISO            # power_in.zcd_out -- the H11L1 opto's SELV-side
-                           # output feeding mcu.zcd_in. Newly isolated by
-                           # this design's own fix
-                           # (SELV_ISOLATION_REDESIGN.md Sec 4 row 2); listed
-                           # here specifically so the domain check exercises
-                           # a *correctly fixed* crossing, not just the two
-                           # still-open ones.
       - safety.uvlo_logic-line  # UVL-02's LogicUVLOComparator fault line,
                                 # carried on TP3. Entirely SELV: the module
                                 # monitors power_3v3 against the TPS3700's
@@ -424,22 +410,14 @@ isolators:
       "5": "coil2 (SELV coil drive)"
       "1": "COM (HV bus contact)"
 
-  - instance_path: power_in.zcd_opto
-    # MPN and lead form resolved 2026-07-28: onsemi H11L1TVM, the 0.4"/10.16mm
-    # lead-spacing (`T`) + VDE 0884 (`V`) variant of the same die and pinout.
-    # The 300-mil DIP-6 land it was on gave 6.020mm of HV<->SELV pad
-    # separation; the 400-mil one gives 8.560mm. See docs/evidence/
-    # 2026-07-28-tank-cap-and-isolator-footprints.md.
-    component: "onsemi H11L1TVM (H11L1 family), Schmitt-trigger phototransistor optocoupler, 0.4in lead spacing"
-    groups:
-      primary: ["1", "2"]        # A (anode), K (cathode) -- LED, HV side
-      secondary: ["4", "5", "6"] # VO, GND, VCC -- phototransistor output, SELV side
-    pin_labels:
-      "1": "A (LED anode, HV side, driven from the zcd divider tap)"
-      "2": "K (LED cathode, HV side, returns to PWR_RTN)"
-      "4": "VO (open-collector output, SELV side -- feeds ZCD_ISO)"
-      "5": "GND (SELV side ground)"
-      "6": "VCC (SELV side supply, +3V3)"
+  # power_in.zcd_opto (U3, H11L1TVM mains-ZCD optocoupler) and its isolator
+  # declaration REMOVED 2026-07-30: no firmware consumer (PIN_ZCD_INPUT was
+  # never read past its own #define), no architectural role in this DC-bus
+  # resonant converter (soft-start is time-delayed, not zero-cross-
+  # synchronised), not wired into the safety chain, and its 8.560mm HV<->SELV
+  # pad separation permanently fails this design's 12.6mm PD3 target with no
+  # optocoupler family able to reach it. See
+  # docs/evidence/2026-07-30-zcd-optocoupler-removal.md.
 
   # --- Capacitor policy (stated and defended, not left implicit) ---
   # By default, EVERY two-terminal passive (resistor, inductor, ferrite bead,

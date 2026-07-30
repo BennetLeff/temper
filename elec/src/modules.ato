@@ -57,7 +57,6 @@ import IRM_10_15 from "components.ato"
 import PinHeader_1x02 from "components.ato"
 
 # Safety components
-import H11L1 from "components.ato"
 import TLV3201 from "components.ato"
 import INA240A1 from "components.ato"
 import TPS3823 from "components.ato"
@@ -651,9 +650,6 @@ module PowerInput:
     signal pe
     pe.required = true
     signal gnd
-    signal vcc_3v3   # SELV 3.3V supply, only for the ZCD opto's output side
-    signal zcd       # HV-side raw ZCD node -- never leaves this module now
-    zcd_out = new ElectricLogic  # SELV-side, isolated ZCD output
     signal relay_ctrl
     power_15v = new ElectricPower
 
@@ -970,87 +966,6 @@ module PowerInput:
     
     dc_bus.gnd_ref ~ y_cap_pe.p1
     y_cap_pe.p2 ~ pe
-    
-    # Zero-crossing detection: resistive divider from AC line
-    # Provides a scaled, clamped AC signal to the MCU for soft-start timing
-    r_zcd_top1 = new Resistor
-    r_zcd_top1.value = 220kohm +/- 5%
-    r_zcd_top1.power_rating = 0.25W
-    r_zcd_top1.voltage_rating = 250V
-    r_zcd_top1.mpn = "RC1206FR-07220KL"
-    r_zcd_top1.footprint = "Resistor_SMD:R_1206_3216Metric"
-    
-    r_zcd_top2 = new Resistor
-    r_zcd_top2.value = 220kohm +/- 5%
-    r_zcd_top2.power_rating = 0.25W
-    r_zcd_top2.voltage_rating = 250V
-    r_zcd_top2.mpn = "RC1206FR-07220KL"
-    r_zcd_top2.footprint = "Resistor_SMD:R_1206_3216Metric"
-    
-    r_zcd_bot = new Resistor
-    r_zcd_bot.value = 10kohm +/- 5%
-    r_zcd_bot.power_rating = 0.1W
-    r_zcd_bot.mpn = "RC0603FR-0710KL"
-    r_zcd_bot.footprint = "Resistor_SMD:R_0603_1608Metric"
-    
-    # ZCD clamping: 3.3V zener to protect MCU input
-    d_zcd_clamp = new Diode
-    d_zcd_clamp.voltage_rating = 3.3V
-    d_zcd_clamp.mpn = "BZT52C3V3-7-F"
-    d_zcd_clamp.footprint = "Diode_SMD:D_SOD-123"
-    
-    # Divider: AC_L -> 220k -> 220k -> zcd -> 10k -> GND
-    # At 120VAC peak (170V): V_zcd = 170 * 10k/(220k+220k+10k) ~= 3.78V
-    # Zener clamps to 3.3V protecting the opto LED (see below)
-    #
-    # RESOLVED 2026-07-26 (SELV isolation redesign): this TODO used to read
-    # "ZCD signal crosses isolation barrier (HV -> SELV); For now, ZCD is on
-    # HV side; plan for optocoupler in follow-up." That follow-up is this
-    # change -- Option A (H11L1 optocoupler) below. The divider and clamp
-    # stay exactly as they were, entirely on the HV side, referenced to
-    # dc_bus.gnd_ref (power_return); `zcd` itself no longer leaves this
-    # module -- only the opto's galvanically-isolated output (zcd_out) does.
-    ac_l ~ r_zcd_top1.p1
-    r_zcd_top1.p2 ~ r_zcd_top2.p1
-    r_zcd_top2.p2 ~ zcd
-    zcd ~ r_zcd_bot.p1
-    r_zcd_bot.p2 ~ dc_bus.gnd_ref
-    zcd ~ d_zcd_clamp.K
-    d_zcd_clamp.A ~ dc_bus.gnd_ref
-
-    # Opto LED drive (HV side, referenced to dc_bus.gnd_ref like the divider
-    # above). zcd is clamped to ~3.3V by d_zcd_clamp. r_zcd_opto sets the LED
-    # current at that clamp voltage: (3.3V - ~1.15V Vf) / 430R ~= 5.0mA,
-    # >3x the H11L1's 1.6mA max guaranteed turn-on threshold, well under the
-    # 60mA absolute max. NOT bench-verified for soft-start timing accuracy
-    # (edge shape/delay through the opto vs. the original raw-ADC approach)
-    # -- flagged, not silently assumed.
-    r_zcd_opto = new Resistor
-    r_zcd_opto.value = 430ohm +/- 5%
-    r_zcd_opto.power_rating = 0.125W
-    r_zcd_opto.voltage_rating = 200V
-    r_zcd_opto.mpn = "RC0603FR-07430RL"
-    r_zcd_opto.footprint = "Resistor_SMD:R_0603_1608Metric"
-
-    zcd_opto = new H11L1
-    zcd ~ r_zcd_opto.p1
-    r_zcd_opto.p2 ~ zcd_opto.A
-    zcd_opto.K ~ dc_bus.gnd_ref
-
-    # Opto output (SELV side): open-collector, pulled up to vcc_3v3 (NOT
-    # power_15v -- the MCU GPIO this feeds is a 3.3V input, and pulling an
-    # open-collector output up to 15V would overvoltage it).
-    r_zcd_pullup = new Resistor
-    r_zcd_pullup.value = 10kohm +/- 1%
-    r_zcd_pullup.mpn = "RC0603FR-0710KL"
-    r_zcd_pullup.footprint = "Resistor_SMD:R_0603_1608Metric"
-
-    zcd_out.reference ~ gnd
-    vcc_3v3 ~ r_zcd_pullup.p1
-    r_zcd_pullup.p2 ~ zcd_opto.VO
-    zcd_opto.VO ~ zcd_out.line
-    zcd_opto.GND ~ gnd
-    zcd_opto.VCC ~ vcc_3v3
 
 
 module BusDischarge:
@@ -3265,7 +3180,6 @@ module MCU:
     discharge_ctrl = new ElectricLogic
     fault_status_in = new ElectricLogic
     reset_n = new ElectricLogic
-    zcd_in = new ElectricLogic
     wdt_reset_in = new ElectricLogic
     runaway_cut = new ElectricLogic
     
@@ -3392,10 +3306,6 @@ module MCU:
     # GPIO15 is the dedicated active-high hardware runaway-cut output.  GPIO4
     # and GPIO5 are already reserved for PWM_H/PWM_L.
     runaway_cut.line ~ mcu.IO15
-    # Zero-crossing input is a real MCU interface; IO13 is reserved for this
-    # signal in the local ESP32-S3 component model.
-    zcd_in.line ~ mcu.IO13
-    zcd_in.reference ~ power.gnd
 
     # Default I2C/UART pin mappings (can be overridden).  Keep I2C off the
     # SPI clock (IO8) and status LED pins (IO17/18); the firmware manifest
