@@ -79,6 +79,9 @@
   "check_regression.py": [
     ".github/workflows/regression.yml"
   ],
+  "check_required_checks.py": [
+    ".github/workflows/required-checks.yml"
+  ],
   "check_rust_drc_presence.py": [
     ".github/workflows/python-tests.yml",
     "packages/temper-placer/tests/router_v6/test_clearance_rust_differential.py"

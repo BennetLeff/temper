@@ -10,9 +10,10 @@ the root `.loc-allowlist.txt`.
 
 ## Decision
 
-Add a separate, unfiltered pull-request workflow with one stable required
-check: `Required Python Tests`. The workflow will evaluate the PR head commit,
-not the merge commit, and will:
+Add a separate, unfiltered `pull_request_target` workflow with one stable
+required check: `Required Python Tests`. It uses read-only permissions and
+checks out the trusted base revision while evaluating the PR head commit, not
+the merge commit, and will:
 
 1. Read changed files from the pull-request API.
 2. Match them against a committed JSON manifest describing the Python Tests
@@ -24,6 +25,8 @@ not the merge commit, and will:
 5. Fail closed when a relevant context is absent, failed, cancelled, or still
    pending after the timeout, with the missing/failing contexts printed in the
    job summary.
+6. Verify that the push and pull_request Python Tests path lists remain exactly
+   synchronized with the manifest, so future additions cannot silently drift.
 
 The known-red hardware and requirements jobs remain advisory in this phase;
 they are not included in the candidate list. They will be added to the

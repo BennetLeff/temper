@@ -1259,3 +1259,25 @@ scripts:
   - sys
   - typing
   - yaml
+- path: check_required_checks.py
+  purpose: 'Always-on pull-request aggregator: require the candidate Python Tests contexts when a manifest
+    trigger path matches, while treating workflow-level path filtering as an explicit legitimate skip.'
+  owner: bennet
+  last_run: '2026-07-30'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - collections.abc
+  - dataclasses
+  - json
+  - os
+  - pathlib
+  - re
+  - sys
+  - time
+  - typing
+  - urllib.error
+  - urllib.parse
+  - urllib.request
