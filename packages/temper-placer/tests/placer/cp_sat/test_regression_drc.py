@@ -43,6 +43,7 @@ import os
 import re
 import statistics
 import subprocess
+import sys
 import tempfile
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -55,6 +56,15 @@ REPO_ROOT = TEMPER_PLACER_ROOT.parent.parent
 RULES_PATH = TEMPER_PLACER_ROOT / "configs" / "netclass_rules.yaml"
 PCL_CONFIG = TEMPER_PLACER_ROOT / "configs" / "constraints" / "temper_induction_cooker.yaml"
 BOARD_PATH = REPO_ROOT / "power_pcb_dataset" / "corpus" / "temper" / "temper.kicad_pcb"
+
+# known_failure_pins.py lives in scripts/ (not a package -- no __init__.py),
+# so it is reached the same way scripts/tests/*.py reach each other: an
+# absolute sys.path insert, safe from any cwd this test happens to run from.
+# See docs/solutions/best-practices/pin-known-failure-reasons-2026-07-30.md.
+_SCRIPTS_DIR = REPO_ROOT / "scripts"
+if str(_SCRIPTS_DIR) not in sys.path:
+    sys.path.insert(0, str(_SCRIPTS_DIR))
+from known_failure_pins import annotate_failure  # noqa: E402
 
 
 def _kicad_cli_available() -> bool:
@@ -169,7 +179,7 @@ def _downgrade_unresolved_ref_policy(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 @pytest.mark.slow
-def test_golden_board_drc_regression(monkeypatch: pytest.MonkeyPatch):
+def test_golden_board_drc_regression(monkeypatch: pytest.MonkeyPatch, request: pytest.FixtureRequest):
     if not _kicad_cli_available():
         pytest.skip("kicad-cli not available")
     _downgrade_unresolved_ref_policy(monkeypatch)
@@ -273,26 +283,45 @@ def test_golden_board_drc_regression(monkeypatch: pytest.MonkeyPatch):
         mask_bridge = fixable_counts.get("solder_mask_bridge", 0)
         edge_clearance = fixable_counts.get("copper_edge_clearance", 0)
 
-        assert shorting == 0, (
-            f"Expected 0 fixable shorting_items, got {shorting}. Fixable: {dict(fixable_counts)}"
-        )
-        assert mask_bridge == 0, (
-            f"Expected 0 fixable solder_mask_bridge, got {mask_bridge}. "
-            f"Fixable: {dict(fixable_counts)}"
-        )
-        # Edge margin is placement-relevant but the hardcoded 0.5mm
-        # copper_edge_clearance may not match the board's (setup) value.
-        # Tracked as a known gap — not a placement constraint failure.
-        assert edge_clearance <= 4, (
-            f"Expected <= 4 fixable copper_edge_clearance, got {edge_clearance}. "
-            f"Fixable: {dict(fixable_counts)}"
-        )
+        # Failure-reason pin (see docs/solutions/best-practices/
+        # pin-known-failure-reasons-2026-07-30.md and
+        # scripts/known_failure_pins.py): this test's failure *reason* is the
+        # violation-type breakdown below, not merely "did it fail." Wrapping
+        # the existing assertions -- unmodified, same thresholds -- in a
+        # try/except means: if this test is currently red for a declared,
+        # pinned reason, the AssertionError says so explicitly; if it fails
+        # for ANY other reason (including the same violation types at
+        # different counts, or an entirely new violation type), the message
+        # says that loudly instead of looking identical to the pinned one.
+        # A test with no pin in known-failure-pins.yaml gets its message back
+        # completely unchanged -- this can never silence an undeclared
+        # failure, only annotate a declared one.
+        signature = dict(sorted(fixable_counts.items()))
+        try:
+            assert shorting == 0, (
+                f"Expected 0 fixable shorting_items, got {shorting}. Fixable: {dict(fixable_counts)}"
+            )
+            assert mask_bridge == 0, (
+                f"Expected 0 fixable solder_mask_bridge, got {mask_bridge}. "
+                f"Fixable: {dict(fixable_counts)}"
+            )
+            # Edge margin is placement-relevant but the hardcoded 0.5mm
+            # copper_edge_clearance may not match the board's (setup) value.
+            # Tracked as a known gap — not a placement constraint failure.
+            assert edge_clearance <= 4, (
+                f"Expected <= 4 fixable copper_edge_clearance, got {edge_clearance}. "
+                f"Fixable: {dict(fixable_counts)}"
+            )
 
-        assert placement_fixable <= 15, (
-            f"Expected <= 15 placement-fixable violations, got {placement_fixable}. "
-            f"Fixable: {dict(fixable_counts)}, "
-            f"Irreducible intra-component: {intra_component_count} ({dict(irreducible_counts)})"
-        )
+            assert placement_fixable <= 15, (
+                f"Expected <= 15 placement-fixable violations, got {placement_fixable}. "
+                f"Fixable: {dict(fixable_counts)}, "
+                f"Irreducible intra-component: {intra_component_count} ({dict(irreducible_counts)})"
+            )
+        except AssertionError as exc:
+            raise AssertionError(
+                annotate_failure(request.node.nodeid, signature, str(exc))
+            ) from exc
     finally:
         os.unlink(tmp.name)
 

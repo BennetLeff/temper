@@ -1239,3 +1239,23 @@ scripts:
   - pathlib
   - subprocess
   - sys
+- path: known_failure_pins.py
+  purpose: 'CI gate + shared helper: validate known-failure-pins.yaml (a known-red test''s declared failure
+    signature) as a monotonic-shrink ratchet -- live-pin cap, forced expiry/renewal, required evidence-doc
+    link, orphan-nodeid detection -- and provide annotate_failure()/check_signature() for a test to compare
+    its actual failure signature against the declared one, distinguishing "known reason" from "changed
+    reason" without xfail (docs/solutions/best-practices/pin-known-failure-reasons-2026-07-30.md, the PR
+    #460 near-miss).'
+  owner: bennet
+  last_run: '2026-07-30'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - dataclasses
+  - datetime
+  - pathlib
+  - sys
+  - typing
+  - yaml
