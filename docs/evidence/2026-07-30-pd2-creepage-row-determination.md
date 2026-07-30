@@ -1,6 +1,32 @@
-<!-- provenance: commit=ac4426eebfeca9e728a96c2f574a9bf4e2a8f414 dirty=true (branch fix/pd2-creepage-row-determination; base = origin/main tip at fetch time; this session's own validator/spec/test edits are layered on top and are what "dirty" reflects) -->
+<!-- provenance: commit=067527c96cefb2fb14e8d491f371b6ec9483cf7d dirty=true (branch fix/pd2-creepage-row-determination, rebased onto origin/main tip 067527c9; this session's own new-doc/test additions are layered on top and are what "dirty" reflects) -->
 
-# PD2 creepage row determination: Table 17 row iv is a range (>250V, <=400V); 400V is inside it, not between rows. PR #442's 10.0mm was wrong; the correct PD2 reinforced figure is 8.0mm.
+# PD2 creepage row determination: Table 17 row iv is a range (>250V, <=400V); 400V is inside it, not between rows. PR #442's 10.0mm was wrong; the correct PD2 figure is 8.0mm -- but PD3/12.6mm is what's operative today, and this document does not change that.
+
+## Read this first: what this document does and does not change
+
+- **What changed on `main` since this investigation started:** PR #464
+  merged first and corrected the *pollution degree* axis (PD2 -> PD3),
+  replacing the entire operative `IEC60335_REQUIREMENTS` matrix with PD3
+  figures (6.3mm basic / **12.6mm reinforced**, Table 17 row iv, PD3,
+  Material Group IIIa/IIIb). **That is the enforced, operative figure on
+  this branch today, and this document does not touch it, revert it, or
+  argue against it.**
+- **What this document actually resolves:** a narrower, disclosed-but-not-
+  closed question that PR #464's own spec edit explicitly flagged and
+  deferred ("a human should reconcile... as a separate follow-up"): *if*
+  Pollution Degree 2 is ever legitimately earned (the sealed-compartment
+  architecture option), *what is the correct PD2 row-iv figure* -- PR #442's
+  originally-merged 10.0mm, or 8.0mm? This document settles that from
+  primary text: **8.0mm is correct; PR #442's 10.0mm was an off-by-one-row
+  error.** This matters concretely because it is what
+  `docs/brainstorms/2026-07-30-hv-isolation-architecture-options.md`'s
+  Option 2 (sealed electronics compartment) would need to clear, and
+  8.0mm vs. 10.0mm is the difference between U3/U7 clearing (barely) and
+  not.
+- **This is not a safety-constant change.** The operative validator
+  constant on this branch, before and after this document, is unchanged:
+  PD3, 12.6mm reinforced. Nothing in `packages/temper-placer/src/temper_placer/requirements/validators/clearance.py`
+  or `docs/specs/HIGH_VOLTAGE_CLEARANCE_SPEC.md` is modified by this PR.
 
 ## Provenance labels
 
@@ -11,389 +37,276 @@
 | **MEASURED** | Computed this session from real repo files (test run, primary-text page render). |
 | **DERIVED** | Arithmetic/logic on labelled inputs, shown in full. |
 
-## Verdict, up front
+## 1. The question, and why it is not moot even though PD3 governs today
 
-**PR #442 was wrong. The correct PD2 (Pollution Degree 2), Material Group
-IIIa/IIIb, REINFORCED creepage figure for this design's 340-400V boundaries
-is 8.0mm, not the 10.0mm it landed with.** This is settled directly from
-primary text, independently read this session (not by counting how many
-prior docs agree, though five independently do): **IEC 60335-1 Table 17**
-("Minimum Creepage Distances for Basic Insulation," clauses 29.2.1-29.2.3)
--- read from a clean 150dpi page render of IS 302-1:2008 page 58 (identical
-adoption of IEC 60335-1), fetched fresh this session -- has row iv stated,
-verbatim, as:
+Two prior PRs disagreed about the PD2 figure at this design's 340-400V
+boundaries:
 
-> **iv) >250 and <=400** [V] ... Pollution Degree 2, Material Group
-> IIIa/IIIb: **4.0** [mm, basic]
+- **PR #442** (merged, since superseded on the pollution-degree axis by
+  PR #464): read a working voltage of 400V as falling *between* two
+  tabulated rows and applied a "round up to the next row" rule, landing on
+  **10.0mm** reinforced.
+- **PR #464** (merged): while investigating a *different* question
+  (pollution degree), independently re-read Table 17 row iv as the literal
+  range **">250V and <=400V"** -- 400V sits at the row's own inclusive
+  ceiling, *inside* it, not between rows -- giving **8.0mm** reinforced at
+  PD2. PR #464 used this correctly for its own PD3 derivation (PD3's row iv
+  figure, 12.6mm, is what's operative today) but explicitly did **not**
+  correct PR #442's now-orphaned PD2 claim, flagging it instead: "A human
+  should reconcile whether PR #442's 10.0mm was itself an off-by-one-row...
+  as a separate follow-up." `docs/specs/HIGH_VOLTAGE_CLEARANCE_SPEC.md`
+  Sec 5.1 (as PR #464 left it) still contains this exact unresolved flag,
+  and `docs/brainstorms/2026-07-30-hv-isolation-architecture-options.md`
+  lists "the PD2 row-iv figure: 8.0mm or 10.0mm?" as its top-ranked,
+  "resolve first" open question -- because Option 2 (a sealed compartment
+  to legitimately earn PD2) only clears U3/U7 if the answer is 8.0mm, not
+  10.0mm.
 
-**Table 17's rows are continuous, non-overlapping working-voltage ranges,
-not discrete tabulated points.** Every voltage on the axis falls inside
-exactly one row; there is no "between two rows" case for 400V to round up
-from. 400V satisfies row iv's own literal, inclusive upper bound (<=400)
-directly. Clause 29.2.3 (also read verbatim this session): "Creepage
-distances of reinforced insulation shall be at least double those specified
-for basic insulation in Table 17." **Reinforced: 8.0mm** (double 4.0mm),
-not 10.0mm.
+**This document closes that flag**, from primary text read independently
+this session (not by counting how many prior docs already agree, though
+five independently do).
 
-**PR #442's "round up to the next row" reasoning is a real rule -- but for
-a different table, applied to the wrong one here.** It transcribed a table
-with rows at "300V" and "400V" (`docs/specs/HIGH_VOLTAGE_CLEARANCE_SPEC.md`
-§5.1, pre-correction) and, finding 400V exactly on its own "400V" row,
-treated that as the answer. The real Table 17 has no 300V or 400V
-breakpoint at all -- its actual rows are >125&<=250 (row iii), >250&<=400
-(row iv), >400&<=500 (row v), etc. The mislabeled "400V" row's own mm
-figures (5.0mm basic / 10.0mm reinforced) are real Table 17 values, but they
-belong to **row v** (>400V, <=500V) -- the row *above* the one 400V actually
-falls in. 400V never needed a round-up in the first place: it already sits
-inside row iv, which independently derives to 4.0mm/8.0mm. This is
-confirmed independently by
-`docs/evidence/2026-07-30-pollution-degree-determination.md` (PR #464,
-which reached this same row-iv-vs-row-v conclusion this same day while
-investigating a different axis -- pollution degree -- and disclosed but did
-not correct it, deferring "a human should reconcile the row-iv-vs-row-v
-question in PR #442 separately"). This document is that reconciliation.
+## 2. What the primary text actually says
 
-**REQ-SAFE-01 violations on this branch's own baseline (origin/main tip
-`ac4426ee`, current board state) go from 75 (at the erroneous 10.0mm
-figure) to 51 (at the correct 8.0mm figure)** -- fewer, because the
-erroneous figure was *too strict*, not too lenient; see "What this does
-NOT mean" below for why this is not a safety loosening.
+### 2.1 Source and method
 
-## 1. What the primary text actually says
-
-### 1.1 Source and method
-
-Same approach the PD3 investigation (`docs/evidence/2026-07-30-pollution-degree-determination.md`)
-used and disclosed: IS 302-1:2008 ("Safety of household and similar
-electrical appliances, Part 1: General Requirements"), the identical Indian
-national adoption of IEC 60335-1, fetched fresh this session from
+Same approach several prior sessions in this repo already used and
+disclosed: IS 302-1:2008 ("Safety of household and similar electrical
+appliances, Part 1: General Requirements"), the identical Indian national
+adoption of IEC 60335-1, fetched fresh this session from
 `https://law.resource.org/pub/in/bis/S05/is.302.1.2008.pdf` (80-page PDF, no
-text layer -- a scan). Rather than trust OCR on a dense numeric table
-(exactly the failure mode the PD3 doc flagged -- "OCR produced an ambiguous
-digit at this exact row"), the relevant pages (56-58) were rendered directly
-to 150dpi PNG images (`pdftoppm`) and inspected visually, digit by digit,
-rather than parsed as text. This is a stronger standard of evidence than
-OCR: every digit below was read directly off a legible, high-resolution
-page image, not inferred through a text-recognition model.
+text layer -- a scan). Rather than trust OCR on a dense numeric table, pages
+56-58 were rendered directly to 150dpi PNG images (`pdftoppm`) and inspected
+visually, digit by digit, not parsed as text.
 
-### 1.2 Table 17, verbatim (page 58)
+### 2.2 Table 17, verbatim (page 58)
 
-The table header reads: **"Table 17 Minimum Creepage Distances for Basic
-Insulation (Clauses 29.2.1, 29.2.2 and 29.2.3)"**. Its columns are Sl No.,
-Working Voltage (V) (given as two sub-columns, a lower and upper bound
-joined by the word "and"), and Creepage Distance (mm) broken into Pollution
-Degree 1 / 2 / 3, with Pollution Degree 2 and 3 further split into Material
-Group I / II / IIIa-IIIb. The rows relevant to this design (i-vi of xviii
-total, reproduced verbatim from the image):
+Header: **"Table 17 Minimum Creepage Distances for Basic Insulation
+(Clauses 29.2.1, 29.2.2 and 29.2.3)"**. Columns: Sl No., Working Voltage
+(V) (two sub-columns, lower and upper bound joined by the word "and"), and
+Creepage Distance (mm), split into Pollution Degree 1 / 2 / 3, with PD2/PD3
+further split into Material Group I / II / IIIa-IIIb. Rows relevant to this
+design (i-vi of xviii total, reproduced verbatim from the image):
 
-| Sl No. | Working Voltage (V) | PD1 | PD2-I | PD2-II | **PD2-IIIa/IIIb** | PD3-I | PD3-II | PD3-IIIa/IIIb |
+| Sl No. | Working Voltage (V) | PD1 | PD2-I | PD2-II | **PD2-IIIa/IIIb** | PD3-I | PD3-II | **PD3-IIIa/IIIb** |
 |---|---|---:|---:|---:|---:|---:|---:|---:|
 | i | <=50 | 0.2 | 0.6 | 0.9 | 1.2 | 1.5 | 1.7 | 1.9 |
 | ii | >50 and <=125 | 0.3 | 0.8 | 1.1 | 1.5 | 1.9 | 2.1 | 2.4 |
 | iii | >125 and <=250 | 0.6 | 1.3 | 1.8 | 2.5 | 3.2 | 3.6 | 4.0 |
-| **iv** | **>250 and <=400** | 1.0 | 2.0 | 2.8 | **4.0** | 5.0 | 5.6 | 6.3 |
+| **iv** | **>250 and <=400** | 1.0 | 2.0 | 2.8 | **4.0** | 5.0 | 5.6 | **6.3** |
 | v | >400 and <=500 | 1.3 | 2.5 | 3.6 | 5.0 | 6.3 | 7.1 | 8.0 |
 | vi | >500 and <=800 | 1.8 | 3.2 | 4.5 | 6.3 | 8.0 | 9.0 | 10.0 |
 
-**Every "Working Voltage" cell in the source table is stated as a bounded
-range with an explicit "and"** (e.g. "**>250** and **<=400**"), never as a
-single number. This is the literal row-boundary notation the task asked to
-settle: it is form (b) from the task's framing ("a row bounded '>250V and
-<=400V'"), not form (a) ("rows tabulated as discrete points"). 400V,
-therefore, is **inside** row iv, not between two rows -- there is nothing to
-round up to.
+**Every "Working Voltage" cell is stated as a bounded range with an
+explicit "and"** (e.g. "**>250** and **<=400**"), never as a single number.
+400V, therefore, is **inside** row iv, not between two rows -- there is
+nothing to round up to, for either pollution-degree column.
 
-### 1.3 Clause 29.2 - 29.2.3, verbatim (page 57)
+Cross-check against what's already operative on `main`: row iv,
+**PD3**-IIIa/IIIb = 6.3mm basic. Clause 29.2.3 (double for reinforced) =
+**12.6mm** -- exactly PR #464's merged, currently-enforced figure. This is
+an independent confirmation, from a fresh primary-text read, that PR #464's
+PD3 derivation used the correct row. Row iv, **PD2**-IIIa/IIIb = 4.0mm
+basic -> **8.0mm** reinforced -- the figure this document is about.
+
+### 2.3 Clause 29.2 - 29.2.3, verbatim (page 57)
 
 > "**29.2** Appliances shall be constructed so that creepage distances are
 > not less than those appropriate for the working voltage, taking into
 > account the material group and the pollution degree.
 >
-> Pollution degree 2 applies unless: a) precautions have been taken to
-> protect the insulation, in which case pollution degree 1 applies; and
-> b) the insulation is subjected to conductive pollution, in which case
-> pollution degree 3 applies.
->
 > **29.2.1** Creepage distances of basic insulation shall not be less than
-> those specified in Table 17. ... Compliance is checked by measurement.
->
-> **29.2.2** Creepage distances of supplementary insulation shall be at
-> least those specified for basic insulation in Table 17. ...
+> those specified in Table 17. ...
 >
 > **29.2.3** Creepage distances of reinforced insulation shall be at least
 > double those specified for basic insulation in Table 17. ..."
 
-This confirms, independently of the pollution-degree question: (a) Table 17
-is the operative creepage table for basic/supplementary/reinforced
-insulation, cited three separate times by clause number; (b) reinforced =
-2x basic, applied to row iv's PD2-IIIa/IIIb figure of 4.0mm gives exactly
-**8.0mm**.
+Reinforced = 2x basic, applied to row iv's PD2-IIIa/IIIb figure of 4.0mm
+gives exactly **8.0mm**.
 
-## 2. Which table governs -- Table 16 vs Table 17
+## 3. Which table governs -- Table 16 vs Table 17
 
-The task flagged that PR #442 cited "Table 16" while PR #464 cited "Table
-17," and asked whether this was part of the disagreement. **It was, and
-Table 17 is correct.** Confirmed two independent ways this session:
+Also already resolved by PR #464's own Sec 5.1 correction (Table 17 is
+creepage, Table 16 is clearance, keyed to a different axis -- rated impulse
+voltage via Table 15's overvoltage-category lookup, not working voltage
+directly) and independently re-confirmed this session against the same
+primary-text pages: Table 16 is referenced by clause 29.1 material for
+*clearance* and carries its own note, "Clearances for intermediate values
+of Table 16 may be determined by interpolation" -- a genuinely different
+lookup mechanism (interpolation-permitting, discrete-step-keyed) from
+Table 17's already-exhaustive range partition. Nothing new to correct here;
+recorded for completeness since the task that produced PR #442 originally
+conflated the two.
 
-1. **Table 17's own header and clause citations are explicitly about
-   creepage** ("Minimum Creepage Distances for Basic Insulation," clauses
-   29.2.1-29.2.3, the creepage clause chain quoted above).
-2. **Table 16 is a different table, for clearance, keyed to a different
-   axis.** Page 56/57 (also read directly this session, same primary
-   source) shows Table 16 is referenced by clause 29.1 material discussing
-   *clearance* ("... clearances of basic insulation on the secondary side
-   shall be not less than those specified in Table 16 ... using the next
-   lower step for rated impulse voltage as a reference") and its own note:
-   "Clearances for intermediate values of Table 16 may be determined by
-   interpolation." Table 16 is keyed to **rated impulse voltage** (via
-   Table 15's overvoltage-category lookup), a different axis from Table
-   17's direct working-voltage lookup, and Table 16 *does* permit
-   interpolation for intermediate values -- the opposite of Table 17's
-   already-exhaustive range structure. These are not the same rule applied
-   twice; they are two different tables with two different lookup
-   mechanisms for two different physical quantities.
+## 4. Why PR #442 got 10.0mm
 
-**This also resolves why PR #442's "no interpolation, round up" doctrine
-felt applicable but wasn't, for creepage specifically.** That doctrine (a
-working voltage between two rows rounds up) is a real feature of tables
-keyed to discrete steps -- but Table 16 (clearance) is the one with an
-explicit interpolation note in the primary text, and even there the
-resolution is interpolation, not "round up." Table 17 (creepage) needs
-neither: it already partitions every voltage into exactly one row. PR
-#442's own module comment invoked "IEC 60664-1/60335-1 tables," treating
-all of them as one undifferentiated class; the primary text does not
-support that generalization for Table 17.
+`docs/specs/HIGH_VOLTAGE_CLEARANCE_SPEC.md` Sec 5.1, prior to PR #464's
+correction, transcribed Table 17 with invented round-number row labels --
+50/100/150/200/**300**/**400**/600V -- that do not match Table 17's actual
+breakpoints (50/125/250/**400**/**500**/800V) at every row. Each label was,
+in effect, a nearby real breakpoint relabeled to a round number, with the
+range notation itself dropped. Reading a 400V working voltage against a
+table shaped that way makes the row labelled "400" look like the obvious,
+literal match -- but that label's own mm values (5.0mm basic / 10.0mm
+reinforced at PD2) are actually Table 17's **row v** (>400V, <=500V)
+figures, not row iv's. Once the table's real range form is restored (as
+PR #464 already did in Sec 5.1, and as this document confirms
+independently from primary text), 400V is unambiguous: it satisfies row
+iv's own inclusive upper bound ("<=400") directly, and never needed a
+round-up rule to resolve in the first place. **PR #442's reasoning was
+wrong** -- not because "round up to the next row" is never a real rule
+(Table 16 permits its own version of intermediate-value resolution), but
+because Table 17's rows already partition the entire voltage axis, so no
+working voltage on this design's boundaries (340V, 355V, 400V) ever falls
+between two of them.
 
-## 3. Does 400V actually belong to row iv, and is that this design's real boundary?
+## 5. What this means for Option 2 (sealed compartment)
 
-Confirmed independently against this project's own declared working
-voltages (`elec/src/main.ato`, `docs/specs/HIGH_VOLTAGE_CLEARANCE_SPEC.md`
-§2.1, the same figures `docs/evidence/2026-07-30-creepage-requirement-reconciliation.md`
-(PR #442) and `docs/evidence/2026-07-30-pollution-degree-determination.md`
-(PR #464) both already established and which this document does not
-re-litigate):
+`docs/brainstorms/2026-07-30-hv-isolation-architecture-options.md` already
+states the favorable-reading consequence and has been updated (this
+session) with a pointer to this document's resolution: **if** PD2 is
+legitimately earned (a real, gasketed, non-vented enclosure around U3/U7,
+excluded from the forced-air path -- not yet designed or argued for on this
+project's own mechanical documents, per PR #464's own PD2-vs-PD3
+determination), the requirement it would need to clear is **8.0mm**
+reinforced, not 10.0mm. At 8.0mm, U3 (8.560mm best achievable) and U7
+(8.100mm best achievable) both clear, barely. At 10.0mm, neither does. This
+document supplies the primary-text-verified arithmetic; it does not resolve
+whether the PD2 exception can actually be earned (a separate mechanical/
+thermal question the brainstorm document already covers and this document
+does not re-litigate), and it does not change what's enforced today (PD3,
+12.6mm, which U3/U7 do not clear regardless).
 
-- **AC Mains: 340V peak/transient.**
-- **DC Bus: 400V peak/transient** (`v_bus_abs_max = 400V`, `main.ato:50`).
-- **Gate Drive Isolated: 355V peak-to-earth.**
+## 6. REQ-SAFE-01, measured on this rebased branch
 
-All three satisfy row iv's literal bound (**>250 and <=400**) directly:
-340 and 355 clearly, and 400 at the row's own inclusive ceiling (`<=400`
-means 400 is included, not excluded). None of the three exceed 400, so none
-of them reach into row v (`>400 and <=500`). **Row iv governs all three
-boundaries.** PD2, Material Group IIIa/IIIb, reinforced: **8.0mm**. Basic
-(clause 29.2.1, undoubled): **4.0mm**.
-
-## 4. What changed
-
-### 4.1 `packages/temper-placer/src/temper_placer/requirements/validators/clearance.py`
-
-`IEC60335_REQUIREMENTS`, every HV<->SELV/ISOLATED row (the same three rows
-PR #442 touched):
-
-| Row | Field | PR #442's value (wrong: row v) | Corrected (row iv) |
-|---|---|---|---|
-| MAINS, LV_CONTROL, BASIC | min_creepage_mm / design_value_mm | 5.0 / 7.0 | **4.0 / 6.0** |
-| MAINS, LV_CONTROL, REINFORCED | min_creepage_mm / design_value_mm | 10.0 / 12.0 | **8.0 / 10.0** |
-| DC_BUS, LV_CONTROL, BASIC | min_creepage_mm / design_value_mm | 5.0 / 7.0 | **4.0 / 6.0** |
-| DC_BUS, LV_CONTROL, REINFORCED | min_creepage_mm / design_value_mm | 10.0 / 12.0 | **8.0 / 10.0** |
-| MAINS, ISOLATED, REINFORCED | min_creepage_mm / design_value_mm | 10.0 / 12.0 | **8.0 / 10.0** |
-
-`min_clearance_mm` is unchanged in every row -- it is governed by Table 16
-(clearance), a different table on a different axis (rated impulse
-voltage/overvoltage category), out of scope for this creepage-specific
-correction, same as PR #442's own treatment.
-
-### 4.2 `docs/specs/HIGH_VOLTAGE_CLEARANCE_SPEC.md`
-
-- §5.1: table re-transcribed against Table 17's real rows (i-vi, with the
-  actual >125&<=250 / >250&<=400 / >400&<=500 / >500&<=800 breakpoints,
-  not the prior mislabeled 150/200/300/400 breakpoints), citation corrected
-  from "Table 16" to "Table 17," and the no-interpolation explanation
-  replaced with the correct reason (Table 17's rows are already an
-  exhaustive range partition, so there is no round-up question, rather than
-  "round up because tables are never interpolated" -- which conflates
-  Table 17 with Table 16's different, interpolation-permitting structure).
-- §5.2 (Design Creepage): AC Mains to SELV, DC Bus to SELV, Across
-  UCC21550, IGBT tab to LV trace all corrected 10.0/12.0mm -> 8.0/10.0mm,
-  with an explicit note that this is the PD2 axis only and does not take a
-  position on the separate PD2-vs-PD3 (pollution degree) question PR #464
-  raises.
-- §8.2 (Creepage Verification Checklist): required figures corrected to
-  8.0mm throughout, matching §5.2.
-- §9.1 (`HV_AC_to_SELV_creepage` KiCad DRC rule): `(min 10.0mm)` ->
-  `(min 8.0mm)`.
-- §7.1 (IGBT tab to LV trace): creepage requirement/design corrected
-  12mm -> 8mm required / 10mm design, consistent with the same row-iv
-  figure.
-
-### 4.3 Tests updated to track the corrected matrix (not to force a pass)
-
-- `packages/temper-placer/tests/requirements/safety/test_clearance.py::TestRequirementMatrix::test_requirement_matrix_values`
-  -- expected creepage/design literals per row, corrected to match.
-- `packages/temper-placer/tests/requirements/safety/test_clearance_copper.py`
-  -- K1 (exact copper gap 8.000mm) and T1 (9.100mm) were flagged as
-  violations under PR #442's mistaken 10.0mm figure
-  (`test_k1_is_a_genuine_creepage_violation_after_the_400v_correction`).
-  At the corrected 8.0mm requirement, K1 exactly meets it (zero margin, not
-  a violation -- `_check_distance` only flags `measured < required`) and T1
-  clears comfortably. Renamed to
-  `test_k1_meets_the_corrected_pd2_requirement_exactly`, now asserting no
-  K1 violation. The "known intra-footprint blockers" test was re-measured
-  fresh against this branch's own board state (not assumed from any prior
-  doc's list, per this task's own baseline-independence instruction): on
-  this board, only **K2 and K3** remain intra-footprint blockers at the
-  correct 8.0mm requirement (C6, K1, T1, U3, U7 -- which some prior,
-  earlier-board-state docs reported as also blocked -- all clear on this
-  board's current geometry, post PR #459's designator/footprint resync).
-  Renamed to `test_the_intra_footprint_blockers_at_the_corrected_pd2_requirement`.
-- `packages/temper-placer/tests/placer/cp_sat/test_domain_clearance.py` --
-  two tests asserted the CP-SAT domain-clearance constraint generator's
-  emitted margin was exactly 10.0mm (the PR #442 MAINS/DC_BUS<->LV_CONTROL
-  reinforced max); corrected to 8.0mm. The BMC-exhaustive soundness sweep's
-  margin list narrowed back to the matrix's actual (now-corrected) maximum
-  of 8.0mm (removing the no-longer-reached 10.0mm entry).
-
-`packages/temper-placer/tests/requirements/safety/test_clearance.py::TestClearanceIntegration::test_temper_board_clearance_compliance`
--- the REQ-SAFE-01 real-board integration test -- was **not** modified to
-pass, per this task's explicit instruction. It still fails (51 violations),
-just fewer than before the correction.
-
-## 5. Violation count: before and after, this branch's own baseline
-
-Reproduced this session, `elec/build/default.net` built fresh (`make
-netlist`, exit 0), on `origin/main` tip (`ac4426ee`) -- **not** the 98/76
-figures reported in `docs/evidence/2026-07-30-creepage-requirement-reconciliation.md`
-or `docs/evidence/2026-07-30-pollution-degree-determination.md`, both
-measured against an earlier board state (before PR #459's designator/
-footprint resync landed on `main`). Per this task's explicit instruction
-("branch from origin/main, establish your own baseline, do not
-coordinate"), the count below is this branch's own, freshly measured:
+`main` has moved substantially since this investigation started (PR #464,
+#468, #472, and others landed). This branch was rebased onto current
+`origin/main` (tip `067527c9`) rather than measuring against a stale base,
+per this task's own instruction to establish an independent baseline. The
+validator's operative constants are **unchanged from `origin/main`** by
+this PR (PD3, 12.6mm reinforced / 6.3mm basic) -- there is no "before/after"
+delta to report for this change, only the current, single operative count:
 
 ```
+make netlist   # elec/build/default.net rebuilt fresh on the rebased tree
 uv run --no-sync pytest packages/temper-placer/tests/requirements/safety/test_clearance.py::TestClearanceIntegration::test_temper_board_clearance_compliance -q
 ```
 
-| | Before (10.0mm reinforced / 5.0mm basic -- PR #442's row-v figures, wrong) | After (8.0mm / 4.0mm -- row-iv, correct) |
-|---|---|---|
-| REQ-SAFE-01 violations | 75 | **51** |
-| Violating pairs | 44 | 23 |
-| Intra-footprint records | 11 | 6 (K2, K3 only) |
-| Components matched | 159 | 159 |
+```
+109 REQ-SAFE-01 clearance/creepage violations on the real board across
+75 pair(s) (11 of the records are intra-footprint). Components matched: 159.
+```
 
-The delta (-24 violations, -21 pairs) is exactly the set of pairs whose
-measured creepage/clearance fell in the 8.0-10.0mm or 4.0-5.0mm band --
-they were never real violations against the actual standard; PR #442's
-own, incorrect 10.0mm/5.0mm figures manufactured them. This is the mirror
-image of PR #442's own headline change (76->98, reported as "the corrected
-validator finds more of what was already there") -- here, the correction
-runs the other way, because the direction of PR #442's own error was
-itself in the *stricter*, not the *permissive*, direction relative to the
-true standard.
+This is higher than PR #464's own reported 138/86 at its own base commit
+and different again from an earlier measurement this session took before
+the coordinator flagged the sequencing problem this document now corrects
+(75/44 at an erroneously-reverted-to 8.0mm figure, which must **not** be
+read as this document's contribution -- that number was measured against a
+tree that had incorrectly reverted the operative PD3 constant to PD2 levels
+and has been discarded; see Sec 7). 109/75/11 is the correct, current,
+rebased-tree count at the actually-enforced 12.6mm/6.3mm figures, and is
+not modified by anything in this PR.
+`packages/temper-placer/tests/requirements/safety/test_clearance.py::TestClearanceIntegration::test_temper_board_clearance_compliance`
+is not modified to pass, per this task's hard constraint, and does not
+pass.
 
-`Reproducing this baseline swap without git stash`: this session verified
-both figures on the same board/branch by checking out the validator file's
-pre-correction content directly (`git show HEAD:<path>`, HEAD being this
-branch's own base commit, not a stash), running the test, then restoring
-the corrected file from a working copy -- no stash operation was used at
-any point, consistent with this task's hard constraint.
+## 7. Sequencing note: an earlier version of this branch would have been a safety regression, and was corrected before merging
 
-## 6. What this does NOT mean -- and the relationship to the PD2 vs PD3 question
+This branch was originally built (and its first commit pushed as PR #469)
+against an `origin/main` base that predated PR #464's merge. At that base,
+the correct fix genuinely was to lower the validator's PD2 figure from
+10.0mm to 8.0mm, and REQ-SAFE-01 dropped from 75 to 51 violations on that
+now-superseded baseline. **PR #464 merged before this PR did**, replacing
+the entire operative matrix with PD3 figures (12.6mm reinforced). A naive
+rebase (taking this branch's own version of the conflicting hunks) would
+have silently reverted that PD3 tightening back down to 8.0mm -- moving the
+*operative*, enforced safety constant in the permissive direction, on the
+basis of a correction that was only ever about a different pollution-degree
+scenario. This was caught before pushing: the rebase conflict in
+`packages/temper-placer/src/temper_placer/requirements/validators/clearance.py`,
+`docs/specs/HIGH_VOLTAGE_CLEARANCE_SPEC.md`, and the three dependent test
+files was resolved by taking `origin/main`'s side entirely (PD3, 12.6mm,
+unchanged) and discarding this branch's own PD2-figure edits to those
+files -- this document, the new regression test (Sec 8), and the
+brainstorm-doc update are the only substantive content this PR now
+contributes. **No file in this PR sets `min_creepage_mm` (or any other
+enforced field of `IEC60335_REQUIREMENTS`) to anything other than what
+`origin/main` already has.**
 
-**This is not a safety loosening.** PR #442's 10.0mm/5.0mm figures were
-never a real requirement to begin with -- they were a misapplication of
-Table 17 row v to a working voltage (400V, and 340V/355V well below it)
-that the primary text places in row iv. Enforcing row v's numbers was
-enforcing a fictitious, over-strict requirement that this design was never
-actually obligated to meet under PD2. Correcting it back to row iv's real
-8.0mm/4.0mm is not "relaxing" a safety constant; it is retracting an error
-and reporting the actual standard's own number, per this task's explicit
-instruction ("if #442's reasoning was wrong, say so directly").
+## 8. A regression test against this table-form drifting back
 
-**This is a different axis from PR #464's pollution-degree correction, and
-composes with it, not against it.** PR #464 (open at the time of this
-document) argues PD3, not PD2, governs this appliance class (IEC
-60335-2-6 cl. 29.2 Addition), which would make the *entire row-iv column*
-different: PD3-IIIa/IIIb at row iv is 6.3mm basic / 12.6mm reinforced, not
-PD2's 4.0/8.0mm. Both corrections are real and independent:
+Added: `packages/temper-placer/tests/requirements/safety/test_creepage_spec_row_form.py`
+-- three tests that parse the live `docs/specs/HIGH_VOLTAGE_CLEARANCE_SPEC.md`
+Sec 5.1 table directly and fail if its Working Voltage column ever reverts
+to a discrete-point label (PR #442's root cause) instead of Table 17's own
+bounded-range form. Falsifier verified directly this session (a scratch
+copy of the doc with Sec 5.1 swapped back to the old
+`| 300 | ... |` / `| 400 | ... |` form was fed to the parser and the test
+failed exactly as expected, listing `['300', '400']` as the offending
+cells; the fixture was not committed). A third test pins row iv's specific
+boundary (">250, <=400") present by name, guarding against a subtler drift
+(every cell still well-formed, but row iv itself renumbered or merged away).
 
-- **If PD2 governs** (the exception is earned): row iv, PD2 column ->
-  **8.0mm reinforced** -- this document's figure, the one now enforced by
-  this PR.
-- **If PD3 governs** (PR #464's own conclusion, and the one
-  `docs/evidence/2026-07-30-pollution-degree-determination.md` argues for
-  from primary text): row iv, PD3 column -> **12.6mm reinforced** -- a
-  separate, larger figure, on a different axis (pollution degree, not
-  voltage row).
+**Why this is a standalone test, not a new `scripts/check_derived_doc_drift.py`
+config entry, assessed and rejected, not skipped:** that gate's model is "a
+named gate (e.g. `OCP-01`) restated from an in-repo source-of-truth
+document (`docs/FUNCTIONAL_TEST_CRITERIA.md`) into derived summary
+documents, checking that qualifier words/columns survive the restatement."
+Neither half fits here: (1) there is no in-repo source-of-truth document to
+diff against -- the source is IEC 60335-1/IS 302-1 itself, an external,
+paywalled standard this repo cannot commit a machine-readable copy of (the
+same caveat this project's prior creepage evidence docs already carry
+repeatedly); (2) Table 17's rows are keyed by voltage range, not a named
+gate ID, so that gate's row-locator-by-gate-ID matching has nothing to
+anchor to. Building a `check_derived_doc_drift.py` config entry here would
+be reshaping a different problem to fit a tool built for it, not for this
+one -- a plain, targeted, regex-based structural check on the one document
+that actually failed is the cheap fit, and needs no new CI wiring: it lives
+under `packages/temper-placer/tests/requirements/safety/`, already covered
+by the `requirements-tests` GitHub Actions job's
+`tests/requirements/safety/` glob (`.github/workflows/python-tests.yml`),
+so it runs on every PR without any workflow-file change.
 
-**This document takes no position on which pollution degree governs** --
-that is PR #464's question, not this one's. What this document does
-establish, independent of that question, is that **whichever pollution
-degree applies, the voltage-row lookup for a 340-400V boundary is row iv,
-not row v** -- so PD2's correct figure is 8.0mm (not PR #442's 10.0mm) and
-PD3's correct figure is 12.6mm (which is what PR #464 already uses,
-unaffected by this correction since it was already reading off row iv
-correctly for its own PD3 column).
+Confirmed all three new tests pass against the real, current doc, and the
+full `packages/temper-placer/tests/requirements/` suite (296 passed, 5
+skipped, 1 expected failure -- the real-board integration test) is
+unaffected otherwise.
 
-### 5.1 What this means for `docs/brainstorms/2026-07-30-hv-isolation-architecture-options.md` Option 2
-
-The task frames this determination as deciding "whether a sealed PD2
-compartment (Option 2) rescues the design or is pointless." With this
-correction: **at PD2, row iv, 8.0mm reinforced governs, and both U3
-(8.560mm best achievable per `docs/evidence/2026-07-28-isolator-sourcing-brief.md`)
-and U7 (8.100mm best achievable, same source) clear it -- barely (0.560mm
-and 0.100mm of margin respectively).** This document does not re-verify
-those two part-selection figures (out of scope; they are unchanged by this
-correction, which only touches the required figure, not any measured or
-sourced part geometry) but confirms the *requirement* they would need to
-clear is genuinely 8.0mm under PD2, not 10.0mm. Option 2 (earning the PD2
-exception via a sealed compartment) is therefore live on the numbers, not
-mooted by an inflated requirement -- contingent entirely on PR #464's own
-open question of whether the PD2 exception can actually be earned given
-this project's mechanical documents (which `docs/evidence/2026-07-30-pollution-degree-determination.md`
-argues it cannot, on the evidence available today). This document does not
-take a position on that separate, already-argued question; it only
-confirms the number Option 2 would need to clear if PD2 is earned.
-
-## 7. Sources
+## 9. Sources
 
 - IS 302-1:2008 (= IEC 60335-1, identical adoption) -- fetched fresh this
   session, `https://law.resource.org/pub/in/bis/S05/is.302.1.2008.pdf`,
   pages 56-58 rendered to 150dpi PNG and read directly (not OCR'd).
 - `docs/evidence/2026-07-30-creepage-requirement-reconciliation.md` (PR
-  #442, the determination corrected here) -- read in full this session.
-- `docs/evidence/2026-07-30-pollution-degree-determination.md` (PR #464) --
-  read in full this session; independently reached the same row-iv
-  conclusion (§3.1 of that document) while investigating pollution degree,
-  disclosed but deferred correcting PR #442 directly.
-- `docs/brainstorms/2026-07-30-hv-isolation-architecture-options.md`
-  (referenced by this task; not present on this branch at time of writing
-  -- PR #464 or a sibling branch carries it, not yet merged to
-  `origin/main` as of this branch's base commit `ac4426ee`).
-- `docs/evidence/2026-07-28-isolator-sourcing-brief.md` -- U3 (8.560mm) and
-  U7 (8.100mm) best-achievable figures, cited, not re-derived.
-- `elec/src/main.ato`, `docs/specs/HIGH_VOLTAGE_CLEARANCE_SPEC.md` §2.1 --
-  this design's declared working voltages, read directly this session.
+  #442, the PD2 determination corrected here) -- read in full.
+- `docs/evidence/2026-07-30-pollution-degree-determination.md` (PR #464,
+  merged) -- read in full; independently reached the same row-iv
+  conclusion for its own PD3 derivation, and is the source of the "human
+  should reconcile" flag this document closes.
+- `docs/specs/HIGH_VOLTAGE_CLEARANCE_SPEC.md` Sec 5.1 (as PR #464 left it,
+  currently on `main`) -- already correctly transcribes Table 17's real
+  range form and shows both PD2 and PD3 columns; unmodified by this PR.
+- `docs/brainstorms/2026-07-30-hv-isolation-architecture-options.md` (PR
+  #466) -- updated this session with a pointer to this document's
+  resolution; its Option 2 analysis and mechanical/thermal open questions
+  are otherwise unchanged.
 - `packages/temper-placer/tests/requirements/safety/test_clearance.py::TestClearanceIntegration::test_temper_board_clearance_compliance`
-  -- run this session, before and after the correction, on the same
-  `elec/build/default.net` (built fresh this session).
+  -- run this session on the rebased tree, `elec/build/default.net` built
+  fresh.
 
-## 8. Constraints honoured
+## 10. Constraints honoured
 
 - No figure invented: every number traces to the primary-text page image
   read directly this session, or to this project's own already-established
   working voltages.
-- The correction moves the enforced figure from 10.0mm to 8.0mm -- in the
-  numerically permissive direction -- but only because 10.0mm was never a
-  real requirement (Section 6 above); it is not a relaxation of the actual
-  standard, and is justified directly from primary text, not by counting
-  prior agreeing documents.
+- **The operative validator constant is unchanged by this PR** -- PD3,
+  12.6mm reinforced, exactly as `origin/main` already has it. This PR does
+  not move any enforced safety constant in either direction.
 - `test_clearance.py`'s real-board integration test was not modified to
-  pass, and does not pass -- it fails, with fewer (real) violations than
-  before.
-- `pcb/**` and `elec/src/**` were not touched (read-only, confirmed via
-  `git status` before committing).
+  pass, and does not pass.
+- `pcb/**` and `elec/src/**` were not touched.
 - No skip/xfail/deletion/assertion-weakening/`continue-on-error`/`git
-  stash` used anywhere in this change. The before/after comparison in
-  Section 5 was produced via `git show HEAD:<path>` to a temporary copy and
-  restored from a separately-saved working copy, never `git stash`.
+  stash` used anywhere in this change. The rebase conflict was resolved via
+  `git checkout --ours -- <path>` (rebase semantics: "ours" is the upstream
+  commit being rebased onto, i.e. `origin/main`) followed by `git rebase
+  --continue` -- no `git stash` at any point.
