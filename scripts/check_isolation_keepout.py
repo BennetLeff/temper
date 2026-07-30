@@ -166,11 +166,14 @@ EXIT_GATE_ERROR = 5
 # elsewhere on the board (e.g. under a connector) is never mistaken for it.
 BARRIER_ZONE_NAME = "MAINS_SELV_ISOLATION_BARRIER"
 
-# REINFORCED creepage, pollution degree 2, material group IIIb, <=400V
-# working voltage -- top of the plan's stated 3.0-8.0mm range. See module
-# docstring "Which clearance figure" for full derivation and UNVERIFIED
-# caveat. Never shrink this to make the gate pass (plan hard rule).
-MIN_BARRIER_WIDTH_MM = 8.0
+# REINFORCED creepage, pollution degree 3, material group IIIa/IIIb, >250V
+# <=400V working voltage -- IEC 60335-1 Table 17 row iv doubled per clause
+# 29.2.3 (6.3mm basic x2 = 12.6mm). IEC 60335-2-6 clause 29.2 makes PD3
+# the default microenvironment for cooking appliances; this project's
+# mechanical documents do not earn the PD2 enclosure/sealing exception.
+# See docs/evidence/2026-07-30-pollution-degree-determination.md. Keep this
+# synchronized with generate_kicad_dru.py's enforced figure.
+MIN_BARRIER_WIDTH_MM = 12.6
 
 _COPPER_LAYER_TYPE = "signal"
 

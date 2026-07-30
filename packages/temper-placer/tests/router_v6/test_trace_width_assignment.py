@@ -106,6 +106,47 @@ def test_assign_gate_drive_width():
     assert assignment.get_width("GATE_H") == pytest.approx(expected_width)
 
 
+def test_explicit_netclass_minimum_overrides_keyword_heuristic():
+    """Board netclasses are authoritative for routed trace width."""
+    from temper_placer.router_v6.stage0_data import DesignRules, NetClassRules
+
+    path = RoutePath("GATE_H", [(0, 0), (10, 10)], "F.Cu", 14.1)
+    result = PathfindingResult(routed_paths={"GATE_H": path}, failed_nets=[])
+    design_rules = DesignRules(
+        net_classes={
+            "GateDriveHV": NetClassRules(
+                name="GateDriveHV",
+                clearance_mm=0.25,
+                trace_width_mm=0.4,
+                via_diameter_mm=0.8,
+                via_drill_mm=0.4,
+            )
+        },
+        net_class_assignments={"GATE_H": "GateDriveHV"},
+    )
+
+    assignment = assign_trace_widths(result, power_width=0.508, design_rules=design_rules)
+
+    assert assignment.get_width("GATE_H") == pytest.approx(0.4)
+    assert assignment.get_width("GATE_H") != pytest.approx(0.508 * 0.6)
+
+
+def test_missing_netclass_assignment_preserves_keyword_fallback():
+    """Unassigned nets retain the existing heuristic behavior."""
+    from temper_placer.router_v6.stage0_data import DesignRules
+
+    path = RoutePath("GATE_H", [(0, 0), (10, 10)], "F.Cu", 14.1)
+    result = PathfindingResult(routed_paths={"GATE_H": path}, failed_nets=[])
+
+    assignment = assign_trace_widths(
+        result,
+        power_width=0.508,
+        design_rules=DesignRules(net_classes={}, net_class_assignments={}),
+    )
+
+    assert assignment.get_width("GATE_H") == pytest.approx(0.508 * 0.6)
+
+
 def test_assign_multiple_net_classes():
     """Test width assignment for mixed net classes."""
     paths = {

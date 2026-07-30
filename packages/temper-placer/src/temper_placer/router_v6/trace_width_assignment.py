@@ -8,9 +8,24 @@ Part of temper-eixu (Stage 4 - Geometric Realization)
 from __future__ import annotations
 
 import re
+from collections.abc import Mapping
 from dataclasses import dataclass
+from typing import Protocol
 
 from temper_placer.router_v6.astar_pathfinding import PathfindingResult
+
+
+class _TraceWidthNetClass(Protocol):
+    """Minimum width exposed by a board net-class rule."""
+
+    trace_width_mm: float
+
+
+class _TraceWidthDesignRules(Protocol):
+    """Structural interface needed by the width assignment stage."""
+
+    net_class_assignments: Mapping[str, str]
+    net_classes: Mapping[str, _TraceWidthNetClass]
 
 
 def _kw_boundary_match(upper: str, keywords: tuple[str, ...]) -> bool:
@@ -67,6 +82,7 @@ def assign_trace_widths(
     default_width: float = 0.127,  # 5mil standard
     power_width: float = 0.508,  # 20mil for power
     hv_width: float = 0.635,  # 25mil for HV
+    design_rules: _TraceWidthDesignRules | None = None,
 ) -> TraceWidthAssignment:
     """
     Assign trace widths based on net class and requirements.
@@ -76,6 +92,8 @@ def assign_trace_widths(
         default_width: Default trace width (mm)
         power_width: Width for power nets (mm)
         hv_width: Width for high-voltage nets (mm)
+        design_rules: Optional board-derived net-class rules. An explicit
+            net-class minimum takes precedence over the keyword heuristic.
 
     Returns:
         TraceWidthAssignment with all width assignments
@@ -106,6 +124,7 @@ def assign_trace_widths(
             default_width,
             power_width,
             hv_width,
+            design_rules,
         )
 
         assignments[net_name] = width
@@ -118,6 +137,7 @@ def _determine_trace_width(
     default_width: float,
     power_width: float,
     hv_width: float,
+    design_rules: _TraceWidthDesignRules | None = None,
 ) -> TraceWidth:
     """
     Determine appropriate trace width for a net.
@@ -127,10 +147,22 @@ def _determine_trace_width(
         default_width: Default width
         power_width: Power net width
         hv_width: High voltage width
+        design_rules: Optional board-derived net-class rules
 
     Returns:
         TraceWidth assignment
     """
+    if design_rules is not None:
+        class_name = design_rules.net_class_assignments.get(net_name)
+        if class_name is not None:
+            net_class = design_rules.net_classes.get(class_name)
+            if net_class is not None:
+                return TraceWidth(
+                    net_name=net_name,
+                    width_mm=net_class.trace_width_mm,
+                    reason=f"Netclass minimum ({class_name})",
+                )
+
     name_upper = net_name.upper()
 
     # High voltage nets (AC, HV)

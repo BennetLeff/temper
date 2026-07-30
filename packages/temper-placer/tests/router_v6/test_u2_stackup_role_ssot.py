@@ -29,6 +29,7 @@ document and `_extract_stackup`'s docstring.
 
 from __future__ import annotations
 
+import json
 import re
 from pathlib import Path
 
@@ -72,6 +73,24 @@ def _expected_plane_required_net(net_name: str) -> bool:
 
     upper = net_name.upper()
     return any(re.search(rf"(?:^|_){kw}(?:$|[\d_])", upper) for kw in ("GND", "VCC", "PWR"))
+
+
+def test_live_kicad_pro_assignments_match_netclass_ssot() -> None:
+    """The fab-facing project must not silently fall back to Default.
+
+    KiCad spells the Python SSOT class ``GND`` as ``Ground``. Every other
+    class name is shared verbatim; keeping this mapping explicit makes a
+    future rename fail loudly instead of changing the DRC domain model.
+    """
+    project = json.loads((_PCB_PATH.parent / "temper.kicad_pro").read_text())
+    assignments = project["net_settings"]["netclass_assignments"]
+    kicad_name = {"GND": "Ground"}
+
+    assert {
+        net: assignments.get(net)
+        for net in TEMPER_NET_ASSIGNMENTS
+        if assignments.get(net) != kicad_name.get(TEMPER_NET_ASSIGNMENTS[net], TEMPER_NET_ASSIGNMENTS[net])
+    } == {}
 
 
 def test_production_board_fcu_is_not_a_full_layer_plane(_ki_board):

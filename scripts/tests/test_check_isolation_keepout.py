@@ -100,7 +100,7 @@ def _valid_keepout_settings() -> KeepoutSettings:
 def build_board(
     *,
     barrier_layers: list[str] | None = ALL_COPPER_LAYER_NAMES,
-    barrier_x: tuple[float, float] = (45.0, 55.0),
+    barrier_x: tuple[float, float] = (43.0, 57.0),
     barrier_y: tuple[float, float] = (0.0, 100.0),
     keepout_settings: KeepoutSettings | None = None,
     include_barrier: bool = True,
@@ -276,7 +276,7 @@ class TestKeepoutSettings:
 
 class TestWidth:
     def test_barrier_narrower_than_minimum(self, tmp_path: Path) -> None:
-        board_path = write_board(tmp_path, build_board(barrier_x=(49.0, 51.0)))  # 2mm, needs 8.0mm
+        board_path = write_board(tmp_path, build_board(barrier_x=(49.0, 51.0)))  # 2mm, below the PD3 minimum
         manifest_path = write_manifest(tmp_path)
         state, report = run(board_path, manifest_path)
         assert state == "violation"
@@ -384,13 +384,13 @@ class TestIntrusion:
         physical body straddles the boundary must still be flagged -- a
         safety intrusion check must never under-approximate a pad's real
         extent by collapsing it to a single point."""
-        board = build_board()  # barrier spans x=[45,55]
+        board = build_board()  # barrier spans x=[43,57]
         extra_fp = Footprint()
         extra_fp.entryName = "Test:LargePad"
         extra_fp.layer = "F.Cu"
-        # Center at x=43 (2mm outside the barrier's left edge at x=45), but
-        # a 6mm-wide pad reaches to x=46 -- 1mm into the barrier.
-        extra_fp.position = Position(43, 50)
+        # Center at x=40.5 (2.5mm outside the barrier's left edge at x=43),
+        # but a 6mm-wide pad reaches to x=43.5 and overlaps the barrier.
+        extra_fp.position = Position(40.5, 50)
         extra_fp.properties = {"Reference": "C98"}
         extra_fp.pads = [
             Pad(

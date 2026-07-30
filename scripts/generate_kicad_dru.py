@@ -78,7 +78,7 @@ HV_INTERNAL_CLEARANCE_MM = 2.0
 # correct. See docs/evidence/2026-07-28-conformal-coating-pd1.md sec "Verdict"
 # item and docs/evidence/2026-07-28-creepage-determination-brainstorm.md sec 5.
 HV_CREEPAGE_PD2_MM = 8.0
-HV_CREEPAGE_PD3_MM = 12.6  # flagged default per IEC 60335-2-6 cl. 29.2; UNRESOLVED
+HV_CREEPAGE_PD3_MM = 12.6  # settled 2026-07-30 per IEC 60335-2-6 cl. 29.2 Addition
 
 # ---------------------------------------------------------------------------
 # Creepage IS NOW EMITTED as a real KiCad DRC constraint (2026-07-28) --
@@ -101,30 +101,20 @@ HV_CREEPAGE_PD3_MM = 12.6  # flagged default per IEC 60335-2-6 cl. 29.2; UNRESOL
 #     proof this is a genuine path-around-obstacles solver, not a relabeled
 #     clearance check. See docs/evidence/2026-07-28-drc-creepage-constraint.md.
 #
-# WHICH FIGURE TO EMIT: the PD2 (8.0mm) vs PD3 (12.6mm) question directly
-# above is UNRESOLVED and this file does not resolve it -- that determination
-# still belongs to a human. This constant is a SEPARATE, narrower decision:
-# which of the two unresolved figures the ACTUALLY-EMITTED .dru rule is
-# pinned to while the human question is open. Pinned to HV_CREEPAGE_PD2_MM,
-# reusing -- not re-deciding -- the identical call
-# scripts/check_isolation_keepout.py's MIN_BARRIER_WIDTH_MM already makes
-# for the same barrier (8.0mm, PD2). The PD2-vs-PD3 re-target itself (should
-# a human resolve the pollution-degree question in PD3's favor) is a
-# separate, larger change -- it touches this constant, that script's
-# MIN_BARRIER_WIDTH_MM, and the physical U3/U7 creepage-slot geometry on the
-# board simultaneously, and is explicitly out of scope here. Emitting this
-# generator's own unilateral PD3 figure while check_isolation_keepout.py and
-# the board's physical slots stayed at PD2 would make the two enforcement
-# points disagree, which is worse than emitting nothing -- so this constant
-# mirrors whatever check_isolation_keepout.py currently enforces, not a new
-# decision.
+# WHICH FIGURE TO EMIT: the PD2 (8.0mm) vs PD3 (12.6mm) question above was
+# resolved on 2026-07-30: IEC 60335-2-6 clause 29.2 makes PD3 the default
+# microenvironment for cooking appliances, and this project's mechanical
+# evidence does not earn the PD2 exception. See
+# docs/evidence/2026-07-30-pollution-degree-determination.md. This constant
+# mirrors check_isolation_keepout.py's MIN_BARRIER_WIDTH_MM so the two gates
+# enforce the same safety figure.
 #
 # If a human resolves PD3 (or the board's physical slot geometry is
 # re-targeted for it), change this ONE line to HV_CREEPAGE_PD3_MM -- and
 # change scripts/check_isolation_keepout.py's MIN_BARRIER_WIDTH_MM to match
 # in the same change, so the two gates never enforce two different figures
 # for the same requirement.
-HV_CREEPAGE_ENFORCED_MM = HV_CREEPAGE_PD2_MM
+HV_CREEPAGE_ENFORCED_MM = HV_CREEPAGE_PD3_MM
 
 # KiCad uses "Ground" as the net-class name; our Python dict uses "GND"
 KICAD_NAME_MAP = {
@@ -204,20 +194,16 @@ def generate_dru() -> str:
         " 8.0mm vs"
     )
     lines.append(
-        "# PD3 12.6mm) is UNRESOLVED and this file does not resolve it --"
-        " see"
+        "# PD3 12.6mm) is SETTLED as of 2026-07-30; PD3 governs this "
+        "cooking appliance. See"
     )
     lines.append(
-        "# HV_CREEPAGE_ENFORCED_MM's own comment in this script for which"
-        " figure is"
+        "# docs/evidence/2026-07-30-pollution-degree-determination.md. "
+        "`scripts/"
     )
     lines.append(
-        "# currently pinned, why, and how to change it in one line once a"
-        " human"
-    )
-    lines.append(
-        "# settles the question. `scripts/check_isolation_keepout.py`"
-        " remains the"
+        "# check_isolation_keepout.py` remains the other independent "
+        "creepage gate."
     )
     lines.append(
         "# other, independent creepage enforcement point on this board (a"
@@ -433,12 +419,25 @@ def generate_dru() -> str:
         " it did not"
     )
     lines.append("# exist in the generated file before this change.")
+    lines.append("#")
+    lines.append(
+        "# BLACKLIST-COMPLETENESS FIX (2026-07-30): GateDriveHV and "
+        "HighVoltageIsolated are the same physical HV domain as HighVoltage."
+    )
+    lines.append(
+        "# Excluding them prevents same-domain pairs from being treated as "
+        "genuine HV-to-LV creepage crossings. See the measured triage in "
+        "docs/evidence/2026-07-30-creepage-205-triage.md."
+    )
     lines.append(_SEP)
     lines.append('(rule "AC Mains to LV"')
     lines.append(
         "   (condition \"A.NetClass == 'ACMains'"
         " && B.NetClass != 'ACMains'"
-        " && B.NetClass != 'HighVoltage'\")"
+        " && B.NetClass != 'HighVoltage'"
+        " && B.NetClass != 'GateDriveHV'"
+        " && B.NetClass != 'HighVoltageIsolated'"
+        " && B.NetClass != 'HighCurrent'\")"
     )
     lines.append("   (constraint clearance (min 6.0mm))")
     lines.append(f"   (constraint creepage (min {fmt_mm(HV_CREEPAGE_ENFORCED_MM)}))")
@@ -486,12 +485,17 @@ def generate_dru() -> str:
         " now enforces the"
     )
     lines.append("# same figure at the fab-authoritative KiCad DRC level.")
+    lines.append("# GateDriveHV and HighVoltageIsolated are excluded because "
+                 "they share the HV domain; see the 2026-07-30 triage.")
     lines.append(_SEP)
     lines.append('(rule "HV to LV"')
     lines.append(
         "   (condition \"A.NetClass == 'HighVoltage'"
         " && B.NetClass != 'HighVoltage'"
-        " && B.NetClass != 'ACMains'\")"
+        " && B.NetClass != 'ACMains'"
+        " && B.NetClass != 'GateDriveHV'"
+        " && B.NetClass != 'HighVoltageIsolated'"
+        " && B.NetClass != 'HighCurrent'\")"
     )
     lines.append("   (constraint clearance (min 2.0mm))")
     lines.append(f"   (constraint creepage (min {fmt_mm(HV_CREEPAGE_ENFORCED_MM)}))")
@@ -661,7 +665,10 @@ def generate_dru() -> str:
     lines.append('(rule "HighVoltageIsolated same side"')
     lines.append(
         "   (condition \"A.NetClass == 'HighVoltageIsolated'"
-        " && (B.NetClass == 'HighVoltage' || B.NetClass == 'ACMains')\")"
+        " && (B.NetClass == 'HighVoltage'"
+        " || B.NetClass == 'ACMains'"
+        " || B.NetClass == 'GateDriveHV'"
+        " || B.NetClass == 'HighCurrent')\")"
     )
     lines.append(f"   (constraint clearance (min {fmt_mm(_HV_ISOLATED_CLEARANCE_MM)}))")
     lines.append(")")
@@ -671,7 +678,9 @@ def generate_dru() -> str:
         "   (condition \"A.NetClass == 'HighVoltageIsolated'"
         " && B.NetClass != 'HighVoltageIsolated'"
         " && B.NetClass != 'HighVoltage'"
-        " && B.NetClass != 'ACMains'\")"
+        " && B.NetClass != 'ACMains'"
+        " && B.NetClass != 'GateDriveHV'"
+        " && B.NetClass != 'HighCurrent'\")"
     )
     lines.append(f"   (constraint clearance (min {fmt_mm(_HV_ISOLATED_CLEARANCE_MM)}))")
     lines.append(f"   (constraint creepage (min {fmt_mm(HV_CREEPAGE_ENFORCED_MM)}))")

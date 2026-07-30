@@ -749,15 +749,9 @@ class TestCreepageConstraintEmitted:
     def test_enforced_constant_is_one_of_the_two_declared_candidates(self) -> None:
         assert gen.HV_CREEPAGE_ENFORCED_MM in (gen.HV_CREEPAGE_PD2_MM, gen.HV_CREEPAGE_PD3_MM)
 
-    def test_enforced_constant_currently_pinned_to_pd2(self) -> None:
-        # Documented, deliberate choice (matches
-        # scripts/check_isolation_keepout.py's current MIN_BARRIER_WIDTH_MM,
-        # 8.0mm) -- not an accident of declaration order, and NOT a retarget
-        # to PD3 (that is a separate, larger, out-of-scope change -- see the
-        # module docstring on HV_CREEPAGE_ENFORCED_MM). If a human resolves
-        # PD3, this is the one assertion (plus the constant itself) that
-        # should change, alongside check_isolation_keepout.py's figure.
-        assert gen.HV_CREEPAGE_ENFORCED_MM == gen.HV_CREEPAGE_PD2_MM
+    def test_enforced_constant_is_settled_pd3(self) -> None:
+        """The DRC generator and physical keepout gate share the PD3 figure."""
+        assert gen.HV_CREEPAGE_ENFORCED_MM == gen.HV_CREEPAGE_PD3_MM
 
     def test_ac_mains_to_lv_rule_emits_creepage_constraint(self) -> None:
         block = _rule_block(gen.generate_dru(), "AC Mains to LV")
