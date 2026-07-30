@@ -88,8 +88,80 @@
 # that no longer exists and are kept only as a historical record inside
 # deterministic_pipeline, not as a live ratchet -- do not use them to
 # sanity-check drc_errors/drc_warnings above.
+#
+# --- drc_errors RE-BASELINED 2026-07-30 (PR #459, board resync against
+# elec/src / pcb/libs) ---
+#
+# WHY IT MOVED. This PR corrects 6 embedded footprints on
+# pcb/temper.kicad_pcb that had drifted behind elec/src/pcb/libs (U3
+# DIP-6_W7.62mm -> W10.16mm, C6 and C1 each a 5mm-pitch disc "stub" ->
+# their real 10mm/15mm-pitch bodies, C25/C26 tank capacitors WIMA FKP1
+# rect -> CDE 942C16P1K-F axial, U7's pad/silk/courtyard geometry matched
+# to the already-corrected pcb/libs/lib.pretty/SOIC16W_Isolated.kicad_mod),
+# plus stages one previously-missing component (tank.c_tank3) in a clear
+# row below the board outline. See docs/evidence/
+# 2026-07-30-board-resync-against-source.md for the full resync.
+#
+# Every one of these 7 components keeps its EXISTING position/rotation --
+# verified footprint-by-footprint, 0 of 168 pre-existing components moved
+# (same doc, by-name copper-net-identity proof). No placement or routing
+# ran in this change. That makes the attribution airtight: a physically
+# larger, datasheet-correct footprint sitting at an unchanged anchor point
+# necessarily overlaps unchanged neighbouring copper/courtyards/silk more
+# than the smaller, wrong footprint it replaces -- there is no other
+# mechanism available in this diff that could move a DRC count.
+#
+# VERIFIED, not assumed: every one of the 100+ new DRC error instances was
+# checked against the 7 changed components' reference designators. Zero of
+# them involve any OTHER, unchanged component -- i.e. 0 new violations
+# between components this PR did not touch. Per-rule breakdown (kicad-cli
+# 10.0.4, macOS arm64, `run_drc()` i.e. `--all-track-errors`, both boards
+# measured against a full pcb/ directory copy -- WITHOUT the adjacent
+# .kicad_pro/fp-lib-table a bare board-file comparison silently picks up
+# kicad-cli's built-in default severities instead of this project's own
+# `rule_severities` overrides, e.g. pth_inside_courtyard flips
+# error<->warning as a pure measurement artefact, not a real board change --
+# this was caught and corrected before being recorded here):
+#
+#   rule                  old  new  delta  driven by (ref: instance count)
+#   hole_clearance        101  109   +8    U3:8, U7:2
+#   shorting_items        113  118   +5    U3:4, U7:1, C1:1
+#   courtyards_overlap     11   16   +5    C25:3, C26:2, C1:1
+#   solder_mask_bridge     64   69   +5    U3:4, U7:1, C1:1
+#   copper_edge_clearance  13   15   +2    C1:2
+#   (every other rule: delta 0)
+#                                +25  (this specific paired sample; see the
+#                                      median figures below for the ratchet)
+#
+# All five categories are the textbook consequence of a bigger, correct
+# body/lead-pitch sitting where a smaller, wrong one used to: U3's DIP-6
+# pins now span 10.16mm not 7.62mm; C1/C6's THT pads now sit 15mm/10mm
+# apart, not 5mm; C25/C26's real axial capacitor bodies are a different
+# shape than the WIMA rect stub they replace; U7's corrected land pattern
+# is 0.3mm wider per side. None of this is a placer/router regression --
+# there is no placer or router in this diff's causal chain, only a
+# footprint-geometry correction at a frozen position.
+#
+# THE NUMBER ITSELF. CI (golden-check, run 30498739994, kicad-cli 10.0.5,
+# this exact commit) measured drc_errors: 842.0 (its own median-of-5) --
+# this is the authoritative figure the ratchet evaluates against and is
+# used directly below, not re-derived. Cross-checked locally on kicad-cli
+# 10.0.4 (not the CI version -- recorded for corroboration only): N=15
+# `run_drc()` samples gave errors 842 x9, 843 x6 (median 842, worst
+# median-of-5 over all 3003 five-run subsets = 843) -- the same median
+# value CI reported, to the run. Ceiling set the same way the original 820
+# was derived (worst observed median-of-5 + margin 2): 843 + 2 = 845.
+#
+# drc_warnings did NOT regress (CI printed no drc_warnings REGRESSION line)
+# and is left UNCHANGED at 685. Locally it measured 680 (kicad-cli 10.0.4,
+# zero scatter over N=15) -- an improvement, not a regression -- but that
+# number was only measured on 10.0.4, never confirmed against CI's 10.0.5,
+# and it isn't blocking anything, so it is not written here: recording an
+# unconfirmed cross-version number for a metric that isn't gating is the
+# same "guess between versions" this file's own drc_errors section above
+# was explicit about not doing.
 drc_available: true
-drc_errors: 820
+drc_errors: 845
 drc_warnings: 685
 extraction_date: '2026-07-17'
 extraction_method: deterministic-pipeline
