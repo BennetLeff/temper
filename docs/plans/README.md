@@ -8,7 +8,7 @@
 
 <!-- BEGIN GENERATED: plan-status -- edits here are overwritten by scripts/gen_repo_state.py -->
 
-*147 plan documents. Generated from frontmatter.*
+*148 plan documents. Generated from frontmatter.*
 
 | Status | Count | Meaning |
 |---|---:|---|

@@ -480,3 +480,48 @@ plan's "Verify before finishing" section anticipates.
   150mm") does not match the real board's `Edge.Cuts` outline (152mm x
   234mm) -- noted for the record; not investigated further as it is
   outside this plan's scope.
+
+## ADDENDUM (closes the exhaustive-search gap above): PR #451's quantitative result
+
+PR #451 (`safety/mains-selv-isolation-barrier`, held/unmerged) did the
+exhaustive axis-aligned + orientation search this doc's own "UNVERIFIED"
+section above flagged as missing ("not an exhaustive geometric search over
+every conceivable... barrier polygon"). Recorded here so the finding
+survives independent of that PR's merge state, per this repo's convention
+that a falsified premise must be preserved durably even when the PR that
+found it is closed:
+
+- Computed the actual HV pad centroid (97 pads) and SELV pad centroid (221
+  pads) directly from `pcb/temper.kicad_pcb` against `elec/domain_manifest.yaml`,
+  using `temper_placer.core.pad_geometry.pad_bounding_radius` (shape-correct
+  pad extents, not `max(w,h)/2`): HV `(91.897, 138.565)`, SELV
+  `(97.509, 136.665)` -- **5.9mm apart on a 152mm x 234mm board**.
+- Exhaustive search over every axis-aligned split position on both X and Y:
+  best achievable is **96-101 of 318 pads (30-32%) misclassified**.
+- Exhaustive search over every straight-line orientation (all 180 degrees,
+  via 1D projection), any position: best possible is **90 of 318 (28.3%)
+  misclassified**.
+- Misclassification is minimized only at the board edges and *increases*
+  toward the interior -- confirms no hidden separating seam exists at any
+  angle, not just axis-aligned ones.
+- Placing the keepout anyway (to get the measured, not just argued,
+  consequence) took `check_isolation_keepout.py` from 1 violation
+  (`[missing]`) to 84 (2 `[far-side-crossing]` + 82 `[intrusion]`, the
+  latter being pre-existing copper already inside the corridor regardless
+  of where the single line is drawn) and left REQ-SAFE-01 byte-identical
+  (that gate never references `"keepout"` at all -- a keepout constrains
+  future routing, it cannot retroactively separate copper already placed
+  too close together).
+
+**Conclusion (independently corroborated twice now, by two different
+methods): this board's HV and SELV domains are not spatially separable by
+any single straight partition, at any position or orientation, given the
+current component placement.** A physical isolation barrier on this board
+is not a geometry/keepout-placement problem to solve -- it requires moving
+components (a placement re-solve with an explicit HV/SELV separation
+objective) or a different isolation strategy (e.g. isolated
+sub-assemblies/daughtercards) entirely. Recommendation: close PR #451
+without merging its keepout zone (it does not resolve either gate it
+targets and regresses `check_isolation_keepout.py` 1->84), but do not
+discard the derivation work -- it is the load-bearing evidence, cited
+above, that this board has no mains/SELV spatial partition today.
