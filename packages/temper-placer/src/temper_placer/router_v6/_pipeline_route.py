@@ -565,7 +565,15 @@ def _run_stage4(
         corridor_buffer_cells=self.corridor_buffer_cells,
         enable_numba_los=self.enable_numba_los,
     )
-    pathfinding_result = orchestrated.assemble_pathfinding_result(state)
+    # The orchestrated micro-stages currently route every channel path and do
+    # not consume ``target_nets``. Scoped campaign runs must use the legacy
+    # fallback call below, whose explicit target filter is already enforced by
+    # ``run_astar_pathfinding``. The full-board default remains byte-for-byte
+    # on the orchestrated path.
+    if self.target_nets:
+        pathfinding_result = None
+    else:
+        pathfinding_result = orchestrated.assemble_pathfinding_result(state)
 
     if pathfinding_result is None:
         fcu_grid, bcu_grid = select_routing_grids(stage2.occupancy_grids)

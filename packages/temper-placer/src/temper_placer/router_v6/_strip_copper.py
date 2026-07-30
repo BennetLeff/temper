@@ -34,8 +34,9 @@ arbitrarily-nested multi-line blocks.
 from __future__ import annotations
 
 import re
+from collections.abc import Callable, Collection
 
-__all__ = ["strip_existing_copper", "strip_existing_zones"]
+__all__ = ["strip_copper_for_nets", "strip_existing_copper", "strip_existing_zones"]
 
 
 def _strip_blocks(content: str, keywords: tuple[str, ...]) -> tuple[str, int]:
@@ -101,3 +102,71 @@ def strip_existing_zones(content: str) -> tuple[str, int]:
     Returns ``(cleaned_content, zones_removed)``.
     """
     return _strip_blocks(content, ("zone",))
+
+
+def strip_copper_for_nets(
+    content: str, net_names: Collection[str]
+) -> tuple[str, int]:
+    """Remove copper blocks belonging only to the named nets.
+
+    The board header maps numeric KiCad net IDs to names; each segment, via,
+    and zone carries the numeric ID. Unknown names fail closed instead of
+    silently producing an unchanged candidate board.
+    """
+    requested = frozenset(name.strip() for name in net_names)
+    if not requested or any(not name for name in requested):
+        raise ValueError("net_names must contain at least one non-empty name")
+
+    net_ids = {
+        int(net_id)
+        for net_id, name in re.findall(r'\(net\s+(\d+)\s+"([^"]*)"\)', content)
+        if name in requested
+    }
+    known_names = {
+        name
+        for _net_id, name in re.findall(r'\(net\s+(\d+)\s+"([^"]*)"\)', content)
+    }
+    unknown = requested - known_names
+    if unknown:
+        raise ValueError(f"unknown board nets: {', '.join(sorted(unknown))}")
+
+    return _strip_blocks_matching(
+        content,
+        ("segment", "via", "zone"),
+        lambda block: any(re.search(rf"\(net\s+{net_id}\b", block) for net_id in net_ids),
+    )
+
+
+def _strip_blocks_matching(
+    content: str,
+    keywords: tuple[str, ...],
+    should_remove: Callable[[str], bool],
+) -> tuple[str, int]:
+    """Remove balanced top-level blocks satisfying ``should_remove``."""
+    pattern = re.compile(r"^\s*\((" + "|".join(re.escape(k) for k in keywords) + r")\s")
+    lines = content.split("\n")
+    out: list[str] = []
+    block: list[str] = []
+    depth = 0
+    in_block = False
+    removed = 0
+    for line in lines:
+        if not in_block and pattern.match(line):
+            in_block = True
+            depth = 0
+            block = []
+        if in_block:
+            block.append(line)
+            depth += line.count("(") - line.count(")")
+            if depth <= 0:
+                if should_remove("\n".join(block)):
+                    removed += 1
+                else:
+                    out.extend(block)
+                block = []
+                in_block = False
+            continue
+        out.append(line)
+    if block:
+        out.extend(block)
+    return "\n".join(out), removed

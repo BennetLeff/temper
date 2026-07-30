@@ -8,6 +8,7 @@ import os
 import re
 import tempfile
 import uuid
+from collections.abc import Collection
 from pathlib import Path
 from typing import Any
 
@@ -164,6 +165,22 @@ def _to_stage0_netclass_rules(rules: Any) -> Any:
     )
 
 
+def _normalize_target_nets(
+    target_nets: Collection[str] | None,
+    available_nets: Collection[str],
+) -> list[str] | None:
+    """Validate and deterministically normalize an optional net scope."""
+    if target_nets is None:
+        return None
+    normalized = sorted({name.strip() for name in target_nets})
+    if not normalized or any(not name for name in normalized):
+        raise ValueError("target_nets must contain at least one non-empty name")
+    unknown = set(normalized) - set(available_nets)
+    if unknown:
+        raise ValueError(f"target_nets contains unknown nets: {', '.join(sorted(unknown))}")
+    return normalized
+
+
 def route_pcb(
     parsed: ParsedPcbLike | Any,
     placements: dict[str, tuple[float, float]],
@@ -177,6 +194,8 @@ def route_pcb(
     sat_conflict_limit: int | None = 20_000,
     sat_time_limit_ms: int | None = None,
     rotations: dict[str, float] | None = None,
+    target_nets: Collection[str] | None = None,
+    skip_stage3: bool = False,
 ) -> RoutingResult:
     """Route a PCB using the Router V6 pipeline.
 
@@ -223,6 +242,11 @@ def route_pcb(
         sat_time_limit_ms: Secondary wall-clock bound on the same
             solve. None by default (conflict-count alone is the
             recommended bound; it is deterministic, wall-clock is not).
+        target_nets: Optional names of nets to route during Stage 4. ``None``
+            preserves the full-board default; a non-empty scope is validated
+            against the parsed board and normalized before dispatch.
+        skip_stage3: Bypass the SAT topology stage for a bounded scoped run.
+            Defaults to ``False`` so existing callers are unchanged.
 
     Returns:
         RoutingResult with completion_rate, routed_pcb_content, and
@@ -240,6 +264,10 @@ def route_pcb(
     if pcb_path is None:
         raise ValueError("ParsedPCB has no source_path attribute")
     pcb_path = Path(pcb_path)
+    available_nets = {
+        net.name for net in getattr(parsed, "nets", []) if getattr(net, "name", None)
+    }
+    normalized_target_nets = _normalize_target_nets(target_nets, available_nets)
 
     # Resolve per-net layer assignments from the netclass SSOT (W2 R2) so the
     # router constrains each net to its assigned layer instead of letting a
@@ -312,6 +340,8 @@ def route_pcb(
         dfm_fail_on="none",
         sat_conflict_limit=sat_conflict_limit,
         sat_time_limit_ms=sat_time_limit_ms,
+        target_nets=normalized_target_nets,
+        skip_stage3=skip_stage3,
     )
 
     # Resolve the net->class-name mapping from the caller's design_rules.

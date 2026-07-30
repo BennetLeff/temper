@@ -96,7 +96,12 @@ def strip_existing_copper(content: str) -> tuple[str, int]:
 
 
 def route_once(
-    pcb_path: Path, rules_path: Path, *, keep_existing_copper: bool = False
+    pcb_path: Path,
+    rules_path: Path,
+    *,
+    keep_existing_copper: bool = False,
+    target_nets: list[str] | None = None,
+    skip_stage3: bool = False,
 ) -> dict[str, Any]:
     """Run one full route_pcb() pass and return measured results.
 
@@ -106,10 +111,13 @@ def route_once(
     By default existing copper -- segments, vias, AND zones -- is stripped
     first, so the run measures routing the board from scratch and is
     comparable with the committed route. Pass keep_existing_copper=True to
-    route on top of what is already there.
+    route on top of what is already there. ``target_nets`` switches to a
+    scoped reroute: only those nets' copper is stripped and only those nets
+    are handed to Stage 4.
     """
     from temper_placer.io.kicad_parser import parse_kicad_pcb
     from temper_placer.io.netclass_loader import load_netclass_rules
+    from temper_placer.router_v6._strip_copper import strip_copper_for_nets
     from temper_placer.router_v6.adapter import route_pcb
 
     rules = load_netclass_rules(rules_path)
@@ -120,7 +128,10 @@ def route_once(
     tmp_clean = None
     if not keep_existing_copper:
         content = pcb_path.read_text(encoding="utf-8")
-        cleaned, stripped_count = strip_existing_copper(content)
+        if target_nets is None:
+            cleaned, stripped_count = strip_existing_copper(content)
+        else:
+            cleaned, stripped_count = strip_copper_for_nets(content, target_nets)
         tmp_clean = tempfile.NamedTemporaryFile(
             "w", suffix=".kicad_pcb", delete=False, encoding="utf-8"
         )
@@ -139,6 +150,8 @@ def route_once(
         # it is reporting-only, does not affect pathfinding, and the full
         # DFM bundle costs ~6-7x routing wall time (see
         # docs/evidence/2026-07-26-manufacturing-drc-scalability.md).
+        target_nets=target_nets,
+        skip_stage3=skip_stage3,
     )
     wall_s = time.perf_counter() - t0
 
@@ -189,9 +202,21 @@ def outputs_are_identical(content_hashes: list[str]) -> bool:
     return len(set(content_hashes)) <= 1
 
 
-def run_single(pcb_path: Path, rules_path: Path, output_path: Path) -> int:
+def run_single(
+    pcb_path: Path,
+    rules_path: Path,
+    output_path: Path,
+    *,
+    target_nets: list[str] | None = None,
+    skip_stage3: bool = False,
+) -> int:
     print(f"Routing {pcb_path} ...")
-    r = route_once(pcb_path, rules_path)
+    r = route_once(
+        pcb_path,
+        rules_path,
+        target_nets=target_nets,
+        skip_stage3=skip_stage3,
+    )
     print(_format_run("Result", r))
     if r["unrouted_nets"]:
         print(f"Unrouted ({r['unrouted']}): {', '.join(sorted(r['unrouted_nets']))}")
@@ -326,6 +351,18 @@ def main(argv: list[str] | None = None) -> int:
         ),
     )
     parser.add_argument(
+        "--target-net",
+        action="append",
+        dest="target_nets",
+        metavar="NAME",
+        help="Scope a single reroute to one or more named nets (repeatable).",
+    )
+    parser.add_argument(
+        "--skip-stage3",
+        action="store_true",
+        help="Skip SAT topology solving; intended for bounded scoped reroutes.",
+    )
+    parser.add_argument(
         "--_worker-output", type=Path, default=None,
         help=argparse.SUPPRESS,  # internal: used by --runs's own subprocess dispatch
     )
@@ -345,6 +382,8 @@ def main(argv: list[str] | None = None) -> int:
     if args.runs is not None:
         if args.runs < 1:
             parser.error("--runs must be >= 1")
+        if args.target_nets or args.skip_stage3:
+            parser.error("--target-net/--skip-stage3 are only supported in single-route mode")
         return run_measurement(args.pcb, args.rules, args.runs)
 
     if args.output is None:
@@ -361,7 +400,13 @@ def main(argv: list[str] | None = None) -> int:
             "This driver refuses to overwrite the input board, ever."
         )
 
-    return run_single(args.pcb, args.rules, args.output)
+    return run_single(
+        args.pcb,
+        args.rules,
+        args.output,
+        target_nets=args.target_nets,
+        skip_stage3=args.skip_stage3,
+    )
 
 
 if __name__ == "__main__":

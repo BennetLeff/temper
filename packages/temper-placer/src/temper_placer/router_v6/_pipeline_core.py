@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import logging
 import time
+from collections.abc import Collection
 from pathlib import Path
 from typing import Any
 
@@ -41,6 +42,15 @@ from temper_placer.router_v6.dense_package_detection import identify_dense_packa
 from temper_placer.router_v6.escape_via_generator import generate_escape_vias
 from temper_placer.router_v6.placement_legalization import Legalizer
 from temper_placer.validation.drc_fence import DRCFence
+
+
+def _scope_pcb_nets(pcb: Any, target_nets: Collection[str]) -> None:
+    """Restrict a parsed board to the explicitly requested routing nets."""
+    targets = frozenset(target_nets)
+    pcb.nets = [net for net in pcb.nets if net.name in targets]
+    netlist = getattr(pcb, "netlist", None)
+    if netlist is not None and hasattr(netlist, "nets"):
+        netlist.nets = [net for net in netlist.nets if net.name in targets]
 
 
 class RouterV6Pipeline:
@@ -266,6 +276,9 @@ class RouterV6Pipeline:
                     if isinstance(existing, dict):
                         existing.update(net_classes)
                         dr.net_classes = existing
+
+        if self.target_nets:
+            _scope_pcb_nets(pcb, self.target_nets)
 
         # Reorder nets: power/HV nets first, signal nets last.
         # Prevents final-round displacement of SPI/USB/sense nets.
