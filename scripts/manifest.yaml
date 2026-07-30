@@ -82,6 +82,30 @@ scripts:
   - pathlib
   - rich.console
   - sys
+- path: check_prover_soundness_gate.py
+  purpose: Fail closed when external DRC attributes an error to emitted copper
+  owner: provable-safety-place-and-route
+  last_run: '2026-07-30'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - json
+  - pathlib
+  - sys
+- path: check_coverage_ratchet.py
+  purpose: Enforce monotonic absolute prover coverage against a committed baseline
+  owner: provable-safety-place-and-route
+  last_run: '2026-07-30'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - json
+  - pathlib
+  - sys
 - path: check_pad_orientation.py
   purpose: 'Pad-orientation gate: catch footprint rotations that never reached the pads. Check 1 -- a
     footprint rotated by a non-multiple of 180 deg whose pads ALL carry absolute angle 0 is the signature
@@ -1109,6 +1133,7 @@ scripts:
   - pathlib
   - re
   - rich.console
+  - subprocess
   - sys
 - path: check_isolation_keepout.py
   purpose: 'Physical mains<->SELV isolation-barrier CI gate: verify a dedicated keepout region spans all
@@ -1244,8 +1269,8 @@ scripts:
     signature) as a monotonic-shrink ratchet -- live-pin cap, forced expiry/renewal, required evidence-doc
     link, orphan-nodeid detection -- and provide annotate_failure()/check_signature() for a test to compare
     its actual failure signature against the declared one, distinguishing "known reason" from "changed
-    reason" without xfail (docs/solutions/best-practices/pin-known-failure-reasons-2026-07-30.md, the PR
-    #460 near-miss).'
+    reason" without xfail (docs/solutions/best-practices/pin-known-failure-reasons-2026-07-30.md, the
+    PR #460 near-miss).'
   owner: bennet
   last_run: '2026-07-30'
   category: keep

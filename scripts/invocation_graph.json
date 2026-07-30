@@ -22,8 +22,10 @@
   "check_coverage_gate.py": [
     ".github/workflows/python-tests.yml"
   ],
+  "check_coverage_ratchet.py": [],
   "check_derived_doc_drift.py": [
-    ".github/workflows/python-tests.yml"
+    ".github/workflows/python-tests.yml",
+    "packages/temper-placer/tests/requirements/safety/test_creepage_spec_row_form.py"
   ],
   "check_domain_partition.py": [
     ".github/workflows/python-tests.yml",
@@ -67,7 +69,9 @@
     "packages/temper-placer/src/temper_placer/router_v6/trace_width_assignment.py"
   ],
   "check_pad_orientation.py": [
-    ".github/workflows/python-tests.yml"
+    ".github/workflows/python-tests.yml",
+    "packages/temper-placer/src/temper_placer/io/_parse_modules.py",
+    "packages/temper-placer/src/temper_placer/requirements/validators/_copper.py"
   ],
   "check_physics_provenance.py": [
     ".github/workflows/python-tests.yml",
@@ -76,6 +80,7 @@
   "check_pll_range_consistency.py": [
     ".github/workflows/python-tests.yml"
   ],
+  "check_prover_soundness_gate.py": [],
   "check_regression.py": [
     ".github/workflows/regression.yml"
   ],
@@ -162,6 +167,10 @@
   ],
   "kicad_fill_zones.py": [
     "packages/temper-placer/tests/placer/cp_sat/test_zone_pour_production_measurement.py"
+  ],
+  "known_failure_pins.py": [
+    ".github/workflows/python-tests.yml",
+    "packages/temper-placer/tests/placer/cp_sat/test_regression_drc.py"
   ],
   "literal_removal_check.py": [
     ".github/workflows/literal-removal-advisory.yml"

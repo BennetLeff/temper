@@ -1,0 +1,21 @@
+{
+  "schema": "drc-campaign/v1",
+  "board_id": "temper",
+  "errors_only": true,
+  "order": [
+    "creepage",
+    "clearance",
+    "shorting_items",
+    "tracks_crossing",
+    "copper_edge_clearance",
+    "hole_clearance",
+    "hole_to_hole",
+    "annular_width",
+    "via_diameter",
+    "drill_out_of_range",
+    "solder_mask_bridge",
+    "courtyards_overlap"
+  ],
+  "active_category": "creepage",
+  "closed_categories": []
+}
