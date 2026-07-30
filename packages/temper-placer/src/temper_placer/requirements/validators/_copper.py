@@ -23,6 +23,7 @@ from temper_placer.core.pad_geometry import (
     pad_bounding_radius,
     pad_pair_distance,
 )
+from temper_placer.geometry.kicad_transform import rotate_local_to_world
 
 from ._geometry import _distance
 
@@ -70,28 +71,22 @@ class _Pad:
 
 
 def _rotate(x: float, y: float, theta_rad: float) -> tuple[float, float]:
-    """R(-theta) -- KiCad's real footprint-child rotation convention,
-    confirmed against real ``kicad-cli 10.0.4 pcb drc`` ground truth (see
-    docs/evidence/2026-07-29-cross-domain-creepage-rotation-convention.md
-    Sec. 2), and matching ``scripts/check_pad_orientation.py``'s
-    independently-validated (57/57 against real DRC) ``_rotate``.
+    """KiCad's real footprint-child rotation convention -- see
+    ``temper_placer.geometry.kicad_transform``'s module docstring for the
+    confirming evidence (this is the REQ-SAFE-01 copper-position site: the
+    12 independently-typed copies of this formula that module's docstring
+    describes included this one).
 
     This repo's own KiCad parser (``io/_parse_modules.py``, which builds
     ``Component.initial_position`` as ``fp.position + R(-theta) *
     center_offset``) and writer (``io/_write_modules.py``,
-    ``io/_write_board.py``) now all use this same corrected convention --
-    this function previously used R(+theta) to deliberately match a bug in
-    those two, not because R(+theta) was independently believed correct.
-    Using the same sign here is what makes
-    ``world_pad = position + R(-theta) * local_offset`` consistent with the
-    ``position`` this validator is handed: substituting
-    ``local_offset = pad_local - center_offset`` recovers
-    ``fp.position + R(-theta) * pad_local`` exactly. Picking the opposite
-    sign for pads only would make the pad set inconsistent with its own
-    reported origin.
+    ``io/_write_board.py``) all use this same convention -- this function
+    must agree with them: substituting ``local_offset = pad_local -
+    center_offset`` recovers ``fp.position + R(-theta) * pad_local``
+    exactly. Picking the opposite sign for pads only would make the pad set
+    inconsistent with its own reported origin.
     """
-    c, s = math.cos(theta_rad), math.sin(theta_rad)
-    return (x * c + y * s, -x * s + y * c)
+    return rotate_local_to_world(x, y, theta_rad)
 
 
 def _component_pads(comp: dict[str, Any]) -> list[_Pad]:

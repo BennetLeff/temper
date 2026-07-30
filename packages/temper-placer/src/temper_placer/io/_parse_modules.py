@@ -6,6 +6,7 @@ import math
 from typing import TYPE_CHECKING, Any
 
 from temper_placer.core.netlist import Component, Pin
+from temper_placer.geometry.kicad_transform import rotate_local_to_world
 from temper_placer.io._kicad_types import PadData
 
 if TYPE_CHECKING:
@@ -137,13 +138,9 @@ def _extract_components_from_pcb(
 
         cx_to_rotate = -center_offset_x if side == 1 else center_offset_x
         rot_rad = math.radians(rot_deg)
-        # R(-theta): KiCad's real footprint-child rotation convention, not
-        # the R(+theta) this used before. Confirmed against real
-        # kicad-cli 10.0.4 pcb drc ground truth -- see
-        # docs/evidence/2026-07-29-cross-domain-creepage-rotation-convention.md
-        # Sec. 2 and scripts/check_pad_orientation.py's _rotate().
-        rotated_cx = cx_to_rotate * math.cos(rot_rad) + center_offset_y * math.sin(rot_rad)
-        rotated_cy = -cx_to_rotate * math.sin(rot_rad) + center_offset_y * math.cos(rot_rad)
+        # KiCad's real footprint-child rotation convention -- see
+        # temper_placer.geometry.kicad_transform's docstring.
+        rotated_cx, rotated_cy = rotate_local_to_world(cx_to_rotate, center_offset_y, rot_rad)
 
         comp = Component(
             ref=ref,

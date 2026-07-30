@@ -80,6 +80,8 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
+from temper_placer.geometry.kicad_transform import rotate_local_to_world_deg
+
 # Footprints whose pads are legitimately at absolute angle 0 despite a
 # 90/270-degree board rotation -- i.e. the library defines their pads with an
 # intrinsic rotation that exactly cancels the placement. Keyed by library id.
@@ -156,9 +158,13 @@ class Footprint:
 
 
 def _rotate(x: float, y: float, deg: float) -> tuple[float, float]:
-    """KiCad's footprint-child rotation (y-down board frame)."""
-    a = math.radians(deg)
-    return (x * math.cos(a) + y * math.sin(a), -x * math.sin(a) + y * math.cos(a))
+    """KiCad's footprint-child rotation (y-down board frame) -- see
+    ``temper_placer.geometry.kicad_transform``'s module docstring. This
+    function was independently correct before that module existed
+    (validated 57/57 against real ``kicad-cli`` DRC ``shorting_items``,
+    see docs/evidence/2026-07-29-intra-component-shorts-root-cause.md);
+    now delegates instead of carrying its own copy of the formula."""
+    return rotate_local_to_world_deg(x, y, deg)
 
 
 def load_footprints(board_path: Path) -> list[Footprint]:

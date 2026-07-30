@@ -341,16 +341,20 @@ def _project_onto_barrier_axis(local_x: float, local_y: float, rot_value: int, b
     """Global coordinate (along *barrier_axis*, 0=X/1=Y) a local pad offset
     maps to under one of the model's 4 axis-aligned rotations.
 
-    Matches ``_rotate`` in ``scripts/check_isolation_keepout.py`` (and
-    ``io/_parse_modules.py``'s own rotation handling) exactly: KiCad rotates
-    a footprint child by R(-theta), not R(+theta) -- confirmed against real
-    ``kicad-cli 10.0.4 pcb drc`` ground truth, see
-    docs/evidence/2026-07-29-cross-domain-creepage-rotation-convention.md
-    Sec. 2. This function previously implemented R(+theta) (a real bug: it
-    only agrees with R(-theta) at rot=0/2, and differs at rot=1/3, which is
-    exactly the 90/270-degree case that matters on this board). So
-    (lx, ly) -> (lx*cos(a) + ly*sin(a), -lx*sin(a) + ly*cos(a)) for
-    a = rot_value * 90 degrees, i.e.:
+    This is the exact, hand-unrolled closed form of
+    ``temper_placer.geometry.kicad_transform.rotate_local_to_world_deg(lx,
+    ly, rot_value * 90.0)`` for the 4 axis-aligned cases this CP-SAT model
+    uses -- see that module's docstring for the confirming evidence (KiCad
+    rotates a footprint child by R(-theta), not R(+theta)). Deliberately
+    NOT routed through that module's floating-point ``math.cos``/``sin``:
+    at exact 90-degree multiples those evaluate to values like
+    ``cos(90 deg) == 6.123e-17`` rather than an exact 0, which would
+    introduce sub-ULP float noise into this CP-SAT model's integer-scaled
+    coordinates. This dict is the exact, integer-only equivalent instead,
+    pinned to the sanctioned module's convention by
+    ``test_isolation_barrier_matches_kicad_transform`` in this file's test
+    module. So (lx, ly) -> (lx*cos(a) + ly*sin(a), -lx*sin(a) + ly*cos(a))
+    for a = rot_value * 90 degrees, i.e.:
 
         rot=0:  (gx, gy) = ( lx,  ly)
         rot=1:  (gx, gy) = ( ly, -lx)

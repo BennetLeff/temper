@@ -83,6 +83,8 @@ on:
       - 'scripts/tests/test_check_isolation_keepout.py'
       - 'scripts/check_pad_orientation.py'
       - 'scripts/tests/test_check_pad_orientation.py'
+      - 'scripts/check_no_raw_rotation_trig.py'
+      - 'scripts/tests/test_check_no_raw_rotation_trig.py'
       - 'pcb/temper.kicad_pcb'
       - 'firmware/components/control/pll_control.h'
       - '.net-classification-allowlist'
@@ -161,6 +163,8 @@ on:
       - 'scripts/tests/test_check_isolation_keepout.py'
       - 'scripts/check_pad_orientation.py'
       - 'scripts/tests/test_check_pad_orientation.py'
+      - 'scripts/check_no_raw_rotation_trig.py'
+      - 'scripts/tests/test_check_no_raw_rotation_trig.py'
       - 'pcb/temper.kicad_pcb'
       - 'firmware/components/control/pll_control.h'
       - '.net-classification-allowlist'
@@ -1375,6 +1379,22 @@ jobs:
       - name: Rebuild script invocation graph
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python scripts/trace_invocations.py
+
+      - name: No-raw-rotation-trig gate tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_check_no_raw_rotation_trig.py -v --tb=short
+
+      # KiCad's footprint-child rotation formula (R(-theta)) was
+      # independently reimplemented, wrongly, in 12 places -- see
+      # docs/evidence/2026-07-29-cross-domain-creepage-rotation-convention.md
+      # -- and concealed real clearance hazards on 18 production
+      # components. The 12 are now consolidated into one implementation,
+      # temper_placer.geometry.kicad_transform; this gate fails if any of
+      # the files that have already proven capable of hosting that bug
+      # regresses back to a raw, locally-typed copy of the formula.
+      - name: No raw rotation trig outside kicad_transform
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python scripts/check_no_raw_rotation_trig.py
 
   # Split out of Core Tests 2026-07-28. The encoded IEC 60335 / EMC / design
   # review / DFM requirement suites -- 240+ tests on a mains-connected design,
