@@ -250,6 +250,8 @@ def get_pad_shapes(
     """
     import math
 
+    from temper_placer.geometry.kicad_transform import place_local_to_world
+
     shapes = []
     for pad in pads:
         # Filter by layer if specified (allow through-hole on any layer)
@@ -298,11 +300,10 @@ def get_pad_shapes(
             )
         else:
             # Rectangle or roundrect - render as rectangle
-            # Apply rotation if needed
+            # Apply rotation if needed -- KiCad's R(-theta) convention, see
+            # temper_placer.geometry.kicad_transform's module docstring.
             if pad.rotation != 0:
                 angle_rad = math.radians(pad.rotation)
-                cos_a = math.cos(angle_rad)
-                sin_a = math.sin(angle_rad)
 
                 # Corners relative to center
                 hw, hh = pw / 2, ph / 2
@@ -311,8 +312,7 @@ def get_pad_shapes(
                 # Rotate and translate
                 path = ""
                 for i, (dx, dy) in enumerate(corners_rel):
-                    rx = px + dx * cos_a - dy * sin_a
-                    ry = py + dx * sin_a + dy * cos_a
+                    rx, ry = place_local_to_world(dx, dy, px, py, angle_rad)
                     if i == 0:
                         path = f"M {rx},{ry}"
                     else:

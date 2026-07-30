@@ -15,6 +15,7 @@ from shapely.geometry import LineString as ShapelyLineString
 from shapely.geometry import Point as ShapelyPoint
 from shapely.geometry import Polygon as ShapelyPolygon
 
+from temper_placer.geometry.kicad_transform import rotate_world_to_local_deg
 from temper_placer.router_v6.constraints_geometry import (
     LineSegment,
     Point,
@@ -307,11 +308,19 @@ def _point_in_pad(point: Point, pad: CopperPad, radius: float = 0.0) -> bool:
 
 
 def _to_pad_coordinates(point: Point, pad: CopperPad) -> tuple[float, float]:
-    from math import cos, radians, sin
+    """World point -> pad-local frame, undoing the pad's own rotation.
 
-    angle = radians(-pad.rotation)
+    ``pad.rotation`` exists to hold real KiCad pad orientation (not yet
+    wired from any production caller, but that is what the field is for --
+    see ``CopperPad``'s own docstring). The inverse of KiCad's
+    footprint-child rotation convention R(-theta) is R(+theta), applied
+    directly to ``pad.rotation`` -- NOT the pre-fix approach here, which
+    negated the angle and reapplied the *old, wrong* R(+theta) convention's
+    own formula (that inverts R(+theta), not the corrected R(-theta)). See
+    ``temper_placer.geometry.kicad_transform.rotate_world_to_local``.
+    """
     dx, dy = point.x - pad.center.x, point.y - pad.center.y
-    return dx * cos(angle) - dy * sin(angle), dx * sin(angle) + dy * cos(angle)
+    return rotate_world_to_local_deg(dx, dy, pad.rotation)
 
 
 def _segment_intersects_box(
