@@ -1,5 +1,7 @@
 # Rotation-sign sweep, round 2: 12 call sites in 9 candidate areas beyond PR #479/#491
 
+<!-- provenance: commit=8d89069c24494fdd4cf6d40a32fda15c8c440251 dirty=false -->
+
 **Date:** 2026-07-30
 **Scope:** `pcb/**` and `elec/src/**` read-only throughout. No board file was written. Fixes are
 production `.py`/lint-only; `pcb/temper.kicad_pcb`'s own measured DRC/orientation state is unchanged

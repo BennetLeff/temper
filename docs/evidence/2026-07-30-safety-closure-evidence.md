@@ -12,6 +12,8 @@ provenance:
   follow_up_note: "ADC top-resistor power_rating metadata corrected from 0.1W to 0.25W; netlist and domain gate rerun successfully; no PCB geometry changed."
 ---
 
+<!-- provenance: commit=90c6cd2cd61138f37dc139fa1aea9c31a6f728d8 dirty=false -->
+
 # Safety-closure evidence pass
 
 This is an evidence record, not a safety approval. It records the current
