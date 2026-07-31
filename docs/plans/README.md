@@ -8,11 +8,11 @@
 
 <!-- BEGIN GENERATED: plan-status -- edits here are overwritten by scripts/gen_repo_state.py -->
 
-*150 plan documents. Generated from frontmatter.*
+*151 plan documents. Generated from frontmatter.*
 
 | Status | Count | Meaning |
 |---|---:|---|
-| `active` | 6 | Live work. |
+| `active` | 7 | Live work. |
 | `completed` | 61 | Deliverables landed. |
 | `stale` | 52 | Insufficient evidence -- needs human triage. |
 | `abandoned` | 17 | Named deliverables largely absent; work never landed. |
@@ -20,7 +20,7 @@
 | `research-only, no elec/src or pcb/ changes made -- this is a requirements document for a human/planning decision, not an implementation` | 1 | -- |
 | *(no frontmatter)* | 8 | Legacy documents predating the plan format. |
 
-**Active plans (6):**
+**Active plans (7):**
 
 - [`2026-06-28-004-feat-mathematical-rigor-deferred-items-plan.md`](./2026-06-28-004-feat-mathematical-rigor-deferred-items-plan.md) — 2026-06-28-004-feat-mathematical-rigor-deferred-items-plan
 - [`2026-07-25-001-fix-test-skip-accounting-plan.md`](./2026-07-25-001-fix-test-skip-accounting-plan.md) — fix: Test Skip Accounting
@@ -28,6 +28,7 @@
 - [`2026-07-25-003-refactor-package-consolidation-plan.md`](./2026-07-25-003-refactor-package-consolidation-plan.md) — refactor: Package Consolidation
 - [`2026-07-28-001-feat-provable-safety-place-and-route-plan.md`](./2026-07-28-001-feat-provable-safety-place-and-route-plan.md) — Provable-Safety Place and Route - Plan
 - [`2026-07-28-002-fix-pad-geometry-model-plan.md`](./2026-07-28-002-fix-pad-geometry-model-plan.md) — Correct the Pad Geometry Model - Plan
+- [`2026-07-31-002-fix-pr513-red-checks-and-board-debt-plan.md`](./2026-07-31-002-fix-pr513-red-checks-and-board-debt-plan.md) — Fix PR #513 red checks and attempt the board-clearance solve
 
 <!-- END GENERATED: plan-status -->
 
