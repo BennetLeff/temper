@@ -182,6 +182,51 @@ masks); a Rust-native exact EDT is the recorded fallback for a
 follow-up. The U4 perf win (the per-sample lookup hot loop) is
 delivered by the batch; scipy's transform was never the hot loop.
 
+## Pad Geometry + Isolation-Barrier Sweep — Verification by Induction (Wave 2, 2026-07-31)
+
+**Base case:** a 1×1 circle pad at the origin — `corner_radius = 0.5`,
+`support_radius = 0.5` in every direction; the barrier sweep over one
+HV and one SELV pad returns `|Δ| − r_a − r_b`. The Rust core and the
+pinned Python oracles agree bit-for-bit.
+
+**Induction step:** support_radius is the sum of per-axis closed-form
+terms, each a pure function of the pad's shape parameters and the
+rotated query direction — no cross-pad interaction. The barrier sweep
+is the min over independent pair gaps and the max over 4 independent
+rotations; appending a pad adds independent terms. Extending to any
+grid/pad count preserves every existing value. The rotation table is
+integer-exact (KiCad R(−θ) convention), and the arithmetic order is
+preserved exactly — including two hard-won details: `math.hypot` is
+CPython's Dekker double-double `vector_norm` (not libm hypot — 1 ulp
+apart), and `cos`/`sin` are resolved via `dlsym` so the crate matches
+the host Python runtime's own libm (the uv standalone build's `sin`
+differs from the statically-bound `f64::sin` by 1 ulp — measured on a
+real input). `axis_radius` uses `PI / 2.0` (the division), not
+`FRAC_PI_2` — also 1 ulp apart.
+
+**Empirical verification:** the differential suite
+(`packages/temper-placer/tests/placer/cp_sat/test_isolation_barrier_rust_differential.py`)
+pins all five pad-geometry functions bit-exactly against the
+pre-migration implementations (500–1000 random samples each, all
+shapes incl. unknown-shape fallback, arbitrary rotations), the barrier
+axis-gap and best-rotation sweep on 200 random pad groups per axis
+(rot, gap, convention flag — exact), the Y-axis-separation rotation
+bug-regression case, and the mean-equality convention case. The
+pre-existing `test_pad_geometry.py` (61 tests) and
+`test_isolation_barrier.py` (37 tests) now exercise the Rust core
+through the wrappers. PBT properties
+(`tests/core/test_pad_geometry_pbt.py`): support_radius never
+under-reports the corner disk; bounding_radius is an upper bound for
+every direction (the load-bearing safety property); 2π periodicity
+(closeness — 2π is not representable); mirror symmetry (bit-exact);
+axis radii within the bounding radius.
+
+**Shared-model note:** `temper_placer.core.pad_geometry` remains the
+single interface every consumer imports (the isolation-barrier
+encoder, `check_isolation_keepout.py`, the router's pad-inflation
+paths); the computation is now one Rust implementation, so the
+consumers cannot drift apart by construction.
+
 ## PBT Properties Verified
 
 | # | Property | Test |

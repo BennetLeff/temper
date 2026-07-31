@@ -9,6 +9,11 @@ use pyo3::prelude::*;
 use crate::channel_widths::edt_width_lookup_batch;
 use crate::copper_coverage::rasterise_polygon_mask;
 use crate::corridor::extract_corridor_mask;
+use crate::{barrier_axis_gap_py, best_rotation_for_barrier_py, pad_axis_radius_py, pad_bounding_radius_py, pad_corner_radius_py, pad_core_half_extents_py, pad_support_radius_py};
+
+
+
+
 use crate::types::*;
 
 // ---------------------------------------------------------------------------
@@ -1416,6 +1421,15 @@ pub fn register_functions(m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     // corridor
     m.add_function(wrap_pyfunction!(extract_corridor_mask, m)?)?;
+
+    // pad geometry (Wave 2: isolation barrier)
+    m.add_function(wrap_pyfunction!(pad_corner_radius_py, m)?)?;
+    m.add_function(wrap_pyfunction!(pad_core_half_extents_py, m)?)?;
+    m.add_function(wrap_pyfunction!(pad_support_radius_py, m)?)?;
+    m.add_function(wrap_pyfunction!(pad_axis_radius_py, m)?)?;
+    m.add_function(wrap_pyfunction!(pad_bounding_radius_py, m)?)?;
+    m.add_function(wrap_pyfunction!(barrier_axis_gap_py, m)?)?;
+    m.add_function(wrap_pyfunction!(best_rotation_for_barrier_py, m)?)?;
 
     // copper coverage
     m.add_function(wrap_pyfunction!(rasterise_polygon_mask, m)?)?;
