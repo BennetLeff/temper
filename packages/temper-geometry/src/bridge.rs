@@ -9,7 +9,7 @@ use pyo3::prelude::*;
 use crate::channel_widths::edt_width_lookup_batch;
 use crate::copper_coverage::rasterise_polygon_mask;
 use crate::corridor::extract_corridor_mask;
-use crate::{barrier_axis_gap_py, best_rotation_for_barrier_py, pad_axis_radius_py, pad_bounding_radius_py, pad_corner_radius_py, pad_core_half_extents_py, pad_support_radius_py};
+use crate::{barrier_axis_gap_py, best_rotation_for_barrier_py, pad_axis_radius_py, pad_bounding_radius_py, pad_corner_radius_py, pad_core_half_extents_py, pad_support_radius_py, spice_infer_unit_py, spice_loop_inductance_py};
 
 
 
@@ -1430,6 +1430,8 @@ pub fn register_functions(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(pad_bounding_radius_py, m)?)?;
     m.add_function(wrap_pyfunction!(barrier_axis_gap_py, m)?)?;
     m.add_function(wrap_pyfunction!(best_rotation_for_barrier_py, m)?)?;
+    m.add_function(wrap_pyfunction!(spice_loop_inductance_py, m)?)?;
+    m.add_function(wrap_pyfunction!(spice_infer_unit_py, m)?)?;
 
     // copper coverage
     m.add_function(wrap_pyfunction!(rasterise_polygon_mask, m)?)?;
