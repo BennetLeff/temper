@@ -66,16 +66,21 @@ class _LoopCoreMixin:
             from temper_placer.placer.cp_sat.encoder import solve_placement
 
             solver = solve_placement
-        return solver(
-            netlist=netlist,
-            board=board,
-            extra_constraints=extra_constraints,
-            timeout_ms=timeout_ms,
-            seed=seed,
-            zones=zones,
-            zone_components=zone_components,
-            loop_components=loop_components,
-        )
+        solver_kwargs = {
+            "netlist": netlist,
+            "board": board,
+            "extra_constraints": extra_constraints,
+            "timeout_ms": timeout_ms,
+            "seed": seed,
+            "zones": zones,
+            "zone_components": zone_components,
+            "loop_components": loop_components,
+        }
+        if getattr(self, "_reference_aliases", None):
+            solver_kwargs["reference_aliases"] = self._reference_aliases
+        if getattr(self, "_loop_aliases", None):
+            solver_kwargs["loop_aliases"] = self._loop_aliases
+        return solver(**solver_kwargs)
 
     def run(
         self,
@@ -86,6 +91,8 @@ class _LoopCoreMixin:
         zones: dict | None = None,
         zone_components: dict[str, list[str]] | None = None,
         loop_components: dict[str, list[str]] | None = None,
+        reference_aliases: dict[str, str] | None = None,
+        loop_aliases: dict[str, str] | None = None,
         all_gates: bool = False,
         routed_pcb_path: Path | None = None,
         source_pcb_path: Path | None = None,
@@ -119,6 +126,8 @@ class _LoopCoreMixin:
         self._zones = zones
         self._zone_components = zone_components
         self._loop_components = loop_components
+        self._reference_aliases = reference_aliases
+        self._loop_aliases = loop_aliases
         self._netclass_rules = load_netclass_rules()
         if self._netclass_rules is not None:
             self.classifier.design_rules = self._netclass_rules.design_rules

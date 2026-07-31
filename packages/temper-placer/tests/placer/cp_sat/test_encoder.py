@@ -21,6 +21,7 @@ from temper_placer.placer.cp_sat.encoder import (
     EncoderContext,
     encode_constraints,
     reconcile_constraint_refs,
+    reconcile_loop_components,
     validate_constraint_refs,
 )
 from temper_placer.placer.cp_sat.handlers import HANDLER_REGISTRY
@@ -80,6 +81,20 @@ class TestReferenceReconciliation:
         assert result.constraints[0].a == "Q1"
         assert result.aliases_applied == (("LEGACY_Q1", "Q1"),)
 
+    def test_loop_aliases_work_without_component_aliases(self) -> None:
+        constraint = LoopAreaConstraint(
+            "legacy_loop",
+            max_area_mm2=100.0,
+            tier=ConstraintTier.HARD,
+            because="Keep the extracted loop bounded",
+        )
+
+        result = reconcile_constraint_refs(
+            [constraint], loop_aliases={"legacy_loop": "commutation_loop"}
+        )
+
+        assert result.constraints[0].loop_name == "commutation_loop"
+
     def test_alias_cycles_are_rejected(self) -> None:
         with pytest.raises(ValueError, match="cycle"):
             reconcile_constraint_refs([], {"A": "B", "B": "A"})
@@ -103,6 +118,26 @@ class TestReferenceReconciliation:
         )
 
         assert unresolved == {"adj_LEGACY_Q1_Q2": ["MISSING_Q1"]}
+
+    def test_loop_components_reconcile_names_and_members(self) -> None:
+        result = reconcile_loop_components(
+            {"legacy_loop": ["OLD_Q1", "Q2"]},
+            {"OLD_Q1": "Q1"},
+            {"legacy_loop": "commutation_loop"},
+        )
+
+        assert result.loop_components == {"commutation_loop": ["Q1", "Q2"]}
+        assert result.aliases_applied == (
+            ("OLD_Q1", "Q1"),
+            ("legacy_loop", "commutation_loop"),
+        )
+
+    def test_loop_alias_collision_is_rejected(self) -> None:
+        with pytest.raises(ValueError, match="multiple loop definitions"):
+            reconcile_loop_components(
+                {"legacy_a": ["Q1"], "legacy_b": ["Q2"]},
+                loop_aliases={"legacy_a": "commutation", "legacy_b": "commutation"},
+            )
 
 
 class TestHandlerCoverage:

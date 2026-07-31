@@ -79,6 +79,14 @@ class ReferenceReconciliation:
     aliases_applied: tuple[tuple[str, str], ...] = ()
 
 
+@dataclass(frozen=True)
+class LoopReferenceReconciliation:
+    """Result of reconciling loop names and component refs."""
+
+    loop_components: dict[str, list[str]]
+    aliases_applied: tuple[tuple[str, str], ...] = ()
+
+
 _REFERENCE_FIELDS = (
     "a",
     "b",
@@ -94,6 +102,8 @@ _REFERENCE_FIELDS = (
 def reconcile_constraint_refs(
     constraints: list[BaseConstraint],
     aliases: Mapping[str, str] | None = None,
+    *,
+    loop_aliases: Mapping[str, str] | None = None,
 ) -> ReferenceReconciliation:
     """Apply an explicit, canonical config-to-netlist reference map.
 
@@ -103,14 +113,18 @@ def reconcile_constraint_refs(
     the existing fail-closed validator. Alias chains are canonicalized and
     cycles are rejected before a placement model can be built.
     """
-    if not aliases:
+    if not aliases and not loop_aliases:
         return ReferenceReconciliation(tuple(constraints))
 
-    alias_map = dict(aliases)
+    alias_map = dict(aliases or {})
+    loop_alias_map = dict(loop_aliases) if loop_aliases is not None else alias_map
     if any(not source or not target for source, target in alias_map.items()):
         raise ValueError("reference aliases must have non-empty source and target names")
+    if any(not source or not target for source, target in loop_alias_map.items()):
+        raise ValueError("loop aliases must have non-empty source and target names")
 
     resolved: dict[str, str] = {}
+    resolved_loop: dict[str, str] = {}
 
     def canonical(name: str, trail: tuple[str, ...] = ()) -> str:
         if name not in alias_map:
@@ -125,6 +139,19 @@ def reconcile_constraint_refs(
     for source in alias_map:
         canonical(source)
 
+    def canonical_loop(name: str, trail: tuple[str, ...] = ()) -> str:
+        if name not in loop_alias_map:
+            return name
+        if name in trail:
+            cycle = " -> ".join((*trail, name))
+            raise ValueError(f"loop alias cycle: {cycle}")
+        if name not in resolved_loop:
+            resolved_loop[name] = canonical_loop(loop_alias_map[name], (*trail, name))
+        return resolved_loop[name]
+
+    for source in loop_alias_map:
+        canonical_loop(source)
+
     applied: set[tuple[str, str]] = set()
     reconciled: list[BaseConstraint] = []
 
@@ -135,7 +162,9 @@ def reconcile_constraint_refs(
                 continue
             value = getattr(constraint, field_name, None)
             if isinstance(value, str):
-                canonical_value = canonical(value)
+                canonical_value = (
+                    canonical_loop(value) if field_name == "loop_name" else canonical(value)
+                )
                 if canonical_value != value:
                     updates[field_name] = canonical_value
                     applied.add((value, canonical_value))
@@ -168,6 +197,51 @@ def reconcile_constraint_refs(
         tuple(reconciled),
         tuple(sorted(applied)),
     )
+
+
+def reconcile_loop_components(
+    loop_components: Mapping[str, list[str]],
+    aliases: Mapping[str, str] | None = None,
+    loop_aliases: Mapping[str, str] | None = None,
+) -> LoopReferenceReconciliation:
+    """Canonicalize explicit loop names and their component references.
+
+    Loop definitions are part of the validation namespace just like zones and
+    component refs. They must therefore be reconciled before validation rather
+    than being silently dropped when a legacy config uses different names.
+    """
+    component_aliases = dict(aliases or {})
+    loop_alias_map = dict(loop_aliases or {})
+    if any(not source or not target for source, target in component_aliases.items()):
+        raise ValueError("reference aliases must have non-empty source and target names")
+    if any(not source or not target for source, target in loop_alias_map.items()):
+        raise ValueError("loop aliases must have non-empty source and target names")
+
+    def resolve(mapping: Mapping[str, str], name: str, trail: tuple[str, ...] = ()) -> str:
+        if name not in mapping:
+            return name
+        if name in trail:
+            cycle = " -> ".join((*trail, name))
+            raise ValueError(f"reference alias cycle: {cycle}")
+        return resolve(mapping, mapping[name], (*trail, name))
+
+    reconciled: dict[str, list[str]] = {}
+    applied: set[tuple[str, str]] = set()
+    for loop_name, refs in loop_components.items():
+        canonical_loop = resolve(loop_alias_map, loop_name)
+        if canonical_loop != loop_name:
+            applied.add((loop_name, canonical_loop))
+        canonical_refs: list[str] = []
+        for ref in refs:
+            canonical_ref = resolve(component_aliases, ref)
+            canonical_refs.append(canonical_ref)
+            if canonical_ref != ref:
+                applied.add((ref, canonical_ref))
+        if canonical_loop in reconciled:
+            raise ValueError(f"multiple loop definitions resolve to {canonical_loop!r}")
+        reconciled[canonical_loop] = canonical_refs
+
+    return LoopReferenceReconciliation(reconciled, tuple(sorted(applied)))
 
 
 # ---------------------------------------------------------------------------

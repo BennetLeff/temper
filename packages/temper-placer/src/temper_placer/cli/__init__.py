@@ -435,6 +435,23 @@ def optimize(
                 emi = spec.get("emi", {})
                 for name, comps in emi.get("loop_components", {}).items():
                     loop_comps[name] = comps
+            reference_aliases: dict[str, str] = {}
+            loop_aliases: dict[str, str] = {}
+            manifest_path = config.with_suffix(".references.yaml")
+            if manifest_path.exists():
+                from temper_placer.io.reference_aliases import load_reference_alias_manifest
+
+                manifest = load_reference_alias_manifest(
+                    manifest_path,
+                    component_refs=[component.ref for component in netlist.components],
+                    loop_names=loop_comps,
+                )
+                reference_aliases = manifest.component_aliases
+                loop_aliases = manifest.loop_aliases
+                console.print(
+                    f"  Loaded {len(reference_aliases)} component and "
+                    f"{len(loop_aliases)} loop reference aliases"
+                )
             loop_result = loop_runner.run(
                 netlist=netlist,
                 board=board,
@@ -443,6 +460,8 @@ def optimize(
                 zones={z.name: z.bounds for z in zone_objs} if zone_objs else None,
                 zone_components=zone_comps if zone_comps else None,
                 loop_components=loop_comps if loop_comps else None,
+                reference_aliases=reference_aliases or None,
+                loop_aliases=loop_aliases or None,
                 all_gates=all_gates,
                 source_pcb_path=input_pcb,
             )
@@ -578,6 +597,25 @@ def optimize(
             board = parse_result.board
             constraints = load_constraints(config)
             pcl_constraints = list(getattr(constraints, "pcl_constraints", []))
+            reference_aliases: dict[str, str] = {}
+            loop_aliases: dict[str, str] = {}
+            manifest_path = config.with_suffix(".references.yaml")
+            if manifest_path.exists():
+                from temper_placer.io.reference_aliases import load_reference_alias_manifest
+                from temper_placer.placer.cp_sat.encoder import _resolve_loop_components
+
+                loop_names = _resolve_loop_components(netlist)
+                manifest = load_reference_alias_manifest(
+                    manifest_path,
+                    component_refs=[component.ref for component in netlist.components],
+                    loop_names=loop_names,
+                )
+                reference_aliases = manifest.component_aliases
+                loop_aliases = manifest.loop_aliases
+                console.print(
+                    f"  Loaded {len(reference_aliases)} component and "
+                    f"{len(loop_aliases)} loop reference aliases"
+                )
 
             console.print(f"  Parsed {len(netlist.components)} components from input PCB")
             console.print(f"  Loaded {len(pcl_constraints)} PCL constraints")
@@ -605,6 +643,8 @@ def optimize(
                 extra_constraints=pcl_constraints,
                 seed=seed,
                 hint_positions=hint_positions,
+                reference_aliases=reference_aliases or None,
+                loop_aliases=loop_aliases or None,
             )
 
             console.print(f"  Solver status: {cp_result.status} ({cp_result.solve_time_ms:.0f}ms)")

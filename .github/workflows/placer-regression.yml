@@ -26,7 +26,10 @@ jobs:
   regression:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/bennetleff/temper-ci:latest
+      # Pin the regression environment. The mutable latest tag caused the
+      # Linux DRC measurement to drift away from the macOS-seeded ceiling.
+      # Update deliberately through docker-build.yml when the image changes.
+      image: ghcr.io/bennetleff/temper-ci@sha256:b8995e2871892be8f9c144071ef2e8231f512a94dbbe228f4ca9dcf2e2a98d72
       options: --user root
     timeout-minutes: 30
     strategy:
@@ -66,6 +69,11 @@ jobs:
 
       - name: Install dependencies
         run: uv sync --all-packages
+
+      - name: Record KiCad DRC tool version
+        run: |
+          echo "kicad-cli: $(kicad-cli version)"
+          echo "platform: $(uname -a)"
 
       - name: Check for baseline changes without approval
         run: |

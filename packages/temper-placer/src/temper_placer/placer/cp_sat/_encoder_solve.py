@@ -93,6 +93,7 @@ def solve_placement(
     hint_positions: dict[str, tuple[float, float, int]] | None = None,
     minimize_displacement_to: dict[str, tuple[float, float]] | None = None,
     reference_aliases: Mapping[str, str] | None = None,
+    loop_aliases: Mapping[str, str] | None = None,
     isolation_barrier: dict | None = None,
 ) -> CpSatPlacementResult:
     """Build a CP-SAT model, encode constraints, solve, and return the result.
@@ -113,6 +114,9 @@ def solve_placement(
         reference_aliases: Optional explicit config-to-netlist/loop reference
             mapping applied before validation. Unmapped names remain subject
             to the fail-closed unresolved-reference policy.
+        loop_aliases: Optional explicit mapping for legacy loop names to the
+            loop namespace supplied by ``loop_components`` or netlist loop
+            extraction.
         isolation_barrier: Optional kwargs forwarded to
             ``isolation_barrier.add_isolation_barrier_to_model`` (minus
             ``model``/``netlist``/``board_w_mm``/``board_h_mm``, which this
@@ -255,11 +259,20 @@ def solve_placement(
         if zone_refs:
             resolved_zone_components[z.name] = zone_refs
 
+    resolved_loop_components = loop_components or _resolve_loop_components(netlist)
+    loop_reconciliation = _encoder_core.reconcile_loop_components(
+        resolved_loop_components,
+        reference_aliases,
+        loop_aliases,
+    )
+    if loop_reconciliation.aliases_applied:
+        logger.info("Applied loop aliases: %s", loop_reconciliation.aliases_applied)
+
     ctx = EncoderContext(
         board_w,
         board_h,
         zones=resolved_zones,
-        loop_components=loop_components or _resolve_loop_components(netlist),
+        loop_components=loop_reconciliation.loop_components,
         zone_components=resolved_zone_components,
         board_x_min_units=0,
         board_y_min_units=0,
@@ -277,6 +290,7 @@ def solve_placement(
     reconciliation = _encoder_core.reconcile_constraint_refs(
         constraint_objects,
         reference_aliases,
+        loop_aliases=loop_aliases,
     )
     constraint_objects = list(reconciliation.constraints)
     if reconciliation.aliases_applied:

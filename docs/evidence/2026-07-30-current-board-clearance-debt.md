@@ -52,8 +52,16 @@ alias cycles, and leaves an alias target unresolved if that target is absent
 from the actual netlist/zone/loop set. The fail-closed validator therefore
 still blocks a candidate when a mapping is guessed or incomplete.
 
-No aliases are supplied for the current production config yet: names such as
+Before the source-backed manifest was added, no aliases were supplied for the
+current production config: names such as
 `C_BUS1`, `C_BUS2`, `U_MCU`, and `J_AC_IN` are not all unambiguous renames in
 the reconciled board, and some represent board-completeness questions. The
 new path is exercised by 49 focused CP-SAT tests; source-backed mappings must
 be added before a real-board candidate is generated.
+
+The next step is now recorded in
+[`temper_constraints.references.yaml`](../../packages/temper-placer/configs/temper_constraints.references.yaml):
+exact sheetpath-backed aliases are enabled, while live-designator collisions
+and absent loop identities remain unresolved. The loader is wired into both
+direct CP-SAT and place→route entry points, so the manifest is applied before
+reference validation and no candidate is emitted from an incomplete map.
