@@ -48,7 +48,13 @@ def test_setup_stage():
     assert len(pads) == 1
     pad_obj = pads[0]
 
-    # U1 at (10, 10), pin at (2, 0), rotated 90 deg -> relative (0, 2) -> absolute (10, 12)
+    # U1 at (10, 10), pin at (2, 0), rotated 90 deg.
+    #
+    # KiCad's real footprint-child rotation is R(-theta), not R(+theta) --
+    # confirmed against real kicad-cli 10.0.4 pcb drc ground truth, see
+    # docs/evidence/2026-07-29-cross-domain-creepage-rotation-convention.md
+    # Sec. 2. R(-90): (x, y) -> (y, -x). Pin offset (2, 0) -> (0, -2).
+    # Absolute: (10+0, 10-2) = (10, 8).
     assert abs(pad_obj.center.x - 10.0) < 1e-6
-    assert abs(pad_obj.center.y - 12.0) < 1e-6
+    assert abs(pad_obj.center.y - 8.0) < 1e-6
     assert pad_obj.net == "GND"

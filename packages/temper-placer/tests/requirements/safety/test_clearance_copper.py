@@ -579,10 +579,18 @@ class TestRealBoardIsolatorFigures:
     are the external check on this module's geometry: if it disagrees with
     them, its geometry is wrong, not the board's.
 
-    K1 in particular is the reason distances here are computed exactly
-    (``pad_pair_distance``) rather than by polygonising arcs: it sits at
-    *exactly* the 8.000mm REINFORCED creepage requirement, so a polygon
-    approximation short by 0.0011mm manufactures a violation out of nothing.
+    K1's exact geometry is still why distances here are computed exactly
+    (``pad_pair_distance``) rather than by polygonising arcs -- a polygon
+    approximation could manufacture or hide a sub-millimeter violation. It
+    is no longer a zero-margin case: since
+    docs/evidence/2026-07-30-creepage-requirement-reconciliation.md
+    corrected the REINFORCED DC_BUS<->LV_CONTROL creepage requirement from
+    8.0mm to 10.0mm (the requirement was pinned to IEC 60335-1 Table 16's
+    300V row; DC_BUS's working voltage is >300V, which the table's
+    no-interpolation rule means must read off the 400V row instead), K1's
+    exact 8.000mm copper gap is a real 2.0mm shortfall, not a pass -- see
+    ``test_k1_is_a_genuine_creepage_violation_after_the_400v_correction``
+    below.
     """
 
     @pytest.mark.slow
@@ -612,10 +620,32 @@ class TestRealBoardIsolatorFigures:
         assert gap == pytest.approx(expected_mm, abs=1e-6)
 
     @pytest.mark.slow
-    def test_k1_passes_reinforced_creepage_with_exactly_zero_margin(self):
-        """K1's 8.000mm is not a violation -- and the fact that it is not is
-        entirely down to the distance model being exact. This test fails if
-        anyone reintroduces a polygonised measurement."""
+    def test_k1_is_a_genuine_creepage_violation_after_the_400v_correction(self):
+        """K1's intra-footprint copper gap (8.000mm, exact -- see
+        ``test_isolator_pad_gap``) does not move. What changed is the
+        requirement it is measured against: REINFORCED DC_BUS<->LV_CONTROL
+        creepage is now 12.6mm (corrected 2026-07-30 from 10.0mm -- see
+        docs/evidence/2026-07-30-pollution-degree-determination.md: IEC
+        60335-2-6 cl. 29.2 Addition makes Pollution Degree 3 the default
+        for this appliance class and no enclosure/sealing argument earns
+        the PD2 exception on this design's own mechanical documents; IEC
+        60335-1 Table 17 row iv, Material Group IIIa/IIIb, PD3, gives
+        6.3mm basic / 12.6mm reinforced). K1's intra-footprint gap now
+        falls exactly 4.6mm short (was 2.0mm short at the PD2 10.0mm
+        figure) -- a real, exact shortfall, not a model artifact.
+
+        At this stricter 12.6mm figure, K1 now ALSO shows a second, genuine
+        inter-component violation that did not exist at 10.0mm: K1
+        (DC_BUS, via w1_2) sits 11.530mm from R78 (LV_CONTROL, +3V3) --
+        below the required minimum 12.6mm, but above the prior 10.0mm
+        minimum, so it only becomes visible now that the pollution-degree
+        correction has raised the bar. Both violations are asserted here,
+        not just the pre-existing intra-footprint one, since silently
+        checking only the first would hide a real, newly-surfaced
+        shortfall. This test fails if the exact-geometry model
+        (``pad_pair_distance``) stops being exact, which would perturb
+        either figure away from its exact value.
+        """
         from ._real_board_fixture import RealBoardUnavailable, load_real_board_placement
 
         try:
@@ -625,13 +655,36 @@ class TestRealBoardIsolatorFigures:
 
         result = verify_iec60335_compliance(placement, domains)
         k1 = [v for v in result.violations if v.ref_a == "K1" or v.ref_b == "K1"]
-        assert k1 == [], f"K1 should clear every requirement at exactly 8.000mm, got: {k1}"
+        assert len(k1) == 2, f"expected exactly two K1 violations, got: {k1}"
+        by_pair_kind = {v.pair_kind: v for v in k1}
+        assert set(by_pair_kind) == {"intra", "inter"}
+
+        intra = by_pair_kind["intra"]
+        assert intra.metric == "creepage"
+        assert intra.insulation_type == InsulationType.REINFORCED
+        assert intra.measured_mm == pytest.approx(8.000, abs=1e-6)
+        assert intra.required_mm == pytest.approx(12.6, abs=1e-9)
+        assert intra.shortfall_mm == pytest.approx(4.600, abs=1e-6)
+
+        inter = by_pair_kind["inter"]
+        assert inter.metric == "creepage"
+        assert inter.insulation_type == InsulationType.REINFORCED
+        assert inter.measured_mm == pytest.approx(11.530, abs=1e-3)
+        assert inter.required_mm == pytest.approx(12.6, abs=1e-9)
+        assert inter.shortfall_mm == pytest.approx(1.070, abs=1e-3)
 
     @pytest.mark.slow
-    def test_the_five_known_intra_footprint_blockers_are_now_visible(self):
+    def test_the_seven_known_intra_footprint_blockers_are_now_visible(self):
         """C6, K2, K3, U3 and U7 each have their own pads on opposite sides of
-        the mains<->SELV barrier. No placement can fix any of them, and the
-        checker could not see any of them before this change."""
+        the mains<->SELV barrier, and were already visible under the old
+        (incorrect, 300V-row) 8.0mm REINFORCED creepage requirement. K1
+        (8.000mm) and T1 (9.100mm) join them now that the requirement is
+        correctly 10.0mm (see
+        docs/evidence/2026-07-30-creepage-requirement-reconciliation.md):
+        both previously "passed" only because the requirement they were
+        checked against was too lenient, not because either one actually
+        clears the standard. No placement can fix any of these seven --
+        they are pad-to-pad gaps within a single footprint."""
         from ._real_board_fixture import RealBoardUnavailable, load_real_board_placement
 
         try:
@@ -641,7 +694,7 @@ class TestRealBoardIsolatorFigures:
 
         result = verify_iec60335_compliance(placement, domains)
         intra = {v.ref_a for v in result.violations if v.pair_kind == "intra"}
-        assert intra == {"C6", "K2", "K3", "U3", "U7"}
+        assert intra == {"C6", "K1", "K2", "K3", "T1", "U3", "U7"}
         assert all(
             v.insulation_type in (InsulationType.BASIC, InsulationType.REINFORCED)
             for v in result.violations

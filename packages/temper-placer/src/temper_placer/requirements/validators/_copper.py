@@ -23,6 +23,7 @@ from temper_placer.core.pad_geometry import (
     pad_bounding_radius,
     pad_pair_distance,
 )
+from temper_placer.geometry.kicad_transform import rotate_local_to_world
 
 from ._geometry import _distance
 
@@ -70,24 +71,21 @@ class _Pad:
 
 
 def _rotate(x: float, y: float, theta_rad: float) -> tuple[float, float]:
-    """R(+theta) -- the convention this repo's own KiCad parser
-    (``io/_parse_modules.py``, which builds ``Component.initial_position``
-    as ``fp.position + R(+theta) * center_offset``) and writer
-    (``io/_write_modules.py``) both use.
-
-    Using the same sign here is what makes
-    ``world_pad = position + R(+theta) * local_offset`` consistent with the
-    ``position`` this validator is handed: substituting
-    ``local_offset = pad_local - center_offset`` recovers
-    ``fp.position + R(+theta) * pad_local`` exactly. Picking the opposite
-    sign for pads only would make the pad set inconsistent with its own
-    reported origin. See the evidence doc's rotation-convention note: on
-    ``pcb/temper.kicad_pcb`` every footprint sits at a multiple of 90
-    degrees, and the two conventions differ only in the sign of Y-vs-X for
-    footprints at 90/270 degrees.
+    """KiCad's real footprint-child rotation convention -- see
+    ``temper_placer.geometry.kicad_transform``'s module docstring for the
+    confirming evidence (this is the REQ-SAFE-01 copper-position site: the
+    12 independently-typed copies of this formula that module's docstring
+    describes included this one).
+    This repo's own KiCad parser (``io/_parse_modules.py``, which builds
+    ``Component.initial_position`` as ``fp.position + R(-theta) *
+    center_offset``) and writer (``io/_write_modules.py``,
+    ``io/_write_board.py``) all use this same convention -- this function
+    must agree with them: substituting ``local_offset = pad_local -
+    center_offset`` recovers ``fp.position + R(-theta) * pad_local``
+    exactly. Picking the opposite sign for pads only would make the pad set
+    inconsistent with its own reported origin.
     """
-    c, s = math.cos(theta_rad), math.sin(theta_rad)
-    return (x * c - y * s, x * s + y * c)
+    return rotate_local_to_world(x, y, theta_rad)
 
 
 def _component_pads(comp: dict[str, Any]) -> list[_Pad]:
@@ -320,4 +318,3 @@ def _creepage_from_clearance(straight_mm: float, cutouts: list[Any]) -> tuple[fl
         len(cutouts),
     )
     return straight_mm, CREEPAGE_MODEL_STRAIGHT_LINE_LOWER_BOUND
-

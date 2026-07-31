@@ -7,10 +7,13 @@ that can be instantiated and placed deterministically.
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 from pathlib import Path
 
 import yaml  # type: ignore[import-untyped]
+
+from temper_placer.geometry.kicad_transform import rotate_local_to_world
 
 
 @dataclass
@@ -61,8 +64,6 @@ class ParametricTemplate:
         """
         Apply parametric template at absolute position with target scaling.
         """
-        import math
-
         # Find anchor ratio
         anchor = next((c for c in self.components if c.ref == self.anchor_ref), None)
         if anchor is None:
@@ -81,10 +82,14 @@ class ParametricTemplate:
             rel_x = comp.x_ratio * target_width - anchor_off_x
             rel_y = comp.y_ratio * target_height - anchor_off_y
 
-            # Rotate around anchor
+            # Rotate around anchor, using KiCad's real footprint/group
+            # rotation convention -- see
+            # temper_placer.geometry.kicad_transform's docstring. (All
+            # current call sites pass rotation=0, where the sign has no
+            # observed effect yet -- kept correct so a future nonzero-
+            # rotation caller is right.)
             if rotation != 0:
-                rotated_x = rel_x * math.cos(rot_rad) - rel_y * math.sin(rot_rad)
-                rotated_y = rel_x * math.sin(rot_rad) + rel_y * math.cos(rot_rad)
+                rotated_x, rotated_y = rotate_local_to_world(rel_x, rel_y, rot_rad)
             else:
                 rotated_x, rotated_y = rel_x, rel_y
 
@@ -181,8 +186,6 @@ class ComponentTemplate:
         Returns:
             Dict mapping ref -> (x, y, rotation) in absolute coordinates
         """
-        import math
-
         anchor = self.get_anchor_position()
         if anchor is None:
             raise ValueError(f"Anchor point {self.anchor_point} not found in template")
@@ -199,10 +202,14 @@ class ComponentTemplate:
             rel_x = comp.x - anchor_offset_x
             rel_y = comp.y - anchor_offset_y
 
-            # Rotate around anchor
+            # Rotate around anchor, using KiCad's real footprint/group
+            # rotation convention -- see
+            # temper_placer.geometry.kicad_transform's docstring. (All
+            # current call sites pass rotation=0, where the sign has no
+            # observed effect yet -- kept correct so a future nonzero-
+            # rotation caller is right.)
             if rotation != 0:
-                rotated_x = rel_x * math.cos(rot_rad) - rel_y * math.sin(rot_rad)
-                rotated_y = rel_x * math.sin(rot_rad) + rel_y * math.cos(rot_rad)
+                rotated_x, rotated_y = rotate_local_to_world(rel_x, rel_y, rot_rad)
             else:
                 rotated_x, rotated_y = rel_x, rel_y
 

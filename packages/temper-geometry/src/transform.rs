@@ -106,7 +106,16 @@ pub fn get_rotated_aabb(vertices: &[Point]) -> AABB {
 // =============================================================================
 
 /// Transform a single pin offset into world coordinates given a component
-/// position and rotation.
+/// position and rotation, matching KiCad's real footprint-child rotation
+/// convention: R(-theta), not R(+theta) (`get_rotation_matrix`'s generic
+/// CCW matrix). Confirmed against real `kicad-cli 10.0.4 pcb drc` ground
+/// truth, see
+/// `docs/evidence/2026-07-29-cross-domain-creepage-rotation-convention.md`
+/// Sec. 2, and matches the Python reference
+/// `temper_placer.core.pin_geometry.pin_world_position_at`. Not currently
+/// called from any production Python path (only exposed via the pyo3
+/// bridge and its own tests here) -- fixed anyway so a future caller does
+/// not inherit the bug.
 ///
 /// The pin offset is defined relative to the component center at 0° rotation.
 pub fn transform_pin_position(
@@ -114,25 +123,27 @@ pub fn transform_pin_position(
     comp_pos: &Point,
     rotation_rad: f64,
 ) -> Point {
-    let m = get_rotation_matrix(rotation_rad);
-    let rx = m[0][0] * pin_pos.x + m[0][1] * pin_pos.y;
-    let ry = m[1][0] * pin_pos.x + m[1][1] * pin_pos.y;
+    let cos = rotation_rad.cos();
+    let sin = rotation_rad.sin();
+    let rx = pin_pos.x * cos + pin_pos.y * sin;
+    let ry = -pin_pos.x * sin + pin_pos.y * cos;
     Point::new(comp_pos.x + rx, comp_pos.y + ry)
 }
 
 /// Transform multiple pin offsets into world coordinates for a single
-/// component.
+/// component. See `transform_pin_position` for the rotation convention.
 pub fn transform_pin_positions(
     pin_positions: &[Point],
     comp_pos: &Point,
     rotation_rad: f64,
 ) -> Vec<Point> {
-    let m = get_rotation_matrix(rotation_rad);
+    let cos = rotation_rad.cos();
+    let sin = rotation_rad.sin();
     pin_positions
         .iter()
         .map(|p| {
-            let rx = m[0][0] * p.x + m[0][1] * p.y;
-            let ry = m[1][0] * p.x + m[1][1] * p.y;
+            let rx = p.x * cos + p.y * sin;
+            let ry = -p.x * sin + p.y * cos;
             Point::new(comp_pos.x + rx, comp_pos.y + ry)
         })
         .collect()
@@ -509,10 +520,19 @@ mod tests {
 
     #[test]
     fn test_transform_pin_position_rotated() {
-        // Pin offset (1, 0) at (10, 20), 90° rotation → offset becomes (0, 1) → (10, 21)
+        // Pin offset (1, 0) at (10, 20), 90° rotation.
+        //
+        // KiCad's real footprint-child rotation is R(-theta), confirmed
+        // against real kicad-cli 10.0.4 pcb drc ground truth (see
+        // docs/evidence/2026-07-29-cross-domain-creepage-rotation-convention.md
+        // Sec. 2): world = R(-theta) * local. At theta=90°,
+        // R(-90) = [[cos(-90), -sin(-90)], [sin(-90), cos(-90)]] = [[0, 1], [-1, 0]].
+        // Applied to (1, 0): (0*1 + 1*0, -1*1 + 0*0) = (0, -1).
+        // So the offset becomes (0, -1) -> world (10, 19), NOT the old
+        // R(+theta) value of (10, 21) this test asserted before the fix.
         let result = transform_pin_position(&Point::new(1.0, 0.0), &Point::new(10.0, 20.0), std::f64::consts::FRAC_PI_2);
         assert!((result.x - 10.0).abs() < 1e-15);
-        assert!((result.y - 21.0).abs() < 1e-15);
+        assert!((result.y - 19.0).abs() < 1e-15);
     }
 
     // -----------------------------------------------------------------

@@ -1,15 +1,11 @@
-# mypy: ignore-errors
-"""Router V6: result and failure-report types produced by A* pathfinding.
+"""Router V6: routing outcome and decline-reason reports.
 
-Extracted from ``_astar_reconstruct`` under ticket ``temper-N8-split``.
-These are pure data carriers plus their reporting helpers -- they hold no
-search logic, so they split cleanly away from the route-construction code
-that produces them.
+The data types describing what a routing run produced and, when a net was
+declined, why it was declined. This is deliberately dependency-light: it
+imports geometry types for annotations and nothing from the A* search core,
+so the decline-reason contract can be read, tested, and ported on its own.
 
-``_astar_reconstruct`` re-exports every name here, and ``astar_pathfinding``
-re-exports them in turn, so the import path used by the rest of the router
-(``from temper_placer.router_v6.astar_pathfinding import PathfindingResult``)
-is unchanged.
+Split out of _astar_reconstruct.py, which had grown past its size cap.
 """
 
 from __future__ import annotations
@@ -19,24 +15,67 @@ from dataclasses import dataclass, field
 from temper_placer.router_v6.astar_core import RoutePath, RoutePath3D
 from temper_placer.router_v6.tree_route_geometry import TreeRouteGeometry
 
-__all__ = [
-    "PathfindingResult",
-    "RoutingFailureReport",
-    "TreeRoutingFailure",
-]
+# U1 (docs/plans/2026-07-28-001-feat-provable-safety-place-and-route-plan.md):
+# decline-reason attribution. Today, exactly one mechanism in this module
+# earns a specific, non-fabricated rule id: the forced-segment fail-closed
+# gate (``_allow_forced_segments`` is unconditionally ``False``, and
+# ``execute_terminal_tree`` -- see terminal_tree_execution.py -- always
+# passes ``allow_forced_segments=False`` too). Every other failure path
+# (rip-up budget exhaustion, a channel path with too few waypoints to
+# search at all, or an unhandled exception during a discharge attempt) has
+# no rule-level attribution today, so it honestly reports
+# ``attribution_gap=True`` on ``RoutingFailureReport`` rather than
+# inventing one. See that dataclass's docstring and
+# docs/solutions/architecture-patterns/two-tier-acceptance-gate-unsat-surfacing-2026-07-05.md
+# for the candor discipline this follows.
+RULE_ID_FORCED_SEGMENT_FAIL_CLOSED = "forced_segment_fail_closed"
+FAILURE_REASON_PROVER_ERROR = "prover_error"
+
+
+def _forced_segment_decline(
+    blockers: list[str],
+    region: tuple[float, float] | None,
+) -> tuple[bool, str, list[str], tuple[float, float] | None, str | None]:
+    """Build the standard decline tuple for a forced-segment fail-closed refusal.
+
+    Every call site that reaches this shares the same reason and rule_id;
+    centralizing the pairing here means a future change to either only
+    needs to happen once, not in lockstep across every return site.
+    """
+    return False, "no_path", blockers, region, RULE_ID_FORCED_SEGMENT_FAIL_CLOSED
 
 
 @dataclass
 class RoutingFailureReport:
-    """Detailed failure report for a net that failed to route."""
+    """Detailed failure report for a net that failed to route.
+
+    ``rule_id``/``domain`` are U1's decline-reason attribution, following
+    the UNSAT-core "because"-field candor pattern
+    (docs/solutions/architecture-patterns/two-tier-acceptance-gate-unsat-surfacing-2026-07-05.md):
+    never fabricate a rule attribution. ``attribution_gap`` is a computed
+    property (``rule_id is None``) rather than a separately-threaded field
+    -- there is exactly one source of truth for "was a specific rule
+    named," so it cannot drift out of sync with ``rule_id`` the way a
+    parallel stored field could.
+    """
 
     net_name: str
-    # "congestion", "no_path", "rip_up_limit", "no_channel", "no_routable_layer"
+    # "congestion", "no_path", "rip_up_limit", "no_channel", "prover_error",
+    # "no_routable_layer" (b39b382d: a shared pad layer exists but the router
+    # was given no occupancy grid for it -- a router-configuration gap, which
+    # is why it carries no rule_id).
     failure_reason: str
     blocking_nets: list[str]  # Which nets are blocking
     attempted_ripups: int
     congestion_region: tuple[float, float] | None  # Approximate (x, y) of stuck location
     pin_count: int = 0  # Number of pins in the net
+    rule_id: str | None = None  # Specific rule/mechanism name, e.g. RULE_ID_FORCED_SEGMENT_FAIL_CLOSED
+    domain: str | None = None  # net_classification.classify_net_type(net_name) result
+
+    @property
+    def attribution_gap(self) -> bool:
+        """True unless a specific rule_id is named. Never set directly."""
+        return self.rule_id is None
 
 
 @dataclass(frozen=True)

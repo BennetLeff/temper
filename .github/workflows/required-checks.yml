@@ -1,0 +1,34 @@
+name: Required Checks
+
+on:
+  # This workflow only reads PR metadata and checks out the trusted base
+  # revision. pull_request_target ensures a PR cannot replace the aggregator
+  # definition or checker while it is deciding whether the PR may merge.
+  pull_request_target:
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: read
+  checks: read
+
+jobs:
+  required-python-tests:
+    name: Required Python Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    if: ${{ always() }}
+    steps:
+      # Evaluate trusted base-branch code so a PR cannot weaken the required
+      # check by changing this checker or its manifest in the same PR.
+      - name: Check out base revision
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          persist-credentials: false
+
+      - name: Evaluate candidate Python Tests checks
+        if: ${{ always() }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 scripts/check_required_checks.py --manifest .github/required-checks.json

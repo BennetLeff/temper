@@ -102,3 +102,80 @@ def test_parse_stackup_fallback():
     # Fallback assumes default thickness logic
     assert stackup.total_thickness_mm == 1.6
     assert len(stackup.dielectrics) == 0  # Fallback doesn't parse dielectrics
+
+
+def test_parse_stackup_fallback_declared_role_ignores_zone_content():
+    """U2 (R8): with ``use_declared_layer_roles=True``, a zone on a
+    plane-required net must NOT override layer_type -- role comes from
+    structural position in the declared stackup only. plane_net is still
+    surfaced for informational purposes.
+
+    Same board as test_parse_stackup_fallback, but the GND zone now sits on
+    F.Cu (an outer layer) instead of In1.Cu -- exactly the shape of bug this
+    unit fixes: today, a single plane-required zone on an outer layer
+    forces layer_type to "plane" and routing_space.py excludes it entirely.
+    """
+    board = KiBoard()
+    board.layers = [
+        type("Layer", (), {"name": "F.Cu"})(),
+        type("Layer", (), {"name": "In1.Cu"})(),
+        type("Layer", (), {"name": "In2.Cu"})(),
+        type("Layer", (), {"name": "B.Cu"})(),
+    ]
+
+    z1 = Zone(netName="GND", layers=["F.Cu"])
+    board.zones = [z1]
+
+    stackup = _extract_stackup(board, [], use_declared_layer_roles=True)
+
+    assert stackup.layer_count == 4
+
+    fcu = stackup.layers[0]
+    assert fcu.name == "F.Cu"
+    assert fcu.layer_type == "signal"  # structural position, not the GND zone
+    assert fcu.plane_net == "GND"  # informational: still surfaced
+
+    in1 = stackup.layers[1]
+    assert in1.name == "In1.Cu"
+    assert in1.layer_type == "mixed"
+    assert in1.plane_net is None
+
+    bcu = stackup.layers[3]
+    assert bcu.name == "B.Cu"
+    assert bcu.layer_type == "signal"
+    assert bcu.plane_net is None
+
+
+def test_parse_stackup_from_setup_declared_role_ignores_zone_content():
+    """Same falsifier as above, for the setup.stackup branch (Method 1)."""
+    board = KiBoard()
+    board.setup = type("Setup", (), {})()
+
+    l1 = StackupLayer(name="F.SilkS", type="Top Silk Screen")
+    l2 = StackupLayer(name="F.Mask", type="Top Solder Mask", thickness=0.01)
+    l3 = StackupLayer(name="F.Cu", type="copper", thickness=0.035)
+    l4 = StackupLayer(
+        name="dielectric 1",
+        type="core",
+        thickness=1.51,
+        material="FR4",
+        epsilonR=4.5,
+        lossTangent=0.02,
+    )
+    l5 = StackupLayer(name="B.Cu", type="copper", thickness=0.035)
+    l6 = StackupLayer(name="B.Mask", type="Bottom Solder Mask", thickness=0.01)
+
+    board.setup.stackup = Stackup(layers=[l1, l2, l3, l4, l5, l6])
+
+    z1 = Zone(netName="GND", layers=["F.Cu"])
+    board.zones = [z1]
+
+    stackup = _extract_stackup(board, [], use_declared_layer_roles=True)
+
+    assert stackup.layers[0].name == "F.Cu"
+    assert stackup.layers[0].layer_type == "signal"  # not "plane", despite the GND zone
+    assert stackup.layers[0].plane_net == "GND"
+
+    assert stackup.layers[1].name == "B.Cu"
+    assert stackup.layers[1].layer_type == "signal"
+    assert stackup.layers[1].plane_net is None

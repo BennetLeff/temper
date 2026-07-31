@@ -23,10 +23,10 @@ from temper_placer.placer.cp_sat.domain_clearance import (
     IEC60335_REQUIREMENTS,
     VoltageDomain,
     audit_domain_clearance,
+    find_intra_footprint_domain_conflicts,
     generate_domain_clearance_constraints,
     required_margin_mm,
 )
-
 from tests.requirements.validators._geometry import _distance
 
 # ---------------------------------------------------------------------------
@@ -67,10 +67,14 @@ class TestGeneratorNotVacuous:
         placement, voltage_domains = self._two_domain_placement()
         constraints = generate_domain_clearance_constraints(placement, voltage_domains)
         [c] = [c for c in constraints if {c.a, c.b} == {"F1", "J1"}]
-        # MAINS<->LV_CONTROL: basic (3.0/4.0) and reinforced (6.0/8.0) both
+        # MAINS<->LV_CONTROL: basic (3.0/6.3) and reinforced (6.0/12.6) both
         # apply; the stricter (max of clearance/creepage across both rows)
-        # must win.
-        assert c.min_distance_mm == 8.0
+        # must win. Creepage figures are the IEC 60335-1 Table 17 400V row
+        # (MAINS's own working voltage, 340V peak/transient, is >250V and
+        # the table is not interpolated), Pollution Degree 3 (corrected from
+        # PD2 2026-07-30) -- see
+        # docs/evidence/2026-07-30-pollution-degree-determination.md.
+        assert c.min_distance_mm == 12.6
         assert c.tier == ConstraintTier.HARD
         assert c.id == "domain_clearance_F1_J1"
 
@@ -110,6 +114,117 @@ class TestGeneratorNotVacuous:
         voltage_domains = {"ac_l": VoltageDomain.MAINS, "gnd": VoltageDomain.LV_CONTROL}
         constraints = generate_domain_clearance_constraints(placement, voltage_domains)
         assert len(constraints) == 1
+
+
+class TestIntraFootprintDomainConflicts:
+    """R24-follow-up (2026-07-30): self-pairs are excluded from
+    ``generate_domain_clearance_constraints``'s output for a real, provable
+    reason (see module docstring), but that exclusion used to be silent --
+    no log, no queryable signal, nothing distinguishing "no isolator on
+    this board" from "an isolator exists and nothing is protecting it".
+    These tests pin the new, loud alternative.
+    """
+
+    def test_straddling_component_is_flagged(self) -> None:
+        placement = {
+            "components": [
+                {"ref": "PS1", "position": (0.0, 0.0), "nets": ["ac_l", "gnd"]},
+            ],
+            "nets": {},
+        }
+        voltage_domains = {"ac_l": VoltageDomain.MAINS, "gnd": VoltageDomain.LV_CONTROL}
+        conflicts = find_intra_footprint_domain_conflicts(placement, voltage_domains)
+        assert len(conflicts) == 1
+        c = conflicts[0]
+        assert c.ref == "PS1"
+        assert {c.domain_a, c.domain_b} == {VoltageDomain.MAINS, VoltageDomain.LV_CONTROL}
+        assert c.margin_mm == 12.6  # PD3 reinforced creepage requirement
+
+    def test_non_straddling_components_not_flagged(self) -> None:
+        placement, voltage_domains = TestGeneratorNotVacuous()._two_domain_placement()
+        conflicts = find_intra_footprint_domain_conflicts(placement, voltage_domains)
+        assert conflicts == []
+
+    def test_same_domain_row_never_flags_a_straddle(self) -> None:
+        """A component entirely within LV_CONTROL cannot "straddle"
+        LV_CONTROL<->LV_CONTROL (domain_a == domain_b) -- that row governs
+        pairs of *different* LV_CONTROL components, not a single one."""
+        placement = {
+            "components": [
+                {"ref": "R1", "position": (0.0, 0.0), "nets": ["gnd", "+3V3"]},
+            ],
+            "nets": {},
+        }
+        voltage_domains = {"gnd": VoltageDomain.LV_CONTROL, "+3V3": VoltageDomain.LV_CONTROL}
+        assert find_intra_footprint_domain_conflicts(placement, voltage_domains) == []
+
+    def test_component_refs_filter_applies(self) -> None:
+        placement = {
+            "components": [
+                {"ref": "PS1", "position": (0.0, 0.0), "nets": ["ac_l", "gnd"]},
+            ],
+            "nets": {},
+        }
+        voltage_domains = {"ac_l": VoltageDomain.MAINS, "gnd": VoltageDomain.LV_CONTROL}
+        assert (
+            find_intra_footprint_domain_conflicts(
+                placement, voltage_domains, component_refs={"OTHER"}
+            )
+            == []
+        )
+
+    def test_generator_warns_when_conflicts_present(self, caplog) -> None:
+        """The generator itself must surface this, not just the standalone
+        finder function -- a caller that only calls
+        generate_domain_clearance_constraints (the common case) must still
+        see the signal."""
+        import logging
+
+        placement = {
+            "components": [
+                {"ref": "PS1", "position": (0.0, 0.0), "nets": ["ac_l", "gnd"]},
+            ],
+            "nets": {},
+        }
+        voltage_domains = {"ac_l": VoltageDomain.MAINS, "gnd": VoltageDomain.LV_CONTROL}
+        with caplog.at_level(logging.WARNING):
+            generate_domain_clearance_constraints(placement, voltage_domains)
+        assert any("PS1" in rec.message for rec in caplog.records), (
+            "generator produced no warning naming the intra-footprint ref -- "
+            "the exclusion is silent again"
+        )
+
+    def test_real_board_finds_known_isolators(self) -> None:
+        """Cross-check against the validator's own real-board finding
+        (test_clearance.py::TestClearanceIntegration, 13 intra-footprint
+        records across {C6, K1, K2, K3, T1, U3, U7} at the current 10.0mm
+        reinforced bar): every one of those refs must appear here too, since
+        this is deliberately the coarser, component-level superset check
+        (see docstring) -- a false negative here would mean a real
+        REQ-SAFE-01 intra-footprint violation that this early-warning
+        mechanism failed to flag at all."""
+        import pytest
+
+        from tests.requirements.safety._real_board_fixture import (
+            RealBoardUnavailable,
+            load_real_board_placement,
+        )
+
+        try:
+            placement, voltage_domains, _stats = load_real_board_placement()
+        except RealBoardUnavailable as exc:
+            pytest.skip(f"{exc} (run `make netlist` first)")
+
+        conflicts = find_intra_footprint_domain_conflicts(placement, voltage_domains)
+        flagged_refs = {c.ref for c in conflicts}
+        known_validator_intra_refs = {"C6", "K1", "K2", "K3", "T1", "U3", "U7"}
+        missing = known_validator_intra_refs - flagged_refs
+        assert not missing, (
+            f"{missing} have a REAL pad-level intra-footprint REQ-SAFE-01 "
+            f"violation (per the validator) but this component-level "
+            f"early-warning check missed them -- it should be a superset, "
+            f"never a subset, of the validator's own finding."
+        )
 
 
 class TestRequiredMarginMm:
@@ -180,15 +295,17 @@ class TestChebyshevSoundnessBMC:
         # Bounded N: three courtyard half-size pairs (covering degenerate
         # 0-size point components, small, and asymmetric footprints), full
         # integer-mm offset sweep over a window comfortably larger than
-        # every IEC60335_REQUIREMENTS margin (up to 8.0mm), at two margins
-        # spanning the matrix's actual values.
+        # every IEC60335_REQUIREMENTS margin (up to 12.6mm -- corrected from
+        # 10.0mm 2026-07-30, see
+        # docs/evidence/2026-07-30-pollution-degree-determination.md), at
+        # margins spanning the matrix's actual values.
         half_size_pairs = [
             ((0.0, 0.0), (0.0, 0.0)),
             ((0.5, 0.5), (1.0, 0.5)),
             ((1.5, 2.0), (0.75, 0.75)),
         ]
-        margins = [1.0, 3.0, 4.0, 6.0, 8.0]
-        offsets = range(-12, 13)  # -12mm..+12mm inclusive, 1mm steps
+        margins = [1.0, 3.0, 4.0, 5.0, 6.0, 8.0, 10.0, 12.6]
+        offsets = range(-14, 15)  # -14mm..+14mm inclusive, 1mm steps
 
         checked = 0
         counterexamples = []
@@ -347,7 +464,16 @@ class TestRealBoardTP3Coverage:
         """The DRC finding this session investigated was specifically
         TP3<->U7 (kicad-cli: HighVoltage netclass, 2.0mm required, 0.336mm
         actual). Confirm the generator emits a constraint for this pair at
-        the DC_BUS<->LV_CONTROL margin (8.0mm).
+        the DC_BUS<->LV_CONTROL margin (12.6mm -- corrected from 10.0mm
+        2026-07-30, see
+        docs/evidence/2026-07-30-pollution-degree-determination.md:
+        IEC 60335-2-6 cl. 29.2 Addition makes Pollution Degree 3 the
+        default for this appliance class and no enclosure/sealing argument
+        earns the PD2 exception on this design's own mechanical documents.
+        DC_BUS's working voltage, peak/transient 400V, is >250V and <=400V
+        -- IEC 60335-1 Table 17 row iv, Material Group IIIa/IIIb, PD3 --
+        giving reinforced creepage 12.6mm, not the PD2 figure this test
+        previously checked against).
 
         U7 genuinely straddles domains (it carries `gnd`/`+3V3` -- both
         LV_CONTROL -- *and* `DC_BUS_RTN`, i.e. it is a level-shifting gate
@@ -357,15 +483,15 @@ class TestRealBoardTP3Coverage:
         rather than a canonicalized/unordered one, the same physical
         TP3/U7 pair can be emitted under two different keys when it
         matches rows from different domain groupings with reversed
-        ref order -- here, ``domain_clearance_U7_TP3`` (8.0mm, from the
+        ref order -- here, ``domain_clearance_U7_TP3`` (12.6mm, from the
         DC_BUS<->LV_CONTROL cross-domain rows, where U7 is drawn from the
         DC_BUS group) *and* ``domain_clearance_TP3_U7`` (1.0mm, from the
         LV_CONTROL<->LV_CONTROL functional same-domain row, where both are
         drawn from the LV_CONTROL group and happen to be visited in that
-        order). This does not lose safety margin -- the stricter 8.0mm
+        order). This does not lose safety margin -- the stricter 12.6mm
         constraint is still emitted and still audited under its own id --
         so this test checks that the *strictest* margin among any
-        constraint touching this unordered pair is the expected 8.0mm,
+        constraint touching this unordered pair is the expected 12.6mm,
         rather than assuming a single key.
         """
         placement, voltage_domains, _stats = self._load()
@@ -376,7 +502,7 @@ class TestRealBoardTP3Coverage:
             "either TP3's net is unclassified again, or U7 no longer "
             "carries a DC_BUS-domain net (DC_BUS_RTN)."
         )
-        # DC_BUS<->LV_CONTROL: max across basic (3.0/4.0) and reinforced
-        # (6.0/8.0) rows is 8.0mm. This must appear among the (possibly
+        # DC_BUS<->LV_CONTROL: max across basic (3.0/6.3) and reinforced
+        # (6.0/12.6) rows is 12.6mm. This must appear among the (possibly
         # multiple, see docstring) constraints for this pair.
-        assert max(c.min_distance_mm for c in matches) == 8.0
+        assert max(c.min_distance_mm for c in matches) == 12.6

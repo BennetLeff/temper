@@ -205,9 +205,13 @@ class DesignRules:
         if self._is_power_net(net_name) and "Power" in self.net_classes:
             return self.net_classes["Power"]
 
-        # Check if net name implies Gate Drive (GATE, PWM)
-        if self._is_gate_net(net_name) and "GateDrive" in self.net_classes:
-            return self.net_classes["GateDrive"]
+        # Check if net name implies Gate Drive, HV (switching) side (GATE_*)
+        if self._is_gate_net_hv(net_name) and "GateDriveHV" in self.net_classes:
+            return self.net_classes["GateDriveHV"]
+
+        # Check if net name implies Gate Drive, SELV (controller) side (PWM_*)
+        if self._is_gate_net_selv(net_name) and "GateDriveSELV" in self.net_classes:
+            return self.net_classes["GateDriveSELV"]
 
         # Check if net name implies High Current (SW, AC, BUS)
         if self._is_high_current_net(net_name) and "HighCurrent" in self.net_classes:
@@ -243,16 +247,33 @@ class DesignRules:
             return False
         return is_power_net(net_name)
 
-    def _is_gate_net(self, net_name: str) -> bool:
-        """Check if net belongs to Gate Drive circuitry.
+    def _is_gate_net_hv(self, net_name: str) -> bool:
+        """Check if net belongs to the HV (switching) side of gate-drive
+        circuitry -- the secondary/output side of U7's reinforced barrier.
 
-        Word-boundary keyword match (delimited by ``_`` or start/end of the
-        uppercased name) -- see :func:`_is_high_current_net`'s docstring
-        for the bug history this shares.
+        Split 2026-07-28 (R4) from the single ``_is_gate_net`` alongside the
+        ``GateDrive`` -> ``GateDriveHV``/``GateDriveSELV`` class split: GATE_*
+        and SW_NODE (the node gate drive is referenced to) are HV-side:
+        keeping them in one keyword match with PWM_* would leave this
+        fallback unable to say which class a matched net belongs to. Word-
+        boundary keyword match (delimited by ``_`` or start/end of the
+        uppercased name) -- see :func:`_is_high_current_net`'s docstring for
+        the bug history this shares.
         """
         upper = net_name.upper()
-        # GATE_H, GATE_L, PWM_H, PWM_L, SW_NODE (ref for gate)
-        patterns = ("GATE", "PWM", "SW_NODE")
+        # GATE_H, GATE_L, GATE_HS, GATE_LS, SW_NODE (ref for gate)
+        patterns = ("GATE", "SW_NODE")
+        return _hv_word_boundary_match(upper, patterns)
+
+    def _is_gate_net_selv(self, net_name: str) -> bool:
+        """Check if net belongs to the SELV (controller) side of gate-drive
+        circuitry -- the primary/input side of U7's reinforced barrier.
+
+        See :meth:`_is_gate_net_hv`'s docstring for why this is split out.
+        """
+        upper = net_name.upper()
+        # PWM_H, PWM_L, PWM_HS, PWM_LS
+        patterns = ("PWM",)
         return _hv_word_boundary_match(upper, patterns)
 
     def _is_high_current_net(self, net_name: str) -> bool:
@@ -358,14 +379,37 @@ TEMPER_NET_CLASSES = {
         required_layer=None,
         safety_category="LV",
     ),
-    "GateDrive": NetClassRules(
-        name="GateDrive",
+    # Split 2026-07-28 (R4,
+    # docs/plans/2026-07-28-003-refactor-ato-net-classification-ssot-plan.md
+    # U7) from the single "GateDrive" class, which spanned both sides of
+    # U7's (the UCC21550 gate driver's) reinforced isolation barrier:
+    # GATE_HS/GATE_LS/GATE_H/GATE_L are the secondary-side (HV, floating on
+    # SW_NODE) gate outputs; PWM_HS/PWM_LS/PWM_H/PWM_L are the primary-side
+    # (SELV) MCU PWM inputs. Every clearance/width/via value below is
+    # unchanged from the pre-split class -- only the class model and
+    # safety_category differ.
+    "GateDriveHV": NetClassRules(
+        name="GateDriveHV",
         trace_width=0.4,
         clearance=0.25,
         via_diameter=0.8,
         via_drill=0.4,
         via_template="Via1x1",
         dru_priority=50,
+        required_layer="F.Cu",
+        # NOT "LV": GATE_HS/GATE_LS float on SW_NODE, same HV domain as
+        # HighVoltage (elec/domain_manifest.yaml). Leaving this "LV" would
+        # reproduce the exact failure this split exists to fix.
+        safety_category="HV",
+    ),
+    "GateDriveSELV": NetClassRules(
+        name="GateDriveSELV",
+        trace_width=0.4,
+        clearance=0.25,
+        via_diameter=0.8,
+        via_drill=0.4,
+        via_template="Via1x1",
+        dru_priority=51,
         required_layer="F.Cu",
         safety_category="LV",
     ),
@@ -457,24 +501,13 @@ TEMPER_NET_ASSIGNMENTS = {
     "ac_l": "ACMains",
     "ac_n": "ACMains",
     "PE": "ACMains",
-    # HighVoltage - DC bus
-    #
-    # FIXED 2026-07-28: "+340V_BUS" was the ONLY HighVoltage entry with no live
-    # counterpart in the netlist, and the rail it named carries 12 pads on the
-    # board under its current name. The net was renamed +340V_BUS -> +170V_BUS
-    # earlier the same day (the voltage-doubler correction: the topology is
-    # +/-170V about a grounded midpoint, 340V differential -- the old name
-    # described the differential and read as a rail voltage, which had already
-    # caused a fail-open over-voltage protection). The rename fixed the name and
-    # orphaned this classification, so the main HV rail belonged to NO netclass
-    # and every generated DRC rule conditioned on NetClass == 'HighVoltage' was
-    # inert for it. Verified: +340V_BUS has 0 occurrences in elec/build/
-    # default.net; +170V_BUS has 12 pads in pcb/temper.kicad_pcb.
-    #
-    # The old key is retained deliberately, like the AC_L/GATE_H aliases below:
-    # harmless if absent, and it keeps historical boards resolving.
+    # HighVoltage - DC bus (300-400V DC)
+    # RENAMED: the board and netlist call this rail "+170V_BUS" (12
+    # occurrences in pcb/temper.kicad_pcb; "+340V_BUS" appears zero
+    # times). The stale key left the live DC bus with no netclass at
+    # all, so it fell through to DesignRules' LV default clearance and
+    # creepage -- see scripts/check_hv_netclass_coverage.py.
     "+170V_BUS": "HighVoltage",
-    "+340V_BUS": "HighVoltage",
     "DC_BUS_RTN": "HighVoltage",
     "DC_BUS+": "HighVoltage",
     "DC_BUS-": "HighVoltage",
@@ -550,15 +583,18 @@ TEMPER_NET_ASSIGNMENTS = {
     "RTD_SDO": "FinePitch",
     "RTD_DRDY": "FinePitch",
     "RTD_HW_FAULT": "FinePitch",
-    # GateDrive - MOSFET gate drive signals
-    "GATE_HS": "GateDrive",
-    "GATE_LS": "GateDrive",
-    "GATE_H": "GateDrive",
-    "GATE_L": "GateDrive",
-    "PWM_HS": "GateDrive",
-    "PWM_LS": "GateDrive",
-    "PWM_H": "GateDrive",
-    "PWM_L": "GateDrive",
+    # GateDriveHV/GateDriveSELV - MOSFET gate drive signals, split 2026-07-28
+    # (R4) across U7's reinforced isolation barrier. GATE_* are the
+    # secondary-side (HV) gate outputs; PWM_* are the primary-side (SELV)
+    # MCU PWM inputs. See the class comment in TEMPER_NET_CLASSES above.
+    "GATE_HS": "GateDriveHV",
+    "GATE_LS": "GateDriveHV",
+    "GATE_H": "GateDriveHV",
+    "GATE_L": "GateDriveHV",
+    "PWM_HS": "GateDriveSELV",
+    "PWM_LS": "GateDriveSELV",
+    "PWM_H": "GateDriveSELV",
+    "PWM_L": "GateDriveSELV",
     # Power - DC supply rails
     "+15V": "Power",
     "+3V3": "Power",

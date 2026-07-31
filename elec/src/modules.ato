@@ -715,19 +715,30 @@ module PowerInput:
     # No.1/No.8, CQC GB/T14472-1998 (CQC001007-14859), per EPCOS's own
     # B32921...B32926 X2/305VAC datasheet, confirmed 2026-07-26.
     #
-    # FOOTPRINT CHANGE REQUIRED: the disc footprint below matched the old
-    # (fictional) disc-style part and does NOT fit the real MKP box-style
-    # replacement. New footprint needed, not yet drawn: 2-pin THT radial box,
-    # 15mm lead pitch, body envelope ~7.0(w) x 12.5(h) x 18.0(l) mm, 0.8mm
-    # lead diameter (EPCOS B32922 dimensional table, 15mm-pitch row). Do not
-    # fab until this footprint exists and has been checked in the KiCad
-    # footprint editor -- same caveat CT1/CST3015 already carries.
+    # FOOTPRINT FIXED (this change): the disc footprint below matched the old
+    # (fictional) disc-style part and did NOT fit the real MKP box-style
+    # replacement. Body envelope 18.0(L) x 7.0(W) x 12.5(H) mm, 15.00mm lead
+    # pitch -- confirmed directly against DigiKey's own product page for this
+    # exact MPN (Length 18.00mm / Width 7.00mm / Height 12.50mm / Lead Spacing
+    # 15.00mm, https://www.digikey.com/en/products/detail/epcos-tdk-electronics/B32922C3224M289/2504694),
+    # matching the EPCOS B32921...B32926 dimensional table row already cited
+    # above. Replaced with "Capacitor_THT:C_Rect_L18.0mm_W7.0mm_P15.00mm_FKS3_FKP3"
+    # -- confirmed to exist in the standard KiCad footprint library (present
+    # in this machine's installed KiCad footprint set at
+    # Capacitor_THT.pretty/C_Rect_L18.0mm_W7.0mm_P15.00mm_FKS3_FKP3.kicad_mod,
+    # and in the upstream kicad-footprints repo), whose own descr string
+    # ("length*width=18*7mm^2, pin pitch=15.00mm") matches this part's
+    # envelope and pitch exactly; two THT round pads (2.4mm pad / 1.2mm
+    # drill) at 0mm and 15mm, consistent with the part's 0.8mm lead diameter.
+    # Still not yet propagated into pcb/temper.kicad_pcb -- see the C6/U3
+    # resync precedent (docs/evidence/2026-07-29-board-regeneration-corrected-footprints.md);
+    # that PCB-side resync is out of scope for this change.
     c_x2 = new Capacitor
     c_x2.value = 0.22uF +/- 20%
     c_x2.dielectric = "X2"
     c_x2.voltage_rating = 310V
     c_x2.mpn = "B32922C3224M289"
-    c_x2.footprint = "Capacitor_THT:C_Disc_D10.0mm_W5.0mm_P5.00mm"  # TODO: wrong footprint, see comment above
+    c_x2.footprint = "Capacitor_THT:C_Rect_L18.0mm_W7.0mm_P15.00mm_FKS3_FKP3"
 
     # CMC: common-mode choke for conducted EMI suppression.
     # ONE physical 4-pin part (TDK B82726S2163N030) — previously modeled as
@@ -1054,6 +1065,63 @@ module BusDischarge:
     aux-supply fault, MCU dead) drops the coils and the NC contacts close
     -> discharge engages with no MCU involvement.
 
+    RELAY REPLACEMENT TRIED AND REVERTED 2026-07-28 -- READ BEFORE
+    TOUCHING K2/K3 AGAIN. K2/K3 are Omron G5LE-1 SPDT relays (Relay_SPDT,
+    single NC contact per relay), same as always. A same-day attempt to
+    replace them with Finder 40.52.7.012.0000 (Relay_DPDT, 2-pole) was
+    implemented, then RETRACTED after a follow-up measurement invalidated
+    its own stated justification. Full trail:
+    docs/evidence/2026-07-28-discharge-relay-isolation.md (candidate
+    search) -> docs/evidence/2026-07-28-relay-replacement-implementation.md
+    (adopted Finder, claimed 9.2mm edge-to-edge coil<->contact PCB
+    creepage, "clearing the 8.0mm target with 1.2mm margin") ->
+    docs/evidence/2026-07-28-pd3-retarget-relay.md (retraction: that
+    9.2mm figure was an INVENTED footprint layout, not measured from the
+    real part's fixed pinout; pixel-calibrating the manufacturer's own
+    catalog drawing gives a real, fixed 7.5mm coil-to-nearest-contact
+    center-to-center spacing, worth only 5.3mm edge-to-edge at realistic
+    pad sizing -- FAILS the then-current 8.0mm target by 2.7mm and the
+    later-established 12.6mm PD3 target by 7.3mm. No slot helps: the
+    relay's own one-piece moulded case sits over the entire coil-to-
+    contact pin field, the same failure mode already on record for the
+    G5LE-1 below) -> docs/evidence/2026-07-28-relay-board-resync-decision.md
+    (this decision: REVERTED rather than resynced the board to the
+    inadequate part -- see that doc for the full reasoning).
+
+    NET EFFECT OF THE REVERT: G5LE-1 is restored, unchanged from before
+    this excursion. This is NOT a fix -- the G5LE-1's own isolation gap
+    (below) is exactly as unresolved as it was before the Finder attempt.
+    The Finder part was not worse on isolation (5.3mm > 3.5mm edge-to-
+    edge, though both fail both targets) and was a genuine improvement on
+    DC-break disclosure (an explicit manufacturer DC1 graph vs. the
+    G5LE-1's total silence above 125VDC) -- but it did not satisfy this
+    project's own three-way bar (reinforced isolation AND rated DC break
+    AND fail-safe NC topology, all three) any more than the G5LE-1 does,
+    so swapping to it would not have made this circuit safety-compliant,
+    only differently non-compliant, while ALSO making the board/netlist
+    inconsistency the new "must fix eventually" instead of the isolation
+    gap itself. A real fix requires a DPDT or SPDT relay with reinforced
+    coil-to-contact isolation AND a rated DC break at 170-200V AND NC
+    fail-safe topology, with a coil-to-nearest-contact pin pitch of
+    roughly DOUBLE the Finder 40.52's 7.5mm (~14.4-14.8mm) so the PCB
+    surface path itself can clear 12.6mm without depending on any
+    internal-vs-external-path argument. No such part has been found and
+    verified as of this note -- do not resurrect Relay_DPDT/the Finder
+    40.52.7.012.0000 footprint for K2/K3 without first fetching and
+    citing a manufacturer datasheet proving that pitch (see
+    scripts/mpn_fabrication_gate.py's hard rule against unverified MPNs).
+    No `Relay_DPDT` component is defined in this design. It deliberately
+    does not exist: an instantiable definition of a part measured to fail
+    reinforced insulation is a trap whose only safeguard would be a human
+    reading a docstring first. The part is fully described instead in
+    docs/evidence/2026-07-28-pd3-retarget-relay.md (geometry, the 5.300mm
+    measurement, and the method), which is the record without the hazard.
+    Only pcb/libs/temper.pretty/Relay_DPDT_Finder-40.52.kicad_mod remains
+    in the tree -- an inert library footprint that nothing references, with
+    its geometry corrected to the real part in case a same-pitch-family
+    part is ever useful elsewhere, and flagged in its own descr as
+    inadequate for this role.
+
     Sizing (per half-bus), per docs/hardware/BUS_CAPACITANCE_DERIVATION.md
     SS5.3 and re-derived independently here with the resistor's OWN
     tolerance included (the derivation doc's own worst case did not):
@@ -1114,7 +1182,17 @@ module BusDischarge:
     # available (the existing bypass relay G4A-1A-E is NO-only).
     # VERIFIED 2026-07-16 (Omron G5LE catalog): contacts 10A / 250VAC,
     # NC contact rated 10A carry; 12VDC coil 360R / 33.3mA / 400mW;
-    # coil-contact dielectric 2000VAC, impulse 4.5kV.
+    # coil-contact dielectric 2000VAC, impulse 4.5kV. NOT REINFORCED
+    # ISOLATION -- see RELAY REPLACEMENT TRIED AND REVERTED above: this
+    # part fails the 8.0/12.6mm coil<->contact creepage requirement
+    # (3.50mm edge-to-edge measured) and has no DC contact-voltage rating
+    # at this circuit's actual 170-200V duty at all. A same-day attempt
+    # to replace it (Finder 40.52.7.012.0000) was tried and reverted --
+    # this is a KNOWN, TRACKED, UNRESOLVED gap, not a silently-dropped
+    # requirement. Do not re-introduce Relay_DPDT here without a
+    # manufacturer-verified part at ~14.4-14.8mm coil-to-contact pin
+    # pitch (see the note above and
+    # docs/evidence/2026-07-28-relay-board-resync-decision.md).
     k_dis1 = new Relay_SPDT
     k_dis1.coil_voltage = 12V
     k_dis1.contact_current = 10A
@@ -2282,7 +2360,7 @@ module OVPComparator:
 
     r_adc_top1 = new Resistor
     r_adc_top1.value = 169kohm +/- 1%
-    r_adc_top1.power_rating = 0.1W
+    r_adc_top1.power_rating = 0.25W
     # 200V is the Yageo RC1206 (1/4W family) datasheet-confirmed rated
     # (continuous working) voltage; the previous single-resistor version of
     # this divider declared 250V here, which does not match the part's own
@@ -2294,14 +2372,14 @@ module OVPComparator:
 
     r_adc_top2 = new Resistor
     r_adc_top2.value = 169kohm +/- 1%
-    r_adc_top2.power_rating = 0.1W
+    r_adc_top2.power_rating = 0.25W
     r_adc_top2.voltage_rating = 200V
     r_adc_top2.mpn = "RC1206FR-07169KL"
     r_adc_top2.footprint = "Resistor_SMD:R_1206_3216Metric"
 
     r_adc_top3 = new Resistor
     r_adc_top3.value = 169kohm +/- 1%
-    r_adc_top3.power_rating = 0.1W
+    r_adc_top3.power_rating = 0.25W
     r_adc_top3.voltage_rating = 200V
     r_adc_top3.mpn = "RC1206FR-07169KL"
     r_adc_top3.footprint = "Resistor_SMD:R_1206_3216Metric"

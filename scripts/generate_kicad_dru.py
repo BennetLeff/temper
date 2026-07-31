@@ -14,12 +14,73 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 OUTPUT_PATH = REPO_ROOT / "pcb" / "temper.kicad_dru"
 
 # ---------------------------------------------------------------------------
+# Coating qualification gate -- fail closed.
+#
+# This file used to relax the "HV internal same footprint" clearance rule
+# (below) on the strength of a conformal coating that does not exist: it is
+# absent from the BOM and the assembly process, and it also could not
+# deliver the credit it was claimed to, even if applied. IEC 60664-3 cl. 4.3
+# (the standard IEC 60335-1 Annex J delegates to) grants Pollution Degree 1
+# only for a creepage path whose ENTIRE length -- both conductive parts and
+# every spacing between them -- is covered. Measured in
+# docs/evidence/2026-07-28-conformal-coating-pd1.md: 100.0% of the shortest
+# HV<->PELV surface path lies under the component body for every declared
+# isolator with a body outline, and a post-reflow coating cannot be shown to
+# reach under a seated package (that document's own cl. 5.4 qualification
+# coupon is a bare, uncoated board). Separately, the old comment's "0.8mm at
+# PD1" figure matched no cell of Table 17: the PD1 column at row iv
+# (>250-400V) is 1.0mm, and clearance at PD1 is not derived from Table 17 at
+# all (see docs/evidence/2026-07-28-conformal-coating-pd1.md sec 3.1).
+#
+# COATING_QUALIFIED must remain False until a human has recorded, for every
+# path this flag would relax: (1) a coating process in the BOM, (2) an
+# IEC 60664-3 Annex J qualification report (clause 5's test regime), and
+# (3) a per-path IEC 60664-3 cl. 4.3 coverage argument. This board has none
+# of those today. Flipping this flag without also replacing the placeholder
+# figures below with a real, cited determination is exactly the defect this
+# gate exists to prevent, so it fails loudly instead of silently relaxing.
+COATING_QUALIFIED = False
+
+if COATING_QUALIFIED:
+    raise NotImplementedError(
+        "COATING_QUALIFIED=True is not implemented. Flipping this flag "
+        "requires a real IEC 60664-3 Annex J qualification (BOM entry, "
+        "clause-5 test report, and a per-path clause-4.3 coverage argument) "
+        "plus the corrected PD1 figures substituted into this script -- not "
+        "the unqualified 0.8mm this file previously asserted. See "
+        "docs/evidence/2026-07-28-conformal-coating-pd1.md and "
+        "docs/evidence/2026-07-28-drc-coating-failopen-fix.md."
+    )
+
+# Fail-closed reinforced clearance for the mains<->PELV barrier, uncoated.
+# IEC 60335-1 clause 29.1: rated impulse voltage 1500V (120V nominal, OVC II,
+# Table 15) -> Table 16 basic clearance 0.5mm at that step -> clause 29.1.3
+# "next higher step" for reinforced -> 1.5mm nominal, PLUS clause 29.1's
+# +0.5mm soldered-construction adder (this is a soldered PCB, one of the
+# clause's own named examples) = 2.0mm. See
+# docs/evidence/2026-07-28-creepage-determination-brainstorm.md sec 4 and
+# docs/evidence/2026-07-28-conformal-coating-pd1.md sec 3, item 3.
+HV_INTERNAL_CLEARANCE_MM = 2.0
+
+# Reinforced creepage at Pollution Degree 2 (IEC 60335-1 clause 29.2.3 x
+# Table 17 row iv, working voltage >250-400V, material group IIIa/IIIb):
+# basic 4.0mm x2 = 8.0mm.
+#
+# IEC 60335-2-6 clause 29.2 Addition makes Pollution Degree 3 the default
+# for this appliance class (cooking ranges/hobs). The project owner has
+# selected the PD2 exception for the production architecture, conditional on
+# a documented, gasketed PCB compartment that is outside the coil/heatsink
+# airflow path. If that mechanical prerequisite is not implemented and
+# verified, PD3 remains the fallback requirement and this selection must be
+# revisited before release. See docs/evidence/2026-07-30-pd2-enclosure-
+# decision.md.
+HV_CREEPAGE_PD2_MM = 8.0
+HV_CREEPAGE_PD3_MM = 12.6  # fallback if the PD2 enclosure prerequisite fails
+
+# ---------------------------------------------------------------------------
 # Creepage IS NOW EMITTED as a real KiCad DRC constraint (2026-07-28) --
-# this generator previously had no creepage constraint type at all (only
-# clearance and track_width), so every creepage figure established for this
-# board was enforced solely by check_isolation_keepout.py's straight-line
-# corridor approximation -- a documented sufficient-but-not-necessary bound,
-# not the fab-authoritative KiCad DRC check. It is not a gap anymore.
+# this used to be a documented, unenforced gap ("this generator has no
+# creepage constraint type today"). It is not a gap anymore.
 #
 # kicad-cli 10.0.4 DOES implement a `creepage` constraint
 # (CREEPAGE_CONSTRAINT / DRCE_CREEPAGE), confirmed two independent ways:
@@ -37,33 +98,12 @@ OUTPUT_PATH = REPO_ROOT / "pcb" / "temper.kicad_dru"
 #     proof this is a genuine path-around-obstacles solver, not a relabeled
 #     clearance check. See docs/evidence/2026-07-28-drc-creepage-constraint.md.
 #
-# Reinforced creepage at Pollution Degree 2 (IEC 60335-1 clause 29.2.3 x
-# Table 17 row iv, working voltage >250-400V, material group IIIa/IIIb):
-# basic 4.0mm x2 = 8.0mm. This is the figure
-# scripts/check_isolation_keepout.py's MIN_BARRIER_WIDTH_MM already enforces
-# as this board's authoritative creepage decision at the board-construction
-# level; PD3 (2 x 6.3mm = 12.6mm, IEC 60335-2-6 clause 29.2 Addition's
-# default for this appliance class) is recorded here as the alternate
-# candidate but NOT adopted -- resolving PD2-vs-PD3 is a separate, larger
-# policy question this recovery does not settle.
-#
-# WHICH FIGURE TO EMIT: pinned to HV_CREEPAGE_PD2_MM, reusing -- not
-# re-deciding -- the identical figure scripts/check_isolation_keepout.py
-# already enforces for the same barrier, so the two enforcement points
-# cannot silently diverge. If a human later resolves the PD2-vs-PD3 question
-# in favor of PD3, change this ONE line to HV_CREEPAGE_PD3_MM and update
-# scripts/check_isolation_keepout.py's MIN_BARRIER_WIDTH_MM to match in the
-# same change.
-HV_CREEPAGE_PD2_MM = 8.0
-HV_CREEPAGE_PD3_MM = 12.6  # IEC 60335-2-6 cl. 29.2 Addition default; not adopted here
+# WHICH FIGURE TO EMIT: PD2 is the selected production target, and it must
+# remain aligned with check_isolation_keepout.py's MIN_BARRIER_WIDTH_MM.
+# Both enforcement points therefore emit/enforce 8.0mm. The PD3 constant is
+# retained as an explicit fallback so a future mechanical reclassification
+# changes both points together rather than silently carrying the PD2 number.
 HV_CREEPAGE_ENFORCED_MM = HV_CREEPAGE_PD2_MM
-
-# Reinforced clearance already used by RULE 4 ("HV to LV") for the
-# HighVoltage<->LV boundary (IEC 60335-1 clause 29.1: 1.5mm nominal + 0.5mm
-# soldered-construction adder = 2.0mm). Named here so the HighVoltageIsolated
-# rules below (which apply the identical figure to the same class of
-# boundary) reference one definition instead of a second hardcoded literal.
-HV_INTERNAL_CLEARANCE_MM = 2.0
 
 # KiCad uses "Ground" as the net-class name; our Python dict uses "GND"
 KICAD_NAME_MAP = {
@@ -96,10 +136,28 @@ def generate_dru() -> str:
     lines.append("# Custom Design Rules for Temper Induction Heater")
     lines.append("# IEC 60335-1 / IEC 60664-1 compliant")
     lines.append("#")
-    lines.append("# IMPORTANT: This board REQUIRES conformal coating for safety!")
+    lines.append("# NOTE: This board carries NO qualified conformal coating.")
     lines.append(
-        "# Without coating, TO-247 packages violate IEC 60664-1 clearances."
+        "# No coating process exists in the BOM or assembly, and IEC 60664-3"
+        " cl. 4.3"
     )
+    lines.append(
+        "# requires full-path coverage for any Pollution Degree 1 credit --"
+        " measured,"
+    )
+    lines.append(
+        "# 100.0% of every declared isolator's shortest HV<->PELV path lies"
+        " under its"
+    )
+    lines.append(
+        "# own component body and cannot be shown to be coated. This file"
+        " therefore"
+    )
+    lines.append(
+        "# enforces FAIL-CLOSED, uncoated clearance figures throughout. See"
+    )
+    lines.append("# docs/evidence/2026-07-28-conformal-coating-pd1.md.")
+    lines.append("#")
     lines.append(
         "# CREEPAGE IS ENFORCED HERE (2026-07-28): kicad-cli 10.0.4 supports a"
         " real"
@@ -121,24 +179,22 @@ def generate_dru() -> str:
         " their"
     )
     lines.append(
-        "# existing clearance figures. The pollution-degree question (PD2"
-        " 8.0mm vs"
+        "# existing clearance figures. The selected production architecture"
+        " uses PD2"
     )
     lines.append(
-        "# PD3 12.6mm) is UNRESOLVED and this file does not resolve it --"
-        " see"
+        "# (8.0mm). PD3 (12.6mm) remains the fallback if the documented"
+        " enclosure"
     )
     lines.append(
-        "# HV_CREEPAGE_ENFORCED_MM's own comment in this script for which"
-        " figure is"
+        "# prerequisite is not implemented; see the source comment on"
+        " HV_CREEPAGE_ENFORCED_MM for the"
     )
     lines.append(
-        "# currently pinned, why, and how to change it in one line once a"
-        " human"
+        "# selection rule and"
     )
     lines.append(
-        "# settles the question. `scripts/check_isolation_keepout.py`"
-        " remains the"
+        "# `scripts/check_isolation_keepout.py` remains the"
     )
     lines.append(
         "# other, independent creepage enforcement point on this board (a"
@@ -154,9 +210,23 @@ def generate_dru() -> str:
     )
     lines.append(
         "# agree on the same pinned figure. See"
-        " docs/evidence/2026-07-28-drc-creepage-constraint.md"
+        " docs/evidence/2026-07-28-creepage-"
     )
-    lines.append("# for the full derivation.")
+    lines.append("# determination-brainstorm.md for the full clause-cited derivation.")
+    lines.append("#")
+    lines.append(
+        "# TO-247 IGBT packages have a 1.95mm edge-to-edge internal pin gap"
+        " (see RULE"
+    )
+    lines.append(
+        "# 5 below); this is a package-geometry fact, not something this"
+        " script or a"
+    )
+    lines.append(
+        "# coating can fix. Expect this rule to now flag those packages --"
+        " that is"
+    )
+    lines.append("# the correct, honest result of removing the prior relaxation.")
     lines.append("#")
     lines.append(
         "# Generated by scripts/generate_kicad_dru.py"
@@ -177,39 +247,84 @@ def generate_dru() -> str:
     )
     lines.append("#")
     lines.append(
-        "# CONDITION FIX (2026-07-28, recovered from the stranded"
-        " place-and-route branch): A.Footprint == B.Footprint never binds --"
+        "# CONDITION FIX (2026-07-28, redo): A.Footprint == B.Footprint never"
+        " binds -- \"Footprint\" is not a property KiCad's PROPERTY_MANAGER"
     )
     lines.append(
-        "# \"Footprint\" is not a property KiCad's rule engine registers on"
-        " Pad, so this rule silently matched zero pad pairs. Worse: an"
+        "# registers on Pad or Footprint (confirmed against pcbnew/pad.cpp"
+        " and pcbnew/footprint.cpp at kicad-cli 10.0.4/10.0.5), so this rule"
     )
     lines.append(
-        "# earlier rule referencing this undefined property was observed to"
-        " suppress evaluation of LATER rules' constraints for unrelated pad"
+        "# silently matched zero pad pairs, on the fixture AND on the real"
+        " board. Replaced the same-footprint-instance test with"
     )
     lines.append(
-        "# pairs (confirmed empirically while recovering the creepage"
-        " constraint below -- a same-footprint HV/LV fixture with this"
+        "# A.Reference == B.Reference, the same construction already"
+        " confirmed to bind for Rules 5/7 (see"
     )
     lines.append(
-        "# condition present upstream of \"HV to LV\" silently zeroed the"
-        " creepage violation that same fixture produces when this rule is"
+        "# docs/evidence/2026-07-28-drc-courtyard-condition-fix.md) and"
+        " directly measured against pcb/temper.kicad_pcb to produce 214"
     )
     lines.append(
-        "# absent or fixed). Replaced with A.Reference == B.Reference, a"
-        " property that does resolve. Also added a cross-domain guard,"
+        "# violations as a lone condition at a 999mm threshold (see"
+        " docs/evidence/2026-07-28-drc-rule1-netclass-redo.md)."
+    )
+    lines.append("#")
+    lines.append(
+        "# CROSS-DOMAIN GUARD (new): the bare same-footprint test is too"
+        " broad on its own -- several declared isolators in"
     )
     lines.append(
-        "# A.NetClass == B.NetClass, so the same-footprint relaxation does"
-        " not apply across an isolator's own HV/SELV barrier for a"
+        "# elec/domain_manifest.yaml (the gate driver, the aux supply, the"
+        " Y-cap, the relays) have HV-side and SELV-side pins on the SAME"
     )
     lines.append(
-        "# component with both sides on one footprint reference. NetClass is"
-        " a necessary-but-not-sufficient proxy for domain, not a full fix --"
+        "# footprint instance, and this rule must never grant THOSE pin"
+        " pairs a manufacturability allowance meant for a single package's"
     )
     lines.append(
-        "# see docs/evidence/2026-07-28-drc-rule1-netclass-redo.md."
+        "# own tight pin pitch. KiCad's rule language has no direct notion"
+        " of \"safety domain\" -- domain membership lives in"
+    )
+    lines.append(
+        "# elec/domain_manifest.yaml, which a static per-pad kicad-cli rule"
+        " cannot reference. A.NetClass == B.NetClass is the finest dynamic"
+    )
+    lines.append(
+        "# proxy KiCad actually offers: NetClass, unlike Footprint, IS a"
+        " specially-handled property that resolves correctly (measured:"
+    )
+    lines.append(
+        "# 499 violations as a lone condition at 999mm -- see the evidence"
+        " doc). Net class is not a perfect stand-in for safety domain --"
+    )
+    lines.append(
+        "# it is a NECESSARY but not SUFFICIENT proxy, and the evidence doc"
+        " documents one measured real-board counterexample (U7, the"
+    )
+    lines.append(
+        "# UCC21550 gate driver: its GateDrive netclass spans both the"
+        " primary-side PWM input pins and the secondary-side gate-output"
+    )
+    lines.append(
+        "# pins across its own reinforced-isolation barrier) where same-"
+        "NetClass does not imply same-domain. Reported, not fixed here --"
+    )
+    lines.append(
+        "# fixing it means re-partitioning the GateDrive net class itself,"
+        " which is a design_rules.py/elec modeling decision out of this"
+    )
+    lines.append(
+        "# generator's scope, not a DRC-rule-syntax defect. Still a strict"
+        " improvement over the previous always-dead condition and over a"
+    )
+    lines.append(
+        "# hardcoded literal-net-name exclusion (which reproduces the exact"
+        " failure mode -- an unnoticed net rename orphaning the rule -- that"
+    )
+    lines.append(
+        "# produced the +340V_BUS defect this task is named after)."
     )
     lines.append(_SEP)
     lines.append('(rule "Same footprint pads"')
@@ -223,14 +338,37 @@ def generate_dru() -> str:
     lines.append(_SEP)
     lines.append("# RULE 1a: Fine-pitch IC pads (QFN, BGA with 0.4mm pitch)")
     lines.append(
-        "# Same condition fix and cross-domain guard as RULE 1 above."
-        " A.Attribute is ALSO not a registered KiCad property -- it"
+        "# Same condition-fix and same cross-domain guard as RULE 1 above --"
+        " see that rule's comment."
+    )
+    lines.append("#")
+    lines.append(
+        "# SECOND CONDITION FIX (2026-07-28, redo): A.Attribute is ALSO not a"
+        " registered KiCad property -- confirmed against pcbnew/pad.cpp at"
     )
     lines.append(
-        "# registers this pad field as \"Pad Type\", not \"Attribute\", so"
-        " that half of the condition never bound either. Replaced with"
+        "# kicad-cli 10.0.4/10.0.5, which registers this pad field under the"
+        " display name \"Pad Type\" (PROPERTY_ENUM<PAD, PAD_ATTRIB>), not"
     )
-    lines.append("# A.Pad_Type == 'SMD'.")
+    lines.append(
+        "# \"Attribute\". KiCad's rule compiler looks up properties by exact"
+        " display name (underscores in the rule field become spaces before"
+    )
+    lines.append(
+        "# the lookup), so A.Attribute resolved to nothing and this half of"
+        " the condition never bound either -- a third, independent instance"
+    )
+    lines.append(
+        "# of the same undefined-property failure class as A.Footprint"
+        " (see docs/evidence/2026-07-28-drc-rule1-netclass-redo.md). Replaced"
+    )
+    lines.append(
+        "# with A.Pad_Type == 'SMD' (measured to bind: 483 matches as a lone"
+        " condition at a 999mm threshold on the real board, vs. 0 for"
+    )
+    lines.append(
+        "# A.Attribute == 'SMD')."
+    )
     lines.append(_SEP)
     lines.append('(rule "Fine pitch IC pads"')
     lines.append(
@@ -272,41 +410,12 @@ def generate_dru() -> str:
         " it did not"
     )
     lines.append("# exist in the generated file before this change.")
-    lines.append("#")
-    lines.append(
-        "# HighVoltageIsolated EXCLUDED (2026-07-28, recovered): without"
-        " this exclusion,"
-    )
-    lines.append(
-        "# this rule and \"HighVoltageIsolated same side\" below both match"
-        " an"
-    )
-    lines.append(
-        "# ACMains<->HighVoltageIsolated pair and disagree -- this rule"
-        " demands full"
-    )
-    lines.append(
-        "# reinforced mains<->LV creepage for a netclass that is actually"
-        " on the SAME"
-    )
-    lines.append(
-        "# side of the barrier as ACMains/HighVoltage (confirmed empirically:"
-        " a real"
-    )
-    lines.append(
-        "# kicad-cli DRC run on the full generated file produced a spurious"
-        " creepage"
-    )
-    lines.append(
-        "# violation for exactly this pair before this exclusion was added)."
-    )
     lines.append(_SEP)
     lines.append('(rule "AC Mains to LV"')
     lines.append(
         "   (condition \"A.NetClass == 'ACMains'"
         " && B.NetClass != 'ACMains'"
-        " && B.NetClass != 'HighVoltage'"
-        " && B.NetClass != 'HighVoltageIsolated'\")"
+        " && B.NetClass != 'HighVoltage'\")"
     )
     lines.append("   (constraint clearance (min 6.0mm))")
     lines.append(f"   (constraint creepage (min {fmt_mm(HV_CREEPAGE_ENFORCED_MM)}))")
@@ -354,31 +463,12 @@ def generate_dru() -> str:
         " now enforces the"
     )
     lines.append("# same figure at the fab-authoritative KiCad DRC level.")
-    lines.append("#")
-    lines.append(
-        "# HighVoltageIsolated EXCLUDED (2026-07-28, recovered): same reason"
-        " as RULE 2's"
-    )
-    lines.append(
-        "# identical exclusion above -- HighVoltageIsolated sits on the SAME"
-        " side of the"
-    )
-    lines.append(
-        "# barrier as HighVoltage, and without this exclusion this rule"
-        " overrides"
-    )
-    lines.append(
-        "# \"HighVoltageIsolated same side\" below with a stricter,"
-        " incorrect creepage"
-    )
-    lines.append("# demand for that pair (confirmed empirically).")
     lines.append(_SEP)
     lines.append('(rule "HV to LV"')
     lines.append(
         "   (condition \"A.NetClass == 'HighVoltage'"
         " && B.NetClass != 'HighVoltage'"
-        " && B.NetClass != 'ACMains'"
-        " && B.NetClass != 'HighVoltageIsolated'\")"
+        " && B.NetClass != 'ACMains'\")"
     )
     lines.append("   (constraint clearance (min 2.0mm))")
     lines.append(f"   (constraint creepage (min {fmt_mm(HV_CREEPAGE_ENFORCED_MM)}))")
@@ -399,93 +489,158 @@ def generate_dru() -> str:
         " HighVoltageIsolated"
     )
     lines.append(
-        "# scripts/generate_kicad_dru.py returned 0) -- if a net is ever"
-        " assigned this"
+        "# scripts/generate_kicad_dru.py returned 0) -- the exact class RULE"
+        " 1's own"
     )
     lines.append(
-        "# class in TEMPER_NET_ASSIGNMENTS, it inherits only KiCad's"
-        " per-netclass baseline"
+        "# cross-domain guard fix used to re-home U7's secondary bias nets"
+        " (VSSA/VDDA,"
     )
     lines.append(
-        "# (6.0mm clearance, from pcb/temper.kicad_pro's own"
-        " net_settings.classes) and NO"
+        "# hb.gate_hs.driver-p2/-p1-1) into, per"
+        " docs/evidence/2026-07-28-drc-rule1-"
     )
-    lines.append("# creepage protection at all.")
+    lines.append(
+        "# netclass-redo.md sec 5. Moving those nets into a netclass that"
+        " itself"
+    )
+    lines.append(
+        "# enforced nothing left them with only KiCad's per-netclass"
+        " baseline (6.0mm"
+    )
+    lines.append(
+        "# clearance, from pcb/temper.kicad_pro's own"
+        " net_settings.classes/packages/"
+    )
+    lines.append(
+        "# temper-placer/configs/netclass_rules.yaml) and NO creepage"
+        " protection at all."
+    )
     lines.append("#")
     lines.append(
-        "# WHAT THE CLASS ACTUALLY IS: elec/domain_manifest.yaml puts this"
-        " class's nets"
+        "# WHAT THE CLASS ACTUALLY IS: elec/domain_manifest.yaml declares"
+        " +5V_ISO,"
     )
     lines.append(
-        "# (the gate-drive floating bootstrap supply -- +5V_ISO, VBOOT_H,"
-        " VBOOT_L, and the"
+        "# VBOOT_H, VBOOT_L, hb.gate_hs.driver-p1-1 (VDDA) and"
+        " hb.gate_hs.driver-p2"
     )
     lines.append(
-        "# UCC21550's own secondary bias nets) in the SAME `HV` domain as"
-        " ac_l/+170V_BUS/"
+        "# (VSSA) -- every net this project assigns to the"
+        " HighVoltageIsolated"
     )
     lines.append(
-        "# SW_NODE, not a third, separate domain. \"Isolated\" here names a"
-        " gate-driver-"
+        "# netclass -- as members of the SAME `HV` domain as ac_l/+170V_BUS/"
+        "SW_NODE,"
     )
     lines.append(
-        "# internal galvanic barrier (the UCC21550's own primary/secondary"
-        " split), not a"
+        "# not a third, separate domain. \"Isolated\" here names a"
+        " gate-driver-internal"
+    )
+    lines.append(
+        "# galvanic barrier (the UCC21550's own primary/secondary split),"
+        " not a"
     )
     lines.append(
         "# barrier this netclass's nets sit on the far side of relative to"
-        " the rest of HV --"
+        " the rest of"
     )
     lines.append(
-        "# they float WITH the switch node. That means this class needs an"
-        " asymmetric"
+        "# HV -- they float WITH the switch node, one gate-drive-current"
+        " resistor"
     )
     lines.append(
-        "# treatment: REINFORCED separation from the LV/SELV side (the real"
-        " barrier), but"
+        "# downstream of GATE_HS/SW_NODE (see the redo doc's own tracing)."
+        " That means"
     )
     lines.append(
-        "# only FUNCTIONAL separation from its own HV/ACMains neighbours"
-        " (same side of that"
+        "# this class needs exactly the asymmetric treatment"
+        " docs/evidence/2026-07-28-"
     )
     lines.append(
-        "# barrier -- exactly the relationship RULE 3 (\"AC Mains to HV\")"
-        " already models for"
+        "# hv-isolated-rules-and-creepage-triage.md sets out: REINFORCED"
+        " separation from"
     )
-    lines.append("# ACMains vs. HighVoltage).")
+    lines.append(
+        "# the LV/SELV side (the real barrier), but only FUNCTIONAL"
+        " separation from its"
+    )
+    lines.append(
+        "# own HV/ACMains neighbours (same side of that barrier -- exactly"
+        " the relationship"
+    )
+    lines.append(
+        "# RULE 3 (\"AC Mains to HV\") already models for ACMains vs."
+        " HighVoltage)."
+    )
     lines.append("#")
     lines.append(
-        "# 4a relaxes the pair to the same 2.0mm figure RULE 4 (\"HV to LV\")"
-        " uses -- a"
+        "# 4a relaxes the pair to the same 2.0mm figure RULE 4 (\"HV to"
+        " LV\") already"
     )
     lines.append(
-        "# documented, deliberate reduction below the 6.0mm per-netclass"
-        " baseline that would"
+        "# uses for intra-HV-domain separation -- a documented, deliberate"
+        " reduction below"
     )
     lines.append(
-        "# otherwise apply, justified because both sides sit on the same"
-        " side of the"
+        "# the 6.0mm per-netclass baseline that would otherwise apply,"
+        " justified because"
     )
     lines.append(
-        "# reinforced barrier (same category of reduction RULE 3 already"
-        " makes, not a safety"
-    )
-    lines.append("# loosening).")
-    lines.append(
-        "# 4b is the real, new protection: reinforced clearance AND"
-        " creepage against every"
+        "# both sides sit on the same side of the reinforced barrier (same"
+        " category of"
     )
     lines.append(
-        "# other (LV/SELV) netclass, at the same figures RULE 4 uses for"
+        "# reduction RULE 3 already makes, not a safety loosening -- see the"
+        " evidence doc)."
+    )
+    lines.append(
+        "# 4b is the real, new protection: reinforced clearance against"
+        " every other"
+    )
+    lines.append(
+        "# (LV/SELV) netclass, at the same 2.0mm figure RULE 4 uses for"
         " HighVoltage."
     )
+    lines.append(
+        "# CREEPAGE CLOSED (2026-07-28): the generator-wide creepage"
+        " constraint (see"
+    )
+    lines.append(
+        "# HV_CREEPAGE_ENFORCED_MM's own comment near the top of this"
+        " script) now"
+    )
+    lines.append(
+        "# applies here too. 4a stays clearance-only, matching RULE 3"
+        " (\"AC Mains to"
+    )
+    lines.append(
+        "# HV\") -- both are same-side-of-the-barrier reductions between"
+        " two HV-domain"
+    )
+    lines.append(
+        "# classes, not a creepage boundary. 4b, the real HV<->LV"
+        " protection, now gets"
+    )
+    lines.append(
+        "# the same reinforced creepage figure RULE 2 (\"AC Mains to LV\")"
+        " and RULE 4"
+    )
+    lines.append(
+        "# (\"HV to LV\") already enforce -- it is exactly that class of"
+        " rule, just keyed"
+    )
+    lines.append("# on HighVoltageIsolated instead of ACMains/HighVoltage.")
     lines.append(_SEP)
+    # Matches RULE 4's existing "HV to LV" clearance figure (this file,
+    # unchanged) -- not a new number, just this class's share of it.
+    _HV_ISOLATED_CLEARANCE_MM = 2.0
     lines.append('(rule "HighVoltageIsolated same side"')
     lines.append(
         "   (condition \"A.NetClass == 'HighVoltageIsolated'"
         " && (B.NetClass == 'HighVoltage' || B.NetClass == 'ACMains')\")"
     )
-    lines.append(f"   (constraint clearance (min {fmt_mm(HV_INTERNAL_CLEARANCE_MM)}))")
+    lines.append(f"   (constraint clearance (min {fmt_mm(_HV_ISOLATED_CLEARANCE_MM)}))")
     lines.append(")")
     lines.append("")
     lines.append('(rule "HighVoltageIsolated to LV"')
@@ -495,42 +650,76 @@ def generate_dru() -> str:
         " && B.NetClass != 'HighVoltage'"
         " && B.NetClass != 'ACMains'\")"
     )
-    lines.append(f"   (constraint clearance (min {fmt_mm(HV_INTERNAL_CLEARANCE_MM)}))")
+    lines.append(f"   (constraint clearance (min {fmt_mm(_HV_ISOLATED_CLEARANCE_MM)}))")
     lines.append(f"   (constraint creepage (min {fmt_mm(HV_CREEPAGE_ENFORCED_MM)}))")
     lines.append(")")
     lines.append("")
     lines.append(_SEP)
-    lines.append("# RULE 5: High Voltage internal - relaxed for same footprint")
+    lines.append("# RULE 5: High Voltage internal - same footprint")
     lines.append("# TO-247 IGBTs have 5.45mm pin pitch (1.95mm edge-to-edge)")
     lines.append("#")
-    lines.append("# WARNING: This violates IEC 60664-1 PD2 (needs 2.0mm for 400V)")
     lines.append(
-        "# REQUIRES: Conformal coating to achieve PD1 (needs 0.8mm for 400V)"
+        "# FAIL-CLOSED: no conformal coating is qualified on this board, so"
+        " no"
+    )
+    lines.append(
+        "# coating-based relaxation is granted here. This constraint is the"
+    )
+    lines.append(
+        "# uncoated reinforced clearance requirement -- IEC 60335-1 cl. 29.1:"
+        " 1500V"
+    )
+    lines.append(
+        "# rated impulse voltage (120V nominal, OVC II) -> Table 16 basic"
+        " 0.5mm ->"
+    )
+    lines.append(
+        "# cl. 29.1.3 next-higher-step reinforced 1.5mm, + cl. 29.1's +0.5mm"
+    )
+    lines.append(
+        "# soldered-construction adder (this is a soldered PCB) = 2.0mm. See"
+    )
+    lines.append("# docs/evidence/2026-07-28-conformal-coating-pd1.md sec 3.")
+    lines.append("#")
+    lines.append(
+        "# TO-247's 1.95mm edge-to-edge gap is BELOW this requirement. That"
+        " is a real"
+    )
+    lines.append(
+        "# violation this rule is now expected to report, not a bug in this"
+        " rule --"
+    )
+    lines.append(
+        "# a coating was never a valid fix for it (see"
+        " docs/evidence/2026-07-28-"
+    )
+    lines.append(
+        "# conformal-coating-pd1.md sec 4, TO-247/SOIC-16W case). Resolving"
+        " it needs"
+    )
+    lines.append(
+        "# a BOM/footprint/placement change, none of which this script"
+        " performs."
     )
     lines.append("#")
     lines.append(
-        "# CONDITION FIX (2026-07-28, recovered from the stranded"
-        " place-and-route branch): the same-footprint test used to be"
+        "# CONDITION FIX (2026-07-28): the same-footprint test used to be"
+        " A.insideCourtyard(B.Reference), which does not match anything in"
     )
     lines.append(
-        "# A.insideCourtyard(B.Reference), which does not match anything in"
-        " kicad-cli 10.0.4/10.0.5 -- intersectsCourtyard()'s argument is"
+        "# kicad-cli 10.0.4/10.0.5 -- intersectsCourtyard()'s argument is"
+        " matched against a footprint reference/wildcard string, but the"
     )
     lines.append(
-        "# matched against a footprint reference/wildcard string, not a"
-        " dynamic B.Reference expression, so this rule silently matched"
+        "# dynamic B.Reference form (as opposed to a literal string) never"
+        " binds, so this rule silently matched zero pad pairs. Replaced"
     )
     lines.append(
-        "# zero pad pairs. Worse: like RULE 1's A.Footprint defect, this was"
-        " observed (while recovering the HighVoltageIsolated rules below) to"
+        "# with A.Reference == B.Reference, a direct property-equality test"
+        " confirmed (kicad-cli 10.0.4, isolated fixture) to fire correctly:"
     )
     lines.append(
-        "# suppress a LATER rule's clearance relaxation for an unrelated"
-        " pad pair even though this rule's own condition did not match it."
-    )
-    lines.append(
-        "# Replaced with A.Reference == B.Reference, a direct"
-        " property-equality test confirmed to fire correctly."
+        "# see docs/evidence/2026-07-28-drc-courtyard-condition-fix.md."
     )
     lines.append(_SEP)
     lines.append('(rule "HV internal same footprint"')
@@ -539,16 +728,40 @@ def generate_dru() -> str:
         " && B.NetClass == 'HighVoltage'"
         " && A.Reference == B.Reference\")"
     )
-    lines.append("   (constraint clearance (min 1.5mm))")
+    lines.append(f"   (constraint clearance (min {fmt_mm(HV_INTERNAL_CLEARANCE_MM)}))")
     lines.append(")")
     lines.append("")
     lines.append(_SEP)
     lines.append("# RULE 6: Gate drive signals near HV - 0.5mm minimum")
     lines.append("# Gate resistors placed close to IGBTs")
-    lines.append(_SEP)
-    lines.append('(rule "GateDrive near HV"')
+    lines.append("#")
     lines.append(
-        "   (condition \"A.NetClass == 'GateDrive'"
+        "# Split into two rules 2026-07-28 (R4) alongside the GateDrive ->"
+        " GateDriveHV/GateDriveSELV class split -- a single condition"
+    )
+    lines.append(
+        "# naming the old 'GateDrive' string would now match zero nets"
+        " (silent, always-dead coverage; see docs/solutions/best-practices/"
+    )
+    lines.append(
+        "# a-rule-that-matches-nothing-reads-as-coverage-2026-07-28.md)."
+        " Both halves keep the original 0.5mm figure -- this unit changes"
+    )
+    lines.append(
+        "# the class model, not the clearance value."
+    )
+    lines.append(_SEP)
+    lines.append('(rule "GateDriveHV near HV"')
+    lines.append(
+        "   (condition \"A.NetClass == 'GateDriveHV'"
+        " && B.NetClass == 'HighVoltage'\")"
+    )
+    lines.append("   (constraint clearance (min 0.5mm))")
+    lines.append(")")
+    lines.append("")
+    lines.append('(rule "GateDriveSELV near HV"')
+    lines.append(
+        "   (condition \"A.NetClass == 'GateDriveSELV'"
         " && B.NetClass == 'HighVoltage'\")"
     )
     lines.append("   (constraint clearance (min 0.5mm))")
@@ -558,8 +771,12 @@ def generate_dru() -> str:
     lines.append("# RULE 7: Power nets internal - allow SOT-23 pitch")
     lines.append("#")
     lines.append(
-        "# CONDITION FIX (2026-07-28, recovered): same defect and same fix"
-        " as RULE 5 above."
+        "# CONDITION FIX (2026-07-28): same defect and same fix as RULE 5 --"
+        " A.insideCourtyard(B.Reference) does not match anything in kicad-cli"
+    )
+    lines.append(
+        "# 10.0.4/10.0.5; replaced with A.Reference == B.Reference. See"
+        " docs/evidence/2026-07-28-drc-courtyard-condition-fix.md."
     )
     lines.append(_SEP)
     lines.append('(rule "Power internal same footprint"')
@@ -620,7 +837,11 @@ def generate_dru() -> str:
         "HighVoltage",
         "FinePitch",
         "Power",
-        "GateDrive",
+        # Split 2026-07-28 (R4): "GateDrive" no longer exists as a key in
+        # TEMPER_NET_CLASSES -- both halves must be listed or this loop
+        # KeyErrors.
+        "GateDriveHV",
+        "GateDriveSELV",
         "GND",
         "HighSpeed",
         "Signal",

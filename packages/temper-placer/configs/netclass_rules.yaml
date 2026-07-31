@@ -50,10 +50,8 @@ classes:
   # full derivation and the caveat that this 6.0mm figure (like its ACMains/
   # HighVoltage siblings above) is a legacy, not primary-cited, number; the
   # fab-authoritative enforcement point is scripts/generate_kicad_dru.py's
-  # HV_CREEPAGE_ENFORCED_MM (currently 8.0mm, PD2-pinned to match
-  # scripts/check_isolation_keepout.py's MIN_BARRIER_WIDTH_MM -- the
-  # PD2-vs-PD3 question itself remains open) plus the same 2.0mm same-side
-  # clearance figure RULE 4 ("HV to LV") uses -- not this placer-feasibility
+  # HV_CREEPAGE_ENFORCED_MM (12.6mm, PD3-pinned, cited) plus
+  # HV_INTERNAL_CLEARANCE_MM (2.0mm, cited) -- not this placer-feasibility
   # config.
   HighVoltageIsolated:
     clearance: 6.0
@@ -82,13 +80,33 @@ classes:
     layer: "B.Cu"
     safety_category: "LV"
 
-  GateDrive:
+  # Split 2026-07-28 from the single "GateDrive" class (R4,
+  # docs/plans/2026-07-28-003-refactor-ato-net-classification-ssot-plan.md
+  # U7): the old class spanned U7's (the UCC21550 gate driver's) own
+  # reinforced isolation barrier -- GATE_HS/GATE_LS are the secondary-side
+  # gate outputs, floating on SW_NODE (same HV domain as HighVoltage,
+  # elec/domain_manifest.yaml), while PWM_HS/PWM_LS are the primary-side
+  # MCU PWM inputs (SELV domain). One class spanning two domains left every
+  # rule keyed on "GateDrive" unable to answer which side of the barrier it
+  # protected. Every clearance/width/via VALUE below is unchanged from the
+  # pre-split class -- this is a class-model change, not a numbers change.
+  GateDriveHV:
+    clearance: 0.25
+    trace_width: 0.4
+    via_diameter: 0.8
+    via_drill: 0.4
+    layer: "B.Cu"
+    safety_category: "HV"
+    because: "GATE_HS/GATE_LS float on SW_NODE, secondary (HV) side of U7's reinforced barrier -- same HV domain as HighVoltage/HighVoltageIsolated, per elec/domain_manifest.yaml. Not 'LV': that was the exact defect this split exists to fix, one file deeper than the four generated surfaces reach."
+
+  GateDriveSELV:
     clearance: 0.25
     trace_width: 0.4
     via_diameter: 0.8
     via_drill: 0.4
     layer: "B.Cu"
     safety_category: "LV"
+    because: "PWM_HS/PWM_LS are the MCU-side PWM outputs, primary (SELV) side of U7's reinforced barrier, per elec/domain_manifest.yaml. 'LV' is the correct category for SELV in this vocabulary -- there is no separate SELV value in the safety_category enum (HV/LV/AC/iso)."
 
   GND:
     clearance: 0.3

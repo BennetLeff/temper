@@ -30,8 +30,24 @@ Cool Air (Bottom Vents)
       |
  [ IGBT Heatsink ]
       |
- [ Exhaust Vent ]
+[ Exhaust Vent ]
 ```
+
+### 3.3 PCB pollution barrier (PD2 prerequisite)
+
+The production enclosure must keep the mains/SELV PCB insulation outside the
+forced-air path described above. The PCB is mounted in a separate covered
+compartment with a continuous gasket or equivalent pollution barrier; the
+heatsink duct seals to the heatsink and chassis openings without discharging
+through the PCB compartment. The barrier must prevent grease, steam, and
+cooking aerosols carried by the intake air from reaching exposed PCB
+insulation.
+
+This separation is a release requirement for the selected PD2 electrical
+rules. The assembly drawing must show the compartment boundary, gasket
+interface, service access, and inspection points. If production hardware
+does not preserve this separation, the board reverts to the PD3 / 12.6 mm
+reinforced-creepage requirement.
 
 ## 4. Fan Selection
 | Parameter | Specification | Model |

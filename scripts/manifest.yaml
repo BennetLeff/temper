@@ -1,8 +1,8 @@
 _meta:
-  last_audit_date: '2026-07-28'
-  total_scripts: 75
+  last_audit_date: '2026-07-29'
+  total_scripts: 76
   counts:
-    keep: 74
+    keep: 75
     ticket: 1
   ticket_scripts_deleted: 40
 scripts:
@@ -14,6 +14,19 @@ scripts:
   category: keep
   disposition: utility
   imports:
+  - sys
+- path: kicad_pad_rotation_oracle.py
+  purpose: 'Oracle for the rotation-convention differential tests (packages/temper-placer/tests/requirements/safety/test_rotation_convention_oracle.py):
+    places a pad via real pcbnew (KiCad''s own footprint-placement engine) and reports where it actually
+    lands, given a local offset and a footprint rotation. Must run under a Python interpreter with KiCad''s
+    pcbnew bindings, not the project uv venv.'
+  owner: bennet
+  last_run: '2026-07-30'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - json
   - sys
 - path: literal_removal_check.py
   purpose: 'Advisory check: flags literals removed by a diff that are still referenced elsewhere in the
@@ -105,6 +118,7 @@ scripts:
   - pathlib
   - re
   - sys
+  - temper_placer.geometry.kicad_transform
 - path: check_physics_provenance.py
   purpose: 'Physics provenance gate: require # source: comments on module-level float constants in physics/'
   owner: pipeline
@@ -270,6 +284,7 @@ scripts:
   - rich.console
   - sys
   - temper_placer.core.loop
+  - temper_placer.geometry.kicad_transform
   - temper_placer.io.kicad_parser
   - temper_placer.io.trace_writer
   - temper_placer.io.zone_manager
@@ -386,6 +401,16 @@ scripts:
   - re
   - subprocess
   - sys
+- path: deadcode-baseline.py
+  purpose: 'Vulture whitelist/baseline data file: one accepted dead-code finding per line (name + comment),
+    diffed against by vulture_gate.py. Needs a .py extension because vulture parses whitelist files as
+    Python source; moved here from the repo root 2026-07-29 (scripts/test_root_hygiene.py flags any tracked
+    *.py file at root).'
+  owner: pipeline
+  last_run: '2026-07-29'
+  category: keep
+  disposition: utility
+  imports: []
 - path: profile_router_v6_sampling.py
   purpose: Profile router_v6 on a small subset of nets for sampling analysis
   owner: router-v6-closure-rate
@@ -964,10 +989,10 @@ scripts:
     (35000) started the bridge at the frequency an independent ZVS analysis found loses 100.7% of ZVS
     margin, while main.ato had already moved to 47kHz (docs/evidence/2026-07-28-pll-defaults-and-range-gate.md).
     EXTENDED 2026-07-29: also DERIVES the required PLL floor from main.ato''s declared l_tank_assumed
-    / l_pan_loaded_ratio / c_tank_total / l_tank_tolerance (1.05 x the worst-case loaded resonance)
-    and fails if PLL_MIN_FREQ_HZ is below it -- the previous checks only compared declarations against
-    each other and so were blind to both files agreeing on 30kHz, 7.6kHz BELOW the tank''s loaded
-    resonance, where a series-resonant bridge hard-switches (docs/evidence/2026-07-29-pll-floor-above-resonance.md).
+    / l_pan_loaded_ratio / c_tank_total / l_tank_tolerance (1.05 x the worst-case loaded resonance) and
+    fails if PLL_MIN_FREQ_HZ is below it -- the previous checks only compared declarations against each
+    other and so were blind to both files agreeing on 30kHz, 7.6kHz BELOW the tank''s loaded resonance,
+    where a series-resonant bridge hard-switches (docs/evidence/2026-07-29-pll-floor-above-resonance.md).
     Also cross-checks main.ato''s c_tank_total mirror against modules.ato''s c_tank1+c_tank2'
   owner: bennet
   last_run: '2026-07-29'
@@ -1029,11 +1054,11 @@ scripts:
   - temper_placer.core.design_rules
   - typing
 - path: check_drc_ceiling_approval.py
-  purpose: 'CI gate: fail a PR that raises any power_pcb_dataset/drc_ceiling.json ceiling value
-    (aggregate error_ceiling/warning_ceiling, or any violations_by_type/warnings_by_type rule)
-    relative to the merge base unless a commit in the PR carries a Ceiling-Approval: trailer --
-    wires DrcRatchet.detect_ceiling_raise (temper_placer.regression.drc_ratchet), which existed
-    and was unit-tested but had no CI caller, into the Provenance & Anti-Vacuity Gates job'
+  purpose: 'CI gate: fail a PR that raises any power_pcb_dataset/drc_ceiling.json ceiling value (aggregate
+    error_ceiling/warning_ceiling, or any violations_by_type/warnings_by_type rule) relative to the merge
+    base unless a commit in the PR carries a Ceiling-Approval: trailer -- wires DrcRatchet.detect_ceiling_raise
+    (temper_placer.regression.drc_ratchet), which existed and was unit-tested but had no CI caller, into
+    the Provenance & Anti-Vacuity Gates job'
   owner: bennet
   last_run: '2026-07-29'
   category: keep
@@ -1044,6 +1069,7 @@ scripts:
   - argparse
   - json
   - pathlib
+  - rich.console
   - subprocess
   - sys
 - path: check_measurement_provenance.py
@@ -1124,6 +1150,25 @@ scripts:
   - pathlib
   - re
   - rich.console
+  - subprocess
+  - sys
+- path: check_no_raw_rotation_trig.py
+  purpose: 'CI gate: fail if any of the 12 files that have already carried KiCad''s R(+theta)/R(-theta)
+    footprint-child rotation sign bug (see docs/evidence/2026-07-29-cross-domain-creepage-rotation-convention.md)
+    contains a raw math.cos/math.sin/np.cos/np.sin call instead of importing temper_placer.geometry.kicad_transform,
+    the single sanctioned implementation those 12 sites were consolidated into'
+  owner: bennet
+  last_run: '2026-07-30'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - ast
+  - dataclasses
+  - pathlib
   - sys
 - path: check_isolation_keepout.py
   purpose: 'Physical mains<->SELV isolation-barrier CI gate: verify a dedicated keepout region spans all
@@ -1141,10 +1186,11 @@ scripts:
   - _lib.repo
   - argparse
   - dataclasses
-  - math
   - pathlib
   - sys
+  - temper_placer.core.isolation_constants
   - temper_placer.core.pad_geometry
+  - temper_placer.geometry.kicad_transform
 - path: check_stale_extensions.py
   purpose: 'CI gate: fail-closed freshness check for every pyo3/maturin Rust extension crate under packages/
     -- an installed .so older than its own crate''s source (or a crate whose extension is missing entirely)
@@ -1173,7 +1219,41 @@ scripts:
 - path: check_copper_net_consistency.py
   purpose: 'Board-copper / netlist consistency gate: catch corrupted net ordinals.'
   owner: bennet
-  last_run: '2026-07-28'
+  last_run: '2026-07-30'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - dataclasses
+  - json
+  - pathlib
+  - re
+  - sys
+  - typing
+- path: check_creepage_clearance_drift.py
+  purpose: 'Safety-constant SSOT drift gate: compare declared creepage and clearance figures across electrical source, scripts, packages, and configuration.'
+  owner: bennet
+  last_run: '2026-07-30'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - ast
+  - dataclasses
+  - pathlib
+  - re
+  - sys
+- path: check_footprint_drift.py
+  purpose: 'Footprint-drift gate: catch a footprint corrected in elec/src/*.ato that never propagated
+    into pcb/temper.kicad_pcb, matched by sheetpath (designator-renumbering-safe), not refdes.'
+  owner: bennet
+  last_run: '2026-07-30'
   category: keep
   disposition: ci-gate
   imports:
@@ -1202,7 +1282,6 @@ scripts:
   - json
   - os
   - pathlib
-  - re
   - statistics
   - subprocess
   - sys
@@ -1236,4 +1315,69 @@ scripts:
   - json
   - pathlib
   - subprocess
+  - sys
+- path: known_failure_pins.py
+  purpose: 'CI gate + shared helper: validate known-failure-pins.yaml (a known-red test''s declared failure
+    signature) as a monotonic-shrink ratchet -- live-pin cap, forced expiry/renewal, required evidence-doc
+    link, orphan-nodeid detection -- and provide annotate_failure()/check_signature() for a test to compare
+    its actual failure signature against the declared one, distinguishing "known reason" from "changed
+    reason" without xfail (docs/solutions/best-practices/pin-known-failure-reasons-2026-07-30.md, the
+    PR #460 near-miss).'
+  owner: bennet
+  last_run: '2026-07-30'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - dataclasses
+  - datetime
+  - pathlib
+  - sys
+  - typing
+  - yaml
+- path: check_required_checks.py
+  purpose: 'Always-on pull-request aggregator: require the candidate Python Tests contexts when a manifest
+    trigger path matches, while treating workflow-level path filtering as an explicit legitimate skip.'
+  owner: bennet
+  last_run: '2026-07-30'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - collections.abc
+  - dataclasses
+  - json
+  - os
+  - pathlib
+  - re
+  - sys
+  - time
+  - typing
+  - urllib.error
+  - urllib.parse
+  - urllib.request
+- path: check_refdes_identity_stability.py
+  purpose: Discovers safety-relevant test/fixture assertions keyed to a ref-designator string literal
+    (e.g. "U3", "K1") instead of instance_path, and cross-checks real-board-bound ones against the current
+    compiled netlist plus elec/domain_manifest.yaml to flag an ACTUAL identity mismatch, not just presence
+    -- built after a ZCD-optocoupler deletion reshuffled U-prefix refs and left test_the_seven_known_intra_footprint_blockers_are_now_visible
+    checking different real components than its own name/docstring claim while still passing. Reports
+    a full denominator (raw literals, safety-keyword context, assert-reachable, load-bearing, real-board-bound)
+    at every stage; never wired into CI (false-positive rate unmeasured on first pass) -- see docs/evidence/2026-07-30-refdes-identity-stability-gate.md.
+  owner: bennet
+  last_run: '2026-07-30'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - ast
+  - check_domain_partition
+  - dataclasses
+  - pathlib
+  - re
   - sys

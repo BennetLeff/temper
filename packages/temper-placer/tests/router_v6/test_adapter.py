@@ -1,7 +1,6 @@
 """Tests for Router V6 adapter module."""
 
 import logging
-import re
 from types import SimpleNamespace
 from unittest import mock as umock
 
@@ -94,6 +93,279 @@ class TestApplyPlacementsToPcb:
         assert "at 100.0000 200.0000" in result
 
 
+class TestApplyPlacementsToPcbRotation:
+    """Item 1: a solved CP-SAT rotation must not be structurally discarded
+    by the writer, and when it IS applied, every pad's absolute angle must
+    shift by the same delta as the footprint (see
+    _write_board.py::_reorient_pads for the kiutils-based precedent this
+    mirrors on raw string content -- a .kicad_pcb pad angle is ABSOLUTE,
+    not footprint-relative)."""
+
+    _CONTENT_TEMPLATE = """(kicad_pcb (version 20240108)
+  (footprint "Test:SOIC" (layer "F.Cu")
+    (tstamp 00000000-0000-0000-0000-000000000001)
+    (at 10.0 20.0{fp_angle_suffix})
+    (property "Reference" "U1" (at 0 0 0) (layer "F.SilkS"))
+    (pad "1" smd rect (at -0.775 0{pad1_angle_suffix}) (size 0.6 1.2) (layers "F.Cu" "F.Paste" "F.Mask")
+      (net 1 "vcc"))
+    (pad "2" smd rect (at 0.775 0{pad2_angle_suffix}) (size 0.6 1.2) (layers "F.Cu" "F.Paste" "F.Mask")
+      (net 2 "gnd"))
+  )
+)"""
+
+    def test_no_rotations_arg_preserves_angle_exactly(self):
+        """Without a `rotations=` mapping at all, behavior is byte-for-byte
+        identical to the pre-fix writer: solved rotation is not applied."""
+        content = self._CONTENT_TEMPLATE.format(
+            fp_angle_suffix=" 90.0", pad1_angle_suffix=" 90", pad2_angle_suffix=" 90"
+        )
+        result = _apply_placements_to_pcb(content, {"U1": (50.0, 60.0)})
+
+        assert "at 50.0000 60.0000 90.0" in result
+        assert "at -0.775 0 90" in result
+        assert "at 0.775 0 90" in result
+
+    def test_ref_absent_from_rotations_preserves_angle(self):
+        """A ref in `placements` but not in `rotations` keeps its angle,
+        exactly like the no-`rotations`-at-all case."""
+        content = self._CONTENT_TEMPLATE.format(
+            fp_angle_suffix=" 90.0", pad1_angle_suffix=" 90", pad2_angle_suffix=" 90"
+        )
+        result = _apply_placements_to_pcb(
+            content, {"U1": (50.0, 60.0)}, rotations={"OTHER_REF": 180.0}
+        )
+
+        assert "at 50.0000 60.0000 90.0" in result
+        assert "at -0.775 0 90" in result
+        assert "at 0.775 0 90" in result
+
+    def test_solved_rotation_is_written_to_footprint_angle(self):
+        """This is the bug: before the fix, a solved rotation never reached
+        the footprint's own (at X Y ANGLE) at all -- this assertion is
+        exactly what `_apply_placements_to_pcb` (pre-fix, no `rotations`
+        parameter) could not do."""
+        content = self._CONTENT_TEMPLATE.format(
+            fp_angle_suffix="", pad1_angle_suffix="", pad2_angle_suffix=""
+        )
+        result = _apply_placements_to_pcb(
+            content, {"U1": (50.0, 60.0)}, rotations={"U1": 90.0}
+        )
+
+        assert "at 50.0000 60.0000 90.0000" in result
+
+    def test_pad_bodies_reorient_with_footprint(self):
+        """The pad-shorting regression (PRs #412/#420/#426): rotating the
+        footprint without rotating pad bodies leaves fine-pitch pads
+        physically overlapping. Footprint 0 -> 90 must shift every pad's
+        absolute angle by +90 too."""
+        content = self._CONTENT_TEMPLATE.format(
+            fp_angle_suffix="", pad1_angle_suffix="", pad2_angle_suffix=""
+        )
+        result = _apply_placements_to_pcb(
+            content, {"U1": (50.0, 60.0)}, rotations={"U1": 90.0}
+        )
+
+        assert "at -0.775 0 90.0000" in result
+        assert "at 0.775 0 90.0000" in result
+
+    def test_pad_reorientation_preserves_intrinsic_offset(self):
+        """Pads that already carry a non-footprint angle (e.g. a part whose
+        library footprint itself defines pads at a relative angle) must
+        keep that intrinsic offset -- only the delta shifts them, matching
+        `_reorient_pads`'s `intrinsic = old_pad_angle - old_fp_angle`
+        invariant."""
+        content = self._CONTENT_TEMPLATE.format(
+            fp_angle_suffix=" 90.0", pad1_angle_suffix=" 90", pad2_angle_suffix=" 180"
+        )
+        # Footprint rotates 90 -> 180: delta = +90.
+        result = _apply_placements_to_pcb(
+            content, {"U1": (50.0, 60.0)}, rotations={"U1": 180.0}
+        )
+
+        assert "at 50.0000 60.0000 180.0000" in result
+        # pad 1: 90 + 90 = 180
+        assert "at -0.775 0 180.0000" in result
+        # pad 2: 180 + 90 = 270
+        assert "at 0.775 0 270.0000" in result
+
+    def test_rotation_normalizing_to_zero_omits_angle_token(self):
+        """KiCad/kiutils omit the angle token entirely when it is 0 --
+        `_reorient_pads` documents this convention explicitly; the raw-
+        string writer must match it rather than emit a literal `0.0000`
+        angle that downstream tooling has never had to parse before."""
+        content = self._CONTENT_TEMPLATE.format(
+            fp_angle_suffix=" 270.0", pad1_angle_suffix=" 270", pad2_angle_suffix=" 270"
+        )
+        # Footprint rotates 270 -> 360 (== 0): delta = +90, pads 270 -> 360 (== 0).
+        result = _apply_placements_to_pcb(
+            content, {"U1": (50.0, 60.0)}, rotations={"U1": 360.0}
+        )
+
+        assert "at 50.0000 60.0000)" in result
+        assert "at -0.775 0)" in result
+        assert "at 0.775 0)" in result
+
+    def test_zero_delta_does_not_touch_pads(self):
+        """Same target angle as the current one: delta is 0, so pads are
+        left completely untouched (not merely re-written to the same
+        value) -- this is the `delta % 360.0 != 0.0` guard."""
+        content = self._CONTENT_TEMPLATE.format(
+            fp_angle_suffix=" 90.0", pad1_angle_suffix=" 45", pad2_angle_suffix=" 135"
+        )
+        result = _apply_placements_to_pcb(
+            content, {"U1": (50.0, 60.0)}, rotations={"U1": 90.0}
+        )
+
+        assert "at 50.0000 60.0000 90.0000" in result
+        assert "at -0.775 0 45" in result
+        assert "at 0.775 0 135" in result
+
+
+class TestApplyPlacementsToPcbCenterOffset:
+    """CP-SAT solves and reports each component's box-CENTRE (Component.
+    initial_position's convention), not its raw KiCad anchor. For a
+    footprint whose pad centroid doesn't coincide with that anchor
+    (Component.attributes["_center_offset_x/y"] != 0 -- an asymmetric
+    TO-247, e.g. Q1/Q2 on the corpus board, center_offset=(5.45, 0)), the
+    anchor this function writes into (at X Y) must be the centre minus
+    that offset, rotated by KiCad's own (clockwise) convention -- not the
+    centre itself, and not a standard-CCW rotation of the offset.
+
+    This is a real, root-caused regression: PR #460's corrected
+    `comp.bounds` (tight around real pad copper, computed in the correct
+    frame) is only sound if the WRITTEN board matches the frame CP-SAT
+    verified. Before this fix, the corpus board's golden-board regression
+    gate (test_regression_drc.py::test_golden_board_drc_regression) wrote
+    Q1/Q2 (TO-247s, center_offset=(5.45, 0)) apart by CP-SAT's solved
+    rotation with NEITHER the rotation NOR the center_offset correctly
+    applied, producing a real, measured `shorting_items` DRC violation
+    between Q1's DC_BUS+ pad and Q2's SW_NODE pad -- the two halves of the
+    HV half-bridge, shorted across. See
+    docs/evidence/2026-07-30-generic-separation-writer-frame-fix.md.
+
+    The two expected numbers below (90.6064.. / 102.8236 anchor;
+    contrasted with the CCW-formula's 94.4209 / 90.7873, a different
+    point) were verified against ``pcbnew`` directly (KiCad's own
+    placement engine), not re-derived from this repo's own formula -- see
+    that module's docstring for the measurement.
+    """
+
+    def _make_component(self, ref: str, cx: float, cy: float):
+        return SimpleNamespace(ref=ref, attributes={
+            "_center_offset_x": str(cx),
+            "_center_offset_y": str(cy),
+        })
+
+    def test_asymmetric_offset_uncorrected_without_components_arg(self):
+        """Omitting `components=` (the pre-fix call shape, and every call
+        site until this task wired it in) reproduces the exact pre-fix
+        bug: CP-SAT's box-centre is written directly as the KiCad anchor,
+        off by the full center_offset. This is the failure mode that
+        turned Q1/Q2's real, sound clearance into a measured short."""
+        content = """(kicad_pcb (version 20240108)
+  (footprint "Test:TO247" (layer "F.Cu")
+    (tstamp 00000000-0000-0000-0000-000000000001)
+    (at 10.0 20.0)
+    (property "Reference" "U1" (at 0 0 0) (layer "F.SilkS"))
+    (pad "1" thru_hole circle (at 0 0) (size 3.5 3.5) (drill 1.6) (layers "*.Cu" "*.Mask")
+      (net 1 "vcc"))
+    (pad "2" thru_hole circle (at 20 8) (size 3.5 3.5) (drill 1.6) (layers "*.Cu" "*.Mask")
+      (net 2 "gnd"))
+  )
+)"""
+        result = _apply_placements_to_pcb(content, {"U1": (100.0, 100.0)})
+        # Anchor is written as the raw centre -- wrong for this footprint,
+        # since it never gets a chance to invert center_offset.
+        assert "at 100.0000 100.0000" in result
+
+    def test_asymmetric_offset_rotated_writes_pcbnew_verified_anchor(self):
+        """The fix: with `components=` supplied, the anchor is the centre
+        minus center_offset, rotated by the solved angle using KiCad's own
+        (clockwise) convention -- verified against pcbnew, not this
+        repo's prior (wrong) formula."""
+        content = """(kicad_pcb (version 20240108)
+  (footprint "Test:TO247" (layer "F.Cu")
+    (tstamp 00000000-0000-0000-0000-000000000001)
+    (at 10.0 20.0)
+    (property "Reference" "U1" (at 0 0 0) (layer "F.SilkS"))
+    (pad "1" thru_hole circle (at 0 0) (size 3.5 3.5) (drill 1.6) (layers "*.Cu" "*.Mask")
+      (net 1 "vcc"))
+    (pad "2" thru_hole circle (at 20 8) (size 3.5 3.5) (drill 1.6) (layers "*.Cu" "*.Mask")
+      (net 2 "gnd"))
+  )
+)"""
+        comp = self._make_component("U1", 10.0, 4.0)
+        result = _apply_placements_to_pcb(
+            content,
+            {"U1": (100.0, 100.0)},
+            rotations={"U1": 37.0},
+            components=[comp],
+        )
+        # pcbnew-verified: R(-37deg) of (10, 4) is (10.393615, -2.823608),
+        # so anchor = (100, 100) - that = (89.6064, 102.8236).
+        assert "at 89.6064 102.8236 37.0000" in result
+        # The wrong (standard-CCW) sign this repo used to use would write
+        # a completely different anchor -- assert it is NOT that point,
+        # so a sign regression here fails loudly rather than by omission.
+        assert "at 94.4209 90.7873" not in result
+
+    def test_no_center_offset_unaffected_by_components_arg(self):
+        """A symmetric footprint (center_offset == 0, e.g. most parts)
+        must write its centre unchanged whether or not `components=` is
+        passed -- this fix must not perturb the common case."""
+        content = """(kicad_pcb (version 20240108)
+  (footprint "Test:R0402" (layer "F.Cu")
+    (tstamp 00000000-0000-0000-0000-000000000001)
+    (at 10.0 20.0)
+    (property "Reference" "R1" (at 0 0 0) (layer "F.SilkS"))
+    (pad "1" smd rect (at -0.5 0) (size 0.6 0.6) (layers "F.Cu"))
+    (pad "2" smd rect (at 0.5 0) (size 0.6 0.6) (layers "F.Cu"))
+  )
+)"""
+        comp = self._make_component("R1", 0.0, 0.0)
+        result = _apply_placements_to_pcb(
+            content,
+            {"R1": (50.0, 60.0)},
+            rotations={"R1": 90.0},
+            components=[comp],
+        )
+        assert "at 50.0000 60.0000 90.0000" in result
+
+    def test_omitted_rotation_falls_back_to_existing_angle_for_offset(self):
+        """If this ref has no solved rotation (absent from `rotations`,
+        e.g. CP-SAT chose rotation index 0 -- `to_rotations_dict()` omits
+        those), the centre must have been computed at the footprint's
+        EXISTING angle, so that angle -- not 0 -- is the correct basis
+        for inverting center_offset."""
+        content = """(kicad_pcb (version 20240108)
+  (footprint "Test:TO247" (layer "F.Cu")
+    (tstamp 00000000-0000-0000-0000-000000000001)
+    (at 10.0 20.0 90.0)
+    (property "Reference" "U1" (at 0 0 0) (layer "F.SilkS"))
+    (pad "1" thru_hole circle (at 0 0) (size 3.5 3.5) (drill 1.6) (layers "*.Cu" "*.Mask")
+      (net 1 "vcc"))
+    (pad "2" thru_hole circle (at 20 8) (size 3.5 3.5) (drill 1.6) (layers "*.Cu" "*.Mask")
+      (net 2 "gnd"))
+  )
+)"""
+        comp = self._make_component("U1", 10.0, 4.0)
+        # No `rotations=` entry for U1 at all: old_angle (90 deg, read from
+        # the file) must be used as the rotation basis.
+        result = _apply_placements_to_pcb(
+            content,
+            {"U1": (100.0, 100.0)},
+            rotations={},
+            components=[comp],
+        )
+        import math
+
+        theta = math.radians(90.0)
+        rotated_cx = 10.0 * math.cos(theta) + 4.0 * math.sin(theta)
+        rotated_cy = -10.0 * math.sin(theta) + 4.0 * math.cos(theta)
+        expected = f"at {100.0 - rotated_cx:.4f} {100.0 - rotated_cy:.4f} 90.0"
+        assert expected in result
+
+
 class TestRoutePcbErrorHandling:
     def test_no_source_path_raises_value_error(self):
         parsed = type("FakeParsed", (), {})()
@@ -112,21 +384,28 @@ class TestZoneLayersForNet:
     def test_dc_bus_minus_is_zone_eligible(self):
         assert _zone_layers_for_net("DC_BUS-") == ["F.Cu", "B.Cu"]
 
-    def test_cgnd_is_zone_eligible(self):
-        assert _zone_layers_for_net("CGND") == ["F.Cu", "B.Cu"]
+    def test_cgnd_is_not_zone_eligible(self):
+        """FIXED 2026-07-28: eligibility is now driven by
+        routing_strategy=="plane_required" (core/design_rules.py), which
+        GND does not declare (only ACMains/HighVoltage do) -- see
+        docs/evidence/2026-07-28-zone-layer-classification-fix.md. GND
+        nets no longer get automatic zone treatment from this function."""
+        assert _zone_layers_for_net("CGND") == []
 
-    def test_gate_l_short_form_is_zone_eligible(self):
-        assert _zone_layers_for_net("GATE_L") == ["F.Cu", "B.Cu"]
+    def test_gate_l_short_form_is_not_zone_eligible(self):
+        """GateDrive does not declare routing_strategy=="plane_required"."""
+        assert _zone_layers_for_net("GATE_L") == []
 
-    def test_gate_h_short_form_is_zone_eligible(self):
-        assert _zone_layers_for_net("GATE_H") == ["F.Cu", "B.Cu"]
+    def test_gate_h_short_form_is_not_zone_eligible(self):
+        assert _zone_layers_for_net("GATE_H") == []
 
-    def test_pwm_l_short_form_is_zone_eligible(self):
-        assert _zone_layers_for_net("PWM_L") == ["F.Cu", "B.Cu"]
+    def test_pwm_l_short_form_is_not_zone_eligible(self):
+        assert _zone_layers_for_net("PWM_L") == []
 
-    def test_gate_ls_long_form_still_zone_eligible(self):
-        """Existing long-form names must keep working -- additive fix only."""
-        assert _zone_layers_for_net("GATE_LS") == ["F.Cu", "B.Cu"]
+    def test_gate_ls_long_form_also_not_zone_eligible(self):
+        """Short-form and long-form GateDrive names behave identically --
+        neither gets automatic zone treatment post-fix."""
+        assert _zone_layers_for_net("GATE_LS") == []
 
     def test_spi_mosi_is_not_zone_eligible(self):
         """SPI signal lines must never get a copper pour -- signal integrity,
@@ -361,56 +640,90 @@ class TestCrossClassZoneClearance:
         return dr
 
     def test_power_and_hv_resolve_to_stricter_cross_class(self):
-        """vcc (Power, 0.25mm) + +340V_BUS (HV, 6.0mm) -> effective 6.0mm."""
+        """ac_l (ACMains, 6.0mm) + +170V_BUS (HV, 6.0mm), with a class_pairs
+        override to a stricter 8.0mm -> effective 8.0mm.
+
+        FIXED 2026-07-28: previously used vcc (Power), which after the
+        routing_strategy-driven eligibility fix
+        (docs/evidence/2026-07-28-zone-layer-classification-fix.md) no
+        longer gets a zone at all -- Power is not "plane_required". Only
+        ACMains/HighVoltage remain zone-eligible, and both declare an
+        identical 6.0mm own clearance, so a class_pairs override is
+        needed to actually exercise the cross-class lookup path (rather
+        than coincidentally matching each class's own clearance).
+
+        RE-FIXED 2026-07-30: the first fix's replacement net, "+340V_BUS",
+        does not appear anywhere in TEMPER_NET_ASSIGNMENTS (that key was
+        itself renamed to "+170V_BUS" per design_rules.py's own comment --
+        the live board and netlist call this rail "+170V_BUS"). An
+        unassigned net resolves to netclass "" -- not "HighVoltage" -- so
+        _zone_layers_for_net() returns [] for it, no HV zone is emitted at
+        all, and the cross-class lookup this test exists to exercise was
+        never reached. Confirmed empirically via
+        _zone_layers_for_net("+340V_BUS") == [] vs
+        _zone_layers_for_net("+170V_BUS") == ["F.Cu", "B.Cu"]. Swapped to
+        the net name that is actually assigned to HighVoltage."""
         from temper_placer.router_v6.adapter import _write_routes_to_content
 
         result = self._make_result_with_zones(
-            ["vcc", "+340V_BUS"],
-            {"vcc": [("C1", "1")], "+340V_BUS": [("C2", "1")]},
+            ["ac_l", "+170V_BUS"],
+            {"ac_l": [("C1", "1")], "+170V_BUS": [("C2", "1")]},
         )
-        dr = self._build_dr({("HighVoltage", "Power"): {"clearance": 6.0}})
-        content = '(kicad_pcb (version 20240108) (net 1 "vcc") (net 2 "+340V_BUS"))'
+        dr = self._build_dr({("ACMains", "HighVoltage"): {"clearance": 8.0}})
+        content = '(kicad_pcb (version 20240108) (net 1 "ac_l") (net 2 "+170V_BUS"))'
+        output, _ = _write_routes_to_content(content, result, design_rules=dr)
+        assert "(clearance 8.0000)" in output
+
+    def test_same_class_nets_keep_own_clearance(self):
+        """Two ACMains-class nets resolve to ACMains's own 6.0mm (never
+        weaken).
+
+        FIXED 2026-07-28: previously used two GND-class nets (PWR_RTN/
+        CGND); GND is no longer zone-eligible post-fix (see above)."""
+        from temper_placer.router_v6.adapter import _write_routes_to_content
+
+        result = self._make_result_with_zones(
+            ["ac_l", "ac_n"],
+            {"ac_l": [("C1", "1")], "ac_n": [("C2", "1")]},
+        )
+        dr = self._build_dr()
+        content = '(kicad_pcb (version 20240108) (net 1 "ac_l") (net 2 "ac_n"))'
         output, _ = _write_routes_to_content(content, result, design_rules=dr)
         assert "(clearance 6.0000)" in output
 
-    def test_same_class_nets_keep_own_clearance(self):
-        """Two GND-class nets resolve to GND's own 0.3mm (never weaken)."""
-        from temper_placer.router_v6.adapter import _write_routes_to_content
-
-        result = self._make_result_with_zones(
-            ["PWR_RTN", "CGND"],
-            {"PWR_RTN": [("C1", "1")], "CGND": [("C2", "1")]},
-        )
-        dr = self._build_dr()
-        content = '(kicad_pcb (version 20240108) (net 1 "PWR_RTN") (net 2 "CGND"))'
-        output, _ = _write_routes_to_content(content, result, design_rules=dr)
-        assert "(clearance 0.3000)" in output
-
     def test_fallback_to_max_clearance_no_class_pair(self):
-        """No class_pairs entry -> fallback to max(own, other)."""
+        """No class_pairs entry -> fallback to max(own, other).
+
+        FIXED 2026-07-28: previously used vcc/+15V (both Power), which no
+        longer get zones. Uses ACMains/HighVoltage instead -- both
+        declare 6.0mm, so max(6.0, 6.0) == 6.0 exercises the fallback
+        branch even though the two classes carry equal clearance."""
         from temper_placer.router_v6.adapter import _write_routes_to_content
 
         result = self._make_result_with_zones(
-            ["vcc", "+15V"],
-            {"vcc": [("C1", "1")], "+15V": [("C2", "1")]},
+            ["ac_l", "+340V_BUS"],
+            {"ac_l": [("C1", "1")], "+340V_BUS": [("C2", "1")]},
         )
         dr = self._build_dr()
-        content = '(kicad_pcb (version 20240108) (net 1 "vcc") (net 2 "+15V"))'
+        content = '(kicad_pcb (version 20240108) (net 1 "ac_l") (net 2 "+340V_BUS"))'
         output, _ = _write_routes_to_content(content, result, design_rules=dr)
-        assert "(clearance 0.2500)" in output
+        assert "(clearance 6.0000)" in output
 
     def test_single_netclass_no_cross_class(self):
-        """Only one zone-eligible netclass: clearance equals own."""
+        """Only one zone-eligible netclass: clearance equals own.
+
+        FIXED 2026-07-28: previously used vcc (Power, 0.25mm), no longer
+        zone-eligible. Uses ac_l (ACMains, 6.0mm) instead."""
         from temper_placer.router_v6.adapter import _write_routes_to_content
 
         result = self._make_result_with_zones(
-            ["vcc"],
-            {"vcc": [("C1", "1")]},
+            ["ac_l"],
+            {"ac_l": [("C1", "1")]},
         )
         dr = self._build_dr()
-        content = '(kicad_pcb (version 20240108) (net 1 "vcc"))'
+        content = '(kicad_pcb (version 20240108) (net 1 "ac_l"))'
         output, _ = _write_routes_to_content(content, result, design_rules=dr)
-        assert "(clearance 0.2500)" in output
+        assert "(clearance 6.0000)" in output
 
     def test_route_pcb_e2e_threads_design_rules_to_zone_pours_and_pipeline(self):
         """End-to-end: route_pcb + enable_zone_pours reflects cross-class
@@ -419,6 +732,31 @@ class TestCrossClassZoneClearance:
         Verifies both downstream consumers of the design_rules parameter:
         1. The writer's zone-pour clearance resolution (zone geometry).
         2. The pipeline's layer-constraint resolution (constructor kwargs).
+
+        RE-FIXED 2026-07-30: previously used "vcc" (Power) and "+340V_BUS".
+        Neither is zone-eligible today: "vcc" resolves to netclass Power,
+        which does not declare routing_strategy=="plane_required"
+        (_zone_layers_for_net("vcc") == []), and "+340V_BUS" is not a key
+        in TEMPER_NET_ASSIGNMENTS at all (the live rail was renamed to
+        "+170V_BUS" -- see design_rules.py's own comment on that key).
+        With no zone-eligible net in the fixture, _emit_zone_pours() never
+        emitted a "(zone " block at all, so "(clearance ...)" was never
+        reached. Swapped to "ac_l" (ACMains) + "+170V_BUS" (HighVoltage) --
+        confirmed via _zone_layers_for_net() to be the only two genuinely
+        eligible classes. The class_pairs override is also bumped from
+        6.0mm to 9.0mm: ACMains and HighVoltage both declare an identical
+        6.0mm own clearance, so a 6.0mm override was indistinguishable from
+        the no-override fallback max(own, other) == 6.0mm -- it proved
+        nothing about design_rules actually threading through. 9.0mm
+        differs from both classes' own clearance, so only a correctly
+        threaded override can produce it.
+
+        The `parsed` stub below keeps `"nets": nets` (not just
+        `source_path`) deliberately -- see
+        docs/solutions/logic-errors/parsed-stub-missing-nets-silently-disables-layer-constraints-2026-07-22.md.
+        A stub missing `.nets` makes `layer_constraints` silently resolve
+        to `{}` with no error, which this test's `layer_constraints`
+        assertions below exist to catch.
         """
         import os
         import tempfile
@@ -430,7 +768,7 @@ class TestCrossClassZoneClearance:
         from temper_placer.core.netlist import Component
 
         dr = DesignRules()
-        dr.class_pairs = {("HighVoltage", "Power"): {"clearance": 6.0}}
+        dr.class_pairs = {("ACMains", "HighVoltage"): {"clearance": 9.0}}
 
         components = [
             Component(
@@ -441,15 +779,15 @@ class TestCrossClassZoneClearance:
             ),
         ]
         nets = [
-            SimpleNamespace(name="vcc", pins=[("C1", "1")]),
-            SimpleNamespace(name="+340V_BUS", pins=[("C2", "1")]),
+            SimpleNamespace(name="ac_l", pins=[("C1", "1")]),
+            SimpleNamespace(name="+170V_BUS", pins=[("C2", "1")]),
         ]
         pcb_mock = SimpleNamespace(components=components, nets=nets)
 
         mock_path = SimpleNamespace(path_length=1.0, segments=[(0, 0, "F.Cu"), (10, 0, "F.Cu")])
         compiled_routes = {
-            "vcc": SimpleNamespace(path=mock_path, width_mm=0.5, vias=[]),
-            "+340V_BUS": SimpleNamespace(path=mock_path, width_mm=0.5, vias=[]),
+            "ac_l": SimpleNamespace(path=mock_path, width_mm=0.5, vias=[]),
+            "+170V_BUS": SimpleNamespace(path=mock_path, width_mm=0.5, vias=[]),
         }
         rr = SimpleNamespace(
             compiled_routes=compiled_routes,
@@ -473,7 +811,7 @@ class TestCrossClassZoneClearance:
 
         try:
             with tempfile.NamedTemporaryFile(suffix=".kicad_pcb", mode="w", delete=False) as f:
-                f.write('(kicad_pcb (version 20240108) (net 1 "vcc") (net 2 "+340V_BUS"))\n')
+                f.write('(kicad_pcb (version 20240108) (net 1 "ac_l") (net 2 "+170V_BUS"))\n')
                 temp_path = f.name
 
             parsed = type("ParsedPCB", (), {"source_path": temp_path, "nets": nets})()
@@ -487,7 +825,7 @@ class TestCrossClassZoneClearance:
             # Zone-pour output: cross-class clearance emitted in PCB content.
             assert result.routed_pcb_content is not None
             assert "(zone " in result.routed_pcb_content
-            assert "(clearance 6.0000)" in result.routed_pcb_content
+            assert "(clearance 9.0000)" in result.routed_pcb_content
 
             # Pipeline wiring: constructor receives layer_constraints from
             # the design_rules SSOT and enable_zone_pours flag.
@@ -501,8 +839,8 @@ class TestCrossClassZoneClearance:
                 "layer_constraints must not be empty when parsed.nets is "
                 "populated and design_rules is provided"
             )
-            assert "vcc" in layer_constraints
-            assert "+340V_BUS" in layer_constraints
+            assert "ac_l" in layer_constraints
+            assert "+170V_BUS" in layer_constraints
 
             # Pipeline invocation: run() receives the PCB path.
             mock_pipe.run.assert_called_once()
@@ -512,6 +850,112 @@ class TestCrossClassZoneClearance:
         finally:
             patcher.stop()
             os.unlink(temp_path)
+
+
+class TestZonesReplacedNotAppended:
+    """U3 (R7): a board's stored zones must be replaced by the regenerated
+    set, not left to coexist alongside it. Without this, any (zone ...)
+    blocks already present in the incoming content (e.g. the 96 committed
+    on pcb/temper.kicad_pcb) survive untouched into the written output
+    alongside the newly emitted ones -- the board ends up carrying both a
+    stale pour and a regenerated pour for the same net, and the stale one
+    is never anything but stale carryover, never re-derived from what was
+    actually routed.
+    """
+
+    # A stale zone with a priority value and a coordinate pair that no real
+    # pad in these tests is anywhere near -- distinguishing markers that
+    # only a *carried-over* zone (never a freshly computed one) could emit.
+    _STALE_ZONE = (
+        '  (zone (net 1) (net_name "{net}") (layer "F.Cu") (hatch full 0.5)\n'
+        "    (priority 999)\n"
+        "    (connect_pads yes (clearance 6))\n"
+        "    (min_thickness 0.25)\n"
+        "    (fill yes (thermal_gap 0.5) (thermal_bridge_width 0.5))\n"
+        "    (polygon\n"
+        "      (pts\n"
+        "        (xy 999.0 999.0)\n"
+        "        (xy 999.5 999.0)\n"
+        "        (xy 999.5 999.5)\n"
+        "      )\n"
+        "    )\n"
+        "  )"
+    )
+
+    def _make_result(self, net_name: str):
+        from types import SimpleNamespace
+
+        from temper_placer.core.netlist import Component
+
+        mock_path = SimpleNamespace(path_length=0.0, coordinates=[])
+        compiled_routes = {
+            net_name: SimpleNamespace(path=mock_path, width_mm=0.1, vias=[]),
+        }
+        routing_results = SimpleNamespace(
+            compiled_routes=compiled_routes,
+            tree_routes={},
+            partial_tree_routes={},
+        )
+        stage4 = SimpleNamespace(routing_results=routing_results)
+        comp = Component(
+            ref="C1", footprint="0805", bounds=(2.0, 1.25), initial_position=(50.0, 50.0)
+        )
+        nets = [SimpleNamespace(name=net_name, pins=[("C1", "1")])]
+        pcb = SimpleNamespace(components=[comp], nets=nets)
+        return SimpleNamespace(stage4=stage4, pcb=pcb, enable_zone_pours=True)
+
+    def test_stale_zone_is_removed_not_appended_to(self):
+        """RE-FIXED 2026-07-30: previously used "vcc", assumed "Power:
+        zone-eligible". It no longer is -- _zone_layers_for_net("vcc") == []
+        since Power does not declare routing_strategy=="plane_required"
+        (only ACMains/HighVoltage do; see
+        docs/evidence/2026-07-28-zone-layer-classification-fix.md). With no
+        eligible net, no regenerated "(zone " ever gets emitted, so the
+        "must be present instead" assertion below had nothing to find and
+        this test could never distinguish "stale zone replaced by a fresh
+        one" from "stale zone removed and nothing took its place" -- the
+        latter is exactly what test_no_zone_eligible_nets_still_drops_stale_zone
+        (this class's sibling) already covers. Swapped to "ac_l" (ACMains),
+        confirmed zone-eligible via _zone_layers_for_net(), so this test
+        actually exercises the replace-not-append path it's named for.
+        """
+        from temper_placer.core.design_rules import DesignRules
+        from temper_placer.router_v6.adapter import _write_routes_to_content
+
+        result = self._make_result("ac_l")  # ACMains: zone-eligible
+        dr = DesignRules()
+        content = (
+            '(kicad_pcb (version 20240108) (net 1 "ac_l")\n'
+            f"{self._STALE_ZONE.format(net='ac_l')}\n"
+            ")"
+        )
+        output, _ = _write_routes_to_content(content, result, design_rules=dr)
+
+        # The stale zone's distinguishing markers must not survive.
+        assert "(priority 999)" not in output
+        assert "(xy 999.0 999.0)" not in output
+        # A regenerated zone for the same net must be present instead.
+        assert "(zone " in output
+        assert '(net_name "ac_l")' in output
+
+    def test_no_zone_eligible_nets_still_drops_stale_zone(self):
+        """Even when this run computes no new pour geometry for any net
+        (here: a net whose class isn't zone-eligible), a stale zone
+        inherited from the input board must not survive -- R7 forbids
+        treating it as authoritative just because nothing replaced it.
+        """
+        from temper_placer.core.design_rules import DesignRules
+        from temper_placer.router_v6.adapter import _write_routes_to_content
+
+        result = self._make_result("sclk")  # FinePitch: not zone-eligible
+        dr = DesignRules()
+        content = (
+            '(kicad_pcb (version 20240108) (net 1 "sclk")\n'
+            f"{self._STALE_ZONE.format(net='sclk')}\n"
+            ")"
+        )
+        output, _ = _write_routes_to_content(content, result, design_rules=dr)
+        assert "(zone " not in output
 
 
 class TestPriorityInversion:
@@ -560,19 +1004,26 @@ class TestPriorityInversion:
         pcb = SimpleNamespace(components=components, nets=nets)
         return SimpleNamespace(stage4=stage4, pcb=pcb, enable_zone_pours=True)
 
-    def test_acmains_priority_higher_than_power_in_emitted_zones(self):
-        """ACMains (dru=10→KiCad 80) > Power (dru=40→KiCad 50) in s-expr."""
+    def test_acmains_priority_higher_than_highvoltage_in_emitted_zones(self):
+        """ACMains (dru=10→KiCad 80) > HighVoltage (dru=20→KiCad 70) in s-expr.
+
+        FIXED 2026-07-28: previously compared ACMains against Power
+        ("vcc"); Power no longer gets a zone at all post-fix (only
+        ACMains/HighVoltage declare routing_strategy=="plane_required" --
+        see docs/evidence/2026-07-28-zone-layer-classification-fix.md).
+        Compares against HighVoltage ("SW_NODE") instead, the other
+        remaining zone-eligible class."""
         import re
 
         from temper_placer.core.design_rules import DesignRules
         from temper_placer.router_v6.adapter import _write_routes_to_content
 
         result = self._make_result(
-            ["AC_L", "vcc"],
-            {"AC_L": [("C1", "1")], "vcc": [("C2", "1")]},
+            ["AC_L", "SW_NODE"],
+            {"AC_L": [("C1", "1")], "SW_NODE": [("C2", "1")]},
         )
         dr = DesignRules()
-        content = '(kicad_pcb (version 20240108) (net 1 "AC_L") (net 2 "vcc"))'
+        content = '(kicad_pcb (version 20240108) (net 1 "AC_L") (net 2 "SW_NODE"))'
         output, _ = _write_routes_to_content(content, result, design_rules=dr)
 
         # Each net gets 2 zones (F.Cu + B.Cu); extract priority per net
@@ -585,30 +1036,40 @@ class TestPriorityInversion:
             priorities_by_net.setdefault(m.group(1), set()).add(int(m.group(2)))
 
         assert "AC_L" in priorities_by_net
-        assert "vcc" in priorities_by_net
+        assert "SW_NODE" in priorities_by_net
         ac_max = max(priorities_by_net["AC_L"])
-        pwr_max = max(priorities_by_net["vcc"])
-        assert ac_max > pwr_max, f"ACMains ({ac_max}) should be > Power ({pwr_max})"
+        hv_max = max(priorities_by_net["SW_NODE"])
+        assert ac_max > hv_max, f"ACMains ({ac_max}) should be > HighVoltage ({hv_max})"
         assert ac_max == 80
-        assert pwr_max == 50
+        assert hv_max == 70
 
 
 class TestStitchIsolatedPads:
-    """U3: trace-stitch pads outside pour polygons."""
+    """U3: trace-stitch pads outside pour polygons.
+
+    Uses "ac_l" (ACMains) as the generic zone-eligible fixture net.
+    FIXED 2026-07-28: previously used "vcc" (Power), which after the
+    routing_strategy-driven eligibility fix
+    (docs/evidence/2026-07-28-zone-layer-classification-fix.md) is no
+    longer zone-eligible -- _stitch_isolated_pads() now delegates its own
+    eligibility check to _zone_layers_for_net(), so a "vcc" fixture would
+    exercise the ineligibility short-circuit instead of the geometry
+    logic these tests exist to check.
+    """
 
     def test_pad_inside_zone_is_not_stitched(self):
         segments: list[str] = []
-        pad_positions = {"vcc": [(5.0, 5.0)]}
-        net_map = {"vcc": 1}
-        zone_points = {"vcc": [((0.0, 0.0), (10.0, 0.0), (10.0, 10.0), (0.0, 10.0))]}
+        pad_positions = {"ac_l": [(5.0, 5.0)]}
+        net_map = {"ac_l": 1}
+        zone_points = {"ac_l": [((0.0, 0.0), (10.0, 0.0), (10.0, 10.0), (0.0, 10.0))]}
         _stitch_isolated_pads(pad_positions, segments, net_map, zone_points)
         assert len(segments) == 0
 
     def test_pad_outside_zone_gets_stitch_trace(self):
         segments: list[str] = []
-        pad_positions = {"vcc": [(5.0, 5.0), (50.0, 50.0)]}
-        net_map = {"vcc": 1}
-        zone_points = {"vcc": [((0.0, 0.0), (10.0, 0.0), (10.0, 10.0), (0.0, 10.0))]}
+        pad_positions = {"ac_l": [(5.0, 5.0), (50.0, 50.0)]}
+        net_map = {"ac_l": 1}
+        zone_points = {"ac_l": [((0.0, 0.0), (10.0, 0.0), (10.0, 10.0), (0.0, 10.0))]}
         _stitch_isolated_pads(pad_positions, segments, net_map, zone_points)
         assert len(segments) == 1
         assert "(segment " in segments[0]
@@ -626,13 +1087,13 @@ class TestStitchIsolatedPads:
 
     def test_empty_zone_points_skipped(self):
         segments: list[str] = []
-        _stitch_isolated_pads({"vcc": [(50.0, 50.0)]}, segments, {"vcc": 1}, {})
+        _stitch_isolated_pads({"ac_l": [(50.0, 50.0)]}, segments, {"ac_l": 1}, {})
         assert len(segments) == 0
 
     def test_single_pad_inside_is_noop(self):
         segments: list[str] = []
-        zone_points = {"vcc": [((0.0, 0.0), (10.0, 0.0), (10.0, 10.0), (0.0, 10.0))]}
-        _stitch_isolated_pads({"vcc": [(5.0, 5.0)]}, segments, {"vcc": 1}, zone_points)
+        zone_points = {"ac_l": [((0.0, 0.0), (10.0, 0.0), (10.0, 10.0), (0.0, 10.0))]}
+        _stitch_isolated_pads({"ac_l": [(5.0, 5.0)]}, segments, {"ac_l": 1}, zone_points)
         assert len(segments) == 0  # pad inside, no stitch
 
 
@@ -1236,6 +1697,14 @@ class TestHVACForcedSegmentFailClosed:
         assert "SW_NODE" not in result.routed_paths, (
             "HV-class net must not succeed via A*"
         )
+        # U1: _should_route's name-based exclusion is a routing-strategy
+        # decision, not a "declined net" in R3/R4's sense -- it must not
+        # produce a failure_reports entry (that would misrepresent a
+        # zone-pour-handled net as a prover decline).
+        assert "SW_NODE" not in (result.failure_reports or {}), (
+            "A net excluded by _should_route is not a decline and must not "
+            "appear in failure_reports"
+        )
 
     def test_ac_net_name_excluded_from_astar_by_should_route(self):
         """Canonical AC net names never reach A* at all (zone pours handle them)."""
@@ -1280,6 +1749,10 @@ class TestHVACForcedSegmentFailClosed:
 
         # AC net is excluded from A* routing by _should_route (handled by zone pours)
         assert "AC_L" not in result.routed_paths
+        assert "AC_L" not in (result.failure_reports or {}), (
+            "A net excluded by _should_route is not a decline and must not "
+            "appear in failure_reports"
+        )
 
     def test_hv_class_net_with_routable_name_fails_closed_via_gate(self):
         """An HV-class net whose *name* doesn't match the HV exclusion patterns
@@ -1334,6 +1807,27 @@ class TestHVACForcedSegmentFailClosed:
             "gate -- not _should_route()'s name exclusion -- caused this"
         )
 
+        # U1: reason attribution -- this is the forced-segment fail-closed
+        # gate specifically, not an unattributed gap.
+        from temper_placer.router_v6._astar_reconstruct import (
+            RULE_ID_FORCED_SEGMENT_FAIL_CLOSED,
+        )
+        from temper_placer.router_v6.net_classification import classify_net_type
+
+        report = result.failure_reports["ISO_FB_HIGH"]
+        assert report.rule_id == RULE_ID_FORCED_SEGMENT_FAIL_CLOSED, (
+            "Forced-segment refusal must name the specific fail-closed "
+            "mechanism, not a fabricated or generic reason"
+        )
+        assert report.attribution_gap is False, (
+            "A named rule_id and attribution_gap=True is a contradiction -- "
+            "this decline has a known cause"
+        )
+        assert report.domain == classify_net_type("ISO_FB_HIGH"), (
+            "domain must come from net_classification's canonical helper, "
+            "not a hardcoded or fabricated classification"
+        )
+
     def test_ac_class_net_with_routable_name_fails_closed_via_gate(self):
         """Same as above for an AC-class net with a non-excluded name."""
         import numpy as np
@@ -1383,6 +1877,19 @@ class TestHVACForcedSegmentFailClosed:
             "gate -- not _should_route()'s name exclusion -- caused this"
         )
 
+        from temper_placer.router_v6._astar_reconstruct import (
+            RULE_ID_FORCED_SEGMENT_FAIL_CLOSED,
+        )
+        from temper_placer.router_v6.net_classification import classify_net_type
+
+        report = result.failure_reports["ISO_FB_MAINS"]
+        assert report.rule_id == RULE_ID_FORCED_SEGMENT_FAIL_CLOSED, (
+            "Forced-segment refusal must name the specific fail-closed "
+            "mechanism, not a fabricated or generic reason"
+        )
+        assert report.attribution_gap is False
+        assert report.domain == classify_net_type("ISO_FB_MAINS")
+
     def test_signal_net_also_fails_closed(self):
         """R2: no net class is exempt -- plain signal nets fail closed too."""
         import numpy as np
@@ -1424,6 +1931,19 @@ class TestHVACForcedSegmentFailClosed:
         assert "SPI_MOSI" in result.failed_nets, (
             "Signal net must be honestly reported as failed"
         )
+
+        from temper_placer.router_v6._astar_reconstruct import (
+            RULE_ID_FORCED_SEGMENT_FAIL_CLOSED,
+        )
+        from temper_placer.router_v6.net_classification import classify_net_type
+
+        report = result.failure_reports["SPI_MOSI"]
+        assert report.rule_id == RULE_ID_FORCED_SEGMENT_FAIL_CLOSED, (
+            "Signal nets get the same specific fail-closed attribution as "
+            "any other class -- no net class is exempt"
+        )
+        assert report.attribution_gap is False
+        assert report.domain == classify_net_type("SPI_MOSI")
 
 
 class _RaisingDesignRules:
@@ -1527,3 +2047,80 @@ class TestAllowForcedSegmentsGate:
         assert result.routed_paths["SPI_CLK"].forced_segment_count == 0, (
             "A legally-routed net must not carry a forced segment"
         )
+
+
+# ============================================================================
+# R4 (U7) — GateDrive splits into GateDriveHV/GateDriveSELV
+# ============================================================================
+
+
+class TestGateDriveSplitSeenAsHVNotLV:
+    """R4/U7: GATE_HS/GATE_LS sit on the HV (switching) side of U7's
+    reinforced barrier and must convert through to the router as
+    ``safety_category == "HV"``, not "LV". Leaving the HV-side class "LV"
+    reproduces the exact failure the split exists to fix, one file deeper
+    than the four generated surfaces reach (docs/plans/
+    2026-07-28-003-refactor-ato-net-classification-ssot-plan.md U7).
+    """
+
+    def test_gatedrive_hv_class_converts_to_stage0_as_hv(self):
+        """The real production GateDriveHV class -- not a synthetic
+        fixture -- must survive ``_to_stage0_netclass_rules`` as "HV"."""
+        from temper_placer.core.design_rules import TEMPER_NET_CLASSES
+
+        core_rules = TEMPER_NET_CLASSES["GateDriveHV"]
+        stage0 = _to_stage0_netclass_rules(core_rules)
+        assert stage0.safety_category == "HV"
+        assert stage0.safety_category != "LV"
+
+    def test_gatedrive_selv_class_converts_to_stage0_as_lv(self):
+        """The SELV-side (MCU/PWM) half keeps 'LV' -- there is no separate
+        SELV value in the safety_category vocabulary (HV/LV/AC/iso)."""
+        from temper_placer.core.design_rules import TEMPER_NET_CLASSES
+
+        core_rules = TEMPER_NET_CLASSES["GateDriveSELV"]
+        stage0 = _to_stage0_netclass_rules(core_rules)
+        assert stage0.safety_category == "LV"
+
+    def test_gatedrive_hv_outranks_gatedrive_selv_in_bottleneck_geometry(self):
+        """The forced-segment/bottleneck discount ranks by safety_category
+        (router_v6.bottleneck_geometry._SAFETY_RANK); GateDriveHV must now
+        rank as HV (2), strictly above GateDriveSELV's LV (1) -- before the
+        split both ranked identically as LV(1), which is the defect this
+        unit fixes."""
+        from temper_placer.core.design_rules import TEMPER_NET_CLASSES
+        from temper_placer.router_v6.bottleneck_geometry import _SAFETY_RANK
+
+        hv_rank = _SAFETY_RANK[TEMPER_NET_CLASSES["GateDriveHV"].safety_category]
+        selv_rank = _SAFETY_RANK[TEMPER_NET_CLASSES["GateDriveSELV"].safety_category]
+        assert hv_rank > selv_rank
+
+    def test_gate_hs_and_gate_ls_resolve_through_the_full_chain_to_hv(self):
+        """End-to-end: the real net name -> assignment table -> class table
+        -> stage0 conversion chain used by the router must resolve GATE_HS
+        and GATE_LS to safety_category "HV"."""
+        from temper_placer.core.design_rules import (
+            TEMPER_NET_ASSIGNMENTS,
+            TEMPER_NET_CLASSES,
+        )
+
+        for net_name in ("GATE_HS", "GATE_LS"):
+            class_name = TEMPER_NET_ASSIGNMENTS[net_name]
+            stage0 = _to_stage0_netclass_rules(TEMPER_NET_CLASSES[class_name])
+            assert stage0.safety_category == "HV", (
+                f"{net_name} (class {class_name!r}) must resolve to HV, not "
+                f"{stage0.safety_category!r}"
+            )
+
+    def test_pwm_hs_and_pwm_ls_resolve_through_the_full_chain_to_lv(self):
+        """Same chain for the SELV-side names -- must not accidentally
+        become HV in the split."""
+        from temper_placer.core.design_rules import (
+            TEMPER_NET_ASSIGNMENTS,
+            TEMPER_NET_CLASSES,
+        )
+
+        for net_name in ("PWM_HS", "PWM_LS"):
+            class_name = TEMPER_NET_ASSIGNMENTS[net_name]
+            stage0 = _to_stage0_netclass_rules(TEMPER_NET_CLASSES[class_name])
+            assert stage0.safety_category == "LV"

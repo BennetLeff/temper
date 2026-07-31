@@ -56,6 +56,39 @@ if [ -n "$ALLOW_GIT_STASH" ]; then
   exit 0
 fi
 
+# ROUTINE MAINTENANCE CARVE-OUT (added 2026-07-29 after a live false positive)
+#
+# `git pack-refs` moves refs/stash from loose to packed. Empirically -- measured
+# in a throwaway repo, not assumed -- it emits TWO refs/stash transactions:
+#
+#   git pack-refs --all   0000000 -> 96a68b4   (indistinguishable from a create)
+#   git pack-refs --all   96a68b4 -> 0000000   (indistinguishable from a clear)
+#
+# Compare a real stash create (0000000 -> 96a68b4) and `git stash clear`
+# (96a68b4 -> 0000000). The old/new OIDs are IDENTICAL in shape, so NO
+# OID-based rule can separate maintenance from a real stash operation. An
+# earlier attempt at "allow when old == new" was wrong for exactly this reason.
+#
+# This bit us for real: `git commit` triggered git's auto-gc, which ran
+# pack-refs, which this hook aborted --
+#     fatal: ref updates aborted by hook / failed to run pack-refs / task 'gc' failed
+# The commit itself survived, but this fires on EVERY auto-gc, and a guard that
+# breaks routine maintenance is a guard someone eventually disables.
+#
+# So the discriminator is the invoking git subcommand, read from the parent
+# process. This is deliberately a *cooperative* control, not a security
+# boundary: it exists to stop accidental `git stash` among cooperating agent
+# sessions, and $PPID args are trivially spoofable by anyone who wants to. That
+# is an acceptable trade -- the threat model is a mistake, not an adversary.
+#
+# FAILS CLOSED: if `ps` is missing or returns nothing, we do NOT take the
+# carve-out and fall through to the normal blocking logic.
+_parent_cmd=$(ps -o args= -p "$PPID" 2>/dev/null | head -1)
+if [ -n "$_parent_cmd" ] && printf '%s' "$_parent_cmd" |
+     grep -Eq '(^|[[:space:]])(pack-refs|gc|maintenance)([[:space:]]|$)'; then
+  exit 0
+fi
+
 blocked=0
 while read -r old new refname; do
   case "$refname" in

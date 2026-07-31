@@ -43,6 +43,7 @@ import os
 import re
 import statistics
 import subprocess
+import sys
 import tempfile
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -55,6 +56,15 @@ REPO_ROOT = TEMPER_PLACER_ROOT.parent.parent
 RULES_PATH = TEMPER_PLACER_ROOT / "configs" / "netclass_rules.yaml"
 PCL_CONFIG = TEMPER_PLACER_ROOT / "configs" / "constraints" / "temper_induction_cooker.yaml"
 BOARD_PATH = REPO_ROOT / "power_pcb_dataset" / "corpus" / "temper" / "temper.kicad_pcb"
+
+# known_failure_pins.py lives in scripts/ (not a package -- no __init__.py),
+# so it is reached the same way scripts/tests/*.py reach each other: an
+# absolute sys.path insert, safe from any cwd this test happens to run from.
+# See docs/solutions/best-practices/pin-known-failure-reasons-2026-07-30.md.
+_SCRIPTS_DIR = REPO_ROOT / "scripts"
+if str(_SCRIPTS_DIR) not in sys.path:
+    sys.path.insert(0, str(_SCRIPTS_DIR))
+from known_failure_pins import annotate_failure  # noqa: E402
 
 
 def _kicad_cli_available() -> bool:
@@ -169,7 +179,7 @@ def _downgrade_unresolved_ref_policy(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 @pytest.mark.slow
-def test_golden_board_drc_regression(monkeypatch: pytest.MonkeyPatch):
+def test_golden_board_drc_regression(monkeypatch: pytest.MonkeyPatch, request: pytest.FixtureRequest):
     if not _kicad_cli_available():
         pytest.skip("kicad-cli not available")
     _downgrade_unresolved_ref_policy(monkeypatch)
@@ -219,10 +229,20 @@ def test_golden_board_drc_regression(monkeypatch: pytest.MonkeyPatch):
     raw = BOARD_PATH.read_text(encoding="utf-8")
     from temper_placer.router_v6.adapter import _apply_placements_to_pcb
 
+    # rotations= and components= are required TOGETHER: a solved footprint's
+    # box-centre coordinate is only a valid KiCad anchor once both its
+    # rotation (angle + pad reorientation) and its pad-centroid offset
+    # (center_offset, for an asymmetric footprint like a TO-247) are
+    # accounted for -- passing either alone can make things worse (see
+    # docs/evidence/2026-07-30-placement-writer-rotation.md's own
+    # NO-ROTATION-vs-WITH-ROTATION measurement). See
+    # docs/evidence/2026-07-30-generic-separation-writer-frame-fix.md.
     placed = _apply_placements_to_pcb(
         raw,
         result.to_placements_dict(),
         design_rules=rules.design_rules,
+        rotations=result.to_rotations_dict(),
+        components=netlist.components,
     )
 
     with tempfile.NamedTemporaryFile(suffix=".kicad_pcb", mode="w", delete=False) as tmp:
@@ -273,26 +293,45 @@ def test_golden_board_drc_regression(monkeypatch: pytest.MonkeyPatch):
         mask_bridge = fixable_counts.get("solder_mask_bridge", 0)
         edge_clearance = fixable_counts.get("copper_edge_clearance", 0)
 
-        assert shorting == 0, (
-            f"Expected 0 fixable shorting_items, got {shorting}. Fixable: {dict(fixable_counts)}"
-        )
-        assert mask_bridge == 0, (
-            f"Expected 0 fixable solder_mask_bridge, got {mask_bridge}. "
-            f"Fixable: {dict(fixable_counts)}"
-        )
-        # Edge margin is placement-relevant but the hardcoded 0.5mm
-        # copper_edge_clearance may not match the board's (setup) value.
-        # Tracked as a known gap — not a placement constraint failure.
-        assert edge_clearance <= 4, (
-            f"Expected <= 4 fixable copper_edge_clearance, got {edge_clearance}. "
-            f"Fixable: {dict(fixable_counts)}"
-        )
+        # Failure-reason pin (see docs/solutions/best-practices/
+        # pin-known-failure-reasons-2026-07-30.md and
+        # scripts/known_failure_pins.py): this test's failure *reason* is the
+        # violation-type breakdown below, not merely "did it fail." Wrapping
+        # the existing assertions -- unmodified, same thresholds -- in a
+        # try/except means: if this test is currently red for a declared,
+        # pinned reason, the AssertionError says so explicitly; if it fails
+        # for ANY other reason (including the same violation types at
+        # different counts, or an entirely new violation type), the message
+        # says that loudly instead of looking identical to the pinned one.
+        # A test with no pin in known-failure-pins.yaml gets its message back
+        # completely unchanged -- this can never silence an undeclared
+        # failure, only annotate a declared one.
+        signature = dict(sorted(fixable_counts.items()))
+        try:
+            assert shorting == 0, (
+                f"Expected 0 fixable shorting_items, got {shorting}. Fixable: {dict(fixable_counts)}"
+            )
+            assert mask_bridge == 0, (
+                f"Expected 0 fixable solder_mask_bridge, got {mask_bridge}. "
+                f"Fixable: {dict(fixable_counts)}"
+            )
+            # Edge margin is placement-relevant but the hardcoded 0.5mm
+            # copper_edge_clearance may not match the board's (setup) value.
+            # Tracked as a known gap — not a placement constraint failure.
+            assert edge_clearance <= 4, (
+                f"Expected <= 4 fixable copper_edge_clearance, got {edge_clearance}. "
+                f"Fixable: {dict(fixable_counts)}"
+            )
 
-        assert placement_fixable <= 15, (
-            f"Expected <= 15 placement-fixable violations, got {placement_fixable}. "
-            f"Fixable: {dict(fixable_counts)}, "
-            f"Irreducible intra-component: {intra_component_count} ({dict(irreducible_counts)})"
-        )
+            assert placement_fixable <= 15, (
+                f"Expected <= 15 placement-fixable violations, got {placement_fixable}. "
+                f"Fixable: {dict(fixable_counts)}, "
+                f"Irreducible intra-component: {intra_component_count} ({dict(irreducible_counts)})"
+            )
+        except AssertionError as exc:
+            raise AssertionError(
+                annotate_failure(request.node.nodeid, signature, str(exc))
+            ) from exc
     finally:
         os.unlink(tmp.name)
 
@@ -544,8 +583,19 @@ PRODUCTION_BOARD_PATH = REPO_ROOT / "pcb" / "temper.kicad_pcb"
 # footprints.md Sec 2).  A shape guard that stayed green while the pad geometry
 # changed underneath it is doing exactly its job: it guards against a board
 # whose COPPER budget is no longer comparable, and the copper is identical.
+#
+# 2026-07-30: footprints 168 -> 169.  `tank.c_tank3` (added to `elec/src` by
+# `3ae26dfe`, "re-source the tank capacitors on AC current") had never been
+# placed on the board at all; it is added here in the resync's staging row
+# (`STAGING_GAP_MM` below the board outline, position/rotation left to a human
+# per docs/evidence/2026-07-30-board-resync-against-source.md — placing a
+# resonant-tank HV component is a PCB design decision, not a resync mechanic).
+# segments/vias/zones are UNCHANGED (2338/48/96): this is a pure
+# designator/footprint-identity resync plus one additive staged part, not a
+# re-route. Every existing footprint's position/rotation/UUID and every
+# copper item's net-by-NAME are proved unchanged in that same evidence doc.
 PRODUCTION_BOARD_BASELINE_SHAPE = {
-    "footprints": 168,
+    "footprints": 169,
     "segments": 2338,
     "vias": 48,
     "zones": 96,
@@ -607,9 +657,38 @@ PRODUCTION_DRC_SAMPLE_RUNS = 5
 #   unconnected      median-of-5 spans  388– 388  -> threshold  388
 # Every one of these is a RATCHET DOWN from the 2026-07-28 seeding except
 # `unconnected`, which is raised by exactly the +6 justified above.
+#
+# 2026-07-30 RE-MEASUREMENT (kicad-cli 10.0.4, macOS arm64), against the new
+# 169-footprint shape above (docs/evidence/2026-07-30-board-resync-against-
+# source.md): resynced 13 drifted `C` designators (`3ae26dfe` added
+# `tank.c_tank3` upstream of them, board was never resynced), corrected 6
+# stale embedded footprints (U3 DIP-6_W7.62mm -> W10.16mm, C6 the Y-cap
+# stub -> its real D12.5/P10.00 land, U7 pad geometry to match the already-
+# corrected `pcb/libs/lib.pretty/SOIC16W_Isolated.kicad_mod`, C1 `power_in.
+# c_x2` disc stub -> the real C_Rect_L18.0mm_W7.0mm_P15.00mm_FKS3_FKP3 MKP
+# body (#452, landed mid-task) and — found by the same by-Sheetpath
+# verification, not in the original 3-footprint task list — C25/C26 `tank.
+# c_tank1`/`tank.c_tank2` from the old WIMA FKP1 rect footprint to the CDE
+# 942C16P1K-F axial footprint `3ae26dfe` itself already specifies), and
+# staged the previously-unplaced `tank.c_tank3` (2 pads, 0 routed copper) in
+# the resync's staging row.  N=5 DRC runs on the final board (all six fixes
+# applied):
+#   total              median 1255, range 1249–1262
+#   shorting_items     median   82, range   77–  89
+#   unconnected_items  390 in all 5 runs (no scatter)
+# `total`/`shorting_items` both still clear the existing 1260/90 ratchets, so
+# those two constants are UNCHANGED.  `unconnected` rose 388 -> 390 and does
+# need raising: verified pair-by-pair, the only two genuinely NEW unconnected
+# pairs (of 70 raw new/removed pairs — the other 68 are the same designator-
+# relabeling churn documented above, KiCad re-picking the nearest ratsnest
+# item) are `tank.c_tank3`'s own two pads reported unconnected to their
+# real-copper neighbours (`C27(SW_NODE) <-> U5 pad3(SW_NODE)`,
+# `C27(tank.c_tank1-p2) <-> R30 pad1(tank.c_tank1-p2)`) — exactly the honest,
+# designed-for consequence of staging a real, unrouted HV component rather
+# than inventing a placement for it. 0 cross-net.
 PRODUCTION_COMMITTED_BOARD_TOTAL_DVIOLATIONS = 1260
 PRODUCTION_COMMITTED_BOARD_SHORTING_ITEMS = 90
-PRODUCTION_COMMITTED_BOARD_UNCONNECTED = 388
+PRODUCTION_COMMITTED_BOARD_UNCONNECTED = 390
 
 # --- Category B: kicad-cli DRC on route_pcb()'s output for that board ---
 # RE-MEASURED 2026-07-29 (kicad-cli 10.0.4, macOS arm64), against the shape
@@ -678,9 +757,25 @@ PRODUCTION_COMMITTED_BOARD_UNCONNECTED = 388
 # STRATEGY.md has already had to diagnose once (+22 median, the CST3015
 # re-place).  The tight shorts gate is the Category A one — that is the board
 # that actually ships.
+#
+# 2026-07-30 RE-MEASUREMENT, same resync as Category A above (docs/evidence/
+# 2026-07-30-board-resync-against-source.md).  N=5 DRC runs on route_pcb()'s
+# deterministic output for the resynced board:
+#   total              median 1449, range 1433–1453
+#   shorting_items     median   95, range   73–  96
+#   unconnected_items  407 in all 5 runs (no scatter)
+# `total`/`shorting_items` clear the existing 1560/125 ratchets unchanged.
+# `unconnected` rose 405 -> 407: route_pcb() was also run against the OLD
+# (pre-resync) committed board for a true before/after on this category
+# specifically (404 -> 407 there, since the router's own temp-file output is
+# not otherwise comparable run-to-run). Of the pairs that differ, the two
+# genuinely new ones are `tank.c_tank3`'s own two unrouted pads (same
+# SW_NODE / tank.c_tank1-p2 pair as Category A) plus ordinary router-noise
+# relabeling of the same 13 renumbered designators; 0 cross-net over all new
+# pairs, verified directly against both DRC JSON outputs.
 PRODUCTION_ROUTER_OUTPUT_TOTAL_DVIOLATIONS = 1560
 PRODUCTION_ROUTER_OUTPUT_SHORTING_ITEMS = 125
-PRODUCTION_ROUTER_OUTPUT_UNCONNECTED = 405
+PRODUCTION_ROUTER_OUTPUT_UNCONNECTED = 407
 
 
 @dataclass(frozen=True)

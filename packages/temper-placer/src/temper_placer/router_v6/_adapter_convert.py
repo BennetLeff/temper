@@ -12,11 +12,27 @@ import uuid
 from pathlib import Path
 from typing import Any
 
+from temper_placer.geometry.kicad_transform import rotate_local_to_world
 from temper_placer.router_v6._adapter_types import (
     CongestionRegion,
     DrcViolation,
     ParsedPcbLike,
     RoutingResult,
+)
+from temper_placer.router_v6._strip_copper import strip_existing_zones
+
+# Re-exported from _zone_pour_stitch.py (LOC cap paydown, temper-N7-cap5):
+# _stitch_isolated_pads/_emit_zone_pours/_zone_layers_for_net/
+# _zone_params_for_net are in __all__ below; _chamfer_path_points is used
+# directly in _write_routes_to_content() and imported directly by
+# tests/router_v6/test_adapter.py from this module path, so both re-exports
+# are load-bearing, not vestigial.
+from temper_placer.router_v6._zone_pour_stitch import (  # noqa: F401
+    _chamfer_path_points,
+    _emit_zone_pours,
+    _stitch_isolated_pads,
+    _zone_layers_for_net,
+    _zone_params_for_net,
 )
 
 logger = logging.getLogger(__name__)
@@ -162,6 +178,8 @@ def route_pcb(
     enable_manufacturing_drc: bool = False,
     sat_conflict_limit: int | None = 20_000,
     sat_time_limit_ms: int | None = None,
+    rotations: dict[str, float] | None = None,
+    components: list | None = None,
 ) -> RoutingResult:
     """Route a PCB using the Router V6 pipeline.
 
@@ -173,6 +191,21 @@ def route_pcb(
             form injection into the output PCB. net_class_assignments and
             net_classes are both derived from this object and threaded
             into the pipeline automatically -- see the block below.
+        rotations: Optional dict mapping component ref -> new absolute
+            footprint rotation in degrees (see
+            ``CpSatPlacementResult.to_rotations_dict()``). Threaded
+            straight through to ``_apply_placements_to_pcb`` -- see its
+            docstring for exactly what is and is not rewritten. A ref
+            with no entry here keeps its existing angle unchanged,
+            matching this parameter's pre-existing absence entirely.
+        components: Optional list of ``Component`` objects (the netlist
+            ``solve_placement`` was called with). Threaded straight through
+            to ``_apply_placements_to_pcb`` so it can invert each
+            footprint's pad-centroid offset (``_center_offset_x/y``) back
+            to a KiCad anchor -- see its docstring. Required alongside
+            ``rotations`` for any footprint whose pads are not centred on
+            its raw anchor (e.g. an asymmetric TO-247); omitting it keeps
+            prior behavior unchanged.
         thermal_flat: U9 optional (N,) float32 thermal cost field from
             the previous round's field.  Threaded to A* kernel.
         thermal_weight: U9 multiplier on per-cell thermal cost
@@ -329,7 +362,11 @@ def route_pcb(
     if placements:
         raw_content = pcb_path.read_text(encoding="utf-8")
         modified_content = _apply_placements_to_pcb(
-            raw_content, placements, design_rules=design_rules
+            raw_content,
+            placements,
+            design_rules=design_rules,
+            rotations=rotations,
+            components=components,
         )
 
         fd, temp_path = tempfile.mkstemp(suffix=".kicad_pcb")
@@ -416,312 +453,6 @@ def route_pcb(
             enable_connectivity_verifier=enable_connectivity_verifier,
         )
 
-
-def _zone_layers_for_net(net_name: str) -> list[str]:
-    """Resolve the zone/pour layer(s) for a net from the netclass SSOT.
-    Returns empty list for nets that don't get zone treatment."""
-    from temper_placer.core.design_rules import TEMPER_NET_ASSIGNMENTS
-
-    nc = TEMPER_NET_ASSIGNMENTS.get(net_name, "")
-    if nc in ("GND", "Power", "GateDrive", "HighVoltage", "ACMains"):
-        return ["F.Cu", "B.Cu"]
-    return []
-
-
-def _zone_params_for_net(net_name: str) -> tuple[float, float]:
-    """Resolve per-netclass zone margin and clearance from DesignRules."""
-    from temper_placer.core.design_rules import (
-        TEMPER_NET_ASSIGNMENTS,
-        TEMPER_NET_CLASSES,
-    )
-
-    nc = TEMPER_NET_ASSIGNMENTS.get(net_name, "")
-    rules = TEMPER_NET_CLASSES.get(nc)
-    if rules is not None:
-        # Bounded by clearance -- the project's own authoritative safety
-        # constant for ACMains/HighVoltage (SAFETY_CONSTANT_AUTHORITY_NET_CLASSES
-        # in design_rules.py). The previous trace_width * 10.0 heuristic
-        # produced a 25-30mm zone-boundary expansion for those classes on a
-        # ~100-150mm board -- an arbitrary multiple with no principled bound.
-        # NOTE: investigation on 2026-07-21 found the oversized margin does
-        # NOT explain the PR #263 shorting_items increase (0 of 85 shorting
-        # violations on the production board involved a zone at all -- see
-        # docs/plans or session notes for the measurement). This change is
-        # kept on its own merits: bounding margin by clearance is principled,
-        # trace_width * 10.0 was not.
-        margin = rules.clearance
-        clearance = rules.clearance
-    else:
-        margin = 0.3
-        clearance = 0.3
-    return margin, clearance
-
-
-# U1: netclasses where clustering would fragment a continuous return/ground
-# plane and undermine EMI/loop-area control for switching-power-supply nets.
-_CONTINUITY_EXEMPT_CLASSES = frozenset({"GND", "ACMains", "HighVoltage"})
-
-
-def _stitch_isolated_pads(
-    pad_positions: dict[str, list[tuple[float, float]]],
-    segments: list[str],
-    net_name_to_number: dict[str, int],
-    zone_points: dict[str, list[tuple[tuple[float, float], ...]]],
-    *,
-    tstamp_counter: list[int] | None = None,
-) -> None:
-    """U3: emit straight-line trace segments from pads outside every
-    dense-cluster pour back to the nearest pour for that net.
-
-    Uses the already-computed zone polygons (from the zone-emission
-    loop above) rather than re-clustering independently.
-
-    ``tstamp_counter`` lets a caller (``_emit_zone_pours`` /
-    ``_write_routes_to_content``) share one deterministic tstamp
-    sequence across every element emitted in a single route_pcb() call.
-    Callers that invoke this function standalone (e.g. tests) get a
-    fresh, independent counter starting at 0.
-    """
-    if tstamp_counter is None:
-        tstamp_counter = [0]
-
-    from shapely.geometry import Point as ShapelyPoint
-    from shapely.geometry import Polygon
-
-    from temper_placer.core.design_rules import (
-        TEMPER_NET_ASSIGNMENTS,
-    )
-
-    for net_name, positions in pad_positions.items():
-        nc = TEMPER_NET_ASSIGNMENTS.get(net_name, "")
-        if nc not in ("GND", "Power", "GateDrive", "HighVoltage", "ACMains"):
-            continue
-        net_num = net_name_to_number.get(net_name, 0)
-        if net_num <= 0 or len(positions) <= 1:
-            continue
-
-        zps = zone_points.get(net_name)
-        if not zps:
-            continue
-
-        pour_polys: list[Polygon] = []
-        for pts in zps:
-            if len(pts) >= 3:
-                pour_polys.append(Polygon(pts))
-
-        if not pour_polys:
-            continue
-
-        outside: list[tuple[float, float]] = []
-        for x, y in positions:
-            pt = ShapelyPoint(x, y)
-            if not any(poly.contains(pt) or poly.touches(pt) for poly in pour_polys):
-                outside.append((x, y))
-
-        if not outside:
-            continue
-
-        from scipy.spatial import cKDTree
-
-        all_verts: list[tuple[float, float]] = []
-        for poly in pour_polys:
-            for x, y in poly.exterior.coords:
-                all_verts.append((float(x), float(y)))
-        if not all_verts:
-            continue
-
-        tree = cKDTree(all_verts)
-        trace_layer = (
-            _zone_layers_for_net(net_name)[0] if _zone_layers_for_net(net_name) else "F.Cu"
-        )
-
-        for px, py in outside:
-            _dist, idx = tree.query((px, py))
-            nearest_x, nearest_y = all_verts[idx]
-
-            segments.append(
-                f"  (segment (start {px:.4f} {py:.4f})"
-                f" (end {nearest_x:.4f} {nearest_y:.4f})"
-                f' (width {0.2:.4f}) (layer "{trace_layer}")'
-                f" (net {net_num})"
-                f' (tstamp "{_next_tstamp(tstamp_counter)}"))'
-            )
-
-
-def _emit_zone_pours(
-    pad_positions: dict[str, list[tuple[float, float]]],
-    segments: list[str],
-    net_name_to_number: dict[str, int],
-    *,
-    design_rules: Any = None,
-    tstamp_counter: list[int] | None = None,
-) -> None:
-    """Emit filled-copper zone geometry for all zone-eligible nets.
-
-    ``tstamp_counter``: see ``_stitch_isolated_pads`` -- threaded through
-    so the isolated-pad stitch segments this function emits (via
-    ``_stitch_isolated_pads``) continue the same deterministic tstamp
-    sequence as the caller's other segments/vias.
-    """
-    from temper_placer.core.design_rules import (
-        TEMPER_NET_ASSIGNMENTS,
-        TEMPER_NET_CLASSES,
-    )
-    from temper_placer.router_v6.zone_emission import (
-        ZoneDefinition,
-        compute_zones_for_net,
-        emit_zone_s_expr,
-    )
-
-    zone_netclasses: set[str] = set()
-    for net_name in pad_positions:
-        if _zone_layers_for_net(net_name):
-            nc = TEMPER_NET_ASSIGNMENTS.get(net_name, "")
-            if nc:
-                zone_netclasses.add(nc)
-
-    effective_clearance: dict[str, float] = {}
-    class_pairs = getattr(design_rules, "class_pairs", {}) or {}
-    for nc in zone_netclasses:
-        own_rules = TEMPER_NET_CLASSES.get(nc)
-        own_clearance = own_rules.clearance if own_rules else 0.3
-        eff = own_clearance
-        for other_nc in zone_netclasses:
-            if other_nc == nc:
-                continue
-            pair_key = tuple(sorted((nc, other_nc)))
-            if pair_key in class_pairs:
-                pair_clearance = class_pairs[pair_key].get("clearance", eff)
-                eff = max(eff, pair_clearance)
-            else:
-                other_rules = TEMPER_NET_CLASSES.get(other_nc)
-                other_clearance = other_rules.clearance if other_rules else 0.3
-                eff = max(eff, max(own_clearance, other_clearance))
-        effective_clearance[nc] = eff
-
-    _MAX_DRU_PRIORITY = max(
-        (r.dru_priority for r in TEMPER_NET_CLASSES.values()),
-        default=90,
-    )
-    zone_priority: dict[str, int] = {}
-    for nc in zone_netclasses:
-        rules = TEMPER_NET_CLASSES.get(nc)
-        dru_p = rules.dru_priority if rules else 0
-        zone_priority[nc] = _MAX_DRU_PRIORITY - dru_p
-
-    zone_points_by_net: dict[str, list[tuple[tuple[float, float], ...]]] = {}
-    for net_name, positions in pad_positions.items():
-        zone_layers = _zone_layers_for_net(net_name)
-        if not zone_layers:
-            continue
-        net_num = net_name_to_number.get(net_name, 0)
-        if net_num > 0 and positions:
-            nc = TEMPER_NET_ASSIGNMENTS.get(net_name, "")
-            eff_clearance = effective_clearance.get(nc, 0.3)
-            prio = zone_priority.get(nc, 0)
-            exempt = nc in _CONTINUITY_EXEMPT_CLASSES
-
-            for layer in zone_layers:
-                try:
-                    margin, _clearance = _zone_params_for_net(net_name)
-                    zds = compute_zones_for_net(
-                        net_name,
-                        net_num,
-                        positions,
-                        layer=layer,
-                        margin=margin,
-                        cluster=not exempt,
-                    )
-                    for zd in zds:
-                        zd = ZoneDefinition(
-                            net_name=zd.net_name,
-                            net_number=zd.net_number,
-                            layer=zd.layer,
-                            points=zd.points,
-                            clearance=eff_clearance,
-                            min_thickness=zd.min_thickness,
-                            priority=prio,
-                        )
-                        segments.append(emit_zone_s_expr(zd))
-                        zone_points_by_net.setdefault(net_name, []).append(zd.points)
-                except ValueError:
-                    pass
-
-    _stitch_isolated_pads(
-        pad_positions,
-        segments,
-        net_name_to_number,
-        zone_points_by_net,
-        tstamp_counter=tstamp_counter,
-    )
-
-
-def _chamfer_path_points(
-    path_points: list[tuple[float, float, str]],
-    chamfer_offset: float = 0.1,
-) -> list[tuple[float, float, str]]:
-    """Chamfer 90-degree orthogonal turns to reduce grid-staircasing DRC violations.
-
-    The A* router operates on a 0.1 mm grid, producing paths whose turns
-    are sharp 90-degree corners.  When two adjacent traces follow similar
-    grid paths, the clearance between their edges at these corners can
-    dip below the DRC minimum.  This function replaces each orthogonal
-    turn with a 45-degree diagonal chamfer, shortening both the incoming
-    and outgoing segments by *chamfer_offset*.
-
-    Layer transitions (vias) are never chamfered.  Start and end points
-    are preserved unchanged.  Segments shorter than ``2 * chamfer_offset``
-    on either side of a turn skip chamfering.
-    """
-    if len(path_points) <= 2:
-        return list(path_points)
-
-    result: list[tuple[float, float, str]] = [path_points[0]]
-
-    for i in range(1, len(path_points) - 1):
-        prev = path_points[i - 1]
-        curr = path_points[i]
-        nxt = path_points[i + 1]
-
-        if prev[2] != curr[2] or curr[2] != nxt[2]:
-            result.append(curr)
-            continue
-
-        lyr = curr[2]
-        dx1 = curr[0] - prev[0]
-        dy1 = curr[1] - prev[1]
-        dx2 = nxt[0] - curr[0]
-        dy2 = nxt[1] - curr[1]
-
-        h1 = abs(dy1) < 1e-12 and abs(dx1) > 1e-12
-        v1 = abs(dx1) < 1e-12 and abs(dy1) > 1e-12
-        h2 = abs(dy2) < 1e-12 and abs(dx2) > 1e-12
-        v2 = abs(dx2) < 1e-12 and abs(dy2) > 1e-12
-
-        is_orthogonal = (h1 and v2) or (v1 and h2)
-        if not is_orthogonal:
-            result.append(curr)
-            continue
-
-        seg1_len = math.sqrt(dx1 * dx1 + dy1 * dy1)
-        seg2_len = math.sqrt(dx2 * dx2 + dy2 * dy2)
-        if seg1_len < 2.0 * chamfer_offset or seg2_len < 2.0 * chamfer_offset:
-            result.append(curr)
-            continue
-
-        ux1 = dx1 / seg1_len
-        uy1 = dy1 / seg1_len
-        ux2 = dx2 / seg2_len
-        uy2 = dy2 / seg2_len
-
-        before = (curr[0] - ux1 * chamfer_offset, curr[1] - uy1 * chamfer_offset, lyr)
-        after = (curr[0] + ux2 * chamfer_offset, curr[1] + uy2 * chamfer_offset, lyr)
-
-        result.append(before)
-        result.append(after)
-
-    result.append(path_points[-1])
-    return result
 
 
 def _write_routes_to_content(
@@ -912,6 +643,7 @@ def _write_routes_to_content(
             )
 
     if getattr(result, "enable_zone_pours", False):
+        pcb_content, _ = strip_existing_zones(pcb_content)  # R7: replace, don't append
         _emit_zone_pours(
             pad_positions,
             segments,
@@ -1029,16 +761,102 @@ def _build_routing_result(
     )
 
 
+# A .kicad_pcb pad's `(at x y angle)` angle is its ABSOLUTE (world)
+# orientation -- unlike a .kicad_mod's, it is not an offset added to the
+# parent footprint's angle at load time (see _write_board.py::_reorient_pads,
+# the kiutils-based precedent for this same rule on a parsed board tree).
+# Matches pad shapes across pad kinds actually present in this repo's boards
+# (thru_hole/np_thru_hole/smd/connect x circle/rect/oval/roundrect/
+# trapezoid/custom): `(pad "<num-or-empty>" <type> <shape> (at X Y [ANGLE])`.
+_PAD_AT_RE = re.compile(
+    r'(\(pad\s+"[^"]*"\s+\S+\s+\S+\s+\(at\s+[\d.-]+\s+[\d.-]+)(?:\s+([\d.-]+))?(\))'
+)
+
+
+def _reorient_pads_in_footprint_block(block: str, delta_deg: float) -> str:
+    """Rewrite every pad's absolute angle in *block* by *delta_deg*.
+
+    Raw-string-content counterpart of ``_write_board.py::_reorient_pads``:
+    same rule (pad angle is absolute, not footprint-relative), applied to
+    ``.kicad_pcb`` s-expression text instead of a parsed ``kiutils`` tree.
+    Each pad's *intrinsic* orientation (its angle relative to its parent, as
+    defined by the library footprint) is preserved -- only the absolute
+    angle shifts by the footprint's own rotation delta. Skipping this step
+    was the root cause of 60 intra-component copper shorts on this board
+    (PRs #412/#420/#426); see
+    docs/evidence/2026-07-29-intra-component-shorts-root-cause.md.
+    """
+
+    def _shift(m: re.Match[str]) -> str:
+        old_angle = float(m.group(2)) if m.group(2) else 0.0
+        new_angle = (old_angle + delta_deg) % 360.0
+        # kiutils/KiCad omit the angle token when it is 0; write it back
+        # only when the result really is nonzero, matching _reorient_pads.
+        angle_token = "" if new_angle == 0.0 else f" {new_angle:.4f}"
+        return f"{m.group(1)}{angle_token}{m.group(3)}"
+
+    return _PAD_AT_RE.sub(_shift, block)
+
+
 def _apply_placements_to_pcb(
     raw_content: str,
     placements: dict[str, tuple[float, float]],
     design_rules: Any = None,
+    rotations: dict[str, float] | None = None,
+    components: list | None = None,
 ) -> str:
-    """Modify footprint (at X Y [ANGLE]) positions in KiCad PCB raw content."""
+    """Modify footprint (at X Y [ANGLE]) positions in KiCad PCB raw content.
+
+    ``rotations``, if given, maps component ref -> new absolute footprint
+    rotation in degrees (the same convention as
+    ``CpSatPlacementResult.rotations[ref] * 90.0``, see cli/__init__.py).
+    A ref present in ``placements`` but absent from ``rotations`` (or
+    passed with ``rotations=None`` entirely) keeps its existing angle
+    byte-for-byte unchanged -- the pre-existing, position-only behavior.
+    When a ref's target angle differs from its current one, every pad in
+    that footprint is re-oriented by the same delta so pad geometry keeps
+    matching where the footprint visually points (see
+    ``_reorient_pads_in_footprint_block`` above).
+
+    ``components``, if given, is the ``Component`` list the placements were
+    *solved* against (the same object ``solve_placement`` was called with).
+    ``placements[ref]`` is CP-SAT's box-CENTRE coordinate -- for a footprint
+    whose pad centroid does not coincide with its raw KiCad anchor
+    (``Component.attributes["_center_offset_x/y"]`` != 0, e.g. an
+    asymmetric TO-247), the anchor this function writes into ``(at X Y)``
+    must be the centre minus that offset, rotated (KiCad's actual,
+    clockwise convention -- see the inline comment below) by whichever
+    rotation the centre was actually computed at (``rotations.get(ref)``
+    when a solved rotation was supplied, else the footprint's own existing
+    angle) -- otherwise every pad in the footprint is written up to
+    ``2 * center_offset`` mm away from where CP-SAT verified it to be
+    sound, silently reopening the exact clearance/overlap gap the
+    box-containment proof in ``domain_clearance.py`` depends on. Same
+    correction as ``io/_write_board.py::write_placements_to_pcb`` (the
+    write path ``pcb/temper.kicad_pcb`` ships through) and
+    ``io/_parse_modules.py``'s read-side ``rotated_cx``/``rotated_cy`` --
+    both were carrying the wrong rotation sign until this change; see
+    docs/evidence/2026-07-30-generic-separation-writer-frame-fix.md.
+    Omitting ``components`` (the default) keeps prior behavior byte-for-byte
+    identical -- callers that never pass it (nothing else in this codebase
+    besides the golden-board regression gate did, until this was wired in)
+    are unaffected.
+    """
     foot_starts = [m.start() for m in re.finditer(r'\(footprint\s+"[^"]+"\s+\(layer', raw_content)]
 
     if not foot_starts:
         return raw_content
+
+    center_offsets: dict[str, tuple[float, float]] = {}
+    if components:
+        for comp in components:
+            attrs = getattr(comp, "attributes", None)
+            if not attrs:
+                continue
+            cx = float(attrs.get("_center_offset_x", "0"))
+            cy = float(attrs.get("_center_offset_y", "0"))
+            if cx != 0.0 or cy != 0.0:
+                center_offsets[getattr(comp, "ref", "")] = (cx, cy)
 
     result_parts = []
     prev_end = 0
@@ -1052,12 +870,72 @@ def _apply_placements_to_pcb(
             ref = ref_match.group(1)
             if ref in placements:
                 x, y = placements[ref]
-                block = re.sub(
-                    r"(\(at\s+)[\d.-]+\s+[\d.-]+(\s*[\d.-]*\s*\))",
-                    rf"\g<1>{x:.4f} {y:.4f}\2",
-                    block,
-                    count=1,
+                target_angle = rotations.get(ref) if rotations else None
+
+                fp_at_match = re.search(
+                    r"\(at\s+[\d.-]+\s+[\d.-]+(?:\s+([\d.-]+))?\s*\)", block
                 )
+                old_angle = 0.0
+                if fp_at_match and fp_at_match.group(1):
+                    old_angle = float(fp_at_match.group(1))
+
+                if ref in center_offsets:
+                    # The centre was computed at whichever rotation CP-SAT
+                    # actually chose (target_angle); if this call wasn't
+                    # given a solved rotation for this ref, the centre must
+                    # have been computed at its pre-existing angle instead
+                    # (no rotation change), so fall back to old_angle.
+                    #
+                    # Rotation sign: a KiCad footprint's `(at X Y ANGLE)`
+                    # rotates each pad's stored LOCAL (unrotated) offset by
+                    # ANGLE *clockwise* to get its absolute board position --
+                    # i.e. `abs = anchor + R(-ANGLE)` in the standard
+                    # (CCW-positive) trig convention, not `R(+ANGLE)`.
+                    # Verified directly against ``pcbnew`` (KiCad's own
+                    # placement engine, not kiutils or a re-derivation): a
+                    # 2-pad footprint at a non-axis-aligned angle (37 deg)
+                    # with an off-axis local pad offset (10, 4) places that
+                    # pad at (10.393615, -2.823608) -- the R(-ANGLE)
+                    # prediction to 6 decimal places; the R(+ANGLE)
+                    # (standard-CCW) prediction, (5.579095, 9.212693), is a
+                    # different point entirely. Using the standard-CCW sign
+                    # here (as this function's first cut did, and as
+                    # ``io/_write_board.py::write_placements_to_pcb`` and
+                    # ``io/_parse_modules.py``'s ``rotated_cx``/``rotated_cy``
+                    # did before this same change corrected them too)
+                    # silently re-offsets every pad of a rotated,
+                    # off-centroid footprint by up to ``2 * |center_offset|``
+                    # -- exactly what turned Q1/Q2's real, sound clearance
+                    # into a measured copper short here. See
+                    # docs/evidence/2026-07-30-generic-separation-writer-frame-fix.md.
+                    cx, cy = center_offsets[ref]
+                    rot_rad = math.radians(target_angle if target_angle is not None else old_angle)
+                    rotated_cx, rotated_cy = rotate_local_to_world(cx, cy, rot_rad)
+                    x -= rotated_cx
+                    y -= rotated_cy
+
+                if target_angle is None:
+                    # No solved rotation for this ref: preserve its existing
+                    # angle exactly, unchanged from the pre-fix behavior.
+                    block = re.sub(
+                        r"(\(at\s+)[\d.-]+\s+[\d.-]+(\s*[\d.-]*\s*\))",
+                        rf"\g<1>{x:.4f} {y:.4f}\2",
+                        block,
+                        count=1,
+                    )
+                else:
+                    new_angle = target_angle % 360.0
+                    angle_token = "" if new_angle == 0.0 else f" {new_angle:.4f}"
+                    block = re.sub(
+                        r"(\(at\s+)[\d.-]+\s+[\d.-]+(\s*[\d.-]*\s*\))",
+                        rf"\g<1>{x:.4f} {y:.4f}{angle_token})",
+                        block,
+                        count=1,
+                    )
+
+                    delta = target_angle - old_angle
+                    if delta % 360.0 != 0.0:
+                        block = _reorient_pads_in_footprint_block(block, delta)
 
         result_parts.append(raw_content[prev_end:start])
         result_parts.append(block)

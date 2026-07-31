@@ -79,12 +79,39 @@ def _extract_pad_centers_per_net(pcb) -> dict[str, list[tuple[float, float, floa
     return pad_info
 
 
+def _extract_existing_via_centers_per_net(pcb) -> dict[str, list[tuple[float, float, float]]]:
+    """Extract pre-existing (already-on-the-board) via centers, grouped by net.
+
+    Returns ``{net_name: [(x, y, diameter), ...]}``. Mirrors
+    ``_extract_pad_centers_per_net`` above: the obstacle map
+    (``obstacle_map.py``) marks *every* existing via as a static obstacle
+    regardless of net -- correct for other nets, wrong for the routing
+    net's own vias, which must stay enterable. This function supplies the
+    per-net lookup that ``_unblock_net_pads`` uses to re-open exactly the
+    routing net's own via footprints (the same treatment already applied to
+    that net's own pads and escape vias), while leaving every other net's
+    vias blocked. See docs/evidence/2026-07-30-router-copper-shorts.md.
+    """
+    via_info: dict[str, list[tuple[float, float, float]]] = {}
+
+    for via in getattr(pcb, "vias", None) or []:
+        net_name = getattr(via, "net", None)
+        if not net_name:
+            continue
+        via_info.setdefault(net_name, []).append(
+            (via.position[0], via.position[1], via.diameter)
+        )
+
+    return via_info
+
+
 def _unblock_net_pads(
     net_name: str,
     pad_info: dict,
     grids: dict,
     inflation_mm: float = 0.0,
     escape_vias_map: dict[str, list[tuple[float, float, float]]] | None = None,
+    existing_vias_map: dict[str, list[tuple[float, float, float]]] | None = None,
 ) -> list[tuple]:
     """
     Temporarily unblock pads for the given net.
@@ -136,6 +163,16 @@ def _unblock_net_pads(
     if escape_vias_map and net_name in escape_vias_map:
         for vx, vy, diameter in escape_vias_map[net_name]:
             # Escape vias span ALL layers
+            target_grids = list(grids.values())
+            unblock_circle(vx, vy, diameter / 2.0, target_grids)
+
+    # Also unblock this net's own pre-existing vias (already on the board
+    # before this routing pass). obstacle_map.py blocks every via
+    # net-agnostically; this is the per-net exemption for the routing net's
+    # own copper, same treatment as pads/escape vias above. Other nets'
+    # vias are deliberately left blocked here.
+    if existing_vias_map and net_name in existing_vias_map:
+        for vx, vy, diameter in existing_vias_map[net_name]:
             target_grids = list(grids.values())
             unblock_circle(vx, vy, diameter / 2.0, target_grids)
 

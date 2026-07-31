@@ -42,6 +42,60 @@ same manifest via `firmware/test/gen_transition_table.py`. After manifest edits:
     git add firmware/test/test_transition_table_generated.c
     git commit -m "test: regenerate transition table tests"
 
+## Board Change -> DRC Ceiling Re-measurement
+
+`power_pcb_dataset/drc_ceiling.json` records DRC violation counts for
+`pcb/temper.kicad_pcb` with a content-hash `provenance` block
+(`scripts/check_measurement_provenance.py`). **Any PR that touches
+`pcb/temper.kicad_pcb` must re-measure and update `drc_ceiling.json` in the
+*same* PR, not as a follow-up.** The re-measurement is logically part of the
+board change, exactly like the firmware codegen steps above are part of
+their manifest edits -- it is not a separable chore for someone else to
+notice later.
+
+Re-measure with the same tool, flags, and sample count every prior entry in
+the file's own `_march` log used (read that log before touching a number --
+it documents "observed max + 1 headroom" for the one genuinely
+nondeterministic category, `clearance`, and the reasoning behind every prior
+ceiling move):
+
+    export PYTHONPATH="$(pwd)/packages/temper-placer/src"
+    python3 -c "
+    from pathlib import Path
+    from collections import Counter
+    from temper_placer.validation._drc_api import run_drc
+    # run_drc() always passes --all-track-errors -- bare kicad-cli without it
+    # is not reproducible (see _drc_api.py's own comment: 69-88 shorting_items
+    # across 4 runs on a byte-identical board, measured 2026-07-29).
+    # Run 120 times and take the observed range per category, not one sample.
+    "
+
+Then, in `power_pcb_dataset/drc_ceiling.json`:
+- Update `violations_by_type` / `warnings_by_type` to the new observed counts.
+- Update `provenance` (commit, branch, dirty, input hash, tool version).
+- Append a new `_march` entry naming what changed and why, attributing every
+  per-type delta to a specific cause (which component, which commit) rather
+  than reporting only the aggregate.
+- If any per-type or aggregate ceiling would RISE, the commit needs a
+  `Ceiling-Approval:` trailer (enforced by
+  `scripts/check_drc_ceiling_approval.py`) -- a rise is legitimate only for
+  measured run-to-run noise or an already-investigated, attributed,
+  deliberate change; never to silently absorb an unexplained regression. If
+  you can't attribute a rise, stop and report it instead of ratcheting past it.
+
+**Why this must land in the same PR, not after**: `check_measurement_provenance.py`
+fails closed the moment the board's content hash no longer matches this
+file's recorded hash -- it already catches an unpaired board change, on the
+board-changing PR itself, before merge. It does not, by itself, stop that
+PR from merging: `main` currently has no branch-protection required status
+checks (verified via `gh api repos/<org>/<repo>/branches/main/protection` ->
+`404 Branch not protected`), so a red "Provenance & Anti-Vacuity Gates" run
+does not block the merge button. Landing the re-measurement inside the same
+commit is what actually prevents the gap (there is no red window to begin
+with); a separate follow-up PR only repeats the pattern this section exists
+to stop, and depends on a person or agent remembering to open it before the
+board moves again. See `docs/evidence/2026-07-30-drc-ceiling-remeasurement-cascade.md`.
+
 ## Import Boundary Check
 
 Before pushing, verify your changes don't violate import boundaries:

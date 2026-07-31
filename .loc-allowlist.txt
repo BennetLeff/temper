@@ -3,6 +3,4 @@
 packages/temper-placer/src/temper_placer/router_v6/bottleneck_geometry.py 1059 temper-N7-cap4 # new over-cap file
 packages/temper-placer/src/temper_placer/visualization/board_renderer.py 1012 temper-N7-board # follow-up
 packages/temper-placer/src/temper_placer/placer/cp_sat/gates.py 1198 temper-N8-drc-sweep # grew from 1035: IECCreepageGate net-name fix (err.nets instead of err.components) + verification comment
-packages/temper-placer/src/temper_placer/router_v6/_astar_reconstruct.py 1208 temper-N8-split # grew 1187->1206 in e4baa309 (acid-trap generator fix), +2 splitting an import when _astar_theta_star.py was extracted
-packages/temper-placer/src/temper_placer/router_v6/_adapter_convert.py 1095 temper-N7-cap5 # grew 1008->1095 across b78f9041 (bounded CaDiCaL solve), 2a94375d (deterministic tstamp), 84c02da6
 packages/temper-placer/src/temper_placer/validation/results/battery_run.py 1003 temper-N7-cap6 # new over-cap file (999 -> 1003, keyword-API repair comment)

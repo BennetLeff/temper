@@ -1,91 +1,168 @@
-# 2026-07-27: component_count 149 -> 169, net_count 95 -> 106.
+# --- component_count / net_count removed (2026-07-29) ---
 #
-# Not a regression. pcb/temper.kicad_pcb was resynced against the atopile
-# netlist (scripts/resync_pcb_netlist.py, commit 1461d944; evidence in
-# docs/evidence/2026-07-27-pcb-netlist-resync.md), adding components that
-# existed in the netlist but had never been placed on the board. The board
-# identity gate was failing on exactly this: "0 refs only in board, 20 refs
-# only in netlist".
+# These two keys used to live here as frozen absolutes, compared for exact
+# equality against whatever pcb/temper.kicad_pcb happened to measure that
+# run. They are DESCRIPTIONS of the board, not quality metrics -- a board
+# legitimately gains and loses parts and nets as the design changes -- so
+# pinning them here guaranteed a recurring false failure on every
+# legitimate board change. It happened three times in three days:
+#   2026-07-27: component_count 149 -> 169, net_count 95 -> 106
+#               (PCB resynced to netlist, 20 previously-unplaced parts added)
+#   2026-07-27 (same day, second edit): 169 -> 170, 106 -> 108
+#               (U27/MCU re-designated; UVL-02 fault-OR fan-in expansion)
+#   2026-07-28: 170 -> 168 (net_count unchanged)
+#               (OVP-01 Option C deleted R55/R56; commit 75a708a8/65bd0159)
+# ...and it was red again on main a fourth time (168 measured vs. 170
+# still recorded) before a fifth hand edit (PR #417, 77ccc70c) matched the
+# number back up -- which bought nothing, because the underlying mechanism
+# (an absolute compared to a mutable artifact) was untouched and would go
+# stale on the next legitimate component/net change regardless.
 #
-# The +20 was verified by parsing the pre-resync board
-# (`git show 1461d944^:pcb/temper.kicad_pcb`) and the current one and diffing
-# reference designators: 20 added, 0 removed.
-#   R67 R68 R69 R70 R71 R72 R73 R74 R75 R76 R77 R78 R79 R80 R81
-#   TP3 U23 U24 U25 U26
+# The durable fix: `RegressionRunner._run_board`
+# (packages/temper-placer/src/temper_placer/regression/runner.py) now
+# measures component_count/net_count from pcb/temper.kicad_pcb on every
+# run and reports them for visibility ("BOARD: component_count=N,
+# net_count=N" in the golden-check output) without comparing them to any
+# stored number. Nothing here can go stale because nothing here is stored.
+# Full detail:
+# docs/solutions/best-practices/stale-absolute-baseline-vs-mutable-board-2026-07-29.md
 #
-# The +11 nets: 15 new >=2-pin net names appeared and 4 were removed, but the
-# 4 removals are renames matching 1:1 (+340V_BUS -> +170V_BUS, ZCD -> zcd,
-# ina_p -> rtd_pan.rail_monitor-ina_p, outa -> rtd_pan.rail_monitor-outa),
-# netting zero. The 11 genuinely new nets each trace to a documented addition:
-#   ZCD_ISO, a                              (new H11L1 opto + resistors)
-#   gnd                                     (ground net previously absent)
-#   safety-line-3                           (extra OR-tree fan-in slot)
-#   safety.coil_thermal-line, .comp-inp     (THM-02)
-#   safety.ovp.r_adc_top1-p2, ...top2-p2    (split OVP divider)
-#   safety.uvlo_logic-line, .mon-ina_p,
-#     .mon-outa                             (UVL-02)
+# drc_errors/drc_warnings below are NOT the same kind of field as
+# component_count/net_count and were deliberately left alone at first pass:
+# they are genuine quality ratchets (an increase means the board actually
+# got worse, not merely different), so they stay pinned. Re-measure and
+# justify any change to them the same way a corpus-board Ceiling-Approval
+# bless would require -- see the runner's failure message for what's
+# expected.
 #
-# Updated by hand: scripts/bless_baselines.py and the Ceiling-Approval check in
-# placer-regression.yml govern only power_pcb_dataset/corpus/<id>/baseline.json
-# and do not reach this file (`bless_baselines.py --board temper_production`
-# errors with "not found in manifest"). Extending that machinery to cover
-# golden_manifest.yaml boards is the outstanding gap this edit works around.
+# --- drc_available flipped false -> true (2026-07-29, same day) ---
 #
-# Only the two counts below are changed. deterministic_pipeline.placed_components
-# and every DRC/routing figure further down are recorded measurements from
-# specific runs and are NOT re-stated here, because they were not re-measured.
-# 2026-07-27 (second update): component_count 169 -> 170, net_count 106 -> 108.
+# Leaving drc_available: false made the two lines above vacuous: with
+# component_count/net_count no longer gating either, golden-check asserted
+# approximately nothing beyond "the board parses" -- a green-and-empty gate,
+# worse than the false failure it replaced, because nobody investigates a
+# passing check. Root cause: golden-check ran on bare ubuntu-latest with no
+# kicad-cli installed at all, so `drc_available: true` would have made
+# RegressionRunner._run_board's run_drc() call raise -- and the runner's own
+# try/except silently fell back to comparing a fabricated 0 against whatever
+# ceiling was pinned here, always passing regardless of the board's actual
+# DRC state. Two fixes landed together: (1) golden-check.yml now runs in
+# the same container image (ghcr.io/bennetleff/temper-ci:latest) the
+# board-gates job in python-tests.yml uses, which has kicad-cli
+# preinstalled; (2) RegressionRunner._run_board now hard-fails the board
+# (not a silent skip) if drc_available: true but DRC still can't be run for
+# any reason -- an unmeasured run must never read as a clean one.
 #
-# Verified against the board, not assumed. Diffing reference designators
-# between fead30e7 (where 169/106 was recorded) and HEAD shows exactly one
-# addition and no removals: U27, footprint lib:ESP32-S3-WROOM-1, sheetpath
-# mcu.mcu -- the MCU, re-designated. The new nets are safety.fault_or3-b2,
-# -y2 and -y3: the third OR stage added when UVL-02's fault was wired into
-# the SET path and fault_any_or ran out of fan-in
-# (docs/evidence/2026-07-27-fault-tree-capacity-expansion.md).
+# MEASURED VALUES. kicad-cli 10.0.4 (Darwin arm64 25.5.0, matching the CI
+# image's KiCad 10.0 PPA install), against the board shape below (verified
+# via `grep -c '(footprint '/'(segment '/'(via '/'(zone ' pcb/temper.kicad_pcb`,
+# same shape test_regression_drc.py's PRODUCTION_BOARD_BASELINE_SHAPE records
+# for this commit): footprints 168, segments 2338, vias 48, zones 96.
 #
-# This file has now gone stale twice in one day. It has no bless script and
-# no Ceiling-Approval gate -- scripts/bless_baselines.py governs only
-# power_pcb_dataset/corpus/<id>/baseline.json and errors with "not found in
-# manifest" for temper_production. Every legitimate board change therefore
-# requires a hand edit, which is precisely the drift-prone arrangement the
-# corpus baselines have machinery to prevent. Extending that machinery to
-# golden_manifest.yaml boards is the real fix; this is another workaround.
+# `run_drc()` (packages/temper-placer/src/temper_placer/validation/_drc_api.py,
+# the function RegressionRunner actually calls) uses `--all-track-errors`,
+# unlike test_regression_drc.py's own `_run_drc` helper -- the two modules'
+# violation counts are NOT directly comparable even on the identical board;
+# do not cross-check one against the other without accounting for that flag.
 #
-# 2026-07-28: component_count 170 -> 168. net_count unchanged (108).
+# N=15 `run_drc()` samples, all on the unmodified committed board:
+#   errors    all 15 runs: 817 x10, 818 x5  ->  median 817, range 817-818
+#   warnings  all 15 runs: 683 (zero scatter)
+# RegressionRunner now samples DRC_SAMPLE_RUNS=5 per run and compares
+# medians (same discipline as test_regression_drc.py's
+# PRODUCTION_DRC_SAMPLE_RUNS); every 5-of-15 subset of the sample above has
+# a median of 817 or 818, never higher. Thresholds set just above the worst
+# observed median-of-5, same rule test_regression_drc.py uses -- not so
+# loose that a real regression could hide inside the margin:
+#   drc_errors:   worst median-of-5 = 818  -> ceiling 820  (margin 2)
+#   drc_warnings: worst median-of-5 = 683  -> ceiling 685  (margin 2)
 #
-# Not a regression -- a real, intentional, verified component deletion that
-# this file failed to track. Commit 75a708a8 (fix(elec): OVP-01 Option C --
-# re-reference comp.INN to REF2025) deleted two components from the
-# netlist:
-#   R55  safety.ovp.r_ref_top  11.8k ohm 1% (RC0603FR-0711K8L)
-#   R56  safety.ovp.r_ref_bot  10.0k ohm 1% (RC0603FR-0710KL)
-# These formed the 1% resistor divider off vcc_3v3 feeding
-# OVPComparator.comp.INN. The divider passed nominally (199.9V trip) but
-# failed worst-case tolerance+tempco (193.9-206.2V vs the 195-205V window,
-# per docs/evidence/2026-07-27-threshold-sensitivity-tempco-budget.md).
-# Option C replaces it by driving comp.INN directly from REF2025's fixed
-# VREF output (2.5V, +/-0.05%/8ppm/C -- already instantiated in
-# RTDSensing, previously unused), which clears the window under worst
-# case (196.11-203.81V). See
-# docs/evidence/2026-07-27-ovp01-ref2025-implementation.md.
+# `deterministic_pipeline.kicad_cli_drc_errors: 142` /
+# `kicad_cli_drc_warnings: 454` below are NOT the right figures for this
+# comparison and were left untouched deliberately: they're dated
+# extraction_date 2026-07-17, measured on the 149-footprint, ZERO-copper
+# board before it was ever routed (see docs/solutions/best-practices/
+# stale-absolute-baseline-vs-mutable-board-2026-07-29.md, instance 2, for
+# the same bare-vs-routed category error on test_regression_drc.py's old
+# PRODUCTION_PLACEMENT_ONLY_DRC_VIOLATIONS constants). They describe a board
+# that no longer exists and are kept only as a historical record inside
+# deterministic_pipeline, not as a live ratchet -- do not use them to
+# sanity-check drc_errors/drc_warnings above.
 #
-# Commit 65bd0159 (fix(pcb): resync board to netlist after OVP-01 Option C
-# re-reference) then resynced pcb/temper.kicad_pcb to the now-168-component
-# netlist by Sheetpath identity (168/168 matched, 25 designators shifted --
-# all mechanical renumbering from the two deletions, 0 components moved,
-# 0 net-name/geometry mismatches across board.traceItems/zones). See
-# docs/evidence/2026-07-27-post-ovp-resync.md. Verified directly in this
-# re-record: neither "safety.ovp.r_ref_top" nor "safety.ovp.r_ref_bot"
-# Sheetpath exists anywhere in elec/src/modules.ato or pcb/temper.kicad_pcb
-# at HEAD, and `uv run temper-placer regression` reports no net_count,
-# drc_errors, or drc_warnings delta -- component_count is the only metric
-# this board's design change actually moved.
-component_count: 168
-net_count: 108
-drc_available: false
-drc_errors: 0
-drc_warnings: 0
+# --- drc_errors RE-BASELINED 2026-07-30 (PR #459, board resync against
+# elec/src / pcb/libs) ---
+#
+# WHY IT MOVED. This PR corrects 6 embedded footprints on
+# pcb/temper.kicad_pcb that had drifted behind elec/src/pcb/libs (U3
+# DIP-6_W7.62mm -> W10.16mm, C6 and C1 each a 5mm-pitch disc "stub" ->
+# their real 10mm/15mm-pitch bodies, C25/C26 tank capacitors WIMA FKP1
+# rect -> CDE 942C16P1K-F axial, U7's pad/silk/courtyard geometry matched
+# to the already-corrected pcb/libs/lib.pretty/SOIC16W_Isolated.kicad_mod),
+# plus stages one previously-missing component (tank.c_tank3) in a clear
+# row below the board outline. See docs/evidence/
+# 2026-07-30-board-resync-against-source.md for the full resync.
+#
+# Every one of these 7 components keeps its EXISTING position/rotation --
+# verified footprint-by-footprint, 0 of 168 pre-existing components moved
+# (same doc, by-name copper-net-identity proof). No placement or routing
+# ran in this change. That makes the attribution airtight: a physically
+# larger, datasheet-correct footprint sitting at an unchanged anchor point
+# necessarily overlaps unchanged neighbouring copper/courtyards/silk more
+# than the smaller, wrong footprint it replaces -- there is no other
+# mechanism available in this diff that could move a DRC count.
+#
+# VERIFIED, not assumed: every one of the 100+ new DRC error instances was
+# checked against the 7 changed components' reference designators. Zero of
+# them involve any OTHER, unchanged component -- i.e. 0 new violations
+# between components this PR did not touch. Per-rule breakdown (kicad-cli
+# 10.0.4, macOS arm64, `run_drc()` i.e. `--all-track-errors`, both boards
+# measured against a full pcb/ directory copy -- WITHOUT the adjacent
+# .kicad_pro/fp-lib-table a bare board-file comparison silently picks up
+# kicad-cli's built-in default severities instead of this project's own
+# `rule_severities` overrides, e.g. pth_inside_courtyard flips
+# error<->warning as a pure measurement artefact, not a real board change --
+# this was caught and corrected before being recorded here):
+#
+#   rule                  old  new  delta  driven by (ref: instance count)
+#   hole_clearance        101  109   +8    U3:8, U7:2
+#   shorting_items        113  118   +5    U3:4, U7:1, C1:1
+#   courtyards_overlap     11   16   +5    C25:3, C26:2, C1:1
+#   solder_mask_bridge     64   69   +5    U3:4, U7:1, C1:1
+#   copper_edge_clearance  13   15   +2    C1:2
+#   (every other rule: delta 0)
+#                                +25  (this specific paired sample; see the
+#                                      median figures below for the ratchet)
+#
+# All five categories are the textbook consequence of a bigger, correct
+# body/lead-pitch sitting where a smaller, wrong one used to: U3's DIP-6
+# pins now span 10.16mm not 7.62mm; C1/C6's THT pads now sit 15mm/10mm
+# apart, not 5mm; C25/C26's real axial capacitor bodies are a different
+# shape than the WIMA rect stub they replace; U7's corrected land pattern
+# is 0.3mm wider per side. None of this is a placer/router regression --
+# there is no placer or router in this diff's causal chain, only a
+# footprint-geometry correction at a frozen position.
+#
+# THE NUMBER ITSELF. CI (golden-check, run 30498739994, kicad-cli 10.0.5,
+# this exact commit) measured drc_errors: 842.0 (its own median-of-5) --
+# this is the authoritative figure the ratchet evaluates against and is
+# used directly below, not re-derived. Cross-checked locally on kicad-cli
+# 10.0.4 (not the CI version -- recorded for corroboration only): N=15
+# `run_drc()` samples gave errors 842 x9, 843 x6 (median 842, worst
+# median-of-5 over all 3003 five-run subsets = 843) -- the same median
+# value CI reported, to the run. Ceiling set the same way the original 820
+# was derived (worst observed median-of-5 + margin 2): 843 + 2 = 845.
+#
+# drc_warnings did NOT regress (CI printed no drc_warnings REGRESSION line)
+# and is left UNCHANGED at 685. Locally it measured 680 (kicad-cli 10.0.4,
+# zero scatter over N=15) -- an improvement, not a regression -- but that
+# number was only measured on 10.0.4, never confirmed against CI's 10.0.5,
+# and it isn't blocking anything, so it is not written here: recording an
+# unconfirmed cross-version number for a metric that isn't gating is the
+# same "guess between versions" this file's own drc_errors section above
+# was explicit about not doing.
+drc_available: true
+drc_errors: 845
+drc_warnings: 685
 extraction_date: '2026-07-17'
 extraction_method: deterministic-pipeline
 deterministic_pipeline:

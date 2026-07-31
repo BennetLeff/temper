@@ -432,6 +432,17 @@ def compute_thermal_soundness(
             non_monotone_params=non_monotone,
         )
 
+    # result comes from solve_thermal_fdm() (called above in this function),
+    # which returns a CostField (never a bare ndarray) on every non-UNMEASURED
+    # path -- see temper_placer.fields.result.FieldResult's field union and
+    # thermal_fdm.solve_thermal_fdm's own "CLEAN status and a CostField grid
+    # on success" contract. Narrow explicitly rather than widening FieldResult
+    # itself with an ndarray-safe accessor this call site does not need.
+    from temper_placer.fields.field import CostField
+
+    assert isinstance(result.field, CostField), (
+        f"solve_thermal_fdm() must return a CostField on success, got {type(result.field)!r}"
+    )
     corner_peak = float(np.max(result.field.grid))
 
     if corner_peak <= T_j_max:

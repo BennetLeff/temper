@@ -11,6 +11,7 @@ from kiutils.items.common import Position
 from kiutils.items.gritems import GrLine
 
 from temper_placer.core.state import PlacementState
+from temper_placer.geometry.kicad_transform import rotate_local_to_world
 from temper_placer.io._write_types import (
     IsolationSlotResult,
     PlacementUpdate,
@@ -126,13 +127,35 @@ def write_placements_to_pcb(
         x, y = update.x, update.y
         rotation_deg = update.rotation
 
-        # Convert from bounding-box-center to footprint-origin coordinates
+        # Convert from bounding-box-center to footprint-origin coordinates.
+        #
+        # Rotation sign: verified directly against ``pcbnew`` (KiCad's own
+        # placement engine) that a footprint's ``(at X Y ANGLE)`` rotates
+        # each pad's stored local offset *clockwise* by ANGLE to reach its
+        # absolute board position -- i.e. ``R(-ANGLE)`` in the standard
+        # (CCW-positive) trig convention used below, not ``R(+ANGLE)``. A
+        # 2-pad footprint at 37 deg with local pad offset (10, 4) places
+        # that pad at (10.393615, -2.823608) -- the R(-ANGLE) prediction to
+        # 6 decimal places; R(+ANGLE) predicts a different point,
+        # (5.579095, 9.212693). This function previously used the R(+ANGLE)
+        # sign, which silently re-offset every pad of a rotated,
+        # off-centroid footprint (an asymmetric TO-247, e.g.) by up to
+        # ``2 * center_offset`` mm -- invisible whenever a component's
+        # rotation happens not to change across a write (old and new angle
+        # both feed the same wrong sign, so the position error cancels),
+        # but real and safety-relevant the moment a re-solve actually
+        # rotates such a component. See
+        # docs/evidence/2026-07-30-generic-separation-writer-frame-fix.md.
         if ref in center_offsets:
             cx, cy = center_offsets[ref]
             rot_rad = math.radians(rotation_deg)
-            # Rotate the center offset by the component's rotation
-            rotated_cx = cx * math.cos(rot_rad) - cy * math.sin(rot_rad)
-            rotated_cy = cx * math.sin(rot_rad) + cy * math.cos(rot_rad)
+            # Rotate the center offset by the component's rotation, using
+            # KiCad's real rotation convention -- see
+            # temper_placer.geometry.kicad_transform's docstring. Must
+            # match the parser's inverse (io/_parse_modules.py) for this
+            # writer to place the footprint anchor where the parser's
+            # center actually resolves to.
+            rotated_cx, rotated_cy = rotate_local_to_world(cx, cy, rot_rad)
             x -= rotated_cx
             y -= rotated_cy
 
@@ -228,13 +251,19 @@ def state_to_placements(
         x = float(state.positions[i, 0]) + origin[0]
         y = float(state.positions[i, 1]) + origin[1]
 
-        # Subtract rotated center offset to convert to footprint origin
+        # Subtract rotated center offset to convert to footprint origin.
+        # Rotation sign matches write_placements_to_pcb above (KiCad rotates
+        # a pad's local offset *clockwise* by the footprint angle -- R(-ANGLE)
+        # in this function's standard-CCW trig convention, verified against
+        # pcbnew; see that function's docstring for the measurement).
         if ref in center_offsets:
             cx, cy = center_offsets[ref]
             rot_rad = math.radians(rotation_deg)
-            # Rotate the center offset by the final rotation
-            rotated_cx = cx * math.cos(rot_rad) - cy * math.sin(rot_rad)
-            rotated_cy = cx * math.sin(rot_rad) + cy * math.cos(rot_rad)
+            # Rotate the center offset by the final rotation, using KiCad's
+            # real rotation convention -- see
+            # temper_placer.geometry.kicad_transform's docstring. Must
+            # match the parser's inverse (io/_parse_modules.py).
+            rotated_cx, rotated_cy = rotate_local_to_world(cx, cy, rot_rad)
             x -= rotated_cx
             y -= rotated_cy
 
@@ -399,14 +428,14 @@ def add_isolation_slots_to_pcb(
         dx_start, dy_start = slot.start_offset
         dx_end, dy_end = slot.end_offset
 
-        # Rotate offsets by component angle
+        # Rotate offsets by component angle, using KiCad's real rotation
+        # convention -- see temper_placer.geometry.kicad_transform's
+        # docstring.
         # Note: Apply rotation for any non-zero angle (threshold removed to avoid
         # silently ignoring small rotations that could affect slot placement)
         if comp_angle != 0.0:
-            rot_start_x = dx_start * math.cos(angle_rad) - dy_start * math.sin(angle_rad)
-            rot_start_y = dx_start * math.sin(angle_rad) + dy_start * math.cos(angle_rad)
-            rot_end_x = dx_end * math.cos(angle_rad) - dy_end * math.sin(angle_rad)
-            rot_end_y = dx_end * math.sin(angle_rad) + dy_end * math.cos(angle_rad)
+            rot_start_x, rot_start_y = rotate_local_to_world(dx_start, dy_start, angle_rad)
+            rot_end_x, rot_end_y = rotate_local_to_world(dx_end, dy_end, angle_rad)
         else:
             rot_start_x, rot_start_y = dx_start, dy_start
             rot_end_x, rot_end_y = dx_end, dy_end

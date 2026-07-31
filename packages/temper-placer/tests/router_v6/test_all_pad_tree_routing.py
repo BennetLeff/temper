@@ -181,21 +181,21 @@ def test_experimental_tree_3d_fallback_is_bounded_per_edge_and_fails_honestly(
     monkeypatch: pytest.MonkeyPatch,
 ):
     # Patch where the names are looked up. Both `_segment_search` and
-    # `_route_segment_3d` are called from inside _astar_reconstruct, so patching
-    # astar_pathfinding's re-exports does not intercept them -- and
-    # `_route_segment_3d` is not re-exported there at all since the module split,
-    # which is why these tests raised AttributeError rather than silently
-    # asserting nothing.
-    import temper_placer.router_v6._astar_reconstruct as reconstruct
+    # `_route_segment_3d` are called from inside `_astar_route_multilayer`,
+    # which lives in _astar_search, so that is the module whose globals the
+    # lookups resolve against. Patching astar_pathfinding's re-exports does
+    # not intercept them, and neither does patching _astar_reconstruct, which
+    # only re-exports `_segment_search` for import-site stability.
+    import temper_placer.router_v6._astar_search as search_mod
 
     caps: list[int] = []
-    monkeypatch.setattr(reconstruct, "_segment_search", lambda *_args, **_kwargs: (None, None, 0))
+    monkeypatch.setattr(search_mod, "_segment_search", lambda *_args, **_kwargs: (None, None, 0))
 
     def no_3d_path(*_args, max_iter: int, **_kwargs):
         caps.append(max_iter)
         return None
 
-    monkeypatch.setattr(reconstruct, "_route_segment_3d", no_3d_path)
+    monkeypatch.setattr(search_mod, "_route_segment_3d", no_3d_path)
     path = fallback_channel_path("SIG", [(0, 0), (10, 0), (20, 0)], enable_all_pad_tree=True)
     result = run_astar_pathfinding(
         ChannelMapping({"SIG": path}),
@@ -218,16 +218,16 @@ def test_tree_3d_failure_budget_is_bounded_for_arbitrary_terminal_counts(
     terminal_count: int,
 ):
     # See the note in the test above: both names resolve inside
-    # _astar_reconstruct, which is where they must be patched.
-    import temper_placer.router_v6._astar_reconstruct as reconstruct
+    # _astar_search, which is where they must be patched.
+    import temper_placer.router_v6._astar_search as search_mod
 
     caps: list[int] = []
     points = [(index * 4, 0) for index in range(terminal_count)]
     path = fallback_channel_path("SIG", points, enable_all_pad_tree=True)
     with (
-        patch.object(reconstruct, "_segment_search", return_value=(None, None, 0)),
+        patch.object(search_mod, "_segment_search", return_value=(None, None, 0)),
         patch.object(
-            reconstruct,
+            search_mod,
             "_route_segment_3d",
             side_effect=lambda *_args, max_iter, **_kwargs: caps.append(max_iter) or None,
         ),
