@@ -9,6 +9,9 @@ pub mod projections;
 pub mod constraints;
 pub mod drc_inflate;
 pub mod congestion_tensor;
+pub mod corridor;
+pub mod copper_coverage;
+pub mod channel_widths;
 mod bridge;
 
 use pyo3::prelude::*;

@@ -1,5 +1,14 @@
 # CongestionTensor — Verification by Mathematical Induction
 
+Updated 2026-07-31: Rust implementation extended for the wire-up —
+`increment_cells` (batch increments over pre-mapped (row, col) pairs),
+`to_flat_bytes` (raw float32 storage for the Python wrapper's numpy
+view), and `cost` now computes in f64 before returning f32 (bit-identical
+to the Python oracle's f64 arithmetic cast to f32; a pure f32 chain
+would differ by 1 ulp at the `max_cost` clamp). The Python side
+(`temper_placer/router_v6/congestion_tensor.py`) is now a wrapper over
+this pyclass with the unchanged public API.
+
 ## Base Case: 1×1 Grid, Zero Usage
 
 For a 1×1 grid with zero usage:
@@ -55,16 +64,130 @@ is correct for all n×m grids.
 
 ## Empirical Verification
 
+The differential test suite
+(`packages/temper-placer/tests/router_v6/test_congestion_tensor_rust_differential.py`)
+pins the wrapper and the Rust storage against the pre-migration numpy
+implementation, including the f32/f64 `max_cost` clamp band and the
+relationship to the Numba kernel's production formula (f32
+`1.0 + log(1 + raw)`, which differs from the f64 log1p oracle in the
+last ulp and collapses to 1.0 for raw below ~6e-8 — the three-way
+relationship is pinned by `test_kernel_formula_relation`).
+
 The closure test suite (`ci_closure_test.py`) runs the full router
-pipeline with the Rust-backed CongestionTensor and verifies
-bit-identical routing paths against the pure-Python baseline.
+pipeline with the Rust-backed CongestionTensor. The default
+`congestion_weight = 0.0` makes the tensor inert, so the plain closure
+run cannot exercise it: the wire-up gate is a non-zero-weight A/B
+routing comparison (Rust-backed vs Python-backed) plus the differential
+suite above.
+
+Current closure state (measured 2026-07-31): the closure test is red at
+HEAD for a pre-existing, unrelated reason — the placement stage exhausts
+its strategies ("All strategies exhausted for phase='placement':
+['template', 'template']"), giving 0.4% router completion before any
+routing-dependent assertion can run. Verified by A/B: identical failure
+signature and DRC counts with the pre-migration pure-numpy tensor
+restored. The routing stage that does run imports the Rust-backed
+wrapper. U1's executable gates (cargo tests, differential suite, PBT,
+router unit tests) are all green; the closure gate re-runs when the
+placement stage is healthy.
+
+## Corridor Mask Builder — Verification by Induction (added 2026-07-31)
+
+**Base case:** a 1-cell coarse path `[(0, 0)]` with `buffer_cells = 0`
+on a `(1, 1)` fine grid yields a single `True` cell — `r0 = c0 = 0`,
+`r1 = c1 = min(1, factor) = 1`. Both the Rust `corridor_mask` and the
+pinned numpy oracle produce `[[True]]`.
+
+**Induction step:** the mask is the OR of per-coarse-cell fine-grid
+rectangles. Each rectangle's bounds are a pure function of its cell
+`(cx, cy)`, `coarse_factor`, and `buffer_cells` — no cross-cell
+interaction. Appending a coarse cell adds one independently-computed
+rectangle to the OR, so if the mask is correct for a path of length
+n it is correct for length n+1. OR is commutative, so the mask is
+symmetric under path reversal (PBT property 3).
+
+**Empirical verification:** the differential suite
+(`packages/temper-placer/tests/router_v6/test_corridor_rust_differential.py`)
+pins the Rust mask against the pre-migration numpy implementation on
+randomized corpus-style boards (6 grid geometries × 40 random paths),
+negative buffers, huge buffers, and edge-touching paths. The existing
+`test_corridor.py` now exercises the Rust path through the wrapper.
+PBT properties (`test_corridor_pbt.py`): 8-connectivity of connected
+paths, boundedness within the grid, symmetry under reversal.
+
+## Copper Coverage Rasteriser — Verification by Induction (added 2026-07-31)
+
+**Base case:** a 3-vertex polygon on a 1×1 grid — the even-odd ray cast
+evaluates one crossing test per edge and yields either a single `True`
+or `False` cell. The Rust `polygon_mask` and the pinned numpy oracle
+agree bit-for-bit (asserted in the differential suite).
+
+**Induction step:** the mask is the bitwise result of the per-cell
+even-odd test; each cell's test is a pure function of its centre
+`(ox + (col+0.5)·cs, oy + (row+0.5)·cs)` and the polygon edges, with no
+cross-cell interaction. If the mask is correct for an h×w grid it is
+correct for (h+1)×w and h×(w+1) — adding a row/column evaluates the
+same formula on new centres, so correctness extends by induction on
+grid dimensions. Arithmetic order is preserved exactly (f64,
+left-to-right, strict `>`/`<` comparisons), which is what makes the
+masks bit-identical rather than merely close.
+
+**Empirical verification:** the differential suite
+(`packages/temper-placer/tests/physics/test_copper_coverage_rust_differential.py`)
+pins the Rust rasteriser against the pre-migration pure-Python loop on
+randomized star-shaped polygons (30 cases), degenerate polygons
+(empty/single-vertex/segment/self-touching/duplicate-vertex), and
+axis-aligned grids where cell centres fall exactly on edges and
+vertices. `copper_coverage_grid` itself is verified end-to-end against
+an oracle grid rebuilt with the numpy rasteriser (8 random outlines),
+and the pre-existing `test_copper_coverage.py` suite now exercises the
+Rust path through the wrapper. PBT properties (`test_copper_coverage_pbt.py`):
+grid bounded in [0,1], zero-weight stackup → zero, monotonic in plane
+weight, keepout reduction, all-plane weighted-mean value.
+
+## Channel Widths EDT Lookup — Verification by Induction (added 2026-07-31)
+
+**Base case:** a 1×1 EDT grid with a single sample point at its centre —
+the bilinear interpolation reads the four (identical) neighbours and
+returns `2 * d * cell_size`; the Rust batch and the per-point Python
+reference agree bit-for-bit.
+
+**Induction step:** each sample's width is a pure function of its world
+coordinates, the grid values, and the mask — no cross-sample
+interaction — so a batch of n+1 samples equals n samples plus one
+independently-computed value. The Rust implementation preserves the
+reference's exact f64 arithmetic order (floor indexing, strict
+bounds check, masked cells → 0.0, left-to-right bilinear
+interpolation), which is what makes the outputs bit-identical rather
+than merely close.
+
+**Empirical verification:** the differential suite
+(`packages/temper-placer/tests/router_v6/test_channel_widths_rust_differential.py`)
+pins the batch against the module's own per-point reference on
+randomized grids (bit-exact), with offset bounds, out-of-bounds
+samples, and all-masked grids; `compute_channel_widths` is verified
+end-to-end (batched vs per-point rebuild) on corridor and multipolygon
+skeletons, bit-exact over node/edge widths and statistics. The
+existing `test_channel_widths.py` and `test_stage2_monolith_parity.py`
+(which exercises the batched path through both pipeline arms) pass.
+PBT properties (`test_channel_widths_pbt.py`): non-negative, bounded by
+the grid diagonal, scale-invariant, symmetric under coordinate swap,
+monotonic in the interior mask.
+
+**KTD8 spike verdict (2026-07-31):** the `edt` crate was evaluated as a
+`scipy.ndimage.distance_transform_edt` replacement and rejected — its
+distance field diverges from scipy's Euclidean transform even with a
+False-border padding workaround (measured max diff 2.0–2.236 on random
+masks); a Rust-native exact EDT is the recorded fallback for a
+follow-up. The U4 perf win (the per-sample lookup hot loop) is
+delivered by the batch; scipy's transform was never the hot loop.
 
 ## PBT Properties Verified
 
 | # | Property | Test |
 |---|----------|------|
-| P1 | Cost monotonically increasing with usage | `prop_cost_monotonically_increasing` |
-| P2 | Cost ≥ 1.0 for all cells | `prop_cost_always_at_least_one` |
-| P3 | decay(1.0) ≈ identity | `prop_decay_one_is_identity` |
-| P4 | Cost scales with weight | `prop_cost_scales_with_weight` |
-| P5 | reset produces all zeros | `prop_reset_all_zeros` |
+| P1 | Cost monotonically increasing with usage | `test_cost_monotonic_in_usage` |
+| P2 | Cost ≥ 1.0 for all cells | `test_cost_never_below_one` |
+| P3 | increment then decay(1.0) ≈ identity | `test_increment_then_decay_factor_one_is_identity` |
+| P4 | increment linear in weight | `test_increment_linear_in_weight` |
+| P5 | reset produces all zeros | `test_reset_zeroes_every_cell` |

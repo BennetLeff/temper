@@ -11,6 +11,7 @@ use std::collections::HashMap;
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyList};
 
+use temper_rust_router_core::astar::AstarInput;
 use temper_rust_router_core::types as core_types;
 use temper_rust_router_core::types::{InternalConstraintModel, SolverStatus, TopologyResult};
 use temper_rust_router_core::{audit, combinator, encoding, extraction, solver};
@@ -285,7 +286,106 @@ fn temper_rust_router(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(solve_topology_rust, m)?)?;
     m.add_function(wrap_pyfunction!(audit_result, m)?)?;
     m.add_function(wrap_pyfunction!(auto_extract_loops_rust, m)?)?;
+    m.add_function(wrap_pyfunction!(astar_kernel_3d_py, m)?)?;
+    m.add_function(wrap_pyfunction!(line_of_sight_py, m)?)?;
     Ok(())
+}
+
+/// Python-callable A* kernel (U5) — the Rust port of
+/// `astar_core_numba.py::_astar_kernel_3d`. Inputs mirror the Numba
+/// kernel's arguments; congestion/thermal fields are passed as little-
+/// endian float32 byte buffers (None = absent). Returns (path, iterations).
+#[pyfunction]
+#[pyo3(signature = (
+    start_idx, goal_idx, rows, cols, validity_bytes, max_iterations,
+    congestion_bytes=None, congestion_weight=1.0, max_congestion_cost=100.0,
+    thermal_bytes=None, thermal_weight=0.0,
+))]
+fn astar_kernel_3d_py(
+    start_idx: i64,
+    goal_idx: i64,
+    rows: usize,
+    cols: usize,
+    validity_bytes: Vec<u8>,
+    max_iterations: u64,
+    congestion_bytes: Option<Vec<u8>>,
+    congestion_weight: f32,
+    max_congestion_cost: f32,
+    thermal_bytes: Option<Vec<u8>>,
+    thermal_weight: f32,
+) -> (Vec<i32>, u64) {
+    let n_cells = rows * cols;
+    let congestion = congestion_bytes.map(|b| f32s_from_le_bytes(&b, n_cells));
+    let thermal = thermal_bytes.map(|b| f32s_from_le_bytes(&b, n_cells));
+    let out = temper_rust_router_core::astar::astar_kernel_3d(&AstarInput {
+        start_idx,
+        goal_idx,
+        rows,
+        cols,
+        validity: &validity_bytes,
+        max_iterations,
+        congestion: congestion.as_deref(),
+        congestion_weight,
+        max_congestion_cost,
+        thermal: thermal.as_deref(),
+        thermal_weight,
+    });
+    (out.path, out.iterations)
+}
+
+/// Python-callable Bresenham line-of-sight check (U5) — the Rust port of
+/// `astar_core_numba.py::_line_of_sight_numba_kernel`. `grid_bytes` is a
+/// row-major (height, width) int8 occupancy grid.
+#[pyfunction]
+#[pyo3(signature = (x0, y0, x1, y1, grid_bytes, width_cells, height_cells, net_id))]
+fn line_of_sight_py(
+    x0: i64,
+    y0: i64,
+    x1: i64,
+    y1: i64,
+    grid_bytes: Vec<u8>,
+    width_cells: i64,
+    height_cells: i64,
+    net_id: i64,
+) -> bool {
+    let grid = &grid_bytes;
+    let (w, h) = (width_cells, height_cells);
+    let (mut x, mut y) = (x0, y0);
+    let (dx, dy) = ((x1 - x0).abs(), (y1 - y0).abs());
+    let sx = if x0 < x1 { 1 } else { -1 };
+    let sy = if y0 < y1 { 1 } else { -1 };
+    let mut err = dx - dy;
+    loop {
+        if x < 0 || x >= w || y < 0 || y >= h {
+            return false;
+        }
+        let cell = grid.get((y * w + x) as usize).copied().unwrap_or(1) as i64;
+        if cell != 0 && cell != net_id {
+            return false;
+        }
+        if x == x1 && y == y1 {
+            return true;
+        }
+        let e2 = 2 * err;
+        if e2 > -dy {
+            err -= dy;
+            x += sx;
+        }
+        if e2 < dx {
+            err += dx;
+            y += sy;
+        }
+    }
+}
+
+fn f32s_from_le_bytes(bytes: &[u8], expected: usize) -> Vec<f32> {
+    debug_assert_eq!(bytes.len() % 4, 0);
+    let mut out = Vec::with_capacity(bytes.len() / 4);
+    for c in bytes.chunks_exact(4) {
+        out.push(f32::from_le_bytes(c.try_into().unwrap()));
+    }
+    debug_assert!(expected == 0 || out.len() == expected);
+    out
 }
 
 /// Python-callable entry point for loop extraction via JSON.
