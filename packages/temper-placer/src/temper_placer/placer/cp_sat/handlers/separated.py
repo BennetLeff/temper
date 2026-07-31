@@ -64,6 +64,28 @@ def encode_separated(
     for ra in refs_a:
         for rb in refs_b:
             if ra == rb:
+                # Defense-in-depth, not the primary mechanism: for
+                # domain-clearance constraints specifically, self-pairs are
+                # already excluded upstream by
+                # `_domain_boundary_pairs` (imported by
+                # `domain_clearance.py`), so this branch should rarely fire
+                # for that caller. It is deliberately a no-op rather than a
+                # warning here because this handler is generic across every
+                # `SeparatedConstraint` producer (courtyard, netclass,
+                # tag-expanded groups where the same ref can legitimately
+                # appear on both sides) -- most of those ARE expected to hit
+                # this branch routinely and a warning here would be noise,
+                # not signal. This is NOT where intra-footprint domain
+                # straddling (e.g. an isolator with pads on both sides of a
+                # mains barrier) gets surfaced: no placement constraint can
+                # ever separate a component's own pads from each other (see
+                # `domain_clearance.py`'s module docstring), so that
+                # limitation is reported at the point that actually knows
+                # it's a safety-relevant exclusion --
+                # `domain_clearance.py::find_intra_footprint_domain_conflicts`,
+                # logged by `generate_domain_clearance_constraints` on every
+                # call that finds one, and independently gated by the
+                # validator's own `clearance.py::_intra_component_boundary_components`.
                 continue
             va = components[ra]
             vb = components[rb]

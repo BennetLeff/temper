@@ -23,10 +23,10 @@ from temper_placer.placer.cp_sat.domain_clearance import (
     IEC60335_REQUIREMENTS,
     VoltageDomain,
     audit_domain_clearance,
+    find_intra_footprint_domain_conflicts,
     generate_domain_clearance_constraints,
     required_margin_mm,
 )
-
 from tests.requirements.validators._geometry import _distance
 
 # ---------------------------------------------------------------------------
@@ -118,6 +118,117 @@ class TestGeneratorNotVacuous:
         voltage_domains = {"ac_l": VoltageDomain.MAINS, "gnd": VoltageDomain.LV_CONTROL}
         constraints = generate_domain_clearance_constraints(placement, voltage_domains)
         assert len(constraints) == 1
+
+
+class TestIntraFootprintDomainConflicts:
+    """R24-follow-up (2026-07-30): self-pairs are excluded from
+    ``generate_domain_clearance_constraints``'s output for a real, provable
+    reason (see module docstring), but that exclusion used to be silent --
+    no log, no queryable signal, nothing distinguishing "no isolator on
+    this board" from "an isolator exists and nothing is protecting it".
+    These tests pin the new, loud alternative.
+    """
+
+    def test_straddling_component_is_flagged(self) -> None:
+        placement = {
+            "components": [
+                {"ref": "PS1", "position": (0.0, 0.0), "nets": ["ac_l", "gnd"]},
+            ],
+            "nets": {},
+        }
+        voltage_domains = {"ac_l": VoltageDomain.MAINS, "gnd": VoltageDomain.LV_CONTROL}
+        conflicts = find_intra_footprint_domain_conflicts(placement, voltage_domains)
+        assert len(conflicts) == 1
+        c = conflicts[0]
+        assert c.ref == "PS1"
+        assert {c.domain_a, c.domain_b} == {VoltageDomain.MAINS, VoltageDomain.LV_CONTROL}
+        assert c.margin_mm == 12.6  # PD3 reinforced creepage requirement
+
+    def test_non_straddling_components_not_flagged(self) -> None:
+        placement, voltage_domains = TestGeneratorNotVacuous()._two_domain_placement()
+        conflicts = find_intra_footprint_domain_conflicts(placement, voltage_domains)
+        assert conflicts == []
+
+    def test_same_domain_row_never_flags_a_straddle(self) -> None:
+        """A component entirely within LV_CONTROL cannot "straddle"
+        LV_CONTROL<->LV_CONTROL (domain_a == domain_b) -- that row governs
+        pairs of *different* LV_CONTROL components, not a single one."""
+        placement = {
+            "components": [
+                {"ref": "R1", "position": (0.0, 0.0), "nets": ["gnd", "+3V3"]},
+            ],
+            "nets": {},
+        }
+        voltage_domains = {"gnd": VoltageDomain.LV_CONTROL, "+3V3": VoltageDomain.LV_CONTROL}
+        assert find_intra_footprint_domain_conflicts(placement, voltage_domains) == []
+
+    def test_component_refs_filter_applies(self) -> None:
+        placement = {
+            "components": [
+                {"ref": "PS1", "position": (0.0, 0.0), "nets": ["ac_l", "gnd"]},
+            ],
+            "nets": {},
+        }
+        voltage_domains = {"ac_l": VoltageDomain.MAINS, "gnd": VoltageDomain.LV_CONTROL}
+        assert (
+            find_intra_footprint_domain_conflicts(
+                placement, voltage_domains, component_refs={"OTHER"}
+            )
+            == []
+        )
+
+    def test_generator_warns_when_conflicts_present(self, caplog) -> None:
+        """The generator itself must surface this, not just the standalone
+        finder function -- a caller that only calls
+        generate_domain_clearance_constraints (the common case) must still
+        see the signal."""
+        import logging
+
+        placement = {
+            "components": [
+                {"ref": "PS1", "position": (0.0, 0.0), "nets": ["ac_l", "gnd"]},
+            ],
+            "nets": {},
+        }
+        voltage_domains = {"ac_l": VoltageDomain.MAINS, "gnd": VoltageDomain.LV_CONTROL}
+        with caplog.at_level(logging.WARNING):
+            generate_domain_clearance_constraints(placement, voltage_domains)
+        assert any("PS1" in rec.message for rec in caplog.records), (
+            "generator produced no warning naming the intra-footprint ref -- "
+            "the exclusion is silent again"
+        )
+
+    def test_real_board_finds_known_isolators(self) -> None:
+        """Cross-check against the validator's own real-board finding
+        (test_clearance.py::TestClearanceIntegration, 13 intra-footprint
+        records across {C6, K1, K2, K3, T1, U3, U7} at the current 10.0mm
+        reinforced bar): every one of those refs must appear here too, since
+        this is deliberately the coarser, component-level superset check
+        (see docstring) -- a false negative here would mean a real
+        REQ-SAFE-01 intra-footprint violation that this early-warning
+        mechanism failed to flag at all."""
+        import pytest
+
+        from tests.requirements.safety._real_board_fixture import (
+            RealBoardUnavailable,
+            load_real_board_placement,
+        )
+
+        try:
+            placement, voltage_domains, _stats = load_real_board_placement()
+        except RealBoardUnavailable as exc:
+            pytest.skip(f"{exc} (run `make netlist` first)")
+
+        conflicts = find_intra_footprint_domain_conflicts(placement, voltage_domains)
+        flagged_refs = {c.ref for c in conflicts}
+        known_validator_intra_refs = {"C6", "K1", "K2", "K3", "T1", "U3", "U7"}
+        missing = known_validator_intra_refs - flagged_refs
+        assert not missing, (
+            f"{missing} have a REAL pad-level intra-footprint REQ-SAFE-01 "
+            f"violation (per the validator) but this component-level "
+            f"early-warning check missed them -- it should be a superset, "
+            f"never a subset, of the validator's own finding."
+        )
 
 
 class TestRequiredMarginMm:

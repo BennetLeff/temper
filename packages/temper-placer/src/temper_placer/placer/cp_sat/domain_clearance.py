@@ -39,47 +39,84 @@ the IEC 60335-2-6 requirement — and lets the existing handler encode them.
 No new CP-SAT machinery is introduced; the gap was that nothing *called*
 the existing machinery with domain-aware margins.
 
-**Soundness proof (R24 item 1) — Chebyshev edge-to-edge bound implies
-Euclidean center-to-center distance bound:**
+**Soundness proof (R24 item 1) — REVISED 2026-07-30. Read this before
+trusting anything below; the previous version of this proof described a
+model the code no longer (and, on closer inspection, never actually)
+matched.**
 
-The safety validator (``clearance.py::_check_distance``) measures the
-straight-line (Euclidean) distance between component ``position`` fields —
-in the CP-SAT model these are ``x_center``/``y_center`` (see
-``model.py::ComponentVars``, "Position variables use centre-of-mass
-coordinates"). The encoder's ``SeparatedConstraint`` handler instead bounds
-the gap between courtyard **edges**. These are different quantities; the
-proof below is that the encoded (edge) bound is a *conservative* bound on
-the validator's (center) quantity — it never overestimates the true
-separation the validator will measure.
+*What changed and why the old proof was stale.* The previous revision of
+this proof concluded "SAT of the encoding ⇒ Euclidean **center-to-center**
+distance >= margin" and stopped there, reasoning that the validator
+measured center-to-center distance too. That premise was already false by
+the time it was written: the validator (``clearance.py::_check_distance``,
+rewritten 2026-07-28) measures **copper-to-copper distance on exact,
+rotation-aware pad geometry**, restricted to pads whose own net is
+classified into the relevant domain (``clearance.py`` module docstring) —
+not component centers, and not whole-component boxes. A proof that a
+center-distance bound holds is true but answers a question the validator
+no longer asks; see
+``docs/evidence/2026-07-30-domain-clearance-copper-aware-fix.md`` for the
+measurement that surfaced this and the fix described below.
 
-Let component A have half-extents (hw_a, hh_a) and component B have
-half-extents (hw_b, hh_b) (courtyard size / 2). Suppose the encoder's
-disjunction is SAT via the "left" branch (WLOG; "right"/"below"/"above" are
-symmetric):
+*The corrected proof: the Chebyshev box bound is copper-to-copper sound,
+not just center-to-center sound, given one precondition on `comp.bounds`.*
+
+``SeparatedConstraint``'s handler (``handlers/separated.py::encode_separated``)
+bounds the gap between two components' **bounding boxes** — ``x_start``/
+``x_end``/``y_start``/``y_end`` in ``model.py``, populated from
+``comp.bounds`` (``_parse_modules.py::_calculate_footprint_bounds``, which
+takes the union of courtyard/fab-layer graphics and every pad's copper
+extent, then returns a box symmetric around a chosen centre point — see
+next paragraph for why *which* centre point matters). The proof below
+shows the SAT'd box bound is a lower bound not just on center-to-center
+distance but on the distance between **any point in box A and any point in
+box B** — including, in particular, every pad-to-pad pair, which is
+exactly the copper-to-copper quantity the validator measures.
+
+Let component A's box be ``[a.x_center - hw_a, a.x_center + hw_a] x
+[a.y_center - hh_a, a.y_center + hh_a]`` (half-extents from ``comp.bounds``
+/ 2), likewise B. Suppose the encoder's disjunction is SAT via the "left"
+branch (WLOG; "right"/"below"/"above" are symmetric):
 
     a.x_end + margin <= b.x_start
-    where a.x_end = a.x_center + hw_a, b.x_start = b.x_center - hw_b
 
-    => b.x_center - a.x_center >= margin + hw_a + hw_b >= margin   (hw >= 0)
+For ANY point p_a in box A and p_b in box B (not just the centers):
+``p_a.x <= a.x_end`` and ``p_b.x >= b.x_start``, so
 
-    => |b.x_center - a.x_center| >= margin
+    p_b.x - p_a.x >= b.x_start - a.x_end >= margin
 
-    Euclidean center distance = sqrt(dx^2 + dy^2) >= |dx| >= margin.
+    Euclidean distance(p_a, p_b) = sqrt(dx^2 + dy^2) >= |dx| >= margin.
 
-The same argument holds for the "right"/"below"/"above" branches (swap
-sign / axis). So: **SAT of the SeparatedConstraint encoding at margin M ⇒
-Euclidean center-to-center distance >= M**, for any nonnegative courtyard
-half-extents. Setting M = the IEC 60335-2-6 requirement (the exact
-threshold the validator itself uses) therefore guarantees the validator
-finds no violation on that pair, in any solution the solver returns. This
-is a strict inequality in the safe direction: the *realized* center
-distance is >= M + hw_a + hw_b, i.e. the encoding is conservative (it
-delivers at least as much separation as required, generally more, because
-of the half-extents it doesn't need to subtract).
+This holds for **every** ``(p_a, p_b)`` pair, so in particular for every
+pad-copper point on A paired with every pad-copper point on B — i.e. **SAT
+of the encoding at margin M ⇒ every point of box A is >= M from every point
+of box B**, a strictly stronger conclusion than the old center-only proof
+(which is recovered as the special case p_a = a.x_center, p_b = b.x_center).
+
+*The precondition this proof needs, and why it now holds by construction
+rather than by observation:* the argument above requires box A to actually
+**contain** every pad A places, in the SAME coordinate frame the box is
+centred at when the solver places it — i.e. at ``Component.initial_position``.
+Before 2026-07-30, ``_calculate_footprint_bounds`` computed its symmetric
+half-extents around the footprint's raw KiCad anchor, while
+``initial_position``/``Pin.position`` are expressed relative to a
+*different* point (the pad centroid, ``center_offset`` in
+``_extract_components_from_pcb``) — a latent frame mismatch that could, for
+a footprint with asymmetric enough pad sizes, produce a box that does not
+enclose real copper at the point the solver actually places it (see
+``tests/placer/cp_sat/test_geometry_constraints_pbt.py::
+test_bounds_computed_in_placement_frame_not_raw_anchor`` for a constructed
+counter-example, and the evidence doc for why this did not manifest as an
+actual violation on ``pcb/temper.kicad_pcb``'s current 168 components —
+measured directly, not assumed). ``_calculate_footprint_bounds`` now takes
+the placement centre as an explicit argument and computes its envelope
+around *that* point, so "box ⊇ real copper at the placed position" is now
+an invariant proven by construction (P10 in the test file above), not an
+accident of this board's specific footprints.
 
 Both ``min_clearance_mm`` and ``min_creepage_mm`` are matrix values for a
 given (domain_a, domain_b, insulation_type) row; since the validator checks
-both against the same Euclidean center-distance quantity (creepage is a
+both against the same copper-to-copper distance quantity (creepage is a
 documented conservative *lower bound* using straight-line distance — see
 ``check_creepage_path``'s docstring), encoding at
 ``margin = max(min_clearance_mm, min_creepage_mm)`` for every applicable row
@@ -88,13 +125,44 @@ satisfies both checks simultaneously. In this project's current
 every row, so ``margin`` reduces to ``min_creepage_mm``; the ``max()`` is
 kept anyway so this does not silently invert if the matrix ever changes.
 
+**What this proof does NOT cover — intra-footprint (self) pairs.** The
+argument above is about box A vs. box B for two *distinct* components; it
+says nothing about, and cannot be extended to cover, a single component
+whose own pads sit in two different voltage domains (e.g. an isolator with
+a primary-side pad and a secondary-side pad on the same physical part).
+Placing a component only translates/rotates its box as a rigid whole — it
+cannot change the distance between two of that component's own pads, so no
+``SeparatedConstraint`` (or any other placement-time constraint) can ever
+make an intra-footprint domain crossing compliant. This is not a gap in
+the proof; it is a statement about what placement, as a category of fix,
+can and cannot do. ``generate_domain_clearance_constraints`` therefore
+never emits a self-pair (``handlers/separated.py``'s ``if ra == rb:
+continue`` is defense-in-depth against ever encoding one, not the primary
+mechanism — the primary exclusion is in the imported
+``_domain_boundary_pairs`` itself). Previously this made such components
+**silently invisible** to this module: no constraint, no log line, no
+signal. ``find_intra_footprint_domain_conflicts`` (below) now enumerates
+them explicitly, and ``generate_domain_clearance_constraints`` logs a
+warning naming every one on every call that finds any, so a reader hits
+this limitation in the logs of a normal run, not only in a docstring. The
+validator's own ``_intra_component_boundary_components``
+(``clearance.py``) is still the authoritative, pad-level check for these —
+this module's version is a coarser, component-level early-warning that a
+given ref is worth investigating, not a replacement for it.
+
 **BMC-exhaustive validation (R24 item 2):** see
 ``tests/placer/cp_sat/test_domain_clearance.py::TestChebyshevSoundnessBMC`` —
 an exhaustive sweep of the encoder's own Chebyshev-disjunction predicate
 (reimplemented as pure Python matching ``encode_separated`` line-for-line,
 not re-derived) against the validator's own ``_distance`` oracle, over every
 integer-mm offset in a bounded window and several courtyard-size pairs,
-asserting the implication above has zero counterexamples.
+asserting the implication above has zero counterexamples. This sweep
+checks the box-vs-box (equivalently, center-vs-center, since it is
+translation-invariant per size pair) geometry of the encoding itself; the
+copper-vs-box containment precondition added above is checked separately,
+per-component, by
+``test_geometry_constraints_pbt.py``'s P8/P9/P10 (bounds ⊇ pads, including
+in the correct frame) rather than re-derived here.
 
 **Post-solve audit (R24 item 3):** ``audit_domain_clearance`` below
 recomputes the actual Euclidean center-to-center distance from the
@@ -105,6 +173,13 @@ present, solver reports SAT, but recomputed real distance < required) is
 returned as a violation for the caller to hard-fail on. This is the "the
 audit is the one that matters most" gate from ``AGENTS.md`` R24 — it does
 not trust the solver's own bookkeeping, it recomputes from coordinates.
+Note this audit still recomputes **center**-to-center distance (it is a
+cheap, coordinate-only sanity check, not a re-run of the full copper
+geometry pipeline); given the corrected proof above, center distance >=
+margin is implied by, but weaker than, the box's actual copper guarantee —
+this audit catches encoder/units bugs, it is not a substitute for
+re-running the validator itself, which the "Standard of proof" section of
+this fix's evidence doc does after every solve.
 """
 
 from __future__ import annotations
@@ -126,6 +201,7 @@ logger = logging.getLogger(__name__)
 from temper_placer.requirements.validators.clearance import (
     IEC60335_REQUIREMENTS,
     VoltageDomain,
+    _components_in_domain,
     _domain_boundary_pairs,
     _nets_domain_map,
 )
@@ -134,7 +210,9 @@ __all__ = [
     "IEC60335_REQUIREMENTS",
     "VoltageDomain",
     "DomainClearanceAuditViolation",
+    "IntraFootprintDomainConflict",
     "generate_domain_clearance_constraints",
+    "find_intra_footprint_domain_conflicts",
     "audit_domain_clearance",
     "required_margin_mm",
 ]
@@ -231,7 +309,117 @@ def generate_domain_clearance_constraints(
         len(constraints),
         len(IEC60335_REQUIREMENTS),
     )
+
+    # R24-follow-up (2026-07-30): self-pairs never reach `constraints` above
+    # (`_domain_boundary_pairs` excludes them, `handlers/separated.py`'s own
+    # `if ra == rb: continue` is defense-in-depth) -- that exclusion is
+    # correct (see module docstring: no placement constraint can separate a
+    # component's own pads from each other), but it used to be silent. Log
+    # every such ref loudly on every call that finds one, so "the solve
+    # reported optimal" is never mistaken for "the board is compliant" when
+    # an intra-footprint isolator is the actual remaining violation.
+    conflicts = find_intra_footprint_domain_conflicts(placement, voltage_domains, component_refs)
+    if conflicts:
+        logger.warning(
+            "generate_domain_clearance_constraints: %d component(s) straddle a "
+            "domain boundary WITHIN their own footprint and therefore have NO "
+            "SeparatedConstraint protecting them -- no placement can fix this "
+            "(see module docstring). Verify with the REQ-SAFE-01 validator's "
+            "own intra-footprint check, not this solve's status: %s",
+            len(conflicts),
+            ", ".join(
+                f"{c.ref} ({c.domain_a.value}<->{c.domain_b.value}, {c.margin_mm}mm)"
+                for c in conflicts
+            ),
+        )
+
     return constraints
+
+
+@dataclass
+class IntraFootprintDomainConflict:
+    """One component whose OWN pads straddle a matrix-covered domain
+    boundary -- a ref that ``generate_domain_clearance_constraints`` cannot
+    emit any constraint for, no matter what placement is found (see module
+    docstring for why placement categorically cannot fix this)."""
+
+    ref: str
+    domain_a: VoltageDomain
+    domain_b: VoltageDomain
+    margin_mm: float
+    reason: str
+
+
+def find_intra_footprint_domain_conflicts(
+    placement: dict[str, Any],
+    voltage_domains: dict[str, VoltageDomain],
+    component_refs: set[str] | None = None,
+) -> list[IntraFootprintDomainConflict]:
+    """Enumerate components that ``generate_domain_clearance_constraints``
+    structurally cannot protect: refs classified into BOTH sides of a
+    matrix-covered domain boundary at once.
+
+    This is a **component-level** check (does this ref have any net in
+    domain_a AND any net in domain_b?), coarser than the validator's own
+    **pad-level** ``clearance.py::_intra_component_boundary_components``
+    (which additionally confirms the straddling pads' own nets -- not just
+    the component's net *membership* -- resolve into each domain, and is
+    the one that actually gates REQ-SAFE-01). A ref flagged here is not
+    guaranteed to be a real violation (e.g. its DC_BUS-domain pad and its
+    LV_CONTROL-domain pad might, in principle, already sit far enough apart
+    within the footprint) -- but it IS guaranteed that no placement-time fix
+    can ever be found for it if it is one, since every one of its pads
+    moves together as a rigid unit under any placement. Use this to decide
+    *where to look* (a footprint swap, a different part, a milled isolation
+    slot), not as the safety gate itself -- that remains
+    ``verify_iec60335_compliance``.
+
+    Args:
+        placement, voltage_domains, component_refs: identical contract to
+            ``generate_domain_clearance_constraints`` -- same classifier
+            (``_nets_domain_map``), same optional ref restriction.
+
+    Returns:
+        One ``IntraFootprintDomainConflict`` per (ref, worst-margin) pair,
+        sorted by ref. A ref appearing in multiple matrix rows keeps only
+        the strictest (max) margin, matching
+        ``generate_domain_clearance_constraints``'s own per-pair margin
+        selection.
+    """
+    nets_domain = _nets_domain_map(placement, voltage_domains)
+    worst: dict[str, IntraFootprintDomainConflict] = {}
+
+    for (domain_a, domain_b, insulation_type), requirements in IEC60335_REQUIREMENTS.items():
+        if domain_a == domain_b:
+            continue  # a same-domain row can't be "straddled" by definition
+        margin = required_margin_mm(requirements)
+        group_a = _components_in_domain(placement, domain_a, nets_domain)
+        group_b_refs = {
+            c.get("ref") for c in _components_in_domain(placement, domain_b, nets_domain)
+        }
+        for comp in group_a:
+            ref = comp.get("ref")
+            if not isinstance(ref, str) or ref not in group_b_refs:
+                continue
+            if component_refs is not None and ref not in component_refs:
+                continue
+            prior = worst.get(ref)
+            if prior is None or margin > prior.margin_mm:
+                worst[ref] = IntraFootprintDomainConflict(
+                    ref=ref,
+                    domain_a=domain_a,
+                    domain_b=domain_b,
+                    margin_mm=margin,
+                    reason=(
+                        f"{ref} carries a net classified {domain_a.value} and a net "
+                        f"classified {domain_b.value} on the same footprint -- "
+                        f"IEC 60335-2-6 {domain_a.value}<->{domain_b.value} "
+                        f"({insulation_type.value}) requires {margin}mm, which no "
+                        f"placement can supply between two pads of one rigid part."
+                    ),
+                )
+
+    return sorted(worst.values(), key=lambda c: c.ref)
 
 
 @dataclass
@@ -254,11 +442,17 @@ def audit_domain_clearance(
     This is the R24 item-3 audit: it does not ask the CP-SAT solver whether
     the constraint was satisfied. It takes the *solved* placement's
     coordinates directly and recomputes ``math.dist`` between the two refs'
-    centers — the exact quantity ``clearance.py``'s validator checks — and
-    compares against ``constraint.min_distance_mm``. Any mismatch means the
-    encoding's own soundness proof (module docstring) failed to hold for
-    this solve (e.g. a bug in the handler, a units error, a component
-    dropped from the model) and is returned for the caller to hard-fail on.
+    centers and compares against ``constraint.min_distance_mm``. Note this
+    is a cheaper, weaker check than what ``clearance.py``'s validator
+    actually measures (copper-to-copper on exact pad geometry, per the
+    module docstring's corrected soundness proof) — center distance ≥
+    margin is *implied by* the box's full copper-to-copper guarantee, not
+    identical to it, so this audit catches encoder/units bugs cheaply but
+    is not a substitute for re-running the validator itself after a solve.
+    Any mismatch here means the encoding's own soundness proof (module
+    docstring) failed to hold for this solve (e.g. a bug in the handler, a
+    units error, a component dropped from the model) and is returned for
+    the caller to hard-fail on.
 
     Args:
         constraints: the SeparatedConstraint list this module generated
