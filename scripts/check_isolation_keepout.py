@@ -60,15 +60,14 @@ Creepage (surface distance) is always >= clearance (through-air distance)
 for the same voltage/pollution class, and a PCB keepout enforces surface
 distance directly (both sides of the gap are literally board surface), so
 the creepage figure is the binding one for sizing a physical keepout.
-MIN_BARRIER_WIDTH_MM below is therefore set to the top of the stated
-3.0-8.0mm range, not the middle: **8.0mm**.
-UNVERIFIED-at-primary (same epistemic status as several figures already
-carried in ``elec/domain_manifest.yaml``'s own OVP-01 protective-impedance
-writeup): IEC 60335-1's Table 16 / IEC 60664-1's creepage tables are
-paywalled primary text; this figure is reconstructed from secondary/industry
-sources, not read from the standard directly in this pass. Never shrunk to
-match this repo's existing (looser) 6.0mm netclass figure -- see the plan's
-hard rule against weakening a safety distance to get a green gate.
+MIN_BARRIER_WIDTH_MM is therefore **8.0mm** for the selected PD2 production
+architecture. That selection is conditional on a documented, gasketed PCB
+compartment outside the coil/heatsink airflow path; it is not permission to
+weaken the physical board barrier. If the enclosure prerequisite is not
+implemented and verified, the PD3 fallback must be selected consistently in
+this gate and the KiCad generator. Never shrink the barrier to match this
+repo's existing (looser) 6.0mm netclass figure -- see the plan's hard rule
+against weakening a safety distance to get a green gate.
 
 What this checks
 -----------------

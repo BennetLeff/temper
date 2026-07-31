@@ -65,9 +65,9 @@ from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from _lib.repo import find_repo_root
 from _lib.github_summary import get_github_summary_path
 from _lib.freshness import check_freshness
+from _lib.repo import find_repo_root
 
 REPO_ROOT = find_repo_root()
 DEFAULT_NETLIST = REPO_ROOT / "elec" / "build" / "default.net"
@@ -311,11 +311,30 @@ class ProtectiveImpedanceChain:
     min_length: int  # manifest-declared minimum series-element count
 
 
+@dataclass(frozen=True)
+class BoardInterface:
+    """The contract for the future power/control board connector.
+
+    This is intentionally a net-level contract, not a claim that the current
+    single-board PCB has already been split.  The physical split is a separate
+    CAD deliverable; this contract makes it impossible to silently add an HV
+    net to the board-to-board connector while that work is in progress.
+    """
+
+    name: str
+    power_board: str
+    control_board: str
+    connector: str
+    nets: tuple[str, ...]
+    allowed_domains: tuple[str, ...]
+
+
 @dataclass
 class Manifest:
     domains: dict[str, list[str]]  # domain name -> [net name, ...]
     isolators: list[Isolator]
     chains: list[ProtectiveImpedanceChain] = field(default_factory=list)
+    board_interface: BoardInterface | None = None
 
 
 def load_manifest(path: Path) -> Manifest:
@@ -508,7 +527,107 @@ def load_manifest(path: Path) -> Manifest:
             "component's graph role"
         )
 
-    return Manifest(domains=domains, isolators=isolators, chains=chains)
+    board_interface_raw = data.get("board_interface")
+    board_interface: BoardInterface | None = None
+    if board_interface_raw is not None:
+        if not isinstance(board_interface_raw, dict):
+            raise GateError("'board_interface' must be a mapping if present")
+
+        def _required_text(key: str) -> str:
+            value = board_interface_raw.get(key)
+            if not isinstance(value, str) or not value.strip():
+                raise GateError(f"board_interface.{key} must be a non-empty string")
+            return value.strip()
+
+        power_board = _required_text("power_board")
+        control_board = _required_text("control_board")
+        if power_board == control_board:
+            raise GateError("board_interface power_board and control_board must differ")
+        connector = _required_text("connector")
+        name = _required_text("name")
+
+        nets_raw = board_interface_raw.get("nets")
+        if not isinstance(nets_raw, list) or not nets_raw:
+            raise GateError("board_interface.nets must be a non-empty list")
+        if any(not isinstance(net, str) or not net.strip() for net in nets_raw):
+            raise GateError("board_interface.nets must contain non-empty strings")
+        nets = tuple(net.strip() for net in nets_raw)
+        if len(set(nets)) != len(nets):
+            raise GateError("board_interface.nets must not contain duplicates")
+
+        allowed_raw = board_interface_raw.get("allowed_domains")
+        if not isinstance(allowed_raw, list) or not allowed_raw:
+            raise GateError("board_interface.allowed_domains must be a non-empty list")
+        if any(not isinstance(domain, str) or not domain.strip() for domain in allowed_raw):
+            raise GateError("board_interface.allowed_domains must contain non-empty strings")
+        allowed_domains = tuple(domain.strip() for domain in allowed_raw)
+        if len(set(allowed_domains)) != len(allowed_domains):
+            raise GateError("board_interface.allowed_domains must not contain duplicates")
+        unknown_domains = set(allowed_domains) - set(domains)
+        if unknown_domains:
+            raise GateError(
+                "board_interface.allowed_domains names undeclared domain(s): "
+                f"{sorted(unknown_domains)}"
+            )
+
+        board_interface = BoardInterface(
+            name=name,
+            power_board=power_board,
+            control_board=control_board,
+            connector=connector,
+            nets=nets,
+            allowed_domains=allowed_domains,
+        )
+
+    return Manifest(
+        domains=domains,
+        isolators=isolators,
+        chains=chains,
+        board_interface=board_interface,
+    )
+
+
+def check_board_interface_contract(
+    netlist: Netlist, manifest: Manifest
+) -> list[str]:
+    """Verify that every planned board-to-board net is explicitly SELV-only.
+
+    A missing interface net is a gate error: it means the contract no longer
+    describes the compiled design.  A net assigned to a disallowed domain is a
+    real violation: it would put HV or an unclassified crossing on the board
+    connector.  The function returns violations so the existing gate keeps its
+    normal non-zero verdict and GitHub summary behavior.
+    """
+    interface = manifest.board_interface
+    if interface is None:
+        return []
+
+    compiled_names = set(netlist.nets.values())
+    missing = sorted(set(interface.nets) - compiled_names)
+    if missing:
+        raise GateError(
+            f"board_interface {interface.name!r} names net(s) absent from the "
+            f"compiled netlist: {missing} -- the connector contract is stale"
+        )
+
+    owners = {
+        net: domain
+        for domain, nets in manifest.domains.items()
+        for net in nets
+    }
+    violations: list[str] = []
+    for net in interface.nets:
+        owner = owners.get(net)
+        if owner is None:
+            violations.append(
+                f"board-interface net {net!r} has no declared safety domain"
+            )
+        elif owner not in interface.allowed_domains:
+            violations.append(
+                f"board-interface net {net!r} is classified as {owner!r}, "
+                f"outside allowed domains {list(interface.allowed_domains)!r}"
+            )
+    return violations
 
 
 # ---------------------------------------------------------------------------
@@ -1265,6 +1384,7 @@ def run(netlist_path: Path, manifest_path: Path, src_dir: Path, skip_freshness: 
         chain_violations = check_chain_integrity(
             netlist, manifest.chains, chain_refs, name_to_code
         )
+        board_interface_violations = check_board_interface_contract(netlist, manifest)
     except GateError as exc:
         print("=== DOMAIN-PARTITION GATE ERROR ===", file=sys.stderr)
         print(f"Reason: {exc}", file=sys.stderr)
@@ -1293,6 +1413,14 @@ def run(netlist_path: Path, manifest_path: Path, src_dir: Path, skip_freshness: 
         f"{len(netlist.nets)} compiled nets / {len(netlist.components)} "
         "components."
     )
+    if manifest.board_interface is not None:
+        interface = manifest.board_interface
+        print(
+            f"Board interface {interface.name!r}: "
+            f"{interface.power_board} <-> {interface.control_board}, "
+            f"connector {interface.connector!r}, "
+            f"{len(interface.nets)} SELV-contract net(s)."
+        )
 
     # Informational only (does not affect the exit code): a net record with
     # zero nodes is a dangling/unused signal declaration in the source --
@@ -1312,10 +1440,16 @@ def run(netlist_path: Path, manifest_path: Path, src_dir: Path, skip_freshness: 
     gh = get_github_summary_path()
     gh_lines: list[str] = []
 
-    if not domain_violations and not isolator_violations and not chain_violations:
+    if (
+        not domain_violations
+        and not isolator_violations
+        and not chain_violations
+        and not board_interface_violations
+    ):
         print(
             "\nPASSED -- 0 domain crossings, 0 isolator-barrier breaches, "
-            "0 protective-impedance chain defects"
+            "0 protective-impedance chain defects, "
+            "0 board-interface contract violations"
         )
         if gh:
             with open(gh, "a") as f:
@@ -1323,7 +1457,9 @@ def run(netlist_path: Path, manifest_path: Path, src_dir: Path, skip_freshness: 
                 f.write(
                     f"0 violations across {len(manifest.domains)} domains, "
                     f"{len(ref_isolator)} isolators, "
-                    f"{len(manifest.chains)} protective-impedance chains.\n"
+                    f"{len(manifest.chains)} protective-impedance chains, "
+                    f"{len(board_interface_violations)} board-interface "
+                    "contract violations.\n"
                 )
         return EXIT_OK
 
@@ -1374,6 +1510,16 @@ def run(netlist_path: Path, manifest_path: Path, src_dir: Path, skip_freshness: 
         print(f"    {v.detail}")
         gh_lines.append(f"- `{v.name}` [{v.reason}]: {v.detail}")
 
+    print(
+        f"\n=== BOARD-INTERFACE CONTRACT VIOLATIONS: "
+        f"{len(board_interface_violations)} ==="
+        if board_interface_violations
+        else "\n=== BOARD-INTERFACE CONTRACT VIOLATIONS: 0 ==="
+    )
+    for detail in board_interface_violations:
+        print(f"\n  {detail}")
+        gh_lines.append(f"- board-interface: {detail}")
+
     if gh:
         with open(gh, "a") as f:
             f.write("### Netlist Domain-Partition Gate -- FAILED\n")
@@ -1381,7 +1527,8 @@ def run(netlist_path: Path, manifest_path: Path, src_dir: Path, skip_freshness: 
                 f"{len(domain_violations)} domain violation(s), "
                 f"{len(isolator_violations)} isolator violation(s), "
                 f"{len(chain_violations)} protective-impedance chain "
-                "violation(s)\n\n"
+                f"violation(s), {len(board_interface_violations)} "
+                "board-interface contract violation(s)\n\n"
             )
             for line in gh_lines:
                 f.write(line + "\n")
@@ -1389,7 +1536,9 @@ def run(netlist_path: Path, manifest_path: Path, src_dir: Path, skip_freshness: 
     print(
         f"\nFAILED -- {len(domain_violations)} domain violation(s), "
         f"{len(isolator_violations)} isolator barrier violation(s), "
-        f"{len(chain_violations)} protective-impedance chain violation(s)"
+        f"{len(chain_violations)} protective-impedance chain violation(s), "
+        f"{len(board_interface_violations)} board-interface contract "
+        "violation(s)"
     )
     return EXIT_VIOLATION
 

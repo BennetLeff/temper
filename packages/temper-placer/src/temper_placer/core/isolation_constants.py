@@ -28,18 +28,20 @@ no new dependency edge is created in either direction.
 
 See ``scripts/check_isolation_keepout.py``'s module docstring (section
 "Which clearance figure: BASIC clearance through REINFORCED creepage") for
-the full IEC 60335-1 derivation this figure is UNVERIFIED-at-primary
-against (the standard's own tables are paywalled; this is reconstructed
-from secondary/industry sources). Never shrink this figure to make a gate
-pass -- see that module's own hard rule against exactly that.
+the full IEC 60335-1 derivation and the PD2 enclosure prerequisite. PD2 is
+the selected production architecture, not a convenience override: the
+gasketed PCB compartment must be kept outside the coil/heatsink airflow path
+and verified before release. If that prerequisite fails, the PD3 fallback
+figure must be selected in both enforcement points together. Never shrink
+this figure to make a gate pass.
 """
 
 from __future__ import annotations
 
 # REINFORCED creepage, pollution degree 2, material group IIIb, <=400V
-# working voltage -- top of the stated 3.0-8.0mm range. See
+# working voltage -- 8.0mm at the selected PD2 production target. See
 # scripts/check_isolation_keepout.py's module docstring for the full
-# derivation and UNVERIFIED-at-primary caveat.
+# derivation and the mechanical prerequisite.
 MIN_BARRIER_WIDTH_MM = 8.0
 
 __all__ = ["MIN_BARRIER_WIDTH_MM"]

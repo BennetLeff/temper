@@ -37,14 +37,15 @@ four independent fail-opens on a live mains-connected board:
    LV"), and RULE 4b ("HighVoltageIsolated to LV") now each carry a real
    ``(constraint creepage ...)`` clause pinned to ``HV_CREEPAGE_ENFORCED_MM``.
 
-PD2-vs-PD3 note: ``HV_CREEPAGE_ENFORCED_MM`` is pinned to
-``HV_CREEPAGE_PD2_MM`` (8.0mm), mirroring
+PD2-vs-PD3 note: the production architecture selects the PD2 exception, so
+``HV_CREEPAGE_ENFORCED_MM`` is pinned to ``HV_CREEPAGE_PD2_MM`` (8.0mm), mirroring
 ``scripts/check_isolation_keepout.py``'s current ``MIN_BARRIER_WIDTH_MM``
-(also 8.0mm/PD2). The PD2-vs-PD3 pollution-degree question itself remains
-UNRESOLVED and is NOT settled by this slice -- retargeting to PD3 (12.6mm)
-is a separate, larger change (constant here, that script's
-``MIN_BARRIER_WIDTH_MM``, and the physical U3/U7 creepage-slot geometry, all
-at once) and is out of scope.
+(also 8.0mm/PD2). The PD2 selection remains conditional on the mechanical
+prerequisite recorded in
+``docs/evidence/2026-07-30-pd2-enclosure-decision.md``. If that prerequisite
+is not implemented and verified, retargeting to PD3 (12.6mm) must change the
+generator, that script's ``MIN_BARRIER_WIDTH_MM``, and the physical geometry
+together.
 
 Groups:
   TestHighVoltageIsolatedRulesEmitted/NetclassRulesYaml -- carried over from
@@ -211,18 +212,18 @@ class TestNoCoatingRelaxation:
     def test_coating_qualified_flag_is_false(self) -> None:
         assert gen.COATING_QUALIFIED is False
 
-    def test_creepage_figures_recorded_and_pd2_pd3_question_still_unresolved(self) -> None:
+    def test_creepage_figures_recorded_and_pd2_selected(self) -> None:
         # Both PD2 and PD3 candidate figures remain declared side by side --
         # the generator must never silently collapse this to one value
         # without recording the other (see docs/evidence/2026-07-28-drc-
         # creepage-constraint.md). This IS emitted as a real KiCad
         # `creepage` constraint (kicad-cli 10.0.4 supports one -- see
-        # TestCreepageConstraintEmitted below), currently pinned to PD2 --
-        # matching scripts/check_isolation_keepout.py's current figure, not
-        # a new decision. The PD2/PD3 question itself is untouched here.
+        # TestCreepageConstraintEmitted below), selected as the PD2
+        # production target and matching scripts/check_isolation_keepout.py's
+        # current figure. The enclosure prerequisite remains a release gate.
         assert gen.HV_CREEPAGE_PD2_MM == 8.0
         assert gen.HV_CREEPAGE_PD3_MM == 12.6
-        assert gen.HV_CREEPAGE_ENFORCED_MM in (gen.HV_CREEPAGE_PD2_MM, gen.HV_CREEPAGE_PD3_MM)
+        assert gen.HV_CREEPAGE_ENFORCED_MM == gen.HV_CREEPAGE_PD2_MM
 
 
 # ---------------------------------------------------------------------------
@@ -738,11 +739,10 @@ class TestRule1aPadTypeConditionFix:
 # ("HighVoltageIsolated to LV") each carry a second `(constraint
 # creepage ...)` clause alongside their existing clearance constraint,
 # pinned to HV_CREEPAGE_ENFORCED_MM. The PD2 (8.0mm) vs PD3 (12.6mm)
-# pollution-degree question itself remains UNRESOLVED and is not settled
-# by this change -- HV_CREEPAGE_ENFORCED_MM is currently pinned to
-# HV_CREEPAGE_PD2_MM, matching the figure
-# scripts/check_isolation_keepout.py's MIN_BARRIER_WIDTH_MM already
-# enforces for the same barrier, not a new unilateral choice.
+# production architecture selects the PD2 exception, so
+# HV_CREEPAGE_ENFORCED_MM is pinned to HV_CREEPAGE_PD2_MM, matching the
+# figure scripts/check_isolation_keepout.py's MIN_BARRIER_WIDTH_MM enforces
+# for the same barrier. The enclosure prerequisite remains a release gate.
 
 
 class TestCreepageConstraintEmitted:
@@ -750,13 +750,11 @@ class TestCreepageConstraintEmitted:
         assert gen.HV_CREEPAGE_ENFORCED_MM in (gen.HV_CREEPAGE_PD2_MM, gen.HV_CREEPAGE_PD3_MM)
 
     def test_enforced_constant_currently_pinned_to_pd2(self) -> None:
-        # Documented, deliberate choice (matches
+        # Documented, deliberate production choice (matches
         # scripts/check_isolation_keepout.py's current MIN_BARRIER_WIDTH_MM,
-        # 8.0mm) -- not an accident of declaration order, and NOT a retarget
-        # to PD3 (that is a separate, larger, out-of-scope change -- see the
-        # module docstring on HV_CREEPAGE_ENFORCED_MM). If a human resolves
-        # PD3, this is the one assertion (plus the constant itself) that
-        # should change, alongside check_isolation_keepout.py's figure.
+        # 8.0mm) -- not an accident of declaration order. If the documented
+        # enclosure prerequisite fails, this assertion and the keepout
+        # constant must move to PD3 together.
         assert gen.HV_CREEPAGE_ENFORCED_MM == gen.HV_CREEPAGE_PD2_MM
 
     def test_ac_mains_to_lv_rule_emits_creepage_constraint(self) -> None:

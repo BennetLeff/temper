@@ -1,3 +1,7 @@
+# Provenance: the sweep was measured against the tree that introduced this
+# evidence record; the tracked tree was clean at measurement time.
+provenance: commit=8d89069c24494fdd4cf6d40a32fda15c8c440251 dirty=false
+
 # Rotation-sign sweep, round 2: 12 call sites in 9 candidate areas beyond PR #479/#491
 
 <!-- provenance: commit=8d89069c24494fdd4cf6d40a32fda15c8c440251 dirty=false -->
