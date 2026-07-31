@@ -51,6 +51,28 @@ def _make_result(routed_by_name: dict, via_list: list | None = None) -> object:
 class TestViaEmission:
     """U5: vias emitted as (via ...) s-expressions."""
 
+    def test_scoped_writer_preserves_unrelated_existing_zones(self):
+        from temper_placer.router_v6.astar_core import RoutePath
+
+        path = RoutePath(
+            net_name="NET",
+            coordinates=[(0, 0), (5, 0), (10, 0)],
+            layer_name="F.Cu",
+            path_length=10.0,
+        )
+        result = _make_result({"NET": path})
+        result.enable_zone_pours = True
+        content = (
+            '(kicad_pcb\n  (net 1 "NET")\n  (net 2 "OTHER")\n'
+            '  (zone (net 2) (layer "F.Cu") (polygon (pts (xy 0 0))))\n)\n'
+        )
+
+        output, _ = _write_routes_to_content(
+            content, result, preserve_existing_zones=True
+        )
+
+        assert "(zone (net 2)" in output
+
     def test_single_via_is_emitted_correctly(self):
         from temper_placer.router_v6.astar_core import RoutePath
 

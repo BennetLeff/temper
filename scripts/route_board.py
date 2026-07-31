@@ -229,6 +229,7 @@ def run_single(
     *,
     target_nets: list[str] | None = None,
     skip_stage3: bool = False,
+    verbose: bool = False,
 ) -> int:
     print(f"Routing {pcb_path} ...")
     r = route_once(
@@ -236,6 +237,7 @@ def run_single(
         rules_path,
         target_nets=target_nets,
         skip_stage3=skip_stage3,
+        verbose=verbose,
     )
     print(_format_run("Result", r))
     if r["unrouted_nets"]:

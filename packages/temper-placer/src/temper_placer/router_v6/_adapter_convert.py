@@ -441,6 +441,7 @@ def route_pcb(
                 placed_content,
                 result,
                 design_rules=design_rules,
+                preserve_existing_zones=normalized_target_nets is not None,
             )
             return _build_routing_result(
                 result,
@@ -463,6 +464,7 @@ def route_pcb(
             placed_content,
             result,
             design_rules=design_rules,
+            preserve_existing_zones=normalized_target_nets is not None,
         )
         return _build_routing_result(
             result,
@@ -474,7 +476,11 @@ def route_pcb(
 
 
 def _write_routes_to_content(
-    pcb_content: str, result: Any, *, design_rules: Any = None
+    pcb_content: str,
+    result: Any,
+    *,
+    design_rules: Any = None,
+    preserve_existing_zones: bool = False,
 ) -> tuple[str, dict[str, list[tuple[float, float]]]]:
     """Inject routing tracks from RouterV6Pipeline result into KiCad PCB content.
 
@@ -661,7 +667,12 @@ def _write_routes_to_content(
             )
 
     if getattr(result, "enable_zone_pours", False):
-        pcb_content, _ = strip_existing_zones(pcb_content)  # R7: replace, don't append
+        if not preserve_existing_zones:
+            # Full-board routing replaces all committed zones with the newly
+            # emitted set. Scoped routing starts from a board where only the
+            # target net's copper was stripped, so unrelated zones must remain
+            # in the candidate for DRC reconciliation.
+            pcb_content, _ = strip_existing_zones(pcb_content)
         _emit_zone_pours(
             pad_positions,
             segments,
