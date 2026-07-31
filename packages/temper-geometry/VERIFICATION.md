@@ -236,3 +236,30 @@ consumers cannot drift apart by construction.
 | P3 | increment then decay(1.0) ≈ identity | `test_increment_then_decay_factor_one_is_identity` |
 | P4 | increment linear in weight | `test_increment_linear_in_weight` |
 | P5 | reset produces all zeros | `test_reset_zeroes_every_cell` |
+
+## SPICE Estimators — Verification by Induction (Wave 2, 2026-07-31)
+
+**Base case:** a 3-vertex loop — the shoelace sum evaluates exactly
+three cross terms; the Rust core and the pinned Python oracle agree
+bit-for-bit (the `<3 components` and missing-ref early returns stay in
+the Python wrapper, unchanged).
+
+**Inductive step:** the shoelace area is the sum of independent
+per-edge cross terms `x1·y2 − x2·y1`, accumulated in vertex order —
+appending a vertex adds one term without perturbing existing ones, so
+correctness extends over arbitrary loop sizes. The inductance is a
+three-operation chain (`mu_0 * area_m2 / h_m`, left-to-right, with
+`mu_0 = 4 * 3.14159265359e-7`) — exact order preserved. Unit
+inference is a pure substring/range classifier; the same substring
+sets, thresholds, and evaluation order as the reference.
+
+**Empirical verification:** the differential suite
+(`packages/temper-placer/tests/validation/test_spice_rust_differential.py`)
+pins `estimate_loop_inductance` bit-exactly (500 random loops,
+reversal symmetry) and `_infer_unit` (1000 name/value samples across
+all unit classes and case variants) against the pre-migration
+implementations. The pre-existing `test_spice.py` +
+`test_spice_templates.py` suites (63 tests) now exercise the Rust
+estimators through the wrappers.
+
+## PBT Properties Verified
