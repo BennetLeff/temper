@@ -1,7 +1,12 @@
 # Handoff — safety-requirement and geometry work, 2026-07-30/31
 
-**Status:** in progress. One task is mid-flight with verified analysis but uncommitted
-code. Everything else is either merged or is an owner decision.
+**Status:** in progress. The K2/K3 relay swap described in §1 has been picked up:
+the RT314012 footprint and the elec/src changes landed on branch
+`fix/k2k3-relay-swap`; the board propagation landed for K2 only (rotated 270°,
+DRC-neutral), and **K3's swap is blocked on placement** — measured: every
+rotation at its current origin introduces new cross-net shorts. Full numbers in
+docs/evidence/2026-07-31-k2k3-relay-swap-placement.md. Everything else below is
+either merged or is an owner decision.
 
 Claims below are marked **[verified]** where I measured them myself in this session,
 and **[reported]** where they come from another agent's or session's account that I
@@ -14,9 +19,12 @@ did not independently reproduce. Treat unmarked prose as narrative.
 **Branch:** `fix/k2k3-relay-swap` (worktree `.claude/worktrees/k2k3-swap`, based on
 `origin/main` @ `4a387393e`).
 
-**State:** `pcb/libs/temper.pretty/Relay_SPDT_Schrack-RT314012.kicad_mod` is copied in
-and **uncommitted**. Nothing else has been touched. `pcb/temper.kicad_pcb` and
-`elec/src/**` are clean.
+**State (updated 2026-07-31):** the footprint, `elec/src` (k_dis1 swapped,
+k_dis2 held on G5LE-1 with a BLOCKED note), and the board (K2 swapped at
+rot 270, K3 untouched) are committed on this branch; `drc_ceiling.json` was
+re-measured and updated in the same change. See
+docs/evidence/2026-07-31-k2k3-relay-swap-placement.md for the measurement that
+drove the K2/K3 split.
 
 ### The verification that matters is already done
 

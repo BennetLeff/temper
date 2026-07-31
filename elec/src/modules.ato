@@ -1210,28 +1210,44 @@ module BusDischarge:
     signal ctrl
     power_15v = new ElectricPower
 
-    # Discharge relays: TE Connectivity / Schrack RT314012 (RT1 family),
-    # SPDT so the NC contact is available (the existing bypass relay
-    # G4A-1A-E is NO-only). REPLACED the Omron G5LE-1 DC12 2026-07-31
-    # (see RELAY REPLACEMENT LANDED above): the G5LE-1's 3.559mm
-    # coil-to-contact gap failed the 8.0mm reinforced creepage and the
-    # 6.0mm PD-independent clearance minimum; the RT314012's 12.76mm
-    # clears both (1.6x / 2.1x). VERIFIED from the ENG_DS_RT1_0718
+    # Discharge relay K2 (k_dis1): TE Connectivity / Schrack RT314012
+    # (RT1 family), SPDT so the NC contact is available (the existing
+    # bypass relay G4A-1A-E is NO-only). REPLACED the Omron G5LE-1 DC12
+    # 2026-07-31 (see RELAY REPLACEMENT LANDED above): the G5LE-1's
+    # 3.559mm coil-to-contact gap failed the 8.0mm reinforced creepage
+    # and the 6.0mm PD-independent clearance minimum; the RT314012's
+    # 12.76mm clears both (1.6x / 2.1x). VERIFIED from the ENG_DS_RT1_0718
     # datasheet (footprint descr carries the extraction trail):
     # contacts 16A / 250VAC, 400VAC max switching voltage, AgNi 90/10;
     # 12VDC coil 360R +/-10% / 400mW -- identical R/P to the outgoing
     # G5LE-1, so the 100R dropper and flyback diode are unchanged.
+    # Board placement: rotated 270 deg at its existing origin so the
+    # 29.9mm courtyard stays inside the board outline (rot 0 hangs
+    # 3.06mm past the x=172 edge; other rotations overlap U3/T1).
     k_dis1 = new Relay_SPDT
     k_dis1.coil_voltage = 12V
     k_dis1.contact_current = 10A
     k_dis1.mpn = "RT314012"
     k_dis1.footprint = "temper:Relay_SPDT_Schrack-RT314012"
 
+    # Discharge relay K3 (k_dis2): still Omron G5LE-1 DC12 -- the
+    # RT314012 swap is BLOCKED on placement, measured 2026-07-31: at the
+    # board's current origin (47.8, 70.78) the new footprint introduces
+    # NEW cross-net shorts in every rotation (rot 0: 30+ items incl.
+    # +170V_BUS x DC_BUS_RTN; rot 90: 5x hb.gate_hs.driver-p2 x
+    # discharge.k_dis2-no -- the NO pad lands on a pre-existing B.Cu
+    # gate-driver track; rot 180: 10x incl. RTD_SDI/SHUTDOWN/ina/inb;
+    # rot 270: 18x incl. RTD_SDI x DC_BUS_RTN). The part needs a new
+    # placement (placer re-solve), not a hand nudge -- see
+    # docs/evidence/2026-07-31-k2k3-relay-swap-placement.md. K3's
+    # G5LE-1 isolation gap remains a tracked, unresolved blocker (the
+    # 2026-07-28 Finder excursion below documents why no same-pitch
+    # family part is a substitute).
     k_dis2 = new Relay_SPDT
     k_dis2.coil_voltage = 12V
     k_dis2.contact_current = 10A
-    k_dis2.mpn = "RT314012"
-    k_dis2.footprint = "temper:Relay_SPDT_Schrack-RT314012"
+    k_dis2.mpn = "G5LE-1 DC12"
+    k_dis2.footprint = "Relay_THT:Relay_SPDT_Omron-G5LE-1"
 
     # Discharge resistors: Vishay AC05 cemented wirewound, 3.9k 5% 5W,
     # axial ~18mm body, AEC-Q200, all-welded -- RESIZED 2026-07-27 from
