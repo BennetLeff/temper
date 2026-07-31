@@ -91,6 +91,7 @@ def solve_placement(
     zone_components: dict[str, list[str]] | None = None,
     hint_positions: dict[str, tuple[float, float, int]] | None = None,
     isolation_barrier: dict | None = None,
+    fixed_positions: dict[str, tuple[float, float, int]] | None = None,
 ) -> CpSatPlacementResult:
     """Build a CP-SAT model, encode constraints, solve, and return the result.
 
@@ -103,6 +104,16 @@ def solve_placement(
             ref to ``(x_mm, y_mm, rotation_0_3)``.  Hints are seeded via
             ``CpModel.AddHint()`` before solving so CP-SAT searches locally
             from the supplied positions rather than exploring the full space.
+        fixed_positions: Optional HARD position pins.  Dict mapping component
+            ref to ``(x_mm, y_mm, rotation_0_3)``.  Unlike ``hint_positions``,
+            these are binding equality constraints -- the solver cannot move a
+            pinned ref (it will report ``infeasible`` if a pin conflicts with
+            the encoded constraints).  This is the minimal-disruption
+            primitive: freeze every component NOT involved in a violation at
+            its current board position, and re-solve only the violating
+            neighborhood (issue #504).  Rotation is pinned only when the ref
+            has a rotation variable (polarized refs are pinned by
+            construction to rot=0).
         isolation_barrier: Optional kwargs forwarded to
             ``isolation_barrier.add_isolation_barrier_to_model`` (minus
             ``model``/``netlist``/``board_w_mm``/``board_h_mm``, which this
@@ -215,6 +226,28 @@ def solve_placement(
                 model_wrapper.model_ref.AddHint(cv.y_center, hint_y)
                 if cv.rot_ref is not None:
                     model_wrapper.model_ref.AddHint(cv.rot_ref, rot)
+
+    # Hard position pins (minimal-disruption API): unlike AddHint above,
+    # these are binding equality constraints -- the solver cannot move a
+    # pinned ref.  This is the "freeze these refs, re-solve the rest"
+    # primitive issue #504's minimum-displacement loop needs.  An
+    # unresolved ref is a silent no-op if skipped here, so fail loudly
+    # (same fail-closed discipline as validate_constraint_refs below).
+    if fixed_positions:
+        for ref, (x_mm, y_mm, rot) in fixed_positions.items():
+            if ref not in model_wrapper.component_map:
+                raise ValueError(
+                    f"fixed_positions references unknown component {ref!r}; "
+                    "a silent skip would freeze nothing and produce a "
+                    "misleadingly 'minimal' displacement"
+                )
+            cv = model_wrapper.get_component(ref)
+            pin_x = model_wrapper.mm_to_units(x_mm)
+            pin_y = model_wrapper.mm_to_units(y_mm)
+            model_wrapper.model_ref.Add(cv.x_center == pin_x)  # type: ignore[operator]
+            model_wrapper.model_ref.Add(cv.y_center == pin_y)  # type: ignore[operator]
+            if cv.rot_ref is not None:
+                model_wrapper.model_ref.Add(cv.rot_ref == rot)  # type: ignore[operator]
 
     # Build EncoderContext from board and netlist data.
     # Coerce every zone rectangle to a validated Rect (x_min,y_min,x_max,y_max)
