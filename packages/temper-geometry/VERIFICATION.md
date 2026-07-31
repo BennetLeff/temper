@@ -263,3 +263,128 @@ implementations. The pre-existing `test_spice.py` +
 estimators through the wrappers.
 
 ## PBT Properties Verified
+
+## Placement-Audit Geometry (Chebyshev gap + bbox) — Verification by Induction (Wave 3 #5, 2026-07-31)
+
+The R24 post-solve audit's pure compute: `bbox_from_center` (audit.py
+`_bbox`) and `chebyshev_gap` (audit.py `_chebyshev_gap`).  Every
+per-constraint check the auditor runs (separated, enclosing,
+adjacent edge-to-edge, on_side, anchored-region, keepout, loop-area)
+is built from these two functions; the per-constraint orchestration
+stays in Python.
+
+**Base case:** two zero-size boxes (a single point each) at (0,0) and
+(d, 0) — `bbox_from_center` collapses to the center point and the gap
+evaluates to `max(d − 0, −0) = d`, exactly the Chebyshev (L-inf)
+distance between the two points; the Rust core and the pinned Python
+oracle agree bit-for-bit for d = 0, 3, and arbitrary reals.
+
+**Induction step:** the gap decomposes into independent per-axis
+components — `gap(A, B) = max(gap_x, gap_y)` where
+`gap_x = max(ax1 − bx2, bx1 − ax2)` is a pure function of the two
+boxes' x-extents alone and `gap_y` of the y-extents alone; there is
+no cross-axis interaction, so correctness for 1D boxes (the base) lifts
+to 2D by the axis independence of the outer `max`.  Per-box
+`bbox_from_center` is four arithmetic ops on one component's
+center/size with no cross-component interaction, so by induction on the
+number of components a placement's bbox map is correct for any size.
+Extending to any number of boxes: each pair's gap is computed
+independently and the auditor's SEPARATED check is an any/min over
+pairs, so appending a component adds independent pair terms. The
+arithmetic order is preserved exactly (left-to-right, two-op chains
+stay two ops), and the reference's Python-builtin `max` NaN semantics
+are replicated (`py_max`: `max(NaN, x) == NaN` but `max(x, NaN) == x`,
+unlike `f64::max` which discards NaN) — that is what makes the gaps
+bit-identical rather than merely close.
+
+**R24 soundness property (PBT):** for separated boxes the Chebyshev
+gap is a conservative under-approximation of the Euclidean gap
+(`0 ≤ cheb ≤ euclid`), so the auditor's SEPARATED check never claims
+more isolation than the true clearance.
+
+**Empirical verification:** the differential suite
+(`packages/temper-placer/tests/placer/cp_sat/test_audit_rust_differential.py`)
+pins `bbox` (500 random components + zero-size + missing-ref defaults)
+and `chebyshev_gap` (500 random box pairs, direct Rust pins of 300
+each) bit-exactly against the pre-migration implementations, plus
+edge cases (zero-size, touching, nested, identical, diagonal
+separation, NaN/inf builtin-max semantics).  The pre-existing
+`test_audit.py` (23 tests) now exercises the Rust core through the
+wrappers.  PBT (`tests/placer/cp_sat/test_audit_pbt.py`): the five
+properties above + three metamorphic relations (translation invariance
+incl. the auditor-level SEPARATED verdict, ref-swap verdict symmetry,
+uniform scaling of both boxes scales the gap linearly and preserves the
+verdict when the threshold scales too).
+
+## Creepage/Clearance Geometry — Verification by Induction (Wave 3 #7, 2026-07-31)
+
+The HV-isolation safety validator's pure geometry:
+`point_to_segment_distance`, `closest_point_on_segment`,
+`segments_intersect`, `segment_to_segment_info`, the same-layer
+min-clearance aggregation, the IPC-2221 voltage table, and the
+HV-net word-boundary classifier (creepage_check.py).  Route-object
+extraction (`_extract_segments`) and the per-net report orchestration
+(`verify_creepage`) stay in Python.
+
+**Base case:** two zero-length segments (points) — the
+`denom == 0` arm returns the point-to-point distance
+(`math.hypot`, CPython's Dekker double-double `vector_norm`, shared
+with `pad_geometry.rs`); a point against a non-degenerate segment
+reduces to the clamped projection, whose distance is the true minimum
+by the standard argument (the minimum over a closed segment is attained
+at the projection if it lies within, else at the nearer endpoint — the
+`max(0, min(1, t))` clamp covers exactly these cases).  The Rust core
+and the pinned Python oracle agree bit-for-bit.
+
+**Induction step:** for two non-intersecting segments the minimum
+distance is attained at an endpoint of one of them (if the closest
+point on each segment were interior, the two segments' supporting lines
+would cross inside both segments — a proper intersection, which the
+orientation test has already excluded).  The algorithm evaluates
+exactly those four endpoint-to-opposite-segment distances, in the
+reference's order (seg1 endpoints first, then seg2's), taking a strict
+`<` min so NaN distances (from NaN coordinates) never displace a finite
+best — the same fallback the reference relies on.  The aggregation
+`min_clearance_distance` is a min over independent per-pair
+computations (with a same-layer filter that is a pure skip, not a
+transform), and the min is associative/commutative — by induction on
+the n×m pair grid, correctness for n×m pairs implies correctness for
+(n+1)×m and n×(m+1), with the strict-`<` tie-break and midpoint
+`(p1 + p2) / 2.0` update preserved.  The voltage table and the
+word-boundary classifier are pure functions of their inputs (bracket
+comparisons; keyword scan with `_`/start boundaries and a trailing
+end/digit/`_` check where Python re's `\d` matches the Unicode Nd
+property via `char::to_digit`), with the reference's keyword order
+preserved.
+
+**Latent reference bug, pinned not fixed:** the pre-migration
+`_segments_intersect` intersection-point formula is
+`t = cross(P1 − P3, d1) / cross(d1, d2)` — the negative of the true
+parameter on segment 2 — so the reported intersection point for a
+proper crossing mirrors through P3 (e.g. for (0,0)-(10,10) ×
+(0,10)-(10,0) it reports (−5, 15) instead of (5, 5)).  The distance is
+0 either way, so the pass/fail verdict is unaffected; the bit-exact
+migration replicates the mirrored values (pinned by the differential
+suite), and the sign fix is recorded as a follow-up rather than a
+silent behavior change.
+
+**Empirical verification:** the differential suite
+(`packages/temper-placer/tests/router_v6/test_creepage_check_rust_differential.py`)
+pins all six geometry functions bit-exactly against the pre-migration
+implementations (500 random point/segment and segment/segment samples
+each, 300 random intersection and aggregation samples, 300 random
+route pairs, 500 random voltages, 1000 random net names, plus the 14
+known false positives, the known true positives, non-ASCII names, and
+the NaN/inf contract the boundary suite documents).  The pre-existing
+suites — `test_creepage_check.py` (10), `test_creepage_properties.py`
+(11), `test_creepage_boundary.py` (79), `test_creepage_induction.py`,
+`test_clearance_boundary.py`, `test_geometric_degeneracy.py`,
+`test_scale_resolution.py`, `test_manufacturing_report_induction.py`,
+`test_induction_strategy.py` — now exercise the Rust core through the
+wrappers (287 + 112 tests green, 14 xfail).  PBT
+(`tests/router_v6/test_creepage_geometry_pbt.py`): distance
+non-negativity, bit-exact symmetry, monotonicity under perpendicular
+translation, rotation invariance, boundedness by the midpoint
+distance, plus voltage-table monotonicity and HV-detection
+case-insensitivity, and four metamorphic relations (translate-both,
+swap-segments, rotate-both, HV/LV role swap in `verify_creepage`).

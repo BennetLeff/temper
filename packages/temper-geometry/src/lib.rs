@@ -19,6 +19,8 @@ pub use spice_estimators::{spice_infer_unit_py, spice_loop_inductance_py};
 pub mod corridor;
 pub mod copper_coverage;
 pub mod channel_widths;
+pub mod audit;
+pub mod creepage_check;
 mod bridge;
 
 use pyo3::prelude::*;
