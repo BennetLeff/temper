@@ -1,6 +1,6 @@
 # Cross-domain creepage triage: rotation convention resolved, unknowns cut 16→9, 60 pairs classified by remedy
 
-<!-- provenance: commit=916a06a26e300efdaf24ce7f4a9c7b4912c50ddb dirty=false -->
+<!-- provenance: commit=0a8e7194f0150dc310e68fada1af19af2a5ae1e4 dirty=false -->
 
 **Date:** 2026-07-29
 **Base commit:** `5401a827` / `3cd4fc4c` (branch `feat/pairwise-creepage-tool`,

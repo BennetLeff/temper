@@ -1,6 +1,6 @@
 # Current-board clearance debt after handoff-actionables reconciliation
 
-<!-- provenance: commit=63f3ccd7b1ffff12e63b6437c9644e554e3be222 dirty=true -->
+<!-- provenance: commit=ebf41c198ccf8c02c6e74eca5fd6e55abdb4236e dirty=false -->
 
 **Date:** 2026-07-30
 **Board:** `pcb/temper.kicad_pcb` after the source/netlist reconciliation that removed the unused mains-ZCD U3 circuit.
