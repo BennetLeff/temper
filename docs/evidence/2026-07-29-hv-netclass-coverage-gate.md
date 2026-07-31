@@ -98,11 +98,12 @@ defects in the slices above (hence `0` unclassified and
 still declares the legacy pre-split **`GateDrive`** class (with a real
 description), while main's DRU generator -- updated by the same split --
 emits only `GateDriveHV`/`GateDriveSELV` rules. `GateDrive` is therefore a
-live declaration that matches zero rules: any net still assigned it (and
-main's kicad_pro/netlist-era boards still reference it) gets no
-class-specific enforcement. This is the exact PROPERTY 2 failure shape the
-gate exists to catch, at a smaller scale than the original
-`HighVoltageIsolated` case.
+live declaration that matches zero rules: a net assigned it gets no
+class-specific enforcement (the current board assigns no net to the
+legacy string -- `grep -c GateDrive pcb/temper.kicad_pcb` on main is 0 --
+so the defect is dormant on main, not absent). This is the exact
+PROPERTY 2 failure shape the gate exists to catch, at a smaller scale
+than the original `HighVoltageIsolated` case.
 
 ## After: this branch (`feat/hv-netclass-coverage-gate`, base `cbaad2eb7`)
 
