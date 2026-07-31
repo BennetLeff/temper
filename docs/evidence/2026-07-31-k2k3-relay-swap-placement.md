@@ -1,4 +1,4 @@
-<!-- provenance: commit=23f103c9c dirty=true -->
+<!-- provenance: commit=23f103c9c64f6d892de2fcf9a546bd4024761d31 dirty=true -->
 
 # K2/K3 relay swap — placement measurement, 2026-07-31
 
