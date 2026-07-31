@@ -41,6 +41,59 @@ matching (case-insensitive, anywhere in the file):
 
     provenance: commit=<sha-or-UNKNOWN> dirty=<true|false|UNKNOWN>
 
+A well-formed SHA is not enough: the commit must actually resolve
+------------------------------------------------------------------
+``SHA_RE`` (below) only checks *shape* -- 40 lowercase hex characters. Two
+evidence docs on main were found carrying a well-formed-but-fabricated
+SHA: a real 8-char prefix with a mistranscribed 32-char tail (e.g.
+``ed5ee134282083``, later corrected to the real ``ed5ee134bc0ef1b...``, and
+``02e907b9d19eab77a13cb63a390af18b1c1d7d10``, corrected to the real
+``02e907b9a5e1dbca4eae9a0a53f8a2be6dc862c5``). The second of those is a
+fully valid 40-hex-char token and satisfied the format check outright. A SHA
+nobody can resolve gives none of the traceability the gate exists for while
+*looking* like it does -- worse than an honest UNKNOWN, because UNKNOWN is
+visible and this was not.
+
+Every ``commit=`` value that passes the format check (in both the ``.md``
+line form and the ``.json`` ``provenance.commit`` field) is therefore also
+verified to resolve to a real commit object, via a single
+``git cat-file --batch-check`` subprocess covering every file's commit in
+one process (see ``verify_commits_exist`` below) rather than one
+``git cat-file`` invocation per file.
+
+Design decisions, made deliberately:
+
+- **Unreachable-but-real commits.** A squash-merged PR whose branch was
+  deleted leaves its pre-squash commits unreachable, and eventually
+  ``git gc`` prunes them. A doc stamped with such a commit was honest when
+  written and becomes unresolvable later -- and after pruning, "never
+  existed" and "existed but is no longer reachable" are indistinguishable
+  from a plain ``git cat-file`` query; both produce the identical "no such
+  object" answer. This gate does NOT try to tell them apart (it cannot,
+  after the fact) and fails both the same way: the file becomes a
+  violation. The correct convention going forward is to cite a commit that
+  persists -- the PR's merge commit into main, not a pre-squash/rebased
+  commit on a branch that gets deleted -- which is arguably the right
+  convention independent of this gate. For a doc whose cited commit
+  legitimately no longer exists anywhere, the existing UNKNOWN + ticketed
+  allowlist entry is the correct escape hatch (same mechanism already used
+  for "provenance genuinely could not be established"), not a gate carve-out.
+
+- **Shallow clones.** A `fetch-depth: 1` checkout has almost none of a
+  repo's historical commit objects, so "does not resolve" would be true of
+  nearly every legitimate historical SHA there -- indistinguishable from a
+  fabricated one. Rather than silently pass (defeats the gate) or fail
+  every file with a misleading per-file reason (manufactures failures this
+  gate cannot substantiate), a detected shallow clone is a `sys.exit(5)`
+  TOOL ERROR distinct from a provenance violation: "this gate cannot run
+  here" instead of "every commit in this repo is fake". The CI job that
+  actually invokes this gate (`provenance-gates` in
+  `.github/workflows/python-tests.yml`) already checks out with
+  `fetch-depth: 0` for an unrelated reason (the DRC-ceiling approval gate in
+  the same job needs a real merge-base against `origin/main`), so this path
+  is not expected to trigger there today -- it exists so a future shallow
+  checkout fails loudly instead of silently downgrading into a no-op.
+
 A file may only declare commit=UNKNOWN if its filename is a line in the
 checked-in allowlist at .evidence-provenance-allowlist (repo root), and every
 allowlist entry must carry a ``# TODO: temper-xxx`` ticket reference -- the
@@ -89,6 +142,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import argparse
 import json
 import re
+import subprocess
 
 from _lib.gate_allowlist import (
     TICKET_PATTERN,
@@ -130,6 +184,15 @@ PROVENANCE_LINE_RE = re.compile(
 PROVENANCE_BLOCK_RE = re.compile(r"provenance:(.{0,400}?)(?:-->|\n\s*\n|\Z)", re.S | re.I)
 _COMMIT_FIELD_RE = re.compile(r"commit=`?([0-9a-fA-F]{40}|UNKNOWN)`?", re.I)
 _DIRTY_FIELD_RE = re.compile(r"dirty=`?(true|false|UNKNOWN)`?", re.I)
+
+# Diagnostic-only, deliberately permissive: matches whatever a `commit=` field
+# actually contains so a malformed stamp can be reported as malformed instead of
+# as missing. An abbreviated SHA (`commit=4d73cad9`) fails both the strict line
+# regex and the block fallback above -- both require 40 hex chars -- so it used
+# to fall through to "no provenance line found", which sends the reader looking
+# for a line that is sitting right there. Never used for validation.
+_COMMIT_FIELD_LOOSE_RE = re.compile(r"commit=`?([^\s`>]+)", re.I)
+_DIRTY_FIELD_LOOSE_RE = re.compile(r"dirty=`?([^\s`>]+)", re.I)
 
 
 class FileCheckResult:
@@ -202,6 +265,37 @@ def check_text_file(path: Path) -> FileCheckResult:
                 commit_tok = c.group(1)
                 break
         if commit_tok is None:
+            # Distinguish "no stamp at all" from "stamp present but unparseable".
+            # Both fail, but they need different fixes, and conflating them cost
+            # real investigation time: an 8-char SHA was reported as a missing
+            # line, so the reader hunts for something already present.
+            for block in PROVENANCE_BLOCK_RE.finditer(text):
+                body = block.group(1)
+                loose_c = _COMMIT_FIELD_LOOSE_RE.search(body)
+                loose_d = _DIRTY_FIELD_LOOSE_RE.search(body)
+                if not (loose_c or loose_d):
+                    continue
+                found = []
+                if loose_c:
+                    tok = loose_c.group(1)
+                    hint = ""
+                    if re.fullmatch(r"[0-9a-fA-F]{4,39}", tok):
+                        hint = " (abbreviated SHA -- the full 40-char SHA is required)"
+                    elif re.fullmatch(r"[0-9a-fA-F]{40}", tok) is None and tok != UNKNOWN:
+                        hint = ' (not a 40-char hex SHA and not "UNKNOWN")'
+                    found.append(f"commit={tok!r}{hint}")
+                else:
+                    found.append("commit=<absent>")
+                found.append(f"dirty={loose_d.group(1)!r}" if loose_d else "dirty=<absent>")
+                return FileCheckResult(
+                    False,
+                    reason=(
+                        "a 'provenance:' stamp is present but could not be parsed -- found "
+                        + ", ".join(found)
+                        + "; expected 'provenance: commit=<40-char-sha-or-UNKNOWN> "
+                        "dirty=<true|false|UNKNOWN>'"
+                    ),
+                )
             return FileCheckResult(
                 False,
                 reason=(
@@ -222,6 +316,105 @@ def check_file(path: Path) -> FileCheckResult:
     if path.suffix == ".json":
         return check_json_file(path)
     return check_text_file(path)
+
+
+def _is_shallow_repo(repo_root: Path) -> bool:
+    """True if *repo_root* is a shallow git clone (e.g. `fetch-depth: 1`).
+
+    Raises RuntimeError if this cannot be determined -- treated by callers
+    as a tool error, never as "assume not shallow".
+    """
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "--is-shallow-repository"],
+            capture_output=True,
+            text=True,
+            timeout=10,
+            cwd=str(repo_root),
+        )
+    except FileNotFoundError as exc:
+        raise RuntimeError(
+            f"git is not installed or not found on PATH: {exc}"
+        ) from exc
+    except subprocess.TimeoutExpired as exc:
+        raise RuntimeError(
+            f"git rev-parse --is-shallow-repository timed out: {exc}"
+        ) from exc
+    if result.returncode != 0:
+        raise RuntimeError(
+            "git rev-parse --is-shallow-repository failed: "
+            f"{result.stderr.strip()}"
+        )
+    return result.stdout.strip() == "true"
+
+
+def verify_commits_exist(shas: set[str], repo_root: Path) -> dict[str, bool]:
+    """Return {sha: True} for every sha in *shas* that resolves to a real
+    *commit* object in the local git object store; sha maps to False if the
+    object is missing, or if it resolves to some other object type (blob,
+    tree, tag -- a `commit=` field pointing at a non-commit is exactly as
+    untraceable as one pointing at nothing).
+
+    Verifies all of *shas* with a single `git cat-file --batch-check`
+    subprocess (never one `git cat-file` invocation per SHA -- 153 evidence
+    files today, and growing, would otherwise mean one process spawn per
+    file).
+
+    Raises RuntimeError -- treated by callers as a fail-closed TOOL ERROR,
+    not a per-file violation and never a silent pass -- if:
+      - *repo_root* is a shallow clone (see module docstring: a shallow
+        clone cannot be distinguished from "every historical SHA is fake").
+      - git itself is unavailable, times out, or the batch-check command
+        fails outright.
+    """
+    if not shas:
+        return {}
+
+    if _is_shallow_repo(repo_root):
+        raise RuntimeError(
+            "refusing to verify commit existence against a shallow git "
+            "clone (fetch-depth < full history): almost every legitimate "
+            "historical SHA would fail to resolve here, which is "
+            "indistinguishable from a fabricated one from inside a shallow "
+            "clone. The job invoking this gate must check out full history "
+            "(actions/checkout with fetch-depth: 0)."
+        )
+
+    try:
+        proc = subprocess.run(
+            ["git", "cat-file", "--batch-check=%(objectname) %(objecttype)"],
+            input="\n".join(sorted(shas)) + "\n",
+            capture_output=True,
+            text=True,
+            timeout=30,
+            cwd=str(repo_root),
+        )
+    except FileNotFoundError as exc:
+        raise RuntimeError(
+            f"git is not installed or not found on PATH: {exc}"
+        ) from exc
+    except subprocess.TimeoutExpired as exc:
+        raise RuntimeError(f"git cat-file --batch-check timed out: {exc}") from exc
+
+    if proc.returncode != 0:
+        raise RuntimeError(
+            f"git cat-file --batch-check exited {proc.returncode}: {proc.stderr.strip()}"
+        )
+
+    resolved: dict[str, bool] = dict.fromkeys(shas, False)
+    for line in proc.stdout.splitlines():
+        parts = line.split()
+        if len(parts) < 2:
+            continue
+        sha, second = parts[0], parts[1]
+        # A missing object is reported as "<sha> missing" regardless of the
+        # --batch-check format string; a found object is reported as
+        # "<objectname> <objecttype>" per the format string above.
+        if second == "missing":
+            continue
+        if sha in resolved:
+            resolved[sha] = second == "commit"
+    return resolved
 
 
 def scan_evidence_dir(evidence_dir: Path) -> list[Path]:
@@ -332,11 +525,45 @@ def main() -> None:
 
     allowlist = load_allowlist(allowlist_path)
 
+    # Pass 1: format-check every file once (shared by --init and the gate
+    # below, so a well-formed-but-fabricated SHA is discovered exactly once).
+    file_checks: list[tuple[Path, FileCheckResult]] = [(f, check_file(f)) for f in files]
+
+    # Pass 2: batch-verify that every format-valid, non-UNKNOWN commit
+    # actually resolves to a real commit object -- a single
+    # `git cat-file --batch-check` subprocess for the whole scan (never one
+    # `git cat-file` invocation per file; see verify_commits_exist). This is
+    # the hole a SHA_RE format check alone cannot close: two evidence docs on
+    # main carried a real 8-char prefix with a fabricated 32-char tail, one
+    # of them 40 valid hex characters that satisfied the format check
+    # outright. A commit that cannot be resolved provides none of the
+    # traceability the gate exists for while looking like it does.
+    #
+    # Fails closed as a TOOL ERROR (exit 5, never a silent pass) if the
+    # verdict itself cannot be trusted -- git missing, or a shallow clone,
+    # where "does not resolve" would be true of nearly every legitimate
+    # historical SHA and is indistinguishable from a fabricated one.
+    shas_to_verify = {
+        result.commit
+        for _, result in file_checks
+        if result.ok and result.commit not in (None, UNKNOWN)
+    }
+    try:
+        resolved_commits = verify_commits_exist(shas_to_verify, REPO_ROOT)
+    except RuntimeError as exc:
+        console.print(f"[red]TOOL ERROR: cannot verify commit provenance: {exc}[/]")
+        console.print(
+            "[red]A gate that cannot verify its own claims is a tool error, "
+            "not a pass -- see docs/METHODOLOGY.md Sec 5.[/]"
+        )
+        sys.exit(5)
+
     if args.init:
         to_add = []
-        for f in files:
-            result = check_file(f)
+        for f, result in file_checks:
             if not result.ok or result.commit == UNKNOWN:
+                to_add.append(f.name)
+            elif not resolved_commits.get(result.commit, False):
                 to_add.append(f.name)
         lines = [
             "# Evidence provenance allowlist -- monotonically-shrinking baseline",
@@ -364,8 +591,7 @@ def main() -> None:
     unknown_count = 0
     real_commit_count = 0
 
-    for f in files:
-        result = check_file(f)
+    for f, result in file_checks:
         if not result.ok:
             violations.append((f.name, result.reason))
             continue
@@ -380,6 +606,24 @@ def main() -> None:
                 )
                 continue
             unknown_count += 1
+        elif not resolved_commits.get(result.commit, False):
+            # Distinct from the malformed/missing-stamp messages above: the
+            # stamp parsed fine and the SHA is 40 valid lowercase hex
+            # characters -- it simply does not name any commit that exists
+            # in this repository's object store.
+            violations.append(
+                (
+                    f.name,
+                    f"provenance commit={result.commit} does not resolve to a commit "
+                    "object in this repository (git cat-file confirms no such object "
+                    "exists) -- whether mistyped, fabricated, or naming a commit that "
+                    "once existed but is no longer reachable and has since been "
+                    "garbage-collected, an unresolvable SHA gives no traceability; "
+                    "cite a commit that persists (e.g. this change's merge commit "
+                    "into main) or, if it is genuinely gone, move this entry to "
+                    f"commit=UNKNOWN with a ticketed {allowlist_path.name} entry",
+                )
+            )
         else:
             real_commit_count += 1
 

@@ -12,6 +12,8 @@ for all pad-position computation.
 import math
 from typing import TYPE_CHECKING
 
+from temper_placer.geometry.kicad_transform import rotate_local_to_world
+
 if TYPE_CHECKING:
     from temper_placer.core.netlist import Component, Pin
 
@@ -82,17 +84,15 @@ def pin_world_position_at(
     rotation_rad = _normalize_rotation(rot_source)
     side = comp.initial_side or 0
 
-    cos_r = math.cos(rotation_rad)
-    sin_r = math.sin(rotation_rad)
     px, py = pin.position
 
     # If on bottom side, mirror X coordinate before rotation (KiCad behavior)
     if side == 1:
         px = -px
 
-    # Rotate pin offset
-    rx = px * cos_r - py * sin_r
-    ry = px * sin_r + py * cos_r
+    # Rotate pin offset using KiCad's real footprint-child rotation
+    # convention -- see temper_placer.geometry.kicad_transform's docstring.
+    rx, ry = rotate_local_to_world(px, py, rotation_rad)
 
     # Add component position (use override if provided)
     cpos = pos_override if pos_override is not None else comp.initial_position or (0.0, 0.0)

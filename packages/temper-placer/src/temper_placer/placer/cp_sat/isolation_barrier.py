@@ -113,6 +113,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from temper_placer.core.isolation_constants import MIN_BARRIER_WIDTH_MM
+
 if TYPE_CHECKING:
     from temper_placer.core.netlist import Component, Netlist
     from temper_placer.placer.cp_sat.model import CpSatModel
@@ -130,14 +132,19 @@ __all__ = [
     "load_domain_manifest_nets",
 ]
 
-# 0.5mm above scripts/check_isolation_keepout.py's MIN_BARRIER_WIDTH_MM
-# (8.0mm, REINFORCED creepage -- see that module's docstring for the full
-# IEC 60335-1 derivation). The margin exists so integer-unit rounding
+# 0.5mm above the SSOT REINFORCED creepage figure, MIN_BARRIER_WIDTH_MM
+# (temper_placer.core.isolation_constants -- scripts/check_isolation_keepout.py's
+# module docstring has the full IEC 60335-1 derivation; never restated here
+# as a literal). The margin exists so integer-unit rounding
 # (CpSatModel.mm_to_units rounds to the nearest *even* unit) and the gate's
 # own Shapely negative-buffer erosion test (a strict "> 0 everywhere", not
 # "== 0 at the edge") both have headroom -- never used to justify shrinking
-# the 8.0mm safety figure itself, which this module never touches.
-DEFAULT_CORRIDOR_WIDTH_MM = 8.5
+# MIN_BARRIER_WIDTH_MM itself, which this module never touches. Computed,
+# not restated: a future retarget of MIN_BARRIER_WIDTH_MM now moves this
+# value for free instead of relying on someone finding and hand-updating a
+# duplicated literal -- see docs/solutions/design-patterns/derived-constant-
+# in-prose-drifts-make-the-gate-emit-it-2026-07-29.md.
+DEFAULT_CORRIDOR_WIDTH_MM = MIN_BARRIER_WIDTH_MM + 0.5
 
 
 # ---------------------------------------------------------------------------
@@ -341,22 +348,31 @@ def _project_onto_barrier_axis(local_x: float, local_y: float, rot_value: int, b
     """Global coordinate (along *barrier_axis*, 0=X/1=Y) a local pad offset
     maps to under one of the model's 4 axis-aligned rotations.
 
-    Matches ``_rotate`` in ``scripts/check_isolation_keepout.py`` (and
-    ``io/_parse_modules.py``'s own rotation handling) exactly: rotation is
-    counterclockwise about the component centre, so
-    (lx, ly) -> (lx*cos(a) - ly*sin(a), lx*sin(a) + ly*cos(a)) for
-    a = rot_value * 90 degrees, i.e.:
+    This is the exact, hand-unrolled closed form of
+    ``temper_placer.geometry.kicad_transform.rotate_local_to_world_deg(lx,
+    ly, rot_value * 90.0)`` for the 4 axis-aligned cases this CP-SAT model
+    uses -- see that module's docstring for the confirming evidence (KiCad
+    rotates a footprint child by R(-theta), not R(+theta)). Deliberately
+    NOT routed through that module's floating-point ``math.cos``/``sin``:
+    at exact 90-degree multiples those evaluate to values like
+    ``cos(90 deg) == 6.123e-17`` rather than an exact 0, which would
+    introduce sub-ULP float noise into this CP-SAT model's integer-scaled
+    coordinates. This dict is the exact, integer-only equivalent instead,
+    pinned to the sanctioned module's convention by
+    ``test_isolation_barrier_matches_kicad_transform`` in this file's test
+    module. So (lx, ly) -> (lx*cos(a) + ly*sin(a), -lx*sin(a) + ly*cos(a))
+    for a = rot_value * 90 degrees, i.e.:
 
         rot=0:  (gx, gy) = ( lx,  ly)
-        rot=1:  (gx, gy) = (-ly,  lx)
+        rot=1:  (gx, gy) = ( ly, -lx)
         rot=2:  (gx, gy) = (-lx, -ly)
-        rot=3:  (gx, gy) = ( ly, -lx)
+        rot=3:  (gx, gy) = (-ly,  lx)
     """
     gx, gy = {
         0: (local_x, local_y),
-        1: (-local_y, local_x),
+        1: (local_y, -local_x),
         2: (-local_x, -local_y),
-        3: (local_y, -local_x),
+        3: (-local_y, local_x),
     }[rot_value]
     return gx if barrier_axis == 0 else gy
 

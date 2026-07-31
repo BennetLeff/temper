@@ -82,11 +82,36 @@ This document defines clearance (through air) and creepage (along surface) requi
 
 | Parameter | Value | Justification |
 |-----------|-------|---------------|
-| **Pollution Degree** | 2 | Normal indoor environment, condensation possible |
+| **Pollution Degree** | **2, conditional** | The production architecture selects the IEC 60335-2-6 cl. 29.2 enclosure exception. A gasketed PCB compartment separate from the coil/heatsink airflow path is a release prerequisite; otherwise PD3 applies. |
 | **Overvoltage Category** | III | Equipment connected to mains distribution |
 | **Material Group** | IIIb | FR4 CTI 175-249V |
 | **Altitude** | ≤2000m | Standard household use |
 | **Working Temperature** | 60°C max ambient | Kitchen environment near cooking |
+
+### 3.2.1 Pollution degree -- selected architecture and release gate
+
+IEC 60335-2-6 clause 29.2 Addition makes PD3 the default for cooking
+appliances unless the insulation is enclosed or located so that it is
+unlikely to be exposed to pollution during normal use. The project owner has
+selected that PD2 exception as the production architecture, with a concrete
+mechanical prerequisite rather than an assumption:
+
+- the PCB is inside a covered, gasketed compartment;
+- the compartment is separate from the coil/heatsink forced-air path;
+- grease, steam, and cooking aerosols cannot reach exposed PCB insulation
+  through the cooling duct, service openings, or cable penetrations;
+- the assembly drawing identifies the cover, gasket interface, partition,
+  and inspection points; and
+- production inspection verifies that the barrier is installed and intact.
+
+`docs/CHASSIS_AIRFLOW_DESIGN.md`, `docs/ASSEMBLY_GUIDE.md`, and
+`docs/ENVIRONMENTAL_SPEC.md` record this as a release requirement. The
+existing PD3 determination in
+`docs/evidence/2026-07-30-pollution-degree-determination.md` remains valid
+for the prior vented layout; it is not evidence that the future enclosure
+has already been built. Until the mechanical prerequisite is verified, PD3
+and its 12.6 mm reinforced-creepage requirement remain the applicable
+fallback.
 
 ### 3.3 Insulation Types
 
@@ -129,37 +154,64 @@ Based on IEC 60664-1 Table F.2 for Overvoltage Category III, Pollution Degree 2:
 
 ### 5.1 Creepage Table (Along Surface)
 
-Based on IEC 60335-1 Table 16, Pollution Degree 2, Material Group IIIb:
+**Table number, row boundaries, and pollution degree corrected 2026-07-30.**
+This table is IEC 60335-1's **Table 17** ("Minimum Creepage Distances for
+Basic Insulation," clauses 29.2.1-29.2.3), not Table 16 (Table 16 is the
+*clearance* table, §4.1's basis) -- a pre-existing mislabel corrected here.
+The row boundaries below are the standard's own (previously this table used
+invented round-number rows -- 50/100/150/200/300/400/600V -- that do not
+match Table 17's actual breakpoints at every row; replaced here with the
+real breakpoints so every figure traces exactly). Based on IEC 60335-1
+Table 17, Material Group IIIa/IIIb (CITED-PRIMARY, IS 302-1:2008 Table 17,
+re-read directly this session), both pollution-degree columns shown for
+comparison:
 
-| Working Voltage (V) | Basic (mm) | Reinforced (mm) | Design Value (mm) |
-|--------------------|------------|-----------------|-------------------|
-| 50 | 1.2 | 2.4 | 3.0 |
-| 100 | 1.6 | 3.2 | 4.0 |
-| 150 | 2.0 | 4.0 | 5.0 |
-| 200 | 2.5 | 5.0 | 6.0 |
-| 300 | 4.0 | 8.0 | 10.0 |
-| 400 | 5.0 | 10.0 | 12.0 |
+| Working Voltage (V) | PD2 Basic (mm) | PD2 Reinforced (mm) | PD3 Basic (mm) | **PD3 Reinforced (mm)** |
+|---|---:|---:|---:|---:|
+| ≤50 | 1.2 | 2.4 | 1.9 | 3.8 |
+| >50, ≤125 | 1.5 | 3.0 | 2.4 | 4.8 |
+| >125, ≤250 | 2.5 | 5.0 | 4.0 | 8.0 |
+| >250, ≤400 | 4.0 | 8.0 | 6.3 | **12.6** |
+| >400, ≤500 | 5.0 | 10.0 | 8.0 | 16.0 |
 
-**No interpolation between rows.** IEC 60664-1/60335-1 clearance and creepage
-tables are not interpolated: a working voltage that falls between two
-tabulated rows takes the *next row up*, never a value in between. Every
-boundary below whose working voltage exceeds 300V (all three: 340V, 355V,
-400V) therefore reads off the **400V** row, not the 300V row, even though
-none of them equal 400V exactly. See
-`docs/evidence/2026-07-30-creepage-requirement-reconciliation.md` for the
-full derivation -- this table's own §5.2 previously mis-read the AC Mains
-row against the 300V row despite 340V being the same >300V case as DC Bus
-and Gate Iso below, which is corrected here.
+**PD2 governs for the selected, protected-compartment architecture**, once
+the §3.2.1 release gate is verified. MAINS (340V pk), DC_BUS (400V
+pk/transient), and Gate Drive Isolated (355V peak-to-earth) satisfy
+">250, ≤400" literally (400 ≤ 400), which is row iv of Table 17 and gives
+**4.0mm basic / 8.0mm reinforced** at PD2, Material Group IIIa/IIIb. If the
+compartment is not built or fails inspection, use the PD3 column instead:
+**6.3mm basic / 12.6mm reinforced**.
+
+The prior PD2 baseline's 10.0mm value was the next voltage row's reinforced
+figure. For the selected 400V boundary, this specification uses the literal
+row-iv PD2 value of 8.0mm; the PD3 fallback remains 12.6mm. The historical
+determination and its derivation are retained in
+`docs/evidence/2026-07-30-pollution-degree-determination.md`.
+
+**No interpolation between rows.** IEC 60664-1/60335-1 clearance and
+creepage tables are not interpolated: a working voltage that falls within a
+row's own stated bracket uses that row directly; a voltage that falls
+*between* two rows' brackets (which does not arise for any boundary on this
+board) would take the next row up.
 
 ### 5.2 Design Creepage
 
 | Boundary | Insulation | Working V | Min Required | Design Value |
 |----------|------------|-----------|--------------|--------------|
-| AC Mains to SELV | Reinforced | 340V pk | 10.0mm | 12.0mm |
-| DC Bus to SELV | Reinforced | 400V pk | 10.0mm | 12.0mm |
-| Across UCC21550 | Reinforced | 400V | 10.0mm | Per device spec |
-| IGBT tab to LV trace | Reinforced | 400V | 10.0mm | 12.0mm |
+| AC Mains to SELV | Reinforced | 340V pk | 8.0mm PD2 / 12.6mm PD3 fallback | 10.0mm |
+| DC Bus to SELV | Reinforced | 400V pk | 8.0mm PD2 / 12.6mm PD3 fallback | 10.0mm |
+| Across UCC21550 | Reinforced | 400V | Per device spec, not less than selected system target | Per device spec |
+| IGBT tab to LV trace | Reinforced | 400V | 8.0mm PD2 / 12.6mm PD3 fallback | 10.0mm |
 | Within SELV | Functional | 15V | 0.5mm | 1.0mm |
+
+**Within SELV (functional) row not corrected in this pass.** The same PD3
+finding applies in principle (Table 18 row i, ≤50V, PD3, Material Group
+IIIa/IIIb = 1.8mm, vs. this row's 1.0mm, which was already slightly under
+Table 18's own PD2 figure of 1.1mm at this row) but this is a same-domain
+SELV-to-SELV functional boundary, not a mains/DC-bus-to-SELV safety barrier,
+and needs its own check of whether clause 29.2.4's short-circuit-test
+exemption already applies before being changed. Flagged, not corrected
+here -- see `docs/evidence/2026-07-30-pollution-degree-determination.md`.
 
 ## 6. Isolation Barrier Design
 
@@ -214,19 +266,69 @@ With slot:     Creepage = 2 × slot width + surface across slot
 - No ground plane under center of package
 - Place isolation slot under device if possible
 
-### 6.4 Conformal Coating Zones
+### 6.4 Conformal Coating -- NOT a live relaxation on this design (corrected 2026-07-30)
 
-For additional creepage in tight areas, apply conformal coating:
+**This section previously specified a "Creepage Multiplier: x1.5 for coated
+surfaces." No such provision exists in IEC 60335-1 or IEC 60664-3** (both
+read directly this session -- see
+`docs/evidence/2026-07-28-conformal-coating-pd1.md`, `docs/evidence/2026-07-30-pollution-degree-determination.md`).
+The real mechanism (IEC 60335-1 clause 29 preamble + Annex J, delegating to
+IEC 60664-3) is not a scaling factor: a qualified Type A ("type 1
+protection") coating changes the *pollution degree* of the protected
+microenvironment to **PD1**, per-creepage-path, binary -- either a path is
+fully covered and gets the PD1 figure, or it is not covered at all and gets
+whatever pollution degree actually governs (PD2 for the selected protected
+compartment, with PD3 as the fallback if that release gate fails).
+A x1.5 multiplier is not equivalent to that in either direction and has no
+textual basis.
 
-**Coating Type:** Silicone or Acrylic (IPC-CC-830)
-**Thickness:** 25-75 µm
-**Creepage Multiplier:** ×1.5 for coated surfaces
+**This design has no qualified coating today, and could not earn PD1 on its
+current failing paths even if one were added:**
 
-**Coating Zones:**
-1. Around IGBT TO-247 mounting pads
-2. UCC21550 package perimeter
-3. High-voltage connector area
-4. Bootstrap diode/capacitor area
+1. **No coating process exists in this project's BOM or assembly
+   documents.** Checked directly (`docs/hardware/BOM.md`,
+   `docs/ASSEMBLY_GUIDE.md`) -- neither mentions a coating step, material,
+   or process. §6.4's "Coating Type/Thickness" above was never connected to
+   an actual manufacturing step.
+2. **IEC 60664-3 clause 4.3 requires the entire creepage path -- both
+   conductive parts and every span between them -- to be covered** for PD1
+   credit on that path; there is no partial credit. Measured directly
+   against every declared isolator's real footprint geometry
+   (`docs/evidence/2026-07-28-conformal-coating-pd1.md` §4): **100.0% of
+   the shortest HV<->SELV surface path lies underneath the component body**
+   for every one of the seven isolators with a body outline (C6, K1, K2,
+   K3, T1, U3, U7). A coating applied after reflow/wave does not reach the
+   board surface beneath an already-seated component body -- the credit
+   cannot be earned on these paths by adding a coating step alone, only by
+   also changing the footprint/placement so the path is not hidden under a
+   body, which is a layout change, not a coating spec.
+3. **Even a hypothetically perfect, fully-covering Type A coating does not
+   make this board compliant.** At PD1, reinforced creepage at this board's
+   400V row (Table 17 row iv, Material Group IIIa/IIIb) is 2.0mm, not
+   0mm -- several cross-domain pad pairs on this board measure below 2.0mm
+   even under that best case (see the cited evidence doc §"Verdict up
+   front," item 3).
+
+**Conclusion: conformal coating is not a live option for closing this
+board's current creepage shortfalls**, either because the specific failing
+paths are structurally uncoatable (under a component body) or because no
+coating process is specified in the first place. `scripts/generate_kicad_dru.py`
+already encodes this fail-closed (`COATING_QUALIFIED = False`, with the
+same citation chain) and is unchanged by this pass. If a future design adds
+a genuine coating step **and** relocates the affected footprints so their
+governing creepage paths are not hidden under a body, PD1 credit becomes
+available for those specific paths at that time -- not before.
+
+**Some component-specific rows in §§7-9 still show pre-2026-07-30 figures
+(8.0/10.0/12.0mm reinforced creepage) and have not yet been reconciled to
+the selected PD2 target and its 12.6mm PD3 fallback -- flagged here so a
+reader does not mistake them for current. The system-level checklist and
+KiCad example below use the selected 8.0mm PD2 target; remaining component
+rows are a separate reconciliation task. Only §3.2, §5.1, §5.2, and §6.4
+were in scope for the pollution-degree decision;
+the validator matrix (`packages/temper-placer/src/temper_placer/requirements/validators/clearance.py`),
+not this document's §7-9, is what actually gates REQ-SAFE-01.** See
+`docs/evidence/2026-07-30-pollution-degree-determination.md`.
 
 ## 7. Component-Specific Clearances
 
@@ -296,9 +398,9 @@ For additional creepage in tight areas, apply conformal coating:
 
 | Location | Required | Actual | Status |
 |----------|----------|--------|--------|
-| AC Mains to SELV | 10.0mm | ___mm | ☐ Pass |
-| DC Bus to SELV | 12.0mm | ___mm | ☐ Pass |
-| IGBT tab to nearest trace | 12.0mm | ___mm | ☐ Pass |
+| AC Mains to SELV | 8.0mm PD2 / 12.6mm PD3 fallback | ___mm | ☐ Pass |
+| DC Bus to SELV | 8.0mm PD2 / 12.6mm PD3 fallback | ___mm | ☐ Pass |
+| IGBT tab to nearest trace | 8.0mm PD2 / 12.6mm PD3 fallback | ___mm | ☐ Pass |
 | Across isolation barrier | 8.0mm | ___mm | ☐ Pass |
 
 ### 8.3 Hi-Pot Test Requirements
@@ -326,7 +428,7 @@ Add to project design rules (`.kicad_dru` or inline):
 
 (rule "HV_AC_to_SELV_creepage"
   (condition "A.NetClass == 'ACMains' && B.NetClass == 'Default'")
-  (constraint creepage (min 10.0mm)))
+  (constraint creepage (min 8.0mm)))
 
 # DC Bus to SELV (reinforced insulation)
 (rule "HV_DC_to_SELV"
@@ -361,3 +463,5 @@ Create keep-out zones in KiCad:
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
 | 1.0 | 2025-12-16 | AI Agent | Initial specification |
+| 1.1 | 2026-07-30 | AI Agent | Pollution degree corrected PD2 -> PD3 with citation (§3.2/3.2.1); creepage table mislabel and pollution-degree column corrected, real Table 17 row boundaries substituted for invented round numbers (§5.1/5.2); fabricated conformal-coating creepage multiplier removed and replaced with the real, non-multiplicative mechanism (§6.4). See `docs/evidence/2026-07-30-pollution-degree-determination.md`. §7-9 not yet reconciled -- flagged, not corrected, in this pass. |
+| 1.2 | 2026-07-30 | AI Agent | Owner selected the PD2 enclosure exception for production, conditional on a gasketed PCB compartment outside the coil/heatsink airflow path; restored the literal 8.0mm PD2 row-iv target while retaining 12.6mm as the fallback. |

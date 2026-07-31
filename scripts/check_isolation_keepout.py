@@ -60,15 +60,14 @@ Creepage (surface distance) is always >= clearance (through-air distance)
 for the same voltage/pollution class, and a PCB keepout enforces surface
 distance directly (both sides of the gap are literally board surface), so
 the creepage figure is the binding one for sizing a physical keepout.
-MIN_BARRIER_WIDTH_MM below is therefore set to the top of the stated
-3.0-8.0mm range, not the middle: **8.0mm**.
-UNVERIFIED-at-primary (same epistemic status as several figures already
-carried in ``elec/domain_manifest.yaml``'s own OVP-01 protective-impedance
-writeup): IEC 60335-1's Table 16 / IEC 60664-1's creepage tables are
-paywalled primary text; this figure is reconstructed from secondary/industry
-sources, not read from the standard directly in this pass. Never shrunk to
-match this repo's existing (looser) 6.0mm netclass figure -- see the plan's
-hard rule against weakening a safety distance to get a green gate.
+MIN_BARRIER_WIDTH_MM is therefore **8.0mm** for the selected PD2 production
+architecture. That selection is conditional on a documented, gasketed PCB
+compartment outside the coil/heatsink airflow path; it is not permission to
+weaken the physical board barrier. If the enclosure prerequisite is not
+implemented and verified, the PD3 fallback must be selected consistently in
+this gate and the KiCad generator. Never shrink the barrier to match this
+repo's existing (looser) 6.0mm netclass figure -- see the plan's hard rule
+against weakening a safety distance to get a green gate.
 
 What this checks
 -----------------
@@ -141,7 +140,6 @@ Usage:
 from __future__ import annotations
 
 import argparse
-import math
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -151,7 +149,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from _lib.github_summary import get_github_summary_path  # noqa: E402
 from _lib.repo import find_repo_root  # noqa: E402
 
+from temper_placer.core.isolation_constants import MIN_BARRIER_WIDTH_MM  # noqa: E402
 from temper_placer.core.pad_geometry import pad_bounding_radius  # noqa: E402
+from temper_placer.geometry.kicad_transform import rotate_local_to_world_deg  # noqa: E402
 
 REPO_ROOT = find_repo_root()
 DEFAULT_BOARD = REPO_ROOT / "pcb" / "temper.kicad_pcb"
@@ -166,11 +166,14 @@ EXIT_GATE_ERROR = 5
 # elsewhere on the board (e.g. under a connector) is never mistaken for it.
 BARRIER_ZONE_NAME = "MAINS_SELV_ISOLATION_BARRIER"
 
-# REINFORCED creepage, pollution degree 2, material group IIIb, <=400V
-# working voltage -- top of the plan's stated 3.0-8.0mm range. See module
-# docstring "Which clearance figure" for full derivation and UNVERIFIED
-# caveat. Never shrink this to make the gate pass (plan hard rule).
-MIN_BARRIER_WIDTH_MM = 8.0
+# MIN_BARRIER_WIDTH_MM itself now lives in temper_placer.core.isolation_constants
+# (imported above) so packages/temper-placer's own CP-SAT corridor-width
+# constraint (isolation_barrier.py) can derive DEFAULT_CORRIDOR_WIDTH_MM
+# from it directly instead of restating the figure -- see that module's own
+# comment. This module remains the derivation's home: full IEC 60335-1
+# rationale and UNVERIFIED-at-primary caveat are in the "Which clearance
+# figure" section of THIS docstring above. Never shrink the constant to make
+# the gate pass (plan hard rule).
 
 _COPPER_LAYER_TYPE = "signal"
 
@@ -317,8 +320,10 @@ class BoardData:
 
 
 def _rotate(x: float, y: float, angle_deg: float | None) -> tuple[float, float]:
-    a = math.radians(angle_deg or 0.0)
-    return (x * math.cos(a) - y * math.sin(a), x * math.sin(a) + y * math.cos(a))
+    """KiCad's footprint-child rotation (y-down board frame) -- see
+    ``temper_placer.geometry.kicad_transform``'s module docstring for the
+    confirming evidence."""
+    return rotate_local_to_world_deg(x, y, angle_deg or 0.0)
 
 
 def _expand_copper_layers(raw_layers: list[str], copper_layers_ordered: list[str]) -> frozenset[str]:

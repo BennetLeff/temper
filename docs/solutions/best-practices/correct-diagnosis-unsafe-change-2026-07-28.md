@@ -225,3 +225,73 @@ route_pcb(pcb_after_fix)   ->  3.12% completion   # <- stop here, don't merge
   poured at all.
 - `packages/temper-placer/src/temper_placer/io/_parse_board.py:264-272` —
   the retained fix and the reverted branch, in place today.
+
+---
+
+## An update, 2026-07-29: the regression's mechanism, traced to source
+
+This document's original text left the *why* unresolved beyond "forcing the
+outer layers to `signal` put two blocked layers into the routing space."
+The specific mechanism inside the router that makes an outer layer
+`blocked` — as opposed to merely present but empty — is
+`packages/temper-placer/src/temper_placer/router_v6/obstacle_map.py:94-123`.
+Its zone-handling loop unions **every** zone on a layer into that layer's
+obstacle polygon, regardless of which net the zone belongs to, under an
+explicit comment:
+
+```python
+# packages/temper-placer/src/temper_placer/router_v6/obstacle_map.py:123
+# Safe default: Treat as obstacle. The router connects to PADS, not zones directly yet.
+layer_obstacles[layer].append(poly)
+```
+
+`routing_space.py` then subtracts the unioned obstacle polygon from the
+board outline (`available_area = board_polygon.difference(obstacles)`) to
+produce the routable region for that layer. Forcing F.Cu/B.Cu to
+`"signal"` (the reverted half of `a1fe623e`) made `routing_space.py:85`'s
+layer-type filter stop excluding those two layers wholesale — but every
+pour already on them, `HighVoltage`-class and ordinary alike, was still
+unioned into the obstacle polygon by `obstacle_map.py`'s net-blind zone
+loop. The outer layers went from *absent* (filtered out entirely) to
+*present but mostly obstacle* — measured at roughly 24.7% available area on
+F.Cu versus roughly 98% on the inner layers for the same board. Opening a
+layer without first making its pours derived output (rather than the
+board's existing, un-regenerated zones) hands the router two layers it can
+see but can barely use, which is a worse starting point for layer
+assignment than not seeing them at all: nets get assigned to F.Cu/B.Cu on
+the assumption that "present in the routing space" means "routable," fail
+to find any free cell, and contribute to exactly the 12x completion drop
+this document already measured. This is also why `use_declared_layer_roles`
+(see
+`docs/solutions/logic-errors/single-zone-condemns-whole-copper-layer-plane-2026-07-29.md`)
+must not be flipped on in production before pours become derived output —
+its own docstring names this document by name as the reason.
+
+**A methodology note, worth recording alongside the mechanism itself.**
+The first attempt to find this mechanism concluded the opposite of the
+truth — that zone content was *invisible* to the obstacle map, not that it
+was unconditionally treated as opaque — because `grep zone
+stage2_orchestrator.py` returned nothing. That grep was accurate about its
+literal target: `stage2_orchestrator.py` itself never mentions zones by
+name. But the file that matters is not the one with no hits; it is the one
+`stage2_orchestrator.py` **imports and runs** — `ObstacleMapStage`, imported
+at line 21 and instantiated in the stage list at line 36
+(`from temper_placer.router_v6.obstacle_map import ObstacleMapStage`, ...
+`ObstacleMapStage(),`). The zone-handling logic lives inside that imported
+stage's own module, not in the orchestrator that merely sequences it.
+**Grepping one file for a keyword is not evidence of absence when the
+behavior in question is composed from a stage pipeline** — the correct
+search target is every module a suspected orchestrator delegates to, not
+the orchestrator's own source text. The same mistake, made about a
+different pipeline stage, would produce the identical false "not handled
+here" conclusion for the same reason: the orchestrator's job is to
+sequence stages by name, not to contain the logic those names refer to.
+
+**Related to this update specifically:**
+`docs/solutions/logic-errors/single-zone-condemns-whole-copper-layer-plane-2026-07-29.md`
+— the sibling logic error in the same code area (a single plane-required
+zone condemning a layer's *classification*, independent of this document's
+regression, which is about the obstacle map's *geometry* once a layer is
+already open); `packages/temper-placer/src/temper_placer/router_v6/obstacle_map.py:94-123`
+and `stage2_orchestrator.py:21,36` — the traced mechanism and its import
+site.

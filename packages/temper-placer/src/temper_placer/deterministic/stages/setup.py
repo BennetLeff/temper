@@ -1,8 +1,8 @@
-import math
 from dataclasses import dataclass, replace
 from typing import TYPE_CHECKING
 
 from temper_placer.core.pin_geometry import pin_world_position
+from temper_placer.geometry.kicad_transform import rotate_local_to_world_deg
 
 from ..state import BoardState
 from .base import Stage
@@ -32,12 +32,13 @@ class DRCOracleSetupStage(Stage):
     def _rotate_point(
         self, point: tuple[float, float], angle_degrees: float
     ) -> tuple[float, float]:
-        """Rotate a point by angle_degrees around (0,0)."""
-        angle_rad = math.radians(angle_degrees)
+        """Rotate a point by angle_degrees around (0,0), matching KiCad's
+        real footprint-child rotation convention -- see
+        temper_placer.geometry.kicad_transform's docstring. Currently
+        unused within this class; kept correct so a future caller does not
+        inherit a stale, independently-typed copy of this formula."""
         x, y = point
-        cos_a = math.cos(angle_rad)
-        sin_a = math.sin(angle_rad)
-        return (x * cos_a - y * sin_a, x * sin_a + y * cos_a)
+        return rotate_local_to_world_deg(x, y, angle_degrees)
 
     def run(self, state: BoardState) -> BoardState:
         from temper_placer.router_v6.constraints_design_rules import ClearanceMatrix, DesignRulesParser

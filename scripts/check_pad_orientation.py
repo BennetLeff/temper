@@ -80,6 +80,8 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
+from temper_placer.geometry.kicad_transform import place_local_to_world, rotate_local_to_world_deg
+
 # Footprints whose pads are legitimately at absolute angle 0 despite a
 # 90/270-degree board rotation -- i.e. the library defines their pads with an
 # intrinsic rotation that exactly cancels the placement. Keyed by library id.
@@ -156,9 +158,13 @@ class Footprint:
 
 
 def _rotate(x: float, y: float, deg: float) -> tuple[float, float]:
-    """KiCad's footprint-child rotation (y-down board frame)."""
-    a = math.radians(deg)
-    return (x * math.cos(a) + y * math.sin(a), -x * math.sin(a) + y * math.cos(a))
+    """KiCad's footprint-child rotation (y-down board frame) -- see
+    ``temper_placer.geometry.kicad_transform``'s module docstring. This
+    function was independently correct before that module existed
+    (validated 57/57 against real ``kicad-cli`` DRC ``shorting_items``,
+    see docs/evidence/2026-07-29-intra-component-shorts-root-cause.md);
+    now delegates instead of carrying its own copy of the formula."""
+    return rotate_local_to_world_deg(x, y, deg)
 
 
 def load_footprints(board_path: Path) -> list[Footprint]:
@@ -265,11 +271,26 @@ def _layers_intersect(a: Pad, b: Pad) -> bool:
 
 
 def _corners(p: Pad) -> list[tuple[float, float]]:
+    """Rotate this pad's own body rectangle around its own already-resolved
+    absolute center, by its own absolute ``angle_deg`` -- KiCad's
+    footprint-child rotation convention, R(-theta). See
+    ``temper_placer.geometry.kicad_transform``'s module docstring.
+
+    Was previously exempted from that module (see
+    ``check_no_raw_rotation_trig.py``'s prior ``EXEMPT_FUNCTIONS`` entry for
+    this function): at exact 90-degree multiples an origin-symmetric
+    rectangle's rotated corner SET is identical under R(+theta) and
+    R(-theta), so the pre-fix R(+theta) here produced the same separating-
+    axis overlap result as this fix on every board this gate has ever run
+    against. At non-90-degree angles the two sets diverge -- this gate
+    computed the wrong oriented box for any pad not at a quadrant angle.
+    Fixed for correctness rather than left exempt; the exemption is now
+    removed since this function no longer contains raw trig at all.
+    """
     hw, hh = p.width / 2.0, p.height / 2.0
-    a = math.radians(p.angle_deg)
-    cos_a, sin_a = math.cos(a), math.sin(a)
+    theta_rad = math.radians(p.angle_deg)
     return [
-        (p.cx + dx * cos_a - dy * sin_a, p.cy + dx * sin_a + dy * cos_a)
+        place_local_to_world(dx, dy, p.cx, p.cy, theta_rad)
         for dx, dy in ((-hw, -hh), (hw, -hh), (hw, hh), (-hw, hh))
     ]
 

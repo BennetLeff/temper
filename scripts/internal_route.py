@@ -12,6 +12,7 @@ from pathlib import Path
 
 import jax.numpy as jnp
 from rich.console import Console
+from temper_placer.geometry.kicad_transform import rotate_local_to_world
 from temper_placer.io.trace_writer import write_traces_to_pcb
 from temper_placer.routing.constraints.geometry import Point
 from temper_placer.routing.constraints.spatial_index import (
@@ -60,55 +61,16 @@ def populate_oracle_from_board(oracle, board):
             rel_x = pad.position.X
             rel_y = pad.position.Y
 
-            # Rotate relative position by FP angle
-            # KiCad Angle: Degrees counter-clockwise?
-            # Standard math: x' = x cos - y sin, y' = x sin + y cos
-            # KiCad 0.0 is right (X+). +90 is down (Y+) or up (Y-)?
-            # KiCad Y is Down (+).
-            # CCW rotation in screen coordinates (Y down):
-            # 0 -> 1,0. 90 -> 0,1.
-            # In standard cartesian (Y up), 90 -> 0,1.
-            # In Y-down (screen), 90 deg usually means "Clockwise" visually if Y is down?
-            # KiCad definition: Angle is Counter-Clockwise in display.
-            # So if Y is down: P(1,0) -> 90deg -> (0, -1)? NO.
-            # KiCad: +Angle is CCW.
-            # Math: CCW rotation matrix is:
-            # [[cos -sin], [sin cos]]
-            # This works for standard basis (X right, Y up).
-            # If Y is down (KiCad), does the matrix change?
-            # X right, Y down.
-            # CCW rotation of (1,0) is (0, -1) (Up).
-            # Let's check KiCad coords.
-            # (1,0) rotated +90 (CCW) should be (0,-1).
-            # Matrix: 1*cos(90) - 0*sin(90) = 0.
-            #         1*sin(90) + 0*cos(90) = 1. -> (0,1). This is DOWN.
-            # So standard rotation matrix performs CW rotation in Y-down coords?
-            # Wait. +90 in KiCad moves (1,0) to what?
-            # KiCad Visual: +X is right. +Y is down.
-            # CCW from X-axis goes towards -Y axis (Up).
-            # So (1,0) -> (0,-1).
-            # Standard matrix gives (0,1).
-            # So we need to negate the angle or change the matrix for Y-down CCW?
-            # Or just use standard matrix with negated Y?
-            # Actually, let's trust that standard trigonometry works if we interpret 'angle' correctly.
-            # If KiCad Angle is CCW, then in Y-down system:
-            # x' = x cos(a) - y sin(-a) ??
-            # Let's stick to standard math matrix but realize the result might need interpretation.
-            # Actually, KiCad internal rotation for `kiutils` might handle this?
-            # No, `kiutils` just gives the number.
-
-            # Robust Logic:
-            # In KiCad PCB files, rotation is simple 2D transformation.
-            # Let's use the standard rotation formula.
-            # If we see DRC errors persisting on rotated pads, we will know we got the sign wrong.
-            # For now: Standard matrix.
-
-            rad = math.radians(fp_angle)
-            cos_a = math.cos(rad)
-            sin_a = math.sin(rad)
-
-            rot_x = rel_x * cos_a - rel_y * sin_a
-            rot_y = rel_x * sin_a + rel_y * cos_a
+            # Rotate relative position by FP angle. This block used to be a
+            # long inline derivation debating the correct sign convention
+            # (kept in git history, not reproduced here) -- resolved: this
+            # registers a REAL pad position with a routing oracle from a
+            # REAL parsed KiCad board, so it must use KiCad's actual
+            # footprint-child rotation convention, R(-theta), not the
+            # standard-math CCW R(+theta) this block used to guess at. See
+            # temper_placer.geometry.kicad_transform's module docstring for
+            # the confirming kicad-cli DRC evidence.
+            rot_x, rot_y = rotate_local_to_world(rel_x, rel_y, math.radians(fp_angle))
 
             abs_x = fp_x + rot_x
             abs_y = fp_y + rot_y

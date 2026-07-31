@@ -12,6 +12,7 @@ import uuid
 from pathlib import Path
 from typing import Any
 
+from temper_placer.geometry.kicad_transform import rotate_local_to_world
 from temper_placer.router_v6._adapter_types import (
     CongestionRegion,
     DrcViolation,
@@ -909,8 +910,7 @@ def _apply_placements_to_pcb(
                     # docs/evidence/2026-07-30-generic-separation-writer-frame-fix.md.
                     cx, cy = center_offsets[ref]
                     rot_rad = math.radians(target_angle if target_angle is not None else old_angle)
-                    rotated_cx = cx * math.cos(rot_rad) + cy * math.sin(rot_rad)
-                    rotated_cy = -cx * math.sin(rot_rad) + cy * math.cos(rot_rad)
+                    rotated_cx, rotated_cy = rotate_local_to_world(cx, cy, rot_rad)
                     x -= rotated_cx
                     y -= rotated_cy
 

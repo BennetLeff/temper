@@ -7,7 +7,9 @@
   ],
   "bench_coarse_to_fine.py": [],
   "bench_rust_constraints.py": [],
-  "bench_rust_geometry.py": [],
+  "bench_rust_geometry.py": [
+    "packages/temper-placer/tests/requirements/safety/test_rotation_convention_remaining_sites_oracle.py"
+  ],
   "benchmark_numba_los.py": [],
   "bless_baselines.py": [],
   "bmc_adoption_gate.py": [],
@@ -22,8 +24,10 @@
   "check_coverage_gate.py": [
     ".github/workflows/python-tests.yml"
   ],
+  "check_creepage_clearance_drift.py": [],
   "check_derived_doc_drift.py": [
-    ".github/workflows/python-tests.yml"
+    ".github/workflows/python-tests.yml",
+    "packages/temper-placer/tests/requirements/safety/test_creepage_spec_row_form.py"
   ],
   "check_domain_partition.py": [
     ".github/workflows/python-tests.yml",
@@ -44,8 +48,11 @@
   ],
   "check_isolation_keepout.py": [
     ".github/workflows/python-tests.yml",
+    "packages/temper-placer/src/temper_placer/core/isolation_constants.py",
+    "packages/temper-placer/src/temper_placer/geometry/kicad_transform.py",
     "packages/temper-placer/src/temper_placer/placer/cp_sat/isolation_barrier.py",
-    "packages/temper-placer/tests/placer/cp_sat/test_isolation_barrier.py"
+    "packages/temper-placer/tests/placer/cp_sat/test_isolation_barrier.py",
+    "packages/temper-placer/tests/requirements/safety/test_rotation_convention_oracle.py"
   ],
   "check_manifest_gate.py": [
     ".github/workflows/python-tests.yml"
@@ -66,8 +73,15 @@
     "packages/temper-placer/src/temper_placer/router_v6/routing_demand.py",
     "packages/temper-placer/src/temper_placer/router_v6/trace_width_assignment.py"
   ],
+  "check_no_raw_rotation_trig.py": [
+    ".github/workflows/python-tests.yml",
+    "packages/temper-placer/src/temper_placer/geometry/kicad_transform.py",
+    "packages/temper-placer/tests/requirements/safety/test_rotation_convention_remaining_sites_oracle.py"
+  ],
   "check_pad_orientation.py": [
-    ".github/workflows/python-tests.yml"
+    ".github/workflows/python-tests.yml",
+    "packages/temper-placer/src/temper_placer/geometry/kicad_transform.py",
+    "packages/temper-placer/tests/requirements/safety/test_rotation_convention_remaining_sites_oracle.py"
   ],
   "check_physics_provenance.py": [
     ".github/workflows/python-tests.yml",
@@ -76,8 +90,12 @@
   "check_pll_range_consistency.py": [
     ".github/workflows/python-tests.yml"
   ],
+  "check_refdes_identity_stability.py": [],
   "check_regression.py": [
     ".github/workflows/regression.yml"
+  ],
+  "check_required_checks.py": [
+    ".github/workflows/required-checks.yml"
   ],
   "check_rust_drc_presence.py": [
     ".github/workflows/python-tests.yml",
@@ -155,6 +173,7 @@
   "internal_route.py": [
     "Makefile",
     "packages/temper-placer/tests/pipeline/stages/test_input_stage_identity_preflight.py",
+    "packages/temper-placer/tests/requirements/safety/test_rotation_convention_remaining_sites_oracle.py",
     "scripts/route_v3.sh",
     "scripts/run_physics_flow.sh",
     "scripts/sprint1_validation.sh",
@@ -162,6 +181,11 @@
   ],
   "kicad_fill_zones.py": [
     "packages/temper-placer/tests/placer/cp_sat/test_zone_pour_production_measurement.py"
+  ],
+  "kicad_pad_rotation_oracle.py": [],
+  "known_failure_pins.py": [
+    ".github/workflows/python-tests.yml",
+    "packages/temper-placer/tests/placer/cp_sat/test_regression_drc.py"
   ],
   "literal_removal_check.py": [
     ".github/workflows/literal-removal-advisory.yml"
@@ -174,7 +198,8 @@
     ".github/workflows/health-digest.yml",
     ".github/workflows/metrics-record.yml",
     ".github/workflows/metrics-trend-check.yml",
-    "packages/temper-placer/tests/regression/test_metrics_trend.py"
+    "packages/temper-placer/tests/regression/test_metrics_trend.py",
+    "packages/temper-placer/tests/requirements/safety/test_rotation_convention_oracle.py"
   ],
   "pipeline_report.py": [
     ".github/workflows/metrics-record.yml"

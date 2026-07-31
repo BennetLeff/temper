@@ -2360,7 +2360,7 @@ module OVPComparator:
 
     r_adc_top1 = new Resistor
     r_adc_top1.value = 169kohm +/- 1%
-    r_adc_top1.power_rating = 0.1W
+    r_adc_top1.power_rating = 0.25W
     # 200V is the Yageo RC1206 (1/4W family) datasheet-confirmed rated
     # (continuous working) voltage; the previous single-resistor version of
     # this divider declared 250V here, which does not match the part's own
@@ -2372,14 +2372,14 @@ module OVPComparator:
 
     r_adc_top2 = new Resistor
     r_adc_top2.value = 169kohm +/- 1%
-    r_adc_top2.power_rating = 0.1W
+    r_adc_top2.power_rating = 0.25W
     r_adc_top2.voltage_rating = 200V
     r_adc_top2.mpn = "RC1206FR-07169KL"
     r_adc_top2.footprint = "Resistor_SMD:R_1206_3216Metric"
 
     r_adc_top3 = new Resistor
     r_adc_top3.value = 169kohm +/- 1%
-    r_adc_top3.power_rating = 0.1W
+    r_adc_top3.power_rating = 0.25W
     r_adc_top3.voltage_rating = 200V
     r_adc_top3.mpn = "RC1206FR-07169KL"
     r_adc_top3.footprint = "Resistor_SMD:R_1206_3216Metric"

@@ -15,6 +15,10 @@ from dataclasses import dataclass
 import numpy as np
 
 from temper_placer.core.geometry_types import Point  # noqa: F401  re-exported
+from temper_placer.geometry.kicad_transform import (
+    place_local_to_world,
+    rotate_world_to_local_deg,
+)
 
 __all__ = ["Point", "LineSegment", "RotatedRect"]
 
@@ -228,29 +232,27 @@ class RotatedRect:
 
     @property
     def corners(self) -> list[Point]:
-        """Get the 4 corners of the rotated rectangle."""
+        """Get the 4 corners of the rotated rectangle.
+
+        ``self.rotation`` is populated from real board pad/component
+        rotation (see ``deterministic/stages/setup.py``), so this must use
+        KiCad's own footprint-child rotation convention, R(-theta) -- see
+        ``temper_placer.geometry.kicad_transform``'s module docstring.
+        """
         w, h = self.size
         # Half dimensions
         hw, hh = w / 2, h / 2
 
-        # Rotation matrix
         rad = math.radians(self.rotation)
-        cos_a = math.cos(rad)
-        sin_a = math.sin(rad)
 
         # Local corners (unrotated, center at 0,0)
         # TL, TR, BR, BL
         local_pts = [(-hw, -hh), (hw, -hh), (hw, hh), (-hw, hh)]
 
-        corners = []
-        for lx, ly in local_pts:
-            # Rotate
-            rx = lx * cos_a - ly * sin_a
-            ry = lx * sin_a + ly * cos_a
-            # Translate
-            corners.append(Point(self.center.x + rx, self.center.y + ry))
-
-        return corners
+        return [
+            Point(*place_local_to_world(lx, ly, self.center.x, self.center.y, rad))
+            for lx, ly in local_pts
+        ]
 
     @property
     def bounding_radius(self) -> float:
@@ -265,16 +267,17 @@ def point_to_rotated_rect_distance(point: Point, rect: RotatedRect) -> float:
     Returns:
         Positive if outside, negative if inside, 0 on edge.
     """
-    # Transform point into rect's local coordinate system
+    # Transform point into rect's local coordinate system. This is the
+    # inverse of `RotatedRect.corners`'s local-to-world R(-theta) --
+    # KiCad's convention's inverse is R(+theta), applied directly to
+    # `rect.rotation` (NOT the angle negated then reapplied as R(+theta),
+    # which was this function's pre-fix bug: that inverts the *old, wrong*
+    # R(+theta) convention, not the corrected R(-theta) one). See
+    # `temper_placer.geometry.kicad_transform.rotate_world_to_local`.
     dx = point.x - rect.center.x
     dy = point.y - rect.center.y
 
-    rad = math.radians(-rect.rotation)  # Rotate point opposite to rect rotation
-    cos_a = math.cos(rad)
-    sin_a = math.sin(rad)
-
-    local_x = dx * cos_a - dy * sin_a
-    local_y = dx * sin_a + dy * cos_a
+    local_x, local_y = rotate_world_to_local_deg(dx, dy, rect.rotation)
 
     # Calculate signed distance in local AABB
     hw = rect.size[0] / 2

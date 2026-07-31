@@ -160,31 +160,38 @@ class TestRequirementMatrix:
         "domain_a,domain_b,insulation_type,expected_clearance,expected_creepage,expected_design",
         [
             # Mains to SELV (LV_CONTROL). Creepage/design figures are the
-            # IEC 60335-1 Table 16 400V row (PD2, Material Group IIIb), not
-            # the 300V row: MAINS's own peak/transient working voltage is
-            # 340V (docs/specs/HIGH_VOLTAGE_CLEARANCE_SPEC.md Sec 2.1), and
+            # IEC 60335-1 Table 17 400V row (row iv, >250V and <=400V),
+            # Pollution Degree 3 (corrected from PD2 2026-07-30 -- see
+            # docs/evidence/2026-07-30-pollution-degree-determination.md;
+            # IEC 60335-2-6 cl. 29.2 Addition makes PD3 the default for this
+            # appliance class and no enclosure/sealing argument earns the
+            # PD2 exception on this design's own mechanical documents),
+            # Material Group IIIa/IIIb, not the 300V row: MAINS's own
+            # peak/transient working voltage is 340V
+            # (docs/specs/HIGH_VOLTAGE_CLEARANCE_SPEC.md Sec 2.1), and
             # IEC 60664/60335 tables round a working voltage up to the next
             # tabulated row rather than interpolating. See
-            # docs/evidence/2026-07-30-creepage-requirement-reconciliation.md.
-            (VoltageDomain.MAINS, VoltageDomain.LV_CONTROL, InsulationType.BASIC, 3.0, 5.0, 7.0),
+            # docs/evidence/2026-07-30-creepage-requirement-reconciliation.md
+            # for the (unaffected) voltage-row basis.
+            (VoltageDomain.MAINS, VoltageDomain.LV_CONTROL, InsulationType.BASIC, 3.0, 6.3, 8.3),
             (
                 VoltageDomain.MAINS,
                 VoltageDomain.LV_CONTROL,
                 InsulationType.REINFORCED,
                 6.0,
-                10.0,
-                12.0,
+                12.6,
+                14.6,
             ),
             # DC Bus to Control. Same 400V-row basis: DC_BUS's peak/transient
             # working voltage is 400V (spec Sec 2.1).
-            (VoltageDomain.DC_BUS, VoltageDomain.LV_CONTROL, InsulationType.BASIC, 3.0, 5.0, 7.0),
+            (VoltageDomain.DC_BUS, VoltageDomain.LV_CONTROL, InsulationType.BASIC, 3.0, 6.3, 8.3),
             (
                 VoltageDomain.DC_BUS,
                 VoltageDomain.LV_CONTROL,
                 InsulationType.REINFORCED,
                 6.0,
-                10.0,
-                12.0,
+                12.6,
+                14.6,
             ),
             # Across Isolation Barrier. Gate Drive Isolated's peak-to-earth
             # working voltage is 355V (spec Sec 2.1) -- also rounds up to the
@@ -194,8 +201,8 @@ class TestRequirementMatrix:
                 VoltageDomain.ISOLATED,
                 InsulationType.REINFORCED,
                 6.0,
-                10.0,
-                12.0,
+                12.6,
+                14.6,
             ),
             # Within LV Domain
             (

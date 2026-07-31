@@ -49,6 +49,9 @@ on:
       - 'scripts/**'
       - 'pyproject.toml'
       - '.github/workflows/python-tests.yml'
+      - '.github/workflows/required-checks.yml'
+      - '.github/required-checks.json'
+      - '.loc-allowlist.txt'
       - 'scripts/deadcode-baseline.py'
       - 'scripts/vulture_gate.py'
       - 'scripts/trace_invocations.py'
@@ -57,6 +60,7 @@ on:
       - 'scripts/manifest.yaml'
       - 'scripts/invocation_graph.json'
       - 'pcb/*.kicad_sch'
+      - 'pcb/*.kicad_pro'
       - 'scripts/gen_schematics.py'
       - 'elec/build/default.net'
       - '.importlinter'
@@ -83,10 +87,15 @@ on:
       - 'scripts/tests/test_check_isolation_keepout.py'
       - 'scripts/check_pad_orientation.py'
       - 'scripts/tests/test_check_pad_orientation.py'
+      - 'scripts/check_no_raw_rotation_trig.py'
+      - 'scripts/tests/test_check_no_raw_rotation_trig.py'
       - 'pcb/temper.kicad_pcb'
       - 'firmware/components/control/pll_control.h'
       - '.net-classification-allowlist'
       - '.undeclared-imports-allowlist'
+      - 'known-failure-pins.yaml'
+      - 'scripts/known_failure_pins.py'
+      - 'scripts/tests/test_known_failure_pins.py'
       - 'docs/FUNCTIONAL_TEST_CRITERIA.md'
       - 'docs/STRATEGY.md'
       - 'docs/hardware/PROTECTION_CHAIN_REVIEW.md'
@@ -124,6 +133,9 @@ on:
       - 'scripts/**'
       - 'pyproject.toml'
       - '.github/workflows/python-tests.yml'
+      - '.github/workflows/required-checks.yml'
+      - '.github/required-checks.json'
+      - '.loc-allowlist.txt'
       - 'scripts/deadcode-baseline.py'
       - 'scripts/vulture_gate.py'
       - 'scripts/trace_invocations.py'
@@ -132,6 +144,7 @@ on:
       - 'scripts/manifest.yaml'
       - 'scripts/invocation_graph.json'
       - 'pcb/*.kicad_sch'
+      - 'pcb/*.kicad_pro'
       - 'scripts/gen_schematics.py'
       - 'elec/build/default.net'
       - '.importlinter'
@@ -158,10 +171,15 @@ on:
       - 'scripts/tests/test_check_isolation_keepout.py'
       - 'scripts/check_pad_orientation.py'
       - 'scripts/tests/test_check_pad_orientation.py'
+      - 'scripts/check_no_raw_rotation_trig.py'
+      - 'scripts/tests/test_check_no_raw_rotation_trig.py'
       - 'pcb/temper.kicad_pcb'
       - 'firmware/components/control/pll_control.h'
       - '.net-classification-allowlist'
       - '.undeclared-imports-allowlist'
+      - 'known-failure-pins.yaml'
+      - 'scripts/known_failure_pins.py'
+      - 'scripts/tests/test_known_failure_pins.py'
       - 'docs/FUNCTIONAL_TEST_CRITERIA.md'
       - 'docs/STRATEGY.md'
       - 'docs/hardware/PROTECTION_CHAIN_REVIEW.md'
@@ -1370,6 +1388,22 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python scripts/trace_invocations.py
 
+      - name: No-raw-rotation-trig gate tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_check_no_raw_rotation_trig.py -v --tb=short
+
+      # KiCad's footprint-child rotation formula (R(-theta)) was
+      # independently reimplemented, wrongly, in 12 places -- see
+      # docs/evidence/2026-07-29-cross-domain-creepage-rotation-convention.md
+      # -- and concealed real clearance hazards on 18 production
+      # components. The 12 are now consolidated into one implementation,
+      # temper_placer.geometry.kicad_transform; this gate fails if any of
+      # the files that have already proven capable of hosting that bug
+      # regresses back to a raw, locally-typed copy of the formula.
+      - name: No raw rotation trig outside kicad_transform
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python scripts/check_no_raw_rotation_trig.py
+
   # Split out of Core Tests 2026-07-28. The encoded IEC 60335 / EMC / design
   # review / DFM requirement suites -- 240+ tests on a mains-connected design,
   # guarded by --min-tests so the suite cannot silently shrink to zero. In the
@@ -1696,12 +1730,251 @@ jobs:
           exit $FAIL
         continue-on-error: true  # TODO: temper-NNN -- parallel test suite flakiness; hard-fail after 2026-09-01
 
+  # 2026-07-30: the 2026-07-29 split (see the comment above
+  # extended-bundle-workflow-checks) gave `extended-cpsat` the old combined
+  # job's full 25-minute budget on the theory that setup duplication plus
+  # losing shared-container contention would buy enough headroom. It did not:
+  # measured on five real runs the same day (`gh api .../actions/jobs/<id>`
+  # for step timestamps, jobs 90792612424/90792213660/90768065686/
+  # 90767711657/90767518154 -- runs on PRs #478 and #480-adjacent commits),
+  # setup (checkout through the netlist-cache step) is a consistent
+  # 2m19s-2m45s (~10% of the 25-minute budget) and the `Run cp-sat suite` step
+  # itself is 20m45s-22m38s -- i.e. setup was never the dominant cost the
+  # duplication hypothesis needed it to be. Two runs were cancelled at exactly
+  # the 25:00 mark (90792213660, 90768065686, 90767518154); two finished at
+  # 23m22s/24m26s -- 1-2 minutes of headroom, not a comfortable margin.
+  #
+  # Re-ran the same `--durations`/timestamp-gap analysis the 2026-07-29 doc
+  # used, on two full job logs (`gh api .../actions/jobs/<id>/logs`,
+  # 411 collected tests each). The same three tests still dominate, but they
+  # got slower since the 2026-07-29 measurement (902s combined then):
+  #
+  #   tests/placer/cp_sat/test_hybrid_pour_stitch_measurement.py
+  #     ::TestHybridPourStitchVerification
+  #     ::test_hybrid_pour_reduces_unconnected_without_shorting_regression
+  #                                                    877.7s / 986.9s
+  #   tests/placer/cp_sat/test_zone_pour_production_measurement.py
+  #     ::TestZonePourProductionMeasurement::test_zone_pours_reduce_unconnected_items
+  #                                                    233.9s / 211.3s  (XFAIL)
+  #   tests/placer/cp_sat/test_regression_drc.py
+  #     ::test_production_board_routing_drc_regression 114.2s / 102.2s
+  #     (flaky between the two runs -- FAILED once, PASSED once; masked by
+  #     this step's own `continue-on-error`, unrelated to timing and NOT
+  #     addressed here -- out of scope for a CI-timing fix)
+  #
+  # 1225.8s / 1300.4s combined, out of a ~1245s/~1320s pytest span -- still
+  # >98% of the suite's own wall-clock, same as 2026-07-29, just ~35% larger
+  # in absolute terms. So the 2026-07-29 fix's diagnosis (three DRC-subprocess
+  # tests dominate) held; its conclusion (giving them the old 25-minute budget
+  # alone would fix it) did not, because the three tests' own cost grew to
+  # consume the budget the split was meant to free up.
+  #
+  # Fix, per the task's stated preference order:
+  #
+  #   1. Split the three slow tests into their own job (`extended-cpsat-slow`,
+  #      below) -- attacks the actual cost instead of working around it.
+  #      Moved by exact pytest node ID (not by file: test_regression_drc.py's
+  #      other three tests -- test_golden_board_drc_regression 1.0s,
+  #      test_golden_board_routing_drc_regression <1s,
+  #      test_production_board_drc_regression 10.7s -- are fast and stay in
+  #      this job). `--deselect` on this job's invocation and an explicit
+  #      node-ID list on the new job's invocation are the same three IDs,
+  #      verified against each other below and against the 411-test collected
+  #      count from the pre-split logs (408 remain here + 3 move =  411, none
+  #      dropped). Both jobs run `pytest_guard.py` so a silent collection
+  #      shrink fails the build instead of reporting green having run less
+  #      (see scripts/pytest_guard.py's own docstring for why that check
+  #      exists).
+  #   2. `-n auto --dist loadgroup` on the new slow job. Rejected for this
+  #      exact purpose by the 2026-07-29 doc on the reasoning that xdist
+  #      "parallelizes *other* tests around" the three slow ones and doesn't
+  #      touch their own floor -- true when they shared a job with
+  #      bundle/workflow/checks-sized fast suites, but no longer the shape of
+  #      the problem once the three ARE the whole job: none of them carries an
+  #      `xdist_group` mark (checked packages/temper-placer/tests/conftest.py's
+  #      `_XDIST_GROUPS` -- only "induction" and "sat" are pinned, this trio
+  #      isn't in it), so `--dist loadgroup` schedules each of the three to
+  #      whichever worker is free, same as plain `--dist load` would for
+  #      ungrouped items -- `loadgroup` is still the required flag per this
+  #      job's own instructions, it just isn't doing anything materially
+  #      different from `load` for exactly these three items. Measured
+  #      worker count on this container via a same-day `invariant-router-v6-1`
+  #      log: "created: 2/2 workers" -- only 2 CPUs, so the realistic gain is
+  #      running the biggest test (~880-990s) alongside the second (~210-235s)
+  #      instead of after it, then picking up the third (~100-115s) on
+  #      whichever worker frees first. Expected wall-clock floor is therefore
+  #      close to the single largest test's own duration (~900-1000s) rather
+  #      than the sum (~1225-1300s) -- a real reduction, not a full 3x, and
+  #      the actual number is measured post-merge (see PR) rather than
+  #      assumed, because CPU-bound subprocess tests sharing 2 cores may not
+  #      scale linearly.
+  #   3. Setup is not duplicated beyond what already existed after the
+  #      2026-07-29 split -- both new jobs still need the full maturin/uv
+  #      chain, same as every other split-out job in this file. Not attacked
+  #      here since (per point above) it was never the dominant cost.
+  #   4. `timeout-minutes` on `extended-cpsat-slow` is left at 25 -- the same
+  #      number the combined cp-sat job already had, not a raise. Parallelism
+  #      is expected to reduce, not increase, the time needed against that
+  #      budget; the actual post-parallelization numbers get measured in CI
+  #      before this number is revisited downward.
+  #   `extended-cpsat` (this job, now just the fast remainder) drops to
+  #   `timeout-minutes: 15`, matching `extended-bundle-workflow-checks`'s
+  #   budget for a suite of the same "well under a minute" shape.
   extended-cpsat:
-    name: Extended Test Suites (cp-sat)
+    name: Extended Test Suites (cp-sat, fast)
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/bennetleff/temper-ci:latest
       options: --user root
+    timeout-minutes: 15
+    env:
+      VIRTUAL_ENV: ${{ github.workspace }}/.venv
+      TEMPER_REQUIRE_RUST_DRC: "1"
+    steps:
+      - uses: actions/checkout@v7
+
+      # Container runs as root; workspace is owned by the runner user. Without
+      # this, every `git` call in a later `run:` step exits 128 on "dubious
+      # ownership" rather than doing its job.
+      - name: Mark workspace safe for git
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: "latest"
+          enable-cache: true
+
+      - name: Cache virtualenv
+        uses: actions/cache@v6
+        id: cache-venv
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
+
+      - name: Create virtualenv (cache miss)
+        if: steps.cache-venv.outputs.cache-hit != 'true'
+        run: uv venv
+
+      - name: Install maturin
+        run: uv pip install maturin
+
+      - name: Build and install Rust crate
+        run: uv run maturin develop --release --manifest-path packages/temper-rust-router/Cargo.toml
+
+      - name: Verify Rust module loads
+        run: uv run python3 -c "import temper_rust_router; print('temper_rust_router loaded OK')"
+        env:
+          RUST_BACKTRACE: full
+
+      - name: Build and install temper-drc-rs
+        run: uv run maturin develop --release --manifest-path packages/temper-drc-rs/Cargo.toml
+
+      - name: Verify temper-drc-rs loads
+        run: uv run python3 -c "import temper_drc_rs; print('temper_drc_rs loaded OK')"
+        env:
+          RUST_BACKTRACE: full
+
+      - name: Build and install temper-constraints
+        run: >
+          uv run maturin develop --release
+          --manifest-path packages/temper-placer/temper-constraints/Cargo.toml
+        env:
+          PYO3_USE_ABI3_FORWARD_COMPATIBILITY: "1"
+
+      - name: Verify temper-constraints loads
+        run: uv run python3 -c "import temper_constraints; print('temper_constraints loaded OK, version', temper_constraints.version_py())"
+        env:
+          RUST_BACKTRACE: full
+
+      # `uv sync` defaults to an *exact* sync: anything installed in the venv
+      # that is not part of this invocation's resolved target set gets
+      # uninstalled as "extraneous". `--no-install-package X` excludes X from
+      # that target set -- it does NOT mean "leave X alone". Without
+      # `--inexact`, the three flags below were therefore silently
+      # UNINSTALLING the release wheels that "Build and install ..." just
+      # built and "Verify ... loads" just confirmed importable, minutes
+      # earlier in this same job. Reproduced locally: `uv sync --all-packages
+      # --no-install-package temper-rust-router ...` (no --inexact) prints
+      # "Uninstalled 2 packages" and `- temper-rust-router==0.1.0` in its
+      # diff, and a subsequent bare import fails with ModuleNotFoundError.
+      # `--inexact` disables the extraneous-package removal, so these three
+      # packages are truly left untouched (mtimes unchanged, no rebuild)
+      # instead of evicted -- confirmed locally: with --inexact added, the
+      # same command reports "Audited N packages" (no install/uninstall) and
+      # the modules remain importable afterward.
+      - name: Install dependencies
+        run: >
+          uv sync --all-packages --inexact
+          --no-install-package temper-rust-router
+          --no-install-package temper-drc-rs
+          --no-install-package temper-constraints
+
+      - name: Cache netlist
+        id: cache-netlist
+        uses: actions/cache@v6
+        with:
+          path: elec/build
+          key: netlist-${{ hashFiles('elec/src/**', 'elec/ato.yaml', 'Makefile') }}
+
+      - name: Build electronics netlist
+        if: steps.cache-netlist.outputs.cache-hit != 'true'
+        run: make netlist
+
+      # ---- SETUP / GATE BOUNDARY -------------------------------------------
+      # Everything ABOVE is setup and stays fail-fast: it has no `if:`, so if
+      # any of it fails (maturin, uv sync, make netlist) this step never runs,
+      # `steps.setup.outcome` is not `success`, and every gate below is SKIPPED
+      # rather than run against a half-built environment and reported as a gate
+      # verdict. Everything BELOW is a gate: each carries
+      # `if: !cancelled() && steps.setup.outcome == 'success'` so a red gate no
+      # longer deletes the verdict of the gates behind it. None of them is
+      # `continue-on-error`, so the job still concludes `failure` if any fails.
+      - name: Setup barrier -- environment ready
+        id: setup
+        run: echo "setup complete; gates below report independently"
+
+      - name: Run cp-sat suite (fast remainder)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        # 2026-07-30: the three tests that used to dominate this job's
+        # wall-clock moved out to extended-cpsat-slow (--deselect'd here by
+        # exact node ID, selected there by the same three IDs -- see the
+        # comment above this job for the measurement and the full list).
+        # Everything else in tests/placer/cp_sat/ + test_external_oracle.py +
+        # test_cp_sat_flag.py combined cost well under a minute in both
+        # 2026-07-30 reference runs, so this job keeps the directory-level
+        # selection (new tests added under tests/placer/cp_sat/ land here
+        # automatically) rather than an explicit include-list that could
+        # silently miss them. pytest_guard enforces a floor so a bad
+        # --deselect ID (typo, renamed test) that silently drops a test
+        # instead of erroring is caught here rather than passing quietly.
+        # Same `-v --tb=short -p no:cacheprovider --maxfail=10` flags and the
+        # same `continue-on-error` as before this split --
+        # TODO: temper-NNN -- parallel test suite flakiness; hard-fail after
+        # 2026-09-01.
+        run: >
+          cd packages/temper-placer &&
+          uv run python ../../scripts/pytest_guard.py --min-tests 400 --
+          tests/placer/cp_sat/ tests/metrics/test_external_oracle.py
+          tests/cli/test_cp_sat_flag.py
+          --deselect "tests/placer/cp_sat/test_hybrid_pour_stitch_measurement.py::TestHybridPourStitchVerification::test_hybrid_pour_reduces_unconnected_without_shorting_regression"
+          --deselect "tests/placer/cp_sat/test_zone_pour_production_measurement.py::TestZonePourProductionMeasurement::test_zone_pours_reduce_unconnected_items"
+          --deselect "tests/placer/cp_sat/test_regression_drc.py::test_production_board_routing_drc_regression"
+          -v --tb=short -p no:cacheprovider --maxfail=10
+        continue-on-error: true  # TODO: temper-NNN -- parallel test suite flakiness; hard-fail after 2026-09-01
+
+  extended-cpsat-slow:
+    name: Extended Test Suites (cp-sat, slow x3)
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/bennetleff/temper-ci:latest
+      options: --user root
+    # Same 25-minute budget the combined cp-sat job already had -- not a
+    # raise. See the comment above extended-cpsat for the measured basis
+    # (these three tests alone already consumed 20m45s-22m38s of that budget
+    # serially; -n auto --dist loadgroup is expected to reduce that, not
+    # increase it, and the real number gets measured in CI before this is
+    # revisited).
     timeout-minutes: 25
     env:
       VIRTUAL_ENV: ${{ github.workspace }}/.venv
@@ -1810,25 +2083,29 @@ jobs:
         id: setup
         run: echo "setup complete; gates below report independently"
 
-      - name: Run cp-sat suite
+      - name: Run cp-sat suite (slow trio, parallelized)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
-        # Split out of the combined extended-suites job 2026-07-29: this
-        # single suite owned ~902s of the old job's ~920s (18m05s run
-        # 30429718944), almost entirely tests/placer/cp_sat/test_hybrid_pour_
-        # stitch_measurement.py, test_zone_pour_production_measurement.py, and
-        # test_regression_drc.py, each of which shells out to kicad-cli for a
-        # DRC sample (median of 3 per test). Giving it a dedicated runner
-        # removes the CPU contention it used to have with bundle/workflow/
-        # checks backgrounded alongside it on the same container, which is
-        # what pushed the same commit from 18m05s to a 25m03s timeout kill
-        # between re-runs. Same pytest invocation, same flags, same
-        # `continue-on-error` as the old backgrounded process --
-        # TODO: temper-NNN -- parallel test suite flakiness; hard-fail after
-        # 2026-09-01.
+        # The three tests that own >98% of the old combined job's pytest
+        # wall-clock (see the comment above extended-cpsat for the
+        # 2026-07-30 measurement: 877.7s/986.9s, 233.9s/211.3s, 114.2s/102.2s
+        # across two reference runs). `-n auto --dist loadgroup` is MANDATORY
+        # whenever `-n` is passed in this file -- other dist modes silently
+        # turn `xdist_group`-tagged dependents into SKIPs. None of these three
+        # carries an `xdist_group` mark (checked
+        # packages/temper-placer/tests/conftest.py's `_XDIST_GROUPS`), so
+        # `loadgroup` distributes each independently across the runner's 2
+        # workers (measured via a same-day invariant-router-v6-1 log:
+        # "created: 2/2 workers") -- same per-test outcomes as serial, just
+        # two running concurrently instead of one-at-a-time. Same
+        # `-v --tb=short -p no:cacheprovider --maxfail=10` flags and the same
+        # `continue-on-error` this trio ran under before the split.
         run: >
           cd packages/temper-placer &&
-          uv run pytest tests/placer/cp_sat/ tests/metrics/test_external_oracle.py
-          tests/cli/test_cp_sat_flag.py -v --tb=short -p no:cacheprovider --maxfail=10
+          uv run python ../../scripts/pytest_guard.py --min-tests 3 --
+          "tests/placer/cp_sat/test_hybrid_pour_stitch_measurement.py::TestHybridPourStitchVerification::test_hybrid_pour_reduces_unconnected_without_shorting_regression"
+          "tests/placer/cp_sat/test_zone_pour_production_measurement.py::TestZonePourProductionMeasurement::test_zone_pours_reduce_unconnected_items"
+          "tests/placer/cp_sat/test_regression_drc.py::test_production_board_routing_drc_regression"
+          -v --tb=short -p no:cacheprovider --maxfail=10 -n auto --dist loadgroup
         continue-on-error: true  # TODO: temper-NNN -- parallel test suite flakiness; hard-fail after 2026-09-01
 
   invariant-router-v6-1:
@@ -2295,6 +2572,46 @@ jobs:
       - name: LOC cap gate
         run: uv run python tools/loc_cap_check.py
 
+  known-failure-pins:
+    name: Known-Failure Pin Registry Gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      VIRTUAL_ENV: ${{ github.workspace }}/.venv
+
+    steps:
+      - uses: actions/checkout@v7
+        with: { fetch-depth: 0 }
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: "latest"
+          enable-cache: true
+
+      - name: Cache virtualenv
+        uses: actions/cache@v6
+        id: cache-venv
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
+
+      - name: Create virtualenv (cache miss)
+        if: steps.cache-venv.outputs.cache-hit != 'true'
+        run: uv venv
+
+      # Validates known-failure-pins.yaml itself (see scripts/known_failure_pins.py
+      # and docs/solutions/best-practices/pin-known-failure-reasons-2026-07-30.md):
+      # every pin must cite a real evidence/solutions doc, stay within its
+      # lifetime cap, resolve to a real test, and the registry must not exceed
+      # its live-pin ratchet. This is what stops the mechanism from becoming an
+      # xfail list -- a pin nobody is forced to revisit is not a pin.
+      - name: Known-failure pin registry gate
+        run: uv run python scripts/known_failure_pins.py
+
+      - name: Known-failure pin mechanism unit tests
+        run: uv run pytest scripts/tests/test_known_failure_pins.py -v --tb=short
+
   repo-state:
     name: Generated Repo State
     runs-on: ubuntu-latest
@@ -2322,6 +2639,12 @@ jobs:
       - name: Create virtualenv (cache miss)
         if: steps.cache-venv.outputs.cache-hit != 'true'
         run: uv venv
+
+      # Unit tests for the generator itself -- includes an anti-vacuity check
+      # that mutates DIRECTORY_PURPOSE for one real, currently-described
+      # directory and asserts the completeness check still fires (exit 2).
+      - name: Generator unit tests
+        run: uv run pytest scripts/tests/test_gen_repo_state.py -v --tb=short
 
       # Deliberately NOT continue-on-error and deliberately not soft-launched.
       # The blocks are generated, so they start clean and there is nothing to
