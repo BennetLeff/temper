@@ -1,4 +1,4 @@
-<!-- provenance: base=5794d22f7ec4fa63291715a7b0526c2f01c5591f; branch=codex/pd3-retarget; dirty=true -->
+provenance: commit=ddf4d9036de0b3481570c22d50a13748e807bc49 dirty=true
 
 # PD2 production decision: protected PCB compartment is a release prerequisite
 
