@@ -69,11 +69,13 @@ def test_route_pcb_forwards_scoped_dispatch_without_changing_default(
             {},
             target_nets=["LV", "HV", "HV"],
             skip_stage3=True,
+            verbose=True,
         ) == "result"
 
     _, kwargs = pipeline_class.call_args
     assert kwargs["target_nets"] == ["HV", "LV"]
     assert kwargs["skip_stage3"] is True
+    assert kwargs["verbose"] is True
 
 
 def test_scoped_stage4_bypasses_orchestrator_that_routes_all_nets() -> None:

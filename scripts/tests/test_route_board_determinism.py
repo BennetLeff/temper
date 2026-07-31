@@ -9,7 +9,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from route_board import outputs_are_identical  # noqa: E402
+from route_board import main, outputs_are_identical  # noqa: E402
 
 from temper_placer.router_v6._strip_copper import strip_copper_for_nets
 
@@ -48,3 +48,16 @@ def test_strip_copper_for_nets_rejects_unknown_names() -> None:
 
     with pytest.raises(ValueError, match="unknown board nets"):
         strip_copper_for_nets(content, {"MISSING"})
+
+
+@pytest.mark.parametrize("diagnostic_flag", ["--target-net", "--skip-stage3", "--verbose"])
+def test_measurement_mode_rejects_single_route_diagnostics(diagnostic_flag: str) -> None:
+    """Repeated measurements must remain a deterministic, quiet contract."""
+    argv = ["--pcb", "board.kicad_pcb", "--rules", "rules.yaml", "--runs", "2"]
+    if diagnostic_flag == "--target-net":
+        argv.extend([diagnostic_flag, "HV"])
+    else:
+        argv.append(diagnostic_flag)
+
+    with pytest.raises(SystemExit, match="2"):
+        main(argv)

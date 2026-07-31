@@ -167,3 +167,23 @@ def test_grid_numpy_array():
     assert isinstance(grid.grid, np.ndarray)
     assert grid.grid.dtype == np.int8
     assert grid.grid.shape == (grid.height_cells, grid.width_cells)
+
+
+def test_grid_batching_is_metamorphic():
+    """Changing containment batch size must not change the grid semantics."""
+    routing_space = RoutingSpace(
+        layer_name="F.Cu",
+        available_area=MultiPolygon([box(0, 0, 7, 5), box(9, 1, 12, 4)]),
+        total_area=44.0,
+        obstacle_area=0.0,
+        routing_area=44.0,
+    )
+
+    large_batch = build_occupancy_grid(
+        routing_space, cell_size=0.5, point_batch_size=1_000_000
+    )
+    small_batch = build_occupancy_grid(routing_space, cell_size=0.5, point_batch_size=7)
+
+    assert small_batch.origin == large_batch.origin
+    assert small_batch.grid.shape == large_batch.grid.shape
+    np.testing.assert_array_equal(small_batch.grid, large_batch.grid)

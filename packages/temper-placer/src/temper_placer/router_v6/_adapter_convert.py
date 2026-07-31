@@ -196,6 +196,7 @@ def route_pcb(
     rotations: dict[str, float] | None = None,
     target_nets: Collection[str] | None = None,
     skip_stage3: bool = False,
+    verbose: bool = False,
 ) -> RoutingResult:
     """Route a PCB using the Router V6 pipeline.
 
@@ -247,6 +248,8 @@ def route_pcb(
             against the parsed board and normalized before dispatch.
         skip_stage3: Bypass the SAT topology stage for a bounded scoped run.
             Defaults to ``False`` so existing callers are unchanged.
+        verbose: Emit Router V6 stage progress to stdout. Defaults to
+            ``False`` so existing callers are unchanged.
 
     Returns:
         RoutingResult with completion_rate, routed_pcb_content, and
@@ -301,7 +304,7 @@ def route_pcb(
             )
 
     pipeline = RouterV6Pipeline(
-        verbose=False,
+        verbose=verbose,
         enable_theta_star=False,
         enable_lazy_theta_star=False,
         enable_smoothing=False,

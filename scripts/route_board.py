@@ -102,6 +102,7 @@ def route_once(
     keep_existing_copper: bool = False,
     target_nets: list[str] | None = None,
     skip_stage3: bool = False,
+    verbose: bool = False,
 ) -> dict[str, Any]:
     """Run one full route_pcb() pass and return measured results.
 
@@ -152,6 +153,7 @@ def route_once(
         # docs/evidence/2026-07-26-manufacturing-drc-scalability.md).
         target_nets=target_nets,
         skip_stage3=skip_stage3,
+        verbose=verbose,
     )
     wall_s = time.perf_counter() - t0
 
@@ -363,6 +365,11 @@ def main(argv: list[str] | None = None) -> int:
         help="Skip SAT topology solving; intended for bounded scoped reroutes.",
     )
     parser.add_argument(
+        "--verbose",
+        action="store_true",
+        help="Emit Router V6 stage progress for runtime diagnosis.",
+    )
+    parser.add_argument(
         "--_worker-output", type=Path, default=None,
         help=argparse.SUPPRESS,  # internal: used by --runs's own subprocess dispatch
     )
@@ -382,8 +389,10 @@ def main(argv: list[str] | None = None) -> int:
     if args.runs is not None:
         if args.runs < 1:
             parser.error("--runs must be >= 1")
-        if args.target_nets or args.skip_stage3:
-            parser.error("--target-net/--skip-stage3 are only supported in single-route mode")
+        if args.target_nets or args.skip_stage3 or args.verbose:
+            parser.error(
+                "--target-net/--skip-stage3/--verbose are only supported in single-route mode"
+            )
         return run_measurement(args.pcb, args.rules, args.runs)
 
     if args.output is None:
@@ -406,6 +415,7 @@ def main(argv: list[str] | None = None) -> int:
         args.output,
         target_nets=args.target_nets,
         skip_stage3=args.skip_stage3,
+        verbose=args.verbose,
     )
 
 

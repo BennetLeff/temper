@@ -12,7 +12,7 @@ from dataclasses import dataclass, replace
 from enum import Enum
 
 import numpy as np
-from shapely import contains, points
+from shapely import contains, points, prepare
 
 from temper_placer.deterministic.stages.base import Stage
 from temper_placer.deterministic.state import BoardState
@@ -422,6 +422,7 @@ def build_occupancy_grid(
     cell_size: float = 0.1,
     margin: float = 2.0,
     inflation_mm: float = 0.0,
+    point_batch_size: int = 100_000,
 ) -> OccupancyGrid:
     """
     Build occupancy grid from routing space with C-Space inflation.
@@ -431,10 +432,16 @@ def build_occupancy_grid(
         cell_size: Grid cell size in mm (default 0.1mm)
         margin: Margin around routing area in mm
         inflation_mm: Buffer to erode free area by (for C-Space)
+        point_batch_size: Maximum number of cell centers passed to Shapely
+            per containment batch. Smaller values bound peak memory without
+            changing the resulting grid.
 
     Returns:
         OccupancyGrid with blocked cells marked
     """
+    if point_batch_size <= 0:
+        raise ValueError("point_batch_size must be positive")
+
     # Get board bounds from routing space
     x_min, y_min, x_max, y_max = routing_space.available_area.bounds
 
@@ -460,27 +467,28 @@ def build_occupancy_grid(
         # Erode the available area (which is dilation of obstacles)
         check_area = routing_space.available_area.buffer(-inflation_mm, quad_segs=4)
 
-    # Vectorized grid construction
-    # 1. Create coordinate grids
-    x_indices = np.arange(width_cells)
-    y_indices = np.arange(height_cells)
-    xx_idx, yy_idx = np.meshgrid(x_indices, y_indices)
+    # Prepare the static geometry once. Shapely reuses its spatial index for
+    # every bounded batch, preserving ``contains`` semantics while avoiding a
+    # full-board predicate setup for each batch.
+    prepare(check_area)
 
-    # 2. Convert to world coordinates
-    xx_world = x_min + (xx_idx + 0.5) * cell_size
-    yy_world = y_min + (yy_idx + 0.5) * cell_size
+    # Vectorized grid construction in bounded batches. The previous whole-grid
+    # meshgrid created millions of coordinate objects before Shapely even began
+    # containment testing; on the production board that peak could terminate
+    # the process during Stage 2.5. Flat row-major batches preserve the exact
+    # cell ordering and therefore the old containment semantics.
+    x_centers = x_min + (np.arange(width_cells) + 0.5) * cell_size
+    y_centers = y_min + (np.arange(height_cells) + 0.5) * cell_size
+    total_cells = width_cells * height_cells
+    mask_flat = np.empty(total_cells, dtype=bool)
 
-    # 3. Create Shapely points in batch
-    # Flatten for vectorization
-    flat_x = xx_world.ravel()
-    flat_y = yy_world.ravel()
-    batch_points = points(flat_x, flat_y)
+    for batch_start in range(0, total_cells, point_batch_size):
+        batch_stop = min(batch_start + point_batch_size, total_cells)
+        flat_indices = np.arange(batch_start, batch_stop)
+        row_indices, column_indices = np.divmod(flat_indices, width_cells)
+        batch_points = points(x_centers[column_indices], y_centers[row_indices])
+        mask_flat[batch_start:batch_stop] = contains(check_area, batch_points)
 
-    # 4. Check containment in batch
-    # Note: check_area is a Polygon/MultiPolygon. contains() supports array input.
-    mask_flat = contains(check_area, batch_points)
-
-    # 5. Reshape and update grid
     mask = mask_flat.reshape(height_cells, width_cells)
 
     # Set Free (0) where mask is True (contained in available area)
