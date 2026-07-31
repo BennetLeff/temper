@@ -6,7 +6,9 @@
 // PyO3 bridge functions mirror Python function signatures 1:1.
 
 use pyo3::prelude::*;
-use temper_py_bridge;
+use crate::channel_widths::edt_width_lookup_batch;
+use crate::copper_coverage::rasterise_polygon_mask;
+use crate::corridor::extract_corridor_mask;
 use crate::types::*;
 
 // ---------------------------------------------------------------------------
@@ -1411,6 +1413,15 @@ pub fn register_functions(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(precompute_from_pad_polygons, m)?)?;
     m.add_function(wrap_pyfunction!(compute_inflated_half_dims_from_bounds, m)?)?;
     m.add_function(wrap_pyfunction!(compute_drc_proxy_score, m)?)?;
+
+    // corridor
+    m.add_function(wrap_pyfunction!(extract_corridor_mask, m)?)?;
+
+    // copper coverage
+    m.add_function(wrap_pyfunction!(rasterise_polygon_mask, m)?)?;
+
+    // channel widths
+    m.add_function(wrap_pyfunction!(edt_width_lookup_batch, m)?)?;
 
     Ok(())
 }
