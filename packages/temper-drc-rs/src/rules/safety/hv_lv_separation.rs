@@ -25,15 +25,15 @@ const LV_KEYWORDS: [&str; 6] = ["lv", "signal", "3v3", "5v", "gnd", "analog"];
 fn resolve_safety_category(comp: &Component, board: &BoardState) -> Option<&'static str> {
     // Prefer declared safety_category from the model
     let nc = crate::board::NetClassName(comp.net_class.0.clone());
-    if let Some(rules) = board.net_class_rules.get(&nc) {
-        if let Some(ref sc) = rules.safety_category {
-            return match sc.as_str() {
-                "HV" => Some("HV"),
-                "LV" => Some("LV"),
-                "AC" => Some("HV"), // AC treated as HV-side for separation
-                _ => None,
-            };
-        }
+    if let Some(rules) = board.net_class_rules.get(&nc)
+        && let Some(ref sc) = rules.safety_category
+    {
+        return match sc.as_str() {
+            "HV" => Some("HV"),
+            "LV" => Some("LV"),
+            "AC" => Some("HV"), // AC treated as HV-side for separation
+            _ => None,
+        };
     }
     // Keyword fallback
     let lc = comp.net_class.0.to_lowercase();
@@ -46,6 +46,7 @@ fn resolve_safety_category(comp: &Component, board: &BoardState) -> Option<&'sta
     }
 }
 
+#[derive(Default)]
 pub struct HVLVSeparationCheck;
 
 impl HVLVSeparationCheck {

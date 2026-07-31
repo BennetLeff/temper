@@ -254,6 +254,7 @@ pub fn detect_conflicts(model: &[ResolvedConstraint]) -> Vec<ConflictReport> {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
     use crate::ir_tier1::ResolvedConstraint;

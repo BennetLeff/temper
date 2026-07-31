@@ -212,6 +212,7 @@ pub fn validate_board_identity(
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod board_identity_tests {
     use super::*;
     use std::path::Path;

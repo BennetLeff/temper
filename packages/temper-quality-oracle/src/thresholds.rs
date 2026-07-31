@@ -154,6 +154,7 @@ fn evaluate_zones(
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
     use crate::tests_common::{dummy_metrics, empty_spec};

@@ -237,6 +237,7 @@ pub fn augment_constraint_model(
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
     use crate::ir_tier0::ConstraintTier;

@@ -339,6 +339,7 @@ fn validate_value(value: f64, id: &str, location: &str) -> Result<(), crate::Des
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
     use crate::{
@@ -405,6 +406,7 @@ mod tests {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod real_pcl_tests {
     use super::*;
     use crate::{

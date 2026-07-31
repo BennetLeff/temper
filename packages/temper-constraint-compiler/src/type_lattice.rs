@@ -225,6 +225,7 @@ pub fn propagate_through_topology(
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
 

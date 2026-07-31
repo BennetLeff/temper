@@ -455,6 +455,10 @@ fn get_clearance(class_a: NetClass, class_b: NetClass, voltage: f64, layer_inter
 }
 
 /// Port of `_get_required_clearance`.
+#[expect(
+    clippy::too_many_arguments,
+    reason = "1:1 port of the Python reference signature; grouped params would obscure the differential-test mapping"
+)]
 fn required_clearance(
     default_clearance: f64,
     net1_is_hv_gate: bool,
@@ -535,10 +539,6 @@ struct RouteMeta {
 }
 
 impl RouteMeta {
-    fn new(route: &RouteIn, voltage_ratings: &HashMap<String, f64>) -> Self {
-        Self::new_with_hv_names(route, voltage_ratings, &std::collections::HashSet::new())
-    }
-
     fn new_with_hv_names(
         route: &RouteIn,
         voltage_ratings: &HashMap<String, f64>,
@@ -565,6 +565,7 @@ pub type ViolationOut = (String, String, f64, f64, f64, f64, String);
 // ---------------------------------------------------------------------------
 
 type AccKey = (usize, usize, String);
+type AccEntry = (AccKey, (f64, (f64, f64)));
 
 #[inline]
 fn update_acc(acc: &mut HashMap<AccKey, (f64, (f64, f64))>, key: AccKey, edge_dist: f64, point: (f64, f64)) {
@@ -732,7 +733,7 @@ pub fn verify_route_clearance_impl_ex(
     // which asserts two calls on the same input are `==` (list-order
     // sensitive). Sorting by the route-pair/layer key makes the output
     // deterministic across calls, independent of hash seeding.
-    let mut acc_entries: Vec<((usize, usize, String), (f64, (f64, f64)))> = acc.into_iter().collect();
+    let mut acc_entries: Vec<AccEntry> = acc.into_iter().collect();
     acc_entries.sort_by(|a, b| a.0.cmp(&b.0));
 
     let mut violations: Vec<ViolationOut> = Vec::new();
@@ -1027,7 +1028,10 @@ fn brute_force_reference(
 ) -> (Vec<ViolationOut>, u64) {
     let n = routes.len();
     let total_checks: u64 = if n >= 2 { (n as u64) * (n as u64 - 1) / 2 } else { 0 };
-    let meta: Vec<RouteMeta> = routes.iter().map(|r| RouteMeta::new(r, voltage_ratings)).collect();
+    let meta: Vec<RouteMeta> = routes
+        .iter()
+        .map(|r| RouteMeta::new_with_hv_names(r, voltage_ratings, &std::collections::HashSet::new()))
+        .collect();
 
     let mut violations = Vec::new();
 

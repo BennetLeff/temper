@@ -24,8 +24,6 @@ use pyo3::types::{PyDict, PyList};
 use pyo3::Py;
 use std::collections::HashMap;
 
-use temper_py_bridge;
-
 use crate::types::{
     ComponentInfo, NetInfo, Netlist, PcbSpecification, PlacementState, PrecomputedMetrics,
 };

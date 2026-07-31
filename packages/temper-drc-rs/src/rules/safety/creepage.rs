@@ -23,10 +23,10 @@ const ISO_COMPONENT_KEYWORDS: [&str; 8] =
 fn is_iso_component(comp: &crate::board::Component, board: &BoardState) -> bool {
     // Prefer declared safety_category from the model
     let nc = crate::board::NetClassName(comp.net_class.0.clone());
-    if let Some(rules) = board.net_class_rules.get(&nc) {
-        if let Some(ref sc) = rules.safety_category {
-            return sc == "iso";
-        }
+    if let Some(rules) = board.net_class_rules.get(&nc)
+        && let Some(ref sc) = rules.safety_category
+    {
+        return sc == "iso";
     }
     // Keyword fallback
     let lc = comp.net_class.0.to_lowercase();

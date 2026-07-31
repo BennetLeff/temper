@@ -474,6 +474,7 @@ pub fn compile_lattice_inferred_to_tier0(
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
     use crate::ir_tier0::{PclConstraint, PclConstraintModel};

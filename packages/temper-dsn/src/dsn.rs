@@ -8,12 +8,19 @@ use sha2::{Digest, Sha256};
 use std::collections::HashMap;
 use std::sync::LazyLock;
 
+/// Compiles a regex from a source literal. Infallible: every pattern passed
+/// here is a compile-time constant in this file, so `Regex::new` cannot fail.
+#[expect(clippy::expect_used, reason = "literal patterns compiled from source cannot fail")]
+fn static_regex(pattern: &'static str) -> Regex {
+    Regex::new(pattern).expect("invalid static regex literal")
+}
+
 static NON_SEMANTIC_PATTERNS: LazyLock<Vec<Regex>> = LazyLock::new(|| {
     vec![
-        Regex::new(r"^;exported-at:").expect("valid regex"),
-        Regex::new(r"^;tool-version:").expect("valid regex"),
-        Regex::new(r"^;machine:").expect("valid regex"),
-        Regex::new(r"^;path:").expect("valid regex"),
+        static_regex(r"^;exported-at:"),
+        static_regex(r"^;tool-version:"),
+        static_regex(r"^;machine:"),
+        static_regex(r"^;path:"),
     ]
 });
 
