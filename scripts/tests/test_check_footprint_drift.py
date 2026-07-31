@@ -30,6 +30,7 @@ the failure mode this whole exercise exists to fix").
 from __future__ import annotations
 
 import sys
+import time
 from pathlib import Path
 
 import pytest
@@ -37,9 +38,12 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from check_footprint_drift import (  # noqa: E402
+    EXIT_GATE_ERROR,
     GateError,
+    check_netlist_freshness,
     load_board,
     parse_netlist,
+    run,
     run_checks,
 )
 from kiutils.board import Board  # noqa: E402
@@ -381,3 +385,122 @@ def test_gate_is_wired_into_ci_workflow() -> None:
         "step in .github/workflows/python-tests.yml -- the gate exists and "
         "has unit tests but CI never actually runs it."
     )
+
+
+class TestNetlistFreshness:
+    """Freshness contract: the netlist must be provably built from current
+    sources, decided by CONTENT when `make netlist` left a build stamp and by
+    the legacy mtime comparison when it did not. The stamped cases below are
+    the regression that failed this gate on CI 2026-07-31: the netlist
+    actions/cache restores `elec/build/` with its original mtimes while
+    `git checkout` stamps every `.ato` source with the checkout time, so a
+    byte-identical cached netlist always looked mtime-STALE. The same fix
+    already landed in check_domain_partition.py (scripts/_lib/freshness.py);
+    this gate must match it."""
+
+    def test_fresh_netlist_passes(self, tmp_path: Path) -> None:
+        src_dir = tmp_path / "src"
+        src_dir.mkdir()
+        (src_dir / "main.ato").write_text("# source\n")
+        time.sleep(0.05)
+        netlist_path = tmp_path / "default.net"
+        _write_netlist(netlist_path, [("R1", "Resistor_SMD:R_0805_2012Metric", "power_in.r_gate")])
+        check_netlist_freshness(netlist_path, src_dir)  # must not raise
+
+    def test_stale_netlist_fails_closed(self, tmp_path: Path) -> None:
+        src_dir = tmp_path / "src"
+        src_dir.mkdir()
+        netlist_path = tmp_path / "default.net"
+        _write_netlist(netlist_path, [("R1", "Resistor_SMD:R_0805_2012Metric", "power_in.r_gate")])
+        time.sleep(0.05)
+        (src_dir / "main.ato").write_text("# edited after the netlist was built\n")
+        with pytest.raises(GateError, match="STALE"):
+            check_netlist_freshness(netlist_path, src_dir)
+
+    def test_missing_netlist_is_gate_error(self, tmp_path: Path) -> None:
+        src_dir = tmp_path / "src"
+        src_dir.mkdir()
+        (src_dir / "main.ato").write_text("# source\n")
+        with pytest.raises(GateError, match="not found"):
+            check_netlist_freshness(tmp_path / "nope.net", src_dir)
+
+    def test_stamped_netlist_survives_newer_sources(self, tmp_path: Path) -> None:
+        """A restored cache: sources newer than the netlist, content unchanged.
+
+        This is the case that failed this gate on 2026-07-31 (CI runs
+        30645135140 and 30610662266, "netlist is STALE ... 8 source file(s)
+        newer than the compiled netlist"). `git checkout` stamps every .ato
+        with the checkout time while actions/cache restores the netlist with
+        its original mtime, so a cached netlist is always mtime-older than
+        sources it in fact matches. The build stamp proves content equality.
+        """
+        import os
+
+        from _lib.freshness import write_stamp
+
+        src_dir = tmp_path / "src"
+        src_dir.mkdir()
+        source = src_dir / "main.ato"
+        source.write_text("# source\n")
+        netlist_path = tmp_path / "default.net"
+        _write_netlist(netlist_path, [("R1", "Resistor_SMD:R_0805_2012Metric", "power_in.r_gate")])
+        write_stamp(netlist_path, [source], src_dir)
+
+        future = time.time() + 10_000
+        os.utime(source, (future, future))
+        assert source.stat().st_mtime > netlist_path.stat().st_mtime
+
+        check_netlist_freshness(netlist_path, src_dir)  # must not raise
+
+    def test_stamped_netlist_still_fails_on_real_edit(self, tmp_path: Path) -> None:
+        """Content hashing must not weaken the gate: an actual source change
+        is still STALE even though the stamp exists."""
+        from _lib.freshness import write_stamp
+
+        src_dir = tmp_path / "src"
+        src_dir.mkdir()
+        source = src_dir / "main.ato"
+        source.write_text("# source\n")
+        netlist_path = tmp_path / "default.net"
+        _write_netlist(netlist_path, [("R1", "Resistor_SMD:R_0805_2012Metric", "power_in.r_gate")])
+        write_stamp(netlist_path, [source], src_dir)
+
+        source.write_text("# genuinely edited after the build\n")
+        with pytest.raises(GateError, match="STALE"):
+            check_netlist_freshness(netlist_path, src_dir)
+
+    def test_stamped_netlist_catches_backdated_edit(self, tmp_path: Path) -> None:
+        """An edit back-dated older than the netlist passes the mtime check and
+        must still be caught -- content hashing is strictly stronger here, not
+        merely more cache-friendly."""
+        import os
+
+        from _lib.freshness import write_stamp
+
+        src_dir = tmp_path / "src"
+        src_dir.mkdir()
+        source = src_dir / "main.ato"
+        source.write_text("# source\n")
+        netlist_path = tmp_path / "default.net"
+        _write_netlist(netlist_path, [("R1", "Resistor_SMD:R_0805_2012Metric", "power_in.r_gate")])
+        write_stamp(netlist_path, [source], src_dir)
+
+        source.write_text("# edited, then back-dated\n")
+        past = time.time() - 10_000
+        os.utime(source, (past, past))
+        assert source.stat().st_mtime < netlist_path.stat().st_mtime
+
+        with pytest.raises(GateError, match="STALE"):
+            check_netlist_freshness(netlist_path, src_dir)
+
+    def test_run_end_to_end_fails_closed_on_stale_netlist(self, tmp_path: Path) -> None:
+        """Same check exercised through run() (skip_freshness=False, the real
+        CI default) end-to-end."""
+        src_dir = tmp_path / "src"
+        src_dir.mkdir()
+        netlist_path = tmp_path / "default.net"
+        _write_netlist(netlist_path, [("R1", "Resistor_SMD:R_0805_2012Metric", "power_in.r_gate")])
+        time.sleep(0.05)
+        (src_dir / "main.ato").write_text("# edited after the netlist was built\n")
+        code = run(tmp_path / "board.kicad_pcb", netlist_path, src_dir, skip_freshness=False)
+        assert code == EXIT_GATE_ERROR
