@@ -636,6 +636,11 @@ def load_real_board_placement() -> tuple[dict[str, Any], dict[str, VoltageDomain
         "unclassified_components_count": len(unclassified_refs),
         "coverage_ratio": (matched_refs_full / total_components) if total_components else 0.0,
         "max_iec_margin_mm": MAX_IEC_MARGIN_MM,
+        # Protective-impedance chain sibling pairs exempted from the proximity
+        # check (see _chain_sibling_exempt_pairs) -- exposed so a downstream
+        # clearance-repair solve can mirror the exemption exactly instead of
+        # over-constraining chain siblings (issue #504 machinery).
+        "chain_sibling_exempt_pairs": exempt_pairs,
         # Every unclassified component's distance to its nearest
         # HV-classified neighbour, sorted closest-first, regardless of
         # distance -- the caller (test_temper_board_clearance_compliance)

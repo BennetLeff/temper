@@ -212,6 +212,7 @@ __all__ = [
     "DomainClearanceAuditViolation",
     "IntraFootprintDomainConflict",
     "generate_domain_clearance_constraints",
+    "generate_unclassified_hv_keepaway_constraints",
     "find_intra_footprint_domain_conflicts",
     "audit_domain_clearance",
     "required_margin_mm",
@@ -228,6 +229,21 @@ def required_margin_mm(requirements: dict[str, float]) -> float:
     invert if the matrix is ever edited.
     """
     return max(requirements["min_clearance_mm"], requirements["min_creepage_mm"])
+
+
+# The single margin the unclassified-near-HV keep-away constraints (and the
+# real-board fixture's fail-closed proximity check) hold every unclassified
+# component to: the largest clearance/creepage minimum anywhere in the
+# matrix. Computed from the matrix itself (not hardcoded) so it cannot
+# silently drift from IEC60335_REQUIREMENTS if that table is ever edited.
+MAX_IEC_MARGIN_MM = max(
+    max(row["min_clearance_mm"], row["min_creepage_mm"])
+    for row in IEC60335_REQUIREMENTS.values()
+)
+
+# The voltage domains treated as "HV" for the keep-away proximity check --
+# mirrors `tests/requirements/safety/_real_board_fixture.py::_HV_DOMAINS`.
+_HV_DOMAINS = {VoltageDomain.MAINS, VoltageDomain.DC_BUS, VoltageDomain.BOOTSTRAP}
 
 
 def generate_domain_clearance_constraints(
@@ -333,6 +349,110 @@ def generate_domain_clearance_constraints(
             ),
         )
 
+    return constraints
+
+
+def generate_unclassified_hv_keepaway_constraints(
+    placement: dict[str, Any],
+    voltage_domains: dict[str, VoltageDomain],
+    component_refs: set[str],
+    exempt_pairs: set[frozenset[str]] | None = None,
+    hv_domains: set[VoltageDomain] | None = None,
+    margin_mm: float | None = None,
+) -> list[SeparatedConstraint]:
+    """One HARD SeparatedConstraint per (unclassified ref, HV ref) pair, at
+    the largest IEC margin in the matrix.
+
+    **Why this exists.** ``generate_domain_clearance_constraints`` pairs
+    strictly on classified-net membership, so an *unclassified* component
+    (no net declared in the domain manifest, e.g. an interior OVP-divider
+    node that is neither HV nor SELV by voltage) can never appear in a
+    generated constraint -- and a solve that does a full-board reshuffle is
+    therefore completely free to place it anywhere relative to a genuinely
+    HV part. That freedom regressed the real board in practice (2026-07-27:
+    R52, unclassified, landed 6.521mm from HV C14, under the 8.0mm margin),
+    so this function converts the real-board fixture's fail-closed
+    proximity check ("no unclassified component within the largest IEC
+    margin of a declared-HV part, no exemption on record") into hard
+    CP-SAT constraints enforced *during* the solve, for every
+    unclassified x HV pair -- a strict superset of the post-hoc check's
+    nearest-neighbour ranking.
+
+    **Soundness.** Identical to ``generate_domain_clearance_constraints``'s:
+    each emitted ``SeparatedConstraint`` is a whole-component box separation
+    at ``margin_mm``, so SAT of the encoding implies every point of the
+    unclassified component's box (hence all its pad copper, per the module
+    docstring's containment precondition) is >= ``margin_mm`` from every
+    point of the HV component's box. The fixture's proximity check measures
+    the same copper-to-copper quantity at the same margin, so SAT of these
+    constraints implies the check finds no finding -- for *every* pair, a
+    superset of its nearest-neighbour scan.
+
+    Args:
+        placement: Validator-shape placement (same contract as
+            ``generate_domain_clearance_constraints``).
+        voltage_domains: net -> domain map.
+        component_refs: the *universe* of refs (e.g. the CP-SAT model's
+            component map). A ref is "unclassified" iff it is in this set
+            but has no classified net in ``placement``.
+        exempt_pairs: unordered ``frozenset({u, h})`` pairs exempted from
+            keep-away -- the same single narrow exemption the fixture's
+            proximity check applies: both refs members of the SAME declared
+            ``protective_impedance_chains`` entry (that chain is governed by
+            its own construction check, not an unexamined crossing).
+        hv_domains: which ``VoltageDomain``(s) count as "HV" for the
+            keep-away side. Defaults to {MAINS, DC_BUS, BOOTSTRAP}, the
+            same set the fixture uses.
+        margin_mm: keep-away margin. Defaults to ``MAX_IEC_MARGIN_MM`` (the
+            largest clearance/creepage minimum in the matrix), again
+            matching the fixture.
+
+    Returns:
+        Sorted ``SeparatedConstraint`` list, one per (unclassified, HV)
+        pair, ``id`` prefix ``keepaway_unclassified_`` so the R24 post-solve
+        audit (which filters on ``domain_clearance_``) can be extended to
+        them the same way if desired.
+    """
+    exempt = exempt_pairs or frozenset()
+    domains = hv_domains or _HV_DOMAINS
+    margin = margin_mm if margin_mm is not None else MAX_IEC_MARGIN_MM
+
+    nets_domain = _nets_domain_map(placement, voltage_domains)
+    classified_refs: set[str] = set()
+    hv_refs: set[str] = set()
+    for comp in placement.get("components", []):
+        ref = comp.get("ref")
+        if not isinstance(ref, str):
+            continue
+        classified_refs.add(ref)
+        if any(nets_domain.get(net) in domains for net in comp.get("nets", [])):
+            hv_refs.add(ref)
+
+    unclassified_refs = sorted(component_refs - classified_refs)
+    constraints: list[SeparatedConstraint] = []
+    for u_ref in unclassified_refs:
+        for h_ref in sorted(hv_refs):
+            if u_ref == h_ref:
+                continue
+            if frozenset({u_ref, h_ref}) in exempt:
+                continue
+            constraints.append(
+                SeparatedConstraint(
+                    a=u_ref,
+                    b=h_ref,
+                    min_distance_mm=margin,
+                    tier=ConstraintTier.HARD,
+                    because=(
+                        f"unclassified {u_ref} must stay {margin}mm (largest IEC "
+                        f"margin) from HV-classified {h_ref}: no classified net "
+                        f"gives the domain-clearance generator a handle on it, "
+                        f"so this keep-away is the only hard guarantee that a "
+                        f"repair solve does not regress the fail-closed "
+                        f"unclassified-near-HV proximity check"
+                    ),
+                    id=f"keepaway_unclassified_{u_ref}_{h_ref}",
+                )
+            )
     return constraints
 
 
