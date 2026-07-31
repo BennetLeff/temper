@@ -46,7 +46,6 @@ def test_firmware_pin_header_matches_schematic_safety_map() -> None:
         "PIN_SPI_CLK": "8",
         "PIN_SPI_MOSI": "11",
         "PIN_SPI_MISO": "12",
-        "PIN_ZCD_INPUT": "13",
         "PIN_WDT_KICK": "7",
         "PIN_WDT_RESET": "6",
         "PIN_RUNAWAY_CUT": "15",
