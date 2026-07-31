@@ -42,6 +42,23 @@ table silently falls through to ``DesignRules``' LV default for any
 Python-side clearance/routing decision -- see the ``+170V_BUS`` defect
 above.
 
+Scope boundary, deliberately: this property checks *presence* of an
+assignment, not the *safety category* of the assigned class (the
+``safety_category`` field of ``NetClassRules`` in ``design_rules.py`` is
+this repo's real classification SSOT). The wrong-class shape -- a
+manifest-HV net assigned to an LV class, e.g. the historical
+``+15V_LS -> Power`` defect or the still-open ``PWR_RTN -> GND`` case
+(docs/evidence/2026-07-28-netclass-defect-reconciliation.md section 3c,
+flagged for a human call) -- is deliberately NOT enforced here: enforcing
+it would flag ``PWR_RTN``, whose reclassification carries an
+order-of-magnitude larger blast radius and a documented placement-zone
+objection (``configs/temper_production_config.yaml``). See
+docs/evidence/2026-07-29-hv-netclass-coverage-gate.md's scope note and
+issue temper#519 (PWR_RTN classification). The property-based tests in
+test_check_hv_netclass_coverage.py pin this boundary as a metamorphic
+relation: PROPERTY 1 never flags a net whose assigned class the SSOT
+certifies as HV/AC, and always flags a net with no assignment.
+
 PROPERTY 2 -- netclass rule coverage
 --------------------------------------
 Every class this project declares as a real, intentional netclass must

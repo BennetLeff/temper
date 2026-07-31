@@ -46,6 +46,8 @@ import textwrap
 from pathlib import Path
 
 import pytest
+from hypothesis import HealthCheck, given, settings
+from hypothesis import strategies as st
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
@@ -513,6 +515,250 @@ class TestHelperUnits:
             declared, lambda k: {"GND": "Ground"}.get(k, k), referenced
         )
         assert result == ["HighVoltageIsolated"]
+
+
+# ---------------------------------------------------------------------------
+# TestMetamorphic -- property-based relations between the gate and the
+# safety-category SSOT, and between the gate's two independent input
+# parsers. See the module docstring of check_hv_netclass_coverage.py for
+# what each property means; these tests assert the gate's *boundaries* over
+# arbitrary generated inputs, not just the hand-picked fixtures above.
+#
+# The repo's actual safety-classification SSOT is
+# `NetClassRules.safety_category` in
+# `packages/temper-placer/src/temper_placer/core/design_rules.py` (the
+# `resolve_safety_category` helper referenced in AGENTS.md's NetClassRules
+# section does not exist in this tree -- the field it describes is the
+# real authority). The gate's PROPERTY 1 is deliberately a *presence* check
+# (see the evidence doc's scope note); the metamorphic relation asserted
+# here is that the gate and the SSOT never contradict each other in either
+# direction that matters:
+#
+#   - an HV-correct assignment (net -> class whose safety_category is HV/AC)
+#     is NEVER flagged by PROPERTY 1 (the gate accepts everything the SSOT
+#     certifies as HV-safe), and
+#   - a net with NO assignment is ALWAYS flagged (the gate is exactly
+#     sensitive to the table it claims to check -- no masking).
+#
+# Plus: parser agreement (check_domain_partition's manifest parser vs an
+# independent naive PyYAML traversal on the same text), end-to-end mutation
+# sensitivity (removing exactly one assignment / one rule reference flips
+# the verdict and names exactly the mutation), and idempotence.
+# ---------------------------------------------------------------------------
+
+
+class _FakeNetClass:
+    """Minimal stand-in for NetClassRules: the gate reads only the class
+    *name* (dict key); the SSOT oracle in these tests reads
+    ``safety_category``. Keeping the stub local means the property tests
+    never depend on a live temper_placer install."""
+
+    def __init__(self, safety_category: str | None):
+        self.safety_category = safety_category
+
+
+# Net-name alphabet mirrors what the real manifest uses (exact literal net
+# names: letters, digits, + - _ . /). Double quotes, backslashes (YAML
+# escape char), single quotes (the DRU condition grammar `A.NetClass == 'X'`
+# captures names as [^']+ -- a quoted name is structurally unrepresentable
+# and never occurs in real KiCad netclass names) and newlines are excluded
+# by construction.
+_NET_NAME = st.text(
+    alphabet=st.characters(
+        blacklist_categories=("C",), blacklist_characters='"\n\\\''
+    ),
+    min_size=1,
+    max_size=12,
+).filter(lambda n: n not in STRUCTURAL_KICAD_CLASSES)
+
+_HV_NETS = st.lists(_NET_NAME, min_size=1, max_size=6, unique=True)
+
+_CATEGORIES = st.sampled_from(["HV", "AC", "LV", None, "iso"])
+
+_CLASS_NAMES = st.lists(
+    _NET_NAME, min_size=1, max_size=5, unique=True
+).filter(lambda names: len(names) >= 1)
+
+
+@st.composite
+def _ssot_safe_fixture(draw, class_names_strategy=_CLASS_NAMES):
+    """(hv_nets, class_names, classes, assignments) where every HV net is
+    assigned a class whose safety_category is HV or AC -- the SSOT-safe
+    configuration PROPERTY 1 must always accept."""
+    hv_nets = draw(_HV_NETS)
+    class_names = draw(class_names_strategy)
+    classes = {n: _FakeNetClass(draw(_CATEGORIES)) for n in class_names}
+    # force at least one HV/AC class so the fixture can be SSOT-safe
+    hv_ac = [n for n, c in classes.items() if c.safety_category in ("HV", "AC")]
+    if not hv_ac:
+        classes[class_names[0]] = _FakeNetClass("HV")
+        hv_ac = [class_names[0]]
+    assignments = {net: draw(st.sampled_from(hv_ac)) for net in hv_nets}
+    return hv_nets, class_names, classes, assignments
+
+
+# The end-to-end mutation tests need >= 2 classes: with exactly one class,
+# removing its only rule reference leaves EMPTY DRU content, which the gate
+# correctly fail-closes as tool_error (anti-vacuity), not a violation.
+_CLASS_NAMES_2PLUS = st.lists(
+    _NET_NAME, min_size=2, max_size=5, unique=True
+).filter(lambda names: len(names) >= 2)
+
+
+@st.composite
+def _fixture_with_partial_assignments(draw):
+    """(hv_nets, assignments) where each HV net is independently either
+    assigned a random class or deliberately left unassigned."""
+    hv_nets = draw(_HV_NETS)
+    class_names = draw(_CLASS_NAMES)
+    assignments = {}
+    for net in hv_nets:
+        if draw(st.booleans()):
+            assignments[net] = draw(st.sampled_from(class_names))
+    return hv_nets, assignments
+
+
+# tmp_path is function-scoped (created once per test call, reused across
+# @given examples); every example below writes its own manifest/kicad_pro
+# files before reading them back, so no example depends on a previous
+# example's files -- the fixture reuse is benign and suppression is sound.
+_FIXTURE_SUPPRESS = {"suppress_health_check": [HealthCheck.function_scoped_fixture]}
+
+
+class TestMetamorphic:
+    @settings(max_examples=50, deadline=None, **_FIXTURE_SUPPRESS)
+    @given(hv_nets=_HV_NETS, selv_nets=_HV_NETS)
+    def test_load_hv_nets_agrees_with_independent_yaml_parser(
+        self, tmp_path, hv_nets, selv_nets
+    ):
+        """Metamorphic relation between two independent code paths that
+        both read the manifest: check_domain_partition's own parser (which
+        the gate trusts, via load_hv_nets) and a naive PyYAML traversal
+        written independently in this test. If they ever disagree on
+        arbitrary generated manifests, the gate is reading a different net
+        set than the file literally declares."""
+        import yaml
+
+        # ensure the two domains are disjoint (load_manifest rejects a net
+        # claimed by two domains -- that is its contract, not a fixture bug)
+        selv = [n for n in selv_nets if n not in hv_nets] or ["gnd"]
+        manifest = _manifest(tmp_path, hv_nets, selv)
+        text = manifest.read_text()
+
+        via_gate = load_hv_nets(manifest)
+        via_naive = yaml.safe_load(text)["domains"]["HV"]["nets"]
+
+        assert via_gate == via_naive
+
+    @settings(max_examples=50, deadline=None)
+    @given(_ssot_safe_fixture())
+    def test_property1_never_flags_ssot_safe_assignments(self, fixture):
+        """The gate's PROPERTY 1 (presence in TEMPER_NET_ASSIGNMENTS) must
+        agree with the safety-category SSOT in the direction that matters:
+        every manifest-HV net assigned a class whose safety_category is HV
+        or AC -- the configuration the SSOT certifies as HV-safe -- is
+        never flagged as unclassified."""
+        hv_nets, _, _, assignments = fixture
+        assert check_hv_net_coverage(hv_nets, assignments) == []
+
+    @settings(max_examples=50, deadline=None, **_FIXTURE_SUPPRESS)
+    @given(_fixture_with_partial_assignments())
+    def test_property1_flags_exactly_the_absent_nets(self, fixture):
+        """Metamorphic counterpart: PROPERTY 1 flags a net IFF it has no
+        assignment -- never more (no net that the SSOT could certify is
+        rejected once present), never fewer (an absent assignment is never
+        masked by a neighbouring entry)."""
+        hv_nets, assignments = fixture
+        expected = sorted(set(hv_nets) - set(assignments))
+        assert check_hv_net_coverage(hv_nets, assignments) == expected
+
+    @settings(max_examples=40, deadline=None, **_FIXTURE_SUPPRESS)
+    @given(_ssot_safe_fixture(_CLASS_NAMES_2PLUS))
+    def test_run_is_exactly_sensitive_to_single_mutations(self, tmp_path, fixture):
+        """End-to-end: build a fully-covered fixture (all HV nets assigned,
+        every declared class positively referenced in the DRU), assert the
+        gate runs clean, then remove EXACTLY ONE input and assert the gate
+        flips to 'violation' naming exactly that mutation -- for both
+        properties, independently. A gate that masked either mutation would
+        fail this test."""
+        hv_nets, class_names, classes, assignments = fixture
+        manifest = _manifest(tmp_path, hv_nets)
+        kicad_pro = _kicad_pro(tmp_path, dict.fromkeys(class_names, ""))
+        dru_content = "".join(f"A.NetClass == '{n}'\n" for n in class_names)
+
+        state, report = run(
+            manifest,
+            kicad_pro,
+            net_classes=classes,
+            net_assignments=assignments,
+            dru_content=dru_content,
+            kicad_class_name_fn=lambda k: k,
+        )
+        assert state == "clean", (report.unclassified_hv_nets, report.classes_with_no_rules)
+
+        # Mutation 1: drop exactly one HV net's assignment.
+        dropped_net = hv_nets[0]
+        mutated_assignments = dict(assignments)
+        del mutated_assignments[dropped_net]
+        state, report = run(
+            manifest,
+            kicad_pro,
+            net_classes=classes,
+            net_assignments=mutated_assignments,
+            dru_content=dru_content,
+            kicad_class_name_fn=lambda k: k,
+        )
+        assert state == "violation"
+        assert report.unclassified_hv_nets == [dropped_net]
+        assert report.classes_with_no_rules == []
+
+        # Mutation 2: drop exactly one class's positive rule reference.
+        dropped_class = class_names[0]
+        mutated_dru = "".join(
+            f"A.NetClass == '{n}'\n" for n in class_names if n != dropped_class
+        )
+        state, report = run(
+            manifest,
+            kicad_pro,
+            net_classes=classes,
+            net_assignments=assignments,
+            dru_content=mutated_dru,
+            kicad_class_name_fn=lambda k: k,
+        )
+        assert state == "violation"
+        assert report.classes_with_no_rules == [dropped_class]
+        assert report.unclassified_hv_nets == []
+
+    @settings(max_examples=40, deadline=None, **_FIXTURE_SUPPRESS)
+    @given(_ssot_safe_fixture())
+    def test_run_is_idempotent(self, tmp_path, fixture):
+        """Metamorphic idempotence: running the gate twice over identical
+        inputs yields the identical state and report -- the gate has no
+        hidden state or ordering dependence."""
+        hv_nets, class_names, classes, assignments = fixture
+        manifest = _manifest(tmp_path, hv_nets)
+        kicad_pro = _kicad_pro(tmp_path, dict.fromkeys(class_names, ""))
+        dru_content = "".join(f"A.NetClass == '{n}'\n" for n in class_names)
+
+        state1, report1 = run(
+            manifest,
+            kicad_pro,
+            net_classes=classes,
+            net_assignments=assignments,
+            dru_content=dru_content,
+            kicad_class_name_fn=lambda k: k,
+        )
+        state2, report2 = run(
+            manifest,
+            kicad_pro,
+            net_classes=classes,
+            net_assignments=assignments,
+            dru_content=dru_content,
+            kicad_class_name_fn=lambda k: k,
+        )
+        assert state1 == state2
+        assert report1.unclassified_hv_nets == report2.unclassified_hv_nets
+        assert report1.classes_with_no_rules == report2.classes_with_no_rules
 
 
 # ---------------------------------------------------------------------------
