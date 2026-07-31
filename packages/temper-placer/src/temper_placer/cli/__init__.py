@@ -597,8 +597,8 @@ def optimize(
             board = parse_result.board
             constraints = load_constraints(config)
             pcl_constraints = list(getattr(constraints, "pcl_constraints", []))
-            reference_aliases: dict[str, str] = {}
-            loop_aliases: dict[str, str] = {}
+            reference_aliases = {}
+            loop_aliases = {}
             manifest_path = config.with_suffix(".references.yaml")
             if manifest_path.exists():
                 from temper_placer.io.reference_aliases import load_reference_alias_manifest
