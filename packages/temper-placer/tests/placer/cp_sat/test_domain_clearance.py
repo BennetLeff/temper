@@ -142,7 +142,7 @@ class TestIntraFootprintDomainConflicts:
         c = conflicts[0]
         assert c.ref == "PS1"
         assert {c.domain_a, c.domain_b} == {VoltageDomain.MAINS, VoltageDomain.LV_CONTROL}
-        assert c.margin_mm == 12.6  # PD3 reinforced creepage requirement
+        assert c.margin_mm == 8.0  # PD2 reinforced creepage requirement (per #515)
 
     def test_non_straddling_components_not_flagged(self) -> None:
         placement, voltage_domains = TestGeneratorNotVacuous()._two_domain_placement()
