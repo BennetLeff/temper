@@ -53,6 +53,30 @@
 
 schema_version: 1
 
+# Approved split-board interface (design contract, not a claim that the
+# current legacy one-board PCB already implements it).  The connector is
+# deliberately restricted to nets that remain SELV on both sides of the
+# reinforced isolators.  AC, the DC bus, switch node, floating gate-drive
+# outputs, and every other HV-domain net are excluded by construction and are
+# not permitted to be added here without changing the architecture decision.
+board_interface:
+  name: POWER_CONTROL_SELV_INTERFACE
+  power_board: POWER_BOARD
+  control_board: CONTROL_BOARD
+  connector: J_POWER_CONTROL
+  allowed_domains: [SELV]
+  nets:
+    - gnd
+    - "+15V"
+    - "+3V3"
+    - PWM_HS
+    - PWM_LS
+    - SHUTDOWN
+    - RELAY_CTRL
+    - DISCHARGE_CTRL
+    - V_BUS_SENSE
+    - ZCD_ISO
+
 domains:
   # Mains / high-voltage power domain: AC line/neutral, the rectified DC
   # bus, the doubler midpoint (power_return), and everything that floats on

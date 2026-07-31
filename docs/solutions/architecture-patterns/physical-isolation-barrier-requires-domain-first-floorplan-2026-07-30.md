@@ -193,6 +193,14 @@ real and the BOM owner accepts the required isolator substitutions. In either
 case, start a new board-topology workstream; do not keep editing the current
 interleaved board incrementally.
 
+The approved Alternative B contract is now recorded in
+`elec/domain_manifest.yaml` as `POWER_CONTROL_SELV_INTERFACE`. The existing
+netlist domain gate validates that every enumerated board-to-board net exists
+in the compiled design and belongs to the explicitly allowed `SELV` domain;
+an HV or unclassified connector net is a gate violation. This closes the
+source-level regression hole while the physical power/control PCB artifacts,
+connector selection, and mechanical partition remain implementation work.
+
 ## Implementation sequence
 
 ### Phase 1 — freeze the boundary contract

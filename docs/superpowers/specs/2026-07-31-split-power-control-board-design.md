@@ -35,6 +35,14 @@ not implemented and verified, the design falls back to PD3 and 12.6 mm.
 The domain manifest remains the source of intended topology, but it will be
 extended to identify board ownership for every declared net and component:
 
+The first implementation increment is now machine-checked in
+`elec/domain_manifest.yaml` as `POWER_CONTROL_SELV_INTERFACE`. It enumerates
+the ten permitted interface nets and permits only the `SELV` domain. The
+netlist domain gate rejects a missing compiled net as a stale contract and
+rejects any interface net classified as HV or left unclassified. This is an
+interface guard while the two PCB artifacts are being built; it does not
+pretend that the legacy one-board PCB has already been physically split.
+
 | Ownership | Allowed contents |
 |---|---|
 | Power board HV | AC, rectified bus, PWR_RTN, switch node, resonant tank, HV-side gate-drive and sensing nets |
