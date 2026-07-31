@@ -234,21 +234,39 @@
       },
       {
         "bus_width": 12,
-        "clearance": 0.5,
+        "clearance": 0.25,
         "diff_pair_gap": 0.25,
         "diff_pair_via_gap": 0.25,
         "diff_pair_width": 0.2,
         "line_style": 0,
         "microvia_diameter": 0.3,
         "microvia_drill": 0.1,
-        "name": "GateDrive",
+        "name": "GateDriveHV",
         "pcb_color": "rgba(128, 0, 255, 1.000)",
         "schematic_color": "rgba(128, 0, 255, 1.000)",
-        "track_width": 0.5,
+        "track_width": 0.4,
         "via_diameter": 0.8,
         "via_drill": 0.4,
         "wire_width": 6,
-        "description": "Gate driver outputs to IGBT gates. 1.5A peak, keep short."
+        "description": "Gate driver high-side outputs (GATE_HS/GATE_LS, floating on SW_NODE). HV domain, reinforced isolation from SELV."
+      },
+      {
+        "bus_width": 12,
+        "clearance": 0.25,
+        "diff_pair_gap": 0.25,
+        "diff_pair_via_gap": 0.25,
+        "diff_pair_width": 0.2,
+        "line_style": 0,
+        "microvia_diameter": 0.3,
+        "microvia_drill": 0.1,
+        "name": "GateDriveSELV",
+        "pcb_color": "rgba(128, 0, 192, 1.000)",
+        "schematic_color": "rgba(128, 0, 192, 1.000)",
+        "track_width": 0.4,
+        "via_diameter": 0.8,
+        "via_drill": 0.4,
+        "wire_width": 6,
+        "description": "Gate driver low-side PWM inputs (PWM_HS/PWM_LS). SELV domain, reinforced isolation from HV."
       },
       {
         "bus_width": 12,
@@ -368,8 +386,8 @@
       "VBOOT_L": "HighVoltageIsolated",
       "hb.gate_hs.driver-p1-1": "HighVoltageIsolated",
       "hb.gate_hs.driver-p2": "HighVoltageIsolated",
-      "GATE_H": "GateDrive",
-      "GATE_L": "GateDrive",
+      "GATE_H": "GateDriveHV",
+      "GATE_L": "GateDriveHV",
       "+15V_LS": "HighVoltage",
       "a": "HighVoltage",
       "w1_1": "HighVoltage",
@@ -400,8 +418,12 @@
         "pattern": "DC_BUS*"
       },
       {
-        "netclass": "GateDrive",
+        "netclass": "GateDriveHV",
         "pattern": "GATE_*"
+      },
+      {
+        "netclass": "GateDriveSELV",
+        "pattern": "PWM_*"
       },
       {
         "netclass": "HighVoltageIsolated",
