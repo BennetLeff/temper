@@ -1,6 +1,6 @@
 # Current-board clearance debt after handoff-actionables reconciliation
 
-<!-- provenance: commit=ebf41c198ccf8c02c6e74eca5fd6e55abdb4236e dirty=false -->
+<!-- provenance: commit=c1e89f06ee4641220bec87ad55bf2cca336683da dirty=true -->
 
 **Date:** 2026-07-30
 **Board:** `pcb/temper.kicad_pcb` after the source/netlist reconciliation that removed the unused mains-ZCD U3 circuit.
@@ -43,3 +43,17 @@ to netlist/loop reference drift reported before solve. No placement or PCB
 output was written. The next implementation step is to wire the current
 domain names correctly, then use this objective for a bounded candidate and
 measure its routed DRC before considering any board change.
+
+## Explicit reference reconciliation
+
+The CP-SAT encoder now accepts an explicit `reference_aliases` map. It
+canonicalizes component, zone, and loop operands before validation, rejects
+alias cycles, and leaves an alias target unresolved if that target is absent
+from the actual netlist/zone/loop set. The fail-closed validator therefore
+still blocks a candidate when a mapping is guessed or incomplete.
+
+No aliases are supplied for the current production config yet: names such as
+`C_BUS1`, `C_BUS2`, `U_MCU`, and `J_AC_IN` are not all unambiguous renames in
+the reconciled board, and some represent board-completeness questions. The
+new path is exercised by 49 focused CP-SAT tests; source-backed mappings must
+be added before a real-board candidate is generated.

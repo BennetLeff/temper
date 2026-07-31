@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import pytest
+
 from temper_placer.pcl.constraints import (
     AdjacentConstraint,
     AlignedConstraint,
@@ -18,9 +20,89 @@ from temper_placer.pcl.constraints import (
 from temper_placer.placer.cp_sat.encoder import (
     EncoderContext,
     encode_constraints,
+    reconcile_constraint_refs,
+    validate_constraint_refs,
 )
 from temper_placer.placer.cp_sat.handlers import HANDLER_REGISTRY
 from temper_placer.placer.cp_sat.model import CpSatModel
+
+
+class TestReferenceReconciliation:
+    """Aliases are explicit, canonical, and fail closed when incomplete."""
+
+    def test_reconciles_component_and_loop_operands(self) -> None:
+        constraints = [
+            AdjacentConstraint(
+                "OLD_Q1",
+                "OLD_Q2",
+                max_distance_mm=10.0,
+                tier=ConstraintTier.HARD,
+                because="Keep the commutation switches close",
+            ),
+            LoopAreaConstraint(
+                "old_commutation",
+                max_area_mm2=500.0,
+                tier=ConstraintTier.HARD,
+                because="Limit switching loop area",
+            ),
+        ]
+
+        result = reconcile_constraint_refs(
+            constraints,
+            {
+                "OLD_Q1": "Q1",
+                "OLD_Q2": "Q2",
+                "old_commutation": "commutation_loop",
+            },
+        )
+
+        assert (result.constraints[0].a, result.constraints[0].b) == ("Q1", "Q2")
+        assert result.constraints[1].loop_name == "commutation_loop"
+        assert result.aliases_applied == (
+            ("OLD_Q1", "Q1"),
+            ("OLD_Q2", "Q2"),
+            ("old_commutation", "commutation_loop"),
+        )
+
+    def test_alias_chains_are_canonicalized(self) -> None:
+        constraint = AdjacentConstraint(
+            "LEGACY_Q1",
+            "Q2",
+            max_distance_mm=10.0,
+            tier=ConstraintTier.HARD,
+            because="Keep the commutation switches close",
+        )
+
+        result = reconcile_constraint_refs(
+            [constraint], {"LEGACY_Q1": "OLD_Q1", "OLD_Q1": "Q1"}
+        )
+
+        assert result.constraints[0].a == "Q1"
+        assert result.aliases_applied == (("LEGACY_Q1", "Q1"),)
+
+    def test_alias_cycles_are_rejected(self) -> None:
+        with pytest.raises(ValueError, match="cycle"):
+            reconcile_constraint_refs([], {"A": "B", "B": "A"})
+
+    def test_alias_to_missing_target_stays_unresolved(self) -> None:
+        constraint = AdjacentConstraint(
+            "LEGACY_Q1",
+            "Q2",
+            max_distance_mm=10.0,
+            tier=ConstraintTier.HARD,
+            because="Keep the commutation switches close",
+        )
+        result = reconcile_constraint_refs([constraint], {"LEGACY_Q1": "MISSING_Q1"})
+
+        unresolved = validate_constraint_refs(
+            list(result.constraints),
+            component_refs={"Q1", "Q2"},
+            zone_names=set(),
+            loop_names=set(),
+            on_unresolved="ignore",
+        )
+
+        assert unresolved == {"adj_LEGACY_Q1_Q2": ["MISSING_Q1"]}
 
 
 class TestHandlerCoverage:

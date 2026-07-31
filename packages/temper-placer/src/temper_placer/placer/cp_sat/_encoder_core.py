@@ -8,6 +8,9 @@ from __future__ import annotations
 
 import logging
 import os as _os
+from collections.abc import Mapping
+from copy import copy
+from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from temper_placer.pcl.constraints import (
@@ -66,6 +69,105 @@ class EncoderContext:
         self.board_y_max_units = board_y_max_units
         self.courtyard_clearance_mm = courtyard_clearance_mm
         self.board_edge_margin_units = board_edge_margin_units
+
+
+@dataclass(frozen=True)
+class ReferenceReconciliation:
+    """Result of applying an explicit config-to-netlist reference map."""
+
+    constraints: tuple[BaseConstraint, ...]
+    aliases_applied: tuple[tuple[str, str], ...] = ()
+
+
+_REFERENCE_FIELDS = (
+    "a",
+    "b",
+    "component",
+    "components",
+    "inner",
+    "outer",
+    "zone_name",
+    "loop_name",
+)
+
+
+def reconcile_constraint_refs(
+    constraints: list[BaseConstraint],
+    aliases: Mapping[str, str] | None = None,
+) -> ReferenceReconciliation:
+    """Apply an explicit, canonical config-to-netlist reference map.
+
+    This is deliberately separate from :func:`validate_constraint_refs`:
+    reconciliation may rename a reference only when a caller supplies the
+    source-backed alias. Any name that remains unresolved is still handled by
+    the existing fail-closed validator. Alias chains are canonicalized and
+    cycles are rejected before a placement model can be built.
+    """
+    if not aliases:
+        return ReferenceReconciliation(tuple(constraints))
+
+    alias_map = dict(aliases)
+    if any(not source or not target for source, target in alias_map.items()):
+        raise ValueError("reference aliases must have non-empty source and target names")
+
+    resolved: dict[str, str] = {}
+
+    def canonical(name: str, trail: tuple[str, ...] = ()) -> str:
+        if name not in alias_map:
+            return name
+        if name in trail:
+            cycle = " -> ".join((*trail, name))
+            raise ValueError(f"reference alias cycle: {cycle}")
+        if name not in resolved:
+            resolved[name] = canonical(alias_map[name], (*trail, name))
+        return resolved[name]
+
+    for source in alias_map:
+        canonical(source)
+
+    applied: set[tuple[str, str]] = set()
+    reconciled: list[BaseConstraint] = []
+
+    for constraint in constraints:
+        updates: dict[str, object] = {}
+        for field_name in _REFERENCE_FIELDS:
+            if not hasattr(constraint, field_name):
+                continue
+            value = getattr(constraint, field_name, None)
+            if isinstance(value, str):
+                canonical_value = canonical(value)
+                if canonical_value != value:
+                    updates[field_name] = canonical_value
+                    applied.add((value, canonical_value))
+            elif isinstance(value, (list, tuple)):
+                updated_values = []
+                changed = False
+                for item in value:
+                    if isinstance(item, str):
+                        canonical_item = canonical(item)
+                        updated_values.append(canonical_item)
+                        changed = changed or canonical_item != item
+                        if canonical_item != item:
+                            applied.add((item, canonical_item))
+                    else:
+                        updated_values.append(item)
+                if changed:
+                    updates[field_name] = (
+                        tuple(updated_values) if isinstance(value, tuple) else updated_values
+                    )
+
+        if updates:
+            reconciled_constraint = copy(constraint)
+            for field_name, value in updates.items():
+                setattr(reconciled_constraint, field_name, value)
+            reconciled.append(reconciled_constraint)
+        else:
+            reconciled.append(constraint)
+
+    return ReferenceReconciliation(
+        tuple(reconciled),
+        tuple(sorted(applied)),
+    )
 
 
 # ---------------------------------------------------------------------------

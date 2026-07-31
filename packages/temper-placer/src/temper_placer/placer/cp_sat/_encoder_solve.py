@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import logging
 import time
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
@@ -91,6 +92,7 @@ def solve_placement(
     zone_components: dict[str, list[str]] | None = None,
     hint_positions: dict[str, tuple[float, float, int]] | None = None,
     minimize_displacement_to: dict[str, tuple[float, float]] | None = None,
+    reference_aliases: Mapping[str, str] | None = None,
     isolation_barrier: dict | None = None,
 ) -> CpSatPlacementResult:
     """Build a CP-SAT model, encode constraints, solve, and return the result.
@@ -108,6 +110,9 @@ def solve_placement(
             opt-in Manhattan-distance objective.  Dict mapping component ref
             to ``(x_mm, y_mm)``.  This keeps repair solves near the current
             placement while leaving hard constraints authoritative.
+        reference_aliases: Optional explicit config-to-netlist/loop reference
+            mapping applied before validation. Unmapped names remain subject
+            to the fail-closed unresolved-reference policy.
         isolation_barrier: Optional kwargs forwarded to
             ``isolation_barrier.add_isolation_barrier_to_model`` (minus
             ``model``/``netlist``/``board_w_mm``/``board_h_mm``, which this
@@ -268,6 +273,14 @@ def solve_placement(
     pcl_coll = getattr(board, "constraints", None)
     if pcl_coll is not None:
         constraint_objects.extend(pcl_coll)
+
+    reconciliation = _encoder_core.reconcile_constraint_refs(
+        constraint_objects,
+        reference_aliases,
+    )
+    constraint_objects = list(reconciliation.constraints)
+    if reconciliation.aliases_applied:
+        logger.info("Applied reference aliases: %s", reconciliation.aliases_applied)
 
     # Fail loud on config↔netlist drift: a constraint operand that resolves
     # to nothing is a silent no-op, so validate before encoding. This is the
