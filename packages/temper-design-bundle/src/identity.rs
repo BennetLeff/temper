@@ -32,9 +32,9 @@ pub fn validate(
         ));
     }
 
-    let mut ids = HashSet::new();
+    let mut ids: HashSet<&str> = HashSet::new();
     for component in &atopile.components {
-        if !ids.insert(component.id.clone()) {
+        if !ids.insert(component.id.as_str()) {
             return Err(diagnostic(
                 "duplicate_component",
                 format!("duplicate component '{}'", component.id),
@@ -43,7 +43,7 @@ pub fn validate(
         }
     }
     for net in &atopile.nets {
-        if !ids.insert(net.id.clone()) {
+        if !ids.insert(net.id.as_str()) {
             return Err(diagnostic(
                 "duplicate_net",
                 format!("duplicate canonical net '{}'", net.id),
@@ -92,9 +92,9 @@ pub fn validate(
     }
 
     let names: HashSet<_> = atopile.nets.iter().map(|net| net.name.as_str()).collect();
-    let mut signals = HashSet::new();
+    let mut signals: HashSet<&str> = HashSet::new();
     for entry in &mapping.entries {
-        if !signals.insert(entry.atopile_signal.clone()) {
+        if !signals.insert(entry.atopile_signal.as_str()) {
             return Err(diagnostic(
                 "ambiguous_mapping",
                 format!(

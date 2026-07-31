@@ -262,7 +262,7 @@ impl<'term, 'learn> Watchdog<'term, 'learn> {
 
         // Find class variables that are TRUE, grouped by bundle.
         // Naming convention: uses_B{bundle_id}_{channel_id}
-        let mut bundle_true_channels: HashMap<usize, Vec<String>> = HashMap::new();
+        let mut bundle_true_channels: HashMap<usize, usize> = HashMap::new();
 
         for (idx, val) in assignments {
             if !val || *idx >= self.var_names.len() {
@@ -272,12 +272,8 @@ impl<'term, 'learn> Watchdog<'term, 'learn> {
             if let Some(rest) = name.strip_prefix("uses_B") {
                 if let Some(underscore_pos) = rest.find('_') {
                     let bid_str = &rest[..underscore_pos];
-                    let ch_id = &rest[underscore_pos + 1..];
                     if let Ok(bid) = bid_str.parse::<usize>() {
-                        bundle_true_channels
-                            .entry(bid)
-                            .or_default()
-                            .push(ch_id.to_string());
+                        *bundle_true_channels.entry(bid).or_insert(0) += 1;
                     }
                 }
             }
@@ -290,7 +286,7 @@ impl<'term, 'learn> Watchdog<'term, 'learn> {
             }
             let chs = bundle_true_channels
                 .get(&bundle.bundle_id)
-                .map(|v| v.len())
+                .copied()
                 .unwrap_or(0);
             if chs > 1 {
                 violations.push(Violation {
@@ -364,9 +360,10 @@ impl<'term, 'learn> Watchdog<'term, 'learn> {
 
         // Collect channel IDs from class variables for this bundle
         let mut channel_ids: Vec<String> = Vec::new();
+        let prefix = format!("{bundle_id}_");
         for name in &self.var_names {
             if let Some(rest) = name.strip_prefix("uses_B")
-                && let Some(ch_rest) = rest.strip_prefix(&format!("{bundle_id}_"))
+                && let Some(ch_rest) = rest.strip_prefix(&prefix)
             {
                 let ch = ch_rest.to_string();
                 channel_ids.push(ch);

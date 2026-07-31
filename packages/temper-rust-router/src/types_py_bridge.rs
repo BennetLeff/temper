@@ -9,7 +9,6 @@ use temper_rust_router_core::types::{
 };
 
 pub fn model_from_python(
-    _net_ids: Vec<String>,
     variables: Vec<Py<PyAny>>,
     constraints: Vec<Py<PyAny>>,
     py: Python<'_>,

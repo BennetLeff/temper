@@ -8,6 +8,7 @@ use crate::types::{
     PlacementState, QualityConfig, QualityMetrics, PcbSpecification,
     Violation, ViolationType,
 };
+use std::collections::HashMap;
 
 pub fn evaluate(
     config: &QualityConfig,
@@ -36,16 +37,22 @@ fn evaluate_clearance(
     }
 
     let min_clearance = config.min_hv_lv_clearance_mm;
+    let index: HashMap<&str, usize> = placement
+        .component_refs
+        .iter()
+        .enumerate()
+        .map(|(i, r)| (r.as_str(), i))
+        .collect();
 
     for hv_ref in &config.hv_components {
+        let Some(&hv_pos) = index.get(hv_ref.as_str()) else {
+            continue;
+        };
         for lv_ref in &config.lv_components {
             if hv_ref == lv_ref {
                 continue;
             }
-            let Some(hv_pos) = placement.component_refs.iter().position(|r| r == hv_ref) else {
-                continue;
-            };
-            let Some(lv_pos) = placement.component_refs.iter().position(|r| r == lv_ref) else {
+            let Some(&lv_pos) = index.get(lv_ref.as_str()) else {
                 continue;
             };
 
@@ -108,17 +115,23 @@ fn evaluate_thermal(
     }
 
     let min_spacing = 10.0;
+    let index: HashMap<&str, usize> = placement
+        .component_refs
+        .iter()
+        .enumerate()
+        .map(|(i, r)| (r.as_str(), i))
+        .collect();
 
     for i in 0..thermal_refs.len() {
+        let Some(&pos_i) = index.get(thermal_refs[i].as_str()) else {
+            continue;
+        };
+        let (ix, iy) = placement.positions[pos_i];
         for j in (i + 1)..thermal_refs.len() {
-            let Some(pos_i) = placement.component_refs.iter().position(|r| r == thermal_refs[i]) else {
-                continue;
-            };
-            let Some(pos_j) = placement.component_refs.iter().position(|r| r == thermal_refs[j]) else {
+            let Some(&pos_j) = index.get(thermal_refs[j].as_str()) else {
                 continue;
             };
 
-            let (ix, iy) = placement.positions[pos_i];
             let (jx, jy) = placement.positions[pos_j];
 
             let dx = ix - jx;

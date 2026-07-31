@@ -94,12 +94,9 @@ fn convert(
     index: usize,
     ids: &std::collections::HashSet<&str>,
 ) -> Result<Constraint, crate::DesignBundleError> {
-    let id =
-        c.id.clone()
-            .unwrap_or_else(|| format!("pcl-{index}-{}", c.r#type));
+    let id = c.id.unwrap_or_else(|| format!("pcl-{index}-{}", c.r#type));
     let location = c
         .source_location
-        .clone()
         .unwrap_or_else(|| "<unknown source>".into());
     let unsupported = || {
         diagnostic(

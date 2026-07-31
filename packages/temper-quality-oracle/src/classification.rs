@@ -12,23 +12,24 @@ const DIFFERENTIAL_PATTERNS: &[&str] = &["DIFF", "USB_D", "LVDS", "ETH_"];
 const HIGH_CURRENT_PATTERNS: &[&str] = &["HC_", "HIGH_CURRENT", "PWR_RAIL", "BUS_BAR"];
 const GATE_DRIVE_PATTERNS: &[&str] = &["GATE", "DRV", "DRIVE"];
 
-fn matches_any(name: &str, patterns: &[&str]) -> bool {
-    let upper = name.to_uppercase();
+fn matches_any(upper: &str, patterns: &[&str]) -> bool {
     patterns.iter().any(|p| upper.contains(*p))
 }
 
 fn classify_net_name(name: &str) -> NetClass {
-    if matches_any(name, GROUND_PATTERNS) {
+    // Uppercase once per net name, not once per pattern group below.
+    let upper = name.to_uppercase();
+    if matches_any(&upper, GROUND_PATTERNS) {
         NetClass::Ground
-    } else if matches_any(name, POWER_PATTERNS) {
+    } else if matches_any(&upper, POWER_PATTERNS) {
         NetClass::Power
-    } else if matches_any(name, HV_PATTERNS) {
+    } else if matches_any(&upper, HV_PATTERNS) {
         NetClass::HighVoltage
-    } else if matches_any(name, DIFFERENTIAL_PATTERNS) {
+    } else if matches_any(&upper, DIFFERENTIAL_PATTERNS) {
         NetClass::Differential
-    } else if matches_any(name, HIGH_CURRENT_PATTERNS) {
+    } else if matches_any(&upper, HIGH_CURRENT_PATTERNS) {
         NetClass::HighCurrent
-    } else if matches_any(name, GATE_DRIVE_PATTERNS) {
+    } else if matches_any(&upper, GATE_DRIVE_PATTERNS) {
         NetClass::GateDrive
     } else {
         NetClass::Signal

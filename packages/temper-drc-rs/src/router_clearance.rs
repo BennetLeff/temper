@@ -566,6 +566,9 @@ pub type ViolationOut = (String, String, f64, f64, f64, f64, String);
 
 type AccKey = (usize, usize, String);
 type AccEntry = (AccKey, (f64, (f64, f64)));
+/// Per-phase accumulator keyed by route pair only (layer is invariant within
+/// a phase); merged into the outer `AccKey` map afterwards.
+type PhaseAcc = HashMap<(usize, usize), (f64, (f64, f64))>;
 
 #[inline]
 fn update_acc(acc: &mut HashMap<AccKey, (f64, (f64, f64))>, key: AccKey, edge_dist: f64, point: (f64, f64)) {
@@ -580,6 +583,30 @@ fn update_acc(acc: &mut HashMap<AccKey, (f64, (f64, f64))>, key: AccKey, edge_di
         Some(&(cur, _)) => {
             if edge_dist < cur {
                 acc.insert(key, (edge_dist, point));
+            }
+        }
+    }
+}
+
+/// Per-phase accumulator used while the layer is invariant: keyed by
+/// `(route_idx, route_idx)` so lookups need no `String` allocation. Same
+/// min / first-seen-on-tie / NaN-poisoning semantics as `update_acc`; the
+/// winners are merged into the outer `(route_idx, route_idx, layer)` map
+/// once per distinct pair after the phase's sweep.
+#[inline]
+fn update_acc_phase(
+    phase: &mut PhaseAcc,
+    key: (usize, usize),
+    edge_dist: f64,
+    point: (f64, f64),
+) {
+    match phase.get(&key) {
+        None => {
+            phase.insert(key, (edge_dist, point));
+        }
+        Some(&(cur, _)) => {
+            if edge_dist < cur {
+                phase.insert(key, (edge_dist, point));
             }
         }
     }
@@ -856,6 +883,9 @@ fn run_fine_grid_phase(
     // docs/evidence/2026-07-26-manufacturing-drc-scalability.md: do not
     // build a pair-dedup set, it is unneeded and was the memory blow-up in
     // a previous attempt).
+    // Sweep within cells, accumulating per (route_idx, route_idx) without
+    // allocating a layer String per candidate; layer is invariant here.
+    let mut phase: PhaseAcc = HashMap::new();
     for items in grid.values() {
         for a in 0..items.len() {
             for b in (a + 1)..items.len() {
@@ -879,9 +909,15 @@ fn run_fine_grid_phase(
                     w1,
                     w2,
                 );
-                update_acc(acc, (i, j, layer.to_string()), edge_dist, point);
+                update_acc_phase(&mut phase, (i, j), edge_dist, point);
             }
         }
+    }
+
+    // Merge the phase winners into the outer (i, j, layer) map — one String
+    // allocation per distinct route pair, not per candidate segment pair.
+    for ((i, j), (edge_dist, point)) in phase {
+        update_acc(acc, (i, j, layer.to_string()), edge_dist, point);
     }
 }
 

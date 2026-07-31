@@ -22,8 +22,7 @@ const ISO_COMPONENT_KEYWORDS: [&str; 8] =
 /// Falls back to keyword substring matching on net_class name.
 fn is_iso_component(comp: &crate::board::Component, board: &BoardState) -> bool {
     // Prefer declared safety_category from the model
-    let nc = crate::board::NetClassName(comp.net_class.0.clone());
-    if let Some(rules) = board.net_class_rules.get(&nc)
+    if let Some(rules) = board.net_class_rules.get(&comp.net_class)
         && let Some(ref sc) = rules.safety_category
     {
         return sc == "iso";

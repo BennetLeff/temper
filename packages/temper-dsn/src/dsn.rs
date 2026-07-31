@@ -82,7 +82,7 @@ pub fn compute_dsn_schema_hash(
 ) -> String {
     let mut schema = serde_json::Map::new();
 
-    let mut names_sorted = layer_names.clone();
+    let mut names_sorted = layer_names;
     names_sorted.sort();
     let mut types_map = serde_json::Map::new();
     for name in &names_sorted {
@@ -103,7 +103,7 @@ pub fn compute_dsn_schema_hash(
     }
     schema.insert("footprints".into(), serde_json::Value::Object(fp_obj));
 
-    let mut nets_sorted = nets.clone();
+    let mut nets_sorted = nets;
     nets_sorted.sort();
     schema.insert("nets".into(), serde_json::Value::Array(nets_sorted.into_iter().map(serde_json::Value::String).collect()));
 

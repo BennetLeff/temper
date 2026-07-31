@@ -338,7 +338,14 @@ impl Component {
     /// with the other component's footprint.
     pub fn overlaps(&self, other: &Component) -> bool {
         match (&self.footprint_polygon, &other.footprint_polygon) {
-            (Some(p1), Some(p2)) => p1.intersects(p2),
+            (Some(p1), Some(p2)) => {
+                // Polygon intersection implies bbox intersection (each polygon
+                // is contained in its width/height bbox), so the bbox gate is
+                // a sound early-out for the expensive polygon intersection
+                // test. geo's Rect::intersects is inclusive, so touching
+                // bboxes are not rejected.
+                self.footprint_bbox().intersects(&other.footprint_bbox()) && p1.intersects(p2)
+            }
             _ => {
                 let b1 = self.footprint_bbox();
                 let b2 = other.footprint_bbox();

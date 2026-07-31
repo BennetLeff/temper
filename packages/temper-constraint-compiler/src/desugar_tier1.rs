@@ -1,6 +1,7 @@
 use crate::desugar_tier0::CompileError;
-use crate::ir_tier1::{ChannelTopology, ResolvedConstraint, ResolvedConstraintModel};
+use crate::ir_tier1::{Channel, ChannelTopology, ResolvedConstraint, ResolvedConstraintModel};
 use crate::provenance::ProvenanceMap;
+use std::collections::HashMap;
 use temper_rust_router_core::types::InternalConstraint;
 
 pub type DesugarRuleTier1 = fn(
@@ -47,7 +48,7 @@ fn desugar_separation_tier1(
         let shared = topology.shared_channels(*net_a, *net_b);
         let mut constraints = Vec::new();
 
-        for channel in &shared {
+        for channel in shared {
             let width_budget = channel.width_mm - min_distance_mm;
 
             if width_budget < 0.0 {
@@ -98,7 +99,7 @@ fn desugar_adjacency_tier1(
         let shared = topology.shared_channels(*net_a, *net_b);
         let mut constraints = Vec::new();
 
-        for channel in &shared {
+        for channel in shared {
             if channel.width_mm >= *max_distance_mm {
                 constraints.push(InternalConstraint::DiffPair {
                     channel_id: channel.id.clone(),
@@ -132,17 +133,29 @@ fn desugar_zone_enclosing_tier1(
         let _zone = zone_bounds;
         let mut constraints = Vec::new();
 
+        // Index nets -> channels once so the per-net scan below is O(channels
+        // touching the net) instead of O(all channels x channel.nets). The
+        // per-net order preserves topology.channels order (we push in scan
+        // order), matching the original nested-scan iteration.
+        let net_channels: HashMap<usize, Vec<&Channel>> = {
+            let mut m: HashMap<usize, Vec<&Channel>> = HashMap::new();
+            for ch in &topology.channels {
+                for &n in &ch.nets {
+                    m.entry(n).or_default().push(ch);
+                }
+            }
+            m
+        };
+
         for &net in nets {
-            for channel in &topology.channels {
-                if channel.nets.contains(&net) {
-                    let is_inside_zone = channel_in_zone(channel, zone_bounds);
-                    if !is_inside_zone && *tier == ConstraintTier::Hard {
-                        constraints.push(InternalConstraint::LayerRestriction {
-                            var_name: emit_var_name(net, &channel.id),
-                            allowed: false,
-                        });
-                        prov.link_clause(0, *prov_ref);
-                    }
+            for channel in net_channels.get(&net).into_iter().flatten() {
+                let is_inside_zone = channel_in_zone(channel, zone_bounds);
+                if !is_inside_zone && *tier == ConstraintTier::Hard {
+                    constraints.push(InternalConstraint::LayerRestriction {
+                        var_name: emit_var_name(net, &channel.id),
+                        allowed: false,
+                    });
+                    prov.link_clause(0, *prov_ref);
                 }
             }
         }
