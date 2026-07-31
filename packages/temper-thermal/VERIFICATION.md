@@ -84,3 +84,51 @@ reference for zero measured benefit. scipy stays; the measured contract
 above is the recorded tolerance for any future solver change. The
 assembly-side win (the roadmap's "10-50x matrix assembly" target) is
 delivered; the solve was never the Python hot loop.
+
+---
+
+# RTD Safety Model — Verification by Induction
+
+Wave 2 slice of the Python→Rust migration roadmap
+(docs/plans/2026-07-23-003): the deterministic PT100/MAX31865
+safety-threshold model from `temper_placer/validation/rtd_safety.py`
+(the THM-adjacent thermal protection chain), ported to
+`temper_thermal.rtd`.
+
+## Base Case
+
+`resistance_to_code(0.0, rref)` returns 0 and
+`resistance_to_code(R, rref)` for R small is
+`floor(32768·R/rref)` — the Rust core and the pinned Python oracle
+agree bit-for-bit. For a zero-width valid window the derivation
+reports an overlap (status 1 or 2) exactly as the reference raises.
+
+## Inductive Step
+
+All ported functions are scalar evaluations: each output is a pure
+function of its inputs with the exact f64 operation order of the
+reference (e.g. `max31865_rtd_voltage_v = r * (vbias / (rref + r))` —
+two operations, not `(r·vbias)/(rref+r)`; the derivation's
+`(nom_min + nom_max) / 2.0` midpoint). The floor/ceil integer
+conversions and the clamped 15-bit code mirror Python's `min`,
+`floor`, and `ceil` semantics exactly. The overlap status codes
+(0=ok, 1=low overlap, 2=high overlap) let the Python wrapper raise the
+reference ValueError messages verbatim.
+
+## Empirical Verification
+
+The differential suite
+(`packages/temper-placer/tests/validation/test_rtd_safety_rust_differential.py`)
+pins all nine ported functions bit-exactly against the pre-migration
+implementations (1000 resistance-code samples, 500 threshold-code
+samples, 500 voltage/divider/SPI samples, and 300 random corner
+derivations per window type with overlap agreement). The pre-existing
+property suites (`test_rtd_safety_pbt.py`, `test_rtd_window_comparator_pbt.py`,
+`test_rtd_fault_latch_pbt.py`, 28 tests) now exercise the Rust core
+through the wrappers.
+
+**Kept in Python deliberately:** the corner dataclasses, the
+ValueError validation guards (interface contract), and the digital
+state machines (`SimulatedDigitalRtdService`, `VirtualRtdBoard`,
+latch settling) — protocol logic, not math; migrating them would
+churn the consumer surface without a compute or safety win.
