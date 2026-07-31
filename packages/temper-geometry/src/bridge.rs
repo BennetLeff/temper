@@ -10,6 +10,10 @@ use crate::channel_widths::edt_width_lookup_batch;
 use crate::copper_coverage::rasterise_polygon_mask;
 use crate::corridor::extract_corridor_mask;
 use crate::{barrier_axis_gap_py, best_rotation_for_barrier_py, pad_axis_radius_py, pad_bounding_radius_py, pad_corner_radius_py, pad_core_half_extents_py, pad_support_radius_py, spice_infer_unit_py, spice_loop_inductance_py};
+use crate::clearance_geometry::{
+    component_reach_py, copper_scan_py, origin_distance_py, pad_pair_distance_py,
+    rotate_local_to_world_py,
+};
 
 
 
@@ -1438,6 +1442,13 @@ pub fn register_functions(m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     // channel widths
     m.add_function(wrap_pyfunction!(edt_width_lookup_batch, m)?)?;
+
+    // clearance geometry (Wave 3: REQ-SAFE-01 validator geometry)
+    m.add_function(wrap_pyfunction!(rotate_local_to_world_py, m)?)?;
+    m.add_function(wrap_pyfunction!(origin_distance_py, m)?)?;
+    m.add_function(wrap_pyfunction!(component_reach_py, m)?)?;
+    m.add_function(wrap_pyfunction!(pad_pair_distance_py, m)?)?;
+    m.add_function(wrap_pyfunction!(copper_scan_py, m)?)?;
 
     Ok(())
 }
