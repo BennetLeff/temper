@@ -348,7 +348,9 @@ class CpSatModel:
                     f"cannot fix it to {rotation_index}"
                 )
             return  # consistent no-op: already pinned at 0
-        self.model_ref.Add(component.rot_ref == rotation_index)  # type: ignore[operator]
+        rot_ref = component.rot_ref
+        assert rot_ref is not None, f"{ref} has no rotation variable"
+        self.model_ref.Add(rot_ref == rotation_index)
 
     # ------------------------------------------------------------------
     # Assumptions

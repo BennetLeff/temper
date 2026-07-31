@@ -413,8 +413,8 @@ def generate_unclassified_hv_keepaway_constraints(
         audit (which filters on ``domain_clearance_``) can be extended to
         them the same way if desired.
     """
-    exempt = exempt_pairs or frozenset()
-    domains = hv_domains or _HV_DOMAINS
+    exempt: set[frozenset[str]] = exempt_pairs if exempt_pairs is not None else set()
+    domains: set[VoltageDomain] = hv_domains if hv_domains is not None else _HV_DOMAINS
     margin = margin_mm if margin_mm is not None else MAX_IEC_MARGIN_MM
 
     nets_domain = _nets_domain_map(placement, voltage_domains)

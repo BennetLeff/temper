@@ -1,6 +1,6 @@
 # Minimum-displacement clearance repair machinery (issue #504): build + board findings
 
-<!-- provenance: commit=ac901d4d4886d79bfd8f2753863a9d7485e3fb2c dirty=true (branch fix/clearance-resolve-reroute-loop, based on origin/main 4a387393e; measurements taken on pcb/temper.kicad_pcb at that base, read-only) -->
+<!-- provenance: commit=4a8b721b642b6fdf2dbe0ed2409df6fb4a275d45 dirty=true (branch fix/clearance-resolve-reroute-loop, based on origin/main 4a387393e; measurements taken on pcb/temper.kicad_pcb at that base, read-only) -->
 
 **Date:** 2026-07-31
 **Scope:** machinery only — `packages/temper-placer` solve-pipeline additions +
