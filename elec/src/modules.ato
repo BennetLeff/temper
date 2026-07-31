@@ -1065,12 +1065,31 @@ module BusDischarge:
     aux-supply fault, MCU dead) drops the coils and the NC contacts close
     -> discharge engages with no MCU involvement.
 
-    RELAY REPLACEMENT TRIED AND REVERTED 2026-07-28 -- READ BEFORE
-    TOUCHING K2/K3 AGAIN. K2/K3 are Omron G5LE-1 SPDT relays (Relay_SPDT,
-    single NC contact per relay), same as always. A same-day attempt to
-    replace them with Finder 40.52.7.012.0000 (Relay_DPDT, 2-pole) was
-    implemented, then RETRACTED after a follow-up measurement invalidated
-    its own stated justification. Full trail:
+    RELAY REPLACEMENT LANDED 2026-07-31. K2/K3 now use TE Connectivity /
+    Schrack RT314012 (RT1 family, Relay_SPDT), footprint
+    temper:Relay_SPDT_Schrack-RT314012. Coil-to-contact copper gap
+    12.76 mm computed by hand from the footprint geometry, independently
+    reproducing the 12.760 mm the sourcing analysis derived from the
+    datasheet (see that footprint's descr for the ENG_DS_RT1_0718
+    extraction trail) -- clears the 8.0 mm reinforced-creepage bar
+    (1.6x) and the 6.0 mm pollution-degree-independent clearance
+    minimum (2.1x). Coil 360 ohm +/-10% / 400 mW / 12VDC rated, 8.4V
+    must-operate (70% of rated): identical R/P to the outgoing G5LE-1,
+    so the 100R dropper from the 15V rail is unaffected (~11.7V at the
+    coil, 1.4x must-operate). Contacts 16A/250VAC, 400VAC max switching
+    voltage, AgNi 90/10. Pad numbering matches this project's Relay_SPDT
+    convention (2/5 coil, 1 COM, 3 NO, 4 NC), so no wiring changes were
+    needed. The 2026-07-28 excursion below (Finder 40.52, tried and
+    reverted) is preserved as history -- its geometry findings remain
+    the reason no same-pitch family part is reintroduced without a
+    datasheet-cited pitch.
+
+    HISTORY -- RELAY REPLACEMENT TRIED AND REVERTED 2026-07-28. K2/K3
+    were Omron G5LE-1 SPDT relays (Relay_SPDT, single NC contact per
+    relay) until the 2026-07-31 landing above. A same-day attempt on
+    2026-07-28 to replace them with Finder 40.52.7.012.0000 (Relay_DPDT,
+    2-pole) was implemented, then RETRACTED after a follow-up measurement
+    invalidated its own stated justification. Full trail:
     docs/evidence/2026-07-28-discharge-relay-isolation.md (candidate
     search) -> docs/evidence/2026-07-28-relay-replacement-implementation.md
     (adopted Finder, claimed 9.2mm edge-to-edge coil<->contact PCB
@@ -1088,15 +1107,17 @@ module BusDischarge:
     (this decision: REVERTED rather than resynced the board to the
     inadequate part -- see that doc for the full reasoning).
 
-    NET EFFECT OF THE REVERT: G5LE-1 is restored, unchanged from before
-    this excursion. This is NOT a fix -- the G5LE-1's own isolation gap
-    (below) is exactly as unresolved as it was before the Finder attempt.
-    The Finder part was not worse on isolation (5.3mm > 3.5mm edge-to-
-    edge, though both fail both targets) and was a genuine improvement on
-    DC-break disclosure (an explicit manufacturer DC1 graph vs. the
-    G5LE-1's total silence above 125VDC) -- but it did not satisfy this
-    project's own three-way bar (reinforced isolation AND rated DC break
-    AND fail-safe NC topology, all three) any more than the G5LE-1 does,
+    NET EFFECT OF THE REVERT: G5LE-1 was restored, unchanged from before
+    this excursion -- until the 2026-07-31 replacement landed (above),
+    which supersedes it. This is NOT a fix -- the G5LE-1's own isolation
+    gap (below) is exactly as unresolved as it was before the Finder
+    attempt. The Finder part was not worse on isolation (5.3mm > 3.5mm
+    edge-to-edge, though both fail both targets) and was a genuine
+    improvement on DC-break disclosure (an explicit manufacturer DC1
+    graph vs. the G5LE-1's total silence above 125VDC) -- but it did
+    not satisfy this project's own three-way bar (reinforced isolation
+    AND rated DC break AND fail-safe NC topology, all three) any more
+    than the G5LE-1 does,
     so swapping to it would not have made this circuit safety-compliant,
     only differently non-compliant, while ALSO making the board/netlist
     inconsistency the new "must fix eventually" instead of the isolation
@@ -1105,11 +1126,16 @@ module BusDischarge:
     fail-safe topology, with a coil-to-nearest-contact pin pitch of
     roughly DOUBLE the Finder 40.52's 7.5mm (~14.4-14.8mm) so the PCB
     surface path itself can clear 12.6mm without depending on any
-    internal-vs-external-path argument. No such part has been found and
-    verified as of this note -- do not resurrect Relay_DPDT/the Finder
-    40.52.7.012.0000 footprint for K2/K3 without first fetching and
-    citing a manufacturer datasheet proving that pitch (see
-    scripts/mpn_fabrication_gate.py's hard rule against unverified MPNs).
+    internal-vs-external-path argument. SUPERSEDED 2026-07-31 by the
+    RT314012 landing above: its 15.26mm coil-to-nearest-contact
+    center-to-center pitch (12.76mm edge-to-edge at these pad sizes) is
+    exactly the ~14.4-14.8mm-class pitch this paragraph demands, and it
+    was verified from the manufacturer's own dimensioned drawing (see
+    the footprint's descr) before adoption. Do not resurrect
+    Relay_DPDT/the Finder 40.52.7.012.0000 footprint for K2/K3 without
+    first fetching and citing a manufacturer datasheet proving that
+    pitch (see scripts/mpn_fabrication_gate.py's hard rule against
+    unverified MPNs).
     No `Relay_DPDT` component is defined in this design. It deliberately
     does not exist: an instantiable definition of a part measured to fail
     reinforced insulation is a trap whose only safeguard would be a human
@@ -1153,7 +1179,11 @@ module BusDischarge:
     K100-E1-08, ratings table + max switching capacity curve): max
     switching voltage is 125VDC (30VDC where UL/CSA is applied) and the DC
     load curve ends at 125V -- a 170VDC break is out-of-catalog at ANY
-    current, unchanged conclusion at the new current. 21.8mA remains far
+    current, unchanged conclusion at the new current. (The RT314012
+    swapped in 2026-07-31 is rated 16A/250VAC, 400VAC max switching
+    voltage, AgNi 90/10; the snubber analysis below is the DC-break
+    mechanism this design relies on at 170VDC -- see the relay's
+    footprint descr for the datasheet extraction.) 21.8mA remains far
     below the ~0.4A minimum arc-sustain current of Ag contacts (5.4% of
     it, same order of magnitude as before), so each NC contact keeps its
     RC snubber (100R 2W pulse-withstanding + 470nF/630V PP film, both
@@ -1165,7 +1195,9 @@ module BusDischarge:
 
     Coil budget: 2 x 33mA from the 15V rail, only while running. Each
     coil gets its own 100R dropper (15V -> ~11.7V at the 360R coil,
-    97.5% of rated; G5LE must-operate voltage is 75% of rated)."""
+    97.5% of rated; RT314012 must-operate voltage is 8.4V, 70% of
+    rated -- 1.4x must-operate margin at the dropper point, better
+    than the G5LE-1's 1.3x)."""
 
     # HV side: half-bus taps (Top wires these to dc_bus_plus /
     # power_return / dc_bus_minus)
@@ -1178,32 +1210,28 @@ module BusDischarge:
     signal ctrl
     power_15v = new ElectricPower
 
-    # Discharge relays: Omron G5LE-1 DC12, SPDT so the NC contact is
-    # available (the existing bypass relay G4A-1A-E is NO-only).
-    # VERIFIED 2026-07-16 (Omron G5LE catalog): contacts 10A / 250VAC,
-    # NC contact rated 10A carry; 12VDC coil 360R / 33.3mA / 400mW;
-    # coil-contact dielectric 2000VAC, impulse 4.5kV. NOT REINFORCED
-    # ISOLATION -- see RELAY REPLACEMENT TRIED AND REVERTED above: this
-    # part fails the 8.0/12.6mm coil<->contact creepage requirement
-    # (3.50mm edge-to-edge measured) and has no DC contact-voltage rating
-    # at this circuit's actual 170-200V duty at all. A same-day attempt
-    # to replace it (Finder 40.52.7.012.0000) was tried and reverted --
-    # this is a KNOWN, TRACKED, UNRESOLVED gap, not a silently-dropped
-    # requirement. Do not re-introduce Relay_DPDT here without a
-    # manufacturer-verified part at ~14.4-14.8mm coil-to-contact pin
-    # pitch (see the note above and
-    # docs/evidence/2026-07-28-relay-board-resync-decision.md).
+    # Discharge relays: TE Connectivity / Schrack RT314012 (RT1 family),
+    # SPDT so the NC contact is available (the existing bypass relay
+    # G4A-1A-E is NO-only). REPLACED the Omron G5LE-1 DC12 2026-07-31
+    # (see RELAY REPLACEMENT LANDED above): the G5LE-1's 3.559mm
+    # coil-to-contact gap failed the 8.0mm reinforced creepage and the
+    # 6.0mm PD-independent clearance minimum; the RT314012's 12.76mm
+    # clears both (1.6x / 2.1x). VERIFIED from the ENG_DS_RT1_0718
+    # datasheet (footprint descr carries the extraction trail):
+    # contacts 16A / 250VAC, 400VAC max switching voltage, AgNi 90/10;
+    # 12VDC coil 360R +/-10% / 400mW -- identical R/P to the outgoing
+    # G5LE-1, so the 100R dropper and flyback diode are unchanged.
     k_dis1 = new Relay_SPDT
     k_dis1.coil_voltage = 12V
     k_dis1.contact_current = 10A
-    k_dis1.mpn = "G5LE-1 DC12"
-    k_dis1.footprint = "Relay_THT:Relay_SPDT_Omron-G5LE-1"
+    k_dis1.mpn = "RT314012"
+    k_dis1.footprint = "temper:Relay_SPDT_Schrack-RT314012"
 
     k_dis2 = new Relay_SPDT
     k_dis2.coil_voltage = 12V
     k_dis2.contact_current = 10A
-    k_dis2.mpn = "G5LE-1 DC12"
-    k_dis2.footprint = "Relay_THT:Relay_SPDT_Omron-G5LE-1"
+    k_dis2.mpn = "RT314012"
+    k_dis2.footprint = "temper:Relay_SPDT_Schrack-RT314012"
 
     # Discharge resistors: Vishay AC05 cemented wirewound, 3.9k 5% 5W,
     # axial ~18mm body, AEC-Q200, all-welded -- RESIZED 2026-07-27 from

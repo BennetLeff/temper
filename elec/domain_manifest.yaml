@@ -420,15 +420,18 @@ isolators:
       "4": "COM (mains contact)"
 
   - instance_path: discharge.k_dis1
-    # REVERTED 2026-07-28: a same-day Finder 40.52.7.012.0000 (Relay_DPDT)
-    # swap for this instance (docs/evidence/
-    # 2026-07-28-relay-replacement-implementation.md) was retracted after
-    # its own creepage justification was found invalid
+    # REPLACED 2026-07-31: TE Schrack RT314012 (temper:Relay_SPDT_Schrack-
+    # RT314012) landed on K2/K3, clearing the 8.0mm reinforced creepage
+    # and 6.0mm clearance minima (12.76mm coil-to-contact gap, measured
+    # from the footprint geometry). Prior history: a 2026-07-28 Finder
+    # 40.52.7.012.0000 (Relay_DPDT) swap attempt was retracted after its
+    # own creepage justification was found invalid
     # (docs/evidence/2026-07-28-pd3-retarget-relay.md,
-    # docs/evidence/2026-07-28-relay-board-resync-decision.md). Back to
-    # Omron G5LE-1 (Relay_SPDT) -- NOT a fix, this part's own isolation
-    # gap is unresolved, see elec/src/modules.ato BusDischarge docstring.
-    component: "Omron G5LE-1 DC12 (Relay_SPDT), discharge relay 1"
+    # docs/evidence/2026-07-28-relay-board-resync-decision.md), and the
+    # Omron G5LE-1 was restored; the G5LE-1's isolation gap is now
+    # superseded by the RT314012 -- see elec/src/modules.ato BusDischarge
+    # docstring.
+    component: "TE Connectivity / Schrack RT314012 (Relay_SPDT), discharge relay 1"
     groups:
       coil: ["2", "5"]           # coil1, coil2
       contacts: ["1", "3", "4"]  # COM, NO, NC
@@ -438,8 +441,8 @@ isolators:
       "1": "COM (HV bus contact)"
 
   - instance_path: discharge.k_dis2
-    # REVERTED 2026-07-28 -- see discharge.k_dis1 above.
-    component: "Omron G5LE-1 DC12 (Relay_SPDT), discharge relay 2"
+    # REPLACED 2026-07-31 -- see discharge.k_dis1 above.
+    component: "TE Connectivity / Schrack RT314012 (Relay_SPDT), discharge relay 2"
     groups:
       coil: ["2", "5"]
       contacts: ["1", "3", "4"]
