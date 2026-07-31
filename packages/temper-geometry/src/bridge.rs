@@ -9,6 +9,11 @@ use pyo3::prelude::*;
 use crate::channel_widths::edt_width_lookup_batch;
 use crate::copper_coverage::rasterise_polygon_mask;
 use crate::corridor::extract_corridor_mask;
+use crate::grid_raster::{
+    block_circle_into_grid_py, block_rect_into_grid_py, block_segment_into_grid_py,
+    clear_circle_from_grid_py, closest_component_for_zone_py, effective_creepage_py,
+    fence_samples_py, occupancy_bitmap_row_py,
+};
 use crate::{barrier_axis_gap_py, best_rotation_for_barrier_py, pad_axis_radius_py, pad_bounding_radius_py, pad_corner_radius_py, pad_core_half_extents_py, pad_support_radius_py, spice_infer_unit_py, spice_loop_inductance_py};
 
 
@@ -1438,6 +1443,16 @@ pub fn register_functions(m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     // channel widths
     m.add_function(wrap_pyfunction!(edt_width_lookup_batch, m)?)?;
+
+    // grid rasterisation (Wave 3 candidate #1: ClearanceGrid compute)
+    m.add_function(wrap_pyfunction!(block_circle_into_grid_py, m)?)?;
+    m.add_function(wrap_pyfunction!(block_segment_into_grid_py, m)?)?;
+    m.add_function(wrap_pyfunction!(block_rect_into_grid_py, m)?)?;
+    m.add_function(wrap_pyfunction!(clear_circle_from_grid_py, m)?)?;
+    m.add_function(wrap_pyfunction!(occupancy_bitmap_row_py, m)?)?;
+    m.add_function(wrap_pyfunction!(fence_samples_py, m)?)?;
+    m.add_function(wrap_pyfunction!(effective_creepage_py, m)?)?;
+    m.add_function(wrap_pyfunction!(closest_component_for_zone_py, m)?)?;
 
     Ok(())
 }

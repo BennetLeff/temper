@@ -19,6 +19,12 @@ pub use spice_estimators::{spice_infer_unit_py, spice_loop_inductance_py};
 pub mod corridor;
 pub mod copper_coverage;
 pub mod channel_widths;
+pub mod grid_raster;
+pub use grid_raster::{
+    block_circle_into_grid_py, block_rect_into_grid_py, block_segment_into_grid_py,
+    clear_circle_from_grid_py, closest_component_for_zone_py, effective_creepage_py,
+    fence_samples_py, occupancy_bitmap_row_py,
+};
 mod bridge;
 
 use pyo3::prelude::*;

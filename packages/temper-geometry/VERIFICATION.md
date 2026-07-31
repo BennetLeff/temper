@@ -262,4 +262,90 @@ implementations. The pre-existing `test_spice.py` +
 `test_spice_templates.py` suites (63 tests) now exercise the Rust
 estimators through the wrappers.
 
+## ClearanceGrid Rasterisation + Fence + HV Compute — Verification by Induction (Wave 3, 2026-07-31)
+
+Wave 3 candidate #1: the rasterisation kernels of
+`deterministic/stages/_grid_core.py` (`block_circle` / `_block_segment` /
+`block_rect` / `unblock_circle` inner loops and `occupancy_bitmap`), the
+U3 fence's sample geometry in `_grid_fence.py`, and the creepage-factor /
+closest-component compute in `_grid_hv.py` moved to
+`packages/temper-geometry/src/grid_raster.rs`. The deterministic-stage
+orchestration (bbox computation, net-id resolution, expansion-log
+bookkeeping, violation assembly, ConfigError raising, layer-set
+membership) stays Python; the modules keep their public API and
+delegate.
+
+**Base case:** a 1×1 grid with a disc of radius 0.5 centred on the cell
+centre — the kernel evaluates one cell centre against
+`pow(pow(dx, 2) + pow(dy, 2), 0.5) <= r` and either writes `net_id` or
+leaves 0; the Rust kernel and the pinned pure-Python oracle agree
+bit-for-bit on the resulting cell (asserted in the differential suite).
+The same holds for the segment kernel's one-cell projection, the
+rect kernel's single integer merge, the bitmap kernel's single word,
+the fence's first circle sample, and `effective_creepage`'s two arms.
+
+**Inductive step:** each kernel is a loop over *independent* cells in a
+closed bbox `[min_row, max_row) × [min_col, max_col)`; every cell's
+decision is a pure function of its own centre, the shape parameters,
+and the *current value of that one cell* (the merge rule reads only
+`grid[row, col]` — no cross-cell interaction). Appending a row or
+column, or enlarging the bbox, evaluates the same formula on new
+centres and never perturbs already-evaluated cells, so correctness on
+an h×w bbox extends by induction to any bbox. The merge operation is
+idempotent and order-independent per cell (0 → net_id, net_id → keep,
+anything else → −1), which is what the PBT round-trip and
+commutativity metamorphic relations pin.
+
+Three bit-exactness details carried across, each a measured pitfall
+class from earlier waves:
+
+1. `x ** 2` and `x ** 0.5` in the Python reference are libm
+   `pow(x, 2.0)` / `pow(x, 0.5)` (CPython `float_pow`), not `x * x` /
+   `sqrt`; the kernels resolve `pow` via `dlsym` so they call the exact
+   libm of the host Python runtime (the uv standalone build's libm can
+   differ from the crate's statically-bound f64 intrinsics in the last
+   ulp — see `pad_geometry.rs`).
+2. `math.cos` / `math.sin` are likewise dlsym-resolved for the fence's
+   circle samples; `theta = 2.0 * math.pi * i / n` is a three-op
+   left-to-right chain (and `math.pi` == `std::f64::consts::PI`
+   bit-for-bit).
+3. The segment kernel's `t = max(0.0, min(1.0, t))` is evaluated as
+   `(1.0_f64.min(t_raw)).max(0.0)` — NOT `t_raw.max(0.0).min(1.0)`: for
+   `t_raw = NaN` (zero-length segment, unreachable from the Python
+   method's early return but reachable at the kernel level) CPython's
+   `min` keeps its first argument, so `t` clamps to 1.0 and the
+   degenerate segment blocks a circle around its endpoint; only the
+   min-then-max nesting reproduces that.
+
+**Empirical verification:** the differential suite
+(`packages/temper-placer/tests/deterministic/test_grid_core_rust_differential.py`,
+`test_grid_fence_rust_differential.py`, `test_grid_hv_rust_differential.py`)
+pins all eight kernels bit-exactly against the pre-migration
+implementations copied verbatim: 500 randomized inputs per kernel
+(pre-populated grids with nets/conflicts/obstacles, out-of-bbox
+centres, boundary radii), plus end-to-end parity through the public
+`ClearanceGrid` methods (bbox + kernel + net-id resolution together,
+25–15 seeds each). PBT (`test_grid_core_pbt.py` / `test_grid_fence_pbt.py`
+/ `test_grid_hv_pbt.py`): 15 invariants, ~100–150 examples each, all
+with vacuity guards — merge-domain, bbox-boundedness, radius
+monotonicity, transpose symmetry, block-then-unblock round trip; ring
+and expanded-rect boundary membership, sample-count linearity, eff
+monotonicity, shape fallthrough; creepage identity/scaling/bounds and
+nearest-wins first-min selection. Metamorphic relations (3 per kernel):
+integer-cell translation (exact for power-of-two cells + dyadic
+centres), net-merge commutativity (conflict/blocked masks), circle ≡
+degenerate-segment, segment reversal on lattice segments, rect size
+subset + idempotence, unblock round-trip/idempotence/identity, bitmap
+zero/union/trace-pad symmetry, fence count-doubling (bit-exact: 2π·2i/2n
+== 2π·i/n), rect outward monotonicity, unknown-shape fallthrough,
+closest-component append/duplicate/removal stability, creepage
+doubling (2·fl(b·0.3) == fl(2b·0.3)) and inner ≤ outer. The
+pre-existing suites (`test_clearance_grid.py`, `test_4layer_grid.py`,
+`test_router_v6_fence_integration.py`, `test_stage_invariants.py`,
+bottleneck-geometry consumers) pass unchanged against the Rust-backed
+wrappers; `_grid_core.py` no longer imports numba (the module's
+documented cold-start cost — the migration's perf win). The Rust module
+carries 11 unit tests covering merge semantics, degenerate inputs, and
+word/boundary layout.
+
 ## PBT Properties Verified
