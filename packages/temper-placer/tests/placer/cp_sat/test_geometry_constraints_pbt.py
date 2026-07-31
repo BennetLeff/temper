@@ -13,6 +13,23 @@ P8: Bounds enclose pads — every component's parsed bounds contain all its pads
     but DRC checks pads. If bounds ⊉ pads, P1 is green while DRC fails.
     This test guards the territory.
 P9: Golden temper board — bounds ⊇ pads for all 33 components on the real board.
+P10: Bounds are computed in the SAME frame as the placement position.
+    ``_calculate_footprint_bounds`` returns a box symmetric around
+    ``(center_offset_x, center_offset_y)``, but ``Component.initial_position``
+    (what CP-SAT actually centres the box at) and ``Pin.position`` (what
+    ``_component_pads``/the REQ-SAFE-01 validator resolve pad copper from)
+    are both expressed relative to the pad-centroid ``center_offset`` computed
+    in ``_extract_components_from_pcb`` -- NOT the footprint's raw KiCad
+    anchor. A symmetric box computed around the wrong point can fail to
+    enclose real copper once a component has pads asymmetric enough that the
+    centroid and the extent midpoint diverge -- a second instance of the
+    "off-centre pad offset defeats centered component bounds" bug class (see
+    docs/solutions/logic-errors/off-center-pad-offset-defeats-centered-bounds-2026-07-08.md),
+    reintroduced by the later pad-centroid recentering P8/P9 predate. This
+    test fails on a synthetic two-pad footprint if ``_calculate_footprint_bounds``
+    is ever called without the ``center_offset`` it must be threaded
+    (regression guard for
+    docs/evidence/2026-07-30-domain-clearance-copper-aware-fix.md).
 """
 
 from __future__ import annotations
@@ -398,4 +415,103 @@ def test_golden_temper_board_bounds_enclose_pads():
 
     assert not violations, f"{len(violations)} components have pads outside bounds:\n" + "\n".join(
         violations[:10]
+    )
+
+
+# ---------------------------------------------------------------------------
+# P10: comp.bounds must be computed in the SAME frame as the placement
+# position (center_offset), not the footprint's raw KiCad anchor.
+# ---------------------------------------------------------------------------
+
+
+def _asym_pad_footprint_pcb(path) -> None:
+    """A single footprint with two pads of very different sizes, positioned
+    so the pad-CENTROID (what ``initial_position``/``Pin.position`` are
+    expressed relative to -- ``_extract_components_from_pcb``'s
+    ``center_offset``) diverges from the pad-EXTENT midpoint (what a box
+    symmetric around the raw KiCad anchor implicitly assumes is close to the
+    placement centre).
+
+    Pad 1: centre x=-5, half-width 6  -> extent [-11, 1]
+    Pad 2: centre x=+8, half-width 0.5 -> extent [7.5, 8.5]
+
+    center_offset_x = (-5 + 8) / 2 = 1.5
+    True combined extent, RELATIVE TO THAT SHIFTED CENTRE (the frame
+    ``Pin.position`` actually uses): [-11 - 1.5, 8.5 - 1.5] = [-12.5, 7].
+
+    A box computed symmetric around the *raw* anchor (0, 0) -- the pre-fix
+    behaviour, ``_calculate_footprint_bounds(fp)`` with no offset argument --
+    has half-width ``max(11, 8.5) = 11``, i.e. covers only [-11, 11] once
+    centred at the shifted point: it misses 1.5mm of pad 1's real copper.
+    The fixed code threads ``center_offset`` through and gets half-width
+    ``max(12.5, 7) = 12.5``, covering [-12.5, 12.5] -- correct.
+    """
+    path.write_text(
+        "(kicad_pcb (version 20211014) (generator test)\n"
+        "  (general (thickness 1.6))\n"
+        '  (layers (0 "F.Cu" signal) (31 "B.Cu" signal))\n'
+        '  (net 0 "")\n'
+        '  (net 1 "n1")\n'
+        '  (net 2 "n2")\n'
+        '  (footprint "TEST:ASYM" (layer "F.Cu")\n'
+        "    (at 100 100 0)\n"
+        '    (property "Reference" "U9")\n'
+        '    (pad "1" smd rect (at -5 0) (size 12 2) '
+        '(layers "F.Cu" "F.Mask" "F.Paste")\n'
+        '      (net 1 "n1"))\n'
+        '    (pad "2" smd rect (at 8 0) (size 1 2) '
+        '(layers "F.Cu" "F.Mask" "F.Paste")\n'
+        '      (net 2 "n2"))\n'
+        "  )\n"
+        ")\n"
+    )
+
+
+def test_bounds_computed_in_placement_frame_not_raw_anchor(tmp_path):
+    """Regression test for the center_offset frame mismatch (R24/domain-
+    clearance-copper-aware fix, 2026-07-30).
+
+    Without the fix, this fails: ``_calculate_footprint_bounds(fp)`` (no
+    offset) returns a box that does not enclose pad 1's real extent once
+    recentred at the actual placement position. With the fix
+    (``_extract_components_from_pcb`` threading ``center_offset`` through),
+    the returned ``Component.bounds``/``Pin.position`` pair satisfies
+    ``pad extent ⊆ bounds`` exactly, including pad half-width (a stronger
+    check than P9's point-only containment).
+    """
+    pytest.importorskip("kiutils.board")
+    from temper_placer.io.kicad_parser import parse_kicad_pcb
+
+    pcb_path = tmp_path / "asym.kicad_pcb"
+    _asym_pad_footprint_pcb(pcb_path)
+
+    pr = parse_kicad_pcb(pcb_path)
+    (comp,) = pr.netlist.components
+    hw, hh = comp.bounds[0] / 2.0, comp.bounds[1] / 2.0
+
+    violations = []
+    for pin in comp.pins:
+        px, py = pin.position
+        pad_hw, pad_hh = pin.width / 2.0, pin.height / 2.0
+        if abs(px) + pad_hw > hw + 1e-9 or abs(py) + pad_hh > hh + 1e-9:
+            violations.append(
+                f"pad {pin.number} at ({px:.3f},{py:.3f}) size ({pin.width:.3f}x"
+                f"{pin.height:.3f}) extends to x=[{px - pad_hw:.3f},{px + pad_hw:.3f}] "
+                f"outside bounds half-width ±{hw:.3f}"
+            )
+
+    assert not violations, (
+        f"comp.bounds={comp.bounds} does not enclose real pad copper in the "
+        f"placement frame -- the box the CP-SAT SeparatedConstraint handler "
+        f"draws around this component's placed position would let another "
+        f"component's copper approach closer than the encoded margin implies:\n"
+        + "\n".join(violations)
+    )
+
+    # And directly pin the numbers from this counter-example's own derivation
+    # so a future refactor that "accidentally" restores correctness by a
+    # different, uncomputed coincidence still gets caught.
+    assert comp.bounds[0] == pytest.approx(25.0), (
+        f"expected half-width 12.5mm (max(|X_min-c|,|X_max-c|) = max(12.5,7)), "
+        f"got bounds={comp.bounds}"
     )

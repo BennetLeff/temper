@@ -127,7 +127,25 @@ def write_placements_to_pcb(
         x, y = update.x, update.y
         rotation_deg = update.rotation
 
-        # Convert from bounding-box-center to footprint-origin coordinates
+        # Convert from bounding-box-center to footprint-origin coordinates.
+        #
+        # Rotation sign: verified directly against ``pcbnew`` (KiCad's own
+        # placement engine) that a footprint's ``(at X Y ANGLE)`` rotates
+        # each pad's stored local offset *clockwise* by ANGLE to reach its
+        # absolute board position -- i.e. ``R(-ANGLE)`` in the standard
+        # (CCW-positive) trig convention used below, not ``R(+ANGLE)``. A
+        # 2-pad footprint at 37 deg with local pad offset (10, 4) places
+        # that pad at (10.393615, -2.823608) -- the R(-ANGLE) prediction to
+        # 6 decimal places; R(+ANGLE) predicts a different point,
+        # (5.579095, 9.212693). This function previously used the R(+ANGLE)
+        # sign, which silently re-offset every pad of a rotated,
+        # off-centroid footprint (an asymmetric TO-247, e.g.) by up to
+        # ``2 * center_offset`` mm -- invisible whenever a component's
+        # rotation happens not to change across a write (old and new angle
+        # both feed the same wrong sign, so the position error cancels),
+        # but real and safety-relevant the moment a re-solve actually
+        # rotates such a component. See
+        # docs/evidence/2026-07-30-generic-separation-writer-frame-fix.md.
         if ref in center_offsets:
             cx, cy = center_offsets[ref]
             rot_rad = math.radians(rotation_deg)
@@ -233,7 +251,11 @@ def state_to_placements(
         x = float(state.positions[i, 0]) + origin[0]
         y = float(state.positions[i, 1]) + origin[1]
 
-        # Subtract rotated center offset to convert to footprint origin
+        # Subtract rotated center offset to convert to footprint origin.
+        # Rotation sign matches write_placements_to_pcb above (KiCad rotates
+        # a pad's local offset *clockwise* by the footprint angle -- R(-ANGLE)
+        # in this function's standard-CCW trig convention, verified against
+        # pcbnew; see that function's docstring for the measurement).
         if ref in center_offsets:
             cx, cy = center_offsets[ref]
             rot_rad = math.radians(rotation_deg)

@@ -76,7 +76,6 @@ def _rotate(x: float, y: float, theta_rad: float) -> tuple[float, float]:
     confirming evidence (this is the REQ-SAFE-01 copper-position site: the
     12 independently-typed copies of this formula that module's docstring
     describes included this one).
-
     This repo's own KiCad parser (``io/_parse_modules.py``, which builds
     ``Component.initial_position`` as ``fp.position + R(-theta) *
     center_offset``) and writer (``io/_write_modules.py``,
@@ -319,4 +318,3 @@ def _creepage_from_clearance(straight_mm: float, cutouts: list[Any]) -> tuple[fl
         len(cutouts),
     )
     return straight_mm, CREEPAGE_MODEL_STRAIGHT_LINE_LOWER_BOUND
-
