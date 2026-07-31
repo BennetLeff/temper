@@ -90,6 +90,9 @@ def solve_placement(
     loop_components: dict[str, list[str]] | None = None,
     zone_components: dict[str, list[str]] | None = None,
     hint_positions: dict[str, tuple[float, float, int]] | None = None,
+    minimize_displacement_to: dict[str, tuple[float, float]] | None = None,
+    fixed_rotations: dict[str, int] | None = None,
+    max_displacement_mm: float | None = None,
     isolation_barrier: dict | None = None,
     fixed_positions: dict[str, tuple[float, float, int]] | None = None,
 ) -> CpSatPlacementResult:
@@ -114,6 +117,31 @@ def solve_placement(
             neighborhood (issue #504).  Rotation is pinned only when the ref
             has a rotation variable (polarized refs are pinned by
             construction to rot=0).
+        minimize_displacement_to: Optional reference coordinates for an
+            opt-in Manhattan-distance objective: ``{ref: (x_mm, y_mm)}``.
+            The objective is a *preference*, not a constraint -- hard
+            constraints stay authoritative and the solver returns the
+            feasible placement closest (in Manhattan distance) to the
+            reference.  This is the "minimum-displacement" half of the
+            route-aware repair loop (issue #504): a repair solve over a
+            routed board starts from the current positions, so components
+            only move as far as the clearance constraints force them, and
+            the existing routed copper is not disturbed wholesale the way a
+            free reshuffle disturbs it.
+        fixed_rotations: Optional hard pinning of component rotations to
+            their current 0-3 quadrant index: ``{ref: rotation_0_3}``.
+            Routed-board repair must not rotate footprints (a rotation moves
+            every pad, disconnecting the routed copper attached to it), so
+            repair callers pin every ref to its current board rotation.
+        max_displacement_mm: Optional hard per-component Manhattan
+            displacement bound applied to every ref in
+            ``minimize_displacement_to``: each such component may move at
+            most ``max_displacement_mm`` in total (|dx| + |dy|). This is
+            the bounded-repair formulation -- it *guarantees* the solved
+            placement stays inside a displacement envelope around the
+            current board (feasibility permitting), rather than trusting
+            the objective search to find a low-displacement solution. Only
+            meaningful together with ``minimize_displacement_to``.
         isolation_barrier: Optional kwargs forwarded to
             ``isolation_barrier.add_isolation_barrier_to_model`` (minus
             ``model``/``netlist``/``board_w_mm``/``board_h_mm``, which this
@@ -152,6 +180,15 @@ def solve_placement(
         # Add rotation unless it's a known polarized part.
         polarized = ref in _POLARIZED_REFS
         model_wrapper.add_rotation(ref, is_polarized=polarized)
+
+    # Routed-board repair: pin every requested component's rotation to its
+    # current board value (hard constraint). A rotation would move every pad
+    # and disconnect the routed copper attached to it, so repair callers
+    # pin all refs; the min-displacement objective then only has translation
+    # freedom to work with.
+    if fixed_rotations:
+        for ref, rot in fixed_rotations.items():
+            model_wrapper.add_fixed_rotation(ref, rot)
 
     # Load netclass rules early — needed for auto-generated cross-class
     # separation AND for computing courtyard clearance τ (U1).
@@ -249,6 +286,31 @@ def solve_placement(
             if cv.rot_ref is not None:
                 model_wrapper.model_ref.Add(cv.rot_ref == rot)  # type: ignore[operator]
 
+    # Minimum-displacement repair objective (issue #504): the solver returns
+    # the feasible placement closest (Manhattan) to these reference
+    # positions.  A preference, never a hard bound -- the objective is
+    # applied below via model_wrapper.apply_objective() BEFORE solving; this
+    # is what makes the parameter actually steer the solve (a previous,
+    # never-landed attempt registered objective terms without ever calling
+    # Minimize on this path, making the parameter a silent no-op).
+    if max_displacement_mm is not None and not minimize_displacement_to:
+        # Same no-op class as the #498 bug: a bound with no reference would
+        # silently constrain nothing. Fail loudly instead.
+        raise ValueError(
+            "max_displacement_mm requires minimize_displacement_to (the bound "
+            "applies to every ref in the reference dict)"
+        )
+    if minimize_displacement_to:
+        bound_units = None
+        if max_displacement_mm is not None:
+            bound_units = model_wrapper.mm_to_units(max_displacement_mm)
+        for ref, (x_mm, y_mm) in minimize_displacement_to.items():
+            model_wrapper.add_displacement_objective(
+                ref,
+                model_wrapper.mm_to_units(x_mm),
+                model_wrapper.mm_to_units(y_mm),
+                max_units=bound_units,
+            )
     # Build EncoderContext from board and netlist data.
     # Coerce every zone rectangle to a validated Rect (x_min,y_min,x_max,y_max)
     # so an inverted/degenerate zone — the (x,y,w,h) convention mismatch —
@@ -318,12 +380,22 @@ def solve_placement(
     # and bounded pair count.  The full O(n²) objective with 33 components
     # creates ~2100 extra variables and makes the solver hit the timeout.
     # See loop.py:_solve_phase2 for the polish path.
+    #
+    # Unless the caller explicitly requested an objective (e.g. the
+    # minimum-displacement repair objective above): apply_objective() is a
+    # no-op with no terms, so this path stays a plain feasibility solve.
 
     solver = cp.CpSolver()
     solver.parameters.max_time_in_seconds = timeout_ms / 1000.0
     solver.parameters.random_seed = seed
     solver.parameters.num_search_workers = 4
     solver.parameters.log_search_progress = False
+
+    # Apply the accumulated objective (if any) BEFORE solving.  This is the
+    # single point where the minimum-displacement objective becomes real:
+    # without it the terms registered by add_displacement_objective() would
+    # be collected and never used.
+    model_wrapper.apply_objective()
 
     status_code = solver.Solve(model_wrapper.model_ref)
     elapsed_ms = (time.monotonic() - t_start) * 1000.0
