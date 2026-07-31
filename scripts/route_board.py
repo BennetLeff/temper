@@ -41,6 +41,7 @@ import subprocess
 import sys
 import tempfile
 import time
+from collections.abc import Collection
 from pathlib import Path
 from typing import Any
 
@@ -93,6 +94,27 @@ def strip_existing_copper(content: str) -> tuple[str, int]:
     )
 
     return _strip_existing_copper(content)
+
+
+def _route_counts(
+    completion_rate: float,
+    unrouted_nets: Collection[str],
+    target_nets: Collection[str] | None,
+) -> tuple[int, int]:
+    """Reconstruct routed and attempted counts for a route report.
+
+    A complete scoped run has no failures from which to infer its denominator;
+    the normalized target set is the authoritative attempted count in that
+    mode. The legacy failure-based inference remains unchanged otherwise.
+    """
+    unrouted = len(unrouted_nets)
+    if completion_rate < 1.0:
+        attempted = round(unrouted / (1.0 - completion_rate))
+    elif target_nets is not None:
+        attempted = len(set(target_nets))
+    else:
+        attempted = unrouted
+    return attempted - unrouted, attempted
 
 
 def route_once(
@@ -169,11 +191,7 @@ def route_once(
     # RouterV6Result, stripped by _build_routing_result). Reconstruct them:
     # completion_rate = success / (success + failure), failure == unrouted
     # exactly, so attempted == unrouted / (1 - completion_rate).
-    if completion < 1.0:
-        attempted = round(unrouted / (1.0 - completion))
-    else:
-        attempted = unrouted
-    routed = attempted - unrouted
+    routed, attempted = _route_counts(completion, result.unrouted_nets, target_nets)
 
     return {
         "wall_s": wall_s,
