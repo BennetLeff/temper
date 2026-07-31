@@ -2600,6 +2600,9 @@ jobs:
         if: steps.cache-venv.outputs.cache-hit != 'true'
         run: uv venv
 
+      - name: Install dependencies
+        run: uv sync --all-packages
+
       # Validates known-failure-pins.yaml itself (see scripts/known_failure_pins.py
       # and docs/solutions/best-practices/pin-known-failure-reasons-2026-07-30.md):
       # every pin must cite a real evidence/solutions doc, stay within its
