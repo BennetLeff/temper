@@ -122,6 +122,30 @@ def precompute_from_pad_polygons(
     return np.array(dims, dtype=np.float32)
 
 
+def _smooth_relu_array(x: np.ndarray, alpha: float = 10.0) -> np.ndarray:
+    """Vectorized smooth ReLU: softplus(alpha * x) / alpha.
+
+    Array formulation of the scalar `temper_placer.geometry.smooth.smooth_relu`
+    (which delegates to the temper_geometry Rust crate). The Rust binding is
+    scalar-only (`smooth_relu(x: f64, ...)` in packages/temper-geometry/src/
+    bridge.rs:670), so array evaluation needs a numpy equivalent here.
+
+    The formula mirrors packages/temper-geometry/src/smooth.rs:151-161 exactly,
+    including its stable branch split (evaluate only the taken branch, so no
+    overflow/underflow from the untaken one):
+      - ax > 0:  (ax + log(1 + exp(-ax))) / alpha
+      - ax <= 0: log(1 + exp(ax)) / alpha
+    """
+    x = np.asarray(x, dtype=np.float64)
+    ax = alpha * x
+    out = np.empty_like(ax)
+    pos = ax > 0.0
+    with np.errstate(over="ignore", under="ignore", invalid="ignore"):
+        out[pos] = (ax[pos] + np.log1p(np.exp(-ax[pos]))) / alpha
+        out[~pos] = np.log1p(np.exp(ax[~pos])) / alpha
+    return out
+
+
 def compute_inflated_half_dims_from_bounds(
     component_bounds: np.ndarray,
     trace_width_mm: float = 0.25,
@@ -169,8 +193,6 @@ def compute_drc_proxy_score(
     Returns:
         Scalar proxy score (sum of squared clearance violations).
     """
-    from temper_placer.geometry.smooth import smooth_relu
-
     n = positions.shape[0]
     if n < 2:
         return np.array(0.0)
@@ -194,7 +216,12 @@ def compute_drc_proxy_score(
     # not `beta`. This call passed `beta=` and raised TypeError on every
     # invocation. Same default (10.0) and same role, so the value carries over
     # unchanged. See docs/evidence/2026-07-26-api-signature-drift-gate.md.
-    violations = smooth_relu(clearance_mm - distances, alpha=beta)
+    #
+    # The scalar `smooth_relu` binding is scalar-only (f64 extraction) and
+    # crashes on the (N, N) pairwise distance matrix for N >= 2, so the
+    # vectorized array formulation `_smooth_relu_array` is applied here.
+    # It reproduces the Rust scalar math branch-for-branch (see its docstring).
+    violations = _smooth_relu_array(clearance_mm - distances, alpha=beta)
     squared_violations = violations**2
 
     i_upper, j_upper = np.triu_indices(n, k=1)
