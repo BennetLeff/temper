@@ -89,6 +89,7 @@ jobs:
       # them explicitly on every run.
       - name: Build and install Rust extensions
         run: |
+          uv pip install maturin
           for crate in \
             packages/temper-geometry \
             packages/temper-thermal \
