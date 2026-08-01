@@ -2648,7 +2648,7 @@ jobs:
         working-directory: packages/temper-placer
         run: >
           uv run python ../../scripts/pytest_guard.py --min-tests 1200 --
-          tests/io/ tests/deterministic/ tests/physics/ tests/fields/ tests/validation/ tests/placer/cp_sat/
+          tests/io/ tests/deterministic/ tests/physics/ tests/fields/ tests/validation/ tests/placer/cp_sat/ tests/metrics/
           -v --tb=short -p no:cacheprovider --maxfail=10 -m "not slow"
           --continue-on-collection-errors -n auto --dist loadgroup
         continue-on-error: true  # TODO: temper-NNN -- parallel test suite flakiness; hard-fail after 2026-09-01

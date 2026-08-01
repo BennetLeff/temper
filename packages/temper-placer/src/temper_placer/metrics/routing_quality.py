@@ -10,6 +10,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
+import temper_quality_oracle as _tqo
+
 if TYPE_CHECKING:
     from temper_placer.router_v6.verifier import VerificationResult
     from temper_placer.validation.drc_runner import DrcResult
@@ -74,26 +76,14 @@ def evaluate_routing_quality(
     # Acceptability threshold
     is_acceptable = completion >= 0.8 and drc == 0
 
-    # Compute a composite score (0-100)
+    # Composite score (0-100), computed in Rust (temper-quality-oracle).
     # 1. Completion: 60% of score
-    completion_score = completion * 60
-
     # 2. DRC: 20% of score (all or nothing for errors)
-    drc_score = 20 if drc == 0 else 0
-
     # 3. Efficiency: 20% of score (based on via density and wirelength)
     # For Temper, we expect roughly 2 vias per net on average as 'good'
     # and total length related to HPWL (but we use a simple heuristic here)
     net_count = len(routing_result.routed_nets) + len(routing_result.failed_nets)
-    if net_count > 0:
-        vias_per_net = vias / net_count
-        # 0-2 vias per net = full points, 10+ = 0 points
-        via_penalty = max(0.0, min(1.0, (vias_per_net - 2) / 8))
-        efficiency_score = 20 * (1.0 - via_penalty)
-    else:
-        efficiency_score = 20.0
-
-    score = completion_score + drc_score + efficiency_score
+    score = _tqo.routing_quality_score_py(completion, vias, drc, net_count)
 
     return RoutingQualityScore(
         completion_rate=completion,

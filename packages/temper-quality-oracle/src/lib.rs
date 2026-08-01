@@ -13,6 +13,7 @@ pub mod derivation;
 pub mod config;
 pub mod thresholds;
 pub mod oracle;
+pub mod routing_quality;
 
 #[cfg(test)]
 #[path = "tests_common.rs"]
@@ -321,6 +322,23 @@ fn required_clearance_py(_py: Python<'_>, voltage: f64) -> f64 {
 }
 
 #[pyfunction]
+fn routing_quality_score_py(
+    completion_rate: f64,
+    via_count: i64,
+    drc_error_count: i64,
+    net_count: i64,
+) -> PyResult<f64> {
+    temper_py_bridge::catch_panic(|| {
+        Ok(routing_quality::routing_quality_score(
+            completion_rate,
+            via_count,
+            drc_error_count,
+            net_count,
+        ))
+    })
+}
+
+#[pyfunction]
 fn is_available_py() -> bool {
     true
 }
@@ -335,6 +353,7 @@ fn temper_quality_oracle(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(evaluate_quality_py, m)?)?;
     m.add_function(wrap_pyfunction!(classify_nets_py, m)?)?;
     m.add_function(wrap_pyfunction!(required_clearance_py, m)?)?;
+    m.add_function(wrap_pyfunction!(routing_quality_score_py, m)?)?;
     m.add_function(wrap_pyfunction!(is_available_py, m)?)?;
     m.add_function(wrap_pyfunction!(version_py, m)?)?;
     Ok(())
