@@ -16,7 +16,7 @@ use pyo3::prelude::*;
 // ---------------------------------------------------------------------------
 
 /// Base class for routing variables.
-#[pyclass(subclass, get_all)]
+#[pyclass(subclass, get_all, from_py_object)]
 #[derive(Clone, Debug)]
 pub struct Variable {
     pub name: String,
@@ -32,7 +32,7 @@ impl Variable {
 }
 
 /// uses[net_idx, channel_id]
-#[pyclass(extends=Variable, get_all)]
+#[pyclass(extends=Variable, get_all, from_py_object)]
 #[derive(Clone, Debug)]
 pub struct NetChannelVar {
     pub net_idx: usize,
@@ -43,19 +43,21 @@ pub struct NetChannelVar {
 impl NetChannelVar {
     #[new]
     #[pyo3(signature = (name, var_type, net_idx, channel_id))]
-    fn new(name: String, var_type: String, net_idx: usize, channel_id: String) -> (Self, Variable) {
-        (
-            Self {
-                net_idx,
-                channel_id,
-            },
-            Variable { name, var_type },
-        )
+    fn new(
+        name: String,
+        var_type: String,
+        net_idx: usize,
+        channel_id: String,
+    ) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(Variable { name, var_type }).add_subclass(Self {
+            net_idx,
+            channel_id,
+        })
     }
 }
 
 /// layer[net_idx, segment_id]
-#[pyclass(extends=Variable, get_all)]
+#[pyclass(extends=Variable, get_all, from_py_object)]
 #[derive(Clone, Debug)]
 pub struct NetLayerVar {
     pub net_idx: usize,
@@ -66,19 +68,21 @@ pub struct NetLayerVar {
 impl NetLayerVar {
     #[new]
     #[pyo3(signature = (name, var_type, net_idx, segment_id))]
-    fn new(name: String, var_type: String, net_idx: usize, segment_id: String) -> (Self, Variable) {
-        (
-            Self {
-                net_idx,
-                segment_id,
-            },
-            Variable { name, var_type },
-        )
+    fn new(
+        name: String,
+        var_type: String,
+        net_idx: usize,
+        segment_id: String,
+    ) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(Variable { name, var_type }).add_subclass(Self {
+            net_idx,
+            segment_id,
+        })
     }
 }
 
 /// via[net_idx, location_id]
-#[pyclass(extends=Variable, get_all)]
+#[pyclass(extends=Variable, get_all, from_py_object)]
 #[derive(Clone, Debug)]
 pub struct ViaVar {
     pub net_idx: usize,
@@ -89,19 +93,21 @@ pub struct ViaVar {
 impl ViaVar {
     #[new]
     #[pyo3(signature = (name, var_type, net_idx, location_id))]
-    fn new(name: String, var_type: String, net_idx: usize, location_id: String) -> (Self, Variable) {
-        (
-            Self {
-                net_idx,
-                location_id,
-            },
-            Variable { name, var_type },
-        )
+    fn new(
+        name: String,
+        var_type: String,
+        net_idx: usize,
+        location_id: String,
+    ) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(Variable { name, var_type }).add_subclass(Self {
+            net_idx,
+            location_id,
+        })
     }
 }
 
 /// order[net1_idx, net2_idx, channel_id]
-#[pyclass(extends=Variable, get_all)]
+#[pyclass(extends=Variable, get_all, from_py_object)]
 #[derive(Clone, Debug)]
 pub struct OrderVar {
     pub net1_idx: usize,
@@ -119,15 +125,12 @@ impl OrderVar {
         net1_idx: usize,
         net2_idx: usize,
         channel_id: String,
-    ) -> (Self, Variable) {
-        (
-            Self {
-                net1_idx,
-                net2_idx,
-                channel_id,
-            },
-            Variable { name, var_type },
-        )
+    ) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(Variable { name, var_type }).add_subclass(Self {
+            net1_idx,
+            net2_idx,
+            channel_id,
+        })
     }
 }
 
@@ -136,7 +139,7 @@ impl OrderVar {
 // ---------------------------------------------------------------------------
 
 /// Base class for routing constraints.
-#[pyclass(subclass, get_all)]
+#[pyclass(subclass, get_all, from_py_object)]
 #[derive(Clone, Debug)]
 pub struct Constraint {
     pub name: String,
@@ -153,7 +156,7 @@ impl Constraint {
 }
 
 /// Capacity: sum(uses[n,c] * width[n]) <= capacity * slack
-#[pyclass(extends=Constraint, get_all)]
+#[pyclass(extends=Constraint, get_all, from_py_object)]
 #[derive(Clone, Debug)]
 pub struct CapacityConstraint {
     pub channel_id: String,
@@ -174,21 +177,18 @@ impl CapacityConstraint {
         capacity: f64,
         slack_factor: f64,
         terms: Vec<(usize, String, f64)>,
-    ) -> (Self, Constraint) {
-        (
-            Self {
-                channel_id,
-                capacity,
-                slack_factor,
-                terms,
-            },
-            Constraint { name, description },
-        )
+    ) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(Constraint { name, description }).add_subclass(Self {
+            channel_id,
+            capacity,
+            slack_factor,
+            terms,
+        })
     }
 }
 
 /// Diff pair: uses[p_net, channel] == uses[n_net, channel]
-#[pyclass(extends=Constraint, get_all)]
+#[pyclass(extends=Constraint, get_all, from_py_object)]
 #[derive(Clone, Debug)]
 pub struct DiffPairConstraint {
     pub channel_id: String,
@@ -210,22 +210,19 @@ impl DiffPairConstraint {
         n_net_idx: usize,
         p_var_name: String,
         n_var_name: String,
-    ) -> (Self, Constraint) {
-        (
-            Self {
-                channel_id,
-                p_net_idx,
-                n_net_idx,
-                p_var_name,
-                n_var_name,
-            },
-            Constraint { name, description },
-        )
+    ) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(Constraint { name, description }).add_subclass(Self {
+            channel_id,
+            p_net_idx,
+            n_net_idx,
+            p_var_name,
+            n_var_name,
+        })
     }
 }
 
 /// Layer restriction: uses[n, c] == allowed
-#[pyclass(extends=Constraint, get_all)]
+#[pyclass(extends=Constraint, get_all, from_py_object)]
 #[derive(Clone, Debug)]
 pub struct LayerConstraint {
     pub net_idx: usize,
@@ -245,15 +242,12 @@ impl LayerConstraint {
         channel_id: String,
         allowed: bool,
         var_name: String,
-    ) -> (Self, Constraint) {
-        (
-            Self {
-                net_idx,
-                channel_id,
-                allowed,
-                var_name,
-            },
-            Constraint { name, description },
-        )
+    ) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(Constraint { name, description }).add_subclass(Self {
+            net_idx,
+            channel_id,
+            allowed,
+            var_name,
+        })
     }
 }

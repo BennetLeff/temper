@@ -86,6 +86,7 @@ pub fn validate_esd_path(
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
 
