@@ -6,6 +6,7 @@
 // PyO3 bridge functions mirror Python function signatures 1:1.
 
 use pyo3::prelude::*;
+use crate::bottleneck_geometry::{build_capacitated_graph_py, cell_capacity_batch_py, hard_blocked_batch_py};
 use crate::channel_widths::edt_width_lookup_batch;
 use crate::copper_coverage::rasterise_polygon_mask;
 use crate::corridor::extract_corridor_mask;
@@ -1453,6 +1454,11 @@ pub fn register_functions(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(fence_samples_py, m)?)?;
     m.add_function(wrap_pyfunction!(effective_creepage_py, m)?)?;
     m.add_function(wrap_pyfunction!(closest_component_for_zone_py, m)?)?;
+
+    // bottleneck geometry (Wave 3: min-cut bottleneck kernels)
+    m.add_function(wrap_pyfunction!(cell_capacity_batch_py, m)?)?;
+    m.add_function(wrap_pyfunction!(hard_blocked_batch_py, m)?)?;
+    m.add_function(wrap_pyfunction!(build_capacitated_graph_py, m)?)?;
 
     Ok(())
 }

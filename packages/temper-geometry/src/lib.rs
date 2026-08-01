@@ -25,6 +25,8 @@ pub use grid_raster::{
     clear_circle_from_grid_py, closest_component_for_zone_py, effective_creepage_py,
     fence_samples_py, occupancy_bitmap_row_py,
 };
+pub mod bottleneck_geometry;
+pub use bottleneck_geometry::{build_capacitated_graph_py, cell_capacity_batch_py, hard_blocked_batch_py};
 mod bridge;
 
 use pyo3::prelude::*;
