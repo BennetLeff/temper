@@ -339,7 +339,13 @@ component Relay_SPDT:
     footprint used here (Relay_THT:Relay_SPDT_Omron-G5LE-1): pin 1 = COM
     (armature/pole), pins 2 & 5 = coil (non-polarized), pin 3 = NO,
     pin 4 = NC (the pole rests against pin 4 when de-energized -- this is
-    the fail-safe contact used by BusDischarge in modules.ato)."""
+    the fail-safe contact used by BusDischarge in modules.ato).
+    The TE Schrack RT314012 footprint (temper:Relay_SPDT_Schrack-
+    RT314012) uses the same 1/2/3/4/5 convention, renumbered from the
+    datasheet's 12(NC)/11(COM)/14(NO) and A1/A2 coil terminals --
+    see that footprint's descr. Each RT314012 contact terminal carries
+    two physical solder holes sharing one pad number (16A current
+    sharing); the schematic pin is the single pad number."""
     designator_prefix = "K"
     footprint: str
     coil_voltage: voltage
