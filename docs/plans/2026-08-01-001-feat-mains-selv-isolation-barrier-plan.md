@@ -131,3 +131,41 @@ The gate's error text reads as a simple placement instruction ("A human must pla
 - `docs/solutions/architecture-patterns/physical-isolation-barrier-requires-domain-first-floorplan-2026-07-30.md` — the recommended implementation sequence.
 - `docs/brainstorms/2026-07-29-mains-selv-barrier-requirements.md` — the boundary-part footprint-fix requirements.
 - `power_pcb_dataset/drc_ceiling.json` and `scripts/check_measurement_provenance.py` — the same-PR re-measurement contract.
+
+## Feasibility Evidence (2026-08-01)
+
+Full reproducible analysis in `docs/evidence/2026-08-01-isolation-barrier-feasibility.md`
+(script: `docs/evidence/2026-08-01-isolation-barrier-feasibility.py`). Board 152×234 mm;
+HV-only = 45, SELV-only = 106, isolators = 8, unclassified = 10 components.
+
+**As-is: no corridor exists.** All 15 full-height columns mix domains; nearest
+cross-domain pad pair 0.178 mm; 42 pad pairs within 8.0 mm. Straight-corridor
+sweep finds NO clean corridor at W = 8.0/10.0/12.6 mm in either orientation
+(raw region gaps −150.6 mm vertical, −233.5 mm horizontal).
+
+**Drift required for a clean corridor (best position):**
+- X (vertical, HV left): 78 movers / 3096.0 mm total / max single 134.85 mm @ 8.0 mm;
+  HV-dominant moves.
+- Y (horizontal, HV bottom): 52 movers / 3727.1 mm total / max single 127.05 mm @ 8.0 mm;
+  mixed HV+SELV moves.
+
+**Isolator feasibility (placer's `evaluate_isolator_feasibility`):** **K3 is
+infeasible at even the 8.0 mm floor** (pad overlap −0.5 mm); C6/K1/T1/U3/U7
+achieve exactly 8.0 mm; only K2/PS1 clear 12.6 mm.
+
+**Re-homing isolators does not create a corridor** (gaps unchanged) — the
+floorplan re-solve is genuinely required.
+
+### Updated OQ answers from the data
+- **OQ2 (isolator BOM):** REQUIRED, first phase, and **K3 is the named blocker**
+  (RT314012 swap per the plan's brainstorm) — no width target above 8.0 is reachable
+  until K3's pads clear.
+- **OQ3 (corridor axis):** both orientations are feasible only after the re-solve.
+  **Data recommends Y** (horizontal): 52 movers vs 78, lower max drift (127 vs 135 mm);
+  X keeps the power stage clustered. Human picks per mains-connector/enclosure.
+- **OQ1 (width):** 12.6 mm costs only ~+183 mm total drift over 8.0 mm (X) but is
+  gated by the isolator work. **Recommend: gate at 8.0 mm now, widen after the
+  isolator BOM phase.**
+- **OQ4 input:** `C27` is staged outside the outline; nearest in-board pads sit
+  0.95–1.16 mm from the edge — the corridor will squeeze edge clearance and needs
+  human re-validation after the solve.
