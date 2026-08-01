@@ -527,14 +527,18 @@ jobs:
   # and pyo3 build scripts resolve their interpreter through it, exactly as they
   # did when these steps ran inside Core Tests. Note the cargo target dir is
   # cold in this job (the workflow caches no Rust artifacts anywhere), so these
-  # steps compile their dependency graph from scratch -- hence 25 minutes.
+  # steps compile their dependency graph from scratch -- hence the budget.
+  # Clippy now runs on all 14 Rust crates (every one carries
+  # `[lints.clippy] unwrap_used = "deny", expect_used = "deny"`), so the loop
+  # below is the gate that catches production unwraps/expects across the FFI
+  # bridges -- including the pyo3 crates that maturin installs.
   rust-checks:
     name: Rust Checks (cargo check + clippy)
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/bennetleff/temper-ci:latest
       options: --user root
-    timeout-minutes: 25
+    timeout-minutes: 45
     env:
       VIRTUAL_ENV: ${{ github.workspace }}/.venv
       TEMPER_REQUIRE_RUST_DRC: "1"
@@ -581,13 +585,34 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: cargo check --manifest-path packages/temper-constraint-compiler/Cargo.toml
 
-      - name: Clippy (non-PyO3 crates)
+      - name: Clippy (all Rust crates, -D warnings)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: |
-          for crate in \
-                       temper-rust-router-core temper-pcl-ir temper-design-bundle; do
-            echo "=== clippy $crate ==="
-            cargo clippy --manifest-path "packages/$crate/Cargo.toml" -- -D warnings
+          for manifest in \
+                       packages/temper-constraint-compiler/Cargo.toml \
+                       packages/temper-design-bundle/Cargo.toml \
+                       packages/temper-drc-rs/Cargo.toml \
+                       packages/temper-dsn/Cargo.toml \
+                       packages/temper-geometry/Cargo.toml \
+                       packages/temper-io-types/Cargo.toml \
+                       packages/temper-ipc/Cargo.toml \
+                       packages/temper-pcl-ir/Cargo.toml \
+                       packages/temper-py-bridge/Cargo.toml \
+                       packages/temper-py-bridge-derive/Cargo.toml \
+                       packages/temper-quality-oracle/Cargo.toml \
+                       packages/temper-rust-router-core/Cargo.toml \
+                       packages/temper-rust-router/Cargo.toml \
+                       packages/temper-placer/temper-constraints/Cargo.toml; do
+            echo "=== clippy $manifest ==="
+            # temper-constraints is the one abi3 crate; without the forward-compat
+            # env it fails to build against a newer CPython than the pinned pyo3
+            # knows about (same special-case as the Makefile's `extensions` target).
+            if [ "$manifest" = "packages/temper-placer/temper-constraints/Cargo.toml" ]; then
+              PYO3_USE_ABI3_FORWARD_COMPATIBILITY=1 \
+                cargo clippy --manifest-path "$manifest" --all-targets -- -D warnings
+            else
+              cargo clippy --manifest-path "$manifest" --all-targets -- -D warnings
+            fi
           done
 
   # Split out of Core Tests 2026-07-28. Everything here reads the compiled
@@ -1953,8 +1978,12 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         # 2026-07-30: the three tests that used to dominate this job's
         # wall-clock moved out to extended-cpsat-slow (--deselect'd here by
-        # exact node ID, selected there by the same three IDs -- see the
+        # exact node ID, selected there by the same IDs -- see the
         # comment above this job for the measurement and the full list).
+        # 2026-08-01: the hybrid test of that trio moved again, from
+        # extended-cpsat-slow to the nightly r9-evidence.yml workflow (it is
+        # evidence for the pending R9 promotion decision, not a gate). The
+        # deselect below stays so this job never re-absorbs it silently.
         # Everything else in tests/placer/cp_sat/ + test_external_oracle.py +
         # test_cp_sat_flag.py combined cost well under a minute in both
         # 2026-07-30 reference runs, so this job keeps the directory-level
@@ -1979,17 +2008,24 @@ jobs:
         continue-on-error: true  # TODO: temper-NNN -- parallel test suite flakiness; hard-fail after 2026-09-01
 
   extended-cpsat-slow:
-    name: Extended Test Suites (cp-sat, slow x3)
+    name: Extended Test Suites (cp-sat, slow x2)
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/bennetleff/temper-ci:latest
       options: --user root
     # Same 25-minute budget the combined cp-sat job already had -- not a
     # raise. See the comment above extended-cpsat for the measured basis
-    # (these three tests alone already consumed 20m45s-22m38s of that budget
+    # (these tests alone already consumed 20m45s-22m38s of that budget
     # serially; -n auto --dist loadgroup is expected to reduce that, not
     # increase it, and the real number gets measured in CI before this is
     # revisited).
+    # 2026-08-01: the hybrid test (877.7-986.9s of the trio) moved out to the
+    # nightly r9-evidence.yml workflow -- it is explicit evidence-gathering
+    # for the R9 promotion decision (continue-on-error, "Not a CI gate" in
+    # its own docstring), so per-PR sampling of a pending decision was paying
+    # 16+ min of wall-clock on the critical path. This job is now the zone
+    # pour (~211s) + routing DRC regression (~102s) pair; wall drops from
+    # ~20.7 min to ~5-6 min. See docs/solutions/ for the measurement.
     timeout-minutes: 25
     env:
       VIRTUAL_ENV: ${{ github.workspace }}/.venv
@@ -2098,26 +2134,30 @@ jobs:
         id: setup
         run: echo "setup complete; gates below report independently"
 
-      - name: Run cp-sat suite (slow trio, parallelized)
+      - name: Run cp-sat suite (slow pair, parallelized)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
-        # The three tests that own >98% of the old combined job's pytest
+        # The two tests that own >98% of the old combined job's pytest
         # wall-clock (see the comment above extended-cpsat for the
-        # 2026-07-30 measurement: 877.7s/986.9s, 233.9s/211.3s, 114.2s/102.2s
-        # across two reference runs). `-n auto --dist loadgroup` is MANDATORY
-        # whenever `-n` is passed in this file -- other dist modes silently
-        # turn `xdist_group`-tagged dependents into SKIPs. None of these three
-        # carries an `xdist_group` mark (checked
+        # 2026-07-30 measurement: 233.9s/211.3s and 114.2s/102.2s across two
+        # reference runs). The third member of the original trio
+        # (test_hybrid_pour_reduces_unconnected_without_shorting_regression,
+        # 877.7s/986.9s) moved to the nightly r9-evidence.yml workflow on
+        # 2026-08-01: it is evidence for the pending R9 promotion decision,
+        # not a gate (continue-on-error, docstring: "Not a CI gate"), and its
+        # ~16 min made it the per-PR critical path. `-n auto --dist loadgroup`
+        # is MANDATORY whenever `-n` is passed in this file -- other dist
+        # modes silently turn `xdist_group`-tagged dependents into SKIPs.
+        # Neither of the remaining two carries an `xdist_group` mark (checked
         # packages/temper-placer/tests/conftest.py's `_XDIST_GROUPS`), so
         # `loadgroup` distributes each independently across the runner's 2
         # workers (measured via a same-day invariant-router-v6-1 log:
         # "created: 2/2 workers") -- same per-test outcomes as serial, just
         # two running concurrently instead of one-at-a-time. Same
         # `-v --tb=short -p no:cacheprovider --maxfail=10` flags and the same
-        # `continue-on-error` this trio ran under before the split.
+        # `continue-on-error` this pair ran under before the split.
         run: >
           cd packages/temper-placer &&
-          uv run python ../../scripts/pytest_guard.py --min-tests 3 --
-          "tests/placer/cp_sat/test_hybrid_pour_stitch_measurement.py::TestHybridPourStitchVerification::test_hybrid_pour_reduces_unconnected_without_shorting_regression"
+          uv run python ../../scripts/pytest_guard.py --min-tests 2 --
           "tests/placer/cp_sat/test_zone_pour_production_measurement.py::TestZonePourProductionMeasurement::test_zone_pours_reduce_unconnected_items"
           "tests/placer/cp_sat/test_regression_drc.py::test_production_board_routing_drc_regression"
           -v --tb=short -p no:cacheprovider --maxfail=10 -n auto --dist loadgroup

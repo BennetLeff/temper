@@ -126,7 +126,12 @@ jobs:
 
       - name: CP-SAT Placer Tests
         working-directory: packages/temper-placer
-        run: uv run pytest tests/placer/cp_sat/ tests/metrics/test_external_oracle.py tests/cli/test_cp_sat_flag.py -v --tb=short --ignore=tests/placer/cp_sat/test_zone_pour_production_measurement.py
+        # Hybrid pour evidence test excluded 2026-08-01: it is not a gate
+        # (docstring: evidence for the pending R9 promotion decision) and was
+        # running ~987s per PR here on top of the same ~987s in python-tests'
+        # cp-sat slow job -- ~33 min/day of duplicated serial work. It now
+        # runs nightly + on demand in .github/workflows/r9-evidence.yml.
+        run: uv run pytest tests/placer/cp_sat/ tests/metrics/test_external_oracle.py tests/cli/test_cp_sat_flag.py -v --tb=short --ignore=tests/placer/cp_sat/test_zone_pour_production_measurement.py --ignore=tests/placer/cp_sat/test_hybrid_pour_stitch_measurement.py
 
       - name: Zone/Pour Production Measurement
         working-directory: packages/temper-placer
