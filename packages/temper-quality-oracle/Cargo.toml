@@ -19,3 +19,7 @@ panic = "unwind"
 
 [dev-dependencies]
 proptest = "1"
+
+[lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"

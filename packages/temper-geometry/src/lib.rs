@@ -9,6 +9,16 @@ pub mod projections;
 pub mod constraints;
 pub mod drc_inflate;
 pub mod congestion_tensor;
+pub mod pad_geometry;
+pub mod spice_estimators;
+pub use pad_geometry::{
+    barrier_axis_gap_py, best_rotation_for_barrier_py, pad_axis_radius_py, pad_bounding_radius_py,
+    pad_corner_radius_py, pad_core_half_extents_py, pad_support_radius_py,
+};
+pub use spice_estimators::{spice_infer_unit_py, spice_loop_inductance_py};
+pub mod corridor;
+pub mod copper_coverage;
+pub mod channel_widths;
 mod bridge;
 
 use pyo3::prelude::*;

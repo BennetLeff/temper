@@ -25,9 +25,8 @@ fn tdd_increment_matches_python() {
 #[test]
 fn tdd_cost_respects_cap() {
     // Need raw > e^49 ≈ 1.9e21 to exceed cap of 50. Use f32::MAX.
-    let ct = CongestionTensor {
-        data: vec![f32::MAX, 0.0], rows: 1, cols: 2, max_cost: 50.0, weight: 1.0,
-    };
+    let mut ct = CongestionTensor::new(1, 2, 50.0, 1.0);
+    ct.increment(0, 0, f32::MAX);
     assert_eq!(ct.cost(0, 0), 50.0);
 }
 
@@ -43,9 +42,8 @@ fn tdd_reset_matches_python() {
 #[test]
 fn pbt_cost_always_at_least_one() {
     for usage in [0.0_f32, 1.0, 10.0, 100.0, 1000.0, f32::MAX] {
-        let ct = CongestionTensor {
-            data: vec![usage, 0.0], rows: 1, cols: 2, max_cost: 1000.0, weight: 1.0,
-        };
+        let mut ct = CongestionTensor::new(1, 2, 1000.0, 1.0);
+        ct.increment(0, 0, usage);
         assert!(ct.cost(0, 0) >= 1.0, "cost({}) = {} < 1.0", usage, ct.cost(0, 0));
     }
 }

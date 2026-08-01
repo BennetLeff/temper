@@ -12,6 +12,7 @@ from dataclasses import dataclass, replace
 from pathlib import Path
 
 import numpy as np
+import temper_geometry as _tg
 
 from temper_placer.deterministic.stages.base import Stage
 from temper_placer.deterministic.state import BoardState
@@ -118,6 +119,10 @@ def _edt_width_lookup(
 
     For sub-cell accuracy, bilinear interpolation is used over the
     4 nearest grid points.
+
+    This per-point form is the reference implementation; the
+    sampling hot loop uses :func:`_edt_width_lookup_batch`, which is
+    bit-identical per point (see the differential tests).
     """
     min_x, min_y, _, _ = bounds
     gx = (x - min_x) / cell_size
@@ -137,6 +142,35 @@ def _edt_width_lookup(
 
     d = (d00 * (1 - fx) + d10 * fx) * (1 - fy) + (d01 * (1 - fx) + d11 * fx) * fy
     return 2.0 * d * cell_size
+
+
+def _edt_width_lookup_batch(
+    xs: np.ndarray,
+    ys: np.ndarray,
+    edt: np.ndarray,
+    mask: np.ndarray,
+    bounds: tuple[float, float, float, float],
+    cell_size: float,
+) -> np.ndarray:
+    """Batch EDT width lookup: one FFI crossing for all samples.
+
+    Bit-identical to calling :func:`_edt_width_lookup` per point (same
+    f64 arithmetic order, computed in ``temper-geometry``); the batch
+    form exists because the sampling hot loop (~12k calls per layer)
+    is per-call Python overhead.
+    """
+    h, w = edt.shape
+    out = _tg.edt_width_lookup_batch(
+        np.ascontiguousarray(xs, dtype=np.float64).tolist(),
+        np.ascontiguousarray(ys, dtype=np.float64).tolist(),
+        np.ascontiguousarray(edt, dtype=np.float64).tobytes(),
+        np.ascontiguousarray(mask).tobytes(),
+        h,
+        w,
+        bounds,
+        cell_size,
+    )
+    return np.asarray(out, dtype=np.float64)
 
 
 def _compute_board_fingerprint(routing_space: RoutingSpace) -> str:
@@ -258,36 +292,80 @@ def compute_channel_widths(
             _interiors=cached_interiors,
         )
 
-    # Compute width at each node
-    for node in skeleton.graph.nodes():
-        width = _width_at(node)
-        node_widths[node] = width
+    if _edt_grid is not None and _edt_mask is not None and _edt_bounds is not None:
+        # Batched EDT path: collect every sample point, resolve all widths
+        # in one FFI crossing (bit-identical per point to the reference
+        # _edt_width_lookup), then assemble node/edge widths.
+        _node_points = list(skeleton.graph.nodes())
 
-    # Compute width along each edge
-    for u, v in skeleton.graph.edges():
-        # Sample points along the edge
-        widths_along_edge = []
+        _edge_samples: list[tuple[object, object, list[tuple[float, float]]]] = []
+        for u, v in skeleton.graph.edges():
+            dx = v[0] - u[0]
+            dy = v[1] - u[1]
+            edge_length = (dx**2 + dy**2) ** 0.5
+            if edge_length > sample_distance:
+                num_samples = int(edge_length / sample_distance)
+                _edge_samples.append(
+                    (
+                        u,
+                        v,
+                        [
+                            (u[0] + (i / num_samples) * dx, u[1] + (i / num_samples) * dy)
+                            for i in range(1, num_samples)
+                        ],
+                    )
+                )
+            else:
+                _edge_samples.append((u, v, []))
 
-        # Add endpoint widths
-        widths_along_edge.append(node_widths[u])
-        widths_along_edge.append(node_widths[v])
+        _all_points = _node_points + [p for (_, _, pts) in _edge_samples for p in pts]
+        if _all_points:
+            _widths = _edt_width_lookup_batch(
+                np.asarray([p[0] for p in _all_points], dtype=np.float64),
+                np.asarray([p[1] for p in _all_points], dtype=np.float64),
+                _edt_grid,
+                _edt_mask,
+                _edt_bounds,
+                _edt_cell,
+            )
+        else:
+            _widths = np.zeros(0, dtype=np.float64)
 
-        # Sample intermediate points
-        dx = v[0] - u[0]
-        dy = v[1] - u[1]
-        edge_length = (dx**2 + dy**2) ** 0.5
+        node_widths = dict(zip(_node_points, _widths[: len(_node_points)]))
+        _sample_offset = len(_node_points)
+        for u, v, pts in _edge_samples:
+            widths_along_edge = [node_widths[u], node_widths[v]]
+            for k in range(len(pts)):
+                widths_along_edge.append(float(_widths[_sample_offset + k]))
+            _sample_offset += len(pts)
+            edge_widths[(u, v)] = min(widths_along_edge) if widths_along_edge else 0.0
+    else:
+        # Reference path: per-point width sampling (EDT disabled or
+        # unavailable).  Keep the original loop untouched for parity.
+        for node in skeleton.graph.nodes():
+            width = _width_at(node)
+            node_widths[node] = width
 
-        if edge_length > sample_distance:
-            num_samples = int(edge_length / sample_distance)
-            for i in range(1, num_samples):
-                t = i / num_samples
-                sample_x = u[0] + t * dx
-                sample_y = u[1] + t * dy
-                width = _width_at((sample_x, sample_y))
-                widths_along_edge.append(width)
+        for u, v in skeleton.graph.edges():
+            widths_along_edge = []
 
-        # Edge width is the minimum along the edge (bottleneck)
-        edge_widths[(u, v)] = min(widths_along_edge) if widths_along_edge else 0.0
+            widths_along_edge.append(node_widths[u])
+            widths_along_edge.append(node_widths[v])
+
+            dx = v[0] - u[0]
+            dy = v[1] - u[1]
+            edge_length = (dx**2 + dy**2) ** 0.5
+
+            if edge_length > sample_distance:
+                num_samples = int(edge_length / sample_distance)
+                for i in range(1, num_samples):
+                    t = i / num_samples
+                    sample_x = u[0] + t * dx
+                    sample_y = u[1] + t * dy
+                    width = _width_at((sample_x, sample_y))
+                    widths_along_edge.append(width)
+
+            edge_widths[(u, v)] = min(widths_along_edge) if widths_along_edge else 0.0
 
     # Compute statistics
     all_widths = list(node_widths.values()) + list(edge_widths.values())

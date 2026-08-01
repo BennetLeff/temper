@@ -7,6 +7,7 @@
 //!
 //! Many nested if-let chains use || conditions not supported in let-chains.
 
+pub mod astar;
 pub mod audit;
 pub mod bmc;
 pub mod combinator;
