@@ -1,10 +1,11 @@
 """Differential tests: batched Rust EDT width lookup vs the per-point
 reference implementation.
 
-``temper_placer.router_v6.channel_widths._edt_width_lookup`` is the
-per-point reference (kept verbatim in the module); the production hot
-path is ``_edt_width_lookup_batch`` (one FFI crossing per layer).  This
-suite pins the two bit-identical per point, and pins
+The per-point reference lookup is pinned verbatim in this file as
+``_edt_width_lookup`` (copied from the pre-migration implementation in
+``temper_placer.router_v6.channel_widths``); the production hot path is
+``_edt_width_lookup_batch`` (one FFI crossing per layer).  This suite
+pins the two bit-identical per point, and pins
 ``compute_channel_widths`` end-to-end against a per-point-driven
 rebuild.
 """
@@ -18,11 +19,52 @@ from shapely.geometry import MultiPolygon, box
 
 from temper_placer.router_v6.channel_skeleton import extract_channel_skeleton
 from temper_placer.router_v6.channel_widths import (
-    _edt_width_lookup,
     _edt_width_lookup_batch,
     compute_channel_widths,
 )
 from temper_placer.router_v6.routing_space import RoutingSpace
+
+# ---------------------------------------------------------------------------
+# Oracle: the pre-migration per-point EDT width lookup, pinned verbatim.
+# (Removed from channel_widths.py in cleanup C5; the differential suites
+# keep it here so the batched path stays bit-identical to the reference.)
+# ---------------------------------------------------------------------------
+
+
+def _edt_width_lookup(
+    x: float,
+    y: float,
+    edt: np.ndarray,
+    mask: np.ndarray,
+    bounds: tuple[float, float, float, float],
+    cell_size: float,
+) -> float:
+    """Query width from a precomputed EDT grid.
+
+    Maps world coordinates (x, y) to grid indices, reads the EDT
+    distance, and returns width = 2 * distance * cell_size.
+
+    For sub-cell accuracy, bilinear interpolation is used over the
+    4 nearest grid points.
+    """
+    min_x, min_y, _, _ = bounds
+    gx = (x - min_x) / cell_size
+    gy = (y - min_y) / cell_size
+
+    ix, iy = int(np.floor(gx)), int(np.floor(gy))
+    fx, fy = gx - ix, gy - iy
+
+    h, w = edt.shape
+    if ix < 0 or iy < 0 or ix + 1 >= w or iy + 1 >= h:
+        return 0.0
+
+    d00 = edt[iy, ix] if mask[iy, ix] else 0.0
+    d10 = edt[iy, ix + 1] if mask[iy, ix + 1] else 0.0
+    d01 = edt[iy + 1, ix] if mask[iy + 1, ix] else 0.0
+    d11 = edt[iy + 1, ix + 1] if mask[iy + 1, ix + 1] else 0.0
+
+    d = (d00 * (1 - fx) + d10 * fx) * (1 - fy) + (d01 * (1 - fx) + d11 * fx) * fy
+    return 2.0 * d * cell_size
 
 
 def _random_edt_grid(
@@ -131,7 +173,7 @@ def _per_point_rebuild(routing_space, skeleton, sample_distance: float) -> dict:
     def per_point_batch(xs, ys, edt, mask, bounds, cell_size):
         return np.asarray(
             [
-                cw._edt_width_lookup(x, y, edt, mask, bounds, cell_size)
+                _edt_width_lookup(x, y, edt, mask, bounds, cell_size)
                 for x, y in zip(xs.tolist(), ys.tolist())
             ],
             dtype=np.float64,
@@ -150,7 +192,7 @@ def _per_point_rebuild(routing_space, skeleton, sample_distance: float) -> dict:
         edge_widths: dict = {}
         edt_grid, edt_mask, edt_bounds = _build_edt(routing_space, 0.1)
         for node in skeleton.graph.nodes():
-            node_widths[node] = cw._edt_width_lookup(
+            node_widths[node] = _edt_width_lookup(
                 node[0], node[1], edt_grid, edt_mask, edt_bounds, 0.1
             )
         for u, v in skeleton.graph.edges():
@@ -165,7 +207,7 @@ def _per_point_rebuild(routing_space, skeleton, sample_distance: float) -> dict:
                     sample_x = u[0] + t * dx
                     sample_y = u[1] + t * dy
                     widths_along_edge.append(
-                        cw._edt_width_lookup(
+                        _edt_width_lookup(
                             sample_x, sample_y, edt_grid, edt_mask, edt_bounds, 0.1
                         )
                     )
