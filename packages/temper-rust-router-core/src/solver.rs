@@ -71,17 +71,18 @@ pub fn solve_with_cadical(
 
     // Add clauses. Variables are created implicitly from clause literals.
     for clause in &cnf.clauses {
-        let mut lits: Vec<Lit> = Vec::with_capacity(clause.len());
-        for &lit in clause {
-            let var_idx = lit.unsigned_abs() - 1;
-            let lit_obj = if lit > 0 {
-                Lit::positive(var_idx)
-            } else {
-                Lit::negative(var_idx)
-            };
-            lits.push(lit_obj);
-        }
-        if solver.add_clause(Clause::from(&lits[..])).is_err() {
+        let clause_obj: Clause = clause
+            .iter()
+            .map(|&lit| {
+                let var_idx = lit.unsigned_abs() - 1;
+                if lit > 0 {
+                    Lit::positive(var_idx)
+                } else {
+                    Lit::negative(var_idx)
+                }
+            })
+            .collect();
+        if solver.add_clause(clause_obj).is_err() {
             return fail(start, SolverStatus::Unsatisfiable, cnf);
         }
     }
