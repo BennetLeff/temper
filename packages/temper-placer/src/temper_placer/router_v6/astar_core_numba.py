@@ -47,6 +47,7 @@ Implementation notes
 from __future__ import annotations
 
 import math
+import os
 import time
 from dataclasses import dataclass
 
@@ -71,12 +72,14 @@ class RouteProfileStats:
     """Aggregate timing stats collected across A* search calls."""
 
     numba_time_ms: float = 0.0
+    rust_time_ms: float = 0.0
     python_time_ms: float = 0.0
     astar_total_ms: float = 0.0
     dist_map_ms: float = 0.0
 
     def reset(self) -> None:
         self.numba_time_ms = 0.0
+        self.rust_time_ms = 0.0
         self.python_time_ms = 0.0
         self.astar_total_ms = 0.0
         self.dist_map_ms = 0.0
@@ -391,6 +394,112 @@ def _compile_kernel():
     return _astar_kernel_3d
 
 
+# ---------------------------------------------------------------------------
+# U5: Rust kernel dispatch (roadmap KTD6).  TEMPER_ASTAR_BACKEND=rust
+# selects the temper-rust-router kernel; the Numba kernel remains the
+# fallback.  Path identity acceptance is cell-sequence equality (KTD7).
+# ---------------------------------------------------------------------------
+
+
+def _astar_search_rust(
+    start: tuple,
+    goal: tuple,
+    grid,
+    neighbor_tensor: np.ndarray | None = None,
+    max_iterations: int = 1_000_000,
+    congestion_flat: np.ndarray | None = None,
+    congestion_weight: float = 1.0,
+    max_congestion_cost: float = 100.0,
+    thermal_flat: np.ndarray | None = None,
+    thermal_weight: float = 0.0,
+) -> list | None:
+    """Rust-backed A* front-end: mirrors :func:`_astar_search_numba`'s
+    contract, calling the ported kernel in ``temper-rust-router``
+    (``temper_rust_router_core::astar::astar_kernel_3d``)."""
+    import temper_rust_router as _trr
+
+    if neighbor_tensor is None:
+        from temper_placer.router_v6.neighbor_validity import (
+            build_neighbor_validity_tensor_2d,
+        )
+
+        neighbor_tensor = build_neighbor_validity_tensor_2d(grid)
+
+    rows = grid.height_cells
+    cols = grid.width_cells
+    validity_flat = np.ascontiguousarray(neighbor_tensor.astype(np.uint8).reshape(-1))
+
+    start_idx = int(start[1]) * cols + int(start[0])
+    goal_idx = int(goal[1]) * cols + int(goal[0])
+
+    congestion_arg = None
+    if congestion_flat is not None:
+        congestion_arg = np.ascontiguousarray(congestion_flat.astype(np.float32))
+    thermal_arg = None
+    if thermal_flat is not None:
+        thermal_arg = np.ascontiguousarray(thermal_flat.astype(np.float32))
+
+    t0_rust = time.perf_counter()
+    path_flat, _iters = _trr.astar_kernel_3d_py(
+        start_idx,
+        goal_idx,
+        rows,
+        cols,
+        validity_flat.tobytes(),
+        max_iterations,
+        None if congestion_arg is None else congestion_arg.tobytes(),
+        np.float32(congestion_weight),
+        np.float32(max_congestion_cost),
+        None if thermal_arg is None else thermal_arg.tobytes(),
+        np.float32(thermal_weight),
+    )
+    _route_profile_stats.rust_time_ms += (time.perf_counter() - t0_rust) * 1000.0
+
+    if len(path_flat) == 0:
+        return None
+
+    return [(int(i % cols), int(i // cols)) for i in path_flat]
+
+
+def _line_of_sight_rust(p1, p2, grid, net_id: int) -> bool:
+    """Rust-backed Bresenham LOS check (mirrors
+    :func:`_line_of_sight_numba`'s contract)."""
+    import temper_rust_router as _trr
+
+    x0, y0 = p1
+    x1, y1 = p2
+    # int8 is the documented CellState dtype; normalize so the Rust byte
+    # indexing matches the numba kernel's native-dtype reads.
+    grid_contig = np.ascontiguousarray(grid.grid, dtype=np.int8)
+    return bool(
+        _trr.line_of_sight_py(
+            int(x0),
+            int(y0),
+            int(x1),
+            int(y1),
+            grid_contig.tobytes(),
+            int(grid.width_cells),
+            int(grid.height_cells),
+            int(net_id),
+        )
+    )
+
+
+def _select_astar_backend():
+    """Resolve the A* backend.  ``TEMPER_ASTAR_BACKEND=rust`` selects the
+    Rust kernel (falling back to numba on ImportError); unset/anything
+    else keeps the Numba kernel.  Read per call so tests can toggle it."""
+    backend = os.environ.get("TEMPER_ASTAR_BACKEND", "numba")
+    if backend == "rust":
+        try:
+            import temper_rust_router  # noqa: F401
+
+            return "rust"
+        except ImportError:
+            pass
+    return "numba"
+
+
 def _astar_search_numba(
     start: tuple,
     goal: tuple,
@@ -426,6 +535,22 @@ def _astar_search_numba(
     the scalar multiplier — U9 sets a non-zero value.
     """
     t0_total = time.perf_counter()
+
+    if _select_astar_backend() == "rust":
+        result = _astar_search_rust(
+            start,
+            goal,
+            grid,
+            neighbor_tensor=neighbor_tensor,
+            max_iterations=max_iterations,
+            congestion_flat=congestion_flat,
+            congestion_weight=congestion_weight,
+            max_congestion_cost=max_congestion_cost,
+            thermal_flat=thermal_flat,
+            thermal_weight=thermal_weight,
+        )
+        _route_profile_stats.astar_total_ms += (time.perf_counter() - t0_total) * 1000.0
+        return result
 
     if not _HAVE_NUMBA:
         t0 = time.perf_counter()
@@ -566,6 +691,12 @@ def _line_of_sight_numba(p1, p2, grid, net_id: int) -> bool:
         True if line is clear, False otherwise.
         Falls back to Python LOS if Numba is unavailable.
     """
+    if _select_astar_backend() == "rust":
+        try:
+            return _line_of_sight_rust(p1, p2, grid, net_id)
+        except ImportError:
+            pass
+
     if not _HAVE_NUMBA:
         from temper_placer.router_v6._astar_theta_star import _line_of_sight
 
