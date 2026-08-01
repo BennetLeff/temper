@@ -1,5 +1,11 @@
 name: Literal-Removal Advisory
 
+# PR runs grouped per PR number, cancelled when superseded; main runs grouped
+# per SHA and never cancelled. Rationale: python-tests.yml.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 on:
   pull_request:
 

@@ -1,0 +1,111 @@
+name: R9 Hybrid Pour Evidence
+
+# Evidence-gathering for the R9 (hybrid pour + stitch) promotion decision.
+# Moved off the per-PR path 2026-08-01: this test is explicitly not a gate
+# (continue-on-error in python-tests, docstring: "Not a CI gate -- evidence-
+# gathering for the R9 promotion decision"), yet at 877.7-986.9s it was the
+# per-PR critical path in python-tests' cp-sat slow job AND was duplicated
+# again inside regression.yml -- ~33 min/day of serial work for a pending
+# decision. The evidence stream continues here: nightly on main, plus
+# workflow_dispatch whenever the R9 owner wants fresh numbers.
+#
+# When R9 ships (defaults flip true in _pipeline_types.py), this test should
+# move back onto the per-PR path as a real gate and this workflow deleted.
+
+on:
+  schedule:
+    - cron: '15 4 * * *'  # nightly 04:15 UTC, clear of python-tests' 03:00
+  workflow_dispatch:
+
+jobs:
+  hybrid-evidence:
+    name: Hybrid pour evidence (4 seeds x 2 arms)
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/bennetleff/temper-ci:latest
+      options: --user root
+    timeout-minutes: 30
+    env:
+      VIRTUAL_ENV: ${{ github.workspace }}/.venv
+      TEMPER_REQUIRE_RUST_DRC: "1"
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Mark workspace safe for git
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: "latest"
+          enable-cache: true
+
+      - name: Cache virtualenv
+        uses: actions/cache@v6
+        id: cache-venv
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
+
+      - name: Create virtualenv (cache miss)
+        if: steps.cache-venv.outputs.cache-hit != 'true'
+        run: uv venv
+
+      - name: Install maturin
+        run: uv pip install maturin
+
+      - name: Build and install Rust crate
+        run: uv run maturin develop --release --manifest-path packages/temper-rust-router/Cargo.toml
+
+      - name: Verify Rust module loads
+        run: uv run python3 -c "import temper_rust_router; print('temper_rust_router loaded OK')"
+        env:
+          RUST_BACKTRACE: full
+
+      - name: Build and install temper-drc-rs
+        run: uv run maturin develop --release --manifest-path packages/temper-drc-rs/Cargo.toml
+
+      - name: Verify temper-drc-rs loads
+        run: uv run python3 -c "import temper_drc_rs; print('temper_drc_rs loaded OK')"
+        env:
+          RUST_BACKTRACE: full
+
+      - name: Build and install temper-constraints
+        run: >
+          uv run maturin develop --release
+          --manifest-path packages/temper-placer/temper-constraints/Cargo.toml
+        env:
+          PYO3_USE_ABI3_FORWARD_COMPATIBILITY: "1"
+
+      - name: Verify temper-constraints loads
+        run: uv run python3 -c "import temper_constraints; print('temper_constraints loaded OK, version', temper_constraints.version_py())"
+        env:
+          RUST_BACKTRACE: full
+
+      # --inexact: see the identical comment in python-tests.yml's
+      # extended-cpsat-slow job for why uv sync without it would silently
+      # UNINSTALL the release wheels built above.
+      - name: Install dependencies
+        run: >
+          uv sync --all-packages --inexact
+          --no-install-package temper-rust-router
+          --no-install-package temper-drc-rs
+          --no-install-package temper-constraints
+
+      - name: Cache netlist
+        id: cache-netlist
+        uses: actions/cache@v6
+        with:
+          path: elec/build
+          key: netlist-${{ hashFiles('elec/src/**', 'elec/ato.yaml', 'Makefile') }}
+
+      - name: Build electronics netlist
+        if: steps.cache-netlist.outputs.cache-hit != 'true'
+        run: make netlist
+
+      - name: Run hybrid pour evidence test
+        run: >
+          cd packages/temper-placer &&
+          uv run python ../../scripts/pytest_guard.py --min-tests 1 --
+          "tests/placer/cp_sat/test_hybrid_pour_stitch_measurement.py::TestHybridPourStitchVerification::test_hybrid_pour_reduces_unconnected_without_shorting_regression"
+          -v --tb=short -p no:cacheprovider --maxfail=10 -s -rs
