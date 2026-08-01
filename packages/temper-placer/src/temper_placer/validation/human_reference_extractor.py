@@ -364,10 +364,7 @@ def _netlist_to_oracle_dict(netlist) -> dict:
     is unused by the current config/threshold logic.
     """
     return {
-        "nets": [
-            {"name": net.name, "pins": [ref for ref, _ in net.pins]}
-            for net in netlist.nets
-        ],
+        "nets": [{"name": net.name, "pins": [ref for ref, _ in net.pins]} for net in netlist.nets],
         "components": [
             {
                 "ref": comp.ref,
@@ -423,6 +420,7 @@ def _compute_quality_metrics(
 
     try:
         import temper_quality_oracle
+
         from temper_placer.io.reference_loader import infer_quality_config
         from temper_placer.metrics.quality import (
             compactness_score,
@@ -442,9 +440,7 @@ def _compute_quality_metrics(
             {"name": "human_reference"},
         )
 
-        placement_dict = _placement_to_oracle_dict(
-            state, parse_result.netlist, parse_result.board
-        )
+        placement_dict = _placement_to_oracle_dict(state, parse_result.netlist, parse_result.board)
         metrics = {
             "thermal_score": thermal_score(
                 state,
@@ -489,9 +485,7 @@ def _compute_quality_metrics(
             ),
             "total_wirelength_mm": 0.0,
         }
-        verdict = temper_quality_oracle.evaluate_prepared_py(
-            prepared, placement_dict, metrics
-        )
+        verdict = temper_quality_oracle.evaluate_prepared_py(prepared, placement_dict, metrics)
         return {key: mk(float(value)) for key, value in verdict["metrics"].items()}
     except Exception:
         return {}
