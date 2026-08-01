@@ -74,7 +74,7 @@ BENCHMARK_CASES = [
         "rust_fn": "compute_alignment_loss_py",
         "args": (
             [10.0, 20.0, 15.0, 30.0, 12.0, 40.0],
-            "x", 0.5, 1.0,
+            0, 0.5, 1.0,  # 0 = x (FFI int enum, lib.rs)
         ),
         "kwargs": {},
     },
@@ -83,7 +83,7 @@ BENCHMARK_CASES = [
         "rust_fn": "compute_alignment_loss_py",
         "args": (
             [10.0 + (i % 3) * 5.0 for i in range(20)],
-            "x", 0.5, 1.0,
+            0, 0.5, 1.0,  # x
         ),
         "kwargs": {},
     },
@@ -92,7 +92,7 @@ BENCHMARK_CASES = [
         "rust_fn": "compute_edge_loss_py",
         "args": (
             [50.0, 40.0, 60.0, 30.0, 70.0, 20.0],
-            "left", 100.0, 80.0, 5.0, 1.0,
+            2, 100.0, 80.0, 5.0, 1.0,  # 2 = left (FFI int enum, lib.rs)
         ),
         "kwargs": {},
     },

@@ -105,46 +105,6 @@ def _rasterize_boundary_mask(
     return np.asarray(mask, dtype=bool).reshape(h, w)
 
 
-def _edt_width_lookup(
-    x: float,
-    y: float,
-    edt: np.ndarray,
-    mask: np.ndarray,
-    bounds: tuple[float, float, float, float],
-    cell_size: float,
-) -> float:
-    """Query width from a precomputed EDT grid.
-
-    Maps world coordinates (x, y) to grid indices, reads the EDT
-    distance, and returns width = 2 * distance * cell_size.
-
-    For sub-cell accuracy, bilinear interpolation is used over the
-    4 nearest grid points.
-
-    This per-point form is the reference implementation; the
-    sampling hot loop uses :func:`_edt_width_lookup_batch`, which is
-    bit-identical per point (see the differential tests).
-    """
-    min_x, min_y, _, _ = bounds
-    gx = (x - min_x) / cell_size
-    gy = (y - min_y) / cell_size
-
-    ix, iy = int(np.floor(gx)), int(np.floor(gy))
-    fx, fy = gx - ix, gy - iy
-
-    h, w = edt.shape
-    if ix < 0 or iy < 0 or ix + 1 >= w or iy + 1 >= h:
-        return 0.0
-
-    d00 = edt[iy, ix] if mask[iy, ix] else 0.0
-    d10 = edt[iy, ix + 1] if mask[iy, ix + 1] else 0.0
-    d01 = edt[iy + 1, ix] if mask[iy + 1, ix] else 0.0
-    d11 = edt[iy + 1, ix + 1] if mask[iy + 1, ix + 1] else 0.0
-
-    d = (d00 * (1 - fx) + d10 * fx) * (1 - fy) + (d01 * (1 - fx) + d11 * fx) * fy
-    return 2.0 * d * cell_size
-
-
 def _edt_width_lookup_batch(
     xs: np.ndarray,
     ys: np.ndarray,
@@ -155,10 +115,10 @@ def _edt_width_lookup_batch(
 ) -> np.ndarray:
     """Batch EDT width lookup: one FFI crossing for all samples.
 
-    Bit-identical to calling :func:`_edt_width_lookup` per point (same
-    f64 arithmetic order, computed in ``temper-geometry``); the batch
-    form exists because the sampling hot loop (~12k calls per layer)
-    is per-call Python overhead.
+    Bit-identical per point to the pre-batch per-point reference
+    implementation (same f64 arithmetic order, computed in
+    ``temper-geometry``); the batch form exists because the sampling
+    hot loop (~12k calls per layer) is per-call Python overhead.
     """
     h, w = edt.shape
     out = _tg.edt_width_lookup_batch(
@@ -282,8 +242,6 @@ def compute_channel_widths(
         _edt_grid, _edt_mask, _edt_bounds = _build_edt(routing_space, _edt_cell)
 
     def _width_at(p: tuple[float, float]) -> float:
-        if _edt_grid is not None and _edt_mask is not None and _edt_bounds is not None:
-            return _edt_width_lookup(p[0], p[1], _edt_grid, _edt_mask, _edt_bounds, _edt_cell)
         return _compute_width_at_point(
             p,
             available_area,
@@ -295,8 +253,9 @@ def compute_channel_widths(
 
     if _edt_grid is not None and _edt_mask is not None and _edt_bounds is not None:
         # Batched EDT path: collect every sample point, resolve all widths
-        # in one FFI crossing (bit-identical per point to the reference
-        # _edt_width_lookup), then assemble node/edge widths.
+        # in one FFI crossing (bit-identical per point to the per-point
+        # reference pinned in the differential test suites), then assemble
+        # node/edge widths.
         _node_points = list(skeleton.graph.nodes())
 
         _edge_samples: list[tuple[object, object, list[tuple[float, float]]]] = []

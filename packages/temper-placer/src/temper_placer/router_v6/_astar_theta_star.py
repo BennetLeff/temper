@@ -6,7 +6,7 @@ Part of temper-N6-U6 decomposition -- split from astar_core.py to bring
 that module back under the repo's 1000-line cap (``tools/loc_cap_check.py``).
 Theta* and Lazy Theta* both delegate their any-angle shortcut decision to
 the Rust-backed LOS kernel (``_line_of_sight_rust``, proven bit-identical
-to the retired Numba kernel and PBT-equal to the pure-Python reference),
+to the retired JIT kernel and PBT-equal to the pure-Python reference),
 falling back to ``_line_of_sight`` if the extension is missing, and share
 the congestion-derivative early-abort constants below, so all three live
 together here rather than splitting the line-of-sight check away from its
@@ -27,7 +27,7 @@ _LOS_BB_FALLS_THROUGH: list[int] = [0]
 def _line_of_sight_dispatch(p1, p2, grid, net_id: int) -> bool:
     """Bresenham LOS via the Rust kernel (cleanup C1), falling back to
     the pure-Python reference if ``temper_rust_router`` is missing."""
-    from temper_placer.router_v6.astar_core_numba import _line_of_sight_rust
+    from temper_placer.router_v6.astar_core_rust import _line_of_sight_rust
 
     try:
         return _line_of_sight_rust(p1, p2, grid, net_id)

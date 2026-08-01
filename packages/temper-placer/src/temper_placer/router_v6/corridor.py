@@ -44,6 +44,10 @@ def extract_corridor_mask(
         where ``True`` indicates the cell is within the corridor.
     """
     raw = _tg.extract_corridor_mask(
-        coarse_path, coarse_factor, buffer_cells, fine_rows, fine_cols
+        [v for cell in coarse_path for v in cell],
+        coarse_factor,
+        buffer_cells,
+        fine_rows,
+        fine_cols,
     )
     return np.frombuffer(raw, dtype=np.bool_).reshape((fine_rows, fine_cols))

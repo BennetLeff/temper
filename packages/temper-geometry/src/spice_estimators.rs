@@ -98,12 +98,15 @@ fn infer_unit(name: &str, value: f64) -> String {
 
 #[pyfunction]
 #[pyo3(signature = (positions, trace_height_mm))]
-pub fn spice_loop_inductance_py(
-    py: Python<'_>,
-    positions: Vec<(f64, f64)>,
-    trace_height_mm: f64,
-) -> PyResult<f64> {
-    temper_py_bridge::catch_unwind(|| loop_inductance(&positions, trace_height_mm))
+pub fn spice_loop_inductance_py(positions: Vec<f64>, trace_height_mm: f64) -> PyResult<f64> {
+    // The caller flattens its (x, y) positions into one float array; pair
+    // them back up here (element order unchanged, bit-exact with the old
+    // Vec<(f64, f64)>).
+    let pts: Vec<(f64, f64)> = positions
+        .chunks_exact(2)
+        .map(|c| (c[0], c[1]))
+        .collect();
+    temper_py_bridge::catch_unwind(|| loop_inductance(&pts, trace_height_mm))
         .map_err(temper_py_bridge::panic_to_err)
 }
 

@@ -291,9 +291,9 @@ fn temper_rust_router(m: &Bound<'_, PyModule>) -> PyResult<()> {
     Ok(())
 }
 
-/// Python-callable A* kernel (U5) — the Rust port of
-/// `astar_core_numba.py::_astar_kernel_3d`. Inputs mirror the Numba
-/// kernel's arguments; congestion/thermal fields are passed as little-
+/// Python-callable A* kernel (U5) — the Rust port of the retired JIT
+/// kernel (`_astar_kernel_3d`). Inputs mirror the retired kernel's
+/// arguments; congestion/thermal fields are passed as little-
 /// endian float32 byte buffers (None = absent). Returns (path, iterations).
 #[pyfunction]
 #[pyo3(signature = (
@@ -334,7 +334,7 @@ fn astar_kernel_3d_py(
 }
 
 /// Python-callable Bresenham line-of-sight check (U5) — the Rust port of
-/// `astar_core_numba.py::_line_of_sight_numba_kernel`. `grid_bytes` is a
+/// the retired JIT LOS kernel. `grid_bytes` is a
 /// row-major (height, width) int8 occupancy grid.
 #[pyfunction]
 #[pyo3(signature = (x0, y0, x1, y1, grid_bytes, width_cells, height_cells, net_id))]

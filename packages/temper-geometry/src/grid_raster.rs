@@ -2,8 +2,8 @@
 // compute of the deterministic clearance-grid stage.
 //
 // Python references:
-//   temper_placer/deterministic/stages/_grid_core.py  — the numba
-//     `_block_circle_numba` / `_block_segment_numba` loops and the
+//   temper_placer/deterministic/stages/_grid_core.py  — the JIT
+//     `_block_circle` / `_block_segment` loops and the
 //     pure-Python `block_rect` / `unblock_circle` / `occupancy_bitmap`
 //     loops (the rasterisation kernels);
 //   temper_placer/deterministic/stages/_grid_fence.py — the U3 fence's
@@ -25,7 +25,7 @@
 // crate's statically-bound f64 intrinsics in the last ulp (measured for
 // sin; see pad_geometry.rs for the established pattern).  The grids are
 // mutated in place through numpy's buffer protocol (PyBuffer<i32>),
-// exactly like the numba originals.
+// exactly like the JIT originals.
 
 use pyo3::buffer::PyBuffer;
 use pyo3::prelude::*;
@@ -122,7 +122,7 @@ fn math_sin(x: f64) -> f64 {
 // Pure kernels (no pyo3, unit-testable without libpython)
 // ---------------------------------------------------------------------------
 
-/// Merge one cell per the numba reference: free -> net_id, same net ->
+/// Merge one cell per the JIT reference: free -> net_id, same net ->
 /// unchanged, any other occupied value -> conflict (-1).
 #[inline]
 fn merge_cell(cur: i32, net_id: i32) -> i32 {
@@ -135,7 +135,8 @@ fn merge_cell(cur: i32, net_id: i32) -> i32 {
     }
 }
 
-/// Rasterise a disc into `grid` (`_block_circle_numba` verbatim):
+/// Rasterise a disc into `grid` (the retired JIT `_block_circle` loop,
+/// verbatim):
 /// per cell centre (col*cell + cell/2, row*cell + cell/2), block when
 /// dist <= total_radius with the merge semantics above.
 ///
@@ -168,8 +169,8 @@ fn block_circle_into_grid(
     }
 }
 
-/// Rasterise a width-bearing segment into `grid` (`_block_segment_numba`
-/// verbatim): project each cell centre onto the segment (clamped t via
+/// Rasterise a width-bearing segment into `grid` (the retired JIT
+/// `_block_segment` loop, verbatim): project each cell centre onto the segment (clamped t via
 /// the reference's min-then-max nesting — `max(0.0, min(1.0, t))` — which
 /// is NOT `min(max(t,0),1)`: for t = nan CPython's min keeps its first
 /// argument so t clamps to 1.0), then block when dist <= total_radius.
@@ -294,8 +295,12 @@ fn occupancy_bitmap_row(
 /// midpoints, each expanded by eff = eff_creep - inset), otherwise
 /// sample_count_circle points on the circle of radius
 /// pad_radius + eff_creep - inset.  Returns flat x,y pairs.
+///
+/// `shape` is the FFI pad-shape code (see `pad_geometry.rs` `SHAPE_*`);
+/// oval/rect/roundrect are "rect-shaped", circle/thru_hole and unknown
+/// codes fall to the circle branch (identical to the old string match).
 fn fence_samples(
-    shape: &str,
+    shape: i64,
     pos_x: f64,
     pos_y: f64,
     pad_radius: f64,
@@ -306,7 +311,9 @@ fn fence_samples(
     sample_count_circle: usize,
 ) -> Vec<f64> {
     let mut out = Vec::new();
-    let is_rect = matches!(shape, "rect" | "roundrect" | "oval") && pad_size_x > 0.0 && pad_size_y > 0.0;
+    let is_rect = matches!(shape, crate::pad_geometry::SHAPE_OVAL | crate::pad_geometry::SHAPE_RECT | crate::pad_geometry::SHAPE_ROUNDRECT)
+        && pad_size_x > 0.0
+        && pad_size_y > 0.0;
     if is_rect {
         let w = pad_size_x;
         let h = pad_size_y;
@@ -526,7 +533,7 @@ pub fn occupancy_bitmap_row_py(
 #[pyfunction]
 #[pyo3(signature = (shape, pos_x, pos_y, pad_radius, pad_size_x, pad_size_y, eff_creep, inset, sample_count_circle))]
 pub fn fence_samples_py(
-    shape: String,
+    shape: i64,
     pos_x: f64,
     pos_y: f64,
     pad_radius: f64,
@@ -538,7 +545,7 @@ pub fn fence_samples_py(
 ) -> PyResult<Vec<f64>> {
     temper_py_bridge::catch_unwind(|| {
         Ok(fence_samples(
-            &shape,
+            shape,
             pos_x,
             pos_y,
             pad_radius,
@@ -670,7 +677,7 @@ mod tests {
 
     #[test]
     fn test_fence_samples_circle_angles() {
-        let s = fence_samples("circle", 10.0, 10.0, 1.0, 0.0, 0.0, 2.0, 0.25, 4);
+        let s = fence_samples(0, 10.0, 10.0, 1.0, 0.0, 0.0, 2.0, 0.25, 4);
         assert_eq!(s.len(), 8);
         let r = 1.0 + 2.0 - 0.25;
         // i=0: theta = 0 -> (cx + r, cy)
@@ -683,7 +690,7 @@ mod tests {
 
     #[test]
     fn test_fence_samples_rect_has_eight() {
-        let s = fence_samples("rect", 0.0, 0.0, 0.0, 4.0, 2.0, 0.5, 0.25, 16);
+        let s = fence_samples(2, 0.0, 0.0, 0.0, 4.0, 2.0, 0.5, 0.25, 16);
         assert_eq!(s.len(), 16);
         // corner (cx - w/2 - eff, cy - h/2 - eff)
         assert_eq!(s[0], 0.0 - 2.0 - 0.25);
@@ -693,6 +700,14 @@ mod tests {
         assert_eq!(s[11], 0.0 + 1.0 + 0.25);
         assert_eq!(s[12], 0.0 - 2.0 - 0.25);
         assert_eq!(s[13], 0.0);
+    }
+
+    #[test]
+    fn test_fence_samples_unknown_shape_circle_branch() {
+        // Unknown shape codes (e.g. 99) fall to the circle branch, exactly
+        // like the old unrecognized-string match.
+        assert_eq!(fence_samples(99, 0.0, 0.0, 1.0, 4.0, 2.0, 0.5, 0.0, 4).len(), 8);
+        assert_eq!(fence_samples(0, 0.0, 0.0, 1.0, 4.0, 2.0, 0.5, 0.0, 4).len(), 8);
     }
 
     #[test]

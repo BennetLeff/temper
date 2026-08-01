@@ -59,6 +59,22 @@ if TYPE_CHECKING:
     from temper_placer.fields.result import FieldResult
 
 
+# FFI heatsink-edge int enum shared with temper-thermal's pyo3 surface
+# (fdm.rs `HEATSINK_*`): 0=TOP, 1=BOTTOM, 2=LEFT, 3=RIGHT. Any other
+# value means "no heatsink edge" — every boundary face stays Neumann —
+# matching the old unrecognized-string behavior (e.g. "NORTH"). Pinned
+# by the thermal differential suites on both sides.
+_HEATSINK_EDGE_CODES = {"TOP": 0, "BOTTOM": 1, "LEFT": 2, "RIGHT": 3}
+_HEATSINK_EDGE_UNKNOWN = 99
+
+
+def _heatsink_edge_code(edge: str) -> int:
+    """Map a heatsink-edge name to the FFI int enum (see
+    ``_HEATSINK_EDGE_CODES``). The `.upper().strip()` normalization the
+    old string boundary applied is preserved here."""
+    return _HEATSINK_EDGE_CODES.get(edge.upper().strip(), _HEATSINK_EDGE_UNKNOWN)
+
+
 # ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
@@ -352,7 +368,7 @@ def _assemble_system(
         w,
         config.ambient_C,
         config.cell_size_mm,
-        config.heatsink_edge.upper().strip(),
+        _heatsink_edge_code(config.heatsink_edge),
     )
     A = coo_matrix((values, (rows, cols)), shape=(n, n), dtype=np.float64).tocsr()
     return A, np.asarray(b, dtype=np.float64)

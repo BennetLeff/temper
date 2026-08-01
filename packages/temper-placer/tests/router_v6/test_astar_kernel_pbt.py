@@ -1,8 +1,8 @@
 """Property-based tests for the Rust A* kernel (U5).
 
 Six invariants (per the migration roadmap's PBT discipline), exercised
-through ``_astar_search_numba`` (the sole A* backend since cleanup C1
-retired the Numba fallback on 2026-07-31):
+through ``_astar_search_rust`` (the sole A* backend since cleanup C1
+retired the JIT fallback on 2026-07-31):
 
 1. Path endpoints are start and goal
 2. Consecutive path cells are 8-connected
@@ -19,7 +19,7 @@ import numpy as np
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from temper_placer.router_v6.astar_core_numba import _astar_search_numba
+from temper_placer.router_v6.astar_core_rust import _astar_search_rust
 from temper_placer.router_v6.neighbor_validity import build_neighbor_validity_tensor_2d
 
 MAX_EXAMPLES = 150
@@ -48,7 +48,7 @@ def _make_grid(rows: int, cols: int, blocked: list[tuple[int, int]]) -> np.ndarr
 
 def _search(start, goal, grid, congestion_flat=None):
     tensor = build_neighbor_validity_tensor_2d(grid)
-    return _astar_search_numba(
+    return _astar_search_rust(
         start,
         goal,
         grid,

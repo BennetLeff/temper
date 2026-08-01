@@ -68,7 +68,7 @@ The differential test suite
 (`packages/temper-placer/tests/router_v6/test_congestion_tensor_rust_differential.py`)
 pins the wrapper and the Rust storage against the pre-migration numpy
 implementation, including the f32/f64 `max_cost` clamp band and the
-relationship to the Numba kernel's production formula (f32
+relationship to the retired JIT kernel's production formula (f32
 `1.0 + log(1 + raw)`, which differs from the f64 log1p oracle in the
 last ulp and collapses to 1.0 for raw below ~6e-8 — the three-way
 relationship is pinned by `test_kernel_formula_relation`).
@@ -382,8 +382,8 @@ doubling (2·fl(b·0.3) == fl(2b·0.3)) and inner ≤ outer. The
 pre-existing suites (`test_clearance_grid.py`, `test_4layer_grid.py`,
 `test_router_v6_fence_integration.py`, `test_stage_invariants.py`,
 bottleneck-geometry consumers) pass unchanged against the Rust-backed
-wrappers; `_grid_core.py` no longer imports numba (the module's
-documented cold-start cost — the migration's perf win). The Rust module
+wrappers; `_grid_core.py` no longer imports the retired JIT runtime
+(the module's documented cold-start cost — the migration's perf win). The Rust module
 carries 11 unit tests covering merge semantics, degenerate inputs, and
 word/boundary layout.
 
@@ -757,3 +757,42 @@ translation, rotation invariance, boundedness by the midpoint
 distance, plus voltage-table monotonicity and HV-detection
 case-insensitivity, and four metamorphic relations (translate-both,
 swap-segments, rotate-both, HV/LV role swap in `verify_creepage`).
+
+## FFI Audit (spike C7, 2026-08-01) — tagged-type simplification
+
+The pyo3 surface was audited per-function (see the C7 spike report for
+the full table). B-class parameters (Python-object-tagged types) that
+were converted to int enums / flat arrays, with the public Python API
+unchanged (the wrapper converts once):
+
+| pyfunction | Old | New |
+|---|---|---|
+| `pad_corner_radius_py` / `pad_core_half_extents_py` / `pad_support_radius_py` / `pad_axis_radius_py` / `pad_bounding_radius_py` | `shape: String` | `shape: i64` code (`SHAPE_*`; 0=circle, 1=oval, 2=rect, 3=roundrect, 4=thru_hole, 99=unknown→r=0) |
+| `fence_samples_py` | `shape: String` | `shape: i64` code (oval/rect/roundrect = rect branch, else circle) |
+| `barrier_axis_gap_py` / `best_rotation_for_barrier_py` | `Vec<(f64,f64,f64,f64,String,f64)>` | same tuple with `i64` shape code |
+| `pad_pair_distance_py` / `component_reach_py` / `copper_scan_py` | `(f64,f64,String,f64,f64,f64,f64)` PadSpec | `i64` shape code in the tuple |
+| `extract_corridor_mask` | `Vec<(i64,i64)>` | flat `Vec<i64>` (pairs re-grouped at the boundary) |
+| `rasterise_polygon_mask` | `Vec<(f64,f64)>` | flat `Vec<f64>` |
+| `spice_loop_inductance_py` | `Vec<(f64,f64)>` | flat `Vec<f64>` |
+| `CongestionTensor.increment_cells` | `Vec<(i64,i64)>` | flat `Vec<i64>` |
+| `cell_capacity_batch_py` / `hard_blocked_batch_py` / `build_capacitated_graph_py` | `Vec<(i64,i64,i64)>` cells | flat `Vec<i64>` |
+
+Bit-exactness is preserved by construction: element order is unchanged
+(the Rust side re-groups flat pairs/triples in order) and the shape/edge
+match arms are the same decisions the old string matches made (unknown →
+safe r=0 / circle-branch / all-Neumann). Pinned by the existing
+differential suites (isolation-barrier, grid-fence, clearance, corridor,
+copper-coverage, spice, congestion-tensor, bottleneck-geometry) plus the
+new wrapper-conversion pins in
+`tests/rust_integration/test_ffi_tagged_type_conversion.py`.
+
+**Deliberately kept (B-class, not converted):** `min_clearance_distance_py`
+(layer name is open-ended KiCad data, not a small enum),
+`closest_component_for_zone_py` (component refs are arbitrary strings and
+the result must return the ref), `spice_infer_unit_py` (name content is
+the input, not a tag), `is_high_voltage_net_py` (net-name content is the
+input), and `precompute_from_pad_polygons` / `compute_drc_proxy_score`
+(variable-length nested polygons — a flat conversion would need offsets;
+cold paths). Return-value tuples (`Vec<(usize,usize,f64)>` from
+`check_clearance_violation`, etc.) were left as-is: the spike targets
+parameters, and pyo3's return-tuple extraction is already efficient.

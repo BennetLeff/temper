@@ -116,6 +116,7 @@ from typing import TYPE_CHECKING
 import temper_geometry as _tg
 
 from temper_placer.core.isolation_constants import MIN_BARRIER_WIDTH_MM
+from temper_placer.core.pad_geometry import shape_code
 
 if TYPE_CHECKING:
     from temper_placer.core.netlist import Component, Netlist
@@ -344,8 +345,8 @@ def _axis_gap(hv_pads: list[Pad], selv_pads: list[Pad], axis_idx: int) -> float:
     )
 
 
-def _pad_tuple(p: Pad) -> tuple[float, float, float, float, str, float]:
-    return (p.x, p.y, p.width, p.height, p.shape, p.roundrect_ratio)
+def _pad_tuple(p: Pad) -> tuple[float, float, float, float, int, float]:
+    return (p.x, p.y, p.width, p.height, shape_code(p.shape), p.roundrect_ratio)
 
 
 def _project_onto_barrier_axis(local_x: float, local_y: float, rot_value: int, barrier_axis: int) -> float:

@@ -44,9 +44,13 @@ _inset = st.floats(min_value=0.0, max_value=0.5, allow_nan=False, allow_infinity
 _count = st.integers(min_value=1, max_value=64)
 _shape = st.sampled_from(["circle", "rect", "roundrect", "oval", "custom", ""])
 
+# FFI pad-shape code (pad_geometry.rs `SHAPE_*`): 0=circle, 1=oval,
+# 2=rect, 3=roundrect, 4=thru_hole; unknown -> 99 (circle branch).
+_SHAPE_CODES = {"circle": 0, "oval": 1, "rect": 2, "roundrect": 3, "thru_hole": 4}
+
 
 def _samples(shape, cx, cy, radius, w, h, eff, inset, count):
-    raw = _tg.fence_samples_py(shape, cx, cy, radius, w, h, eff, inset, count)
+    raw = _tg.fence_samples_py(_SHAPE_CODES.get(shape, 99), cx, cy, radius, w, h, eff, inset, count)
     return [(raw[2 * i], raw[2 * i + 1]) for i in range(len(raw) // 2)]
 
 

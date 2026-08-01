@@ -74,9 +74,11 @@ use temper_py_bridge;
 use crate::pad_geometry::{bounding_radius, core_half_extents, corner_radius, math_cos_sin, py_hypot};
 
 /// A pad as consumed by this module:
-/// (width, height, shape, cx, cy, rotation_rad, roundrect_ratio) — the
-/// same tuple `_CopperModel._spec` and `pad_pair_distance` use.
-type PadSpec = (f64, f64, String, f64, f64, f64, f64);
+/// (width, height, shape_code, cx, cy, rotation_rad, roundrect_ratio) —
+/// the same tuple `_CopperModel._spec` and `pad_pair_distance` use, with
+/// the shape as the FFI int enum (see `pad_geometry.rs` `SHAPE_*`; the
+/// Python wrapper maps it once).
+type PadSpec = (f64, f64, i64, f64, f64, f64, f64);
 
 // ---------------------------------------------------------------------------
 // Pad-core construction (bit-exact replica of pad_core_polygon's geometry)
@@ -134,7 +136,7 @@ fn rotate_corner(x: f64, y: f64, cosp: f64, sinp: f64, cx: f64, cy: f64) -> [f64
 }
 
 /// Build the core (same branches and order as `pad_core_polygon`).
-fn pad_core(width: f64, height: f64, shape: &str, cx: f64, cy: f64, rotation_rad: f64, ratio: f64) -> Core {
+fn pad_core(width: f64, height: f64, shape: i64, cx: f64, cy: f64, rotation_rad: f64, ratio: f64) -> Core {
     let (hw, hh) = core_half_extents(width, height, shape, ratio);
     let (cosp, sinp) = shapely_rotation_cos_sin(rotation_rad);
     if hw <= 0.0 && hh <= 0.0 {
@@ -380,11 +382,11 @@ fn core_distance(a: &Core, b: &Core) -> f64 {
 fn pad_pair_distance_spec(a: &PadSpec, b: &PadSpec) -> f64 {
     let (wa, ha, sa, cxa, cya, rota, rra) = a;
     let (wb, hb, sb, cxb, cyb, rotb, rrb) = b;
-    let core_a = pad_core(*wa, *ha, sa, *cxa, *cya, *rota, *rra);
-    let core_b = pad_core(*wb, *hb, sb, *cxb, *cyb, *rotb, *rrb);
+    let core_a = pad_core(*wa, *ha, *sa, *cxa, *cya, *rota, *rra);
+    let core_b = pad_core(*wb, *hb, *sb, *cxb, *cyb, *rotb, *rrb);
     let gap = core_distance(&core_a, &core_b);
-    let ra = corner_radius(*wa, *ha, sa, *rra);
-    let rb = corner_radius(*wb, *hb, sb, *rrb);
+    let ra = corner_radius(*wa, *ha, *sa, *rra);
+    let rb = corner_radius(*wb, *hb, *sb, *rrb);
     (gap - ra - rb).max(0.0)
 }
 
@@ -411,13 +413,13 @@ fn copper_scan(
     let mut best_pair: Option<(usize, usize)> = None;
     for (i, pa) in pads_a.iter().enumerate() {
         let (wa, ha, sa, cxa, cya, _, rra) = pa;
-        let ra = bounding_radius(*wa, *ha, sa, *rra);
+        let ra = bounding_radius(*wa, *ha, *sa, *rra);
         for (j, pb) in pads_b.iter().enumerate() {
             if ids_a[i] == ids_b[j] {
                 continue; // a pad has no clearance to itself (Python `pa is pb`)
             }
             let (wb, hb, sb, cxb, cyb, _, rrb) = pb;
-            let rb = bounding_radius(*wb, *hb, sb, *rrb);
+            let rb = bounding_radius(*wb, *hb, *sb, *rrb);
             let centre_gap = py_hypot(cxa - cxb, cya - cyb) - ra - rb;
             if centre_gap >= best {
                 continue; // provably cannot beat the incumbent (d >= centre_gap)
@@ -470,7 +472,7 @@ pub fn component_reach_py(pads: Vec<PadSpec>, ox: f64, oy: f64) -> PyResult<f64>
         for (w, h, shape, cx, cy, _, rr) in &pads {
             // reach = hypot + bounding_radius >= 0 always, so the 0.0 seed
             // is only a stand-in for Python's `max` over a non-empty list.
-            let reach = py_hypot(cx - ox, cy - oy) + bounding_radius(*w, *h, shape, *rr);
+            let reach = py_hypot(cx - ox, cy - oy) + bounding_radius(*w, *h, *shape, *rr);
             if reach > best {
                 best = reach;
             }
@@ -525,49 +527,49 @@ mod tests {
 
     #[test]
     fn test_corner_radius_agrees_with_shared_model() {
-        let r = corner_radius(4.0, 2.0, "roundrect", 0.25);
+        let r = corner_radius(4.0, 2.0, crate::pad_geometry::SHAPE_ROUNDRECT, 0.25);
         assert_eq!(r, 0.5);
-        let r = corner_radius(4.0, 2.0, "oval", 0.25);
+        let r = corner_radius(4.0, 2.0, crate::pad_geometry::SHAPE_OVAL, 0.25);
         assert_eq!(r, 1.0);
     }
 
     #[test]
     fn test_pad_pair_distance_zero_when_identical() {
         // identical rects at the same position -> gap 0, radii 0 -> 0.0
-        let pad: PadSpec = (2.0, 2.0, "rect".to_string(), 0.0, 0.0, 0.0, 0.0);
+        let pad: PadSpec = (2.0, 2.0, 2, 0.0, 0.0, 0.0, 0.0);
         assert_eq!(pad_pair_distance_spec(&pad, &pad), 0.0);
     }
 
     #[test]
     fn test_pad_pair_distance_rect_gap() {
         // two 2x2 rects 5 apart centre-to-centre, axis aligned: gap 3.0
-        let a: PadSpec = (2.0, 2.0, "rect".to_string(), 0.0, 0.0, 0.0, 0.0);
-        let b: PadSpec = (2.0, 2.0, "rect".to_string(), 5.0, 0.0, 0.0, 0.0);
+        let a: PadSpec = (2.0, 2.0, 2, 0.0, 0.0, 0.0, 0.0);
+        let b: PadSpec = (2.0, 2.0, 2, 5.0, 0.0, 0.0, 0.0);
         assert!((pad_pair_distance_spec(&a, &b) - 3.0).abs() < 1e-12);
     }
 
     #[test]
     fn test_circle_pad_distance() {
         // two 2x2 circle pads 5 apart: gap 3.0, radii 1+1 -> 3.0
-        let a: PadSpec = (2.0, 2.0, "circle".to_string(), 0.0, 0.0, 0.0, 0.0);
-        let b: PadSpec = (2.0, 2.0, "circle".to_string(), 5.0, 0.0, 0.0, 0.0);
+        let a: PadSpec = (2.0, 2.0, 0, 0.0, 0.0, 0.0, 0.0);
+        let b: PadSpec = (2.0, 2.0, 0, 5.0, 0.0, 0.0, 0.0);
         assert!((pad_pair_distance_spec(&a, &b) - 3.0).abs() < 1e-12);
     }
 
     #[test]
     fn test_containment_zero() {
         // small rect fully inside a big rect -> 0.0
-        let big: PadSpec = (10.0, 10.0, "rect".to_string(), 0.0, 0.0, 0.0, 0.0);
-        let small: PadSpec = (2.0, 2.0, "rect".to_string(), 0.0, 0.0, 0.0, 0.0);
+        let big: PadSpec = (10.0, 10.0, 2, 0.0, 0.0, 0.0, 0.0);
+        let small: PadSpec = (2.0, 2.0, 2, 0.0, 0.0, 0.0, 0.0);
         assert_eq!(pad_pair_distance_spec(&big, &small), 0.0);
         assert_eq!(pad_pair_distance_spec(&small, &big), 0.0);
     }
 
     #[test]
     fn test_scan_returns_closest_pair() {
-        let a: PadSpec = (2.0, 2.0, "rect".to_string(), 0.0, 0.0, 0.0, 0.0);
-        let b: PadSpec = (2.0, 2.0, "rect".to_string(), 5.0, 0.0, 0.0, 0.0);
-        let c: PadSpec = (2.0, 2.0, "rect".to_string(), 20.0, 0.0, 0.0, 0.0);
+        let a: PadSpec = (2.0, 2.0, 2, 0.0, 0.0, 0.0, 0.0);
+        let b: PadSpec = (2.0, 2.0, 2, 5.0, 0.0, 0.0, 0.0);
+        let c: PadSpec = (2.0, 2.0, 2, 20.0, 0.0, 0.0, 0.0);
         let (best, pair) = copper_scan(&[a.clone(), c], &[b.clone()], &[1, 2], &[3]);
         assert_eq!(pair, Some((0, 0)));
         assert!((best - 3.0).abs() < 1e-12);
@@ -578,7 +580,7 @@ mod tests {
         // The Python `pa is pb` skip: equal object ids (e.g. a domain-
         // filtered sublist vs the stored full list sharing the same pad)
         // must not pair a pad with itself.
-        let a: PadSpec = (2.0, 2.0, "rect".to_string(), 0.0, 0.0, 0.0, 0.0);
+        let a: PadSpec = (2.0, 2.0, 2, 0.0, 0.0, 0.0, 0.0);
         let (best, pair) = copper_scan(&[a.clone()], &[a.clone()], &[42], &[42]);
         assert!(best.is_infinite());
         assert_eq!(pair, None);
@@ -592,9 +594,9 @@ mod tests {
     fn test_scan_skips_shared_object_in_sublist() {
         // matching = [pad0, pad2] vs stored = [pad0, pad1, pad2]: the
         // (0, 0) and (1, 2) pairs share objects and must be skipped.
-        let p0: PadSpec = (2.0, 2.0, "rect".to_string(), 0.0, 0.0, 0.0, 0.0);
-        let p1: PadSpec = (2.0, 2.0, "rect".to_string(), 5.0, 0.0, 0.0, 0.0);
-        let p2: PadSpec = (2.0, 2.0, "rect".to_string(), 9.0, 0.0, 0.0, 0.0);
+        let p0: PadSpec = (2.0, 2.0, 2, 0.0, 0.0, 0.0, 0.0);
+        let p1: PadSpec = (2.0, 2.0, 2, 5.0, 0.0, 0.0, 0.0);
+        let p2: PadSpec = (2.0, 2.0, 2, 9.0, 0.0, 0.0, 0.0);
         let (best, pair) = copper_scan(&[p0.clone(), p2.clone()], &[p0, p1, p2], &[100, 102], &[100, 101, 102]);
         // surviving pairs: (0,1) p0<->p1 gap 3.0, (0,2) p0<->p2 gap 7.0,
         // (1,0) p2<->p0 gap 7.0, (1,1) p2<->p1 gap 2.0 -- the closest
@@ -606,10 +608,10 @@ mod tests {
     #[test]
     fn test_scale_doubling_is_exact() {
         // metamorphic relation M4 pinned at the Rust level too
-        let a: PadSpec = (3.7, 2.1, "roundrect".to_string(), 4.0, -2.0, 1.234, 0.25);
-        let b: PadSpec = (1.2, 0.9, "oval".to_string(), -6.0, 5.0, -0.5, 0.25);
+        let a: PadSpec = (3.7, 2.1, 3, 4.0, -2.0, 1.234, 0.25);
+        let b: PadSpec = (1.2, 0.9, 1, -6.0, 5.0, -0.5, 0.25);
         let d = pad_pair_distance_spec(&a, &b);
-        let s2 = |p: &PadSpec| (p.0 * 2.0, p.1 * 2.0, p.2.clone(), p.3 * 2.0, p.4 * 2.0, p.5, p.6);
+        let s2 = |p: &PadSpec| (p.0 * 2.0, p.1 * 2.0, p.2, p.3 * 2.0, p.4 * 2.0, p.5, p.6);
         assert_eq!(pad_pair_distance_spec(&s2(&a), &s2(&b)), 2.0 * d);
     }
 }

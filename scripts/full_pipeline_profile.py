@@ -66,7 +66,7 @@ def instrument_router() -> dict[str, Any]:
     """Wrap the router's A* pathfinding with per-net timing/call counters.
 
     Returns a dict that the caller reads after the run.  The wrapping
-    is non-invasive: we monkey-patch ``astar_core_numba._astar_search_numba``
+    is non-invasive: we monkey-patch ``astar_core_rust._astar_search_rust``
     (and ``astar_pathfinding._dispatch_search``) to record:
 
     - net name (via the per-net wrapper)
@@ -78,7 +78,7 @@ def instrument_router() -> dict[str, Any]:
     per-call dict-append added measurable Python overhead to the
     1M-iter-cap full run.
     """
-    from temper_placer.router_v6 import astar_core_numba as acn
+    from temper_placer.router_v6 import astar_core_rust as acn
     from temper_placer.router_v6 import astar_pathfinding as ap
 
     stats: dict[str, Any] = {
@@ -96,7 +96,7 @@ def instrument_router() -> dict[str, Any]:
         "net_iters_cap": {},
     }
 
-    _orig_search = acn._astar_search_numba
+    _orig_search = acn._astar_search_rust
 
     def _wrapped_search(
         start, goal, grid, neighbor_tensor=None,
@@ -133,8 +133,8 @@ def instrument_router() -> dict[str, Any]:
             stats["a_star_cap_hits"] += 1
         return path
 
-    acn._astar_search_numba = _wrapped_search
-    ap._astar_search_numba = _wrapped_search
+    acn._astar_search_rust = _wrapped_search
+    ap._astar_search_rust = _wrapped_search
 
     # Now wrap the per-net loop in run_astar_pathfinding so we can
     # attribute A* calls to a net name.  We do this by monkey-patching
@@ -143,7 +143,7 @@ def instrument_router() -> dict[str, Any]:
 
     def _wrapped_route_with_ripup(*args, **kwargs):
         net_name = kwargs.get("net_name") or (args[0] if args else "??")
-        # The pathfinding code does the A* inside _astar_search_numba;
+        # The pathfinding code does the A* inside _astar_search_rust;
         # we just need to time the per-net total.
         t0 = time.perf_counter()
         result, ripped_ids = _orig_route_with_ripup(*args, **kwargs)
@@ -273,18 +273,18 @@ def run_full_pipeline(profile: bool) -> dict[str, Any]:
         )
         # The RouterV6Pipeline's run() doesn't expose a max_iter
         # arg; we wrap the kernel to apply the cap.
-        from temper_placer.router_v6 import astar_core_numba as acn
+        from temper_placer.router_v6 import astar_core_rust as acn
         from temper_placer.router_v6 import astar_pathfinding as ap
         _cap = max_iter
         if max_iter < 10_000_000:
-            _orig = acn._astar_search_numba
+            _orig = acn._astar_search_rust
             def _cap_search(start, goal, grid, neighbor_tensor=None,
                             max_iterations=1_000_000, **kw):
                 return _orig(start, goal, grid,
                              neighbor_tensor=neighbor_tensor,
                              max_iterations=_cap, **kw)
-            acn._astar_search_numba = _cap_search
-            ap._astar_search_numba = _cap_search
+            acn._astar_search_rust = _cap_search
+            ap._astar_search_rust = _cap_search
         router_out = pipeline.run(PCB_PATH, pcb_override=parsed)
         class _RR:
             completion_rate = router_out.completion_rate

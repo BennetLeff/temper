@@ -27,7 +27,7 @@ Cost formula (per the plan's tunable defaults):
     cost = min(MAX_COST, 1.0 + log(1.0 + raw))
     # 1.0 at zero usage; grows logarithmically; capped at 100
 
-In a hot path, the Numba A* inner loop reads
+In a hot path, the Rust A* inner loop reads
 ``congestion[cell_idx]`` per expansion and adds it to
 ``f_score``.  The cost is folded into ``g_score`` so it's
 admissible only as a tie-breaker (logarithmic growth keeps
@@ -143,10 +143,10 @@ class CongestionTensor:
         skipped by the Rust batch method (mirroring the original
         numpy bounds check).
         """
-        pairs: list[tuple[int, int]] = []
+        pairs: list[int] = []
         for x, y in coords:
             gx, gy = grid.world_to_grid(x, y)
-            pairs.append((gy, gx))
+            pairs.extend((gy, gx))
         self._rs.increment_cells(pairs, weight)
 
     def cost(self, row: int, col: int) -> float:

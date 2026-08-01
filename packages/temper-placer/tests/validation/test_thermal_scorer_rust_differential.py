@@ -30,6 +30,14 @@ import temper_thermal as _tt
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
+# FFI heatsink-edge code (fdm.rs `HEATSINK_*`): 0=TOP, 1=BOTTOM, 2=LEFT,
+# 3=RIGHT, anything else = no heatsink (all-Neumann).
+_HS_CODES = {"TOP": 0, "BOTTOM": 1, "LEFT": 2, "RIGHT": 3}
+
+
+def _hs_code(edge: str) -> int:
+    return _HS_CODES.get(edge.upper().strip(), 99)
+
 # ---------------------------------------------------------------------------
 # Oracles — the pre-migration pure-Python implementations, verbatim
 # ---------------------------------------------------------------------------
@@ -479,7 +487,7 @@ def test_assemble_convective_system_matches_reference_bit_exact(hs_edge):
             cfg.cell_size_mm,
             cfg.board_thickness_mm,
             h_conv,
-            cfg.heatsink_edge.upper().strip(),
+            _hs_code(cfg.heatsink_edge),
         )
         A_rust, b_rust = _coo_from_triplets(rows, cols, vals, b, h * w), np.asarray(b)
         A_ref, b_ref = _reference_assemble_convective_system(
@@ -496,7 +504,7 @@ def test_assemble_convective_system_edge_cases_bit_exact():
     k_field = np.full((4, 5), 0.3 * 1.6 * 1e-3)
     q_field = np.full((4, 5), 0.01)
     rows, cols, vals, b = _tt.assemble_convective_system_py(
-        _f64_bytes(k_field), _f64_bytes(q_field), None, 4, 5, 40.0, 0.5, 1.6, 10.0, "NORTH"
+        _f64_bytes(k_field), _f64_bytes(q_field), None, 4, 5, 40.0, 0.5, 1.6, 10.0, _hs_code("NORTH")
     )
     A_rust = _coo_from_triplets(rows, cols, vals, b, 20)
     A_ref, b_ref = _reference_assemble_convective_system(cfg, k_field, q_field, 10.0)
@@ -510,7 +518,7 @@ def test_assemble_convective_system_edge_cases_bit_exact():
         k_field = np.asarray([[0.5]])
         q_field = np.asarray([[0.2]])
         rows, cols, vals, b = _tt.assemble_convective_system_py(
-            _f64_bytes(k_field), _f64_bytes(q_field), None, 1, 1, 40.0, 1.0, 1.6, 10.0, hs
+            _f64_bytes(k_field), _f64_bytes(q_field), None, 1, 1, 40.0, 1.0, 1.6, 10.0, _hs_code(hs)
         )
         A_rust = _coo_from_triplets(rows, cols, vals, b, 1)
         A_ref, b_ref = _reference_assemble_convective_system(cfg, k_field, q_field, 10.0)
@@ -523,7 +531,7 @@ def test_assemble_convective_system_edge_cases_bit_exact():
     k_field = np.asarray([0.3 + rng.random() for _ in range(48)]).reshape(6, 8)
     q_field = np.asarray([rng.random() * 0.05 for _ in range(48)]).reshape(6, 8)
     rows, cols, vals, b = _tt.assemble_convective_system_py(
-        _f64_bytes(k_field), _f64_bytes(q_field), None, 6, 8, 40.0, 0.5, 1.6, 0.0, "TOP"
+        _f64_bytes(k_field), _f64_bytes(q_field), None, 6, 8, 40.0, 0.5, 1.6, 0.0, _hs_code("TOP")
     )
     A_rust = _coo_from_triplets(rows, cols, vals, b, 48)
     A_ref, b_ref = _reference_assemble_convective_system(cfg, k_field, q_field, 0.0)
@@ -536,7 +544,7 @@ def test_assemble_convective_system_edge_cases_bit_exact():
     k_field = np.full((3, 3), 0.3 * 1.6 * 1e-3)
     q_field = np.zeros((3, 3))
     rows, cols, vals, b = _tt.assemble_convective_system_py(
-        _f64_bytes(k_field), _f64_bytes(q_field), None, 3, 3, 40.0, 0.5, 1.6, 10.0, "BOTTOM"
+        _f64_bytes(k_field), _f64_bytes(q_field), None, 3, 3, 40.0, 0.5, 1.6, 10.0, _hs_code("BOTTOM")
     )
     A_rust = _coo_from_triplets(rows, cols, vals, b, 9)
     A_ref, b_ref = _reference_assemble_convective_system(cfg, k_field, q_field, 10.0)

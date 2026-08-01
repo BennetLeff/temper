@@ -1,10 +1,10 @@
 """Property-based tests: Rust LOS == Python LOS for random inputs.
 
-Reworked from ``test_los_numba_correctness.py`` (cleanup C1, 2026-07-31):
-the Numba LOS kernel was removed with the rest of the Numba backend; the
+Reworked from the retired LOS-parity suite (cleanup C1, 2026-07-31):
+the JIT LOS kernel was removed with the rest of the JIT backend; the
 Rust kernel (``_line_of_sight_rust``) is the sole accelerated LOS and the
 pure-Python ``_line_of_sight`` remains the reference oracle.  The
-numba-vs-python parity evidence recorded by the retired suite is
+JIT-vs-python parity evidence recorded by the retired suite is
 preserved here as rust-vs-python, which is the stronger property now
 that the Rust kernel is what production Theta* routing runs.
 """
@@ -15,7 +15,7 @@ from hypothesis import given, settings
 from hypothesis import strategies as st
 
 from temper_placer.router_v6._astar_theta_star import _line_of_sight
-from temper_placer.router_v6.astar_core_numba import _line_of_sight_rust
+from temper_placer.router_v6.astar_core_rust import _line_of_sight_rust
 
 
 @st.composite
@@ -50,7 +50,7 @@ class FakeGrid:
 def rust_los_engaged():
     """Fail loudly instead of silently testing the Python fallback when
     ``temper_rust_router`` is missing/stale."""
-    from temper_placer.router_v6.astar_core_numba import _select_astar_backend
+    from temper_placer.router_v6.astar_core_rust import _select_astar_backend
 
     assert _select_astar_backend() == "rust", (
         "temper_rust_router did not resolve — run `make extensions` "
@@ -145,7 +145,7 @@ def test_los_python_negative_coordinate_bb_shortcut_bug():
     own ``in_bounds()`` check would (and now does) correctly reject it.
 
     This is the minimal repro that was failing
-    ``test_numba_los_matches_python`` before the fix: Python returned
+    the retired LOS-parity test before the fix: Python returned
     True, the kernel (which has no BB shortcut, only the Bresenham loop)
     correctly returned False. The Rust kernel inherits the Bresenham-only
     semantics; this pins both to False.

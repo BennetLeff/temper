@@ -235,7 +235,7 @@ pub fn assemble_convective_system_py(
     cell_size_mm: f64,
     board_thickness_mm: f64,
     h_conv: f64,
-    heatsink_edge: String,
+    heatsink_edge: i64,
 ) -> (Vec<i64>, Vec<i64>, Vec<f64>, Vec<f64>) {
     temper_py_bridge::catch_unwind(|| {
         assemble_convective_system_inner(
@@ -265,7 +265,7 @@ fn assemble_convective_system_inner(
     cell_size_mm: f64,
     board_thickness_mm: f64,
     h_conv: f64,
-    heatsink_edge: String,
+    heatsink_edge: i64,
 ) -> (Vec<i64>, Vec<i64>, Vec<f64>, Vec<f64>) {
     let k = parse_f64s(&k_field_bytes);
     let q = parse_f64s(&q_bytes);
@@ -278,7 +278,7 @@ fn assemble_convective_system_inner(
     let cs = cell_size_mm;
     let dx2 = cs * cs;
     let dy2 = cs * cs;
-    let hs = heatsink_edge.to_uppercase();
+    let hs = heatsink_edge;
 
     let mut rows: Vec<i64> = Vec::with_capacity(n * 5);
     let mut cols: Vec<i64> = Vec::with_capacity(n * 5);
@@ -299,7 +299,7 @@ fn assemble_convective_system_inner(
                 cols.push((idx + 1) as i64);
                 vals.push(-coeff);
                 diag += coeff;
-            } else if heatsink_face(row, col, "east", h, w, &hs) {
+            } else if heatsink_face(row, col, "east", h, w, hs) {
                 let coeff = 2.0 * k_c / dx2;
                 diag += coeff;
                 b[idx] += coeff * ambient_c;
@@ -313,7 +313,7 @@ fn assemble_convective_system_inner(
                 cols.push((idx - 1) as i64);
                 vals.push(-coeff);
                 diag += coeff;
-            } else if heatsink_face(row, col, "west", h, w, &hs) {
+            } else if heatsink_face(row, col, "west", h, w, hs) {
                 let coeff = 2.0 * k_c / dx2;
                 diag += coeff;
                 b[idx] += coeff * ambient_c;
@@ -327,7 +327,7 @@ fn assemble_convective_system_inner(
                 cols.push((idx + w) as i64);
                 vals.push(-coeff);
                 diag += coeff;
-            } else if heatsink_face(row, col, "north", h, w, &hs) {
+            } else if heatsink_face(row, col, "north", h, w, hs) {
                 let coeff = 2.0 * k_c / dy2;
                 diag += coeff;
                 b[idx] += coeff * ambient_c;
@@ -341,7 +341,7 @@ fn assemble_convective_system_inner(
                 cols.push((idx - w) as i64);
                 vals.push(-coeff);
                 diag += coeff;
-            } else if heatsink_face(row, col, "south", h, w, &hs) {
+            } else if heatsink_face(row, col, "south", h, w, hs) {
                 let coeff = 2.0 * k_c / dy2;
                 diag += coeff;
                 b[idx] += coeff * ambient_c;
@@ -349,7 +349,7 @@ fn assemble_convective_system_inner(
 
             // Convective (Robin) boundary term at non-heatsink edge cells:
             // conv_coeff = h_conv * t_mm / cs * 1e-6 (left-to-right).
-            if convective_edge_cell(row, col, h, w, &hs) {
+            if convective_edge_cell(row, col, h, w, hs) {
                 let conv_coeff = h_conv * board_thickness_mm / cs * 1e-6;
                 diag += conv_coeff;
                 b[idx] += conv_coeff * ambient_c;
@@ -384,35 +384,37 @@ fn harmonic(k_a: f64, k_b: f64) -> f64 {
 }
 
 /// True when (row, col) lies on the declared heatsink edge
-/// (`_is_heatsink_edge_cell`).
-fn heatsink_edge_cell(row: usize, col: usize, h: usize, w: usize, hs: &str) -> bool {
+/// (`_is_heatsink_edge_cell`). `hs` is the FFI edge code (see fdm.rs
+/// `HEATSINK_*`); unknown codes never match (the old unrecognized-string
+/// fallback).
+fn heatsink_edge_cell(row: usize, col: usize, h: usize, w: usize, hs: i64) -> bool {
     match hs {
-        "TOP" => row == h - 1,
-        "BOTTOM" => row == 0,
-        "LEFT" => col == 0,
-        "RIGHT" => col == w - 1,
+        crate::fdm::HEATSINK_TOP => row == h - 1,
+        crate::fdm::HEATSINK_BOTTOM => row == 0,
+        crate::fdm::HEATSINK_LEFT => col == 0,
+        crate::fdm::HEATSINK_RIGHT => col == w - 1,
         _ => false,
     }
 }
 
 /// True when (row, col) is on one of the three NON-heatsink edges but NOT
 /// on the heatsink edge (`_is_convective_edge_cell`).
-fn convective_edge_cell(row: usize, col: usize, h: usize, w: usize, hs: &str) -> bool {
-    let on_non_hs = (row == 0 && hs != "BOTTOM")
-        || (row == h - 1 && hs != "TOP")
-        || (col == 0 && hs != "LEFT")
-        || (col == w - 1 && hs != "RIGHT");
+fn convective_edge_cell(row: usize, col: usize, h: usize, w: usize, hs: i64) -> bool {
+    let on_non_hs = (row == 0 && hs != crate::fdm::HEATSINK_BOTTOM)
+        || (row == h - 1 && hs != crate::fdm::HEATSINK_TOP)
+        || (col == 0 && hs != crate::fdm::HEATSINK_LEFT)
+        || (col == w - 1 && hs != crate::fdm::HEATSINK_RIGHT);
     on_non_hs && !heatsink_edge_cell(row, col, h, w, hs)
 }
 
 /// True when the face in *direction* is the outer boundary in the heatsink
 /// direction — the Dirichlet face (`_is_heatsink_boundary_face_u7`).
-fn heatsink_face(row: usize, col: usize, direction: &str, h: usize, w: usize, hs: &str) -> bool {
+fn heatsink_face(row: usize, col: usize, direction: &str, h: usize, w: usize, hs: i64) -> bool {
     match direction {
-        "north" => row == h - 1 && hs == "TOP",
-        "south" => row == 0 && hs == "BOTTOM",
-        "east" => col == w - 1 && hs == "RIGHT",
-        _ => col == 0 && hs == "LEFT",
+        "north" => row == h - 1 && hs == crate::fdm::HEATSINK_TOP,
+        "south" => row == 0 && hs == crate::fdm::HEATSINK_BOTTOM,
+        "east" => col == w - 1 && hs == crate::fdm::HEATSINK_RIGHT,
+        _ => col == 0 && hs == crate::fdm::HEATSINK_LEFT,
     }
 }
 
@@ -569,7 +571,7 @@ mod tests {
         cs: f64,
         t_mm: f64,
         h_conv: f64,
-        hs_edge: &str,
+        hs_edge: i64,
     ) -> (Vec<i64>, Vec<i64>, Vec<f64>, Vec<f64>) {
         // The Python reference, verbatim.
         let dx2 = cs * cs;
@@ -578,7 +580,7 @@ mod tests {
         let mut cols = Vec::new();
         let mut vals = Vec::new();
         let mut b = vec![0.0f64; h * w];
-        let hs = hs_edge.to_uppercase();
+        let hs = hs_edge;
         for row in 0..h {
             for col in 0..w {
                 let idx = row * w + col;
@@ -592,7 +594,7 @@ mod tests {
                     cols.push((row * w + col + 1) as i64);
                     vals.push(-coeff);
                     diag += coeff;
-                } else if col == w - 1 && hs == "RIGHT" {
+                } else if col == w - 1 && hs == crate::fdm::HEATSINK_RIGHT {
                     let coeff = 2.0 * k_c / dx2;
                     diag += coeff;
                     b[idx] += coeff * ambient;
@@ -605,7 +607,7 @@ mod tests {
                     cols.push((row * w + col - 1) as i64);
                     vals.push(-coeff);
                     diag += coeff;
-                } else if col == 0 && hs == "LEFT" {
+                } else if col == 0 && hs == crate::fdm::HEATSINK_LEFT {
                     let coeff = 2.0 * k_c / dx2;
                     diag += coeff;
                     b[idx] += coeff * ambient;
@@ -618,7 +620,7 @@ mod tests {
                     cols.push(((row + 1) * w + col) as i64);
                     vals.push(-coeff);
                     diag += coeff;
-                } else if row == h - 1 && hs == "TOP" {
+                } else if row == h - 1 && hs == crate::fdm::HEATSINK_TOP {
                     let coeff = 2.0 * k_c / dy2;
                     diag += coeff;
                     b[idx] += coeff * ambient;
@@ -631,21 +633,21 @@ mod tests {
                     cols.push(((row - 1) * w + col) as i64);
                     vals.push(-coeff);
                     diag += coeff;
-                } else if row == 0 && hs == "BOTTOM" {
+                } else if row == 0 && hs == crate::fdm::HEATSINK_BOTTOM {
                     let coeff = 2.0 * k_c / dy2;
                     diag += coeff;
                     b[idx] += coeff * ambient;
                 }
                 // convective edge term (Robin) — non-heatsink edge cells
-                let on_edge = (row == 0 && hs != "BOTTOM")
-                    || (row == h - 1 && hs != "TOP")
-                    || (col == 0 && hs != "LEFT")
-                    || (col == w - 1 && hs != "RIGHT");
-                let is_hs_cell = match hs.as_str() {
-                    "TOP" => row == h - 1,
-                    "BOTTOM" => row == 0,
-                    "LEFT" => col == 0,
-                    "RIGHT" => col == w - 1,
+                let on_edge = (row == 0 && hs != crate::fdm::HEATSINK_BOTTOM)
+                    || (row == h - 1 && hs != crate::fdm::HEATSINK_TOP)
+                    || (col == 0 && hs != crate::fdm::HEATSINK_LEFT)
+                    || (col == w - 1 && hs != crate::fdm::HEATSINK_RIGHT);
+                let is_hs_cell = match hs {
+                    crate::fdm::HEATSINK_TOP => row == h - 1,
+                    crate::fdm::HEATSINK_BOTTOM => row == 0,
+                    crate::fdm::HEATSINK_LEFT => col == 0,
+                    crate::fdm::HEATSINK_RIGHT => col == w - 1,
                     _ => false,
                 };
                 if on_edge && !is_hs_cell {
@@ -676,7 +678,13 @@ mod tests {
         let w = 5;
         let k: Vec<f64> = (0..h * w).map(|i| 0.3 + (i as f64) * 0.1).collect();
         let q: Vec<f64> = (0..h * w).map(|i| (i as f64) * 0.01).collect();
-        for hs in ["TOP", "BOTTOM", "LEFT", "RIGHT", "NORTH"] {
+        for hs in [
+            crate::fdm::HEATSINK_TOP,
+            crate::fdm::HEATSINK_BOTTOM,
+            crate::fdm::HEATSINK_LEFT,
+            crate::fdm::HEATSINK_RIGHT,
+            99,
+        ] {
             for hf in [None, Some(vec![0.5f64; h * w]), Some(vec![0.0f64; h * w])] {
                 for h_conv in [0.0, 10.0] {
                     let got = assemble_convective_system_inner(
@@ -689,7 +697,7 @@ mod tests {
                         0.5,
                         1.6,
                         h_conv,
-                        hs.to_string(),
+                        hs,
                     );
                     let expect = ref_assemble_convective(
                         &k, &q, hf.as_deref(), h, w, 40.0, 0.5, 1.6, h_conv, hs,
@@ -704,9 +712,14 @@ mod tests {
     fn test_assembly_single_cell_grid() {
         let k = vec![0.5];
         let q = vec![0.2];
-        for hs in ["TOP", "BOTTOM", "LEFT", "RIGHT"] {
+        for hs in [
+            crate::fdm::HEATSINK_TOP,
+            crate::fdm::HEATSINK_BOTTOM,
+            crate::fdm::HEATSINK_LEFT,
+            crate::fdm::HEATSINK_RIGHT,
+        ] {
             let got = assemble_convective_system_inner(
-                f64_bytes(&k), f64_bytes(&q), None, 1, 1, 40.0, 1.0, 1.6, 10.0, hs.to_string(),
+                f64_bytes(&k), f64_bytes(&q), None, 1, 1, 40.0, 1.0, 1.6, 10.0, hs,
             );
             let expect = ref_assemble_convective(&k, &q, None, 1, 1, 40.0, 1.0, 1.6, 10.0, hs);
             assert_eq!(got, expect, "heatsink={hs}");

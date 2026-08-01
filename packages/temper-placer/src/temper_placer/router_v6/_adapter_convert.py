@@ -384,12 +384,12 @@ def route_pcb(
             #     time to 5+ minutes (15/24 in 18s in the smoke vs
             #     13/24 incomplete after 5 min in the full profile).
             #   * plain theta star is also Python (no iter cap)
-            #     and finds fewer nets than plain A* (Numba).
+            #     and finds fewer nets than plain A* (Rust).
             #   * enable_smoothing=True is broken:
             #     SDFGrid.from_polygons is missing, so the
             #     smoothing step is a silent no-op (or worse).
             # The closure test should use the smoke-equivalent
-            # path: plain 2D A* via the Numba kernel, no
+            # path: plain 2D A* via the Rust kernel, no
             # smoothing.
             #
             # NOTE 2026-06-24: ``max_iter=500_000`` is the

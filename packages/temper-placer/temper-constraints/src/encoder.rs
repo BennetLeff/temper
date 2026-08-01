@@ -208,19 +208,19 @@ mod tests {
 
     #[test]
     fn mm_to_units_known_points() {
-        assert_eq!(mm_to_units(10.0, 100), Ok(1000));
-        assert_eq!(mm_to_units(0.1, 100), Ok(10));
-        assert_eq!(mm_to_units(5.0, 100), Ok(50));
-        assert_eq!(mm_to_units(0.0, 100), Ok(0));
-        assert_eq!(mm_to_units(-3.0, 100), Ok(-300));
+        assert_eq!(mm_to_units(10.0, 100).unwrap(), 1000);
+        assert_eq!(mm_to_units(0.1, 100).unwrap(), 10);
+        assert_eq!(mm_to_units(5.0, 100).unwrap(), 50);
+        assert_eq!(mm_to_units(0.0, 100).unwrap(), 0);
+        assert_eq!(mm_to_units(-3.0, 100).unwrap(), -300);
     }
 
     #[test]
     fn mm_to_units_ties_round_half_even() {
         // mm*u exactly k+0.5 (mm = m/8, m odd): 12.5 -> 12, 37.5 -> 38.
-        assert_eq!(mm_to_units(0.125, 100), Ok(12));
-        assert_eq!(mm_to_units(0.375, 100), Ok(38));
-        assert_eq!(mm_to_units(0.625, 100), Ok(62));
+        assert_eq!(mm_to_units(0.125, 100).unwrap(), 12);
+        assert_eq!(mm_to_units(0.375, 100).unwrap(), 38);
+        assert_eq!(mm_to_units(0.625, 100).unwrap(), 62);
     }
 
     #[test]
@@ -228,16 +228,16 @@ mod tests {
         // 31.25 -> round 31 -> odd -> 30; 0.155*100 = 15.5 exactly
         // (0.155 is stored just above 0.155, the product rounds to 15.5)
         // -> tie to even -> 16, no adjustment needed.
-        assert_eq!(mm_to_units(0.3125, 100), Ok(30));
-        assert_eq!(mm_to_units(0.155, 100), Ok(16));
+        assert_eq!(mm_to_units(0.3125, 100).unwrap(), 30);
+        assert_eq!(mm_to_units(0.155, 100).unwrap(), 16);
     }
 
     #[test]
     fn mm_to_units_negative_uses_floor_modulo() {
         // Python floor-mod: -15 % 2 == 1, so -15 -> -16 (truncating %
         // would give -15 - (-1) = -14).
-        assert_eq!(mm_to_units(-0.155, 100), Ok(-16));
-        assert_eq!(mm_to_units(-0.125, 100), Ok(-12));
+        assert_eq!(mm_to_units(-0.155, 100).unwrap(), -16);
+        assert_eq!(mm_to_units(-0.125, 100).unwrap(), -12);
     }
 
     #[test]
@@ -279,13 +279,13 @@ mod tests {
     fn keepout_rect_known_points() {
         // Zone (10,10)-(20,20)mm, margin 0.5mm, u=100.
         assert_eq!(
-            keepout_rect_units(10.0, 10.0, 20.0, 20.0, 0.5, 100),
-            Ok((950, 950, 1100, 1100))
+            keepout_rect_units(10.0, 10.0, 20.0, 20.0, 0.5, 100).unwrap(),
+            (950, 950, 1100, 1100)
         );
         // Zero margin: converted zone itself.
         assert_eq!(
-            keepout_rect_units(10.0, 10.0, 20.0, 20.0, 0.0, 100),
-            Ok((1000, 1000, 1000, 1000))
+            keepout_rect_units(10.0, 10.0, 20.0, 20.0, 0.0, 100).unwrap(),
+            (1000, 1000, 1000, 1000)
         );
     }
 
@@ -295,8 +295,8 @@ mod tests {
         // span-first gives +90, difference-of-conversions gives 88 — the
         // reference order (span converted first) wins.
         assert_eq!(
-            keepout_rect_units(0.11599784954941361, 0.0, 1.0148714663788405, 0.0, 0.0, 100),
-            Ok((12, 0, 90, 0))
+            keepout_rect_units(0.11599784954941361, 0.0, 1.0148714663788405, 0.0, 0.0, 100).unwrap(),
+            (12, 0, 90, 0)
         );
         // The difference-of-conversions order genuinely disagrees.
         let conv = |mm: f64| mm_to_units(mm, 100).unwrap_or(i64::MIN);

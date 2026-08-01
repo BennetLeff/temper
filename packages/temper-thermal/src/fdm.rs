@@ -8,6 +8,20 @@ use pyo3::types::PyBytes;
 use temper_py_bridge;
 
 // ---------------------------------------------------------------------------
+// Heatsink-edge codes (FFI int enum)
+// ---------------------------------------------------------------------------
+
+/// Heatsink-edge codes passed across the FFI boundary. The Python wrapper
+/// (`thermal_fdm.py` / `thermal_scorer.py`) maps `"TOP"`/`"BOTTOM"`/
+/// `"LEFT"`/`"RIGHT"` (after `.upper().strip()`) to these; ANY other value
+/// means "no heatsink edge" — every boundary face stays Neumann/adiabatic
+/// (the old behavior for an unrecognized edge string, e.g. `"NORTH"`).
+pub(crate) const HEATSINK_TOP: i64 = 0;
+pub(crate) const HEATSINK_BOTTOM: i64 = 1;
+pub(crate) const HEATSINK_LEFT: i64 = 2;
+pub(crate) const HEATSINK_RIGHT: i64 = 3;
+
+// ---------------------------------------------------------------------------
 // System assembly
 // ---------------------------------------------------------------------------
 
@@ -38,7 +52,7 @@ pub fn assemble_system(
     width_cells: usize,
     ambient_c: f64,
     cell_size_mm: f64,
-    heatsink_edge: String,
+    heatsink_edge: i64,
 ) -> (Vec<i64>, Vec<i64>, Vec<f64>, Vec<f64>) {
     let k = parse_f64s(&k_field_bytes);
     let q = parse_f64s(&q_bytes);
@@ -49,7 +63,7 @@ pub fn assemble_system(
 
     let (h, w) = (height_cells, width_cells);
     let dx2 = cell_size_mm * cell_size_mm;
-    let hs = heatsink_edge.to_uppercase();
+    let hs = heatsink_edge;
 
     let mut rows: Vec<i64> = Vec::with_capacity(n * 5);
     let mut cols: Vec<i64> = Vec::with_capacity(n * 5);
@@ -70,7 +84,7 @@ pub fn assemble_system(
                 cols.push((idx + 1) as i64);
                 vals.push(-coeff);
                 diag += coeff;
-            } else if heatsink_face(row, col, "east", h, w, &hs) {
+            } else if heatsink_face(row, col, "east", h, w, hs) {
                 let coeff = 2.0 * k_c / dx2;
                 diag += coeff;
                 b[idx] += coeff * ambient_c;
@@ -84,7 +98,7 @@ pub fn assemble_system(
                 cols.push((idx - 1) as i64);
                 vals.push(-coeff);
                 diag += coeff;
-            } else if heatsink_face(row, col, "west", h, w, &hs) {
+            } else if heatsink_face(row, col, "west", h, w, hs) {
                 let coeff = 2.0 * k_c / dx2;
                 diag += coeff;
                 b[idx] += coeff * ambient_c;
@@ -98,7 +112,7 @@ pub fn assemble_system(
                 cols.push((idx + w) as i64);
                 vals.push(-coeff);
                 diag += coeff;
-            } else if heatsink_face(row, col, "north", h, w, &hs) {
+            } else if heatsink_face(row, col, "north", h, w, hs) {
                 let coeff = 2.0 * k_c / dx2;
                 diag += coeff;
                 b[idx] += coeff * ambient_c;
@@ -112,7 +126,7 @@ pub fn assemble_system(
                 cols.push((idx - w) as i64);
                 vals.push(-coeff);
                 diag += coeff;
-            } else if heatsink_face(row, col, "south", h, w, &hs) {
+            } else if heatsink_face(row, col, "south", h, w, hs) {
                 let coeff = 2.0 * k_c / dx2;
                 diag += coeff;
                 b[idx] += coeff * ambient_c;
@@ -155,7 +169,7 @@ pub fn assemble_system_py(
     width_cells: usize,
     ambient_c: f64,
     cell_size_mm: f64,
-    heatsink_edge: String,
+    heatsink_edge: i64,
 ) -> (Vec<i64>, Vec<i64>, Vec<f64>, Vec<f64>) {
     temper_py_bridge::catch_unwind(|| {
         assemble_system(
@@ -178,12 +192,12 @@ fn harmonic(k_a: f64, k_b: f64) -> f64 {
     2.0 / (1.0 / k_a + 1.0 / k_b)
 }
 
-fn heatsink_face(row: usize, col: usize, direction: &str, h: usize, w: usize, hs: &str) -> bool {
+fn heatsink_face(row: usize, col: usize, direction: &str, h: usize, w: usize, hs: i64) -> bool {
     match direction {
-        "north" => row == h - 1 && hs == "TOP",
-        "south" => row == 0 && hs == "BOTTOM",
-        "east" => col == w - 1 && hs == "RIGHT",
-        _ => col == 0 && hs == "LEFT",
+        "north" => row == h - 1 && hs == HEATSINK_TOP,
+        "south" => row == 0 && hs == HEATSINK_BOTTOM,
+        "east" => col == w - 1 && hs == HEATSINK_RIGHT,
+        _ => col == 0 && hs == HEATSINK_LEFT,
     }
 }
 
@@ -383,7 +397,7 @@ mod tests {
         w: usize,
         ambient: f64,
         cs: f64,
-        hs_edge: &str,
+        hs_edge: i64,
     ) -> (Vec<i64>, Vec<i64>, Vec<f64>, Vec<f64>) {
         // The Python reference, verbatim.
         let dx2 = cs * cs;
@@ -403,7 +417,7 @@ mod tests {
                     cols.push((row * w + col + 1) as i64);
                     vals.push(-coeff);
                     diag += coeff;
-                } else if col == w - 1 && hs_edge == "RIGHT" {
+                } else if col == w - 1 && hs_edge == HEATSINK_RIGHT {
                     let coeff = 2.0 * k_c / dx2;
                     diag += coeff;
                     b[idx] += coeff * ambient;
@@ -416,7 +430,7 @@ mod tests {
                     cols.push((row * w + col - 1) as i64);
                     vals.push(-coeff);
                     diag += coeff;
-                } else if col == 0 && hs_edge == "LEFT" {
+                } else if col == 0 && hs_edge == HEATSINK_LEFT {
                     let coeff = 2.0 * k_c / dx2;
                     diag += coeff;
                     b[idx] += coeff * ambient;
@@ -429,7 +443,7 @@ mod tests {
                     cols.push(((row + 1) * w + col) as i64);
                     vals.push(-coeff);
                     diag += coeff;
-                } else if row == h - 1 && hs_edge == "TOP" {
+                } else if row == h - 1 && hs_edge == HEATSINK_TOP {
                     let coeff = 2.0 * k_c / dx2;
                     diag += coeff;
                     b[idx] += coeff * ambient;
@@ -442,7 +456,7 @@ mod tests {
                     cols.push(((row - 1) * w + col) as i64);
                     vals.push(-coeff);
                     diag += coeff;
-                } else if row == 0 && hs_edge == "BOTTOM" {
+                } else if row == 0 && hs_edge == HEATSINK_BOTTOM {
                     let coeff = 2.0 * k_c / dx2;
                     diag += coeff;
                     b[idx] += coeff * ambient;
@@ -469,7 +483,7 @@ mod tests {
         let w = 5;
         let k: Vec<f64> = (0..h * w).map(|i| 0.3 + (i as f64) * 0.1).collect();
         let q: Vec<f64> = (0..h * w).map(|i| (i as f64) * 0.01).collect();
-        for hs in ["TOP", "BOTTOM", "LEFT", "RIGHT", "NORTH"] {
+        for hs in [HEATSINK_TOP, HEATSINK_BOTTOM, HEATSINK_LEFT, HEATSINK_RIGHT, 99] {
             for hf in [None, Some(vec![0.5f64; h * w]), Some(vec![0.0f64; h * w])] {
                 let got = assemble_system(
                     f64_bytes(&k),
@@ -479,7 +493,7 @@ mod tests {
                     w,
                     40.0,
                     0.5,
-                    hs.to_string(),
+                    hs,
                 );
                 let expect = ref_assemble(&k, &q, hf.as_deref(), h, w, 40.0, 0.5, hs);
                 assert_eq!(got, expect, "heatsink={hs} h_field={}", hf.is_some());

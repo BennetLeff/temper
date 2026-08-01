@@ -5,8 +5,8 @@ per-point loop.
 sampled the EDT width per point (one Python call per waypoint-segment
 sample).  The cleanup C3 change replaced that loop with a single
 ``_edt_width_lookup_batch`` FFI crossing per call (bit-identical per
-point to the reference ``_edt_width_lookup`` — see
-``packages/temper-geometry/VERIFICATION.md``).
+point to the per-point reference lookup, pinned verbatim in the
+differential test suites — see ``packages/temper-geometry/VERIFICATION.md``).
 
 Two pins here:
 
@@ -32,6 +32,48 @@ import numpy as np
 
 from temper_placer.router_v6.astar_pathfinding import _compute_bottleneck_widths
 
+# ---------------------------------------------------------------------------
+# Oracle: the pre-migration per-point EDT width lookup, pinned verbatim.
+# (Removed from channel_widths.py in cleanup C5; the differential suites
+# keep it here so the batched path stays bit-identical to the reference.)
+# ---------------------------------------------------------------------------
+
+
+def _edt_width_lookup(
+    x: float,
+    y: float,
+    edt: np.ndarray,
+    mask: np.ndarray,
+    bounds: tuple[float, float, float, float],
+    cell_size: float,
+) -> float:
+    """Query width from a precomputed EDT grid.
+
+    Maps world coordinates (x, y) to grid indices, reads the EDT
+    distance, and returns width = 2 * distance * cell_size.
+
+    For sub-cell accuracy, bilinear interpolation is used over the
+    4 nearest grid points.
+    """
+    min_x, min_y, _, _ = bounds
+    gx = (x - min_x) / cell_size
+    gy = (y - min_y) / cell_size
+
+    ix, iy = int(np.floor(gx)), int(np.floor(gy))
+    fx, fy = gx - ix, gy - iy
+
+    h, w = edt.shape
+    if ix < 0 or iy < 0 or ix + 1 >= w or iy + 1 >= h:
+        return 0.0
+
+    d00 = edt[iy, ix] if mask[iy, ix] else 0.0
+    d10 = edt[iy, ix + 1] if mask[iy, ix + 1] else 0.0
+    d01 = edt[iy + 1, ix] if mask[iy + 1, ix] else 0.0
+    d11 = edt[iy + 1, ix + 1] if mask[iy + 1, ix + 1] else 0.0
+
+    d = (d00 * (1 - fx) + d10 * fx) * (1 - fy) + (d01 * (1 - fx) + d11 * fx) * fy
+    return 2.0 * d * cell_size
+
 
 @dataclass
 class FakeChannelPath:
@@ -49,7 +91,7 @@ class FakeChannelMapping:
 
 # ---------------------------------------------------------------------------
 # Oracle: the PRE-CHANGE per-point loop, verbatim (width resolution via the
-# per-point reference lookup, which stays in channel_widths.py).
+# per-point reference lookup pinned above in this file).
 # ---------------------------------------------------------------------------
 
 
@@ -62,8 +104,6 @@ def _bottleneck_widths_per_point_oracle(
     sample_distance: float = 0.5,
 ) -> dict[str, float]:
     """Verbatim copy of the pre-batch ``_compute_bottleneck_widths``."""
-    from temper_placer.router_v6.channel_widths import _edt_width_lookup
-
     widths: dict[str, float] = {}
     for net_name, path in channel_mapping.channel_paths.items():
         waypoints = path.waypoints
