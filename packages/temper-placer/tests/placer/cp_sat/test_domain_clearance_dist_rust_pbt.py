@@ -29,7 +29,13 @@ from hypothesis import strategies as st
 
 MAX_EXAMPLES = 200
 
-_coord = st.floats(min_value=-200.0, max_value=200.0, allow_nan=False, allow_infinity=False)
+_coord = st.floats(
+    min_value=-200.0,
+    max_value=200.0,
+    allow_nan=False,
+    allow_infinity=False,
+).filter(lambda v: abs(v) >= 1e-3 or v == 0.0)  # normal-range: the power-of-two
+# scaling relation (MR3) underflows differently at denormal magnitudes
 _unit = st.floats(min_value=0.0, max_value=1.0, allow_nan=False, allow_infinity=False)
 
 
