@@ -1,4 +1,4 @@
-<!-- provenance: commit=caa301cc0779b72a9ae823ca755cf1af85a4353b dirty=false -->
+<!-- provenance: commit=b11c903889a9066257bc18fcc13b74a804fc6f60 dirty=false -->
 
 # Pad-vs-fixed-copper NoOverlap CP-SAT constraint (issue #523 Option 3)
 
@@ -13,7 +13,9 @@ approval (see GO/NO-GO, §7).
 `feat/fixed-copper-constraint-opt3` from `origin/main` `7c474b820`
 (`scripts/assert-base.sh origin/main` OK). `uv sync --all-packages --inexact`,
 `make netlist`, `make extensions` (11/11 fresh). HEAD at measurement time:
-`caa301cc0779b72a9ae823ca755cf1af85a4353b`, tree clean.
+`b11c903889a9066257bc18fcc13b74a804fc6f60` (branch rebased onto origin/main
+`37a4251e0` after main moved 9 commits mid-session; none touched the files in
+this change), tree clean.
 
 ---
 
