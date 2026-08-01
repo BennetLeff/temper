@@ -139,9 +139,10 @@ def _compute_bottleneck_widths(
     # arithmetic to the original per-point loop), resolve all widths with
     # ONE _edt_width_lookup_batch FFI crossing, then reassemble the per-net
     # minima.  The batch is bit-identical per point to the per-point
-    # reference _edt_width_lookup (see temper-geometry/VERIFICATION.md), so
-    # the outputs are unchanged by construction; only the per-call Python
-    # overhead of the hot loop is removed.
+    # reference implementation, pinned verbatim in the differential test
+    # suites (see temper-geometry/VERIFICATION.md), so the outputs are
+    # unchanged by construction; only the per-call Python overhead of the
+    # hot loop is removed.
     from temper_placer.router_v6.channel_widths import _edt_width_lookup_batch
 
     widths: dict[str, float] = {}
