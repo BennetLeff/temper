@@ -34,6 +34,7 @@ from __future__ import annotations
 
 import random
 
+import pytest
 import temper_quality_oracle as _tqo
 from hypothesis import given, settings
 from hypothesis import strategies as st
@@ -138,7 +139,10 @@ def test_efficiency_clamp_boundaries_bit_exact(completion, drc, nets):
     exactly 0.0 at >= 10 vias/net (bit-exact closed forms, not
     inequalities): 2n/n and 10n/n divide exactly, so the penalty is
     exactly 0.0 / 1.0 and the score collapses to 60*completion + drc_part
-    + {20.0 | 0.0}.  A constant or a non-clamped linear penalty fails."""
+    + {20.0 | 0.0}.  A constant fails; the boundary POSITIONS are pinned
+    by the shifted-boundary mutant in the vacuity section below (an
+    unclamped linear penalty coincides with the clamped value at these
+    exact test points, so it is not a discriminating mutant)."""
     drc_part = 20.0 if drc == 0 else 0.0
     low = _score(completion, 2 * nets, drc, nets)
     assert low == 60.0 * completion + drc_part + 20.0
@@ -245,3 +249,70 @@ def test_pbt_smoke_deterministic_seed():
         for _ in range(500)
     }
     assert len(distinct) > 100
+
+
+# ---------------------------------------------------------------------------
+# Vacuity mutants (G4 evidence pattern, cf. test_bottleneck_geometry_pbt.py)
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture
+def restore_kernel():
+    original = _tqo.routing_quality_score_py
+    yield
+    _tqo.routing_quality_score_py = original
+
+
+def test_p1_fails_for_constant_score(restore_kernel) -> None:
+    """A constant kernel cannot cover a rich output range (P1)."""
+    _tqo.routing_quality_score_py = lambda *_a, **_k: 50.0
+    with pytest.raises(AssertionError):
+        test_score_range_richness.hypothesis.inner_test(0.5, 4, 0, 10)
+
+
+def test_p3_fails_for_decreasing_kernel(restore_kernel) -> None:
+    """A kernel that DECREASES in completion breaks P3's monotonicity
+    (a constant is trivially monotone, so it is not the discriminating
+    mutant here — P1 covers constants)."""
+    _tqo.routing_quality_score_py = lambda completion, vias, drc, nets: (
+        60.0 * (1.0 - completion)
+        + (20.0 if drc == 0 else 0.0)
+        + (20.0 * (1.0 - max(0.0, min(1.0, (vias / nets - 2.0) / 8.0))) if nets > 0 else 20.0)
+    )
+    with pytest.raises(AssertionError):
+        test_score_monotone_in_completion.hypothesis.inner_test(0.5, 4, 0, 10, 0.1)
+
+
+def test_p4_fails_for_proportional_drc_penalty(restore_kernel) -> None:
+    """A kernel that scales DRC points with the error count (e.g. 20 - drc)
+    breaks the all-or-nothing step (P4): drc 0 vs drc 1 differ by less than
+    the full 20.0."""
+    _tqo.routing_quality_score_py = lambda completion, drc, *_rest: (
+        60.0 * completion + (20.0 - drc if drc <= 20 else 0.0)
+    )
+    with pytest.raises(AssertionError):
+        test_drc_all_or_nothing_step.hypothesis.inner_test(0.5, 4, 10)
+
+
+def test_p5_fails_for_shifted_clamp_boundary(restore_kernel) -> None:
+    """A kernel whose clamp boundary is shifted (penalty clamps only at
+    (x - 4)/8 instead of (x - 2)/8) breaks P5: at exactly 10 vias/net the
+    penalty is 0.75, not 1.0, so the high-side closed form fails. (An
+    unclamped linear penalty would NOT fail P5 — at its only test points,
+    2 and 10 vias/net, the unclamped value coincides with the clamped
+    value; the boundary positions are what P5 pins.)"""
+    _tqo.routing_quality_score_py = lambda completion, vias, drc, nets: (
+        60.0 * completion
+        + (20.0 if drc == 0 else 0.0)
+        + (20.0 * (1.0 - max(0.0, min(1.0, (vias / nets - 4.0) / 8.0))) if nets > 0 else 20.0)
+    )
+    with pytest.raises(AssertionError):
+        test_efficiency_clamp_boundaries_bit_exact.hypothesis.inner_test(0.5, 0, 10)
+
+
+def test_p2_fails_for_out_of_bounds_score(restore_kernel) -> None:
+    """A kernel that can exceed 100 (e.g. a buggy unclamped efficiency
+    boost) breaks the bounded property (P2)."""
+    _tqo.routing_quality_score_py = lambda *_a, **_k: 150.0
+    with pytest.raises(AssertionError):
+        test_score_bounded_0_100.hypothesis.inner_test(0.5, 4, 0, 10)
