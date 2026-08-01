@@ -101,6 +101,7 @@ def solve_placement(
     max_displacement_mm: float | None = None,
     isolation_barrier: dict | None = None,
     fixed_positions: dict[str, tuple[float, float, int]] | None = None,
+    fixed_copper: dict | None = None,
 ) -> CpSatPlacementResult:
     """Build a CP-SAT model, encode constraints, solve, and return the result.
 
@@ -157,6 +158,17 @@ def solve_placement(
             HARD constraint (see ``isolation_barrier.py``) before encoding.
             The resulting report is attached to the returned
             ``CpSatPlacementResult.isolation_barrier_report``.
+        fixed_copper: Optional pad-vs-fixed-copper NoOverlap constraint set
+            (issue #523). A dict with keys ``parse_result`` (a
+            ``ParseResult`` carrying ``.traces``/``.vias``/``.board``),
+            ``free_refs`` (set of component refs being placed -- their pads
+            must not land on different-net fixed copper), ``margin_mm``
+            (default 0.05) and ``include_other_pads`` (default True: pinned
+            components' pads are obstacles too). When given, the fixed-copper
+            constraints are encoded for every free ref and the R24 post-solve
+            audit is run on the resolved placement -- a feasible solve with
+            audit violations raises (an encoding bug; see ``fixed_copper.py``).
+            Absent (default): existing behaviour is unchanged.
     """
     from ortools.sat.python import cp_model as cp
 
@@ -381,6 +393,43 @@ def solve_placement(
         netclass_rules_data=loaded_netclass_rules,
     )
 
+    # Pad-vs-fixed-copper NoOverlap (issue #523): encode one BoolOr per
+    # (free pad, fixed item) pair after every other constraint so the
+    # rotation variables and sizes are fully wired. See fixed_copper.py.
+    _fixed_copper_pads: dict | None = None
+    _fixed_copper_items: list | None = None
+    if fixed_copper is not None:
+        from temper_placer.placer.cp_sat.fixed_copper import (
+            build_fixed_copper_items,
+            build_free_component_pads,
+            encode_fixed_copper_constraints,
+        )
+
+        free_refs = set(fixed_copper.get("free_refs", ()))
+        margin_mm = float(fixed_copper.get("margin_mm", 0.05))
+        include_other_pads = bool(fixed_copper.get("include_other_pads", True))
+        parse_result = fixed_copper["parse_result"]
+        _fixed_copper_pads = build_free_component_pads(netlist, free_refs)
+        _fixed_copper_items = build_fixed_copper_items(
+            parse_result,
+            netlist,
+            free_refs,
+            margin_mm=margin_mm,
+            include_other_pads=include_other_pads,
+        )
+        encode_fixed_copper_constraints(
+            model_wrapper,
+            _fixed_copper_pads,
+            _fixed_copper_items,
+            free_refs=free_refs,
+        )
+        logger.info(
+            "fixed-copper constraints encoded for %d free ref(s) (%d pads, %d items)",
+            len(free_refs),
+            sum(len(p) for p in _fixed_copper_pads.values()),
+            len(_fixed_copper_items),
+        )
+
     # Phase 1 (feasibility): no objective — find any valid placement.
     # Phase 2 (wirelength polish) runs separately with a longer timeout
     # and bounded pair count.  The full O(n²) objective with 33 components
@@ -434,6 +483,33 @@ def solve_placement(
                 unsat_core.append({"name": label, "because": "", "literal_index": idx})
         except Exception:
             pass
+
+    # R24 item-3 post-solve audit (issue #523): recompute the EXACT
+    # pad-to-copper clearance from the resolved coordinates, independent of
+    # the solver's feasibility claim. By fixed_copper.py's soundness proof a
+    # feasible solve must clear every applicable item by at least the margin;
+    # any violation means the encoding is unsound for this solve and is a
+    # hard failure, not a reportable "warning".
+    if status_str in ("optimal", "feasible") and _fixed_copper_items is not None:
+        from temper_placer.placer.cp_sat.fixed_copper import audit_fixed_copper
+
+        audit_violations = audit_fixed_copper(
+            _fixed_copper_pads,
+            _fixed_copper_items,
+            positions,
+            rotations,
+        )
+        if audit_violations:
+            first = audit_violations[0]
+            raise RuntimeError(
+                f"fixed-copper post-solve audit FAILED for a {status_str} solve: "
+                f"{len(audit_violations)} violation(s); first: "
+                f"{first.ref} pad {first.pad_number} vs {first.item_kind} "
+                f"({first.item_net}): actual clearance {first.actual_mm:.4f}mm "
+                f"< required {first.required_mm}mm. The fixed-copper encoding "
+                "is unsound for this solve (see fixed_copper.py soundness proof)."
+            )
+        logger.info("fixed-copper post-solve audit: %d violation(s)", len(audit_violations))
 
     return CpSatPlacementResult(
         positions=positions,
