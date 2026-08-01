@@ -81,6 +81,8 @@ class CpSatModel:
         self._assumption_labels: dict[int, str] = {}
         self.units_per_mm = units_per_mm
         self._objective_terms: list[tuple[cp_model.IntVar, int]] = []
+        self._objective_applied = False
+        self._rotation_pinned_refs: set[str] = set()
         self._keepout_intervals_x: list[cp_model.IntervalVar] = []
         self._keepout_intervals_y: list[cp_model.IntervalVar] = []
 
@@ -94,12 +96,28 @@ class CpSatModel:
         Even rounding is REQUIRED by the midpoint constraint
         ``x_start + x_end == 2 * x_center``: sizes must be even so that
         ``2 * x_start + x_size`` is even, matching ``2 * x_center``.
+
+        Computed in the ``temper-constraints`` Rust crate
+        (``encoder.rs::mm_to_units``) with the exact f64 semantics of
+        the former pure-Python body: Python ``round()`` (round-half-even
+        on the float) plus the floor-modulo even-parity adjustment
+        (negative odd raw decrements by one).  Pinned bit-exactly by
+        ``tests/placer/cp_sat/test_encoder_rust_differential.py``.
         """
-        raw = int(round(mm * self.units_per_mm))
-        return raw - (raw % 2) if raw % 2 else raw
+        import temper_constraints as _tc
+
+        return _tc.mm_to_units_py(mm, self.units_per_mm)
 
     def units_to_mm(self, units: int) -> float:
-        return units / self.units_per_mm
+        """Convert integer model units to physical mm.
+
+        Computed in the ``temper-constraints`` Rust crate
+        (``encoder.rs::units_to_mm``); pinned bit-exactly by
+        ``tests/placer/cp_sat/test_encoder_rust_differential.py``.
+        """
+        import temper_constraints as _tc
+
+        return _tc.units_to_mm_py(units, self.units_per_mm)
 
     # ------------------------------------------------------------------
     # Component management
@@ -178,6 +196,7 @@ class CpSatModel:
             vars_.rot_ref = rot_ref
             self.model_ref.Add(vars_.x_size == w0)
             self.model_ref.Add(vars_.y_size == h0)
+            self._rotation_pinned_refs.add(ref)
             return None
 
         rot_ref = self.model_ref.NewIntVar(0, 3, f"rot_{ref}")
@@ -257,6 +276,98 @@ class CpSatModel:
         """Accumulate a weighted term for the linear objective (minimised)."""
         self._objective_terms.append((var, weight))
 
+    def apply_objective(self) -> None:
+        """Minimise the accumulated objective terms (idempotent).
+
+        Safe to call from both solve paths: :meth:`solve` and the encoder's
+        direct ``solver.Solve(model_ref)`` path. A no-op when no terms were
+        registered, so the phase-1 feasibility solve stays objective-free
+        unless a caller explicitly requested an objective (e.g. the
+        minimum-displacement repair objective, issue #504).
+        """
+        if self._objective_terms and not self._objective_applied:
+            obj = sum(v * w for v, w in self._objective_terms)  # type: ignore[assignment]
+            self.model_ref.Minimize(obj)  # type: ignore[arg-type]
+            self._objective_applied = True
+
+    def add_displacement_objective(
+        self,
+        ref: str,
+        x_target_units: int,
+        y_target_units: int,
+        weight: int = 1,
+        max_units: int | None = None,
+    ) -> None:
+        """Minimise Manhattan displacement from a reference position.
+
+        The reference is a *preference*, not a constraint: the placement
+        remains free to move wherever the hard constraints require, and the
+        solver returns the feasible placement closest (in Manhattan distance)
+        to the reference. This is the "minimum-displacement" half of the
+        route-aware repair loop (issue #504): a repair solve over a routed
+        board that starts from the current positions only moves components
+        as far as the clearance constraints actually force them.
+
+        ``max_units`` (optional) turns the axis displacement into a HARD
+        per-component Manhattan bound ``|dx| + |dy| <= max_units``: the
+        component may not move farther than that in total, feasibility
+        permitting. This is the bounded-repair formulation: instead of
+        trusting the search to *find* a low-displacement solution, it
+        *guarantees* the component stays within a displacement envelope
+        (which is what keeps the existing routed copper attached). A caller
+        that needs "move as little as possible" passes only ``weight``; a
+        caller that needs "move at most B" passes ``max_units`` (and
+        usually both).
+
+        Coordinates are in model grid units (callers convert mm via
+        :meth:`mm_to_units`) so the objective is exact and deterministic.
+        """
+        if weight <= 0:
+            raise ValueError("displacement objective weight must be positive")
+        component = self.get_component(ref)
+        distances: dict[str, cp_model.IntVar] = {}
+        for axis, variable, target in (
+            ("x", component.x_center, x_target_units),
+            ("y", component.y_center, y_target_units),
+        ):
+            distance = self.model_ref.NewIntVar(
+                0, 1_000_000, f"displacement_{axis}_{ref}"
+            )
+            self.model_ref.AddAbsEquality(distance, variable - target)
+            self.add_objective_term(distance, weight)
+            distances[axis] = distance
+        if max_units is not None:
+            if max_units < 0:
+                raise ValueError("displacement bound must be non-negative")
+            self.model_ref.Add(distances["x"] + distances["y"] <= max_units)
+
+    def add_fixed_rotation(self, ref: str, rotation_index: int) -> None:
+        """Pin a component's rotation to a fixed 0-3 quadrant index (hard).
+
+        Routed-board repair must not let the solver rotate footprints: a
+        rotation moves every pad, disconnecting the routed copper attached
+        to it (``docs/evidence/2026-07-30-placement-writer-rotation.md``).
+        The size variables follow the pinned index automatically through the
+        ``AddElement`` rotation table wired by :meth:`add_rotation`.
+
+        Raises:
+            ValueError: index outside 0-3, or a nonzero index for a
+                polarized component (already pinned to 0 by construction).
+        """
+        if not (0 <= rotation_index <= 3):
+            raise ValueError(f"rotation index must be 0-3, got {rotation_index}")
+        component = self.get_component(ref)
+        if ref in self._rotation_pinned_refs:
+            if rotation_index != 0:
+                raise ValueError(
+                    f"{ref} is polarized (rotation pinned to 0 by construction); "
+                    f"cannot fix it to {rotation_index}"
+                )
+            return  # consistent no-op: already pinned at 0
+        rot_ref = component.rot_ref
+        assert rot_ref is not None, f"{ref} has no rotation variable"
+        self.model_ref.Add(rot_ref == rotation_index)
+
     # ------------------------------------------------------------------
     # Assumptions
     # ------------------------------------------------------------------
@@ -318,9 +429,7 @@ class CpSatModel:
         time_limit_s: float = 10.0,
     ) -> CpSolverSolution:
         """Run the CP-SAT solver and return a solution."""
-        if self._objective_terms:
-            obj = sum(v * w for v, w in self._objective_terms)  # type: ignore[assignment]
-            self.model_ref.Minimize(obj)  # type: ignore[arg-type]
+        self.apply_objective()
 
         solver = cp_model.CpSolver()
         solver.parameters.max_time_in_seconds = time_limit_s

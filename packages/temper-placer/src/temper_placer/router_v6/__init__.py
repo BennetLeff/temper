@@ -11,9 +11,6 @@ from temper_placer.router_v6.adapter import (  # noqa: E402
     _AdapterRoutePath,
     route_pcb,
 )
-from temper_placer.router_v6.astar_core_numba import (  # noqa: E402
-    _line_of_sight_numba,
-)
 from temper_placer.router_v6.bottleneck_geometry import (  # noqa: E402
     BottleneckGeometry,
     analyze_bottleneck,
@@ -109,6 +106,4 @@ __all__ = [
     # Min-cut bottleneck geometry (U2/U3)
     "BottleneckGeometry",
     "analyze_bottleneck",
-    # Numba LOS kernel
-    "_line_of_sight_numba",
 ]

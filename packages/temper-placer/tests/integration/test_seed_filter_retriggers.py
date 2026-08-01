@@ -169,7 +169,7 @@ class TestRetriggers:
         local_sc1_threshold = 60.0
 
         # A spread placement to start with
-        spread = _spread_placement([f"R{i}" for i in range(1, 5)], cell_size=4.0, board=None)
+        spread = _spread_placement([f"R{i}" for i in range(1, 5)], cell_size=4.0, _board=None)
         # Final routing of the spread placement
         completion, _bmap = stub.route(spread)
         assert completion >= local_sc1_threshold

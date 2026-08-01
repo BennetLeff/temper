@@ -7,7 +7,7 @@ the closure-rate rollout plan.
 R11: ``CongestionTensor`` in ``router_v6/congestion_tensor.py``
     stores per-cell usage counts.  After each successful net
     commit, the cells along the routed path are incremented.
-    The Numba-jitted A* inner loop reads the tensor as a flat
+    The Rust A* inner loop reads the tensor as a flat
     float32 array and adds ``min(100, 1 + log(1 + raw))`` to the
     f_score of every expansion, so the next net naturally
     detours around already-routed channels.
@@ -152,17 +152,16 @@ def test_tensor_max_cost_is_configurable():
 def test_kernel_with_weight_zero_matches_no_tensor():
     """When ``congestion_weight=0`` the kernel should match
     the no-tensor path in time.  The U7 branch is gated on
-    ``congestion_weight > 0.0`` in
-    ``astar_core_numba._kernel`` so Numba prunes the dead
-    per-neighbor arithmetic; the wall time at high iters must
+    ``congestion_weight > 0.0`` in the kernel so the dead
+    per-neighbor arithmetic is pruned; the wall time at high iters must
     not regress.  This is the regression guard for the
     2026-06-23 full-pipeline profile that surfaced the
     1M-cap wall-time blowup.
     """
     import time
 
-    from temper_placer.router_v6.astar_core_numba import (
-        _astar_search_numba,
+    from temper_placer.router_v6.astar_core_rust import (
+        _astar_search_rust,
     )
     from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 
@@ -178,12 +177,10 @@ def test_kernel_with_weight_zero_matches_no_tensor():
     goal = (75, 75)
     flat = np.zeros((80, 80), dtype=np.float32).reshape(-1)
 
-    # Warm-up: one throwaway call so the Numba JIT compile
-    # is paid outside the timed region.  Numba specializes on
-    # arg types so we also warm up both the no-tensor and
-    # weight-zero signatures.
-    _astar_search_numba(start, goal, grid, max_iterations=10_000)
-    _astar_search_numba(
+    # Warm-up: one throwaway call so the kernel's first-call
+    # compile/import cost is paid outside the timed region.
+    _astar_search_rust(start, goal, grid, max_iterations=10_000)
+    _astar_search_rust(
         start,
         goal,
         grid,
@@ -197,13 +194,13 @@ def test_kernel_with_weight_zero_matches_no_tensor():
     no_tensor_runs = []
     for _ in range(3):
         t0 = time.perf_counter()
-        _astar_search_numba(start, goal, grid, max_iterations=200_000)
+        _astar_search_rust(start, goal, grid, max_iterations=200_000)
         no_tensor_runs.append((time.perf_counter() - t0) * 1000.0)
 
     weight_zero_runs = []
     for _ in range(3):
         t0 = time.perf_counter()
-        _astar_search_numba(
+        _astar_search_rust(
             start,
             goal,
             grid,
@@ -218,7 +215,7 @@ def test_kernel_with_weight_zero_matches_no_tensor():
     weight_zero_ms = min(weight_zero_runs)
 
     # Tolerance: weight=0 should match no-tensor (the kernel
-    # branch is pruned by Numba).  A 50% slack absorbs the
+    # branch is pruned by the JIT-compiled loop).  A 50% slack absorbs the
     # remaining noise from CPython's GC and OS scheduling.
     ratio = weight_zero_ms / max(no_tensor_ms, 0.01)
     assert ratio < 1.50, (

@@ -1,6 +1,6 @@
 # Rotation-convention sign fix (R(+theta) -> R(-theta)), repo-wide sweep, and the CP-SAT re-run
 
-<!-- provenance: commit=21b4c96345d415d13685c2d6057c11124d0f1e45 dirty=false -->
+<!-- provenance: commit=0a8e7194f0150dc310e68fada1af19af2a5ae1e4 dirty=false -->
 
 **Date:** 2026-07-29
 **Base:** `ecbc302a` (branch `fix/cross-domain-creepage-triage`, which itself

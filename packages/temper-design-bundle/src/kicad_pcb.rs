@@ -58,6 +58,7 @@ pub fn extract_footprint_references(pcb_text: &str) -> Result<HashSet<String>, D
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
 

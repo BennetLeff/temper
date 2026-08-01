@@ -7,7 +7,9 @@ Tests cover:
 - Overlap detection for overlapping and non-overlapping boxes
 - Smooth min/max approximation accuracy
 - Polygon area for known shapes
-- JAX gradient compatibility
+
+All operators delegate to the temper_geometry Rust crate; the Python
+wrappers take flat scalar coordinates / flat vertex lists.
 """
 
 import numpy as np
@@ -68,52 +70,39 @@ class TestPrimitives:
 
     def test_point_distance(self):
         """Test Euclidean distance between points."""
-        p1 = np.array([0.0, 0.0])
-        p2 = np.array([3.0, 4.0])
-        assert np.isclose(point_distance(p1, p2), 5.0)
+        assert np.isclose(point_distance(0.0, 0.0, 3.0, 4.0), 5.0)
 
     def test_point_distance_squared(self):
         """Test squared distance (avoids sqrt)."""
-        p1 = np.array([0.0, 0.0])
-        p2 = np.array([3.0, 4.0])
-        assert np.isclose(point_distance_squared(p1, p2), 25.0)
+        assert np.isclose(point_distance_squared(0.0, 0.0, 3.0, 4.0), 25.0)
 
     def test_points_centroid(self):
         """Test centroid of point cloud."""
-        points = np.array([[0.0, 0.0], [2.0, 0.0], [2.0, 2.0], [0.0, 2.0]])
-        centroid = points_centroid(points)
-        assert np.allclose(centroid, np.array([1.0, 1.0]))
+        # Flat list of [x1, y1, x2, y2, ...]
+        centroid = points_centroid([0.0, 0.0, 2.0, 0.0, 2.0, 2.0, 0.0, 2.0])
+        assert centroid == (1.0, 1.0)
 
     def test_rect_center(self):
-        """Test rectangle center from corners."""
-        min_corner = np.array([0.0, 0.0])
-        max_corner = np.array([10.0, 20.0])
-        center = rect_center(min_corner, max_corner)
-        assert np.allclose(center, np.array([5.0, 10.0]))
+        """Test rectangle center from position and size."""
+        center = rect_center(0.0, 0.0, 10.0, 20.0)
+        assert center == (5.0, 10.0)
 
     def test_rect_area(self):
         """Test rectangle area calculation."""
-        # rect_area takes width and height, not corners
-        assert rect_area(5.0, 10.0) == 50.0
+        # rect_area takes position and size, not just width and height
+        assert rect_area(0.0, 0.0, 5.0, 10.0) == 50.0
 
     def test_distance_to_rect_edge_inside(self):
         """Test distance to edge for point inside rectangle."""
-        point = np.array([5.0, 5.0])
-        min_corner = np.array([0.0, 0.0])
-        max_corner = np.array([10.0, 10.0])
-        d = distance_to_rect_edge(point, min_corner, max_corner)
+        d = distance_to_rect_edge(5.0, 5.0, 0.0, 0.0, 10.0, 10.0)
         assert np.isclose(d, 5.0)  # Center of 10x10 box
 
     def test_distance_to_specific_edge(self):
         """Test distance to specific edges."""
-        point = np.array([3.0, 7.0])
-        min_corner = np.array([0.0, 0.0])
-        max_corner = np.array([10.0, 10.0])
-
-        assert np.isclose(distance_to_specific_edge(point, "LEFT", min_corner, max_corner), 3.0)
-        assert np.isclose(distance_to_specific_edge(point, "RIGHT", min_corner, max_corner), 7.0)
-        assert np.isclose(distance_to_specific_edge(point, "BOTTOM", min_corner, max_corner), 7.0)
-        assert np.isclose(distance_to_specific_edge(point, "TOP", min_corner, max_corner), 3.0)
+        assert np.isclose(distance_to_specific_edge(3.0, 7.0, 0.0, 0.0, 10.0, 10.0, "LEFT"), 3.0)
+        assert np.isclose(distance_to_specific_edge(3.0, 7.0, 0.0, 0.0, 10.0, 10.0, "RIGHT"), 7.0)
+        assert np.isclose(distance_to_specific_edge(3.0, 7.0, 0.0, 0.0, 10.0, 10.0, "BOTTOM"), 7.0)
+        assert np.isclose(distance_to_specific_edge(3.0, 7.0, 0.0, 0.0, 10.0, 10.0, "TOP"), 3.0)
 
 
 # =============================================================================
@@ -122,50 +111,39 @@ class TestPrimitives:
 
 
 class TestRotation:
-    """Tests for rotation transforms."""
+    """Tests for rotation transforms (radians API)."""
 
     def test_rotation_0_degrees(self):
         """Test 0° rotation (identity)."""
-        point = np.array([1.0, 0.0])
-        rot_onehot = rotation_index_to_onehot(0)
-        rotated = rotate_point(point, rot_onehot)
-        assert np.allclose(rotated, np.array([1.0, 0.0]), atol=1e-6)
+        rotated = rotate_point(1.0, 0.0, 0.0)
+        assert np.allclose(rotated, (1.0, 0.0), atol=1e-6)
 
     def test_rotation_90_degrees(self):
         """Test 90° CCW rotation."""
-        point = np.array([1.0, 0.0])
-        rot_onehot = rotation_index_to_onehot(1)
-        rotated = rotate_point(point, rot_onehot)
-        assert np.allclose(rotated, np.array([0.0, 1.0]), atol=1e-6)
+        rotated = rotate_point(1.0, 0.0, np.pi / 2)
+        assert np.allclose(rotated, (0.0, 1.0), atol=1e-6)
 
     def test_rotation_180_degrees(self):
         """Test 180° rotation."""
-        point = np.array([1.0, 0.0])
-        rot_onehot = rotation_index_to_onehot(2)
-        rotated = rotate_point(point, rot_onehot)
-        assert np.allclose(rotated, np.array([-1.0, 0.0]), atol=1e-6)
+        rotated = rotate_point(1.0, 0.0, np.pi)
+        assert np.allclose(rotated, (-1.0, 0.0), atol=1e-6)
 
     def test_rotation_270_degrees(self):
         """Test 270° CCW rotation."""
-        point = np.array([1.0, 0.0])
-        rot_onehot = rotation_index_to_onehot(3)
-        rotated = rotate_point(point, rot_onehot)
-        assert np.allclose(rotated, np.array([0.0, -1.0]), atol=1e-6)
+        rotated = rotate_point(1.0, 0.0, 3 * np.pi / 2)
+        assert np.allclose(rotated, (0.0, -1.0), atol=1e-6)
 
     def test_rotation_around_center(self):
         """Test rotation around non-origin center."""
-        point = np.array([2.0, 0.0])
-        center = np.array([1.0, 0.0])
-        rot_onehot = rotation_index_to_onehot(1)  # 90°
-        rotated = rotate_point(point, rot_onehot, center)
+        rotated = rotate_point(2.0, 0.0, np.pi / 2, 1.0, 0.0)
         # Point is 1 unit right of center, after 90° CCW should be 1 unit above
-        assert np.allclose(rotated, np.array([1.0, 1.0]), atol=1e-6)
+        assert np.allclose(rotated, (1.0, 1.0), atol=1e-6)
 
     def test_rotation_matrix_orthogonal(self):
         """Verify rotation matrices are orthogonal (R @ R.T = I)."""
-        for i in range(4):
-            rot_onehot = rotation_index_to_onehot(i)
-            R = get_rotation_matrix(rot_onehot)
+        for angle in (0.0, np.pi / 2, np.pi, 3 * np.pi / 2):
+            flat = get_rotation_matrix(angle)
+            R = np.array(flat).reshape(2, 2)
             assert np.allclose(R @ R.T, np.eye(2), atol=1e-6)
 
     def test_onehot_encoding_roundtrip(self):
@@ -182,70 +160,52 @@ class TestSDF:
 
     def test_sdf_circle_inside(self):
         """Test SDF is negative inside circle."""
-        center = np.array([0.0, 0.0])
-        point = np.array([0.3, 0.0])
-        d = sdf_circle(point, center, 1.0)
+        d = sdf_circle(0.3, 0.0, 0.0, 0.0, 1.0)
         assert d < 0  # Inside is negative
 
     def test_sdf_circle_outside(self):
         """Test SDF is positive outside circle."""
-        center = np.array([0.0, 0.0])
-        point = np.array([2.0, 0.0])
-        d = sdf_circle(point, center, 1.0)
+        d = sdf_circle(2.0, 0.0, 0.0, 0.0, 1.0)
         assert d > 0  # Outside is positive
 
     def test_sdf_circle_boundary(self):
         """Test SDF is zero on circle boundary."""
-        center = np.array([0.0, 0.0])
-        point = np.array([1.0, 0.0])
-        d = sdf_circle(point, center, 1.0)
+        d = sdf_circle(1.0, 0.0, 0.0, 0.0, 1.0)
         assert np.isclose(d, 0.0, atol=1e-6)
 
     def test_sdf_circle_distance_correct(self):
         """Test SDF returns correct distance values."""
-        center = np.array([0.0, 0.0])
-        point = np.array([3.0, 0.0])
-        d = sdf_circle(point, center, 1.0)
+        d = sdf_circle(3.0, 0.0, 0.0, 0.0, 1.0)
         assert np.isclose(d, 2.0)  # 3 - 1 = 2
 
     def test_sdf_rectangle_inside(self):
         """Test rectangle SDF is negative inside."""
-        center = np.array([0.0, 0.0])
-        point = np.array([0.5, 0.5])
-        # sdf_rectangle takes point, center, width, height
-        d = sdf_rectangle(point, center, 4.0, 2.0)  # 4x2 rectangle (half-sizes 2x1)
+        # sdf_rectangle takes point, center, half-width, half-height
+        d = sdf_rectangle(0.5, 0.5, 0.0, 0.0, 2.0, 1.0)  # 4x2 rectangle (half-sizes 2x1)
         assert d < 0
 
     def test_sdf_rectangle_outside(self):
         """Test rectangle SDF is positive outside."""
-        center = np.array([0.0, 0.0])
-        point = np.array([5.0, 0.0])
-        d = sdf_rectangle(point, center, 4.0, 2.0)  # 4x2 rectangle
+        d = sdf_rectangle(5.0, 0.0, 0.0, 0.0, 2.0, 1.0)  # 4x2 rectangle
         assert d > 0
 
     def test_sdf_rectangle_boundary(self):
         """Test rectangle SDF is zero on boundary."""
-        center = np.array([0.0, 0.0])
-        point = np.array([2.0, 0.0])  # On right edge of 4-wide rectangle
-        d = sdf_rectangle(point, center, 4.0, 2.0)
+        d = sdf_rectangle(2.0, 0.0, 0.0, 0.0, 2.0, 1.0)  # On right edge of 4-wide rectangle
         assert np.isclose(d, 0.0, atol=1e-4)  # Relaxed tolerance for numerical precision
 
     def test_sdf_union(self):
         """Test SDF union (min of two SDFs)."""
-        np.array([0.0, 0.0])
         # Point between two circles
-        point = np.array([1.5, 0.0])
-        d1 = sdf_circle(point, np.array([0.0, 0.0]), 1.0)
-        d2 = sdf_circle(point, np.array([3.0, 0.0]), 1.0)
+        d1 = sdf_circle(1.5, 0.0, 0.0, 0.0, 1.0)
+        d2 = sdf_circle(1.5, 0.0, 3.0, 0.0, 1.0)
         d_union = sdf_union(d1, d2)
         assert np.isclose(d_union, min(d1, d2))
 
     def test_sdf_intersection(self):
         """Test SDF intersection (max of two SDFs)."""
-        np.array([0.0, 0.0])
-        point = np.array([0.0, 0.0])
-        d1 = sdf_circle(point, np.array([-0.5, 0.0]), 1.0)
-        d2 = sdf_circle(point, np.array([0.5, 0.0]), 1.0)
+        d1 = sdf_circle(0.0, 0.0, -0.5, 0.0, 1.0)
+        d2 = sdf_circle(0.0, 0.0, 0.5, 0.0, 1.0)
         d_intersection = sdf_intersection(d1, d2)
         # Point is inside both circles, intersection should be negative
         assert d_intersection < 0
@@ -256,168 +216,140 @@ class TestSmoothFunctions:
 
     def test_smooth_min_approximation(self):
         """Test smooth_min approximates min."""
-        x = np.array([1.0, 5.0, 3.0, 2.0])
         # With high alpha, should be close to true min
-        s_min = smooth_min(x, alpha=100.0)
+        s_min = smooth_min(1.0, 5.0, alpha=100.0)
         assert np.isclose(s_min, 1.0, atol=0.1)
 
     def test_smooth_max_approximation(self):
         """Test smooth_max approximates max."""
-        x = np.array([1.0, 5.0, 3.0, 2.0])
         # With high alpha, should be close to true max
-        s_max = smooth_max(x, alpha=100.0)
+        s_max = smooth_max(1.0, 5.0, alpha=100.0)
         assert np.isclose(s_max, 5.0, atol=0.1)
 
     def test_smooth_min_pair(self):
-        """Test pairwise smooth min."""
-        a = np.array(3.0)
-        b = np.array(7.0)
-        result = smooth_min_pair(a, b, alpha=100.0)
-        assert np.isclose(result, 3.0, atol=0.1)
+        """Test pairwise smooth min (sequence input)."""
+        result = smooth_min_pair([3.0], [7.0], alpha=100.0)
+        assert np.isclose(result[0], 3.0, atol=0.1)
 
     def test_smooth_max_pair(self):
-        """Test pairwise smooth max."""
-        a = np.array(3.0)
-        b = np.array(7.0)
-        result = smooth_max_pair(a, b, alpha=100.0)
-        assert np.isclose(result, 7.0, atol=0.1)
+        """Test pairwise smooth max (sequence input)."""
+        result = smooth_max_pair([3.0], [7.0], alpha=100.0)
+        assert np.isclose(result[0], 7.0, atol=0.1)
 
     def test_smooth_relu(self):
         """Test smooth ReLU approximation."""
-        # smooth_relu uses beta parameter, not alpha
         # Positive value should pass through
-        assert smooth_relu(np.array(5.0), beta=10.0) > 4.9
+        assert smooth_relu(5.0, alpha=10.0) > 4.9
         # Negative value should be near zero
-        assert smooth_relu(np.array(-5.0), beta=10.0) < 0.1
+        assert smooth_relu(-5.0, alpha=10.0) < 0.1
 
     def test_smooth_abs(self):
         """Test smooth absolute value."""
-        # smooth_abs uses beta parameter, not alpha
         # Should return approximate absolute value
-        assert np.isclose(smooth_abs(np.array(5.0), beta=10.0), 5.0, atol=0.1)
-        assert np.isclose(smooth_abs(np.array(-5.0), beta=10.0), 5.0, atol=0.1)
+        assert np.isclose(smooth_abs(5.0, alpha=10.0), 5.0, atol=0.1)
+        assert np.isclose(smooth_abs(-5.0, alpha=10.0), 5.0, atol=0.1)
 
     def test_hpwl_smooth(self):
         """Test Half-Perimeter Wirelength calculation."""
-        # Points forming a 4x3 rectangle
-        points = np.array([[0.0, 0.0], [4.0, 0.0], [4.0, 3.0], [0.0, 3.0]])
+        # Points forming a 4x3 rectangle (flat vertex list)
+        points = [0.0, 0.0, 4.0, 0.0, 4.0, 3.0, 0.0, 3.0]
         hpwl = hpwl_smooth(points, alpha=100.0)
         # HPWL = (max_x - min_x) + (max_y - min_y) = 4 + 3 = 7
         assert np.isclose(hpwl, 7.0, atol=0.2)
 
 
 class TestOverlap:
-    """Tests for overlap detection functions."""
+    """Tests for overlap detection functions (AABB corners API)."""
 
     def test_boxes_overlapping(self):
         """Test overlap detection for overlapping boxes."""
-        # Box 1: center (0,0), size 4x4
-        c1 = np.array([0.0, 0.0])
-        r1 = rotation_index_to_onehot(0)
-
-        # Box 2: center (2,2), size 4x4 (overlaps with box 1)
-        c2 = np.array([2.0, 2.0])
-        r2 = rotation_index_to_onehot(0)
-
-        # component_overlap_amount(pos1, rot1, w1, h1, pos2, rot2, w2, h2)
-        overlap = component_overlap_amount(c1, r1, 4.0, 4.0, c2, r2, 4.0, 4.0)
+        # Box 1: center (0,0), size 4x4 -> corners (-2,-2,2,2)
+        # Box 2: center (2,2), size 4x4 -> corners (0,0,4,4)
+        overlap = component_overlap_amount(-2.0, -2.0, 2.0, 2.0, 0.0, 0.0, 4.0, 4.0)
         assert overlap > 0  # Should detect overlap
 
     def test_boxes_separated(self):
         """Test overlap detection for separated boxes."""
-        # Box 1: center (0,0), size 2x2
-        c1 = np.array([0.0, 0.0])
-        r1 = rotation_index_to_onehot(0)
-
-        # Box 2: center (10,10), size 2x2 (far from box 1)
-        c2 = np.array([10.0, 10.0])
-        r2 = rotation_index_to_onehot(0)
-
-        overlap = component_overlap_amount(c1, r1, 2.0, 2.0, c2, r2, 2.0, 2.0)
-        # Smooth overlap functions may return tiny positive values near zero
-        assert overlap < 0.01  # No significant overlap
+        # Box 1: center (0,0), size 2x2 -> corners (-1,-1,1,1)
+        # Box 2: center (10,10), size 2x2 -> corners (9,9,11,11)
+        overlap = component_overlap_amount(-1.0, -1.0, 1.0, 1.0, 9.0, 9.0, 11.0, 11.0)
+        assert overlap == 0.0  # No overlap
 
     def test_clearance_violation(self):
         """Test clearance violation detection."""
-        # Box 1: center (0,0), size 2x2
-        c1 = np.array([0.0, 0.0])
-        r1 = rotation_index_to_onehot(0)
+        # Rect 1: center (0,0), size 2x2; Rect 2: center (3,0), size 2x2 (gap of 1mm)
+        rects = [0.0, 0.0, 2.0, 2.0, 3.0, 0.0, 2.0, 2.0]
 
-        # Box 2: center (3,0), size 2x2 (gap of 1mm)
-        c2 = np.array([3.0, 0.0])
-        r2 = rotation_index_to_onehot(0)
-
-        # check_clearance_violation(pos1, rot1, w1, h1, pos2, rot2, w2, h2, min_clearance)
-        # With required clearance of 0.5mm - should pass (gap is 1mm)
-        violation = check_clearance_violation(c1, r1, 2.0, 2.0, c2, r2, 2.0, 2.0, 0.5)
-        # Smooth functions may have small numerical errors
-        assert violation < 0.01  # No significant violation
+        # With required clearance of 0.5mm - should pass (gap is 1mm).
+        # check_clearance_violation uses smooth_relu, so the amount is
+        # tiny-but-positive rather than exactly zero; assert it is negligible.
+        violations = check_clearance_violation(rects, 0.5)
+        assert all(amount < 0.01 for _, _, amount in violations)
 
         # With required clearance of 2mm - should fail
-        violation = check_clearance_violation(c1, r1, 2.0, 2.0, c2, r2, 2.0, 2.0, 2.0)
-        assert violation > 0
+        violations = check_clearance_violation(rects, 2.0)
+        assert len(violations) == 1
+        i, j, amount = violations[0]
+        assert amount > 0
 
 
 class TestPolygon:
-    """Tests for polygon operations."""
+    """Tests for polygon operations (flat vertex lists)."""
 
     def test_square_area(self):
         """Test area of unit square."""
-        square = np.array([[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0]])
+        square = [0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0]
         assert np.isclose(polygon_area(square), 1.0)
 
     def test_rectangle_area(self):
         """Test area of 3x4 rectangle."""
-        rect = np.array([[0.0, 0.0], [4.0, 0.0], [4.0, 3.0], [0.0, 3.0]])
+        rect = [0.0, 0.0, 4.0, 0.0, 4.0, 3.0, 0.0, 3.0]
         assert np.isclose(polygon_area(rect), 12.0)
 
     def test_triangle_area(self):
         """Test area of right triangle."""
-        triangle = np.array([[0.0, 0.0], [4.0, 0.0], [0.0, 3.0]])
+        triangle = [0.0, 0.0, 4.0, 0.0, 0.0, 3.0]
         assert np.isclose(polygon_area(triangle), 6.0)  # 0.5 * 4 * 3
 
     def test_polygon_centroid(self):
         """Test centroid of square."""
-        square = np.array([[0.0, 0.0], [2.0, 0.0], [2.0, 2.0], [0.0, 2.0]])
+        square = [0.0, 0.0, 2.0, 0.0, 2.0, 2.0, 0.0, 2.0]
         centroid = polygon_centroid(square)
-        assert np.allclose(centroid, np.array([1.0, 1.0]), atol=1e-6)
+        assert np.allclose(centroid, (1.0, 1.0), atol=1e-6)
 
     def test_polygon_perimeter(self):
         """Test perimeter of unit square."""
-        square = np.array([[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0]])
+        square = [0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0]
         assert np.isclose(polygon_perimeter(square), 4.0)
 
     def test_point_in_polygon_inside(self):
         """Test point inside polygon."""
-        square = np.array([[0.0, 0.0], [2.0, 0.0], [2.0, 2.0], [0.0, 2.0]])
-        point = np.array([1.0, 1.0])
-        inside = point_in_polygon_soft(point, square)
+        square = [0.0, 0.0, 2.0, 0.0, 2.0, 2.0, 0.0, 2.0]
+        inside = point_in_polygon_soft(1.0, 1.0, square, smoothness=10.0)
         assert inside > 0.9  # Should be close to 1
 
     def test_point_in_polygon_outside(self):
         """Test point outside polygon."""
-        square = np.array([[0.0, 0.0], [2.0, 0.0], [2.0, 2.0], [0.0, 2.0]])
-        point = np.array([5.0, 5.0])
-        inside = point_in_polygon_soft(point, square)
+        square = [0.0, 0.0, 2.0, 0.0, 2.0, 2.0, 0.0, 2.0]
+        inside = point_in_polygon_soft(5.0, 5.0, square, smoothness=10.0)
         assert inside < 0.1  # Should be close to 0
 
     def test_winding_number_inside(self):
         """Test winding number for point inside."""
-        square = np.array([[0.0, 0.0], [2.0, 0.0], [2.0, 2.0], [0.0, 2.0]])
-        point = np.array([1.0, 1.0])
-        winding = point_in_polygon_winding(point, square)
-        assert np.abs(winding) >= 0.9  # Non-zero winding number
+        square = [0.0, 0.0, 2.0, 0.0, 2.0, 2.0, 0.0, 2.0]
+        winding = point_in_polygon_winding(1.0, 1.0, square)
+        assert winding is True  # Non-zero winding number
 
     def test_rotate_polygon(self):
         """Test polygon rotation preserves area."""
-        square = np.array([[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0]])
+        square = [0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0]
         rotated = rotate_polygon(square, np.pi / 4)  # 45 degrees
         # Area should be preserved
         assert np.isclose(polygon_area(rotated), polygon_area(square), atol=1e-6)
 
     def test_scale_polygon(self):
         """Test polygon scaling."""
-        square = np.array([[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0]])
-        scaled = scale_polygon(square, 2.0)
+        square = [0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0]
+        scaled = scale_polygon(square, 2.0, 2.0)
         # Area should increase by factor of 4
         assert np.isclose(polygon_area(scaled), 4.0 * polygon_area(square), atol=1e-6)

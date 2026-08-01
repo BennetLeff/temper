@@ -169,10 +169,16 @@ pub fn distance_to_board_boundary(
 /// `[i * N + j]` = distance between `points[i]` and `points[j]`.
 pub fn pairwise_distances(points: &[Point]) -> Vec<f64> {
     let n = points.len();
-    let mut out = Vec::with_capacity(n * n);
+    // Upper triangle + mirror: `point_distance` is deterministic, so
+    // `d[i][j] == d[j][i]` bit-for-bit — mirrored entries are copied, the
+    // diagonal is computed once per element.
+    let mut out = vec![0.0; n * n];
     for i in 0..n {
-        for j in 0..n {
-            out.push(point_distance(&points[i], &points[j]));
+        out[i * n + i] = point_distance(&points[i], &points[i]);
+        for j in (i + 1)..n {
+            let d = point_distance(&points[i], &points[j]);
+            out[i * n + j] = d;
+            out[j * n + i] = d;
         }
     }
     out

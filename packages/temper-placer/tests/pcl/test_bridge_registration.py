@@ -29,10 +29,11 @@ class TestBridgeRegistrationCompleteness:
         assert not missing, f"ConstraintType(s) with DRC support but no handler: {missing}"
 
     def test_backends_registry_has_all_targets(self):
-        """BaseConstraint.backends contains entries for jax, sat, drc."""
-        assert "jax" in BaseConstraint.backends, "jax backend missing"
+        """BaseConstraint.backends contains entries for sat, drc (JAX removed)."""
         assert "sat" in BaseConstraint.backends, "sat backend missing"
         assert "drc" in BaseConstraint.backends, "drc backend missing"
+        # JAX was removed from the placer (2026-07-03-002); no jax backend.
+        assert "jax" not in BaseConstraint.backends, "jax backend should not exist"
 
     def test_sat_backend_is_callable(self):
         """The SAT backend is a callable."""

@@ -170,6 +170,158 @@ class TestSolve:
         assert sol.solve_time_s <= 1.0  # small buffer
 
 
+class TestDisplacementObjective:
+    """Minimum-displacement objective (issue #504 repair machinery).
+
+    The objective is a *preference*, never a hard bound: hard constraints
+    stay authoritative and the solver picks the feasible placement closest
+    (Manhattan) to the reference position. `apply_objective()` must actually
+    call `Minimize` -- the never-landed PR #498 registered objective terms
+    without applying them, making the parameter a silent no-op.
+    """
+
+    def test_single_component_placed_exactly_at_reference(self) -> None:
+        model = CpSatModel()
+        model.add_component("Q1", x_start_val=0, y_start_val=0, width=100, height=100)
+        model.set_bounds(x_min=0, y_min=0, x_max=1000, y_max=1000)
+        model.add_displacement_objective("Q1", 500, 400)
+        model.apply_objective()
+        sol = model.solve(time_limit_s=2.0)
+        assert sol.feasible
+        # The reference is feasible, so the unique optimum is zero displacement.
+        assert sol.positions["Q1"] == (500, 400)
+
+    def test_two_components_minimize_total_displacement_when_forced(self) -> None:
+        # Hard x-separation of 700 units between two 200-wide components whose
+        # reference is the shared center (1000, 1000). By |u - v| <= |u| + |v|,
+        # total displacement >= 700, and 700 is attainable (e.g. 650/1350,
+        # or A unmoved and B at 1700), so EVERY optimal solution has total
+        # displacement exactly 700 -- an exact, optimum-unique invariant.
+        model = CpSatModel()
+        model.add_component("A", x_start_val=0, y_start_val=0, width=200, height=200)
+        model.add_component("B", x_start_val=0, y_start_val=0, width=200, height=200)
+        model.set_bounds(x_min=0, y_min=0, x_max=2000, y_max=2000)
+        model.add_no_overlap_2d(["A", "B"])
+        va, vb = model.get_component("A"), model.get_component("B")
+        # B.x_start - A.x_end >= 500  =>  B.x - A.x >= 700.
+        model.add(vb.x_start - va.x_end >= 500)
+        model.add_displacement_objective("A", 1000, 1000)
+        model.add_displacement_objective("B", 1000, 1000)
+        model.apply_objective()
+        sol = model.solve(time_limit_s=5.0)
+        assert sol.feasible
+        ax, ay = sol.positions["A"]
+        bx, by = sol.positions["B"]
+        total = abs(ax - 1000) + abs(bx - 1000) + abs(ay - 1000) + abs(by - 1000)
+        assert total == 700, (sol.positions, total)
+        # Separation is preserved (a hard constraint, not the objective).
+        assert bx - ax >= 700, (ax, bx)
+        # The y-axis is unconstrained, so it stays at the reference exactly.
+        assert ay == 1000 and by == 1000, (sol.positions)
+
+    def test_unknown_ref_raises(self) -> None:
+        model = CpSatModel()
+        model.add_component("Q1", x_start_val=0, y_start_val=0, width=100, height=100)
+        with pytest.raises(KeyError):
+            model.add_displacement_objective("NOPE", 100, 100)
+
+    def test_nonpositive_weight_rejected(self) -> None:
+        model = CpSatModel()
+        model.add_component("Q1", x_start_val=0, y_start_val=0, width=100, height=100)
+        with pytest.raises(ValueError):
+            model.add_displacement_objective("Q1", 100, 100, weight=0)
+        with pytest.raises(ValueError):
+            model.add_displacement_objective("Q1", 100, 100, weight=-1)
+
+    def test_apply_objective_idempotent(self) -> None:
+        model = CpSatModel()
+        model.add_component("Q1", x_start_val=0, y_start_val=0, width=100, height=100)
+        model.set_bounds(x_min=0, y_min=0, x_max=1000, y_max=1000)
+        model.add_displacement_objective("Q1", 250, 250)
+        model.apply_objective()
+        model.apply_objective()  # must not raise (Minimize already called)
+        sol = model.solve(time_limit_s=2.0)
+        assert sol.feasible
+        assert sol.positions["Q1"] == (250, 250)
+
+    def test_hard_displacement_bound_respected(self) -> None:
+        # Reference at (500, 500); keepout [400,700]^2 blocks it. The closest
+        # feasible centre is (350, 500) at Manhattan distance 150, so a hard
+        # bound of 200 is feasible and must be respected (displacement 150).
+        model = CpSatModel()
+        model.add_component("Q1", x_start_val=0, y_start_val=0, width=100, height=100)
+        model.set_bounds(x_min=50, y_min=50, x_max=950, y_max=950)
+        kx_iv, ky_iv = model.add_keepout_interval("k1", 400, 400, 300, 300)
+        model.add_no_overlap_2d(["Q1"], extra_x_intervals=[kx_iv], extra_y_intervals=[ky_iv])
+        model.add_displacement_objective("Q1", 500, 500, max_units=200)
+        model.apply_objective()
+        sol = model.solve(time_limit_s=5.0)
+        assert sol.feasible
+        x, y = sol.positions["Q1"]
+        assert abs(x - 500) + abs(y - 500) == 150, (x, y)
+        assert abs(x - 500) + abs(y - 500) <= 200, (x, y)
+
+    def test_hard_displacement_bound_can_make_model_infeasible(self) -> None:
+        # Reference at the keepout centre (500, 500); the closest feasible
+        # point is 250 units away, so a 100-unit bound is infeasible.
+        model = CpSatModel()
+        model.add_component("Q1", x_start_val=0, y_start_val=0, width=100, height=100)
+        model.set_bounds(x_min=50, y_min=50, x_max=950, y_max=950)
+        kx_iv, ky_iv = model.add_keepout_interval("k1", 300, 300, 400, 400)
+        model.add_no_overlap_2d(["Q1"], extra_x_intervals=[kx_iv], extra_y_intervals=[ky_iv])
+        model.add_displacement_objective("Q1", 500, 500, max_units=100)
+        model.apply_objective()
+        sol = model.solve(time_limit_s=5.0)
+        assert not sol.feasible
+
+    def test_negative_bound_rejected(self) -> None:
+        model = CpSatModel()
+        model.add_component("Q1", x_start_val=0, y_start_val=0, width=100, height=100)
+        with pytest.raises(ValueError):
+            model.add_displacement_objective("Q1", 500, 500, max_units=-1)
+
+
+class TestFixedRotation:
+    """Hard-pinning a component's 0-3 rotation index.
+
+    The routed-board repair must NOT let CP-SAT rotate footprints: a rotation
+    moves every pad, which disconnects the routed copper attached to it.
+    """
+
+    def test_fixed_rotation_pins_rotation(self) -> None:
+        model = CpSatModel()
+        model.add_component("Q1", x_start_val=0, y_start_val=0, width=200, height=100)
+        model.set_bounds(x_min=0, y_min=0, x_max=1000, y_max=1000)
+        model.add_rotation("Q1", is_polarized=False)
+        model.add_fixed_rotation("Q1", 2)
+        sol = model.solve(time_limit_s=2.0)
+        assert sol.feasible
+        assert sol.rotations["Q1"] == 2
+
+    def test_fixed_rotation_out_of_range_raises(self) -> None:
+        model = CpSatModel()
+        model.add_component("Q1", x_start_val=0, y_start_val=0, width=100, height=100)
+        with pytest.raises(ValueError):
+            model.add_fixed_rotation("Q1", 4)
+        with pytest.raises(ValueError):
+            model.add_fixed_rotation("Q1", -1)
+
+    def test_fixed_rotation_conflict_with_polarized_raises(self) -> None:
+        # A polarized component is pinned to rot=0 by construction; fixing it
+        # to anything else is a contradiction and must fail loudly.
+        model = CpSatModel()
+        model.add_component("Q1", x_start_val=0, y_start_val=0, width=100, height=100)
+        model.add_rotation("Q1", is_polarized=True)
+        with pytest.raises(ValueError):
+            model.add_fixed_rotation("Q1", 1)
+        model.add_fixed_rotation("Q1", 0)  # consistent no-op
+
+    def test_unknown_ref_raises(self) -> None:
+        model = CpSatModel()
+        with pytest.raises(KeyError):
+            model.add_fixed_rotation("NOPE", 0)
+
+
 class TestAssumptions:
     """Assumption literal and UNSAT-core tests."""
 

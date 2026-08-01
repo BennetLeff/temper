@@ -155,6 +155,7 @@ def run_benchmark(
     max_iterations: int = 10,
 ) -> BenchmarkResult:
     """Run a single benchmark scenario."""
+    del max_iterations  # inherited unused arg (baseline debt); iteration cap not yet honored
 
     print(f"  Running {name}...", end=" ", flush=True)
 

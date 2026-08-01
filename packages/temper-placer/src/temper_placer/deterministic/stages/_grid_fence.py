@@ -61,7 +61,10 @@ def check_clearance_grid_conservatism(
     """
     log = expansion_log if expansion_log is not None else _EXPANSION_LOG
     violations: list[dict] = []
-    import math
+
+    import temper_geometry as _tg
+
+    from temper_placer.core.pad_geometry import shape_code
 
     cell = grid.cell_size_mm
     inset = cell / 2.0  # ±0.5 cell tolerance per R8
@@ -73,27 +76,25 @@ def check_clearance_grid_conservatism(
         if layer_idx < 0 or layer_idx >= grid.layer_count:
             continue
 
-        samples: list[tuple[float, float]] = []
-        if shape in ("rect", "roundrect", "oval") and pad_size[0] > 0 and pad_size[1] > 0:
-            cx, cy = pos
-            w, h = pad_size
-            eff = eff_creep - inset
-            # 4 corners expanded by eff on each side
-            samples.append((cx - w / 2 - eff, cy - h / 2 - eff))
-            samples.append((cx + w / 2 + eff, cy - h / 2 - eff))
-            samples.append((cx - w / 2 - eff, cy + h / 2 + eff))
-            samples.append((cx + w / 2 + eff, cy + h / 2 + eff))
-            # 4 edge midpoints
-            samples.append((cx, cy - h / 2 - eff))
-            samples.append((cx, cy + h / 2 + eff))
-            samples.append((cx - w / 2 - eff, cy))
-            samples.append((cx + w / 2 + eff, cy))
-        else:
-            cx, cy = pos
-            r = pad_radius + eff_creep - inset
-            for i in range(sample_count_circle):
-                theta = 2.0 * math.pi * i / sample_count_circle
-                samples.append((cx + r * math.cos(theta), cy + r * math.sin(theta)))
+        # Sample geometry computed in temper-geometry (grid_raster.rs) with
+        # the exact f64 operation order of the former pure-Python block:
+        # 8 samples for rect-shaped pads with non-zero size (4 corners + 4
+        # edge midpoints, expanded by eff = eff_creep - inset), else
+        # sample_count_circle points on the circle of radius
+        # pad_radius + eff_creep - inset (theta = 2*pi*i/n, libm cos/sin
+        # resolved via dlsym to match the host runtime bit-for-bit).
+        raw = _tg.fence_samples_py(
+            shape_code(shape),
+            pos[0],
+            pos[1],
+            pad_radius,
+            pad_size[0],
+            pad_size[1],
+            eff_creep,
+            inset,
+            sample_count_circle,
+        )
+        samples = [(raw[i], raw[i + 1]) for i in range(0, len(raw), 2)]
 
         for x, y in samples:
             if grid.is_available(x, y, layer=layer_idx):

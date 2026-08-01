@@ -142,10 +142,9 @@ def _is_plane_required_net(net_name: str) -> bool:
         return nc.routing_strategy == "plane_required"
 
     upper = net_name.upper()
-    for kw in ("GND", "VCC", "PWR"):
-        if re.search(rf"(?:^|_){kw}(?:$|[\d_])", upper):
-            return True
-    return False
+    return any(
+        re.search(rf"(?:^|_){kw}(?:$|[\d_])", upper) for kw in ("GND", "VCC", "PWR")
+    )
 
 
 def _extract_stackup(

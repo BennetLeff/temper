@@ -56,11 +56,17 @@ pub fn smooth_max(a: f64, b: f64, alpha: f64) -> f64 {
 /// When alpha is low, the result is influenced by all elements.
 /// When alpha is high, the result is dominated by the maximum element.
 pub fn smooth_max_axis(arr: &[f64], alpha: f64) -> f64 {
-    let max_val = arr.iter().cloned().fold(f64::NEG_INFINITY, f64::max);
+    smooth_max_axis_vals(arr.iter().copied(), alpha)
+}
+
+/// Iterator-based smooth max; `arr` is consumed (and cloned for the two-pass
+/// softmax) so callers can map over borrowed data without allocating.
+fn smooth_max_axis_vals<I: Iterator<Item = f64> + Clone>(arr: I, alpha: f64) -> f64 {
+    let max_val = arr.clone().fold(f64::NEG_INFINITY, f64::max);
     if max_val.is_infinite() {
         return max_val;
     }
-    let sum_exp: f64 = arr.iter().map(|v| (alpha * (v - max_val)).exp()).sum();
+    let sum_exp: f64 = arr.map(|v| (alpha * (v - max_val)).exp()).sum();
     max_val + sum_exp.ln() / alpha
 }
 
@@ -98,12 +104,16 @@ pub fn smooth_min(a: f64, b: f64, alpha: f64) -> f64 {
 ///
 /// This is always <= `min(arr)`, with equality as `alpha → ∞`.
 pub fn smooth_min_axis(arr: &[f64], alpha: f64) -> f64 {
-    let min_val = arr.iter().cloned().fold(f64::INFINITY, f64::min);
+    smooth_min_axis_vals(arr.iter().copied(), alpha)
+}
+
+/// Iterator-based smooth min; see `smooth_max_axis_vals`.
+fn smooth_min_axis_vals<I: Iterator<Item = f64> + Clone>(arr: I, alpha: f64) -> f64 {
+    let min_val = arr.clone().fold(f64::INFINITY, f64::min);
     if min_val.is_infinite() {
         return min_val;
     }
     let sum_exp: f64 = arr
-        .iter()
         .map(|v| (-alpha * (v - min_val)).exp())
         .sum();
     min_val - sum_exp.ln() / alpha
@@ -222,12 +232,41 @@ pub fn hpwl_smooth(points: &[(f64, f64)], alpha: f64) -> f64 {
     if points.is_empty() {
         return 0.0;
     }
-    let (xs, ys): (Vec<f64>, Vec<f64>) = points.iter().cloned().unzip();
-    let x_max = smooth_max_axis(&xs, alpha);
-    let x_min = smooth_min_axis(&xs, alpha);
-    let y_max = smooth_max_axis(&ys, alpha);
-    let y_min = smooth_min_axis(&ys, alpha);
-    (x_max - x_min) + (y_max - y_min)
+    // Pass 1: exact extrema in one traversal. Left-to-right fold order is
+    // identical to the per-axis `smooth_max_axis_vals` /
+    // `smooth_min_axis_vals` reductions (`.fold(f64::NEG_INFINITY,
+    // f64::max)` etc.), so every intermediate value — and therefore the
+    // result — is bit-identical.
+    let mut x_max = f64::NEG_INFINITY;
+    let mut x_min = f64::INFINITY;
+    let mut y_max = f64::NEG_INFINITY;
+    let mut y_min = f64::INFINITY;
+    for &(x, y) in points {
+        x_max = x_max.max(x);
+        x_min = x_min.min(x);
+        y_max = y_max.max(y);
+        y_min = y_min.min(y);
+    }
+    // Pass 2: the four exp-sums, same element order as the per-axis
+    // smooth aggregates use.
+    let sx: f64 = points
+        .iter()
+        .map(|&(x, _)| (alpha * (x - x_max)).exp())
+        .sum();
+    let smx: f64 = points
+        .iter()
+        .map(|&(x, _)| (-alpha * (x - x_min)).exp())
+        .sum();
+    let sy: f64 = points
+        .iter()
+        .map(|&(_, y)| (alpha * (y - y_max)).exp())
+        .sum();
+    let smy: f64 = points
+        .iter()
+        .map(|&(_, y)| (-alpha * (y - y_min)).exp())
+        .sum();
+    (x_max + sx.ln() / alpha - (x_min - smx.ln() / alpha))
+        + (y_max + sy.ln() / alpha - (y_min - smy.ln() / alpha))
 }
 
 /// Compute temperature-weighted average using softmax-normalised weights.
@@ -248,15 +287,14 @@ pub fn weighted_average_smooth(values: &[f64], weights: &[f64], alpha: f64) -> f
         return f64::NAN;
     }
     let max_weight = weights.iter().cloned().fold(f64::NEG_INFINITY, f64::max);
-    let exp_weights: Vec<f64> = weights
+    let sum_exp: f64 = weights
         .iter()
         .map(|w| ((w - max_weight) / alpha).exp())
-        .collect();
-    let sum_exp: f64 = exp_weights.iter().sum();
+        .sum();
     values
         .iter()
-        .zip(exp_weights.iter())
-        .map(|(v, w)| v * w / sum_exp)
+        .zip(weights.iter())
+        .map(|(v, w)| v * ((w - max_weight) / alpha).exp() / sum_exp)
         .sum()
 }
 

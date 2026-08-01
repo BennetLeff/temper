@@ -1,4 +1,4 @@
-# ruff: noqa: F841  # state variable from incomplete numba merge
+# ruff: noqa: F841  # state variable from the retired JIT backend
 """
 Tests for A* Runtime Invariant Monitor.
 

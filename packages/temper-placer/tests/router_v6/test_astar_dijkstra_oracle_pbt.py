@@ -23,14 +23,15 @@ any-angle Theta*/Lazy-Theta* variants.
 
 Epsilon rationale
 -----------------
-The production A* kernel runs under Numba (float32; hardcoded
-1.4142135 diagonal) while the pure-Python ``_astar_search`` uses
+The production A* kernel runs in Rust (float32; hardcoded
+1.4142135 diagonal — the constant retained from the retired JIT
+kernel) while the pure-Python ``_astar_search`` uses
 ``DIAGONAL_COST_FACTOR * math.sqrt(2)`` (float64).  Per the
 ``bfs-oracle-cost-model-mismatch`` learning, we compare within a
 floating-point epsilon rather than demanding exact equality.
 Python A* vs Python Dijkstra: both float64, differences from
 summation order only → ε ≈ 1e-12 in practice.  We use 1e-5 to
-absorb the Numba float32 case safely.
+absorb the float32 case safely.
 """
 
 from __future__ import annotations
@@ -48,7 +49,7 @@ from temper_placer.router_v6.astar_core import (
     DIAGONAL_COST_FACTOR,
     _astar_search,
 )
-from temper_placer.router_v6.astar_core_numba import _astar_search_numba
+from temper_placer.router_v6.astar_core_rust import _astar_search_rust
 from temper_placer.router_v6.neighbor_validity import (
     build_neighbor_validity_tensor_2d,
     is_valid_2d,
@@ -56,7 +57,7 @@ from temper_placer.router_v6.neighbor_validity import (
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 
 EPS = 1e-5
-EPS_NUMBA = 2e-4  # larger: float32 + hardcoded sqrt2 in Numba kernel
+EPS_F32 = 2e-4  # larger: float32 + hardcoded sqrt2 diagonal in the kernel
 
 
 # ---------------------------------------------------------------------------
@@ -150,7 +151,7 @@ def _dijkstra_cost(
     return INF
 
 
-def _dijkstra_cost_numba_float32_model(
+def _dijkstra_cost_f32_model(
     start: tuple[int, int],
     goal: tuple[int, int],
     grid: OccupancyGrid,
@@ -158,15 +159,16 @@ def _dijkstra_cost_numba_float32_model(
     thermal_flat: np.ndarray | None = None,
     thermal_weight: float = 0.0,
 ) -> float:
-    """Dijkstra using the **Numba kernel's** edge-cost constants.
+    """Dijkstra using the kernel's float32 edge-cost constants.
 
-    Numba hardcodes diagonal as ``1.4142135`` (float32 approximation of
-    √2) — NOT ``DIAGONAL_COST_FACTOR * sqrt(2)``.  This replica
-    matches that exactly so we can oracle the Numba A* path.
+    The A* kernel hardcodes the diagonal as ``1.4142135`` (float32
+    approximation of √2) — NOT ``DIAGONAL_COST_FACTOR * sqrt(2)``.
+    This replica matches that exactly so we can oracle the kernel's
+    A* path.
     """
     cols = grid.width_cells
     INF = float("inf")
-    _NB_SQRT2 = 1.4142135  # from astar_core_numba.py line 345
+    _RUST_SQRT2 = 1.4142135  # f32 diagonal cost, temper-rust-router-core/src/astar.rs
 
     use_thermal = thermal_flat is not None and thermal_weight > 0.0
 
@@ -189,7 +191,7 @@ def _dijkstra_cost_numba_float32_model(
             dx, dy = _DIRS_8[dir_idx]
             nx, ny = cx + dx, cy + dy
 
-            move_cost = _NB_SQRT2 if dx != 0 and dy != 0 else 1.0
+            move_cost = _RUST_SQRT2 if dx != 0 and dy != 0 else 1.0
             if use_thermal:
                 assert thermal_flat is not None
                 n_idx = ny * cols + nx
@@ -387,8 +389,8 @@ def test_bmc_astar_equals_dijkstra_within_epsilon(label, rows, cols, blocked):
 
 
 @pytest.mark.l0_unit
-def test_bmc_numba_astar_equals_dijkstra_within_epsilon():
-    """Variant: Numba A* cost equals the float32-model Dijkstra within ε."""
+def test_bmc_rust_astar_equals_dijkstra_within_epsilon():
+    """Variant: Rust A* cost equals the float32-model Dijkstra within ε."""
     rows, cols = 5, 5
     grid = _make_grid(rows, cols)
     tensor = build_neighbor_validity_tensor_2d(grid)
@@ -403,7 +405,7 @@ def test_bmc_numba_astar_equals_dijkstra_within_epsilon():
             if src == dst:
                 continue
 
-            path = _astar_search_numba(
+            path = _astar_search_rust(
                 src,
                 dst,
                 grid,
@@ -411,7 +413,7 @@ def test_bmc_numba_astar_equals_dijkstra_within_epsilon():
                 thermal_flat=thermal_flat,
                 thermal_weight=2.0,
             )
-            d_cost = _dijkstra_cost_numba_float32_model(
+            d_cost = _dijkstra_cost_f32_model(
                 src,
                 dst,
                 grid,
@@ -421,14 +423,14 @@ def test_bmc_numba_astar_equals_dijkstra_within_epsilon():
             )
 
             if path is None:
-                assert math.isinf(d_cost), f"{src}→{dst}: Numba A* no path but Dijkstra found cost"
+                assert math.isinf(d_cost), f"{src}→{dst}: Rust A* no path but Dijkstra found cost"
                 continue
 
             a_cost = _path_base_cost(path, diagonal_factor=1.0) + (
                 2.0 * _path_field_sum(path, thermal_flat, cols)
             )
-            assert abs(a_cost - d_cost) <= EPS_NUMBA, (
-                f"{src}→{dst}: Numba A* cost={a_cost:.10f}, "
+            assert abs(a_cost - d_cost) <= EPS_F32, (
+                f"{src}→{dst}: Rust A* cost={a_cost:.10f}, "
                 f"Dijkstra cost={d_cost:.10f}, diff={abs(a_cost - d_cost):.2e}"
             )
 

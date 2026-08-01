@@ -181,7 +181,7 @@ class ClearanceResult:
 
 # IEC 60335-2-6 Requirements Matrix
 #
-# POLLUTION DEGREE CORRECTED PD2 -> PD3, 2026-07-30 (this change). See
+# POLLUTION DEGREE CORRECTED PD2 -> PD3, 2026-07-30. See
 # ``docs/evidence/2026-07-30-pollution-degree-determination.md`` for the full
 # derivation; summary:
 #
@@ -192,47 +192,67 @@ class ClearanceResult:
 # overrides that default for this whole appliance class: "The
 # microenvironment is pollution degree 3 unless the insulation is enclosed
 # or located so that it is unlikely to be exposed to pollution during normal
-# use of the appliance." PD3 is therefore the governing default; PD2 is an
+# use of the appliance." PD3 is therefore the governing DEFAULT; PD2 is an
 # exception that must be earned by an enclosure/sealing argument.
 #
-# That argument does not exist in this project's own mechanical documents,
-# checked directly (not inherited): ``docs/CHASSIS_AIRFLOW_DESIGN.md``
-# ducts forced, unfiltered kitchen air (bottom vents -> intake plenum ->
-# fan -> transition duct -> IGBT heatsink -> exhaust) through the same
-# chassis cavity the PCB sits in; ``docs/COIL_BRACKET_DESIGN.md`` describes
-# "large triangular cutouts ... allow air from the bottom intake to flow
-# directly through the Litz wire strands" (a baffle, not a seal);
-# ``docs/ASSEMBLY_GUIDE.md`` mounts the PCB on M3 standoffs directly in that
-# same vented cavity, with its only gasket sealing the glass-ceramic
-# cooktop to the chassis, not the PCB compartment; and the board's own IP20
-# rating states "No liquid ingress protection guaranteed." No enclosure/
-# sealing argument for the PCB compartment exists today, so the PD2
-# exception is not earned and PD3 governs.
+# That argument did not exist in this project's own mechanical documents as
+# of the determination above, checked directly (not inherited):
+# ``docs/CHASSIS_AIRFLOW_DESIGN.md`` ducted forced, unfiltered kitchen air
+# (bottom vents -> intake plenum -> fan -> transition duct -> IGBT heatsink
+# -> exhaust) through the same chassis cavity the PCB sits in;
+# ``docs/COIL_BRACKET_DESIGN.md`` described "large triangular cutouts ...
+# allow air from the bottom intake to flow directly through the Litz wire
+# strands" (a baffle, not a seal); ``docs/ASSEMBLY_GUIDE.md`` mounted the PCB
+# on M3 standoffs directly in that same vented cavity, with its only gasket
+# sealing the glass-ceramic cooktop to the chassis, not the PCB compartment;
+# and the board's own IP20 rating stated "No liquid ingress protection
+# guaranteed." No enclosure/sealing argument for the PCB compartment existed
+# at that time, so the PD2 exception was not earned and PD3 governed. **That
+# analysis is still correct for the construction it examined** -- it is not
+# retracted, only superseded for a different, later-adopted construction (see
+# the next paragraph). If the sealed-compartment prerequisite below is not
+# met, PD3 and the figures this pollution-degree-correction pass computed
+# (6.3mm basic / 12.6mm reinforced creepage) are the ones that actually
+# apply, and this matrix must revert to them.
+#
+# OWNER DECISION, PD2 ADOPTED FOR PRODUCTION, 2026-07-30 (later, this
+# change). The project owner selected the PD2 enclosure exception
+# (IEC 60335-2-6 cl. 29.2 Addition) as the production architecture: see
+# ``docs/evidence/2026-07-30-pd2-enclosure-decision.md`` (the decision
+# record -- who decided, when, and what it does/does not close) and
+# ``docs/specs/HIGH_VOLTAGE_CLEARANCE_SPEC.md`` Sec 3.2.1/5.1/5.2 (both
+# columns kept visible; PD2 marked operative). This is a **design choice
+# with a stated, conditional basis**, not a reinterpretation of the standard
+# or a correction of the PD3 analysis above: it is conditional on a real,
+# gasketed PCB compartment, separate from the coil/heatsink forced-air path,
+# that keeps grease/steam/aerosols off the PCB's own insulation --
+# documented as a release prerequisite in ``docs/CHASSIS_AIRFLOW_DESIGN.md``,
+# ``docs/ASSEMBLY_GUIDE.md``, and ``docs/ENVIRONMENTAL_SPEC.md``. **The
+# 8.0mm figure below is valid only while that sealed-compartment
+# construction actually exists and is verified at production inspection --
+# it does not become true merely because this file says so.** If the
+# compartment is not built, or fails inspection, PD3 is the fallback and
+# this matrix's REINFORCED/BASIC creepage figures must revert to the
+# 12.6mm/6.3mm values derived above. This change aligns the third of three
+# enforcement points at the PD2 figure (the KiCad DRU generator and
+# ``scripts/check_isolation_keepout.py``'s ``MIN_BARRIER_WIDTH_MM`` already
+# moved to 8.0mm) -- prior to this change this validator was the one
+# enforcement point still at the PD3 fallback figure, an inconsistency in
+# its own right regardless of which pollution degree ultimately governs.
 #
 # Creepage figures (``min_creepage_mm``/``design_value_mm``) for every
 # HV<->SELV and HV<->ISOLATED row below are read off IEC 60335-1 Table 17
 # ("Minimum Creepage Distances for Basic Insulation", clauses 29.2.1-29.2.3
 # -- CITED-PRIMARY, IS 302-1:2008 Sec 29, identical adoption, independently
 # re-read this session) at the **400V row (row iv, >250V and <=400V),
-# Pollution Degree 3, Material Group IIIa/IIIb column: 6.3mm basic**.
-# Clause 29.2.3: reinforced creepage is at least double basic -- **12.6mm**.
-# This replaces the 10.0mm reinforced figure this table previously used at
-# PD2. FLAGGED, NOT RE-DERIVED HERE: row iv's own PD2 column is actually
-# 4.0mm basic / 8.0mm reinforced, not 10.0mm -- the previously-committed
-# 10.0mm figure appears to match the *next* row (">400, <=500V": 5.0mm
-# basic / 10.0mm reinforced) rather than row iv, which is where 400V
-# literally falls ("<=400"). That voltage-row question was already
-# adjudicated by a separate, already-merged change
-# (``docs/evidence/2026-07-30-creepage-requirement-reconciliation.md``,
-# PR #442) and re-litigating it is out of scope for this pollution-degree
-# pass -- so 12.6mm is derived directly from row iv (matching every prior
-# PD3 investigation in this repo's history, all of which used row iv), not
-# by scaling the possibly-off-by-one-row 10.0mm figure. See
-# ``docs/evidence/2026-07-30-pollution-degree-determination.md`` for the
-# full disclosure and the primary-text image confirming both rows' values.
-# See ``docs/specs/HIGH_VOLTAGE_CLEARANCE_SPEC.md`` Sec 5.1 (also corrected
-# this change; previously mislabeled this table "Table 16", which is
-# IEC 60335-1's *clearance* table -- Table 17 is creepage).
+# Material Group IIIa/IIIb column**. PD2: **4.0mm basic / 8.0mm reinforced**
+# (clause 29.2.3: reinforced is at least double basic) -- the figures
+# enforced below, per the owner decision above. PD3 fallback: **6.3mm basic
+# / 12.6mm reinforced** -- see the pollution-degree-correction paragraph
+# above for that derivation; both pollution-degree columns are read off the
+# SAME row iv, so there is no voltage-row ambiguity between them. See
+# ``docs/specs/HIGH_VOLTAGE_CLEARANCE_SPEC.md`` Sec 5.1 (Table 17, both
+# columns shown side by side).
 #
 # Every domain this table's HV side can classify -- MAINS (peak/transient
 # 340V, spec Sec 2.1), DC_BUS (peak/transient 400V, spec Sec 2.1 -- and, per
@@ -244,63 +264,66 @@ class ClearanceResult:
 # row rather than the 300V row (IEC 60664-1/60335-1 tables are not
 # interpolated). See
 # ``docs/evidence/2026-07-30-creepage-requirement-reconciliation.md`` for
-# that voltage-row derivation (unaffected by the pollution-degree change)
-# and ``docs/evidence/2026-07-30-pollution-degree-determination.md`` for the
-# pollution-degree derivation layered on top of it here.
+# that voltage-row derivation (unaffected by the pollution-degree question
+# either way) and ``docs/evidence/2026-07-30-pollution-degree-determination.md``
+# for the pollution-degree derivation layered on top of it here.
 #
 # ``design_value_mm`` is not read by ``verify_iec60335_compliance`` (only
 # ``min_clearance_mm``/``min_creepage_mm`` gate anything); it is a
-# documentary "add 2.0mm over the creepage minimum" design target, tested
-# directly by ``test_requirement_matrix_values``.
+# documentary "add 2.0mm over the creepage minimum" design target -- at PD2
+# this is 10.0mm reinforced / 6.0mm basic, matching
+# ``docs/specs/HIGH_VOLTAGE_CLEARANCE_SPEC.md`` Sec 5.2's design-creepage
+# table -- tested directly by ``test_requirement_matrix_values``.
 #
-# ``min_clearance_mm`` is intentionally NOT changed by this correction:
-# IEC 60335-1 Table 16 (clearance) is keyed to rated impulse voltage (via
-# Table 15's overvoltage-category lookup), not to pollution degree or
-# material group -- the sole pollution-degree-dependent entry in Table 16 is
-# a footnote bumping the lowest (1500V impulse) row from ~0.5mm to 0.8mm at
-# PD3, a row and voltage class this project's >=2500V-impulse boundaries
-# don't use. Every clearance figure below (6.0mm reinforced, 3.0mm basic)
-# already meets or exceeds Table 16's 400V-row minimum regardless of
-# pollution degree -- clearance was already conservative, only creepage
-# moves with pollution degree. See the evidence doc for the full
-# reconciliation of Sec 4.2's inconsistent "Design Value" column, which is
-# not used as a basis for anything in this table.
+# ``min_clearance_mm`` is intentionally NOT changed by either the
+# pollution-degree correction or the PD2 adoption above: IEC 60335-1 Table 16
+# (clearance) is keyed to rated impulse voltage (via Table 15's
+# overvoltage-category lookup), not to pollution degree or material group --
+# the sole pollution-degree-dependent entry in Table 16 is a footnote bumping
+# the lowest (1500V impulse) row from ~0.5mm to 0.8mm at PD3, a row and
+# voltage class this project's >=2500V-impulse boundaries don't use. Every
+# clearance figure below (6.0mm reinforced, 3.0mm basic) already meets or
+# exceeds Table 16's 400V-row minimum regardless of pollution degree --
+# clearance was already conservative, only creepage moves with pollution
+# degree. See the evidence doc for the full reconciliation of Sec 4.2's
+# inconsistent "Design Value" column, which is not used as a basis for
+# anything in this table.
 #
 # The LV_CONTROL<->LV_CONTROL FUNCTIONAL row is intentionally NOT corrected
-# here even though the same PD3 microenvironment finding applies to it in
-# principle (IEC 60335-1 Table 18 row i, <=50V, PD3, Material Group
-# IIIa/IIIb reads 1.8mm, vs this row's current 1.0mm, which is already
-# slightly under Table 18's own PD2 figure at 1.1mm). This pre-dates the
-# pollution-degree correction, is a same-domain (SELV-to-SELV) functional
-# boundary rather than a mains/DC_BUS-to-SELV safety barrier, and needs its
-# own check of whether clause 29.2.4's short-circuit-test exemption already
-# applies before changing -- flagged for a follow-up, not corrected in this
-# pass; see the evidence doc Sec "What this determination does not do."
+# here (by either the PD3 correction or the PD2 adoption) even though the
+# same pollution-degree finding applies to it in principle (IEC 60335-1
+# Table 18 row i, <=50V, Material Group IIIa/IIIb reads 1.1mm PD2 / 1.8mm
+# PD3, vs this row's current 1.0mm, already slightly under even the PD2
+# figure). This is a same-domain (SELV-to-SELV) functional boundary rather
+# than a mains/DC_BUS-to-SELV safety barrier, and needs its own check of
+# whether clause 29.2.4's short-circuit-test exemption already applies
+# before changing -- flagged for a follow-up, not corrected in this pass;
+# see the evidence doc Sec "What this determination does not do."
 IEC60335_REQUIREMENTS = {
     (VoltageDomain.MAINS, VoltageDomain.LV_CONTROL, InsulationType.BASIC): {
         "min_clearance_mm": 3.0,
-        "min_creepage_mm": 6.3,
-        "design_value_mm": 8.3,
+        "min_creepage_mm": 4.0,
+        "design_value_mm": 6.0,
     },
     (VoltageDomain.MAINS, VoltageDomain.LV_CONTROL, InsulationType.REINFORCED): {
         "min_clearance_mm": 6.0,
-        "min_creepage_mm": 12.6,
-        "design_value_mm": 14.6,
+        "min_creepage_mm": 8.0,
+        "design_value_mm": 10.0,
     },
     (VoltageDomain.DC_BUS, VoltageDomain.LV_CONTROL, InsulationType.BASIC): {
         "min_clearance_mm": 3.0,
-        "min_creepage_mm": 6.3,
-        "design_value_mm": 8.3,
+        "min_creepage_mm": 4.0,
+        "design_value_mm": 6.0,
     },
     (VoltageDomain.DC_BUS, VoltageDomain.LV_CONTROL, InsulationType.REINFORCED): {
         "min_clearance_mm": 6.0,
-        "min_creepage_mm": 12.6,
-        "design_value_mm": 14.6,
+        "min_creepage_mm": 8.0,
+        "design_value_mm": 10.0,
     },
     (VoltageDomain.MAINS, VoltageDomain.ISOLATED, InsulationType.REINFORCED): {
         "min_clearance_mm": 6.0,
-        "min_creepage_mm": 12.6,
-        "design_value_mm": 14.6,
+        "min_creepage_mm": 8.0,
+        "design_value_mm": 10.0,
     },
     (VoltageDomain.LV_CONTROL, VoltageDomain.LV_CONTROL, InsulationType.FUNCTIONAL): {
         "min_clearance_mm": 0.5,
