@@ -702,6 +702,21 @@ jobs:
         if: steps.cache-netlist.outputs.cache-hit != 'true'
         run: make netlist
 
+      # The netlist cache key is a content hash of every netlist input
+      # (elec/src/**, elec/ato.yaml, Makefile), so on a cache hit the restored
+      # netlist is byte-identical to what `make netlist` would produce. But
+      # actions/cache restores files with their ORIGINAL mtimes, while git
+      # checkout stamps the .ato sources with the checkout time -- so the
+      # mtime-based staleness checks below (check_copper_net_consistency.py,
+      # check_footprint_drift.py) see 'source newer than netlist' on every
+      # cache-hit run and fail closed on a false positive (verified: both
+      # gates pass with 0 violations after `make netlist`). Touch the
+      # restored artifacts so their mtimes reflect this run's checkout, the
+      # exact state a fresh build would leave.
+      - name: Refresh netlist mtimes (cache restores original mtimes)
+        if: steps.cache-netlist.outputs.cache-hit == 'true'
+        run: touch elec/build/default.net elec/build/default.csv
+
       # ---- SETUP / GATE BOUNDARY -------------------------------------------
       # Everything ABOVE is setup and stays fail-fast: it has no `if:`, so if
       # any of it fails (maturin, uv sync, make netlist) this step never runs,
@@ -2599,6 +2614,9 @@ jobs:
       - name: Create virtualenv (cache miss)
         if: steps.cache-venv.outputs.cache-hit != 'true'
         run: uv venv
+
+      - name: Install dependencies
+        run: uv sync --all-packages
 
       # Validates known-failure-pins.yaml itself (see scripts/known_failure_pins.py
       # and docs/solutions/best-practices/pin-known-failure-reasons-2026-07-30.md):
