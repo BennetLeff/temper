@@ -1,5 +1,10 @@
 name: CodeQL
 
+# no-pr-trigger: per-PR CodeQL cost ~40 runs/day x ~25min (~17h/day) for zero
+# merge impact (not in required-checks.json); every merge is scanned on
+# push-to-main and the Monday schedule catches deprecation drift. See the
+# comment in the `on:` block below for the full reasoning.
+
 on:
   push:
     branches: [main]
