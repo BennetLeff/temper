@@ -182,6 +182,45 @@ masks); a Rust-native exact EDT is the recorded fallback for a
 follow-up. The U4 perf win (the per-sample lookup hot loop) is
 delivered by the batch; scipy's transform was never the hot loop.
 
+### Consumer: `_compute_bottleneck_widths` (last per-point EDT width loop, cleanup C3 — 2026-07-31)
+
+`temper_placer.router_v6._astar_heuristics._compute_bottleneck_widths`
+was the last remaining per-point EDT width-lookup hot loop in the repo
+(it sampled every waypoint-segment point and called the per-point
+lookup inside a Python loop, ~1 FFI-adjacent Python call per sample).
+The C3 cleanup rewrote it to collect every sample point per call and
+resolve all widths with ONE `_edt_width_lookup_batch` crossing, then
+reassemble the per-net minima.
+
+**Base case:** a single sample point — the batch is bit-identical to
+the per-point reference for that point (proven above; same f64
+arithmetic order, floor indexing, strict bounds check, masked cells →
+0.0, left-to-right bilinear interpolation).
+
+**Induction step:** the batch is per-point independent (proven above),
+so resolving n+1 samples in one crossing equals resolving n samples
+plus one independently-computed value. The C3 change only relocates the
+sampling loop — the sample-point arithmetic (`t = s / num_samples`,
+`sx = x1 + t * dx`, degenerate-segment → endpoint) is unchanged Python
+executed in the same order, and the per-net minimum is an
+order-independent `min` over the same multiset of widths. Each net's
+bottleneck width is therefore bit-identical to the pre-change
+implementation by construction.
+
+**Empirical verification:** the differential suite
+(`packages/temper-placer/tests/router_v6/test_astar_heuristics_rust_differential.py`)
+pins the batched function against a verbatim copy of the pre-change
+per-point loop (the oracle) on ~200 randomized channel mappings —
+empty paths, single waypoints, degenerate zero-length segments,
+out-of-bounds samples, varied cell sizes (0.1/0.5/1.0) and sample
+distances — asserting bit-exact per-net widths; a second test
+monkeypatches `_edt_width_lookup_batch` and asserts exactly ONE batch
+call per invocation (this failed against the pre-change code, proving
+the per-point loop is actually gone). The pre-existing
+`test_bottleneck_ordering_pbt.py` and `test_net_ordering*.py` suites
+(which drive ordering from these widths) pass unchanged. Measured on a
+120-net/0.5 mm-sample fixture: 5.6x faster (22.9 ms → 4.1 ms per call).
+
 ## Pad Geometry + Isolation-Barrier Sweep — Verification by Induction (Wave 2, 2026-07-31)
 
 **Base case:** a 1×1 circle pad at the origin — `corner_radius = 0.5`,
@@ -588,6 +627,63 @@ properties above + three metamorphic relations (translation invariance
 incl. the auditor-level SEPARATED verdict, ref-swap verdict symmetry,
 uniform scaling of both boxes scales the gap linearly and preserves the
 verdict when the threshold scales too).
+
+## Euclidean Point Distance (`dist_py`) — Verification by Induction (Wave 3 #4, 2026-07-31)
+
+The R24 domain-clearance audit's distance recompute:
+`domain_clearance.py::audit_domain_clearance`'s `math.dist(pos_a,
+pos_b)` — the post-solve recomputation of the real Euclidean
+center-to-center distance of every generated `domain_clearance_*`
+constraint from the *solved* placement coordinates (R24 item 3: "does
+not trust the solver's own bookkeeping").  The per-constraint
+orchestration (constraint filtering, position lookups, violation
+reporting) stays in Python; only the distance moves to Rust.
+
+`math.dist(p, q)` is CPython's Dekker double-double compensated
+`vector_norm` over the per-coordinate differences
+(`vec[i] = p[i] − q[i]`) — the same algorithm `py_hypot` (pad_geometry.rs)
+replicates exactly, so `dist_py` computes the differences first and
+delegates: `dist(ax, ay, bx, by) = py_hypot(ax − bx, ay − by)`.
+
+**Base case:** coincident points — `dist(p, p)` computes diffs of
+exactly 0.0, `py_hypot(0, 0)` short-circuits to 0.0, and the Rust core
+and the pinned `math.dist` oracle agree bit-for-bit (verified for
+identical points and for the 3-4-5 triangle `dist((0,0),(3,4)) == 5.0`).
+
+**Induction step:** the norm accumulates over the two differences
+independently — the compensated sum adds `(dx·scale)²` then `(dy·scale)²`
+with the fma-based `dl_mul`/`dl_fast_sum` correction terms, and the
+differential correction (`h += x / (2h)`) is a pure function of that
+sum.  Adding a coordinate would add one more independent squared term
+(CPython's `vector_norm` is dimension-agnostic); within the fixed 2D
+case, correctness for the base point pair lifts to any pair because
+each difference is a pure function of its own coordinate axis with no
+cross-axis interaction, and the scaling `2^-max_e` normalizes any
+magnitude to the same [0.5, 1) binade before the accumulation runs.
+The reference's up-front guards are replicated exactly: any NaN
+difference → NaN, any infinite difference → +inf, and `inf − inf = NaN`
+so a coincident-inf pair is NaN, not inf (all pinned in the differential
+suite).
+
+**Non-bit-exact metamorphosis (recorded honestly):** a 90° rotation
+(axis swap) reorders the two squared terms inside the compensated sum,
+so `dist((ay,ax),(by,bx))` can differ from `dist((ax,ay),(bx,by))` in
+the last ulp — the PBT asserts that relation only within 1e-12 relative
+tolerance, and documents why it cannot be bit-exact.
+
+**Empirical verification:** the differential suite
+(`packages/temper-placer/tests/placer/cp_sat/test_domain_clearance_dist_rust_differential.py`)
+pins `dist_py` bit-exactly against `math.dist` over 500 random point
+pairs + 300 mixed-magnitude pairs (1e6 vs 1e-3 scales), known points,
+Sterbenz-scale/axis-aligned edges, subnormal components, and the
+NaN/±inf parity cases.  The pre-existing `test_domain_clearance.py`
+(25 tests) and the R24 audit path keep exercising the wrappers.  PBT
+(`tests/placer/cp_sat/test_domain_clearance_dist_rust_pbt.py`): five
+non-vacuous invariants (variation, zero-iff-identical, bit-exact
+symmetry, Sterbenz-exact translation invariance on the 2^-52 grid,
+L∞/L1 sandwich) + five metamorphic relations (reflection, axis swap
+with tolerance, bit-exact power-of-2 scaling, the Chebyshev-gap
+conservative relation, dual-call translation identity).
 
 ## Creepage/Clearance Geometry — Verification by Induction (Wave 3 #7, 2026-07-31)
 

@@ -7,7 +7,7 @@
 
 use pyo3::prelude::*;
 use crate::bottleneck_geometry::{build_capacitated_graph_py, cell_capacity_batch_py, hard_blocked_batch_py};
-use crate::audit::{bbox_from_center_py, chebyshev_gap_py};
+use crate::audit::{bbox_from_center_py, chebyshev_gap_py, dist_py};
 use crate::channel_widths::edt_width_lookup_batch;
 use crate::copper_coverage::rasterise_polygon_mask;
 use crate::corridor::extract_corridor_mask;
@@ -1480,6 +1480,7 @@ pub fn register_functions(m: &Bound<'_, PyModule>) -> PyResult<()> {
     // audit (Wave 3 #5: R24 post-solve audit geometry)
     m.add_function(wrap_pyfunction!(bbox_from_center_py, m)?)?;
     m.add_function(wrap_pyfunction!(chebyshev_gap_py, m)?)?;
+    m.add_function(wrap_pyfunction!(dist_py, m)?)?;
 
     // creepage_check (Wave 3 #7: HV-isolation clearance geometry)
     m.add_function(wrap_pyfunction!(point_to_segment_distance_py, m)?)?;
