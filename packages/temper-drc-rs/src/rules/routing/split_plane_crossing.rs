@@ -135,7 +135,7 @@ fn check_fast_traces(
             continue;
         }
 
-        let mut domains_hit: Vec<String> = Vec::new();
+        let mut domains_hit: Vec<&str> = Vec::new();
 
         for seg in &trace.segments {
             let mid = Point::new(
@@ -143,11 +143,8 @@ fn check_fast_traces(
                 (seg.start.y + seg.end.y) / 2.0,
             );
             for (gnd_name, poly) in ground_polys {
-                if poly.intersects(&mid) {
-                    let name_str = gnd_name.to_string();
-                    if !domains_hit.contains(&name_str) {
-                        domains_hit.push(name_str);
-                    }
+                if poly.intersects(&mid) && !domains_hit.contains(gnd_name) {
+                    domains_hit.push(gnd_name);
                 }
             }
         }

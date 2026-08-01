@@ -20,3 +20,7 @@ thiserror = "1"
 panic = "unwind"
 
 [dev-dependencies]
+
+[lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"

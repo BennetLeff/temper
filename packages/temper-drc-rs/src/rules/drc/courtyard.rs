@@ -35,6 +35,13 @@ impl DrcRule for CourtyardCheck {
         let mut violations = Vec::new();
         let components: Vec<&crate::board::Component> = board.all_components().collect();
 
+        // The expansion is pair-invariant — compute each component's expanded
+        // bbox once instead of per pair.
+        let bboxes: Vec<geo::Rect<f64>> = components
+            .iter()
+            .map(|c| expand_rect(&c.footprint_bbox(), self.clearance_mm))
+            .collect();
+
         for i in 0..components.len() {
             for j in (i + 1)..components.len() {
                 let a = components[i];
@@ -42,9 +49,7 @@ impl DrcRule for CourtyardCheck {
                 if !a.same_layer(b) {
                     continue;
                 }
-                let bbox_a = expand_rect(&a.footprint_bbox(), self.clearance_mm);
-                let bbox_b = expand_rect(&b.footprint_bbox(), self.clearance_mm);
-                if bbox_a.intersects(&bbox_b) {
+                if bboxes[i].intersects(&bboxes[j]) {
                     violations.push(violation(
                         Severity::Warning,
                         "DRC_CRT_001",

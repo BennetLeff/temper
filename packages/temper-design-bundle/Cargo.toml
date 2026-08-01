@@ -24,3 +24,7 @@ temper-pcl-ir = { path = "../temper-pcl-ir" }
 [dev-dependencies]
 proptest = "1"
 temper-pcl-ir = { path = "../temper-pcl-ir" }
+
+[lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"

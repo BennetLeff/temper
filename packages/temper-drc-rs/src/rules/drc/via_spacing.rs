@@ -38,36 +38,52 @@ impl DrcRule for ViaSpacingCheck {
         let mut violations = Vec::new();
         let vias = &board.vias;
 
+        // Half-pad per via, hoisted out of the pair loop (used in every pair).
+        let half_pads: Vec<f64> = vias.iter().map(|v| v.pad / 2.0).collect();
+
         for i in 0..vias.len() {
             for j in (i + 1)..vias.len() {
                 let va = &vias[i];
                 let vb = &vias[j];
 
-                let center_dist = va.position.euclidean_distance(&vb.position);
-                let edge_to_edge = center_dist - (va.pad / 2.0 + vb.pad / 2.0);
                 let min_spacing = va.pad.max(vb.pad).max(DEFAULT_VIA_SPACING_MM);
 
-                if edge_to_edge < min_spacing {
-                    violations.push(violation(
-                        Severity::Critical,
-                        "DRC_VIA_001",
-                        &format!(
-                            "Via spacing violation: via on {} (net {}) to via on {} (net {}): edge-to-edge = {:.3}mm, required {:.3}mm",
-                            va.from_layer, va.net, vb.from_layer, vb.net, edge_to_edge, min_spacing,
-                        ),
-                        DrcCategory::Drc,
-                        "drc_via_spacing",
-                        vec![va.net.0.clone(), vb.net.0.clone()],
-                        crate::rules::location_midpoint(&va.position, &vb.position, None),
-                        serde_json::json!({
-                            "edge_to_edge_mm": edge_to_edge,
-                            "center_distance_mm": center_dist,
-                            "min_spacing_mm": min_spacing,
-                            "va_pad_mm": va.pad,
-                            "vb_pad_mm": vb.pad,
-                        }),
-                    ));
+                // Decision identity: edge_to_edge < min_spacing
+                //   ⇔ center_dist - half_sum < min_spacing
+                //   ⇔ sqrt(dx²+dy²) < half_sum + min_spacing
+                //   ⇔ dx²+dy² < (half_sum + min_spacing)²   (all terms ≥ 0)
+                // Squared-space comparison avoids the sqrt for every pair;
+                // exact values are recomputed on the violation path only.
+                let dx = va.position.x() - vb.position.x();
+                let dy = va.position.y() - vb.position.y();
+                let t = (half_pads[i] + half_pads[j]) + min_spacing;
+                if dx * dx + dy * dy >= t * t {
+                    continue;
                 }
+
+                // Violation path: recompute exact values for the message.
+                let center_dist = va.position.euclidean_distance(&vb.position);
+                let edge_to_edge = center_dist - (va.pad / 2.0 + vb.pad / 2.0);
+
+                violations.push(violation(
+                    Severity::Critical,
+                    "DRC_VIA_001",
+                    &format!(
+                        "Via spacing violation: via on {} (net {}) to via on {} (net {}): edge-to-edge = {:.3}mm, required {:.3}mm",
+                        va.from_layer, va.net, vb.from_layer, vb.net, edge_to_edge, min_spacing,
+                    ),
+                    DrcCategory::Drc,
+                    "drc_via_spacing",
+                    vec![va.net.0.clone(), vb.net.0.clone()],
+                    crate::rules::location_midpoint(&va.position, &vb.position, None),
+                    serde_json::json!({
+                        "edge_to_edge_mm": edge_to_edge,
+                        "center_distance_mm": center_dist,
+                        "min_spacing_mm": min_spacing,
+                        "va_pad_mm": va.pad,
+                        "vb_pad_mm": vb.pad,
+                    }),
+                ));
             }
         }
         violations
