@@ -43,16 +43,41 @@ fn corridor_mask(
     fine_cols: usize,
 ) -> Vec<u8> {
     let mut mask = vec![0u8; fine_rows * fine_cols];
+    // Collect the per-row column intervals from every coarse cell, then
+    // sort+merge them and fill each row once. The mask is 0/1 and fills
+    // are idempotent, so writing the merged union of intervals per row is
+    // byte-identical to writing every interval individually.
+    let mut rows: Vec<Vec<(usize, usize)>> = (0..fine_rows).map(|_| Vec::new()).collect();
     for (cx, cy) in coarse_path {
         let r0 = (cy * coarse_factor - buffer_cells).max(0) as usize;
         let r1 = wrap_clamp((cy + 1) * coarse_factor + buffer_cells, fine_rows);
         let c0 = (cx * coarse_factor - buffer_cells).max(0) as usize;
         let c1 = wrap_clamp((cx + 1) * coarse_factor + buffer_cells, fine_cols);
         if r0 < r1 && c0 < c1 {
-            for r in r0..r1 {
-                mask[r * fine_cols + c0..r * fine_cols + c1].fill(1);
+            for row in rows.iter_mut().take(r1).skip(r0) {
+                row.push((c0, c1));
             }
         }
+    }
+    for (r, mut intervals) in rows.into_iter().enumerate() {
+        if intervals.is_empty() {
+            continue;
+        }
+        intervals.sort_unstable();
+        let base = r * fine_cols;
+        let mut s = intervals[0].0;
+        let mut e = intervals[0].1;
+        for &(cs, ce) in &intervals[1..] {
+            if cs <= e {
+                // Overlaps (or touches) the running interval — extend it.
+                e = e.max(ce);
+            } else {
+                mask[base + s..base + e].fill(1);
+                s = cs;
+                e = ce;
+            }
+        }
+        mask[base + s..base + e].fill(1);
     }
     mask
 }

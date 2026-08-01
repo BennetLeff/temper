@@ -32,6 +32,8 @@ pub use grid_raster::{
 };
 pub mod bottleneck_geometry;
 pub use bottleneck_geometry::{build_capacitated_graph_py, cell_capacity_batch_py, hard_blocked_batch_py};
+pub mod audit;
+pub mod creepage_check;
 mod bridge;
 
 use pyo3::prelude::*;

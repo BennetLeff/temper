@@ -137,7 +137,23 @@ pub(crate) fn bounding_radius(width: f64, height: f64, shape: &str, ratio: f64) 
 /// (CPython's default build; Apple's fma is accurate). Rust's
 /// `f64::hypot` (libm) differs from this in the last ulp, so the exact
 /// algorithm is ported — see CPython Modules/mathmodule.c `vector_norm`.
+///
+/// `pub(crate)`: shared by every module whose reference calls
+/// `math.hypot` (the creepage/clearance geometry in `creepage_check.rs`
+/// is the second consumer, added Wave 3).
 pub(crate) fn py_hypot(x: f64, y: f64) -> f64 {
+    // CPython `math_hypot_impl` returns NaN up front when any input is
+    // NaN (before vector_norm runs); the `f64::max` below would otherwise
+    // discard a NaN argument.  And hypot(±inf, anything) is +inf, which
+    // the vector_norm path would turn into NaN through the fma-based
+    // correction (CPython's frexp gives e=0 for inf, ours does not), so
+    // both guards are exact CPython semantics, not approximations.
+    if x.is_nan() || y.is_nan() {
+        return f64::NAN;
+    }
+    if x.is_infinite() || y.is_infinite() {
+        return f64::INFINITY;
+    }
     let x = x.abs();
     let y = y.abs();
     let max = x.max(y);
