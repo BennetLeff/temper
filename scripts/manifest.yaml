@@ -1011,6 +1011,32 @@ scripts:
   - fnmatch
   - pathlib
   - sys
+- path: check_hv_netclass_coverage.py
+  purpose: 'CI gate: assert every elec/domain_manifest.yaml HV-domain net has a TEMPER_NET_ASSIGNMENTS
+    entry, and every declared netclass (TEMPER_NET_CLASSES union pcb/temper.kicad_pro-described classes,
+    minus the structural Default/Differential classes) has at least one positive rule in
+    scripts/generate_kicad_dru.py''s generated output -- catches the +170V_BUS-resolves-to-no-netclass
+    and HighVoltageIsolated-enforces-nothing defect class confirmed on origin/main
+    (docs/evidence/2026-07-29-hv-netclass-coverage-gate.md)'
+  owner: bennet
+  last_run: '2026-07-29'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - check_domain_partition
+  - collections.abc
+  - dataclasses
+  - generate_kicad_dru
+  - json
+  - pathlib
+  - re
+  - sys
+  - temper_placer.core.design_rules
+  - typing
 - path: check_drc_ceiling_approval.py
   purpose: 'CI gate: fail a PR that raises any power_pcb_dataset/drc_ceiling.json ceiling value (aggregate
     error_ceiling/warning_ceiling, or any violations_by_type/warnings_by_type rule) relative to the merge
