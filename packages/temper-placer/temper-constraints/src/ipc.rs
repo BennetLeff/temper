@@ -44,16 +44,17 @@ use std::sync::OnceLock;
 type MathFn = unsafe extern "C" fn(f64, f64) -> f64;
 
 fn dlsym_pow() -> Option<MathFn> {
+    use std::ffi::c_char;
     unsafe extern "C" {
-        fn dlsym(handle: *const u8, symbol: *const u8) -> *mut u8;
+        fn dlsym(handle: *const c_char, symbol: *const c_char) -> *mut c_char;
     }
-    const RTLD_DEFAULT: *const u8 = core::ptr::null();
+    const RTLD_DEFAULT: *const c_char = core::ptr::null();
     unsafe {
-        let p = dlsym(RTLD_DEFAULT, b"pow\0".as_ptr());
+        let p = dlsym(RTLD_DEFAULT, c"pow".as_ptr());
         if p.is_null() {
             None
         } else {
-            Some(std::mem::transmute::<*mut u8, MathFn>(p))
+            Some(std::mem::transmute::<*mut c_char, MathFn>(p))
         }
     }
 }
@@ -63,8 +64,8 @@ unsafe extern "C" fn fallback_pow(x: f64, y: f64) -> f64 {
 }
 
 fn host_pow() -> &'static MathFn {
-    static F: OnceLock<Option<MathFn>> = OnceLock::new();
-    F.get_or_init(|| dlsym_pow().or(Some(fallback_pow))).as_ref().unwrap()
+    static F: OnceLock<MathFn> = OnceLock::new();
+    F.get_or_init(|| dlsym_pow().unwrap_or(fallback_pow))
 }
 
 fn math_pow(x: f64, y: f64) -> f64 {
