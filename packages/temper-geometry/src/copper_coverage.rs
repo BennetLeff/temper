@@ -48,21 +48,45 @@ fn polygon_mask(
     if n < 3 {
         return mask;
     }
-    let px: Vec<f64> = polygon.iter().map(|p| p.0).collect();
-    let py: Vec<f64> = polygon.iter().map(|p| p.1).collect();
+
+    // Polygon AABB, computed once. Used for provably-exact culling:
+    // - a crossing requires an edge straddling cy, which is impossible
+    //   outside the polygon's y-band;
+    // - every crossing x is an interpolation of polygon x-coords <= max_x,
+    //   so a ray at cx >= max_x crosses nothing and `inside` stays false.
+    // Leftward rays (cx < min_x) are NOT culled: they can still toggle
+    // inside. The crossing-test arithmetic is untouched.
+    let (mut min_x, mut min_y, mut max_x, mut max_y) = (
+        f64::INFINITY,
+        f64::INFINITY,
+        f64::NEG_INFINITY,
+        f64::NEG_INFINITY,
+    );
+    for &(x, y) in polygon {
+        min_x = min_x.min(x);
+        max_x = max_x.max(x);
+        min_y = min_y.min(y);
+        max_y = max_y.max(y);
+    }
 
     for row in 0..height_cells {
         let cy = oy + (row as f64 + 0.5) * cs;
+        if cy < min_y || cy > max_y {
+            continue;
+        }
         for col in 0..width_cells {
             let cx = ox + (col as f64 + 0.5) * cs;
+            if cx >= max_x {
+                continue;
+            }
 
             let mut inside = false;
             let mut j = n - 1;
             for i in 0..n {
-                let yi = py[i];
-                let yj = py[j];
+                let yi = polygon[i].1;
+                let yj = polygon[j].1;
                 if ((yi > cy) != (yj > cy))
-                    && (cx < (px[j] - px[i]) * (cy - yi) / (yj - yi) + px[i])
+                    && (cx < (polygon[j].0 - polygon[i].0) * (cy - yi) / (yj - yi) + polygon[i].0)
                 {
                     inside = !inside;
                 }

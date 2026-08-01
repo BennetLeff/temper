@@ -18,6 +18,7 @@
 
 pub mod fdm;
 pub mod rtd;
+pub mod thermal_scorer;
 
 use pyo3::prelude::*;
 
@@ -35,5 +36,8 @@ fn temper_thermal(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(rtd::rtd_threshold_adc_codes_py, m)?)?;
     m.add_function(wrap_pyfunction!(rtd::rtd_derive_hardware_window_py, m)?)?;
     m.add_function(wrap_pyfunction!(rtd::rtd_derive_max31865_hardware_window_py, m)?)?;
+    m.add_function(wrap_pyfunction!(thermal_scorer::build_conductivity_field_py, m)?)?;
+    m.add_function(wrap_pyfunction!(thermal_scorer::build_heat_source_field_py, m)?)?;
+    m.add_function(wrap_pyfunction!(thermal_scorer::assemble_convective_system_py, m)?)?;
     Ok(())
 }

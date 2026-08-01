@@ -6,10 +6,26 @@
 // PyO3 bridge functions mirror Python function signatures 1:1.
 
 use pyo3::prelude::*;
+use crate::bottleneck_geometry::{build_capacitated_graph_py, cell_capacity_batch_py, hard_blocked_batch_py};
+use crate::audit::{bbox_from_center_py, chebyshev_gap_py};
 use crate::channel_widths::edt_width_lookup_batch;
 use crate::copper_coverage::rasterise_polygon_mask;
 use crate::corridor::extract_corridor_mask;
+use crate::grid_raster::{
+    block_circle_into_grid_py, block_rect_into_grid_py, block_segment_into_grid_py,
+    clear_circle_from_grid_py, closest_component_for_zone_py, effective_creepage_py,
+    fence_samples_py, occupancy_bitmap_row_py,
+};
+use crate::creepage_check::{
+    calculate_required_creepage_py, closest_point_on_segment_py, is_high_voltage_net_py,
+    min_clearance_distance_py, point_to_segment_distance_py, segment_to_segment_info_py,
+    segments_intersect_py,
+};
 use crate::{barrier_axis_gap_py, best_rotation_for_barrier_py, pad_axis_radius_py, pad_bounding_radius_py, pad_corner_radius_py, pad_core_half_extents_py, pad_support_radius_py, spice_infer_unit_py, spice_loop_inductance_py};
+use crate::clearance_geometry::{
+    component_reach_py, copper_scan_py, origin_distance_py, pad_pair_distance_py,
+    rotate_local_to_world_py,
+};
 
 
 
@@ -1438,6 +1454,41 @@ pub fn register_functions(m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     // channel widths
     m.add_function(wrap_pyfunction!(edt_width_lookup_batch, m)?)?;
+
+    // grid rasterisation (Wave 3 candidate #1: ClearanceGrid compute)
+    m.add_function(wrap_pyfunction!(block_circle_into_grid_py, m)?)?;
+    m.add_function(wrap_pyfunction!(block_segment_into_grid_py, m)?)?;
+    m.add_function(wrap_pyfunction!(block_rect_into_grid_py, m)?)?;
+    m.add_function(wrap_pyfunction!(clear_circle_from_grid_py, m)?)?;
+    m.add_function(wrap_pyfunction!(occupancy_bitmap_row_py, m)?)?;
+    m.add_function(wrap_pyfunction!(fence_samples_py, m)?)?;
+    m.add_function(wrap_pyfunction!(effective_creepage_py, m)?)?;
+    m.add_function(wrap_pyfunction!(closest_component_for_zone_py, m)?)?;
+
+    // bottleneck geometry (Wave 3: min-cut bottleneck kernels)
+    m.add_function(wrap_pyfunction!(cell_capacity_batch_py, m)?)?;
+    m.add_function(wrap_pyfunction!(hard_blocked_batch_py, m)?)?;
+    m.add_function(wrap_pyfunction!(build_capacitated_graph_py, m)?)?;
+
+    // clearance geometry (Wave 3: REQ-SAFE-01 validator geometry)
+    m.add_function(wrap_pyfunction!(rotate_local_to_world_py, m)?)?;
+    m.add_function(wrap_pyfunction!(origin_distance_py, m)?)?;
+    m.add_function(wrap_pyfunction!(component_reach_py, m)?)?;
+    m.add_function(wrap_pyfunction!(pad_pair_distance_py, m)?)?;
+    m.add_function(wrap_pyfunction!(copper_scan_py, m)?)?;
+
+    // audit (Wave 3 #5: R24 post-solve audit geometry)
+    m.add_function(wrap_pyfunction!(bbox_from_center_py, m)?)?;
+    m.add_function(wrap_pyfunction!(chebyshev_gap_py, m)?)?;
+
+    // creepage_check (Wave 3 #7: HV-isolation clearance geometry)
+    m.add_function(wrap_pyfunction!(point_to_segment_distance_py, m)?)?;
+    m.add_function(wrap_pyfunction!(closest_point_on_segment_py, m)?)?;
+    m.add_function(wrap_pyfunction!(segments_intersect_py, m)?)?;
+    m.add_function(wrap_pyfunction!(segment_to_segment_info_py, m)?)?;
+    m.add_function(wrap_pyfunction!(min_clearance_distance_py, m)?)?;
+    m.add_function(wrap_pyfunction!(calculate_required_creepage_py, m)?)?;
+    m.add_function(wrap_pyfunction!(is_high_voltage_net_py, m)?)?;
 
     Ok(())
 }
