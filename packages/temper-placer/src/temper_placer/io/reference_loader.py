@@ -7,10 +7,27 @@ and convert them into PlacementState objects for quality metric comparison.
 Typical usage:
     # Load a reference design and compute metrics
     ref_state, netlist, board = load_reference_pcb("path/to/design.kicad_pcb")
-    report = compute_quality_report(ref_state, netlist, board, context, config)
+
+    # Score a placement against the Rust quality oracle (prepare once,
+    # evaluate per placement state — replaces the deprecated
+    # temper_placer.metrics.quality.compute_quality_report)
+    import temper_quality_oracle
+    from temper_placer.validation.human_reference_extractor import (
+        _netlist_to_oracle_dict,
+        _placement_to_oracle_dict,
+    )
+
+    prepared = temper_quality_oracle.prepare_quality_py(
+        _netlist_to_oracle_dict(netlist), {"name": "reference"}
+    )
+    report = temper_quality_oracle.evaluate_prepared_py(
+        prepared, _placement_to_oracle_dict(ref_state, netlist, board), metrics
+    )
 
     # Compare against optimizer output
-    opt_report = compute_quality_report(opt_state, netlist, board, context, config)
+    opt_report = temper_quality_oracle.evaluate_prepared_py(
+        prepared, _placement_to_oracle_dict(opt_state, netlist, board), metrics
+    )
 """
 
 from __future__ import annotations
