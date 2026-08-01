@@ -1,18 +1,18 @@
 # A* Kernel (Rust) — Verification by Induction
 
 U5 of the Python→Rust migration roadmap (docs/plans/2026-07-23-003),
-porting `astar_core_numba.py::_astar_kernel_3d` and the Bresenham LOS
-kernel. The Numba-jitted Python kernel was the original oracle; the Rust
-kernel was first validated against it via `TEMPER_ASTAR_BACKEND=rust`
-(roadmap KTD6). **The Numba fallback was removed on 2026-07-31 (cleanup
-C1); the Rust kernel is now the sole A* backend** — see the "Numba
+porting the retired JIT A* kernel (`_astar_kernel_3d`) and the Bresenham
+LOS kernel. The JIT-compiled Python kernel was the original oracle; the
+Rust kernel was first validated against it via `TEMPER_ASTAR_BACKEND=rust`
+(roadmap KTD6). **The JIT fallback was removed on 2026-07-31 (cleanup
+C1); the Rust kernel is now the sole A* backend** — see the "JIT
 Removal Record" section below for the justification.
 
 ## Base Case: 1-Step Path
 
 For start = goal, the kernel pops the start cell, detects `cur ==
 goal`, and returns the single-cell path `[start]`. Both the Rust
-kernel and the Numba reference produce `[start]`.
+kernel and the retired JIT reference produce `[start]`.
 
 ## Induction Hypothesis: Correctness for Paths of Length k
 
@@ -33,7 +33,7 @@ path of length k+1.
    tie order), the neighbor expansion order (E, SE, S, SW, W, NW, N,
    NE), the f32 arithmetic order (octile heuristic in f64 then cast;
    congestion `1 + log(1 + raw)` capped in f32; thermal additive) all
-   mirror the Numba kernel exactly, so every decision sequence is
+   mirror the retired JIT kernel exactly, so every decision sequence is
    identical and the k+1-th extension is the same cell.
 3. **No cross-call interaction.** g_score, came_from, and closed are
    per-call arrays; extending the search by one step touches only
@@ -44,7 +44,7 @@ path of length k+1.
 
 The differential suite
 (`packages/temper-placer/tests/router_v6/test_astar_kernel_rust_differential.py`)
-asserts path cell-sequence identity (KTD7) with the Numba kernel on:
+asserts path cell-sequence identity (KTD7) with the retired JIT kernel on:
 open grids; 25 randomized obstacle grids; congestion cost fields;
 thermal cost fields; blocked grids (both return None); and 300
 randomized Bresenham LOS pairs, including net-id ownership.
@@ -61,7 +61,7 @@ executed 2026-07-31 on a 15-net subset of the real board
 (`pcb/temper.kicad_pcb`, production invocation pattern from
 test_production_board_routing_drc_regression): **identical completion
 rate (0.3750), identical unrouted set, and bit-identical total route
-length (9354.65 mm)** under the Numba and Rust kernels
+length (9354.65 mm)** under the JIT and Rust kernels
 (TEMPER_ASTAR_BACKEND unset vs =rust; warm-up run first; wall time
 58.7s vs 58.0s). The kernel-level path identity (differential suite)
 and the pipeline-level A/B together satisfy the U5 acceptance.
@@ -78,39 +78,40 @@ and the pipeline-level A/B together satisfy the U5 acceptance.
   differential suite additionally observes bit-identical paths on all
   tested inputs.
 
-## Numba Removal Record (cleanup C1, 2026-07-31)
+## JIT Removal Record (cleanup C1, 2026-07-31)
 
-The Numba A* backend was removed on 2026-07-31 as the marquee cleanup
+The JIT A* backend was removed on 2026-07-31 as the marquee cleanup
 after the Python→Rust migration program:
 
 - **Justification — the A/B evidence above.** The full-pipeline A/B
   executed 2026-07-31 recorded identical completion rate (0.3750),
   identical unrouted set, and bit-identical total route length
-  (9354.65 mm) under the Numba and Rust kernels, and the differential
+  (9354.65 mm) under the JIT and Rust kernels, and the differential
   suite had already asserted path cell-sequence identity (KTD7) on
-  randomized grids.  The Numba fallback was therefore dead weight:
+  randomized grids.  The JIT fallback was therefore dead weight:
   a second kernel that must stay bit-identical to the Rust kernel,
   with its own JIT cold-start cost and a NumPy-version compatibility
-  tail (numba ≤ NumPy 2.4).
+  tail (the JIT runtime pinned ≤ NumPy 2.4).
 - **What was removed** (all in `packages/temper-placer/`): the
   `@njit` kernels (`_astar_kernel_3d`, `_heap_push`, `_heap_pop`,
-  `_line_of_sight_numba_kernel`), the lazy-compile/cache machinery
+  and the JIT LOS kernel), the lazy-compile/cache machinery
   (`_get_kernel`, `_compile_kernel`, `_get_los_kernel`,
-  `_compile_los_kernel`, `_LOS_GRID_CACHE`), the `_HAVE_NUMBA` import
-  dance, `_line_of_sight_numba`, the `TEMPER_ASTAR_BACKEND` override
+  `_compile_los_kernel`, `_LOS_GRID_CACHE`), the retired `_HAVE_*`
+  import probe dance, the retired Python LOS wrapper, the
+  `TEMPER_ASTAR_BACKEND` override
   (``_select_astar_backend()`` is now a rust/pure-python probe), the
-  `numba_time_ms` stat (``rust_time_ms`` retained), the
-  `enable_numba_los` plumbing (pipeline flag, ``BoardState`` field,
+  retired JIT timing stat (``rust_time_ms`` retained), the
+  retired `enable_*_los` plumbing (pipeline flag, ``BoardState`` field,
   theta-star param — Theta*/Lazy Theta* now route LOS through
   ``_line_of_sight_rust`` with the pure-Python ``_line_of_sight`` as
-  the only fallback), and the `numba>=0.63.1` dependency.
-- **Test surface:** the differential suite's numba-vs-rust comparison
+  the only fallback), and the retired JIT runtime dependency.
+- **Test surface:** the differential suite's JIT-vs-rust comparison
   tests were retired in favor of rust-path tests (open grid,
   start==goal, randomized obstacles, congestion/thermal fields, blocked
   grids returning None, LOS scenario tests) and the PBT + metamorphic
-  suites.  `test_los_numba_correctness.py` was reworked into
+  suites.  The retired LOS-parity suite was reworked into
   `test_los_rust_correctness.py` (Rust LOS vs the pure-Python
   reference — the stronger property now that the Rust LOS is what
-  production Theta* routing runs), and `test_wave4_numba_astar.py`
-  was retired.  The retired suites' parity evidence lives in this
+  production Theta* routing runs), and the retired wave-4 JIT A* suite
+  was dropped.  The retired suites' parity evidence lives in this
   document and in the A/B record above.

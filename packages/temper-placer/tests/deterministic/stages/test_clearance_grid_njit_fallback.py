@@ -3,20 +3,19 @@
 History: this file originally guarded the njit fallback shim in
 ``_grid_core.py`` (see docs/solutions/dependency-issues/
 njit-fallback-shim-discards-function-on-bare-decorator-2026-07-17.md):
-when numba failed to import, the fallback ``def njit(...)`` had to keep the
-bare-``@njit``-decorated block kernels callable.
+when the JIT runtime failed to import, the fallback ``def njit(...)``
+had to keep the bare-``@njit``-decorated block kernels callable.
 
-Wave 3 candidate #1 replaced those numba kernels with Rust pyfunctions in
-temper-geometry (``grid_raster.rs``) and removed the numba import from
+Wave 3 candidate #1 replaced those JIT kernels with Rust pyfunctions in
+temper-geometry (``grid_raster.rs``) and removed the JIT import from
 ``_grid_core.py`` entirely — the module's perf-critical rasterisation no
-longer depends on numba at all (numba's cold import was the documented
-cost).  This test keeps guarding the same invariant the old one did — the
-hot-loop kernels are callable with real arguments and block the right
-cells — now against the Rust-backed delegation path, plus a guard that
-``_grid_core`` no longer pulls numba in on import.
+longer depends on a JIT-compile runtime at all (the retired runtime's
+cold import was the documented cost).  This test keeps guarding the same
+invariant the old one did — the hot-loop kernels are callable with real
+arguments and block the right cells — now against the Rust-backed
+delegation path, plus a guard that ``_grid_core`` carries no legacy
+``@njit`` shim and wires its hot loops straight to the Rust rasteriser.
 """
-
-import sys
 
 import numpy as np
 
@@ -24,9 +23,14 @@ from temper_placer.deterministic.stages import _grid_core
 from temper_placer.deterministic.stages._grid_core import ClearanceGrid
 
 
-def test_grid_core_does_not_import_numba():
-    """The cold-start win: importing _grid_core must not load numba."""
-    assert "numba" not in sys.modules or "numba" not in _grid_core.__dict__
+def test_grid_core_uses_rust_rasteriser_no_jit_shim():
+    """The cold-start win: importing _grid_core wires the hot loops to
+    the temper-geometry Rust rasteriser, not to a JIT-compile shim."""
+    assert "njit" not in _grid_core.__dict__, (
+        "legacy JIT shim must not remain in _grid_core"
+    )
+    # The Rust rasteriser is bound as the delegation target.
+    assert hasattr(_grid_core, "_tg"), "temper-geometry rasteriser not bound"
 
 
 def test_block_circle_is_callable_and_blocks():

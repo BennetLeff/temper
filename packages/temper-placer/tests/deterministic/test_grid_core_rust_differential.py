@@ -4,12 +4,12 @@ Wave 3 candidate #1: the pure rasterisation compute of
 ``temper_placer/deterministic/stages/_grid_core.py`` moved to the
 ``temper-geometry`` crate (``packages/temper-geometry/src/grid_raster.rs``)
 as in-place ``PyBuffer<i32>`` kernels.  The pre-migration implementations
-(the numba ``_block_circle_numba`` / ``_block_segment_numba`` loops and the
+(the JIT ``_block_circle`` / ``_block_segment`` loops and the
 pure-Python ``block_rect`` / ``unblock_circle`` / ``occupancy_bitmap``
 loops) are pinned here VERBATIM as oracles.
 
 The kernels mutate an int32 grid in place through numpy's buffer
-protocol, exactly like the numba originals; the Python methods in
+protocol, exactly like the JIT originals; the Python methods in
 ``_grid_core.py`` keep their public API and delegate.  The bbox
 computation (``min_row``/``max_row``/``min_col``/``max_col``) is part of
 the orchestration and stays Python; the loop over the bbox is the Rust
@@ -43,7 +43,7 @@ from temper_placer.deterministic.stages._grid_core import ClearanceGrid
 def _oracle_block_circle(
     target_grid, cx, cy, total_radius, net_id, cell_size_mm, min_row, max_row, min_col, max_col
 ):
-    """The pre-migration _block_circle_numba body, verbatim (pure Python)."""
+    """The pre-migration JIT _block_circle body, verbatim (pure Python)."""
     for row in range(min_row, max_row):
         for col in range(min_col, max_col):
             cell_x = col * cell_size_mm + cell_size_mm / 2
@@ -71,7 +71,7 @@ def _oracle_block_segment(
     min_col,
     max_col,
 ):
-    """The pre-migration _block_segment_numba body, verbatim (pure Python)."""
+    """The pre-migration JIT _block_segment body, verbatim (pure Python)."""
     dx = x2 - x1
     dy = y2 - y1
     L2 = dx * dx + dy * dy
@@ -292,12 +292,12 @@ def test_kernels_with_empty_bbox_change_nothing():
 
 def test_segment_with_zero_length_uses_circle_semantics():
     # L2 == 0 in the kernel: t = (0)/(0) = nan.  The pure-Python oracle
-    # raises ZeroDivisionError here (CPython float division), but the numba
+    # raises ZeroDivisionError here (CPython float division), but the JIT
     # kernel -- the production implementation this kernel replaces -- does
     # not: it computes t = nan, and min/max treat NaN by returning the
     # non-NaN operand, so min(1.0, nan) = 1.0 and t clamps to 1.0, giving
     # proj = (x1, y1) and a circle of radius total_radius around the
-    # endpoint.  The Rust kernel reproduces the numba semantics exactly.
+    # endpoint.  The Rust kernel reproduces the JIT semantics exactly.
     # (The ClearanceGrid._block_segment method itself early-returns on
     # L2 == 0, so this path is never reached from production.)
     rows = cols = 15

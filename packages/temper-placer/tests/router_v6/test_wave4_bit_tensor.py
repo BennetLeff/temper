@@ -7,7 +7,7 @@ closure-rate rollout plan.
 R9: A 4D boolean tensor (rows, cols, 8) is built once at A* pass
     start.  The inner loop's neighbor-validity check becomes a
     single bit read instead of an inlined bounds + numpy +
-    occupancy check.  Compounding effect: U6 (Numba-JIT A*)
+    occupancy check.  Compounding effect: U6 (Rust A*)
     reads this same tensor as a flat numpy array, multiplying
     the speedup of both.
 """

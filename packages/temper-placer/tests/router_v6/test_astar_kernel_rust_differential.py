@@ -1,14 +1,14 @@
 """Rust A* kernel path tests (cleanup C1).
 
 The Rust kernel (``temper-rust-router``) is the sole A* backend since
-the Numba fallback was removed on 2026-07-31.  The numba-vs-rust
-comparison tests were retired with the Numba kernel; their parity
+the JIT fallback was removed on 2026-07-31.  The retired JIT-vs-rust
+comparison tests were retired with the JIT kernel; their parity
 evidence is recorded in ``packages/temper-rust-router-core/VERIFICATION.md``
 (cell-sequence identity on randomized grids) and the full-pipeline A/B
 (identical completion rate 0.3750, bit-identical route length 9354.65 mm).
 
 This suite keeps the rust-path tests: every call runs through
-``_astar_search_numba`` under the ``rust_engaged`` fixture, which proves
+``_astar_search_rust`` under the ``rust_engaged`` fixture, which proves
 the Rust kernel actually resolved — a stale/missing ``temper_rust_router``
 fails loudly here instead of silently degrading to the pure-Python
 reference.
@@ -21,8 +21,8 @@ import random
 import numpy as np
 import pytest
 
-from temper_placer.router_v6.astar_core_numba import (
-    _astar_search_numba,
+from temper_placer.router_v6.astar_core_rust import (
+    _astar_search_rust,
     _line_of_sight_rust,
     _select_astar_backend,
 )
@@ -66,7 +66,7 @@ def _search(
     thermal_flat: np.ndarray | None = None,
 ):
     tensor = build_neighbor_validity_tensor_2d(grid)
-    return _astar_search_numba(
+    return _astar_search_rust(
         start,
         goal,
         grid,
@@ -131,7 +131,7 @@ def test_path_random_obstacles(_rust_engaged) -> None:
             continue  # genuinely disconnected under this obstacle set
         routed += 1
         _assert_valid_path(path, start, goal, ctx)
-    # Guard against a silent all-None regression (the retired numba-parity
+    # Guard against a silent all-None regression (the retired JIT-parity
     # suite compared None==None vacuously on such cases).
     assert routed > 0, "rust kernel returned None on every randomized grid"
 

@@ -8,7 +8,7 @@ to the Rust implementation or the wrapper that disagrees with the
 oracle fails here, not in a routed board one day.
 
 Three-way parity: the router's production consumer of congestion cost
-is the Numba kernel in ``astar_core_numba.py``, which computes
+is the Rust kernel in ``astar_core_rust.py``, which computes
 ``np.float32(1.0) + np.log(np.float32(1.0) + raw)`` — a *different*
 formula from both the oracle (f64 log1p) and the Rust cost (f64 log1p
 cast to f32).  ``test_kernel_formula_relation`` pins that relationship
@@ -147,7 +147,7 @@ def test_out_of_bounds_sanitized_not_folded():
 
 
 def test_kernel_formula_relation():
-    # The production consumer (astar_core_numba kernel) computes
+    # The production consumer (astar_core_rust kernel) computes
     # np.float32(1.0) + np.log(np.float32(1.0) + raw) with an f32 cap.
     # It differs from the Rust/oracle f64 log1p in the last ulp for
     # raw >= ~1e-7, and collapses to exactly 1.0 for raw below half an
