@@ -19,8 +19,12 @@ the only path that could ever satisfy the repo's R1a bit-identical bar —
 but both are too immature to pin as the production boundary today. WRAP
 (Rust boundary, ortools engine via FFI) is recorded as the named
 re-decidable path with concrete triggers. REPLACE (different solver
-engine) is rejected: bit-identical parity across solver engines is
-unreachable by construction.
+engine) is rejected: bit-identical parity across solver engines cannot
+be guaranteed or asserted as a gate (R1a's bit-exact bar is only
+assertable same-engine; a different engine's heuristic search may
+coincidentally find identical output, but that is empirical, not
+constructive — the honest claim is that the *gate* is unassertable
+across engines, not that identical output is impossible).
 
 ---
 
@@ -36,7 +40,7 @@ R24 post-solve audit (geometry only, already Rust-backed via temper-geometry).
 
 | # | Type | Domain / form | Where | Encodes | Load |
 |---|---|---|---|---|---|
-| M1 | `BoolVar` (`NewBoolVar`) | {0,1} | `model.py:382` (assumption literals), `model.py:517`; direction/axis Booleans `handlers/separated.py:95-107` | assumption literals for UNSAT-core extraction; per-pair axis-separation flags | 3 |
+| M1 | `BoolVar` (`NewBoolVar`) | {0,1} | `model.py:382` (assumption literals), `model.py:518`; direction/axis Booleans `handlers/separated.py:95-107` | assumption literals for UNSAT-core extraction; per-pair axis-separation flags | 3 |
 | M2 | `IntVar` position | [0, 1_000_000] | `model.py:147-152` (x/y_center, x/y_start, x/y_end) | component bounding-box geometry in integer grid units (units_per_mm=100) | 2 |
 | M3 | `IntVar` size | [min_dim, max_dim] (both orientations) | `model.py:145-146` | footprint w/h; rotation selects active size | 2 |
 | M4 | `IntVar` rotation | [0, 3] | `model.py:202` | 4-way axis-aligned rotation quadrant | 2 |
@@ -77,10 +81,10 @@ R24 post-solve audit (geometry only, already Rust-backed via temper-geometry).
 
 ### 1.4 PCL constraint types → handlers (8/8 covered)
 
-ADJACENT (`adjacent.py:19`), SEPARATED (`separated.py:20`), ENCLOSING
-(`enclosing.py:19`), KEEPOUT (`keepout.py:19`), ALIGNED (`aligned.py:19`),
-ON_SIDE (`onside.py:19`), ANCHORED (`anchored.py:19`), LOOP_AREA
-(`loop_area.py:19`). Dispatch via `HANDLER_REGISTRY`
+ADJACENT (`adjacent.py:20`), SEPARATED (`separated.py:20`), ENCLOSING
+(`enclosing.py:20`), KEEPOUT (`keepout.py:20`), ALIGNED (`aligned.py:20`),
+ON_SIDE (`onside.py:20`), ANCHORED (`anchored.py:20`), LOOP_AREA
+(`loop_area.py:20`). Dispatch via `HANDLER_REGISTRY`
 (`handlers/_registry.py:11`), constraint generation upstream in
 `netclass_constraints.py` (cross-class SEPARATED auto-gen) and
 `_encoder_core.py:165-209` (courtyard-τ SEPARATED auto-gen, all pairs).
@@ -122,7 +126,7 @@ asserted.
 
 | Candidate | Maturity (2025-26) | Native constraint support (of C1-C13) | Re-encoding needed | Posture | Effort to bit-identical parity (R1a) |
 |---|---|---|---|---|---|
-| **rustsat** 0.8.0 (2025-10-18) / 0.7.5 (2026-01-30) | Active, 158 releases, MIT, MSRV 1.76+ | C1/C2 linear (as PB), C3 reified (implications), C4 clauses, C9 assumptions (SAT-native), C11 objective (MaxSAT). NOT native: C5 element, C6 no-overlap-2D, C7 product | Everything to CNF: element → table encoding, no-overlap-2D → pairwise disjunctions, product → sequential encoding (expensive) | natively compiled SAT; CNF blowup risk on C7 | **Unreachable** — different solver, different search; parity must be redefined (see §4) |
+| **rustsat** 0.8.0 (2025-10-18) / 0.7.5 (2026-01-30) — version anomaly noted (0.8.0 predates 0.7.5's date; possibly a backported patch release, unverified) | Active, 158 releases, MIT, MSRV 1.76+ | C1/C2 linear (as PB), C3 reified (implications), C4 clauses, C9 assumptions (SAT-native), C11 objective (MaxSAT). NOT native: C5 element, C6 no-overlap-2D, C7 product | Everything to CNF: element → table encoding, no-overlap-2D → pairwise disjunctions, product → sequential encoding (expensive) | natively compiled SAT; CNF blowup risk on C7 | **Unreachable** — different solver, different search; parity must be redefined (see §4) |
 | **Pumpkin** (pure Rust, ConSol-Lab TU Delft) | Active; CP'24 paper; DRCP unsat-certificate proof logging | C1/C2 linear, C3 (reification not documented — **needs-verification**), C5 element ✓, C7 multiplication ✓ (integer_multiplication), C8 abs ✓, C4 clausal ✓, disjunctive ✓, cumulative ✓. No no_overlap_2d propagator | no-overlap-2D → disjunctive encoding | pure Rust LCG; proof certificates are a genuine soundness asset | **Unreachable** |
 | **aries-solver** 0.6.0 | Small community; ECAI'23 paper; scheduling-focused | linear, max, no-overlap (1D), difference-logic; element/product/2D-not documented — **needs-verification** | most of C5-C7 | pure Rust | **Unreachable** |
 | **huub** v100.1.0 (2026-06-01) | New (odd versioning; 2023-2026); MiniZinc/flatzinc support | CP+SAT framework, extensible propagators; exact global-constraint coverage **needs-verification** | likely most of C5-C7 | pure Rust | **Unreachable** |
@@ -171,8 +175,14 @@ product authority, not a spike.
    change (version bump, param change, WRAP), record the corpus solve
    output (positions/rotations/status/objective for the canonical board
    corpus at the frozen params) and assert bit-identical re-solve — the
-   same pattern as the KTD9 `~5e-13` recorded tolerance, here with
-   tolerance **exactly 0** (bit-identical, same engine + seed).
+   same pattern as the KTD9 `~5e-13` recorded tolerance. Tolerance is
+   **exactly 0 only for deterministic-completed solves** (status
+   `OPTIMAL`/`INFEASIBLE`/`FEASIBLE` with deterministic termination);
+   solves that hit the wall-clock `max_time_in_seconds` cutoffs
+   (`model.py:435`, `_encoder_solve.py:391`, `unsat.py:277`) terminate
+   non-deterministically across machines/load, so timeout-terminated
+   corpus solves are recorded with a measured baseline (KTD9-style) and
+   asserted to it — never to an unconditional bit-identical claim.
 3. The **R24 post-solve audit holds across the boundary**: `audit.py`
    (already Rust-backed via temper-geometry) remains wired after every
    solve (`placer/cp_sat/audit.py`), enforcing the Chebyshev soundness
