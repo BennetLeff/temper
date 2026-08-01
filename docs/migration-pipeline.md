@@ -31,7 +31,7 @@ until the final stage passes. Stages run in order.
      as oracle, written first (red), then the Rust pyfunction (green).
    - Behavioral A/B: bit-identical parity asserted on identical
      inputs.
-   - Performance A/B: CI wall-time comparison per the plan's Q1
+   - Performance A/B: CI wall-time comparison per the plan's R2
      tolerance policy.
    - PBT: >=5 non-vacuous properties (vacuity-guarded).
    - Metamorphic testing: >=3 invariant relations per module.
@@ -69,8 +69,9 @@ until the final stage passes. Stages run in order.
   verification runs.
 - A candidate whose parity cannot be pinned bit-exactly is reported
   and recorded, not faked.
-- The bit-exactness catalog (R3 of the Wave-4 plan) is checked before
-  implementation and extended when a new divergence class is found.
+- The bit-exactness catalog (Wave-4 discipline contract, section 2) is
+  checked before implementation and extended when a new divergence class
+  is found.
 - Branches are never cut from a dirty worktree: create the branch in
   a scratch worktree off `origin/main`, then cherry-pick the single
   docs commit onto a fresh clean branch if the shared checkout has

@@ -22,11 +22,11 @@ follow-up. "Evidence location" names where in the PR the gate's proof appears.
 | G1 | **TDD differential-oracle-first** — the differential test pinning the pre-migration implementation **verbatim** is written *before* the Rust; red → green | R1f, R1a | `packages/temper-placer/tests/<module>/test_<module>_rust_differential.py` opens with a `_oracle_*` block copied from the module AS COMMITTED before migration, carrying a "do not edit — they are the reference" comment (pattern: `test_bottleneck_geometry_rust_differential.py`). Git history shows the test file's first commit (red) predating the Rust pyfunction's (green), or the combined commit's diff order proves test-before-code. |
 | G2 | **Behavioral A/B** — bit-identical parity, old vs new, asserted on identical inputs; **bit-exact `==`, not tolerance** (tolerances are only allowed where the *oracle itself* is non-deterministic, and then only with the oracle's own 1-ulp band pinned) | R1a | The differential suite, green on CI, with `==` assertions covering randomized inputs plus crafted edge cases (NaN/inf semantics, degenerate inputs, insertion order). The suite's name and scope are restated in the home crate's `VERIFICATION.md` "Empirical verification" section. |
 | G3 | **Performance A/B** — before/after CI wall-time through the existing comparison workflow | R1b, R2 | The PR's `## Performance Comparison` comment (posted by `.github/workflows/pr-perf-check.yml`), with **no 🔴 REGRESSION row** against the rolling median baseline. Margins from `scripts/pr_perf_compare.py`: `TIMING_MARGIN = 0.20` (any `_ms`/`_seconds` metric >20% over baseline → REGRESSION), `COMPLETION_MARGIN = 0.10` (completion-rate metrics dropping >10% → REGRESSION), `IMPROVEMENT_THRESHOLD = 0.10`, rolling window `DEFAULT_WINDOW = 5`. Phase 0 wiring (R2) makes this a hard gate: the script exits non-zero on regression, the workflow's `continue-on-error: true` (currently stub `temper-N6-U8`) is removed, a required status check is configured, and a missing/empty baseline (`NO_BASELINE`) fails closed. Pure-delegation modules (no compute) use the R2 carve-out: "no regression beyond noise", with the Phase-0-quantified CI noise floor stated in the PR body. |
-| G4 | **PBT: >=5 non-vacuous properties per module** — every property is vacuity-guarded by a mutation test proving a degenerate kernel violates it | R1c | `<module>_pbt.py` defines P1..P5+ and, per property, a `test_pN_fails_for_<mutant>` re-running the property against a mutated kernel via `hypothesis.inner_test` and asserting `AssertionError` (pattern: `test_bottleneck_geometry_pbt.py` — `_restore_kernels` fixture, constant/position-dependent/absent-edge mutants, and a sanity test proving the input class is genuinely discriminating). Hypothesis conventions: `@given` composite strategies, `@settings(max_examples=..., deadline=...)`, docstring per property naming what a degenerate implementation would satisfy trivially. |
+| G4 | **PBT: >=5 non-vacuous properties per module** — every property is vacuity-guarded by a mutation test proving a degenerate kernel violates it | R1c | `<module>_pbt.py` defines P1..P5+ and, per property, a `test_pN_fails_for_<mutant>` re-running the property against a mutated kernel via `hypothesis.inner_test` and asserting `AssertionError` (pattern: `test_bottleneck_geometry_pbt.py` — `restore_kernels` fixture, constant/position-dependent/absent-edge mutants, and a sanity test proving the input class is genuinely discriminating). Hypothesis conventions: `@given` composite strategies, `@settings(max_examples=..., deadline=...)`, docstring per property naming what a degenerate implementation would satisfy trivially. |
 | G5 | **Metamorphic testing: >=3 invariant relations per module** — translation/rotation/permutation/scale, honestly bounded (exactness claimed only where the transform preserves every f64 bit, e.g. power-of-two scales; otherwise a stated tolerance with the oracle's own band) | R1d | `<module>_metamorphic.py`, or a clearly-labelled section of the PBT file, naming each relation and its exactness claim (e.g. "translation invariance (exact for power-of-two cells + dyadic centres)" vs "rotation invariance (tight tolerance)"). |
 | G6 | **Induction proof** — base case + induction step in the home crate's `VERIFICATION.md`, per the `packages/temper-geometry/VERIFICATION.md` convention; data-only modules (Phase 2 pyclasses, pure-delegation wrappers) record a structural proof or an explicit non-applicability note instead | R1e | A `## <Module> — Verification by Induction` section in the home crate's `VERIFICATION.md`: named base case with the smallest meaningful input (bit-exact vs the oracle), the induction hypothesis, a step arguing per-element independence / order preservation / no cross-element interaction, and the "Empirical verification" paragraph naming the differential/PBT suites. |
 | G7 | **Rust best-practices bar** — no `unwrap` outside tests, `catch_unwind` at pyo3 boundaries, borrow over clone, iterators over indexed loops, doc comments on public items | R1g | `cargo clippy`/`cargo test` green on the touched crates; every exported pyo3 function wrapped in `temper_py_bridge::catch_unwind(...).map_err(panic_to_err)` (pattern: `clearance_geometry.rs`); grep for `unwrap` returns only `#[cfg(test)]` / test-module hits; the crate passes `make extensions-check` post-merge. |
-| G8 | **R24 physics discipline** (physics-gated surfaces only): Chebyshev-style soundness proof (conservative bound or classified error), BMC-exhaustive validation on small N against a truthful oracle, post-solve audit recomputing the encoded quantity from coordinates | R1h | `docs/physics-verification-methodology.md` conventions: the soundness argument in the module's PBT/VERIFICATION section (e.g. "for separated boxes `0 ≤ cheb ≤ euclid`" in `test_audit_pbt.py`), a small-N exhaustive oracle comparison in the differential suite, and the audit recompute wired where the constraint is consumed (e.g. `placer/cp_sat/audit.py`, already Rust-backed). Non-physics surfaces record an explicit N/A. |
+| G8 | **R24 physics discipline** (physics-gated surfaces only): Chebyshev-style soundness proof (conservative bound or classified error), BMC-exhaustive validation on small N against a truthful oracle, post-solve audit recomputing the encoded quantity from coordinates | R1h | `docs/physics-verification-methodology.md` conventions: the soundness argument in the module's PBT/VERIFICATION section (e.g. "for separated boxes `0.0 <= cheb <= euclid + 1e-12`" in `test_audit_pbt.py`), a small-N exhaustive oracle comparison in the differential suite, and the audit recompute wired where the constraint is consumed (e.g. `placer/cp_sat/audit.py`, already Rust-backed). Non-physics surfaces record an explicit N/A. |
 
 **Tie-break rule:** when a gate cannot be satisfied honestly (parity cannot be
 pinned bit-exactly, a property is genuinely vacuous, the perf baseline is
@@ -36,12 +36,13 @@ section 2, before any of the remaining gates are claimed.
 
 ---
 
-## 2. Bit-exactness catalog (R3)
+## 2. Bit-exactness catalog (R1a basis)
 
 The known divergence classes between Python/CPython arithmetic and Rust's.
 **Check this list before implementing a migration; extend it when a new class
-is found.** Every class is a measured, reproducible pitfall from Waves 1–3 —
-the Rust side must replicate the *Python* semantics, not its own.
+is found.** Every class is either a measured Waves 1–3 pitfall or a standing
+class checked on every new kernel — the Rust side must replicate the *Python*
+semantics, not its own.
 
 | # | Divergence class | Concrete failure example | Mitigation (what the Rust side must do) | Repo evidence anchors |
 |---|------------------|--------------------------|------------------------------------------|-----------------------|
@@ -56,7 +57,7 @@ the Rust side must replicate the *Python* semantics, not its own.
 
 ---
 
-## 3. Residual decision procedure (R7)
+## 3. Residual decision procedure (R3)
 
 Every repo-Python surface not assigned to a migration phase is a **residual**
 and must receive a recorded verdict. The procedure: **classify → decide →
@@ -112,11 +113,11 @@ libraries bound to it: ortools, kiutils, shapely, networkx, scipy, plotly),
 Example (matching the recorded verdicts):
 
 ```
-- scipy EDT (router_v6/channel_skeleton.py): product-runtime → JUSTIFIED-KEEP — KTD8: edt crate diverges (max diff 2.0–2.236); Rust-native exact EDT recorded fallback (LOC: ~200; consumers: 1; deps: scipy.ndimage; churn: low)
+- scipy EDT (router_v6/channel_widths.py): product-runtime → JUSTIFIED-KEEP — KTD8: edt crate diverges (max diff 2.0–2.236); Rust-native exact EDT recorded fallback (LOC: ~200; consumers: 2 — channel_widths.py:208, _astar_heuristics.py:101; deps: scipy.ndimage; churn: low)
 ```
 
 ---
 
-*This contract supersedes nothing; it operationalizes the Wave-4 plan's R1/R2/R3
+*This contract supersedes nothing; it operationalizes the Wave-4 plan's R1/R2/R3/R7
 and the pipeline's stage 3. Changes to the gates, catalog, or procedure belong
 in a plan, not silently in this file.*
