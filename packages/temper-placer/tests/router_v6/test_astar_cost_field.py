@@ -2,7 +2,7 @@
 U8: A* thermal cost-field injection — unit and integration tests.
 
 Verifies that the thermal cost field is consumed additively by the
-Numba A* kernel, hard obstacles remain masked (soft weights never
+Rust A* kernel, hard obstacles remain masked (soft weights never
 override hard masks), and the field-off path is byte-identical to
 today's routing.
 """
@@ -11,7 +11,7 @@ import numpy as np
 import pytest
 
 from temper_placer.fields.interface import CostFieldInput
-from temper_placer.router_v6.astar_core_numba import _astar_search_numba
+from temper_placer.router_v6.astar_core_rust import _astar_search_rust
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 
 
@@ -54,10 +54,10 @@ def test_thermal_field_detours_around_hot_region():
     goal = (18, 10)  # (col, row) — right side
 
     # Field-off baseline: straight shot through the hot region
-    path_off = _astar_search_numba(start, goal, grid, max_iterations=5000)
+    path_off = _astar_search_rust(start, goal, grid, max_iterations=5000)
 
     # Field-on: should detour around the hot wall
-    path_on = _astar_search_numba(
+    path_on = _astar_search_rust(
         start,
         goal,
         grid,
@@ -102,8 +102,8 @@ def test_thermal_field_off_byte_identical():
     start = (2, 15)
     goal = (27, 15)
 
-    path_no_field = _astar_search_numba(start, goal, grid, max_iterations=5000)
-    path_weight_zero = _astar_search_numba(
+    path_no_field = _astar_search_rust(start, goal, grid, max_iterations=5000)
+    path_weight_zero = _astar_search_rust(
         start,
         goal,
         grid,
@@ -111,7 +111,7 @@ def test_thermal_field_off_byte_identical():
         thermal_flat=thermal_flat,
         thermal_weight=0.0,
     )
-    path_no_thermal = _astar_search_numba(
+    path_no_thermal = _astar_search_rust(
         start,
         goal,
         grid,
@@ -143,7 +143,7 @@ def test_thermal_field_off_byte_identical_with_congestion():
     start = (2, 15)
     goal = (27, 15)
 
-    path_congestion_only = _astar_search_numba(
+    path_congestion_only = _astar_search_rust(
         start,
         goal,
         grid,
@@ -151,7 +151,7 @@ def test_thermal_field_off_byte_identical_with_congestion():
         congestion_flat=congestion_2d.ravel(),
         congestion_weight=0.1,
     )
-    path_congestion_plus_thermal_off = _astar_search_numba(
+    path_congestion_plus_thermal_off = _astar_search_rust(
         start,
         goal,
         grid,
@@ -195,7 +195,7 @@ def test_thermal_field_never_overrides_hard_obstacles():
     start = (2, 8)  # free cell left of wall
     goal = (8, 8)  # free cell right of wall
 
-    path = _astar_search_numba(
+    path = _astar_search_rust(
         start,
         goal,
         grid,
@@ -232,8 +232,8 @@ def test_thermal_field_ab_toggle_divergent():
     start = (15, 3)
     goal = (15, 26)
 
-    path_off = _astar_search_numba(start, goal, grid, max_iterations=5000)
-    path_on = _astar_search_numba(
+    path_off = _astar_search_rust(start, goal, grid, max_iterations=5000)
+    path_on = _astar_search_rust(
         start,
         goal,
         grid,
@@ -271,7 +271,7 @@ def test_cost_field_input_integration():
     start = (1, 10)
     goal = (18, 10)
 
-    path = _astar_search_numba(
+    path = _astar_search_rust(
         start,
         goal,
         grid,

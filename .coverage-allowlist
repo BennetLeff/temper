@@ -1068,9 +1068,9 @@ temper_placer/router_v6/astar_core.py::in_bounds  # TODO: temper-xxx
 temper_placer/router_v6/astar_core.py::log_los_bb_stats  # TODO: temper-xxx
 temper_placer/router_v6/astar_core.py::octile_distance  # TODO: temper-xxx
 temper_placer/router_v6/astar_core.py::reset_los_bb_stats  # TODO: temper-xxx
-temper_placer/router_v6/astar_core_numba.py::RouteProfileStats.reset  # TODO: temper-xxx
-temper_placer/router_v6/astar_core_numba.py::get_route_profile_stats  # TODO: temper-xxx
-temper_placer/router_v6/astar_core_numba.py::reset_route_profile_stats  # TODO: temper-xxx
+temper_placer/router_v6/astar_core_rust.py::RouteProfileStats.reset  # TODO: temper-xxx
+temper_placer/router_v6/astar_core_rust.py::get_route_profile_stats  # TODO: temper-xxx
+temper_placer/router_v6/astar_core_rust.py::reset_route_profile_stats  # TODO: temper-xxx
 temper_placer/router_v6/astar_monitor.py::MonitorState.record_pop  # TODO: temper-xxx
 temper_placer/router_v6/astar_monitor.py::MonitorState.validate_cost_lower_bound  # TODO: temper-xxx
 temper_placer/router_v6/astar_monitor.py::MonitorState.validate_path_completeness  # TODO: temper-xxx

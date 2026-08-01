@@ -68,7 +68,7 @@ The differential test suite
 (`packages/temper-placer/tests/router_v6/test_congestion_tensor_rust_differential.py`)
 pins the wrapper and the Rust storage against the pre-migration numpy
 implementation, including the f32/f64 `max_cost` clamp band and the
-relationship to the Numba kernel's production formula (f32
+relationship to the retired JIT kernel's production formula (f32
 `1.0 + log(1 + raw)`, which differs from the f64 log1p oracle in the
 last ulp and collapses to 1.0 for raw below ~6e-8 — the three-way
 relationship is pinned by `test_kernel_formula_relation`).
@@ -382,8 +382,8 @@ doubling (2·fl(b·0.3) == fl(2b·0.3)) and inner ≤ outer. The
 pre-existing suites (`test_clearance_grid.py`, `test_4layer_grid.py`,
 `test_router_v6_fence_integration.py`, `test_stage_invariants.py`,
 bottleneck-geometry consumers) pass unchanged against the Rust-backed
-wrappers; `_grid_core.py` no longer imports numba (the module's
-documented cold-start cost — the migration's perf win). The Rust module
+wrappers; `_grid_core.py` no longer imports the retired JIT runtime
+(the module's documented cold-start cost — the migration's perf win). The Rust module
 carries 11 unit tests covering merge semantics, degenerate inputs, and
 word/boundary layout.
 

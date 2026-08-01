@@ -1,6 +1,6 @@
-//! A* kernel — U5 port of `astar_core_numba.py::_astar_kernel_3d`.
+//! A* kernel — U5 port of the retired JIT A* kernel (`_astar_kernel_3d`).
 //!
-//! Faithful mirror of the Numba kernel: same binary-heap sift logic
+//! Faithful mirror of the retired JIT kernel: same binary-heap sift logic
 //! (strict `<` in sift-down, `<=` break in sift-up), same 8-connected
 //! neighbor order (E, SE, S, SW, W, NW, N, NE), same f32 arithmetic
 //! order (octile heuristic computed in f64 then cast to f32; congestion
@@ -56,7 +56,7 @@ pub fn astar_kernel_3d(input: &AstarInput) -> AstarOutput {
     let mut closed = vec![0u8; n_cells];
 
     // Binary min-heap, parallel (priority, cell) arrays — same sift
-    // logic as the Numba kernel (and Python's heapq).
+    // logic as the retired JIT kernel (and Python's heapq).
     let mut heap_pri: Vec<f32> = Vec::with_capacity(4096);
     let mut heap_idx: Vec<i32> = Vec::with_capacity(4096);
 

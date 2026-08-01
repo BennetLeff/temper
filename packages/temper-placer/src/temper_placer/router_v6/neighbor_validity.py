@@ -57,7 +57,7 @@ def build_neighbor_validity_tensor_2d(
     When ``corridor_mask`` is supplied (a bool array of the same
     shape as the grid), a move is also invalid if the destination
     cell lies outside the corridor.  This implements corridor-
-    constrained coarse-to-fine A* without modifying the Numba
+    constrained coarse-to-fine A* without modifying the Rust
     kernel.
 
     Args:

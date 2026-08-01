@@ -34,7 +34,7 @@ def profile_pipeline(
     """Profile pipeline closure test — total wall-clock timing.
 
     Runs the closure test on the given board with warmup + multi-run
-    measurement. First run is warmup (JAX JIT, Numba compilation);
+    measurement. First run is warmup (JAX JIT, Rust extension cold import);
     runs 2..N are measured and averaged.
 
     Returns a single PipelineMetricsRecord dict with module='pipeline'.

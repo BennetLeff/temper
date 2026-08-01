@@ -86,7 +86,7 @@ def _dispatch_search(
             enable_congestion_derivative=enable_congestion_derivative,
         )
     # 2D plain A*.  Delegate to the Rust-backed kernel
-    # (astar_core_numba._astar_search_numba, cleanup C1).  Falls through
+    # (astar_core_rust._astar_search_rust, cleanup C1).  Falls through
     # to the pure-Python _astar_search when the extension is missing.
     if net_id >= 0:
         # The Rust kernel consumes a binary validity tensor and cannot
@@ -94,8 +94,8 @@ def _dispatch_search(
         # the reference search so same-net attachment remains legal.
         return _astar_search(start, goal, grid, net_id=net_id)
 
-    from temper_placer.router_v6.astar_core_numba import (
-        _astar_search_numba,
+    from temper_placer.router_v6.astar_core_rust import (
+        _astar_search_rust,
     )
 
     # U7 / R11: thread the optional congestion tensor through.  The
@@ -108,7 +108,7 @@ def _dispatch_search(
         kwargs["congestion_flat"] = congestion_tensor.array.reshape(-1)
         kwargs["congestion_weight"] = congestion_tensor.weight
         kwargs["max_congestion_cost"] = congestion_tensor.max_cost
-    return _astar_search_numba(start, goal, grid, **kwargs)
+    return _astar_search_rust(start, goal, grid, **kwargs)
 
 
 def _segment_search(
@@ -193,7 +193,7 @@ def _segment_search_coarse_to_fine(
     4. Run constrained fine A* within corridor.
     5. Fall back to unrestricted A* on any failure.
     """
-    from temper_placer.router_v6.astar_core_numba import _astar_search_numba
+    from temper_placer.router_v6.astar_core_rust import _astar_search_rust
     from temper_placer.router_v6.corridor import extract_corridor_mask
     from temper_placer.router_v6.neighbor_validity import (
         build_neighbor_validity_tensor_2d,
@@ -204,7 +204,7 @@ def _segment_search_coarse_to_fine(
     coarse_start = (start[0] // coarse_factor, start[1] // coarse_factor)
     coarse_goal = (goal[0] // coarse_factor, goal[1] // coarse_factor)
 
-    coarse_path = _astar_search_numba(coarse_start, coarse_goal, coarse_grid)
+    coarse_path = _astar_search_rust(coarse_start, coarse_goal, coarse_grid)
 
     if coarse_path is not None:
         corridor_mask = extract_corridor_mask(
@@ -216,7 +216,7 @@ def _segment_search_coarse_to_fine(
         )
         if corridor_mask[start[1], start[0]] and corridor_mask[goal[1], goal[0]]:
             neighbor_tensor = build_neighbor_validity_tensor_2d(grid, corridor_mask=corridor_mask)
-            fine_path = _astar_search_numba(
+            fine_path = _astar_search_rust(
                 start,
                 goal,
                 grid,

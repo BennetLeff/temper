@@ -146,7 +146,7 @@ class ClearanceGrid:
         target_grid = self._pad_net_ids[layer] if is_pad else self._trace_net_ids[layer]
 
         # Rasterise in temper-geometry (grid_raster.rs) with the exact f64
-        # operation order of the former numba kernel (libm pow for **2 / **0.5).
+        # operation order of the former JIT kernel (libm pow for **2 / **0.5).
         _tg.block_circle_into_grid_py(
             target_grid,
             cx,
@@ -226,7 +226,7 @@ class ClearanceGrid:
         target_grid = self._trace_net_ids[layer]
 
         # Rasterise in temper-geometry (grid_raster.rs) with the exact f64
-        # operation order of the former numba kernel.
+        # operation order of the former JIT kernel.
         _tg.block_segment_into_grid_py(
             target_grid,
             x1,

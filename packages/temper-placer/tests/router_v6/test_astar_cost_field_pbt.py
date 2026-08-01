@@ -13,7 +13,7 @@ import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from temper_placer.router_v6.astar_core_numba import _astar_search_numba
+from temper_placer.router_v6.astar_core_rust import _astar_search_rust
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 
 # ---------------------------------------------------------------------------
@@ -77,7 +77,7 @@ def test_pbt_no_path_through_masked_cells(gcfp):
     """
     grid, start, goal, thermal_flat, thermal_weight = gcfp
 
-    path = _astar_search_numba(
+    path = _astar_search_rust(
         start,
         goal,
         grid,
@@ -135,13 +135,13 @@ def test_pbt_higher_cost_lower_traversal_frequency(gcfp):
 
     rows, cols = grid.height_cells, grid.width_cells
 
-    path_off = _astar_search_numba(
+    path_off = _astar_search_rust(
         start,
         goal,
         grid,
         max_iterations=10000,
     )
-    path_on = _astar_search_numba(
+    path_on = _astar_search_rust(
         start,
         goal,
         grid,
@@ -207,13 +207,13 @@ def test_pbt_ab_toggle_consistent(gcfp):
     """
     grid, start, goal, thermal_flat, thermal_weight = gcfp
 
-    path_off = _astar_search_numba(
+    path_off = _astar_search_rust(
         start,
         goal,
         grid,
         max_iterations=10000,
     )
-    path_on = _astar_search_numba(
+    path_on = _astar_search_rust(
         start,
         goal,
         grid,

@@ -2,8 +2,8 @@
 // compute of the deterministic clearance-grid stage.
 //
 // Python references:
-//   temper_placer/deterministic/stages/_grid_core.py  — the numba
-//     `_block_circle_numba` / `_block_segment_numba` loops and the
+//   temper_placer/deterministic/stages/_grid_core.py  — the JIT
+//     `_block_circle` / `_block_segment` loops and the
 //     pure-Python `block_rect` / `unblock_circle` / `occupancy_bitmap`
 //     loops (the rasterisation kernels);
 //   temper_placer/deterministic/stages/_grid_fence.py — the U3 fence's
@@ -25,7 +25,7 @@
 // crate's statically-bound f64 intrinsics in the last ulp (measured for
 // sin; see pad_geometry.rs for the established pattern).  The grids are
 // mutated in place through numpy's buffer protocol (PyBuffer<i32>),
-// exactly like the numba originals.
+// exactly like the JIT originals.
 
 use pyo3::buffer::PyBuffer;
 use pyo3::prelude::*;
@@ -122,7 +122,7 @@ fn math_sin(x: f64) -> f64 {
 // Pure kernels (no pyo3, unit-testable without libpython)
 // ---------------------------------------------------------------------------
 
-/// Merge one cell per the numba reference: free -> net_id, same net ->
+/// Merge one cell per the JIT reference: free -> net_id, same net ->
 /// unchanged, any other occupied value -> conflict (-1).
 #[inline]
 fn merge_cell(cur: i32, net_id: i32) -> i32 {
@@ -135,7 +135,8 @@ fn merge_cell(cur: i32, net_id: i32) -> i32 {
     }
 }
 
-/// Rasterise a disc into `grid` (`_block_circle_numba` verbatim):
+/// Rasterise a disc into `grid` (the retired JIT `_block_circle` loop,
+/// verbatim):
 /// per cell centre (col*cell + cell/2, row*cell + cell/2), block when
 /// dist <= total_radius with the merge semantics above.
 ///
@@ -168,8 +169,8 @@ fn block_circle_into_grid(
     }
 }
 
-/// Rasterise a width-bearing segment into `grid` (`_block_segment_numba`
-/// verbatim): project each cell centre onto the segment (clamped t via
+/// Rasterise a width-bearing segment into `grid` (the retired JIT
+/// `_block_segment` loop, verbatim): project each cell centre onto the segment (clamped t via
 /// the reference's min-then-max nesting — `max(0.0, min(1.0, t))` — which
 /// is NOT `min(max(t,0),1)`: for t = nan CPython's min keeps its first
 /// argument so t clamps to 1.0), then block when dist <= total_radius.
