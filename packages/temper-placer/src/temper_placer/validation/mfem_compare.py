@@ -57,6 +57,7 @@ def compare_fields(  # noqa: ARG001
     length) must actually consume it. Scoped as a follow-up rather than folded
     into a signature repair.
     """
+    del cell_size_mm  # inherited unused arg (baseline debt)
     H, W = fdm_field.shape
     if mfem_field.shape != (H, W):
         raise ValueError(f"MFEM field shape {mfem_field.shape} != FDM shape {(H, W)}")

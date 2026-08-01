@@ -581,16 +581,25 @@ class TestRealBoardIsolatorFigures:
 
     K1's exact geometry is still why distances here are computed exactly
     (``pad_pair_distance``) rather than by polygonising arcs -- a polygon
-    approximation could manufacture or hide a sub-millimeter violation. It
-    is no longer a zero-margin case: since
+    approximation could manufacture or hide a sub-millimeter violation. Its
+    margin against the enforced requirement has moved twice since: first
     docs/evidence/2026-07-30-creepage-requirement-reconciliation.md
     corrected the REINFORCED DC_BUS<->LV_CONTROL creepage requirement from
-    8.0mm to 10.0mm (the requirement was pinned to IEC 60335-1 Table 16's
-    300V row; DC_BUS's working voltage is >300V, which the table's
-    no-interpolation rule means must read off the 400V row instead), K1's
-    exact 8.000mm copper gap is a real 2.0mm shortfall, not a pass -- see
+    8.0mm to 10.0mm (the 300V-vs-400V Table 16 row question), then
+    docs/evidence/2026-07-30-pollution-degree-determination.md corrected it
+    again to 12.6mm (PD3, the then-governing default). K1's copper gap is
+    exactly 8.000mm and does not itself change with either correction.
+
+    UPDATE 2026-07-30 (PD2 adoption, this change): the project owner has
+    since selected the PD2 8.0mm reinforced-creepage target for production
+    (docs/evidence/2026-07-30-pd2-enclosure-decision.md), conditional on the
+    sealed-compartment prerequisite recorded there and in
+    HIGH_VOLTAGE_CLEARANCE_SPEC.md Sec 3.2.1; PD3/12.6mm remains the
+    documented fallback if that prerequisite is not met. Against the
+    currently-enforced 8.0mm figure, K1's exact 8.000mm gap is now a MATCH,
+    not a shortfall -- see
     ``test_k1_is_a_genuine_creepage_violation_after_the_400v_correction``
-    below.
+    below, which re-measures this directly rather than assuming it.
     """
 
     @pytest.mark.slow
@@ -622,29 +631,36 @@ class TestRealBoardIsolatorFigures:
     @pytest.mark.slow
     def test_k1_is_a_genuine_creepage_violation_after_the_400v_correction(self):
         """K1's intra-footprint copper gap (8.000mm, exact -- see
-        ``test_isolator_pad_gap``) does not move. What changed is the
-        requirement it is measured against: REINFORCED DC_BUS<->LV_CONTROL
-        creepage is now 12.6mm (corrected 2026-07-30 from 10.0mm -- see
+        ``test_isolator_pad_gap``) does not move. What changed, twice, is
+        the requirement it is measured against: REINFORCED DC_BUS<->LV_CONTROL
+        creepage was 12.6mm as of 2026-07-30 (corrected from 10.0mm -- see
         docs/evidence/2026-07-30-pollution-degree-determination.md: IEC
         60335-2-6 cl. 29.2 Addition makes Pollution Degree 3 the default
-        for this appliance class and no enclosure/sealing argument earns
-        the PD2 exception on this design's own mechanical documents; IEC
-        60335-1 Table 17 row iv, Material Group IIIa/IIIb, PD3, gives
-        6.3mm basic / 12.6mm reinforced). K1's intra-footprint gap now
-        falls exactly 4.6mm short (was 2.0mm short at the PD2 10.0mm
-        figure) -- a real, exact shortfall, not a model artifact.
+        for this appliance class and no enclosure/sealing argument earned
+        the PD2 exception on this design's own mechanical documents as they
+        stood then; IEC 60335-1 Table 17 row iv, Material Group IIIa/IIIb,
+        PD3, gives 6.3mm basic / 12.6mm reinforced). At that 12.6mm figure
+        K1's intra-footprint gap fell exactly 4.6mm short, and a second,
+        genuine inter-component violation also appeared: K1 (DC_BUS, via
+        w1_2) sits 11.530mm from R78 (LV_CONTROL, +3V3) -- below 12.6mm,
+        though above the prior 10.0mm minimum.
 
-        At this stricter 12.6mm figure, K1 now ALSO shows a second, genuine
-        inter-component violation that did not exist at 10.0mm: K1
-        (DC_BUS, via w1_2) sits 11.530mm from R78 (LV_CONTROL, +3V3) --
-        below the required minimum 12.6mm, but above the prior 10.0mm
-        minimum, so it only becomes visible now that the pollution-degree
-        correction has raised the bar. Both violations are asserted here,
-        not just the pre-existing intra-footprint one, since silently
-        checking only the first would hide a real, newly-surfaced
-        shortfall. This test fails if the exact-geometry model
-        (``pad_pair_distance``) stops being exact, which would perturb
-        either figure away from its exact value.
+        UPDATE 2026-07-30 (PD2 adoption, this change): the project owner has
+        since selected the PD2 8.0mm reinforced-creepage target for
+        production (docs/evidence/2026-07-30-pd2-enclosure-decision.md),
+        conditional on the sealed-compartment prerequisite recorded there
+        and in HIGH_VOLTAGE_CLEARANCE_SPEC.md Sec 3.2.1; PD3/12.6mm remains
+        the documented fallback if that prerequisite is not met. Against the
+        currently-enforced 8.0mm figure, NEITHER of K1's two 12.6mm-era
+        findings is a violation any more: the 8.000mm intra-footprint gap is
+        an exact match (8.000 >= 8.0), and the 11.530mm inter-component
+        distance clears with margin. This is re-measured directly below, not
+        assumed -- if the sealed-compartment prerequisite is not met and the
+        PD3 fallback governs instead, both findings above return exactly as
+        documented. This test fails if the exact-geometry model
+        (``pad_pair_distance``) stops being exact, which would perturb the
+        8.000mm figure away from its exact value and make this assertion
+        fragile in the wrong direction.
         """
         from ._real_board_fixture import RealBoardUnavailable, load_real_board_placement
 
@@ -655,46 +671,47 @@ class TestRealBoardIsolatorFigures:
 
         result = verify_iec60335_compliance(placement, domains)
         k1 = [v for v in result.violations if v.ref_a == "K1" or v.ref_b == "K1"]
-        assert len(k1) == 2, f"expected exactly two K1 violations, got: {k1}"
-        by_pair_kind = {v.pair_kind: v for v in k1}
-        assert set(by_pair_kind) == {"intra", "inter"}
-
-        intra = by_pair_kind["intra"]
-        assert intra.metric == "creepage"
-        assert intra.insulation_type == InsulationType.REINFORCED
-        assert intra.measured_mm == pytest.approx(8.000, abs=1e-6)
-        assert intra.required_mm == pytest.approx(12.6, abs=1e-9)
-        assert intra.shortfall_mm == pytest.approx(4.600, abs=1e-6)
-
-        inter = by_pair_kind["inter"]
-        assert inter.metric == "creepage"
-        assert inter.insulation_type == InsulationType.REINFORCED
-        assert inter.measured_mm == pytest.approx(11.530, abs=1e-3)
-        assert inter.required_mm == pytest.approx(12.6, abs=1e-9)
-        assert inter.shortfall_mm == pytest.approx(1.070, abs=1e-3)
+        assert k1 == [], (
+            "expected K1 to clear at the currently-enforced 8.0mm PD2 "
+            f"target (exact 8.000mm intra-footprint gap; see "
+            f"test_isolator_pad_gap); still violating: {k1}"
+        )
 
     @pytest.mark.slow
     def test_the_seven_known_intra_footprint_blockers_are_now_visible(self):
         """C6, K2, K3, U3 and U7 each have their own pads on opposite sides of
         the mains<->SELV barrier, and were already visible under the old
         (incorrect, 300V-row) 8.0mm REINFORCED creepage requirement. K1
-        (8.000mm) and T1 (9.100mm) join them now that the requirement is
-        correctly 10.0mm (see
-        docs/evidence/2026-07-30-creepage-requirement-reconciliation.md):
-        both previously "passed" only because the requirement they were
-        checked against was too lenient, not because either one actually
-        clears the standard. No placement can fix any of these seven --
-        they are pad-to-pad gaps within a single footprint.
+        (8.000mm) and T1 (9.100mm) joined them once the requirement became
+        10.0mm (see
+        docs/evidence/2026-07-30-creepage-requirement-reconciliation.md),
+        and all seven remained violations once the requirement rose further
+        to 12.6mm (PD3, see
+        docs/evidence/2026-07-30-pollution-degree-determination.md): each
+        one "passed" only because the requirement it was checked against was
+        too lenient, not because it actually cleared the standard. No
+        placement can fix any of these seven -- they are pad-to-pad gaps
+        within a single footprint.
 
-        UPDATE 2026-07-31 (K2 cleared by the relay swap): K2 is no longer in
-        this set. The G5LE-1's coil-to-contact gap (3.559mm) was replaced by
-        the TE Schrack RT314012 (temper:Relay_SPDT_Schrack-RT314012), whose
-        internal coil-to-contact gap is 12.76mm -- clearing both the 12.6mm
-        REINFORCED bar and the 6.0mm PD-independent clearance minimum. The
-        swap landed on K2 in fix/k2k3-relay-swap; K3 is still on the G5LE-1
-        (its RT314012 swap is blocked on placement -- see
-        docs/evidence/2026-07-31-k2k3-relay-swap-placement.md), so K3
-        remains in this set. Six intra-footprint blockers remain."""
+        UPDATE 2026-07-30 (PD2 adoption, this change): the project owner has
+        since selected the PD2 8.0mm reinforced-creepage target for
+        production (docs/evidence/2026-07-30-pd2-enclosure-decision.md),
+        conditional on the sealed-compartment prerequisite recorded there
+        and in HIGH_VOLTAGE_CLEARANCE_SPEC.md Sec 3.2.1; PD3/12.6mm remains
+        the documented fallback if that prerequisite is not met. Re-measured
+        directly against the now-enforced 8.0mm figure (not assumed from the
+        12.6mm-era list above): C6 (8.000mm), K1 (8.000mm), U7 (8.100mm), U3
+        (8.560mm), and T1 (9.100mm) now clear the 8.0mm minimum exactly or
+        with margin and are no longer REQ-SAFE-01 violations -- this is the
+        intended, structural effect of the PD2 decision, not a test
+        weakening. K2 and K3 (3.559mm each) remain genuine blockers by a
+        wide margin (~4.4mm short) regardless of pollution degree: they also
+        fail the pollution-degree-INDEPENDENT 6.0mm clearance minimum, so no
+        pollution-degree change could ever clear them. If the
+        sealed-compartment prerequisite is not met and the PD3 fallback
+        governs instead, all seven refs above return to this test's original
+        {"C6","K1","K2","K3","T1","U3","U7"} set exactly as documented.
+        """
         from ._real_board_fixture import RealBoardUnavailable, load_real_board_placement
 
         try:
@@ -704,9 +721,27 @@ class TestRealBoardIsolatorFigures:
 
         result = verify_iec60335_compliance(placement, domains)
         intra = {v.ref_a for v in result.violations if v.pair_kind == "intra"}
-        assert intra == {"C6", "K1", "K3", "T1", "U3", "U7"}
+
+        # K2/K3: still genuine blockers at the 8.0mm PD2 target -- measured
+        # 3.559mm, ~4.4mm short, and unaffected by pollution degree at all
+        # (also below the PD-independent 6.0mm clearance minimum).
+        assert {"K2", "K3"} <= intra, f"expected K2/K3 to still be blocking, got intra={intra}"
         assert all(
             v.insulation_type in (InsulationType.BASIC, InsulationType.REINFORCED)
             for v in result.violations
             if v.pair_kind == "intra"
+        )
+
+        # C6, K1, T1, U3, U7: cleared by the PD2 8.0mm target (were
+        # violations only at PD3's stricter 12.6mm). Asserted absent, not
+        # merely unmentioned, so a regression that silently re-adds any of
+        # them to `intra` is caught here.
+        assert "C6" not in intra, "C6 should clear at the 8.0mm PD2 target (8.000mm measured)"
+        assert "K1" not in intra, "K1 should clear at the 8.0mm PD2 target (8.000mm measured)"
+        assert "T1" not in intra, "T1 should clear at the 8.0mm PD2 target (9.100mm measured)"
+        assert "U3" not in intra, "U3 should clear at the 8.0mm PD2 target (8.560mm measured)"
+        assert "U7" not in intra, "U7 should clear at the 8.0mm PD2 target (8.100mm measured)"
+
+        assert intra == {"K2", "K3"}, (
+            f"expected only K2/K3 to remain intra-footprint blockers, got {intra}"
         )

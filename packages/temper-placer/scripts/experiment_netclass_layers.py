@@ -115,6 +115,7 @@ def _route_and_write(
     ``parsed.source_path`` before routing, so we pass the raw input PCB
     and let ``route_pcb`` handle placement application.
     """
+    del seed  # inherited unused arg (baseline debt); RNG seeding not yet wired
     from temper_placer.router_v6.adapter import (
         _apply_placements_to_pcb,
         route_pcb,

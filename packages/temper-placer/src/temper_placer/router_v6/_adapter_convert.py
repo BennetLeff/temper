@@ -105,6 +105,7 @@ def _to_stage0_netclass_rules(rules: Any) -> Any:
 
     def _resolve(name: str, *aliases: str) -> Any:
         """Return the first attribute of *aliases* that exists on *rules*."""
+        del name  # kept for call-site symmetry; only *aliases* are consulted
         for alias in aliases:
             if hasattr(rules, alias):
                 return getattr(rules, alias)
@@ -122,12 +123,12 @@ def _to_stage0_netclass_rules(rules: Any) -> Any:
     # max_current_rating → current_rating_amps (R1 fix)
     current_rating_amps: float | None = None
     if hasattr(rules, "max_current_rating"):
-        current_rating_amps = getattr(rules, "max_current_rating")
+        current_rating_amps = rules.max_current_rating
 
     # safety_category survives conversion (needed by R6 HV/AC forced-segment gate)
     safety_category: str | None = None
     if hasattr(rules, "safety_category"):
-        val = getattr(rules, "safety_category")
+        val = rules.safety_category
         if val is not None:
             safety_category = str(val)
 

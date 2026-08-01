@@ -26,7 +26,7 @@ citing the electrical claims externally.
 |---|---|---|
 | ADC protective-impedance divider | 959.314 µA worst case at the declared +170 V half-bus, with ±1% resistor tolerance and two top resistors shorted; 1.407× below the 1.35 mA limit | The ~1.4× figure is valid only for the declared +170 V operating assumption; it is not a 400 V absolute-bus claim |
 | Domain topology | 0 domain crossings, 0 isolator breaches, 0 protective-impedance chain defects | Construction gate passes; this does not prove physical PCB creepage |
-| REQ-SAFE-01 | 123 clearance/creepage violations across 86 pairs, plus 6 unclassified proximity findings | Open; placement and architecture work remain |
+| REQ-SAFE-01 | 123 clearance/creepage violations across 86 pairs (PD3/12.6mm, as measured here), plus 6 unclassified proximity findings | Open; placement and architecture work remain. **Owner has since selected PD2/8.0mm for production (see "Follow-up: PD2 adoption" below) -- re-measured at 53 violations across 25 pairs on the same, unchanged board; still open, not closed.** |
 | Physical mains↔SELV keepout | 0 keepout zones; required named barrier absent | Open and human design-blocking |
 | `tank.c_tank3` | Source/netlist/PCB identity agrees as C27; footprint staged at `(20.0, 272.75)` outside the board | Open placement decision |
 | DRC ceiling | Provenance fresh; current single run 865 errors / 680 warnings, ceilings 875 / 680 | Ceiling file is not stale against the current board; no ceiling edit made here |
@@ -103,14 +103,28 @@ is not enforced by a board keepout. The construction gate and the physical
 keepout gate measure different properties; the first passing does not make the
 second pass.
 
-The current architecture is therefore still unresolved:
+The current architecture, as of this evidence pass, was therefore still
+unresolved:
 
-- PD3 / 12.6 mm remains the operative requirement for the current unsealed,
+- PD3 / 12.6 mm remained the operative requirement for the current unsealed,
   vented construction.
-- A PD2 / 8.0 mm path is an architectural option only if a genuinely sealed
+- A PD2 / 8.0 mm path was an architectural option only if a genuinely sealed
   compartment and its thermal, cable, connector, and manufacturing arguments
-  are designed and approved.
-- No keepout or component placement has been added by this evidence pass.
+  were designed and approved.
+- No keepout or component placement had been added by this evidence pass.
+
+**Update (2026-07-30, later the same day): the project owner has since made
+this decision.** The PD2 / 8.0 mm enclosure exception was selected as the
+production architecture, conditional on the sealed-compartment prerequisite
+above -- see `docs/evidence/2026-07-30-pd2-enclosure-decision.md` for the
+decision record (who decided, the mechanical precondition, and what reverts
+if the precondition is not met) and
+`docs/specs/HIGH_VOLTAGE_CLEARANCE_SPEC.md` Sec 3.2.1/5.1/5.2 for the spec
+update. PD3 / 12.6 mm remains fully documented as the fallback if the
+compartment is not built or fails inspection -- it is not deleted, only
+superseded for the intended, sealed construction. See "Follow-up: PD2
+adoption applied to the validator matrix" below for the re-measured
+REQ-SAFE-01 count at the new figure.
 
 ## 3. REQ-SAFE-01 current measurement
 
@@ -200,17 +214,25 @@ stale provenance.
 
 ## Remaining owner decisions
 
-1. Select the isolation architecture: earn a sealed PD2 compartment, or keep
-   the current construction on the PD3 / 12.6 mm path and redesign the board
-   accordingly.
+1. ~~Select the isolation architecture: earn a sealed PD2 compartment, or
+   keep the current construction on the PD3 / 12.6 mm path and redesign the
+   board accordingly.~~ **DECIDED 2026-07-30: PD2 / 8.0 mm selected for
+   production, conditional on the sealed-compartment prerequisite being
+   built and verified at production inspection; PD3 / 12.6 mm remains the
+   documented fallback if that prerequisite is not met.** See
+   `docs/evidence/2026-07-30-pd2-enclosure-decision.md`. This does NOT close
+   items 2-4 below, and does not by itself make the board fabrication-ready
+   -- the sealed compartment is not yet built, and the physical keepout gate
+   (row above) is still red.
 2. Approve a real placement for C27 / `tank.c_tank3` and then re-run the
    copper, keepout, DRC, and netlist gates in the same board-changing change.
 3. Decide whether to correct the ADC top-resistor power metadata and whether
    the protective-impedance claim will be externally cited only for +170 V
    nominal operation or also for a higher bus condition.
-4. Fix the 123 REQ-SAFE-01 findings through an approved placement/package/
-   architecture plan; do not reduce the requirement or add exemptions to make
-   the count disappear.
+4. Fix the REQ-SAFE-01 findings (53, at the now-enforced 8.0mm PD2 figure --
+   see "Follow-up: PD2 adoption applied to the validator matrix" below)
+   through an approved placement/package/architecture plan; do not reduce
+   the requirement or add exemptions to make the count disappear.
 
 ## Follow-up: ADC top-resistor metadata correction
 
@@ -229,3 +251,62 @@ Validation on the follow-up branch:
 - The original ADC arithmetic and its +170 V operating-envelope caveat are
   unchanged; the metadata correction only prevents a future rating check from
   treating the 1206 parts as 100 mW parts.
+
+## Follow-up: PD2 adoption applied to the validator matrix
+
+The owner decision recorded above
+(`docs/evidence/2026-07-30-pd2-enclosure-decision.md`) selected PD2/8.0mm for
+production, but its original text moved only the KiCad DRU generator and the
+physical isolation keepout to that figure -- the REQ-SAFE-01 requirements
+validator (`packages/temper-placer/src/temper_placer/requirements/validators/clearance.py`'s
+`IEC60335_REQUIREMENTS` matrix) was left at the PD3 fallback (12.6mm
+reinforced / 6.3mm basic creepage), an inconsistency between enforcement
+points in its own right, independent of which pollution degree ultimately
+governs. This follow-up (branch
+`fix/adopt-pd2-8mm-reinforced-creepage`) closed that gap: the validator's
+REINFORCED creepage rows moved 12.6mm -> 8.0mm and BASIC rows 6.3mm -> 4.0mm,
+with `design_value_mm` correspondingly 14.6mm -> 10.0mm and 8.3mm -> 6.0mm,
+matching `docs/specs/HIGH_VOLTAGE_CLEARANCE_SPEC.md` Sec 5.1/5.2's PD2
+column. `min_clearance_mm` is unchanged throughout (Table 16 is not
+pollution-degree-dependent at this board's impulse-voltage class). The
+LV_CONTROL<->LV_CONTROL FUNCTIONAL row is unchanged, consistent with prior
+practice (flagged, not corrected, in both the PD3 correction and this PD2
+adoption -- see the validator's own module-level comment for why).
+
+**pcb/temper.kicad_pcb is byte-identical to the measurement above; only the
+requirement changed.** Re-running
+`test_temper_board_clearance_compliance` on the same board:
+
+| | Before (PD3/12.6mm, this doc's original measurement) | After (PD2/8.0mm, this follow-up) |
+|---|---:|---:|
+| REQ-SAFE-01 violations | 123 | 53 |
+| Violating pairs | 86 | 25 |
+| Unclassified-component proximity findings | 6 (largest IEC margin 12.6mm) | 0 (largest IEC margin now 8.0mm; all 6 previously-flagged candidates, 8.570-10.661mm from the nearest HV part, now clear it) |
+
+The test still fails -- 53 real, unresolved REQ-SAFE-01 violations remain on
+the current placement, including 6 intra-footprint records (K2, K3 -- each
+straddles the DC_BUS<->LV_CONTROL boundary within its own footprint,
+3.559mm measured against 8.0mm/4.0mm/6.0mm required across the three
+sub-checks that apply to it). This is not a closure claim: the test was not
+modified to pass, and does not pass. It reports what is true at the
+currently-enforced figure, same as before.
+
+**U3 and U7, the isolator/optocoupler footprints whose intra-footprint gaps
+(8.560mm and 8.100mm respectively) were the closest-to-passing real blockers
+this decision was meant to resolve, now clear the 8.0mm requirement with
+margin and no longer appear in the violation list at all.** So do C6
+(8.000mm) and K1 (8.000mm, exact match) and T1 (9.100mm) -- five of the
+original seven known intra-footprint blockers documented in
+`docs/evidence/2026-07-28-conformal-coating-pd1.md` and re-tested in
+`packages/temper-placer/tests/requirements/safety/test_clearance_copper.py::
+TestRealBoardIsolatorFigures::test_the_seven_known_intra_footprint_blockers_are_now_visible`.
+K2 and K3 remain genuine blockers regardless of pollution degree: their
+3.559mm gap is also below the pollution-degree-independent 6.0mm clearance
+minimum, so no pollution-degree change could ever clear them -- they need a
+real footprint/placement change.
+
+**All three enforcement points now agree at 8.0mm reinforced creepage**:
+the requirements validator (this follow-up), `scripts/generate_kicad_dru.py`'s
+`HV_CREEPAGE_ENFORCED_MM`, and `scripts/check_isolation_keepout.py`'s
+`MIN_BARRIER_WIDTH_MM`. `pcb/temper.kicad_pcb` and `elec/src/**` were not
+touched by this follow-up (both are read-only for this task).
