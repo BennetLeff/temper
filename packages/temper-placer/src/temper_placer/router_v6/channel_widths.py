@@ -340,7 +340,13 @@ def compute_channel_widths(
     return ChannelWidths(
         layer_name=routing_space.layer_name,
         node_widths=node_widths,
-        edge_widths=edge_widths,
+        # skeleton.graph.nodes()/edges() are untyped in mypy, but the nodes
+        # are genuinely (x, y) coordinate tuples at runtime; the edge key is
+        # ((u_x, u_y), (v_x, v_y)).
+        edge_widths=cast(
+            dict[tuple[tuple[float, float], tuple[float, float]], float],
+            edge_widths,
+        ),
         min_width=min_width,
         max_width=max_width,
         avg_width=avg_width,
