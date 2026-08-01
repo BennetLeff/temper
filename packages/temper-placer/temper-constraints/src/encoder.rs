@@ -203,6 +203,7 @@ pub fn keepout_rect_units_py(
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)] // tests may unwrap; failures surface as test panics
 mod tests {
     use super::*;
 
@@ -210,7 +211,7 @@ mod tests {
     fn mm_to_units_known_points() {
         assert_eq!(mm_to_units(10.0, 100).unwrap(), 1000);
         assert_eq!(mm_to_units(0.1, 100).unwrap(), 10);
-        assert_eq!(mm_to_units(5.0, 100).unwrap(), 50);
+        assert_eq!(mm_to_units(5.0, 100).unwrap(), 500);
         assert_eq!(mm_to_units(0.0, 100).unwrap(), 0);
         assert_eq!(mm_to_units(-3.0, 100).unwrap(), -300);
     }
