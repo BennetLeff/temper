@@ -8,7 +8,10 @@ from temper_placer.heuristics.mcu_subsystem import MCUSubsystemHeuristic
 
 @pytest.fixture
 def mock_env():
-    board = Board(width=100, height=100, zones=[Zone("MCU_ZONE", (50, 50, 100, 100))])
+    # Zone name matches MCUSubsystemHeuristic.apply's current default
+    # (zone_name="MCU", changed from "MCU_ZONE" in bb9c09176). The pipeline
+    # callers fall back to the default, so the default path is what ships.
+    board = Board(width=100, height=100, zones=[Zone("MCU", (50, 50, 100, 100))])
 
     # Components from template
     components = [
@@ -33,7 +36,7 @@ def test_mcu_subsystem_heuristic(mock_env):
 
     result = heuristic.apply(netlist, board)
 
-    # MCU_ZONE center is (75, 75)
+    # MCU zone center is (75, 75)
     # U_MCU is anchor, should be at (75, 75)
     idx_mcu = netlist.get_component_index("U_MCU")
     assert np.allclose(result.positions[idx_mcu], [75.0, 75.0])

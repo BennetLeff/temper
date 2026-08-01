@@ -72,6 +72,7 @@ pub fn validate_guard_ring(
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
 

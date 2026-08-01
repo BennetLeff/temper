@@ -41,7 +41,10 @@ class DRCOracleSetupStage(Stage):
         return rotate_local_to_world_deg(x, y, angle_degrees)
 
     def run(self, state: BoardState) -> BoardState:
-        from temper_placer.router_v6.constraints_design_rules import ClearanceMatrix, DesignRulesParser
+        from temper_placer.router_v6.constraints_design_rules import (
+            ClearanceMatrix,
+            DesignRulesParser,
+        )
         from temper_placer.router_v6.constraints_drc_oracle import DRCOracle
         from temper_placer.router_v6.constraints_geometry import Point
         from temper_placer.router_v6.constraints_spatial_index import Pad

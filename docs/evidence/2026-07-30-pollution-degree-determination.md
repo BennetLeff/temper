@@ -2,6 +2,25 @@
 
 # Pollution degree determination: PD3 governs, 12.6mm reinforced creepage is real, REQ-SAFE-01 violations 98 -> 138
 
+**SUPERSEDED-BY-DECISION, 2026-07-30 (later the same day), for a
+DIFFERENT construction only -- not retracted.** The analysis below is
+correct for, and remains the operative requirement for, the construction it
+examined: the vented chassis this document measured against, with the PCB
+sharing an unsealed, forced-air cavity with the coil/heatsink. The project
+owner has since selected a DIFFERENT, later-adopted production
+architecture -- a genuinely sealed, gasketed PCB compartment separate from
+that airflow path -- for which the PD2 enclosure exception this document
+found unearned becomes earned, conditional on that compartment actually
+being built and verified at production inspection. See
+`docs/evidence/2026-07-30-pd2-enclosure-decision.md` for that decision
+record (who decided, the precondition, and what reverts if the precondition
+is not met) and `docs/specs/HIGH_VOLTAGE_CLEARANCE_SPEC.md` Sec 3.2.1 for
+the spec-level statement of both. If the sealed-compartment prerequisite is
+not met, every figure and violation count below is exactly the one that
+still governs -- nothing in this document is wrong or withdrawn, only
+conditional on a construction question this document did not have an answer
+for at the time it was written.
+
 ## Provenance labels
 
 | Label | Meaning |

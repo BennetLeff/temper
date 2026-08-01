@@ -403,17 +403,25 @@ def _build_conductivity_field_gs(
 ) -> np.ndarray:
     """Build per-cell in-plane conductance k_eff (W/K) — identical physics
     to U5's ``_build_conductivity_field`` but implemented here to avoid any
-    import of thermal_fdm internal helpers."""
+    import of thermal_fdm internal helpers.
+
+    Computed in the ``temper-thermal`` Rust crate
+    (``packages/temper-thermal/src/thermal_scorer.rs``) with the exact f64
+    operation order of the former vectorized-numpy loop.
+    """
+    import temper_thermal as _tt
+
     h = config.height_cells
     w = config.width_cells
-    k_fr4_eff = config.k_fr4 * config.board_thickness_mm * 1e-3
-    k_cu_eff = config.k_copper * config.board_thickness_mm * 1e-3
-
-    if copper_grid is None:
-        return np.full((h, w), k_fr4_eff, dtype=np.float64)
-
-    frac = np.asarray(copper_grid, dtype=np.float64)
-    return k_fr4_eff + (k_cu_eff - k_fr4_eff) * np.clip(frac, 0.0, 1.0)
+    raw = _tt.build_conductivity_field_py(
+        config.k_fr4,
+        config.k_copper,
+        config.board_thickness_mm,
+        None if copper_grid is None else np.ascontiguousarray(copper_grid, dtype=np.float64).tobytes(),
+        h,
+        w,
+    )
+    return np.frombuffer(raw, dtype=np.float64).reshape((h, w)).copy()
 
 
 def _build_heat_source_field_gs(
@@ -423,7 +431,15 @@ def _build_heat_source_field_gs(
     Q_field: np.ndarray | None = None,
 ) -> np.ndarray:
     """Build per-cell areal heat source Q (W/mm^2) — identical to U5's
-    ``_build_heat_source_field`` but independent implementation."""
+    ``_build_heat_source_field`` but independent implementation.
+
+    The per-device footprint spreading loop (the genuine Python loop here)
+    is computed in the ``temper-thermal`` Rust crate
+    (``packages/temper-thermal/src/thermal_scorer.rs``), preserving dict
+    insertion order and the reference's exact floor/ceil index math.
+    """
+    import temper_thermal as _tt
+
     h = config.height_cells
     w = config.width_cells
     ox, oy = config.origin_mm
@@ -432,28 +448,16 @@ def _build_heat_source_field_gs(
     if Q_field is not None:
         return np.asarray(Q_field, dtype=np.float64)
 
-    Q = np.zeros((h, w), dtype=np.float64)
-    if not devices:
-        return Q
-
-    footprint_mm = 5.0
-    half_f = footprint_mm / 2.0
-
-    for dev_name, (dx_mm, dy_mm) in devices.items():
-        power = power_map.get(dev_name, 0.0)
-        if power <= 0:
-            continue
-
-        col_min = max(0, int(np.floor((dx_mm - half_f - ox) / cs)))
-        col_max = min(w, int(np.ceil((dx_mm + half_f - ox) / cs)))
-        row_min = max(0, int(np.floor((dy_mm - half_f - oy) / cs)))
-        row_max = min(h, int(np.ceil((dy_mm + half_f - oy) / cs)))
-
-        n_cells = max(1, (row_max - row_min) * (col_max - col_min))
-        Q_density = power / (n_cells * cs * cs)
-        Q[row_min:row_max, col_min:col_max] += Q_density
-
-    return Q
+    raw = _tt.build_heat_source_field_py(
+        [(name, x, y) for name, (x, y) in devices.items()],
+        list(power_map.items()),
+        ox,
+        oy,
+        cs,
+        h,
+        w,
+    )
+    return np.frombuffer(raw, dtype=np.float64).reshape((h, w)).copy()
 
 
 def _is_heatsink_boundary_face_u7(
@@ -493,95 +497,37 @@ def _assemble_convective_system(
 
     When *h_field* is provided, adds a per-cell through-plane vertical sink
     term (same pattern as U5's ``_assemble_system``).
+
+    Assembly is computed in the ``temper-thermal`` Rust crate
+    (``packages/temper-thermal/src/thermal_scorer.rs``) with the exact f64
+    operation order of the former pure-Python ``lil_matrix`` loop; the sparse
+    matrix is rebuilt here and the solve stays in scipy (SuperLU).
     """
-    from scipy.sparse import lil_matrix
+    import temper_thermal as _tt
+    from scipy.sparse import coo_matrix
+
+    from temper_placer.physics.thermal_fdm import _heatsink_edge_code
 
     h = config.height_cells
     w = config.width_cells
     n = h * w
-    cs = config.cell_size_mm
-    dx2 = cs * cs
-    dy2 = cs * cs
 
-    A = lil_matrix((n, n), dtype=np.float64)
-    b = np.zeros(n, dtype=np.float64)
-
-    hs_edge = config.heatsink_edge.upper().strip()
-
-    for row in range(h):
-        for col in range(w):
-            idx = row * w + col
-
-            diag = 0.0
-            k_c = k_field[row, col]
-
-            # East
-            if col + 1 < w:
-                k_e = 2.0 / (1.0 / k_c + 1.0 / k_field[row, col + 1])
-                coeff = k_e / dx2
-                A[idx, row * w + col + 1] = -coeff
-                diag += coeff
-            elif _is_heatsink_boundary_face_u7(row, col, "east", h, w, hs_edge):
-                coeff = 2.0 * k_c / dx2
-                diag += coeff
-                b[idx] += coeff * config.ambient_C
-
-            # West
-            if col - 1 >= 0:
-                k_w = 2.0 / (1.0 / k_c + 1.0 / k_field[row, col - 1])
-                coeff = k_w / dx2
-                A[idx, row * w + col - 1] = -coeff
-                diag += coeff
-            elif _is_heatsink_boundary_face_u7(row, col, "west", h, w, hs_edge):
-                coeff = 2.0 * k_c / dx2
-                diag += coeff
-                b[idx] += coeff * config.ambient_C
-
-            # North (row+1 = up in grid)
-            if row + 1 < h:
-                k_n = 2.0 / (1.0 / k_c + 1.0 / k_field[row + 1, col])
-                coeff = k_n / dy2
-                A[idx, (row + 1) * w + col] = -coeff
-                diag += coeff
-            elif _is_heatsink_boundary_face_u7(row, col, "north", h, w, hs_edge):
-                coeff = 2.0 * k_c / dy2
-                diag += coeff
-                b[idx] += coeff * config.ambient_C
-
-            # South
-            if row - 1 >= 0:
-                k_s = 2.0 / (1.0 / k_c + 1.0 / k_field[row - 1, col])
-                coeff = k_s / dy2
-                A[idx, (row - 1) * w + col] = -coeff
-                diag += coeff
-            elif _is_heatsink_boundary_face_u7(row, col, "south", h, w, hs_edge):
-                coeff = 2.0 * k_c / dy2
-                diag += coeff
-                b[idx] += coeff * config.ambient_C
-
-            # Convective boundary term at non-heatsink edge cells.
-            # Convection adds h * t_edge_area * (T_amb - T_cell) to the
-            # heat balance.  In the FDM coefficient units this contributes:
-            #   diag += h_conv * thickness_mm / cell_size_mm * 1e-6
-            #   b    += diag_conv * T_amb
-            # (see module docstring for derivation).
-            if _is_convective_edge_cell(row, col, h, w, hs_edge):
-                t_mm = config.board_thickness_mm
-                conv_coeff = h_conv * t_mm / cs * 1e-6
-                diag += conv_coeff
-                b[idx] += conv_coeff * config.ambient_C
-
-            # Through-plane heat-removal sink (U5-compatible, #141)
-            if h_field is not None:
-                h_cell = float(h_field[row, col])
-                if h_cell > 0.0:
-                    diag += h_cell
-                    b[idx] += h_cell * config.ambient_C
-
-            A[idx, idx] = diag
-            b[idx] += Q_field[row, col]
-
-    return A.tocsr(), b
+    rows, cols, values, b = _tt.assemble_convective_system_py(
+        np.ascontiguousarray(k_field, dtype=np.float64).tobytes(),
+        np.ascontiguousarray(Q_field, dtype=np.float64).tobytes(),
+        None
+        if h_field is None
+        else np.ascontiguousarray(h_field, dtype=np.float64).tobytes(),
+        h,
+        w,
+        config.ambient_C,
+        config.cell_size_mm,
+        config.board_thickness_mm,
+        h_conv,
+        _heatsink_edge_code(config.heatsink_edge),
+    )
+    A = coo_matrix((values, (rows, cols)), shape=(n, n), dtype=np.float64).tocsr()
+    return A, np.asarray(b, dtype=np.float64)
 
 
 def _convective_fdm_solve(

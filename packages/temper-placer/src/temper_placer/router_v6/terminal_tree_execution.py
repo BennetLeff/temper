@@ -29,7 +29,6 @@ from temper_placer.router_v6.connectivity import NetDisposition, PadIdentity
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 from temper_placer.router_v6.terminal_tree import TerminalTreeEdge, TerminalTreePlan, TreeTerminal
 
-
 #: ``failure_reasons`` prefix for an edge whose terminals share no conductive
 #: layer at all — a genuine geometry gap that needs a via-aware transition.
 NO_SHARED_LAYER = "no_shared_layer"

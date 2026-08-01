@@ -26,6 +26,9 @@ if TYPE_CHECKING:
     from temper_placer.deterministic.state import BoardState
     from temper_placer.router_v6.diagnostics import NetRoutingReport
 
+import numpy as np
+import temper_geometry as _tg
+
 from temper_placer.core.pin_geometry import pin_world_position
 
 logger = logging.getLogger(__name__)
@@ -349,6 +352,204 @@ def is_hard_blocked(grid: ClearanceGrid, cell: tuple[int, int, int]) -> bool:
 
 
 # ---------------------------------------------------------------------------
+# Rust kernel delegation (Wave 3 #2)
+#
+# The compute kernels (per-cell capacity incl. the R4 creepage discount,
+# the hard-blocked check, and the capacitated-graph BFS + edge build) run
+# in ``temper-geometry``; the orchestration around them (pad resolution,
+# net-class rank derivation, networkx construction and min-cut) stays
+# here. The kernels are integer-only and preserve the reference's exact
+# node/edge order, so the networkx graph the wrapper builds is bit-identical
+# (including adjacency insertion order) to the pre-migration one. Pinned
+# by ``test_bottleneck_geometry_rust_differential.py``.
+# ---------------------------------------------------------------------------
+
+
+# Sentinel rank for an unresolvable neighbour pad class — the Python
+# reference falls back to "any non-zero pad discounts" for those.
+_NO_CLASS_RANK: int = -(2**31)
+
+
+def _flatten_occupancy(grid: ClearanceGrid) -> tuple[np.ndarray, np.ndarray]:
+    """Flatten the grid's occupancy arrays to layer-major, row-major i32
+    arrays for the Rust kernels (bit-identical to per-cell reads)."""
+    trace = np.concatenate(
+        [np.asarray(grid._trace_net_ids[layer], dtype=np.int32).ravel() for layer in range(grid.layer_count)]
+    )
+    pad = np.concatenate(
+        [np.asarray(grid._pad_net_ids[layer], dtype=np.int32).ravel() for layer in range(grid.layer_count)]
+    )
+    return trace, pad
+
+
+def _resolve_current_category(
+    net_class_rules: dict[str, NetClassRules] | NetClassRules | None,
+    current_net_class: str | None,
+) -> int:
+    """Resolve the current net's safety rank for the R4 discount check
+    (Fix #5), mirroring the reference's derivation exactly. Returns -1
+    when no mapping is usable (the Python ``None``), which triggers the
+    historical any-non-zero-pad discount."""
+    current_category: int | None = None
+    if current_net_class and isinstance(net_class_rules, dict):
+        rule = net_class_rules.get(current_net_class)
+        if rule is not None:
+            safety_cat: str | None = getattr(rule, "safety_category", None)
+            current_category = (
+                _SAFETY_RANK.get(safety_cat, 0) if isinstance(safety_cat, str) else 0
+            )
+    return -1 if current_category is None else current_category
+
+
+def _build_pad_class_rank(
+    grid: ClearanceGrid,
+    net_class_rules: dict[str, NetClassRules] | NetClassRules | None,
+    pad_net_classes: dict[tuple[int, int, int], str] | None,
+) -> np.ndarray:
+    """Per-cell safety rank of the pad's net class for the R4 discount
+    check. Cells whose class is unresolvable (no entry in
+    ``pad_net_classes``, no rule, or a non-dict rules mapping) keep the
+    ``_NO_CLASS_RANK`` sentinel — matching the reference's fallback to
+    "any non-zero pad discounts" in ``_should_discount_for_neighbor``."""
+    ranks = np.full(
+        (grid.layer_count, grid.rows, grid.cols),
+        _NO_CLASS_RANK,
+        dtype=np.int32,
+    )
+    if pad_net_classes and isinstance(net_class_rules, dict):
+        for cell, cls in pad_net_classes.items():
+            layer, row, col = cell
+            if not (0 <= layer < grid.layer_count and 0 <= row < grid.rows and 0 <= col < grid.cols):
+                # Out-of-bounds keys are never consulted by the discount
+                # loop (it only queries in-bounds neighbours); skip them
+                # exactly as the reference's dict lookup would.
+                continue
+            rule = net_class_rules.get(cls)
+            if rule is None:
+                continue
+            safety_cat: str | None = getattr(rule, "safety_category", None)
+            ranks[layer, row, col] = (
+                _SAFETY_RANK.get(safety_cat, 0) if isinstance(safety_cat, str) else 0
+            )
+    return ranks
+
+
+def _compute_cell_capacity_batch(
+    cells: list[tuple[int, int, int]],
+    grid: ClearanceGrid,
+    net_class_rules: dict[str, NetClassRules] | NetClassRules | None = None,
+    pad_net_classes: dict[tuple[int, int, int], str] | None = None,
+    current_net_class: str | None = None,
+) -> list[int]:
+    """Batch cell capacity for many cells — one FFI crossing.
+
+    Bit-identical to calling :func:`_compute_cell_capacity` per cell (the
+    reference; kept for direct callers and stub grids without occupancy
+    arrays, where this function falls back to it).
+    """
+    if not (hasattr(grid, "_trace_net_ids") and hasattr(grid, "_pad_net_ids")):
+        return [
+            _compute_cell_capacity(
+                cell=c,
+                layer=c[0],
+                grid=grid,
+                net_class_rules=net_class_rules,
+                net_name="",
+                pad_net_classes=pad_net_classes,
+                current_net_class=current_net_class,
+            )
+            for c in cells
+        ]
+    trace, pad = _flatten_occupancy(grid)
+    ranks = _build_pad_class_rank(grid, net_class_rules, pad_net_classes)
+    current_category = _resolve_current_category(net_class_rules, current_net_class)
+    out = _tg.cell_capacity_batch_py(
+        [v for c in cells for v in c],
+        trace.tolist(),
+        pad.tolist(),
+        ranks.ravel().tolist(),
+        int(grid.rows),
+        int(grid.cols),
+        int(grid.layer_count),
+        int(current_category),
+    )
+    return [int(v) for v in out]
+
+
+def _hard_blocked_batch(cells: list[tuple[int, int, int]], grid: ClearanceGrid) -> list[bool]:
+    """Batch hard-blocked check — one FFI crossing.
+
+    Bit-identical to calling :func:`is_hard_blocked` per cell (the
+    reference; kept for direct callers and stub grids).
+    """
+    if not (hasattr(grid, "_trace_net_ids") and hasattr(grid, "_pad_net_ids")):
+        return [is_hard_blocked(grid, c) for c in cells]
+    trace, pad = _flatten_occupancy(grid)
+    out = _tg.hard_blocked_batch_py(
+        [v for c in cells for v in c],
+        trace.tolist(),
+        pad.tolist(),
+        int(grid.rows),
+        int(grid.cols),
+        int(grid.layer_count),
+    )
+    return [bool(v) for v in out]
+
+
+def _build_capacitated_graph_rust(
+    grid: ClearanceGrid,
+    source_cells: list[tuple[int, int, int]],
+    sink_cells: list[tuple[int, int, int]],
+    net_class_rules: dict[str, NetClassRules] | None,
+    pad_net_classes: dict[tuple[int, int, int], str] | None,
+    current_net_class: str | None,
+    deadline_remaining_s: float | None = None,
+) -> tuple[list[tuple[int, int, int]], list[tuple[tuple[int, int, int], tuple[int, int, int], int]]]:
+    """Rust capacitated-graph kernel: ``(nodes, edges)``.
+
+    ``nodes`` is the sorted ``(layer, row, col)`` node set; ``edges`` is
+    the ``((u, v, capacity), ...)`` list in the exact order the
+    pre-migration reference added them (sorted node order, fixed
+    neighbour order, both directions per neighbour pair) — the caller
+    replays them into a ``networkx.DiGraph`` to get bit-identical
+    adjacency insertion order.
+
+    ``deadline_remaining_s`` is the wall-clock budget still available
+    when the call starts (``None`` disables the deadline); the kernel
+    raises ``TimeoutError`` with the same 256-iteration stride checks as
+    the reference.
+    """
+    if not (hasattr(grid, "_trace_net_ids") and hasattr(grid, "_pad_net_ids")):
+        # Stub grid without occupancy arrays: ``is_hard_blocked`` returns
+        # True for every cell (AttributeError fallback), so the reference
+        # produces an empty graph.
+        return [], []
+    trace, pad = _flatten_occupancy(grid)
+    ranks = _build_pad_class_rank(grid, net_class_rules, pad_net_classes)
+    current_category = _resolve_current_category(net_class_rules, current_net_class)
+    nodes_flat, edges = _tg.build_capacitated_graph_py(
+        trace.tolist(),
+        pad.tolist(),
+        ranks.ravel().tolist(),
+        int(grid.rows),
+        int(grid.cols),
+        int(grid.layer_count),
+        [v for c in source_cells for v in c],
+        [v for c in sink_cells for v in c],
+        int(current_category),
+        deadline_remaining_s,
+    )
+
+    def _unflatten(idx: int) -> tuple[int, int, int]:
+        layer, rem = divmod(int(idx), grid.rows * grid.cols)
+        row, col = divmod(rem, grid.cols)
+        return (layer, row, col)
+
+    nodes = [_unflatten(i) for i in nodes_flat]
+    return nodes, [(_unflatten(u), _unflatten(v), int(c)) for u, v, c in edges]
+
+
+# ---------------------------------------------------------------------------
 # U2 — analyze_bottleneck: min-cut computation
 # ---------------------------------------------------------------------------
 
@@ -433,98 +634,37 @@ def _build_capacitated_graph(
     import networkx as nx
 
     del board_state  # reserved for future zone-based exclusion
+    del net_name  # reserved for future per-net overrides
 
-    nodes: set[tuple[int, int, int]] = set()
-    # Iterate the union of source, sink, and reachable 4-neighbours in
-    # sorted order for determinism.
-    candidate_cells: set[tuple[int, int, int]] = set(source_cells) | set(sink_cells)
-    frontier = list(candidate_cells)
-    bfs_iters = 0
-    while frontier:
-        cell = frontier.pop()
-        bfs_iters += 1
-        # Fix #4: deadline check inside the BFS expansion loop. A
-        # pathological grid (e.g. an open board with a long thin
-        # corridor) would otherwise BFS-explore hundreds of thousands
-        # of cells before the outer deadline check fires.
-        if (
-            deadline is not None
-            and bfs_iters % _DEADLINE_CHECK_STRIDE == 0
-            and time.monotonic() >= deadline
-        ):
-            raise TimeoutError(f"capacitated graph BFS exceeded {BOTTLENECK_TIMEOUT_S}s budget")
-        if cell in nodes:
-            continue
-        if is_hard_blocked(grid, cell):
-            continue
-        capacity = _compute_cell_capacity(
-            cell=cell,
-            layer=cell[0],
-            grid=grid,
-            net_class_rules=net_class_rules,
-            net_name=net_name,
-            pad_net_classes=pad_net_classes,
-            current_net_class=current_net_class,
-        )
-        if capacity <= 0:
-            continue
-        nodes.add(cell)
-        layer, row, col = cell
-        for dr, dc in ((-1, 0), (1, 0), (0, -1), (0, 1)):
-            nr, nc = row + dr, col + dc
-            if 0 <= nr < grid.rows and 0 <= nc < grid.cols:
-                neighbor = (layer, nr, nc)
-                if neighbor not in nodes:
-                    frontier.append(neighbor)
+    # Fix #4: the deadline is enforced inside the Rust kernel with the
+    # same ``_DEADLINE_CHECK_STRIDE`` iteration semantics; the wrapper
+    # passes the budget remaining at call time, and the caller's
+    # post-build checks stay in Python.
+    deadline_remaining = None
+    if deadline is not None:
+        deadline_remaining = deadline - time.monotonic()
 
+    nodes, edges = _build_capacitated_graph_rust(
+        grid=grid,
+        source_cells=source_cells,
+        sink_cells=sink_cells,
+        net_class_rules=net_class_rules,
+        pad_net_classes=pad_net_classes,
+        current_net_class=current_net_class,
+        deadline_remaining_s=deadline_remaining,
+    )
+
+    # Replay the kernel's (nodes, edges) in order: the node list is
+    # already sorted and the edge list is in the reference's emission
+    # order (sorted nodes x fixed neighbour order, both directions), so
+    # the networkx graph — including adjacency insertion order, which
+    # ``minimum_cut``'s BFS iterates — is bit-identical to the
+    # pre-migration one (Determinism Risk SC3 in the plan).
     g = nx.DiGraph()
-    for cell in sorted(nodes):
+    for cell in nodes:
         g.add_node(cell)
-    edge_iters = 0
-    for cell in sorted(nodes):
-        layer, row, col = cell
-        cap_here = _compute_cell_capacity(
-            cell=cell,
-            layer=layer,
-            grid=grid,
-            net_class_rules=net_class_rules,
-            net_name=net_name,
-            pad_net_classes=pad_net_classes,
-            current_net_class=current_net_class,
-        )
-        for dr, dc in ((-1, 0), (1, 0), (0, -1), (0, 1)):
-            nr, nc = row + dr, col + dc
-            if 0 <= nr < grid.rows and 0 <= nc < grid.cols:
-                neighbor = (layer, nr, nc)
-                if neighbor in nodes:
-                    edge_iters += 1
-                    # Fix #4: deadline check inside the edge
-                    # construction loop. Edge construction is also
-                    # O(N · degree) so it needs the same protection.
-                    if (
-                        deadline is not None
-                        and edge_iters % _DEADLINE_CHECK_STRIDE == 0
-                        and time.monotonic() >= deadline
-                    ):
-                        raise TimeoutError(
-                            f"capacitated graph edge build exceeded {BOTTLENECK_TIMEOUT_S}s budget"
-                        )
-                    cap_there = _compute_cell_capacity(
-                        cell=neighbor,
-                        layer=layer,
-                        grid=grid,
-                        net_class_rules=net_class_rules,
-                        net_name=net_name,
-                        pad_net_classes=pad_net_classes,
-                        current_net_class=current_net_class,
-                    )
-                    edge_cap = min(cap_here, cap_there)
-                    if edge_cap <= 0:
-                        continue
-                    # Directed graph: add both directions with the same
-                    # weight so min-cut is symmetric.
-                    g.add_edge(cell, neighbor, capacity=edge_cap)
-                    g.add_edge(neighbor, cell, capacity=edge_cap)
+    for u, v, edge_cap in edges:
+        g.add_edge(u, v, capacity=edge_cap)
 
     return g
 

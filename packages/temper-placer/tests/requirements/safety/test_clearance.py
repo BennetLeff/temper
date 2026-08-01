@@ -161,11 +161,6 @@ class TestRequirementMatrix:
         [
             # Mains to SELV (LV_CONTROL). Creepage/design figures are the
             # IEC 60335-1 Table 17 400V row (row iv, >250V and <=400V),
-            # Pollution Degree 3 (corrected from PD2 2026-07-30 -- see
-            # docs/evidence/2026-07-30-pollution-degree-determination.md;
-            # IEC 60335-2-6 cl. 29.2 Addition makes PD3 the default for this
-            # appliance class and no enclosure/sealing argument earns the
-            # PD2 exception on this design's own mechanical documents),
             # Material Group IIIa/IIIb, not the 300V row: MAINS's own
             # peak/transient working voltage is 340V
             # (docs/specs/HIGH_VOLTAGE_CLEARANCE_SPEC.md Sec 2.1), and
@@ -173,25 +168,40 @@ class TestRequirementMatrix:
             # tabulated row rather than interpolating. See
             # docs/evidence/2026-07-30-creepage-requirement-reconciliation.md
             # for the (unaffected) voltage-row basis.
-            (VoltageDomain.MAINS, VoltageDomain.LV_CONTROL, InsulationType.BASIC, 3.0, 6.3, 8.3),
+            #
+            # UPDATE 2026-07-30 (PD2 adoption, this change): row iv gives
+            # 4.0mm basic / 8.0mm reinforced at Pollution Degree 2 vs.
+            # 6.3mm/12.6mm at PD3 (docs/evidence/2026-07-30-pollution-degree-
+            # determination.md derived the PD3 figures; the values below were
+            # PD3 from that determination until this change). The project
+            # owner has since selected the PD2 enclosure exception as the
+            # production architecture, conditional on a real, verified
+            # sealed PCB compartment -- see
+            # docs/evidence/2026-07-30-pd2-enclosure-decision.md and
+            # HIGH_VOLTAGE_CLEARANCE_SPEC.md Sec 3.2.1/5.1/5.2. The figures
+            # below are the currently-ENFORCED PD2 values; PD3's 6.3mm/12.6mm
+            # remain the documented fallback if that prerequisite is not met
+            # (see IEC60335_REQUIREMENTS's own module-level comment for the
+            # full derivation of both).
+            (VoltageDomain.MAINS, VoltageDomain.LV_CONTROL, InsulationType.BASIC, 3.0, 4.0, 6.0),
             (
                 VoltageDomain.MAINS,
                 VoltageDomain.LV_CONTROL,
                 InsulationType.REINFORCED,
                 6.0,
-                12.6,
-                14.6,
+                8.0,
+                10.0,
             ),
             # DC Bus to Control. Same 400V-row basis: DC_BUS's peak/transient
             # working voltage is 400V (spec Sec 2.1).
-            (VoltageDomain.DC_BUS, VoltageDomain.LV_CONTROL, InsulationType.BASIC, 3.0, 6.3, 8.3),
+            (VoltageDomain.DC_BUS, VoltageDomain.LV_CONTROL, InsulationType.BASIC, 3.0, 4.0, 6.0),
             (
                 VoltageDomain.DC_BUS,
                 VoltageDomain.LV_CONTROL,
                 InsulationType.REINFORCED,
                 6.0,
-                12.6,
-                14.6,
+                8.0,
+                10.0,
             ),
             # Across Isolation Barrier. Gate Drive Isolated's peak-to-earth
             # working voltage is 355V (spec Sec 2.1) -- also rounds up to the
@@ -201,8 +211,8 @@ class TestRequirementMatrix:
                 VoltageDomain.ISOLATED,
                 InsulationType.REINFORCED,
                 6.0,
-                12.6,
-                14.6,
+                8.0,
+                10.0,
             ),
             # Within LV Domain
             (

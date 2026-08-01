@@ -19,7 +19,6 @@ from temper_placer.placer.cp_sat.gates import (
     _resolve_kicad_footprint_dir,
 )
 
-
 # ---------------------------------------------------------------------------
 # Unit: _resolve_kicad_footprint_dir
 # ---------------------------------------------------------------------------
@@ -38,9 +37,9 @@ class TestResolveKicadFootprintDir:
         """Env var wins even when a candidate search path also exists on disk."""
         monkeypatch.setenv("KICAD7_FOOTPRINT_DIR", "/my/override")
 
-        # Make several candidate paths appear to exist on disk.
         original_is_dir = Path.is_dir
 
+        # Make several candidate paths appear to exist on disk.
         def _mock_is_dir(self: Path) -> bool:
             if str(self) in {
                 "/usr/share/kicad/footprints",
@@ -58,12 +57,8 @@ class TestResolveKicadFootprintDir:
         """First existing Linux search path wins when env var is unset."""
         monkeypatch.delenv("KICAD7_FOOTPRINT_DIR", raising=False)
 
-        original_is_dir = Path.is_dir
-
         def _mock_is_dir(self: Path) -> bool:
-            if str(self) == "/usr/share/kicad/footprints":
-                return True
-            return False
+            return str(self) == "/usr/share/kicad/footprints"
 
         monkeypatch.setattr(Path, "is_dir", _mock_is_dir)
 
@@ -74,12 +69,8 @@ class TestResolveKicadFootprintDir:
         """Falls back to a later Linux candidate when earlier ones are missing."""
         monkeypatch.delenv("KICAD7_FOOTPRINT_DIR", raising=False)
 
-        original_is_dir = Path.is_dir
-
         def _mock_is_dir(self: Path) -> bool:
-            if str(self) == "/usr/share/kicad/7.0/footprints":
-                return True
-            return False
+            return str(self) == "/usr/share/kicad/7.0/footprints"
 
         monkeypatch.setattr(Path, "is_dir", _mock_is_dir)
 
@@ -90,12 +81,8 @@ class TestResolveKicadFootprintDir:
         """macOS path is used when no Linux paths exist and env var is unset."""
         monkeypatch.delenv("KICAD7_FOOTPRINT_DIR", raising=False)
 
-        original_is_dir = Path.is_dir
-
         def _mock_is_dir(self: Path) -> bool:
-            if str(self) == "/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints":
-                return True
-            return False
+            return str(self) == "/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints"
 
         monkeypatch.setattr(Path, "is_dir", _mock_is_dir)
 
@@ -107,8 +94,6 @@ class TestResolveKicadFootprintDir:
     def test_nothing_found_returns_none(self, monkeypatch):
         """Returns ``None`` when no env var and no candidate path exists."""
         monkeypatch.delenv("KICAD7_FOOTPRINT_DIR", raising=False)
-
-        original_is_dir = Path.is_dir
 
         def _mock_is_dir(self: Path) -> bool:
             return False  # Nothing exists.

@@ -69,7 +69,6 @@ class RouterV6Pipeline:
         enable_coarse_to_fine: bool = True,
         coarse_factor: int = 4,
         corridor_buffer_cells: int = 12,
-        enable_numba_los: bool = True,
         single_layer: bool = False,
         layer_constraints: dict[str, Any] | None = None,
         thermal_flat: Any = None,  # U8: (N,) float32 cost field
@@ -159,6 +158,7 @@ class RouterV6Pipeline:
                 enable_connectivity_verifier's discipline (plan
                 2026-07-23-001 U2).
         """
+        del enable_connectivity_verifier  # inherited unused arg (baseline debt)
         if dfm_fail_on not in ("none", "critical", "all"):
             raise ValueError(
                 f"dfm_fail_on must be 'none', 'critical', or 'all', got {dfm_fail_on!r}"
@@ -184,7 +184,6 @@ class RouterV6Pipeline:
         self.enable_coarse_to_fine = enable_coarse_to_fine
         self.coarse_factor = coarse_factor
         self.corridor_buffer_cells = corridor_buffer_cells
-        self.enable_numba_los = enable_numba_los
         self.single_layer = single_layer
         # U8: thermal cost field (flat float32 + weight) threaded to A* kernel
         self.thermal_flat = thermal_flat

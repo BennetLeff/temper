@@ -113,7 +113,7 @@ class TestAdjacentLoss:
             1,
             10.0,
             1.0,
-            metric="pin_to_pin",
+            metric=2,  # 2 = pin_to_pin (FFI int enum, lib.rs)
             pin_a_x=1.0,
             pin_a_y=0.0,
             pin_b_x=-1.0,
@@ -130,7 +130,7 @@ class TestAdjacentLoss:
                 1,
                 10.0,
                 1.0,
-                metric="invalid_metric",
+                metric=99,  # unknown code raises, mirroring the old string error
             )
 
 
@@ -239,7 +239,7 @@ class TestAlignmentLoss:
         require_rust()
         loss = temper_constraints.compute_alignment_loss_py(
             [10.0, 20.0, 10.0, 30.0, 10.0, 40.0],  # all x=10
-            "x",
+            0,  # 0 = x (FFI int enum, lib.rs)
             0.5,
             1.0,
         )
@@ -249,7 +249,7 @@ class TestAlignmentLoss:
         require_rust()
         loss = temper_constraints.compute_alignment_loss_py(
             [10.0, 20.0, 10.0, 30.0, 20.0, 40.0],  # third x=20
-            "x",
+            0,  # x
             0.5,
             1.0,
         )
@@ -259,7 +259,7 @@ class TestAlignmentLoss:
         require_rust()
         loss = temper_constraints.compute_alignment_loss_py(
             [20.0, 10.0, 30.0, 10.0, 40.0, 10.0],  # all y=10
-            "y",
+            1,  # y
             0.5,
             1.0,
         )
@@ -270,7 +270,7 @@ class TestAlignmentLoss:
         with pytest.raises(ValueError):  # noqa: B017
             temper_constraints.compute_alignment_loss_py(
                 [10.0, 20.0, 10.0, 30.0],
-                "z",
+                99,  # unknown code raises, mirroring the old string error
                 0.5,
                 1.0,
             )
@@ -283,7 +283,7 @@ class TestEdgeLoss:
         require_rust()
         loss = temper_constraints.compute_edge_loss_py(
             [0.0, 0.0],
-            "left",
+            2,  # 2 = left (FFI int enum, lib.rs)
             100.0,
             80.0,
             5.0,
@@ -295,7 +295,7 @@ class TestEdgeLoss:
         require_rust()
         loss = temper_constraints.compute_edge_loss_py(
             [50.0, 40.0],
-            "left",
+            2,  # left
             100.0,
             80.0,
             5.0,
@@ -310,7 +310,7 @@ class TestEdgeLoss:
         # Top edge: y=80, pos at y=40 -> dist=40
         loss = temper_constraints.compute_edge_loss_py(
             [50.0, 40.0],
-            "top",
+            0,  # top
             100.0,
             80.0,
             5.0,

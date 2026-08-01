@@ -35,11 +35,17 @@ def encode_keepout(
         return labels
 
     zx_min, zy_min, zx_max, zy_max = zone
-    margin_u = model.mm_to_units(constraint.margin_mm)
-    kx_s = model.mm_to_units(zx_min) - margin_u
-    ky_s = model.mm_to_units(zy_min) - margin_u
-    kx_w = model.mm_to_units(zx_max - zx_min) + 2 * margin_u
-    ky_h = model.mm_to_units(zy_max - zy_min) + 2 * margin_u
+    # Margin-expanded keepout rect in model units, computed in the
+    # temper-constraints Rust crate (encoder.rs::keepout_rect_units) with
+    # the exact f64/i64 operation order of the former inline body
+    # (span converted *before* the margin term: mm_to_units(zx_max -
+    # zx_min) + 2*margin_u, never a difference of conversions); pinned
+    # bit-exactly by tests/placer/cp_sat/test_encoder_rust_differential.py.
+    import temper_constraints as _tc
+
+    kx_s, ky_s, kx_w, ky_h = _tc.keepout_rect_units_py(
+        zx_min, zy_min, zx_max, zy_max, constraint.margin_mm, model.units_per_mm
+    )
 
     ix, iy = model.add_keepout_interval(
         f"keepout_{constraint.id}",

@@ -25,6 +25,11 @@ dev = [
     # drift" gate died on ModuleNotFoundError on every run -- silently, because
     # that step is continue-on-error.
     "jinja2>=3.1",
+    # scripts/known_failure_pins.py imports yaml (pyyaml) for the known-failure
+    # pin registry. It was never declared as a direct dependency, so the
+    # "Known-Failure Pin Registry Gate" died on ModuleNotFoundError on every run
+    # -- silently, because that step carries continue-on-error.
+    "pyyaml>=6.0",
     # packages/temper-placer/tests/physics/test_thermal_fdm_mms.py derives the
     # manufactured source term symbolically. Undeclared, so that test has never
     # been collected -- it failed at import and the suite running it carries

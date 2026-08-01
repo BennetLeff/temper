@@ -527,14 +527,18 @@ jobs:
   # and pyo3 build scripts resolve their interpreter through it, exactly as they
   # did when these steps ran inside Core Tests. Note the cargo target dir is
   # cold in this job (the workflow caches no Rust artifacts anywhere), so these
-  # steps compile their dependency graph from scratch -- hence 25 minutes.
+  # steps compile their dependency graph from scratch -- hence the budget.
+  # Clippy now runs on all 14 Rust crates (every one carries
+  # `[lints.clippy] unwrap_used = "deny", expect_used = "deny"`), so the loop
+  # below is the gate that catches production unwraps/expects across the FFI
+  # bridges -- including the pyo3 crates that maturin installs.
   rust-checks:
     name: Rust Checks (cargo check + clippy)
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/bennetleff/temper-ci:latest
       options: --user root
-    timeout-minutes: 25
+    timeout-minutes: 45
     env:
       VIRTUAL_ENV: ${{ github.workspace }}/.venv
       TEMPER_REQUIRE_RUST_DRC: "1"
@@ -581,13 +585,34 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: cargo check --manifest-path packages/temper-constraint-compiler/Cargo.toml
 
-      - name: Clippy (non-PyO3 crates)
+      - name: Clippy (all Rust crates, -D warnings)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: |
-          for crate in \
-                       temper-rust-router-core temper-pcl-ir temper-design-bundle; do
-            echo "=== clippy $crate ==="
-            cargo clippy --manifest-path "packages/$crate/Cargo.toml" -- -D warnings
+          for manifest in \
+                       packages/temper-constraint-compiler/Cargo.toml \
+                       packages/temper-design-bundle/Cargo.toml \
+                       packages/temper-drc-rs/Cargo.toml \
+                       packages/temper-dsn/Cargo.toml \
+                       packages/temper-geometry/Cargo.toml \
+                       packages/temper-io-types/Cargo.toml \
+                       packages/temper-ipc/Cargo.toml \
+                       packages/temper-pcl-ir/Cargo.toml \
+                       packages/temper-py-bridge/Cargo.toml \
+                       packages/temper-py-bridge-derive/Cargo.toml \
+                       packages/temper-quality-oracle/Cargo.toml \
+                       packages/temper-rust-router-core/Cargo.toml \
+                       packages/temper-rust-router/Cargo.toml \
+                       packages/temper-placer/temper-constraints/Cargo.toml; do
+            echo "=== clippy $manifest ==="
+            # temper-constraints is the one abi3 crate; without the forward-compat
+            # env it fails to build against a newer CPython than the pinned pyo3
+            # knows about (same special-case as the Makefile's `extensions` target).
+            if [ "$manifest" = "packages/temper-placer/temper-constraints/Cargo.toml" ]; then
+              PYO3_USE_ABI3_FORWARD_COMPATIBILITY=1 \
+                cargo clippy --manifest-path "$manifest" --all-targets -- -D warnings
+            else
+              cargo clippy --manifest-path "$manifest" --all-targets -- -D warnings
+            fi
           done
 
   # Split out of Core Tests 2026-07-28. Everything here reads the compiled
@@ -701,6 +726,21 @@ jobs:
       - name: Build electronics netlist
         if: steps.cache-netlist.outputs.cache-hit != 'true'
         run: make netlist
+
+      # The netlist cache key is a content hash of every netlist input
+      # (elec/src/**, elec/ato.yaml, Makefile), so on a cache hit the restored
+      # netlist is byte-identical to what `make netlist` would produce. But
+      # actions/cache restores files with their ORIGINAL mtimes, while git
+      # checkout stamps the .ato sources with the checkout time -- so the
+      # mtime-based staleness checks below (check_copper_net_consistency.py,
+      # check_footprint_drift.py) see 'source newer than netlist' on every
+      # cache-hit run and fail closed on a false positive (verified: both
+      # gates pass with 0 violations after `make netlist`). Touch the
+      # restored artifacts so their mtimes reflect this run's checkout, the
+      # exact state a fresh build would leave.
+      - name: Refresh netlist mtimes (cache restores original mtimes)
+        if: steps.cache-netlist.outputs.cache-hit == 'true'
+        run: touch elec/build/default.net elec/build/default.csv
 
       # ---- SETUP / GATE BOUNDARY -------------------------------------------
       # Everything ABOVE is setup and stays fail-fast: it has no `if:`, so if
@@ -1938,8 +1978,12 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         # 2026-07-30: the three tests that used to dominate this job's
         # wall-clock moved out to extended-cpsat-slow (--deselect'd here by
-        # exact node ID, selected there by the same three IDs -- see the
+        # exact node ID, selected there by the same IDs -- see the
         # comment above this job for the measurement and the full list).
+        # 2026-08-01: the hybrid test of that trio moved again, from
+        # extended-cpsat-slow to the nightly r9-evidence.yml workflow (it is
+        # evidence for the pending R9 promotion decision, not a gate). The
+        # deselect below stays so this job never re-absorbs it silently.
         # Everything else in tests/placer/cp_sat/ + test_external_oracle.py +
         # test_cp_sat_flag.py combined cost well under a minute in both
         # 2026-07-30 reference runs, so this job keeps the directory-level
@@ -1964,17 +2008,24 @@ jobs:
         continue-on-error: true  # TODO: temper-NNN -- parallel test suite flakiness; hard-fail after 2026-09-01
 
   extended-cpsat-slow:
-    name: Extended Test Suites (cp-sat, slow x3)
+    name: Extended Test Suites (cp-sat, slow x2)
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/bennetleff/temper-ci:latest
       options: --user root
     # Same 25-minute budget the combined cp-sat job already had -- not a
     # raise. See the comment above extended-cpsat for the measured basis
-    # (these three tests alone already consumed 20m45s-22m38s of that budget
+    # (these tests alone already consumed 20m45s-22m38s of that budget
     # serially; -n auto --dist loadgroup is expected to reduce that, not
     # increase it, and the real number gets measured in CI before this is
     # revisited).
+    # 2026-08-01: the hybrid test (877.7-986.9s of the trio) moved out to the
+    # nightly r9-evidence.yml workflow -- it is explicit evidence-gathering
+    # for the R9 promotion decision (continue-on-error, "Not a CI gate" in
+    # its own docstring), so per-PR sampling of a pending decision was paying
+    # 16+ min of wall-clock on the critical path. This job is now the zone
+    # pour (~211s) + routing DRC regression (~102s) pair; wall drops from
+    # ~20.7 min to ~5-6 min. See docs/solutions/ for the measurement.
     timeout-minutes: 25
     env:
       VIRTUAL_ENV: ${{ github.workspace }}/.venv
@@ -2083,26 +2134,30 @@ jobs:
         id: setup
         run: echo "setup complete; gates below report independently"
 
-      - name: Run cp-sat suite (slow trio, parallelized)
+      - name: Run cp-sat suite (slow pair, parallelized)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
-        # The three tests that own >98% of the old combined job's pytest
+        # The two tests that own >98% of the old combined job's pytest
         # wall-clock (see the comment above extended-cpsat for the
-        # 2026-07-30 measurement: 877.7s/986.9s, 233.9s/211.3s, 114.2s/102.2s
-        # across two reference runs). `-n auto --dist loadgroup` is MANDATORY
-        # whenever `-n` is passed in this file -- other dist modes silently
-        # turn `xdist_group`-tagged dependents into SKIPs. None of these three
-        # carries an `xdist_group` mark (checked
+        # 2026-07-30 measurement: 233.9s/211.3s and 114.2s/102.2s across two
+        # reference runs). The third member of the original trio
+        # (test_hybrid_pour_reduces_unconnected_without_shorting_regression,
+        # 877.7s/986.9s) moved to the nightly r9-evidence.yml workflow on
+        # 2026-08-01: it is evidence for the pending R9 promotion decision,
+        # not a gate (continue-on-error, docstring: "Not a CI gate"), and its
+        # ~16 min made it the per-PR critical path. `-n auto --dist loadgroup`
+        # is MANDATORY whenever `-n` is passed in this file -- other dist
+        # modes silently turn `xdist_group`-tagged dependents into SKIPs.
+        # Neither of the remaining two carries an `xdist_group` mark (checked
         # packages/temper-placer/tests/conftest.py's `_XDIST_GROUPS`), so
         # `loadgroup` distributes each independently across the runner's 2
         # workers (measured via a same-day invariant-router-v6-1 log:
         # "created: 2/2 workers") -- same per-test outcomes as serial, just
         # two running concurrently instead of one-at-a-time. Same
         # `-v --tb=short -p no:cacheprovider --maxfail=10` flags and the same
-        # `continue-on-error` this trio ran under before the split.
+        # `continue-on-error` this pair ran under before the split.
         run: >
           cd packages/temper-placer &&
-          uv run python ../../scripts/pytest_guard.py --min-tests 3 --
-          "tests/placer/cp_sat/test_hybrid_pour_stitch_measurement.py::TestHybridPourStitchVerification::test_hybrid_pour_reduces_unconnected_without_shorting_regression"
+          uv run python ../../scripts/pytest_guard.py --min-tests 2 --
           "tests/placer/cp_sat/test_zone_pour_production_measurement.py::TestZonePourProductionMeasurement::test_zone_pours_reduce_unconnected_items"
           "tests/placer/cp_sat/test_regression_drc.py::test_production_board_routing_drc_regression"
           -v --tb=short -p no:cacheprovider --maxfail=10 -n auto --dist loadgroup
@@ -2290,7 +2345,7 @@ jobs:
         working-directory: packages/temper-placer
         run: >
           uv run python ../../scripts/pytest_guard.py --min-tests 500 --
-          tests/router_v6/metrics/test_octilinear.py tests/router_v6/test_adapter_repair_verification.py tests/router_v6/test_all_pad_tree_routing.py  tests/router_v6/test_annular_ring_boundary.py tests/router_v6/test_apply_suggestions.py tests/router_v6/test_assignment_validation_pbt.py  tests/router_v6/test_astar_3d_production_scale_spike.py tests/router_v6/test_astar_metamorphic_pbt.py tests/router_v6/test_audit_tree_geometry.py  tests/router_v6/test_bottleneck_geometry.py tests/router_v6/test_bottleneck_ordering_pbt.py tests/router_v6/test_bundled_equivalence.py  tests/router_v6/test_channel_mapping.py tests/router_v6/test_channel_widths_pbt.py tests/router_v6/test_clearance_rust_differential.py  tests/router_v6/test_coarse_grid_pbt.py tests/router_v6/test_congestion_analysis.py tests/router_v6/test_constraint_model.py  tests/router_v6/test_copper_balance_properties.py tests/router_v6/test_corridor.py tests/router_v6/test_diagnostics.py  tests/router_v6/test_diff_pair_constraints.py tests/router_v6/test_diff_pair_inference.py tests/router_v6/test_escape_via_generator.py  tests/router_v6/test_inductive_ladder.py tests/router_v6/test_kicad_connectivity_preflight.py tests/router_v6/test_layer_assignment_ssot.py  tests/router_v6/test_layer_constraints.py tests/router_v6/test_los_numba_correctness.py tests/router_v6/test_manufacturing_report_induction.py  tests/router_v6/test_multi_layer_tree_routing.py tests/router_v6/test_multilayer_edge_cases.py tests/router_v6/test_net_prep_pbt.py  tests/router_v6/test_obstacle_map_pbt.py tests/router_v6/test_placement_suggestions.py tests/router_v6/test_quality_via_count.py  tests/router_v6/test_routability_check.py tests/router_v6/test_router_v6_drc_invariants_pbt.py tests/router_v6/test_routing_demand.py  tests/router_v6/test_routing_results.py tests/router_v6/test_scale_resolution.py tests/router_v6/test_stage0_loader.py  tests/router_v6/test_stage2_monolith_parity.py tests/router_v6/test_teardrop_generation.py tests/router_v6/test_teardrop_induction.py  tests/router_v6/test_terminal_tree_execution.py tests/router_v6/test_terminal_tree_planner.py tests/router_v6/test_thermal_relief_properties.py  tests/router_v6/test_topology_extraction.py tests/router_v6/test_via_insertion_anti_false_zero.py tests/router_v6/test_via_output_writer.py  tests/router_v6/test_wave4_bit_tensor.py tests/router_v6/test_wave4_numba_astar.py
+          tests/router_v6/metrics/test_octilinear.py tests/router_v6/test_adapter_repair_verification.py tests/router_v6/test_all_pad_tree_routing.py  tests/router_v6/test_annular_ring_boundary.py tests/router_v6/test_apply_suggestions.py tests/router_v6/test_assignment_validation_pbt.py  tests/router_v6/test_astar_3d_production_scale_spike.py tests/router_v6/test_astar_metamorphic_pbt.py tests/router_v6/test_audit_tree_geometry.py  tests/router_v6/test_bottleneck_geometry.py tests/router_v6/test_bottleneck_ordering_pbt.py tests/router_v6/test_bundled_equivalence.py  tests/router_v6/test_channel_mapping.py tests/router_v6/test_channel_widths_pbt.py tests/router_v6/test_clearance_rust_differential.py  tests/router_v6/test_coarse_grid_pbt.py tests/router_v6/test_congestion_analysis.py tests/router_v6/test_constraint_model.py  tests/router_v6/test_copper_balance_properties.py tests/router_v6/test_corridor.py tests/router_v6/test_diagnostics.py  tests/router_v6/test_diff_pair_constraints.py tests/router_v6/test_diff_pair_inference.py tests/router_v6/test_escape_via_generator.py  tests/router_v6/test_inductive_ladder.py tests/router_v6/test_kicad_connectivity_preflight.py tests/router_v6/test_layer_assignment_ssot.py  tests/router_v6/test_layer_constraints.py tests/router_v6/test_los_rust_correctness.py tests/router_v6/test_manufacturing_report_induction.py  tests/router_v6/test_multi_layer_tree_routing.py tests/router_v6/test_multilayer_edge_cases.py tests/router_v6/test_net_prep_pbt.py  tests/router_v6/test_obstacle_map_pbt.py tests/router_v6/test_placement_suggestions.py tests/router_v6/test_quality_via_count.py  tests/router_v6/test_routability_check.py tests/router_v6/test_router_v6_drc_invariants_pbt.py tests/router_v6/test_routing_demand.py  tests/router_v6/test_routing_results.py tests/router_v6/test_scale_resolution.py tests/router_v6/test_stage0_loader.py tests/router_v6/test_teardrop_generation.py tests/router_v6/test_teardrop_induction.py  tests/router_v6/test_terminal_tree_execution.py tests/router_v6/test_terminal_tree_planner.py tests/router_v6/test_thermal_relief_properties.py  tests/router_v6/test_topology_extraction.py tests/router_v6/test_via_insertion_anti_false_zero.py tests/router_v6/test_via_output_writer.py  tests/router_v6/test_wave4_bit_tensor.py tests/router_v6/test_wave4_numba_astar.py
           -v --tb=short -p no:cacheprovider --maxfail=10 -m "not slow"
           --continue-on-collection-errors -n auto --dist loadgroup
         continue-on-error: true  # TODO: temper-NNN -- parallel test suite flakiness; hard-fail after 2026-09-01
@@ -2384,6 +2439,106 @@ jobs:
           tests/router_v6/test_all_pad_connectivity.py tests/router_v6/test_all_pad_evidence.py tests/router_v6/test_annular_ring_check.py  tests/router_v6/test_annular_ring_properties.py tests/router_v6/test_astar_cost_field_pbt.py tests/router_v6/test_astar_dijkstra_oracle_pbt.py  tests/router_v6/test_astar_route_multilayer_via_fallback.py tests/router_v6/test_astar_runtime_monitor.py tests/router_v6/test_bottleneck_analysis.py  tests/router_v6/test_bottleneck_analysis_pbt.py tests/router_v6/test_capacity_constraints.py tests/router_v6/test_channel_widths.py  tests/router_v6/test_channel_widths_edt.py tests/router_v6/test_clearance_boundary.py tests/router_v6/test_clearance_check.py  tests/router_v6/test_clearance_induction.py tests/router_v6/test_congestion_derivative_pbt.py tests/router_v6/test_constraint_generation_pbt.py  tests/router_v6/test_creepage_check.py tests/router_v6/test_creepage_induction.py tests/router_v6/test_demand_budget_pbt.py  tests/router_v6/test_dense_package_detection.py tests/router_v6/test_dfm_hypothesis_fuzzing.py tests/router_v6/test_empty_data_edge_cases.py  tests/router_v6/test_geometric_degeneracy.py tests/router_v6/test_induction_base.py tests/router_v6/test_induction_strategy.py  tests/router_v6/test_layer_capacity_pbt.py tests/router_v6/test_manufacturing_drc_integration.py tests/router_v6/test_model_extraction_pbt.py  tests/router_v6/test_net_ordering.py tests/router_v6/test_obstacle_map.py tests/router_v6/test_occupancy_grid.py  tests/router_v6/test_power_plane_geometry.py tests/router_v6/test_router_v6_geometric_invariants_pbt.py tests/router_v6/test_router_v6_output_validity_pbt.py  tests/router_v6/test_router_v6_topological_invariants_pbt.py tests/router_v6/test_routing_space_pbt.py tests/router_v6/test_sat_solve_pbt.py  tests/router_v6/test_stackup_parsing.py tests/router_v6/test_stage3_constraint_audit.py tests/router_v6/test_stage4_route_pbt.py  tests/router_v6/test_stage_validators.py tests/router_v6/test_teardrop_boundary.py tests/router_v6/test_thermal_relief.py  tests/router_v6/test_thermal_relief_boundary.py tests/router_v6/test_thermal_relief_induction.py tests/router_v6/test_variable_mapping_pbt.py  tests/router_v6/test_wave1_easy_wins.py tests/router_v6/test_wave2_structural_small.py tests/router_v6/test_wave5_net_ordering.py  tests/router_v6/test_zone_emission.py
           -v --tb=short -p no:cacheprovider --maxfail=10 -m "not slow"
           --continue-on-collection-errors -n auto --dist loadgroup
+
+  # 2026-08-01: test_stage2_monolith_parity.py split out of group 2 into its
+  # own group. It runs the FULL stage-2 pipeline on the production board
+  # (orchestrated state + monolith, ~90s each on a worker) and was group 2's
+  # wall: ~3.5 min of the ~6.2 min pytest span, i.e. the per-PR critical
+  # path (group 2 job ~10.7 min). Its cost is inherent to the parity work --
+  # the pcb/state caches are already per-process (module dicts), so no test
+  # change helps; it needs a worker of its own. See issue #541.
+  invariant-router-v6-4:
+    name: Invariant tests (router_v6 group 4)
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/bennetleff/temper-ci:latest
+      options: --user root
+    timeout-minutes: 30
+    env:
+      VIRTUAL_ENV: ${{ github.workspace }}/.venv
+      TEMPER_REQUIRE_RUST_DRC: "1"
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Mark workspace safe for git
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: "latest"
+          enable-cache: true
+
+      - name: Cache virtualenv
+        uses: actions/cache@v6
+        id: cache-venv
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
+
+      - name: Create virtualenv (cache miss)
+        if: steps.cache-venv.outputs.cache-hit != 'true'
+        run: uv venv
+
+      - name: Install maturin
+        run: uv pip install maturin
+
+      - name: Build and install Rust crate
+        run: uv run maturin develop --release --manifest-path packages/temper-rust-router/Cargo.toml
+
+      - name: Verify Rust module loads
+        run: uv run python3 -c "import temper_rust_router"
+        env:
+          RUST_BACKTRACE: full
+
+      - name: Build and install temper-drc-rs
+        run: uv run maturin develop --release --manifest-path packages/temper-drc-rs/Cargo.toml
+
+      - name: Verify temper-drc-rs loads
+        run: uv run python3 -c "import temper_drc_rs"
+        env:
+          RUST_BACKTRACE: full
+
+      - name: Build and install temper-constraints
+        run: >
+          uv run maturin develop --release
+          --manifest-path packages/temper-placer/temper-constraints/Cargo.toml
+        env:
+          PYO3_USE_ABI3_FORWARD_COMPATIBILITY: "1"
+
+      - name: Verify temper-constraints loads
+        run: uv run python3 -c "import temper_constraints"
+        env:
+          RUST_BACKTRACE: full
+
+      - name: Install dependencies
+        run: >
+          uv sync --all-packages --inexact
+          --no-install-package temper-rust-router
+          --no-install-package temper-drc-rs
+          --no-install-package temper-constraints
+
+      - name: Cache netlist
+        id: cache-netlist
+        uses: actions/cache@v6
+        with:
+          path: elec/build
+          key: netlist-${{ hashFiles('elec/src/**', 'elec/ato.yaml', 'Makefile') }}
+
+      - name: Build electronics netlist
+        if: steps.cache-netlist.outputs.cache-hit != 'true'
+        run: make netlist
+
+      - name: Run invariant tests (router_v6 group 4)
+        working-directory: packages/temper-placer
+        run: >
+          uv run python ../../scripts/pytest_guard.py --min-tests 3 --
+          tests/router_v6/test_stage2_monolith_parity.py
+          -v --tb=short -p no:cacheprovider --maxfail=10 -m "not slow"
+          --continue-on-collection-errors -n auto --dist loadgroup
+        # Masking preserved from group 2, where this file ran before the
+        # 2026-08-01 split -- status quo, not a new decision.
+        continue-on-error: true  # TODO: temper-NNN -- parallel test suite flakiness; hard-fail after 2026-09-01
 
   invariant-rest:
     name: Invariant tests (io, deterministic, physics, fields, validation, cp_sat)
@@ -2535,8 +2690,9 @@ jobs:
 # RETIRED 2026-07-27: the `regression` job ("Performance & Quality Regression")
 # had exactly two gates, `make regression` and `make perf-regression`, and both
 # drove the JAX/benders_loop placement path that no longer exists. run-corpus
-# reaches corpus_runner.py:416-419, which raises NotImplementedError("JAX
-# optimizer removed."); check_perf_regression.py imported `jax` and
+# reaches corpus_runner._run_board, which returns the retired-optimizer error
+# for every valid board (the JAX optimizer and its stubs were removed in the
+# cleanup C2 sweep); check_perf_regression.py imported `jax` and
 # `temper_placer.losses.*`, both deleted from the tree. With both gates retired
 # the job was setup steps and nothing else, so the job goes too. Restoring this
 # coverage requires a placement strategy that still exists.
@@ -2599,6 +2755,9 @@ jobs:
       - name: Create virtualenv (cache miss)
         if: steps.cache-venv.outputs.cache-hit != 'true'
         run: uv venv
+
+      - name: Install dependencies
+        run: uv sync --all-packages
 
       # Validates known-failure-pins.yaml itself (see scripts/known_failure_pins.py
       # and docs/solutions/best-practices/pin-known-failure-reasons-2026-07-30.md):

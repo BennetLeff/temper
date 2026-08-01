@@ -459,22 +459,6 @@ scripts:
   - subprocess
   - sys
   - time
-- path: benchmark_numba_los.py
-  purpose: Before/after Numba LOS profiling (micro-benchmark + full pipeline cProfile)
-  owner: temper-team
-  last_run: '2026-06-29'
-  category: ticket
-  disposition: utility
-  imports:
-  - __future__
-  - argparse
-  - cProfile
-  - io
-  - json
-  - numpy
-  - pathlib
-  - pstats
-  - time
 - path: bmc_adoption_gate.py
   purpose: 'CI gate: enforce ESL + BMC test coverage for every Constraint subclass'
   owner: pipeline
@@ -1198,6 +1182,7 @@ scripts:
   disposition: ci-gate
   imports:
   - __future__
+  - _lib.freshness
   - _lib.github_summary
   - _lib.repo
   - argparse
@@ -1232,6 +1217,7 @@ scripts:
   disposition: ci-gate
   imports:
   - __future__
+  - _lib.freshness
   - _lib.github_summary
   - _lib.repo
   - argparse

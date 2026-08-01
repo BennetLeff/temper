@@ -61,7 +61,7 @@ def _ensure_field_diverges(  # noqa: ARG001
     # underscore; a ruff ARG001 autofix did, and the call raised TypeError.
     # Currently accepted and ignored. See
     # docs/evidence/2026-07-26-api-signature-drift-gate.md.
-    netlist: Any,
+    netlist: Any,  # noqa: ARG001 — used by nested closure below
     fdm_config: Any,
     devices: dict[str, tuple[float, float]],
     power_map: dict[str, float],

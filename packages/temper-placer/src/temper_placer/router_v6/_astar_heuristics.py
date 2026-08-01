@@ -1,5 +1,4 @@
 # mypy: ignore-errors
-# ruff: noqa: ARG001, F821  # enable_numba_los from incomplete numba merge
 """
 Router V6: A* heuristic, distance, and demand-budget functions.
 
@@ -136,16 +135,27 @@ def _compute_bottleneck_widths(
         Nets with no waypoints get float('inf').
     """
 
-    from temper_placer.router_v6.channel_widths import _edt_width_lookup
+    # Batched EDT path: collect every sample point up front (identical
+    # arithmetic to the original per-point loop), resolve all widths with
+    # ONE _edt_width_lookup_batch FFI crossing, then reassemble the per-net
+    # minima.  The batch is bit-identical per point to the per-point
+    # reference implementation, pinned verbatim in the differential test
+    # suites (see temper-geometry/VERIFICATION.md), so the outputs are
+    # unchanged by construction; only the per-call Python overhead of the
+    # hot loop is removed.
+    from temper_placer.router_v6.channel_widths import _edt_width_lookup_batch
 
     widths: dict[str, float] = {}
+    sample_points: list[tuple[float, float]] = []
+    net_sample_ranges: dict[str, tuple[int, int]] = {}
+
     for net_name, path in channel_mapping.channel_paths.items():
         waypoints = path.waypoints
         if len(waypoints) < 2:
             widths[net_name] = float("inf")
             continue
 
-        min_width = float("inf")
+        start = len(sample_points)
         for i in range(len(waypoints) - 1):
             x1, y1 = waypoints[i]
             x2, y2 = waypoints[i + 1]
@@ -154,20 +164,33 @@ def _compute_bottleneck_widths(
             seg_len = math.sqrt(dx * dx + dy * dy)
 
             if seg_len < 1e-9:
-                w = _edt_width_lookup(x1, y1, edt, mask, bounds, cell_size)
-                if w < min_width:
-                    min_width = w
+                sample_points.append((x1, y1))
                 continue
 
             num_samples = max(1, int(seg_len / sample_distance))
             for s in range(num_samples + 1):
                 t = s / num_samples
-                sx = x1 + t * dx
-                sy = y1 + t * dy
-                w = _edt_width_lookup(sx, sy, edt, mask, bounds, cell_size)
-                if w < min_width:
-                    min_width = w
+                sample_points.append((x1 + t * dx, y1 + t * dy))
+        net_sample_ranges[net_name] = (start, len(sample_points))
 
+    if sample_points:
+        all_widths = _edt_width_lookup_batch(
+            np.asarray([p[0] for p in sample_points], dtype=np.float64),
+            np.asarray([p[1] for p in sample_points], dtype=np.float64),
+            edt,
+            mask,
+            bounds,
+            cell_size,
+        )
+    else:
+        all_widths = np.zeros(0, dtype=np.float64)
+
+    for net_name, (start, end) in net_sample_ranges.items():
+        min_width = float("inf")
+        for k in range(start, end):
+            w = float(all_widths[k])
+            if w < min_width:
+                min_width = w
         widths[net_name] = min_width if min_width != float("inf") else 0.0
 
     return widths

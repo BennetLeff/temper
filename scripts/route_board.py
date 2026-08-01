@@ -76,7 +76,7 @@ def strip_existing_copper(content: str) -> tuple[str, int]:
     matching this script's prior art. The import itself is deferred inside
     this function body, not hoisted to module scope: importing any
     ``temper_placer.router_v6`` submodule executes that package's full
-    ``__init__.py`` (numba, the Rust router extension, etc.), which this
+    ``__init__.py`` (the Rust router extension, etc.), which this
     script otherwise avoids paying for argument parsing / ``--help``.
 
     Previously this was its own single-line ``re.MULTILINE`` regex matching
