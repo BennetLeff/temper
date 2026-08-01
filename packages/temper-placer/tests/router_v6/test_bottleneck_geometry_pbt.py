@@ -315,7 +315,8 @@ def test_p4_fails_for_position_dependent_capacity(_restore_kernels) -> None:
     definition, so the discriminating mutant is position-dependent.)"""
 
     def pos_dependent(cells, _trace_flat, _pad_flat, _pad_class_rank, rows, cols, layer_count, current_category):
-        return [(r * 3 + c) % 5 for (_, r, c) in cells]
+        # `cells` is the flat (layer, row, col) triple array.
+        return [((cells[3 * i + 1] * 3) + cells[3 * i + 2]) % 5 for i in range(len(cells) // 3)]
 
     bg._tg.cell_capacity_batch_py = pos_dependent
     with pytest.raises(AssertionError):

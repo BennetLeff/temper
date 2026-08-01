@@ -506,6 +506,8 @@ def _assemble_convective_system(
     import temper_thermal as _tt
     from scipy.sparse import coo_matrix
 
+    from temper_placer.physics.thermal_fdm import _heatsink_edge_code
+
     h = config.height_cells
     w = config.width_cells
     n = h * w
@@ -522,7 +524,7 @@ def _assemble_convective_system(
         config.cell_size_mm,
         config.board_thickness_mm,
         h_conv,
-        config.heatsink_edge.upper().strip(),
+        _heatsink_edge_code(config.heatsink_edge),
     )
     A = coo_matrix((values, (rows, cols)), shape=(n, n), dtype=np.float64).tocsr()
     return A, np.asarray(b, dtype=np.float64)

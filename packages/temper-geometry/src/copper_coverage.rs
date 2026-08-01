@@ -16,15 +16,22 @@ use temper_py_bridge;
 #[pyo3(signature = (polygon, height_cells, width_cells, ox, oy, cs))]
 pub fn rasterise_polygon_mask(
     py: Python<'_>,
-    polygon: Vec<(f64, f64)>,
+    polygon: Vec<f64>,
     height_cells: usize,
     width_cells: usize,
     ox: f64,
     oy: f64,
     cs: f64,
 ) -> PyResult<Bound<'_, PyBytes>> {
+    // The caller flattens its (x, y) vertices into one float array; pair
+    // them back up here (element order unchanged, bit-exact with the old
+    // Vec<(f64, f64)>).
+    let pts: Vec<(f64, f64)> = polygon
+        .chunks_exact(2)
+        .map(|c| (c[0], c[1]))
+        .collect();
     let mask = temper_py_bridge::catch_unwind(|| {
-        polygon_mask(&polygon, height_cells, width_cells, ox, oy, cs)
+        polygon_mask(&pts, height_cells, width_cells, ox, oy, cs)
     })
     .map_err(temper_py_bridge::panic_to_err)?;
     PyBytes::new_with(py, mask.len(), |b| {

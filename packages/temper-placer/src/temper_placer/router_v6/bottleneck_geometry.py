@@ -464,7 +464,7 @@ def _compute_cell_capacity_batch(
     ranks = _build_pad_class_rank(grid, net_class_rules, pad_net_classes)
     current_category = _resolve_current_category(net_class_rules, current_net_class)
     out = _tg.cell_capacity_batch_py(
-        [tuple(c) for c in cells],
+        [v for c in cells for v in c],
         trace.tolist(),
         pad.tolist(),
         ranks.ravel().tolist(),
@@ -486,7 +486,7 @@ def _hard_blocked_batch(cells: list[tuple[int, int, int]], grid: ClearanceGrid) 
         return [is_hard_blocked(grid, c) for c in cells]
     trace, pad = _flatten_occupancy(grid)
     out = _tg.hard_blocked_batch_py(
-        [tuple(c) for c in cells],
+        [v for c in cells for v in c],
         trace.tolist(),
         pad.tolist(),
         int(grid.rows),
@@ -534,8 +534,8 @@ def _build_capacitated_graph_rust(
         int(grid.rows),
         int(grid.cols),
         int(grid.layer_count),
-        [tuple(c) for c in source_cells],
-        [tuple(c) for c in sink_cells],
+        [v for c in source_cells for v in c],
+        [v for c in sink_cells for v in c],
         int(current_category),
         deadline_remaining_s,
     )

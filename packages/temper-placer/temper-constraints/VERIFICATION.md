@@ -159,3 +159,21 @@ not found in flat namespace) on macOS — a pre-existing condition that
 also affects the crate's `ipc`/`loss` unit tests (verified at the base
 commit); the crate's Rust unit tests are validated through the pytest
 differential suite against the built wheel instead.
+
+## FFI Audit (spike C7, 2026-08-01) — tagged-type simplification
+
+B-class string-enum parameters converted to int enums in lib.rs, with
+the public Python API unchanged (the `pcl/rust_bridge.py` wrappers map
+once and raise the same ValueError for unknown names):
+
+| pyfunction | Old | New |
+|---|---|---|
+| `compute_adjacent_loss_py` | `metric: &str` | `metric: i64` (0=edge_to_edge, 1=center_to_center, 2=pin_to_pin) |
+| `compute_alignment_loss_py` | `axis: &str` | `axis: i64` (0=x, 1=y, 2=major, 3=minor) |
+| `compute_edge_loss_py` | `side: &str` | `side: i64` (0=top, 1=bottom, 2=left, 3=right) |
+
+The Rust match arms map the same codes to the same enum variants the
+old string matches did; unknown codes still raise `PyValueError`. The
+`encoder`/`ipc` surfaces were already scalar-only. Pinned by
+`tests/rust_integration/test_rust_constraints.py` and the new
+conversion pins in `tests/rust_integration/test_ffi_tagged_type_conversion.py`.

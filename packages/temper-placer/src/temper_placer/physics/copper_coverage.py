@@ -204,7 +204,9 @@ def _rasterise_polygon_mask(
 
     Returns a ``(height_cells, width_cells)`` bool array.
     """
-    raw = _tg.rasterise_polygon_mask(polygon, height_cells, width_cells, ox, oy, cs)
+    raw = _tg.rasterise_polygon_mask(
+        [v for pt in polygon for v in pt], height_cells, width_cells, ox, oy, cs
+    )
     return np.frombuffer(raw, dtype=np.bool_).reshape((height_cells, width_cells))
 
 

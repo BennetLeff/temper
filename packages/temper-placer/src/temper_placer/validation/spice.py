@@ -502,7 +502,9 @@ def estimate_loop_inductance(
     # Computed in the temper-geometry Rust crate (spice_estimators.rs):
     # shoelace loop area, then L = mu_0 * A / h, with the exact f64
     # operation order of the former pure-Python estimator.
-    return _tg.spice_loop_inductance_py(positions, trace_height_mm)
+    return _tg.spice_loop_inductance_py(
+        [v for pos in positions for v in pos], trace_height_mm
+    )
 
 
 def create_validation_netlist(

@@ -58,12 +58,17 @@ def _oracle_fence_samples(shape, pos, pad_radius, pad_size, eff_creep, inset, sa
 
 def _rust_fence_samples(shape, pos, pad_radius, pad_size, eff_creep, inset, sample_count_circle):
     raw = _tg.fence_samples_py(
-        shape, pos[0], pos[1], pad_radius, pad_size[0], pad_size[1], eff_creep, inset, sample_count_circle
+        _SHAPE_CODES.get(shape, 99), pos[0], pos[1], pad_radius, pad_size[0], pad_size[1], eff_creep, inset, sample_count_circle
     )
     return [(raw[2 * i], raw[2 * i + 1]) for i in range(len(raw) // 2)]
 
 
 _SHAPES = ["circle", "rect", "roundrect", "oval", "custom", ""]
+
+# FFI pad-shape code (pad_geometry.rs `SHAPE_*`): 0=circle, 1=oval,
+# 2=rect, 3=roundrect, 4=thru_hole; unknown -> 99 (circle branch in
+# fence_samples, matching the old unrecognized-string match).
+_SHAPE_CODES = {"circle": 0, "oval": 1, "rect": 2, "roundrect": 3, "thru_hole": 4}
 
 
 def test_circle_samples_match_oracle_on_random_inputs():

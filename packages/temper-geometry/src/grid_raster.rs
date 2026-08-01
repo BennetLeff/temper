@@ -294,8 +294,12 @@ fn occupancy_bitmap_row(
 /// midpoints, each expanded by eff = eff_creep - inset), otherwise
 /// sample_count_circle points on the circle of radius
 /// pad_radius + eff_creep - inset.  Returns flat x,y pairs.
+///
+/// `shape` is the FFI pad-shape code (see `pad_geometry.rs` `SHAPE_*`);
+/// oval/rect/roundrect are "rect-shaped", circle/thru_hole and unknown
+/// codes fall to the circle branch (identical to the old string match).
 fn fence_samples(
-    shape: &str,
+    shape: i64,
     pos_x: f64,
     pos_y: f64,
     pad_radius: f64,
@@ -306,7 +310,9 @@ fn fence_samples(
     sample_count_circle: usize,
 ) -> Vec<f64> {
     let mut out = Vec::new();
-    let is_rect = matches!(shape, "rect" | "roundrect" | "oval") && pad_size_x > 0.0 && pad_size_y > 0.0;
+    let is_rect = matches!(shape, crate::pad_geometry::SHAPE_OVAL | crate::pad_geometry::SHAPE_RECT | crate::pad_geometry::SHAPE_ROUNDRECT)
+        && pad_size_x > 0.0
+        && pad_size_y > 0.0;
     if is_rect {
         let w = pad_size_x;
         let h = pad_size_y;
@@ -526,7 +532,7 @@ pub fn occupancy_bitmap_row_py(
 #[pyfunction]
 #[pyo3(signature = (shape, pos_x, pos_y, pad_radius, pad_size_x, pad_size_y, eff_creep, inset, sample_count_circle))]
 pub fn fence_samples_py(
-    shape: String,
+    shape: i64,
     pos_x: f64,
     pos_y: f64,
     pad_radius: f64,
@@ -538,7 +544,7 @@ pub fn fence_samples_py(
 ) -> PyResult<Vec<f64>> {
     temper_py_bridge::catch_unwind(|| {
         Ok(fence_samples(
-            &shape,
+            shape,
             pos_x,
             pos_y,
             pad_radius,
@@ -670,7 +676,7 @@ mod tests {
 
     #[test]
     fn test_fence_samples_circle_angles() {
-        let s = fence_samples("circle", 10.0, 10.0, 1.0, 0.0, 0.0, 2.0, 0.25, 4);
+        let s = fence_samples(0, 10.0, 10.0, 1.0, 0.0, 0.0, 2.0, 0.25, 4);
         assert_eq!(s.len(), 8);
         let r = 1.0 + 2.0 - 0.25;
         // i=0: theta = 0 -> (cx + r, cy)
@@ -683,7 +689,7 @@ mod tests {
 
     #[test]
     fn test_fence_samples_rect_has_eight() {
-        let s = fence_samples("rect", 0.0, 0.0, 0.0, 4.0, 2.0, 0.5, 0.25, 16);
+        let s = fence_samples(2, 0.0, 0.0, 0.0, 4.0, 2.0, 0.5, 0.25, 16);
         assert_eq!(s.len(), 16);
         // corner (cx - w/2 - eff, cy - h/2 - eff)
         assert_eq!(s[0], 0.0 - 2.0 - 0.25);
@@ -693,6 +699,14 @@ mod tests {
         assert_eq!(s[11], 0.0 + 1.0 + 0.25);
         assert_eq!(s[12], 0.0 - 2.0 - 0.25);
         assert_eq!(s[13], 0.0);
+    }
+
+    #[test]
+    fn test_fence_samples_unknown_shape_circle_branch() {
+        // Unknown shape codes (e.g. 99) fall to the circle branch, exactly
+        // like the old unrecognized-string match.
+        assert_eq!(fence_samples(99, 0.0, 0.0, 1.0, 4.0, 2.0, 0.5, 0.0, 4).len(), 8);
+        assert_eq!(fence_samples(0, 0.0, 0.0, 1.0, 4.0, 2.0, 0.5, 0.0, 4).len(), 8);
     }
 
     #[test]

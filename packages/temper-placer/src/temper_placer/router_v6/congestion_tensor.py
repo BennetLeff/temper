@@ -143,10 +143,10 @@ class CongestionTensor:
         skipped by the Rust batch method (mirroring the original
         numpy bounds check).
         """
-        pairs: list[tuple[int, int]] = []
+        pairs: list[int] = []
         for x, y in coords:
             gx, gy = grid.world_to_grid(x, y)
-            pairs.append((gy, gx))
+            pairs.extend((gy, gx))
         self._rs.increment_cells(pairs, weight)
 
     def cost(self, row: int, col: int) -> float:
