@@ -503,3 +503,59 @@ pytestmark = pytest.mark.skipif(
     reason="temper_design_bundle_python net-types pyclasses not installed "
     "(set TEMPER_REQUIRE_RUST_NET_TYPES=1 to make this fatal instead of a skip)",
 )
+
+
+def test_validate_float_formatting_cpython_repr_parity():
+    """validate() error messages must render floats as CPython repr does.
+
+    Rust `{:?}` and CPython `repr` agree on ordinary values but diverge on
+    exponent-form floats (`1e+300` vs `1e300`) and NaN (`nan` vs `NaN`);
+    the Rust side must post-process through `py_float_str`. These were
+    the two divergence classes the initial landing missed — pinned here
+    so they cannot silently regress.
+    """
+    py_kwargs, rust_kwargs = _split_enum_kwargs(
+        {
+            "net_type": "HIGH_CURRENT",
+            "connectivity": "VIA_ARRAY",
+            "via_template": "Via1x1",
+            "max_current_a": 1e300,
+        }
+    )
+    py_spec = _oracle.NetTypeSpec(**py_kwargs)
+    rust_spec = NET_TYPE_SPEC(**rust_kwargs)
+    assert rust_spec.validate() == py_spec.validate()
+    assert "1e+300" in py_spec.validate()[0]
+
+    # NaN creepage: NaN < min_creepage is False, so both sides emit the
+    # empty list — but a NaN clearance_mm/creepage_mm reaching the message
+    # format must render as 'nan', not 'NaN' (pinned via a NaN that DOES
+    # trigger: impossible with <, so assert the formatter-level strings
+    # through the direct helper test in the crate instead).
+    py_kwargs, rust_kwargs = _split_enum_kwargs(
+        {
+            "net_type": "HIGH_VOLTAGE",
+            "connectivity": "COPPER_POUR",
+            "voltage_class": "MAINS_240V",
+            "creepage_mm": float("nan"),
+            "clearance_mm": 6.0,
+        }
+    )
+    py_spec = _oracle.NetTypeSpec(**py_kwargs)
+    rust_spec = NET_TYPE_SPEC(**rust_kwargs)
+    assert rust_spec.validate() == py_spec.validate()
+
+
+def test_enum_member_not_equal_to_int():
+    """Python plain Enum: NetType.GROUND == 1 is False (unlike IntEnum).
+    The pyclass must not use eq_int — a silent semantic change would make
+    == 1 True and could flip consumer branches that test identity against
+    ints."""
+    from temper_placer.core.net_types import NetType
+
+    assert not (NetType.GROUND == 1)
+    assert not (NetType.GROUND == 1.0)
+    assert NetType.GROUND != 1
+    # Members still compare equal to themselves and hash like Enum members.
+    assert NetType.GROUND == NetType.GROUND
+    assert hash(NetType.GROUND) == hash(NetType.GROUND)

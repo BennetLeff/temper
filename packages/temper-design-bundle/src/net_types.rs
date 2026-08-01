@@ -14,13 +14,13 @@
 //! crate's `VERIFICATION.md`.
 //!
 //! Bit-exactness notes (the `validate()` error messages format floats with
-//! `{:?}` — Rust's shortest-round-trip Debug):
-//! - The only floats that can appear in a `validate()` message are the
-//!   `get_creepage_mm()`/`get_clearance_mm()` default-arg results (the IEC
-//!   60335 closed table: `{0.5, 1.0, 1.5, 1.6, 2.5, 3.0, 5.0, 8.0, 14.0}`)
-//!   and the caller-supplied `creepage_mm`/`clearance_mm`/`max_current_a`.
-//!   For every value in that set, Rust `{:?}` and Python `repr` produce the
-//!   same string (both shortest-round-trip, integral values get `.0`).
+//! `py_float_str`, a replica of CPython's `repr(float)`):
+//! - `repr(float)` is shortest-round-trip in both languages, but the
+//!   *rendering* of the exponent differs: CPython writes `1e+300`, `1e-05`
+//!   (sign always present, exponent padded to >= 2 digits) and `nan`;
+//!   Rust's `{:?}` writes `1e300`, `1e-5`, `NaN`. The `py_float_str` helper
+//!   post-processes Rust's shortest-round-trip output into the CPython
+//!   rendering so message text is bit-identical on every input.
 //! - `get_clearance_mm`/`get_creepage_mm` are `base * {0.8, 1.0, 1.4, 1.5}`
 //!   — identical IEEE-754 doubles in Rust and Python.
 
@@ -29,16 +29,80 @@ use pyo3::types::{PyDict, PySet};
 use std::collections::{HashMap, HashSet};
 
 // ---------------------------------------------------------------------------
+// CPython repr(float) replica
+// ---------------------------------------------------------------------------
+
+/// Render `v` exactly as CPython's `repr(float)` does. Both languages use
+/// shortest-round-trip digit selection, so the digits always agree; the
+/// differences are in the exponent rendering only:
+///
+/// - CPython always writes the exponent sign (`1e+300`, `1e-5`) and pads
+///   the exponent to at least two digits (`1e-05`, `1e+05`); Rust's `{:?}`
+///   omits `+` and does not pad (`1e300`, `1e-5`).
+/// - CPython writes `nan`; Rust writes `NaN` (`inf`/`-inf` agree).
+fn py_float_str(v: f64) -> String {
+    if v.is_nan() {
+        return "nan".to_string();
+    }
+    let rendered = format!("{v:?}");
+    let Some(e_pos) = rendered.find(['e', 'E']) else {
+        return rendered;
+    };
+    let (mantissa, exponent) = rendered.split_at(e_pos);
+    let exponent = &exponent[1..]; // drop 'e'/'E'
+    let (sign, digits) = match exponent.strip_prefix('-') {
+        Some(rest) => ('-', rest),
+        None => ('+', exponent),
+    };
+    let padded = if digits.len() < 2 {
+        format!("0{digits}")
+    } else {
+        digits.to_string()
+    };
+    format!("{mantissa}e{sign}{padded}")
+}
+
+#[cfg(test)]
+mod py_float_str_tests {
+    use super::py_float_str;
+
+    #[test]
+    fn matches_cpython_repr_on_divergence_classes() {
+        // Exponent sign/padding and NaN — the classes where Rust `{:?}`
+        // differs from CPython `repr(float)`.
+        assert_eq!(py_float_str(1e300), "1e+300");
+        assert_eq!(py_float_str(1e16), "1e+16");
+        assert_eq!(py_float_str(1e-5), "1e-05");
+        assert_eq!(py_float_str(2.5e-10), "2.5e-10");
+        assert_eq!(py_float_str(f64::NAN), "nan");
+        assert_eq!(py_float_str(f64::INFINITY), "inf");
+        assert_eq!(py_float_str(f64::NEG_INFINITY), "-inf");
+    }
+
+    #[test]
+    fn matches_cpython_repr_on_ordinary_values() {
+        // Fixed-point values: identical in both renderings.
+        assert_eq!(py_float_str(0.2), "0.2");
+        assert_eq!(py_float_str(6.0), "6.0");
+        assert_eq!(py_float_str(-6.0), "-6.0");
+        assert_eq!(py_float_str(15000000000.0), "15000000000.0");
+        assert_eq!(py_float_str(0.0001), "0.0001");
+        assert_eq!(py_float_str(123.456), "123.456");
+        assert_eq!(py_float_str(100000.0), "100000.0");
+    }
+}
+
+// ---------------------------------------------------------------------------
 // Enums (Python `Enum` with `auto()`: values are 1-based in declaration order)
 // ---------------------------------------------------------------------------
 
 /// Fundamental classification of net function (mirrors `NetType` in
 /// `temper_placer/core/net_types.py`).
-#[pyclass(eq, eq_int, from_py_object)]
+#[pyclass(frozen, eq, hash, from_py_object)]
 // Variant names intentionally mirror the Python Enum member identifiers
 // (e.g. `HIGH_VOLTAGE`, `MAINS_240V`) — the pyo3 attribute access contract.
 #[allow(non_camel_case_types)]
-#[derive(Clone, Copy, PartialEq, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub enum NetType {
     GROUND = 1,
     POWER = 2,
@@ -49,9 +113,9 @@ pub enum NetType {
 }
 
 /// How a net achieves electrical connectivity (mirrors `ConnectivityStrategy`).
-#[pyclass(eq, eq_int, from_py_object)]
+#[pyclass(frozen, eq, hash, from_py_object)]
 #[allow(non_camel_case_types)]
-#[derive(Clone, Copy, PartialEq, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub enum ConnectivityStrategy {
     PLANE = 1,
     COPPER_POUR = 2,
@@ -62,9 +126,9 @@ pub enum ConnectivityStrategy {
 
 /// IEC 60335 voltage classifications for creepage/clearance (mirrors
 /// `VoltageClass`).
-#[pyclass(eq, eq_int, from_py_object)]
+#[pyclass(frozen, eq, hash, from_py_object)]
 #[allow(non_camel_case_types)]
-#[derive(Clone, Copy, PartialEq, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub enum VoltageClass {
     SELV = 1,
     LOW_VOLTAGE = 2,
@@ -305,21 +369,21 @@ impl NetTypeSpec {
             let min_creepage = self.voltage_class.get_creepage_mm(2);
             if self.creepage_mm < min_creepage {
                 errors.push(format!(
-                    "High voltage net ({}) requires creepage >= {:?}mm, got {:?}mm. \
+                    "High voltage net ({}) requires creepage >= {}mm, got {}mm. \
                      Reference: IEC 60335-1 Table 17",
                     self.voltage_class.name(),
-                    min_creepage,
-                    self.creepage_mm
+                    py_float_str(min_creepage),
+                    py_float_str(self.creepage_mm)
                 ));
             }
             let min_clearance = self.voltage_class.get_clearance_mm(2);
             if self.clearance_mm < min_clearance {
                 errors.push(format!(
-                    "High voltage net ({}) requires clearance >= {:?}mm, got {:?}mm. \
+                    "High voltage net ({}) requires clearance >= {}mm, got {}mm. \
                      Reference: IEC 60335-1 Table 16",
                     self.voltage_class.name(),
-                    min_clearance,
-                    self.clearance_mm
+                    py_float_str(min_clearance),
+                    py_float_str(self.clearance_mm)
                 ));
             }
         }
@@ -329,9 +393,9 @@ impl NetTypeSpec {
             && self.via_template == "Via1x1"
         {
             errors.push(format!(
-                "High current net ({:?}A) should use Via2x2 or larger, not single vias. \
+                "High current net ({}A) should use Via2x2 or larger, not single vias. \
                  Single 0.3mm vias rated ~3-5A max.",
-                self.max_current_a
+                py_float_str(self.max_current_a)
             ));
         }
 
