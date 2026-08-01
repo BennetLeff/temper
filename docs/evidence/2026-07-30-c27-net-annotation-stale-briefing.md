@@ -1,4 +1,4 @@
-<!-- provenance: commit=8b061bd495726046f67195779e2703411855e0db dirty=true -->
+<!-- provenance: commit=57f0c7550a312bafd69d14f7ae8c0ace16fa12eb dirty=false -->
 
 # C27 board-vs-netlist "defect": already fixed upstream; the freshness-check gap that let it look real, closed
 

@@ -119,7 +119,13 @@ def tracked_top_level_dirs() -> list[str]:
 
 
 def parse_frontmatter_status(path: Path) -> str | None:
-    """Return the `status:` value from a document's YAML frontmatter, if present."""
+    """Return the `status:` value from a document's YAML frontmatter, if present.
+
+    Handles multi-line YAML plain scalars: if the value is followed by indented
+    continuation lines, they are concatenated with a single space.  This matches
+    YAML's ``plain: scalar continuation`` behaviour for simple cases (no embedded
+    blank lines, no comments mid-continuation).
+    """
     try:
         text = path.read_text(encoding="utf-8", errors="replace")
     except OSError as exc:
@@ -127,11 +133,27 @@ def parse_frontmatter_status(path: Path) -> str | None:
     if not text.startswith("---"):
         return None
     lines = text.splitlines()
-    for line in lines[1:]:
-        if line.strip() == "---":
+    found = False
+    parts: list[str] = []
+    for _i, line in enumerate(lines[1:], start=1):
+        stripped = line.strip()
+        if stripped == "---":
+            break
+        if found:
+            # A continuation line: starts with whitespace and is not a blank
+            # line that separates keys.  In YAML plain scalars, blank lines
+            # terminate the continuation.
+            if line and line[0] in (' ', '\t') and stripped != '':
+                parts.append(stripped)
+                continue
+            # Not a continuation (next key, blank line, or dedented) — done.
             break
         if line.startswith("status:"):
-            return line.split(":", 1)[1].strip().strip("\"'")
+            first = line.split(":", 1)[1].strip().strip("\"'")
+            parts.append(first)
+            found = True
+    if parts:
+        return " ".join(parts)
     return None
 
 
