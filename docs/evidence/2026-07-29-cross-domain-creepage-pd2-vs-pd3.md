@@ -1,6 +1,6 @@
 # Cross-domain HV<->SELV creepage, pairwise: what PD3 actually costs over PD2
 
-<!-- provenance: commit=5401a827f37a35ac17c9d3fe73fff4954bd79ad2 dirty=false -->
+<!-- provenance: commit=57f0c7550a312bafd69d14f7ae8c0ace16fa12eb dirty=false -->
 
 **Date:** 2026-07-29
 **Base commit:** `5401a827` (branch `feat/pairwise-creepage-tool`, from

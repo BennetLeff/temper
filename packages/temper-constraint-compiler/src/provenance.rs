@@ -137,9 +137,17 @@ pub fn reverse_map_unsat_core(
     core: &[usize],
     prov: &ProvenanceMap,
 ) -> Vec<ProvenanceDiagnostic> {
+    // The unsat core arrives unsorted from Python. Sort it so each
+    // diagnostic's clause_indices are appended in ascending order, which
+    // makes the `last()` dedup check below safe (and the lists
+    // deterministic). The output list order is already arbitrary
+    // (HashMap::into_values), so this only affects list internals.
+    let mut core = core.to_vec();
+    core.sort_unstable();
+
     let mut seen_ids: HashMap<String, ProvenanceDiagnostic> = HashMap::new();
 
-    for &clause_idx in core {
+    for &clause_idx in &core {
         if let Some(prov_refs) = prov.clause_to_provenance.get(&clause_idx) {
             for &ref_idx in prov_refs {
                 if let Some(entry) = prov.get(ref_idx) {
@@ -152,7 +160,7 @@ pub fn reverse_map_unsat_core(
                             conflict_with: Vec::new(),
                             clause_indices: Vec::new(),
                         });
-                    if !diag.clause_indices.contains(&clause_idx) {
+                    if diag.clause_indices.last() != Some(&clause_idx) {
                         diag.clause_indices.push(clause_idx);
                     }
                 }
@@ -254,6 +262,7 @@ pub fn detect_conflicts(model: &[ResolvedConstraint]) -> Vec<ConflictReport> {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
     use crate::ir_tier1::ResolvedConstraint;

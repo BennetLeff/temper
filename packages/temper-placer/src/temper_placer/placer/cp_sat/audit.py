@@ -2,11 +2,17 @@
 
 Verifies that solver output respects all PCL constraint types via
 post-process geometric checks.  Complements the KiCad DRC truth gate (U7).
+
+The pure geometry (``_bbox``, ``_chebyshev_gap``) lives in the
+``temper-geometry`` Rust crate (``audit.rs``); the per-constraint checks
+and report building stay here.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+
+import temper_geometry as _tg
 
 from temper_placer.pcl.constraints import (
     AdjacentConstraint,
@@ -60,11 +66,16 @@ class Placement:
 
 
 def _bbox(placement: Placement, ref: str) -> tuple[float, float, float, float]:
-    """Return (x_min, y_min, x_max, y_max) for a component in mm."""
+    """Return (x_min, y_min, x_max, y_max) for a component in mm.
+
+    Computed in the ``temper-geometry`` Rust crate (``audit.rs``) with
+    the exact f64 operation order of the former pure-Python body
+    (``hw = sw / 2`` etc.), pinned bit-exactly by
+    ``tests/placer/cp_sat/test_audit_rust_differential.py``.
+    """
     cx, cy = placement.positions_mm.get(ref, (0.0, 0.0))
     sw, sh = placement.sizes_mm.get(ref, (0.0, 0.0))
-    hw, hh = sw / 2, sh / 2
-    return (cx - hw, cy - hh, cx + hw, cy + hh)
+    return _tg.bbox_from_center_py(cx, cy, sw, sh)
 
 
 def _chebyshev_gap(
@@ -73,12 +84,15 @@ def _chebyshev_gap(
 ) -> float:
     """Chebyshev distance between two axis-aligned rectangles.
     Returns 0 if they overlap, >0 gap otherwise (or negative if overlapping deeply).
+
+    Computed in the ``temper-geometry`` Rust crate (``audit.rs``) with
+    the exact f64 operation order of the former pure-Python body,
+    including Python-builtin ``max`` NaN semantics (pinned bit-exactly by
+    ``tests/placer/cp_sat/test_audit_rust_differential.py``).
     """
     ax1, ay1, ax2, ay2 = bbox_a
     bx1, by1, bx2, by2 = bbox_b
-    dx = max(ax1 - bx2, bx1 - ax2)
-    dy = max(ay1 - by2, by1 - ay2)
-    return max(dx, dy)
+    return _tg.chebyshev_gap_py(ax1, ay1, ax2, ay2, bx1, by1, bx2, by2)
 
 
 class PlacementAuditor:

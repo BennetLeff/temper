@@ -33,6 +33,7 @@ members = [
     "temper-quality-oracle",
     "temper-rust-router",
     "temper-rust-router-core",
+    "temper-thermal",
     "temper-workflow",
     "temper-workspace",
 ]
@@ -1720,6 +1721,11 @@ version = "0.1.0"
 source = { editable = "packages/temper-rust-router-core" }
 
 [[package]]
+name = "temper-thermal"
+version = "0.1.0"
+source = { editable = "packages/temper-thermal" }
+
+[[package]]
 name = "temper-workflow"
 version = "0.1.0"
 source = { editable = "packages/temper-workflow" }
@@ -1765,6 +1771,7 @@ dev = [
     { name = "pytest-cov" },
     { name = "pytest-xdist" },
     { name = "python-sat" },
+    { name = "pyyaml" },
     { name = "ruff" },
     { name = "sympy" },
     { name = "temper-design-bundle" },
@@ -1788,6 +1795,7 @@ dev = [
     { name = "pytest-cov", specifier = ">=4.1.0" },
     { name = "pytest-xdist", specifier = ">=3.6" },
     { name = "python-sat", specifier = ">=1.9.dev5" },
+    { name = "pyyaml", specifier = ">=6.0" },
     { name = "ruff", specifier = ">=0.1.6" },
     { name = "sympy", specifier = ">=1.12" },
     { name = "temper-design-bundle", editable = "packages/temper-design-bundle" },

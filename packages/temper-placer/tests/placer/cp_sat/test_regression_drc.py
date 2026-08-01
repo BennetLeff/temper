@@ -773,9 +773,25 @@ PRODUCTION_COMMITTED_BOARD_UNCONNECTED = 390
 # SW_NODE / tank.c_tank1-p2 pair as Category A) plus ordinary router-noise
 # relabeling of the same 13 renumbered designators; 0 cross-net over all new
 # pairs, verified directly against both DRC JSON outputs.
+#
+# 2026-07-31 RE-MEASUREMENT (kicad-cli 10.0.4, macOS arm64, K2 swap on main
+# via PR #524): `unconnected` rose 407 -> 411 -- verified pair-by-pair, the
+# new pairs are K2's OWN pads now unrouted at the RT314012's pad field
+# (pads moved 11-15mm while traces stayed at the old G5LE-1 positions):
+# `PTH pad 1 [PWR_RTN] of K2` x2, `PTH pad 2 [discharge.k_dis1-coil1] of
+# K2` x2, `PTH pad 4 [discharge.k_dis1-nc] of K2` x2, `PTH pad 3
+# [discharge.k_dis1-no] of K2` -- 7 K2-attributed records, all SAME-NET,
+# 0 cross-net; the router re-route is the follow-up. Same legitimate class
+# as the 388 -> 390 / 396 -> 405 rises documented above (board changed,
+# connectivity re-derived), not a regression. See
+# docs/evidence/2026-07-31-k2k3-relay-swap-placement.md and commit
+# 000ec2e87 on fix/k2k3-relay-swap. (Note: this branch's router measures
+# 408 -- zero scatter across 10 DRC runs, bare and --all-track-errors; the
+# 411 ceiling is the relay-branch measurement on pre-merge router code and
+# absorbs that +3.)
 PRODUCTION_ROUTER_OUTPUT_TOTAL_DVIOLATIONS = 1560
 PRODUCTION_ROUTER_OUTPUT_SHORTING_ITEMS = 125
-PRODUCTION_ROUTER_OUTPUT_UNCONNECTED = 407
+PRODUCTION_ROUTER_OUTPUT_UNCONNECTED = 411
 
 
 @dataclass(frozen=True)

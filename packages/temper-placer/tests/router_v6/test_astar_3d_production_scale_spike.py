@@ -152,6 +152,30 @@ def _grids_for(board: str) -> dict[str, OccupancyGrid]:
     return _GRID_CACHE[board]
 
 
+def _routable_outer_layers(grids: dict[str, OccupancyGrid]) -> tuple[str, str]:
+    """First and last routable layers actually produced for a board.
+
+    The spike originally hardcoded ``grids["F.Cu"]`` / ``grids["B.Cu"]``.
+    That assumed the production board's outer layers always carry routing
+    grids. As of the K2 relay swap era the production board pours ACMains
+    zones on F.Cu/B.Cu, and ``_extract_stackup`` classifies any layer with a
+    ``plane_required`` net's zone as ``"plane"`` -- which
+    ``compute_routing_space`` then excludes from the router's grid entirely
+    (``routing_space.py``: only ``signal``/``mixed`` layers get grids). The
+    corpus board still emits F.Cu/B.Cu; the production board emits only
+    In1.Cu/In2.Cu. See ``src/temper_placer/io/_parse_board.py``'s
+    plane-classification comment and
+    ``docs/evidence/2026-07-31-k2k3-relay-swap-placement.md``.
+
+    So the segments below must be built from whatever layers the real
+    Stage2Orchestrator pipeline produced -- a deterministic dict (built from
+    ``pcb.stackup.layers`` order), so first/last is stable per board.
+    """
+    names = list(grids)
+    assert names, "No occupancy grids produced for this board"
+    return names[0], names[-1]
+
+
 def _nearest_free_cell(
     grid: OccupancyGrid, x_mm: float, y_mm: float, max_radius: int = 80
 ) -> tuple[int, int] | None:
@@ -225,13 +249,14 @@ def test_happy_path_same_layer_segment_finds_path(board):
     grid finds a path (should match 2D A* behavior modulo the extra
     via-move branching, per the plan's stated expectation)."""
     grids = _grids_for(board)
-    fcu = grids["F.Cu"]
+    first_layer, _last_layer = _routable_outer_layers(grids)
+    fcu = grids[first_layer]
     segments = _short_segments(fcu, fcu, hop_mm=2.0)
     assert segments, f"Could not construct any short same-layer segment for {board}"
 
     (sx, sy), (gx, gy) = segments[0]
     t0 = time.monotonic()
-    result = _route_segment_3d((sx, sy), (gx, gy), "F.Cu", "F.Cu", grids, via_cost=10.0)
+    result = _route_segment_3d((sx, sy), (gx, gy), first_layer, first_layer, grids, via_cost=10.0)
     dt = time.monotonic() - t0
     print(
         f"[{board}] same-layer segment ({sx:.2f},{sy:.2f})->({gx:.2f},{gy:.2f}): "
@@ -251,14 +276,19 @@ def test_happy_path_forced_transition_segment_finds_path_with_via(board):
     """A segment with start_layer != goal_layer (forced) finds a path and
     returns a non-empty via_positions list."""
     grids = _grids_for(board)
-    fcu = grids["F.Cu"]
-    bcu = grids["B.Cu"]
+    first_layer, last_layer = _routable_outer_layers(grids)
+    assert first_layer != last_layer, (
+        f"Board {board} produced only one routable layer; cannot build a "
+        f"forced layer-transition segment"
+    )
+    fcu = grids[first_layer]
+    bcu = grids[last_layer]
     segments = _short_segments(fcu, bcu, hop_mm=2.0)
     assert segments, f"Could not construct any short forced-transition segment for {board}"
 
     (sx, sy), (gx, gy) = segments[0]
     t0 = time.monotonic()
-    result = _route_segment_3d((sx, sy), (gx, gy), "F.Cu", "B.Cu", grids, via_cost=10.0)
+    result = _route_segment_3d((sx, sy), (gx, gy), first_layer, last_layer, grids, via_cost=10.0)
     dt = time.monotonic() - t0
     print(
         f"[{board}] forced-transition segment ({sx:.2f},{sy:.2f})->({gx:.2f},{gy:.2f}): "
@@ -269,8 +299,8 @@ def test_happy_path_forced_transition_segment_finds_path_with_via(board):
     world_path, via_positions = result
     assert len(world_path) >= 2
     assert len(via_positions) >= 1, "Forced-layer-transition segment must record at least one via"
-    assert world_path[0][2] == "F.Cu"
-    assert world_path[-1][2] == "B.Cu"
+    assert world_path[0][2] == first_layer
+    assert world_path[-1][2] == last_layer
     assert dt < 5.0, f"Short forced-transition segment took {dt:.2f}s -- unexpectedly slow"
 
 
@@ -290,8 +320,13 @@ def test_scale_wall_time_baseline_production_board():
     not a whole-net pin-to-pin span (see the congested/edge scenario below
     for that measurement)."""
     grids = _grids_for("production")
-    fcu = grids["F.Cu"]
-    bcu = grids["B.Cu"]
+    first_layer, last_layer = _routable_outer_layers(grids)
+    assert first_layer != last_layer, (
+        "Production board must expose at least two routable layers for the "
+        "scale baseline's same-layer + forced-transition segments"
+    )
+    fcu = grids[first_layer]
+    bcu = grids[last_layer]
 
     same_layer_segments = _short_segments(fcu, fcu, hop_mm=2.0)
     transition_segments = _short_segments(fcu, bcu, hop_mm=2.0)
@@ -303,7 +338,7 @@ def test_scale_wall_time_baseline_production_board():
 
     for (sx, sy), (gx, gy) in same_layer_segments:
         t0 = time.monotonic()
-        result = _route_segment_3d((sx, sy), (gx, gy), "F.Cu", "F.Cu", grids, via_cost=10.0)
+        result = _route_segment_3d((sx, sy), (gx, gy), first_layer, first_layer, grids, via_cost=10.0)
         dt_ms = (time.monotonic() - t0) * 1000
         wall_times_ms.append(dt_ms)
         total += 1
@@ -312,7 +347,7 @@ def test_scale_wall_time_baseline_production_board():
 
     for (sx, sy), (gx, gy) in transition_segments:
         t0 = time.monotonic()
-        result = _route_segment_3d((sx, sy), (gx, gy), "F.Cu", "B.Cu", grids, via_cost=10.0)
+        result = _route_segment_3d((sx, sy), (gx, gy), first_layer, last_layer, grids, via_cost=10.0)
         dt_ms = (time.monotonic() - t0) * 1000
         wall_times_ms.append(dt_ms)
         total += 1
@@ -527,13 +562,18 @@ def test_via_legality_spot_check_against_clearance_radius():
     requirement from netclass_rules.yaml), which the defaults do not know
     about; that gap is recorded in this file's module docstring."""
     grids = _grids_for("production")
-    fcu = grids["F.Cu"]
-    bcu = grids["B.Cu"]
+    first_layer, last_layer = _routable_outer_layers(grids)
+    assert first_layer != last_layer, (
+        "Production board must expose at least two routable layers for the "
+        "forced-transition via-legality spot-check"
+    )
+    fcu = grids[first_layer]
+    bcu = grids[last_layer]
     segments = _short_segments(fcu, bcu, hop_mm=2.0)
     assert segments
 
     (sx, sy), (gx, gy) = segments[0]
-    result = _route_segment_3d((sx, sy), (gx, gy), "F.Cu", "B.Cu", grids, via_cost=10.0)
+    result = _route_segment_3d((sx, sy), (gx, gy), first_layer, last_layer, grids, via_cost=10.0)
     assert result is not None
     _world_path, via_positions = result
     assert via_positions
@@ -543,7 +583,7 @@ def test_via_legality_spot_check_against_clearance_radius():
     keepout_radius_mm = via_diameter_mm / 2.0 + clearance_mm
 
     for vx, vy in via_positions:
-        for layer_name, grid in (("F.Cu", fcu), ("B.Cu", bcu)):
+        for layer_name, grid in ((first_layer, fcu), (last_layer, bcu)):
             cx, cy = grid.world_to_grid(vx, vy)
             expansion = int(np.ceil(keepout_radius_mm / grid.cell_size))
             x0, x1 = max(0, cx - expansion), min(grid.width_cells, cx + expansion + 1)

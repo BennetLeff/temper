@@ -684,7 +684,17 @@ class TestRealBoardIsolatorFigures:
         both previously "passed" only because the requirement they were
         checked against was too lenient, not because either one actually
         clears the standard. No placement can fix any of these seven --
-        they are pad-to-pad gaps within a single footprint."""
+        they are pad-to-pad gaps within a single footprint.
+
+        UPDATE 2026-07-31 (K2 cleared by the relay swap): K2 is no longer in
+        this set. The G5LE-1's coil-to-contact gap (3.559mm) was replaced by
+        the TE Schrack RT314012 (temper:Relay_SPDT_Schrack-RT314012), whose
+        internal coil-to-contact gap is 12.76mm -- clearing both the 12.6mm
+        REINFORCED bar and the 6.0mm PD-independent clearance minimum. The
+        swap landed on K2 in fix/k2k3-relay-swap; K3 is still on the G5LE-1
+        (its RT314012 swap is blocked on placement -- see
+        docs/evidence/2026-07-31-k2k3-relay-swap-placement.md), so K3
+        remains in this set. Six intra-footprint blockers remain."""
         from ._real_board_fixture import RealBoardUnavailable, load_real_board_placement
 
         try:
@@ -694,7 +704,7 @@ class TestRealBoardIsolatorFigures:
 
         result = verify_iec60335_compliance(placement, domains)
         intra = {v.ref_a for v in result.violations if v.pair_kind == "intra"}
-        assert intra == {"C6", "K1", "K2", "K3", "T1", "U3", "U7"}
+        assert intra == {"C6", "K1", "K3", "T1", "U3", "U7"}
         assert all(
             v.insulation_type in (InsulationType.BASIC, InsulationType.REINFORCED)
             for v in result.violations

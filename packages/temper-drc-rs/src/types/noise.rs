@@ -103,6 +103,7 @@ pub fn validate_noise_domains(
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
 

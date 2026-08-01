@@ -177,6 +177,88 @@ def _write_plan(plans_dir: Path, name: str, status: str | None, title: str = "A 
     )
 
 
+class TestParseFrontmatterStatus:
+    """Tests for parse_frontmatter_status() — the YAML frontmatter parser."""
+
+    def test_single_line_status(self, tmp_path):
+        path = tmp_path / "plan.md"
+        path.write_text('---\nstatus: active\ntitle: "Test"\n---\n\n# Test\n')
+        assert grs.parse_frontmatter_status(path) == "active"
+
+    def test_quoted_status(self, tmp_path):
+        path = tmp_path / "plan.md"
+        path.write_text('---\nstatus: "active"\ntitle: "Test"\n---\n\n# Test\n')
+        assert grs.parse_frontmatter_status(path) == "active"
+
+    def test_no_frontmatter(self, tmp_path):
+        path = tmp_path / "plan.md"
+        path.write_text("# No frontmatter\n\nJust a doc.\n")
+        assert grs.parse_frontmatter_status(path) is None
+
+    def test_frontmatter_without_status(self, tmp_path):
+        path = tmp_path / "plan.md"
+        path.write_text('---\ntitle: "Test"\n---\n\n# Test\n')
+        assert grs.parse_frontmatter_status(path) is None
+
+    def test_multiline_status_yaml_continuation(self, tmp_path):
+        """Multi-line YAML plain scalar: indented continuation lines are
+        part of the same value. The parser must concatenate them, not
+        silently drop the continuation (which produced the corrupted
+        'research-only, no elec/src or pcb/ changes made -- this is a'
+        row in the plan index)."""
+        path = tmp_path / "plan.md"
+        path.write_text(
+            '---\n'
+            'status: research-only, no elec/src or pcb/ changes made -- this is a\n'
+            '  requirements document for a human/planning decision, not an implementation\n'
+            'actors: someone\n'
+            '---\n\n# Plan\n'
+        )
+        result = grs.parse_frontmatter_status(path)
+        assert result == (
+            "research-only, no elec/src or pcb/ changes made -- this is a "
+            "requirements document for a human/planning decision, not an implementation"
+        )
+
+    def test_multiline_status_only_one_continuation_line(self, tmp_path):
+        """Continuation stops at the next key (unindented line with colon)."""
+        path = tmp_path / "plan.md"
+        path.write_text(
+            '---\n'
+            'status: foo bar\n'
+            '  baz qux\n'
+            'title: "Test"\n'
+            '---\n\n# Plan\n'
+        )
+        result = grs.parse_frontmatter_status(path)
+        assert result == "foo bar baz qux"
+
+    def test_status_with_no_continuation(self, tmp_path):
+        """Single-line status with no indented continuation."""
+        path = tmp_path / "plan.md"
+        path.write_text(
+            '---\n'
+            'status: completed\n'
+            'title: "Test"\n'
+            '---\n\n# Plan\n'
+        )
+        result = grs.parse_frontmatter_status(path)
+        assert result == "completed"
+
+    def test_status_followed_by_blank_line_then_next_key(self, tmp_path):
+        """Blank line before next key is not a continuation."""
+        path = tmp_path / "plan.md"
+        path.write_text(
+            '---\n'
+            'status: active\n'
+            '\n'
+            'title: "Test"\n'
+            '---\n\n# Plan\n'
+        )
+        result = grs.parse_frontmatter_status(path)
+        assert result == "active"
+
+
 class TestPlanInventory:
     def test_counts_by_status_and_active_list(self, tmp_path, monkeypatch):
         monkeypatch.setattr(grs, "REPO_ROOT", tmp_path)
