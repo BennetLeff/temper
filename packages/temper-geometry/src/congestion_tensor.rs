@@ -116,9 +116,10 @@ impl CongestionTensor {
     // cache this buffer: per-net increment_path mutations happen between
     // searches, so every access re-copies from Rust (no-cache invariant).
     pub fn to_flat_bytes<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyBytes>> {
-        let buf = self.flat_bytes();
-        PyBytes::new_with(py, buf.len(), |b| {
-            b.copy_from_slice(&buf);
+        PyBytes::new_with(py, self.data.len() * 4, |b| {
+            for (chunk, v) in b.chunks_exact_mut(4).zip(&self.data) {
+                chunk.copy_from_slice(&v.to_le_bytes());
+            }
             Ok(())
         })
     }
