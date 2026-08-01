@@ -54,6 +54,10 @@ unsafe extern "C" fn fallback_sin(x: f64) -> f64 {
     f64::sin(x)
 }
 
+#[expect(
+    clippy::unwrap_used,
+    reason = "dlsym_math(...).or(Some(fallback_*)) always yields Some; the fallback libm fn is the None branch"
+)]
 fn host_cos() -> &'static MathFn {
     static F: OnceLock<Option<MathFn>> = OnceLock::new();
     F.get_or_init(|| dlsym_math("cos").or(Some(fallback_cos)))
@@ -61,6 +65,10 @@ fn host_cos() -> &'static MathFn {
         .unwrap()
 }
 
+#[expect(
+    clippy::unwrap_used,
+    reason = "dlsym_math(...).or(Some(fallback_*)) always yields Some; the fallback libm fn is the None branch"
+)]
 fn host_sin() -> &'static MathFn {
     static F: OnceLock<Option<MathFn>> = OnceLock::new();
     F.get_or_init(|| dlsym_math("sin").or(Some(fallback_sin)))
@@ -272,6 +280,10 @@ fn barrier_axis_gap(hv: &[PadTuple], selv: &[PadTuple], axis_idx: i64) -> f64 {
 /// Mirrors isolation_barrier.py::_best_rotation_for_barrier exactly
 /// (first-maximum tie-breaking, fallback on convention violation).
 /// Returns (rot_value, gap_mm, convention_kept).
+#[expect(
+    clippy::expect_used,
+    reason = "the 0..4 rotation loop always runs at least once, so fallback is always Some"
+)]
 fn best_rotation_for_barrier(hv: &[PadTuple], selv: &[PadTuple], barrier_axis: i64) -> (i64, f64, bool) {
     let mut best: Option<(i64, f64)> = None;
     let mut fallback: Option<(i64, f64)> = None;

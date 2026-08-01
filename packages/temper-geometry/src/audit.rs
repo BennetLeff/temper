@@ -41,6 +41,10 @@ fn bbox_from_center(cx: f64, cy: f64, sw: f64, sh: f64) -> (f64, f64, f64, f64) 
 ///
 /// `dx = max(ax1 - bx2, bx1 - ax2)` then `dy` analogously, then
 /// `max(dx, dy)` — all via Python-builtin-max semantics.
+#[expect(
+    clippy::too_many_arguments,
+    reason = "1:1 port of audit.py _chebyshev_gap's 8-coordinate signature; a struct would change the mirrored call graph"
+)]
 fn chebyshev_gap(
     ax1: f64, ay1: f64, ax2: f64, ay2: f64,
     bx1: f64, by1: f64, bx2: f64, by2: f64,
@@ -61,7 +65,10 @@ pub fn bbox_from_center_py(cx: f64, cy: f64, sw: f64, sh: f64) -> PyResult<(f64,
 }
 
 #[pyfunction]
-#[allow(clippy::too_many_arguments)]
+#[expect(
+    clippy::too_many_arguments,
+    reason = "Pyo3 boundary mirrors the Python signature 1:1; a config struct would change the FFI"
+)]
 pub fn chebyshev_gap_py(
     ax1: f64, ay1: f64, ax2: f64, ay2: f64,
     bx1: f64, by1: f64, bx2: f64, by2: f64,

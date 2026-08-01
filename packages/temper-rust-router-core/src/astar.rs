@@ -112,7 +112,7 @@ pub fn astar_kernel_3d(input: &AstarInput) -> AstarOutput {
             let n_idx = (ndr * input.cols as i64 + ndc) as usize;
 
             // Octile step cost: straight 1.0, diagonal 1.4142135 (f32).
-            let mut step: f32 = if d % 2 == 0 { 1.0 } else { 1.4142135 };
+            let mut step: f32 = if d % 2 == 0 { 1.0 } else { std::f32::consts::SQRT_2 };
 
             // U7/R11 congestion penalty — f32 log(1+raw), capped.
             if use_congestion {
@@ -125,7 +125,7 @@ pub fn astar_kernel_3d(input: &AstarInput) -> AstarOutput {
                         } else {
                             cong_cost
                         };
-                        step = step + input.congestion_weight * cong_cost;
+                        step += input.congestion_weight * cong_cost;
                     }
                 }
             }
@@ -134,7 +134,7 @@ pub fn astar_kernel_3d(input: &AstarInput) -> AstarOutput {
                 if let Some(th) = input.thermal {
                     let t_val = th[n_idx];
                     if t_val > 0.0f32 {
-                        step = step + input.thermal_weight * t_val;
+                        step += input.thermal_weight * t_val;
                     }
                 }
             }
@@ -142,7 +142,7 @@ pub fn astar_kernel_3d(input: &AstarInput) -> AstarOutput {
             let tentative = g_score[cur_i] + step;
             if tentative < g_score[n_idx] {
                 g_score[n_idx] = tentative;
-                came_from[n_idx] = cur as i32;
+                came_from[n_idx] = cur;
                 let gdx = (ndc - gc).abs();
                 let gdy = (ndr - gr).abs();
                 let h = octile_heuristic_f32(gdx, gdy);
@@ -202,6 +202,7 @@ fn heap_pop(heap_pri: &mut Vec<f32>, heap_idx: &mut Vec<i32>) -> (f32, i32) {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
 
@@ -267,7 +268,7 @@ mod tests {
         // Block everything except the start cell.
         let mut validity = vec![0u8; 4 * 4 * 8];
         for d in 0..8 {
-            validity[0 * 8 + d] = 0;
+            validity[d] = 0;
         }
         let input = input_for(4, 4, &validity, 0, 15);
         let out = astar_kernel_3d(&input);

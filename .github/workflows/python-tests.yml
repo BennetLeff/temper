@@ -527,14 +527,17 @@ jobs:
   # and pyo3 build scripts resolve their interpreter through it, exactly as they
   # did when these steps ran inside Core Tests. Note the cargo target dir is
   # cold in this job (the workflow caches no Rust artifacts anywhere), so these
-  # steps compile their dependency graph from scratch -- hence 25 minutes.
+  # steps compile their dependency graph from scratch -- hence the budget.
+  # Clippy now gates all 14 Rust crates with --all-targets (every crate carries
+  # `[lints.clippy] unwrap_used/expect_used = "deny"`), covering the FFI bridges
+  # that maturin installs, not just the 3 core crates.
   rust-checks:
     name: Rust Checks (cargo check + clippy)
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/bennetleff/temper-ci:latest
       options: --user root
-    timeout-minutes: 25
+    timeout-minutes: 45
     env:
       VIRTUAL_ENV: ${{ github.workspace }}/.venv
       TEMPER_REQUIRE_RUST_DRC: "1"
@@ -581,13 +584,37 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: cargo check --manifest-path packages/temper-constraint-compiler/Cargo.toml
 
-      - name: Clippy (non-PyO3 crates)
+      - name: Clippy (all Rust crates, -D warnings)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: |
-          for crate in \
-                       temper-rust-router-core temper-pcl-ir temper-design-bundle; do
-            echo "=== clippy $crate ==="
-            cargo clippy --manifest-path "packages/$crate/Cargo.toml" -- -D warnings
+          for manifest in \
+                       packages/temper-constraint-compiler/Cargo.toml \
+                       packages/temper-design-bundle/Cargo.toml \
+                       packages/temper-drc-rs/Cargo.toml \
+                       packages/temper-dsn/Cargo.toml \
+                       packages/temper-geometry/Cargo.toml \
+                       packages/temper-io-types/Cargo.toml \
+                       packages/temper-ipc/Cargo.toml \
+                       packages/temper-pcl-ir/Cargo.toml \
+                       packages/temper-py-bridge/Cargo.toml \
+                       packages/temper-py-bridge-derive/Cargo.toml \
+                       packages/temper-quality-oracle/Cargo.toml \
+                       packages/temper-rust-router-core/Cargo.toml \
+                       packages/temper-rust-router/Cargo.toml \
+                       packages/temper-placer/temper-constraints/Cargo.toml; do
+            echo "=== clippy $manifest ==="
+            # Every crate carries `[lints.clippy] unwrap_used/expect_used =
+            # "deny"`; --all-targets also gates the test targets (where the
+            # test-module #[allow]s live). temper-constraints is the one abi3
+            # crate -- without the forward-compat env it fails to build against
+            # a newer CPython than the pinned pyo3 knows about (same
+            # special-case as the Makefile's `extensions` target).
+            if [ "$manifest" = "packages/temper-placer/temper-constraints/Cargo.toml" ]; then
+              PYO3_USE_ABI3_FORWARD_COMPATIBILITY=1 \
+                cargo clippy --manifest-path "$manifest" --all-targets -- -D warnings
+            else
+              cargo clippy --manifest-path "$manifest" --all-targets -- -D warnings
+            fi
           done
 
   # Split out of Core Tests 2026-07-28. Everything here reads the compiled

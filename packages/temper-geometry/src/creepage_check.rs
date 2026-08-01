@@ -101,6 +101,10 @@ fn orient(ax: f64, ay: f64, bx: f64, by: f64, cx: f64, cy: f64) -> f64 {
 /// only (strict `< 0.0` orientation products — shared endpoints and
 /// collinear overlaps do not count), then the intersection point via the
 /// parameter on segment 2.  Returns `(intersects, ix, iy)`.
+#[expect(
+    clippy::too_many_arguments,
+    reason = "1:1 port of creepage_check.py _segments_intersect's 8-coordinate signature; a struct would change the mirrored call graph"
+)]
 fn segments_intersect(
     x1: f64,
     y1: f64,
@@ -138,6 +142,10 @@ fn segments_intersect(
 /// Order preserved exactly: intersection shortcut first, then seg1's
 /// endpoints against seg2, then seg2's endpoints against seg1, each with
 /// strict `<` so NaN distances never displace a finite best.
+#[expect(
+    clippy::too_many_arguments,
+    reason = "1:1 port of creepage_check.py _segment_to_segment_info's 8-coordinate signature; a struct would change the mirrored call graph"
+)]
 fn segment_to_segment_info(
     x1: f64,
     y1: f64,
@@ -251,6 +259,10 @@ fn py_repr_nonfinite(v: f64) -> String {
 /// multi-byte UTF-8 char, so a byte scan is safe); the trailing check
 /// decodes the next char so Unicode decimal digits match Python re's
 /// `\d` (`char::to_digit(10)` is exactly the Nd property).
+#[expect(
+    clippy::is_digit_ascii_radix,
+    reason = "Python re's \\d is Unicode-aware; is_ascii_digit() would drop Nd-property digits the pinned oracle matches"
+)]
 fn word_bounded(name: &str, kw: &str) -> bool {
     let bytes = name.as_bytes();
     if name.len() < kw.len() {
@@ -263,10 +275,10 @@ fn word_bounded(name: &str, kw: &str) -> bool {
             if after == name.len() {
                 return true;
             }
-            if let Some(c) = name[after..].chars().next() {
-                if c == '_' || c.to_digit(10).is_some() {
-                    return true;
-                }
+            if let Some(c) = name[after..].chars().next()
+                && (c == '_' || c.is_digit(10))
+            {
+                return true;
             }
         }
         match bytes[i..].iter().position(|&b| b == b'_') {

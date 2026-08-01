@@ -99,7 +99,7 @@ fn infer_unit(name: &str, value: f64) -> String {
 #[pyfunction]
 #[pyo3(signature = (positions, trace_height_mm))]
 pub fn spice_loop_inductance_py(
-    py: Python<'_>,
+    _py: Python<'_>,
     positions: Vec<(f64, f64)>,
     trace_height_mm: f64,
 ) -> PyResult<f64> {

@@ -39,17 +39,18 @@ fn catch_unwind_f64(f: impl FnOnce() -> f64) -> PyResult<f64> {
 // crate's statically-bound libm in the last ulp).
 // ---------------------------------------------------------------------------
 
+use std::ffi::c_char;
 use std::sync::OnceLock;
 
 type MathFn = unsafe extern "C" fn(f64, f64) -> f64;
 
 fn dlsym_pow() -> Option<MathFn> {
     unsafe extern "C" {
-        fn dlsym(handle: *const u8, symbol: *const u8) -> *mut u8;
+        fn dlsym(handle: *const u8, symbol: *const c_char) -> *mut u8;
     }
     const RTLD_DEFAULT: *const u8 = core::ptr::null();
     unsafe {
-        let p = dlsym(RTLD_DEFAULT, b"pow\0".as_ptr());
+        let p = dlsym(RTLD_DEFAULT, c"pow".as_ptr());
         if p.is_null() {
             None
         } else {
@@ -63,8 +64,8 @@ unsafe extern "C" fn fallback_pow(x: f64, y: f64) -> f64 {
 }
 
 fn host_pow() -> &'static MathFn {
-    static F: OnceLock<Option<MathFn>> = OnceLock::new();
-    F.get_or_init(|| dlsym_pow().or(Some(fallback_pow))).as_ref().unwrap()
+    static F: OnceLock<MathFn> = OnceLock::new();
+    F.get_or_init(|| dlsym_pow().unwrap_or(fallback_pow))
 }
 
 fn math_pow(x: f64, y: f64) -> f64 {

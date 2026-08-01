@@ -301,6 +301,10 @@ fn temper_rust_router(m: &Bound<'_, PyModule>) -> PyResult<()> {
     congestion_bytes=None, congestion_weight=1.0, max_congestion_cost=100.0,
     thermal_bytes=None, thermal_weight=0.0,
 ))]
+#[expect(
+    clippy::too_many_arguments,
+    reason = "Pyo3 boundary mirrors the Python signature 1:1; a config struct would change the FFI"
+)]
 fn astar_kernel_3d_py(
     start_idx: i64,
     goal_idx: i64,
@@ -338,6 +342,10 @@ fn astar_kernel_3d_py(
 /// row-major (height, width) int8 occupancy grid.
 #[pyfunction]
 #[pyo3(signature = (x0, y0, x1, y1, grid_bytes, width_cells, height_cells, net_id))]
+#[expect(
+    clippy::too_many_arguments,
+    reason = "Pyo3 boundary mirrors the Python signature 1:1; a config struct would change the FFI"
+)]
 fn line_of_sight_py(
     x0: i64,
     y0: i64,
@@ -382,7 +390,11 @@ fn f32s_from_le_bytes(bytes: &[u8], expected: usize) -> Vec<f32> {
     debug_assert_eq!(bytes.len() % 4, 0);
     let mut out = Vec::with_capacity(bytes.len() / 4);
     for c in bytes.chunks_exact(4) {
-        out.push(f32::from_le_bytes(c.try_into().unwrap()));
+        // chunks_exact(4) guarantees c.len() == 4, so copy_from_slice cannot
+        // panic and avoids the try_into() Result at this FFI boundary.
+        let mut buf = [0u8; 4];
+        buf.copy_from_slice(c);
+        out.push(f32::from_le_bytes(buf));
     }
     debug_assert!(expected == 0 || out.len() == expected);
     out

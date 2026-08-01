@@ -190,6 +190,10 @@ fn pt_seg_dist(px: f64, py: f64, ax: f64, ay: f64, bx: f64, by: f64) -> f64 {
 
 /// GEOS `Envelope::intersects(p1, p2, q1, q2)` (segment envelopes, touching
 /// counts as intersecting).
+#[expect(
+    clippy::too_many_arguments,
+    reason = "1:1 port of GEOS Envelope::intersects(p1, p2, q1, q2); a struct would change the mirrored call graph"
+)]
 fn env_intersects(ax: f64, ay: f64, bx: f64, by: f64, cx: f64, cy: f64, dx: f64, dy: f64) -> bool {
     let minp = ax.min(bx);
     let maxp = ax.max(bx);
@@ -207,6 +211,14 @@ fn env_intersects(ax: f64, ay: f64, bx: f64, by: f64, cx: f64, cy: f64, dx: f64,
 
 /// GEOS `Distance::segmentToSegment`, exact operation order (envelope
 /// pre-check, `denom == 0`, strict r/s comparisons, nested min chain).
+#[expect(
+    clippy::too_many_arguments,
+    reason = "1:1 port of GEOS Distance::segmentToSegment's segment-pair signature; a struct would change the mirrored call graph"
+)]
+#[expect(
+    clippy::manual_range_contains,
+    reason = "GEOS oracle evaluates `r<0||r>1||s<0||s>1` as strict comparisons, which are all-false for NaN; `!range.contains()` would flip NaN to true"
+)]
 fn seg_seg_dist(ax: f64, ay: f64, bx: f64, by: f64, cx: f64, cy: f64, dx: f64, dy: f64) -> f64 {
     if ax == bx && ay == by {
         return pt_seg_dist(ax, ay, cx, cy, dx, dy);
@@ -568,7 +580,7 @@ mod tests {
         let a: PadSpec = (2.0, 2.0, "rect".to_string(), 0.0, 0.0, 0.0, 0.0);
         let b: PadSpec = (2.0, 2.0, "rect".to_string(), 5.0, 0.0, 0.0, 0.0);
         let c: PadSpec = (2.0, 2.0, "rect".to_string(), 20.0, 0.0, 0.0, 0.0);
-        let (best, pair) = copper_scan(&[a.clone(), c], &[b.clone()], &[1, 2], &[3]);
+        let (best, pair) = copper_scan(&[a.clone(), c], std::slice::from_ref(&b), &[1, 2], &[3]);
         assert_eq!(pair, Some((0, 0)));
         assert!((best - 3.0).abs() < 1e-12);
     }
@@ -579,11 +591,11 @@ mod tests {
         // filtered sublist vs the stored full list sharing the same pad)
         // must not pair a pad with itself.
         let a: PadSpec = (2.0, 2.0, "rect".to_string(), 0.0, 0.0, 0.0, 0.0);
-        let (best, pair) = copper_scan(&[a.clone()], &[a.clone()], &[42], &[42]);
+        let (best, pair) = copper_scan(std::slice::from_ref(&a), std::slice::from_ref(&a), &[42], &[42]);
         assert!(best.is_infinite());
         assert_eq!(pair, None);
         // ... distinct ids (two different pad objects) pair normally -> 0.0
-        let (best, pair) = copper_scan(&[a.clone()], &[a], &[42], &[43]);
+        let (best, pair) = copper_scan(std::slice::from_ref(&a), std::slice::from_ref(&a), &[42], &[43]);
         assert_eq!(best, 0.0);
         assert_eq!(pair, Some((0, 0)));
     }
