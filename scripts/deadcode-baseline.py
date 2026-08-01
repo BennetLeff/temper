@@ -53,3 +53,5 @@ extra_kwargs  # unused variable (packages/temper-placer/tests/router_v6/test_geo
 mcu_running  # unused variable (packages/temper-placer/tests/validation/test_rtd_fault_latch_pbt.py:189)
 spi_active  # unused variable (packages/temper-placer/tests/validation/test_rtd_fault_latch_pbt.py:190)
 pin_to_hv_angle  # unused variable (packages/temper-placer/tests/property/test_ghost_pad_injection.py:229)
+x_start_val  # unused variable (packages/temper-placer/src/temper_placer/placer/cp_sat/model.py:129)
+y_start_val  # unused variable (packages/temper-placer/src/temper_placer/placer/cp_sat/model.py:130)
