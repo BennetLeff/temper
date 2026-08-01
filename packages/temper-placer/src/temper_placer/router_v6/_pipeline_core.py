@@ -69,7 +69,6 @@ class RouterV6Pipeline:
         enable_coarse_to_fine: bool = True,
         coarse_factor: int = 4,
         corridor_buffer_cells: int = 12,
-        enable_numba_los: bool = True,
         single_layer: bool = False,
         layer_constraints: dict[str, Any] | None = None,
         thermal_flat: Any = None,  # U8: (N,) float32 cost field
@@ -184,7 +183,6 @@ class RouterV6Pipeline:
         self.enable_coarse_to_fine = enable_coarse_to_fine
         self.coarse_factor = coarse_factor
         self.corridor_buffer_cells = corridor_buffer_cells
-        self.enable_numba_los = enable_numba_los
         self.single_layer = single_layer
         # U8: thermal cost field (flat float32 + weight) threaded to A* kernel
         self.thermal_flat = thermal_flat

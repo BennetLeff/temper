@@ -1,7 +1,8 @@
 """Property-based tests for the Rust A* kernel (U5).
 
 Six invariants (per the migration roadmap's PBT discipline), exercised
-through the dispatch seam under TEMPER_ASTAR_BACKEND=rust:
+through ``_astar_search_numba`` (the sole A* backend since cleanup C1
+retired the Numba fallback on 2026-07-31):
 
 1. Path endpoints are start and goal
 2. Consecutive path cells are 8-connected
@@ -13,8 +14,6 @@ through the dispatch seam under TEMPER_ASTAR_BACKEND=rust:
 """
 
 from __future__ import annotations
-
-import os
 
 import numpy as np
 from hypothesis import given, settings
@@ -63,7 +62,6 @@ def _search(start, goal, grid, congestion_flat=None):
 @given(_dim, _dim, _obstacle_strategy)
 @settings(max_examples=MAX_EXAMPLES, deadline=None)
 def test_path_endpoints_and_bounds(rows: int, cols: int, blocked: list[tuple[int, int]]) -> None:
-    os.environ["TEMPER_ASTAR_BACKEND"] = "rust"
     grid = _GridAdapter(_make_grid(rows, cols, blocked))
     start, goal = (0, 0), (cols - 1, rows - 1)
     path = _search(start, goal, grid)
@@ -80,7 +78,6 @@ def test_path_endpoints_and_bounds(rows: int, cols: int, blocked: list[tuple[int
 @given(_dim, _dim, _obstacle_strategy)
 @settings(max_examples=MAX_EXAMPLES, deadline=None)
 def test_path_connected_and_acyclic(rows: int, cols: int, blocked: list[tuple[int, int]]) -> None:
-    os.environ["TEMPER_ASTAR_BACKEND"] = "rust"
     grid = _GridAdapter(_make_grid(rows, cols, blocked))
     path = _search((0, 0), (cols - 1, rows - 1), grid)
     if path is None:
@@ -95,7 +92,6 @@ def test_path_connected_and_acyclic(rows: int, cols: int, blocked: list[tuple[in
 @given(_dim, _dim, _obstacle_strategy)
 @settings(max_examples=MAX_EXAMPLES, deadline=None)
 def test_blocked_grid_terminates_with_none(rows: int, cols: int, blocked: list[tuple[int, int]]) -> None:
-    os.environ["TEMPER_ASTAR_BACKEND"] = "rust"
     # Force a wall separating start from goal.
     wall = {(r, cols // 2) for r in range(rows)}
     grid = _GridAdapter(_make_grid(rows, cols, list(set(blocked) | wall)))
@@ -108,7 +104,6 @@ def test_blocked_grid_terminates_with_none(rows: int, cols: int, blocked: list[t
 def test_congestion_changes_path(rows: int, cols: int) -> None:
     if min(rows, cols) < 6:
         return  # a 3x3 blob can span the full grid width; no detour exists
-    os.environ["TEMPER_ASTAR_BACKEND"] = "rust"
     grid = _GridAdapter(_make_grid(rows, cols, []))
     start, goal = (0, 0), (cols - 1, rows - 1)
     plain = _search(start, goal, grid)

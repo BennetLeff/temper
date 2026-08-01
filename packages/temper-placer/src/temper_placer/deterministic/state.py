@@ -122,7 +122,6 @@ class BoardState:
     escape_vias_map: dict[str, Any] | None = None
     enable_theta_star: bool = False
     enable_lazy_theta_star: bool = False
-    enable_numba_los: bool = False
     enable_coarse_to_fine: bool = False
     enable_all_pad_tree: bool = False
     tree_3d_fallback_max_iter: int = 10_000

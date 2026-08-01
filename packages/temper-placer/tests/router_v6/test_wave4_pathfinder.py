@@ -152,9 +152,8 @@ def test_tensor_max_cost_is_configurable():
 def test_kernel_with_weight_zero_matches_no_tensor():
     """When ``congestion_weight=0`` the kernel should match
     the no-tensor path in time.  The U7 branch is gated on
-    ``congestion_weight > 0.0`` in
-    ``astar_core_numba._kernel`` so Numba prunes the dead
-    per-neighbor arithmetic; the wall time at high iters must
+    ``congestion_weight > 0.0`` in the kernel so the dead
+    per-neighbor arithmetic is pruned; the wall time at high iters must
     not regress.  This is the regression guard for the
     2026-06-23 full-pipeline profile that surfaced the
     1M-cap wall-time blowup.
@@ -178,10 +177,8 @@ def test_kernel_with_weight_zero_matches_no_tensor():
     goal = (75, 75)
     flat = np.zeros((80, 80), dtype=np.float32).reshape(-1)
 
-    # Warm-up: one throwaway call so the Numba JIT compile
-    # is paid outside the timed region.  Numba specializes on
-    # arg types so we also warm up both the no-tensor and
-    # weight-zero signatures.
+    # Warm-up: one throwaway call so the kernel's first-call
+    # compile/import cost is paid outside the timed region.
     _astar_search_numba(start, goal, grid, max_iterations=10_000)
     _astar_search_numba(
         start,

@@ -5,10 +5,12 @@ line-of-sight primitive.
 Part of temper-N6-U6 decomposition -- split from astar_core.py to bring
 that module back under the repo's 1000-line cap (``tools/loc_cap_check.py``).
 Theta* and Lazy Theta* both delegate their any-angle shortcut decision to
-``_line_of_sight`` (or its Numba-jitted twin, ``_line_of_sight_numba``, when
-``enable_numba_los=True``) and share the congestion-derivative early-abort
-constants below, so all three live together here rather than splitting the
-line-of-sight check away from its only two callers.
+the Rust-backed LOS kernel (``_line_of_sight_rust``, proven bit-identical
+to the retired Numba kernel and PBT-equal to the pure-Python reference),
+falling back to ``_line_of_sight`` if the extension is missing, and share
+the congestion-derivative early-abort constants below, so all three live
+together here rather than splitting the line-of-sight check away from its
+only two callers.
 """
 
 from __future__ import annotations
@@ -20,6 +22,17 @@ from temper_placer.router_v6.astar_monitor import get_monitor_state
 
 _LOS_BB_HITS: list[int] = [0]
 _LOS_BB_FALLS_THROUGH: list[int] = [0]
+
+
+def _line_of_sight_dispatch(p1, p2, grid, net_id: int) -> bool:
+    """Bresenham LOS via the Rust kernel (cleanup C1), falling back to
+    the pure-Python reference if ``temper_rust_router`` is missing."""
+    from temper_placer.router_v6.astar_core_numba import _line_of_sight_rust
+
+    try:
+        return _line_of_sight_rust(p1, p2, grid, net_id)
+    except ImportError:  # pragma: no cover -- extension missing/stale
+        return _line_of_sight(p1, p2, grid, net_id)
 
 
 def reset_los_bb_stats() -> None:
@@ -124,7 +137,6 @@ def _astar_search_lazy_theta_star(
     net_id: int,
     came_from_init: dict | None = None,
     max_iter: int | None = None,
-    enable_numba_los: bool = False,
     enable_congestion_derivative: bool = True,
 ) -> list[tuple[int, int]] | None:
     """
@@ -151,12 +163,7 @@ def _astar_search_lazy_theta_star(
     import math
     from heapq import heappop, heappush
 
-    if enable_numba_los:
-        from temper_placer.router_v6.astar_core_numba import _line_of_sight_numba
-
-        los_fn = _line_of_sight_numba
-    else:
-        los_fn = _line_of_sight
+    los_fn = _line_of_sight_dispatch
 
     # Priority queue: (f_score, counter, current_pos)
     counter = 0
@@ -312,7 +319,6 @@ def _astar_search_theta_star(
     net_id: int,
     came_from_init: dict | None = None,
     max_iter: int | None = None,
-    enable_numba_los: bool = False,
     enable_congestion_derivative: bool = True,
 ) -> list[tuple[int, int]] | None:
     """
@@ -340,12 +346,7 @@ def _astar_search_theta_star(
     import math
     from heapq import heappop, heappush
 
-    if enable_numba_los:
-        from temper_placer.router_v6.astar_core_numba import _line_of_sight_numba
-
-        los_fn = _line_of_sight_numba
-    else:
-        los_fn = _line_of_sight
+    los_fn = _line_of_sight_dispatch
 
     # Priority queue: (f_score, counter, current_pos)
     counter = 0
