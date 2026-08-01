@@ -82,6 +82,6 @@ alone is insufficient (matches the plan's rejected zone-first shortcut).
 - **OQ3 (axis)**: both orientations are feasible only after the re-solve; Y needs
   fewer movers (52 vs 78) and lower max drift (127 vs 135 mm), X keeps the power
   stage clustered. Human picks; the data recommends Y as less disruptive.
-- **OQ1 (width)**: 12.6 mm costs only ~+183 mm total drift over 8.0 mm (X) but is
-  gated by the isolator work; target 8.0 mm now, widen after the isolator BOM
-  phase.
+- **OQ1 (width)**: 12.6 mm costs **~2.3 mm per component** (≈ +183 mm summed over
+  80 movers) over 8.0 mm (X) — negligible; the real gate is the isolator work.
+  Target 8.0 mm now, widen after the isolator BOM phase.
