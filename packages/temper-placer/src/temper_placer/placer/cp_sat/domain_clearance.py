@@ -226,8 +226,17 @@ def required_margin_mm(requirements: dict[str, float]) -> float:
     docstring). Kept as ``max()`` rather than assuming
     ``min_creepage_mm >= min_clearance_mm`` so the code doesn't silently
     invert if the matrix is ever edited.
+
+    Computed in the ``temper-constraints`` Rust crate
+    (``encoder.rs::required_margin_mm``) with Python-builtin ``max``
+    semantics (max(NaN, x) == NaN but max(x, NaN) == x); pinned
+    bit-exactly by ``tests/placer/cp_sat/test_encoder_rust_differential.py``.
     """
-    return max(requirements["min_clearance_mm"], requirements["min_creepage_mm"])
+    import temper_constraints as _tc
+
+    return _tc.required_margin_mm_py(
+        requirements["min_clearance_mm"], requirements["min_creepage_mm"]
+    )
 
 
 def generate_domain_clearance_constraints(
@@ -467,8 +476,6 @@ def audit_domain_clearance(
         List of violations; empty means every audited constraint's real
         distance met or exceeded its required minimum.
     """
-    import math
-
     violations: list[DomainClearanceAuditViolation] = []
     for c in constraints:
         if not c.id.startswith("domain_clearance_"):
@@ -486,7 +493,13 @@ def audit_domain_clearance(
                 )
             )
             continue
-        actual = math.dist(pos_a, pos_b)
+        # CPython math.dist semantics, computed in the temper-geometry
+        # Rust crate (audit.rs::dist_py, backed by the replicated
+        # Dekker vector_norm); pinned bit-exactly by
+        # tests/placer/cp_sat/test_domain_clearance_dist_rust_differential.py.
+        import temper_geometry as _tg
+
+        actual = _tg.dist_py(pos_a[0], pos_a[1], pos_b[0], pos_b[1])
         if actual < c.min_distance_mm:
             violations.append(
                 DomainClearanceAuditViolation(

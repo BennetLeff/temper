@@ -24,6 +24,12 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
+# Industry-standard solder mask expansion (mm): the mask-expansion term
+# of the courtyard clearance τ (C1).  Kept here — not in the Rust crate —
+# because it is board/setup data with a TODO to parse it from the board;
+# only the arithmetic moves to Rust (``courtyard_clearance_mm``).
+MASK_EXPANSION_MM = 0.1
+
 
 # ---------------------------------------------------------------------------
 # Solver result
@@ -177,8 +183,7 @@ def solve_placement(
     # Using + instead of max() guarantees strict separation so mask apertures
     # never touch at 0, preventing solder mask bridging.
     # TODO: parse mask_expansion_mm from board (setup) via kiutils.
-    MASK_EXPANSION_MM = 0.1
-    tau_mm = default_clearance_mm + 2 * MASK_EXPANSION_MM
+    tau_mm = courtyard_clearance_mm(default_clearance_mm)
 
     # m derives from copper_edge_clearance_mm.
     # copper_edge_clearance_mm = 0.5 is a conservative default.
@@ -383,6 +388,26 @@ def _resolve_loop_components(netlist) -> dict[str, list[str]]:
         return {loop.name: loop.components for loop in loops}
     except Exception:
         return {}
+
+
+def courtyard_clearance_mm(default_clearance_mm: float) -> float:
+    """Courtyard clearance τ (C1): the separated-constraint margin the
+    encoder applies to every component pair.
+
+    ``default_clearance_mm + 2 * mask_expansion_mm`` — a strict ``+``,
+    not ``max()``, so solder-mask apertures never touch at 0 (the
+    ``+`` vs ``max`` distinction is the point; see the C1 comment in
+    :func:`solve_placement`).
+
+    Computed in the ``temper-constraints`` Rust crate
+    (``encoder.rs::courtyard_clearance_mm``) with the exact f64
+    operation order (``2 * expansion`` first, then the addition);
+    pinned bit-exactly by
+    ``tests/placer/cp_sat/test_encoder_rust_differential.py``.
+    """
+    import temper_constraints as _tc
+
+    return _tc.courtyard_clearance_mm_py(default_clearance_mm, MASK_EXPANSION_MM)
 
 
 # List of component refs known to be polarized on the temper board.

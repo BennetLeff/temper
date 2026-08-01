@@ -16,6 +16,7 @@ pub mod ir {
 // R14: Never abort Python process; catch_unwind + Python exceptions
 
 pub mod constraints;
+pub mod encoder;
 pub mod ipc;
 pub mod loss;
 
@@ -418,6 +419,11 @@ fn temper_constraints(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(version_py, m)?)?;
     m.add_function(wrap_pyfunction!(ipc::ipc2152_forward_py, m)?)?;
     m.add_function(wrap_pyfunction!(ipc::min_width_ipc2152_py, m)?)?;
+    m.add_function(wrap_pyfunction!(encoder::mm_to_units_py, m)?)?;
+    m.add_function(wrap_pyfunction!(encoder::units_to_mm_py, m)?)?;
+    m.add_function(wrap_pyfunction!(encoder::courtyard_clearance_mm_py, m)?)?;
+    m.add_function(wrap_pyfunction!(encoder::required_margin_mm_py, m)?)?;
+    m.add_function(wrap_pyfunction!(encoder::keepout_rect_units_py, m)?)?;
     m.add_class::<PyConstraintType>()?;
     Ok(())
 }

@@ -16,6 +16,8 @@
 use pyo3::prelude::*;
 use temper_py_bridge;
 
+use crate::pad_geometry::py_hypot;
+
 /// Python builtin `max(a, b)` for two args (see module docstring for why
 /// this differs from `f64::max` on NaN arguments).
 fn py_max(a: f64, b: f64) -> f64 {
@@ -67,6 +69,32 @@ pub fn chebyshev_gap_py(
     bx1: f64, by1: f64, bx2: f64, by2: f64,
 ) -> PyResult<f64> {
     temper_py_bridge::catch_unwind(|| chebyshev_gap(ax1, ay1, ax2, ay2, bx1, by1, bx2, by2))
+        .map_err(temper_py_bridge::panic_to_err)
+}
+
+// ---------------------------------------------------------------------------
+// Euclidean point distance (Wave 3 #4 — domain_clearance.py's R24
+// audit recompute)
+// ---------------------------------------------------------------------------
+
+/// Mirrors `domain_clearance.py::audit_domain_clearance`'s
+/// `math.dist(pos_a, pos_b)` — the R24 item-3 recomputation of the real
+/// Euclidean center-to-center distance of every generated
+/// `domain_clearance_*` constraint from the *solved* coordinates.
+///
+/// `math.dist` is CPython's Dekker double-double compensated
+/// `vector_norm` over the per-coordinate differences
+/// (`vec[i] = p[i] - q[i]`) — the same algorithm `py_hypot` replicates
+/// exactly (pad_geometry.rs, with CPython's NaN/±inf up-front guards),
+/// so this delegates to it with the differences computed first,
+/// mirroring `math.dist`'s subtraction order.
+fn dist(ax: f64, ay: f64, bx: f64, by: f64) -> f64 {
+    py_hypot(ax - bx, ay - by)
+}
+
+#[pyfunction]
+pub fn dist_py(ax: f64, ay: f64, bx: f64, by: f64) -> PyResult<f64> {
+    temper_py_bridge::catch_unwind(|| dist(ax, ay, bx, by))
         .map_err(temper_py_bridge::panic_to_err)
 }
 
@@ -124,5 +152,28 @@ mod tests {
         let b2 = (2.0, 0.0, 3.0, nan);
         // dx = max(-3, 1) = 1; dy = max(-nan, -1) = nan; max(1, nan) = 1.
         assert_eq!(chebyshev_gap(a2.0, a2.1, a2.2, a2.3, b2.0, b2.1, b2.2, b2.3), 1.0);
+    }
+
+    #[test]
+    fn dist_known_points() {
+        assert_eq!(dist(0.0, 0.0, 3.0, 4.0), 5.0);
+        assert_eq!(dist(0.0, 0.0, 0.0, 0.0), 0.0);
+        assert_eq!(dist(1.0, 2.0, 1.0, 2.0), 0.0);
+        assert_eq!(dist(0.0, 0.0, 1.0, 0.0), 1.0);
+        assert_eq!(dist(0.0, 0.0, 3000.0, 4000.0), 5000.0);
+    }
+
+    #[test]
+    fn dist_is_symmetric() {
+        assert_eq!(dist(1.0, -2.0, 5.0, 6.0), dist(5.0, 6.0, 1.0, -2.0));
+    }
+
+    #[test]
+    fn dist_non_finite_matches_math_dist() {
+        // math.dist semantics: any NaN diff -> NaN, any inf diff -> inf;
+        // inf - inf is NaN, so a coincident-inf pair is NaN, not inf.
+        assert!(dist(f64::NAN, 0.0, 0.0, 0.0).is_nan());
+        assert_eq!(dist(f64::INFINITY, 0.0, 0.0, 0.0), f64::INFINITY);
+        assert!(dist(f64::INFINITY, 0.0, f64::INFINITY, 0.0).is_nan());
     }
 }
