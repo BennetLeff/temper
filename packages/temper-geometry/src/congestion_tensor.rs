@@ -56,9 +56,14 @@ impl CongestionTensor {
     // across the FFI boundary. Signed pairs: the mapper can legitimately
     // return negative coords for out-of-board cells, which are skipped
     // here (mirroring the original numpy bounds check).
+    //
+    // The caller flattens its (row, col) pairs into one int array; pair
+    // them back up here (element order unchanged, bit-exact with the old
+    // Vec<(i64, i64)>).
     #[pyo3(signature = (pairs, weight = 1.0_f32))]
-    pub fn increment_cells(&mut self, pairs: Vec<(i64, i64)>, weight: f32) {
-        for (row, col) in pairs {
+    pub fn increment_cells(&mut self, pairs: Vec<i64>, weight: f32) {
+        for pair in pairs.chunks_exact(2) {
+            let (row, col) = (pair[0], pair[1]);
             if row < 0 || col < 0 {
                 continue;
             }
@@ -175,7 +180,7 @@ mod tests {
     #[test]
     fn test_increment_cells_batch() {
         let mut ct = CongestionTensor::new(2, 3, 100.0, 1.0);
-        ct.increment_cells(vec![(0, 0), (1, 2), (0, 0)], 1.0);
+        ct.increment_cells(vec![0, 0, 1, 2, 0, 0], 1.0);
         assert_eq!(ct.data[0], 2.0);
         assert_eq!(ct.data[5], 1.0);
         assert_eq!(ct.data[1], 0.0);
@@ -184,7 +189,7 @@ mod tests {
     #[test]
     fn test_increment_cells_skips_out_of_bounds() {
         let mut ct = CongestionTensor::new(2, 2, 100.0, 1.0);
-        ct.increment_cells(vec![(0, 0), (2, 0), (0, 2), (9, 9)], 1.0);
+        ct.increment_cells(vec![0, 0, 2, 0, 0, 2, 9, 9], 1.0);
         assert_eq!(ct.data[0], 1.0);
         assert_eq!(ct.data.iter().sum::<f32>(), 1.0);
     }
@@ -193,7 +198,7 @@ mod tests {
     fn test_increment_cells_skips_negative_coords() {
         // world_to_grid can return negative coords for out-of-board cells.
         let mut ct = CongestionTensor::new(2, 2, 100.0, 1.0);
-        ct.increment_cells(vec![(-1, 0), (0, -3), (1, 1)], 1.0);
+        ct.increment_cells(vec![-1, 0, 0, -3, 1, 1], 1.0);
         assert_eq!(ct.data.iter().sum::<f32>(), 1.0);
         assert_eq!(ct.data[3], 1.0);
     }
@@ -202,7 +207,7 @@ mod tests {
     fn test_increment_cells_cannot_overflow_into_another_cell() {
         // (0, 2) on a 2x2 grid must be skipped, not folded onto idx 2.
         let mut ct = CongestionTensor::new(2, 2, 100.0, 1.0);
-        ct.increment_cells(vec![(0, 2), (1, 1)], 1.0);
+        ct.increment_cells(vec![0, 2, 1, 1], 1.0);
         assert_eq!(ct.data[0], 0.0);
         assert_eq!(ct.data[3], 1.0);
     }
@@ -210,7 +215,7 @@ mod tests {
     #[test]
     fn test_increment_cells_applies_weight() {
         let mut ct = CongestionTensor::new(1, 1, 100.0, 1.0);
-        ct.increment_cells(vec![(0, 0), (0, 0)], 0.5);
+        ct.increment_cells(vec![0, 0, 0, 0], 0.5);
         assert_eq!(ct.data[0], 1.0);
     }
 

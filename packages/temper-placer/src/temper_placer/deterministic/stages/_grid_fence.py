@@ -64,6 +64,8 @@ def check_clearance_grid_conservatism(
 
     import temper_geometry as _tg
 
+    from temper_placer.core.pad_geometry import shape_code
+
     cell = grid.cell_size_mm
     inset = cell / 2.0  # ±0.5 cell tolerance per R8
 
@@ -82,7 +84,7 @@ def check_clearance_grid_conservatism(
         # pad_radius + eff_creep - inset (theta = 2*pi*i/n, libm cos/sin
         # resolved via dlsym to match the host runtime bit-for-bit).
         raw = _tg.fence_samples_py(
-            shape,
+            shape_code(shape),
             pos[0],
             pos[1],
             pad_radius,

@@ -349,14 +349,15 @@ fn build_capacitated_graph(
 /// Batch cell capacity — one FFI crossing for many cells. Bit-identical
 /// to calling the reference `_compute_cell_capacity` per cell.
 ///
-/// `cells` is a list of (layer, row, col) triples; `trace_flat` /
+/// `cells` is a flat int array of (layer, row, col) triples (the caller
+/// flattens its triple list; element order is unchanged); `trace_flat` /
 /// `pad_flat` are the int32 occupancy arrays flattened layer-major /
 /// row-major; `pad_class_rank` carries each cell's resolved safety rank
 /// (or `NO_CLASS_RANK`); `current_category` is -1 for "no mapping".
 /// Raises IndexError for an out-of-range layer, mirroring the reference.
 #[pyfunction]
 pub fn cell_capacity_batch_py(
-    cells: Vec<(i64, i64, i64)>,
+    cells: Vec<i64>,
     trace_flat: Vec<i32>,
     pad_flat: Vec<i32>,
     pad_class_rank: Vec<i32>,
@@ -366,6 +367,10 @@ pub fn cell_capacity_batch_py(
     current_category: i64,
 ) -> PyResult<Vec<i64>> {
     temper_py_bridge::catch_unwind(|| -> PyResult<Vec<i64>> {
+        let cells: Vec<(i64, i64, i64)> = cells
+            .chunks_exact(3)
+            .map(|c| (c[0], c[1], c[2]))
+            .collect();
         let mut out = Vec::with_capacity(cells.len());
         for &(layer, row, col) in &cells {
             if layer < 0 || layer >= layer_count {
@@ -392,9 +397,10 @@ pub fn cell_capacity_batch_py(
 
 /// Batch hard-blocked check — one FFI crossing for many cells.
 /// Bit-identical to calling the reference `is_hard_blocked` per cell.
+/// `cells` is a flat int array of (layer, row, col) triples.
 #[pyfunction]
 pub fn hard_blocked_batch_py(
-    cells: Vec<(i64, i64, i64)>,
+    cells: Vec<i64>,
     trace_flat: Vec<i32>,
     pad_flat: Vec<i32>,
     rows: i64,
@@ -402,6 +408,10 @@ pub fn hard_blocked_batch_py(
     layer_count: i64,
 ) -> PyResult<Vec<bool>> {
     temper_py_bridge::catch_unwind(|| {
+        let cells: Vec<(i64, i64, i64)> = cells
+            .chunks_exact(3)
+            .map(|c| (c[0], c[1], c[2]))
+            .collect();
         let mut out = Vec::with_capacity(cells.len());
         for &(layer, row, col) in &cells {
             out.push(hard_blocked(
@@ -423,6 +433,10 @@ pub fn hard_blocked_batch_py(
 /// Capacitated-graph build kernel. Returns (sorted node flat indices,
 /// edge list (u, v, cap) in the reference's emission order).
 ///
+/// `source_cells` / `sink_cells` are flat int arrays of (layer, row, col)
+/// triples (the caller flattens its triple lists; element order is
+/// unchanged).
+///
 /// `deadline_remaining_s` is the wall-clock budget still available when
 /// the call starts (the wrapper computes it from the Python-side
 /// `time.monotonic()` deadline); `None` disables the deadline. Raises
@@ -435,12 +449,20 @@ pub fn build_capacitated_graph_py(
     rows: i64,
     cols: i64,
     layer_count: i64,
-    source_cells: Vec<(i64, i64, i64)>,
-    sink_cells: Vec<(i64, i64, i64)>,
+    source_cells: Vec<i64>,
+    sink_cells: Vec<i64>,
     current_category: i64,
     deadline_remaining_s: Option<f64>,
 ) -> PyResult<GraphResult> {
     temper_py_bridge::catch_unwind(|| -> PyResult<GraphResult> {
+        let source_cells: Vec<(i64, i64, i64)> = source_cells
+            .chunks_exact(3)
+            .map(|c| (c[0], c[1], c[2]))
+            .collect();
+        let sink_cells: Vec<(i64, i64, i64)> = sink_cells
+            .chunks_exact(3)
+            .map(|c| (c[0], c[1], c[2]))
+            .collect();
         match build_capacitated_graph(
             &trace_flat,
             &pad_flat,

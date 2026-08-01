@@ -227,3 +227,22 @@ API.
 `spsolve` call (KTD9), the four boundary-predicate helpers (mirroring
 U5's retained helpers), and `falsifiability_assertion` with its 1.0 deg-C
 threshold (the preserved THM-adjacent cross-check contract).
+
+## FFI Audit (spike C7, 2026-08-01) — tagged-type simplification
+
+B-class parameters converted to int enums, with the public Python API
+unchanged (the wrapper converts once):
+
+| pyfunction | Old | New |
+|---|---|---|
+| `assemble_system_py` | `heatsink_edge: String` | `heatsink_edge: i64` code (`HEATSINK_*` in fdm.rs; 0=TOP, 1=BOTTOM, 2=LEFT, 3=RIGHT, any other = no heatsink → all-Neumann) |
+| `assemble_convective_system_py` | `heatsink_edge: String` | `heatsink_edge: i64` code (same enum) |
+
+The Python wrappers (`thermal_fdm.py::_heatsink_edge_code`,
+`thermal_scorer.py`) apply the old `.upper().strip()` normalization and
+map to the code; unrecognized edges map to 99, reproducing the old
+all-Neumann / all-convective behavior exactly (pinned by
+`test_thermal_scorer_rust_differential.py`'s "NORTH" edge case).
+The `fdm.rs`/`thermal_scorer.rs` match arms are the same decisions the
+old string compares made. `rtd.rs` and the byte-buffer/`PyBuffer`
+surfaces were already A-class and are untouched.

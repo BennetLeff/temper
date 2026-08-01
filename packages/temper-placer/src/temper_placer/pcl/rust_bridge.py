@@ -59,6 +59,36 @@ def tier_to_weight_rust(tier_value: int) -> float:
     return _call_rust("tier_to_weight_py", tier_value)
 
 
+# FFI int enums shared with temper-constraints' pyo3 surface (lib.rs):
+# metric 0=edge_to_edge, 1=center_to_center, 2=pin_to_pin; axis
+# 0=x, 1=y, 2=major, 3=minor; side 0=top, 1=bottom, 2=left, 3=right.
+# The public Python API keeps the names; the wrappers map once.
+_METRIC_CODES = {"edge_to_edge": 0, "center_to_center": 1, "pin_to_pin": 2}
+_AXIS_CODES = {"x": 0, "y": 1, "major": 2, "minor": 3}
+_SIDE_CODES = {"top": 0, "bottom": 1, "left": 2, "right": 3}
+
+
+def _metric_code(metric: str) -> int:
+    try:
+        return _METRIC_CODES[metric]
+    except KeyError:
+        raise ValueError(f"Unknown metric: {metric}") from None
+
+
+def _axis_code(axis: str) -> int:
+    try:
+        return _AXIS_CODES[axis]
+    except KeyError:
+        raise ValueError(f"Unknown axis: {axis}") from None
+
+
+def _side_code(side: str) -> int:
+    try:
+        return _SIDE_CODES[side]
+    except KeyError:
+        raise ValueError(f"Unknown side: {side}") from None
+
+
 def compute_adjacent_loss_rust(
     positions: list[float],
     idx_a: int,
@@ -78,7 +108,7 @@ def compute_adjacent_loss_rust(
         idx_b,
         max_distance_mm,
         weight,
-        metric,
+        _metric_code(metric),
         pin_a_x,
         pin_a_y,
         pin_b_x,
@@ -131,7 +161,7 @@ def compute_alignment_loss_rust(
     return _call_rust(
         "compute_alignment_loss_py",
         positions,
-        axis,
+        _axis_code(axis),
         tolerance_mm,
         weight,
     )
@@ -148,7 +178,7 @@ def compute_edge_loss_rust(
     return _call_rust(
         "compute_edge_loss_py",
         positions,
-        side,
+        _side_code(side),
         board_width,
         board_height,
         max_distance_mm,

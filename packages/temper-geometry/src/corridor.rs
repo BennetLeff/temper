@@ -17,14 +17,21 @@ use temper_py_bridge;
 #[pyo3(signature = (coarse_path, coarse_factor, buffer_cells, fine_rows, fine_cols))]
 pub fn extract_corridor_mask(
     py: Python<'_>,
-    coarse_path: Vec<(i64, i64)>,
+    coarse_path: Vec<i64>,
     coarse_factor: i64,
     buffer_cells: i64,
     fine_rows: usize,
     fine_cols: usize,
 ) -> PyResult<Bound<'_, PyBytes>> {
+    // The caller flattens its (col, row) pairs into one int array; pair
+    // them back up here. (Bit-exact with the old Vec<(i64, i64)> — the
+    // element order is unchanged.)
+    let path: Vec<(i64, i64)> = coarse_path
+        .chunks_exact(2)
+        .map(|c| (c[0], c[1]))
+        .collect();
     let mask = temper_py_bridge::catch_unwind(|| {
-        corridor_mask(coarse_path, coarse_factor, buffer_cells, fine_rows, fine_cols)
+        corridor_mask(path, coarse_factor, buffer_cells, fine_rows, fine_cols)
     })
     .map_err(temper_py_bridge::panic_to_err)?;
     PyBytes::new_with(py, mask.len(), |b| {

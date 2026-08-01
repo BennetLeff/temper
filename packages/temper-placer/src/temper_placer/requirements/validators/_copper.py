@@ -22,6 +22,7 @@ import temper_geometry as _tg
 
 from temper_placer.core.pad_geometry import (
     DEFAULT_ROUNDRECT_RATIO,
+    shape_code,
 )
 
 if TYPE_CHECKING:
@@ -194,12 +195,14 @@ class _CopperModel:
     # -- geometry ----------------------------------------------------------
 
     @staticmethod
-    def _spec(pad: _Pad) -> tuple[float, float, str, float, float, float, float]:
-        """``pad_geometry.pad_pair_distance``'s pad tuple."""
+    def _spec(pad: _Pad) -> tuple[float, float, int, float, float, float, float]:
+        """``pad_geometry.pad_pair_distance``'s pad tuple, with the shape
+        as the FFI int enum (``shape_code``; the Rust core never sees a
+        shape string)."""
         return (
             pad.width,
             pad.height,
-            pad.shape,
+            shape_code(pad.shape),
             pad.cx,
             pad.cy,
             pad.rotation_rad,

@@ -80,24 +80,59 @@ pub(crate) fn math_cos_sin(x: f64) -> (f64, f64) {
     unsafe { (host_cos()(x), host_sin()(x)) }
 }
 
-fn normalize_shape(shape: &str) -> &str {
-    if shape == "thru_hole" { "circle" } else { shape }
+/// Pad-shape codes passed across the FFI boundary. The Python wrapper
+/// (`temper_placer/core/pad_geometry.py`'s `shape_code()`) maps its
+/// `KNOWN_SHAPES` to these before calling; unrecognized shapes are sent
+/// as `SHAPE_UNKNOWN` and fall back to the safe r=0 sharp-corner model
+/// (identical to the old unrecognized-string fallback). Codes are
+/// pinned by the differential suites on both sides.
+pub(crate) const SHAPE_CIRCLE: i64 = 0;
+pub(crate) const SHAPE_OVAL: i64 = 1;
+pub(crate) const SHAPE_RECT: i64 = 2;
+pub(crate) const SHAPE_ROUNDRECT: i64 = 3;
+pub(crate) const SHAPE_THRU_HOLE: i64 = 4;
+/// Sentinel the Python wrapper sends for unrecognized shapes; Rust never
+/// reads it (the `_` fallback in `shape_kind` covers it), it exists to
+/// document the FFI contract.
+#[allow(dead_code)]
+pub(crate) const SHAPE_UNKNOWN: i64 = 99;
+
+/// The model's shape kind. `thru_hole` normalizes to `Circle` (the old
+/// `normalize_shape` string rewrite); unrecognized codes fall back to
+/// `Rect` — sharp corners, r = 0, safe (never under-reports; the Python
+/// wrapper emits the warning).
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub(crate) enum ShapeKind {
+    Circle,
+    Oval,
+    Rect,
+    Roundrect,
 }
 
-pub(crate) fn corner_radius(width: f64, height: f64, shape: &str, ratio: f64) -> f64 {
-    match normalize_shape(shape) {
-        // circle pads: width == height == diameter; take the larger
-        // defensively so malformed input stays conservative.
-        "circle" => width.max(height) / 2.0,
-        "oval" => width.min(height) / 2.0,
-        "roundrect" => ratio * width.min(height),
-        // "rect" and unrecognized shapes: sharp corners, r = 0 (safe,
-        // never under-reports; the Python wrapper emits the warning).
-        _ => 0.0,
+pub(crate) fn shape_kind(code: i64) -> ShapeKind {
+    match code {
+        SHAPE_CIRCLE | SHAPE_THRU_HOLE => ShapeKind::Circle,
+        SHAPE_OVAL => ShapeKind::Oval,
+        SHAPE_ROUNDRECT => ShapeKind::Roundrect,
+        // SHAPE_RECT and unrecognized codes: sharp corners.
+        _ => ShapeKind::Rect,
     }
 }
 
-pub(crate) fn core_half_extents(width: f64, height: f64, shape: &str, ratio: f64) -> (f64, f64) {
+pub(crate) fn corner_radius(width: f64, height: f64, shape: i64, ratio: f64) -> f64 {
+    match shape_kind(shape) {
+        // circle pads: width == height == diameter; take the larger
+        // defensively so malformed input stays conservative.
+        ShapeKind::Circle => width.max(height) / 2.0,
+        ShapeKind::Oval => width.min(height) / 2.0,
+        ShapeKind::Roundrect => ratio * width.min(height),
+        // rect and unrecognized shapes: sharp corners, r = 0 (safe,
+        // never under-reports; the Python wrapper emits the warning).
+        ShapeKind::Rect => 0.0,
+    }
+}
+
+pub(crate) fn core_half_extents(width: f64, height: f64, shape: i64, ratio: f64) -> (f64, f64) {
     let r = corner_radius(width, height, shape, ratio);
     ((width / 2.0 - r).max(0.0), (height / 2.0 - r).max(0.0))
 }
@@ -105,7 +140,7 @@ pub(crate) fn core_half_extents(width: f64, height: f64, shape: &str, ratio: f64
 fn support_radius(
     width: f64,
     height: f64,
-    shape: &str,
+    shape: i64,
     direction_rad: f64,
     rotation_rad: f64,
     ratio: f64,
@@ -117,7 +152,7 @@ fn support_radius(
     hw * dx.abs() + hh * dy.abs() + r
 }
 
-fn axis_radius(width: f64, height: f64, shape: &str, axis: i64, rotation_rad: f64, ratio: f64) -> f64 {
+fn axis_radius(width: f64, height: f64, shape: i64, axis: i64, rotation_rad: f64, ratio: f64) -> f64 {
     // Python's reference: `0.0 if axis == 0 else math.pi / 2.0` — the
     // DIVISION, not FRAC_PI_2: fl(pi)/2 = 0x1.921fb54442d18p0 while
     // FRAC_PI_2 = 0x1.921fb54442d17p0 (1 ulp apart), and the difference
@@ -126,7 +161,7 @@ fn axis_radius(width: f64, height: f64, shape: &str, axis: i64, rotation_rad: f6
     support_radius(width, height, shape, direction, rotation_rad, ratio)
 }
 
-pub(crate) fn bounding_radius(width: f64, height: f64, shape: &str, ratio: f64) -> f64 {
+pub(crate) fn bounding_radius(width: f64, height: f64, shape: i64, ratio: f64) -> f64 {
     let (hw, hh) = core_half_extents(width, height, shape, ratio);
     let r = corner_radius(width, height, shape, ratio);
     py_hypot(hw, hh) + r
@@ -235,8 +270,10 @@ fn project_onto_barrier_axis(local_x: f64, local_y: f64, rot_value: i64, barrier
     if barrier_axis == 0 { gx } else { gy }
 }
 
-/// A pad as consumed by the barrier sweep: (x, y, width, height, shape, roundrect_ratio).
-type PadTuple = (f64, f64, f64, f64, String, f64);
+/// A pad as consumed by the barrier sweep:
+/// (x, y, width, height, shape_code, roundrect_ratio). `shape_code` is
+/// the FFI int enum (see `SHAPE_*`); the Python wrapper maps it once.
+type PadTuple = (f64, f64, f64, f64, i64, f64);
 
 fn pad_projection(p: &PadTuple, rot_value: i64, barrier_axis: i64) -> (f64, f64) {
     let (x, y, w, h, shape, ratio) = p;
@@ -244,7 +281,7 @@ fn pad_projection(p: &PadTuple, rot_value: i64, barrier_axis: i64) -> (f64, f64)
     // Python reference: `rot_value * math.pi / 2.0` (multiply then divide,
     // NOT rot_value * FRAC_PI_2 — the latter differs in the last ulp for
     // odd rot_values, propagating into the axis radius).
-    let rad = axis_radius(*w, *h, shape, barrier_axis, rot_value as f64 * std::f64::consts::PI / 2.0, *ratio);
+    let rad = axis_radius(*w, *h, *shape, barrier_axis, rot_value as f64 * std::f64::consts::PI / 2.0, *ratio);
     (proj, rad)
 }
 
@@ -256,8 +293,8 @@ fn barrier_axis_gap(hv: &[PadTuple], selv: &[PadTuple], axis_idx: i64) -> f64 {
         for sp in selv {
             let h = if axis_idx == 0 { hp.0 } else { hp.1 };
             let s = if axis_idx == 0 { sp.0 } else { sp.1 };
-            let hr = axis_radius(hp.2, hp.3, &hp.4, axis_idx, 0.0, hp.5);
-            let sr = axis_radius(sp.2, sp.3, &sp.4, axis_idx, 0.0, sp.5);
+            let hr = axis_radius(hp.2, hp.3, hp.4, axis_idx, 0.0, hp.5);
+            let sr = axis_radius(sp.2, sp.3, sp.4, axis_idx, 0.0, sp.5);
             let gap = (h - s).abs() - hr - sr;
             if gap < worst {
                 worst = gap;
@@ -310,14 +347,14 @@ fn best_rotation_for_barrier(hv: &[PadTuple], selv: &[PadTuple], barrier_axis: i
 
 #[pyfunction]
 #[pyo3(signature = (width, height, shape, roundrect_ratio = DEFAULT_ROUNDRECT_RATIO))]
-pub fn pad_corner_radius_py(width: f64, height: f64, shape: String, roundrect_ratio: f64) -> PyResult<f64> {
-    temper_py_bridge::catch_unwind(|| corner_radius(width, height, &shape, roundrect_ratio)).map_err(temper_py_bridge::panic_to_err)
+pub fn pad_corner_radius_py(width: f64, height: f64, shape: i64, roundrect_ratio: f64) -> PyResult<f64> {
+    temper_py_bridge::catch_unwind(|| corner_radius(width, height, shape, roundrect_ratio)).map_err(temper_py_bridge::panic_to_err)
 }
 
 #[pyfunction]
 #[pyo3(signature = (width, height, shape, roundrect_ratio = DEFAULT_ROUNDRECT_RATIO))]
-pub fn pad_core_half_extents_py(width: f64, height: f64, shape: String, roundrect_ratio: f64) -> PyResult<(f64, f64)> {
-    temper_py_bridge::catch_unwind(|| core_half_extents(width, height, &shape, roundrect_ratio)).map_err(temper_py_bridge::panic_to_err)
+pub fn pad_core_half_extents_py(width: f64, height: f64, shape: i64, roundrect_ratio: f64) -> PyResult<(f64, f64)> {
+    temper_py_bridge::catch_unwind(|| core_half_extents(width, height, shape, roundrect_ratio)).map_err(temper_py_bridge::panic_to_err)
 }
 
 #[pyfunction]
@@ -325,12 +362,12 @@ pub fn pad_core_half_extents_py(width: f64, height: f64, shape: String, roundrec
 pub fn pad_support_radius_py(
     width: f64,
     height: f64,
-    shape: String,
+    shape: i64,
     direction_rad: f64,
     rotation_rad: f64,
     roundrect_ratio: f64,
 ) -> PyResult<f64> {
-    temper_py_bridge::catch_unwind(|| support_radius(width, height, &shape, direction_rad, rotation_rad, roundrect_ratio))
+    temper_py_bridge::catch_unwind(|| support_radius(width, height, shape, direction_rad, rotation_rad, roundrect_ratio))
         .map_err(temper_py_bridge::panic_to_err)
 }
 
@@ -339,19 +376,19 @@ pub fn pad_support_radius_py(
 pub fn pad_axis_radius_py(
     width: f64,
     height: f64,
-    shape: String,
+    shape: i64,
     axis: i64,
     rotation_rad: f64,
     roundrect_ratio: f64,
 ) -> PyResult<f64> {
-    temper_py_bridge::catch_unwind(|| axis_radius(width, height, &shape, axis, rotation_rad, roundrect_ratio))
+    temper_py_bridge::catch_unwind(|| axis_radius(width, height, shape, axis, rotation_rad, roundrect_ratio))
         .map_err(temper_py_bridge::panic_to_err)
 }
 
 #[pyfunction]
 #[pyo3(signature = (width, height, shape, roundrect_ratio = DEFAULT_ROUNDRECT_RATIO))]
-pub fn pad_bounding_radius_py(width: f64, height: f64, shape: String, roundrect_ratio: f64) -> PyResult<f64> {
-    temper_py_bridge::catch_unwind(|| bounding_radius(width, height, &shape, roundrect_ratio)).map_err(temper_py_bridge::panic_to_err)
+pub fn pad_bounding_radius_py(width: f64, height: f64, shape: i64, roundrect_ratio: f64) -> PyResult<f64> {
+    temper_py_bridge::catch_unwind(|| bounding_radius(width, height, shape, roundrect_ratio)).map_err(temper_py_bridge::panic_to_err)
 }
 
 #[pyfunction]
@@ -372,21 +409,21 @@ mod tests {
 
     #[test]
     fn test_corner_radius_shapes() {
-        assert_eq!(corner_radius(2.0, 2.0, "circle", 0.25), 1.0);
-        assert_eq!(corner_radius(4.0, 2.0, "oval", 0.25), 1.0);
-        assert_eq!(corner_radius(4.0, 2.0, "roundrect", 0.25), 0.5);
-        assert_eq!(corner_radius(4.0, 2.0, "rect", 0.25), 0.0);
-        assert_eq!(corner_radius(4.0, 2.0, "custom", 0.25), 0.0); // safe fallback
-        assert_eq!(corner_radius(3.0, 3.0, "thru_hole", 0.25), 1.5); // normalized
+        assert_eq!(corner_radius(2.0, 2.0, SHAPE_CIRCLE, 0.25), 1.0);
+        assert_eq!(corner_radius(4.0, 2.0, SHAPE_OVAL, 0.25), 1.0);
+        assert_eq!(corner_radius(4.0, 2.0, SHAPE_ROUNDRECT, 0.25), 0.5);
+        assert_eq!(corner_radius(4.0, 2.0, SHAPE_RECT, 0.25), 0.0);
+        assert_eq!(corner_radius(4.0, 2.0, SHAPE_UNKNOWN, 0.25), 0.0); // safe fallback
+        assert_eq!(corner_radius(3.0, 3.0, SHAPE_THRU_HOLE, 0.25), 1.5); // normalized
     }
 
     #[test]
     fn test_support_radius_axis_aligned() {
         // 2x1 roundrect r=0.25: hw=0.75, hh=0.25, r=0.25.
         // axis X at rot 0: 0.75 + 0 + 0.25 = 1.0
-        assert!((support_radius(2.0, 1.0, "roundrect", 0.0, 0.0, 0.25) - 1.0).abs() < 1e-12);
+        assert!((support_radius(2.0, 1.0, SHAPE_ROUNDRECT, 0.0, 0.0, 0.25) - 1.0).abs() < 1e-12);
         // axis Y at rot 0: 0 + 0.25 + 0.25 = 0.5
-        assert!((support_radius(2.0, 1.0, "roundrect", std::f64::consts::FRAC_PI_2, 0.0, 0.25) - 0.5).abs() < 1e-12);
+        assert!((support_radius(2.0, 1.0, SHAPE_ROUNDRECT, std::f64::consts::FRAC_PI_2, 0.0, 0.25) - 0.5).abs() < 1e-12);
     }
 
     #[test]
@@ -400,8 +437,8 @@ mod tests {
 
     #[test]
     fn test_barrier_gap_and_rotation() {
-        let hv = vec![(0.0, 0.0, 2.0, 1.0, "roundrect".to_string(), 0.25)];
-        let selv = vec![(10.0, 0.0, 2.0, 1.0, "roundrect".to_string(), 0.25)];
+        let hv = vec![(0.0, 0.0, 2.0, 1.0, SHAPE_ROUNDRECT, 0.25)];
+        let selv = vec![(10.0, 0.0, 2.0, 1.0, SHAPE_ROUNDRECT, 0.25)];
         let gap = barrier_axis_gap(&hv, &selv, 0);
         assert!((gap - 8.0).abs() < 1e-9); // 10 - 1.0 (hv rad) - 1.0 (selv rad)
         let (rot, best, kept) = best_rotation_for_barrier(&hv, &selv, 0);
@@ -414,8 +451,8 @@ mod tests {
     fn test_rotation_searches_other_axis() {
         // HV/SELV separated along local Y only; barrier axis X must pick a
         // 90-degree rotation to bring the Y separation onto the barrier.
-        let hv = vec![(0.0, 0.0, 1.0, 1.0, "circle".to_string(), 0.25)];
-        let selv = vec![(0.0, 10.0, 1.0, 1.0, "circle".to_string(), 0.25)];
+        let hv = vec![(0.0, 0.0, 1.0, 1.0, SHAPE_CIRCLE, 0.25)];
+        let selv = vec![(0.0, 10.0, 1.0, 1.0, SHAPE_CIRCLE, 0.25)];
         let (rot, best, _) = best_rotation_for_barrier(&hv, &selv, 0);
         assert!(rot == 1 || rot == 3, "expected a 90-degree rotation, got {rot}");
         assert!((best - 9.0).abs() < 1e-9); // 10 - 0.5 - 0.5
