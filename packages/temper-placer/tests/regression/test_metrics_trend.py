@@ -1,7 +1,7 @@
 """Tests for pipeline metrics trend CLI (R2, R5)."""
 
 import sys
-from datetime import timedelta
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import pytest
@@ -30,7 +30,12 @@ def _make_records(tmp_path, values):
                 board=v.get("board", "temper"),
                 stage=v.get("stage", "closure"),
                 metrics=v.get("metrics", {}),
-                timestamp=v.get("timestamp", f"2026-06-{10 + i:02d}T00:00:00+00:00"),
+                timestamp=v.get(
+                    "timestamp",
+                    # Relative to now so records always fall inside the rolling
+                    # window (the 30-day trend window expires otherwise).
+                    (datetime.now(UTC) - timedelta(days=len(values) - i)).isoformat(),
+                ),
             ),
             fp,
         )

@@ -117,11 +117,6 @@ def _boardstate_field_values(state: BoardState) -> dict[str, Any]:
     return {f.name: getattr(state, f.name) for f in dataclasses.fields(state)}
 
 
-@settings(
-    max_examples=100,
-    deadline=2000,
-    suppress_health_check=[HealthCheck.too_slow],
-)
 @pytest.mark.slow
 @pytest.mark.parametrize("stage_cls", _all_concrete_stages())
 def test_stage_input_immutability(stage_cls):
@@ -132,6 +127,11 @@ def test_stage_input_immutability(stage_cls):
     if stage is None:
         pytest.skip(f"Cannot instantiate {stage_cls.__name__} with defaults")
 
+    @settings(
+        max_examples=100,
+        deadline=2000,
+        suppress_health_check=[HealthCheck.too_slow],
+    )
     @given(state=minimal_board_states())
     def _check(state):
         original = _boardstate_field_values(state)
@@ -156,11 +156,6 @@ def test_stage_input_immutability(stage_cls):
 # ---------------------------------------------------------------------------
 
 
-@settings(
-    max_examples=100,
-    deadline=3000,
-    suppress_health_check=[HealthCheck.too_slow],
-)
 @pytest.mark.slow
 @pytest.mark.parametrize("stage_cls", _all_concrete_stages())
 def test_stage_determinism(stage_cls):
@@ -171,6 +166,11 @@ def test_stage_determinism(stage_cls):
     if stage is None:
         pytest.skip(f"Cannot instantiate {stage_cls.__name__} with defaults")
 
+    @settings(
+        max_examples=100,
+        deadline=3000,
+        suppress_health_check=[HealthCheck.too_slow],
+    )
     @given(state=minimal_board_states())
     def _check(state):
         try:
@@ -195,11 +195,6 @@ def test_stage_determinism(stage_cls):
 # ---------------------------------------------------------------------------
 
 
-@settings(
-    max_examples=100,
-    deadline=3000,
-    suppress_health_check=[HealthCheck.too_slow],
-)
 @pytest.mark.slow
 @pytest.mark.parametrize("stage_cls", _all_concrete_stages())
 def test_stage_field_provenance(stage_cls):
@@ -220,6 +215,11 @@ def test_stage_field_provenance(stage_cls):
     for match in re.finditer(r"updated\s+(\w+)", doc, re.IGNORECASE):
         declared_outputs.add(match.group(1))
 
+    @settings(
+        max_examples=100,
+        deadline=3000,
+        suppress_health_check=[HealthCheck.too_slow],
+    )
     @given(state=minimal_board_states())
     def _check(state):
         try:
@@ -245,11 +245,6 @@ def test_stage_field_provenance(stage_cls):
 # ---------------------------------------------------------------------------
 
 
-@settings(
-    max_examples=100,
-    deadline=2000,
-    suppress_health_check=[HealthCheck.too_slow],
-)
 @pytest.mark.slow
 @pytest.mark.parametrize("stage_cls", _all_concrete_stages())
 def test_stage_serialization_roundtrip(stage_cls):
@@ -260,6 +255,11 @@ def test_stage_serialization_roundtrip(stage_cls):
     if stage is None:
         pytest.skip(f"Cannot instantiate {stage_cls.__name__} with defaults")
 
+    @settings(
+        max_examples=100,
+        deadline=2000,
+        suppress_health_check=[HealthCheck.too_slow],
+    )
     @given(state=minimal_board_states())
     def _check(state):
         try:
