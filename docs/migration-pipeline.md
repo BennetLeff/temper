@@ -41,6 +41,9 @@ until the final stage passes. Stages run in order.
      pyo3 boundaries, borrow over clone, iterators, doc comments.
    - Commit + push to the worktree branch; the orchestrator merges
      and verifies.
+   The full gate checklist — per-gate evidence locations, the
+   bit-exactness catalog, and the residual decision procedure — is
+   `docs/wave4-discipline-contract.md`; stage 3 is that checklist run.
 
 4. **code-review** — reviewer personas on the merged diff:
    `ce-correctness-reviewer`, optionally `ce-adversarial-reviewer`
