@@ -13,6 +13,7 @@
 // Origin: U6 of docs/plans/2026-06-30-003-feat-temper-drc-rs-engine-plan.md
 
 use geo::{EuclideanDistance, Line};
+use std::collections::HashMap;
 use std::f64::consts::PI;
 
 use crate::board::BoardState;
@@ -56,6 +57,21 @@ impl DrcRule for ParallelRunCheck {
             return Vec::new();
         }
 
+        // Index traces and net classes by net once; the same nets repeat
+        // across domains and emitter/victim pairs.
+        let mut segs_by_net: HashMap<&str, Vec<&Line<f64>>> = HashMap::new();
+        for t in &board.traces {
+            segs_by_net
+                .entry(&t.net.0)
+                .or_default()
+                .extend(t.segments.iter());
+        }
+        let class_by_net: HashMap<&str, &crate::board::NetClassName> = board
+            .nets
+            .iter()
+            .map(|n| (n.name.0.as_str(), &n.class))
+            .collect();
+
         let mut violations = Vec::new();
         for domain in &constraints.noise_domains {
             let max_run = domain.max_parallel_run_mm;
@@ -67,7 +83,15 @@ impl DrcRule for ParallelRunCheck {
                     if emitter_net == victim_net {
                         continue;
                     }
-                    if let Some(v) = check_net_pair(board, constraints, emitter_net, victim_net, max_run) {
+                    if let Some(v) = check_net_pair(
+                        constraints,
+                        &board.net_class_rules,
+                        &segs_by_net,
+                        &class_by_net,
+                        emitter_net,
+                        victim_net,
+                        max_run,
+                    ) {
                         violations.push(v);
                     }
                 }
@@ -78,40 +102,32 @@ impl DrcRule for ParallelRunCheck {
 }
 
 fn check_net_pair(
-    board: &BoardState,
     constraints: &ConstraintSet,
+    net_class_rules: &HashMap<crate::board::NetClassName, crate::board::NetClassRules>,
+    segs_by_net: &HashMap<&str, Vec<&Line<f64>>>,
+    class_by_net: &HashMap<&str, &crate::board::NetClassName>,
     emitter_net: &str,
     victim_net: &str,
     max_run: f64,
 ) -> Option<Violation> {
-    let emitter_segs: Vec<&Line<f64>> = board
-        .traces
-        .iter()
-        .filter(|t| t.net.0 == emitter_net)
-        .flat_map(|t| &t.segments)
-        .collect();
-    let victim_segs: Vec<&Line<f64>> = board
-        .traces
-        .iter()
-        .filter(|t| t.net.0 == victim_net)
-        .flat_map(|t| &t.segments)
-        .collect();
+    let emitter_segs = segs_by_net.get(emitter_net)?;
+    let victim_segs = segs_by_net.get(victim_net)?;
 
     if emitter_segs.is_empty() || victim_segs.is_empty() {
         return None;
     }
 
-    let emitter_class = board.net_by_name(emitter_net).map(|n| &n.class);
-    let victim_class = board.net_by_name(victim_net).map(|n| &n.class);
+    let emitter_class = class_by_net.get(emitter_net).copied();
+    let victim_class = class_by_net.get(victim_net).copied();
     let separation = match (emitter_class, victim_class) {
         (Some(ec), Some(vc)) => {
-            clearance_between(constraints, &board.net_class_rules, ec, vc)
+            clearance_between(constraints, net_class_rules, ec, vc)
         }
         _ => DEFAULT_SEPARATION_MM,
     };
     let max_sep = separation * 2.0;
 
-    let total_parallel_mm = parallel_run_length(&emitter_segs, &victim_segs, max_sep);
+    let total_parallel_mm = parallel_run_length(emitter_segs, victim_segs, max_sep);
 
     if total_parallel_mm > max_run {
         Some(violation(
