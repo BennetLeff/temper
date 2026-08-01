@@ -19,6 +19,8 @@ pub use spice_estimators::{spice_infer_unit_py, spice_loop_inductance_py};
 pub mod corridor;
 pub mod copper_coverage;
 pub mod channel_widths;
+pub mod bottleneck_geometry;
+pub use bottleneck_geometry::{build_capacitated_graph_py, cell_capacity_batch_py, hard_blocked_batch_py};
 mod bridge;
 
 use pyo3::prelude::*;

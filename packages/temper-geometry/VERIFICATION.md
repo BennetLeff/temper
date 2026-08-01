@@ -263,3 +263,114 @@ implementations. The pre-existing `test_spice.py` +
 estimators through the wrappers.
 
 ## PBT Properties Verified
+## Bottleneck Geometry (Min-Cut Kernels) — Verification by Induction (Wave 3 #2, 2026-07-31)
+
+**Scope.** The per-cell capacity kernel (with the R4 "category-HIGH on
+category-LOW" creepage discount), the hard-blocked check, and the
+capacitated-graph build (BFS node set + min-cap edge construction, with
+the 256-iteration deadline-stride abort) moved to
+`temper_placer/router_v6/bottleneck_geometry.rs`. The Python module keeps
+its public API: `_build_capacitated_graph` is now a thin wrapper that
+flattens the grid occupancy, calls the Rust kernel, and replays the
+returned (nodes, edges) into a `networkx.DiGraph` in the exact order the
+pre-migration code added them — so `nx.minimum_cut` (which stays in
+Python) sees a bit-identical graph including adjacency insertion order.
+All kernels are integer-only (i32 occupancy ids, i64 capacities); there
+is no floating-point arithmetic to drift.
+
+**Base case (smallest meaningful input, bit-exact with the oracle).**
+A 1×1 free grid: `cell_capacity(0, 0, 0)` = 4 (no traces, no pads), the
+cell is not hard-blocked, and the graph build over `source = sink =
+(0,0,0)` returns the single node `[0]` with no edges (no in-bounds
+4-neighbours). The differential suite pins this exact case:
+`test_capacity_batch_empty_grid_and_single_cell_grid` (capacity 4) and
+`test_graph_kernel_empty_and_single_cell_grids` (single node, no edges)
+compare the Rust kernel against the verbatim pre-migration oracle and
+assert bit-exact equality. The deadline kernel's base behaviour is also
+pinned: below 256 iterations the deadline never fires
+(`test_graph_deadline_never_fires_before_first_stride`), matching the
+reference's stride-gated checks.
+
+**Induction step (per-cell independence, order preservation, no
+cross-cell interaction).**
+
+1. *Per-cell independence of the capacity function.*
+   `cell_capacity(l, r, c)` reads only the cell itself, its 4 cardinal
+   neighbours' trace ids, and its 4 cardinal neighbours' pad ids + class
+   ranks. Every discount is a pure function of those 5+4 values and the
+   two scalars (`current_category`, the bounds). No value of any other
+   cell participates, and no cell's result feeds another cell's
+   computation (capacities are cached but each is computed from the raw
+   arrays, so caching is a pure memoisation of an idempotent function —
+   bit-identical to the reference's recompute-per-edge). Adding a row or
+   column to the grid evaluates the same formula on new cells without
+   perturbing existing ones, so correctness extends by induction on grid
+   dimensions. The R4 discount decision is likewise a pure function of
+   the neighbour's class rank (or the unresolvable-class sentinel,
+   which maps to the reference's "any non-zero pad discounts" fallback).
+   Pinned by `test_capacity_batch_matches_reference_on_randomized_inputs`
+   (400+ cells) and the full R4 decision matrix test.
+
+2. *The hard-blocked check is per-cell.* `hard_blocked` is a pure
+   function of the cell's two occupancy ids (with out-of-bounds →
+   blocked). No interaction between cells. Pinned by
+   `test_hard_blocked_batch_matches_reference_on_randomized_inputs`
+   (300+ cells).
+
+3. *Order preservation of the graph build.* The node set is the
+   (order-independent) reachability closure over 4-neighbours of
+   capacity>0, non-hard-blocked cells seeded from source ∪ sink — a pure
+   graph-theoretic closure, so the Rust frontier's (caller-order) seeding
+   yields exactly the reference's set, which the kernel then sorts.
+   Edge construction iterates nodes in sorted order with the fixed
+   neighbour order (-1,0),(1,0),(0,-1),(0,1) and emits each undirected
+   pair's two directed edges exactly once, at the smaller endpoint's
+   turn — the same first-insertion sequence the reference's
+   `g.add_edge` calls produce (its second call per pair is a dict
+   update). Because the wrapper replays the list in order, the networkx
+   adjacency insertion order — which `minimum_cut`'s BFS iterates — is
+   bit-identical. Pinned by
+   `test_graph_kernel_matches_reference_on_randomized_inputs` (50 random
+   graphs, comparing node lists, edge sets, capacities, AND per-node
+   adjacency order).
+
+4. *No cross-cell interaction in the deadline kernel.* The deadline
+   (stride-checked every 256 iterations in both loops, counting every
+   BFS pop and every in-nodes neighbour visit from both endpoints, as
+   the reference does) only ever short-circuits a build; it never
+   changes a node/edge value. An expired deadline on a grid with ≥ 256
+   pops raises TimeoutError; below the first stride it never fires
+   (both pinned).
+
+**Empirical verification.** The differential suite
+(`packages/temper-placer/tests/router_v6/test_bottleneck_geometry_rust_differential.py`)
+pins the Rust kernels bit-exactly against the verbatim pre-migration
+implementations (17 tests): randomized capacity batches (400+ cells),
+hard-blocked batches (300+ cells), 50 randomized full graph builds with
+node/edge/order equality, degenerate grids (empty, single-cell,
+fully-saturated), obstacle walls, the R4 decision matrix, out-of-bounds
+behaviour (row/col → 0; layer → IndexError, mirroring the reference),
+and the deadline stride semantics. The pre-existing suites
+(`test_bottleneck_geometry.py` incl. the end-to-end 3×3 min-cut,
+`test_diagnostics.py`, `test_adapter.py` — 116 tests) pass unchanged,
+exercising the Rust kernels through the wrappers, including
+`nx.minimum_cut` on the Rust-built graph. The PBT suite
+(`test_bottleneck_geometry_pbt.py`) verifies five non-vacuous properties
+(boundedness [0,4], monotonicity with a strict-decrease witness,
+edge-label round-trip = induced min-cap subgraph, 90°-rotation symmetry
+of the capacity field + min-cut value, min-cut non-negativity and cut
+bound), each with a mutation test proving a degenerate kernel violates
+it. Metamorphic relations (`test_bottleneck_geometry_metamorphic.py`):
+translation invariance, source/sink swap invariance of the min-cut
+value, obstacle-doubling monotonicity (see the note there on why
+per-area s² scaling does not apply to a per-cell trace-count model),
+and higher-safety reclassification monotonicity.
+
+**Recorded remainder (not faked):** `nx.minimum_cut` itself (networkx's
+Edmonds–Karp) still runs in Python on the bit-identical graph. Porting
+it would require replicating networkx's residual-network construction
+and bidirectional-BFS augmentation order to reproduce the exact
+`reachable`/`non_reachable` partition (the cut VALUE alone is an
+algorithm-invariant and would be easy; the partition is not). This is a
+separate, lower-risk follow-up; the graph build and capacity loops — the
+documented pure-Python hotspot — are the kernels migrated here.
