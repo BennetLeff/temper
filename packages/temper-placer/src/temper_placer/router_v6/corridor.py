@@ -3,11 +3,16 @@
 Given a coarse path (list of coarse grid cells), produces a boolean
 mask on the fine grid that defines the routing corridor.  Only fine
 cells within the expanded corridor may be used during constrained A*.
+
+The computation lives in the ``temper_geometry`` Rust crate
+(``packages/temper-geometry/src/corridor.rs``); this module keeps the
+original signature so router call sites are unchanged.
 """
 
 from __future__ import annotations
 
 import numpy as np
+import temper_geometry as _tg
 
 
 def extract_corridor_mask(
@@ -38,11 +43,7 @@ def extract_corridor_mask(
         Boolean (bool) ndarray of shape ``(fine_rows, fine_cols)``
         where ``True`` indicates the cell is within the corridor.
     """
-    mask = np.zeros((fine_rows, fine_cols), dtype=np.bool_)
-    for cx, cy in coarse_path:
-        r0 = max(0, cy * coarse_factor - buffer_cells)
-        r1 = min(fine_rows, (cy + 1) * coarse_factor + buffer_cells)
-        c0 = max(0, cx * coarse_factor - buffer_cells)
-        c1 = min(fine_cols, (cx + 1) * coarse_factor + buffer_cells)
-        mask[r0:r1, c0:c1] = True
-    return mask
+    raw = _tg.extract_corridor_mask(
+        coarse_path, coarse_factor, buffer_cells, fine_rows, fine_cols
+    )
+    return np.frombuffer(raw, dtype=np.bool_).reshape((fine_rows, fine_cols))

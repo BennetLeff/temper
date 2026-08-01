@@ -18,3 +18,7 @@ proptest = "1"
 
 [profile.release]
 panic = "unwind"
+
+[lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"
