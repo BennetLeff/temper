@@ -6,7 +6,6 @@
 // PyO3 bridge functions mirror Python function signatures 1:1.
 
 use pyo3::prelude::*;
-use temper_py_bridge;
 use crate::types::*;
 
 // ---------------------------------------------------------------------------

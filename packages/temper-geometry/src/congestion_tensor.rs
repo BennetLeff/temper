@@ -10,15 +10,15 @@ use pyo3::prelude::*;
 #[pyclass(name = "CongestionTensor")]
 pub struct CongestionTensor {
     #[pyo3(get)]
-    data: Vec<f32>,
+    pub data: Vec<f32>,
     #[pyo3(get)]
-    rows: usize,
+    pub rows: usize,
     #[pyo3(get)]
-    cols: usize,
+    pub cols: usize,
     #[pyo3(get, set)]
-    max_cost: f32,
+    pub max_cost: f32,
     #[pyo3(get, set)]
-    weight: f32,
+    pub weight: f32,
 }
 
 #[pymethods]
@@ -86,8 +86,10 @@ mod tests {
 
     #[test]
     fn test_cost_respects_cap() {
+        // raw must exceed exp(49) - 1 (~1.9e21) to reach the 50.0 cap; a
+        // smaller value (e.g. 1e6) only yields ~14.8 and does not test the cap.
         let ct = CongestionTensor {
-            data: vec![1e6_f32, 0.0], rows: 1, cols: 2, max_cost: 50.0, weight: 1.0,
+            data: vec![f32::MAX, 0.0], rows: 1, cols: 2, max_cost: 50.0, weight: 1.0,
         };
         assert_eq!(ct.cost(0, 0), 50.0);
     }
