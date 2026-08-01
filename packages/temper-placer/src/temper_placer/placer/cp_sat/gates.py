@@ -586,22 +586,14 @@ def _min_width_ipc2152(
     Uses bisection over the IPC-2221 forward formula; the IPC-2152 curve
     is broadly similar for standard 1oz/10C rise.  Internal layers are
     derated by a factor of 0.55 per IPC-2152 Section 3.
+
+    Computed in the ``temper-constraints`` Rust crate (``ipc.rs``) with
+    the exact f64 operation order of the former pure-Python bisection
+    (60 iterations, banker's rounding to 3 decimals).
     """
+    import temper_constraints as _tc
 
-    if current_a <= 0.0:
-        return 0.0
-
-    lo, hi = 0.001, 50.0  # mm search range
-    for _ in range(60):
-        mid = (lo + hi) / 2.0
-        cap = _ipc2152_forward(mid, copper_oz, temp_rise_c, internal_layer)
-        if cap < current_a:
-            lo = mid
-        else:
-            hi = mid
-
-    width_mm = hi
-    return round(width_mm, 3)
+    return _tc.min_width_ipc2152_py(current_a, copper_oz, temp_rise_c, internal_layer)
 
 
 def _ipc2152_forward(
@@ -615,17 +607,12 @@ def _ipc2152_forward(
     Uses IPC-2152 external-curve coefficients, roughly matching the
     universal chart for 1oz / 10C rise.  Internal layers are derated
     to 65% of external capacity per IPC-2152 Section 3.
+
+    Computed in the ``temper-constraints`` Rust crate (``ipc.rs``).
     """
-    width_mils = width_mm * 39.3701
-    thickness_mils = copper_oz * 1.37
-    area_mils2 = width_mils * thickness_mils
+    import temper_constraints as _tc
 
-    k_ext = 0.065  # IPC-2152 external-coefficient for 1oz (cf 0.048 IPC-2221)
-    current_ext = k_ext * (temp_rise_c**0.44) * (area_mils2**0.725)
-
-    if internal_layer:
-        return current_ext * 0.65
-    return current_ext
+    return _tc.ipc2152_forward_py(width_mm, copper_oz, temp_rise_c, internal_layer)
 
 
 # ------------------------------------------------------------------

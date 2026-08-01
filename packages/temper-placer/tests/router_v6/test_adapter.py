@@ -1425,7 +1425,7 @@ class TestInjectedAssignmentsSurvival:
         patcher, mock_pipe_cls = self._patched_pipeline()
         temp_path = self._write_minimal_pcb()
         try:
-            nets = [SimpleNamespace(name=n) for n in assignments.keys()]
+            nets = [SimpleNamespace(name=n) for n in assignments]
             parsed = type(
                 "ParsedPCB",
                 (),

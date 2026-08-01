@@ -8,6 +8,7 @@ use crate::types::{
     PlacementState, QualityConfig, QualityMetrics, PcbSpecification,
     Violation, ViolationType,
 };
+use std::collections::HashMap;
 
 pub fn evaluate(
     config: &QualityConfig,
@@ -36,16 +37,22 @@ fn evaluate_clearance(
     }
 
     let min_clearance = config.min_hv_lv_clearance_mm;
+    let index: HashMap<&str, usize> = placement
+        .component_refs
+        .iter()
+        .enumerate()
+        .map(|(i, r)| (r.as_str(), i))
+        .collect();
 
     for hv_ref in &config.hv_components {
+        let Some(&hv_pos) = index.get(hv_ref.as_str()) else {
+            continue;
+        };
         for lv_ref in &config.lv_components {
             if hv_ref == lv_ref {
                 continue;
             }
-            let Some(hv_pos) = placement.component_refs.iter().position(|r| r == hv_ref) else {
-                continue;
-            };
-            let Some(lv_pos) = placement.component_refs.iter().position(|r| r == lv_ref) else {
+            let Some(&lv_pos) = index.get(lv_ref.as_str()) else {
                 continue;
             };
 
@@ -102,23 +109,29 @@ fn evaluate_thermal(
     placement: &PlacementState,
     violations: &mut Vec<Violation>,
 ) {
-    let thermal_refs: Vec<&String> = config.thermal_components.iter().collect();
-    if thermal_refs.len() < 2 {
+    let thermal = &config.thermal_components;
+    if thermal.len() < 2 {
         return;
     }
 
     let min_spacing = 10.0;
+    let index: HashMap<&str, usize> = placement
+        .component_refs
+        .iter()
+        .enumerate()
+        .map(|(i, r)| (r.as_str(), i))
+        .collect();
 
-    for i in 0..thermal_refs.len() {
-        for j in (i + 1)..thermal_refs.len() {
-            let Some(pos_i) = placement.component_refs.iter().position(|r| r == thermal_refs[i]) else {
+    for (i, a) in thermal.iter().enumerate() {
+        let Some(&pos_i) = index.get(a.as_str()) else {
+            continue;
+        };
+        let (ix, iy) = placement.positions[pos_i];
+        for b in thermal.iter().skip(i + 1) {
+            let Some(&pos_j) = index.get(b.as_str()) else {
                 continue;
             };
-            let Some(pos_j) = placement.component_refs.iter().position(|r| r == thermal_refs[j]) else {
-                continue;
-            };
 
-            let (ix, iy) = placement.positions[pos_i];
             let (jx, jy) = placement.positions[pos_j];
 
             let dx = ix - jx;
@@ -130,9 +143,9 @@ fn evaluate_thermal(
                     violation_type: ViolationType::ThermalClearanceViolated,
                     description: format!(
                         "thermal components {} and {} are {:.2}mm apart; min spacing is {:.2}mm",
-                        thermal_refs[i], thermal_refs[j], dist, min_spacing
+                        a, b, dist, min_spacing
                     ),
-                    components: vec![thermal_refs[i].clone(), thermal_refs[j].clone()],
+                    components: vec![a.clone(), b.clone()],
                     actual_value: dist,
                     required_value: min_spacing,
                 });
@@ -154,6 +167,7 @@ fn evaluate_zones(
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
     use crate::tests_common::{dummy_metrics, empty_spec};

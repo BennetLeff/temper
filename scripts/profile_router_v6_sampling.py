@@ -5,7 +5,7 @@ time actually goes in the current state (after U0-U6 ship).  Limits
 ``max_nets`` to a small subset of easy nets (GND-style, short paths)
 so the profile finishes in a few minutes.  Adds a per-net A*
 iteration cap via the new U6 ``max_iterations`` parameter on the
-Numba kernel so a single stuck net can't blow the time budget.
+Rust kernel so a single stuck net can't blow the time budget.
 
 Usage (from the repo root):
     PYTHONPATH=packages/temper-placer/src \

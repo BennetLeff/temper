@@ -27,6 +27,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import numpy as np
+import temper_geometry as _tg
 
 if TYPE_CHECKING:
     from temper_placer.core.board import Board
@@ -197,36 +198,16 @@ def _rasterise_polygon_mask(
 
     Uses the ray-casting (even-odd rule) algorithm: a cell centre is
     inside the polygon if a horizontal ray to +infinity crosses an odd
-    number of polygon edges.
+    number of polygon edges.  Computed in the ``temper_geometry`` Rust
+    crate (``packages/temper-geometry/src/copper_coverage.rs``) with
+    the exact f64 arithmetic order of the former pure-Python loop.
 
     Returns a ``(height_cells, width_cells)`` bool array.
     """
-    mask = np.zeros((height_cells, width_cells), dtype=bool)
-    n = len(polygon)
-    if n < 3:
-        return mask
-
-    px = np.array([p[0] for p in polygon], dtype=np.float64)
-    py = np.array([p[1] for p in polygon], dtype=np.float64)
-
-    for row in range(height_cells):
-        cy = oy + (row + 0.5) * cs
-        for col in range(width_cells):
-            cx = ox + (col + 0.5) * cs
-
-            inside = False
-            j = n - 1
-            for i in range(n):
-                yi = py[i]
-                yj = py[j]
-                if ((yi > cy) != (yj > cy)) and (
-                    cx < (px[j] - px[i]) * (cy - yi) / (yj - yi) + px[i]
-                ):
-                    inside = not inside
-                j = i
-            mask[row, col] = inside
-
-    return mask
+    raw = _tg.rasterise_polygon_mask(
+        [v for pt in polygon for v in pt], height_cells, width_cells, ox, oy, cs
+    )
+    return np.frombuffer(raw, dtype=np.bool_).reshape((height_cells, width_cells))
 
 
 # ---------------------------------------------------------------------------
@@ -253,9 +234,9 @@ SANITY_CEILING_C = 400.0
 # be investigated rather than silently accepted.
 
 
-def check_thermal_plausibility(  # noqa: ARG001
+def check_thermal_plausibility(
     field: np.ndarray | None,
-    ambient_C: float = 40.0,
+    ambient_C: float = 40.0,  # noqa: ARG001
     ceiling_C: float = SANITY_CEILING_C,
 ) -> tuple[bool, str]:
     """Check if a thermal field is physically plausible.

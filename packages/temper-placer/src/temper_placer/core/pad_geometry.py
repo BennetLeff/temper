@@ -86,6 +86,8 @@ from __future__ import annotations
 import logging
 import math
 
+import temper_geometry as _tg
+
 logger = logging.getLogger(__name__)
 
 __all__ = [
@@ -110,9 +112,47 @@ DEFAULT_ROUNDRECT_RATIO = 0.25
 # geometrically identical to "circle".
 KNOWN_SHAPES = frozenset({"circle", "oval", "rect", "roundrect", "thru_hole"})
 
+# FFI pad-shape int enum shared with temper-geometry's pyo3 surface
+# (pad_geometry.rs `SHAPE_*`): 0=circle, 1=oval, 2=rect, 3=roundrect,
+# 4=thru_hole. Unrecognized shapes map to 99 and fall back to the safe
+# r=0 sharp-corner model in Rust — identical to the old unrecognized-
+# string fallback. Pinned by the differential suites on both sides.
+SHAPE_CODES = {
+    "circle": 0,
+    "oval": 1,
+    "rect": 2,
+    "roundrect": 3,
+    "thru_hole": 4,
+}
+SHAPE_UNKNOWN_CODE = 99
+
+
+def shape_code(shape: str) -> int:
+    """Map a pad-shape name to the FFI int enum (see ``SHAPE_CODES``).
+
+    Unknown shapes map to ``SHAPE_UNKNOWN_CODE`` — the Rust core treats
+    them as sharp rectangles (r=0), the same safe fallback the old
+    string-passing boundary used.
+    """
+    return SHAPE_CODES.get(shape, SHAPE_UNKNOWN_CODE)
+
 
 def _normalize_shape(shape: str) -> str:
     return "circle" if shape == "thru_hole" else shape
+
+
+def _warn_unknown_shape(shape: str) -> None:
+    """Emit the once-per-call warning for unrecognized pad shapes (the
+    Rust core computes the same safe r=0 fallback; the warning is Python-
+    side so logs stay grep-visible in CI)."""
+    if _normalize_shape(shape) not in KNOWN_SHAPES:
+        logger.warning(
+            "pad_geometry: unrecognized pad shape %r -- falling back to a sharp "
+            "rectangular corner (r=0), which is safe (never under-reports) but "
+            "not shape-exact. Known shapes: %s",
+            shape,
+            sorted(KNOWN_SHAPES),
+        )
 
 
 def pad_corner_radius(
@@ -129,28 +169,13 @@ def pad_corner_radius(
     ``width x height`` bounding rectangle with sharp corners, which is a
     documented, safe (never-under-reporting) but not shape-exact fallback;
     see ``pad_bounding_radius``'s docstring for why r=0 is always safe.
+
+    Computed in the ``temper-geometry`` Rust crate (``pad_geometry.rs``)
+    with the exact f64 operation order of the former pure-Python closed
+    form.
     """
-    norm = _normalize_shape(shape)
-    if norm == "circle":
-        # A circle pad always has width == height == diameter in KiCad; take
-        # the larger of the two defensively in case of malformed input, so a
-        # slightly inconsistent circle pad still gets a conservative (not
-        # under-reporting) radius rather than an arbitrary one.
-        return max(width, height) / 2.0
-    if norm == "oval":
-        return min(width, height) / 2.0
-    if norm == "roundrect":
-        return roundrect_ratio * min(width, height)
-    if norm == "rect":
-        return 0.0
-    logger.warning(
-        "pad_geometry: unrecognized pad shape %r -- falling back to a sharp "
-        "rectangular corner (r=0), which is safe (never under-reports) but "
-        "not shape-exact. Known shapes: %s",
-        shape,
-        sorted(KNOWN_SHAPES),
-    )
-    return 0.0
+    _warn_unknown_shape(shape)
+    return _tg.pad_corner_radius_py(width, height, shape_code(shape), roundrect_ratio)
 
 
 def pad_core_half_extents(
@@ -166,8 +191,8 @@ def pad_core_half_extents(
     than half the pad -- should not happen for well-formed KiCad data, but
     never allowed to go negative and flip the sign of the support formula).
     """
-    r = pad_corner_radius(width, height, shape, roundrect_ratio)
-    return (max(width / 2.0 - r, 0.0), max(height / 2.0 - r, 0.0))
+    _warn_unknown_shape(shape)
+    return _tg.pad_core_half_extents_py(width, height, shape_code(shape), roundrect_ratio)
 
 
 def pad_support_radius(
@@ -188,11 +213,10 @@ def pad_support_radius(
     form -- exact for any rotation, not just axis-aligned multiples of 90
     degrees (R3: rotation must be honoured, not assumed away).
     """
-    local_angle = direction_rad - rotation_rad
-    dx, dy = math.cos(local_angle), math.sin(local_angle)
-    hw, hh = pad_core_half_extents(width, height, shape, roundrect_ratio)
-    r = pad_corner_radius(width, height, shape, roundrect_ratio)
-    return hw * abs(dx) + hh * abs(dy) + r
+    _warn_unknown_shape(shape)
+    return _tg.pad_support_radius_py(
+        width, height, shape_code(shape), direction_rad, rotation_rad, roundrect_ratio
+    )
 
 
 def pad_axis_radius(
@@ -213,8 +237,8 @@ def pad_axis_radius(
     """
     if axis not in (0, 1):
         raise ValueError(f"axis must be 0 (X) or 1 (Y), got {axis!r}")
-    direction = 0.0 if axis == 0 else math.pi / 2.0
-    return pad_support_radius(width, height, shape, direction, rotation_rad, roundrect_ratio)
+    _warn_unknown_shape(shape)
+    return _tg.pad_axis_radius_py(width, height, shape_code(shape), axis, rotation_rad, roundrect_ratio)
 
 
 def pad_bounding_radius(
@@ -235,9 +259,8 @@ def pad_bounding_radius(
     bound" for why skipping rotation here is provably correct rather than an
     oversight.
     """
-    hw, hh = pad_core_half_extents(width, height, shape, roundrect_ratio)
-    r = pad_corner_radius(width, height, shape, roundrect_ratio)
-    return math.hypot(hw, hh) + r
+    _warn_unknown_shape(shape)
+    return _tg.pad_bounding_radius_py(width, height, shape_code(shape), roundrect_ratio)
 
 
 def pad_core_polygon(
@@ -304,15 +327,20 @@ def pad_pair_distance(
     creepage requirement; ``pad_polygon`` at ``quad_segs=32`` reports
     7.9989mm and would manufacture a violation out of the approximation.
     This function reports 8.000mm.
+
+    **Computed in the ``temper-geometry`` Rust crate** (``clearance_geometry.rs``),
+    which reproduces the Shapely/GEOS result bit-for-bit (the GEOS
+    ``DistanceOp`` algorithm, the Shapely rotate/translate arithmetic, and
+    the ``sqrt(dx*dx + dy*dy)`` point distance -- NOT hypot) -- pinned by
+    ``tests/requirements/test_clearance_rust_differential.py``. The
+    pre-migration Shapely implementation remains as the differential
+    suite's oracle; ``pad_core_polygon`` stays for callers that need a
+    Shapely geometry object.
     """
-    wa, ha, sa, cxa, cya, rota, rra = pad_a
-    wb, hb, sb, cxb, cyb, rotb, rrb = pad_b
-    core_a = pad_core_polygon(wa, ha, sa, cxa, cya, rota, rra)
-    core_b = pad_core_polygon(wb, hb, sb, cxb, cyb, rotb, rrb)
-    gap = core_a.distance(core_b)
-    ra = pad_corner_radius(wa, ha, sa, rra)
-    rb = pad_corner_radius(wb, hb, sb, rrb)
-    return max(gap - ra - rb, 0.0)
+    return _tg.pad_pair_distance_py(
+        (pad_a[0], pad_a[1], shape_code(pad_a[2]), pad_a[3], pad_a[4], pad_a[5], pad_a[6]),
+        (pad_b[0], pad_b[1], shape_code(pad_b[2]), pad_b[3], pad_b[4], pad_b[5], pad_b[6]),
+    )
 
 
 def pad_polygon(

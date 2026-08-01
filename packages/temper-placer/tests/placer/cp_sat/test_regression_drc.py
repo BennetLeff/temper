@@ -686,9 +686,39 @@ PRODUCTION_DRC_SAMPLE_RUNS = 5
 # `C27(tank.c_tank1-p2) <-> R30 pad1(tank.c_tank1-p2)`) — exactly the honest,
 # designed-for consequence of staging a real, unrouted HV component rather
 # than inventing a placement for it. 0 cross-net.
+#
+# 2026-07-31 RE-MEASUREMENT (kicad-cli 10.0.4, macOS arm64 / Darwin 26.5.1),
+# against board content hash 25184170 (origin/main a10c9dba; the ONLY board
+# change since the 2026-07-30 measurement above is the K2 discharge-relay
+# swap 0f0a13412, PR #524 — verified via
+# `git log 4a387393e..a10c9dba -- pcb/temper.kicad_pcb`).  N=15 runs of
+#   kicad-cli pcb drc --format json -o out.json pcb/temper.kicad_pcb
+#   total              median 1240, range 1225–1250
+#   shorting_items     median   83, range   71–  88
+#   unconnected_items  393 in all 15 runs (no scatter at all)
+# Bootstrap over all 3003 five-run subsets: total median-of-5 spans 1234–1250
+# (still clears the 1260 ratchet), shorting_items 78–88 (still clears 90).
+# `total`/`shorting_items` are therefore UNCHANGED again.  `unconnected` rose
+# 390 -> 393 and does need raising: verified pair-by-pair against the DRC
+# JSON, the only genuinely NEW pairs (vs the pre-K2 board, content hash
+# e2fb9237, which measured unconnected 390 in all 15 runs) are K2's OWN pads
+# now unrouted at the RT314012's pad field (pads moved 11-15mm while traces
+# stayed at the old G5LE-1 positions): `PTH pad 1 [PWR_RTN] of K2` x2, `PTH
+# pad 3 [discharge.k_dis1-no] of K2` x2, `PTH pad 4 [discharge.k_dis1-nc] of
+# K2` — 7 K2-attributed records, all SAME-NET, 0 cross-net.  Same legitimate
+# class as the 388 -> 390 rise documented above (board changed, connectivity
+# re-derived), not a regression.  This is exactly the re-baseline the relay
+# branch already measured and landed (000ec2e87, "re-baseline DRC regression
+# constants and K2 blocker set after relay swap"), which was dropped in the
+# merge to main — only the router-output half (PRODUCTION_ROUTER_OUTPUT_
+# UNCONNECTED 407 -> 411, 499cf2e60) survived.  See
+# docs/evidence/2026-07-31-k2k3-relay-swap-placement.md.  Note the CI Linux
+# measurement of the same board (runs on branches ba02616f / 7e9b04c7)
+# reproduces the same failure mode: total 1226 / shorting 68 / unconnected
+# 393 — the committed-board gate was red on `unconnected`, not on `total`.
 PRODUCTION_COMMITTED_BOARD_TOTAL_DVIOLATIONS = 1260
 PRODUCTION_COMMITTED_BOARD_SHORTING_ITEMS = 90
-PRODUCTION_COMMITTED_BOARD_UNCONNECTED = 390
+PRODUCTION_COMMITTED_BOARD_UNCONNECTED = 393
 
 # --- Category B: kicad-cli DRC on route_pcb()'s output for that board ---
 # RE-MEASURED 2026-07-29 (kicad-cli 10.0.4, macOS arm64), against the shape
@@ -773,9 +803,25 @@ PRODUCTION_COMMITTED_BOARD_UNCONNECTED = 390
 # SW_NODE / tank.c_tank1-p2 pair as Category A) plus ordinary router-noise
 # relabeling of the same 13 renumbered designators; 0 cross-net over all new
 # pairs, verified directly against both DRC JSON outputs.
+#
+# 2026-07-31 RE-MEASUREMENT (kicad-cli 10.0.4, macOS arm64, K2 swap on main
+# via PR #524): `unconnected` rose 407 -> 411 -- verified pair-by-pair, the
+# new pairs are K2's OWN pads now unrouted at the RT314012's pad field
+# (pads moved 11-15mm while traces stayed at the old G5LE-1 positions):
+# `PTH pad 1 [PWR_RTN] of K2` x2, `PTH pad 2 [discharge.k_dis1-coil1] of
+# K2` x2, `PTH pad 4 [discharge.k_dis1-nc] of K2` x2, `PTH pad 3
+# [discharge.k_dis1-no] of K2` -- 7 K2-attributed records, all SAME-NET,
+# 0 cross-net; the router re-route is the follow-up. Same legitimate class
+# as the 388 -> 390 / 396 -> 405 rises documented above (board changed,
+# connectivity re-derived), not a regression. See
+# docs/evidence/2026-07-31-k2k3-relay-swap-placement.md and commit
+# 000ec2e87 on fix/k2k3-relay-swap. (Note: this branch's router measures
+# 408 -- zero scatter across 10 DRC runs, bare and --all-track-errors; the
+# 411 ceiling is the relay-branch measurement on pre-merge router code and
+# absorbs that +3.)
 PRODUCTION_ROUTER_OUTPUT_TOTAL_DVIOLATIONS = 1560
 PRODUCTION_ROUTER_OUTPUT_SHORTING_ITEMS = 125
-PRODUCTION_ROUTER_OUTPUT_UNCONNECTED = 407
+PRODUCTION_ROUTER_OUTPUT_UNCONNECTED = 411
 
 
 @dataclass(frozen=True)

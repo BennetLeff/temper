@@ -125,12 +125,24 @@ pub fn detect_tensions(model: &InternalConstraintModel) -> Vec<TensionViolation>
         }
     }
 
+    // Memoize must-use net counts per channel (F6): both Check 1 and Check 3
+    // need `count_must_use_nets(channel, net_set, ...)` with identical inputs,
+    // so compute each channel's (count, must_use_nets) once here instead of
+    // once per check.
+    let must_use_by_channel: HashMap<&str, (usize, Vec<usize>)> = capacity_by_channel
+        .iter()
+        .map(|(&ch, (_, _, net_set))| {
+            (
+                ch,
+                count_must_use_nets(ch, net_set, &net_bans, &net_channels, &all_channels),
+            )
+        })
+        .collect();
+
     // Check 1: Capacity oversubscription.
     check_capacity_oversubscription(
         &capacity_by_channel,
-        &net_bans,
-        &net_channels,
-        &all_channels,
+        &must_use_by_channel,
         &mut violations,
     );
 
@@ -145,6 +157,7 @@ pub fn detect_tensions(model: &InternalConstraintModel) -> Vec<TensionViolation>
     check_layer_restriction_starvation(
         model,
         &capacity_by_channel,
+        &must_use_by_channel,
         &net_bans,
         &net_channels,
         &all_channels,
@@ -179,11 +192,9 @@ fn count_must_use_nets(
     net_channels: &HashMap<usize, HashSet<&str>>,
     all_channels: &HashSet<&str>,
 ) -> (usize, Vec<usize>) {
-    let other_channels: HashSet<&str> =
-        all_channels.iter().filter(|&&ch| ch != channel_id).copied().collect();
-
-    // If there are no other channels in the model, no net is must-use.
-    if other_channels.is_empty() {
+    // If there are no other channels in the model, no net is must-use
+    // (channel_id itself is always in all_channels).
+    if all_channels.len() < 2 {
         return (0, Vec::new());
     }
 
@@ -204,7 +215,7 @@ fn count_must_use_nets(
         }
 
         let bans = net_bans.get(&net_idx);
-        let all_alternatives_banned = other_channels.iter().all(|&och| {
+        let all_alternatives_banned = all_channels.iter().filter(|&&c| c != channel_id).all(|&och| {
             // Only consider channels the net actually has vars for.
             if !net_chs.contains(och) {
                 return true; // can't use it anyway, so skip
@@ -225,18 +236,18 @@ fn count_must_use_nets(
 /// Check 1: For each channel, count must-use nets and compare against capacity.
 fn check_capacity_oversubscription(
     capacity_by_channel: &HashMap<&str, (usize, usize, HashSet<usize>)>,
-    net_bans: &HashMap<usize, HashSet<&str>>,
-    net_channels: &HashMap<usize, HashSet<&str>>,
-    all_channels: &HashSet<&str>,
+    must_use_by_channel: &HashMap<&str, (usize, Vec<usize>)>,
     violations: &mut Vec<TensionViolation>,
 ) {
-    for (&channel_id, &(ci, max_nets, ref net_set)) in capacity_by_channel {
-        let (count, _must_use) = count_must_use_nets(
-            channel_id, net_set, net_bans, net_channels, all_channels,
-        );
+    for (&channel_id, &(ci, max_nets, _)) in capacity_by_channel {
+        // Memoized in detect_tensions (F6) — keyed by capacity_by_channel.
+        let &(count, ref must_use) = match must_use_by_channel.get(channel_id) {
+            Some(entry) => entry,
+            None => continue,
+        };
 
         if count > max_nets {
-            let net_list: Vec<String> = _must_use.iter().map(|n| format!("N{n}")).collect();
+            let net_list: Vec<String> = must_use.iter().map(|n| format!("N{n}")).collect();
             violations.push(TensionViolation {
                 constraint_pair: (ci, ci),
                 channel_id: channel_id.to_string(),
@@ -287,9 +298,14 @@ fn check_diffpair_vs_capacity(
 
 /// Check 3: Layer-restriction starvation — each net is forced to one channel
 /// whose capacity is exceeded by must-use nets.
+///
+/// 8 params: the shared `must_use_by_channel` memo (F6) is threaded in
+/// alongside the pre-pass indexes it is computed from.
+#[allow(clippy::too_many_arguments)]
 fn check_layer_restriction_starvation(
     model: &InternalConstraintModel,
     capacity_by_channel: &HashMap<&str, (usize, usize, HashSet<usize>)>,
+    must_use_by_channel: &HashMap<&str, (usize, Vec<usize>)>,
     net_bans: &HashMap<usize, HashSet<&str>>,
     net_channels: &HashMap<usize, HashSet<&str>>,
     all_channels: &HashSet<&str>,
@@ -316,16 +332,15 @@ fn check_layer_restriction_starvation(
                 _ => continue,
             };
 
-            if let Some(&(cap_ci, max_nets, ref net_set)) = capacity_by_channel.get(ch) {
+            if let Some(&(cap_ci, max_nets, _)) = capacity_by_channel.get(ch) {
                 // Check if this net has only this channel available.
-                let other_channels: Vec<&&str> =
-                    all_channels.iter().filter(|&&och| och != ch).collect();
-                if other_channels.is_empty() {
+                // (ch is always in all_channels, so len < 2 means no alternatives.)
+                if all_channels.len() < 2 {
                     continue;
                 }
 
                 let bans = net_bans.get(&net_idx);
-                let only_this = other_channels.iter().all(|&&och| {
+                let only_this = all_channels.iter().filter(|&&och| och != ch).all(|&och| {
                     match bans {
                         Some(bans) => bans.contains(och),
                         None => match net_channels.get(&net_idx) {
@@ -339,10 +354,12 @@ fn check_layer_restriction_starvation(
                     continue;
                 }
 
-                // Count total must-use nets on this channel.
-                let (must_use_count, _) = count_must_use_nets(
-                    ch, net_set, net_bans, net_channels, all_channels,
-                );
+                // Total must-use nets on this channel (memoized in
+                // detect_tensions, F6 — Check 3 ignores the net list).
+                let must_use_count = match must_use_by_channel.get(ch) {
+                    Some(&(count, _)) => count,
+                    None => continue,
+                };
 
                 if must_use_count > max_nets {
                     violations.push(TensionViolation {
@@ -407,8 +424,7 @@ fn check_mutually_exclusive_diffpair(
             .collect();
 
         if !p_allowed.is_empty() && !n_allowed.is_empty() {
-            let intersection: Vec<&&str> = p_allowed.intersection(&n_allowed).collect();
-            if intersection.is_empty() {
+            if p_allowed.intersection(&n_allowed).next().is_none() {
                 violations.push(TensionViolation {
                     constraint_pair: (dpi, dpi),
                     channel_id: String::new(),

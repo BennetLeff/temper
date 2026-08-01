@@ -237,12 +237,14 @@ class TestAntiFalseZeroMocked:
             lambda: None,
         )
         # Re-import after monkeypatch to get clean DrcGate with patched namespace.
+        import tempfile
+
         from temper_placer.placer.cp_sat.gates import (
             BoardState as FreshBoardState,
+        )
+        from temper_placer.placer.cp_sat.gates import (
             DrcGate as FreshDrcGate,
         )
-
-        import tempfile
 
         tmp_pcb = Path(tempfile.mktemp(suffix=".kicad_pcb"))
         tmp_pcb.touch()

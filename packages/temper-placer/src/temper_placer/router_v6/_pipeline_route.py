@@ -563,7 +563,6 @@ def _run_stage4(
         enable_all_pad_tree=self.enable_all_pad_tree,
         coarse_factor=self.coarse_factor,
         corridor_buffer_cells=self.corridor_buffer_cells,
-        enable_numba_los=self.enable_numba_los,
     )
     pathfinding_result = orchestrated.assemble_pathfinding_result(state)
 
@@ -585,7 +584,6 @@ def _run_stage4(
             enable_coarse_to_fine=self.enable_coarse_to_fine,
             coarse_factor=self.coarse_factor,
             corridor_buffer_cells=self.corridor_buffer_cells,
-            enable_numba_los=self.enable_numba_los,
             enforce_all_pad_tree=self.enable_all_pad_tree,
         )
 

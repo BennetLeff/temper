@@ -922,10 +922,6 @@ temper_placer/pipeline/visualization.py::create_progress_display  # TODO: temper
 temper_placer/placer/adjustment.py::adjust_for_congestion  # TODO: temper-xxx
 temper_placer/placer/cp_sat/audit.py::AuditReport.all_pass  # TODO: temper-xxx
 temper_placer/placer/cp_sat/audit.py::PlacementAuditor.audit  # TODO: temper-xxx
-temper_placer/placer/cp_sat/concrete_gates.py::DrcGate.check  # TODO: temper-xxx
-temper_placer/placer/cp_sat/concrete_gates.py::DrcGate.to_delta  # TODO: temper-xxx
-temper_placer/placer/cp_sat/concrete_gates.py::RoutingGate.check  # TODO: temper-xxx
-temper_placer/placer/cp_sat/concrete_gates.py::RoutingGate.to_delta  # TODO: temper-xxx
 temper_placer/placer/cp_sat/delta_mapper.py::DeltaMapper.map  # TODO: temper-xxx
 temper_placer/placer/cp_sat/encoder.py::CpSatPlacementResult.to_placements_dict  # TODO: temper-xxx
 temper_placer/placer/cp_sat/encoder.py::encode_constraints  # TODO: temper-xxx
@@ -1072,9 +1068,9 @@ temper_placer/router_v6/astar_core.py::in_bounds  # TODO: temper-xxx
 temper_placer/router_v6/astar_core.py::log_los_bb_stats  # TODO: temper-xxx
 temper_placer/router_v6/astar_core.py::octile_distance  # TODO: temper-xxx
 temper_placer/router_v6/astar_core.py::reset_los_bb_stats  # TODO: temper-xxx
-temper_placer/router_v6/astar_core_numba.py::RouteProfileStats.reset  # TODO: temper-xxx
-temper_placer/router_v6/astar_core_numba.py::get_route_profile_stats  # TODO: temper-xxx
-temper_placer/router_v6/astar_core_numba.py::reset_route_profile_stats  # TODO: temper-xxx
+temper_placer/router_v6/astar_core_rust.py::RouteProfileStats.reset  # TODO: temper-xxx
+temper_placer/router_v6/astar_core_rust.py::get_route_profile_stats  # TODO: temper-xxx
+temper_placer/router_v6/astar_core_rust.py::reset_route_profile_stats  # TODO: temper-xxx
 temper_placer/router_v6/astar_monitor.py::MonitorState.record_pop  # TODO: temper-xxx
 temper_placer/router_v6/astar_monitor.py::MonitorState.validate_cost_lower_bound  # TODO: temper-xxx
 temper_placer/router_v6/astar_monitor.py::MonitorState.validate_path_completeness  # TODO: temper-xxx

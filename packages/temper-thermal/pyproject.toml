@@ -1,0 +1,12 @@
+[build-system]
+requires = ["maturin>=1.7,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "temper-thermal"
+version = "0.1.0"
+description = "Thermal FDM assembly kernels for temper-placer (pyo3)"
+requires-python = ">=3.11"
+
+[tool.maturin]
+module-name = "temper_thermal"

@@ -113,7 +113,10 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+import temper_geometry as _tg
+
 from temper_placer.core.isolation_constants import MIN_BARRIER_WIDTH_MM
+from temper_placer.core.pad_geometry import shape_code
 
 if TYPE_CHECKING:
     from temper_placer.core.netlist import Component, Netlist
@@ -333,15 +336,17 @@ def _axis_gap(hv_pads: list[Pad], selv_pads: list[Pad], axis_idx: int) -> float:
     other, EVERY HV/SELV pad pair must individually clear the gap -- the
     tightest pair sets the achievable separation, exactly like
     ``domain_clearance.py``'s own per-pair Chebyshev margin.
+
+    Computed in the ``temper-geometry`` Rust crate (``pad_geometry.rs``)
+    with the exact f64 operation order of the former pure-Python loop.
     """
-    worst = float("inf")
-    for hp in hv_pads:
-        for sp in selv_pads:
-            h = (hp.x, hp.y)[axis_idx]
-            s = (sp.x, sp.y)[axis_idx]
-            gap = abs(h - s) - hp.axis_radius(axis_idx) - sp.axis_radius(axis_idx)
-            worst = min(worst, gap)
-    return worst
+    return _tg.barrier_axis_gap_py(
+        [_pad_tuple(p) for p in hv_pads], [_pad_tuple(p) for p in selv_pads], axis_idx
+    )
+
+
+def _pad_tuple(p: Pad) -> tuple[float, float, float, float, int, float]:
+    return (p.x, p.y, p.width, p.height, shape_code(p.shape), p.roundrect_ratio)
 
 
 def _project_onto_barrier_axis(local_x: float, local_y: float, rot_value: int, barrier_axis: int) -> float:
@@ -406,41 +411,14 @@ def _best_rotation_for_barrier(
     board -- every isolator's HV/SELV clusters are cleanly ordered on at
     least one axis), returns rot=0 and the (necessarily negative or
     convention-violating) gap for rot=0 as a safe, still-checkable fallback.
+
+    Computed in the ``temper-geometry`` Rust crate (``pad_geometry.rs``)
+    with the exact operation order (first-maximum tie-breaking, fallback
+    semantics) of the former pure-Python sweep.
     """
-    best: tuple[int, float] | None = None
-    fallback: tuple[int, float] | None = None
-    for rot_value in (0, 1, 2, 3):
-        rot_rad = rot_value * math.pi / 2.0
-        hv_proj = [
-            (_project_onto_barrier_axis(p.x, p.y, rot_value, barrier_axis), p.axis_radius(barrier_axis, rot_rad))
-            for p in hv_pads
-        ]
-        selv_proj = [
-            (_project_onto_barrier_axis(p.x, p.y, rot_value, barrier_axis), p.axis_radius(barrier_axis, rot_rad))
-            for p in selv_pads
-        ]
-        hv_mean = sum(p for p, _ in hv_proj) / len(hv_proj)
-        selv_mean = sum(p for p, _ in selv_proj) / len(selv_proj)
-        gap = min(abs(hp - sp) - hr - sr for hp, hr in hv_proj for sp, sr in selv_proj)
-        if fallback is None or gap > fallback[1]:
-            fallback = (rot_value, gap)
-        if hv_mean > selv_mean:
-            continue  # would invert the board-wide HV=lo/SELV=hi convention
-        if best is None or gap > best[1]:
-            best = (rot_value, gap)
-    if best is not None:
-        return (best[0], best[1], True)
-    # `fallback` is assigned on the first pass of the loop above -- the rotation
-    # sweep is a non-empty literal tuple and the first iteration always takes the
-    # `fallback is None` branch -- so this is unreachable by construction. mypy
-    # cannot narrow that, hence the explicit assert.
-    #
-    # Deliberately NOT `fallback or (0, 0.0)`: a None here would mean the sweep
-    # stopped running, and a 0.0 gap is not a neutral default on a safety
-    # barrier -- it is a fabricated separation that downstream feasibility
-    # checks would read as a real measurement. Fail loudly instead.
-    assert fallback is not None, "rotation sweep produced no fallback -- loop did not execute"
-    return (fallback[0], fallback[1], False)
+    return _tg.best_rotation_for_barrier_py(
+        [_pad_tuple(p) for p in hv_pads], [_pad_tuple(p) for p in selv_pads], barrier_axis
+    )
 
 
 @dataclass

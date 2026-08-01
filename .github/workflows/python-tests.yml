@@ -702,6 +702,21 @@ jobs:
         if: steps.cache-netlist.outputs.cache-hit != 'true'
         run: make netlist
 
+      # The netlist cache key is a content hash of every netlist input
+      # (elec/src/**, elec/ato.yaml, Makefile), so on a cache hit the restored
+      # netlist is byte-identical to what `make netlist` would produce. But
+      # actions/cache restores files with their ORIGINAL mtimes, while git
+      # checkout stamps the .ato sources with the checkout time -- so the
+      # mtime-based staleness checks below (check_copper_net_consistency.py,
+      # check_footprint_drift.py) see 'source newer than netlist' on every
+      # cache-hit run and fail closed on a false positive (verified: both
+      # gates pass with 0 violations after `make netlist`). Touch the
+      # restored artifacts so their mtimes reflect this run's checkout, the
+      # exact state a fresh build would leave.
+      - name: Refresh netlist mtimes (cache restores original mtimes)
+        if: steps.cache-netlist.outputs.cache-hit == 'true'
+        run: touch elec/build/default.net elec/build/default.csv
+
       # ---- SETUP / GATE BOUNDARY -------------------------------------------
       # Everything ABOVE is setup and stays fail-fast: it has no `if:`, so if
       # any of it fails (maturin, uv sync, make netlist) this step never runs,
@@ -2290,7 +2305,7 @@ jobs:
         working-directory: packages/temper-placer
         run: >
           uv run python ../../scripts/pytest_guard.py --min-tests 500 --
-          tests/router_v6/metrics/test_octilinear.py tests/router_v6/test_adapter_repair_verification.py tests/router_v6/test_all_pad_tree_routing.py  tests/router_v6/test_annular_ring_boundary.py tests/router_v6/test_apply_suggestions.py tests/router_v6/test_assignment_validation_pbt.py  tests/router_v6/test_astar_3d_production_scale_spike.py tests/router_v6/test_astar_metamorphic_pbt.py tests/router_v6/test_audit_tree_geometry.py  tests/router_v6/test_bottleneck_geometry.py tests/router_v6/test_bottleneck_ordering_pbt.py tests/router_v6/test_bundled_equivalence.py  tests/router_v6/test_channel_mapping.py tests/router_v6/test_channel_widths_pbt.py tests/router_v6/test_clearance_rust_differential.py  tests/router_v6/test_coarse_grid_pbt.py tests/router_v6/test_congestion_analysis.py tests/router_v6/test_constraint_model.py  tests/router_v6/test_copper_balance_properties.py tests/router_v6/test_corridor.py tests/router_v6/test_diagnostics.py  tests/router_v6/test_diff_pair_constraints.py tests/router_v6/test_diff_pair_inference.py tests/router_v6/test_escape_via_generator.py  tests/router_v6/test_inductive_ladder.py tests/router_v6/test_kicad_connectivity_preflight.py tests/router_v6/test_layer_assignment_ssot.py  tests/router_v6/test_layer_constraints.py tests/router_v6/test_los_numba_correctness.py tests/router_v6/test_manufacturing_report_induction.py  tests/router_v6/test_multi_layer_tree_routing.py tests/router_v6/test_multilayer_edge_cases.py tests/router_v6/test_net_prep_pbt.py  tests/router_v6/test_obstacle_map_pbt.py tests/router_v6/test_placement_suggestions.py tests/router_v6/test_quality_via_count.py  tests/router_v6/test_routability_check.py tests/router_v6/test_router_v6_drc_invariants_pbt.py tests/router_v6/test_routing_demand.py  tests/router_v6/test_routing_results.py tests/router_v6/test_scale_resolution.py tests/router_v6/test_stage0_loader.py  tests/router_v6/test_stage2_monolith_parity.py tests/router_v6/test_teardrop_generation.py tests/router_v6/test_teardrop_induction.py  tests/router_v6/test_terminal_tree_execution.py tests/router_v6/test_terminal_tree_planner.py tests/router_v6/test_thermal_relief_properties.py  tests/router_v6/test_topology_extraction.py tests/router_v6/test_via_insertion_anti_false_zero.py tests/router_v6/test_via_output_writer.py  tests/router_v6/test_wave4_bit_tensor.py tests/router_v6/test_wave4_numba_astar.py
+          tests/router_v6/metrics/test_octilinear.py tests/router_v6/test_adapter_repair_verification.py tests/router_v6/test_all_pad_tree_routing.py  tests/router_v6/test_annular_ring_boundary.py tests/router_v6/test_apply_suggestions.py tests/router_v6/test_assignment_validation_pbt.py  tests/router_v6/test_astar_3d_production_scale_spike.py tests/router_v6/test_astar_metamorphic_pbt.py tests/router_v6/test_audit_tree_geometry.py  tests/router_v6/test_bottleneck_geometry.py tests/router_v6/test_bottleneck_ordering_pbt.py tests/router_v6/test_bundled_equivalence.py  tests/router_v6/test_channel_mapping.py tests/router_v6/test_channel_widths_pbt.py tests/router_v6/test_clearance_rust_differential.py  tests/router_v6/test_coarse_grid_pbt.py tests/router_v6/test_congestion_analysis.py tests/router_v6/test_constraint_model.py  tests/router_v6/test_copper_balance_properties.py tests/router_v6/test_corridor.py tests/router_v6/test_diagnostics.py  tests/router_v6/test_diff_pair_constraints.py tests/router_v6/test_diff_pair_inference.py tests/router_v6/test_escape_via_generator.py  tests/router_v6/test_inductive_ladder.py tests/router_v6/test_kicad_connectivity_preflight.py tests/router_v6/test_layer_assignment_ssot.py  tests/router_v6/test_layer_constraints.py tests/router_v6/test_los_rust_correctness.py tests/router_v6/test_manufacturing_report_induction.py  tests/router_v6/test_multi_layer_tree_routing.py tests/router_v6/test_multilayer_edge_cases.py tests/router_v6/test_net_prep_pbt.py  tests/router_v6/test_obstacle_map_pbt.py tests/router_v6/test_placement_suggestions.py tests/router_v6/test_quality_via_count.py  tests/router_v6/test_routability_check.py tests/router_v6/test_router_v6_drc_invariants_pbt.py tests/router_v6/test_routing_demand.py  tests/router_v6/test_routing_results.py tests/router_v6/test_scale_resolution.py tests/router_v6/test_stage0_loader.py  tests/router_v6/test_stage2_monolith_parity.py tests/router_v6/test_teardrop_generation.py tests/router_v6/test_teardrop_induction.py  tests/router_v6/test_terminal_tree_execution.py tests/router_v6/test_terminal_tree_planner.py tests/router_v6/test_thermal_relief_properties.py  tests/router_v6/test_topology_extraction.py tests/router_v6/test_via_insertion_anti_false_zero.py tests/router_v6/test_via_output_writer.py  tests/router_v6/test_wave4_bit_tensor.py
           -v --tb=short -p no:cacheprovider --maxfail=10 -m "not slow"
           --continue-on-collection-errors -n auto --dist loadgroup
         continue-on-error: true  # TODO: temper-NNN -- parallel test suite flakiness; hard-fail after 2026-09-01
@@ -2535,8 +2550,9 @@ jobs:
 # RETIRED 2026-07-27: the `regression` job ("Performance & Quality Regression")
 # had exactly two gates, `make regression` and `make perf-regression`, and both
 # drove the JAX/benders_loop placement path that no longer exists. run-corpus
-# reaches corpus_runner.py:416-419, which raises NotImplementedError("JAX
-# optimizer removed."); check_perf_regression.py imported `jax` and
+# reaches corpus_runner._run_board, which returns the retired-optimizer error
+# for every valid board (the JAX optimizer and its stubs were removed in the
+# cleanup C2 sweep); check_perf_regression.py imported `jax` and
 # `temper_placer.losses.*`, both deleted from the tree. With both gates retired
 # the job was setup steps and nothing else, so the job goes too. Restoring this
 # coverage requires a placement strategy that still exists.
@@ -2599,6 +2615,9 @@ jobs:
       - name: Create virtualenv (cache miss)
         if: steps.cache-venv.outputs.cache-hit != 'true'
         run: uv venv
+
+      - name: Install dependencies
+        run: uv sync --all-packages
 
       # Validates known-failure-pins.yaml itself (see scripts/known_failure_pins.py
       # and docs/solutions/best-practices/pin-known-failure-reasons-2026-07-30.md):

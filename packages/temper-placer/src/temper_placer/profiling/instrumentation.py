@@ -44,7 +44,6 @@ class StageTiming:
 class ProfileReport:
     stage_timings: dict[str, StageTiming] = field(default_factory=dict)
     per_path_latency_ms: dict[str, float] = field(default_factory=dict)
-    numba_time_ms: float = 0.0
     python_time_ms: float = 0.0
     astar_total_ms: float = 0.0
     dist_map_ms: float = 0.0
@@ -56,7 +55,6 @@ class ProfileReport:
         if self.per_path_latency_ms:
             result["per_path_latency_ms"] = self.per_path_latency_ms
         result["maze_router"] = {
-            "numba_time_ms": round(self.numba_time_ms, 3),
             "python_time_ms": round(self.python_time_ms, 3),
             "astar_total_ms": round(self.astar_total_ms, 3),
             "dist_map_ms": round(self.dist_map_ms, 3),
@@ -68,7 +66,6 @@ class ProfileReport:
         return json.dumps(self.to_dict(), indent=indent)
 
     def merge_maze_router_stats(self, stats: Any) -> None:
-        self.numba_time_ms = getattr(stats, "numba_time_ms", 0.0)
         self.python_time_ms = getattr(stats, "python_time_ms", 0.0)
         self.astar_total_ms = getattr(stats, "astar_total_ms", 0.0)
         self.dist_map_ms = getattr(stats, "dist_map_ms", 0.0)
@@ -84,7 +81,6 @@ class ProfileReport:
             metrics[f"{name}_cpu_ms"] = round(timing.cpu_time_ms, 3)
             for sub_name, sub in timing.sub_steps.items():
                 metrics[f"{name}_{sub_name}_ms"] = round(sub.wall_time_ms, 3)
-        metrics["maze_router_numba_ms"] = round(self.numba_time_ms, 3)
         metrics["maze_router_python_ms"] = round(self.python_time_ms, 3)
         metrics["maze_router_astar_total_ms"] = round(self.astar_total_ms, 3)
         metrics["maze_router_dist_map_ms"] = round(self.dist_map_ms, 3)

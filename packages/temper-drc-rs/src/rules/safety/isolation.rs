@@ -25,11 +25,10 @@ const ISO_ZONE_KEYWORDS: [&str; 6] =
 /// Falls back to keyword substring matching for undeclared net classes.
 fn is_iso_component(comp: &crate::board::Component, board: &BoardState) -> bool {
     // Prefer declared safety_category from the model
-    let nc = crate::board::NetClassName(comp.net_class.0.clone());
-    if let Some(rules) = board.net_class_rules.get(&nc) {
-        if let Some(ref sc) = rules.safety_category {
-            return sc == "iso";
-        }
+    if let Some(rules) = board.net_class_rules.get(&comp.net_class)
+        && let Some(ref sc) = rules.safety_category
+    {
+        return sc == "iso";
     }
     // Keyword fallback on net_class and footprint
     let lc = comp.net_class.0.to_lowercase();
@@ -69,15 +68,15 @@ impl DrcRule for IsolationCheck {
     fn check(&self, board: &BoardState, constraints: &ConstraintSet) -> Vec<Violation> {
         let mut violations = Vec::new();
 
-        // Identify isolation zones by name keyword matching
-        let iso_zone_names: Vec<&str> = constraints
+        // Identify isolation zones by name keyword matching (once, not per
+        // component x zone: is_iso_zone lowercases the name on every call).
+        let iso_zones: Vec<&crate::constraints::ZoneDefinition> = constraints
             .zones
             .iter()
             .filter(|z| is_iso_zone(&z.name))
-            .map(|z| z.name.as_str())
             .collect();
 
-        if iso_zone_names.is_empty() {
+        if iso_zones.is_empty() {
             return violations;
         }
 
@@ -93,11 +92,7 @@ impl DrcRule for IsolationCheck {
             let cy = comp.center.y();
 
             // Check if this component's net class places it in an iso zone
-            for zone in &constraints.zones {
-                if !is_iso_zone(&zone.name) {
-                    continue;
-                }
-
+            for zone in &iso_zones {
                 // If component's net_class matches a zone's net_classes, check containment
                 let in_zone_via_net_class = zone.net_classes.iter().any(|zc| zc.as_str() == comp.net_class.0.as_str());
 

@@ -144,10 +144,9 @@ def _kw_boundary_match(upper: str, keywords: tuple[str, ...]) -> bool:
     a keyword must be preceded by ``_``/start-of-string and followed by
     ``_``/digit/end-of-string to count as a match.
     """
-    for kw in keywords:
-        if re.search(rf"(?:^|_){re.escape(kw)}(?:$|[\d_])", upper):
-            return True
-    return False
+    return any(
+        re.search(rf"(?:^|_){re.escape(kw)}(?:$|[\d_])", upper) for kw in keywords
+    )
 
 
 def _net_class_to_voltage_class(net_class: str) -> VoltageClass:

@@ -176,7 +176,10 @@ def test_real_via_transition_never_merged_across_layers():
     away by the quantization-noise de-dup -- only same-layer points are
     eligible, so a real layer transition survives untouched.
     """
-    from temper_placer.router_v6.astar_core import append_exact_terminal_point, append_grid_path_point
+    from temper_placer.router_v6.astar_core import (
+        append_exact_terminal_point,
+        append_grid_path_point,
+    )
 
     tolerance = grid_quantization_tolerance(_CELL_SIZE_MM)
     points: list[tuple[float, float, str]] = [(5.0, 0.0, "F.Cu")]

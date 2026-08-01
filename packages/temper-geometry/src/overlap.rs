@@ -141,6 +141,45 @@ pub fn compute_pairwise_distances(rects: &[Rect]) -> Vec<f64> {
     distances
 }
 
+/// Signed distance between two rectangles — the same formula as
+/// `compute_pairwise_distances` but for a single pair with no allocation.
+fn pairwise_signed_distance(a: &Rect, b: &Rect) -> f64 {
+    let ca = a.center();
+    let cb = b.center();
+    let cx_dist = (ca.x - cb.x).abs();
+    let cy_dist = (ca.y - cb.y).abs();
+    let gap_x = cx_dist - (a.w * 0.5 + b.w * 0.5);
+    let gap_y = cy_dist - (a.h * 0.5 + b.h * 0.5);
+    if gap_x < 0.0 && gap_y < 0.0 {
+        gap_x.min(gap_y)
+    } else {
+        gap_x.max(gap_y)
+    }
+}
+
+/// Signed distance for pair `(i, j)` from precomputed centers and
+/// half-dimensions — bit-identical per-pair arithmetic to
+/// `pairwise_signed_distance` / `compute_pairwise_distances` (`hw[i]` is
+/// `rects[i].w * 0.5`, so `hw[i] + hw[j]` re-evaluates the same expression
+/// `a.w * 0.5 + b.w * 0.5` with the same rounding).
+fn pairwise_signed_distance_precomputed(
+    centers: &[Point],
+    hw: &[f64],
+    hh: &[f64],
+    i: usize,
+    j: usize,
+) -> f64 {
+    let cx_dist = (centers[i].x - centers[j].x).abs();
+    let cy_dist = (centers[i].y - centers[j].y).abs();
+    let gap_x = cx_dist - (hw[i] + hw[j]);
+    let gap_y = cy_dist - (hh[i] + hh[j]);
+    if gap_x < 0.0 && gap_y < 0.0 {
+        gap_x.min(gap_y)
+    } else {
+        gap_x.max(gap_y)
+    }
+}
+
 /// Compute total overlap amount for all rectangle pairs.
 ///
 /// Returns the sum of smooth overlap amounts for all unique pairs (upper
@@ -149,12 +188,15 @@ pub fn compute_total_overlap(rects: &[Rect]) -> f64 {
     if rects.len() < 2 {
         return 0.0;
     }
-    let distances = compute_pairwise_distances(rects);
     let n = rects.len();
+    let centers: Vec<Point> = rects.iter().map(|r| r.center()).collect();
+    let hw: Vec<f64> = rects.iter().map(|r| r.w * 0.5).collect();
+    let hh: Vec<f64> = rects.iter().map(|r| r.h * 0.5).collect();
     let mut total = 0.0;
     for i in 0..n {
         for j in (i + 1)..n {
-            let overlap = smooth_relu(-distances[i * n + j], 10.0);
+            let overlap =
+                smooth_relu(-pairwise_signed_distance_precomputed(&centers, &hw, &hh, i, j), 10.0);
             total += overlap;
         }
     }
@@ -169,12 +211,15 @@ pub fn compute_overlap_penalty(rects: &[Rect], weight: f64) -> f64 {
     if rects.len() < 2 {
         return 0.0;
     }
-    let distances = compute_pairwise_distances(rects);
     let n = rects.len();
+    let centers: Vec<Point> = rects.iter().map(|r| r.center()).collect();
+    let hw: Vec<f64> = rects.iter().map(|r| r.w * 0.5).collect();
+    let hh: Vec<f64> = rects.iter().map(|r| r.h * 0.5).collect();
     let mut total = 0.0;
     for i in 0..n {
         for j in (i + 1)..n {
-            let overlap = smooth_relu(-distances[i * n + j], 10.0);
+            let overlap =
+                smooth_relu(-pairwise_signed_distance_precomputed(&centers, &hw, &hh, i, j), 10.0);
             total += overlap * overlap;
         }
     }
@@ -197,12 +242,17 @@ pub fn check_clearance_violation(
     if rects.len() < 2 {
         return Vec::new();
     }
-    let distances = compute_pairwise_distances(rects);
     let n = rects.len();
+    let centers: Vec<Point> = rects.iter().map(|r| r.center()).collect();
+    let hw: Vec<f64> = rects.iter().map(|r| r.w * 0.5).collect();
+    let hh: Vec<f64> = rects.iter().map(|r| r.h * 0.5).collect();
     let mut violations = Vec::new();
     for i in 0..n {
         for j in (i + 1)..n {
-            let violation = smooth_relu(clearance_mm - distances[i * n + j], 10.0);
+            let violation = smooth_relu(
+                clearance_mm - pairwise_signed_distance_precomputed(&centers, &hw, &hh, i, j),
+                10.0,
+            );
             if violation > 0.0 {
                 violations.push((i, j, violation));
             }
@@ -224,12 +274,10 @@ pub fn compute_clearance_penalties(
     if rects.is_empty() || clearances.is_empty() {
         return Vec::new();
     }
-    let distances = compute_pairwise_distances(rects);
-    let n = rects.len();
     clearances
         .iter()
         .map(|&(i, j, clearance)| {
-            let dist = distances[i * n + j];
+            let dist = pairwise_signed_distance(&rects[i], &rects[j]);
             let violation = smooth_relu(clearance - dist, 10.0);
             violation * violation
         })
@@ -249,12 +297,28 @@ pub fn count_overlaps(rects: &[Rect]) -> usize {
     if rects.len() < 2 {
         return 0;
     }
-    let distances = compute_pairwise_distances(rects);
     let n = rects.len();
+    let centers: Vec<Point> = rects.iter().map(|r| r.center()).collect();
+    let hw: Vec<f64> = rects.iter().map(|r| r.w * 0.5).collect();
+    let hh: Vec<f64> = rects.iter().map(|r| r.h * 0.5).collect();
     let mut count = 0;
     for i in 0..n {
         for j in (i + 1)..n {
-            if distances[i * n + j] < 0.0 {
+            let cx_dist = (centers[i].x - centers[j].x).abs();
+            let cy_dist = (centers[i].y - centers[j].y).abs();
+            let gap_x = cx_dist - (hw[i] + hw[j]);
+            let gap_y = cy_dist - (hh[i] + hh[j]);
+            // Exact early exit: then dist = max(gap_x, gap_y) >= 0.0, so
+            // the pair is never counted.
+            if gap_x > 0.0 || gap_y > 0.0 {
+                continue;
+            }
+            let dist = if gap_x < 0.0 && gap_y < 0.0 {
+                gap_x.min(gap_y)
+            } else {
+                gap_x.max(gap_y)
+            };
+            if dist < 0.0 {
                 count += 1;
             }
         }
@@ -272,14 +336,30 @@ pub fn get_worst_overlap(rects: &[Rect]) -> (usize, usize, f64) {
     if n < 2 {
         return (0, 0, 0.0);
     }
-    let distances = compute_pairwise_distances(rects);
+    let centers: Vec<Point> = rects.iter().map(|r| r.center()).collect();
+    let hw: Vec<f64> = rects.iter().map(|r| r.w * 0.5).collect();
+    let hh: Vec<f64> = rects.iter().map(|r| r.h * 0.5).collect();
     let mut worst_overlap = 0.0f64;
     let mut worst_i = 0usize;
     let mut worst_j = 0usize;
 
     for i in 0..n {
         for j in (i + 1)..n {
-            let dist = distances[i * n + j];
+            let cx_dist = (centers[i].x - centers[j].x).abs();
+            let cy_dist = (centers[i].y - centers[j].y).abs();
+            let gap_x = cx_dist - (hw[i] + hw[j]);
+            let gap_y = cy_dist - (hh[i] + hh[j]);
+            // Exact early exit: then dist = max(gap_x, gap_y) >= 0.0, so
+            // overlap = 0.0 — never greater than `worst_overlap` (>= 0.0),
+            // so the pair can never win the argmax.
+            if gap_x > 0.0 || gap_y > 0.0 {
+                continue;
+            }
+            let dist = if gap_x < 0.0 && gap_y < 0.0 {
+                gap_x.min(gap_y)
+            } else {
+                gap_x.max(gap_y)
+            };
             let overlap = (-dist).max(0.0);
             if overlap > worst_overlap {
                 worst_overlap = overlap;
