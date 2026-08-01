@@ -96,12 +96,28 @@ class CpSatModel:
         Even rounding is REQUIRED by the midpoint constraint
         ``x_start + x_end == 2 * x_center``: sizes must be even so that
         ``2 * x_start + x_size`` is even, matching ``2 * x_center``.
+
+        Computed in the ``temper-constraints`` Rust crate
+        (``encoder.rs::mm_to_units``) with the exact f64 semantics of
+        the former pure-Python body: Python ``round()`` (round-half-even
+        on the float) plus the floor-modulo even-parity adjustment
+        (negative odd raw decrements by one).  Pinned bit-exactly by
+        ``tests/placer/cp_sat/test_encoder_rust_differential.py``.
         """
-        raw = int(round(mm * self.units_per_mm))
-        return raw - (raw % 2) if raw % 2 else raw
+        import temper_constraints as _tc
+
+        return _tc.mm_to_units_py(mm, self.units_per_mm)
 
     def units_to_mm(self, units: int) -> float:
-        return units / self.units_per_mm
+        """Convert integer model units to physical mm.
+
+        Computed in the ``temper-constraints`` Rust crate
+        (``encoder.rs::units_to_mm``); pinned bit-exactly by
+        ``tests/placer/cp_sat/test_encoder_rust_differential.py``.
+        """
+        import temper_constraints as _tc
+
+        return _tc.units_to_mm_py(units, self.units_per_mm)
 
     # ------------------------------------------------------------------
     # Component management
