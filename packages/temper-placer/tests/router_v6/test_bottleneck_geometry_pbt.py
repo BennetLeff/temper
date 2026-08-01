@@ -276,7 +276,7 @@ def test_p5_min_cut_nonnegative_and_bounded(grid: ClearanceGrid) -> None:
 
 
 @pytest.fixture
-def restore_kernels():
+def _restore_kernels():
     original_batch = bg._tg.cell_capacity_batch_py
     original_graph = bg._tg.build_capacitated_graph_py
     yield
@@ -289,19 +289,19 @@ def _plain_grid() -> ClearanceGrid:
     return grid
 
 
-def test_p1_fails_for_negative_constant_capacity(restore_kernels) -> None:
+def test_p1_fails_for_negative_constant_capacity(_restore_kernels) -> None:
     bg._tg.cell_capacity_batch_py = lambda *_a, **_k: [-1] * 16
     with pytest.raises(AssertionError):
         test_p1_capacity_bounded_and_nonnegative.hypothesis.inner_test(_plain_grid())
 
 
-def test_p2_fails_for_constant_capacity(restore_kernels) -> None:
+def test_p2_fails_for_constant_capacity(_restore_kernels) -> None:
     bg._tg.cell_capacity_batch_py = lambda *_a, **_k: [4] * 16
     with pytest.raises(AssertionError):
         test_p2_capacity_monotonic_decreasing_in_obstacles.hypothesis.inner_test(_plain_grid())
 
 
-def test_p3_fails_for_adjacent_pair_without_edge(restore_kernels) -> None:
+def test_p3_fails_for_adjacent_pair_without_edge(_restore_kernels) -> None:
     """A graph missing the edge between two adjacent capacity-4 nodes
     violates the induced-min-cap-subgraph round-trip."""
     bg._tg.build_capacitated_graph_py = lambda *_a, **_k: ([0, 1], [])
@@ -309,12 +309,12 @@ def test_p3_fails_for_adjacent_pair_without_edge(restore_kernels) -> None:
         test_p3_graph_is_induced_min_cap_subgraph.hypothesis.inner_test(_plain_grid())
 
 
-def test_p4_fails_for_position_dependent_capacity(restore_kernels) -> None:
+def test_p4_fails_for_position_dependent_capacity(_restore_kernels) -> None:
     """A position-dependent capacity (not rotation-invariant) breaks the
     rotation symmetry property. (A constant IS rotation-invariant by
     definition, so the discriminating mutant is position-dependent.)"""
 
-    def pos_dependent(cells, trace_flat, pad_flat, pad_class_rank, rows, cols, layer_count, current_category):
+    def pos_dependent(cells, _trace_flat, _pad_flat, _pad_class_rank, rows, cols, layer_count, current_category):
         return [(r * 3 + c) % 5 for (_, r, c) in cells]
 
     bg._tg.cell_capacity_batch_py = pos_dependent
@@ -322,7 +322,7 @@ def test_p4_fails_for_position_dependent_capacity(restore_kernels) -> None:
         test_p4_rotation_symmetry.hypothesis.inner_test(_plain_grid())
 
 
-def test_p5_fails_for_wrong_cut_bound(restore_kernels) -> None:
+def test_p5_fails_for_wrong_cut_bound(_restore_kernels) -> None:
     """A graph kernel returning inflated capacities (e.g. capacity 4 on
     every edge when the real field is sparser) is caught by the bound
     only when the real cut exceeds 4*|E|; simpler: replace the graph

@@ -238,9 +238,10 @@ clean:
 
 # RETIRED 2026-07-27: `regression` and `perf-regression` both drove the
 # JAX/benders_loop placement path, which no longer exists.
-#   - run-corpus reaches corpus_runner.py:416-419, which raises
-#     NotImplementedError("JAX optimizer removed."), so every board failed at
-#     setup regardless of input.
+#   - run-corpus reaches corpus_runner._run_board, which returns the
+#     retired-optimizer error for every valid board (the JAX optimizer and
+#     its stubs were removed in the cleanup C2 sweep), so every board failed
+#     regardless of input.
 #   - check_perf_regression.py imported `jax` and `temper_placer.losses.*`;
 #     both are gone from the tree, so it died on ModuleNotFoundError before
 #     doing any work. The script is deleted.

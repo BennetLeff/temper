@@ -1,13 +1,16 @@
-"""Corpus regression runner.
+"""Corpus regression runner (optimizer path retired).
 
-Runs the full optimizer on each corpus board and compares placement
-quality metrics against version-controlled baselines.
+The JAX optimizer that drove per-board optimization was removed in the
+JAX retirement. ``_run_board`` still validates corpus inputs (paths,
+baseline well-formedness, zero-component guard) but the optimization and
+metric-comparison step is retired: a fully-valid board gets a clear
+"retired" error until the runner is rewired to the CP-SAT/deterministic
+placer (tracked follow-up).
 """
 
 from __future__ import annotations
 
 import json
-import subprocess
 import sys
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
@@ -202,19 +205,6 @@ class CorpusRegressionRunner:
             p = p.parent
         return p
 
-    @staticmethod
-    def _get_git_sha() -> str:
-        try:
-            result = subprocess.run(
-                ["git", "rev-parse", "HEAD"],
-                capture_output=True,
-                text=True,
-                timeout=5,
-            )
-            return result.stdout.strip()
-        except Exception:
-            return ""
-
     def run(
         self,
         boards: list[str] | None = None,
@@ -302,9 +292,11 @@ class CorpusRegressionRunner:
                 skip_reason=f"Baseline file not found: {baseline_path}",
             )
 
-        # Load baseline
+        # Load baseline: still validates corpus-input integrity even though
+        # the metric comparison that consumed it was retired with the JAX
+        # optimizer -- a corrupt baseline should skip, not crash.
         try:
-            baseline = BaselineFile.load(baseline_path)
+            BaselineFile.load(baseline_path)
         except Exception as e:
             return CorpusBoardResult(
                 board_id=board_id,
@@ -312,10 +304,6 @@ class CorpusRegressionRunner:
                 skipped=True,
                 skip_reason=f"Failed to load baseline: {e}",
             )
-
-        import time
-
-        start_time = time.time()
 
         try:
             # Parse PCB
@@ -339,246 +327,23 @@ class CorpusRegressionRunner:
                 skip_reason="Board has zero components",
             )
 
-        try:
-            # Load constraints and board
-            from temper_placer.io.config_loader import (
-                create_board_from_constraints,
-                load_constraints,
-            )
-
-            constraints = load_constraints(constraints_path)
-            board = create_board_from_constraints(constraints)
-        except Exception as e:
-            return CorpusBoardResult(
-                board_id=board_id,
-                passed=False,
-                errors=[f"Failed to load constraints: {e}"],
-            )
-
-        try:
-            # Build loss function
-            from temper_placer.core.loss_types import CompositeLoss, LossContext, WeightedLoss
-
-            class BoundaryLoss:
-                def __call__(self, *a, **kw):
-                    raise NotImplementedError("JAX losses removed.")
-
-            class OverlapLoss:
-                def __call__(self, *a, **kw):
-                    raise NotImplementedError("JAX losses removed.")
-
-            class SpreadLoss:
-                def __call__(self, *a, **kw):
-                    raise NotImplementedError("JAX losses removed.")
-
-            class WirelengthLoss:
-                def __call__(self, *a, **kw):
-                    raise NotImplementedError("JAX losses removed.")
-
-            weights = {
-                "overlap": 200.0,
-                "boundary": 100.0,
-                "wirelength": 20.0,
-                "spread": 5.0,
-            }
-            if constraints.losses is not None:
-                config_weights = constraints.losses.get_weights()
-                for k in weights:
-                    if k in config_weights:
-                        weights[k] = config_weights[k]
-
-            def make_loss(w):
-                return CompositeLoss(
-                    [
-                        WeightedLoss(
-                            OverlapLoss(margin=1.0, rotation_invariant=True), w["overlap"]
-                        ),
-                        WeightedLoss(BoundaryLoss(), w["boundary"]),
-                        WeightedLoss(WirelengthLoss(), w["wirelength"]),
-                        WeightedLoss(SpreadLoss(), w.get("spread", 5.0)),
-                    ]
-                )
-
-            from temper_placer.core.state import PlacementState
-
-            PlacementState.from_netlist_and_board(netlist, board)
-            context = LossContext(netlist=netlist, board=board)
-
-            # Build optimizer config
-            from temper_placer.heuristics import create_default_pipeline
-
-            class OptimizerConfig:
-                def __init__(self, **kw):
-                    for k, v in kw.items():
-                        setattr(self, k, v)
-
-            def create_default_phases(*a, **kw):
-                raise NotImplementedError("JAX optimizer removed.")
-
-            def train_multiphase(*a, **kw):
-                raise NotImplementedError("JAX optimizer removed.")
-
-            pipeline = create_default_pipeline()
-            import numpy as np
-
-            rng_key = np.random.default_rng(entry.seed)
-            preset = pipeline.run(board, netlist, constraints, rng_key)
-            initial_state = preset.state
-
-            # Guard against degenerate initial placements (NaN positions,
-            # extreme rotations) that cause NaN gradients at epoch 0.
-            # Small boards with few components are especially prone.
-            pos = initial_state.positions
-            if not np.all(np.isfinite(pos)):
-                # Fall back to uniform random within board bounds
-                ox, oy = board.origin
-                margin = min(2.0, board.width * 0.1, board.height * 0.1)
-                px = rng_key.uniform(
-                    low=ox + margin,
-                    high=ox + board.width - margin,
-                    size=(netlist.n_components,),
-                )
-                py = rng_key.uniform(
-                    low=oy + margin,
-                    high=oy + board.height - margin,
-                    size=(netlist.n_components,),
-                )
-                from dataclasses import replace as dc_replace
-
-                initial_state = dc_replace(
-                    initial_state,
-                    positions=np.stack([px, py], axis=-1),
-                    rotation_logits=np.zeros_like(initial_state.rotation_logits),
-                )
-
-            phases = create_default_phases(entry.epochs)
-            cfg = OptimizerConfig(
-                epochs=entry.epochs,
-                seed=entry.seed,
-                log_interval=max(1, entry.epochs // 100),
-                curriculum_phases=phases,
-                use_centrality_weighting=False,
-            )
-        except Exception as e:
-            return CorpusBoardResult(
-                board_id=board_id,
-                passed=False,
-                errors=[f"Setup failed: {e}"],
-            )
-
-        # Run optimizer
-        try:
-            result = train_multiphase(
-                netlist,
-                board,
-                make_loss,
-                context,
-                cfg,
-                initial_state=initial_state,
-                constraints=constraints,
-            )
-
-            elapsed = time.time() - start_time
-
-            # Compute final individual loss values from breakdown
-            composite = make_loss(weights)
-            # Softmax the rotation logits to get rotation probabilities.
-            # Passing raw logits to loss functions (which expect soft one-hot
-            # rotations from Gumbel-Softmax) causes massively inflated rotated
-            # bounds and boundary loss values (observed: 250M vs actual ~0).
-            rotations = np.exp(result.final_state.rotation_logits)
-            rotations = rotations / rotations.sum(axis=-1, keepdims=True)
-            loss_result = composite(
-                result.final_state.positions,
-                rotations,
-                context,
-            )
-            breakdown = loss_result.breakdown if loss_result.breakdown else {}
-
-            overlap_val = float(breakdown.get("overlap", 0.0))
-            wirelength_val = float(breakdown.get("wirelength", 0.0))
-            boundary_val = float(breakdown.get("boundary", 0.0))
-            final_loss_val = float(result.final_loss)
-
-            hpwl_val = 0.0
-
-            def compute_total_hpwl(*a, **kw):
-                raise NotImplementedError("JAX losses removed.")
-
-            hpwl_val = float(compute_total_hpwl(result.final_state.positions, rotations, context))
-
-            collected = {
-                "overlap_loss_final": overlap_val,
-                "wirelength_final": wirelength_val,
-                "boundary_loss_final": boundary_val,
-                "final_loss": final_loss_val,
-                "hpwl_final": hpwl_val,
-            }
-        except Exception as e:
-            err_msg = str(e)
-            # NaN at epoch 0 often means the initial placement is degenerate.
-            # Retry once with random positions as a fallback.
-            if "Non-finite" in err_msg:
-                from dataclasses import replace as dc_replace
-
-                import numpy as np
-
-                rng_key = np.random.default_rng(entry.seed or 42)
-                margin = min(2.0, board.width * 0.1, board.height * 0.1)
-                ox, oy = board.origin
-                px = rng_key.uniform(
-                    low=ox + margin, high=ox + board.width - margin, size=(netlist.n_components,)
-                )
-                py = rng_key.uniform(
-                    low=oy + margin, high=oy + board.height - margin, size=(netlist.n_components,)
-                )
-                initial_state = dc_replace(
-                    initial_state,
-                    positions=np.stack([px, py], axis=-1),
-                    rotation_logits=np.zeros_like(initial_state.rotation_logits),
-                )
-                try:
-                    result = train_multiphase(
-                        netlist,
-                        board,
-                        make_loss,
-                        context,
-                        cfg,
-                        initial_state=initial_state,
-                        constraints=constraints,
-                    )
-                except Exception as e2:
-                    return CorpusBoardResult(
-                        board_id=board_id,
-                        passed=False,
-                        errors=[f"Optimization failed (retry): {e2}"],
-                    )
-            else:
-                return CorpusBoardResult(
-                    board_id=board_id,
-                    passed=False,
-                    errors=[f"Optimization failed: {e}"],
-                )
-
-        # Compare metrics
-        metric_checks = []
-        all_passed = True
-        for name, actual in collected.items():
-            spec = baseline.metrics.get(name)
-            if spec is None:
-                continue
-            check = check_metric(name, actual, spec)
-            metric_checks.append(check)
-            if not check["passed"]:
-                all_passed = False
-
+        # The optimizer that drove corpus regression was retired with the JAX
+        # migration: train_multiphase / create_default_phases and the JAX loss
+        # classes (BoundaryLoss, OverlapLoss, SpreadLoss, WirelengthLoss) were
+        # removed -- every board previously failed at setup with a
+        # NotImplementedError from the removed optimizer. A fully-valid board
+        # can no longer be optimized here; rewiring _run_board to the
+        # CP-SAT/deterministic placer is a tracked follow-up (see the skipped
+        # test_run_success_path reason in tests/regression/test_corpus_runner.py).
         return CorpusBoardResult(
             board_id=board_id,
-            passed=all_passed,
-            metric_checks=metric_checks,
-            elapsed_seconds=elapsed,
-            metrics=collected,
+            passed=False,
+            errors=[
+                "Corpus optimization retired with the JAX migration; "
+                "_run_board needs rewiring to the CP-SAT/deterministic placer"
+            ],
         )
+
 
     def _print_summary(self, results: list[CorpusBoardResult]) -> None:
         passed = sum(1 for r in results if r.passed)

@@ -2550,8 +2550,9 @@ jobs:
 # RETIRED 2026-07-27: the `regression` job ("Performance & Quality Regression")
 # had exactly two gates, `make regression` and `make perf-regression`, and both
 # drove the JAX/benders_loop placement path that no longer exists. run-corpus
-# reaches corpus_runner.py:416-419, which raises NotImplementedError("JAX
-# optimizer removed."); check_perf_regression.py imported `jax` and
+# reaches corpus_runner._run_board, which returns the retired-optimizer error
+# for every valid board (the JAX optimizer and its stubs were removed in the
+# cleanup C2 sweep); check_perf_regression.py imported `jax` and
 # `temper_placer.losses.*`, both deleted from the tree. With both gates retired
 # the job was setup steps and nothing else, so the job goes too. Restoring this
 # coverage requires a placement strategy that still exists.
