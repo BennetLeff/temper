@@ -459,3 +459,79 @@ and bidirectional-BFS augmentation order to reproduce the exact
 algorithm-invariant and would be easy; the partition is not). This is a
 separate, lower-risk follow-up; the graph build and capacity loops — the
 documented pure-Python hotspot — are the kernels migrated here.
+## PBT Properties Verified
+## Clearance Validator Geometry (REQ-SAFE-01) — Verification by Induction (Wave 3, 2026-07-31)
+
+**What moved.** The pure geometry compute of the clearance/creepage
+validator (`packages/temper-placer/src/temper_placer/requirements/
+validators/_copper.py` and `core/pad_geometry.py::pad_pair_distance`)
+now runs in `packages/temper-geometry/src/clearance_geometry.rs`: the
+pad-offset rotation (KiCad R(−θ)), the component reach, the origin
+distance, the copper pair scan (hypot centre-gap pruning + exact
+pad-pair distance), and the pad-pair distance itself (core polygon
+construction + the core-vs-core gap). The domain-classification and
+pairing logic (`clearance.py`'s `_nets_domain_map` /
+`_components_in_domain` / `_domain_boundary_pairs` and `_copper.py`'s
+`pads_in_domain` / `domain_restricted`) stays Python; the shared
+classifier contract is verified by the unchanged import
+`placer/cp_sat/domain_clearance.py` → `requirements/validators/
+clearance.py`.
+
+**Base case:** a 1×1 rect pad at the origin against a second 1×1 rect
+pad 5 mm away — the cores are axis-aligned boxes, the core distance is
+a single segment-to-segment candidate `(gap − ra − rb) = 3.0`, and the
+Rust core and the pinned Shapely/GEOS oracle agree bit-for-bit
+(`clearance_geometry.rs::test_pad_pair_distance_rect_gap`, plus the
+differential suite's crafted axis-aligned cases).
+
+**Inductive step:** the pad-pair distance is a pure function of the two
+pad specs: core construction rotates/translates a fixed corner set
+(per-corner affine, no cross-corner interaction), and the core gap is
+the min over an independent candidate set — segment-to-segment /
+point-to-segment distances, each a closed-form chain over the pair's
+coordinates, plus a containment test per vertex. Appending a pad to the
+scan adds independent pairs without perturbing existing ones, and the
+`d < best` update preserves every incumbent value; extending to any
+pad count / any pair therefore preserves every existing result. The
+arithmetic order is preserved exactly, which is what makes the outputs
+bit-identical rather than merely close — four hard-won details:
+
+1. **GEOS's point distance is `sqrt(dx·dx + dy·dy)`, NOT hypot** —
+   replicating it with CPython `math.hypot` (Dekker vector_norm) or
+   libm `hypot` fails by 1 ulp on ~12% of random pairs (measured).
+   This crate's `py_hypot` is used only where CPython `math.hypot` is
+   the oracle (reach, centre-gap pruning).
+2. **Shapely's rotate is not the naive trig rotation**: `pad_core_polygon`
+   passes `math.degrees(rotation_rad)` into `shapely.affinity.rotate`,
+   which converts *back* with `angle * pi / 180.0` — the effective
+   angle is the round-tripped value, and `abs(cos/sin) < 2.5e-16` is
+   snapped to exactly 0.0.
+3. **cos/sin resolve via dlsym** to the host Python's own libm (the uv
+   standalone build differs from the statically-bound `f64::sin` by
+   1 ulp on real inputs).
+4. **`dist(A,B) != dist(B,A)` in general** — `max(gap − ra − rb, 0.0)`
+   subtracts the corner radii in pad order. The pre-migration oracle
+   has the same asymmetry; it is preserved, not fixed.
+
+**Empirical verification:** the differential suite
+(`packages/temper-placer/tests/requirements/
+test_clearance_rust_differential.py`) pins all five migrated surfaces
+(`_rotate`, `_component_pads`, `_CopperModel.reach/lower_bound/
+copper_distance`, `pad_pair_distance`) bit-exactly against the
+pre-migration implementations — 500 random pad pairs per seed across
+all shapes including unknown-shape fallback and arbitrary rotations,
+300 random components, 100 random placements, plus crafted edge cases
+(containment, boundary-touching, zero-size pads, exact-rotation
+configs). PBT properties (`tests/requirements/test_clearance_pbt.py`):
+non-negativity, symmetry (1-ulp — oracle behaviour), 2π periodicity,
+boundedness by centre-distance + reaches, monotonicity in pad
+width/height. Metamorphic relations: translation/rotation/mirror
+invariance (tight tolerance) and exact scale-doubling
+(`d(2·A, 2·B) == 2·d(A, B)` — powers of two scale every f64 exactly).
+
+**Pre-existing failures, unrelated:** `tests/geometry/test_geometry.py`
+(42) and `tests/geometry/test_drc_inflate.py` (2) fail at base HEAD
+(da4af81eb) and in this worktree identically — a numpy-2.3.5/pyo3
+scalar-extraction TypeError in `polygon.py::rotate_polygon` /
+`drc_inflate`, files this migration does not touch (verified in a
+scratch worktree at the base commit).

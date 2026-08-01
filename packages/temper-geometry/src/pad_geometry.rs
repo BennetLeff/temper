@@ -72,15 +72,19 @@ fn math_cos(x: f64) -> f64 {
     unsafe { host_cos()(x) }
 }
 
-fn math_sin(x: f64) -> f64 {
+pub(crate) fn math_sin(x: f64) -> f64 {
     unsafe { host_sin()(x) }
+}
+
+pub(crate) fn math_cos_sin(x: f64) -> (f64, f64) {
+    unsafe { (host_cos()(x), host_sin()(x)) }
 }
 
 fn normalize_shape(shape: &str) -> &str {
     if shape == "thru_hole" { "circle" } else { shape }
 }
 
-fn corner_radius(width: f64, height: f64, shape: &str, ratio: f64) -> f64 {
+pub(crate) fn corner_radius(width: f64, height: f64, shape: &str, ratio: f64) -> f64 {
     match normalize_shape(shape) {
         // circle pads: width == height == diameter; take the larger
         // defensively so malformed input stays conservative.
@@ -93,7 +97,7 @@ fn corner_radius(width: f64, height: f64, shape: &str, ratio: f64) -> f64 {
     }
 }
 
-fn core_half_extents(width: f64, height: f64, shape: &str, ratio: f64) -> (f64, f64) {
+pub(crate) fn core_half_extents(width: f64, height: f64, shape: &str, ratio: f64) -> (f64, f64) {
     let r = corner_radius(width, height, shape, ratio);
     ((width / 2.0 - r).max(0.0), (height / 2.0 - r).max(0.0))
 }
@@ -122,7 +126,7 @@ fn axis_radius(width: f64, height: f64, shape: &str, axis: i64, rotation_rad: f6
     support_radius(width, height, shape, direction, rotation_rad, ratio)
 }
 
-fn bounding_radius(width: f64, height: f64, shape: &str, ratio: f64) -> f64 {
+pub(crate) fn bounding_radius(width: f64, height: f64, shape: &str, ratio: f64) -> f64 {
     let (hw, hh) = core_half_extents(width, height, shape, ratio);
     let r = corner_radius(width, height, shape, ratio);
     py_hypot(hw, hh) + r
@@ -133,7 +137,7 @@ fn bounding_radius(width: f64, height: f64, shape: &str, ratio: f64) -> f64 {
 /// (CPython's default build; Apple's fma is accurate). Rust's
 /// `f64::hypot` (libm) differs from this in the last ulp, so the exact
 /// algorithm is ported — see CPython Modules/mathmodule.c `vector_norm`.
-fn py_hypot(x: f64, y: f64) -> f64 {
+pub(crate) fn py_hypot(x: f64, y: f64) -> f64 {
     let x = x.abs();
     let y = y.abs();
     let max = x.max(y);
