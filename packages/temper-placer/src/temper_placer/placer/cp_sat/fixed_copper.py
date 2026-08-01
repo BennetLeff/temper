@@ -105,6 +105,28 @@ every item kind, ``E ⊇ S ⊕ margin``:
   expansion strictly contains the disc expansion; this is where the pad
   item's ``(√2 − 1)·margin`` slack comes from).
 
+**The integer-grid term that this containment alone does NOT cover.**
+``E ⊇ S ⊕ margin`` is a statement in continuous mm; the encoding then
+quantizes everything to the 0.01 mm integer grid. ``_add_no_overlap``
+converts ``E`` with ``mm_to_units`` (round-half-even) and the pad's world
+rect is ``x_center + ox + hwx`` with ``ox``/``hwx`` themselves
+``mm_to_units``-rounded. Each conversion can round the *wrong way* by up
+to 0.5 unit (pad edges carry two such terms, so up to 1 unit = 0.01 mm on
+a pad edge; an item edge up to 0.5 unit). In the worst case the encoded
+predicate could therefore accept a placement whose exact clearance is
+``margin − 0.015 mm`` — measured in practice on the real board (K3 pad 3
+at 0.040 mm from a PWR_RTN pad with margin 0.05 mm; the post-solve audit
+caught it, see ``docs/evidence/2026-08-01-fixed-copper-constraint.md``).
+**Fix:** every item's encoded box additionally embeds
+``_GRID_HEADROOM_MM = 0.02 mm`` (2 units) of expansion beyond the margin,
+so the effective containment is ``E ⊇ S ⊕ (margin + headroom)`` and the
+worst-case quantization erosion (1.5 units) can never push the guaranteed
+clearance below the physical ``margin`` (0.5 unit of the headroom stays
+unspent). The audit and the BMC oracle compare against the *physical*
+``margin`` (``item.margin_mm``), not the headroom-inflated box, so a
+solve that passes the encoding necessarily clears every item by at least
+``margin``.
+
 If CP-SAT declares the placement feasible, every pad rect avoids every
 ``E``, hence avoids every ``S ⊕ margin``, hence every point of every pad is
 at least ``margin`` from every point of every different-net fixed-copper
@@ -112,8 +134,9 @@ shape on a shared layer. The encoded predicate therefore *implies* the
 exact geometric predicate: **no false negatives** (the encoding can never
 accept a placement that shorts). The encoding *can* reject placements that
 are exactly clear — that is the conservatism, bounded per item kind by the
-corner-overhang expressions above (``(√2 − 1)·(half_extent + margin)`` for
-segments/vias, unbounded for zones in the worst case, zero for pads).
+corner-overhang expressions above (``(√2 − 1)·(half_extent + margin +
+headroom)`` for segments/vias, ``(√2 − 1)·(margin + headroom)`` for pads,
+unbounded for zones in the worst case).
 
 **Net / layer filtering.** An item is an obstacle for a component only if
 (a) the item's copper layers intersect the pad's copper layers (THT pads
@@ -178,6 +201,21 @@ _MIN_HALF_UNITS = 1
 # rather than `_MIN_HALF_UNITS / 100.0` so the BMC test's mirror of the
 # encoded predicate and the encoder share one definition.
 _MIN_HALF_MM = 0.01
+
+# Integer-grid soundness headroom (mm) added to every encoded item box on
+# top of the physical margin. The encoding quantizes to a 0.01 mm integer
+# grid: a pad edge is ``x_center + ox + hwx`` with ``ox``/``hwx`` each
+# ``mm_to_units``-rounded (round-half-even, error <= 0.5 unit per term), so
+# the encoded pad edge can lie up to 1 unit (0.01 mm) *inside* the true pad
+# edge, and an item edge converted with the same rounding can lie up to 0.5
+# unit *inside* the true item edge. Without a headroom the encoded
+# predicate could accept a placement whose exact clearance is margin -
+# 0.015 mm -- measured in practice on the real board (K3 pad 3 at 0.040 mm
+# from a PWR_RTN pad with margin 0.05 mm; the post-solve audit caught it).
+# Expanding every item box by 2 units (0.02 mm) beyond the margin restores
+# the exact-margin guarantee with 0.005 mm to spare (see module docstring's
+# soundness section).
+_GRID_HEADROOM_MM = 0.02
 
 
 @dataclass(frozen=True)
@@ -446,9 +484,20 @@ def segment_slack_mm(p0, p1, width, margin) -> float:
 
 
 def _segment_item(start, end, width, net, layers, margin) -> FixedCopperItem:
-    """Conservative box for a thick trace segment (see module docstring)."""
+    """Conservative box for a thick trace segment (see module docstring).
+
+    The encoded box adds ``_GRID_HEADROOM_MM`` beyond the physical margin:
+    ``bbox(segment) ⊕ (width/2 + margin + headroom)``. The headroom is the
+    integer-grid soundness term (see its definition) -- without it, the
+    round-half-even unit conversion of the pad edges and item edges can
+    erode up to 1.5 units (0.015 mm) of the encoded margin, letting a
+    feasible solve place a pad 0.04 mm (not 0.05 mm) from copper (measured
+    on the real board; the R24 audit caught it). ``item.exact`` keeps the
+    raw copper for the oracle/audit, which still compares against the
+    *physical* ``margin``.
+    """
     (x1a, y1a), (x2a, y2a) = (float(start[0]), float(start[1])), (float(end[0]), float(end[1]))
-    pad = width / 2.0 + margin
+    pad = width / 2.0 + margin + _GRID_HEADROOM_MM
     x0, x1 = min(x1a, x2a) - pad, max(x1a, x2a) + pad
     y0, y1 = min(y1a, y2a) - pad, max(y1a, y2a) + pad
     return FixedCopperItem(
@@ -457,14 +506,16 @@ def _segment_item(start, end, width, net, layers, margin) -> FixedCopperItem:
         layers=layers,
         rect=(x0, y0, x1, y1),
         exact={"p0": (x1a, y1a), "p1": (x2a, y2a), "width": width},
-        slack_mm=segment_slack_mm((x1a, y1a), (x2a, y2a), width, margin),
+        slack_mm=segment_slack_mm(
+            (x1a, y1a), (x2a, y2a), width, margin + _GRID_HEADROOM_MM
+        ),
         margin_mm=margin,
         label=f"segment {net} ({x1a:.2f},{y1a:.2f})-({x2a:.2f},{y2a:.2f})",
     )
 
 
 def _via_item(position, diameter, net, layers, margin) -> FixedCopperItem:
-    pad = diameter / 2.0 + margin
+    pad = diameter / 2.0 + margin + _GRID_HEADROOM_MM
     x, y = float(position[0]), float(position[1])
     return FixedCopperItem(
         kind="via",
@@ -503,7 +554,12 @@ def _zone_item(zone, margin) -> FixedCopperItem | None:
         kind="zone",
         net=net,
         layers=layers,
-        rect=(min(xs) - margin, min(ys) - margin, max(xs) + margin, max(ys) + margin),
+        rect=(
+            min(xs) - margin - _GRID_HEADROOM_MM,
+            min(ys) - margin - _GRID_HEADROOM_MM,
+            max(xs) + margin + _GRID_HEADROOM_MM,
+            max(ys) + margin + _GRID_HEADROOM_MM,
+        ),
         exact={"polygon": list(polygon)},
         slack_mm=float("inf"),
         margin_mm=margin,
@@ -539,13 +595,14 @@ def _other_component_pad_item(
         ox, oy, hwx, hwy = -ly, lx, hh, hw
     cx, cy = float(center[0]), float(center[1])
     rect = (cx + ox - hwx, cy + oy - hwy, cx + ox + hwx, cy + oy + hwy)
+    m = margin + _GRID_HEADROOM_MM
     return FixedCopperItem(
         kind="pad",
         net=getattr(pin, "net", None),
         layers=layers,
-        rect=(rect[0] - margin, rect[1] - margin, rect[2] + margin, rect[3] + margin),
+        rect=(rect[0] - m, rect[1] - m, rect[2] + m, rect[3] + m),
         exact={"rect": rect},
-        slack_mm=(math.sqrt(2.0) - 1.0) * margin,
+        slack_mm=(math.sqrt(2.0) - 1.0) * m,
         margin_mm=margin,
         label=f"pad {comp.ref}.{pin.number} net={pin.net}",
     )

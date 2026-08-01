@@ -53,6 +53,12 @@ _REPO_ROOT = Path(__file__).resolve().parents[5]
 _PCB_PATH = _REPO_ROOT / "pcb" / "temper.kicad_pcb"
 
 _MARGIN = 0.05
+# The encoder embeds _GRID_HEADROOM_MM (0.02 mm) beyond the margin in every
+# item's encoded box (see fixed_copper.py's module docstring soundness
+# section -- integer-grid quantization can erode up to 1.5 units of the
+# encoded margin otherwise). The test helpers below must mirror that so the
+# BMC sweep evaluates the SAME predicate the encoder enforces.
+_HEADROOM = 0.02
 
 
 def _pad(center=(0.0, 0.0), half=(0.5, 0.5), net="NET_A", layers=None, number="1"):
@@ -66,25 +72,26 @@ def _pad(center=(0.0, 0.0), half=(0.5, 0.5), net="NET_A", layers=None, number="1
 
 
 def _segment_item(p0, p1, width=0.2, net="NET_B", layers=None):
+    exp = width / 2 + _MARGIN + _HEADROOM
     return FixedCopperItem(
         kind="segment",
         net=net,
         layers=layers if layers is not None else frozenset({"F.Cu"}),
         rect=(
-            min(p0[0], p1[0]) - width / 2 - _MARGIN,
-            min(p0[1], p1[1]) - width / 2 - _MARGIN,
-            max(p0[0], p1[0]) + width / 2 + _MARGIN,
-            max(p0[1], p1[1]) + width / 2 + _MARGIN,
+            min(p0[0], p1[0]) - exp,
+            min(p0[1], p1[1]) - exp,
+            max(p0[0], p1[0]) + exp,
+            max(p0[1], p1[1]) + exp,
         ),
         exact={"p0": p0, "p1": p1, "width": width},
-        slack_mm=segment_slack_mm(p0, p1, width, _MARGIN),
+        slack_mm=segment_slack_mm(p0, p1, width, _MARGIN + _HEADROOM),
         margin_mm=_MARGIN,
         label="seg",
     )
 
 
 def _via_item(center, diameter=0.8, net="NET_B", layers=None):
-    pad = diameter / 2 + _MARGIN
+    pad = diameter / 2 + _MARGIN + _HEADROOM
     return FixedCopperItem(
         kind="via",
         net=net,
@@ -98,13 +105,14 @@ def _via_item(center, diameter=0.8, net="NET_B", layers=None):
 
 
 def _pad_item(rect, net="NET_B", layers=None):
+    exp = _MARGIN + _HEADROOM
     return FixedCopperItem(
         kind="pad",
         net=net,
         layers=layers if layers is not None else frozenset({"F.Cu"}),
-        rect=(rect[0] - _MARGIN, rect[1] - _MARGIN, rect[2] + _MARGIN, rect[3] + _MARGIN),
+        rect=(rect[0] - exp, rect[1] - exp, rect[2] + exp, rect[3] + exp),
         exact={"rect": rect},
-        slack_mm=(math.sqrt(2.0) - 1.0) * _MARGIN,
+        slack_mm=(math.sqrt(2.0) - 1.0) * exp,
         margin_mm=_MARGIN,
         label="pad",
     )
@@ -113,11 +121,12 @@ def _pad_item(rect, net="NET_B", layers=None):
 def _zone_item(polygon, net="NET_B", layers=None):
     xs = [p[0] for p in polygon]
     ys = [p[1] for p in polygon]
+    exp = _MARGIN + _HEADROOM
     return FixedCopperItem(
         kind="zone",
         net=net,
         layers=layers if layers is not None else frozenset({"F.Cu"}),
-        rect=(min(xs) - _MARGIN, min(ys) - _MARGIN, max(xs) + _MARGIN, max(ys) + _MARGIN),
+        rect=(min(xs) - exp, min(ys) - exp, max(xs) + exp, max(ys) + exp),
         exact={"polygon": list(polygon)},
         slack_mm=float("inf"),
         margin_mm=_MARGIN,
@@ -199,8 +208,8 @@ class TestItemBuilding:
         # Raw (25,25)-(25,35) minus origin (20,20) -> (5,5)-(5,15), width 0.2.
         assert item.exact["p0"] == (5.0, 5.0)
         assert item.exact["p1"] == (5.0, 15.0)
-        expected = (5.0 - 0.1 - _MARGIN, 5.0 - 0.1 - _MARGIN,
-                    5.0 + 0.1 + _MARGIN, 15.0 + 0.1 + _MARGIN)
+        expected = (5.0 - 0.1 - _MARGIN - _HEADROOM, 5.0 - 0.1 - _MARGIN - _HEADROOM,
+                    5.0 + 0.1 + _MARGIN + _HEADROOM, 15.0 + 0.1 + _MARGIN + _HEADROOM)
         assert item.rect == pytest.approx(expected, abs=1e-9)
 
     def test_same_net_trace_is_not_an_obstacle_for_the_pad_net(self) -> None:
@@ -264,9 +273,12 @@ class TestItemBuilding:
         pr, netlist = self._pr(traces=[tr])
         items = build_fixed_copper_items(pr, netlist, {"U1"})
         [item] = items
-        # Zero-length segment -> box of the endpoint expanded by w/2 + m.
-        assert item.rect == (3.0 - 0.2 - _MARGIN, 3.0 - 0.2 - _MARGIN,
-                             3.0 + 0.2 + _MARGIN, 3.0 + 0.2 + _MARGIN)
+        # Zero-length segment -> box of the endpoint expanded by w/2 + m + headroom.
+        assert item.rect == pytest.approx(
+            (3.0 - 0.2 - _MARGIN - _HEADROOM, 3.0 - 0.2 - _MARGIN - _HEADROOM,
+             3.0 + 0.2 + _MARGIN + _HEADROOM, 3.0 + 0.2 + _MARGIN + _HEADROOM),
+            abs=1e-9,
+        )
         # The exact oracle treats it as a disc centred at the endpoint.
         assert exact_clearance_mm((3.0 - 0.35, 3.0 - 0.35, 3.0 + 0.35, 3.0 + 0.35), item) == 0.0
 
