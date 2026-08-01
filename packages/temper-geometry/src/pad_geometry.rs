@@ -56,16 +56,20 @@ unsafe extern "C" fn fallback_sin(x: f64) -> f64 {
 
 fn host_cos() -> &'static MathFn {
     static F: OnceLock<Option<MathFn>> = OnceLock::new();
-    F.get_or_init(|| dlsym_math("cos").or(Some(fallback_cos)))
-        .as_ref()
-        .unwrap()
+    let f = F.get_or_init(|| dlsym_math("cos").or(Some(fallback_cos)));
+    // The closure always returns Some (dlsym result or the fallback),
+    // so the Option is never None once initialized.
+    #[expect(clippy::unwrap_used, reason = "infallible: initialized with dlsym result or fallback")]
+    f.as_ref().unwrap()
 }
 
 fn host_sin() -> &'static MathFn {
     static F: OnceLock<Option<MathFn>> = OnceLock::new();
-    F.get_or_init(|| dlsym_math("sin").or(Some(fallback_sin)))
-        .as_ref()
-        .unwrap()
+    let f = F.get_or_init(|| dlsym_math("sin").or(Some(fallback_sin)));
+    // The closure always returns Some (dlsym result or the fallback),
+    // so the Option is never None once initialized.
+    #[expect(clippy::unwrap_used, reason = "infallible: initialized with dlsym result or fallback")]
+    f.as_ref().unwrap()
 }
 
 fn math_cos(x: f64) -> f64 {
@@ -337,6 +341,9 @@ fn best_rotation_for_barrier(hv: &[PadTuple], selv: &[PadTuple], barrier_axis: i
     }
     match best {
         Some((rot, gap)) => (rot, gap, true),
+        // The sweep always runs at least one rotation (0..4 is non-empty),
+        // so `fallback` is always Some here.
+        #[expect(clippy::expect_used, reason = "infallible: 0..4 sweep always sets the fallback on its first iteration")]
         None => fallback.map(|(rot, gap)| (rot, gap, false)).expect("rotation sweep produced no fallback"),
     }
 }
