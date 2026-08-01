@@ -226,7 +226,7 @@ def test_property_used_slots_symmetric(state_rules):
 )
 @settings(max_examples=100, deadline=None)
 def test_property_perpendicular_slot_reduces_zero(
-    slot_angle, slot_length, _pin_to_hv_angle, base_radius
+    slot_angle, slot_length, pin_to_hv_angle, base_radius
 ):
     """U2: a slot perpendicular to the pin-to-other-HV direction reclaims 0 creepage.
 

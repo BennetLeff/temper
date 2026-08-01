@@ -204,8 +204,14 @@ def test_real_board_violation_count_in_expected_range():
     courtyard_count = counts["courtyards_overlap"]
     pth_count = counts["pth_inside_courtyard"]
 
-    assert 25 <= courtyard_count <= 35, f"Expected ~27-29 courtyards_overlap, got {courtyard_count}"
-    assert 14 <= pth_count <= 22, f"Expected ~16-18 pth_inside_courtyard, got {pth_count}"
+    # Re-baselined 2026-07-31 against pcb/temper.kicad_pcb @
+    # 54372bbf (2026-07-29, "separate C25/C26 tank capacitor courtyards"):
+    # measured courtyards_overlap=14, pth_inside_courtyard=9, report 2190
+    # chars. Previous range (27-29 / 16-18) predates that board change
+    # (the tank-cap courtyard split removed the overlap). Bands leave
+    # headroom for run-to-run DRC noise without hiding a real regression.
+    assert 12 <= courtyard_count <= 18, f"Expected ~14 courtyards_overlap, got {courtyard_count}"
+    assert 7 <= pth_count <= 12, f"Expected ~9 pth_inside_courtyard, got {pth_count}"
     assert len(report) > 100
 
     print(
