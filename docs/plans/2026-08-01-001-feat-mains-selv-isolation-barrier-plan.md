@@ -163,9 +163,9 @@ floorplan re-solve is genuinely required.
 - **OQ3 (corridor axis):** both orientations are feasible only after the re-solve.
   **Data recommends Y** (horizontal): 52 movers vs 78, lower max drift (127 vs 135 mm);
   X keeps the power stage clustered. Human picks per mains-connector/enclosure.
-- **OQ1 (width):** 12.6 mm costs only ~+183 mm total drift over 8.0 mm (X) but is
-  gated by the isolator work. **Recommend: gate at 8.0 mm now, widen after the
-  isolator BOM phase.**
+- **OQ1 (width):** 12.6 mm costs **~2.3 mm per component** (≈ +183 mm summed over
+  80 movers) over 8.0 mm (X) — negligible; the real gate is the isolator work.
+  **Recommend: gate at 8.0 mm now, widen after the isolator BOM phase.**
 - **OQ4 input:** `C27` is staged outside the outline; nearest in-board pads sit
   0.95–1.16 mm from the edge — the corridor will squeeze edge clearance and needs
   human re-validation after the solve.
