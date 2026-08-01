@@ -6,11 +6,12 @@ on:
     paths:
       - 'firmware/**'
       - 'packages/**'
-  pull_request:
-    branches: [main]
-    paths:
-      - 'firmware/**'
-      - 'packages/**'
+  # pull_request trigger removed 2026-08-01: ~40 PR-triggered runs/day at
+  # ~25 min each (~17h/day of runner time) with zero merge impact -- CodeQL is
+  # not in .github/required-checks.json's required_contexts. Every merge still
+  # gets scanned on push to main (the run that matters for SARIF/history), and
+  # the Monday schedule is a catch-all for deprecation drift. Restore the PR
+  # trigger if per-PR CodeQL feedback becomes a merge requirement.
   schedule:
     - cron: '0 8 * * 1'  # Mondays 08:00 UTC
 
