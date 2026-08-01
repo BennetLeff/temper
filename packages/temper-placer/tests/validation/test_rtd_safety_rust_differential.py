@@ -68,7 +68,10 @@ def _oracle_derive_max31865(corners: Max31865RtdWindowCorners):
     divider_low = 1.0 - corners.divider_tolerance_fraction
     divider_high = 1.0 + corners.divider_tolerance_fraction
     margin = 1.0 + corners.required_margin_fraction
-    v = lambda r, vb, rr: r * (vb / (rr + r))  # max31865_rtd_voltage_v semantics
+    def _rtd_voltage_v(r: float, vb: float, rr: float) -> float:
+        return r * (vb / (rr + r))  # max31865_rtd_voltage_v semantics
+
+    v = _rtd_voltage_v  # keep call sites below unchanged
     short_voltage_max = v(corners.short_max_ohm, corners.vbias_max_v, rref_min)
     valid_voltage_min = v(corners.valid_min_ohm, corners.vbias_min_v, rref_max)
     valid_voltage_max = v(corners.valid_max_ohm, corners.vbias_max_v, rref_min)

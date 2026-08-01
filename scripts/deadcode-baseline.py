@@ -54,3 +54,4 @@ expected_base  # unused variable (packages/temper-placer/tests/router_v6/test_ac
 extra_kwargs  # unused variable (packages/temper-placer/tests/router_v6/test_geometric_degeneracy.py:862)
 mcu_running  # unused variable (packages/temper-placer/tests/validation/test_rtd_fault_latch_pbt.py:189)
 spi_active  # unused variable (packages/temper-placer/tests/validation/test_rtd_fault_latch_pbt.py:190)
+pin_to_hv_angle  # unused variable (packages/temper-placer/tests/property/test_ghost_pad_injection.py:229)

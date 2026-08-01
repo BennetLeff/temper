@@ -329,4 +329,5 @@ def _is_scorable_metric(  # noqa: ARG001
     a behaviour change and is scoped as a follow-up, not folded into a
     signature repair.
     """
+    del report, key  # inherited unused args (baseline debt); signature kept for call symmetry
     return score != default_value

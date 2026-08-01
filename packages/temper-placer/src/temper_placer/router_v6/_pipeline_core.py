@@ -158,6 +158,7 @@ class RouterV6Pipeline:
                 enable_connectivity_verifier's discipline (plan
                 2026-07-23-001 U2).
         """
+        del enable_connectivity_verifier  # inherited unused arg (baseline debt)
         if dfm_fail_on not in ("none", "critical", "all"):
             raise ValueError(
                 f"dfm_fail_on must be 'none', 'critical', or 'all', got {dfm_fail_on!r}"
