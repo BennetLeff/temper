@@ -262,7 +262,7 @@ def run_full_pipeline(profile: bool) -> dict[str, Any]:
         from temper_placer.router_v6.pipeline import RouterV6Pipeline
         max_iter = int(os.environ.get("PROFILE_MAX_ITER", "100000"))
         # Match the smoke (and the now-fixed closure-test
-        # adapter): plain 2D A* via the Numba kernel, no theta
+        # adapter): plain 2D A* via the Rust kernel, no theta
         # star, no smoothing.  The kernel wrapper below applies
         # the per-A* iter cap.
         pipeline = RouterV6Pipeline(

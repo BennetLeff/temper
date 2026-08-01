@@ -1,5 +1,4 @@
 # mypy: ignore-errors
-# ruff: noqa: ARG001, F821  # enable_numba_los from incomplete numba merge
 """
 Router V6: A* heuristic, distance, and demand-budget functions.
 

@@ -1,5 +1,4 @@
 # mypy: ignore-errors
-# ruff: noqa: ARG001, F821  # enable_numba_los from incomplete numba merge
 """Router V6: A* search execution and segment-level search strategies.
 
 The search core: dispatching a single segment search, the coarse-to-fine
@@ -63,7 +62,6 @@ def _dispatch_search(
     use_lazy_theta_star: bool,
     congestion_tensor=None,
     max_iter: int = 1_000_000,
-    enable_numba_los: bool = False,
     enable_congestion_derivative: bool = True,
     thermal_flat=None,
     thermal_weight: float = 0.0,
@@ -76,7 +74,6 @@ def _dispatch_search(
             goal,
             net_id=net_id,
             max_iter=max_iter,
-            enable_numba_los=enable_numba_los,
             enable_congestion_derivative=enable_congestion_derivative,
         )
     if use_theta_star:
@@ -86,15 +83,13 @@ def _dispatch_search(
             goal,
             net_id=net_id,
             max_iter=max_iter,
-            enable_numba_los=enable_numba_los,
             enable_congestion_derivative=enable_congestion_derivative,
         )
-    # 2D plain A*.  Delegate to the Numba-jitted kernel when available
-    # and the grid is small enough that the overhead of building the
-    # bit tensor (once per call) is amortized.  Falls through to the
-    # pure-Python _astar_search otherwise.
+    # 2D plain A*.  Delegate to the Rust-backed kernel
+    # (astar_core_numba._astar_search_numba, cleanup C1).  Falls through
+    # to the pure-Python _astar_search when the extension is missing.
     if net_id >= 0:
-        # The Numba kernel consumes a binary validity tensor and cannot
+        # The Rust kernel consumes a binary validity tensor and cannot
         # distinguish committed copper belonging to this net.  Tree edges use
         # the reference search so same-net attachment remains legal.
         return _astar_search(start, goal, grid, net_id=net_id)
@@ -104,7 +99,7 @@ def _dispatch_search(
     )
 
     # U7 / R11: thread the optional congestion tensor through.  The
-    # Numba kernel reads it as a flat float32 array per expansion.
+    # kernel reads it as a flat float32 array per expansion.
     kwargs = {"max_iterations": max_iter}
     if thermal_flat is not None:
         kwargs["thermal_flat"] = thermal_flat
@@ -124,7 +119,6 @@ def _segment_search(
     use_lazy_theta_star: bool,
     congestion_tensor=None,
     max_iter: int = 1_000_000,
-    enable_numba_los: bool = False,
     enable_coarse_to_fine: bool = False,
     coarse_factor: int = 4,
     corridor_buffer_cells: int = 12,
@@ -169,7 +163,6 @@ def _segment_search(
         use_lazy_theta_star,
         congestion_tensor=congestion_tensor,
         max_iter=max_iter,
-        enable_numba_los=enable_numba_los,
         enable_congestion_derivative=enable_congestion_derivative,
         thermal_flat=thermal_flat,
         thermal_weight=thermal_weight,
@@ -188,7 +181,6 @@ def _segment_search_coarse_to_fine(
     corridor_buffer_cells: int = 12,
     congestion_tensor=None,
     max_iter: int = 1_000_000,
-    enable_numba_los: bool = False,
     enable_congestion_derivative: bool = True,
     thermal_flat=None,
     thermal_weight: float = 0.0,
@@ -242,7 +234,6 @@ def _segment_search_coarse_to_fine(
         use_lazy_theta_star,
         congestion_tensor=congestion_tensor,
         max_iter=max_iter,
-        enable_numba_los=enable_numba_los,
         enable_congestion_derivative=enable_congestion_derivative,
         thermal_flat=thermal_flat,
         thermal_weight=thermal_weight,
@@ -257,7 +248,6 @@ def _astar_route(
     use_theta_star: bool = False,
     use_lazy_theta_star: bool = False,
     max_iter: int = 1_000_000,
-    enable_numba_los: bool = False,
     enable_coarse_to_fine: bool = False,
     coarse_factor: int = 4,
     corridor_buffer_cells: int = 12,
@@ -364,7 +354,6 @@ def _astar_route_multilayer(
     use_lazy_theta_star: bool = False,
     congestion_tensor=None,
     max_iter: int = 1_000_000,
-    enable_numba_los: bool = False,
     enable_coarse_to_fine: bool = False,
     coarse_factor: int = 4,
     corridor_buffer_cells: int = 12,
@@ -607,7 +596,6 @@ def _astar_route_with_ripup(
     use_lazy_theta_star: bool = False,
     congestion_tensor=None,
     max_iter: int = 1_000_000,
-    enable_numba_los: bool = False,
     enable_coarse_to_fine: bool = False,
     coarse_factor: int = 4,
     corridor_buffer_cells: int = 12,
