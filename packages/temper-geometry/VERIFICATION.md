@@ -182,6 +182,45 @@ masks); a Rust-native exact EDT is the recorded fallback for a
 follow-up. The U4 perf win (the per-sample lookup hot loop) is
 delivered by the batch; scipy's transform was never the hot loop.
 
+### Consumer: `_compute_bottleneck_widths` (last per-point EDT width loop, cleanup C3 — 2026-07-31)
+
+`temper_placer.router_v6._astar_heuristics._compute_bottleneck_widths`
+was the last remaining per-point EDT width-lookup hot loop in the repo
+(it sampled every waypoint-segment point and called the per-point
+lookup inside a Python loop, ~1 FFI-adjacent Python call per sample).
+The C3 cleanup rewrote it to collect every sample point per call and
+resolve all widths with ONE `_edt_width_lookup_batch` crossing, then
+reassemble the per-net minima.
+
+**Base case:** a single sample point — the batch is bit-identical to
+the per-point reference for that point (proven above; same f64
+arithmetic order, floor indexing, strict bounds check, masked cells →
+0.0, left-to-right bilinear interpolation).
+
+**Induction step:** the batch is per-point independent (proven above),
+so resolving n+1 samples in one crossing equals resolving n samples
+plus one independently-computed value. The C3 change only relocates the
+sampling loop — the sample-point arithmetic (`t = s / num_samples`,
+`sx = x1 + t * dx`, degenerate-segment → endpoint) is unchanged Python
+executed in the same order, and the per-net minimum is an
+order-independent `min` over the same multiset of widths. Each net's
+bottleneck width is therefore bit-identical to the pre-change
+implementation by construction.
+
+**Empirical verification:** the differential suite
+(`packages/temper-placer/tests/router_v6/test_astar_heuristics_rust_differential.py`)
+pins the batched function against a verbatim copy of the pre-change
+per-point loop (the oracle) on ~200 randomized channel mappings —
+empty paths, single waypoints, degenerate zero-length segments,
+out-of-bounds samples, varied cell sizes (0.1/0.5/1.0) and sample
+distances — asserting bit-exact per-net widths; a second test
+monkeypatches `_edt_width_lookup_batch` and asserts exactly ONE batch
+call per invocation (this failed against the pre-change code, proving
+the per-point loop is actually gone). The pre-existing
+`test_bottleneck_ordering_pbt.py` and `test_net_ordering*.py` suites
+(which drive ordering from these widths) pass unchanged. Measured on a
+120-net/0.5 mm-sample fixture: 5.6x faster (22.9 ms → 4.1 ms per call).
+
 ## Pad Geometry + Isolation-Barrier Sweep — Verification by Induction (Wave 2, 2026-07-31)
 
 **Base case:** a 1×1 circle pad at the origin — `corner_radius = 0.5`,
