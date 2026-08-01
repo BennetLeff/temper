@@ -10,6 +10,7 @@ from __future__ import annotations
 import hashlib
 from dataclasses import dataclass, replace
 from pathlib import Path
+from typing import cast
 
 import numpy as np
 import temper_geometry as _tg
@@ -240,7 +241,7 @@ def compute_channel_widths(
         True
     """
     node_widths = {}
-    edge_widths = {}
+    edge_widths: dict[tuple[tuple[float, float], tuple[float, float]], float] = {}
 
     # Get the available routing area
     available_area = routing_space.available_area
@@ -338,7 +339,7 @@ def compute_channel_widths(
             for k in range(len(pts)):
                 widths_along_edge.append(float(_widths[_sample_offset + k]))
             _sample_offset += len(pts)
-            edge_widths[(u, v)] = min(widths_along_edge) if widths_along_edge else 0.0
+            edge_widths[(cast(tuple[float, float], u), cast(tuple[float, float], v))] = min(widths_along_edge) if widths_along_edge else 0.0
     else:
         # Reference path: per-point width sampling (EDT disabled or
         # unavailable).  Keep the original loop untouched for parity.
@@ -365,7 +366,7 @@ def compute_channel_widths(
                     width = _width_at((sample_x, sample_y))
                     widths_along_edge.append(width)
 
-            edge_widths[(u, v)] = min(widths_along_edge) if widths_along_edge else 0.0
+            edge_widths[(cast(tuple[float, float], u), cast(tuple[float, float], v))] = min(widths_along_edge) if widths_along_edge else 0.0
 
     # Compute statistics
     all_widths = list(node_widths.values()) + list(edge_widths.values())
