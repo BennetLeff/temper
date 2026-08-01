@@ -22,6 +22,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+import temper_geometry as _tg
+
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist
 from temper_placer.core.state import PlacementState
@@ -455,45 +457,13 @@ class NgspiceValidator(Validator):
         return warnings
 
     def _infer_unit(self, name: str, value: float) -> str:
-        """Infer unit from measurement name."""
-        name_lower = name.lower()
+        """Infer unit from measurement name.
 
-        # Time measurements
-        if any(x in name_lower for x in ["time", "trise", "tfall", "delay", "period"]):
-            if abs(value) < 1e-9:
-                return "ps"
-            elif abs(value) < 1e-6:
-                return "ns"
-            elif abs(value) < 1e-3:
-                return "us"
-            else:
-                return "s"
-
-        # Voltage
-        if any(x in name_lower for x in ["v_", "vce", "vgs", "vout", "vin", "voltage"]):
-            return "V"
-
-        # Current
-        if any(x in name_lower for x in ["i_", "iout", "iin", "current"]):
-            if abs(value) < 1e-3:
-                return "mA"
-            else:
-                return "A"
-
-        # Energy
-        if any(x in name_lower for x in ["e_", "eoff", "eon", "energy"]):
-            if abs(value) < 1e-6:
-                return "uJ"
-            elif abs(value) < 1e-3:
-                return "mJ"
-            else:
-                return "J"
-
-        # Power
-        if any(x in name_lower for x in ["p_", "power", "pout", "pin"]):
-            return "W"
-
-        return ""
+        Computed in the ``temper-geometry`` Rust crate
+        (``spice_estimators.rs``) with the same substring sets,
+        thresholds, and order as the former pure-Python classifier.
+        """
+        return _tg.spice_infer_unit_py(name, value)
 
 
 def estimate_loop_inductance(
@@ -529,27 +499,10 @@ def estimate_loop_inductance(
         else:
             return 0.0  # Missing component
 
-    # Calculate loop area using shoelace formula
-    # Area = 0.5 * |sum(x_i * y_{i+1} - x_{i+1} * y_i)|
-    n = len(positions)
-    area = 0.0
-    for i in range(n):
-        x1, y1 = positions[i]
-        x2, y2 = positions[(i + 1) % n]
-        area += x1 * y2 - x2 * y1
-    area = abs(area) / 2.0  # mm²
-
-    # Convert to m²
-    area_m2 = area * 1e-6
-
-    # Inductance: L ≈ μ₀ * Area / h
-    # μ₀ = 4π × 10⁻⁷ H/m
-    mu_0 = 4 * 3.14159265359e-7
-    h_m = trace_height_mm * 1e-3  # Convert to meters
-
-    inductance_h = mu_0 * area_m2 / h_m
-
-    return inductance_h
+    # Computed in the temper-geometry Rust crate (spice_estimators.rs):
+    # shoelace loop area, then L = mu_0 * A / h, with the exact f64
+    # operation order of the former pure-Python estimator.
+    return _tg.spice_loop_inductance_py(positions, trace_height_mm)
 
 
 def create_validation_netlist(

@@ -11,7 +11,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import StrEnum
-from math import ceil, floor
+
+import temper_thermal as _tt
 
 
 class RtdStatus(StrEnum):
@@ -329,47 +330,39 @@ def derive_max31865_hardware_window(
     ):
         raise ValueError("RTD resistance ranges must be ordered and non-overlapping")
 
-    rref_min = corners.rref_nominal_ohm * (1.0 - corners.rref_tolerance_fraction)
-    rref_max = corners.rref_nominal_ohm * (1.0 + corners.rref_tolerance_fraction)
-    offset = corners.comparator_offset_abs_v
-    divider_low = 1.0 - corners.divider_tolerance_fraction
-    divider_high = 1.0 + corners.divider_tolerance_fraction
-    margin = 1.0 + corners.required_margin_fraction
-
-    short_voltage_max = max31865_rtd_voltage_v(
-        corners.short_max_ohm, vbias_v=corners.vbias_max_v, rref_ohm=rref_min
+    low_trip_v, high_trip_v, status = _tt.rtd_derive_max31865_hardware_window_py(
+        corners.comparator_offset_abs_v,
+        corners.divider_tolerance_fraction,
+        corners.vbias_min_v,
+        corners.vbias_max_v,
+        corners.rref_nominal_ohm,
+        corners.rref_tolerance_fraction,
+        corners.short_max_ohm,
+        corners.valid_min_ohm,
+        corners.valid_max_ohm,
+        corners.open_min_ohm,
+        corners.required_margin_fraction,
     )
-    valid_voltage_min = max31865_rtd_voltage_v(
-        corners.valid_min_ohm, vbias_v=corners.vbias_min_v, rref_ohm=rref_max
-    )
-    valid_voltage_max = max31865_rtd_voltage_v(
-        corners.valid_max_ohm, vbias_v=corners.vbias_max_v, rref_ohm=rref_min
-    )
-    open_voltage_min = max31865_rtd_voltage_v(
-        corners.open_min_ohm, vbias_v=corners.vbias_min_v, rref_ohm=rref_max
-    )
-
-    low_nominal_min = (short_voltage_max + offset) / divider_low
-    low_nominal_max = (valid_voltage_min / margin - offset) / divider_high
-    high_nominal_min = (valid_voltage_max * margin + offset) / divider_low
-    high_nominal_max = (open_voltage_min - offset) / divider_high
-    if low_nominal_min > low_nominal_max:
+    if status == 1:
         raise ValueError("no low threshold satisfies MAX31865 corners and margin")
-    if high_nominal_min > high_nominal_max:
+    if status == 2:
         raise ValueError("no high threshold satisfies MAX31865 corners and margin")
     return Max31865RtdHardwareWindow(
         corners=corners,
-        low_trip_voltage_v=(low_nominal_min + low_nominal_max) / 2.0,
-        high_trip_voltage_v=(high_nominal_min + high_nominal_max) / 2.0,
+        low_trip_voltage_v=low_trip_v,
+        high_trip_voltage_v=high_trip_v,
     )
 
 
 def reference_divider_voltage_v(*, reference_v: float, top_ohm: float, bottom_ohm: float) -> float:
-    """Return a grounded two-resistor threshold derived from REF2025 VBIAS."""
+    """Return a grounded two-resistor threshold derived from REF2025 VBIAS.
+
+    Computed in the ``temper-thermal`` Rust crate (``rtd.rs``).
+    """
 
     if reference_v < 0.0 or top_ohm < 0.0 or bottom_ohm <= 0.0:
         raise ValueError("reference and divider values must be non-negative")
-    return reference_v * bottom_ohm / (top_ohm + bottom_ohm)
+    return _tt.rtd_reference_divider_voltage_v_py(reference_v, top_ohm, bottom_ohm)
 
 
 def populated_rtd_window_thresholds_v(
@@ -407,7 +400,9 @@ def spi_rc_rise_time_ns(
     if driver_output_ohm < 0.0 or series_resistor_ohm < 0.0 or load_capacitance_pf < 0.0:
         raise ValueError("SPI resistance and capacitance must be non-negative")
     # ohm * pF is ps, so divide by 1000 to return ns.
-    return 2.2 * (driver_output_ohm + series_resistor_ohm) * load_capacitance_pf / 1000.0
+    return _tt.rtd_spi_rc_rise_time_ns_py(
+        driver_output_ohm, series_resistor_ohm, load_capacitance_pf
+    )
 
 
 @dataclass
@@ -556,16 +551,16 @@ class VirtualRtdBoard:
 
 
 def resistance_to_code(resistance_ohm: float, rref_ohm: float = PT100_RREF_OHM) -> int:
-    """Return the MAX31865 15-bit resistance code for a non-negative input."""
+    """Return the MAX31865 15-bit resistance code for a non-negative input.
+
+    Computed in the ``temper-thermal`` Rust crate (``rtd.rs``).
+    """
 
     if resistance_ohm <= 0.0:
         return 0
     if rref_ohm <= 0.0:
         raise ValueError("rref_ohm must be positive")
-    return min(
-        ADC_FULL_SCALE - 1,
-        floor(ADC_FULL_SCALE * resistance_ohm / rref_ohm),
-    )
+    return int(_tt.rtd_resistance_to_code_py(resistance_ohm, rref_ohm))
 
 
 def max31865_rtd_current_a(
@@ -574,11 +569,14 @@ def max31865_rtd_current_a(
     vbias_v: float,
     rref_ohm: float = PT100_RREF_OHM,
 ) -> float:
-    """Return RTD excitation current from the MAX31865 voltage-source topology."""
+    """Return RTD excitation current from the MAX31865 voltage-source topology.
+
+    Computed in the ``temper-thermal`` Rust crate (``rtd.rs``).
+    """
 
     if resistance_ohm < 0.0 or vbias_v < 0.0 or rref_ohm <= 0.0:
         raise ValueError("RTD resistance/VBIAS must be non-negative and RREF positive")
-    return vbias_v / (rref_ohm + resistance_ohm)
+    return _tt.rtd_max31865_current_a_py(resistance_ohm, vbias_v, rref_ohm)
 
 
 def max31865_rtd_voltage_v(
@@ -587,11 +585,12 @@ def max31865_rtd_voltage_v(
     vbias_v: float,
     rref_ohm: float = PT100_RREF_OHM,
 ) -> float:
-    """Return local ``REFIN-``/``ISENSOR`` RTD-drop voltage for this front end."""
+    """Return local ``REFIN-``/``ISENSOR`` RTD-drop voltage for this front end.
 
-    return resistance_ohm * max31865_rtd_current_a(
-        resistance_ohm, vbias_v=vbias_v, rref_ohm=rref_ohm
-    )
+    Computed in the ``temper-thermal`` Rust crate (``rtd.rs``).
+    """
+
+    return _tt.rtd_max31865_voltage_v_py(resistance_ohm, vbias_v, rref_ohm)
 
 
 def threshold_adc_codes(
@@ -609,11 +608,10 @@ def threshold_adc_codes(
 
     if not (0.0 < short_ohm < open_ohm):
         raise ValueError("short_ohm must be positive and below open_ohm")
-    low = ceil(ADC_FULL_SCALE * short_ohm / rref_ohm)
-    high = floor(ADC_FULL_SCALE * open_ohm / rref_ohm)
+    low, high = _tt.rtd_threshold_adc_codes_py(rref_ohm, short_ohm, open_ohm)
     if low >= high:
         raise ValueError("fault thresholds overlap")
-    return low, high
+    return int(low), int(high)
 
 
 def threshold_codes(
@@ -672,11 +670,13 @@ def hardware_window_voltage(resistance_ohm: float, excitation_a: float) -> float
     This is the only analogue assumption in the companion SPICE model.  The
     actual MAX31865 bias current must be measured or taken from the selected
     datasheet corner before populating comparator thresholds.
+
+    Computed in the ``temper-thermal`` Rust crate (``rtd.rs``).
     """
 
     if resistance_ohm < 0.0 or excitation_a < 0.0:
         raise ValueError("resistance and excitation must be non-negative")
-    return resistance_ohm * excitation_a
+    return _tt.rtd_hardware_window_voltage_py(resistance_ohm, excitation_a)
 
 
 def derive_hardware_window(corners: RtdWindowCorners) -> RtdHardwareWindow:
@@ -686,6 +686,9 @@ def derive_hardware_window(corners: RtdWindowCorners) -> RtdHardwareWindow:
     faults above its trip voltage. Both the RTD excitation and threshold
     network are swept independently. The required margin is measured from the
     nearest valid signal to the corresponding worst-case threshold.
+
+    The corner arithmetic is computed in the ``temper-thermal`` Rust crate
+    (``rtd.rs``); the validation below stays Python.
     """
 
     if not (0.0 < corners.bias_current_min_a <= corners.bias_current_max_a):
@@ -707,37 +710,26 @@ def derive_hardware_window(corners: RtdWindowCorners) -> RtdHardwareWindow:
     ):
         raise ValueError("RTD resistance ranges must be ordered and non-overlapping")
 
-    current_min = corners.bias_current_min_a
-    current_max = corners.bias_current_max_a
-    offset = corners.comparator_offset_abs_v
-    divider_low = 1.0 - corners.divider_tolerance_fraction
-    divider_high = 1.0 + corners.divider_tolerance_fraction
-    margin = 1.0 + corners.required_margin_fraction
-
-    short_voltage_max = hardware_window_voltage(corners.short_max_ohm, current_max)
-    valid_voltage_min = hardware_window_voltage(corners.valid_min_ohm, current_min)
-    valid_voltage_max = hardware_window_voltage(corners.valid_max_ohm, current_max)
-    open_voltage_min = hardware_window_voltage(corners.open_min_ohm, current_min)
-
-    # A short must be below even the minimum actual low threshold; a valid
-    # cold PT100 must sit above even the maximum actual low threshold.
-    low_nominal_min = (short_voltage_max + offset) / divider_low
-    low_nominal_max = (valid_voltage_min / margin - offset) / divider_high
-
-    # A valid hot PT100 must sit below even the minimum actual high threshold;
-    # an open circuit must exceed even the maximum actual high threshold.
-    high_nominal_min = (valid_voltage_max * margin + offset) / divider_low
-    high_nominal_max = (open_voltage_min - offset) / divider_high
-
-    if low_nominal_min > low_nominal_max:
+    low_trip_v, high_trip_v, status = _tt.rtd_derive_hardware_window_py(
+        corners.bias_current_min_a,
+        corners.bias_current_max_a,
+        corners.comparator_offset_abs_v,
+        corners.divider_tolerance_fraction,
+        corners.required_margin_fraction,
+        corners.short_max_ohm,
+        corners.valid_min_ohm,
+        corners.valid_max_ohm,
+        corners.open_min_ohm,
+    )
+    if status == 1:
         raise ValueError("no low-threshold window satisfies fault coverage and margin")
-    if high_nominal_min > high_nominal_max:
+    if status == 2:
         raise ValueError("no high-threshold window satisfies fault coverage and margin")
 
     return RtdHardwareWindow(
         corners=corners,
-        low_trip_voltage_v=(low_nominal_min + low_nominal_max) / 2.0,
-        high_trip_voltage_v=(high_nominal_min + high_nominal_max) / 2.0,
+        low_trip_voltage_v=low_trip_v,
+        high_trip_voltage_v=high_trip_v,
     )
 
 

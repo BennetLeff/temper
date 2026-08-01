@@ -16,6 +16,7 @@ pub mod ir {
 // R14: Never abort Python process; catch_unwind + Python exceptions
 
 pub mod constraints;
+pub mod ipc;
 pub mod loss;
 
 use pyo3::exceptions::{PyRuntimeError, PyValueError};
@@ -415,6 +416,8 @@ fn temper_constraints(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(supported_constraint_types_py, m)?)?;
     m.add_function(wrap_pyfunction!(is_available_py, m)?)?;
     m.add_function(wrap_pyfunction!(version_py, m)?)?;
+    m.add_function(wrap_pyfunction!(ipc::ipc2152_forward_py, m)?)?;
+    m.add_function(wrap_pyfunction!(ipc::min_width_ipc2152_py, m)?)?;
     m.add_class::<PyConstraintType>()?;
     Ok(())
 }

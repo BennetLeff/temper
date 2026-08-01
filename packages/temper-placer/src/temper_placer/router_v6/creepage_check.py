@@ -13,14 +13,21 @@ Validates clearance distances for high-voltage isolation.
 
    **Isolation slots are not modeled.**
 
+The pure geometry (point/segment distance, segment intersection,
+same-layer min-clearance aggregation, the IPC-2221 voltage table, and
+the HV-net word-boundary classifier) lives in the ``temper-geometry``
+Rust crate (``creepage_check.rs``); route extraction and the per-net
+report orchestration stay here.
+
 Part of temper-ytm8 (Stage 5 - Manufacturing DRC)
 """
 
 from __future__ import annotations
 
 import math
-import re
 from dataclasses import dataclass
+
+import temper_geometry as _tg
 
 from temper_placer.router_v6._check_report_base import BaseCheckReport
 from temper_placer.router_v6.routing_results import RoutingResults
@@ -197,44 +204,19 @@ def _is_high_voltage_net(net_name: str) -> bool:
        cost of coupling this otherwise project-agnostic module to one
        project's manifest file -- a real design decision, not made here.
 
+    Classified in the ``temper-geometry`` Rust crate
+    (``creepage_check.rs``) with the exact word-boundary semantics and
+    keyword order of the former regexes (pinned bit-exactly by
+    ``tests/router_v6/test_creepage_check_rust_differential.py``,
+    including the 14 known false positives).
+
     Args:
         net_name: Net name from the schematic / layout.
 
     Returns:
         ``True`` if the net is classified as high-voltage.
     """
-    name_upper = net_name.upper()
-
-    # Word-boundary keywords, delimited by "_" or start/end-of-string --
-    # see the bug-history note above for why plain substring matching
-    # here was wrong.
-    broad_keywords = [
-        "HIGH_VOLTAGE",
-        "MAINS",
-        "LINE",
-        "NEUTRAL",
-        "PRIMARY",
-        "HOT",
-        "L1",
-        "L2",
-        "L3",
-        "PHASE",
-        "VBUS",
-    ]
-    for kw in broad_keywords:
-        if re.search(rf"(?:^|_){re.escape(kw)}(?:$|[\d_])", name_upper):
-            return True
-    # "B+" has no alphanumeric trailing boundary to anchor on; anchored
-    # on the leading "_"/start side only (e.g. "DC_BUS+", "BUS+").
-    if re.search(r"(?:^|_)B\+", name_upper):
-        return True
-
-    # AC / HV with optional trailing underscore or digit
-    # (?:^|_)  – start-of-string or underscore before
-    # (?:$|[\d_]) – end-of-string, digit, or underscore after
-    if re.search(r"(?:^|_)AC(?:$|[\d_])", name_upper):
-        return True
-    return bool(re.search(r"(?:^|_)HV(?:$|[\d_])", name_upper))
+    return _tg.is_high_voltage_net_py(net_name)
 
 
 # ---------------------------------------------------------------------------
@@ -292,18 +274,15 @@ def _point_to_segment_distance(
     x2: float,
     y2: float,
 ) -> float:
-    """Minimum distance from point *(px, py)* to segment *(x1,y1)-(x2,y2)*."""
-    dx = x2 - x1
-    dy = y2 - y1
-    denom = dx * dx + dy * dy
-    if denom == 0.0 or not math.isfinite(denom):
-        return math.hypot(px - x1, py - y1)
-    # Clamped projection parameter t ∈ [0, 1]
-    t = ((px - x1) * dx + (py - y1) * dy) / denom
-    t = max(0.0, min(1.0, t))
-    proj_x = x1 + t * dx
-    proj_y = y1 + t * dy
-    return math.hypot(px - proj_x, py - proj_y)
+    """Minimum distance from point *(px, py)* to segment *(x1,y1)-(x2,y2)*.
+
+    Computed in the ``temper-geometry`` Rust crate (``creepage_check.rs``)
+    with the exact f64 operation order of the former pure-Python body,
+    including CPython ``math.hypot`` (Dekker vector_norm) and builtin
+    ``min``/``max`` NaN semantics (pinned bit-exactly by
+    ``tests/router_v6/test_creepage_check_rust_differential.py``).
+    """
+    return _tg.point_to_segment_distance_py(px, py, x1, y1, x2, y2)
 
 
 def _closest_point_on_segment(
@@ -314,15 +293,12 @@ def _closest_point_on_segment(
     x2: float,
     y2: float,
 ) -> tuple[float, float]:
-    """Closest point on segment *(x1,y1)-(x2,y2)* to point *(px, py)*."""
-    dx = x2 - x1
-    dy = y2 - y1
-    denom = dx * dx + dy * dy
-    if denom == 0.0 or not math.isfinite(denom):
-        return (x1, y1)
-    t = ((px - x1) * dx + (py - y1) * dy) / denom
-    t = max(0.0, min(1.0, t))
-    return (x1 + t * dx, y1 + t * dy)
+    """Closest point on segment *(x1,y1)-(x2,y2)* to point *(px, py)*.
+
+    Computed in the ``temper-geometry`` Rust crate (``creepage_check.rs``);
+    bit-exact delegation, see ``_point_to_segment_distance``.
+    """
+    return _tg.closest_point_on_segment_py(px, py, x1, y1, x2, y2)
 
 
 def _segments_intersect(
@@ -341,28 +317,13 @@ def _segments_intersect(
     Returns:
         ``(intersects, ix, iy)`` where *(ix, iy)* is the intersection
         point when ``intersects`` is ``True``.
+
+    Computed in the ``temper-geometry`` Rust crate (``creepage_check.rs``);
+    bit-exact delegation (strict ``< 0.0`` orientation products, so
+    shared endpoints and collinear overlaps do not count as proper
+    intersections).
     """
-
-    def _orient(ax, ay, bx, by, cx, cy):
-        return (bx - ax) * (cy - ay) - (by - ay) * (cx - ax)
-
-    o1 = _orient(x1, y1, x2, y2, x3, y3)
-    o2 = _orient(x1, y1, x2, y2, x4, y4)
-    o3 = _orient(x3, y3, x4, y4, x1, y1)
-    o4 = _orient(x3, y3, x4, y4, x2, y2)
-
-    if o1 * o2 < 0.0 and o3 * o4 < 0.0:
-        # Compute intersection point via parameter t on segment 2
-        dx1, dy1 = x2 - x1, y2 - y1
-        dx2, dy2 = x4 - x3, y4 - y3
-        denom = dx1 * dy2 - dy1 * dx2
-        if denom != 0.0:
-            t = ((x1 - x3) * dy1 - (y1 - y3) * dx1) / denom
-            ix = x3 + t * dx2
-            iy = y3 + t * dy2
-            return True, ix, iy
-
-    return False, 0.0, 0.0
+    return _tg.segments_intersect_py(x1, y1, x2, y2, x3, y3, x4, y4)
 
 
 def _segment_to_segment_info(
@@ -380,42 +341,15 @@ def _segment_to_segment_info(
 
     Returns:
         ``(distance, (cx1, cy1), (cx2, cy2))``.
+
+    Computed in the ``temper-geometry`` Rust crate (``creepage_check.rs``)
+    with the exact evaluation order of the former pure-Python body
+    (intersection shortcut, then seg1 endpoints vs seg2, then seg2
+    endpoints vs seg1, strict ``<`` so NaN distances never displace a
+    finite best); bit-exact delegation.
     """
-    # 1. Intersection → distance 0
-    intersects, ix, iy = _segments_intersect(
-        x1,
-        y1,
-        x2,
-        y2,
-        x3,
-        y3,
-        x4,
-        y4,
-    )
-    if intersects:
-        return 0.0, (ix, iy), (ix, iy)
-
-    best_dist = float("inf")
-    best_p1 = (0.0, 0.0)
-    best_p2 = (0.0, 0.0)
-
-    # 2. Endpoints of seg1 against seg2
-    for px, py in [(x1, y1), (x2, y2)]:
-        d = _point_to_segment_distance(px, py, x3, y3, x4, y4)
-        if d < best_dist:
-            best_dist = d
-            best_p1 = (px, py)
-            best_p2 = _closest_point_on_segment(px, py, x3, y3, x4, y4)
-
-    # 3. Endpoints of seg2 against seg1
-    for px, py in [(x3, y3), (x4, y4)]:
-        d = _point_to_segment_distance(px, py, x1, y1, x2, y2)
-        if d < best_dist:
-            best_dist = d
-            best_p1 = _closest_point_on_segment(px, py, x1, y1, x2, y2)
-            best_p2 = (px, py)
-
-    return best_dist, best_p1, best_p2
+    dist, cx1, cy1, cx2, cy2 = _tg.segment_to_segment_info_py(x1, y1, x2, y2, x3, y3, x4, y4)
+    return dist, (cx1, cy1), (cx2, cy2)
 
 
 def _find_clearance_violations(
@@ -457,41 +391,24 @@ def _find_clearance_violations(
         list. Never more than one element -- this keeps
         ``violation_count`` bounded by ``total_checks`` (one check per
         net pair), so the two numbers stay comparable.
+
+    The same-layer min-aggregation loop is computed in the
+    ``temper-geometry`` Rust crate (``creepage_check.rs``
+    ``min_clearance_distance``) with the exact f64 operation order of
+    the former pure-Python loop (strict ``<`` update, midpoint
+    ``(p1 + p2) / 2.0``); bit-exact delegation.
     """
-    best_dist = float("inf")
-    best_loc: tuple[float, float] = (0.0, 0.0)
-
-    segs1 = _extract_segments(route1)
-    segs2 = _extract_segments(route2)
-
-    for x1, y1, x2, y2, layer1 in segs1:
-        for x3, y3, x4, y4, layer2 in segs2:
-            if layer1 != layer2:
-                # Different layers – via-to-via creepage not modelled
-                continue
-
-            dist, p1, p2 = _segment_to_segment_info(
-                x1,
-                y1,
-                x2,
-                y2,
-                x3,
-                y3,
-                x4,
-                y4,
-            )
-
-            if dist < best_dist:
-                best_dist = dist
-                # Midpoint of closest approach as violation location
-                best_loc = ((p1[0] + p2[0]) / 2.0, (p1[1] + p2[1]) / 2.0)
+    best_dist, best_x, best_y = _tg.min_clearance_distance_py(
+        _extract_segments(route1),
+        _extract_segments(route2),
+    )
 
     if best_dist < required_distance:
         return [
             CreepageViolation(
                 hv_net=hv_net,
                 lv_net=lv_net,
-                location=best_loc,
+                location=(best_x, best_y),
                 actual_distance=best_dist,
                 required_distance=required_distance,
             )
@@ -532,26 +449,10 @@ def _calculate_required_creepage(voltage: float) -> float:
 
     Raises:
         ValueError: If *voltage* is NaN or not finite.
+
+    Computed in the ``temper-geometry`` Rust crate (``creepage_check.rs``)
+    with the exact IPC-2221 bracket table of the reference; the NaN/inf
+    ``ValueError`` (message included) is raised from Rust and surfaces
+    unchanged.
     """
-    if math.isnan(voltage) or not math.isfinite(voltage):
-        raise ValueError(f"Voltage must be a finite number, got {voltage!r}")
-    if voltage <= 15:
-        return 0.13
-    elif voltage <= 30:
-        return 0.25
-    elif voltage <= 50:
-        return 0.5
-    elif voltage <= 100:
-        return 0.8
-    elif voltage <= 150:
-        return 1.25
-    elif voltage <= 170:
-        return 1.6
-    elif voltage <= 250:
-        return 3.2
-    elif voltage <= 300:
-        return 6.4
-    elif voltage <= 600:
-        return 8.0
-    else:
-        return 12.0
+    return _tg.calculate_required_creepage_py(voltage)

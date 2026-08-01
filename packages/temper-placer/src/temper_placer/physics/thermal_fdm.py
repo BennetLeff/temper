@@ -113,44 +113,28 @@ def _trace_to_cell_coverage(
     grid-disconnected cells for diagonal traces.
 
     Returns a ``(height_cells, width_cells)`` float64 array with values
-    in [0, 1] that can be accumulated across multiple traces.
+    in [0, 1] that can be accumulated across multiple traces.  Computed
+    in the ``temper-thermal`` Rust crate with the exact f64 operation
+    order of the former pure-Python supersampling loop.
     """
-    coverage = np.zeros((height_cells, width_cells), dtype=np.float64)
+    import temper_thermal as _tt
 
     x0, y0 = trace_start
     x1, y1 = trace_end
     ox, oy = origin_mm
-    cs = cell_size_mm
-    half_w = trace_width_mm / 2.0
-
-    # Bounding box of the fat trace in grid coordinates
-    x_min = min(x0, x1) - half_w
-    x_max = max(x0, x1) + half_w
-    y_min = min(y0, y1) - half_w
-    y_max = max(y0, y1) + half_w
-
-    col_min = max(0, int(np.floor((x_min - ox) / cs)))
-    col_max = min(width_cells, int(np.ceil((x_max - ox) / cs)))
-    row_min = max(0, int(np.floor((y_min - oy) / cs)))
-    row_max = min(height_cells, int(np.ceil((y_max - oy) / cs)))
-
-    if col_max <= col_min or row_max <= row_min:
-        return coverage
-
-    # Sub-pixel sampling: 4x4 supersamples per cell
-    sub = 4
-    for r in range(row_min, row_max):
-        for c in range(col_min, col_max):
-            hit = 0
-            for sr in range(sub):
-                y_s = oy + (r + (sr + 0.5) / sub) * cs
-                for sc in range(sub):
-                    x_s = ox + (c + (sc + 0.5) / sub) * cs
-                    if _point_to_segment_distance(x_s, y_s, x0, y0, x1, y1) <= half_w:
-                        hit += 1
-            coverage[r, c] = hit / (sub * sub)
-
-    return coverage
+    raw = _tt.trace_to_cell_coverage(
+        x0,
+        y0,
+        x1,
+        y1,
+        trace_width_mm,
+        ox,
+        oy,
+        cell_size_mm,
+        height_cells,
+        width_cells,
+    )
+    return np.frombuffer(raw, dtype=np.float64).reshape((height_cells, width_cells)).copy()
 
 
 def _point_to_segment_distance(
@@ -345,84 +329,33 @@ def _assemble_system(
     (positive diagonal addition improves diagonal dominance).
     When ``h_field`` is None or all-zero, behaviour is identical to
     the pure in-plane conduction solve.
+
+    Assembly is computed in the ``temper-thermal`` Rust crate
+    (``packages/temper-thermal/src/fdm.rs``) with the exact f64
+    operation order of the former pure-Python loop; the sparse matrix
+    is rebuilt here and the solve stays in scipy (SuperLU).
     """
-    from scipy.sparse import lil_matrix
+    import temper_thermal as _tt
+    from scipy.sparse import coo_matrix
 
     h = config.height_cells
     w = config.width_cells
     n = h * w
-    cs = config.cell_size_mm
-    dx2 = cs * cs
-    dy2 = cs * cs  # square cells
 
-    A = lil_matrix((n, n), dtype=np.float64)
-    b = np.zeros(n, dtype=np.float64)
-
-    for row in range(h):
-        for col in range(w):
-            idx = row * w + col
-
-            diag = 0.0
-            k_c = k_field[row, col]
-
-            # East
-            if col + 1 < w:
-                k_e = 2.0 / (1.0 / k_c + 1.0 / k_field[row, col + 1])
-                coeff = k_e / dx2
-                A[idx, row * w + col + 1] = -coeff
-                diag += coeff
-            elif _is_heatsink_boundary_face(row, col, "east", config):
-                coeff = 2.0 * k_c / dx2
-                diag += coeff
-                b[idx] += coeff * config.ambient_C
-
-            # West
-            if col - 1 >= 0:
-                k_w = 2.0 / (1.0 / k_c + 1.0 / k_field[row, col - 1])
-                coeff = k_w / dx2
-                A[idx, row * w + col - 1] = -coeff
-                diag += coeff
-            elif _is_heatsink_boundary_face(row, col, "west", config):
-                coeff = 2.0 * k_c / dx2
-                diag += coeff
-                b[idx] += coeff * config.ambient_C
-
-            # North (row+1 = up in grid = larger y in world)
-            if row + 1 < h:
-                k_n = 2.0 / (1.0 / k_c + 1.0 / k_field[row + 1, col])
-                coeff = k_n / dy2
-                A[idx, (row + 1) * w + col] = -coeff
-                diag += coeff
-            elif _is_heatsink_boundary_face(row, col, "north", config):
-                coeff = 2.0 * k_c / dy2
-                diag += coeff
-                b[idx] += coeff * config.ambient_C
-
-            # South
-            if row - 1 >= 0:
-                k_s = 2.0 / (1.0 / k_c + 1.0 / k_field[row - 1, col])
-                coeff = k_s / dy2
-                A[idx, (row - 1) * w + col] = -coeff
-                diag += coeff
-            elif _is_heatsink_boundary_face(row, col, "south", config):
-                coeff = 2.0 * k_c / dy2
-                diag += coeff
-                b[idx] += coeff * config.ambient_C
-
-            # --- Vertical sink term: h(T - T_amb) (issue #141) -------------
-            # Adds h_cell to the diagonal (positive → preserves SPD/M-matrix)
-            # and h_cell * T_amb to the RHS (source term).
-            # Units: h_cell [W/(K·mm²)] matches diagonal coefficient units.
-            if h_field is not None:
-                h_cell = float(h_field[row, col])
-                if h_cell > 0.0:
-                    diag += h_cell
-                    b[idx] += h_cell * config.ambient_C
-
-            A[idx, idx] = diag
-            b[idx] += Q_field[row, col]
-
-    return A.tocsr(), b
+    rows, cols, values, b = _tt.assemble_system_py(
+        np.ascontiguousarray(k_field, dtype=np.float64).tobytes(),
+        np.ascontiguousarray(Q_field, dtype=np.float64).tobytes(),
+        None
+        if h_field is None
+        else np.ascontiguousarray(h_field, dtype=np.float64).tobytes(),
+        h,
+        w,
+        config.ambient_C,
+        config.cell_size_mm,
+        config.heatsink_edge.upper().strip(),
+    )
+    A = coo_matrix((values, (rows, cols)), shape=(n, n), dtype=np.float64).tocsr()
+    return A, np.asarray(b, dtype=np.float64)
 
 
 # ---------------------------------------------------------------------------
