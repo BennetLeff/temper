@@ -303,15 +303,17 @@ def pad_pair_distance(
     creepage requirement; ``pad_polygon`` at ``quad_segs=32`` reports
     7.9989mm and would manufacture a violation out of the approximation.
     This function reports 8.000mm.
+
+    **Computed in the ``temper-geometry`` Rust crate** (``clearance_geometry.rs``),
+    which reproduces the Shapely/GEOS result bit-for-bit (the GEOS
+    ``DistanceOp`` algorithm, the Shapely rotate/translate arithmetic, and
+    the ``sqrt(dx*dx + dy*dy)`` point distance -- NOT hypot) -- pinned by
+    ``tests/requirements/test_clearance_rust_differential.py``. The
+    pre-migration Shapely implementation remains as the differential
+    suite's oracle; ``pad_core_polygon`` stays for callers that need a
+    Shapely geometry object.
     """
-    wa, ha, sa, cxa, cya, rota, rra = pad_a
-    wb, hb, sb, cxb, cyb, rotb, rrb = pad_b
-    core_a = pad_core_polygon(wa, ha, sa, cxa, cya, rota, rra)
-    core_b = pad_core_polygon(wb, hb, sb, cxb, cyb, rotb, rrb)
-    gap = core_a.distance(core_b)
-    ra = pad_corner_radius(wa, ha, sa, rra)
-    rb = pad_corner_radius(wb, hb, sb, rrb)
-    return max(gap - ra - rb, 0.0)
+    return _tg.pad_pair_distance_py(pad_a, pad_b)
 
 
 def pad_polygon(

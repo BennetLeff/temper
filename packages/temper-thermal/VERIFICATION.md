@@ -132,3 +132,98 @@ ValueError validation guards (interface contract), and the digital
 state machines (`SimulatedDigitalRtdService`, `VirtualRtdBoard`,
 latch settling) — protocol logic, not math; migrating them would
 churn the consumer surface without a compute or safety win.
+
+---
+
+# Independent Thermal Scorer (U7) — Verification by Induction
+
+Wave 3 candidate #6 (`docs/plans/2026-07-31-001-feat-wave3-rust-migration-roadmap-plan.md`):
+the pure compute of `temper_placer/validation/thermal_scorer.py` — the
+second, INDEPENDENT convective-boundary (Robin BC) FDM T_j scorer whose
+repeated sparse assembly sits inside battery experiments — ported to
+`temper_thermal.thermal_scorer`. The sparse SOLVE stays in scipy
+(SuperLU) per the KTD9 verdict (two direct factorizations agree to
+~5e-13 K; scipy stays for the solve). The falsifiability assertion's
+1.0 deg-C threshold against the U5 field solver is a separate, PRESERVED
+Python-side contract and is untouched.
+
+## Base Case: 1×1 Grid
+
+For a 1×1 grid the convective assembly produces a 1×1 system: the
+single cell sits on EVERY edge, so for any declared heatsink edge it is
+a heatsink-edge cell — exactly one Dirichlet face (`2·k_c/dx²` on the
+diagonal, `2·k_c/dx²·T_amb` on the RHS) and NO convective term
+(`is_convective_edge_cell` excludes heatsink cells). The Rust kernel and
+the pinned Python reference agree bit-for-bit (asserted in both the
+Rust unit test and the Python differential suite).
+
+## Induction Step
+
+The assembly is the union of per-cell stencil contributions; each cell's
+five coefficients (east/west/north/south/diagonal) are pure functions of
+the cell's own `k_c`, its neighbour's `k`, the boundary conditions, and
+the optional sink — no cross-cell accumulation beyond the five-point
+stencil. If the system is correct for an h×w grid it is correct for
+(h+1)×w and h×(w+1): the new row/column evaluates the same formula on
+new cells, and existing entries are untouched (row-major index
+`row·w + col` preserves them). The exact f64 operation order (harmonic
+mean `2/(1/k_a + 1/k_b)`, direction accumulation order
+east→west→north→south→convective→sink→Q on both the diagonal and the
+RHS, convective coefficient `h_conv·t_mm/cs·1e-6` left-to-right) is
+what makes the assembled matrix and RHS bit-identical to the reference
+rather than merely close.
+
+The heat-source field follows the same per-device independence
+argument: each device's footprint bounds (`floor`/`ceil` of
+`(pos ∓ half_f − origin)/cs`), cell count `n_cells = max(1, ...)`, and
+density `power/(n_cells·cs²)` are pure functions of that device alone;
+devices accumulate in dict insertion order and never perturb earlier
+entries except by the reference's exact `+=` additions. The
+conductivity field is elementwise (`k_fr4_eff + (k_cu_eff − k_fr4_eff)·
+clip(frac, 0, 1)`), trivially per-cell.
+
+## Empirical Verification
+
+The differential suite
+(`packages/temper-placer/tests/validation/test_thermal_scorer_rust_differential.py`)
+pins:
+
+- `_build_conductivity_field_gs` bit-exact against the pre-migration
+  vectorized-numpy reference (60 random fields + clipping/NaN/zero-
+  thickness/empty-grid corners, `assert_array_equal`).
+- `_build_heat_source_field_gs` bit-exact against the pre-migration
+  device loop (120 random device sets + zero/negative-power, off-grid,
+  overlapping, single-cell, and negative-slice-wrap corners). The
+  off-grid-low negative-slice wrap is a latent reference quirk
+  (identical in U5's `thermal_fdm.py`) and is replicated bit-for-bit
+  rather than silently "fixed".
+- `_assemble_convective_system` bit-exact against the pre-migration
+  `lil_matrix` reference across all four heatsink edges, 160 random
+  (k, Q, h_field, h_conv, ambient, thickness) cases, plus invalid-edge
+  ("NORTH"), 1×1, h_conv=0, and all-ambient corners.
+- `solve_independent` end-to-end: Rust assembly vs reference assembly
+  (monkeypatched) produce bit-identical T_grids (same matrix + same
+  SuperLU solve → same result).
+- PBT: five non-vacuous properties — finite/non-negative T_grid;
+  monotone in power (M-matrix: A⁻¹ ≥ 0); monotone in conductance on the
+  PEAK (pointwise k-monotonicity provably fails near mixed boundaries);
+  boundary-respecting (no sources → ambient exactly; interior point
+  source → heatsink-edge max strictly below the interior peak, by the
+  discrete maximum principle); energy balance (|A·T − b| scaled to
+  power within 5%).
+- Metamorphic relations: doubling all powers doubles the rise (linear
+  regime, rtol 1e-9); integer-cell translation is exactly covariant for
+  the Q-field compute and bounded (<1% of peak rise) for the field on
+  the deep interior (2D boundary corrections decay only logarithmically);
+  a symmetric (copper, Q_field, edge) board yields a symmetric field.
+
+The pre-existing scorer surface (`test_thermal_scorer.py`,
+`test_thermal_scorer_independence.py`, `test_thermal_battery_run.py`,
+43 tests) now exercises the Rust compute through the unchanged public
+API.
+
+**Kept in Python deliberately:** `ThermalScorer`/`ThermalScorerConfig`/
+`ThermalScoreResult`, `solve_independent`/`score` orchestration, the
+`spsolve` call (KTD9), the four boundary-predicate helpers (mirroring
+U5's retained helpers), and `falsifiability_assertion` with its 1.0 deg-C
+threshold (the preserved THM-adjacent cross-check contract).

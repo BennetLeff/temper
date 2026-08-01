@@ -1,6 +1,7 @@
 //! FDM assembly kernels — bit-exact mirrors of
 //! `temper_placer/physics/thermal_fdm.py` (`_assemble_system`,
-//! `_trace_to_cell_coverage`, `_point_to_segment_distance`).
+//! `_trace_to_cell_coverage`; the `_point_to_segment_distance` check is
+//! inlined in `trace_coverage_inner`).
 
 use pyo3::prelude::*;
 use pyo3::types::PyBytes;
@@ -25,6 +26,10 @@ use temper_py_bridge;
 /// RHS vector; the Python side builds scipy CSR from the triplets.
 #[pyfunction]
 #[pyo3(signature = (k_field_bytes, q_bytes, h_field_bytes, height_cells, width_cells, ambient_c, cell_size_mm, heatsink_edge))]
+#[expect(
+    clippy::too_many_arguments,
+    reason = "Pyo3 boundary mirrors the Python signature 1:1; a config struct would change the FFI"
+)]
 pub fn assemble_system(
     k_field_bytes: Vec<u8>,
     q_bytes: Vec<u8>,
@@ -138,6 +143,10 @@ pub fn assemble_system(
 /// malformed buffer ever gets through.
 #[pyfunction]
 #[pyo3(signature = (k_field_bytes, q_bytes, h_field_bytes, height_cells, width_cells, ambient_c, cell_size_mm, heatsink_edge))]
+#[expect(
+    clippy::too_many_arguments,
+    reason = "Pyo3 boundary mirrors the Python signature 1:1; a config struct would change the FFI"
+)]
 pub fn assemble_system_py(
     k_field_bytes: Vec<u8>,
     q_bytes: Vec<u8>,
@@ -188,6 +197,10 @@ fn heatsink_face(row: usize, col: usize, direction: &str, h: usize, w: usize, hs
 /// width_cells) float64 grid as little-endian bytes.
 #[pyfunction]
 #[pyo3(signature = (x0, y0, x1, y1, trace_width_mm, origin_x, origin_y, cell_size_mm, height_cells, width_cells))]
+#[expect(
+    clippy::too_many_arguments,
+    reason = "Pyo3 boundary mirrors the Python signature 1:1; a config struct would change the FFI"
+)]
 pub fn trace_to_cell_coverage(
     py: Python<'_>,
     x0: f64,
@@ -218,6 +231,10 @@ pub fn trace_to_cell_coverage(
     })
 }
 
+#[expect(
+    clippy::too_many_arguments,
+    reason = "Direct port of the Python reference signature; grouping into a config struct would churn the hot path"
+)]
 fn trace_coverage_inner(
     x0: f64,
     y0: f64,
@@ -249,6 +266,13 @@ fn trace_coverage_inner(
 
     let sub = 4.0f64;
     let n_sub = 4usize;
+    // Segment invariants — hoisted out of the per-sub-sample loop. The
+    // division/order below must stay byte-identical to the (now inlined)
+    // `_point_to_segment_distance` reference (no inv_seg_len_sq shortcut).
+    let dx = x1 - x0;
+    let dy = y1 - y0;
+    let seg_len_sq = dx * dx + dy * dy;
+    let degenerate = seg_len_sq < 1e-18;
     for r in row_min..row_max {
         for c in col_min..col_max {
             let mut hit = 0u32;
@@ -256,7 +280,16 @@ fn trace_coverage_inner(
                 let y_s = oy + (r as f64 + (sr as f64 + 0.5) / sub) * cs;
                 for sc in 0..n_sub {
                     let x_s = ox + (c as f64 + (sc as f64 + 0.5) / sub) * cs;
-                    if point_to_segment_distance(x_s, y_s, x0, y0, x1, y1) <= half_w {
+                    let dist = if degenerate {
+                        ((x_s - x0).powi(2) + (y_s - y0).powi(2)).sqrt()
+                    } else {
+                        let t = (0.0f64)
+                            .max((1.0f64).min(((x_s - x0) * dx + (y_s - y0) * dy) / seg_len_sq));
+                        let proj_x = x0 + t * dx;
+                        let proj_y = y0 + t * dy;
+                        ((x_s - proj_x).powi(2) + (y_s - proj_y).powi(2)).sqrt()
+                    };
+                    if dist <= half_w {
                         hit += 1;
                     }
                 }
@@ -267,24 +300,15 @@ fn trace_coverage_inner(
     coverage
 }
 
-fn point_to_segment_distance(px: f64, py: f64, ax: f64, ay: f64, bx: f64, by: f64) -> f64 {
-    let dx = bx - ax;
-    let dy = by - ay;
-    let seg_len_sq = dx * dx + dy * dy;
-    if seg_len_sq < 1e-18 {
-        return ((px - ax).powi(2) + (py - ay).powi(2)).sqrt();
-    }
-    let t = (0.0f64).max((1.0f64).min(((px - ax) * dx + (py - ay) * dy) / seg_len_sq));
-    let proj_x = ax + t * dx;
-    let proj_y = ay + t * dy;
-    ((px - proj_x).powi(2) + (py - proj_y).powi(2)).sqrt()
-}
-
 fn parse_f64s(bytes: &[u8]) -> Vec<f64> {
     debug_assert_eq!(bytes.len() % 8, 0);
     bytes
         .chunks_exact(8)
-        .map(|c| f64::from_le_bytes(c.try_into().unwrap()))
+        .map(|c| {
+            let mut a = [0u8; 8];
+            a.copy_from_slice(c);
+            f64::from_le_bytes(a)
+        })
         .collect()
 }
 
@@ -306,7 +330,7 @@ pub fn solve_faer_py(
     b_bytes: Vec<u8>,
     n: usize,
 ) -> PyResult<Bound<'_, PyBytes>> {
-    let x = temper_py_bridge::catch_unwind(|| {
+    let x: Vec<f64> = temper_py_bridge::catch_unwind(|| -> Result<Vec<f64>, String> {
         use faer::linalg::solvers::Solve;
 
         let triplets: Vec<faer::sparse::Triplet<usize, usize, f64>> = rows
@@ -317,13 +341,14 @@ pub fn solve_faer_py(
             .collect();
         let b = parse_f64s(&b_bytes);
         let mat = faer::sparse::SparseColMat::<usize, f64>::try_new_from_triplets(n, n, &triplets)
-            .expect("triplet construction");
+            .map_err(|e| format!("triplet construction: {e:?}"))?;
         let rhs = faer::col::Col::from_fn(n, |i| b[i]);
-        let lu = mat.sp_lu().expect("sp_lu factorization");
+        let lu = mat.sp_lu().map_err(|e| format!("sp_lu factorization: {e:?}"))?;
         let x = lu.solve(&rhs);
-        (0..n).map(|i| x[i]).collect::<Vec<f64>>()
+        Ok((0..n).map(|i| x[i]).collect::<Vec<f64>>())
     })
-    .map_err(temper_py_bridge::panic_to_err)?;
+    .map_err(temper_py_bridge::panic_to_err)?
+    .map_err(PyErr::new::<pyo3::exceptions::PyValueError, _>)?;
     let mut out = Vec::with_capacity(x.len() * 8);
     for v in x {
         out.extend_from_slice(&v.to_le_bytes());
@@ -346,6 +371,10 @@ mod tests {
         out
     }
 
+    #[expect(
+        clippy::too_many_arguments,
+        reason = "Test helper mirrors the Python reference signature"
+    )]
     fn ref_assemble(
         k: &[f64],
         q: &[f64],
