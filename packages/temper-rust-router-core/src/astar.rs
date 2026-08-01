@@ -202,6 +202,7 @@ fn heap_pop(heap_pri: &mut Vec<f32>, heap_idx: &mut Vec<i32>) -> (f32, i32) {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
 
@@ -267,7 +268,7 @@ mod tests {
         // Block everything except the start cell.
         let mut validity = vec![0u8; 4 * 4 * 8];
         for d in 0..8 {
-            validity[0 * 8 + d] = 0;
+            validity[d] = 0;
         }
         let input = input_for(4, 4, &validity, 0, 15);
         let out = astar_kernel_3d(&input);

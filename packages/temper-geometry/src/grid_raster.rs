@@ -143,6 +143,7 @@ fn merge_cell(cur: i32, net_id: i32) -> i32 {
 /// `grid` is the flat C-contiguous row-major int32 cells of shape
 /// (rows, cols); only the bbox [min_row, max_row) x [min_col, max_col)
 /// is touched.
+#[expect(clippy::too_many_arguments, reason = "verbatim port of the retired JIT _block_circle loop; a config struct would change the ported loop shape")]
 fn block_circle_into_grid(
     grid: &[Cell<i32>],
     cols: usize,
@@ -174,6 +175,7 @@ fn block_circle_into_grid(
 /// the reference's min-then-max nesting — `max(0.0, min(1.0, t))` — which
 /// is NOT `min(max(t,0),1)`: for t = nan CPython's min keeps its first
 /// argument so t clamps to 1.0), then block when dist <= total_radius.
+#[expect(clippy::too_many_arguments, reason = "verbatim port of the retired JIT _block_segment loop; a config struct would change the ported loop shape")]
 fn block_segment_into_grid(
     grid: &[Cell<i32>],
     cols: usize,
@@ -235,6 +237,7 @@ fn block_rect_into_grid(
 
 /// Clear a disc in `grid` (`unblock_circle`'s inner loop verbatim): cells
 /// whose centre is within radius_mm are reset to 0.
+#[expect(clippy::too_many_arguments, reason = "verbatim port of the retired JIT unblock_circle loop; a config struct would change the ported loop shape")]
 fn clear_circle_from_grid(
     grid: &[Cell<i32>],
     cols: usize,
@@ -299,6 +302,7 @@ fn occupancy_bitmap_row(
 /// `shape` is the FFI pad-shape code (see `pad_geometry.rs` `SHAPE_*`);
 /// oval/rect/roundrect are "rect-shaped", circle/thru_hole and unknown
 /// codes fall to the circle branch (identical to the old string match).
+#[expect(clippy::too_many_arguments, reason = "verbatim port of check_clearance_grid_conservatism's sample block; a config struct would change the ported shape")]
 fn fence_samples(
     shape: i64,
     pos_x: f64,
@@ -414,6 +418,7 @@ fn grid_cells<'a>(grid: &'a PyBuffer<i32>, py: Python<'a>) -> PyResult<&'a [Cell
 
 #[pyfunction]
 #[pyo3(signature = (grid, cx, cy, total_radius, net_id, cell_size_mm, min_row, max_row, min_col, max_col))]
+#[expect(clippy::too_many_arguments, reason = "PyO3 boundary mirrors the Python block_circle_into_grid signature 1:1; a config struct would change the FFI")]
 pub fn block_circle_into_grid_py(
     py: Python<'_>,
     grid: PyBuffer<i32>,
@@ -440,6 +445,7 @@ pub fn block_circle_into_grid_py(
 
 #[pyfunction]
 #[pyo3(signature = (grid, x1, y1, x2, y2, total_radius, net_id, cell_size_mm, min_row, max_row, min_col, max_col))]
+#[expect(clippy::too_many_arguments, reason = "PyO3 boundary mirrors the Python block_segment_into_grid signature 1:1; a config struct would change the FFI")]
 pub fn block_segment_into_grid_py(
     py: Python<'_>,
     grid: PyBuffer<i32>,
@@ -489,6 +495,7 @@ pub fn block_rect_into_grid_py(
 
 #[pyfunction]
 #[pyo3(signature = (grid, cx, cy, radius_mm, cell_size_mm, min_row, max_row, min_col, max_col))]
+#[expect(clippy::too_many_arguments, reason = "PyO3 boundary mirrors the Python clear_circle_from_grid signature 1:1; a config struct would change the FFI")]
 pub fn clear_circle_from_grid_py(
     py: Python<'_>,
     grid: PyBuffer<i32>,
@@ -532,6 +539,7 @@ pub fn occupancy_bitmap_row_py(
 
 #[pyfunction]
 #[pyo3(signature = (shape, pos_x, pos_y, pad_radius, pad_size_x, pad_size_y, eff_creep, inset, sample_count_circle))]
+#[expect(clippy::too_many_arguments, reason = "PyO3 boundary mirrors the Python fence_samples signature 1:1; a config struct would change the FFI")]
 pub fn fence_samples_py(
     shape: i64,
     pos_x: f64,
@@ -620,10 +628,10 @@ mod tests {
         let cells = cells_from(&[0i32; 25]);
         block_rect_into_grid(&cells, 5, -2, 1, 4, 2, 5);
         let g = cells_to(&cells);
-        assert_eq!(g[1 * 5 + 2], -2);
+        assert_eq!(g[7], -2);
         assert_eq!(g[3 * 5 + 4], -2);
-        assert_eq!(g[0 * 5 + 0], 0);
-        assert_eq!(g[4 * 5 + 0], 0);
+        assert_eq!(g[0], 0);
+        assert_eq!(g[20], 0);
     }
 
     #[test]
@@ -664,14 +672,14 @@ mod tests {
         let stride = 3;
         let trace = cells_from(&vec![0i32; 20 * cols]);
         let pad = cells_from(&vec![0i32; 20 * cols]);
-        trace[0 * cols + 3].set(1);
-        pad[1 * cols + 63].set(1); // word 0, bit 63
-        pad[1 * cols + 64].set(1); // word 1, bit 0
+        trace[3].set(1);
+        pad[cols + 63].set(1); // word 0, bit 63
+        pad[cols + 64].set(1); // word 1, bit 0
         let bmp = occupancy_bitmap_row(&trace, &pad, cols, 20, stride);
         assert_eq!(bmp.len(), 20 * stride);
-        assert_eq!(bmp[0 * stride + 0], 1u64 << 3);
-        assert_eq!(bmp[1 * stride + 0], 1u64 << 63);
-        assert_eq!(bmp[1 * stride + 1], 1u64 << 0);
+        assert_eq!(bmp[0], 1u64 << 3);
+        assert_eq!(bmp[stride], 1u64 << 63);
+        assert_eq!(bmp[stride + 1], 1u64 << 0);
         assert_eq!(bmp[2 * stride + 2], 0);
     }
 

@@ -101,6 +101,7 @@ fn orient(ax: f64, ay: f64, bx: f64, by: f64, cx: f64, cy: f64) -> f64 {
 /// only (strict `< 0.0` orientation products — shared endpoints and
 /// collinear overlaps do not count), then the intersection point via the
 /// parameter on segment 2.  Returns `(intersects, ix, iy)`.
+#[expect(clippy::too_many_arguments, reason = "creepage_check.py port mirrors _segments_intersect's 2-segment signature 1:1; a config struct would change the ported shape")]
 fn segments_intersect(
     x1: f64,
     y1: f64,
@@ -138,6 +139,7 @@ fn segments_intersect(
 /// Order preserved exactly: intersection shortcut first, then seg1's
 /// endpoints against seg2, then seg2's endpoints against seg1, each with
 /// strict `<` so NaN distances never displace a finite best.
+#[expect(clippy::too_many_arguments, reason = "creepage_check.py port mirrors _segment_to_segment_info's 2-segment signature 1:1; a config struct would change the ported shape")]
 fn segment_to_segment_info(
     x1: f64,
     y1: f64,
@@ -264,7 +266,11 @@ fn word_bounded(name: &str, kw: &str) -> bool {
                 return true;
             }
             if let Some(c) = name[after..].chars().next() {
-                if c == '_' || c.to_digit(10).is_some() {
+                // char::is_digit(10) is exactly the Unicode Nd property
+                // (Python re `\d`); is_ascii_digit would miss non-ASCII digits.
+                #[expect(clippy::is_digit_ascii_radix, reason = "Unicode Nd property required to match Python re \\d")]
+                let is_digit = c.is_digit(10);
+                if c == '_' || is_digit {
                     return true;
                 }
             }
