@@ -109,8 +109,8 @@ fn evaluate_thermal(
     placement: &PlacementState,
     violations: &mut Vec<Violation>,
 ) {
-    let thermal_refs: Vec<&String> = config.thermal_components.iter().collect();
-    if thermal_refs.len() < 2 {
+    let thermal = &config.thermal_components;
+    if thermal.len() < 2 {
         return;
     }
 
@@ -122,13 +122,13 @@ fn evaluate_thermal(
         .map(|(i, r)| (r.as_str(), i))
         .collect();
 
-    for i in 0..thermal_refs.len() {
-        let Some(&pos_i) = index.get(thermal_refs[i].as_str()) else {
+    for (i, a) in thermal.iter().enumerate() {
+        let Some(&pos_i) = index.get(a.as_str()) else {
             continue;
         };
         let (ix, iy) = placement.positions[pos_i];
-        for j in (i + 1)..thermal_refs.len() {
-            let Some(&pos_j) = index.get(thermal_refs[j].as_str()) else {
+        for b in thermal.iter().skip(i + 1) {
+            let Some(&pos_j) = index.get(b.as_str()) else {
                 continue;
             };
 
@@ -143,9 +143,9 @@ fn evaluate_thermal(
                     violation_type: ViolationType::ThermalClearanceViolated,
                     description: format!(
                         "thermal components {} and {} are {:.2}mm apart; min spacing is {:.2}mm",
-                        thermal_refs[i], thermal_refs[j], dist, min_spacing
+                        a, b, dist, min_spacing
                     ),
-                    components: vec![thermal_refs[i].clone(), thermal_refs[j].clone()],
+                    components: vec![a.clone(), b.clone()],
                     actual_value: dist,
                     required_value: min_spacing,
                 });
