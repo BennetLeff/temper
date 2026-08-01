@@ -80,10 +80,11 @@ jobs:
           fi
 
       # RETIRED 2026-07-27: this step invoked the JAX/benders_loop placement
-      # path, which was removed from the codebase. corpus_runner.py:416-419
-      # now raises NotImplementedError("JAX optimizer removed."), so every
-      # board failed at setup. It was masked as "JAX nondeterministic on CI
-      # runners" -- a description of flakiness, not of a deleted capability.
+      # path, which was removed from the codebase. corpus_runner._run_board
+      # now returns the retired-optimizer error for every valid board (the
+      # JAX optimizer and its stubs were removed in the cleanup C2 sweep), so
+      # every board failed at setup. It was masked as "JAX nondeterministic on
+      # CI runners" -- a description of flakiness, not of a deleted capability.
       # Retired rather than left masked; see docs/evidence/ for the audit.
 
       # RETIRED 2026-07-27: the summary table and report upload both consumed

@@ -198,12 +198,21 @@ class TestAllModulesFail:
         assert isinstance(report.clearance, ClearanceReport)
 
         # Fallback empty teardrops/thermal reliefs add 2 sentinel violations,
-        # and creepage/clearance each fail closed (+1 each) when errored --
-        # an errored HV-safety check must never read as "0 violations found"
+        # and annular_ring/creepage/clearance each fail closed (+1 each) when
+        # errored -- an errored HV-safety/geometry check must never read as
+        # "0 violations found"
         # (docs/evidence/2026-07-25-manufacturing-drc-crash-swallow.md;
-        # ManufacturingReport.total_violations docstring). 2 + 1 + 1 = 4.
-        assert report.total_violations == 4
-        assert report.critical_violations == 2
+        # ManufacturingReport.total_violations docstring). 2 + 1 + 1 + 1 = 5.
+        #
+        # annular_ring joined the fail-closed set in 7df93fb0b ("annular_ring
+        # never inspected tree-routed vias; fail closed on zero",
+        # docs/evidence/2026-07-27-drc-checks-repaired.md): with all 7 DFM
+        # functions raising, the substituted AnnularRingReport carries
+        # errored=True, so total_violations counts it as at least one too.
+        # This assertion was last correct at 4 before that guard landed; the
+        # value here is the post-guard constant, not a weakened ceiling.
+        assert report.total_violations == 5
+        assert report.critical_violations == 3
         assert report.is_manufacturability_ok is False
 
     def test_all_seven_raise_no_board_still_works(self):

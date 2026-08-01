@@ -303,8 +303,8 @@ class TestValidation:
         builder = ConstraintBuilder().add_spacing("Q1", "Q2", 10.0)
 
         errors = builder.validate(
-            board_width=100.0,
-            board_height=100.0,
+            100.0,
+            100.0,
             available_components=["Q1", "Q2", "U1"],
         )
 
@@ -315,8 +315,8 @@ class TestValidation:
         builder = ConstraintBuilder().add_escape_clearance("MISSING")
 
         errors = builder.validate(
-            board_width=100.0,
-            board_height=100.0,
+            100.0,
+            100.0,
             available_components=["Q1", "Q2"],
         )
 

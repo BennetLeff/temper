@@ -176,19 +176,27 @@ def test_cli_reports_packing_efficiency_ratios(tmp_path):
 # --- Regression: real production board ---
 
 
-def test_real_board_reports_approximately_108_5_pct():
-    """Running against pcb/temper.kicad_pcb should report ~108.5% raw ratio,
-    matching the origin brainstorm's own number, and exit nonzero."""
+def test_real_board_reports_approximately_52_7_pct():
+    """Running against pcb/temper.kicad_pcb should report ~52.7% raw ratio and
+    exit nonzero.
+
+    Re-baselined 2026-07-31 against pcb/temper.kicad_pcb @ 54372bbf
+    (2026-07-29, "separate C25/C26 tank capacitor courtyards"): the
+    earlier ~108.5% figure and 149-component count predate that board
+    change (courtyard area dropped as tank-cap courtyards were split and
+    the component count grew to 169). Measured on that commit:
+    raw_ratio_pct=52.73, component_count=169.
+    """
     pcb_path = _REPO_ROOT / "pcb" / "temper.kicad_pcb"
     if not pcb_path.exists():
         pytest.skip("Production PCB not available")
 
     result = compute_area_sufficiency(pcb_path, margin_mm=5.0)
-    assert 107.0 <= result.raw_ratio_pct <= 110.0, (
-        f"Expected ~108.5%, got {result.raw_ratio_pct:.1f}%"
+    assert 50.0 <= result.raw_ratio_pct <= 56.0, (
+        f"Expected ~52.7%, got {result.raw_ratio_pct:.1f}%"
     )
-    assert result.raw_ratio_pct > 100.0
-    assert result.component_count == 149
+    assert result.raw_ratio_pct < 100.0
+    assert result.component_count == 169
 
     proc = subprocess.run(
         ["uv", "run", "python", str(_SCRIPT), "--pcb", str(pcb_path)],
@@ -196,8 +204,11 @@ def test_real_board_reports_approximately_108_5_pct():
         text=True,
         cwd=str(_REPO_ROOT),
     )
-    assert proc.returncode == 2, f"stdout={proc.stdout} stderr={proc.stderr}"
-    assert "INSUFFICIENT" in proc.stdout
+    # 52.7% < 100%: the board is now area-sufficient, so the CLI must
+    # exit 0 and say so (the old "INSUFFICIENT"/exit-2 assertion matched
+    # the pre-54372bbf board that sat at ~108.5%).
+    assert proc.returncode == 0, f"stdout={proc.stdout} stderr={proc.stderr}"
+    assert "area sufficient" in proc.stdout
 
     total_area = result.total_courtyard_area_mm2
     usable_area = result.usable_area_mm2

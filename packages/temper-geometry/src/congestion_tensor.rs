@@ -91,12 +91,6 @@ impl CongestionTensor {
 
     pub fn reset(&mut self) { self.data.fill(0.0); }
 
-    #[pyo3(signature = (row, col))]
-    pub fn get_usage(&self, row: usize, col: usize) -> f32 {
-        let idx = row * self.cols + col;
-        if idx < self.data.len() { self.data[idx] } else { 0.0 }
-    }
-
     // Bulk-overwrite the storage (used by the Python wrapper's array-based
     // constructor, which the pre-migration dataclass public API exposed).
     // Infallible by design: the wrapper validates the length and raises

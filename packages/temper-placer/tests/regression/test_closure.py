@@ -149,11 +149,11 @@ class TestClosureTestRequireAllStages:
 
         with (
             patch(
-                "temper_placer.regression.closure_test.parse_kicad_pcb_v6",
+                "temper_placer.io.kicad_parser.parse_kicad_pcb_v6",
                 return_value={},
             ),
             patch(
-                "temper_placer.regression.closure_test.resolve_and_run",
+                "temper_placer.runner.resolve_and_run",
                 side_effect=ImportError("No module named temper_placer.protocol"),
             ),
         ):
@@ -172,11 +172,11 @@ class TestClosureTestRequireAllStages:
 
         with (
             patch(
-                "temper_placer.regression.closure_test.parse_kicad_pcb_v6",
+                "temper_placer.io.kicad_parser.parse_kicad_pcb_v6",
                 return_value={},
             ),
             patch(
-                "temper_placer.regression.closure_test.resolve_and_run",
+                "temper_placer.runner.resolve_and_run",
                 side_effect=ImportError("No module named temper_placer.protocol"),
             ),
         ):

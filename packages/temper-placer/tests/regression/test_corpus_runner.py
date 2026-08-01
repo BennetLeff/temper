@@ -236,11 +236,48 @@ boards:
         assert result.skipped
         assert "Failed to load baseline" in result.skip_reason
 
-    @pytest.mark.skip(
-        reason="CorpusRegressionRunner._run_board still targets the removed JAX optimizer (train_multiphase / CompositeLoss / create_default_phases); needs rewiring to the CP-SAT/deterministic placer — tracked follow-up"
-    )
-    def test_run_success_path(self, tmp_path: Path):
-        """Integration test using minimal board fixture."""
+    def test_jax_loss_classes_removed(self):
+        """Anti-vacuity guard for the dead-code sweep: the four JAX loss
+        classes and the optimizer stubs were removed from corpus_runner.py
+        when the JAX placement path was retired. They must not reappear --
+        a runner that pretends to optimize against a removed optimizer is a
+        lying machine, not a regression harness."""
+        import inspect
+
+        from temper_placer.regression import corpus_runner as mod
+
+        src = inspect.getsource(mod)
+        for name in (
+            "BoundaryLoss",
+            "OverlapLoss",
+            "SpreadLoss",
+            "WirelengthLoss",
+            "train_multiphase",
+            "create_default_phases",
+            "make_loss",
+            "compute_total_hpwl",
+        ):
+            # The names may legitimately appear in comments (this file's own
+            # retirement note references them); what must be gone is the
+            # definition / stub call. Assert on the definitions only.
+            assert f"def {name}" not in src, (
+                f"corpus_runner.py must not define removed JAX machinery "
+                f"({name}); the optimizer path was retired with the JAX migration"
+            )
+            assert f"class {name}" not in src, (
+                f"corpus_runner.py must not define removed JAX machinery "
+                f"({name}); the optimizer path was retired with the JAX migration"
+            )
+        assert "NotImplementedError(\"JAX" not in src, (
+            "corpus_runner.py must not contain JAX-removal NotImplementedError "
+            "stubs; the whole optimizer path was removed"
+        )
+
+    def test_run_board_reports_retired_optimizer(self, tmp_path: Path):
+        """Anti-vacuity guard for the sweep: a fully-valid board must produce
+        the clear 'retired' error -- NOT a pass, and NOT a NameError or other
+        leftover-wiring crash. Rewiring _run_board to the CP-SAT/deterministic
+        placer is a tracked follow-up."""
         corpus_root = tmp_path
         manifest_path = corpus_root / "manifest.yaml"
         board_dir = corpus_root / "minimal"
@@ -284,6 +321,8 @@ boards:
 """)
         runner = CorpusRegressionRunner(corpus_root=corpus_root)
         result = runner._run_board(runner.manifest.boards[0])
-        assert result.passed, f"Expected PASS, got errors: {result.errors}"
-        assert len(result.metric_checks) >= 1
-        assert result.metrics["final_loss"] > 0
+        assert result.failed, f"Expected retired-optimizer failure, got: {result}"
+        assert result.errors, "Expected a 'retired' error message"
+        assert any("retired" in e for e in result.errors), (
+            f"Expected the retired-optimizer error message, got: {result.errors}"
+        )

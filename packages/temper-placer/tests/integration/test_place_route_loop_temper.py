@@ -204,7 +204,7 @@ def test_authoritative_board_route_preserves_source_and_origin(tmp_path):
             placement,
             netlist=SimpleNamespace(),
             board=SimpleNamespace(origin=(100.0, 200.0)),
-            seed=42,
+            _seed=42,
         )
 
     assert result is expected

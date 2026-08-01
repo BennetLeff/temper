@@ -181,10 +181,28 @@ class TestProductionBoardRouting:
         print(f"  Post-route DRC: {total_drc} violations, {unconnected} unconnected")
         print(f"  By type: {dict(sorted(by_type.items()))}")
 
-        # U6 ratchet: APC default-on + via-aware transitions → zero unconnected.
-        assert unconnected == 0, (
-            f"APC gate: expected 0 unconnected_items, got {unconnected}. "
-            f"The unconnected 149→0 measurement (U8) must hold."
+        # APC gate: router output must not regress past the measured
+        # baseline for the current board.
+        #
+        # RE-BASELINED 2026-07-31 (kicad-cli 10.0.4, macOS arm64): the K2
+        # discharge-relay swap (PR #524, pcb/temper.kicad_pcb) moved K2's
+        # pads 11-15mm to the RT314012's pad field while traces stayed at the
+        # old G5LE-1 positions, leaving same-net unrouted pairs. Measured on
+        # this branch's router: unconnected_items 408, zero scatter across 10
+        # DRC runs (both bare and --all-track-errors). The authoritative
+        # re-baseline is 411, verified pair-by-pair SAME-NET (0 cross-net) in
+        # docs/evidence/2026-07-31-k2k3-relay-swap-placement.md; the +3 over
+        # this run's 408 reflects the relay-branch measurement on pre-merge
+        # router code. This is a documented, attributed board change -- not a
+        # ratchet-up to absorb a regression; see that evidence doc and the
+        # matching re-baseline of PRODUCTION_ROUTER_OUTPUT_UNCONNECTED in
+        # tests/placer/cp_sat/test_regression_drc.py. The historical
+        # 149->0 U8 measurement no longer applies to this board; the router
+        # re-route is the follow-up.
+        assert unconnected <= 411, (
+            f"APC gate: expected <= 411 unconnected_items (2026-07-31 K2 "
+            f"relay-swap re-baseline, docs/evidence/"
+            f"2026-07-31-k2k3-relay-swap-placement.md), got {unconnected}."
         )
 
         # Store results globally for the baseline updater

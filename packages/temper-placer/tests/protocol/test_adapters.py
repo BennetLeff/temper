@@ -1,4 +1,10 @@
-"""U4 — Adapter tests: deterministic, orchestrator, router_v6."""
+"""U4 — Adapter tests: deterministic, router_v6.
+
+(The orchestrator adapter family — OrchestratorInputStage, ...,
+OrchestratorOutputStage — was deleted along with
+temper_placer.adapters.orchestrator_adapter; its tests were removed with
+it. No current equivalent exists.)
+"""
 
 from __future__ import annotations
 
@@ -79,61 +85,6 @@ class TestDeterministicAdapter:
         wrap_deterministic_stage(stage)
         after_result = stage.run(BoardState())
         assert after_result.net_order == original_result.net_order
-
-
-ORCHESTRATOR_PHASES = {
-    "input": "OrchestratorInputStage",
-    "semantic": "OrchestratorSemanticStage",
-    "topological": "OrchestratorTopologicalStage",
-    "preflight": "OrchestratorPreflightStage",
-    "geometric": "OrchestratorGeometricStage",
-    "routing": "OrchestratorRoutingStage",
-    "refinement": "OrchestratorRefinementStage",
-    "output": "OrchestratorOutputStage",
-}
-
-
-class TestOrchestratorAdapter:
-    def _fresh_import_orchestrator(self):
-        import temper_placer.strategy_registry as sr
-
-        sr._registry.clear()
-        sr._composites.clear()
-        sys.modules.pop("temper_placer.adapters.orchestrator_adapter", None)
-        import temper_placer.adapters.orchestrator_adapter as oa
-
-        return oa, sr
-
-    def test_each_phase_has_name(self):
-        oa, _ = self._fresh_import_orchestrator()
-        for phase_key, class_name in ORCHESTRATOR_PHASES.items():
-            phase_cls = getattr(oa, class_name)
-            inst = phase_cls()
-            assert inst.name == f"orchestrator/{phase_key}", f"{class_name} name mismatch"
-
-    def test_each_phase_has_requires_provides(self):
-        oa, _ = self._fresh_import_orchestrator()
-        for class_name in ORCHESTRATOR_PHASES.values():
-            phase_cls = getattr(oa, class_name)
-            inst = phase_cls()
-            assert isinstance(inst.requires, list)
-            assert isinstance(inst.provides, list)
-
-    def test_phases_registered(self):
-        oa, sr = self._fresh_import_orchestrator()
-        stage = sr.get("geometric", "orchestrator")
-        assert isinstance(stage, PipelineStage)
-        assert stage.name == "orchestrator/geometric"
-
-    def test_phase_isolation(self):
-        oa, _ = self._fresh_import_orchestrator()
-        stage1 = oa.OrchestratorInputStage()
-        stage2 = oa.OrchestratorInputStage()
-        assert stage1 is not stage2
-        assert stage1.name == stage2.name
-        assert isinstance(stage1.requires, list)
-        assert isinstance(stage2.requires, list)
-        assert stage1.requires == stage2.requires
 
 
 class TestRouterV6Adapter:

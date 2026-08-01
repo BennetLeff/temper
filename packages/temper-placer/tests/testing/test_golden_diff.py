@@ -108,9 +108,13 @@ def test_diff_ses_wire_shift():
     ses1 = "(session\n(resolution um 10)\n(unit mm)\n(routes)\n(wire NET1 (path 0 0.250000 0.000000 0.000000 10.000000 10.000000)))\n"
     ses2 = "(session\n(resolution um 10)\n(unit mm)\n(routes)\n(wire NET1 (path 0 0.250000 0.000000 0.000000 10.000001 10.000001)))\n"
     report = diff_golden("test", "sequential_routing", ses1, ses2, "ses", 0.000001)
-    assert report.passed  # 0.00000141 < 0.000001? Actually ~1.4e-6 > 1e-6
+    # Displacement is sqrt(2)*1e-6 ~= 1.414e-6 > 1e-6 tolerance, so the
+    # correct outcome is BEYOND_TOLERANCE (not passed).
+    assert not report.passed
     # Close to boundary; just check that we get WITHIN_TOLERANCE or BEYOND_TOLERANCE
     assert len(report.entries) > 0
+    categories = {e.category for e in report.entries}
+    assert categories <= {"WITHIN_TOLERANCE", "BEYOND_TOLERANCE"}
 
 
 def test_diff_json_identical():

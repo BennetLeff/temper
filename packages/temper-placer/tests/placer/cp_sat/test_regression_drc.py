@@ -686,25 +686,9 @@ PRODUCTION_DRC_SAMPLE_RUNS = 5
 # `C27(tank.c_tank1-p2) <-> R30 pad1(tank.c_tank1-p2)`) — exactly the honest,
 # designed-for consequence of staging a real, unrouted HV component rather
 # than inventing a placement for it. 0 cross-net.
-#
-# 2026-07-31 RE-MEASUREMENT (kicad-cli 10.0.4, macOS arm64, fix/k2k3-relay-
-# swap, docs/evidence/2026-07-31-k2k3-relay-swap-placement.md): K2's embedded
-# footprint replaced in-place with temper:Relay_SPDT_Schrack-RT314012 at
-# rotation 270 (G5LE-1 -> RT314012). The swap is DRC-neutral on every error
-# category (total 840.8 -> 840.2 median; shorting_items 118 -> 118; 120-sample
-# confirmation run) so `total`/`shorting_items` are UNCHANGED. `unconnected`
-# rose 390 -> 393 and does need raising: verified pair-by-pair, the only
-# genuinely NEW unconnected pairs are K2's OWN pads, now unrouted because
-# their copper moved ~11-15mm to the RT314012's pad field while the traces
-# stayed at the old G5LE-1 pad positions (`PTH pad 1 [PWR_RTN] of K2` x2,
-# `PTH pad 2 [discharge.k_dis1-coil1] of K2`, `PTH pad 3
-# [discharge.k_dis1-no] of K2` x2, `PTH pad 4 [discharge.k_dis1-nc] of K2`) —
-# all SAME-NET, 0 cross-net; the router re-route is the follow-up. Same
-# legitimate class as the 388 -> 390 rise documented above (pad geometry
-# changed, connectivity re-derived), not a regression.
 PRODUCTION_COMMITTED_BOARD_TOTAL_DVIOLATIONS = 1260
 PRODUCTION_COMMITTED_BOARD_SHORTING_ITEMS = 90
-PRODUCTION_COMMITTED_BOARD_UNCONNECTED = 393
+PRODUCTION_COMMITTED_BOARD_UNCONNECTED = 390
 
 # --- Category B: kicad-cli DRC on route_pcb()'s output for that board ---
 # RE-MEASURED 2026-07-29 (kicad-cli 10.0.4, macOS arm64), against the shape
@@ -790,16 +774,21 @@ PRODUCTION_COMMITTED_BOARD_UNCONNECTED = 393
 # relabeling of the same 13 renumbered designators; 0 cross-net over all new
 # pairs, verified directly against both DRC JSON outputs.
 #
-# 2026-07-31 RE-MEASUREMENT (kicad-cli 10.0.4, macOS arm64, fix/k2k3-relay-
-# swap): route_pcb() on the K2-swapped board. `total`/`shorting_items` still
-# clear the 1560/125 ratchets (the committed-board swap is DRC-neutral on
-# both; see the Category A note). `unconnected` rose 407 -> 411: verified
-# pair-by-pair against the DRC JSON, the new pairs are K2's own pads now
-# unrouted at the RT314012's new pad positions (`PTH pad 1 [PWR_RTN] of K2`
-# x2, `PTH pad 2 [discharge.k_dis1-coil1] of K2` x2, `PTH pad 4
-# [discharge.k_dis1-nc] of K2` x2, `PTH pad 3 [discharge.k_dis1-no] of K2`)
-# — 7 K2-attributed records, all SAME-NET, 0 cross-net, matching the
-# committed-board +3; the router re-route is the follow-up.
+# 2026-07-31 RE-MEASUREMENT (kicad-cli 10.0.4, macOS arm64, K2 swap on main
+# via PR #524): `unconnected` rose 407 -> 411 -- verified pair-by-pair, the
+# new pairs are K2's OWN pads now unrouted at the RT314012's pad field
+# (pads moved 11-15mm while traces stayed at the old G5LE-1 positions):
+# `PTH pad 1 [PWR_RTN] of K2` x2, `PTH pad 2 [discharge.k_dis1-coil1] of
+# K2` x2, `PTH pad 4 [discharge.k_dis1-nc] of K2` x2, `PTH pad 3
+# [discharge.k_dis1-no] of K2` -- 7 K2-attributed records, all SAME-NET,
+# 0 cross-net; the router re-route is the follow-up. Same legitimate class
+# as the 388 -> 390 / 396 -> 405 rises documented above (board changed,
+# connectivity re-derived), not a regression. See
+# docs/evidence/2026-07-31-k2k3-relay-swap-placement.md and commit
+# 000ec2e87 on fix/k2k3-relay-swap. (Note: this branch's router measures
+# 408 -- zero scatter across 10 DRC runs, bare and --all-track-errors; the
+# 411 ceiling is the relay-branch measurement on pre-merge router code and
+# absorbs that +3.)
 PRODUCTION_ROUTER_OUTPUT_TOTAL_DVIOLATIONS = 1560
 PRODUCTION_ROUTER_OUTPUT_SHORTING_ITEMS = 125
 PRODUCTION_ROUTER_OUTPUT_UNCONNECTED = 411

@@ -38,7 +38,9 @@ def _make_minimal_state():
 def test_serialize_dsn_basic():
     state = _make_minimal_state()
     output = serialize_boardstate_to_dsn(state)
-    assert output.startswith("(pcb")
+    # Serializer emits a schema-version header comment before the (pcb form.
+    assert output.startswith(";schema-version: sha256:")
+    assert "(pcb" in output
     assert "(layer" in output
     assert "(place U1" in output
     assert "(net NET1" in output

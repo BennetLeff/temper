@@ -154,7 +154,7 @@ def _random_bbox(rng, rows, cols):
     return min_row, max_row, min_col, max_col
 
 
-def _fresh_grid(rng, rows, cols, seed_value=0):
+def _fresh_grid(rng, rows, cols):
     """Fresh int32 grid, possibly pre-populated with nets/conflicts/obstacles."""
     grid = np.zeros((rows, cols), dtype=np.int32)
     for r in range(rows):
