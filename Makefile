@@ -7,7 +7,7 @@ BUILD_DIR = $(ELEC_DIR)/build
 BOM_FILE = $(ELEC_DIR)/build/default.csv
 BOM_PREV = $(ELEC_DIR)/build/default.csv.prev
 
-.PHONY: all build netlist clean drc route gerbers help diff visualize test test-fast onboard clean-onboard onboard-status extensions extensions-check venv-isolate
+.PHONY: all build netlist clean drc route gerbers help diff visualize test test-fast onboard clean-onboard onboard-status extensions extensions-check venv-isolate worktree
 
 # Show help for workflow commands
 help:
@@ -194,6 +194,39 @@ venv-isolate:
 	$(MAKE) extensions
 	@echo "Done -- this worktree's .venv is now independent of any other checkout's."
 	@echo "Run 'make extensions-check' any time to verify freshness."
+
+# Create a dedicated, isolated worktree for one workstream. This is the
+# default way to start new work in this repo: one worktree per branch/PR,
+# branched from the right base, and -- with VENV=1 -- with its own `.venv`.
+#
+# Why: doing work in the shared main checkout mixes your uncommitted changes
+# with other agents' in-flight work, so your changes must later be surgically
+# extracted as a patch (the failure mode this target exists to remove). A
+# dedicated worktree keeps one coherent unit of work in one place, verified
+# and PR'd directly from there.
+#
+# Usage:
+#   make worktree NAME=fix-driver-latch [BASE=origin/main] [VENV=1] [PATH=...]
+#
+#   NAME   branch (and PR) name for the workstream
+#   BASE   ref to branch from (default origin/main); use the migration branch
+#          when the work depends on unmerged work there
+#   VENV   1 = also provision the worktree's own .venv (make venv-isolate,
+#          ~85s warm-cache); add it when the workstream will build/test Rust
+#          extensions, skip it for pure-Python/docs work to save ~700 MB disk
+#   PATH   worktree path (default ../temper-wt-<NAME>, sibling of the repo)
+#
+# See docs/solutions/best-practices/per-workstream-worktree-2026-07-31.md
+worktree:
+	@test -n "$(NAME)" || { echo "usage: make worktree NAME=<branch> [BASE=origin/main] [VENV=1] [PATH=...]"; exit 1; }
+	$(eval BASE ?= origin/main)
+	$(eval WT_PATH ?= ../temper-wt-$(subst /,-,$(NAME)))
+	@test ! -e "$(WT_PATH)" || { echo "error: $(WT_PATH) already exists"; exit 1; }
+	git fetch origin
+	git worktree add -b $(NAME) "$(WT_PATH)" $(BASE)
+	@echo "worktree created: $(WT_PATH) on branch $(NAME) from $(BASE)"
+	@echo "  cd $(WT_PATH)"
+	@if [ "$(VENV)" = "1" ]; then echo "provisioning isolated .venv..."; $(MAKE) -C "$(WT_PATH)" venv-isolate; fi
 
 gerbers: build
 	@echo "Exporting Gerbers..."
