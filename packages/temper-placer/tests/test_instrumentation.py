@@ -58,14 +58,12 @@ class TestPipelineProfiler:
 
         @dataclass
         class FakeStats:
-            numba_time_ms: float = 10.0
             python_time_ms: float = 20.0
             astar_total_ms: float = 30.0
             dist_map_ms: float = 5.0
 
         profiler = PipelineProfiler()
         profiler.merge_router_stats(FakeStats())
-        assert profiler.report.numba_time_ms == 10.0
         assert profiler.report.python_time_ms == 20.0
         assert profiler.report.astar_total_ms == 30.0
         assert profiler.report.dist_map_ms == 5.0
@@ -80,13 +78,11 @@ class TestPipelineProfiler:
         assert "a" in data["stages"]
         assert "maze_router" in data
         assert "total_wall_time_ms" in data
-        assert data["maze_router"]["numba_time_ms"] == 0.0
 
     def test_empty_report_has_defaults(self):
         report = ProfileReport()
         d = report.to_dict()
         assert d["stages"] == {}
-        assert d["maze_router"]["numba_time_ms"] == 0.0
 
     def test_multiple_stages_preserved_in_order(self):
         profiler = PipelineProfiler()
@@ -129,7 +125,6 @@ class TestProfileStatsIntegration:
 
         @dataclass
         class RealisticStats:
-            numba_time_ms: float = 15.5
             python_time_ms: float = 5.2
             astar_total_ms: float = 45.0
             dist_map_ms: float = 2.3
@@ -138,7 +133,6 @@ class TestProfileStatsIntegration:
         profiler.merge_router_stats(RealisticStats())
         d = profiler.report.to_dict()
         maze = d["maze_router"]
-        assert maze["numba_time_ms"] == 15.5
         assert maze["python_time_ms"] == 5.2
         assert maze["astar_total_ms"] == 45.0
         assert maze["dist_map_ms"] == 2.3

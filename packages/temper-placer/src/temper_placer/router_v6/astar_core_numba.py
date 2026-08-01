@@ -1,84 +1,55 @@
-"""Numba-jitted A* inner loop for router_v6.
+"""Rust-backed A* inner loop for router_v6 (cleanup C1).
 
-Wave 4 PR-B (R10): port the A* inner loop to @njit for a 5-10x
-inner-loop speedup.  Reads the pre-baked neighbor-validity tensor
-from U5 (PR-A / R9) as a flat numpy array; per-iteration cost is
-dominated by the heapq + dict operations, both of which drop out
-under @njit (heap becomes two parallel float32/int32 arrays;
-g_score / came_from become flat numpy arrays).
+Wave 4 PR-B (R10) originally ported the A* inner loop to a Numba
+``@njit`` kernel.  The Python→Rust migration program replaced that
+kernel with ``temper-rust-router`` (``astar_kernel_3d_py`` +
+``line_of_sight_py``), proven bit-identical to the Numba kernel by the
+differential suite (path cell-sequence identity on randomized grids)
+and by the full-pipeline A/B (identical completion rate 0.3750 and
+bit-identical route length 9354.65 mm — see
+``packages/temper-rust-router-core/VERIFICATION.md``).  The Numba
+fallback was removed on 2026-07-31; the Rust kernel is now the sole
+backend.
 
 Public API
 ----------
-- :func:`_astar_search_numba_kernel` is the @njit-compiled inner
-  loop.  It does NOT do path reconstruction — that stays in
-  Python (called from :func:`_astar_search_numba`).
+- :func:`_astar_search_numba` is the Python-callable dispatch entry
+  (name retained for call-site stability).  It resolves the backend
+  via :func:`_select_astar_backend` and runs the Rust kernel through
+  :func:`_astar_search_rust`, falling back to the pure-Python
+  :func:`temper_placer.router_v6.astar_core._astar_search` only when
+  ``temper_rust_router`` cannot be imported (broken/stale extension
+  environment).  The path is returned as a list of ``(col, row)``
+  tuples matching the ``astar_core`` return shape.
 
-- :func:`_astar_search_numba` is the Python-callable wrapper.  It
-  allocates work arrays, calls the kernel, and reconstructs the
-  path in Python.  The path is returned as a list of
-  (col, row) tuples matching the existing
-  :func:`temper_placer.router_v6.astar_core._astar_search` return
-  shape.
+- :func:`_line_of_sight_rust` is the Rust-backed Bresenham LOS check
+  used by the Theta* family; the retired Numba LOS kernel had the same
+  contract and was validated PBT-equal to the pure-Python
+  ``_line_of_sight`` reference.
 
-Graceful degrade
-----------------
-If numba is not installed, the kernel falls through to the pure-
-Python :func:`temper_placer.router_v6.astar_core._astar_search`.
-The :func:`_astar_search_numba` wrapper detects this and dispatches
-to the Python path.  No caller sees an ImportError.
-
-Implementation notes
---------------------
-- The kernel heap is a min-heap stored as two parallel arrays
-  (priorities and cell indices).  Standard sift-up / sift-down
-  in place — same algorithm as Python's heapq.
-- The bit tensor is read with a single index into a flat bool
-  array (sized ``rows * cols * 8``).  Direction ``d`` from cell
-  ``i`` is ``validity[i * 8 + d]``.  The Python wrapper flattens
-  the tensor at allocation time so the kernel never has to
-  reshape.
-- ``g_score`` is a flat ``float32`` array.  ``INF`` is a sentinel
-  written at init; comparisons stay as float compares.
-- ``came_from`` is a flat ``int32`` array (-1 = root, otherwise
-  the previous cell index).
-- ``closed`` is a flat ``uint8`` array (0 = open, 1 = closed).
+- :func:`RouteProfileStats` aggregates A* timing stats (``rust_time_ms``
+  kept; the retired ``numba_time_ms`` field was removed with the Numba
+  backend).
 """
 
 from __future__ import annotations
 
-import math
-import os
 import time
 from dataclasses import dataclass
 
 import numpy as np
-
-_HEURISTIC_OCTILE_DIAG: float = math.sqrt(2.0) - 1.0
-
-try:
-    from numba import njit
-
-    _HAVE_NUMBA = True
-except ImportError:  # pragma: no cover
-    _HAVE_NUMBA = False
-
-    def njit(*_args, **_kwargs):
-        """No-op decorator when numba is unavailable."""
-        return lambda f: f
 
 
 @dataclass
 class RouteProfileStats:
     """Aggregate timing stats collected across A* search calls."""
 
-    numba_time_ms: float = 0.0
     rust_time_ms: float = 0.0
     python_time_ms: float = 0.0
     astar_total_ms: float = 0.0
     dist_map_ms: float = 0.0
 
     def reset(self) -> None:
-        self.numba_time_ms = 0.0
         self.rust_time_ms = 0.0
         self.python_time_ms = 0.0
         self.astar_total_ms = 0.0
@@ -98,307 +69,22 @@ def reset_route_profile_stats() -> None:
     _route_profile_stats.reset()
 
 
-_NUMBA_KERNEL = None
-_LOS_KERNEL = None
-_LOS_GRID_CACHE: dict[int, np.ndarray] = {}
+def _select_astar_backend() -> str:
+    """Probe the A* backend.
 
-
-def _get_kernel():
-    """Lazily compile the @njit kernel on first use.
-
-    Numba compilation is ~1s on the first call; doing it lazily
-    keeps import time fast.  Re-imports after cache hits are
-    sub-second.
+    The Rust kernel (``temper-rust-router``) is the sole A* backend
+    since cleanup C1; the ``TEMPER_ASTAR_BACKEND`` override was removed
+    with the Numba fallback.  Returns ``"rust"`` when the extension
+    imports, ``"python"`` when it does not (the pure-Python reference
+    is the only remaining fallback).  Read per call so tests can assert
+    the extension is actually engaged.
     """
-    global _NUMBA_KERNEL
-    if _NUMBA_KERNEL is None:
-        if not _HAVE_NUMBA:
-            return None
-        _NUMBA_KERNEL = _compile_kernel()
-    return _NUMBA_KERNEL
+    try:
+        import temper_rust_router  # noqa: F401
 
-
-@njit(cache=True, fastmath=False)
-def _heap_push(
-    heap_pri: np.ndarray,
-    heap_idx: np.ndarray,
-    heap_size: int,
-    heap_cap: int,
-    pri: np.float32,
-    idx: np.int32,
-) -> tuple:
-    """Push (pri, idx) onto the min-heap.
-
-    Returns the new (heap_pri, heap_idx, heap_size, heap_cap)
-    tuple.  Numba supports tuple return + array mutation; the
-    caller assigns back the new arrays.  ``heap_cap`` grows
-    exponentially on overflow.
-    """
-    if heap_size >= heap_cap:
-        new_cap = heap_cap * 2
-        new_pri = np.empty(new_cap, dtype=np.float32)
-        new_idx = np.empty(new_cap, dtype=np.int32)
-        new_pri[:heap_cap] = heap_pri[:heap_cap]
-        new_idx[:heap_cap] = heap_idx[:heap_cap]
-        heap_pri = new_pri
-        heap_idx = new_idx
-        heap_cap = new_cap
-    i = heap_size
-    heap_pri[i] = pri
-    heap_idx[i] = idx
-    heap_size += 1
-    # Sift up
-    while i > 0:
-        parent = (i - 1) >> 1
-        if heap_pri[parent] <= heap_pri[i]:
-            break
-        tmp_p = heap_pri[parent]
-        tmp_i = heap_idx[parent]
-        heap_pri[parent] = heap_pri[i]
-        heap_idx[parent] = heap_idx[i]
-        heap_pri[i] = tmp_p
-        heap_idx[i] = tmp_i
-        i = parent
-    return heap_pri, heap_idx, heap_size, heap_cap
-
-
-@njit(cache=True, fastmath=False)
-def _heap_pop(
-    heap_pri: np.ndarray,
-    heap_idx: np.ndarray,
-    heap_size: int,
-) -> tuple:
-    """Pop (pri, idx) from the min-heap.  Returns
-    (heap_pri, heap_idx, heap_size, pri, idx).  Caller must
-    check ``heap_size > 0`` before calling.
-    """
-    pri = heap_pri[0]
-    idx = heap_idx[0]
-    heap_size -= 1
-    if heap_size > 0:
-        heap_pri[0] = heap_pri[heap_size]
-        heap_idx[0] = heap_idx[heap_size]
-        i = 0
-        while True:
-            left = 2 * i + 1
-            right = 2 * i + 2
-            smallest = i
-            if left < heap_size and heap_pri[left] < heap_pri[smallest]:
-                smallest = left
-            if right < heap_size and heap_pri[right] < heap_pri[smallest]:
-                smallest = right
-            if smallest == i:
-                break
-            tmp_p = heap_pri[i]
-            tmp_i = heap_idx[i]
-            heap_pri[i] = heap_pri[smallest]
-            heap_idx[i] = heap_idx[smallest]
-            heap_pri[smallest] = tmp_p
-            heap_idx[smallest] = tmp_i
-            i = smallest
-    return heap_pri, heap_idx, heap_size, pri, idx
-
-
-@njit(cache=True, fastmath=False)
-def _astar_kernel_3d(
-    start_idx: int,
-    goal_idx: int,
-    rows: int,
-    cols: int,
-    validity_flat: np.ndarray,  # (rows*cols*8,) uint8
-    max_iterations: int,
-    congestion_flat: np.ndarray | None = None,  # (rows*cols,) float32; null = no congestion
-    congestion_weight: float = 1.0,  # multiplier on per-cell congestion cost
-    max_congestion_cost: float = 100.0,  # cap on per-cell cost
-    thermal_flat: np.ndarray | None = None,  # (rows*cols,) float32; U8 thermal cost field
-    thermal_weight: float = 0.0,  # U8: additive multiplier on per-cell thermal cost
-) -> tuple:
-    """Run A* on the 2D grid.  Returns (path_indices, iterations).
-
-    ``path_indices`` is a 1D array of cell indices from start to
-    goal inclusive, or an empty array if no path was found.
-    ``iterations`` is the number of heap pops performed.
-
-    If ``congestion_flat`` is supplied (U7 / R11), each
-    per-cell expansion adds a per-cell congestion penalty to
-    ``f_score`` so the next net naturally detours around
-    already-routed channels.  Cost formula is
-    ``min(max_congestion_cost, 1 + log(1 + raw))`` at the
-    cell; multiplied by ``congestion_weight``.  Logarithmic
-    growth keeps the cost admissible as a tie-breaker.
-
-    If ``thermal_flat`` is supplied (U8), each per-cell
-    expansion adds an additive thermal penalty.  The cost is
-    ``thermal_flat[cell] * thermal_weight``, summed with any
-    congestion cost inside the same kernel step-cost path.
-    ``thermal_weight = 0.0`` prunes the branch at JIT time so
-    field-off is byte-identical to today's routing.
-    """
-    INF = np.float32(1.0e30)
-    n_cells = rows * cols
-    # Hoist the U7 / R11 congestion branch decision out of the
-    # inner loop.  When ``congestion_weight`` is zero, the
-    # entire per-neighbor cost fold is mathematically a no-op,
-    # but Numba does not eliminate the dead ``np.log``,
-    # ``np.float32(...)``, and multiply at the call site.
-    # Gating on ``congestion_weight > 0`` lets Numba prune the
-    # branch at JIT time when callers (the closure test, the
-    # smoke runner) pass weight=0.  This is the single biggest
-    # source of the 1M-iter-cap wall-time blowup that the
-    # full-pipeline profile surfaced on 2026-06-23.
-    use_congestion = congestion_flat is not None and congestion_weight > 0.0
-    # U8: same early-out gate for thermal — when weight is
-    # zero (or no field), the branch is Numba-pruned at JIT
-    # time and field-off routing is byte-identical.
-    use_thermal = thermal_flat is not None and thermal_weight > 0.0
-
-    # Work arrays
-    g_score = np.full(n_cells, INF, dtype=np.float32)
-    g_score[start_idx] = np.float32(0.0)
-
-    came_from = np.full(n_cells, -1, dtype=np.int32)
-    closed = np.zeros(n_cells, dtype=np.uint8)
-
-    # Manual binary heap: parallel arrays for (priority, cell).
-    heap_cap = 4096
-    heap_pri = np.empty(heap_cap, dtype=np.float32)
-    heap_idx = np.empty(heap_cap, dtype=np.int32)
-    heap_size = 0
-
-    # Octile distance heuristic — admissible, no via-cost.
-    sr = start_idx // cols
-    sc = start_idx - sr * cols
-    gr = goal_idx // cols
-    gc = goal_idx - gr * cols
-    dx0 = abs(sc - gc)
-    dy0 = abs(sr - gr)
-    heuristic_start = np.float32(max(dx0, dy0) + _HEURISTIC_OCTILE_DIAG * min(dx0, dy0))
-
-    heap_pri, heap_idx, heap_size, heap_cap = _heap_push(
-        heap_pri,
-        heap_idx,
-        heap_size,
-        heap_cap,
-        heuristic_start,
-        np.int32(start_idx),
-    )
-
-    iterations = 0
-    while heap_size > 0 and iterations < max_iterations:
-        iterations += 1
-        heap_pri, heap_idx, heap_size, _, cur = _heap_pop(
-            heap_pri,
-            heap_idx,
-            heap_size,
-        )
-        cur_i = cur
-
-        if cur_i == goal_idx:
-            back_list = []
-            c = cur_i
-            while c != -1:
-                back_list.append(c)
-                c = came_from[c]
-            n = len(back_list)
-            path = np.empty(n, dtype=np.int32)
-            for k in range(n):
-                path[k] = back_list[n - 1 - k]
-            return path, iterations
-
-        if closed[cur_i] != np.uint8(0):
-            continue
-        closed[cur_i] = np.uint8(1)
-
-        cur_r = cur_i // cols
-        cur_c = cur_i - cur_r * cols
-
-        # 8-connected expansion, all from the U5 bit tensor
-        base = cur_i * 8
-        for d in range(8):
-            if validity_flat[base + d] == np.uint8(0):
-                continue
-            # Direction table (E, SE, S, SW, W, NW, N, NE)
-            if d == 0:
-                ndc = cur_c + 1
-                ndr = cur_r
-            elif d == 1:
-                ndc = cur_c + 1
-                ndr = cur_r + 1
-            elif d == 2:
-                ndc = cur_c
-                ndr = cur_r + 1
-            elif d == 3:
-                ndc = cur_c - 1
-                ndr = cur_r + 1
-            elif d == 4:
-                ndc = cur_c - 1
-                ndr = cur_r
-            elif d == 5:
-                ndc = cur_c - 1
-                ndr = cur_r - 1
-            elif d == 6:
-                ndc = cur_c
-                ndr = cur_r - 1
-            else:  # d == 7
-                ndc = cur_c + 1
-                ndr = cur_r - 1
-            if ndc < 0 or ndr < 0 or ndc >= cols or ndr >= rows:
-                continue
-            n_idx = ndr * cols + ndc
-            # Octile cost
-            if d == 0 or d == 2 or d == 4 or d == 6:
-                step = np.float32(1.0)
-            else:
-                step = np.float32(1.4142135)
-            # U7 / R11: per-cell congestion penalty from the
-            # PathFinder history tensor.  log1p + cap means
-            # cost grows logarithmically; admissible as a
-            # tie-breaker.
-            if use_congestion and congestion_flat is not None:
-                raw = congestion_flat[n_idx]
-                if raw > np.float32(0.0):
-                    # Inline: 1 + log(1 + raw), capped
-                    cong_cost = np.float32(1.0) + np.log(np.float32(1.0) + raw)
-                    if cong_cost > max_congestion_cost:
-                        cong_cost = max_congestion_cost
-                    step = step + np.float32(congestion_weight) * cong_cost
-            # U8: additive thermal cost field — summed with
-            # congestion cost inside the same kernel step-cost
-            # path.  thermal_weight=0.0 prunes at JIT time so
-            # field-off routing is byte-identical.
-            if use_thermal and thermal_flat is not None:
-                t_val = thermal_flat[n_idx]
-                if t_val > np.float32(0.0):
-                    step = step + np.float32(thermal_weight) * t_val
-            tentative = g_score[cur_i] + step
-            if tentative < g_score[n_idx]:
-                g_score[n_idx] = tentative
-                came_from[n_idx] = cur_i
-                gdx = abs(ndc - gc)
-                gdy = abs(ndr - gr)
-                h = np.float32(max(gdx, gdy) + _HEURISTIC_OCTILE_DIAG * min(gdx, gdy))
-                heap_pri, heap_idx, heap_size, heap_cap = _heap_push(
-                    heap_pri,
-                    heap_idx,
-                    heap_size,
-                    heap_cap,
-                    tentative + h,
-                    np.int32(n_idx),
-                )
-
-    return np.empty(0, dtype=np.int32), iterations
-
-
-def _compile_kernel():
-    """Return the compiled A* inner-loop kernel."""
-    return _astar_kernel_3d
-
-
-# ---------------------------------------------------------------------------
-# U5: Rust kernel dispatch (roadmap KTD6).  TEMPER_ASTAR_BACKEND=rust
-# selects the temper-rust-router kernel; the Numba kernel remains the
-# fallback.  Path identity acceptance is cell-sequence equality (KTD7).
-# ---------------------------------------------------------------------------
+        return "rust"
+    except ImportError:
+        return "python"
 
 
 def _astar_search_rust(
@@ -462,14 +148,14 @@ def _astar_search_rust(
 
 
 def _line_of_sight_rust(p1, p2, grid, net_id: int) -> bool:
-    """Rust-backed Bresenham LOS check (mirrors
+    """Rust-backed Bresenham LOS check (mirrors the retired
     :func:`_line_of_sight_numba`'s contract)."""
     import temper_rust_router as _trr
 
     x0, y0 = p1
     x1, y1 = p2
     # int8 is the documented CellState dtype; normalize so the Rust byte
-    # indexing matches the numba kernel's native-dtype reads.
+    # indexing matches the reference kernel's native-dtype reads.
     grid_contig = np.ascontiguousarray(grid.grid, dtype=np.int8)
     return bool(
         _trr.line_of_sight_py(
@@ -485,21 +171,6 @@ def _line_of_sight_rust(p1, p2, grid, net_id: int) -> bool:
     )
 
 
-def _select_astar_backend():
-    """Resolve the A* backend.  ``TEMPER_ASTAR_BACKEND=rust`` selects the
-    Rust kernel (falling back to numba on ImportError); unset/anything
-    else keeps the Numba kernel.  Read per call so tests can toggle it."""
-    backend = os.environ.get("TEMPER_ASTAR_BACKEND", "numba")
-    if backend == "rust":
-        try:
-            import temper_rust_router  # noqa: F401
-
-            return "rust"
-        except ImportError:
-            pass
-    return "numba"
-
-
 def _astar_search_numba(
     start: tuple,
     goal: tuple,
@@ -512,11 +183,14 @@ def _astar_search_numba(
     thermal_flat: np.ndarray | None = None,
     thermal_weight: float = 0.0,
 ) -> list | None:
-    """Numba-jitted A* front-end.  See module docstring.
+    """A* search front-end.
 
-    Falls through to the pure-Python
-    :func:`temper_placer.router_v6.astar_core._astar_search` if
-    numba is not installed.
+    The Rust kernel (``temper-rust-router``) is the sole A* backend
+    since cleanup C1 (2026-07-31); the Numba kernel and the
+    ``TEMPER_ASTAR_BACKEND`` override were removed.  Falls through to
+    the pure-Python :func:`temper_placer.router_v6.astar_core._astar_search`
+    only if the extension cannot be imported.  No caller sees an
+    ImportError.
 
     U7 / R11: optional ``congestion_flat`` is a flat
     ``(rows*cols,)`` float32 array of per-cell usage counts
@@ -552,182 +226,13 @@ def _astar_search_numba(
         _route_profile_stats.astar_total_ms += (time.perf_counter() - t0_total) * 1000.0
         return result
 
-    if not _HAVE_NUMBA:
-        t0 = time.perf_counter()
-        from temper_placer.router_v6.astar_core import _astar_search
+    # Graceful degrade: temper_rust_router missing/stale.  The pure-Python
+    # reference cannot honor congestion/thermal fields; that matches the
+    # pre-cleanup numba-missing fallback contract.
+    t0 = time.perf_counter()
+    from temper_placer.router_v6.astar_core import _astar_search
 
-        result = _astar_search(start, goal, grid, neighbor_tensor=neighbor_tensor)
-        _route_profile_stats.python_time_ms += (time.perf_counter() - t0) * 1000.0
-        _route_profile_stats.astar_total_ms += (time.perf_counter() - t0_total) * 1000.0
-        return result
-
-    kernel = _get_kernel()
-    if kernel is None:
-        t0 = time.perf_counter()
-        from temper_placer.router_v6.astar_core import _astar_search
-
-        result = _astar_search(start, goal, grid, neighbor_tensor=neighbor_tensor)
-        _route_profile_stats.python_time_ms += (time.perf_counter() - t0) * 1000.0
-        _route_profile_stats.astar_total_ms += (time.perf_counter() - t0_total) * 1000.0
-        return result
-
-    # Build (or reuse) the validity tensor
-    t0_dist = time.perf_counter()
-    if neighbor_tensor is None:
-        from temper_placer.router_v6.neighbor_validity import (
-            build_neighbor_validity_tensor_2d,
-        )
-
-        neighbor_tensor = build_neighbor_validity_tensor_2d(grid)
-
-    rows = grid.height_cells
-    cols = grid.width_cells
-    validity_flat = np.ascontiguousarray(neighbor_tensor.astype(np.uint8).reshape(-1))
-    _route_profile_stats.dist_map_ms += (time.perf_counter() - t0_dist) * 1000.0
-
-    start_idx = int(start[1]) * cols + int(start[0])
-    goal_idx = int(goal[1]) * cols + int(goal[0])
-
-    # Pass None for the congestion arg when the caller didn't
-    # supply one; the kernel checks for None and skips the
-    # per-expansion congestion-cost read.
-    if congestion_flat is not None:
-        congestion_arg = np.ascontiguousarray(congestion_flat.astype(np.float32))
-    else:
-        congestion_arg = None
-
-    # U8: thermal field — same pattern as congestion; kernel
-    # skips the per-expansion read when None.
-    if thermal_flat is not None:
-        thermal_arg = np.ascontiguousarray(thermal_flat.astype(np.float32))
-    else:
-        thermal_arg = None
-
-    t0_numba = time.perf_counter()
-    path_flat, _iters = kernel(
-        start_idx,
-        goal_idx,
-        rows,
-        cols,
-        validity_flat,
-        max_iterations,
-        congestion_arg,
-        np.float32(congestion_weight),
-        np.float32(max_congestion_cost),
-        thermal_arg,
-        np.float32(thermal_weight),
-    )
-    _route_profile_stats.numba_time_ms += (time.perf_counter() - t0_numba) * 1000.0
+    result = _astar_search(start, goal, grid, neighbor_tensor=neighbor_tensor)
+    _route_profile_stats.python_time_ms += (time.perf_counter() - t0) * 1000.0
     _route_profile_stats.astar_total_ms += (time.perf_counter() - t0_total) * 1000.0
-
-    if path_flat.shape[0] == 0:
-        return None
-
-    # Convert flat indices back to (col, row) tuples matching
-    # the Python _astar_search return shape.
-    return [(int(i % cols), int(i // cols)) for i in path_flat]
-
-
-def _compile_los_kernel():
-    """Define and @njit-compile the Bresenham LOS kernel."""
-
-    @njit(cache=True, fastmath=False)
-    def _line_of_sight_numba_kernel(
-        x0: int,
-        y0: int,
-        x1: int,
-        y1: int,
-        grid_arr: np.ndarray,
-        width_cells: int,
-        height_cells: int,
-        net_id: int,
-    ):
-        dx = abs(x1 - x0)
-        dy = abs(y1 - y0)
-        sx = 1 if x0 < x1 else -1
-        sy = 1 if y0 < y1 else -1
-        err = dx - dy
-        x, y = x0, y0
-
-        while True:
-            if x < 0 or x >= width_cells or y < 0 or y >= height_cells:
-                return False
-            cell = grid_arr[y, x]
-            if cell != 0 and cell != net_id:
-                return False
-            if x == x1 and y == y1:
-                return True
-            e2 = 2 * err
-            if e2 > -dy:
-                err -= dy
-                x += sx
-            if e2 < dx:
-                err += dx
-                y += sy
-
-    return _line_of_sight_numba_kernel
-
-
-def _get_los_kernel():
-    """Lazily compile the @njit LOS kernel on first use."""
-    global _LOS_KERNEL
-    if _LOS_KERNEL is None:
-        if not _HAVE_NUMBA:
-            return None
-        _LOS_KERNEL = _compile_los_kernel()
-    return _LOS_KERNEL
-
-
-def _line_of_sight_numba(p1, p2, grid, net_id: int) -> bool:
-    """Python wrapper for the Numba-jitted Bresenham LOS check.
-
-    Args:
-        p1: Start grid position (x, y)
-        p2: End grid position (x, y)
-        grid: OccupancyGrid with .grid, .width_cells, .height_cells
-        net_id: Net ID (cells with this ID are allowed)
-
-    Returns:
-        True if line is clear, False otherwise.
-        Falls back to Python LOS if Numba is unavailable.
-    """
-    if _select_astar_backend() == "rust":
-        try:
-            return _line_of_sight_rust(p1, p2, grid, net_id)
-        except ImportError:
-            pass
-
-    if not _HAVE_NUMBA:
-        from temper_placer.router_v6._astar_theta_star import _line_of_sight
-
-        return _line_of_sight(p1, p2, grid, net_id)
-
-    kernel = _get_los_kernel()
-    if kernel is None:
-        from temper_placer.router_v6._astar_theta_star import _line_of_sight
-
-        return _line_of_sight(p1, p2, grid, net_id)
-
-    x0, y0 = p1
-    x1, y1 = p2
-    # Cache the contiguous grid array per grid object to avoid
-    # copying the entire grid on every LOS call (called 8x per A* expansion).
-    grid_id = id(grid.grid)
-    cached = _LOS_GRID_CACHE.get(grid_id)
-    if cached is not None and cached.shape == grid.grid.shape:
-        grid_contig = cached
-    else:
-        grid_contig = np.ascontiguousarray(grid.grid)
-        _LOS_GRID_CACHE[grid_id] = grid_contig
-    return bool(
-        kernel(
-            np.int32(x0),
-            np.int32(y0),
-            np.int32(x1),
-            np.int32(y1),
-            grid_contig,
-            np.int32(grid.width_cells),
-            np.int32(grid.height_cells),
-            np.int32(net_id),
-        )
-    )
+    return result

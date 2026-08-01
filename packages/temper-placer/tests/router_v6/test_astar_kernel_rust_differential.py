@@ -1,15 +1,21 @@
-"""Differential tests: Rust A* kernel vs the Numba kernel.
+"""Rust A* kernel path tests (cleanup C1).
 
-Both backends must produce IDENTICAL path cell sequences on identical
-inputs (the U5 acceptance, KTD7: cell-sequence equality; bit-identical
-where float evaluation order is preserved).  The Numba kernel is the
-reference; the Rust kernel is selected via TEMPER_ASTAR_BACKEND=rust
-(the dispatch seam in astar_core_numba.py, roadmap KTD6).
+The Rust kernel (``temper-rust-router``) is the sole A* backend since
+the Numba fallback was removed on 2026-07-31.  The numba-vs-rust
+comparison tests were retired with the Numba kernel; their parity
+evidence is recorded in ``packages/temper-rust-router-core/VERIFICATION.md``
+(cell-sequence identity on randomized grids) and the full-pipeline A/B
+(identical completion rate 0.3750, bit-identical route length 9354.65 mm).
+
+This suite keeps the rust-path tests: every call runs through
+``_astar_search_numba`` under the ``rust_engaged`` fixture, which proves
+the Rust kernel actually resolved — a stale/missing ``temper_rust_router``
+fails loudly here instead of silently degrading to the pure-Python
+reference.
 """
 
 from __future__ import annotations
 
-import os
 import random
 
 import numpy as np
@@ -17,7 +23,8 @@ import pytest
 
 from temper_placer.router_v6.astar_core_numba import (
     _astar_search_numba,
-    _line_of_sight_numba,
+    _line_of_sight_rust,
+    _select_astar_backend,
 )
 from temper_placer.router_v6.neighbor_validity import build_neighbor_validity_tensor_2d
 
@@ -40,27 +47,12 @@ class _GridAdapter:
 
 
 @pytest.fixture
-def rust_backend(monkeypatch):
-    monkeypatch.setenv("TEMPER_ASTAR_BACKEND", "rust")
-    yield
-
-
-@pytest.fixture
-def numba_backend(monkeypatch):
-    monkeypatch.delenv("TEMPER_ASTAR_BACKEND", raising=False)
-    yield
-
-
-@pytest.fixture
-def rust_engaged(monkeypatch):
-    """Set the rust backend AND assert it actually resolved (fails loudly
-    instead of silently running numba on both sides when temper_rust_router
-    is missing/stale)."""
-    monkeypatch.setenv("TEMPER_ASTAR_BACKEND", "rust")
-    from temper_placer.router_v6.astar_core_numba import _select_astar_backend
-
+def rust_engaged():
+    """Assert the Rust kernel actually resolves (fails loudly instead of
+    silently running the pure-Python reference when temper_rust_router is
+    missing/stale)."""
     assert _select_astar_backend() == "rust", (
-        "TEMPER_ASTAR_BACKEND=rust did not resolve to the Rust kernel — "
+        "temper_rust_router did not resolve to the Rust kernel — "
         "run `make extensions` (temper_rust_router missing or stale)"
     )
     yield
@@ -87,11 +79,14 @@ def _search(
     )
 
 
-def _assert_same_path(a, b, ctx: str) -> None:
-    if a is None or b is None:
-        assert a is None and b is None, f"{ctx}: one backend found a path, other did not"
-        return
-    assert a == b, f"{ctx}: path mismatch\nrust={a}\nnumba={b}"
+def _assert_valid_path(path, start, goal, ctx: str) -> None:
+    assert path is not None, f"{ctx}: rust kernel returned None on a routable grid"
+    assert path[0] == start, f"{ctx}: path does not start at {start}: {path[0]}"
+    assert path[-1] == goal, f"{ctx}: path does not end at {goal}: {path[-1]}"
+    for a, b in zip(path[:-1], path[1:]):
+        assert abs(a[0] - b[0]) <= 1 and abs(a[1] - b[1]) <= 1, (
+            f"{ctx}: disconnected cells {a}->{b}"
+        )
 
 
 def _random_blocked(rng: random.Random, rows: int, cols: int, density: float) -> set[tuple[int, int]]:
@@ -106,26 +101,21 @@ def _random_blocked(rng: random.Random, rows: int, cols: int, density: float) ->
     return blocked
 
 
-def test_path_identity_open_grid(rust_engaged) -> None:
-    grid = _GridAdapter(_make_grid(12, 16))
-    os.environ["TEMPER_ASTAR_BACKEND"] = "numba"
-    numba_path = _search((0, 0), (11, 15), grid)
-    os.environ["TEMPER_ASTAR_BACKEND"] = "rust"
-    rust_path = _search((0, 0), (11, 15), grid)
-    _assert_same_path(rust_path, numba_path, "open grid")
+def test_path_open_grid(rust_engaged) -> None:
+    grid = _GridAdapter(_make_grid(12, 16))  # 12 rows, 16 cols
+    path = _search((0, 0), (15, 11), grid)
+    _assert_valid_path(path, (0, 0), (15, 11), "open grid")
 
 
-def test_path_identity_start_equals_goal(rust_engaged) -> None:
+def test_path_start_equals_goal(rust_engaged) -> None:
     grid = _GridAdapter(_make_grid(8, 8))
-    os.environ["TEMPER_ASTAR_BACKEND"] = "numba"
-    numba_path = _search((3, 4), (3, 4), grid)
-    os.environ["TEMPER_ASTAR_BACKEND"] = "rust"
-    rust_path = _search((3, 4), (3, 4), grid)
-    _assert_same_path(rust_path, numba_path, "start == goal")
+    path = _search((3, 4), (3, 4), grid)
+    assert path == [(3, 4)], f"start==goal should return the single-cell path: {path}"
 
 
-def test_path_identity_random_obstacles(rust_engaged) -> None:
+def test_path_random_obstacles(rust_engaged) -> None:
     rng = random.Random(20260731)
+    routed = 0
     for trial in range(25):
         rows = rng.choice([8, 12, 20])
         cols = rng.choice([8, 16, 24])
@@ -135,66 +125,60 @@ def test_path_identity_random_obstacles(rust_engaged) -> None:
         goal = (rng.randrange(cols), rng.randrange(rows))
         if start == goal:
             continue
-        os.environ["TEMPER_ASTAR_BACKEND"] = "numba"
-        numba_path = _search(start, goal, grid)
-        os.environ["TEMPER_ASTAR_BACKEND"] = "rust"
-        rust_path = _search(start, goal, grid)
-        _assert_same_path(rust_path, numba_path, f"trial {trial} {rows}x{cols}")
+        path = _search(start, goal, grid)
+        ctx = f"trial {trial} {rows}x{cols}"
+        if path is None:
+            continue  # genuinely disconnected under this obstacle set
+        routed += 1
+        _assert_valid_path(path, start, goal, ctx)
+    # Guard against a silent all-None regression (the retired numba-parity
+    # suite compared None==None vacuously on such cases).
+    assert routed > 0, "rust kernel returned None on every randomized grid"
 
 
-def test_path_identity_with_congestion(rust_engaged) -> None:
+def test_path_with_congestion(rust_engaged) -> None:
     rng = random.Random(9)
     grid = _GridAdapter(_make_grid(14, 14, _random_blocked(rng, 14, 14, 0.1)))
     cong = np.zeros((14, 14), dtype=np.float32)
     for _ in range(20):
         cong[rng.randrange(14), rng.randrange(14)] = rng.random() * 40
-    os.environ["TEMPER_ASTAR_BACKEND"] = "numba"
-    numba_path = _search((0, 0), (13, 13), grid, congestion_flat=cong.reshape(-1))
-    os.environ["TEMPER_ASTAR_BACKEND"] = "rust"
-    rust_path = _search((0, 0), (13, 13), grid, congestion_flat=cong.reshape(-1))
-    _assert_same_path(rust_path, numba_path, "congestion")
+    path = _search((0, 0), (13, 13), grid, congestion_flat=cong.reshape(-1))
+    _assert_valid_path(path, (0, 0), (13, 13), "congestion")
 
 
-def test_path_identity_with_thermal(rust_engaged) -> None:
+def test_path_with_thermal(rust_engaged) -> None:
     rng = random.Random(11)
     grid = _GridAdapter(_make_grid(10, 18, _random_blocked(rng, 10, 18, 0.12)))
     thermal = np.zeros((10, 18), dtype=np.float32)
     for _ in range(15):
         thermal[rng.randrange(10), rng.randrange(18)] = rng.random() * 30
-    os.environ["TEMPER_ASTAR_BACKEND"] = "numba"
-    numba_path = _search((0, 0), (9, 17), grid, thermal_flat=thermal.reshape(-1))
-    os.environ["TEMPER_ASTAR_BACKEND"] = "rust"
-    rust_path = _search((0, 0), (9, 17), grid, thermal_flat=thermal.reshape(-1))
-    _assert_same_path(rust_path, numba_path, "thermal")
+    path = _search((0, 0), (17, 9), grid, thermal_flat=thermal.reshape(-1))
+    _assert_valid_path(path, (0, 0), (17, 9), "thermal")
 
 
-def test_blocked_grid_both_return_none(rust_engaged) -> None:
+def test_blocked_grid_returns_none(rust_engaged) -> None:
     blocked = {(r, 8) for r in range(10)} | {(5, c) for c in range(1, 16)}
     grid = _GridAdapter(_make_grid(10, 16, blocked))
-    os.environ["TEMPER_ASTAR_BACKEND"] = "numba"
-    numba_path = _search((0, 0), (9, 15), grid)
-    os.environ["TEMPER_ASTAR_BACKEND"] = "rust"
-    rust_path = _search((0, 0), (9, 15), grid)
-    _assert_same_path(rust_path, numba_path, "blocked cross")
+    # A full-height wall at x=8 plus a wall at y=5 keeps (0,0) from the
+    # bottom-right region; the goal (15, 9) is genuinely unreachable.
+    assert _search((0, 0), (15, 9), grid) is None, "blocked cross must return None"
 
 
-def test_line_of_sight_parity(rust_engaged) -> None:
-    rng = random.Random(5)
-    grid = _GridAdapter(_make_grid(20, 20, _random_blocked(rng, 20, 20, 0.2)))
-    for _ in range(200):
-        p1 = (rng.randrange(20), rng.randrange(20))
-        p2 = (rng.randrange(20), rng.randrange(20))
-        os.environ["TEMPER_ASTAR_BACKEND"] = "numba"
-        n = _line_of_sight_numba(p1, p2, grid, net_id=0)
-        os.environ["TEMPER_ASTAR_BACKEND"] = "rust"
-        r = _line_of_sight_numba(p1, p2, grid, net_id=0)
-        assert r == n, f"LOS mismatch {p1}->{p2}: rust={r} numba={n}"
+def test_line_of_sight_open(rust_engaged) -> None:
+    grid = _GridAdapter(_make_grid(20, 20))
+    assert _line_of_sight_rust((0, 0), (9, 9), grid, net_id=0) is True
+    assert _line_of_sight_rust((0, 0), (9, 9), grid, net_id=-1) is True
 
 
-def test_line_of_sight_parity_with_negative_sentinels(rust_engaged) -> None:
+def test_line_of_sight_blocked(rust_engaged) -> None:
+    arr = _make_grid(20, 20, blocked={(r, 10) for r in range(20)})
+    grid = _GridAdapter(arr)
+    assert _line_of_sight_rust((0, 0), (19, 19), grid, net_id=0) is False
+
+
+def test_line_of_sight_negative_sentinels(rust_engaged) -> None:
     # Production grids carry -1 static-obstacle sentinels (occupancy_grid
-    # CellState); as uint8 they reinterpret to 0xFF (still != 0, != net_id)
-    # and must behave identically in both kernels.
+    # CellState); as int8 they are != 0 and != net_id and must block.
     rng = random.Random(6)
     arr = _make_grid(15, 15)
     for _ in range(40):
@@ -203,24 +187,25 @@ def test_line_of_sight_parity_with_negative_sentinels(rust_engaged) -> None:
     for _ in range(100):
         p1 = (rng.randrange(15), rng.randrange(15))
         p2 = (rng.randrange(15), rng.randrange(15))
-        os.environ["TEMPER_ASTAR_BACKEND"] = "numba"
-        n = _line_of_sight_numba(p1, p2, grid, net_id=0)
-        os.environ["TEMPER_ASTAR_BACKEND"] = "rust"
-        r = _line_of_sight_numba(p1, p2, grid, net_id=0)
-        assert r == n, f"LOS sentinel mismatch {p1}->{p2}"
+        result = _line_of_sight_rust(p1, p2, grid, net_id=0)
+        assert isinstance(result, bool), f"LOS must be bool: {result}"
+        if p1 == p2 and arr[p1[1], p1[0]] != -1:
+            assert result is True, f"same free cell must be visible: {p1}"
 
 
-def test_line_of_sight_net_id_parity() -> None:
+def test_line_of_sight_net_id_ownership(rust_engaged) -> None:
     rng = random.Random(6)
     arr = _make_grid(15, 15)
     # a blocked strip with a gap that a net-specific LOS may cross
     arr[7, 3:12] = 3  # net 3 owns this strip
     grid = _GridAdapter(arr)
+    # Cross the strip under net 3 (allowed) vs net 0 (blocked).
+    assert _line_of_sight_rust((3, 3), (11, 11), grid, net_id=3) is True
+    assert _line_of_sight_rust((3, 3), (11, 11), grid, net_id=0) is False
     for _ in range(100):
         p1 = (rng.randrange(15), rng.randrange(15))
         p2 = (rng.randrange(15), rng.randrange(15))
-        os.environ["TEMPER_ASTAR_BACKEND"] = "numba"
-        n = _line_of_sight_numba(p1, p2, grid, net_id=3)
-        os.environ["TEMPER_ASTAR_BACKEND"] = "rust"
-        r = _line_of_sight_numba(p1, p2, grid, net_id=3)
-        assert r == n, f"LOS net-id mismatch {p1}->{p2}"
+        net3 = _line_of_sight_rust(p1, p2, grid, net_id=3)
+        net0 = _line_of_sight_rust(p1, p2, grid, net_id=0)
+        # Owning the strip can only open the line, never close it.
+        assert net3 or not net0, f"net ownership closed a line it should open: {p1}->{p2}"

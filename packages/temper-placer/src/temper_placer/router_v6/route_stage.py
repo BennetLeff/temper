@@ -44,7 +44,6 @@ class RouteStage(Stage):
         escape_vias_map = getattr(state, "escape_vias_map", None)
         use_theta_star = getattr(state, "enable_theta_star", False)
         use_lazy_theta_star = getattr(state, "enable_lazy_theta_star", False)
-        enable_numba_los = getattr(state, "enable_numba_los", False)
         enable_coarse_to_fine = getattr(state, "enable_coarse_to_fine", False)
         enable_all_pad_tree = getattr(state, "enable_all_pad_tree", False)
         tree_3d_fallback_max_iter = getattr(state, "tree_3d_fallback_max_iter", 10_000)
@@ -109,7 +108,6 @@ class RouteStage(Stage):
             use_theta_star=use_theta_star,
             use_lazy_theta_star=use_lazy_theta_star,
             congestion_tensor=congestion_tensor,
-            enable_numba_los=enable_numba_los,
             enable_coarse_to_fine=enable_coarse_to_fine,
             coarse_factor=coarse_factor,
             corridor_buffer_cells=corridor_buffer_cells,
