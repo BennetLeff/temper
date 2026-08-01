@@ -181,6 +181,15 @@ def solve_placement(
         polarized = ref in _POLARIZED_REFS
         model_wrapper.add_rotation(ref, is_polarized=polarized)
 
+    # Routed-board repair: pin every requested component's rotation to its
+    # current board value (hard constraint). A rotation would move every pad
+    # and disconnect the routed copper attached to it, so repair callers
+    # pin all refs; the min-displacement objective then only has translation
+    # freedom to work with.
+    if fixed_rotations:
+        for ref, rot in fixed_rotations.items():
+            model_wrapper.add_fixed_rotation(ref, rot)
+
     # Load netclass rules early — needed for auto-generated cross-class
     # separation AND for computing courtyard clearance τ (U1).
     loaded_netclass_rules = None
@@ -378,6 +387,12 @@ def solve_placement(
     solver.parameters.random_seed = seed
     solver.parameters.num_search_workers = 4
     solver.parameters.log_search_progress = False
+
+    # Apply the accumulated objective (if any) BEFORE solving.  This is the
+    # single point where the minimum-displacement objective becomes real:
+    # without it the terms registered by add_displacement_objective() would
+    # be collected and never used.
+    model_wrapper.apply_objective()
 
     status_code = solver.Solve(model_wrapper.model_ref)
     elapsed_ms = (time.monotonic() - t_start) * 1000.0
