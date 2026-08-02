@@ -33,15 +33,16 @@ PACKAGE = REPO_ROOT / "packages" / "temper-placer"
 sys.path.insert(0, str(PACKAGE / "src"))
 sys.path.insert(0, str(PACKAGE))
 
+from tests.requirements.safety._real_board_fixture import (  # noqa: E402
+    load_real_board_placement,
+)
+
 from temper_placer.io.kicad_parser import parse_kicad_pcb  # noqa: E402
 from temper_placer.placer.cp_sat.domain_clearance import (  # noqa: E402
     generate_domain_clearance_constraints,
 )
 from temper_placer.requirements.validators.clearance import (  # noqa: E402
     verify_iec60335_compliance,
-)
-from tests.requirements.safety._real_board_fixture import (  # noqa: E402
-    load_real_board_placement,
 )
 
 PCB_PATH = REPO_ROOT / "pcb" / "temper.kicad_pcb"
