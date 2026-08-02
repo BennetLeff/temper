@@ -42,15 +42,6 @@ temper_placer/core/manufacturing.py::inflated_width  # TODO: temper-xxx
 temper_placer/core/net_graph.py::NetGraph.get_edge  # TODO: temper-xxx
 temper_placer/core/net_graph.py::NetGraph.get_incoming_edges  # TODO: temper-xxx
 temper_placer/core/net_graph.py::NetGraph.get_outgoing_edges  # TODO: temper-xxx
-temper_placer/core/net_types.py::NetClassification.classify_net  # TODO: temper-xxx
-temper_placer/core/net_types.py::NetClassification.from_yaml_config  # TODO: temper-xxx
-temper_placer/core/net_types.py::NetClassification.get_plane_nets  # TODO: temper-xxx
-temper_placer/core/net_types.py::NetClassification.get_pour_nets  # TODO: temper-xxx
-temper_placer/core/net_types.py::NetClassification.validate_all  # TODO: temper-xxx
-temper_placer/core/net_types.py::NetTypeSpec.is_valid  # TODO: temper-xxx
-temper_placer/core/net_types.py::NetTypeSpec.validate  # TODO: temper-xxx
-temper_placer/core/net_types.py::VoltageClass.get_clearance_mm  # TODO: temper-xxx
-temper_placer/core/net_types.py::VoltageClass.get_creepage_mm  # TODO: temper-xxx
 temper_placer/core/netlist.py::Netlist.apply_net_class_mapping  # TODO: temper-xxx
 temper_placer/core/netlist.py::Netlist.find_isomorphic_groups  # TODO: temper-xxx
 temper_placer/core/netlist.py::Pin.mask_expansion  # TODO: temper-xxx
