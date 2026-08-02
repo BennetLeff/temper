@@ -20,7 +20,7 @@ from temper_placer.placer.cp_sat._encoder_core import (
 from temper_placer.placer.cp_sat.model import CpSatModel
 
 if TYPE_CHECKING:
-    pass
+    from temper_placer.placer.cp_sat.fixed_copper import PadRectLocal
 
 logger = logging.getLogger(__name__)
 
@@ -353,7 +353,7 @@ def solve_placement(
     ctx = EncoderContext(
         board_w,
         board_h,
-        zones=resolved_zones,
+        zones={k: (v.x_min, v.y_min, v.x_max, v.y_max) for k, v in resolved_zones.items()},
         loop_components=loop_components or _resolve_loop_components(netlist),
         zone_components=resolved_zone_components,
         board_x_min_units=0,
@@ -396,7 +396,7 @@ def solve_placement(
     # Pad-vs-fixed-copper NoOverlap (issue #523): encode one BoolOr per
     # (free pad, fixed item) pair after every other constraint so the
     # rotation variables and sizes are fully wired. See fixed_copper.py.
-    _fixed_copper_pads: dict | None = None
+    _fixed_copper_pads: dict[str, list[PadRectLocal]] | None = None
     _fixed_copper_items: list | None = None
     if fixed_copper is not None:
         from temper_placer.placer.cp_sat.fixed_copper import (
@@ -490,7 +490,11 @@ def solve_placement(
     # feasible solve must clear every applicable item by at least the margin;
     # any violation means the encoding is unsound for this solve and is a
     # hard failure, not a reportable "warning".
-    if status_str in ("optimal", "feasible") and _fixed_copper_items is not None:
+    if (
+        status_str in ("optimal", "feasible")
+        and _fixed_copper_items is not None
+        and _fixed_copper_pads is not None
+    ):
         from temper_placer.placer.cp_sat.fixed_copper import audit_fixed_copper
 
         audit_violations = audit_fixed_copper(
