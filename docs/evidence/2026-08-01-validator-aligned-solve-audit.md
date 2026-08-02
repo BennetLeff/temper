@@ -1,4 +1,4 @@
-<!-- provenance: commit=9e957dc0923784eedc8d99f6e4d916842941225b dirty=false (recorded by the follow-up chore commit; the referenced commit is the doc-content commit, reachable from this branch) -->
+<!-- provenance: commit=8498418a4de88e635ecc799545d4005966bd636e dirty=false (recorded by the follow-up chore commit; the referenced commit is the doc-content commit, reachable from this branch) -->
 
 # Validator-aligned post-solve solve audit — closing the run-B lie (issue #523 gap 2, R24 item 3)
 
