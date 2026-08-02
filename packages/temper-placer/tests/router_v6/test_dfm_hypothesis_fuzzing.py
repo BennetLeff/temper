@@ -514,9 +514,19 @@ def test_acid_trap_layer_independence(results: RoutingResults) -> None:
 # 6b. Clearance: changing a *single* net's layer (the last net) should not
 #     affect clearance results among the remaining same-layer nets.
 
+# This test runs O(N²) verify_clearance twice over up to 20 routes x 50
+# points, so a single example can exceed the module-wide 2000 ms deadline
+# on a loaded CI runner (observed 2475-2633 ms on consecutive runs). Raise
+# the per-example deadline here instead of weakening the module-wide perf
+# gate. See the comment on `_SETTINGS`.
 
+
+@settings(
+    max_examples=200,
+    deadline=10000,
+    suppress_health_check=[HealthCheck.too_slow],
+)
 @given(results=realistic_routing_results(min_routes=2))
-@_SETTINGS
 def test_clearance_layer_independence_different_net(results: RoutingResults) -> None:
     """Moving one net to a different layer does not affect clearance among
     the nets that stay on their original layers.
