@@ -98,3 +98,110 @@ commit `37a4251e0`).
 - Performance A/B (R1b): this is a pure-data contract migration with no
   compute kernel; the performance A/B is the "no regression beyond noise"
   comparison defined in the plan's R2 for delegation-only modules.
+
+---
+
+# Loop-centric data model — Verification
+
+The loop data model (`src/loops.rs`) is the SECOND Wave 4 Phase 2
+"contracts-as-pyo3-pyclasses" migration, ported from
+`temper_placer/core/loop.py` (the Python module is now a pure-delegation
+re-export of the `temper_design_bundle_python` pyclasses, mirroring the
+net-types precedent).
+
+## Induction applicability
+
+**Mathematical induction is not applicable to this module.** None of its
+functions are recursive and none iterate over a dimension whose correctness
+depends on a size parameter:
+
+- `estimated_inductance_nh` / `max_area_for_inductance_nh` /
+  `voltage_spike_v` / `area_margin_pct` / `estimated_voltage_spike` are
+  closed-form arithmetic — no loop, no recursion.
+- `get_component_refs` / `involves_component` / `involves_net` and every
+  `LoopCollection` query iterate over caller-provided lists, but the
+  per-element operation is independent of the collection's size and of the
+  iteration order (verified by MR2 in `test_loop_pbt.py` — insertion-order
+  permutation invariance). There is no size-parameterized invariant to
+  induct on.
+
+The module is data-only (two string-valued enums, three dataclasses, one
+container). Per the plan's R1e, a **structural proof** is recorded instead.
+
+## Structural proof
+
+**Claim (bit-identical parity).** For every public symbol, the pyclass
+behaviour is bit-identical to the pinned pre-migration Python
+implementation (`packages/temper-placer/tests/core/_loop_py_oracle.py`,
+commit `76f38db0a`).
+
+*Proof by structural cases.*
+
+1. **Enum tables (`LoopType`, `LoopPriority`).** Both sides enumerate the
+   same closed member sets with the same string values in the same order.
+   `name`/`value` mirror the Python `Enum` accessors; `str(member)` is
+   `"LoopType.COMMUTATION"` and `repr(member)` is
+   `<LoopType.COMMUTATION: 'commutation'>` (the value is QUOTED — the
+   string-valued-enum rendering, verified by the differential test).
+   Value-based construction `LoopType("commutation")` resolves by value
+   exactly as Python `Enum(value)` does, including the exact `ValueError`
+   text `'<value>' is not a valid LoopType`. Members are NOT equal to
+   their string value and are hashable (plain-Enum semantics; no `eq_int`).
+
+2. **`LoopEvent` physics.** `estimated_inductance_nh` computes
+   `mu_0 * (A·1e-6) / (h·1e-3) * 1e9` with `mu_0 = 4·π·1e-7` — the
+   oracle's expression shape preserved verbatim (B7: same three-op chain,
+   no reassociation, no fusing), so every input yields bit-identical
+   doubles (asserted on `.hex()` keys). `max_area_for_inductance_nh` and
+   `voltage_spike_v` are the corresponding closed forms with the same
+   property. The `None`-lifecycle (all fields default `None`; `voltage_spike_v`
+   returns `None` without `di_dt`) matches the oracle.
+
+3. **`LoopPin`.** Three fields with the same defaults; `__str__` produces
+   `"Q1.GATE"` / `"Q1.GATE (NET)"` byte-identically.
+
+4. **`Loop`.** Construction mirrors the dataclass default chain
+   (`pins`/`components`/`nets` empty, `max_area_mm2=100.0`,
+   `priority=MEDIUM`, `events=LoopEvent()`, `return_layer`/`return_net`
+   `None`, `source="manual"`). `get_component_refs` returns the
+   `components` list verbatim when non-empty, else unique pin refs in
+   first-appearance order (dedup via an insertion-ordered scan — same
+   algorithm the oracle's `seen`-set loop implements). The area lifecycle
+   (`set_current_area`/`get_current_area`/`is_area_compliant`/
+   `area_margin_pct`/`estimated_voltage_spike`) reproduces the oracle's
+   `None`-until-set semantics and its exact arithmetic
+   (`(max - area) / max * 100`).
+
+5. **`LoopCollection`.** Construction, `add_loop` (including the
+   duplicate-name `ValueError` text), every query, `summary` (same keys,
+   same values), `__len__`/`__iter__`/`__getitem__` (int with negative
+   wrap, str by name, `KeyError`/`TypeError`/`IndexError`) all mirror the
+   oracle. Loops are stored as `Py<Loop>` handles so mutation through
+   `collection[name].set_current_area(...)` is visible to subsequent
+   queries — the pre-migration stored the same mutable objects.
+
+6. **Documented deviations.** (a) pyo3 pyclass enums cannot support
+   class-level iteration (`for lt in LoopType:`); the enums expose a
+   `members()` staticmethod (declaration order) and `io/loop_loader.py` —
+   the only consumer that iterated — was adapted to use it,
+   behavior-identically (same members, same order, same error text).
+   (b) `add_loop`'s Python parameter is named `new_loop` in Rust (`loop`
+   is a Rust keyword); all callers pass it positionally.
+
+## Evidence
+
+- Differential (R1a/R1f, TDD red→green):
+  `packages/temper-placer/tests/core/test_loop_rust_differential.py`
+  (55 assertions, oracle `_loop_py_oracle.py`).
+- PBT (R1c): `test_loop_pbt.py` — 5 hypothesis properties (P1–P5),
+  each with a `test_pN_fails_for_<mutant>` vacuity mutant (G4 pattern via
+  `hypothesis.inner_test` against a degenerate kernel) plus a deterministic
+  vacuity anchor (`test_p3_components_win_over_pins`).
+- Metamorphic (R1d): `test_loop_pbt.py` — MR1 (construction→access
+  round-trip + kwarg-order commutativity), MR2 (insertion-order
+  permutation invariance of set-valued collection queries), MR3
+  (`Loop.estimated_voltage_spike` ≡ chained `LoopEvent` computation,
+  bit-exact).
+- Performance A/B (R1b): pure-data contract migration with no compute
+  kernel; the "no regression beyond noise" comparison defined in the
+  plan's R2 for delegation-only modules applies.

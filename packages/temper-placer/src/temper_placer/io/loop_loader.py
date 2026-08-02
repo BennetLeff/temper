@@ -72,13 +72,20 @@ def _parse_pins(pins_data: list[dict[str, Any]] | None) -> list[LoopPin]:
 
 
 def _parse_loop_type(type_str: str) -> LoopType:
-    """Parse LoopType from string, with case-insensitive matching."""
+    """Parse LoopType from string, with case-insensitive matching.
+
+    Uses ``LoopType.members()`` (all members, declaration order) instead of
+    class-level iteration ``for lt in LoopType:`` — the migrated pyo3
+    pyclass enums cannot support class-level iteration (no metaclass hook;
+    see ``core/loop.py`` module docstring). Behavior is identical: same
+    members, same order, same error message.
+    """
     type_str_lower = type_str.lower()
-    for lt in LoopType:
+    for lt in LoopType.members():
         if lt.value == type_str_lower:
             return lt
     raise LoopLoadError(
-        f"Unknown loop type: {type_str}. Valid types: {[t.value for t in LoopType]}"
+        f"Unknown loop type: {type_str}. Valid types: {[t.value for t in LoopType.members()]}"
     )
 
 
@@ -88,11 +95,11 @@ def _parse_priority(priority_str: str | None) -> LoopPriority:
         return LoopPriority.MEDIUM
 
     priority_lower = priority_str.lower()
-    for lp in LoopPriority:
+    for lp in LoopPriority.members():
         if lp.value == priority_lower:
             return lp
     raise LoopLoadError(
-        f"Unknown priority: {priority_str}. Valid priorities: {[p.value for p in LoopPriority]}"
+        f"Unknown priority: {priority_str}. Valid priorities: {[p.value for p in LoopPriority.members()]}"
     )
 
 
