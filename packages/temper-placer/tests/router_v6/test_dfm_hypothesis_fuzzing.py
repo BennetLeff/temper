@@ -16,7 +16,7 @@ verifies invariants common to all seven manufacturing DRC modules:
   results among same-layer nets are unchanged when a *different* net's
   layer is moved.
 
-Each property runs 200 iterations with a 2000 ms deadline.
+Each property runs 200 iterations with a 5000 ms deadline.
 Tests that reveal known limitations are marked ``pytest.mark.xfail``.
 """
 
@@ -131,12 +131,14 @@ def _run_all_dfm_modules(results: RoutingResults) -> ManufacturingReport:
 # Properties
 # ===================================================================
 
-# Shared hypothesis settings: 200 iterations, 2000 ms deadline, suppress
+# Shared hypothesis settings: 200 iterations, 5000 ms deadline, suppress
 # the "too slow" health check because DFM modules do O(N²) clearance
-# checks that can legitimately take time on large inputs.
+# checks that can legitimately take time on large inputs. 2000 ms was
+# exceeded under shared-runner load (DeadlineExceeded flakes in CI);
+# 5000 ms keeps a timing guard while absorbing fleet load.
 _SETTINGS = settings(
     max_examples=200,
-    deadline=2000,
+    deadline=5000,
     suppress_health_check=[HealthCheck.too_slow],
 )
 
