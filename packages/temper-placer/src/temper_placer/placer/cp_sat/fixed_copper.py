@@ -254,6 +254,28 @@ class FixedCopperItem:
     slack_mm: float
     margin_mm: float
     label: str = ""
+    # Optional polygon-exact zone encoding. ``edges`` holds one entry per
+    # polygon edge for a CONVEX, AXIS-ALIGNED (rectilinear) zone polygon:
+    # each entry is ("x"|"y", coord, sign) with sign encoding which side of
+    # the edge line the polygon interior lies AWAY from, i.e. the side the
+    # pad must be on to be separated:
+    #   ("x", c, +1) -> pad.x_min >= c   (interior is at x < c; pad clears
+    #                                     only by being wholly at x >= c)
+    #   ("x", c, -1) -> pad.x_max <= c   (interior is at x > c)
+    #   ("y", c, +1) -> pad.y_min >= c   (interior is at y < c)
+    #   ("y", c, -1) -> pad.y_max <= c   (interior is at y > c)
+    # A convex polygon is the intersection of its edge half-planes, so a
+    # pad is disjoint from it iff the pad lies wholly outside AT LEAST ONE
+    # half-plane -- encoded as a SINGLE BoolOr over one literal per edge
+    # (the direct analogue of the 4-way bbox disjunction, exact rather than
+    # conservative). For a non-convex rectilinear polygon the edge
+    # half-planes describe the CONVEX HULL: encoded-clear then implies the
+    # pad is outside the hull, hence outside the polygon -- still SOUND,
+    # with bounded conservatism equal to the hull-minus-polygon reach.
+    # Zones with diagonal edges keep the bbox encoding (``edges=None``).
+    # ``rect`` remains the bbox for the encoded_overlap BMC mirror and the
+    # slack bookkeeping.
+    edges: tuple | None = None
 
 
 @dataclass
@@ -282,6 +304,7 @@ __all__ = [
     "build_free_component_pads",
     "encode_fixed_copper_constraints",
     "encoded_overlap",
+    "encoded_overlap_edges",
     "encoded_pad_world_rect",
     "exact_clearance_mm",
     "pad_world_rect",
@@ -529,6 +552,78 @@ def _via_item(position, diameter, net, layers, margin) -> FixedCopperItem:
     )
 
 
+
+def _rectilinear_convex_edges(
+    polygon: list[tuple[float, float]], margin: float
+) -> tuple | None:
+    """Return per-edge half-plane separations for a convex axis-aligned
+    polygon, or ``None`` if the polygon is not rectilinear/convex.
+
+    Each edge is returned as (axis, coord, sign) per ``FixedCopperItem.edges``
+    -- the half-plane the polygon interior lies strictly on one side of,
+    with ``sign`` pointing AWAY from the interior (the side a pad must be on
+    to be separated). Edges are shifted outward by ``margin`` so a pad at
+    exactly the margin distance is accepted. For a CONVEX polygon the
+    encoding is exact: a pad is disjoint from the polygon iff it clears at
+    least one edge half-plane (one BoolOr over the per-edge literals).
+    """
+    n = len(polygon)
+    if n < 3:
+        return None
+    # Signed area -> winding. Positive (math convention, y up) = CCW.
+    area2 = 0.0
+    for i in range(n):
+        x0, y0 = polygon[i]
+        x1, y1 = polygon[(i + 1) % n]
+        area2 += x0 * y1 - x1 * y0
+    if abs(area2) < 1e-9:
+        return None
+    cw = area2 < 0  # clockwise winding
+
+    def cross(ax, ay, bx, by):
+        return ax * by - ay * bx
+
+    # Convexity: every vertex must lie on the same (interior) side of every
+    # edge line. For CCW, interior is left (cross > 0); for CW, right.
+    for i in range(n):
+        x0, y0 = polygon[i]
+        x1, y1 = polygon[(i + 1) % n]
+        for (px, py) in polygon:
+            c = cross(x1 - x0, y1 - y0, px - x0, py - y0)
+            if cw:
+                c = -c
+            if c < -1e-9:
+                return None  # a vertex on the exterior side -> non-convex
+
+    edges: list[tuple] = []
+    for i in range(n):
+        x0, y0 = polygon[i]
+        x1, y1 = polygon[(i + 1) % n]
+        if abs(x0 - x1) < 1e-9:  # vertical edge at x = x0
+            upward = y1 > y0
+            # interior is left (CCW) / right (CW) of the directed edge.
+            # Left of upward = -x (interior x < x0); left of downward = +x.
+            interior_minus = upward != cw  # interior on the x < x0 side
+            if interior_minus:
+                # pad clears only at pad.x_min >= x0 + margin
+                edges.append(("x", x0 + margin, +1))
+            else:
+                # pad clears only at pad.x_max <= x0 - margin
+                edges.append(("x", x0 - margin, -1))
+        elif abs(y0 - y1) < 1e-9:  # horizontal edge at y = y0
+            rightward = x1 > x0
+            # Left of rightward = +y (interior y > y0); left of leftward = -y.
+            interior_plus = rightward != cw  # interior on the y > y0 side
+            if interior_plus:
+                edges.append(("y", y0 - margin, -1))
+            else:
+                edges.append(("y", y0 + margin, +1))
+        else:
+            return None  # diagonal edge -> bbox fallback
+    return tuple(edges)
+
+
+
 def _zone_item(zone, margin) -> FixedCopperItem | None:
     """Conservative box for a zone (pour) outline.
 
@@ -544,6 +639,11 @@ def _zone_item(zone, margin) -> FixedCopperItem | None:
     if not layers:
         return None
     net = zone.net_classes[0] if zone.net_classes else None
+    edges = _rectilinear_convex_edges(polygon, margin)
+    if edges is None:
+        # Non-rectilinear or non-convex: fall back to the documented bbox
+        # encoding (sound; slack unbounded by construction, see docstring).
+        edges = None
     # The bbox corner overhang vs the polygon is not bounded analytically
     # for an arbitrary outline (a long diagonal pour's bbox corner can be
     # arbitrarily far from the polygon), so slack is recorded as
@@ -564,6 +664,7 @@ def _zone_item(zone, margin) -> FixedCopperItem | None:
         slack_mm=float("inf"),
         margin_mm=margin,
         label=f"zone {zone.name} net={net}",
+        edges=edges,
     )
 
 
@@ -769,8 +870,33 @@ def _add_no_overlap(
     pad: PadRectLocal,
     item: FixedCopperItem,
 ) -> None:
-    """One (pad, item) BoolOr disjunction, gated on *assumption*."""
+    """One (pad, item) BoolOr disjunction, gated on *assumption*.
+
+    Zone items with a polygon-exact ``edges`` set use one BoolOr over the
+    per-edge half-plane separations (exact for convex rectilinear zones);
+    everything else uses the 4-way axis-aligned bbox disjunction.
+    """
     m = model
+    if item.kind == "zone" and item.edges:
+        literals: list[Any] = []
+        for (axis, coord, sign) in item.edges:
+            c = m.mm_to_units(coord)
+            lit = m.model_ref.NewBoolVar(f"fc_zone_{pad.number}_{axis}{sign}")
+            if axis == "x":
+                if sign > 0:
+                    # pad.x_min >= c : x_center + ox - hwx >= c
+                    m.model_ref.Add(cv.x_center + ox - hwx >= c).OnlyEnforceIf(lit)
+                else:
+                    # pad.x_max <= c : x_center + ox + hwx <= c
+                    m.model_ref.Add(cv.x_center + ox + hwx <= c).OnlyEnforceIf(lit)
+            else:
+                if sign > 0:
+                    m.model_ref.Add(cv.y_center + oy - hwy >= c).OnlyEnforceIf(lit)
+                else:
+                    m.model_ref.Add(cv.y_center + oy + hwy <= c).OnlyEnforceIf(lit)
+            literals.append(lit)
+        m.model_ref.AddBoolOr(literals).OnlyEnforceIf(assumption)
+        return
     rx0, ry0, rx1, ry1 = (m.mm_to_units(v) for v in item.rect)
     x_lo = m.model_ref.NewBoolVar(f"fc_xlo_{pad.number}_{item.kind}")
     x_hi = m.model_ref.NewBoolVar(f"fc_xhi_{pad.number}_{item.kind}")
@@ -907,9 +1033,38 @@ def exact_overlap(pad_rect: tuple[float, float, float, float], item: FixedCopper
 def encoded_overlap(pad_rect: tuple[float, float, float, float], item: FixedCopperItem) -> bool:
     """The encoded predicate: does the pad's world rect overlap the item's
     (margin-expanded) box? Mirrors ``_add_no_overlap``'s negation."""
+    if item.kind == "zone" and item.edges:
+        return encoded_overlap_edges(pad_rect, item)
     x0, y0, x1, y1 = pad_rect
     rx0, ry0, rx1, ry1 = item.rect
     return not (x1 <= rx0 or rx1 <= x0 or y1 <= ry0 or ry1 <= y0)
+
+
+def encoded_overlap_edges(pad_rect: tuple[float, float, float, float], item: FixedCopperItem) -> bool:
+    """The polygon-exact encoded predicate for a zone with ``edges``.
+
+    The pad clears the zone iff it satisfies at least one edge half-plane
+    (outside at least one edge line, shifted out by the margin) -- the exact
+    analogue of ``_add_no_overlap``'s zone path: encoded overlap means the
+    pad fails EVERY edge separation.
+    """
+    x0, y0, x1, y1 = pad_rect
+    for (axis, coord, sign) in item.edges:
+        if axis == "x":
+            if sign > 0:
+                if x0 >= coord:
+                    return False  # cleared via this edge -> no overlap
+            else:
+                if x1 <= coord:
+                    return False
+        else:
+            if sign > 0:
+                if y0 >= coord:
+                    return False
+            else:
+                if y1 <= coord:
+                    return False
+    return True  # fails every separation -> overlaps
 
 
 def audit_fixed_copper(
