@@ -1,5 +1,14 @@
 # Thermal FDM Assembly Kernels — Verification by Induction
 
+Updated 2026-08-02: `device_power::single_device_power` added
+(Wave 4 Phase A #2 — migration of
+`temper_placer/physics/device_power.py::_compute_single_device_power`,
+the canonical per-device power model, issue #140, to Rust; the Python
+module keeps its public API and delegates the arithmetic to
+`temper_thermal.single_device_power_py`).  See the
+"Per-device power kernel — induction non-applicability note" section
+below.
+
 U6 of the Python→Rust migration roadmap (docs/plans/2026-07-23-003),
 porting the assembly hot loops of
 `temper_placer/physics/thermal_fdm.py` (`_assemble_system`,
@@ -7,6 +16,91 @@ porting the assembly hot loops of
 `temper-thermal` crate. The sparse SOLVE stays in scipy (SuperLU) —
 a Rust solver is gated on the KTD9 parity spike (still outstanding;
 see the roadmap).
+
+## Per-device power kernel — induction non-applicability note
+
+`device_power::single_device_power(device_type_code, v_ce_sat,
+r_ds_on, e_on, e_off, v_f, e_rr, v_bus, i_load_rms, f_sw, t_rise,
+t_fall) -> f64` is a **closed-form, loop-free and recursion-free
+function of its scalar inputs** — a three-way branch (DIODE vs
+IGBT/MOSFET, and within IGBT/MOSFET a conduction branch and a switching
+branch) over fixed arithmetic chains:
+
+```text
+DIODE:        I_avg = I_load_rms * 0.5
+              P_cond = I_avg * V_f
+              P_sw = E_rr * f_sw
+              P = P_cond + P_sw
+IGBT/MOSFET:  P_cond = pow(I_load_rms, 2.0) * R_ds_on   (R_ds_on > 0)
+                    else I_load_rms * V_ce_sat
+              P_sw = (E_on + E_off) * f_sw              (E_on > 0 or E_off > 0)
+                    else 0.5 * V_bus * I_peak * f_sw * (t_rise + t_fall)
+                    with I_peak = I_load_rms * sqrt(2)
+              P = P_cond + P_sw
+```
+
+There is no iteration, no induction variable, and no data structure
+whose size varies with the input — the kernel does exactly the same
+finite sequence of correctly-rounded f64 operations for every input.
+R1e's induction requirement applies to modules with recursive or
+computational structure; for this module it is **not applicable**.
+In its place we record the structural correctness argument below, which
+is what the R1e note requires for data-only / closed-form modules
+(identical convention to `temper-quality-oracle/VERIFICATION.md`'s
+routing-quality note, Wave 4 Phase A #1).
+
+### Structural correctness argument (bit-exact parity)
+
+1. **Pure function of twelve scalars.** Every output bit depends only on
+   the scalar arguments and on correctly-rounded IEEE-754 f64
+   arithmetic, which is deterministic and identical in CPython and Rust
+   for the same operation sequence.  No IO, no global state, no
+   nondeterminism enters the computation.
+
+2. **Operation-order pinning.** The kernel reproduces the pre-migration
+   Python's exact f64 operation order (pinned by the differential suite
+   `packages/temper-placer/tests/physics/test_device_power_rust_differential.py`,
+   which embeds the verbatim pre-migration implementation as an oracle
+   and asserts bit-identical equality over all four device paths):
+   - `I_load_rms ** 2` (CPython `float.__pow__` → host libm
+     `pow(x, 2.0)`) ⇔ `math_pow(I, 2.0)` resolved via `dlsym` — **not**
+     `x * x` (the two differ by 1 ulp on ~0.14% of random floats,
+     measured 2026-08-02 and pinned by
+     `test_direct_mosfet_pow2_semantics`).  Catalog class **B1** (libm
+     via dlsym) + **B7** (operation order).
+   - `math.sqrt(2)` ⇔ `math_sqrt(2.0)` via `dlsym("sqrt")` (**B1**).
+   - `0.5 * V_bus * I_peak * f_sw * (t_rise + t_fall)` stays the same
+     five-op left-to-right chain (**B7**), with `I_peak` computed before
+     the chain.
+   - `(E_on + E_off) * f_sw` keeps the parenthesized sum; `I_avg =
+     I_load_rms * 0.5`; final `P_cond + P_sw` left-to-right (**B7**).
+   - **B8 (denormal underflow):** default IEEE semantics (no fast-math,
+     no FTZ/DAZ, no `mul_add` fusion); a denormal-band differential case
+     pins `pow(1e-155, 2.0) * 1.0` in the denormal range bit-identical
+     to CPython.
+
+3. **Branch equivalence.** The `device_type == "DIODE"`, `R_ds_on > 0`,
+   and `E_on > 0 or E_off > 0` branches map one-to-one to the Python
+   `if/else` structure, including the NaN semantics of IEEE comparisons
+   (NaN selects the else arms in both languages; pinned by
+   `test_direct_nan_inf_semantics`).
+
+### Empirical verification
+
+- **Differential (G2):** `test_device_power_rust_differential.py` —
+  42 tests: direct kernel pins (25 randomized seeds × 4 device paths,
+  hand-computed values, the pow-vs-mul discrimination value, the
+  denormal band, NaN/inf parity, zero-energy branch edges) plus
+  module-level delegation pins (`_compute_single_device_power`,
+  `derive_power_map`), all `==` bit-exact.
+- **PBT (G4):** `test_device_power_rust_pbt.py` — 6 properties (P1
+  positivity/richness, P2/P3/P4 bit-exact closed forms per path, P5
+  monotonicity in I, P6 V_bus irrelevance) each vacuity-guarded by a
+  `test_pN_fails_for_<mutant>` mutation test, plus 5 metamorphic
+  relations (M1/M2/M5 power-of-two scale exactness per path, M3 waveform
+  closed form, M4 f_sw=0 degeneracy).
+- **Rust unit tests:** `device_power.rs` `#[cfg(test)]` — branch
+  structure, pow semantics, NaN branch selection, closed-form pins.
 
 ## Base Case: 1×1 Grid
 

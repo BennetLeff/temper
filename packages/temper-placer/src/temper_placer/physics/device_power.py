@@ -12,6 +12,11 @@ Per-device power model:
 - Diode: P = V_f * I_avg + E_rr * f_sw  (I_avg approx I_rms / 2)
 - MOSFET: P = I_rms^2 * R_ds_on + ...  (when R_ds_on > 0)
 
+The per-device arithmetic runs in the ``temper-thermal`` Rust kernel
+(``single_device_power_py``, Wave 4 Phase A #2); this module keeps the
+public API, the fail-closed loss-param validation, and the multi-device
+``derive_power_map`` loop.
+
 Public API
 ----------
 .. code-block:: python
@@ -28,8 +33,9 @@ Public API
 
 from __future__ import annotations
 
-import math
 from dataclasses import dataclass
+
+import temper_thermal as _tt
 
 from temper_placer.physics.operating_point import OperatingPointConfig
 
@@ -181,26 +187,26 @@ def _compute_single_device_power(
         device: Per-device loss config with datasheet citations.
         t_rise: Rise time (s) — fallback for waveform switching model.
         t_fall: Fall time (s) — fallback for waveform switching model.
+
+    The arithmetic runs in the ``temper-thermal`` Rust kernel
+    (``single_device_power_py``, Wave 4 Phase A #2), which mirrors this
+    function's exact f64 operation order bit-for-bit (pinned by the
+    differential suite ``tests/physics/test_device_power_rust_differential.py``).
     """
-    if device.device_type == "DIODE":
-        I_avg = I_load_rms * 0.5
-        P_cond = I_avg * device.V_f
-        P_sw = device.E_rr * f_sw
-        return P_cond + P_sw
-
-    # IGBT or MOSFET
-    if device.R_ds_on > 0:
-        P_cond = I_load_rms**2 * device.R_ds_on
-    else:
-        P_cond = I_load_rms * device.V_ce_sat
-
-    if device.E_on > 0 or device.E_off > 0:
-        P_sw = (device.E_on + device.E_off) * f_sw
-    else:
-        I_peak = I_load_rms * math.sqrt(2)
-        P_sw = 0.5 * V_bus * I_peak * f_sw * (t_rise + t_fall)
-
-    return P_cond + P_sw
+    return _tt.single_device_power_py(
+        device.device_type,
+        device.V_ce_sat,
+        device.R_ds_on,
+        device.E_on,
+        device.E_off,
+        device.V_f,
+        device.E_rr,
+        V_bus,
+        I_load_rms,
+        f_sw,
+        t_rise,
+        t_fall,
+    )
 
 
 def derive_power_map(
