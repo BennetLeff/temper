@@ -251,6 +251,28 @@ scripts:
   - re
   - subprocess
   - sys
+- path: measure_cross_domain_creepage.py
+  purpose: 'Pairwise HV<->SELV creepage measurement tool (NOT a gate, not wired into CI): enumerates every
+    cross-domain pad pair, measures exact pad-edge-to-pad-edge distance, classifies each violation body_free/body_crossing/unknown
+    against F.Fab/F.CrtYd body outlines, and supports a --compare-to-mm differential so the PD2 (8.0mm)
+    vs PD3 (12.6mm) pollution-degree decision has a re-runnable, parameterised cost measurement instead
+    of throwaway per-session scripts (see docs/evidence/2026-07-29-cross-domain-creepage-pd2-vs-pd3.md)'
+  owner: bennet
+  last_run: '2026-08-01'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - _lib.path_setup
+  - _lib.provenance
+  - _lib.repo
+  - argparse
+  - dataclasses
+  - math
+  - pathlib
+  - sys
+  - temper_placer.core.isolation_constants
+  - temper_placer.core.pad_geometry
 - path: mpn_fabrication_gate.py
   purpose: 'Fabricated-MPN CI gate: fails closed on non-E-series resistor/capacitor values and MPN/declared-value
     disagreement in elec/src/*.ato'
@@ -1014,10 +1036,9 @@ scripts:
 - path: check_hv_netclass_coverage.py
   purpose: 'CI gate: assert every elec/domain_manifest.yaml HV-domain net has a TEMPER_NET_ASSIGNMENTS
     entry, and every declared netclass (TEMPER_NET_CLASSES union pcb/temper.kicad_pro-described classes,
-    minus the structural Default/Differential classes) has at least one positive rule in
-    scripts/generate_kicad_dru.py''s generated output -- catches the +170V_BUS-resolves-to-no-netclass
-    and HighVoltageIsolated-enforces-nothing defect class confirmed on origin/main
-    (docs/evidence/2026-07-29-hv-netclass-coverage-gate.md)'
+    minus the structural Default/Differential classes) has at least one positive rule in scripts/generate_kicad_dru.py''s
+    generated output -- catches the +170V_BUS-resolves-to-no-netclass and HighVoltageIsolated-enforces-nothing
+    defect class confirmed on origin/main (docs/evidence/2026-07-29-hv-netclass-coverage-gate.md)'
   owner: bennet
   last_run: '2026-07-29'
   category: keep
@@ -1030,12 +1051,10 @@ scripts:
   - check_domain_partition
   - collections.abc
   - dataclasses
-  - generate_kicad_dru
   - json
   - pathlib
   - re
   - sys
-  - temper_placer.core.design_rules
   - typing
 - path: check_drc_ceiling_approval.py
   purpose: 'CI gate: fail a PR that raises any power_pcb_dataset/drc_ceiling.json ceiling value (aggregate
@@ -1219,7 +1238,8 @@ scripts:
   - sys
   - typing
 - path: check_creepage_clearance_drift.py
-  purpose: 'Safety-constant SSOT drift gate: compare declared creepage and clearance figures across electrical source, scripts, packages, and configuration.'
+  purpose: 'Safety-constant SSOT drift gate: compare declared creepage and clearance figures across electrical
+    source, scripts, packages, and configuration.'
   owner: bennet
   last_run: '2026-07-30'
   category: keep
