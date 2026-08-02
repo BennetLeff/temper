@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Gap-2 measurement: solver box-bar vs REQ-SAFE-01 exact-copper bar.
 
-# provenance: commit=f204007097e76f96827c76257afb3f72c35f1fb9 dirty=false
+# provenance: commit=dc8accd5bb12c20f5afe7f0840e74ab9d7e8daaf dirty=false
 
 Companion to ``docs/evidence/2026-08-01-solve-wall-box-vs-copper-gap.md``.
 

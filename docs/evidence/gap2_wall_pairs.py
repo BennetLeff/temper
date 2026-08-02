@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Gap-2 per-pair measurement: solver box-bar vs REQ-SAFE-01 exact-copper bar.
 
-# provenance: commit=f204007097e76f96827c76257afb3f72c35f1fb9 dirty=false
+# provenance: commit=dc8accd5bb12c20f5afe7f0840e74ab9d7e8daaf dirty=false
 
 Companion to ``docs/evidence/2026-08-01-solve-wall-box-vs-copper-gap.md``.
 Reads the current committed board, recomputes, for every generated
@@ -62,7 +62,7 @@ from temper_placer.requirements.validators.clearance import (  # noqa: E402
 )
 
 MARGIN_EPS = 1e-6
-PROVENANCE = "commit=f204007097e76f96827c76257afb3f72c35f1fb9 dirty=false"
+PROVENANCE = "commit=dc8accd5bb12c20f5afe7f0840e74ab9d7e8daaf dirty=false"
 
 
 def solver_box_geometry(pcb):
@@ -224,7 +224,7 @@ def main():
         "box_clean": n_box_clean,
         "copper_violated": n_copper_violated,
         "gap2_holds": n_gap2_holds,
-        "provenance": {"commit": "f204007097e76f96827c76257afb3f72c35f1fb9", "dirty": False},
+        "provenance": {"commit": "dc8accd5bb12c20f5afe7f0840e74ab9d7e8daaf", "dirty": False},
     }
     out_json = REPO / "docs" / "evidence" / "gap2_wall_summary.json"
     out_json.write_text(json.dumps(summary, indent=2, sort_keys=True))

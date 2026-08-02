@@ -1,10 +1,4 @@
 {
- "provenance": {
-  "commit": "f204007097e76f96827c76257afb3f72c35f1fb9",
-  "dirty": false
- },
- "recipe": "repair: nothing pinned, minimize_displacement_to=current, max_displacement_mm=60, fixed_rotations=all, fixed_copper without zone items, 12,022 domain + 530 keepaway, timeout 180s, seed 0",
- "status": "feasible",
  "positions": {
   "C1": {
    "position": [
@@ -1189,5 +1183,11 @@
    ],
    "rotation_idx": 1
   }
- }
+ },
+ "provenance": {
+  "commit": "dc8accd5bb12c20f5afe7f0840e74ab9d7e8daaf",
+  "dirty": false
+ },
+ "recipe": "repair: nothing pinned, minimize_displacement_to=current, max_displacement_mm=60, fixed_rotations=all, fixed_copper without zone items, 12,022 domain + 530 keepaway, timeout 180s, seed 0",
+ "status": "feasible"
 }
