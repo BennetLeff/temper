@@ -36,25 +36,42 @@ Test groups (mapping to the task's R24 suite):
    does not raise.
 4. ``TestCoverageGap`` -- a validator violation on a pair NOT in the
    constraint set -> ``coverage_gaps``, never hard.
-5. ``TestBuildValidatorPlacement`` -- position-frame contract (handoff §6):
+5. ``TestGeometryTrustAndRefSetValidation`` -- the audit must not be
+   vacuously clean: a pad-less component (validator models it as a
+   zero-extent point -- an optimistic upper bound) marks
+   ``geometry_trusted=False`` with a ``logger.error``; an empty placement or
+   a ``resolved_positions_mm`` disjoint from the placement's refs raises
+   ``ValueError`` (the placement does not describe the solve).
+6. ``TestBuildValidatorPlacement`` -- position-frame contract (handoff §6):
    solved positions overlay only refs the solve placed; fixed refs keep
    their exact base positions/rotations (incl. non-quadrant rotations the
    solver cannot express); pad fallback from a netlist.
-6. ``TestSolvePlacementIntegration`` -- ``solve_placement(validator_input=...)``:
+7. ``TestSolvePlacementIntegration`` -- ``solve_placement(validator_input=...)``:
    feasible solve populates ``result.validator_audit`` (clean); a constructed
    hard failure raises ``RuntimeError``; absent ``validator_input`` leaves
    ``validator_audit`` None with unchanged behaviour; a missing
-   ``placement``/``voltage_domains`` key raises ``ValueError``.
-7. ``TestProductionBoardSolve`` -- the real board, FREE={K3} (pure-geometry
+   ``placement``/``voltage_domains`` key raises ``ValueError``; a non-optimal
+   solve with ``validator_input`` logs a WARNING, never silent.
+8. ``TestProductionBoardSolve`` -- the real board, FREE={K3} (pure-geometry
    recipe verified optimal in ``docs/evidence/2026-08-01-edge-hanging-refs-fix.md``):
    solve optimal, ``hard_failures`` empty, and the known K3-intra straddler
    (G5LE-1, 3.559mm vs 4.0/6.0/8.0 bars -- 3 violations / 1 pair) lands in
    ``intra_footprint`` with the exact committed-board measured distance
    (position-frame proof: fixed refs' copper geometry is unchanged).
+9. Adversarial-review fixes: (i) the rotation overlay is authoritative for
+   any ref the solve touched (solved position AND solved rotation index) --
+   the CLI writes ``idx*90`` unconditionally, so the audit measures the
+   post-solve geometry even for non-quadrant base rotations; base rotation is
+   kept only when the ref is absent from ``resolved_rotations``; (ii) a
+   non-optimal solve with ``validator_input`` logs a WARNING (never silent);
+   (iii) the hard-failure raise reports DISTINCT pair counts, not inflated
+   record counts; (iv) reversed-pair ordering (validator emits (B,A) against
+   constraint (A,B)) absorbs into HARD via frozenset membership.
 """
 
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -258,6 +275,69 @@ class TestAuditFalsifier:
                 validator_input={"placement": placement, "voltage_domains": vd},
             )
 
+    def test_hard_failure_raise_counts_distinct_pairs_not_records(self) -> None:
+        """One physical pair emits 4-8 violation records (clearance/creepage
+        x basic/reinforced), so the raise message must report DISTINCT
+        violating pairs as the headline -- '4 hard violation(s)' would
+        mislead a reader into thinking 4 pairs failed. The falsifier is a
+        single A/B pair, all 4 matrix rows: 1 distinct pair, 4 records."""
+        placement, vd, _c, _p, _r = self._falsifier_inputs()
+        comps = [
+            MockComp(ref="A", bounds=(1.0, 1.0), initial_position=(5.0, 5.0),
+                     pins=[MockPin(number="1", net="ac_l", position=(3.0, 0.0))]),
+            MockComp(ref="B", bounds=(1.0, 1.0), initial_position=(13.1, 5.0),
+                     pins=[MockPin(number="1", net="gnd", position=(-3.0, 0.0))]),
+        ]
+        netlist = MockNetlist(components=comps, nets=[MockNet("ac_l"), MockNet("gnd")])
+        board = MockBoard()
+        constraint = _domain_constraint("A", "B", margin=4.0)
+        with pytest.raises(RuntimeError) as exc_info:
+            solve_placement(
+                netlist=netlist,
+                board=board,
+                extra_constraints=[constraint],
+                timeout_ms=20_000,
+                seed=0,
+                fixed_positions={"A": (5.0, 5.0, 0), "B": (13.1, 5.0, 0)},
+                validator_input={"placement": placement, "voltage_domains": vd},
+            )
+        msg = str(exc_info.value)
+        assert "1 distinct violating pair" in msg, msg
+        assert "4 violation record" in msg, msg
+
+    def test_reversed_pair_ordering_absorbs_into_hard(self) -> None:
+        """A validator violation ordered (ref_a="B", ref_b="A") against a
+        constraint (a="A", b="B") must classify as HARD -- pair membership is
+        a frozenset, so ordering cannot drop a covered pair into the coverage
+        gap bucket. Agent 4 measured 451 reversed-duplicate emissions on the
+        production board (e.g. (C11,C6)@1.0 + (C6,C11)@8.0); every one of
+        those must absorb into the same covered pair."""
+        # Swap the domain sides so the validator's pair iteration emits
+        # (B, A): B is the MAINS-side component (domain_a), A the LV-side.
+        placement = _placement(
+            [
+                {"ref": "B", "position": (0.0, 0.0), "nets": ["ac_l"], "rotation_deg": 0.0,
+                 "pads": [_pad("ac_l", (3.0, 0.0))]},
+                {"ref": "A", "position": (8.1, 0.0), "nets": ["gnd"], "rotation_deg": 0.0,
+                 "pads": [_pad("gnd", (-3.0, 0.0))]},
+            ]
+        )
+        positions = {"B": (0.0, 0.0), "A": (8.1, 0.0)}
+        rotations = {"B": 0, "A": 0}
+        # Constraint ordered (a="A", b="B") -- the reverse of the validator's
+        # emission order for this placement.
+        constraints = [_domain_constraint("A", "B")]
+        audit = audit_domain_clearance_validator(
+            constraints, positions, rotations, placement, _VD
+        )
+        assert audit.hard_failures, (
+            "reversed-pair ordering must absorb into the constraint-covered "
+            "pair set (frozenset membership), not fall through to a coverage gap"
+        )
+        assert all(v.ref_a == "B" and v.ref_b == "A" for v in audit.hard_failures)
+        assert audit.coverage_gaps == []
+        assert audit.geometry_trusted is True
+
 
 # ---------------------------------------------------------------------------
 # Group 2: clean placement -- both audits pass
@@ -424,9 +504,98 @@ class TestCoverageGap:
 
 
 # ---------------------------------------------------------------------------
-# Group 5: build_validator_placement -- the position-frame contract
+# Group 5: geometry trust + ref-set validation (adversarial-review finding 2)
 # ---------------------------------------------------------------------------
 
+
+class TestGeometryTrustAndRefSetValidation:
+    """The audit must not be vacuously clean when the validator's geometry
+    model is degraded (a pad-less component is modelled as a zero-extent
+    point -- an OPTIMISTIC upper bound on copper separation, the run-B lie
+    direction) or when the placement does not describe the solve at all."""
+
+    def _trusted_placement(self) -> dict:
+        return _placement(
+            [
+                {"ref": "A", "position": (0.0, 0.0), "nets": ["ac_l"], "rotation_deg": 0.0,
+                 "pads": [_pad("ac_l", (0.0, 0.0), width=1.0)]},
+                {"ref": "B", "position": (20.0, 0.0), "nets": ["gnd"], "rotation_deg": 0.0,
+                 "pads": [_pad("gnd", (0.0, 0.0), width=1.0)]},
+            ]
+        )
+
+    def test_all_pads_present_geometry_trusted(self) -> None:
+        placement = self._trusted_placement()
+        audit = audit_domain_clearance_validator(
+            [_domain_constraint("A", "B")],
+            {"A": (0.0, 0.0), "B": (20.0, 0.0)},
+            {"A": 0, "B": 0},
+            placement,
+            _VD,
+        )
+        assert audit.geometry_trusted is True
+        assert audit.stats["components_without_pads"] == []
+        assert audit.stats["components"] == 2
+
+    def test_padless_component_marks_geometry_untrusted_and_logs_error(
+        self, caplog
+    ) -> None:
+        """(a) A placement with a pad-less component: the validator models it
+        as a zero-extent point, so the audit must surface that (geometry_
+        trusted False + logger.error) instead of letting a clean result look
+        like a proof of copper."""
+        placement = _placement(
+            [
+                {"ref": "A", "position": (0.0, 0.0), "nets": ["ac_l"], "rotation_deg": 0.0,
+                 "pads": [_pad("ac_l", (0.0, 0.0), width=1.0)]},
+                # No "pads" key: B is measured origin-to-origin (optimistic).
+                {"ref": "B", "position": (4.0, 0.0), "nets": ["gnd"], "rotation_deg": 0.0},
+            ]
+        )
+        with caplog.at_level(
+            logging.ERROR, logger="temper_placer.placer.cp_sat.validator_audit"
+        ):
+            audit = audit_domain_clearance_validator(
+                [_domain_constraint("A", "B")],
+                {"A": (0.0, 0.0), "B": (4.0, 0.0)},
+                {"A": 0, "B": 0},
+                placement,
+                _VD,
+            )
+        assert audit.geometry_trusted is False
+        assert audit.stats["components_without_pads"] == ["B"]
+        # B sits 4mm from A (well inside the 8.0mm reinforced creepage bar),
+        # so the pair is actually measured and flagged as origin-modelled.
+        assert sum(r["pairs_origin_modelled"] for r in audit.stats["rows"]) > 0
+        assert any(
+            "DEGRADED geometry" in r.message and r.levelno == logging.ERROR
+            for r in caplog.records
+        ), [r.message for r in caplog.records]
+
+    def test_empty_placement_raises_value_error(self) -> None:
+        """(b) An empty placement would vacuous-pass against an empty board
+        -- programmer error, must raise."""
+        with pytest.raises(ValueError, match="zero components"):
+            audit_domain_clearance_validator([], {}, {}, _placement([]), _VD)
+
+    def test_disjoint_solved_refs_raise_value_error(self) -> None:
+        """(c) Solved refs disjoint from the placement's refs: the placement
+        does not describe the solve -- auditing it measures the wrong
+        geometry, programmer error, must raise."""
+        placement = self._trusted_placement()
+        with pytest.raises(ValueError, match="share no overlap"):
+            audit_domain_clearance_validator(
+                [_domain_constraint("A", "B")],
+                {"X": (1.0, 2.0)},  # solves a ref the placement does not have
+                {"X": 0},
+                placement,
+                _VD,
+            )
+
+
+# ---------------------------------------------------------------------------
+# Group 6: build_validator_placement -- the position-frame contract
+# ---------------------------------------------------------------------------
 
 class TestBuildValidatorPlacement:
     def _two_comp_placement(self) -> dict:
@@ -455,35 +624,58 @@ class TestBuildValidatorPlacement:
         assert by_ref["B"]["position"] == (30.0, 40.0)
         assert by_ref["B"]["rotation_deg"] == 180.0
 
-    def test_non_quadrant_base_rotation_is_never_overlaid(self) -> None:
-        """A fixed ref whose true board rotation is 45deg (recoverable via
-        the parser's ``_rotation_deg`` attribute, non-multiple-of-90) must
-        keep that exact rotation -- the solver's 0-3 quadrant index cannot
-        represent it, so overlaying idx*90 would corrupt the validator's
-        copper geometry (position-frame contract, handoff §6)."""
+    def test_non_quadrant_base_rotation_overlaid_when_solve_touched(self) -> None:
+        """A ref the solve TOUCHED (solved position AND solved rotation
+        index) gets the solver's rotation overlaid EVEN when its base
+        rotation is non-quadrant: the CLI writes ``idx * 90`` to the PCB
+        unconditionally for every solved ref (cli/__init__.py's optimize
+        command), so the audit must measure the post-solve geometry -- the
+        solver's index is authoritative (adversarial-review finding 3)."""
         placement = _placement(
             [
                 {"ref": "C", "position": (10.0, 10.0), "nets": ["gnd"], "rotation_deg": 45.0,
                  "pads": [_pad("gnd", (0.0, 0.0), width=1.0)]},
             ]
         )
-        # Even when the caller passes a (wrongly-quantized) quadrant index,
-        # the base 45deg wins because it is the only faithful representation.
         out = build_validator_placement(
-            placement, resolved_positions_mm={}, resolved_rotations={"C": 1}
+            placement,
+            resolved_positions_mm={"C": (10.0, 10.0)},
+            resolved_rotations={"C": 1},
         )
-        assert out["components"][0]["rotation_deg"] == 45.0
-        # A quadrant base IS overlaid (solver decision is authoritative).
-        placement2 = _placement(
+        assert out["components"][0]["rotation_deg"] == 90.0
+
+    def test_non_quadrant_base_rotation_kept_when_solve_did_not_rotate(self) -> None:
+        """A ref with a solved position but NO entry in ``resolved_rotations``
+        (the solve did not rotate it -- no rotation variable, e.g. a
+        polarized part pinned by construction) keeps its exact base rotation,
+        non-quadrant included: the board keeps the base, which the solver's
+        0-3 index could not represent anyway."""
+        placement = _placement(
             [
-                {"ref": "C", "position": (10.0, 10.0), "nets": ["gnd"], "rotation_deg": 0.0,
+                {"ref": "C", "position": (10.0, 10.0), "nets": ["gnd"], "rotation_deg": 45.0,
                  "pads": [_pad("gnd", (0.0, 0.0), width=1.0)]},
             ]
         )
-        out2 = build_validator_placement(
-            placement2, resolved_positions_mm={"C": (10.0, 10.0)}, resolved_rotations={"C": 2}
+        out = build_validator_placement(
+            placement,
+            resolved_positions_mm={"C": (10.0, 10.0)},
+            resolved_rotations={},
         )
-        assert out2["components"][0]["rotation_deg"] == 180.0
+        assert out["components"][0]["rotation_deg"] == 45.0
+
+    def test_non_quadrant_base_rotation_kept_when_ref_untouched(self) -> None:
+        """A ref absent from BOTH ``resolved_positions_mm`` and
+        ``resolved_rotations`` is pinned in the solve: base position AND
+        exact base rotation are kept."""
+        placement = _placement(
+            [
+                {"ref": "C", "position": (10.0, 10.0), "nets": ["gnd"], "rotation_deg": 45.0,
+                 "pads": [_pad("gnd", (0.0, 0.0), width=1.0)]},
+            ]
+        )
+        out = build_validator_placement(placement, {}, {})
+        assert out["components"][0]["rotation_deg"] == 45.0
+        assert out["components"][0]["position"] == (10.0, 10.0)
 
     def test_pads_fall_back_from_netlist_when_placement_lacks_them(self) -> None:
         placement = _placement(
@@ -512,7 +704,7 @@ class TestBuildValidatorPlacement:
 
 
 # ---------------------------------------------------------------------------
-# Group 6: solve_placement wiring contract
+# Group 7: solve_placement wiring contract
 # ---------------------------------------------------------------------------
 
 
@@ -574,9 +766,33 @@ class TestSolvePlacementIntegration:
                 validator_input={"placement": placement},
             )
 
+    def test_non_optimal_solve_logs_audit_skip_warning(self, caplog) -> None:
+        """validator_input given but the solve does NOT terminate
+        (infeasible): there is no placement to audit, and that skip must be
+        WARNING-logged, never silent -- a silent skip would look identical
+        to a fully-audited solve in the logs (adversarial-review finding 4)."""
+        netlist, board, placement = self._clean_solve_inputs()
+        with caplog.at_level(
+            logging.WARNING, logger="temper_placer.placer.cp_sat._encoder_solve"
+        ):
+            result = solve_placement(
+                netlist=netlist, board=board, timeout_ms=5_000, seed=0,
+                # Pin both refs off-board: the edge-margin / NoOverlap set is
+                # infeasible -- the same recipe test_fixed_positions uses.
+                fixed_positions={"A": (999.0, 999.0, 0), "B": (999.0, 999.0, 0)},
+                validator_input={"placement": placement, "voltage_domains": _VD},
+            )
+        assert result.status == "infeasible", result.status
+        assert result.validator_audit is None
+        assert any(
+            "validator post-solve audit did NOT run" in r.message
+            and r.levelno == logging.WARNING
+            for r in caplog.records
+        ), [r.message for r in caplog.records]
+
 
 # ---------------------------------------------------------------------------
-# Group 7: production board -- FREE={K3} pure-geometry solve
+# Group 8: production board -- FREE={K3} pure-geometry solve
 # ---------------------------------------------------------------------------
 
 
