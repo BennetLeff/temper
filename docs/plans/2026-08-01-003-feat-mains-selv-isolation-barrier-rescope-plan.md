@@ -120,6 +120,33 @@ non-blocking item.
   start with ≤2 bends (closest to the current geometric intent) before full
   freedom.
 
+## Measured outcome of the re-scope probe (2026-08-01)
+
+The Option-2 hypothesis (a non-straight corridor materially lowers the
+displacement floor) was tested geometrically before any encoder investment:
+
+- **Straight corridor** (measured, solver): no budget ≤ 100 mm is feasible in
+  either orientation (budget-floor sweep; the 150 mm Y cell did not terminate
+  in 300 s — a full re-layout regardless).
+- **1-bend staircase corridor** (geometric, rigid-x, W=8.0): **min-max floor
+  83.5 mm** (c1=86, yb=30, c2=100), 76 movers, 3537 mm total — roughly half
+  the straight floor, but **still 3.3× above the 25 mm budget**.
+
+A 2-bend corridor is untested and could close part of the gap, but the
+evidence direction is unambiguous: even the best staircase needs > 80 mm max
+displacement on a 152 mm board — a full re-design, not a re-solve. **No
+within-25 mm placement exists under any corridor shape tested.**
+
+### Revised recommendation
+
+Adopt **Option 4 (report-only stand)** as the outcome: the physical barrier is
+re-filed as a tracked, non-blocking item; the enforced safety layer (required
+HV/LV clearance checks + domain declarations) remains unchanged. Option 1
+(full re-design) is the only path to a physical barrier and is not justified
+while the gate is report-only. A 2-bend corridor probe or the CP-SAT polyline
+encoder is NOT worth building without evidence that a staircase can reach the
+budget — which the 83.5 mm floor argues against.
+
 ## Sources / Research
 
 - `docs/evidence/2026-08-01-isolation-barrier-feasibility-experiment.md` — the
