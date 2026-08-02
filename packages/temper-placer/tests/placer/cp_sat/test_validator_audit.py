@@ -644,7 +644,7 @@ class TestProductionBoardSolve:
             board=pr.board,
             timeout_ms=60_000,
             seed=0,
-            hint_positions={ref: v for ref, v in current.items()},
+            hint_positions=dict(current),
             minimize_displacement_to={ref: (v[0], v[1]) for ref, v in current.items()},
             fixed_positions=fixed_positions,
             fixed_rotations=fixed_rotations,
