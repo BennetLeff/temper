@@ -89,6 +89,22 @@
 # deterministic_pipeline, not as a live ratchet -- do not use them to
 # sanity-check drc_errors/drc_warnings above.
 #
+
+# --- drc_errors/drc_warnings RE-BASELINED 2026-08-02 (K2 RT314012 re-solve) ---
+#
+# WHY IT MOVED. The ladder-merged K2 relay re-solve (#517, 829af5c59 /
+# 27ea686c5) replaced the G5LE-1 with the RT314012 at (134.26, 30.46,
+# rot 90.0) -- a placement change, not a quality regression. Re-measured
+# 2026-08-02 with the SAME bare `run_drc()` (--all-track-errors, kicad-cli
+# 10.0.4, matching the prior entry) over 120 samples on the committed
+# board (content hash 0fff888a...): errors min=1031 max=1039 (unique
+# {1031..1039}; worst median-of-5 = 1037 -> ceiling 1039, margin 2),
+# warnings 428 flat across all 120 runs. drc_warnings dropped 685 -> 428
+# because the K2 re-solve removed the warning-heavy overlap the old
+# G5LE-1 position produced. NOTE: this baseline measures the bare
+# run_drc path (no DRU regeneration); the DRC-ratchet ceiling in
+# power_pcb_dataset/drc_ceiling.json measures the regenerated-DRU path and
+# is a separate number (1329/1334) -- do not cross-check them.
 # --- drc_errors RE-BASELINED 2026-07-30 (PR #459, board resync against
 # elec/src / pcb/libs) ---
 #
@@ -161,8 +177,8 @@
 # same "guess between versions" this file's own drc_errors section above
 # was explicit about not doing.
 drc_available: true
-drc_errors: 845
-drc_warnings: 685
+drc_errors: 1039
+drc_warnings: 428
 extraction_date: '2026-07-17'
 extraction_method: deterministic-pipeline
 deterministic_pipeline:

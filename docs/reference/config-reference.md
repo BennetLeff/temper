@@ -78,7 +78,7 @@ Complete set of placement constraints.
 | `copper_zones` | `list` | [] | — | Copper zone definitions for routing |
 | `layer_stackup` | `temper_placer.core.board.LayerStackup | None` | None | — | Layer stackup definition |
 | `losses` | `temper_placer._constraint_types.config.LossesConfig | None` | None | — | Loss function configuration |
-| `net_classification` | `temper_placer.core.net_types.NetClassification | None` | None | — | Type-safe net classification |
+| `net_classification` | `NetClassification | None` | None | — | Type-safe net classification |
 | `placement_priority` | `dict` | {} | — | Placement priority configuration |
 | `routing_priority` | `dict` | {} | — | Routing priority configuration |
 | `net_priority` | `dict` | {} | — | Per-net routing priority map |

@@ -716,9 +716,9 @@ PRODUCTION_DRC_SAMPLE_RUNS = 5
 # measurement of the same board (runs on branches ba02616f / 7e9b04c7)
 # reproduces the same failure mode: total 1226 / shorting 68 / unconnected
 # 393 — the committed-board gate was red on `unconnected`, not on `total`.
-PRODUCTION_COMMITTED_BOARD_TOTAL_DVIOLATIONS = 1260
-PRODUCTION_COMMITTED_BOARD_SHORTING_ITEMS = 90
-PRODUCTION_COMMITTED_BOARD_UNCONNECTED = 393
+PRODUCTION_COMMITTED_BOARD_TOTAL_DVIOLATIONS = 1283
+PRODUCTION_COMMITTED_BOARD_SHORTING_ITEMS = 141
+PRODUCTION_COMMITTED_BOARD_UNCONNECTED = 425
 
 # --- Category B: kicad-cli DRC on route_pcb()'s output for that board ---
 # RE-MEASURED 2026-07-29 (kicad-cli 10.0.4, macOS arm64), against the shape
@@ -819,9 +819,32 @@ PRODUCTION_COMMITTED_BOARD_UNCONNECTED = 393
 # 408 -- zero scatter across 10 DRC runs, bare and --all-track-errors; the
 # 411 ceiling is the relay-branch measurement on pre-merge router code and
 # absorbs that +3.)
-PRODUCTION_ROUTER_OUTPUT_TOTAL_DVIOLATIONS = 1560
-PRODUCTION_ROUTER_OUTPUT_SHORTING_ITEMS = 125
-PRODUCTION_ROUTER_OUTPUT_UNCONNECTED = 411
+#
+# 2026-08-02 RE-MEASUREMENT (issue #568 edge-hanging-refs fix, kicad-cli
+# 10.0.4, macOS arm64): the board changed (31 footprints nudged -- K2
+# +18.2mm y onto the board, RT1 -2.4mm, 29 refs by 0.01-0.03mm; content
+# hash 0fff888a -> cf161bee) AND the measurement context drifted on main
+# since the prior seeding: three netclass-reclassification commits to
+# pcb/temper.kicad_pro (369fc0f7b, e3040b9a1, cbaad2eb7) landed after
+# a10c9dba and shifted every kicad-cli count (unmodified main already
+# measures shorting median 113 / unconnected 425 vs these thresholds' 90 /
+# 393 -- pre-existing, not caused by this board change). Category A on the
+# new board (N=15): total median 1264 (1248-1273), shorting median 122
+# (106-131), unconnected 425 (deterministic). Thresholds are set just above
+# the worst median-of-5 over 5000 bootstraps: total 1273+10 = 1283,
+# shorting 131+10 = 141, unconnected 425 (exact, zero scatter). Category B
+# router output (route_pcb deterministic, completion_rate 0.4021, DRC N=11
+# on the one routed file): total median 1418 (1395-1426), shorting 166
+# (144-168), unconnected 463 -> thresholds 1436 / 178 / 463. The committed-
+# board rises relative to the prior seeding are attributed as follows:
+# ~+9 shorting / +11 total and +32 unconnected are pre-existing context
+# drift (main measures the same on the byte-identical pre-fix board); the
+# remainder of the shorting/total rise is the K2 +18.2mm move (K2's
+# re-routed copper neighbourhood). See
+# docs/evidence/2026-08-01-edge-hanging-refs-fix.md.
+PRODUCTION_ROUTER_OUTPUT_TOTAL_DVIOLATIONS = 1436
+PRODUCTION_ROUTER_OUTPUT_SHORTING_ITEMS = 178
+PRODUCTION_ROUTER_OUTPUT_UNCONNECTED = 463
 
 
 @dataclass(frozen=True)

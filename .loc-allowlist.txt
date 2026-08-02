@@ -4,4 +4,4 @@ packages/temper-placer/src/temper_placer/router_v6/bottleneck_geometry.py 1184 t
 packages/temper-placer/src/temper_placer/visualization/board_renderer.py 1012 temper-N7-board # follow-up
 packages/temper-placer/src/temper_placer/placer/cp_sat/gates.py 1198 temper-N8-drc-sweep # grew from 1035: IECCreepageGate net-name fix (err.nets instead of err.components) + verification comment
 packages/temper-placer/src/temper_placer/validation/results/battery_run.py 1003 temper-N7-cap6 # new over-cap file (999 -> 1003, keyword-API repair comment)
-packages/temper-placer/src/temper_placer/placer/cp_sat/fixed_copper.py 1141 temper-N7-cap5 # zone-encoding growth (#567)
+packages/temper-placer/src/temper_placer/placer/cp_sat/fixed_copper.py 1142 temper-N7-cap5 # zone-encoding growth (#567)
