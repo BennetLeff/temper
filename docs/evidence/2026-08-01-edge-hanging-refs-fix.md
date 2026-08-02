@@ -1,4 +1,4 @@
-<!-- provenance: commit=91146fb9c15a05e4a8371f4c0f86b7e3ec99d7b5 dirty=false (branch fix/edge-hanging-refs) -->
+<!-- provenance: commit=a2fdfd1bb5c1faaadc4de4238c1e823304aa0730 dirty=false (branch fix/edge-hanging-refs) -->
 
 # Edge-hanging-refs fix — nudge board-edge violators inward to clear the #523 scoped solve's 0.5mm edge-margin wall
 
