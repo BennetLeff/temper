@@ -18,6 +18,11 @@ packages/temper-placer/src/temper_placer/io/kicad_parser.py 1
 packages/temper-placer/src/temper_placer/io/netclass_loader.py 1
 packages/temper-placer/src/temper_placer/pcl/parser.py 1
 packages/temper-placer/src/temper_placer/pipeline/convergence.py 13
+# 2026-08-01: fixed_copper.py gained 1 union-attr error in #567
+# (polygon-exact zone encoding). Pristine main reports the same error; this
+# entry records main's state, not a change from this PR. Fix belongs to the
+# #567 author (also recorded by PR #572's rework).
+packages/temper-placer/src/temper_placer/placer/cp_sat/fixed_copper.py 1
 packages/temper-placer/src/temper_placer/pipeline/dag_engine.py 18
 packages/temper-placer/src/temper_placer/pipeline/dag_expr.py 1
 packages/temper-placer/src/temper_placer/pipeline/stages/geometric_stage.py 3
