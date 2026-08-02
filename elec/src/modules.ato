@@ -1230,24 +1230,24 @@ module BusDischarge:
     k_dis1.mpn = "RT314012"
     k_dis1.footprint = "temper:Relay_SPDT_Schrack-RT314012"
 
-    # Discharge relay K3 (k_dis2): still Omron G5LE-1 DC12 -- the
-    # RT314012 swap is BLOCKED on placement, measured 2026-07-31: at the
-    # board's current origin (47.8, 70.78) the new footprint introduces
-    # NEW cross-net shorts in every rotation (rot 0: 30+ items incl.
-    # +170V_BUS x DC_BUS_RTN; rot 90: 5x hb.gate_hs.driver-p2 x
-    # discharge.k_dis2-no -- the NO pad lands on a pre-existing B.Cu
-    # gate-driver track; rot 180: 10x incl. RTD_SDI/SHUTDOWN/ina/inb;
-    # rot 270: 18x incl. RTD_SDI x DC_BUS_RTN). The part needs a new
-    # placement (placer re-solve), not a hand nudge -- see
-    # docs/evidence/2026-07-31-k2k3-relay-swap-placement.md. K3's
-    # G5LE-1 isolation gap remains a tracked, unresolved blocker (the
-    # 2026-07-28 Finder excursion below documents why no same-pitch
-    # family part is a substitute).
+    # Discharge relay K3 (k_dis2): swapped to the RT314012 (2026-08-01) as
+    # part of the K2/K3 relay-swap, at the #517-re-solved position (69.72,
+    # 29.0) rot 90 -- the orientation measured to clear REQ-SAFE-01 with
+    # zero new shorts / courtyard regressions (previously BLOCKED on
+    # placement, measured 2026-07-31: at the pre-re-solve origin (47.8,
+    # 70.78) the new footprint introduced NEW cross-net shorts in every
+    # rotation -- rot 0: 30+ items incl. +170V_BUS x DC_BUS_RTN; rot 90: 5x
+    # hb.gate_hs.driver-p2 x discharge.k_dis2-no -- the NO pad lands on a
+    # pre-existing B.Cu gate-driver track; rot 180: 10x incl.
+    # RTD_SDI/SHUTDOWN/ina/inb; rot 270: 18x incl. RTD_SDI x DC_BUS_RTN).
+    # The re-solve (#517) moved K3 clear of that copper; the swap now lands
+    # at the re-solved position with K3's own 3.559mm G5LE-1 coil-to-contact
+    # records cleared -- see docs/evidence/2026-08-01-k3-relay-swap-resolved.md.
     k_dis2 = new Relay_SPDT
     k_dis2.coil_voltage = 12V
     k_dis2.contact_current = 10A
-    k_dis2.mpn = "G5LE-1 DC12"
-    k_dis2.footprint = "Relay_THT:Relay_SPDT_Omron-G5LE-1"
+    k_dis2.mpn = "RT314012"
+    k_dis2.footprint = "temper:Relay_SPDT_Schrack-RT314012"
 
     # Discharge resistors: Vishay AC05 cemented wirewound, 3.9k 5% 5W,
     # axial ~18mm body, AEC-Q200, all-welded -- RESIZED 2026-07-27 from

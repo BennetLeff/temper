@@ -704,13 +704,26 @@ class TestRealBoardIsolatorFigures:
         (8.560mm), and T1 (9.100mm) now clear the 8.0mm minimum exactly or
         with margin and are no longer REQ-SAFE-01 violations -- this is the
         intended, structural effect of the PD2 decision, not a test
-        weakening. K2 and K3 (3.559mm each) remain genuine blockers by a
+        weakening. K2 and K3 (3.559mm each) remained genuine blockers by a
         wide margin (~4.4mm short) regardless of pollution degree: they also
         fail the pollution-degree-INDEPENDENT 6.0mm clearance minimum, so no
-        pollution-degree change could ever clear them. If the
-        sealed-compartment prerequisite is not met and the PD3 fallback
-        governs instead, all seven refs above return to this test's original
-        {"C6","K1","K2","K3","T1","U3","U7"} set exactly as documented.
+        pollution-degree change could ever clear them.
+
+        UPDATE 2026-08-01 (RT314012 swap landed, this change): K2 was
+        swapped to the TE Schrack RT314012 (PR #524) and K3 to the same
+        part at the #517-re-solved position (69.72, 29.0) rot 90 (this
+        change, docs/evidence/2026-08-01-k3-relay-swap-resolved.md). The
+        RT314012's 12.76mm coil-to-contact gap clears the 8.0mm bar (and
+        the 6.0mm PD-independent minimum) with margin, so **K2 and K3 are
+        no longer intra-footprint blockers** -- the real board now reports
+        zero intra-footprint REQ-SAFE-01 violations. This assertion change
+        records the fix, not a weakening: a regression that silently
+        re-introduces any intra-footprint blocker is still caught by
+        ``intra == set()`` below. If the sealed-compartment prerequisite is
+        not met and the PD3 fallback governs instead, C6/K1/T1/U3/U7 return
+        to the violation set as documented above (K2/K3 do not -- they are
+        cleared structurally by the part swap, independent of pollution
+        degree).
         """
         from ._real_board_fixture import RealBoardUnavailable, load_real_board_placement
 
@@ -722,10 +735,13 @@ class TestRealBoardIsolatorFigures:
         result = verify_iec60335_compliance(placement, domains)
         intra = {v.ref_a for v in result.violations if v.pair_kind == "intra"}
 
-        # K2/K3: still genuine blockers at the 8.0mm PD2 target -- measured
-        # 3.559mm, ~4.4mm short, and unaffected by pollution degree at all
-        # (also below the PD-independent 6.0mm clearance minimum).
-        assert {"K2", "K3"} <= intra, f"expected K2/K3 to still be blocking, got intra={intra}"
+        # K2/K3: cleared structurally by the RT314012 swap (12.76mm internal
+        # coil-to-contact gap, measured from the footprint geometry) -- they
+        # were 3.559mm each on the outgoing G5LE-1, ~4.4mm short of the
+        # 8.0mm bar and below the PD-independent 6.0mm minimum. No longer
+        # blockers; any reappearance here is a regression to catch.
+        assert "K2" not in intra, "K2 should clear on the RT314012 (12.76mm measured)"
+        assert "K3" not in intra, "K3 should clear on the RT314012 (12.76mm measured)"
         assert all(
             v.insulation_type in (InsulationType.BASIC, InsulationType.REINFORCED)
             for v in result.violations
@@ -742,6 +758,7 @@ class TestRealBoardIsolatorFigures:
         assert "U3" not in intra, "U3 should clear at the 8.0mm PD2 target (8.560mm measured)"
         assert "U7" not in intra, "U7 should clear at the 8.0mm PD2 target (8.100mm measured)"
 
-        assert intra == {"K2", "K3"}, (
-            f"expected only K2/K3 to remain intra-footprint blockers, got {intra}"
+        assert intra == set(), (
+            f"expected zero intra-footprint blockers after the K2/K3 RT314012 "
+            f"swap, got {intra}"
         )

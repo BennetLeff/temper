@@ -441,13 +441,14 @@ isolators:
       "1": "COM (HV bus contact)"
 
   - instance_path: discharge.k_dis2
-    # BLOCKED 2026-07-31 -- the RT314012 swap for K3 is blocked on
-    # placement (new cross-net shorts in every rotation at the current
-    # origin; see elec/src/modules.ato BusDischarge and
-    # docs/evidence/2026-07-31-k2k3-relay-swap-placement.md). Still
-    # Omron G5LE-1 (Relay_SPDT); its isolation gap remains a tracked,
-    # unresolved blocker.
-    component: "Omron G5LE-1 DC12 (Relay_SPDT), discharge relay 2"
+    # SWAPPED 2026-08-01 -- the RT314012 landed on K3 at the #517-re-solved
+    # position (69.72, 29.0) rot 90, clearing REQ-SAFE-01 with zero new
+    # shorts / courtyard regressions (measured; see
+    # docs/evidence/2026-08-01-k3-relay-swap-resolved.md). Previously
+    # BLOCKED 2026-07-31 on placement (new cross-net shorts in every
+    # rotation at the pre-re-solve origin; see elec/src/modules.ato
+    # BusDischarge and docs/evidence/2026-07-31-k2k3-relay-swap-placement.md).
+    component: "TE Connectivity / Schrack RT314012 (Relay_SPDT), discharge relay 2"
     groups:
       coil: ["2", "5"]
       contacts: ["1", "3", "4"]
