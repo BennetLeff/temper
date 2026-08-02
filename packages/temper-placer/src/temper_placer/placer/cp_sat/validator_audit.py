@@ -229,10 +229,19 @@ def build_validator_placement(
         if pos is not None:
             comp["position"] = tuple(pos)
         rot = resolved_rotations.get(ref)
-        if rot is not None:
+        if rot is not None and pos is not None:
             # Quadrant index -> degrees, the same conversion
-            # CpSatPlacementResult.to_rotations_dict uses.
-            comp["rotation_deg"] = float(int(rot) * 90.0)
+            # CpSatPlacementResult.to_rotations_dict uses. Overlay only when
+            # the ref's solved position was overlaid AND its base rotation is
+            # expressible as a quadrant: a ref the solve did not move (or a
+            # part whose board rotation is non-multiple-of-90, recovered via
+            # the parser's ``_rotation_deg`` attribute) keeps its exact base
+            # rotation -- the solver's 0-3 index cannot represent 45deg, so
+            # the base value is the only faithful one for the validator's
+            # copper model (position-frame contract, handoff #523 gap 2 §6).
+            base_deg = comp.get("rotation_deg")
+            if base_deg is None or abs(float(base_deg) % 90.0) < 1e-9:
+                comp["rotation_deg"] = float(int(rot) * 90.0)
         if "pads" not in comp and netlist_or_parse_result is not None:
             netlist_comp = _netlist_component_by_ref(netlist_or_parse_result, ref)
             if netlist_comp is not None:
