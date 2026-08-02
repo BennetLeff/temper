@@ -4,6 +4,8 @@ type: evidence
 date: 2026-07-30
 ---
 
+<!-- provenance: commit=01ece8c9b4ee7f257b8301c799901c4b8c690dc9 dirty=false -->
+
 # IEC 60335-1 current-edition status
 
 The official IEC publication record identifies **IEC 60335-1:2020+AMD1:2025

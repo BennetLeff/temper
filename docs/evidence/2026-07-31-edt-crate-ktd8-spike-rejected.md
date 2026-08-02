@@ -1,5 +1,7 @@
 # KTD8 spike: `edt` crate vs scipy EDT parity (2026-07-31)
 
+<!-- provenance: commit=58b74bb0f0c1a0ed4f59ad937376bb33e4511e12 dirty=false -->
+
 **Verdict: REJECT the `edt` crate (v0.2.2) as a
 `scipy.ndimage.distance_transform_edt` replacement.** Recorded per the
 repo's measurement-provenance convention so the verdict is re-verifiable.

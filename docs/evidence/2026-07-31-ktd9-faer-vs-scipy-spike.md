@@ -1,5 +1,7 @@
 # KTD9 spike: faer vs scipy sparse-solver parity (2026-07-31)
 
+<!-- provenance: commit=58b74bb0f0c1a0ed4f59ad937376bb33e4511e12 dirty=false -->
+
 **Verdict: faer (0.24.4) is numerically viable as a drop-in for scipy
 `spsolve` on the FDM matrix, but adoption is NOT warranted.** Recorded
 per the repo's measurement-provenance convention.
