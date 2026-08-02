@@ -499,6 +499,9 @@ class IsolationBarrierReport:
     corridor_position_mm: float
     barrier_constraint_ids: list[str] = field(default_factory=list)
     isolator_assumption_labels: list[str] = field(default_factory=list)
+    # Refs whose isolator-straddle constraint was skipped for this solve
+    # (the experiment-only K3 relaxation; empty for any production solve).
+    relaxed_isolator_straddle: frozenset[str] = frozenset()
 
     @property
     def infeasible_isolators(self) -> list[str]:
@@ -515,6 +518,7 @@ def add_isolation_barrier_to_model(
     corridor_width_mm: float = DEFAULT_CORRIDOR_WIDTH_MM,
     orientation: str = "vertical",
     corridor_position_mm: float | None = None,
+    relax_isolator_straddle: set[str] | None = None,
 ) -> IsolationBarrierReport:
     """Add the barrier's HARD constraints directly to *model* and return a report.
 
@@ -531,6 +535,16 @@ def add_isolation_barrier_to_model(
     the "hi" side. Each isolator's own HV pad cluster is forced to the same
     "lo" side and its SELV pad cluster to "hi", consistent with every other
     HV/SELV component on the board.
+
+    ``relax_isolator_straddle`` (experiment-only, default None): set of
+    isolator refs whose pad-cluster straddle constraint is SKIPPED for this
+    solve -- their pads are left free to land anywhere (no rotation pin, no
+    HV-lo/SELV-hi pad split). Used by the corridor-feasibility experiment
+    (docs/plans/2026-08-01-002-*) to quantify what the K3 isolator-BOM
+    phase unlocks; the per-isolator feasibility report still records the
+    true geometric verdict (K3 remains infeasible at 8.0mm -- the
+    relaxation is a solver-level exemption, not a geometry claim). Absent:
+    existing behaviour is completely unchanged.
     """
     if orientation not in ("vertical", "horizontal"):
         raise ValueError(f"orientation must be 'vertical' or 'horizontal', got {orientation!r}")
@@ -582,6 +596,7 @@ def add_isolation_barrier_to_model(
     comp_by_ref = {c.ref: c for c in netlist.components}
     isolator_feasibility: list[IsolatorFeasibility] = []
     isolator_assumption_labels: list[str] = []
+    relaxed = frozenset(relax_isolator_straddle or ())
 
     for ref in sorted(partition.isolators):
         if ref not in model_refs:
@@ -592,6 +607,13 @@ def add_isolation_barrier_to_model(
         isolator_feasibility.append(feas)
 
         cvars = model.get_component(ref)
+        if ref in relaxed:
+            # Experiment-only K3 relaxation: this isolator's pad clusters are
+            # free to land anywhere -- skip BOTH the rotation pin and the
+            # straddle constraint (its pads need not clear the corridor on the
+            # HV-lo/SELV-hi sides). The geometric verdict above is still
+            # recorded for the decision record.
+            continue
         rot_value = feas.chosen_rotation
         if cvars.rot_ref is not None:
             model.model_ref.Add(cvars.rot_ref == rot_value)
@@ -632,5 +654,6 @@ def add_isolation_barrier_to_model(
         corridor_position_mm=corridor_position_mm,
         barrier_constraint_ids=hv_assumption_labels + selv_assumption_labels,
         isolator_assumption_labels=isolator_assumption_labels,
+        relaxed_isolator_straddle=relaxed,
     )
     return report
