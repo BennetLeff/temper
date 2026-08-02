@@ -88,6 +88,8 @@ Dependency rationale: every other phase's acceptance is defined by this phase's 
 
 Dependency rationale: the ortools boundary shapes how the `placer/` solver-boundary surface (the ortools model/solve wiring, ~1-2k of the 9,287 `placer/` LOC) delegates; no solver-boundary compute is pulled before the gate fires. The remaining placer compute (the constraint encoders' math and model arithmetic beyond the boundary) is assigned to Phase 4.
 
+**Phase 1 verdict (2026-08-01, spike executed — `docs/evidence/2026-08-01-ortools-cpsat-spike.md`): KEEP the ortools CP-SAT engine and the Python solve boundary.** The spike enumerated the full constraint surface (13 CP-SAT constraint classes across 8 PCL handler types — the Phase B contract input) and verified the "no mature Rust drop-in" blocker: no pure-Rust engine covers the element / 2D no-overlap / product / assumption-core surface, and the only Rust paths that preserve R1a bit-identical parity are FFI bindings to the same engine (`cp_sat` 0.4.1, `cpsat-rs` 0.1.2), both too immature to pin today. KEEP "done" is: ortools `==9.15.6755` version lock, frozen solver params (`max_time_in_seconds`, `num_search_workers` 8/4, `random_seed=0`, `log_search_progress=False`), a KTD9-style measured parity contract (bit-identical re-solve on the board corpus, tolerance 0), and the R24 post-solve audit (`placer/cp_sat/audit.py`, Rust-backed) enforced across the boundary. WRAP (Rust boundary via a vendored proto + ortools C API, same engine) is the recorded re-decidable path with triggers; REPLACE is rejected unless R1a is amended to semantic parity by product authority.
+
 #### Phase 2 — Contracts as pyo3 pyclasses (the pivot)
 
 | Scope | LOC | Days | Risk | Gates |
@@ -156,7 +158,7 @@ Resolve Before Planning:
 
 Deferred to Planning:
 
-- Q2. The exact Rust CP-SAT candidate list and each candidate's feature coverage — the Phase 1 spike's first output (the spike is where candidates get named, not here).
+- Q2. The exact Rust CP-SAT candidate list and each candidate's feature coverage — the Phase 1 spike's first output (the spike is where candidates get named, not here). **Resolved by the Phase 1 spike (2026-08-01):** candidates evaluated — rustsat 0.8.0, Pumpkin, aries-solver, huub, good_lp/HiGHS (all rejected for R1a parity), `cp_sat` 0.4.1 and `cpsat-rs` 0.1.2 (FFI bindings to the same engine; the WRAP path). Verdict KEEP recorded in `docs/evidence/2026-08-01-ortools-cpsat-spike.md` and the Phase 1 section above.
 - Q3. Per-module PBT/metamorphic counts beyond the R1c/R1d minima, and exact bridge patterns — the parent roadmap deferred the same, unchanged.
 - Q4. The KiCad parse/export parity tolerance (the round-trip fixture set is already specified: canonical boards + corpus, bit-identical) — Phase 3 planning.
 - Q5. Which test-suite slices retire versus convert to Rust-side tests as modules migrate — Phase 6.
