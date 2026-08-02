@@ -75,6 +75,20 @@ them). The classification needs only the constraint **pair set**, not its
 margins: coverage is a per-pair property, and the validator violation
 carries its own per-row `required_mm`.
 
+**Geometry trust (added in adversarial review).** The validator models a
+placement component without a `pads` key as a zero-extent point at its
+origin — an *optimistic* upper bound on copper-to-copper separation (the
+run-B lie direction: it can miss violations, never invent them). The audit
+result therefore carries the validator's own `stats`
+(`components_without_pads`, per-row `pairs_origin_modelled`) and a
+`geometry_trusted` flag: **False** whenever any component lacked pads or any
+pair was measured origin-to-origin, logged at `logger.error`. A
+clean-but-untrusted audit proves nothing about real copper and must not
+gate the board. The audit also raises `ValueError` (programmer error) when
+the placement does not describe the solve — zero components, or
+`resolved_positions_mm` refs disjoint from the placement's refs — instead
+of vacuous-passing over the wrong geometry.
+
 ## 4. The falsifier proof (run-B lie, minimized)
 
 Two components whose bbox centers are ≥ the margin apart (so the old
@@ -118,16 +132,20 @@ solver positions are in **one consistent frame**: both are local
    quantization), and C27 (excluded from the solve model, staged off-board)
    keeps its staged base position in the validator placement.
 
-One latent defect found and fixed during review: `build_validator_placement`
-overlaid `rotation_deg = quadrant_idx * 90` for **every** ref in
-`resolved_rotations`, including refs the solve never moved — a fixed ref
-whose true board rotation is non-multiple-of-90 (recoverable via the
-parser's `_rotation_deg` attribute) would have its validator geometry
-corrupted to the nearest quadrant. The overlay is now gated on the solved
-position being overlaid AND the base rotation being expressible as a
-quadrant; non-quadrant base rotations are kept exact. No-op on the
-production board (0 non-quadrant rotations, measured), latent-correctness
-fix for the general contract.
+One latent defect found and fixed during adversarial review: the original
+overlay gate kept the base `rotation_deg` whenever it was
+non-multiple-of-90, *even for a ref the solve had rotated*. That was wrong
+against the CLI contract: `cli/__init__.py`'s optimize command writes
+`rotation=cp_result.rotations.get(ref, 0) * 90.0` to the PCB
+**unconditionally** for every solved ref, so a ref the solve rotated *will*
+be written as `idx*90` on the board — the audit must measure that post-solve
+geometry, not the base. The overlay is now unconditional for any ref present
+in BOTH `resolved_positions_mm` and `resolved_rotations` (the solve touched
+it; the solver's rotation is authoritative), and the base rotation is kept
+only when the ref is absent from `resolved_rotations` (the solve did not
+rotate it — no rotation variable, e.g. a polarized part pinned by
+construction). No-op on the production board (0 non-quadrant rotations,
+measured), latent-correctness fix for the general contract.
 
 ## 6. Wiring contract (`_encoder_solve.py`)
 
@@ -145,8 +163,22 @@ fix for the general contract.
   `CpSatPlacementResult.validator_audit`, never raised.
 - Missing `placement` or `voltage_domains` key → `ValueError` (a silent skip
   would leave the solve unaudited against REQ-SAFE-01).
-- On `infeasible`/`model_invalid` the audit does not run (there is no
-  placement to audit) — `validator_audit` stays `None`.
+- On `infeasible`/`model_invalid`/`unknown` the audit does not run (there is
+  no placement to audit) — `validator_audit` stays `None`, and the skip is
+  logged at **WARNING** ("validator post-solve audit did NOT run ..."), never
+  silent, so an unaudited solve is distinguishable from a clean one in the
+  logs (adversarial-review finding 4).
+- The hard-failure `RuntimeError` reports the **distinct violating-pair
+  count** (frozenset-deduped) as the headline, with the raw record count in
+  parentheses — one physical pair emits 4-8 records (clearance/creepage ×
+  basic/reinforced), so "N hard violation(s)" with N=records would inflate a
+  1-pair failure into a 4-8-pair failure (adversarial-review finding 5).
+- Pair membership in the classification is a `frozenset`: a validator
+  violation emitted as (B,A) against a constraint (A,B) absorbs into the
+  same covered pair (HARD), never a coverage gap — the 451 reversed-duplicate
+  emissions Agent 4 measured on the production board (e.g. (C11,C6)@1.0 +
+  (C6,C11)@8.0) all collapse onto their covered pair (adversarial-review
+  finding 6).
 
 ## 7. Measured results (this branch, 2026-08-02)
 
@@ -182,21 +214,31 @@ cannot fix a rigid part's own pad spacing, exactly the design's bucket (b).
 
 ### Test suite
 
-`packages/temper-placer/tests/placer/cp_sat/test_validator_audit.py` — 15
-tests, all passing, deterministic (3 consecutive runs):
+`packages/temper-placer/tests/placer/cp_sat/test_validator_audit.py` — 24
+tests, all passing, deterministic:
 
-- **Falsifier** (2): center audit 0 vs validator 4 HARD; solve-level
-  `RuntimeError` on a feasible solve with a covered-pair violation.
+- **Falsifier** (4): center audit 0 vs validator 4 HARD; solve-level
+  `RuntimeError` on a feasible solve with a covered-pair violation; the raise
+  counts **1 distinct pair / 4 records** (record inflation fixed); a
+  reversed-ordering violation (validator emits (B,A) against constraint
+  (A,B)) absorbs into HARD via frozenset membership.
 - **Clean placement** (2): both audits pass, `audit.clean is True`, feasible
   solve populates `validator_audit`.
 - **Straddler** (2): own-pad boundary straddle → `intra_footprint` (4
   records), never hard, solve does not raise.
 - **Coverage gap** (1): pair excluded by the `component_refs` filter → 4
   `coverage_gaps`, never hard.
-- **Position frame** (3): overlay/keep-base semantics, non-quadrant rotation
-  guard, pad fallback from netlist.
-- **Wiring** (4): feasible solve populates audit; absent input → None;
-  missing `placement`/`voltage_domains` → ValueError.
+- **Geometry trust / ref-set validation** (4): all pads present →
+  `geometry_trusted True`; a pad-less component → `geometry_trusted False` +
+  `logger.error` (with `pairs_origin_modelled > 0` asserted); empty placement
+  → `ValueError`; solved refs disjoint from placement refs → `ValueError`.
+- **Position frame** (5): overlay/keep-base semantics; non-quadrant base
+  OVERLAID when the solve touched the ref (solved pos + rotation idx → 90.0);
+  base kept exactly when the ref has a solved position but no rotation entry
+  (45.0); base kept when untouched; pad fallback from netlist.
+- **Wiring** (5): feasible solve populates audit; absent input → None;
+  missing `placement`/`voltage_domains` → ValueError; infeasible solve with
+  `validator_input` → WARNING logged (caplog), `validator_audit` None.
 - **Production** (1): the table above.
 
 Gates (all run in the worktree):
@@ -205,10 +247,22 @@ Gates (all run in the worktree):
 |---|---|
 | `ruff check` (touched files) | clean |
 | `import_linter_gate.py` | PASSED — 0 new violations |
-| `test_validator_audit.py` + `test_domain_clearance.py` + `test_fixed_copper.py` + `tests/requirements/safety/` | **162 passed, 2 failed** — the 2 failures (`test_temper_board_clearance_compliance`, `test_the_seven_known_intra_footprint_blockers_are_now_visible`) are pre-existing on origin/main, reproduced on a scratch origin/main worktree at `f20400709` with the same venv (board-state-dependent: K3-intra remaining, K2's intra resolved by the #579 move); byte-identical inputs (`pcb/`, `tests/requirements/safety/`, `requirements/`) between origin/main and this branch |
-| full `tests/placer/cp_sat/` suite | **599 passed, 1 skipped, 1 xfailed, 2 failed** — the 2 failures are the documented pre-existing pair (`test_checker_copper_distance_is_lower_bound_on_origin_distance`, `test_courtyard_clearance_strict_in_expansion`), failing identically on origin/main per `docs/evidence/2026-08-01-edge-hanging-refs-fix.md` |
+| `test_validator_audit.py` + `test_domain_clearance.py` + `test_fixed_copper.py` + `tests/requirements/safety/` | **171 passed, 2 failed** — the 2 failures (`test_temper_board_clearance_compliance`, `test_the_seven_known_intra_footprint_blockers_are_now_visible`) are pre-existing on origin/main, reproduced on a scratch origin/main worktree at `f20400709` with the same venv (board-state-dependent: K3-intra remaining, K2's intra resolved by the #579 move); byte-identical inputs (`pcb/`, `tests/requirements/safety/`, `requirements/`) between origin/main and this branch |
+| full `tests/placer/cp_sat/` suite | **609 passed, 1 skipped, 1 xfailed, 1 failed** — the 1 failure is the documented pre-existing `test_checker_copper_distance_is_lower_bound_on_origin_distance` (failing identically on origin/main per `docs/evidence/2026-08-01-edge-hanging-refs-fix.md`). The previously-recorded second failure (`test_courtyard_clearance_strict_in_expansion`) **passes** in this session's re-measurement: that test asserts against the `temper-constraints` Rust extension, and this session ran `make extensions` first (the earlier doc's run measured against a stale installed `.so` — the exact "green tests are not evidence the extension was rebuilt" trap, AGENTS.md) |
 
 ## 8. After gap 2 lands (per the handoff)
+
+**Status (amended after adversarial review):** the audit *machinery* ships
+in this change — `validator_audit.py`, its test suite, and the
+`validator_input` wiring inside `solve_placement` itself. It is **NOT yet
+wired at any production caller**: `clearance_repair.py` (the repair loop's
+`solve_placement` call, ~line 293) and `cli/__init__.py`'s optimize command
+(~line 628) do not pass `validator_input`, so today the audit runs only via
+explicit `validator_input` callers and the test suite. That production-caller
+wiring is the explicitly-staged next step — this section's re-solve — and
+lands with it as an issue #523 follow-up, not here (the scoped solve is
+currently infeasible on the box-bar wall, so the audit would never fire
+there anyway).
 
 Re-run the scoped solve (FREE {K3, C27}, production repair recipe,
 polygon-exact zones now on main) with `validator_input` from the real board
@@ -219,3 +273,15 @@ A validator-clean solve may exist where the box-bar solve says none does
 still infeasible against the validator audit, the remaining options are the
 documented (a) milled isolation slot, (b) #517-style full re-layout, (c)
 PD2/8.0mm validator-side reconciliation — a human decision per handoff §4.
+
+## 9. Adversarial-review amendments (this change)
+
+Findings from the review of the original gap-2 ship, all landed here:
+
+| finding | fix |
+|---|---|
+| 2 — vacuous-clean under pad-geometry / ref-set drift | `stats` + `geometry_trusted` on the audit result; `logger.error` + `geometry_trusted=False` when any component lacks pads or any pair is measured origin-to-origin; `ValueError` on zero-component or ref-disjoint placements (see §3) |
+| 3 — rotation overlay discriminator (latent) | a ref the solve touched (solved position + rotation index) gets `idx*90` overlaid unconditionally — the CLI writes it to the PCB; base rotation kept only when absent from `resolved_rotations` (see §5) |
+| 4 — silent skip on non-optimal status | `logger.warning` when `validator_input` is given but the solve did not terminate (see §6) |
+| 5 — raise message inflates pair counts | distinct-pair count (frozenset-deduped) as headline, record count in parentheses (see §6) |
+| 6 — reversed-pair absorption unpinned | test: validator (B,A) vs constraint (A,B) → HARD (see §7) |
