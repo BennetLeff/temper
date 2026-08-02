@@ -159,3 +159,31 @@ feasible in ≥1 orientation (as-is or K3-relaxed, K3-delta quantified).
 - Stage-1 feasible displacement is best-found at the time limit, not
   proven-optimal; the stage-2 verdict does not depend on it (the bound
   question is decided by the budget cells, not the stage-1 objective).
+
+## Budget-floor sweep (straight corridor at the geometric-best position)
+
+Follow-up to the centreline NO-GO: does the straight corridor need a bigger
+budget, or a different corridor shape? Ran the straight corridor at the
+geometric-best positions from the feasibility evidence (X c=36.25, Y c=127.00,
+HV_lo, K3-relaxed), stage-1 and a budget sweep 25/50/100/150 mm.
+
+| Cell (best position) | status | max disp (mm) | witness |
+|---|---|---|---|
+| X · s1 (no budget) | **infeasible** | — | (geometric best position is NOT solver-feasible in X) |
+| X · s2 25/50/100/150 mm | infeasible | — | `edge_margin_*` in core |
+| Y · s1 (no budget) | feasible | 329.28 | — |
+| Y · s2 25/50/100 mm | infeasible | — | `edge_margin_*` in core |
+| Y · s2 150 mm | unknown (timeout 300 s) | — | — |
+
+**Conclusion: the straight-corridor family has no displacement floor below
+≈150 mm — moving the corridor to the geometric-best position does not rescue
+it.** Even 100 mm is infeasible everywhere; the 150 mm Y cell did not
+terminate in 300 s, and a 150 mm cap on a 152 mm board is a full re-layout in
+any case. The boundary-following (non-straight, full-height) corridor is
+therefore the only path to a within-budget placement — confirming the re-scope
+plan (2026-08-01-003) Option 2. Second finding: the geometric minimum-drift
+position is not solver-feasible in X, so the probe must search corridor
+position, not trust the geometric optimum.
+
+Runs: `docs/evidence/2026-08-01-isolation-barrier-budget-sweep.py`,
+results `docs/evidence/2026-08-01-isolation-barrier-budget-sweep.json`.
