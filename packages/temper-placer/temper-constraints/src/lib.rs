@@ -16,6 +16,8 @@ pub mod ir {
 // R14: Never abort Python process; catch_unwind + Python exceptions
 
 pub mod constraints;
+pub mod encoder;
+pub mod ipc;
 pub mod loss;
 
 use pyo3::exceptions::{PyRuntimeError, PyValueError};
@@ -54,7 +56,7 @@ fn tier_to_weight_py(_py: Python<'_>, tier: u8) -> PyResult<f64> {
 // Adjacent loss
 #[pyfunction]
 #[allow(clippy::too_many_arguments)]
-#[pyo3(signature = (positions, idx_a, idx_b, max_distance_mm, weight, metric = "center_to_center", pin_a_x = None, pin_a_y = None, pin_b_x = None, pin_b_y = None))]
+#[pyo3(signature = (positions, idx_a, idx_b, max_distance_mm, weight, metric = 1, pin_a_x = None, pin_a_y = None, pin_b_x = None, pin_b_y = None))]
 fn compute_adjacent_loss_py(
     _py: Python<'_>,
     positions: Vec<f64>,
@@ -62,7 +64,7 @@ fn compute_adjacent_loss_py(
     idx_b: usize,
     max_distance_mm: f64,
     weight: f64,
-    metric: &str,
+    metric: i64,
     pin_a_x: Option<f64>,
     pin_a_y: Option<f64>,
     pin_b_x: Option<f64>,
@@ -70,9 +72,12 @@ fn compute_adjacent_loss_py(
 ) -> PyResult<f64> {
     catch_unwind_f64(|| {
         let m = match metric {
-            "edge_to_edge" => DistanceMetric::EdgeToEdge,
-            "center_to_center" => DistanceMetric::CenterToCenter,
-            "pin_to_pin" => DistanceMetric::PinToPin,
+            // 0 = edge_to_edge, 1 = center_to_center, 2 = pin_to_pin
+            // (the Python wrapper maps the metric name once; unknown codes
+            // raise here, mirroring the old unknown-string error).
+            0 => DistanceMetric::EdgeToEdge,
+            1 => DistanceMetric::CenterToCenter,
+            2 => DistanceMetric::PinToPin,
             _ => return Err(PyValueError::new_err(format!("Unknown metric: {metric}"))),
         };
         let pin_a = match (pin_a_x, pin_a_y) {
@@ -143,16 +148,19 @@ fn compute_enclosing_loss_py(
 fn compute_alignment_loss_py(
     _py: Python<'_>,
     positions: Vec<f64>,
-    axis: &str,
+    axis: i64,
     tolerance_mm: f64,
     weight: f64,
 ) -> PyResult<f64> {
     catch_unwind_f64(|| {
         let a = match axis {
-            "x" => Axis::X,
-            "y" => Axis::Y,
-            "major" => Axis::Major,
-            "minor" => Axis::Minor,
+            // 0 = x, 1 = y, 2 = major, 3 = minor (the Python wrapper maps
+            // the axis name once; unknown codes raise here, mirroring the
+            // old unknown-string error).
+            0 => Axis::X,
+            1 => Axis::Y,
+            2 => Axis::Major,
+            3 => Axis::Minor,
             _ => return Err(PyValueError::new_err(format!("Unknown axis: {axis}"))),
         };
         Ok(compute_alignment_loss(&positions, a, tolerance_mm, weight))
@@ -164,7 +172,7 @@ fn compute_alignment_loss_py(
 fn compute_edge_loss_py(
     _py: Python<'_>,
     positions: Vec<f64>,
-    side: &str,
+    side: i64,
     board_width: f64,
     board_height: f64,
     max_distance_mm: f64,
@@ -172,10 +180,13 @@ fn compute_edge_loss_py(
 ) -> PyResult<f64> {
     catch_unwind_f64(|| {
         let s = match side {
-            "top" => BoardSide::Top,
-            "bottom" => BoardSide::Bottom,
-            "left" => BoardSide::Left,
-            "right" => BoardSide::Right,
+            // 0 = top, 1 = bottom, 2 = left, 3 = right (the Python wrapper
+            // maps the side name once; unknown codes raise here, mirroring
+            // the old unknown-string error).
+            0 => BoardSide::Top,
+            1 => BoardSide::Bottom,
+            2 => BoardSide::Left,
+            3 => BoardSide::Right,
             _ => return Err(PyValueError::new_err(format!("Unknown side: {side}"))),
         };
         Ok(compute_edge_preference_loss(
@@ -415,6 +426,13 @@ fn temper_constraints(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(supported_constraint_types_py, m)?)?;
     m.add_function(wrap_pyfunction!(is_available_py, m)?)?;
     m.add_function(wrap_pyfunction!(version_py, m)?)?;
+    m.add_function(wrap_pyfunction!(ipc::ipc2152_forward_py, m)?)?;
+    m.add_function(wrap_pyfunction!(ipc::min_width_ipc2152_py, m)?)?;
+    m.add_function(wrap_pyfunction!(encoder::mm_to_units_py, m)?)?;
+    m.add_function(wrap_pyfunction!(encoder::units_to_mm_py, m)?)?;
+    m.add_function(wrap_pyfunction!(encoder::courtyard_clearance_mm_py, m)?)?;
+    m.add_function(wrap_pyfunction!(encoder::required_margin_mm_py, m)?)?;
+    m.add_function(wrap_pyfunction!(encoder::keepout_rect_units_py, m)?)?;
     m.add_class::<PyConstraintType>()?;
     Ok(())
 }

@@ -1,7 +1,6 @@
 """Tests for Router V6 adapter module."""
 
 import logging
-import re
 from types import SimpleNamespace
 from unittest import mock as umock
 
@@ -220,6 +219,151 @@ class TestApplyPlacementsToPcbRotation:
         assert "at 50.0000 60.0000 90.0000" in result
         assert "at -0.775 0 45" in result
         assert "at 0.775 0 135" in result
+
+
+class TestApplyPlacementsToPcbCenterOffset:
+    """CP-SAT solves and reports each component's box-CENTRE (Component.
+    initial_position's convention), not its raw KiCad anchor. For a
+    footprint whose pad centroid doesn't coincide with that anchor
+    (Component.attributes["_center_offset_x/y"] != 0 -- an asymmetric
+    TO-247, e.g. Q1/Q2 on the corpus board, center_offset=(5.45, 0)), the
+    anchor this function writes into (at X Y) must be the centre minus
+    that offset, rotated by KiCad's own (clockwise) convention -- not the
+    centre itself, and not a standard-CCW rotation of the offset.
+
+    This is a real, root-caused regression: PR #460's corrected
+    `comp.bounds` (tight around real pad copper, computed in the correct
+    frame) is only sound if the WRITTEN board matches the frame CP-SAT
+    verified. Before this fix, the corpus board's golden-board regression
+    gate (test_regression_drc.py::test_golden_board_drc_regression) wrote
+    Q1/Q2 (TO-247s, center_offset=(5.45, 0)) apart by CP-SAT's solved
+    rotation with NEITHER the rotation NOR the center_offset correctly
+    applied, producing a real, measured `shorting_items` DRC violation
+    between Q1's DC_BUS+ pad and Q2's SW_NODE pad -- the two halves of the
+    HV half-bridge, shorted across. See
+    docs/evidence/2026-07-30-generic-separation-writer-frame-fix.md.
+
+    The two expected numbers below (90.6064.. / 102.8236 anchor;
+    contrasted with the CCW-formula's 94.4209 / 90.7873, a different
+    point) were verified against ``pcbnew`` directly (KiCad's own
+    placement engine), not re-derived from this repo's own formula -- see
+    that module's docstring for the measurement.
+    """
+
+    def _make_component(self, ref: str, cx: float, cy: float):
+        return SimpleNamespace(ref=ref, attributes={
+            "_center_offset_x": str(cx),
+            "_center_offset_y": str(cy),
+        })
+
+    def test_asymmetric_offset_uncorrected_without_components_arg(self):
+        """Omitting `components=` (the pre-fix call shape, and every call
+        site until this task wired it in) reproduces the exact pre-fix
+        bug: CP-SAT's box-centre is written directly as the KiCad anchor,
+        off by the full center_offset. This is the failure mode that
+        turned Q1/Q2's real, sound clearance into a measured short."""
+        content = """(kicad_pcb (version 20240108)
+  (footprint "Test:TO247" (layer "F.Cu")
+    (tstamp 00000000-0000-0000-0000-000000000001)
+    (at 10.0 20.0)
+    (property "Reference" "U1" (at 0 0 0) (layer "F.SilkS"))
+    (pad "1" thru_hole circle (at 0 0) (size 3.5 3.5) (drill 1.6) (layers "*.Cu" "*.Mask")
+      (net 1 "vcc"))
+    (pad "2" thru_hole circle (at 20 8) (size 3.5 3.5) (drill 1.6) (layers "*.Cu" "*.Mask")
+      (net 2 "gnd"))
+  )
+)"""
+        result = _apply_placements_to_pcb(content, {"U1": (100.0, 100.0)})
+        # Anchor is written as the raw centre -- wrong for this footprint,
+        # since it never gets a chance to invert center_offset.
+        assert "at 100.0000 100.0000" in result
+
+    def test_asymmetric_offset_rotated_writes_pcbnew_verified_anchor(self):
+        """The fix: with `components=` supplied, the anchor is the centre
+        minus center_offset, rotated by the solved angle using KiCad's own
+        (clockwise) convention -- verified against pcbnew, not this
+        repo's prior (wrong) formula."""
+        content = """(kicad_pcb (version 20240108)
+  (footprint "Test:TO247" (layer "F.Cu")
+    (tstamp 00000000-0000-0000-0000-000000000001)
+    (at 10.0 20.0)
+    (property "Reference" "U1" (at 0 0 0) (layer "F.SilkS"))
+    (pad "1" thru_hole circle (at 0 0) (size 3.5 3.5) (drill 1.6) (layers "*.Cu" "*.Mask")
+      (net 1 "vcc"))
+    (pad "2" thru_hole circle (at 20 8) (size 3.5 3.5) (drill 1.6) (layers "*.Cu" "*.Mask")
+      (net 2 "gnd"))
+  )
+)"""
+        comp = self._make_component("U1", 10.0, 4.0)
+        result = _apply_placements_to_pcb(
+            content,
+            {"U1": (100.0, 100.0)},
+            rotations={"U1": 37.0},
+            components=[comp],
+        )
+        # pcbnew-verified: R(-37deg) of (10, 4) is (10.393615, -2.823608),
+        # so anchor = (100, 100) - that = (89.6064, 102.8236).
+        assert "at 89.6064 102.8236 37.0000" in result
+        # The wrong (standard-CCW) sign this repo used to use would write
+        # a completely different anchor -- assert it is NOT that point,
+        # so a sign regression here fails loudly rather than by omission.
+        assert "at 94.4209 90.7873" not in result
+
+    def test_no_center_offset_unaffected_by_components_arg(self):
+        """A symmetric footprint (center_offset == 0, e.g. most parts)
+        must write its centre unchanged whether or not `components=` is
+        passed -- this fix must not perturb the common case."""
+        content = """(kicad_pcb (version 20240108)
+  (footprint "Test:R0402" (layer "F.Cu")
+    (tstamp 00000000-0000-0000-0000-000000000001)
+    (at 10.0 20.0)
+    (property "Reference" "R1" (at 0 0 0) (layer "F.SilkS"))
+    (pad "1" smd rect (at -0.5 0) (size 0.6 0.6) (layers "F.Cu"))
+    (pad "2" smd rect (at 0.5 0) (size 0.6 0.6) (layers "F.Cu"))
+  )
+)"""
+        comp = self._make_component("R1", 0.0, 0.0)
+        result = _apply_placements_to_pcb(
+            content,
+            {"R1": (50.0, 60.0)},
+            rotations={"R1": 90.0},
+            components=[comp],
+        )
+        assert "at 50.0000 60.0000 90.0000" in result
+
+    def test_omitted_rotation_falls_back_to_existing_angle_for_offset(self):
+        """If this ref has no solved rotation (absent from `rotations`,
+        e.g. CP-SAT chose rotation index 0 -- `to_rotations_dict()` omits
+        those), the centre must have been computed at the footprint's
+        EXISTING angle, so that angle -- not 0 -- is the correct basis
+        for inverting center_offset."""
+        content = """(kicad_pcb (version 20240108)
+  (footprint "Test:TO247" (layer "F.Cu")
+    (tstamp 00000000-0000-0000-0000-000000000001)
+    (at 10.0 20.0 90.0)
+    (property "Reference" "U1" (at 0 0 0) (layer "F.SilkS"))
+    (pad "1" thru_hole circle (at 0 0) (size 3.5 3.5) (drill 1.6) (layers "*.Cu" "*.Mask")
+      (net 1 "vcc"))
+    (pad "2" thru_hole circle (at 20 8) (size 3.5 3.5) (drill 1.6) (layers "*.Cu" "*.Mask")
+      (net 2 "gnd"))
+  )
+)"""
+        comp = self._make_component("U1", 10.0, 4.0)
+        # No `rotations=` entry for U1 at all: old_angle (90 deg, read from
+        # the file) must be used as the rotation basis.
+        result = _apply_placements_to_pcb(
+            content,
+            {"U1": (100.0, 100.0)},
+            rotations={},
+            components=[comp],
+        )
+        import math
+
+        theta = math.radians(90.0)
+        rotated_cx = 10.0 * math.cos(theta) + 4.0 * math.sin(theta)
+        rotated_cy = -10.0 * math.sin(theta) + 4.0 * math.cos(theta)
+        expected = f"at {100.0 - rotated_cx:.4f} {100.0 - rotated_cy:.4f} 90.0"
+        assert expected in result
 
 
 class TestRoutePcbErrorHandling:
@@ -1281,7 +1425,7 @@ class TestInjectedAssignmentsSurvival:
         patcher, mock_pipe_cls = self._patched_pipeline()
         temp_path = self._write_minimal_pcb()
         try:
-            nets = [SimpleNamespace(name=n) for n in assignments.keys()]
+            nets = [SimpleNamespace(name=n) for n in assignments]
             parsed = type(
                 "ParsedPCB",
                 (),

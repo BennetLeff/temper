@@ -455,6 +455,10 @@ fn get_clearance(class_a: NetClass, class_b: NetClass, voltage: f64, layer_inter
 }
 
 /// Port of `_get_required_clearance`.
+#[expect(
+    clippy::too_many_arguments,
+    reason = "1:1 port of the Python reference signature; grouped params would obscure the differential-test mapping"
+)]
 fn required_clearance(
     default_clearance: f64,
     net1_is_hv_gate: bool,
@@ -535,10 +539,6 @@ struct RouteMeta {
 }
 
 impl RouteMeta {
-    fn new(route: &RouteIn, voltage_ratings: &HashMap<String, f64>) -> Self {
-        Self::new_with_hv_names(route, voltage_ratings, &std::collections::HashSet::new())
-    }
-
     fn new_with_hv_names(
         route: &RouteIn,
         voltage_ratings: &HashMap<String, f64>,
@@ -565,6 +565,10 @@ pub type ViolationOut = (String, String, f64, f64, f64, f64, String);
 // ---------------------------------------------------------------------------
 
 type AccKey = (usize, usize, String);
+type AccEntry = (AccKey, (f64, (f64, f64)));
+/// Per-phase accumulator keyed by route pair only (layer is invariant within
+/// a phase); merged into the outer `AccKey` map afterwards.
+type PhaseAcc = HashMap<(usize, usize), (f64, (f64, f64))>;
 
 #[inline]
 fn update_acc(acc: &mut HashMap<AccKey, (f64, (f64, f64))>, key: AccKey, edge_dist: f64, point: (f64, f64)) {
@@ -579,6 +583,30 @@ fn update_acc(acc: &mut HashMap<AccKey, (f64, (f64, f64))>, key: AccKey, edge_di
         Some(&(cur, _)) => {
             if edge_dist < cur {
                 acc.insert(key, (edge_dist, point));
+            }
+        }
+    }
+}
+
+/// Per-phase accumulator used while the layer is invariant: keyed by
+/// `(route_idx, route_idx)` so lookups need no `String` allocation. Same
+/// min / first-seen-on-tie / NaN-poisoning semantics as `update_acc`; the
+/// winners are merged into the outer `(route_idx, route_idx, layer)` map
+/// once per distinct pair after the phase's sweep.
+#[inline]
+fn update_acc_phase(
+    phase: &mut PhaseAcc,
+    key: (usize, usize),
+    edge_dist: f64,
+    point: (f64, f64),
+) {
+    match phase.get(&key) {
+        None => {
+            phase.insert(key, (edge_dist, point));
+        }
+        Some(&(cur, _)) => {
+            if edge_dist < cur {
+                phase.insert(key, (edge_dist, point));
             }
         }
     }
@@ -732,7 +760,7 @@ pub fn verify_route_clearance_impl_ex(
     // which asserts two calls on the same input are `==` (list-order
     // sensitive). Sorting by the route-pair/layer key makes the output
     // deterministic across calls, independent of hash seeding.
-    let mut acc_entries: Vec<((usize, usize, String), (f64, (f64, f64)))> = acc.into_iter().collect();
+    let mut acc_entries: Vec<AccEntry> = acc.into_iter().collect();
     acc_entries.sort_by(|a, b| a.0.cmp(&b.0));
 
     let mut violations: Vec<ViolationOut> = Vec::new();
@@ -855,6 +883,9 @@ fn run_fine_grid_phase(
     // docs/evidence/2026-07-26-manufacturing-drc-scalability.md: do not
     // build a pair-dedup set, it is unneeded and was the memory blow-up in
     // a previous attempt).
+    // Sweep within cells, accumulating per (route_idx, route_idx) without
+    // allocating a layer String per candidate; layer is invariant here.
+    let mut phase: PhaseAcc = HashMap::new();
     for items in grid.values() {
         for a in 0..items.len() {
             for b in (a + 1)..items.len() {
@@ -878,9 +909,15 @@ fn run_fine_grid_phase(
                     w1,
                     w2,
                 );
-                update_acc(acc, (i, j, layer.to_string()), edge_dist, point);
+                update_acc_phase(&mut phase, (i, j), edge_dist, point);
             }
         }
+    }
+
+    // Merge the phase winners into the outer (i, j, layer) map — one String
+    // allocation per distinct route pair, not per candidate segment pair.
+    for ((i, j), (edge_dist, point)) in phase {
+        update_acc(acc, (i, j, layer.to_string()), edge_dist, point);
     }
 }
 
@@ -1027,7 +1064,10 @@ fn brute_force_reference(
 ) -> (Vec<ViolationOut>, u64) {
     let n = routes.len();
     let total_checks: u64 = if n >= 2 { (n as u64) * (n as u64 - 1) / 2 } else { 0 };
-    let meta: Vec<RouteMeta> = routes.iter().map(|r| RouteMeta::new(r, voltage_ratings)).collect();
+    let meta: Vec<RouteMeta> = routes
+        .iter()
+        .map(|r| RouteMeta::new_with_hv_names(r, voltage_ratings, &std::collections::HashSet::new()))
+        .collect();
 
     let mut violations = Vec::new();
 

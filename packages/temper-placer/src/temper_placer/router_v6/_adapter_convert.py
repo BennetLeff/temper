@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import contextlib
 import logging
+import math
 import os
 import re
 import tempfile
@@ -11,6 +12,7 @@ import uuid
 from pathlib import Path
 from typing import Any
 
+from temper_placer.geometry.kicad_transform import rotate_local_to_world
 from temper_placer.router_v6._adapter_types import (
     CongestionRegion,
     DrcViolation,
@@ -103,6 +105,7 @@ def _to_stage0_netclass_rules(rules: Any) -> Any:
 
     def _resolve(name: str, *aliases: str) -> Any:
         """Return the first attribute of *aliases* that exists on *rules*."""
+        del name  # kept for call-site symmetry; only *aliases* are consulted
         for alias in aliases:
             if hasattr(rules, alias):
                 return getattr(rules, alias)
@@ -120,12 +123,12 @@ def _to_stage0_netclass_rules(rules: Any) -> Any:
     # max_current_rating → current_rating_amps (R1 fix)
     current_rating_amps: float | None = None
     if hasattr(rules, "max_current_rating"):
-        current_rating_amps = getattr(rules, "max_current_rating")
+        current_rating_amps = rules.max_current_rating
 
     # safety_category survives conversion (needed by R6 HV/AC forced-segment gate)
     safety_category: str | None = None
     if hasattr(rules, "safety_category"):
-        val = getattr(rules, "safety_category")
+        val = rules.safety_category
         if val is not None:
             safety_category = str(val)
 
@@ -177,6 +180,7 @@ def route_pcb(
     sat_conflict_limit: int | None = 20_000,
     sat_time_limit_ms: int | None = None,
     rotations: dict[str, float] | None = None,
+    components: list | None = None,
 ) -> RoutingResult:
     """Route a PCB using the Router V6 pipeline.
 
@@ -195,6 +199,14 @@ def route_pcb(
             docstring for exactly what is and is not rewritten. A ref
             with no entry here keeps its existing angle unchanged,
             matching this parameter's pre-existing absence entirely.
+        components: Optional list of ``Component`` objects (the netlist
+            ``solve_placement`` was called with). Threaded straight through
+            to ``_apply_placements_to_pcb`` so it can invert each
+            footprint's pad-centroid offset (``_center_offset_x/y``) back
+            to a KiCad anchor -- see its docstring. Required alongside
+            ``rotations`` for any footprint whose pads are not centred on
+            its raw anchor (e.g. an asymmetric TO-247); omitting it keeps
+            prior behavior unchanged.
         thermal_flat: U9 optional (N,) float32 thermal cost field from
             the previous round's field.  Threaded to A* kernel.
         thermal_weight: U9 multiplier on per-cell thermal cost
@@ -351,7 +363,11 @@ def route_pcb(
     if placements:
         raw_content = pcb_path.read_text(encoding="utf-8")
         modified_content = _apply_placements_to_pcb(
-            raw_content, placements, design_rules=design_rules, rotations=rotations
+            raw_content,
+            placements,
+            design_rules=design_rules,
+            rotations=rotations,
+            components=components,
         )
 
         fd, temp_path = tempfile.mkstemp(suffix=".kicad_pcb")
@@ -368,12 +384,12 @@ def route_pcb(
             #     time to 5+ minutes (15/24 in 18s in the smoke vs
             #     13/24 incomplete after 5 min in the full profile).
             #   * plain theta star is also Python (no iter cap)
-            #     and finds fewer nets than plain A* (Numba).
+            #     and finds fewer nets than plain A* (Rust).
             #   * enable_smoothing=True is broken:
             #     SDFGrid.from_polygons is missing, so the
             #     smoothing step is a silent no-op (or worse).
             # The closure test should use the smoke-equivalent
-            # path: plain 2D A* via the Numba kernel, no
+            # path: plain 2D A* via the Rust kernel, no
             # smoothing.
             #
             # NOTE 2026-06-24: ``max_iter=500_000`` is the
@@ -788,6 +804,7 @@ def _apply_placements_to_pcb(
     placements: dict[str, tuple[float, float]],
     design_rules: Any = None,
     rotations: dict[str, float] | None = None,
+    components: list | None = None,
 ) -> str:
     """Modify footprint (at X Y [ANGLE]) positions in KiCad PCB raw content.
 
@@ -801,11 +818,46 @@ def _apply_placements_to_pcb(
     that footprint is re-oriented by the same delta so pad geometry keeps
     matching where the footprint visually points (see
     ``_reorient_pads_in_footprint_block`` above).
+
+    ``components``, if given, is the ``Component`` list the placements were
+    *solved* against (the same object ``solve_placement`` was called with).
+    ``placements[ref]`` is CP-SAT's box-CENTRE coordinate -- for a footprint
+    whose pad centroid does not coincide with its raw KiCad anchor
+    (``Component.attributes["_center_offset_x/y"]`` != 0, e.g. an
+    asymmetric TO-247), the anchor this function writes into ``(at X Y)``
+    must be the centre minus that offset, rotated (KiCad's actual,
+    clockwise convention -- see the inline comment below) by whichever
+    rotation the centre was actually computed at (``rotations.get(ref)``
+    when a solved rotation was supplied, else the footprint's own existing
+    angle) -- otherwise every pad in the footprint is written up to
+    ``2 * center_offset`` mm away from where CP-SAT verified it to be
+    sound, silently reopening the exact clearance/overlap gap the
+    box-containment proof in ``domain_clearance.py`` depends on. Same
+    correction as ``io/_write_board.py::write_placements_to_pcb`` (the
+    write path ``pcb/temper.kicad_pcb`` ships through) and
+    ``io/_parse_modules.py``'s read-side ``rotated_cx``/``rotated_cy`` --
+    both were carrying the wrong rotation sign until this change; see
+    docs/evidence/2026-07-30-generic-separation-writer-frame-fix.md.
+    Omitting ``components`` (the default) keeps prior behavior byte-for-byte
+    identical -- callers that never pass it (nothing else in this codebase
+    besides the golden-board regression gate did, until this was wired in)
+    are unaffected.
     """
     foot_starts = [m.start() for m in re.finditer(r'\(footprint\s+"[^"]+"\s+\(layer', raw_content)]
 
     if not foot_starts:
         return raw_content
+
+    center_offsets: dict[str, tuple[float, float]] = {}
+    if components:
+        for comp in components:
+            attrs = getattr(comp, "attributes", None)
+            if not attrs:
+                continue
+            cx = float(attrs.get("_center_offset_x", "0"))
+            cy = float(attrs.get("_center_offset_y", "0"))
+            if cx != 0.0 or cy != 0.0:
+                center_offsets[getattr(comp, "ref", "")] = (cx, cy)
 
     result_parts = []
     prev_end = 0
@@ -821,6 +873,48 @@ def _apply_placements_to_pcb(
                 x, y = placements[ref]
                 target_angle = rotations.get(ref) if rotations else None
 
+                fp_at_match = re.search(
+                    r"\(at\s+[\d.-]+\s+[\d.-]+(?:\s+([\d.-]+))?\s*\)", block
+                )
+                old_angle = 0.0
+                if fp_at_match and fp_at_match.group(1):
+                    old_angle = float(fp_at_match.group(1))
+
+                if ref in center_offsets:
+                    # The centre was computed at whichever rotation CP-SAT
+                    # actually chose (target_angle); if this call wasn't
+                    # given a solved rotation for this ref, the centre must
+                    # have been computed at its pre-existing angle instead
+                    # (no rotation change), so fall back to old_angle.
+                    #
+                    # Rotation sign: a KiCad footprint's `(at X Y ANGLE)`
+                    # rotates each pad's stored LOCAL (unrotated) offset by
+                    # ANGLE *clockwise* to get its absolute board position --
+                    # i.e. `abs = anchor + R(-ANGLE)` in the standard
+                    # (CCW-positive) trig convention, not `R(+ANGLE)`.
+                    # Verified directly against ``pcbnew`` (KiCad's own
+                    # placement engine, not kiutils or a re-derivation): a
+                    # 2-pad footprint at a non-axis-aligned angle (37 deg)
+                    # with an off-axis local pad offset (10, 4) places that
+                    # pad at (10.393615, -2.823608) -- the R(-ANGLE)
+                    # prediction to 6 decimal places; the R(+ANGLE)
+                    # (standard-CCW) prediction, (5.579095, 9.212693), is a
+                    # different point entirely. Using the standard-CCW sign
+                    # here (as this function's first cut did, and as
+                    # ``io/_write_board.py::write_placements_to_pcb`` and
+                    # ``io/_parse_modules.py``'s ``rotated_cx``/``rotated_cy``
+                    # did before this same change corrected them too)
+                    # silently re-offsets every pad of a rotated,
+                    # off-centroid footprint by up to ``2 * |center_offset|``
+                    # -- exactly what turned Q1/Q2's real, sound clearance
+                    # into a measured copper short here. See
+                    # docs/evidence/2026-07-30-generic-separation-writer-frame-fix.md.
+                    cx, cy = center_offsets[ref]
+                    rot_rad = math.radians(target_angle if target_angle is not None else old_angle)
+                    rotated_cx, rotated_cy = rotate_local_to_world(cx, cy, rot_rad)
+                    x -= rotated_cx
+                    y -= rotated_cy
+
                 if target_angle is None:
                     # No solved rotation for this ref: preserve its existing
                     # angle exactly, unchanged from the pre-fix behavior.
@@ -831,13 +925,6 @@ def _apply_placements_to_pcb(
                         count=1,
                     )
                 else:
-                    fp_at_match = re.search(
-                        r"\(at\s+[\d.-]+\s+[\d.-]+(?:\s+([\d.-]+))?\s*\)", block
-                    )
-                    old_angle = 0.0
-                    if fp_at_match and fp_at_match.group(1):
-                        old_angle = float(fp_at_match.group(1))
-
                     new_angle = target_angle % 360.0
                     angle_token = "" if new_angle == 0.0 else f" {new_angle:.4f}"
                     block = re.sub(

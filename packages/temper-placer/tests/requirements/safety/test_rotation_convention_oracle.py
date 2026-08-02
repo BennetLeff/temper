@@ -109,7 +109,6 @@ if str(_SCRIPTS_DIR) not in sys.path:
 
 import check_isolation_keepout as _check_isolation_keepout  # noqa: E402
 
-
 # =============================================================================
 # (a) Cheap, dependency-free metamorphic pin tests
 # =============================================================================

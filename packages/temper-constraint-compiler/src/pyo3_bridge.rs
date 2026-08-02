@@ -449,13 +449,12 @@ pub fn run_full_pipeline(
         .iter()
         .map(|c| {
             let d = PyDict::new(py);
-            d.set_item("pcl_constraint_ids", c.pcl_constraint_ids.clone())
-                .unwrap();
-            d.set_item("description", &c.description).unwrap();
-            d.set_item("tier", format!("{}", c.tier)).unwrap();
-            d.clone().into()
+            d.set_item("pcl_constraint_ids", c.pcl_constraint_ids.clone())?;
+            d.set_item("description", &c.description)?;
+            d.set_item("tier", format!("{}", c.tier))?;
+            Ok(d.into())
         })
-        .collect();
+        .collect::<PyResult<Vec<_>>>()?;
 
     let tier2_constraints = compile_tier1_to_tier2(&tier1_model, &topology, &mut prov)
         .map_err(|e| {

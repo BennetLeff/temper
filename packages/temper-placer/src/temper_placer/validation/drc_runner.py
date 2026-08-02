@@ -320,6 +320,7 @@ class CheckRunner:
         happening. Wiring it through to ``run_drc()`` is a behaviour change and
         is scoped as a follow-up, not folded into a signature repair.
         """
+        del modified_regions  # inherited unused arg (baseline debt)
         try:
             import temper_drc_rs  # type: ignore[import-untyped]
         except ImportError as exc:

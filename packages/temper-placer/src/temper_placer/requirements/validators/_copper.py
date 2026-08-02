@@ -18,14 +18,12 @@ import math
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
+import temper_geometry as _tg
+
 from temper_placer.core.pad_geometry import (
     DEFAULT_ROUNDRECT_RATIO,
-    pad_bounding_radius,
-    pad_pair_distance,
+    shape_code,
 )
-from temper_placer.geometry.kicad_transform import rotate_local_to_world
-
-from ._geometry import _distance
 
 if TYPE_CHECKING:
     # Annotation-only, under `from __future__ import annotations`. Imported
@@ -76,7 +74,6 @@ def _rotate(x: float, y: float, theta_rad: float) -> tuple[float, float]:
     confirming evidence (this is the REQ-SAFE-01 copper-position site: the
     12 independently-typed copies of this formula that module's docstring
     describes included this one).
-
     This repo's own KiCad parser (``io/_parse_modules.py``, which builds
     ``Component.initial_position`` as ``fp.position + R(-theta) *
     center_offset``) and writer (``io/_write_modules.py``,
@@ -85,8 +82,16 @@ def _rotate(x: float, y: float, theta_rad: float) -> tuple[float, float]:
     center_offset`` recovers ``fp.position + R(-theta) * pad_local``
     exactly. Picking the opposite sign for pads only would make the pad set
     inconsistent with its own reported origin.
+
+    **Computed in the ``temper-geometry`` Rust crate**
+    (``clearance_geometry.rs``, host-libm ``cos``/``sin``), bit-identical
+    to ``kicad_transform.rotate_local_to_world`` -- pinned by
+    ``tests/requirements/test_clearance_rust_differential.py``. (The
+    sanctioned pure-Python module stays as-is for its other 11 call sites;
+    this clearance-path site is the one that feeds the safety validator, so
+    it runs the crate's single implementation instead.)
     """
-    return rotate_local_to_world(x, y, theta_rad)
+    return _tg.rotate_local_to_world_py(x, y, theta_rad)
 
 
 def _component_pads(comp: dict[str, Any]) -> list[_Pad]:
@@ -150,10 +155,13 @@ class _CopperModel:
                 self._reach[ref] = 0.0
                 continue
             ox, oy = self._origin[ref]
-            self._reach[ref] = max(
-                math.hypot(p.cx - ox, p.cy - oy)
-                + pad_bounding_radius(p.width, p.height, p.shape, p.roundrect_ratio)
-                for p in pads
+            # The reach math (CPython math.hypot + the Rust bounding
+            # radius, folded with max) is the temper-geometry crate's
+            # component_reach_py -- bit-exact vs the pre-migration loop.
+            self._reach[ref] = _tg.component_reach_py(
+                [self._spec(p) for p in pads],
+                ox,
+                oy,
             )
 
     # -- pad selection -----------------------------------------------------
@@ -187,12 +195,14 @@ class _CopperModel:
     # -- geometry ----------------------------------------------------------
 
     @staticmethod
-    def _spec(pad: _Pad) -> tuple[float, float, str, float, float, float, float]:
-        """``pad_geometry.pad_pair_distance``'s pad tuple."""
+    def _spec(pad: _Pad) -> tuple[float, float, int, float, float, float, float]:
+        """``pad_geometry.pad_pair_distance``'s pad tuple, with the shape
+        as the FFI int enum (``shape_code``; the Rust core never sees a
+        shape string)."""
         return (
             pad.width,
             pad.height,
-            pad.shape,
+            shape_code(pad.shape),
             pad.cx,
             pad.cy,
             pad.rotation_rad,
@@ -212,7 +222,9 @@ class _CopperModel:
         if ref_a == ref_b:
             return -math.inf
         pa, pb = self._origin[ref_a], self._origin[ref_b]
-        return _distance(pa, pb) - self._reach[ref_a] - self._reach[ref_b]
+        # math.dist is CPython's Dekker vector_norm; the crate's
+        # origin_distance_py reproduces it bit-exactly.
+        return _tg.origin_distance_py(pa[0], pa[1], pb[0], pb[1]) - self._reach[ref_a] - self._reach[ref_b]
 
     def copper_distance(
         self,
@@ -236,39 +248,46 @@ class _CopperModel:
         pads_a = self.pads_in_domain(ref_a, domain_a, nets_domain)
         pads_b = self.pads_in_domain(ref_b, domain_b, nets_domain)
 
+        origin_dist = _tg.origin_distance_py(
+            self._origin[ref_a][0], self._origin[ref_a][1],
+            self._origin[ref_b][0], self._origin[ref_b][1],
+        )
+
         if not pads_a or not pads_b:
             result = (
-                _distance(self._origin[ref_a], self._origin[ref_b]),
+                origin_dist,
                 "origin",
                 f"{ref_a} <-> {ref_b} (origins; no pad geometry)",
             )
             self._dist_cache[key] = result
             return result
 
-        best = math.inf
-        best_label = ""
-        for pa in pads_a:
-            ra = pad_bounding_radius(pa.width, pa.height, pa.shape, pa.roundrect_ratio)
-            for pb in pads_b:
-                if pa is pb:
-                    continue  # a pad has no clearance to itself
-                rb = pad_bounding_radius(pb.width, pb.height, pb.shape, pb.roundrect_ratio)
-                centre_gap = math.hypot(pa.cx - pb.cx, pa.cy - pb.cy) - ra - rb
-                if centre_gap >= best:
-                    continue  # provably cannot beat the incumbent
-                d = pad_pair_distance(self._spec(pa), self._spec(pb))
-                if d < best:
-                    best = d
-                    best_label = f"{pa.label} <-> {pb.label}"
+        # The pair scan -- the hypot centre-gap pruning and the exact
+        # pad-pair distance per surviving pair -- is the temper-geometry
+        # crate's copper_scan_py (bit-exact vs the pre-migration loop,
+        # including the `pa is pb` identity skip and the
+        # `centre_gap >= best` prune). The ids are Python object ids:
+        # equal ids reproduce `pa is pb` exactly, which also catches pads
+        # shared between a domain-filtered sublist and the component's
+        # stored full list. `best` is inf exactly when no distinct pad
+        # pair survived, which reproduces the old `best is math.inf`
+        # origin fallback.
+        best, best_pair = _tg.copper_scan_py(
+            [self._spec(p) for p in pads_a],
+            [self._spec(p) for p in pads_b],
+            [id(p) for p in pads_a],
+            [id(p) for p in pads_b],
+        )
 
-        if best is math.inf:
+        if math.isinf(best):
             result = (
-                _distance(self._origin[ref_a], self._origin[ref_b]),
+                origin_dist,
                 "origin",
                 f"{ref_a} <-> {ref_b} (origins; no distinct pad pair)",
             )
         else:
-            result = (best, "copper", best_label)
+            i, j = best_pair
+            result = (best, "copper", f"{pads_a[i].label} <-> {pads_b[j].label}")
         self._dist_cache[key] = result
         return result
 
@@ -319,4 +338,3 @@ def _creepage_from_clearance(straight_mm: float, cutouts: list[Any]) -> tuple[fl
         len(cutouts),
     )
     return straight_mm, CREEPAGE_MODEL_STRAIGHT_LINE_LOWER_BOUND
-

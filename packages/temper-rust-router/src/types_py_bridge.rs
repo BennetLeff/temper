@@ -9,7 +9,6 @@ use temper_rust_router_core::types::{
 };
 
 pub fn model_from_python(
-    _net_ids: Vec<String>,
     variables: Vec<Py<PyAny>>,
     constraints: Vec<Py<PyAny>>,
     py: Python<'_>,
@@ -114,13 +113,22 @@ pub fn bridge_bundle_manifest(
     let mut bundles = Vec::new();
     for item in bundles_list.iter() {
         let d: &Bound<'_, PyDict> = item.cast::<PyDict>()?;
-        let bundle_id: usize = d.get_item("bundle_id")?.unwrap().extract()?;
-        let net_indices: Vec<usize> = d.get_item("net_indices")?.unwrap().extract()?;
+        let bundle_id: usize = d
+            .get_item("bundle_id")?
+            .ok_or_else(|| PyErr::new::<pyo3::exceptions::PyValueError, _>("missing 'bundle_id' in bundle"))?
+            .extract()?;
+        let net_indices: Vec<usize> = d
+            .get_item("net_indices")?
+            .ok_or_else(|| PyErr::new::<pyo3::exceptions::PyValueError, _>("missing 'net_indices' in bundle"))?
+            .extract()?;
         let constraint_types: Vec<String> = d
             .get_item("constraint_types")?
-            .unwrap()
+            .ok_or_else(|| PyErr::new::<pyo3::exceptions::PyValueError, _>("missing 'constraint_types' in bundle"))?
             .extract::<Vec<String>>()?;
-        let is_diff_pair: bool = d.get_item("is_diff_pair")?.unwrap().extract()?;
+        let is_diff_pair: bool = d
+            .get_item("is_diff_pair")?
+            .ok_or_else(|| PyErr::new::<pyo3::exceptions::PyValueError, _>("missing 'is_diff_pair' in bundle"))?
+            .extract()?;
 
         bundles.push(BundleClass {
             bundle_id,
@@ -143,7 +151,9 @@ pub fn bridge_bundle_manifest(
 
     let unbundled_binding = py_dict
         .get_item("unbundled_net_indices")?
-        .unwrap();
+        .ok_or_else(|| {
+            PyErr::new::<pyo3::exceptions::PyValueError, _>("missing 'unbundled_net_indices'")
+        })?;
     let unbundled: Vec<usize> = unbundled_binding.extract()?;
 
     Ok(InternalBundleManifest {

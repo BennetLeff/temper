@@ -63,8 +63,45 @@ pub fn rotate_points(points: &[Point], angle_rad: f64, center: Option<&Point>) -
 /// own center by the given angle.
 pub fn get_rotated_bounds(r: &Rect, angle_rad: f64) -> AABB {
     let center = r.center();
-    let corners = rotate_rectangle_corners(r, angle_rad, &center);
-    AABB::from_points(&corners)
+    let half_w = r.w * 0.5;
+    let half_h = r.h * 0.5;
+
+    // Same rotation math as `rotate_rectangle_corners` (same corner order
+    // and matrix application), but into a stack array instead of a heap
+    // Vec.
+    let rel_corners = [
+        Point::new(-half_w, -half_h), // bottom-left
+        Point::new(half_w, -half_h),  // bottom-right
+        Point::new(half_w, half_h),   // top-right
+        Point::new(-half_w, half_h),  // top-left
+    ];
+
+    let m = get_rotation_matrix(angle_rad);
+
+    // Fold with the exact same min/max reduction order (and NaN-skipping
+    // comparison semantics) as `AABB::from_points`.
+    let mut min_x = f64::INFINITY;
+    let mut min_y = f64::INFINITY;
+    let mut max_x = f64::NEG_INFINITY;
+    let mut max_y = f64::NEG_INFINITY;
+    for c in rel_corners {
+        let rx = m[0][0] * c.x + m[0][1] * c.y;
+        let ry = m[1][0] * c.x + m[1][1] * c.y;
+        let p = Point::new(center.x + rx, center.y + ry);
+        if p.x < min_x {
+            min_x = p.x;
+        }
+        if p.y < min_y {
+            min_y = p.y;
+        }
+        if p.x > max_x {
+            max_x = p.x;
+        }
+        if p.y > max_y {
+            max_y = p.y;
+        }
+    }
+    AABB::new(min_x, min_y, max_x, max_y)
 }
 
 /// Rotate the four corners of a rectangle around a given center point.

@@ -27,6 +27,7 @@ from check_domain_partition import (  # noqa: E402
     EXIT_VIOLATION,
     GateError,
     build_graph,
+    check_board_interface_contract,
     check_domain_disjointness,
     check_isolator_integrity,
     check_netlist_freshness,
@@ -109,6 +110,24 @@ isolators:
 """
 
 
+SPLIT_BOARD_INTERFACE_MANIFEST = """
+schema_version: 1
+board_interface:
+  name: POWER_CONTROL_SELV_INTERFACE
+  power_board: POWER_BOARD
+  control_board: CONTROL_BOARD
+  connector: J_POWER_CONTROL
+  allowed_domains: [SELV]
+  nets: [v15, pwm, shutdown]
+domains:
+  HV:
+    nets: [ac_l, hv_return]
+  SELV:
+    nets: [v15, pwm, shutdown]
+isolators: []
+"""
+
+
 def _isolated_topology_nets():
     """A correctly isolated topology: PS1 pins 1/2 (primary=HV) never share
     a net with pins 3/4 (secondary=SELV)."""
@@ -118,6 +137,52 @@ def _isolated_topology_nets():
         ("v15", [("PS1", "3")]),
         ("selv_gnd", [("PS1", "4")]),
     ]
+
+
+class TestBoardInterfaceContract:
+    def test_split_board_interface_accepts_only_declared_selv_nets(self, tmp_path):
+        netlist = parse_netlist(
+            write_netlist(
+                tmp_path,
+                [("J1", "connector")],
+                [
+                    ("v15", [("J1", "1")]),
+                    ("pwm", [("J1", "2")]),
+                    ("shutdown", [("J1", "3")]),
+                ],
+            )
+        )
+        manifest = load_manifest(
+            write_manifest(tmp_path, SPLIT_BOARD_INTERFACE_MANIFEST)
+        )
+
+        assert manifest.board_interface is not None
+        assert check_board_interface_contract(netlist, manifest) == []
+
+    def test_split_board_interface_rejects_hv_net(self, tmp_path):
+        manifest_text = SPLIT_BOARD_INTERFACE_MANIFEST.replace(
+            "nets: [v15, pwm, shutdown]\ndomains:",
+            "nets: [v15, hv_return, shutdown]\ndomains:",
+            1,
+        )
+        netlist = parse_netlist(
+            write_netlist(
+                tmp_path,
+                [("J1", "connector")],
+                [
+                    ("v15", [("J1", "1")]),
+                    ("hv_return", [("J1", "2")]),
+                    ("shutdown", [("J1", "3")]),
+                ],
+            )
+        )
+        manifest = load_manifest(write_manifest(tmp_path, manifest_text))
+
+        violations = check_board_interface_contract(netlist, manifest)
+
+        assert len(violations) == 1
+        assert "hv_return" in violations[0]
+        assert "HV" in violations[0]
 
 
 def _shorted_topology_nets():

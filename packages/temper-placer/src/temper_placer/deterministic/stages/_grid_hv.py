@@ -1,3 +1,5 @@
+import temper_geometry as _tg
+
 from temper_placer.core.board import (
     LAYER_IDX_TO_NAME,
     PLANE_LAYER_INDICES,
@@ -32,6 +34,11 @@ def effective_creepage(layer: str, base_creepage_mm: float) -> float:
     @req(2026-06-23-005, R2): Outer layers use the full base creepage; inner
     layers use `base_creepage_mm * INTERNAL_LAYER_CREEPAGE_FACTOR`.
 
+    The layer-set membership test stays here (it resolves against the
+    board's layer constants); the factor application is computed in
+    temper-geometry (``grid_raster.rs``) with the identical f64 literal
+    and single rounded multiply.
+
     Args:
         layer: KiCad layer name (e.g., "F.Cu", "In1.Cu").
         base_creepage_mm: Base creepage distance in mm (typically 6.0).
@@ -39,9 +46,7 @@ def effective_creepage(layer: str, base_creepage_mm: float) -> float:
     Returns:
         Effective creepage distance in mm for the given layer.
     """
-    if layer in OUTER_COPPER_LAYERS:
-        return base_creepage_mm
-    return base_creepage_mm * INTERNAL_LAYER_CREEPAGE_FACTOR
+    return _tg.effective_creepage_py(layer in OUTER_COPPER_LAYERS, base_creepage_mm)
 
 
 def _layer_index_to_name(layer_idx: int, _layer_count: int) -> str:
@@ -100,20 +105,22 @@ def hv_pad_set(pads, hv_exclusion_zones, component_positions):
         zx, zy = zone.center
         zw, zh = zone.size
         half_w, half_h = zw / 2.0, zh / 2.0
-        candidates = [
-            (ref, pos)
-            for ref, pos in component_positions.items()
-            if (zx - half_w) <= pos[0] <= (zx + half_w) and (zy - half_h) <= pos[1] <= (zy + half_h)
-        ]
-        if not candidates:
+        # In-bounds filter + closest-by-squared-distance selection computed
+        # in temper-geometry (grid_raster.rs) with first-min tie-breaking,
+        # preserving Python's `min` semantics on the dict-insertion order of
+        # `component_positions.items()`.
+        closest_ref = _tg.closest_component_for_zone_py(
+            [(ref, pos[0], pos[1]) for ref, pos in component_positions.items()],
+            zx,
+            zy,
+            half_w,
+            half_h,
+        )
+        if closest_ref is None:
             raise ConfigError(
                 f"HV exclusion zone '{getattr(zone, 'name', '?')}' centered at "
                 f"({zx}, {zy}) with size {zone.size} contains no placed component."
             )
-        closest_ref, _ = min(
-            candidates,
-            key=lambda item: (item[1][0] - zx) ** 2 + (item[1][1] - zy) ** 2,
-        )
         hv_refs.add(closest_ref)
 
     return {(pad["ref"], pad["name"]) for pad in pads if pad["ref"] in hv_refs}

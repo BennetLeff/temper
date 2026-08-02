@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import pytest
@@ -70,7 +71,41 @@ def test_measurement_record_pbt_rejects_malformed_top_level_payloads(payload: ob
 
 
 def test_committed_u8_measurement_record_is_well_formed() -> None:
-    """The audit evidence is a checked artifact, not a prose-only claim."""
-    record_path = REPO_ROOT / "docs" / "evidence" / "2026-07-19-via-aware-routing-u8.json"
+    """The audit evidence is a checked artifact, not a prose-only claim.
+
+    The U8 via-aware measurement was committed as
+    ``docs/evidence/2026-07-20-via-aware-U8-kicad-drc.json`` (commit
+    e5c6b29f3) with a flat schema (`pre_u7_baseline`/`post_u7_measurement`/
+    `verdict`/`provenance`) rather than the ``schema_version``/``boards``
+    schema ``validate_via_routing_measurement`` validates (that schema
+    matches no committed evidence file; the test's in-memory ``_valid_record``
+    fixture is its only conforming example). An earlier version of this test
+    asserted existence of ``2026-07-19-via-aware-routing-u8.json``, a file
+    that has never existed in this repo's git history at all (triaged in
+    docs/evidence/2026-07-28-pad-geometry-model-fix.md); this version checks
+    the artifact that actually exists, against the schema it actually uses.
+    """
+    record_path = REPO_ROOT / "docs" / "evidence" / "2026-07-20-via-aware-U8-kicad-drc.json"
     assert record_path.exists(), f"Missing U8 measurement record: {record_path}"
-    validate_via_routing_measurement(record_path)
+
+    with open(record_path) as f:
+        record = json.load(f)
+
+    # Anti-false-zero: the committed record must prove the real measurement,
+    # not just exist as bytes. Every field below is load-bearing evidence
+    # (docs/METHODOLOGY.md Sec 5); a prose-only or placeholder file fails.
+    assert record.get("unit") == "U8"
+    assert record.get("measurement_date") == "2026-07-20"
+    assert record.get("board") == "pcb/temper.kicad_pcb"
+    assert record.get("kicad_cli_version"), "missing kicad_cli_version"
+
+    pre = record.get("pre_u7_baseline") or {}
+    post = record.get("post_u7_measurement") or {}
+    assert pre.get("unconnected_items") == 149
+    assert post.get("unconnected_items") == 0
+    assert "149" in record.get("verdict", "") and "0" in record.get("verdict", "")
+
+    # The provenance block is the "checked artifact" claim: a record without
+    # provenance is not a record. (Its values are UNKNOWN -- backfilled before
+    # the provenance gate existed -- but the block itself must be present.)
+    assert isinstance(record.get("provenance"), dict)

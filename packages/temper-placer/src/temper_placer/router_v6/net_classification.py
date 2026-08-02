@@ -111,9 +111,7 @@ def is_power_net(name: str) -> bool:
     if _matches_any(upper, POWER_NET_PATTERNS):
         return True
     # Prefix heuristic: nets starting with '+' are voltage rails
-    if upper.startswith("+"):
-        return True
-    return False
+    return upper.startswith("+")
 
 
 def is_hv_net(name: str) -> bool:

@@ -5,9 +5,11 @@
 // Extended U5: bundle-variable homomorphism expansion per
 // docs/plans/2026-06-28-002-feat-net-bundling-lazy-grounding-plan.md
 
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 
-use crate::types::{InternalBundleManifest, InternalConstraintModel, NetTopology, TopologyGraph};
+use crate::types::{
+    BundleClass, InternalBundleManifest, InternalConstraintModel, NetTopology, TopologyGraph,
+};
 
 /// Convert solver variable assignments into a TopologyGraph of channel paths.
 ///
@@ -19,8 +21,11 @@ pub fn extract_topology(
     var_names: &[String],
     net_names: &[String],
 ) -> TopologyGraph {
-    // Build a set of net names for fast prefix matching.
-    let net_name_set: HashSet<&str> = net_names.iter().map(|s| s.as_str()).collect();
+    // Longest-prefix matching: sort net names by descending length so the
+    // first prefix match in the assignment loop below is the longest one,
+    // and the scan can `break` immediately (F2).
+    let mut nets_by_len: Vec<&str> = net_names.iter().map(|s| s.as_str()).collect();
+    nets_by_len.sort_unstable_by_key(|s| std::cmp::Reverse(s.len()));
 
     // net_name → Vec<channel_id>
     let mut net_channels: HashMap<String, Vec<String>> = HashMap::new();
@@ -37,26 +42,23 @@ pub fn extract_topology(
         // Parse variable names of the form `uses_{net_name}_{channel_id}`.
         // Net names can contain underscores, so we try suffix splitting.
         if let Some(rest) = var_name.strip_prefix("uses_") {
-            // Try each known net name as a prefix of `rest`.
-            let mut best_net: Option<&str> = None;
-            let mut best_len: usize = 0;
-            for net in &net_name_set {
-                if rest.starts_with(*net) && net.len() > best_len {
+            // Try each known net name as a prefix of `rest`, longest first.
+            // `break` is safe: remaining candidates are all shorter, so the
+            // first match (with the '_' separator) is the longest prefix.
+            for net in &nets_by_len {
+                if rest.starts_with(*net) {
                     // The character after the net name must be '_' (separator to channel_id).
                     let after = &rest[net.len()..];
                     if after.starts_with('_') {
-                        best_net = Some(net);
-                        best_len = net.len();
+                        let channel_id = &rest[net.len() + 1..]; // skip net_name + '_'
+                        if !channel_id.is_empty() {
+                            net_channels
+                                .entry((*net).to_string())
+                                .or_default()
+                                .push(channel_id.to_string());
+                        }
+                        break;
                     }
-                }
-            }
-            if let Some(net) = best_net {
-                let channel_id = &rest[best_len + 1..]; // skip net_name + '_'
-                if !channel_id.is_empty() {
-                    net_channels
-                        .entry(net.to_string())
-                        .or_default()
-                        .push(channel_id.to_string());
                 }
             }
         }
@@ -172,6 +174,14 @@ pub fn extract_bundled(
     let mut expanded = assignments.clone();
     let mut all_var_names = var_names.to_vec();
 
+    // Index bundles by id once (F3) — previously a linear scan over
+    // `manifest.bundles` ran inside the per-class-var loop below.
+    let bundle_by_id: HashMap<usize, &BundleClass> = manifest
+        .bundles
+        .iter()
+        .map(|b| (b.bundle_id, b))
+        .collect();
+
     for name in var_names {
         if !name.starts_with("uses_B") {
             continue;
@@ -187,7 +197,7 @@ pub fn extract_bundled(
                     continue;
                 }
                 // Find the bundle and expand.
-                if let Some(bundle) = manifest.bundles.iter().find(|b| b.bundle_id == bid) {
+                if let Some(bundle) = bundle_by_id.get(&bid) {
                     for &ni in &bundle.net_indices {
                         let pn_name = format!("uses_N{ni}_{ch}");
                         let pn_idx = if let Some(&idx) = name_to_idx.get(pn_name.as_str()) {

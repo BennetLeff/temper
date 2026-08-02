@@ -1,5 +1,11 @@
 name: Golden Regression Check
 
+# PR runs grouped per PR number, cancelled when superseded; main runs grouped
+# per SHA and never cancelled. Rationale: python-tests.yml.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 on:
   pull_request:
     paths:
@@ -78,7 +84,7 @@ jobs:
           uv run temper-placer regression 2>&1 | tee golden-output.txt
 
       # A board whose baseline file is missing is reported SKIP, and skipped is
-      # excluded from the failure count (corpus_runner.py:110,252), so it can
+      # excluded from the failure count (corpus_runner.py:109,238), so it can
       # never fail this gate. bitaxe_ultra has had no baseline since it was
       # added and nothing surfaced that. This step does not change pass/fail --
       # it just stops the gap being invisible outside the raw logs.

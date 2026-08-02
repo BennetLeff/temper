@@ -1,5 +1,4 @@
 # mypy: ignore-errors
-# ruff: noqa: ARG001, F821  # enable_numba_los from incomplete numba merge
 """
 Router V6: Route construction from A* search results.
 
@@ -101,7 +100,6 @@ def run_astar_pathfinding(
     use_lazy_theta_star: bool = False,
     congestion_tensor=None,  # U7 / R11: PathFinder history cost
     max_iter: int = 1_000_000,
-    enable_numba_los: bool = False,
     enable_coarse_to_fine: bool = False,
     coarse_factor: int = 4,
     corridor_buffer_cells: int = 12,
@@ -144,7 +142,6 @@ def run_astar_pathfinding(
 
     net_order = _compute_net_order(channel_mapping, bottleneck_widths=bottleneck_widths)
     routable_nets = [n for n in net_order if _should_route(n)]
-    skipped_nets = [n for n in net_order if n not in set(routable_nets)]
 
     if target_nets:
         target_set = set(target_nets)

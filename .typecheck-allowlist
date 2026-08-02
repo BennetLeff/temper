@@ -24,11 +24,9 @@ packages/temper-placer/src/temper_placer/pipeline/stages/geometric_stage.py 3
 packages/temper-placer/src/temper_placer/pipeline/stages/input_stage.py 1
 packages/temper-placer/src/temper_placer/pipeline/stages/output_stage.py 2
 packages/temper-placer/src/temper_placer/placer/cp_sat/_encoder_core.py 6
-packages/temper-placer/src/temper_placer/placer/cp_sat/_encoder_solve.py 1
 packages/temper-placer/src/temper_placer/placer/cp_sat/_loop_core.py 63
 packages/temper-placer/src/temper_placer/placer/cp_sat/_loop_gates.py 8
 packages/temper-placer/src/temper_placer/placer/cp_sat/_loop_stability.py 12
-packages/temper-placer/src/temper_placer/placer/cp_sat/concrete_gates.py 1
 packages/temper-placer/src/temper_placer/placer/cp_sat/delta_mapper.py 4
 packages/temper-placer/src/temper_placer/placer/cp_sat/feedback.py 2
 packages/temper-placer/src/temper_placer/placer/cp_sat/gates.py 1

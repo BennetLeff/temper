@@ -2,110 +2,9 @@ from dataclasses import dataclass
 from typing import Any
 
 import numpy as np
-
-try:
-    from numba import njit
-except ImportError:
-
-    def njit(*args, **kwargs):
-        """No-op decorator when numba is unavailable.
-
-        VERIFIED 2026-07-17: must handle both `@njit` (bare -- called as
-        njit(func), func arrives as the sole positional arg) and
-        `@njit(...)` (called with options -- returns a decorator that
-        receives func next). The previous version always returned
-        `lambda f: f` regardless of call style, so bare `@njit` usage
-        (as on _block_circle_numba below) silently discarded the actual
-        function and replaced it with a useless identity lambda -- any
-        call to it then crashed with a confusing arity TypeError
-        ("takes 1 positional argument but N were given") that gives no
-        hint the real cause is numba failing to import. See
-        docs/solutions/logic-errors/
-        njit-fallback-shim-discards-function-on-bare-decorator.md.
-        """
-        if len(args) == 1 and callable(args[0]) and not kwargs:
-            return args[0]
-        return lambda f: f
-
+import temper_geometry as _tg
 
 from ._grid_hv import _STANDARD_LAYER_NAMES
-
-
-@njit
-def _block_circle_numba(
-    target_grid, cx, cy, total_radius, net_id, cell_size_mm, min_row, max_row, min_col, max_col
-):
-    """Numba-optimized inner loop for block_circle().
-
-    Args:
-        target_grid: NumPy array to modify
-        cx, cy: Center coordinates in mm
-        total_radius: radius + clearance in mm
-        net_id: Net ID to write to cells
-        cell_size_mm: Grid cell size
-        min_row, max_row, min_col, max_col: Bounding box limits
-    """
-    for row in range(min_row, max_row):
-        for col in range(min_col, max_col):
-            cell_x = col * cell_size_mm + cell_size_mm / 2
-            cell_y = row * cell_size_mm + cell_size_mm / 2
-            dist = ((cell_x - cx) ** 2 + (cell_y - cy) ** 2) ** 0.5
-            if dist <= total_radius:
-                curr = target_grid[row, col]
-                if curr == 0:
-                    target_grid[row, col] = net_id
-                elif curr != net_id:
-                    target_grid[row, col] = -1  # Multiple nets/Conflict
-
-
-@njit
-def _block_segment_numba(
-    target_grid,
-    x1,
-    y1,
-    x2,
-    y2,
-    total_radius,
-    net_id,
-    cell_size_mm,
-    min_row,
-    max_row,
-    min_col,
-    max_col,
-):
-    """Numba-optimized inner loop for _block_segment().
-
-    Args:
-        target_grid: NumPy array to modify
-        x1, y1, x2, y2: Segment endpoints in mm
-        total_radius: (width/2 + clearance) in mm
-        net_id: Net ID to write to cells
-        cell_size_mm: Grid cell size
-        min_row, max_row, min_col, max_col: Bounding box limits
-    """
-    dx = x2 - x1
-    dy = y2 - y1
-    L2 = dx * dx + dy * dy
-
-    for row in range(min_row, max_row):
-        for col in range(min_col, max_col):
-            cell_x = col * cell_size_mm + cell_size_mm / 2
-            cell_y = row * cell_size_mm + cell_size_mm / 2
-
-            # Projection of point (cell_x, cell_y) onto segment
-            t = ((cell_x - x1) * dx + (cell_y - y1) * dy) / L2
-            t = max(0.0, min(1.0, t))
-
-            proj_x = x1 + t * dx
-            proj_y = y1 + t * dy
-
-            dist = ((cell_x - proj_x) ** 2 + (cell_y - proj_y) ** 2) ** 0.5
-            if dist <= total_radius:
-                curr = target_grid[row, col]
-                if curr == 0:
-                    target_grid[row, col] = net_id
-                elif curr != net_id:
-                    target_grid[row, col] = -1  # Multiple nets/Conflict
 
 
 @dataclass
@@ -160,17 +59,10 @@ class ClearanceGrid:
         for layer in range(self.layer_count):
             trace = self._trace_net_ids[layer]
             pad = self._pad_net_ids[layer]
-            for row in range(self.rows):
-                for word in range(stride):
-                    start_col = word * 64
-                    end_col = min(start_col + 64, cols)
-                    word_val = np.uint64(0)
-                    for col in range(start_col, end_col):
-                        t_val = int(trace[row, col])
-                        p_val = int(pad[row, col])
-                        if t_val != 0 or p_val != 0:
-                            word_val |= np.uint64(1) << np.uint64(col - start_col)
-                    bitmap[layer, row, word] = word_val
+            # Rasterised in temper-geometry (grid_raster.rs) with the exact
+            # bit-layout of the former pure-Python loop.
+            words = _tg.occupancy_bitmap_row_py(trace, pad, self.rows, self.cols, stride)
+            bitmap[layer] = np.asarray(words, dtype=np.uint64).reshape((self.rows, stride))
         self._bitmap_cache = bitmap
         self._bitmap_stride_cache = stride
         return bitmap
@@ -253,8 +145,9 @@ class ClearanceGrid:
 
         target_grid = self._pad_net_ids[layer] if is_pad else self._trace_net_ids[layer]
 
-        # Use Numba-optimized inner loop
-        _block_circle_numba(
+        # Rasterise in temper-geometry (grid_raster.rs) with the exact f64
+        # operation order of the former JIT kernel (libm pow for **2 / **0.5).
+        _tg.block_circle_into_grid_py(
             target_grid,
             cx,
             cy,
@@ -332,8 +225,9 @@ class ClearanceGrid:
 
         target_grid = self._trace_net_ids[layer]
 
-        # Call Numba-optimized function for the inner loop
-        _block_segment_numba(
+        # Rasterise in temper-geometry (grid_raster.rs) with the exact f64
+        # operation order of the former JIT kernel.
+        _tg.block_segment_into_grid_py(
             target_grid,
             x1,
             y1,
@@ -391,14 +285,9 @@ class ClearanceGrid:
 
         target_grid = self._trace_net_ids[layer]
 
-        # Block all cells in the rectangle
-        for row in range(min_row, max_row):
-            for col in range(min_col, max_col):
-                curr = target_grid[row, col]
-                if curr == 0:
-                    target_grid[row, col] = net_id
-                elif curr != net_id:
-                    target_grid[row, col] = -1  # Multiple nets/conflict
+        # Rasterise in temper-geometry (grid_raster.rs) — integer-only
+        # merge over the bbox, bit-exact by construction.
+        _tg.block_rect_into_grid_py(target_grid, net_id, min_row, max_row, min_col, max_col)
         self._invalidate_cache()
 
     def unblock_circle(self, center: tuple[float, float], radius_mm: float, layer: int = 0):
@@ -413,15 +302,12 @@ class ClearanceGrid:
         min_row = max(0, int((cy - radius_mm) / self.cell_size_mm))
         max_row = min(self.rows, int((cy + radius_mm) / self.cell_size_mm) + 1)
 
-        # Mark cells as available in both grids
-        for row in range(min_row, max_row):
-            for col in range(min_col, max_col):
-                cell_x = col * self.cell_size_mm + self.cell_size_mm / 2
-                cell_y = row * self.cell_size_mm + self.cell_size_mm / 2
-                dist = ((cell_x - cx) ** 2 + (cell_y - cy) ** 2) ** 0.5
-                if dist <= radius_mm:
-                    self._trace_net_ids[layer][row, col] = 0
-                    self._pad_net_ids[layer][row, col] = 0
+        # Clear the circle in both grids (temper-geometry grid_raster.rs, same
+        # per-cell distance semantics as the former pure-Python loop).
+        for grid in (self._trace_net_ids[layer], self._pad_net_ids[layer]):
+            _tg.clear_circle_from_grid_py(
+                grid, cx, cy, radius_mm, self.cell_size_mm, min_row, max_row, min_col, max_col
+            )
         self._invalidate_cache()
 
     @property

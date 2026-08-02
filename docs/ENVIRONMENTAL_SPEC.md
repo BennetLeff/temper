@@ -42,9 +42,28 @@ Conditions for the device when packed in original packaging and not in operation
 | Standard | Rating | Description |
 |----------|--------|-------------|
 | **IP Rating** | IP20 | Protected against solid objects >12.5mm (fingers). No liquid ingress protection guaranteed (spill-resistant design required). |
-| **Pollution Degree** | PD2 | Normal household environment. Temporary conductivity caused by condensation is to be expected. |
+| **Pollution Degree** | PD2, conditional | Owner-selected production architecture: the PCB insulation is to be enclosed in a gasketed compartment isolated from the coil/heatsink airflow path. PD3 remains mandatory if that compartment is not implemented and verified. |
 | **Overvoltage Category** | CAT II | Appliance connected to mains. |
 | **Insulation Class** | Class I | Protective Earth (PE) required. |
+
+### 3.1 PD2 enclosure prerequisite
+
+PD2 is the selected production target for the PCB microenvironment. This is
+the named exception to the cooking-appliance PD3 default, not a layout
+convenience. Before release, the mechanical design must demonstrate all of
+the following:
+
+- a gasketed PCB compartment or equivalent pollution barrier;
+- no direct path from the coil/heatsink forced-air duct into the PCB
+  compartment;
+- no exposed PCB insulation in the grease, steam, or cooking-aerosol path;
+- assembly instructions and inspection criteria that preserve the barrier;
+- a documented review confirming the installed enclosure matches this
+  specification.
+
+Until those conditions are verified, the electrical design must be treated as
+PD3 and the 12.6 mm reinforced-creepage fallback applies. See
+`docs/evidence/2026-07-30-pd2-enclosure-decision.md`.
 
 ---
 

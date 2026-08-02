@@ -15,6 +15,13 @@ tags: [astar, routing, primitives, octile, ssot, consolidation]
 
 # A* Primitives Single Source of Truth in the Placer
 
+> **Update (cleanup C6, 2026-08-01):** the accelerated A* module this
+> document describes under its former JIT-era name was renamed
+> `router_v6/astar_core_rust.py`; its JIT kernel was removed in cleanup
+> C1 (2026-07-31) and replaced by the Rust kernel. The SSoT guidance
+> below applies unchanged — the accelerated kernel still owns its float
+> constants and must stay in parity with the Python path.
+
 ## Context
 
 The placer had multiple A* implementations with duplicated search primitives:
@@ -22,11 +29,12 @@ octile distance (`max(dx,dy) + 0.414*min(dx,dy)`), 8-direction neighbor deltas,
 and inline bounds checks (`0 <= x < width and 0 <= y < height`). The deadcode
 cleanup (commit `347fc34b`) removed four implementations, narrowing the remaining
 duplication to two files: `router_v6/astar_core.py` (Python) and
-`router_v6/astar_core_numba.py` (Numba JIT).
+`router_v6/astar_core_rust.py` (the accelerated kernel, originally a
+JIT module).
 
 A divergence in the octile constant (Python `0.414` vs what `math.sqrt(2)-1` produces)
 or in the neighbor-delta order between the two implementations could cause subtle
-path-output differences between the Python and Numba routing paths. Centralizing
+path-output differences between the Python and accelerated routing paths. Centralizing
 these primitives prevents that class of bug.
 
 ## Guidance
@@ -74,21 +82,27 @@ for dx, dy in _SAME_LAYER_DELTAS:
     ...
 ```
 
-### Numba special case
+### Accelerated-kernel special case
 
-Numba JIT cannot import Python modules at runtime. The Numba kernel
-(`astar_core_numba.py`) gets its own module-level float constant that must
-match `OCTILE_DIAG`:
+The accelerated kernel cannot import Python modules at runtime (a JIT
+constraint; the Rust kernel likewise owns its constants in
+`temper-rust-router-core/src/astar.rs`). The retired JIT module —
+renamed `astar_core_rust.py` in cleanup C6 — carried its own
+module-level float constant that had to match `OCTILE_DIAG`:
 
 ```python
 import math
 _HEURISTIC_OCTILE_DIAG: float = math.sqrt(2.0) - 1.0
 ```
 
-A guardrail test asserts parity:
+A guardrail test asserted parity between the Python path and the
+accelerated kernel's constant (the current Rust kernel defines
+`HEURISTIC_OCTILE_DIAG` in `temper-rust-router-core/src/astar.rs`; the
+`_HEURISTIC_OCTILE_DIAG` module constant below was removed with the JIT
+kernel in cleanup C1):
 ```python
 from temper_placer.routing.heuristics import OCTILE_DIAG
-from temper_placer.router_v6.astar_core_numba import _HEURISTIC_OCTILE_DIAG
+from temper_placer.router_v6.astar_core_rust import _HEURISTIC_OCTILE_DIAG
 assert abs(OCTILE_DIAG - _HEURISTIC_OCTILE_DIAG) < 1e-12
 ```
 
@@ -99,15 +113,16 @@ assert abs(OCTILE_DIAG - _HEURISTIC_OCTILE_DIAG) < 1e-12
 | `astar_core.py:174` | `max(dx, dy) + 0.414 * min(dx, dy)` | `octile_distance(a, b)` |
 | `astar_core.py:207,344,464,662,664` | `0 <= x < grid.w and 0 <= y < grid.h` | `in_bounds(x, y, grid.w, grid.h)` |
 | `astar_core.py:305-314,342,453-462,590` | Inline 8-delta lists | `_SAME_LAYER_DELTAS` |
-| `astar_core_numba.py:221,311` | `0.414` literal | `_HEURISTIC_OCTILE_DIAG` |
+| retired JIT module (predecessor of `astar_core_rust.py`) | `0.414` literal | `_HEURISTIC_OCTILE_DIAG` |
 
 ### What was NOT migrated
 
 - **`_DIRS_8` constant in `astar_core.py`** — serves a different purpose (tensor-indexed
   validity lookup matching `neighbor_validity.DIRS_8`). Its order is `(E, SE, S, SW, W, NW, N, NE)`,
   intentionally different from the neighbor-expansion loop order.
-- **`1.414` diagonal move cost in `astar_core_numba.py`** — the move cost
-  (`1.4142135` = sqrt(2) for diagonal moves) is distinct from the heuristic delta
+- **`1.414` diagonal move cost in the accelerated kernel** — the move cost
+  (`1.4142135` = sqrt(2) for diagonal moves, defined in
+  `temper-rust-router-core/src/astar.rs`) is distinct from the heuristic delta
   (`0.414` = sqrt(2)-1). Consolidating move cost precision is a separate concern.
 - **Polyline length, cell↔world conversion, pad-inflation** — intentional variation
   per site serving different precision/performance tradeoffs.
@@ -116,16 +131,16 @@ assert abs(OCTILE_DIAG - _HEURISTIC_OCTILE_DIAG) < 1e-12
 
 **Before**: A change to the octile formula or neighbor order required edits in
 multiple functions within two different files. A precision difference between
-`0.414` (hardcoded) and `math.sqrt(2)-1` (~0.4142135) in the Numba kernel could
+`0.414` (hardcoded) and `math.sqrt(2)-1` (~0.4142135) in the accelerated kernel could
 cause subtle path divergence.
 
 **After**: One edit in `routing/heuristics.py` propagates to both implementations.
-The guardrail test catches constant drift between the Python and Numba paths.
+The guardrail test catches constant drift between the Python and accelerated-kernel paths.
 
 ## When to Apply
 
 - **When adding a new A* implementation**: import from `routing/heuristics.py`;
-  for Numba kernels, define a matching module-level float constant.
+  for an accelerated kernel, define a matching module-level float constant.
 - **When you find an inline `0.414` literal or bounds check in the codebase**:
   it's a duplicate — migrate it.
 - **When modifying the neighbor search order**: update `_SAME_LAYER_DELTAS` and
