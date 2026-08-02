@@ -1048,6 +1048,7 @@ def encoded_overlap_edges(pad_rect: tuple[float, float, float, float], item: Fix
     analogue of ``_add_no_overlap``'s zone path: encoded overlap means the
     pad fails EVERY edge separation.
     """
+    assert item.edges is not None  # encoded_overlap guards before dispatching
     x0, y0, x1, y1 = pad_rect
     for (axis, coord, sign) in item.edges:
         if axis == "x":

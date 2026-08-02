@@ -1,6 +1,8 @@
+<!-- provenance: commit=58b74bb0f0c1a0ed4f59ad937376bb33e4511e12 dirty=false (landed on main via 58b74bb0f, perf(placer): migrate Wave 1 hot paths to Rust) -->
+
 # KTD8 spike: `edt` crate vs scipy EDT parity (2026-07-31)
 
-<!-- provenance: commit=58b74bb0f0c1a0ed4f59ad937376bb33e4511e12 dirty=false -->
+<!-- provenance: commit=58b74bb0f0c1a0ed4f59ad937376bb33e4511e12 dirty=UNKNOWN (backfilled 2026-08-02: this file landed on main via commit 58b74bb0f ("perf(placer): migrate Wave 1 hot paths to Rust"); content byte-identical to that commit. Measurement-time dirty state not recorded, hence UNKNOWN.) -->
 
 **Verdict: REJECT the `edt` crate (v0.2.2) as a
 `scipy.ndimage.distance_transform_edt` replacement.** Recorded per the
