@@ -39,6 +39,7 @@ from temper_placer.placer.cp_sat.fixed_copper import (
     COPPER_LAYERS,
     FixedCopperItem,
     PadRectLocal,
+    _rectilinear_convex_edges,
     audit_fixed_copper,
     build_fixed_copper_items,
     build_free_component_pads,
@@ -122,6 +123,7 @@ def _zone_item(polygon, net="NET_B", layers=None):
     xs = [p[0] for p in polygon]
     ys = [p[1] for p in polygon]
     exp = _MARGIN + _HEADROOM
+    edges = _rectilinear_convex_edges(polygon, _MARGIN)
     return FixedCopperItem(
         kind="zone",
         net=net,
@@ -131,6 +133,7 @@ def _zone_item(polygon, net="NET_B", layers=None):
         slack_mm=float("inf"),
         margin_mm=_MARGIN,
         label="zone",
+        edges=edges,
     )
 
 
@@ -416,6 +419,95 @@ class TestFixedCopperSoundnessBMC:
         assert outcomes == {True, False}, (
             "BMC sweep is vacuous -- encoded_overlap never varies across offsets"
         )
+
+
+class TestZonePolygonExactBMC:
+    """R24 item-2 for the polygon-exact zone encoding: the encoded predicate
+    (per-edge half-plane separation) must agree EXACTLY with the shapely
+    polygon oracle for convex rectilinear zones -- no false clears (sound)
+    and no false overlaps (exact, not conservative). The non-convex case
+    falls back to the bbox (sound superset), tested separately.
+    """
+
+    # Convex axis-aligned polygons (clockwise and counter-clockwise).
+    _CONVEX = [
+        # unit square, CCW
+        [(0.0, 0.0), (4.0, 0.0), (4.0, 4.0), (0.0, 4.0)],
+        # rectangle, CW
+        [(0.0, 0.0), (0.0, 3.0), (5.0, 3.0), (5.0, 0.0)],
+        # 8-gon: axis-aligned rectangle with subdivided edges (all turns
+        # same direction -- genuinely convex with >4 vertices)
+        [(0.0, 0.0), (2.0, 0.0), (4.0, 0.0), (4.0, 2.0), (4.0, 4.0), (2.0, 4.0), (0.0, 4.0), (0.0, 2.0)],
+    ]
+    # Non-convex rectilinear (L-shape) -> bbox fallback (edges is None).
+    _NONCONVEX = [
+        [(0.0, 0.0), (4.0, 0.0), (4.0, 2.0), (2.0, 2.0), (2.0, 4.0), (0.0, 4.0)],
+    ]
+    _PAD_HALVES = [(0.0, 0.0), (0.5, 0.5), (1.5, 1.0)]
+    _ROTS = (0, 1, 2, 3)
+
+    def test_convex_rectilinear_zones_are_exact(self) -> None:
+        steps = [x * 0.25 for x in range(-20, 41)]  # -5.0..+10.0 mm
+        checked = 0
+        mismatches = []
+        for poly in self._CONVEX:
+            item = _zone_item(poly)
+            assert item.edges is not None, f"convex polygon got no edges: {poly}"
+            for (w, h), rot in itertools.product(self._PAD_HALVES, self._ROTS):
+                pad = _pad(half=(w, h))
+                for dx, dy in itertools.product(steps, steps):
+                    center = (float(dx), float(dy))
+                    rect = pad_world_rect(pad, center, rot)
+                    encoded = encoded_overlap(rect, item)
+                    exact = exact_clearance_mm(rect, item) < item.margin_mm
+                    checked += 1
+                    if encoded != exact:
+                        mismatches.append((poly, (w, h), rot, center, encoded, exact))
+                        if len(mismatches) >= 5:
+                            break
+                if len(mismatches) >= 5:
+                    break
+            if len(mismatches) >= 5:
+                break
+        assert checked > 50_000, f"sweep collapsed: {checked}"
+        assert mismatches == [], (
+            f"Zone polygon-exact encoding FALSIFIED: {len(mismatches)} case(s) "
+            f"where encoded != exact oracle. First: {mismatches[:2]}"
+        )
+
+    def test_nonconvex_falls_back_to_bbox_still_sound(self) -> None:
+        steps = [x * 0.25 for x in range(-20, 41)]
+        checked = 0
+        unsound = []
+        for poly in self._NONCONVEX:
+            item = _zone_item(poly)
+            assert item.edges is None, "non-convex polygon must keep bbox fallback"
+            for (w, h), rot in itertools.product(self._PAD_HALVES, self._ROTS):
+                pad = _pad(half=(w, h))
+                for dx, dy in itertools.product(steps, steps):
+                    center = (float(dx), float(dy))
+                    rect = pad_world_rect(pad, center, rot)
+                    if not encoded_overlap(rect, item):
+                        checked += 1
+                        exact = exact_clearance_mm(rect, item)
+                        if exact < item.margin_mm:
+                            unsound.append((poly, (w, h), rot, center, exact))
+                            if len(unsound) >= 5:
+                                break
+                if len(unsound) >= 5:
+                    break
+            if len(unsound) >= 5:
+                break
+        assert checked > 5_000, "non-convex bbox sweep collapsed"
+        assert unsound == [], (
+            f"bbox fallback UNSOUND: {len(unsound)} encoded-clear but exact-below-margin"
+        )
+
+    def test_edges_helper_classifies_convex_vs_not(self) -> None:
+        assert _rectilinear_convex_edges([(0.0, 0.0), (4.0, 0.0), (4.0, 4.0), (0.0, 4.0)], 0.05) is not None
+        assert _rectilinear_convex_edges([(0.0, 0.0), (4.0, 0.0), (4.0, 2.0), (2.0, 2.0), (2.0, 4.0), (0.0, 4.0)], 0.05) is None
+        # diagonal edge -> bbox fallback
+        assert _rectilinear_convex_edges([(0.0, 0.0), (4.0, 1.0), (4.0, 4.0), (0.0, 4.0)], 0.05) is None
 
 
 # ---------------------------------------------------------------------------
