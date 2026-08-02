@@ -1,0 +1,75 @@
+# Explicit source-backed reconciliation for the legacy placement config.
+#
+# This file is consumed before CP-SAT validation. It is intentionally partial:
+# an entry is permitted only when its target is an existing production-board
+# reference and the source name is not a live designator. Unresolved entries
+# remain listed below so the solver fails closed instead of inventing a
+# placement candidate.
+schema_version: 1
+
+authority:
+  board: pcb/temper.kicad_pcb
+  source_export: elec/exports/temper.design-input.v1.json
+  component_identity: board Sheetpath matched to source instance path
+  measured_at_commit: <rework-commit>
+
+# Re-derived 2026-08-01 against the post-#517/#521 board (169 components)
+# by matching each board component's KiCad sheetpath to its source instance
+# path (e.g. ...hb.gate_hs.driver -> U7). The #498 branch's manifest
+# (measured 2026-07-30) predates the board resync and is stale for
+# driver/boot-diode/adc/mcu/buck/gate-resistor/burden identities; the
+# sheetpath match below is authoritative for the current board.
+component_aliases:
+  C_BUS1: C2       # power_in.c_bus1
+  C_BUS2: C3       # power_in.c_bus2
+  C_DC: C24        # hb.c_dc_hf
+  C_BOOT: C17      # hb.gate_hs.boot_cap
+  D_BOOT: U8       # hb.gate_hs.boot_diode
+  MAX31865: U9     # rtd_pan.adc
+  U_GATE: U7       # hb.gate_hs.driver
+  U_GD: U7         # legacy validation.yaml spelling of U_GATE
+  R_GATE_H: R23    # hb.gate_hs.rg_on
+  R_GATE_L: R27    # hb.gate_ls.rg_on
+  U_CT: T1         # ct_sense.ct
+  R_BURDEN: R31    # ct_sense.r_burden
+  C_CT_FILT: C28   # ct_sense.c_filter
+  U_BUCK: U4       # power_mgmt.buck_3v3.buck
+  U_MCU: U27       # mcu.mcu
+  C_MCU_1: C38     # mcu.c_vcc1
+  C_MCU_2: C39     # mcu.c_vcc2
+  Y1: C6           # power_in.y_cap_pe
+
+# These names are deliberately not aliases. Q1/Q2/D1/D2 are live board
+# designators for different source instances, while the legacy config uses
+# them as conceptual half-bridge names. C_VCC and C_TANK each have multiple
+# legitimate candidates. Connector names below are absent from the source
+# export/production board. Each must be resolved in the source model before
+# the corresponding constraint can be enabled.
+unresolved_components:
+  Q1: live designator is power_in.q_relay_drv; legacy config means hb.power_loop.q_high (board ref U5)
+  Q2: live designator is discharge.q_dis_drv; legacy config means hb.power_loop.q_low (board ref U6)
+  D1: live designator is power_in.d_flyback; legacy config means power_in.d1 (board ref U1)
+  D2: live designator is power_in.d_zcd_clamp; legacy config means power_in.d2 (board ref U2)
+  C_VCC: multiple gate-driver decouplers exist (C20/C21/C22/C23)
+  C_TANK: multiple resonant capacitors exist (C25/C26/C27)
+  C_MCU_3: source export has only mcu.c_vcc1 and mcu.c_vcc2
+  C_MCU_4: source export has only mcu.c_vcc1 and mcu.c_vcc2
+  U_LDO_3V3: source has a buck regulator, not an LDO with this identity
+  U_LDO_5V: no source-backed component with this identity
+  J_AC_IN: no source-backed connector instance
+  J_COIL: no source-backed connector instance
+  J_NTC: no source-backed connector instance
+  J_USB: no source-backed connector instance
+  J_DEBUG: no source-backed connector instance
+
+# auto_extract_loops() returns no production loop for the current netlist
+# (loop extraction fails on the missing bus-capacitor path; the source export
+# declares only a schematic-level commutation_loop). This is a
+# data-completeness blocker, not a permission to map a loop by name.
+loop_aliases: {}
+unresolved_loops:
+  commutation_loop: source export name has no extracted production loop
+  high_side_gate_loop: legacy validation loop has no extracted production loop
+  low_side_gate_loop: legacy validation loop has no extracted production loop
+  power_stage_commutation: legacy constraint loop has no extracted production loop
+  bootstrap: legacy validation loop has no extracted production loop
