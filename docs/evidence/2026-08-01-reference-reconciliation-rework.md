@@ -1,6 +1,11 @@
 # Reference reconciliation rework on current main
 
-<!-- provenance: commit=cb6180c322a2a2bd7db6a0bc92f56cd1a96b978e dirty=false -->
+<!-- provenance: commit=38e55f22c28af9806675f8ff26e8e034cb95cd8c dirty=false -->
+
+<!-- Provenance note: the stamp cites 38e55f22c, the commit on the pushed
+branch that authored this file (the pre-rebase local SHA cb6180c32 was
+never pushed and does not resolve in a fresh clone; the Evidence
+provenance gate requires a commit that persists). -->
 
 **Date:** 2026-08-01
 **Scope:** Rework of PR #498 commits `bab2a75aa` + `1162370f2` onto current
