@@ -16,6 +16,7 @@
 //! order so outputs are bit-identical (pinned by the differential
 //! suite in packages/temper-placer/tests/physics/).
 
+pub mod device_power;
 pub mod fdm;
 pub mod rtd;
 pub mod thermal_scorer;
@@ -39,5 +40,6 @@ fn temper_thermal(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(thermal_scorer::build_conductivity_field_py, m)?)?;
     m.add_function(wrap_pyfunction!(thermal_scorer::build_heat_source_field_py, m)?)?;
     m.add_function(wrap_pyfunction!(thermal_scorer::assemble_convective_system_py, m)?)?;
+    m.add_function(wrap_pyfunction!(device_power::single_device_power_py, m)?)?;
     Ok(())
 }
