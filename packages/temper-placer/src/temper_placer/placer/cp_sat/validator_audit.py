@@ -51,6 +51,22 @@ one undifferentiated list:
   "solver-validator pair-set alignment" finding: the audit is the place
   where a misalignment surfaces as data, not as a silent blind spot.
 
+**Geometry trust (not every clean audit proves copper).** The validator
+models a component without a ``pads`` key as a zero-extent point at its
+origin -- an *optimistic* upper bound on true copper-to-copper separation
+(the run-B lie direction: it can miss violations, never invent them).
+``DomainClearanceValidatorAuditResult`` therefore carries the validator's
+own ``stats`` (``components_without_pads``, per-row
+``pairs_origin_modelled``) and a ``geometry_trusted`` flag: False whenever
+any component lacked pads or any candidate pair was measured origin-to-
+origin, in which case the audit logs ``logger.error``. A clean audit with
+``geometry_trusted=False`` proves nothing about real copper -- the caller
+must not gate the board on it. The audit also refuses to run against a
+placement that does not describe the solve (zero components, or
+``resolved_positions_mm`` refs disjoint from the placement's refs) --
+that is a programmer error and raises ``ValueError`` rather than
+vacuous-passing.
+
 **R24 discipline.** The hard-failure list must be empty for a SAT/optimal
 solve; ``_encoder_solve.py`` raises when it is not (same contract as
 ``audit_fixed_copper``). Intra-footprint and coverage-gap lists are
@@ -123,6 +139,22 @@ class DomainClearanceValidatorAuditResult:
     #: Total validator violation records on the solved placement (all
     #: buckets combined).
     validator_violation_count: int = 0
+    #: Raw validator ``ClearanceResult.stats`` from the top-level
+    #: ``verify_iec60335_compliance`` call: ``components``,
+    #: ``components_without_pads`` (sorted ref list), ``board_cutouts``,
+    #: ``violating_pairs``, ``intra_component_violations``, and ``rows``
+    #: (per requirement-row stats carrying ``pairs_origin_modelled``).
+    #: Captured so a caller can see *why* a clean audit might still be
+    #: untrustworthy (see ``geometry_trusted``).
+    stats: dict[str, Any] = field(default_factory=dict)
+    #: True when every placement component carried pad geometry: no
+    #: ``stats["components_without_pads"]`` and no per-row
+    #: ``pairs_origin_modelled``. False means the validator measured some
+    #: pair origin-to-origin (a component modelled as a zero-extent point) --
+    #: an OPTIMISTIC upper bound on copper separation, the run-B lie
+    #: direction -- so a clean audit then proves nothing about real copper.
+    #: Set False together with a ``logger.error`` in the audit.
+    geometry_trusted: bool = True
 
     @property
     def clean(self) -> bool:
@@ -216,6 +248,13 @@ def build_validator_placement(
         resolved_positions_mm: {ref: (x_mm, y_mm)} solved centers.
         resolved_rotations: {ref: 0-3 quadrant index} solved rotations
             (converted to ``rotation_deg = idx * 90`` for the validator).
+            A ref present in BOTH ``resolved_positions_mm`` and
+            ``resolved_rotations`` has its rotation overlaid
+            UNCONDITIONALLY -- the solver's index is authoritative for a
+            ref it rotated (the CLI writes ``idx * 90`` to the PCB), even
+            when the board's base rotation is non-multiple-of-90. A ref
+            ABSENT from ``resolved_rotations`` keeps its exact base
+            rotation (the solve did not rotate it -- no rotation variable).
         netlist_or_parse_result: optional Netlist/ParseResult used to supply
             pad geometry for any placement component that carries no ``pads``
             key (same fallback the fixture provides by construction).
@@ -231,17 +270,22 @@ def build_validator_placement(
         rot = resolved_rotations.get(ref)
         if rot is not None and pos is not None:
             # Quadrant index -> degrees, the same conversion
-            # CpSatPlacementResult.to_rotations_dict uses. Overlay only when
-            # the ref's solved position was overlaid AND its base rotation is
-            # expressible as a quadrant: a ref the solve did not move (or a
-            # part whose board rotation is non-multiple-of-90, recovered via
-            # the parser's ``_rotation_deg`` attribute) keeps its exact base
-            # rotation -- the solver's 0-3 index cannot represent 45deg, so
-            # the base value is the only faithful one for the validator's
-            # copper model (position-frame contract, handoff #523 gap 2 §6).
-            base_deg = comp.get("rotation_deg")
-            if base_deg is None or abs(float(base_deg) % 90.0) < 1e-9:
-                comp["rotation_deg"] = float(int(rot) * 90.0)
+            # CpSatPlacementResult.to_rotations_dict uses. A ref the solve
+            # TOUCHED (solved position AND solved rotation index) gets the
+            # solver's rotation overlaid unconditionally: the CLI writes
+            # ``rotation=cp_result.rotations.get(ref, 0) * 90.0`` to the PCB
+            # for every solved ref (cli/__init__.py's ``optimize`` command),
+            # so the audit must measure the post-solve geometry, and the
+            # solver's index is authoritative even when the board's base
+            # rotation is non-multiple-of-90 -- a ref the solve rotated WILL
+            # be written as idx*90 on the PCB. Keep the base rotation only
+            # when the ref is ABSENT from ``resolved_rotations``: the solve
+            # did not rotate it (no rotation variable, e.g. a polarized part
+            # pinned by construction), so the board keeps its exact base --
+            # which for a non-quadrant ref the solver's 0-3 index could not
+            # represent anyway (position-frame contract, handoff #523 gap 2
+            # §6).
+            comp["rotation_deg"] = float(int(rot) * 90.0)
         if "pads" not in comp and netlist_or_parse_result is not None:
             netlist_comp = _netlist_component_by_ref(netlist_or_parse_result, ref)
             if netlist_comp is not None:
@@ -320,6 +364,16 @@ def audit_domain_clearance_validator(
     ``fixed_copper.audit_fixed_copper``. ``intra_footprint`` and
     ``coverage_gaps`` are reported, never raised.
 
+    The result also carries the validator's ``stats`` and a
+    ``geometry_trusted`` flag (False + ``logger.error`` when any component
+    lacked pad geometry or any pair was measured origin-to-origin -- see the
+    module docstring: those figures are an optimistic upper bound, so a
+    clean-but-untrusted audit proves nothing about copper). The audit
+    refuses to run when the placement does not describe the solve: zero
+    components, or ``resolved_positions_mm`` refs disjoint from the
+    placement's refs, raises ``ValueError`` (programmer error -- the
+    alternative is a vacuous pass over the wrong geometry).
+
     Args:
         constraints: the domain-clearance SeparatedConstraint list the solve
             encoded (id prefix ``domain_clearance_``). Only the *pair set*
@@ -336,12 +390,60 @@ def audit_domain_clearance_validator(
 
     Returns:
         A ``DomainClearanceValidatorAuditResult`` with the three classified
-        buckets.
+        buckets plus the validator's ``stats`` and ``geometry_trusted``.
+
+    Raises:
+        ValueError: the placement has zero components, or its refs share no
+            overlap with ``resolved_positions_mm`` -- the placement does not
+            describe the solve, so auditing it would be vacuous.
     """
+    components = placement.get("components", [])
+    if not components:
+        raise ValueError(
+            "audit_domain_clearance_validator: placement carries zero "
+            "components -- re-running the REQ-SAFE-01 validator on it would "
+            "vacuous-pass against an empty board; the placement does not "
+            "describe the solve (programmer error)"
+        )
+    placement_refs = {c.get("ref") for c in components if isinstance(c.get("ref"), str)}
+    solved_refs = set(resolved_positions_mm)
+    if not placement_refs or not (placement_refs & solved_refs):
+        raise ValueError(
+            "audit_domain_clearance_validator: solved resolved_positions_mm "
+            f"refs {sorted(solved_refs)} share no overlap with the placement's "
+            f"component refs {sorted(placement_refs)} -- the placement does "
+            "not describe the solve, so re-running the validator on it would "
+            "audit the wrong geometry (programmer error)"
+        )
+
     validator_placement = build_validator_placement(
         placement, resolved_positions_mm, resolved_rotations, netlist_or_parse_result
     )
     result = verify_iec60335_compliance(validator_placement, voltage_domains)
+    stats = dict(result.stats or {})
+
+    # Geometry trust: a component without pads is modelled as a zero-extent
+    # point -- an OPTIMISTIC upper bound on copper separation (the run-B lie
+    # direction: can miss violations, never invent them). Surface that state
+    # loudly instead of letting a clean audit look like a proof of copper.
+    components_without_pads = list(stats.get("components_without_pads", ()) or ())
+    origin_modelled_pairs = sum(
+        int(row.get("pairs_origin_modelled", 0) or 0) for row in stats.get("rows", [])
+    )
+    geometry_trusted = not components_without_pads and origin_modelled_pairs == 0
+    if not geometry_trusted:
+        logger.error(
+            "REQ-SAFE-01 validator post-solve audit ran with DEGRADED geometry: "
+            "%d component(s) carry no pads (%s) and %d candidate pair(s) were "
+            "measured ORIGIN-TO-ORIGIN -- those figures are an OPTIMISTIC "
+            "upper bound on true copper-to-copper separation (the run-B lie "
+            "direction), so audit.geometry_trusted=False. Supply `pads` on "
+            "every placement component before treating a clean audit as proof "
+            "of copper separation.",
+            len(components_without_pads),
+            ", ".join(sorted(components_without_pads)) or "?",
+            origin_modelled_pairs,
+        )
 
     covered_pairs: set[frozenset[str]] = {
         frozenset((c.a, c.b))
@@ -394,6 +496,8 @@ def audit_domain_clearance_validator(
         coverage_gaps=gaps,
         covered_pair_count=len(covered_pairs),
         validator_violation_count=len(result.violations),
+        stats=stats,
+        geometry_trusted=geometry_trusted,
     )
 
 
