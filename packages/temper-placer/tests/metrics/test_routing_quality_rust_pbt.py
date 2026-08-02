@@ -257,20 +257,20 @@ def test_pbt_smoke_deterministic_seed():
 
 
 @pytest.fixture
-def restore_kernel():
+def _restore_kernel():
     original = _tqo.routing_quality_score_py
     yield
     _tqo.routing_quality_score_py = original
 
 
-def test_p1_fails_for_constant_score(restore_kernel) -> None:
+def test_p1_fails_for_constant_score(_restore_kernel) -> None:
     """A constant kernel cannot cover a rich output range (P1)."""
     _tqo.routing_quality_score_py = lambda *_a, **_k: 50.0
     with pytest.raises(AssertionError):
         test_score_range_richness.hypothesis.inner_test(0.5, 4, 0, 10)
 
 
-def test_p3_fails_for_decreasing_kernel(restore_kernel) -> None:
+def test_p3_fails_for_decreasing_kernel(_restore_kernel) -> None:
     """A kernel that DECREASES in completion breaks P3's monotonicity
     (a constant is trivially monotone, so it is not the discriminating
     mutant here — P1 covers constants)."""
@@ -283,7 +283,7 @@ def test_p3_fails_for_decreasing_kernel(restore_kernel) -> None:
         test_score_monotone_in_completion.hypothesis.inner_test(0.5, 4, 0, 10, 0.1)
 
 
-def test_p4_fails_for_proportional_drc_penalty(restore_kernel) -> None:
+def test_p4_fails_for_proportional_drc_penalty(_restore_kernel) -> None:
     """A kernel that scales DRC points with the error count (e.g. 20 - drc)
     breaks the all-or-nothing step (P4): drc 0 vs drc 1 differ by less than
     the full 20.0."""
@@ -294,7 +294,7 @@ def test_p4_fails_for_proportional_drc_penalty(restore_kernel) -> None:
         test_drc_all_or_nothing_step.hypothesis.inner_test(0.5, 4, 10)
 
 
-def test_p5_fails_for_shifted_clamp_boundary(restore_kernel) -> None:
+def test_p5_fails_for_shifted_clamp_boundary(_restore_kernel) -> None:
     """A kernel whose clamp boundary is shifted (penalty clamps only at
     (x - 4)/8 instead of (x - 2)/8) breaks P5: at exactly 10 vias/net the
     penalty is 0.75, not 1.0, so the high-side closed form fails. (An
@@ -310,7 +310,7 @@ def test_p5_fails_for_shifted_clamp_boundary(restore_kernel) -> None:
         test_efficiency_clamp_boundaries_bit_exact.hypothesis.inner_test(0.5, 0, 10)
 
 
-def test_p2_fails_for_out_of_bounds_score(restore_kernel) -> None:
+def test_p2_fails_for_out_of_bounds_score(_restore_kernel) -> None:
     """A kernel that can exceed 100 (e.g. a buggy unclamped efficiency
     boost) breaks the bounded property (P2)."""
     _tqo.routing_quality_score_py = lambda *_a, **_k: 150.0
