@@ -11,7 +11,7 @@ authority:
   board: pcb/temper.kicad_pcb
   source_export: elec/exports/temper.design-input.v1.json
   component_identity: board Sheetpath matched to source instance path
-  measured_at_commit: <rework-commit>
+  measured_at_commit: 3f1744ca3abfc14f8c80df78e8d359c264a46917
 
 # Re-derived 2026-08-01 against the post-#517/#521 board (169 components)
 # by matching each board component's KiCad sheetpath to its source instance
