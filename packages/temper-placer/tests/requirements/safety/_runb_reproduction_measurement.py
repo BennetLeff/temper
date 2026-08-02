@@ -93,11 +93,13 @@ def main():
         print(f"{key[0] + '<->' + key[1]:<12} {rec['min']:>13.4f}  {docus}  {delta:>7}  "
               f"{len(rec['records'])}")
 
-    # The headline pair: audit vs validator on C27-U24
-    audit_ok = all(
-        not (a.ref_a == "C27" and a.ref_b == "U24") or (a.ref_a == "U24" and a.ref_b == "C27")
-        for a in audit
-    )
+    # The headline pair: audit vs validator on C27-U24. The audit being EMPTY
+    # is exactly the lie being demonstrated (audit-clean), so an unguarded
+    # all() would be vacuous -- count the pair explicitly instead.
+    audit_c27_u24 = [
+        a for a in audit if {a.ref_a, a.ref_b} == {"C27", "U24"}
+    ]
+    audit_ok = len(audit_c27_u24) == 0
     c27 = next(c for c in runb["components"] if c["ref"] == "C27")
     u24 = next(c for c in runb["components"] if c["ref"] == "U24")
     import math

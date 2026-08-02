@@ -589,7 +589,7 @@ def solve_placement(
             netlist,
         )
         if validator_audit.hard_failures:
-            first = validator_audit.hard_failures[0]
+            first_hard = validator_audit.hard_failures[0]
             # One physical pair emits 4-8 violation records (clearance/
             # creepage x basic/reinforced), so report DISTINCT pairs as the
             # headline count -- "N hard violation(s)" with N=records would
@@ -603,8 +603,8 @@ def solve_placement(
                 f"{status_str} solve: {len(distinct_pairs)} distinct violating "
                 f"pair(s) ({len(validator_audit.hard_failures)} violation "
                 f"record(s) -- clearance/creepage x basic/reinforced rows); "
-                f"first: {first.ref_a}<->{first.ref_b} {first.metric} "
-                f"{first.measured_mm:.4f}mm < required {first.required_mm}mm. "
+                f"first: {first_hard.ref_a}<->{first_hard.ref_b} {first_hard.metric} "
+                f"{first_hard.measured_mm:.4f}mm < required {first_hard.required_mm}mm. "
                 "The domain-clearance encoding is unsound for this solve (see "
                 "domain_clearance.py soundness proof): the solver's box "
                 "separation did NOT imply the validator's exact copper-to-"
