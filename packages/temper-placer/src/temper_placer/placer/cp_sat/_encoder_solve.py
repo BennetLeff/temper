@@ -10,7 +10,7 @@ import time
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
-from temper_placer.pcl.constraints import BaseConstraint
+from temper_placer.pcl.constraints import BaseConstraint, SeparatedConstraint
 from temper_placer.placer.cp_sat import _encoder_core
 from temper_placer.placer.cp_sat._encoder_core import (
     EncoderContext,
@@ -61,6 +61,12 @@ class CpSatPlacementResult:
     # Populated only when solve_placement(isolation_barrier=...) was passed;
     # see isolation_barrier.py::IsolationBarrierReport.
     isolation_barrier_report: object | None = None
+    # Populated only when solve_placement(validator_input=...) was passed;
+    # see validator_audit.py::DomainClearanceValidatorAuditResult. Carries
+    # the REQ-SAFE-01 validator's classified violations (hard failures are
+    # raised, not returned; intra-footprint and coverage-gap buckets land
+    # here for the caller to act on).
+    validator_audit: object | None = None
 
     def to_placements_dict(self) -> dict[str, tuple[float, float]]:
         """Return {component_ref: (x_mm, y_mm)} mapping (loop.py interface)."""
@@ -102,6 +108,7 @@ def solve_placement(
     isolation_barrier: dict | None = None,
     fixed_positions: dict[str, tuple[float, float, int]] | None = None,
     fixed_copper: dict | None = None,
+    validator_input: dict | None = None,
 ) -> CpSatPlacementResult:
     """Build a CP-SAT model, encode constraints, solve, and return the result.
 
@@ -169,6 +176,26 @@ def solve_placement(
             audit is run on the resolved placement -- a feasible solve with
             audit violations raises (an encoding bug; see ``fixed_copper.py``).
             Absent (default): existing behaviour is unchanged.
+        validator_input: Optional validator-aligned post-solve audit
+            (issue #523 gap 2). A dict carrying the validator-consumable
+            placement and its net-domain map:
+            ``{"placement": <validator-shape placement>, "voltage_domains":
+            {net: VoltageDomain}}``. When given AND the solve is
+            feasible/optimal, the REQ-SAFE-01 validator itself
+            (``verify_iec60335_compliance`` -- exact copper-to-copper on pad
+            geometry, the function the CI gate runs) is re-run on a placement
+            whose positions/rotations come from this solve
+            (``validator_audit.audit_domain_clearance_validator``). A
+            violation on a constraint-covered inter-component pair (a HARD
+            failure) means the box separation the solver SAT did not imply
+            the validator's copper separation -- the encoding is unsound for
+            this solve and the solve raises, same contract as
+            ``audit_fixed_copper``. Intra-footprint straddlers (unfixable by
+            placement) and coverage gaps (pairs the generator never
+            constrained) are surfaced on ``CpSatPlacementResult.validator_audit``,
+            never raised. The cheaper center-distance audit
+            (``audit_domain_clearance``) stays independent of this; when
+            ``validator_input`` is absent the solve is unchanged.
     """
     from ortools.sat.python import cp_model as cp
 
@@ -515,6 +542,72 @@ def solve_placement(
             )
         logger.info("fixed-copper post-solve audit: %d violation(s)", len(audit_violations))
 
+    # R24 item-3 validator-aligned post-solve audit (issue #523 gap 2): when
+    # validator_input is provided, re-run the REQ-SAFE-01 validator itself
+    # (exact copper-to-copper on pad geometry -- the same function the CI
+    # gate runs, and the one that caught run-B being "audit-clean but not
+    # validator-clean") against the solved placement. The center-distance
+    # audit above stays; this is additive. By domain_clearance.py's soundness
+    # proof, a constraint-covered inter-component violation in a
+    # feasible/optimal solve means the encoding is unsound -- a hard error,
+    # same contract as audit_fixed_copper. Intra-footprint straddlers and
+    # coverage gaps are placement-independent / alignment findings: reported
+    # on the result, never raised.
+    validator_audit = None
+    if status_str in ("optimal", "feasible") and validator_input is not None:
+        from temper_placer.placer.cp_sat.validator_audit import (
+            audit_domain_clearance_validator,
+        )
+
+        v_placement = validator_input.get("placement")
+        v_domains = validator_input.get("voltage_domains")
+        if v_placement is None or v_domains is None:
+            raise ValueError(
+                "validator_input must carry both 'placement' and "
+                "'voltage_domains' -- a silent skip would leave the solve "
+                "unaudited against the REQ-SAFE-01 gate"
+            )
+        # The solve's domain-clearance constraint set is the pair coverage
+        # the classification needs. Other SeparatedConstraints (courtyard,
+        # netclass, keepaway) are not the validator-audit's concern -- the
+        # REQ-SAFE-01 validator only pairs domain-classified components.
+        domain_constraints = [
+            c
+            for c in constraint_objects
+            if isinstance(c, SeparatedConstraint) and c.id.startswith("domain_clearance_")
+        ]
+        validator_audit = audit_domain_clearance_validator(
+            domain_constraints,
+            positions,
+            rotations,
+            v_placement,
+            v_domains,
+            netlist,
+        )
+        if validator_audit.hard_failures:
+            first = validator_audit.hard_failures[0]
+            raise RuntimeError(
+                f"REQ-SAFE-01 validator post-solve audit FAILED for a "
+                f"{status_str} solve: {len(validator_audit.hard_failures)} "
+                f"hard violation(s); first: {first.ref_a}<->{first.ref_b} "
+                f"{first.metric} {first.measured_mm:.4f}mm < required "
+                f"{first.required_mm}mm. The domain-clearance encoding is "
+                "unsound for this solve (see domain_clearance.py soundness "
+                "proof): the solver's box separation did NOT imply the "
+                "validator's exact copper-to-copper separation. Run "
+                "audit_domain_clearance_validator directly to inspect the "
+                "full classified result."
+            )
+        logger.info(
+            "REQ-SAFE-01 validator post-solve audit: %d hard failure(s), "
+            "%d intra-footprint (placement-independent), %d coverage gap(s)",
+            len(validator_audit.hard_failures),
+            len(validator_audit.intra_footprint),
+            len(validator_audit.coverage_gaps),
+        )
+    elif status_str in ("optimal", "feasible"):
+        logger.debug("validator post-solve audit skipped (validator_input not provided)")
+
     return CpSatPlacementResult(
         positions=positions,
         rotations=rotations,
@@ -525,6 +618,7 @@ def solve_placement(
         objective_value=objective,
         unsat_core=unsat_core,
         isolation_barrier_report=isolation_barrier_report,
+        validator_audit=validator_audit,
     )
 
 
