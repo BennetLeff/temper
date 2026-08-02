@@ -1,6 +1,6 @@
 # Wave-4 Phase 1 spike: ortools CP-SAT boundary — feature enumeration, Rust-candidate survey, verdict (2026-08-01)
 
-<!-- provenance: commit=37a4251e0 dirty=false (base=origin/main 37a4251e03f3b483ea6345d19a8f7ba5e8bf0c4c; worktree ../w4-spike, branch w4/ortools-spike; asserted with scripts/assert-base.sh) -->
+<!-- provenance: commit=37a4251e03f3b483ea6345d19a8f7ba5e8bf0c4c dirty=false (base=origin/main 37a4251e03f3b483ea6345d19a8f7ba5e8bf0c4c; worktree ../w4-spike, branch w4/ortools-spike; asserted with scripts/assert-base.sh) -->
 
 **Date:** 2026-08-01
 **Scope:** read-only analysis of

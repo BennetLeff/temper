@@ -121,8 +121,7 @@ jobs:
 
       - name: Metamorphic Oracle Tests
         working-directory: packages/temper-placer
-        run: uv run pytest tests/test_metamorphic_oracles.py -v --tb=short -m "slow or property" --timeout=600
-        continue-on-error: true  # TODO: temper-NNN -- hard-fail after 2026-09-01
+        run: uv run pytest tests/test_metamorphic_oracles.py -v --tb=short --timeout=600
 
       - name: CP-SAT Placer Tests
         working-directory: packages/temper-placer
