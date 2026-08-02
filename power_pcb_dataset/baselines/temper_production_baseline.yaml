@@ -90,6 +90,18 @@
 # sanity-check drc_errors/drc_warnings above.
 #
 
+
+# --- drc_errors/drc_warnings RE-BASELINED 2026-08-02 (2nd, #568 edge-nudge) ---
+#
+# WHY IT MOVED AGAIN. a2fdfd1bb (#568) nudged edge-hanging refs inward to
+# clear the #523 scoped-solve edge-margin wall -- a reviewed board change
+# landing after the 2026-08-02 K2-resolve re-baseline. Re-measured the
+# bare run_drc path (--all-track-errors, kicad-cli 10.0.4): errors 1046
+# (single run; CI median-of-5 measured 1043 on the same board), warnings
+# 425 flat. The +7 over the prior 1039 baseline is the ref-nudge
+# consequence. NOTE: this baseline measures the bare path; the ratchet
+# ceiling (drc_ceiling.json) measures the regenerated-DRU path (1355) --
+# separate numbers, do not cross-check them.
 # --- drc_errors/drc_warnings RE-BASELINED 2026-08-02 (K2 RT314012 re-solve) ---
 #
 # WHY IT MOVED. The ladder-merged K2 relay re-solve (#517, 829af5c59 /
@@ -177,8 +189,8 @@
 # same "guess between versions" this file's own drc_errors section above
 # was explicit about not doing.
 drc_available: true
-drc_errors: 1039
-drc_warnings: 428
+drc_errors: 1046
+drc_warnings: 425
 extraction_date: '2026-07-17'
 extraction_method: deterministic-pipeline
 deterministic_pipeline:
