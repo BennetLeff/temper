@@ -1,13 +1,15 @@
 # Thermal FDM Assembly Kernels — Verification by Induction
 
-Updated 2026-08-02: `device_power::single_device_power` added
-(Wave 4 Phase A #2 — migration of
-`temper_placer/physics/device_power.py::_compute_single_device_power`,
-the canonical per-device power model, issue #140, to Rust; the Python
-module keeps its public API and delegates the arithmetic to
-`temper_thermal.single_device_power_py`).  See the
-"Per-device power kernel — induction non-applicability note" section
-below.
+Updated 2026-08-02: `device_power::single_device_power` and
+`junction_temp::estimate_junction_temp` added (Wave 4 Phase A #2 and #3 —
+migrations of `temper_placer/physics/device_power.py` and
+`temper_placer/physics/thermal.py::estimate_junction_temp` to Rust; the
+Python modules keep their public APIs and delegate the arithmetic to
+`temper_thermal.single_device_power_py` /
+`temper_thermal.estimate_junction_temp_py`).  See the
+"Per-device power kernel — induction non-applicability note" and
+"Junction-temperature kernel — induction non-applicability note"
+sections below.
 
 U6 of the Python→Rust migration roadmap (docs/plans/2026-07-23-003),
 porting the assembly hot loops of
@@ -101,6 +103,84 @@ routing-quality note, Wave 4 Phase A #1).
   closed form, M4 f_sw=0 degeneracy).
 - **Rust unit tests:** `device_power.rs` `#[cfg(test)]` — branch
   structure, pow semantics, NaN branch selection, closed-form pins.
+
+## Junction-temperature kernel — induction non-applicability note
+
+`junction_temp::estimate_junction_temp(power_w, edge_distance_mm,
+copper_area_mm2, ambient_c, rjc, rch, rha_base) -> f64` is a **closed-form,
+loop-free and recursion-free function of its scalar inputs** — the
+heuristic Tj estimator from `temper_placer/physics/thermal.py`
+(edge-distance penalty, copper-spreading benefit, and the
+`ambient + P * R_total` model) — a fixed arithmetic chain with no
+branching at all:
+
+```text
+edge_penalty   = max(0.0, edge_distance_mm - 5.0) * 0.2
+copper_benefit = min(0.5, (copper_area_mm2 / 1000.0) * 0.1)
+R_total        = ((Rjc + Rch) + Rha_base) + edge_penalty - copper_benefit
+T_junction     = ambient_C + (power_W * R_total)
+```
+
+There is no iteration, no induction variable, no data structure whose
+size varies with the input, and no branch — the kernel performs exactly
+the same finite sequence of correctly-rounded f64 operations for every
+input.  R1e's induction requirement applies to modules with recursive or
+computational structure; for this module it is **not applicable**.  In
+its place we record the structural correctness argument below (identical
+convention to the routing-quality and per-device-power notes).
+
+### Structural correctness argument (bit-exact parity)
+
+1. **Pure function of seven scalars.** Every output bit depends only on
+   the scalar arguments and on correctly-rounded IEEE-754 f64
+   arithmetic, which is deterministic and identical in CPython and Rust
+   for the same operation sequence.  No IO, no global state, no
+   nondeterminism enters the computation.
+
+2. **Operation-order pinning.** The kernel reproduces the pre-migration
+   Python's exact f64 operation order (pinned by the differential suite
+   `packages/temper-placer/tests/physics/test_thermal_rust_differential.py`,
+   which embeds the verbatim pre-migration implementation as an oracle
+   and asserts bit-identical equality):
+   - `edge_penalty = max(0.0, edge_distance_mm - 5.0) * 0.2` — the
+     `* 0.2` applies to the max RESULT, and the **constant `0.0` is the
+     first `max` argument** (catalog class **B5**, Python builtin
+     first-argument NaN semantics: `max(0.0, NaN) == 0.0`; Rust mirrors
+     with `0.0_f64.max(d)` so the constant is the receiver).
+   - `copper_benefit = min(0.5, (copper_area_mm2 / 1000.0) * 0.1)` —
+     division, then `* 0.1`, then `min` with the **constant `0.5`
+     first** (**B5** again: `min(0.5, NaN) == 0.5`).
+   - `R_total` is the left-to-right `((Rjc + Rch) + Rha_base) +
+     edge_penalty - copper_benefit` chain; the final step is
+     `ambient_C + (power_W * R_total)` with the parenthesized product
+     evaluated first.  No reassociation, no fusing (**B7**).
+   - **B8 (denormal underflow):** default IEEE semantics (no fast-math,
+     no FTZ/DAZ, no `mul_add` fusion); a denormal-band differential case
+     pins `1e-310 * R_total` in the denormal range bit-identical to
+     CPython, with a non-zero-resistance sanity check proving the case
+     genuinely exercises the denormal product.
+   - **B1/B2/B3/B4/B6 are not applicable**: the kernel calls no libm
+     functions (no sqrt/pow/log — no dlsym needed), divides no
+     constants, rounds nothing, and computes no distances.
+
+### Empirical verification
+
+- **Differential (G2):** `test_thermal_rust_differential.py` — 30 tests:
+  direct kernel pins (20 randomized seeds × 50 cases, hand-computed
+  values, edge-penalty and copper-benefit saturation, NaN/inf parity
+  including the B5 first-argument pins, the denormal band, zero-power)
+  plus module-level delegation pins (`estimate_junction_temp` with
+  defaults and custom Rjc), all `==` bit-exact.
+- **PBT (G4):** `test_thermal_rust_pbt.py` — 5 non-vacuous properties
+  (P1 positivity/richness, P2 non-decreasing in power, P3 bit-exact
+  closed form, P4 non-decreasing in edge distance, P5 non-increasing in
+  copper) each vacuity-guarded by a `test_pN_fails_for_<mutant>`
+  mutation test, plus 4 bit-exact metamorphic relations (M1 power-of-two
+  P-scale, M2/M3 saturation sub-threshold/supra-threshold equivalence,
+  M4 zero-power degeneracy) and a determinism/richness smoke test.
+- **Rust unit tests:** `junction_temp.rs` `#[cfg(test)]` — closed-form
+  pins, both saturation ranges, both B5 NaN pins, zero-power, and the
+  B7 product-before-add op-order pin.
 
 ## Base Case: 1×1 Grid
 

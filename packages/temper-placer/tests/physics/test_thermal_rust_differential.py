@@ -221,8 +221,11 @@ def test_direct_denormal_band_b8():
         )
     # The denormal product itself must be non-zero (i.e. actually in the
     # denormal band, proving the case exercises underflow handling).
+    # R_total must be > 0 here (Rjc/Rch/Rha non-zero) — with an all-zero
+    # resistance chain the product is 0.0 * 1e-310 == 0.0 and the case
+    # degenerates to nothing.
     product = _oracle_estimate_junction_temp(
-        1e-310, 5.0, 0.0, 0.0, 0.0, 0.0, 0.0
+        1e-310, 5.0, 0.0, 0.0, 0.6, 0.25, 1.0
     )
     assert 0.0 < product < 2.2e-308
 
