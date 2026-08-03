@@ -736,9 +736,56 @@ PRODUCTION_DRC_SAMPLE_RUNS = 5
 # measurement of the same board (runs on branches ba02616f / 7e9b04c7)
 # reproduces the same failure mode: total 1226 / shorting 68 / unconnected
 # 393 — the committed-board gate was red on `unconnected`, not on `total`.
-PRODUCTION_COMMITTED_BOARD_TOTAL_DVIOLATIONS = 1283
+#
+# 2026-08-03 RE-MEASUREMENT (kicad-cli 10.0.4, macOS arm64, wave-2 board
+# write, PR #602 -- this PR): the board was re-solved (Run B) and written —
+# K3's embedded footprint G5LE-1 -> RT314012, C27 staged off-board
+# (20, 272.75) -> on-board (28.62, 242.0), and the other 166 refs moved to
+# their re-solved positions.  The write is placement-only: the copper is
+# byte-identical to the pre-write board (2338 segments / 48 vias / 96 zones,
+# item-for-item, verified by extracting and diffing every copper item).
+# N=5 DRC runs, plain `kicad-cli pcb drc` (the exact invocation this test's
+# _run_drc uses):
+#   pre-write (content hash cf161bee, = origin/main)  unconnected 425 in all
+#     5 runs (no scatter at all)
+#   written (content hash 51e39844)                   unconnected 428 in all
+#     5 runs (no scatter at all)
+# (Measured at the repo path with the project DRU resolved — the /tmp
+# copies without the adjacent `.kicad_pro` read ~990 total, the documented
+# measurement-context artifact from the evidence doc's Sec 4.)  Verified
+# pair-by-pair against the DRC JSONs (full proof, including the 222-new /
+# 219-gone pair churn table, in docs/evidence/2026-08-02-k3-swap-and-board-
+# write.md Sec 5b): of 222 newly-reported pairs, 0 are cross-net; only 4
+# genuinely-NEW unconnected PADS (pads that were CONNECTED pre-write) exist,
+# and every one belongs to a ref the re-solve moved:
+#   K3 pad 3 [discharge.k_dis2-no]  — RT314012's NO contact sits ~53mm from
+#     the old G5LE-1 NO trace (footprint swap: contacts moved from the
+#     y=14.2 row to the x=15.26..25.34 column, plus K3 itself moved 21.8mm)
+#   C14 pad 1 [+170V_BUS]           — C14 moved 40.9mm
+#   C19 pad 1 [inb]                 — C19 moved 42.8mm
+#   L2 pad 2 [+3V3]                 — L2 moved 18.0mm
+# C27's two pads were ALREADY unconnected pre-write (staged off-board, nets
+# never routed) — the on-board move relocates the same unconnectedness, it
+# does not create it.  This is the same legitimate class as the K2 swap
+# (7 K2-attributed records, #524) and the 2026-07-30 resync (+2
+# tank.c_tank3 pairs): board changed, connectivity re-derived, 0 cross-net,
+# no untouched geometry regressed.
+#
+# `total` also moved and is re-baselined here (1283 -> 1425), the same
+# board-write consequence measured at the repo path (project DRU applied;
+# N=15 runs of `kicad-cli pcb drc --format json` on pcb/temper.kicad_pcb):
+# pre-write (documented, #568): total median 1264 (1248-1273) -> written
+# total median 1408 (1390-1417), worst median-of-5 1415, +10 headroom =
+# 1425.  The rise is dominated by silk_over_copper 122 -> 172 (+50) — the
+# deliberate, Ceiling-Approval'd wave-2 write consequence documented in
+# docs/evidence/2026-08-02-k3-swap-and-board-write.md Sec 4 (Run-B re-solve
+# moved 167 refs; moved footprints' silk now crosses copper it did not
+# before) — plus the netclass-reclassification context on main already
+# sitting at 1264 vs the then-threshold 1283 (+19 headroom).  `shorting`
+# does NOT move: written worst median-of-5 138 still clears 141.
+PRODUCTION_COMMITTED_BOARD_TOTAL_DVIOLATIONS = 1425
 PRODUCTION_COMMITTED_BOARD_SHORTING_ITEMS = 141
-PRODUCTION_COMMITTED_BOARD_UNCONNECTED = 425
+PRODUCTION_COMMITTED_BOARD_UNCONNECTED = 428
 
 # --- Category B: kicad-cli DRC on route_pcb()'s output for that board ---
 # RE-MEASURED 2026-07-29 (kicad-cli 10.0.4, macOS arm64), against the shape
@@ -997,7 +1044,10 @@ def test_production_board_drc_regression(monkeypatch: pytest.MonkeyPatch):
     assert sample.unconnected <= PRODUCTION_COMMITTED_BOARD_UNCONNECTED, (
         f"Committed board unconnected_items {sample.unconnected} exceeds the "
         f"measured baseline {PRODUCTION_COMMITTED_BOARD_UNCONNECTED} "
-        f"(2026-07-29: 388 in all 15 runs, zero scatter). This number may only "
+        f"(2026-08-03: 428 in all 5 runs on the written board, zero scatter; "
+        f"pre-write 425 — re-baselined for the wave-2 board write, proof in "
+        f"docs/evidence/2026-08-02-k3-swap-and-board-write.md Sec 5b). This "
+        f"number may only "
         f"go down FOR A FIXED BOARD GEOMETRY — routing can only ever close "
         f"connections. It legitimately rose once, 382 -> 388 on 2026-07-29, "
         f"when correcting the pad geometry removed copper overlaps that KiCad's "
@@ -1011,7 +1061,10 @@ def test_production_board_drc_regression(monkeypatch: pytest.MonkeyPatch):
     assert sample.total <= PRODUCTION_COMMITTED_BOARD_TOTAL_DVIOLATIONS, (
         f"Committed board DRC total median {sample.total} exceeds threshold "
         f"{PRODUCTION_COMMITTED_BOARD_TOTAL_DVIOLATIONS} "
-        f"(2026-07-29: median 1234, range 1232–1258 over N=15 runs; "
+        f"(2026-08-03: median 1408, range 1390–1417 over N=15 runs on the "
+        f"written board — re-baselined 1283 -> 1425 for the wave-2 board "
+        f"write, proof in "
+        f"docs/evidence/2026-08-02-k3-swap-and-board-write.md Sec 5b; "
         f"this run's sample: {sample.totals}). "
         f"By type (last run): {dict(sorted(sample.last_by_type.items()))}"
     )
