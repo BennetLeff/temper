@@ -1,19 +1,33 @@
-"""End-to-end integration test — U8: temper induction board with all 8 constraint types."""
+"""End-to-end integration test — U8: temper induction board with all 8 constraint types.
+
+Extended by plan 2026-08-02-016 U3: the post-solve audit is wired into the
+solve pipeline as a run-failing step at the solve boundary.
+"""
 
 from __future__ import annotations
 
 from pathlib import Path
+from unittest import mock
 
 import pytest
 
 from temper_placer.pcl.constraints import (
+    ConstraintTier,
     ConstraintType,
+    SeparatedConstraint,
 )
 from temper_placer.pcl.parser import parse_pcl_file
-from temper_placer.placer.cp_sat.audit import Placement, PlacementAuditor
+from temper_placer.placer.cp_sat.audit import (
+    AuditReport,
+    AuditViolation,
+    Placement,
+    PlacementAuditor,
+    UnregisteredConstraintTypeError,
+)
 from temper_placer.placer.cp_sat.encoder import (
     EncoderContext,
     encode_constraints,
+    solve_placement,
 )
 from temper_placer.placer.cp_sat.model import CpSatModel
 
@@ -226,3 +240,214 @@ class TestTemperIntegration:
         auditor = PlacementAuditor(placement)
         report = auditor.audit(constraints)
         assert report.all_pass, f"Mini E2E audit failed: {report.violations}"
+
+
+# ---------------------------------------------------------------------------
+# Plan 2026-08-02-016 U3: the post-solve audit is wired into solve_placement
+# as a run-failing step at the solve boundary.
+# ---------------------------------------------------------------------------
+
+
+def _minimal_netlist_and_board():
+    """A tiny 2-component netlist + board for solve-boundary tests."""
+    from temper_placer.core.board import Board
+    from temper_placer.core.netlist import Component, Netlist, Pin
+
+    comps = [
+        Component(ref="Q1", footprint="test:fp", bounds=(10.0, 10.0),
+                  pins=[Pin(name="1", number="1", net="AC", position=(0.0, 0.0))]),
+        Component(ref="Q2", footprint="test:fp", bounds=(10.0, 10.0),
+                  pins=[Pin(name="1", number="1", net="AC", position=(0.0, 0.0))]),
+    ]
+    netlist = Netlist(components=comps, nets=[])
+    board = Board(width=100.0, height=60.0)
+    return netlist, board
+
+
+class TestPostSolveAuditWiring:
+    """U3: the audit runs at the solve boundary and fails the run on
+    mismatch; INFEASIBLE solves skip it; fail-closed raises surface as a
+    run failure naming the type."""
+
+    def test_normal_solve_records_audit_pass(self) -> None:
+        netlist, board = _minimal_netlist_and_board()
+        constraints = [
+            SeparatedConstraint(
+                "Q1",
+                "Q2",
+                min_distance_mm=3.0,
+                tier=ConstraintTier.HARD,
+                because="HV isolation requirement for half-bridge pair",
+            )
+        ]
+        result = solve_placement(
+            netlist=netlist,
+            board=board,
+            extra_constraints=constraints,
+            timeout_ms=3_000,
+            seed=42,
+        )
+        assert result.status in ("optimal", "feasible"), result.status
+        # U3 scenario 1: the audit pass is recorded on the result.
+        assert result.audit_report is not None
+        assert result.audit_report.all_pass, (
+            [v.description for v in result.audit_report.violations]
+        )
+        # The full encoded surface was audited — courtyard SEPARATEDs too.
+        assert result.audit_report.passed >= len(constraints)
+
+    def test_forged_violating_coordinates_fail_the_audit(self) -> None:
+        """U3 scenario 2: a placement whose coordinates violate an encoded
+        constraint is rejected with the violations attached."""
+        from temper_placer.pcl.constraints import AnchoredConstraint
+        from temper_placer.placer.cp_sat._encoder_solve import _run_post_solve_audit
+
+        netlist, board = _minimal_netlist_and_board()
+        # Forge the solved coordinates: Q1 anchored at (5,5) but placed at (90,50).
+        forged_positions = {"Q1": (90.0, 50.0), "Q2": (20.0, 20.0)}
+        constraints = [
+            AnchoredConstraint(
+                "Q1",
+                tier=ConstraintTier.HARD,
+                position=(5.0, 5.0),
+                because="MCU centered in MCU zone for antenna clearance in design",
+            )
+        ]
+        ctx = EncoderContext(board_w_mm=100.0, board_h_mm=60.0)
+        report, _barrier = _run_post_solve_audit(
+            positions_mm=forged_positions,
+            sizes_mm={"Q1": (10.0, 10.0), "Q2": (10.0, 10.0)},
+            rotations={"Q1": 0, "Q2": 0},
+            board_w_mm=100.0,
+            board_h_mm=60.0,
+            zones={},
+            zone_components={},
+            constraints=constraints,
+            netlist=netlist,
+            netclass_rules_data=None,
+            model=CpSatModel(units_per_mm=100),
+            ctx=ctx,
+            isolation_barrier_report=None,
+        )
+        assert not report.all_pass
+        assert report.failed >= 1
+        assert any("ANCHORED" in v.description for v in report.violations)
+
+    def test_non_passing_audit_converts_solve_to_audit_failed(self) -> None:
+        """A non-passing audit report converts the solve result to a failure
+        verdict carrying the violations (pipeline wiring)."""
+        netlist, board = _minimal_netlist_and_board()
+        constraints = [
+            SeparatedConstraint(
+                "Q1",
+                "Q2",
+                min_distance_mm=3.0,
+                tier=ConstraintTier.HARD,
+                because="HV isolation requirement for half-bridge pair",
+            )
+        ]
+        failing = AuditReport(
+            passed=0,
+            failed=1,
+            violations=[
+                AuditViolation(
+                    constraint_id="forged",
+                    constraint_type="separated",
+                    description="SEPARATED forged",
+                    detail="gap=0.0",
+                )
+            ],
+        )
+        with mock.patch.object(PlacementAuditor, "audit", return_value=failing):
+            result = solve_placement(
+                netlist=netlist,
+                board=board,
+                extra_constraints=constraints,
+                timeout_ms=3_000,
+                seed=42,
+            )
+        assert result.status == "audit_failed"
+        assert result.audit_report is failing
+        assert result.audit_report.violations[0].constraint_type == "separated"
+
+    def test_infeasible_skips_audit(self) -> None:
+        """U3 scenario 3: an INFEASIBLE solve has no placement to audit and
+        is not mislabeled as an audit pass."""
+        from ortools.sat.python import cp_model
+
+        netlist, board = _minimal_netlist_and_board()
+        with mock.patch.object(cp_model.CpSolver, "Solve", return_value=cp_model.INFEASIBLE):
+            result = solve_placement(
+                netlist=netlist,
+                board=board,
+                extra_constraints=[],
+                timeout_ms=1_000,
+                seed=42,
+            )
+        assert result.status == "infeasible"
+        assert result.audit_report is None
+        assert result.positions == {}
+
+    def test_audit_raise_surfaces_as_run_failure_naming_type(self) -> None:
+        """U3 scenario 4: the audit fail-closing (U1) surfaces as a run
+        failure naming the type, not a swallowed exception."""
+        netlist, board = _minimal_netlist_and_board()
+        constraints = [
+            SeparatedConstraint(
+                "Q1",
+                "Q2",
+                min_distance_mm=3.0,
+                tier=ConstraintTier.HARD,
+                because="HV isolation requirement for half-bridge pair",
+            )
+        ]
+
+        def _raise_unregistered(self, *args, **kwargs):
+            raise UnregisteredConstraintTypeError("Constraint type 'bogus' (bogus)")
+
+        with mock.patch.object(PlacementAuditor, "audit", new=_raise_unregistered):
+            result = solve_placement(
+                netlist=netlist,
+                board=board,
+                extra_constraints=constraints,
+                timeout_ms=3_000,
+                seed=42,
+            )
+        assert result.status == "audit_failed"
+        assert result.audit_report is not None
+        assert not result.audit_report.all_pass
+        assert "bogus" in result.audit_report.violations[0].description
+
+    def test_loop_treats_audit_failed_as_failure(self) -> None:
+        """The place-route loop must exit with AUDIT_FAILED, not continue
+        routing from an audit-rejected placement."""
+        from temper_placer.placer.cp_sat._loop_types import LoopExitReason
+        from temper_placer.placer.cp_sat.encoder import CpSatPlacementResult
+        from temper_placer.placer.cp_sat.loop import PlaceRouteLoop
+
+        netlist, board = _minimal_netlist_and_board()
+        forged = CpSatPlacementResult(
+            positions={"Q1": (5.0, 5.0), "Q2": (6.0, 5.0)},
+            rotations={},
+            placed_refs=["Q1", "Q2"],
+            status="audit_failed",
+            audit_report=AuditReport(
+                passed=0,
+                failed=1,
+                violations=[
+                    AuditViolation(
+                        constraint_id="forged",
+                        constraint_type="separated",
+                        description="SEPARATED forged",
+                    )
+                ],
+            ),
+        )
+        loop = PlaceRouteLoop(_placement_solver=lambda **_kwargs: forged)
+        result = loop.run(
+            netlist=netlist,
+            board=board,
+            pcl_constraints=[],
+        )
+        assert not result.success
+        assert result.reason == LoopExitReason.AUDIT_FAILED.value

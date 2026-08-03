@@ -909,7 +909,13 @@ temper_placer/pipeline/visualization.py::TerminalProgress.on_phase_start  # TODO
 temper_placer/pipeline/visualization.py::create_progress_display  # TODO: temper-xxx
 temper_placer/placer/adjustment.py::adjust_for_congestion  # TODO: temper-xxx
 temper_placer/placer/cp_sat/audit.py::AuditReport.all_pass  # TODO: temper-xxx
+temper_placer/placer/cp_sat/audit.py::IsolationBarrierAudit.all_pass  # TODO: temper-016
 temper_placer/placer/cp_sat/audit.py::PlacementAuditor.audit  # TODO: temper-xxx
+temper_placer/placer/cp_sat/audit.py::audit_isolation_barrier  # TODO: temper-016
+temper_placer/placer/cp_sat/audit.py::audit_register_types  # TODO: temper-016
+temper_placer/placer/cp_sat/audit.py::encoder_emitted_types  # TODO: temper-016
+temper_placer/placer/cp_sat/audit.py::validate_audit_register  # TODO: temper-016
+temper_placer/placer/cp_sat/_encoder_core.py::build_encoded_constraint_surface  # TODO: temper-016
 temper_placer/placer/cp_sat/delta_mapper.py::DeltaMapper.map  # TODO: temper-xxx
 temper_placer/placer/cp_sat/encoder.py::CpSatPlacementResult.to_placements_dict  # TODO: temper-xxx
 temper_placer/placer/cp_sat/encoder.py::encode_constraints  # TODO: temper-xxx

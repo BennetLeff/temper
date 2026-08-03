@@ -15,8 +15,17 @@ from temper_placer.pcl.constraints import BaseConstraint, SeparatedConstraint
 from temper_placer.placer.cp_sat import _encoder_core
 from temper_placer.placer.cp_sat._encoder_core import (
     EncoderContext,
+    build_encoded_constraint_surface,
     encode_constraints,
     validate_constraint_refs,
+)
+from temper_placer.placer.cp_sat.audit import (
+    AuditReport,
+    AuditViolation,
+    Placement,
+    PlacementAuditor,
+    UnregisteredConstraintTypeError,
+    audit_isolation_barrier,
 )
 from temper_placer.placer.cp_sat.model import CpSatModel
 
@@ -68,6 +77,15 @@ class CpSatPlacementResult:
     # raised, not returned; intra-footprint and coverage-gap buckets land
     # here for the caller to act on).
     validator_audit: object | None = None
+    # Post-solve audit (plan 2026-08-02-016 U3): for feasible solves
+    # (optimal/feasible) the PlacementAuditor report over the full encoded
+    # constraint surface; None when no placement was produced (infeasible /
+    # model_invalid / unknown). When the audit does not pass, status is
+    # "audit_failed" and the violations live in this report.
+    audit_report: object | None = None
+    # When the solve carried an isolation barrier, its post-solve audit
+    # (HV/SELV one-sided bounds recomputed from resolved coordinates).
+    barrier_audit: object | None = None
 
     def to_placements_dict(self) -> dict[str, tuple[float, float]]:
         """Return {component_ref: (x_mm, y_mm)} mapping (loop.py interface)."""
@@ -520,6 +538,7 @@ def solve_placement(
 
     positions: dict[str, tuple[float, float]] = {}
     rotations: dict[str, int] = {}
+    sizes_mm: dict[str, tuple[float, float]] = {}
     objective = 0.0
 
     if status_str in ("optimal", "feasible"):
@@ -529,8 +548,62 @@ def solve_placement(
             x_mm = solver.Value(cv.x_center) / model_wrapper.units_per_mm
             y_mm = solver.Value(cv.y_center) / model_wrapper.units_per_mm
             positions[ref] = (round(x_mm, 3), round(y_mm, 3))
+            # Solved (rotation-aware) sizes, for the post-solve audit's bbox.
+            sizes_mm[ref] = (
+                solver.Value(cv.x_size) / model_wrapper.units_per_mm,
+                solver.Value(cv.y_size) / model_wrapper.units_per_mm,
+            )
             if cv.rot_ref is not None:
                 rotations[ref] = solver.Value(cv.rot_ref)
+
+    # ---- Post-solve audit (plan 2026-08-02-016 U3) ---------------------
+    # Run the extended auditor on every feasible solve result at the same
+    # boundary where the result is accepted.  A non-passing report converts
+    # the result to a failure verdict ("audit_failed") carrying the
+    # violations — a post-solve mismatch aborts the run instead of
+    # surfacing only in tests.  INFEASIBLE / MODEL_INVALID solves have no
+    # placement to audit and are left untouched (never mislabeled as an
+    # audit pass).  The audit itself fail-closing on an unregistered
+    # constraint type (U1) surfaces as a run failure naming the type, not
+    # a swallowed exception.
+    audit_report: object | None = None
+    barrier_audit: object | None = None
+    if status_str in ("optimal", "feasible"):
+        try:
+            audit_report, barrier_audit = _run_post_solve_audit(
+                positions_mm=positions,
+                sizes_mm=sizes_mm,
+                rotations=rotations,
+                board_w_mm=board_w,
+                board_h_mm=board_h,
+                zones=resolved_zones,
+                zone_components=resolved_zone_components,
+                constraints=constraint_objects,
+                netlist=netlist,
+                netclass_rules_data=loaded_netclass_rules,
+                model=model_wrapper,
+                ctx=ctx,
+                isolation_barrier_report=isolation_barrier_report,
+            )
+        except UnregisteredConstraintTypeError as exc:
+            status_str = "audit_failed"
+            audit_report = AuditReport(
+                passed=0,
+                failed=1,
+                violations=[
+                    AuditViolation(
+                        constraint_id="<post-solve-audit>",
+                        constraint_type="<unregistered>",
+                        description=f"audit failed closed on unregistered type: {exc}",
+                        detail=str(exc),
+                    )
+                ],
+            )
+        else:
+            if (audit_report is not None and not audit_report.all_pass) or (
+                barrier_audit is not None and not barrier_audit.all_pass
+            ):
+                status_str = "audit_failed"
 
     unsat_core: list[dict] = []
     if status_str in ("infeasible", "model_invalid"):
@@ -667,7 +740,64 @@ def solve_placement(
         unsat_core=unsat_core,
         isolation_barrier_report=isolation_barrier_report,
         validator_audit=validator_audit,
+        audit_report=audit_report,
+        barrier_audit=barrier_audit,
     )
+
+
+def _run_post_solve_audit(
+    *,
+    positions_mm: dict[str, tuple[float, float]],
+    sizes_mm: dict[str, tuple[float, float]],
+    rotations: dict[str, int],
+    board_w_mm: float,
+    board_h_mm: float,
+    zones: dict[str, object],
+    zone_components: dict[str, list[str]],
+    constraints: list[BaseConstraint],
+    netlist,
+    netclass_rules_data,
+    model: CpSatModel,
+    ctx: EncoderContext,
+    isolation_barrier_report: object | None,
+) -> tuple[object, object]:
+    """Build the Placement from solved coordinates and audit the full
+    encoded constraint surface (plan 2026-08-02-016 U3).
+
+    Audits the exact list the encoder dispatched over — originals plus
+    auto-generated netclass and courtyard SEPARATEDs
+    (``build_encoded_constraint_surface``) — so no encoded constraint is
+    left un-audited.  When the solve carried an isolation barrier, its
+    HV/SELV one-sided bounds are recomputed from the resolved coordinates
+    as well.
+
+    Returns ``(audit_report, barrier_audit)``; either may be None when
+    there is nothing of that kind to audit.  Raises
+    :class:`UnregisteredConstraintTypeError` when a constraint type has no
+    audit check (the caller converts that to a run failure).
+    """
+    placement = Placement(
+        positions_mm=positions_mm,
+        sizes_mm=sizes_mm,
+        rotations=rotations,
+        board_w_mm=board_w_mm,
+        board_h_mm=board_h_mm,
+        zones=zones,  # type: ignore[arg-type]
+        zone_components=zone_components,
+    )
+    surface = build_encoded_constraint_surface(
+        constraints,
+        model,
+        ctx,
+        netlist=netlist,
+        netclass_rules_data=netclass_rules_data,
+    )
+    auditor = PlacementAuditor(placement)
+    report = auditor.audit(surface, loop_components=ctx.loop_components)
+    barrier_audit = None
+    if isolation_barrier_report is not None:
+        barrier_audit = audit_isolation_barrier(isolation_barrier_report, placement)
+    return report, barrier_audit
 
 
 def _resolve_loop_components(netlist) -> dict[str, list[str]]:

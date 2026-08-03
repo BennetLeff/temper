@@ -274,6 +274,56 @@ def _resolve_refs(
 # ---------------------------------------------------------------------------
 
 
+def build_encoded_constraint_surface(
+    constraints: list[BaseConstraint],
+    model: CpSatModel,
+    ctx: EncoderContext | None = None,
+    *,
+    netlist=None,
+    netclass_rules_data=None,
+) -> list[BaseConstraint]:
+    """Return the complete constraint surface the encoder will encode.
+
+    = the originals plus the auto-generated netclass and courtyard
+    SEPARATED constraints — exactly the list ``encode_constraints``
+    dispatches over.  The post-solve audit (plan 2026-08-02-016) audits
+    THIS surface, so auto-generated constraints are recomputed post-solve
+    too, not just the hand-written ones (R24: the audit covers every
+    encoded constraint, not the subset the config author typed).
+    """
+    if ctx is None:
+        ctx = EncoderContext(
+            board_w_mm=100.0,
+            board_h_mm=100.0,
+            board_x_max_units=10_000,
+            board_y_max_units=10_000,
+        )
+
+    result = list(constraints)
+    if netlist is not None and netclass_rules_data is not None:
+        from temper_placer.placer.cp_sat.netclass_constraints import (
+            generate_netclass_separated_constraints,
+        )
+
+        auto_constraints = generate_netclass_separated_constraints(
+            netlist,
+            netlist.components,
+            netclass_rules_data.design_rules,
+            existing_constraints=result,
+        )
+        result = result + auto_constraints
+
+    if ctx.courtyard_clearance_mm > 0:
+        courtyard_constraints = _generate_courtyard_separated_constraints(
+            model,
+            ctx.courtyard_clearance_mm,
+            result,
+        )
+        result = result + courtyard_constraints
+
+    return result
+
+
 def encode_constraints(
     constraints: list[BaseConstraint],
     model: CpSatModel,
@@ -286,40 +336,20 @@ def encode_constraints(
 
     When *netclass_rules_data* is provided together with *netlist*,
     auto-generates cross-class separation constraints and appends them
-    to the constraint list before encoding.
+    to the constraint list before encoding (see
+    ``build_encoded_constraint_surface`` for the exact surface).
 
     Returns a flat list of assumption literal indices for downstream
     UNSAT-core inspection.
     """
     components = model.component_map
-    if ctx is None:
-        ctx = EncoderContext(
-            board_w_mm=100.0,
-            board_h_mm=100.0,
-            board_x_max_units=10_000,
-            board_y_max_units=10_000,
-        )
-
-    if netlist is not None and netclass_rules_data is not None:
-        from temper_placer.placer.cp_sat.netclass_constraints import (
-            generate_netclass_separated_constraints,
-        )
-
-        auto_constraints = generate_netclass_separated_constraints(
-            netlist,
-            netlist.components,
-            netclass_rules_data.design_rules,
-            existing_constraints=constraints,
-        )
-        constraints = list(constraints) + auto_constraints
-
-    if ctx.courtyard_clearance_mm > 0:
-        courtyard_constraints = _generate_courtyard_separated_constraints(
-            model,
-            ctx.courtyard_clearance_mm,
-            constraints,
-        )
-        constraints = list(constraints) + courtyard_constraints
+    constraints = build_encoded_constraint_surface(
+        constraints,
+        model,
+        ctx,
+        netlist=netlist,
+        netclass_rules_data=netclass_rules_data,
+    )
 
     all_assumptions: list[AssumptionLiteral] = []
     for c in constraints:

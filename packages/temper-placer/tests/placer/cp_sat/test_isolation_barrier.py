@@ -403,3 +403,145 @@ def test_isolation_barrier_matches_kicad_transform(rot_value, local_x, local_y):
     got_y = _project_onto_barrier_axis(local_x, local_y, rot_value, barrier_axis=1)
     assert got_x == pytest.approx(expected_x, abs=1e-9)
     assert got_y == pytest.approx(expected_y, abs=1e-9)
+
+
+# ---------------------------------------------------------------------------
+# Plan 2026-08-02-016 U2: post-solve audit of the isolation barrier
+# (audit_isolation_barrier recomputes the HV/SELV one-sided bounds from
+# resolved coordinates; isolator pad-cluster straddles are a documented
+# UNVERIFIED exemption).
+# ---------------------------------------------------------------------------
+
+
+def _barrier_report(
+    *,
+    hv_only=(),
+    selv_only=(),
+    isolators=(),
+    orientation="vertical",
+    corridor_position_mm=45.0,
+    corridor_width_mm=8.5,
+):
+    from temper_placer.placer.cp_sat.isolation_barrier import (
+        DomainPartition,
+        IsolationBarrierReport,
+    )
+
+    report = IsolationBarrierReport(
+        partition=DomainPartition(
+            hv_only=list(hv_only),
+            selv_only=list(selv_only),
+            isolators=list(isolators),
+        ),
+        isolator_feasibility=[],
+        orientation=orientation,
+        corridor_width_mm=corridor_width_mm,
+        corridor_position_mm=corridor_position_mm,
+    )
+    return report
+
+
+def _barrier_placement(positions, sizes=None):
+    from temper_placer.placer.cp_sat.audit import Placement
+
+    sizes = sizes or dict.fromkeys(positions, (5.0, 5.0))
+    return Placement(
+        positions_mm=positions,
+        sizes_mm=sizes,
+        rotations={},
+        board_w_mm=100.0,
+        board_h_mm=60.0,
+    )
+
+
+class TestIsolationBarrierPostSolveAudit:
+    """U2: the barrier's HV/SELV one-sided bounds are recomputed from
+    resolved coordinates (R24 item 3), and isolators audit UNVERIFIED."""
+
+    def test_hv_selv_correct_sides_pass(self) -> None:
+        from temper_placer.placer.cp_sat.audit import audit_isolation_barrier
+
+        # Vertical corridor from x=45 to x=53.5. HV at x=20 (end 22.5 <= 45),
+        # SELV at x=60 (start 57.5 >= 53.5).
+        report = _barrier_report(
+            hv_only=("Q1",),
+            selv_only=("U1",),
+            isolators=("T1",),
+            corridor_position_mm=45.0,
+            corridor_width_mm=8.5,
+        )
+        placement = _barrier_placement(
+            {"Q1": (20.0, 10.0), "U1": (60.0, 10.0), "T1": (50.0, 30.0)}
+        )
+        audit = audit_isolation_barrier(report, placement)
+        assert audit.all_pass
+        assert audit.violations == []
+        # Isolators are a documented UNVERIFIED exemption: recorded, not failing.
+        assert len(audit.unverified) == 1
+        assert "UNVERIFIED" in audit.unverified[0].description
+        assert "T1" in audit.unverified[0].constraint_id
+
+    def test_hv_component_crosses_corridor_fails(self) -> None:
+        from temper_placer.placer.cp_sat.audit import audit_isolation_barrier
+
+        # Q1 center at x=44 with size 5 → end 46.5 > 45 (corridor lo).
+        report = _barrier_report(hv_only=("Q1",), selv_only=("U1",))
+        placement = _barrier_placement(
+            {"Q1": (44.0, 10.0), "U1": (60.0, 10.0)},
+            sizes={"Q1": (5.0, 5.0), "U1": (5.0, 5.0)},
+        )
+        audit = audit_isolation_barrier(report, placement)
+        assert not audit.all_pass
+        assert len(audit.violations) == 1
+        v = audit.violations[0]
+        assert v.constraint_id == "isolation_barrier_hv_Q1"
+        assert "end=46.50mm" in v.description
+
+    def test_selv_component_crosses_corridor_fails(self) -> None:
+        from temper_placer.placer.cp_sat.audit import audit_isolation_barrier
+
+        # U1 center at x=55 with size 5 → start 52.5 < 53.5 (corridor hi).
+        report = _barrier_report(hv_only=("Q1",), selv_only=("U1",))
+        placement = _barrier_placement(
+            {"Q1": (20.0, 10.0), "U1": (55.0, 10.0)},
+            sizes={"Q1": (5.0, 5.0), "U1": (5.0, 5.0)},
+        )
+        audit = audit_isolation_barrier(report, placement)
+        assert not audit.all_pass
+        assert len(audit.violations) == 1
+        v = audit.violations[0]
+        assert v.constraint_id == "isolation_barrier_selv_U1"
+        assert "start=52.50mm" in v.description
+
+    def test_horizontal_orientation_uses_y_axis(self) -> None:
+        from temper_placer.placer.cp_sat.audit import audit_isolation_barrier
+
+        # Horizontal corridor y from 30 to 38.5. HV below (y_end 27.5 <= 30),
+        # SELV above (y_start 42.5 >= 38.5).
+        report = _barrier_report(
+            hv_only=("Q1",),
+            selv_only=("U1",),
+            orientation="horizontal",
+            corridor_position_mm=30.0,
+            corridor_width_mm=8.5,
+        )
+        placement = _barrier_placement(
+            {"Q1": (10.0, 25.0), "U1": (10.0, 45.0)},
+            sizes={"Q1": (5.0, 5.0), "U1": (5.0, 5.0)},
+        )
+        audit = audit_isolation_barrier(report, placement)
+        assert audit.all_pass
+        assert audit.violations == []
+
+    def test_missing_partition_returns_empty_pass(self) -> None:
+        from temper_placer.placer.cp_sat.audit import audit_isolation_barrier
+
+        class _BareReport:
+            orientation = "vertical"
+            corridor_position_mm = 45.0
+            corridor_width_mm = 8.5
+            partition = None
+
+        audit = audit_isolation_barrier(_BareReport(), _barrier_placement({}))
+        assert audit.all_pass
+        assert audit.violations == []

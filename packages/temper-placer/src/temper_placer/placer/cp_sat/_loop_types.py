@@ -25,6 +25,7 @@ class LoopExitReason(Enum):
     OSCILLATION_DETECTED = "oscillation_detected"
     GATE_UNMEASURED = "gate_unmeasured"
     FIELD_ROUND_LIMIT_EXCEEDED = "field_round_limit_exceeded"  # U9
+    AUDIT_FAILED = "audit_failed"  # post-solve audit rejected the placement (plan 2026-08-02-016)
 
 
 @dataclass

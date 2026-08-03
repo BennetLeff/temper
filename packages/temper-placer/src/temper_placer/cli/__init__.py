@@ -664,6 +664,28 @@ def optimize(
                 _maybe_surface_unsat(cp_result, unsat_report)
                 sys.exit(1)
 
+            if cp_result.status == "audit_failed":
+                # Post-solve audit (plan 2026-08-02-016 U3) rejected the
+                # placement: the solver reported feasible but recomputed
+                # constraint values contradict the encoding. Fail the run
+                # with the named violations, never write the placement.
+                report = cp_result.audit_report
+                violations = getattr(report, "violations", [])
+                console.print(
+                    Panel(
+                        "\n".join(
+                            f"  • [{v.constraint_type}] {v.description}"
+                            + (f"\n    {v.detail}" if v.detail else "")
+                            for v in violations
+                        )
+                        or "  (no violation details)",
+                        border_style="red",
+                        title="POST-SOLVE AUDIT FAILED",
+                    ),
+                    style="",
+                )
+                sys.exit(1)
+
             if cp_result.status in ("optimal", "feasible"):
                 from temper_placer.io.kicad_writer import (
                     PlacementUpdate,

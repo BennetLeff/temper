@@ -35,6 +35,13 @@ from temper_placer.placer.cp_sat._loop_utils import (
 
 logger = logging.getLogger(__name__)
 
+# Solver statuses that mean "no usable placement came out of this solve".
+# "audit_failed" is the post-solve audit's failure verdict (plan
+# 2026-08-02-016 U3): the solver reported a feasible placement but the
+# recomputed constraint values contradicted the encoding, so the run must
+# not continue routing from it.
+_NON_PLACEMENT_STATUSES: tuple[str, ...] = ("infeasible", "model_invalid", "audit_failed")
+
 
 class _LoopCoreMixin:
     """Core orchestration methods for PlaceRouteLoop.
@@ -223,7 +230,23 @@ class _LoopCoreMixin:
             )
             solve_time = (time.monotonic() - t0) * 1000.0
 
-            if placement.status in ("infeasible", "model_invalid"):
+            if placement.status in _NON_PLACEMENT_STATUSES:
+                if placement.status == "audit_failed":
+                    logger.error(
+                        "Placement rejected by post-solve audit at round %d: %s",
+                        round_num,
+                        [v.description for v in getattr(placement.audit_report, "violations", [])],
+                    )
+                    return LoopResult(
+                        success=False,
+                        reason=LoopExitReason.AUDIT_FAILED.value,
+                        placement=placement,
+                        rounds=rounds,
+                        unsat_core={
+                            "round": round_num,
+                            "message": "post-solve audit rejected the placement",
+                        },
+                    )
                 logger.warning(f"Placement UNSAT at round {round_num}")
                 return LoopResult(
                     success=False,
@@ -485,7 +508,23 @@ class _LoopCoreMixin:
             self._solve_times_history.append(solve_time)
             self._check_solve_time_trend()
 
-            if placement.status in ("infeasible", "model_invalid"):
+            if placement.status in _NON_PLACEMENT_STATUSES:
+                if placement.status == "audit_failed":
+                    logger.error(
+                        "Placement rejected by post-solve audit at round %d: %s",
+                        round_num,
+                        [v.description for v in getattr(placement.audit_report, "violations", [])],
+                    )
+                    return LoopResult(
+                        success=False,
+                        reason=LoopExitReason.AUDIT_FAILED.value,
+                        placement=placement,
+                        rounds=rounds,
+                        unsat_core={
+                            "round": round_num,
+                            "message": "post-solve audit rejected the placement",
+                        },
+                    )
                 logger.warning(f"Placement UNSAT at round {round_num}")
                 return LoopResult(
                     success=False,
@@ -881,7 +920,7 @@ class _LoopCoreMixin:
             loop_components=self._loop_components,
         )
 
-        if result.status in ("infeasible", "model_invalid"):
+        if result.status in _NON_PLACEMENT_STATUSES:
             raise UnsatError(
                 deltas=new_deltas,
                 message=f"UNSAT with delta(s): {[d.reason for d in new_deltas]}",
@@ -917,7 +956,7 @@ class _LoopCoreMixin:
             loop_components=self._loop_components,
         )
 
-        if result.status in ("infeasible", "model_invalid"):
+        if result.status in _NON_PLACEMENT_STATUSES:
             # Don't regress — return Phase 1 placement
             logger.info("Phase 2 UNSAT — returning Phase 1 placement")
             return placement
