@@ -48,6 +48,7 @@ DIRECTORY_PURPOSE: dict[str, str] = {
     ".github": "CI workflows, issue templates, code owners",
     "benchmarks": "CP-SAT benchmark harness and external board corpora manifests",
     "components": "Local KiCad symbol/footprint libraries, one directory per part",
+    "ci-corpus": "Incident regression corpus: seed/pristine fixtures and manifests the corpus oracle gate runs (plan 2026-08-02-032)",
     "configs": "Named placer configurations (deterministic, production)",
     "dashboard": "Static HTML/JS dashboard for placer metrics",
     "datasheets": "Vendor PDFs for parts used in the design",

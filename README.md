@@ -113,13 +113,14 @@ For contributors working on architecture, verification, or toolchain internals:
 
 <!-- BEGIN GENERATED: repo-map -- edits here are overwritten by scripts/gen_repo_state.py -->
 
-*All 19 tracked top-level directories. Generated -- a new directory without a description fails CI.*
+*All 20 tracked top-level directories. Generated -- a new directory without a description fails CI.*
 
 | Directory | Purpose |
 |---|---|
 | `.cargo/` | Cargo config -- macOS pyo3 `-undefined dynamic_lookup` link flags |
 | `.github/` | CI workflows, issue templates, code owners |
 | `benchmarks/` | CP-SAT benchmark harness and external board corpora manifests |
+| `ci-corpus/` | Incident regression corpus: seed/pristine fixtures and manifests the corpus oracle gate runs (plan 2026-08-02-032) |
 | `components/` | Local KiCad symbol/footprint libraries, one directory per part |
 | `configs/` | Named placer configurations (deterministic, production) |
 | `dashboard/` | Static HTML/JS dashboard for placer metrics |
