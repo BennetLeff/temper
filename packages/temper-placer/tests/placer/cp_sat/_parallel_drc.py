@@ -86,8 +86,13 @@ def run_drc_loud(pcb_path: str | Path, *, timeout: int, label: str) -> dict:
             raise LoudDrcError(
                 f"{label}: kicad-cli DRC produced no output file: {proc_summary}"
             )
-        with open(drc_out) as f:
-            return json.load(f)
+        try:
+            with open(drc_out) as f:
+                return json.load(f)
+        except json.JSONDecodeError as exc:
+            raise LoudDrcError(
+                f"{label}: kicad-cli DRC produced invalid JSON: {proc_summary}"
+            ) from exc
     finally:
         with contextlib.suppress(OSError):
             os.unlink(drc_out)

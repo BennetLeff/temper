@@ -30,6 +30,18 @@ os.makedirs(os.path.dirname(out), exist_ok=True)
 with open(os.path.join(os.path.dirname(out), "outpaths.log"), "a") as f:
     f.write(out + "\\n")
 
+if os.environ.get("FAKE_DRC_BAD_JSON"):
+    with open(out, "w") as f:
+        f.write('{"violations": [')
+    sys.exit(0)
+
+if os.environ.get("FAKE_DRC_FAIL_MARKER"):
+    marker = os.environ["FAKE_DRC_FAIL_MARKER"]
+    if not os.path.exists(marker):
+        with open(marker, "w"):
+            pass
+        sys.exit(1)
+
 if os.environ.get("FAKE_DRC_EMPTY"):
     sys.exit(0)
 
@@ -154,6 +166,33 @@ def test_missing_output_raises_loud_error(fake_kicad_cli, tmp_path: Path):
     finally:
         os.environ.pop("FAKE_DRC_EMPTY", None)
     assert "no output" in str(exc.value)
+
+
+def test_truncated_json_raises_loud_error(fake_kicad_cli, tmp_path: Path):
+    board = _probe_board(tmp_path)
+    os.environ["FAKE_DRC_BAD_JSON"] = "1"
+    try:
+        with pytest.raises(LoudDrcError) as exc:
+            run_drc_loud(board, timeout=30, label="zone-pour")
+    finally:
+        os.environ.pop("FAKE_DRC_BAD_JSON", None)
+    assert "invalid JSON" in str(exc.value)
+
+
+def test_failure_among_multiple_samples_propagates_without_hang(
+    fake_kicad_cli, tmp_path: Path
+):
+    """A failing sample among n>1 raises LoudDrcError and returns promptly."""
+    board = _probe_board(tmp_path)
+    marker = tmp_path / "fail-marker"
+    os.environ["FAKE_DRC_FAIL_MARKER"] = str(marker)
+    start = time.monotonic()
+    try:
+        with pytest.raises(LoudDrcError):
+            run_drc_samples(board, n=3, timeout=30, label="multi")
+    finally:
+        os.environ.pop("FAKE_DRC_FAIL_MARKER", None)
+    assert time.monotonic() - start < 15, "failure path hung waiting on siblings"
 
 
 def test_samples_use_distinct_output_paths(fake_kicad_cli, tmp_path: Path):
