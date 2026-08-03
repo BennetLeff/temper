@@ -29,7 +29,14 @@ fix: |
      only `pull_request_target` runs with zero `pull_request` runs is the signature.
   2. Regenerate the event with a REAL push: sync the branch with origin/main (or any
      genuine content change) and push — a normal push to the PR head generates a fresh
-     `synchronize` event and the candidates run against the new head.
+     `synchronize` event and the candidates run against the new head. CONDITION: the
+     push's changed-files set must match at least one trigger path in
+     .github/required-checks.json `trigger_paths` (packages/**, scripts/**, docs/plans/**,
+     docs/evidence/** etc. — docs/solutions/** is NOT in the list, so a docs-only sync
+     still skips the candidates). After the push, verify runs exist for the new head
+     (`gh api "repos/BennetLeff/temper/actions/runs?head_sha=<new sha>"` must show
+     pull_request-event runs) before relying on RPT (the Required Checks aggregator);
+     otherwise go to step 3.
   3. If the branch is already current with main and cannot change content, close and
      reopen the PR to force a fresh event (heavier hammer; last resort).
   Do NOT waste cycles rerunning the aggregator while the candidates are missing — the
@@ -40,8 +47,10 @@ prevention: |
     verify runs exist for the new head before relying on RPT.
   - After any force-push, check `head_sha` on the runs list before reading the check
     states — the checks UI reports the latest run per context, which can be stale
-    relative to the head (the second trap documented in the merge-ladder playbook).
+    relative to the head (trap #1, Stale-run misreads, in the strict-mode
+    merge-ladder playbook).
 evidence:
-  - "PR #576 (2026-08-02): force-push of the rebuilt K3 branch produced zero
+  - "PR #576 (2026-08-02, post-force-push series — distinct from the 2026-08-01
+    starvation timeouts in the playbook): force-push of the rebuilt K3 branch produced zero
     pull_request-event runs for the new head; the Required Checks aggregator failed
     twice with all candidates 'missing' before the sync-push fix regenerated runs"

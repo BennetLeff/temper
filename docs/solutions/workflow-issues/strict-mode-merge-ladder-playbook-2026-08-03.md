@@ -17,13 +17,18 @@ playbook: |
   2. Verify locally what CI will check, cheaply: ruff, vulture, LOC, typecheck, provenance,
      gen_repo_state --check, clippy on the touched crates. Fix inherited gate debt AT THE
      SOURCE on main directly (see below) rather than per-branch — every branch inherits it.
-  3. Push, then read the RPT state. Before believing any state, resolve the check link's
+  3. Push, then read the Required Checks aggregator (RPT) state. Before believing any state, resolve the check link's
      run ID and confirm its head_sha equals the branch tip: the checks API shows the
      latest run per context, which can belong to a previous head. A FAILURE reading for a
      stale head is not a failure.
   4. If RPT fails with 'candidate checks did not reach a complete success before timeout'
      and the candidates are green (or the polling log shows them queued), that is pool
      starvation: rerun the aggregator run (`gh run rerun --failed <run>`), not the code.
+     CAVEAT: the rerun re-polls the head SHA captured in the original event payload, NOT
+     the current branch tip — after the rerun passes, apply the step-3 rule again
+     (confirm the run's head_sha equals the branch tip) before trusting it; if the tip
+     moved while the timed-out run was polling, push a fresh sync to generate a new event
+     instead of rerunning the stale one.
   5. When RPT is green, merge IMMEDIATELY (BEHIND can reassert within minutes). If
      BEHIND: one more sync + push + RPT cycle. Budget ~40-60 min per ladder step under
      an active main.
@@ -41,9 +46,11 @@ playbook: |
 traps: |
   1. Stale-run misreads (trap #1): always resolve run ID + head SHA before acting on a
      check state; a 'FAILURE' from a pre-push run is noise.
-  2. Starvation vs failure (trap #2): 'did not reach a complete success before timeout'
-     with individually-green candidates = rerun the aggregator. A fast FAILURE (within
-     ~10 min of IN_PROGRESS) with a named candidate = real failure, investigate.
+  2. Starvation vs failure (trap #2): the discriminator is CONTENT, not timing — a
+     failure message that names a failed candidate (e.g. 'failed: Type Check (failure)')
+     is a real failure at ANY elapsed time, investigate; a failure that lands exactly at
+     the ~45-min polling deadline (timeout_seconds 2700) with only missing/pending
+     entries in the log is starvation or an orphaned event, rerun the aggregator.
   3. Force-push orphans (trap #3): see the sibling doc
      force-push-orphans-pull-request-check-runs-2026-08-03.md — force-pushes can leave
      the new head with zero candidate runs and an aggregator that reports everything
@@ -54,8 +61,9 @@ traps: |
 evidence:
   - "2026-08-01 ladder: #512 -> #513 -> #515 -> #446 -> #488 -> #521 -> #501 merged
     under ~15 sync rounds; main advanced every 5-30 minutes (wave-session merges)"
-  - "Three consecutive aggregator timeouts on #576 were pool starvation; the rerun
-    passed once candidates had drained"
+  - "Three consecutive aggregator timeouts on #576 (2026-08-01, pre-force-push
+    series — distinct from the 2026-08-02 orphan failures in the sibling doc) were pool
+    starvation; the rerun passed once candidates had drained"
   - "Main-red gates fixed at source during the ladder: required-checks manifest sync
     (#446's gate landed without its manifest entries), typecheck (channel_widths,
     _encoder_solve, fixed_copper), clippy (astar, wave crates), ruff (30 errors),
