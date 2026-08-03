@@ -523,6 +523,22 @@ def evaluate_check_runs(
             passed.append(context)
         elif run.conclusion == "skipped":
             skipped.append(context)
+        elif run.conclusion == "cancelled":
+            # A cancelled check is superseded work, not a verdict. python-tests
+            # sets `cancel-in-progress: true` on PRs, so every re-push cancels
+            # the previous run's jobs -- and until the new run's jobs report,
+            # those cancelled check runs are still the latest per name. Treating
+            # that as a failure made rapid iteration self-defeating: push twice
+            # in quick succession and the aggregator failed immediately on the
+            # run you just replaced, rather than waiting for the one you want.
+            #
+            # Pending (not failed) is the correct classification because failure
+            # is terminal here -- it returns 1 without polling again. _latest_runs
+            # orders by (updated_at, run_id), so once the newer run's job reports
+            # it supersedes the cancelled entry and evaluation proceeds normally.
+            # A genuinely abandoned run now times out instead of failing fast,
+            # which still fails closed, just later.
+            pending.append(f"{context} (cancelled -- superseded, awaiting rerun)")
         else:
             failed.append(f"{context} ({run.conclusion or 'no conclusion'})")
 
