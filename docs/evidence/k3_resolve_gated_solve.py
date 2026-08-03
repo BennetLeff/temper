@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """K3/tank3 resolve — validator-gated production repair recipe (issue #523).
 
-# provenance: commit=<fill-in-after-run> dirty=<fill-in-after-run>
+# provenance: commit=9d03c1cd7f21ed935f27c9a83b87677edacc6ec2 dirty=false
 
 Companion to ``docs/evidence/2026-08-01-k3-resolve-validator-gated.md``.
 
