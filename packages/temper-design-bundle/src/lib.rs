@@ -10,6 +10,9 @@ mod design_rules;
 #[cfg(feature = "python")]
 mod gates;
 
+#[cfg(feature = "python")]
+mod priority;
+
 mod atopile;
 mod constraint_merge;
 mod error;
@@ -175,6 +178,7 @@ mod python {
         crate::net_types::register(module)?;
         crate::loops::register(module)?;
         crate::design_rules::register(module)?;
-        crate::gates::register(module)
+        crate::gates::register(module)?;
+        crate::priority::register(module)
     }
 }

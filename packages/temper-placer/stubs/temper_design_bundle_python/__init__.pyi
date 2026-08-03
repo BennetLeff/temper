@@ -2,8 +2,9 @@
 
 The extension is compiled from packages/temper-design-bundle (pyo3
 pyclasses ported from the Wave-4 Phase 2 contracts: net_types, loops,
-design_rules, gates). mypy cannot introspect a compiled extension, so
-these stubs declare the pyclass surface consumed from Python.
+design_rules, gates, priority). mypy cannot introspect a compiled
+extension, so these stubs declare the pyclass surface consumed from
+Python.
 
 Keep this file in sync with packages/temper-design-bundle/src/*.rs. Any
 new pyclass or changed signature in the crate must be mirrored here —
@@ -393,3 +394,95 @@ class LoopCollection:
     def get_all_nets(self) -> set[str]: ...
     def get_non_compliant_loops(self) -> list[Loop]: ...
     def total_area_violation_mm2(self) -> float: ...
+
+
+class PlacementPriority:
+    POWER: PlacementPriority
+    DRIVER: PlacementPriority
+    HIGH_SPEED: PlacementPriority
+    ANALOG: PlacementPriority
+    DIGITAL: PlacementPriority
+
+    def __init__(self, value: int) -> None: ...
+    @property
+    def name(self) -> str: ...
+    @property
+    def value(self) -> int: ...
+
+
+class RoutingPriority:
+    POWER: RoutingPriority
+    GATE_DRIVE: RoutingPriority
+    HIGH_SPEED: RoutingPriority
+    ANALOG: RoutingPriority
+    DIGITAL: RoutingPriority
+    AUTO: RoutingPriority
+
+    def __init__(self, value: int) -> None: ...
+    @property
+    def name(self) -> str: ...
+    @property
+    def value(self) -> int: ...
+
+
+class PlacementPhaseConfig:
+    name: str
+    priority: PlacementPriority
+    components: list[str]
+    method: str
+    template: str | None
+    anchor: tuple[float, float] | None
+    reference: str | None
+    max_distance_mm: float
+    zone: str | None
+
+    def __init__(
+        self,
+        name: str,
+        priority: PlacementPriority,
+        components: list[str] | None = None,
+        method: str = "optimize",
+        template: str | None = None,
+        anchor: tuple[float, float] | None = None,
+        reference: str | None = None,
+        max_distance_mm: float = 20.0,
+        zone: str | None = None,
+    ) -> None: ...
+
+
+class RoutingPhaseConfig:
+    name: str
+    priority: RoutingPriority
+    nets: list[str]
+    trace_width_mm: float
+    via_cost: float
+    allow_layer_change: bool
+    max_length_mm: float | None
+
+    def __init__(
+        self,
+        name: str,
+        priority: RoutingPriority,
+        nets: list[str] | None = None,
+        trace_width_mm: float = 0.25,
+        via_cost: float = 1.0,
+        allow_layer_change: bool = True,
+        max_length_mm: float | None = None,
+    ) -> None: ...
+
+
+class PriorityConfig:
+    placement_phases: list[PlacementPhaseConfig]
+    routing_phases: list[RoutingPhaseConfig]
+
+    def __init__(
+        self,
+        placement_phases: list[PlacementPhaseConfig] | None = None,
+        routing_phases: list[RoutingPhaseConfig] | None = None,
+    ) -> None: ...
+    def get_placement_phase(self, priority: PlacementPriority) -> PlacementPhaseConfig | None: ...
+    def get_routing_phase(self, priority: RoutingPriority) -> RoutingPhaseConfig | None: ...
+    def classify_component(
+        self, ref: str, _netlist: Any = None
+    ) -> PlacementPriority: ...
+    def classify_net(self, net_name: str) -> RoutingPriority: ...
