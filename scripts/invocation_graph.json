@@ -145,6 +145,10 @@
   "compare_drc_reports.py": [
     "scripts/sprint1_validation.sh"
   ],
+  "constraint_mutation_gate.py": [],
+  "constraint_mutation_runner.py": [
+    "packages/temper-placer/tests/pcl/test_mutation_register.py"
+  ],
   "deadcode-baseline.py": [],
   "debug_diff_pair_path.py": [
     "scripts/test_backpath_fix.sh"

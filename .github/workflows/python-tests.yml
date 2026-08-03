@@ -1533,6 +1533,31 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python scripts/check_no_raw_rotation_trig.py
 
+      # Constraint mutation suite (plan 2026-08-02-006, R32): every CP-SAT
+      # constraint encoding must carry a non-empty, triaged kill set in
+      # power_pcb_dataset/constraint_kill_sets.yaml. The gate is an AST +
+      # YAML check (no solves), so it is fast enough for every commit; the
+      # runner that regenerates the register is invoked manually/periodically.
+      - name: Constraint mutation gate (kill-set register)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python scripts/constraint_mutation_gate.py
+
+      # The mutation suite's own unit tests (runner, register, gate) plus the
+      # U4 fail-capable defense tests. The full 32-mutation run is ~2s (per-
+      # mutation defense subset, pinned single-worker solver) — the KTD2 CI
+      # cost model.
+      - name: Constraint mutation suite tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        working-directory: packages/temper-placer
+        run: >
+          uv run pytest
+          tests/pcl/test_mutation_runner.py
+          tests/pcl/test_mutation_register.py
+          tests/pcl/test_mutation_gate.py
+          tests/pcl/test_keepout_mutation_defense.py
+          tests/pcl/test_loop_area_mutation_defense.py
+          -v --tb=short -p no:cacheprovider
+
   # Split out of Core Tests 2026-07-28. The encoded IEC 60335 / EMC / design
   # review / DFM requirement suites -- 240+ tests on a mains-connected design,
   # guarded by --min-tests so the suite cannot silently shrink to zero. In the

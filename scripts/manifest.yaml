@@ -1,14 +1,40 @@
 _meta:
   last_audit_date: '2026-08-02'
-  total_scripts: 77
+  total_scripts: 93
   counts:
-    keep: 76
-    ticket: 1
+    keep: 93
+    ticket: 0
   ticket_scripts_deleted: 40
 scripts:
+- path: constraint_mutation_gate.py
+  purpose: 'CI gate: every constraint encoding carries a non-empty, triaged kill set in power_pcb_dataset/constraint_kill_sets.yaml
+    (R32)'
+  owner: bennet
+  last_run: '2026-08-02'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - ast
+  - pathlib
+  - sys
+- path: constraint_mutation_runner.py
+  purpose: Apply R4 bug-class mutations (sign flip, dropped term, loosened bound, off-by-one, double-count) to CP-SAT encoders
+    at source level and classify killed/survived against their existing defenses; regenerates the kill-set register
+  owner: bennet
+  last_run: '2026-08-02'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - argparse
+  - ast
+  - dataclasses
+  - pathlib
+  - sys
+  - types
 - path: kicad_fill_zones.py
-  purpose: Fill zones via KiCad's pcbnew API before DRC (kicad-cli lacks --refill-zones pre-CI's KiCad
-    8.0.9)
+  purpose: Fill zones via KiCad's pcbnew API before DRC (kicad-cli lacks --refill-zones pre-CI's KiCad 8.0.9)
   owner: zone-pour-u3-measurement
   last_run: '2026-07-21'
   category: keep
@@ -17,9 +43,9 @@ scripts:
   - sys
 - path: kicad_pad_rotation_oracle.py
   purpose: 'Oracle for the rotation-convention differential tests (packages/temper-placer/tests/requirements/safety/test_rotation_convention_oracle.py):
-    places a pad via real pcbnew (KiCad''s own footprint-placement engine) and reports where it actually
-    lands, given a local offset and a footprint rotation. Must run under a Python interpreter with KiCad''s
-    pcbnew bindings, not the project uv venv.'
+    places a pad via real pcbnew (KiCad''s own footprint-placement engine) and reports where it actually lands, given a local
+    offset and a footprint rotation. Must run under a Python interpreter with KiCad''s pcbnew bindings, not the project uv
+    venv.'
   owner: bennet
   last_run: '2026-07-30'
   category: keep
@@ -29,8 +55,7 @@ scripts:
   - json
   - sys
 - path: literal_removal_check.py
-  purpose: 'Advisory check: flags literals removed by a diff that are still referenced elsewhere in the
-    repo'
+  purpose: 'Advisory check: flags literals removed by a diff that are still referenced elsewhere in the repo'
   owner: unassigned
   last_run: '2026-07-20'
   category: keep
@@ -96,16 +121,15 @@ scripts:
   - rich.console
   - sys
 - path: check_pad_orientation.py
-  purpose: 'Pad-orientation gate: catch footprint rotations that never reached the pads. Check 1 -- a
-    footprint rotated by a non-multiple of 180 deg whose pads ALL carry absolute angle 0 is the signature
-    of a serializer that rotated pad positions but not pad bodies (docs/evidence/2026-07-29-intra-component-shorts-root-cause.md).
-    Check 2 -- separating-axis test for intra-footprint copper overlap between different-net pads. Reads
-    the board bytes directly (no kiutils, no kicad-cli) so the ABSENCE of an optional angle token is visible.
-    Fail-closed on a missing/unparseable board, zero footprints, zero pads, or zero pad pairs compared.
-    NOT YET CI-WIRED: check 1 passes on the regenerated board but check 2 still reports K1, whose two
-    F.Fab-only pads hit the "no declared copper layer -> assume sharing" fail-closed rule -- a gap in
-    this gate''s own contract, analysed in docs/evidence/2026-07-29-board-regeneration-corrected-footprints.md
-    Sec 7. Wire it in the change that closes that gap.'
+  purpose: 'Pad-orientation gate: catch footprint rotations that never reached the pads. Check 1 -- a footprint rotated by
+    a non-multiple of 180 deg whose pads ALL carry absolute angle 0 is the signature of a serializer that rotated pad positions
+    but not pad bodies (docs/evidence/2026-07-29-intra-component-shorts-root-cause.md). Check 2 -- separating-axis test for
+    intra-footprint copper overlap between different-net pads. Reads the board bytes directly (no kiutils, no kicad-cli) so
+    the ABSENCE of an optional angle token is visible. Fail-closed on a missing/unparseable board, zero footprints, zero pads,
+    or zero pad pairs compared. NOT YET CI-WIRED: check 1 passes on the regenerated board but check 2 still reports K1, whose
+    two F.Fab-only pads hit the "no declared copper layer -> assume sharing" fail-closed rule -- a gap in this gate''s own
+    contract, analysed in docs/evidence/2026-07-29-board-regeneration-corrected-footprints.md Sec 7. Wire it in the change
+    that closes that gap.'
   owner: bennet
   last_run: '2026-07-29'
   category: keep
@@ -252,11 +276,10 @@ scripts:
   - subprocess
   - sys
 - path: measure_cross_domain_creepage.py
-  purpose: 'Pairwise HV<->SELV creepage measurement tool (NOT a gate, not wired into CI): enumerates every
-    cross-domain pad pair, measures exact pad-edge-to-pad-edge distance, classifies each violation body_free/body_crossing/unknown
-    against F.Fab/F.CrtYd body outlines, and supports a --compare-to-mm differential so the PD2 (8.0mm)
-    vs PD3 (12.6mm) pollution-degree decision has a re-runnable, parameterised cost measurement instead
-    of throwaway per-session scripts (see docs/evidence/2026-07-29-cross-domain-creepage-pd2-vs-pd3.md)'
+  purpose: 'Pairwise HV<->SELV creepage measurement tool (NOT a gate, not wired into CI): enumerates every cross-domain pad
+    pair, measures exact pad-edge-to-pad-edge distance, classifies each violation body_free/body_crossing/unknown against
+    F.Fab/F.CrtYd body outlines, and supports a --compare-to-mm differential so the PD2 (8.0mm) vs PD3 (12.6mm) pollution-degree
+    decision has a re-runnable, parameterised cost measurement instead of throwaway per-session scripts (see docs/evidence/2026-07-29-cross-domain-creepage-pd2-vs-pd3.md)'
   owner: bennet
   last_run: '2026-08-01'
   category: keep
@@ -274,8 +297,8 @@ scripts:
   - temper_placer.core.isolation_constants
   - temper_placer.core.pad_geometry
 - path: mpn_fabrication_gate.py
-  purpose: 'Fabricated-MPN CI gate: fails closed on non-E-series resistor/capacitor values and MPN/declared-value
-    disagreement in elec/src/*.ato'
+  purpose: 'Fabricated-MPN CI gate: fails closed on non-E-series resistor/capacitor values and MPN/declared-value disagreement
+    in elec/src/*.ato'
   owner: pipeline
   last_run: '2026-07-28'
   category: keep
@@ -424,10 +447,9 @@ scripts:
   - subprocess
   - sys
 - path: deadcode-baseline.py
-  purpose: 'Vulture whitelist/baseline data file: one accepted dead-code finding per line (name + comment),
-    diffed against by vulture_gate.py. Needs a .py extension because vulture parses whitelist files as
-    Python source; moved here from the repo root 2026-07-29 (scripts/test_root_hygiene.py flags any tracked
-    *.py file at root).'
+  purpose: 'Vulture whitelist/baseline data file: one accepted dead-code finding per line (name + comment), diffed against
+    by vulture_gate.py. Needs a .py extension because vulture parses whitelist files as Python source; moved here from the
+    repo root 2026-07-29 (scripts/test_root_hygiene.py flags any tracked *.py file at root).'
   owner: pipeline
   last_run: '2026-07-29'
   category: keep
@@ -577,7 +599,7 @@ scripts:
   - typing
   - yaml
 - path: spc_rules.py
-  purpose: Western Electric SPC rules — pure Python, no external stats dependency
+  purpose: "Western Electric SPC rules \u2014 pure Python, no external stats dependency"
   owner: pipeline
   last_run: '2026-06-29'
   category: keep
@@ -586,7 +608,7 @@ scripts:
   - __future__
   - math
 - path: verify_proofs.py
-  purpose: Verify PROOFS.toml completeness — CI gate
+  purpose: "Verify PROOFS.toml completeness \u2014 CI gate"
   owner: pipeline
   last_run: '2026-06-29'
   category: keep
@@ -645,8 +667,8 @@ scripts:
   - sys
   - yaml
 - path: pytest_guard.py
-  purpose: Run pytest and fail if fewer than --min-tests actually executed; catches a suite silently collapsing
-    to zero (missing path, mass skip, bad deselect)
+  purpose: Run pytest and fail if fewer than --min-tests actually executed; catches a suite silently collapsing to zero (missing
+    path, mass skip, bad deselect)
   owner: pipeline
   last_run: '2026-07-27'
   category: keep
@@ -660,8 +682,8 @@ scripts:
   - tempfile
   - xml.etree.ElementTree
 - path: gen_repo_state.py
-  purpose: Generate README.md and docs/plans/README.md state blocks from source; --check fails closed
-    on drift so hand-maintained state cannot go stale
+  purpose: Generate README.md and docs/plans/README.md state blocks from source; --check fails closed on drift so hand-maintained
+    state cannot go stale
   owner: pipeline
   last_run: '2026-07-26'
   category: keep
@@ -699,9 +721,8 @@ scripts:
   - pathlib
   - subprocess
 - path: gen_schematics.py
-  purpose: Generate KiCad schematics from atopile netlist (default.net), with per-designator part identity
-    from default.csv (default.net's libsource is footprint-aliased); --check is the schematic-drift CI
-    gate
+  purpose: Generate KiCad schematics from atopile netlist (default.net), with per-designator part identity from default.csv
+    (default.net's libsource is footprint-aliased); --check is the schematic-drift CI gate
   owner: bennet
   last_run: '2026-07-15'
   category: keep
@@ -735,8 +756,7 @@ scripts:
   - pydantic
   - temper_placer.constraint_types.config
 - path: gen_domain_models.py
-  purpose: Cross-language domain model codegen — NetClassRules SSOT from YAML manifest to Python+Rust
-    (plan 2026-07-22-004)
+  purpose: "Cross-language domain model codegen \u2014 NetClassRules SSOT from YAML manifest to Python+Rust (plan 2026-07-22-004)"
   owner: bennet
   last_run: '2026-07-22'
   category: keep
@@ -750,8 +770,8 @@ scripts:
   - typing
   - yaml
 - path: ci_identity_check.py
-  purpose: 'CI enforcement of the board identity gate (plan 2026-07-15-001, U7): rejects the quarantined
-    fixture, verifies the production board once it exists'
+  purpose: 'CI enforcement of the board identity gate (plan 2026-07-15-001, U7): rejects the quarantined fixture, verifies
+    the production board once it exists'
   owner: bennet
   last_run: '2026-07-15'
   category: keep
@@ -761,8 +781,7 @@ scripts:
   - pathlib
   - sys
 - path: batch_pipeline_validate.py
-  purpose: Batch pipeline validation — feed corpus boards through parse→placement→route and quarantine
-    failures
+  purpose: "Batch pipeline validation \u2014 feed corpus boards through parse\u2192placement\u2192route and quarantine failures"
   owner: bennet
   last_run: '2026-07-23'
   category: keep
@@ -775,8 +794,8 @@ scripts:
   - time
   - yaml
 - path: bench_rust_constraints.py
-  purpose: Benchmark gate for Rust constraint engine extraction — compares Rust vs Python loss computation
-    wall-clock performance
+  purpose: "Benchmark gate for Rust constraint engine extraction \u2014 compares Rust vs Python loss computation wall-clock\
+    \ performance"
   owner: bennet
   last_run: '2026-07-23'
   category: keep
@@ -845,11 +864,10 @@ scripts:
   - re
   - subprocess
 - path: check_vacuous_gates.py
-  purpose: 'CI gate: reject unguarded all() in gate and validator modules (docs/METHODOLOGY.md Sec 4/5,
-    anti-vacuous-truth); any() exempt (already fail-closed); asserts zero, no allowlist. Also rejects
-    tautological assert expressions (X or not X, X or True, X is X, literal X == X, bare assert True/1
-    with nothing preceding it) anywhere in packages/scripts, including test_*.py -- added 2026-07-28 after
-    test_clearance.py shipped one uncaught.'
+  purpose: 'CI gate: reject unguarded all() in gate and validator modules (docs/METHODOLOGY.md Sec 4/5, anti-vacuous-truth);
+    any() exempt (already fail-closed); asserts zero, no allowlist. Also rejects tautological assert expressions (X or not
+    X, X or True, X is X, literal X == X, bare assert True/1 with nothing preceding it) anywhere in packages/scripts, including
+    test_*.py -- added 2026-07-28 after test_clearance.py shipped one uncaught.'
   owner: bennet
   last_run: '2026-07-28'
   category: keep
@@ -863,9 +881,9 @@ scripts:
   - rich.console
   - sys
 - path: capacity_budget_gate.py
-  purpose: 'CI gate: design-capacity budget check over the fault-tree''s SN74HC4075 fan-in -- reachability
-    over elec/build/default.net, not pin-occupancy counting; fails closed on missing/empty netlist or
-    BOM, an absent required package, or a real fault source wired into a dead-output gate (docs/evidence/2026-07-26-design-capacity-budget-gate.md)'
+  purpose: 'CI gate: design-capacity budget check over the fault-tree''s SN74HC4075 fan-in -- reachability over elec/build/default.net,
+    not pin-occupancy counting; fails closed on missing/empty netlist or BOM, an absent required package, or a real fault
+    source wired into a dead-output gate (docs/evidence/2026-07-26-design-capacity-budget-gate.md)'
   owner: bennet
   last_run: '2026-07-26'
   category: keep
@@ -881,9 +899,8 @@ scripts:
   - sys
   - yaml
 - path: write_build_stamp.py
-  purpose: 'Build-side half of content-hash freshness: record the SHA-256 digest of a build''s inputs
-    beside its artifact, so freshness gates can compare content instead of mtimes and a restored cache
-    is no longer permanently STALE (see scripts/_lib/freshness.py)'
+  purpose: 'Build-side half of content-hash freshness: record the SHA-256 digest of a build''s inputs beside its artifact,
+    so freshness gates can compare content instead of mtimes and a restored cache is no longer permanently STALE (see scripts/_lib/freshness.py)'
   owner: bennet
   last_run: '2026-07-28'
   category: keep
@@ -895,12 +912,11 @@ scripts:
   - pathlib
   - sys
 - path: write_extension_stamps.py
-  purpose: 'Build-side half of content-hash freshness for the pyo3/maturin Rust extension crates: record
-    a SHA-256 digest of each crate''s source set beside its installed .so (keyed on that .so''s own bytes)
-    so check_stale_extensions.py can compare content instead of mtimes -- a restored .venv cache or a
-    prebuilt wheel baked into the CI image is no longer permanently STALE, which in that gate is unconditionally
-    fatal. Stamps only crates the gate already considers fresh, so it can never launder a stale artifact
-    (see scripts/_lib/freshness.py)'
+  purpose: 'Build-side half of content-hash freshness for the pyo3/maturin Rust extension crates: record a SHA-256 digest
+    of each crate''s source set beside its installed .so (keyed on that .so''s own bytes) so check_stale_extensions.py can
+    compare content instead of mtimes -- a restored .venv cache or a prebuilt wheel baked into the CI image is no longer permanently
+    STALE, which in that gate is unconditionally fatal. Stamps only crates the gate already considers fresh, so it can never
+    launder a stale artifact (see scripts/_lib/freshness.py)'
   owner: bennet
   last_run: '2026-07-28'
   category: keep
@@ -914,9 +930,8 @@ scripts:
   - pathlib
   - sys
 - path: check_domain_partition.py
-  purpose: 'Netlist domain-partition CI gate: verify the compiled netlist''s HV/SELV domains are actually
-    disjoint (docs/hardware/IEC60335_CRITICAL_COMPONENTS.md Sec 2) against elec/domain_manifest.yaml;
-    fail-closed on missing/empty/stale netlist or manifest'
+  purpose: 'Netlist domain-partition CI gate: verify the compiled netlist''s HV/SELV domains are actually disjoint (docs/hardware/IEC60335_CRITICAL_COMPONENTS.md
+    Sec 2) against elec/domain_manifest.yaml; fail-closed on missing/empty/stale netlist or manifest'
   owner: bennet
   last_run: '2026-07-26'
   category: keep
@@ -935,10 +950,10 @@ scripts:
   - sys
   - typing
 - path: check_rust_drc_presence.py
-  purpose: 'CI gate: fail-closed presence/freshness check for the temper_drc_rs PyO3 extension -- a bare
-    import cannot detect a stale wheel missing a symbol the current lib.rs registers (2026-07-26 incident:
-    verify_route_clearance silently absent, differential test silently skipped); TEMPER_REQUIRE_RUST_DRC=1
-    (CI) makes any gap fatal, unset (local dev) makes it a warning'
+  purpose: 'CI gate: fail-closed presence/freshness check for the temper_drc_rs PyO3 extension -- a bare import cannot detect
+    a stale wheel missing a symbol the current lib.rs registers (2026-07-26 incident: verify_route_clearance silently absent,
+    differential test silently skipped); TEMPER_REQUIRE_RUST_DRC=1 (CI) makes any gap fatal, unset (local dev) makes it a
+    warning'
   owner: bennet
   last_run: '2026-07-26'
   category: keep
@@ -951,8 +966,8 @@ scripts:
   - re
   - sys
 - path: check_derived_doc_drift.py
-  purpose: 'Derived-document drift gate: fail when a summary table silently drops a qualifier, column,
-    or value restated from docs/FUNCTIONAL_TEST_CRITERIA.md'
+  purpose: 'Derived-document drift gate: fail when a summary table silently drops a qualifier, column, or value restated from
+    docs/FUNCTIONAL_TEST_CRITERIA.md'
   owner: bennet
   last_run: '2026-07-26'
   category: keep
@@ -970,9 +985,8 @@ scripts:
   - sys
   - yaml
 - path: check_undeclared_imports.py
-  purpose: 'CI gate: fail when a module-level import in scripts/ or a Python test tree is not resolvable
-    in the synced environment (undeclared third-party dependency) -- catches the jinja2/sympy class of
-    incident (docs/evidence/2026-07-27-undeclared-import-gate.md)'
+  purpose: 'CI gate: fail when a module-level import in scripts/ or a Python test tree is not resolvable in the synced environment
+    (undeclared third-party dependency) -- catches the jinja2/sympy class of incident (docs/evidence/2026-07-27-undeclared-import-gate.md)'
   owner: bennet
   last_run: '2026-07-27'
   category: keep
@@ -989,16 +1003,14 @@ scripts:
   - pathlib
   - sys
 - path: check_pll_range_consistency.py
-  purpose: 'CI gate: fail when firmware/components/control/pll_control.h''s PLL_MIN/MAX/DEFAULT_FREQ_HZ
-    and elec/src/main.ato''s declared f_switching/f_pll_tracking_min/max disagree -- main.ato asserted
-    a 20-100kHz tracking range 5x wider than the firmware''s real 30-50kHz clamp, and PLL_DEFAULT_FREQ_HZ
-    (35000) started the bridge at the frequency an independent ZVS analysis found loses 100.7% of ZVS
-    margin, while main.ato had already moved to 47kHz (docs/evidence/2026-07-28-pll-defaults-and-range-gate.md).
-    EXTENDED 2026-07-29: also DERIVES the required PLL floor from main.ato''s declared l_tank_assumed
-    / l_pan_loaded_ratio / c_tank_total / l_tank_tolerance (1.05 x the worst-case loaded resonance) and
-    fails if PLL_MIN_FREQ_HZ is below it -- the previous checks only compared declarations against each
-    other and so were blind to both files agreeing on 30kHz, 7.6kHz BELOW the tank''s loaded resonance,
-    where a series-resonant bridge hard-switches (docs/evidence/2026-07-29-pll-floor-above-resonance.md).
+  purpose: 'CI gate: fail when firmware/components/control/pll_control.h''s PLL_MIN/MAX/DEFAULT_FREQ_HZ and elec/src/main.ato''s
+    declared f_switching/f_pll_tracking_min/max disagree -- main.ato asserted a 20-100kHz tracking range 5x wider than the
+    firmware''s real 30-50kHz clamp, and PLL_DEFAULT_FREQ_HZ (35000) started the bridge at the frequency an independent ZVS
+    analysis found loses 100.7% of ZVS margin, while main.ato had already moved to 47kHz (docs/evidence/2026-07-28-pll-defaults-and-range-gate.md).
+    EXTENDED 2026-07-29: also DERIVES the required PLL floor from main.ato''s declared l_tank_assumed / l_pan_loaded_ratio
+    / c_tank_total / l_tank_tolerance (1.05 x the worst-case loaded resonance) and fails if PLL_MIN_FREQ_HZ is below it --
+    the previous checks only compared declarations against each other and so were blind to both files agreeing on 30kHz, 7.6kHz
+    BELOW the tank''s loaded resonance, where a series-resonant bridge hard-switches (docs/evidence/2026-07-29-pll-floor-above-resonance.md).
     Also cross-checks main.ato''s c_tank_total mirror against modules.ato''s c_tank1+c_tank2'
   owner: bennet
   last_run: '2026-07-29'
@@ -1015,10 +1027,10 @@ scripts:
   - re
   - sys
 - path: check_net_classification.py
-  purpose: 'CI gate: fail when safety-relevant net classification (HV/SELV) is decided by plain substring
-    match against a hand-maintained keyword list, in parallel to elec/domain_manifest.yaml -- the defect
-    class confirmed three times in this repo (creepage_check.py false positives, clearance_check.py false
-    negatives, clearance_engine.py bare HV/AC substrings) (docs/evidence/2026-07-27-net-classification-gate.md)'
+  purpose: 'CI gate: fail when safety-relevant net classification (HV/SELV) is decided by plain substring match against a
+    hand-maintained keyword list, in parallel to elec/domain_manifest.yaml -- the defect class confirmed three times in this
+    repo (creepage_check.py false positives, clearance_check.py false negatives, clearance_engine.py bare HV/AC substrings)
+    (docs/evidence/2026-07-27-net-classification-gate.md)'
   owner: bennet
   last_run: '2026-07-27'
   category: keep
@@ -1034,11 +1046,10 @@ scripts:
   - pathlib
   - sys
 - path: check_hv_netclass_coverage.py
-  purpose: 'CI gate: assert every elec/domain_manifest.yaml HV-domain net has a TEMPER_NET_ASSIGNMENTS
-    entry, and every declared netclass (TEMPER_NET_CLASSES union pcb/temper.kicad_pro-described classes,
-    minus the structural Default/Differential classes) has at least one positive rule in scripts/generate_kicad_dru.py''s
-    generated output -- catches the +170V_BUS-resolves-to-no-netclass and HighVoltageIsolated-enforces-nothing
-    defect class confirmed on origin/main (docs/evidence/2026-07-29-hv-netclass-coverage-gate.md)'
+  purpose: 'CI gate: assert every elec/domain_manifest.yaml HV-domain net has a TEMPER_NET_ASSIGNMENTS entry, and every declared
+    netclass (TEMPER_NET_CLASSES union pcb/temper.kicad_pro-described classes, minus the structural Default/Differential classes)
+    has at least one positive rule in scripts/generate_kicad_dru.py''s generated output -- catches the +170V_BUS-resolves-to-no-netclass
+    and HighVoltageIsolated-enforces-nothing defect class confirmed on origin/main (docs/evidence/2026-07-29-hv-netclass-coverage-gate.md)'
   owner: bennet
   last_run: '2026-07-29'
   category: keep
@@ -1057,11 +1068,10 @@ scripts:
   - sys
   - typing
 - path: check_drc_ceiling_approval.py
-  purpose: 'CI gate: fail a PR that raises any power_pcb_dataset/drc_ceiling.json ceiling value (aggregate
-    error_ceiling/warning_ceiling, or any violations_by_type/warnings_by_type rule) relative to the merge
-    base unless a commit in the PR carries a Ceiling-Approval: trailer -- wires DrcRatchet.detect_ceiling_raise
-    (temper_placer.regression.drc_ratchet), which existed and was unit-tested but had no CI caller, into
-    the Provenance & Anti-Vacuity Gates job'
+  purpose: 'CI gate: fail a PR that raises any power_pcb_dataset/drc_ceiling.json ceiling value (aggregate error_ceiling/warning_ceiling,
+    or any violations_by_type/warnings_by_type rule) relative to the merge base unless a commit in the PR carries a Ceiling-Approval:
+    trailer -- wires DrcRatchet.detect_ceiling_raise (temper_placer.regression.drc_ratchet), which existed and was unit-tested
+    but had no CI caller, into the Provenance & Anti-Vacuity Gates job'
   owner: bennet
   last_run: '2026-07-29'
   category: keep
@@ -1076,12 +1086,11 @@ scripts:
   - subprocess
   - sys
 - path: check_measurement_provenance.py
-  purpose: 'CI gate: fail closed when a measurement artifact (power_pcb_dataset/drc_ceiling.json today)
-    declares input-file content hashes that no longer match reality -- catches the DRC ceiling recording
-    91 errors for a board three commits (c6b1b463, 556ccf4f, 65bd0159) had since changed to ~710, with
-    the ceiling file byte-identical throughout (docs/evidence/2026-07-27-drc-truth-gate-discrepancy.md,
-    docs/evidence/2026-07-28-measurement-provenance.md); STALE is a GATE ERROR, not a violation, generalizing
-    the netlist-freshness precedent in check_domain_partition.py'
+  purpose: 'CI gate: fail closed when a measurement artifact (power_pcb_dataset/drc_ceiling.json today) declares input-file
+    content hashes that no longer match reality -- catches the DRC ceiling recording 91 errors for a board three commits (c6b1b463,
+    556ccf4f, 65bd0159) had since changed to ~710, with the ceiling file byte-identical throughout (docs/evidence/2026-07-27-drc-truth-gate-discrepancy.md,
+    docs/evidence/2026-07-28-measurement-provenance.md); STALE is a GATE ERROR, not a violation, generalizing the netlist-freshness
+    precedent in check_domain_partition.py'
   owner: bennet
   last_run: '2026-07-28'
   category: keep
@@ -1099,8 +1108,8 @@ scripts:
   - sys
   - typing
 - path: worktree_report.py
-  purpose: 'Worktree hygiene report: inventory each git worktree with HEAD, age, distance behind main,
-    and unique unmerged commits (read-only, prunes nothing)'
+  purpose: 'Worktree hygiene report: inventory each git worktree with HEAD, age, distance behind main, and unique unmerged
+    commits (read-only, prunes nothing)'
   owner: bennet
   last_run: '2026-07-26'
   category: keep
@@ -1118,8 +1127,8 @@ scripts:
   - subprocess
   - sys
 - path: resync_pcb_netlist.py
-  purpose: Resync pcb/temper.kicad_pcb nets/designators/footprints against elec/build/default.net without
-    moving any existing footprint
+  purpose: Resync pcb/temper.kicad_pcb nets/designators/footprints against elec/build/default.net without moving any existing
+    footprint
   owner: bennet
   last_run: '2026-07-27'
   category: keep
@@ -1138,8 +1147,7 @@ scripts:
   - pathlib
   - sys
 - path: check_evidence_provenance.py
-  purpose: 'Fail-closed provenance gate for docs/evidence/: every evidence file must declare how its numbers
-    were produced'
+  purpose: 'Fail-closed provenance gate for docs/evidence/: every evidence file must declare how its numbers were produced'
   owner: bennet
   last_run: '2026-07-27'
   category: keep
@@ -1156,10 +1164,10 @@ scripts:
   - subprocess
   - sys
 - path: check_no_raw_rotation_trig.py
-  purpose: 'CI gate: fail if any of the 12 files that have already carried KiCad''s R(+theta)/R(-theta)
-    footprint-child rotation sign bug (see docs/evidence/2026-07-29-cross-domain-creepage-rotation-convention.md)
-    contains a raw math.cos/math.sin/np.cos/np.sin call instead of importing temper_placer.geometry.kicad_transform,
-    the single sanctioned implementation those 12 sites were consolidated into'
+  purpose: 'CI gate: fail if any of the 12 files that have already carried KiCad''s R(+theta)/R(-theta) footprint-child rotation
+    sign bug (see docs/evidence/2026-07-29-cross-domain-creepage-rotation-convention.md) contains a raw math.cos/math.sin/np.cos/np.sin
+    call instead of importing temper_placer.geometry.kicad_transform, the single sanctioned implementation those 12 sites
+    were consolidated into'
   owner: bennet
   last_run: '2026-07-30'
   category: keep
@@ -1174,11 +1182,10 @@ scripts:
   - pathlib
   - sys
 - path: check_isolation_keepout.py
-  purpose: 'Physical mains<->SELV isolation-barrier CI gate: verify a dedicated keepout region spans all
-    copper layers, is >=8.0mm wide (REINFORCED creepage) throughout, bisects the board into HV/SELV sides,
-    and that no copper (trace/via/pad/zone) intrudes -- pcb/temper.kicad_pcb has zero keepout zones today,
-    so this barrier exists only as declarations/after-the-fact checks; fail-closed on missing/empty board
-    or manifest, zero HV or SELV pads found, or a missing barrier zone (docs/evidence/2026-07-28-isolation-keepout.md)'
+  purpose: 'Physical mains<->SELV isolation-barrier CI gate: verify a dedicated keepout region spans all copper layers, is
+    >=8.0mm wide (REINFORCED creepage) throughout, bisects the board into HV/SELV sides, and that no copper (trace/via/pad/zone)
+    intrudes -- pcb/temper.kicad_pcb has zero keepout zones today, so this barrier exists only as declarations/after-the-fact
+    checks; fail-closed on missing/empty board or manifest, zero HV or SELV pads found, or a missing barrier zone (docs/evidence/2026-07-28-isolation-keepout.md)'
   owner: bennet
   last_run: '2026-07-28'
   category: keep
@@ -1195,12 +1202,11 @@ scripts:
   - temper_placer.core.pad_geometry
   - temper_placer.geometry.kicad_transform
 - path: check_stale_extensions.py
-  purpose: 'CI gate: fail-closed freshness check for every pyo3/maturin Rust extension crate under packages/
-    -- an installed .so older than its own crate''s source (or a crate whose extension is missing entirely)
-    is reported; zero crates discovered is always a gate error, never a vacuous pass (2026-07-27 incident:
-    missing .cargo/config.toml broke every `maturin develop` on macOS, so temper_io_types.cpython-312-darwin.so
-    stayed frozen while lib.rs gained ConfigBoardMismatchError, silently failing two test modules'' collection;
-    see commit 02e907b9 and docs/evidence/2026-07-27-stale-extension-gate.md)'
+  purpose: 'CI gate: fail-closed freshness check for every pyo3/maturin Rust extension crate under packages/ -- an installed
+    .so older than its own crate''s source (or a crate whose extension is missing entirely) is reported; zero crates discovered
+    is always a gate error, never a vacuous pass (2026-07-27 incident: missing .cargo/config.toml broke every `maturin develop`
+    on macOS, so temper_io_types.cpython-312-darwin.so stayed frozen while lib.rs gained ConfigBoardMismatchError, silently
+    failing two test modules'' collection; see commit 02e907b9 and docs/evidence/2026-07-27-stale-extension-gate.md)'
   owner: bennet
   last_run: '2026-07-27'
   category: keep
@@ -1238,8 +1244,8 @@ scripts:
   - sys
   - typing
 - path: check_creepage_clearance_drift.py
-  purpose: 'Safety-constant SSOT drift gate: compare declared creepage and clearance figures across electrical
-    source, scripts, packages, and configuration.'
+  purpose: 'Safety-constant SSOT drift gate: compare declared creepage and clearance figures across electrical source, scripts,
+    packages, and configuration.'
   owner: bennet
   last_run: '2026-07-30'
   category: keep
@@ -1255,8 +1261,8 @@ scripts:
   - re
   - sys
 - path: check_footprint_drift.py
-  purpose: 'Footprint-drift gate: catch a footprint corrected in elec/src/*.ato that never propagated
-    into pcb/temper.kicad_pcb, matched by sheetpath (designator-renumbering-safe), not refdes.'
+  purpose: 'Footprint-drift gate: catch a footprint corrected in elec/src/*.ato that never propagated into pcb/temper.kicad_pcb,
+    matched by sheetpath (designator-renumbering-safe), not refdes.'
   owner: bennet
   last_run: '2026-07-30'
   category: keep
@@ -1274,10 +1280,10 @@ scripts:
   - sys
   - typing
 - path: route_board.py
-  purpose: Working entry point to route a .kicad_pcb through router_v6's route_pcb() (make route and internal_route.py
-    are dead ends -- see module docstring). --output is mandatory and refuses to match --pcb, so it can
-    never overwrite the input board. --runs N routes N times from identical input and reports the completion
-    spread -- the measurement instrument for the router's run-to-run non-determinism.
+  purpose: Working entry point to route a .kicad_pcb through router_v6's route_pcb() (make route and internal_route.py are
+    dead ends -- see module docstring). --output is mandatory and refuses to match --pcb, so it can never overwrite the input
+    board. --runs N routes N times from identical input and reports the completion spread -- the measurement instrument for
+    the router's run-to-run non-determinism.
   owner: bennet
   last_run: '2026-07-28'
   category: keep
@@ -1295,9 +1301,9 @@ scripts:
   - time
   - typing
 - path: install_git_stash_guard.py
-  purpose: Install the shared-hooks reference-transaction hook (scripts/git-hooks/reference-transaction)
-    that blocks git stash push/save/clear repo-wide, since the stash stack is shared across all concurrent
-    worktrees on this .git directory. See AGENTS.md "Git Stash Guard".
+  purpose: Install the shared-hooks reference-transaction hook (scripts/git-hooks/reference-transaction) that blocks git stash
+    push/save/clear repo-wide, since the stash stack is shared across all concurrent worktrees on this .git directory. See
+    AGENTS.md "Git Stash Guard".
   owner: bennet
   last_run: '2026-07-28'
   category: keep
@@ -1309,9 +1315,9 @@ scripts:
   - subprocess
   - sys
 - path: check_stash_stack_gate.py
-  purpose: Detector for git stash activity the reference-transaction hook cannot block (apply, and pop/drop
-    of a non-terminal entry) -- snapshots the stash reflog and flags additions/removals since the last
-    run. Not a CI gate; run manually or on a timer against the shared dev machine.
+  purpose: Detector for git stash activity the reference-transaction hook cannot block (apply, and pop/drop of a non-terminal
+    entry) -- snapshots the stash reflog and flags additions/removals since the last run. Not a CI gate; run manually or on
+    a timer against the shared dev machine.
   owner: bennet
   last_run: '2026-07-28'
   category: keep
@@ -1323,12 +1329,11 @@ scripts:
   - subprocess
   - sys
 - path: known_failure_pins.py
-  purpose: 'CI gate + shared helper: validate known-failure-pins.yaml (a known-red test''s declared failure
-    signature) as a monotonic-shrink ratchet -- live-pin cap, forced expiry/renewal, required evidence-doc
-    link, orphan-nodeid detection -- and provide annotate_failure()/check_signature() for a test to compare
-    its actual failure signature against the declared one, distinguishing "known reason" from "changed
-    reason" without xfail (docs/solutions/best-practices/pin-known-failure-reasons-2026-07-30.md, the
-    PR #460 near-miss).'
+  purpose: 'CI gate + shared helper: validate known-failure-pins.yaml (a known-red test''s declared failure signature) as
+    a monotonic-shrink ratchet -- live-pin cap, forced expiry/renewal, required evidence-doc link, orphan-nodeid detection
+    -- and provide annotate_failure()/check_signature() for a test to compare its actual failure signature against the declared
+    one, distinguishing "known reason" from "changed reason" without xfail (docs/solutions/best-practices/pin-known-failure-reasons-2026-07-30.md,
+    the PR #460 near-miss).'
   owner: bennet
   last_run: '2026-07-30'
   category: keep
@@ -1343,10 +1348,10 @@ scripts:
   - typing
   - yaml
 - path: check_required_checks.py
-  purpose: 'Always-on pull-request aggregator: require the candidate Python Tests contexts when a manifest
-    trigger path matches, while treating workflow-level path filtering as an explicit legitimate skip.
-    A `skipped` required context passes only when the checker verifies the skip against the PR changed-file
-    list and the manifest per-job trigger sets (fail-closed otherwise).'
+  purpose: 'Always-on pull-request aggregator: require the candidate Python Tests contexts when a manifest trigger path matches,
+    while treating workflow-level path filtering as an explicit legitimate skip. A `skipped` required context passes only
+    when the checker verifies the skip against the PR changed-file list and the manifest per-job trigger sets (fail-closed
+    otherwise).'
   owner: bennet
   last_run: '2026-08-02'
   category: keep
@@ -1367,9 +1372,9 @@ scripts:
   - urllib.parse
   - urllib.request
 - path: classify_changed_paths.py
-  purpose: 'Workflow-side per-job run decisions for python-tests.yml path-conditional jobs (change-driven
-    CI): applies check_required_checks.job_should_run to the PR changed-file list against the manifest
-    per-job trigger sets, so a job skipped in the workflow is exactly a skip the checker verifies.'
+  purpose: 'Workflow-side per-job run decisions for python-tests.yml path-conditional jobs (change-driven CI): applies check_required_checks.job_should_run
+    to the PR changed-file list against the manifest per-job trigger sets, so a job skipped in the workflow is exactly a skip
+    the checker verifies.'
   owner: bennet
   last_run: '2026-08-02'
   category: keep
@@ -1383,13 +1388,13 @@ scripts:
   - subprocess
   - sys
 - path: check_refdes_identity_stability.py
-  purpose: Discovers safety-relevant test/fixture assertions keyed to a ref-designator string literal
-    (e.g. "U3", "K1") instead of instance_path, and cross-checks real-board-bound ones against the current
-    compiled netlist plus elec/domain_manifest.yaml to flag an ACTUAL identity mismatch, not just presence
-    -- built after a ZCD-optocoupler deletion reshuffled U-prefix refs and left test_the_seven_known_intra_footprint_blockers_are_now_visible
-    checking different real components than its own name/docstring claim while still passing. Reports
-    a full denominator (raw literals, safety-keyword context, assert-reachable, load-bearing, real-board-bound)
-    at every stage; never wired into CI (false-positive rate unmeasured on first pass) -- see docs/evidence/2026-07-30-refdes-identity-stability-gate.md.
+  purpose: Discovers safety-relevant test/fixture assertions keyed to a ref-designator string literal (e.g. "U3", "K1") instead
+    of instance_path, and cross-checks real-board-bound ones against the current compiled netlist plus elec/domain_manifest.yaml
+    to flag an ACTUAL identity mismatch, not just presence -- built after a ZCD-optocoupler deletion reshuffled U-prefix refs
+    and left test_the_seven_known_intra_footprint_blockers_are_now_visible checking different real components than its own
+    name/docstring claim while still passing. Reports a full denominator (raw literals, safety-keyword context, assert-reachable,
+    load-bearing, real-board-bound) at every stage; never wired into CI (false-positive rate unmeasured on first pass) --
+    see docs/evidence/2026-07-30-refdes-identity-stability-gate.md.
   owner: bennet
   last_run: '2026-07-30'
   category: keep
