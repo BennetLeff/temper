@@ -41,8 +41,18 @@ from check_required_checks import (  # noqa: E402
 
 
 def _git_changed_files(base_sha: str, head_sha: str) -> tuple[str, ...]:
+    # Diff against the MERGE-BASE (not the base-branch tip): the GitHub API's
+    # changed-file list (which the checker's skip-verification uses) has
+    # merge-base semantics. Diffs against the base tip diverge when the base
+    # advanced after the PR branched, causing spurious skip mismatches.
+    merge_base = subprocess.run(
+        ["git", "merge-base", base_sha, head_sha],
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout.strip()
     result = subprocess.run(
-        ["git", "diff", "--name-only", "-z", base_sha, head_sha],
+        ["git", "diff", "--name-only", "-z", merge_base, head_sha],
         capture_output=True,
         text=True,
         check=True,
@@ -88,12 +98,17 @@ def main() -> int:
                 for name, trigger in manifest.job_triggers.items()
             }
     except Exception as err:  # noqa: BLE001 -- classification failure runs everything
+        # Fail-open to RUN-EVERYTHING: emit all-true AND exit 0 so the
+        # dependents actually execute (exit 1 would cascade `needs:`-skipped
+        # over the all-true outputs, skipping every job instead of running
+        # them). The failure stays visible in this job's log via stderr; the
+        # checker's own verification remains fail-closed regardless.
         print(
             f"classify_changed_paths: classification failed; running every job: {err}",
             file=sys.stderr,
         )
         decisions = {trigger.id: True for trigger in manifest.job_triggers.values()}
-        status = 1
+        status = 0
     _write_outputs(decisions)
     return status
 
