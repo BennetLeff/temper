@@ -31,19 +31,19 @@
         (pin bidirectional line (at 15.24 0.00 180) (length 2.54) (name "2" (effects (font (size 1.27 1.27)))) (number "2" (effects (font (size 1.27 1.27)))))
       )
     )
-    (symbol "AC05000004701JAC00"
+    (symbol "AC05000003901JAC00"
       (pin_names (offset 1.016))
       (exclude_from_sim no)
       (in_bom yes)
       (on_board yes)
       (property "Reference" "U" (at 0 12.70 0) (effects (font (size 1.27 1.27))))
-      (property "Value" "AC05000004701JAC00" (at 0 -12.70 0) (effects (font (size 1.27 1.27))))
+      (property "Value" "AC05000003901JAC00" (at 0 -12.70 0) (effects (font (size 1.27 1.27))))
       (property "Footprint" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
       (property "Datasheet" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
       (property "Description" "src/components.ato:Resistor" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
-      (symbol "AC05000004701JAC00_0_1"
+      (symbol "AC05000003901JAC00_0_1"
         (rectangle (start -12.70 -10.16) (end 12.70 10.16) (stroke (width 0.254) (type default)) (fill (type background))))
-      (symbol "AC05000004701JAC00_1_1"
+      (symbol "AC05000003901JAC00_1_1"
         (pin bidirectional line (at -15.24 0.00 0) (length 2.54) (name "1" (effects (font (size 1.27 1.27)))) (number "1" (effects (font (size 1.27 1.27)))))
         (pin bidirectional line (at 15.24 0.00 180) (length 2.54) (name "2" (effects (font (size 1.27 1.27)))) (number "2" (effects (font (size 1.27 1.27)))))
       )
@@ -206,39 +206,19 @@
         (pin bidirectional line (at 15.24 2.54 180) (length 2.54) (name "4" (effects (font (size 1.27 1.27)))) (number "4" (effects (font (size 1.27 1.27)))))
       )
     )
-    (symbol "G5LE-1_DC12"
+    (symbol "H11L1TVM"
       (pin_names (offset 1.016))
       (exclude_from_sim no)
       (in_bom yes)
       (on_board yes)
       (property "Reference" "U" (at 0 27.94 0) (effects (font (size 1.27 1.27))))
-      (property "Value" "G5LE-1 DC12" (at 0 -27.94 0) (effects (font (size 1.27 1.27))))
-      (property "Footprint" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
-      (property "Datasheet" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
-      (property "Description" "src/components.ato:Relay_SPDT" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
-      (symbol "G5LE-1_DC12_0_1"
-        (rectangle (start -12.70 -25.40) (end 12.70 25.40) (stroke (width 0.254) (type default)) (fill (type background))))
-      (symbol "G5LE-1_DC12_1_1"
-        (pin bidirectional line (at -15.24 -5.08 0) (length 2.54) (name "2" (effects (font (size 1.27 1.27)))) (number "2" (effects (font (size 1.27 1.27)))))
-        (pin bidirectional line (at -15.24 0.00 0) (length 2.54) (name "5" (effects (font (size 1.27 1.27)))) (number "5" (effects (font (size 1.27 1.27)))))
-        (pin bidirectional line (at -15.24 5.08 0) (length 2.54) (name "1" (effects (font (size 1.27 1.27)))) (number "1" (effects (font (size 1.27 1.27)))))
-        (pin bidirectional line (at 15.24 -2.54 180) (length 2.54) (name "3" (effects (font (size 1.27 1.27)))) (number "3" (effects (font (size 1.27 1.27)))))
-        (pin bidirectional line (at 15.24 2.54 180) (length 2.54) (name "4" (effects (font (size 1.27 1.27)))) (number "4" (effects (font (size 1.27 1.27)))))
-      )
-    )
-    (symbol "H11L1"
-      (pin_names (offset 1.016))
-      (exclude_from_sim no)
-      (in_bom yes)
-      (on_board yes)
-      (property "Reference" "U" (at 0 27.94 0) (effects (font (size 1.27 1.27))))
-      (property "Value" "H11L1" (at 0 -27.94 0) (effects (font (size 1.27 1.27))))
+      (property "Value" "H11L1TVM" (at 0 -27.94 0) (effects (font (size 1.27 1.27))))
       (property "Footprint" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
       (property "Datasheet" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
       (property "Description" "src/components.ato:H11L1" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
-      (symbol "H11L1_0_1"
+      (symbol "H11L1TVM_0_1"
         (rectangle (start -12.70 -25.40) (end 12.70 25.40) (stroke (width 0.254) (type default)) (fill (type background))))
-      (symbol "H11L1_1_1"
+      (symbol "H11L1TVM_1_1"
         (pin bidirectional line (at -15.24 -5.08 0) (length 2.54) (name "1" (effects (font (size 1.27 1.27)))) (number "1" (effects (font (size 1.27 1.27)))))
         (pin bidirectional line (at -15.24 0.00 0) (length 2.54) (name "2" (effects (font (size 1.27 1.27)))) (number "2" (effects (font (size 1.27 1.27)))))
         (pin bidirectional line (at -15.24 5.08 0) (length 2.54) (name "4" (effects (font (size 1.27 1.27)))) (number "4" (effects (font (size 1.27 1.27)))))
@@ -314,6 +294,26 @@
         (pin bidirectional line (at 15.24 0.00 180) (length 2.54) (name "2" (effects (font (size 1.27 1.27)))) (number "2" (effects (font (size 1.27 1.27)))))
       )
     )
+    (symbol "RT314012"
+      (pin_names (offset 1.016))
+      (exclude_from_sim no)
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "U" (at 0 27.94 0) (effects (font (size 1.27 1.27))))
+      (property "Value" "RT314012" (at 0 -27.94 0) (effects (font (size 1.27 1.27))))
+      (property "Footprint" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
+      (property "Datasheet" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
+      (property "Description" "src/components.ato:Relay_SPDT" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
+      (symbol "RT314012_0_1"
+        (rectangle (start -12.70 -25.40) (end 12.70 25.40) (stroke (width 0.254) (type default)) (fill (type background))))
+      (symbol "RT314012_1_1"
+        (pin bidirectional line (at -15.24 -5.08 0) (length 2.54) (name "2" (effects (font (size 1.27 1.27)))) (number "2" (effects (font (size 1.27 1.27)))))
+        (pin bidirectional line (at -15.24 0.00 0) (length 2.54) (name "5" (effects (font (size 1.27 1.27)))) (number "5" (effects (font (size 1.27 1.27)))))
+        (pin bidirectional line (at -15.24 5.08 0) (length 2.54) (name "1" (effects (font (size 1.27 1.27)))) (number "1" (effects (font (size 1.27 1.27)))))
+        (pin bidirectional line (at 15.24 -2.54 180) (length 2.54) (name "3" (effects (font (size 1.27 1.27)))) (number "3" (effects (font (size 1.27 1.27)))))
+        (pin bidirectional line (at 15.24 2.54 180) (length 2.54) (name "4" (effects (font (size 1.27 1.27)))) (number "4" (effects (font (size 1.27 1.27)))))
+      )
+    )
     (symbol "SL32_10015"
       (pin_names (offset 1.016))
       (exclude_from_sim no)
@@ -365,6 +365,23 @@
         (pin bidirectional line (at 15.24 0.00 180) (length 2.54) (name "2" (effects (font (size 1.27 1.27)))) (number "2" (effects (font (size 1.27 1.27)))))
       )
     )
+    (symbol "VY1222M47Y5UQ6TV0"
+      (pin_names (offset 1.016))
+      (exclude_from_sim no)
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "U" (at 0 12.70 0) (effects (font (size 1.27 1.27))))
+      (property "Value" "VY1222M47Y5UQ6TV0" (at 0 -12.70 0) (effects (font (size 1.27 1.27))))
+      (property "Footprint" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
+      (property "Datasheet" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
+      (property "Description" "src/components.ato:Capacitor" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
+      (symbol "VY1222M47Y5UQ6TV0_0_1"
+        (rectangle (start -12.70 -10.16) (end 12.70 10.16) (stroke (width 0.254) (type default)) (fill (type background))))
+      (symbol "VY1222M47Y5UQ6TV0_1_1"
+        (pin bidirectional line (at -15.24 0.00 0) (length 2.54) (name "1" (effects (font (size 1.27 1.27)))) (number "1" (effects (font (size 1.27 1.27)))))
+        (pin bidirectional line (at 15.24 0.00 180) (length 2.54) (name "2" (effects (font (size 1.27 1.27)))) (number "2" (effects (font (size 1.27 1.27)))))
+      )
+    )
   )
 
   (symbol
@@ -378,7 +395,7 @@
     (uuid "4768dcc9-c6b8-4b4e-6751-7cb9f2c0f6a8")
     (property "Reference" "C1" (at 50.80 48.26 0) (effects (font (size 1.27 1.27))))
     (property "Value" "B32922C3224M289" (at 50.80 53.34 0) (effects (font (size 1.27 1.27))))
-    (property "Footprint" "Capacitor_THT:C_Disc_D10.0mm_W5.0mm_P5.00mm" (at 50.80 50.80 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Footprint" "Capacitor_THT:C_Rect_L18.0mm_W7.0mm_P15.00mm_FKS3_FKP3" (at 50.80 50.80 0) (effects (font (size 1.27 1.27)) hide))
     (pin "1" (uuid "02e5e19b-c3ac-1239-6d39-fa70b0403221"))
     (pin "2" (uuid "d931e980-75be-22e4-6463-a8fd8d1b8bc8"))
   )
@@ -506,7 +523,7 @@
   )
 
   (symbol
-    (lib_id "B32922C3224M289")
+    (lib_id "VY1222M47Y5UQ6TV0")
     (at 50.80 80.80 0)
     (unit 1)
     (exclude_from_sim no)
@@ -515,8 +532,8 @@
     (dnp no)
     (uuid "b998cae6-6158-7f59-a4d3-96c0daefaabf")
     (property "Reference" "C6" (at 50.80 78.26 0) (effects (font (size 1.27 1.27))))
-    (property "Value" "B32922C3224M289" (at 50.80 83.34 0) (effects (font (size 1.27 1.27))))
-    (property "Footprint" "Capacitor_THT:C_Disc_D10.0mm_W5.0mm_P5.00mm" (at 50.80 80.80 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Value" "VY1222M47Y5UQ6TV0" (at 50.80 83.34 0) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "Capacitor_THT:C_Disc_D12.5mm_W5.0mm_P10.00mm" (at 50.80 80.80 0) (effects (font (size 1.27 1.27)) hide))
     (pin "1" (uuid "52f10881-bbbb-f01d-e8d6-9714f045de42"))
     (pin "2" (uuid "727cd593-0fab-f2c2-4403-fc237f7ffe96"))
   )
@@ -757,7 +774,7 @@
   )
 
   (symbol
-    (lib_id "G5LE-1_DC12")
+    (lib_id "RT314012")
     (at 210.80 110.80 0)
     (unit 1)
     (exclude_from_sim no)
@@ -766,8 +783,8 @@
     (dnp no)
     (uuid "262f587d-3b77-555a-d6eb-b0cf2549cf4b")
     (property "Reference" "K2" (at 210.80 108.26 0) (effects (font (size 1.27 1.27))))
-    (property "Value" "G5LE-1 DC12" (at 210.80 113.34 0) (effects (font (size 1.27 1.27))))
-    (property "Footprint" "Relay_THT:Relay_SPDT_Omron-G5LE-1" (at 210.80 110.80 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Value" "RT314012" (at 210.80 113.34 0) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "temper:Relay_SPDT_Schrack-RT314012" (at 210.80 110.80 0) (effects (font (size 1.27 1.27)) hide))
     (pin "2" (uuid "93c2f46e-d0eb-41b1-0e69-9199276835fb"))
     (pin "5" (uuid "ffd381b9-4be9-25a7-1f49-3533adf0d8c8"))
     (pin "1" (uuid "9c7c140e-6408-bf25-38e8-c9962c0c10a4"))
@@ -801,7 +818,7 @@
   )
 
   (symbol
-    (lib_id "G5LE-1_DC12")
+    (lib_id "RT314012")
     (at 50.80 140.80 0)
     (unit 1)
     (exclude_from_sim no)
@@ -810,8 +827,8 @@
     (dnp no)
     (uuid "c98d0ca1-4822-f263-9b1a-d4a8eab22d81")
     (property "Reference" "K3" (at 50.80 138.26 0) (effects (font (size 1.27 1.27))))
-    (property "Value" "G5LE-1 DC12" (at 50.80 143.34 0) (effects (font (size 1.27 1.27))))
-    (property "Footprint" "Relay_THT:Relay_SPDT_Omron-G5LE-1" (at 50.80 140.80 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Value" "RT314012" (at 50.80 143.34 0) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "temper:Relay_SPDT_Schrack-RT314012" (at 50.80 140.80 0) (effects (font (size 1.27 1.27)) hide))
     (pin "2" (uuid "601feb72-67e5-d446-3819-3fe52f468150"))
     (pin "5" (uuid "d7726329-4e83-3de7-ab3d-881af6b12b84"))
     (pin "1" (uuid "eeaab702-cb6d-69d4-206d-8c36bc43db06"))
@@ -1005,7 +1022,7 @@
   )
 
   (symbol
-    (lib_id "AC05000004701JAC00")
+    (lib_id "AC05000003901JAC00")
     (at 90.80 170.80 0)
     (unit 1)
     (exclude_from_sim no)
@@ -1014,7 +1031,7 @@
     (dnp no)
     (uuid "92742a37-5df5-a9f0-b5f9-e76a423dd7b3")
     (property "Reference" "R11" (at 90.80 168.26 0) (effects (font (size 1.27 1.27))))
-    (property "Value" "AC05000004701JAC00" (at 90.80 173.34 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "AC05000003901JAC00" (at 90.80 173.34 0) (effects (font (size 1.27 1.27))))
     (property "Footprint" "Resistor_THT:R_Axial_DIN0918_L18.0mm_D9.0mm_P22.86mm_Horizontal" (at 90.80 170.80 0) (effects (font (size 1.27 1.27)) hide))
     (pin "1" (uuid "8d73b911-603e-0960-395c-cbd53a2e69c1"))
     (pin "2" (uuid "4b9df023-c00c-ed13-eccf-3e05adb2aab9"))
@@ -1032,7 +1049,7 @@
   )
 
   (symbol
-    (lib_id "AC05000004701JAC00")
+    (lib_id "AC05000003901JAC00")
     (at 130.80 170.80 0)
     (unit 1)
     (exclude_from_sim no)
@@ -1041,7 +1058,7 @@
     (dnp no)
     (uuid "94633b6e-bced-c683-e52a-4ce63d220749")
     (property "Reference" "R12" (at 130.80 168.26 0) (effects (font (size 1.27 1.27))))
-    (property "Value" "AC05000004701JAC00" (at 130.80 173.34 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "AC05000003901JAC00" (at 130.80 173.34 0) (effects (font (size 1.27 1.27))))
     (property "Footprint" "Resistor_THT:R_Axial_DIN0918_L18.0mm_D9.0mm_P22.86mm_Horizontal" (at 130.80 170.80 0) (effects (font (size 1.27 1.27)) hide))
     (pin "1" (uuid "70f2571b-c218-2757-fe38-398821be3e11"))
     (pin "2" (uuid "3b1e6940-95f2-49c4-b030-bafad31661e6"))
@@ -1058,7 +1075,7 @@
   )
 
   (symbol
-    (lib_id "AC05000004701JAC00")
+    (lib_id "AC05000003901JAC00")
     (at 170.80 170.80 0)
     (unit 1)
     (exclude_from_sim no)
@@ -1067,7 +1084,7 @@
     (dnp no)
     (uuid "3833c944-ab11-2e5d-f8ac-0dc17c94a4b2")
     (property "Reference" "R13" (at 170.80 168.26 0) (effects (font (size 1.27 1.27))))
-    (property "Value" "AC05000004701JAC00" (at 170.80 173.34 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "AC05000003901JAC00" (at 170.80 173.34 0) (effects (font (size 1.27 1.27))))
     (property "Footprint" "Resistor_THT:R_Axial_DIN0918_L18.0mm_D9.0mm_P22.86mm_Horizontal" (at 170.80 170.80 0) (effects (font (size 1.27 1.27)) hide))
     (pin "1" (uuid "a144be8b-b7f8-8008-f23d-8b13f5f3ca61"))
     (pin "2" (uuid "b7d7e7d3-5b06-214a-5af4-2bbceb043d12"))
@@ -1085,7 +1102,7 @@
   )
 
   (symbol
-    (lib_id "AC05000004701JAC00")
+    (lib_id "AC05000003901JAC00")
     (at 210.80 170.80 0)
     (unit 1)
     (exclude_from_sim no)
@@ -1094,7 +1111,7 @@
     (dnp no)
     (uuid "a76ba3cf-6cbc-36f5-b45e-00722062ad3f")
     (property "Reference" "R14" (at 210.80 168.26 0) (effects (font (size 1.27 1.27))))
-    (property "Value" "AC05000004701JAC00" (at 210.80 173.34 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "AC05000003901JAC00" (at 210.80 173.34 0) (effects (font (size 1.27 1.27))))
     (property "Footprint" "Resistor_THT:R_Axial_DIN0918_L18.0mm_D9.0mm_P22.86mm_Horizontal" (at 210.80 170.80 0) (effects (font (size 1.27 1.27)) hide))
     (pin "1" (uuid "8fed0d1f-92c0-c39c-74cc-721e6113559f"))
     (pin "2" (uuid "1f49fdef-ceb4-6135-1631-b41f84d47440"))
@@ -1120,7 +1137,7 @@
     (dnp no)
     (uuid "6b51d3b6-b7c7-3657-f8cf-d9e8dc8503a6")
     (property "Reference" "R15" (at 50.80 198.26 0) (effects (font (size 1.27 1.27))))
-    (property "Value" "RC1206FR-07220KL" (at 50.80 203.34 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "RC1206FR-07100RL" (at 50.80 203.34 0) (effects (font (size 1.27 1.27))))
     (property "Footprint" "Resistor_SMD:R_1206_3216Metric" (at 50.80 200.80 0) (effects (font (size 1.27 1.27)) hide))
     (pin "1" (uuid "df19d56b-e142-232b-32d2-c2f356c20c61"))
     (pin "2" (uuid "bf85ff3c-e6fd-2819-7307-7b2895580292"))
@@ -1147,7 +1164,7 @@
     (dnp no)
     (uuid "ccde5617-6379-1921-abb7-d068aa4446fa")
     (property "Reference" "R16" (at 90.80 198.26 0) (effects (font (size 1.27 1.27))))
-    (property "Value" "RC1206FR-07220KL" (at 90.80 203.34 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "RC1206FR-07100RL" (at 90.80 203.34 0) (effects (font (size 1.27 1.27))))
     (property "Footprint" "Resistor_SMD:R_1206_3216Metric" (at 90.80 200.80 0) (effects (font (size 1.27 1.27)) hide))
     (pin "1" (uuid "84d756cf-3813-0c39-335f-e9fdb7bedc99"))
     (pin "2" (uuid "4ed25d0c-1f4c-b5be-6c38-5a696b40da92"))
@@ -1201,7 +1218,7 @@
     (dnp no)
     (uuid "7c06da6b-6278-4037-f9ce-70333423af3c")
     (property "Reference" "R18" (at 170.80 198.26 0) (effects (font (size 1.27 1.27))))
-    (property "Value" "CRCW08051K00FKEA" (at 170.80 203.34 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "CRCW0805100KFKEA" (at 170.80 203.34 0) (effects (font (size 1.27 1.27))))
     (property "Footprint" "Resistor_SMD:R_0805_2012Metric" (at 170.80 200.80 0) (effects (font (size 1.27 1.27)) hide))
     (pin "1" (uuid "14ffc28c-f62c-58a2-89ca-42b3e5e7ca00"))
     (pin "2" (uuid "9f34bbcc-bd78-2aee-66fe-c078d42db3f1"))
@@ -1228,7 +1245,7 @@
     (dnp no)
     (uuid "1abb271e-344f-4195-b544-de6ffa680b03")
     (property "Reference" "R19" (at 210.80 198.26 0) (effects (font (size 1.27 1.27))))
-    (property "Value" "CRGP2512F22K" (at 210.80 203.34 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "CRGP2512F100R" (at 210.80 203.34 0) (effects (font (size 1.27 1.27))))
     (property "Footprint" "Resistor_SMD:R_2512_6332Metric" (at 210.80 200.80 0) (effects (font (size 1.27 1.27)) hide))
     (pin "1" (uuid "2c23e14c-2543-357e-7388-2c0f9d59edd1"))
     (pin "2" (uuid "36cf8123-5743-6dc5-e717-930115c58f7b"))
@@ -1281,7 +1298,7 @@
     (dnp no)
     (uuid "4624bd71-01e8-6dab-7e42-5919b3408e52")
     (property "Reference" "R20" (at 90.80 228.26 0) (effects (font (size 1.27 1.27))))
-    (property "Value" "CRGP2512F22K" (at 90.80 233.34 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "CRGP2512F100R" (at 90.80 233.34 0) (effects (font (size 1.27 1.27))))
     (property "Footprint" "Resistor_SMD:R_2512_6332Metric" (at 90.80 230.80 0) (effects (font (size 1.27 1.27)) hide))
     (pin "1" (uuid "b9572695-61e3-732b-995a-8d0363cc4a3c"))
     (pin "2" (uuid "689d5ad8-69dd-8841-33a0-6c892189cda5"))
@@ -1307,7 +1324,7 @@
     (dnp no)
     (uuid "1fa03796-3ac3-e727-5411-aaff88a27028")
     (property "Reference" "R3" (at 130.80 228.26 0) (effects (font (size 1.27 1.27))))
-    (property "Value" "CRCW08051K00FKEA" (at 130.80 233.34 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "CRCW0805100KFKEA" (at 130.80 233.34 0) (effects (font (size 1.27 1.27))))
     (property "Footprint" "Resistor_SMD:R_0805_2012Metric" (at 130.80 230.80 0) (effects (font (size 1.27 1.27)) hide))
     (pin "1" (uuid "29fc2797-fa34-69dd-9bca-70a32689c35c"))
     (pin "2" (uuid "677ce905-a6ef-0161-1577-f8bd29d8d179"))
@@ -1469,7 +1486,7 @@
     (dnp no)
     (uuid "6d01ae8b-720b-6915-7e8b-df1139231c82")
     (property "Reference" "R9" (at 170.80 258.26 0) (effects (font (size 1.27 1.27))))
-    (property "Value" "RC0603FR-0710KL" (at 170.80 263.34 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "RC0603FR-07430RL" (at 170.80 263.34 0) (effects (font (size 1.27 1.27))))
     (property "Footprint" "Resistor_SMD:R_0603_1608Metric" (at 170.80 260.80 0) (effects (font (size 1.27 1.27)) hide))
     (pin "1" (uuid "430f8d63-652b-5836-866e-4fba33ac484b"))
     (pin "2" (uuid "557f430f-dbd3-370b-1dfa-24267e0b792f"))
@@ -1592,7 +1609,7 @@
   )
 
   (symbol
-    (lib_id "H11L1")
+    (lib_id "H11L1TVM")
     (at 170.80 290.80 0)
     (unit 1)
     (exclude_from_sim no)
@@ -1601,8 +1618,8 @@
     (dnp no)
     (uuid "5d6e8044-af75-efdc-a19e-8301798fbcb9")
     (property "Reference" "U3" (at 170.80 288.26 0) (effects (font (size 1.27 1.27))))
-    (property "Value" "H11L1" (at 170.80 293.34 0) (effects (font (size 1.27 1.27))))
-    (property "Footprint" "Package_DIP:DIP-6_W7.62mm" (at 170.80 290.80 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Value" "H11L1TVM" (at 170.80 293.34 0) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "Package_DIP:DIP-6_W10.16mm" (at 170.80 290.80 0) (effects (font (size 1.27 1.27)) hide))
     (pin "1" (uuid "380e9a68-a2c9-9fc3-8fdc-8875e8118e4d"))
     (pin "2" (uuid "f0aea00a-548d-84ce-2fed-c98bf378ff64"))
     (pin "4" (uuid "38e8d013-83be-3d67-00e6-477d9b63aa9e"))
