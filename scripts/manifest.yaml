@@ -1,8 +1,8 @@
 _meta:
   last_audit_date: '2026-08-02'
-  total_scripts: 100
+  total_scripts: 101
   counts:
-    keep: 100
+    keep: 101
     ticket: 0
   ticket_scripts_deleted: 40
 scripts:
@@ -546,6 +546,7 @@ scripts:
   - _lib.github_summary
   - _lib.repo
   - argparse
+  - board_derivation_lib
   - dataclasses
   - math
   - pathlib
@@ -1175,6 +1176,25 @@ scripts:
   - typing
   - pydantic
   - temper_placer.constraint_types.config
+- path: physics_soundness_register_gate.py
+  purpose: "CI gate: enforce the physics soundness-proof register (R20, plan 2026-08-02-004) \u2014 every physics-gated constraint\
+    \ encoder must carry a Chebyshev-style soundness proof (or classified-error proof) linked from power_pcb_dataset/physics_soundness_register.yaml;\
+    \ AST scan of the physics modules detects new physics-gated surfaces"
+  owner: bennet
+  last_run: '2026-08-02'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - ast
+  - collections.abc
+  - dataclasses
+  - pathlib
+  - re
+  - sys
+  - typing
+  - yaml
 - path: pipeline_metrics.py
   purpose: Record pipeline metrics to JSON for trend analysis (CI-invoked)
   owner: pipeline
