@@ -1,8 +1,8 @@
 _meta:
-  last_audit_date: '2026-07-29'
-  total_scripts: 76
+  last_audit_date: '2026-08-02'
+  total_scripts: 77
   counts:
-    keep: 75
+    keep: 76
     ticket: 1
   ticket_scripts_deleted: 40
 scripts:
@@ -1014,10 +1014,9 @@ scripts:
 - path: check_hv_netclass_coverage.py
   purpose: 'CI gate: assert every elec/domain_manifest.yaml HV-domain net has a TEMPER_NET_ASSIGNMENTS
     entry, and every declared netclass (TEMPER_NET_CLASSES union pcb/temper.kicad_pro-described classes,
-    minus the structural Default/Differential classes) has at least one positive rule in
-    scripts/generate_kicad_dru.py''s generated output -- catches the +170V_BUS-resolves-to-no-netclass
-    and HighVoltageIsolated-enforces-nothing defect class confirmed on origin/main
-    (docs/evidence/2026-07-29-hv-netclass-coverage-gate.md)'
+    minus the structural Default/Differential classes) has at least one positive rule in scripts/generate_kicad_dru.py''s
+    generated output -- catches the +170V_BUS-resolves-to-no-netclass and HighVoltageIsolated-enforces-nothing
+    defect class confirmed on origin/main (docs/evidence/2026-07-29-hv-netclass-coverage-gate.md)'
   owner: bennet
   last_run: '2026-07-29'
   category: keep
@@ -1030,12 +1029,10 @@ scripts:
   - check_domain_partition
   - collections.abc
   - dataclasses
-  - generate_kicad_dru
   - json
   - pathlib
   - re
   - sys
-  - temper_placer.core.design_rules
   - typing
 - path: check_drc_ceiling_approval.py
   purpose: 'CI gate: fail a PR that raises any power_pcb_dataset/drc_ceiling.json ceiling value (aggregate
@@ -1219,7 +1216,8 @@ scripts:
   - sys
   - typing
 - path: check_creepage_clearance_drift.py
-  purpose: 'Safety-constant SSOT drift gate: compare declared creepage and clearance figures across electrical source, scripts, packages, and configuration.'
+  purpose: 'Safety-constant SSOT drift gate: compare declared creepage and clearance figures across electrical
+    source, scripts, packages, and configuration.'
   owner: bennet
   last_run: '2026-07-30'
   category: keep
@@ -1324,9 +1322,11 @@ scripts:
   - yaml
 - path: check_required_checks.py
   purpose: 'Always-on pull-request aggregator: require the candidate Python Tests contexts when a manifest
-    trigger path matches, while treating workflow-level path filtering as an explicit legitimate skip.'
+    trigger path matches, while treating workflow-level path filtering as an explicit legitimate skip.
+    A `skipped` required context passes only when the checker verifies the skip against the PR changed-file
+    list and the manifest per-job trigger sets (fail-closed otherwise).'
   owner: bennet
-  last_run: '2026-07-30'
+  last_run: '2026-08-02'
   category: keep
   disposition: ci-gate
   imports:
@@ -1344,6 +1344,22 @@ scripts:
   - urllib.error
   - urllib.parse
   - urllib.request
+- path: classify_changed_paths.py
+  purpose: 'Workflow-side per-job run decisions for python-tests.yml path-conditional jobs (change-driven
+    CI): applies check_required_checks.job_should_run to the PR changed-file list against the manifest
+    per-job trigger sets, so a job skipped in the workflow is exactly a skip the checker verifies.'
+  owner: bennet
+  last_run: '2026-08-02'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - check_required_checks
+  - json
+  - os
+  - pathlib
+  - subprocess
+  - sys
 - path: check_refdes_identity_stability.py
   purpose: Discovers safety-relevant test/fixture assertions keyed to a ref-designator string literal
     (e.g. "U3", "K1") instead of instance_path, and cross-checks real-board-bound ones against the current
