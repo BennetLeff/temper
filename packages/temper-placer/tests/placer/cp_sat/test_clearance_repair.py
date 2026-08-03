@@ -691,7 +691,18 @@ class TestRealBoardClearanceRepair:
         a geometric law -- a pad pair facing away can exceed the origin
         distance (measured on this board: C22<->L2, copper 11.489mm vs
         origin 10.341mm). We assert the provable bound and count how many
-        pairs sit in the optimistic (copper < origin) direction."""
+        pairs sit in the optimistic (copper < origin) direction.
+
+        RE-BASELINED 2026-08-02 (see docs/evidence/2026-08-02-checker-
+        lower-bound-rebaseline.md): the original version asserted the sound
+        bound only on *violating* inter pairs and required at least one to
+        exist. The #517 PD2/8.0mm re-solve (merged #521, 2026-08-01) cleared
+        all 23 placement-fixable inter pairs, so the baseline now has 0 inter
+        violations (only the documented K3 intra-footprint floor remains) --
+        the invariant is therefore asserted on EVERY inter pair the checker
+        measures (the 114 survivors of its own sound-origin prune), which is
+        strictly stronger than a violating-pairs-only sample and stays
+        non-vacuous on a clean board."""
         try:
             from tests.requirements.safety._real_board_fixture import (
                 load_real_board_placement,
@@ -699,7 +710,11 @@ class TestRealBoardClearanceRepair:
         except Exception as exc:  # pragma: no cover - environment guard
             pytest.skip(f"real-board fixture unavailable: {exc}")
         from temper_placer.core.pad_geometry import pad_bounding_radius
+        from temper_placer.requirements.validators._copper import _CopperModel
         from temper_placer.requirements.validators.clearance import (
+            IEC60335_REQUIREMENTS,
+            _domain_boundary_pairs,
+            _nets_domain_map,
             verify_iec60335_compliance,
         )
 
@@ -720,27 +735,71 @@ class TestRealBoardClearanceRepair:
                 default=0.0,
             )
 
+        # Documented board state (re-baselined 2026-08-02): #517's PD2/8.0mm
+        # re-solve cleared every placement-fixable inter-component pair; the
+        # only remaining REQ-SAFE-01 records are the K3 intra-footprint pair
+        # (3.558846mm, tracked by #518/#523). Asserted fail-closed: any NEW
+        # inter-component violation, or a change to the intra floor, fails.
         inter = [v for v in result.violations if v.pair_kind != "intra"]
-        assert inter, "expected inter-component violations in the baseline"
+        assert not inter, (
+            f"expected the documented #517-re-solved baseline (0 "
+            f"inter-component violations), found {len(inter)}: "
+            f"{sorted({(v.ref_a, v.ref_b) for v in inter})}"
+        )
+        intra_refs = sorted({v.ref_a for v in result.violations if v.pair_kind == "intra"})
+        assert intra_refs == ["K3"], (
+            f"expected the documented K3-only intra-footprint floor, "
+            f"got {intra_refs}"
+        )
+
+        # The invariant, on every inter pair the checker actually MEASURES
+        # (survivors of its own sound-origin prune across all IEC rows) --
+        # not just the (now empty) violating subset. These are the pairs
+        # whose numbers the prune trusts, so they are the decision-relevant
+        # sample for the safety property.
+        nets_domain = _nets_domain_map(placement, voltage_domains)
+        model = _CopperModel(placement)
+        measured: dict[frozenset[str], tuple[float, str]] = {}
+        for (domain_a, domain_b, _ins), req in IEC60335_REQUIREMENTS.items():
+            for comp_a, comp_b in _domain_boundary_pairs(placement, domain_a, domain_b, nets_domain):
+                ref_a, ref_b = comp_a["ref"], comp_b["ref"]
+                key = frozenset({ref_a, ref_b})
+                if key in measured:
+                    continue
+                if model.lower_bound(ref_a, ref_b) >= max(
+                    req["min_clearance_mm"], req["min_creepage_mm"]
+                ):
+                    continue  # pruned by the checker's own sound bound
+                dist, geometry_model, _closest = model.copper_distance(
+                    ref_a, domain_a, ref_b, domain_b, nets_domain
+                )
+                measured[key] = (dist, geometry_model)
+
+        assert len(measured) >= 50, (
+            f"suspiciously few measured inter pairs ({len(measured)}); "
+            "the checker's measured set should be O(100) on this board"
+        )
         optimistic = 0
-        for v in inter:
-            if not (v.ref_a and v.ref_b and v.ref_a in positions and v.ref_b in positions):
-                continue
-            origin_dist = math.dist(positions[v.ref_a], positions[v.ref_b])
-            assert v.measured_mm is not None
-            # Sound lower bound: copper >= origin - reach_a - reach_b.
-            assert v.measured_mm >= origin_dist - _reach(v.ref_a) - _reach(v.ref_b) - 1e-9, (
-                f"{v.ref_a}<->{v.ref_b}: copper {v.measured_mm}mm below the "
-                f"sound origin-based lower bound "
-                f"{origin_dist - _reach(v.ref_a) - _reach(v.ref_b):.3f}mm"
+        for (ref_a, ref_b), (dist, geometry_model) in measured.items():
+            assert geometry_model == "copper", (
+                f"{ref_a}<->{ref_b} measured with model {geometry_model!r}; "
+                "the origin proxy is the optimistic fallback this suite "
+                "exists to catch"
             )
-            if v.measured_mm < origin_dist:
+            origin_dist = math.dist(positions[ref_a], positions[ref_b])
+            # Sound lower bound: copper >= origin - reach_a - reach_b.
+            assert dist >= origin_dist - _reach(ref_a) - _reach(ref_b) - 1e-9, (
+                f"{ref_a}<->{ref_b}: copper {dist}mm below the "
+                f"sound origin-based lower bound "
+                f"{origin_dist - _reach(ref_a) - _reach(ref_b):.3f}mm"
+            )
+            if dist < origin_dist:
                 optimistic += 1
-        # The old origin-only checker was optimistic on a large majority of
-        # the currently-flagged pairs -- that is the relation that explains
-        # why 123 violations exist under the copper model.
-        assert optimistic >= len(inter) // 2, (
-            f"only {optimistic}/{len(inter)} violating pairs sit in the "
+        # The old origin-only checker is optimistic (copper < origin) on a
+        # large majority of the measured pairs -- the relation that explains
+        # why the copper model flags more than the origin proxy ever did.
+        assert optimistic >= len(measured) // 2, (
+            f"only {optimistic}/{len(measured)} measured pairs sit in the "
             "optimistic (copper < origin) direction"
         )
 

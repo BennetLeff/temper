@@ -94,8 +94,10 @@ by different means and must not be flattened together):
 
 **These are legitimate under IEC 60335-1 only because no single component
 failure removes the current-limiting function** -- verified directly against
-the manifest's own arithmetic (both chains keep touch current 3.5x-10x under
-the 1.35mA IEC 60335-2-6 limit even with two of three top resistors shorted).
+the manifest's own arithmetic (both chains keep touch current under the
+1.35mA IEC 60335-2-6 limit even with two of three top resistors shorted —
+single-fault margins 2.8x-7.0x across both dividers; the tightest double-fault
+case is the ADC divider at 1.4x, scoped to the declared +170V half-bus).
 This is why they reduce differently than #1-8: shortening either chain below
 3 elements reintroduces the exact single-point-of-failure defect the ADC
 divider's 2026-07-26 fix (510k -> 3x169k) corrected. Any merge proposal below

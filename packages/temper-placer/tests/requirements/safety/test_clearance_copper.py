@@ -711,6 +711,22 @@ class TestRealBoardIsolatorFigures:
         sealed-compartment prerequisite is not met and the PD3 fallback
         governs instead, all seven refs above return to this test's original
         {"C6","K1","K2","K3","T1","U3","U7"} set exactly as documented.
+
+        UPDATE 2026-08-02 (K2 cleared by the relay swap -- re-baselined, board
+        changed under the test): PR #524 swapped K2's footprint to the TE
+        Schrack RT314012 (temper:Relay_SPDT_Schrack-RT314012) whose internal
+        coil-to-contact gap is 12.76mm (vs G5LE-1's 3.559mm) -- clearing K2
+        from the intra-footprint blocker set -- and #568/#579 then nudged
+        edge-hanging refs (K2 included) inward. Measured on origin/main
+        e5bd461e2 (2026-08-02): the blocker set is now exactly {"K3"}. K3
+        remains on the G5LE-1 (its own RT314012 swap is blocked on placement
+        -- docs/evidence/2026-07-31-k2k3-relay-swap-placement.md, issue
+        #523) and still measures 3.558846mm, ~4.4mm short of the 8.0mm
+        REINFORCED bar and below the PD-independent 6.0mm clearance minimum.
+        The assertions below pin intra to exactly that measured set: K3
+        present, K2/C6/K1/T1/U3/U7 absent, so a regression that re-adds ANY
+        of the cleared refs -- or loses the last genuine blocker -- fails
+        this test.
         """
         from ._real_board_fixture import RealBoardUnavailable, load_real_board_placement
 
@@ -722,14 +738,24 @@ class TestRealBoardIsolatorFigures:
         result = verify_iec60335_compliance(placement, domains)
         intra = {v.ref_a for v in result.violations if v.pair_kind == "intra"}
 
-        # K2/K3: still genuine blockers at the 8.0mm PD2 target -- measured
-        # 3.559mm, ~4.4mm short, and unaffected by pollution degree at all
-        # (also below the PD-independent 6.0mm clearance minimum).
-        assert {"K2", "K3"} <= intra, f"expected K2/K3 to still be blocking, got intra={intra}"
+        # K3: still a genuine blocker at the 8.0mm PD2 target -- measured
+        # 3.558846mm, ~4.4mm short, and unaffected by pollution degree at all
+        # (also below the PD-independent 6.0mm clearance minimum). Its own
+        # RT314012 swap is blocked on placement (PR #524 / issue #523).
+        assert "K3" in intra, f"expected K3 to still be blocking, got intra={intra}"
         assert all(
             v.insulation_type in (InsulationType.BASIC, InsulationType.REINFORCED)
             for v in result.violations
             if v.pair_kind == "intra"
+        )
+
+        # K2: cleared by the relay swap (PR #524 -- G5LE-1's 3.559mm
+        # coil-to-contact gap replaced by the RT314012's 12.76mm, which clears
+        # even the 12.6mm PD3 bar) and nudged inward by #568/#579. Asserted
+        # absent, not merely unmentioned, so a reversion of the swap is caught.
+        assert "K2" not in intra, (
+            "K2 should clear after the RT314012 swap (12.76mm measured; PR "
+            f"#524), got it back in the blocker set: intra={intra}"
         )
 
         # C6, K1, T1, U3, U7: cleared by the PD2 8.0mm target (were
@@ -742,6 +768,6 @@ class TestRealBoardIsolatorFigures:
         assert "U3" not in intra, "U3 should clear at the 8.0mm PD2 target (8.560mm measured)"
         assert "U7" not in intra, "U7 should clear at the 8.0mm PD2 target (8.100mm measured)"
 
-        assert intra == {"K2", "K3"}, (
-            f"expected only K2/K3 to remain intra-footprint blockers, got {intra}"
+        assert intra == {"K3"}, (
+            f"expected only K3 to remain an intra-footprint blocker, got {intra}"
         )

@@ -1,4 +1,4 @@
-<!-- provenance: commit=fd6c9c15d61700ff034445a1b67d31190ef2c162 dirty=false -->
+<!-- provenance: commit=b39035f508d208b92ce4061e890662acf3262ceb dirty=false -->
 
 # K2/K3 relay land pattern re-targeted to PD3 (12.6mm): the Finder 40.52's
 # real, fixed pinout cannot reach it -- quantified, not reduced

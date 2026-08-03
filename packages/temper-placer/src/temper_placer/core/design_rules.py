@@ -3,330 +3,59 @@ Design rules for PCB routing.
 
 This module provides net class and design rule specifications for
 controlling trace widths, clearances, and via sizes during routing.
+
+The data model (``ViaTemplate``, ``DesignRules``) is implemented in Rust as
+pyo3 pyclasses in the ``temper-design-bundle`` crate (the
+``temper_design_bundle_python`` extension) — the Wave 4 Phase 2
+"contracts-as-pyo3-pyclasses" pivot
+(``docs/plans/2026-08-01-001-feat-wave4-full-migration-program-plan.md``,
+D5 / Phase B). This module keeps the pre-migration public API unchanged and
+re-exports the Rust pyclasses (the pure-delegation pattern, mirroring
+``core/net_types.py`` and ``core/loop.py``).
+
+What stays Python: the module-level constant tables (``TEMPER_NET_CLASSES``,
+``TEMPER_NET_ASSIGNMENTS``) construct Pydantic ``NetClassRules`` objects,
+which remain Python; ``SAFETY_CONSTANT_AUTHORITY`` derives from them; and
+``create_temper_design_rules()`` assembles a ``DesignRules`` pyclass from
+those tables. The pyclasses hold such cross-module objects opaquely
+(``Py<PyDict>``/``Py<PyAny>``), exactly the pattern ``core/net_types.py``
+uses for ``LayerIndex``.
+
+Verification: bit-identical parity against the pinned pre-migration
+implementation is asserted by
+``tests/core/test_design_rules_rust_differential.py`` (oracle:
+``tests/core/_design_rules_py_oracle.py``); the structural proof lives in
+``packages/temper-design-bundle/VERIFICATION.md``.
+
+API notes (deliberate, documented deviations from the pre-migration
+dataclass):
+- ``DesignRules`` is a pyo3 pyclass. Its container fields ARE the Python
+  ``dict``/``list`` objects: in-place mutation (``dr.net_classes[x] = ...``,
+  ``dr.differential_pairs.append(...)``) persists, and every field — the four
+  scalars plus the containers — is assignable, exactly like the mutable
+  dataclass. The dynamically-attached ``class_pairs`` attribute is a real
+  property (defaults to an empty dict), so consumers that set/read it
+  (``io/netclass_loader.py``, ``placer/cp_sat/feedback.py``) behave
+  identically.
+- The stray ``print("DEBUG: Loading design_rules.py")`` class-body statement
+  from the pre-migration module is gone (it was a debug artifact with no API
+  surface); the oracle retains it verbatim.
 """
 
-import re
+from __future__ import annotations
+
 from copy import deepcopy
-from dataclasses import dataclass, field
 from typing import TypeAlias
 
 import numpy as np
+import temper_design_bundle_python as _tdb
+
+from temper_placer.core.netclass_rules_gen import NetClassRules
 
 Array: TypeAlias = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
 
-from temper_placer.core.bus_cohort import BusCohortConstraint
-from temper_placer.core.differential_pair import DifferentialPairConstraint
-from temper_placer.core.net_graph import NetGraph
-from temper_placer.core.netclass_rules_gen import NetClassRules
-
-
-def _hv_word_boundary_match(upper: str, patterns: tuple[str, ...]) -> bool:
-    """Word-boundary keyword match, delimited by ``_`` or start/end of
-    the (uppercased) name.
-
-    A pattern ending in a non-alphanumeric character (e.g. ``"DC_BUS+"``)
-    has no trailing boundary to anchor on and is matched with a leading
-    anchor only. Mirrors the identical helper in
-    ``router_v6.net_classification._matches_any`` and
-    ``router_v6.clearance_check._is_hv_keyword_match`` -- see those
-    modules' docstrings for the shared bug history (plain substring
-    matching of short net-classification keywords).
-    """
-    for p in patterns:
-        escaped = re.escape(p)
-        if p and not p[-1].isalnum():
-            if re.search(rf"(?:^|_){escaped}", upper):
-                return True
-        elif re.search(rf"(?:^|_){escaped}(?:$|[\d_])", upper):
-            return True
-    return False
-
-
-@dataclass
-class ViaTemplate:
-    """Via array template for high-current routing.
-
-    Defines a grid pattern of vias for nets requiring higher current capacity
-    than a single via can provide (e.g., power nets, high-current traces).
-
-    Attributes:
-        name: Template identifier (e.g., 'Via1x1', 'Via2x2', 'Via3x3')
-        rows: Number of vias in vertical direction
-        cols: Number of vias in horizontal direction
-        via_diameter_mm: Individual via pad diameter in mm
-        via_drill_mm: Individual via drill diameter in mm
-        pitch_mm: Center-to-center spacing between vias in mm
-
-    Example:
-        >>> template = ViaTemplate("Via2x2", 2, 2, 0.6, 0.3, 1.2)
-        >>> width, height = template.get_footprint_bbox()
-        >>> print(f"2x2 array footprint: {width}x{height}mm")
-    """
-
-    name: str
-    rows: int
-    cols: int
-    via_diameter_mm: float
-    via_drill_mm: float
-    pitch_mm: float
-
-    def get_footprint_bbox(self) -> tuple[float, float]:
-        """Calculate bounding box (width, height) of via array.
-
-        Returns:
-            Tuple of (width_mm, height_mm) for the entire via array footprint
-        """
-        width = (self.cols - 1) * self.pitch_mm + self.via_diameter_mm
-        height = (self.rows - 1) * self.pitch_mm + self.via_diameter_mm
-        return (width, height)
-
-    @property
-    def via_count(self) -> int:
-        """Total number of vias in array."""
-        return self.rows * self.cols
-
-    def get_via_positions(self, center_x: float, center_y: float) -> list[tuple[float, float]]:
-        """
-        Calculate via positions in array centered at (center_x, center_y).
-
-        Args:
-            center_x: Array center X coordinate (mm)
-            center_y: Array center Y coordinate (mm)
-
-        Returns:
-            List of (x, y) via positions in mm
-        """
-        positions = []
-
-        # Calculate array dimensions
-        array_width = (self.cols - 1) * self.pitch_mm
-        array_height = (self.rows - 1) * self.pitch_mm
-
-        # Starting position (top-left of array)
-        start_x = center_x - array_width / 2.0
-        start_y = center_y - array_height / 2.0
-
-        # Generate grid positions
-        for row in range(self.rows):
-            for col in range(self.cols):
-                x = start_x + col * self.pitch_mm
-                y = start_y + row * self.pitch_mm
-                positions.append((x, y))
-
-        return positions
-
-
-@dataclass
-class DesignRules:
-    print("DEBUG: Loading design_rules.py")
-    """PCB Design Rules Module.with net class support.
-
-    Provides default routing parameters and net-class-specific overrides.
-    Supports looking up rules by net name or net class.
-
-    Attributes:
-        default_trace_width: Default trace width in mm
-        default_clearance: Default clearance in mm
-        default_via_diameter: Default via diameter in mm
-        default_via_drill: Default via drill diameter in mm
-        net_classes: Dictionary of net class name -> NetClassRules
-        net_overrides: Dictionary of net name -> NetClassRules for per-net overrides
-    """
-
-    default_trace_width: float = 0.2
-    default_clearance: float = 0.2
-    default_via_diameter: float = 0.6
-    default_via_drill: float = 0.3
-    net_classes: dict[str, NetClassRules] = field(default_factory=dict)
-    net_overrides: dict[str, NetClassRules] = field(default_factory=dict)
-    net_class_assignments: dict[str, str] = field(default_factory=dict)
-    differential_pairs: list[DifferentialPairConstraint] = field(default_factory=list)
-    bus_cohorts: list[BusCohortConstraint] = field(default_factory=list)
-    net_topologies: dict[str, NetGraph] = field(default_factory=dict)
-    via_templates: dict[str, ViaTemplate] = field(
-        default_factory=lambda: {
-            "Via1x1": ViaTemplate("Via1x1", 1, 1, 0.6, 0.3, 1.0),
-            "Via2x2": ViaTemplate("Via2x2", 2, 2, 0.6, 0.3, 1.2),
-            "Via3x3": ViaTemplate("Via3x3", 3, 3, 0.6, 0.3, 1.2),
-            "Via4x4": ViaTemplate("Via4x4", 4, 4, 0.6, 0.3, 1.2),
-        }
-    )
-
-    def get_via_template(self, net_name: str) -> ViaTemplate:
-        """Get via template for a specific net.
-
-        Args:
-            net_name: Net name
-
-        Returns:
-            ViaTemplate to use for this net
-        """
-        rules = self.get_rules_for_net(net_name)
-        template_name = rules.via_template
-
-        if template_name in self.via_templates:
-            return self.via_templates[template_name]
-
-        # Fallback to 1x1 if template not found
-        return self.via_templates["Via1x1"]
-
-    def get_rules_for_net(self, net_name: str, net_class: str | None = None) -> NetClassRules:
-        """Get routing rules for a specific net.
-
-        Lookup priority:
-        1. Per-net override (net_overrides[net_name])
-        2. Net class rules (net_classes[net_class])
-        3. Default rules
-
-        Args:
-            net_name: Net name (e.g., 'VCC', 'NET1')
-            net_class: Optional net class name (e.g., 'Power', 'Signal')
-
-        Returns:
-            NetClassRules for this net
-        """
-        # Check net-specific override first
-        if net_name in self.net_overrides:
-            return self.net_overrides[net_name]
-
-        # Check explicit net class assignment
-        if not net_class and net_name in self.net_class_assignments:
-            net_class = self.net_class_assignments[net_name]
-
-        # Then check net class
-        if net_class and net_class in self.net_classes:
-            return self.net_classes[net_class]
-
-        # Check if net name matches a known ground net pattern (before power)
-        if self._is_ground_net(net_name) and "GND" in self.net_classes:
-            return self.net_classes["GND"]
-
-        # Check if net name matches a known power net pattern
-        if self._is_power_net(net_name) and "Power" in self.net_classes:
-            return self.net_classes["Power"]
-
-        # Check if net name implies Gate Drive, HV (switching) side (GATE_*)
-        if self._is_gate_net_hv(net_name) and "GateDriveHV" in self.net_classes:
-            return self.net_classes["GateDriveHV"]
-
-        # Check if net name implies Gate Drive, SELV (controller) side (PWM_*)
-        if self._is_gate_net_selv(net_name) and "GateDriveSELV" in self.net_classes:
-            return self.net_classes["GateDriveSELV"]
-
-        # Check if net name implies High Current (SW, AC, BUS)
-        if self._is_high_current_net(net_name) and "HighCurrent" in self.net_classes:
-            # If not explicitly matched as Power, or if we want to upgrade Power to HighCurrent
-            # Actually, Power handled most VCCs. HighCurrent handles SW_NODE etc.
-            return self.net_classes["HighCurrent"]
-
-        # Return default rules
-        return NetClassRules(
-            name="Default",
-            trace_width=self.default_trace_width,
-            clearance=self.default_clearance,
-            via_diameter=self.default_via_diameter,
-            via_drill=self.default_via_drill,
-            dru_priority=999,
-        )
-
-    def get_class_for_net(self, net_name: str) -> str:
-        """Get the net class name for a specific net."""
-        return self.get_rules_for_net(net_name).name
-
-    def _is_ground_net(self, net_name: str) -> bool:
-        """Check if net name matches common ground net patterns."""
-        from temper_placer.router_v6.net_classification import is_ground_net
-
-        return is_ground_net(net_name)
-
-    def _is_power_net(self, net_name: str) -> bool:
-        """Check if net name matches common power net patterns (excluding ground)."""
-        from temper_placer.router_v6.net_classification import is_power_net
-
-        if self._is_ground_net(net_name):
-            return False
-        return is_power_net(net_name)
-
-    def _is_gate_net_hv(self, net_name: str) -> bool:
-        """Check if net belongs to the HV (switching) side of gate-drive
-        circuitry -- the secondary/output side of U7's reinforced barrier.
-
-        Split 2026-07-28 (R4) from the single ``_is_gate_net`` alongside the
-        ``GateDrive`` -> ``GateDriveHV``/``GateDriveSELV`` class split: GATE_*
-        and SW_NODE (the node gate drive is referenced to) are HV-side:
-        keeping them in one keyword match with PWM_* would leave this
-        fallback unable to say which class a matched net belongs to. Word-
-        boundary keyword match (delimited by ``_`` or start/end of the
-        uppercased name) -- see :func:`_is_high_current_net`'s docstring for
-        the bug history this shares.
-        """
-        upper = net_name.upper()
-        # GATE_H, GATE_L, GATE_HS, GATE_LS, SW_NODE (ref for gate)
-        patterns = ("GATE", "SW_NODE")
-        return _hv_word_boundary_match(upper, patterns)
-
-    def _is_gate_net_selv(self, net_name: str) -> bool:
-        """Check if net belongs to the SELV (controller) side of gate-drive
-        circuitry -- the primary/input side of U7's reinforced barrier.
-
-        See :meth:`_is_gate_net_hv`'s docstring for why this is split out.
-        """
-        upper = net_name.upper()
-        # PWM_H, PWM_L, PWM_HS, PWM_LS
-        patterns = ("PWM",)
-        return _hv_word_boundary_match(upper, patterns)
-
-    def _is_high_current_net(self, net_name: str) -> bool:
-        """Check if net carries high switching current.
-
-        Bug history (2026-07-27): this previously matched ``"COIL"`` as a
-        plain substring (``p in upper``), which matched
-        ``discharge.k_dis1-coil1``/``...-coil2`` and
-        ``power_in.bypass_relay-coil1``/``...-coil2`` -- four relay-coil
-        nets declared SELV ("coil drive") in
-        ``elec/domain_manifest.yaml`` -- misclassifying them as
-        high-current/HV-adjacent. Same defect class as
-        ``creepage_check.py`` (merge 5076e715) and ``clearance_check.py``
-        (merge 466c7724); see
-        ``docs/evidence/2026-07-27-net-classification-gate.md``.
-        """
-        upper = net_name.upper()
-        # DC_BUS+, AC_L, AC_N, COIL
-        patterns = ("DC_BUS", "AC_L", "AC_N", "COIL")
-        return _hv_word_boundary_match(upper, patterns)
-
-    def get_diff_pair_for_net(self, net_name: str) -> DifferentialPairConstraint | None:
-        """Get differential pair constraint if net is part of a pair.
-
-        Args:
-            net_name: Net name to check
-
-        Returns:
-            DifferentialPairConstraint if net is part of a differential pair, None otherwise
-        """
-        for pair in self.differential_pairs:
-            if pair.net_pos == net_name or pair.net_neg == net_name:
-                return pair
-        return None
-
-    def get_bus_cohort_for_net(self, net_name: str) -> BusCohortConstraint | None:
-        """Get bus cohort constraint if net is part of a bus.
-
-        Args:
-            net_name: Net name to check
-
-        Returns:
-            BusCohortConstraint if net is part of a bus, None otherwise
-        """
-        for bus in self.bus_cohorts:
-            if net_name in bus.nets:
-                return bus
-        return None
-
-
-# =============================================================================
-# Standard Net Classes for Temper Project
-# =============================================================================
+ViaTemplate = _tdb.ViaTemplate
+DesignRules = _tdb.DesignRules
 
 TEMPER_NET_CLASSES = {
     "ACMains": NetClassRules(
@@ -492,7 +221,6 @@ TEMPER_NET_CLASSES = {
     ),
 }
 
-
 # Net class assignments matching KiCad project (temper.kicad_pro)
 TEMPER_NET_ASSIGNMENTS = {
     # ACMains - Mains voltage (240V AC)
@@ -605,7 +333,6 @@ TEMPER_NET_ASSIGNMENTS = {
     "CGND": "GND",
 }
 
-
 # -----------------------------------------------------------------------------
 # Safety constant single source of truth (SSOT).
 # Every consumer needing a safety clearance MUST reference TEMPER_NET_CLASSES
@@ -623,7 +350,6 @@ SAFETY_CONSTANT_AUTHORITY: tuple[tuple[str, str, float], ...] = tuple(
     for field_name in SAFETY_CONSTANT_AUTHORITY_FIELDS
 )
 
-
 def create_temper_design_rules() -> DesignRules:
     """Create design rules with Temper-specific net classes.
 
@@ -638,3 +364,16 @@ def create_temper_design_rules() -> DesignRules:
         net_classes=deepcopy(TEMPER_NET_CLASSES),
         net_class_assignments=deepcopy(TEMPER_NET_ASSIGNMENTS),
     )
+
+__all__ = [
+    "Array",
+    "DesignRules",
+    "NetClassRules",
+    "SAFETY_CONSTANT_AUTHORITY",
+    "SAFETY_CONSTANT_AUTHORITY_FIELDS",
+    "SAFETY_CONSTANT_AUTHORITY_NET_CLASSES",
+    "TEMPER_NET_ASSIGNMENTS",
+    "TEMPER_NET_CLASSES",
+    "ViaTemplate",
+    "create_temper_design_rules",
+]

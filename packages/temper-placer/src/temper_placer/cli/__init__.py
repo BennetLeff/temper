@@ -646,6 +646,16 @@ def optimize(
                 hint_positions=hint_positions,
                 reference_aliases=reference_aliases or None,
                 loop_aliases=loop_aliases or None,
+                # TODO(#523 gap 2 follow-up): pass validator_input here to run
+                # the REQ-SAFE-01 validator post-solve audit on the optimized
+                # placement too -- currently missing the validator-shape
+                # placement + voltage_domains map this path does not construct:
+                # the optimize command only builds netlist/board/constraints
+                # (load_real_board_placement + domain-manifest wiring lives in
+                # the tests fixture and the repair path, not here). Wiring it
+                # half-way would raise ValueError on the missing keys, so this
+                # stays a precise TODO until the placement/domain construction
+                # is hoisted into a shared production loader.
             )
 
             console.print(f"  Solver status: {cp_result.status} ({cp_result.solve_time_ms:.0f}ms)")
