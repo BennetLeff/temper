@@ -205,3 +205,152 @@ commit `76f38db0a`).
 - Performance A/B (R1b): pure-data contract migration with no compute
   kernel; the "no regression beyond noise" comparison defined in the
   plan's R2 for delegation-only modules applies.
+
+---
+
+# Design-rules data model — Verification
+
+The design-rules data model (`src/design_rules.rs`) is the THIRD Wave 4
+Phase 2 "contracts-as-pyo3-pyclasses" migration, ported from
+`temper_placer/core/design_rules.py` (the Python module is now a
+pure-delegation re-export of the `temper_design_bundle_python` pyclasses,
+mirroring the net-types and loop precedents).
+
+## Candidate scorecard (why design_rules, not board/netlist)
+
+The Phase 2 contract list (`docs/plans/2026-08-01-001-feat-wave4-full-migration-program-plan.md`
+line 97) names `core/board.py`, `core/netlist.py`, `core/loop.py`,
+`core/design_rules.py`, `core/priority.py`, `core/net_types.py` among the
+contracts. After net_types + loop, the three pure-data candidates were
+design_rules (640 LOC, ~30 consumers incl. tests), board (803 LOC, 100+
+consumers, numpy float32 array returns, `_test_only_2layer`), and netlist
+(440 LOC, 100+ consumers, numpy `eigh`/spectral adjacency — not
+bit-reproducible, per the prior scorecard's REJECT). board and netlist are
+entangled beyond the R1 gate's honest reach (consumer counts an order of
+magnitude over the landed migrations, non-reproducible numerics); design_rules
+is the least-bad — its logic (lookup cascade, word-boundary classification,
+via-template geometry) is pure and migratable, and its unmigrated leaves
+(Pydantic `NetClassRules`, `DifferentialPairConstraint`, `BusCohortConstraint`,
+`NetGraph`, `router_v6`'s ground/power recognizers) are held opaquely as
+`Py<PyAny>`/`Py<PyDict>`, exactly the `LayerIndex` pattern from net_types.
+
+## Induction applicability
+
+**Mathematical induction is not applicable to this module.** None of its
+functions are recursive and none iterate over a dimension whose correctness
+depends on a size parameter:
+
+- `ViaTemplate::get_footprint_bbox` / `get_via_positions` / `via_count` are
+  closed-form arithmetic (a constant number of ops; the position loop is a
+  fixed transcription of a 2-D grid whose per-element formula is independent
+  of the grid size).
+- `DesignRules::get_rules_for_net` is a fixed sequence of disjoint lookup
+  tiers (override → assignment → class → 5-class pattern cascade → Default);
+  `get_via_template` / `get_diff_pair_for_net` / `get_bus_cohort_for_net`
+  iterate caller-provided collections, but the per-element operation is
+  independent of the collection's size and of the iteration order (verified
+  by MR3 in `test_design_rules_pbt.py` — override isolation, and the
+  differential suite's mutation-path test). There is no size-parameterized
+  invariant to induct on.
+
+The module is data-only (one geometry dataclass, one mutable container
+dataclass, plus Python-side constant tables). Per the plan's R1e, a
+**structural proof** is recorded instead.
+
+## Structural proof
+
+**Claim (bit-identical parity).** For every public symbol, the pyclass
+behaviour is bit-identical to the pinned pre-migration Python implementation
+(`packages/temper-placer/tests/core/_design_rules_py_oracle.py`, commit
+`e5bd461e2`).
+
+*Proof by structural cases.*
+
+1. **`ViaTemplate` geometry.** Construction mirrors the 6-field dataclass
+   (no defaults). `get_footprint_bbox` computes `(cols - 1) * pitch +
+   diameter` / `(rows - 1) * pitch + diameter` — the oracle's expression
+   shape preserved verbatim (B7: same op count, same grouping, no
+   reassociation), so every input yields bit-identical doubles (asserted on
+   `.hex()` keys in the differential suite and recomputed independently in
+   P5). `get_via_positions` transcribes the oracle's `start = center -
+   array/2.0`, `x = start + col * pitch` shape; `via_count` is `rows * cols`.
+   `__eq__` is all-six-field `==`; `__repr__` renders floats with
+   `py_float_str` and the name with `py_str_repr` (CPython `repr(str)` is
+   single-quoted; Rust `{:?}` is double-quoted — the differential test pins
+   the full repr strings, so this divergence would have failed it).
+
+2. **Word-boundary classifier (`_hv_word_boundary_match`).** Transcribed
+   into native Rust string logic. The oracle's patterns are fixed
+   `[A-Za-z0-9_]` constants (`("GATE", "SW_NODE")`, `("PWM",)`,
+   `("DC_BUS", "AC_L", "AC_N", "COIL")`), so `re.escape` is the identity and
+   a literal-substring transcription of `(?:^|_){p}(?:$|[\d_])` is exact.
+   The 2026-07-27 bug case (`"COIL"` must NOT match
+   `discharge.k_dis1-coil1`, preceded by `-`) is asserted in the Rust unit
+   tests AND exercised by the differential/PBT suites; P3 compares the whole
+   cascade against an independent reference transcription. Documented
+   deviation: CPython `\d` matches Unicode digits; this transcription is
+   ASCII-only. Net names in the repo are ASCII and every exercised input is
+   ASCII, so the two agree on the tested surface — recorded here as a
+   standing divergence to re-check if a Unicode net name ever enters the
+   classifier.
+
+3. **`DesignRules` lookup cascade (`get_rules_for_net`).** The five tiers
+   are transcribed in the oracle's exact order and short-circuit semantics:
+   per-net override → `net_class_assignments` (only when no class argument)
+   → explicit class → ground → power → gate-HV → gate-SELV → high-current
+   (each pattern tier gated on the class being present) → Default catch-all.
+   `_is_ground_net`/`_is_power_net` delegate to
+   `router_v6.net_classification` via the same lazy import the oracle makes
+   — those functions consult the `_SINGLE_LAYER_MODE` module-global, so a
+   native reimplementation would diverge on that state (this is the
+   `LayerIndex`-style opaque delegation, documented in the module docstring).
+   The Default catch-all constructs the same Pydantic `NetClassRules`
+   (`name="Default"`, the instance's scalar fields, `dru_priority=999`)
+   through the unmigrated model, so the returned object is field-identical.
+
+4. **`DesignRules` mutability contract.** Consumers mutate the dataclass in
+   place (`dr.net_classes[x] = …`, `dr.differential_pairs.append(…)`,
+   `dr.net_topologies[x] = …`, scalar assignment, and the dynamically-
+   attached `dr.class_pairs`). The pyclass stores every container as the
+   actual Python `dict`/`list` object (`Py<PyDict>`/`Py<PyList>`) with
+   explicit getters AND setters, so in-place mutation and whole-field
+   assignment persist exactly like the dataclass; `class_pairs` defaults to
+   an empty dict so `getattr(dr, "class_pairs", {})` behaves as before. The
+   differential suite's `test_mutation_paths_persist_identically` drives the
+   same mutation sequence through both sides and asserts field-identical
+   results, and the existing consumer tests
+   (`tests/io/test_netclass_loader.py`, `test_config_board_binding.py`) pass
+   unchanged against the pyclass.
+
+5. **`__eq__` / `__repr__`.** Equality is all-field `==` with the container
+   fields compared via Python `==` (element-wise, matching dict/list
+   equality); `class_pairs` is not a dataclass field and does not
+   participate — exactly like the oracle. Repr renders the container fields
+   through Python `repr` (so the Pydantic objects and dict ordering render
+   identically) and floats via `py_float_str`; the differential test asserts
+   full repr-string equality.
+
+6. **Module constants stay Python.** `TEMPER_NET_CLASSES`,
+   `TEMPER_NET_ASSIGNMENTS`, `SAFETY_CONSTANT_AUTHORITY` construct Pydantic
+   `NetClassRules` objects and remain in the delegation module (verbatim
+   construction code); `test_module_constants_identical` pins them
+   field-identical to the oracle. Documented deviation: the stray
+   `print("DEBUG: Loading design_rules.py")` class-body statement from the
+   pre-migration module is gone (a debug artifact with no API surface); the
+   oracle retains it verbatim.
+
+## Evidence
+
+- Differential (R1a/R1f, TDD red→green):
+  `packages/temper-placer/tests/core/test_design_rules_rust_differential.py`
+  (29 assertions, oracle `_design_rules_py_oracle.py`).
+- PBT (R1c): `test_design_rules_pbt.py` — 5 hypothesis properties (P1–P5),
+  each with a `test_pN_fails_for_<mutant>` vacuity mutant (G4 pattern via
+  `hypothesis.inner_test` against a degenerate kernel).
+- Metamorphic (R1d): `test_design_rules_pbt.py` — MR1 (construction→access
+  round-trip + kwarg-order commutativity), MR2 (`get_class_for_net` ≡
+  `get_rules_for_net(net).name`), MR3 (override isolation — perturbing one
+  net leaves every other net's resolution unchanged).
+- Performance A/B (R1b): pure-data contract migration with no compute
+  kernel; the "no regression beyond noise" comparison defined in the plan's
+  R2 for delegation-only modules applies.
