@@ -1,0 +1,63 @@
+{
+  "error_ceiling_observed_max_total": 1263,
+  "error_total_range": [
+    1261,
+    1263
+  ],
+  "nondeterministic_error_types": {
+    "clearance": {
+      "observed": [
+        377,
+        378
+      ],
+      "samples": 120
+    },
+    "creepage": {
+      "observed": [
+        185,
+        186,
+        187
+      ],
+      "samples": 120
+    },
+    "shorting_items": {
+      "observed": [
+        199,
+        200
+      ],
+      "samples": 120
+    }
+  },
+  "samples": 120,
+  "violations_by_type": {
+    "annular_width": 4,
+    "clearance": 378,
+    "copper_edge_clearance": 12,
+    "courtyards_overlap": 11,
+    "creepage": 187,
+    "drill_out_of_range": 4,
+    "hole_clearance": 105,
+    "hole_to_hole": 3,
+    "shorting_items": 200,
+    "solder_mask_bridge": 154,
+    "track_width": 199,
+    "tracks_crossing": 3,
+    "via_diameter": 4
+  },
+  "warning_ceiling_observed_max_total": 472,
+  "warning_total_range": [
+    472,
+    472
+  ],
+  "warnings_by_type": {
+    "lib_footprint_issues": 11,
+    "lib_footprint_mismatch": 23,
+    "missing_courtyard": 5,
+    "pth_inside_courtyard": 1,
+    "silk_edge_clearance": 1,
+    "silk_over_copper": 172,
+    "silk_overlap": 199,
+    "track_dangling": 45,
+    "via_dangling": 15
+  }
+}
