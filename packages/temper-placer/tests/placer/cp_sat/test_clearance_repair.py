@@ -665,14 +665,17 @@ class TestRealBoardClearanceRepair:
         )
         # Intra-footprint pairs are unfixable by placement: they must be
         # reported explicitly, never silently present in the count. On this
-        # board the known intra family is the isolator set flagged by
-        # find_intra_footprint_domain_conflicts.
-        assert report.intra_blocker_refs, (
-            "expected documented intra-footprint blockers (C6/K1/K2/K3/T1/U6 family)"
+        # board the known intra family was the isolator set flagged by
+        # find_intra_footprint_domain_conflicts -- and the wave-2 board
+        # write (K3 -> TE Schrack RT314012, docs/evidence/2026-08-02-k3-swap-
+        # and-board-write.md) cleared the LAST blocker: the written board
+        # measures 0 intra records. The repair must therefore report NO
+        # blockers (fail-closed: any blocker ref fails).
+        assert not report.intra_blocker_refs, (
+            "expected zero intra-footprint blockers on the wave-2 written "
+            f"board (K3 RT314012 swap cleared the last one), got "
+            f"{sorted(report.intra_blocker_refs)}"
         )
-        assert set(report.intra_blocker_refs) <= {
-            "C6", "K1", "K2", "K3", "PS1", "T1", "U3", "U7",
-        }, f"unexpected intra blocker refs: {report.intra_blocker_refs}"
         print(
             f"\nbaseline={report.baseline_violations} inter/final_inter="
             f"{report.final_inter_violations} intra={report.final_intra_violations} "
@@ -737,18 +740,22 @@ class TestRealBoardClearanceRepair:
 
         # Documented board state (re-baselined 2026-08-02): #517's PD2/8.0mm
         # re-solve cleared every placement-fixable inter-component pair; the
-        # only remaining REQ-SAFE-01 records are the K3 intra-footprint pair
-        # (3.558846mm, tracked by #518/#523). Asserted fail-closed: any NEW
-        # inter-component violation, or a change to the intra floor, fails.
+        # only remaining REQ-SAFE-01 records were the K3 intra-footprint pair
+        # (3.558846mm, tracked by #518/#523). The wave-2 board write (K3 ->
+        # TE Schrack RT314012, docs/evidence/2026-08-02-k3-swap-and-board-
+        # write.md) cleared that too: the written board measures REQ-SAFE-01
+        # = 0/0 (0 inter / 0 intra). Asserted fail-closed: any NEW
+        # inter-component violation, or any intra record, fails.
         inter = [v for v in result.violations if v.pair_kind != "intra"]
         assert not inter, (
-            f"expected the documented #517-re-solved baseline (0 "
+            f"expected the documented wave-2 state (0 "
             f"inter-component violations), found {len(inter)}: "
             f"{sorted({(v.ref_a, v.ref_b) for v in inter})}"
         )
         intra_refs = sorted({v.ref_a for v in result.violations if v.pair_kind == "intra"})
-        assert intra_refs == ["K3"], (
-            f"expected the documented K3-only intra-footprint floor, "
+        assert intra_refs == [], (
+            f"expected zero intra-footprint records on the wave-2 written "
+            f"board (K3 RT314012 swap cleared the last blocker), "
             f"got {intra_refs}"
         )
 
