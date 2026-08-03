@@ -4,6 +4,9 @@ mod net_types;
 #[cfg(feature = "python")]
 mod loops;
 
+#[cfg(feature = "python")]
+mod design_rules;
+
 mod atopile;
 mod constraint_merge;
 mod error;
@@ -162,8 +165,11 @@ mod python {
         // Wave 4 Phase 2 contracts-as-pyclasses: the net-types data model
         // ported from temper_placer/core/net_types.py (see net_types.rs),
         // then the loop-centric data model ported from
-        // temper_placer/core/loop.py (see loops.rs).
+        // temper_placer/core/loop.py (see loops.rs), then the design-rules
+        // data model ported from temper_placer/core/design_rules.py (see
+        // design_rules.rs).
         crate::net_types::register(module)?;
-        crate::loops::register(module)
+        crate::loops::register(module)?;
+        crate::design_rules::register(module)
     }
 }
