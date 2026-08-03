@@ -27,6 +27,24 @@ resolve.md, 2026-07-30-current-board-clearance-debt.md).
    and a bounded constraint-reinforcement step for any inter-component pair
    the checker still flags.
 
+**Validator-aligned audit (issue #523 gap 2).** ``run_clearance_repair_solve``
+passes ``validator_input={"placement": placement, "voltage_domains":
+voltage_domains}`` into every ``solve_placement`` call, so each solve round
+re-runs the REQ-SAFE-01 validator itself on the solved placement and
+classifies its violations (see ``validator_audit.py``). The behavior contract
+is **fail-closed**: a HARD failure (a constraint-covered inter-component pair
+that the exact-copper validator still flags on a feasible/optimal solve --
+the run-B "box-separated but copper-touching" case) **raises RuntimeError
+inside solve_placement and aborts the whole repair**; no report is returned,
+because the encoding is unsound for that solve and continuing would paper over
+it. Intra-footprint straddlers (placement-independent, e.g. K3's own
+G5LE-1 coil-to-contact gap) and coverage gaps (inter pairs the generator never
+constrained -- the reinforcement loop's normal work) are **reported**, never
+raised: they land on ``ClearanceRepairReport.validator_audit`` (the final
+round's ``DomainClearanceValidatorAuditResult``). The loop's own independent
+checker stays (it drives reinforcement); the audit inside the solve is
+additive and is the one that gates on exact copper.
+
 **Loop invariant and termination (the induction that makes this a loop,
 not a script).**
 
@@ -69,7 +87,7 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from temper_placer.pcl.constraints import ConstraintTier, SeparatedConstraint
 from temper_placer.placer.cp_sat._encoder_solve import solve_placement
@@ -77,6 +95,9 @@ from temper_placer.placer.cp_sat.domain_clearance import (
     audit_domain_clearance,
     generate_domain_clearance_constraints,
     generate_unclassified_hv_keepaway_constraints,
+)
+from temper_placer.placer.cp_sat.validator_audit import (
+    DomainClearanceValidatorAuditResult,
 )
 from temper_placer.requirements.validators.clearance import (
     ClearanceResult,
@@ -125,6 +146,15 @@ class ClearanceRepairReport:
       Reported loudly; never treated as success.
     - ``"max_rounds"``: reinforcement did not converge within the bound
       (should not happen given the termination argument above; reported).
+
+    **Validator-aligned audit (issue #523 gap 2).** Every feasible solve
+    round re-runs the REQ-SAFE-01 validator on the solved placement
+    (``validator_input`` wired unconditionally into ``solve_placement``).
+    The final round's classified result lands on ``validator_audit`` (plus
+    the convenience counts below). A HARD failure never appears in this
+    report: it RAISES inside ``solve_placement`` and aborts the whole
+    repair -- fail-closed, so an encoding-unsound solve is never reported
+    as a repairable outcome (see the module docstring).
     """
 
     pcb_path: str
@@ -143,6 +173,27 @@ class ClearanceRepairReport:
     audit_violations: int = 0
     keepaway_constraints: int = 0
     domain_constraints: int = 0
+    #: REQ-SAFE-01 validator-aligned post-solve audit from the FINAL solve
+    #: round (issue #523 gap 2) -- a ``DomainClearanceValidatorAuditResult``
+    #: mirroring ``CpSatPlacementResult.validator_audit``: the classified
+    #: buckets ``hard_failures`` / ``intra_footprint`` / ``coverage_gaps``,
+    #: ``covered_pair_count``, ``validator_violation_count``, ``stats`` and
+    #: ``geometry_trusted``. None when no feasible/optimal solve completed
+    #: (status infeasible/unknown/gap/max_rounds with no usable round).
+    #: HARD failures never land here: they RAISE inside solve_placement and
+    #: abort the whole repair (fail-closed -- see the module docstring).
+    validator_audit: DomainClearanceValidatorAuditResult | None = None
+    #: Convenience counts mirroring the final round's validator audit
+    #: buckets (0 when no audit ran). ``validator_hard_failures`` is
+    #: contractually always 0 here -- a hard failure aborts the repair
+    #: before a report is built.
+    validator_hard_failures: int = 0
+    validator_intra_footprint: int = 0
+    validator_coverage_gaps: int = 0
+    #: Whether the final round's audit measured trustworthy pad geometry
+    #: (False when no audit ran -- nothing was verified, so the solve must
+    #: not be treated as validator-clean on the strength of these counts).
+    validator_geometry_trusted: bool = False
 
     @property
     def moved_refs(self) -> tuple[str, ...]:
@@ -225,6 +276,17 @@ def run_clearance_repair_solve(
 
     Returns:
         A ``ClearanceRepairReport`` (see its docstring for status values).
+
+    Raises:
+        RuntimeError: a REQ-SAFE-01 validator-aligned post-solve audit HARD
+            failure on any feasible/optimal solve round -- a constraint-
+            covered inter-component pair the exact-copper validator still
+            flags (the run-B "box-separated but copper-touching" class).
+            This is FAIL-CLOSED by design: the encoding is unsound for that
+            solve, so the whole repair aborts and no report is returned
+            (issue #523 gap 2 -- see the module docstring). The repair
+            recipe is expected validator-clean; this raise is the safety
+            net, not the normal path.
     """
     from temper_placer.io.kicad_parser import parse_kicad_pcb
 
@@ -286,6 +348,13 @@ def run_clearance_repair_solve(
     final_rotations: dict[str, int] = {}
     total_displacement = 0.0
     audit_violations_total = 0
+    #: The final successful round's validator-aligned audit result (None when
+    #: no feasible/optimal solve completed -- hard failures raise instead).
+    #: Cast from ``CpSatPlacementResult.validator_audit`` (typed ``object``
+    #: on the result for import-layering) to the concrete audit result type:
+    #: safe because ``validator_input`` is passed unconditionally on every
+    #: round, so a feasible solve ALWAYS ran the audit.
+    final_validator_audit: DomainClearanceValidatorAuditResult | None = None
     status = "max_rounds"
     reason = ""
 
@@ -300,6 +369,17 @@ def run_clearance_repair_solve(
             minimize_displacement_to=current_positions,
             fixed_rotations=current_rotations,
             max_displacement_mm=max_displacement_mm,
+            # Issue #523 gap 2: re-run the REQ-SAFE-01 validator itself on
+            # the solved placement (exact copper-to-copper, the function the
+            # CI gate runs). HARD failures raise here and abort the whole
+            # repair (fail-closed); intra-footprint / coverage-gap buckets
+            # land on result.validator_audit and are copied to the report
+            # below. The cheap center audit (audit_domain_clearance) stays
+            # independent of this.
+            validator_input={
+                "placement": placement,
+                "voltage_domains": voltage_domains,
+            },
         )
 
         if result.status not in ("optimal", "feasible"):
@@ -371,6 +451,9 @@ def run_clearance_repair_solve(
         final_positions = dict(result.positions)
         final_rotations = dict(result.rotations)
         total_displacement = displacement
+        final_validator_audit = cast(
+            DomainClearanceValidatorAuditResult | None, result.validator_audit
+        )
 
         if len(inter) == 0:
             status = "clean" if len(intra) == 0 else "intra_only"
@@ -460,6 +543,7 @@ def run_clearance_repair_solve(
         )
         final_intra = len(final_intra_violations)
 
+    _v_audit = final_validator_audit
     return ClearanceRepairReport(
         pcb_path=str(pcb_path),
         status=status,
@@ -477,6 +561,27 @@ def run_clearance_repair_solve(
         audit_violations=audit_violations_total,
         keepaway_constraints=len(keepaway_constraints),
         domain_constraints=len(domain_constraints),
+        validator_audit=final_validator_audit,
+        validator_hard_failures=(
+            len(final_validator_audit.hard_failures)
+            if final_validator_audit is not None
+            else 0
+        ),
+        validator_intra_footprint=(
+            len(final_validator_audit.intra_footprint)
+            if final_validator_audit is not None
+            else 0
+        ),
+        validator_coverage_gaps=(
+            len(final_validator_audit.coverage_gaps)
+            if final_validator_audit is not None
+            else 0
+        ),
+        validator_geometry_trusted=(
+            bool(final_validator_audit.geometry_trusted)
+            if final_validator_audit is not None
+            else False
+        ),
     )
 
 
