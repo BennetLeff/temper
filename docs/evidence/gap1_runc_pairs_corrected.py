@@ -1,3 +1,4 @@
+# provenance: commit=d1bcfe1235a9026409e1b07914eb96b3abc41b52 dirty=false
 #!/usr/bin/env python3
 """Gap-1 run-C unsat-core pair table — CORRECTED ref parsing.
 

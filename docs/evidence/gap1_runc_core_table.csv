@@ -1,3 +1,4 @@
+# provenance: commit=d1bcfe1235a9026409e1b07914eb96b3abc41b52 dirty=false
 name,kind,refs,box_dist_mm,margin_mm,copper_dist_mm,slack_mm_at_best,verdict
 edge_margin_C1,edge-margin,C1,,,,9.95,OK-AT-BEST
 edge_margin_C10,edge-margin,C10,,,,27.67,OK-AT-BEST

@@ -1,18 +1,22 @@
 {
-  "b_placement": {
-    "C27": [
-      28.62,
-      222.0
-    ],
-    "K3": [
-      58.08,
-      11.18
-    ]
-  },
-  "box_bar_blocker": 42,
-  "clean": 15071,
-  "copper_violation": 0,
-  "note": "corrected pair parsing (parts[-4], parts[-3]); salvaged table used self-pairs and is invalid",
-  "total_pair_constraints_in_core": 15113,
-  "unmatched_refs": 0
+ "provenance": {
+  "commit": "d1bcfe1235a9026409e1b07914eb96b3abc41b52",
+  "dirty": false
+ },
+ "b_placement": {
+  "C27": [
+   28.62,
+   222.0
+  ],
+  "K3": [
+   58.08,
+   11.18
+  ]
+ },
+ "box_bar_blocker": 42,
+ "clean": 15071,
+ "copper_violation": 0,
+ "note": "corrected pair parsing (parts[-4], parts[-3]); salvaged table used self-pairs and is invalid",
+ "total_pair_constraints_in_core": 15113,
+ "unmatched_refs": 0
 }
