@@ -1197,6 +1197,10 @@
       "rotation_idx": 1
     }
   },
+  "provenance": {
+    "commit": "94795c1760f8367be503b273026b5a5c3b03679e",
+    "dirty": false
+  },
   "reason": "all inter-component REQ-SAFE-01 pairs cleared; 0 intra-footprint record(s) remain (unfixable by placement, reported as blockers)",
   "status": "clean",
   "total_displacement_mm": 5763.64,
