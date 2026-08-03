@@ -1,10 +1,15 @@
 """
 Parasitic inductance estimation for PCB current loops.
+
+The scalar arithmetic runs in the ``temper-thermal`` Rust kernels
+(``estimate_loop_inductance_py`` / ``estimate_gate_inductance_py``,
+Wave 4 Phase A #4); this module keeps the public API and the physical
+model documentation.
 """
 
 from __future__ import annotations
 
-import math
+import temper_thermal as _tt
 
 
 def estimate_loop_inductance(
@@ -27,26 +32,18 @@ def estimate_loop_inductance(
 
     Returns:
         Estimated inductance in nH.
+
+    The arithmetic runs in the ``temper-thermal`` Rust kernel
+    (``estimate_loop_inductance_py``, Wave 4 Phase A #4), which mirrors
+    this function's exact f64 operation order bit-for-bit (pinned by the
+    differential suite ``tests/physics/test_inductance_rust_differential.py``).
     """
-    MU_0 = 4 * math.pi * 1e-7  # H/m (Permeability of free space)
-
-    # 1. Area-based term (Planar loop above ground plane)
-    # L_area = μ₀ * Area / h
-    area_m2 = loop_area_mm2 * 1e-6
-    h_m = layer_separation_mm * 1e-3
-    L_area_H = (MU_0 * area_m2 / h_m) if h_m > 0 else 0
-    L_area_nH = L_area_H * 1e9
-
-    # 2. Self-inductance of conductor (simplified)
-    # L_self ≈ 0.2 nH/mm for typical PCB traces
-    L_self_nH = perimeter_mm * 0.2
-
-    # 3. Combined Model with Calibration
-    # For small loops (gate drive), the self-inductance and return path dominate.
-    # For large loops, the area-based term dominates.
-    L_total_nH = (L_area_nH * 0.5 + L_self_nH) * routing_factor
-
-    return float(L_total_nH)
+    return _tt.estimate_loop_inductance_py(
+        loop_area_mm2,
+        perimeter_mm,
+        layer_separation_mm,
+        routing_factor,
+    )
 
 
 def estimate_gate_inductance(
@@ -62,8 +59,11 @@ def estimate_gate_inductance(
 
     Returns:
         Estimated inductance in nH.
+
+    The arithmetic runs in the ``temper-thermal`` Rust kernel
+    (``estimate_gate_inductance_py``, Wave 4 Phase A #4), which mirrors
+    this function's exact f64 operation order bit-for-bit (pinned by the
+    differential suite ``tests/physics/test_inductance_rust_differential.py``).
     """
     # Assuming tight coupling (back-to-back or over ground plane)
-    perimeter = source_to_gate_dist_mm + return_dist_mm + 5.0  # +5mm for internal
-    # Rough rule of thumb: 0.8 nH/mm for PCB loops over ground plane
-    return perimeter * 0.8
+    return _tt.estimate_gate_inductance_py(source_to_gate_dist_mm, return_dist_mm)
