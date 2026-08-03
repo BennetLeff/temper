@@ -42,6 +42,12 @@ name: CodeQL
 #     elec/ -- all outside packages/ and all previously unscanned.
 # Each entry below is the source root for a language in the matrix; dropping one
 # is a coverage regression, not a speedup.
+# no-pr-trigger: CodeQL is not in .github/required-checks.json's
+# required_contexts, so PR runs gated nothing while costing ~40 runs/day at
+# ~25 min each. GitHub's "default setup" was the scanner actually analysing
+# PRs; it was disabled 2026-08-03 once this advanced setup proved green on
+# main with identical language coverage. Every merge is still scanned on push
+# to main, and the Monday schedule is the catch-all.
 on:
   push:
     branches: [main]
