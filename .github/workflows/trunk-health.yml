@@ -32,6 +32,9 @@ name: Trunk Health
 # .github/required-checks.json and must not become a required context -- it
 # reports on main, it does not judge pull requests.
 
+# no-pr-trigger: this workflow reports on main, it does not judge pull
+# requests. Running it per PR would report the PR's merge result rather than
+# trunk's state, which is the opposite of its purpose.
 on:
   push:
     branches: [main]
@@ -87,6 +90,14 @@ jobs:
 
           run_gate "LOC cap gate" \
             python3 tools/loc_cap_check.py
+
+          # Added 2026-08-03 after this canary missed a third trunk breakage it
+          # could have caught: three workflows had a push trigger with no
+          # pull_request trigger and no `# no-pr-trigger:` opt-out, failing
+          # Lint Workflows on main. A canary that only checks the failures it
+          # was built for is the vacuity class it exists to prevent.
+          run_gate "Workflow pull_request trigger coverage" \
+            python3 scripts/check_workflow_pr_triggers.py
 
           run_gate "Required-checks manifest (trigger paths + job conditions)" \
             python3 -c "
