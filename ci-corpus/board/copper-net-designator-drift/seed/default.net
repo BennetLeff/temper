@@ -1,0 +1,11 @@
+(export (version "E")
+  (components)
+  (nets
+    (net (code "1") (name "SW_NODE")
+      (node (ref "C27") (pin "1"))
+    )
+    (net (code "2") (name "gnd")
+      (node (ref "C27") (pin "2"))
+    )
+  )
+)

@@ -1,0 +1,12 @@
+# Seed registry: one structurally-valid pin whose issue link points at a
+# nonexistent evidence doc -- the ORPHAN_ISSUE_LINK violation. The registry
+# parses fine (all required fields present); only the semantic issue-link
+# check fires, so the canary demonstrates the gate's real behavior rather
+# than a trivial malformed-file rejection.
+scripts/tests/test_check_incident_corpus.py::test_happy_path_reports_pass:
+  issue: docs/evidence/does-not-exist-for-canary.md
+  declared: 2026-08-02
+  expires: 2026-08-09
+  reason: seeded canary -- orphan issue link must be rejected
+  signature:
+    ORPHAN_ISSUE_LINK: 1

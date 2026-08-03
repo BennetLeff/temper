@@ -1,0 +1,278 @@
+# Incident corpus -- Phase 1, the history tranche (R19).
+#
+# Every past incident is re-encoded as a committed seed artifact plus the gate
+# that must reject it. Schema (validated by scripts/check_incident_corpus.py):
+#
+#   id          -- unique incident id
+#   class       -- artifact class: board | constraint | workflow | test
+#   title       -- one-line description
+#   seed        -- repo-relative path to the seed artifact (file, or a
+#                  directory tree when layout: directory)
+#   pristine    -- repo-relative path to the passing counterpart, or the
+#                  literal 'pending' for still-unfixed defects (KTD8)
+#   pristine_pending_reason -- required when pristine is 'pending'
+#   layout      -- 'directory' for directory-scanning gates (KTD7): the seed
+#                  and pristine are directory trees materialized to a temp dir
+#                  per run; a single-file seed cannot flip a directory scanner
+#   gate        -- repo-relative script path that must reject the seed
+#   flags       -- invocation flags; {seed}/{pristine} are substituted with
+#                  the materialized path of the side being run (KTD4: same
+#                  script, same flags, external process, exit-code verdict)
+#   seed_exit_codes -- the gate's rejection exit code(s) on the seed (a run
+#                  that exits with any other non-zero code is a gate error,
+#                  reported UNVERIFIED, never mistaken for a rejection)
+#   evidence    -- the evidence doc that records the incident
+#   status      -- 'unverified' + reason when the gate cannot be driven
+#                  against an external seed today (never dropped -- KTD8)
+#
+# Verdicts: PASS (seed rejected + pristine passed), FAIL (a half broke),
+# UNVERIFIED (declared pending/unverified, or computed gate error).
+# Phase 1 liveness: declared-UNVERIFIED entries pass with their recorded
+# reason; FAIL and computed-UNVERIFIED fail the run.
+phase: 1
+incidents:
+  # -------------------------------------------------------------------------
+  # board class
+  # -------------------------------------------------------------------------
+  - id: board-copper-net-designator-drift
+    class: board
+    title: >-
+      C27 designator drift -- the board's C27 is still the old
+      ct_sense.c_filter footprint while the netlist assigns C27 to
+      tank.c_tank3 (docs/evidence/2026-07-30-copper-net-consistency-drift.md)
+    seed: ci-corpus/board/copper-net-designator-drift/seed
+    pristine: ci-corpus/board/copper-net-designator-drift/pristine
+    layout: directory
+    gate: scripts/check_copper_net_consistency.py
+    flags:
+      - --board
+      - "{seed}/board.kicad_pcb"
+      - --netlist
+      - "{seed}/default.net"
+      - --skip-freshness-check
+    seed_exit_codes: [3]
+    evidence: docs/evidence/2026-07-30-copper-net-consistency-drift.md
+
+  - id: board-intra-component-shorts
+    class: board
+    title: >-
+      60 intra-component copper shorts -- a serializer that rotated pad
+      positions but not pad bodies (docs/evidence/
+      2026-07-29-intra-component-shorts-root-cause.md)
+    seed: ci-corpus/board/intra-component-shorts/seed
+    pristine: ci-corpus/board/intra-component-shorts/pristine
+    layout: directory
+    gate: scripts/check_pad_orientation.py
+    flags:
+      - "{seed}/board.kicad_pcb"
+    seed_exit_codes: [1]
+    evidence: docs/evidence/2026-07-29-intra-component-shorts-root-cause.md
+
+  - id: board-c1-r7-short
+    class: board
+    title: >-
+      C1 pad2 (ac_n) <-> R7 pad2 (zcd) copper short, confirmed on 120/120
+      DRC runs (docs/handoffs/2026-07-31-ci-enforcement-and-board-defects.md)
+    seed: ci-corpus/board/c1-r7-short/seed.kicad_pcb
+    pristine: pending
+    pristine_pending_reason: >-
+      defect is still on main (2026-07-31 handoff); the pristine (fixed
+      board) lands when the short is fixed and the DRC ceiling re-measured.
+    gate: scripts/ci_check_drc.py
+    flags: []
+    seed_exit_codes: [1]
+    evidence: docs/handoffs/2026-07-31-ci-enforcement-and-board-defects.md
+
+  - id: board-tank-cap-offboard
+    class: board
+    title: >-
+      tank.c_tank3 staged outside the board outline; the board's C27 is
+      still ct_sense.c_filter (docs/evidence/2026-07-28-tank-cap-placement.md)
+    seed: ci-corpus/board/tank-cap-offboard/seed
+    pristine: pending
+    pristine_pending_reason: >-
+      placement defect is still on main (2026-07-31 handoff); the pristine
+      lands when the tank capacitor is placed and the board resynced. Note
+      the copper-net gate cannot see an off-board *placement* (it verifies
+      net identity, not position) -- the seed documents the designator drift
+      that accompanied the defect; a placement gate is a follow-up.
+    gate: scripts/check_copper_net_consistency.py
+    flags:
+      - --board
+      - "{seed}/board.kicad_pcb"
+      - --netlist
+      - "{seed}/default.net"
+      - --skip-freshness-check
+    seed_exit_codes: [3]
+    evidence: docs/evidence/2026-07-28-tank-cap-placement.md
+
+  # -------------------------------------------------------------------------
+  # constraint class
+  # -------------------------------------------------------------------------
+  - id: constraint-vacuous-enclosing-parser
+    class: constraint
+    title: >-
+      unguarded all() in _constraint_parser.py:68 -- a zero-component
+      EnclosingConstraint reported "resolved" (docs/evidence/
+      2026-07-27-vacuous-aggregation-audit.md finding #1)
+    seed: ci-corpus/constraint/vacuous-enclosing-parser/seed
+    pristine: ci-corpus/constraint/vacuous-enclosing-parser/pristine
+    layout: directory
+    gate: scripts/check_vacuous_gates.py
+    flags:
+      - --packages-dir
+      - "{seed}/packages"
+      - --scripts-dir
+      - "{seed}/scripts"
+    seed_exit_codes: [1]
+    evidence: docs/evidence/2026-07-27-vacuous-aggregation-audit.md
+
+  - id: constraint-weak-nooverlap2d
+    class: constraint
+    title: >-
+      weak-nooverlap2d encoding allowed zero-gap touching
+      (docs/solutions/logic-errors/
+      weak-nooverlap2d-encoding-allows-zero-gap-2026-07-08.md)
+    seed: ci-corpus/constraint/weak-nooverlap2d/seed.py
+    pristine: ci-corpus/constraint/weak-nooverlap2d/seed.py
+    gate: packages/temper-placer/src/temper_placer/placer/cp_sat/audit.py
+    flags: []
+    evidence: docs/solutions/logic-errors/weak-nooverlap2d-encoding-allows-zero-gap-2026-07-08.md
+    status: unverified
+    reason: >-
+      no seed-parameterizable gate: the post-solve audit (audit.py) is a
+      library consumed by pytest (test_geometry_constraints_pbt.py,
+      test_regression_drc.py), not an external-process gate, and
+      bmc_adoption_gate.py reads fixed repo paths. The seed is registered
+      now (KTD8) and becomes executable when R42 gate-mutation tooling lands.
+
+  - id: constraint-atmostk
+    class: constraint
+    title: >-
+      unsound AtMostK capacity encoding -- a K=3 channel accepted 6 nets
+      (docs/solutions/logic-errors/unsound-atmostk-capacity-encoding.md)
+    seed: ci-corpus/constraint/atmostk/seed.py
+    pristine: ci-corpus/constraint/atmostk/seed.py
+    gate: scripts/bmc_adoption_gate.py
+    flags: []
+    evidence: docs/solutions/logic-errors/unsound-atmostk-capacity-encoding.md
+    status: unverified
+    reason: >-
+      no seed-parameterizable gate: the router_v6 SAT encoding lives in
+      sat_model.py and is verified by solver-level tests, not an
+      external-process gate; bmc_adoption_gate.py reads fixed repo paths.
+      Registered now (KTD8); executable via R42 gate-mutation tooling.
+
+  - id: constraint-endpoint-bounding
+    class: constraint
+    title: >-
+      endpoint-only bounding without a monotonicity proof -- an interior
+      extremum can breach a ceiling while both endpoints pass
+      (docs/solutions/logic-errors/
+      endpoint-bounding-unsound-without-monotonicity-2026-07-09.md)
+    seed: ci-corpus/constraint/endpoint-bounding/seed.py
+    pristine: ci-corpus/constraint/endpoint-bounding/seed.py
+    gate: scripts/bmc_adoption_gate.py
+    flags: []
+    evidence: docs/solutions/logic-errors/endpoint-bounding-unsound-without-monotonicity-2026-07-09.md
+    status: unverified
+    reason: >-
+      no seed-parameterizable gate: the operating-point gate
+      (physics/operating_point.py) is verified by property tests, not an
+      external-process gate. Registered now (KTD8); executable via R42
+      gate-mutation tooling.
+
+  - id: constraint-courtyard-zero-vs-43
+    class: constraint
+    title: >-
+      CourtyardCheckStage reported 0 collisions; kicad-cli DRC found 43 on
+      the identical board (docs/solutions/logic-errors/
+      courtyard-check-stage-finds-zero-collisions-real-drc-finds-43.md)
+    seed: ci-corpus/constraint/courtyard-zero-vs-43/seed.py
+    pristine: ci-corpus/constraint/courtyard-zero-vs-43/seed.py
+    gate: scripts/check_no_raw_rotation_trig.py
+    flags: []
+    evidence: docs/solutions/logic-errors/courtyard-check-stage-finds-zero-collisions-real-drc-finds-43.md
+    status: unverified
+    reason: >-
+      the consolidating gate (check_no_raw_rotation_trig.py) reads a fixed
+      GUARDED_FILES list at the repo root and cannot be driven against an
+      external seed artifact -- the seed would need a full-repo copy.
+      Registered now (KTD8); encodable via R42 gate-mutation tooling.
+
+  - id: constraint-rotation-sign
+    class: constraint
+    title: >-
+      the R(+theta)/R(-theta) footprint-child rotation sign bug, independently
+      reimplemented wrongly in 12 places (docs/evidence/
+      2026-07-29-cross-domain-creepage-rotation-convention.md)
+    seed: ci-corpus/constraint/rotation-sign/seed.py
+    pristine: ci-corpus/constraint/rotation-sign/seed.py
+    gate: scripts/check_no_raw_rotation_trig.py
+    flags: []
+    evidence: docs/evidence/2026-07-29-cross-domain-creepage-rotation-convention.md
+    status: unverified
+    reason: >-
+      the consolidating gate (check_no_raw_rotation_trig.py) reads a fixed
+      GUARDED_FILES list at the repo root and cannot be driven against an
+      external seed artifact. Registered now (KTD8); encodable via R42
+      gate-mutation tooling.
+
+  # -------------------------------------------------------------------------
+  # workflow class
+  # -------------------------------------------------------------------------
+  - id: workflow-push-without-pr
+    class: workflow
+    title: >-
+      workflow with a push trigger but no pull_request trigger -- PRs flew
+      blind until merge (issue #315; the fix/docker-rustup-final arc shipped
+      19 of 25 merges)
+    seed: ci-corpus/workflow/push-without-pr/seed
+    pristine: ci-corpus/workflow/push-without-pr/pristine
+    layout: directory
+    gate: scripts/check_workflow_pr_triggers.py
+    flags:
+      - --workflows-dir
+      - "{seed}"
+    seed_exit_codes: [1]
+    evidence: docs/evidence/2026-07-27-gate-subset-blindness-audit.md
+
+  # -------------------------------------------------------------------------
+  # test class
+  # -------------------------------------------------------------------------
+  - id: test-tautological-assert
+    class: test
+    title: >-
+      tautological assertion shipped verbatim in a safety suite --
+      'assert result.passed or not result.passed' (docs/evidence/
+      2026-07-27-vacuous-aggregation-audit.md; test_clearance.py)
+    seed: ci-corpus/test/tautological-assert/seed
+    pristine: ci-corpus/test/tautological-assert/pristine
+    layout: directory
+    gate: scripts/check_vacuous_gates.py
+    flags:
+      - --packages-dir
+      - "{seed}/packages"
+      - --scripts-dir
+      - "{seed}/scripts"
+    seed_exit_codes: [1]
+    evidence: docs/evidence/2026-07-27-vacuous-aggregation-audit.md
+
+  - id: test-unguarded-all
+    class: test
+    title: >-
+      the 13 unguarded all() findings after the vacuous-gate widening
+      (docs/evidence/2026-07-27-vacuous-aggregation-audit.md) -- a bare
+      all() over an empty collection reports a clean verdict for input it
+      never measured
+    seed: ci-corpus/test/unguarded-all/seed
+    pristine: ci-corpus/test/unguarded-all/pristine
+    layout: directory
+    gate: scripts/check_vacuous_gates.py
+    flags:
+      - --packages-dir
+      - "{seed}/packages"
+      - --scripts-dir
+      - "{seed}/scripts"
+    seed_exit_codes: [1]
+    evidence: docs/evidence/2026-07-27-vacuous-aggregation-audit.md

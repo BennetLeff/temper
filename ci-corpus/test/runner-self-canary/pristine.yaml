@@ -1,0 +1,14 @@
+# Self-canary pristine for scripts/check_incident_corpus.py: a minimal valid
+# manifest that the runner must accept (exit 0). Reuses the committed
+# unguarded-all seed/pristine pair so the check is self-contained.
+phase: 1
+incidents:
+  - id: self-canary-pristine
+    class: test
+    seed: ci-corpus/test/unguarded-all/seed
+    pristine: ci-corpus/test/unguarded-all/pristine
+    layout: directory
+    gate: scripts/check_vacuous_gates.py
+    flags: ["--packages-dir", "{seed}/packages", "--scripts-dir", "{seed}/scripts"]
+    seed_exit_codes: [1]
+    evidence: docs/evidence/2026-07-27-vacuous-aggregation-audit.md

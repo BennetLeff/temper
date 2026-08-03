@@ -132,6 +132,10 @@ on:
       - 'scripts/_lib/measurement_provenance.py'
       - 'scripts/tests/_lib/test_lib_measurement_provenance.py'
       - 'power_pcb_dataset/drc_ceiling.json'
+      - 'ci-corpus/**'
+      - 'scripts/check_incident_corpus.py'
+      - 'scripts/tests/test_check_incident_corpus.py'
+      - 'scripts/tests/test_canary_inventory.py'
   pull_request:
     branches: [main]
     paths:
@@ -224,6 +228,10 @@ on:
       - 'scripts/_lib/measurement_provenance.py'
       - 'scripts/tests/_lib/test_lib_measurement_provenance.py'
       - 'power_pcb_dataset/drc_ceiling.json'
+      - 'ci-corpus/**'
+      - 'scripts/check_incident_corpus.py'
+      - 'scripts/tests/test_check_incident_corpus.py'
+      - 'scripts/tests/test_canary_inventory.py'
   workflow_dispatch:
   schedule:
     - cron: '0 3 * * *'  # nightly at 3am UTC
@@ -1204,6 +1212,27 @@ jobs:
       - name: Setup barrier -- environment ready
         id: setup
         run: echo "setup complete; gates below report independently"
+
+      # Incident corpus oracle + gate canary contract (plan 2026-08-02-032,
+      # R19+R30). Phase 1 executes every registered incident seed against its
+      # gate (must reject) and its pristine (must pass); Phase 2 enforces the
+      # totality contract -- every disposition: ci-gate script in
+      # scripts/manifest.yaml must carry a canary entry, and each fail-closed
+      # canary must demonstrate bite. Two independent steps so each phase
+      # reports its own denominator and a red Phase 1 never deletes the
+      # Phase 2 verdict. Never `continue-on-error`: a corpus that cannot
+      # demonstrate its seeds, or a gate without a canary, must exit non-zero.
+      - name: Incident corpus runner unit tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_check_incident_corpus.py scripts/tests/test_canary_inventory.py -v --tb=short
+
+      - name: Incident corpus (Phase 1 -- history tranche)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python scripts/check_incident_corpus.py --manifest ci-corpus/incidents.yaml
+
+      - name: Gate canary contract (Phase 2 -- totality)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python scripts/check_incident_corpus.py --manifest ci-corpus/canaries.yaml
 
       - name: Check domain model codegen drift
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}

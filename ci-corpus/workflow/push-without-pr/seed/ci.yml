@@ -1,0 +1,9 @@
+name: Seed workflow (push only -- the issue #315 shape)
+on:
+  push:
+    branches: [main]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo hi

@@ -1,0 +1,14 @@
+# Self-canary seed for scripts/check_incident_corpus.py: a manifest missing
+# the required `gate` field -- the runner must reject it (schema error, exit
+# 1). The pristine counterpart (pristine.yaml) is a minimal valid manifest.
+phase: 1
+incidents:
+  - id: broken-entry
+    class: test
+    seed: ci-corpus/test/unguarded-all/seed
+    pristine: ci-corpus/test/unguarded-all/pristine
+    layout: directory
+    flags: ["--packages-dir", "{seed}/packages", "--scripts-dir", "{seed}/scripts"]
+    seed_exit_codes: [1]
+    evidence: docs/evidence/2026-07-27-vacuous-aggregation-audit.md
+    # gate field deliberately omitted

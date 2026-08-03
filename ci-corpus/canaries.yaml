@@ -1,0 +1,437 @@
+# Gate canary contract -- Phase 2, the totality tranche (R30).
+#
+# Every `disposition: ci-gate` script in scripts/manifest.yaml must appear here
+# exactly once (validated by scripts/check_incident_corpus.py's coverage check
+# -- the manifest is the single source of truth for the gate inventory, KTD6).
+# Entry shape is the same as incidents.yaml (one mechanism at two
+# granularities, KTD5), plus:
+#
+#   kind    -- 'canary': a committed seed this gate is demonstrated to reject
+#              (the runner executes it; fail-closed canaries must PASS);
+#              'triage': an explicit record of WHY no canary applies yet or
+#              which fixture will serve -- the coverage gap is named, never
+#              silently skipped (U4/U5).
+#   status  -- 'fail-closed' (must bite) or 'advisory' (recorded from the
+#              workflow's continue-on-error state, KTD11 -- advisory gates
+#              are registered but do not trip the fail-closed requirement).
+#
+# A Phase 1 incident seed reused as a canary is referenced by path, never
+# duplicated (U5). Retired canaries carry a recorded reason and drop out of
+# the liveness denominator; an unrecorded removal fails coverage (KTD9).
+phase: 2
+canaries:
+  # -------------------------------------------------------------------------
+  # REAL CANARIES -- demonstrated to reject their seed (must PASS)
+  # -------------------------------------------------------------------------
+  - gate: scripts/check_vacuous_gates.py
+    kind: canary
+    seed: ci-corpus/test/tautological-assert/seed
+    pristine: ci-corpus/test/tautological-assert/pristine
+    layout: directory
+    flags: ["--packages-dir", "{seed}/packages", "--scripts-dir", "{seed}/scripts"]
+    seed_exit_codes: [1]
+    status: fail-closed
+    evidence: docs/evidence/2026-07-27-vacuous-aggregation-audit.md
+    note: references incident test-tautological-assert (referenced, not duplicated)
+
+  - gate: scripts/check_workflow_pr_triggers.py
+    kind: canary
+    seed: ci-corpus/workflow/push-without-pr/seed
+    pristine: ci-corpus/workflow/push-without-pr/pristine
+    layout: directory
+    flags: ["--workflows-dir", "{seed}"]
+    seed_exit_codes: [1]
+    status: fail-closed
+    evidence: docs/evidence/2026-07-27-gate-subset-blindness-audit.md
+    note: references incident workflow-push-without-pr (referenced, not duplicated)
+
+  - gate: scripts/check_copper_net_consistency.py
+    kind: canary
+    seed: ci-corpus/board/copper-net-designator-drift/seed
+    pristine: ci-corpus/board/copper-net-designator-drift/pristine
+    layout: directory
+    flags:
+      - --board
+      - "{seed}/board.kicad_pcb"
+      - --netlist
+      - "{seed}/default.net"
+      - --skip-freshness-check
+    seed_exit_codes: [3]
+    status: fail-closed
+    evidence: docs/evidence/2026-07-30-copper-net-consistency-drift.md
+    note: references incident board-copper-net-designator-drift (referenced, not duplicated)
+
+  - gate: scripts/check_pad_orientation.py
+    kind: canary
+    seed: ci-corpus/board/intra-component-shorts/seed
+    pristine: ci-corpus/board/intra-component-shorts/pristine
+    layout: directory
+    flags: ["{seed}/board.kicad_pcb"]
+    seed_exit_codes: [1]
+    status: fail-closed
+    evidence: docs/evidence/2026-07-29-intra-component-shorts-root-cause.md
+    note: references incident board-intra-component-shorts (referenced, not duplicated)
+
+  - gate: scripts/check_evidence_provenance.py
+    kind: canary
+    seed: ci-corpus/test/evidence-provenance/seed
+    pristine: ci-corpus/test/evidence-provenance/pristine
+    layout: directory
+    flags:
+      - --evidence-dir
+      - "{seed}/evidence"
+      - --allowlist
+      - "{seed}/allowlist.yaml"
+    seed_exit_codes: [3]
+    status: fail-closed
+    evidence: docs/evidence/2026-07-28-measurement-provenance.md
+
+  - gate: scripts/known_failure_pins.py
+    kind: canary
+    seed: ci-corpus/test/known-failure-pins/seed/registry.yaml
+    pristine: ci-corpus/test/known-failure-pins/pristine/registry.yaml
+    flags: ["--registry", "{seed}"]
+    seed_exit_codes: [1]
+    status: fail-closed
+    evidence: docs/solutions/best-practices/pin-known-failure-reasons-2026-07-30.md
+
+  - gate: scripts/mpn_fabrication_gate.py
+    kind: canary
+    seed: ci-corpus/constraint/mpn-eseries/seed
+    pristine: ci-corpus/constraint/mpn-eseries/pristine
+    flags:
+      - --ato-glob
+      - "{seed}/*.ato"
+      - --allowlist
+      - "{seed}/allowlist.yaml"
+    seed_exit_codes: [3]
+    status: fail-closed
+    evidence: docs/solutions/logic-errors/ntc-mpn-encodes-10k-circuit-designed-for-100k-2026-07-16.md
+
+  - gate: scripts/check_incident_corpus.py
+    kind: canary
+    seed: ci-corpus/test/runner-self-canary/seed.yaml
+    pristine: ci-corpus/test/runner-self-canary/pristine.yaml
+    flags: ["--manifest", "{seed}"]
+    seed_exit_codes: [1]
+    status: fail-closed
+    evidence: docs/plans/2026-08-02-032-feat-incident-corpus-oracle-plan.md
+    note: >-
+      the corpus runner is itself a ci-gate, so the totality contract applies
+      to it (KTD10): the seed is a manifest with a missing gate field the
+      runner must reject; the pristine is a minimal valid manifest it must
+      accept.
+
+  # -------------------------------------------------------------------------
+  # TRIAGE -- named coverage gaps (U4 scenario 6). Each entry records WHY no
+  # canary applies yet or which fixture will serve. The contract check fails
+  # when any ci-gate is MISSING from this file, not when a gate is triaged.
+  # -------------------------------------------------------------------------
+  # --- non-detector / codegen / build-side helpers (no fail case to seed) ---
+  - gate: scripts/pipeline_metrics.py
+    kind: triage
+    triage_reason: >-
+      metrics recorder, not a detector gate -- it records pipeline metrics to
+      JSON and has no fail-closed verdict to demonstrate. Revisit when/if it
+      gains one.
+    status: fail-closed
+  - gate: scripts/pr_scorecard.py
+    kind: triage
+    triage_reason: >-
+      metrics comparison over pipeline_metrics.jsonl files -- a report
+      generator, not a detector with a falsifiable reject case. Falsifier
+      fixture exists (scripts/tests/test_pr_scorecard.py) but drives the
+      scoring logic, not an external seed the gate rejects.
+    status: fail-closed
+  - gate: scripts/pr_perf_compare.py
+    kind: triage
+    triage_reason: >-
+      metrics comparison against a JSONL baseline -- report generator, no
+      seeded fail case. Fixture promotion deferred.
+    status: fail-closed
+  - gate: scripts/human_reference_compare.py
+    kind: triage
+    triage_reason: >-
+      generates a human-reference PR comment from optimizer metrics -- report
+      generator, no seeded fail case.
+    status: fail-closed
+  - gate: scripts/quarantine_report.py
+    kind: triage
+    triage_reason: >-
+      reports on dead-letter quarantine status -- report generator, no
+      seeded fail case.
+    status: fail-closed
+  - gate: scripts/gen_domain_models.py
+    kind: triage
+    triage_reason: >-
+      cross-language codegen with --check drift mode; it regenerates from
+      fixed manifests (no external seed parameter) -- a drift gate, not a
+      detector with a falsifier fixture.
+    status: fail-closed
+  - gate: scripts/gen_pcb_skeleton.py
+    kind: triage
+    triage_reason: >-
+      codegen --check of the PCB skeleton from the netlist; no external seed
+      parameter. A mutated-netlist canary would require the full
+      netlist->skeleton pipeline, deferred.
+    status: fail-closed
+  - gate: scripts/gen_schematics.py
+    kind: triage
+    triage_reason: >-
+      schematic codegen --check drift gate (ADVISORY: continue-on-error in
+      python-tests.yml). No external seed parameter.
+    status: advisory
+  - gate: scripts/gen_repo_state.py
+    kind: triage
+    triage_reason: >-
+      repo-state codegen --check drift gate; regenerates from the tree
+      itself, no external seed parameter.
+    status: fail-closed
+  - gate: packages/temper-placer/scripts/gen_config_reference.py
+    kind: triage
+    triage_reason: >-
+      config-reference codegen --check from Pydantic introspection; no
+      external seed parameter.
+    status: fail-closed
+  - gate: scripts/write_build_stamp.py
+    kind: triage
+    triage_reason: >-
+      build-side half of content-hash freshness (records a digest beside an
+      artifact) -- a stamp WRITER, not a detector; the detector half is
+      check_stale_extensions.py (itself triaged: environment-based).
+    status: fail-closed
+  - gate: scripts/write_extension_stamps.py
+    kind: triage
+    triage_reason: >-
+      build-side half of extension freshness (stamps crates the gate already
+      considers fresh) -- a stamp WRITER, not a detector.
+    status: fail-closed
+  - gate: scripts/update_regression_cache.py
+    kind: triage
+    triage_reason: >-
+      cache writer (updates .regression-cache.json from reports), not a
+      detector.
+    status: fail-closed
+  - gate: scripts/trace_invocations.py
+    kind: triage
+    triage_reason: >-
+      rebuilds scripts/invocation_graph.json and the manifest imports field
+      in place -- a rebuilder, not a detector with a fail case.
+    status: fail-closed
+  - gate: scripts/check_manifest_gate.py
+    kind: triage
+    triage_reason: >-
+      manifest<->filesystem consistency gate over fixed paths; the seed would
+      be a scripts/ tree missing a manifest entry, requiring a full-repo
+      copy. Falsifier coverage lives in the check_manifest_gate unit tests.
+    status: fail-closed
+  - gate: scripts/check_script_sunset.py
+    kind: triage
+    triage_reason: >-
+      time-based sunset warnings (ADVISORY: continue-on-error). Depends on
+      wall-clock dates, not a seed artifact.
+    status: advisory
+  - gate: scripts/test_root_hygiene.py
+    kind: triage
+    triage_reason: >-
+      root-artifact hygiene gate over the whole tree (ADVISORY:
+      continue-on-error). A seed root-artifact would need a full-repo copy;
+      the fixture drives the check against the live tree.
+    status: advisory
+  - gate: scripts/pytest_guard.py
+    kind: triage
+    triage_reason: >-
+      pytest wrapper enforcing a --min-tests floor (ADVISORY: every CI step
+      invoking it carries continue-on-error). Its fail case (suite silently
+      collapsing to zero) is exercised by its own unit tests, not a seed the
+      wrapper rejects as an artifact.
+    status: advisory
+
+  # --- detector gates that read fixed repo paths / need a full-repo context ---
+  - gate: scripts/check_no_raw_rotation_trig.py
+    kind: triage
+    triage_reason: >-
+      reads a fixed GUARDED_FILES list at the repo root -- cannot be driven
+      against an external seed (the seed would need a full-repo copy). The
+      rotation-sign and courtyard incidents register their seeds as
+      constraint-rotation-sign / constraint-courtyard-zero-vs-43 (UNVERIFIED
+      in Phase 1); encodable via R42 gate-mutation tooling.
+    status: fail-closed
+  - gate: scripts/bmc_adoption_gate.py
+    kind: triage
+    triage_reason: >-
+      reads fixed constraint_model.py / sat_model.py / tests dirs; not
+      seed-parameterizable. The atmostk and endpoint-bounding incidents
+      register their seeds (constraint-atmostk, constraint-endpoint-bounding,
+      UNVERIFIED in Phase 1).
+    status: fail-closed
+  - gate: scripts/ci_check_drc.py
+    kind: triage
+    triage_reason: >-
+      full-board DRC ratchet over pcb/temper.kicad_pcb + drc_ceiling.json
+      (needs kicad-cli and the real board). The C1<->R7 short incident
+      registers its seed (board-c1-r7-short, pristine pending -- UNVERIFIED
+      in Phase 1).
+    status: fail-closed
+  - gate: scripts/ci_closure_test.py
+    kind: triage
+    triage_reason: >-
+      full-pipeline closure test (Benders -> Router -> DRC) -- an end-to-end
+      execution gate, not a detector with a seeded reject case (ADVISORY:
+      continue-on-error on the closure-test step).
+    status: advisory
+  - gate: scripts/ci_identity_check.py
+    kind: triage
+    triage_reason: >-
+      board identity gate over fixed paths (quarantined fixture / production
+      board); not seed-parameterizable without a full board fixture.
+    status: fail-closed
+  - gate: scripts/check_isolation_keepout.py
+    kind: triage
+    triage_reason: >-
+      reads the real board + manifest and requires a keepout zone spanning all
+      copper layers -- a seed board would need full keepout geometry; the
+      falsifier fixture (scripts/tests/test_check_isolation_keepout.py) drives
+      the checker logic directly. Deferred.
+    status: fail-closed
+  - gate: scripts/check_footprint_drift.py
+    kind: triage
+    triage_reason: >-
+      reads the real board + compiled netlist matched by sheetpath; a seed
+      board/netlist pair with a drifted footprint is constructible but heavy
+      (full kiutils board fixture). Deferred to a fixture-promotion follow-up.
+    status: fail-closed
+  - gate: scripts/check_domain_partition.py
+    kind: triage
+    triage_reason: >-
+      netlist + domain-manifest partition gate; parameterizable
+      (--netlist/--manifest/--src-dir) but the seed needs a realistic
+      multi-domain netlist with an isolator bridge. Falsifier fixture exists
+      (scripts/tests/test_check_domain_partition.py); fixture promotion
+      deferred.
+    status: fail-closed
+  - gate: scripts/capacity_budget_gate.py
+    kind: triage
+    triage_reason: >-
+      fault-tree fan-in gate over netlist + BOM + config; a seed needs a
+      full reachability netlist fixture. Falsifier fixture exists
+      (scripts/tests/test_capacity_budget_gate.py); fixture promotion
+      deferred.
+    status: fail-closed
+  - gate: scripts/check_pll_range_consistency.py
+    kind: triage
+    triage_reason: >-
+      compares firmware/components/control/pll_control.h against
+      elec/src/main.ato (--repo-root override still needs the whole firmware +
+      elec tree); a seed would require a full-repo copy.
+    status: fail-closed
+  - gate: scripts/check_physics_provenance.py
+    kind: triage
+    triage_reason: >-
+      scans fixed physics/ dirs + allowlist; not seed-parameterizable to an
+      external artifact.
+    status: fail-closed
+  - gate: scripts/check_net_classification.py
+    kind: triage
+    triage_reason: >-
+      scans fixed packages/ trees for substring classifiers; a seed module
+      would need a full-package copy. Falsifier fixture exists
+      (scripts/tests/test_check_net_classification.py); fixture promotion
+      deferred.
+    status: fail-closed
+  - gate: scripts/check_undeclared_imports.py
+    kind: triage
+    triage_reason: >-
+      scans fixed scripts/ + test trees for unresolvable imports; a seed
+      module would need a full-tree copy. Falsifier fixture exists
+      (scripts/tests/test_check_undeclared_imports.py); fixture promotion
+      deferred.
+    status: fail-closed
+  - gate: scripts/check_derived_doc_drift.py
+    kind: triage
+    triage_reason: >-
+      reads fixed docs + derived_doc_gates.yaml; --config is the only seed
+      parameter and an empty-locator config produces a tool-error exit (5),
+      which the runner correctly classifies as a gate error, not a rejection.
+    status: fail-closed
+  - gate: scripts/check_creepage_clearance_drift.py
+    kind: triage
+    triage_reason: >-
+      --repo-root override still requires the full source/scripts/packages
+      tree to compare against; a seed would need a full-repo copy.
+    status: fail-closed
+  - gate: scripts/check_fault_list_consistency.py
+    kind: triage
+    triage_reason: >-
+      compares generated FAULT_LIST against manifest.json over fixed
+      firmware/elec paths; not seed-parameterizable.
+    status: fail-closed
+  - gate: scripts/check_rust_drc_presence.py
+    kind: triage
+    triage_reason: >-
+      environment presence/freshness check for the installed temper_drc_rs
+      wheel -- its fail case is a stale/missing .so in the live venv, not a
+      seed artifact the gate rejects.
+    status: fail-closed
+  - gate: scripts/check_stale_extensions.py
+    kind: triage
+    triage_reason: >-
+      environment freshness check over installed pyo3 crates -- the fail case
+      (stale .so) is a venv state, not a committed seed. Falsifier fixture
+      exists (scripts/tests/test_check_stale_extensions.py); gate not
+      seed-parameterizable.
+    status: fail-closed
+  - gate: scripts/check_typecheck_gate.py
+    kind: triage
+    triage_reason: >-
+      type-check gate with monotonic-shrink allowlist over the whole tree;
+      a seeded type error would need a full-repo copy to type-check against.
+    status: fail-closed
+  - gate: scripts/vulture_gate.py
+    kind: triage
+    triage_reason: >-
+      vulture dead-code gate over the whole tree; a seeded dead-code finding
+      would need a full-repo copy.
+    status: fail-closed
+  - gate: scripts/import_linter_gate.py
+    kind: triage
+    triage_reason: >-
+      import-boundary gate over the whole tree (runs lint-imports); a seed
+      boundary violation would need a full-repo copy.
+    status: fail-closed
+  - gate: scripts/verify_proofs.py
+    kind: triage
+    triage_reason: >-
+      verifies PROOFS.toml completeness against fixed proof files; a seed
+      would need a full proof-document tree.
+    status: fail-closed
+  - gate: scripts/check_drc_ceiling_approval.py
+    kind: triage
+    triage_reason: >-
+      git-merge-base diff gate requiring origin/main history and real
+      commits (Ceiling-Approval: trailer detection); not seed-parameterizable
+      to an external artifact.
+    status: fail-closed
+  - gate: scripts/check_measurement_provenance.py
+    kind: triage
+    triage_reason: >-
+      reads fixed drc_ceiling.json + its content hashes against the live
+      board; the fail case (stale ceiling) is a repo-state, not a committed
+      seed. Falsifier fixture exists (scripts/tests/
+      test_check_measurement_provenance.py).
+    status: fail-closed
+  - gate: scripts/check_required_checks.py
+    kind: triage
+    triage_reason: >-
+      GitHub API-based pull-request aggregator -- its fail case requires a
+      live PR + check-run state, not a seed artifact.
+    status: fail-closed
+  - gate: scripts/check_coverage_gate.py
+    kind: triage
+    triage_reason: >-
+      coverage gate over coverage.json (ADVISORY: continue-on-error pending
+      Phase 1 paydown). A seed coverage.json with a zero-coverage public
+      function is constructible, but the gate is warn-only until the
+      paydown prerequisite lands; register the canary in the same change
+      that hard-fails it.
+    status: advisory

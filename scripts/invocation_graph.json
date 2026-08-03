@@ -49,10 +49,17 @@
   "check_footprint_drift.py": [
     ".github/workflows/python-tests.yml"
   ],
+<<<<<<< HEAD
   "check_hv_netclass_coverage.py": [
     ".github/workflows/python-tests.yml",
     "packages/temper-placer/src/temper_placer/core/design_rules.py"
   ],
+||||||| parent of 19c805dc9 (feat(scripts): incident corpus oracle + gate canary contract (R19+R30))
+=======
+  "check_incident_corpus.py": [
+    ".github/workflows/python-tests.yml"
+  ],
+>>>>>>> 19c805dc9 (feat(scripts): incident corpus oracle + gate canary contract (R19+R30))
   "check_isolation_keepout.py": [
     ".github/workflows/python-tests.yml",
     "packages/temper-placer/src/temper_placer/core/isolation_constants.py",

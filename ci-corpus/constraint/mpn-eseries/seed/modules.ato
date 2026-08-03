@@ -1,0 +1,4 @@
+module tank:
+    r_low_top = new Resistor
+    r_low_top.value = 61.3kohm +/- 0.1%
+    r_low_top.mpn = "ERA-3AEB6132V"

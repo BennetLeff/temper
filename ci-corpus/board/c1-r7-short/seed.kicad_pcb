@@ -1,0 +1,44 @@
+(kicad_pcb (version 20230121) (generator ci-corpus)
+
+  (general
+    (thickness 1.6)
+  )
+
+  (paper "A4")
+  (layers
+  )
+
+  (setup
+    (pad_to_mask_clearance 0.0)
+  )
+
+  (net 1 "ac_hot")
+  (net 2 "ac_n")
+  (net 3 "zcd_div")
+  (net 4 "zcd")
+
+  (footprint "C_0603_1608Metric" (layer "F.Cu")
+    (tedit 6a6faa6a) (tstamp fp-c1)
+    (at 10 10)
+    (property "Reference" "C1")
+    (property "Value" "?")
+    (pad "1" smd rect (at 0.0 0.0) (size 0.0 0.0) (layers)
+      (net 1 "ac_hot") (tstamp fp-c1-pad1))
+    (pad "2" smd rect (at 0.0 0.0) (size 0.0 0.0) (layers)
+      (net 2 "ac_n") (tstamp fp-c1-pad2))
+  )
+
+  (footprint "C_0603_1608Metric" (layer "F.Cu")
+    (tedit 6a6faa6a) (tstamp fp-r7)
+    (at 13 10)
+    (property "Reference" "R7")
+    (property "Value" "?")
+    (pad "1" smd rect (at 0.0 0.0) (size 0.0 0.0) (layers)
+      (net 3 "zcd_div") (tstamp fp-r7-pad1))
+    (pad "2" smd rect (at 0.0 0.0) (size 0.0 0.0) (layers)
+      (net 4 "zcd") (tstamp fp-r7-pad2))
+  )
+
+  (segment (start 10 10) (end 13 10) (width 0.5) (layer "F.Cu") (net 2) (tstamp seg-short))
+
+)

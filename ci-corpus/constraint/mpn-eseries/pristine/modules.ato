@@ -1,0 +1,4 @@
+module filter:
+    r_filt = new Resistor
+    r_filt.value = 10kohm +/- 1%
+    r_filt.mpn = "RC0603FR-0710KL"
