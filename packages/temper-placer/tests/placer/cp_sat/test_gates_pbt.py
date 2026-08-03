@@ -70,6 +70,25 @@ def _violation_fields(v):
     )
 
 
+def _violation_fields_eq(v):
+    """Canonical-form fields compared with Python `==` semantics.
+
+    Distinct from ``_violation_fields`` (bit-exact ``.hex()``): this form
+    treats ``0.0 == -0.0`` as equal, matching what ``Violation.__eq__``
+    actually computes. Used by the MR2 canonical-form-iff-equality
+    invariant; the differential suite keeps the bit-exact form.
+    """
+    return (
+        (v.type.name, v.type.value),
+        tuple(v.components),
+        tuple(v.nets),
+        float(v.severity),
+        float(v.threshold),
+        v.description,
+        tuple(sorted((k, str(val)) for k, val in v.context.items())),
+    )
+
+
 # ---------------------------------------------------------------------------
 # Kernel indirection — the vacuity-mutant seam (G4 evidence pattern).
 # ---------------------------------------------------------------------------
@@ -404,7 +423,13 @@ def test_mr1_violation_round_trip_and_kwarg_commute(kwargs):
 def test_mr2_canonical_form_iff_equality(kwargs_a, kwargs_b):
     va = Violation(**kwargs_a)
     vb = Violation(**kwargs_b)
-    fields_agree = _violation_fields(va) == _violation_fields(vb)
+    # Equality uses Python `==` semantics (where 0.0 == -0.0), so the
+    # canonical-form comparison must use the SAME semantics — NOT the
+    # bit-exact `.hex()` form `_violation_fields` uses for the differential
+    # suite (0.0 vs -0.0 differ in bits but compare equal, which made this
+    # invariant spuriously fail on the -0.0 case for BOTH the oracle
+    # dataclass and the Rust pyclass).
+    fields_agree = _violation_fields_eq(va) == _violation_fields_eq(vb)
     # The canonical form is a complete invariant: identical fields <=> equal.
     assert (va == vb) == fields_agree
     # Vacuity guard: both agreeing and disagreeing pairs occur.
