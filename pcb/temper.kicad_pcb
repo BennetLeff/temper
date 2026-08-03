@@ -199,7 +199,7 @@
 
   (footprint "Capacitor_THT:C_Rect_L18.0mm_W7.0mm_P15.00mm_FKS3_FKP3" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 475a2bc3) (tstamp fec08eb5-5a12-711b-f9e3-b548d91fb86e)
-    (at 33.71 214.23 90)
+    (at 51.489999999999995 214.22 90.0)
     (descr "C, Rect series, Radial, pin pitch=15.00mm, length*width=18*7mm^2, Capacitor, http://www.wima.com/EN/WIMA_FKS_3.pdf")
     (tags "C Rect series Radial pin pitch 15.00mm length 18mm width 7mm Capacitor")
     (property "Reference" "C1")
@@ -229,7 +229,7 @@
 
   (footprint "Capacitor_SMD:C_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 6d8c2ae9) (tstamp 6a272f27-7ea1-c4a1-a272-a3e2007b0676)
-    (at 99.4 27.05 180)
+    (at 106.28 27.04 180.0)
     (descr "Capacitor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "capacitor")
     (property "Reference" "C10")
@@ -257,7 +257,7 @@
 
   (footprint "Capacitor_SMD:C_1210_3225Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 51e332b5) (tstamp c2e08fbc-41d2-2a9c-a794-51653c6bd19c)
-    (at 166.6 39.6 180)
+    (at 166.6 54.47 180.0)
     (descr "Capacitor SMD 1210 (3225 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "capacitor")
     (property "Reference" "C11")
@@ -285,7 +285,7 @@
 
   (footprint "Capacitor_SMD:C_1210_3225Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 9c9bb326) (tstamp bc302ff9-e8cd-3e46-05a9-ec70856ebb33)
-    (at 166.6 43.8 0)
+    (at 123.97 42.58 0.0)
     (descr "Capacitor SMD 1210 (3225 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "capacitor")
     (property "Reference" "C12")
@@ -313,7 +313,7 @@
 
   (footprint "Capacitor_SMD:C_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit a6c37686) (tstamp 3f5c0232-df88-e9ee-bd50-2b40f65389c5)
-    (at 157.91 47.879999999999995 90)
+    (at 157.9 92.52 90.0)
     (descr "Capacitor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "capacitor")
     (property "Reference" "C13")
@@ -341,7 +341,7 @@
 
   (footprint "Capacitor_SMD:C_2220_5750Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 80b245bc) (tstamp 4bc14a84-6192-02ec-58c9-3ae12c188bc4)
-    (at 113.56 61.06 90.0)
+    (at 139.09 29.08 90.0)
     (descr "Capacitor SMD 2220 (5750 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size from: http://datasheets.avx.com/AVX-HV_MLCC.pdf)")
     (tags "capacitor")
     (property "Reference" "C14")
@@ -369,7 +369,7 @@
 
   (footprint "Capacitor_SMD:C_1210_3225Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 795f5908) (tstamp c2ae13a1-5e76-422d-e14b-14fcc9ca5b67)
-    (at 79.53999999999999 123.26 0)
+    (at 106.15 144.78 0.0)
     (descr "Capacitor SMD 1210 (3225 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "capacitor")
     (property "Reference" "C15")
@@ -397,7 +397,7 @@
 
   (footprint "Capacitor_SMD:C_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 8f3ce590) (tstamp ec6525ed-5603-82ec-69ab-9b64d27a13e6)
-    (at 54.57 187.98 90)
+    (at 28.810000000000002 220.58 90.0)
     (descr "Capacitor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "capacitor")
     (property "Reference" "C16")
@@ -425,7 +425,7 @@
 
   (footprint "Capacitor_SMD:C_1210_3225Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 269fc111) (tstamp 457edb40-8cd7-e7ce-8951-3d2c00f33a28)
-    (at 97.36 127.12 0)
+    (at 46.120000000000005 118.48 0.0)
     (descr "Capacitor SMD 1210 (3225 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "capacitor")
     (property "Reference" "C17")
@@ -453,7 +453,7 @@
 
   (footprint "Capacitor_SMD:C_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit be7ed099) (tstamp 385e4c5e-a75b-8816-b1bd-db9a687fff80)
-    (at 21.24 74.24000000000001 90.0)
+    (at 21.24 24.43 90.0)
     (descr "Capacitor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "capacitor")
     (property "Reference" "C18")
@@ -481,7 +481,7 @@
 
   (footprint "Capacitor_SMD:C_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit f484eb27) (tstamp e6199760-8db8-b513-2d2c-d050472e09c3)
-    (at 21.24 78.2 90.0)
+    (at 25.63 35.63 90.0)
     (descr "Capacitor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "capacitor")
     (property "Reference" "C19")
@@ -509,7 +509,7 @@
 
   (footprint "Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 9e521c98) (tstamp 5d247c2c-ee8c-e0ad-8a4a-01b47c8fbeb0)
-    (at 65.75999999999999 97.12 0)
+    (at 93.48 64.84 0.0)
     (descr "CP, Radial series, Radial, pin pitch=10.00mm, diameter=35mm, height=50mm, Electrolytic Capacitor, http://www.vishay.com/docs/28342/058059pll-si.pdf")
     (tags "CP Radial series Radial pin pitch 10.00mm diameter 35mm height 50mm Electrolytic Capacitor")
     (property "Reference" "C2")
@@ -1092,7 +1092,7 @@
 
   (footprint "Capacitor_SMD:C_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 79f65926) (tstamp dc2076db-f379-33ed-ab36-7d481e16d31a)
-    (at 69.63 116.04 90)
+    (at 28.810000000000002 111.0 90.0)
     (descr "Capacitor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "capacitor")
     (property "Reference" "C20")
@@ -1120,7 +1120,7 @@
 
   (footprint "Capacitor_SMD:C_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 182d5846) (tstamp 5234e5ae-d9d7-9f4a-4317-e32c1fbf2ed5)
-    (at 131.35 116.04 90)
+    (at 131.34 56.73 90.0)
     (descr "Capacitor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "capacitor")
     (property "Reference" "C21")
@@ -1148,7 +1148,7 @@
 
   (footprint "Capacitor_SMD:C_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 2edb07fa) (tstamp 566aa91d-1343-c2c9-5283-93607c47be92)
-    (at 21.24 187.7 270.0)
+    (at 75.89 187.7 270.0)
     (descr "Capacitor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "capacitor")
     (property "Reference" "C22")
@@ -1176,7 +1176,7 @@
 
   (footprint "Capacitor_SMD:C_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 103e59ae) (tstamp f013576c-1851-5e87-ee46-6b29e93306e9)
-    (at 21.24 57.14 90.0)
+    (at 21.24 74.69 90.0)
     (descr "Capacitor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "capacitor")
     (property "Reference" "C23")
@@ -1204,7 +1204,7 @@
 
   (footprint "Capacitor_THT:C_Rect_L18.0mm_W11.0mm_P15.00mm_FKS3_FKP3" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 4f15c713) (tstamp 70251ddb-80de-af38-632f-dc9a27277821)
-    (at 63.03999999999999 71.24000000000001 0.0)
+    (at 31.57 88.86 0.0)
     (descr "C, Rect series, Radial, pin pitch=15.00mm, length*width=18*11mm^2, Capacitor, http://www.wima.com/EN/WIMA_FKS_3.pdf")
     (tags "C Rect series Radial pin pitch 15.00mm length 18mm width 11mm Capacitor")
     (property "Reference" "C24")
@@ -1234,7 +1234,7 @@
 
   (footprint "temper:C_Axial_L34.0mm_D22.5mm_P40.00mm_Horizontal" (version 20231120) (generator temper-hand) (layer "F.Cu")
     (tedit 3c3292af) (tstamp b7df4d3e-2df9-1724-35ac-4001c0b34c4e)
-    (at 127.2 176.26 90.0)
+    (at 160.0 152.7 90.0)
     (descr "Horizontal-mount axial film capacitor, body 34.0mm long x 22.5mm diameter, lead diameter 1.0mm, pin pitch 40.00mm. Drawn 2026-07-29 for Cornell Dubilier (Knowles) Type 942C part 942C16P1K-F, 0.10uF / 1600Vdc / 460Vac. Body dimensions are the datasheet's own 'Ratings and Dimensions' row, read from CDE catalog 942C.pdf (https://www.cde.com/resources/catalogs/942C.pdf) printed page 2, 1600 Vdc block: '.10 | 942C16P1K-F | D 22.5 | L 34.0 | d 1.0'; corroborated in CDE's older sheet PULSE-942C.pdf, which prints the same row in inches ('.887 (22.5)' x '1.339 (34.0)', d '.040 (1.0)'). D and L are catalogue MAXIMA -- CDE prints 'L MAX.' and 'D MAX.' on the mechanical drawing -- so the body outline here is a worst-case envelope, not a nominal. Pin pitch 40.00mm = 34.0mm body + 3.0mm lead-forming allowance per side, matching the KiCad stock C_Axial/CP_Axial family convention (2.5-3.25mm per side across L30.0/P35.00, L22.0/P27.50 and L34.5/P41.00). CDE's drawing specifies 1.625in (41mm) MIN free lead each side, so 3.0mm of formed lead is available with a very large margin. Hole 1.3mm = 1.0mm lead + 0.3mm IPC-2222 Level-B clearance; pad 2.6mm gives a 0.65mm annular ring, wider than the KiCad stock C_Axial default (drill+0.8) because this land carries ~7A rms continuously in the resonant tank -- see docs/evidence/2026-07-29-tank-cap-cde-942c-verification.md. Non-polarised: pad 1 is drawn roundrect for orientation reference only, the part has no polarity.")
     (tags "capacitor axial horizontal film polypropylene CDE 942C 942C16P1K-F 1600V")
     (property "Reference" "C25")
@@ -1266,7 +1266,7 @@
 
   (footprint "temper:C_Axial_L34.0mm_D22.5mm_P40.00mm_Horizontal" (version 20231120) (generator temper-hand) (layer "F.Cu")
     (tedit 2d7a7dc8) (tstamp a20a5176-454e-6783-8948-c40b090e6033)
-    (at 103.82 72.32 270.0)
+    (at 65.92 72.32 270.0)
     (descr "Horizontal-mount axial film capacitor, body 34.0mm long x 22.5mm diameter, lead diameter 1.0mm, pin pitch 40.00mm. Drawn 2026-07-29 for Cornell Dubilier (Knowles) Type 942C part 942C16P1K-F, 0.10uF / 1600Vdc / 460Vac. Body dimensions are the datasheet's own 'Ratings and Dimensions' row, read from CDE catalog 942C.pdf (https://www.cde.com/resources/catalogs/942C.pdf) printed page 2, 1600 Vdc block: '.10 | 942C16P1K-F | D 22.5 | L 34.0 | d 1.0'; corroborated in CDE's older sheet PULSE-942C.pdf, which prints the same row in inches ('.887 (22.5)' x '1.339 (34.0)', d '.040 (1.0)'). D and L are catalogue MAXIMA -- CDE prints 'L MAX.' and 'D MAX.' on the mechanical drawing -- so the body outline here is a worst-case envelope, not a nominal. Pin pitch 40.00mm = 34.0mm body + 3.0mm lead-forming allowance per side, matching the KiCad stock C_Axial/CP_Axial family convention (2.5-3.25mm per side across L30.0/P35.00, L22.0/P27.50 and L34.5/P41.00). CDE's drawing specifies 1.625in (41mm) MIN free lead each side, so 3.0mm of formed lead is available with a very large margin. Hole 1.3mm = 1.0mm lead + 0.3mm IPC-2222 Level-B clearance; pad 2.6mm gives a 0.65mm annular ring, wider than the KiCad stock C_Axial default (drill+0.8) because this land carries ~7A rms continuously in the resonant tank -- see docs/evidence/2026-07-29-tank-cap-cde-942c-verification.md. Non-polarised: pad 1 is drawn roundrect for orientation reference only, the part has no polarity.")
     (tags "capacitor axial horizontal film polypropylene CDE 942C 942C16P1K-F 1600V")
     (property "Reference" "C26")
@@ -1298,7 +1298,7 @@
 
   (footprint "temper:C_Axial_L34.0mm_D22.5mm_P40.00mm_Horizontal" (version 20231120) (generator temper-hand) (layer "F.Cu")
     (tedit 69d6b92b) (tstamp ae8a9e79-1765-14e5-fafd-079798285e8f)
-    (at 20 272.75)
+    (at 28.620000000000005 242.0 0.0)
     (descr "Horizontal-mount axial film capacitor, body 34.0mm long x 22.5mm diameter, lead diameter 1.0mm, pin pitch 40.00mm. Drawn 2026-07-29 for Cornell Dubilier (Knowles) Type 942C part 942C16P1K-F, 0.10uF / 1600Vdc / 460Vac. Body dimensions are the datasheet's own 'Ratings and Dimensions' row, read from CDE catalog 942C.pdf (https://www.cde.com/resources/catalogs/942C.pdf) printed page 2, 1600 Vdc block: '.10 | 942C16P1K-F | D 22.5 | L 34.0 | d 1.0'; corroborated in CDE's older sheet PULSE-942C.pdf, which prints the same row in inches ('.887 (22.5)' x '1.339 (34.0)', d '.040 (1.0)'). D and L are catalogue MAXIMA -- CDE prints 'L MAX.' and 'D MAX.' on the mechanical drawing -- so the body outline here is a worst-case envelope, not a nominal. Pin pitch 40.00mm = 34.0mm body + 3.0mm lead-forming allowance per side, matching the KiCad stock C_Axial/CP_Axial family convention (2.5-3.25mm per side across L30.0/P35.00, L22.0/P27.50 and L34.5/P41.00). CDE's drawing specifies 1.625in (41mm) MIN free lead each side, so 3.0mm of formed lead is available with a very large margin. Hole 1.3mm = 1.0mm lead + 0.3mm IPC-2222 Level-B clearance; pad 2.6mm gives a 0.65mm annular ring, wider than the KiCad stock C_Axial default (drill+0.8) because this land carries ~7A rms continuously in the resonant tank -- see docs/evidence/2026-07-29-tank-cap-cde-942c-verification.md. Non-polarised: pad 1 is drawn roundrect for orientation reference only, the part has no polarity.")
     (tags "capacitor axial horizontal film polypropylene CDE 942C 942C16P1K-F 1600V")
     (property "Reference" "C27")
@@ -1330,7 +1330,7 @@
 
   (footprint "Capacitor_SMD:C_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 513b804b) (tstamp 098e9c24-6cec-a787-7bda-7c2ec7180852)
-    (at 99.25 21.98 90)
+    (at 41.69 21.98 90.0)
     (descr "Capacitor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "capacitor")
     (property "Reference" "C28")
@@ -1358,7 +1358,7 @@
 
   (footprint "Capacitor_SMD:C_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit f9d7f57b) (tstamp dc872554-bba5-b918-e081-7b92d73af515)
-    (at 170.02 59.39 0)
+    (at 170.02 59.38 0.0)
     (descr "Capacitor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "capacitor")
     (property "Reference" "C29")
@@ -1386,7 +1386,7 @@
 
   (footprint "Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit f47677a1) (tstamp a53481f5-5a41-a3da-1169-1fa96392ab6c)
-    (at 51.44 59.02000000000001 270.0)
+    (at 87.36 34.94 270.0)
     (descr "CP, Radial series, Radial, pin pitch=10.00mm, diameter=35mm, height=50mm, Electrolytic Capacitor, http://www.vishay.com/docs/28342/058059pll-si.pdf")
     (tags "CP Radial series Radial pin pitch 10.00mm diameter 35mm height 50mm Electrolytic Capacitor")
     (property "Reference" "C3")
@@ -1969,7 +1969,7 @@
 
   (footprint "Capacitor_SMD:C_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 871f9957) (tstamp 2e392f07-e72f-2bcb-9d3a-e774d756f921)
-    (at 162.57 39.480000000000004 90)
+    (at 162.56 23.07 90.0)
     (descr "Capacitor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "capacitor")
     (property "Reference" "C30")
@@ -1997,7 +1997,7 @@
 
   (footprint "Capacitor_SMD:C_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 65f61a93) (tstamp 83eda0e2-4d79-2574-c96d-52b68d0a2931)
-    (at 170.63 88.56 270)
+    (at 158.61 88.56 270.0)
     (descr "Capacitor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "capacitor")
     (property "Reference" "C31")
@@ -2025,7 +2025,7 @@
 
   (footprint "Capacitor_SMD:C_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit e996f87f) (tstamp e1d90b2e-42db-a393-649e-350773406143)
-    (at 21.24 31.439999999999998 90.0)
+    (at 21.24 30.07 90.0)
     (descr "Capacitor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "capacitor")
     (property "Reference" "C32")
@@ -2053,7 +2053,7 @@
 
   (footprint "Capacitor_SMD:C_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 859b6eec) (tstamp e3058b19-171e-377d-04a9-de1ce0e825f9)
-    (at 170.63 21.98 90)
+    (at 170.62 42.260000000000005 90.0)
     (descr "Capacitor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "capacitor")
     (property "Reference" "C33")
@@ -2081,7 +2081,7 @@
 
   (footprint "Capacitor_SMD:C_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 93add8f5) (tstamp 1f05d5b7-7cd6-8ef6-08a6-65570e6616ae)
-    (at 104.47 25.94 90)
+    (at 133.8 49.120000000000005 90.0)
     (descr "Capacitor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "capacitor")
     (property "Reference" "C34")
@@ -2109,7 +2109,7 @@
 
   (footprint "Capacitor_SMD:C_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 1098b640) (tstamp 6b5cca64-b423-b5ce-dd01-6e46b63850af)
-    (at 168.13 21.98 90)
+    (at 158.61 21.98 90.0)
     (descr "Capacitor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "capacitor")
     (property "Reference" "C35")
@@ -2137,7 +2137,7 @@
 
   (footprint "Capacitor_SMD:C_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 12211bb9) (tstamp 572f10aa-ee5a-d64e-8254-248b3e46ac53)
-    (at 102.01 21.98 90)
+    (at 47.59 21.98 90.0)
     (descr "Capacitor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "capacitor")
     (property "Reference" "C36")
@@ -2165,7 +2165,7 @@
 
   (footprint "Capacitor_SMD:C_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit cbf90cc2) (tstamp ba185d8c-a362-450a-0e87-afc3229955ca)
-    (at 99.4 25.19 180)
+    (at 117.96 23.12 180.0)
     (descr "Capacitor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "capacitor")
     (property "Reference" "C37")
@@ -2193,7 +2193,7 @@
 
   (footprint "Capacitor_SMD:C_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 9e1dbce7) (tstamp 54c6bd15-5f25-b1cf-4d07-b24d0e6da470)
-    (at 21.24 200.96 90.0)
+    (at 21.24 203.44 90.0)
     (descr "Capacitor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "capacitor")
     (property "Reference" "C38")
@@ -2221,7 +2221,7 @@
 
   (footprint "Capacitor_SMD:C_0805_2012Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 394be4af) (tstamp 75d28a7e-0326-bfdd-8008-c0427f3c9bd5)
-    (at 23.94 74.46000000000001 90)
+    (at 41.04 32.95 90.0)
     (descr "Capacitor SMD 0805 (2012 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf, https://docs.google.com/spreadsheets/d/1BsfQQcO9C6DZCsRaXUlFlo91Tg2WpOkGARC1WS5S8t0/edit?usp=sharing)")
     (tags "capacitor")
     (property "Reference" "C39")
@@ -2249,7 +2249,7 @@
 
   (footprint "Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 9a606c21) (tstamp 876ba5bc-450e-d52e-a0ff-e67ed63f98fc)
-    (at 76.88 238.76 90)
+    (at 86.46 188.34 90.0)
     (descr "CP, Radial series, Radial, pin pitch=10.00mm, diameter=35mm, height=50mm, Electrolytic Capacitor, http://www.vishay.com/docs/28342/058059pll-si.pdf")
     (tags "CP Radial series Radial pin pitch 10.00mm diameter 35mm height 50mm Electrolytic Capacitor")
     (property "Reference" "C4")
@@ -2832,7 +2832,7 @@
 
   (footprint "Capacitor_SMD:C_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 3a6a44af) (tstamp 30489631-ad56-3f20-a77a-4c75175b2eb0)
-    (at 21.24 35.4 270.0)
+    (at 33.55 35.4 270.0)
     (descr "Capacitor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "capacitor")
     (property "Reference" "C40")
@@ -2860,7 +2860,7 @@
 
   (footprint "Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 9102560b) (tstamp 95ed67aa-0505-7e6f-ee97-7fba7a964675)
-    (at 160.32 229.06 180)
+    (at 139.62 229.07 180.0)
     (descr "CP, Radial series, Radial, pin pitch=10.00mm, diameter=35mm, height=50mm, Electrolytic Capacitor, http://www.vishay.com/docs/28342/058059pll-si.pdf")
     (tags "CP Radial series Radial pin pitch 10.00mm diameter 35mm height 50mm Electrolytic Capacitor")
     (property "Reference" "C5")
@@ -3443,7 +3443,7 @@
 
   (footprint "Capacitor_THT:C_Disc_D12.5mm_W5.0mm_P10.00mm" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit b7e10386) (tstamp f5bb3490-150c-026d-09fd-1c0917c4df28)
-    (at 56.59 200.12 270)
+    (at 65.99000000000001 201.76 270.0)
     (descr "C, Disc series, Radial, pin pitch=10.00mm, diameter*width=12.5*5.0mm^2, Capacitor, http://www.vishay.com/docs/28535/vy2series.pdf")
     (tags "C Disc series Radial pin pitch 10.00mm diameter 12.5mm width 5.0mm Capacitor")
     (property "Reference" "C6")
@@ -3473,7 +3473,7 @@
 
   (footprint "Capacitor_THT:C_Rect_L18.0mm_W11.0mm_P15.00mm_FKS3_FKP3" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 9792588b) (tstamp 9b1497d4-d1ec-1a99-41c9-08a2d8a269e1)
-    (at 157.16 244.66 180.0)
+    (at 137.72 244.66 180.0)
     (descr "C, Rect series, Radial, pin pitch=15.00mm, length*width=18*11mm^2, Capacitor, http://www.wima.com/EN/WIMA_FKS_3.pdf")
     (tags "C Rect series Radial pin pitch 15.00mm length 18mm width 11mm Capacitor")
     (property "Reference" "C7")
@@ -3503,7 +3503,7 @@
 
   (footprint "Capacitor_THT:C_Rect_L18.0mm_W11.0mm_P15.00mm_FKS3_FKP3" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit c42f1e00) (tstamp c7bfe1b5-461a-9b97-d137-ce452425836b)
-    (at 164.59 170.79 270)
+    (at 164.58 228.58 270.0)
     (descr "C, Rect series, Radial, pin pitch=15.00mm, length*width=18*11mm^2, Capacitor, http://www.wima.com/EN/WIMA_FKS_3.pdf")
     (tags "C Rect series Radial pin pitch 15.00mm length 18mm width 11mm Capacitor")
     (property "Reference" "C8")
@@ -3533,7 +3533,7 @@
 
   (footprint "Capacitor_SMD:C_1210_3225Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 30cfcaba) (tstamp 15528756-5d77-53ea-e6f3-7c796d7b81e0)
-    (at 95.92 229.44 90)
+    (at 88.15 251.2 90.0)
     (descr "Capacitor SMD 1210 (3225 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "capacitor")
     (property "Reference" "C9")
@@ -3561,7 +3561,7 @@
 
   (footprint "Diode_SMD:D_SMA" (version 20260206) (generator pcbnew) (layer "F.Cu")
     (tedit 8b100cb8) (tstamp f8f1a1a7-8355-d228-837f-acf753f022d0)
-    (at 168.95 119.72 90)
+    (at 168.94 93.25 90.0)
     (descr "Diode SMA (DO-214AC)")
     (tags "Diode SMA (DO-214AC)")
     (property "Reference" "D1")
@@ -3602,7 +3602,7 @@
 
   (footprint "Diode_SMD:D_SOD-123" (version 20260206) (generator pcbnew) (layer "F.Cu")
     (tedit 06469b9e) (tstamp 8fa8bc0f-4b38-337c-89f0-8ffd51bce75c)
-    (at 62.44 52.9 90.0)
+    (at 100.11 49.0 90.0)
     (descr "SOD-123")
     (tags "SOD-123")
     (property "Reference" "D2")
@@ -3644,7 +3644,7 @@
 
   (footprint "Diode_SMD:D_SMA" (version 20260206) (generator pcbnew) (layer "F.Cu")
     (tedit 3d3a21ab) (tstamp 07cb0ed2-31e5-5ebf-a473-721ca3fc853c)
-    (at 60.85 122.02 90)
+    (at 22.35 122.02 90.0)
     (descr "Diode SMA (DO-214AC)")
     (tags "Diode SMA (DO-214AC)")
     (property "Reference" "D3")
@@ -3685,7 +3685,7 @@
 
   (footprint "Diode_SMD:D_SMA" (version 20260206) (generator pcbnew) (layer "F.Cu")
     (tedit 4920737d) (tstamp be9e3437-1e52-b02d-d7e5-0c4d0f7e8abf)
-    (at 24 243.39 0)
+    (at 30.46 190.95 0.0)
     (descr "Diode SMA (DO-214AC)")
     (tags "Diode SMA (DO-214AC)")
     (property "Reference" "D4")
@@ -3726,7 +3726,7 @@
 
   (footprint "Diode_SMD:D_SOD-123" (version 20260206) (generator pcbnew) (layer "F.Cu")
     (tedit 34d27c36) (tstamp 209539b6-bd24-7372-e857-f39a418c4140)
-    (at 88.15 77.67 0)
+    (at 66.81 66.06 0.0)
     (descr "SOD-123")
     (tags "SOD-123")
     (property "Reference" "D5")
@@ -3768,7 +3768,7 @@
 
   (footprint "Fuse:Fuse_Holder_5x20mm" (version 20240108) (generator stub) (layer "F.Cu")
     (tedit 53849fa9) (tstamp 21caec6c-06a4-a08e-ce19-ee3d48163c8b)
-    (at 60.349999999999994 134.93 0)
+    (at 60.349999999999994 127.23 0.0)
     (descr "Stub for Schurter 0034.3128 fuse holder.")
     (property "Reference" "F1")
     (property "Value" "?")
@@ -3783,7 +3783,7 @@
 
   (footprint "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 917d0d43) (tstamp 29d5f77f-41c6-ad9d-9e9c-f986c5831f21)
-    (at 65.37 118.88 180)
+    (at 101.08 140.8 180.0)
     (descr "Through hole straight pin header, 1x02, 2.54mm pitch, single row")
     (tags "Through hole pin header THT 1x02 2.54mm single row")
     (property "Reference" "J1")
@@ -3819,7 +3819,7 @@
 
   (footprint "temper:Relay_SPST_Omron-G4A-E" (version 20231120) (generator temper-hand) (layer "F.Cu")
     (tedit dfffc6b5) (tstamp 0b982040-5316-4da5-e83f-acd4396bda7a)
-    (at 83.00999999999999 173.635 180)
+    (at 95.23 221.395 180.0)
     (descr "Omron G4A-1A-E PCB power relay, #250 Faston quick-connect contacts + PCB coil terminals. Dimensions from official Omron datasheet (https://omronfs.omron.com/en_US/ecb/products/pdf/en-g4a.pdf, Cat. No. J056-E1-09, page 2 'Dimensions' section): body envelope 30.5 x 16 x 23.5mm max; coil pins (A1,A2) at 6.35mm pitch, standard 0.25in relay coil spacing; 4x mounting/locating holes, 1.8mm dia, in a 22mm(X) x 12mm(Y, asymmetric 6.25/5.75 split) pattern -- both sub-dimensions confirmed internally consistent (6.25+5.75=12.00mm exactly matches the datasheet's labeled 12mm total). Pad numbers match the real EN50005 relay pinout used by the placed KiCad symbol (Relay:Relay_SPST-NO): A1/A2 = coil, 13/14 = contacts (COM/NO). Contact terminals (13=COM, 14=NO) are #250 (6.35mm, SAE/AMP industry-standard width, not vendor-specific) Faston quick-connect tabs -- the datasheet's own Model Number Legend confirms both terminal-shape variants (E vs PE) share identical 'PCB coil terminals' wording and differ only in contact terminal type, so these tabs have zero PCB copper connection on this variant; they mate externally with a push-on spade connector, not a PCB trace. Modeled here as SMD (no-drill) landing pads purely for netlist/footprint pin-count parity and courtyard/placement-clearance purposes -- NOT a claim that solder-in-hole geometry exists at these exact coordinates. Relative layout (tabs on the opposite long edge from the coil row, mirroring the coil's left/right split) is taken directly from the datasheet's own Terminal Arrangement diagram; the tabs' precise Y-offset from the coil row is a reasonable placement within the confirmed courtyard bounds, not a measured value -- verify against the physical part before hand-soldering wires to pads 13/14. Mounting holes are NPTH (mechanical only, no net); their pattern's position relative to the coil pins is datasheet-derived from a linearized reading, not a pixel-exact trace -- cross-check against the datasheet page 2 drawing before fabrication.")
     (tags "relay SPST G4A Omron power relay")
     (property "Reference" "K1")
@@ -3845,7 +3845,7 @@
 
   (footprint "temper:Relay_SPDT_Schrack-RT314012" (version 20231120) (generator temper-hand) (layer "F.Cu")
     (tedit 0) (tstamp f39c198d-b58b-88f0-c536-985efaa17cbf)
-    (at 134.31 48.650000000000006 90.0)
+    (at 144.82 97.55 90.0)
     (descr "TE Connectivity / Schrack Power PCB Relay RT1, part RT314012 (1 form C, 16A/250VAC, 12VDC coil). Datasheet ENG_DS_RT1_0718, re-fetched and pdftotext-extracted directly this session from https://www.te.com/commerce/DocumentDelivery/DDEController?Action=showdoc&DocId=Data+Sheet%7FRT1%7F0718%7Fpdf%7FEnglish%7FENG_DS_RT1_0718.pdf%7F9-1393239-8 (footer edition date 06/25). Replaces Omron G5LE-1 (Relay_SPDT) on K2/K3 -- the G5LE-1's COM pin sits only 3.559mm (as-placed) / ~3.50mm (nominal) from a coil pin on every rotation, failing both the 8.0mm reinforced-creepage bar and the 6.0mm pollution-degree-independent clearance minimum; no footprint or rotation change can fix a fixed terminal topology. INSULATION DATA table (p.4, independently re-extracted): 'Clearance/creepage between contact and coil >=10/10mm', 'Initial dielectric strength between contact and coil 5000Vrms', 'Material group of insulation parts IIIa', matching the Features line 'Product PCB RELAY RT1 -- 5kV/10mm coil-contact, reinforced insulation'. COIL VERSIONS DC COIL table (p.3): code 012 = 12VDC rated, 8.4V operate, 1.2V release, 360ohm+/-10%, 400mW -- identical R/P to the outgoing G5LE-1's own declared coil (elec/src/modules.ato), so the existing 100ohm/15V dropper is unaffected. CONTACT DATA table (p.2): RT314 (16A pinning) rated 16A/250VAC, 400VAC max switching voltage, AgNi 90/10 contacts. PRODUCT INFORMATION table (p.7): RT314012 row, Austria PN 9-1393239-5 / China PN 1-1649328-3. PCB LAYOUT/TERMINAL ASSIGNMENT (p.5, '16A, pinning 5mm' column, 'Bottom view on solder pins'): dimensioned drawing gives 8 holes (Ø1.3mm+0.1/-0) in a 2-row x 4-column grid, 7.5mm+/-0.2 row pitch; the contact side's 3 columns span 20.3mm+/-0.2 total (5.04mm+/-0.15 sub-pitch each side of the middle column), overall pad-field width 22.65mm+/-0.2; THT body envelope 29.0mm(W) x 12.7mm(D) x 15.7mm(H), 3.6mm+/-0.2 lead length below the seating plane. The same page's schematic labels the 3 contact terminals '12 11 14' in that same left-to-right (near-coil-to-far-coil) order for the '1 form C (CO) contact' diagram; cross-checked against the sibling 'Relay_SPST_Schrack-RT1-16A-FormA_RM5mm.kicad_mod' stock footprint (Form A = NO-only, no NC contact), which carries only pads '11'/'14' and omits '12' entirely -- confirming the manufacturer's own terminal convention is 11=COM (pole), 12=NC, 14=NO, A1/A2=coil (non-polarized DC coil). Pad geometry (position/size/drill/shape/layers for all 8 physical pad instances) copied verbatim from KiCad 10's stock 'Relay_THT.pretty/Relay_SPDT_Schrack-RT1-16A-FormC_RM5mm.kicad_mod' (itself already datasheet-sourced and pad-for-pad consistent with the above dimensioned drawing, independently confirmed here) -- NOT re-derived from scratch, since the stock file already exactly reproduces the datasheet's own dimensions. RENUMBERED relative to the stock file and to the manufacturer's own '11/12/14/A1/A2' terminal labels: this project's existing 'Relay_SPDT' atopile component (elec/src/components.ato) declares a fixed pin convention -- 1=COM, 2=coil1, 3=NO, 4=NC, 5=coil2 -- established for the outgoing G5LE-1 (whose stock footprint pads are literally named '1'..'5') and already relied on by elec/domain_manifest.yaml's discharge.k_dis1/discharge.k_dis2 isolator declarations (groups coil:['2','5'], contacts:['1','3','4']), so this renumbering requires zero change to that manifest. It also avoids a real hazard: gen_pcb_skeleton.py/resync_pcb_netlist.py fall back to POSITIONAL pad-index matching whenever a footprint's pad numbers don't exact-match a netlist pin string, and that positional index is computed over ALL physical pad entries including this part's genuine manufacturer-duplicated contact pads (11/12/14 each have two physical solder holes, one per row, for 16A current sharing -- confirmed against the datasheet's own 8-hole dimensioned drawing, not a stock-footprint error) -- with 8 physical pads but only 5 netlist-declared pins, naive positional fallback would cross-assign a coil net onto one of a contact pin's two physical holes. Renaming pad numbers here to exact-match the netlist's '1'..'5' strings makes every pad resolve via the exact-match path instead (which correctly gives BOTH physical holes of a renamed pad the same net, since the match is re-derived per pad instance from the same net lookup), sidestepping the positional-fallback path entirely. Pad local rotation flattened from the stock file's 180 degrees to 0 -- verified electrically/dimensionally identical for these axis-symmetric rect/oval pads (a 180-degree rotation of a rectangle or oval about its own centre is congruent to the unrotated shape), so this does not change any pad's effective copper geometry or the achievable-gap figure below. Courtyard (29.9 x 13.6mm, -2.8,-10.55 to 27.1,3.05) and silkscreen/fab graphics also copied verbatim from the stock file. Achievable coil<->nearest-contact separation, recomputed independently from this file's own pad table: nearest pair is pad 2 (coil1, local x=0, width 3mm) to pad 4 (NC, local x=15.26, width 2mm): 15.26 - 1.5 - 1.0 = 12.760mm edge-to-edge -- clears both the 8.0mm reinforced-creepage bar and the 6.0mm clearance minimum with margin, and clears the manufacturer's own >=10/10mm coil-to-contact rating independently. No 3D model reference carried over (the stock file's own model points at a sibling RT2/DPDT step file, unverified for this SPDT part -- omitted rather than propagated).")
     (tags "relay SPDT Schrack RT1 RT314012 power relay reinforced isolation")
     (property "Reference" "K2")
@@ -3888,7 +3888,7 @@
 
   (footprint "temper:Relay_SPDT_Schrack-RT314012" (version 20231120) (generator temper-hand) (layer "F.Cu")
     (tedit 0) (tstamp 3b259aaf-aef7-308b-67a9-bfce59ba6aea)
-    (at 69.72 29 90)
+    (at 66.86999999999999 50.59 90.0)
     (descr "TE Connectivity / Schrack Power PCB Relay RT1, part RT314012 (1 form C, 16A/250VAC, 12VDC coil). Datasheet ENG_DS_RT1_0718, re-fetched and pdftotext-extracted directly this session from https://www.te.com/commerce/DocumentDelivery/DDEController?Action=showdoc&DocId=Data+Sheet%7FRT1%7F0718%7Fpdf%7FEnglish%7FENG_DS_RT1_0718.pdf%7F9-1393239-8 (footer edition date 06/25). Replaces Omron G5LE-1 (Relay_SPDT) on K2/K3 -- the G5LE-1's COM pin sits only 3.559mm (as-placed) / ~3.50mm (nominal) from a coil pin on every rotation, failing both the 8.0mm reinforced-creepage bar and the 6.0mm pollution-degree-independent clearance minimum; no footprint or rotation change can fix a fixed terminal topology. INSULATION DATA table (p.4, independently re-extracted): 'Clearance/creepage between contact and coil >=10/10mm', 'Initial dielectric strength between contact and coil 5000Vrms', 'Material group of insulation parts IIIa', matching the Features line 'Product PCB RELAY RT1 -- 5kV/10mm coil-contact, reinforced insulation'. COIL VERSIONS DC COIL table (p.3): code 012 = 12VDC rated, 8.4V operate, 1.2V release, 360ohm+/-10%, 400mW -- identical R/P to the outgoing G5LE-1's own declared coil (elec/src/modules.ato), so the existing 100ohm/15V dropper is unaffected. CONTACT DATA table (p.2): RT314 (16A pinning) rated 16A/250VAC, 400VAC max switching voltage, AgNi 90/10 contacts. PRODUCT INFORMATION table (p.7): RT314012 row, Austria PN 9-1393239-5 / China PN 1-1649328-3. PCB LAYOUT/TERMINAL ASSIGNMENT (p.5, '16A, pinning 5mm' column, 'Bottom view on solder pins'): dimensioned drawing gives 8 holes (Ø1.3mm+0.1/-0) in a 2-row x 4-column grid, 7.5mm+/-0.2 row pitch; the contact side's 3 columns span 20.3mm+/-0.2 total (5.04mm+/-0.15 sub-pitch each side of the middle column), overall pad-field width 22.65mm+/-0.2; THT body envelope 29.0mm(W) x 12.7mm(D) x 15.7mm(H), 3.6mm+/-0.2 lead length below the seating plane. The same page's schematic labels the 3 contact terminals '12 11 14' in that same left-to-right (near-coil-to-far-coil) order for the '1 form C (CO) contact' diagram; cross-checked against the sibling 'Relay_SPST_Schrack-RT1-16A-FormA_RM5mm.kicad_mod' stock footprint (Form A = NO-only, no NC contact), which carries only pads '11'/'14' and omits '12' entirely -- confirming the manufacturer's own terminal convention is 11=COM (pole), 12=NC, 14=NO, A1/A2=coil (non-polarized DC coil). Pad geometry (position/size/drill/shape/layers for all 8 physical pad instances) copied verbatim from KiCad 10's stock 'Relay_THT.pretty/Relay_SPDT_Schrack-RT1-16A-FormC_RM5mm.kicad_mod' (itself already datasheet-sourced and pad-for-pad consistent with the above dimensioned drawing, independently confirmed here) -- NOT re-derived from scratch, since the stock file already exactly reproduces the datasheet's own dimensions. RENUMBERED relative to the stock file and to the manufacturer's own '11/12/14/A1/A2' terminal labels: this project's existing 'Relay_SPDT' atopile component (elec/src/components.ato) declares a fixed pin convention -- 1=COM, 2=coil1, 3=NO, 4=NC, 5=coil2 -- established for the outgoing G5LE-1 (whose stock footprint pads are literally named '1'..'5') and already relied on by elec/domain_manifest.yaml's discharge.k_dis1/discharge.k_dis2 isolator declarations (groups coil:['2','5'], contacts:['1','3','4']), so this renumbering requires zero change to that manifest. It also avoids a real hazard: gen_pcb_skeleton.py/resync_pcb_netlist.py fall back to POSITIONAL pad-index matching whenever a footprint's pad numbers don't exact-match a netlist pin string, and that positional index is computed over ALL physical pad entries including this part's genuine manufacturer-duplicated contact pads (11/12/14 each have two physical solder holes, one per row, for 16A current sharing -- confirmed against the datasheet's own 8-hole dimensioned drawing, not a stock-footprint error) -- with 8 physical pads but only 5 netlist-declared pins, naive positional fallback would cross-assign a coil net onto one of a contact pin's two physical holes. Renaming pad numbers here to exact-match the netlist's '1'..'5' strings makes every pad resolve via the exact-match path instead (which correctly gives BOTH physical holes of a renamed pad the same net, since the match is re-derived per pad instance from the same net lookup), sidestepping the positional-fallback path entirely. Pad local rotation flattened from the stock file's 180 degrees to 0 -- verified electrically/dimensionally identical for these axis-symmetric rect/oval pads (a 180-degree rotation of a rectangle or oval about its own centre is congruent to the unrotated shape), so this does not change any pad's effective copper geometry or the achievable-gap figure below. Courtyard (29.9 x 13.6mm, -2.8,-10.55 to 27.1,3.05) and silkscreen/fab graphics also copied verbatim from the stock file. Achievable coil<->nearest-contact separation, recomputed independently from this file's own pad table: nearest pair is pad 2 (coil1, local x=0, width 3mm) to pad 4 (NC, local x=15.26, width 2mm): 15.26 - 1.5 - 1.0 = 12.760mm edge-to-edge -- clears both the 8.0mm reinforced-creepage bar and the 6.0mm clearance minimum with margin, and clears the manufacturer's own >=10/10mm coil-to-contact rating independently. No 3D model reference carried over (the stock file's own model points at a sibling RT2/DPDT step file, unverified for this SPDT part -- omitted rather than propagated).")
     (tags "relay SPDT Schrack RT1 RT314012 power relay reinforced isolation")
     (property "Reference" "K3")
@@ -3931,7 +3931,7 @@
 
   (footprint "temper:CMC_B82726S" (version 20231120) (generator temper-hand) (layer "F.Cu")
     (tedit 72c8e63a) (tstamp 3f97c373-0896-fbbe-6ab8-041309cee618)
-    (at 108.76 217.68 90.0)
+    (at 130.48000000000002 188.13 90.0)
     (descr "TDK (EPCOS) B82726S2163N030 current-compensated ring-core double choke, 250VAC/16A, 2.2mH/winding. Land pattern hand-built from the official TDK dimensional drawing (tdk-electronics.tdk.com/inf/30/db/ind_2008/b82726s2163.pdf, page 3 'Dimensional drawing and pin configuration', April 2025 revision): pin 1/2 (top row) on 18+/-0.4mm pitch, pin 4/3 (bottom row) on 38+/-0.3mm pitch, row-to-row (1/2 row to 4/3 row) pitch 23+/-0.2mm, lead diameter 1.6+/-0.1mm. Body envelope from the dimensional drawing (plan + elevation): vertical toroid 50mm max wide x 49mm max tall, plan-view ring strip 16.5+/-0.4mm deep, polycarbonate base plate spanning the pin field (rows 23+/-0.2mm apart). Courtyard is the real rectangular envelope (50mm width, pin field + base edge depth) + 0.5mm clearance per IPC-7351 -- tightened 2026-07-16 from the earlier conservative 54mm circle. PAD NUMBERING matches TDK's own pin numbers 1-4 (no remapping): footprint pads 1-4 = atopile CommonModeChoke pins 1-4 directly (winding 1 = pads 1+4, winding 2 = pads 2+3). Datasheet states 'No polarity' -- the two windings are symmetric so there is no dot/phasing convention to respect.")
     (tags "common mode choke CMC B82726S TDK EPCOS EMI toroid")
     (property "Reference" "L1")
@@ -3956,7 +3956,7 @@
 
   (footprint "Inductor_SMD:L_Bourns_SRP1265A" (version 20240108) (generator stub) (layer "F.Cu")
     (tedit e3f60915) (tstamp b00b9a7d-6d7a-14d1-b6ad-9ece56e8a9d7)
-    (at 152.13 154.34 270)
+    (at 135.29000000000002 147.93 270.0)
     (descr "Stub for Bourns SRP1265A inductor.")
     (property "Reference" "L2")
     (property "Value" "?")
@@ -3971,7 +3971,7 @@
 
   (footprint "Converter_ACDC:Converter_ACDC_MeanWell_IRM-10-xx_THT" (version 20260206) (generator pcbnew) (layer "F.Cu")
     (tedit 9665cc6b) (tstamp aa0902db-237b-0eec-21fe-f9b9043eb14c)
-    (at 137.20499999999998 101.00999999999999 90)
+    (at 104.075 124.63 90.0)
     (descr "http://www.meanwell.com/webapp/product/search.aspx?prod=IRM-10")
     (tags "ACDC-Converter 10W   Meanwell IRM-10")
     (property "Reference" "PS1")
@@ -4014,7 +4014,7 @@
 
   (footprint "Package_TO_SOT_SMD:SOT-23" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 1f1b650d) (tstamp c53a6c3b-b9e4-9a43-de8e-54a26ad33dfe)
-    (at 57.74 238.63 90)
+    (at 22.2 216.17 90.0)
     (descr "SOT, 3 Pin (JEDEC TO-236 Var AB https://www.jedec.org/document_search?search_api_views_fulltext=TO-236)")
     (tags "SOT TO_SOT_SMD")
     (property "Reference" "Q1")
@@ -4075,7 +4075,7 @@
 
   (footprint "Package_TO_SOT_SMD:SOT-23" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 6215cf84) (tstamp 2117f5e3-4463-fe1d-4671-932da47eeb17)
-    (at 127.69 117.92 180)
+    (at 127.68 59.11 180.0)
     (descr "SOT, 3 Pin (JEDEC TO-236 Var AB https://www.jedec.org/document_search?search_api_views_fulltext=TO-236)")
     (tags "SOT TO_SOT_SMD")
     (property "Reference" "Q2")
@@ -4136,7 +4136,7 @@
 
   (footprint "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit a259fccb) (tstamp 0957ba87-1bfe-c193-a977-80710ff9e8e2)
-    (at 22 239.59 90)
+    (at 22.0 199.91000000000003 90.0)
     (descr "Resistor, Axial_DIN0207 series, Axial, Horizontal, pin pitch=10.16mm, 0.25W = 1/4W, length*diameter=6.3*2.5mm^2, http://cdn-reichelt.de/documents/datenblatt/B400/1_4W%23YAG.pdf")
     (tags "Resistor Axial_DIN0207 series Axial Horizontal pin pitch 10.16mm 0.25W = 1/4W length 6.3mm diameter 2.5mm")
     (property "Reference" "R1")
@@ -4167,7 +4167,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit a5bc73e7) (tstamp 5399eb35-6aa7-cacd-81b2-81844ed2e24b)
-    (at 50.230000000000004 234.22 270)
+    (at 66.43 190.78 270.0)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R10")
@@ -4195,7 +4195,7 @@
 
   (footprint "Resistor_THT:R_Axial_DIN0918_L18.0mm_D9.0mm_P22.86mm_Horizontal" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit f3ba31bf) (tstamp 19780ff7-1001-f98b-3fdf-7f4cfda76f2f)
-    (at 44.81 173.74 180.0)
+    (at 55.71 174.09 180.0)
     (descr "Resistor, Axial_DIN0918 series, Axial, Horizontal, pin pitch=22.86mm, 4W, length*diameter=18*9mm^2")
     (tags "Resistor Axial_DIN0918 series Axial Horizontal pin pitch 22.86mm 4W length 18mm diameter 9mm")
     (property "Reference" "R11")
@@ -4226,7 +4226,7 @@
 
   (footprint "Resistor_THT:R_Axial_DIN0918_L18.0mm_D9.0mm_P22.86mm_Horizontal" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 7ac6a1ce) (tstamp 47922b19-7699-6efb-2028-83f2c3ea1e98)
-    (at 145.17000000000002 194.82999999999998 270)
+    (at 166.73 194.82999999999998 270.0)
     (descr "Resistor, Axial_DIN0918 series, Axial, Horizontal, pin pitch=22.86mm, 4W, length*diameter=18*9mm^2")
     (tags "Resistor Axial_DIN0918 series Axial Horizontal pin pitch 22.86mm 4W length 18mm diameter 9mm")
     (property "Reference" "R12")
@@ -4257,7 +4257,7 @@
 
   (footprint "Resistor_THT:R_Axial_DIN0918_L18.0mm_D9.0mm_P22.86mm_Horizontal" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 062640d5) (tstamp fb2b942e-a09f-fee3-751f-1757f0e786b7)
-    (at 155.07 217.69 90)
+    (at 117.23 196.95000000000002 90.0)
     (descr "Resistor, Axial_DIN0918 series, Axial, Horizontal, pin pitch=22.86mm, 4W, length*diameter=18*9mm^2")
     (tags "Resistor Axial_DIN0918 series Axial Horizontal pin pitch 22.86mm 4W length 18mm diameter 9mm")
     (property "Reference" "R13")
@@ -4288,7 +4288,7 @@
 
   (footprint "Resistor_THT:R_Axial_DIN0918_L18.0mm_D9.0mm_P22.86mm_Horizontal" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 1f8ae713) (tstamp 7bde64d4-7c23-4f6b-baa4-ece30afd042b)
-    (at 54.27 25.259999999999998 180.0)
+    (at 46.97 77.96000000000001 180.0)
     (descr "Resistor, Axial_DIN0918 series, Axial, Horizontal, pin pitch=22.86mm, 4W, length*diameter=18*9mm^2")
     (tags "Resistor Axial_DIN0918 series Axial Horizontal pin pitch 22.86mm 4W length 18mm diameter 9mm")
     (property "Reference" "R14")
@@ -4319,7 +4319,7 @@
 
   (footprint "Resistor_SMD:R_1206_3216Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit ab0b5a1e) (tstamp a6f0bacd-88c3-ed45-272f-c6a77f60eb96)
-    (at 160.16 33.51 180)
+    (at 160.16 54.0 180.0)
     (descr "Resistor SMD 1206 (3216 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R15")
@@ -4347,7 +4347,7 @@
 
   (footprint "Resistor_SMD:R_1206_3216Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit f121c827) (tstamp 8887fce0-12c1-953e-9325-1eaf13d74e44)
-    (at 85.12 147.81 180)
+    (at 107.29 140.59 180.0)
     (descr "Resistor SMD 1206 (3216 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R16")
@@ -4375,7 +4375,7 @@
 
   (footprint "Resistor_SMD:R_0805_2012Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit e5d33e11) (tstamp 24fb8ead-5a66-a875-6608-da1771bd54fc)
-    (at 22.18 67.57 180)
+    (at 37.32 36.16 180.0)
     (descr "Resistor SMD 0805 (2012 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R17")
@@ -4403,7 +4403,7 @@
 
   (footprint "Resistor_SMD:R_0805_2012Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit c8e24f16) (tstamp 4327a574-99bc-127d-e979-d469a9061238)
-    (at 165.25 28.6 270)
+    (at 160.39 27.23 270.0)
     (descr "Resistor SMD 0805 (2012 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R18")
@@ -4431,7 +4431,7 @@
 
   (footprint "Resistor_SMD:R_2512_6332Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit c9accf88) (tstamp d6ec76f2-e2eb-80ba-8be4-c6e4f2b77af8)
-    (at 166.11 243.57 270)
+    (at 118.64 249.56 270.0)
     (descr "Resistor SMD 2512 (6332 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R19")
@@ -4459,7 +4459,7 @@
 
   (footprint "Resistor_SMD:R_0805_2012Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 507a01c3) (tstamp 49790dab-7114-9f53-6487-500643034cbf)
-    (at 100.2 252.12 180)
+    (at 149.15 252.12 180.0)
     (descr "Resistor SMD 0805 (2012 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R2")
@@ -4487,7 +4487,7 @@
 
   (footprint "Resistor_SMD:R_2512_6332Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 4e1b87e9) (tstamp 8f15ab40-5230-8fb3-e3f8-abfc8efcf0ec)
-    (at 42.15 151.47 270)
+    (at 42.14 109.99 270.0)
     (descr "Resistor SMD 2512 (6332 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R20")
@@ -4515,7 +4515,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit a61c77b3) (tstamp 4ca23ac1-3930-175f-c311-f946b3b532e7)
-    (at 30.34 38.730000000000004 0)
+    (at 30.34 36.379999999999995 0.0)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R21")
@@ -4543,7 +4543,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 54f711aa) (tstamp d16e60aa-23e4-1bb0-cab6-bb08ea9105f1)
-    (at 31.439999999999998 41.510000000000005 180)
+    (at 37.120000000000005 33.480000000000004 180.0)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R22")
@@ -4571,7 +4571,7 @@
 
   (footprint "Resistor_SMD:R_1206_3216Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 4728b736) (tstamp 903dbf09-ab4d-ca52-c006-807538387b7a)
-    (at 92.38 126.65 180)
+    (at 46.14 115.35 180.0)
     (descr "Resistor SMD 1206 (3216 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R23")
@@ -4599,7 +4599,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 210aaf20) (tstamp 4e89fc99-da88-32ab-5e48-96adf5d1032d)
-    (at 21.98 21.24 180.0)
+    (at 31.48 21.24 180.0)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R24")
@@ -4627,7 +4627,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit b5c15824) (tstamp 3ff2665c-94f1-3ea2-f38c-a5a8ff7ac0fb)
-    (at 25.94 151.77 180)
+    (at 25.6 145.91 180.0)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R25")
@@ -4655,7 +4655,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit dcc1a1df) (tstamp 937216b3-ebc6-81f0-7a27-26b273b7d8f9)
-    (at 107.68 21.24 180.0)
+    (at 106.78 21.24 180.0)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R26")
@@ -4683,7 +4683,7 @@
 
   (footprint "Resistor_SMD:R_1206_3216Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 5a1c1b6d) (tstamp e86d083c-e329-816e-45e9-6e5a73d80597)
-    (at 55.54 170.17 0)
+    (at 55.54 223.1 0.0)
     (descr "Resistor SMD 1206 (3216 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R27")
@@ -4711,7 +4711,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 90abd271) (tstamp 6133a82d-c59f-b3ac-d7d7-53075f433284)
-    (at 21.24 211.92 270.0)
+    (at 51.75 184.22 270.0)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R28")
@@ -4739,7 +4739,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 82c58f89) (tstamp de198dcc-f886-3f1b-aba0-584e8972e186)
-    (at 35.75 234.22 90)
+    (at 25.23 190.78 90.0)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R29")
@@ -4795,7 +4795,7 @@
 
   (footprint "lib:LitzPad_15A" (version 20240108) (generator hand-built) (layer "F.Cu")
     (tedit 68b24878) (tstamp 2641a51d-2253-0222-c77d-667fbc634c8b)
-    (at 37.5 164.58 180.0)
+    (at 49.1 124.48 180.0)
     (descr "High-current litz wire termination pad, 15A rated. 8.0 mm dia pad, 3.0 mm dia hole. Dimension sourcing: generic high-current PTH pad spec; low confidence — no part-specific datasheet exists for this custom coil terminal. Flagged for human visual cross-check before fabrication.")
     (tags "litz custom coil terminal high_current")
     (property "Reference" "R30")
@@ -4811,7 +4811,7 @@
 
   (footprint "Resistor_SMD:R_1206_3216Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 7d2d7bb4) (tstamp 78f7c5fa-bdf6-2b53-11e4-25a39b8f4c9f)
-    (at 21.64 40.28 270.0)
+    (at 21.64 34.83 270.0)
     (descr "Resistor SMD 1206 (3216 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R31")
@@ -4839,7 +4839,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 26cf4aa4) (tstamp 888da027-aa5c-1f77-be61-841709f9c0a8)
-    (at 57.03 187.98 270)
+    (at 63.97 190.18 270.0)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R32")
@@ -4867,7 +4867,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit f0d9bbba) (tstamp aba4dfe1-4542-0e71-83c8-c6a3b5977735)
-    (at 104.47 21.98 90)
+    (at 109.99 26.31 90.0)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R33")
@@ -4895,7 +4895,7 @@
 
   (footprint "Resistor_SMD:R_0805_2012Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 78accaba) (tstamp c3049a4d-c16b-6be7-9dba-1292bed3edb1)
-    (at 169.62 129.93 180)
+    (at 138.82 137.43 180.0)
     (descr "Resistor SMD 0805 (2012 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R34")
@@ -4923,7 +4923,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit e6626d93) (tstamp 7944e356-e9bb-33db-973c-53db85855f49)
-    (at 165.78 124.95 0)
+    (at 165.78 171.01 0.0)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R35")
@@ -4951,7 +4951,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit c9d77e72) (tstamp 7d659f07-fbd6-a2b9-1d3a-c631021df264)
-    (at 154.7 46.230000000000004 180)
+    (at 166.42 46.22 180.0)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R36")
@@ -4979,7 +4979,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 4ce54bdf) (tstamp 5b776aa5-ad83-917d-7ae2-e5c2b87e93d0)
-    (at 32.24 61.85 180)
+    (at 32.24 31.02 180.0)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R37")
@@ -5007,7 +5007,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit fc92018f) (tstamp 86957217-59d1-41b2-ef03-5968afa6e1fd)
-    (at 170.02 33.11 180)
+    (at 159.35 33.1 180.0)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R38")
@@ -5035,7 +5035,7 @@
 
   (footprint "Inductor_SMD:L_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 8fc4a765) (tstamp 1ff76df5-f879-3143-d86d-f84bf8b34ac9)
-    (at 21.24 149.62 270.0)
+    (at 21.24 111.0 270.0)
     (descr "Inductor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: http://www.tortai-tech.com/upload/download/2011102023233369053.pdf)")
     (tags "inductor")
     (property "Reference" "R39")
@@ -5063,7 +5063,7 @@
 
   (footprint "Resistor_SMD:R_2512_6332Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit d083ca57) (tstamp 14ca97d0-48df-1884-281d-19bfe59391eb)
-    (at 43.91 187.65 90)
+    (at 78.49000000000001 164.05 90.0)
     (descr "Resistor SMD 2512 (6332 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R4")
@@ -5091,7 +5091,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit ef552c2f) (tstamp 9b0319f6-4d8e-84c8-d064-d7d9365821f2)
-    (at 158.46 21.24 0.0)
+    (at 114.0 21.24 0.0)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R40")
@@ -5119,7 +5119,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 17160657) (tstamp 4aeef606-58bb-282a-b0e3-b7aaa08ea3e8)
-    (at 29.98 148.37 180)
+    (at 28.48 143.45 180.0)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R41")
@@ -5147,7 +5147,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit f0c0ebf8) (tstamp 1567bec0-08ca-02ee-15b3-b585e7f60e49)
-    (at 33.25 64.6 270)
+    (at 45.29 63.73 270.0)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R42")
@@ -5175,7 +5175,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 2b626119) (tstamp c76d9f78-b8f8-78f4-bf54-c4f5ff18065c)
-    (at 21.98 81.41 180)
+    (at 42.44 60.08 180.0)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R43")
@@ -5203,7 +5203,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit cfb50900) (tstamp c7e63cab-b46b-99fc-5316-8265e2ed4f09)
-    (at 162.46 150.67 180)
+    (at 162.46 96.02 180.0)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R44")
@@ -5231,7 +5231,7 @@
 
   (footprint "Resistor_SMD:R_0805_2012Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 98aeae17) (tstamp a62570ad-b97a-c69b-e50c-404ed4f43254)
-    (at 24.11 251.18 90)
+    (at 82.47999999999999 251.18 90.0)
     (descr "Resistor SMD 0805 (2012 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R45")
@@ -5259,7 +5259,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit fcfe36ed) (tstamp 0a53517c-07f3-492b-c1a8-3be921ef81ee)
-    (at 161.82 21.24 180.0)
+    (at 161.82 45.91 180.0)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R46")
@@ -5287,7 +5287,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit b32ea1fd) (tstamp e65e928d-3d29-57bd-930b-ba9865cb3d31)
-    (at 162.57 145.66 270)
+    (at 162.56 92.81 270.0)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R47")
@@ -5315,7 +5315,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit a0b9d031) (tstamp 43916c5c-16ec-cfb7-d678-077dbcef233f)
-    (at 25.98 229.11 180)
+    (at 41.54 187.57 180.0)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R48")
@@ -5343,7 +5343,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 45f57b57) (tstamp 8df552c4-f9d7-130a-bff9-3a84fe0b54c9)
-    (at 161.56 47.129999999999995 180)
+    (at 161.56 30.64 180.0)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R49")
@@ -5371,7 +5371,7 @@
 
   (footprint "Resistor_SMD:R_2512_6332Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 816dac77) (tstamp d0668875-f03c-9cb0-5155-dd5d8c974d24)
-    (at 49.03 33.39 180)
+    (at 28.23 67.74000000000001 180.0)
     (descr "Resistor SMD 2512 (6332 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R5")
@@ -5399,7 +5399,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit ffe66251) (tstamp 8218fb21-c7d4-176c-fde6-c146f5643c88)
-    (at 95.29 247.62 270)
+    (at 94.2 244.01 270.0)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R50")
@@ -5427,7 +5427,7 @@
 
   (footprint "Resistor_SMD:R_1206_3216Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 80fed438) (tstamp f20aa4a6-9ef3-b265-cb63-e67df340ab29)
-    (at 44.59 194.16 90)
+    (at 97.43 189.19 90.0)
     (descr "Resistor SMD 1206 (3216 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R51")
@@ -5455,7 +5455,7 @@
 
   (footprint "Resistor_SMD:R_1206_3216Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 29181a87) (tstamp c860275d-922c-08ae-f8e1-aece8a9d34c0)
-    (at 147.85 162.94 90)
+    (at 168.79 170.63 90.0)
     (descr "Resistor SMD 1206 (3216 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R52")
@@ -5483,7 +5483,7 @@
 
   (footprint "Resistor_SMD:R_1206_3216Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 3cbb84e7) (tstamp e7de30b1-2a6b-1b62-784e-0c4d93257897)
-    (at 71.18 209.57 180)
+    (at 84.41 242.27 180.0)
     (descr "Resistor SMD 1206 (3216 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R53")
@@ -5511,7 +5511,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 5be4ace7) (tstamp 09240e62-4917-722b-e81f-566856d193ba)
-    (at 170.63 29.9 270)
+    (at 154.14 29.9 270.0)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R54")
@@ -5539,7 +5539,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit bdb5deb9) (tstamp a85e7c8b-9149-b6ec-7f4f-ead5b1a25e4c)
-    (at 151.49 21.98 270)
+    (at 127.41 23.85 270.0)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R55")
@@ -5567,7 +5567,7 @@
 
   (footprint "Resistor_SMD:R_1206_3216Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit ae28e9ae) (tstamp ce7590ac-3fcc-4c81-c751-a4f6976d4982)
-    (at 21.64 52.84 90.0)
+    (at 33.230000000000004 97.29 90.0)
     (descr "Resistor SMD 1206 (3216 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R56")
@@ -5595,7 +5595,7 @@
 
   (footprint "Resistor_SMD:R_1206_3216Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 2c481632) (tstamp 7122ff34-bc53-296d-6ae9-0d2ddfc5e96b)
-    (at 168.16 145.31 180)
+    (at 167.82 174.44 180.0)
     (descr "Resistor SMD 1206 (3216 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R57")
@@ -5623,7 +5623,7 @@
 
   (footprint "Resistor_SMD:R_1206_3216Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 012577a4) (tstamp 98ed435b-5667-764a-7633-bc274ce4cf8a)
-    (at 131.29000000000002 124.14 90)
+    (at 114.35 138.76 90.0)
     (descr "Resistor SMD 1206 (3216 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R58")
@@ -5651,7 +5651,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 1bc25b00) (tstamp 35dbf264-ad57-ee22-a220-604bd8a5494d)
-    (at 115.6 251.9 180)
+    (at 102.53 251.9 180.0)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R59")
@@ -5679,7 +5679,7 @@
 
   (footprint "Resistor_SMD:R_1206_3216Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 83a717c8) (tstamp 639cc259-3692-9d04-e141-26466328f4ed)
-    (at 115.48 43.81 180)
+    (at 142.35 59.73 180.0)
     (descr "Resistor SMD 1206 (3216 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R6")
@@ -5707,7 +5707,7 @@
 
   (footprint "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P2.54mm_Vertical" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit f71bc4ea) (tstamp 759a4c14-1c60-290a-b6aa-68e96c64aff2)
-    (at 75.19 53.99 180)
+    (at 108.6 37.6 180.0)
     (descr "Resistor, Axial_DIN0204 series, Axial, Vertical, pin pitch=2.54mm, 0.167W, length*diameter=3.6*1.6mm^2, http://cdn-reichelt.de/documents/datenblatt/B400/1_4W%23YAG.pdf")
     (tags "Resistor Axial_DIN0204 series Axial Vertical pin pitch 2.54mm 0.167W length 3.6mm diameter 1.6mm")
     (property "Reference" "R60")
@@ -5736,7 +5736,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit c5dd2899) (tstamp 8e6ace81-e56a-96c1-a2ad-93c46f46b854)
-    (at 69.63 205.92 90)
+    (at 119.21 207.88 90.0)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R61")
@@ -5764,7 +5764,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 4fd03523) (tstamp 4ebc8749-cdf7-9d42-852c-4fa8cdc3cbea)
-    (at 76.49000000000001 149.12 90)
+    (at 22.73 149.12 90.0)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R62")
@@ -5792,7 +5792,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 2d605562) (tstamp e00899c3-7961-9369-a665-9d616bc177c9)
-    (at 31.490000000000002 242.62 90)
+    (at 91.48 242.62 90.0)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R63")
@@ -5820,7 +5820,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 726cd78e) (tstamp 029e8653-af55-5de5-d90b-6f74316499b2)
-    (at 169.42 151.73 0)
+    (at 137.16 140.1 0.0)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R64")
@@ -5848,7 +5848,7 @@
 
   (footprint "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit f03b0339) (tstamp b724a208-9a6f-4102-605c-0a79a5a18144)
-    (at 27.42 77.83 90)
+    (at 44.92 36.06 90.0)
     (descr "Resistor, Axial_DIN0207 series, Axial, Horizontal, pin pitch=10.16mm, 0.25W = 1/4W, length*diameter=6.3*2.5mm^2, http://cdn-reichelt.de/documents/datenblatt/B400/1_4W%23YAG.pdf")
     (tags "Resistor Axial_DIN0207 series Axial Horizontal pin pitch 10.16mm 0.25W = 1/4W length 6.3mm diameter 2.5mm")
     (property "Reference" "R65")
@@ -5879,7 +5879,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 50fb3cfe) (tstamp 67bf58aa-1a76-4278-4e16-c67f9dd29604)
-    (at 161.56 43.97 180)
+    (at 169.74 48.68 180.0)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R66")
@@ -5907,7 +5907,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit fb8dff47) (tstamp 1ab35ec7-5102-d64d-0788-97c73e654e6e)
-    (at 159.36 144.91 180)
+    (at 101.37 144.9 180.0)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R67")
@@ -5935,7 +5935,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit db64ceb5) (tstamp 303b66c2-f296-a006-1d3d-e2649e11bda9)
-    (at 26.33 225.46 270)
+    (at 21.27 211.76 270.0)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R68")
@@ -5963,7 +5963,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit b2403d74) (tstamp 0af959d8-5f97-9a8a-9b9b-725e76921f59)
-    (at 124.05 114.34 270)
+    (at 123.17 59.93 270.0)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R69")
@@ -5991,7 +5991,7 @@
 
   (footprint "Resistor_SMD:R_1206_3216Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit c2c1ba42) (tstamp 56788730-0de4-69cc-48a5-906619b02754)
-    (at 145.84 175.5 90.0)
+    (at 151.21 229.11 90.0)
     (descr "Resistor SMD 1206 (3216 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R7")
@@ -6019,7 +6019,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit d72ab254) (tstamp 574938d3-1b89-e7c4-9360-e74638e94c85)
-    (at 96.04 233.47 180)
+    (at 97.41 241.87 180.0)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R70")
@@ -6047,7 +6047,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 9c74592c) (tstamp 19df3c11-9ee8-60a2-36f6-b22b23238331)
-    (at 79.7 144.91 180)
+    (at 117.36 144.9 180.0)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R71")
@@ -6075,7 +6075,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit cfebbac8) (tstamp 58d71f0b-5e5e-b299-a4be-6a4df57c7299)
-    (at 25.34 149.91 180)
+    (at 25.34 187.57 180.0)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R72")
@@ -6103,7 +6103,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 47b12f02) (tstamp 07dde994-29f9-8e22-56bb-8b774481cbb1)
-    (at 151.49 47.18 270)
+    (at 151.48 23.07 270.0)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R73")
@@ -6131,7 +6131,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit b1db16e3) (tstamp e2914f90-b22f-8343-88f6-ddd4b0f1fa69)
-    (at 79.71000000000001 50.39 180)
+    (at 110.74 23.1 180.0)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R74")
@@ -6159,7 +6159,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 0930bb2b) (tstamp 9a71c6e9-e7a1-4e7c-bb86-569a94e024fe)
-    (at 111.64 251.9 180)
+    (at 79.65 242.77 180.0)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R75")
@@ -6187,7 +6187,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 8c14df43) (tstamp b2618906-6723-41d6-45aa-6c3d2b871fa9)
-    (at 32.24 47.19 180)
+    (at 36.760000000000005 31.02 180.0)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R76")
@@ -6215,7 +6215,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit e3c348c2) (tstamp 00611275-0db9-d137-0858-80951d2d08f2)
-    (at 150.11 163.52 270)
+    (at 139.76999999999998 140.7 270.0)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R77")
@@ -6243,7 +6243,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 2ae5e5aa) (tstamp 366603d9-fcad-c294-f4d8-11ff7947ea1c)
-    (at 170.02 56.77 0)
+    (at 170.02 51.14 0.0)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R78")
@@ -6271,7 +6271,7 @@
 
   (footprint "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 6cae3a16) (tstamp 62a7c6a7-d654-3672-1852-f44772c318aa)
-    (at 100.02 39.629999999999995 90)
+    (at 123.08 56.39 90.0)
     (descr "Resistor, Axial_DIN0207 series, Axial, Horizontal, pin pitch=10.16mm, 0.25W = 1/4W, length*diameter=6.3*2.5mm^2, http://cdn-reichelt.de/documents/datenblatt/B400/1_4W%23YAG.pdf")
     (tags "Resistor Axial_DIN0207 series Axial Horizontal pin pitch 10.16mm 0.25W = 1/4W length 6.3mm diameter 2.5mm")
     (property "Reference" "R79")
@@ -6302,7 +6302,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 73469fdf) (tstamp 29c3bf67-3c0b-0d5d-42da-1aa1d0dd412c)
-    (at 84.97 250.7 90)
+    (at 71.25 223.02 90.0)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R8")
@@ -6330,7 +6330,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit a85e2956) (tstamp 3d010483-f82c-6392-b8db-f7d971ef27d4)
-    (at 45.93 164.08 90)
+    (at 23.27 164.08 90.0)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "R9")
@@ -6358,7 +6358,7 @@
 
   (footprint "Resistor_THT:R_Disc_D15.0mm_W7.0mm_P7.5mm" (version 20240108) (generator stub) (layer "F.Cu")
     (tedit 1f0680d0) (tstamp cf4e6aa1-cf9c-2aed-b3d6-61d0a7fb0185)
-    (at 29.009999999999998 182.42 180.0)
+    (at 40.4 210.1 180.0)
     (descr "Stub for Ametherm SL32 10015 NTC.")
     (property "Reference" "RT1")
     (property "Value" "?")
@@ -6373,7 +6373,7 @@
 
   (footprint "Varistor:RV_Disc_D15.5mm_W5.2mm_P7.5mm" (version 20260206) (generator pcbnew) (layer "F.Cu")
     (tedit e211eb4b) (tstamp 07402189-6764-4363-c029-e55f8f2dad42)
-    (at 129.20999999999998 190.07 180)
+    (at 157.79 158.65 180.0)
     (descr "Varistor, diameter 15.5mm, width 5.2mm, pitch 7.5mm")
     (tags "varistor SIOV")
     (property "Reference" "RV1")
@@ -6409,7 +6409,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit e3d82852) (tstamp 0c4255c5-c882-a43e-a68d-03315110e0fa)
-    (at 53.56 237.43 180)
+    (at 106.47 241.87 180.0)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "SW1")
@@ -6437,7 +6437,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 7ca5082f) (tstamp 20bb114d-5c10-ce9e-dc5d-207f0971ce60)
-    (at 92.83 138.2 270)
+    (at 139.76999999999998 144.66 270.0)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
     (tags "resistor")
     (property "Reference" "SW2")
@@ -6465,7 +6465,7 @@
 
   (footprint "temper:CST3015" (version 20231120) (generator temper-hand) (layer "F.Cu")
     (tedit ac7ff9f0) (tstamp c30f8de5-8eda-b7d7-0947-7aecd6438bfc)
-    (at 35.75 127.21 90)
+    (at 53.21 148.91 90.0)
     (descr "Coilcraft CST3015 SMT current sense transformer (CST3015-100ED, 1:100, 88A sensed, 5000Vrms reinforced isolation, >=8mm creepage/clearance, AEC-Q200 Grade 1). Land pattern from the official Recommended Land Pattern, Coilcraft Document 1608-2 rev 09/08/25. Primary pads 1/2 9.0x4.8mm on 15.36mm centres; secondary pads 3/4 3.0x4.6mm on 13.76mm centres; rows 18.5mm apart. Body 23.0x30.0mm max. Pad numbering matches the datasheet pins directly (P1/P2=1/2, S1/S2=3/4). Replaced CST2010-100L 2026-07-26: its 47A sensed limit was below the OCP-01 45-55A window.")
     (tags "current transformer CST3015 coilcraft SMD isolated")
     (property "Reference" "T1")
@@ -6491,7 +6491,7 @@
 
   (footprint "TestPoint:TestPoint_Pad_D1.0mm" (version 20260206) (generator pcbnew) (layer "F.Cu")
     (tedit f773c61f) (tstamp 85a55544-8061-eb59-8892-6c23d83b6394)
-    (at 59.26 154.1 0)
+    (at 111.15 146.15 0.0)
     (descr "SMD pad as test Point, diameter 1.0mm")
     (tags "test point SMD pad")
     (property "Reference" "TP1")
@@ -6510,7 +6510,7 @@
 
   (footprint "TestPoint:TestPoint_Pad_D1.0mm" (version 20260206) (generator pcbnew) (layer "F.Cu")
     (tedit 24008b73) (tstamp c63bf764-8c08-f3b9-2d4e-9d67cb452e9c)
-    (at 156.38 152.1 0)
+    (at 111.72 139.73000000000002 0.0)
     (descr "SMD pad as test Point, diameter 1.0mm")
     (tags "test point SMD pad")
     (property "Reference" "TP2")
@@ -6529,7 +6529,7 @@
 
   (footprint "TestPoint:TestPoint_Pad_D1.0mm" (version 20260206) (generator pcbnew) (layer "F.Cu")
     (tedit f8650c23) (tstamp 730a8e72-eb16-c417-1c89-bd51a7f3768e)
-    (at 165.44 150.44 0)
+    (at 171.0 102.65 0.0)
     (descr "SMD pad as test Point, diameter 1.0mm")
     (tags "test point SMD pad")
     (property "Reference" "TP3")
@@ -6548,7 +6548,7 @@
 
   (footprint "Package_TO_SOT_THT:TO-220-2_Vertical" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 2917c834) (tstamp 91d930bf-cee7-584e-285e-b36aba2b0dc1)
-    (at 155.17 176.62 180)
+    (at 168.0 223.03 180.0)
     (descr "TO-220-2, Vertical, RM 5.08mm, see https://www.centralsemi.com/PDFS/CASE/TO-220-2PD.PDF")
     (tags "TO-220-2 Vertical RM 5.08mm")
     (property "Reference" "U1")
@@ -6584,7 +6584,7 @@
 
   (footprint "Package_TO_SOT_SMD:SOT-23-5" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 1151e8cf) (tstamp 4e639af5-5674-ca27-5e50-a02bb922bda1)
-    (at 56.71 243.34 180)
+    (at 37.69 220.8 180.0)
     (descr "SOT, 5 Pin (JEDEC MO-178 Var AA https://www.jedec.org/document_search?search_api_views_fulltext=MO-178)")
     (tags "SOT TO_SOT_SMD")
     (property "Reference" "U10")
@@ -6649,7 +6649,7 @@
 
   (footprint "Package_TO_SOT_SMD:SOT-23-5" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 3bef6187) (tstamp eb9522bc-ebcc-4fe1-82d0-88eea4f9e143)
-    (at 157.93 148.34 180)
+    (at 157.92 99.45 180.0)
     (descr "SOT, 5 Pin (JEDEC MO-178 Var AA https://www.jedec.org/document_search?search_api_views_fulltext=MO-178)")
     (tags "SOT TO_SOT_SMD")
     (property "Reference" "U11")
@@ -6714,7 +6714,7 @@
 
   (footprint "Package_TO_SOT_SMD:SOT-23-5" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit e17f52f5) (tstamp 4a9d48de-699c-4e30-364e-0eebdfcf72a5)
-    (at 25.81 39.7 180)
+    (at 42.11 63.51 180.0)
     (descr "SOT, 5 Pin (JEDEC MO-178 Var AA https://www.jedec.org/document_search?search_api_views_fulltext=MO-178)")
     (tags "SOT TO_SOT_SMD")
     (property "Reference" "U12")
@@ -6779,7 +6779,7 @@
 
   (footprint "Package_TO_SOT_SMD:SOT-23-5" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 4a05b843) (tstamp 3eeafaf7-062a-758b-c384-20355425cb5f)
-    (at 100.57 60.2 180)
+    (at 123.63 63.51 180.0)
     (descr "SOT, 5 Pin (JEDEC MO-178 Var AA https://www.jedec.org/document_search?search_api_views_fulltext=MO-178)")
     (tags "SOT TO_SOT_SMD")
     (property "Reference" "U13")
@@ -6844,7 +6844,7 @@
 
   (footprint "Package_TO_SOT_SMD:SOT-23-6" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit c5786565) (tstamp 3b7f8990-cbae-d8f2-f84b-8d41b8a51d4d)
-    (at 165.49 32.980000000000004 180)
+    (at 147.7 42.480000000000004 180.0)
     (descr "SOT, 6 Pin (JEDEC MO-178 Var AB https://www.jedec.org/document_search?search_api_views_fulltext=MO-178)")
     (tags "SOT TO_SOT_SMD")
     (property "Reference" "U14")
@@ -6906,7 +6906,7 @@
 
   (footprint "Package_TO_SOT_SMD:SOT-23-5" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit edbbabb6) (tstamp 7627b5ae-ba24-1bf7-7605-1614ef187cc8)
-    (at 39.53 228.84 180)
+    (at 32.59 220.8 180.0)
     (descr "SOT, 5 Pin (JEDEC MO-178 Var AA https://www.jedec.org/document_search?search_api_views_fulltext=MO-178)")
     (tags "SOT TO_SOT_SMD")
     (property "Reference" "U15")
@@ -6971,7 +6971,7 @@
 
   (footprint "Package_TO_SOT_SMD:SOT-23-5" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit c4d1f1ef) (tstamp 92b8240c-afde-05f1-bafc-7ab99ba0f87d)
-    (at 157.22 37.730000000000004 270)
+    (at 165.74 59.12 270.0)
     (descr "SOT, 5 Pin (JEDEC MO-178 Var AA https://www.jedec.org/document_search?search_api_views_fulltext=MO-178)")
     (tags "SOT TO_SOT_SMD")
     (property "Reference" "U16")
@@ -7036,7 +7036,7 @@
 
   (footprint "Package_TO_SOT_SMD:SOT-23-5" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 2329fe1c) (tstamp f153fa0e-0e99-9d12-6941-4f96adadc7d3)
-    (at 73.06 122.67 90)
+    (at 66.86 175.36 90.0)
     (descr "SOT, 5 Pin (JEDEC MO-178 Var AA https://www.jedec.org/document_search?search_api_views_fulltext=MO-178)")
     (tags "SOT TO_SOT_SMD")
     (property "Reference" "U17")
@@ -7101,7 +7101,7 @@
 
   (footprint "Package_TO_SOT_SMD:SOT-23-5" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit c81fd601) (tstamp 2903ae27-3929-b03f-5fa9-2a65c5717fa0)
-    (at 22.56 225.68 180.0)
+    (at 37.010000000000005 190.56 180.0)
     (descr "SOT, 5 Pin (JEDEC MO-178 Var AA https://www.jedec.org/document_search?search_api_views_fulltext=MO-178)")
     (tags "SOT TO_SOT_SMD")
     (property "Reference" "U18")
@@ -7166,7 +7166,7 @@
 
   (footprint "Package_TO_SOT_SMD:SOT-23-5" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 5e90d8b4) (tstamp 0548d289-73f3-5aa0-dd7e-b83ccfb8d305)
-    (at 127.46 122.67 90)
+    (at 124.57 72.22999999999999 90.0)
     (descr "SOT, 5 Pin (JEDEC MO-178 Var AA https://www.jedec.org/document_search?search_api_views_fulltext=MO-178)")
     (tags "SOT TO_SOT_SMD")
     (property "Reference" "U19")
@@ -7231,7 +7231,7 @@
 
   (footprint "Package_TO_SOT_THT:TO-220-2_Vertical" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 9678afa3) (tstamp f6ce20a7-d8ab-3a55-eb50-7698868ae788)
-    (at 38.19 187.22 180)
+    (at 28.29 175.44 180.0)
     (descr "TO-220-2, Vertical, RM 5.08mm, see https://www.centralsemi.com/PDFS/CASE/TO-220-2PD.PDF")
     (tags "TO-220-2 Vertical RM 5.08mm")
     (property "Reference" "U2")
@@ -7267,7 +7267,7 @@
 
   (footprint "Package_TO_SOT_SMD:SOT-23-5" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 4a969240) (tstamp c0864007-a0eb-e57f-1e04-facceb96bcd7)
-    (at 169.25 148.54 180)
+    (at 118.53 140.48000000000002 180.0)
     (descr "SOT, 5 Pin (JEDEC MO-178 Var AA https://www.jedec.org/document_search?search_api_views_fulltext=MO-178)")
     (tags "SOT TO_SOT_SMD")
     (property "Reference" "U20")
@@ -7332,7 +7332,7 @@
 
   (footprint "Package_TO_SOT_SMD:SOT-23-6" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 22fb4268) (tstamp 936e0b2b-5bfb-3981-e454-9bf91d97be17)
-    (at 31.97 251.8 180)
+    (at 80.22 246.2 180.0)
     (descr "SOT, 6 Pin (JEDEC MO-178 Var AB https://www.jedec.org/document_search?search_api_views_fulltext=MO-178)")
     (tags "SOT TO_SOT_SMD")
     (property "Reference" "U21")
@@ -7394,7 +7394,7 @@
 
   (footprint "Package_TO_SOT_SMD:SOT-23-5" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit b8f45424) (tstamp 4160c69b-e1df-acba-ea7a-46e2eddda973)
-    (at 47.510000000000005 243.34 180)
+    (at 101.94 243.34 180.0)
     (descr "SOT, 5 Pin (JEDEC MO-178 Var AA https://www.jedec.org/document_search?search_api_views_fulltext=MO-178)")
     (tags "SOT TO_SOT_SMD")
     (property "Reference" "U22")
@@ -7459,7 +7459,7 @@
 
   (footprint "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 0645fca7) (tstamp 89d7a04d-7052-d128-242c-27cd76b0fd6f)
-    (at 157.8 27.1 90)
+    (at 166.92 36.08 90.0)
     (descr "SOIC, 14 Pin (JEDEC MS-012AB, https://www.analog.com/media/en/package-pcb-resources/package/pkg_pdf/soic_narrow-r/r_14.pdf)")
     (tags "SOIC SO")
     (property "Reference" "U23")
@@ -7537,7 +7537,7 @@
 
   (footprint "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit ea8b1035) (tstamp e9831e1d-d1ad-0453-15d8-e3d8b31c51f6)
-    (at 29.08 236.44 90)
+    (at 35.12 197.4 90.0)
     (descr "SOIC, 14 Pin (JEDEC MS-012AB, https://www.analog.com/media/en/package-pcb-resources/package/pkg_pdf/soic_narrow-r/r_14.pdf)")
     (tags "SOIC SO")
     (property "Reference" "U24")
@@ -7615,7 +7615,7 @@
 
   (footprint "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 41eeed08) (tstamp 8c51bcff-4ca7-b410-3794-eb1c5ad49eb1)
-    (at 166.42 156.56 270)
+    (at 115.4 156.56 270.0)
     (descr "SOIC, 14 Pin (JEDEC MS-012AB, https://www.analog.com/media/en/package-pcb-resources/package/pkg_pdf/soic_narrow-r/r_14.pdf)")
     (tags "SOIC SO")
     (property "Reference" "U25")
@@ -7693,7 +7693,7 @@
 
   (footprint "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 8f1de65d) (tstamp 74fb6f76-af48-9b1b-c533-055cc3ef467c)
-    (at 167.74 137.95999999999998 0)
+    (at 127.84 141.06 0.0)
     (descr "SOIC, 14 Pin (JEDEC MS-012AB, https://www.analog.com/media/en/package-pcb-resources/package/pkg_pdf/soic_narrow-r/r_14.pdf)")
     (tags "SOIC SO")
     (property "Reference" "U26")
@@ -7771,7 +7771,7 @@
 
   (footprint "lib:ESP32-S3-WROOM-1" (version 20240108) (generator hand-built) (layer "F.Cu")
     (tedit ab31e4f4) (tstamp 92a720b8-6473-ffc4-7fa8-ef701c075add)
-    (at 34.1 96.93 90)
+    (at 34.1 47.96 90.0)
     (descr "ESP32-S3-WROOM-1 module, 18.0 x 25.5 mm body, 39 castellated pads, 1.27 mm pitch. Dimension sourcing: Espressif ESP32-S3-WROOM-1 datasheet v1.5 — confirmed pad pitch (1.27 mm), body dimensions (18.00 x 25.50 mm), pad count (39), pad size (0.90 x 1.70 mm). Medium confidence — pad dimensions are from the datasheet land-pattern recommendation, not verified against a physical part.")
     (tags "espressif esp32-s3 wroom module")
     (property "Reference" "U27")
@@ -7861,7 +7861,7 @@
 
   (footprint "Package_DIP:DIP-6_W10.16mm" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 0bfc4925) (tstamp 3b2c202b-a508-5b27-8e2a-3a2a39cfe60f)
-    (at 143.30999999999997 114.38 0)
+    (at 156.92 72.48 0.0)
     (descr "6-lead though-hole mounted DIP package, row spacing 10.16mm (400 mils)")
     (tags "THT DIP DIL PDIP 2.54mm 10.16mm 400mil")
     (property "Reference" "U3")
@@ -7904,7 +7904,7 @@
 
   (footprint "Package_TO_SOT_SMD:SOT-23-6" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit d3fecd42) (tstamp 64548453-6ce6-b0e8-a81b-d46b964b66d2)
-    (at 157.03 130.68 180)
+    (at 117.93 149.08 180.0)
     (descr "SOT, 6 Pin (JEDEC MO-178 Var AB https://www.jedec.org/document_search?search_api_views_fulltext=MO-178)")
     (tags "SOT TO_SOT_SMD")
     (property "Reference" "U4")
@@ -7966,7 +7966,7 @@
 
   (footprint "Package_TO_SOT_THT:TO-247-3_Vertical" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit f362a796) (tstamp d3456d3f-cbba-44cf-f44d-1baf52ae582a)
-    (at 42.41 205.19 270)
+    (at 23.72 233.25 270.0)
     (descr "TO-247-3, Vertical, RM 5.45mm, see https://toshiba.semicon-storage.com/us/product/mosfet/to-247-4l.html")
     (tags "TO-247-3 Vertical RM 5.45mm")
     (property "Reference" "U5")
@@ -8005,7 +8005,7 @@
 
   (footprint "Package_TO_SOT_THT:TO-247-3_Vertical" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit 545269) (tstamp f280d820-dbf2-2724-7361-ebf11cb6e89d)
-    (at 131.81 181.17 180)
+    (at 100.07000000000001 159.33 180.0)
     (descr "TO-247-3, Vertical, RM 5.45mm, see https://toshiba.semicon-storage.com/us/product/mosfet/to-247-4l.html")
     (tags "TO-247-3 Vertical RM 5.45mm")
     (property "Reference" "U6")
@@ -8044,7 +8044,7 @@
 
   (footprint "lib:SOIC16W_Isolated" (version 20260206) (generator kicad-footprint-generator) (layer "F.Cu")
     (tedit e432e448) (tstamp 235b18dd-5c59-0e5b-0fae-19f2610a47ce)
-    (at 86.86 201.49 90)
+    (at 85.91 142.43 90.0)
     (descr "TI UCC21550BDWK, 14-pin DWK package (SLUSE89C, Aug 2024). Table 13.1 of the datasheet confirms DWK shares the same land pattern envelope/pitch as the 16-pin DW package (both use the DW0016B SOIC-16W 7.5x10.3mm 1.27mm-pitch outline; reel/tape dimensions in the same table are otherwise identical). DWK is fabricated on the same 16-lead frame with 2 leads omitted at physical positions 12 and 13 for isolation creepage/clearance -- confirmed against the Pin Configuration diagram (Section 4), which lists DWK pin numbers as 1-11 then 14-16, skipping 12/13 entirely (no NC pin at those numbers -- they simply don't exist on this package). This footprint is the real Package_SO:SOIC-16W_7.5x10.3mm_P1.27mm.kicad_mod land pattern with pads 12 and 13 deleted; all 14 remaining pad positions/sizes are untouched from that verified real footprint. The 3D model reference below is the 16-pin DW step file kept as a visual approximation (it will render 2 phantom leads at the omitted positions) -- no DWK-specific step model was available in the fetched datasheet.")
     (tags "SOIC SO DWK UCC21550")
     (property "Reference" "U7")
@@ -8122,7 +8122,7 @@
 
   (footprint "Diode_SMD:D_SMA" (version 20260206) (generator pcbnew) (layer "F.Cu")
     (tedit 6185227f) (tstamp 9016f60f-ef80-2bff-356a-b8fd07bd6c5a)
-    (at 43.05 34.96 90)
+    (at 22.25 69.31 90.0)
     (descr "Diode SMA (DO-214AC)")
     (tags "Diode SMA (DO-214AC)")
     (property "Reference" "U8")
@@ -8163,7 +8163,7 @@
 
   (footprint "Package_SO:SSOP-20_3.9x8.7mm_P0.635mm" (version 20260206) (generator pcbnew) (layer "F.Cu")
     (tedit bdbcd708) (tstamp dbce5fd0-0152-7b42-ca2e-f34261cc3fc7)
-    (at 39.67 249.95 90)
+    (at 95.4 249.94 90.0)
     (descr "SSOP20: plastic shrink small outline package; 24 leads; body width 3.9 mm; lead pitch 0.635; (see http://www.ftdichip.com/Support/Documents/DataSheets/ICs/DS_FT231X.pdf)")
     (tags "SSOP 0.635")
     (property "Reference" "U9")
