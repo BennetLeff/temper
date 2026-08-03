@@ -45,6 +45,39 @@ def test_rotate_local_to_world_matches_ground_truth_experiment(angle_deg, expect
     assert result[1] == pytest.approx(expected[1], abs=1e-9)
 
 
+# Closed-form quadrant law R(-theta) at the finite angle set: 0 -> (x, y),
+# 90 -> (y, -x), 180 -> (-x, -y), 270 -> (-y, x). Expected rows are the
+# integer-entry values this law gives for each offset, so a sign flip
+# (R(+theta): 90 -> (-y, x), 270 -> (y, -x)) fails these immediately --
+# e.g. (2.0, -1.0) at 90 degrees: R(-90) -> (-1, -2) but R(+90) -> (1, 2).
+# This extends the single-offset ground-truth parametrization above to
+# several offsets including fully asymmetric ones (plan 011 U1).
+@pytest.mark.parametrize(
+    ("angle_deg", "offset", "expected"),
+    [
+        (0.0, (0.5, 0.3), (0.5, 0.3)),
+        (90.0, (0.5, 0.3), (0.3, -0.5)),
+        (180.0, (0.5, 0.3), (-0.5, -0.3)),
+        (270.0, (0.5, 0.3), (-0.3, 0.5)),
+        (0.0, (2.0, -1.0), (2.0, -1.0)),
+        (90.0, (2.0, -1.0), (-1.0, -2.0)),
+        (180.0, (2.0, -1.0), (-2.0, 1.0)),
+        (270.0, (2.0, -1.0), (1.0, 2.0)),
+        (0.0, (3.7, -2.1), (3.7, -2.1)),
+        (90.0, (3.7, -2.1), (-2.1, -3.7)),
+        (180.0, (3.7, -2.1), (-3.7, 2.1)),
+        (270.0, (3.7, -2.1), (2.1, 3.7)),
+    ],
+)
+def test_rotate_local_to_world_closed_form_at_quadrant_angles(angle_deg, offset, expected):
+    """Convention-anchored expected values at every angle of the finite set
+    for several offsets, including fully asymmetric ones -- the closed-form
+    quadrant law, which a sign flip violates at 90 and 270 degrees."""
+    result = rotate_local_to_world_deg(offset[0], offset[1], angle_deg)
+    assert result[0] == pytest.approx(expected[0], abs=1e-9)
+    assert result[1] == pytest.approx(expected[1], abs=1e-9)
+
+
 @pytest.mark.parametrize("angle_deg", [0.0, 30.0, 90.0, 137.0, 180.0, 270.0, -45.0, 400.0])
 def test_world_to_local_is_the_inverse(angle_deg):
     x, y = 3.7, -2.1
