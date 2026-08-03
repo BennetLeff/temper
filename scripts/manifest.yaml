@@ -180,9 +180,9 @@ scripts:
   - subprocess
   - sys
 - path: ci_check_drc.py
-  purpose: 'CI entry point: DRC ratchet check'
+  purpose: 'CI entry point: DRC ratchet check (+ R11 full-board DRC oracle differential on the kicad-cli backend)'
   owner: pipeline
-  last_run: '2026-06-22'
+  last_run: '2026-08-02'
   category: keep
   disposition: ci-gate
   imports:

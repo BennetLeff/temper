@@ -93,7 +93,8 @@ jobs:
           for crate in \
             packages/temper-geometry \
             packages/temper-thermal \
-            packages/temper-rust-router; do
+            packages/temper-rust-router \
+            packages/temper-drc-rs; do
             uv run maturin develop --release --manifest-path "$crate/Cargo.toml"
           done
           # temper-constraints is the one abi3 crate; without the

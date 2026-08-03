@@ -122,3 +122,95 @@ class TestRegenerateKicadDru:
         # was attempted before that point.
         ci_check_drc.main()
         assert calls == []
+
+
+# ---------------------------------------------------------------------------
+# R11 full-board DRC oracle differential wiring (plan 2026-08-02-008 U3)
+# ---------------------------------------------------------------------------
+
+_FALSIFIER = (
+    "packages/temper-placer/tests/fixtures/drc_differential_courtyard_falsifier.kicad_pcb"
+)
+
+
+def _kicad_available() -> bool:
+    from temper_placer.validation._drc_api import is_kicad_cli_available
+
+    return is_kicad_cli_available()
+
+
+def _internal_available() -> bool:
+    try:
+        import temper_drc_rs  # noqa: F401
+
+        return True
+    except ImportError:
+        return False
+
+
+class TestDrcDifferentialWiring:
+    def test_kicad_cli_backend_emits_differential_verdict_for_committed_board(
+        self, capsys, preserve_kicad_dru, monkeypatch
+    ):
+        """U3 test 2 (integration): ``ci_check_drc.py --backend kicad-cli``
+        emits the differential verdict for the committed board and exits 0.
+        """
+        if not (_kicad_available() and _internal_available()):
+            pytest.skip("kicad-cli and/or temper_drc_rs not available")
+        monkeypatch.setattr(ci_check_drc, "_find_repo_root", lambda: _repo_root())
+        old_argv = sys.argv
+        sys.argv = ["ci_check_drc.py", "--backend", "kicad-cli"]
+        try:
+            exit_code = ci_check_drc.main()
+        finally:
+            sys.argv = old_argv
+        out = capsys.readouterr().out
+        assert "DRC differential" in out
+        assert "verdict: PASS" in out, "committed board differential must pass"
+        assert exit_code < 4, f"differential verdict must not fail the run: {exit_code}"
+
+    def test_falsifier_substitution_exits_nonzero(
+        self, capsys, preserve_kicad_dru, monkeypatch
+    ):
+        """U3 test 3 (integration): with the D3/C4 fixture substituted as the
+        board under test, the wired gate exits nonzero (beyond-band courtyard
+        delta)."""
+        if not (_kicad_available() and _internal_available()):
+            pytest.skip("kicad-cli and/or temper_drc_rs not available")
+        monkeypatch.setattr(ci_check_drc, "_find_repo_root", lambda: _repo_root())
+
+        # Point --differential-board at the falsifier via argv; main() reads
+        # it relative to repo root.
+        old_argv = sys.argv
+        sys.argv = [
+            "ci_check_drc.py",
+            "--backend",
+            "kicad-cli",
+            "--differential-board",
+            _FALSIFIER,
+        ]
+        try:
+            exit_code = ci_check_drc.main()
+        finally:
+            sys.argv = old_argv
+        out = capsys.readouterr().out
+        assert "DRC differential" in out
+        assert "FAIL courtyard" in out, "falsifier courtyard delta must be beyond band"
+        assert exit_code == 4, f"beyond-band verdict must exit 4, got {exit_code}"
+
+    def test_skipped_differential_is_reported_not_passed(self, monkeypatch, tmp_path):
+        """A SKIPPED differential (missing engine) is reported with its cause
+        and never counted as a pass or a failure of the gate."""
+        from temper_placer.validation.drc_differential import DifferentialVerdict
+
+        def _fake_run_differential(_pcb_path):
+            return DifferentialVerdict(passed=False, skipped=True, skip_reason="no kicad-cli")
+
+        monkeypatch.setattr(
+            "temper_placer.validation.drc_differential.run_differential",
+            _fake_run_differential,
+        )
+        results, any_beyond = ci_check_drc._run_differential(tmp_path, [("b", tmp_path / "x.kicad_pcb")])
+        assert any_beyond is False
+        assert results[0][1].skipped is True
+        assert "kicad-cli" in results[0][1].skip_reason

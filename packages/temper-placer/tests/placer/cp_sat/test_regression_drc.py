@@ -269,6 +269,26 @@ def test_golden_board_drc_regression(monkeypatch: pytest.MonkeyPatch, request: p
             f"Round-trip oracle FAILED after golden-board write: {rt.summary}"
         )
 
+        # 5b. R11 full-board DRC oracle differential: both engines run on
+        # this same written artifact and the per-class count delta must stay
+        # within the measured tolerance bands (plan 2026-08-02-008 U3).
+        # This is the "model says zero, real DRC says N" commit-time guard.
+        from temper_placer.validation.drc_differential import run_differential
+
+        differential = run_differential(placed_path)
+        assert not differential.skipped, (
+            f"DRC differential unavailable on the written placement: "
+            f"{differential.skip_reason}"
+        )
+        assert differential.passed, (
+            "DRC differential FAIL on the written golden-board placement: "
+            + ", ".join(
+                f"{cd.rule_class} delta {cd.delta} > band {cd.band}"
+                for cd in differential.per_class
+                if not cd.within_band
+            )
+        )
+
         # 6. Run kicad-cli DRC and parse
         drc_data = _run_drc(placed_path)
         violations = drc_data.get("violations", [])

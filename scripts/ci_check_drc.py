@@ -3,6 +3,15 @@
 
 Loads drc_ceiling.json, runs DRC on each board, checks against ceilings.
 Exit codes: 0 = pass, 1 = ceiling exceeded, 2 = ceiling raised without approval.
+
+The kicad-cli backend additionally runs the full-board DRC oracle
+differential (R11) on each ceiling board: the placer's internal model vs
+real kicad-cli DRC on the same written artifact, compared per rule class
+against the measured tolerance bands in
+``temper_placer.validation.drc_differential.DELTA_BANDS``.  A beyond-band
+per-class delta exits 4 (distinct from the ratchet's own codes so a
+ratchet failure and a model-vs-reality divergence are distinguishable in
+CI logs).
 """
 
 import argparse
@@ -55,6 +64,47 @@ def _regenerate_kicad_dru(repo_root: Path) -> Path:
     return generate_kicad_dru.OUTPUT_PATH
 
 
+def _run_differential(
+    repo_root: Path,
+    target_boards: list[tuple[str, Path]],
+) -> tuple[list[tuple[str, object]], bool]:
+    """Run the full-board DRC oracle differential on each target board.
+
+    Returns (results, any_beyond_band).  A SKIPPED verdict (missing
+    kicad-cli or temper_drc_rs) is reported with its cause and does not
+    count as a pass — and does not fail the run either: an unavailable
+    measurement is not the model-vs-reality divergence this gate guards.
+    """
+    from temper_placer.validation.drc_differential import run_differential
+
+    results: list[tuple[str, object]] = []
+    any_beyond_band = False
+    for board_id, pcb_path in target_boards:
+        verdict = run_differential(pcb_path)
+        try:
+            display_path = pcb_path.relative_to(repo_root)
+        except ValueError:
+            display_path = pcb_path
+        print(f"\nDRC differential [{board_id}]: {display_path}")
+        if verdict.skipped:
+            print(f"  SKIPPED (unavailable measurement, not a pass): {verdict.skip_reason}")
+            results.append((board_id, verdict))
+            continue
+        for cd in verdict.per_class:
+            status = "OK" if cd.within_band else "FAIL"
+            print(
+                f"  {status} {cd.rule_class}: internal={cd.internal_count} "
+                f"kicad={cd.kicad_count} delta={cd.delta} band={cd.band}"
+            )
+            if not cd.within_band:
+                any_beyond_band = True
+        if verdict.excluded_types_seen:
+            print(f"  excluded types seen: {', '.join(verdict.excluded_types_seen)}")
+        print(f"  verdict: {'PASS' if verdict.passed else 'FAIL'}")
+        results.append((board_id, verdict))
+    return results, any_beyond_band
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="DRC ratchet CI check")
     parser.add_argument(
@@ -63,6 +113,15 @@ def main() -> int:
         default="kicad-cli",
         choices=["rust", "kicad-cli"],
         help="DRC backend: 'kicad-cli' (default, KiCad truth gate) or 'rust' (temper_drc_rs diagnostic)",
+    )
+    parser.add_argument(
+        "--differential-board",
+        type=str,
+        default=None,
+        help="Override the board(s) the differential runs on (comma-separated "
+        "paths, relative to repo root). Default: the ceiling file's boards. "
+        "Used by the falsifier end-to-end test to substitute the D3/C4 "
+        "fixture for the committed board.",
     )
     args = parser.parse_args()
 
@@ -101,6 +160,24 @@ def main() -> int:
         else:
             print(f"FAIL: {result.message}")
             exit_code = max(exit_code, result.exit_code)
+
+    # R11 full-board DRC oracle differential (kicad-cli backend only — the
+    # rust backend measures a different engine and is not part of this gate).
+    if args.backend == "kicad-cli":
+        if args.differential_board:
+            targets = [
+                (f"override-{i}", repo_root / p)
+                for i, p in enumerate(args.differential_board.split(","))
+            ]
+        else:
+            targets = [
+                (board_id, repo_root / entry.path)
+                for board_id, entry in ratchet.entries.items()
+            ]
+        _, any_beyond_band = _run_differential(repo_root, targets)
+        if any_beyond_band:
+            print("DRC differential: FAIL (per-class delta beyond measured band)")
+            exit_code = max(exit_code, 4)
 
     return exit_code
 

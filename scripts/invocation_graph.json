@@ -144,7 +144,8 @@
     ".github/workflows/metrics-record.yml",
     ".github/workflows/pr-pipeline-scorecard.yml",
     ".github/workflows/python-tests.yml",
-    ".github/workflows/regression.yml"
+    ".github/workflows/regression.yml",
+    "packages/temper-placer/src/temper_placer/validation/drc_differential.py"
   ],
   "ci_identity_check.py": [
     ".github/workflows/python-tests.yml"
