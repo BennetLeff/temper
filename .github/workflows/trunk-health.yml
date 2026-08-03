@@ -1,0 +1,149 @@
+name: Trunk Health
+
+# Fails loudly when main itself is red on a gate that every pull request
+# depends on.
+#
+# Why this exists (2026-08-03): main went red twice in one hour, both times
+# because a derived artifact went stale when its source landed, and neither was
+# noticed for hours.
+#
+#   1. .github/required-checks.json's trigger paths drifted from
+#      python-tests.yml's -- validate_trigger_manifest runs before anything else
+#      in scripts/check_required_checks.py, so EVERY pull request failed
+#      `Required Python Tests` before a single candidate check was examined.
+#   2. docs/plans/README.md's generated inventory reported 189 plan documents
+#      against 190 on disk, so `Generated Repo State` -- a required context --
+#      failed on every pull request regardless of its content.
+#
+# Both were one-line fixes. The cost was not the fix, it was the hours of every
+# open pull request failing for a reason that had nothing to do with it, plus
+# ~50 runs of pull-request base updates that had to be redone because the second
+# breakage landed after them.
+#
+# These gates already run inside python-tests.yml. That is precisely the problem:
+# there they sit behind a container pull, a Rust build and a dependency install,
+# in a 20-job run that queues for tens of minutes under load -- so trunk drift
+# surfaces late, or gets cancelled before it surfaces at all. Every check below
+# is stdlib-only on the runner's Python and needs no container, no uv and no
+# virtualenv, so this job answers "is main healthy" in seconds regardless of how
+# saturated the pool is.
+#
+# This workflow deliberately gates nothing. It is not in
+# .github/required-checks.json and must not become a required context -- it
+# reports on main, it does not judge pull requests.
+
+on:
+  push:
+    branches: [main]
+  # Backstop: catches drift introduced by anything that changes the tree without
+  # a push to main, and re-reports while an existing breakage stays unfixed.
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+# Only the newest state of main is interesting; a superseded run's verdict is
+# about a commit that is no longer the tip.
+concurrency:
+  group: trunk-health
+  cancel-in-progress: true
+
+jobs:
+  canary:
+    name: Trunk Health
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+
+      # Every check runs even when an earlier one fails, and the job fails once
+      # at the end. Fail-fast would have hidden the second breakage behind the
+      # first on 2026-08-03 -- the plan-inventory drift was only found after the
+      # trigger-path drift was fixed, because nothing reported both at once.
+      - name: Check trunk-health gates
+        id: gates
+        run: |
+          set +e
+          FAILED=""
+
+          run_gate() {
+            name="$1"; shift
+            echo "::group::$name"
+            "$@"
+            rc=$?
+            echo "::endgroup::"
+            if [ $rc -ne 0 ]; then
+              echo "::error title=Trunk health::$name FAILED on main"
+              FAILED="${FAILED}- ${name}"$'\n'
+            fi
+            return 0
+          }
+
+          run_gate "Generated repo state (derived artifacts vs sources)" \
+            python3 scripts/gen_repo_state.py --check
+
+          run_gate "LOC cap gate" \
+            python3 tools/loc_cap_check.py
+
+          run_gate "Required-checks manifest (trigger paths + job conditions)" \
+            python3 -c "
+          import sys
+          sys.path.insert(0, 'scripts')
+          from pathlib import Path
+          import check_required_checks as C
+          m = C.load_manifest(Path('.github/required-checks.json'))
+          wf = Path('.github/workflows/python-tests.yml')
+          C.validate_trigger_manifest(m, wf)
+          C.validate_job_conditions(m, wf)
+          print('manifest and workflow agree')
+          "
+
+          {
+            echo "## Trunk health"
+            echo
+            if [ -z "$FAILED" ]; then
+              echo "main is healthy on every gate checked here."
+            else
+              echo "**main is RED.** Every open pull request inherits these failures regardless of its own content."
+              echo
+              echo "$FAILED"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          if [ -n "$FAILED" ]; then
+            { echo "failed<<EOF"; echo "$FAILED"; echo "EOF"; } >> "$GITHUB_OUTPUT"
+            exit 1
+          fi
+
+      # A red run in the Actions tab was not enough on 2026-08-03 -- both
+      # breakages sat unnoticed. Open one tracking issue so trunk breakage
+      # surfaces where someone will see it, and reuse it while it stays open so
+      # a persistent breakage does not file a new issue every hour.
+      - name: Report trunk breakage
+        if: ${{ failure() && steps.gates.outputs.failed != '' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          EXISTING=$(gh issue list --label trunk-health --state open \
+            --json number --jq '.[0].number // empty')
+          if [ -n "$EXISTING" ]; then
+            echo "Trunk-health issue #$EXISTING is already open; not filing a duplicate."
+            exit 0
+          fi
+          gh label create trunk-health --color B60205 \
+            --description "main is red on a gate every PR depends on" 2>/dev/null || true
+          gh issue create --label trunk-health \
+            --title "main is red: trunk-health gates failing" \
+            --body "$(printf '%s\n' \
+              "\`${{ github.sha }}\` fails one or more trunk-health gates." \
+              "" \
+              "${{ steps.gates.outputs.failed }}" \
+              "" \
+              "Every open pull request inherits these failures regardless of its own content, because the required-check aggregator evaluates candidate checks that this drift causes to fail." \
+              "" \
+              "Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+              "" \
+              "Close this issue once main is green; the canary will file a new one if trunk breaks again.")"
