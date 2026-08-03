@@ -91,7 +91,8 @@
     "scripts/tests/test_check_measurement_provenance.py",
     "scripts/_lib/measurement_provenance.py",
     "scripts/tests/_lib/test_lib_measurement_provenance.py",
-    "power_pcb_dataset/drc_ceiling.json"
+    "power_pcb_dataset/drc_ceiling.json",
+    "power_pcb_dataset/physics_parameter_map.yaml"
   ],
   "job_triggers": {
     "Cargo / Rustc Smoke Check": {
