@@ -258,16 +258,24 @@ def write_scratch_cmake(scratch_dir):
 
 
 def ensure_configured(scratch_dir):
-    """Configure the scratch build once; returns (configure_ran, ok)."""
+    """Configure the scratch build once; returns (configure_ran, ok, error_tail).
+
+    The scratch dir is resolved to an absolute path: the generated
+    CMakeLists.txt embeds it verbatim, and a relative --scratch-dir would make
+    the generated-C source resolve against the build dir instead of the repo
+    (cmake configure fails with "No SOURCES given to target").
+    """
+    scratch_dir = scratch_dir.resolve()
     write_scratch_cmake(scratch_dir)
     cache = scratch_dir / "CMakeCache.txt"
     if cache.exists():
-        return True
+        return True, True, ""
     proc = subprocess.run(
         ["cmake", "-S", str(scratch_dir), "-B", str(scratch_dir)],
         capture_output=True, text=True,
     )
-    return proc.returncode == 0
+    tail = "\n".join((proc.stdout + proc.stderr).splitlines()[-25:])
+    return proc.returncode == 0, proc.returncode == 0, tail
 
 
 def _force_rebuild(scratch_dir):
@@ -439,7 +447,7 @@ def run_sweep(gen=None, scratch_dir=None, report_path=None, build=True,
     Returns the report dict (also written to ``report_path`` when given).
     """
     gen = gen or load_generator()
-    scratch_dir = Path(scratch_dir or DEFAULT_SCRATCH_DIR)
+    scratch_dir = Path(scratch_dir or DEFAULT_SCRATCH_DIR).resolve()
     report_path = Path(report_path) if report_path else None
 
     transitions = list(gen.TRANSITIONS)
@@ -452,9 +460,10 @@ def run_sweep(gen=None, scratch_dir=None, report_path=None, build=True,
         # Emit the baseline C first: the scratch CMakeLists lists the generated
         # C as a target source, so configure needs it to exist.
         emit_mutated_c(gen, expanded, scratch_dir)
-        if not ensure_configured(scratch_dir):
+        ok, _, tail = ensure_configured(scratch_dir)
+        if not ok:
             raise RuntimeError(
-                f"cmake configure failed in {scratch_dir} (see its output)"
+                f"cmake configure failed in {scratch_dir}:\n{tail}"
             )
         ok, err = build_mutant(scratch_dir)
         if not ok:
