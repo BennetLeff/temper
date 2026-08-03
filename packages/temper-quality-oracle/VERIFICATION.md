@@ -7,6 +7,14 @@ composite 0-100 score to Rust; the Python module now delegates its
 scoring arithmetic to `temper_quality_oracle.routing_quality_score_py`
 through the existing pyo3 bridge).
 
+Updated 2026-08-03: `quality_score::placement_score` /
+`quality_score::drc_score` / `quality_score::overall_score` /
+`quality_score::interpret_score` added (Wave 4 Phase A #5 — migration of
+`temper_placer/metrics/quality_score.py`'s composite placement/DRC/
+routing scoring to Rust; the Python module keeps its public API and
+delegates to `temper_quality_oracle.{placement_score_py,drc_score_py,
+overall_score_py,interpret_score_py}` through the same pyo3 bridge).
+
 ## Scope of this document
 
 This crate implements the typed quality-oracle pipeline (net
@@ -14,9 +22,9 @@ classification → constraint derivation → config → thresholds →
 pass/fail oracle) plus the IPC-2221 clearance function and, since
 Wave 4 Phase A #1, the routing-quality composite score.  The induction
 proofs below cover the module with computational structure; the
-routing-quality score is closed-form arithmetic and carries the
-explicit non-applicability note required by the Wave 4 R1e gate
-(docs/plans/2026-08-01-001-feat-wave4-full-migration-program-plan.md).
+routing-quality and composite-quality scores are closed-form arithmetic
+and carry the explicit non-applicability note required by the Wave 4
+R1e gate (docs/plans/2026-08-01-001-feat-wave4-full-migration-program-plan.md).
 
 ## Routing-quality composite score — induction non-applicability note
 
@@ -76,6 +84,65 @@ is what the R1e note requires for data-only / closed-form modules.
    (the kernel deliberately does not clamp completion; the bound is
    honestly scoped to that domain in the property's docstring).
 
+## Composite quality score — induction non-applicability note
+
+`quality_score::{placement_score, drc_score, overall_score,
+interpret_score}` are **closed-form, loop-free and recursion-free
+functions of their scalar inputs**:
+
+```text
+placement_score = clamp01x100(100 - 20·overlap - 15·boundary - 25·hvlv
+                              - 10·keepout - 5·(clearance - hvlv)
+                              - 10·zone - [avg_len > 50 ? min(10, (avg_len-50)/10) : 0])
+drc_score       = clamp01x100(100 - 15·errors - 3·warnings)
+overall_score   = routing.is_some() ? 0.4·ps + 0.4·ds + 0.2·rs
+                                    : 0.5·ps + 0.5·ds
+interpret_score = score ≥ 90 → "excellent" | ≥ 80 → "good"
+                  | ≥ 60 → "ok" | "poor"
+```
+
+There is no iteration and no input-sized data structure — every input
+runs the same finite sequence of correctly-rounded f64 operations.  R1e's
+induction requirement is therefore **not applicable**; in its place we
+record the structural correctness argument:
+
+### Structural correctness argument (bit-exact parity)
+
+1. **Pure functions of scalar inputs.** Every output bit depends only on
+   the scalar arguments (violation counts, wirelength scalars, subscores)
+   and correctly-rounded IEEE-754 f64 arithmetic — deterministic and
+   identical in CPython and Rust for the same operation sequence.  No IO,
+   no global state.
+
+2. **Operation-order pinning.** The kernels reproduce the pre-migration
+   Python's exact f64 operation order (pinned by the differential suite
+   `packages/temper-placer/tests/metrics/test_quality_score_rust_differential.py`,
+   which embeds the verbatim pre-migration implementation as an oracle
+   and asserts bit-identical equality):
+   - per-unit penalties are exact int arithmetic in Python, converted to
+     f64 exactly at the subtraction: `score -= overlap_count * 20` ⇔
+     `score -= overlap_count as f64 * 20.0` (identical for counts below
+     2^53);
+   - the wirelength penalty keeps the parenthesized `(avg_len - 50) / 10`
+     before the `min(10, ·)` cap;
+   - the clamp is `max(0.0, min(100.0, score))` ⇔
+     `(100.0_f64.min(score)).max(0.0)` — constant-first, matching
+     CPython's first-argument NaN semantics (B5);
+   - the overall chains `0.5·ps + 0.5·ds` and
+     `0.4·ps + 0.4·ds + 0.2·rs` are left-to-right with no reassociation.
+
+3. **Branch equivalence.** The `total_wirelength > 0 && avg_len > 50`
+   wirelength branch, the `routing_score.is_some()` overall branch, and
+   the `>= 90 / >= 80 / >= 60` interpretation thresholds map one-to-one
+   to the Python `if/else` structure (IEEE comparisons, identical on
+   NaN).
+
+4. **Soundness of the closed-form bounds.** `0 ≤ placement ≤ 100` and
+   `0 ≤ drc ≤ 100` hold for ALL finite inputs because the clamp is the
+   final operation; the interpretation vocabulary is closed (one of four
+   strings).  The PBT suite pins the per-unit penalty weights via exact
+   translation relations on a constrained (unclamped) input class.
+
 ### Base case / induction step for the crate's oracle module
 
 The typed quality oracle (`oracle.rs`) does have computational
@@ -102,3 +169,14 @@ recorded for the crate's existing proptest suite (see
   — 5 vacuity-guarded invariants + 4 metamorphic relations.
 - `src/routing_quality.rs` `#[cfg(test)]` unit tests — hand-computed
   values and a bounded exhaustive sweep asserting `score ≤ 100`.
+- `packages/temper-placer/tests/metrics/test_quality_score_rust_differential.py`
+  — bit-exact differential vs. the verbatim pre-migration oracle for the
+  composite-quality kernels (placement/DRC subscores, overall, and
+  interpretation; direct kernel pins + full module-level delegation
+  pins, including NaN semantics, the adjacent-float wirelength boundary,
+  and the no-routing vs routing weighted chains).
+- `packages/temper-placer/tests/metrics/test_quality_score_rust_pbt.py`
+  — 7 vacuity-guarded invariants + 4 metamorphic relations + 8 vacuity
+  mutants.
+- `src/quality_score.rs` `#[cfg(test)]` unit tests — hand-computed
+  values, penalty/interpretation thresholds, and branch pins.
