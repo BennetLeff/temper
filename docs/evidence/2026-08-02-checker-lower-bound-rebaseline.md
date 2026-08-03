@@ -1,4 +1,4 @@
-<!-- provenance: commit=79860da9d8abfed78e6c7344836c4bc9db55a356 dirty=false -->
+<!-- provenance: commit=fc1cf510390cbf1d43e6479d6e6a9122dd3d48d7 dirty=false -->
 
 # Re-baseline: `test_checker_copper_distance_is_lower_bound_on_origin_distance` (stale board-state expectation, invariant verified sound)
 

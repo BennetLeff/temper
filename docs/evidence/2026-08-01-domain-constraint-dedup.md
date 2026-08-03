@@ -1,4 +1,4 @@
-<!-- provenance: commit=74af50c52b8dcfd08e44aef27e67ff5a549f5809 dirty=false -->
+<!-- provenance: commit=029f766e5a794a9fe0c0a1b869ac5c5eb5bcd81d dirty=false -->
 
 # Domain-clearance constraint dedup: one constraint per unordered pair (2026-08-02)
 

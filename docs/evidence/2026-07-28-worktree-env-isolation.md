@@ -1,4 +1,4 @@
-<!-- provenance: commit=b5293d5c2f8bbb9ebf576f08920096a34a54e885 dirty=false -->
+<!-- provenance: commit=4125e47ca2a713335a949730801e507185697422 dirty=false -->
 
 # Worktree environment isolation: closing the shared-`.venv` cost, without reinventing the fix already in the tree
 

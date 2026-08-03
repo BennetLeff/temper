@@ -1,4 +1,4 @@
-<!-- provenance: commit=f5e32cfda1b43f37a53034b8e770997a0820856d dirty=false -->
+<!-- provenance: commit=b3638473af4b25dc44fc4ea446568f39c58dc407 dirty=false -->
 
 # run-B audit-lie reproduction and current-board state verification (2026-08-01/02)
 

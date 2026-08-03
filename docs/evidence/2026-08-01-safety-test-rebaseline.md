@@ -1,4 +1,4 @@
-<!-- provenance: commit=611b0c349563d5ecfe9c8788f9d3cf75a674da83 dirty=false -->
+<!-- provenance: commit=5e36ab3edb20ded7906bf754d04a221c6d5512a6 dirty=false -->
 
 # Safety-suite re-baseline: REQ-SAFE-01 board-clearance and intra-footprint-blocker assertions
 
