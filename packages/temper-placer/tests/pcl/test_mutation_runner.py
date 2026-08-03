@@ -84,11 +84,16 @@ class TestFullSuiteSummary:
         counts: dict[str, int] = {}
         for r in results:
             counts[r.outcome] = counts.get(r.outcome, 0) + 1
-        # Baseline kill sets, regenerated 2026-08-02 (see the kill-set register):
-        assert counts["killed"] == 15
-        assert counts["survived"] == 16
+        # Baseline kill sets, regenerated 2026-08-02 (see the kill-set register).
+        # killed dropped 15 -> 13 and the three keepout mutations became
+        # non-applicable after main's Wave 4 migration moved the keepout margin
+        # arithmetic into the Rust kernel (temper_constraints.keepout_rect_units_py):
+        # the Python source no longer carries the assignments they target.
+        assert counts["killed"] == 13
+        assert counts["survived"] == 15
         assert counts.get("no-op", 0) == 1
         assert counts.get("error", 0) == 0
+        assert counts.get("non-applicable", 0) == 3
         assert len(results) == 32
 
     def test_every_mutation_carries_an_operator_label(self) -> None:

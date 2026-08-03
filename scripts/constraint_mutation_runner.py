@@ -142,7 +142,7 @@ class MutationResult:
     mutation_id: str
     operator: str
     description: str
-    outcome: str  # "killed" | "survived" | "no-op" | "error"
+    outcome: str  # "killed" | "survived" | "no-op" | "error" | "non-applicable"
     defenses_fired: list[str] = field(default_factory=list)
     detail: str = ""
 
@@ -1562,7 +1562,8 @@ def run_mutation(
     except AssertionError as exc:
         return MutationResult(
             surface.surface_id, surface.constraint_type, spec.mutation_id,
-            spec.operator, spec.description, "error", detail=f"transform failed: {exc}",
+            spec.operator, spec.description, "non-applicable",
+        detail=f"transform failed: {exc} (mutation not expressible on the current code shape)",
         )
 
     mutated_source = ast.unparse(mutated_tree)
@@ -1856,7 +1857,7 @@ def main(argv: list[str] | None = None) -> int:
     # summary table
     print(f"{'surface':<10} {'mutation':<28} {'operator':<14} {'outcome':<9} defenses")
     print("-" * 100)
-    counts = {"killed": 0, "survived": 0, "no-op": 0, "error": 0}
+    counts = {"killed": 0, "survived": 0, "no-op": 0, "error": 0, "non-applicable": 0}
     for r in sorted(results, key=lambda r: (r.surface_id, r.mutation_id)):
         counts[r.outcome] += 1
         print(

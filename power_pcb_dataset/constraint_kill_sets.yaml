@@ -3,8 +3,9 @@ generated: '2026-08-02'
 generator: scripts/constraint_mutation_runner.py
 note: 'Kill-set register for the constraint mutation suite (R32). Each surface''s mutations are the R4 bug classes (sign-flip,
   dropped-term, loosened-bound, off-by-one, double-count) applied at source level; outcome is killed when the surface''s existing
-  defenses (encoder unit-test mirrors + post-solve PlacementAuditor) fail. Survivors are triaged: benign (documented rationale)
-  or test-gap (TODO). Enforced by scripts/constraint_mutation_gate.py.'
+  defenses (encoder unit-test mirrors + post-solve PlacementAuditor) fail. Survivors are triaged: benign (documented rationale),
+  test-gap (TODO), or non-applicable (mutation not expressible on the current code shape, with a recorded reason). Enforced
+  by scripts/constraint_mutation_gate.py.'
 families:
   placer-pcl-handlers:
     status: active
@@ -165,9 +166,14 @@ families:
         operator: double-count
         description: 'keepout margin counted twice (2 * margin_u becomes 4 * margin_u in both interval sizes): the keepout
           grows by two extra margins'
-        outcome: killed
-        defenses_fired:
-        - encoder-unit:test_keepout_mutation_defense::test_origin_zone_keepout_anchored
+        outcome: non-applicable
+        detail: 'transform failed: expected 2 margin-doubled sizes, mutated 0 (mutation not expressible on the current code
+          shape)'
+        triage: non-applicable
+        triage_rationale: keepout margin arithmetic moved into the Rust kernel (temper_constraints.keepout_rect_units_py)
+          by main's Wave 4 migration; the Python source no longer carries the assignments this mutation targets, so it is
+          not expressible on the current code shape. Rust-side mutation testing of the kernel is plan 2026-08-02-012 (R34)
+          scope.
       - id: keepout_drop_no_overlap
         operator: dropped-term
         description: 'AddNoOverlap2D statement dropped: the keepout interval is created but never enforced, so components
@@ -178,27 +184,27 @@ families:
       - id: keepout_loosened_interval
         operator: loosened-bound
         description: 'keepout interval size halved: the enforced keepout is half its stated extent (a looser constraint)'
-        outcome: killed
-        defenses_fired:
-        - encoder-unit:keepout
-        - placement-auditor:keepout
-        - encoder-unit:test_keepout_mutation_defense::test_origin_zone_keepout
+        outcome: non-applicable
+        detail: 'transform failed: kx_w assignment not found (mutation not expressible on the current code shape)'
+        triage: non-applicable
+        triage_rationale: keepout margin arithmetic moved into the Rust kernel (temper_constraints.keepout_rect_units_py)
+          by main's Wave 4 migration; the Python source no longer carries the assignments this mutation targets, so it is
+          not expressible on the current code shape. Rust-side mutation testing of the kernel is plan 2026-08-02-012 (R34)
+          scope.
       - id: keepout_sign_flip_start
         operator: sign-flip
         description: 'keepout start sign flipped (kx_s = mm_to_units(zx_min) - margin_u becomes kx_s = margin_u - mm_to_units(zx_min)):
           the interval is mirrored about the origin'
-        outcome: survived
-        triage: test-gap
-        triage_rationale: 'The interval start is mirrored about the origin, so the keepout protects the wrong region and the
-          intended zone is unprotected. Every tested solve parked the component away from both the mirrored interval and the
-          zone, so no defense observed the vacuous keepout. TODO: a probe that forces the component into the intended zone''s
-          footprint (plan 2026-08-02-005 / 016 audit gap).'
+        outcome: non-applicable
+        detail: 'transform failed: expected 1 kx_s assignment, flipped 0 (mutation not expressible on the current code shape)'
+        triage: non-applicable
+        triage_rationale: keepout margin arithmetic moved into the Rust kernel (temper_constraints.keepout_rect_units_py)
+          by main's Wave 4 migration; the Python source no longer carries the assignments this mutation targets, so it is
+          not expressible on the current code shape. Rust-side mutation testing of the kernel is plan 2026-08-02-012 (R34)
+          scope.
       killed:
-      - keepout_double_count_margin
       - keepout_drop_no_overlap
-      - keepout_loosened_interval
-      survived:
-      - keepout_sign_flip_start
+      survived: []
     - id: loop_area
       constraint_type: LOOP_AREA
       handler_module: temper_placer.placer.cp_sat.handlers.loop_area

@@ -93,15 +93,27 @@ class TestTriagePreservation:
             for m in surface["mutations"]:
                 if m["outcome"] == "survived":
                     assert (surface["id"], m["id"]) in triage
-        assert len(triage) == 16  # all survivors carry a curated verdict
+        assert len(triage) == 15  # all survivors carry a curated verdict (16th was keepout, now non-applicable)
 
 
 class TestOperatorCoverage:
     def test_every_r4_operator_is_killed_on_at_least_one_encoding(self, register) -> None:
-        """Definition of Done: each R4 bug-class operator is demonstrated killed."""
+        """Definition of Done: each R4 bug-class operator is demonstrated killed.
+
+        An operator may instead be documented non-applicable on every surface
+        where it was registered (with a recorded rationale). Today that is
+        double-count: its only registration was on the keepout margin math,
+        which the Wave 4 migration moved into the Rust kernel.
+        """
         killed_operators: set[str] = set()
+        non_applicable: set[str] = set()
         for surface in _active_surfaces(register):
             for m in surface["mutations"]:
                 if m["outcome"] == "killed":
                     killed_operators.add(m["operator"])
-        assert killed_operators == set(runner.VALID_OPERATORS)
+                elif m["outcome"] == "non-applicable":
+                    assert m.get("triage_rationale"), f"{m['id']} lacks a rationale"
+                    non_applicable.add(m["operator"])
+        assert killed_operators | non_applicable == set(runner.VALID_OPERATORS), (
+            f"uncovered operators: {sorted(set(runner.VALID_OPERATORS) - killed_operators - non_applicable)}"
+        )

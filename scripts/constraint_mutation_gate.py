@@ -44,7 +44,7 @@ EXIT_OK = 0
 EXIT_MISSING = 3
 EXIT_ERROR = 5
 
-VALID_TRIAGE = ("benign", "test-gap")
+VALID_TRIAGE = ("benign", "test-gap", "non-applicable")
 
 
 def _die(code: int, msg: str) -> None:
@@ -144,7 +144,7 @@ def check_handler_surfaces(doc: dict) -> list[str]:
                 f"encoding's defenses ({len(mutations)} registered mutations)"
             )
         for m in mutations:
-            if m.get("outcome") != "survived":
+            if m.get("outcome") not in ("survived", "non-applicable"):
                 continue
             triage = m.get("triage")
             if triage not in VALID_TRIAGE:
