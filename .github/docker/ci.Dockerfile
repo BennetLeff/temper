@@ -105,4 +105,32 @@ RUN rm -f packages/temper-rust-router-core/src/lib.rs \
     packages/temper-design-bundle/src/lib.rs \
     packages/temper-placer/temper-constraints/src/lib.rs
 
+# ── Pre-install third-party Python dependencies ───────────────────────────────
+# Same trick as the cargo layer above, for Python. `uv sync --all-packages` was
+# measured at 87s per job on 2026-08-03 -- paid by every container job, even on
+# a venv cache hit (the cache restores .venv but uv still resolves and links
+# every package). With 79% of the workflow's job-time already going to setup,
+# that was the single largest un-harvested win.
+#
+# Only THIRD-PARTY packages are baked. The 15 workspace members are deliberately
+# excluded: they install editable, pointing at the CI checkout path, which does
+# not exist at image-build time. CI's `uv sync --all-packages --inexact` still
+# runs and installs those -- it just no longer has to install the ~70
+# third-party packages (429 MB unpacked; scipy, ortools, pandas, numpy) first.
+#
+# requirements-ci.txt is generated from uv.lock and a hygiene gate asserts the
+# two stay in sync, so this layer invalidates exactly when the lockfile changes:
+#   uv export --all-packages --no-emit-workspace --format requirements-txt --no-hashes
+COPY requirements-ci.txt /tmp/requirements-ci.txt
+RUN uv venv /_temper-venv \
+    && VIRTUAL_ENV=/_temper-venv uv pip install --no-cache -r /tmp/requirements-ci.txt \
+    && rm -rf /root/.cache/uv
+
+# CI jobs set VIRTUAL_ENV=/_temper-venv so `uv sync`, `maturin develop` and
+# `uv run` all target this pre-populated environment rather than building a
+# fresh .venv in the workspace.
+ENV VIRTUAL_ENV=/_temper-venv
+ENV UV_PROJECT_ENVIRONMENT=/_temper-venv
+ENV PATH="/_temper-venv/bin:${PATH}"
+
 WORKDIR /workspace
