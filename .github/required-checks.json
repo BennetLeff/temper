@@ -92,7 +92,10 @@
     "ci-corpus/**",
     "scripts/check_incident_corpus.py",
     "scripts/tests/test_check_incident_corpus.py",
-    "scripts/tests/test_canary_inventory.py"
+    "scripts/tests/test_canary_inventory.py",
+    "firmware/tools/**",
+    "scripts/check_firmware_board_contract.py",
+    "scripts/tests/test_check_firmware_board_contract.py"
   ],
   "job_triggers": {
     "Cargo / Rustc Smoke Check": {
