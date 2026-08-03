@@ -109,6 +109,49 @@ def test_evaluation_reports_skipped_conclusions_separately() -> None:
     assert not evaluation.complete_success
 
 
+def test_cancelled_conclusion_is_pending_not_failure() -> None:
+    """A cancelled check is superseded work, not a verdict.
+
+    python-tests sets `cancel-in-progress: true` on PRs, so every re-push
+    cancels the previous run's jobs. Classifying that as a failure is terminal
+    -- the poll loop returns 1 immediately -- which made rapid iteration fail
+    on the run the author had just replaced.
+    """
+
+    evaluation = evaluate_check_runs(
+        CONTEXTS, [run("Core Tests"), run("Type Check", conclusion="cancelled", run_id=2)]
+    )
+    assert evaluation.failed == ()
+    assert evaluation.pending == ("Type Check (cancelled -- superseded, awaiting rerun)",)
+    assert not evaluation.complete_success
+
+
+def test_cancelled_is_superseded_by_a_newer_run_of_the_same_context() -> None:
+    """The newer run must win, otherwise 'pending' would never resolve."""
+
+    evaluation = evaluate_check_runs(
+        CONTEXTS,
+        [
+            run("Core Tests"),
+            run("Type Check", conclusion="cancelled", run_id=2),
+            run("Type Check", conclusion="success", run_id=3),
+        ],
+    )
+    assert evaluation.complete_success
+    assert evaluation.pending == ()
+    assert evaluation.failed == ()
+
+
+def test_genuine_failure_is_still_terminal() -> None:
+    """Softening `cancelled` must not soften real failures."""
+
+    evaluation = evaluate_check_runs(
+        CONTEXTS, [run("Core Tests"), run("Type Check", conclusion="failure", run_id=2)]
+    )
+    assert evaluation.failed == ("Type Check (failure)",)
+    assert not evaluation.complete_success
+
+
 def test_verified_skip_passes() -> None:
     class FakeApi:
         def pull_request_files(self, repository: str, number: int) -> tuple[str, ...]:
