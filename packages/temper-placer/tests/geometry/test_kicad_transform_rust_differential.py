@@ -55,6 +55,48 @@ def test_matches_at_various_angles(angle_deg):
         assert rust[1] == pytest.approx(python[1], abs=1e-9)
 
 
+# The solver's finite angle set (plan 011 U2): the differential must pin the
+# two sanctioned copies over the EXHAUSTIVE set, not just spot angles --
+# every (angle, offset) pair in the enumeration.
+_FINITE_ANGLE_SET_DEG = (0.0, 90.0, 180.0, 270.0)
+_EXHAUSTIVE_OFFSETS = ((0.5, 0.3), (2.0, -1.0), (5.0, 0.0), (3.7, -2.1), (-5.0, 5.0))
+
+
+@pytest.mark.parametrize("angle_deg", _FINITE_ANGLE_SET_DEG)
+@pytest.mark.parametrize("offset", _EXHAUSTIVE_OFFSETS)
+def test_matches_over_exhaustive_finite_angle_set(angle_deg, offset):
+    """Python ``kicad_transform`` and Rust ``transform_pin_position`` agree
+    for every (angle, offset) pair in the exhaustive enumeration of the
+    solver's finite angle set {0, 90, 180, 270} x the offset set. A sign
+    flip in either implementation fails here (the anchor values at 90/270
+    with asymmetric offsets differ between R(-theta) and R(+theta))."""
+    angle_rad = math.radians(angle_deg)
+    comp_x, comp_y = 12.5, -7.25
+    pin_x, pin_y = offset
+    rust = transform_pin_position(pin_x, pin_y, comp_x, comp_y, angle_rad)
+    python = place_local_to_world(pin_x, pin_y, comp_x, comp_y, angle_rad)
+    assert rust[0] == pytest.approx(python[0], abs=1e-9), (angle_deg, offset)
+    assert rust[1] == pytest.approx(python[1], abs=1e-9), (angle_deg, offset)
+
+
+@pytest.mark.parametrize("angle_deg", _FINITE_ANGLE_SET_DEG)
+def test_batch_matches_over_exhaustive_finite_angle_set(angle_deg):
+    """The batch form (``transform_pin_positions``) agrees with Python over
+    the same exhaustive enumeration."""
+    angle_rad = math.radians(angle_deg)
+    comp_x, comp_y = 12.5, -7.25
+    pins = list(_EXHAUSTIVE_OFFSETS)
+    flat = [c for p in pins for c in p]
+    rust_flat = transform_pin_positions(flat, comp_x, comp_y, angle_rad)
+    for i, (pin_x, pin_y) in enumerate(pins):
+        python = place_local_to_world(pin_x, pin_y, comp_x, comp_y, angle_rad)
+        assert rust_flat[2 * i] == pytest.approx(python[0], abs=1e-9), (angle_deg, (pin_x, pin_y))
+        assert rust_flat[2 * i + 1] == pytest.approx(python[1], abs=1e-9), (
+            angle_deg,
+            (pin_x, pin_y),
+        )
+
+
 def test_matches_batch():
     comp_x, comp_y = 0.0, 0.0
     angle_rad = math.radians(37.0)
