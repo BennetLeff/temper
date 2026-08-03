@@ -30,7 +30,7 @@ gherkin-official==29.0.0
 grimp==3.14
     # via import-linter
 hypothesis==6.148.7
-idna==3.11
+idna==3.15
     # via requests
 immutabledict==4.3.1
     # via ortools
