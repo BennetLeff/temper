@@ -45,11 +45,16 @@
   "check_footprint_drift.py": [
     ".github/workflows/python-tests.yml"
   ],
+  "check_hv_netclass_coverage.py": [
+    ".github/workflows/python-tests.yml",
+    "packages/temper-placer/src/temper_placer/core/design_rules.py"
+  ],
   "check_isolation_keepout.py": [
     ".github/workflows/python-tests.yml",
     "packages/temper-placer/src/temper_placer/core/isolation_constants.py",
     "packages/temper-placer/src/temper_placer/geometry/kicad_transform.py",
     "packages/temper-placer/src/temper_placer/placer/cp_sat/isolation_barrier.py",
+    "packages/temper-placer/src/temper_placer/requirements/validators/clearance.py",
     "packages/temper-placer/tests/placer/cp_sat/test_isolation_barrier.py",
     "packages/temper-placer/tests/requirements/safety/test_rotation_convention_oracle.py"
   ],
@@ -136,6 +141,7 @@
   "ci_identity_check.py": [
     ".github/workflows/python-tests.yml"
   ],
+  "classify_changed_paths.py": [],
   "compare_drc_reports.py": [
     "scripts/sprint1_validation.sh"
   ],
@@ -161,7 +167,9 @@
     "Makefile",
     "packages/temper-placer/src/temper_placer/io/provenance.py"
   ],
-  "generate_kicad_dru.py": [],
+  "generate_kicad_dru.py": [
+    ".github/workflows/python-tests.yml"
+  ],
   "human_reference_compare.py": [
     ".github/workflows/human-reference-check.yml"
   ],
@@ -213,7 +221,8 @@
   "profile_router_v6_sampling.py": [],
   "profile_rust_topology.py": [],
   "pytest_guard.py": [
-    ".github/workflows/python-tests.yml"
+    ".github/workflows/python-tests.yml",
+    ".github/workflows/r9-evidence.yml"
   ],
   "quarantine_report.py": [
     ".github/workflows/corpus-batch.yml",

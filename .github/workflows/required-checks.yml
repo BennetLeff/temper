@@ -16,7 +16,7 @@ jobs:
   required-python-tests:
     name: Required Python Tests
     runs-on: ubuntu-latest
-    timeout-minutes: 50
+    timeout-minutes: 240
     if: ${{ always() }}
     steps:
       # Evaluate trusted base-branch code so a PR cannot weaken the required

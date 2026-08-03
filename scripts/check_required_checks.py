@@ -6,6 +6,16 @@ filtered-out workflow produces no check-run context for branch protection to
 observe.  This checker runs from an always-on workflow and makes that decision
 explicit: no matching trigger path is a legitimate skip; a matching path
 requires every candidate context to appear and succeed.
+
+Since the workflow additionally skips individual jobs with job-level `if:` path
+predicates (plan 2026-08-02-001, change-driven CI), a `skipped` required
+context passes only when this checker verifies the skip itself: it reads the
+PR's changed-file list (base-revision manifest + trigger sets) and confirms no
+changed file maps to the job's trigger paths or the catch-all. An unverifiable
+skip -- API failure, no manifest entry, a changed file that should have run
+the job -- is treated as failed (fail-closed). Verification is inline in the
+same poll loop that gates the aggregate, so there is no window where the
+aggregate goes green from an unverified skip.
 """
 
 from __future__ import annotations
@@ -17,7 +27,7 @@ import re
 import sys
 import time
 from collections.abc import Callable, Iterable, Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from time import monotonic
 from typing import Any
@@ -31,10 +41,40 @@ class RequiredChecksError(RuntimeError):
 
 
 @dataclass(frozen=True)
+class JobTrigger:
+    """A path-conditional job's declared trigger set.
+
+    `id` is the workflow job key -- the output name the job's `if:` path
+    predicate consults on `needs.changes.outputs`. `paths` are the trigger
+    patterns, restricted to the glob subset `path_matches` implements.
+    """
+
+    id: str
+    paths: tuple[str, ...]
+
+    @classmethod
+    def from_mapping(cls, raw: Mapping[str, Any], name: str) -> JobTrigger:
+        if not isinstance(raw, dict):
+            raise RequiredChecksError(
+                f"manifest job_triggers entry {name!r} must be an object"
+            )
+        job_id = raw.get("id")
+        if not isinstance(job_id, str) or not job_id:
+            raise RequiredChecksError(
+                f"manifest job_triggers entry {name!r} is missing a non-empty id"
+            )
+        return cls(id=job_id, paths=_string_tuple(raw, "paths"))
+
+
+@dataclass(frozen=True)
 class Manifest:
     trigger_paths: tuple[str, ...]
     required_contexts: tuple[str, ...]
+    job_triggers: Mapping[str, JobTrigger] = field(default_factory=dict)
+    catch_all_paths: tuple[str, ...] = ()
+    mapped_to_nothing: tuple[str, ...] = ()
     timeout_seconds: int = 1800
+    backlog_grace_seconds: int = 0
     poll_interval_seconds: int = 15
 
     @classmethod
@@ -46,17 +86,41 @@ class Manifest:
         if not required_contexts:
             raise RequiredChecksError("manifest required_contexts must not be empty")
 
+        job_triggers: dict[str, JobTrigger] = {}
+        raw_triggers = raw.get("job_triggers")
+        if raw_triggers is not None:
+            if not isinstance(raw_triggers, dict):
+                raise RequiredChecksError("manifest job_triggers must be an object")
+            for name, entry in raw_triggers.items():
+                if not isinstance(name, str) or not name:
+                    raise RequiredChecksError(
+                        "manifest job_triggers keys must be non-empty strings"
+                    )
+                job_triggers[name] = JobTrigger.from_mapping(entry, name)
+        catch_all_paths = (
+            _string_tuple(raw, "catch_all_paths") if "catch_all_paths" in raw else ()
+        )
+        mapped_to_nothing = (
+            _string_tuple(raw, "mapped_to_nothing") if "mapped_to_nothing" in raw else ()
+        )
+
         timeout_seconds = _positive_int(raw, "timeout_seconds", 1800)
+        backlog_grace_seconds = _positive_int(raw, "backlog_grace_seconds", 0)
         poll_interval_seconds = _positive_int(raw, "poll_interval_seconds", 15)
-        if poll_interval_seconds >= timeout_seconds:
+        if poll_interval_seconds >= timeout_seconds + backlog_grace_seconds:
             raise RequiredChecksError(
-                "manifest poll_interval_seconds must be less than timeout_seconds"
+                "manifest poll_interval_seconds must be less than the total "
+                "timeout budget (timeout_seconds + backlog_grace_seconds)"
             )
 
         return cls(
             trigger_paths=trigger_paths,
             required_contexts=required_contexts,
+            job_triggers=job_triggers,
+            catch_all_paths=catch_all_paths,
+            mapped_to_nothing=mapped_to_nothing,
             timeout_seconds=timeout_seconds,
+            backlog_grace_seconds=backlog_grace_seconds,
             poll_interval_seconds=poll_interval_seconds,
         )
 
@@ -95,10 +159,11 @@ class Evaluation:
     pending: tuple[str, ...]
     failed: tuple[str, ...]
     passed: tuple[str, ...]
+    skipped: tuple[str, ...] = ()
 
     @property
     def complete_success(self) -> bool:
-        return not self.missing and not self.pending and not self.failed
+        return not self.missing and not self.pending and not self.failed and not self.skipped
 
 
 def _string_tuple(raw: Mapping[str, Any], key: str) -> tuple[str, ...]:
@@ -168,6 +233,185 @@ def validate_trigger_manifest(manifest: Manifest, workflow_path: Path) -> None:
     if push_paths != manifest.trigger_paths:
         raise RequiredChecksError(
             "Python Tests trigger lists diverge from required-checks manifest"
+        )
+
+
+@dataclass(frozen=True)
+class JobBlock:
+    """The workflow-literal attributes of one job that the cross-check reads."""
+
+    id: str
+    name: str | None
+    if_: str | None
+    needs: str | None
+    outputs: tuple[str, ...]
+    lines: tuple[str, ...]
+
+
+def _is_job_key(line: str) -> bool:
+    return (
+        len(line) > 2
+        and line.startswith("  ")
+        and not line.startswith("   ")
+        and line[2] != "#"
+        and line.endswith(":")
+    )
+
+
+def load_job_blocks(workflow_path: Path) -> dict[str, JobBlock]:
+    """Parse job-level attributes (name, if, needs, outputs) from the workflow.
+
+    Line-based and dependency-free like load_workflow_trigger_paths: actionlint
+    syntax-validates the file; this only needs the literal job blocks to
+    cross-check the per-job trigger sets in the manifest.
+    """
+
+    try:
+        lines = workflow_path.read_text().splitlines()
+    except OSError as err:
+        raise RequiredChecksError(f"cannot read workflow {workflow_path}: {err}") from err
+
+    jobs_index = _find_line(lines, "jobs:")
+    blocks: dict[str, JobBlock] = {}
+    current_id: str | None = None
+    name: str | None = None
+    if_: str | None = None
+    needs: str | None = None
+    outputs: list[str] = []
+    block_lines: list[str] = []
+    in_outputs = False
+
+    for line in lines[jobs_index + 1 :]:
+        if _is_job_key(line):
+            if current_id is not None:
+                blocks[current_id] = JobBlock(
+                    current_id, name, if_, needs, tuple(outputs), tuple(block_lines)
+                )
+            current_id = line[2:].rstrip(":").strip()
+            name = if_ = needs = None
+            outputs = []
+            block_lines = []
+            in_outputs = False
+            continue
+        if current_id is None:
+            continue
+        block_lines.append(line)
+        if line.startswith("    ") and not line.startswith("      "):
+            attr, _, value = line[4:].partition(":")
+            if attr == "name" and name is None:
+                name = _unquote_yaml_scalar(value.strip())
+            elif attr == "if" and if_ is None:
+                if_ = _unquote_yaml_scalar(value.strip())
+            elif attr == "needs" and needs is None:
+                needs = value.strip()
+            elif attr == "outputs":
+                in_outputs = True
+            else:
+                in_outputs = False
+        elif (
+            in_outputs
+            and line.startswith("      ")
+            and not line.startswith("       ")
+            and not line.startswith("      - ")
+            and not line.startswith("      #")
+        ):
+            key, _, _ = line[6:].partition(":")
+            if key.strip():
+                outputs.append(key.strip())
+        else:
+            in_outputs = False
+    if current_id is not None:
+        blocks[current_id] = JobBlock(
+            current_id, name, if_, needs, tuple(outputs), tuple(block_lines)
+        )
+    return blocks
+
+
+def _needs_tokens(value: str | None) -> set[str]:
+    if value is None:
+        return set()
+    return {token.strip() for token in value.strip("[]").split(",") if token.strip()}
+
+
+def validate_job_conditions(manifest: Manifest, workflow_path: Path) -> None:
+    """Cross-check per-job trigger sets against the workflow's job conditions.
+
+    Structural, not behavioral (plan finding G5): every manifest job_triggers
+    entry must map to a workflow job whose `if:` is exactly the canonical path
+    predicate over the manifest's trigger set, whose declared name matches, and
+    which depends on the `changes` job; every workflow job whose `if:` consults
+    needs.changes.outputs must have a manifest entry; and the `changes` job
+    must run the shared classifier with outputs for exactly those jobs.
+
+    The pre-filter state (no job_triggers in the manifest and no path
+    predicates in the workflow) is inert by design: nothing to cross-check.
+    """
+
+    blocks = load_job_blocks(workflow_path)
+    conditional_ids = {
+        block.id
+        for block in blocks.values()
+        if block.if_ is not None and "needs.changes.outputs" in block.if_
+    }
+    if not manifest.job_triggers and not conditional_ids:
+        return
+
+    ids_by_name: dict[str, str] = {}
+    for name, trigger in manifest.job_triggers.items():
+        if trigger.id in ids_by_name:
+            raise RequiredChecksError(
+                f"manifest job_triggers entries share workflow job id {trigger.id!r}"
+            )
+        ids_by_name[trigger.id] = name
+
+    for name, trigger in manifest.job_triggers.items():
+        block = blocks.get(trigger.id)
+        if block is None:
+            raise RequiredChecksError(
+                f"manifest job_triggers entry {name!r} has no workflow job {trigger.id!r}"
+            )
+        if block.name != name:
+            raise RequiredChecksError(
+                f"workflow job {trigger.id!r} is named {block.name!r}, "
+                f"manifest job_triggers key is {name!r}"
+            )
+        expected_if = (
+            f"${{{{ github.event_name == 'push' || "
+            f"needs.changes.outputs.{trigger.id} == 'true' }}}}"
+        )
+        if block.if_ != expected_if:
+            raise RequiredChecksError(
+                f"workflow job {trigger.id!r} condition is not a pure path "
+                f"predicate over its manifest trigger set: "
+                f"expected {expected_if!r}, got {block.if_!r}"
+            )
+        if _needs_tokens(block.needs) != {"changes"}:
+            raise RequiredChecksError(
+                f"workflow job {trigger.id!r} must declare needs: [changes]"
+            )
+
+    for block in blocks.values():
+        if (
+            block.if_ is not None
+            and "needs.changes.outputs" in block.if_
+            and block.id not in ids_by_name
+        ):
+            raise RequiredChecksError(
+                f"workflow job {block.id!r} has a path-predicate condition "
+                "but no manifest job_triggers entry"
+            )
+
+    changes = blocks.get("changes")
+    if changes is None:
+        raise RequiredChecksError("workflow is missing the changes job")
+    if not any("classify_changed_paths.py" in line for line in changes.lines):
+        raise RequiredChecksError(
+            "the changes job must run scripts/classify_changed_paths.py"
+        )
+    if set(changes.outputs) != set(ids_by_name):
+        raise RequiredChecksError(
+            f"changes job outputs {sorted(changes.outputs)!r} do not match "
+            f"path-conditional job ids {sorted(ids_by_name)!r}"
         )
 
 
@@ -242,6 +486,23 @@ def _latest_runs(raw_runs: Iterable[Mapping[str, Any]]) -> dict[str, CheckRun]:
     return latest
 
 
+def _any_started(
+    required_contexts: Sequence[str], raw_runs: Iterable[Mapping[str, Any]]
+) -> bool:
+    """True if any required context has left the queue (in_progress or completed).
+
+    A required context that never leaves 'queued' is runner backlog, not
+    pipeline progress; the backlog grace deadline extension exists for exactly
+    that case, and must not fire once the pipeline has actually started.
+    """
+    latest = _latest_runs(raw_runs)
+    return any(
+        latest.get(context) is not None
+        and latest[context].status in ("in_progress", "completed")
+        for context in required_contexts
+    )
+
+
 def evaluate_check_runs(
     required_contexts: Sequence[str], raw_runs: Iterable[Mapping[str, Any]]
 ) -> Evaluation:
@@ -250,6 +511,7 @@ def evaluate_check_runs(
     pending: list[str] = []
     failed: list[str] = []
     passed: list[str] = []
+    skipped: list[str] = []
 
     for context in required_contexts:
         run = latest.get(context)
@@ -259,10 +521,84 @@ def evaluate_check_runs(
             pending.append(f"{context} ({run.status})")
         elif run.conclusion == "success":
             passed.append(context)
+        elif run.conclusion == "skipped":
+            skipped.append(context)
         else:
             failed.append(f"{context} ({run.conclusion or 'no conclusion'})")
 
-    return Evaluation(tuple(missing), tuple(pending), tuple(failed), tuple(passed))
+    return Evaluation(
+        tuple(missing), tuple(pending), tuple(failed), tuple(passed), tuple(skipped)
+    )
+
+
+def job_should_run(context_name: str, changed_files: Iterable[str], manifest: Manifest) -> bool:
+    """Would the workflow's path predicate run this job for these changed files?
+
+    Mirrors the workflow-side classifier (scripts/classify_changed_paths.py):
+    both derive from the same manifest and the same path_matches
+    implementation, so a skip verified here is exactly the skip the workflow
+    made. Each changed path resolves to exactly one category:
+
+    1. mapped to jobs -- the path is in some job's trigger set; exactly those
+       jobs run;
+    2. mapped to nothing -- the path matches only mapped_to_nothing patterns
+       (docs and TRACEABILITY); no path-conditional job runs;
+    3. catch-all -- the path matches catch_all_paths, or no job's trigger set
+       and no mapped_to_nothing pattern (residual); every path-conditional
+       job runs. Ambiguity defaults to running.
+
+    Fail-closed: a context with no manifest trigger entry is treated as
+    should-run, so its skip can never be verified.
+    """
+
+    trigger = manifest.job_triggers.get(context_name)
+    if trigger is None:
+        return True
+    for path in changed_files:
+        if matching_patterns((path,), trigger.paths):
+            return True
+        if matching_patterns((path,), manifest.catch_all_paths):
+            return True
+        if _is_category_one(path, manifest):
+            continue
+        if matching_patterns((path,), manifest.mapped_to_nothing):
+            continue
+        return True
+    return False
+
+
+def _is_category_one(path: str, manifest: Manifest) -> bool:
+    """True when the path is in some job's trigger set (category 1)."""
+
+    return any(
+        matching_patterns((path,), trigger.paths)
+        for trigger in manifest.job_triggers.values()
+    )
+
+
+def verify_skips(
+    evaluation: Evaluation, changed_files: Iterable[str], manifest: Manifest
+) -> Evaluation:
+    """Apply the SKIPPED-as-pass contract.
+
+    A `skipped` required context passes only when the checker itself verifies
+    the skip: no changed file maps to the job's trigger paths, the catch-all,
+    or a residual (unmapped) path. Anything unverifiable -- a context with no
+    manifest trigger entry, a changed file that should have run the job, a
+    matcher error -- is treated as failed. Called inline in the poll loop, so
+    there is no window where the aggregate goes green from an unverified skip.
+    """
+
+    if not evaluation.skipped:
+        return evaluation
+    passed = list(evaluation.passed)
+    failed = list(evaluation.failed)
+    for context in evaluation.skipped:
+        if job_should_run(context, changed_files, manifest):
+            failed.append(f"{context} (skipped but unverified)")
+        else:
+            passed.append(context)
+    return Evaluation(evaluation.missing, evaluation.pending, tuple(failed), tuple(passed), ())
 
 
 class GitHubApi:
@@ -403,8 +739,12 @@ def _run(
     required = manifest.required_contexts
     print("matched trigger paths: " + ", ".join(matched))
     deadline = clock() + manifest.timeout_seconds
+    grace_deadline = deadline + manifest.backlog_grace_seconds
+    extended_for_backlog = False
     while True:
-        evaluation = evaluate_check_runs(required, api.check_runs(repository, sha))
+        check_runs = api.check_runs(repository, sha)
+        evaluation = evaluate_check_runs(required, check_runs)
+        evaluation = verify_skips(evaluation, changed_files, manifest)
         _print_evaluation(evaluation)
         if evaluation.failed:
             print("FAIL: an applicable candidate check failed")
@@ -426,16 +766,30 @@ def _run(
             )
             return 0
         if clock() >= deadline:
-            print("FAIL: candidate checks did not reach a complete success before timeout")
-            _write_step_summary(
-                "Required Python Tests",
-                [
-                    "FAIL: candidate checks did not reach a complete success before timeout",
-                    *[f"missing: {item}" for item in evaluation.missing],
-                    *[f"pending: {item}" for item in evaluation.pending],
-                ],
-            )
-            return 1
+            if (
+                not extended_for_backlog
+                and manifest.backlog_grace_seconds > 0
+                and not _any_started(required, check_runs)
+            ):
+                extended_for_backlog = True
+                deadline = grace_deadline
+                print(
+                    "WARNING: required contexts never left the queue within "
+                    f"{manifest.timeout_seconds}s (runner backlog); extending the "
+                    f"polling window by {manifest.backlog_grace_seconds}s "
+                    "before failing closed"
+                )
+            else:
+                print("FAIL: candidate checks did not reach a complete success before timeout")
+                _write_step_summary(
+                    "Required Python Tests",
+                    [
+                        "FAIL: candidate checks did not reach a complete success before timeout",
+                        *[f"missing: {item}" for item in evaluation.missing],
+                        *[f"pending: {item}" for item in evaluation.pending],
+                    ],
+                )
+                return 1
         sleep(min(manifest.poll_interval_seconds, max(1.0, deadline - clock())))
 
 
@@ -467,6 +821,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             raise RequiredChecksError("GITHUB_EVENT_PATH is not set")
         manifest = load_manifest(args.manifest)
         validate_trigger_manifest(manifest, args.workflow_path)
+        validate_job_conditions(manifest, args.workflow_path)
         repository, number, sha = _event_context(args.event_path)
         api = GitHubApi(
             os.environ.get("GITHUB_TOKEN", os.environ.get("GH_TOKEN", "")),

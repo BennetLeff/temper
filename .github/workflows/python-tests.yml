@@ -48,6 +48,8 @@ on:
       - 'tests/**'
       - 'scripts/**'
       - 'pyproject.toml'
+      - 'uv.lock'
+      - '.github/workflows/**'
       - '.github/workflows/python-tests.yml'
       - '.github/workflows/required-checks.yml'
       - '.github/required-checks.json'
@@ -135,6 +137,8 @@ on:
       - 'tests/**'
       - 'scripts/**'
       - 'pyproject.toml'
+      - 'uv.lock'
+      - '.github/workflows/**'
       - '.github/workflows/python-tests.yml'
       - '.github/workflows/required-checks.yml'
       - '.github/required-checks.json'
@@ -219,8 +223,59 @@ on:
     - cron: '0 3 * * *'  # nightly at 3am UTC
 
 jobs:
+  # ---------------------------------------------------------------------------
+  # Change-driven CI (plan 2026-08-02-001). The path-conditional jobs below
+  # carry job-level `if:` path predicates: they run only when the PR's
+  # changed files map to their manifest trigger sets (job_triggers in
+  # .github/required-checks.json), the catch-all paths, or any residual
+  # (unmapped) path; docs/** and **/TRACEABILITY map to nothing. This job
+  # computes those decisions on every event -- on push to main, schedule and
+  # workflow_dispatch it reports every job as should-run, preserving the
+  # pre-conditions behavior.
+  #
+  # The classification script and the required-checks checker derive from the
+  # SAME manifest and the SAME path_matches implementation
+  # (check_required_checks.job_should_run), so a job skipped here is exactly
+  # a skip the checker verifies -- an unverifiable skip fails the "Required
+  # Python Tests" aggregate (fail-closed). The conditions are structurally
+  # cross-checked against the manifest by validate_job_conditions in
+  # scripts/check_required_checks.py, so a condition that is not a pure path
+  # predicate, or a trigger set that drifted from the workflow, fails that
+  # check. This job is deliberately cheap: stdlib python + `git diff` only --
+  # no container, no uv, no venv.
+  changes:
+    name: Change Classification
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      cargo-smoke: ${{ steps.classify.outputs.cargo-smoke }}
+      test: ${{ steps.classify.outputs.test }}
+      rust-checks: ${{ steps.classify.outputs.rust-checks }}
+      board-gates: ${{ steps.classify.outputs.board-gates }}
+      consistency-gates: ${{ steps.classify.outputs.consistency-gates }}
+      provenance-gates: ${{ steps.classify.outputs.provenance-gates }}
+      hygiene-gates: ${{ steps.classify.outputs.hygiene-gates }}
+      requirements-tests: ${{ steps.classify.outputs.requirements-tests }}
+      extended-bundle-workflow-checks: ${{ steps.classify.outputs.extended-bundle-workflow-checks }}
+      extended-cpsat: ${{ steps.classify.outputs.extended-cpsat }}
+      extended-cpsat-slow: ${{ steps.classify.outputs.extended-cpsat-slow }}
+      invariant-router-v6-1: ${{ steps.classify.outputs.invariant-router-v6-1 }}
+      invariant-router-v6-2: ${{ steps.classify.outputs.invariant-router-v6-2 }}
+      invariant-router-v6-3: ${{ steps.classify.outputs.invariant-router-v6-3 }}
+      invariant-router-v6-4: ${{ steps.classify.outputs.invariant-router-v6-4 }}
+      invariant-rest: ${{ steps.classify.outputs.invariant-rest }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Classify changed paths against manifest trigger sets
+        id: classify
+        run: python3 scripts/classify_changed_paths.py
+
   cargo-smoke:
     name: Cargo / Rustc Smoke Check
+    needs: [changes]
+    if: ${{ github.event_name == 'push' || needs.changes.outputs.cargo-smoke == 'true' }}
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/bennetleff/temper-ci:latest
@@ -293,6 +348,8 @@ jobs:
   # ---------------------------------------------------------------------------
   test:
     name: Core Tests
+    needs: [changes]
+    if: ${{ github.event_name == 'push' || needs.changes.outputs.test == 'true' }}
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/bennetleff/temper-ci:latest
@@ -540,6 +597,8 @@ jobs:
   # bridges -- including the pyo3 crates that maturin installs.
   rust-checks:
     name: Rust Checks (cargo check + clippy)
+    needs: [changes]
+    if: ${{ github.event_name == 'push' || needs.changes.outputs.rust-checks == 'true' }}
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/bennetleff/temper-ci:latest
@@ -634,6 +693,8 @@ jobs:
   # and report on its own. Kept last because that is where it reads best.
   board-gates:
     name: Board & Netlist Gates
+    needs: [changes]
+    if: ${{ github.event_name == 'push' || needs.changes.outputs.board-gates == 'true' }}
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/bennetleff/temper-ci:latest
@@ -910,6 +971,8 @@ jobs:
   # for the gate immediately below it and stays adjacent to it.
   consistency-gates:
     name: Cross-Source Consistency Gates
+    needs: [changes]
+    if: ${{ github.event_name == 'push' || needs.changes.outputs.consistency-gates == 'true' }}
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/bennetleff/temper-ci:latest
@@ -1092,6 +1155,8 @@ jobs:
   # gate step below the setup barrier means it masks nothing wherever it sits.
   provenance-gates:
     name: Provenance & Anti-Vacuity Gates
+    needs: [changes]
+    if: ${{ github.event_name == 'push' || needs.changes.outputs.provenance-gates == 'true' }}
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/bennetleff/temper-ci:latest
@@ -1292,6 +1357,8 @@ jobs:
   # committed manifest has to run before the step that regenerates it.
   hygiene-gates:
     name: Repo Hygiene & Import Gates
+    needs: [changes]
+    if: ${{ github.event_name == 'push' || needs.changes.outputs.hygiene-gates == 'true' }}
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/bennetleff/temper-ci:latest
@@ -1473,6 +1540,8 @@ jobs:
   # isolation gate went red. They get their own verdict.
   requirements-tests:
     name: Requirements Tests (safety / EMC / review / DFM)
+    needs: [changes]
+    if: ${{ github.event_name == 'push' || needs.changes.outputs.requirements-tests == 'true' }}
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/bennetleff/temper-ci:latest
@@ -1649,6 +1718,8 @@ jobs:
   # test suite flakiness; hard-fail after 2026-09-01).
   extended-bundle-workflow-checks:
     name: Extended Test Suites (bundle / workflow / checks)
+    needs: [changes]
+    if: ${{ github.event_name == 'push' || needs.changes.outputs.extended-bundle-workflow-checks == 'true' }}
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/bennetleff/temper-ci:latest
@@ -1884,6 +1955,8 @@ jobs:
   #   budget for a suite of the same "well under a minute" shape.
   extended-cpsat:
     name: Extended Test Suites (cp-sat, fast)
+    needs: [changes]
+    if: ${{ github.event_name == 'push' || needs.changes.outputs.extended-cpsat == 'true' }}
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/bennetleff/temper-ci:latest
@@ -2031,6 +2104,8 @@ jobs:
 
   extended-cpsat-slow:
     name: Extended Test Suites (cp-sat, slow x2)
+    needs: [changes]
+    if: ${{ github.event_name == 'push' || needs.changes.outputs.extended-cpsat-slow == 'true' }}
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/bennetleff/temper-ci:latest
@@ -2187,6 +2262,8 @@ jobs:
 
   invariant-router-v6-1:
     name: Invariant tests (router_v6 group 1)
+    needs: [changes]
+    if: ${{ github.event_name == 'push' || needs.changes.outputs.invariant-router-v6-1 == 'true' }}
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/bennetleff/temper-ci:latest
@@ -2283,6 +2360,8 @@ jobs:
         continue-on-error: true  # TODO: temper-NNN -- one live failure; re-check and unmask
   invariant-router-v6-2:
     name: Invariant tests (router_v6 group 2)
+    needs: [changes]
+    if: ${{ github.event_name == 'push' || needs.changes.outputs.invariant-router-v6-2 == 'true' }}
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/bennetleff/temper-ci:latest
@@ -2374,6 +2453,8 @@ jobs:
 
   invariant-router-v6-3:
     name: Invariant tests (router_v6 group 3)
+    needs: [changes]
+    if: ${{ github.event_name == 'push' || needs.changes.outputs.invariant-router-v6-3 == 'true' }}
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/bennetleff/temper-ci:latest
@@ -2471,6 +2552,8 @@ jobs:
   # change helps; it needs a worker of its own. See issue #541.
   invariant-router-v6-4:
     name: Invariant tests (router_v6 group 4)
+    needs: [changes]
+    if: ${{ github.event_name == 'push' || needs.changes.outputs.invariant-router-v6-4 == 'true' }}
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/bennetleff/temper-ci:latest
@@ -2564,6 +2647,8 @@ jobs:
 
   invariant-rest:
     name: Invariant tests (io, deterministic, physics, fields, validation, cp_sat)
+    needs: [changes]
+    if: ${{ github.event_name == 'push' || needs.changes.outputs.invariant-rest == 'true' }}
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/bennetleff/temper-ci:latest
