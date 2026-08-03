@@ -98,6 +98,37 @@ Dependency rationale: the ortools boundary shapes how the `placer/` solver-bound
 
 Dependency rationale: formats (Phase 3) produce these objects and orchestration (Phase 5) calls them; migrating them first is what makes those phases tractable (D5).
 
+##### Phase 2 residual decisions (R3, recorded 2026-08-03)
+
+The four landed Phase-2 migrations (net_types, loop, design_rules, gates — all
+as pyo3 pyclasses in temper-design-bundle) left the remaining named Phase-2
+surfaces to be decided under R3. Each record below was measured 2026-08-03 at
+origin/main `a47527751` (LOC via `wc -l`; consumers via `grep -rl` over
+`src/` = product importers, `src+tests` = total; deps = module-level import
+surface; churn = git-history signal, low unless noted). Verdicts follow the
+discipline contract's Step 3 evidence template; the prior per-candidate
+scorecards live in `packages/temper-design-bundle/VERIFICATION.md` (gates §
+scorecard names constraints/routing_results/protocol; design_rules § scorecard
+names board/netlist).
+
+- `pcl/constraints.py`: product-runtime → **JUSTIFIED-KEEP** — ortools-encoder entanglement: the 9 `placer/cp_sat/handlers/*` files plus `_encoder_core/_encoder_solve/_loop_core` construct encoder objects from these classes, and `pcl/sat_bridge.py`/`drc_bridge.py`/`rust_bridge.py` register backend callables into the class-level `BaseConstraint.backends` registry; `CompilationContext` fields are unmigrated `Netlist`/`Board`/`ChannelSkeleton`/`ChannelWidths`/`DesignRules`; `BaseConstraint` carries abstract methods + a mutable class-level registry — no frozen-pyclass mapping. Re-decide after the Phase 1 ortools spike's WRAP path (recorded above) (LOC: 872; consumers: 32 src / 77 incl. tests; deps: stdlib at module level, class-level backend registry + ortools encoder via cp_sat handlers; churn: low)
+- `router_v6/routing_results.py`: product-runtime → **JUSTIFIED-KEEP** — container over unmigrated runtime types: `CompiledRoute`/`CompiledTreeRoute`/`RoutingResults` fields and `compile_routing_results()` params hold `RoutePath`, `RoutePath3D`, `TreeRouteGeometry`, `NetConnectivity`, `NetDisposition`, `ViaPlacement`, `PathfindingResult`, `TraceWidthAssignment`, `NetRoutingReport` (9 router_v6 Python types, none migrated); a container-only pyclass over Python-object fields is net-negative; `compile_routing_results()` aggregation (U3 connectivity filtering, plane-width handling) is orchestration → Phase 5 (LOC: 233; consumers: 18 src / 76 incl. tests; deps: 8 router_v6 runtime modules; churn: low)
+- `protocol.py`: product-runtime → **JUSTIFIED-KEEP** — structural-typing `@runtime_checkable PipelineStage` Protocol (a typing construct, not runtime data — no pyclass mapping), `Contract` holds `dict[str, type]` for isinstance schema validation (Python runtime type objects, not representable in Rust), and `ContractViolation` is an exception; orchestration seam (PipelineRunner, adapters, strategy_registry) → Phase 5; written cost-benefit: full migration battery vs 141 LOC / 7 consumers = net-negative (LOC: 141; consumers: 7 src / 12 incl. tests; deps: stdlib only; churn: low)
+- `core/priority.py`: product-runtime → **MIGRATE (Phase 2)** — the last remaining named Phase-2 surface that is pure data + self-contained logic: two IntEnums, three dataclasses, and `PriorityConfig` classification heuristics (word-boundary keyword matching, prefix rules) with no third-party deps and no unmigrated field types; stdlib-only; 2 consumers. Migration executed in the same session (see the migration PR; delegation module keeps `POWER_STAGE_TEMPLATES`/`classify_net_priority` Python per the gates `_VIOLATION_TYPE_MAP` precedent) (LOC: 203; consumers: 2 src / 0 tests; deps: stdlib only; churn: low)
+- `core/geometry_types.py`: product-runtime → **JUSTIFIED-KEEP** — numpy boundary: `Point.to_array()` returns `np.ndarray` and the types feed numpy-based spatial code; `Point.distance_to` uses `math.hypot` (B4 py_hypot class); written cost-benefit: full migration battery vs 85 LOC / 5 consumers = net-negative; re-decidable if the numpy interop boundary lands (LOC: 85; consumers: 5; deps: numpy, math; churn: low)
+- `core/specification.py`: product-runtime → **JUSTIFIED-KEEP** — format churn: `PcbSpecification.load()` is PyYAML format IO → Phase 3 formats/IO territory; migrating the dataclasses alone leaves the loader in Python (half-migration, D5 double-mapping) (LOC: 86; consumers: 5; deps: PyYAML, pathlib; churn: low)
+- `core/loss_types.py`: product-runtime → **RETIRE** — self-declared DEPRECATED (JAX retirement): every class is a no-op stub (`NotImplementedError` bodies, empty defaults); deletion contingent on rewiring the 7 deprecated-path consumers (validation_gates, drc_oracle, metrics/quality, pipeline/feedback, io/placement_exporter, regression/physics_oracle, human_reference_extractor), which are themselves decisions under Phase 6 (LOC: 207; consumers: 7; deps: numpy (`np.zeros` defaults); churn: n/a — stub)
+- `router_v6/constraint_model.py`: product-runtime → **JUSTIFIED-KEEP** — unmigrated runtime types in fields + stage-validator entanglement: imports `Net`, `pin_world_position`, `Stage`, `BoardState` (deterministic state), `ChannelSkeleton`, `ChannelWidths`, `DiffPair`, `DesignRules`, `ParsedPCB`, `stage_validators` — the router_v6 compute surface (LOC: 621; consumers: 15; deps: core/deterministic/router_v6 compute; churn: low)
+- `pcl/tiers.py`: product-runtime → **JUSTIFIED-KEEP** — inherits the constraints.py ortools-encoder entanglement (imports `BaseConstraint`/`ConstraintTier`); moves only when the IR moves (LOC: 280; consumers: 1; deps: pcl.constraints; churn: low)
+- `pcl/tagged_constraints.py`: product-runtime → **JUSTIFIED-KEEP** — same pcl.constraints entanglement (imports the constraint classes for tag dispatch) (LOC: 308; consumers: 3; deps: pcl.constraints; churn: low)
+- `core/loop_ownership.py`: product-runtime → **JUSTIFIED-KEEP** — depends on unmigrated `Netlist`/`Component` + `loop_extractor.classify_component` compute; `build_ownership_map` is orchestration (LOC: 327; consumers: 2; deps: loop_extractor, netlist; churn: low)
+- `router_v6/_pipeline_types.py`: product-runtime → **JUSTIFIED-KEEP** — 17 unmigrated router_v6 runtime types in fields (`PathfindingResult`, `ChannelSkeleton`, `ConstraintModel`, `RoutingResults`, `SATModel`, ...); Phase 5 orchestration seam (LOC: 131; consumers: 5; deps: 17 router_v6 modules; churn: low)
+- `router_v6/_adapter_types.py`: product-runtime → **JUSTIFIED-KEEP** — `@runtime_checkable` Protocol + orchestration seam (Phase 5); same structural-typing blocker as protocol.py (LOC: 137; consumers: 4; deps: stdlib only; churn: low)
+- `core/board.py`: product-runtime → **JUSTIFIED-KEEP** — D5 dependency rationale: `Board` is produced by the Phase 3 KiCad parser and consumed by 100+ call sites; numpy float32 array fields; migrating before formats = double mapping (the D5-rejected ordering). Re-decide at Phase 3 pull (LOC: 803; consumers: 100+; deps: numpy; churn: low)
+- `core/netlist.py`: product-runtime → **JUSTIFIED-KEEP** — D5 rationale + numpy `eigh`/spectral adjacency not bit-reproducible (prior design_rules scorecard REJECT); Re-decide at Phase 3 pull (LOC: 440; consumers: 100+; deps: numpy; churn: low)
+
+Still open, not decided in this pass (outside the four survey trees): `validation/drc_types.py` (581), `validation/drc_result.py` (779), deterministic state — named Phase-2 surfaces to be decided at their pull.
+
 #### Phase 3 — Formats / IO
 
 | Scope | LOC | Days | Risk | Gates |
