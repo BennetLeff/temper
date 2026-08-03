@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import logging
 import time
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
@@ -103,6 +104,8 @@ def solve_placement(
     zone_components: dict[str, list[str]] | None = None,
     hint_positions: dict[str, tuple[float, float, int]] | None = None,
     minimize_displacement_to: dict[str, tuple[float, float]] | None = None,
+    reference_aliases: Mapping[str, str] | None = None,
+    loop_aliases: Mapping[str, str] | None = None,
     fixed_rotations: dict[str, int] | None = None,
     max_displacement_mm: float | None = None,
     isolation_barrier: dict | None = None,
@@ -132,6 +135,12 @@ def solve_placement(
             only move as far as the clearance constraints force them, and
             the existing routed copper is not disturbed wholesale the way a
             free reshuffle disturbs it.
+        reference_aliases: Optional explicit config-to-netlist component
+            reference mapping applied before validation. Unmapped names
+            remain subject to the fail-closed unresolved-reference policy.
+        loop_aliases: Optional explicit mapping for legacy loop names to the
+            loop namespace supplied by ``loop_components`` or netlist loop
+            extraction.
         fixed_rotations: Optional hard pinning of component rotations to
             their current 0-3 quadrant index: ``{ref: rotation_0_3}``.
             Routed-board repair must not rotate footprints (a rotation moves
@@ -381,11 +390,20 @@ def solve_placement(
         if zone_refs:
             resolved_zone_components[z.name] = zone_refs
 
+    resolved_loop_components = loop_components or _resolve_loop_components(netlist)
+    loop_reconciliation = _encoder_core.reconcile_loop_components(
+        resolved_loop_components,
+        reference_aliases,
+        loop_aliases,
+    )
+    if loop_reconciliation.aliases_applied:
+        logger.info("Applied loop aliases: %s", loop_reconciliation.aliases_applied)
+
     ctx = EncoderContext(
         board_w,
         board_h,
         zones={k: (v.x_min, v.y_min, v.x_max, v.y_max) for k, v in resolved_zones.items()},
-        loop_components=loop_components or _resolve_loop_components(netlist),
+        loop_components=loop_reconciliation.loop_components,
         zone_components=resolved_zone_components,
         board_x_min_units=0,
         board_y_min_units=0,
@@ -399,6 +417,15 @@ def solve_placement(
     pcl_coll = getattr(board, "constraints", None)
     if pcl_coll is not None:
         constraint_objects.extend(pcl_coll)
+
+    reconciliation = _encoder_core.reconcile_constraint_refs(
+        constraint_objects,
+        reference_aliases,
+        loop_aliases=loop_aliases,
+    )
+    constraint_objects = list(reconciliation.constraints)
+    if reconciliation.aliases_applied:
+        logger.info("Applied constraint aliases: %s", reconciliation.aliases_applied)
 
     # Fail loud on config↔netlist drift: a constraint operand that resolves
     # to nothing is a silent no-op, so validate before encoding. This is the
