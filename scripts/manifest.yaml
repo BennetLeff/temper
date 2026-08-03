@@ -1440,3 +1440,20 @@ scripts:
   - pathlib
   - re
   - sys
+- path: check_transition_table_mutations.py
+  purpose: 'CI gate (R40/P1, runs in the Firmware Tests workflow): fail on any live transition-table mutant,
+    mutation error, or skipped row reported by firmware/test/mutate_transition_table.py --sweep, and fail
+    closed on a stale report (generated_at older than --max-report-age-seconds) so a scheduled or committed
+    report can never satisfy the gate -- the mutation suite proves every row of the test-side TRANSITIONS
+    manifest (firmware/test/gen_transition_table.py) is exercised by tests that can fail'
+  owner: bennet
+  last_run: '2026-08-02'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - datetime
+  - json
+  - pathlib
+  - sys
