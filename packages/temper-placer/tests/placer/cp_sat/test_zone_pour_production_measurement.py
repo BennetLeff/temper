@@ -57,7 +57,6 @@ than silently reporting a number -- that failure is itself the answer to
 from __future__ import annotations
 
 import contextlib
-import json
 import os
 import statistics
 import subprocess
@@ -67,6 +66,8 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import pytest
+
+from tests.placer.cp_sat._parallel_drc import run_drc_samples
 
 _TEMPER_PLACER_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 _REPO_ROOT = _TEMPER_PLACER_ROOT.parent.parent
@@ -222,57 +223,6 @@ def _fill_zones_via_pcbnew(pcb_path: Path) -> Path:
     return filled_path
 
 
-def _run_drc(pcb_path: Path) -> dict:
-    drc_out_fd, drc_out_str = tempfile.mkstemp(suffix=".json")
-    os.close(drc_out_fd)
-    drc_out = Path(drc_out_str)
-    try:
-        proc = subprocess.run(
-            [
-                "kicad-cli",
-                "pcb",
-                "drc",
-                "--format",
-                "json",
-                "-o",
-                str(drc_out),
-                str(pcb_path),
-            ],
-            capture_output=True,
-            text=True,
-            timeout=600,
-        )
-        # Surface stdout/stderr/returncode unconditionally when diagnosing
-        # a missing-output failure -- a prior CI run showed kicad-cli
-        # exiting in under 1s with returncode 0 and no output file, which
-        # a returncode-gated stderr capture would silently hide.
-        proc_summary = (
-            f"returncode={proc.returncode} "
-            f"stdout={proc.stdout.strip()[:300]!r} "
-            f"stderr={proc.stderr.strip()[:300]!r}"
-        )
-    except subprocess.TimeoutExpired:
-        if drc_out.exists():
-            os.unlink(drc_out)
-        pytest.skip("kicad-cli DRC timed out")
-        return {}
-    except Exception:
-        if drc_out.exists():
-            os.unlink(drc_out)
-        raise
-
-    if not drc_out.exists() or drc_out.stat().st_size == 0:
-        pytest.skip(f"kicad-cli DRC produced no output file: {proc_summary}")
-        return {}
-
-    try:
-        with open(drc_out) as f:
-            return json.load(f)
-    finally:
-        with contextlib.suppress(OSError):
-            os.unlink(drc_out)
-
-
 @dataclass(frozen=True)
 class _ArmMeasurement:
     """One ``enable_zone_pours`` setting, routed once and DRC'd N times."""
@@ -365,8 +315,11 @@ class TestZonePourProductionMeasurement:
         by_type: dict[str, int] = {}
         try:
             filled_path = _fill_zones_via_pcbnew(routed_path)
-            for sample in range(_DRC_SAMPLE_RUNS):
-                drc_data = _run_drc(filled_path)
+            for sample, drc_data in enumerate(
+                run_drc_samples(
+                    filled_path, _DRC_SAMPLE_RUNS, timeout=600, label="zone-pour"
+                )
+            ):
                 violations = drc_data.get("violations", [])
                 unconnected = len(drc_data.get("unconnected_items", []))
                 unconnected_samples.append(unconnected)
