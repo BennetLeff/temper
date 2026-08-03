@@ -690,6 +690,35 @@ def optimize(
                 if write_result.has_warnings:
                     for w in write_result.warnings:
                         console.print(f"  [yellow]⚠[/] {w}")
+
+                # After-write round-trip oracle (plan 2026-08-02-009 U3):
+                # re-parse the written file and compare its pad geometry
+                # against the solver's model before declaring success -- a
+                # dropped or mis-signed rotation must fail the command at
+                # the write site, not surface later as a DRC regression.
+                from temper_placer.validation.placement_roundtrip import (
+                    check_placement_roundtrip,
+                )
+
+                # The writer emits an explicit angle for every solved ref
+                # (rotation index * 90), so the model rotations are the same
+                # complete dict the placements were built from -- not the
+                # sparse to_rotations_dict() shape.
+                rt_rotations = {
+                    ref: cp_result.rotations.get(ref, 0) * 90.0
+                    for ref in cp_result.positions
+                }
+                rt_result = check_placement_roundtrip(
+                    output,
+                    cp_result.positions,
+                    rt_rotations,
+                    netlist.components,
+                )
+                if not rt_result.passed:
+                    raise click.ClickException(
+                        f"Round-trip oracle FAILED after write: {rt_result.summary}"
+                    )
+                console.print(f"  [green]✓[/] Round-trip oracle: {rt_result.summary}")
                 console.print(f"  Output: {output}")
             else:
                 console.print(f"  [red]Solver returned unexpected status: {cp_result.status}[/]")
