@@ -24,100 +24,57 @@ import json
 import os
 import subprocess
 import tempfile
-from dataclasses import dataclass, field
-from enum import Enum
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
+import temper_design_bundle_python as _tdb
+
 if TYPE_CHECKING:
     from temper_placer.placer.cp_sat.feedback import ConstraintDelta  # noqa: F401
-    from temper_placer.router_v6.adapter import RoutingResult
 
+# ---------------------------------------------------------------------------
+# Wave 4 Phase 2 — the gate-contract data model lives in Rust.
+#
+# The contract types (`GateStatus`, `GateStage`, `ViolationType`,
+# `Violation`, `GateResult`, `BoardState`) are implemented as pyo3 pyclasses
+# in the `temper-design-bundle` crate (the `temper_design_bundle_python`
+# extension) — the FOURTH "contracts-as-pyo3-pyclasses" pivot
+# (``docs/plans/2026-08-01-001-feat-wave4-full-migration-program-plan.md``,
+# D5 / Phase B, mirroring core/net_types.py, core/loop.py and
+# core/design_rules.py). This module keeps the pre-migration public API
+# unchanged and re-exports the Rust pyclasses (the pure-delegation pattern).
+#
+# What stays Python: the `Gate` base class and every gate implementation
+# (DrcGate, RoutingGate, StackupGate, IECCreepageGate, PhysicsGate,
+# QualityGate, ErcGate) — they run subprocesses/kicad-cli and are not data
+# contracts — plus `_VIOLATION_TYPE_MAP` / `_map_violation_type`, which
+# resolve kicad-cli DRC type strings onto `ViolationType` members.
+#
+# Verification: bit-identical parity against the pinned pre-migration
+# implementation is asserted by
+# ``tests/placer/cp_sat/test_gates_rust_differential.py`` (oracle:
+# ``tests/placer/cp_sat/_gates_py_oracle.py``); the structural proof lives
+# in ``packages/temper-design-bundle/VERIFICATION.md``.
+#
+# API notes (deliberate, documented deviations from the pre-migration
+# dataclasses — recorded in VERIFICATION.md):
+# - The pyo3 enums expose a `members()` staticmethod for class-level
+#   iteration (the substitute for `list(GateStatus)` / `set(ViolationType)`);
+#   `__members__`-style iteration is otherwise unavailable on pyclasses.
+# - The frozen dataclasses raise `AttributeError` on attribute assignment,
+#   where the dataclasses raised the `dataclasses.FrozenInstanceError`
+#   subclass (same base class).
+# - `severity`/`threshold` coerce to float; an `int` passed pre-migration
+#   stayed an `int` (repr `1`), here it reprs as `1.0`. No consumer passes
+#   ints.
+# ---------------------------------------------------------------------------
 
-class GateStatus(Enum):
-    """Three-state gate measurement result."""
-
-    CLEAN = "clean"
-    VIOLATIONS = "violations"
-    UNMEASURED = "unmeasured"
-
-
-class GateStage(Enum):
-    """When in the place->route loop a gate is checked."""
-
-    PLACEMENT = "placement"
-    ROUTING = "routing"
-
-
-class ViolationType(Enum):
-    """Category of a single violation."""
-
-    CLEARANCE = "clearance"
-    UNROUTED = "unrouted"
-    SHORTING = "shorting"
-    MASK_BRIDGE = "mask_bridge"
-    EDGE_CLEARANCE = "edge_clearance"
-    # W2/U6: functional stackup violations.
-    REFERENCE_PLANE_SPLIT = "reference_plane_split"
-    CURRENT_DENSITY = "current_density"
-    # W3/U5: physics-gate violation types.
-    LOOP_INDUCTANCE = "loop_inductance"
-    THERMAL = "thermal"
-    CREEPAGE = "creepage"
-    VIA_COUNT = "via_count"
-    OCTILINEAR = "octilinear"
-    SLOP = "slop"
-
-
-@dataclass(frozen=True)
-class Violation:
-    """A single measured rule violation."""
-
-    type: ViolationType
-    components: tuple[str, ...] = ()
-    nets: tuple[str, ...] = ()
-    severity: float = 0.0
-    threshold: float = 0.0
-    description: str = ""
-    context: dict = field(default_factory=dict)
-
-
-@dataclass(frozen=True)
-class GateResult:
-    """Result of a single gate check.
-
-    ``error_message`` is only populated for ``UNMEASURED``.
-
-    Contract invariant (gate-contract.md §GateResult): a ``VIOLATIONS``
-    status with an empty ``violations`` tuple is rejected at construction
-    so "empty means clean, not couldn't-measure" is enforced at the type
-    boundary.
-    """
-
-    status: GateStatus
-    violations: tuple[Violation, ...] = ()
-    error_message: str = ""
-
-    def __post_init__(self):
-        if self.status is GateStatus.VIOLATIONS and len(self.violations) == 0:
-            raise ValueError("GateResult with status=VIOLATIONS must have at least one Violation")
-
-
-@dataclass(frozen=True)
-class BoardState:
-    """Frozen snapshot of the pipeline state handed to every gate.
-
-    Gates must not mutate this.  Per ``docs/brainstorms/2026-07-08-
-    gate-contract.md`` §BoardState: placement + routing + netlist + board
-    geometry + design rules + the routed PCB path.
-    """
-
-    placement: Any = None
-    routing: RoutingResult | None = None
-    netlist: Any = None
-    board: Any = None
-    design_rules: Any = None
-    routed_pcb_path: Path | None = None
+GateStatus = _tdb.GateStatus
+GateStage = _tdb.GateStage
+ViolationType = _tdb.ViolationType
+Violation = _tdb.Violation
+GateResult = _tdb.GateResult
+BoardState = _tdb.BoardState
 
 
 class Gate:
