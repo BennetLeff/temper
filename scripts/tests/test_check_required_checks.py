@@ -209,6 +209,136 @@ def test_evaluation_uses_newest_duplicate_check_run() -> None:
     assert evaluation.complete_success
 
 
+def grace_manifest() -> Manifest:
+    return Manifest(
+        trigger_paths=manifest().trigger_paths,
+        required_contexts=CONTEXTS,
+        timeout_seconds=30,
+        backlog_grace_seconds=100,
+        poll_interval_seconds=5,
+    )
+
+
+def queued_run(name: str, run_id: int = 1) -> dict[str, object]:
+    return run(name, status="queued", conclusion=None, run_id=run_id)
+
+
+def test_backlog_grace_waits_past_original_deadline_when_nothing_started() -> None:
+    class FakeApi:
+        def __init__(self) -> None:
+            self.polls = 0
+
+        def pull_request_files(self, repository: str, number: int) -> tuple[str, ...]:
+            return ("packages/example.py",)
+
+        def check_runs(self, repository: str, sha: str) -> tuple[dict[str, object], ...]:
+            self.polls += 1
+            if self.polls <= 7:
+                return (
+                    queued_run("Core Tests"),
+                    queued_run("Type Check", run_id=2),
+                )
+            return (run("Core Tests"), run("Type Check", run_id=2))
+
+    now = [0.0]
+    sleeps: list[float] = []
+    api = FakeApi()
+    result = _run(
+        grace_manifest(),
+        api,
+        "BennetLeff/temper",
+        1,
+        "abc123",
+        sleep=lambda seconds: (sleeps.append(seconds), now.__setitem__(0, now[0] + seconds)),
+        clock=lambda: now[0],
+    )
+    assert result == 0
+    assert now[0] == 35.0
+    assert api.polls == 8
+
+
+def test_backlog_grace_exhausted_fails_closed() -> None:
+    class FakeApi:
+        def pull_request_files(self, repository: str, number: int) -> tuple[str, ...]:
+            return ("packages/example.py",)
+
+        def check_runs(self, repository: str, sha: str) -> tuple[dict[str, object], ...]:
+            return (
+                queued_run("Core Tests"),
+                queued_run("Type Check", run_id=2),
+            )
+
+    now = [0.0]
+    sleeps: list[float] = []
+    api = FakeApi()
+    result = _run(
+        grace_manifest(),
+        api,
+        "BennetLeff/temper",
+        1,
+        "abc123",
+        sleep=lambda seconds: (sleeps.append(seconds), now.__setitem__(0, now[0] + seconds)),
+        clock=lambda: now[0],
+    )
+    assert result == 1
+    assert now[0] == 130.0
+    assert len(sleeps) > 10
+
+
+def test_started_but_slow_fails_at_original_deadline_despite_grace() -> None:
+    class FakeApi:
+        def pull_request_files(self, repository: str, number: int) -> tuple[str, ...]:
+            return ("packages/example.py",)
+
+        def check_runs(self, repository: str, sha: str) -> tuple[dict[str, object], ...]:
+            return (
+                run("Core Tests", status="in_progress", conclusion=None),
+                run("Type Check", status="in_progress", conclusion=None, run_id=2),
+            )
+
+    now = [0.0]
+    sleeps: list[float] = []
+    api = FakeApi()
+    result = _run(
+        grace_manifest(),
+        api,
+        "BennetLeff/temper",
+        1,
+        "abc123",
+        sleep=lambda seconds: (sleeps.append(seconds), now.__setitem__(0, now[0] + seconds)),
+        clock=lambda: now[0],
+    )
+    assert result == 1
+    assert now[0] == 30.0
+
+
+def test_no_grace_by_default_preserves_original_timeout_behavior() -> None:
+    class FakeApi:
+        def pull_request_files(self, repository: str, number: int) -> tuple[str, ...]:
+            return ("packages/example.py",)
+
+        def check_runs(self, repository: str, sha: str) -> tuple[dict[str, object], ...]:
+            return (
+                queued_run("Core Tests"),
+                queued_run("Type Check", run_id=2),
+            )
+
+    now = [0.0]
+    sleeps: list[float] = []
+    api = FakeApi()
+    result = _run(
+        manifest(),
+        api,
+        "BennetLeff/temper",
+        1,
+        "abc123",
+        sleep=lambda seconds: (sleeps.append(seconds), now.__setitem__(0, now[0] + seconds)),
+        clock=lambda: now[0],
+    )
+    assert result == 1
+    assert now[0] == 30.0
+
+
 def test_run_accepts_checks_after_polling() -> None:
     class FakeApi:
         def __init__(self) -> None:

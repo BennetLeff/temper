@@ -321,5 +321,6 @@
     "Extended Test Suites (cp-sat, slow x2)",
     "Repo Hygiene & Import Gates",
     "LOC Cap Gate"
-  ]
+  ],
+  "backlog_grace_seconds": 7200
 }

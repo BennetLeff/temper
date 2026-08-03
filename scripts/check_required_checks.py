@@ -74,6 +74,7 @@ class Manifest:
     catch_all_paths: tuple[str, ...] = ()
     mapped_to_nothing: tuple[str, ...] = ()
     timeout_seconds: int = 1800
+    backlog_grace_seconds: int = 0
     poll_interval_seconds: int = 15
 
     @classmethod
@@ -104,10 +105,12 @@ class Manifest:
         )
 
         timeout_seconds = _positive_int(raw, "timeout_seconds", 1800)
+        backlog_grace_seconds = _positive_int(raw, "backlog_grace_seconds", 0)
         poll_interval_seconds = _positive_int(raw, "poll_interval_seconds", 15)
-        if poll_interval_seconds >= timeout_seconds:
+        if poll_interval_seconds >= timeout_seconds + backlog_grace_seconds:
             raise RequiredChecksError(
-                "manifest poll_interval_seconds must be less than timeout_seconds"
+                "manifest poll_interval_seconds must be less than the total "
+                "timeout budget (timeout_seconds + backlog_grace_seconds)"
             )
 
         return cls(
@@ -117,6 +120,7 @@ class Manifest:
             catch_all_paths=catch_all_paths,
             mapped_to_nothing=mapped_to_nothing,
             timeout_seconds=timeout_seconds,
+            backlog_grace_seconds=backlog_grace_seconds,
             poll_interval_seconds=poll_interval_seconds,
         )
 
@@ -482,6 +486,23 @@ def _latest_runs(raw_runs: Iterable[Mapping[str, Any]]) -> dict[str, CheckRun]:
     return latest
 
 
+def _any_started(
+    required_contexts: Sequence[str], raw_runs: Iterable[Mapping[str, Any]]
+) -> bool:
+    """True if any required context has left the queue (in_progress or completed).
+
+    A required context that never leaves 'queued' is runner backlog, not
+    pipeline progress; the backlog grace deadline extension exists for exactly
+    that case, and must not fire once the pipeline has actually started.
+    """
+    latest = _latest_runs(raw_runs)
+    return any(
+        latest.get(context) is not None
+        and latest[context].status in ("in_progress", "completed")
+        for context in required_contexts
+    )
+
+
 def evaluate_check_runs(
     required_contexts: Sequence[str], raw_runs: Iterable[Mapping[str, Any]]
 ) -> Evaluation:
@@ -718,8 +739,11 @@ def _run(
     required = manifest.required_contexts
     print("matched trigger paths: " + ", ".join(matched))
     deadline = clock() + manifest.timeout_seconds
+    grace_deadline = deadline + manifest.backlog_grace_seconds
+    extended_for_backlog = False
     while True:
-        evaluation = evaluate_check_runs(required, api.check_runs(repository, sha))
+        check_runs = api.check_runs(repository, sha)
+        evaluation = evaluate_check_runs(required, check_runs)
         evaluation = verify_skips(evaluation, changed_files, manifest)
         _print_evaluation(evaluation)
         if evaluation.failed:
@@ -742,16 +766,30 @@ def _run(
             )
             return 0
         if clock() >= deadline:
-            print("FAIL: candidate checks did not reach a complete success before timeout")
-            _write_step_summary(
-                "Required Python Tests",
-                [
-                    "FAIL: candidate checks did not reach a complete success before timeout",
-                    *[f"missing: {item}" for item in evaluation.missing],
-                    *[f"pending: {item}" for item in evaluation.pending],
-                ],
-            )
-            return 1
+            if (
+                not extended_for_backlog
+                and manifest.backlog_grace_seconds > 0
+                and not _any_started(required, check_runs)
+            ):
+                extended_for_backlog = True
+                deadline = grace_deadline
+                print(
+                    "WARNING: required contexts never left the queue within "
+                    f"{manifest.timeout_seconds}s (runner backlog); extending the "
+                    f"polling window by {manifest.backlog_grace_seconds}s "
+                    "before failing closed"
+                )
+            else:
+                print("FAIL: candidate checks did not reach a complete success before timeout")
+                _write_step_summary(
+                    "Required Python Tests",
+                    [
+                        "FAIL: candidate checks did not reach a complete success before timeout",
+                        *[f"missing: {item}" for item in evaluation.missing],
+                        *[f"pending: {item}" for item in evaluation.pending],
+                    ],
+                )
+                return 1
         sleep(min(manifest.poll_interval_seconds, max(1.0, deadline - clock())))
 
 
