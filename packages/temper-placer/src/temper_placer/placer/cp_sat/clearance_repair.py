@@ -32,18 +32,24 @@ passes ``validator_input={"placement": placement, "voltage_domains":
 voltage_domains}`` into every ``solve_placement`` call, so each solve round
 re-runs the REQ-SAFE-01 validator itself on the solved placement and
 classifies its violations (see ``validator_audit.py``). The behavior contract
-is **fail-closed**: a HARD failure (a constraint-covered inter-component pair
-that the exact-copper validator still flags on a feasible/optimal solve --
-the run-B "box-separated but copper-touching" case) **raises RuntimeError
-inside solve_placement and aborts the whole repair**; no report is returned,
-because the encoding is unsound for that solve and continuing would paper over
-it. Intra-footprint straddlers (placement-independent, e.g. K3's own
-G5LE-1 coil-to-contact gap) and coverage gaps (inter pairs the generator never
-constrained -- the reinforcement loop's normal work) are **reported**, never
-raised: they land on ``ClearanceRepairReport.validator_audit`` (the final
-round's ``DomainClearanceValidatorAuditResult``). The loop's own independent
-checker stays (it drives reinforcement); the audit inside the solve is
-additive and is the one that gates on exact copper.
+is **fail-closed and round-aborting**: a HARD failure (a constraint-covered
+inter-component pair that the exact-copper validator still flags on a
+feasible/optimal solve -- the run-B "box-separated but copper-touching" case)
+**raises RuntimeError inside solve_placement**, and the loop catches it and
+terminates with status ``"gap"`` carrying the offending pair(s) -- it never
+returns a report that claims repairability over an encoding-unsound solve. A
+round-1 hard failure therefore aborts the whole repair (no further rounds are
+attempted), but it surfaces as a loud ``"gap"`` report rather than propagating
+the exception: the caller gets the classified evidence on the report, and the
+"safety net" property of the raise is preserved inside ``solve_placement``
+(any caller that does NOT catch it fails closed by construction). Intra-
+footprint straddlers (placement-independent, e.g. K3's own G5LE-1 coil-to-
+contact gap) and coverage gaps (inter pairs the generator never constrained --
+the reinforcement loop's normal work) are **reported**, never raised: they
+land on ``ClearanceRepairReport.validator_audit`` (the final round's
+``DomainClearanceValidatorAuditResult``). The loop's own independent checker
+stays (it drives reinforcement); the audit inside the solve is additive and is
+the one that gates on exact copper.
 
 **Loop invariant and termination (the induction that makes this a loop,
 not a script).**
@@ -85,6 +91,7 @@ routing delta.
 from __future__ import annotations
 
 import logging
+import re
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, cast
@@ -152,9 +159,10 @@ class ClearanceRepairReport:
     (``validator_input`` wired unconditionally into ``solve_placement``).
     The final round's classified result lands on ``validator_audit`` (plus
     the convenience counts below). A HARD failure never appears in this
-    report: it RAISES inside ``solve_placement`` and aborts the whole
-    repair -- fail-closed, so an encoding-unsound solve is never reported
-    as a repairable outcome (see the module docstring).
+    report's audit buckets: it RAISES inside ``solve_placement``, the loop
+    catches it, and the repair terminates with status ``"gap"`` naming the
+    offending pair(s) -- fail-closed, so an encoding-unsound solve is never
+    reported as a repairable outcome (see the module docstring).
     """
 
     pcb_path: str
@@ -283,10 +291,13 @@ def run_clearance_repair_solve(
             covered inter-component pair the exact-copper validator still
             flags (the run-B "box-separated but copper-touching" class).
             This is FAIL-CLOSED by design: the encoding is unsound for that
-            solve, so the whole repair aborts and no report is returned
-            (issue #523 gap 2 -- see the module docstring). The repair
-            recipe is expected validator-clean; this raise is the safety
-            net, not the normal path.
+            solve. The loop catches it and returns status ``"gap"`` naming
+            the offending pair(s) (see the module docstring); it is only
+            re-raised here if the catch itself is not reached, which never
+            happens in this loop -- the raise is documented for the
+            ``solve_placement`` contract, not as this function's normal
+            exit. The repair recipe is expected validator-clean; this is
+            the safety net, not the normal path.
     """
     from temper_placer.io.kicad_parser import parse_kicad_pcb
 
@@ -359,28 +370,58 @@ def run_clearance_repair_solve(
     reason = ""
 
     for round_index in range(max_rounds):
-        result = solve_placement(
-            netlist=netlist,
-            board=board,
-            extra_constraints=list(constraints),
-            timeout_ms=timeout_ms,
-            seed=seed,
-            hint_positions=hint_positions,
-            minimize_displacement_to=current_positions,
-            fixed_rotations=current_rotations,
-            max_displacement_mm=max_displacement_mm,
-            # Issue #523 gap 2: re-run the REQ-SAFE-01 validator itself on
-            # the solved placement (exact copper-to-copper, the function the
-            # CI gate runs). HARD failures raise here and abort the whole
-            # repair (fail-closed); intra-footprint / coverage-gap buckets
-            # land on result.validator_audit and are copied to the report
-            # below. The cheap center audit (audit_domain_clearance) stays
-            # independent of this.
-            validator_input={
-                "placement": placement,
-                "voltage_domains": voltage_domains,
-            },
-        )
+        try:
+            result = solve_placement(
+                netlist=netlist,
+                board=board,
+                extra_constraints=list(constraints),
+                timeout_ms=timeout_ms,
+                seed=seed,
+                hint_positions=hint_positions,
+                minimize_displacement_to=current_positions,
+                fixed_rotations=current_rotations,
+                max_displacement_mm=max_displacement_mm,
+                # Issue #523 gap 2: re-run the REQ-SAFE-01 validator itself on
+                # the solved placement (exact copper-to-copper, the function the
+                # CI gate runs). HARD failures raise inside solve_placement and
+                # are caught below -- the repair terminates with status "gap"
+                # (fail-closed, never a repairable report); intra-footprint /
+                # coverage-gap buckets land on result.validator_audit and are
+                # copied to the report below. The cheap center audit
+                # (audit_domain_clearance) stays independent of this.
+                validator_input={
+                    "placement": placement,
+                    "voltage_domains": voltage_domains,
+                },
+            )
+        except RuntimeError as exc:
+            # REQ-SAFE-01 validator post-solve audit HARD failure (issue #523
+            # gap 2): a constraint-covered inter pair the exact-copper
+            # validator still flags on a feasible/optimal solve means the box
+            # encoding is unsound for this solve. This is the same class the
+            # loop's own "gap" status exists for (a checker-flagged pair whose
+            # hard constraint was SAT), so terminate with a loud "gap" report
+            # naming the pair(s) instead of propagating the exception -- the
+            # caller gets the evidence on the report, and no further rounds are
+            # attempted (a round-1 hard failure aborts the whole repair).
+            _pairs = re.findall(
+                r"([A-Za-z0-9_]+)<->([A-Za-z0-9_]+)", str(exc)
+            )
+            status = "gap"
+            unreinforced = list(dict.fromkeys(_pairs))  # dedupe, keep order
+            reason = (
+                f"round {round_index + 1}: REQ-SAFE-01 validator post-solve "
+                f"audit HARD failure -- the solver's box model does not "
+                f"contain the real pad copper for pair(s) {unreinforced}; no "
+                f"placement constraint can fix them. Encoding-unsound for "
+                f"this solve (fail-closed). {exc}"
+            )
+            logger.error(
+                "repair round %d: validator audit hard failure -> gap: %s",
+                round_index + 1,
+                exc,
+            )
+            break
 
         if result.status not in ("optimal", "feasible"):
             names = [u.get("name", "?") for u in result.unsat_core[:8]]
