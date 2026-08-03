@@ -13,6 +13,7 @@ pub mod derivation;
 pub mod config;
 pub mod thresholds;
 pub mod oracle;
+pub mod quality_score;
 pub mod routing_quality;
 
 #[cfg(test)]
@@ -339,6 +340,59 @@ fn routing_quality_score_py(
 }
 
 #[pyfunction]
+#[allow(clippy::too_many_arguments)]
+fn placement_score_py(
+    overlap_count: i64,
+    boundary_violations: i64,
+    hv_lv_violations: i64,
+    keepout_violations: i64,
+    clearance_violations: i64,
+    zone_violations: i64,
+    total_wirelength: f64,
+    avg_net_length: f64,
+) -> PyResult<f64> {
+    temper_py_bridge::catch_panic(|| {
+        Ok(quality_score::placement_score(
+            overlap_count,
+            boundary_violations,
+            hv_lv_violations,
+            keepout_violations,
+            clearance_violations,
+            zone_violations,
+            total_wirelength,
+            avg_net_length,
+        ))
+    })
+}
+
+#[pyfunction]
+fn drc_score_py(error_count: i64, warning_count: i64) -> PyResult<f64> {
+    temper_py_bridge::catch_panic(|| {
+        Ok(quality_score::drc_score(error_count, warning_count))
+    })
+}
+
+#[pyfunction]
+fn overall_score_py(
+    placement_score: f64,
+    drc_score: f64,
+    routing_score: Option<f64>,
+) -> PyResult<f64> {
+    temper_py_bridge::catch_panic(|| {
+        Ok(quality_score::overall_score(
+            placement_score,
+            drc_score,
+            routing_score,
+        ))
+    })
+}
+
+#[pyfunction]
+fn interpret_score_py(score: f64) -> PyResult<String> {
+    temper_py_bridge::catch_panic(|| Ok(quality_score::interpret_score(score)))
+}
+
+#[pyfunction]
 fn is_available_py() -> bool {
     true
 }
@@ -354,6 +408,10 @@ fn temper_quality_oracle(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(classify_nets_py, m)?)?;
     m.add_function(wrap_pyfunction!(required_clearance_py, m)?)?;
     m.add_function(wrap_pyfunction!(routing_quality_score_py, m)?)?;
+    m.add_function(wrap_pyfunction!(placement_score_py, m)?)?;
+    m.add_function(wrap_pyfunction!(drc_score_py, m)?)?;
+    m.add_function(wrap_pyfunction!(overall_score_py, m)?)?;
+    m.add_function(wrap_pyfunction!(interpret_score_py, m)?)?;
     m.add_function(wrap_pyfunction!(is_available_py, m)?)?;
     m.add_function(wrap_pyfunction!(version_py, m)?)?;
     Ok(())
