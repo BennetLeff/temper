@@ -92,9 +92,6 @@
     "scripts/_lib/measurement_provenance.py",
     "scripts/tests/_lib/test_lib_measurement_provenance.py",
     "power_pcb_dataset/drc_ceiling.json",
-    "scripts/check_firmware_board_contract.py",
-    "scripts/tests/test_check_firmware_board_contract.py",
-    "firmware/tools/**",
     "power_pcb_dataset/physics_soundness_register.yaml",
     "scripts/physics_soundness_register_gate.py",
     "packages/temper-placer/tests/scripts/test_physics_soundness_register_gate.py"
