@@ -215,6 +215,84 @@ cadence; lighter L0/L1 exhaustive tests run on every commit.
 
 ---
 
+## 6. Constraint Mutation Suite (R32)
+
+A standing, gated suite inverts the fail-capable question: instead of asking
+whether a constraint encoding's test suite passes, it asks which R4 bug-class
+mutations the encoding's own defenses would catch.
+
+**Scope.** The 8 PCL handlers in
+`packages/temper-placer/src/temper_placer/placer/cp_sat/handlers/`. The
+router-V6 topology family is registered as deferred in the kill-set register:
+its ESL/BMC defense machinery was removed (plan 2026-08-02-005's verified
+assumption), and the mutation suite measures existing defenses only — a
+mutation with nothing to be killed against is registered, not force-fed a
+kill set.
+
+**Operators (KTD1).** Mutations are limited to the R4 fail-capable bug
+classes: sign flip, dropped term, loosened bound, off-by-one, double-count.
+Strawman mutations (multiply output by 1000, return zero) are rejected as
+invalid operators. Mutations are applied at **source level** — an AST
+transform rewrites a copy of the handler module, which is then loaded in
+place of the real encoder (no runtime monkeypatching) — and must actually
+change the encoder's output on a probe input (the model proto must differ),
+or they are classified `no-op` rather than counted as survivors.
+
+**Kill detection (KTD2).** Each mutation runs only its encoding's defense
+subset — the encoder unit-test mirrors and the post-solve `PlacementAuditor`
+— never the whole suite. The defense solvers are pinned
+(`num_search_workers=1`, fixed seed) so verdicts are reproducible. A mutation
+is *killed* when any defense fails, *survived* when all pass.
+
+**Register + gate (KTD3).** Every encoding's kill set lives in
+`power_pcb_dataset/constraint_kill_sets.yaml`; `scripts/constraint_mutation_gate.py`
+fails CI on a missing entry, an empty kill set, or an untriaged survivor.
+
+**Triage (KTD4).** A survivor is either *benign* (documented rationale — e.g.
+a 1-unit / 0.01 mm off-by-one below any enforceable precision) or *test-gap*
+(with a TODO referencing the follow-up that closes it). Untriaged survivors
+fail the gate.
+
+**Running the suite.**
+
+```bash
+PYTHONPATH=packages/temper-placer/src \
+  uv run --no-sync python scripts/constraint_mutation_runner.py
+# regenerate the register, preserving curated triage:
+PYTHONPATH=packages/temper-placer/src \
+  uv run --no-sync python scripts/constraint_mutation_runner.py \
+    --write-register power_pcb_dataset/constraint_kill_sets.yaml \
+    --triage-from power_pcb_dataset/constraint_kill_sets.yaml
+uv run python scripts/constraint_mutation_gate.py   # must exit 0
+```
+
+**Baseline findings (2026-08-02).** 32 mutations across 8 handlers: 15
+killed, 16 survived (triaged), 1 no-op. Every R4 operator is demonstrated
+killed on at least one encoding. Notable survivors, all triaged in the
+register:
+
+- `sep_drop_y_ok_clause` (**weak-nooverlap2d class**): dropping the `y_ok`
+  definitional clause frees the literal, so the final `x_ok ∨ y_ok`
+  disjunction is satisfiable with no y separation — and **neither** the
+  encoder test (at-least-one-axis assertion) **nor** the auditor (max-axis
+  Chebyshev gap) catches it. The plan's U1 scenario expected an auditor kill;
+  empirically it survives. This is the incident class the suite exists to
+  surface — closing it (a one-axis separation check) is plan 2026-08-02-016.
+- The ADJACENT / ALIGNED / ON_SIDE / LOOP_AREA / KEEPOUT defenses share a
+  blind spot: their tests solve without an objective, so the solver parks
+  components at the origin and weakening mutations are invisible. Only
+  floor-flip / infeasibility mutations are caught by the origin-parked
+  solves; the register marks the rest test-gap with plan 2026-08-02-005
+  (exhaustive bounds) as the follow-up.
+
+**U4 defense additions.** Two targeted fail-capable tests were added as part
+of the triage (not plan-005 exhaustive suites): `test_keepout_mutation_defense.py`
+(origin-zone + anchored keepout scenarios) and `test_loop_area_mutation_defense.py`
+(anchored-spread loop). These give KEEPOUT and LOOP_AREA their dropped-term /
+sign-flip / double-count kills.
+
+---
+
 ## Triaged findings (follow-ups)
 
 The batteries surfaced real limitations in the shipped solver, triaged per the AGENTS.md R22 rule
