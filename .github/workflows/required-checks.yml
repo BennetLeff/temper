@@ -12,6 +12,22 @@ permissions:
   pull-requests: read
   checks: read
 
+# This aggregator polls for candidate checks while occupying a runner slot --
+# i.e. it consumes capacity from the very pool the jobs it waits on need in
+# order to start. Without a concurrency group, every `synchronize` on a PR
+# stacks another poller on top of the previous ones, each holding a slot for up
+# to `timeout-minutes` (240). Measured 2026-08-03: ~24 concurrent jobs is the
+# account ceiling and a single push already requests ~40, so stacked pollers
+# are a self-amplifying starvation loop -- enough concurrently-pushed PRs and
+# every slot is held by a job waiting for jobs that can never start.
+#
+# Cancelling a superseded run is always correct here: its verdict is about the
+# previous head SHA, which can no longer merge. The newest run re-derives the
+# verdict from scratch, so nothing is lost by cancelling the older one.
+concurrency:
+  group: required-checks-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 jobs:
   required-python-tests:
     name: Required Python Tests
