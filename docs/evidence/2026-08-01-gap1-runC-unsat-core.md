@@ -1,4 +1,4 @@
-<!-- provenance: commit=<fill-after-artifact-commit> dirty=<bool> -->
+<!-- provenance: commit=d1bcfe1235a9026409e1b07914eb96b3abc41b52 dirty=false -->
 
 # Run-C (zone-inclusive fixed-copper) unsat-core analysis — issue #523 "gap 1"
 
