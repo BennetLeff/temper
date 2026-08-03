@@ -132,6 +132,7 @@ thresholds:
     c_type: uint16_t
     units: "register word"
     doc: "10Ω PT100 short threshold for 430Ω RREF; 15-bit ADC code shifted left one"
+    board_derivation: true  # re-derived from the board's r_ref by scripts/check_firmware_board_contract.py (registry: firmware/tools/board_derivations.yaml)
 
   - c_symbol: MAX31865_HIGH_THRESHOLD_WORD
     field: max31865_high_threshold_word
@@ -139,6 +140,7 @@ thresholds:
     c_type: uint16_t
     units: "register word"
     doc: "300Ω PT100 open threshold for 430Ω RREF; 15-bit ADC code shifted left one"
+    board_derivation: true  # re-derived from the board's r_ref by scripts/check_firmware_board_contract.py (registry: firmware/tools/board_derivations.yaml)
 
   - c_symbol: PAN_DEBOUNCE_COUNT
     field: pan_debounce_count
