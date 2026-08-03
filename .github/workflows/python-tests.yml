@@ -1029,6 +1029,45 @@ jobs:
         # gate.
         run: uv run python scripts/check_footprint_drift.py
 
+      - name: Netlist-board reconciliation gate unit tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest packages/temper-placer/tests/validation/test_netlist_reconciliation.py packages/temper-placer/tests/validation/test_netlist_reconciliation_mutations.py -v --tb=short
+
+      - name: Netlist<->board reconciliation gate (sheetpath + net membership)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        # Fail-closed: compares the netlist extracted from
+        # pcb/temper.kicad_pcb against the freshly compiled design netlist
+        # keyed by INSTANCE PATH and NET MEMBERSHIP, not refdes -- refdes is
+        # positional and reusable, so the 95% overlap check passes a
+        # wholesale renumber by construction and is blind to a reused
+        # designator (board C27 = tank.c_tank3 vs netlist C27 =
+        # ct_sense.c_filter: one ref, two components -- docs/handoffs/
+        # 2026-07-31-ci-enforcement-and-board-defects.md). Reports
+        # MISSING/EXTRA/RENUMBERED/REUSE/UNKEYABLE and net-level membership
+        # findings. On the current board the tank-cap class is PASS-for-
+        # missing: tank.c_tank3 IS present in the board file, staged
+        # off-outline (the off-board staging is owned by the R26 plan).
+        # Never `continue-on-error`: a gate that cannot run exits non-zero.
+        run: uv run python scripts/check_netlist_board_reconciliation.py
+
+      - name: Netlist-mutation corpus unit tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_netlist_mutator.py scripts/tests/test_netlist_mutation_corpus.py -v --tb=short
+
+      - name: Netlist-mutation corpus (identity checks bite on the mutation classes)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        # Injects the R39 mutation classes -- wholesale renumbering, dropped
+        # nets, reused refdes -- into a copy of the compiled design netlist
+        # and proves each fails its owning identity check while the clean
+        # netlist passes every check (anti-vacuity). Headline proof: the
+        # renumber class PASSES preflight_identity's 95% overlap check (a
+        # set-preserving permutation) while the sheetpath oracle reports
+        # RENUMBERED findings -- see
+        # docs/evidence/2026-08-02-netlist-renumber-proof.md. Never
+        # `continue-on-error`: an uncovered class or a failing clean netlist
+        # exits non-zero.
+        run: uv run python scripts/check_netlist_mutation_corpus.py
+
       - name: Pad-orientation gate unit tests
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run pytest scripts/tests/test_check_pad_orientation.py -v --tb=short
