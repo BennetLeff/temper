@@ -115,6 +115,9 @@
   ],
   "check_stash_stack_gate.py": [],
   "check_traceability.py": [],
+  "check_transition_table_mutations.py": [
+    ".github/workflows/firmware-tests.yml"
+  ],
   "check_typecheck_gate.py": [
     ".github/workflows/python-tests.yml"
   ],
