@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Gate-verification for the K3/tank3 solved placement candidate (issue #523).
 
-# provenance: commit=87df36a223472967624648372bde8a21c61ba02a dirty=false
+# provenance: commit=6edfa636a8b3a5621f9f625f423d547e4149863f dirty=false
 
 Measures the handoff §1 gates on the SOLVED placement (variant B summary JSON,
 no board write):

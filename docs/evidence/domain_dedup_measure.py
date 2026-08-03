@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# provenance: commit=74af50c52b8dcfd08e44aef27e67ff5a549f5809 dirty=false (measured on fix/domain-constraint-dedup-continued; re-verified at clean commit 74af50c52)
+# provenance: commit=029f766e5a794a9fe0c0a1b869ac5c5eb5bcd81d dirty=false (measured on fix/domain-constraint-dedup-continued; re-verified at clean commit 74af50c52)
 """Before/after measurement for the domain-clearance constraint dedup fix.
 
 Quantifies the fix to ``generate_domain_clearance_constraints``
