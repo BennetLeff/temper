@@ -892,7 +892,7 @@ jobs:
 
       - name: DRC ceiling approval gate tests
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
-        run: uv run pytest scripts/tests/test_check_drc_ceiling_approval.py packages/temper-placer/tests/regression/test_drc_ratchet.py -v --tb=short
+        run: uv run pytest scripts/tests/test_check_drc_ceiling_approval.py packages/temper-placer/tests/regression/test_drc_ratchet.py packages/temper-placer/tests/regression/test_drc_ratchet_approval.py -v --tb=short
 
       # drc_ceiling.json's own header states the policy: "Ceilings may only
       # decrease; raising one requires a 'Ceiling-Approval:' commit trailer
@@ -907,7 +907,7 @@ jobs:
       # or per-type, errors or warnings) increased without a
       # Ceiling-Approval: trailer on a commit in this PR. See
       # scripts/check_drc_ceiling_approval.py's module docstring.
-      - name: "DRC ceiling approval gate (Ceiling-Approval: trailer required on any raise)"
+      - name: "DRC ceiling approval gate (Ceiling-Approval: trailer + measurement evidence required on any raise)"
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python scripts/check_drc_ceiling_approval.py
 
