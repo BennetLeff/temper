@@ -1,20 +1,39 @@
 name: Literal-Removal Advisory
 
-# PR runs grouped per PR number, cancelled when superseded; main runs grouped
-# per SHA and never cancelled. Rationale: python-tests.yml.
+# Runs once per merge to main, NOT per pull-request push.
+#
+# This job carries job-level `continue-on-error: true`, and
+# scripts/literal_removal_check.py "always exits 0" by its own docstring -- so
+# it is advisory at both levels and can never block a merge. Its only output is
+# text for a human to read.
+#
+# On the PR path that made it pure capacity consumption. Measured 2026-08-03:
+# the account ceiling is ~24 concurrent jobs while a single push already
+# requests ~40, and 4 of these were in flight at once against 33 open PRs. Each
+# run is a full-history checkout (`fetch-depth: 0`) plus one `git grep` over the
+# whole repo per removed literal, budgeted at 15 minutes.
+#
+# Coverage of what actually LANDS is unchanged: on a squash merge,
+# `github.event.before` is the previous main tip, so the diff analysed here is
+# exactly the merged PR's diff. What is lost is pre-merge visibility -- the
+# advice now arrives just after a merge rather than just before one. That is the
+# deliberate trade: a check that cannot fail does not justify holding a runner
+# slot away from the checks that can.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  group: ${{ github.workflow }}-${{ github.sha }}
+  cancel-in-progress: false
 
 on:
-  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
 
 jobs:
   advisory:
     runs-on: ubuntu-latest
     continue-on-error: true
     # The check runs one `git grep` over the whole repo per removed literal, so
-    # a large PR diff makes it slow. It used to crash out in ~16s on a decode
+    # a large diff makes it slow. It used to crash out in ~16s on a decode
     # error, which hid that; with the crash fixed it runs to completion and
     # would otherwise inherit the 6-hour default.
     timeout-minutes: 15
@@ -23,5 +42,18 @@ jobs:
         with:
           fetch-depth: 0
 
+      # `github.event.before` is all-zeros on a branch's first push and can be
+      # unreachable after a force-push, so fall back to the first parent rather
+      # than letting `git diff` fail the step.
+      - name: Resolve diff base
+        id: base
+        run: |
+          BEFORE="${{ github.event.before }}"
+          if [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ] \
+             || ! git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then
+            BEFORE="$(git rev-parse HEAD~1)"
+          fi
+          echo "ref=$BEFORE" >> "$GITHUB_OUTPUT"
+
       - name: Run literal-removal check
-        run: python3 scripts/literal_removal_check.py --base ${{ github.event.pull_request.base.sha }}
+        run: python3 scripts/literal_removal_check.py --base "${{ steps.base.outputs.ref }}"
