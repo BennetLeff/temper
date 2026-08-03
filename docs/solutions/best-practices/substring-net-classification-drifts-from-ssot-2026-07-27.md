@@ -212,7 +212,7 @@ the same way the already-correct `AC`/`HV` regex checks in
    cover. Full detail, including the bug's routing consequence (excluding
    both outer copper layers from the router's grid) and the before/after
    gate output proving the widened vocabulary would have caught it:
-   `docs/evidence/2026-07-28-zone-layer-classification-fix.md`.
+   `docs/evidence/2026-07-28-zone-layer-classification-fix.md (evidence doc never merged to main; finding reproduced inline)`.
 
 ## Why This Matters
 
@@ -274,7 +274,7 @@ def _classify_net_class(net_name: str) -> str:
 
 ## Related
 
-- `docs/evidence/2026-07-28-zone-layer-classification-fix.md` -- the
+- `docs/evidence/2026-07-28-zone-layer-classification-fix.md (evidence doc never merged to main; finding reproduced inline)` -- the
   2026-07-28 fourth instance: `_parse_board.py`'s bare `"GND"`/`"VCC"`/
   `"+"`/`"PWR"` substring test excluded whole copper layers from the
   router's grid, missed by `check_net_classification.py`'s vocabulary

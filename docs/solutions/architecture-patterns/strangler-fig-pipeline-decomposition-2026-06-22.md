@@ -22,6 +22,9 @@ tags:
   - sprint-N5-N6
 ---
 
+> **Status update (2026-08-03 refresh):** `pipeline/adapters/` and `PipelineOrchestrator` were removed in the DAG migration; `benders_loop` with the JAX retirement.
+
+
 # Pattern: Strangler Fig Pipeline Decomposition
 
 ## Context

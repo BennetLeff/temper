@@ -23,6 +23,9 @@ tags:
   - temper-placer
 ---
 
+> **Status update (2026-08-03 refresh):** the 'After' fix block using `jax.nn.softmax`/`make_loss`/`compute_total_hpwl` was itself retired with the JAX loss stack; current baseline extraction measures regression/DRC-ratchet + metrics_recorder.
+
+
 # Five silent failures in baseline metric extraction produce wrong corpus gate
 
 ## Problem

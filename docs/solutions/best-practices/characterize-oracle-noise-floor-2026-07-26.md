@@ -166,7 +166,7 @@ still be exact.
 Two rules worth carrying: re-run the control, not just the treatment; and
 prefer a delta you can attribute to the thing you changed over a total
 that anything on the board can move. See
-`docs/evidence/2026-07-28-orphan-net-class-ground-highspeed.md`.
+`docs/evidence/2026-07-28-orphan-net-class-ground-highspeed.md (evidence doc never merged to main; finding reproduced inline)`.
 
 ## Related
 

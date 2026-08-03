@@ -382,7 +382,7 @@ jobs:
     # same kind of headroom against a smaller job rather than trimming to fit.
     timeout-minutes: 35
     env:
-      VIRTUAL_ENV: ${{ github.workspace }}/.venv
+      VIRTUAL_ENV: /_temper-venv
       # CI is the environment where the Rust DRC/clearance accelerator and
       # its Python-equivalence proof are themselves under test, so a skip
       # here must not be silent -- see the presence-gate step below and
@@ -404,17 +404,6 @@ jobs:
           version: "latest"
           enable-cache: true
       
-      - name: Cache virtualenv
-        uses: actions/cache@v6
-        id: cache-venv
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
-
-      - name: Create virtualenv (cache miss)
-        if: steps.cache-venv.outputs.cache-hit != 'true'
-        run: uv venv
-
       - name: Install maturin
         run: uv pip install maturin
 
@@ -611,7 +600,7 @@ jobs:
       options: --user root
     timeout-minutes: 45
     env:
-      VIRTUAL_ENV: ${{ github.workspace }}/.venv
+      VIRTUAL_ENV: /_temper-venv
       TEMPER_REQUIRE_RUST_DRC: "1"
     steps:
       - uses: actions/checkout@v7
@@ -627,17 +616,6 @@ jobs:
         with:
           version: "latest"
           enable-cache: true
-
-      - name: Cache virtualenv
-        uses: actions/cache@v6
-        id: cache-venv
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
-
-      - name: Create virtualenv (cache miss)
-        if: steps.cache-venv.outputs.cache-hit != 'true'
-        run: uv venv
 
       # ---- SETUP / GATE BOUNDARY -------------------------------------------
       # Everything ABOVE is setup and stays fail-fast: it has no `if:`, so if
@@ -729,7 +707,7 @@ jobs:
     # longer paid; the gates themselves totalled well under a minute.
     timeout-minutes: 40
     env:
-      VIRTUAL_ENV: ${{ github.workspace }}/.venv
+      VIRTUAL_ENV: /_temper-venv
       TEMPER_REQUIRE_RUST_DRC: "1"
     steps:
       # fetch-depth: 0 (full history, not the default shallow depth-1 clone):
@@ -754,17 +732,6 @@ jobs:
         with:
           version: "latest"
           enable-cache: true
-
-      - name: Cache virtualenv
-        uses: actions/cache@v6
-        id: cache-venv
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
-
-      - name: Create virtualenv (cache miss)
-        if: steps.cache-venv.outputs.cache-hit != 'true'
-        run: uv venv
 
       - name: Install maturin
         run: uv pip install maturin
@@ -1138,7 +1105,7 @@ jobs:
       options: --user root
     timeout-minutes: 20
     env:
-      VIRTUAL_ENV: ${{ github.workspace }}/.venv
+      VIRTUAL_ENV: /_temper-venv
       TEMPER_REQUIRE_RUST_DRC: "1"
     steps:
       - uses: actions/checkout@v7
@@ -1154,17 +1121,6 @@ jobs:
         with:
           version: "latest"
           enable-cache: true
-
-      - name: Cache virtualenv
-        uses: actions/cache@v6
-        id: cache-venv
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
-
-      - name: Create virtualenv (cache miss)
-        if: steps.cache-venv.outputs.cache-hit != 'true'
-        run: uv venv
 
       - name: Install maturin
         run: uv pip install maturin
@@ -1345,7 +1301,7 @@ jobs:
       options: --user root
     timeout-minutes: 20
     env:
-      VIRTUAL_ENV: ${{ github.workspace }}/.venv
+      VIRTUAL_ENV: /_temper-venv
       TEMPER_REQUIRE_RUST_DRC: "1"
     steps:
       - uses: actions/checkout@v7
@@ -1361,17 +1317,6 @@ jobs:
         with:
           version: "latest"
           enable-cache: true
-
-      - name: Cache virtualenv
-        uses: actions/cache@v6
-        id: cache-venv
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
-
-      - name: Create virtualenv (cache miss)
-        if: steps.cache-venv.outputs.cache-hit != 'true'
-        run: uv venv
 
       - name: Install maturin
         run: uv pip install maturin
@@ -1463,6 +1408,20 @@ jobs:
       - name: Script manifest gate
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python scripts/check_manifest_gate.py
+
+      # requirements-ci.txt is baked into the CI image's pre-installed venv
+      # (.github/docker/ci.Dockerfile). If it drifts from uv.lock, the image
+      # ships a different dependency set than the lockfile declares and jobs
+      # silently test against the wrong versions -- exactly the two-
+      # representations-of-one-fact drift class the consistency gates exist
+      # for. Fail closed on any difference; regenerate with the command in the
+      # file's own header.
+      - name: requirements-ci.txt matches uv.lock
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: |
+          uv export --all-packages --no-emit-workspace --format requirements-txt \
+            --no-hashes > /tmp/requirements-ci.expected
+          diff -u requirements-ci.txt /tmp/requirements-ci.expected
 
       - name: Script sunset check (warnings only)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
@@ -1596,7 +1555,7 @@ jobs:
       options: --user root
     timeout-minutes: 15
     env:
-      VIRTUAL_ENV: ${{ github.workspace }}/.venv
+      VIRTUAL_ENV: /_temper-venv
       TEMPER_REQUIRE_RUST_DRC: "1"
     steps:
       - uses: actions/checkout@v7
@@ -1612,17 +1571,6 @@ jobs:
         with:
           version: "latest"
           enable-cache: true
-
-      - name: Cache virtualenv
-        uses: actions/cache@v6
-        id: cache-venv
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
-
-      - name: Create virtualenv (cache miss)
-        if: steps.cache-venv.outputs.cache-hit != 'true'
-        run: uv venv
 
       - name: Install maturin
         run: uv pip install maturin
@@ -1835,7 +1783,7 @@ jobs:
       options: --user root
     timeout-minutes: 15
     env:
-      VIRTUAL_ENV: ${{ github.workspace }}/.venv
+      VIRTUAL_ENV: /_temper-venv
       TEMPER_REQUIRE_RUST_DRC: "1"
     steps:
       - uses: actions/checkout@v7
@@ -1851,17 +1799,6 @@ jobs:
         with:
           version: "latest"
           enable-cache: true
-
-      - name: Cache virtualenv
-        uses: actions/cache@v6
-        id: cache-venv
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
-
-      - name: Create virtualenv (cache miss)
-        if: steps.cache-venv.outputs.cache-hit != 'true'
-        run: uv venv
 
       - name: Install maturin
         run: uv pip install maturin
@@ -1997,7 +1934,7 @@ jobs:
     # ~20.7 min to ~5-6 min. See docs/solutions/ for the measurement.
     timeout-minutes: 25
     env:
-      VIRTUAL_ENV: ${{ github.workspace }}/.venv
+      VIRTUAL_ENV: /_temper-venv
       TEMPER_REQUIRE_RUST_DRC: "1"
     steps:
       - uses: actions/checkout@v7
@@ -2013,17 +1950,6 @@ jobs:
         with:
           version: "latest"
           enable-cache: true
-
-      - name: Cache virtualenv
-        uses: actions/cache@v6
-        id: cache-venv
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
-
-      - name: Create virtualenv (cache miss)
-        if: steps.cache-venv.outputs.cache-hit != 'true'
-        run: uv venv
 
       - name: Install maturin
         run: uv pip install maturin
@@ -2143,7 +2069,7 @@ jobs:
       options: --user root
     timeout-minutes: 30
     env:
-      VIRTUAL_ENV: ${{ github.workspace }}/.venv
+      VIRTUAL_ENV: /_temper-venv
       TEMPER_REQUIRE_RUST_DRC: "1"
     steps:
       - uses: actions/checkout@v7
@@ -2156,17 +2082,6 @@ jobs:
         with:
           version: "latest"
           enable-cache: true
-
-      - name: Cache virtualenv
-        uses: actions/cache@v6
-        id: cache-venv
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
-
-      - name: Create virtualenv (cache miss)
-        if: steps.cache-venv.outputs.cache-hit != 'true'
-        run: uv venv
 
       - name: Install maturin
         run: uv pip install maturin
@@ -2241,7 +2156,7 @@ jobs:
       options: --user root
     timeout-minutes: 30
     env:
-      VIRTUAL_ENV: ${{ github.workspace }}/.venv
+      VIRTUAL_ENV: /_temper-venv
       TEMPER_REQUIRE_RUST_DRC: "1"
     steps:
       - uses: actions/checkout@v7
@@ -2254,17 +2169,6 @@ jobs:
         with:
           version: "latest"
           enable-cache: true
-
-      - name: Cache virtualenv
-        uses: actions/cache@v6
-        id: cache-venv
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
-
-      - name: Create virtualenv (cache miss)
-        if: steps.cache-venv.outputs.cache-hit != 'true'
-        run: uv venv
 
       - name: Install maturin
         run: uv pip install maturin
@@ -2334,7 +2238,7 @@ jobs:
       options: --user root
     timeout-minutes: 30
     env:
-      VIRTUAL_ENV: ${{ github.workspace }}/.venv
+      VIRTUAL_ENV: /_temper-venv
       TEMPER_REQUIRE_RUST_DRC: "1"
     steps:
       - uses: actions/checkout@v7
@@ -2347,17 +2251,6 @@ jobs:
         with:
           version: "latest"
           enable-cache: true
-
-      - name: Cache virtualenv
-        uses: actions/cache@v6
-        id: cache-venv
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
-
-      - name: Create virtualenv (cache miss)
-        if: steps.cache-venv.outputs.cache-hit != 'true'
-        run: uv venv
 
       - name: Install maturin
         run: uv pip install maturin
@@ -2434,7 +2327,7 @@ jobs:
       options: --user root
     timeout-minutes: 30
     env:
-      VIRTUAL_ENV: ${{ github.workspace }}/.venv
+      VIRTUAL_ENV: /_temper-venv
       TEMPER_REQUIRE_RUST_DRC: "1"
     steps:
       - uses: actions/checkout@v7
@@ -2447,17 +2340,6 @@ jobs:
         with:
           version: "latest"
           enable-cache: true
-
-      - name: Cache virtualenv
-        uses: actions/cache@v6
-        id: cache-venv
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
-
-      - name: Create virtualenv (cache miss)
-        if: steps.cache-venv.outputs.cache-hit != 'true'
-        run: uv venv
 
       - name: Install maturin
         run: uv pip install maturin
@@ -2530,7 +2412,7 @@ jobs:
       options: --user root
     timeout-minutes: 20
     env:
-      VIRTUAL_ENV: ${{ github.workspace }}/.venv
+      VIRTUAL_ENV: /_temper-venv
       TEMPER_REQUIRE_RUST_DRC: "1"
     steps:
       - uses: actions/checkout@v7
@@ -2543,17 +2425,6 @@ jobs:
         with:
           version: "latest"
           enable-cache: true
-
-      - name: Cache virtualenv
-        uses: actions/cache@v6
-        id: cache-venv
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
-
-      - name: Create virtualenv (cache miss)
-        if: steps.cache-venv.outputs.cache-hit != 'true'
-        run: uv venv
 
       - name: Install maturin
         run: uv pip install maturin
@@ -2625,7 +2496,7 @@ jobs:
     # which this one restores.
     if: ${{ github.event_name != 'pull_request' }}
     env:
-      VIRTUAL_ENV: ${{ github.workspace }}/.venv
+      VIRTUAL_ENV: /_temper-venv
     steps:
       - uses: actions/checkout@v7
 
@@ -2634,17 +2505,6 @@ jobs:
         with:
           version: "latest"
           enable-cache: true
-
-      - name: Cache virtualenv
-        uses: actions/cache@v6
-        id: cache-venv
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
-
-      - name: Create virtualenv (cache miss)
-        if: steps.cache-venv.outputs.cache-hit != 'true'
-        run: uv venv
 
       - name: Install dependencies
         run: uv sync --all-packages
@@ -2731,17 +2591,6 @@ jobs:
           version: "latest"
           enable-cache: true
 
-      - name: Cache virtualenv
-        uses: actions/cache@v6
-        id: cache-venv
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
-
-      - name: Create virtualenv (cache miss)
-        if: steps.cache-venv.outputs.cache-hit != 'true'
-        run: uv venv
-
       - name: Install dependencies
         run: uv sync --all-packages
 
@@ -2773,17 +2622,6 @@ jobs:
         with:
           version: "latest"
           enable-cache: true
-
-      - name: Cache virtualenv
-        uses: actions/cache@v6
-        id: cache-venv
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
-
-      - name: Create virtualenv (cache miss)
-        if: steps.cache-venv.outputs.cache-hit != 'true'
-        run: uv venv
 
       # Unit tests for the generator itself -- includes an anti-vacuity check
       # that mutates DIRECTORY_PURPOSE for one real, currently-described
@@ -2852,17 +2690,6 @@ jobs:
 
       - name: Set up Python
         run: uv python install 3.12
-
-      - name: Cache virtualenv
-        uses: actions/cache@v6
-        id: cache-venv
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
-
-      - name: Create virtualenv (cache miss)
-        if: steps.cache-venv.outputs.cache-hit != 'true'
-        run: uv venv
 
       - name: Install dependencies
         run: uv sync --all-packages
