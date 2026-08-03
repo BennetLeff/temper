@@ -247,6 +247,15 @@ jobs:
     name: Change Classification
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    # These outputs must match the manifest's job_triggers ids EXACTLY --
+    # validate_job_conditions fails closed on any drift. router_v6 group 3 is
+    # the only invariant shard listed because it is the only one whose test
+    # step is not masked by continue-on-error, i.e. the only real gate. Groups
+    # 1/2/4, invariant-rest and the extended suites are trunk-only now (see
+    # their `if:` conditions), so they are deliberately absent.
+    #
+    # Keep this block free of interleaved comments: load_job_blocks parses it
+    # line-by-line and stops at the first non-output line.
     outputs:
       cargo-smoke: ${{ steps.classify.outputs.cargo-smoke }}
       test: ${{ steps.classify.outputs.test }}
@@ -256,14 +265,7 @@ jobs:
       provenance-gates: ${{ steps.classify.outputs.provenance-gates }}
       hygiene-gates: ${{ steps.classify.outputs.hygiene-gates }}
       requirements-tests: ${{ steps.classify.outputs.requirements-tests }}
-      extended-bundle-workflow-checks: ${{ steps.classify.outputs.extended-bundle-workflow-checks }}
-      extended-cpsat: ${{ steps.classify.outputs.extended-cpsat }}
-      extended-cpsat-slow: ${{ steps.classify.outputs.extended-cpsat-slow }}
-      invariant-router-v6-1: ${{ steps.classify.outputs.invariant-router-v6-1 }}
-      invariant-router-v6-2: ${{ steps.classify.outputs.invariant-router-v6-2 }}
       invariant-router-v6-3: ${{ steps.classify.outputs.invariant-router-v6-3 }}
-      invariant-router-v6-4: ${{ steps.classify.outputs.invariant-router-v6-4 }}
-      invariant-rest: ${{ steps.classify.outputs.invariant-rest }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -1718,8 +1720,13 @@ jobs:
   # test suite flakiness; hard-fail after 2026-09-01).
   extended-bundle-workflow-checks:
     name: Extended Test Suites (bundle / workflow / checks)
-    needs: [changes]
-    if: ${{ github.event_name == 'push' || needs.changes.outputs.extended-bundle-workflow-checks == 'true' }}
+    # Trunk-only. This job's sole substantive step carries continue-on-error,
+    # so on a PR it consumes a runner slot (~4 min + ~4 min of setup) while
+    # being structurally incapable of failing the build. Capacity is the
+    # binding constraint -- measured 2026-08-03: ~24 concurrent jobs available,
+    # ~40 requested per push, 8-13 min per-job queue waits. It still runs on
+    # every push to main and nightly, so trunk coverage is unchanged.
+    if: ${{ github.event_name != 'pull_request' }}
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/bennetleff/temper-ci:latest
@@ -1955,8 +1962,10 @@ jobs:
   #   budget for a suite of the same "well under a minute" shape.
   extended-cpsat:
     name: Extended Test Suites (cp-sat, fast)
-    needs: [changes]
-    if: ${{ github.event_name == 'push' || needs.changes.outputs.extended-cpsat == 'true' }}
+    # Trunk-only -- masked test step, cannot fail a PR. See the note on
+    # extended-bundle-workflow-checks. This was the longest job in the run
+    # (6.9 min) and gated nothing.
+    if: ${{ github.event_name != 'pull_request' }}
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/bennetleff/temper-ci:latest
@@ -2104,8 +2113,8 @@ jobs:
 
   extended-cpsat-slow:
     name: Extended Test Suites (cp-sat, slow x2)
-    needs: [changes]
-    if: ${{ github.event_name == 'push' || needs.changes.outputs.extended-cpsat-slow == 'true' }}
+    # Trunk-only -- masked test step, cannot fail a PR.
+    if: ${{ github.event_name != 'pull_request' }}
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/bennetleff/temper-ci:latest
@@ -2262,8 +2271,9 @@ jobs:
 
   invariant-router-v6-1:
     name: Invariant tests (router_v6 group 1)
-    needs: [changes]
-    if: ${{ github.event_name == 'push' || needs.changes.outputs.invariant-router-v6-1 == 'true' }}
+    # Trunk-only -- masked test step, cannot fail a PR. Group 3 stays on the
+    # PR path: it is the only unmasked shard, i.e. the only real gate.
+    if: ${{ github.event_name != 'pull_request' }}
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/bennetleff/temper-ci:latest
@@ -2360,8 +2370,8 @@ jobs:
         continue-on-error: true  # TODO: temper-NNN -- one live failure; re-check and unmask
   invariant-router-v6-2:
     name: Invariant tests (router_v6 group 2)
-    needs: [changes]
-    if: ${{ github.event_name == 'push' || needs.changes.outputs.invariant-router-v6-2 == 'true' }}
+    # Trunk-only -- masked test step, cannot fail a PR.
+    if: ${{ github.event_name != 'pull_request' }}
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/bennetleff/temper-ci:latest
@@ -2552,8 +2562,9 @@ jobs:
   # change helps; it needs a worker of its own. See issue #541.
   invariant-router-v6-4:
     name: Invariant tests (router_v6 group 4)
-    needs: [changes]
-    if: ${{ github.event_name == 'push' || needs.changes.outputs.invariant-router-v6-4 == 'true' }}
+    # Trunk-only -- masked test step, cannot fail a PR. This job paid a full
+    # container + 3-crate Rust setup to run 3 tests.
+    if: ${{ github.event_name != 'pull_request' }}
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/bennetleff/temper-ci:latest
@@ -2647,8 +2658,9 @@ jobs:
 
   invariant-rest:
     name: Invariant tests (io, deterministic, physics, fields, validation, cp_sat)
-    needs: [changes]
-    if: ${{ github.event_name == 'push' || needs.changes.outputs.invariant-rest == 'true' }}
+    # Trunk-only -- masked test step, cannot fail a PR. Also overlapped
+    # extended-cpsat, which selected tests/placer/cp_sat/ on a second runner.
+    if: ${{ github.event_name != 'pull_request' }}
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/bennetleff/temper-ci:latest
@@ -2744,7 +2756,11 @@ jobs:
       image: ghcr.io/bennetleff/temper-ci:latest
       options: --user root
     timeout-minutes: 20
-    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    # Trunk-only. Its sole substantive step carries continue-on-error, so on a
+    # PR it held a runner slot without being able to fail the build. Still runs
+    # on every push to main; the previous condition also excluded `schedule`,
+    # which this one restores.
+    if: ${{ github.event_name != 'pull_request' }}
     env:
       VIRTUAL_ENV: ${{ github.workspace }}/.venv
     steps:

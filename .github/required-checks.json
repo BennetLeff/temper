@@ -181,70 +181,6 @@
         "pcb/**"
       ]
     },
-    "Extended Test Suites (bundle / workflow / checks)": {
-      "id": "extended-bundle-workflow-checks",
-      "paths": [
-        "packages/temper-design-bundle/**",
-        "packages/temper-pcl-ir/**",
-        "packages/temper-workflow/**",
-        "packages/temper-placer/**",
-        "packages/temper-geometry/**"
-      ]
-    },
-    "Extended Test Suites (cp-sat, fast)": {
-      "id": "extended-cpsat",
-      "paths": [
-        "packages/temper-placer/**",
-        "packages/temper-geometry/**",
-        "packages/temper-quality-oracle/**",
-        "packages/temper-thermal/**",
-        "elec/**",
-        "pcb/**"
-      ]
-    },
-    "Extended Test Suites (cp-sat, slow x2)": {
-      "id": "extended-cpsat-slow",
-      "paths": [
-        "packages/temper-placer/**",
-        "packages/temper-geometry/**",
-        "packages/temper-quality-oracle/**",
-        "packages/temper-thermal/**",
-        "elec/**",
-        "pcb/**"
-      ]
-    },
-    "Invariant tests (router_v6 group 1)": {
-      "id": "invariant-router-v6-1",
-      "paths": [
-        "packages/temper-placer/**",
-        "packages/temper-geometry/**",
-        "packages/temper-rust-router/**",
-        "packages/temper-rust-router-core/**",
-        "packages/temper-drc-rs/**",
-        "elec/**",
-        "pcb/**",
-        "packages/temper-dsn/**",
-        "packages/temper-ipc/**",
-        "packages/temper-io-types/**",
-        "packages/temper-constraint-compiler/**"
-      ]
-    },
-    "Invariant tests (router_v6 group 2)": {
-      "id": "invariant-router-v6-2",
-      "paths": [
-        "packages/temper-placer/**",
-        "packages/temper-geometry/**",
-        "packages/temper-rust-router/**",
-        "packages/temper-rust-router-core/**",
-        "packages/temper-drc-rs/**",
-        "elec/**",
-        "pcb/**",
-        "packages/temper-dsn/**",
-        "packages/temper-ipc/**",
-        "packages/temper-io-types/**",
-        "packages/temper-constraint-compiler/**"
-      ]
-    },
     "Invariant tests (router_v6 group 3)": {
       "id": "invariant-router-v6-3",
       "paths": [
@@ -253,37 +189,6 @@
         "packages/temper-rust-router/**",
         "packages/temper-rust-router-core/**",
         "packages/temper-drc-rs/**",
-        "elec/**",
-        "pcb/**",
-        "packages/temper-dsn/**",
-        "packages/temper-ipc/**",
-        "packages/temper-io-types/**",
-        "packages/temper-constraint-compiler/**"
-      ]
-    },
-    "Invariant tests (router_v6 group 4)": {
-      "id": "invariant-router-v6-4",
-      "paths": [
-        "packages/temper-placer/**",
-        "packages/temper-geometry/**",
-        "packages/temper-rust-router/**",
-        "packages/temper-rust-router-core/**",
-        "packages/temper-drc-rs/**",
-        "elec/**",
-        "pcb/**",
-        "packages/temper-dsn/**",
-        "packages/temper-ipc/**",
-        "packages/temper-io-types/**",
-        "packages/temper-constraint-compiler/**"
-      ]
-    },
-    "Invariant tests (io, deterministic, physics, fields, validation, cp_sat)": {
-      "id": "invariant-rest",
-      "paths": [
-        "packages/temper-placer/**",
-        "packages/temper-geometry/**",
-        "packages/temper-quality-oracle/**",
-        "packages/temper-thermal/**",
         "elec/**",
         "pcb/**",
         "packages/temper-dsn/**",
