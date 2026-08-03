@@ -5185,7 +5185,7 @@
   "prior_spike_variantC_core_size": null,
   "run_B": {
     "core_size": 0,
-    "solve_time_ms": 181220.5,
+    "solve_time_ms": 184336.3,
     "status": "feasible"
   },
   "run_C": {
@@ -20938,7 +20938,7 @@
       "fixed_copper_K3"
     ],
     "core_size": 15736,
-    "solve_time_ms": 1446.0,
+    "solve_time_ms": 1547.2,
     "status": "infeasible"
   }
 }
