@@ -6,6 +6,9 @@ date: 2026-07-31
 severity: high
 ---
 
+> **Status update (2026-08-03 refresh):** superseded in mechanism, not in method: the single-umbrella-check era is now run by `.github/required-checks.json` (v2) + `scripts/check_required_checks.py` with manifest-driven job triggers and fail-closed skip verification — see `docs/solutions/workflow-issues/force-push-orphans-pull-request-check-runs-2026-08-03.md` and `strict-mode-merge-ladder-playbook-2026-08-03.md`. The per-job attribution discipline here is exactly what the aggregator encodes.
+
+
 # The required-check merge blocker: red from main-state, not PR content
 
 ## Problem

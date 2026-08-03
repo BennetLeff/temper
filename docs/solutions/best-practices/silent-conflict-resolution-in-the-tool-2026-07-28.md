@@ -20,6 +20,9 @@ tags:
   - net-classification
 ---
 
+> **Status update (2026-08-03 refresh):** `scripts/_lib/ato_extract.py` and `scripts/_lib/net_classification.py` never landed on main (they live on the unmerged `feat/ato-net-classification-ssot` branch). The atopile silent-merge finding stands — the current atopile-declaration consumer is `packages/temper-design-bundle/src/atopile.rs`.
+
+
 # When the tool resolves a conflict for you, the API that hides it is the one you will reach for
 
 ## What happened

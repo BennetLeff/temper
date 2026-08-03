@@ -21,6 +21,9 @@ tags:
   - reviewed-vs-derived
 ---
 
+> **Status update (2026-08-03 refresh):** `scripts/gen_net_classification.py` / `scripts/derive_net_domains.py` (with `report_denominators` and `domain_provenance` values) exist only on the unmerged `feat/ato-net-classification-ssot` branch. The pattern stands; the reviewed/derived split is not emitted by any main script today — `scripts/check_domain_partition.py` is the live gate.
+
+
 # Provenance is an axis, not a value
 
 ## Context

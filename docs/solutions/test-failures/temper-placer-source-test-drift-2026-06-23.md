@@ -29,6 +29,9 @@ related_components:
   - unified-stage-protocol
 ---
 
+> **Status update (2026-08-03 refresh):** the JAX retirement + router_v6 Rust migration removed several example files (`optimizer/`, `routing/`, `cli/optimize.py`, `pipeline/orchestrator.py`, `tests/io/test_dsn_boundary.py`); Categories D/E examples are historical but the 8-category taxonomy stands.
+
+
 # Pre-existing test failures in temper-placer: source/test drift reconciliation
 
 ## Problem

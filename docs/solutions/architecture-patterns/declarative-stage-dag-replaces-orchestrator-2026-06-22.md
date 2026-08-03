@@ -26,6 +26,9 @@ tags:
   - sprint-N4
 ---
 
+> **Status update (2026-08-03 refresh):** `pipeline/orchestrator.py` and `DAGToLegacyObserver` were deleted once the DAG engine absorbed all callers; `refinement_stage.RefinementStage` no longer exists (a vestigial manifest entry remains). The JAX-descent example bodies are historical — the current stage pattern is the CP-SAT `deterministic_result` → `PlacementState` flow.
+
+
 # Declarative Stage DAG Replaces Monolithic PipelineOrchestrator
 
 ## Context
