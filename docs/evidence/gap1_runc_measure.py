@@ -186,38 +186,45 @@ def pair_table(pcb, positions, rotations, core_names):
             ("sep_courtyard_", "courtyard"),
         ):
             if name.startswith(prefix):
-                rest = name[len(prefix):]
-                # name is <a>_<b>_<a>_<b> (refs joined by _)
-                parts = rest.split("_")
-                if len(parts) == 4:
-                    wanted.add((kind, parts[0], parts[2]))
-                elif len(parts) == 2:
-                    wanted.add((kind, parts[0], parts[1]))
+                # Constraint names end with the ref pair twice:
+                # sep_domain_clearance_<a>_<b>_<a>_<b> for domain/keepaway/
+                # courtyard, and sep_netclass_autogen_<NetA>_<NetB>_<a>_<b>_<a>_<b>
+                # for netclass. The refs are always the LAST 4 underscore
+                # tokens (refs never contain underscores).
+                parts = name.split("_")
+                if len(parts) >= 4:
+                    ra, rb = parts[-4], parts[-2]
+                    wanted.add((kind, ra, rb))
                 break
 
     rows = []
     for (kind, ra, rb) in sorted(wanted):
         margin = 0.0
         domain_tag = "uncl<->HV"
+        dom_pair = None
         if kind == "domain":
+            best = (None, 0.0, "?")
             for (dom_a, dom_b, _ins), req in IEC60335_REQUIREMENTS.items():
                 if (ra, rb) in _domain_boundary_pairs(full, dom_a, dom_b, nets_domain) or \
                    (rb, ra) in _domain_boundary_pairs(full, dom_a, dom_b, nets_domain):
                     m = max(req["min_clearance_mm"], req["min_creepage_mm"])
-                    if m > margin:
-                        margin = m
-                        domain_tag = f"{dom_a.value}<->{dom_b.value}"
-            cd, _g, _l = model.copper_distance(ra, VoltageDomain.ISOLATED,
-                                               rb, VoltageDomain.ISOLATED,
-                                               nets_domain)
+                    if m > best[1]:
+                        best = (m, m, f"{dom_a.value}<->{dom_b.value}")
+                        dom_pair = (dom_a, dom_b)
+            margin = best[1]
+            domain_tag = best[2]
+            if dom_pair is not None:
+                da, db = dom_pair
+                cd, _g, _l = model.copper_distance(ra, da, rb, db, nets_domain)
+            else:
+                cd = float("inf")
             if margin == 0.0:
                 # pair not found through the matrix walk; fall back to the
                 # generator's own pair list for the margin.
                 from temper_placer.placer.cp_sat.domain_clearance import (
                     generate_domain_clearance_constraints,
                 )
-                dc = generate_domain_clearance_constraints(full, nets_domain,
-                                                           component_refs=set())
+                dc = generate_domain_clearance_constraints(full, nets_domain)
                 for c in dc:
                     if {c.a, c.b} == {ra, rb}:
                         margin = c.min_distance_mm
@@ -225,6 +232,9 @@ def pair_table(pcb, positions, rotations, core_names):
                 if margin == 0.0:
                     margin = 8.0
                     domain_tag = "matrix-walk-miss"
+                cd, _g, _l = model.copper_distance(ra, VoltageDomain.ISOLATED,
+                                                   rb, VoltageDomain.ISOLATED,
+                                                   nets_domain)
         elif kind == "keepaway":
             margin = 8.0
             cd, _g, _l = model.copper_distance(ra, VoltageDomain.ISOLATED,
@@ -311,7 +321,7 @@ def fixed_copper_audit(pcb, positions, rotations):
         build_fixed_copper_items,
         build_free_component_pads,
     )
-    pads = build_free_component_pads(pcb.netlist, FREE, MARGIN_FC_MM)
+    pads = build_free_component_pads(pcb.netlist, FREE)
     items = build_fixed_copper_items(pcb, pcb.netlist, FREE, MARGIN_FC_MM)
     viol = audit_fixed_copper(pads, items, positions, rotations)
     return viol, items
@@ -439,19 +449,28 @@ def main():
                              "slack_mm_at_best": f"{nv} exact violations at best",
                              "verdict": "COPPER-OVERLAP-AT-BEST" if nv else "CLEAN-AT-BEST"})
             else:
-                for pr in pairs:
-                    if name == f"sep_{pr['kind']}_autogen_{pr['ra']}_{pr['rb']}_{pr['ra']}_{pr['rb']}" or \
-                       name == f"sep_domain_clearance_{pr['ra']}_{pr['rb']}_{pr['ra']}_{pr['rb']}" or \
-                       name == f"sep_keepaway_unclassified_{pr['ra']}_{pr['rb']}_{pr['ra']}_{pr['rb']}" or \
-                       name == f"sep_courtyard_{pr['ra']}_{pr['rb']}_{pr['ra']}_{pr['rb']}":
-                        rows.append({"name": name, "kind": pr["kind"],
-                                     "refs": f"{pr['ra']},{pr['rb']}",
-                                     "box_dist_mm": pr["box_dist_mm"],
-                                     "margin_mm": pr["margin_mm"],
-                                     "copper_dist_mm": pr["copper_dist_mm"],
-                                     "slack_mm_at_best": "",
-                                     "verdict": pr["verdict"]})
-                        break
+                # Pair constraint: match by (kind, ra, rb) using the same
+                # last-4-tokens rule the pair table uses.
+                parts = name.split("_")
+                target = None
+                if len(parts) >= 4:
+                    target = (name.rsplit("_", 4)[0], parts[-4], parts[-2])
+                matched = None
+                if target is not None:
+                    pfx, ra, rb = target
+                    for pr in pairs:
+                        if (pr["ra"], pr["rb"]) == (ra, rb) and \
+                           name.startswith(f"sep_{pr['kind']}"):
+                            matched = pr
+                            break
+                if matched is not None:
+                    rows.append({"name": name, "kind": matched["kind"],
+                                 "refs": f"{matched['ra']},{matched['rb']}",
+                                 "box_dist_mm": matched["box_dist_mm"],
+                                 "margin_mm": matched["margin_mm"],
+                                 "copper_dist_mm": matched["copper_dist_mm"],
+                                 "slack_mm_at_best": "",
+                                 "verdict": matched["verdict"]})
                 else:
                     rows.append({"name": name, "kind": "pair-unknown",
                                  "refs": "", "box_dist_mm": "",
