@@ -26,10 +26,10 @@ _PCB_PATH = _REPO_ROOT / "pcb" / "temper.kicad_pcb"
 _RULES_PATH = _TEMPER_PLACER_ROOT / "configs" / "netclass_rules.yaml"
 
 # Reuse helpers from the existing measurement test
+from tests.placer.cp_sat._parallel_drc import run_drc_samples
 from tests.placer.cp_sat.test_zone_pour_production_measurement import (  # noqa: E402
     _fill_zones_via_pcbnew,
     _kicad_cli_available,
-    _run_drc,
 )
 
 
@@ -102,8 +102,11 @@ class TestHybridPourStitchVerification:
 
             try:
                 filled_path = _fill_zones_via_pcbnew(routed_path)
-                for sample in range(drc_samples):
-                    drc_data = _run_drc(filled_path)
+                for sample, drc_data in enumerate(
+                    run_drc_samples(
+                        filled_path, drc_samples, timeout=600, label="hybrid-pour"
+                    )
+                ):
                     violations = drc_data.get("violations", [])
                     shorting = sum(1 for v in violations if v.get("type") == "shorting_items")
                     unconnected = len(drc_data.get("unconnected_items", []))
@@ -147,8 +150,11 @@ class TestHybridPourStitchVerification:
             routed_path = Path(routed_tmp.name)
 
             try:
-                for sample in range(drc_samples):
-                    drc_data = _run_drc(routed_path)
+                for sample, drc_data in enumerate(
+                    run_drc_samples(
+                        routed_path, drc_samples, timeout=600, label="hybrid-pour"
+                    )
+                ):
                     violations = drc_data.get("violations", [])
                     shorting = sum(1 for v in violations if v.get("type") == "shorting_items")
                     unconnected = len(drc_data.get("unconnected_items", []))
