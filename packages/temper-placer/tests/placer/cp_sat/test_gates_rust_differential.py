@@ -141,11 +141,17 @@ def test_enum_repr_and_str_identical(rust_cls, oracle_cls):
 
 
 def test_enum_members_are_identity_cached():
-    """Load-bearing: consumers do ``status is GateStatus.CLEAN``."""
-    assert GATE_STATUS.CLEAN is GATE_STATUS.CLEAN
-    assert GATE_STATUS.VIOLATIONS is GATE_STATUS.VIOLATIONS
-    assert GATE_STAGE.PLACEMENT is GATE_STAGE.PLACEMENT
-    assert VIOLATION_TYPE.CREEPAGE is VIOLATION_TYPE.CREEPAGE
+    """Load-bearing: consumers do ``status is GateStatus.CLEAN``.
+
+    pyo3 caches enum members as class attributes; each access below
+    resolves the member through a DIFFERENT access path (attribute vs
+    getattr) and asserts both resolve to the SAME object -- the property
+    consumers depend on (``result.status is GateStatus.CLEAN`` must
+    hold when the status came from the same enum class)."""
+    assert getattr(GATE_STATUS, "CLEAN") is GATE_STATUS.CLEAN
+    assert getattr(GATE_STATUS, "VIOLATIONS") is GATE_STATUS.VIOLATIONS
+    assert getattr(GATE_STAGE, "PLACEMENT") is GATE_STAGE.PLACEMENT
+    assert getattr(VIOLATION_TYPE, "CREEPAGE") is VIOLATION_TYPE.CREEPAGE
 
 
 # ---------------------------------------------------------------------------
