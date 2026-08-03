@@ -2011,9 +2011,14 @@ jobs:
         # two running concurrently instead of one-at-a-time. Same
         # `-v --tb=short -p no:cacheprovider --maxfail=10` flags and the same
         # `continue-on-error` this pair ran under before the split.
+        # Floor is 1, not 2, deliberately (plan 2026-08-03-001, U5): the zone
+        # test is xfail(strict) -- a known, measured, accepted negative -- and
+        # pytest reports XFAIL as JUnit <skipped>, so pytest_guard's executed
+        # count for this lane is the routing test alone. --min-tests 2 exited
+        # 3 on every run, masked by the continue-on-error below.
         run: >
           cd packages/temper-placer &&
-          uv run python ../../scripts/pytest_guard.py --min-tests 2 --
+          uv run python ../../scripts/pytest_guard.py --min-tests 1 --
           "tests/placer/cp_sat/test_zone_pour_production_measurement.py::TestZonePourProductionMeasurement::test_zone_pours_reduce_unconnected_items"
           "tests/placer/cp_sat/test_regression_drc.py::test_production_board_routing_drc_regression"
           -v --tb=short -p no:cacheprovider --maxfail=10 -n auto --dist loadgroup
