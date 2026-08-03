@@ -1,37 +1,124 @@
 name: CodeQL
 
-# no-pr-trigger: per-PR CodeQL cost ~40 runs/day x ~25min (~17h/day) for zero
-# merge impact (not in required-checks.json); every merge is scanned on
-# push-to-main and the Monday schedule catches deprecation drift. See the
-# comment in the `on:` block below for the full reasoning.
-
+# pull_request trigger removed 2026-08-01: ~40 PR-triggered runs/day at
+# ~25 min each (~17h/day of runner time) with zero merge impact -- CodeQL is
+# not in .github/required-checks.json's required_contexts. Every merge still
+# gets scanned on push to main (the run that matters for SARIF/history), and
+# the Monday schedule is a catch-all for deprecation drift. Restore the PR
+# trigger if per-PR CodeQL feedback becomes a merge requirement.
+#
+# 2026-08-03 finding: that removal didn't actually stop CodeQL from running on
+# every PR. GitHub's "default setup" (repo Settings -> Code security and
+# analysis -> Code scanning) is a SEPARATE scanner, independently enabled in
+# repo settings, that keeps analysing every PR regardless of what this
+# workflow's `on:` block says -- confirmed via
+# `gh api repos/BennetLeff/temper/code-scanning/default-setup` returning
+# languages: [actions, c-cpp, python, rust], query_suite: default,
+# threat_model: remote, schedule: weekly. Measured 2026-08-03: 14 of the last
+# 17 CodeQL runs were PR-triggered (event: dynamic, default setup's
+# signature), averaging 24 min, with 9 running concurrently -- against an
+# account concurrency ceiling of ~24 jobs that a single push already requests
+# ~40 against. This made default setup the single largest non-gating consumer
+# of CI capacity, silently defeating the 2026-08-01 optimization.
+#
+# This workflow is now an ADVANCED setup with the exact same language
+# coverage as default setup (actions, c-cpp, python, rust; see the matrix
+# below), so default setup can eventually be turned off with no coverage
+# loss. Default setup is deliberately left ENABLED for now -- disabling it
+# before this workflow is proven green on push-to-main would leave a gap.
+# Once proven, disable default setup as its own follow-up change:
+#   gh api -X DELETE repos/BennetLeff/temper/code-scanning/default-setup
+# (verify the exact call against the code-scanning default-setup API docs at
+# disable time -- a DELETE/PATCH-to-not-configured distinction may apply).
+# The paths list below is WIDER than the one this workflow carried before, and
+# deliberately so. The old list (firmware/** + packages/**) was written when the
+# matrix analysed python only. Carrying it forward unchanged against the
+# four-language matrix would have silently dropped coverage default setup has
+# today -- default setup applies no path filtering at all:
+#   - actions: all 31 workflow/action YAML files live under .github/, which the
+#     old list excluded entirely. The `actions` language would effectively never
+#     have run on a change it could analyse.
+#   - python: 137 .py files live in scripts/, plus tools/, simulation/ and
+#     elec/ -- all outside packages/ and all previously unscanned.
+# Each entry below is the source root for a language in the matrix; dropping one
+# is a coverage regression, not a speedup.
 on:
   push:
     branches: [main]
     paths:
-      - 'firmware/**'
-      - 'packages/**'
-  # pull_request trigger removed 2026-08-01: ~40 PR-triggered runs/day at
-  # ~25 min each (~17h/day of runner time) with zero merge impact -- CodeQL is
-  # not in .github/required-checks.json's required_contexts. Every merge still
-  # gets scanned on push to main (the run that matters for SARIF/history), and
-  # the Monday schedule is a catch-all for deprecation drift. Restore the PR
-  # trigger if per-PR CodeQL feedback becomes a merge requirement.
+      - 'firmware/**'                 # c-cpp
+      - 'packages/**'                 # rust + python
+      - 'scripts/**'                  # python
+      - 'tools/**'                    # python
+      - 'simulation/**'               # python
+      - 'elec/**'                     # python
+      - '.github/workflows/**'        # actions
+      - '.github/actions/**'          # actions
   schedule:
     - cron: '0 8 * * 1'  # Mondays 08:00 UTC
+
+# Same group/cancel convention as python-tests.yml and firmware-tests.yml (see
+# the rationale block in python-tests.yml): group by PR number when present,
+# else by commit SHA, and only cancel-in-progress on pull_request. This
+# workflow no longer has a pull_request trigger, so in practice every run is
+# grouped by its unique SHA and nothing is ever cancelled -- kept in this form
+# for consistency with the rest of the repo and so the expression needs no
+# rework if a pull_request trigger is ever restored (see comment above).
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   analyze:
     name: Analyze (${{ matrix.language }})
     runs-on: ubuntu-latest
+    # Measured 2026-08-03 default-setup runs average ~24 min; 30 leaves
+    # headroom without inheriting the 360-minute default this job previously
+    # had no explicit cap against.
+    timeout-minutes: 30
     permissions:
       security-events: write
       actions: read
       contents: read
     strategy:
       fail-fast: false
+      # One job per language so a slow language (historically c-cpp, when
+      # build-based) can't serialize the others behind it.
       matrix:
-        language: [python]
+        # Matches default-setup's `languages` exactly (see
+        # `gh api repos/BennetLeff/temper/code-scanning/default-setup`) --
+        # losing any of these is a coverage regression. c-cpp in particular
+        # covers the ESP32-S3 firmware on a mains-connected device
+        # (firmware/, built via ESP-IDF/CMake per firmware-tests.yml) and
+        # must not be silently dropped.
+        #
+        # build-mode is explicit for every language rather than left to
+        # default:
+        #   - c-cpp: `none` (buildless). CodeQL's build-free C/C++ scanning
+        #     went GA 2025-10-14 (CodeQL CLI 2.23.3, bundled by
+        #     codeql-action v4) -- it infers compilation units, flags and
+        #     include paths from source without invoking a compiler, so the
+        #     firmware's ESP-IDF/CMake toolchain never needs to be installed
+        #     in this job. This avoids replicating firmware-tests.yml's
+        #     ESP-IDF build just to get CodeQL a compiler invocation to
+        #     observe.
+        #   - rust: `none`. Rust analysis also went GA 2025-10-14 alongside
+        #     buildless C/C++, and `none` is the only build mode Rust
+        #     supports (it does not support `manual`); the CodeQL Rust
+        #     extractor parses source directly rather than observing a
+        #     `cargo build`.
+        #   - python, actions: `none`. Both are interpreted/config
+        #     languages; `none` is the only build mode they support and is
+        #     what default setup already uses for them.
+        include:
+          - language: actions
+            build-mode: none
+          - language: c-cpp
+            build-mode: none
+          - language: python
+            build-mode: none
+          - language: rust
+            build-mode: none
     steps:
       - uses: actions/checkout@v7
 
@@ -39,6 +126,12 @@ jobs:
         uses: github/codeql-action/init@v4
         with:
           languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
+          # query_suite defaults to `default`, matching default setup's
+          # query_suite: "default". threat_model likewise defaults to
+          # `remote` (default setup's threat_model: "remote") and only
+          # affects Java/Kotlin and C# anyway -- neither is in this matrix --
+          # so neither is set explicitly here.
 
       - name: Perform CodeQL analysis
         uses: github/codeql-action/analyze@v4
