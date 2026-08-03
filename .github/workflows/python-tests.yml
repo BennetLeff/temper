@@ -260,11 +260,9 @@ jobs:
       cargo-smoke: ${{ steps.classify.outputs.cargo-smoke }}
       test: ${{ steps.classify.outputs.test }}
       rust-checks: ${{ steps.classify.outputs.rust-checks }}
-      board-gates: ${{ steps.classify.outputs.board-gates }}
+      board-provenance-requirements-gates: ${{ steps.classify.outputs.board-provenance-requirements-gates }}
       consistency-gates: ${{ steps.classify.outputs.consistency-gates }}
-      provenance-gates: ${{ steps.classify.outputs.provenance-gates }}
       hygiene-gates: ${{ steps.classify.outputs.hygiene-gates }}
-      requirements-tests: ${{ steps.classify.outputs.requirements-tests }}
       invariant-router-v6-3: ${{ steps.classify.outputs.invariant-router-v6-3 }}
     steps:
       - uses: actions/checkout@v7
@@ -693,20 +691,51 @@ jobs:
   # setup barrier carries `if: !cancelled() && steps.setup.outcome == 'success'`,
   # this gate masks nothing wherever it sits, and a step added after it will run
   # and report on its own. Kept last because that is where it reads best.
-  board-gates:
-    name: Board & Netlist Gates
+  # MERGED 2026-08-03 from board-gates + provenance-gates + requirements-tests.
+  # Each paid the same ~225s prologue (container init, 3x maturin, uv sync,
+  # make netlist) for well under a minute of actual gate work -- measured
+  # 2026-08-03: 79% of this workflow's job-time was setup, and a single push
+  # requested ~40 jobs against a ~24-job account concurrency ceiling. Sharing
+  # one prologue collapses 3 runners into 1 and drops ~7.5 job-minutes/run.
+  #
+  # None of the three was a required context, so merging needed no rename
+  # migration -- unlike the remaining gate jobs, whose names branch protection
+  # and .github/required-checks.json still match exactly.
+  #
+  # Gate independence is preserved verbatim: every gate keeps
+  # `if: !cancelled() && steps.setup.outcome == 'success'`, so one red gate
+  # still cannot delete the verdict of the gates behind it, and none of them
+  # runs against a half-built environment.
+  #
+  # ORDERING IS LOAD-BEARING: 'Regenerate schematics and check drift' writes
+  # pcb/*.kicad_sch and is therefore placed LAST, after every gate that reads
+  # committed board state (copper-net drift, footprint drift, identity,
+  # measurement provenance). Job isolation used to guarantee this for free.
+  board-provenance-requirements-gates:
+    name: Board, Provenance & Requirements Gates
     needs: [changes]
-    if: ${{ github.event_name == 'push' || needs.changes.outputs.board-gates == 'true' }}
+    if: ${{ github.event_name == 'push' || needs.changes.outputs.board-provenance-requirements-gates == 'true' }}
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/bennetleff/temper-ci:latest
       options: --user root
-    timeout-minutes: 25
+    # Sum of the three former budgets (25+20+25) less the two prologues no
+    # longer paid; the gates themselves totalled well under a minute.
+    timeout-minutes: 40
     env:
       VIRTUAL_ENV: ${{ github.workspace }}/.venv
       TEMPER_REQUIRE_RUST_DRC: "1"
     steps:
+      # fetch-depth: 0 (full history, not the default shallow depth-1 clone):
+      # the DRC ceiling approval gate below needs `origin/main` and a real
+      # merge-base to diff drc_ceiling.json and enumerate this PR's commits
+      # for a Ceiling-Approval: trailer -- a shallow clone would make that
+      # merge-base unresolvable and the gate would have to fail closed on
+      # every run. Same convention already used by the loc-cap and
+      # repo-state jobs below, which have the same need.
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
 
       # Container runs as root; workspace is owned by the runner user. Without
       # this, every `git` call in a later `run:` step exits 128 on "dubious
@@ -796,21 +825,6 @@ jobs:
         if: steps.cache-netlist.outputs.cache-hit != 'true'
         run: make netlist
 
-      # The netlist cache key is a content hash of every netlist input
-      # (elec/src/**, elec/ato.yaml, Makefile), so on a cache hit the restored
-      # netlist is byte-identical to what `make netlist` would produce. But
-      # actions/cache restores files with their ORIGINAL mtimes, while git
-      # checkout stamps the .ato sources with the checkout time -- so the
-      # mtime-based staleness checks below (check_copper_net_consistency.py,
-      # check_footprint_drift.py) see 'source newer than netlist' on every
-      # cache-hit run and fail closed on a false positive (verified: both
-      # gates pass with 0 violations after `make netlist`). Touch the
-      # restored artifacts so their mtimes reflect this run's checkout, the
-      # exact state a fresh build would leave.
-      - name: Refresh netlist mtimes (cache restores original mtimes)
-        if: steps.cache-netlist.outputs.cache-hit == 'true'
-        run: touch elec/build/default.net elec/build/default.csv
-
       # ---- SETUP / GATE BOUNDARY -------------------------------------------
       # Everything ABOVE is setup and stays fail-fast: it has no `if:`, so if
       # any of it fails (maturin, uv sync, make netlist) this step never runs,
@@ -824,6 +838,103 @@ jobs:
         id: setup
         run: echo "setup complete; gates below report independently"
 
+      # ---- from requirements-tests ----
+      # Plan 2026-07-25-001 R2. `tests/requirements/` holds the encoded
+      # IEC 60335 / EMC / design-review checks and was named in NO workflow --
+      # 240 test functions with zero CI execution path on a mains-connected
+      # design. Measured on wiring: safety 53 passed, emc 57 passed,
+      # review 27 passed.
+      #
+      # `dfm/` joined 2026-07-28 once green. It had one real failure
+      # (DFM001-ANT-002, a copper pour inside the ESP32 antenna keepout on a
+      # fixture whose purpose is to represent adequate keepout), three tests
+      # requesting an `accessible_components` fixture that does not exist, and
+      # four assertion bugs. Wiring it now would add noise, not signal. It goes
+      # in once green -- not behind continue-on-error.
+      #
+      # Guarded so this cannot quietly regress to zero the way the extended
+      # suite did via a phantom path.
+      - name: Requirements tests (safety / EMC / review / DFM)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: >
+          cd packages/temper-placer &&
+          uv run python ../../scripts/pytest_guard.py --min-tests 240 --
+          tests/requirements/safety/ tests/requirements/emc/
+          tests/requirements/review/ tests/requirements/dfm/
+          -v --tb=short -p no:cacheprovider
+
+      # ---- from provenance-gates ----
+      - name: Physics parameter provenance gate
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        working-directory: packages/temper-placer
+        run: |
+          uv run python ../../scripts/check_physics_provenance.py --allowlist ../../.physics-provenance-allowlist --physics-dir src/temper_placer/physics/
+          uv run python ../../scripts/check_physics_provenance.py --check-shrink --allowlist ../../.physics-provenance-allowlist --physics-dir src/temper_placer/physics/
+
+      - name: Evidence provenance gate (docs/evidence/)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: |
+          uv run python scripts/check_evidence_provenance.py
+          uv run python scripts/check_evidence_provenance.py --check-shrink
+
+      - name: Anti-vacuous-truth gate (gates/validators)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python scripts/check_vacuous_gates.py
+
+      - name: Measurement-provenance gate tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_check_measurement_provenance.py scripts/tests/_lib/test_lib_measurement_provenance.py -v --tb=short
+
+      # Fail-closed, not soft-launched: catches a measurement artifact
+      # (power_pcb_dataset/drc_ceiling.json today) whose recorded input
+      # content hash no longer matches the file on disk -- the DRC ceiling
+      # incident this closes recorded 91 errors for a board that three
+      # later commits (c6b1b463, 556ccf4f, 65bd0159) changed to ~710
+      # errors' worth, with the ceiling file itself byte-identical
+      # throughout. STALE is a GATE ERROR here, not a violation --
+      # generalizing the same "netlist is STALE ... not PASSED, not a
+      # violation" semantic check_domain_partition.py already uses. See
+      # docs/evidence/2026-07-28-measurement-provenance.md.
+      #
+      # Placed last in its job, and never continue-on-error: this step is
+      # expected to fail right now, because the real drc_ceiling.json
+      # genuinely is stale and has not been re-measured/re-approved. Every
+      # other required gate used to be in this same job and had to be
+      # ordered ahead of it for that reason; since the 2026-07-28 split
+      # they are in sibling jobs and cannot be affected by this gate at
+      # all, and since the same day's independent-gate-reporting change
+      # every gate step in this job runs under
+      # `if: !cancelled() && steps.setup.outcome == 'success'` -- so this
+      # gate masks nothing regardless of where it sits, and a step added
+      # after it will run and report on its own.
+      - name: Measurement-provenance gate (drc_ceiling.json input freshness)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: |
+          uv run python scripts/check_measurement_provenance.py
+          uv run python scripts/check_measurement_provenance.py --check-shrink
+
+      - name: DRC ceiling approval gate tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_check_drc_ceiling_approval.py packages/temper-placer/tests/regression/test_drc_ratchet.py -v --tb=short
+
+      # drc_ceiling.json's own header states the policy: "Ceilings may only
+      # decrease; raising one requires a 'Ceiling-Approval:' commit trailer
+      # (drc_ratchet.detect_ceiling_raise)." That detection logic has
+      # existed -- and been unit-tested -- since it was written, but no CI
+      # workflow ever called it (scripts/ci_check_drc.py only calls
+      # DrcRatchet.check(), never detect_ceiling_raise()). A documented,
+      # implemented, unit-tested policy with no caller is exactly the
+      # vacuous-gate failure class this job exists to catch; this step is
+      # the missing caller. Compares drc_ceiling.json at HEAD against
+      # origin/main's merge-base and fails if any ceiling value (aggregate
+      # or per-type, errors or warnings) increased without a
+      # Ceiling-Approval: trailer on a commit in this PR. See
+      # scripts/check_drc_ceiling_approval.py's module docstring.
+      - name: "DRC ceiling approval gate (Ceiling-Approval: trailer required on any raise)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python scripts/check_drc_ceiling_approval.py
+
+      # ---- from board-gates ----
       - name: Run electronics validation tests
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run pytest elec/validation/ -v --tb=short
@@ -942,13 +1053,6 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python3 scripts/ci_identity_check.py
 
-      - name: Regenerate schematics and check drift
-        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
-        continue-on-error: true  # TODO: temper-NNN -- make netlist (atopile) invokes kicad-cli in container; hard-fail after 2026-09-01
-        run: |
-          uv run python3 scripts/gen_schematics.py --check --no-oracle
-          git diff --exit-code pcb/*.kicad_sch
-
       - name: Isolation-keepout gate unit tests
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run pytest scripts/tests/test_check_isolation_keepout.py -v --tb=short
@@ -964,6 +1068,14 @@ jobs:
         # gate that cannot run, or that finds the barrier missing, must
         # exit non-zero.
         run: uv run python scripts/check_isolation_keepout.py
+
+      # ---- MUTATING: writes pcb/*.kicad_sch, must stay last ----
+      - name: Regenerate schematics and check drift
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        continue-on-error: true  # TODO: temper-NNN -- make netlist (atopile) invokes kicad-cli in container; hard-fail after 2026-09-01
+        run: |
+          uv run python3 scripts/gen_schematics.py --check --no-oracle
+          git diff --exit-code pcb/*.kicad_sch
 
   # Split out of Core Tests 2026-07-28. Gates that compare two representations
   # of the same fact and fail on drift: generated code vs its manifest, a
@@ -1155,201 +1267,6 @@ jobs:
   # step now lives in `hygiene-gates`. Its position is no longer load-bearing
   # either: the `!cancelled() && steps.setup.outcome == 'success'` guard on every
   # gate step below the setup barrier means it masks nothing wherever it sits.
-  provenance-gates:
-    name: Provenance & Anti-Vacuity Gates
-    needs: [changes]
-    if: ${{ github.event_name == 'push' || needs.changes.outputs.provenance-gates == 'true' }}
-    runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/bennetleff/temper-ci:latest
-      options: --user root
-    timeout-minutes: 20
-    env:
-      VIRTUAL_ENV: ${{ github.workspace }}/.venv
-      TEMPER_REQUIRE_RUST_DRC: "1"
-    steps:
-      # fetch-depth: 0 (full history, not the default shallow depth-1 clone):
-      # the DRC ceiling approval gate below needs `origin/main` and a real
-      # merge-base to diff drc_ceiling.json and enumerate this PR's commits
-      # for a Ceiling-Approval: trailer -- a shallow clone would make that
-      # merge-base unresolvable and the gate would have to fail closed on
-      # every run. Same convention already used by the loc-cap and
-      # repo-state jobs below, which have the same need.
-      - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-
-      # Container runs as root; workspace is owned by the runner user. Without
-      # this, every `git` call in a later `run:` step exits 128 on "dubious
-      # ownership" rather than doing its job.
-      - name: Mark workspace safe for git
-        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v7
-        with:
-          version: "latest"
-          enable-cache: true
-
-      - name: Cache virtualenv
-        uses: actions/cache@v6
-        id: cache-venv
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
-
-      - name: Create virtualenv (cache miss)
-        if: steps.cache-venv.outputs.cache-hit != 'true'
-        run: uv venv
-
-      - name: Install maturin
-        run: uv pip install maturin
-
-      - name: Build and install Rust crate
-        run: uv run maturin develop --release --manifest-path packages/temper-rust-router/Cargo.toml
-
-      - name: Verify Rust module loads
-        run: uv run python3 -c "import temper_rust_router; print('temper_rust_router loaded OK')"
-        env:
-          RUST_BACKTRACE: full
-
-      - name: Build and install temper-drc-rs
-        run: uv run maturin develop --release --manifest-path packages/temper-drc-rs/Cargo.toml
-
-      - name: Verify temper-drc-rs loads
-        run: uv run python3 -c "import temper_drc_rs; print('temper_drc_rs loaded OK')"
-        env:
-          RUST_BACKTRACE: full
-
-      - name: Build and install temper-constraints
-        run: >
-          uv run maturin develop --release
-          --manifest-path packages/temper-placer/temper-constraints/Cargo.toml
-        env:
-          PYO3_USE_ABI3_FORWARD_COMPATIBILITY: "1"
-
-      - name: Verify temper-constraints loads
-        run: uv run python3 -c "import temper_constraints; print('temper_constraints loaded OK, version', temper_constraints.version_py())"
-        env:
-          RUST_BACKTRACE: full
-
-      # `uv sync` defaults to an *exact* sync: anything installed in the venv
-      # that is not part of this invocation's resolved target set gets
-      # uninstalled as "extraneous". `--no-install-package X` excludes X from
-      # that target set -- it does NOT mean "leave X alone". Without
-      # `--inexact`, the three flags below were therefore silently
-      # UNINSTALLING the release wheels that "Build and install ..." just
-      # built and "Verify ... loads" just confirmed importable, minutes
-      # earlier in this same job. Reproduced locally: `uv sync --all-packages
-      # --no-install-package temper-rust-router ...` (no --inexact) prints
-      # "Uninstalled 2 packages" and `- temper-rust-router==0.1.0` in its
-      # diff, and a subsequent bare import fails with ModuleNotFoundError.
-      # `--inexact` disables the extraneous-package removal, so these three
-      # packages are truly left untouched (mtimes unchanged, no rebuild)
-      # instead of evicted -- confirmed locally: with --inexact added, the
-      # same command reports "Audited N packages" (no install/uninstall) and
-      # the modules remain importable afterward.
-      - name: Install dependencies
-        run: >
-          uv sync --all-packages --inexact
-          --no-install-package temper-rust-router
-          --no-install-package temper-drc-rs
-          --no-install-package temper-constraints
-
-      - name: Cache netlist
-        id: cache-netlist
-        uses: actions/cache@v6
-        with:
-          path: elec/build
-          key: netlist-${{ hashFiles('elec/src/**', 'elec/ato.yaml', 'Makefile') }}
-
-      - name: Build electronics netlist
-        if: steps.cache-netlist.outputs.cache-hit != 'true'
-        run: make netlist
-
-      # ---- SETUP / GATE BOUNDARY -------------------------------------------
-      # Everything ABOVE is setup and stays fail-fast: it has no `if:`, so if
-      # any of it fails (maturin, uv sync, make netlist) this step never runs,
-      # `steps.setup.outcome` is not `success`, and every gate below is SKIPPED
-      # rather than run against a half-built environment and reported as a gate
-      # verdict. Everything BELOW is a gate: each carries
-      # `if: !cancelled() && steps.setup.outcome == 'success'` so a red gate no
-      # longer deletes the verdict of the gates behind it. None of them is
-      # `continue-on-error`, so the job still concludes `failure` if any fails.
-      - name: Setup barrier -- environment ready
-        id: setup
-        run: echo "setup complete; gates below report independently"
-
-      - name: Physics parameter provenance gate
-        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
-        working-directory: packages/temper-placer
-        run: |
-          uv run python ../../scripts/check_physics_provenance.py --allowlist ../../.physics-provenance-allowlist --physics-dir src/temper_placer/physics/
-          uv run python ../../scripts/check_physics_provenance.py --check-shrink --allowlist ../../.physics-provenance-allowlist --physics-dir src/temper_placer/physics/
-
-      - name: Evidence provenance gate (docs/evidence/)
-        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
-        run: |
-          uv run python scripts/check_evidence_provenance.py
-          uv run python scripts/check_evidence_provenance.py --check-shrink
-
-      - name: Anti-vacuous-truth gate (gates/validators)
-        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
-        run: uv run python scripts/check_vacuous_gates.py
-
-      - name: Measurement-provenance gate tests
-        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
-        run: uv run pytest scripts/tests/test_check_measurement_provenance.py scripts/tests/_lib/test_lib_measurement_provenance.py -v --tb=short
-
-      # Fail-closed, not soft-launched: catches a measurement artifact
-      # (power_pcb_dataset/drc_ceiling.json today) whose recorded input
-      # content hash no longer matches the file on disk -- the DRC ceiling
-      # incident this closes recorded 91 errors for a board that three
-      # later commits (c6b1b463, 556ccf4f, 65bd0159) changed to ~710
-      # errors' worth, with the ceiling file itself byte-identical
-      # throughout. STALE is a GATE ERROR here, not a violation --
-      # generalizing the same "netlist is STALE ... not PASSED, not a
-      # violation" semantic check_domain_partition.py already uses. See
-      # docs/evidence/2026-07-28-measurement-provenance.md.
-      #
-      # Placed last in its job, and never continue-on-error: this step is
-      # expected to fail right now, because the real drc_ceiling.json
-      # genuinely is stale and has not been re-measured/re-approved. Every
-      # other required gate used to be in this same job and had to be
-      # ordered ahead of it for that reason; since the 2026-07-28 split
-      # they are in sibling jobs and cannot be affected by this gate at
-      # all, and since the same day's independent-gate-reporting change
-      # every gate step in this job runs under
-      # `if: !cancelled() && steps.setup.outcome == 'success'` -- so this
-      # gate masks nothing regardless of where it sits, and a step added
-      # after it will run and report on its own.
-      - name: Measurement-provenance gate (drc_ceiling.json input freshness)
-        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
-        run: |
-          uv run python scripts/check_measurement_provenance.py
-          uv run python scripts/check_measurement_provenance.py --check-shrink
-
-      - name: DRC ceiling approval gate tests
-        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
-        run: uv run pytest scripts/tests/test_check_drc_ceiling_approval.py packages/temper-placer/tests/regression/test_drc_ratchet.py -v --tb=short
-
-      # drc_ceiling.json's own header states the policy: "Ceilings may only
-      # decrease; raising one requires a 'Ceiling-Approval:' commit trailer
-      # (drc_ratchet.detect_ceiling_raise)." That detection logic has
-      # existed -- and been unit-tested -- since it was written, but no CI
-      # workflow ever called it (scripts/ci_check_drc.py only calls
-      # DrcRatchet.check(), never detect_ceiling_raise()). A documented,
-      # implemented, unit-tested policy with no caller is exactly the
-      # vacuous-gate failure class this job exists to catch; this step is
-      # the missing caller. Compares drc_ceiling.json at HEAD against
-      # origin/main's merge-base and fails if any ceiling value (aggregate
-      # or per-type, errors or warnings) increased without a
-      # Ceiling-Approval: trailer on a commit in this PR. See
-      # scripts/check_drc_ceiling_approval.py's module docstring.
-      - name: "DRC ceiling approval gate (Ceiling-Approval: trailer required on any raise)"
-        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
-        run: uv run python scripts/check_drc_ceiling_approval.py
-
   # Split out of Core Tests 2026-07-28. Whole-repo hygiene: dead code, script
   # inventory, root-directory litter, import boundaries, undeclared imports.
   # "Script manifest gate" stays ahead of "Rebuild script invocation graph",
@@ -1540,146 +1457,6 @@ jobs:
   # guarded by --min-tests so the suite cannot silently shrink to zero. In the
   # old job these sat at step 49 of 58 and had not executed on main since the
   # isolation gate went red. They get their own verdict.
-  requirements-tests:
-    name: Requirements Tests (safety / EMC / review / DFM)
-    needs: [changes]
-    if: ${{ github.event_name == 'push' || needs.changes.outputs.requirements-tests == 'true' }}
-    runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/bennetleff/temper-ci:latest
-      options: --user root
-    timeout-minutes: 25
-    env:
-      VIRTUAL_ENV: ${{ github.workspace }}/.venv
-      TEMPER_REQUIRE_RUST_DRC: "1"
-    steps:
-      - uses: actions/checkout@v7
-
-      # Container runs as root; workspace is owned by the runner user. Without
-      # this, every `git` call in a later `run:` step exits 128 on "dubious
-      # ownership" rather than doing its job.
-      - name: Mark workspace safe for git
-        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v7
-        with:
-          version: "latest"
-          enable-cache: true
-
-      - name: Cache virtualenv
-        uses: actions/cache@v6
-        id: cache-venv
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
-
-      - name: Create virtualenv (cache miss)
-        if: steps.cache-venv.outputs.cache-hit != 'true'
-        run: uv venv
-
-      - name: Install maturin
-        run: uv pip install maturin
-
-      - name: Build and install Rust crate
-        run: uv run maturin develop --release --manifest-path packages/temper-rust-router/Cargo.toml
-
-      - name: Verify Rust module loads
-        run: uv run python3 -c "import temper_rust_router; print('temper_rust_router loaded OK')"
-        env:
-          RUST_BACKTRACE: full
-
-      - name: Build and install temper-drc-rs
-        run: uv run maturin develop --release --manifest-path packages/temper-drc-rs/Cargo.toml
-
-      - name: Verify temper-drc-rs loads
-        run: uv run python3 -c "import temper_drc_rs; print('temper_drc_rs loaded OK')"
-        env:
-          RUST_BACKTRACE: full
-
-      - name: Build and install temper-constraints
-        run: >
-          uv run maturin develop --release
-          --manifest-path packages/temper-placer/temper-constraints/Cargo.toml
-        env:
-          PYO3_USE_ABI3_FORWARD_COMPATIBILITY: "1"
-
-      - name: Verify temper-constraints loads
-        run: uv run python3 -c "import temper_constraints; print('temper_constraints loaded OK, version', temper_constraints.version_py())"
-        env:
-          RUST_BACKTRACE: full
-
-      # `uv sync` defaults to an *exact* sync: anything installed in the venv
-      # that is not part of this invocation's resolved target set gets
-      # uninstalled as "extraneous". `--no-install-package X` excludes X from
-      # that target set -- it does NOT mean "leave X alone". Without
-      # `--inexact`, the three flags below were therefore silently
-      # UNINSTALLING the release wheels that "Build and install ..." just
-      # built and "Verify ... loads" just confirmed importable, minutes
-      # earlier in this same job. Reproduced locally: `uv sync --all-packages
-      # --no-install-package temper-rust-router ...` (no --inexact) prints
-      # "Uninstalled 2 packages" and `- temper-rust-router==0.1.0` in its
-      # diff, and a subsequent bare import fails with ModuleNotFoundError.
-      # `--inexact` disables the extraneous-package removal, so these three
-      # packages are truly left untouched (mtimes unchanged, no rebuild)
-      # instead of evicted -- confirmed locally: with --inexact added, the
-      # same command reports "Audited N packages" (no install/uninstall) and
-      # the modules remain importable afterward.
-      - name: Install dependencies
-        run: >
-          uv sync --all-packages --inexact
-          --no-install-package temper-rust-router
-          --no-install-package temper-drc-rs
-          --no-install-package temper-constraints
-
-      - name: Cache netlist
-        id: cache-netlist
-        uses: actions/cache@v6
-        with:
-          path: elec/build
-          key: netlist-${{ hashFiles('elec/src/**', 'elec/ato.yaml', 'Makefile') }}
-
-      - name: Build electronics netlist
-        if: steps.cache-netlist.outputs.cache-hit != 'true'
-        run: make netlist
-
-      # ---- SETUP / GATE BOUNDARY -------------------------------------------
-      # Everything ABOVE is setup and stays fail-fast: it has no `if:`, so if
-      # any of it fails (maturin, uv sync, make netlist) this step never runs,
-      # `steps.setup.outcome` is not `success`, and every gate below is SKIPPED
-      # rather than run against a half-built environment and reported as a gate
-      # verdict. Everything BELOW is a gate: each carries
-      # `if: !cancelled() && steps.setup.outcome == 'success'` so a red gate no
-      # longer deletes the verdict of the gates behind it. None of them is
-      # `continue-on-error`, so the job still concludes `failure` if any fails.
-      - name: Setup barrier -- environment ready
-        id: setup
-        run: echo "setup complete; gates below report independently"
-
-      # Plan 2026-07-25-001 R2. `tests/requirements/` holds the encoded
-      # IEC 60335 / EMC / design-review checks and was named in NO workflow --
-      # 240 test functions with zero CI execution path on a mains-connected
-      # design. Measured on wiring: safety 53 passed, emc 57 passed,
-      # review 27 passed.
-      #
-      # `dfm/` joined 2026-07-28 once green. It had one real failure
-      # (DFM001-ANT-002, a copper pour inside the ESP32 antenna keepout on a
-      # fixture whose purpose is to represent adequate keepout), three tests
-      # requesting an `accessible_components` fixture that does not exist, and
-      # four assertion bugs. Wiring it now would add noise, not signal. It goes
-      # in once green -- not behind continue-on-error.
-      #
-      # Guarded so this cannot quietly regress to zero the way the extended
-      # suite did via a phantom path.
-      - name: Requirements tests (safety / EMC / review / DFM)
-        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
-        run: >
-          cd packages/temper-placer &&
-          uv run python ../../scripts/pytest_guard.py --min-tests 240 --
-          tests/requirements/safety/ tests/requirements/emc/
-          tests/requirements/review/ tests/requirements/dfm/
-          -v --tb=short -p no:cacheprovider
-
   # Split out of Core Tests 2026-07-28, then split again 2026-07-29. The four
   # suites below (bundle / cp-sat / workflow / checks) used to share one
   # `extended-suites` job as four backgrounded processes racing for one

@@ -137,13 +137,6 @@
         "packages/temper-thermal/**"
       ]
     },
-    "Board & Netlist Gates": {
-      "id": "board-gates",
-      "paths": [
-        "pcb/**",
-        "elec/**"
-      ]
-    },
     "Cross-Source Consistency Gates": {
       "id": "consistency-gates",
       "paths": [
@@ -157,28 +150,10 @@
         "packages/temper-drc-rs/src/board.rs"
       ]
     },
-    "Provenance & Anti-Vacuity Gates": {
-      "id": "provenance-gates",
-      "paths": [
-        "elec/**",
-        "pcb/**",
-        "power_pcb_dataset/**",
-        "packages/temper-placer/src/temper_placer/physics/**"
-      ]
-    },
     "Repo Hygiene & Import Gates": {
       "id": "hygiene-gates",
       "paths": [
         "packages/**"
-      ]
-    },
-    "Requirements Tests (safety / EMC / review / DFM)": {
-      "id": "requirements-tests",
-      "paths": [
-        "packages/temper-placer/**",
-        "packages/temper-geometry/**",
-        "elec/**",
-        "pcb/**"
       ]
     },
     "Invariant tests (router_v6 group 3)": {
@@ -195,6 +170,16 @@
         "packages/temper-ipc/**",
         "packages/temper-io-types/**",
         "packages/temper-constraint-compiler/**"
+      ]
+    },
+    "Board, Provenance & Requirements Gates": {
+      "id": "board-provenance-requirements-gates",
+      "paths": [
+        "pcb/**",
+        "elec/**",
+        "power_pcb_dataset/**",
+        "packages/temper-placer/**",
+        "packages/temper-geometry/**"
       ]
     }
   },
