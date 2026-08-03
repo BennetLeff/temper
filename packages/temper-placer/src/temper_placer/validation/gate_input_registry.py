@@ -613,10 +613,11 @@ def build_default_registry() -> GateInputRegistry:
             status="closed",  # remediated by U5 in this changeset
             remediation_unit="U5",
             attribution=(
-                "declarations removed from validation_gates.py; RunMetrics "
+                "declarations removed from validation_gates.py in commit "
+                "2292e097c204c0ce02765dee35e374cf9d3572b1; RunMetrics "
                 "(core/loss_types.py) never carried them; live surface uses "
                 "metrics/physics.py EMIMetrics.gate_loop_area_mm2 (different "
-                "container) — see commit message for the exact SHA"
+                "container)"
             ),
         ),
     )
