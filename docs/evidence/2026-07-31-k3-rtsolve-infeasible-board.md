@@ -1,4 +1,4 @@
-<!-- provenance: commit=733aa0861485bce92635e5319ac9b538218a84af dirty=false (branch fix/k3-relay-placement, board restored byte-identical to origin/main 251841703a...; every solve measurement in this doc ran in a clean tree at HEAD 733aa0861 against the restored board) -->
+<!-- provenance: commit=ba02616f140f69092784651f2a60a49bbfccb428 dirty=false (branch fix/k3-relay-placement, board restored byte-identical to origin/main 251841703a...; every solve measurement in this doc ran in a clean tree at HEAD 733aa0861 against the restored board) -->
 
 # K3 RT314012 re-solve attempt — the scoped CP-SAT solve is infeasible on the current board
 

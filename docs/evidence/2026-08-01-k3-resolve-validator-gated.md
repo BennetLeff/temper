@@ -1,4 +1,4 @@
-<!-- provenance: commit=87df36a223472967624648372bde8a21c61ba02a dirty=false -->
+<!-- provenance: commit=6edfa636a8b3a5621f9f625f423d547e4149863f dirty=false -->
 
 # K3/tank3 resolve — validator-gated solve + gate verification (issue #523 re-solve)
 

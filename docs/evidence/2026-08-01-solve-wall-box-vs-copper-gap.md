@@ -1,4 +1,4 @@
-<!-- provenance: commit=dc8accd5bb12c20f5afe7f0840e74ab9d7e8daaf dirty=false -->
+<!-- provenance: commit=b3638473af4b25dc44fc4ea446568f39c58dc407 dirty=false -->
 
 # The #523 "gap 2" premise — solver box-bar vs REQ-SAFE-01 exact-copper bar (2026-08-01/02)
 
