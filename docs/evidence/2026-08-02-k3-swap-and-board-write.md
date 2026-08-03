@@ -1,4 +1,4 @@
-<!-- provenance: commit=fc441a78beb3f341052c989f98f9df1b11fedc0c dirty=false -->
+<!-- provenance: commit=d68827d4606176392968a56ebb33d8e1382a7b9b dirty=false -->
 
 # K3 swap + board write — owner-granted wave-2 (issue #523)
 
@@ -190,6 +190,13 @@ updated fail-closed, with measured numbers and this evidence cited:
   with (fixed_copper free_refs={K3,C27}, min-displacement, full
   domain-clearance + keepaway, ≤60mm cap); asserts hard=0, intra=0,
   gaps=0, and the ≤60mm displacement contract.
+- `test_runb_audit_lie.py` (3 validator-reproduction tests): the
+  documented run-B distances were measured on the PRE-WRITE board with the
+  OLD run-B targets (K3 (63.52, 51.97), C27 (44.44, 236.56)); overlaying
+  those on the written board is physically meaningless (RT314012 pads on
+  D5 at 0.000mm). Re-based fail-closed to the written-board 0/0 reality:
+  the board must measure 0 violations and none of the documented run-B
+  pairs may fire.
 
 ## 6. Gates
 
@@ -197,7 +204,7 @@ updated fail-closed, with measured numbers and this evidence cited:
   footprint_drift 0 / domain_partition 0 crossings / pad_orientation PASS.
 - `scripts/check_measurement_provenance.py`: **PASSED** (board hash
   51e39844 matches the ceiling's recorded hash).
-- pytest: `tests/requirements/safety/` 56 passed;
+- pytest: `tests/requirements/safety/` 112 passed;
   `test_clearance_repair.py` + `test_validator_audit.py` 43 passed — all
   green on the written board.
 
