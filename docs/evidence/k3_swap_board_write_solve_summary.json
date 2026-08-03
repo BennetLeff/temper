@@ -1,0 +1,1389 @@
+{
+  "C27": [
+    22.05,
+    222.0
+  ],
+  "K3": [
+    81.5,
+    15.97
+  ],
+  "domain_constraints": 11571,
+  "final_inter": 0,
+  "final_intra": 0,
+  "intra_blockers": [],
+  "keepaway_constraints": 530,
+  "placement": {
+    "C1": {
+      "position": [
+        4.25,
+        199.69
+      ],
+      "rotation_idx": 1
+    },
+    "C10": {
+      "position": [
+        138.43,
+        6.45
+      ],
+      "rotation_idx": 2
+    },
+    "C11": {
+      "position": [
+        134.25,
+        3.72
+      ],
+      "rotation_idx": 2
+    },
+    "C12": {
+      "position": [
+        146.6,
+        7.92
+      ],
+      "rotation_idx": 0
+    },
+    "C13": {
+      "position": [
+        148.13,
+        27.88
+      ],
+      "rotation_idx": 1
+    },
+    "C14": {
+      "position": [
+        73.21,
+        63.9
+      ],
+      "rotation_idx": 1
+    },
+    "C15": {
+      "position": [
+        59.54,
+        83.26
+      ],
+      "rotation_idx": 0
+    },
+    "C16": {
+      "position": [
+        52.33,
+        209.22
+      ],
+      "rotation_idx": 1
+    },
+    "C17": {
+      "position": [
+        41.69,
+        107.12
+      ],
+      "rotation_idx": 0
+    },
+    "C18": {
+      "position": [
+        5.23,
+        104.01
+      ],
+      "rotation_idx": 1
+    },
+    "C19": {
+      "position": [
+        5.23,
+        74.93
+      ],
+      "rotation_idx": 1
+    },
+    "C2": {
+      "position": [
+        50.76,
+        50.36
+      ],
+      "rotation_idx": 0
+    },
+    "C20": {
+      "position": [
+        49.62,
+        96.04
+      ],
+      "rotation_idx": 1
+    },
+    "C21": {
+      "position": [
+        116.1,
+        129.76
+      ],
+      "rotation_idx": 1
+    },
+    "C22": {
+      "position": [
+        27.39,
+        143.26
+      ],
+      "rotation_idx": 3
+    },
+    "C23": {
+      "position": [
+        1.24,
+        34.08
+      ],
+      "rotation_idx": 1
+    },
+    "C24": {
+      "position": [
+        10.34,
+        51.24
+      ],
+      "rotation_idx": 0
+    },
+    "C25": {
+      "position": [
+        94.01,
+        119.75
+      ],
+      "rotation_idx": 1
+    },
+    "C26": {
+      "position": [
+        117.41,
+        98.73
+      ],
+      "rotation_idx": 3
+    },
+    "C27": {
+      "position": [
+        22.05,
+        222.0
+      ],
+      "rotation_idx": 0
+    },
+    "C28": {
+      "position": [
+        65.97,
+        15.48
+      ],
+      "rotation_idx": 1
+    },
+    "C29": {
+      "position": [
+        150.02,
+        21.51
+      ],
+      "rotation_idx": 0
+    },
+    "C3": {
+      "position": [
+        21.11,
+        15.56
+      ],
+      "rotation_idx": 3
+    },
+    "C30": {
+      "position": [
+        130.22,
+        9.06
+      ],
+      "rotation_idx": 1
+    },
+    "C31": {
+      "position": [
+        150.66,
+        68.56
+      ],
+      "rotation_idx": 3
+    },
+    "C32": {
+      "position": [
+        40.98,
+        14.0
+      ],
+      "rotation_idx": 1
+    },
+    "C33": {
+      "position": [
+        142.56,
+        12.0
+      ],
+      "rotation_idx": 1
+    },
+    "C34": {
+      "position": [
+        64.41,
+        3.84
+      ],
+      "rotation_idx": 1
+    },
+    "C35": {
+      "position": [
+        150.66,
+        17.46
+      ],
+      "rotation_idx": 1
+    },
+    "C36": {
+      "position": [
+        52.89,
+        4.44
+      ],
+      "rotation_idx": 1
+    },
+    "C37": {
+      "position": [
+        60.78,
+        1.23
+      ],
+      "rotation_idx": 2
+    },
+    "C38": {
+      "position": [
+        6.94,
+        180.96
+      ],
+      "rotation_idx": 1
+    },
+    "C39": {
+      "position": [
+        1.77,
+        2.2
+      ],
+      "rotation_idx": 1
+    },
+    "C4": {
+      "position": [
+        98.78,
+        213.76
+      ],
+      "rotation_idx": 1
+    },
+    "C40": {
+      "position": [
+        1.24,
+        6.38
+      ],
+      "rotation_idx": 3
+    },
+    "C5": {
+      "position": [
+        135.32,
+        192.94
+      ],
+      "rotation_idx": 2
+    },
+    "C6": {
+      "position": [
+        35.91,
+        185.12
+      ],
+      "rotation_idx": 3
+    },
+    "C7": {
+      "position": [
+        129.66,
+        177.35
+      ],
+      "rotation_idx": 2
+    },
+    "C8": {
+      "position": [
+        145.06,
+        132.33
+      ],
+      "rotation_idx": 3
+    },
+    "C9": {
+      "position": [
+        127.72,
+        217.64
+      ],
+      "rotation_idx": 1
+    },
+    "D1": {
+      "position": [
+        148.94,
+        86.7
+      ],
+      "rotation_idx": 1
+    },
+    "D2": {
+      "position": [
+        42.44,
+        80.73
+      ],
+      "rotation_idx": 1
+    },
+    "D3": {
+      "position": [
+        20.14,
+        102.02
+      ],
+      "rotation_idx": 1
+    },
+    "D4": {
+      "position": [
+        19.5,
+        200.75
+      ],
+      "rotation_idx": 0
+    },
+    "D5": {
+      "position": [
+        48.95,
+        28.81
+      ],
+      "rotation_idx": 0
+    },
+    "F1": {
+      "position": [
+        51.6,
+        163.63
+      ],
+      "rotation_idx": 0
+    },
+    "J1": {
+      "position": [
+        24.66,
+        96.02
+      ],
+      "rotation_idx": 2
+    },
+    "K1": {
+      "position": [
+        63.0,
+        186.37
+      ],
+      "rotation_idx": 2
+    },
+    "K2": {
+      "position": [
+        90.96,
+        54.91
+      ],
+      "rotation_idx": 1
+    },
+    "K3": {
+      "position": [
+        81.5,
+        15.97
+      ],
+      "rotation_idx": 1
+    },
+    "L1": {
+      "position": [
+        100.26,
+        167.2
+      ],
+      "rotation_idx": 1
+    },
+    "L2": {
+      "position": [
+        125.62,
+        134.98
+      ],
+      "rotation_idx": 3
+    },
+    "PS1": {
+      "position": [
+        122.58,
+        46.08
+      ],
+      "rotation_idx": 1
+    },
+    "Q1": {
+      "position": [
+        19.5,
+        196.07
+      ],
+      "rotation_idx": 1
+    },
+    "Q2": {
+      "position": [
+        95.98,
+        80.7
+      ],
+      "rotation_idx": 2
+    },
+    "R1": {
+      "position": [
+        17.5,
+        176.17
+      ],
+      "rotation_idx": 1
+    },
+    "R10": {
+      "position": [
+        52.72,
+        231.68
+      ],
+      "rotation_idx": 3
+    },
+    "R11": {
+      "position": [
+        13.38,
+        152.89
+      ],
+      "rotation_idx": 2
+    },
+    "R12": {
+      "position": [
+        142.07,
+        220.62
+      ],
+      "rotation_idx": 3
+    },
+    "R13": {
+      "position": [
+        113.37,
+        220.62
+      ],
+      "rotation_idx": 1
+    },
+    "R14": {
+      "position": [
+        22.83,
+        35.77
+      ],
+      "rotation_idx": 2
+    },
+    "R15": {
+      "position": [
+        140.16,
+        4.19
+      ],
+      "rotation_idx": 2
+    },
+    "R16": {
+      "position": [
+        75.98,
+        159.11
+      ],
+      "rotation_idx": 2
+    },
+    "R17": {
+      "position": [
+        23.88,
+        65.94
+      ],
+      "rotation_idx": 2
+    },
+    "R18": {
+      "position": [
+        145.24,
+        13.22
+      ],
+      "rotation_idx": 3
+    },
+    "R19": {
+      "position": [
+        149.15,
+        223.56
+      ],
+      "rotation_idx": 3
+    },
+    "R2": {
+      "position": [
+        59.5,
+        232.12
+      ],
+      "rotation_idx": 2
+    },
+    "R20": {
+      "position": [
+        37.72,
+        88.24
+      ],
+      "rotation_idx": 3
+    },
+    "R21": {
+      "position": [
+        19.31,
+        68.62
+      ],
+      "rotation_idx": 0
+    },
+    "R22": {
+      "position": [
+        15.35,
+        73.02
+      ],
+      "rotation_idx": 2
+    },
+    "R23": {
+      "position": [
+        36.71,
+        93.83
+      ],
+      "rotation_idx": 2
+    },
+    "R24": {
+      "position": [
+        38.03,
+        24.21
+      ],
+      "rotation_idx": 2
+    },
+    "R25": {
+      "position": [
+        5.98,
+        107.65
+      ],
+      "rotation_idx": 2
+    },
+    "R26": {
+      "position": [
+        138.39,
+        9.51
+      ],
+      "rotation_idx": 2
+    },
+    "R27": {
+      "position": [
+        12.69,
+        138.21
+      ],
+      "rotation_idx": 0
+    },
+    "R28": {
+      "position": [
+        1.24,
+        160.56
+      ],
+      "rotation_idx": 3
+    },
+    "R29": {
+      "position": [
+        21.83,
+        173.26
+      ],
+      "rotation_idx": 1
+    },
+    "R3": {
+      "position": [
+        149.52,
+        31.81
+      ],
+      "rotation_idx": 2
+    },
+    "R30": {
+      "position": [
+        11.0,
+        143.74
+      ],
+      "rotation_idx": 2
+    },
+    "R31": {
+      "position": [
+        5.63,
+        70.17
+      ],
+      "rotation_idx": 3
+    },
+    "R32": {
+      "position": [
+        29.82,
+        130.26
+      ],
+      "rotation_idx": 3
+    },
+    "R33": {
+      "position": [
+        97.03,
+        1.98
+      ],
+      "rotation_idx": 1
+    },
+    "R34": {
+      "position": [
+        143.32,
+        83.75
+      ],
+      "rotation_idx": 2
+    },
+    "R35": {
+      "position": [
+        148.88,
+        81.47
+      ],
+      "rotation_idx": 0
+    },
+    "R36": {
+      "position": [
+        134.7,
+        14.25
+      ],
+      "rotation_idx": 2
+    },
+    "R37": {
+      "position": [
+        12.24,
+        100.8
+      ],
+      "rotation_idx": 2
+    },
+    "R38": {
+      "position": [
+        150.02,
+        23.97
+      ],
+      "rotation_idx": 2
+    },
+    "R39": {
+      "position": [
+        27.06,
+        104.44
+      ],
+      "rotation_idx": 3
+    },
+    "R4": {
+      "position": [
+        23.9,
+        143.91
+      ],
+      "rotation_idx": 1
+    },
+    "R40": {
+      "position": [
+        138.46,
+        1.23
+      ],
+      "rotation_idx": 0
+    },
+    "R41": {
+      "position": [
+        24.45,
+        91.24
+      ],
+      "rotation_idx": 2
+    },
+    "R42": {
+      "position": [
+        39.28,
+        10.64
+      ],
+      "rotation_idx": 3
+    },
+    "R43": {
+      "position": [
+        9.94,
+        107.25
+      ],
+      "rotation_idx": 2
+    },
+    "R44": {
+      "position": [
+        142.26,
+        162.67
+      ],
+      "rotation_idx": 2
+    },
+    "R45": {
+      "position": [
+        4.1,
+        176.82
+      ],
+      "rotation_idx": 1
+    },
+    "R46": {
+      "position": [
+        141.82,
+        7.05
+      ],
+      "rotation_idx": 2
+    },
+    "R47": {
+      "position": [
+        142.56,
+        159.46
+      ],
+      "rotation_idx": 3
+    },
+    "R48": {
+      "position": [
+        23.68,
+        177.17
+      ],
+      "rotation_idx": 2
+    },
+    "R49": {
+      "position": [
+        142.35,
+        80.97
+      ],
+      "rotation_idx": 2
+    },
+    "R5": {
+      "position": [
+        10.37,
+        42.85
+      ],
+      "rotation_idx": 2
+    },
+    "R50": {
+      "position": [
+        71.97,
+        231.68
+      ],
+      "rotation_idx": 3
+    },
+    "R51": {
+      "position": [
+        32.13,
+        201.9
+      ],
+      "rotation_idx": 1
+    },
+    "R52": {
+      "position": [
+        150.37,
+        151.86
+      ],
+      "rotation_idx": 1
+    },
+    "R53": {
+      "position": [
+        58.98,
+        220.17
+      ],
+      "rotation_idx": 2
+    },
+    "R54": {
+      "position": [
+        123.8,
+        3.24
+      ],
+      "rotation_idx": 3
+    },
+    "R55": {
+      "position": [
+        121.34,
+        3.84
+      ],
+      "rotation_idx": 3
+    },
+    "R56": {
+      "position": [
+        37.24,
+        38.24
+      ],
+      "rotation_idx": 1
+    },
+    "R57": {
+      "position": [
+        120.19,
+        129.41
+      ],
+      "rotation_idx": 2
+    },
+    "R58": {
+      "position": [
+        53.12,
+        105.24
+      ],
+      "rotation_idx": 1
+    },
+    "R59": {
+      "position": [
+        63.66,
+        231.9
+      ],
+      "rotation_idx": 2
+    },
+    "R6": {
+      "position": [
+        98.58,
+        13.85
+      ],
+      "rotation_idx": 2
+    },
+    "R60": {
+      "position": [
+        57.57,
+        18.61
+      ],
+      "rotation_idx": 2
+    },
+    "R61": {
+      "position": [
+        24.07,
+        167.56
+      ],
+      "rotation_idx": 1
+    },
+    "R62": {
+      "position": [
+        57.43,
+        74.93
+      ],
+      "rotation_idx": 1
+    },
+    "R63": {
+      "position": [
+        11.48,
+        180.96
+      ],
+      "rotation_idx": 1
+    },
+    "R64": {
+      "position": [
+        142.51,
+        79.11
+      ],
+      "rotation_idx": 0
+    },
+    "R65": {
+      "position": [
+        2.0,
+        73.93
+      ],
+      "rotation_idx": 1
+    },
+    "R66": {
+      "position": [
+        139.15,
+        12.27
+      ],
+      "rotation_idx": 2
+    },
+    "R67": {
+      "position": [
+        138.39,
+        98.88
+      ],
+      "rotation_idx": 2
+    },
+    "R68": {
+      "position": [
+        60.45,
+        211.14
+      ],
+      "rotation_idx": 3
+    },
+    "R69": {
+      "position": [
+        114.24,
+        129.76
+      ],
+      "rotation_idx": 3
+    },
+    "R7": {
+      "position": [
+        125.84,
+        205.06
+      ],
+      "rotation_idx": 1
+    },
+    "R70": {
+      "position": [
+        75.9,
+        230.29
+      ],
+      "rotation_idx": 2
+    },
+    "R71": {
+      "position": [
+        29.07,
+        107.65
+      ],
+      "rotation_idx": 2
+    },
+    "R72": {
+      "position": [
+        24.45,
+        130.21
+      ],
+      "rotation_idx": 2
+    },
+    "R73": {
+      "position": [
+        150.66,
+        27.18
+      ],
+      "rotation_idx": 3
+    },
+    "R74": {
+      "position": [
+        49.12,
+        14.25
+      ],
+      "rotation_idx": 2
+    },
+    "R75": {
+      "position": [
+        79.86,
+        231.9
+      ],
+      "rotation_idx": 2
+    },
+    "R76": {
+      "position": [
+        12.24,
+        78.14
+      ],
+      "rotation_idx": 2
+    },
+    "R77": {
+      "position": [
+        130.1,
+        143.52
+      ],
+      "rotation_idx": 3
+    },
+    "R78": {
+      "position": [
+        127.01,
+        11.79
+      ],
+      "rotation_idx": 0
+    },
+    "R79": {
+      "position": [
+        110.36,
+        8.85
+      ],
+      "rotation_idx": 1
+    },
+    "R8": {
+      "position": [
+        87.34,
+        200.18
+      ],
+      "rotation_idx": 1
+    },
+    "R9": {
+      "position": [
+        36.52,
+        97.44
+      ],
+      "rotation_idx": 1
+    },
+    "RT1": {
+      "position": [
+        5.26,
+        138.34
+      ],
+      "rotation_idx": 2
+    },
+    "RV1": {
+      "position": [
+        122.66,
+        162.15
+      ],
+      "rotation_idx": 2
+    },
+    "SW1": {
+      "position": [
+        60.64,
+        217.31
+      ],
+      "rotation_idx": 2
+    },
+    "SW2": {
+      "position": [
+        77.88,
+        83.22
+      ],
+      "rotation_idx": 3
+    },
+    "T1": {
+      "position": [
+        53.85,
+        129.15
+      ],
+      "rotation_idx": 1
+    },
+    "TP1": {
+      "position": [
+        30.05,
+        127.28
+      ],
+      "rotation_idx": 0
+    },
+    "TP2": {
+      "position": [
+        145.9,
+        81.7
+      ],
+      "rotation_idx": 0
+    },
+    "TP3": {
+      "position": [
+        150.43,
+        104.42
+      ],
+      "rotation_idx": 0
+    },
+    "U1": {
+      "position": [
+        144.56,
+        174.8
+      ],
+      "rotation_idx": 2
+    },
+    "U10": {
+      "position": [
+        53.65,
+        219.6
+      ],
+      "rotation_idx": 2
+    },
+    "U11": {
+      "position": [
+        146.79,
+        159.68
+      ],
+      "rotation_idx": 2
+    },
+    "U12": {
+      "position": [
+        9.81,
+        69.59
+      ],
+      "rotation_idx": 2
+    },
+    "U13": {
+      "position": [
+        90.97,
+        80.08
+      ],
+      "rotation_idx": 2
+    },
+    "U14": {
+      "position": [
+        149.45,
+        12.98
+      ],
+      "rotation_idx": 2
+    },
+    "U15": {
+      "position": [
+        56.67,
+        213.88
+      ],
+      "rotation_idx": 2
+    },
+    "U16": {
+      "position": [
+        149.54,
+        35.81
+      ],
+      "rotation_idx": 3
+    },
+    "U17": {
+      "position": [
+        84.21,
+        80.51
+      ],
+      "rotation_idx": 1
+    },
+    "U18": {
+      "position": [
+        18.05,
+        167.34
+      ],
+      "rotation_idx": 2
+    },
+    "U19": {
+      "position": [
+        145.14,
+        102.66
+      ],
+      "rotation_idx": 1
+    },
+    "U2": {
+      "position": [
+        51.91,
+        152.98
+      ],
+      "rotation_idx": 2
+    },
+    "U20": {
+      "position": [
+        149.24,
+        113.38
+      ],
+      "rotation_idx": 2
+    },
+    "U21": {
+      "position": [
+        3.16,
+        180.6
+      ],
+      "rotation_idx": 2
+    },
+    "U22": {
+      "position": [
+        68.19,
+        231.26
+      ],
+      "rotation_idx": 2
+    },
+    "U23": {
+      "position": [
+        119.95,
+        11.28
+      ],
+      "rotation_idx": 1
+    },
+    "U24": {
+      "position": [
+        20.58,
+        187.0
+      ],
+      "rotation_idx": 1
+    },
+    "U25": {
+      "position": [
+        144.26,
+        153.28
+      ],
+      "rotation_idx": 3
+    },
+    "U26": {
+      "position": [
+        140.7,
+        110.5
+      ],
+      "rotation_idx": 0
+    },
+    "U27": {
+      "position": [
+        14.1,
+        119.23
+      ],
+      "rotation_idx": 1
+    },
+    "U3": {
+      "position": [
+        68.38,
+        96.92
+      ],
+      "rotation_idx": 0
+    },
+    "U4": {
+      "position": [
+        146.88,
+        95.45
+      ],
+      "rotation_idx": 2
+    },
+    "U5": {
+      "position": [
+        35.75,
+        158.94
+      ],
+      "rotation_idx": 3
+    },
+    "U6": {
+      "position": [
+        122.86,
+        155.95
+      ],
+      "rotation_idx": 2
+    },
+    "U7": {
+      "position": [
+        75.52,
+        215.61
+      ],
+      "rotation_idx": 1
+    },
+    "U8": {
+      "position": [
+        4.12,
+        19.36
+      ],
+      "rotation_idx": 1
+    },
+    "U9": {
+      "position": [
+        56.25,
+        225.75
+      ],
+      "rotation_idx": 1
+    }
+  },
+  "reason": "all inter-component REQ-SAFE-01 pairs cleared; 0 intra-footprint record(s) remain (unfixable by placement, reported as blockers)",
+  "status": "clean",
+  "total_displacement_mm": 5763.64,
+  "validator_audit": {
+    "clean": true,
+    "coverage_gaps": 0,
+    "covered_pair_count": 11571,
+    "geometry_trusted": true,
+    "hard_failures": 0,
+    "intra_footprint": 0,
+    "stats": {
+      "board_cutouts": 0,
+      "components": 159,
+      "components_without_pads": [],
+      "intra_component_violations": 0,
+      "rows": [
+        {
+          "board_cutouts": 0,
+          "boundary": "MAINS<->LV_CONTROL",
+          "components_without_pads": [],
+          "insulation": "basic",
+          "metric": "clearance",
+          "min_mm": 3.0,
+          "pairs_checked": 570,
+          "pairs_inter": 570,
+          "pairs_intra": 0,
+          "pairs_origin_modelled": 0,
+          "pairs_pruned_by_bound": 567,
+          "pairs_unrestricted_pads": 0
+        },
+        {
+          "board_cutouts": 0,
+          "boundary": "MAINS<->LV_CONTROL",
+          "components_without_pads": [],
+          "insulation": "basic",
+          "metric": "creepage",
+          "min_mm": 4.0,
+          "pairs_checked": 570,
+          "pairs_inter": 570,
+          "pairs_intra": 0,
+          "pairs_origin_modelled": 0,
+          "pairs_pruned_by_bound": 565,
+          "pairs_unrestricted_pads": 0
+        },
+        {
+          "board_cutouts": 0,
+          "boundary": "MAINS<->LV_CONTROL",
+          "components_without_pads": [],
+          "insulation": "reinforced",
+          "metric": "clearance",
+          "min_mm": 6.0,
+          "pairs_checked": 570,
+          "pairs_inter": 570,
+          "pairs_intra": 0,
+          "pairs_origin_modelled": 0,
+          "pairs_pruned_by_bound": 563,
+          "pairs_unrestricted_pads": 0
+        },
+        {
+          "board_cutouts": 0,
+          "boundary": "MAINS<->LV_CONTROL",
+          "components_without_pads": [],
+          "insulation": "reinforced",
+          "metric": "creepage",
+          "min_mm": 8.0,
+          "pairs_checked": 570,
+          "pairs_inter": 570,
+          "pairs_intra": 0,
+          "pairs_origin_modelled": 0,
+          "pairs_pruned_by_bound": 561,
+          "pairs_unrestricted_pads": 0
+        },
+        {
+          "board_cutouts": 0,
+          "boundary": "DC_BUS<->LV_CONTROL",
+          "components_without_pads": [],
+          "insulation": "basic",
+          "metric": "clearance",
+          "min_mm": 3.0,
+          "pairs_checked": 5928,
+          "pairs_inter": 5920,
+          "pairs_intra": 8,
+          "pairs_origin_modelled": 0,
+          "pairs_pruned_by_bound": 5902,
+          "pairs_unrestricted_pads": 0
+        },
+        {
+          "board_cutouts": 0,
+          "boundary": "DC_BUS<->LV_CONTROL",
+          "components_without_pads": [],
+          "insulation": "basic",
+          "metric": "creepage",
+          "min_mm": 4.0,
+          "pairs_checked": 5928,
+          "pairs_inter": 5920,
+          "pairs_intra": 8,
+          "pairs_origin_modelled": 0,
+          "pairs_pruned_by_bound": 5899,
+          "pairs_unrestricted_pads": 0
+        },
+        {
+          "board_cutouts": 0,
+          "boundary": "DC_BUS<->LV_CONTROL",
+          "components_without_pads": [],
+          "insulation": "reinforced",
+          "metric": "clearance",
+          "min_mm": 6.0,
+          "pairs_checked": 5928,
+          "pairs_inter": 5920,
+          "pairs_intra": 8,
+          "pairs_origin_modelled": 0,
+          "pairs_pruned_by_bound": 5882,
+          "pairs_unrestricted_pads": 0
+        },
+        {
+          "board_cutouts": 0,
+          "boundary": "DC_BUS<->LV_CONTROL",
+          "components_without_pads": [],
+          "insulation": "reinforced",
+          "metric": "creepage",
+          "min_mm": 8.0,
+          "pairs_checked": 5928,
+          "pairs_inter": 5920,
+          "pairs_intra": 8,
+          "pairs_origin_modelled": 0,
+          "pairs_pruned_by_bound": 5847,
+          "pairs_unrestricted_pads": 0
+        },
+        {
+          "board_cutouts": 0,
+          "boundary": "MAINS<->ISOLATED",
+          "components_without_pads": [],
+          "insulation": "reinforced",
+          "metric": "clearance",
+          "min_mm": 6.0,
+          "pairs_checked": 0,
+          "pairs_inter": 0,
+          "pairs_intra": 0,
+          "pairs_origin_modelled": 0,
+          "pairs_pruned_by_bound": 0,
+          "pairs_unrestricted_pads": 0
+        },
+        {
+          "board_cutouts": 0,
+          "boundary": "MAINS<->ISOLATED",
+          "components_without_pads": [],
+          "insulation": "reinforced",
+          "metric": "creepage",
+          "min_mm": 8.0,
+          "pairs_checked": 0,
+          "pairs_inter": 0,
+          "pairs_intra": 0,
+          "pairs_origin_modelled": 0,
+          "pairs_pruned_by_bound": 0,
+          "pairs_unrestricted_pads": 0
+        },
+        {
+          "board_cutouts": 0,
+          "boundary": "LV_CONTROL<->LV_CONTROL",
+          "components_without_pads": [],
+          "insulation": "functional",
+          "metric": "clearance",
+          "min_mm": 0.5,
+          "pairs_checked": 6441,
+          "pairs_inter": 6441,
+          "pairs_intra": 0,
+          "pairs_origin_modelled": 0,
+          "pairs_pruned_by_bound": 6408,
+          "pairs_unrestricted_pads": 0
+        },
+        {
+          "board_cutouts": 0,
+          "boundary": "LV_CONTROL<->LV_CONTROL",
+          "components_without_pads": [],
+          "insulation": "functional",
+          "metric": "creepage",
+          "min_mm": 1.0,
+          "pairs_checked": 6441,
+          "pairs_inter": 6441,
+          "pairs_intra": 0,
+          "pairs_origin_modelled": 0,
+          "pairs_pruned_by_bound": 6393,
+          "pairs_unrestricted_pads": 0
+        }
+      ],
+      "violating_pairs": 0
+    },
+    "validator_violation_count": 0
+  }
+}
