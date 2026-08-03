@@ -223,8 +223,8 @@ copy. Any difference — including layer count — fails CI.
 # .github/workflows/check.yml
 - name: Regenerate output and diff
   run: |
-    python pipeline/generate.py --output pcb/board.kicad_pcb
-    git diff --exit-code pcb/board.kicad_pcb
+    python pipeline/generate.py --output pcb/temper.kicad_pcb
+    git diff --exit-code pcb/temper.kicad_pcb
 ```
 
 **Semantic layer check:** Parse the committed artifact and validate the invariant
@@ -233,11 +233,11 @@ reformatting) that a textual `git diff` would reject.
 
 ```yaml
 - name: Verify layer count in committed file
-  run: python tools/check_layers.py pcb/board.kicad_pcb
+  run: python tools/check_kicad_layers.py pcb/temper.kicad_pcb
 ```
 
 ```python
-# tools/check_layers.py
+# tools/check_kicad_layers.py
 def check_layers(path: str) -> None:
     board = parse_kicad_pcb(path)
     copper = [l for l in board.layers if l.type == "copper"]
@@ -411,14 +411,14 @@ def write_placements(board: Board, path: str):
     _validate_4_layer_output(pcb)  # <-- called before to_file()
     pcb.to_file(path)
 
-# tools/check_layers.py — CI semantic gate
+# tools/check_kicad_layers.py — CI semantic gate
 def main(path):
     board = parse(path)
     copper = [l for l in board.layers if l.type == "copper"]
     if len(copper) != 4 or {l.name for l in copper} != CANONICAL_LAYER_NAMES:
         sys.exit(1)
 
-# tests/test_4layer_properties.py — property test
+# packages/temper-placer/tests/io/test_4layer_output_properties.py — property test
 @given(board_state=valid_board_strategy())
 def test_output_has_4_canonical_layers(board_state):
     pcb = export_and_parse(board_state)

@@ -251,8 +251,8 @@ is_b_lv = b_cat == "LV"
 
 - `packages/temper-placer/src/temper_placer/core/design_rules.py:93-133` — NetClassRules Pydantic model
 - `packages/temper-placer/src/temper_placer/core/design_rules.py:337-444` — TEMPER_NET_CLASSES with all 9 populated entries
-- `packages/temper-drc/src/temper_drc/checks/safety/_safety_keywords.py` — resolve_safety_category consumer
-- `packages/temper-drc/src/temper_drc/checks/safety/hv_lv_separation.py` — HVLVSeparationCheck consumer
-- `packages/temper-drc/src/temper_drc/checks/safety/creepage.py` — CreepageCheck consumer
+- `packages/temper-drc-rs/src/rules/safety/hv_lv_separation.rs (the Python `resolve_safety_category` was deleted with the temper-drc package, 3d9322b5d)` — resolve_safety_category consumer
+- `packages/temper-drc-rs/src/rules/safety/hv_lv_separation.rs` — HVLVSeparationCheck consumer
+- `packages/temper-drc-rs/src/rules/safety/creepage.rs` — CreepageCheck consumer
 - `packages/temper-placer/tests/core/test_design_rules.py` — updated test assertions
 - `docs/solutions/architecture-patterns/ci-gate-quality-enforcement.md` — sibling pattern (safety SSOT N2)

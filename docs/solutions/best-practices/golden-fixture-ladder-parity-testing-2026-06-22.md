@@ -24,6 +24,9 @@ tags:
   - ladder-growth
 ---
 
+> **Status update (2026-08-03 refresh):** the `temper golden` CLI (generate/check/regenerate) was removed in 3a4c918d2 (#32); the gate now runs `uv run temper-placer regression` against `power_pcb_dataset/golden_manifest.yaml` + `baselines/<id>_baseline.yaml` in `golden-check.yml`. JAX-era noise language is historical — float noise now comes from numpy/Rust builds. See `stale-absolute-baseline-vs-mutable-board-2026-07-29.md` for the current baseline semantics.
+
+
 # Golden Fixture Ladder — Per-Stage Strangler Fig Parity Testing
 
 ## Context

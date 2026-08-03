@@ -124,7 +124,7 @@ mapped `"+340V_BUS": "HighVoltage"` — a key with 0 occurrences in
 and resolved to *no* netclass at all. Every generated DRC rule conditioned
 on `NetClass == 'HighVoltage'` was inert for the board's main HV bus until
 this was fixed. An independent, same-day audit
-(`docs/evidence/2026-07-28-drc-courtyard-condition-fix.md` §3b) found the
+(`docs/evidence/2026-07-28-drc-courtyard-condition-fix.md (evidence doc never merged to main; finding reproduced inline)` §3b) found the
 identical rename had orphaned a *second*, unrelated lookup too — the DRC
 rule generator's own `netclass_assignments`/`netclass_patterns` tables,
 which still referenced the retired names `DC_BUS+`/`SWITCH_NODE` and whose

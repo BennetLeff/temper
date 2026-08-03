@@ -38,7 +38,7 @@ varied `L1` from 50–250µH — including the 150µH design point — while
 holding `K`, `L2`, `RPAN` fixed at their 80µH-calibrated values across the
 entire range.
 
-`docs/evidence/2026-07-28-tank-current-reconciliation.md` recomputed
+`docs/evidence/2026-07-27-inductance-range-sweep.md (the reconciliation table is reproduced inline in this doc)` recomputed
 `R_eff` at every point in that sweep and found `R_eff / L` constant to
 within 0.2% across the full 50–250µH range:
 
@@ -218,7 +218,7 @@ CT ratio 1:100, burden 4.99Ω, V_ref 2.500V
   (a net's name; here, a trip threshold) outranking the actual quantity
   (a node's real voltage; here, an operating current) in a downstream
   calculation.
-- `docs/evidence/2026-07-28-tank-current-reconciliation.md` — the full
+- `docs/evidence/2026-07-27-inductance-range-sweep.md (the reconciliation table is reproduced inline in this doc)` — the full
   reconciliation: the R_eff/L linearity table, the closed-form
   cross-check, the trip-threshold-vs-operating-current analysis, and the
   20.7–30A bracket with its stated falsifier and open question.

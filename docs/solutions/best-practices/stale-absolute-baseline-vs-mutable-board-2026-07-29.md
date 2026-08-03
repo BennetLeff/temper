@@ -24,6 +24,9 @@ tags:
   - manual-rebaseline-resets-the-clock
 ---
 
+> **Status update (2026-08-03 refresh):** instance 4's 'still red on main right now' was resolved: the fifth hand edit (#417) landed as predicted, then the stored numbers were deleted outright — `RegressionRunner._run_board` now measures `component_count`/`net_count` and reports them without comparison (the baseline file's header cites this doc). Guidance item 2 applied verbatim.
+
+
 # A baseline judges the board it was measured against, not the one committed today
 
 ## Context
