@@ -37,8 +37,6 @@ footprints and the absolute pad angles were propagated into the board
 
 from __future__ import annotations
 
-import contextlib
-import json
 import os
 import re
 import statistics
@@ -49,6 +47,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 import pytest
+
+from tests.placer.cp_sat._parallel_drc import run_drc_loud, run_drc_samples
 
 TEMPER_PLACER_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 REPO_ROOT = TEMPER_PLACER_ROOT.parent.parent
@@ -75,51 +75,6 @@ def _kicad_cli_available() -> bool:
         return result.returncode == 0
     except (FileNotFoundError, subprocess.TimeoutExpired):
         return False
-
-
-def _run_drc(pcb_path: str) -> dict:
-    """Run kicad-cli DRC and return parsed JSON dict."""
-    drc_out = Path(tempfile.mktemp(suffix=".json"))
-    try:
-        proc = subprocess.run(
-            [
-                "kicad-cli",
-                "pcb",
-                "drc",
-                "--format",
-                "json",
-                "-o",
-                str(drc_out),
-                pcb_path,
-            ],
-            capture_output=True,
-            text=True,
-            timeout=120,
-        )
-        stderr_summary = proc.stderr.strip()[:200] if proc.returncode != 0 and proc.stderr else ""
-    except subprocess.TimeoutExpired:
-        if drc_out.exists():
-            os.unlink(drc_out)
-        pytest.skip("kicad-cli DRC timed out")
-        return {}
-    except Exception:
-        if drc_out.exists():
-            os.unlink(drc_out)
-        raise
-
-    if not drc_out.exists():
-        pytest.skip(
-            "kicad-cli DRC produced no output file"
-            + (f": {stderr_summary}" if stderr_summary else "")
-        )
-        return {}
-
-    try:
-        with open(drc_out) as f:
-            return json.load(f)
-    finally:
-        with contextlib.suppress(OSError):
-            os.unlink(drc_out)
 
 
 def _load_pcl_constraints(config_path: Path) -> list:
@@ -270,7 +225,7 @@ def test_golden_board_drc_regression(monkeypatch: pytest.MonkeyPatch, request: p
         )
 
         # 6. Run kicad-cli DRC and parse
-        drc_data = _run_drc(placed_path)
+        drc_data = run_drc_loud(placed_path, timeout=120, label="golden-board")
         violations = drc_data.get("violations", [])
 
         # 7. Count violations by type, distinguishing placement-fixable
@@ -521,7 +476,7 @@ def test_golden_board_routing_drc_regression(monkeypatch: pytest.MonkeyPatch):
         placed_path = placed_tmp.name
 
     try:
-        placement_drc = _run_drc(placed_path)
+        placement_drc = run_drc_loud(placed_path, timeout=120, label="production-placement")
     finally:
         os.unlink(placed_path)
 
@@ -560,7 +515,7 @@ def test_golden_board_routing_drc_regression(monkeypatch: pytest.MonkeyPatch):
 
     try:
         # 9. Run kicad-cli DRC on the routed PCB
-        routed_drc = _run_drc(routed_path)
+        routed_drc = run_drc_loud(routed_path, timeout=120, label="golden-routing")
     finally:
         os.unlink(routed_path)
 
@@ -944,16 +899,14 @@ def _drc_median(pcb_path: str, runs: int = PRODUCTION_DRC_SAMPLE_RUNS) -> _DrcSa
     totals: list[int] = []
     shorting: list[int] = []
     unconnected: list[int] = []
-    last: dict = {}
-    for _ in range(runs):
-        last = _run_drc(pcb_path)
-        violations = last.get("violations", [])
+    for drc_data in run_drc_samples(pcb_path, n=runs, timeout=120, label="routing-drc"):
+        violations = drc_data.get("violations", [])
         totals.append(len(violations))
         shorting.append(sum(1 for v in violations if v.get("type") == "shorting_items"))
-        unconnected.append(len(last.get("unconnected_items", [])))
+        unconnected.append(len(drc_data.get("unconnected_items", [])))
 
     by_type: dict[str, int] = {}
-    for v in last.get("violations", []):
+    for v in drc_data.get("violations", []):
         vtype = v.get("type", "other")
         by_type[vtype] = by_type.get(vtype, 0) + 1
 
@@ -965,7 +918,7 @@ def _drc_median(pcb_path: str, runs: int = PRODUCTION_DRC_SAMPLE_RUNS) -> _DrcSa
         totals=totals,
         shortings=shorting,
         last_by_type=by_type,
-        last_raw=last,
+        last_raw=drc_data,
     )
 
 
