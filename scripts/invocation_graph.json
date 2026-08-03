@@ -42,6 +42,10 @@
   "check_fault_list_consistency.py": [
     ".github/workflows/firmware-tests.yml"
   ],
+  "check_firmware_board_contract.py": [
+    ".github/workflows/firmware-tests.yml",
+    ".github/workflows/python-tests.yml"
+  ],
   "check_footprint_drift.py": [
     ".github/workflows/python-tests.yml"
   ],
@@ -92,6 +96,7 @@
     "packages/temper-placer/tests/scripts/test_check_physics_provenance.py"
   ],
   "check_pll_range_consistency.py": [
+    ".github/workflows/firmware-tests.yml",
     ".github/workflows/python-tests.yml"
   ],
   "check_refdes_identity_stability.py": [],

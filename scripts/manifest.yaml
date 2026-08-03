@@ -1021,11 +1021,41 @@ scripts:
   - _lib.github_summary
   - _lib.repo
   - argparse
+  - board_derivation_lib
   - dataclasses
   - math
   - pathlib
   - re
   - sys
+
+- path: check_firmware_board_contract.py
+  purpose: 'Firmware-assumption contract oracle (plan 2026-08-02-027, R18): reverse-checks every
+    firmware constant with a board derivation against the ACTUAL board (pcb/temper.kicad_pcb),
+    not against another declaration -- hardware and firmware cannot disagree about a load-bearing
+    value. Iterates firmware/tools/board_derivations.yaml (the registry), extracts the board
+    inputs by Sheetpath property, classifies a registered component OUTSIDE the Edge.Cuts outline
+    as missing (the off-board tank.c_tank3 defect class a refdes/value lookup would pass), applies
+    the shared formula library firmware/tools/board_derivation_lib.py, and fails with the constant
+    and both values named on disagreement / missing component / UNMEASURED. Advisory in CI until
+    the off-outline tank cap is placed (landing contract); the unit tests are hard.'
+  owner: bennet
+  last_run: '2026-08-02'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - board_component_extractor
+  - board_derivation_lib
+  - check_pll_range_consistency
+  - dataclasses
+  - math
+  - pathlib
+  - re
+  - sys
+  - yaml
 - path: check_net_classification.py
   purpose: 'CI gate: fail when safety-relevant net classification (HV/SELV) is decided by plain substring match against a
     hand-maintained keyword list, in parallel to elec/domain_manifest.yaml -- the defect class confirmed three times in this

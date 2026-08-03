@@ -226,8 +226,23 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+# The derivation arithmetic (worst-cased loaded resonance, ZVS floor) is
+# SHARED with the board-vs-firmware oracle (plan 2026-08-02-027, KTD3):
+# firmware/tools/board_derivation_lib.py is the single implementation,
+# and this gate and scripts/check_firmware_board_contract.py both call it
+# so the two cannot drift. The sanity-bound policy and fail-closed error
+# text stay HERE (gate policy); the formula lives in the library.
+_fw_tools = Path(__file__).resolve().parent.parent / "firmware" / "tools"
+if str(_fw_tools) not in sys.path:
+    sys.path.insert(0, str(_fw_tools))
+
 from _lib.github_summary import get_github_summary_path  # noqa: E402
 from _lib.repo import find_repo_root  # noqa: E402
+from board_derivation_lib import (  # noqa: E402
+    ZVS_MARGIN_MIN,
+    PllFloorDerivation,
+    pll_min_freq_floor,
+)
 
 EXIT_OK = 0
 EXIT_VIOLATION = 3
@@ -263,13 +278,11 @@ MODULES_CAPACITOR_NAMES = ("c_tank1", "c_tank2", "c_tank3")
 # l_tank_assumed mirror (check 7).
 MODULES_COIL_NAME = "inductor_conn"
 
-# Minimum f_sw / f_res,loaded required for zero-voltage switching. Lives in
-# the GATE, not in the file under test -- see module docstring. Source:
-# docs/hardware/TANK_COIL_SPECIFICATION.md, confirmed as a threshold rather
-# than a gradient in docs/evidence/2026-07-27-inductance-range-sweep.md
-# Sec 2.3 and used as the recommended guard ratio in
-# docs/evidence/2026-07-28-coil-selection-research.md Sec 5.3.
-ZVS_MARGIN_MIN = 1.05
+# Minimum f_sw / f_res,loaded required for zero-voltage switching. Lives
+# in the SHARED formula library (firmware/tools/board_derivation_lib.py),
+# not in the file under test -- see module docstring. Imported above, and
+# the module-level name stays importable for this gate's own test surface
+# (scripts/tests/test_check_pll_range_consistency.py imports it).
 
 _UNIT_TO_HZ = {
     "Hz": 1.0,
@@ -577,27 +590,12 @@ def _sanity_ok(name: str, value: float) -> bool:
     raise AssertionError(f"no sanity bound defined for {name!r}")
 
 
-@dataclass
-class DerivedFloor:
-    l_nominal_h: float
-    l_worst_case_h: float
-    l_loaded_worst_case_h: float
-    c_nominal_farads: float
-    c_worst_case_farads: float
-    loaded_ratio: float
-    l_tolerance: float
-    c_tolerance: float
-    f_res_nominal_hz: float
-    f_res_worst_case_hz: float
-    required_floor_hz: float
-
-    @property
-    def c_farads(self) -> float:
-        """Backwards-compatible alias for the nominal capacitance -- kept
-        because check 6 (the c_tank_total mirror against modules.ato)
-        compares against NOMINAL capacitance, not worst-case; only the
-        derived-floor arithmetic itself uses c_worst_case_farads."""
-        return self.c_nominal_farads
+# DerivedFloor is the shared formula library's PllFloorDerivation -- the
+# field set is identical (plus the same c_farads nominal-capacitance
+# alias). Aliasing, not re-declaring, is the point of KTD3: there is one
+# dataclass for the derivation, and this gate and the oracle cannot drift
+# from each other.
+DerivedFloor = PllFloorDerivation
 
 
 def coil_acceptance_l_loaded_min_h(floor: DerivedFloor, pll_min_hz: float) -> float:
@@ -650,26 +648,16 @@ def derive_zvs_floor(physics: dict[str, DiscoveredQuantity]) -> DerivedFloor:
     # Worst case for a ZVS floor is MINIMUM inductance AND MINIMUM
     # capacitance: f_res ~ 1/sqrt(L*C), so a low-tolerance part on EITHER
     # side resonates highest and needs the highest floor. Deriving at
-    # nominal for either would under-protect exactly that unit.
-    l_worst = l_nom * (1.0 - l_tol)
-    l_loaded_worst = l_worst * ratio
-    c_worst = c_nom * (1.0 - c_tol)
-
-    def _f_res(l_henries: float, c_farads: float) -> float:
-        return 1.0 / (2.0 * math.pi * math.sqrt(l_henries * c_farads))
-
-    return DerivedFloor(
+    # nominal for either would under-protect exactly that unit. The
+    # arithmetic is the SHARED library implementation (KTD3); the sanity
+    # bounds checked above are this gate's policy.
+    return pll_min_freq_floor(
         l_nominal_h=l_nom,
-        l_worst_case_h=l_worst,
-        l_loaded_worst_case_h=l_loaded_worst,
         c_nominal_farads=c_nom,
-        c_worst_case_farads=c_worst,
         loaded_ratio=ratio,
         l_tolerance=l_tol,
         c_tolerance=c_tol,
-        f_res_nominal_hz=_f_res(l_nom * ratio, c_nom),
-        f_res_worst_case_hz=_f_res(l_loaded_worst, c_worst),
-        required_floor_hz=ZVS_MARGIN_MIN * _f_res(l_loaded_worst, c_worst),
+        zvs_margin=ZVS_MARGIN_MIN,
     )
 
 

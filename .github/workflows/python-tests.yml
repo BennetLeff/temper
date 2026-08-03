@@ -85,6 +85,9 @@ on:
       - 'scripts/tests/test_check_net_classification.py'
       - 'scripts/check_pll_range_consistency.py'
       - 'scripts/tests/test_check_pll_range_consistency.py'
+      - 'scripts/check_firmware_board_contract.py'
+      - 'scripts/tests/test_check_firmware_board_contract.py'
+      - 'firmware/tools/**'
       - 'scripts/check_isolation_keepout.py'
       - 'scripts/tests/test_check_isolation_keepout.py'
       - 'scripts/check_pad_orientation.py'
@@ -174,6 +177,9 @@ on:
       - 'scripts/tests/test_check_net_classification.py'
       - 'scripts/check_pll_range_consistency.py'
       - 'scripts/tests/test_check_pll_range_consistency.py'
+      - 'scripts/check_firmware_board_contract.py'
+      - 'scripts/tests/test_check_firmware_board_contract.py'
+      - 'firmware/tools/**'
       - 'scripts/check_isolation_keepout.py'
       - 'scripts/tests/test_check_isolation_keepout.py'
       - 'scripts/check_pad_orientation.py'
@@ -1243,6 +1249,22 @@ jobs:
       - name: PLL range consistency gate tests
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run pytest scripts/tests/test_check_pll_range_consistency.py -v --tb=short
+
+      # Unit tests for the firmware-assumption contract oracle and its
+      # shared formula library / board extractor / drift guard (plan
+      # 2026-08-02-027). The oracle RUN step is advisory in
+      # firmware-tests.yml until the off-outline tank cap is placed; the
+      # unit tests below are hard -- they pin the defect-class detection,
+      # the shared formulas and the registry/coverage validation.
+      - name: Firmware-board contract oracle tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: >
+          uv run pytest
+          firmware/tools/test_board_derivation_lib.py
+          firmware/tools/test_board_component_extractor.py
+          firmware/tools/test_check_board_derivation_coverage.py
+          scripts/tests/test_check_firmware_board_contract.py
+          -v --tb=short
 
       # Fail-closed: catches firmware/components/control/pll_control.h's
       # PLL frequency bounds/default drifting away from elec/src/main.ato's
