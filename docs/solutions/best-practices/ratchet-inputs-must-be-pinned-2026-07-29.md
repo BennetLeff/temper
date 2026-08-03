@@ -20,6 +20,9 @@ tags:
   - gate-rot
 ---
 
+> **Status update (2026-08-03 refresh):** every state claim below has since been resolved — the `source` enum typo was fixed (`2026-07-28-provenance-source-typo-fix` `_march` entry), `pcb/temper.kicad_dru` is now git-tracked, and the ceiling was re-measured for real (120 samples) with per-category `_march` attribution. The examples below are the historical record of the outage; the guidance stands.
+
+
 # A ratchet whose inputs are not pinned cannot be ratcheted
 
 ## Context

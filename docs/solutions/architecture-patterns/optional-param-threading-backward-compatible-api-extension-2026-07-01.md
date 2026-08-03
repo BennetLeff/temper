@@ -19,6 +19,10 @@ tags:
   - pipeline-pattern
   - type-hints
   - python-310
+status: stale
+stale_reason: "the entire worked example (optimizer/train.py, initialization.py, zone_aware_init.py, ablation/runner.py, LossContext, tests/optimizer/*) was deleted with the JAX retirement; the pattern survives only via a generic re-anchor (threading `constraints` through heuristics/pipeline.py -> stage handlers) that needs a successor write, not an in-place update."
+stale_date: "2026-08-03"
+
 ---
 
 # Optional Parameter Threading Pattern for Backward-Compatible Pipeline API Extension

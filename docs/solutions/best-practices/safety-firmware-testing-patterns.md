@@ -216,7 +216,7 @@ if awk "BEGIN {exit !($margin >= $MIN_MARGIN)}"; then
 fi
 ```
 
-This gate runs in `.github/workflows/simulation-tests.yml` and prevents merging any PR that reduces the runaway thermal margin below 20°C in the worst-3 parametric corners. The full parametric sweep (`sweep_runaway_boundary.sh`) explores 972 combinations of VBUS, thermal conductivity, capacitor tolerance, ambient temperature, and fan RPM.
+**Status note (2026-08-03 refresh):** the runaway-boundary CI gate below was retired (4dd9d5c3c, #50) — `check_runaway_boundary.sh` and `simulation-tests.yml` no longer exist. This example is the design record of the interlock-margin gate; the SIL fault-injection pattern is the live content. (Originally ran in `.github/workflows/simulation-tests.yml`) and prevents merging any PR that reduces the runaway thermal margin below 20°C in the worst-3 parametric corners. The full parametric sweep (`sweep_runaway_boundary.sh`) explores 972 combinations of VBUS, thermal conductivity, capacitor tolerance, ambient temperature, and fan RPM.
 
 ## Related
 

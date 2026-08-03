@@ -22,6 +22,9 @@ tags:
   - esl-predicates
   - constraint-verification
 ---
+
+> **Status update (2026-08-03 refresh):** the `losses/decoupling.py` and `router_v6/esl.py`/`bmc.py` worked examples were retired; the live BMC anchors are `tests/placer/cp_sat/test_fixed_copper.py::TestFixedCopperSoundnessBMC` and `test_domain_clearance.py::TestChebyshevSoundnessBMC`.
+
 # BMC Exhaustiveness and Induction Ladder Verification for Constraint Systems
 
 ## Context
