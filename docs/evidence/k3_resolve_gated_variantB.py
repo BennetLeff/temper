@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """K3/tank3 resolve — exact wall-spike variant B with validator_input wired (issue #523).
 
-# provenance: commit=9d03c1cd7f21ed935f27c9a83b87677edacc6ec2 dirty=false
+# provenance: commit=87df36a223472967624648372bde8a21c61ba02a dirty=false
 
 Runs the wall-spike-proven production repair recipe (variant B,
 `docs/evidence/2026-08-01-solve-wall-box-vs-copper-gap.md` §6) EXACTLY as the

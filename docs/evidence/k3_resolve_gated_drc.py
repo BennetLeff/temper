@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """DRC gate measurement for the K3/tank3 solved-placement candidate (issue #523).
 
-# provenance: commit=9d03c1cd7f21ed935f27c9a83b87677edacc6ec2 dirty=false
+# provenance: commit=87df36a223472967624648372bde8a21c61ba02a dirty=false
 
 Writes the solved placement (variant B summary JSON) to a /tmp COPY of
 pcb/temper.kicad_pcb -- pcb/** stays untouched, read-only -- and measures
