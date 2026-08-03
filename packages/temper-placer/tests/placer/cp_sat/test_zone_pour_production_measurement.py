@@ -317,7 +317,7 @@ class TestZonePourProductionMeasurement:
             filled_path = _fill_zones_via_pcbnew(routed_path)
             for sample, drc_data in enumerate(
                 run_drc_samples(
-                    filled_path, _DRC_SAMPLE_RUNS, timeout=600, label="zone-pour"
+                    filled_path, n=_DRC_SAMPLE_RUNS, timeout=600, label="zone-pour"
                 )
             ):
                 violations = drc_data.get("violations", [])

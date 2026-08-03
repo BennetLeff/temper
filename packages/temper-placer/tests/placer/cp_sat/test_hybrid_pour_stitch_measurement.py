@@ -104,7 +104,7 @@ class TestHybridPourStitchVerification:
                 filled_path = _fill_zones_via_pcbnew(routed_path)
                 for sample, drc_data in enumerate(
                     run_drc_samples(
-                        filled_path, drc_samples, timeout=600, label="hybrid-pour"
+                        filled_path, n=drc_samples, timeout=600, label="hybrid-pour"
                     )
                 ):
                     violations = drc_data.get("violations", [])
@@ -152,7 +152,7 @@ class TestHybridPourStitchVerification:
             try:
                 for sample, drc_data in enumerate(
                     run_drc_samples(
-                        routed_path, drc_samples, timeout=600, label="hybrid-pour"
+                        routed_path, n=drc_samples, timeout=600, label="hybrid-pour"
                     )
                 ):
                     violations = drc_data.get("violations", [])
