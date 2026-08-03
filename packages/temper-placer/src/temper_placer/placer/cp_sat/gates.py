@@ -399,7 +399,7 @@ class StackupGate(Gate):
             unrouted_set = set(unrouted or ())
 
             compiled = getattr(routed, "compiled_routes", None) or {}
-            routes: dict[str, Any] = getattr(routed, "_result", None)
+            routes: dict[str, Any] | None = getattr(routed, "_result", None)
             if routes is None and isinstance(compiled, dict):
                 routes = compiled
 
@@ -507,7 +507,9 @@ def _extract_trace_width(route: Any) -> float | None:
             if isinstance(val, (int, float)) and val > 0:
                 return float(val)
     if hasattr(route, "path") and hasattr(route.path, "width"):
-        return float(route.path.width)
+        w = route.path.width
+        if isinstance(w, (int, float)):
+            return float(w)
     return None
 
 
@@ -550,7 +552,7 @@ def _min_width_ipc2152(
     """
     import temper_constraints as _tc
 
-    return _tc.min_width_ipc2152_py(current_a, copper_oz, temp_rise_c, internal_layer)
+    return float(_tc.min_width_ipc2152_py(current_a, copper_oz, temp_rise_c, internal_layer))
 
 
 def _ipc2152_forward(
@@ -569,7 +571,7 @@ def _ipc2152_forward(
     """
     import temper_constraints as _tc
 
-    return _tc.ipc2152_forward_py(width_mm, copper_oz, temp_rise_c, internal_layer)
+    return float(_tc.ipc2152_forward_py(width_mm, copper_oz, temp_rise_c, internal_layer))
 
 
 # ------------------------------------------------------------------

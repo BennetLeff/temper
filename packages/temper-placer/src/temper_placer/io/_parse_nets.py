@@ -180,7 +180,7 @@ def _extract_design_rules(
     Returns:
         DesignRules with net classes and assignments.
     """
-    from temper_placer.router_v6.stage0_data import DesignRules, NetClassRules
+    from temper_placer.router_v6.stage0_data import NetClassRules
 
     net_classes = {}
     net_class_assignments = {}
