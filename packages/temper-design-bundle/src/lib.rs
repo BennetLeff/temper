@@ -1,6 +1,15 @@
 #[cfg(feature = "python")]
 mod net_types;
 
+#[cfg(feature = "python")]
+mod loops;
+
+#[cfg(feature = "python")]
+mod design_rules;
+
+#[cfg(feature = "python")]
+mod gates;
+
 mod atopile;
 mod constraint_merge;
 mod error;
@@ -157,7 +166,15 @@ mod python {
         module.add_function(wrap_pyfunction!(sha256_hex, module)?)?;
 
         // Wave 4 Phase 2 contracts-as-pyclasses: the net-types data model
-        // ported from temper_placer/core/net_types.py (see net_types.rs).
-        crate::net_types::register(module)
+        // ported from temper_placer/core/net_types.py (see net_types.rs),
+        // then the loop-centric data model ported from
+        // temper_placer/core/loop.py (see loops.rs), then the design-rules
+        // data model ported from temper_placer/core/design_rules.py (see
+        // design_rules.rs), then the gate-contract data model ported from
+        // temper_placer/placer/cp_sat/gates.py (see gates.rs).
+        crate::net_types::register(module)?;
+        crate::loops::register(module)?;
+        crate::design_rules::register(module)?;
+        crate::gates::register(module)
     }
 }

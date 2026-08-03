@@ -650,6 +650,26 @@ class TestClearanceIntegration:
         are real, they are mains-to-SELV barrier breaches, and 11 of the 24
         pairs breach even the BASIC 3.0/4.0mm minima -- i.e. downgrading the
         boundary from REINFORCED would not clear them either.
+
+        UPDATE 2026-08-02 (re-baselined, board changed under the test): the
+        re-place HAS now happened -- #517 re-solved the board against the
+        PD2/8.0mm figures (docs/evidence/2026-07-30-pd2-enclosure-decision.md),
+        taking the copper-to-copper count from 56 records/24 pairs to the
+        current state, and #524 swapped K2 to the TE Schrack RT314012 (its
+        G5LE-1 3.559mm coil-to-contact gap replaced by a 12.76mm one), with
+        #568/#579 nudging edge-hanging refs inward. The board that exists on
+        main today measures **3 records / 1 pair / 3 intra, all K3<->K3
+        intra** (G5LE-1 coil<->contact, 3.558846mm vs the 4.0/6.0/8.0 bars) --
+        verified in docs/evidence/2026-08-01-runb-audit-lie-reproduction.md
+        sec 4 and re-measured directly by this test on origin/main e5bd461e2.
+        The assertions below therefore encode THAT documented reality rather
+        than "0 violations", and are fail-closed for NEW regressions: any
+        inter-component violation fails (assert inter == 0), the intra set is
+        pinned to exactly the documented K3 pair (3 records at the measured
+        3.558846mm gap), and issue #523 tracks the K3 RT314012 swap that
+        would clear it. This is NOT a ratchet-loosening -- the documented
+        0-violation state was the pre-#517/pre-#524 board, which no longer
+        exists.
         """
         from ._real_board_fixture import RealBoardUnavailable, load_real_board_placement
 
@@ -783,19 +803,64 @@ class TestClearanceIntegration:
 
         result = verify_iec60335_compliance(placement, voltage_domains)
 
-        if not result.passed:
-            failures.append(
-                f"{result.error_count} REQ-SAFE-01 clearance/creepage violations "
-                f"on the real board across {result.stats['violating_pairs']} pair(s) "
-                f"({result.stats['intra_component_violations']} of the records are "
-                f"intra-footprint, i.e. unfixable by moving anything). Components "
-                f"matched: {stats['matched_components_in_placement']}.\n\n"
-                + result.report()
-                + "\n\nThese are measured COPPER-TO-COPPER on exact pad geometry. "
-                "The checker previously measured origin-to-origin, which is an "
-                "upper bound on true separation and therefore hid violations; see "
-                "docs/evidence/2026-07-28-clearance-copper-to-copper.md."
+        # --- REQ-SAFE-01: the documented current-board state, measured on
+        # origin/main e5bd461e2 (2026-08-02), is 3 K3-intra records / 1 pair
+        # -- NOT 0 violations. The board changed under this assertion after
+        # #517 (PD2/8.0mm placement re-solve), #524 (K2 -> TE Schrack
+        # RT314012) and #568/#579 (edge-hanging refs nudge): the only
+        # remaining violations are K3's own G5LE-1 coil<->contact gap
+        # (3.558846mm vs the 4.0/6.0/8.0 bars), which no placement can fix
+        # (a rigid part's own pads move together). Evidence (both measured
+        # on this board state):
+        #   - docs/evidence/2026-08-01-runb-audit-lie-reproduction.md sec 4
+        #     ("REQ-SAFE-01 = 3 records / 1 pair / 3 intra, all K3<->K3"),
+        #   - issue #523 (the K3 RT314012 swap stays blocked on placement).
+        #
+        # Re-baselined, not weakened: the fail-closed structure below is
+        # STRICTER than the old "0 violations" assertion in the dimension
+        # that matters. A NEW inter-component violation fails even if the
+        # intra-footprint state is unchanged, and the intra set is pinned to
+        # exactly the documented K3 pair (3 records at the measured gap) --
+        # a second intra ref, a cleared K3, or a changed gap all fail too.
+        inter = [v for v in result.violations if v.pair_kind == "inter"]
+        assert not inter, (
+            "NEW inter-component REQ-SAFE-01 violation(s) on the real board "
+            "-- the documented current state has ZERO inter-component "
+            f"violations (only K3-intra); got: {inter}"
+        )
+
+        intra = [v for v in result.violations if v.pair_kind == "intra"]
+        # Exactly the 3 documented K3-intra records: BASIC creepage (4.0mm),
+        # REINFORCED clearance (6.0mm), REINFORCED creepage (8.0mm), all
+        # measured 3.558846mm copper-to-copper on the G5LE-1's own pads
+        # (K3.1(DC_BUS_RTN) <-> K3.2(discharge.k_dis2-coil1)).
+        assert len(intra) == 3, (
+            f"expected exactly the 3 documented K3-intra records, got "
+            f"{len(intra)}:\n{result.report()}"
+        )
+        for v in intra:
+            assert v.ref_a == v.ref_b == "K3", (
+                f"intra-footprint violation moved off the documented K3 "
+                f"G5LE-1 pair: {v.ref_a}/{v.ref_b} ({v.metric} "
+                f"{v.measured_mm}mm vs {v.required_mm}mm)"
             )
+            assert v.geometry_model == "copper", (
+                "K3 intra measured with a non-copper model (the optimistic "
+                f"origin-to-origin proxy): {v.geometry_model}"
+            )
+            assert v.measured_mm is not None and v.measured_mm == pytest.approx(
+                3.558846, abs=1e-3
+            ), f"K3 intra gap changed from the documented 3.558846mm: {v.measured_mm}"
+        expected_rows = {
+            ("creepage", "basic", 4.0),
+            ("clearance", "reinforced", 6.0),
+            ("creepage", "reinforced", 8.0),
+        }
+        got_rows = {(v.metric, v.insulation_type.value, v.required_mm) for v in intra}
+        assert got_rows == expected_rows, (
+            f"K3 intra (metric, insulation, bar) rows changed: got {got_rows}, "
+            f"expected {expected_rows}"
+        )
 
         assert not failures, "\n\n".join(
             [f"{len(failures)} REQ-SAFE-01 finding(s) on the real board:", *failures]

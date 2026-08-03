@@ -1,4 +1,4 @@
-<!-- provenance: commit=91f033c0a4c4b90df3115ccd4b022aba1bfc4241 dirty=false -->
+<!-- provenance: commit=b39035f508d208b92ce4061e890662acf3262ceb dirty=false -->
 
 # K2/K3 discharge-relay replacement: implementation (Omron G5LE-1 -> Finder 40.52 DPDT)
 

@@ -282,21 +282,42 @@ def generate_domain_clearance_constraints(
             for the current CP-SAT solve). ``None`` means unrestricted.
 
     Returns:
-        SeparatedConstraint list, one per unique (ref_a, ref_b) pair that
-        crosses an IEC60335_REQUIREMENTS-covered domain boundary, with
+        SeparatedConstraint list with **exactly one constraint per
+        unordered (ref_a, ref_b) pair** that crosses an
+        IEC60335_REQUIREMENTS-covered domain boundary, with
         ``min_distance_mm`` = the max required margin across every matrix
         row that applies to that pair (a pair can match more than one row,
         e.g. both the basic and reinforced tiers of the same domain pair;
-        the stricter one wins).
+        the stricter one wins). Rows can pair the same two refs in opposite
+        order (e.g. LV_CONTROL<->LV_CONTROL draws both refs from the
+        LV_CONTROL group while DC_BUS<->LV_CONTROL draws the straddler from
+        the DC_BUS group); all such rows merge onto ONE constraint whose
+        ``a``/``b`` are the refs in lexicographic order, so the constraint
+        ``id`` (``domain_clearance_{a}_{b}``) is deterministic and
+        independent of matrix-row iteration order. The ``because`` string
+        lists every matrix row that matched the pair (see the inline
+        comment in the body for the measured duplicate-emission wart this
+        canonicalization fixes).
     """
     nets_domain = _nets_domain_map(placement, voltage_domains)
 
-    # (ref_a, ref_b) -> (margin_mm, [reasons]) ; order is stable per matrix
-    # row (ref_a always drawn from domain_a's group), so no frozenset/sort
-    # needed for the dict key -- distinct rows over the same unordered
-    # domain pair always list domain_a/domain_b in the same order.
+    # (a, b) -> margin, canonicalized so the dict has AT MOST one entry per
+    # unordered pair. Keys must be order-independent: two matrix rows can
+    # pair the same two refs in opposite order -- e.g. the
+    # LV_CONTROL<->LV_CONTROL row draws both refs from the LV_CONTROL group
+    # (a pair like (C11, C6)) while the DC_BUS<->LV_CONTROL rows draw the
+    # straddler C6 from the DC_BUS group ((C6, C11)). With an ordered
+    # (ref_a, ref_b) key those land in two dict entries and the generator
+    # emits the same physical pair twice at two different margins -- measured
+    # 451 duplicate emissions on the production board (12,022 constraints /
+    # 11,571 unique unordered pairs), see
+    # docs/evidence/2026-08-01-domain-constraint-dedup.md. Sorting the refs
+    # into a canonical key merges every matching row onto one entry; the
+    # emitted constraint's a/b (and therefore its deterministic
+    # ``domain_clearance_{a}_{b}`` id) are that canonical, lexicographic
+    # order, so ids never depend on matrix-row iteration order.
     pair_margin: dict[tuple[str, str], float] = {}
-    pair_reason: dict[tuple[str, str], str] = {}
+    pair_reasons: dict[tuple[str, str], list[str]] = {}
 
     for (domain_a, domain_b, insulation_type), requirements in IEC60335_REQUIREMENTS.items():
         margin = required_margin_mm(requirements)
@@ -306,15 +327,18 @@ def generate_domain_clearance_constraints(
                 continue
             if component_refs is not None and (ra not in component_refs or rb not in component_refs):
                 continue
-            key = (ra, rb)
+            key = (ra, rb) if ra <= rb else (rb, ra)
             if margin > pair_margin.get(key, 0.0):
                 pair_margin[key] = margin
-                pair_reason[key] = (
-                    f"IEC 60335-2-6 {domain_a.value}<->{domain_b.value} "
-                    f"({insulation_type.value}): {margin}mm "
-                    f"(max of clearance={requirements['min_clearance_mm']}mm, "
-                    f"creepage={requirements['min_creepage_mm']}mm)"
-                )
+            reason = (
+                f"IEC 60335-2-6 {domain_a.value}<->{domain_b.value} "
+                f"({insulation_type.value}): {margin}mm "
+                f"(max of clearance={requirements['min_clearance_mm']}mm, "
+                f"creepage={requirements['min_creepage_mm']}mm)"
+            )
+            reasons = pair_reasons.setdefault(key, [])
+            if reason not in reasons:
+                reasons.append(reason)
 
     constraints: list[SeparatedConstraint] = []
     for (ra, rb), margin in sorted(pair_margin.items()):
@@ -324,7 +348,7 @@ def generate_domain_clearance_constraints(
                 b=rb,
                 min_distance_mm=margin,
                 tier=ConstraintTier.HARD,
-                because=pair_reason[(ra, rb)],
+                because="; ".join(pair_reasons[(ra, rb)]),
                 id=f"domain_clearance_{ra}_{rb}",
             )
         )
