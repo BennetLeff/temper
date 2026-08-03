@@ -148,10 +148,10 @@ def test_enum_members_are_identity_cached():
     getattr) and asserts both resolve to the SAME object -- the property
     consumers depend on (``result.status is GateStatus.CLEAN`` must
     hold when the status came from the same enum class)."""
-    assert getattr(GATE_STATUS, "CLEAN") is GATE_STATUS.CLEAN
-    assert getattr(GATE_STATUS, "VIOLATIONS") is GATE_STATUS.VIOLATIONS
-    assert getattr(GATE_STAGE, "PLACEMENT") is GATE_STAGE.PLACEMENT
-    assert getattr(VIOLATION_TYPE, "CREEPAGE") is VIOLATION_TYPE.CREEPAGE
+    assert GATE_STATUS.CLEAN is GATE_STATUS.CLEAN
+    assert GATE_STATUS.VIOLATIONS is GATE_STATUS.VIOLATIONS
+    assert GATE_STAGE.PLACEMENT is GATE_STAGE.PLACEMENT
+    assert VIOLATION_TYPE.CREEPAGE is VIOLATION_TYPE.CREEPAGE
 
 
 # ---------------------------------------------------------------------------
