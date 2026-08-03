@@ -1,8 +1,8 @@
 _meta:
   last_audit_date: '2026-08-02'
-  total_scripts: 100
+  total_scripts: 101
   counts:
-    keep: 100
+    keep: 101
     ticket: 0
   ticket_scripts_deleted: 40
 scripts:
@@ -213,6 +213,23 @@ scripts:
   - pathlib
   - re
   - sys
+- path: check_dead_parameter_inputs.py
+  purpose: "Dead-parameter & physics-input standing check (plan 2026-08-02-019, U3): wires then unwires every declared live\
+    \ gate input (acceptance-gate inner surface) and every registered physics parameter (physics_parameter_map.yaml) and requires\
+    \ the output to change \u2014 verdict flip for gate consumers, delta-over-noise-floor for threshold-less consumers; fails\
+    \ on a dead input, an unregistered physics parameter, or a registry validation error"
+  owner: bennet
+  last_run: '2026-08-02'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - json
+  - pathlib
+  - sys
+  - temper_placer.validation.dead_parameter_probe
+  - temper_placer.validation.gate_input_registry
 - path: check_derived_doc_drift.py
   purpose: 'Derived-document drift gate: fail when a summary table silently drops a qualifier, column, or value restated from
     docs/FUNCTIONAL_TEST_CRITERIA.md'
@@ -546,6 +563,7 @@ scripts:
   - _lib.github_summary
   - _lib.repo
   - argparse
+  - board_derivation_lib
   - dataclasses
   - math
   - pathlib

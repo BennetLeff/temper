@@ -108,15 +108,17 @@ class PlacementCompleteGate(ValidationGate):
 
     @property
     def required_metrics(self) -> list[str]:
+        # U5 remediation (plan 2026-08-02-019): the four loop-area/edge metrics
+        # (gate_loop_area_mm2, bootstrap_loop_area_mm2, commutation_loop_area_mm2,
+        # igbt_edge_distance_mm) were phantom declarations — RunMetrics never
+        # carried them and check() never read them. Removed; see the tracked
+        # finding R37-PHANTOM-REQUIRED-METRICS in
+        # temper_placer.validation.gate_input_registry.
         return [
             "overlap_loss",
             "boundary_loss",
             "hv_clearance_violations",
             "zone_violations",
-            "gate_loop_area_mm2",
-            "bootstrap_loop_area_mm2",
-            "commutation_loop_area_mm2",
-            "igbt_edge_distance_mm",
         ]
 
     def check(self, metrics: Any) -> GateResult:
@@ -231,15 +233,14 @@ class ProductionReadyGate(ValidationGate):
 
     @property
     def required_metrics(self) -> list[str]:
+        # U5 remediation (plan 2026-08-02-019): the four phantom loop-area/edge
+        # metrics were removed (see PlacementCompleteGate.required_metrics for
+        # the attribution).
         return [
             "overlap_loss",
             "boundary_loss",
             "hv_clearance_violations",
             "zone_violations",
-            "gate_loop_area_mm2",
-            "bootstrap_loop_area_mm2",
-            "commutation_loop_area_mm2",
-            "igbt_edge_distance_mm",
             "routing_completion_percent",
             "drc_errors",
             "creepage_estimate",

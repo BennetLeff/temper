@@ -22,6 +22,11 @@ from temper_placer.validation.base import (
     ValidationSeverity,
     Validator,
 )
+from temper_placer.validation.dead_parameter_probe import (
+    ProbeRecord,
+    probe_is_pass,
+    run_all_probes,
+)
 from temper_placer.validation.drc import (
     DRCResult,
     DRCSeverity,
@@ -35,6 +40,12 @@ from temper_placer.validation.drc_oracle import (
     build_constraint_set,
     build_placement_from_netlist,
     create_standard_drc_oracle,
+)
+from temper_placer.validation.gate_input_registry import (
+    GateInputRegistry,
+    build_default_registry,
+    load_physics_parameter_map,
+    validate_registry,
 )
 from temper_placer.validation.geometric import (
     GeometricValidator,
@@ -135,6 +146,14 @@ __all__ = [
     "ValidationGatesResult",
     "check_all_gates",
     "check_gate",
+    # Dead-Parameter Registry & Probe
+    "GateInputRegistry",
+    "build_default_registry",
+    "load_physics_parameter_map",
+    "validate_registry",
+    "ProbeRecord",
+    "probe_is_pass",
+    "run_all_probes",
     # DRC Oracle (temper-drc integration)
     "DRCOracle",
     "create_standard_drc_oracle",
