@@ -11,6 +11,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Any
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Net
@@ -147,7 +148,12 @@ class ParsedPCB:
     nets: list[Net]
     zones: list
     board: Board
-    design_rules: DesignRules
+    # ``core.design_rules.DesignRules`` (the Wave-4 migrated pyclass) is
+    # duck-compatible with this module's legacy ``DesignRules`` dataclass
+    # and is what ``kicad_parser`` passes at runtime; consumers call only
+    # shared methods (``get_rules_for_net`` etc.). Typed ``Any`` to admit
+    # both until the legacy dataclass is retired.
+    design_rules: Any
     stackup: StackupInfo
     source_path: Path
     tracks: list = field(default_factory=list)  # Pre-routed tracks

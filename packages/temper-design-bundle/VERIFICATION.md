@@ -354,3 +354,179 @@ behaviour is bit-identical to the pinned pre-migration Python implementation
 - Performance A/B (R1b): pure-data contract migration with no compute
   kernel; the "no regression beyond noise" comparison defined in the plan's
   R2 for delegation-only modules applies.
+
+# Gate-contract data model — Verification
+
+The gate-contract data model (`src/gates.rs`) is the FOURTH Wave 4 Phase 2
+"contracts-as-pyo3-pyclasses" migration, ported from
+`temper_placer/placer/cp_sat/gates.py` (the Python module is now a
+pure-delegation re-export of the `temper_design_bundle_python` pyclasses,
+mirroring the net-types, loop, and design-rules precedents).
+
+## Candidate scorecard (why gates, not pcl/constraints / routing_results / protocol)
+
+The plan's Phase B surface (`docs/plans/2026-08-01-001-feat-wave4-full-migration-program-plan.md`)
+names, beyond core/, the gate-contract types, the constraint IR, routing
+results, and the protocol types. Scored:
+
+| Candidate | LOC | Consumers (src) | Purity | Verdict |
+|-----------|-----|-----------------|--------|---------|
+| `placer/cp_sat/gates.py` contract types | ~85 (of 1143; the rest is gate implementations that stay Python) | 12 src + 20+ tests | 3 string enums + 3 frozen dataclasses, zero compute | **SELECTED** |
+| `pcl/constraints.py` IR | 872 | 36 | `SeparatedConstraint`/`AnchoredConstraint`/`BaseConstraint` are entangled with the ortools encoder (they construct encoder objects); `ConstraintTier` is a plain enum but the module's import graph pulls the encoder | JUSTIFIED-KEEP — encoder entanglement beyond the honest R1 reach |
+| `router_v6/routing_results.py` | 233 | 13 | `CompiledRoute`/etc. fields HOLD router_v6 runtime types (`RoutePath3D`, `PathfindingResult`, `NetConnectivity`, `ViaPlacement`, ... — 6 imports from astar/connectivity/trace modules) | JUSTIFIED-KEEP — the dataclasses are containers over unmigrated runtime types |
+| `protocol.py` | 141 | 7 | mixes type defs with runtime constants | NOT SELECTED — smaller surface, no consuming kernel; revisit later |
+
+gates.py's contract types are pure data (three string-valued enums, three
+frozen dataclasses whose opaque payload fields are held as the exact Python
+objects) with the gate *implementations* (`Gate` and subclasses — DrcGate,
+RoutingGate, StackupGate, IECCreepageGate, PhysicsGate, QualityGate, ErcGate)
+staying Python in the delegation module (they run subprocesses/kicad-cli and
+are not data contracts), plus `_VIOLATION_TYPE_MAP`/`_map_violation_type`
+(stays Python — resolves kicad-cli DRC type strings onto `ViolationType`
+members).
+
+## Induction applicability
+
+**Mathematical induction is not applicable to this module.** None of its
+functions are recursive, and none iterate over a dimension whose correctness
+depends on a size parameter:
+
+- The enums are finite constant sets; `members()` emits them in declaration
+  order (a fixed transcription, independent of any size).
+- `Violation.__eq__`/`__hash__`/`__repr__` are fixed-arity field walks over
+  the seven declared fields; `GateResult` and `BoardState` likewise. The
+  `context` dict/tuple contents are compared via Python's own `==`/`repr()`
+  on the held objects (the per-element operation is independent of the
+  container's size and order).
+
+The module is data-only (three enums, three frozen dataclasses, no compute
+kernel). Per the plan's R1e, a **structural proof** is recorded instead.
+
+## Structural proof
+
+**Claim (bit-identical parity).** For every public symbol, the pyclass
+behaviour is bit-identical to the pinned pre-migration Python implementation
+(`packages/temper-placer/tests/placer/cp_sat/_gates_py_oracle.py`, commit
+`ef2ac25fd`).
+
+*Proof by structural cases.*
+
+1. **Enum parity (`GateStatus`, `GateStage`, `ViolationType`).** The pyo3
+   enums are PLAIN Python `Enum`s with string values (not IntEnum): members
+   are not equal to their value. `#[new]` resolves `Enum(value)` by string
+   value with the exact `ValueError` text; `name`/`value` getters, `__str__`
+   (`GateStatus.CLEAN`), and `__repr__` (`<GateStatus.CLEAN: 'clean'>` — the
+   string value QUOTED via `py_str_repr`) mirror CPython. `members()` is the
+   pyo3 substitute for class-level iteration (`list(GateStatus)`); every
+   consumer and test that iterated the enums was adapted to it
+   (test_gate_contract.py, test_gates_pbt.py, test_gates_rust_differential.py).
+   Enum *identity* is load-bearing: consumers compare `result.status is
+   GateStatus.CLEAN` / `violation.type is ViolationType.CREEPAGE` (delta_mapper,
+   fields/result.py, _loop_gates.py, _pipeline_core.py). pyo3 caches members
+   as class attributes and the dataclasses hold them opaquely as `Py<PyAny>`,
+   so attribute access AND getter return the exact cached object
+   (asserted: `E.M is E.M`, `getattr(E, 'M') is E.M`, `v.type is
+   ViolationType.CREEPAGE`, `bs.status is GateStatus.CLEAN`).
+   **Documented deviation:** `Enum(value)` returns an equal-but-distinct
+   instance (the pyo3 `#[new]` constructor cannot return the cached member
+   object), where the pre-migration Python Enum returned the cached
+   singleton. No consumer value-constructs for identity (`==` is used; the
+   only `is`-dispatch is on attribute access / held fields, which ARE
+   identity-stable). Recorded here per R1's deviation rule; asserted
+   explicitly in P4.
+
+2. **`Violation`.** Construction mirrors the 7-field frozen dataclass with
+   defaults `()`/`()`/`0.0`/`0.0`/`""`/fresh `dict` per instance
+   (`field(default_factory=dict)` — two default instances never share a
+   context dict, asserted). The `type` field is unvalidated (any object is
+   held — the oracle does not cast), and the container fields are the actual
+   Python objects, so `v.type is ViolationType.X` holds end to end.
+   `__eq__` is all-seven-field `==` (floats via IEEE `==`, so NaN != NaN on
+   both sides); `__hash__` builds the canonical Python tuple and calls
+   Python's own `hash()` — reproducing the dataclass's `TypeError` when a
+   field is unhashable (every `Violation`'s `context` dict makes it
+   unhashable, exactly like the dataclass; asserted on both sides).
+   `__repr__` renders floats with `py_float_str` (B10: `1e-05`/`1e+300`/
+   `nan` — Rust `{:?}` writes `1e-5`/`1e300`/`NaN`), the description with
+   `py_str_repr` (B9: single quotes), and the enum member/tuples/dict via
+   Python's own `repr()` on the held objects — byte-identical, asserted
+   full-string.
+
+3. **`GateResult`.** Construction mirrors the 3-field frozen dataclass
+   (defaults `()`/`""`). The oracle's `__post_init__` invariant — a
+   `VIOLATIONS` status with an empty `violations` tuple raises
+   `ValueError("GateResult with status=VIOLATIONS must have at least one
+   Violation")` — is enforced in `#[new]` using IDENTITY against the cached
+   `GateStatus.VIOLATIONS` member (`py.get_type::<GateStatus>()` +
+   `getattr("VIOLATIONS")` + `Bound::is`), exactly the oracle's
+   `self.status is GateStatus.VIOLATIONS`; the exact message text is
+   asserted on both sides. `__eq__`/`__hash__`/`__repr__` follow the
+   Violation case (status and the violations tuple via Python's own
+   semantics — the tuple repr recurses through each `Violation.__repr__`).
+
+4. **`BoardState`.** Construction mirrors the 6-field frozen snapshot
+   dataclass with all-`None` defaults. Every field is an opaque payload held
+   as the exact Python object (`Py<PyAny>`), so `bs.board is board` identity
+   holds and gates inspect the payload objects directly (asserted). `__eq__`
+   is all-six-field `==`; `__hash__` is the Python tuple-hash (unhashable
+   payloads raise `TypeError`, exactly like the dataclass); `__repr__`
+   renders each payload via Python's own `repr()` (`None` as `None`, a `Path`
+   as `PosixPath('/tmp/...')`).
+
+5. **The gate implementations stay Python.** `Gate` and its subclasses
+   (DrcGate, RoutingGate, StackupGate, IECCreepageGate, PhysicsGate,
+   QualityGate, ErcGate), `_VIOLATION_TYPE_MAP`, and `_map_violation_type`
+   remain in the delegation module verbatim — they run subprocesses/kicad-cli
+   and resolve DRC type strings, and are not data contracts. The delegation
+   module re-exports the pyclasses under the pre-migration names, so
+   `from temper_placer.placer.cp_sat.gates import GateStatus, ...` is
+   unchanged for every consumer (verified: all 12 src consumers import the
+   module and pass unchanged; the identity `is`-dispatch sites in
+   fields/result.py, delta_mapper.py, _loop_gates.py, _loop_stability.py,
+   _pipeline_core.py, thermal_fdm.py, battery_run.py are covered by the
+   consumer suites below).
+
+6. **`__hash__` presence.** pyo3's `frozen` keeps `__hash__` available
+   (frozen dataclasses define `__hash__`). The tuple-hash replication means
+   hashability tracks the oracle exactly (a `GateResult` carrying a
+   `Violation` is unhashable on both sides — asserted).
+
+## Documented deviations (per R1, recorded here)
+
+- `Enum(value)` returns an equal-but-distinct instance (see §1) — no
+  consumer relies on value-construction identity.
+- The pyclasses raise `AttributeError` on attribute assignment where the
+  dataclasses raised `dataclasses.FrozenInstanceError` (a subclass of
+  `AttributeError` — same base class); test_gate_contract.py's frozen tests
+  were updated to `pytest.raises(AttributeError)`.
+- `severity`/`threshold` are typed `f64`: an `int` passed pre-migration
+  stayed an `int` (repr `1`), here it coerces to `1.0` (repr `1.0`). No
+  consumer passes ints (every construction site uses float literals); the
+  differential/PBT suites drive floats.
+- `members()` replaces class-level Enum iteration; `__members__`-style
+  iteration is unavailable on pyclasses. All in-repo iteration sites were
+  adapted.
+
+## Evidence
+
+- Differential (R1a/R1f, TDD red→green):
+  `packages/temper-placer/tests/placer/cp_sat/test_gates_rust_differential.py`
+  (oracle `_gates_py_oracle.py`, commit ef2ac25fd; enum identity, the
+  VIOLATIONS invariant with exact message, unhashability, and full
+  `repr(...)` equality byte-for-byte, per case and pinned as a union).
+- PBT (R1c): `test_gates_pbt.py` — 5 hypothesis properties (P1–P5), each
+  with a `test_pN_fails_for_<mutant>` vacuity mutant (G4 pattern via
+  `hypothesis.inner_test` against a degenerate kernel).
+- Metamorphic (R1d): `test_gates_pbt.py` — MR1 (construction→access
+  round-trip + kwarg-order commutativity), MR2 (canonical-form ⇔ equality),
+  MR3 (enum construction commutation: `Cls(member.value) == member`), MR4
+  (BoardState payload independence).
+- Rust unit tests: `gates.rs::repr_helper_tests` pins the B9/B10 rendering
+  divergence classes (`1e+300`, `1e-05`, `nan`, single-quote escaping).
+- Performance A/B (R1b): pure-data contract migration with no compute
+  kernel; the "no regression beyond noise" comparison defined in the plan's
+  R2 for delegation-only modules applies.
+- Consumer suites run unchanged against the pyclasses: test_gate_contract.py,
+  test_delta_mapper.py, test_loop_field_feedback.py, test_compound_loop.py,
+  test_finish_board_gate.py, test_phase1_anti_false_zero.py, and the
+  fields/physics suites listed in the migration PR.
