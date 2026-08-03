@@ -206,6 +206,69 @@ def test_no_loop_solver_exception(runner: CliRunner, tmp_path: Path) -> None:
     assert "CP-SAT solve failed" in result.output
 
 
+def test_no_loop_round_trip_oracle_runs_and_passes(
+    runner: CliRunner, tmp_path: Path
+) -> None:
+    """The post-write round-trip oracle (plan 2026-08-02-009 U3) runs on a
+    successful --no-loop write and reports PASS."""
+    mock_result = CpSatPlacementResult(
+        status="optimal",
+        positions={"R1": (10.0, 20.0)},
+        rotations={"R1": 1},
+        placed_refs=["R1"],
+        solve_time_ms=10.0,
+        objective_value=0.0,
+    )
+
+    out = tmp_path / "placed.kicad_pcb"
+    with mock.patch(
+        "temper_placer.placer.cp_sat.encoder.solve_placement",
+        return_value=mock_result,
+    ):
+        result = runner.invoke(cli_main, _base_args(out))
+
+    assert result.exit_code == 0, f"CLI failed:\n{result.output}"
+    assert "Round-trip oracle: round-trip PASS" in result.output
+
+
+def test_no_loop_round_trip_mismatch_fails_command(
+    runner: CliRunner, tmp_path: Path
+) -> None:
+    """A round-trip oracle mismatch after the write fails the command at
+    the write site -- a dropped or mis-signed rotation must not ship."""
+    from temper_placer.validation.placement_roundtrip import (
+        RoundTripMismatch,
+        RoundTripResult,
+    )
+
+    mock_result = CpSatPlacementResult(
+        status="optimal",
+        positions={"R1": (10.0, 20.0)},
+        rotations={"R1": 1},
+        placed_refs=["R1"],
+        solve_time_ms=10.0,
+        objective_value=0.0,
+    )
+    failing = RoundTripResult(
+        mismatches=[RoundTripMismatch(ref="R1", kind="footprint_angle")],
+        checked_components=1,
+        checked_pads=2,
+    )
+
+    out = tmp_path / "placed.kicad_pcb"
+    with mock.patch(
+        "temper_placer.placer.cp_sat.encoder.solve_placement",
+        return_value=mock_result,
+    ), mock.patch(
+        "temper_placer.validation.placement_roundtrip.check_placement_roundtrip",
+        return_value=failing,
+    ):
+        result = runner.invoke(cli_main, _base_args(out))
+
+    assert result.exit_code != 0
+    assert "Round-trip oracle FAILED after write" in result.output
+
+
 def test_no_loop_missing_pcb(runner: CliRunner, tmp_path: Path) -> None:
     """Missing input PCB -> non-zero exit with clear message."""
     out = tmp_path / "placed.kicad_pcb"

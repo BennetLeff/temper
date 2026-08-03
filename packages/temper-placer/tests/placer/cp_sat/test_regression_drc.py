@@ -250,6 +250,25 @@ def test_golden_board_drc_regression(monkeypatch: pytest.MonkeyPatch, request: p
         placed_path = tmp.name
 
     try:
+        # 5b. Round-trip oracle (plan 2026-08-02-009 U3): re-parse the
+        # written artifact and assert write-vs-model agreement BEFORE any
+        # DRC measurement.  A dropped or mis-signed rotation here would
+        # otherwise only surface (if at all) as a DRC-count regression
+        # much later -- this assertion makes it immediate.
+        from temper_placer.validation.placement_roundtrip import (
+            check_placement_roundtrip,
+        )
+
+        rt = check_placement_roundtrip(
+            placed_path,
+            result.to_placements_dict(),
+            result.to_rotations_dict(),
+            netlist.components,
+        )
+        assert rt.passed, (
+            f"Round-trip oracle FAILED after golden-board write: {rt.summary}"
+        )
+
         # 6. Run kicad-cli DRC and parse
         drc_data = _run_drc(placed_path)
         violations = drc_data.get("violations", [])
@@ -332,6 +351,52 @@ def test_golden_board_drc_regression(monkeypatch: pytest.MonkeyPatch, request: p
             raise AssertionError(
                 annotate_failure(request.node.nodeid, signature, str(exc))
             ) from exc
+    finally:
+        os.unlink(tmp.name)
+
+
+def test_golden_board_rotation_drop_mutant_fails_oracle() -> None:
+    """U3 falsifier: substituting a rotation-drop mutant board into the
+    golden-board write flow fails at the oracle assertion -- the written
+    footprints' angles do not match the model's solved rotations.  This is
+    the exact 2026-07-30 incident class (a caller that never applied the
+    solved rotation); the oracle catches it before any DRC count is
+    compared (plan 2026-08-02-009 U3 scenario 3)."""
+    from temper_placer.io.kicad_parser import parse_kicad_pcb
+    from temper_placer.router_v6.adapter import _apply_placements_to_pcb
+    from temper_placer.validation.placement_roundtrip import (
+        check_placement_roundtrip,
+    )
+
+    parse_result = parse_kicad_pcb(BOARD_PATH)
+    netlist = parse_result.netlist
+
+    # The golden-board write shape, but with the solved rotation dropped
+    # (the pre-fix caller passed no `rotations=` -- _loop_routing.py's
+    # status-quo call): positions move, angles stay byte-identical.
+    # Use refs whose template angle is 0 so a claimed 90-deg solve is
+    # unambiguous.
+    zero_angle_refs = [
+        c.ref
+        for c in netlist.components
+        if float(c.attributes.get("_rotation_deg", "0")) % 360.0 == 0.0
+    ][:5]
+    assert zero_angle_refs, "expected at least one 0-degree component on the corpus board"
+    positions = {c.ref: c.initial_position for c in netlist.components if c.ref in zero_angle_refs}
+
+    raw = BOARD_PATH.read_text(encoding="utf-8")
+    placed = _apply_placements_to_pcb(raw, positions)
+
+    with tempfile.NamedTemporaryFile(suffix=".kicad_pcb", mode="w", delete=False) as tmp:
+        tmp.write(placed)
+        placed_path = tmp.name
+    try:
+        # The model claims the solve rotated every placed ref to 90.
+        rotations = dict.fromkeys(positions, 90.0)
+        rt = check_placement_roundtrip(placed_path, positions, rotations, netlist.components)
+        assert not rt.passed
+        assert any(m.kind == "footprint_angle" for m in rt.mismatches)
+        assert any(m.kind == "pad_angle" for m in rt.mismatches)
     finally:
         os.unlink(tmp.name)
 
