@@ -251,6 +251,28 @@ scripts:
   - re
   - subprocess
   - sys
+- path: measure_cross_domain_creepage.py
+  purpose: 'Pairwise HV<->SELV creepage measurement tool (NOT a gate, not wired into CI): enumerates every
+    cross-domain pad pair, measures exact pad-edge-to-pad-edge distance, classifies each violation body_free/body_crossing/unknown
+    against F.Fab/F.CrtYd body outlines, and supports a --compare-to-mm differential so the PD2 (8.0mm)
+    vs PD3 (12.6mm) pollution-degree decision has a re-runnable, parameterised cost measurement instead
+    of throwaway per-session scripts (see docs/evidence/2026-07-29-cross-domain-creepage-pd2-vs-pd3.md)'
+  owner: bennet
+  last_run: '2026-08-01'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - _lib.path_setup
+  - _lib.provenance
+  - _lib.repo
+  - argparse
+  - dataclasses
+  - math
+  - pathlib
+  - sys
+  - temper_placer.core.isolation_constants
+  - temper_placer.core.pad_geometry
 - path: mpn_fabrication_gate.py
   purpose: 'Fabricated-MPN CI gate: fails closed on non-E-series resistor/capacitor values and MPN/declared-value
     disagreement in elec/src/*.ato'
