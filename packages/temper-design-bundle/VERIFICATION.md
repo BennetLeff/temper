@@ -530,3 +530,158 @@ behaviour is bit-identical to the pinned pre-migration Python implementation
   test_delta_mapper.py, test_loop_field_feedback.py, test_compound_loop.py,
   test_finish_board_gate.py, test_phase1_anti_false_zero.py, and the
   fields/physics suites listed in the migration PR.
+
+# Priority-classification data model — Verification
+
+The priority data model (`src/priority.rs`) is the FIFTH Wave 4 Phase 2
+"contracts-as-pyo3-pyclasses" migration, ported from
+`temper_placer/core/priority.py` (the Python module is now a pure-delegation
+re-export of the `temper_design_bundle_python` pyclasses, keeping
+`POWER_STAGE_TEMPLATES` and the `classify_net_priority` convenience wrapper
+Python per the gates-migration precedent).
+
+## Candidate scorecard (why priority, not the KEEP'd Phase-2 surfaces)
+
+The remaining named Phase-2 contract surfaces were scored under R3 (recorded
+2026-08-03 in the plan's Phase 2 residual-decisions section); this migration
+is the one surface that cleared the R1 honest-reach bar:
+
+| Candidate | LOC | Consumers (src) | Purity | Verdict |
+|-----------|-----|-----------------|--------|---------|
+| `core/priority.py` | 203 | 2 (core/__init__ re-export + heuristics/power_stage.py) | 2 IntEnums + 3 dataclasses, self-contained string heuristics, stdlib-only | **SELECTED** |
+| `pcl/constraints.py` IR | 872 | 32 | ortools-encoder entangled (9 cp_sat handlers construct encoder objects; bridges register into the class-level `BaseConstraint.backends` registry); `CompilationContext` holds unmigrated Netlist/Board/ChannelSkeleton/ChannelWidths/DesignRules | JUSTIFIED-KEEP — encoder entanglement beyond the honest R1 reach |
+| `router_v6/routing_results.py` | 233 | 18 | `CompiledRoute`/`RoutingResults` fields HOLD unmigrated router_v6 runtime types (RoutePath, RoutePath3D, TreeRouteGeometry, NetConnectivity, ViaPlacement, NetRoutingReport, ... — 9 imports) | JUSTIFIED-KEEP — containers over unmigrated runtime types |
+| `protocol.py` | 141 | 7 | `@runtime_checkable` structural Protocol + `dict[str, type]` isinstance schema + exception; orchestration seam | JUSTIFIED-KEEP — structural-typing/type-object semantics have no pyclass mapping; Phase 5 |
+| `core/board.py` / `core/netlist.py` | 803 / 440 | 100+ | numpy float32 array fields / numpy `eigh` spectral adjacency (not bit-reproducible); Board is produced by the Phase 3 KiCad parser | JUSTIFIED-KEEP — D5 dependency rationale (formats first); re-decide at Phase 3 pull |
+
+## Induction applicability
+
+**Mathematical induction is not applicable to this module.** None of its
+functions are recursive and none iterate over a dimension whose correctness
+depends on a size parameter:
+
+- `PlacementPriority`/`RoutingPriority` are finite constant sets; `Cls(v)`
+  construction and the `name`/`value` getters are fixed transcriptions.
+- `PriorityConfig::classify_component` is a fixed sequence of disjoint
+  prefix tests after a constant digit-strip; `classify_net` is a fixed
+  sequence of disjoint keyword/substring tests. `_kw_boundary_match` (ported
+  as `kw_boundary_match`) scans literal keyword occurrences — the per-
+  occurrence boundary test is independent of the string's length and of
+  which occurrence matches first (the boolean result is order-independent;
+  verified by MR1/MR4 in `test_priority_pbt.py`).
+- `get_placement_phase`/`get_routing_phase` iterate caller-provided phase
+  lists, but the per-element comparison is independent of the list's size
+  and — with distinct priorities — of its order (verified by MR2).
+
+The module is data-only (two int enums, two phase-config dataclasses, one
+container with closed-form classification). Per the plan's R1e, a
+**structural proof** is recorded instead.
+
+## Structural proof
+
+**Claim (bit-identical parity).** For every public symbol, the pyclass
+behaviour is bit-identical to the pinned pre-migration Python
+implementation (`packages/temper-placer/tests/core/_priority_py_oracle.py`,
+commit `a47527751`).
+
+*Proof by structural cases.*
+
+1. **Enum parity (`PlacementPriority`, `RoutingPriority`).** The pyo3
+   enums are Python `IntEnum` replicas: int-valued members exposed as cached
+   class attributes, `name`/`value` getters, `Cls(value)` construction with
+   the exact CPython `ValueError` text (`999 is not a valid
+   PlacementPriority`), `str(member)` = `int.__str__` (`"1"`), and
+   `repr(member)` = `<PlacementPriority.POWER: 1>`. The value tables
+   (`POWER=1 .. DIGITAL=5`, `AUTO=10`) are pinned verbatim; the differential
+   suite asserts every member's name/value/str/repr on both sides, and P4
+   pins the (name, value) bijection against a fixed table.
+
+2. **`PlacementPhaseConfig` / `RoutingPhaseConfig`.** Construction mirrors
+   the dataclass signatures with identical defaults (`method="optimize"`,
+   `max_distance_mm=20.0`, `trace_width_mm=0.25`, `via_cost=1.0`,
+   `allow_layer_change=True`, fresh `list` per instance — never shared).
+   `__eq__` is all-fields `==` (floats via IEEE `==`, so NaN != NaN on both
+   sides); the pyclasses are unhashable exactly like the mutable dataclasses
+   (no `#[pyclass(hash)]`). `__repr__` renders strings with `py_str_repr`
+   (B9: single quotes), floats with `py_float_str` (B10: `1e+300`/`1e-05`/
+   `nan`), the priority enum with its `py_repr`, and the bool with CPython's
+   `True`/`False` — byte-identical, asserted full-string.
+
+3. **`PriorityConfig`.** Construction mirrors the two-list dataclass
+   (fresh lists per instance); phases are held as `Py<PlacementPhaseConfig>`
+   / `Py<RoutingPhaseConfig>` handles so consumer-side mutation is visible
+   to the queries, matching the pre-migration shared-object semantics.
+   `get_placement_phase`/`get_routing_phase` replicate the oracle's
+   first-match-`find` (order-dependent only for duplicate priorities, which
+   MR2's distinct-priority bound excludes). `classify_component` replicates
+   the oracle exactly: explicit-assignment scan first, then
+   `ref.rstrip("0123456789")` (ported as
+   `trim_end_matches(is_ascii_digit)`) and the four prefix tables in order;
+   the unused `_netlist` argument is accepted and ignored. `classify_net`
+   replicates the oracle exactly: explicit exact/wildcard pattern scan
+   first, then `upper()`, then the four keyword/substring tiers in order.
+
+4. **`kw_boundary_match` (port of `_kw_boundary_match`).** The oracle
+   compiles `(?:^|_)<re.escape(kw)>(?:$|[\d_])` and `re.search`es it.
+   Python's `re.escape` leaves ASCII letters/digits/underscore untouched, so
+   the escaped pattern matches the raw keyword as literal text; the port
+   scans every literal occurrence of the keyword and applies the same
+   boundary conditions (preceded by start or `_`; followed by end, digit,
+   `_`, or — pattern A — anything). Python's `$`-matches-before-a-trailing-
+   newline rule is replicated (`"BUS\n"` matches, `"BUS\nX"` does not; Rust
+   unit-tested). Because the boolean is "any occurrence matches" and a
+   match's before/after chars are tested per occurrence, the overlap-skipping
+   scan finds every match the regex would; equivalence is pinned by the
+   differential suite's bug-history regression set (BUSTER/BUSBAR/BHV/ABUS
+   negatives, `+15V` regex-special keyword, boundary positives) and the Rust
+   unit tests.
+
+5. **Module-level constants.** `POWER_STAGE_TEMPLATES` and the
+   `classify_net_priority` wrapper stay in the delegation module (they are
+   data / delegation, not contracts); `classify_net_priority` delegates to
+   the pyclass and is pinned against the oracle by the differential suite.
+
+## Documented deviations (per R1, recorded here)
+
+- **IntEnum int equality:** Python `IntEnum` members compare `==` to their
+  int value (`PlacementPriority.POWER == 1` is True); the pyclass members
+  are NOT equal to ints. Verified no consumer relies on it (2026-08-03: no
+  `PlacementPriority.* == <int>` / `<int> == PlacementPriority.*`
+  expressions anywhere in `src/` or `tests/`).
+- **Cross-enum `==`:** Python IntEnum falls back to int comparison across
+  enum classes (`PlacementPriority.POWER == RoutingPriority.POWER` is True);
+  pyo3 `#[pyclass(eq)]` compares only same-typed instances, so the pyclass
+  returns False. No consumer compares across the two enums.
+- **Class-level iteration** (`for p in PlacementPriority:`) is unavailable on
+  pyo3 enums (no metaclass hook); the differential suite accesses members via
+  `getattr`, and no consumer iterates these enums at class level.
+
+## Evidence
+
+- Differential (R1a/R1f, TDD red→green):
+  `packages/temper-placer/tests/core/test_priority_rust_differential.py`
+  (oracle `_priority_py_oracle.py`, commit a47527751; 87 assertions — enum
+  name/value/str/repr/value-construction, dataclass defaults/round-trip,
+  full `repr(...)` equality byte-for-byte, `classify_component` across every
+  prefix branch, `classify_net` across every keyword/substring branch plus
+  the 2026-07-27 word-boundary regression set, `classify_net_priority`
+  delegation parity). RED first: the test failed to collect before the
+  pyclasses existed.
+- PBT (R1c): `test_priority_pbt.py` — 5 hypothesis properties (P1–P5), each
+  with a `test_pN_fails_for_<mutant>` vacuity mutant (G4 pattern via
+  `hypothesis.inner_test` against a degenerate kernel: bogus-value return,
+  prefix-only classification, skipped explicit patterns, wrong enum value,
+  always-None lookup).
+- Metamorphic (R1d): `test_priority_pbt.py` — MR1 (prefix-decoration
+  invariance, exact), MR2 (phase-list order independence, distinct
+  priorities), MR3 (digit-suffix invariance, exact), MR4 (case invariance,
+  exact), plus a vacuity-sanity test proving the default-config input space
+  is genuinely discriminating (5 distinct classes on 6 nets).
+- Rust unit tests: `priority.rs::py_repr_tests` (B9/B10 rendering classes)
+  and `kw_boundary_tests` (the classify-net keyword set, regex-special `+`,
+  `$`-before-trailing-newline, empty-keyword skip).
+- Performance A/B (R1b): pure-data contract migration with no compute
+  kernel; the "no regression beyond noise" comparison defined in the plan's
+  R2 for delegation-only modules applies.
+- Consumer suites run unchanged against the pyclasses: heuristics/power_stage
+  and the `core/__init__.py` re-export path (verified in the migration PR).
