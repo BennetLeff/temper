@@ -1,4 +1,4 @@
-<!-- provenance: commit=3a52392d9a3b0d607215cf9e2b983a3087e30d10 dirty=false -->
+<!-- provenance: commit=6ab24dd8e251a71904f008757653e8d04bc8949e dirty=false -->
 
 # K3 swap + board write — owner-granted wave-2 (issue #523)
 

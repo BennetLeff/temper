@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """DRC ceiling re-measurement for the K3-swap + board-write (wave-2, issue #523).
 
-# provenance: commit=94795c1760f8367be503b273026b5a5c3b03679e dirty=false
+# provenance: commit=6ab24dd8e251a71904f008757653e8d04bc8949e dirty=false
 
 Full 120-sample ceiling protocol per AGENTS.md 'Board Change -> DRC Ceiling
 Re-measurement' and the file's own _march log (observed range per category,

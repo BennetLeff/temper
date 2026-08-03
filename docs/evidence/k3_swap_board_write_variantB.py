@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """K3 swap + board write — exact Run-B candidate re-solve (fixed_copper, issue #523).
 
-# provenance: commit=94795c1760f8367be503b273026b5a5c3b03679e dirty=false
+# provenance: commit=6ab24dd8e251a71904f008757653e8d04bc8949e dirty=false
 
 Runs the EVIDENCE-VALIDATED candidate recipe (the wall-spike's variant B,
 docs/evidence/2026-08-01-k3-resolve-validator-gated.md §4 Run B) on the
