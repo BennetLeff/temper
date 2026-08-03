@@ -14,6 +14,9 @@ tags:
   - pbt
 ---
 
+> **Status update (2026-08-03 refresh):** link 6's loss-based 'teeth' example (`ClearanceLoss`, `make_loss`, `jax.nn.softmax` corpus example) was retired with the JAX loss stack; the constraints are now carried by the CP-SAT constraint encoder and gates.
+
+
 # Wiring Dark Physics Metrics to Live: The Chain-of-Proof Pattern
 
 ## Context

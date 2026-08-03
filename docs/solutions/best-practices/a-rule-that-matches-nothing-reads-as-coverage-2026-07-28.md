@@ -235,7 +235,7 @@ A.Reference == B.Reference       # confirmed to bind: 0/0 (base) -> 0/1 (fixed)
   — the second, independent reason the same IGBT pair is still
   unprotected even after this fix: their pins are not classified into
   `HighVoltage` at all.
-- `docs/evidence/2026-07-28-drc-courtyard-condition-fix.md` — the full
+- `docs/evidence/2026-07-28-drc-courtyard-condition-fix.md (evidence doc never merged to main; finding reproduced inline)` — the full
   KiCad-source investigation, the 13-rule 999mm audit table, the isolated
   fixture proof, and the real-board fail-before/pass-after run.
 - `scripts/generate_kicad_dru.py`, `scripts/tests/test_generate_kicad_dru.py`

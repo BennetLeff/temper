@@ -20,6 +20,9 @@ tags:
   - artifact-derived-scope
 ---
 
+> **Status update (2026-08-03 refresh):** `scripts/gen_net_classification.py`'s `check_rule_referenced_classes` landed on the unmerged `feat/ato-net-classification-ssot` branch, not main. The live generator on main is `scripts/generate_kicad_dru.py` — the artifact-derived-scope guidance applies to it directly.
+
+
 # A gate's scope is data too — a hand-maintained class list drifted exactly the way the gate exists to catch
 
 ## Context

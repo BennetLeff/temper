@@ -20,6 +20,9 @@ tags:
   - gate-audit
 ---
 
+> **Status update (2026-08-03 refresh):** both concrete instances (`scripts/audit_dru_binding.py`, `scripts/gen_net_classification.py`'s `check_rule_referenced_classes`, commits d43a9f5f/cf3e6bd9) are on the unmerged `feat/ato-net-classification-ssot` branch. Live main scripts that still need the sys.path guard: `scripts/check_net_classification.py`, `scripts/check_hv_netclass_coverage.py`.
+
+
 # The shared-venv worktree trap: a script can validate a different tree than it runs in
 
 ## Context

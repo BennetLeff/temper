@@ -20,6 +20,9 @@ tags:
   - own-the-mistake
 ---
 
+> **Status update (2026-08-03 refresh):** commits 8d8b7955/57ebf112 are on the unmerged `feat/ato-net-classification-ssot` branch; `scripts/check_domain_partition.py` (the gate this doc analyzes) is live on main and the analysis holds against it.
+
+
 # When your own result contradicts a passing gate, suspect your reconstruction of the gate
 
 ## Context
@@ -146,7 +149,7 @@ graph = synthesize_chain_head_isolators(graph, ...)   # <- the omitted step
 - [[encode-facts-as-facts-not-judgments-2026-07-29]] — the 23 singleton
   components in the corrected count are exactly the 23 zero-pin nets
   declared `"unwired"`.
-- `docs/evidence/2026-07-28-net-domain-derivation-worksheet.md` — the full
+- `docs/evidence/2026-07-28-net-domain-derivation-worksheet.md (evidence doc never merged to main; finding reproduced inline)` — the full
   per-net derivation worksheet, grouped by subsystem with path evidence.
 - `scripts/check_domain_partition.py` — the gate whose `main()` calls
   `synthesize_chain_head_isolators`; the source of truth this correction
