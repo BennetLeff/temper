@@ -1,4 +1,4 @@
-<!-- provenance: commit=PENDING dirty=false -->
+<!-- provenance: commit=e1b3c70ce dirty=false -->
 
 # Re-baseline: `test_checker_copper_distance_is_lower_bound_on_origin_distance` (stale board-state expectation, invariant verified sound)
 
@@ -100,7 +100,7 @@ following the `fix/safety-test-rebaseline-2` convention.
   only the documented pre-existing failures (see evidence provenance in
   the landing commit).
 - Evidence provenance: this file's first line declares
-  `provenance: commit=<landing SHA> dirty=false`.
+  `provenance: commit=e1b3c70ce dirty=false` (the landing commit SHA).
 
 ## Honest limits
 
