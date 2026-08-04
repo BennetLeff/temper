@@ -101,7 +101,12 @@ plan — is bit-identical to the pinned pre-migration Python implementation
 4. **Ordering is pinned, not inherited.** Pad centers, net maps, placements,
    connectors and warnings all preserve the Python dict/list iteration order
    of the object being read; iteration always walks the Python object's own
-   order (PyDict insertion order), never a `HashMap`.
+   order (PyDict insertion order), never a `HashMap`. The connector-endpoint
+   set in `generate_connector_segments` is a REAL Python set (built in the
+   same interpreter, in the same insertion order as the verbatim oracle), so
+   its iteration order IS CPython's hash-table slot order — bit-exact by
+   construction; the exact-distance tie-break differentials pin the case
+   where a first-appearance Vec would pick the other endpoint.
 
 5. **Truthiness and absence.** Python truthiness is reproduced where
    load-bearing: `path.cells`/`segments`/`coordinates` falsy fall through,
@@ -164,11 +169,56 @@ port.
    `0.0` by the kernel where the pinned Python catches the `AttributeError`
    and skips the via with a warning. The write path's real input type always
    carries `.width`; the divergence is confined to out-of-domain inputs.
+7. **`get_footprint_reference` str-coerces a non-string
+   `properties["Reference"]`** (`ref_.str()` at the dict path) where the
+   verbatim oracle returns the raw value, changing dict-key matching
+   downstream. The kernel's return type is `Option<String>` — the reference
+   feeds `format!` warnings and the plan-tuple refs at three call sites — so
+   raw pass-through would restructure the pinned plan contract. No kiutils
+   footprint produces a non-string Reference; recorded rather than defended.
+8. **`write_routes_plan` / `export_board_state_plan` coerce route/via
+   coordinates and widths to f64** where the oracle forwards the raw values
+   into `Position(...)`: an int coordinate renders "3" in the oracle's
+   kiutils sexpr and "3.0" here. `write_zones_plan`'s pts pass through raw
+   (fixed — the int-coordinate zone differential pins it), but the
+   routes/board-state specs carry f64s via `get_xy`/`get_attr_f64` and the
+   `PyTraceSegment`/`PyTraceVia` pyclasses have f64 fields shared with the
+   Python `export_types` surface — raw pass-through would change the pyclass
+   schema. All production inputs (BoardState routes/vias) are floats;
+   int coordinates only arise from hand-built out-of-domain inputs.
+9. **`add_isolation_slots_to_pcb` warning interleaving**: the oracle emits
+   per-slot warnings in slot order, interleaving not-found and kiutils
+   construction failures; the migration emits all plan (not-found) warnings
+   first, then the shim's construction warnings. A GrLine construction
+   failure is unreachable for any slot the plan accepted (the plan already
+   read and rotated the slot's geometry, so the shim only constructs
+   well-formed lines), hence no fixture can reach the mixed case — aligning
+   the order would change the pinned plan contract for an untestable path.
+   Recorded rather than restructured.
+
+## Review notes (2026-08-04 adversarial review, PR #718)
+
+Recorded, not fixed — each is a thinness or an out-of-domain error-path
+change, with the reasoning:
+
+- **Corpus end-to-end thinness**: the corpus A/Bs never exercise
+  `generate_connector_segments` on realistic production geometry — the F1
+  exact-distance tie lives exactly there (a skeleton-router gap near a pad,
+  both endpoints equidistant). The tie-break differentials close the
+  determinism gap synthetically, but a production-board connector-generation
+  A/B against the oracle remains uncovered and is the natural follow-up.
+- **`path_coords` truthiness swallow**: a numpy-array `path.cells` raises
+  `ValueError` (ambiguous truth value) in the pinned Python;
+  `is_truthy(...).unwrap_or(false)` in the kernel swallows that into falsy
+  and silently falls through to the segments/coordinates branch. Real paths
+  carry plain cell lists, so the swallow is confined to out-of-domain
+  inputs, but it is a genuine error-path change and is recorded here rather
+  than claimed as parity.
 
 ## Evidence
 
 - **R1a behavioral A/B** — `packages/temper-placer/tests/io/test_kicad_write_rust_differential.py`,
-  88 tests: kernel differentials canonicalized leaf-by-leaf (floats as
+  100 tests: kernel differentials canonicalized leaf-by-leaf (floats as
   `float.hex()`, non-float leaves carrying concrete `type`, numpy arrays as
   `(dtype, shape, tobytes())`), plus full-function A/Bs where both arms write
   through kiutils' `to_file` so byte-identical outputs are equivalent to
@@ -176,7 +226,13 @@ port.
   item-creating paths). Covers the R(-theta) rotation convention, the
   decimal-aware round-half-to-even via-dedup discriminator, the pad-body
   reorientation class (#374), preserve-unmatched warnings, zone fill
-  clearing, corpus end-to-end strip/placement A/Bs.
+  clearing, the connector exact-distance tie-break (both insertion orders),
+  the duplicate-ref last-wins center-offset dedup (with cross-kernel
+  consistency), the explicit-empty-net-map no-rebuild rule, the
+  `validate_4_layer_output` exact decision strings (warn/raise/no-layers/ok),
+  the placements_from_json error paths (KeyError / ValueError message), the
+  int-coordinate zone pass-through, and corpus end-to-end strip/placement
+  A/Bs.
 - **R1b performance A/B** — `benchmarks/perf_ab.py`, entry
   `("kicad-write", "state_to_placements")`, wired to
   `scripts/pr_perf_compare.py`'s record shape with an in-harness parity
