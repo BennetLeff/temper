@@ -280,7 +280,21 @@ def bench_kicad_write_state_to_placements() -> tuple[float, float]:
     recorded.
     """
     import numpy as np
-    from tests.io._write_board_py_oracle import state_to_placements as oracle
+
+    # Load the verbatim oracle by file path, exactly like the bottleneck
+    # benchmarks above (bench_bottleneck_* -> _oracle_module). Under the
+    # pr-perf-check command (`uv run python benchmarks/perf_ab.py`) the
+    # script dir benchmarks/ is sys.path[0] and packages/temper-placer is not
+    # inserted, so the package import `from tests.io._write_board_py_oracle
+    # import ...` raises ModuleNotFoundError: No module named 'tests' (there
+    # is no top-level tests/ package) -- which aborted the whole run because
+    # run_benchmarks() has no per-benchmark exception handling, so the R1b
+    # baseline could never be captured. The oracle's own `temper_placer.*` /
+    # kiutils imports resolve from the project venv, so path-loading works.
+    oracle = _load_module_from_path(
+        "kicad_write_oracle",
+        REPO_ROOT / "packages/temper-placer/tests/io/_write_board_py_oracle.py",
+    ).state_to_placements
 
     from temper_placer.core.state import PlacementState
     from temper_placer.io.kicad_writer import state_to_placements
