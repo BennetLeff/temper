@@ -323,9 +323,9 @@
   },
   "encoded_zone_reachability_cap120": [
     {
-      "encoded_can_reach_exact_clear": false,
-      "encoded_clear_cells": 0,
-      "encoding": "BBOX-FALLBACK",
+      "encoded_can_reach_exact_clear": true,
+      "encoded_clear_cells": 14966,
+      "encoding": "EXACT",
       "envelope_cap_mm": 120.0,
       "exact_clear_cells": 14973,
       "grid_cells": 231361,
@@ -335,8 +335,8 @@
     },
     {
       "encoded_can_reach_exact_clear": true,
-      "encoded_clear_cells": 208,
-      "encoding": "BBOX-FALLBACK",
+      "encoded_clear_cells": 19692,
+      "encoding": "EXACT",
       "envelope_cap_mm": 120.0,
       "exact_clear_cells": 19709,
       "grid_cells": 231361,
@@ -346,8 +346,8 @@
     },
     {
       "encoded_can_reach_exact_clear": true,
-      "encoded_clear_cells": 3448,
-      "encoding": "BBOX-FALLBACK",
+      "encoded_clear_cells": 21478,
+      "encoding": "EXACT",
       "envelope_cap_mm": 120.0,
       "exact_clear_cells": 21496,
       "grid_cells": 231361,
@@ -357,8 +357,8 @@
     },
     {
       "encoded_can_reach_exact_clear": true,
-      "encoded_clear_cells": 3225,
-      "encoding": "BBOX-FALLBACK",
+      "encoded_clear_cells": 22919,
+      "encoding": "EXACT",
       "envelope_cap_mm": 120.0,
       "exact_clear_cells": 22936,
       "grid_cells": 231361,
@@ -368,8 +368,8 @@
     },
     {
       "encoded_can_reach_exact_clear": true,
-      "encoded_clear_cells": 3225,
-      "encoding": "BBOX-FALLBACK",
+      "encoded_clear_cells": 23777,
+      "encoding": "EXACT",
       "envelope_cap_mm": 120.0,
       "exact_clear_cells": 23793,
       "grid_cells": 231361,
@@ -379,8 +379,8 @@
     },
     {
       "encoded_can_reach_exact_clear": true,
-      "encoded_clear_cells": 4575,
-      "encoding": "BBOX-FALLBACK",
+      "encoded_clear_cells": 24806,
+      "encoding": "EXACT",
       "envelope_cap_mm": 120.0,
       "exact_clear_cells": 24834,
       "grid_cells": 231361,
@@ -390,8 +390,8 @@
     },
     {
       "encoded_can_reach_exact_clear": true,
-      "encoded_clear_cells": 39630,
-      "encoding": "BBOX-FALLBACK",
+      "encoded_clear_cells": 42852,
+      "encoding": "EXACT",
       "envelope_cap_mm": 120.0,
       "exact_clear_cells": 42871,
       "grid_cells": 231361,
@@ -538,8 +538,8 @@
     "unmatched_refs": 0
   },
   "provenance": {
-    "commit": "5d574d4c1d33c42441a84ebd753f65068f514532",
-    "dirty": false
+    "commit": "c60825861f337fa7d7c6d0ec8e9240c5aa97c74a",
+    "dirty": true
   },
   "zone_conflict_reachability_cap120": [
     {

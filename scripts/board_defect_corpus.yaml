@@ -1,0 +1,85 @@
+_meta:
+  title: Board-defect mutation corpus — seed manifest
+  plan: docs/plans/2026-08-02-024-feat-board-defect-mutation-corpus-plan.md
+  requirement: R38
+  board: pcb/temper.kicad_pcb
+  # Content hash of the committed board the seeds below were validated
+  # against. The runner compares its run-time board hash to this value; a
+  # mismatch means the board changed since the corpus was seeded and every
+  # seed is re-validated by the run itself (KTD3: the corpus re-derives from
+  # the committed board on every run). Update this hash with
+  # `--update-manifest` after a board change has been re-validated green.
+  board_sha256: e2fb92370da13554710e00857ad03a460340a2ee4f1782220f02c8c552c80277
+  board_commit: 54372bbf4914ef1dbc422f1d807de2232dd711c1
+  created: 2026-08-02
+  measured_kicad_cli: 10.0.4
+  note: >-
+    Seeds are deterministic transforms on run-time copies of the committed
+    board; the committed board is NEVER modified and the DRC-ceiling
+    re-measurement convention stays inert. The three real defect instances
+    (tank cap off-outline at (at 20.0 272.75), C1 pad2<->R7 pad2 short,
+    DC_BUS<->LV_CONTROL creepage crossings) are ALREADY present on the
+    committed board, so each seed starts from a DEFECT-FREE point and is
+    asserted with a count-delta (mutated count > clean count / recorded
+    ceiling): move an in-board tank cap off-board, short a not-yet-shorted
+    pad pair, compress a currently-compliant creepage pair.
+
+# Defect-to-gate mapping (KTD2): each class names its owning gate(s); a
+# class whose owning gate does not fire on the mutated board is a corpus
+# error, not a pass. Every owning gate category below is asserted via
+# count-delta -- the mutated board's count must exceed the clean board's
+# count and, for DRC categories, the recorded drc_ceiling.json ceiling.
+classes:
+  off-board:
+    mutation: off-board
+    seed: 1
+    params:
+      ref: C26
+      position_mm: [59.38, 256.0]
+    owning_gates: [courtyards_overlap, copper_edge_clearance]
+    failure_signal: count-delta
+    note: >-
+      tank-cap class (the real C27-off-outline staging). C26
+      (tank.c_tank2, in-board at (73.42, 52.00)) is moved to (59.38, 256.0)
+      -- straddling the top edge of the 20..172 x 20..254 outline. Measured
+      2026-08-02: courtyards_overlap 14 -> 29 (its courtyard crosses the
+      edge line and overlaps ~15 in-board courtyards). Owns the
+      courtyards_overlap and copper_edge_clearance DRC categories (the
+      standing proxy for the R26 containment invariant until R26 lands).
+  pad-short:
+    mutation: pad-short
+    seed: 2
+    params:
+      ref: C28
+      pad_a: "1"
+      pad_b: "2"
+    owning_gates: [shorting_items]
+    failure_signal: count-delta
+    note: >-
+      C1 pad2<->R7 pad2 short class. C28 (0603, pad 1 I_SENSE, pad 2 gnd)
+      pad 2's copper is moved onto pad 1's position; the two pads keep
+      their distinct nets, so a NEW shorting_item appears (measured
+      2026-08-02: shorting_items 118 -> 119). A net-join alone cannot
+      create a short on a static board -- see board_defect_mutator.py's
+      mutate_pad_short docstring for the review fix rationale.
+  creepage:
+    mutation: creepage
+    seed: 3
+    params:
+      ref: C8
+      position_mm: [116.26, 138.72]
+    owning_gates: [req-safe-01-creepage-dc-lv]
+    failure_signal: count-delta
+    baseline_note: >-
+      The REQ-SAFE-01 creepage gate is RED on main today (99
+      DC_BUS<->LV_CONTROL creepage violations measured 2026-08-02 via
+      verify_iec60335_compliance at the matrix's enforced min_creepage_mm
+      12.6/6.3). The anti-vacuity control is therefore scoped to the DRC
+      categories that ARE green on the clean board, and this class is
+      asserted via per-class count-delta against the clean measurement as
+      its documented known-finding baseline.
+    note: >-
+      DC_BUS<->LV_CONTROL creepage class. C8 (DC_BUS_RTN 0603) is moved to
+      (116.26, 138.72) -- ~2mm from C11 (LV_CONTROL) -- compressing a
+      currently-compliant HV<->SELV pair below the enforced margin.
+      Measured 2026-08-02: DC_BUS<->LV_CONTROL creepage 99 -> 102.

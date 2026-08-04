@@ -1,8 +1,8 @@
 _meta:
   last_audit_date: '2026-08-02'
-  total_scripts: 98
+  total_scripts: 101
   counts:
-    keep: 98
+    keep: 101
     ticket: 0
   ticket_scripts_deleted: 40
 scripts:
@@ -95,6 +95,25 @@ scripts:
   - ast
   - pathlib
   - sys
+- path: board_defect_mutator.py
+  purpose: 'Board-defect mutation corpus (R38, plan 2026-08-02-024): deterministic seeded transforms that produce a mutated
+    copy of pcb/temper.kicad_pcb for each defect class (component off-board, pad short, creepage crossing). The committed
+    board is never modified; every mutation writes a run-time copy.'
+  owner: bennet
+  last_run: '2026-08-02'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - argparse
+  - dataclasses
+  - hashlib
+  - kiutils.board
+  - kiutils.items.common
+  - pathlib
+  - shutil
+  - sys
+  - typing
 - path: calibrate_drc_ceiling.py
   purpose: Calibrate DRC violation ceiling for Rust DRC engine
   owner: pipeline
@@ -125,6 +144,25 @@ scripts:
   - pathlib
   - sys
   - yaml
+- path: check_board_defect_corpus.py
+  purpose: 'Board-defect mutation corpus runner (R38, plan 2026-08-02-024): for each defect class, re-derive the mutated board
+    from the committed board and assert its owning gate fails (count-delta); assert the clean board passes the corpus gates
+    (anti-vacuity, scoped to gates green on the clean board). Fails closed (exit 2) without kicad-cli or the REQ-SAFE-01 inputs.'
+  owner: bennet
+  last_run: '2026-08-02'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - collections
+  - dataclasses
+  - json
+  - pathlib
+  - shutil
+  - sys
+  - tempfile
+  - typing
 - path: check_copper_net_consistency.py
   purpose: 'Board-copper / netlist consistency gate: catch corrupted net ordinals.'
   owner: bennet
@@ -512,6 +550,7 @@ scripts:
   - _lib.github_summary
   - _lib.repo
   - argparse
+  - board_derivation_lib
   - dataclasses
   - math
   - pathlib
@@ -698,6 +737,27 @@ scripts:
   - importlib.util
   - pathlib
   - sys
+- path: check_verdict_coverage.py
+  purpose: >-
+    Wave 4 R7 coverage gate: every Python file under the roots in
+    docs/wave4-verdicts.yaml must match exactly one ledger entry with a recorded
+    verdict (MIGRATE / RETIRE / JUSTIFIED-KEEP / UNDECIDED). Enforces D6
+    structurally -- a JUSTIFIED-KEEP without a named blocker fails, because
+    "consolidation" alone is never a sufficient justification. Reports UNDECIDED
+    LOC as the migration backlog rather than hiding it.
+  owner: bennet
+  last_run: "2026-08-04"
+  category: keep
+  disposition: ci-gate
+  imports:
+    - __future__
+    - argparse
+    - collections
+    - fnmatch
+    - os
+    - pathlib
+    - sys
+    - yaml
 - path: check_vacuous_gates.py
   purpose: 'CI gate: reject unguarded all() in gate and validator modules (docs/METHODOLOGY.md Sec 4/5, anti-vacuous-truth);
     any() exempt (already fail-closed); asserts zero, no allowlist. Also rejects tautological assert expressions (X or not
@@ -1069,6 +1129,30 @@ scripts:
   - re
   - subprocess
   - sys
+- path: measure_router_output_baseline.py
+  purpose: >-
+    Measure the router-output DRC constants in the environment that enforces
+    them. PRODUCTION_ROUTER_OUTPUT_* in test_regression_drc.py is a ratchet whose
+    provenance records macOS arm64 measurements, while the gate runs inside the
+    temper-ci container, and kicad-cli's geometric counts differ between the two
+    (+107 on total, measured). Reports only -- asserts nothing and writes no
+    constant; landing a re-baseline stays a human decision under AGENTS.md.
+  owner: bennet
+  last_run: "2026-08-04"
+  category: keep
+  disposition: measurement
+  imports:
+    - __future__
+    - argparse
+    - hashlib
+    - json
+    - os
+    - platform
+    - statistics
+    - subprocess
+    - sys
+    - tempfile
+    - time
 - path: measure_cross_domain_creepage.py
   purpose: 'Pairwise HV<->SELV creepage measurement tool (NOT a gate, not wired into CI): enumerates every cross-domain pad
     pair, measures exact pad-edge-to-pad-edge distance, classifies each violation body_free/body_crossing/unknown against
@@ -1141,6 +1225,25 @@ scripts:
   - typing
   - pydantic
   - temper_placer.constraint_types.config
+- path: physics_soundness_register_gate.py
+  purpose: "CI gate: enforce the physics soundness-proof register (R20, plan 2026-08-02-004) \u2014 every physics-gated constraint\
+    \ encoder must carry a Chebyshev-style soundness proof (or classified-error proof) linked from power_pcb_dataset/physics_soundness_register.yaml;\
+    \ AST scan of the physics modules detects new physics-gated surfaces"
+  owner: bennet
+  last_run: '2026-08-02'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - ast
+  - collections.abc
+  - dataclasses
+  - pathlib
+  - re
+  - sys
+  - typing
+  - yaml
 - path: pipeline_metrics.py
   purpose: Record pipeline metrics to JSON for trend analysis (CI-invoked)
   owner: pipeline

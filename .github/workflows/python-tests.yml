@@ -132,6 +132,9 @@ on:
       - 'scripts/_lib/measurement_provenance.py'
       - 'scripts/tests/_lib/test_lib_measurement_provenance.py'
       - 'power_pcb_dataset/drc_ceiling.json'
+      - 'power_pcb_dataset/physics_soundness_register.yaml'
+      - 'scripts/physics_soundness_register_gate.py'
+      - 'packages/temper-placer/tests/scripts/test_physics_soundness_register_gate.py'
   pull_request:
     branches: [main]
     paths:
@@ -224,6 +227,9 @@ on:
       - 'scripts/_lib/measurement_provenance.py'
       - 'scripts/tests/_lib/test_lib_measurement_provenance.py'
       - 'power_pcb_dataset/drc_ceiling.json'
+      - 'power_pcb_dataset/physics_soundness_register.yaml'
+      - 'scripts/physics_soundness_register_gate.py'
+      - 'packages/temper-placer/tests/scripts/test_physics_soundness_register_gate.py'
   workflow_dispatch:
   schedule:
     - cron: '0 3 * * *'  # nightly at 3am UTC
@@ -661,9 +667,9 @@ jobs:
             # knows about (same special-case as the Makefile's `extensions` target).
             if [ "$manifest" = "packages/temper-placer/temper-constraints/Cargo.toml" ]; then
               PYO3_USE_ABI3_FORWARD_COMPATIBILITY=1 \
-                cargo clippy --manifest-path "$manifest" --all-targets -- -D warnings
+                cargo clippy --manifest-path "$manifest" --all-features --all-targets -- -D warnings
             else
-              cargo clippy --manifest-path "$manifest" --all-targets -- -D warnings
+              cargo clippy --manifest-path "$manifest" --all-features --all-targets -- -D warnings
             fi
           done
 
@@ -1093,6 +1099,31 @@ jobs:
           uv run python3 scripts/gen_schematics.py --check --no-oracle
           git diff --exit-code pcb/*.kicad_sch
 
+
+      - name: Board-defect corpus unit tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: >
+          uv run pytest scripts/tests/test_board_defect_mutator.py
+          scripts/tests/test_check_board_defect_corpus.py -v --tb=short
+
+      - name: Board-defect mutation corpus (R38)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        # Fail-closed. Plan 2026-08-02-024: for each of the three real
+        # defect classes (component off-board, pad short, creepage
+        # crossing) the corpus re-derives a mutated copy of the committed
+        # pcb/temper.kicad_pcb -- which is never modified, so the DRC
+        # ceiling re-measurement convention stays inert -- and asserts the
+        # mutated board fails its owning gate (count-delta vs the clean
+        # board and the recorded drc_ceiling.json ceilings), while the
+        # unmutated board passes the corpus's clean-board control (scoped
+        # to the DRC gate categories that are green on the clean board;
+        # the REQ-SAFE-01 creepage gate is red on main today and is
+        # asserted per-class instead -- see scripts/board_defect_corpus.yaml
+        # classes.creepage.baseline_note). Never `continue-on-error`: a
+        # gate that cannot run must exit non-zero (exit 2 GATE ERROR
+        # without kicad-cli or the compiled netlist).
+        run: uv run python scripts/check_board_defect_corpus.py
+
   # Split out of Core Tests 2026-07-28. Gates that compare two representations
   # of the same fact and fail on drift: generated code vs its manifest, a
   # derived doc vs its source doc, firmware constants vs elec/src/main.ato,
@@ -1442,6 +1473,10 @@ jobs:
       - name: Import boundary enforcement
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python scripts/import_linter_gate.py
+
+      - name: Physics soundness-proof register gate (R20)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python scripts/physics_soundness_register_gate.py
 
       - name: Undeclared-import gate tests
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}

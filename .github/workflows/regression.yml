@@ -7,6 +7,26 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 on:
+  # On-demand only. `PRODUCTION_ROUTER_OUTPUT_*` in
+  # tests/placer/cp_sat/test_regression_drc.py is a ratchet whose provenance
+  # blocks record macOS arm64 measurements, while the gate is enforced in this
+  # container -- and kicad-cli's geometric counts differ between the two (+107
+  # on `total`, measured on one commit; see
+  # docs/evidence/2026-08-04-router-output-rebaseline-interim.md). A re-baseline
+  # therefore has to be measured here. This runs as a step inside the existing
+  # `regression` job rather than as a new job, so it reuses that job's setup and
+  # adds nothing to the per-push job count -- the concurrency ceiling is ~24
+  # against ~40 requested per push.
+  workflow_dispatch:
+    inputs:
+      measure_router_baseline:
+        description: 'Measure router-output DRC constants in this container (N>=11)'
+        type: boolean
+        default: false
+      drc_runs:
+        description: 'DRC sample size'
+        type: string
+        default: '15'
   push:
     branches: [main, feat/**]
     paths:
@@ -111,6 +131,28 @@ jobs:
       # every board failed at setup. It was masked as "JAX nondeterministic on
       # CI runners" -- a description of flakiness, not of a deleted capability.
       # Retired rather than left masked; see docs/evidence/ for the audit.
+
+      # Reports the router-output DRC constants as measured in THIS container,
+      # which is where the gate is enforced. Asserts nothing and writes no
+      # constants -- landing them is a human ratchet decision requiring a
+      # provenance block, per AGENTS.md's same-PR re-measurement rule. Runs
+      # before the test steps so a red gate does not prevent the measurement
+      # that would explain it.
+      - name: Measure router-output DRC baseline (on demand)
+        if: ${{ inputs.measure_router_baseline }}
+        run: |
+          uv run python scripts/measure_router_output_baseline.py \
+            --drc-runs "${{ inputs.drc_runs }}" \
+            --route-runs 2 \
+            --json-out router-output-baseline.json
+
+      - name: Upload measured baseline
+        if: ${{ inputs.measure_router_baseline }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: router-output-baseline
+          path: router-output-baseline.json
+          if-no-files-found: error
 
       - name: KiCad DRC truth gate
         run: uv run python scripts/ci_check_drc.py --backend kicad-cli

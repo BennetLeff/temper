@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """K3 relay footprint embed-swap: G5LE-1 -> temper:Relay_SPDT_Schrack-RT314012.
 
-# provenance: commit=6ab24dd8e251a71904f008757653e8d04bc8949e dirty=false
+# provenance: commit=de59c045822194bbaffbefeb542cc48f895ecc82 dirty=false
 
 Mirrors the K2 swap (#524) as applied in the repo's own precedent commit
 (6af87796f, "feat(pcb,elec): swap K3 discharge relay ..." on branch
