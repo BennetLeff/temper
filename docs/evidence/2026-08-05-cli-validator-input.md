@@ -1,4 +1,4 @@
-<!-- provenance: commit=UNKNOWN dirty=false -->
+<!-- provenance: commit=d1f6d5e9644b9ec03c1b28ff4f300968548e3b9b dirty=false -->
 
 # CLI optimize path REQ-SAFE-01 validator_input wiring — issue #617 second half
 

@@ -1,4 +1,4 @@
-# provenance: commit=UNKNOWN dirty=false
+# provenance: commit=d1f6d5e9644b9ec03c1b28ff4f300968548e3b9b dirty=false
 """Reproduction for docs/evidence/2026-08-05-cli-validator-input.md.
 
 Exercises the CLI optimize --no-loop path's validator_input wiring
