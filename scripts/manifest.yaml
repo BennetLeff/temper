@@ -1,8 +1,8 @@
 _meta:
   last_audit_date: '2026-08-02'
-  total_scripts: 98
+  total_scripts: 100
   counts:
-    keep: 98
+    keep: 100
     ticket: 0
   ticket_scripts_deleted: 40
 scripts:
@@ -95,6 +95,25 @@ scripts:
   - ast
   - pathlib
   - sys
+- path: board_defect_mutator.py
+  purpose: 'Board-defect mutation corpus (R38, plan 2026-08-02-024): deterministic seeded transforms that produce a mutated
+    copy of pcb/temper.kicad_pcb for each defect class (component off-board, pad short, creepage crossing). The committed
+    board is never modified; every mutation writes a run-time copy.'
+  owner: bennet
+  last_run: '2026-08-02'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - argparse
+  - dataclasses
+  - hashlib
+  - kiutils.board
+  - kiutils.items.common
+  - pathlib
+  - shutil
+  - sys
+  - typing
 - path: calibrate_drc_ceiling.py
   purpose: Calibrate DRC violation ceiling for Rust DRC engine
   owner: pipeline
@@ -125,6 +144,25 @@ scripts:
   - pathlib
   - sys
   - yaml
+- path: check_board_defect_corpus.py
+  purpose: 'Board-defect mutation corpus runner (R38, plan 2026-08-02-024): for each defect class, re-derive the mutated board
+    from the committed board and assert its owning gate fails (count-delta); assert the clean board passes the corpus gates
+    (anti-vacuity, scoped to gates green on the clean board). Fails closed (exit 2) without kicad-cli or the REQ-SAFE-01 inputs.'
+  owner: bennet
+  last_run: '2026-08-02'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - collections
+  - dataclasses
+  - json
+  - pathlib
+  - shutil
+  - sys
+  - tempfile
+  - typing
 - path: check_copper_net_consistency.py
   purpose: 'Board-copper / netlist consistency gate: catch corrupted net ordinals.'
   owner: bennet
