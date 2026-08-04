@@ -600,7 +600,7 @@ def measure_delta_bands(
 
     for _ in range(n_samples):
         result = run_drc(pcb_path)
-        kicad_by_class = Counter()
+        kicad_by_class: Counter[str] = Counter()
         for err in result.errors:
             cls = KICAD_TYPE_TO_CLASS.get(err.rule)
             if cls:
