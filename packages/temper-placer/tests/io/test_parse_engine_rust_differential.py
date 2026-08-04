@@ -267,6 +267,287 @@ def test_net0_trace_remains_unnamed():
         assert nets == {None, "GND"}, f"net0 fixture trace nets: {nets}"
 
 # ---------------------------------------------------------------------------
+# Discriminating fixtures from the adversarial review (each RED first).
+# ---------------------------------------------------------------------------
+
+
+def _board(body: str, nets: str = '  (net 0 "")\n  (net 1 "GND")\n') -> str:
+    """A minimal valid board: nets, an Edge.Cuts outline, and `body`."""
+    return (
+        "(kicad_pcb (version 20211014) (generator test)\n"
+        "  (general (thickness 1.6))\n"
+        '  (layers (0 "F.Cu" signal) (31 "B.Cu" signal) (44 "Edge.Cuts" user))\n'
+        f"{nets}"
+        '  (gr_line (start 0 0) (end 100 0) (layer "Edge.Cuts"))\n'
+        '  (gr_line (start 100 0) (end 100 100) (layer "Edge.Cuts"))\n'
+        '  (gr_line (start 100 100) (end 0 100) (layer "Edge.Cuts"))\n'
+        '  (gr_line (start 0 100) (end 0 0) (layer "Edge.Cuts"))\n'
+        f"{body}"
+        ")\n"
+    )
+
+
+def _raised_by(fn):
+    """Run `fn()`; return the exception type it raised, or None if it
+    returned normally. (B017 forbids asserting blind `pytest.raises(Exception)`
+    -- the oracle raises a different exception type per malformed token
+    family, so the probe asserts "an exception of some type" instead.)"""
+    try:
+        fn()
+        return None
+    except Exception as e:
+        return type(e)
+
+
+def _assert_both_raise(content: str, label: str):
+    """Both arms must fail closed on a malformed board (the parity contract:
+    a token kiutils raises on must not silently degrade to a default value in
+    Rust)."""
+    import tempfile
+
+    def oracle_run():
+        with tempfile.TemporaryDirectory() as d:
+            p = Path(d) / "malformed.kicad_pcb"
+            p.write_text(content)
+            _oracle_parser.parse_kicad_pcb(p, normalize=True)
+
+    assert _raised_by(oracle_run) is not None, f"{label}: oracle did not raise"
+    assert _raised_by(
+        lambda: _PARSE_ENGINE.parse_kicad_pcb(content, normalize=True)
+    ) is not None, f"{label}: Rust did not raise (fail-open)"
+
+
+def _assert_same_content(content: str, label: str):
+    import tempfile
+
+    with tempfile.TemporaryDirectory() as d:
+        p = Path(d) / "fixture.kicad_pcb"
+        p.write_text(content)
+        oracle = _oracle_parser.parse_kicad_pcb(p, normalize=True)
+    rust = _PARSE_ENGINE.parse_kicad_pcb(content, normalize=True)
+    assert_same(rust, oracle, label)
+
+
+# P1a: an empty-string Reference property must DROP the footprint (the
+# oracle's `if not ref or ref.startswith("REF**")` treats "" as falsy). The
+# corpus has no empty-reference footprint, so only this fixture discriminates
+# the phantom-component mutant.
+EMPTY_REF_FIXTURE = _board(
+    '  (footprint "R:R_0603" (layer "F.Cu") (at 50 50)\n'
+    '    (property "Reference" "")\n'
+    '    (pad "1" smd rect (at -0.8 0) (size 1.0 1.0) (layers "F.Cu" "F.Paste" "F.Mask") (net 1 "GND"))\n'
+    "  )\n"
+)
+
+
+def test_empty_ref_property_footprint_dropped():
+    _assert_same_content(EMPTY_REF_FIXTURE, "empty-ref fixture")
+    comps = _PARSE_ENGINE.parse_kicad_pcb(EMPTY_REF_FIXTURE, normalize=True).netlist.components
+    assert comps == [], f"empty-reference footprint emitted: {comps}"
+
+
+# P1a: a footprint token with no libId (its first child is `(layer ...)`)
+# makes kiutils store the RAW LIST as entryName, and the oracle's
+# `_get_footprint_reference` raises AttributeError on `ename.startswith` --
+# the engine must fail closed the same way, never emitting a phantom
+# Component with ref=''.
+NO_LIBID_FIXTURE = _board(
+    '  (footprint (layer "F.Cu") (at 50 50)\n'
+    '    (pad "1" smd rect (at -0.8 0) (size 1.0 1.0) (layers "F.Cu" "F.Paste" "F.Mask") (net 1 "GND"))\n'
+    "  )\n"
+)
+
+
+def test_no_libid_footprint_raises():
+    _assert_both_raise(NO_LIBID_FIXTURE, "no-libId fixture")
+
+
+# P1b: a nameless pad `(net 1)` makes kiutils' Net.from_sexpr raise
+# IndexError on `exp[2]`; the engine must fail closed. (A full ParseResult
+# with pin.net='' would be fail-open -- the pin is then silently dropped as
+# unconnected by the `if not pin.net` filter.)
+NAMELESS_PAD_NET_FIXTURE = _board(
+    '  (footprint "R:R_0603" (layer "F.Cu") (at 50 50)\n'
+    '    (property "Reference" "R1")\n'
+    '    (pad "1" smd rect (at -0.8 0) (size 1.0 1.0) (layers "F.Cu" "F.Paste" "F.Mask") (net 1))\n'
+    "  )\n"
+)
+
+
+def test_nameless_pad_net_raises():
+    _assert_both_raise(NAMELESS_PAD_NET_FIXTURE, "nameless pad net fixture")
+
+
+NAMELESS_BOARD_NET_FIXTURE = _board(
+    '  (footprint "R:R_0603" (layer "F.Cu") (at 50 50)\n'
+    '    (property "Reference" "R1")\n'
+    '    (pad "1" smd rect (at -0.8 0) (size 1.0 1.0) (layers "F.Cu" "F.Paste" "F.Mask") (net 1 "GND"))\n'
+    "  )\n",
+    nets='  (net 0 "")\n  (net 1)\n',
+)
+
+
+def test_nameless_board_net_raises():
+    _assert_both_raise(NAMELESS_BOARD_NET_FIXTURE, "nameless board net fixture")
+
+
+# P2b: a via without a `(layers ...)` token. kiutils' Via defaults layers to
+# [] and the oracle's `tuple(track.layers) if hasattr(...)` LIVE branch
+# yields () (the ("F.Cu","B.Cu") else-branch is dead code there). Empty must
+# stay empty. Needs a footprint: the parse early-returns empty traces on a
+# footprint-less board, which masks this.
+VIA_NO_LAYERS_FIXTURE = _board(
+    '  (footprint "R:R_0603" (layer "F.Cu") (at 50 50)\n'
+    '    (property "Reference" "R1")\n'
+    '    (pad "1" smd rect (at 0 0) (size 1.0 1.0) (layers "F.Cu" "F.Paste" "F.Mask") (net 1 "GND"))\n'
+    "  )\n"
+    "  (via (at 10 10) (size 0.6) (drill 0.3) (net 1))\n"
+)
+
+
+def test_via_without_layers_stays_empty():
+    _assert_same_content(VIA_NO_LAYERS_FIXTURE, "via-no-layers fixture")
+    vias = _PARSE_ENGINE.parse_kicad_pcb(VIA_NO_LAYERS_FIXTURE, normalize=True).vias
+    assert vias and vias[0].layers == (), f"via layers: {vias[0].layers}"
+
+
+# P2c: a drill offset keeps its angle and the unlocked marker -- kiutils'
+# Position.from_sexpr stores exp[3] as angle unless it is 'unlocked' and
+# scans the WHOLE list for 'unlocked'.
+DRILL_OFFSET_ANGLE_FIXTURE = _board(
+    '  (footprint "R:R_0603" (layer "F.Cu") (at 50 50)\n'
+    '    (property "Reference" "R1")\n'
+    '    (pad "1" thru_hole circle (at 0 0) (size 2.0 2.0) (drill 1.5 (offset 0.5 0.25 45)) (net 1 "GND"))\n'
+    '    (pad "2" thru_hole circle (at 0 2) (size 2.0 2.0) (drill 1.5 (offset 0.5 0.25 45 unlocked)) (net 1 "GND"))\n'
+    "  )\n"
+)
+
+
+def test_drill_offset_keeps_angle_and_unlocked():
+    _assert_same_content(DRILL_OFFSET_ANGLE_FIXTURE, "drill-offset-angle fixture")
+    pins = _PARSE_ENGINE.parse_kicad_pcb(DRILL_OFFSET_ANGLE_FIXTURE, normalize=True).netlist.components[0].pins
+    assert pins[0].drill.offset.angle == 45, pins[0].drill.offset
+    assert pins[0].drill.offset.unlocked is False, pins[0].drill.offset
+    assert pins[1].drill.offset.angle == 45, pins[1].drill.offset
+    assert pins[1].drill.offset.unlocked is True, pins[1].drill.offset
+
+
+# P2e: `(track_width 0)` -- the oracle's `get_float(...) or get_float(...)`
+# treats the parsed 0.0 as falsy and falls through to None (-> the 0.25
+# default downstream); `Some(0.0).or(...)` would keep 0.0 and diverge.
+TRACK_WIDTH_ZERO_NETCLASS = (
+    "(kicad_pcb (version 20211014) "
+    '(net_class "Default" (clearance 0.2) (track_width 0))'
+    ")\n"
+)
+
+
+def test_track_width_zero_net_class_parity():
+    oracle = _oracle_nets.extract_net_classes(TRACK_WIDTH_ZERO_NETCLASS)
+    rust = _PARSE_ENGINE.extract_net_classes(TRACK_WIDTH_ZERO_NETCLASS)
+    assert_same(rust, oracle, "track_width 0 net class")
+    assert rust["Default"]["trace_width"] is None
+
+
+# P2a: tokenizer conformance -- the 'kiutils-exact' claim asserted on
+# adversarial token strings, not just the corpus. Both arms must tokenize
+# identically (and both must raise on the unbalanced bare-quote inputs).
+def test_tokenizer_kiutils_exact():
+    from kiutils.utils.sexpr import parse_sexp
+
+    cases = [
+        "(at 5^0 50)",            # caret: bare token split, `^` skipped
+        '(x "R1"())',             # quote not followed by )/ws -> bare, quotes kept
+        '(x "a\\"b"())',          # backslash-quote run, bad lookahead -> bare
+        '(fp_text ref "a\\"b")',  # escaped quote inside a proper string
+        "(at +5 10)",             # `+5`: the int form has no `+` -> bare string
+        "(at -5 10)",             # `-5` int
+        "(at +5.0 10)",           # `+5.0`: the decimal form accepts `+` -> int 5
+        "(at 5.0 10)",            # integral decimal -> int
+        "(at 5.5 10)",            # fractional decimal -> float
+        "(a\r\nb)",               # CRLF whitespace
+        '"unterminated',          # unterminated string -> bare token
+        "(net 5)",                # bare numbers stay ints
+        "5^0",
+        '"a"b" c',
+        "(at 5 10 unlocked)",     # unlocked marker is a bare token
+        "(a (b ^ c) d)",
+        '(x "5")',                # proper string
+        '(x "5"y)',               # bad lookahead -> bare with quotes
+    ]
+    for case in cases:
+        oracle = parse_sexp(case)
+        rust = _PARSE_ENGINE.tokenize(case)
+        assert rust == oracle, f"tokenizer mismatch for {case!r}: rust={rust!r} oracle={oracle!r}"
+    # Unbalanced bare-quote inputs raise on both arms (fail-closed parity).
+    for case in ['"R1"(', '"a\\"b"(']:
+        assert _raised_by(lambda case=case: parse_sexp(case)) is not None, f"oracle accepted {case!r}"
+        assert _raised_by(lambda case=case: _PARSE_ENGINE.tokenize(case)) is not None, (
+            f"rust accepted unbalanced {case!r}"
+        )
+
+
+# P2d: courtyard Strategy-2 must include unnumbered pads. The oracle iterates
+# `for pad in fp.pads:` with no number filter, while its `_extract_pad_sizes`
+# skips empty pad numbers -- so the engine's raw `pad_sizes` surface keeps
+# skipping them (parity) and the shim's pad-bbox fallback reads the separate
+# `pad_bbox_inputs` surface (all pads).
+UNNUMBERED_PAD_COURTYARD_FIXTURE = _board(
+    '  (footprint "R:R_0603" (layer "F.Cu") (at 50 50)\n'
+    '    (property "Reference" "R1")\n'
+    '    (pad "" smd rect (at 5 0) (size 4 4) (layers "F.Cu" "F.Paste" "F.Mask") (net 1 "GND"))\n'
+    "  )\n"
+)
+
+
+def test_courtyard_unnumbered_pad_parity():
+    import tempfile
+
+    from temper_placer.io.kicad_metadata import extract_kicad_metadata as shim_extract
+
+    with tempfile.TemporaryDirectory() as d:
+        p = Path(d) / "unnumbered.kicad_pcb"
+        p.write_text(UNNUMBERED_PAD_COURTYARD_FIXTURE)
+        oracle = _oracle_metadata.extract_kicad_metadata(p)
+        rust = shim_extract(p)
+    assert_same(rust, oracle, "unnumbered-pad courtyard fixture")
+    assert list(rust.courtyards["R1"].points) == [
+        (-2.5, -2.5),
+        (2.5, -2.5),
+        (2.5, 2.5),
+        (-2.5, 2.5),
+    ]
+
+
+# P3: malformed positions fail closed -- kiutils' Position.from_sexpr raises
+# for a list shorter than 3 items; the engine must not silently default to
+# (0,0).
+TRUNCATED_AT_FIXTURE = _board(
+    '  (footprint "R:R_0603" (layer "F.Cu") (at 5)\n'
+    '    (property "Reference" "R1")\n'
+    '    (pad "1" smd rect (at 0 0) (size 1.0 1.0) (layers "F.Cu" "F.Paste" "F.Mask") (net 1 "GND"))\n'
+    "  )\n"
+)
+
+
+def test_truncated_position_raises():
+    _assert_both_raise(TRUNCATED_AT_FIXTURE, "truncated position fixture")
+
+
+# P3: an oval drill missing its width -- kiutils does `object.width =
+# exp[3]` unconditionally (IndexError); fail closed the same way.
+OVAL_DRILL_NO_WIDTH_FIXTURE = _board(
+    '  (footprint "R:R_0603" (layer "F.Cu") (at 50 50)\n'
+    '    (property "Reference" "R1")\n'
+    '    (pad "1" thru_hole oval (at 0 0) (size 2.0 1.0) (drill oval 1.5) (net 1 "GND"))\n'
+    "  )\n"
+)
+
+
+def test_oval_drill_missing_width_raises():
+    _assert_both_raise(OVAL_DRILL_NO_WIDTH_FIXTURE, "oval drill no width fixture")
+
+# ---------------------------------------------------------------------------
 # R1a -- extract_footprint_positions parity (pure-text regex surface).
 # ---------------------------------------------------------------------------
 

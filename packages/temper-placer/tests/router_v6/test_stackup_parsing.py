@@ -50,16 +50,31 @@ def _board_text(zones: list[tuple[str, str]] | None = None, layers_decl: list[st
     )
 
 
-def _board_fallback_text(layers_decl: list[str], thickness: float = 1.6) -> str:
+def _board_fallback_text(
+    layers_decl: list[str],
+    thickness: float = 1.6,
+    zones: list[tuple[str, str]] | None = None,
+) -> str:
+    """Fallback-path board text (no declared stackup): the layer declaration
+    drives the .Cu count; optional zones drive the plane assignments."""
     layers = "  (layers\n"
     for i, name in enumerate(layers_decl):
         layers += f'    ({i} "{name}" signal)\n'
     layers += "  )\n"
+    zone_sexprs = ""
+    for net_name, layer in zones or []:
+        zone_sexprs += (
+            f'  (zone (net 1) (net_name "{net_name}") (layer "{layer}")\n'
+            "    (polygon (pts (xy 0 0) (xy 10 0) (xy 10 10) (xy 0 10)))\n"
+            "  )\n"
+        )
     return (
         "(kicad_pcb (version 20211014) (generator test)\n"
         f"  (general (thickness {thickness}))\n"
         f"{layers}"
         '  (net 0 "")\n'
+        '  (net 1 "GND")\n'
+        f"{zone_sexprs}"
         ")\n"
     )
 
@@ -90,18 +105,42 @@ def test_parse_stackup_from_setup():
 
 def test_parse_stackup_fallback():
     """Boards without a declared stackup fall back to the layer-count
-    heuristic."""
+    heuristic. Per-layer plane/mixed/signal classification is pinned (the
+    GND zone on In1.Cu must turn that layer into a plane and surface the
+    plane_net -- the plane-assignment assertions the migration temporarily
+    lost are restored here)."""
     text = _board_fallback_text(
-        ["F.Cu", "In1.Cu", "In2.Cu", "B.Cu", "F.SilkS", "B.SilkS", "Edge.Cuts"]
+        ["F.Cu", "In1.Cu", "In2.Cu", "B.Cu", "F.SilkS", "B.SilkS", "Edge.Cuts"],
+        zones=[("GND", "In1.Cu")],
     )
     stackup = _extract_stackup(None, [], pcb_content=text)
 
     assert stackup.layer_count == 4
     assert len(stackup.layers) == 4
-    names = [layer.name for layer in stackup.layers]
-    assert names[0] == "F.Cu"
-    assert names[-1] == "B.Cu"
+
+    # F.Cu: signal default
+    assert stackup.layers[0].name == "F.Cu"
+    assert stackup.layers[0].layer_type == "signal"
+    assert stackup.layers[0].plane_net is None
+
+    # In1.Cu: plane due to the GND zone
+    assert stackup.layers[1].name == "In1.Cu"
+    assert stackup.layers[1].layer_type == "plane"
+    assert stackup.layers[1].plane_net == "GND"
+
+    # In2.Cu: mixed default
+    assert stackup.layers[2].name == "In2.Cu"
+    assert stackup.layers[2].layer_type == "mixed"
+    assert stackup.layers[2].plane_net is None
+
+    # B.Cu: signal default
+    assert stackup.layers[3].name == "B.Cu"
+    assert stackup.layers[3].layer_type == "signal"
+    assert stackup.layers[3].plane_net is None
+
+    # Fallback assumes default thickness logic and no dielectrics.
     assert abs(stackup.total_thickness_mm - 1.6) < 0.0001
+    assert len(stackup.dielectrics) == 0
 
 
 def test_parse_stackup_fallback_declared_role_ignores_zone_content():
