@@ -75,16 +75,34 @@ diff:
 visualize:
 	cd $(ELEC_DIR) && uv tool run --from 'atopile>=0.2,<0.3' ato --non-interactive view $(ATO_ENTRY)
 
-# Interim: points at the quarantined 33-component benchmark fixture until the
-# real production board is generated from schematics. The identity gate (plan
-# 2026-07-15-001 U4) will make routing fail-closed against a fixture-path board;
-# re-point PCB_FILE at the production board once it exists.
-PCB_FILE = pcb/benchmarks/temper_fixture_33.kicad_pcb
+# Re-pointed 2026-08-04 at the production board, which now exists -- this is the
+# "re-point PCB_FILE at the production board once it exists" the previous comment
+# here asked for. It had pointed at the quarantined 33-net benchmark fixture, so
+# `make route` (and therefore `make build`) routed a fixture and `make drc`
+# measured that fixture's output rather than the board.
+PCB_FILE = pcb/temper.kicad_pcb
 ROUTED_PCB = pcb/temper_routed.kicad_pcb
 
+# Was `scripts/internal_route.py`, which has been unable to even import since
+# 2026-07-10: it reads `temper_placer.io.trace_writer` (deleted in 6d9e24db7 as
+# dead code) and `jax` (declared in no pyproject.toml and absent from uv.lock).
+# `docs/evidence/2026-07-30-rotation-sign-remaining-sites.md` recorded the script
+# as dead on 2026-07-30; the Makefile kept calling it regardless, so this target
+# has been broken, not slow or wrong, for roughly four weeks.
+#
+# scripts/route_board.py is the live path -- it calls
+# temper_placer.router_v6.adapter.route_pcb, the same entry point that produced
+# the committed route in 556ccf4f and that
+# test_production_board_routing_drc_regression exercises as a CI gate. Its own
+# docstring already described itself as "the working entry point that `make
+# route` and `scripts/internal_route.py` are not"; only this wiring was missing.
+#
+# --cell-size is not carried over: route_pcb owns its own grid parameters, and
+# the committed route and the CI gate both use its defaults. Passing 0.2 here
+# would have made `make route` diverge from the path everything else measures.
 route: netlist
-	@echo "Running internal maze router..."
-	uv run python3 scripts/internal_route.py $(PCB_FILE) -o $(ROUTED_PCB) --cell-size 0.2
+	@echo "Routing $(PCB_FILE) through router_v6 (route_pcb)..."
+	uv run python3 scripts/route_board.py --pcb $(PCB_FILE) --output $(ROUTED_PCB)
 
 # --all-track-errors is load-bearing, for determinism as much as completeness.
 # Without it KiCad reports only a SUBSET of the errors on each track, and which
