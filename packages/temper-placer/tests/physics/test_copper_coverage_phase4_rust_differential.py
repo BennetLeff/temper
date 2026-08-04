@@ -6,19 +6,25 @@ The pre-migration implementations are pinned here as oracles (verbatim
 semantics, including: cell centres `ox + ((col + 0.5) * cs)`; the rect
 inside-board compare `cx >= ox && cx <= ox + w && cy >= oy && cy <= oy
 + h`; keepout rects `kx0 <= cx <= kx1 && ky0 <= cy <= ky1`; mounting-
-hole circles `(cx - mx)**2 + (cy - my)**2 < kr**2` with INT-exponent
-numpy power (== host libm pow, measured 2026-08-04) and `kr**2` on a
-Python float (== libm pow); the `np.minimum(1.0, grid + cell_cov)`
-per-trace accumulation with NaN propagation; and the full
+hole circles `(cx - mx)**2 + (cy - my)**2 < kr**2` — where the ARRAY
+`** 2` with an int exponent is numpy's per-element x*x MULTIPLY path
+(NOT libm pow; measured 2026-08-04 on numpy 2.4.6, they differ by
+1 ulp at the discriminators below) while the FLOAT-scalar `kr**2` IS
+CPython `float.__pow__` → libm pow — and the `np.minimum(1.0, grid +
+cell_cov)` per-trace accumulation with NaN propagation; and the full
 `copper_coverage_grid` end to end with traces).  Any change to the Rust
 kernels (packages/temper-thermal/src/copper_coverage.rs) or the Python
 delegation that disagrees with the oracle fails here, bit-exactly.
 
 Bit-exactness notes (Wave 4 catalog):
 
-- **B1 (host libm via dlsym):** `(cx - mx) ** 2` on a numpy array with
-  an INT exponent is numpy's per-element power, bit-identical to host
-  libm `pow(x, 2.0)`; `kr ** 2` on a Python float is libm pow.
+- **B1 (host libm via dlsym):** the circle test mixes two `** 2`
+  semantics: `(cx - mx) ** 2` on a numpy ARRAY with an int exponent is
+  the x*x multiply path (bit-identical to `a * a`, NOT libm pow), while
+  `kr ** 2` on a Python FLOAT is libm pow.  The kernel mirrors both
+  (mul for the offsets, hostmath pow for the radius); a future reader
+  must NOT "normalise" one toward the other — the constructed
+  adjacent-float discriminators below pin the divergence.
 - **`np.minimum` NaN semantics:** NaN propagates from either operand.
 - **Mask accumulation** is bool OR (order-independent); the trace
   accumulation is per-trace in caller list order.

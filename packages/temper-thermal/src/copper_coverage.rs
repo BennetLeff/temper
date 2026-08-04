@@ -15,13 +15,18 @@
 //!
 //! ## Bit-exactness discipline (Wave 4 catalog entries)
 //!
-//! - **B1 (host libm via dlsym):** `(cx - mx) ** 2` on a numpy array
-//!   with an INT exponent dispatches to numpy's per-element power,
-//!   measured bit-identical to host libm `pow(x, 2.0)` (2026-08-04;
-//!   note `np.power(a, 2.0)` with a FLOAT exponent is numpy's x*x path
-//!   and is NOT libm — the reference here uses the int-exponent form).
-//!   `kr ** 2` on a Python float is libm `pow` too.  Both resolve via
-//!   `hostmath`.
+//! - **B1 (host libm via dlsym):** the mounting-hole circle test mixes
+//!   TWO different `** 2` semantics (measured 2026-08-04 on this repo's
+//!   numpy 2.4.6): `(cx - mx) ** 2` on a NUMPY ARRAY with an int
+//!   exponent dispatches to numpy's per-element x*x MULTIPLY path
+//!   (bit-identical to `a * a`, NOT libm pow — they differ by 1 ulp at
+//!   the discriminator below), while `kr ** 2` on a PYTHON FLOAT is
+//!   CPython `float.__pow__` → host libm `pow(kr, 2.0)`.  The kernel
+//!   mirrors both exactly: `dx * dx + dy * dy` for the array offsets
+//!   (B7) and `hostmath::pow` for the scalar radius (B1).  A
+//!   pow-for-offsets kernel or a kr·kr kernel is bit-wrong; both are
+//!   pinned by constructed adjacent-float discriminators (see the
+//!   differential).  Do NOT "simplify" the kernel toward one semantics.
 //! - **B7 (f64 operation order):** cell centres are
 //!   `ox + ((col + 0.5) * cs)` — the numpy `(col_idx + 0.5) * cs + ox`
 //!   order; `(cx - mx)**2 + (cy - my)**2 < kr**2` keeps the
