@@ -685,3 +685,282 @@ commit `a47527751`).
   R2 for delegation-only modules applies.
 - Consumer suites run unchanged against the pyclasses: heuristics/power_stage
   and the `core/__init__.py` re-export path (verified in the migration PR).
+
+---
+
+# YAML loaders (netclass + loop) — Verification
+
+The YAML loaders (`src/loaders.rs`) are the FIRST Wave 4 Phase 3 "formats/IO"
+migration — candidate 2 of
+`docs/plans/2026-08-02-001-feat-wave4-phase3-formats-io-plan.md`, the phase's
+designated opportunistic first pull. Ported from
+`temper_placer/io/netclass_loader.py` (83 LOC) and
+`temper_placer/io/loop_loader.py` (319 LOC); both Python modules are now
+pure-delegation re-exports of the `temper_design_bundle_python` symbols.
+
+## Candidate scorecard (why the loaders, and why they are candidate 2)
+
+| Candidate | LOC | Risk | Dependency | Verdict |
+|-----------|-----|------|------------|---------|
+| `io/netclass_loader.py` + `io/loop_loader.py` | 402 | Low | none — target contracts (`DesignRules`, `Loop`/`LoopCollection`) landed as pyclasses in Phase 2 | **SELECTED** (plan candidate 2) |
+| `core/board.py` / `core/netlist.py` (candidate 1) | 1,243 | High | is itself the parse-chain spine | Deferred to its own pull — the loaders are explicitly independent of it |
+| `io/kicad_parser.py` + `_parse_*` (candidate 3) | 1,983 | High | depends on candidate 1 | Not pulled |
+| `io/config_loader.py` + reference loaders (candidate 5) | 1,677 | Medium | pydantic + `_constraint_types`; constructs `Board`/`NetGraph` | Not pulled — depends on candidate 1 |
+
+The plan's own dependency rationale is the selection argument: candidates 2
+and 6 are the only Phase-3 candidates independent of the parse chain, and
+candidate 2's parity oracle (the shipped `configs/netclass_rules.yaml` and
+`configs/templates/loops/*.yaml`) already exists in-repo.
+
+## Migration boundary (what moved, and what deliberately did not)
+
+Three third-party/stdlib surfaces are called back across the pyo3 boundary
+rather than reimplemented. Each is a correctness decision with a named
+divergence that reimplementation would have introduced:
+
+| Kept | Why keeping it is the correct call |
+|------|------------------------------------|
+| `yaml.safe_load` (the tokenizer) | PyYAML implements YAML **1.1**, `serde_yaml` implements YAML **1.2**. They disagree on inputs these files can contain: `on`/`off`/`yes` are booleans under 1.1 and strings under 1.2; `012` is octal `10` under 1.1 and decimal `12` under 1.2; `1_000` is the integer 1000 under 1.1 and a string under 1.2. Re-tokenizing would have *changed behaviour* while the differential on the shipped fixtures stayed green. Pinned by `test_load_loop_template_yaml_11_booleans_parity`, which asserts the 1.1 resolution is in force so the test cannot pass vacuously. |
+| `pathlib.Path.glob` + `sorted` | `PurePath` ordering and glob pattern semantics (hidden files, `**`, character classes) are intricate and version-sensitive; delegating makes `load_loop_collection`'s traversal order exact by construction. Pinned by `test_load_loop_collection_ordering_parity` / `..._pattern_parity`. |
+| `yaml.dump` (the emitter) | The emitted BYTES are the contract (`save_loop_to_yaml` output is re-read by the loader and by humans). PyYAML's emitter carries its own float representer (`repr(x).lower()` plus the `.0e` fixup) and scalar-quoting rules; a Rust emitter would have produced different, equally-valid YAML. Pinned by `test_save_loop_to_yaml_byte_identical` (byte-for-byte, 7 branch-covering loops). |
+
+Contract construction is likewise by *identity*, not transcription: the
+loaders call the same `DesignRules` / `NetClassRules` / `Loop` / `LoopPin` /
+`LoopEvent` / `LoopCollection` constructors the pre-migration code called,
+with kwargs assembled in Rust. This makes construction parity exact
+*including* the pyo3 argument-conversion `TypeError` texts, which a Rust-side
+re-extraction would have silently reworded.
+
+What did move: field mapping, per-key defaults and their evaluation order,
+`str()`/`float()` coercion, case-insensitive enum resolution over
+`members()`, every user-facing error string, the `class_pairs` key
+split/sort/dedup, the skipped-key warning (through the production logger
+name), README skipping, `except Exception` wrapping with `raise ... from`
+cause chaining, and the emitter's field-selection logic.
+
+## Induction applicability
+
+**Mathematical induction is not applicable to these modules.** No function is
+recursive, and no function iterates over a dimension whose *correctness*
+depends on a size parameter:
+
+- `load_netclass_rules` performs two independent passes (classes, class
+  pairs). Each iteration writes one dict entry from one document entry; there
+  is no cross-element interaction beyond last-write-wins on a colliding
+  canonical key, which is the document's own semantics and is pinned by the
+  `pair_key_sorting` differential case.
+- `load_loop_from_dict` is a fixed sequence of key reads; the only loop is
+  over `pins`, and each pin is constructed from its own entry alone.
+- `_parse_loop_type` / `_parse_priority` scan a FIXED-size member table (13
+  and 4 members); the scan terminates at the first value match and the tables
+  are compile-time constants, so there is no size parameter to induct over.
+- `load_loop_collection` iterates a caller-provided file list, but the
+  per-file operation is independent of the list's length; the only
+  order-dependent behaviour is `add_loop`'s duplicate-name rejection, which
+  the differential pins directly
+  (`test_load_loop_collection_duplicate_names_wrap_identically`).
+
+These are data/format loaders, so per the plan's R1e a **structural proof**
+is recorded instead.
+
+## Structural proof
+
+**Claim (bit-identical parity).** For every public symbol, the migrated
+behaviour is bit-identical to the pinned pre-migration Python
+(`packages/temper-placer/tests/io/_netclass_loader_py_oracle.py` and
+`_loop_loader_py_oracle.py`, commit `e90991a2a`), on both the success and
+the failure path.
+
+*Proof by structural cases.*
+
+1. **Document ingestion.** Both sides call `open(path)` and hand the *file
+   object* (not its text) to `yaml.safe_load`. The file object is
+   load-bearing: PyYAML embeds the stream's name in its error text, so the
+   `Invalid YAML in <path>: <detail>` message is reproduced verbatim only
+   this way (pinned by `test_load_loop_template_invalid_yaml_parity`). The
+   parsed document is therefore the *same Python object graph* on both
+   sides, so every downstream difference is attributable to this module.
+
+2. **`load_netclass_rules` — scalars and classes.**
+   `data["default_clearance_mm"]` is a subscript, not a `.get`, so a missing
+   key raises `KeyError('default_clearance_mm')`; the port uses
+   `Bound::get_item`, which is `__getitem__`. The eleven `NetClassRules`
+   kwargs are read in the oracle's order with the oracle's defaults, and the
+   four `default_*` fallbacks are read *from the `DesignRules` instance*
+   after `default_clearance` has been overwritten — so `clearance` falls
+   through to the document's value, not the constructor's. Property N2 pins
+   exactly this ordering; the "constant default" mutant fails it.
+
+3. **`load_netclass_rules` — class pairs.** `pair_key.split("-")` is the
+   Python method (so a non-`str` key raises the same `AttributeError`);
+   arity != 2 emits `logger.warning("Invalid class_pairs key '%s' —
+   skipping", pair_key)` through the logger NAMED
+   `temper_placer.io.netclass_loader` — the pre-migration module's own
+   `__name__` — with `%`-style lazy args, and continues. `tuple(sorted([a,
+   b]))` is performed by CPython's `list.sort`, so ordering is Python's
+   string comparison rather than Rust's `Ord` (these agree on ASCII and, as
+   it happens, on all UTF-8, but the port does not rely on that). The
+   resulting dict is assigned to `dr.class_pairs` AND returned, so
+   `result.class_pairs is result.design_rules.class_pairs` — an aliasing
+   invariant consumers depend on, pinned by property N5 and by
+   `test_netclass_class_pairs_is_the_same_object_on_design_rules`.
+
+4. **`load_loop_from_dict`.** The required-field block is a `KeyError`-only
+   catch producing `Missing required field: 'name'` (the KeyError's `str`,
+   i.e. the quoted key) with the KeyError preserved as `__cause__`; any other
+   exception from that block propagates untouched. The optional fields are
+   read in the oracle's exact order — `pins`, `components`, `nets`,
+   `max_area_mm2`, `priority`, `events`, `return_layer`, `return_net` — which
+   fixes *which* error a doubly-malformed document raises. `float(...)` is
+   CPython's builtin, not a Rust parse, so `"1e3"`, `-0.0`, `5e-324` and
+   `1.7976931348623157e308` all land on the identical bit pattern (asserted
+   as `float.hex()` in the differential).
+
+5. **Enum resolution.** `_parse_loop_type` / `_parse_priority` iterate
+   `LoopType.members()` / `LoopPriority.members()` — the same declaration-order
+   staticmethod the pre-migration module was already adapted to use in the
+   Phase-2 loop migration — and compare `member.value == type_str.lower()`
+   with the oracle's operand order. The failure text
+   (`Unknown loop type: X. Valid types: ['commutation', ...]`) is built by
+   taking `repr()` of a real Python list of the member values, so the
+   rendering is CPython's, and it is additionally pinned as a literal string
+   by `test_loop_load_error_message_texts_are_pinned`.
+
+6. **`load_loop_collection`.** Existence and directory checks precede
+   construction; `name or directory.name` is replicated as an emptiness
+   test; `sorted(directory.glob(pattern))` is delegated; the three README
+   names are compared against a lowercased filename; and every `Exception`
+   (not `BaseException`) raised while loading or adding a template is
+   re-raised as `Failed to load <path>: <str(e)>` with the original as
+   `__cause__`. `LoopCollection.add_loop`'s duplicate-name `ValueError` falls
+   inside that wrap, which the differential pins directly.
+
+7. **`save_loop_to_yaml`.** The emitted mapping is built in the oracle's
+   insertion order (`sort_keys=False` makes insertion order the emitted key
+   order), with the oracle's exact conditionals: truthiness for
+   `components`/`pins`/`nets`/`net`/`return_layer`/`return_net`, and `is not
+   None` for the six event fields — the distinction that keeps a `0.0` slew
+   rate alive. `path.parent.mkdir(parents=True, exist_ok=True)` and
+   `yaml.dump(..., default_flow_style=False, sort_keys=False,
+   allow_unicode=True)` are the same calls, so the output is byte-identical
+   by construction and asserted so.
+
+8. **`NetClassRulesDict`.** Replaces the two-field mutable dataclass:
+   attribute get/set on both fields, field-wise `__eq__` restricted to the
+   same type, and a dataclass-shaped `__repr__`. Note that the pre-migration
+   `repr` already embedded an object address (via `DesignRules`, which has no
+   custom `repr`), so `repr` was never a stable comparison surface for this
+   type and is not claimed as one.
+
+## Documented deviations (per R1, recorded here)
+
+- **`LoopLoadError` class identity.** The exception is now defined in Rust.
+  It still subclasses `Exception` and its `__module__` is restored to
+  `temper_placer.io.loop_loader` at registration, so `except LoopLoadError`,
+  `pytest.raises`, `repr(cls)` and tracebacks are unchanged — but it is not
+  the same class *object* the pre-migration module defined. Pickling the
+  class, or comparing it by identity against a separately-imported copy,
+  would observe the change. Verified 2026-08-04 that no consumer in `src/`,
+  `tests/` or `scripts/` does either.
+- **`NetClassRulesDict` is a pyclass, not a dataclass.** Attribute surface,
+  mutability, `__eq__` and `__repr__` are preserved;
+  `dataclasses.fields()` / `dataclasses.asdict()` / `dataclasses.replace()`
+  no longer apply. No consumer uses them (verified 2026-08-04).
+- **Argument-type-check precedence.** `source`, `pattern`, `name` and
+  `description` are typed `String` at the pyo3 boundary, so a non-`str`
+  argument raises `TypeError` with the identical pyo3 message but *before*
+  the body runs — where the oracle would have raised its own `LoopLoadError`
+  first if `data` was also invalid. Message identical, precedence different.
+- **`.items()` unpacking text.** Iterating a mapping's `.items()` uses pyo3
+  2-tuple extraction, so a pathological custom mapping yielding non-pairs
+  reports `expected a sequence of length 2` where CPython's tuple unpacking
+  reports `too many values to unpack`. Unreachable for `yaml.safe_load`
+  output, which always yields 2-tuples.
+- **Private helpers removed from the Python module.** `_parse_events`,
+  `_parse_pins`, `_parse_loop_type` and `_parse_priority` moved into the
+  crate and are no longer importable from `temper_placer.io.loop_loader`.
+  They were private and had no importers (verified 2026-08-04); the same
+  precedent as `core/priority.py`.
+- **PyYAML line-break lossiness (pre-existing, NOT introduced).** A scalar
+  containing U+000A/U+000D/U+0085/U+2028/U+2029 does not survive
+  `dump` → `safe_load` verbatim, because YAML's reader normalizes line
+  breaks. This is a property of the kept tokenizer/emitter and held
+  identically before the migration;
+  `test_yaml_line_break_characters_are_equally_lossy_on_both_sides` pins the
+  two implementations agreeing on such input, and the PBT round-trip
+  relations state the corresponding bound explicitly rather than silently
+  excluding the characters.
+
+## Evidence
+
+- **Differential (R1a / R1f, TDD red → green):**
+  `packages/temper-placer/tests/io/test_loaders_rust_differential.py` — 168
+  tests against the verbatim oracles `_netclass_loader_py_oracle.py` /
+  `_loop_loader_py_oracle.py` (commit `e90991a2a`). Coverage: the shipped
+  `configs/netclass_rules.yaml` field-for-field, 10 crafted netclass
+  documents, 7 netclass error paths, the logger-warning record, 30 crafted
+  loop documents, 22 loop error paths, all 5 shipped loop templates, 11
+  collection behaviours, and 7 byte-for-byte emitter cases plus the round
+  trip. Every float is compared as `float.hex()`; every non-float leaf
+  carries its `type` in the comparison key, so an int/float drift cannot
+  pass. **RED first:** the file failed to collect
+  (`AttributeError: module 'temper_design_bundle_python' has no attribute
+  'load_netclass_rules'`) before the Rust landed.
+- **Anti-vacuity (the differential demonstrably bites).** Six independent
+  mutations of `loaders.rs` were built and run; each was caught, and
+  reverting restored 163/163 green:
+
+  | Mutant | Change | Caught by |
+  |--------|--------|-----------|
+  | A | drop `sorted()` on class-pair keys | 4 tests — `test_netclass_real_fixture_bit_identical`, `..._class_pairs_exact`, `test_netclass_crafted_yaml_bit_identical[pair_key_sorting, pair_key_arity]` |
+  | B | emitter uses truthiness instead of `is not None` for events | 2 tests — `test_save_loop_to_yaml_byte_identical[zero_valued_events]`, `..._round_trip_parity[zero_valued_events]` |
+  | C | `max_area_mm2` default 100.0 → 10.0 | 57 tests |
+  | D | drop `str()` coercion on the pin component | 3 tests, incl. `test_load_loop_template_yaml_11_booleans_parity` |
+  | E | reword the unknown-priority message | 3 tests, incl. `test_loop_load_error_message_texts_are_pinned` |
+  | F | README skip compares without lowercasing | 1 test — `test_load_loop_collection_readme_skip_parity` |
+
+- **PBT (R1c):** `packages/temper-placer/tests/io/test_loaders_pbt.py` — 5
+  hypothesis properties per module (N1–N5 for netclass, L1–L5 for loop), each
+  with a `test_*_fails_for_<mutant>` vacuity mutant driven through the
+  `_kernels` indirection (empty loader, constant default, defaults-only,
+  unsorted keys, unaliased result, case-sensitive enum match, wrong defaults,
+  rounding kernel, lossy emitter, first-file-only collection).
+- **Metamorphic (R1d):** same file — 3 relations per module. MN1 mapping-order
+  permutation (exact for content; `net_classes` *insertion order* follows the
+  document and is explicitly NOT claimed invariant), MN2 pair-key reversal
+  (exact), MN3 unmapped-key inertness (exact); ML1 dict-key-order permutation
+  (exact), ML2 unrecognized-key inertness (exact), ML3 emitter byte
+  idempotence (exact at byte level, bounded to the re-loaded loop because the
+  emitter deliberately omits falsy fields). Two discriminating-input sanity
+  tests prove neither relation set is vacuously satisfied.
+- **Rust unit tests:** `loaders.rs::tests` — the event-field set and its
+  ORDER (it is the emitted key order under `sort_keys=False`), the README
+  skip list being lowercase (it is compared against a lowercased name), and
+  the logger name matching the production module.
+- **Rust practices (R1g):** every exported pyfunction is wrapped in
+  `temper_py_bridge::catch_unwind(...)` via the local `guard` helper; no
+  `unwrap`/`expect` anywhere (the crate denies both via `[lints.clippy]`);
+  `cargo clippy --all-features --all-targets -- -D warnings` clean.
+- **Performance A/B (R1b):** `temper_placer.profiling.pipeline_metrics::
+  profile_loaders`, wired into `temper profile run --module loaders|all` and
+  emitting `module="loaders"`, `stage="loaders"`, metrics
+  `netclass_load_ms` / `loop_collection_load_ms` / `total_ms` — the shape
+  `scripts/pr_perf_compare.py` compares against the rolling main-branch
+  median under `TIMING_MARGIN = 0.20`. These loaders are I/O-bound YAML
+  parsing with no compute kernel, so per the program's R2 this is the
+  "no regression beyond noise" arm, NOT a speedup claim. The gate is
+  **wired but not yet enforcing**: the Phase-0 hard-gate wiring (#681) has
+  not merged, so `pr-perf-check.yml` still carries `continue-on-error: true`.
+  It bites the moment #681 lands, with no further change here.
+- **R1h (physics discipline): NOT APPLICABLE.** These are data/format
+  loaders. They perform no physics, encode no geometric constraint, and
+  compute no value that a post-solve audit could recompute from coordinates —
+  the single arithmetic operation in either module is `float(...)` coercion.
+  The R24 Chebyshev-soundness / BMC-exhaustive / post-solve-audit obligations
+  have no referent here.
+- **Consumer suites run unchanged against the migrated loaders:**
+  `tests/io/` (480 passed, 12 skipped, 1 xfailed), `tests/core` + `tests/pcl`
+  (932 passed), `tests/io/test_netclass_loader.py`,
+  `tests/io/test_loop_loader.py`, `tests/core/test_design_rules_field_parity.py`,
+  `tests/router_v6/test_layer_assignment_ssot.py`,
+  `tests/router_v6/test_phase1_anti_false_zero.py`.
