@@ -538,6 +538,3 @@ def load_loop_collection(
     name: str = "",
     description: str = "",
 ) -> LoopCollection: ...
-
-
-def save_loop_to_yaml(loop: Loop, path: Any) -> None: ...

@@ -714,15 +714,16 @@ candidate 2's parity oracle (the shipped `configs/netclass_rules.yaml` and
 
 ## Migration boundary (what moved, and what deliberately did not)
 
-Three third-party/stdlib surfaces are called back across the pyo3 boundary
-rather than reimplemented. Each is a correctness decision with a named
-divergence that reimplementation would have introduced:
+Two third-party/stdlib surfaces are called back across the pyo3 boundary
+rather than reimplemented, and the whole save path stays Python-side. Each
+is a correctness decision with a named divergence that reimplementation
+would have introduced:
 
 | Kept | Why keeping it is the correct call |
 |------|------------------------------------|
 | `yaml.safe_load` (the tokenizer) | PyYAML implements YAML **1.1**, `serde_yaml` implements YAML **1.2**. They disagree on inputs these files can contain: `on`/`off`/`yes` are booleans under 1.1 and strings under 1.2; `012` is octal `10` under 1.1 and decimal `12` under 1.2; `1_000` is the integer 1000 under 1.1 and a string under 1.2. Re-tokenizing would have *changed behaviour* while the differential on the shipped fixtures stayed green. Pinned by `test_load_loop_template_yaml_11_booleans_parity`, which asserts the 1.1 resolution is in force so the test cannot pass vacuously. |
 | `pathlib.Path.glob` + `sorted` | `PurePath` ordering and glob pattern semantics (hidden files, `**`, character classes) are intricate and version-sensitive; delegating makes `load_loop_collection`'s traversal order exact by construction. Pinned by `test_load_loop_collection_ordering_parity` / `..._pattern_parity`. |
-| `yaml.dump` (the emitter) | The emitted BYTES are the contract (`save_loop_to_yaml` output is re-read by the loader and by humans). PyYAML's emitter carries its own float representer (`repr(x).lower()` plus the `.0e` fixup) and scalar-quoting rules; a Rust emitter would have produced different, equally-valid YAML. Pinned by `test_save_loop_to_yaml_byte_identical` (byte-for-byte, 7 branch-covering loops). |
+| `save_loop_to_yaml` (the whole save path, including `yaml.dump`) | Per KTD7 of the first-pulls plan (U3), the save path is **not part of the loaders' migration scope** and stays Python-side in the delegation shim. PyYAML's emitter carries its own float representer (`repr(x).lower()` plus the `.0e` fixup) and scalar-quoting rules, so its byte output — which is the contract, re-read by the loader and by humans — is never reimplemented. The differential pins a Rust-loaded loop re-saved by the Python save path re-loading identically (the U3 round-trip scenario) and compares the emitted bytes byte-for-byte against the pinned oracle (7 branch-covering loops). |
 
 Contract construction is likewise by *identity*, not transcription: the
 loaders call the same `DesignRules` / `NetClassRules` / `Loop` / `LoopPin` /
@@ -736,7 +737,7 @@ What did move: field mapping, per-key defaults and their evaluation order,
 `members()`, every user-facing error string, the `class_pairs` key
 split/sort/dedup, the skipped-key warning (through the production logger
 name), README skipping, `except Exception` wrapping with `raise ... from`
-cause chaining, and the emitter's field-selection logic.
+cause chaining. The load path is Rust; the save path is Python (KTD7).
 
 ## Induction applicability
 
@@ -835,15 +836,28 @@ the failure path.
    `__cause__`. `LoopCollection.add_loop`'s duplicate-name `ValueError` falls
    inside that wrap, which the differential pins directly.
 
-7. **`save_loop_to_yaml`.** The emitted mapping is built in the oracle's
-   insertion order (`sort_keys=False` makes insertion order the emitted key
-   order), with the oracle's exact conditionals: truthiness for
-   `components`/`pins`/`nets`/`net`/`return_layer`/`return_net`, and `is not
-   None` for the six event fields — the distinction that keeps a `0.0` slew
-   rate alive. `path.parent.mkdir(parents=True, exist_ok=True)` and
+7. **`save_loop_to_yaml`.** Python-side in the delegation shim per KTD7 —
+   the save path is outside the loaders' migration scope. The shim's
+   function is the pre-migration implementation operating on the Rust
+   `Loop` pyclass surface, so its correctness is the correctness of the
+   pyclass attribute surface it reads (`name`, `loop_type.value`,
+   `components`, `pins[].component_ref/pin_name/net_name`, `nets`,
+   `max_area_mm2`, `priority.value`, the six `events` fields,
+   `return_layer`, `return_net`): the emitted mapping is built in the
+   oracle's insertion order (`sort_keys=False` makes insertion order the
+   emitted key order), with the oracle's exact conditionals: truthiness for
+   `components`/`pins`/`nets`/`net`/`return_layer`/`return_net`, and `is
+   not None` for the six event fields — the distinction that keeps a `0.0`
+   slew rate alive. `path.parent.mkdir(parents=True, exist_ok=True)` and
    `yaml.dump(..., default_flow_style=False, sort_keys=False,
    allow_unicode=True)` are the same calls, so the output is byte-identical
-   by construction and asserted so.
+   by construction. The differential drives the shim function and asserts
+   the emitted bytes byte-for-byte against the pinned oracle, and the
+   round-trip tests pin a Rust-loaded loop re-saved by this Python save
+   path re-loading identically (the U3 scenario). The `is not None` guard
+   is demonstrably load-bearing: a truthiness mutant on the shim's save
+   fails `test_save_loop_to_yaml_byte_identical[zero_valued_events]` and
+   `..._round_trip_parity[zero_valued_events]` (verified 2026-08-04).
 
 8. **`NetClassRulesDict`.** Replaces the two-field mutable dataclass:
    attribute get/set on both fields, field-wise `__eq__` restricted to the
@@ -907,13 +921,14 @@ the failure path.
   (`AttributeError: module 'temper_design_bundle_python' has no attribute
   'load_netclass_rules'`) before the Rust landed.
 - **Anti-vacuity (the differential demonstrably bites).** Six independent
-  mutations of `loaders.rs` were built and run; each was caught, and
-  reverting restored 163/163 green:
+  mutations of `loaders.rs` were built and run, plus one on the Python save
+  path; each was caught, and reverting restored green. All five load-path
+  mutants were re-verified against the rebased tree on 2026-08-04:
 
   | Mutant | Change | Caught by |
   |--------|--------|-----------|
   | A | drop `sorted()` on class-pair keys | 4 tests — `test_netclass_real_fixture_bit_identical`, `..._class_pairs_exact`, `test_netclass_crafted_yaml_bit_identical[pair_key_sorting, pair_key_arity]` |
-  | B | emitter uses truthiness instead of `is not None` for events | 2 tests — `test_save_loop_to_yaml_byte_identical[zero_valued_events]`, `..._round_trip_parity[zero_valued_events]` |
+  | B | emitter uses truthiness instead of `is not None` for events | 2 tests — `test_save_loop_to_yaml_byte_identical[zero_valued_events]`, `..._round_trip_parity[zero_valued_events]` (verified 2026-08-04 against the Python-side save path) |
   | C | `max_area_mm2` default 100.0 → 10.0 | 57 tests |
   | D | drop `str()` coercion on the pin component | 3 tests, incl. `test_load_loop_template_yaml_11_booleans_parity` |
   | E | reword the unknown-priority message | 3 tests, incl. `test_loop_load_error_message_texts_are_pinned` |
@@ -941,17 +956,24 @@ the failure path.
   `temper_py_bridge::catch_unwind(...)` via the local `guard` helper; no
   `unwrap`/`expect` anywhere (the crate denies both via `[lints.clippy]`);
   `cargo clippy --all-features --all-targets -- -D warnings` clean.
-- **Performance A/B (R1b):** `temper_placer.profiling.pipeline_metrics::
-  profile_loaders`, wired into `temper profile run --module loaders|all` and
-  emitting `module="loaders"`, `stage="loaders"`, metrics
-  `netclass_load_ms` / `loop_collection_load_ms` / `total_ms` — the shape
-  `scripts/pr_perf_compare.py` compares against the rolling main-branch
-  median under `TIMING_MARGIN = 0.20`. These loaders are I/O-bound YAML
-  parsing with no compute kernel, so per the program's R2 this is the
-  "no regression beyond noise" arm, NOT a speedup claim. The gate is
-  **wired but not yet enforcing**: the Phase-0 hard-gate wiring (#681) has
-  not merged, so `pr-perf-check.yml` still carries `continue-on-error: true`.
-  It bites the moment #681 lands, with no further change here.
+- **Performance A/B (R1b):** the loaders are registered as
+  `("loaders", "loaders")` in `benchmarks/perf_ab.py::_BENCHMARKS`, so the
+  Phase-0 hard gate measures them: the benchmark A/Bs the migrated loaders
+  against the verbatim pre-migration oracle loaders on the repo's own
+  shipped fixtures (a parity sanity assertion inside the harness fails the
+  run if the arms disagree), and `scripts/pr_perf_compare.py` compares the
+  emitted `rust_over_oracle_ratio` against the rolling main-branch median
+  under `TIMING_MARGIN = 0.20`. These loaders are I/O-bound YAML parsing
+  with no compute kernel (measured ratio ≈ 1.0 — both arms share PyYAML and
+  the contract constructors; the delta is the orchestration layer), so per
+  the program's R2 this is the **"no regression beyond noise"** arm, NOT a
+  speedup claim. The key is reported as NEW_BENCHMARK (not a failure) until
+  main's registry carries it and baseline rows are captured. A secondary,
+  manual measurement path also exists: `temper_placer.profiling.
+  pipeline_metrics::profile_loaders`, wired into
+  `temper profile run --module loaders|all` and emitting
+  `module="loaders"`, `stage="loaders"`, metrics `netclass_load_ms` /
+  `loop_collection_load_ms` / `total_ms`.
 - **R1h (physics discipline): NOT APPLICABLE.** These are data/format
   loaders. They perform no physics, encode no geometric constraint, and
   compute no value that a post-solve audit could recompute from coordinates —

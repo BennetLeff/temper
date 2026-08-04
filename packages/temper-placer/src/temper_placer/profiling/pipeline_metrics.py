@@ -273,12 +273,15 @@ def profile_loaders(
 ) -> list[dict[str, Any]]:
     """Profile the YAML loaders — the Wave-4 Phase-3 candidate-2 R1b A/B.
 
-    Wired to the harness shape (`module`/`board`/`stage`/`metrics`, `_ms`
-    metric names) that `scripts/pr_perf_compare.py` compares against the
-    rolling main-branch median, so the gate bites the moment the Phase-0
-    hard-gate wiring lands. These loaders are I/O-bound YAML parsing with no
-    compute kernel, so per the program's R2 the comparison is the
-    "no regression beyond noise" arm — NOT a speedup claim.
+    Manual measurement path. The CI gate measures the loaders through
+    ``benchmarks/perf_ab.py`` (registered as ``("loaders", "loaders")`` in
+    ``_BENCHMARKS``, ratio compared by ``scripts/pr_perf_compare.py`` under
+    ``TIMING_MARGIN = 0.20``); this function provides the same ``_ms``
+    record shape for local runs via ``temper profile run --module loaders``.
+
+    These loaders are I/O-bound YAML parsing with no compute kernel, so per
+    the program's R2 the comparison is the "no regression beyond noise" arm
+    — NOT a speedup claim.
 
     Measures `load_netclass_rules` on the repo's own `netclass_rules.yaml`
     and `load_loop_collection` on the shipped loop templates. The first run

@@ -28,14 +28,17 @@
 //!    *changed behaviour* while the differential on the shipped fixtures stayed
 //!    green, which is precisely the failure class the Wave-4 gates exist to
 //!    catch. `pathlib.Path.glob` (whose pattern semantics are equally
-//!    intricate) and `yaml.dump` (the emitter, whose byte output is the
-//!    contract) are kept for the same reason.
+//!    intricate) is kept for the same reason.
 //! 2. **Contract construction is by identity.** The loaders build
 //!    `DesignRules` / `NetClassRules` / `Loop` / `LoopPin` / `LoopEvent` /
 //!    `LoopCollection` by *calling the same constructors the oracle calls*
 //!    with kwargs assembled here. Construction parity is therefore exact
 //!    including the pyo3 argument-conversion `TypeError` texts, which a
 //!    Rust-side re-extraction would have silently reworded.
+//!
+//! The emitter (`save_loop_to_yaml` / `yaml.dump`) is not here at all: per
+//! KTD7 the save path stays Python-side in the delegation shim, so PyYAML's
+//! dumper formatting is never reimplemented. See `VERIFICATION.md`.
 //!
 //! Everything between those two boundaries is what this module owns and what
 //! the differential pins: field mapping, per-key defaults, `str()`/`float()`
@@ -256,12 +259,13 @@ fn load_netclass_rules(
     let file = builtins.getattr("open")?.call1((path,))?;
     let loaded = yaml.call_method1("safe_load", (&file,));
     let closed = file.call_method0("close");
-    let data = match loaded {
-        Ok(data) => {
-            closed?;
-            data
-        }
-        Err(err) => return Err(err),
+    // `loaded?` before `closed?`: the file is closed either way, and the
+    // propagated error is identical to the oracle's (the file object is
+    // load-bearing for PyYAML's error text, not the close order).
+    let data = {
+        let data = loaded?;
+        closed?;
+        data
     };
 
     // The delegation module re-exports the very pyclass/model objects the
@@ -664,107 +668,12 @@ fn load_loop_collection(
     Ok(collection.unbind())
 }
 
-/// Save a `Loop` to a YAML file (parent directories are created).
-#[pyfunction]
-#[pyo3(name = "save_loop_to_yaml")]
-fn py_save_loop_to_yaml(
-    py: Python<'_>,
-    loop_obj: &Bound<'_, PyAny>,
-    path: &Bound<'_, PyAny>,
-) -> PyResult<()> {
-    guard(|| save_loop_to_yaml(py, loop_obj, path))
-}
-
-fn save_loop_to_yaml(
-    py: Python<'_>,
-    loop_obj: &Bound<'_, PyAny>,
-    path: &Bound<'_, PyAny>,
-) -> PyResult<()> {
-    let path = to_path(py, path)?;
-
-    // Insertion order IS the emitted key order (`sort_keys=False`), so the
-    // sequence below is part of the contract.
-    let data = PyDict::new(py);
-    data.set_item("name", loop_obj.getattr("name")?)?;
-    data.set_item("loop_type", loop_obj.getattr("loop_type")?.getattr("value")?)?;
-    data.set_item("description", loop_obj.getattr("description")?)?;
-
-    let components = loop_obj.getattr("components")?;
-    if components.is_truthy()? {
-        data.set_item("components", components)?;
-    }
-
-    let pins = loop_obj.getattr("pins")?;
-    if pins.is_truthy()? {
-        let rendered = PyList::empty(py);
-        for pin in pins.try_iter()? {
-            let pin = pin?;
-            let entry = PyDict::new(py);
-            entry.set_item("component", pin.getattr("component_ref")?)?;
-            entry.set_item("pin", pin.getattr("pin_name")?)?;
-            let net_name = pin.getattr("net_name")?;
-            if net_name.is_truthy()? {
-                entry.set_item("net", net_name)?;
-            }
-            rendered.append(entry)?;
-        }
-        data.set_item("pins", rendered)?;
-    }
-
-    let nets = loop_obj.getattr("nets")?;
-    if nets.is_truthy()? {
-        data.set_item("nets", nets)?;
-    }
-
-    data.set_item("max_area_mm2", loop_obj.getattr("max_area_mm2")?)?;
-    data.set_item("priority", loop_obj.getattr("priority")?.getattr("value")?)?;
-
-    // `is not None`, NOT truthiness: a 0.0 slew rate must survive the round
-    // trip (a `if value:` mutant silently drops it).
-    let loop_events = loop_obj.getattr("events")?;
-    let events = PyDict::new(py);
-    for field in EVENT_FIELDS {
-        let value = loop_events.getattr(field)?;
-        if !value.is_none() {
-            events.set_item(field, value)?;
-        }
-    }
-    if !events.is_empty() {
-        data.set_item("events", events)?;
-    }
-
-    let return_layer = loop_obj.getattr("return_layer")?;
-    if return_layer.is_truthy()? {
-        data.set_item("return_layer", return_layer)?;
-    }
-    let return_net = loop_obj.getattr("return_net")?;
-    if return_net.is_truthy()? {
-        data.set_item("return_net", return_net)?;
-    }
-
-    let mkdir_kwargs = PyDict::new(py);
-    mkdir_kwargs.set_item("parents", true)?;
-    mkdir_kwargs.set_item("exist_ok", true)?;
-    path.getattr("parent")?
-        .call_method("mkdir", (), Some(&mkdir_kwargs))?;
-
-    let dump_kwargs = PyDict::new(py);
-    dump_kwargs.set_item("default_flow_style", false)?;
-    dump_kwargs.set_item("sort_keys", false)?;
-    dump_kwargs.set_item("allow_unicode", true)?;
-
-    let file = py
-        .import("builtins")?
-        .getattr("open")?
-        .call1((&path, "w"))?;
-    let dumped = py
-        .import("yaml")?
-        .call_method("dump", (data, &file), Some(&dump_kwargs));
-    let closed = file.call_method0("close");
-    dumped?;
-    closed?;
-    Ok(())
-}
+// The emitter (`save_loop_to_yaml`) is deliberately NOT here: per KTD7 of
+// `docs/plans/2026-08-03-003-feat-wave4-phase3-first-pulls-plan.md`, the
+// save path stays Python-side in the delegation shim — PyYAML's dumper
+// formatting is not in the parity surface and the save path is not part of
+// the loaders' migration scope. The round-trip differential pins a
+// Rust-loaded loop re-saved by the Python save path re-loading identically.
 
 // ---------------------------------------------------------------------------
 // Python module registration
@@ -784,7 +693,6 @@ pub fn register(module: &Bound<'_, PyModule>) -> PyResult<()> {
     module.add_function(wrap_pyfunction!(py_load_loop_from_dict, module)?)?;
     module.add_function(wrap_pyfunction!(py_load_loop_template, module)?)?;
     module.add_function(wrap_pyfunction!(py_load_loop_collection, module)?)?;
-    module.add_function(wrap_pyfunction!(py_save_loop_to_yaml, module)?)?;
     Ok(())
 }
 
@@ -792,8 +700,9 @@ pub fn register(module: &Bound<'_, PyModule>) -> PyResult<()> {
 mod tests {
     use super::{EVENT_FIELDS, NETCLASS_LOGGER, README_NAMES};
 
-    /// The emitter and the parser must agree on the event-field set, and on
-    /// its ORDER (it is the emitted key order under `sort_keys=False`).
+    /// The parser (`parse_events`) must agree with the Python-side save path
+    /// on the event-field set, and on its ORDER (the same order the emitter
+    /// uses under `sort_keys=False`).
     #[test]
     fn event_fields_match_the_oracle_order() {
         assert_eq!(

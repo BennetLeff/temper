@@ -9,14 +9,21 @@ contracts (``DesignRules``, ``Loop``/``LoopCollection``) became Rust
 pyclasses in Phase 2, so the loaders bind straight onto them.
 
 The Rust functions ``load_netclass_rules``, ``load_loop_from_dict``,
-``load_loop_template``, ``load_loop_collection`` and ``save_loop_to_yaml``
-(in ``temper_design_bundle_python``, from the ``temper-design-bundle``
-crate) must reproduce the pre-migration Python implementations of
+``load_loop_template`` and ``load_loop_collection`` (in
+``temper_design_bundle_python``, from the ``temper-design-bundle`` crate)
+must reproduce the pre-migration Python implementations of
 ``temper_placer/io/netclass_loader.py`` and ``temper_placer/io/loop_loader.py``
 bit-identically. Those implementations are pinned VERBATIM as
 ``_netclass_loader_py_oracle.py`` / ``_loop_loader_py_oracle.py`` (commit
 ``e90991a2a``) and every assertion here drives IDENTICAL inputs through
 both sides.
+
+The save path (``save_loop_to_yaml``) is NOT a Rust symbol: per KTD7 of
+the first-pulls plan (U3) it stays Python-side in the delegation shim —
+the loaders' migration scope is the load path, and PyYAML's dumper
+formatting is not in the parity surface. This file drives the shim's
+Python save on Rust ``Loop`` pyclasses, which is exactly the U3 round-trip
+scenario, and asserts its output byte-for-byte against the pinned oracle.
 
 Comparison convention (mirrors the Phase-2 differentials): objects are
 canonicalized into plain comparable tuples before assertion, and every
@@ -39,7 +46,8 @@ Bit-parity scope and its two honestly-named boundaries:
    (field mapping, defaults, coercion, enum resolution, error text,
    collection assembly, the save-dict shape) is the migrated surface and
    is what this differential pins. The same reasoning applies to
-   ``pathlib.Path.glob`` and ``yaml.dump``.
+   ``pathlib.Path.glob``; ``yaml.dump`` is kept Python-side with the whole
+   save path (KTD7).
 2. **Contract construction is by identity.** The loaders build the
    ``DesignRules``/``Loop``/``LoopPin``/``LoopEvent``/``LoopCollection``
    pyclasses by calling the very same constructors the oracle calls, with
@@ -76,7 +84,14 @@ RUST_LOOP_LOAD_ERROR = _tdb.LoopLoadError
 RUST_LOAD_LOOP_FROM_DICT = _tdb.load_loop_from_dict
 RUST_LOAD_LOOP_TEMPLATE = _tdb.load_loop_template
 RUST_LOAD_LOOP_COLLECTION = _tdb.load_loop_collection
-RUST_SAVE_LOOP_TO_YAML = _tdb.save_loop_to_yaml
+
+# The save path is deliberately NOT a Rust symbol: per KTD7 of the
+# first-pulls plan (U3), `save_loop_to_yaml` stays Python-side in the
+# delegation shim — the loaders' migration scope is the load path. The
+# differential drives the shim's Python save on Rust `Loop` pyclasses, which
+# is exactly the U3 round-trip scenario ("a Rust-loaded loop re-saved by the
+# Python save path re-loads identically").
+from temper_placer.io.loop_loader import save_loop_to_yaml as SHIM_SAVE_LOOP_TO_YAML
 
 _PLACER_ROOT = Path(__file__).resolve().parent.parent.parent
 _NETCLASS_YAML = _PLACER_ROOT / "configs" / "netclass_rules.yaml"
@@ -930,7 +945,7 @@ def test_save_loop_to_yaml_byte_identical(case, tmp_path):
     py_path = tmp_path / "py" / "out.yaml"
     rust_path = tmp_path / "rust" / "out.yaml"
     _loop_oracle.save_loop_to_yaml(loop, py_path)
-    RUST_SAVE_LOOP_TO_YAML(loop, rust_path)
+    SHIM_SAVE_LOOP_TO_YAML(loop, rust_path)
     assert rust_path.read_bytes() == py_path.read_bytes()
 
 
@@ -943,7 +958,7 @@ def test_save_loop_to_yaml_round_trip_parity(case, tmp_path):
     py_path = tmp_path / "py" / "out.yaml"
     rust_path = tmp_path / "rust" / "out.yaml"
     _loop_oracle.save_loop_to_yaml(loop, py_path)
-    RUST_SAVE_LOOP_TO_YAML(loop, rust_path)
+    SHIM_SAVE_LOOP_TO_YAML(loop, rust_path)
     py_reloaded = _loop_oracle.load_loop_template(py_path)
     rust_reloaded = RUST_LOAD_LOOP_TEMPLATE(rust_path)
     assert _loop_fields(rust_reloaded) == _loop_fields(py_reloaded)
@@ -968,7 +983,7 @@ def test_yaml_line_break_characters_are_equally_lossy_on_both_sides(char, tmp_pa
     py_path = tmp_path / "py" / "out.yaml"
     rust_path = tmp_path / "rust" / "out.yaml"
     _loop_oracle.save_loop_to_yaml(loop, py_path)
-    RUST_SAVE_LOOP_TO_YAML(loop, rust_path)
+    SHIM_SAVE_LOOP_TO_YAML(loop, rust_path)
     assert rust_path.read_bytes() == py_path.read_bytes()
     assert _loop_fields(RUST_LOAD_LOOP_TEMPLATE(rust_path)) == _loop_fields(
         _loop_oracle.load_loop_template(py_path)
@@ -977,7 +992,7 @@ def test_yaml_line_break_characters_are_equally_lossy_on_both_sides(char, tmp_pa
 
 def test_save_loop_to_yaml_creates_parent_directories(tmp_path):
     target = tmp_path / "deep" / "nested" / "out.yaml"
-    RUST_SAVE_LOOP_TO_YAML(_save_cases()[0][1], target)
+    SHIM_SAVE_LOOP_TO_YAML(_save_cases()[0][1], target)
     assert target.exists()
 
 
@@ -986,7 +1001,7 @@ def test_save_loop_to_yaml_accepts_str_path(tmp_path):
     py_path = tmp_path / "py" / "out.yaml"
     rust_path = tmp_path / "rust" / "out.yaml"
     _loop_oracle.save_loop_to_yaml(loop, str(py_path))
-    RUST_SAVE_LOOP_TO_YAML(loop, str(rust_path))
+    SHIM_SAVE_LOOP_TO_YAML(loop, str(rust_path))
     assert rust_path.read_bytes() == py_path.read_bytes()
 
 
@@ -996,7 +1011,7 @@ def test_save_then_load_real_templates_round_trip(tmp_path):
     for template in _template_paths():
         loop = RUST_LOAD_LOOP_TEMPLATE(template)
         out = tmp_path / template.name
-        RUST_SAVE_LOOP_TO_YAML(loop, out)
+        SHIM_SAVE_LOOP_TO_YAML(loop, out)
         py_out = tmp_path / "py" / template.name
         _loop_oracle.save_loop_to_yaml(_loop_oracle.load_loop_template(template), py_out)
         assert out.read_bytes() == py_out.read_bytes(), template.name
@@ -1023,7 +1038,12 @@ def test_loop_loader_module_delegates_to_rust():
     assert loop_loader.load_loop_from_dict is RUST_LOAD_LOOP_FROM_DICT
     assert loop_loader.load_loop_template is RUST_LOAD_LOOP_TEMPLATE
     assert loop_loader.load_loop_collection is RUST_LOAD_LOOP_COLLECTION
-    assert loop_loader.save_loop_to_yaml is RUST_SAVE_LOOP_TO_YAML
+    # The save path is Python-side by design (KTD7): it is a real Python
+    # function in the shim, NOT a re-export of a Rust symbol.
+    import inspect
+
+    assert inspect.isfunction(loop_loader.save_loop_to_yaml)
+    assert not hasattr(_tdb, "save_loop_to_yaml")
 
 
 def test_no_yaml_or_tempfile_import_drift():
