@@ -1,0 +1,2153 @@
+{
+  "attempts": [
+    {
+      "cap_mm": 60.0,
+      "domain_constraints": 11571,
+      "final_positions": {},
+      "fixed_copper_audit_violations": 0,
+      "fixed_copper_free_refs": [
+        "C27",
+        "K3"
+      ],
+      "fixed_copper_margin_mm": 0.05,
+      "keepaway_constraints": 530,
+      "moved_refs": 0,
+      "reason": "solve 1 returned infeasible; unsat_core=15285 (edge_margin_C1, edge_margin_C10, edge_margin_C11, edge_margin_C12, edge_margin_C13, edge_margin_C14, edge_margin_C15, edge_margin_C16); proven UNSAT -- no feasible placement exists for this constraint set (board-layout/footprint problem, not machinery failure)",
+      "round0_solve_status": null,
+      "round0_solve_time_ms": null,
+      "round0_total_constraints": null,
+      "rounds": 0,
+      "seed": 0,
+      "status": "infeasible",
+      "timeout_ms": 180000,
+      "total_displacement_mm": 0.0,
+      "wall_s": 3.3
+    },
+    {
+      "cap_mm": 60.0,
+      "domain_constraints": 11571,
+      "final_positions": {},
+      "fixed_copper_audit_violations": 0,
+      "fixed_copper_free_refs": [
+        "C27",
+        "K3"
+      ],
+      "fixed_copper_margin_mm": 0.05,
+      "keepaway_constraints": 530,
+      "moved_refs": 0,
+      "reason": "solve 1 returned infeasible; unsat_core=15285 (edge_margin_C1, edge_margin_C10, edge_margin_C11, edge_margin_C12, edge_margin_C13, edge_margin_C14, edge_margin_C15, edge_margin_C16); proven UNSAT -- no feasible placement exists for this constraint set (board-layout/footprint problem, not machinery failure)",
+      "round0_solve_status": null,
+      "round0_solve_time_ms": null,
+      "round0_total_constraints": null,
+      "rounds": 0,
+      "seed": 1,
+      "status": "infeasible",
+      "timeout_ms": 180000,
+      "total_displacement_mm": 0.0,
+      "wall_s": 3.3
+    },
+    {
+      "cap_mm": 60.0,
+      "domain_constraints": 11571,
+      "final_positions": {},
+      "fixed_copper_audit_violations": 0,
+      "fixed_copper_free_refs": [
+        "C27",
+        "K3"
+      ],
+      "fixed_copper_margin_mm": 0.05,
+      "keepaway_constraints": 530,
+      "moved_refs": 0,
+      "reason": "solve 1 returned infeasible; unsat_core=15285 (edge_margin_C1, edge_margin_C10, edge_margin_C11, edge_margin_C12, edge_margin_C13, edge_margin_C14, edge_margin_C15, edge_margin_C16); proven UNSAT -- no feasible placement exists for this constraint set (board-layout/footprint problem, not machinery failure)",
+      "round0_solve_status": null,
+      "round0_solve_time_ms": null,
+      "round0_total_constraints": null,
+      "rounds": 0,
+      "seed": 2,
+      "status": "infeasible",
+      "timeout_ms": 180000,
+      "total_displacement_mm": 0.0,
+      "wall_s": 3.5
+    },
+    {
+      "cap_mm": 120.0,
+      "domain_constraints": 11571,
+      "final_positions": {
+        "C1": {
+          "position": [
+            20.79,
+            186.72
+          ]
+        },
+        "C10": {
+          "position": [
+            86.28,
+            7.04
+          ]
+        },
+        "C11": {
+          "position": [
+            143.64,
+            18.51
+          ]
+        },
+        "C12": {
+          "position": [
+            43.62,
+            13.1
+          ]
+        },
+        "C13": {
+          "position": [
+            138.41,
+            161.09
+          ]
+        },
+        "C14": {
+          "position": [
+            148.55,
+            4.3
+          ]
+        },
+        "C15": {
+          "position": [
+            88.88,
+            169.82
+          ]
+        },
+        "C16": {
+          "position": [
+            4.35,
+            124.91
+          ]
+        },
+        "C17": {
+          "position": [
+            26.12,
+            109.9
+          ]
+        },
+        "C18": {
+          "position": [
+            26.36,
+            40.68
+          ]
+        },
+        "C19": {
+          "position": [
+            36.86,
+            55.77
+          ]
+        },
+        "C2": {
+          "position": [
+            111.1,
+            9.94
+          ]
+        },
+        "C20": {
+          "position": [
+            7.14,
+            65.96
+          ]
+        },
+        "C21": {
+          "position": [
+            111.34,
+            36.72
+          ]
+        },
+        "C22": {
+          "position": [
+            4.16,
+            216.93
+          ]
+        },
+        "C23": {
+          "position": [
+            6.02,
+            28.44
+          ]
+        },
+        "C24": {
+          "position": [
+            107.15,
+            61.68
+          ]
+        },
+        "C25": {
+          "position": [
+            66.9,
+            72.25
+          ]
+        },
+        "C26": {
+          "position": [
+            34.67,
+            139.75
+          ]
+        },
+        "C27": {
+          "position": [
+            32.44,
+            218.86
+          ]
+        },
+        "C28": {
+          "position": [
+            36.86,
+            40.34
+          ]
+        },
+        "C29": {
+          "position": [
+            118.84,
+            39.38
+          ]
+        },
+        "C3": {
+          "position": [
+            67.36,
+            15.56
+          ]
+        },
+        "C30": {
+          "position": [
+            91.46,
+            32.82
+          ]
+        },
+        "C31": {
+          "position": [
+            46.67,
+            68.56
+          ]
+        },
+        "C32": {
+          "position": [
+            1.24,
+            17.48
+          ]
+        },
+        "C33": {
+          "position": [
+            113.67,
+            29.55
+          ]
+        },
+        "C34": {
+          "position": [
+            75.35,
+            40.67
+          ]
+        },
+        "C35": {
+          "position": [
+            42.71,
+            1.98
+          ]
+        },
+        "C36": {
+          "position": [
+            1.89,
+            11.45
+          ]
+        },
+        "C37": {
+          "position": [
+            45.92,
+            55.02
+          ]
+        },
+        "C38": {
+          "position": [
+            1.24,
+            205.45
+          ]
+        },
+        "C39": {
+          "position": [
+            114.05,
+            33.73
+          ]
+        },
+        "C4": {
+          "position": [
+            100.42,
+            133.33
+          ]
+        },
+        "C40": {
+          "position": [
+            97.18,
+            28.86
+          ]
+        },
+        "C5": {
+          "position": [
+            114.62,
+            158.31
+          ]
+        },
+        "C6": {
+          "position": [
+            64.74,
+            214.4
+          ]
+        },
+        "C7": {
+          "position": [
+            69.7,
+            194.15
+          ]
+        },
+        "C8": {
+          "position": [
+            64.47,
+            178.75
+          ]
+        },
+        "C9": {
+          "position": [
+            68.14,
+            231.2
+          ]
+        },
+        "D1": {
+          "position": [
+            148.94,
+            151.85
+          ]
+        },
+        "D2": {
+          "position": [
+            147.21,
+            69.4
+          ]
+        },
+        "D3": {
+          "position": [
+            88.15,
+            67.83
+          ]
+        },
+        "D4": {
+          "position": [
+            5.54,
+            170.94
+          ]
+        },
+        "D5": {
+          "position": [
+            124.75,
+            68.2
+          ]
+        },
+        "F1": {
+          "position": [
+            51.6,
+            95.45
+          ]
+        },
+        "J1": {
+          "position": [
+            139.45,
+            144.22
+          ]
+        },
+        "K1": {
+          "position": [
+            136.2,
+            189.12
+          ]
+        },
+        "K2": {
+          "position": [
+            103.06,
+            94.8
+          ]
+        },
+        "K3": {
+          "position": [
+            135.12,
+            43.58
+          ]
+        },
+        "L1": {
+          "position": [
+            98.95,
+            207.36
+          ]
+        },
+        "L2": {
+          "position": [
+            147.04,
+            140.65
+          ]
+        },
+        "PS1": {
+          "position": [
+            134.68,
+            102.85
+          ]
+        },
+        "Q1": {
+          "position": [
+            2.2,
+            159.57
+          ]
+        },
+        "Q2": {
+          "position": [
+            19.79,
+            23.28
+          ]
+        },
+        "R1": {
+          "position": [
+            2.0,
+            61.31
+          ]
+        },
+        "R10": {
+          "position": [
+            87.31,
+            98.82
+          ]
+        },
+        "R11": {
+          "position": [
+            51.98,
+            107.45
+          ]
+        },
+        "R12": {
+          "position": [
+            65.64,
+            147.34
+          ]
+        },
+        "R13": {
+          "position": [
+            83.51,
+            121.18
+          ]
+        },
+        "R14": {
+          "position": [
+            65.05,
+            128.45
+          ]
+        },
+        "R15": {
+          "position": [
+            149.22,
+            18.98
+          ]
+        },
+        "R16": {
+          "position": [
+            139.96,
+            157.48
+          ]
+        },
+        "R17": {
+          "position": [
+            2.83,
+            109.25
+          ]
+        },
+        "R18": {
+          "position": [
+            136.65,
+            6.53
+          ]
+        },
+        "R19": {
+          "position": [
+            146.48,
+            229.56
+          ]
+        },
+        "R2": {
+          "position": [
+            149.82,
+            213.52
+          ]
+        },
+        "R20": {
+          "position": [
+            86.33,
+            84.37
+          ]
+        },
+        "R21": {
+          "position": [
+            37.61,
+            51.79
+          ]
+        },
+        "R22": {
+          "position": [
+            87.88,
+            39.35
+          ]
+        },
+        "R23": {
+          "position": [
+            7.58,
+            31.45
+          ]
+        },
+        "R24": {
+          "position": [
+            4.62,
+            1.24
+          ]
+        },
+        "R25": {
+          "position": [
+            13.47,
+            157.12
+          ]
+        },
+        "R26": {
+          "position": [
+            86.56,
+            1.24
+          ]
+        },
+        "R27": {
+          "position": [
+            127.53,
+            216.58
+          ]
+        },
+        "R28": {
+          "position": [
+            31.27,
+            177.67
+          ]
+        },
+        "R29": {
+          "position": [
+            42.29,
+            170.78
+          ]
+        },
+        "R3": {
+          "position": [
+            88.22,
+            52.01
+          ]
+        },
+        "R30": {
+          "position": [
+            22.6,
+            4.62
+          ]
+        },
+        "R31": {
+          "position": [
+            94.32,
+            29.66
+          ]
+        },
+        "R32": {
+          "position": [
+            76.22,
+            216.77
+          ]
+        },
+        "R33": {
+          "position": [
+            87.53,
+            58.23
+          ]
+        },
+        "R34": {
+          "position": [
+            141.84,
+            134.9
+          ]
+        },
+        "R35": {
+          "position": [
+            141.81,
+            136.98
+          ]
+        },
+        "R36": {
+          "position": [
+            44.44,
+            9.77
+          ]
+        },
+        "R37": {
+          "position": [
+            40.07,
+            49.33
+          ]
+        },
+        "R38": {
+          "position": [
+            136.12,
+            13.1
+          ]
+        },
+        "R39": {
+          "position": [
+            39.83,
+            70.27
+          ]
+        },
+        "R4": {
+          "position": [
+            80.26,
+            139.45
+          ]
+        },
+        "R40": {
+          "position": [
+            43.94,
+            4.87
+          ]
+        },
+        "R41": {
+          "position": [
+            20.48,
+            42.23
+          ]
+        },
+        "R42": {
+          "position": [
+            87.13,
+            61.59
+          ]
+        },
+        "R43": {
+          "position": [
+            42.58,
+            7.31
+          ]
+        },
+        "R44": {
+          "position": [
+            45.92,
+            52.56
+          ]
+        },
+        "R45": {
+          "position": [
+            64.8,
+            231.17
+          ]
+        },
+        "R46": {
+          "position": [
+            44.44,
+            16.43
+          ]
+        },
+        "R47": {
+          "position": [
+            142.56,
+            166.27
+          ]
+        },
+        "R48": {
+          "position": [
+            79.87,
+            152.01
+          ]
+        },
+        "R49": {
+          "position": [
+            136.58,
+            67.78
+          ]
+        },
+        "R5": {
+          "position": [
+            81.03,
+            18.14
+          ]
+        },
+        "R50": {
+          "position": [
+            62.72,
+            230.38
+          ]
+        },
+        "R51": {
+          "position": [
+            96.99,
+            154.22
+          ]
+        },
+        "R52": {
+          "position": [
+            146.61,
+            212.77
+          ]
+        },
+        "R53": {
+          "position": [
+            148.3,
+            216.6
+          ]
+        },
+        "R54": {
+          "position": [
+            150.65,
+            28.86
+          ]
+        },
+        "R55": {
+          "position": [
+            23.9,
+            40.34
+          ]
+        },
+        "R56": {
+          "position": [
+            13.22,
+            11.3
+          ]
+        },
+        "R57": {
+          "position": [
+            142.8,
+            211.62
+          ]
+        },
+        "R58": {
+          "position": [
+            84.45,
+            171.58
+          ]
+        },
+        "R59": {
+          "position": [
+            49.24,
+            173.81
+          ]
+        },
+        "R6": {
+          "position": [
+            64.34,
+            39.47
+          ]
+        },
+        "R60": {
+          "position": [
+            87.32,
+            29.12
+          ]
+        },
+        "R61": {
+          "position": [
+            139.19,
+            165.74
+          ]
+        },
+        "R62": {
+          "position": [
+            1.89,
+            230.38
+          ]
+        },
+        "R63": {
+          "position": [
+            79.12,
+            167.98
+          ]
+        },
+        "R64": {
+          "position": [
+            136.58,
+            71.02
+          ]
+        },
+        "R65": {
+          "position": [
+            108.11,
+            41.8
+          ]
+        },
+        "R66": {
+          "position": [
+            78.56,
+            41.81
+          ]
+        },
+        "R67": {
+          "position": [
+            81.36,
+            39.35
+          ]
+        },
+        "R68": {
+          "position": [
+            1.26,
+            179.62
+          ]
+        },
+        "R69": {
+          "position": [
+            103.16,
+            37.31
+          ]
+        },
+        "R7": {
+          "position": [
+            127.01,
+            212.77
+          ]
+        },
+        "R70": {
+          "position": [
+            42.69,
+            176.27
+          ]
+        },
+        "R71": {
+          "position": [
+            128.07,
+            139.44
+          ]
+        },
+        "R72": {
+          "position": [
+            6.39,
+            63.35
+          ]
+        },
+        "R73": {
+          "position": [
+            136.87,
+            2.37
+          ]
+        },
+        "R74": {
+          "position": [
+            90.74,
+            46.24
+          ]
+        },
+        "R75": {
+          "position": [
+            7.56,
+            176.27
+          ]
+        },
+        "R76": {
+          "position": [
+            135.64,
+            10.64
+          ]
+        },
+        "R77": {
+          "position": [
+            119.76,
+            135.43
+          ]
+        },
+        "R78": {
+          "position": [
+            82.52,
+            41.84
+          ]
+        },
+        "R79": {
+          "position": [
+            48.42,
+            11.03
+          ]
+        },
+        "R8": {
+          "position": [
+            72.18,
+            141.8
+          ]
+        },
+        "R9": {
+          "position": [
+            3.26,
+            28.44
+          ]
+        },
+        "RT1": {
+          "position": [
+            6.29,
+            190.1
+          ]
+        },
+        "RV1": {
+          "position": [
+            14.77,
+            137.24
+          ]
+        },
+        "SW1": {
+          "position": [
+            43.34,
+            178.73
+          ]
+        },
+        "SW2": {
+          "position": [
+            131.28,
+            137.73
+          ]
+        },
+        "T1": {
+          "position": [
+            15.8,
+            87.87
+          ]
+        },
+        "TP1": {
+          "position": [
+            82.48,
+            154.89
+          ]
+        },
+        "TP2": {
+          "position": [
+            91.06,
+            165.0
+          ]
+        },
+        "TP3": {
+          "position": [
+            39.71,
+            75.54
+          ]
+        },
+        "U1": {
+          "position": [
+            64.97,
+            164.14
+          ]
+        },
+        "U10": {
+          "position": [
+            6.99,
+            166.49
+          ]
+        },
+        "U11": {
+          "position": [
+            142.19,
+            161.31
+          ]
+        },
+        "U12": {
+          "position": [
+            47.87,
+            2.2
+          ]
+        },
+        "U13": {
+          "position": [
+            123.54,
+            137.95
+          ]
+        },
+        "U14": {
+          "position": [
+            136.21,
+            18.41
+          ]
+        },
+        "U15": {
+          "position": [
+            72.79,
+            230.6
+          ]
+        },
+        "U16": {
+          "position": [
+            32.83,
+            40.91
+          ]
+        },
+        "U17": {
+          "position": [
+            44.22,
+            40.91
+          ]
+        },
+        "U18": {
+          "position": [
+            82.9,
+            166.49
+          ]
+        },
+        "U19": {
+          "position": [
+            104.56,
+            32.62
+          ]
+        },
+        "U2": {
+          "position": [
+            5.75,
+            36.38
+          ]
+        },
+        "U20": {
+          "position": [
+            93.4,
+            42.81
+          ]
+        },
+        "U21": {
+          "position": [
+            80.27,
+            172.16
+          ]
+        },
+        "U22": {
+          "position": [
+            142.97,
+            216.03
+          ]
+        },
+        "U23": {
+          "position": [
+            101.03,
+            43.77
+          ]
+        },
+        "U24": {
+          "position": [
+            82.97,
+            160.09
+          ]
+        },
+        "U25": {
+          "position": [
+            10.59,
+            112.0
+          ]
+        },
+        "U26": {
+          "position": [
+            43.7,
+            81.62
+          ]
+        },
+        "U27": {
+          "position": [
+            36.32,
+            28.01
+          ]
+        },
+        "U3": {
+          "position": [
+            22.0,
+            55.02
+          ]
+        },
+        "U4": {
+          "position": [
+            97.92,
+            37.37
+          ]
+        },
+        "U5": {
+          "position": [
+            116.3,
+            218.7
+          ]
+        },
+        "U6": {
+          "position": [
+            14.57,
+            143.44
+          ]
+        },
+        "U7": {
+          "position": [
+            45.32,
+            193.41
+          ]
+        },
+        "U8": {
+          "position": [
+            2.25,
+            43.68
+          ]
+        },
+        "U9": {
+          "position": [
+            131.9,
+            229.94
+          ]
+        }
+      },
+      "fixed_copper_audit_violations": 0,
+      "fixed_copper_free_refs": [
+        "C27",
+        "K3"
+      ],
+      "fixed_copper_margin_mm": 0.05,
+      "keepaway_constraints": 530,
+      "moved_refs": 168,
+      "reason": "all inter-component REQ-SAFE-01 pairs cleared; 0 intra-footprint record(s) remain (unfixable by placement, reported as blockers)",
+      "round0_solve_status": "feasible",
+      "round0_solve_time_ms": 181524.01533297962,
+      "round0_total_constraints": 12101,
+      "rounds": 1,
+      "seed": 0,
+      "status": "clean",
+      "timeout_ms": 180000,
+      "total_displacement_mm": 11101.79,
+      "wall_s": 182.2
+    },
+    {
+      "cap_mm": 240.0,
+      "domain_constraints": 11571,
+      "final_positions": {
+        "C1": {
+          "position": [
+            11.72,
+            31.45
+          ]
+        },
+        "C10": {
+          "position": [
+            53.98,
+            1.23
+          ]
+        },
+        "C11": {
+          "position": [
+            66.52,
+            25.62
+          ]
+        },
+        "C12": {
+          "position": [
+            103.08,
+            124.44
+          ]
+        },
+        "C13": {
+          "position": [
+            137.9,
+            7.8
+          ]
+        },
+        "C14": {
+          "position": [
+            52.98,
+            180.82
+          ]
+        },
+        "C15": {
+          "position": [
+            86.14,
+            124.78
+          ]
+        },
+        "C16": {
+          "position": [
+            12.09,
+            163.14
+          ]
+        },
+        "C17": {
+          "position": [
+            9.39,
+            68.48
+          ]
+        },
+        "C18": {
+          "position": [
+            50.51,
+            4.44
+          ]
+        },
+        "C19": {
+          "position": [
+            115.67,
+            5.46
+          ]
+        },
+        "C2": {
+          "position": [
+            91.88,
+            10.2
+          ]
+        },
+        "C20": {
+          "position": [
+            1.23,
+            159.52
+          ]
+        },
+        "C21": {
+          "position": [
+            150.77,
+            36.56
+          ]
+        },
+        "C22": {
+          "position": [
+            41.09,
+            167.7
+          ]
+        },
+        "C23": {
+          "position": [
+            1.24,
+            68.53
+          ]
+        },
+        "C24": {
+          "position": [
+            125.09,
+            148.39
+          ]
+        },
+        "C25": {
+          "position": [
+            27.37,
+            22.05
+          ]
+        },
+        "C26": {
+          "position": [
+            59.32,
+            142.39
+          ]
+        },
+        "C27": {
+          "position": [
+            32.44,
+            218.86
+          ]
+        },
+        "C28": {
+          "position": [
+            45.14,
+            61.06
+          ]
+        },
+        "C29": {
+          "position": [
+            145.77,
+            87.68
+          ]
+        },
+        "C3": {
+          "position": [
+            111.0,
+            54.1
+          ]
+        },
+        "C30": {
+          "position": [
+            142.56,
+            113.65
+          ]
+        },
+        "C31": {
+          "position": [
+            140.61,
+            105.2
+          ]
+        },
+        "C32": {
+          "position": [
+            1.23,
+            50.18
+          ]
+        },
+        "C33": {
+          "position": [
+            1.23,
+            55.54
+          ]
+        },
+        "C34": {
+          "position": [
+            150.77,
+            29.12
+          ]
+        },
+        "C35": {
+          "position": [
+            138.6,
+            3.84
+          ]
+        },
+        "C36": {
+          "position": [
+            50.51,
+            54.2
+          ]
+        },
+        "C37": {
+          "position": [
+            97.96,
+            123.57
+          ]
+        },
+        "C38": {
+          "position": [
+            52.7,
+            23.08
+          ]
+        },
+        "C39": {
+          "position": [
+            6.89,
+            12.5
+          ]
+        },
+        "C4": {
+          "position": [
+            32.34,
+            149.56
+          ]
+        },
+        "C40": {
+          "position": [
+            150.77,
+            83.55
+          ]
+        },
+        "C5": {
+          "position": [
+            45.9,
+            84.14
+          ]
+        },
+        "C6": {
+          "position": [
+            117.69,
+            23.78
+          ]
+        },
+        "C7": {
+          "position": [
+            110.81,
+            76.23
+          ]
+        },
+        "C8": {
+          "position": [
+            76.81,
+            47.53
+          ]
+        },
+        "C9": {
+          "position": [
+            71.59,
+            227.24
+          ]
+        },
+        "D1": {
+          "position": [
+            77.89,
+            107.67
+          ]
+        },
+        "D2": {
+          "position": [
+            148.39,
+            17.29
+          ]
+        },
+        "D3": {
+          "position": [
+            2.34,
+            153.54
+          ]
+        },
+        "D4": {
+          "position": [
+            65.49,
+            224.93
+          ]
+        },
+        "D5": {
+          "position": [
+            5.22,
+            1.65
+          ]
+        },
+        "F1": {
+          "position": [
+            51.6,
+            119.19
+          ]
+        },
+        "J1": {
+          "position": [
+            59.19,
+            56.0
+          ]
+        },
+        "K1": {
+          "position": [
+            16.06,
+            185.99
+          ]
+        },
+        "K2": {
+          "position": [
+            75.76,
+            80.25
+          ]
+        },
+        "K3": {
+          "position": [
+            135.24,
+            43.58
+          ]
+        },
+        "L1": {
+          "position": [
+            95.86,
+            207.86
+          ]
+        },
+        "L2": {
+          "position": [
+            54.87,
+            13.9
+          ]
+        },
+        "PS1": {
+          "position": [
+            134.68,
+            200.94
+          ]
+        },
+        "Q1": {
+          "position": [
+            61.36,
+            25.29
+          ]
+        },
+        "Q2": {
+          "position": [
+            4.89,
+            50.4
+          ]
+        },
+        "R1": {
+          "position": [
+            92.06,
+            75.31
+          ]
+        },
+        "R10": {
+          "position": [
+            129.27,
+            16.17
+          ]
+        },
+        "R11": {
+          "position": [
+            14.94,
+            94.19
+          ]
+        },
+        "R12": {
+          "position": [
+            67.89,
+            186.26
+          ]
+        },
+        "R13": {
+          "position": [
+            25.69,
+            76.16
+          ]
+        },
+        "R14": {
+          "position": [
+            57.75,
+            39.97
+          ]
+        },
+        "R15": {
+          "position": [
+            107.58,
+            173.07
+          ]
+        },
+        "R16": {
+          "position": [
+            18.1,
+            108.81
+          ]
+        },
+        "R17": {
+          "position": [
+            2.26,
+            163.17
+          ]
+        },
+        "R18": {
+          "position": [
+            54.19,
+            54.4
+          ]
+        },
+        "R19": {
+          "position": [
+            2.96,
+            229.56
+          ]
+        },
+        "R2": {
+          "position": [
+            59.28,
+            65.75
+          ]
+        },
+        "R20": {
+          "position": [
+            18.61,
+            66.25
+          ]
+        },
+        "R21": {
+          "position": [
+            3.43,
+            12.96
+          ]
+        },
+        "R22": {
+          "position": [
+            11.46,
+            80.34
+          ]
+        },
+        "R23": {
+          "position": [
+            58.61,
+            95.34
+          ]
+        },
+        "R24": {
+          "position": [
+            40.75,
+            28.49
+          ]
+        },
+        "R25": {
+          "position": [
+            92.08,
+            125.9
+          ]
+        },
+        "R26": {
+          "position": [
+            92.08,
+            52.33
+          ]
+        },
+        "R27": {
+          "position": [
+            20.22,
+            152.53
+          ]
+        },
+        "R28": {
+          "position": [
+            31.74,
+            108.46
+          ]
+        },
+        "R29": {
+          "position": [
+            107.11,
+            125.02
+          ]
+        },
+        "R3": {
+          "position": [
+            125.86,
+            128.59
+          ]
+        },
+        "R30": {
+          "position": [
+            43.37,
+            104.48
+          ]
+        },
+        "R31": {
+          "position": [
+            138.11,
+            13.08
+          ]
+        },
+        "R32": {
+          "position": [
+            145.02,
+            101.69
+          ]
+        },
+        "R33": {
+          "position": [
+            118.13,
+            4.72
+          ]
+        },
+        "R34": {
+          "position": [
+            7.0,
+            57.93
+          ]
+        },
+        "R35": {
+          "position": [
+            88.12,
+            151.0
+          ]
+        },
+        "R36": {
+          "position": [
+            126.06,
+            232.77
+          ]
+        },
+        "R37": {
+          "position": [
+            53.5,
+            193.25
+          ]
+        },
+        "R38": {
+          "position": [
+            139.34,
+            90.14
+          ]
+        },
+        "R39": {
+          "position": [
+            70.72,
+            232.02
+          ]
+        },
+        "R4": {
+          "position": [
+            2.96,
+            211.19
+          ]
+        },
+        "R40": {
+          "position": [
+            84.76,
+            170.97
+          ]
+        },
+        "R41": {
+          "position": [
+            39.96,
+            65.97
+          ]
+        },
+        "R42": {
+          "position": [
+            120.99,
+            131.42
+          ]
+        },
+        "R43": {
+          "position": [
+            129.92,
+            19.38
+          ]
+        },
+        "R44": {
+          "position": [
+            126.06,
+            1.51
+          ]
+        },
+        "R45": {
+          "position": [
+            1.61,
+            79.76
+          ]
+        },
+        "R46": {
+          "position": [
+            48.86,
+            1.23
+          ]
+        },
+        "R47": {
+          "position": [
+            47.6,
+            5.34
+          ]
+        },
+        "R48": {
+          "position": [
+            92.08,
+            57.85
+          ]
+        },
+        "R49": {
+          "position": [
+            141.56,
+            127.77
+          ]
+        },
+        "R5": {
+          "position": [
+            16.25,
+            147.89
+          ]
+        },
+        "R50": {
+          "position": [
+            122.85,
+            168.36
+          ]
+        },
+        "R51": {
+          "position": [
+            29.35,
+            96.26
+          ]
+        },
+        "R52": {
+          "position": [
+            148.78,
+            160.12
+          ]
+        },
+        "R53": {
+          "position": [
+            64.4,
+            221.05
+          ]
+        },
+        "R54": {
+          "position": [
+            137.71,
+            118.75
+          ]
+        },
+        "R55": {
+          "position": [
+            56.89,
+            23.08
+          ]
+        },
+        "R56": {
+          "position": [
+            13.22,
+            69.33
+          ]
+        },
+        "R57": {
+          "position": [
+            53.02,
+            26.09
+          ]
+        },
+        "R58": {
+          "position": [
+            85.25,
+            118.76
+          ]
+        },
+        "R59": {
+          "position": [
+            53.66,
+            198.63
+          ]
+        },
+        "R6": {
+          "position": [
+            84.1,
+            180.83
+          ]
+        },
+        "R60": {
+          "position": [
+            71.5,
+            105.52
+          ]
+        },
+        "R61": {
+          "position": [
+            82.15,
+            106.0
+          ]
+        },
+        "R62": {
+          "position": [
+            84.85,
+            154.21
+          ]
+        },
+        "R63": {
+          "position": [
+            3.69,
+            159.74
+          ]
+        },
+        "R64": {
+          "position": [
+            149.13,
+            232.77
+          ]
+        },
+        "R65": {
+          "position": [
+            134.48,
+            93.08
+          ]
+        },
+        "R66": {
+          "position": [
+            137.4,
+            104.9
+          ]
+        },
+        "R67": {
+          "position": [
+            57.18,
+            26.49
+          ]
+        },
+        "R68": {
+          "position": [
+            50.29,
+            194.0
+          ]
+        },
+        "R69": {
+          "position": [
+            150.77,
+            39.92
+          ]
+        },
+        "R7": {
+          "position": [
+            63.73,
+            209.64
+          ]
+        },
+        "R70": {
+          "position": [
+            72.34,
+            109.21
+          ]
+        },
+        "R71": {
+          "position": [
+            81.36,
+            123.91
+          ]
+        },
+        "R72": {
+          "position": [
+            149.13,
+            76.95
+          ]
+        },
+        "R73": {
+          "position": [
+            22.11,
+            108.42
+          ]
+        },
+        "R74": {
+          "position": [
+            88.12,
+            163.53
+          ]
+        },
+        "R75": {
+          "position": [
+            7.2,
+            159.93
+          ]
+        },
+        "R76": {
+          "position": [
+            49.02,
+            8.55
+          ]
+        },
+        "R77": {
+          "position": [
+            9.63,
+            163.14
+          ]
+        },
+        "R78": {
+          "position": [
+            92.08,
+            31.14
+          ]
+        },
+        "R79": {
+          "position": [
+            130.04,
+            7.56
+          ]
+        },
+        "R8": {
+          "position": [
+            77.72,
+            36.4
+          ]
+        },
+        "R9": {
+          "position": [
+            15.55,
+            68.6
+          ]
+        },
+        "RT1": {
+          "position": [
+            66.18,
+            171.98
+          ]
+        },
+        "RV1": {
+          "position": [
+            26.36,
+            53.57
+          ]
+        },
+        "SW1": {
+          "position": [
+            6.42,
+            163.89
+          ]
+        },
+        "SW2": {
+          "position": [
+            150.77,
+            79.59
+          ]
+        },
+        "T1": {
+          "position": [
+            109.68,
+            102.41
+          ]
+        },
+        "TP1": {
+          "position": [
+            82.34,
+            126.14
+          ]
+        },
+        "TP2": {
+          "position": [
+            147.74,
+            80.94
+          ]
+        },
+        "TP3": {
+          "position": [
+            73.36,
+            232.54
+          ]
+        },
+        "U1": {
+          "position": [
+            70.61,
+            203.02
+          ]
+        },
+        "U10": {
+          "position": [
+            41.36,
+            197.66
+          ]
+        },
+        "U11": {
+          "position": [
+            86.41,
+            159.52
+          ]
+        },
+        "U12": {
+          "position": [
+            146.34,
+            124.54
+          ]
+        },
+        "U13": {
+          "position": [
+            103.62,
+            29.34
+          ]
+        },
+        "U14": {
+          "position": [
+            44.49,
+            54.42
+          ]
+        },
+        "U15": {
+          "position": [
+            130.49,
+            164.18
+          ]
+        },
+        "U16": {
+          "position": [
+            81.14,
+            114.22
+          ]
+        },
+        "U17": {
+          "position": [
+            46.86,
+            194.57
+          ]
+        },
+        "U18": {
+          "position": [
+            48.92,
+            18.06
+          ]
+        },
+        "U19": {
+          "position": [
+            134.24,
+            7.23
+          ]
+        },
+        "U2": {
+          "position": [
+            70.87,
+            11.96
+          ]
+        },
+        "U20": {
+          "position": [
+            66.13,
+            108.24
+          ]
+        },
+        "U21": {
+          "position": [
+            6.63,
+            54.88
+          ]
+        },
+        "U22": {
+          "position": [
+            91.51,
+            159.74
+          ]
+        },
+        "U23": {
+          "position": [
+            146.92,
+            153.74
+          ]
+        },
+        "U24": {
+          "position": [
+            115.44,
+            166.14
+          ]
+        },
+        "U25": {
+          "position": [
+            133.12,
+            130.94
+          ]
+        },
+        "U26": {
+          "position": [
+            147.74,
+            94.4
+          ]
+        },
+        "U27": {
+          "position": [
+            94.24,
+            139.19
+          ]
+        },
+        "U3": {
+          "position": [
+            24.97,
+            122.0
+          ]
+        },
+        "U4": {
+          "position": [
+            54.37,
+            4.5
+          ]
+        },
+        "U5": {
+          "position": [
+            3.72,
+            113.14
+          ]
+        },
+        "U6": {
+          "position": [
+            8.7,
+            137.01
+          ]
+        },
+        "U7": {
+          "position": [
+            133.84,
+            73.0
+          ]
+        },
+        "U8": {
+          "position": [
+            149.08,
+            4.66
+          ]
+        },
+        "U9": {
+          "position": [
+            138.19,
+            165.67
+          ]
+        }
+      },
+      "fixed_copper_audit_violations": 0,
+      "fixed_copper_free_refs": [
+        "C27",
+        "K3"
+      ],
+      "fixed_copper_margin_mm": 0.05,
+      "keepaway_constraints": 530,
+      "moved_refs": 169,
+      "reason": "all inter-component REQ-SAFE-01 pairs cleared; 0 intra-footprint record(s) remain (unfixable by placement, reported as blockers)",
+      "round0_solve_status": "feasible",
+      "round0_solve_time_ms": 181546.29416699754,
+      "round0_total_constraints": 12101,
+      "rounds": 1,
+      "seed": 0,
+      "status": "clean",
+      "timeout_ms": 180000,
+      "total_displacement_mm": 18347.23,
+      "wall_s": 182.1
+    }
+  ],
+  "provenance": {
+    "commit": "e19fc516934bfc95c3b311602380db50d7e0393d",
+    "dirty": true
+  }
+}
