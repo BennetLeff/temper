@@ -1,4 +1,4 @@
-<!-- provenance: commit=<set-at-commit-time> dirty=<set-at-commit-time> -->
+<!-- provenance: commit=bcc5fa0ded062584d23cc707298c705afe4fcdc9 dirty=false -->
 
 # Fixed-copper hoisted into the repair caller — issue #617
 

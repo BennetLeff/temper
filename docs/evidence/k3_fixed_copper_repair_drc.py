@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """DRC proxy for the issue #617 hoisted-caller solved placement.
 
-# provenance: commit=<set-at-commit-time> dirty=<set-at-commit-time>
+# provenance: commit=bcc5fa0ded062584d23cc707298c705afe4fcdc9 dirty=false
 
 Writes the solved placement (k3_fixed_copper_repair_solve_summary.json,
 the run-B recipe through the hoisted run_clearance_repair_solve) to a

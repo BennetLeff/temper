@@ -1373,7 +1373,7 @@
     }
   },
   "provenance": {
-    "commit": "<set-at-commit-time>",
+    "commit": "bcc5fa0ded062584d23cc707298c705afe4fcdc9",
     "dirty": false
   },
   "reason": "all inter-component REQ-SAFE-01 pairs cleared; 0 intra-footprint record(s) remain (unfixable by placement, reported as blockers)",
