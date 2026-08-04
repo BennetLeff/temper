@@ -607,13 +607,6 @@ temper_placer/io/kicad_exporter.py::extract_pad_centers  # TODO: temper-xxx
 temper_placer/io/kicad_exporter.py::path_to_segments  # TODO: temper-xxx
 temper_placer/io/kicad_exporter.py::path_to_vias  # TODO: temper-xxx
 temper_placer/io/kicad_exporter.py::snap_to_nearest_pad  # TODO: temper-xxx
-temper_placer/io/kicad_metadata.py::extract_kicad_metadata  # TODO: temper-xxx
-temper_placer/io/kicad_parser.py::ParseResult.has_warnings  # TODO: temper-xxx
-temper_placer/io/kicad_parser.py::extract_footprint_positions  # TODO: temper-xxx
-temper_placer/io/kicad_parser.py::extract_net_classes  # TODO: temper-xxx
-temper_placer/io/kicad_parser.py::parse_kicad_pcb  # TODO: temper-xxx
-temper_placer/io/kicad_parser.py::parse_kicad_pcb_v6  # TODO: temper-xxx
-temper_placer/io/kicad_parser.py::parse_kicad_schematic  # TODO: temper-xxx
 temper_placer/io/kicad_writer.py::IsolationSlotResult.has_warnings  # TODO: temper-xxx
 temper_placer/io/kicad_writer.py::StrippingResult.has_warnings  # TODO: temper-xxx
 temper_placer/io/kicad_writer.py::WriteResult.has_warnings  # TODO: temper-xxx

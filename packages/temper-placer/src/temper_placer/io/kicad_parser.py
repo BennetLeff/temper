@@ -1,35 +1,41 @@
 """
-KiCad PCB and schematic parser using kiutils — re-export hub.
+KiCad PCB parser — re-export hub over the Rust parse engine.
 
-Implementation extracted to ``io._parse_*`` and ``io._kicad_types``.
-Public orchestrators (parse_kicad_pcb, parse_kicad_schematic, parse_kicad_pcb_v6)
-remain here; all helpers and dataclasses are imported from the internal modules.
+Migrated to Rust (Wave 4 Phase 3 candidate 3, plan
+``docs/plans/2026-08-02-001-feat-wave4-phase3-formats-io-plan.md``): the
+parse engine lives in ``temper_design_bundle_python.parse_engine`` and this
+module is its delegation shim. kiutils no longer imports in this module
+(parent R4).
+
+Public orchestrators (parse_kicad_pcb, parse_kicad_pcb_v6,
+extract_footprint_positions) remain here; ``parse_kicad_schematic`` was
+RETIRED (plan R8: a `pass` stub returning an empty netlist, consumer
+``tests/io/test_integration.py`` only; its kiutils ``Schematic`` import had
+to leave with this candidate).
+
+Bit-identical parity against the verbatim kiutils oracle is asserted by
+``tests/io/test_parse_engine_rust_differential.py``.
 """
 
 from __future__ import annotations
 
-import re
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from kiutils.board import Board as KiBoard
-from kiutils.schematic import Schematic
+import temper_design_bundle_python as _tdb
 
 from temper_placer.core.board import Board
 from temper_placer.core.design_rules import DesignRules
-from temper_placer.core.netlist import Component, Net, Netlist
-from temper_placer.io._kicad_types import ParseResult
-from temper_placer.io._parse_board import _extract_board_geometry, _extract_stackup
-from temper_placer.io._parse_modules import (
-    _extract_components_from_pcb,
-    _extract_pads_from_pcb,
+from temper_placer.io._kicad_types import (
+    PadData,
+    ParseResult,
+    TraceData,
+    ViaData,
 )
-from temper_placer.io._parse_nets import (
-    _apply_safety_classifications,
-    _extract_design_rules,
-    _extract_nets_from_pcb,
-)
-from temper_placer.io._parse_tracks import _extract_traces_from_pcb, _extract_vias_from_pcb
+from temper_placer.io._parse_board import _extract_stackup
+from temper_placer.io._parse_nets import _apply_safety_classifications, _extract_design_rules
+
+_rs = _tdb.parse_engine
 
 if TYPE_CHECKING:
     from temper_placer.router_v6.stage0_data import ParsedPCB
@@ -50,84 +56,16 @@ def parse_kicad_pcb(
     Returns:
         ParseResult containing netlist, board geometry, and any warnings.
     """
-    warnings: list[str] = []
-
-    ki_board = KiBoard.from_file(str(pcb_path))
-
-    if not ki_board.footprints:
-        warnings.append("No footprints found in PCB.")
-        board = _extract_board_geometry(ki_board, warnings)
-        return ParseResult(
-            netlist=Netlist(components=[], nets=[]),
-            board=board,
-            warnings=warnings,
-            traces=[],
-            vias=[],
-            pads=[],
-        )
-
-    board = _extract_board_geometry(ki_board, warnings)
-
-    origin_to_use = board.origin if normalize else (0.0, 0.0)
-    components = _extract_components_from_pcb(ki_board, warnings, board_origin=origin_to_use)
-
-    nets = _extract_nets_from_pcb(ki_board, components, warnings)
-
-    net_map = {}
-    if hasattr(ki_board, "nets"):
-        for n in ki_board.nets:
-            if hasattr(n, "number") and hasattr(n, "name"):
-                net_map[str(n.number)] = n.name
-            elif hasattr(n, "code") and hasattr(n, "name"):
-                net_map[str(n.code)] = n.name
-
-    traces = _extract_traces_from_pcb(ki_board, warnings, net_map)
-    vias = _extract_vias_from_pcb(ki_board, warnings, net_map)
-    pads = _extract_pads_from_pcb(ki_board, warnings)
-
-    netlist = Netlist(components=components, nets=nets)
+    # Accept both str and Path (the historical signature did; consumers pass
+    # either).
+    pcb_path = Path(pcb_path)
+    content = pcb_path.read_text(encoding="utf-8")
+    result = _rs.parse_kicad_pcb(content, normalize=normalize)
 
     if design_rules is not None:
-        _apply_safety_classifications(netlist, design_rules)
+        _apply_safety_classifications(result.netlist, design_rules)
 
-    return ParseResult(
-        netlist=netlist, board=board, warnings=warnings, traces=traces, vias=vias, pads=pads
-    )
-
-
-def parse_kicad_schematic(sch_path: Path, recursive: bool = True) -> ParseResult:
-    """Parse KiCad schematic files to extract component and netlist data.
-
-    Args:
-        sch_path: Path to the root .kicad_sch file.
-        recursive: If True, also parse hierarchical sheets.
-
-    Returns:
-        ParseResult with extracted netlist.
-    """
-    warnings: list[str] = []
-    components: list[Component] = []
-    nets_dict: dict[str, list[tuple[str, str]]] = {}
-
-    sch = Schematic.from_file(str(sch_path))
-    _parse_schematic_sheet(sch, components, nets_dict, warnings, recursive)
-
-    nets = [Net(name=name, pins=pins) for name, pins in nets_dict.items()]
-
-    return ParseResult(
-        netlist=Netlist(components=components, nets=nets), board=None, warnings=warnings
-    )
-
-
-def _parse_schematic_sheet(
-    _sheet: Schematic,
-    components: list[Component],
-    nets_dict: dict[str, list[tuple[str, str]]],
-    warnings: list[str],
-    recursive: bool,
-) -> None:
-    """Recursive helper for parsing hierarchical schematics."""
-    pass
+    return result
 
 
 def extract_footprint_positions(content: str) -> dict[str, dict]:
@@ -140,37 +78,7 @@ def extract_footprint_positions(content: str) -> dict[str, dict]:
         Dict mapping component reference to position info:
         {"U1": {"x": 50.5, "y": 75.25, "rotation": 90.0}, ...}
     """
-    positions = {}
-
-    footprint_starts = []
-    for match in re.finditer(r'\(footprint\s+"[^"]+"\s+\(layer', content):
-        footprint_starts.append(match.start())
-
-    for i, start in enumerate(footprint_starts):
-        end = footprint_starts[i + 1] if i + 1 < len(footprint_starts) else len(content)
-        block = content[start:end]
-
-        at_match = re.search(r"\(at\s+([\d.-]+)\s+([\d.-]+)(?:\s+([\d.-]+))?\)", block)
-        if not at_match:
-            continue
-
-        x = float(at_match.group(1))
-        y = float(at_match.group(2))
-        rotation = float(at_match.group(3)) if at_match.group(3) else 0.0
-
-        ref_match = re.search(r'\(property\s+"Reference"\s+"([^"]+)"', block)
-        if not ref_match:
-            continue
-
-        ref = ref_match.group(1)
-
-        positions[ref] = {
-            "x": x,
-            "y": y,
-            "rotation": rotation,
-        }
-
-    return positions
+    return _rs.extract_footprint_positions(content)
 
 
 def parse_kicad_pcb_v6(pcb_path: Path, *, use_declared_layer_roles: bool = False) -> ParsedPCB:
@@ -197,8 +105,7 @@ def parse_kicad_pcb_v6(pcb_path: Path, *, use_declared_layer_roles: bool = False
 
     warnings: list[str] = []
 
-    ki_board = KiBoard.from_file(str(pcb_path))
-
+    pcb_path = Path(pcb_path)
     try:
         pcb_content = pcb_path.read_text(encoding="utf-8")
     except Exception as e:
@@ -208,10 +115,10 @@ def parse_kicad_pcb_v6(pcb_path: Path, *, use_declared_layer_roles: bool = False
     legacy_result = parse_kicad_pcb(pcb_path, normalize=False)
     warnings.extend(legacy_result.warnings)
 
-    design_rules = _extract_design_rules(ki_board, warnings, pcb_content)
+    design_rules = _extract_design_rules(None, warnings, pcb_content)
 
     stackup = _extract_stackup(
-        ki_board, warnings, use_declared_layer_roles=use_declared_layer_roles
+        None, warnings, use_declared_layer_roles=use_declared_layer_roles, pcb_content=pcb_content
     )
 
     return ParsedPCB(

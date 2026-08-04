@@ -25,6 +25,11 @@ mod config_loader;
 #[cfg(feature = "python")]
 mod reference_loader;
 
+||||||| parent of 6dc58d6bc (feat(wave4): Phase 3 candidate 3 — the KiCad parse engine to Rust)
+
+#[cfg(feature = "python")]
+mod parse_engine;
+
 mod atopile;
 mod constraint_merge;
 mod error;
@@ -233,6 +238,6 @@ mod python {
             crate::reference_loader::infer_quality_config,
             module
         )?)?;
-        Ok(())
+        crate::parse_engine::register(module)
     }
 }
