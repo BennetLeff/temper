@@ -532,6 +532,80 @@ def test_preprocess_loss_weights_mapping_matches_oracle():
     assert canon_call(PRECONFIG, raw) == canon_call(_oracle._preprocess_config, raw)
 
 
+def test_preprocess_loss_weights_non_str_keys_skipped():
+    """Oracle: `_NAME_MAP.get(wkey, wkey)` tolerates any hashable key — a
+    non-str key can never be a loss name, so it is skipped silently. A raw
+    str extract in the Rust arm raised TypeError (the P2 parity bug)."""
+    raw = {"loss_weights": {1: 0.5, "overlap": 2.0, 2.5: 3.0, None: 4.0, ("a",): 5.0}}
+    assert canon_call(PRECONFIG, raw) == canon_call(_oracle._preprocess_config, raw)
+    rs = PRECONFIG(raw)
+    assert rs["losses"].overlap.weight == 2.0
+
+
+def test_preprocess_hv_exclusion_zones_non_str_name_error_parity():
+    """A non-str `name` misses the refdes lookup (`dict.get`, not
+    `__getitem__`) and pydantic then raises its own wrapped ValidationError —
+    a raw extract TypeError is the wrong family (the P2 parity bug)."""
+    raw = {"hv_exclusion_zones": [{"name": 1, "center": [0, 0], "size": [1, 1]}]}
+    assert canon_call(PRECONFIG, raw) == canon_call(_oracle._preprocess_config, raw)
+
+
+def test_preprocess_critical_loops_empty_pins_yield_none():
+    """Oracle: `[...] if pins_raw else None` — truthiness, so an explicit
+    `pins: []` / `pins: ()` / `pins: 0` yields None, not an empty list.
+    Key-existence in the Rust arm diverged (the P2 parity bug)."""
+    for raw in (
+        {"critical_loops": [{"name": "L", "pins": []}]},
+        {"critical_loops": [{"name": "L", "pins": ()}]},
+        {"critical_loops": [{"name": "L", "pins": None}]},
+        {"critical_loops": [{"name": "L", "pins": 0}]},
+    ):
+        assert canon_call(PRECONFIG, raw) == canon_call(_oracle._preprocess_config, raw)
+    rs = PRECONFIG({"critical_loops": [{"name": "L", "pins": []}]})
+    assert rs["critical_loops"][0].pins is None
+
+
+def test_preprocess_net_assignments_tuple_values_skipped():
+    """Oracle gates on `isinstance(net_list, list)` — tuple-valued
+    net_assignments are NOT processed (unlike keepouts / proximity /
+    fixed_positions, where tuples ARE accepted). The Rust arm's
+    list-or-tuple gate diverged (the P2 parity bug)."""
+    raw = {"net_assignments": {"Power": ("VIN", "VOUT")}}
+    assert canon_call(PRECONFIG, raw) == canon_call(_oracle._preprocess_config, raw)
+    assert dict(PRECONFIG(raw)["net_classes"]) == {}
+
+
+def test_preprocess_differential_pair_falsy_spacing_impedance_fallbacks():
+    """M7 full scope: `spacing_mm = dc.get("separation_mm") or
+    dc.get("spacing_mm") or 0.2` and `impedance_ohm =
+    dc.get("target_impedance_ohm") or dc.get("impedance_ohm")` are
+    truthiness-ors, not key-existence. A present-but-falsy primary (0) falls
+    through to the secondary / default — key-existence fed 0 into pydantic's
+    gt=0 spacing field and raised (the P1 parity bug)."""
+    for raw in (
+        {"differential_pairs": [{"positive_net": "DP", "negative_net": "DN", "separation_mm": 0}]},
+        {"differential_pairs": [{"positive_net": "DP", "negative_net": "DN", "spacing_mm": 0}]},
+        {"differential_pairs": [{"positive_net": "DP", "negative_net": "DN", "target_impedance_ohm": 0}]},
+        {"differential_pairs": [{"positive_net": "DP", "negative_net": "DN", "impedance_ohm": 0}]},
+        # falsy primary alongside a live fallback key
+        {"differential_pairs": [{"positive_net": "DP", "negative_net": "DN", "separation_mm": 0, "spacing_mm": 0.7}]},
+        {"differential_pairs": [{"positive_net": "DP", "negative_net": "DN", "spacing_mm": 0, "separation_mm": 0.9}]},
+        {"differential_pairs": [{"positive_net": "DP", "negative_net": "DN", "target_impedance_ohm": 0, "impedance_ohm": 50.0}]},
+    ):
+        assert canon_call(PRECONFIG, raw) == canon_call(_oracle._preprocess_config, raw)
+    # concrete anchors: falsy primary with live fallback picks the fallback…
+    rs = PRECONFIG({"differential_pairs": [{"positive_net": "DP", "negative_net": "DN", "separation_mm": 0, "spacing_mm": 0.7}]})
+    assert rs["differential_pairs"][0].spacing_mm == 0.7
+    rs = PRECONFIG({"differential_pairs": [{"positive_net": "DP", "negative_net": "DN", "spacing_mm": 0, "separation_mm": 0.9}]})
+    assert rs["differential_pairs"][0].spacing_mm == 0.9
+    rs = PRECONFIG({"differential_pairs": [{"positive_net": "DP", "negative_net": "DN", "target_impedance_ohm": 0, "impedance_ohm": 50.0}]})
+    assert rs["differential_pairs"][0].impedance_ohm == 50.0
+    # …and falsy-only falls to the 0.2 default / None.
+    rs = PRECONFIG({"differential_pairs": [{"positive_net": "DP", "negative_net": "DN", "separation_mm": 0}]})
+    assert rs["differential_pairs"][0].spacing_mm == 0.2
+    assert rs["differential_pairs"][0].impedance_ohm is None
+
+
 def test_preprocess_losses_dict_form_default_enabled():
     """A dict-form `losses` entry WITHOUT an explicit `enabled` gets the
     LossConfig default True (the `data.get("enabled", True)` default — the

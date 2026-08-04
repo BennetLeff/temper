@@ -135,7 +135,10 @@ def test_from_yaml_string_matches_oracle_on_production_fixture():
 
 
 def test_from_yaml_string_empty_and_missing_section_match_oracle():
-    for content in ("", "{}", "other: 1", "footprints: {}", "null"):
+    # `"0"` / `"false"` load to falsy scalars — the oracle's `if not data`
+    # short-circuit must win (a key-existence-only probe raises TypeError on
+    # int/bool — the P2 parity bug).
+    for content in ("", "{}", "other: 1", "footprints: {}", "null", "0", "false"):
         py_lib = _oracle.FootprintLibrary.from_yaml_string(content)
         rs_lib = FOOTPRINT_LIBRARY.from_yaml_string(content)
         assert len(rs_lib) == len(py_lib) == 0

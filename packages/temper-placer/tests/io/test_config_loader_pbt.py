@@ -19,7 +19,9 @@ Properties:
   ``str(key): int(value)`` identically on both arms.
 - P5. Differential-pair ``or`` semantics: ``positive_net or net_pos`` falls
   back only when the primary is *falsy* (missing, None, or empty) — the
-  truthiness-or trap.
+  truthiness-or trap. Same chain governs the spacing/impedance fallbacks
+  (``separation_mm or spacing_mm or 0.2``, ``target_impedance_ohm or
+  impedance_ohm``) — M7 full scope.
 - P6. Fixed-positions float coercion: list and dict position forms both
   coerce to float tuples.
 
@@ -119,6 +121,23 @@ def test_p3_loss_weights_name_mapping(weights):
     assert dict(rs["losses"].model_dump()) == dict(py["losses"].model_dump())
 
 
+@given(st.dictionaries(
+    st.one_of(st.integers(min_value=0, max_value=10), st.floats(min_value=0.0, max_value=10.0,
+                                                                allow_nan=False, allow_infinity=False),
+              st.none(), st.tuples(st.text(min_size=1, max_size=3))),
+    st.floats(min_value=0.0, max_value=100.0, allow_nan=False, allow_infinity=False)))
+@settings(max_examples=MAX_EXAMPLES, deadline=None)
+def test_p3b_loss_weights_non_str_keys_skipped(weights):
+    """Oracle: `_NAME_MAP.get(wkey, wkey)` tolerates any hashable key — a
+    non-str key can never be a loss name, so it is skipped silently. A raw
+    str extract in the Rust arm raised TypeError instead (the P2 parity
+    bug); the Rust must skip non-str keys identically."""
+    cfg = {"loss_weights": weights}
+    rs = PRECONFIG(cfg)
+    py = _oracle._preprocess_config(cfg)
+    assert dict(rs["losses"].model_dump()) == dict(py["losses"].model_dump())
+
+
 @given(st.dictionaries(st.text(alphabet="NET_0123", min_size=1, max_size=8),
                         st.integers(min_value=1, max_value=100)))
 @settings(max_examples=MAX_EXAMPLES, deadline=None)
@@ -144,6 +163,18 @@ def test_p4_net_priority_coercion(net_priority):
     {"positive_net": "DP", "negative_net": "DN", "net_pos": "FP", "net_neg": "FN"},
     {"net_pos": "FP", "net_neg": "FN"},
     {},
+    # M7 full scope — the spacing/impedance fallback chains are truthiness-ors
+    # too: a present-but-falsy primary (0) falls through to the secondary /
+    # default. Key-existence fed 0 into pydantic's gt=0 spacing field (raise)
+    # or 0.0 into impedance where the oracle yields None.
+    {"positive_net": "DP", "negative_net": "DN", "separation_mm": 0},
+    {"positive_net": "DP", "negative_net": "DN", "spacing_mm": 0},
+    {"positive_net": "DP", "negative_net": "DN", "target_impedance_ohm": 0},
+    {"positive_net": "DP", "negative_net": "DN", "impedance_ohm": 0},
+    # falsy primary alongside a live fallback key
+    {"positive_net": "DP", "negative_net": "DN", "separation_mm": 0, "spacing_mm": 0.7},
+    {"positive_net": "DP", "negative_net": "DN", "spacing_mm": 0, "separation_mm": 0.9},
+    {"positive_net": "DP", "negative_net": "DN", "target_impedance_ohm": 0, "impedance_ohm": 50.0},
 ]))
 @settings(max_examples=MAX_EXAMPLES, deadline=None)
 def test_p5_differential_pair_or_semantics(entry):
@@ -151,16 +182,33 @@ def test_p5_differential_pair_or_semantics(entry):
     an empty-string/None primary falls back to the secondary; a present
     primary wins. (The cases with a falsy primary AND both polarity nets
     present are the discriminator — earlier drafts lacked a negative net, so
-    both arms skipped identically and the property was vacuous.)"""
+    both arms skipped identically and the property was vacuous.) The same
+    truthiness-or governs the spacing/impedance fallbacks (M7 full scope):
+    `separation_mm or spacing_mm or 0.2` and `target_impedance_ohm or
+    impedance_ohm`."""
     cfg = {"differential_pairs": [entry]}
     rs = PRECONFIG(cfg)
     py = _oracle._preprocess_config(cfg)
     rs_pos = [(p.net_pos, p.net_neg) for p in rs["differential_pairs"]]
     py_pos = [(p.net_pos, p.net_neg) for p in py["differential_pairs"]]
     assert rs_pos == py_pos
-    # non-vacuity anchor: at least one of the discriminating cases yields a pair
+    rs_sp = [(p.spacing_mm, p.impedance_ohm) for p in rs["differential_pairs"]]
+    py_sp = [(p.spacing_mm, p.impedance_ohm) for p in py["differential_pairs"]]
+    assert rs_sp == py_sp
+    # non-vacuity anchors: at least one of the discriminating cases yields a pair
     if entry.get("positive_net") in ("", None) and entry.get("negative_net"):
         assert rs_pos, "falsy primary with live secondary must yield a pair"
+    # M7 anchors: falsy spacing/impedance primary with a live fallback must
+    # pick the fallback; falsy-only must land on 0.2 / None.
+    if entry.get("separation_mm") == 0 and entry.get("spacing_mm") == 0.7:
+        assert rs["differential_pairs"][0].spacing_mm == 0.7
+    if entry.get("spacing_mm") == 0 and entry.get("separation_mm") == 0.9:
+        assert rs["differential_pairs"][0].spacing_mm == 0.9
+    if entry.get("target_impedance_ohm") == 0 and entry.get("impedance_ohm") == 50.0:
+        assert rs["differential_pairs"][0].impedance_ohm == 50.0
+    if entry.get("separation_mm") == 0 and "spacing_mm" not in entry:
+        assert rs["differential_pairs"][0].spacing_mm == 0.2
+        assert rs["differential_pairs"][0].impedance_ohm is None
 
 
 @given(st.tuples(

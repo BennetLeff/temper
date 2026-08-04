@@ -19,7 +19,10 @@ Properties (all non-vacuously guarded):
 - P4. String-value coercion: a string ``courtyard_margin`` is coerced by
   CPython's own ``float()``, identically on both arms.
 - P5. Empty/missing-section semantics: empty, ``{}``, ``null``, and
-  missing-``footprints`` inputs all yield an empty library on both arms.
+  missing-``footprints`` inputs all yield an empty library on both arms —
+  including the falsy-scalar documents ``0`` / ``false``, which take the
+  oracle's ``if not data`` short-circuit (a key-existence-only probe would
+  raise TypeError on int/bool).
 
 Metamorphic relations:
 
@@ -133,9 +136,13 @@ def test_p4_string_value_coercion(name_entry):
     assert rs_spec.courtyard_margin == 0.25
 
 
-@given(st.sampled_from(["", "{}", "null", "other: 1", "footprints: {}", "[]"]))
+@given(st.sampled_from(["", "{}", "null", "other: 1", "footprints: {}", "[]", "0", "false"]))
 @settings(max_examples=MAX_EXAMPLES, deadline=None)
 def test_p5_empty_and_missing_section(content):
+    """Empty / missing-``footprints`` / falsy-scalar inputs all yield an
+    empty library on both arms — `"0"` and `"false"` load to falsy scalars
+    and must take the oracle's `if not data` short-circuit, not raise
+    TypeError from an `in` probe."""
     py_lib = _oracle.FootprintLibrary.from_yaml_string(content)
     rs_lib = FOOTPRINT_LIBRARY.from_yaml_string(content)
     assert len(rs_lib) == len(py_lib) == 0
