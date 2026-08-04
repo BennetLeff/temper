@@ -1,8 +1,8 @@
 # Wave 4 Phase 4 — validation DRC-check slice: anti-vacuity mutation sweep — 2026-08-04
 
-<!-- provenance: commit=2893a88fe dirty=true -->
+<!-- provenance: commit=25fb09ae3a753f202e3318ea1a05ab47d5d0a7ab dirty=true -->
 
-**Base commit:** `2893a88fe` (the TDD-RED commit) + uncommitted working-tree
+**Base commit:** `25fb09ae3` (the TDD-RED commit) + uncommitted working-tree
 changes (the `temper_drc_rs` validation kernels and the Python delegation
 shims). `dirty=true` because this document is committed together with the
 migration it verifies.

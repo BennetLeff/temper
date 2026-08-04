@@ -177,7 +177,7 @@ measurement or by construction:
 ## Evidence
 
 - Differential (R1a/R1f, TDD red→green): the RED commit
-  `2893a88fe` ("test(validation): Wave-4 Phase-4 TDD RED — oracles +
+  `25fb09ae3` ("test(validation): Wave-4 Phase-4 TDD RED — oracles +
   differential/PBT suites") pins the pre-migration implementations verbatim
   (`_tht_check_py_oracle.py`, `_geometric_py_oracle.py`,
   `_drc_oracle_py_oracle.py`, `_drc_fence_py_oracle.py` at commit
