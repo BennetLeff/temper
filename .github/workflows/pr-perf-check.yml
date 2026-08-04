@@ -138,6 +138,39 @@ jobs:
             || : > main-perf-baseline.jsonl
           wc -l main-perf-baseline.jsonl
 
+          # main's benchmark registry, so the comparator can tell a benchmark
+          # that is NEW to main (no baseline can exist yet -- the baseline is
+          # read from main, and main does not have this code) from one that
+          # exists on main and is missing its row (the vacuity case, which
+          # still fails closed). Without this file every unbaselined key stays
+          # NO_BASELINE, so a fetch failure degrades to the strict behaviour.
+          git show "origin/main:benchmarks/perf_ab.py" > main-perf-ab.py 2>/dev/null \
+            || : > main-perf-ab.py
+          python3 - <<'EOF' > main-benchmarks.tsv
+          import ast, pathlib
+          src = pathlib.Path("main-perf-ab.py").read_text()
+          keys = []
+          try:
+              tree = ast.parse(src)
+          except SyntaxError:
+              tree = None
+          if tree is not None:
+              for node in ast.walk(tree):
+                  if not isinstance(node, ast.AnnAssign):
+                      continue
+                  tgt = getattr(node.target, "id", None)
+                  if tgt != "_BENCHMARKS" or not isinstance(node.value, ast.Dict):
+                      continue
+                  for k in node.value.keys:
+                      if isinstance(k, ast.Tuple) and len(k.elts) == 2:
+                          a, b = k.elts
+                          if isinstance(a, ast.Constant) and isinstance(b, ast.Constant):
+                              keys.append((a.value, b.value))
+          for module, stage in keys:
+              print(f"{module}\t{stage}")
+          EOF
+          wc -l main-benchmarks.tsv
+
       # 2026-08-04 (Wave 4 Phase 0, R2): `continue-on-error: true` removed. It
       # cited `temper-N6-U8`, a placeholder ticket id shared across 27 masks and
       # documented as a stub in
@@ -173,6 +206,7 @@ jobs:
           uv run python scripts/pr_perf_compare.py \
             --pr-metrics perf-metrics.jsonl \
             --baseline-jsonl main-perf-baseline.jsonl \
+            --main-benchmarks main-benchmarks.tsv \
             --report-file perf-report.md
 
       # CAPTURE-ONLY (main / manual). Emits the measured rows two ways: as a
