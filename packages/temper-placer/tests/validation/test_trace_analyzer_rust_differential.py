@@ -41,7 +41,6 @@ from temper_placer.validation.trace_analyzer import (  # noqa: E402
     calculate_min_hv_lv_clearance as shim_min_clearance,
 )
 
-
 # ---------------------------------------------------------------------------
 # Oracles — the pre-migration implementations, verbatim (commit aece7c372)
 # ---------------------------------------------------------------------------
@@ -283,16 +282,20 @@ def test_mr1_reverse_trace_direction():
 
 
 def test_mr2_permute_traces():
-    """MR2: permuting the trace list preserves the length of any net (the
-    accumulation order changes but IEEE addition is commutative per pair —
-    bounded to permutation of order, not of grouping) and preserves the
-    HV-LV clearance (a min over a fixed set)."""
+    """MR2: permuting the trace list preserves (a) the length of any net when
+    the lengths are exactly representable (axis-aligned integer-coordinate
+    segments — each length is an exact integer and the accumulation is
+    exact, so ANY accumulation order is bit-identical), and (b) the HV-LV
+    clearance unconditionally (a min over a fixed set is order-independent
+    — unlike a sum, min is associative)."""
     random.seed(23)
+    # axis-aligned, integer coordinates → exact lengths
     traces = [
-        (random.choice(["HV", "LV", "SIG"]), random.uniform(-100, 100), random.uniform(-100, 100),
-         random.uniform(-100, 100), random.uniform(-100, 100))
+        (random.choice(["HV", "LV", "SIG"]), float(random.randint(-50, 50)),
+         float(random.randint(-50, 50)), 0.0, 0.0)
         for _ in range(6)
     ]
+    traces = [(n, x1, y1, x1 + float(random.randint(1, 30)), y1) for (n, x1, y1, _, _) in traces]
     nc = {"HV": "HighVoltage", "LV": "Signal", "SIG": "Signal"}
     base_len = {n: shim_trace_length(_board_from_traces(traces), n) for n in ("HV", "LV", "SIG")}
     base_clr = shim_min_clearance(_board_from_traces(traces), nc)
@@ -302,6 +305,18 @@ def test_mr2_permute_traces():
         for n in ("HV", "LV", "SIG"):
             assert shim_trace_length(_board_from_traces(perm), n).hex() == base_len[n].hex()
         assert shim_min_clearance(_board_from_traces(perm), nc).hex() == base_clr.hex()
+    # non-exact arm: min-clearance invariance under permutation still holds
+    random.seed(24)
+    traces2 = [
+        (random.choice(["HV", "LV"]), random.uniform(-100, 100), random.uniform(-100, 100),
+         random.uniform(-100, 100), random.uniform(-100, 100))
+        for _ in range(6)
+    ]
+    base2 = shim_min_clearance(_board_from_traces(traces2), {"HV": "HighVoltage", "LV": "Signal"})
+    for _ in range(5):
+        perm = traces2[:]
+        random.shuffle(perm)
+        assert shim_min_clearance(_board_from_traces(perm), {"HV": "HighVoltage", "LV": "Signal"}).hex() == base2.hex()
 
 
 def test_mr3_scale_by_two():

@@ -41,14 +41,13 @@ from hypothesis import strategies as st
 
 import tests.validation._geometric_py_oracle as _oracle
 from temper_placer.core.board import Board, MountingHole, Zone
-from temper_placer.core.netlist import Component, Net, Netlist
+from temper_placer.core.netlist import Component, Netlist
 from temper_placer.core.state import PlacementState
 
 # Rust symbol under test — must exist or this file fails to collect (RED).
 GEOMETRIC_VALIDATE = _tdrc.geometric_validate
 
 from temper_placer.validation.geometric import GeometricValidator as ShimValidator  # noqa: E402
-
 
 # ---------------------------------------------------------------------------
 # Canonicalization — bit-exact comparison keys
@@ -125,7 +124,9 @@ def _make_validator(hv_lv_clearance=10.0, min_clearance=0.2, overlap_threshold=0
 
 @settings(max_examples=50, deadline=None)
 @given(
-    st.integers(0, 8),
+    st.integers(1, 8),  # n=0 crashes the ORACLE itself (get_bounds_array shape
+    # (0,) → bounds[:, 0] IndexError) — pre-existing empty-input behavior,
+    # asserted identically in test_empty_netlist_both_arms_raise
     st.floats(min_value=0.0, max_value=30.0, allow_nan=False, allow_infinity=False),
     st.floats(min_value=0.0, max_value=5.0, allow_nan=False, allow_infinity=False),
     st.floats(min_value=0.0, max_value=5.0, allow_nan=False, allow_infinity=False),
@@ -226,6 +227,24 @@ def test_differential_deterministic_scenarios():
         mounting_holes=[MountingHole((5.0, 5.0), 3.2, keepout_radius=5.0)],
     )
     assert _result_key(s.validate(stt4, nl4, board4)) == _result_key(o.validate(stt4, nl4, board4))
+
+
+def test_empty_netlist_both_arms_raise():
+    """Empty-input semantics: an empty netlist crashes BOTH arms with the
+    same IndexError (the oracle's pre-migration behavior — get_bounds_array
+    returns shape (0,), bounds[:, 0] fails). The migration preserves the
+    crash; nothing is silently vacuous."""
+    nl = Netlist(components=[], nets=[])
+    stt = PlacementState(
+        positions=np.zeros((0, 2), dtype=np.float32),
+        rotation_logits=np.zeros((0, 4), dtype=np.float32),
+    )
+    board = Board(width=100.0, height=100.0, origin=(0.0, 0.0))
+    o, s = _make_validator()
+    with pytest.raises(IndexError):
+        o.validate(stt, nl, board)
+    with pytest.raises(IndexError):
+        s.validate(stt, nl, board)
 
 
 def test_differential_zone_paths():
@@ -374,13 +393,55 @@ def test_prop5_mounting_hole_geometry():
 
 def test_mr1_reflection_preserves_findings():
     """MR1: reflecting positions, board bounds, keepouts and holes through
-    the origin leaves the issue set bit-identical except that boundary edge
-    names (left↔right, bottom↔top) swap. Bounded: we compare the full issue
-    set after canonicalizing edge names through the swap."""
+    the origin leaves the boundary / zone / keepout / mounting-hole findings
+    bit-identical except that boundary edge names (left↔right, bottom↔top)
+    swap.
+
+    Bounded, three ways:
+    - OVERLAP and CLEARANCE findings are EXCLUDED: the pairwise signed
+      distance primitive (temper-geometry ``compute_pairwise_distances``,
+      pre-existing, shared by both arms) marshals rects as
+      ``(x, y, w, h)`` with (x, y) the CORNER — a quirk of the oracle's
+      data marshalling that makes center-reflected rects land at
+      ``-center + (w, h)``. The distances are therefore not
+      reflection-invariant; this is pre-existing oracle behavior, not the
+      migrated decision compute (which consumes the matrix as given).
+    - Rotation index is fixed to 0: ``get_rotated_bounds`` at 90°/270°
+      carries a 1-ulp trig rounding (cos(π/2) ≠ 0 exactly) that makes the
+      rotated half-sizes inexact, and the original-vs-reflected boundary
+      arithmetic then rounds differently. With rotation 0 the half-sizes
+      are exactly w/2, h/2 and the reflection is bit-exact. (Pre-existing
+      temper-geometry behavior, not the migrated decision compute.)
+    - All coordinates/dimensions are INTEGERS (exactly representable, and
+      every sum like origin+width is exact), so the reflected board's
+      bounds are the exact negation of the original's.
+    We compare the full issue set after canonicalizing edge names through
+    their reflection class (messages embed the reflected coordinates, so
+    they are excluded from the comparison — that is the honest bound)."""
     rng = random.Random(51)
     for _ in range(40):
-        nl, stt = _build_inputs(rng, rng.randint(1, 4))
+        n = rng.randint(1, 4)
+        nl, stt = _build_inputs(rng, n)
         board = _build_board(rng)
+        # integer-ize all geometry (exact representability for the bound)
+        for c in nl.components:
+            c.bounds = (float(rng.randint(1, 40)), float(rng.randint(1, 40)))
+        stt.positions[:] = np.array(
+            [[float(rng.randint(-100, 100)), float(rng.randint(-100, 100))] for _ in range(n)],
+            dtype=np.float32,
+        )
+        # rotation index fixed to 0 — see the docstring bound
+        stt.rotation_logits[:] = np.array(
+            [[1.0, 0.0, 0.0, 0.0]] * n, dtype=np.float32
+        )
+        ox, oy = float(rng.randint(-20, 20)), float(rng.randint(-20, 20))
+        w, h = float(rng.randint(20, 100)), float(rng.randint(20, 100))
+        board = Board(
+            width=w, height=h, origin=(ox, oy),
+            zones=[Zone(z.name, tuple(float(v) for v in z.bounds)) for z in board.zones],
+            keepouts=[tuple(float(v) for v in k) for k in board.keepouts],
+            mounting_holes=[MountingHole((float(hh.position[0]), float(hh.position[1])), hh.diameter, keepout_radius=hh.keepout_radius) for hh in board.mounting_holes],
+        )
         # reflected copies
         nl_r = Netlist(
             components=[Component(ref=c.ref, footprint=c.footprint, bounds=c.bounds, net_class=c.net_class, zone=c.zone) for c in nl.components],
@@ -392,7 +453,8 @@ def test_mr1_reflection_preserves_findings():
         )
         board_r = Board(
             width=board.width, height=board.height,
-            origin=(-board.origin[0], -board.origin[1]),
+            # reflect [ox, ox+w] → [-(ox+w), -ox] — exact for integer inputs
+            origin=(-(board.origin[0] + board.width), -(board.origin[1] + board.height)),
             zones=[Zone(z.name, (-z.bounds[2], -z.bounds[3], -z.bounds[0], -z.bounds[1])) for z in board.zones],
             keepouts=[(-k[2], -k[3], -k[0], -k[1]) for k in board.keepouts],
             mounting_holes=[MountingHole((-h.position[0], -h.position[1]), h.diameter, keepout_radius=h.keepout_radius) for h in board.mounting_holes],
@@ -404,16 +466,32 @@ def test_mr1_reflection_preserves_findings():
         def canon(issues):
             out = []
             for i in issues:
+                # overlap/clearance excluded — see docstring bound
+                if i.violation_type.name in ("OVERLAP", "CLEARANCE"):
+                    continue
                 edges = i.details.get("violations")
-                swap = {"left": "right", "right": "left", "bottom": "top", "top": "bottom"}
+                # edge-name reflection class: the reflection swaps left↔right
+                # and bottom↔top, so normalize to the class before comparing
+                cls = {"left": "lr", "right": "lr", "bottom": "bt", "top": "bt"}
                 det = dict(i.details)
                 if edges is not None:
-                    det["violations"] = [(swap[e], v) for (e, v) in edges]
+                    det["violations"] = [(cls[e], v) for (e, v) in edges]
+                if "keepout_bounds" in det:
+                    # reflection negates + reverses the bound tuple — compare
+                    # the sorted absolute values (reflection-class invariant)
+                    det["keepout_bounds"] = tuple(sorted(abs(v) for v in det["keepout_bounds"]))
+                if "hole_position" in det:
+                    hx, hy = det["hole_position"]
+                    det["hole_position"] = (abs(hx), abs(hy))
                 out.append((i.code, i.severity.name, tuple(i.component_refs), _canon(det)))
             return tuple(sorted(out))
 
         assert canon(res.issues) == canon(res_r.issues)
-        assert res.metrics == res_r.metrics
+        # metrics: only the position-direct counts are reflection-invariant
+        # (overlap_count/clearance_violations derive from the corner-marshalled
+        # distance matrix — see the docstring bound)
+        for key in ("boundary_violations", "keepout_violations", "zone_violations"):
+            assert res.metrics[key] == res_r.metrics[key], key
 
 
 def test_mr2_zero_size_components_touch_without_overlap():
@@ -429,13 +507,17 @@ def test_mr2_zero_size_components_touch_without_overlap():
     board = Board(width=100.0, height=100.0, origin=(0.0, 0.0))
     res = ShimValidator().validate(stt, nl, board)
     assert [i for i in res.issues if i.violation_type.name == "OVERLAP"] == []
-    # barely overlapping: dist = -0.001 with threshold 0.01 → ignored
+    # barely overlapping: both gaps -0.001 (boxes 1.0 at (0,0) and (0.999,0.999))
+    # → dist = -0.001 with threshold 0.01 → ignored
     nl2, stt2 = _build_inputs(random.Random(53), 2)
     for c in nl2.components:
         c.bounds = (1.0, 1.0)
-    stt2.positions[:] = np.array([[0.0, 0.0], [0.999, 0.0]], dtype=np.float32)
+    stt2.positions[:] = np.array([[0.0, 0.0], [0.999, 0.999]], dtype=np.float32)
     res2 = ShimValidator(overlap_threshold=0.01).validate(stt2, nl2, Board(width=100.0, height=100.0, origin=(0.0, 0.0)))
     assert [i for i in res2.issues if i.violation_type.name == "OVERLAP"] == []
+    # threshold 0.0005 → the -0.001 overlap IS flagged
+    res3 = ShimValidator(overlap_threshold=0.0005).validate(stt2, nl2, Board(width=100.0, height=100.0, origin=(0.0, 0.0)))
+    assert len([i for i in res3.issues if i.violation_type.name == "OVERLAP"]) == 1
 
 
 def test_mr3_raising_overlap_threshold_is_monotone():

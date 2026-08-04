@@ -3,11 +3,20 @@ Validation of actual routed traces.
 
 This module provides functions to analyze physical traces on the PCB
 to validate compliance with EMI, Signal Integrity, and Thermal specs.
+
+Wave 4 Phase 4: the two pure numeric kernels (total net length and the
+HV-LV minimum endpoint distance) delegate to ``temper_drc_rs``
+(``trace_length`` / ``min_hv_lv_trace_clearance`` in
+packages/temper-drc-rs/src/validation.rs). ``calculate_actual_loop_area``
+stays here: its core is ``scipy.spatial.ConvexHull`` (Qhull), which is not
+bit-reproducible outside scipy — the GEOS-style "library semantics are not
+reimplementable" boundary (see docs/MIGRATION_PHASE_GUIDE.md). The two
+remaining validators are orchestration/printing over those kernels and stay
+Python.
 """
 
 from __future__ import annotations
 
-import math
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
@@ -17,14 +26,16 @@ if TYPE_CHECKING:
 
 
 def calculate_actual_trace_length(board: Board, net_name: str) -> float:
-    """Calculate total routed length of a specific net."""
-    length = 0.0
-    for trace in board.traces:  # type: ignore[attr-defined]
-        if trace.net == net_name:
-            dx = trace.end[0] - trace.start[0]
-            dy = trace.end[1] - trace.start[1]
-            length += math.sqrt(dx**2 + dy**2)
-    return length
+    """Calculate total routed length of a specific net (Rust kernel)."""
+    # Marshalling: (net, x1, y1, x2, y2) per trace — the arithmetic
+    # (dx = end - start, sqrt(dx*dx + dy*dy)) is bit-identical Rust-side.
+    import temper_drc_rs  # type: ignore[import-untyped]
+
+    traces = [
+        (t.net, t.start[0], t.start[1], t.end[0], t.end[1])
+        for t in board.traces  # type: ignore[attr-defined]
+    ]
+    return float(temper_drc_rs.trace_length(traces, net_name))
 
 
 def calculate_actual_loop_area(board: Board, net_names: list[str]) -> float:
@@ -62,28 +73,19 @@ def calculate_actual_loop_area(board: Board, net_names: list[str]) -> float:
 def calculate_min_hv_lv_clearance(board: Board, net_classes: dict[str, str]) -> float:
     """
     Calculate minimum physical distance between any HV trace and any LV trace.
+
+    The split (net_classes lookup) stays here; the endpoint-pair distance
+    minimization runs in the Rust kernel (``min_hv_lv_trace_clearance``).
+    Empty HV or LV arm returns ``+inf``, exactly as before.
     """
+    import temper_drc_rs  # type: ignore[import-untyped]
+
     hv_traces = [t for t in board.traces if net_classes.get(t.net) == "HighVoltage"]  # type: ignore[attr-defined]
     lv_traces = [t for t in board.traces if net_classes.get(t.net) != "HighVoltage"]  # type: ignore[attr-defined]
 
-    if not hv_traces or not lv_traces:
-        return float("inf")
-
-    min_dist = float("inf")
-
-    for hv in hv_traces:
-        for lv in lv_traces:
-            # Shortest distance between two line segments
-            # Simplified: check endpoints for now
-            pts_hv = [np.array(hv.start), np.array(hv.end)]
-            pts_lv = [np.array(lv.start), np.array(lv.end)]
-
-            for p1 in pts_hv:
-                for p2 in pts_lv:
-                    dist = float(np.linalg.norm(p1 - p2))
-                    min_dist = min(min_dist, dist)
-
-    return float(min_dist)
+    hv = [(t.start[0], t.start[1], t.end[0], t.end[1]) for t in hv_traces]
+    lv = [(t.start[0], t.start[1], t.end[0], t.end[1]) for t in lv_traces]
+    return float(temper_drc_rs.min_hv_lv_trace_clearance(hv, lv))
 
 
 def validate_signal_integrity(board: Board, spec: Any) -> dict[str, float]:

@@ -203,42 +203,48 @@ def _violations_to_run_result(
     violation_dicts: list[dict[str, _Any]],
     elapsed_ms: float = 0.0,
 ) -> _RunResult:
-    """Convert a list of Rust DRC violation dicts to a ``RunResult``."""
-    grouped: dict[str, list[dict[str, _Any]]] = {}
-    for v in violation_dicts:
-        name = v.get("check_name", "unknown")
-        grouped.setdefault(name, []).append(v)
+    """Convert a list of Rust DRC violation dicts to a ``RunResult``.
+
+    Wave 4 Phase 4: the grouping + normalization compute (group by
+    ``check_name`` preserving first-seen order, sort groups by name,
+    severity normalization with the ERROR fallback, per-group failure
+    flag) runs in the shared Rust kernel ``temper_drc_rs.group_violations``
+    (also consumed by ``drc_oracle._violations_to_run_result``). This
+    wrapper only marshals the normalized records back into the
+    ``CheckResult``/``Issue`` contract objects.
+    """
+    import temper_drc_rs  # type: ignore[import-untyped]
 
     check_results: list[_CheckResult] = []
-    for check_name, violations in sorted(grouped.items()):
+    for check_name, records in temper_drc_rs.group_violations(violation_dicts):
         issues: list[_Issue] = []
         has_failure = False
-        for v in violations:
-            severity_str = v.get("severity", "ERROR").upper()
-            severity = _SEVERITY_MAP.get(severity_str, _Severity.ERROR)
+        for v in records:
+            severity = _SEVERITY_MAP[v["severity"]]
             if severity in (_Severity.ERROR, _Severity.CRITICAL):
                 has_failure = True
 
-            loc_dict = v.get("location")
+            loc_dict = v["location"]
             location = None
-            if loc_dict is not None and isinstance(loc_dict, dict):
+            if loc_dict is not None:
                 location = _Location(
                     x=loc_dict.get("x"),
                     y=loc_dict.get("y"),
                     layer=loc_dict.get("layer"),
                 )
 
-            issue = _Issue(
-                severity=severity,
-                code=v.get("code", "DRC_RS_000"),
-                message=v.get("message", ""),
-                category=v.get("category", "drc"),
-                check_name=check_name,
-                affected_items=v.get("affected_items", []),
-                location=location,
-                details=v.get("details", {}),
+            issues.append(
+                _Issue(
+                    severity=severity,
+                    code=v["code"],
+                    message=v["message"],
+                    category=v["category"],
+                    check_name=check_name,
+                    affected_items=v["affected_items"],
+                    location=location,
+                    details=v["details"],
+                )
             )
-            issues.append(issue)
 
         check_results.append(
             _CheckResult(

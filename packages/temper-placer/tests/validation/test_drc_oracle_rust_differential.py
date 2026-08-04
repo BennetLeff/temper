@@ -41,7 +41,6 @@ GROUP_VIOLATIONS = _tdrc.group_violations
 
 from temper_placer.validation.drc_oracle import _infer_package_type as shim_infer  # noqa: E402
 
-
 # ---------------------------------------------------------------------------
 # infer_package_type — differential
 # ---------------------------------------------------------------------------
@@ -151,7 +150,7 @@ def test_group_violations_differential_deterministic():
         _violation_dict("drc_clearance", "CRITICAL"),
         _violation_dict("safety_creepage", "WARNING", affected=[]),
         _violation_dict("drc_clearance", "INFO"),
-        _violation_dict("erc_power_domain", "ERROR", severity="BOGUS"),  # unknown → ERROR + failure
+        _violation_dict("erc_power_domain", "BOGUS"),  # unknown → ERROR + failure
         _violation_dict("safety_creepage", "ERROR", location=None, details={"a": 1, "b": [1, 2]}),
         # missing optional keys → defaults
         {"severity": "ERROR", "check_name": "drc_clearance"},

@@ -36,8 +36,9 @@ from temper_placer.core.netlist import Component, Netlist, Pin
 # Rust symbol under test — must exist or this file fails to collect (RED).
 THT_HOLE_COLLISIONS = _tdrc.tht_hole_collisions
 
-from temper_placer.validation.tht_check import validate_hole_clearance as shim_validate  # noqa: E402
-
+from temper_placer.validation.tht_check import (
+    validate_hole_clearance as shim_validate,  # noqa: E402
+)
 
 # ---------------------------------------------------------------------------
 # Input construction
@@ -71,14 +72,10 @@ def _make_netlist(
 
 
 def _positions_for(refs: list[str], holes: list[tuple[str, str, float, float, float]]) -> list[tuple[float, float]]:
-    """Return one (x, y) per component — the origin of every hole on it
-    (the oracle adds pad.position to the component position)."""
-    order = []
-    for ref in refs:
-        xs = [px for (r, _n, px, _py, _d) in holes if r == ref]
-        ys = [py for (r, _n, _px, py, _d) in holes if r == ref]
-        order.append((xs[0] if xs else 0.0, ys[0] if ys else 0.0))
-    return order
+    """One (x, y) component position per component — the oracle adds
+    ``pad.position`` (the pad's offset from the component center) to it, so
+    components sit at the origin and each hole's (x, y) is its pad offset."""
+    return [(0.0, 0.0) for _ in refs]
 
 
 def _refs_from(holes: list[tuple[str, str, float, float, float]]) -> list[str]:
@@ -238,7 +235,7 @@ def test_prop2_monotone_in_clearance(holes):
 def test_prop3_message_format():
     """P3: every message matches the canonical ``REF.PAD <-> REF.PAD:
     dist=...mm (min ...mm)`` shape with exactly three decimals."""
-    holes = [("C1", "P1", 0.0, 0.0, 0.5), ("C2", "P1", 1.0, 1.0, 0.5)]
+    holes = [("C1", "P1", 0.0, 0.0, 0.5), ("C2", "P1", 0.5, 0.5, 0.5)]
     msgs = THT_HOLE_COLLISIONS(holes, 0.25)
     assert msgs
     for m in msgs:

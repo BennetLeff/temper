@@ -46,7 +46,9 @@ from temper_placer.validation.drc_result import (  # noqa: E402
 from temper_placer.validation.drc_result import (  # noqa: E402
     Severity as _Severity,
 )
-from temper_placer.validation.drc_runner import _violations_to_run_result as shim_convert  # noqa: E402
+from temper_placer.validation.drc_runner import (
+    _violations_to_run_result as shim_convert,  # noqa: E402
+)
 
 # The runner's wrapper adds elapsed_ms to the RunResult — drive it through
 # the shim wrapper (the kernel-level records are pinned via drc_oracle's and

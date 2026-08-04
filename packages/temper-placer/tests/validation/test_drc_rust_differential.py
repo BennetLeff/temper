@@ -112,9 +112,22 @@ def _ref_compute_penalty(violations: list[tuple[str, str]], severity_weights: di
 def _normalize_parse_record(rec):
     if rec is None:
         return None
+    type_key = rec.get("type")
+    if type_key is None:
+        type_key = rec["violation_type"].value  # oracle schema (already resolved)
+    else:
+        # kernel schema: raw normalized string — resolve through the enum
+        # exactly like the oracle's ValueError → OTHER path
+        try:
+            type_key = DRCViolationType(type_key).value
+        except ValueError:
+            type_key = DRCViolationType.OTHER.value
+    severity = rec["severity"]
+    if not isinstance(severity, str):
+        severity = severity.name  # oracle returns the enum; kernel the string
     return (
-        rec["severity"],  # "ERROR" | "WARNING" string from the kernel
-        rec["type"],
+        severity,
+        type_key,
         None if rec["position"] is None else tuple(float(v).hex() for v in rec["position"]),
         tuple(rec["affected_items"]),
         rec["description"],
@@ -324,16 +337,22 @@ def test_prop4_penalty_zero_and_defaults():
 
 
 def test_prop5_penalty_matches_independent_recompute():
-    """P5: the kernel result equals an independent per-violation recompute
-    with a different accumulation (sum of a list, which CPython 3.12 sums
-    with Neumaier compensation — exact for small well-conditioned sums)."""
+    """P5: the kernel result equals an independent recompute of the same
+    in-order ``+=`` accumulation (the oracle's summation strategy).
+
+    Summation-strategy trap, honestly bounded: CPython 3.12's ``sum()`` is
+    Neumaier-compensated and legitimately disagrees with ``+=`` at the last
+    bit for well-conditioned but non-exact sums (measured: 4×0.1+1.0+1.0
+    +20.0 → ``0x1.6666666666667p+4`` by ``+=`` vs ``0x1.6666666666666p+4``
+    by ``sum()``), so the independent arm below re-implements the oracle's
+    ``penalty += base * mult`` exactly rather than calling ``sum()``."""
     rng = random.Random(8)
     for _ in range(100):
         vs = [(rng.choice(["error", "warning"]), rng.choice(list(_TYPE_WEIGHTS))) for _ in range(rng.randint(0, 10))]
         got = COMPUTE_DRC_PENALTY(vs, _SEV_WEIGHTS, _TYPE_WEIGHTS)
-        independent = sum(
-            _SEV_WEIGHTS.get(s, 1.0) * _TYPE_WEIGHTS.get(t, 1.0) for (s, t) in vs
-        )
+        independent = 0.0
+        for (s, t) in vs:
+            independent += _SEV_WEIGHTS.get(s, 1.0) * _TYPE_WEIGHTS.get(t, 1.0)
         assert got.hex() == independent.hex()
 
 
@@ -354,22 +373,33 @@ def test_mr1_parse_ignores_unknown_keys():
 
 
 def test_mr2_penalty_doubled_weights_double_result():
-    """MR2: doubling every weight doubles the penalty bit-exactly
-    (multiplication by 2 is exact in IEEE-754)."""
+    """MR2: doubling ONE weight dict doubles the penalty bit-exactly when
+    every key is KNOWN (multiplication by 2 is exact in IEEE-754).
+
+    Honestly bounded in two ways: (a) keys must be known — unknown keys hit
+    the 1.0 DEFAULT, which doubling a dict does NOT scale (a version of
+    this test that sampled unknown keys failed on exactly that asymmetry,
+    kernel and verbatim oracle agreeing on the non-doubled value); (b) only
+    ONE dict is doubled — doubling both would scale a known-known
+    contribution by (2s)(2t) = 4st, i.e. quadruple the total, not double
+    it."""
     rng = random.Random(9)
-    vs = [(rng.choice(["error", "warning", "x"]), rng.choice(list(_TYPE_WEIGHTS) + ["zz"])) for _ in range(8)]
+    vs = [(rng.choice(list(_SEV_WEIGHTS)), rng.choice(list(_TYPE_WEIGHTS))) for _ in range(8)]
     base = COMPUTE_DRC_PENALTY(vs, _SEV_WEIGHTS, _TYPE_WEIGHTS)
     doubled_sev = {k: 2.0 * v for k, v in _SEV_WEIGHTS.items()}
-    doubled_type = {k: 2.0 * v for k, v in _TYPE_WEIGHTS.items()}
-    d = COMPUTE_DRC_PENALTY(vs, doubled_sev, doubled_type)
+    d = COMPUTE_DRC_PENALTY(vs, doubled_sev, _TYPE_WEIGHTS)
     assert (2.0 * base).hex() == d.hex()
+    # default asymmetry, pinned explicitly: an unknown type contributes the
+    # UNDOUBLED default (1.0), not 2.0 — same in kernel and oracle
+    ref = _ref_compute_penalty([("error", "zzz")], doubled_sev, {})
+    assert COMPUTE_DRC_PENALTY([("error", "zzz")], doubled_sev, {}) == ref == 20.0
 
 
 def test_mr3_penalty_zero_weights_annihilate():
     """MR3: zeroing all type weights for known types makes the penalty sum to
     zero for known types only (unknown types still hit the 1.0 default)."""
     vs = [("error", "clearance"), ("warning", "track_width"), ("error", "zzz")]
-    zeroed = {k: 0.0 for k in _TYPE_WEIGHTS}
+    zeroed = dict.fromkeys(_TYPE_WEIGHTS, 0.0)
     got = COMPUTE_DRC_PENALTY(vs, _SEV_WEIGHTS, zeroed)
     # known types contribute 0; "zzz" hits the 1.0 default → 10.0 * 1.0
     assert got == 10.0
@@ -384,8 +414,6 @@ def test_shim_parse_and_penalty_roundtrip():
     """The migrated module's methods still construct the contract objects
     (DRCViolation with the enum-resolved violation type) and compute the
     penalty from a real DRCResult."""
-    from pathlib import Path
-    from unittest.mock import MagicMock, patch
 
     from temper_placer.validation.drc import DRCResult, DRCViolation
 

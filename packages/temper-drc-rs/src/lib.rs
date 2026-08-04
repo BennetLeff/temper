@@ -15,6 +15,8 @@ pub mod constraints;
 pub mod router_clearance;
 pub mod rules;
 pub mod types;
+#[cfg(feature = "python")]
+pub mod validation;
 
 #[cfg(feature = "python")]
 use pyo3::exceptions::PyValueError;
@@ -281,5 +283,7 @@ fn temper_drc_rs(m: &Bound<'_, PyModule>) -> PyResult<()> {
         crate::router_clearance::verify_route_clearance,
         m
     )?)?;
+    // Wave 4 Phase 4 — validation DRC-check kernels (validation.rs).
+    crate::validation::register(m)?;
     Ok(())
 }

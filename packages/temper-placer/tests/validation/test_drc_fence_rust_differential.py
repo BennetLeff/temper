@@ -27,14 +27,14 @@ from hypothesis import given, settings
 from hypothesis import strategies as st
 
 import tests.validation._drc_fence_py_oracle as _oracle
+from temper_placer.validation.drc_fence import (
+    MetricsSummary as ShimMetricsSummary,
+)
 from temper_placer.validation.drc_result import (
     CheckResult,
     Issue,
     RunResult,
     Severity,
-)
-from temper_placer.validation.drc_fence import (
-    MetricsSummary as ShimMetricsSummary,
 )
 
 # Rust symbols under test — must exist or this file fails to collect (RED).
@@ -42,7 +42,6 @@ ISSUE_FINGERPRINT = _tdrc.issue_fingerprint
 METRICS_SUMMARY = _tdrc.metrics_summary
 
 from temper_placer.validation.drc_fence import _issue_fingerprint as shim_fingerprint  # noqa: E402
-
 
 # ---------------------------------------------------------------------------
 # issue_fingerprint — differential + PBT + MR
@@ -57,6 +56,14 @@ def _fingerprint_both(code, message, affected_items):
         )
     )
     got = ISSUE_FINGERPRINT(code, message, list(affected_items))
+    # the delegating shim (drc_fence._issue_fingerprint) must agree too
+    shim = shim_fingerprint(
+        Issue(
+            severity=Severity.ERROR, code=code, message=message,
+            category="drc", check_name="c", affected_items=list(affected_items),
+        )
+    )
+    assert shim == got == ref
     return ref, got
 
 
