@@ -685,3 +685,84 @@ commit `a47527751`).
   R2 for delegation-only modules applies.
 - Consumer suites run unchanged against the pyclasses: heuristics/power_stage
   and the `core/__init__.py` re-export path (verified in the migration PR).
+
+## netclass_loader — Verification
+
+`temper_placer/io/netclass_loader.py` is now a delegation shim: it keeps
+the `NetClassRulesDict` dataclass wrapper and file reading, and delegates
+the YAML parse and field mapping to
+`temper_design_bundle_python.load_netclass_rules` (this crate's
+`netclass_loader.rs`). The Pydantic `NetClassRules` model stays unmigrated
+and is constructed via a Python call-back (KTD7), so Pydantic owns
+validation on both sides of the differential.
+
+## Induction applicability
+
+**Mathematical induction is not applicable to this module.** The loader is
+a single pass over two fixed YAML mappings:
+
+- The `classes` loop maps each entry independently — every class's
+  construction is a fixed kwargs transcription whose correctness does not
+  depend on the number of classes or on the order they appear (verified by
+  MR2 in `test_netclass_loader_pbt.py`).
+- The `class_pairs` loop splits, sorts, and transcribes each key
+  independently; the result is order-independent (verified by MR1).
+
+Per the plan's R1e, a **structural proof** is recorded instead.
+
+## Structural proof
+
+**Claim (bit-identical parity).** For every input YAML document, the Rust
+loader produces the same `DesignRules` state and `class_pairs` mapping as
+the pinned pre-migration Python implementation
+(`packages/temper-placer/tests/io/_netclass_loader_py_oracle.py`, commit
+`f2b09d846`).
+
+*Proof by structural cases.*
+
+1. **Scalar.** `default_clearance_mm` is read before the classes loop and
+   assigned through the pyclass setter, so the classes loop observes the
+   same default the oracle observes. Missing key raises `KeyError` with the
+   oracle's text; empty document raises the oracle's `TypeError` text.
+2. **Classes.** Each entry is transcribed to the identical
+   `NetClassRules(**kwargs)` call the oracle makes: field names map
+   1:1 (`layer` → `layer`, `required_layer` → `required_layer`,
+   `safety_category` → `safety_category`), scalar defaults come from the
+   live `DesignRules` instance, and the construction itself is a Python
+   call-back into the same Pydantic model, so validation and unknown-key
+   handling are identical by construction.
+3. **Assignments.** `TEMPER_NET_ASSIGNMENTS` is imported from Python at
+   call time (the `design_rules.rs` precedent) and merged into the pyclass
+   dict via the same `update` the oracle performs.
+4. **Class pairs.** Each key is split on `-`; non-2-part keys log the
+   oracle's warning through the same logger name and are skipped; valid
+   pairs are sorted and inserted as `(a, b)` tuple keys with
+   `{"clearance", "because"}` values, including the explicit `None`
+   `because` the oracle stores when the key is absent.
+5. **Ordering.** The oracle's mutation order (scalar first, then classes,
+   then assignments, then pairs) is preserved, so any later consumer of the
+   returned `DesignRules` observes identical intermediate state.
+
+## Evidence
+
+- Differential (R1a): `test_netclass_loader_rust_differential.py` — 14
+  tests pinning full-state parity on the real
+  `packages/temper-placer/configs/netclass_rules.yaml` (every class field,
+  assignments, class_pairs, repr byte-parity), crafted fixtures (keyword
+  fallback feeding, empty document, unknown keys), and malformed-input
+  error parity (TypeError/KeyError texts, warning-and-skip). RED first: the
+  test failed to collect before the pyfunction existed.
+- PBT (R1c): `test_netclass_loader_pbt.py` — 5 hypothesis properties
+  (P1-P5: clearance round-trip, class coverage, pair symmetry, assignments
+  totality, default absorption), each generated over structurally-valid
+  netclass YAML.
+- Metamorphic (R1d): `test_netclass_loader_pbt.py` — MR1 (pair-order
+  invariance), MR2 (class-order independence), MR3 (extra top-level keys
+  ignored).
+- Performance A/B (R1b): pure-delegation loader with no compute kernel;
+  the "no regression beyond noise" carve-out recorded in
+  `docs/evidence/2026-08-04-wave4-slice-delegation-perf-carveout.md`
+  (KTD9) applies.
+- Consumer suites run unchanged against the shim:
+  `test_netclass_loader.py` (15 tests, including the GateDrive-split
+  regression guards) — verified in the migration PR.

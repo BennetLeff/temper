@@ -27,6 +27,16 @@ from typing import Any
 def sha256_hex(bytes: bytes) -> str: ...
 
 
+def load_netclass_rules(
+    yaml_text: str,
+) -> tuple[DesignRules, dict[tuple[str, str], dict[str, Any]]]:
+    """Parse netclass_rules.yaml text into a DesignRules pyclass.
+
+    Returns ``(design_rules, class_pairs)``; the Python shim
+    (temper_placer.io.netclass_loader) wraps the pair in NetClassRulesDict.
+    """
+
+
 def preflight_identity(
     pcb_path: str,
     pcb_bytes: bytes,
