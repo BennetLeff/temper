@@ -17,7 +17,7 @@ residual obstruction is copper-exclusion (checks 4+5), placement-independent.
 If YES: pads (which the re-solve can move) are the blocker, and freeing the
 ring refs (or more) can open the corridor.
 
-# provenance: commit=0cb474497e5f651553ecd4e256eba8563c567262 dirty=false
+# provenance: commit=a1be0f0ef94c1371839fbda477b8fc5891cd5b95 dirty=false
 """
 
 from __future__ import annotations
