@@ -8,22 +8,57 @@ creepage crossing) this runner:
      from the seed manifest (``scripts/board_defect_corpus.yaml``) via
      ``scripts/board_defect_mutator.py`` -- the committed board is never
      modified (KTD1, KTD3);
-  2. runs the class's OWNING gate(s) against the mutated board (KTD2) and
-     asserts the class's failure signal -- a count-delta: the mutated
-     board's count must exceed the clean board's count and, for DRC
-     categories, the recorded ``drc_ceiling.json`` ceiling;
+  2. runs the class's OWNING gate(s) against BOTH the clean and the mutated
+     board (KTD2) and asserts the class's failure signal -- the gate must
+     name the seeded defect on the mutated board and must NOT name it on
+     the clean board (both halves of R9);
   3. fails the run if any class has no failing gate (uncovered class), or
      if the clean board violates the anti-vacuity control.
 
-The clean-board anti-vacuity control is scoped to the corpus's DRC gate
-categories that are GREEN on the committed board today
-(``courtyards_overlap``/``copper_edge_clearance``/``shorting_items`` at or
-below their ``drc_ceiling.json`` ceilings). The REQ-SAFE-01 creepage gate
-is RED on main today (99 DC_BUS<->LV_CONTROL creepage violations measured
-2026-08-02), so it is excluded from the anti-vacuity control and its class
-is asserted via per-class count-delta against the clean measurement as the
-documented known-finding baseline -- see ``scripts/board_defect_corpus.yaml``
-``classes.creepage.baseline_note``.
+Failure signals, and why they are identity-based rather than count-deltas
+-------------------------------------------------------------------------
+Until 2026-08-04 every class asserted a *count-delta*: some DRC category's
+count on the mutated board had to exceed both the clean count and the
+recorded ``drc_ceiling.json`` ceiling. Two of the three classes were
+measured uncovered on 2026-08-04, and the count-delta formulation was the
+direct cause of one of them and hid the other (see
+``docs/evidence/2026-08-04-board-defect-corpus-uncovered-classes.md``):
+
+  * ``off-board`` named ``courtyards_overlap``/``copper_edge_clearance`` as
+    owning gates. Neither actually checks containment. Moving a component
+    off the outline REMOVES its copper from the layout, so the board's DRC
+    counts go DOWN (measured -9 across three categories), and a count-delta
+    can never fire. The class now has a real owning gate,
+    ``scripts/check_board_containment.py`` (the R26 invariant), asserted by
+    identity: the gate must report the mutated ref outside the outline, and
+    must report nothing on the clean board.
+
+  * ``pad-short`` asserted ``shorting_items`` +1 against
+    ``max(clean, ceiling)``. That comparison is unsatisfiable whenever the
+    recorded ceiling exceeds the clean count by more than the delta -- and
+    it did (ceiling 201, clean 200, so the mutation needed 202). It is also
+    below the measurement's own noise floor: ``shorting_items`` was measured
+    at 199,199,199,200,199 over repeated runs of one byte-identical board.
+    And the category itself is not stable for this defect: KiCad reports the
+    identical seeded short as ``shorting_items`` on one board and as
+    ``clearance`` (actual 0.0000 mm) + ``solder_mask_bridge`` on another.
+    The class now asserts that SOME DRC error names BOTH shorted pads on
+    the mutated board and none does on the clean board -- independent of
+    category name, immune to the noise floor, and strictly stronger than a
+    count-delta (a count can rise for an unrelated reason; an error naming
+    the two pads the mutator moved cannot).
+
+``creepage`` keeps its per-class count-delta against the clean
+measurement. The REQ-SAFE-01 creepage gate is RED on main today, so it is
+excluded from the clean-board anti-vacuity control and asserted against the
+clean measurement as its documented known-finding baseline -- see
+``scripts/board_defect_corpus.yaml`` ``classes.creepage.baseline_note``.
+
+The clean-board anti-vacuity control covers the DRC gate categories that
+are GREEN on the committed board (``courtyards_overlap`` /
+``copper_edge_clearance`` / ``shorting_items`` at or below their
+``drc_ceiling.json`` ceilings) plus board containment, which must be
+completely clean on the committed board.
 
 Measurement paths are the canonical ones: DRC via
 ``temper_placer.validation._drc_api.run_drc`` (which bakes in
@@ -48,6 +83,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import shutil
 import sys
 import tempfile
@@ -101,6 +137,7 @@ class CorpusReport:
     board_matches_manifest: bool
     clean_drc: dict[str, int] = field(default_factory=dict)
     clean_creepage_dc_lv: int | None = None
+    clean_containment_refs: list[str] = field(default_factory=list)
     anti_vacuity_violations: list[str] = field(default_factory=list)
     class_verdicts: list[ClassVerdict] = field(default_factory=list)
     mutation_summaries: dict[str, dict[str, Any]] = field(default_factory=dict)
@@ -123,13 +160,17 @@ def regenerate_dru(repo_root: Path) -> Path:
     return generate_kicad_dru.OUTPUT_PATH
 
 
-def measure_drc_counts(pcb_path: Path, dru_path: Path | None) -> dict[str, int]:
-    """Per-violation-type DRC counts for *pcb_path* via run_drc.
+def measure_drc(pcb_path: Path, dru_path: Path | None) -> list[Any]:
+    """Every DRC error for *pcb_path* via run_drc (the canonical path).
 
     kicad-cli resolves ``<stem>.kicad_dru`` next to the board file (verified:
     placing the regenerated SSOT dru beside a copy makes the custom
     ``creepage`` DRU category appear), so the dru is copied next to the
     mutated copy to keep the measurement byte-for-byte the ratchet's.
+
+    Returns the ``DrcError`` list rather than a count summary: the
+    pad-short class asserts on WHICH items a violation names, which a
+    per-category count cannot express.
     """
     if dru_path is not None and dru_path.exists():
         shutil.copyfile(dru_path, pcb_path.with_suffix(".kicad_dru"))
@@ -139,7 +180,62 @@ def measure_drc_counts(pcb_path: Path, dru_path: Path | None) -> dict[str, int]:
         result = run_drc(pcb_path)
     except (DrcRunnerError, OSError) as exc:
         raise GateError(f"DRC measurement failed on {pcb_path.name}: {exc}") from exc
-    return dict(Counter(e.rule for e in result.errors))
+    return list(result.errors)
+
+
+def drc_counts(errors: list[Any]) -> dict[str, int]:
+    """Per-violation-type counts, the shape the ceilings are recorded in."""
+    return dict(Counter(e.rule for e in errors))
+
+
+# KiCad item descriptions naming a pad, in both spellings the report uses:
+# "Pad 1 [I_SENSE] of C28 on F.Cu" (SMD) and "PTH pad 1 [SW_NODE] of C26"
+# (through-hole, lowercase, no trailing layer clause).
+_PAD_ITEM_RE = re.compile(
+    r"\bpad\s+(?P<pad>\S+)\s+\[[^\]]*\]\s+of\s+(?P<ref>\S+)", re.IGNORECASE
+)
+
+
+def item_names_pad(description: str, ref: str, pad: str) -> bool:
+    """Does one kicad-cli item description name *pad* of *ref*?"""
+    match = _PAD_ITEM_RE.search(description or "")
+    if match is None:
+        return False
+    return match.group("ref") == ref and match.group("pad") == pad
+
+
+def errors_naming_pad_pair(
+    errors: list[Any], ref: str, pad_a: str, pad_b: str
+) -> list[str]:
+    """DRC errors that name BOTH *pad_a* and *pad_b* of *ref*.
+
+    This is the pad-short class's failure signal. A violation between two
+    pads of one footprint is exactly what the mutator creates and exactly
+    what a category count cannot distinguish from unrelated drift.
+    """
+    found: list[str] = []
+    for error in errors:
+        items = getattr(error, "items", None) or []
+        if any(item_names_pad(i, ref, pad_a) for i in items) and any(
+            item_names_pad(i, ref, pad_b) for i in items
+        ):
+            found.append(f"{error.rule}: {error.message}")
+    return found
+
+
+def measure_containment(pcb_path: Path) -> set[str]:
+    """Reference designators with copper outside the board outline, via the
+    R26 containment gate (``scripts/check_board_containment.py``) -- the
+    off-board class's owning gate."""
+    import check_board_containment
+
+    try:
+        report = check_board_containment.analyze_board(Path(pcb_path))
+    except check_board_containment.GateError as exc:
+        raise GateError(
+            f"board-containment measurement failed on {pcb_path.name}: {exc}"
+        ) from exc
+    return report.refs_outside()
 
 
 def measure_creepage_dc_lv(pcb_path: Path) -> int:
@@ -186,82 +282,104 @@ def load_drc_ceilings(repo_root: Path) -> dict[str, int]:
 # ---------------------------------------------------------------------------
 
 
-def _baseline(category: str, clean_count: int, ceilings: dict[str, int]) -> int:
-    """The count a mutation must exceed: the clean measurement, or the
-    recorded ceiling, whichever is higher -- a mutation that only beats a
-    stale low clean number while staying under a recorded ceiling has not
-    demonstrated anything."""
-    ceiling = ceilings.get(category)
-    if ceiling is None:
-        return clean_count
-    return max(clean_count, ceiling)
+@dataclass
+class ClassMeasurement:
+    """Everything the owning gates saw, on the clean board and on the
+    mutated board, for one defect class."""
+
+    params: dict[str, Any] = field(default_factory=dict)
+    clean_containment_refs: set[str] = field(default_factory=set)
+    mutated_containment_refs: set[str] = field(default_factory=set)
+    clean_pair_errors: list[str] = field(default_factory=list)
+    mutated_pair_errors: list[str] = field(default_factory=list)
+    clean_creepage: int | None = None
+    mutated_creepage: int | None = None
 
 
 def evaluate_class(
     class_name: str,
     mutation: str,
-    clean_drc: dict[str, int],
-    mutated_drc: dict[str, int],
-    ceilings: dict[str, int],
-    clean_creepage: int | None,
-    mutated_creepage: int | None,
+    measurement: ClassMeasurement,
 ) -> ClassVerdict:
     """Decide whether a mutated board fails its owning gate.
 
-    A class is COVERED (ok) iff at least one of its owning gates fired --
-    the count-delta assertion (mutated > clean, and > recorded ceiling for
-    DRC categories). A class with no firing gate is a corpus error, not a
-    pass (KTD2), and the returned verdict names the class and the measured
-    numbers so the failure is actionable.
+    A class is COVERED (ok) iff its owning gate NAMES the seeded defect on
+    the mutated board and does NOT name it on the clean board -- both
+    halves of R9. A class with no firing gate is a corpus error, not a pass
+    (KTD2), and the returned verdict names the class and what was measured
+    so the failure is actionable.
     """
     if mutation == "off-board":
-        for gate in ("courtyards_overlap", "copper_edge_clearance"):
-            baseline = _baseline(gate, clean_drc.get(gate, 0), ceilings)
-            mutated = mutated_drc.get(gate, 0)
-            if mutated > baseline:
-                return ClassVerdict(
-                    name=class_name,
-                    ok=True,
-                    message=(
-                        f"{class_name}: owning gate {gate} fired: {mutated} > "
-                        f"baseline {baseline} (clean {clean_drc.get(gate, 0)}, "
-                        f"ceiling {ceilings.get(gate)})"
-                    ),
-                )
-        return ClassVerdict(
-            name=class_name,
-            ok=False,
-            message=(
-                f"{class_name}: uncovered class -- no owning gate fired: "
-                "courtyards_overlap "
-                f"{clean_drc.get('courtyards_overlap', 0)} -> {mutated_drc.get('courtyards_overlap', 0)}, "
-                "copper_edge_clearance "
-                f"{clean_drc.get('copper_edge_clearance', 0)} -> {mutated_drc.get('copper_edge_clearance', 0)}"
-            ),
-        )
-    if mutation == "pad-short":
-        gate = "shorting_items"
-        baseline = _baseline(gate, clean_drc.get(gate, 0), ceilings)
-        mutated = mutated_drc.get(gate, 0)
-        if mutated > baseline:
+        ref = measurement.params.get("ref", "<no ref>")
+        if ref in measurement.clean_containment_refs:
+            return ClassVerdict(
+                name=class_name,
+                ok=False,
+                message=(
+                    f"{class_name}: control violated -- {ref} is ALREADY "
+                    "outside the board outline on the CLEAN board, so the "
+                    "mutated board proves nothing. Re-seed this class onto "
+                    "a ref that starts inside the outline."
+                ),
+            )
+        if ref in measurement.mutated_containment_refs:
             return ClassVerdict(
                 name=class_name,
                 ok=True,
                 message=(
-                    f"{class_name}: owning gate {gate} fired: {mutated} > "
-                    f"baseline {baseline} (clean {clean_drc.get(gate, 0)}, "
-                    f"ceiling {ceilings.get(gate)})"
+                    f"{class_name}: owning gate board_containment fired: "
+                    f"{ref} has copper outside the Edge.Cuts outline on the "
+                    "mutated board and none on the clean board"
                 ),
             )
         return ClassVerdict(
             name=class_name,
             ok=False,
             message=(
-                f"{class_name}: uncovered class -- shorting_items did not rise "
-                f"({clean_drc.get(gate, 0)} -> {mutated})"
+                f"{class_name}: uncovered class -- owning gate "
+                f"board_containment did not name {ref} on the mutated board "
+                f"(refs outside outline: {sorted(measurement.mutated_containment_refs) or 'none'})"
+            ),
+        )
+    if mutation == "pad-short":
+        ref = measurement.params.get("ref", "<no ref>")
+        pad_a = measurement.params.get("pad_a")
+        pad_b = measurement.params.get("pad_b")
+        if measurement.clean_pair_errors:
+            return ClassVerdict(
+                name=class_name,
+                ok=False,
+                message=(
+                    f"{class_name}: control violated -- {ref} pads {pad_a}/"
+                    f"{pad_b} are ALREADY in violation together on the CLEAN "
+                    f"board ({measurement.clean_pair_errors[0]}), so the "
+                    "mutated board proves nothing. Re-seed this class onto a "
+                    "pad pair that starts clean."
+                ),
+            )
+        if measurement.mutated_pair_errors:
+            return ClassVerdict(
+                name=class_name,
+                ok=True,
+                message=(
+                    f"{class_name}: owning gate kicad-drc fired: "
+                    f"{len(measurement.mutated_pair_errors)} DRC error(s) name "
+                    f"both {ref} pad {pad_a} and pad {pad_b} on the mutated "
+                    f"board and none on the clean board "
+                    f"[{'; '.join(measurement.mutated_pair_errors[:3])}]"
+                ),
+            )
+        return ClassVerdict(
+            name=class_name,
+            ok=False,
+            message=(
+                f"{class_name}: uncovered class -- no DRC error names both "
+                f"{ref} pad {pad_a} and pad {pad_b} on the mutated board"
             ),
         )
     if mutation == "creepage":
+        clean_creepage = measurement.clean_creepage
+        mutated_creepage = measurement.mutated_creepage
         if clean_creepage is None or mutated_creepage is None:
             return ClassVerdict(
                 name=class_name,
@@ -299,12 +417,21 @@ def check_anti_vacuity(
     clean_drc: dict[str, int],
     ceilings: dict[str, int],
     gate_categories: tuple[str, ...] = DRC_GATE_CATEGORIES,
+    clean_containment_refs: set[str] | None = None,
 ) -> list[str]:
     """Clean-board anti-vacuity control: every corpus DRC gate category must
-    be at or below its recorded ceiling on the unmutated board. The creepage
+    be at or below its recorded ceiling on the unmutated board, and the
+    board-containment gate must be completely clean on it. The creepage
     gate is deliberately NOT in *gate_categories* (red on main today -- see
     module docstring); its class uses a per-class delta instead."""
     violations: list[str] = []
+    if clean_containment_refs:
+        violations.append(
+            "clean-board board_containment is not green: copper outside the "
+            f"outline on {sorted(clean_containment_refs)} -- the off-board "
+            "class cannot demonstrate anything against a board that already "
+            "fails its owning gate"
+        )
     for category in gate_categories:
         ceiling = ceilings.get(category)
         if ceiling is None:
@@ -322,6 +449,20 @@ def check_anti_vacuity(
 # ---------------------------------------------------------------------------
 # orchestration
 # ---------------------------------------------------------------------------
+
+
+def _drc_delta(clean: dict[str, int], mutated: dict[str, int]) -> dict[str, str]:
+    """Categories whose count changed, as "clean -> mutated" strings.
+
+    Context for the report only. The off-board class deliberately does not
+    assert on this: a component that leaves the board takes its copper with
+    it, so these deltas are typically NEGATIVE.
+    """
+    return {
+        category: f"{clean.get(category, 0)} -> {mutated.get(category, 0)}"
+        for category in sorted(set(clean) | set(mutated))
+        if clean.get(category, 0) != mutated.get(category, 0)
+    }
 
 
 def load_manifest(manifest_path: Path) -> dict[str, Any]:
@@ -370,14 +511,18 @@ def run_corpus(
     # --- clean-board control (byte-identical copy of the committed board) ---
     clean_copy = workdir_path / "clean.kicad_pcb"
     copy_board(board_path, clean_copy)
-    clean_drc = measure_drc_counts(clean_copy, dru_path)
+    clean_errors = measure_drc(clean_copy, dru_path)
+    clean_drc = drc_counts(clean_errors)
+    clean_containment_refs = measure_containment(clean_copy)
     try:
         clean_creepage = measure_creepage_dc_lv(clean_copy)
     except GateError as exc:
         clean_creepage = None
         print(f"  [gate-error] clean-board creepage measurement: {exc}")
 
-    anti_vacuity_violations = check_anti_vacuity(clean_drc, ceilings)
+    anti_vacuity_violations = check_anti_vacuity(
+        clean_drc, ceilings, clean_containment_refs=clean_containment_refs
+    )
 
     # --- per-class mutations + owning-gate assertion ---
     class_verdicts: list[ClassVerdict] = []
@@ -396,23 +541,29 @@ def run_corpus(
             "summary": mutation_result.summary,
         }
 
-        mutated_drc: dict[str, int] | None = None
-        mutated_creepage: int | None = None
+        params = class_def["params"]
+        measurement = ClassMeasurement(
+            params=params,
+            clean_containment_refs=clean_containment_refs,
+            clean_creepage=clean_creepage,
+        )
+
         if mutation == "creepage":
             if clean_creepage is None:
-                verdict = ClassVerdict(
-                    name=class_name,
-                    ok=False,
-                    gate_error=True,
-                    message=(
-                        "gate error: clean-board REQ-SAFE-01 baseline "
-                        "unavailable, cannot assert the class delta"
-                    ),
+                class_verdicts.append(
+                    ClassVerdict(
+                        name=class_name,
+                        ok=False,
+                        gate_error=True,
+                        message=(
+                            "gate error: clean-board REQ-SAFE-01 baseline "
+                            "unavailable, cannot assert the class delta"
+                        ),
+                    )
                 )
-                class_verdicts.append(verdict)
                 continue
             try:
-                mutated_creepage = measure_creepage_dc_lv(out_path)
+                measurement.mutated_creepage = measure_creepage_dc_lv(out_path)
             except GateError as exc:
                 class_verdicts.append(
                     ClassVerdict(
@@ -423,19 +574,28 @@ def run_corpus(
                     )
                 )
                 continue
+        elif mutation == "off-board":
+            measurement.mutated_containment_refs = measure_containment(out_path)
+            # Reported for context only -- the off-board class is NOT
+            # asserted on DRC counts (they FALL when a component leaves the
+            # board; see the module docstring).
+            report_mutation["drc_delta"] = _drc_delta(
+                clean_drc, drc_counts(measure_drc(out_path, dru_path))
+            )
+        elif mutation == "pad-short":
+            ref, pad_a, pad_b = params["ref"], params["pad_a"], params["pad_b"]
+            measurement.clean_pair_errors = errors_naming_pad_pair(
+                clean_errors, ref, pad_a, pad_b
+            )
+            measurement.mutated_pair_errors = errors_naming_pad_pair(
+                measure_drc(out_path, dru_path), ref, pad_a, pad_b
+            )
         else:
-            mutated_drc = measure_drc_counts(out_path, dru_path)
+            raise GateError(
+                f"manifest class {class_name!r} has unknown mutation {mutation!r}"
+            )
 
-        verdict = evaluate_class(
-            class_name,
-            mutation,
-            clean_drc,
-            mutated_drc or {},
-            ceilings,
-            clean_creepage,
-            mutated_creepage,
-        )
-        class_verdicts.append(verdict)
+        class_verdicts.append(evaluate_class(class_name, mutation, measurement))
         mutation_summaries[class_name] = report_mutation
 
     # --- aggregate ---
@@ -452,6 +612,7 @@ def run_corpus(
         board_matches_manifest=board_matches,
         clean_drc=clean_drc,
         clean_creepage_dc_lv=clean_creepage,
+        clean_containment_refs=sorted(clean_containment_refs),
         anti_vacuity_violations=anti_vacuity_violations,
         class_verdicts=class_verdicts,
         mutation_summaries=mutation_summaries,
@@ -504,6 +665,10 @@ def _print_report(report: CorpusReport) -> None:
     print(
         "clean-board DC_BUS<->LV_CONTROL creepage: "
         f"{report.clean_creepage_dc_lv if report.clean_creepage_dc_lv is not None else '<unavailable>'}"
+    )
+    print(
+        "clean-board containment (refs with copper outside the outline): "
+        f"{report.clean_containment_refs or 'none'}"
     )
 
     print("\nanti-vacuity control (clean board at/below recorded ceilings):")

@@ -1,8 +1,8 @@
 _meta:
   last_audit_date: '2026-08-02'
-  total_scripts: 101
+  total_scripts: 102
   counts:
-    keep: 101
+    keep: 102
     ticket: 0
   ticket_scripts_deleted: 40
 scripts:
@@ -144,6 +144,26 @@ scripts:
   - pathlib
   - sys
   - yaml
+- path: check_board_containment.py
+  purpose: 'Board-containment gate (R26 invariant, owning gate of the board-defect corpus''s off-board class):
+    every footprint''s pad copper must lie inside the Edge.Cuts outline. Closes the class no gate covered --
+    DRC counts FALL when a component leaves the board, so no count-delta can detect it. Fails closed (exit 2)
+    on a missing/unparseable board or an undeterminable outline.'
+  owner: bennet
+  last_run: '2026-08-04'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - argparse
+  - dataclasses
+  - importlib.util
+  - kiutils
+  - pathlib
+  - shapely
+  - sys
+  - temper_placer.geometry.kicad_transform
 - path: check_board_defect_corpus.py
   purpose: 'Board-defect mutation corpus runner (R38, plan 2026-08-02-024): for each defect class, re-derive the mutated board
     from the committed board and assert its owning gate fails (count-delta); assert the clean board passes the corpus gates
