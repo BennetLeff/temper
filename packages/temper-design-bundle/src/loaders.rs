@@ -71,11 +71,17 @@
 //!   pre-migration module defined — a consumer that pickled the class, or
 //!   compared it by identity against a re-imported copy, would see the change.
 //!   No consumer does (verified 2026-08-04 across `src/`, `tests/`, `scripts/`).
-//! - `source` / `pattern` / `name` / `description` are typed `String` at the
-//!   pyo3 boundary. A non-`str` argument therefore raises `TypeError` with the
+//! - `source` / `name` / `description` are typed `String` at the pyo3
+//!   boundary. A non-`str` argument therefore raises `TypeError` with the
 //!   identical pyo3 message, but *before* the body runs — where the oracle
 //!   would have raised its own `LoopLoadError` first if `data` was also
-//!   invalid. Message identical, precedence different.
+//!   invalid. Message identical, precedence different. `pattern` is the one
+//!   exception: the oracle hands it to `pathlib.Path.glob` (kept Python-side
+//!   for its intricate pattern semantics), whose message is
+//!   `expected str, bytes or os.PathLike object, not int`, while the Rust
+//!   boundary raises the pyo3 message — the messages DIFFER by design, and
+//!   the divergence is pinned by
+//!   `test_load_loop_collection_pattern_type_message_divergence_pinned`.
 //! - Iterating a mapping's `.items()` uses pyo3 2-tuple extraction, so a
 //!   pathological custom mapping yielding non-pairs reports
 //!   `expected a sequence of length 2` where CPython's unpacking reports

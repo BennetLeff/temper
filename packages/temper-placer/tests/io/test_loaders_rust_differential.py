@@ -791,6 +791,39 @@ def test_load_loop_collection_pattern_matching_nothing_parity(tmp_path):
     assert _collection_fields(rust) == _collection_fields(py)
 
 
+def test_load_loop_collection_pattern_type_message_divergence_pinned():
+    """P2-3 pinning: the pyo3 String boundary and pathlib.glob raise
+    DIFFERENT messages for a non-``str`` pattern.
+
+    ``source``/``name``/``description`` funnel into pyclass constructors on
+    both sides, so a non-``str`` argument raises pyo3's own message
+    (``'int' object is not an instance of 'str'``) identically. ``pattern``
+    is the one exception: the oracle hands it straight to
+    ``directory.glob(...)`` — pathlib, deliberately kept Python-side — whose
+    message is ``expected str, bytes or os.PathLike object, not int``, while
+    the Rust side rejects it at the pyo3 ``String`` boundary before the body
+    runs. The divergence is intentional (pathlib.glob semantics are not
+    re-implemented); this test pins both exact messages so the deviation is
+    asserted, not merely described.
+    """
+    dir_path = _LOOP_TEMPLATE_DIR
+    py = _raised(_loop_oracle.load_loop_collection, dir_path, pattern=5)
+    rust = _raised(RUST_LOAD_LOOP_COLLECTION, dir_path, pattern=5)
+    assert py == (
+        "raised",
+        "TypeError",
+        "builtins",
+        "expected str, bytes or os.PathLike object, not int",
+    )
+    assert rust == (
+        "raised",
+        "TypeError",
+        "builtins",
+        "'int' object is not an instance of 'str'",
+    )
+    assert py[3] != rust[3]
+
+
 def test_load_loop_collection_readme_skip_parity(tmp_path):
     """README.md / README.yaml / README.txt are skipped case-insensitively,
     and nothing else is."""
