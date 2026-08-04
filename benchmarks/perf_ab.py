@@ -240,6 +240,127 @@ def bench_bottleneck_hard_blocked() -> tuple[float, float]:
     )
 
 
+# ---------------------------------------------------------------------------
+# Wave 4 Phase 3 candidate 6: the DSN emitter (temper_placer/io/dsn_exporter.py)
+# ---------------------------------------------------------------------------
+
+_DSN_SEED = 20260804
+_DSN_COMPONENTS = 40
+_DSN_PINS_PER_COMPONENT = 8
+
+
+def _dsn_fixture() -> tuple[Any, Any]:
+    """A deterministic board+netlist of realistic size for the DSN emitter.
+
+    Fixed seed and shape: the ratio is only comparable across runs if both arms
+    serialize byte-identical input every time.
+    """
+    from temper_placer.core.board import Board, Layer, LayerStackup
+    from temper_placer.core.netlist import Component, Net, Netlist, Pin
+
+    rng = random.Random(_DSN_SEED)
+    components = []
+    for i in range(_DSN_COMPONENTS):
+        pins = [
+            Pin(
+                name=f"P{j}",
+                number=str(j + 1),
+                position=(rng.uniform(-3.0, 3.0), rng.uniform(-3.0, 3.0)),
+                width=rng.choice([0.3, 0.5, 0.6, 1.0]),
+                height=rng.choice([0.4, 0.8, 1.5]),
+                shape=rng.choice(["rect", "circle", "thru_hole", "oval"]),
+                layer=rng.choice(["F.Cu", "B.Cu", "all"]),
+            )
+            for j in range(_DSN_PINS_PER_COMPONENT)
+        ]
+        components.append(
+            Component(
+                ref=f"{rng.choice('URCQJ')}{i}",
+                footprint=f"Lib{i % 7}:Foot_{i % 11}",
+                bounds=(5.0, 4.0),
+                pins=pins,
+                initial_position=(rng.uniform(0.0, 90.0), rng.uniform(0.0, 60.0)),
+                initial_rotation=rng.randint(0, 3),
+            )
+        )
+
+    refs = [c.ref for c in components]
+    nets = [
+        Net(
+            name=rng.choice(["GND", "VCC3V3", "+5V", "DC_BUS-", f"NET{k}", f"sig_vdd{k}v"]),
+            pins=[
+                (rng.choice(refs), str(rng.randint(1, _DSN_PINS_PER_COMPONENT)))
+                for _ in range(rng.randint(2, 6))
+            ],
+        )
+        for k in range(60)
+    ]
+
+    board = Board(
+        width=100.0,
+        height=70.0,
+        keepouts=[
+            (rng.uniform(0, 90), rng.uniform(0, 60), rng.uniform(0, 90), rng.uniform(0, 60))
+            for _ in range(12)
+        ],
+        layer_stackup=LayerStackup(
+            layers=[
+                Layer(name="F.Cu", layer_type="signal"),
+                Layer(name="In1.Cu", layer_type="plane"),
+                Layer(name="In2.Cu", layer_type="mixed"),
+                Layer(name="B.Cu", layer_type="signal"),
+            ]
+        ),
+    )
+    return board, Netlist(components=components, nets=nets)
+
+
+def _dsn_oracle_module() -> ModuleType:
+    # The exporter oracle imports its sibling primitives oracle as
+    # `tests.io._dsn_py_oracle`, so the package root has to be importable.
+    # (pytest puts it there via rootdir; this harness runs outside pytest.)
+    placer_root = str(REPO_ROOT / "packages/temper-placer")
+    if placer_root not in sys.path:
+        sys.path.insert(0, placer_root)
+    return _load_module_from_path(
+        "_perf_ab_dsn_exporter_oracle",
+        REPO_ROOT / "packages/temper-placer/tests/io/_dsn_exporter_py_oracle.py",
+    )
+
+
+def bench_dsn_export_pcb() -> tuple[float, float]:
+    """A/B the full ``export_pcb`` serialization (Rust) vs the verbatim oracle.
+
+    Per R2 this is the *no-regression-beyond-noise* arm: DSN export is
+    I/O-shaped string building, not a compute kernel, and a large part of the
+    remaining cost is on the Python side of the boundary either way (attribute
+    reads off the duck-typed Board/Netlist, and the schema hash). No speedup is
+    claimed; the gate is that the ratio does not drift upward.
+    """
+    from temper_placer.io.dsn_exporter import DSNExporter
+
+    oracle_cls = _dsn_oracle_module().DSNExporter
+    board, netlist = _dsn_fixture()
+
+    def run_rust() -> Any:
+        return str(DSNExporter(board, netlist).export_pcb("bench"))
+
+    def run_oracle() -> Any:
+        return str(oracle_cls(board, netlist).export_pcb("bench"))
+
+    # Parity assertion inside the perf harness: a performance number for an
+    # implementation that no longer agrees with its oracle is meaningless.
+    # Byte equality, because bytes are this surface's contract.
+    if run_rust() != run_oracle():
+        raise AssertionError(
+            "perf A/B arms disagree for dsn export_pcb -- the behavioral A/B "
+            "(test_dsn_rust_differential.py) should be failing too"
+        )
+    return _time_us(run_rust, DEFAULT_WARMUP, DEFAULT_REPEATS), _time_us(
+        run_oracle, DEFAULT_WARMUP, DEFAULT_REPEATS
+    )
+
+
 # (module, stage) -> callable returning (rust_us, oracle_us).
 #
 # `module` and `stage` become the comparison key together with `board`, so they
@@ -248,6 +369,7 @@ def bench_bottleneck_hard_blocked() -> tuple[float, float]:
 _BENCHMARKS: dict[tuple[str, str], Callable[[], tuple[float, float]]] = {
     ("bottleneck-geometry", "cell_capacity_batch"): bench_bottleneck_cell_capacity,
     ("bottleneck-geometry", "hard_blocked_batch"): bench_bottleneck_hard_blocked,
+    ("dsn-exporter", "export_pcb"): bench_dsn_export_pcb,
 }
 
 

@@ -34,6 +34,7 @@
 //     (`parse_footprint_courtyard_str`) is pure and wasm32-exported.
 
 pub mod config_binding;
+pub mod dsn_exporter;
 pub mod dsn_types;
 pub mod export_types;
 pub mod footprint;
@@ -73,6 +74,7 @@ mod pymodule_def {
         m.add_class::<crate::export_types::PyExportResult>()?;
         m.add_class::<crate::footprint::PyFootprintBounds>()?;
         m.add_class::<crate::dsn_types::DSNExpression>()?;
+        m.add_class::<crate::dsn_exporter::PyDsnExporterCore>()?;
         m.add_class::<crate::dsn_types::PyDsnRect>()?;
         m.add_class::<crate::dsn_types::PyDsnCircle>()?;
         m.add_class::<crate::dsn_types::PyDsnPath>()?;

@@ -1,56 +1,53 @@
+"""SPECCTRA DSN primitives — delegation shim over the Rust types.
+
+Wave-4 Phase-3 candidate 6, decision D6: ``DSNExpression``, ``dsn_list``,
+``DSNRect``, ``DSNCircle`` and ``DSNPath`` were already shipped as pyclasses by
+``temper-io-types`` (``src/dsn_types.rs``) but nothing imported them — this
+module kept a parallel pure-Python copy, and the exporter used *that*. The two
+copies are now one: the Rust types are re-exported here under their existing
+names, so every ``from temper_placer.io.dsn import ...`` keeps working.
+
+``DSNPoint``, ``DSNShape`` and ``DSNPolygon`` have no Rust twin and no consumer
+anywhere in the repo (measured: zero imports outside this module). They stay as
+Python so the module's public surface is unchanged rather than silently
+narrowed; retiring them is an R8 residual-candidate decision, not this one's.
+
+Recorded deviations from the retired pure-Python types, all on surfaces no
+caller uses:
+
+* ``DSNRect``/``DSNCircle``/``DSNPath`` are pyclasses, not frozen dataclasses:
+  they are mutable, unhashable, compare by identity rather than by field, and
+  no longer subclass ``DSNShape``. Their ``__repr__`` quotes the layer with
+  ``"`` instead of ``'`` and prints floats in Rust's form.
+* ``DSNExpression.args`` returns a freshly built ``list`` on each access rather
+  than the stored sequence, so mutating the returned list does not mutate the
+  expression. ``__str__`` — the only thing the DSN contract depends on — is
+  byte-identical, which is what the differential pins.
+"""
+
 from __future__ import annotations
 
 from collections.abc import Sequence
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
+from temper_io_types import (
+    DSNCircle,
+    DSNExpression,
+    DSNPath,
+    DSNRect,
+    dsn_list,
+)
 
-@dataclass(frozen=True)
-class DSNExpression:
-    """A SPECCTRA DSN S-expression primitive."""
-
-    name: str
-    args: Sequence[str | float | int | DSNExpression] = field(default_factory=list)
-    comment: str | None = None
-
-    def with_comment(self, line: str) -> DSNExpression:
-        """Return a new DSNExpression with a comment line prepended."""
-        return DSNExpression(
-            name=self.name,
-            args=tuple(self.args),
-            comment=line,
-        )
-
-    def __str__(self) -> str:
-        def fmt(v) -> str:
-            if isinstance(v, DSNExpression):
-                return str(v)
-            if isinstance(v, float):
-                s = f"{v:.6f}".rstrip("0").rstrip(".")
-                return s
-            if isinstance(v, str):
-                if not v:
-                    return '""'
-                special_chars = set(' ()"')
-                if any(c in special_chars for c in v):
-                    escaped = v.replace('"', '\\"')
-                    return f'"{escaped}"'
-                return v
-            return str(v)
-
-        body = (
-            f"({self.name})"
-            if not self.args
-            else f"({self.name} {' '.join(fmt(a) for a in self.args)})"
-        )
-
-        if self.comment:
-            return f";{self.comment}\n{body}"
-        return body
-
-
-def dsn_list(name: str, *args) -> DSNExpression:
-    """Helper to create a DSN S-expression."""
-    return DSNExpression(name, args)
+__all__ = [
+    "DSNCircle",
+    "DSNExpression",
+    "DSNPath",
+    "DSNPoint",
+    "DSNPolygon",
+    "DSNRect",
+    "DSNShape",
+    "dsn_list",
+]
 
 
 @dataclass(frozen=True)
@@ -75,33 +72,6 @@ class DSNShape:
 
 
 @dataclass(frozen=True)
-class DSNRect(DSNShape):
-    """A rectangular shape in DSN: (rect layer x1 y1 x2 y2)."""
-
-    layer: str
-    x1: float
-    y1: float
-    x2: float
-    y2: float
-
-    def to_dsn(self) -> DSNExpression:
-        return dsn_list("rect", self.layer, self.x1, self.y1, self.x2, self.y2)
-
-
-@dataclass(frozen=True)
-class DSNCircle(DSNShape):
-    """A circular shape in DSN: (circle layer diameter [x y])."""
-
-    layer: str
-    diameter: float
-    x: float = 0.0
-    y: float = 0.0
-
-    def to_dsn(self) -> DSNExpression:
-        return dsn_list("circle", self.layer, self.diameter, self.x, self.y)
-
-
-@dataclass(frozen=True)
 class DSNPolygon(DSNShape):
     """A polygon/path shape in DSN: (polygon layer width x1 y1 x2 y2 ...)."""
 
@@ -110,22 +80,7 @@ class DSNPolygon(DSNShape):
     points: Sequence[tuple[float, float]]
 
     def to_dsn(self) -> DSNExpression:
-        args = [self.layer, self.width]
+        args: list[str | float] = [self.layer, self.width]
         for x, y in self.points:
             args.extend([x, y])
         return dsn_list("polygon", *args)
-
-
-@dataclass(frozen=True)
-class DSNPath(DSNShape):
-    """A path shape in DSN: (path layer width x1 y1 x2 y2 ...)."""
-
-    layer: str
-    width: float
-    points: Sequence[tuple[float, float]]
-
-    def to_dsn(self) -> DSNExpression:
-        args = [self.layer, self.width]
-        for x, y in self.points:
-            args.extend([x, y])
-        return dsn_list("path", *args)
