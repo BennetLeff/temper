@@ -133,10 +133,15 @@ def extract_kicad_metadata(pcb_path: Path) -> KiCadMetadata:
     logger.info(f"Extracted {len(pad_sizes)} pad sizes")
 
     courtyards = {}
+    pad_bbox_by_ref = _pad_bbox_by_ref(raw.get("pad_bbox_inputs", {}))
     for ref, inputs in raw["courtyard_inputs"].items():
         points = _courtyard_points_from_raw(inputs)
-        if not points and ref in _pad_positions_by_ref(raw["pad_sizes"]):
-            points = _pad_bbox_fallback(_pad_positions_by_ref(raw["pad_sizes"])[ref])
+        if not points and ref in pad_bbox_by_ref:
+            # Strategy-2 fallback: pad bbox + 0.5 mm margin over ALL pads
+            # (the oracle iterates `for pad in fp.pads:` -- unnumbered pads
+            # included; `pad_sizes` above excludes them, so the bbox inputs
+            # are carried separately by the engine).
+            points = _pad_bbox_fallback(pad_bbox_by_ref[ref])
         if not points:
             points = [
                 (-0.5, -0.5),
@@ -157,11 +162,12 @@ def extract_kicad_metadata(pcb_path: Path) -> KiCadMetadata:
     )
 
 
-def _pad_positions_by_ref(raw_pad_sizes: dict) -> dict[str, list[tuple[float, float, float, float]]]:
-    """Group the raw pad entries ([x, y, w, h, shape]) by component ref."""
+def _pad_bbox_by_ref(raw_pad_bbox: dict) -> dict[str, list[tuple[float, float, float, float]]]:
+    """Group the engine's per-ref pad-bbox inputs ([x, y, w, h] entries over
+    ALL pads, numbered and unnumbered) by component ref."""
     by_ref: dict[str, list[tuple[float, float, float, float]]] = {}
-    for (ref, _num), entry in raw_pad_sizes.items():
-        by_ref.setdefault(ref, []).append((entry[0], entry[1], entry[2], entry[3]))
+    for ref, entries in raw_pad_bbox.items():
+        by_ref[ref] = [(e[0], e[1], e[2], e[3]) for e in entries]
     return by_ref
 
 

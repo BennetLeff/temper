@@ -17,9 +17,15 @@
 //!   space or `)`**, and parses via `float()`; if the float is integral it is
 //!   converted to an **int** (`5.0` -> `5`);
 //! - an integer token (`-?\d+`) is numeric **only when followed by a space or
-//!   `)`** and stays an **int**;
-//! - anything else (scientific notation, `.5`, `0x...`, quoted strings) is a
-//!   string.
+//!   `)`** and stays an **int** (a leading `+` is numeric only in the decimal
+//!   form: `+5` is a bare string, `+5.0` is the int 5);
+//! - a quoted string is a string token **only when followed by `)` or
+//!   whitespace** (`(?:(?=\))|(?=\s))` after the closing quote); otherwise —
+//!   including unterminated strings — the whole run (quotes included) is a
+//!   bare token (`"R1"(` tokenizes as the bare `"R1"`);
+//! - `^` is excluded from bare tokens (`[^(^)\s]`) and is skipped entirely:
+//!   `5^0` tokenizes as `5`, `0`;
+//! - anything else (scientific notation, `.5`, `0x...`) is a string.
 //!
 //! The int-vs-float distinction is load-bearing: the extraction's outputs
 //! (e.g. `Board.origin`, `Component._rotation_deg`, net ids) keep the token
@@ -42,6 +48,20 @@
 //!   is derived from `libId` by splitting at the FIRST colon.
 //! - Board geometry min/max keeps the operand type: an all-integer
 //!   Edge.Cuts outline yields an integer `Board.origin` / `width` / `height`.
+//!
+//! ## Fail-closed family (kiutils raises -> the engine raises)
+//!
+//! kiutils' `from_sexpr` raises on several malformed tokens that the walkers
+//! would otherwise silently default: a nameless `(net N)` on a pad or at
+//! board level (`Net.from_sexpr` does `exp[2]`), a position list shorter
+//! than 3 items (`Position.from_sexpr`), an oval drill without its width
+//! (`exp[3]`), and a footprint whose libId token is not an atom (kiutils
+//! stores the raw list as entryName and the oracle raises AttributeError on
+//! it). `raw_board_from_tree` records these into an error vec and
+//! `parse_kicad_document` fails the whole parse — a malformed token can
+//! never degrade to a default value (fail-open). Segment/via/arc `(net N)`
+//! tokens are NOT in this family: kiutils keeps the raw int there
+//! (`object.net = item[1]`), so truthiness semantics match as-is.
 //!
 //! ## GEOS boundary (kicad_metadata courtyards)
 //!
@@ -97,7 +117,11 @@ fn classify_number(word: &str, next_is_space_or_paren: bool) -> Option<KiAtom> {
         return None;
     }
     let mut i = 0usize;
-    if bytes[i] == b'+' || bytes[i] == b'-' {
+    let mut plus = false;
+    if bytes[i] == b'+' {
+        plus = true;
+        i += 1;
+    } else if bytes[i] == b'-' {
         i += 1;
     }
     let mut digits_before = 0usize;
@@ -123,6 +147,12 @@ fn classify_number(word: &str, next_is_space_or_paren: bool) -> Option<KiAtom> {
     }
     if i != n {
         return None; // trailing junk -> bare string (matches kiutils `s`)
+    }
+    if !is_decimal && plus {
+        // kiutils' integer form is `\-?\d+` -- a leading `+` is numeric
+        // only in the decimal form (`+5` is a bare string, `+5.0` is a
+        // number that then becomes int 5).
+        return None;
     }
     if is_decimal {
         // `float(word)` then `if v.is_integer(): int(v)` -- the kiutils num
@@ -162,6 +192,13 @@ fn parse_ki_document(input: &str) -> Result<Vec<KiNode>, String> {
             i += 1;
             continue;
         }
+        if c == '^' {
+            // kiutils' bare-token regex `(?P<s>[^(^)\s]+)` EXCLUDES `^`,
+            // so re.finditer skips the char entirely -- it is part of no
+            // token. `5^0` tokenizes as `5`, `0` with the caret dropped.
+            i += 1;
+            continue;
+        }
         if c == '(' {
             stack.push(Vec::new());
             i += 1;
@@ -180,43 +217,61 @@ fn parse_ki_document(input: &str) -> Result<Vec<KiNode>, String> {
             continue;
         }
         if c == '"' {
-            // kiutils' `sq` branch: `"(?:[^"]|(?<=\\)")*"` then
-            // `.replace(r'\"', '"')`. Only `\"` is unescaped -- a literal
-            // backslash is NOT (`\\` stays `\\`).
-            let start = i;
-            i += 1;
-            let mut closed = false;
-            while i < n {
-                let cur = bytes[i] as char;
-                if cur == '\\' && i + 1 < n && bytes[i + 1] as char == '"' {
-                    i += 2;
+            // kiutils' `sq` branch:
+            //   `"(?:[^"]|(?<=\\)")*"(?:(?=\))|(?=\s)))`
+            // A quoted string is a STRING token only when a closing quote is
+            // found AND the next char is `)` or whitespace. Otherwise the
+            // whole run (quotes included) falls through to the bare-token
+            // branch below -- kiutils' `s` class `[^(^)\s]+` accepts `"` and
+            // `\` as ordinary characters, so `"R1"(` tokenizes as the bare
+            // token `"R1"` (quotes preserved). Unterminated strings are bare
+            // tokens too (the `sq` alternative never matches).
+            let mut scan = i + 1;
+            let mut closed_at: Option<usize> = None;
+            while scan < n {
+                let cur = bytes[scan] as char;
+                if cur == '\\' && scan + 1 < n && bytes[scan + 1] as char == '"' {
+                    scan += 2;
                     continue;
                 }
                 if cur == '"' {
-                    i += 1;
-                    closed = true;
+                    closed_at = Some(scan);
                     break;
                 }
-                i += 1;
+                scan += 1;
             }
-            if !closed {
-                return Err("unterminated string literal".to_string());
+            if let Some(close) = closed_at {
+                let after = if close + 1 < n { Some(bytes[close + 1] as char) } else { None };
+                // Python `\s` = [ \t\n\r\f\v] -- the same set the bare scan
+                // and whitespace skip use via char::is_whitespace (U+0009..D
+                // + U+0020), spelled out here so the lookahead cannot drift.
+                let is_string = matches!(
+                    after,
+                    Some(')') | Some(' ') | Some('\t') | Some('\n') | Some('\r') | Some('\x0c') | Some('\x0b')
+                );
+                if is_string {
+                    let raw = &input[i..=close];
+                    let inner = &raw[1..raw.len() - 1];
+                    // Only `\"` is unescaped -- a literal backslash is NOT
+                    // (`\\` stays `\\`).
+                    let unescaped = inner.replace("\\\"", "\"");
+                    stack
+                        .last_mut()
+                        .ok_or_else(|| "Trouble with nesting of brackets".to_string())?
+                        .push(KiNode::Atom(KiAtom::Str(unescaped)));
+                    i = close + 1;
+                    continue;
+                }
             }
-            let raw = &input[start..i];
-            let inner = &raw[1..raw.len() - 1];
-            let unescaped = inner.replace("\\\"", "\"");
-            stack
-                .last_mut()
-                .ok_or_else(|| "Trouble with nesting of brackets".to_string())?
-                .push(KiNode::Atom(KiAtom::Str(unescaped)));
-            continue;
+            // fall through: the `"` starts a bare token (quotes preserved)
         }
-        // bare token: consume until whitespace / paren. The delimiter decides
-        // whether the word can be numeric (kiutils' num lookahead `[\ \)]`).
+        // bare token: consume until whitespace / paren / `^`. The delimiter
+        // decides whether the word can be numeric (kiutils' num lookahead
+        // `[\ \)]`).
         let start = i;
         while i < n {
             let cur = bytes[i] as char;
-            if cur.is_whitespace() || cur == '(' || cur == ')' {
+            if cur.is_whitespace() || cur == '(' || cur == ')' || cur == '^' {
                 break;
             }
             i += 1;
@@ -418,6 +473,19 @@ pub(crate) struct RawPos {
     pub x: Num,
     pub y: Num,
     pub angle: Option<Num>,
+    /// kiutils' `Position` carries an `unlocked` flag (any `unlocked` token
+    /// anywhere in the list sets it; the angle is then None). Only the drill
+    /// offset path surfaces it (a `Position` pyclass); the rest of the model
+    /// reads x/y/angle only.
+    pub unlocked: bool,
+}
+
+impl RawPos {
+    /// The zero position (`(0, 0)`, no angle, not unlocked) -- the default
+    /// every walker keeps when a position token is absent or unparseable.
+    fn origin() -> RawPos {
+        RawPos { x: Num::I(0), y: Num::I(0), angle: None, unlocked: false }
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -427,7 +495,7 @@ pub(crate) struct RawDrill {
     /// offset list when a drill carries only `(offset ...)` (kiutils quirk).
     pub diameter: Option<KiAtom>,
     pub width: Option<KiAtom>,
-    pub offset: Option<(Num, Num)>,
+    pub offset: Option<RawPos>,
 }
 
 #[derive(Clone, Debug)]
@@ -573,10 +641,15 @@ fn atom_to_string(atom: &KiAtom) -> String {
     }
 }
 
-/// The kiutils `Position` from `(at X Y [angle])` / `(size X Y)`: `exp[1]`
-/// and `exp[2]` verbatim (int or float), `exp[3]` is the angle unless it is
-/// the `unlocked` marker.
-fn parse_pos(items: &[KiNode]) -> Option<RawPos> {
+/// The kiutils `Position` from `(at X Y [angle])` / `(size X Y)` /
+/// `(offset ...)`: `exp[1]` and `exp[2]` verbatim (int or float), `exp[3]`
+/// is the angle unless it is the `unlocked` marker. Mirrors kiutils'
+/// `Position.from_sexpr`: a list shorter than 3 items raises there, so the
+/// engine records a parse error and the document parse fails closed. A
+/// non-numeric x/y keeps returning `None` without an error (kiutils stores
+/// the raw token and only fails later in a float() conversion -- a
+/// documented deviation, see VERIFICATION.md).
+fn parse_pos(items: &[KiNode], errors: &mut Vec<String>) -> Option<RawPos> {
     let get = |idx: usize| -> Option<Num> {
         let atom = items.get(idx)?;
         match atom {
@@ -585,6 +658,10 @@ fn parse_pos(items: &[KiNode]) -> Option<RawPos> {
             _ => None,
         }
     };
+    if items.len() < 3 {
+        errors.push("Expression does not have the correct type".to_string());
+        return None;
+    }
     let x = get(1)?;
     let y = get(2)?;
     let mut angle = get(3);
@@ -592,10 +669,19 @@ fn parse_pos(items: &[KiNode]) -> Option<RawPos> {
         && b == "unlocked" {
             angle = None;
         }
-    Some(RawPos { x, y, angle })
+    // kiutils scans the WHOLE list for the `unlocked` marker, not just
+    // index 3 (`for item in exp: if item == 'unlocked'`).
+    let mut unlocked = false;
+    for item in items.iter().skip(1) {
+        if let KiNode::Atom(KiAtom::Bare(b)) = item
+            && b == "unlocked" {
+                unlocked = true;
+            }
+    }
+    Some(RawPos { x, y, angle, unlocked })
 }
 
-fn parse_drill(items: &[KiNode]) -> Option<RawDrill> {
+fn parse_drill(items: &[KiNode], errors: &mut Vec<String>) -> Option<RawDrill> {
     let get = |idx: usize| -> Option<KiAtom> {
         match items.get(idx)? {
             KiNode::Atom(a) => Some(a.clone()),
@@ -613,6 +699,12 @@ fn parse_drill(items: &[KiNode]) -> Option<RawDrill> {
             oval = true;
         }
     let (diameter, width) = if oval {
+        // kiutils: `object.diameter = exp[2]; object.width = exp[3]` --
+        // both are unconditional, so an oval drill missing its width
+        // raises IndexError there; the engine fails closed the same way.
+        if items.len() < 4 {
+            errors.push("Expression does not have the correct type".to_string());
+        }
         (get(2), get(3))
     } else {
         let d = get(1);
@@ -624,13 +716,15 @@ fn parse_drill(items: &[KiNode]) -> Option<RawDrill> {
         if let KiNode::List(sub) = item
             && let Some(KiNode::Atom(KiAtom::Bare(b))) = sub.first()
                 && b == "offset" {
-                    offset = parse_pos(sub).map(|p| (p.x, p.y));
+                    // kiutils: `Position().from_sexpr(item)` -- the angle
+                    // and the unlocked marker are kept.
+                    offset = parse_pos(sub, errors);
                 }
     }
     Some(RawDrill { oval, diameter, width, offset })
 }
 
-fn parse_pad(items: &[KiNode]) -> Option<RawPad> {
+fn parse_pad(items: &[KiNode], errors: &mut Vec<String>) -> Option<RawPad> {
     let num_str = match items.get(1)? {
         KiNode::Atom(a) => atom_to_string(a),
         _ => String::new(),
@@ -639,8 +733,8 @@ fn parse_pad(items: &[KiNode]) -> Option<RawPad> {
         KiNode::Atom(a) => atom_to_string(a),
         _ => String::new(),
     };
-    let mut position = RawPos { x: Num::I(0), y: Num::I(0), angle: None };
-    let mut size = RawPos { x: Num::I(0), y: Num::I(0), angle: None };
+    let mut position = RawPos::origin();
+    let mut size = RawPos::origin();
     let mut drill = None;
     let mut layers: Vec<String> = Vec::new();
     let mut roundrect_ratio = None;
@@ -653,9 +747,9 @@ fn parse_pad(items: &[KiNode]) -> Option<RawPad> {
             _ => continue,
         };
         match head {
-            "at" => position = parse_pos(sub).unwrap_or(position),
-            "size" => size = parse_pos(sub).unwrap_or(size),
-            "drill" => drill = parse_drill(sub),
+            "at" => position = parse_pos(sub, errors).unwrap_or(position),
+            "size" => size = parse_pos(sub, errors).unwrap_or(size),
+            "drill" => drill = parse_drill(sub, errors),
             "layers" => {
                 for layer in sub.iter().skip(1) {
                     if let KiNode::Atom(a) = layer {
@@ -671,6 +765,16 @@ fn parse_pad(items: &[KiNode]) -> Option<RawPad> {
                 }
             }
             "net" => {
+                // kiutils: `Net().from_sexpr(item)` does `object.number =
+                // exp[1]; object.name = exp[2]` -- both unconditional, so a
+                // nameless `(net 1)` (or `(net)`) raises IndexError there.
+                // The engine fails closed the same way (parity contract:
+                // a nameless pad-net token must not silently become
+                // pin.net="" and then get dropped as unconnected).
+                if sub.len() < 3 {
+                    errors.push("Expression does not have the correct type".to_string());
+                    continue;
+                }
                 let number = match sub.get(1) {
                     Some(KiNode::Atom(KiAtom::Int(v))) => Some(Num::I(*v)),
                     Some(KiNode::Atom(KiAtom::Float(v))) => Some(Num::F(*v)),
@@ -690,16 +794,16 @@ fn parse_pad(items: &[KiNode]) -> Option<RawPad> {
     Some(RawPad { number: num_str, shape, position, size, drill, layers, roundrect_ratio, net })
 }
 
-fn parse_fp_item(items: &[KiNode]) -> Option<RawFpItem> {
+fn parse_fp_item(items: &[KiNode], errors: &mut Vec<String>) -> Option<RawFpItem> {
     let head = match items.first() {
         Some(KiNode::Atom(KiAtom::Bare(b))) => b.as_str(),
         _ => return None,
     };
     let mut layer = String::new();
-    let mut start = RawPos { x: Num::I(0), y: Num::I(0), angle: None };
-    let mut end = RawPos { x: Num::I(0), y: Num::I(0), angle: None };
-    let mut mid = RawPos { x: Num::I(0), y: Num::I(0), angle: None };
-    let mut center = RawPos { x: Num::I(0), y: Num::I(0), angle: None };
+    let mut start = RawPos::origin();
+    let mut end = RawPos::origin();
+    let mut mid = RawPos::origin();
+    let mut center = RawPos::origin();
     let mut coords: Vec<RawPos> = Vec::new();
     let mut text = String::new();
     for item in &items[1..] {
@@ -714,16 +818,16 @@ fn parse_fp_item(items: &[KiNode]) -> Option<RawFpItem> {
                     layer = atom_to_string(a);
                 }
             }
-            "start" => start = parse_pos(sub).unwrap_or(start),
-            "end" => end = parse_pos(sub).unwrap_or(end),
-            "mid" => mid = parse_pos(sub).unwrap_or(mid),
-            "center" => center = parse_pos(sub).unwrap_or(center),
+            "start" => start = parse_pos(sub, errors).unwrap_or(start),
+            "end" => end = parse_pos(sub, errors).unwrap_or(end),
+            "mid" => mid = parse_pos(sub, errors).unwrap_or(mid),
+            "center" => center = parse_pos(sub, errors).unwrap_or(center),
             "pts" | "coordinates" => {
                 // kiutils: every `(xy X Y)` child of the pts list becomes a
                 // Position via Position().from_sexpr (X, Y at exp[1], exp[2]).
                 for pt in sub.iter().skip(1) {
                     if let KiNode::List(ptsub) = pt
-                        && let Some(p) = parse_pos(ptsub) {
+                        && let Some(p) = parse_pos(ptsub, errors) {
                             coords.push(p);
                         }
                 }
@@ -749,17 +853,26 @@ fn parse_fp_item(items: &[KiNode]) -> Option<RawFpItem> {
     }
 }
 
-fn parse_footprint(items: &[KiNode]) -> Option<RawFootprint> {
-    let lib_id = match items.get(1)? {
-        KiNode::Atom(a) => atom_to_string(a),
-        _ => String::new(),
+fn parse_footprint(items: &[KiNode], errors: &mut Vec<String>) -> Option<RawFootprint> {
+    let lib_id = match items.get(1) {
+        Some(KiNode::Atom(a)) => atom_to_string(a),
+        // kiutils does `object.libId = exp[1]` unconditionally; for a
+        // non-atom token (no libId, e.g. `(footprint (layer ...) ...)`) the
+        // libId setter's else branch stores the RAW LIST as entryName, and
+        // the oracle's `_get_footprint_reference` then raises AttributeError
+        // on `ename.startswith`. Fail closed the same way (a footprint
+        // without a string libId is not a parseable footprint).
+        _ => {
+            errors.push("Expression does not have the correct type".to_string());
+            String::new()
+        }
     };
     // kiutils' libId setter splits at the FIRST colon.
     let (entry_name, _nickname) = match lib_id.split_once(':') {
         Some((nick, entry)) => (entry.to_string(), Some(nick.to_string())),
         None => (lib_id.clone(), None),
     };
-    let mut position = RawPos { x: Num::I(0), y: Num::I(0), angle: None };
+    let mut position = RawPos::origin();
     let mut layer = String::new();
     let mut locked = false;
     let mut properties: Vec<(String, String)> = Vec::new();
@@ -783,7 +896,7 @@ fn parse_footprint(items: &[KiNode]) -> Option<RawFootprint> {
                     layer = atom_to_string(a);
                 }
             }
-            "at" => position = parse_pos(sub).unwrap_or(position),
+            "at" => position = parse_pos(sub, errors).unwrap_or(position),
             "property" => {
                 let name = match sub.get(1) {
                     Some(KiNode::Atom(a)) => atom_to_string(a),
@@ -800,13 +913,13 @@ fn parse_footprint(items: &[KiNode]) -> Option<RawFootprint> {
                 properties.push((name, value));
             }
             "pad" => {
-                if let Some(pad) = parse_pad(sub) {
+                if let Some(pad) = parse_pad(sub, errors) {
                     pads.push(pad);
                 }
             }
             "fp_text" | "fp_line" | "fp_rect" | "fp_circle" | "fp_arc" | "fp_poly"
             | "fp_text_box" | "fp_curve" => {
-                if let Some(item) = parse_fp_item(sub) {
+                if let Some(item) = parse_fp_item(sub, errors) {
                     graphic_items.push(item);
                 }
             }
@@ -825,16 +938,16 @@ fn parse_footprint(items: &[KiNode]) -> Option<RawFootprint> {
     })
 }
 
-fn parse_gr_item(items: &[KiNode]) -> Option<RawGrItem> {
+fn parse_gr_item(items: &[KiNode], errors: &mut Vec<String>) -> Option<RawGrItem> {
     let head = match items.first() {
         Some(KiNode::Atom(KiAtom::Bare(b))) => b.as_str(),
         _ => return None,
     };
     let mut layer = String::new();
-    let mut start = RawPos { x: Num::I(0), y: Num::I(0), angle: None };
-    let mut end = RawPos { x: Num::I(0), y: Num::I(0), angle: None };
-    let mut mid = RawPos { x: Num::I(0), y: Num::I(0), angle: None };
-    let mut center = RawPos { x: Num::I(0), y: Num::I(0), angle: None };
+    let mut start = RawPos::origin();
+    let mut end = RawPos::origin();
+    let mut mid = RawPos::origin();
+    let mut center = RawPos::origin();
     let mut coords: Vec<RawPos> = Vec::new();
     let mut text = String::new();
     for item in &items[1..] {
@@ -849,15 +962,15 @@ fn parse_gr_item(items: &[KiNode]) -> Option<RawGrItem> {
                     layer = atom_to_string(a);
                 }
             }
-            "start" => start = parse_pos(sub).unwrap_or(start),
-            "end" => end = parse_pos(sub).unwrap_or(end),
-            "mid" => mid = parse_pos(sub).unwrap_or(mid),
-            "center" => center = parse_pos(sub).unwrap_or(center),
+            "start" => start = parse_pos(sub, errors).unwrap_or(start),
+            "end" => end = parse_pos(sub, errors).unwrap_or(end),
+            "mid" => mid = parse_pos(sub, errors).unwrap_or(mid),
+            "center" => center = parse_pos(sub, errors).unwrap_or(center),
             // gr_poly writes `(pts (xy x y) (xy x y) ...)`
             "pts" => {
                 for pt in sub.iter().skip(1) {
                     let KiNode::List(xy) = pt else { continue };
-                    if let Some(p) = parse_pos(xy) {
+                    if let Some(p) = parse_pos(xy, errors) {
                         coords.push(p);
                     }
                 }
@@ -884,7 +997,7 @@ fn parse_gr_item(items: &[KiNode]) -> Option<RawGrItem> {
     }
 }
 
-fn parse_zone(items: &[KiNode]) -> Option<RawZone> {
+fn parse_zone(items: &[KiNode], errors: &mut Vec<String>) -> Option<RawZone> {
     let mut name = None;
     let mut net_name = None;
     let mut layers: Vec<String> = Vec::new();
@@ -923,7 +1036,7 @@ fn parse_zone(items: &[KiNode]) -> Option<RawZone> {
                             && b == "pts" {
                                 for pt in ptsub.iter().skip(1) {
                                     if let KiNode::List(xy) = pt
-                                        && let Some(p) = parse_pos(xy) {
+                                        && let Some(p) = parse_pos(xy, errors) {
                                             coords.push(p);
                                         }
                                 }
@@ -980,8 +1093,12 @@ fn parse_stackup_layer(items: &[KiNode]) -> Option<RawStackupLayer> {
     Some(RawStackupLayer { name, layer_type, thickness, material, epsilon_r, loss_tangent })
 }
 
-/// Walk the top-level `.kicad_pcb` document into the raw model.
-fn raw_board_from_tree(root: &[KiNode]) -> RawBoard {
+/// Walk the top-level `.kicad_pcb` document into the raw model. Malformed
+/// tokens that kiutils' `from_sexpr` raises on (nameless board-level nets,
+/// truncated positions, oval drills missing their width, footprints without
+/// a libId) are recorded into `errors`; `parse_kicad_document` fails closed
+/// on any of them.
+fn raw_board_from_tree(root: &[KiNode], errors: &mut Vec<String>) -> RawBoard {
     let mut board = RawBoard {
         graphic_items: Vec::new(),
         footprints: Vec::new(),
@@ -1052,6 +1169,14 @@ fn raw_board_from_tree(root: &[KiNode]) -> RawBoard {
                 }
             }
             "net" => {
+                // kiutils: `Net().from_sexpr(item)` does `object.name =
+                // exp[2]` unconditionally -- a nameless board-level
+                // `(net 1)` raises IndexError there; fail closed the same
+                // way (R1 parity contract).
+                if items.len() < 3 {
+                    errors.push("Expression does not have the correct type".to_string());
+                    continue;
+                }
                 let number = match items.get(1) {
                     Some(KiNode::Atom(KiAtom::Int(v))) => Some(Num::I(*v)),
                     Some(KiNode::Atom(KiAtom::Float(v))) => Some(Num::F(*v)),
@@ -1066,19 +1191,19 @@ fn raw_board_from_tree(root: &[KiNode]) -> RawBoard {
                 }
             }
             "footprint" => {
-                if let Some(fp) = parse_footprint(items) {
+                if let Some(fp) = parse_footprint(items, errors) {
                     board.footprints.push(fp);
                 }
             }
             "gr_line" | "gr_rect" | "gr_circle" | "gr_arc" | "gr_poly" | "gr_text"
             | "gr_text_box" | "gr_curve" => {
-                if let Some(item) = parse_gr_item(items) {
+                if let Some(item) = parse_gr_item(items, errors) {
                     board.graphic_items.push(item);
                 }
             }
             "segment" => {
-                let mut start = RawPos { x: Num::I(0), y: Num::I(0), angle: None };
-                let mut end = RawPos { x: Num::I(0), y: Num::I(0), angle: None };
+                let mut start = RawPos::origin();
+                let mut end = RawPos::origin();
                 let mut width = Num::I(0);
                 let mut layer = String::new();
                 let mut net = Num::I(0);
@@ -1089,8 +1214,8 @@ fn raw_board_from_tree(root: &[KiNode]) -> RawBoard {
                             _ => continue,
                         };
                         match h {
-                            "start" => start = parse_pos(s).unwrap_or(start),
-                            "end" => end = parse_pos(s).unwrap_or(end),
+                            "start" => start = parse_pos(s, errors).unwrap_or(start),
+                            "end" => end = parse_pos(s, errors).unwrap_or(end),
                             "width" => {
                                 if let Some(KiNode::Atom(KiAtom::Int(v))) = s.get(1) {
                                     width = Num::I(*v);
@@ -1117,9 +1242,9 @@ fn raw_board_from_tree(root: &[KiNode]) -> RawBoard {
                 board.trace_items.push(RawTraceItem::Segment { start, end, width, layer, net });
             }
             "arc" => {
-                let mut start = RawPos { x: Num::I(0), y: Num::I(0), angle: None };
-                let mut end = RawPos { x: Num::I(0), y: Num::I(0), angle: None };
-                let mut mid = RawPos { x: Num::I(0), y: Num::I(0), angle: None };
+                let mut start = RawPos::origin();
+                let mut end = RawPos::origin();
+                let mut mid = RawPos::origin();
                 let mut width = Num::I(0);
                 let mut layer = String::new();
                 let mut net = Num::I(0);
@@ -1130,9 +1255,9 @@ fn raw_board_from_tree(root: &[KiNode]) -> RawBoard {
                             _ => continue,
                         };
                         match h {
-                            "start" => start = parse_pos(s).unwrap_or(start),
-                            "end" => end = parse_pos(s).unwrap_or(end),
-                            "mid" => mid = parse_pos(s).unwrap_or(mid),
+                            "start" => start = parse_pos(s, errors).unwrap_or(start),
+                            "end" => end = parse_pos(s, errors).unwrap_or(end),
+                            "mid" => mid = parse_pos(s, errors).unwrap_or(mid),
                             "width" => {
                                 if let Some(KiNode::Atom(KiAtom::Int(v))) = s.get(1) {
                                     width = Num::I(*v);
@@ -1159,7 +1284,7 @@ fn raw_board_from_tree(root: &[KiNode]) -> RawBoard {
                 board.trace_items.push(RawTraceItem::Arc { start, mid, end, width, layer, net });
             }
             "via" => {
-                let mut position = RawPos { x: Num::I(0), y: Num::I(0), angle: None };
+                let mut position = RawPos::origin();
                 let mut size = Num::I(0);
                 let mut drill = Num::I(0);
                 let mut layers: Vec<String> = Vec::new();
@@ -1171,7 +1296,7 @@ fn raw_board_from_tree(root: &[KiNode]) -> RawBoard {
                             _ => continue,
                         };
                         match h {
-                            "at" => position = parse_pos(s).unwrap_or(position),
+                            "at" => position = parse_pos(s, errors).unwrap_or(position),
                             "size" => {
                                 if let Some(KiNode::Atom(KiAtom::Int(v))) = s.get(1) {
                                     size = Num::I(*v);
@@ -1207,7 +1332,7 @@ fn raw_board_from_tree(root: &[KiNode]) -> RawBoard {
                 board.trace_items.push(RawTraceItem::Via { position, size, drill, layers, net });
             }
             "zone" => {
-                if let Some(zone) = parse_zone(items) {
+                if let Some(zone) = parse_zone(items, errors) {
                     board.zones.push(zone);
                 }
             }
@@ -1234,7 +1359,16 @@ fn parse_kicad_document(content: &str) -> Result<RawBoard, String> {
     if !is_kicad_pcb {
         return Err("Expression does not have the correct type".to_string());
     }
-    Ok(raw_board_from_tree(&tree))
+    let mut errors: Vec<String> = Vec::new();
+    let raw = raw_board_from_tree(&tree, &mut errors);
+    if let Some(err) = errors.first() {
+        // kiutils' `from_sexpr` raises on the malformed token (nameless net,
+        // truncated position, oval drill without width, footprint without a
+        // libId); the engine fails closed the same way so a broken token can
+        // never silently degrade to a default value.
+        return Err(err.clone());
+    }
+    Ok(raw)
 }
 
 // ===========================================================================
@@ -1436,7 +1570,10 @@ fn get_footprint_reference(fp: &RawFootprint) -> Option<String> {
             }
     }
     let ename = &fp.entry_name;
-    if !ename.starts_with("REF**") && !ename.contains(':') && ename.len() < 10 {
+    // kiutils: `if ename and not ename.startswith("REF**") and ":" not in
+    // ename and len(ename) < 10` -- the leading truthiness guard means an
+    // empty entryName falls through to None (the footprint is dropped).
+    if !ename.is_empty() && !ename.starts_with("REF**") && !ename.contains(':') && ename.len() < 10 {
         return Some(ename.clone());
     }
     None
@@ -1448,7 +1585,10 @@ fn extract_components_pure(raw: &RawBoard, board_origin: (f64, f64)) -> Vec<Comp
     let mut components: Vec<CompOut> = Vec::new();
     for fp in &raw.footprints {
         let Some(ref_str) = get_footprint_reference(fp) else { continue };
-        if ref_str.starts_with("REF**") {
+        // Oracle: `if not ref or ref.startswith("REF**"): continue` -- the
+        // falsy check drops an empty-string Reference property (e.g.
+        // `(property "Reference" "")`), exactly like the REF** placeholder.
+        if ref_str.is_empty() || ref_str.starts_with("REF**") {
             continue;
         }
         let rot_deg: Num = match fp.position.angle {
@@ -1603,7 +1743,7 @@ struct CompOut {
 fn extract_pads_pure(raw: &RawBoard) -> Vec<PadOut> {
     let mut pads: Vec<PadOut> = Vec::new();
     for fp in &raw.footprints {
-        let ref_str = get_footprint_reference(fp).unwrap_or_default();
+        let ref_str = get_footprint_reference(fp);
         let fp_x = fp.position.x.to_f64();
         let fp_y = fp.position.y.to_f64();
         for pad in &fp.pads {
@@ -1645,7 +1785,10 @@ struct PadOut {
     layer: String,
     number: String,
     net: Option<String>,
-    component_ref: String,
+    // The oracle's `_extract_pads_from_pcb` passes `_get_footprint_reference`
+    // through unchanged: None for a ref-less footprint, "" for an empty
+    // Reference property -- both must survive into PadData.component_ref.
+    component_ref: Option<String>,
 }
 
 /// Port of `_extract_nets_from_pcb` from `_parse_nets.py`.
@@ -1711,11 +1854,12 @@ fn extract_traces_pure(raw: &RawBoard, net_map: &HashMap<String, String>) -> (Ve
                     None
                 };
                 let drill_val = if drill.is_truthy() { *drill } else { Num::F(0.4) };
-                let layers_vec = if layers.is_empty() {
-                    vec![String::from("F.Cu"), String::from("B.Cu")]
-                } else {
-                    layers.clone()
-                };
+                // kiutils' Via ALWAYS has a `layers` list (defaults to []),
+                // so the oracle's `tuple(track.layers) if hasattr(...)` live
+                // branch yields `()` for a layers-less via; the
+                // `("F.Cu", "B.Cu")` else-branch is dead code there. Empty
+                // stays empty.
+                let layers_vec = layers.clone();
                 vias.push(ViaOut {
                     position: (position.x, position.y),
                     diameter: *size,
@@ -1952,6 +2096,14 @@ fn extract_net_classes_pure(content: &str) -> Vec<(String, NetClassRaw)> {
         let clearance = get_float(clearance_re, block);
         let track_width = get_float(track_width_re, block);
         let trace_width = get_float(trace_width_re, block);
+        // Oracle: `get_float(r"\(track_width ...\)") or get_float(...)` --
+        // a parsed `(track_width 0)` is FALSY there, so it falls through to
+        // the trace_width lookup and then to None (-> the 0.25 default
+        // downstream). `Some(0.0).or(...)` would keep 0.0 and diverge.
+        let trace_width = match track_width {
+            Some(v) if v != 0.0 => Some(v),
+            _ => trace_width,
+        };
         let via_dia = get_float(via_dia_re, block);
         let via_drill = get_float(via_drill_re, block);
         let gap = get_float(gap_re, block);
@@ -1965,7 +2117,7 @@ fn extract_net_classes_pure(content: &str) -> Vec<(String, NetClassRaw)> {
             name,
             NetClassRaw {
                 clearance,
-                trace_width: track_width.or(trace_width),
+                trace_width,
                 via_dia,
                 via_drill,
                 gap,
@@ -2579,13 +2731,21 @@ fn build_drill_definition(py: Python<'_>, drill: &RawDrill) -> PyResult<Py<PyAny
         None => py.None(),
     };
     let offset: Py<PyAny> = match &drill.offset {
-        Some((x, y)) => {
+        Some(pos) => {
             let pos_cls = py.get_type::<Position>();
-            let xo = num_to_py(py, *x)?;
-            let yo = num_to_py(py, *y)?;
+            let xo = num_to_py(py, pos.x)?;
+            let yo = num_to_py(py, pos.y)?;
             let kwargs = PyDict::new(py);
             kwargs.set_item("x", xo.bind(py))?;
             kwargs.set_item("y", yo.bind(py))?;
+            // kiutils' Position keeps `angle` (exp[3] unless it is the
+            // `unlocked` marker) and scans the whole list for `unlocked` --
+            // both must survive into the Position pyclass.
+            match pos.angle {
+                Some(a) => kwargs.set_item("angle", num_to_py(py, a)?.bind(py))?,
+                None => kwargs.set_item("angle", py.None())?,
+            }
+            kwargs.set_item("unlocked", pos.unlocked)?;
             pos_cls.call((), Some(&kwargs))?.unbind()
         }
         None => py.None(),
@@ -2816,9 +2976,9 @@ fn build_pad_data(py: Python<'_>, p: &PadOut) -> PyResult<Py<PyAny>> {
         Some(n) => n.clone().into_py_any(py)?,
         None => py.None(),
     };
-    let comp_ref: Py<PyAny> = match p.component_ref.is_empty() {
-        true => py.None(),
-        false => p.component_ref.clone().into_py_any(py)?,
+    let comp_ref: Py<PyAny> = match &p.component_ref {
+        Some(s) => s.clone().into_py_any(py)?,
+        None => py.None(),
     };
     cls.call(
         (pos, size, p.shape.clone(), drill, rotation, p.layer.clone(), p.number.clone(), net, comp_ref),
@@ -2905,6 +3065,24 @@ fn extract_footprint_positions(py: Python<'_>, content: &str) -> PyResult<Py<PyA
         out.set_item(ref_str, inner)?;
     }
     out.into_any().unbind().into_py_any(py)
+}
+
+/// Test/conformance surface: tokenize `content` with the kiutils-exact
+/// tokenizer and return the top-level s-expression as a Python value (the
+/// same shape kiutils' ``parse_sexp`` returns -- ``out[0]``). Drives the
+/// tokenizer-conformance test against ``kiutils.utils.sexpr.parse_sexp`` on
+/// adversarial token strings (caret, adjacent quotes, backslash-quote runs,
+/// ``+5``, CRLF) so the "kiutils-exact" claim is asserted as written, not
+/// just on the corpus.
+#[pyfunction]
+fn tokenize(py: Python<'_>, content: &str) -> PyResult<Py<PyAny>> {
+    let tree = parse_ki_document(content).map_err(PyValueError::new_err)?;
+    let Some(first) = tree.first() else {
+        // kiutils' parse_sexp does `return out[0]` -- an empty input raises
+        // IndexError there; fail closed the same way.
+        return Err(PyValueError::new_err("cannot index empty token stream"));
+    };
+    node_to_py(py, first)
 }
 
 #[pyfunction]
@@ -3070,7 +3248,8 @@ fn extract_metadata_raw(py: Python<'_>, content: &str) -> PyResult<Py<PyAny>> {
     out.set_item("board_width", num_to_py(py, width)?)?;
     out.set_item("board_height", num_to_py(py, height)?)?;
 
-    // pad sizes: {("ref", "num"): [w, h, shape]}
+    // pad sizes: {("ref", "num"): [w, h, shape]} -- matches the oracle's
+    // `_extract_pad_sizes`, which SKIPS pads with an empty number.
     let pad_sizes = PyDict::new(py);
     for fp in &raw.footprints {
         let r#ref = fp.properties.iter().find(|(k, _)| k == "Reference").map(|(_, v)| v.clone()).unwrap_or_default();
@@ -3096,6 +3275,31 @@ fn extract_metadata_raw(py: Python<'_>, content: &str) -> PyResult<Py<PyAny>> {
         }
     }
     out.set_item("pad_sizes", pad_sizes)?;
+
+    // Pad bbox inputs: {ref: [[x, y, w, h], ...]} over ALL pads (numbered
+    // AND unnumbered). The oracle's courtyard Strategy-2 fallback iterates
+    // `for pad in fp.pads:` with no number filter, so unnumbered pads must
+    // reach the shim's pad-bbox fallback even though `pad_sizes` above
+    // deliberately excludes them (the oracle's `_extract_pad_sizes` skips
+    // empty pad numbers).
+    let pad_bbox = PyDict::new(py);
+    for fp in &raw.footprints {
+        let r#ref = fp.properties.iter().find(|(k, _)| k == "Reference").map(|(_, v)| v.clone()).unwrap_or_default();
+        if r#ref.is_empty() {
+            continue;
+        }
+        let entries = PyList::empty(py);
+        for pad in &fp.pads {
+            let entry = PyList::empty(py);
+            entry.append(num_to_py(py, pad.position.x)?)?;
+            entry.append(num_to_py(py, pad.position.y)?)?;
+            entry.append(num_to_py(py, pad.size.x)?)?;
+            entry.append(num_to_py(py, pad.size.y)?)?;
+            entries.append(entry)?;
+        }
+        pad_bbox.set_item(r#ref, entries)?;
+    }
+    out.set_item("pad_bbox_inputs", pad_bbox)?;
 
     // raw courtyard inputs: {ref: [{"kind": ..., ...}]}
     let courtyards = PyDict::new(py);
@@ -3168,6 +3372,7 @@ pub fn register(module: &Bound<'_, PyModule>) -> PyResult<()> {
     sub.add_function(wrap_pyfunction!(extract_net_classes, &sub)?)?;
     sub.add_function(wrap_pyfunction!(extract_stackup_raw, &sub)?)?;
     sub.add_function(wrap_pyfunction!(extract_metadata_raw, &sub)?)?;
+    sub.add_function(wrap_pyfunction!(tokenize, &sub)?)?;
     module.add_submodule(&sub)?;
     Ok(())
 }

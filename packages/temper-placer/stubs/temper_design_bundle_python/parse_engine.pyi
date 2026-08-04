@@ -15,7 +15,6 @@ from __future__ import annotations
 from dataclasses import Field
 from typing import Any, ClassVar
 
-
 class TraceData:
     __dataclass_fields__: ClassVar[dict[str, Field[Any]]]
     start: tuple[float, float]
@@ -145,3 +144,8 @@ def extract_footprint_positions(content: str) -> dict[str, dict[str, float]]: ..
 def extract_net_classes(content: str) -> dict[str, dict[str, Any]]: ...
 def extract_stackup_raw(content: str) -> dict[str, Any]: ...
 def extract_metadata_raw(content: str) -> dict[str, Any]: ...
+def tokenize(content: str) -> Any:
+    """Tokenize `content` with the kiutils-exact tokenizer and return the
+    top-level s-expression (the same shape `kiutils.utils.sexpr.parse_sexp`
+    returns -- its `out[0]`). Conformance-test surface for the
+    'kiutils-exact' tokenizer claim."""
