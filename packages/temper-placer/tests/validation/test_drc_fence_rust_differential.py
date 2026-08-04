@@ -246,6 +246,31 @@ def test_metrics_summary_empty():
     assert shim_s.erc_issues == shim_s.drc_issues == 0
 
 
+def test_metrics_summary_int_values_type_preserved():
+    """The oracle assigns/accumulates the caller's numeric values verbatim
+    (``check_timings[name] = elapsed_ms``; ``custom_metrics[key] += value``):
+    an int stays int (exact beyond 2^53), int+int accumulates as int, and an
+    int+float ``+=`` promotes to float. Regression: the shim previously
+    coerced ``float(...)`` into the kernel's f64, turning ``3`` into ``3.0``."""
+    rr = RunResult(
+        check_results=[
+            CheckResult(check_name="a", passed=True, elapsed_ms=3, metrics={"m1": 3}),
+            CheckResult(check_name="a", passed=True, elapsed_ms=7, metrics={"m1": 4}),
+            CheckResult(check_name="b", passed=True, elapsed_ms=2, metrics={"m1": 0.5, "m2": 1}),
+        ],
+    )
+    oracle_s = _oracle.MetricsSummary.from_run_result(rr)
+    shim_s = ShimMetricsSummary.from_run_result(rr)
+    assert _summary_fields(shim_s) == _summary_fields(oracle_s)
+    # type preservation, shim == oracle exactly (values AND types)
+    assert shim_s.check_timings == oracle_s.check_timings == {"a": 7, "b": 2}
+    assert shim_s.custom_metrics == oracle_s.custom_metrics == {"m1": 7.5, "m2": 1}
+    assert type(shim_s.check_timings["a"]) is int
+    assert type(shim_s.check_timings["b"]) is int
+    assert type(shim_s.custom_metrics["m1"]) is float  # int + float → float
+    assert type(shim_s.custom_metrics["m2"]) is int
+
+
 # ---------------------------------------------------------------------------
 # PBT — five non-vacuous properties of the migrated kernels
 # ---------------------------------------------------------------------------

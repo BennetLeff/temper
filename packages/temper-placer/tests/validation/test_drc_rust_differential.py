@@ -23,6 +23,7 @@ import random
 
 import pytest
 import temper_drc_rs as _tdrc
+from collections import UserDict
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
@@ -223,6 +224,40 @@ def test_parse_differential_deterministic():
             assert got is None, item
         else:
             assert _normalize_parse_record(got) == _normalize_parse_record(ref), item
+
+
+def test_parse_differential_mapping_pos_and_dict_subclass_items():
+    """The oracle reads ``pos`` with ``.get("x"/"y")`` — any truthy Mapping
+    works (plain dict, dict subclass, UserDict, MappingProxyType) — and
+    accepts dict subclasses in ``items`` (``isinstance(affected, dict)`` is
+    true for subclasses). Regression: the kernel previously required an exact
+    ``PyDict`` for ``pos`` (a UserDict pos returned None) while the shim
+    claim "exact-type cast" did not in fact narrow ``items`` (pyo3's
+    ``cast::<PyDict>`` is isinstance-based, ``PyDict_Check``)."""
+    class _D(dict):  # dict subclass — passes both isinstance and PyDict_Check
+        pass
+
+    cases = [
+        # pos as a non-dict Mapping (UserDict) — oracle `.get("x", 0)`
+        {"severity": "error", "type": "clearance", "pos": UserDict({"x": 1.0, "y": -3.25})},
+        # pos as a dict subclass
+        {"severity": "warning", "type": "silk_clearance", "pos": _D({"x": 2.0, "y": 4.0})},
+        # pos with missing keys → defaults (0.0, 0.0)
+        {"severity": "error", "type": "clearance", "pos": UserDict({"x": 5.0})},
+        # items containing a dict-subclass entry → read through reference/net
+        {"severity": "error", "type": "clearance", "items": [_D({"reference": "U9"}), "R5"]},
+        {"severity": "error", "type": "clearance", "items": [_D({"net": "GND"})]},
+    ]
+    for item in cases:
+        ref, got = _parse_both(item)
+        assert got is not None, item
+        assert _normalize_parse_record(got) == _normalize_parse_record(ref), item
+    assert tuple(PARSE_DRC_VIOLATION(cases[0])["position"]) == (1.0, -3.25)
+    assert PARSE_DRC_VIOLATION(cases[3])["affected_items"] == ["U9", "R5"]
+    # a truthy NON-Mapping pos (list) still fails closed in both arms
+    item = {"severity": "error", "type": "clearance", "pos": [1.0, 2.0]}
+    ref, got = _parse_both(item)
+    assert ref is None and got is None
 
 
 # ---------------------------------------------------------------------------

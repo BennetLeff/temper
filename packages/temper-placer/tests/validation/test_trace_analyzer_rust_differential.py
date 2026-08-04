@@ -161,13 +161,40 @@ def test_differential_edge_cases():
     assert shim_trace_length(b4, "N1") == pytest.approx(5.0)
 
 
+def test_trace_length_none_net_trace_skipped():
+    """Trace.net is ``str | None`` (core/board.py) — a None-net trace must be
+    skipped exactly like the oracle's ``if trace.net == net_name`` (None never
+    equals a str net_name). The shim marshals None into the kernel's
+    Option<String>; regression: the kernel's ``Vec<(String, ...)>`` extraction
+    raised TypeError on None."""
+    board = Board(width=200.0, height=200.0)
+    board.traces = [  # type: ignore[attr-defined]
+        Trace(start=(0.0, 0.0), end=(10.0, 0.0), width=0.2, layer="F.Cu", net=None),
+        Trace(start=(0.0, 0.0), end=(3.0, 4.0), width=0.2, layer="F.Cu", net="N1"),
+    ]
+    ref = _ref_calculate_actual_trace_length(board, "N1")
+    got = shim_trace_length(board, "N1")
+    assert got.hex() == ref.hex() == (5.0).hex()
+    # the None-net trace contributes to no net, and None != "" (distinct keys)
+    board.traces.append(  # type: ignore[attr-defined]
+        Trace(start=(0.0, 0.0), end=(1.0, 0.0), width=0.2, layer="F.Cu", net="")
+    )
+    for net_name in ("N1", "OTHER", ""):
+        ref2 = _ref_calculate_actual_trace_length(board, net_name)
+        got2 = shim_trace_length(board, net_name)
+        assert got2.hex() == ref2.hex()
+    assert got == 5.0  # None-net segment (length 10) never counted
+
+
 def test_differential_random_stress():
-    """Random float stress with awkward magnitudes — bit-exact via hex()."""
+    """Random float stress with awkward magnitudes — bit-exact via hex().
+    ``None`` appears in the net choice: a None-net trace exercises the
+    Option<String> marshalling path and must be skipped in both arms."""
     random.seed(2026)
     for _ in range(500):
         traces = [
             (
-                random.choice(["HV", "LV", "SIG"]),
+                random.choice(["HV", "LV", "SIG", None]),
                 random.uniform(-1e3, 1e3),
                 random.uniform(-1e3, 1e3),
                 random.uniform(-1e3, 1e3),

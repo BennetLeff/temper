@@ -194,6 +194,19 @@ def test_group_violations_empty():
     assert shim_rr.check_results == []
 
 
+def test_group_violations_non_string_check_name_narrowing():
+    """Documented narrowing (VERIFICATION.md deviations): the oracle groups by
+    any hashable key (``v.get('check_name', 'unknown')`` — an int key works
+    there, flowing into the str-typed CheckResult contract unenforced); the
+    kernel requires a string and raises PyValueError. Pinned here so the
+    narrowing can neither silently widen (a non-string key accepted) nor
+    narrow further (a missing key behaving differently)."""
+    with pytest.raises(ValueError):
+        GROUP_VIOLATIONS([{"check_name": 5, "severity": "ERROR"}])
+    with pytest.raises(ValueError):
+        GROUP_VIOLATIONS([{"check_name": None, "severity": "ERROR"}])
+
+
 # ---------------------------------------------------------------------------
 # PBT — five non-vacuous properties of the migrated kernels
 # ---------------------------------------------------------------------------
