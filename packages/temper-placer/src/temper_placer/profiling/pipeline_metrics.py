@@ -264,3 +264,68 @@ def profile_router_benchmark(
     finally:
         if output_path and output_path.exists():
             output_path.unlink(missing_ok=True)
+
+
+def profile_loaders(
+    board_id: str,
+    commit: str = "",
+    n_runs: int = 6,
+) -> list[dict[str, Any]]:
+    """Profile the YAML loaders — the Wave-4 Phase-3 candidate-2 R1b A/B.
+
+    Wired to the harness shape (`module`/`board`/`stage`/`metrics`, `_ms`
+    metric names) that `scripts/pr_perf_compare.py` compares against the
+    rolling main-branch median, so the gate bites the moment the Phase-0
+    hard-gate wiring lands. These loaders are I/O-bound YAML parsing with no
+    compute kernel, so per the program's R2 the comparison is the
+    "no regression beyond noise" arm — NOT a speedup claim.
+
+    Measures `load_netclass_rules` on the repo's own `netclass_rules.yaml`
+    and `load_loop_collection` on the shipped loop templates. The first run
+    is warmup (cold extension import, PyYAML module import); runs 2..N are
+    averaged. Missing fixtures yield zero-valued metrics so the record shape
+    stays stable rather than dropping out of the comparison.
+    """
+    repo_root = _find_repo_root()
+    placer_root = repo_root / "packages" / "temper-placer"
+    sys.path.insert(0, str(placer_root / "src"))
+
+    netclass_yaml = placer_root / "configs" / "netclass_rules.yaml"
+    loop_dir = placer_root / "configs" / "templates" / "loops"
+
+    def _time(fn, exists: bool) -> float:
+        if not exists:
+            return 0.0
+        total = 0.0
+        for run_idx in range(n_runs):
+            t0 = time.perf_counter()
+            with contextlib.suppress(Exception):
+                fn()
+            elapsed_ms = (time.perf_counter() - t0) * 1000
+            if run_idx > 0:
+                total += elapsed_ms
+        measured = n_runs - 1
+        return round(total / measured, 4) if measured > 0 else 0.0
+
+    try:
+        from temper_placer.io.loop_loader import load_loop_collection
+        from temper_placer.io.netclass_loader import load_netclass_rules
+    except ImportError:
+        netclass_ms = 0.0
+        loops_ms = 0.0
+    else:
+        netclass_ms = _time(lambda: load_netclass_rules(netclass_yaml), netclass_yaml.exists())
+        loops_ms = _time(lambda: load_loop_collection(loop_dir), loop_dir.is_dir())
+
+    rec = record_metrics_for_stage(
+        board=board_id,
+        stage="loaders",
+        module="loaders",
+        commit=commit,
+        metrics={
+            "netclass_load_ms": netclass_ms,
+            "loop_collection_load_ms": loops_ms,
+            "total_ms": round(netclass_ms + loops_ms, 4),
+        },
+    )
+    return [rec.to_dict()]
