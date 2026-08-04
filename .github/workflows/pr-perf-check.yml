@@ -23,8 +23,41 @@ on:
       - 'power_pcb_dataset/metrics/perf_ab_baseline.jsonl'
       - '.github/workflows/pr-perf-check.yml'
 
+  # 2026-08-04: the capture path. Until this trigger existed the workflow ran on
+  # `pull_request` ONLY, so no row could ever be measured on main -- yet
+  # scripts/pr_perf_compare.py takes a rolling median of the trailing 5 rows per
+  # (module, board, stage), and benchmarks/perf_ab.py's capture docs say
+  # "prefer several runs from main once they exist". They could not exist. The
+  # committed baseline sat at n=1 per stage, so the "median" was that single
+  # row, no smoothing was applied at all, and ordinary runner variance tripped
+  # the 20% margin: PR #544 (a one-line typing.cast(), a runtime no-op in a
+  # module the benchmark does not even touch) was reported as a +26.6%
+  # regression on hard_blocked_batch while wall times in the same run moved
+  # +42.5% and +57.8%. n=1 was the bug; this trigger is the fix.
+  #
+  # Same paths as the PR trigger: a main push that could not have changed the
+  # measurement should not spend a runner slot (CI here is capacity-bound).
+  push:
+    branches: [main]
+    paths:
+      - 'packages/**'
+      - 'benchmarks/**'
+      - 'scripts/pr_perf_compare.py'
+      - 'scripts/tests/test_pr_perf_compare.py'
+      - 'power_pcb_dataset/metrics/perf_ab_baseline.jsonl'
+      - '.github/workflows/pr-perf-check.yml'
+
+  # Manual capture, for topping the baseline up on demand rather than waiting
+  # for main pushes to land in the trigger paths.
+  workflow_dispatch:
+
 jobs:
   perf-check:
+    # The job name is the check-run context registered in
+    # .github/required-checks.json. It stays "PR Performance Comparison" even
+    # though the job now also runs on main pushes: renaming it would unregister
+    # the required context. Two modes, one job -- see the `if:` conditions
+    # below for which steps belong to which.
     name: PR Performance Comparison
     runs-on: ubuntu-latest
     container:
@@ -36,10 +69,14 @@ jobs:
     env:
       VIRTUAL_ENV: ${{ github.workspace }}/.venv
       BASELINE_PATH: power_pcb_dataset/metrics/perf_ab_baseline.jsonl
+      # On `pull_request` this is the PR head; on `push`/`workflow_dispatch`
+      # `github.event.pull_request.head.sha` is the empty string, which GitHub
+      # expressions treat as falsy, so it falls through to the pushed SHA.
+      MEASURED_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
 
       # This job runs in a container as root while the workspace is checked out
@@ -77,17 +114,24 @@ jobs:
       # `wall_time_ms: 0` for every record (profile_pipeline times a dataclass
       # constructor, not the pipeline) and polluted its own NDJSON stream with
       # the router benchmark's progress prints. Evidence: run 30885725905.
-      - name: Run the performance A/B (PR branch)
+      #
+      # Runs in BOTH modes. On a PR it is the measurement under test; on a main
+      # push it is the baseline sample. Identical command, identical container,
+      # so the two are comparable by construction -- which is the whole point
+      # of capturing on CI rather than locally (see benchmarks/perf_ab.py for
+      # the measured -11% darwin-vs-linux platform bias).
+      - name: Run the performance A/B
         run: |
           uv run python benchmarks/perf_ab.py \
-            --commit "${{ github.event.pull_request.head.sha }}" \
-            --json > pr-metrics.jsonl
-          cat pr-metrics.jsonl
+            --commit "$MEASURED_SHA" \
+            --json > perf-metrics.jsonl
+          cat perf-metrics.jsonl
 
       # The baseline is read from main, never from the PR checkout: a PR must
       # not be able to move the bar it is being measured against. An absent
       # file yields an empty baseline, which the comparison fails closed on.
       - name: Fetch the committed baseline from main
+        if: github.event_name == 'pull_request'
         run: |
           git fetch origin main --depth=100
           git show "origin/main:$BASELINE_PATH" > main-perf-baseline.jsonl 2>/dev/null \
@@ -108,15 +152,78 @@ jobs:
       # job reported success anyway. Comment posting is the step that can
       # legitimately race, so that step -- not this one -- carries
       # `if: always()`, and it reports its own failures.
+      #
+      # PR-ONLY. On main this step is skipped, deliberately:
+      #   * There is no PR to block, so a failure here would be pure noise on
+      #     the trunk-health signal -- and this repo has no push-side
+      #     protection, so a red main run is inherited by every branch cut from
+      #     it as a false alarm.
+      #   * It would be self-referential. main's own rows ARE the baseline, so
+      #     comparing a main run against them is asking a sample whether it
+      #     matches the median of its own population; it can only ever report
+      #     runner variance, and would fail exactly when a sample is most
+      #     valuable -- the tail readings are what make the median robust.
+      #   * A regression that reaches main is a post-merge fact. The gate that
+      #     is supposed to stop it is this same job on the PR, and the answer
+      #     to one that got through is a revert, not a second red X.
+      # Capture on main, gate on PRs.
       - name: Compare against baseline (hard gate)
+        if: github.event_name == 'pull_request'
         run: |
           uv run python scripts/pr_perf_compare.py \
-            --pr-metrics pr-metrics.jsonl \
+            --pr-metrics perf-metrics.jsonl \
             --baseline-jsonl main-perf-baseline.jsonl \
             --report-file perf-report.md
 
+      # CAPTURE-ONLY (main / manual). Emits the measured rows two ways: as a
+      # downloadable artifact, and inline in the job summary so the append is a
+      # copy-paste with no artifact download.
+      #
+      # These rows are NOT auto-committed, and that is a decision, not an
+      # omission. A bot with write access to main is a separate risk surface
+      # with its own review (this repo already has one such path --
+      # metrics-record.yml's "Auto-tighten timing baselines" -- and it ships
+      # default-OFF behind the FEATURE_AUTO_BASELINE_TIGHTEN repo variable,
+      # which is the precedent). It is also the wrong default *for this file*:
+      # the baseline is the bar a hard merge gate is measured against, every
+      # appended row moves it, and a row is only valid if the commit that
+      # produced it did not modify the benchmarked code -- a judgement no
+      # unattended push can make. An automated appender that silently ratchets
+      # the bar on a bad row is strictly worse than a stale baseline, because
+      # the stale one is visible in the diff. Human-in-the-loop append keeps
+      # every baseline change reviewable in a PR, which is where it belongs.
+      # If auto-commit is ever wanted, do it as metrics-reconcile.yml does --
+      # a separate workflow that globs these artifacts and opens a PR.
+      - name: Publish the captured baseline rows
+        if: github.event_name != 'pull_request'
+        run: |
+          {
+            echo "## Performance A/B baseline capture"
+            echo
+            echo "Commit: \`$MEASURED_SHA\`"
+            echo
+            echo "Append these rows to \`$BASELINE_PATH\` **only if this commit"
+            echo "does not modify the benchmarked code** (the module named in"
+            echo "each row). The comparison medians the trailing 5 rows per"
+            echo "(module, board, stage), so 5+ rows per stage is the target;"
+            echo "trim the oldest rows once well past that."
+            echo
+            echo '```jsonl'
+            cat perf-metrics.jsonl
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload the captured baseline rows
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v7
+        with:
+          name: perf-ab-baseline-rows-${{ github.run_id }}-${{ github.run_attempt }}
+          path: perf-metrics.jsonl
+
+      # PR-ONLY: `context.issue.number` is undefined on a push event, so this
+      # step would hard-error there.
       - name: Post PR comment
-        if: always()
+        if: always() && github.event_name == 'pull_request'
         uses: actions/github-script@v9
         with:
           script: |

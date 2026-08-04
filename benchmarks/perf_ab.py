@@ -50,10 +50,35 @@ Capturing a baseline -- CAPTURE IT ON CI, NOT LOCALLY:
     miss every regression between +20% and +35%, while reporting a spurious
     "IMPROVED" on every clean PR.
 
-    To capture: read the NDJSON that the "Run the performance A/B (PR branch)"
-    step of .github/workflows/pr-perf-check.yml prints, and commit those lines.
-    Prefer several runs from main once they exist -- the comparison takes a
-    rolling median of the trailing 5 rows per (module, board, stage).
+    To capture: trigger .github/workflows/pr-perf-check.yml on main -- it runs
+    on every main push into its trigger paths, and on demand via
+    workflow_dispatch. In capture mode it skips the comparison and publishes the
+    measured rows twice: inline in the job summary (copy-paste ready) and as the
+    ``perf-ab-baseline-rows-<run>-<attempt>`` artifact. Append them to
+    power_pcb_dataset/metrics/perf_ab_baseline.jsonl in a reviewed PR. Nothing
+    writes this file automatically, by design: it is the bar a hard merge gate
+    measures against, and every appended row moves it.
+
+Baseline WIDTH -- keep 5+ rows per (module, board, stage):
+    The comparison takes a rolling median of the trailing 5 rows per key. With
+    one row the "median" is that row, so nothing is smoothed and the full CI
+    spread lands against the 20% margin. That is not hypothetical: from
+    2026-08-04 the baseline held exactly one row per stage, because this
+    workflow triggered on ``pull_request`` only and no main row could ever be
+    measured. PR #544 -- a one-line ``typing.cast()`` in
+    router_v6/channel_widths.py, a runtime no-op in a module this benchmark
+    does not touch -- was reported as a +26.6% regression on hard_blocked_batch.
+    The same reading scores +15.7% against a 5-row baseline and passes.
+
+    The single row was also a systematic low outlier, not merely noisy: every
+    one of the five later CI readings landed above it, by +4.4% to +26.6%
+    (mean ~+10.5%). A biased baseline spends half the margin as a constant
+    offset before any real variance is measured. Leave-one-out over the same
+    five readings against a 5-row median: max excursion 15.7%, zero gate trips.
+
+    Only append rows measured on a commit that does not modify the benchmarked
+    module -- a row from a commit that changed the kernel ratchets the bar to
+    whatever that change did, which is exactly what the gate exists to catch.
 """
 
 from __future__ import annotations
