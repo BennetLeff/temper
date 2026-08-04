@@ -1,4 +1,4 @@
-# provenance: commit=fa4841d25ce642720dccd982361a4f44cef1299f dirty=True
+# provenance: commit=07d949c7fe73c4ebe9e246ec02f40004f1602809 dirty=false
 ref,pad,zone_net,zone_label,required_mm,clearance_at_best_mm,best_placement,envelope_cap_mm,grid_step_mm,grid_cells,grid_clear_cells,min_disp_to_clear_mm,min_disp_clearance_mm,clears_within_cap
 C27,2,DC_BUS_RTN,zone Zone_46 net=DC_BUS_RTN,0.05,0.0,"{'x_mm': 28.62, 'y_mm': 222.0}",120.0,0.5,231361,14973,1.0,0.149,True
 K3,2,SW_NODE,zone Zone_48 net=SW_NODE,0.05,0.0,"{'x_mm': 43.12, 'y_mm': 17.92}",120.0,0.5,231361,19709,26.0,0.228,True
