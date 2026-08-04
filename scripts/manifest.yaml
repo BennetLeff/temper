@@ -1104,6 +1104,30 @@ scripts:
   - re
   - subprocess
   - sys
+- path: measure_router_output_baseline.py
+  purpose: >-
+    Measure the router-output DRC constants in the environment that enforces
+    them. PRODUCTION_ROUTER_OUTPUT_* in test_regression_drc.py is a ratchet whose
+    provenance records macOS arm64 measurements, while the gate runs inside the
+    temper-ci container, and kicad-cli's geometric counts differ between the two
+    (+107 on total, measured). Reports only -- asserts nothing and writes no
+    constant; landing a re-baseline stays a human decision under AGENTS.md.
+  owner: bennet
+  last_run: "2026-08-04"
+  category: keep
+  disposition: measurement
+  imports:
+    - __future__
+    - argparse
+    - hashlib
+    - json
+    - os
+    - platform
+    - statistics
+    - subprocess
+    - sys
+    - tempfile
+    - time
 - path: measure_cross_domain_creepage.py
   purpose: 'Pairwise HV<->SELV creepage measurement tool (NOT a gate, not wired into CI): enumerates every cross-domain pad
     pair, measures exact pad-edge-to-pad-edge distance, classifies each violation body_free/body_crossing/unknown against
