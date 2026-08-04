@@ -1104,7 +1104,20 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: >
           uv run pytest scripts/tests/test_board_defect_mutator.py
-          scripts/tests/test_check_board_defect_corpus.py -v --tb=short
+          scripts/tests/test_check_board_defect_corpus.py
+          scripts/tests/test_check_board_containment.py -v --tb=short
+
+      - name: Board containment (R26 invariant)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        # Fail-closed. Every footprint's pad copper must lie inside the
+        # Edge.Cuts outline. This is the owning gate of the board-defect
+        # corpus's off-board class, and the only gate that can see that
+        # class at all: when a component leaves the board its copper stops
+        # colliding with the layout, so DRC counts FALL (measured -9 on
+        # this board) and every count-delta assertion is blind to it. See
+        # docs/evidence/2026-08-04-board-defect-corpus-uncovered-classes.md.
+        # Never `continue-on-error`: exit 2 means the gate could not run.
+        run: uv run python scripts/check_board_containment.py
 
       - name: Board-defect mutation corpus (R38)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
