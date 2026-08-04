@@ -569,6 +569,38 @@ jobs:
           RUST_BACKTRACE: full
           PYTHONFAULTHANDLER: 1
 
+      # Wave 4 Phase 4 anti-vacuity gate (PR merge path): the validation
+      # DRC-check differential/PBT suites are the ONLY tests that pin the
+      # migrated Rust kernels (temper_drc_rs.validation) bit-exactly
+      # against the verbatim Python oracles. They previously ran in NO
+      # PR-time job (invariant-rest is trunk-only and masked), so a kernel
+      # regression would merge silently. This step runs them hard on every
+      # PR and on every push to main (this job runs on both events), with a
+      # pytest_guard floor so a silently-shrunk collection fails instead of
+      # passing vacuously. The 7 files are the PR's differential surface;
+      # the full tests/validation directory is NOT added here because it
+      # carries pre-existing CI-environment failures unrelated to this PR
+      # (test_mfem_runner.py::test_check_mfem_binary_present needs an MFEM
+      # binary the CI image does not build; test_ucc21550_contract_pbt.py's
+      # wiring contract lags a board redesign) — see the invariant-rest
+      # split below for the trunk-side hard gate.
+      - name: Run validation DRC differentials (anti-vacuity gate)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        working-directory: packages/temper-placer
+        run: >
+          uv run python ../../scripts/pytest_guard.py --min-tests 94 --
+          tests/validation/test_drc_rust_differential.py
+          tests/validation/test_drc_oracle_rust_differential.py
+          tests/validation/test_drc_runner_rust_differential.py
+          tests/validation/test_drc_fence_rust_differential.py
+          tests/validation/test_geometric_rust_differential.py
+          tests/validation/test_tht_check_rust_differential.py
+          tests/validation/test_trace_analyzer_rust_differential.py
+          -v --tb=short -p no:cacheprovider --maxfail=10
+        env:
+          RUST_BACKTRACE: full
+          PYTHONFAULTHANDLER: 1
+
       - name: Coverage gate (temper-placer)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         working-directory: packages/temper-placer
@@ -2542,14 +2574,38 @@ jobs:
         if: steps.cache-netlist.outputs.cache-hit != 'true'
         run: make netlist
 
-      - name: Run invariant tests (remaining directories)
+      - name: Run invariant tests (io, deterministic, physics, fields, cp_sat, metrics)
         working-directory: packages/temper-placer
         run: >
-          uv run python ../../scripts/pytest_guard.py --min-tests 1200 --
-          tests/io/ tests/deterministic/ tests/physics/ tests/fields/ tests/validation/ tests/placer/cp_sat/ tests/metrics/
+          uv run python ../../scripts/pytest_guard.py --min-tests 2350 --
+          tests/io/ tests/deterministic/ tests/physics/ tests/fields/ tests/placer/cp_sat/ tests/metrics/
           -v --tb=short -p no:cacheprovider --maxfail=10 -m "not slow"
           --continue-on-collection-errors -n auto --dist loadgroup
         continue-on-error: true  # TODO: temper-NNN -- parallel test suite flakiness; hard-fail after 2026-09-01
+
+      # Wave 4 Phase 4: the validation collection is a HARD gate on trunk
+      # (no continue-on-error), unlike the other collections above which
+      # keep their documented parallel-flakiness mask. The anti-vacuity
+      # differentials are additionally hard-gated in the PR `test` job.
+      # The two --deselects are PRE-EXISTING trunk failures unrelated to
+      # this PR, previously hidden by the step-wide mask; unmasking without
+      # first fixing them would turn trunk red, so they are isolated and
+      # documented instead:
+      #   * test_mfem_runner.py::test_check_mfem_binary_present asserts a
+      #     binary at /tmp/mfem_tempsolve that no CI environment builds
+      #     (the CI image does not compile MFEM); the sibling integration
+      #     tests correctly skipif on its absence, this preflight does not.
+      #   * test_ucc21550_contract_pbt.py::test_schematic_keeps_fault_qualified_set_dominant_wiring
+      #     asserts wiring that a board redesign changed (elec/src/modules.ato).
+      - name: Run validation invariant tests (hard gate)
+        working-directory: packages/temper-placer
+        run: >
+          uv run python ../../scripts/pytest_guard.py --min-tests 590 --
+          tests/validation/
+          --deselect tests/validation/test_mfem_runner.py::test_check_mfem_binary_present
+          --deselect tests/validation/test_ucc21550_contract_pbt.py::test_schematic_keeps_fault_qualified_set_dominant_wiring
+          -v --tb=short -p no:cacheprovider --maxfail=10 -m "not slow"
+          --continue-on-collection-errors -n auto --dist loadgroup
   closure:
     name: Pipeline Closure Test (Truth-Gated)
     runs-on: ubuntu-latest
