@@ -129,6 +129,10 @@ ignore = [
 "**/visualization/routing_health.py" = ["E701", "E702", "F821"]  # compact routing debug logic
 "**/validation/drc_runner.py" = ["E741"]  # loop variable in listcomp
 "**/pcl/tag_dispatch.py" = ["UP007"]  # Optional for compat
+# Wave-4 differential oracles are VERBATIM copies of the pre-migration
+# modules. Reformatting one silently weakens the parity proof it anchors, so
+# they carry the lint profile of the code they pin, not of new code.
+"tests/pcl/_*_py_oracle.py" = ["UP007"]
 "**/validation/results/battery_run.py" = ["SIM105", "B025"]  # intentional suppress
 "**/physics/copper_coverage.py" = ["SIM102"]  # clearer as-is
 "**/placer/cp_sat/feedback.py" = ["SIM102"]

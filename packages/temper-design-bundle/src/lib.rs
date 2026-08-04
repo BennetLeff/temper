@@ -13,6 +13,12 @@ mod gates;
 #[cfg(feature = "python")]
 mod priority;
 
+#[cfg(feature = "python")]
+mod pcl_parse;
+
+#[cfg(feature = "python")]
+mod pcl_tags;
+
 mod atopile;
 mod constraint_merge;
 mod error;
@@ -179,6 +185,12 @@ mod python {
         crate::loops::register(module)?;
         crate::design_rules::register(module)?;
         crate::gates::register(module)?;
-        crate::priority::register(module)
+        crate::priority::register(module)?;
+        // ...and then the PCL contract layer: the tag-expression algebra
+        // ported from temper_placer/pcl/tag_dispatch.py (see pcl_tags.rs)
+        // plus the parse primitives from temper_placer/pcl/_parse_utils.py
+        // (see pcl_parse.rs).
+        crate::pcl_tags::register(module)?;
+        crate::pcl_parse::register(module)
     }
 }
