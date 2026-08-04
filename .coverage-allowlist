@@ -583,6 +583,11 @@ temper_placer/io/dsn.py::DSNPolygon.to_dsn  # TODO: temper-xxx
 temper_placer/io/dsn.py::DSNRect.to_dsn  # TODO: temper-xxx
 temper_placer/io/dsn.py::DSNShape.to_dsn  # TODO: temper-xxx
 temper_placer/io/dsn.py::dsn_list  # TODO: temper-xxx
+# temper_placer/io/real_board.py::load_real_board_placement is exercised by
+# the safety suite (tests/requirements/safety/) and the CLI wiring tests
+# (tests/cli/test_optimize_validator_input.py) against the real board, but
+# the coverage gate only measures tests/core/, so it reads as zero here.
+temper_placer/io/real_board.py::load_real_board_placement  # TODO: temper-617
 temper_placer/io/dsn_exporter.py::DSNExporter.export_library  # TODO: temper-xxx
 temper_placer/io/dsn_exporter.py::DSNExporter.export_network  # TODO: temper-xxx
 temper_placer/io/dsn_exporter.py::DSNExporter.export_pcb  # TODO: temper-xxx
