@@ -386,3 +386,104 @@ crate rather than the report. The two solve-site defects were likewise confirmed
 directly against `origin/main` rather than taken on report. The conclusions
 happen to agree with the summary relayed in the task; the citations here are
 first-hand.
+
+## 9. Addendum — the two RETIRE verdicts, executed (2026-08-04)
+
+This section was added by the follow-up change that performed the deletion §4
+decided. The measurements above are unchanged and still stand at the commit in
+the provenance line; what follows is the record of the action, not a new
+measurement.
+
+Both files were deleted. Their ledger entries in `docs/wave4-verdicts.yaml`
+were removed at the same time, along with their two `exclude:` carve-outs from
+the `scripts/*.py` JUSTIFIED-KEEP pattern. **The justifications are reproduced
+verbatim below, because this document is now their only home.** Removing a
+ledger entry for a file that no longer exists is bookkeeping; retracting the
+reasoning would not be.
+
+### 9.1 Why the entries were removed rather than left in place
+
+`scripts/check_verdict_coverage.py` was read before deciding. It does **not**
+error on a `surfaces:` entry whose `pattern:` matches no file — `validate_entries`
+checks verdict validity, the required `justification:`/`blocker:`/`owed:`/`phase:`
+fields, and `exclude:` carve-outs, and its carve-out check is
+`matches(ex, s["pattern"])`, a pure glob-shape comparison that never touches the
+filesystem. So a stale `scripts/internal_route.py` exclude would still have
+"matched" the `scripts/*.py` pattern as a string and passed. **Nothing in the
+gate forced this cleanup.**
+
+The entries were removed anyway, on the repo's own precedent rather than on gate
+pressure. `.undeclared-imports-allowlist` records the identical decision for
+`jax::scripts/check_perf_regression.py`: an entry scoped to a file that no longer
+exists "exempts nothing, and reads as a live gap that is already closed". The
+same holds for a verdict — a RETIRE decision on a deleted file is not a pending
+decision, and leaving it in the ledger would misreport the backlog. The ledger's
+own framing (§6) is that it covers "every Python file under the ledger's roots";
+a file that is not there has no coverage obligation to discharge.
+
+After the change the ledger still reports **100.0% R7 completion**, with RETIRE
+at 0 files / 0 LOC — the verdict was not lost, it was discharged.
+
+### 9.2 The verdicts, preserved verbatim
+
+> **`scripts/internal_route.py` — RETIRE.** Import-dead, verified 2026-08-04 by
+> AST sweep of every top-level import in scripts/ and benchmarks/. Imports
+> `jax.numpy` (jax is not in any dependency set) and eight names from
+> `temper_placer.routing.*` plus `temper_placer.io.trace_writer`, none of which
+> exist -- the package was renamed to router_v6 without this script following.
+> It cannot be imported, so it cannot have run since. Already noticed in passing
+> by scripts/check_no_raw_rotation_trig.py's own notes; superseded by
+> scripts/route_board.py, which says so in its docstring.
+
+> **`scripts/placement_quality_report.py` — RETIRE.** Import-dead, same
+> 2026-08-04 sweep. Unguarded module-level imports of `temper_placer.losses.base`
+> and `temper_placer.routing.analysis`; neither package exists (both are JAX-era,
+> retired). Manifest disposition is shell-invoked, which is why the sunset clock
+> missed it: that gate keys off last_run dates and the invocation graph, not
+> importability -- a gap worth closing separately.
+
+### 9.3 Deadness re-derived independently before deleting
+
+The RETIRE verdicts were not inherited. Re-verified against `origin/main`:
+
+| check | result |
+|---|---|
+| `temper_placer.routing` on `origin/main` | absent (`git ls-tree`) |
+| `temper_placer.losses` on `origin/main` | absent (`git ls-tree`) |
+| `jax` in any `pyproject.toml` | absent |
+| `import temper_placer` in the project venv | succeeds |
+| `import temper_placer.routing` / `.losses` / `jax` | `ModuleNotFoundError` |
+| `python scripts/internal_route.py --help` | `ModuleNotFoundError: No module named 'jax'` |
+| `python scripts/placement_quality_report.py --help` | fails before reaching its own body |
+
+`temper_placer` itself imports cleanly, so these are genuine missing
+subpackages, not an unconfigured environment. No Python file anywhere imports
+either script, and no `subprocess`/`exec` call names them.
+
+### 9.4 Further RETIRE candidates found, and deliberately not deleted
+
+Four shell scripts existed only to drive `internal_route.py`. They are recorded
+here as candidates and **left in place** — this change deletes what §4 decided,
+and shell scripts are outside the ledger's `roots:` (which cover `*.py` only), so
+no verdict has been recorded for them and it is not this change's place to invent
+one.
+
+| script | status | evidence |
+|---|---|---|
+| `scripts/route_v3.sh` | dead — pure wrapper | its only command was `uv run scripts/internal_route.py` |
+| `scripts/verify_occupancy_strict.sh` | dead | routes via `internal_route.py` under `set -euo pipefail`, then DRCs that output |
+| `scripts/sprint1_validation.sh` | dead end-to-end | step 2 routes via `internal_route.py` under `set -euo pipefail`; steps 3–5 consume its output |
+| `scripts/run_physics_flow.sh` | doubly dead | step 3 is `internal_route.py`; step 2 calls `add_power_planes_v2.py`, which does not exist in the repo |
+
+None is invoked by CI, the `Makefile`, or any other script — the only references
+are `scripts/invocation_graph.json` and two prose mentions in
+`docs/plans/2026-06-22-001-feat-purge-and-protect-plan.md` and
+`docs/legacy/DRC_REMEDIATION_ARCHITECTURE.md`. `sprint1_validation.sh` is the
+only one with any independent content (it also calls `validate_footprints.py`
+and `compare_drc_reports.py`), so it is the only one where deletion would lose
+anything, and even that is unreachable past step 2.
+
+**A gap worth closing separately:** `scripts/check_script_sunset.py` keys off
+`last_run` dates and the invocation graph, not importability, which is why it
+never flagged either deleted script. It would not flag these four either — a
+shell script that invokes a nonexistent target is invisible to it.
