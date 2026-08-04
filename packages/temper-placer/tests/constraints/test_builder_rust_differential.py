@@ -192,3 +192,13 @@ class TestToYamlDifferential:
         assert o.to_yaml() == s.to_yaml()
         assert "10.25" in s.to_yaml()
         assert "1.5" in s.to_yaml()
+
+    def test_empty_string_zone_is_ignored(self):
+        """An empty-string group zone is falsy in Python: no zone error is
+        reported even when available_zones is given. Discriminates the
+        `group.zone` truthiness gate (surviving mutant M8)."""
+        o = _apply(_oracle.ConstraintBuilder(), [("add_group", ("g", ["A"]), {"zone": ""})])
+        s = _apply(ConstraintBuilder(), [("add_group", ("g", ["A"]), {"zone": ""})])
+        for zones in (None, [], ["Zone1"]):
+            assert o.validate(100.0, 100.0, ["A"], zones) == s.validate(100.0, 100.0, ["A"], zones)
+            assert s.validate(100.0, 100.0, ["A"], zones) == []

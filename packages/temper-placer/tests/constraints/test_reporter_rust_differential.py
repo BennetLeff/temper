@@ -317,6 +317,69 @@ class TestReportTextAndJsonDifferential:
         assert "VIOLATIONS: 1" in text
 
 
+class TestReportBoundaryDifferential:
+    """Exact-boundary cases discriminating strict-vs-non-strict comparisons in
+    the reporter checks. Added to close surviving mutants found by the
+    anti-vacuity mutation campaign (M6 corridor, M11 spacing): random inputs
+    almost never land exactly on a threshold."""
+
+    def test_spacing_check_exact_threshold_satisfied(self):
+        """dist == min_separation is SATISFIED (>=), not violated."""
+        constraints = PlacementConstraints(
+            component_spacing_rules=[
+                ComponentSpacingRule(component_a="A", component_b="B", min_separation_mm=10.0, tier="hard")
+            ]
+        )
+        o, s = _both(constraints)
+        placements = {"A": (0.0, 0.0), "B": (10.0, 0.0)}  # dist exactly 10.0
+        or_, sr = o.check(placements), s.check(placements)
+        assert [_result_key(r) for r in or_.results] == [_result_key(r) for r in sr.results]
+        assert sr.results[0].status == ConstraintStatus.SATISFIED
+        assert sr.results[0].message == "ComponentSpacing: A - B (10.0mm ≥ 10.0mm)"
+
+    def test_corridor_check_exact_half_width_clear(self):
+        """dist == half_width is NOT a violation (strict <)."""
+        constraints = PlacementConstraints(
+            routing_corridors=[
+                RoutingCorridor(
+                    name="path", from_component="A", to_component="B", width_mm=6.0, tier="hard"
+                )
+            ]
+        )
+        o, s = _both(constraints)
+        # Segment (0,0)-(20,0); component at (10, 3.0) -> dist exactly 3.0 == half.
+        placements = {"A": (0.0, 0.0), "B": (20.0, 0.0), "X": (10.0, 3.0)}
+        or_, sr = o.check(placements), s.check(placements)
+        assert [_result_key(r) for r in or_.results] == [_result_key(r) for r in sr.results]
+        assert sr.results[0].status == ConstraintStatus.SATISFIED
+        # A hair inside is a violation.
+        placements2 = dict(placements)
+        placements2["X"] = (10.0, 2.999)
+        or2, sr2 = o.check(placements2), s.check(placements2)
+        assert [_result_key(r) for r in or2.results] == [_result_key(r) for r in sr2.results]
+        assert sr2.results[0].status == ConstraintStatus.VIOLATED
+
+    def test_proximity_check_exact_threshold_satisfied(self):
+        """dist == max_distance is SATISFIED (<=), not violated."""
+        constraints = PlacementConstraints(
+            component_groups=[
+                ComponentGroup(
+                    name="g",
+                    components=["A", "B"],
+                    proximity_rules=[
+                        ProximityRule(component_a="A", component_b="B", max_distance_mm=10.0, tier="soft")
+                    ],
+                )
+            ]
+        )
+        o, s = _both(constraints)
+        placements = {"A": (0.0, 0.0), "B": (10.0, 0.0)}
+        or_, sr = o.check(placements), s.check(placements)
+        assert [_result_key(r) for r in or_.results] == [_result_key(r) for r in sr.results]
+        prox = [r for r in sr.results if r.constraint_type == "Proximity"][0]
+        assert prox.status == ConstraintStatus.SATISFIED
+
+
 class TestReportPropertiesDifferential:
     def test_properties_parity(self):
         """violations/warnings/satisfied/hard/soft filters match the oracle."""

@@ -360,3 +360,89 @@ class TestValidationErrorFormatting:
             assert o.message == s.message
             assert o.component == s.component
             assert o.suggestion == s.suggestion
+
+
+class TestBoundaryDifferential:
+    """Exact-boundary cases that discriminate strict-vs-non-strict comparisons
+    and the None-clearance default. Added to close surviving mutants found by
+    the anti-vacuity mutation campaign (M1/M2/M3): random inputs almost never
+    land exactly on a threshold, so the strictness of a comparison and the
+    escape default were invisible to the random differential."""
+
+    def test_spacing_filter_exact_threshold_accepted(self):
+        """dist == min_separation is NOT a violation (strict <)."""
+        constraints = _constraints(
+            component_spacing_rules=[
+                ComponentSpacingRule(component_a="A", component_b="B", min_separation_mm=10.0, tier="hard")
+            ]
+        )
+        o, s = _both(constraints)
+        of, sf = o.compile_to_slot_filter(), s.compile_to_slot_filter()
+        # dist = sqrt((10-0)^2 + 0) = 10.0 exactly
+        assert of((10.0, 0.0), "B", {"A": (0.0, 0.0)}) is True
+        assert sf((10.0, 0.0), "B", {"A": (0.0, 0.0)}) is True
+        # just inside is rejected
+        assert of((9.5, 0.0), "B", {"A": (0.0, 0.0)}) is False
+        assert sf((9.5, 0.0), "B", {"A": (0.0, 0.0)}) is False
+
+    def test_proximity_filter_exact_threshold_accepted(self):
+        """dist == max_distance is NOT a violation (strict >)."""
+        constraints = _constraints(
+            component_groups=[
+                ComponentGroup(
+                    name="g",
+                    components=["A", "B"],
+                    proximity_rules=[
+                        ProximityRule(component_a="A", component_b="B", max_distance_mm=10.0, tier="hard")
+                    ],
+                )
+            ]
+        )
+        o, s = _both(constraints)
+        of, sf = o.compile_to_slot_filter(), s.compile_to_slot_filter()
+        assert of((10.0, 0.0), "B", {"A": (0.0, 0.0)}) is True
+        assert sf((10.0, 0.0), "B", {"A": (0.0, 0.0)}) is True
+        assert of((10.5, 0.0), "B", {"A": (0.0, 0.0)}) is False
+        assert sf((10.5, 0.0), "B", {"A": (0.0, 0.0)}) is False
+
+    def test_escape_none_clearance_default_three_mm(self):
+        """clearance_mm=None uses the 3.0mm default in filter AND scorer."""
+        constraints = _constraints(
+            escape_clearances=[EscapeClearance(component="U_MCU", clearance_mm=None, tier="hard")],
+        )
+        o, s = _both(constraints)
+        of, sf = o.compile_to_slot_filter(), s.compile_to_slot_filter()
+        # 2.0mm < 3.0mm -> hard rejection
+        assert of((2.0, 0.0), "C1", {"U_MCU": (0.0, 0.0)}) is False
+        assert sf((2.0, 0.0), "C1", {"U_MCU": (0.0, 0.0)}) is False
+        # 4.0mm >= 3.0mm -> accepted
+        assert of((4.0, 0.0), "C1", {"U_MCU": (0.0, 0.0)}) is True
+        assert sf((4.0, 0.0), "C1", {"U_MCU": (0.0, 0.0)}) is True
+
+        soft = _constraints(
+            escape_clearances=[EscapeClearance(component="U_MCU", clearance_mm=None, tier="soft")],
+        )
+        o, s = _both(soft)
+        os_, ss = o.compile_to_slot_scorer(), s.compile_to_slot_scorer()
+        # 2.0mm inside the default 3.0mm zone -> +50.0 fixed penalty
+        assert _f(os_((2.0, 0.0), "C1", {"U_MCU": (0.0, 0.0)})) == _f(
+            ss((2.0, 0.0), "C1", {"U_MCU": (0.0, 0.0)})
+        )
+        assert ss((2.0, 0.0), "C1", {"U_MCU": (0.0, 0.0)}) == 50.0
+        assert ss((4.0, 0.0), "C1", {"U_MCU": (0.0, 0.0)}) == 0.0
+
+    def test_centroid_neumaier_cancellation(self):
+        """The classic Neumaier-vs-naive discriminator: 1e16 + 1 - 1e16."""
+        o, s = _both(PlacementConstraints())
+        pts = [(1e16, 0.0), (1.0, 0.0), (-1e16, 0.0)]
+        assert _pt(o._centroid(pts)) == _pt(s._centroid(pts))
+        # Neumaier: (1e16 + 1 - 1e16)/3 = 1/3; naive: (0)/3 = 0.
+        assert s._centroid(pts)[0] == (1.0 / 3.0)
+
+    def test_find_similar_single_char_name(self):
+        """len(name) < 2 returns None (min-length guard)."""
+        o, s = _both(PlacementConstraints())
+        options = {"C1", "U_MCU"}
+        for name in ["C", "1", ""]:
+            assert o._find_similar(name, options) == s._find_similar(name, options)
+            assert s._find_similar(name, options) is None

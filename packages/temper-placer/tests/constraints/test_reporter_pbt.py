@@ -63,7 +63,14 @@ MAX_EXAMPLES = 100
 
 _REFS = ["A", "B", "C", "Z", "U1", "U2", "Q1", "Q2", "R5", "J1"]
 _REF = st.sampled_from(_REFS)
-_COORD = st.floats(min_value=-100.0, max_value=100.0, allow_nan=False, allow_infinity=False)
+# Placement coordinates are millimeters; subnormals excluded (see compiler PBT).
+_COORD = st.floats(
+    min_value=-100.0,
+    max_value=100.0,
+    allow_nan=False,
+    allow_infinity=False,
+    allow_subnormal=False,
+)
 _POINT = st.tuples(_COORD, _COORD)
 _TIER = st.sampled_from(["hard", "soft"])
 
