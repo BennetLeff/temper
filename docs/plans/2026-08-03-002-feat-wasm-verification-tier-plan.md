@@ -51,7 +51,7 @@ The project's own history sets two traps for such a tier. The burn-down plan rec
 **Phase 0 — substrate proof and producer**
 
 - R1. `temper-drc-rs` and `temper-geometry` compile for `wasm32-unknown-unknown` with `pyo3` behind a feature flag, and a failure to do so reopens D3 rather than being worked around.
-- R2. Per-case CPU cost and peak resident memory for a full-board rule pass are measured natively before any Worker is written, with memory reported against the 128 MiB isolate limit.
+- R2. Per-case CPU cost and peak resident memory for a full-board rule pass are measured natively before any Worker is written, with memory reported against the 128 MiB isolate limit. Measured 2026-08-04 (`packages/temper-geometry/examples/r2_cost_model.rs`): median 4 ns per kernel case, and an occupancy grid costing 24 MB across six layers at 0.1 mm but 2,400 MB at 0.01 mm. CPU is therefore not a constraint even allowing a thousandfold margin for input generation and assertion; memory is, and grid resolution sets it.
 - R3. Board regeneration is automated, so the tier has an input that changes when the harness changes.
 
 **The tier**
@@ -105,6 +105,7 @@ Phases are pulled individually. Phase 0 gates every later phase because its outc
 - The pure-Rust rules engine has no filesystem, process, thread or `rayon` usage, and its dependencies are pure Rust. This was verified by inspection on 2026-08-03 and is what makes R1 plausible; it is not a substitute for R1's build.
 - Every module Wave 4 moves from Python to Rust becomes a candidate for this tier, so the addressable surface grows with that programme. Wave 4's discipline contract also mandates five property tests and three metamorphic relations per migrated module, which grows the property surface the tier exists to run.
 - WASM and native builds use different math libraries, so results may differ in the final unit of least precision. R15 assumes this divergence is tolerable because the tier is advisory; a divergence at a rule threshold is itself a finding worth recording rather than a defect in the tier.
+- The tier will eventually want finer grid resolution than production. Production uses 1.0 mm predominantly (131 call sites), 0.5 mm and 0.1 mm elsewhere, and nothing uses 0.01 mm — so at today's resolutions R2's memory figures are comfortable and the 128 MiB limit does not bind. Sweeping manufacturing variation is expected to want sub-trace-width detail, which is where it starts to.
 - Cloudflare's pricing model bills CPU time and requests but not provisioned memory or disk, which is what makes the economics differ from containers by roughly two orders of magnitude. A change to that model invalidates D3's cost basis.
 
 ### Outstanding Questions
@@ -120,6 +121,7 @@ Phases are pulled individually. Phase 0 gates every later phase because its outc
 - Q4. How work is sharded under R5 once R2 has measured the memory profile.
 - Q5. How findings are ranked under R14.
 - Q6. Which kernel Phase 1 ports first.
+- Q7. Which memory strategy carries the tier past production resolution, given R2 measured 2,400 MB at 0.01 mm against a 128 MiB limit. Four candidates, cheapest first: reuse the existing `occupancy_bitmap_row` packing (1 bit per cell rather than an `i32` net id — 32x, already implemented, but discards net identity and most DRC rules need it); region sharding (bounded by construction, composes with the rest); run-length encoding per row (matches the kernels' scanline write pattern); and a hash-consed quadtree in the hashlife sense (highest compression on empty space and pours, worst case on thin diagonal traces). Only the quadtree's spatial half transfers — hashlife's memoised time evolution has no analogue here — and the obstacle is not compression but mutation: the kernels write cell-by-cell via `merge_cell`, whereas hash-consing assumes immutability, so it needs the kernels restructured from mutate-in-place to build-then-freeze. R2's finding that CPU is effectively free is what makes trading access cost for memory a good deal.
 
 ### Sources / Research
 
