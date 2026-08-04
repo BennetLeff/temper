@@ -57,7 +57,13 @@ def main():
     routed_pcb = args.input_pcb.with_name(args.input_pcb.stem + "_routed.kicad_pcb")
     # For now, just simulate success if routed_pcb exists or print error
     if not routed_pcb.exists():
-        print("Error: Routed PCB not found. Run internal_route.py first.")
+        # Was "Run internal_route.py first." That script was deleted on
+        # 2026-08-04 as import-dead; scripts/route_board.py is the live
+        # routing entry point (and what `make route` invokes).
+        print(
+            f"Error: Routed PCB not found at {routed_pcb}. "
+            f"Run: python scripts/route_board.py --pcb {args.input_pcb} --output {routed_pcb}"
+        )
         sys.exit(1)
 
     elapsed = 0.0  # Placeholder

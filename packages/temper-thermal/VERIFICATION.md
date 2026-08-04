@@ -533,3 +533,367 @@ all-Neumann / all-convective behavior exactly (pinned by
 The `fdm.rs`/`thermal_scorer.rs` match arms are the same decisions the
 old string compares made. `rtd.rs` and the byte-buffer/`PyBuffer`
 surfaces were already A-class and are untouched.
+
+---
+
+# Thermal Potential Field & Greedy Anchoring — Verification by Induction
+
+Wave 4 Phase 4. Home of `thermal_potential::{linspace,
+build_potential_grid, phi_edge, phi_copper, phi_coupling, phi_exclusion,
+phi_convection, superpose, find_min_valid, enforce_unique_positions_with,
+assign_thermal_anchors, audit_anchor}`, the bit-exact port of
+`temper_placer/physics/thermal_potential.py`'s compute.
+
+This is a **physics-gated surface** — `thermal_potential` is one of the
+four module names `scripts/physics_soundness_register_gate.py` scans for
+(`PHYSICS_MODULE_NAMES`), and the anchors it returns become placement
+coordinates. It therefore carries the full R24 discipline (soundness
+proof, BMC-exhaustive validation on small N, post-solve audit) per
+`AGENTS.md` R24 and `docs/physics-verification-methodology.md`, on top of
+the standard Wave-4 gates.
+
+## Base Case: a 1-cell grid
+
+`resolution = 1` produces `linspace(a, b, 1) = [0.0 * (b - a) + a] = [a]`
+— numpy assigns the endpoint only when `num > 1`, so the single sample is
+the *start*, not the stop, and the mirror reproduces that. The grid is
+the single cell `(x_min, y_min)` and:
+
+* `phi_edge` is `1 - exp((-d)/lambda)` at that one point — one
+  correctly-rounded `exp` and two arithmetic ops, no accumulation;
+* `phi_coupling` and `phi_exclusion` start from a zero field and fold in
+  zero sources, returning exactly `0.0`;
+* `phi_copper` with no zones is the `(1, 1)` constant `1.0 * 0.5`, which
+  broadcasts onto any grid;
+* `superpose` adds only the enabled weighted components, in the fixed
+  order edge → copper → coupling → exclusion → convection;
+* `find_min_valid` scans one cell: it is selected iff it satisfies the
+  edge strip, zone, keepout and separation predicates, and `phi < +inf`.
+
+`assign_thermal_anchors` on one device and this grid therefore returns
+either `{}` (the cell is infeasible) or that cell, clamped to the board —
+which is trivially the arg-min over a one-element feasible set. Verified
+bit-exactly against the pinned oracle by
+`test_direct_build_grid_bit_exact` (resolution 1 is in the sampled set)
+and `test_bmc_exhaustive_small_n_anchor_assignment`.
+
+## Induction Step
+
+Three nested inductions compose.
+
+**(a) Over grid cells — the field kernels.** Hypothesis: for a grid of
+`n` cells every kernel produces the reference's value at each cell.
+Step: each kernel is an *elementwise* map — cell `n+1`'s value is a pure
+function of `(x[n+1], y[n+1])` and the loop-invariant scalars (`bounds`,
+`decay`, `sigma`, `radius`, `ux`/`uy`), computed with the same operation
+order the reference uses. No cell reads another cell's value, so adding a
+cell cannot perturb the first `n`. The only cross-cell operator is the
+*per-device* fold in `phi_coupling`/`phi_exclusion`, which is handled by
+(b).
+
+**(b) Over sources — the per-device folds.** Hypothesis: after folding
+`m` devices the accumulator equals the reference's after `m`. Step:
+`phi_coupling` performs `field[i] += power * exp(...)` and `phi_exclusion`
+performs `field[i] = np_maximum(field[i], barrier)`, both in the
+reference's device order, starting from an all-zero field. Each step is a
+single correctly-rounded operation applied to the hypothesis's value, so
+the `m+1`-th agrees too. Order is *preserved*, never sorted: the addition
+fold is order-sensitive (IEEE addition is not associative) and imposing
+an order the reference did not have would be a silent behaviour change no
+differential could catch. `test_mr1_coupling_superposition_is_exact`
+pins the fold's additivity and
+`test_mr2_exclusion_is_permutation_invariant` proves the `max` fold is
+genuinely order-free by checking *every* permutation rather than sorting.
+
+**(c) Over devices — the greedy assignment.** Hypothesis: after placing
+`m` devices, `pass1` and `existing` match the reference's. Step: device
+`m+1` is placed by `find_min_valid` against the *same* `phi` array and
+the accumulated `existing` list; `find_min_valid` is a deterministic
+row-major scan with a strict `<` update, so it returns the earliest cell
+attaining the minimum. Adding a device appends to `existing` and never
+rewrites an earlier anchor, so the hypothesis carries. The pass-2 loop is
+bounded by `MAX_ITERATIONS = 3` and terminates unconditionally; the
+`updated` flag can only shorten it. The final clamp and
+`enforce_unique_positions_with` are single passes over the ordered result,
+the latter mutating in place so later pairs observe earlier offsets —
+reproduced exactly.
+
+`OrderedAnchors` reproduces CPython `dict` semantics for the induction to
+be about the same object: re-assigning an existing key updates the value
+and keeps the key's original position, which matters when the input
+device list repeats a reference (`duplicate_reference_keeps_one_key`).
+
+## R24 Discipline
+
+**1. Chebyshev-style soundness proof (conservative bound).** The claim
+the anchoring surface makes is:
+
+> For each device `d`, `phi(anchor_d) <= phi(c)` for every grid cell `c`
+> satisfying `d`'s edge-strip, zone, keepout and min-separation
+> constraints at the time `d` was placed.
+
+This is a *conservative* bound in the R24 sense: the returned anchor's
+potential never *under*-states what is achievable, so downstream
+placement can only be handed a position at least as good as reported.
+Proof: `find_min_valid` enumerates the full feasible set (it visits every
+cell and applies exactly the four predicates), maintains `best_val` as
+the running minimum, and updates only on strict `<`. By induction over
+the scan (b above) `best_val` is the minimum of the feasible potentials
+visited so far; at termination it is the minimum over the whole feasible
+set, and `best_xy` is the earliest cell attaining it. Two residuals are
+recorded rather than hidden:
+
+* the final **clamp** may move an anchor off the arg-min cell when a zone
+  or the board bounds exclude it — the reference logs a warning above
+  2 mm and `AuditFinding::OutsideZone`/`OffGrid` surface it;
+* the **uniqueness nudge** (`_enforce_unique_positions`, +0.5 mm in x)
+  deliberately leaves the grid to break an exact tie; `AuditFinding::
+  Duplicate` and property P7 both account for it explicitly.
+
+**2. BMC-exhaustive validation on small N.**
+`test_bmc_exhaustive_small_n_anchor_assignment` enumerates the *complete*
+cross product of 4 edges x 3 resolutions x 3 device counts x 2 zone
+states x 2 keepout states x 2 airflow states = 288 configurations on a
+20x20 mm board and compares every returned anchor with the pinned oracle
+leaf-by-leaf via `float.hex()`. `test_bmc_exhaustive_small_n_field_
+components` does the same for every field component on a 3x3 grid across
+every edge (including an unknown one) and a lattice of powers, radii,
+steepnesses, magnitudes and directions. No sampling and no tolerance is
+involved in either — these are proofs for the bounded case.
+
+**3. Post-solve audit.** `thermal_potential::audit_anchor` recomputes
+`phi` from the returned coordinates alone — never from the search's
+internal state — and re-derives every predicate: on-grid membership, edge
+strip, zone, keepout, uniqueness, and minimality against every feasible
+cell (`AuditFinding::NotMinimal`). Its fail-capability is demonstrated in
+`audit_rejects_a_feasible_but_non_minimal_anchor`,
+`audit_flags_an_off_grid_anchor` and
+`audit_flags_a_keepout_and_a_duplicate`; the Python-side equivalent is
+property P7 in `test_thermal_potential_rust_pbt.py`, guarded by two
+mutants (`_off_strip_assign`, an off-grid perturbation).
+
+## Bit-exactness notes
+
+* **B1 (host libm).** `exp`, `cos`, `sin` and `pow` resolve through
+  `hostmath`'s `dlsym` cache. Measured on this repo's runtime (CPython
+  3.12.13, numpy 2.3.5, macOS/arm64): numpy's float64 `exp`/`cos`/`sin`
+  ufunc loops are bit-identical to the host libm at every array length
+  this module uses (1, 2, 4, 8, 16, 100, 2500 elements, and the 50x50
+  2-D case), so a single resolution serves the scalar `math.*` and the
+  array `np.*` call sites alike. The differential re-measures this on
+  every run rather than trusting the note.
+* **B2 (constant expression).** `np.radians(d)` is measured bit-identical
+  to `d * (PI / 180.0)` — the *division* — over 20 000 random degrees,
+  and *not* to the reassociated `(d * PI) / 180.0`, which differs on
+  ~28 % of them. `test_direct_phi_convection_radians_is_the_division_form`
+  pins an angle from the disagreeing set.
+* **B5 (NaN comparison semantics).** Three different maxima appear in the
+  reference and stay distinct here: `py_max` for CPython's builtin
+  `max(power, 1e-6)` (first argument wins on NaN), `np_maximum` for
+  `np.maximum(field, barrier)` (NaN propagates from either side), and
+  `np_clip` for `np.clip` (NaN propagates; inverted bounds return the
+  upper). `f64::max` matches none of them.
+* **B7 (operation order).** `x ** 2` is libm `pow(x, 2.0)`, not `x * x`
+  (measured to disagree on ~0.14 % of random f64); `(...) ** 0.5` is
+  `pow(v, 0.5)`, not `sqrt` (~0.15 %). Both forms appear — the
+  min-separation test and the uniqueness distance — and both go through
+  `hostmath::pow`.
+* **B8 (denormals).** Default IEEE semantics; no fast-math, no FTZ/DAZ,
+  no `mul_add` fusion. `test_direct_phi_exclusion_denormal_barrier_is_
+  not_flushed` and `test_direct_build_grid_degenerate_and_denormal` pin
+  denormal-band results.
+
+### Preserved reference quirks
+
+Two reference behaviours are reproduced verbatim rather than "fixed",
+because changing either would be a behaviour change no differential could
+catch:
+
+1. `phi_copper` hard-codes `grid_res = 50` *inside itself*, independent of
+   `config.grid_resolution`. A zone-fed copper field is therefore always
+   50x50 and only broadcasts against a 50x50 potential grid; any other
+   resolution raises `ValueError` from numpy. The Rust path raises the
+   same class (`FieldError::CopperBroadcast`), pinned by
+   `test_module_assign_anchors_copper_zone_shape_mismatch_raises_alike`.
+2. `phi_copper` writes `conductance[gx0:gx1, gy0:gy1]` — the first axis
+   carries **x** and the second **y**, the transpose of the `meshgrid`
+   convention the rest of the module uses. Preserved.
+
+## Empirical Verification
+
+* `packages/temper-placer/tests/physics/test_thermal_potential_rust_differential.py`
+  — 109 tests: direct-kernel and module-level pins against the verbatim
+  oracle in `tests/physics/_thermal_potential_py_oracle.py`, compared
+  through type-carrying `float.hex()` signatures
+  (`tests/physics/_leafcmp.py`), plus the two BMC-exhaustive sweeps.
+* `packages/temper-placer/tests/physics/test_thermal_potential_rust_pbt.py`
+  — 30 tests: properties P1–P7, one vacuity guard per property (nine
+  mutants covering sign flip, constant field, dropped term, double
+  count, off-by-one, BC swap and off-grid), and metamorphic relations
+  MR1–MR5 (superposition, source permutation, airflow scaling, weight
+  linearity, translation) with their exactness claims stated.
+* `packages/temper-placer/tests/physics/test_thermal_potential.py`
+  — the pre-existing U9/U10 battery, unchanged and still green.
+* `cargo test -p temper-thermal` — the crate's own unit tests for
+  `linspace`'s three branches, the meshgrid orientation, the copper
+  branches (including non-finite zone bounds), NaN fall-through, the
+  broadcast error, determinism, uniqueness and the audit.
+
+---
+
+# Coupled-Load Operating Point — Verification by Induction
+
+Wave 4 Phase 4. Home of `operating_point::{l_eff, thermal_chain,
+extreme_point, interior_k_grid, interior_scan, audit_bounding}`, the
+bit-exact port of the numeric core of
+`temper_placer/physics/operating_point.py`.
+
+**Why this crate.** The surface's dominant quantity is the junction
+temperature chain `T_amb + P_device * (R_jc + R_cs + R_sa)`, which is the
+same lumped thermal model `junction_temp.rs` already hosts; `P_device`
+already delegates to `device_power.rs` in this crate (issue #140 — one
+power-source formula); and the gate's ceilings are consumed alongside the
+thermal battery. The electrical tail (`di/dt`, `L_loop_max`) is a dozen
+scalar operations on top of that chain and does not justify a second
+home. The alternatives were excluded by ownership (`temper-geometry`,
+`temper-io-types`, `temper-design-bundle`, `temper-quality-oracle` are
+held by concurrent work), and `Violation`/`GateResult` construction —
+which lives in `temper-design-bundle` — deliberately stays in Python so
+this migration touches none of it.
+
+## Induction — applicability
+
+`l_eff`, `thermal_chain` and `extreme_point` are **closed-form,
+loop-free and recursion-free** functions of their scalar inputs, in the
+same sense as this file's `device_power` and `junction_temp` notes: a
+fixed sequence of correctly-rounded f64 operations with one comparison
+branch (`num <= 0`) and no data structure whose size varies with the
+input. R1e's induction requirement is **not applicable** to them, and the
+structural argument in the "Soundness" section below stands in its place.
+
+`interior_scan` *does* have iterative structure, and it gets a proper
+induction:
+
+**Base case.** With no interior samples the scan returns the endpoint
+envelope alone: `endpoint_worst_di_dt = max(di_dt(0), di_dt(1))` and
+`endpoint_worst_L_loop_max = min(L_loop_max(0), L_loop_max(1))`, both
+CPython builtins (first argument wins on NaN). No sample can then
+contradict it, and the reference returns no violations — matched by
+`interior_scan_returns_nothing_for_a_non_positive_endpoint` and
+`test_direct_interior_scan_non_positive_endpoint_is_silent`.
+
+**Step.** Assume the first `m` samples produced the reference's verdicts.
+Sample `m+1` is evaluated against the *same* loop-invariant envelope
+(computed once, before the loop) and the same three predicates, in the
+reference's order — `breaches_min_feasible`, then `worse_di_dt`, then
+`worse_l_loop_max`. Its verdict depends on nothing accumulated from the
+previous `m`, so the hypothesis carries and the emitted `Violation` list
+is the concatenation the reference builds. Samples with `L_eff <= 0` are
+skipped in both, contributing nothing.
+
+## R24 Discipline
+
+**1. Chebyshev-style soundness proof (conservative bound).** The claim:
+
+> For every `k` in `[0, 1]`, `di/dt(k) <= max(di/dt(0), di/dt(1))` and
+> `L_loop_max(k) >= min(L_loop_max(0), L_loop_max(1))`.
+
+Proof (restated at `operating_point::l_eff` and in the Python
+docstring): `L_eff(k) = L_coil*(1-k) + L_leakage*k` is affine in `k`;
+`_validate_config` enforces `L_coil > 0` and `L_leakage > 0`, so `L_eff`
+is strictly positive on `[0, 1]` and, being affine, is bounded by its
+endpoint values there. `di/dt(k) = V_bus / L_eff(k)` is then monotone in
+`k` because `1/x` is monotone on `x > 0`, and
+`L_loop_max(k) = (V_BR*derate - V_bus) / (di/dt(k))` is monotone for the
+same reason. `P_device` and `T_j` do not depend on `k` at all. A monotone
+function on a closed interval attains its extremes at the endpoints, so
+the endpoint pair is a conservative bound — the gate never reports a
+`di/dt` lower, or an `L_loop_max` higher, than some interior `k`
+achieves. This is what licenses the gate to check two points instead of a
+continuum.
+
+**2. BMC-exhaustive validation on small N.** Two independent sweeps:
+
+* `operating_point::tests::bmc_interior_bounding_holds_exhaustively`
+  (Rust) — 5 coil x 5 leakage x 3 bus x 3 breakdown inductance/voltage
+  configurations, each crossed with an exhaustive `k` sweep at 1/1024
+  resolution (>100 000 samples), asserting the envelope holds on every
+  one.
+* `test_bmc_exhaustive_small_n_operating_point` (Python) — the complete
+  cross product of 3 buses x 3 breakdowns x 3 coil x 3 leakage x
+  2 derates x 2 thermal chains = 324 configurations, every reported
+  quantity compared with the oracle bit-for-bit, plus
+  `test_bmc_endpoint_bounding_is_exhaustively_sound` sweeping `k` at
+  1/512 across the lattice.
+
+Both are paired with fail-capable twins
+(`bmc_property_is_fail_capable`, `test_bmc_soundness_property_is_fail_
+capable`) that feed a quadratic-dip coupling model — a plausible
+non-monotone model, not a strawman — and require the sweep to catch it.
+
+**3. Post-solve audit.** `operating_point::audit_bounding`, exposed as
+`operating_point.audit_operating_point(cfg, k0, k1)`, recomputes `T_j`,
+`di/dt` and `L_loop_max` from the raw configuration — never from the
+gate's intermediate state — compares each against what the gate reported,
+and re-derives the bounding claim on a dense interior sweep. Findings are
+named (`JunctionTemperatureMismatch`, `SlewRateMismatch`,
+`LoopInductanceCeilingMismatch`, `FeasibilityMismatch`,
+`InteriorSlewRateExceedsEnvelope`, `InteriorLoopCeilingBelowEnvelope`).
+Fail-capability: `audit_catches_a_tampered_report` (Rust),
+`test_audit_catches_a_tampered_ceiling`,
+`test_audit_catches_an_unsound_coupling_model` and property P6's
+`_widened_ceiling` mutant (Python).
+
+## Triaged finding — evaluated monotonicity floor (R22)
+
+The *model* `L_eff(k)` is exactly monotone; its **f64 evaluation** is
+monotone only to within ~1.2e-16 relative. When `L_coil` and `L_leakage`
+are within a few ulp of each other, `L_coil*(1-k) + L_leakage*k` wobbles
+by about one ulp as `k` sweeps, so consecutive `di/dt` samples can step
+backwards by that much (found by property P2 under Hypothesis;
+falsifying example `L_coil = 1.0000000000000003e-09`,
+`L_leakage = 1e-09`).
+
+This is **not a regression and not a soundness gap**: the pure-Python
+oracle exhibits the identical wobble at the identical `k` values, the
+Rust kernel reproduces it bit-for-bit (pinned by the differential), and
+the envelope predicates the gate actually enforces carry the reference's
+own `1e-12` relative guard bands — roughly 1e4 times the observed
+wobble, so no violation can be triggered by it. It is recorded here as an
+accuracy floor, and property P2 states the bound it actually holds to
+(same-direction step, or a step no larger than 4 ulp) rather than
+claiming a strict monotonicity the arithmetic does not deliver.
+
+## Bit-exactness notes
+
+* **B5.** `max(di_dt_k0, di_dt_k1)` and `min(l_loop_max_k0,
+  l_loop_max_k1)` are CPython *builtins*: the first argument wins
+  whenever the comparison is false, NaN included. `f64::max`/`f64::min`
+  discard NaN and would silently narrow the envelope the gate enforces —
+  pinned by
+  `test_direct_interior_scan_nan_endpoint_keeps_the_first_argument`.
+* **B7.** `(R_jc + R_cs) + R_sa`, `T_amb + (P * R_th)`, `V_BR * derate`,
+  `v_br_derated - V_bus`, `num / di_dt` and the guard factors
+  `worst * (1.0 + 1e-12)` / `* (1.0 - 1e-12)` all keep the reference's
+  grouping and order.
+* **B8.** A denormal `P_device` survives `T_amb + P * R_th` on both
+  sides (`test_direct_extremes_denormal_power_is_not_flushed`).
+* **B1–B4, B6, B9, B10** are not applicable: no libm transcendental, no
+  rounding, no distance, no repr string.
+
+## Empirical Verification
+
+* `packages/temper-placer/tests/physics/test_operating_point_rust_differential.py`
+  — 80 tests: direct-kernel and module-level pins against the verbatim
+  oracle in `tests/physics/_operating_point_py_oracle.py` (including the
+  assembled `Violation` payloads and the `_coupling_l_eff_fn` test
+  hook), the BMC sweeps, and the audit's fail-capable cases.
+* `packages/temper-placer/tests/physics/test_operating_point_rust_pbt.py`
+  — 27 tests: properties P1–P6 with one vacuity guard each (dipping
+  model, reversed endpoints, sign-flipped thermal chain, loosened
+  feasibility, widened ceiling), and metamorphic relations MR1–MR4
+  (inductance scaling, endpoint permutation, reflection, thermal-
+  resistance scaling) with their exactness claims stated.
+* `packages/temper-placer/tests/physics/test_operating_point.py` and
+  `test_operating_point_monotonicity.py` — the pre-existing U6/U2
+  batteries, unchanged and still green.
