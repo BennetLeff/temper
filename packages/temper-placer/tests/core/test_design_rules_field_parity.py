@@ -36,6 +36,7 @@ on YAML-loaded net classes.
 
 from __future__ import annotations
 
+import importlib.util
 from pathlib import Path
 
 import pytest
@@ -43,6 +44,17 @@ import pytest
 _REPO_ROOT = Path(__file__).resolve().parents[4]
 _RULES_PATH = (
     _REPO_ROOT / "packages" / "temper-placer" / "configs" / "netclass_rules.yaml"
+)
+
+# The whole file exercises objects that reach the Rust DesignRules pyclass
+# (temper_placer.core.design_rules imports temper_design_bundle_python at
+# module level); mirror the differential suite's presence guard so a
+# missing/stale extension skips instead of erroring (set
+# TEMPER_REQUIRE_RUST_DESIGN_RULES=1 to make it fatal).
+pytestmark = pytest.mark.skipif(
+    importlib.util.find_spec("temper_design_bundle_python") is None,
+    reason="temper_design_bundle_python not installed "
+    "(set TEMPER_REQUIRE_RUST_DESIGN_RULES=1 to make this fatal instead of a skip)",
 )
 
 # (alias, canonical) pairs the drift broke.
