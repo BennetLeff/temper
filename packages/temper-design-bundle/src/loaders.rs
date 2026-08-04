@@ -71,6 +71,26 @@
 //!   pre-migration module defined — a consumer that pickled the class, or
 //!   compared it by identity against a re-imported copy, would see the change.
 //!   No consumer does (verified 2026-08-04 across `src/`, `tests/`, `scripts/`).
+//! - `NetClassRulesDict` likewise gets its `__module__` restored (to
+//!   `temper_placer.io.netclass_loader`) so the class pickles by reference and
+//!   `repr(cls)` reads unchanged, and carries an explicit `__copy__` so
+//!   `copy.copy(result)` shallow-copies with both fields shared like the
+//!   dataclass. Instance pickling still fails (the held `DesignRules` is a
+//!   pyclass) — exactly like the pre-migration dataclass. Pinned by the
+//!   differential's `test_netclass_rules_dict_identity_and_module` /
+//!   `..._pickles_and_shallow_copies_like_the_dataclass`.
+//! - On the wrap paths, `raise ... from e` is reproduced for `__cause__` and
+//!   `__suppress_context__`, but `__context__` is not set (the oracle raises
+//!   from inside an `except` block, where CPython records the active
+//!   exception; the Rust side has no active exception state). Traceback
+//!   output is identical — with `__cause__` set, `__context__` is never
+//!   rendered. The differential compares `__cause__`/`__suppress_context__`
+//!   on all four wrap paths, not `__context__`.
+//! - `inspect.signature` on the re-exported loaders degrades to pyo3's
+//!   `__text_signature__` (no annotations, `Ellipsis` defaults); no in-repo
+//!   consumer introspects them. Traceback frame provenance moves to the
+//!   extension (frame filenames in CI-log greps will change). Both are
+//!   inherent pyo3-boundary properties, recorded in `VERIFICATION.md`.
 //! - `source` / `name` / `description` are typed `String` at the pyo3
 //!   boundary. A non-`str` argument therefore raises `TypeError` with the
 //!   identical pyo3 message, but *before* the body runs — where the oracle
@@ -238,6 +258,17 @@ impl NetClassRulesDict {
         Ok(self.design_rules.bind(py).eq(other.design_rules.bind(py))?
             && self.class_pairs.bind(py).eq(other.class_pairs.bind(py))?)
     }
+
+    /// `copy.copy` — shallow: both fields are shared with the source, exactly
+    /// like `copy.copy` on the pre-migration dataclass. Without this, the
+    /// pyo3 pyclass would fall through to the pickle machinery and raise
+    /// `TypeError: cannot pickle ...`, where the dataclass copied fine.
+    fn __copy__(&self, py: Python<'_>) -> Self {
+        Self {
+            design_rules: self.design_rules.clone_ref(py),
+            class_pairs: self.class_pairs.clone_ref(py),
+        }
+    }
 }
 
 /// Load `netclass_rules.yaml` and populate a `DesignRules` instance.
@@ -261,17 +292,23 @@ fn load_netclass_rules(
     let builtins = py.import("builtins")?;
     let yaml = py.import("yaml")?;
 
-    // `with open(path) as f: data = yaml.safe_load(f)`
+    // `with open(path) as f: data = yaml.safe_load(f)` — on BOTH arms the
+    // close result is checked, because a `with` block that unwinds on a
+    // `safe_load` exception still runs `__exit__` (close) and a close
+    // failure there REPLACES the body exception. The oracle's `with`
+    // propagates that close error; so must this.
     let file = builtins.getattr("open")?.call1((path,))?;
     let loaded = yaml.call_method1("safe_load", (&file,));
     let closed = file.call_method0("close");
-    // `loaded?` before `closed?`: the file is closed either way, and the
-    // propagated error is identical to the oracle's (the file object is
-    // load-bearing for PyYAML's error text, not the close order).
-    let data = {
-        let data = loaded?;
-        closed?;
-        data
+    let data = match loaded {
+        Ok(data) => {
+            closed?;
+            data
+        }
+        Err(err) => {
+            closed?;
+            return Err(err);
+        }
     };
 
     // The delegation module re-exports the very pyclass/model objects the
@@ -567,6 +604,13 @@ fn load_loop_template(py: Python<'_>, path: &Bound<'_, PyAny>) -> PyResult<Py<Py
             data
         }
         Err(err) => {
+            // `with open(...) as f:` unwinds through `__exit__` (close) even
+            // when `safe_load` raised, and a close failure there REPLACES
+            // the body exception. `closed?` on this arm reproduces that; it
+            // is not constructible with normal files (close on a real file
+            // never fails), so no fixture pins it — the check is the oracle's
+            // `with` semantics, kept for parity.
+            closed?;
             if err.matches(py, &yaml_error)? {
                 let message = format!(
                     "Invalid YAML in {}: {}",
@@ -688,6 +732,15 @@ fn load_loop_collection(
 pub fn register(module: &Bound<'_, PyModule>) -> PyResult<()> {
     let py = module.py();
     module.add_class::<NetClassRulesDict>()?;
+
+    // Restore the pre-migration `__module__` so pickling by reference,
+    // `repr(cls)` and tracebacks read `temper_placer.io.netclass_loader`
+    // exactly as before (mirrors the LoopLoadError restore below). Without
+    // this the class reports `builtins.NetClassRulesDict`, which breaks
+    // `pickle.loads(pickle.dumps(NetClassRulesDict))` (attribute lookup on
+    // builtins fails) — the pre-migration dataclass round-tripped fine.
+    let netclass_rules_dict = py.get_type::<NetClassRulesDict>();
+    netclass_rules_dict.setattr("__module__", "temper_placer.io.netclass_loader")?;
 
     let loop_load_error = py.get_type::<LoopLoadError>();
     // Restore the pre-migration `__module__` so tracebacks and `repr(cls)`

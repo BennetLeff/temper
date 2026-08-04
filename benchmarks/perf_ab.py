@@ -280,39 +280,97 @@ def _scalar_hex(value: Any) -> tuple[str, Any]:
     return (type(value).__name__, value)
 
 
+def _event_fields(ev):
+    """Canonical key for a LoopEvent's six fields (None-preserving)."""
+    return tuple(
+        None if v is None else _scalar_hex(v)
+        for v in (
+            ev.di_dt,
+            ev.dv_dt,
+            ev.frequency_hz,
+            ev.peak_current_a,
+            ev.rms_current_a,
+            ev.ringing_freq_hz,
+        )
+    )
+
+
 def _canon_netclass_rules(result: Any) -> tuple[Any, ...]:
-    """Deterministic fingerprint of a loaded netclass rules result."""
+    """Deterministic fingerprint of a loaded netclass rules result — every
+    field of the ``DesignRules`` instance, mirroring the differential's
+    ``_design_rules_fields`` so a mutation confined to an omitted field
+    cannot pass the inline parity sanity."""
     dr = result.design_rules
-    classes = tuple(
-        sorted(
-            (name, tuple(sorted((k, _scalar_hex(v)) for k, v in nc.model_dump().items())))
-            for name, nc in dr.net_classes.items()
+
+    def net_class_fields(nc):
+        return tuple(sorted((k, _scalar_hex(v)) for k, v in nc.model_dump().items()))
+
+    def class_pairs_fields(pairs):
+        return tuple(
+            (
+                key,
+                tuple(sorted((k, _scalar_hex(v)) for k, v in value.items())),
+            )
+            for key, value in sorted(pairs.items())
         )
-    )
-    pairs = tuple(
-        sorted(
-            (key, tuple(sorted((k, _scalar_hex(v)) for k, v in value.items())))
-            for key, value in result.class_pairs.items()
+
+    def via_template_fields(vt):
+        return (
+            vt.name,
+            vt.rows,
+            vt.cols,
+            _scalar_hex(vt.via_diameter_mm),
+            _scalar_hex(vt.via_drill_mm),
+            _scalar_hex(vt.pitch_mm),
         )
+
+    return (
+        _scalar_hex(dr.default_trace_width),
+        _scalar_hex(dr.default_clearance),
+        _scalar_hex(dr.default_via_diameter),
+        _scalar_hex(dr.default_via_drill),
+        tuple(sorted((name, net_class_fields(nc)) for name, nc in dr.net_classes.items())),
+        tuple(sorted(dr.net_overrides.items())),
+        tuple(sorted(dr.net_class_assignments.items())),
+        tuple(dr.differential_pairs),
+        tuple(dr.bus_cohorts),
+        tuple(sorted(dr.net_topologies.items())),
+        tuple(sorted((name, via_template_fields(vt)) for name, vt in dr.via_templates.items())),
+        class_pairs_fields(result.class_pairs),
     )
-    return (_scalar_hex(dr.default_clearance), classes, pairs)
 
 
 def _canon_loop_collection(coll: Any) -> tuple[Any, ...]:
-    """Deterministic fingerprint of a loaded loop collection."""
+    """Deterministic fingerprint of a loaded loop collection — every
+    constructor field of every loop plus the collection fields, mirroring
+    the differential's ``_loop_fields``/``_collection_fields`` so a mutation
+    confined to an omitted field cannot pass the inline parity sanity."""
     loops = tuple(
         sorted(
             (
                 loop.name,
-                loop.loop_type.value,
-                None if loop.max_area_mm2 is None else float(loop.max_area_mm2).hex(),
-                loop.priority.value,
-                tuple((p.component_ref, p.pin_name, p.net_name) for p in loop.pins),
+                (loop.loop_type.name, loop.loop_type.value),
+                loop.description,
+                tuple(
+                    (p.component_ref, p.pin_name, p.net_name, type(p.net_name).__name__)
+                    for p in loop.pins
+                ),
+                tuple(loop.components),
+                tuple(loop.nets),
+                _scalar_hex(loop.max_area_mm2),
+                (loop.priority.name, loop.priority.value),
+                _event_fields(loop.events),
+                loop.return_layer,
+                loop.return_net,
+                loop.source,
+                None
+                if loop.get_current_area() is None
+                else _scalar_hex(loop.get_current_area()),
             )
             for loop in coll.loops
         )
     )
-    return (coll.name, loops)
+    return (coll.name, coll.description, loops)
 
 
 def bench_loaders() -> tuple[float, float]:

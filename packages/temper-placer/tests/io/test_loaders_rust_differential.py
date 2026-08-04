@@ -227,13 +227,35 @@ def _normalized_module(module_name):
     return module_name
 
 
+def _cause_key(exc):
+    """Canonical key for ``__cause__``: ``None`` when absent, else
+    ``(class name, str(cause))``.
+
+    Both sides reproduce ``raise ... from e`` on the wrap paths (``PyErr::
+    set_cause`` on the Rust side); the differential asserts they agree on
+    presence, type and message. ``__context__`` is deliberately NOT compared:
+    the oracle raises from inside an ``except`` block, so CPython records the
+    active exception there, while the Rust side constructs the error with no
+    active exception state (``__context__`` is ``None``). Traceback output is
+    identical either way — with ``__cause__`` set, ``__context__`` is never
+    rendered — and the divergence is documented in VERIFICATION.md.
+    """
+    cause = exc.__cause__
+    if cause is None:
+        return None
+    return (type(cause).__name__, str(cause))
+
+
 def _raised(fn, *args, **kwargs):
     """Run ``fn`` and canonicalize whatever it raises.
 
-    Returns ``("ok", None, None, None)`` on success, else
-    ``("raised", <exception class name>, <__module__>, <str(exc)>)``.
-    Class *identity* is deliberately not compared: the two sides define
-    their own ``LoopLoadError`` (see the module docstring).
+    Returns ``("ok", None, None, None, None, None)`` on success, else
+    ``("raised", <exception class name>, <__module__>, <str(exc)>,
+    <cause key>, <__suppress_context__>)``. Class *identity* is deliberately
+    not compared: the two sides define their own ``LoopLoadError`` (see the
+    module docstring). ``__cause__`` presence/type/message and
+    ``__suppress_context__`` ARE compared (both sides reproduce
+    ``raise ... from e``).
     """
     try:
         fn(*args, **kwargs)
@@ -243,8 +265,10 @@ def _raised(fn, *args, **kwargs):
             type(exc).__name__,
             _normalized_module(type(exc).__module__),
             str(exc),
+            _cause_key(exc),
+            bool(exc.__suppress_context__),
         )
-    return ("ok", None, None, None)
+    return ("ok", None, None, None, None, None)
 
 
 # ---------------------------------------------------------------------------
@@ -299,6 +323,48 @@ def test_netclass_result_is_the_rust_wrapper_type():
     assert isinstance(rust, RUST_NETCLASS_RULES_DICT)
     assert hasattr(rust, "design_rules")
     assert hasattr(rust, "class_pairs")
+
+
+def test_netclass_rules_dict_identity_and_module():
+    """``NetClassRulesDict`` reports the pre-migration ``__module__`` so
+    pickling by reference, ``repr(cls)`` and tracebacks read unchanged
+    (mirrors ``test_loop_load_error_identity_and_module`` for
+    ``LoopLoadError``)."""
+    assert RUST_NETCLASS_RULES_DICT.__name__ == "NetClassRulesDict"
+    assert RUST_NETCLASS_RULES_DICT.__module__ == "temper_placer.io.netclass_loader"
+
+
+def test_netclass_rules_dict_pickles_and_shallow_copies_like_the_dataclass():
+    """P1 pinning: the restored ``__module__`` makes the class picklable by
+    reference, and ``copy.copy`` of a loaded result shallow-copies with both
+    fields shared — matching the pre-migration dataclass on both counts
+    (this is what the review verified breaking while ``__module__`` was
+    ``'builtins'``)."""
+    import copy
+    import pickle
+
+    from temper_placer.io.netclass_loader import NetClassRulesDict as ShimNCRD
+
+    # Class pickles by reference through the importable module (the broken
+    # behaviour was PicklingError: attribute lookup NetClassRulesDict on
+    # builtins failed).
+    assert pickle.loads(pickle.dumps(ShimNCRD)) is ShimNCRD
+
+    # Shallow copy: same-object fields, equal result — the dataclass behaves
+    # identically (asserted against the oracle right below).
+    rust = RUST_LOAD_NETCLASS(_NETCLASS_YAML)
+    copied = copy.copy(rust)
+    assert copied is not rust
+    assert copied.design_rules is rust.design_rules
+    assert copied.class_pairs is rust.class_pairs
+    assert copied == rust
+
+    py = _netclass_oracle.load_netclass_rules(_NETCLASS_YAML)
+    py_copied = copy.copy(py)
+    assert py_copied is not py
+    assert py_copied.design_rules is py.design_rules
+    assert py_copied.class_pairs is py.class_pairs
+    assert py_copied == py
 
 
 _NETCLASS_CASES = {
@@ -814,12 +880,16 @@ def test_load_loop_collection_pattern_type_message_divergence_pinned():
         "TypeError",
         "builtins",
         "expected str, bytes or os.PathLike object, not int",
+        None,
+        False,
     )
     assert rust == (
         "raised",
         "TypeError",
         "builtins",
         "'int' object is not an instance of 'str'",
+        None,
+        False,
     )
     assert py[3] != rust[3]
 

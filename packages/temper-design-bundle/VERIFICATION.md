@@ -876,10 +876,54 @@ the failure path.
   class, or comparing it by identity against a separately-imported copy,
   would observe the change. Verified 2026-08-04 that no consumer in `src/`,
   `tests/` or `scripts/` does either.
+- **`__context__` is not set on the wrap paths.** `raise ... from e` on the
+  oracle is executed from inside an `except` block, so CPython additionally
+  records the exception being handled as `__context__` (the same object as
+  `__cause__`). The Rust loader constructs the new error with no active
+  exception state, so `__context__` is `None`. Traceback output is identical
+  either way — with `__cause__` set, `__context__` is never rendered — and
+  the differential compares `__cause__` presence/type/message and
+  `__suppress_context__` (both sides reproduce `raise ... from e` on all
+  four wrap paths: KeyError, Invalid-YAML, Failed-to-load-collection,
+  duplicate-name) but deliberately not `__context__`. Pinned by the extended
+  `_raised()` comparator in the differential.
 - **`NetClassRulesDict` is a pyclass, not a dataclass.** Attribute surface,
   mutability, `__eq__` and `__repr__` are preserved;
   `dataclasses.fields()` / `dataclasses.asdict()` / `dataclasses.replace()`
-  no longer apply. No consumer uses them (verified 2026-08-04).
+  no longer apply. No consumer uses them (verified 2026-08-04). Its
+  `__module__` is restored to `temper_placer.io.netclass_loader` at
+  registration (like `LoopLoadError`), so the class pickles by reference and
+  `repr(cls)` reads unchanged; and an explicit `__copy__` keeps
+  `copy.copy(result)` shallow-copying with both fields shared, exactly like
+  the dataclass. Pickling an *instance* still fails with `TypeError` — the
+  held `DesignRules` is itself a pyclass with no pickle support — but the
+  pre-migration dataclass fails identically on the same field, so this is
+  parity, not a regression. Pinned by
+  `test_netclass_rules_dict_identity_and_module` and
+  `test_netclass_rules_dict_pickles_and_shallow_copies_like_the_dataclass`.
+- **`inspect.signature` degrades to pyo3's `__text_signature__`.**
+  `inspect.signature(load_loop_from_dict)` / `(load_loop_collection)` now
+  returns `(data, source=Ellipsis)`-style signatures with no annotations and
+  no literal defaults, where the pre-migration Python functions carried full
+  annotations and literal defaults. This is an inherent property of the pyo3
+  boundary (`__text_signature__` is a plain-text approximation) and is NOT
+  fixable without keeping a Python wrapper around every function — which
+  would defeat the migration. Verified 2026-08-04 that no consumer in
+  `src/`, `tests/` or `scripts/` calls `inspect.signature` /
+  `inspect.getfullargspec` on any of the four loaders (every caller —
+  the in-repo consumers, the differential and the PBT suites — drives them
+  with concrete positional/keyword arguments). Any future
+  tooling that introspects signatures on these functions must read the
+  pyo3 `__text_signature__` and treat annotations as unavailable.
+- **Traceback frame provenance moves to the extension.** Loader errors now
+  originate at the pyo3 boundary, so `__traceback__` frames name the
+  compiled `temper_design_bundle_python` extension rather than
+  `loop_loader.py` / `netclass_loader.py` line numbers. Traceback TEXT
+  (exception type, message, cause chain) is unchanged; only the
+  frame-filename/line attributes differ. Any CI log greps that match on the
+  pre-migration `.py` frame filenames will stop matching and must grep on
+  the error text or exception type instead. This is inherent to a compiled
+  extension and not fixable at this boundary.
 - **Argument-type-check precedence and message.** `source`, `name` and
   `description` are typed `String` at the pyo3 boundary, so a non-`str`
   argument raises `TypeError` with the identical pyo3 message
@@ -917,7 +961,7 @@ the failure path.
 ## Evidence
 
 - **Differential (R1a / R1f, TDD red → green):**
-  `packages/temper-placer/tests/io/test_loaders_rust_differential.py` — 169
+  `packages/temper-placer/tests/io/test_loaders_rust_differential.py` — 171
   tests against the verbatim oracles `_netclass_loader_py_oracle.py` /
   `_loop_loader_py_oracle.py` (commit `e90991a2a`). Coverage: the shipped
   `configs/netclass_rules.yaml` field-for-field, 10 crafted netclass

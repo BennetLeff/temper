@@ -127,9 +127,21 @@ _CLEARANCE = st.floats(min_value=0.0, max_value=50.0, allow_nan=False, allow_inf
 # two implementations agreeing on such input. The round-trip relations below
 # are therefore bounded to text without those characters, which is the
 # honest statement of what round-trip parity can claim.
+#
+# Lone surrogates (Unicode category Cs) are excluded for the same reason:
+# they cannot survive the format either — ``yaml.dump`` cannot encode them
+# when writing, and the Rust ``Loop`` pyclass's ``String`` fields raise
+# ``UnicodeEncodeError`` at the pyo3 boundary when extracting them (a Phase-2
+# boundary property, pre-existing and unrelated to the loaders migration).
+# ``st.characters()`` in current Hypothesis does NOT exclude Cs by default,
+# so it must be blacklisted explicitly or the round-trip properties
+# occasionally draw a surrogate and fail on input the format cannot hold.
 _YAML_LINE_BREAKS = "\n\r\x85\u2028\u2029"
 _TEXT = st.text(
-    alphabet=st.characters(blacklist_characters=_YAML_LINE_BREAKS),
+    alphabet=st.characters(
+        blacklist_categories=("Cs",),
+        blacklist_characters=_YAML_LINE_BREAKS,
+    ),
     max_size=16,
 )
 
@@ -612,7 +624,16 @@ def test_l4_save_load_round_trip_is_bit_exact(data, tmp_path_factory):
     loop_type=st.sampled_from(_LOOP_TYPE_VALUES),
 )
 def test_l5_collection_assembly_is_complete_and_sorted(names, loop_type, tmp_path_factory):
-    """L5: N templates -> exactly those N loops, ordered by sorted filename."""
+    """L5: N templates -> exactly those N loops, ordered by sorted filename.
+
+    The property's documented bound is "N **uniquely-named** templates". On a
+    case-insensitive filesystem (macOS APFS, the default for this repo's dev
+    machines) names that differ only by case are NOT unique FILE names —
+    ``E.yaml`` and ``e.yaml`` collapse to one directory entry — so such lists
+    are excluded here; the loaders' traversal is ``sorted(directory.glob(
+    pattern))`` and cannot conjure a file the filesystem does not store.
+    """
+    assume(len({n.lower() for n in names}) == len(names))
     directory = tmp_path_factory.mktemp("l5")
     for name in names:
         _write_yaml(directory / f"{name}.yaml", {"name": name, "loop_type": loop_type})
