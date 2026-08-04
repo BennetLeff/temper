@@ -150,6 +150,7 @@ mod repr_helper_tests {
 // (e.g. `VIOLATIONS`) — the pyo3 attribute access contract.
 #[allow(non_camel_case_types)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
+#[allow(clippy::upper_case_acronyms)] // variant names are the Python API surface
 pub enum GateStatus {
     CLEAN,
     VIOLATIONS,
@@ -160,6 +161,7 @@ pub enum GateStatus {
 #[pyclass(frozen, eq, hash, from_py_object)]
 #[allow(non_camel_case_types)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
+#[allow(clippy::upper_case_acronyms)] // variant names are the Python API surface
 pub enum GateStage {
     PLACEMENT,
     ROUTING,
@@ -169,6 +171,7 @@ pub enum GateStage {
 #[pyclass(frozen, eq, hash, from_py_object)]
 #[allow(non_camel_case_types)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
+#[allow(clippy::upper_case_acronyms)] // variant names are the Python API surface
 pub enum ViolationType {
     CLEARANCE,
     UNROUTED,
@@ -356,6 +359,10 @@ impl Violation {
         description="",
         context=None,
     ))]
+    // Argument count mirrors the Python dataclass this pyclass replaces; it is
+    // fixed by the contract, not a design choice (same rationale as
+    // design_rules.rs's constructor).
+    #[allow(clippy::too_many_arguments)]
     fn new(
         py: Python<'_>,
         r#type: &Bound<'_, PyAny>,

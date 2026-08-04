@@ -133,6 +133,7 @@ mod py_repr_tests {
 // Variant names intentionally mirror the Python IntEnum member identifiers.
 #[allow(non_camel_case_types)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
+#[allow(clippy::upper_case_acronyms)] // variant names are the Python API surface
 pub enum PlacementPriority {
     POWER = 1,
     DRIVER = 2,
@@ -146,6 +147,7 @@ pub enum PlacementPriority {
 #[pyclass(frozen, eq, hash, from_py_object)]
 #[allow(non_camel_case_types)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
+#[allow(clippy::upper_case_acronyms)] // variant names are the Python API surface
 pub enum RoutingPriority {
     POWER = 1,
     GATE_DRIVE = 2,
@@ -360,6 +362,10 @@ impl PlacementPhaseConfig {
         max_distance_mm=20.0,
         zone=None,
     ))]
+    // Argument count mirrors the Python dataclass this pyclass replaces; it is
+    // fixed by the contract, not a design choice (same rationale as
+    // design_rules.rs's constructor).
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         name: String,
         priority: PlacementPriority,
@@ -515,7 +521,7 @@ impl RoutingPhaseConfig {
             py_float_str(self.via_cost),
             if self.allow_layer_change { "True" } else { "False" },
             self.max_length_mm
-                .map_or_else(|| "None".to_string(), |m| py_float_str(m)),
+                .map_or_else(|| "None".to_string(), py_float_str),
         )
     }
 }

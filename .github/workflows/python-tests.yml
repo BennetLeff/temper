@@ -661,9 +661,9 @@ jobs:
             # knows about (same special-case as the Makefile's `extensions` target).
             if [ "$manifest" = "packages/temper-placer/temper-constraints/Cargo.toml" ]; then
               PYO3_USE_ABI3_FORWARD_COMPATIBILITY=1 \
-                cargo clippy --manifest-path "$manifest" --all-targets -- -D warnings
+                cargo clippy --manifest-path "$manifest" --all-features --all-targets -- -D warnings
             else
-              cargo clippy --manifest-path "$manifest" --all-targets -- -D warnings
+              cargo clippy --manifest-path "$manifest" --all-features --all-targets -- -D warnings
             fi
           done
 

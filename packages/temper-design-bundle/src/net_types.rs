@@ -103,6 +103,7 @@ mod py_float_str_tests {
 // (e.g. `HIGH_VOLTAGE`, `MAINS_240V`) — the pyo3 attribute access contract.
 #[allow(non_camel_case_types)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
+#[allow(clippy::upper_case_acronyms)] // variant names are the Python API surface
 pub enum NetType {
     GROUND = 1,
     POWER = 2,
@@ -116,6 +117,7 @@ pub enum NetType {
 #[pyclass(frozen, eq, hash, from_py_object)]
 #[allow(non_camel_case_types)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
+#[allow(clippy::upper_case_acronyms)] // variant names are the Python API surface
 pub enum ConnectivityStrategy {
     PLANE = 1,
     COPPER_POUR = 2,
@@ -129,6 +131,7 @@ pub enum ConnectivityStrategy {
 #[pyclass(frozen, eq, hash, from_py_object)]
 #[allow(non_camel_case_types)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
+#[allow(clippy::upper_case_acronyms)] // variant names are the Python API surface
 pub enum VoltageClass {
     SELV = 1,
     LOW_VOLTAGE = 2,
@@ -309,6 +312,10 @@ impl NetTypeSpec {
         allow_layer_change=true,
         prefer_short_stubs=false,
     ))]
+    // Argument count mirrors the Python dataclass this pyclass replaces; it is
+    // fixed by the contract, not a design choice (same rationale as
+    // design_rules.rs's constructor).
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         py: Python<'_>,
         net_type: NetType,
@@ -704,7 +711,7 @@ impl NetClassification {
             let class_name: String = class_name_obj.extract()?;
             let rule: Option<Bound<'_, PyDict>> =
                 match net_class_rules.get_item(class_name.as_str())? {
-                    Some(value) => value.cast::<PyDict>().ok().map(Bound::clone),
+                    Some(value) => value.cast::<PyDict>().ok().cloned(),
                     None => None,
                 };
 
