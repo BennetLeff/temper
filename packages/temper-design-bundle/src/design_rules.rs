@@ -527,6 +527,30 @@ impl DesignRules {
         self.default_trace_width = value;
     }
 
+    // `_mm`-suffixed aliases for the four scalar defaults: a large swath of
+    // the router_v6 pre-migration call sites (`_astar_reconstruct.py`,
+    // `stage0_data.py::validate_placement`, `_pipeline_route.py`,
+    // `occupancy_grid.py`, `capacity_check.py`, `_pipeline_grid.py`,
+    // `layer_capacity.py`, `_pipeline_verify.py`) read/write the `_mm` name
+    // on whatever object `ParsedPCB.design_rules` holds. In production that
+    // is this pyclass; in unit tests that construct `stage0_data.DesignRules`
+    // directly it is the legacy (already-`_mm`) dataclass. The constructor
+    // and canonical getters/setters above keep the non-`_mm` names (the
+    // pre-migration oracle's contract -- see
+    // `tests/core/_design_rules_py_oracle.py`); these aliases close the
+    // asymmetry on the read/write side instead of touching a dozen call
+    // sites, without changing what the four scalars mean or how they are
+    // constructed.
+    #[getter]
+    fn default_trace_width_mm(&self) -> f64 {
+        self.default_trace_width
+    }
+
+    #[setter]
+    fn set_default_trace_width_mm(&mut self, value: f64) {
+        self.default_trace_width = value;
+    }
+
     #[getter]
     fn default_clearance(&self) -> f64 {
         self.default_clearance
@@ -534,6 +558,16 @@ impl DesignRules {
 
     #[setter]
     fn set_default_clearance(&mut self, value: f64) {
+        self.default_clearance = value;
+    }
+
+    #[getter]
+    fn default_clearance_mm(&self) -> f64 {
+        self.default_clearance
+    }
+
+    #[setter]
+    fn set_default_clearance_mm(&mut self, value: f64) {
         self.default_clearance = value;
     }
 
@@ -548,12 +582,32 @@ impl DesignRules {
     }
 
     #[getter]
+    fn default_via_diameter_mm(&self) -> f64 {
+        self.default_via_diameter
+    }
+
+    #[setter]
+    fn set_default_via_diameter_mm(&mut self, value: f64) {
+        self.default_via_diameter = value;
+    }
+
+    #[getter]
     fn default_via_drill(&self) -> f64 {
         self.default_via_drill
     }
 
     #[setter]
     fn set_default_via_drill(&mut self, value: f64) {
+        self.default_via_drill = value;
+    }
+
+    #[getter]
+    fn default_via_drill_mm(&self) -> f64 {
+        self.default_via_drill
+    }
+
+    #[setter]
+    fn set_default_via_drill_mm(&mut self, value: f64) {
         self.default_via_drill = value;
     }
 

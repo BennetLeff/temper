@@ -314,8 +314,8 @@ def _extract_design_rules(
     return DesignRules(
         net_classes=net_classes,
         net_class_assignments=net_class_assignments,
-        default_clearance_mm=default_clearance,
-        default_trace_width_mm=default_trace_width,
-        default_via_diameter_mm=default_via_diameter,
-        default_via_drill_mm=default_via_drill,
+        default_clearance=default_clearance,
+        default_trace_width=default_trace_width,
+        default_via_diameter=default_via_diameter,
+        default_via_drill=default_via_drill,
     )
