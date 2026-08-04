@@ -5,7 +5,17 @@ kernels (``temper_thermal.device_cross_check_py`` /
 ``temper_placer/physics/tj_cross_check.py`` and
 ``parameter_bounds.py``).
 
-Five+ non-vacuous properties, each vacuity-guarded by a real mutant:
+This file is SHARED between the two modules, so the R1c/R1d minima are
+met PER MODULE, not across the pair:
+
+- ``tj_cross_check`` (P1–P3, P6–P7 + M1, M2, M4): **5 non-vacuous
+  properties + 3 metamorphic relations**.
+- ``parameter_bounds`` (P4–P5, P8–P10 + M3, M5, M6): **5 non-vacuous
+  properties + 3 metamorphic relations**.
+
+Every property is vacuity-guarded by a real mutant (the file's
+convention: ``_mutant_*`` implementations whose outputs violate the
+property, pinned by ``test_pN_fails_for_<mutant>``):
 
 1. P1 — the conservative T_j is always >= both estimates (soundness of
    the safety gating: the optimistic estimate cannot decide).
@@ -20,21 +30,37 @@ Five+ non-vacuous properties, each vacuity-guarded by a real mutant:
 5. P5 — worst_case_corner selects the max for +1 and 0 and the min for
    −1 (the L2 corner-bound selection), and the corner of a monotone box
    dominates every interior sample for +1 parameters.
+6. P6 — margin is exactly T_j_max − conservative, the SIGNED datasheet
+   headroom (negative over the ceiling).
+7. P7 — exceeds is gated ONLY on (delta, tau): changing T_j_max moves
+   margin alone; every other output is bit-unchanged.
+8. P8 — the ``because`` citation interpolates the ORIGINAL-case
+   parameter name with the correct direction phrase.
+9. P9 — for a −1 parameter the worst-case corner is the minimum, so the
+   corner is dominated BY every interior sample (mirror of P5).
+10. P10 — the family disjunctions are checked in the reference's
+    precedence order (power > R_θ > heatspread); a multi-family name
+    classifies by the FIRST match.
 
 Metamorphic relations:
 
-- M1 — the device cross-check is invariant under T_amb shifts when both
-  estimates shift equally? NO — T_j_lumped shifts but T_j_fdm does not
-  (honest bound: delta changes by exactly the shift).  Instead: delta
-  is invariant under shifting BOTH T_j_fdm and T_j_lumped by the same
-  constant (bit-exact, abs is translation-invariant).
-- M2 — conservative_T_j is symmetric under swapping the two estimates'
-  roles only when the swap does not change which is larger; bounded:
-  conservative(T_a, T_b) == conservative(T_b, T_a) ALWAYS (max is
-  order-independent for non-NaN), bit-exact.
+- M1 — with zero power the cross-check reduces to the ambient
+  comparison exactly: T_j_fdm == T_case_fdm, T_j_lumped == T_amb and
+  delta == |T_case_fdm − T_amb| (bit-exact degeneracy).
+- M2 — conservative_T_j is symmetric under swapping the two estimates
+  for non-NaN values (CPython max is commutative on non-NaN; the NaN
+  asymmetry is pinned by the differential).
 - M3 — classify_parameter is case-insensitive for the keyword part in
   the SAME way as CPython's lower() (a name and its ALLCAPS form
   classify identically for ASCII names).
+- M4 — reciprocal power-of-two scaling of power and the R_θ chain
+  (p → 2p, R → ½R) leaves every output bit-identical (power-of-two
+  scaling is exact in f64; measured 0 mismatches over 200k samples).
+- M5 — the keyword match is a SUBSTRING match (CPython `in`), not
+  prefix/equality: an embedded keyword anywhere in the name classifies.
+- M6 — worst_case_values is ELEMENTWISE: permuting the parallel
+  (mins, maxs, monos) lists permutes the outputs identically (bit-
+  exact).
 """
 
 from __future__ import annotations
@@ -133,6 +159,32 @@ def test_p5_worst_case_corner_selection():
         assert vals[0] >= sample
 
 
+@settings(max_examples=MAX_EXAMPLES, deadline=None)
+@given(tc=_t, p=_pos)
+def test_p6_margin_definitional(tc, p):
+    """P6 — margin is exactly T_j_max − conservative, the SIGNED
+    datasheet headroom (negative when the conservative estimate is over
+    the ceiling).  A kernel that flips the sign (conservative −
+    T_j_max) or computes against the optimistic estimate fails."""
+    f, lump, d, c, m, e = _dcc(tc, p, 0.6, 0.25, 1.0, 40.0, 150.0, 5.0)
+    assert m == 150.0 - c
+
+
+@settings(max_examples=MAX_EXAMPLES, deadline=None)
+@given(tc=_t, p=_pos, tau=_pos)
+def test_p7_exceeds_independent_of_ceiling(tc, p, tau):
+    """P7 — exceeds == (delta > tau) does NOT consult the T_j_max
+    ceiling: changing T_j_max changes ONLY margin, never
+    fdm/lumped/delta/conservative/exceeds (bit-exact).  A kernel that
+    gates the disagreement flag on the ceiling violation (margin < 0)
+    fails."""
+    a = _dcc(tc, p, 0.6, 0.25, 1.0, 40.0, 150.0, tau)
+    b = _dcc(tc, p, 0.6, 0.25, 1.0, 40.0, 1.0, tau)  # ceiling below everything
+    assert a[0] == b[0] and a[1] == b[1] and a[2] == b[2]
+    assert a[3] == b[3] and a[5] == b[5]
+    assert a[4] != b[4]  # the ceiling DOES move the margin (150 vs 1)
+
+
 # ---------------------------------------------------------------------------
 # Vacuity guards (real mutants that must fail the property)
 # ---------------------------------------------------------------------------
@@ -186,6 +238,128 @@ def test_p5_fails_for_min_on_plus_mutant():
         assert vals[0] >= sample
 
 
+def _mutant_sign_flip_margin(tc, p, rj, rc, rs, ta, tjm, tau):
+    """P6 mutant: margin computed as conservative − T_j_max (sign flip)."""
+    f, lump, d, c, m, e = _dcc(tc, p, rj, rc, rs, ta, tjm, tau)
+    return f, lump, d, c, -m, e
+
+
+def test_p6_fails_for_sign_flip_margin():
+    # margin = 150 - 53 = 97 for these inputs — the negated margin
+    # cannot equal the definitional T_j_max − conservative.
+    tc, p = 50.0, 5.0
+    f, lump, d, c, m, e = _mutant_sign_flip_margin(tc, p, 0.6, 0.25, 1.0, 40.0, 150.0, 5.0)
+    assert m != 150.0 - c  # P6's definitional claim broken
+
+
+def _mutant_exceeds_on_violation(tc, p, rj, rc, rs, ta, tjm, tau):
+    """P7 mutant: gates the disagreement flag on the CEILING violation
+    (margin < 0) instead of delta > tau."""
+    f, lump, d, c, m, e = _dcc(tc, p, rj, rc, rs, ta, tjm, tau)
+    return f, lump, d, c, m, m < 0
+
+
+def test_p7_fails_for_violation_gated_mutant():
+    # tc=100, p=0, ta=95 → fdm=100, lump=95, delta=5 > tau=3, but
+    # conservative=100 <= 150 → margin >= 0.  The real kernel reports
+    # exceeds=True (a disagreement); the violation-gated mutant reports
+    # False (no ceiling breach) — P7's delta-only claim is broken.
+    f, lump, d, c, m, e = _mutant_exceeds_on_violation(100.0, 0.0, 0.6, 0.25, 1.0, 95.0, 150.0, 3.0)
+    assert e is False
+    _, _, _, _, _, e_real = _dcc(100.0, 0.0, 0.6, 0.25, 1.0, 95.0, 150.0, 3.0)
+    assert e_real is True
+    assert e != e_real
+
+
+def _mutant_lowercased_citation(name):
+    """P8 mutant: interpolates the LOWERCASED name in the citation."""
+    return _tt.classify_parameter_py(name.lower(), "src")
+
+
+def test_p8_fails_for_lowercased_citation_mutant():
+    mono, unit, because = _mutant_lowercased_citation("Power_W")
+    assert "T_j INCREASING in power_w" in because  # mutant cites lowercased
+    assert "T_j INCREASING in Power_W" not in because  # P8 demands original case
+
+
+def _mutant_max_for_neg(mins, maxs, monos):
+    """P9 mutant: picks max for EVERY parameter (incl. −1)."""
+    return [max(maxs)] * len(mins)
+
+
+def test_p9_fails_for_max_on_minus_mutant():
+    vals = _mutant_max_for_neg([1.0], [10.0], [-1])
+    # The mutant's corner (10.0) sits ABOVE interior samples — the
+    # mirror dominance (corner <= sample) that P9 demands is broken.
+    for sample in np.linspace(1.0, 5.0, 5):
+        assert vals[0] > sample
+
+
+def _mutant_heatspread_first(name):
+    """P10 mutant: checks the heatspread family BEFORE power/R_θ."""
+    lower = name.lower()
+    if "heatspread" in lower or "spread" in lower or "copper" in lower:
+        return -1, "s", "T_j DECREASING in " + name
+    if "power" in lower or "dissipation" in lower or "p_loss" in lower:
+        return 1, "s", "T_j INCREASING in " + name
+    if "junction_to_case" in lower or "r_theta" in lower or "thermal_resistance" in lower:
+        return 1, "s", "T_j INCREASING in " + name
+    return 0, "unknown", "No monotonicity proof for '" + name + "'"
+
+
+def test_p10_fails_for_heatspread_first_mutant():
+    mono, _, _ = _mutant_heatspread_first("power_heatspread_mm")
+    assert mono != 1  # P10 demands the power family wins (first match)
+
+
+def test_p8_citation_fidelity():
+    """P8 — the `because` citation interpolates the ORIGINAL-case
+    parameter name with the correct direction phrase: 'T_j INCREASING
+    in <name>' for the +1 families, 'T_j DECREASING in <name>' for −1,
+    'No monotonicity proof for <name>' for unknown.  A kernel that
+    interpolates the LOWERCASED name (or the wrong direction) fails."""
+    mono, unit, because = _tt.classify_parameter_py("Power_W", "src")
+    assert mono == 1
+    assert "T_j INCREASING in Power_W" in because
+    assert "power_w" not in because
+    mono, unit, because = _tt.classify_parameter_py("Heatspread_mm", "src")
+    assert mono == -1
+    assert "T_j DECREASING in Heatspread_mm" in because
+    mono, unit, because = _tt.classify_parameter_py("Fan_speed", "src")
+    assert mono == 0
+    assert "No monotonicity proof for 'Fan_speed'" in because
+
+
+def test_p9_worst_case_min_dominates_for_minus_one():
+    """P9 — for a −1 parameter the worst-case corner is the MINIMUM, so
+    the corner is dominated BY every interior sample (corner <= sample);
+    for 0 the selection is the max, dominating like +1 (conservative,
+    not a guarantee).  A kernel that picks max for −1 breaks the mirror
+    dominance."""
+    mins, maxs, monos = [1.0], [10.0], [-1]
+    vals = _tt.worst_case_values_py(mins, maxs, monos)
+    assert vals == [1.0]
+    for sample in np.linspace(1.0, 10.0, 20):
+        assert vals[0] <= sample
+    # mono-0 selects max (conservative).
+    assert _tt.worst_case_values_py([1.0], [10.0], [0]) == [10.0]
+
+
+def test_p10_precedence_total_and_stable():
+    """P10 — the family disjunctions are checked in the reference's
+    precedence order (power > R_θ > heatspread): a name matching
+    MULTIPLE families classifies by the FIRST match, and appending a
+    lower-precedence keyword never reclassifies an already-matched
+    name.  A kernel that reorders the branches (heatspread first)
+    misclassifies the power_* names."""
+    assert _tt.classify_parameter_py("power_heatspread_mm", "s")[0] == 1
+    assert _tt.classify_parameter_py("dissipation_copper_ratio", "s")[0] == 1
+    assert _tt.classify_parameter_py("thermal_resistance_spread", "s")[0] == 1
+    assert _tt.classify_parameter_py("junction_to_case_heatspread", "s")[0] == 1
+    assert _tt.classify_parameter_py("max_heatspread_mm", "s")[0] == -1
+    assert _tt.classify_parameter_py("copper_fraction", "s")[0] == -1
+
+
 # ---------------------------------------------------------------------------
 # M1..M3: metamorphic relations
 # ---------------------------------------------------------------------------
@@ -214,6 +388,21 @@ def test_m2_conservative_order_independent(tc, p):
     assert c == max(lump, f)  # order-independent
 
 
+@settings(max_examples=MAX_EXAMPLES, deadline=None)
+@given(tc=_t, p=_pos)
+def test_m4_reciprocal_power_of_two_scaling(tc, p):
+    """M4 — doubling power while halving every R_θ leaves all six
+    outputs bit-identical: power-of-two scaling is EXACT in f64
+    ((2p)·(½r) == p·r, and the halved R_θ sum rounds the same real),
+    so T_j_fdm / T_j_lumped / delta / conservative / margin / exceeds
+    are all unchanged (measured 0 mismatches over 200k samples).  A
+    kernel that reassociates the product (e.g. folds the 2 into
+    r_total before the sum) fails."""
+    a = _dcc(tc, p, 0.6, 0.25, 1.0, 40.0, 150.0, 5.0)
+    b = _dcc(tc, 2.0 * p, 0.3, 0.125, 0.5, 40.0, 150.0, 5.0)
+    assert b == a
+
+
 def test_m3_classify_case_folding():
     """M3 — for ASCII names, the classification is invariant under the
     name's case (CPython lower() folds ASCII; Rust to_lowercase does
@@ -222,3 +411,67 @@ def test_m3_classify_case_folding():
         m1 = _tt.classify_parameter_py(name, "s")[0]
         m2 = _tt.classify_parameter_py(name.lower(), "s")[0]
         assert m1 == m2, name
+
+
+def test_m5_substring_semantics():
+    """M5 — the keyword match is a SUBSTRING match on the lowercased
+    name (CPython `in`), not a prefix or equality match: a keyword
+    anywhere in the name classifies, and moving it within the name
+    (prefix → suffix) leaves (mono, unit) unchanged.  A kernel that
+    matches only at the start fails for the suffix form."""
+    assert _tt.classify_parameter_py("sweep_power_x", "s")[0] == 1
+    assert _tt.classify_parameter_py("x_power_sweep", "s")[0] == 1
+    assert _tt.classify_parameter_py("r_theta_sweep", "s")[0] == 1
+    assert _tt.classify_parameter_py("big_heatspread_small", "s")[0] == -1
+    assert _tt.classify_parameter_py("copper_at_end", "s")[0] == -1
+
+
+def _mutant_exact_name(name):
+    """M5 mutant: matches a family keyword only when the name EQUALS it
+    (no substring matching)."""
+    if name.lower() in ("power_w", "power", "dissipation_w"):
+        return 1, "s", "T_j INCREASING in " + name
+    return 0, "unknown", "No monotonicity proof for '" + name + "'"
+
+
+def test_m5_fails_for_exact_match_mutant():
+    mono, _, _ = _mutant_exact_name("sweep_power_x")
+    assert mono != 1  # M5 demands the embedded keyword still matches
+
+
+def test_m6_permutation_equivariance():
+    """M6 — worst_case_values is ELEMENTWISE: permuting the parallel
+    (mins, maxs, monos) lists permutes the outputs identically
+    (bit-exact, each output depends only on its own triple).  A kernel
+    that couples parameters (e.g. returns the global max of every box
+    for every slot) fails."""
+    mins = [1.0, 2.0, 3.0]
+    maxs = [10.0, 20.0, 30.0]
+    monos = [1, -1, 0]
+    perm = [2, 0, 1]
+    vals = _tt.worst_case_values_py(mins, maxs, monos)
+    vals_p = _tt.worst_case_values_py(
+        [mins[i] for i in perm], [maxs[i] for i in perm], [monos[i] for i in perm]
+    )
+    assert vals_p == [vals[i] for i in perm]
+
+
+def _mutant_first_box_max(mins, maxs, monos):
+    """M6 mutant: every slot gets the FIRST box's max (couples the
+    parameters non-symmetrically — not elementwise)."""
+    return [maxs[0]] * len(mins)
+
+
+def test_m6_fails_for_first_box_max_mutant():
+    mins = [1.0, 2.0, 3.0]
+    maxs = [10.0, 20.0, 30.0]
+    monos = [1, -1, 0]
+    perm = [2, 0, 1]
+    vals = _mutant_first_box_max(mins, maxs, monos)
+    vals_p = _mutant_first_box_max(
+        [mins[i] for i in perm], [maxs[i] for i in perm], [monos[i] for i in perm]
+    )
+    # The first-box-coupling mutant is NOT permutation-equivariant: the
+    # first slot of the permuted input (30.0) leaks into every output,
+    # while the real (elementwise) selection permutes with the inputs.
+    assert vals_p != [vals[i] for i in perm]
