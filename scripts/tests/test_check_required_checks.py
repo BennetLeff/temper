@@ -590,3 +590,102 @@ def test_job_condition_validation_rejects_missing_outputs(tmp_path: Path) -> Non
         assert "do not match path-conditional job ids" in str(error)
     else:
         raise AssertionError("expected missing changes output to fail")
+
+
+def cross_workflow_manifest() -> Manifest:
+    """A manifest where one context is owned by a different workflow.
+
+    `PR Performance Comparison` lives in `pr-perf-check.yml`, whose path filter
+    is narrower than the aggregate's. Without `context_triggers`, any match on
+    the global list demanded it too -- and because its workflow never ran, no
+    check run was created at all.
+    """
+    return Manifest(
+        trigger_paths=("packages/**", "docs/**", "pyproject.toml"),
+        required_contexts=("Core Tests", "PR Performance Comparison"),
+        context_triggers={"PR Performance Comparison": ("benchmarks/**", "scripts/pr_perf_compare.py")},
+        timeout_seconds=30,
+        poll_interval_seconds=5,
+    )
+
+
+def test_cross_workflow_context_not_required_when_its_paths_miss() -> None:
+    # The wedge condition: a docs-only PR must not wait on a check run that
+    # GitHub will never create. Before context_triggers this returned both.
+    assert required_contexts_for_files(("docs/plans/x.md",), cross_workflow_manifest()) == (
+        "Core Tests",
+    )
+
+
+def test_cross_workflow_context_required_when_its_paths_hit() -> None:
+    assert required_contexts_for_files(
+        ("benchmarks/perf_ab.py",), cross_workflow_manifest()
+    ) == ("PR Performance Comparison",)
+
+
+def test_both_required_when_both_match() -> None:
+    assert required_contexts_for_files(
+        ("docs/plans/x.md", "scripts/pr_perf_compare.py"), cross_workflow_manifest()
+    ) == ("Core Tests", "PR Performance Comparison")
+
+
+def test_no_contexts_when_nothing_matches() -> None:
+    assert required_contexts_for_files(("README.md",), cross_workflow_manifest()) == ()
+
+
+def test_contexts_without_own_triggers_keep_global_behaviour() -> None:
+    # Regression guard: the pre-existing contract is that a context with no
+    # context_triggers entry is required whenever the global list matches.
+    assert required_contexts_for_files(("packages/a.py",), manifest()) == CONTEXTS
+
+
+def test_context_triggers_rejects_unknown_context() -> None:
+    # A typo would otherwise silently never match, quietly dropping the gate.
+    try:
+        Manifest.from_mapping(
+            {
+                "trigger_paths": ["packages/**"],
+                "required_contexts": ["Core Tests"],
+                "context_triggers": {"Core Testz": ["benchmarks/**"]},
+                "backlog_grace_seconds": 1,
+            }
+        )
+    except Exception as exc:
+        assert "not in required_contexts" in str(exc)
+    else:
+        raise AssertionError("expected an unknown-context rejection")
+
+
+def test_context_triggers_rejects_empty_paths() -> None:
+    # An empty list would make the context unreachable rather than always-required.
+    try:
+        Manifest.from_mapping(
+            {
+                "trigger_paths": ["packages/**"],
+                "required_contexts": ["Core Tests"],
+                "context_triggers": {"Core Tests": []},
+                "backlog_grace_seconds": 1,
+            }
+        )
+    except Exception as exc:
+        assert "must be a list of non-empty strings" in str(exc)
+    else:
+        raise AssertionError("expected an empty-paths rejection")
+
+
+def test_context_triggers_rejects_overlap_with_job_triggers() -> None:
+    # A context is owned by exactly one workflow; declaring both is ambiguous.
+    try:
+        Manifest.from_mapping(
+            {
+                "trigger_paths": ["packages/**"],
+                "required_contexts": ["Core Tests"],
+                "job_triggers": {"Core Tests": {"id": "test", "paths": ["packages/**"]}},
+                "context_triggers": {"Core Tests": ["benchmarks/**"]},
+                "backlog_grace_seconds": 1,
+            }
+        )
+    except Exception as exc:
+        assert "exactly one of the two" in str(exc)
+    else:
+        raise AssertionError("expected an overlap rejection")
