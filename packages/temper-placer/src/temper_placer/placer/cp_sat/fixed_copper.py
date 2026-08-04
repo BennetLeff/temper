@@ -119,12 +119,15 @@ literal is the pad's clearance of that edge's half-plane:
   is needed, because the pad is an axis-aligned rectangle and the minimum
   of a linear form over a rectangle is attained at a single corner whose
   identity is fixed by the sign of the coefficients. Coefficients
-  ``(a, b) = (dy, −dx)`` are the edge direction in *model units* (integer;
-  CP-SAT requires integer coefficients), the offset ``r`` is computed in
-  model units from the quantized vertices and rounded UP (conservative),
-  and the margin shift embeds the integer-grid headroom (the rectilinear
-  #567 path predates the headroom and is margin-only; the diagonal path is
-  the stronger, headroom-protected form — see below).
+  ``(a, b)`` are the edge direction computed at 100× the model resolution
+  (0.0001 mm — sub-0.1 mm edges keep their true slope, see the two
+  soundness bugs in the 2026-08-04 evidence doc) and scaled to integer
+  model-unit coefficients (CP-SAT requires integer coefficients); the
+  offset ``r`` is computed at the same fine scale from the quantized
+  vertices, rounded UP (conservative), and the margin shift embeds the
+  integer-grid headroom (the rectilinear #567 path predates the headroom
+  and is margin-only; the diagonal path is the stronger, headroom-
+  protected form — see below).
 
 **Convex-zone soundness (R24 item 1 — Chebyshev-style).** Let ``Z`` be the
 convex polygon, ``E_i = {n_i·p <= d_i}`` its edge half-planes with outward
