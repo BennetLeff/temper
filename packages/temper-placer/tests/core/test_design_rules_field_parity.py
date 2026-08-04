@@ -86,9 +86,9 @@ def test_temper_net_classes_answer_mm_reads() -> None:
 
 def test_rust_design_rules_pyclass_answers_mm_and_canonical_reads() -> None:
     """The Rust pyclass answers both spellings for the four scalars (#666)."""
+    pytest.importorskip("temper_design_bundle_python")
     import temper_design_bundle_python as _tdb
 
-    pytest.importorskip("temper_design_bundle_python")
     dr = _tdb.DesignRules(
         default_trace_width=0.2,
         default_clearance=0.15,
