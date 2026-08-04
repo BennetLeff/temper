@@ -20,10 +20,10 @@ record's fields are compared as typed tuples.
 from __future__ import annotations
 
 import random
+from collections import UserDict
 
 import pytest
 import temper_drc_rs as _tdrc
-from collections import UserDict
 from hypothesis import given, settings
 from hypothesis import strategies as st
 

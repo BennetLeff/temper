@@ -362,8 +362,9 @@ def test_prop4_clearance_shortage_consistency():
 
 def test_prop5_mounting_hole_geometry():
     """P5: mounting-hole issues carry distance_to_hole computed with the
-    oracle's exact ``((x-hx)**2 + (y-hy)**2) ** 0.5`` semantics (libm pow —
-    the Rust kernel uses powf(0.5) for bit parity) and shortage ==
+    oracle's exact ``((x-hx)**2 + (y-hy)**2) ** 0.5`` semantics (both `**2`
+    and `**0.5` are libm pow — the Rust kernel calls the dlsym'd host libm
+    pow via `host_math::pow`, exactly what CPython calls) and shortage ==
     min_dist − distance."""
     rng = random.Random(46)
     for _ in range(100):

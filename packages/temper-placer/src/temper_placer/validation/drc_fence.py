@@ -425,14 +425,17 @@ class MetricsSummary:
         # check_timings first-seen/last-value-wins, the erc/drc/safety/emc
         # elif-chain counts, custom-metric += accumulation) runs in the Rust
         # kernel ``temper_drc_rs.metrics_summary``; the fixed fields above
-        # are copied from the result contract as before.
+        # are copied from the result contract as before. The caller's
+        # numeric values pass through RAW (no float(...) coercion): the
+        # oracle assigns/accumulates them verbatim, so an int elapsed_ms or
+        # int metric value stays int (exact beyond 2^53).
         payload = _rs().metrics_summary(
             [
                 (
                     check_result.check_name,
-                    float(check_result.elapsed_ms),
+                    check_result.elapsed_ms,
                     [issue.category for issue in check_result.issues],
-                    [(key, float(value)) for key, value in check_result.metrics.items()],
+                    list(check_result.metrics.items()),
                 )
                 for check_result in result.check_results
             ]

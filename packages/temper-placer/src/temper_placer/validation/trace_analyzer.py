@@ -28,7 +28,12 @@ if TYPE_CHECKING:
 def calculate_actual_trace_length(board: Board, net_name: str) -> float:
     """Calculate total routed length of a specific net (Rust kernel)."""
     # Marshalling: (net, x1, y1, x2, y2) per trace — the arithmetic
-    # (dx = end - start, sqrt(dx*dx + dy*dy)) is bit-identical Rust-side.
+    # (dx = end - start, dx**2 via the dlsym'd host libm pow, exactly what
+    # CPython's `**2` calls, sqrt(dx**2 + dy**2)) is bit-identical
+    # Rust-side.
+    # `net` is `str | None` per the Trace contract; None-net traces marshal
+    # as None and are skipped by the kernel (None never equals a str
+    # net_name), matching the oracle's `if trace.net == net_name` skip.
     import temper_drc_rs  # type: ignore[import-untyped]
 
     traces = [

@@ -63,12 +63,21 @@ below.
 oracle body with the following load-bearing equivalences, each pinned by
 measurement or by construction:
 
-1. **Arithmetic equivalence.** `dx**2` in CPython is exact repeated
-   multiplication → `dx * dx`; `math.sqrt` is the correctly-rounded IEEE
-   sqrt → `f64::sqrt` (measured 0/200000 mismatches for the HV-LV kernel).
-   `((x-hx)**2 + (y-hy)**2)**0.5` in the oracle is libm `pow` (measured
-   274/200000 random mismatches against `sqrt`), so the mounting-hole
-   distance uses `powf(0.5)`, which resolves to the same system libm `pow`.
+1. **Arithmetic equivalence.** CPython's `x ** y` on floats is libm `pow`
+   — NOT repeated multiplication and NOT `sqrt`: measured 262/200000
+   mismatches of `x*x` vs `x**2` and 274/200000 of `sqrt` vs `x**0.5` on
+   this platform. Every `**2`/`**0.5` site (`trace_length`,
+   `tht_hole_collisions`, the mounting-hole distance) calls
+   `host_math::pow`, resolved via `dlsym` to the exact libm `pow` the host
+   CPython calls (the `temper-thermal` hostmath B1 precedent).
+   `f64::powf` was considered and rejected as a proxy: with a constant
+   exponent LLVM folds the `llvm.pow.f64` intrinsic (`powf(2.0)` →
+   `x*x`, `powf(0.5)` → `sqrt`; verified in this crate's release
+   disassembly), both of which disagree with libm `pow`. `math.sqrt` is
+   the correctly-rounded IEEE sqrt → `f64::sqrt` (measured 0/200000
+   mismatches for the HV-LV kernel; `sqrt` is deliberately NOT routed
+   through `dlsym` — IEEE-754 requires correct rounding, so the hardware
+   instruction matches every conforming libm).
 2. **Accumulation order.** `compute_drc_penalty`, `trace_length` and
    `metrics_summary`'s custom-metric accumulation preserve the oracle's
    in-order `+=` strategy — not CPython's Neumaier-compensated `sum()`
@@ -95,7 +104,11 @@ measurement or by construction:
    `issue_fingerprint` sorts the item segment identically.
    `metrics_summary` keeps first-seen key position with last-value-wins for
    `check_timings` (Python dict assignment semantics), implemented as an
-   order-preserving `Vec<(String, f64)>` scan — not a `HashMap`.
+   order-preserving `Vec<(String, Py<PyAny>)>` scan — not a `HashMap`. The
+   raw Python objects pass through: the oracle assigns/accumulates the
+   caller's values verbatim (`check_timings[name] = elapsed_ms`;
+   `custom_metrics[key] += value`), so an `int` stays `int` (exact beyond
+   2^53) and int+float `+=` promotes to `float` via Python `__add__`.
 6. **Boundary edge math.** `geometric_validate` consumes the pairwise signed
    box distances, rotated AABB half-sizes and boundary-predicate outputs
    from the existing temper-geometry Rust kernels (single source of truth —
@@ -108,7 +121,12 @@ measurement or by construction:
    `compute_drc_penalty([])` returns `0.0`; `group_violations([])` returns
    `[]`; `metrics_summary([])` returns empty lists/dicts and zero counts;
    the empty-netlist geometric path raises the same `IndexError` in both
-   arms (asserted by `test_empty_netlist_both_arms_raise`).
+   arms (asserted by `test_empty_netlist_both_arms_raise`). `trace_length`
+   skips None-net traces exactly as the oracle's `if trace.net ==
+   net_name` (the Trace contract is `net: str | None`, and `None` never
+   equals a str `net_name`) — pinned by
+   `test_trace_length_none_net_trace_skipped` and the `None` entries in
+   `test_differential_random_stress`.
 
 ## Documented deviations (per R1, recorded here)
 
@@ -118,12 +136,40 @@ measurement or by construction:
   output is always a string list, and both arms raise on the pathological
   cases (the oracle fails later, in the `Issue` contract). Narrower and
   documented in `validation.rs`.
-- **`parse_drc_violation` non-string `type`/`severity`/`pos`.** Both arms
-  return `None` (the oracle via `except Exception`), the kernel via an
-  explicit extraction-failure path — same observable result.
-- **`metrics_summary` / `compute_drc_penalty` non-float values.** The
-  kernel raises `PyValueError`; the oracle raises `TypeError` at the `+=`.
-  Both fail closed; realistic inputs are floats.
+- **`group_violations` `check_name` key must be a string.** The oracle
+  groups by `v.get('check_name', 'unknown')` — any hashable key works (an
+  int key flows through into the str-typed `Issue`/`CheckResult` contract
+  unenforced at runtime); the kernel's `get_str_or` raises `PyValueError`
+  on a non-string key. **Chosen to RECORD rather than match**: faithful
+  matching would require grouping by arbitrary hashable PyAny keys with
+  Python-side `hash`/equality/`<` for the sorted group order — a change to
+  the kernel's public marshalling contract (`Vec<(String, ...)>` → PyAny
+  keys) for inputs that cannot arise from `temper_drc_rs.run_drc()`
+  (`check_name` is always a string there). Pinned by
+  `test_group_violations_non_string_check_name_narrowing`.
+- **`parse_drc_violation` non-string `type`/`severity`.** Both arms return
+  `None` (the oracle via `except Exception`), the kernel via an explicit
+  extraction-failure path — same observable result.
+- **`parse_drc_violation` `pos` — matched, not narrowed.** The value is
+  read with `.get("x"/"y", 0)` (the oracle's `Mapping.get`) in both arms,
+  so any truthy Mapping parses — plain dict, dict subclass, `UserDict`,
+  `MappingProxyType` (pinned by
+  `test_parse_differential_mapping_pos_and_dict_subclass_items`). A truthy
+  non-Mapping `pos` fails closed in both arms (oracle `AttributeError` →
+  `except Exception` → `None`; kernel extraction-failure → `None`).
+- **`parse_drc_violation` `items` — no narrowing exists.** The review
+  flagged dict-subclass entries as skipped by the kernel's
+  `cast::<PyDict>`; that does not hold on this pyo3 (0.29): `cast` uses
+  `PyDict_Check`, which is isinstance-based, so dict subclasses are
+  accepted exactly like the oracle's `isinstance(affected, dict)`.
+  Verified live and pinned by the same test above.
+- **`compute_drc_penalty` non-float values.** The kernel raises
+  `PyValueError`; the oracle raises `TypeError` at the `+=`. Both fail
+  closed; realistic inputs are floats. (`metrics_summary` carried the same
+  deviation before this review round; it now passes the caller's numeric
+  values through raw and accumulates via Python `__add__`, so no narrowing
+  remains there — pinned by
+  `test_metrics_summary_int_values_type_preserved`.)
 - **`infer_package_type(None)`.** The kernel's `Option<String>` handles
   `None` as the oracle's `footprint.lower() if footprint else ""` path —
   identical result (`"smd"`), pinned by the differential.
@@ -140,17 +186,17 @@ measurement or by construction:
   differentials fail to collect until the `temper_drc_rs` kernels exist
   (module-level `= _tdrc.<symbol>` bindings), which is the demonstrated
   RED. GREEN: 89 differential/PBT tests pass (7 files).
-- Properties (R1c): ≥5 non-vacuous properties per module (24 PBT across
-  the 7 modules), each asserting a concrete observable (severity
+- Properties (R1c): ≥5 non-vacuous properties per module (35 PBT — 5 each
+  across the 7 modules), each asserting a concrete observable (severity
   classification, message format shape, sorted/partitioned grouping,
   failure flags, count/metric reconstruction, custom-metric accumulation,
   empty-input behaviour) — see the `test_*_rust_differential.py` suites.
-- Metamorphic (R1d): ≥3 honestly-bounded relations per module (25 MRs
-  total) — e.g. overlap-threshold monotonicity, reflection invariance of
-  geometric findings, permutation invariance of HV-LV clearance (min is
-  associative, unlike a sum), penalty doubling with one weight dict scaled
-  (bounded to known keys: defaults are not scaled), group-partition
-  invariance under input permutation.
+- Metamorphic (R1d): ≥3 honestly-bounded relations per module (23 MRs
+  total: 3+3+3+3+3+3+5) — e.g. overlap-threshold monotonicity, reflection
+  invariance of geometric findings, permutation invariance of HV-LV
+  clearance (min is associative, unlike a sum), penalty doubling with one
+  weight dict scaled (bounded to known keys: defaults are not scaled),
+  group-partition invariance under input permutation.
 - Anti-vacuity mutation campaign (see
   `docs/evidence/2026-08-04-wave4-phase4-validation-mutation-sweep.md`):
   **12 mutants across all 10 kernels, every one caught by the

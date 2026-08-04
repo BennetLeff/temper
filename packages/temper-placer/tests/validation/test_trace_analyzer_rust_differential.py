@@ -186,6 +186,28 @@ def test_trace_length_none_net_trace_skipped():
     assert got == 5.0  # None-net segment (length 10) never counted
 
 
+def test_trace_length_pow2_libm_parity():
+    """CPython `dx**2` is libm `pow`, NOT `x*x` — for this dx the two differ
+    by 1 ulp (measured; `assert dx * dx != dx**2` below documents the trap),
+    so a kernel squaring with `dx * dx` returns a length 1 ulp too large.
+    Pins the host-libm `pow` squaring (dlsym'd, exactly what CPython calls)
+    against the oracle bit-exactly (this exact segment was the one-ulp
+    mismatch the random stress exposed)."""
+    dx = 608.5928659723188
+    assert dx * dx != dx**2  # the trap this test exists for
+    board = Board(width=200.0, height=200.0)
+    board.traces = [  # type: ignore[attr-defined]
+        Trace(
+            start=(-865.4678626166876, -742.1170049716059),
+            end=(-256.8749966443688, -881.6442646909118),
+            width=0.2, layer="F.Cu", net="HV",
+        )
+    ]
+    ref = _ref_calculate_actual_trace_length(board, "HV")
+    got = shim_trace_length(board, "HV")
+    assert got.hex() == ref.hex()
+
+
 def test_differential_random_stress():
     """Random float stress with awkward magnitudes — bit-exact via hex().
     ``None`` appears in the net choice: a None-net trace exercises the

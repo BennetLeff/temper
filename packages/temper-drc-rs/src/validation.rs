@@ -28,9 +28,16 @@
 //!   diverges from Rust's `Display` (e.g. `10.0` vs `10`), so messages with
 //!   no-format float interpolation are built in the delegation modules from
 //!   the numeric fields this module returns (the rtd_safety precedent).
-//! - `x ** 0.5` in the oracle's mounting-hole distance is libm `pow`, NOT
-//!   `sqrt` (274/200000 random mismatches measured); this module uses
-//!   `powf(0.5)` to stay bit-identical with CPython on this platform.
+//! - CPython's `x ** y` is libm `pow` — NOT repeated multiplication and
+//!   NOT `sqrt`: measured 262/200000 mismatches of `x*x` vs `x**2` and
+//!   274/200000 of `sqrt` vs `x**0.5` on this platform. All `**2` /
+//!   `**0.5` sites (`trace_length`, `tht_hole_collisions`, the mounting-
+//!   hole distance) go through `host_math::pow`, resolved via `dlsym` to
+//!   the exact libm `pow` the host CPython calls (B1, the hostmath
+//!   precedent). `f64::powf` is NOT an acceptable proxy for these two
+//!   exponents: LLVM folds the intrinsic with a constant exponent
+//!   (`powf(2.0)` → `x*x`, `powf(0.5)` → `sqrt`), both of which disagree
+//!   with libm `pow`.
 //! - Iteration order over Python sets/dicts is never touched here: the
 //!   dict builders that iterate sets stay Python (hash-randomized order is
 //!   preserved, not sorted).
@@ -47,6 +54,70 @@ use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 #[cfg(feature = "python")]
 use pyo3::types::{PyAnyMethods, PyDict, PyDictMethods, PyList, PyListMethods};
+
+// ---------------------------------------------------------------------------
+// Host-runtime libm resolution (catalog class B1 — the hostmath precedent)
+// ---------------------------------------------------------------------------
+
+/// CPython's `float.__pow__` calls the host Python runtime's libm `pow`:
+/// `x ** 2` is `pow(x, 2.0)`, NOT `x * x` (measured 262/200000 mismatches
+/// on this platform), and `x ** 0.5` is `pow(x, 0.5)`, NOT `sqrt`
+/// (274/200000). The kernels must call that exact function, resolved
+/// through `dlsym` as in `temper-thermal/src/hostmath.rs` (the
+/// migration guide's "library semantics are not reimplementable" B1
+/// precedent); `f64::powf` is only the fallback when `dlsym` is
+/// unavailable. Note `f64::powf` is additionally unusable as a proxy for
+/// these two exponents even with `dlsym` absent: LLVM folds the
+/// `llvm.pow.f64` intrinsic with a *constant* exponent —
+/// `powf(2.0)` → `x*x`, `powf(0.5)` → `sqrt` (verified in this crate's
+/// release disassembly) — both of which disagree with libm `pow`.
+#[cfg(feature = "python")]
+mod host_math {
+    use std::ffi::CStr;
+    use std::sync::OnceLock;
+
+    type BinaryFn = unsafe extern "C" fn(f64, f64) -> f64;
+
+    fn dlsym_ptr(symbol: &CStr) -> Option<*mut u8> {
+        unsafe extern "C" {
+            fn dlsym(handle: *const u8, symbol: *const u8) -> *mut u8;
+        }
+        const RTLD_DEFAULT: *const u8 = core::ptr::null();
+        // SAFETY: `symbol` is a NUL-terminated C string literal and
+        // RTLD_DEFAULT is the documented "search every loaded object"
+        // handle. A miss returns null, which is checked below.
+        let p = unsafe { dlsym(RTLD_DEFAULT, symbol.as_ptr().cast::<u8>()) };
+        if p.is_null() {
+            None
+        } else {
+            Some(p)
+        }
+    }
+
+    unsafe extern "C" fn fallback_pow(x: f64, y: f64) -> f64 {
+        f64::powf(x, y)
+    }
+
+    fn host_pow() -> BinaryFn {
+        static F: OnceLock<BinaryFn> = OnceLock::new();
+        *F.get_or_init(|| {
+            // SAFETY: the resolved symbol is a C `double(double, double)`
+            // from libm.
+            dlsym_ptr(c"pow")
+                .map(|p| unsafe { std::mem::transmute::<*mut u8, BinaryFn>(p) })
+                .unwrap_or(fallback_pow as BinaryFn)
+        })
+    }
+
+    /// CPython's `x ** y` on floats (libm `pow`). **Not** `x * x` for
+    /// `y == 2.0`, and **not** `sqrt(x)` for `y == 0.5`.
+    #[inline]
+    pub fn pow(x: f64, y: f64) -> f64 {
+        // SAFETY: `host_pow()` is a C `double(double, double)`; no shared
+        // state.
+        unsafe { (host_pow())(x, y) }
+    }
+}
 
 // ---------------------------------------------------------------------------
 // drc_oracle._infer_package_type
@@ -105,7 +176,9 @@ fn tht_hole_collisions(
             let (ref_j, pad_j, x_j, y_j, r_j) = &holes[j];
             let dx = x_i - x_j;
             let dy = y_i - y_j;
-            let dist = (dx * dx + dy * dy).sqrt();
+            // CPython `** 2` is libm pow, not `x*x` (see host_math); the
+            // oracle's `(a - b) ** 2` must match bit-for-bit.
+            let dist = (host_math::pow(dx, 2.0) + host_math::pow(dy, 2.0)).sqrt();
             let required = r_i + r_j + min_clearance;
             if dist < required {
                 violations.push(format!(
@@ -122,18 +195,25 @@ fn tht_hole_collisions(
 // ---------------------------------------------------------------------------
 
 /// Total routed length of one net (verbatim port of
-/// `trace_analyzer.calculate_actual_trace_length`; `dx**2` in CPython is
-/// exact repeated multiplication, so `dx * dx` is bit-identical, and
-/// `math.sqrt` is the correctly-rounded IEEE sqrt — `f64::sqrt`).
+/// `trace_analyzer.calculate_actual_trace_length`). CPython's `dx**2` is
+/// libm `pow` — NOT repeated multiplication (measured 262/200000
+/// mismatches of `x*x` vs `x**2` on this platform), so the kernel squares
+/// through `host_math::pow` (dlsym'd to the exact libm `pow` CPython
+/// calls); `math.sqrt` is the correctly-rounded IEEE sqrt — `f64::sqrt`.
+///
+/// `net` is `Option<String>` because the Trace contract is
+/// `net: str | None` (core/board.py): a None-net trace is skipped exactly
+/// like the oracle's `if trace.net == net_name` — `None` never equals a str
+/// `net_name` — rather than raising on extraction.
 #[cfg(feature = "python")]
 #[pyfunction]
-fn trace_length(traces: Vec<(String, f64, f64, f64, f64)>, net_name: String) -> f64 {
+fn trace_length(traces: Vec<(Option<String>, f64, f64, f64, f64)>, net_name: String) -> f64 {
     let mut length = 0.0_f64;
     for (net, x1, y1, x2, y2) in &traces {
-        if net == &net_name {
+        if net.as_ref() == Some(&net_name) {
             let dx = x2 - x1;
             let dy = y2 - y1;
-            length += (dx * dx + dy * dy).sqrt();
+            length += (host_math::pow(dx, 2.0) + host_math::pow(dy, 2.0)).sqrt();
         }
     }
     length
@@ -344,9 +424,13 @@ fn geometric_validate(
 
         for (hx, hy, keepout_radius) in &mounting_holes {
             // Oracle: ((x - hx) ** 2 + (y - hy) ** 2) ** 0.5 — CPython
-            // `** 0.5` is libm pow, NOT sqrt (274/200000 random mismatches
-            // measured); powf(0.5) resolves to the same system libm pow.
-            let dist_to_hole = ((x - hx) * (x - hx) + (y - hy) * (y - hy)).powf(0.5);
+            // `** 2` and `** 0.5` are BOTH libm pow (measured 262/200000
+            // and 274/200000 mismatches against x*x and sqrt); host_math
+            // calls the exact libm pow CPython calls.
+            let dist_to_hole = host_math::pow(
+                host_math::pow(x - hx, 2.0) + host_math::pow(y - hy, 2.0),
+                0.5,
+            );
             let min_dist = half_w.max(half_h) + keepout_radius;
             if dist_to_hole < min_dist {
                 keepout_count += 1;
@@ -455,30 +539,30 @@ fn parse_drc_violation(py: Python<'_>, item: &Bound<'_, PyDict>) -> PyResult<Py<
     let fallback_message = format!("{resolved} violation");
 
     // position: item.get("pos", {}) — truthy dict → (float(x), float(y));
-    // falsy → None; truthy non-dict → oracle AttributeError → None.
+    // falsy → None; truthy non-Mapping → oracle AttributeError → None.
+    // The value is read with `.get("x"/"y", 0)` (the oracle's Mapping.get),
+    // so any Mapping works — plain dict, dict subclass, UserDict,
+    // MappingProxyType — not just an exact PyDict.
     let position: Py<PyAny> = match item.get_item("pos")? {
         Some(pos) => {
             if pos.is_truthy()? {
-                match pos.cast::<PyDict>() {
-                    Ok(pos_dict) => {
-                        let x = match pos_dict.get_item("x")? {
-                            Some(x) => match py_builtin_float(py, &x) {
-                                Ok(v) => v,
-                                Err(_) => return Ok(py.None()),
-                            },
-                            None => 0.0,
-                        };
-                        let y = match pos_dict.get_item("y")? {
-                            Some(y) => match py_builtin_float(py, &y) {
-                                Ok(v) => v,
-                                Err(_) => return Ok(py.None()),
-                            },
-                            None => 0.0,
-                        };
-                        (x, y).into_pyobject(py)?.unbind().into_any()
-                    }
+                let x = match pos.call_method1("get", ("x", 0)) {
+                    Ok(x) => match py_builtin_float(py, &x) {
+                        Ok(v) => v,
+                        Err(_) => return Ok(py.None()),
+                    },
+                    // truthy non-Mapping → AttributeError, the oracle's
+                    // `except Exception` → None
                     Err(_) => return Ok(py.None()),
-                }
+                };
+                let y = match pos.call_method1("get", ("y", 0)) {
+                    Ok(y) => match py_builtin_float(py, &y) {
+                        Ok(v) => v,
+                        Err(_) => return Ok(py.None()),
+                    },
+                    Err(_) => return Ok(py.None()),
+                };
+                (x, y).into_pyobject(py)?.unbind().into_any()
             } else {
                 py.None()
             }
@@ -727,9 +811,13 @@ fn issue_fingerprint(code: String, message: String, mut affected_items: Vec<Stri
 
 /// A single check result's marshalled summary for `metrics_summary`:
 /// `(check_name, elapsed_ms, [issue categories in order], [(metric_key,
-/// value)] in dict order)`.
+/// value)] in dict order)`. `elapsed_ms` and metric values marshal as raw
+/// Python objects, NOT f64: the oracle assigns/accumulates the caller's
+/// values verbatim (`check_timings[name] = elapsed_ms`;
+/// `custom_metrics[key] += value`), so an `int` stays `int` (exact beyond
+/// 2^53) and an int+float `+=` promotes to `float` exactly as in CPython.
 #[cfg(feature = "python")]
-type CheckResultSummary = (String, f64, Vec<String>, Vec<(String, f64)>);
+type CheckResultSummary = (String, Py<PyAny>, Vec<String>, Vec<(String, Py<PyAny>)>);
 
 /// Aggregate per-check results into a MetricsSummary payload (verbatim port
 /// of `drc_fence.MetricsSummary.from_run_result`'s loop). The returned dict
@@ -737,7 +825,9 @@ type CheckResultSummary = (String, f64, Vec<String>, Vec<(String, f64)>);
 /// (first-seen key position, last value wins — Python dict assignment
 /// semantics), the four per-category issue counts (only erc/drc/safety/emc
 /// are counted — the oracle's elif chain drops other categories) and
-/// `custom_metrics` (first-seen key position, values accumulated with `+=`).
+/// `custom_metrics` (first-seen key position, values accumulated with `+=`
+/// via the full Python `+` operator (PyNumber_Add) — the oracle's exact
+/// numeric promotion: int+int → int, int+float → float).
 #[cfg(feature = "python")]
 #[pyfunction]
 fn metrics_summary(
@@ -745,18 +835,18 @@ fn metrics_summary(
     check_results: Vec<CheckResultSummary>,
 ) -> PyResult<Py<PyAny>> {
     let mut checks_run: Vec<String> = Vec::new();
-    let mut timings: Vec<(String, f64)> = Vec::new();
+    let mut timings: Vec<(String, Py<PyAny>)> = Vec::new();
     let mut erc: i64 = 0;
     let mut drc: i64 = 0;
     let mut safety: i64 = 0;
     let mut emc: i64 = 0;
-    let mut custom: Vec<(String, f64)> = Vec::new();
+    let mut custom: Vec<(String, Py<PyAny>)> = Vec::new();
 
     for (name, elapsed, categories, metrics) in &check_results {
         checks_run.push(name.clone());
         match timings.iter_mut().find(|(n, _)| n == name) {
-            Some(entry) => entry.1 = *elapsed,
-            None => timings.push((name.clone(), *elapsed)),
+            Some(entry) => entry.1 = elapsed.clone_ref(py),
+            None => timings.push((name.clone(), elapsed.clone_ref(py))),
         }
         for cat in categories {
             match cat.as_str() {
@@ -769,19 +859,29 @@ fn metrics_summary(
         }
         for (k, v) in metrics {
             match custom.iter_mut().find(|(key, _)| key == k) {
-                Some(entry) => entry.1 += v,
-                None => custom.push((k.clone(), *v)),
+                Some(entry) => {
+                    // oracle: summary.custom_metrics[key] += value — the
+                    // full Python `+` operator (PyNumber_Add: int+int → int,
+                    // int+float → float via the reflected op; an
+                    // incompatible pair raises TypeError like the oracle's
+                    // +=). NOT a raw `__add__` call — that returns
+                    // NotImplemented for int+float instead of dispatching
+                    // to float.__radd__.
+                    let sum = entry.1.bind(py).add(v.bind(py))?;
+                    entry.1 = sum.unbind();
+                }
+                None => custom.push((k.clone(), v.clone_ref(py))),
             }
         }
     }
 
     let timings_dict = PyDict::new(py);
     for (k, v) in &timings {
-        timings_dict.set_item(k.as_str(), *v)?;
+        timings_dict.set_item(k.as_str(), v.bind(py))?;
     }
     let custom_dict = PyDict::new(py);
     for (k, v) in &custom {
-        custom_dict.set_item(k.as_str(), *v)?;
+        custom_dict.set_item(k.as_str(), v.bind(py))?;
     }
 
     let d = PyDict::new(py);
