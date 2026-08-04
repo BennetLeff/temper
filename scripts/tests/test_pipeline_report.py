@@ -250,3 +250,26 @@ class TestGenerateReportEndToEnd:
         generate_report(metrics_file, exec_file, output_file)
         html = output_file.read_text()
         assert "var(--yellow)" in html
+
+    def test_missing_execution_log_still_renders(self, tmp_path, capsys):
+        """A missing execution log must not fail the report.
+
+        Regression pin for the 35-day metrics blackout: pipeline_execution.json
+        is a run artifact, untracked since #310, but metrics-record.yml still
+        passed its path. The resulting FileNotFoundError aborted the job at a
+        step that sat *above* "Upload metrics artifact", so no artifact was
+        uploaded, metrics-reconcile.yml had nothing to reconcile, and
+        power_pcb_dataset/metrics/pipeline_metrics.jsonl stayed frozen from
+        2026-06-30 while four downstream consumers kept reporting on it.
+        """
+        metrics_file = tmp_path / "metrics.jsonl"
+        output_file = tmp_path / "report.html"
+        _write(metrics_file, json.dumps(
+            {"stage_name": "s", "stage": "s", "metrics": {"wall_time_ms": 5}}))
+
+        generate_report(metrics_file, tmp_path / "does-not-exist.json", output_file)
+
+        assert output_file.exists()
+        assert "<html" in output_file.read_text().lower()
+        # The degradation must be visible, not silent.
+        assert "not found" in capsys.readouterr().err
