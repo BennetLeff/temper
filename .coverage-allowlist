@@ -646,9 +646,6 @@ temper_placer/io/kicad_writer.py::validate_output_pcb  # TODO: temper-xxx
 temper_placer/io/kicad_writer.py::write_placements_to_pcb  # TODO: temper-xxx
 temper_placer/io/kicad_writer.py::write_routes_to_pcb  # TODO: temper-xxx
 temper_placer/io/kicad_writer.py::write_zones_to_pcb  # TODO: temper-xxx
-temper_placer/io/loop_loader.py::load_loop_collection  # TODO: temper-xxx
-temper_placer/io/loop_loader.py::load_loop_from_dict  # TODO: temper-xxx
-temper_placer/io/loop_loader.py::load_loop_template  # TODO: temper-xxx
 temper_placer/io/loop_loader.py::save_loop_to_yaml  # TODO: temper-xxx
 temper_placer/io/net_class_manager.py::compute_microstrip_width  # TODO: temper-xxx
 temper_placer/io/net_class_manager.py::create_netclass_config  # TODO: temper-xxx
@@ -657,7 +654,6 @@ temper_placer/io/net_class_manager.py::get_clearance_for_net  # TODO: temper-xxx
 temper_placer/io/net_class_manager.py::get_trace_width  # TODO: temper-xxx
 temper_placer/io/net_class_manager.py::is_high_speed_net  # TODO: temper-xxx
 temper_placer/io/net_class_manager.py::is_power_net  # TODO: temper-xxx
-temper_placer/io/netclass_loader.py::load_netclass_rules  # TODO: temper-xxx
 temper_placer/io/placement_exporter.py::cleanup_temp_pcb  # TODO: temper-xxx
 temper_placer/io/placement_exporter.py::create_pcb_exporter  # TODO: temper-xxx
 temper_placer/io/placement_exporter.py::export_positions_to_temp_pcb  # TODO: temper-xxx
