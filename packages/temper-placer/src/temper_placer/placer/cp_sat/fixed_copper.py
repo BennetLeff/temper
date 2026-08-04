@@ -312,6 +312,27 @@ def _mm_to_units(mm: float) -> int:
     return raw
 
 
+# Diagonal-edge half-planes are computed at 100x the model resolution
+# (0.0001 mm) so a short edge keeps its true slope after integerization.
+# Quantizing the edge direction to the 0.01 mm model grid destroys the
+# slope of sub-0.1 mm edges (a 0.025 mm arc edge at the rounded end of the
+# +15V_LS strip becomes exactly horizontal), which rotates the half-plane
+# enough to exclude polygon vertices -- UNSOUND (measured 2026-08-04, 1,534
+# cells on the real board). At 0.0001 mm resolution the direction error is
+# <= ~0.0001 mm of line shift, absorbed by the margin headroom.
+_FINE_UNITS_PER_MM = 10_000
+# Scale factor from fine to model units (10000 / 100).
+_FINE_TO_MODEL = _FINE_UNITS_PER_MM // _UNITS_PER_MM
+
+
+def _mm_to_fine_units(mm: float) -> int:
+    """Round a mm coordinate to the fine (0.0001 mm) integer grid used by
+    the diagonal half-plane builder. Round-half-even (Python round); no
+    even-parity adjustment -- that exists only for model *sizes* (the
+    midpoint constraint), not for vertices."""
+    return round(mm * _FINE_UNITS_PER_MM)
+
+
 @dataclass(frozen=True)
 class PadRectLocal:
     """One pad of a *free* component, in the component's local (pre-
@@ -747,15 +768,18 @@ def _convex_polygon_edges(
       (mm, margin-shifted) so convex rectilinear zones behave exactly as
       before.
     * Diagonal edges are ``("n", a, b, r)``: the pad clears iff
-      ``min over pad of (a*x + b*y) >= r``, with ``(a, b) = (dy, -dx)`` the
-      edge direction in MODEL UNITS (integers — CP-SAT requires integer
-      coefficients; computed from the vertices quantized to the 0.01 mm
-      model grid) and ``r = ceil(D0 + (margin + headroom) * L)`` where
-      ``D0 = a*x0u + b*y0u`` and ``L`` is the edge length in units. The
-      RHS is rounded UP (a larger RHS is a stricter separation — the
-      conservative direction) and embeds the integer-grid headroom so the
-      quantization of the vertices and pad edges (<= ~0.017 mm total) can
-      never push the guaranteed clearance below the physical margin.
+      ``min over pad of (a*x + b*y) >= r`` with x, y the pad's world rect
+      in model units, ``(a, b) = 100*(dy, -dx)`` the edge direction scaled
+      to integer model-unit coefficients, and ``r = ceil(D0 + (margin +
+      headroom) * L)`` where ``D0 = dy*x0 + (-dx)*y0`` and ``L`` is the
+      edge length -- all at 100x model resolution (0.0001 mm) so short
+      edges keep their true slope (quantizing to the 0.01 mm model grid
+      rotates the half-plane of a sub-0.1 mm edge enough to exclude
+      polygon vertices -- the unsoundness fixed 2026-08-04). The RHS is
+      rounded UP (a larger RHS is a stricter separation -- the conservative
+      direction) and embeds the integer-grid headroom so the quantization
+      of the vertices and pad edges can never push the guaranteed clearance
+      below the physical margin.
 
     The polygon is normalized to CCW winding first; the interior of a CCW
     polygon is LEFT of every directed edge, so the outward (exterior) side
@@ -808,8 +832,11 @@ def _convex_polygon_edges(
     if cw:
         polygon = list(reversed(polygon))
     edges: list[tuple] = []
-    margin_units = margin_mm * _UNITS_PER_MM
-    headroom_units = _GRID_HEADROOM_MM * _UNITS_PER_MM
+    # The (margin + headroom) shift must be at the FINE scale to match d0
+    # and length_fine below (a model-scale shift here is 100x too small and
+    # shrinks the encoded clearance to ~0.0007 mm -- unsound, measured
+    # 2026-08-04).
+    margin_shift_fine = (margin_mm + _GRID_HEADROOM_MM) * _FINE_UNITS_PER_MM
     for i in range(n):
         x0, y0 = polygon[i]
         x1, y1 = polygon[(i + 1) % n]
@@ -831,24 +858,33 @@ def _convex_polygon_edges(
             else:
                 edges.append(("y", y0 + margin_mm, +1))
         else:
-            # Diagonal edge: half-plane (a, b, r) in model units.
-            x0u = _mm_to_units(x0)
-            y0u = _mm_to_units(y0)
-            x1u = _mm_to_units(x1)
-            y1u = _mm_to_units(y1)
-            dxu = x1u - x0u
-            dyu = y1u - y0u
-            if dxu == 0 and dyu == 0:
-                # Edge collapses to a point on the model grid; omitting its
-                # literal only makes the BoolOr stricter (fewer ways to
-                # clear) -- conservative, never unsound.
+            # Diagonal edge: half-plane (A, B, R), the pad clears iff
+            #   min over pad of (A*x + B*y) >= R
+            # with x, y the pad's world rect in MODEL units and (A, B, R)
+            # integers. The direction is computed at 100x model resolution
+            # (_FINE_UNITS_PER_MM) so a short edge keeps its true slope
+            # after integerization, then scaled by _FINE_TO_MODEL so the
+            # coefficients are integers in model-unit coordinates (CP-SAT
+            # requires integer linear coefficients). R is the fine-scale
+            # interior offset plus the (margin + headroom) shift, rounded UP
+            # (a larger RHS is a stricter separation -- conservative).
+            x0f = _mm_to_fine_units(x0)
+            y0f = _mm_to_fine_units(y0)
+            x1f = _mm_to_fine_units(x1)
+            y1f = _mm_to_fine_units(y1)
+            dxf = x1f - x0f
+            dyf = y1f - y0f
+            if dxf == 0 and dyf == 0:
+                # Edge collapses to a point; omitting its literal only makes
+                # the BoolOr stricter (fewer ways to clear) -- conservative,
+                # never unsound.
                 continue
-            a = dyu
-            b = -dxu
-            length_units = math.hypot(dxu, dyu)
-            d0 = a * x0u + b * y0u
-            r = math.ceil(d0 + (margin_units + headroom_units) * length_units)
-            edges.append(("n", a, b, r))
+            a = dyf
+            b = -dxf
+            length_fine = math.hypot(dxf, dyf)
+            d0 = a * x0f + b * y0f
+            r = math.ceil(d0 + margin_shift_fine * length_fine)
+            edges.append(("n", a * _FINE_TO_MODEL, b * _FINE_TO_MODEL, r))
     return tuple(edges) if edges else None
 
 

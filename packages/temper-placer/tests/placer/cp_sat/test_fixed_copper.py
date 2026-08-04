@@ -40,6 +40,7 @@ from temper_placer.placer.cp_sat.fixed_copper import (
     FixedCopperItem,
     PadRectLocal,
     _convex_polygon_edges,
+    _mm_to_units,
     _rectilinear_convex_edges,
     audit_fixed_copper,
     build_fixed_copper_items,
@@ -560,6 +561,29 @@ class TestZoneGeneralConvexBMC:
     _PAD_HALVES = [(0.0, 0.0), (0.5, 0.5), (1.5, 1.0)]
     _ROTS = (0, 1, 2, 3)
 
+    @staticmethod
+    def _capsule_polygon(length=10.0, height=0.5, n_arc=24):
+        """A convex stadium strip: body x in [-length/2, length/2], y in
+        [-height/2, height/2], ends rounded by n_arc-segment semicircles of
+        radius height/2 (~0.03 mm per segment for these dims). This is the
+        +15V_LS class of geometry: the sub-0.1 mm arc edges destroy their
+        slope when the half-plane direction is quantized to the 0.01 mm
+        model grid, which rotates the half-plane enough to exclude polygon
+        vertices (the unsoundness fixed 2026-08-04)."""
+        import math
+        r = height / 2.0
+        half = length / 2.0
+        pts = [(-half, r), (half, r)]  # top edge left -> right
+        for i in range(1, n_arc):  # right arc 90deg -> -90deg (bulges +x)
+            a = math.pi / 2.0 - math.pi * i / n_arc
+            pts.append((half + r * math.cos(a), r * math.sin(a)))
+        pts.append((half, -r))
+        pts.append((-half, -r))  # bottom edge right -> left
+        for i in range(1, n_arc):  # left arc 270deg -> 90deg (bulges -x)
+            a = 3 * math.pi / 2.0 - math.pi * i / n_arc
+            pts.append((-half + r * math.cos(a), r * math.sin(a)))
+        return pts
+
     def test_general_convex_soundness_zero_counterexamples(self) -> None:
         """Encoded-clear => exact-clear for diagonal-edge convex zones, over
         pad sizes x rotations x an exhaustive position grid. Any violation is
@@ -593,6 +617,42 @@ class TestZoneGeneralConvexBMC:
             f"general-convex zone encoding FALSIFIED: {len(unsound)} "
             f"encoded-clear-but-exact-below-margin case(s). First: {unsound[:2]}"
         )
+
+    def test_diagonal_halfplanes_contain_polygon(self) -> None:
+        """Direct invariant behind the soundness proof: for EVERY diagonal
+        edge the whole polygon must lie inside the encoded half-plane
+        (max over the polygon of a*x + b*y <= r). This is what the rounded-
+        end strip regression is about: a sub-0.1 mm arc edge whose slope is
+        destroyed by model-grid quantization violates it (the +15V_LS
+        unsoundness, 1,534 cells on the real board, fixed 2026-08-04 by
+        computing the direction at 100x model resolution). Fast O(V) check
+        over the capsule and the diagonal test shapes."""
+        import math
+        polys = list(self._CONVEX_DIAGONAL) + [self._capsule_polygon()]
+        for poly in polys:
+            item = _zone_item(poly)
+            assert item.edges is not None
+            for entry in item.edges:
+                if entry[0] != "n":
+                    continue
+                _, a, b, r = entry
+                # polygon vertex in MODEL units; (a, b, r) are fine-scaled
+                # (100x model) integers, consistent at the fine scale.
+                mx = max(a * _mm_to_units(x) + b * _mm_to_units(y) for (x, y) in poly)
+                assert mx <= r, (
+                    f"diagonal half-plane does not contain the polygon: "
+                    f"max(a*x+b*y)={mx} > r={r} for edge ({a},{b},{r})"
+                )
+        # The capsule must actually exercise the short-edge path (the
+        # regression it exists for): at least one sub-0.05 mm arc edge.
+        cap = self._capsule_polygon()
+        assert any(
+            math.hypot(
+                _mm_to_units(cap[i][0]) - _mm_to_units(cap[(i + 1) % len(cap)][0]),
+                _mm_to_units(cap[i][1]) - _mm_to_units(cap[(i + 1) % len(cap)][1]),
+            ) < 5
+            for i in range(len(cap))
+        ), "capsule has no sub-0.05mm edges -- regression shape is vacuous"
 
     def test_general_convex_conservatism_bounded_for_run_c_geometry(self) -> None:
         """The safe (over-constraining) direction is measured on the run-C
