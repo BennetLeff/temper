@@ -34,6 +34,22 @@ main.add_command(profile)
 main.add_command(watch)
 
 
+def _find_repo_file(relative_path: str) -> Path | None:
+    """Locate a repo artifact (``elec/domain_manifest.yaml`` or
+    ``elec/build/default.net``) by walking up from the current directory.
+
+    The CLI's existing convention is repo-root-relative paths; walking up
+    makes the audit wiring work from subdirectories (e.g. running from
+    ``packages/temper-placer``) without inventing a new config surface.
+    Returns None when not found (the caller logs the audit skip).
+    """
+    for candidate in (Path.cwd(), *Path.cwd().parents):
+        p = candidate / relative_path
+        if p.is_file():
+            return p
+    return None
+
+
 def _build_validator_input(input_pcb: Path) -> dict | None:
     """Construct ``solve_placement``'s ``validator_input`` from the real board.
 
@@ -53,11 +69,22 @@ def _build_validator_input(input_pcb: Path) -> dict | None:
     """
     from temper_placer.io.real_board import RealBoardUnavailable, load_real_board_placement
 
+    manifest_path = _find_repo_file("elec/domain_manifest.yaml")
+    netlist_path = _find_repo_file("elec/build/default.net")
+    if manifest_path is None or netlist_path is None:
+        missing = "elec/domain_manifest.yaml" if manifest_path is None else "elec/build/default.net"
+        console.print(
+            f"[yellow]REQ-SAFE-01 validator post-solve audit SKIPPED: {missing} "
+            "not found (run from the repo root; run `make netlist` first). "
+            "The solve runs unaudited.[/]"
+        )
+        return None
+
     try:
         placement, voltage_domains, _stats = load_real_board_placement(
             pcb_path=input_pcb,
-            manifest_path=Path("elec/domain_manifest.yaml"),
-            netlist_path=Path("elec/build/default.net"),
+            manifest_path=manifest_path,
+            netlist_path=netlist_path,
         )
     except RealBoardUnavailable as exc:
         console.print(
