@@ -83,12 +83,13 @@ visualize:
 PCB_FILE = pcb/temper.kicad_pcb
 ROUTED_PCB = pcb/temper_routed.kicad_pcb
 
-# Was `scripts/internal_route.py`, which has been unable to even import since
-# 2026-07-10: it reads `temper_placer.io.trace_writer` (deleted in 6d9e24db7 as
+# Was `scripts/internal_route.py`, which had been unable to even import since
+# 2026-07-10: it read `temper_placer.io.trace_writer` (deleted in 6d9e24db7 as
 # dead code) and `jax` (declared in no pyproject.toml and absent from uv.lock).
 # `docs/evidence/2026-07-30-rotation-sign-remaining-sites.md` recorded the script
 # as dead on 2026-07-30; the Makefile kept calling it regardless, so this target
-# has been broken, not slow or wrong, for roughly four weeks.
+# was broken, not slow or wrong, for roughly four weeks. That script has since
+# been RETIREd and deleted (2026-08-04) -- do not go looking for it.
 #
 # scripts/route_board.py is the live path -- it calls
 # temper_placer.router_v6.adapter.route_pcb, the same entry point that produced

@@ -140,7 +140,7 @@ mod python {
     /// Fail-closed board/netlist identity preflight. Raises `ValueError` on
     /// any mismatch or role violation -- never returns a warning or a bool,
     /// per the identity-provenance plan's hard-fail requirement. Callers
-    /// (`InputStage`, `scripts/internal_route.py`) read files themselves and
+    /// (`InputStage`, `scripts/ci_closure_test.py`) read files themselves and
     /// pass bytes across the boundary; `pcb_path` is used only to infer the
     /// board's role from its path (a `benchmarks` path component means
     /// `Fixture`), never to re-read the file on the Rust side.
