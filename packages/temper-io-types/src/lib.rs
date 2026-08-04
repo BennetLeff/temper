@@ -40,6 +40,7 @@ pub mod footprint;
 pub mod footprint_spec;
 pub mod golden_serializers;
 pub mod isolation;
+pub mod kicad_write;
 pub mod provenance;
 #[cfg(feature = "python")]
 pub mod zone_filler;
@@ -78,6 +79,10 @@ mod pymodule_def {
         m.add_class::<crate::dsn_types::PyDsnPath>()?;
         m.add_class::<crate::footprint_spec::PyFootprintSpec>()?;
         m.add_class::<crate::provenance::PyProvenance>()?;
+        m.add_class::<crate::kicad_write::PyPlacementUpdate>()?;
+        m.add_class::<crate::kicad_write::PyWriteResult>()?;
+        m.add_class::<crate::kicad_write::PyStrippingResult>()?;
+        m.add_class::<crate::kicad_write::PyIsolationSlotResult>()?;
 
         // Functions
         m.add_function(wrap_pyfunction!(
@@ -123,6 +128,108 @@ mod pymodule_def {
             crate::zone_filler::fill_zones_if_present,
             m
         )?)?;
+        m.add_function(wrap_pyfunction!(
+            crate::kicad_write::path_to_segments,
+            m
+        )?)?;
+        m.add_function(wrap_pyfunction!(crate::kicad_write::path_to_vias, m)?)?;
+        m.add_function(wrap_pyfunction!(
+            crate::kicad_write::extract_pad_centers,
+            m
+        )?)?;
+        m.add_function(wrap_pyfunction!(
+            crate::kicad_write::snap_to_nearest_pad_py,
+            m
+        )?)?;
+        m.add_function(wrap_pyfunction!(
+            crate::kicad_write::generate_connector_segments,
+            m
+        )?)?;
+        m.add_function(wrap_pyfunction!(
+            crate::kicad_write::validate_4_layer_output,
+            m
+        )?)?;
+        m.add_function(wrap_pyfunction!(
+            crate::kicad_write::state_to_placements,
+            m
+        )?)?;
+        m.add_function(wrap_pyfunction!(
+            crate::kicad_write::extract_original_angles,
+            m
+        )?)?;
+        m.add_function(wrap_pyfunction!(
+            crate::kicad_write::positions_to_placements,
+            m
+        )?)?;
+        m.add_function(wrap_pyfunction!(
+            crate::kicad_write::rotation_index_to_degrees,
+            m
+        )?)?;
+        m.add_function(wrap_pyfunction!(
+            crate::kicad_write::reorient_pad_angle,
+            m
+        )?)?;
+        m.add_function(wrap_pyfunction!(
+            crate::kicad_write::placements_to_json,
+            m
+        )?)?;
+        m.add_function(wrap_pyfunction!(
+            crate::kicad_write::placements_from_json,
+            m
+        )?)?;
+        m.add_function(wrap_pyfunction!(
+            crate::kicad_write::compute_to247_isolation_slots,
+            m
+        )?)?;
+        m.add_function(wrap_pyfunction!(
+            crate::kicad_write::get_footprint_reference,
+            m
+        )?)?;
+        m.add_function(wrap_pyfunction!(
+            crate::kicad_write::compute_pad_bounds,
+            m
+        )?)?;
+        m.add_function(wrap_pyfunction!(
+            crate::kicad_write::get_routing_statistics,
+            m
+        )?)?;
+        m.add_function(wrap_pyfunction!(
+            crate::kicad_write::net_name_to_index_map,
+            m
+        )?)?;
+        m.add_function(wrap_pyfunction!(
+            crate::kicad_write::export_route_plan,
+            m
+        )?)?;
+        m.add_function(wrap_pyfunction!(
+            crate::kicad_write::export_board_state_plan,
+            m
+        )?)?;
+        m.add_function(wrap_pyfunction!(
+            crate::kicad_write::strip_routing_plan,
+            m
+        )?)?;
+        m.add_function(wrap_pyfunction!(
+            crate::kicad_write::write_routes_plan,
+            m
+        )?)?;
+        m.add_function(wrap_pyfunction!(
+            crate::kicad_write::write_zones_plan,
+            m
+        )?)?;
+        m.add_function(wrap_pyfunction!(
+            crate::kicad_write::write_placements_plan,
+            m
+        )?)?;
+        m.add_function(wrap_pyfunction!(
+            crate::kicad_write::add_isolation_slots_plan,
+            m
+        )?)?;
+        m.add_function(wrap_pyfunction!(
+            crate::kicad_write::export_from_geometry_plan,
+            m
+        )?)?;
+        m.add_function(wrap_pyfunction!(crate::kicad_write::fp_annotations, m)?)?;
 
         // SERIALIZER_REGISTRY
         let registry = PyDict::new(m.py());
