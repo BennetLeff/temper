@@ -88,6 +88,7 @@ docs/evidence/2026-07-27-domain-classification-coverage.md.
 
 from __future__ import annotations
 
+import copy
 import math
 from pathlib import Path
 from typing import Any
@@ -661,8 +662,12 @@ def load_real_board_placement(
         ),
         # --- Full-manifest-derived numbers (the honest, whole-board
         # picture; see module docstring) ---
-        "full_placement": placement,
-        "full_voltage_domains": voltage_domains,
+        # Separate copies (not aliases of the returned placement/domains):
+        # the pre-hoist fixture built these from a second _build_placement
+        # pass, and a stats consumer mutating them must not move the
+        # placement the validator is actually asserted against.
+        "full_placement": copy.deepcopy(placement),
+        "full_voltage_domains": copy.deepcopy(voltage_domains),
         "matched_components_in_placement_full": matched_refs,
         "classified_nets_present_full": sorted(voltage_domains),
         "declared_nets_total": declared_nets_total,
