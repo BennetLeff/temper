@@ -38,6 +38,10 @@ fn frozen_error(py: Python<'_>, verb: &str, name: &str) -> PyErr {
     }
 }
 
+/// What `__reduce__` returns: `(callable, args)`, the two-tuple form
+/// `pickle`/`copy` use to rebuild an object.
+type Reduced<'py> = (Bound<'py, PyAny>, Bound<'py, PyTuple>);
+
 /// CPython's `float(x)` builtin, whose failure modes differ from pyo3's
 /// `f64` extraction (see [`PyRect::from_xyxy`]).
 fn py_float(value: &Bound<'_, PyAny>) -> PyResult<f64> {
@@ -331,6 +335,21 @@ impl PyRect {
     fn __delattr__(&self, py: Python<'_>, name: &str) -> PyResult<()> {
         Err(frozen_error(py, "delete", name))
     }
+
+    /// Make `pickle`, `copy.copy` and `copy.deepcopy` work.
+    ///
+    /// A pyclass is unpicklable by default, which the dataclass was not:
+    /// `deepcopy(zone)` and `pickle.dumps(board)` both reach a `Rect`
+    /// through `Zone.bounds` and raised `TypeError: cannot pickle
+    /// 'temper_io_types.Rect' object`. Reconstructing through
+    /// `type(self)(...)` re-runs the invariant check and preserves the
+    /// field types exactly (an `int` `Rect` round-trips as `int`), and
+    /// using `type(self)` rather than the concrete class keeps a
+    /// subclass a subclass — matching what the dataclass did.
+    fn __reduce__<'py>(slf: &Bound<'py, Self>) -> PyResult<Reduced<'py>> {
+        let py = slf.py();
+        Ok((slf.get_type().into_any(), slf.borrow().as_tuple(py)?))
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -600,6 +619,27 @@ impl PyFabPreset {
     fn __hash__(&self) -> PyResult<isize> {
         Err(unhashable("FabPreset"))
     }
+
+    /// See [`PyRect::__reduce__`] — a pyclass is unpicklable by default.
+    fn __reduce__<'py>(slf: &Bound<'py, Self>) -> PyResult<Reduced<'py>> {
+        let py = slf.py();
+        let s = slf.borrow();
+        Ok((
+            slf.get_type().into_any(),
+            PyTuple::new(
+                py,
+                [
+                    s.name.clone().into_pyobject(py)?.into_any(),
+                    s.trace_width_pct.into_pyobject(py)?.into_any(),
+                    s.min_trace_mm.into_pyobject(py)?.into_any(),
+                    s.min_clearance_mm.into_pyobject(py)?.into_any(),
+                    s.etch_undercut_mm.into_pyobject(py)?.into_any(),
+                    s.layer_registration_mm.into_pyobject(py)?.into_any(),
+                    s.drill_tolerance_mm.into_pyobject(py)?.into_any(),
+                ],
+            )?,
+        ))
+    }
 }
 
 #[pyfunction]
@@ -695,6 +735,26 @@ impl PyPinInfo {
     fn __hash__(&self) -> PyResult<isize> {
         Err(unhashable("PinInfo"))
     }
+
+    /// See [`PyRect::__reduce__`] — a pyclass is unpicklable by default.
+    fn __reduce__<'py>(slf: &Bound<'py, Self>) -> PyResult<Reduced<'py>> {
+        let py = slf.py();
+        let s = slf.borrow();
+        Ok((
+            slf.get_type().into_any(),
+            PyTuple::new(
+                py,
+                [
+                    s.x.into_pyobject(py)?.into_any(),
+                    s.y.into_pyobject(py)?.into_any(),
+                    s.net_name.clone().into_pyobject(py)?.into_any(),
+                    s.component_name.clone().into_pyobject(py)?.into_any(),
+                    s.pin_name.clone().into_pyobject(py)?.into_any(),
+                    s.diameter_mm.into_pyobject(py)?.into_any(),
+                ],
+            )?,
+        ))
+    }
 }
 
 /// `temper_placer.core.placement_drc.PlacementViolation`.
@@ -763,6 +823,31 @@ impl PyPlacementViolation {
 
     fn __hash__(&self) -> PyResult<isize> {
         Err(unhashable("PlacementViolation"))
+    }
+
+    /// See [`PyRect::__reduce__`] — a pyclass is unpicklable by default.
+    ///
+    /// `item_a`/`item_b` go through the pickler themselves, so a
+    /// round-tripped violation holds round-tripped pins — the same as
+    /// the dataclass, which also did not preserve identity across a
+    /// pickle.
+    fn __reduce__<'py>(slf: &Bound<'py, Self>) -> PyResult<Reduced<'py>> {
+        let py = slf.py();
+        let s = slf.borrow();
+        Ok((
+            slf.get_type().into_any(),
+            PyTuple::new(
+                py,
+                [
+                    s.item_a.bind(py).clone(),
+                    s.item_b.bind(py).clone(),
+                    s.distance.into_pyobject(py)?.into_any(),
+                    s.required.into_pyobject(py)?.into_any(),
+                    s.violation_type.clone().into_pyobject(py)?.into_any(),
+                    s.message.clone().into_pyobject(py)?.into_any(),
+                ],
+            )?,
+        ))
     }
 }
 

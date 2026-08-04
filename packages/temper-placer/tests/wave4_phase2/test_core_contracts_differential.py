@@ -609,20 +609,163 @@ def test_rect_random_sweep():
             assert repr(got) == repr(want)
 
 
-def test_rect_is_no_longer_a_dataclass_and_nothing_depends_on_that():
-    """The one measured API delta, pinned rather than hidden."""
+@pytest.mark.parametrize("args", _RECT_ARGS)
+def test_rect_survives_pickle_copy_and_deepcopy(args):
+    """A pyclass is unpicklable by default; the dataclass was not.
+
+    This was a real regression, caught after the first differential was
+    already green: `copy.deepcopy(zone)` and `pickle.dumps(board)` both
+    reach a `Rect` through `Zone.bounds` and raised `TypeError: cannot
+    pickle 'temper_io_types.Rect' object`. `__reduce__` fixes it; this
+    test is what would have caught it.
+    """
+    import copy
+    import pickle
+
+    got, want = ProdRect(*args), oracle.Rect(*args)
+    for label, roundtrip in (
+        ("pickle", lambda o: pickle.loads(pickle.dumps(o))),
+        ("deepcopy", copy.deepcopy),
+        ("copy", copy.copy),
+    ):
+        assert_same(roundtrip(got), roundtrip(want), f"Rect{args} via {label}")
+        # ... and the round-tripped object is still the same class and
+        # still equal to the original, including field types.
+        assert type(roundtrip(got)) is type(got)
+        assert roundtrip(got) == got
+
+
+def test_zone_and_board_survive_pickle_and_deepcopy():
+    """The regression's actual blast radius: Zone.bounds is a Rect."""
+    import copy
+    import pickle
+
+    from temper_placer.core.board import Board, Zone
+
+    z = Zone("Z", (0, 0, 10, 10))
+    for roundtrip in (lambda o: pickle.loads(pickle.dumps(o)), copy.deepcopy):
+        assert roundtrip(z).bounds == (0.0, 0.0, 10.0, 10.0)
+        board = Board(width=10, height=10, zones=[Zone("A", (0, 0, 5, 5))])
+        assert roundtrip(board).zones[0].bounds == (0.0, 0.0, 5.0, 5.0)
+
+
+def test_contract_objects_survive_pickle_and_deepcopy():
+    """Same for PinInfo, PlacementViolation and FabPreset."""
+    import copy
+    import pickle
+
+    pins_p = [
+        prod_drc.PinInfo(0.0, 0.0, "A", "U1", "1", 1.0),
+        prod_drc.PinInfo(1.5, 0.0, "B", "U2", "2", 1.0),
+    ]
+    pins_o = [
+        oracle.PinInfo(0.0, 0.0, "A", "U1", "1", 1.0),
+        oracle.PinInfo(1.5, 0.0, "B", "U2", "2", 1.0),
+    ]
+    subjects = [
+        (prod_drc.PinInfo(1.0, 2.0, "GND", "U1", "3"), oracle.PinInfo(1.0, 2.0, "GND", "U1", "3")),
+        (prod_mf.FabPreset.oshpark(), oracle.FabPreset.oshpark()),
+        # Every field non-default, so a `__reduce__` that silently drops
+        # one is caught. The three named presets all leave
+        # `drill_tolerance_mm` at its default, which is why dropping it
+        # from the reduce tuple survived (mutant M39) until this case.
+        (
+            prod_mf.FabPreset("custom", 0.11, 0.22, 0.33, 0.44, 0.55, 0.66),
+            oracle.FabPreset("custom", 0.11, 0.22, 0.33, 0.44, 0.55, 0.66),
+        ),
+        (
+            prod_drc.PinInfo(-1.5, 2.5, "AC_L", "Q7", "G", 2.75),
+            oracle.PinInfo(-1.5, 2.5, "AC_L", "Q7", "G", 2.75),
+        ),
+        (
+            prod_drc.validate_placement_drc(pins_p, 1.0)[0],
+            oracle.validate_placement_drc(pins_o, 1.0)[0],
+        ),
+    ]
+    for got, want in subjects:
+        for label, roundtrip in (
+            ("pickle", lambda o: pickle.loads(pickle.dumps(o))),
+            ("deepcopy", copy.deepcopy),
+        ):
+            assert_same(roundtrip(got), roundtrip(want), f"{type(got).__name__} via {label}")
+
+
+def test_rect_subclassing_still_works():
+    """The dataclass was subclassable, so the pyclass must be too."""
+
+    class MyRect(ProdRect):
+        pass
+
+    class MyOracleRect(oracle.Rect):
+        pass
+
+    m, o = MyRect(0.0, 0.0, 1.0, 1.0), MyOracleRect(0.0, 0.0, 1.0, 1.0)
+    # Compared through the unpacked fields rather than `assert_same`,
+    # because the signature keys on the concrete type name and these two
+    # subclasses deliberately have different ones.
+    assert_same(list(m), list(o), "subclass fields")
+    assert repr(m).startswith("MyRect(") or repr(m).startswith("Rect(")
+    # `coerce` returns a subclass instance unchanged, and `from_xyxy`
+    # constructs the subclass -- both because they dispatch on `cls`.
+    assert ProdRect.coerce(m) is m
+    assert oracle.Rect.coerce(o) is o
+    assert type(MyRect.from_xyxy(0.0, 0.0, 2.0, 2.0)) is MyRect
+    assert type(MyOracleRect.from_xyxy(0.0, 0.0, 2.0, 2.0)) is MyOracleRect
+
+    # A subclass must survive copy/deepcopy AS the subclass -- i.e.
+    # `__reduce__` has to reconstruct through `type(self)`, not through
+    # the concrete `Rect`. (Mutant M36 survived until this was added; a
+    # locally-defined class cannot be pickled, so copy is the vehicle.)
+    import copy
+
+    assert type(copy.copy(m)) is MyRect
+    assert type(copy.deepcopy(m)) is MyRect
+    assert type(copy.deepcopy(o)) is MyOracleRect
+    assert_same(list(copy.deepcopy(m)), list(copy.deepcopy(o)), "subclass deepcopy")
+
+
+def test_rect_is_no_longer_a_dataclass_and_asdict_changes_shape():
+    """The one measured API delta, pinned rather than hidden.
+
+    `dataclasses.is_dataclass(Rect)` was `True` and is now `False`. The
+    visible consequence is that `asdict()` on a dataclass *containing* a
+    `Rect` no longer recurses into it: it deep-copies the `Rect` instead
+    of flattening it to a nested dict.
+
+        before:  {'bounds': {'x_min': 0.0, 'y_min': 0.0, ...}}
+        after:   {'bounds': Rect(x_min=0.0, y_min=0.0, ...)}
+
+    Both shapes are recorded here so the delta is a documented fact
+    rather than something a reader has to rediscover. A repo-wide grep
+    found four `asdict` call sites -- metrics/physics.py,
+    pipeline/dag_observability.py, testing/quarantine.py and
+    validation/results/battery_run.py -- and none is reachable from a
+    `Rect`, which is why this is acceptable rather than blocking.
+    """
     import dataclasses
 
     assert not dataclasses.is_dataclass(ProdRect)
     assert dataclasses.is_dataclass(oracle.Rect)
 
-    # And no dataclass in the package that reaches asdict() contains one.
     from temper_placer.core.board import Zone
 
     z = Zone("Z", (0, 0, 1, 1))
     assert not dataclasses.is_dataclass(z.bounds)
-    with pytest.raises(TypeError):
-        dataclasses.asdict(z)
+
+    # After: the Rect survives asdict() as an object (it is copyable now
+    # that __reduce__ exists) rather than being flattened.
+    after = dataclasses.asdict(z)
+    assert after["bounds"] == (0.0, 0.0, 1.0, 1.0)
+    assert not isinstance(after["bounds"], dict)
+
+    # Before: the oracle's Rect flattens to a nested dict.
+    @dataclasses.dataclass
+    class _OracleZone:
+        name: str
+        bounds: object
+
+    before = dataclasses.asdict(_OracleZone("Z", oracle.Rect.coerce((0, 0, 1, 1))))
+    assert before["bounds"] == {"x_min": 0.0, "y_min": 0.0, "x_max": 1.0, "y_max": 1.0}
 
 
 # ---------------------------------------------------------------------------

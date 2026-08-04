@@ -185,12 +185,39 @@ struct therefore carries the four originals plus an `f64` view
 (`PyRect::data`) for Rust consumers; the `f64` view is lossy above 2^53
 and no Python-visible path reads it.
 
+**Pickling — a regression this file initially missed.** A pyclass is
+unpicklable by default and the dataclass was not, so `pickle.dumps(board)`
+and `copy.deepcopy(zone)` both failed with `TypeError: cannot pickle
+'temper_io_types.Rect' object` — reached through `Zone.bounds`. All four
+contract types now implement `__reduce__` as `(type(self), (fields…))`,
+which reconstructs through `type(self)` so a subclass stays a subclass,
+re-runs the invariant check, and preserves field types exactly (an `int`
+`Rect` round-trips as `int`). Covered by
+`test_rect_survives_pickle_copy_and_deepcopy`,
+`test_zone_and_board_survive_pickle_and_deepcopy`,
+`test_contract_objects_survive_pickle_and_deepcopy` and
+`test_rect_subclassing_still_works`, and by mutants M36–M39.
+
+This is worth recording as a process point, not just a bug: the first
+differential was green across 941 assertions while `pickle` was broken,
+because nothing in it pickled anything. Behavioural coverage is only as
+wide as the operations you think to perform.
+
 **The one measured API delta.** `dataclasses.is_dataclass(Rect)` was
-`True`, is now `False`. Grepped: the repo has four `asdict` call sites
-(`metrics/physics.py`, `pipeline/dag_observability.py`,
-`testing/quarantine.py`, `validation/results/battery_run.py`) and none
-is reachable from a `Rect`. Pinned by
-`test_rect_is_no_longer_a_dataclass_and_nothing_depends_on_that`.
+`True`, is now `False`. The visible consequence is that `asdict()` on a
+dataclass *containing* a `Rect` no longer recurses into it — it
+deep-copies the `Rect` instead of flattening it:
+
+```text
+before:  {'bounds': {'x_min': 0.0, 'y_min': 0.0, 'x_max': 1.0, 'y_max': 1.0}}
+after:   {'bounds': Rect(x_min=0.0, y_min=0.0, x_max=1.0, y_max=1.0)}
+```
+
+Grepped: the repo has four `asdict` call sites (`metrics/physics.py`,
+`pipeline/dag_observability.py`, `testing/quarantine.py`,
+`validation/results/battery_run.py`) and none is reachable from a
+`Rect`. Both shapes are pinned by
+`test_rect_is_no_longer_a_dataclass_and_asdict_changes_shape`.
 
 ---
 
@@ -272,8 +299,17 @@ rebuild; gate; revert) run outside the repo, so the durable record is
 this section: every mutant is listed below by the exact behaviour it
 reverts, which is enough to reconstruct the corpus.
 
-**33 / 36 killed.** The 3 survivors are each accounted for below; none
-was closed by weakening a claim.
+**37 / 40 killed** (36 in the main corpus + 4 added for the `__reduce__`
+path once pickling was fixed). The 3 survivors are each accounted for
+below; none was closed by weakening a claim.
+
+The four `__reduce__` mutants (M36–M39) all started as survivors and all
+four were closed by new discriminating tests: reconstructing through the
+concrete class instead of `type(self)` (needed a subclass `copy` test);
+coercing the fields to `float`; swapping `PinInfo.x`/`.y`; and dropping
+`FabPreset.drill_tolerance_mm` — the last of which survived because all
+three named presets leave that field at its default, so the corpus now
+includes a preset with every field non-default.
 
 The first run used a pytest-only gate and reported 5 survivors. Two of
 them (`M12` "cpython_max2 becomes f64::max" and `M11` "precedence: power
