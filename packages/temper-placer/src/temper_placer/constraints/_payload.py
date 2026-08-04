@@ -46,7 +46,7 @@ def _group(g) -> dict:
     }
 
 
-def build_payload(constraints, board_bounds) -> dict:
+def _build_payload(constraints, board_bounds) -> dict:
     """Build the plain-dict payload consumed by the Rust pyfunctions.
 
     Args:

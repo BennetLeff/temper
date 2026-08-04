@@ -22,25 +22,15 @@ from __future__ import annotations
 
 import random
 
-import pytest
 import temper_constraint_compiler as _rust
 import yaml
 
 import tests.constraints._builder_py_oracle as _oracle
-
-from temper_placer._constraint_types import PlacementConstraints
 from temper_placer.constraints.builder import ConstraintBuilder
 
 # Module-scope RED arm.
 assert hasattr(_rust, "builder_validate")
 assert hasattr(_rust, "builder_to_yaml_data")
-
-
-def _build_with(constraints_ctor):
-    """Build identical constraint sets through oracle and shim builders."""
-    o = _oracle.ConstraintBuilder()
-    s = ConstraintBuilder()
-    return o, s
 
 
 def _random_chain(rng: random.Random):

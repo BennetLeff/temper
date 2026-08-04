@@ -39,7 +39,7 @@ if TYPE_CHECKING:
 import temper_constraint_compiler as _rust  # type: ignore[import-untyped]
 
 from temper_placer._constraint_types import PlacementConstraints
-from temper_placer.constraints._payload import build_payload
+from temper_placer.constraints._payload import _build_payload as build_payload
 
 # Type aliases for clarity
 SlotFilter = Callable[[tuple[float, float], str, dict[str, tuple[float, float]]], bool]

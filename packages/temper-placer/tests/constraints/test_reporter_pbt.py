@@ -40,7 +40,6 @@ from __future__ import annotations
 
 import json
 
-import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
@@ -54,7 +53,6 @@ from temper_placer._constraint_types import (
     ThermalConstraint,
 )
 from temper_placer.constraints.reporter import (
-    ConstraintReport,
     ConstraintReporter,
     ConstraintStatus,
 )

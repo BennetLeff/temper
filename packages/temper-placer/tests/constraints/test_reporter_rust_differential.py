@@ -20,11 +20,9 @@ from __future__ import annotations
 import json
 import random
 
-import pytest
 import temper_constraint_compiler as _rust
 
 import tests.constraints._reporter_py_oracle as _oracle
-
 from temper_placer._constraint_types import (
     ComponentGroup,
     ComponentSpacingRule,

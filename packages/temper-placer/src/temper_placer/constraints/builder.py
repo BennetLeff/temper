@@ -16,9 +16,8 @@ implementation is pinned verbatim as the differential oracle
 (``tests/constraints/_builder_py_oracle.py``).
 """
 
-import yaml  # type: ignore[import-untyped]
-
 import temper_constraint_compiler as _rust  # type: ignore[import-untyped]
+import yaml  # type: ignore[import-untyped]
 
 from temper_placer._constraint_types import (
     ComponentGroup,
@@ -29,7 +28,7 @@ from temper_placer._constraint_types import (
     RoutingCorridor,
     ThermalConstraint,
 )
-from temper_placer.constraints._payload import build_payload
+from temper_placer.constraints._payload import _build_payload as build_payload
 
 
 class ConstraintBuilder:

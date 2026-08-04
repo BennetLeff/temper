@@ -21,7 +21,7 @@ from enum import Enum
 
 import temper_constraint_compiler as _rust  # type: ignore[import-untyped]
 
-from temper_placer.constraints._payload import build_payload
+from temper_placer.constraints._payload import _build_payload as build_payload
 
 
 class ConstraintStatus(Enum):

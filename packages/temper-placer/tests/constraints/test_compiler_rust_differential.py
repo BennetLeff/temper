@@ -20,11 +20,9 @@ from __future__ import annotations
 
 import random
 
-import pytest
 import temper_constraint_compiler as _rust
 
 import tests.constraints._compiler_py_oracle as _oracle
-
 from temper_placer._constraint_types import (
     ComponentGroup,
     ComponentSpacingRule,
@@ -315,7 +313,6 @@ class TestHelperMethodsDifferential:
             assert _pt(o._centroid(pts)) == _pt(s._centroid(pts))
         for _ in range(100):
             slot = (rng.uniform(-50, 150), rng.uniform(-50, 150))
-            bounds = (0.0, 0.0, 100.0, 80.0)
             assert _f(o._min_edge_distance(slot)) == _f(s._min_edge_distance(slot))
             p = (rng.uniform(-50, 150), rng.uniform(-50, 150))
             a = (rng.uniform(-50, 150), rng.uniform(-50, 150))
@@ -344,14 +341,14 @@ class TestValidationErrorFormatting:
     def test_str_formatting(self):
         """__str__ of ValidationError must match the oracle exactly."""
         for kwargs in [
-            dict(constraint_type="Test", message="Something went wrong"),
-            dict(constraint_type="Test", message="Invalid component", component="U_MCU"),
-            dict(
-                constraint_type="Test",
-                message="Component not found",
-                component="U_MC",
-                suggestion="Did you mean: U_MCU?",
-            ),
+            {"constraint_type": "Test", "message": "Something went wrong"},
+            {"constraint_type": "Test", "message": "Invalid component", "component": "U_MCU"},
+            {
+                "constraint_type": "Test",
+                "message": "Component not found",
+                "component": "U_MC",
+                "suggestion": "Did you mean: U_MCU?",
+            },
         ]:
             o = _oracle.ValidationError(**kwargs)
             s = ValidationError(**kwargs)

@@ -47,7 +47,6 @@ from __future__ import annotations
 
 import math
 
-import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
@@ -57,8 +56,6 @@ from temper_placer._constraint_types import (
     EscapeClearance,
     PlacementConstraints,
     ProximityRule,
-    RoutingCorridor,
-    ThermalConstraint,
 )
 from temper_placer.constraints.compiler import ConstraintCompiler
 

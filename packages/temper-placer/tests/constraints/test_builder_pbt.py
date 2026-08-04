@@ -47,7 +47,6 @@ import yaml
 
 from temper_placer.constraints.builder import ConstraintBuilder
 
-
 # ---------------------------------------------------------------------------
 # P1 — valid build validates clean; missing reference is caught
 # ---------------------------------------------------------------------------
