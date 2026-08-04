@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Post-solve verification for the domain-first re-solve (#518).
 
-# provenance: commit=631859aca8dc3c33e2b08b4b11501ec0d8e8bdbac dirty=false
+# provenance: commit=631859acaecdee3d5a8329e09fbfbf0a4c37b012 dirty=false
 
 Re-runs the three falsification criteria (docs/evidence/2026-08-03-mains-
 selv-barrier-keepout.md §4) against the SOLVED placement from
