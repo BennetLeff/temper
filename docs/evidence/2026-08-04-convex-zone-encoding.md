@@ -1,4 +1,4 @@
-<!-- provenance: commit=7acaddd5670148e256c0a76f9d54d0fb2981ba88 dirty=false -->
+<!-- provenance: commit=61c222730f4c00e6afc7f2539dbe3102ed4d7fdf dirty=false -->
 
 # General-convex (diagonal-edge) zone encoding for fixed copper — the run-C unlock (issue #651)
 
@@ -162,7 +162,7 @@ cap, 12,101 SeparatedConstraints, fixed-copper for FREE={K3,C27} at margin
 | K3 pad 4 vs SW_NODE | BBOX | 3,225 | 22,936 | 22,919 |
 | K3 pad 1 vs SW_NODE | BBOX | 3,225 | 23,793 | 23,777 |
 | K3 pad 3 vs SW_NODE | BBOX | 4,575 | 24,834 | 24,806 |
-| K3 pad 3 vs +15V_LS | BBOX | 39,630 | 42,869 | 42,851 |
+| K3 pad 3 vs +15V_LS | BBOX | 39,630 | 42,869 | 42,852 |
 
 (cap 120 mm envelope grid, 0.5 mm steps, edge-margin gated — the probe's
 exact `encoded_zone_reachability` table.)

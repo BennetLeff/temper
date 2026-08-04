@@ -1,4 +1,4 @@
-# provenance: commit=5253c837745a6cd6dbf9bad74c1200db1e3274ab dirty=True
+# provenance: commit=61c222730f4c00e6afc7f2539dbe3102ed4d7fdf dirty=False
 ref,n_conflicting_zone_pairs,conflicting_pads,conflicting_zone_nets,envelope_cap_mm,grid_step_mm,grid_cells,grid_cells_clearing_all_zones,any_position_clears_all_zones,first_clearing_position,best_placement
 C27,2,['2'],['DC_BUS_RTN'],120.0,0.5,231361,14973,True,"{'x_mm': 29.62, 'y_mm': 222.0, 'disp_mm': 1.0}","{'x_mm': 28.62, 'y_mm': 222.0}"
 K3,18,"['1', '2', '3', '4', '5']","['+15V_LS', 'SW_NODE']",120.0,0.5,231361,12916,True,"{'x_mm': 16.12, 'y_mm': 7.42, 'disp_mm': 37.5}","{'x_mm': 43.12, 'y_mm': 17.92}"
