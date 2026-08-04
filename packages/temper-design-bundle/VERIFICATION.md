@@ -685,3 +685,318 @@ commit `a47527751`).
   R2 for delegation-only modules applies.
 - Consumer suites run unchanged against the pyclasses: heuristics/power_stage
   and the `core/__init__.py` re-export path (verified in the migration PR).
+
+---
+
+# Board / netlist parse-target contracts — Verification
+
+The board and netlist data models (`src/board_contracts.rs`,
+`src/netlist_contracts.rs`) are Wave 4 **Phase 3, candidate 1** — the
+dependency spine of the phase (candidates 3, 4 and 5 wait on it), ported
+from `temper_placer/core/board.py` (803 LOC) and
+`temper_placer/core/netlist.py` (440 LOC). Both Python modules are now
+delegation shims that re-export the pyclasses and keep exactly two surfaces
+Python, under the R3 verdicts recorded below.
+
+This section supersedes the "JUSTIFIED-KEEP — re-decide at Phase 3 pull" row
+for `core/board.py` / `core/netlist.py` in the priority-migration scorecard
+above. That row cited two blockers: "numpy float32 array fields" and "numpy
+`eigh` spectral adjacency (not bit-reproducible)". The first is
+**overturned** — see case 7 of the structural proof. The second is
+**upheld**, and is R3 #2 below.
+
+## R3 verdicts (named blockers)
+
+Per D6, a well-evidenced "this part cannot reach honest R1" is a legitimate
+outcome. Two surfaces inside the candidate's scope are recorded as R3 rather
+than forced or silently deferred.
+
+### R3 #1 — `LayerIndex` and its derived tables stay Python
+
+**Blocker: pyo3 cannot produce a pyclass that subclasses `int`.**
+
+`LayerIndex` is a Python `IntEnum`, and its int-ness is load-bearing in this
+repo, not incidental:
+
+| Consumer | Expression | Requires |
+|---|---|---|
+| `router_v6/constraints_drc_oracle.py:532` | `LayerIndex(layer) in INTERNAL_LAYERS` | value construction + set membership by int hash |
+| `deterministic/stages/_grid_hv.py:59` | `LAYER_IDX_TO_NAME[LayerIndex(layer_idx)]` | dict keying interchangeable with `int` |
+| `net_types.rs:888` (already-migrated Rust) | `getattr(board, "LayerIndex")` → stored as `NetTypeSpec.target_layer: Py<PyAny>` | `==` against layer-name `str` AND against `int` |
+
+pyo3's `extends=` accepts only fixed-basicsize bases; `int` is
+variable-sized, so no pyclass can inherit from it. A pyo3 `#[pyclass]` enum
+would therefore satisfy `LayerIndex.F_CU.value == 0` but **not**
+`LayerIndex.F_CU == 0`, and `hash(LayerIndex.IN1_CU) != hash(1)`. That is
+precisely the failure mode the plan warns about: a value-level differential
+comparing `.name`/`.value` would pass while `{LayerIndex.IN1_CU: x}[1]`
+started raising `KeyError` in production.
+
+The fifth Phase-2 migration accepted the analogous deviation for
+`PlacementPriority`/`RoutingPriority` because *no consumer relied on the int
+comparison*. Here three do, so the same deviation is not available, and the
+enum, its derived tables (`STANDARD_LAYER_ORDER`, `PLANE_LAYER_INDICES`,
+`LAYER_IDX_TO_NAME`, `LAYER_NAME_TO_IDX`, `CANONICAL_4LAYER_LAYER_NAMES`,
+`CANONICAL_LAYER_COUNT`) and the predicates that dispatch on it
+(`is_plane_layer`, `is_signal_layer`, `layer_name_to_index`) remain Python.
+`side_to_layer_name` does *not* touch `LayerIndex` and **was** migrated.
+
+Guarded by
+`test_board_rust_differential.py::test_layer_index_stays_a_python_intenum_r3`,
+which asserts the int-ness directly — so a later attempt to move it must
+confront this record rather than slip past it.
+
+### R3 #2 — `compute_eigenvector_centrality` stays Python
+
+**Blocker: `numpy.linalg.eigh` is LAPACK `?syevd`.**
+
+The function returns the leading eigenvector of the adjacency matrix. No
+independent implementation reproduces LAPACK's output bit-for-bit: an
+eigenvector is defined only up to sign, and within a degenerate eigenvalue
+subspace only up to an arbitrary rotation — both of which LAPACK resolves by
+implementation-specific pivoting, not by a specified rule. A differential
+could therefore only pass by *calling numpy from Rust*, which adds a
+boundary crossing and proves nothing.
+
+This is the same judgment PR #688 made in keeping `yaml.safe_load` on the
+Python side rather than re-tokenizing: the migration stops where equivalence
+stops being provable. The function has **zero in-repo consumers outside its
+own module**, so nothing downstream is held back by leaving it.
+
+Guarded by
+`test_netlist_rust_differential.py::test_compute_eigenvector_centrality_stays_python_r3`.
+
+## Induction applicability
+
+**Mathematical induction is not applicable to these modules.** They are data
+contracts; no function is recursive, and no function's correctness depends
+on a size parameter:
+
+- Every constructor, getter and `repr`/`__eq__`/`__hash__` is a fixed
+  transcription over a fixed field list.
+- The geometric methods (`Zone.width`/`height`/`center`/`area`, `Board.area`,
+  `Rect.width`/`height`, `Board.contains_point`) are closed-form arithmetic
+  on a constant number of operands.
+- The methods that *do* loop (`Board.get_zone_for_point`,
+  `Board.point_in_keepout`, `Netlist.build_indices`, `Netlist.validate`,
+  `Component.get_pin`, `build_adjacency_matrix`) iterate caller-provided
+  collections where the per-element operation is independent of the
+  collection's size. Two of them are additionally *order*-independent, which
+  is asserted rather than assumed: MR3 in `test_netlist_pbt.py` (net
+  permutation leaves the adjacency matrix bit-identical) and MR4 in
+  `test_board_pbt.py` (zone-list reversal changes `_zone_map` collisions
+  identically on both sides).
+- `Netlist.find_isomorphic_groups` iterates a caller-supplied `iterations`
+  count, but each round is a pure relabelling whose per-node result depends
+  only on the previous round's labels — a fold, not an induction over a
+  correctness-carrying dimension. Parity is asserted for every
+  `iterations ∈ {0, 1, 2, 3}` in both the differential and P8.
+
+Per the plan's R1e, a **structural proof** is recorded instead.
+
+## Structural proof
+
+**Claim (bit-identical parity, including the concrete Python type of every
+field and the dtype of every returned array).** For every public symbol, the
+pyclass behaviour is bit-identical to the pinned pre-migration Python
+implementations (`tests/core/_board_py_oracle.py`, commit `5a17025b1`;
+`tests/core/_netlist_py_oracle.py`, commit `e799183c4`).
+
+*Proof by structural cases.*
+
+1. **Field storage — type preservation by construction.** The pre-migration
+   contracts are plain `@dataclass`es, which coerce nothing:
+   `Component("R1", "fp", (1, 2))` stores `int` bounds and `.width` returns
+   `int` `1`. Every pyclass field is therefore declared `Py<PyAny>` and
+   stores *the caller's object itself*. There is no Rust-side numeric
+   conversion anywhere on the construction path, so widening `int`→`float`
+   or `f32`→`f64` is not merely untested but **unrepresentable**. The one
+   place the oracle *does* coerce (`Rect.from_xyxy`/`from_xywh`/`coerce`
+   call `float(...)`) is reproduced by calling CPython's own `float` type
+   constructor, so `__float__`/`__index__`/`float("1.5")` all behave
+   identically.
+
+2. **Container identity.** Mutable container fields (`Net.pins`,
+   `Component.pins`, `Board.zones`, `Board.keepouts`, `Zone.net_classes`,
+   `Component.attributes`, …) are stored and returned as the *same* Python
+   object, so in-place mutation still lands. This is load-bearing:
+   `io/_parse_nets.py:50` builds every net by
+   `nets_dict[pin.net].pins.append(...)`. A getter returning a fresh list
+   would have produced empty nets across the whole parser while a
+   value-equality differential stayed green — so it is asserted directly
+   (`test_net_pins_list_is_shared_by_identity`, which checks the *caller's*
+   list object is the stored one). `field(default_factory=...)` freshness is
+   asserted symmetrically (`test_*_default_containers_are_fresh_per_instance`).
+
+3. **`__repr__`.** Rather than re-deriving CPython's `repr(float)` /
+   `repr(str)` rules (the `py_float_str`/`py_str_repr` helpers earlier
+   Phase-2 migrations needed), each pyclass calls **CPython's own `repr()`**
+   on each stored field and splices the results into the generated-dataclass
+   layout `Cls(f1=r1, …, fn=rn)`. Since the field objects *are* the oracle's
+   field objects, the rendered text is identical by construction for every
+   value, including `1e+300`, `1e-05`, `nan`, `-0.0` and subnormals. The
+   `repr=False` fields (`Netlist._component_index`, `_net_index`,
+   `_component_nets`) are omitted, and the `init=False` but `repr=True`
+   field `Board._zone_map` is included — both asserted.
+
+4. **`__eq__` / `__hash__`.** `__eq__` builds the `compare=True` field tuple
+   on both operands and defers to Python `==` on tuples, after the
+   `other.__class__ is self.__class__` identity gate a generated dataclass
+   `__eq__` applies (returning `NotImplemented` otherwise). Frozen classes
+   (`Trace`, `Via`, `LayerStackup`) hash via `hash(tuple(fields))`, which
+   reproduces the oracle exactly *including its failures*:
+   `hash(LayerStackup.default_4layer())` raises
+   `TypeError: unhashable type: 'Layer'` because `Layer` is a non-frozen
+   dataclass whose `__hash__` is `None`. The mutable classes raise the same
+   `TypeError` with the bare class name — pyo3's default message
+   interpolates the dotted `tp_name`, so `__hash__` is written explicitly to
+   keep the text byte-identical. `Rect` carries `eq=False` and keeps its
+   hand-written `__eq__` (equal to a bare 4-`tuple`/`list`,
+   `NotImplemented` otherwise) and `__hash__`, while still getting the
+   generated `__repr__`; all three are reproduced separately.
+
+5. **Frozen semantics.** `Trace`, `Via`, `LayerStackup` and `Rect` raise
+   CPython's own `dataclasses.FrozenInstanceError` (imported from
+   `dataclasses` at call time, not re-declared) with the exact
+   `cannot assign to field 'x'` / `cannot delete field 'x'` text. A pyclass
+   field without `set` would have raised a different type *and* message.
+
+6. **Arithmetic.** Every derived value is computed through Python's own
+   operators (`PyAnyMethods::add`/`sub`/`mul`/`div`/`pow`), never through
+   Rust `f64`. So `Board(3, 4).area` is `int` `12` (not `12.0`),
+   `Zone.center` is true division (always `float`), and IEEE-754 rounding is
+   CPython's own. Chained comparisons (`0 <= x <= width`) are written out
+   with their short-circuit preserved, so a probe that would raise on the
+   second comparison only raises when the first succeeded.
+
+7. **numpy arrays — the float32 surface.** `polygon_array`,
+   `Board.get_bounds_array`, `Board.get_relative_bounds_array`,
+   `Netlist.get_bounds_array`, `Netlist.get_fixed_mask` and
+   `build_adjacency_matrix` are materialized by calling **numpy itself**
+   (`numpy.array(obj, dtype=numpy.float32)`) with the identical argument
+   object the oracle builds. The dtype and every element's bit pattern are
+   therefore numpy's own; there is no Rust float conversion in the path that
+   could widen `float32` to `float64`. This is what overturns the earlier
+   "numpy float32 array fields" blocker: the fields were never the problem —
+   re-implementing numpy's cast would have been, and it is not done. (The
+   hypothesis corpus reaches the `float64`→`float32` overflow boundary and
+   both sides emit the same `RuntimeWarning: overflow encountered in cast`
+   and the same `inf` bytes.)
+
+   The distinct empty-path dtypes are preserved verbatim, including the
+   inconsistent one: `Netlist().get_bounds_array()` is `float32` shape
+   `(0,)`, while `build_adjacency_matrix(Netlist())` is
+   `np.array([]).reshape(0, 0)` with **no** dtype argument and is therefore
+   `float64`. A port that tidied these into one dtype would be a behaviour
+   change; `test_build_adjacency_matrix_empty_keeps_float64_shape_0_0` pins
+   it.
+
+8. **Preserved oracle quirks.** Three behaviours that read as bugs are
+   reproduced rather than fixed, each with a naming test:
+   `Board.rotated_90` rebuilds zones without `zone_type`, silently resetting
+   a `"keepout"` zone to `"placement"`; `Board.point_in_keepout` consults
+   only `mounting_holes` and never `self.keepouts` despite its docstring;
+   and `Zone.bounds` is `Rect`-coerced in `__post_init__` only, so a later
+   assignment stores the raw tuple (which
+   `deterministic/feedback/orchestrator.py` depends on, as it writes
+   inverted intermediates that a re-coercion would reject).
+
+9. **Verbatim-transcribed algorithms.** `Netlist.find_isomorphic_groups`
+   keeps the `re.match(r"^([a-zA-Z]+)", ref)` prefix rule and the
+   `hashlib.md5` label digest by calling `re` and `hashlib` themselves.
+   `build_adjacency_matrix` deduplicates each net's component indices before
+   emitting the complete subgraph; the oracle's dedup comes from
+   `list(set(...))` whose iteration order is unspecified, but the result is
+   order-independent (every unordered pair contributes `+1` to both `(i,j)`
+   and `(j,i)`), so the sorted dedup used here yields the identical matrix —
+   asserted by MR3.
+
+10. **Error parity.** Failure modes are compared as values, not ignored.
+    `canon_call` captures exception *type name* and `str()` on both sides.
+    The iterable-unpacking diagnostics CPython generates for
+    `x_min, y_min, x_max, y_max = value` and `for ref, _ in pins`
+    (`cannot unpack non-iterable X object`, `not enough values to unpack
+    (expected N, got M)`, `too many values to unpack (expected N)`) are
+    re-implemented in `unpack`/`unpack2`, because a pyo3 tuple `extract()`
+    raises different text and rejects lists outright. The differential
+    caught exactly this divergence before it was fixed.
+
+11. **`LayerStackup._test_only_2layer` frame inspection.** The oracle reads
+    its *caller's* filename via `sys._getframe(1)`. A `#[pymethods]`
+    classmethod has no Python frame of its own, so the caller's frame is
+    `sys._getframe(0)` from Rust — index shifted by one, same frame
+    selected; likewise `warnings.warn(stacklevel=2)` becomes `stacklevel=1`.
+    The equivalence is not asserted by inspection but *demonstrated*: the
+    differential drives both sides from a synthetic frame compiled with the
+    filename `/opt/production/pipeline.py` and requires the same
+    `RuntimeError` text naming that file, and separately requires the same
+    warning message when called from this test file.
+
+## Documented deviations (per R1, recorded here)
+
+1. **Submodule placement.** The pyclasses live in
+   `temper_design_bundle_python.board_contracts` / `.netlist_contracts`
+   rather than the extension root, because `board.py` and `netlist.py` each
+   define a class named `Component`; one flat namespace would silently alias
+   one over the other. Nesting also keeps each pyclass's
+   `__name__`/`__qualname__` equal to the dataclass it replaces, which the
+   `repr` and `unhashable type: 'X'` parity assertions depend on. Consumers
+   are unaffected: they import from `temper_placer.core.board` / `.netlist`
+   exactly as before.
+
+2. **`__module__`.** Each pyclass reports
+   `temper_design_bundle_python.board_contracts` where the dataclass
+   reported `temper_placer.core.board`. `__name__`/`__qualname__` are
+   unchanged, and no in-repo consumer reads `__module__` for these types
+   (`placer/cp_sat/_loop_routing.py:68` reads `__class__.__name__` only, as
+   a fallback when `ref` is absent).
+
+3. **Not pickleable.** The pyclasses define no `__reduce__`, and the
+   submodules are not in `sys.modules`. Verified 2026-08-04 that nothing
+   in-repo pickles, `copy.deepcopy`s, or applies `dataclasses.replace` /
+   `asdict` / `fields` / `is_dataclass` to any of these types.
+
+## Evidence
+
+- Differential (R1a/R1f, TDD red→green): 214 assertions across
+  `packages/temper-placer/tests/core/test_board_rust_differential.py`
+  (oracle `_board_py_oracle.py`, commit `5a17025b1`) and
+  `test_netlist_rust_differential.py` (oracle `_netlist_py_oracle.py`,
+  commit `e799183c4`). RED first: both files failed to collect
+  (`AttributeError: module 'temper_design_bundle_python' has no attribute
+  'netlist_contracts'`) before the pyclasses existed.
+- Comparison convention: `tests/core/_contract_canon.py` carries each leaf's
+  concrete `type` and compares floats as `float.hex()` — never a tolerance —
+  and numpy arrays as `(dtype, shape, tobytes())`. `canon_call` compares
+  raised exceptions by type name and message, so error parity is asserted
+  alongside value parity.
+- PBT (R1c): 9 properties per module — `test_board_pbt.py` P1–P9,
+  `test_netlist_pbt.py` P1–P9 — each stated against the pinned oracle, and
+  each whose generator could degenerate paired with a
+  `test_*_is_non_vacuous` companion proving the interesting region is
+  actually reached (both `mask_expansion` values; all four `validate()`
+  error classes; both `polygon_array` outcomes; both `Rect.__init__`
+  outcomes; a real `int` in the coordinate corpus; last-wins zone-name
+  collisions; a self-referencing net that would put a `1` on the adjacency
+  diagonal if the dedup were dropped).
+- Metamorphic (R1d): 4 relations per module. Board — MR1 (repeated rotation,
+  including the degenerate `Rect` raise compared as a value), MR2 (four
+  rotations restore the envelope, one transposes it), MR3
+  (`from_xywh`/`from_xyxy` describe the same rectangle), MR4
+  (`build_indices` idempotent; zone order decides name collisions). Netlist
+  — MR1 (`build_indices` idempotent), MR2 (component permutation permutes
+  the bounds-array rows), MR3 (net permutation leaves the adjacency matrix
+  bit-identical), MR4 (appending one component grows the index by exactly
+  one and leaves the rest fixed).
+- Performance A/B (R1b): contract construction with no compute kernel, so
+  per R2 this is the *no-regression-beyond-noise* arm, not a speedup claim.
+- R1g: no `unwrap`/`expect` outside tests (the crate denies both via
+  `[lints.clippy]`); every container field is stored and returned by
+  borrow/handle rather than copied; `build_indices` reads all Python state
+  before opening its `borrow_mut`, so re-entrant user code cannot observe a
+  locked object. Panics at the pyo3 boundary are converted by pyo3 0.29's
+  generated trampolines (`catch_unwind` in the `#[pymethods]` expansion) —
+  the same mechanism relied on by every landed migration in this crate.
+- R1h: **N/A — these modules hold no state machine.** They are data
+  contracts; the only mutable state is the caller's own field values and the
+  three derived index dicts, whose rebuild is asserted idempotent (MR1/MR4).

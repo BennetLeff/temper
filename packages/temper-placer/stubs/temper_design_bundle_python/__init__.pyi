@@ -24,6 +24,16 @@ from __future__ import annotations
 
 from typing import Any
 
+# Wave 4 Phase 3 candidate 1: the parse-target contracts, in SUBMODULES.
+#
+# They are nested rather than flattened into this namespace because
+# board.py and netlist.py each define a class called `Component`; a single
+# namespace would silently alias one over the other. Nesting also keeps each
+# pyclass's `__name__`/`__qualname__` equal to the dataclass it replaces,
+# which the `unhashable type: 'X'` / repr parity assertions depend on.
+from . import board_contracts as board_contracts
+from . import netlist_contracts as netlist_contracts
+
 def sha256_hex(bytes: bytes) -> str: ...
 
 

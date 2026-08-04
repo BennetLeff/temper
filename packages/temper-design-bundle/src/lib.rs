@@ -13,6 +13,12 @@ mod gates;
 #[cfg(feature = "python")]
 mod priority;
 
+#[cfg(feature = "python")]
+mod netlist_contracts;
+
+#[cfg(feature = "python")]
+mod board_contracts;
+
 mod atopile;
 mod constraint_merge;
 mod error;
@@ -179,6 +185,15 @@ mod python {
         crate::loops::register(module)?;
         crate::design_rules::register(module)?;
         crate::gates::register(module)?;
-        crate::priority::register(module)
+        crate::priority::register(module)?;
+
+        // Wave 4 Phase 3 candidate 1: the parse-target contracts ported from
+        // temper_placer/core/netlist.py (see netlist_contracts.rs) and
+        // temper_placer/core/board.py (see board_contracts.rs). Both are
+        // registered under `Netlist*`/`Board*`-prefixed names because the two
+        // source modules each define a DIFFERENT class called `Component`;
+        // flattening them into one namespace would silently alias them.
+        crate::netlist_contracts::register(module)?;
+        crate::board_contracts::register(module)
     }
 }
