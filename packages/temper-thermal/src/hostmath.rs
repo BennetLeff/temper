@@ -41,10 +41,25 @@ fn dlsym_ptr(symbol: &CStr) -> Option<*mut u8> {
     unsafe extern "C" {
         fn dlsym(handle: *const u8, symbol: *const u8) -> *mut u8;
     }
+    // RTLD_DEFAULT is platform-specific: `(void*)0` on glibc/Linux, but
+    // `(void*)-2` on macOS/BSD (`#define RTLD_DEFAULT ((void *) -2)` in
+    // <dlfcn.h>).  Passing a bare NULL handle on darwin makes `dlsym`
+    // FAIL (NULL is not the "search every loaded image" handle there),
+    // so every hostmath call would silently fall back to the std
+    // intrinsics — the wasm32-only fallback this module documents, made
+    // load-bearing on macOS.  Use the platform's real RTLD_DEFAULT so
+    // the host-libm resolution actually happens on macOS too.  On darwin
+    // the resolved symbol IS the same libSystem function that Rust std's
+    // f64::exp/cos/sin/powf lower to (measured 2026-08-04: the
+    // differentials are bit-identical before and after this correction).
+    #[cfg(target_os = "macos")]
+    const RTLD_DEFAULT: *const u8 = (-2isize) as *const u8;
+    #[cfg(not(target_os = "macos"))]
     const RTLD_DEFAULT: *const u8 = core::ptr::null();
     // SAFETY: `symbol` is a NUL-terminated C string literal and
     // RTLD_DEFAULT is the documented "search every loaded object"
-    // handle.  A miss returns null, which is checked below.
+    // handle (never dereferenced).  A miss returns null, which is
+    // checked below.
     let p = unsafe { dlsym(RTLD_DEFAULT, symbol.as_ptr().cast::<u8>()) };
     if p.is_null() {
         None
@@ -302,5 +317,19 @@ mod tests {
         assert!(np_clip(f64::NAN, 0.0, 1.0).is_nan());
         assert!(np_clip(5.0, f64::NAN, 1.0).is_nan());
         assert!(np_clip(5.0, 0.0, f64::NAN).is_nan());
+    }
+
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn dlsym_resolves_on_macos() {
+        // Regression pin for the darwin RTLD_DEFAULT correction: on macOS
+        // RTLD_DEFAULT is `(void*)-2`, NOT NULL — with a NULL handle
+        // dlsym fails and hostmath silently falls back to the std
+        // intrinsics (which match the host Python's libm on darwin only
+        // by the coincidence that Rust std lowers to libSystem too).
+        assert!(dlsym_unary(c"exp").is_some(), "dlsym(\"exp\") must resolve on darwin");
+        assert!(dlsym_unary(c"log").is_some(), "dlsym(\"log\") must resolve on darwin");
+        assert!(dlsym_unary(c"log10").is_some(), "dlsym(\"log10\") must resolve on darwin");
+        assert!(dlsym_binary(c"pow").is_some(), "dlsym(\"pow\") must resolve on darwin");
     }
 }
