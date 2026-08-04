@@ -214,6 +214,45 @@ class TestCheckDifferential:
         assert any(r.constraint_type == "EscapeClearance" and r.status == ConstraintStatus.VIOLATED for r in sr.results)
         assert any(r.constraint_type == "RoutingCorridor" and r.status == ConstraintStatus.VIOLATED for r in sr.results)
 
+    def test_dict_subclass_raising_getitem_raises_in_check(self):
+        """A dict subclass whose ``__getitem__`` raises must surface that raise
+        from ``check()``: the oracle reaches the value via ``placements[ref]``
+        (Python-level ``__getitem__``), so the shim must not fall back to a
+        pre-extracted C-level list of placement values, which would silently
+        return a normal report. (Compiler-side raising-``__getitem__`` parity
+        is covered in the compiler differential; this is the reporter half.)"""
+
+        class RaisingDict(dict):
+            def __getitem__(self, key):
+                if key == "A":
+                    raise RuntimeError("boom from __getitem__")
+                return dict.__getitem__(self, key)
+
+        constraints = PlacementConstraints(
+            component_spacing_rules=[
+                ComponentSpacingRule(component_a="A", component_b="B", min_separation_mm=10.0, tier="hard")
+            ]
+        )
+        o, s = _both(constraints)
+        placements = RaisingDict({"A": (1.0, 2.0), "B": (3.0, 4.0)})
+        try:
+            o.check(placements)
+        except Exception as oe:  # noqa: BLE001
+            oracle_err = oe
+        else:
+            raise AssertionError("oracle check() did not raise")
+        try:
+            s.check(placements)
+        except Exception as se:  # noqa: BLE001
+            shim_err = se
+        else:
+            raise AssertionError(
+                "shim check() did not raise (returned a normal report); "
+                f"oracle raised {type(oracle_err).__name__}"
+            )
+        assert type(shim_err) is type(oracle_err)
+        assert str(shim_err) == str(oracle_err)
+
 
 class TestReportTextAndJsonDifferential:
     def test_empty_report_text(self):
@@ -288,6 +327,76 @@ class TestReportTextAndJsonDifferential:
         data = json.loads(s.to_json())
         assert data["violations"][0]["details"] == {"side": "left"}
 
+    def test_hand_built_report_int_and_bool_leaves_json(self):
+        """Hand-built reports with int/bool ``actual_value``/``expected_value``
+        leaves must round-trip through ``to_json`` preserving the leaf TYPE:
+        the oracle emits ``r.actual_value`` untouched, so ``json.dumps``
+        renders ``5``/``true``, not ``5.0``/``1.0``. (check()-produced leaves
+        are floats on both sides and are unaffected.) The shim's Rust json
+        builder must marshal the original Python leaf through rather than
+        re-emitting an f64-coerced value."""
+
+        def make(cls, result_cls, status_enum):
+            return cls(
+                results=[
+                    result_cls(
+                        "ComponentSpacing",
+                        status_enum.VIOLATED,
+                        "hard",
+                        ["A", "B"],
+                        "int leaf",
+                        actual_value=5,
+                        expected_value=10,
+                    ),
+                    result_cls(
+                        "Proximity",
+                        status_enum.SATISFIED,
+                        "soft",
+                        ["C", "D"],
+                        "bool leaf",
+                        actual_value=True,
+                        expected_value=False,
+                    ),
+                    result_cls(
+                        "Thermal",
+                        status_enum.WARNING,
+                        "soft",
+                        ["T"],
+                        "float leaf",
+                        actual_value=1.5,
+                        expected_value=3,
+                    ),
+                    result_cls(
+                        "RoutingCorridor",
+                        status_enum.VIOLATED,
+                        "hard",
+                        ["X", "Y"],
+                        "none leaf",
+                    ),
+                ]
+            )
+
+        o = make(_oracle.ConstraintReport, _oracle.ConstraintResult, _oracle.ConstraintStatus)
+        s = make(ConstraintReport, ConstraintResult, ConstraintStatus)
+        assert o.to_text() == s.to_text()
+        assert o.to_json() == s.to_json()
+        data = json.loads(s.to_json())
+        # violations[0] (ComponentSpacing): int leaves stay int.
+        assert type(data["violations"][0]["actual"]) is int
+        assert data["violations"][0]["actual"] == 5
+        assert type(data["violations"][0]["expected"]) is int
+        assert data["violations"][0]["expected"] == 10
+        # violations[1] (RoutingCorridor): None leaves stay None.
+        assert data["violations"][1]["actual"] is None
+        # warnings[0] (Thermal): float actual + int expected both preserved.
+        assert data["warnings"][0]["actual"] == 1.5
+        assert type(data["warnings"][0]["actual"]) is float
+        assert type(data["warnings"][0]["expected"]) is int
+        # all_results[1] (Proximity): bool leaves stay bool.
+        assert data["all_results"][1]["actual"] is True
+        assert type(data["all_results"][1]["actual"]) is bool
+        assert data["all_results"][1]["expected"] is False
+
     def test_summary_counts(self):
         """Summary counts reflect hard/soft/satisfied splits exactly."""
         s = ConstraintReport(
@@ -350,6 +459,73 @@ class TestReportBoundaryDifferential:
         or_, sr = o.check(placements), s.check(placements)
         assert [_result_key(r) for r in or_.results] == [_result_key(r) for r in sr.results]
         assert sr.results[0].message == "ComponentSpacing: A - B (5.0mm < 10.25mm)"
+
+    def test_nan_placements_messages_byte_identical(self):
+        """NaN placement coordinates must render in messages exactly as
+        CPython's `%.1f` does ('nan'), not Rust Display's 'NaN' — and the
+        divergence must not leak into to_text()/to_json(). NaN enters only
+        through the placements dict (every constraint-side float is
+        pydantic-bounded ge/gt=0, so NaN cannot ride a rule field); with NaN
+        as the FIRST element of the group-spread positions list it survives
+        py_min/py_max (first element is the running result), and a NaN
+        component position makes the thermal edge distance NaN. The escape/
+        corridor DISTANCE message sites are unreachable with NaN through
+        check() (`NaN < x` is False, so no violation ever carries a NaN
+        distance) — the shared `py_float_fmt_1` helper covers them anyway."""
+        constraints = PlacementConstraints(
+            component_spacing_rules=[
+                ComponentSpacingRule(component_a="A", component_b="B", min_separation_mm=10.0, tier="hard"),
+                ComponentSpacingRule(component_a="C", component_b="D", min_separation_mm=10.0, tier="soft"),
+            ],
+            component_groups=[
+                ComponentGroup(
+                    name="g",
+                    components=["A", "B"],
+                    max_spread_mm=30.0,
+                    proximity_rules=[
+                        ProximityRule(component_a="A", component_b="B", max_distance_mm=5.0, tier="soft")
+                    ],
+                ),
+                # D first: its NaN x survives py_min/py_max as the running
+                # first element, so the bounding-box diagonal is NaN.
+                ComponentGroup(name="gn", components=["D", "C"], max_spread_mm=40.0),
+            ],
+            escape_clearances=[EscapeClearance(component="A", clearance_mm=8.0, tier="hard")],
+            routing_corridors=[
+                RoutingCorridor(name="path", from_component="A", to_component="B", width_mm=6.0, tier="hard")
+            ],
+            thermal_constraints=[
+                ThermalConstraint(components=["T"], prefer_edge=True, max_distance_from_edge_mm=10.0)
+            ],
+        )
+        o, s = _both(constraints, (0.0, 0.0, 100.0, 80.0))
+        placements = {
+            "A": (0.0, 0.0),
+            "B": (float("nan"), 0.0),
+            "C": (0.0, 0.0),
+            "D": (float("nan"), 0.0),
+            "T": (float("nan"), 5.0),
+        }
+        or_, sr = o.check(placements), s.check(placements)
+        assert [_result_key(r) for r in or_.results] == [_result_key(r) for r in sr.results]
+        assert or_.to_text() == sr.to_text()
+        assert or_.to_json() == sr.to_json()
+        msgs = [r.message for r in sr.results]
+        # Pins CPython's %.1f rendering of NaN ('nan'), not Rust Display's 'NaN'.
+        assert any("nanmm" in m for m in msgs), msgs
+        assert all("NaN" not in m for m in msgs), msgs
+        # The NaN-reaching message sites are all actually exercised (not vacuous).
+        assert any(m.startswith("ComponentSpacing: A - B (nanmm") for m in msgs)
+        assert any(m.startswith("Proximity: A - B (nanmm") for m in msgs)
+        assert any(m.startswith("Thermal: T edge distance (nanmm") for m in msgs)
+        assert any(m.startswith("GroupSpread: gn (nanmm") for m in msgs)
+        # Status/actual/expected agree with the oracle even on the NaN rows.
+        nan_rows = [
+            (r.status.value, r.actual_value, r.expected_value)
+            for r in sr.results
+            if "nanmm" in r.message
+        ]
+        assert all(st == "violated" and ac != ac and ac is not None for st, ac, _ in nan_rows)
 
     def test_corridor_check_exact_half_width_clear(self):
         """dist == half_width is NOT a violation (strict <)."""

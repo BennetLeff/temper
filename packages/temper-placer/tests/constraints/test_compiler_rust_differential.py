@@ -18,6 +18,7 @@ before the Rust surface lands this file fails to collect (AttributeError).
 
 from __future__ import annotations
 
+import math
 import random
 
 import temper_constraint_compiler as _rust
@@ -372,6 +373,72 @@ class TestMalformedPlacementsDifferential:
         assert _f(os_((0.0, 0.0), "B", placements)) == _f(ss((0.0, 0.0), "B", placements))
 
 
+class TestDictSubclassProtocolDifferential:
+    """Dict-subclass protocol parity. The oracle's ``other in placements``
+    (``__contains__``) and ``placements[other]`` (``__getitem__``) honor
+    Python-level overrides; the Rust must NOT use the dict C-API fast paths
+    (``PyDict_Contains`` / ``PyDict_GetItem``) that bypass them."""
+
+    def _both_compilers(self):
+        constraints = _constraints(
+            component_spacing_rules=[
+                ComponentSpacingRule(component_a="A", component_b="B", min_separation_mm=10.0, tier="hard")
+            ]
+        )
+        return _both(constraints)
+
+    def test_contains_false_skips_rule(self):
+        """A dict subclass whose ``__contains__`` returns False for PRESENT
+        keys: the oracle's ``other in placements`` honors it, so the rule is
+        skipped and the filter ACCEPTS the slot; ``PyDict_Contains`` would
+        fire the rule and reject — opposite decisions."""
+        class NoContainsDict(dict):
+            def __contains__(self, key):
+                return False
+
+        o, s = self._both_compilers()
+        of, sf = o.compile_to_slot_filter(), s.compile_to_slot_filter()
+        os_, ss = o.compile_to_slot_scorer(), s.compile_to_slot_scorer()
+        placements = NoContainsDict({"A": (0.0, 0.0)})
+        # Rule skipped -> filter accepts, scorer adds no penalty.
+        assert of((5.0, 0.0), "B", placements) is True
+        assert sf((5.0, 0.0), "B", placements) is True
+        assert _f(os_((5.0, 0.0), "B", placements)) == _f(ss((5.0, 0.0), "B", placements))
+        assert ss((5.0, 0.0), "B", placements) == 0.0
+
+    def test_contains_raises_propagates(self):
+        """A dict subclass whose ``__contains__`` raises must propagate that
+        raise from filter AND scorer (oracle: ``other in placements`` raises)."""
+        class RaisingContainsDict(dict):
+            def __contains__(self, key):
+                raise RuntimeError("boom from __contains__")
+
+        o, s = self._both_compilers()
+        placements = RaisingContainsDict({"A": (0.0, 0.0)})
+        for surface, make in (
+            ("filter", lambda c: c.compile_to_slot_filter()),
+            ("scorer", lambda c: c.compile_to_slot_scorer()),
+        ):
+            o_f, s_f = make(o), make(s)
+            try:
+                o_f((5.0, 0.0), "B", placements)
+            except Exception as oe:  # noqa: BLE001
+                oracle_err = oe
+            else:
+                raise AssertionError(f"{surface}: oracle did not raise")
+            try:
+                s_f((5.0, 0.0), "B", placements)
+            except Exception as se:  # noqa: BLE001
+                shim_err = se
+            else:
+                raise AssertionError(
+                    f"{surface}: shim did not raise (silently proceeded); "
+                    f"oracle raised {type(oracle_err).__name__}"
+                )
+            assert type(shim_err) is type(oracle_err), surface
+            assert str(shim_err) == str(oracle_err), surface
+
+
 class TestValidateDifferential:
     def _netlist(self, refs):
         class NL:
@@ -436,6 +503,27 @@ class TestHelperMethodsDifferential:
         zone = type("Z", (), {"bounds": (10.0, 20.0, 30.0, 40.0)})()
         for slot in [(10.0, 20.0), (30.0, 40.0), (15.0, 25.0), (9.0, 25.0), (35.0, 45.0), (float("nan"), 25.0)]:
             assert o._in_zone(slot, zone) == s._in_zone(slot, zone)
+
+    def test_distance_pow_vs_product_discriminator(self):
+        """Pins the py_pow seam: ``_distance``'s ``** 2`` must route through
+        host libm pow, NOT the IEEE product ``x*x``. Found discriminator
+        (dx, dy) = (176.73393916349272, -164.87635632111505), where
+        sqrt(pow(dx,2)+pow(dy,2)) differs from sqrt(dx*dx+dy*dy) by 1 ULP
+        (0x1.e3669ed51db9ap+7 vs 0x1.e3669ed51db9bp+7 on macOS arm64). The
+        oracle/shim parity is asserted UNCONDITIONALLY (a regression to the
+        product diverges on every platform whose libm pow differs from the
+        product for this input); the seam-liveness assertion is made only
+        when this platform's libm pow actually discriminates (on platforms
+        where pow(x,2)==x*x exactly the seam is behaviorally inert)."""
+        dx, dy = 176.73393916349272, -164.87635632111505
+        o, s = _both(PlacementConstraints())
+        d_oracle = o._distance((dx, dy), (0.0, 0.0))
+        d_shim = s._distance((dx, dy), (0.0, 0.0))
+        assert _f(d_oracle) == _f(d_shim)
+        d_product = math.sqrt(dx * dx + dy * dy)
+        if _f(d_oracle) != _f(d_product):
+            # Seam is live on this platform: assert the shim took the pow route.
+            assert _f(d_shim) != _f(d_product)
 
     def test_find_similar_set_order(self):
         """_find_similar iterates a set — pass the same set's iteration order to both."""
