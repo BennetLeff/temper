@@ -1,7 +1,14 @@
 //! The pyo3 surface for the migrated placement-constraints compute.
 //!
-//! Every entry point is wrapped in `temper_py_bridge::catch_panic` (R1g:
-//! catch_unwind at every pyo3 boundary) and never panics across the boundary.
+//! Every entry point — the two `#[new]` pyclass constructors, both `__call__`
+//! methods, and all 12 pyfunctions — is wrapped in
+//! `temper_py_bridge::catch_panic` (R1g: catch_unwind at every pyo3
+//! boundary) and never panics across the boundary.
+//!
+//! Extraction failures surface as their native Python exception
+//! (TypeError/IndexError, matching the oracle's `placements[other]` +
+//! tuple-unpack behavior); only panics are converted to `PyRuntimeError`
+//! (inside `catch_panic`).
 //!
 //! The constraint data is marshalled ONCE from a plain-dict payload into a
 //! typed `ConstraintData` (the "data moves into Rust" form — no `Py<PyAny>`
@@ -11,6 +18,7 @@
 
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyList};
+use std::cell::RefCell;
 
 use temper_py_bridge::catch_panic;
 
@@ -248,6 +256,52 @@ fn placements_vec(dict: &Bound<'_, PyDict>) -> PyResult<Vec<(String, (f64, f64))
     Ok(out)
 }
 
+/// A per-placement lookup closure backed by the caller's placements dict
+/// (no marshalling). Mirrors the oracle's `if other in placements:
+/// placements[other]` — a missing ref skips the rule, but a placement value
+/// that is not a 2-sequence of numbers (or a dict subclass whose
+/// `__getitem__` raises) surfaces the failure instead of silently letting
+/// the rule not fire. Errors are captured into `err` and raised by the
+/// caller after the (side-effect-free) filter/scorer returns.
+///
+/// `as_any().get_item()` is deliberate: `PyDict::get_item()` uses the dict
+/// C-API fast path and bypasses a subclass's `__getitem__` override, which
+/// the oracle's `placements[other]` honors.
+fn placements_lookup<'a, 'py>(
+    placements: &'a Bound<'py, PyDict>,
+    err: &'a RefCell<Option<PyErr>>,
+) -> impl Fn(&str) -> Option<(f64, f64)> + 'a {
+    move |r: &str| {
+        if err.borrow().is_some() {
+            return None;
+        }
+        let in_placements = match placements.contains(r) {
+            Ok(b) => b,
+            Err(e) => {
+                *err.borrow_mut() = Some(e);
+                return None;
+            }
+        };
+        if !in_placements {
+            return None; // `other in placements` is False — rule skipped
+        }
+        let v = match placements.as_any().get_item(r) {
+            Ok(v) => v,
+            Err(e) => {
+                *err.borrow_mut() = Some(e);
+                return None;
+            }
+        };
+        match extract_point(&v) {
+            Ok(p) => Some(p),
+            Err(e) => {
+                *err.borrow_mut() = Some(e);
+                None
+            }
+        }
+    }
+}
+
 // ---------------------------------------------------------------------------
 // Pyclasses — the compiled per-call evaluators
 // ---------------------------------------------------------------------------
@@ -263,8 +317,11 @@ pub struct CompiledSlotFilter {
 impl CompiledSlotFilter {
     #[new]
     fn new(payload: &Bound<'_, PyDict>) -> PyResult<Self> {
-        let data = parse_payload(payload)?;
-        Ok(Self { data })
+        catch_panic(|| {
+            let data = parse_payload(payload)?;
+            Ok(Self { data })
+        })
+        .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!("{e}")))
     }
 
     fn __call__(
@@ -273,15 +330,19 @@ impl CompiledSlotFilter {
         component: String,
         placements: &Bound<'_, PyDict>,
     ) -> PyResult<bool> {
-        catch_panic(|| {
+        // R1g: catch_unwind at the boundary; panics become PyRuntimeError
+        // inside catch_panic. Extraction/placement errors pass through as
+        // their native exception (matching the oracle's eager raise).
+        let err: RefCell<Option<PyErr>> = RefCell::new(None);
+        let lookup = placements_lookup(placements, &err);
+        let accepted = catch_panic(|| {
             let slot = extract_point(slot)?;
-            let lookup = |r: &str| -> Option<(f64, f64)> {
-                let v = placements.get_item(r).ok()??;
-                extract_point(&v).ok()
-            };
             Ok(filter_slot(&self.data, slot, &component, &lookup))
-        })
-        .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!("{e}")))
+        })?;
+        if let Some(e) = err.borrow_mut().take() {
+            return Err(e);
+        }
+        Ok(accepted)
     }
 }
 
@@ -295,8 +356,11 @@ pub struct CompiledSlotScorer {
 impl CompiledSlotScorer {
     #[new]
     fn new(payload: &Bound<'_, PyDict>) -> PyResult<Self> {
-        let data = parse_payload(payload)?;
-        Ok(Self { data })
+        catch_panic(|| {
+            let data = parse_payload(payload)?;
+            Ok(Self { data })
+        })
+        .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!("{e}")))
     }
 
     fn __call__(
@@ -305,15 +369,19 @@ impl CompiledSlotScorer {
         component: String,
         placements: &Bound<'_, PyDict>,
     ) -> PyResult<f64> {
-        catch_panic(|| {
+        // R1g: catch_unwind at the boundary; panics become PyRuntimeError
+        // inside catch_panic. Extraction/placement errors pass through as
+        // their native exception (matching the oracle's eager raise).
+        let err: RefCell<Option<PyErr>> = RefCell::new(None);
+        let lookup = placements_lookup(placements, &err);
+        let score = catch_panic(|| {
             let slot = extract_point(slot)?;
-            let lookup = |r: &str| -> Option<(f64, f64)> {
-                let v = placements.get_item(r).ok()??;
-                extract_point(&v).ok()
-            };
             Ok(score_slot(&self.data, slot, &component, &lookup))
-        })
-        .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!("{e}")))
+        })?;
+        if let Some(e) = err.borrow_mut().take() {
+            return Err(e);
+        }
+        Ok(score)
     }
 }
 

@@ -20,7 +20,10 @@ the delegation shim:
   randomized constraint sets per surface (bool / `float.hex()`), `validate()`
   error tuples (all four fields + `__str__`), the helper methods
   (`_distance`/`_centroid`/`_min_edge_distance`/`_point_to_segment_distance`/
-  `_in_zone`/`_find_similar`), NaN/inf placements, plus exact-boundary cases.
+  `_in_zone`/`_find_similar`), NaN/inf placements, exact-boundary cases, and
+  malformed-placement error paths (lazy raise semantics: a fired rule that
+  touches a non-2-sequence placement raises the oracle's exception instead
+  of silently not firing; unrelated malformed entries stay inert).
 - `test_reporter_rust_differential.py` — `check()` result lists (status,
   tier, components, message, `actual`/`expected` via `.hex()`, details),
   `to_text()` and `to_json()` byte-identical (including hand-built reports
@@ -127,8 +130,13 @@ the Rust surface landed (`8b847ec09`).
 
 ## R1g — Rust practice
 
-- `catch_panic` (`temper-py-bridge`) wraps every pyo3 entry point — pyclass
-  `__call__`s and all 12 pyfunctions; panics surface as `PyRuntimeError`.
+- `catch_panic` (`temper-py-bridge`) wraps every pyo3 entry point — the two
+  `#[new]` pyclass constructors, both `__call__`s and all 12 pyfunctions;
+  panics surface as `PyRuntimeError`. Non-panic errors pass through as their
+  native Python exception: the compiled filter/scorer `__call__`s propagate
+  placement-lookup/extraction failures (TypeError/IndexError — matching the
+  oracle's eager `placements[other]` + tuple-unpack raise) instead of
+  converting them to `RuntimeError` or silently letting the rule not fire.
 - No `unwrap`/`expect` outside `#[cfg(test)]` (clippy `unwrap_used`/
   `expect_used` deny is satisfied; the two unreachable-`expect` sites in
   `py_float_str` were rewritten as non-panicking `match` fallbacks).
@@ -157,7 +165,7 @@ threshold):
 | M2 | filter proximity `dist > max` → `dist >= max` | exact 10.0mm threshold case (accepted) |
 | M3 | escape None-clearance default 3.0 → 0.0 | 2.0mm-inside filter reject + scorer +50.0 |
 | M4 | Neumaier → naive sum | centroid cancellation case `(1e16+1-1e16)/3` |
-| M5 | message threshold `py_float_str` → `{:.1}` | every `10.0mm` message (`.0` suffix) |
+| M5 | message threshold `py_float_str` → `{:.1}` | multi-decimal threshold in messages: `10.25mm` → `10.25` vs `10.2` (an integral `10.0mm` threshold cannot discriminate — both render `10.0`; pinned deterministically by `test_spacing_message_multi_decimal_threshold`) |
 | M6 | corridor `d < half` → `d <= half` | component at exactly half-width (clear) |
 | M7 | `_find_similar` min-length-2 guard dropped | `"C"`/`"1"`/`""` return `None` |
 | M8 | builder zone empty-string gate dropped | `zone=""` yields no error |
@@ -175,12 +183,16 @@ now fail the differential.
 
 The seed crate carries 11 `Py<PyAny>` handles — all in the PCL pipeline's
 return positions (`pyo3_bridge.rs`, `lib.rs`), untouched by this migration.
-The new constraints surface adds **zero** handles: the shim marshals the
-pydantic constraint objects into a plain-dict payload once, Rust parses it
-into typed `ConstraintData` structs, and the per-call filter/scorer/reporter
-evaluate entirely on those structs (the "data moves into Rust" form the
-phase guide prefers over the handle form). The only runtime Python access in
-the hot path is exact-ref lookup into the caller's placements dict.
+The new constraints surface adds **zero new stored** `Py<PyAny>` handles:
+the shim marshals the pydantic constraint objects into a plain-dict payload
+once, Rust parses it into typed `ConstraintData` structs, and the per-call
+filter/scorer/reporter evaluate entirely on those structs (the "data moves
+into Rust" form the phase guide prefers over the handle form). The only
+runtime Python access in the hot path is exact-ref lookup into the caller's
+placements dict. (Return-position `Py<PyAny>` values are transient
+marshalling — e.g. `yaml_value_to_py` builds the YAML dict, and the
+validate/check/report entry points return freshly-built Python objects;
+none are stored past the call.)
 
 ## Known, documented deviations
 
@@ -190,12 +202,32 @@ the hot path is exact-ref lookup into the caller's placements dict.
   are ASCII, so the ASCII fold matches CPython exactly on the tested domain.
   Non-ASCII component refs are outside the tested domain (the oracle's
   `str.lower` would fold them differently).
+- **Malformed-placement error wording.** When a fired rule touches a
+  placement value that is not a 2-sequence of numbers, both the oracle and
+  the Rust raise — same exception type, and byte-identical message for the
+  non-sequence and too-short cases (`'float' object is not subscriptable`,
+  `tuple index out of range`) and for a dict subclass whose `__getitem__`
+  raises (propagated verbatim). Only the *non-numeric element* case differs
+  in wording: the oracle's `_distance` fails inside the arithmetic
+  (`unsupported operand type(s) for -: 'float' and 'str'`), the Rust fails
+  inside pyo3's f64 extraction (`must be real number, not str`) — both
+  `TypeError`. The differential pins the exception type for that case
+  (`test_non_numeric_value_raises_type_error`) and pins byte-identical
+  messages for the other three.
+- **Malformed-placement scope.** The error propagation covers the compiled
+  filter/scorer `__call__`s (the per-call hot path the oracle reaches via
+  `placements[other]`). The reporter's `check()` also raises on malformed
+  values (its eager `placements_vec` extraction), but there the error is
+  wrapped in `PyRuntimeError` by the uniform entry-point mapping rather than
+  passed through as the native type; no differential exercises that path.
 - **PyYAML `yaml.dump` and `json.dumps` stay Python stdlib.** The
   `to_yaml` data-shape logic (conditional keys, insertion order) is Rust;
   the serialization call itself stays Python per the Wave-4 guide's PyYAML
-  ruling (PyYAML is YAML 1.1 and not bit-reimplementable). `json.dumps`
-  stays Python for the same reason (stdlib, deterministic given the
-  Rust-built dict).
+  ruling (PyYAML is YAML 1.1 and not bit-reimplementable). The
+  byte-identical `to_yaml()` pin is therefore a pin to the **CI's PyYAML
+  version** (the same interpreter+PyYAML both sides run under), not a
+  statement about YAML semantics across versions. `json.dumps` stays Python
+  for the same reason (stdlib, deterministic given the Rust-built dict).
 - **`ConstraintStatus` stays a Python enum.** Consumers use member identity
   (`r.status == ConstraintStatus.VIOLATED`); pyo3 cannot replicate
   class-level iteration or identity semantics, so the enum remains Python
@@ -205,6 +237,24 @@ the hot path is exact-ref lookup into the caller's placements dict.
   the migrated builder compute is `validate()` and the `to_yaml()` shape.
 - **`_find_or_create_group` stays Python** (stateful mutation of the
   pydantic object graph).
+
+## Residual guard limitations (recorded, not closed)
+
+- **`_centroid` pins CPython ≥ 3.12 `sum()`.** The oracle's `_centroid` uses
+  the built-in `sum()`, which is Neumaier-compensated since 3.12. The
+  differential compares the Rust `neumaier_sum` against it; CI pins CPython
+  3.12, and on 3.11 the differential fails loudly (mismatched centroid for
+  the cancellation case) rather than silently passing — it is not a
+  version-tolerant pin.
+- **`_f()` comparison-key coercion hides int-vs-float leaf divergence.**
+  The differentials' shared comparison key `_f(value) = float(value).hex()`
+  coerces int leaves to float, so a migrated function returning `1` where
+  the oracle returns `1.0` would compare equal (both `0x1.0p+0`). The
+  helper is duplicated per-suite rather than shared, so the coercion was
+  recorded rather than churned: every migrated surface returns typed values
+  (`f64` in Rust, float in Python) and the reporter's `actual`/`expected`
+  leaves are floats by construction; the PBT suites additionally assert
+  concrete Python types on the shim outputs.
 
 ## Scorecard
 
@@ -216,7 +266,7 @@ the hot path is exact-ref lookup into the caller's placements dict.
 | R1d ≥3 metamorphic/module | ✓ 4 + 4 + 4 (bounds stated in-test) |
 | R1e verification entry | ✓ induction over rule-list structure (base case asserted, step per-rule) |
 | R1f TDD RED-first | ✓ differentials committed RED, went green with the Rust |
-| R1g Rust practice | ✓ catch_panic everywhere, no unwrap/expect outside tests, borrow over clone |
+| R1g Rust practice | ✓ catch_panic at every pyo3 boundary (12 pyfunctions + 2 `__call__`s + 2 `#[new]` constructors), no `unwrap`/`expect` outside tests, borrow over clone |
 | R1h physics gating | ✓ N/A — not physics-gated (CP-SAT boundary is Phase-1 KEEP) |
 | Anti-vacuity | ✓ 11 mutants, 10 caught, 1 provably equivalent; 0 survivors |
 

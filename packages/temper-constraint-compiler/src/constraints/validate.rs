@@ -299,7 +299,11 @@ pub fn builder_to_yaml_data(data: &ConstraintData) -> YamlValue {
                     ),
                     ("max_spread_mm".to_string(), YamlValue::Float(g.max_spread_mm)),
                 ];
-                if let Some(zone) = &g.zone {
+                // `if group.zone:` — an empty-string zone is falsy in Python
+                // and must omit the key exactly like zone=None.
+                if let Some(zone) = &g.zone
+                    && !zone.is_empty()
+                {
                     d.push(("zone".to_string(), YamlValue::Str(zone.clone())));
                 }
                 if g.weight != 1.0 {
