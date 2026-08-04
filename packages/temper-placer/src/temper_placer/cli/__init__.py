@@ -34,6 +34,69 @@ main.add_command(profile)
 main.add_command(watch)
 
 
+def _build_validator_input(input_pcb: Path) -> dict | None:
+    """Construct ``solve_placement``'s ``validator_input`` from the real board.
+
+    Issue #617 second half: the optimize command builds only
+    netlist/board/constraints; the validator-shape placement + voltage-domain
+    map the REQ-SAFE-01 post-solve audit needs now come from the production
+    loader ``temper_placer.io.real_board`` (hoisted out of the test fixture so
+    this path can construct them).
+
+    Returns None -- and logs why -- when the audit inputs are unavailable
+    (missing ``pcb/``/``elec/build/default.net``/``elec/domain_manifest.yaml``,
+    or a board with zero domain-classified components). The audit is additive;
+    an absent ``validator_input`` is the encoder's documented skip, so the
+    solve proceeds byte-identical to the pre-wiring behavior. The
+    ValueError-on-missing-keys contract is respected by construction: we only
+    return a dict carrying BOTH ``placement`` and ``voltage_domains``.
+    """
+    from temper_placer.io.real_board import RealBoardUnavailable, load_real_board_placement
+
+    try:
+        placement, voltage_domains, _stats = load_real_board_placement(
+            pcb_path=input_pcb,
+            manifest_path=Path("elec/domain_manifest.yaml"),
+            netlist_path=Path("elec/build/default.net"),
+        )
+    except RealBoardUnavailable as exc:
+        console.print(
+            f"[yellow]REQ-SAFE-01 validator post-solve audit SKIPPED: {exc}"
+            " (audit inputs unavailable; solve runs unaudited)[/]"
+        )
+        return None
+
+    if not placement.get("components"):
+        console.print(
+            "[yellow]REQ-SAFE-01 validator post-solve audit SKIPPED: the board "
+            "has zero domain-classified components -- re-running the validator "
+            "on it would vacuous-pass (solve runs unaudited)[/]"
+        )
+        return None
+
+    console.print(
+        f"  [cyan]REQ-SAFE-01 validator audit armed[/]: "
+        f"{len(placement['components'])} classified component(s), "
+        f"{len(voltage_domains)} classified net(s)"
+    )
+    return {"placement": placement, "voltage_domains": voltage_domains}
+
+
+def _print_validator_audit(result: object, indent: str = "  ") -> None:
+    """Surface the validator post-solve audit buckets when a solve carried
+    ``validator_input`` (additive reporting; absent audit = no output)."""
+    audit = getattr(result, "validator_audit", None)
+    if audit is None:
+        return
+    console.print(
+        f"{indent}REQ-SAFE-01 validator post-solve audit: "
+        f"{len(audit.hard_failures)} hard, "
+        f"{len(audit.intra_footprint)} intra-footprint, "
+        f"{len(audit.coverage_gaps)} coverage-gap "
+        f"(geometry_trusted={audit.geometry_trusted})"
+    )
+
+
 def _maybe_surface_unsat(result: object, unsat_report_path: Path | None) -> None:
     """Surface UNSAT report if the result carries one.
 
@@ -452,6 +515,12 @@ def optimize(
                     f"  Loaded {len(reference_aliases)} component and "
                     f"{len(loop_aliases)} loop reference aliases"
                 )
+            # Issue #617 second half: arm the REQ-SAFE-01 validator post-solve
+            # audit on every feasible loop round (forwarded into
+            # PlaceRouteLoop -> solve_placement). None (inputs unavailable ->
+            # logged skip) leaves the loop byte-identical to pre-wiring.
+            validator_input = _build_validator_input(input_pcb)
+
             loop_result = loop_runner.run(
                 netlist=netlist,
                 board=board,
@@ -464,10 +533,12 @@ def optimize(
                 loop_aliases=loop_aliases or None,
                 all_gates=all_gates,
                 source_pcb_path=input_pcb,
+                validator_input=validator_input,
             )
 
             # Surface UNSAT core from CP-SAT placement result.
             _maybe_surface_unsat(loop_result.placement, unsat_report)
+            _print_validator_audit(loop_result.placement)
 
             if loop_result.success:
                 console.print(f"  [green]âœ“[/] Loop converged in {len(loop_result.rounds)} rounds")
@@ -621,6 +692,16 @@ def optimize(
             console.print(f"  Parsed {len(netlist.components)} components from input PCB")
             console.print(f"  Loaded {len(pcl_constraints)} PCL constraints")
 
+            # Issue #617 second half: arm the REQ-SAFE-01 validator post-solve
+            # audit (the same exact-copper validator the CI gate runs) on the
+            # optimized placement. The validator-shape placement + voltage-
+            # domain map are constructed by the production loader
+            # (temper_placer.io.real_board, hoisted out of the test fixture);
+            # when the audit inputs are unavailable this logs the skip and the
+            # solve runs byte-identical to the pre-wiring behavior (an absent
+            # validator_input is the encoder's documented skip).
+            validator_input = _build_validator_input(input_pcb)
+
             # Warm-start: seed solver with deterministic pipeline positions.
             hint_positions = None
             if warm_start:
@@ -646,19 +727,20 @@ def optimize(
                 hint_positions=hint_positions,
                 reference_aliases=reference_aliases or None,
                 loop_aliases=loop_aliases or None,
-                # TODO(#523 gap 2 follow-up): pass validator_input here to run
-                # the REQ-SAFE-01 validator post-solve audit on the optimized
-                # placement too -- currently missing the validator-shape
-                # placement + voltage_domains map this path does not construct:
-                # the optimize command only builds netlist/board/constraints
-                # (load_real_board_placement + domain-manifest wiring lives in
-                # the tests fixture and the repair path, not here). Wiring it
-                # half-way would raise ValueError on the missing keys, so this
-                # stays a precise TODO until the placement/domain construction
-                # is hoisted into a shared production loader.
+                # Issue #523 gap 2 + #617 second half: re-run the REQ-SAFE-01
+                # validator itself (exact copper-to-copper, the function the
+                # CI gate runs) on the solved placement. validator_input is
+                # armed above by the production real-board loader; None (the
+                # documented skip, logged) leaves this solve byte-identical
+                # to the pre-wiring behavior. A HARD failure raises inside
+                # solve_placement (the encoding-unsound contract); intra-
+                # footprint and coverage-gap buckets land on
+                # cp_result.validator_audit and are printed below.
+                validator_input=validator_input,
             )
 
             console.print(f"  Solver status: {cp_result.status} ({cp_result.solve_time_ms:.0f}ms)")
+            _print_validator_audit(cp_result)
 
             if cp_result.status in ("infeasible", "model_invalid"):
                 _maybe_surface_unsat(cp_result, unsat_report)
