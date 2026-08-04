@@ -548,6 +548,50 @@ class TestGenerateConnectors:
         assert o == []
         assert s == []
 
+    def test_tie_break_matches_set_order_reviewer_triple(self):
+        """Exact-distance tie discriminator (adversarial-review construct).
+
+        Pad (-17.62, -34.92) with endpoints (-18.12, -35.42) and
+        (-17.12, -34.42): both sqrt(0.5) away — an exact float tie. CPython's
+        ``set`` iterates this pair in the REVERSE of insertion order, so the
+        strict-< nearest-endpoint pick lands on the second-inserted endpoint.
+        The kernel must iterate a REAL Python set (same interpreter, same hash
+        order) — a first-appearance Vec picks the first-inserted endpoint and
+        emits different connector bytes. Demonstrated RED against the Vec
+        implementation before the fix: oracle (-17.12, -34.42) vs Vec
+        (-18.12, -35.42).
+        """
+        segments = [_segment("N1", (-18.12, -35.42), (-17.12, -34.42))]
+        pad_centers = {"N1": [(-17.62, -34.92)]}
+        o = _exporter_oracle._generate_connector_segments(segments, pad_centers)
+        s = shim_generate_connectors(segments, pad_centers)
+        assert o[0].start == (-17.12, -34.42), "set-iteration-order pick"
+        assert_same([(t.net, t.start, t.end, t.width, t.layer) for t in o],
+                    [(t.net, t.start, t.end, t.width, t.layer) for t in s], "reviewer tie")
+
+    def test_tie_break_reversed_insertion_both_orders(self):
+        """The same tie with the OTHER relative insertion order.
+
+        Pad (199.25, -153.75) is exactly equidistant from a=(198.75, -153.25)
+        and b=(199.75, -154.25). For THIS pair the set's slot order FLIPS with
+        insertion order, so both segment orientations are discriminators: the
+        oracle picks b when endpoints are inserted a-then-b and a when
+        inserted b-then-a. A first-appearance Vec picks the first-inserted
+        endpoint in both cases — RED on both orientations pre-fix.
+        """
+        pad_centers = {"N1": [(199.25, -153.75)]}
+        for start, end, expected in [
+            ((198.75, -153.25), (199.75, -154.25), (199.75, -154.25)),
+            ((199.75, -154.25), (198.75, -153.25), (198.75, -153.25)),
+        ]:
+            segments = [_segment("N1", start, end)]
+            o = _exporter_oracle._generate_connector_segments(segments, pad_centers)
+            s = shim_generate_connectors(segments, pad_centers)
+            assert o[0].start == expected, f"set-iteration-order pick {start}->{end}"
+            assert_same([(t.net, t.start, t.end, t.width, t.layer) for t in o],
+                        [(t.net, t.start, t.end, t.width, t.layer) for t in s],
+                        f"tie {start}->{end}")
+
 
 # ---------------------------------------------------------------------------
 # Group C — layer validation
@@ -618,6 +662,104 @@ class TestValidate4Layer:
         board = KiBoard.from_file(str(p))
         with pytest.raises(RuntimeError, match="Copper layer names must match canonical set"):
             shim_validate_4layer(board)
+
+    # -- exact-message differentials ----------------------------------------
+    # The oracle modules import _validate_4_layer_output from the LIVE shimmed
+    # modules, so the file-producing A/Bs run the Rust kernel on BOTH arms — a
+    # formatting defect in the kernel is invisible there. These pin the
+    # kernel's decision strings directly against the VERBATIM oracle copy
+    # (_kicad_exporter_py_oracle._validate_4_layer_output), which logs
+    # / raises its own text.
+
+    def _capture_warn(self, fn, board, logger_name):
+        import logging
+
+        recs = []
+        logger = logging.getLogger(logger_name)
+        old_level = logger.level
+        logger.setLevel(logging.WARNING)
+        handler = logging.Handler()
+        handler.emit = lambda r: recs.append(r.getMessage())
+        logger.addHandler(handler)
+        try:
+            fn(board)
+        finally:
+            logger.removeHandler(handler)
+            logger.setLevel(old_level)
+        return recs
+
+    def _board_from(self, layers_sexpr, tmp_path):
+        from kiutils.board import Board as KiBoard
+
+        content = "(kicad_pcb (version 20240108)\n  (layers\n" + layers_sexpr + "  )\n)\n"
+        p = tmp_path / "b.kicad_pcb"
+        p.write_text(content, encoding="utf-8")
+        return KiBoard.from_file(str(p))
+
+    def test_exact_message_differential_warn(self, tmp_path):
+        """Warn path: the full message text (layer count + sorted canonical
+        list) must be byte-identical oracle-vs-shim."""
+        board = self._board_from('    (0 "F.Cu" signal)\n    (44 "Edge.Cuts" user)\n', tmp_path)
+        o_msgs = self._capture_warn(
+            _exporter_oracle._validate_4_layer_output, board, "tests.io._kicad_exporter_py_oracle"
+        )
+        s_msgs = self._capture_warn(
+            shim_validate_4layer, board, "temper_placer.io.kicad_exporter"
+        )
+        assert len(o_msgs) == len(s_msgs) == 1
+        assert o_msgs[0] == s_msgs[0]
+        assert o_msgs[0] == (
+            "Board has 1 copper layers (canonical 4-layer stackup: "
+            "['B.Cu', 'F.Cu', 'In1.Cu', 'In2.Cu']). "
+            "Proceeding — non-4-layer boards are valid for test fixtures and prototypes."
+        )
+
+    def test_exact_message_differential_raise(self, tmp_path):
+        """Raise path: the sorted, deduped, quoted got-list must be
+        byte-identical oracle-vs-shim."""
+        board = self._board_from(
+            '    (0 "F.Cu" signal)\n    (1 "In1.Cu" signal)\n'
+            '    (2 "In2.Cu" signal)\n    (31 "BOGUS.Cu" signal)\n',
+            tmp_path,
+        )
+        with pytest.raises(RuntimeError) as eo:
+            _exporter_oracle._validate_4_layer_output(board)
+        with pytest.raises(RuntimeError) as es:
+            shim_validate_4layer(board)
+        assert str(eo.value) == str(es.value)
+        assert str(eo.value) == (
+            "Copper layer names must match canonical set "
+            "['B.Cu', 'F.Cu', 'In1.Cu', 'In2.Cu'], "
+            "got ['BOGUS.Cu', 'F.Cu', 'In1.Cu', 'In2.Cu']"
+        )
+
+    def test_exact_message_differential_no_layers(self):
+        """Missing `layers` attribute raises the exact pinned text on both
+        arms."""
+        board = SimpleNamespace()  # no layers attribute
+        with pytest.raises(RuntimeError) as eo:
+            _exporter_oracle._validate_4_layer_output(board)
+        with pytest.raises(RuntimeError) as es:
+            shim_validate_4layer(board)
+        assert str(eo.value) == str(es.value) == (
+            "KiCad board has no layers attribute — cannot validate layer count"
+        )
+
+    def test_exact_message_differential_ok(self, tmp_path):
+        """Canonical 4-layer board (unsorted layer order) produces NO warning
+        and NO error on either arm."""
+        board = self._board_from(
+            '    (0 "F.Cu" signal)\n    (1 "In2.Cu" signal)\n'
+            '    (2 "In1.Cu" signal)\n    (31 "B.Cu" signal)\n',
+            tmp_path,
+        )
+        o_msgs = self._capture_warn(
+            _exporter_oracle._validate_4_layer_output, board, "tests.io._kicad_exporter_py_oracle"
+        )
+        s_msgs = self._capture_warn(
+            shim_validate_4layer, board, "temper_placer.io.kicad_exporter"
+        )
+        assert o_msgs == s_msgs == []
 
 
 # ---------------------------------------------------------------------------
@@ -781,6 +923,31 @@ class TestPlacementsJson:
             assert restored[ref].x == placements[ref].x
             assert restored[ref].y == placements[ref].y
             assert restored[ref].rotation == placements[ref].rotation
+
+    def test_missing_key_raises_keyerror(self):
+        """The oracle reads `values['x']` — a missing key raises
+        KeyError('x'), not ValueError. Demonstrated RED pre-fix: oracle
+        KeyError('x') vs kernel ValueError(\"missing 'x'\")."""
+        from tests.io import _kicad_writer_py_oracle as _writer_oracle
+
+        data = {"U1": {"y": 1.0, "rotation": 0.0}}
+        with pytest.raises(KeyError) as eo:
+            _writer_oracle.placements_from_json(data)
+        with pytest.raises(KeyError) as es:
+            shim_placements_from_json(data)
+        assert eo.value.args == es.value.args == ("x",)
+
+    def test_non_float_value_raises_valueerror(self):
+        """A non-numeric value fails float() with CPython's exact message
+        (value repr included) on both arms."""
+        from tests.io import _kicad_writer_py_oracle as _writer_oracle
+
+        data = {"U1": {"x": "abc", "y": 1.0, "rotation": 0.0}}
+        with pytest.raises(ValueError) as eo:
+            _writer_oracle.placements_from_json(data)
+        with pytest.raises(ValueError) as es:
+            shim_placements_from_json(data)
+        assert str(eo.value) == str(es.value) == "could not convert string to float: 'abc'"
 
 
 class TestTo247Slots:
@@ -1010,6 +1177,48 @@ class TestWritePlacementsAB:
         assert out_o.read_bytes() == out_s.read_bytes()
         assert any("U2 not in placements" in w for w in rs.warnings)
         assert _canon_result(ro) == _canon_result(rs)
+
+    def test_duplicate_ref_center_offset_last_wins(self, template, tmp_path):
+        """Duplicate component refs: the oracle's dict
+        `center_offsets[comp.ref] = (cx, cy)` is LAST-wins. A first-wins
+        Vec+find would shift the written footprint by 1 mm (offset 1 vs 2).
+        Demonstrated RED pre-fix: oracle `at 100.0 102.0 90.0` vs Vec
+        `at 100.0 101.0 90.0`."""
+        from temper_placer.io.kicad_writer import PlacementUpdate
+
+        comps = [
+            SimpleNamespace(ref="U1", attributes={"_center_offset_x": "1", "_center_offset_y": "0"}),
+            SimpleNamespace(ref="U1", attributes={"_center_offset_x": "2", "_center_offset_y": "0"}),
+        ]
+        placements = {"U1": PlacementUpdate(ref="U1", x=100.0, y=100.0, rotation=90.0)}
+        out_o = tmp_path / "o.kicad_pcb"
+        out_s = tmp_path / "s.kicad_pcb"
+        ro = _board_oracle.write_placements_to_pcb(template, out_o, placements, components=comps)
+        rs = _board_shim.write_placements_to_pcb(template, out_s, placements, components=comps)
+        assert out_o.read_bytes() == out_s.read_bytes()
+        # R(-90).(2,0) = (0,-2): 100 - (-2) = 102 (the LAST duplicate wins)
+        assert "at 100.0 102.0 90.0" in out_s.read_text()
+        assert _canon_result(ro) == _canon_result(rs)
+
+    def test_duplicate_ref_cross_kernel_consistency(self, template, tmp_path):
+        """The SAME duplicate-ref input through both center-offset paths must
+        agree: write_placements_plan's inline build and the
+        extract_center_offsets kernel are last-wins on the same ref."""
+        import temper_io_types as tio
+
+        from temper_placer.io.kicad_writer import PlacementUpdate
+
+        comps = [
+            SimpleNamespace(ref="U1", attributes={"_center_offset_x": "1", "_center_offset_y": "0"}),
+            SimpleNamespace(ref="U1", attributes={"_center_offset_x": "2", "_center_offset_y": "0"}),
+        ]
+        placements = {"U1": PlacementUpdate(ref="U1", x=100.0, y=100.0, rotation=90.0)}
+        out_s = tmp_path / "s.kicad_pcb"
+        _board_shim.write_placements_to_pcb(template, out_s, placements, components=comps)
+        # the written y encodes which duplicate won: 102 => offset (2, 0)
+        assert "at 100.0 102.0 90.0" in out_s.read_text(), "inline build is last-wins"
+        offsets = tio.extract_center_offsets(comps)
+        assert dict(offsets) == {"U1": (2.0, 0.0)}, "extract_center_offsets is last-wins"
 
     def test_footprint_without_position(self, template, tmp_path):
         from kiutils.board import Board as KiBoard
@@ -1294,6 +1503,40 @@ class TestWriteRoutesAB:
         assert out_o.read_bytes() == out_s.read_bytes()
         assert any("Cleared 3 existing trace items" in w for w in rs.warnings)
 
+    def test_explicit_empty_net_map_not_rebuilt(self, tmp_path):
+        """An explicitly-passed empty net_name_to_index must NOT be rebuilt:
+        the oracle builds the map only `if net_name_to_index is None`. A
+        caller passing `{}` gets index 0 + the not-found warning even when
+        the board HAS nets; silently rebuilding would assign the real index
+        and drop the warning. Demonstrated RED pre-fix: oracle warning +
+        `(net 0)` vs shim no-warning + `(net 1)`."""
+        content = (
+            "(kicad_pcb (version 20240108) (generator pcbnew)\n"
+            "  (general (thickness 1.6))\n"
+            '  (paper "A4")\n'
+            "  (layers\n"
+            '    (0 "F.Cu" signal)\n    (31 "B.Cu" signal)\n'
+            '    (44 "Edge.Cuts" user)\n'
+            "  )\n"
+            "  (setup (pad_to_mask_clearance 0))\n"
+            '  (net 0 "")\n  (net 1 "n1")\n'
+            f"{_asymmetric_fp('U1', (10.0, 10.0, None))}\n{_asymmetric_fp('U2', (40.0, 10.0, None))}\n"
+            ")\n"
+        )
+        t = tmp_path / "t.kicad_pcb"
+        t.write_text(content, encoding="utf-8")
+        routes = {_segment("n1", (1.0, 1.0), (5.0, 5.0))}
+        out_o = tmp_path / "o.kicad_pcb"
+        out_s = tmp_path / "s.kicad_pcb"
+        with unittest.mock.patch("uuid.uuid4", side_effect=_uuid_seq()):
+            ro = _tracks_oracle.write_routes_to_pcb(t, out_o, routes, net_name_to_index={})
+        with unittest.mock.patch("uuid.uuid4", side_effect=_uuid_seq()):
+            rs = _tracks_shim.write_routes_to_pcb(t, out_s, routes, net_name_to_index={})
+        assert out_o.read_bytes() == out_s.read_bytes()
+        assert ro.warnings == rs.warnings == ["Net 'n1' not found in board, using index 0"]
+        assert "(net 0)" in out_s.read_text() and "(net 1)" not in out_s.read_text()
+        assert _canon_result(ro) == _canon_result(rs)
+
 
 class TestWriteZonesAB:
     def test_write_zones(self, template, tmp_path):
@@ -1307,6 +1550,22 @@ class TestWriteZonesAB:
         assert out_o.read_bytes() == out_s.read_bytes()
         assert _canon_result(ro) == _canon_result(rs)
         assert rs.components_updated == 1
+
+    def test_int_coordinates_pass_through(self, template, tmp_path):
+        """Integer polygon coordinates must reach the kiutils sexpr as ints
+        ('3', not '3.0'): the oracle forwards p[0]/p[1] raw through
+        Position(). Extracting the plan's pts to f64 would coerce the
+        rendering."""
+        zones = [{"net_name": "n1", "layer": "F.Cu", "polygon_pts": [(0, 0), (5, 0), (5, 5), (0, 5)]}]
+        out_o = tmp_path / "o.kicad_pcb"
+        out_s = tmp_path / "s.kicad_pcb"
+        with unittest.mock.patch("uuid.uuid4", side_effect=_uuid_seq()):
+            _zones_oracle.write_zones_to_pcb(template, out_o, zones)
+        with unittest.mock.patch("uuid.uuid4", side_effect=_uuid_seq()):
+            _zones_shim.write_zones_to_pcb(template, out_s, zones)
+        assert out_o.read_bytes() == out_s.read_bytes()
+        text = out_s.read_text()
+        assert "(xy 0 0)" in text and "(xy 5 0)" in text and "(xy 5 5)" in text
 
 
 class TestIsolationSlotsAB:
