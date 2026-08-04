@@ -265,6 +265,50 @@ def bench_bottleneck_hard_blocked() -> tuple[float, float]:
     )
 
 
+# ---------------------------------------------------------------------------
+# Wave 4 Phase 3 candidate 4: write/export engine — state_to_placements
+# ---------------------------------------------------------------------------
+
+
+def bench_kicad_write_state_to_placements() -> tuple[float, float]:
+    """A/B ``state_to_placements`` (Rust kernel) vs the verbatim oracle.
+
+    I/O-shaped no-regression arm per R2: the shim boundary is the same shape
+    on both arms (the oracle drives the same numpy-backed PlacementState), so
+    the ratio measures the kernel swap only. The parity assertion inside the
+    harness keeps a perf number for a drifted implementation from ever being
+    recorded.
+    """
+    import numpy as np
+
+    from temper_placer.core.state import PlacementState
+    from temper_placer.io.kicad_writer import state_to_placements
+    from tests.io._write_board_py_oracle import state_to_placements as oracle
+
+    rng = random.Random(_BENCH_SEED)
+    n = 48
+    positions = np.array([[rng.random() * 100.0, rng.random() * 100.0] for _ in range(n)])
+    logits = np.array([[rng.random() for _ in range(4)] for _ in range(n)])
+    state = PlacementState.from_positions(positions, rotation_logits=logits)
+    refs = [f"U{i}" for i in range(n)]
+
+    def run_rust() -> Any:
+        return {k: (v.x, v.y, v.rotation) for k, v in state_to_placements(state, refs).items()}
+
+    def run_oracle() -> Any:
+        return {k: (v.x, v.y, v.rotation) for k, v in oracle(state, refs).items()}
+
+    if run_rust() != run_oracle():
+        raise AssertionError(
+            "perf A/B arms disagree for kicad-write state_to_placements -- the "
+            "behavioral A/B (test_kicad_write_rust_differential.py) should be "
+            "failing too"
+        )
+    return _time_us(run_rust, DEFAULT_WARMUP, DEFAULT_REPEATS), _time_us(
+        run_oracle, DEFAULT_WARMUP, DEFAULT_REPEATS
+    )
+
+
 # (module, stage) -> callable returning (rust_us, oracle_us).
 #
 # `module` and `stage` become the comparison key together with `board`, so they
@@ -273,6 +317,7 @@ def bench_bottleneck_hard_blocked() -> tuple[float, float]:
 _BENCHMARKS: dict[tuple[str, str], Callable[[], tuple[float, float]]] = {
     ("bottleneck-geometry", "cell_capacity_batch"): bench_bottleneck_cell_capacity,
     ("bottleneck-geometry", "hard_blocked_batch"): bench_bottleneck_hard_blocked,
+    ("kicad-write", "state_to_placements"): bench_kicad_write_state_to_placements,
 }
 
 

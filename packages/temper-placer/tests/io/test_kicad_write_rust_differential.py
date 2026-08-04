@@ -1076,11 +1076,17 @@ class TestExportRoutedPcbAB:
         assert rs.vias_added == 1
 
     def test_via_dedup_round3(self, template, tmp_path):
-        """Duplicate vias (within round(x,3) of each other) collapse to one."""
+        """Duplicate vias (within round(x,3) of each other) collapse to one.
+
+        The route flips F.Cu -> In1.Cu -> F.Cu at the SAME grid cell, so the
+        two layer transitions create vias at the identical position with the
+        identical layer pair — the dedup key collides and only one may be
+        emitted.
+        """
         routes = {
             "GND": _grid_path(
                 net="GND",
-                cells=[GridCell(0, 0, 0), GridCell(2, 0, 1), GridCell(2, 1, 1), GridCell(2, 1, 0)],
+                cells=[GridCell(0, 0, 0), GridCell(0, 0, 1), GridCell(0, 0, 0)],
                 cell_size=0.5,
             )
         }
@@ -1092,6 +1098,7 @@ class TestExportRoutedPcbAB:
             rs = shim_export_routed_pcb(template, routes, out_s, auto_fill_zones=False)
         assert out_o.read_bytes() == out_s.read_bytes()
         assert _canon_result(ro) == _canon_result(rs)
+        assert rs.vias_added == 1  # deduped: both transitions at (0.25, 0.25)
 
     def test_round3_half_tick_key(self, template, tmp_path):
         """A via at a round-half-to-even boundary must dedup like CPython:
