@@ -766,6 +766,79 @@ def test_side_to_layer_name_identical(side):
 # ---------------------------------------------------------------------------
 
 
+def test_dataclasses_replace_works_on_the_public_contracts():
+    """The deterministic stages rebuild board-side contracts with `replace`."""
+    import dataclasses
+
+    from temper_placer.core import board as public
+
+    for py_obj, rs_obj, changes in [
+        (
+            _oracle.Zone("Z", (0, 0, 1, 1)),
+            public.Zone("Z", (0, 0, 1, 1)),
+            {"weight": 5.0},
+        ),
+        (
+            _oracle.MountingHole((0.0, 0.0), 1.0),
+            public.MountingHole((0.0, 0.0), 1.0),
+            {"keepout_radius": 9.0},
+        ),
+        (
+            _oracle.Trace((0.0, 0.0), (1.0, 1.0), 0.25, "F.Cu"),
+            public.Trace((0.0, 0.0), (1.0, 1.0), 0.25, "F.Cu"),
+            {"net": "GND"},
+        ),
+        (
+            _oracle.Via((0.0, 0.0), 0.3, 0.6),
+            public.Via((0.0, 0.0), 0.3, 0.6),
+            {"is_diff_pair": True},
+        ),
+    ]:
+        assert canon(dataclasses.replace(py_obj, **changes)) == canon(
+            dataclasses.replace(rs_obj, **changes)
+        )
+
+    py_board, rs_board = _py_board(), _rs_board()
+    assert canon(dataclasses.replace(py_board, width=42.0)) == canon(
+        dataclasses.replace(rs_board, width=42.0)
+    )
+
+
+def test_replace_rejects_the_init_false_field_identically():
+    """`Board._zone_map` is `init=False`, so `replace()` must refuse it --
+    `ValueError`, not a silent accept."""
+    import dataclasses
+
+    py_out = canon_call(dataclasses.replace, _py_board(), _zone_map={})
+    rs_out = canon_call(dataclasses.replace, _rs_board(), _zone_map={})
+    assert py_out == rs_out
+    assert py_out[0] == "raised"
+
+
+def test_dataclass_field_surface_matches_the_oracle():
+    import dataclasses
+
+    from temper_placer.core import board as public
+
+    for py_cls, rs_cls in [
+        (_oracle.MountingHole, public.MountingHole),
+        (_oracle.Pad, public.Pad),
+        (_oracle.Component, public.Component),
+        (_oracle.Trace, public.Trace),
+        (_oracle.Via, public.Via),
+        (_oracle.Layer, public.Layer),
+        (_oracle.LayerStackup, public.LayerStackup),
+        (_oracle.Rect, public.Rect),
+        (_oracle.Zone, public.Zone),
+        (_oracle.GroundDomain, public.GroundDomain),
+        (_oracle.Board, public.Board),
+    ]:
+        assert dataclasses.is_dataclass(rs_cls)
+        assert [(f.name, f.init) for f in dataclasses.fields(py_cls)] == [
+            (f.name, f.init) for f in dataclasses.fields(rs_cls)
+        ]
+
+
 def test_public_module_delegates_to_rust():
     from temper_placer.core import board as public
 

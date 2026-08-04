@@ -41,6 +41,10 @@ from typing import TypeAlias
 import numpy as np
 import temper_design_bundle_python as _tdb
 
+from temper_placer.core._contract_dataclass_compat import (
+    install_dataclass_fields as _install_dataclass_fields,
+)
+
 Array: TypeAlias = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
 
 _rs = _tdb.netlist_contracts
@@ -50,6 +54,53 @@ Component = _rs.Component
 Net = _rs.Net
 Netlist = _rs.Netlist
 build_adjacency_matrix = _rs.build_adjacency_matrix
+
+# A pyclass is not a dataclass, and `dataclasses.replace()` is load-bearing
+# here -- `deterministic/stages/apply_placements.py` rebuilds both `Component`
+# and `Netlist` with it. See `_contract_dataclass_compat` for the mechanism.
+_install_dataclass_fields(
+    Pin,
+    (
+        "name",
+        "number",
+        "position",
+        "net",
+        "width",
+        "height",
+        "shape",
+        "layer",
+        "drill",
+        "is_pth",
+        "roundrect_ratio",
+        "pad_rotation_deg",
+    ),
+)
+_install_dataclass_fields(
+    Component,
+    (
+        "ref",
+        "footprint",
+        "bounds",
+        "pins",
+        "net_class",
+        "zone",
+        "fixed",
+        "initial_position",
+        "initial_rotation",
+        "initial_side",
+        "attributes",
+        "tags",
+        "sheetpath",
+    ),
+)
+_install_dataclass_fields(
+    Net,
+    ("name", "pins", "net_class", "weight", "max_current", "voltage_class"),
+)
+_install_dataclass_fields(
+    Netlist,
+    ("components", "nets", "_component_index", "_net_index", "_component_nets"),
+)
 
 
 def compute_eigenvector_centrality(adjacency: Array) -> Array:

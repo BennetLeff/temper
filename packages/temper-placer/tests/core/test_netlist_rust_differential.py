@@ -442,6 +442,53 @@ def test_build_adjacency_matrix_accepts_the_delegating_public_class():
 # ---------------------------------------------------------------------------
 
 
+def test_dataclasses_replace_works_on_the_public_contracts():
+    """`deterministic/stages/apply_placements.py` rebuilds both `Component`
+    and `Netlist` with `dataclasses.replace`.
+
+    A pyclass is not a dataclass, so this raised
+    `TypeError: replace() should be called on dataclass instances` until the
+    shim installed a real `__dataclass_fields__`. Found by the deterministic
+    stage suite, not by the contract differential -- pinned here.
+    """
+    import dataclasses
+
+    from temper_placer.core.netlist import Component as PubComponent
+    from temper_placer.core.netlist import Netlist as PubNetlist
+
+    py_comp = _oracle.Component("R1", "fp", (1.0, 2.0))
+    rs_comp = PubComponent("R1", "fp", (1.0, 2.0))
+    assert canon(dataclasses.replace(py_comp, initial_position=(3.0, 4.0))) == canon(
+        dataclasses.replace(rs_comp, initial_position=(3.0, 4.0))
+    )
+
+    py_nl, rs_nl = _py_netlist(), _rs_netlist()
+    assert canon(dataclasses.replace(py_nl, components=[py_comp])) == canon(
+        dataclasses.replace(rs_nl, components=[rs_comp])
+    )
+    # Round-tripping with no changes must be an exact copy.
+    assert canon(dataclasses.replace(rs_nl)) == canon(rs_nl)
+    assert isinstance(dataclasses.replace(rs_nl), PubNetlist)
+
+
+def test_dataclass_field_surface_matches_the_oracle():
+    """`fields()` / `is_dataclass()` agree on names and `init` flags."""
+    import dataclasses
+
+    from temper_placer.core import netlist as public
+
+    for py_cls, rs_cls in [
+        (_oracle.Pin, public.Pin),
+        (_oracle.Component, public.Component),
+        (_oracle.Net, public.Net),
+        (_oracle.Netlist, public.Netlist),
+    ]:
+        assert dataclasses.is_dataclass(rs_cls)
+        assert [(f.name, f.init) for f in dataclasses.fields(py_cls)] == [
+            (f.name, f.init) for f in dataclasses.fields(rs_cls)
+        ]
+
+
 def test_public_module_delegates_to_rust():
     from temper_placer.core import netlist as public
 

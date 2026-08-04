@@ -1559,7 +1559,10 @@ impl Board {
     /// Alias for `keepouts` (heuristic compatibility) — same list object.
     #[getter]
     fn keepout_regions(&self, py: Python<'_>) -> Py<PyAny> {
-        same(py, &self.keepouts).into_py_any(py).unwrap_or_else(|_| py.None())
+        // The oracle's property is `return self.keepouts` -- the same list
+        // object, not a copy. Returning the handle directly keeps that; an
+        // intermediate conversion could only lose identity or fail.
+        same(py, &self.keepouts)
     }
 
     /// True if the board has a non-rectangular outline.

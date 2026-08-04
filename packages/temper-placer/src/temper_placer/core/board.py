@@ -47,6 +47,10 @@ from typing import TypeAlias
 import numpy as np
 import temper_design_bundle_python as _tdb
 
+from temper_placer.core._contract_dataclass_compat import (
+    install_dataclass_fields as _install_dataclass_fields,
+)
+
 Array: TypeAlias = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
 
 _rs = _tdb.board_contracts
@@ -63,6 +67,66 @@ Zone = _rs.Zone
 GroundDomain = _rs.GroundDomain
 Board = _rs.Board
 side_to_layer_name = _rs.side_to_layer_name
+
+# A pyclass is not a dataclass, and `dataclasses.replace()` is used across the
+# deterministic stages. See `_contract_dataclass_compat` for the mechanism.
+_install_dataclass_fields(MountingHole, ("position", "diameter", "keepout_radius"))
+_install_dataclass_fields(Pad, ("position", "size", "shape", "layer", "number", "net_name"))
+_install_dataclass_fields(
+    Component,
+    (
+        "ref",
+        "position",
+        "rotation",
+        "width",
+        "height",
+        "footprint",
+        "pads",
+        "layer",
+        "fixed",
+    ),
+)
+_install_dataclass_fields(Trace, ("start", "end", "width", "layer", "net"))
+_install_dataclass_fields(
+    Via, ("position", "drill", "width", "layers", "net", "is_diff_pair")
+)
+_install_dataclass_fields(Layer, ("name", "layer_type", "copper_weight", "is_routable"))
+_install_dataclass_fields(LayerStackup, ("layers", "thickness"))
+_install_dataclass_fields(Rect, ("x_min", "y_min", "x_max", "y_max"))
+_install_dataclass_fields(
+    Zone,
+    (
+        "name",
+        "bounds",
+        "net_classes",
+        "components",
+        "weight",
+        "polygon",
+        "layers",
+        "max_size",
+        "can_expand",
+        "zone_type",
+    ),
+)
+_install_dataclass_fields(GroundDomain, ("name", "bounds", "star_point"))
+# `_zone_map` is `init=False` on the original dataclass: `replace()` must skip
+# it and reject any attempt to pass it.
+_install_dataclass_fields(
+    Board,
+    (
+        "width",
+        "height",
+        "origin",
+        "zones",
+        "mounting_holes",
+        "keepouts",
+        "ground_domains",
+        "layer_stackup",
+        "outline_polygon",
+        "_zone_map",
+    ),
+    non_init=("_zone_map",),
+)
 
 
 class LayerIndex(IntEnum):
