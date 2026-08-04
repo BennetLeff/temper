@@ -108,8 +108,6 @@ def main() -> None:
     # the board's pads are in the absolute frame. Delta is frame-invariant.
     # Current local positions come from parsing (kicad_parser initial_position)
     # -- reuse by loading the same parse used by the solve.
-    import os
-
     _PLACER_DIR = REPO / "packages" / "temper-placer"
     sys.path.insert(0, str(_PLACER_DIR))
     from temper_placer.io.kicad_parser import parse_kicad_pcb  # noqa: E402
