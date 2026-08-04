@@ -532,6 +532,20 @@ def test_preprocess_loss_weights_mapping_matches_oracle():
     assert canon_call(PRECONFIG, raw) == canon_call(_oracle._preprocess_config, raw)
 
 
+def test_preprocess_losses_dict_form_default_enabled():
+    """A dict-form `losses` entry WITHOUT an explicit `enabled` gets the
+    LossConfig default True (the `data.get("enabled", True)` default — the
+    anti-vacuity discriminator that catches a default-flip mutation; the
+    `loss_weights` path cannot see it because it goes through the float
+    branch)."""
+    raw = {"losses": {"overlap": {"weight": 2.0}}}
+    rs = PRECONFIG(raw)
+    py = _oracle._preprocess_config(raw)
+    assert rs["losses"].overlap.enabled is True
+    assert py["losses"].overlap.enabled is True
+    assert canon_call(PRECONFIG, raw) == canon_call(_oracle._preprocess_config, raw)
+
+
 def test_preprocess_preserves_dict_insertion_order():
     """Iteration order of the net_assignments / critical_paths / net_topology
     dicts is observable (list order in the output). A HashMap-based port would

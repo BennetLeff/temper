@@ -1065,13 +1065,19 @@ pub fn preprocess_config<'py>(py: Python<'py>, raw: &Bound<'py, PyAny>) -> PyRes
         let dps = PyList::empty(py);
         for entry in raw.get_item("differential_pairs")?.try_iter()? {
             let dc = entry?;
-            let pos = {
-                let alt = dict_get(py, &dc, "net_pos", &none_obj(py))?;
-                dict_get(py, &dc, "positive_net", &alt)?
+            // `pos = dc.get("positive_net") or dc.get("net_pos")` —
+            // truthiness-or, not key-existence (P5 pins this).
+            let pos_candidate = dict_get(py, &dc, "positive_net", &none_obj(py))?;
+            let pos = if pos_candidate.is_truthy()? {
+                pos_candidate
+            } else {
+                dict_get(py, &dc, "net_pos", &none_obj(py))?
             };
-            let neg = {
-                let alt = dict_get(py, &dc, "net_neg", &none_obj(py))?;
-                dict_get(py, &dc, "negative_net", &alt)?
+            let neg_candidate = dict_get(py, &dc, "negative_net", &none_obj(py))?;
+            let neg = if neg_candidate.is_truthy()? {
+                neg_candidate
+            } else {
+                dict_get(py, &dc, "net_neg", &none_obj(py))?
             };
             if pos.is_truthy()? && neg.is_truthy()? {
                 let spacing = {

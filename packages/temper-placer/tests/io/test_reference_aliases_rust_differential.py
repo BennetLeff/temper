@@ -178,3 +178,20 @@ def test_missing_file_raises_same_error(tmp_path):
         _oracle.load_reference_alias_manifest(missing, component_refs=set(), loop_names=set())
     with pytest.raises(FileNotFoundError):
         LOAD_MANIFEST(str(missing), component_refs=set(), loop_names=set())
+
+
+def test_whitespace_names_rejected_on_both_arms(tmp_path):
+    """A name of only spaces/tabs is empty after str.strip and rejected with
+    the oracle's exact message. (The C0-control chars where Python strip and
+    Rust trim genuinely diverge are YAML-unprintable — PyYAML rejects them
+    with ReaderError before strip runs — so over the reachable domain the
+    two are equivalent; the strip call-back is kept by design and M4 is
+    recorded as a proven-equivalent mutant in VERIFICATION.md.)"""
+    for name in ("   ", "\t\t", " \t "):
+        content = f'schema_version: 1\ncomponent_aliases:\n  "{name}": C2\n'
+        path = tmp_path / "ws.yaml"
+        path.write_text(content, encoding="utf-8")
+        with pytest.raises(ValueError, match="empty name"):
+            _oracle.load_reference_alias_manifest(path, component_refs={"C2"}, loop_names=set())
+        with pytest.raises(ValueError, match="empty name"):
+            LOAD_MANIFEST(str(path), component_refs={"C2"}, loop_names=set())

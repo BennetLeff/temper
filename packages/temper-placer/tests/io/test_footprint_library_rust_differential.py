@@ -221,6 +221,20 @@ def test_bounds_ints_preserve_concrete_type():
     assert type(rs_spec.width).__name__ == type(py_spec.width).__name__
 
 
+def test_yaml_11_boolean_scalars_parse_via_pyyaml():
+    """PyYAML is YAML 1.1: the bare scalars `on`/`off` parse as booleans
+    (serde_yaml 1.2 would keep them as strings). The Rust side calls
+    yaml.safe_load back across the boundary, so `thermal_pad: on` becomes
+    True — the anti-vacuity discriminator that catches a serde_yaml
+    re-tokenising mutation."""
+    content = "footprints:\n  R0805:\n    bounds: [2.0, 1.0]\n    thermal_pad: on\n"
+    py_spec = _oracle.FootprintLibrary.from_yaml_string(content)["R0805"]
+    rs_spec = FOOTPRINT_LIBRARY.from_yaml_string(content)["R0805"]
+    assert py_spec.thermal_pad is True
+    assert rs_spec.thermal_pad is True
+    assert _spec_key(rs_spec) == _spec_key(py_spec)
+
+
 # ---------------------------------------------------------------------------
 # Container surface parity (R1a — mutability, dict-like access, defaults).
 # ---------------------------------------------------------------------------

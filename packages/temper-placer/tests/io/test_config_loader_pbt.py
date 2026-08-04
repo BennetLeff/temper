@@ -134,24 +134,33 @@ def test_p4_net_priority_coercion(net_priority):
 
 
 @given(st.sampled_from([
-    {"positive_net": "DP", "net_pos": "FP"},
-    {"positive_net": "", "net_pos": "FP"},
-    {"positive_net": None, "net_pos": "FP"},
-    {"net_pos": "FP"},
-    {"positive_net": "DP"},
+    # Discriminating cases: a falsy PRIMARY with a live SECONDARY (and both
+    # polarity nets present) — truthiness-or keeps the pair, key-existence
+    # would drop it.
+    {"positive_net": "", "negative_net": "DN", "net_pos": "FP", "net_neg": "FN"},
+    {"positive_net": None, "negative_net": "DN", "net_pos": "FP", "net_neg": "FN"},
+    {"positive_net": "DP", "negative_net": "", "net_pos": "FP", "net_neg": "FN"},
+    # Same-outcome control cases (both semantics agree).
+    {"positive_net": "DP", "negative_net": "DN", "net_pos": "FP", "net_neg": "FN"},
+    {"net_pos": "FP", "net_neg": "FN"},
     {},
 ]))
 @settings(max_examples=MAX_EXAMPLES, deadline=None)
 def test_p5_differential_pair_or_semantics(entry):
     """`dc.get("positive_net") or dc.get("net_pos")` — the truthiness-or:
-    an empty-string primary falls back to the secondary; a None primary falls
-    back; a present primary wins."""
+    an empty-string/None primary falls back to the secondary; a present
+    primary wins. (The cases with a falsy primary AND both polarity nets
+    present are the discriminator — earlier drafts lacked a negative net, so
+    both arms skipped identically and the property was vacuous.)"""
     cfg = {"differential_pairs": [entry]}
     rs = PRECONFIG(cfg)
     py = _oracle._preprocess_config(cfg)
-    rs_pos = [p.net_pos for p in rs["differential_pairs"]]
-    py_pos = [p.net_pos for p in py["differential_pairs"]]
+    rs_pos = [(p.net_pos, p.net_neg) for p in rs["differential_pairs"]]
+    py_pos = [(p.net_pos, p.net_neg) for p in py["differential_pairs"]]
     assert rs_pos == py_pos
+    # non-vacuity anchor: at least one of the discriminating cases yields a pair
+    if entry.get("positive_net") in ("", None) and entry.get("negative_net"):
+        assert rs_pos, "falsy primary with live secondary must yield a pair"
 
 
 @given(st.tuples(

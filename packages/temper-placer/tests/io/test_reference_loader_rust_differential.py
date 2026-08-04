@@ -118,26 +118,24 @@ def test_compute_design_stats_footprint_type_extraction_matches_oracle():
 
 def test_compute_design_stats_float_rounding_matches_oracle():
     """The stats dict rounds (banker's) via CPython round() — .5 ticks must
-    round half-to-even on both arms (the candidate-6 trap)."""
+    round half-to-even on both arms (the candidate-6 trap). The density
+    ratio 6.25/100 = 0.0625 is exactly representable: round(0.0625, 3) is a
+    tie, so CPython gives 0.062 while f64::round would give 0.063."""
     from temper_placer.core.netlist import Component, Net, Netlist
 
     comps = [
-        Component(ref="R1", footprint="A:B", bounds=(1.0, 1.0)),
-        Component(ref="R2", footprint="A:C", bounds=(1.0, 1.0)),
-        Component(ref="R3", footprint="A:D", bounds=(1.0, 1.0)),
+        Component(ref="R1", footprint="A:B", bounds=(2.5, 2.5)),  # area 6.25
     ]
-    nets = [Net(name=f"N{i}", pins=[("R1", "1")] * (i + 1), net_class="Signal") for i in range(3)]
+    nets = [Net(name="N", pins=[("R1", "1")] * 3, net_class="Signal")]
     netlist = Netlist(components=comps, nets=nets)
-    result = _parse_result_like(netlist, None, [])
+    board = SimpleNamespace(width=10.0, height=10.0)  # area 100 -> ratio .0625
+    result = _parse_result_like(netlist, board, [])
     py_key = _stats_key(_oracle.compute_design_stats(result))
     rs_key = _stats_key(COMPUTE_STATS(result))
     assert rs_key == py_key
-    # non-vacuity: the pins-per-net average is a .5 tick (1+2+3)/3 = 2.0 -> hmm,
-    # make it a genuine fractional .5 case
-    nets2 = [Net(name="N", pins=[("R1", "1")] * 5, net_class="Signal")]
-    netlist2 = Netlist(components=comps[:1], nets=nets2)
-    result2 = _parse_result_like(netlist2, None, [])
-    assert _stats_key(COMPUTE_STATS(result2)) == _stats_key(_oracle.compute_design_stats(result2))
+    # non-vacuity: the discriminator actually fires (a half-away-from-zero
+    # port would produce 0.063 here, not 0.062)
+    assert _oracle.compute_design_stats(result)["density"] == 0.062
 
 
 # ---------------------------------------------------------------------------
