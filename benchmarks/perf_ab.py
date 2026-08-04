@@ -85,6 +85,7 @@ from __future__ import annotations
 
 import argparse
 import importlib.util
+import yaml
 import json
 import random
 import statistics
@@ -270,9 +271,88 @@ def bench_bottleneck_hard_blocked() -> tuple[float, float]:
 # `module` and `stage` become the comparison key together with `board`, so they
 # must stay stable once a baseline row exists. Renaming one is a baseline reset
 # and fails the gate closed until the baseline row is renamed with it.
+# ---------------------------------------------------------------------------
+# Wave 4 Phase 3 candidate 5: config/reference loaders (pure-delegation arms)
+# ---------------------------------------------------------------------------
+
+# The verbatim pre-migration oracles live in the differential test files
+# (tests/io/_config_loader_py_oracle.py etc.); importing them here keeps the
+# perf A/B measuring the same reference the behavioural A/B pins.
+_LOADER_ORACLE_DIR = REPO_ROOT / "packages/temper-placer/tests/io"
+_CONFIG_FIXTURE = REPO_ROOT / "packages/temper-placer/configs/temper_constraints.yaml"
+_FOOTPRINT_FIXTURE = REPO_ROOT / "packages/temper-placer/configs/footprint_library.yaml"
+
+
+def bench_config_loader_preprocess() -> tuple[float, float]:
+    """A/B the Rust ``preprocess_config`` transform vs the verbatim oracle.
+
+    Pure-delegation surface: both arms walk the same dict through the same
+    Python class constructors (the pydantic/pyclass leaves are called back on
+    both sides), so the honest claim is no-regression-beyond-noise, not a
+    speedup. The parity assertion inside keeps a performance number from being
+    meaningful for an implementation that no longer agrees with its oracle.
+    """
+    import temper_design_bundle_python as _tdb
+
+    oracle = _load_module_from_path(
+        "_perf_ab_config_loader_oracle", _LOADER_ORACLE_DIR / "_config_loader_py_oracle.py"
+    )
+    raw = yaml.safe_load(_CONFIG_FIXTURE.read_text(encoding="utf-8"))
+
+    def run_rust() -> str:
+        return repr(_tdb.preprocess_config(raw))
+
+    def run_oracle() -> str:
+        return repr(oracle._preprocess_config(raw))
+
+    if run_rust() != run_oracle():
+        raise AssertionError(
+            "perf A/B arms disagree for config-loader preprocess -- the "
+            "behavioural A/B (test_config_loader_rust_differential.py) should "
+            "be failing too"
+        )
+    return _time_us(run_rust, DEFAULT_WARMUP, DEFAULT_REPEATS), _time_us(
+        run_oracle, DEFAULT_WARMUP, DEFAULT_REPEATS
+    )
+
+
+def bench_footprint_library_load() -> tuple[float, float]:
+    """A/B the Rust ``from_yaml_string`` vs the verbatim oracle.
+
+    Both arms call PyYAML's ``safe_load`` back across the boundary (YAML 1.1),
+    then do the downstream validation — again a pure-delegation
+    no-regression-beyond-noise arm.
+    """
+    import temper_io_types as _io
+
+    oracle = _load_module_from_path(
+        "_perf_ab_footprint_library_oracle",
+        _LOADER_ORACLE_DIR / "_footprint_library_py_oracle.py",
+    )
+    content = _FOOTPRINT_FIXTURE.read_text(encoding="utf-8")
+
+    def run_rust() -> str:
+        return repr(_io.FootprintLibrary.from_yaml_string(content).footprints)
+
+    def run_oracle() -> str:
+        return repr(oracle.FootprintLibrary.from_yaml_string(content).footprints)
+
+    if run_rust() != run_oracle():
+        raise AssertionError(
+            "perf A/B arms disagree for footprint-library load -- the "
+            "behavioural A/B (test_footprint_library_rust_differential.py) "
+            "should be failing too"
+        )
+    return _time_us(run_rust, DEFAULT_WARMUP, DEFAULT_REPEATS), _time_us(
+        run_oracle, DEFAULT_WARMUP, DEFAULT_REPEATS
+    )
+
+
 _BENCHMARKS: dict[tuple[str, str], Callable[[], tuple[float, float]]] = {
     ("bottleneck-geometry", "cell_capacity_batch"): bench_bottleneck_cell_capacity,
     ("bottleneck-geometry", "hard_blocked_batch"): bench_bottleneck_hard_blocked,
+    ("config-loader", "preprocess_config"): bench_config_loader_preprocess,
+    ("footprint-library", "from_yaml_string"): bench_footprint_library_load,
 }
 
 
