@@ -14,15 +14,20 @@ from pathlib import Path
 from kiutils.board import Board as KiBoard
 from kiutils.items.common import Position
 from kiutils.items.gritems import GrLine
-
 from temper_io_types import (
     add_isolation_slots_plan,
-    compute_to247_isolation_slots as _rs_compute_to247_isolation_slots,
     extract_center_offsets,
-    extract_original_angles as _rs_extract_original_angles,
     reorient_pad_angle,
-    state_to_placements as _rs_state_to_placements,
     write_placements_plan,
+)
+from temper_io_types import (
+    compute_to247_isolation_slots as _rs_compute_to247_isolation_slots,
+)
+from temper_io_types import (
+    extract_original_angles as _rs_extract_original_angles,
+)
+from temper_io_types import (
+    state_to_placements as _rs_state_to_placements,
 )
 
 from temper_placer.core.state import PlacementState

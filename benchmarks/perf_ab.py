@@ -280,10 +280,10 @@ def bench_kicad_write_state_to_placements() -> tuple[float, float]:
     recorded.
     """
     import numpy as np
+    from tests.io._write_board_py_oracle import state_to_placements as oracle
 
     from temper_placer.core.state import PlacementState
     from temper_placer.io.kicad_writer import state_to_placements
-    from tests.io._write_board_py_oracle import state_to_placements as oracle
 
     rng = random.Random(_BENCH_SEED)
     n = 48

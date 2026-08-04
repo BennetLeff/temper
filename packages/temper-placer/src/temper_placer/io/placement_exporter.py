@@ -23,6 +23,8 @@ Array: TypeAlias = NDArray
 
 from temper_io_types import (
     positions_to_placements as _rs_positions_to_placements,
+)
+from temper_io_types import (
     rotation_index_to_degrees as _rs_rotation_index_to_degrees,
 )
 

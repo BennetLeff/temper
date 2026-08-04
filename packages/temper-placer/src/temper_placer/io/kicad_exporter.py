@@ -22,16 +22,27 @@ from pathlib import Path
 from kiutils.board import Board as KiBoard
 from kiutils.items.brditems import Segment, Via
 from kiutils.items.common import Position
-
 from temper_io_types import (
     export_board_state_plan,
     export_from_geometry_plan,
     export_route_plan,
+)
+from temper_io_types import (
     extract_pad_centers as _rs_extract_pad_centers,
+)
+from temper_io_types import (
     generate_connector_segments as _rs_generate_connector_segments,
+)
+from temper_io_types import (
     path_to_segments as _rs_path_to_segments,
+)
+from temper_io_types import (
     path_to_vias as _rs_path_to_vias,
+)
+from temper_io_types import (
     snap_to_nearest_pad as _rs_snap_to_nearest_pad,
+)
+from temper_io_types import (
     validate_4_layer_output as _rs_validate_4_layer_output,
 )
 
@@ -63,7 +74,6 @@ def _validate_4_layer_output(board: object) -> None:
     """
     import logging
 
-    from temper_placer.core.board import CANONICAL_4LAYER_LAYER_NAMES
 
     logger = logging.getLogger(__name__)
 

@@ -57,7 +57,6 @@ from __future__ import annotations
 
 from types import SimpleNamespace
 
-import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
@@ -92,18 +91,20 @@ def _py_mod(a: float, b: float) -> float:
 @given(x=_COORDS, y=_COORDS, pads=st.lists(st.tuples(_COORDS, _COORDS), max_size=8), tol=_TOL)
 def test_p1_snap_optimality(x, y, pads, tol):
     result = shim_snap(x, y, pads, tol)
-    if result == (x, y):
-        # nothing within tolerance
-        for px, py in pads:
-            assert (x - px) ** 2 + (y - py) ** 2 >= tol * tol
-    else:
-        assert result in pads
+    if result in pads:
+        # snapped onto a pad (possibly coincident with the query point)
         d = ((x - result[0]) ** 2 + (y - result[1]) ** 2) ** 0.5
         assert d <= tol
-        # no pad strictly closer
+        # no pad strictly closer (ties are fine)
         for px, py in pads:
             d2 = ((x - px) ** 2 + (y - py) ** 2) ** 0.5
-            assert d2 >= d or (px, py) == result
+            assert d2 >= d
+    else:
+        # nothing within tolerance (the kernel's own strict-< decision rule)
+        assert result == (x, y)
+        for px, py in pads:
+            d2 = ((x - px) ** 2 + (y - py) ** 2) ** 0.5
+            assert d2 >= tol
 
 
 @settings(max_examples=MAX_EXAMPLES, deadline=None)
@@ -352,6 +353,7 @@ _GRID_CELL = st.tuples(st.integers(-20, 20), st.integers(-20, 20), st.integers(0
 @given(cells=st.lists(_GRID_CELL, min_size=0, max_size=10), k=st.integers(1, 5))
 def test_mr2_simplify_scale_invariance(cells, k):
     from temper_io_types import path_to_segments
+
     from temper_placer.router_v6.grid_converter import GridCell
 
     # grid_to_world(cell) = origin + cell*cs + cs/2; scaling cell coords by k
@@ -382,6 +384,7 @@ def test_mr2_simplify_scale_invariance(cells, k):
 def test_mr2_discriminator():
     """A kernel that drops the first cell violates MR2."""
     from temper_io_types import path_to_segments
+
     from temper_placer.router_v6.grid_converter import GridCell
 
     path = SimpleNamespace(

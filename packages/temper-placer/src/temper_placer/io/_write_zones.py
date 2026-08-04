@@ -13,7 +13,6 @@ from pathlib import Path
 from kiutils.board import Board as KiBoard
 from kiutils.items.common import Position
 from kiutils.items.zones import Zone, ZonePolygon
-
 from temper_io_types import (
     net_name_to_index_map,
     write_zones_plan,

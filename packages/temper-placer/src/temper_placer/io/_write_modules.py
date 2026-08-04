@@ -13,7 +13,6 @@ from pathlib import Path
 from kiutils.board import Board as KiBoard
 from kiutils.items.common import Position
 from kiutils.items.gritems import GrRect, GrText
-
 from temper_io_types import fp_annotations
 
 from temper_placer.io.kicad_exporter import _validate_4_layer_output

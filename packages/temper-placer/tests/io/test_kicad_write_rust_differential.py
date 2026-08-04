@@ -53,28 +53,56 @@ import tests.io._write_zones_py_oracle as _zones_oracle
 from temper_placer.core.state import PlacementState
 from temper_placer.io import (
     _write_board as _board_shim,
+)
+from temper_placer.io import (
     _write_modules as _modules_shim,
+)
+from temper_placer.io import (
     _write_tracks as _tracks_shim,
+)
+from temper_placer.io import (
     _write_types as _types_shim,
+)
+from temper_placer.io import (
     _write_zones as _zones_shim,
 )
 from temper_placer.io.kicad_exporter import (
     _generate_connector_segments as shim_generate_connectors,
+)
+from temper_placer.io.kicad_exporter import (
     _validate_4_layer_output as shim_validate_4layer,
+)
+from temper_placer.io.kicad_exporter import (
     export_board_state as shim_export_board_state,
+)
+from temper_placer.io.kicad_exporter import (
     export_from_geometry as shim_export_from_geometry,
+)
+from temper_placer.io.kicad_exporter import (
     export_routed_pcb as shim_export_routed_pcb,
+)
+from temper_placer.io.kicad_exporter import (
     extract_pad_centers as shim_extract_pad_centers,
+)
+from temper_placer.io.kicad_exporter import (
     path_to_segments as shim_path_to_segments,
+)
+from temper_placer.io.kicad_exporter import (
     path_to_vias as shim_path_to_vias,
+)
+from temper_placer.io.kicad_exporter import (
     snap_to_nearest_pad as shim_snap,
 )
 from temper_placer.io.kicad_writer import (
     placements_from_json as shim_placements_from_json,
+)
+from temper_placer.io.kicad_writer import (
     placements_to_json as shim_placements_to_json,
 )
 from temper_placer.io.placement_exporter import (
     positions_to_placements as shim_positions_to_placements,
+)
+from temper_placer.io.placement_exporter import (
     rotation_index_to_degrees as shim_rotation_index_to_degrees,
 )
 from temper_placer.router_v6.grid_converter import GridCell
@@ -121,10 +149,10 @@ def _leaf(value):
         # PlacementUpdate-like (dataclass or pyclass)
         return (
             "placement_update",
-            _leaf(getattr(value, "ref")),
-            _leaf(getattr(value, "x")),
-            _leaf(getattr(value, "y")),
-            _leaf(getattr(value, "rotation")),
+            _leaf(value.ref),
+            _leaf(value.x),
+            _leaf(value.y),
+            _leaf(value.rotation),
         )
     # Fall back to repr (names the concrete class) plus repr of the object.
     return (type(value).__name__, repr(value))
@@ -781,8 +809,8 @@ class TestTo247Slots:
 
 class TestWriteTypesSurface:
     def test_placement_update_surface(self):
+
         from temper_placer.io.kicad_writer import PlacementUpdate
-        import dataclasses
 
         u = PlacementUpdate(ref="U1", x=10.0, y=20.0, rotation=90.0)
         assert u.ref == "U1"
@@ -966,8 +994,8 @@ class TestWritePlacementsAB:
         placements = {"U1": PlacementUpdate(ref="U1", x=100.0, y=100.0, rotation=90.0)}
         out_o = tmp_path / "o.kicad_pcb"
         out_s = tmp_path / "s.kicad_pcb"
-        ro = _board_oracle.write_placements_to_pcb(template, out_o, placements, components=comps)
-        rs = _board_shim.write_placements_to_pcb(template, out_s, placements, components=comps)
+        _ro = _board_oracle.write_placements_to_pcb(template, out_o, placements, components=comps)
+        _rs = _board_shim.write_placements_to_pcb(template, out_s, placements, components=comps)
         assert out_o.read_bytes() == out_s.read_bytes()
         assert "at 100.0 110.0 90.0" in out_s.read_text()  # R(-90).(10,0)=(0,-10)
 
@@ -985,6 +1013,7 @@ class TestWritePlacementsAB:
 
     def test_footprint_without_position(self, template, tmp_path):
         from kiutils.board import Board as KiBoard
+
         from temper_placer.io.kicad_writer import PlacementUpdate
 
         board = KiBoard.from_file(str(template))
@@ -1006,8 +1035,9 @@ class TestWritePlacementsAB:
         placements = {"U1": PlacementUpdate(ref="U1", x=10.0, y=10.0, rotation=90.0)}
         out_o = tmp_path / "o.kicad_pcb"
         out_s = tmp_path / "s.kicad_pcb"
-        _board_oracle.write_placements_to_pcb(template, out_o, placements)
-        _board_shim.write_placements_to_pcb(template, out_s, placements)
+        ro = _board_oracle.write_placements_to_pcb(template, out_o, placements)
+        rs = _board_shim.write_placements_to_pcb(template, out_s, placements)
+        assert _canon_result(ro) == _canon_result(rs)
         assert out_o.read_bytes() == out_s.read_bytes()
         # pad 1 intrinsic 45: new absolute angle 90 + 45 = 135
         text = out_s.read_text()
@@ -1069,7 +1099,7 @@ class TestExportRoutedPcbAB:
         out_o = tmp_path / "o.kicad_pcb"
         out_s = tmp_path / "s.kicad_pcb"
         with unittest.mock.patch("uuid.uuid4", side_effect=_uuid_seq()):
-            ro = _exporter_oracle.export_routed_pcb(template, routes, out_o, auto_fill_zones=False)
+            _ro = _exporter_oracle.export_routed_pcb(template, routes, out_o, auto_fill_zones=False)
         with unittest.mock.patch("uuid.uuid4", side_effect=_uuid_seq()):
             rs = shim_export_routed_pcb(template, routes, out_s, auto_fill_zones=False)
         assert out_o.read_bytes() == out_s.read_bytes()
@@ -1165,7 +1195,8 @@ class TestExportBoardStateAB:
 
 class TestExportFromGeometryAB:
     def test_full_export(self, template, tmp_path):
-        from temper_placer.core.geometry_types import Point, Track, Via as GeoVia
+        from temper_placer.core.geometry_types import Point, Track
+        from temper_placer.core.geometry_types import Via as GeoVia
 
         tracks = [
             Track(start=Point(1.0, 1.0), end=Point(5.0, 5.0), width=0.25, net="n1", layer=0),
@@ -1199,7 +1230,7 @@ class TestStripRoutingAB:
     def test_strip_zones_too(self, routed_template, tmp_path):
         out_o = tmp_path / "o.kicad_pcb"
         out_s = tmp_path / "s.kicad_pcb"
-        ro = _tracks_oracle.strip_routing(routed_template, out_o, keep_zones=False)
+        _ro = _tracks_oracle.strip_routing(routed_template, out_o, keep_zones=False)
         rs = _tracks_shim.strip_routing(routed_template, out_s, keep_zones=False)
         assert out_o.read_bytes() == out_s.read_bytes()
         assert rs.zones_removed == 1
@@ -1208,8 +1239,8 @@ class TestStripRoutingAB:
     def test_strip_keep_fills(self, routed_template, tmp_path):
         out_o = tmp_path / "o.kicad_pcb"
         out_s = tmp_path / "s.kicad_pcb"
-        ro = _tracks_oracle.strip_routing(routed_template, out_o, keep_fills=True)
-        rs = _tracks_shim.strip_routing(routed_template, out_s, keep_fills=True)
+        _ro = _tracks_oracle.strip_routing(routed_template, out_o, keep_fills=True)
+        _rs = _tracks_shim.strip_routing(routed_template, out_s, keep_fills=True)
         assert out_o.read_bytes() == out_s.read_bytes()
         assert "filled_polygon" in out_s.read_text()
 
@@ -1226,8 +1257,8 @@ class TestWriteRoutesAB:
     def test_write_routes(self, template, tmp_path):
         from temper_placer.core.board import Via as BoardVia
 
-        routes = set([_segment("n1", (1.0, 1.0), (5.0, 5.0))])
-        vias = set([BoardVia(position=(5.0, 5.0), drill=0.4, width=0.8, layers=("F.Cu", "B.Cu"), net="n1")])
+        routes = {_segment("n1", (1.0, 1.0), (5.0, 5.0))}
+        vias = {BoardVia(position=(5.0, 5.0), drill=0.4, width=0.8, layers=("F.Cu", "B.Cu"), net="n1")}
         out_o = tmp_path / "o.kicad_pcb"
         out_s = tmp_path / "s.kicad_pcb"
         with unittest.mock.patch("uuid.uuid4", side_effect=_uuid_seq()):
@@ -1241,23 +1272,23 @@ class TestWriteRoutesAB:
     def test_unknown_net_warns(self, template, tmp_path):
         from temper_placer.core.board import Via as BoardVia
 
-        routes = set([_segment("MISSING", (1.0, 1.0), (5.0, 5.0))])
-        vias = set([BoardVia(position=(5.0, 5.0), drill=0.4, width=0.8, layers=("F.Cu", "B.Cu"), net="MISSING")])
+        routes = {_segment("MISSING", (1.0, 1.0), (5.0, 5.0))}
+        vias = {BoardVia(position=(5.0, 5.0), drill=0.4, width=0.8, layers=("F.Cu", "B.Cu"), net="MISSING")}
         out_o = tmp_path / "o.kicad_pcb"
         out_s = tmp_path / "s.kicad_pcb"
         with unittest.mock.patch("uuid.uuid4", side_effect=_uuid_seq()):
-            ro = _tracks_oracle.write_routes_to_pcb(template, out_o, routes, vias)
+            _ro = _tracks_oracle.write_routes_to_pcb(template, out_o, routes, vias)
         with unittest.mock.patch("uuid.uuid4", side_effect=_uuid_seq()):
             rs = _tracks_shim.write_routes_to_pcb(template, out_s, routes, vias)
         assert out_o.read_bytes() == out_s.read_bytes()
         assert any("MISSING" in w and "index 0" in w for w in rs.warnings)
 
     def test_clear_existing(self, routed_template, tmp_path):
-        routes = set([_segment("n1", (1.0, 1.0), (5.0, 5.0))])
+        routes = {_segment("n1", (1.0, 1.0), (5.0, 5.0))}
         out_o = tmp_path / "o.kicad_pcb"
         out_s = tmp_path / "s.kicad_pcb"
         with unittest.mock.patch("uuid.uuid4", side_effect=_uuid_seq()):
-            ro = _tracks_oracle.write_routes_to_pcb(routed_template, out_o, routes, clear_existing=True)
+            _ro = _tracks_oracle.write_routes_to_pcb(routed_template, out_o, routes, clear_existing=True)
         with unittest.mock.patch("uuid.uuid4", side_effect=_uuid_seq()):
             rs = _tracks_shim.write_routes_to_pcb(routed_template, out_s, routes, clear_existing=True)
         assert out_o.read_bytes() == out_s.read_bytes()
@@ -1324,7 +1355,7 @@ class TestIsolationSlotsAB:
         slots = [SimpleNamespace(name="missing", component_ref="ZZZ", start_offset=(0, 0), end_offset=(1, 1), width_mm=1.0)]
         out_o = tmp_path / "o.kicad_pcb"
         out_s = tmp_path / "s.kicad_pcb"
-        ro = _board_oracle.add_isolation_slots_to_pcb(template, slots, out_o)
+        _ro = _board_oracle.add_isolation_slots_to_pcb(template, slots, out_o)
         rs = _board_shim.add_isolation_slots_to_pcb(template, slots, out_s)
         assert out_o.read_bytes() == out_s.read_bytes()
         assert any("ZZZ" in w for w in rs.warnings)
@@ -1362,6 +1393,7 @@ class TestModuleAnnotationsAB:
 
     def test_silkscreen_no_values(self, template):
         import shutil
+
         from kiutils.board import Board as KiBoard
 
         board = KiBoard.from_file(str(template))
@@ -1406,8 +1438,9 @@ class TestCorpusEndToEnd:
         assert _canon_result(ro) == _canon_result(rs)
 
     def test_corpus_placements(self, tmp_path):
-        from temper_placer.io.kicad_writer import PlacementUpdate
         from kiutils.board import Board as KiBoard
+
+        from temper_placer.io.kicad_writer import PlacementUpdate
 
         board = _corpus_temper()
         ki = KiBoard.from_file(str(board))

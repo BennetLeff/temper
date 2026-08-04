@@ -42,7 +42,6 @@ from temper_placer.io._write_zones import (
     write_zones_to_pcb,
 )
 
-
 __all__ = [
     # Types
     "IsolationSlotResult",

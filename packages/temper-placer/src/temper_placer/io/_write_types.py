@@ -17,6 +17,8 @@ from temper_io_types import (
     PlacementUpdate,
     StrippingResult,
     WriteResult,
+)
+from temper_io_types import (
     get_footprint_reference as _get_footprint_reference,
 )
 

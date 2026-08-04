@@ -13,9 +13,10 @@ from pathlib import Path
 from kiutils.board import Board as KiBoard
 from kiutils.items.brditems import Segment, Via
 from kiutils.items.common import Position
-
 from temper_io_types import (
     get_routing_statistics as _rs_get_routing_statistics,
+)
+from temper_io_types import (
     strip_routing_plan,
     write_routes_plan,
 )
@@ -186,7 +187,7 @@ def write_routes_to_pcb(
         ki_board.traceItems = []
 
     # Add routes as Segment objects
-    for net, x1, y1, x2, y2, width, layer, net_index in segment_specs:
+    for _net, x1, y1, x2, y2, width, layer, net_index in segment_specs:
         try:
             segment = Segment(
                 start=Position(X=x1, Y=y1),
@@ -203,7 +204,7 @@ def write_routes_to_pcb(
             traces_skipped += 1
 
     # Add vias if provided
-    for net, vx, vy, width, drill, layers, net_index in via_specs:
+    for _net, vx, vy, width, drill, layers, net_index in via_specs:
         try:
             kicad_via = Via(
                 position=Position(X=vx, Y=vy),
