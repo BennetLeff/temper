@@ -265,6 +265,168 @@ def bench_bottleneck_hard_blocked() -> tuple[float, float]:
     )
 
 
+# ---------------------------------------------------------------------------
+# Wave 4 Phase 3 candidate 2: the YAML loaders (Rust orchestration vs the
+# verbatim pre-migration Python loaders, on the repo's own shipped fixtures)
+# ---------------------------------------------------------------------------
+
+
+def _scalar_hex(value: Any) -> tuple[str, Any]:
+    """Type-preserving canonical key for a leaf (floats via ``.hex()``)."""
+    if isinstance(value, float):
+        return ("float", value.hex())
+    if isinstance(value, bool):
+        return ("bool", value)
+    return (type(value).__name__, value)
+
+
+def _event_fields(ev):
+    """Canonical key for a LoopEvent's six fields (None-preserving)."""
+    return tuple(
+        None if v is None else _scalar_hex(v)
+        for v in (
+            ev.di_dt,
+            ev.dv_dt,
+            ev.frequency_hz,
+            ev.peak_current_a,
+            ev.rms_current_a,
+            ev.ringing_freq_hz,
+        )
+    )
+
+
+def _canon_netclass_rules(result: Any) -> tuple[Any, ...]:
+    """Deterministic fingerprint of a loaded netclass rules result — every
+    field of the ``DesignRules`` instance, mirroring the differential's
+    ``_design_rules_fields`` so a mutation confined to an omitted field
+    cannot pass the inline parity sanity."""
+    dr = result.design_rules
+
+    def net_class_fields(nc):
+        return tuple(sorted((k, _scalar_hex(v)) for k, v in nc.model_dump().items()))
+
+    def class_pairs_fields(pairs):
+        return tuple(
+            (
+                key,
+                tuple(sorted((k, _scalar_hex(v)) for k, v in value.items())),
+            )
+            for key, value in sorted(pairs.items())
+        )
+
+    def via_template_fields(vt):
+        return (
+            vt.name,
+            vt.rows,
+            vt.cols,
+            _scalar_hex(vt.via_diameter_mm),
+            _scalar_hex(vt.via_drill_mm),
+            _scalar_hex(vt.pitch_mm),
+        )
+
+    return (
+        _scalar_hex(dr.default_trace_width),
+        _scalar_hex(dr.default_clearance),
+        _scalar_hex(dr.default_via_diameter),
+        _scalar_hex(dr.default_via_drill),
+        tuple(sorted((name, net_class_fields(nc)) for name, nc in dr.net_classes.items())),
+        tuple(sorted(dr.net_overrides.items())),
+        tuple(sorted(dr.net_class_assignments.items())),
+        tuple(dr.differential_pairs),
+        tuple(dr.bus_cohorts),
+        tuple(sorted(dr.net_topologies.items())),
+        tuple(sorted((name, via_template_fields(vt)) for name, vt in dr.via_templates.items())),
+        class_pairs_fields(result.class_pairs),
+    )
+
+
+def _canon_loop_collection(coll: Any) -> tuple[Any, ...]:
+    """Deterministic fingerprint of a loaded loop collection — every
+    constructor field of every loop plus the collection fields, mirroring
+    the differential's ``_loop_fields``/``_collection_fields`` so a mutation
+    confined to an omitted field cannot pass the inline parity sanity."""
+    loops = tuple(
+        sorted(
+            (
+                loop.name,
+                (loop.loop_type.name, loop.loop_type.value),
+                loop.description,
+                tuple(
+                    (p.component_ref, p.pin_name, p.net_name, type(p.net_name).__name__)
+                    for p in loop.pins
+                ),
+                tuple(loop.components),
+                tuple(loop.nets),
+                _scalar_hex(loop.max_area_mm2),
+                (loop.priority.name, loop.priority.value),
+                _event_fields(loop.events),
+                loop.return_layer,
+                loop.return_net,
+                loop.source,
+                None
+                if loop.get_current_area() is None
+                else _scalar_hex(loop.get_current_area()),
+            )
+            for loop in coll.loops
+        )
+    )
+    return (coll.name, coll.description, loops)
+
+
+def bench_loaders() -> tuple[float, float]:
+    """A/B the migrated YAML loaders vs the verbatim pre-migration Python.
+
+    Both arms parse the SAME files with the SAME PyYAML tokenizer and call
+    the SAME contract constructors; the delta is the mapping/orchestration
+    layer (Rust in ``temper-design-bundle`` vs Python). This is the R2
+    "no regression beyond noise" arm for a pure-delegation, I/O-shaped
+    surface — NOT a speedup claim.
+    """
+    from temper_placer.io.loop_loader import load_loop_collection
+    from temper_placer.io.netclass_loader import load_netclass_rules
+
+    netclass_oracle = _load_module_from_path(
+        "_perf_ab_netclass_loader_oracle",
+        REPO_ROOT / "packages/temper-placer/tests/io/_netclass_loader_py_oracle.py",
+    )
+    loop_oracle = _load_module_from_path(
+        "_perf_ab_loop_loader_oracle",
+        REPO_ROOT / "packages/temper-placer/tests/io/_loop_loader_py_oracle.py",
+    )
+    netclass_yaml = REPO_ROOT / "packages/temper-placer/configs/netclass_rules.yaml"
+    loop_dir = REPO_ROOT / "packages/temper-placer/configs/templates/loops"
+
+    def run_rust() -> None:
+        load_netclass_rules(netclass_yaml)
+        load_loop_collection(loop_dir)
+
+    def run_oracle() -> None:
+        netclass_oracle.load_netclass_rules(netclass_yaml)
+        loop_oracle.load_loop_collection(loop_dir)
+
+    # Parity sanity inside the perf harness (the full A/B is the differential
+    # suite): a performance number for an implementation that no longer
+    # agrees with its oracle is meaningless.
+    if _canon_netclass_rules(load_netclass_rules(netclass_yaml)) != _canon_netclass_rules(
+        netclass_oracle.load_netclass_rules(netclass_yaml)
+    ):
+        raise AssertionError(
+            "perf A/B arms disagree for loaders/netclass -- the behavioral "
+            "A/B (test_loaders_rust_differential.py) should be failing too"
+        )
+    if _canon_loop_collection(load_loop_collection(loop_dir)) != _canon_loop_collection(
+        loop_oracle.load_loop_collection(loop_dir)
+    ):
+        raise AssertionError(
+            "perf A/B arms disagree for loaders/loop_collection -- the "
+            "behavioral A/B (test_loaders_rust_differential.py) should be "
+            "failing too"
+        )
+    return _time_us(run_rust, DEFAULT_WARMUP, DEFAULT_REPEATS), _time_us(
+        run_oracle, DEFAULT_WARMUP, DEFAULT_REPEATS
+    )
+
+
 # (module, stage) -> callable returning (rust_us, oracle_us).
 #
 # `module` and `stage` become the comparison key together with `board`, so they
@@ -273,6 +435,7 @@ def bench_bottleneck_hard_blocked() -> tuple[float, float]:
 _BENCHMARKS: dict[tuple[str, str], Callable[[], tuple[float, float]]] = {
     ("bottleneck-geometry", "cell_capacity_batch"): bench_bottleneck_cell_capacity,
     ("bottleneck-geometry", "hard_blocked_batch"): bench_bottleneck_hard_blocked,
+    ("loaders", "loaders"): bench_loaders,
 }
 
 

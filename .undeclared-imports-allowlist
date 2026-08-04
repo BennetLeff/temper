@@ -13,13 +13,9 @@
 # forever. Remove an entry once its module is properly declared (or the
 # importing code is fixed/retired).
 
-# `jax` is imported top-level but is declared in no pyproject.toml anywhere
-# in the workspace and is not imported anywhere in packages/temper-placer/src
-# (i.e. not a transitive dependency of production code) -- the importing
-# script ModuleNotFoundErrors on any `uv run`. Discovered by this gate itself
-# on 2026-07-27, pre-existing, same failure shape as the jinja2/sympy
-# incidents that motivated this gate. See
-# docs/evidence/2026-07-27-undeclared-import-gate.md.
+# The `jax` entries are gone and this file now has no entries at all. That is
+# a real state, not an oversight: both files this gate ever exempted have been
+# deleted, so nothing is exempt.
 #
 # 2026-07-27: the check_perf_regression.py entry was REMOVED rather than kept
 # -- that script was deleted by the JAX/benders_loop retirement, so its
@@ -27,10 +23,15 @@
 # longer exists exempts nothing, and reads as a live gap that is already
 # closed).
 #
-# internal_route.py remains, and it is a LIVE BREAKAGE, not a dormant one:
-# `make route` still invokes it, so the documented routing entry point exits
-# on ModuleNotFoundError before doing any work. All 7 `jnp.` uses are plain
-# array ops (array/where/maximum/expand_dims/float32) with exact numpy
-# equivalents -- no jit, grad or vmap -- so this is very likely a one-line
-# import swap rather than a dependency decision. TODO: temper-xxx
-jax::scripts/internal_route.py  # TODO: temper-xxx -- undeclared jax; `make route` is broken on it today
+# 2026-08-04: the internal_route.py entry was REMOVED for the same reason, on
+# the same precedent. It had been kept on the argument that the breakage was
+# LIVE -- `make route` still invoked the script, so the documented routing
+# entry point exited on ModuleNotFoundError before doing any work -- and that
+# the fix was likely a one-line numpy swap (all 7 `jnp.` uses were plain array
+# ops, no jit/grad/vmap). Neither premise survived: #680 re-pointed `make
+# route` at scripts/route_board.py, orphaning the script from the build, and
+# the undeclared `jax` import was never the only defect -- the script also
+# imported a `temper_placer.routing` package that no longer exists, so no
+# import swap could have revived it. It was RETIREd as import-dead in
+# docs/wave4-verdicts.yaml and deleted on 2026-08-04. See
+# docs/evidence/2026-08-04-wave4-residual-verdicts.md.
