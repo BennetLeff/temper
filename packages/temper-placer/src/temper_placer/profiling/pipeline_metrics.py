@@ -297,13 +297,20 @@ def profile_loaders(
     loop_dir = placer_root / "configs" / "templates" / "loops"
 
     def _time(fn, exists: bool) -> float:
+        """Time ``fn`` over ``n_runs`` with the first run as warmup.
+
+        A missing fixture yields the documented 0.0 via the ``exists`` guard
+        (the record shape stays stable rather than dropping out of the
+        comparison). Any OTHER exception — a genuine loader failure — must
+        propagate: swallowing it would produce a clean-looking 0.0 record
+        indistinguishable from 'fixtures missing' (P2-4).
+        """
         if not exists:
             return 0.0
         total = 0.0
         for run_idx in range(n_runs):
             t0 = time.perf_counter()
-            with contextlib.suppress(Exception):
-                fn()
+            fn()  # no suppress: a real loader failure must be loud
             elapsed_ms = (time.perf_counter() - t0) * 1000
             if run_idx > 0:
                 total += elapsed_ms
