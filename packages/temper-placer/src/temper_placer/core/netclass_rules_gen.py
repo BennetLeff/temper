@@ -83,3 +83,51 @@ class NetClassRules(BaseModel):
         if name and "name" not in data:
             data["name"] = name
         super().__init__(**data)
+
+    @property
+    def trace_width_mm(self) -> float:
+        """Alias for ``trace_width``.
+
+        Some pre-migration router_v6 call sites read this attribute with
+        the `_mm` suffix that router_v6.stage0_data.NetClassRules (a
+        separate, legitimately `_mm`-suffixed dataclass) uses natively.
+        This mirrors #666's DesignRules `_mm` aliases so both shapes
+        answer identically without renaming the canonical field.
+        """
+        return self.trace_width
+
+    @property
+    def clearance_mm(self) -> float:
+        """Alias for ``clearance``.
+
+        Some pre-migration router_v6 call sites read this attribute with
+        the `_mm` suffix that router_v6.stage0_data.NetClassRules (a
+        separate, legitimately `_mm`-suffixed dataclass) uses natively.
+        This mirrors #666's DesignRules `_mm` aliases so both shapes
+        answer identically without renaming the canonical field.
+        """
+        return self.clearance
+
+    @property
+    def via_diameter_mm(self) -> float:
+        """Alias for ``via_diameter``.
+
+        Some pre-migration router_v6 call sites read this attribute with
+        the `_mm` suffix that router_v6.stage0_data.NetClassRules (a
+        separate, legitimately `_mm`-suffixed dataclass) uses natively.
+        This mirrors #666's DesignRules `_mm` aliases so both shapes
+        answer identically without renaming the canonical field.
+        """
+        return self.via_diameter
+
+    @property
+    def via_drill_mm(self) -> float:
+        """Alias for ``via_drill``.
+
+        Some pre-migration router_v6 call sites read this attribute with
+        the `_mm` suffix that router_v6.stage0_data.NetClassRules (a
+        separate, legitimately `_mm`-suffixed dataclass) uses natively.
+        This mirrors #666's DesignRules `_mm` aliases so both shapes
+        answer identically without renaming the canonical field.
+        """
+        return self.via_drill

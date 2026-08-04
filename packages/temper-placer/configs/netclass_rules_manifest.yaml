@@ -9,6 +9,17 @@
 #   float, optional_float, int, optional_int, string, optional_string,
 #   string_enum, dict, doc_only
 #
+# rust_name: overrides the field name emitted into the Rust struct only.
+# py_alias: adds a read-only `@property` of that name to the Python model,
+#   delegating to the canonical field. This model's canonical field names
+#   have never carried an `_mm` suffix (since its initial codegen commit),
+#   but several pre-migration router_v6 call sites read the `_mm`-suffixed
+#   name interchangeably with router_v6.stage0_data.NetClassRules (a
+#   separate, legitimately `_mm`-suffixed internal dataclass) -- see
+#   docs/solutions/ for the DesignRules analog (#666) this mirrors. The
+#   alias closes that read-side asymmetry without renaming the canonical
+#   field or touching those call sites.
+#
 # Regen command:
 #   python3 scripts/gen_domain_models.py
 
@@ -27,6 +38,7 @@ fields:
     required: true
     doc: "Trace width in mm"
     rust_name: trace_width_mm
+    py_alias: trace_width_mm
 
   - name: clearance
     type: float
@@ -34,6 +46,7 @@ fields:
     required: true
     doc: "Minimum clearance to other traces in mm"
     rust_name: clearance_mm
+    py_alias: clearance_mm
 
   - name: dru_priority
     type: int
@@ -46,12 +59,14 @@ fields:
     default: 0.6
     required: false
     doc: "Via pad diameter in mm (for single vias)"
+    py_alias: via_diameter_mm
 
   - name: via_drill
     type: float
     default: 0.3
     required: false
     doc: "Via drill diameter in mm (for single vias)"
+    py_alias: via_drill_mm
 
   - name: via_template
     type: optional_string

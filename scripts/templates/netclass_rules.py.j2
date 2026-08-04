@@ -48,3 +48,18 @@ class NetClassRules(BaseModel):
         if name and "name" not in data:
             data["name"] = name
         super().__init__(**data)
+{% for field in data_fields %}
+{%- if field.py_alias %}
+    @property
+    def {{ field.py_alias }}(self) -> {{ field.py_type }}:
+        """Alias for ``{{ field.name }}``.
+
+        Some pre-migration router_v6 call sites read this attribute with
+        the `_mm` suffix that router_v6.stage0_data.NetClassRules (a
+        separate, legitimately `_mm`-suffixed dataclass) uses natively.
+        This mirrors #666's DesignRules `_mm` aliases so both shapes
+        answer identically without renaming the canonical field.
+        """
+        return self.{{ field.name }}
+{% endif -%}
+{%- endfor %}

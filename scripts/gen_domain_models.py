@@ -115,6 +115,7 @@ def prepare_template_context(manifest: dict[str, Any]) -> dict[str, Any]:
         entry = {
             "name": field["name"],
             "rust_name": rust_name,
+            "py_alias": field.get("py_alias"),
             "doc": field.get("doc", ""),
             "py_type": py_type,
             "py_default": py_default(field),
