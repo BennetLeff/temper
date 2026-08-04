@@ -2,11 +2,20 @@
 KiCad PCB route exporter (temper-wnyn).
 
 Exports router RoutePath objects to KiCad PCB files with trace segments and vias.
+
+Wave 4, Phase 3, candidate 4 (``docs/plans/2026-08-02-001-feat-wave4-phase3-formats-io-plan.md``):
+the transformation/decision layer delegates to ``temper-io-types``'s
+``kicad_write`` kernels (plan D5/Q1: duck-typed ``from_py_object`` boundary —
+the unmigrated kiutils ``Board`` and router_v6 ``RoutePath`` inputs are read
+inside Rust). This shim keeps only the kiutils object I/O
+(``KiBoard.from_file`` / ``board.to_file``), the kiutils item construction
+(``Segment`` / ``Via`` / ``Position``), and the zone-fill / provenance calls —
+the R3-style boundary notes are recorded in
+``packages/temper-io-types/VERIFICATION.md``.
 """
 
 from __future__ import annotations
 
-import math
 import uuid
 from pathlib import Path
 
@@ -14,14 +23,22 @@ from kiutils.board import Board as KiBoard
 from kiutils.items.brditems import Segment, Via
 from kiutils.items.common import Position
 
+from temper_io_types import (
+    export_board_state_plan,
+    export_from_geometry_plan,
+    export_route_plan,
+    extract_pad_centers as _rs_extract_pad_centers,
+    generate_connector_segments as _rs_generate_connector_segments,
+    path_to_segments as _rs_path_to_segments,
+    path_to_vias as _rs_path_to_vias,
+    snap_to_nearest_pad as _rs_snap_to_nearest_pad,
+    validate_4_layer_output as _rs_validate_4_layer_output,
+)
+
 from temper_placer.core.geometry_types import Track as GeoTrack
 from temper_placer.core.geometry_types import Via as GeoVia
-from temper_placer.geometry.kicad_transform import rotate_local_to_world
 from temper_placer.io.export_types import ExportResult, TraceSegment, TraceVia
-from temper_placer.io.via_dedup import deduplicate_vias
 from temper_placer.router_v6 import _AdapterRoutePath as RoutePath
-from temper_placer.router_v6.grid_converter import grid_to_world
-from temper_placer.router_v6.path_simplify import simplify_path
 
 # Layer mapping from grid layer index to KiCad layer name.
 # The canonical Temper board is 4-layer. 2-layer is not a production
@@ -40,9 +57,9 @@ SNAP_TOLERANCE_MM = 0.5  # 0.5mm handles typical grid cell sizes (0.5mm spacing)
 def _validate_4_layer_output(board: object) -> None:
     """Validate that a KiCad board has exactly 4 copper layers with canonical names.
 
-    Warns instead of raising for boards with differing layer counts — the
-    canonical 4-layer stackup is the production target, but non-production
-    boards (test fixtures, 2-layer prototypes) are valid output.
+    The decision (warn vs raise) and the message are computed by the
+    ``temper-io-types`` kernel; this shim performs the Python-side logging and
+    ``RuntimeError`` raising, matching the pinned pre-migration behavior.
     """
     import logging
 
@@ -50,25 +67,12 @@ def _validate_4_layer_output(board: object) -> None:
 
     logger = logging.getLogger(__name__)
 
-    if not hasattr(board, "layers"):
-        raise RuntimeError("KiCad board has no layers attribute — cannot validate layer count")
-    copper_names = [
-        ly.name for ly in board.layers if hasattr(ly, "name") and ly.name.endswith(".Cu")
-    ]
-    if len(copper_names) != 4:
-        logger.warning(
-            "Board has %d copper layers (canonical 4-layer stackup: %s). "
-            "Proceeding — non-4-layer boards are valid for test fixtures and prototypes.",
-            len(copper_names),
-            sorted(CANONICAL_4LAYER_LAYER_NAMES),
-        )
+    decision, message = _rs_validate_4_layer_output(board)
+    if decision == "warn":
+        logger.warning("%s", message)
         return
-    name_set = set(copper_names)
-    if name_set != set(CANONICAL_4LAYER_LAYER_NAMES):
-        raise RuntimeError(
-            f"Copper layer names must match canonical set {sorted(CANONICAL_4LAYER_LAYER_NAMES)}, "
-            f"got {sorted(name_set)}"
-        )
+    if decision == "raise":
+        raise RuntimeError(message)
 
 
 def extract_pad_centers(board: KiBoard) -> dict[str, list[tuple[float, float]]]:
@@ -77,42 +81,7 @@ def extract_pad_centers(board: KiBoard) -> dict[str, list[tuple[float, float]]]:
     Returns:
         Dictionary mapping net_name -> list of (x, y) pad centers
     """
-    import math
-
-    pad_centers: dict[str, list[tuple[float, float]]] = {}
-
-    for fp in board.footprints:
-        if fp.position:
-            fp_x, fp_y = fp.position.X, fp.position.Y
-            fp_angle = fp.position.angle if fp.position.angle is not None else 0.0
-        else:
-            fp_x, fp_y, fp_angle = 0.0, 0.0, 0.0
-
-        for pad in fp.pads:
-            net_name = (
-                pad.net.name
-                if pad.net and hasattr(pad.net, "name")
-                else str(pad.net)
-                if pad.net
-                else ""
-            )
-            if not net_name:
-                continue
-
-            # Apply footprint rotation to pad position, using KiCad's real
-            # rotation convention -- see
-            # temper_placer.geometry.kicad_transform's docstring.
-            rel_x, rel_y = pad.position.X, pad.position.Y
-            rad = math.radians(fp_angle)
-            rot_x, rot_y = rotate_local_to_world(rel_x, rel_y, rad)
-            abs_x = fp_x + rot_x
-            abs_y = fp_y + rot_y
-
-            if net_name not in pad_centers:
-                pad_centers[net_name] = []
-            pad_centers[net_name].append((abs_x, abs_y))
-
-    return pad_centers
+    return _rs_extract_pad_centers(board)  # temper_io_types kernel (duck-typed)
 
 
 def snap_to_nearest_pad(
@@ -122,18 +91,7 @@ def snap_to_nearest_pad(
     tolerance: float = 0.15,  # Sufficient for 0.25mm grid half-cell
 ) -> tuple[float, float]:
     """Snap coordinate to nearest pad center if within tolerance."""
-    import math
-
-    best_dist = tolerance
-    best_pos = (x, y)
-
-    for px, py in pad_centers:
-        dist = math.sqrt((x - px) ** 2 + (y - py) ** 2)
-        if dist < best_dist:
-            best_dist = dist
-            best_pos = (px, py)
-
-    return best_pos
+    return _rs_snap_to_nearest_pad(x, y, pad_centers, tolerance)
 
 
 def path_to_segments(
@@ -144,59 +102,7 @@ def path_to_segments(
     layer_map: dict[int, str] | None = None,
 ) -> list[TraceSegment]:
     """Convert path to trace segments."""
-    segments = []
-
-    # Prefer RoutePath.cells (the pathfinding result); fall back to
-    # .segments or .coordinates for compatibility with RoutePath3D and
-    # V6 router paths that have already converted to world coords.
-    coords = []
-    if hasattr(path, "cells") and getattr(path, "cells", None):
-        path_cell_size = getattr(path, "cell_size", cell_size)
-        layer_map = layer_map or LAYER_MAP
-        simplified = simplify_path(path.cells)
-        for c in simplified:
-            x, y = grid_to_world(c, origin, path_cell_size)
-            layer_name = layer_map.get(c.layer, "F.Cu")
-            coords.append((x, y, layer_name))
-    elif hasattr(path, "segments") and path.segments:
-        coords = list(path.segments)
-    elif hasattr(path, "coordinates") and path.coordinates:
-        coords = list(path.coordinates)
-    else:
-        return []
-
-    default_layer = getattr(path, "layer_name", "F.Cu")
-    net = getattr(path, "net_name", None) or getattr(path, "net", "unknown")
-
-    for i in range(len(coords) - 1):
-        p1 = coords[i]
-        p2 = coords[i + 1]
-
-        if len(p1) == 3:
-            x1, y1, l1 = p1
-        else:
-            x1, y1 = p1
-            l1 = default_layer
-        if len(p2) == 3:
-            x2, y2, l2 = p2
-        else:
-            x2, y2 = p2
-            l2 = default_layer
-
-        if l1 != l2:
-            continue
-
-        segments.append(
-            TraceSegment(
-                net=net or "unknown",
-                start=(x1, y1),
-                end=(x2, y2),
-                width=trace_width,
-                layer=l1,
-            )
-        )
-
-    return segments
+    return _rs_path_to_segments(path, origin, cell_size, trace_width, layer_map)
 
 
 def path_to_vias(
@@ -208,53 +114,7 @@ def path_to_vias(
     layer_map: dict[int, str] | None = None,
 ) -> list[TraceVia]:
     """Extract vias from layer transitions in path."""
-    vias = []
-
-    coords = []
-    if hasattr(path, "cells") and getattr(path, "cells", None):
-        path_cell_size = getattr(path, "cell_size", cell_size)
-        layer_map = layer_map or LAYER_MAP
-        for c in path.cells:
-            x, y = grid_to_world(c, origin, path_cell_size)
-            layer_name = layer_map.get(c.layer, "F.Cu")
-            coords.append((x, y, layer_name))
-    elif hasattr(path, "segments") and path.segments:
-        coords = list(path.segments)
-    elif hasattr(path, "coordinates") and path.coordinates:
-        coords = list(path.coordinates)
-    else:
-        return []
-
-    net = getattr(path, "net_name", None) or getattr(path, "net", "unknown")
-    default_layer = getattr(path, "layer_name", "F.Cu")
-
-    for i in range(1, len(coords)):
-        p1 = coords[i - 1]
-        p2 = coords[i]
-
-        if len(p1) >= 3 and len(p2) >= 3:
-            l1 = p1[2]
-            l2 = p2[2]
-        else:
-            l1 = l2 = default_layer
-
-        if l1 != l2:
-            pos = (p2[0], p2[1])
-            # Use just the two layers being joined (partial stack);
-            # through-hole would need ["F.Cu", "B.Cu"] for top↔bottom.
-            all_layers = sorted({l1, l2})
-
-            vias.append(
-                TraceVia(
-                    net=net or "unknown",
-                    position=pos,
-                    size=via_size,
-                    drill=via_drill,
-                    layers=all_layers,
-                )
-            )
-
-    return vias
+    return _rs_path_to_vias(path, origin, cell_size, via_size, via_drill, layer_map)
 
 
 def _generate_connector_segments(
@@ -264,86 +124,8 @@ def _generate_connector_segments(
 ) -> list[TraceSegment]:
     """
     Generate connector segments to bridge gaps between track endpoints and pads.
-
-    The skeleton router stops at the medial axis, which may be 1-2mm away from
-    the actual pad center. This function detects 'dangling' track ends near pads
-    and adds a straight segment to connect them.
-
-    Args:
-        segments: List of existing trace segments
-        pad_centers: Dict mapping net name to list of pad coordinates (x, y)
-        max_dist: Maximum distance to bridge (mm)
-
-    Returns:
-        List of NEW connector segments
     """
-    connectors = []
-
-    # Organize segments by net for faster lookup
-    segs_by_net: dict[str, list] = {}
-    for seg in segments:
-        if seg.net not in segs_by_net:
-            segs_by_net[seg.net] = []
-        segs_by_net[seg.net].append(seg)
-
-    for net, pads in pad_centers.items():
-        if net not in segs_by_net:
-            continue
-
-        net_segs = segs_by_net[net]
-
-        # Collect all unique endpoints of existing segments
-        endpoints = set()
-        for seg in net_segs:
-            endpoints.add(seg.start)
-            endpoints.add(seg.end)
-
-        # Check each pad
-        for px, py in pads:
-            # Is this pad already connected? (Exact match)
-            is_connected = False
-            for ex, ey in endpoints:
-                if abs(ex - px) < 0.01 and abs(ey - py) < 0.01:
-                    is_connected = True
-                    break
-
-            if is_connected:
-                continue
-
-            # Find nearest endpoint
-            nearest_ep = None
-            min_dist = float("inf")
-
-            for ex, ey in endpoints:
-                dist = math.sqrt((ex - px) ** 2 + (ey - py) ** 2)
-                if dist < min_dist:
-                    min_dist = dist
-                    nearest_ep = (ex, ey)
-
-            # If nearest endpoint is close enough, bridge it!
-            if nearest_ep and min_dist < max_dist:
-                # Use attributes from nearest segment to match width/layer
-                # Need to find which segment has this endpoint
-                ref_seg = None
-                for seg in net_segs:
-                    if seg.start == nearest_ep or seg.end == nearest_ep:
-                        ref_seg = seg
-                        break
-
-                if ref_seg:
-                    connectors.append(
-                        TraceSegment(
-                            net=net,
-                            start=nearest_ep,
-                            end=(px, py),
-                            width=ref_seg.width,
-                            layer=ref_seg.layer,
-                        )
-                    )
-                    # Add to endpoints so we don't try to connect again
-                    endpoints.add((px, py))
-
-    return connectors
+    return _rs_generate_connector_segments(segments, pad_centers, max_dist)
 
 
 def add_segments_to_board(
@@ -352,14 +134,9 @@ def add_segments_to_board(
 ) -> int:
     """Add trace segments to KiCad board object.
 
-    Uses kiutils.items.brditems.Segment to create PCB trace elements.
-
-    Args:
-        board: KiCad board object to modify
-        segments: List of trace segments to add
-
-    Returns:
-        Number of segments added
+    kiutils item construction — kept across the boundary (the plan's
+    ``yaml.safe_load`` judgement: constructing ``kiutils.items.brditems``
+    objects is boundary plumbing, not engine logic).
     """
     added_count = 0
 
@@ -393,14 +170,8 @@ def add_vias_to_board(
 ) -> int:
     """Add vias to KiCad board object.
 
-    Uses kiutils.items.brditems.Via to create PCB via elements.
-
-    Args:
-        board: KiCad board object to modify
-        vias: List of vias to add
-
-    Returns:
-        Number of vias added
+    kiutils item construction — kept across the boundary (see
+    ``add_segments_to_board``).
     """
     added_count = 0
 
@@ -443,52 +214,14 @@ def export_routed_pcb(
 ) -> ExportResult:
     """Export routed paths to KiCad PCB file.
 
-    Main export function that:
-    1. Parses template PCB (has components, no traces)
-    2. Converts successful routes to segments and vias
-    3. Adds geometry to PCB using kiutils
-    4. Writes output file
-
-    Args:
-        template_pcb: Path to input .kicad_pcb file with placed components
-        routes: Dictionary of net_name → RoutePath from router
-        output_pcb: Path to write output .kicad_pcb file
-        trace_widths: Optional dict of net_name → trace width (mm)
-        default_trace_width: Default trace width in mm
-        via_size: Via outer diameter in mm
-        via_drill: Via drill diameter in mm
-        origin: PCB origin offset (x0, y0)
-        cell_size: Router grid cell size in mm
-        layer_map: Optional layer index → name mapping
-
-    Returns:
-        ExportResult with statistics and warnings
-
-    Example:
-        >>> routes = {
-        ...     "GND": RoutePath(..., success=True),
-        ...     "VCC": RoutePath(..., success=True),
-        ...     "SIG1": RoutePath(..., success=False),
-        ... }
-        >>> result = export_routed_pcb(
-        ...     "input.kicad_pcb",
-        ...     routes,
-        ...     "output.kicad_pcb",
-        ... )
-        >>> print(result)
-        Export complete: 2 nets, 45 segments, 3 vias → output.kicad_pcb
+    The per-net segment/via generation, via dedup
+    (``(round(x,3), round(y,3), sorted(layers))`` first-wins), pad-center
+    extraction and connector generation run in the ``temper-io-types``
+    ``export_route_plan`` kernel; this shim keeps the kiutils board I/O, item
+    construction and zone filling.
     """
     # Load template PCB
     board = KiBoard.from_file(str(template_pcb))
-
-    # Collect all segments and vias
-    all_segments: list[TraceSegment] = []
-    all_vias: list[TraceVia] = []
-    nets_exported = 0
-    nets_failed = 0
-    warnings: list[str] = []
-
-    layer_map_to_use = layer_map or LAYER_MAP
 
     # FIX: Clean up corrupt drills from kiutils import of template
     # kiutils < 1.4.9 has a bug parsing (drill (offset...)) which results in garbage data
@@ -501,62 +234,24 @@ def export_routed_pcb(
                     # Safe bet: SMD pads shouldn't have drills in this context.
                     pad.drill = None
 
-    for net_name, path in routes.items():
-        # Check success if attribute exists (legacy), otherwise assume success if in dict
-        if hasattr(path, "success") and not path.success:
-            nets_failed += 1
-            warnings.append(
-                f"Net {net_name} routing failed: {getattr(path, 'failure_reason', 'unknown')}"
-            )
-            continue
-
-        # Determine trace width for this net
-        trace_width = (
-            trace_widths.get(net_name, default_trace_width) if trace_widths else default_trace_width
+    all_segments, unique_vias, connectors, nets_exported, nets_failed, warnings = (
+        export_route_plan(
+            board,
+            routes,
+            trace_widths,
+            default_trace_width,
+            via_size,
+            via_drill,
+            origin,
+            cell_size,
+            layer_map,
         )
-
-        # Determine cell size (use path's if available, else function arg)
-        current_cell_size = getattr(path, "cell_size", cell_size)
-
-        # Convert path to geometry
-        segments = path_to_segments(path, origin, current_cell_size, trace_width, layer_map_to_use)
-
-        # Use explicit vias (e.g. via arrays) if present, otherwise infer from layer transitions
-        if hasattr(path, "explicit_vias") and path.explicit_vias:
-            vias = path.explicit_vias
-        else:
-            vias = path_to_vias(
-                path, origin, current_cell_size, via_size, via_drill, layer_map_to_use
-            )
-
-        all_segments.extend(segments)
-        all_vias.extend(vias)
-        nets_exported += 1
-
-    # Deduplicate vias to avoid holes_co_located violations
-    # Convert to hashable tuples first
-    via_list = [(v.position[0], v.position[1], tuple(sorted(v.layers))) for v in all_vias]
-    set(via_list)
-    unique_vias = []
-
-    # Reconstruct TraceVia objects
-    # We lost size/drill/net info in deduplication if we just use set
-    # Better approach: Keep first via for each position+layers key
-    via_map = {}
-    for v in all_vias:
-        key = (round(v.position[0], 3), round(v.position[1], 3), tuple(sorted(v.layers)))
-        if key not in via_map:
-            via_map[key] = v
-            unique_vias.append(v)
+    )
 
     # OPTION G+H: GENERATE CONNECTOR SEGMENTS
-    # Bridge small gaps between route ends and pad centers
-    # caused by medial axis approximation or coordinate quirks.
-    pad_centers = extract_pad_centers(board)
-    connectors = _generate_connector_segments(all_segments, pad_centers, max_dist=2.0)
     if connectors:
         print(f"  INFO: Generated {len(connectors)} connector segments to bridge gaps")
-        all_segments.extend(connectors)
+        all_segments = list(all_segments) + list(connectors)
 
     # Add geometry to board
     segments_added = add_segments_to_board(board, all_segments)
@@ -593,22 +288,9 @@ def export_board_state(
 ) -> ExportResult:
     """Export board state directly to KiCad PCB.
 
-    This is the preferred high-level export function for the deterministic pipeline.
-    It takes a BoardState and performs pad-center snapping to ensure DRC clean connectivity.
-
-    Args:
-        template_pcb: Input PCB path
-        state: BoardState containing traces and vias
-        output_pcb: Output PCB path
-        auto_fill_zones: Whether to trigger zone filling
-        netlist_path: Atopile netlist export to record in the output's
-            provenance header (default: elec/build/default.net if present).
-            Provenance is skipped, not faked, if it can't be found.
-        config_path: Placement config in effect, if any, also recorded in
-            the provenance header.
-
-    Returns:
-        ExportResult stats
+    Zero-length-trace rejection, pad-center snapping and the via_dedup
+    (``round(x/0.001)*0.001``) dedup run in the ``temper-io-types``
+    ``export_board_state_plan`` kernel.
     """
     # Load PCB
     board = KiBoard.from_file(str(template_pcb))
@@ -619,50 +301,15 @@ def export_board_state(
     all_traces = list(state.routes)
     all_vias = list(state.vias)
 
-    # Extract pad centers for endpoint snapping
-    pad_centers = extract_pad_centers(board)
-
-    # Clean up segments and snap
-    # 1. Reject zero-length segments
-    valid_traces = [
-        t
-        for t in all_traces
-        if math.sqrt((t.start[0] - t.end[0]) ** 2 + (t.start[1] - t.end[1]) ** 2) > 0.001
-    ]
-
-    # 2. Snap segment endpoints to pad centers
-    # For signal nets, we use a larger tolerance (0.15mm) to bridge grid gaps.
-    # For plane nets (GND), we are more careful to preserve stubs.
-    snapped_count = 0
-    clean_traces = []
-    for t in valid_traces:
-        new_start = t.start
-        new_end = t.end
-
-        if t.net in pad_centers:
-            net_pads = pad_centers[t.net]
-            new_start = snap_to_nearest_pad(t.start[0], t.start[1], net_pads)
-            new_end = snap_to_nearest_pad(t.end[0], t.end[1], net_pads)
-
-            if new_start != t.start or new_end != t.end:
-                snapped_count += 1
-
-        clean_traces.append(
-            TraceSegment(net=t.net, start=new_start, end=new_end, width=t.width, layer=t.layer)
-        )
+    clean_traces, snapped_count, unique_vias, nets_exported = export_board_state_plan(
+        board, all_traces, all_vias
+    )
 
     if snapped_count > 0:
         print(f"  INFO: Snapped {snapped_count} traces to pad centers")
 
     # Add geometry to board
     segments_added = add_segments_to_board(board, clean_traces)
-
-    # Deduplicate vias
-    via_list = [
-        TraceVia(net=v.net, position=v.position, size=v.width, drill=v.drill, layers=list(v.layers))
-        for v in all_vias
-    ]
-    unique_vias = deduplicate_vias(via_list)
     vias_added = add_vias_to_board(board, unique_vias)
 
     # Write output
@@ -692,7 +339,7 @@ def export_board_state(
         output_path=output_pcb,
         segments_added=segments_added,
         vias_added=vias_added,
-        nets_exported=len({t.net for t in clean_traces}),
+        nets_exported=nets_exported,
         nets_failed=0,
         warnings=[],
     )
@@ -707,15 +354,9 @@ def export_from_geometry(
 ) -> ExportResult:
     """Export geometry directly to KiCad PCB.
 
-    Args:
-        template_pcb: Input PCB path
-        output_pcb: Output PCB path
-        tracks: List of Track objects from PCBGeometry
-        vias: List of Via objects from PCBGeometry
-        layer_map: Layer index to name map
-
-    Returns:
-        ExportResult stats
+    Net-code resolution and the layer map run in the ``temper-io-types``
+    ``export_from_geometry_plan`` kernel; the shim constructs the kiutils
+    items.
     """
     layer_map = layer_map or LAYER_MAP
 
@@ -725,25 +366,20 @@ def export_from_geometry(
     # Clear existing traces/vias
     board.traceItems = []
 
+    segment_specs, via_specs, nets_exported = export_from_geometry_plan(
+        board.nets, tracks, vias, layer_map
+    )
+
     total_segments = 0
     total_vias = 0
 
-    # Helper to find net code
-    def get_net_code(net_name: str) -> int:
-        for n in board.nets:
-            if n.name == net_name:
-                return n.number
-        return 0
-
     # Add tracks
-    for track in tracks:
-        layer_name = layer_map.get(track.layer, "F.Cu")
-        net_code = get_net_code(track.net)
-
+    for spec in segment_specs:
+        net, x1, y1, x2, y2, width, layer_name, net_code = spec
         segment = Segment(
-            start=Position(X=track.start.x, Y=track.start.y),
-            end=Position(X=track.end.x, Y=track.end.y),
-            width=track.width,
+            start=Position(X=x1, Y=y1),
+            end=Position(X=x2, Y=y2),
+            width=width,
             layer=layer_name,
             net=net_code,
             tstamp=str(uuid.uuid4()),
@@ -752,13 +388,13 @@ def export_from_geometry(
         total_segments += 1
 
     # Add vias
-    for via in vias:
-        net_code = get_net_code(via.net)
+    for spec in via_specs:
+        net, cx, cy, diameter, drill, layers, net_code = spec
         kicad_via = Via(
-            position=Position(X=via.center.x, Y=via.center.y),
-            size=via.diameter,
-            drill=via.drill,
-            layers=["F.Cu", "B.Cu"],  # Default through
+            position=Position(X=cx, Y=cy),
+            size=diameter,
+            drill=drill,
+            layers=layers,
             net=net_code,
             tstamp=str(uuid.uuid4()),
         )
@@ -773,7 +409,7 @@ def export_from_geometry(
         output_path=output_pcb,
         segments_added=total_segments,
         vias_added=total_vias,
-        nets_exported=len({t.net for t in tracks}),
+        nets_exported=nets_exported,
         nets_failed=0,
         warnings=[],
     )

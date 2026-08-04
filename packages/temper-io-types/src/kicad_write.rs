@@ -1161,6 +1161,48 @@ pub fn extract_original_angles(
     })
 }
 
+/// `_write_board.state_to_placements`'s (and `write_placements_to_pcb`'s)
+/// center-offset map builder: `ref -> (cx, cy)` for components whose
+/// `_center_offset_x`/`_center_offset_y` attributes are non-zero (float()
+/// semantics; a missing key defaults to "0", a non-numeric value raises
+/// ValueError exactly like the pinned Python).
+#[pyfunction]
+pub fn extract_center_offsets(
+    py: Python<'_>,
+    components: Bound<'_, PyAny>,
+) -> PyResult<Py<PyDict>> {
+    guarded(move || {
+        let out = PyDict::new(py);
+        for item in components.try_iter()? {
+            let comp = item?;
+            let attrs_ok = comp.getattr("attributes").ok();
+            let attrs_truthy = attrs_ok
+                .as_ref()
+                .map(|a| is_truthy(a).unwrap_or(false))
+                .unwrap_or(false);
+            if attrs_truthy {
+                let attrs = attrs_ok.unwrap_or_else(|| py.None().into_bound(py));
+                let ref_: String = match comp.getattr("ref").and_then(|r| r.extract::<String>()) {
+                    Ok(r) => r,
+                    Err(_) => continue,
+                };
+                let cx = match attrs.get_item("_center_offset_x") {
+                    Ok(v) => py_float(&v)?,
+                    Err(_) => 0.0,
+                };
+                let cy = match attrs.get_item("_center_offset_y") {
+                    Ok(v) => py_float(&v)?,
+                    Err(_) => 0.0,
+                };
+                if cx != 0.0 || cy != 0.0 {
+                    out.set_item(ref_.as_str(), (cx, cy))?;
+                }
+            }
+        }
+        Ok(out.unbind())
+    })
+}
+
 /// `placement_exporter.positions_to_placements` kernel (rotation indices
 /// pre-computed by `np.argmax` on the shim side).
 #[pyfunction]

@@ -3,15 +3,9 @@ KiCad PCB writer for exporting optimized placements — re-export hub.
 
 All implementation lives in ``io._write_*`` internal modules.
 This file exposes the public API for backward compatibility.
-
-Wave 4, Phase 3, candidate 4: the JSON helpers delegate to the
-``temper-io-types`` ``kicad_write`` kernels; the ``_write_*`` modules are
-delegation shims over the same kernels.
 """
 
 from __future__ import annotations
-
-from temper_io_types import placements_from_json, placements_to_json
 
 from temper_placer.io._write_board import (
     add_isolation_slots_to_pcb,
@@ -41,6 +35,31 @@ from temper_placer.io._write_types import (
 from temper_placer.io._write_zones import (
     write_zones_to_pcb,
 )
+
+
+def placements_to_json(placements: dict[str, PlacementUpdate]) -> dict:
+    """Convert placements to a JSON-serializable dictionary."""
+    return {
+        ref: {
+            "x": update.x,
+            "y": update.y,
+            "rotation": update.rotation,
+        }
+        for ref, update in placements.items()
+    }
+
+
+def placements_from_json(data: dict) -> dict[str, PlacementUpdate]:
+    """Load placements from a JSON-deserialized dictionary."""
+    return {
+        ref: PlacementUpdate(
+            ref=ref,
+            x=float(values["x"]),
+            y=float(values["y"]),
+            rotation=float(values["rotation"]),
+        )
+        for ref, values in data.items()
+    }
 
 
 __all__ = [

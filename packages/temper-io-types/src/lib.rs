@@ -158,6 +158,10 @@ mod pymodule_def {
             m
         )?)?;
         m.add_function(wrap_pyfunction!(
+            crate::kicad_write::extract_center_offsets,
+            m
+        )?)?;
+        m.add_function(wrap_pyfunction!(
             crate::kicad_write::positions_to_placements,
             m
         )?)?;

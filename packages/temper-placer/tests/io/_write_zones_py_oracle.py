@@ -1,23 +1,10 @@
-"""Internal: zone output functions and net name mapping.
-
-Wave 4, Phase 3, candidate 4: net-name-to-index resolution and the zone
-specs delegate to the ``temper-io-types`` ``kicad_write`` kernels; this shim
-keeps the kiutils board I/O and ``Zone`` item construction.
-"""
+"""Internal: zone output functions and net name mapping."""
 
 from __future__ import annotations
 
-import uuid
 from pathlib import Path
 
 from kiutils.board import Board as KiBoard
-from kiutils.items.common import Position
-from kiutils.items.zones import Zone, ZonePolygon
-
-from temper_io_types import (
-    net_name_to_index_map,
-    write_zones_plan,
-)
 
 from temper_placer.io._write_types import WriteResult
 from temper_placer.io.kicad_exporter import _validate_4_layer_output
@@ -34,7 +21,13 @@ def build_net_name_to_index_map(pcb_path: Path) -> dict[str, int]:
     except Exception as e:
         raise ValueError(f"Failed to load PCB: {e}") from e
 
-    return net_name_to_index_map(ki_board.nets)
+    net_map = {}
+    if hasattr(ki_board, "nets") and ki_board.nets:
+        for net in ki_board.nets:
+            if hasattr(net, "name") and hasattr(net, "number"):
+                net_map[net.name] = net.number
+
+    return net_map
 
 
 def write_zones_to_pcb(
@@ -46,10 +39,21 @@ def write_zones_to_pcb(
     """
     Add zones to a KiCad PCB file.
 
-    Net-index resolution and the zone specs run in the ``temper-io-types``
-    ``write_zones_plan`` kernel; the kiutils ``Zone`` construction (with the
-    pinned per-zone try/except) stays here.
+    Args:
+        template_pcb: Path to template PCB.
+        output_pcb: Path to output PCB.
+        zones: List of dicts with keys:
+               - net_name: str
+               - layer: str
+               - polygon_pts: list of (x, y) tuples
+        net_name_to_index: Optional map of net name -> index.
+
+    Returns:
+        WriteResult.
     """
+    from kiutils.items.common import Position
+    from kiutils.items.zones import Zone, ZonePolygon
+
     warnings: list[str] = []
     zones_added = 0
 
@@ -64,10 +68,16 @@ def write_zones_to_pcb(
     if not hasattr(ki_board, "zones") or ki_board.zones is None:
         ki_board.zones = []
 
-    zone_specs, _, warnings = write_zones_plan(zones, net_name_to_index)
+    for zone_def in zones:
+        net_name = zone_def["net_name"]
+        layer = zone_def["layer"]
+        pts = zone_def["polygon_pts"]
 
-    for net_name, net_index, layer, pts, min_thickness in zone_specs:
+        net_index = net_name_to_index.get(net_name, 0)
+
         try:
+            import uuid
+
             zone = Zone(
                 netName=net_name,
                 net=net_index,
@@ -75,7 +85,7 @@ def write_zones_to_pcb(
                 tstamp=str(uuid.uuid4()),
                 polygons=[ZonePolygon(coordinates=[Position(p[0], p[1]) for p in pts])],
                 # Default fill settings
-                minThickness=min_thickness,
+                minThickness=0.254,
             )
             ki_board.zones.append(zone)
             zones_added += 1

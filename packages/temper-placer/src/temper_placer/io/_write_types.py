@@ -1,90 +1,29 @@
-"""Internal: shared data classes and helpers for kicad_writer."""
+"""Internal: shared data classes and helpers for kicad_writer.
+
+Wave 4, Phase 3, candidate 4 — the write/export engine migrates to
+``temper-io-types``' ``kicad_write`` module (plan
+``docs/plans/2026-08-02-001-feat-wave4-phase3-formats-io-plan.md``, D5/Q1
+duck-typed boundary). The result dataclasses are Rust pyclasses and
+``_get_footprint_reference`` is the Rust kernel; this module is a
+pure-delegation re-export. Parity is asserted by
+``tests/io/test_kicad_write_rust_differential.py`` against the verbatim
+pre-migration implementation pinned as ``_write_types_py_oracle.py``.
+"""
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-from pathlib import Path
+from temper_io_types import (
+    IsolationSlotResult,
+    PlacementUpdate,
+    StrippingResult,
+    WriteResult,
+    get_footprint_reference as _get_footprint_reference,
+)
 
-from kiutils.footprint import Footprint
-
-
-@dataclass
-class WriteResult:
-    """Result of writing placement to KiCad file."""
-
-    output_path: Path
-    components_updated: int
-    components_skipped: int
-    warnings: list[str]
-
-    @property
-    def has_warnings(self) -> bool:
-        return len(self.warnings) > 0
-
-
-@dataclass
-class StrippingResult:
-    """Result of stripping routing from a KiCad file."""
-
-    output_path: Path
-    traces_removed: int
-    vias_removed: int
-    zones_removed: int
-    components_preserved: int
-    warnings: list[str]
-
-    @property
-    def has_warnings(self) -> bool:
-        return len(self.warnings) > 0
-
-
-@dataclass
-class PlacementUpdate:
-    """
-    Placement update for a single component.
-
-    Attributes:
-        ref: Component reference designator (e.g., "U1").
-        x: New X position in mm.
-        y: New Y position in mm.
-        rotation: Rotation angle in degrees (0, 90, 180, or 270).
-    """
-
-    ref: str
-    x: float
-    y: float
-    rotation: float  # degrees: 0, 90, 180, 270
-
-
-@dataclass
-class IsolationSlotResult:
-    """Result of adding isolation slots to a KiCad file."""
-
-    output_path: Path
-    slots_added: int
-    slots_skipped: int
-    warnings: list[str]
-
-    @property
-    def has_warnings(self) -> bool:
-        return len(self.warnings) > 0
-
-
-def _get_footprint_reference(fp: Footprint) -> str | None:
-    """Extract reference designator from footprint."""
-    props = getattr(fp, "properties", {})
-    if isinstance(props, dict):
-        ref = props.get("Reference")
-        if ref:
-            return ref
-
-    if isinstance(props, list):
-        for prop in props:
-            if hasattr(prop, "key") and prop.key == "Reference":
-                return prop.value
-
-    for item in getattr(fp, "graphicItems", []):
-        if hasattr(item, "type") and item.type == "reference":
-            return getattr(item, "text", None)
-
-    return None
+__all__ = [
+    "WriteResult",
+    "StrippingResult",
+    "PlacementUpdate",
+    "IsolationSlotResult",
+    "_get_footprint_reference",
+]

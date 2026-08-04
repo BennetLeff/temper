@@ -1,11 +1,20 @@
 """
 Placement exporter for DRC validation.
 
-Wave 4, Phase 3, candidate 4: the position/rotation conversion kernels
-(``positions_to_placements``, ``rotation_index_to_degrees``) delegate to
-``temper-io-types``; ``np.argmax`` (``soft_to_discrete_rotations``) stays
-here per the phase plan's no-numpy-interop boundary, and the temp-file
-orchestration is unchanged.
+This module provides bridge functions to export current optimization state
+to temporary PCB files for DRC validation. It handles:
+- Soft rotation to discrete conversion (argmax of one-hot)
+- Component reference ordering from the placement context's netlist
+- Board origin offset application
+- Temporary file management
+
+Example usage:
+    >>> from temper_placer.io.placement_exporter import create_pcb_exporter
+    >>>
+    >>> exporter = create_pcb_exporter(
+    ...     template_pcb=Path("/path/to/template.kicad_pcb"),
+    ...     board_origin=(100.0, 50.0),  # mm
+    ... )
 """
 
 from __future__ import annotations
@@ -21,11 +30,6 @@ from numpy.typing import NDArray
 
 Array: TypeAlias = NDArray
 
-from temper_io_types import (
-    positions_to_placements as _rs_positions_to_placements,
-    rotation_index_to_degrees as _rs_rotation_index_to_degrees,
-)
-
 from temper_placer.io.kicad_writer import PlacementUpdate, write_placements_to_pcb
 
 
@@ -33,15 +37,22 @@ def soft_to_discrete_rotations(rotations: Array) -> Array:
     """
     Convert soft one-hot rotations to discrete rotation indices.
 
-    ``np.argmax`` is kept across the boundary (the phase plan declines to
-    assume a numpy-interop dependency; see the DSN candidate's boundary note).
+    During training, rotations are (N, 4) soft one-hot vectors from
+    Gumbel-Softmax. For DRC, we need discrete rotations (0, 1, 2, 3)
+    representing 0°, 90°, 180°, 270°.
+
+    Args:
+        rotations: (N, 4) soft one-hot rotation vectors.
+
+    Returns:
+        (N,) array of rotation indices (0-3).
     """
     return np.argmax(rotations, axis=-1)
 
 
 def rotation_index_to_degrees(index: int) -> float:
     """Convert rotation index (0-3) to degrees (0, 90, 180, 270)."""
-    return _rs_rotation_index_to_degrees(int(index))
+    return float(index) * 90.0
 
 
 def positions_to_placements(
@@ -53,8 +64,20 @@ def positions_to_placements(
     """
     Convert position/rotation arrays to PlacementUpdate dictionary.
 
-    The shape guards and the numpy extraction stay here; the per-component
-    math runs in the ``temper-io-types`` kernel.
+    This is the core conversion function that bridges the optimization state
+    (JAX arrays) to KiCad format (named components with absolute positions).
+
+    Args:
+        positions: (N, 2) array of component center positions in mm.
+        rotations: (N, 4) soft one-hot rotation vectors.
+        component_refs: List of N component reference designators, in order.
+        origin: (x, y) board origin offset to add to positions.
+
+    Returns:
+        Dictionary mapping component ref to PlacementUpdate.
+
+    Raises:
+        ValueError: If positions/rotations shape doesn't match component_refs length.
     """
     n_components = len(component_refs)
 
@@ -71,12 +94,25 @@ def positions_to_placements(
     # Convert soft rotations to discrete indices
     rotation_indices = soft_to_discrete_rotations(rotations)
 
-    positions_list = [
-        (float(positions[i, 0]), float(positions[i, 1])) for i in range(n_components)
-    ]
-    rotation_indices_list = [int(rotation_indices[i]) for i in range(n_components)]
+    placements: dict[str, PlacementUpdate] = {}
 
-    return _rs_positions_to_placements(positions_list, rotation_indices_list, component_refs, origin)
+    for i, ref in enumerate(component_refs):
+        # Get position (add origin offset)
+        x = float(positions[i, 0]) + origin[0]
+        y = float(positions[i, 1]) + origin[1]
+
+        # Convert rotation index to degrees
+        rot_idx = int(rotation_indices[i])
+        rotation_deg = rotation_index_to_degrees(rot_idx)
+
+        placements[ref] = PlacementUpdate(
+            ref=ref,
+            x=x,
+            y=y,
+            rotation=rotation_deg,
+        )
+
+    return placements
 
 
 def export_positions_to_temp_pcb(
@@ -89,6 +125,29 @@ def export_positions_to_temp_pcb(
 ) -> Path:
     """
     Export current placement state to a temporary PCB file for DRC.
+
+    This function:
+    1. Converts soft rotations to discrete (argmax)
+    2. Extracts component refs from context.netlist in order
+    3. Applies board origin offset to positions
+    4. Writes placement updates to a temp copy of the template PCB
+
+    The caller is responsible for cleaning up the temp file.
+
+    Args:
+        positions: (N, 2) array of component positions in mm.
+        rotations: (N, 4) soft one-hot rotation vectors.
+        context: Object exposing `.netlist.components` in placement order.
+        template_pcb: Path to the template .kicad_pcb file.
+        board_origin: (x, y) offset to add to all positions.
+        temp_dir: Directory for temp files (uses system temp if None).
+
+    Returns:
+        Path to the temporary PCB file.
+
+    Raises:
+        ValueError: If template doesn't exist or positions don't match netlist.
+        RuntimeError: If PCB write fails.
     """
     if not template_pcb.exists():
         raise ValueError(f"Template PCB not found: {template_pcb}")
@@ -159,6 +218,23 @@ def create_pcb_exporter(
 ) -> PCBExporterFn:
     """
     Factory function to create a PCB exporter for DRC validation.
+
+    Returns a function with signature (positions, rotations, context) -> Path.
+    The template_pcb and board_origin are captured in the closure.
+
+    Args:
+        template_pcb: Path to the template .kicad_pcb file.
+        board_origin: (x, y) offset to add to all positions.
+        temp_dir: Directory for temp files (uses system temp if None).
+
+    Returns:
+        PCB exporter function suitable as a DRC validator callback.
+
+    Example:
+        >>> exporter = create_pcb_exporter(
+        ...     template_pcb=Path("board.kicad_pcb"),
+        ...     board_origin=(100.0, 50.0),
+        ... )
     """
 
     def exporter(positions: Array, rotations: Array, context: Any) -> Path:
@@ -177,6 +253,12 @@ def create_pcb_exporter(
 def cleanup_temp_pcb(path: Path) -> bool:
     """
     Safely delete a temporary PCB file.
+
+    Args:
+        path: Path to the temp PCB file.
+
+    Returns:
+        True if deleted, False if file didn't exist or couldn't be deleted.
     """
     if not path.exists():
         return False

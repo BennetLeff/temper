@@ -1,10 +1,24 @@
-"""Internal: trace/via route writing and stripping functions."""
+"""Internal: trace/via route writing and stripping functions.
+
+Wave 4, Phase 3, candidate 4: the trace-item classification, zone handling
+and net-index resolution delegate to the ``temper-io-types`` ``kicad_write``
+kernels; this shim keeps the kiutils board I/O and item construction.
+"""
 
 from __future__ import annotations
 
+import uuid
 from pathlib import Path
 
 from kiutils.board import Board as KiBoard
+from kiutils.items.brditems import Segment, Via
+from kiutils.items.common import Position
+
+from temper_io_types import (
+    get_routing_statistics as _rs_get_routing_statistics,
+    strip_routing_plan,
+    write_routes_plan,
+)
 
 from temper_placer.io._write_types import StrippingResult, WriteResult, _get_footprint_reference
 from temper_placer.io.kicad_exporter import _validate_4_layer_output
@@ -18,34 +32,6 @@ def strip_routing(
 ) -> StrippingResult:
     """
     Remove traces and vias from a KiCad PCB file while preserving components and netlist.
-
-    This is used to create "unrouted" versions of PCBs for benchmark comparisons,
-    where we want to compare optimizer placements against human placements without
-    the interference of broken traces (which cause DRC errors when components move).
-
-    What is REMOVED:
-    - All trace segments on copper layers (F.Cu, B.Cu, In*.Cu)
-    - All vias
-    - Zone fills (optionally, if keep_fills=False)
-
-    What is KEPT:
-    - Footprints (components) with original positions
-    - Pads and their net assignments (connectivity information)
-    - Board outline (Edge.Cuts layer)
-    - Text, silkscreen, labels
-    - Design rules
-    - Net definitions
-    - Zone outlines (if keep_zones=True)
-
-    Args:
-        input_pcb: Path to the input .kicad_pcb file with routing.
-        output_pcb: Path for the output .kicad_pcb file without routing.
-        keep_zones: If True, keep zone outlines but remove fills.
-                   If False, remove zones entirely.
-        keep_fills: If True, keep zone copper fills (rarely desired).
-
-    Returns:
-        StrippingResult with statistics about what was removed.
     """
     warnings: list[str] = []
     traces_removed = 0
@@ -61,43 +47,24 @@ def strip_routing(
     # Count components for verification
     components_preserved = len(ki_board.footprints)
 
-    # Remove traces and vias from traceItems
-    # traceItems contains: Segment (traces), Via, Arc
-    len(ki_board.traceItems) if ki_board.traceItems else 0
+    # Classification + zone decisions run in the temper-io-types kernel.
+    traces_removed, vias_removed, zones_removed, keep_indices, clear_fills, warnings = (
+        strip_routing_plan(ki_board.traceItems, ki_board.zones, keep_zones, keep_fills)
+    )
 
-    # Filter traceItems - keep only non-routing items (there shouldn't be any)
-    # In kiutils, traceItems are: Segment, Via, Arc
+    # Apply the plan (thin list plumbing).
     if ki_board.traceItems:
-        new_trace_items = []
-        for item in ki_board.traceItems:
-            item_type = type(item).__name__
+        items = ki_board.traceItems
+        ki_board.traceItems = [items[i] for i in keep_indices]
 
-            if item_type in ("Segment", "Arc"):
-                # This is a trace segment - remove it
-                traces_removed += 1
-            elif item_type == "Via":
-                # This is a via - remove it
-                vias_removed += 1
-            else:
-                # Unknown type - keep it with warning
-                warnings.append(f"Unknown traceItem type preserved: {item_type}")
-                new_trace_items.append(item)
-
-        ki_board.traceItems = new_trace_items
-
-    # Handle zones
     if ki_board.zones:
         if not keep_zones:
-            # Remove all zones entirely
-            zones_removed = len(ki_board.zones)
             ki_board.zones = []
-        elif not keep_fills:
-            # Keep zone outlines but clear fills
+        elif clear_fills:
             for zone in ki_board.zones:
                 # Clear filled polygons (the copper pour)
                 if hasattr(zone, "filledPolygons"):
                     zone.filledPolygons = []
-                # The polygon/polygons attribute is the zone outline, keep it
 
     # Ensure output directory exists
     output_pcb.parent.mkdir(parents=True, exist_ok=True)
@@ -126,15 +93,9 @@ def strip_routing_preserve_nets(
     """
     Strip routing with net assignment verification.
 
-    This is a convenience wrapper around strip_routing that verifies
-    net assignments are preserved after stripping.
-
-    Args:
-        input_pcb: Path to the input .kicad_pcb file.
-        output_pcb: Path for the output .kicad_pcb file.
-
-    Returns:
-        StrippingResult with warnings if net assignments differ.
+    Composition + verification over the kiutils board objects (a
+    kiutils-read surface) — kept in the shim; the classification kernel it
+    wraps is ``strip_routing_plan`` in Rust.
     """
     # First, capture net assignments from input
     try:
@@ -189,25 +150,11 @@ def write_routes_to_pcb(
     """
     Add deterministic routes (traces) and vias to a KiCad PCB file.
 
-    This function takes routes generated by the deterministic pipeline
-    (as Trace objects) and adds them to a KiCad board as Segment objects.
-    Also adds Vias if provided.
-
-    Args:
-        template_pcb: Path to the template .kicad_pcb file.
-        output_pcb: Path for the output .kicad_pcb file.
-        routes: Frozen set of Trace objects from BoardState.routes.
-        vias: Frozen set of Via objects from BoardState.vias.
-        net_name_to_index: Optional map of net name → net index.
-            If None, will be built from the template PCB.
-        clear_existing: If True, remove all existing traces before adding new ones.
-
-    Returns:
-        WriteResult with statistics and warnings.
+    Net-index resolution, per-route warnings and the Segment/Via specs run in
+    the ``temper-io-types`` ``write_routes_plan`` kernel; this shim keeps the
+    kiutils board I/O and item construction (including the per-item
+    try/except that reports construction failures).
     """
-    from kiutils.items.brditems import Segment, Via
-    from kiutils.items.common import Position
-
     warnings: list[str] = []
     traces_added = 0
     traces_skipped = 0
@@ -219,73 +166,57 @@ def write_routes_to_pcb(
     except Exception as e:
         raise ValueError(f"Failed to load template PCB: {e}") from e
 
-    # Build net name → index mapping if not provided
-    if net_name_to_index is None:
-        net_name_to_index = {}
-        if hasattr(ki_board, "nets") and ki_board.nets:
-            for net in ki_board.nets:
-                if hasattr(net, "name") and hasattr(net, "number"):
-                    net_name_to_index[net.name] = net.number
+    original_trace_count = len(ki_board.traceItems) if ki_board.traceItems else 0
+
+    net_map, segment_specs, via_specs, warnings = write_routes_plan(
+        ki_board.nets,
+        list(routes),
+        list(vias) if vias is not None else None,
+        net_name_to_index,
+        clear_existing,
+        original_trace_count,
+    )
 
     # Clear existing traces if requested
     if clear_existing and hasattr(ki_board, "traceItems"):
-        original_count = len(ki_board.traceItems) if ki_board.traceItems else 0
         ki_board.traceItems = []
-        if original_count > 0:
-            warnings.append(f"Cleared {original_count} existing trace items")
 
     # Initialize traceItems if it doesn't exist
     if not hasattr(ki_board, "traceItems") or ki_board.traceItems is None:
         ki_board.traceItems = []
 
     # Add routes as Segment objects
-    for route in routes:
-        # Get net index (default to 0 if not found)
-        net_index = 0
-        if route.net and route.net in net_name_to_index:
-            net_index = net_name_to_index[route.net]
-        elif route.net:
-            warnings.append(f"Net '{route.net}' not found in board, using index 0")
-
+    for net, x1, y1, x2, y2, width, layer, net_index in segment_specs:
         try:
-            import uuid
-
             segment = Segment(
-                start=Position(X=route.start[0], Y=route.start[1]),
-                end=Position(X=route.end[0], Y=route.end[1]),
-                width=route.width,
-                layer=route.layer,
+                start=Position(X=x1, Y=y1),
+                end=Position(X=x2, Y=y2),
+                width=width,
+                layer=layer,
                 net=net_index,
                 tstamp=str(uuid.uuid4()),  # Required: unique timestamp ID
             )
             ki_board.traceItems.append(segment)
             traces_added += 1
         except Exception as e:
-            warnings.append(f"Failed to add trace {route.start} → {route.end}: {e}")
+            warnings.append(f"Failed to add trace ({x1}, {y1}) → ({x2}, {y2}): {e}")
             traces_skipped += 1
 
     # Add vias if provided
-    if vias:
-        for via in vias:
-            net_index = 0
-            if via.net and via.net in net_name_to_index:
-                net_index = net_name_to_index[via.net]
-
-            try:
-                import uuid
-
-                kicad_via = Via(
-                    position=Position(X=via.position[0], Y=via.position[1]),
-                    size=via.width,
-                    drill=via.drill,
-                    layers=list(via.layers),
-                    net=net_index,
-                    tstamp=str(uuid.uuid4()),
-                )
-                ki_board.traceItems.append(kicad_via)
-                vias_added += 1
-            except Exception as e:
-                warnings.append(f"Failed to add via at {via.position}: {e}")
+    for net, vx, vy, width, drill, layers, net_index in via_specs:
+        try:
+            kicad_via = Via(
+                position=Position(X=vx, Y=vy),
+                size=width,
+                drill=drill,
+                layers=layers,
+                net=net_index,
+                tstamp=str(uuid.uuid4()),
+            )
+            ki_board.traceItems.append(kicad_via)
+            vias_added += 1
+        except Exception as e:
+            warnings.append(f"Failed to add via at ({vx}, {vy}): {e}")
 
     # Ensure output directory exists
     output_pcb.parent.mkdir(parents=True, exist_ok=True)
@@ -308,33 +239,10 @@ def write_routes_to_pcb(
 def get_routing_statistics(pcb_path: Path) -> dict[str, int]:
     """
     Get statistics about routing in a PCB file.
-
-    Args:
-        pcb_path: Path to the .kicad_pcb file.
-
-    Returns:
-        Dictionary with counts of traces, vias, zones, components.
     """
     try:
         ki_board = KiBoard.from_file(str(pcb_path))
     except Exception as e:
         raise ValueError(f"Failed to load PCB: {e}") from e
 
-    trace_count = 0
-    via_count = 0
-
-    if ki_board.traceItems:
-        for item in ki_board.traceItems:
-            item_type = type(item).__name__
-            if item_type in ("Segment", "Arc"):
-                trace_count += 1
-            elif item_type == "Via":
-                via_count += 1
-
-    return {
-        "traces": trace_count,
-        "vias": via_count,
-        "zones": len(ki_board.zones) if ki_board.zones else 0,
-        "components": len(ki_board.footprints) if ki_board.footprints else 0,
-        "nets": len(ki_board.nets) if ki_board.nets else 0,
-    }
+    return _rs_get_routing_statistics(ki_board)
