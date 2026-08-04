@@ -1,0 +1,199 @@
+# Wave 4 residual verdict ledger.
+#
+# Wave 4's R7: "the program is complete only when every surface has a recorded
+# verdict -- migrated, retired, or kept with a written justification."  This file
+# is that record, and scripts/check_verdict_coverage.py turns it into a
+# measurement: every Python file under the roots below must match exactly one
+# entry, and anything unmatched is reported as UNDECIDED.
+#
+# Verdicts (Wave 4 R3 / D6):
+#   MIGRATE        -- assigned to a phase. Carries the R1 gate set on landing.
+#   RETIRE         -- dead or obsolete; deleted with justification.
+#   JUSTIFIED-KEEP -- a written reason naming a concrete blocker or a measured
+#                     verdict. "Consolidation" is never sufficient (D6). A
+#                     JUSTIFIED-KEEP is re-decidable when evidence changes.
+#   UNDECIDED      -- no verdict recorded yet. This is the backlog R7 measures.
+#
+# UNDECIDED is a first-class state on purpose. The alternative -- inventing
+# verdicts to reach 100% -- would make the ledger a decoration rather than an
+# instrument, which is the failure mode this program keeps finding elsewhere.
+
+roots:
+  - packages/temper-placer/src/temper_placer
+  - packages/temper-workflow
+  - scripts
+  - benchmarks
+
+surfaces:
+  # ---- Phase 2: contracts as pyo3 pyclasses (the pivot) --------------------
+  # D5: parse output and orchestration calls both flow through these objects,
+  # so migrating them first is what makes Phases 3 and 5 tractable.
+  - pattern: packages/temper-placer/src/temper_placer/core/**
+    verdict: MIGRATE
+    phase: 2
+    note: >-
+      Contract layer. board, netlist, loop, design_rules, priority, net_types
+      are named in the Phase 2 scope; the rest of core/ moves with them because
+      every call site touches these objects together.
+  - pattern: packages/temper-placer/src/temper_placer/pcl/**
+    verdict: MIGRATE
+    phase: 2
+    note: PCL constraints are contract objects; temper-pcl-ir is the Rust seed.
+  - pattern: packages/temper-placer/src/temper_placer/_constraint_types/**
+    verdict: MIGRATE
+    phase: 2
+    note: >-
+      Contract types. Excluded from the plan's measured LOC baseline but not
+      from its scope -- R7 admits no pre-exclusions.
+
+  # ---- Phase 3: formats / IO ----------------------------------------------
+  - pattern: packages/temper-placer/src/temper_placer/io/**
+    verdict: MIGRATE
+    phase: 3
+    note: >-
+      KiCad parse/export via the temper-design-bundle and temper-io-types Rust
+      seeds. kiutils leaves the boundary at this phase (parent R4).
+
+  # ---- Phase 4: remaining compute and data processing ----------------------
+  - pattern: packages/temper-placer/src/temper_placer/geometry/**
+    verdict: MIGRATE
+    phase: 4
+  - pattern: packages/temper-placer/src/temper_placer/metrics/**
+    verdict: MIGRATE
+    phase: 4
+  - pattern: packages/temper-placer/src/temper_placer/regression/**
+    verdict: MIGRATE
+    phase: 4
+  - pattern: packages/temper-placer/src/temper_placer/physics/**
+    verdict: MIGRATE
+    phase: 4
+    note: >-
+      thermal_potential and operating_point are named. scipy spsolve inside
+      this tree is a separate JUSTIFIED-KEEP (KTD9) recorded below.
+  - pattern: packages/temper-placer/src/temper_placer/topological/**
+    verdict: MIGRATE
+    phase: 4
+  - pattern: packages/temper-placer/src/temper_placer/fields/**
+    verdict: MIGRATE
+    phase: 4
+  - pattern: packages/temper-placer/src/temper_placer/analysis/**
+    verdict: MIGRATE
+    phase: 4
+  - pattern: packages/temper-placer/src/temper_placer/manufacturing/**
+    verdict: MIGRATE
+    phase: 4
+  - pattern: packages/temper-placer/src/temper_placer/validation/**
+    verdict: MIGRATE
+    phase: 4
+    note: >-
+      drc_types and drc_result are Phase 2 contracts and land earlier; the
+      geometric checks and the rest of validation/ are Phase 4 compute.
+
+  # ---- Phase 5: orchestration ---------------------------------------------
+  - pattern: packages/temper-placer/src/temper_placer/pipeline/**
+    verdict: MIGRATE
+    phase: 5
+  - pattern: packages/temper-placer/src/temper_placer/deterministic/**
+    verdict: MIGRATE
+    phase: 5
+    note: Deterministic state is Phase 2; the stages and their wiring are Phase 5.
+  - pattern: packages/temper-placer/src/temper_placer/cli/**
+    verdict: MIGRATE
+    phase: 5
+  - pattern: packages/temper-placer/src/temper_placer/heuristics/**
+    verdict: MIGRATE
+    phase: 5
+  - pattern: packages/temper-placer/src/temper_placer/router_v6/**
+    verdict: MIGRATE
+    phase: 5
+    note: >-
+      Largest single surface (~30k). constraint_model and routing_results are
+      Phase 2 contracts; channel_skeleton is Phase 4 and spike-gated on the
+      shapely Voronoi boundary; the orchestration remainder is Phase 5.
+  - pattern: packages/temper-placer/src/temper_placer/adapters/**
+    verdict: MIGRATE
+    phase: 5
+  - pattern: packages/temper-placer/src/temper_placer/report/**
+    verdict: MIGRATE
+    phase: 5
+  - pattern: packages/temper-placer/src/temper_placer/requirements/**
+    verdict: MIGRATE
+    phase: 5
+  - pattern: packages/temper-placer/src/temper_placer/explainability/**
+    verdict: MIGRATE
+    phase: 5
+  - pattern: packages/temper-workflow/**
+    verdict: MIGRATE
+    phase: 5
+    note: Small orchestration surface; moves with the pipeline it wraps.
+
+  # ---- Phase 1 gated: the solver boundary ---------------------------------
+  - pattern: packages/temper-placer/src/temper_placer/placer/**
+    verdict: UNDECIDED
+    owed: >-
+      Gated on the Phase 1 ortools CP-SAT decision (R4). The spike reached a
+      KEEP verdict but that verdict is not yet recorded in-repo, so this
+      surface has no landed decision. The non-solver compute in placer/ is
+      Phase 4 and does not wait on the gate; the solver boundary itself does.
+
+  - pattern: packages/temper-placer/src/temper_placer/constraints/**
+    verdict: MIGRATE
+    phase: 4
+    note: >-
+      Constraint builder/compiler/reporter. temper-constraint-compiler is the
+      Rust seed. Not named in the plan's phase table -- surfaced by the R7
+      coverage check, which is what that check is for.
+  - pattern: packages/temper-placer/src/temper_placer/extraction/**
+    verdict: MIGRATE
+    phase: 4
+    note: Hypergraph construction; compute. Also surfaced by the coverage check.
+
+  # ---- Explicit JUSTIFIED-KEEP --------------------------------------------
+  - pattern: packages/temper-placer/src/temper_placer/profiling/**
+    verdict: JUSTIFIED-KEEP
+    blocker: >-
+      Development instrumentation, not product surface. It has no correctness
+      gate to protect and no compute on any hot path, so a migration would
+      carry the full R1 gate set for zero measured benefit. Re-decidable if
+      profiling output ever becomes an input to a gate.
+  - pattern: packages/temper-placer/src/temper_placer/testing/**
+    verdict: JUSTIFIED-KEEP
+    blocker: >-
+      Test helpers consumed by pytest. Migrating them would require the test
+      suite to cross the pyo3 boundary to construct fixtures, which adds a
+      failure mode to the harness that proves every other migration correct.
+
+  - pattern: packages/temper-placer/src/temper_placer/fixtures/**
+    verdict: JUSTIFIED-KEEP
+    blocker: >-
+      Synthetic test fixtures, consumed by pytest. Same reasoning as testing/:
+      migrating them would make the harness that proves every other migration
+      correct depend on the pyo3 boundary it is meant to be checking.
+
+  # ---- Undecided residuals: the real backlog ------------------------------
+  - pattern: packages/temper-placer/src/temper_placer/*.py
+    verdict: UNDECIDED
+    owed: >-
+      Package root and entry points -- __init__, __main__, _version, protocol,
+      runner, strategy_registry. Never assigned by the plan's phase table; the
+      R7 coverage check surfaced them. The real question is whether a
+      pyo3-backed distribution keeps a Python package root at all. It probably
+      must, which would make this a JUSTIFIED-KEEP -- but that reasoning has
+      not been written down or reviewed, and D6 forbids assuming it.
+  - pattern: packages/temper-placer/src/temper_placer/visualization/**
+    verdict: UNDECIDED
+    owed: >-
+      Phase 6. The Plotly/HTML board renderer is the specific question: WASM/web,
+      retire, or JUSTIFIED-KEEP. Named in the plan as an open residual.
+  - pattern: scripts/**
+    verdict: UNDECIDED
+    owed: >-
+      Phase 6, and the largest undecided surface. The parent roadmap deferred
+      it; R7 converts that deferral into an owed verdict. CI gate scripts are
+      churny by design, which is an argument for JUSTIFIED-KEEP but not yet a
+      written one.
+  - pattern: benchmarks/**
+    verdict: UNDECIDED
+    owed: >-
+      Phase 6. Carries migrated code paths, so the Phase 0 performance trigger
+      widens to cover it; whether the harness itself migrates is undecided.
