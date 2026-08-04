@@ -13,6 +13,9 @@ mod gates;
 #[cfg(feature = "python")]
 mod priority;
 
+#[cfg(feature = "python")]
+mod loaders;
+
 mod atopile;
 mod constraint_merge;
 mod error;
@@ -179,6 +182,13 @@ mod python {
         crate::loops::register(module)?;
         crate::design_rules::register(module)?;
         crate::gates::register(module)?;
-        crate::priority::register(module)
+        crate::priority::register(module)?;
+
+        // Wave 4 Phase 3 candidate 2: the YAML loaders ported from
+        // temper_placer/io/netclass_loader.py and
+        // temper_placer/io/loop_loader.py (see loaders.rs). They bind onto
+        // the Phase-2 contracts registered above, which is why they are the
+        // phase's opportunistic first pull.
+        crate::loaders::register(module)
     }
 }
