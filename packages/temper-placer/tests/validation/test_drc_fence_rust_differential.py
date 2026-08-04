@@ -15,6 +15,14 @@ in-source). The oracle is the verbatim pre-migration module
 (``_drc_fence_py_oracle.py``, commit ``aece7c372``).
 
 Comparison convention: floats bit-exact via ``float.hex()``.
+
+``check_timings`` and ``custom_metrics`` are compared in INSERTION (dict)
+order, not sorted: both arms consume the same ``RunResult`` and preserve
+first-seen key position, so the differential pins the kernel's
+order-preserving ``Vec<(String, Py<PyAny>)>`` scan (a HashMap-backed
+mutation would scramble custom_metrics while passing a sorted comparison —
+pinned directly by ``test_prop5_metrics_custom_accumulation`` and now by
+this order-sensitive field comparison too).
 """
 
 from __future__ import annotations
@@ -189,7 +197,7 @@ def _summary_fields(s):
         s.emc_issues,
         tuple(s.checks_run),
         tuple((k, float(v).hex()) for k, v in s.check_timings.items()),
-        tuple(sorted((k, float(v).hex()) for k, v in s.custom_metrics.items())),
+        tuple((k, float(v).hex()) for k, v in s.custom_metrics.items()),
         tuple(s.checks_skipped),
     )
 

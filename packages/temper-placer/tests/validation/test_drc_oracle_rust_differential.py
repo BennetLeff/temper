@@ -253,13 +253,23 @@ def test_prop4_group_sorted_and_partitioned():
 
 
 def test_prop5_group_failure_flags():
-    """P5: has_failure is True iff the normalized severity is not in
-    {INFO, WARNING} (unknown severities fail closed — the oracle maps them
-    to Severity.ERROR)."""
-    for sev, expected in [("INFO", False), ("WARNING", False), ("ERROR", True),
-                          ("CRITICAL", True), ("BOGUS", True), ("", True)]:
+    """P5: the wrapper's re-derived failure flag (``CheckResult.passed``)
+    is True iff the normalized severity is in {INFO, WARNING} (unknown
+    severities fail closed — the oracle maps them to Severity.ERROR).
+
+    The kernel's normalized record deliberately carries NO ``has_failure``
+    field (dead-output removal, adversarial-review pass 2 — both delegation
+    modules recompute it from severity and never read it off the record);
+    this test pins that re-derivation through the shim wrapper AND pins the
+    removal itself (a regression that re-emits ``has_failure`` fails the
+    ``not in`` assertion below)."""
+    for sev, expected_passed in [("INFO", True), ("WARNING", True),
+                                 ("ERROR", False), ("CRITICAL", False),
+                                 ("BOGUS", False), ("", False)]:
         groups = GROUP_VIOLATIONS([_violation_dict(severity=sev)])
-        assert groups[0][1][0]["has_failure"] is expected, sev
+        assert "has_failure" not in groups[0][1][0], sev
+        rr = ShimOracle._violations_to_run_result([_violation_dict(severity=sev)])
+        assert rr.check_results[0].passed is expected_passed, sev
 
 
 # ---------------------------------------------------------------------------

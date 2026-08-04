@@ -272,9 +272,25 @@ fn min_hv_lv_trace_clearance(
 /// Returns `(findings, metrics)`. Findings are returned in the oracle's
 /// exact issue order: overlaps (lexicographic pairs), boundaries
 /// (component order), clearances (lexicographic pairs), then per component
-/// keepouts followed by mounting holes. Each finding carries the numeric
-/// fields and severity/code the delegation module needs to build the
-/// `GeometricViolation` messages with CPython formatting.
+/// keepouts followed by mounting holes. The delegation module
+/// (`geometric.py`) builds the `GeometricViolation` messages with CPython
+/// formatting from the numeric fields; it re-derives some decision fields
+/// rather than reading them off the finding (adversarial-review pass 2 —
+/// dead outputs are unobservable mutation regions, so they are not
+/// emitted):
+///
+/// - overlap and boundary findings carry `severity` + `code` (the wrapper
+///   reads them);
+/// - clearance findings carry only the numerics (`dist`,
+///   `required_clearance`, `shortage`, `is_hv_lv`) — the wrapper
+///   re-derives severity and code from `dist`/`is_hv_lv`;
+/// - keepout and mounting-hole findings carry `code` but NOT `severity`
+///   (the wrapper hardcodes `ValidationSeverity.ERROR` for both).
+///
+/// The metrics dict carries only the two counts the shim cannot recompute
+/// from findings (`boundary_violations`, `keepout_violations`);
+/// `overlap_count`/`total_overlap_area`/`clearance_violations` are
+/// recomputed Python-side from the findings list and so are not emitted.
 #[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (positions, half_widths, half_heights, net_classes, boundary, keepouts, mounting_holes, distances, overlap_threshold, min_clearance, hv_lv_clearance))]
@@ -296,10 +312,7 @@ fn geometric_validate(
     let n = positions.len();
     let findings = PyList::empty(py);
 
-    let mut overlap_count: i64 = 0;
-    let mut total_overlap = 0.0_f64;
     let mut boundary_count: i64 = 0;
-    let mut clearance_count: i64 = 0;
     let mut keepout_count: i64 = 0;
 
     // 1. Overlaps — lexicographic pair order, severity by amount.
@@ -308,8 +321,6 @@ fn geometric_validate(
             let dist = distances[i * n + j];
             if dist < -overlap_threshold {
                 let overlap_amount = -dist;
-                total_overlap += overlap_amount;
-                overlap_count += 1;
                 let severity = if overlap_amount > 5.0 {
                     "CRITICAL"
                 } else if overlap_amount > 1.0 {
@@ -366,21 +377,13 @@ fn geometric_validate(
             let required_clearance = if is_hv_lv_pair { hv_lv_clearance } else { min_clearance };
             let dist = distances[i * n + j];
             if dist < required_clearance {
-                clearance_count += 1;
                 let shortage = required_clearance - dist;
-                let (severity, code) = if is_hv_lv_pair {
-                    ("CRITICAL", "GEO_HV_LV_CLEARANCE")
-                } else if dist > 0.0 {
-                    ("WARNING", "GEO_CLEARANCE")
-                } else {
-                    ("ERROR", "GEO_CLEARANCE")
-                };
+                // severity/code are re-derived by the wrapper from
+                // dist/is_hv_lv (see the function docstring) — NOT emitted.
                 let f = PyDict::new(py);
                 f.set_item("kind", "clearance")?;
                 f.set_item("i", i)?;
                 f.set_item("j", j)?;
-                f.set_item("severity", severity)?;
-                f.set_item("code", code)?;
                 f.set_item("dist", dist)?;
                 f.set_item("required_clearance", required_clearance)?;
                 f.set_item("shortage", shortage)?;
@@ -410,7 +413,8 @@ fn geometric_validate(
                 let f = PyDict::new(py);
                 f.set_item("kind", "keepout")?;
                 f.set_item("i", i)?;
-                f.set_item("severity", "ERROR")?;
+                // severity is NOT emitted: the wrapper hardcodes
+                // ValidationSeverity.ERROR for keepouts (function docstring).
                 f.set_item("code", "GEO_KEEPOUT")?;
                 let kb = PyList::empty(py);
                 kb.append(*kx_min)?;
@@ -438,7 +442,9 @@ fn geometric_validate(
                 let f = PyDict::new(py);
                 f.set_item("kind", "mounting_hole")?;
                 f.set_item("i", i)?;
-                f.set_item("severity", "ERROR")?;
+                // severity is NOT emitted: the wrapper hardcodes
+                // ValidationSeverity.ERROR for mounting holes (function
+                // docstring).
                 f.set_item("code", "GEO_MOUNTING_HOLE")?;
                 let hp = PyList::empty(py);
                 hp.append(*hx)?;
@@ -453,10 +459,10 @@ fn geometric_validate(
     }
 
     let metrics = PyDict::new(py);
-    metrics.set_item("overlap_count", overlap_count)?;
-    metrics.set_item("total_overlap_area", total_overlap)?;
+    // Only the counts the shim cannot recompute from the findings list are
+    // emitted (the shim recomputes overlap_count / total_overlap_area /
+    // clearance_violations from the findings — see the function docstring).
     metrics.set_item("boundary_violations", boundary_count)?;
-    metrics.set_item("clearance_violations", clearance_count)?;
     metrics.set_item("keepout_violations", keepout_count)?;
 
     Ok((findings.into(), metrics.into()))
@@ -693,9 +699,15 @@ fn get_str_or(
 /// Normalize one violation dict into the record the delegation module wraps
 /// into an Issue. Mirrors `drc_runner._violations_to_run_result`'s inner
 /// loop verbatim: severity uppercased with an ERROR fallback for unknown
-/// values, `has_failure` = severity ∈ {ERROR, CRITICAL} after fallback,
-/// location dict preserved only for dict values (None/non-dict → None),
-/// details/affected_items passed through.
+/// values, location dict preserved only for dict values (None/non-dict →
+/// None), details/affected_items passed through.
+///
+/// The record does NOT carry a `has_failure` field: both delegation modules
+/// (`drc_runner` and `drc_oracle._violations_to_run_result`) recompute it
+/// from the normalized `severity` and never read it off the record, so it
+/// was a dead output — an unobservable mutation region (adversarial-review
+/// pass 2). The normalized severity is the single source; the wrapper
+/// re-derivation is pinned by `test_prop5_group_failure_flags`.
 #[cfg(feature = "python")]
 fn normalize_violation(
     py: Python<'_>,
@@ -707,7 +719,6 @@ fn normalize_violation(
     } else {
         "ERROR".to_string()
     };
-    let has_failure = matches!(severity.as_str(), "ERROR" | "CRITICAL");
 
     let code = get_str_or(v, "code", "DRC_RS_000")?;
     let message = get_str_or(v, "message", "")?;
@@ -750,7 +761,6 @@ fn normalize_violation(
 
     let rec = PyDict::new(py);
     rec.set_item("severity", &severity)?;
-    rec.set_item("has_failure", has_failure)?;
     rec.set_item("code", &code)?;
     rec.set_item("message", &message)?;
     rec.set_item("category", &category)?;

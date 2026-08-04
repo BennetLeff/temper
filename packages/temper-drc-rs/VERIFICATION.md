@@ -96,8 +96,11 @@ measurement or by construction:
    `test_parse_differential_all_enum_members`); severity normalizes to
    `ERROR`/`WARNING` with the oracle's exact default and non-string →
    `None` paths. `group_violations` normalizes unknown severities to
-   `ERROR` (the oracle's `_SEVERITY_MAP.get(..., ERROR)` fallback) and
-   flags `has_failure` iff severity ∈ {ERROR, CRITICAL}.
+   `ERROR` (the oracle's `_SEVERITY_MAP.get(..., ERROR)` fallback). The
+   record does NOT carry `has_failure`: both delegation modules recompute it
+   from the normalized severity (dead-output removal, pass 2 — the kernel
+   emits only the single source, the wrapper re-derivation is pinned by
+   `test_prop5_group_failure_flags`).
 5. **Order semantics.** `group_violations` sorts group names with Rust's
    `String` sort (= CPython lexicographic str sort for UTF-8, byte order ==
    code-point order), preserving input order within each group;
@@ -174,6 +177,52 @@ measurement or by construction:
   `None` as the oracle's `footprint.lower() if footprint else ""` path —
   identical result (`"smd"`), pinned by the differential.
 
+## Pass 2 (adversarial review) — dead-output removal, order pinning, fallback restoration
+
+Structural findings from the adversarial review were resolved as follows
+(recorded per field, as required by the review):
+
+**Dead decision fields deleted from the kernels** — each was an
+unobservable mutation region (a mutant flipping it passes every differential
+and every documented sweep mutant, because no production consumer reads it).
+Deleting removes the region entirely; the kernel contract stays minimal.
+
+| Field | Kernel site | Why dead | Resolution |
+|---|---|---|---|
+| clearance finding `severity` | `geometric_validate` | `_wrap_clearances` re-derives it from `is_hv_lv`/`dist` | **deleted** (with the `(severity, code)` derivation) |
+| clearance finding `code` | `geometric_validate` | `_wrap_clearances` re-derives `GEO_HV_LV_CLEARANCE`/`GEO_CLEARANCE` from `is_hv_lv` | **deleted** |
+| keepout finding `severity` | `geometric_validate` | `_wrap_keepouts` hardcodes `ValidationSeverity.ERROR` | **deleted** (`code` kept — the wrapper reads it) |
+| mounting-hole finding `severity` | `geometric_validate` | `_wrap_keepouts` hardcodes `ValidationSeverity.ERROR` | **deleted** (`code` kept — the wrapper reads it) |
+| metrics `overlap_count` | `geometric_validate` | `_wrap_overlaps` recomputes it from findings | **deleted** |
+| metrics `total_overlap_area` | `geometric_validate` | `_wrap_overlaps` recomputes it from findings | **deleted** |
+| metrics `clearance_violations` | `geometric_validate` | `_wrap_clearances` recomputes it from findings | **deleted** |
+| record `has_failure` | `group_violations`/`normalize_violation` | both `drc_oracle` and `drc_runner._violations_to_run_result` recompute it from normalized severity | **deleted**; the wrapper re-derivation pinned by the rewritten `test_prop5_group_failure_flags` (asserts `CheckResult.passed` through the shim AND asserts `has_failure` is not re-emitted) |
+
+**Load-bearing fields kept** (consumers read them; already pinned by the
+differentials and sweep mutants M6/M7): overlap finding `severity`/`code`,
+boundary finding `severity`/`code`, metrics `boundary_violations`,
+metrics `keepout_violations`.
+
+**custom_metrics key order pinned by the differential.** The fence
+differential previously compared `custom_metrics` order-insensitively
+(`tuple(sorted(...))`) while `check_timings` was compared in insertion
+order — so the kernel's first-seen-key-position contract (an
+order-preserving `Vec` scan, not a `HashMap`) was pinned only by the single
+hand-built `test_prop5_metrics_custom_accumulation`. The differential now
+compares `custom_metrics` in insertion order too (mirroring
+`check_timings`), so a HashMap-backed mutation fails the random
+differential deterministically instead of passing it ~50% of the time.
+
+**`drc_oracle._infer_package_type` Python fallback restored.** Pass 1 had
+narrowed the module's graceful-degradation contract: `_infer_package_type`
+called `_rs()` unconditionally, so the parsed-PCB dict-builder path
+(`ci_closure_test.py`) broke at call time without the extension while the
+module still advertised `_HAS_RUST_DRC=False` machinery. The verbatim
+pre-migration pure-Python body (from `_drc_oracle_py_oracle.py`) is now
+behind the `_HAS_RUST_DRC` guard; with the extension present the shim still
+delegates to the kernel (the differential keeps pinning the Rust path). The
+scorecard's "dict builders stay Python" claim is accurate again.
+
 ## Evidence
 
 - Differential (R1a/R1f, TDD red→green): the RED commit
@@ -185,7 +234,7 @@ measurement or by construction:
   `drc` and `drc_runner` pinned inside their differential files). The
   differentials fail to collect until the `temper_drc_rs` kernels exist
   (module-level `= _tdrc.<symbol>` bindings), which is the demonstrated
-  RED. GREEN: 89 differential/PBT tests pass (7 files).
+  RED. GREEN: 94 differential/PBT tests pass (7 files).
 - Properties (R1c): ≥5 non-vacuous properties per module (35 PBT — 5 each
   across the 7 modules), each asserting a concrete observable (severity
   classification, message format shape, sorted/partitioned grouping,

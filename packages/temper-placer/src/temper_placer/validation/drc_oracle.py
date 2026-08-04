@@ -58,12 +58,35 @@ def _infer_package_type(footprint: str | None) -> str:
     Heuristic used by both the placer-path and parsed-PCB-path
     board-dict builders.
 
-    Wave 4 Phase 4: delegates to the Rust kernel
-    ``temper_drc_rs.infer_package_type`` (verbatim first-match keyword-order
-    port, case-insensitive substring matching, None/empty → "smd"; pinned by
-    the differential suite ``test_drc_oracle_rust_differential.py``).
+    Wave 4 Phase 4: with the Rust extension present, delegates to the Rust
+    kernel ``temper_drc_rs.infer_package_type`` (verbatim first-match
+    keyword-order port, case-insensitive substring matching, None/empty →
+    "smd"; pinned by the differential suite
+    ``test_drc_oracle_rust_differential.py``). Without the extension
+    (``_HAS_RUST_DRC=False``), falls back to the verbatim pre-migration
+    pure-Python body — the module's graceful-degradation contract, which
+    the parsed-PCB dict-builder path (``ci_closure_test.py``) depends on
+    extension-absent (adversarial-review pass 2 restored this after the
+    migration had introduced a hard runtime dependency on ``_rs()``).
     """
-    return _rs().infer_package_type(footprint)
+    if _HAS_RUST_DRC:
+        return _rs().infer_package_type(footprint)
+    fp_lower = footprint.lower() if footprint else ""
+    if any(p in fp_lower for p in ("tht", "through", "pin", "dip")):
+        return "tht"
+    if "to-247" in fp_lower or "to247" in fp_lower:
+        return "to247"
+    if "to-220" in fp_lower or "to220" in fp_lower:
+        return "to220"
+    if "bga" in fp_lower:
+        return "bga"
+    if "qfn" in fp_lower:
+        return "qfn"
+    if "qfp" in fp_lower or "tqfp" in fp_lower:
+        return "qfp"
+    if "dpak" in fp_lower or "d2pak" in fp_lower:
+        return "dpak"
+    return "smd"
 
 
 def build_placement_from_netlist(

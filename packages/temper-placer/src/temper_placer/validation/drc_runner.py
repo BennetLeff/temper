@@ -207,9 +207,11 @@ def _violations_to_run_result(
 
     Wave 4 Phase 4: the grouping + normalization compute (group by
     ``check_name`` preserving first-seen order, sort groups by name,
-    severity normalization with the ERROR fallback, per-group failure
-    flag) runs in the shared Rust kernel ``temper_drc_rs.group_violations``
-    (also consumed by ``drc_oracle._violations_to_run_result``). This
+    severity normalization with the ERROR fallback) runs in the shared Rust
+    kernel ``temper_drc_rs.group_violations`` (also consumed by
+    ``drc_oracle._violations_to_run_result``). The per-group failure flag is
+    recomputed here from the normalized severity (the kernel emits no
+    ``has_failure`` — dead-output removal, adversarial-review pass 2). This
     wrapper only marshals the normalized records back into the
     ``CheckResult``/``Issue`` contract objects.
     """
