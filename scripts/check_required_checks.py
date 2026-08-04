@@ -536,19 +536,34 @@ def _latest_runs(raw_runs: Iterable[Mapping[str, Any]]) -> dict[str, CheckRun]:
     return latest
 
 
-def _any_started(
+def _any_still_queueing(
     required_contexts: Sequence[str], raw_runs: Iterable[Mapping[str, Any]]
 ) -> bool:
-    """True if any required context has left the queue (in_progress or completed).
+    """True if a required context is still waiting on a runner.
 
-    A required context that never leaves 'queued' is runner backlog, not
-    pipeline progress; the backlog grace deadline extension exists for exactly
-    that case, and must not fire once the pipeline has actually started.
+    Two distinct states, both of which mean "not yet done, and not failing":
+
+      - the check run exists and is `queued` -- the job has not been given a
+        runner (the original backlog case), and
+      - the check run does not exist at all -- GitHub has not *created* it yet.
+        Job creation itself lags when the pool is full, so the aggregate can
+        watch for a name that is not on the commit yet. This state was not
+        covered before, and it is the common one under saturation.
+
+    This is the trigger for the backlog grace extension. It replaces
+    `_any_started`, which asked whether *anything* had left the queue and so
+    fired only on a total backlog. A partial backlog -- some contexts already
+    passing, others still queued or uncreated -- got no grace and failed at the
+    base timeout while the rest were still waiting. That is what produced
+    `missing: Rust Checks, Core Tests, ...` on pull requests whose jobs were
+    merely late.
+
+    A context that will genuinely never appear still fails: the grace window is
+    granted once and bounded, after which the same missing set fails closed.
     """
     latest = _latest_runs(raw_runs)
     return any(
-        latest.get(context) is not None
-        and latest[context].status in ("in_progress", "completed")
+        latest.get(context) is None or latest[context].status == "queued"
         for context in required_contexts
     )
 
@@ -835,13 +850,15 @@ def _run(
             if (
                 not extended_for_backlog
                 and manifest.backlog_grace_seconds > 0
-                and not _any_started(required, check_runs)
+                and _any_still_queueing(required, check_runs)
             ):
                 extended_for_backlog = True
                 deadline = grace_deadline
                 print(
-                    "WARNING: required contexts never left the queue within "
-                    f"{manifest.timeout_seconds}s (runner backlog); extending the "
+                    "WARNING: required contexts have no check run yet within "
+                    f"{manifest.timeout_seconds}s -- GitHub has not created them, "
+                    "which under runner saturation is queue latency rather than "
+                    "absence; extending the "
                     f"polling window by {manifest.backlog_grace_seconds}s "
                     "before failing closed"
                 )
