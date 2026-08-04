@@ -13,6 +13,7 @@ from pathlib import Path
 import click  # type: ignore[import-untyped]
 
 from temper_placer.profiling import (
+    profile_loaders,
     profile_loss_functions,
     profile_pipeline,
     profile_router_benchmark,
@@ -31,7 +32,7 @@ def profile():
     "--module",
     "-m",
     required=True,
-    type=click.Choice(["pipeline", "loss-fn", "router-bench", "all"]),
+    type=click.Choice(["pipeline", "loss-fn", "router-bench", "loaders", "all"]),
     help="Profiling module to run",
 )
 @click.option(
@@ -80,6 +81,11 @@ def profile_run(
 
     if module in ("router-bench", "all"):
         all_records.extend(profile_router_benchmark(commit))
+
+    # Wave 4 Phase 3 candidate 2 (R1b): the YAML loaders. I/O-bound, so
+    # the comparison is R2's "no regression beyond noise" arm.
+    if module in ("loaders", "all"):
+        all_records.extend(profile_loaders(board, commit))
 
     if output_jsonl:
         from temper_placer.regression.metrics_recorder import (

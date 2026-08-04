@@ -14,6 +14,9 @@ mod gates;
 mod priority;
 
 #[cfg(feature = "python")]
+mod loaders;
+
+#[cfg(feature = "python")]
 mod pcl_parse;
 
 #[cfg(feature = "python")]
@@ -186,6 +189,14 @@ mod python {
         crate::design_rules::register(module)?;
         crate::gates::register(module)?;
         crate::priority::register(module)?;
+
+        // Wave 4 Phase 3 candidate 2: the YAML loaders ported from
+        // temper_placer/io/netclass_loader.py and
+        // temper_placer/io/loop_loader.py (see loaders.rs). They bind onto
+        // the Phase-2 contracts registered above, which is why they are the
+        // phase's opportunistic first pull.
+        crate::loaders::register(module)?;
+
         // ...and then the PCL contract layer: the tag-expression algebra
         // ported from temper_placer/pcl/tag_dispatch.py (see pcl_tags.rs)
         // plus the parse primitives from temper_placer/pcl/_parse_utils.py

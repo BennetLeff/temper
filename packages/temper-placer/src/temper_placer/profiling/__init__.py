@@ -3,6 +3,7 @@
 Public API (Plan 010 — per-module profilers):
     profile_pipeline(board_id, commit) -> list[PipelineMetricsRecord]
     profile_loss_functions(board_id, commit) -> list[PipelineMetricsRecord]
+    profile_loaders(board_id, commit) -> list[PipelineMetricsRecord]
     profile_router_benchmark(commit) -> list[PipelineMetricsRecord]
 
 Public API (Plan 022 — per-stage timing regression gate):
@@ -23,6 +24,7 @@ Plan 022 (timing gate) lives in .timing_gate.
 
 from .instrumentation import PipelineProfiler, ProfileReport, StageTiming
 from .pipeline_metrics import (
+    profile_loaders,
     profile_loss_functions,
     profile_pipeline,
     profile_router_benchmark,
@@ -41,6 +43,7 @@ __all__ = [
     "StageTiming",
     "profile_pipeline",
     "profile_loss_functions",
+    "profile_loaders",
     "profile_router_benchmark",
     "TimingResult",
     "TimingReport",
