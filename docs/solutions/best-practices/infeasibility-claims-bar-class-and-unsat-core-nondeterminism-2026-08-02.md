@@ -83,6 +83,28 @@ wall was paid down for the pinned formulation by #568/#579, not for the
 zone-constrained repair path) — another demonstration that the core inventory
 must be re-derived per formulation, and that "wall paid down" is formulation-local.
 
+## Lesson 4: the encoded bar is a bar — "infeasible" can be an encoder artifact
+
+The run-C follow-up added a third bar class beyond box-vs-copper: the
+**encoded** bar. The zone-inclusive solve stayed infeasible for days while the
+exact geometry was satisfiable everywhere — the fixed-copper zone encoder
+(#567) only supported axis-aligned half-planes, so 54/96 zone items (every
+board-spanning pour: DC_BUS_RTN, SW_NODE, +15V_LS, …) with diagonal edges fell
+back to their bounding boxes; the DC_BUS_RTN AABB contains the entire board, so
+the solver saw **0 encoded-clear cells** where the exact oracle found 14,973
+(`docs/evidence/2026-08-03-gap1-runC-envelope-probe.md`). The 2-second,
+cap/seed-invariant infeasibility was the encoder dying by construction, not the
+board. The general-convex encoding (PR #674, R24 BMC-validated, 0
+counterexamples) restored 14,966 encoded-clear cells — and the solve *still*
+proved infeasible, now for the genuine compound conflicts (14 real non-zone
+violations: K3 pads vs GATE_HS, ESP32 GPIO pads, two traces).
+
+Corollary for wall triage: **a fast, invariant, cap/seed-independent
+infeasibility is a smell that the ENCODER is the wall** (the solve never gets to
+search). Before concluding "no placement exists," check whether the solver's own
+predicate can express the geometry the exact oracle accepts — the encoded-clear
+vs exact-clear cell counts (0 vs 14,973) make the verdict visible in one number.
+
 ## The recipe
 
 1. Reproduce the infeasibility; record the formulation (pin set, bar, zones,

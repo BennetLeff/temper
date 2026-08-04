@@ -222,6 +222,41 @@
     "returning these contexts to the required set -- not leaving them here",
     "as decoration that costs runner slots and buys no safety."
   ],
+  "_perf_ab_context_note": [
+    "2026-08-04 (Wave 4 Phase 0, R2): 'PR Performance Comparison' is a real",
+    "hard gate as of this date -- it exits non-zero on regression, fails closed",
+    "on a missing or empty baseline, and its continue-on-error mask is gone --",
+    "but it is deliberately NOT in required_contexts, and MUST NOT be added",
+    "until the prerequisite below is built.",
+    "",
+    "Why: required_contexts_for_files returns EVERY context in this list as",
+    "soon as ANY of the ~90 trigger_paths match. Every context here today comes",
+    "from python-tests.yml, whose path list is drift-checked against this",
+    "manifest. pr-perf-check.yml is a DIFFERENT workflow with a narrower path",
+    "set. A PR touching only docs/plans/** or pcb/*.kicad_pro matches this",
+    "manifest but never fires pr-perf-check, so no check run is created --",
+    "'missing', not 'skipped', so verify_skips cannot rescue it. The aggregator",
+    "would poll timeout_seconds (2700) + backlog_grace_seconds (7200) = 2h45m",
+    "and then fail. That is a guaranteed red required check on every docs-only",
+    "PR, i.e. every open PR blocked at once.",
+    "",
+    "Prerequisite: a per-context workflow-trigger gate here (a context_triggers",
+    "section mapping a context to its own workflow's paths: list, drift-checked",
+    "the way validate_trigger_manifest checks the python-tests list), so a",
+    "context can be dropped from the required set when its own workflow",
+    "legitimately does not fire.",
+    "",
+    "Also outstanding: the committed baseline",
+    "(power_pcb_dataset/metrics/perf_ab_baseline.jsonl) is CI-measured but only",
+    "n=1 per benchmark, so the rolling median is that single row and CI noise",
+    "(<=9.9%) applies to it in full. Widen it as main runs accumulate before",
+    "the context is required. Do NOT re-capture it locally: a darwin-captured",
+    "baseline measured -11% against linux CI on identical code, which would",
+    "blind the 20% margin to every regression below +35%.",
+    "",
+    "Measurements and full reasoning:",
+    "docs/evidence/2026-08-04-perf-ab-harness-noise-floor.md"
+  ],
   "required_contexts": [
     "Rust Checks (cargo check + clippy)",
     "Cross-Source Consistency Gates",
@@ -231,7 +266,18 @@
     "Generated Repo State",
     "Invariant tests (router_v6 group 3)",
     "Repo Hygiene & Import Gates",
-    "LOC Cap Gate"
+    "LOC Cap Gate",
+    "PR Performance Comparison"
   ],
-  "backlog_grace_seconds": 7200
+  "backlog_grace_seconds": 7200,
+  "context_triggers": {
+    "PR Performance Comparison": [
+      "packages/**",
+      "benchmarks/**",
+      "scripts/pr_perf_compare.py",
+      "scripts/tests/test_pr_perf_compare.py",
+      "power_pcb_dataset/metrics/perf_ab_baseline.jsonl",
+      ".github/workflows/pr-perf-check.yml"
+    ]
+  }
 }
