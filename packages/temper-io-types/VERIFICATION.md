@@ -158,17 +158,45 @@ port.
    (`float(positions[i]) + origin`, `float(indices[i]) * 90`), and
    `placements_to_json` passes the stored value through without re-coercion.
 4. **`__module__`/repr of the result pyclasses** differ from the dataclasses
-   (`temper_io_types` vs `temper_placer.io._write_types`); the repr format
-   itself matches (single-quoted ref, shortest round-trip floats).
+   (`temper_io_types` vs `temper_placer.io._write_types`). The repr DIGITS
+   match — Rust's `{:?}` for f64 uses the same shortest round-trip algorithm
+   as Python's `repr(float)` — but the FORMAT diverges at three boundaries
+   (verified 2026-08-04, Rust 1.92 `{:?}` vs CPython `repr`):
+   `|x| >= 1e16` renders `1e16` where Python renders `1e+16` (no exponent
+   sign); `|x| <= 1e-5` renders `1e-5` where Python renders `1e-05`
+   (exponent not zero-padded); NaN renders `NaN` where Python renders `nan`.
+   `-0.0` is NOT a divergence: Debug prints `-0.0` (the `-0` form belongs to
+   Display, which the repr never uses), so it matches Python. It is reachable
+   in principle, though: `py_mod(-360.0, 360.0)` returns `-0.0` (kernel unit
+   test `py_mod_takes_divisor_sign`), so `state_to_placements` can emit a
+   `-0.0` rotation — placement coordinates are mm-scale and rotations are
+   multiples of 90 from quantized indices, so practical exposure is nil.
+   None of the four pyclasses' reprs is asserted anywhere in the
+   differential (`_leaf` canonicalizes floats via `float.hex()` and
+   `_canon_result` reads result fields, never `repr`).
 5. **`float(str)`** parses via Rust `str::parse::<f64>()` (IEEE-correctly
    rounded like CPython; the plan's Q2 assumption). Python's underscore
    literals (`float("1_000")`) are not accepted — unreachable from JSON
    round-trip data.
 6. **An object without `.width` passed as a write-path via** (e.g. an
    `export_types.TraceVia` where a `core.board.Via` belongs) is read as
-   `0.0` by the kernel where the pinned Python catches the `AttributeError`
-   and skips the via with a warning. The write path's real input type always
-   carries `.width`; the divergence is confined to out-of-domain inputs.
+<<<<<<< HEAD
+   `0.0` by the kernel (emitting a size-0 via) — but the pinned Python's two
+   via-reading paths diverge, so the divergence is path-dependent:
+   - **`write_routes_to_pcb`** (`_write_tracks_py_oracle.py`) accesses
+     `via.width` inside its per-via `try/except` (the `Via(... size=via.width
+     ...)` construction is in `try`), so a missing `.width` is caught,
+     warned (`"Failed to add via at ..."`) and the via is **skipped**. The
+     kernel (`write_routes_plan`) reads `get_attr_f64(.., "width", 0.0)` and
+     emits the size-0 via instead.
+   - **`export_board_state`** (`_kicad_exporter_py_oracle.py`) accesses
+     `v.width` in a bare list comprehension
+     (`TraceVia(net=v.net, position=v.position, size=v.width, ...) for v in
+     all_vias`) with no `try/except`, so the `AttributeError` **propagates
+     and aborts the whole export**. The kernel (`export_board_state_plan`)
+     reads `0.0` and emits the size-0 via.
+   The write path's real input type always carries `.width`; both
+   divergences are confined to out-of-domain inputs.
 7. **`get_footprint_reference` str-coerces a non-string
    `properties["Reference"]`** (`ref_.str()` at the dict path) where the
    verbatim oracle returns the raw value, changing dict-key matching
@@ -195,6 +223,19 @@ port.
    well-formed lines), hence no fixture can reach the mixed case — aligning
    the order would change the pinned plan contract for an untestable path.
    Recorded rather than restructured.
+10. **`export_route_plan` requires `explicit_vias` to be a Python `list`** —
+   `ev.cast::<PyList>()` raises `ValueError("explicit_vias must be a list")`
+   for any other iterable. The pinned Python accepted any iterable
+   (`all_vias.extend(vias)` — a tuple works). Unreachable from real routes
+   (the router produces lists); recorded rather than defended.
+11. **`py_round_ndigits` shift-overflow panic on tiny inputs** — for
+   `|x|` small enough that `e + ndigits <= -128` (a subnormal always, or any
+   normal `|x| < 2^-78` with the production `ndigits=3`),
+   `round_half_even_shift` shifts `1i128` by >= 128 bits, which panics;
+   `guarded()` converts the panic to a `PyRuntimeError` (not an abort), where
+   CPython returns `0.0`. Unreachable from mm-scale coordinates (via-dedup
+   keys are ~1e-3), and inside the documented `|x * 10^n| < 2^53` bound —
+   that bound only excludes the TOP end, so it does not cover this tail.
 
 ## Review notes (2026-08-04 adversarial review, PR #718)
 
@@ -214,6 +255,41 @@ change, with the reasoning:
   carry plain cell lists, so the swallow is confined to out-of-domain
   inputs, but it is a genuine error-path change and is recorded here rather
   than claimed as parity.
+||||||| parent of 3fbcb673a (fix(wave4): pass-2 review fixes — perf harness oracle import, MR3 vacuity, VERIFICATION deviations)
+   `0.0` by the kernel where the pinned Python catches the `AttributeError`
+   and skips the via with a warning. The write path's real input type always
+   carries `.width`; the divergence is confined to out-of-domain inputs.
+=======
+   `0.0` by the kernel (emitting a size-0 via) — but the pinned Python's two
+   via-reading paths diverge, so the divergence is path-dependent:
+   - **`write_routes_to_pcb`** (`_write_tracks_py_oracle.py`) accesses
+     `via.width` inside its per-via `try/except` (the `Via(... size=via.width
+     ...)` construction is in `try`), so a missing `.width` is caught,
+     warned (`"Failed to add via at ..."`) and the via is **skipped**. The
+     kernel (`write_routes_plan`) reads `get_attr_f64(.., "width", 0.0)` and
+     emits the size-0 via instead.
+   - **`export_board_state`** (`_kicad_exporter_py_oracle.py`) accesses
+     `v.width` in a bare list comprehension
+     (`TraceVia(net=v.net, position=v.position, size=v.width, ...) for v in
+     all_vias`) with no `try/except`, so the `AttributeError` **propagates
+     and aborts the whole export**. The kernel (`export_board_state_plan`)
+     reads `0.0` and emits the size-0 via.
+   The write path's real input type always carries `.width`; both
+   divergences are confined to out-of-domain inputs.
+7. **`export_route_plan` requires `explicit_vias` to be a Python `list`** —
+   `ev.cast::<PyList>()` raises `ValueError("explicit_vias must be a list")`
+   for any other iterable. The pinned Python accepted any iterable
+   (`all_vias.extend(vias)` — a tuple works). Unreachable from real routes
+   (the router produces lists); recorded rather than defended.
+8. **`py_round_ndigits` shift-overflow panic on tiny inputs** — for
+   `|x|` small enough that `e + ndigits <= -128` (a subnormal always, or any
+   normal `|x| < 2^-78` with the production `ndigits=3`),
+   `round_half_even_shift` shifts `1i128` by >= 128 bits, which panics;
+   `guarded()` converts the panic to a `PyRuntimeError` (not an abort), where
+   CPython returns `0.0`. Unreachable from mm-scale coordinates (via-dedup
+   keys are ~1e-3), and inside the documented `|x * 10^n| < 2^53` bound —
+   that bound only excludes the TOP end, so it does not cover this tail.
+>>>>>>> 3fbcb673a (fix(wave4): pass-2 review fixes — perf harness oracle import, MR3 vacuity, VERIFICATION deviations)
 
 ## Evidence
 

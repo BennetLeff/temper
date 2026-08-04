@@ -36,9 +36,13 @@ Five metamorphic relations:
 - MR2. ``simplify_path`` index-set invariance under integer scaling: scaling
   all cell coordinates by ``k >= 1`` keeps the same cells (the collinearity
   structure is preserved).
-- MR3. ``positions_to_placements`` rotation wraparound: an index ``i + 4``
-  produces a rotation that is ``py_mod``-equal to ``i``'s (multiples of 90
-  are exact, so this is exact).
+- MR3. ``rotation_index_to_degrees`` rotation wraparound: an index ``i + 4``
+  produces a rotation that is ``py_mod``-equal to ``i``'s for ``i`` in 0..3
+  (indices >= 4 are legal -- the kernel scales any i64 index by 90.0 -- and
+  multiples of 90 are exact, so this is exact). Driven through the kernel
+  directly: ``np.argmax`` over 4-column logits can only emit indices 0..3,
+  so the original logits-driven form could never reach index 4 and was
+  trivially true.
 - MR4. ``write_placements_plan`` unmatched->matched monotonicity: adding a
   placement for a footprint that was previously unmatched raises
   ``components_updated`` by exactly one and lowers ``components_skipped`` by
@@ -195,32 +199,43 @@ def test_p4_positions_to_placements(n, ox, oy):
 
 
 @settings(max_examples=MAX_EXAMPLES, deadline=None)
-@given(
-    n=st.integers(1, 4),
-    ox=st.integers(-5, 5),
-    oy=st.integers(-5, 5),
-)
-def test_mr3_rotation_wraparound(n, ox, oy):
-    import numpy as np
+@given(i=st.integers(0, 3))
+def test_mr3_rotation_wraparound(i):
+    """``rotation_index_to_degrees(i + 4)`` is py_mod-equal to ``(i)``'s.
 
-    positions = np.array([[i, i] for i in range(n)])
-    rotations_a = np.array([[i, 0, 0, 0] for i in range(n)], dtype=float)
-    rotations_b = np.array([[i + 4, 0, 0, 0] for i in range(n)], dtype=float)
-    refs = [f"C{i}" for i in range(n)]
-    pa = positions_to_placements(positions, rotations_a, refs, origin=(ox, oy))
-    pb = positions_to_placements(positions, rotations_b, refs, origin=(ox, oy))
-    for ref in refs:
-        assert _py_mod(pa[ref].rotation, 360.0) == _py_mod(pb[ref].rotation, 360.0)
+    Driven through the kernel directly, not through ``positions_to_placements``
+    logits: ``np.argmax`` over 4-column logits can only emit indices 0..3, so
+    the original logits-based form (``[[i, 0, 0, 0]]`` vs ``[[i + 4, 0, 0, 0]]``)
+    put the first-max tie-break on column 0 for every row and never exercised
+    an index >= 4 -- the property was trivially true and could not fail. The
+    kernel accepts any i64 index (``index * 90.0``), so ``i + 4`` in 4..7
+    lands on the ``i + 360`` degree class, and multiples of 90 are exact, so
+    the mod-360 equality is exact.
+    """
+    a = rotation_index_to_degrees(i)
+    b = rotation_index_to_degrees(i + 4)
+    assert _py_mod(a, 360.0) == _py_mod(b, 360.0)
 
 
 def test_mr3_discriminator():
-    """An off-by-one-degree kernel violates MR3."""
+    """MR3 is breakable: an off-by-one-degree kernel fails both pins."""
+    # Exact-value pin at i = 0 (an additive-offset kernel returns 1.0).
+    assert rotation_index_to_degrees(0) == 0.0
+    # Wraparound pin at i = 4: 4 * 90 = 360.0 sits on the 0/360 class;
+    # 4 * 90 + 1 = 361.0 does not (py_mod -> 1.0).
+    assert _py_mod(rotation_index_to_degrees(4), 360.0) == 0.0
+    # Full-path pin: a 5-column one-hot logit row puts the argmax peak at
+    # column 4, so index 4 genuinely reaches the kernel through
+    # positions_to_placements (the old discriminator's `np.array([[4]])`
+    # logit was shape (1, 1), whose argmax is 0 -- the index-4 claim was
+    # vacuous there too).
     import numpy as np
 
-    p = positions_to_placements(np.array([[0.0, 0.0]]), np.array([[0]]), ["C0"])
-    assert p["C0"].rotation == 0.0
-    p2 = positions_to_placements(np.array([[0.0, 0.0]]), np.array([[4]]), ["C0"])
-    assert _py_mod(p2["C0"].rotation, 360.0) == 0.0
+    p = positions_to_placements(
+        np.array([[0.0, 0.0]]), np.array([[0.0, 0.0, 0.0, 0.0, 1.0]]), ["C0"]
+    )
+    assert p["C0"].rotation == 360.0
+    assert _py_mod(p["C0"].rotation, 360.0) == 0.0
 
 
 # ---------------------------------------------------------------------------
