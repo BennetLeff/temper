@@ -13,9 +13,19 @@ Five field components superpose at each grid cell:
               + w_exclusion * phi_exclusion(x, y)
               + w_convection * phi_convection(x, y)
 
-All operations use JAX arrays (np.*) for compatibility with the
-existing gradient-based pipeline, though anchoring itself does not
-require differentiability today.
+Arrays are numpy float64 throughout, for compatibility with the existing
+gradient-based pipeline.
+
+**Wave 4 Phase 4 (physics-gated migration).**  Every field kernel, the
+grid builder, the greedy two-pass anchor search and the uniqueness
+enforcement now delegate to ``temper_thermal`` (Rust,
+``packages/temper-thermal/src/thermal_potential.rs``).  The public API,
+the duck-typed copper-zone extraction, the ``logging`` behaviour and the
+safety gates are unchanged, and parity is pinned bit-exactly by
+``tests/physics/test_thermal_potential_rust_differential.py`` against the
+verbatim pre-migration oracle.  The weighted superposition itself stays
+in numpy so its broadcasting semantics (including the deliberate
+``phi_copper`` 50x50 shape constraint) remain numpy's own.
 """
 
 from __future__ import annotations
@@ -25,10 +35,55 @@ from dataclasses import dataclass
 from typing import TypeAlias
 
 import numpy as np
+import temper_thermal as _tt
 
 Array: TypeAlias = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
 
 logger = logging.getLogger(__name__)
+
+# Edge names, resolved to the integer codes the Rust kernels take.  The
+# `.upper().strip()` normalisation stays on this side so CPython's exact
+# Unicode case-folding and whitespace semantics are never reimplemented.
+_EDGE_CODES: dict[str, int] = {"TOP": 0, "BOTTOM": 1, "LEFT": 2, "RIGHT": 3}
+_UNKNOWN_EDGE_CODE = 4
+
+
+def _edge_code(edge: str) -> int:
+    return _EDGE_CODES.get(edge.upper().strip(), _UNKNOWN_EDGE_CODE)
+
+
+def _f64_bytes(array: Array) -> bytes:
+    return np.ascontiguousarray(array, dtype=np.float64).tobytes()
+
+
+def _as_grid(raw: bytes, shape) -> Array:
+    return np.frombuffer(raw, dtype=np.float64).reshape(shape).copy()
+
+
+def _zone_bounds(copper_zones: list | None) -> list[tuple[float, float, float, float]]:
+    """Duck-typed copper-zone extraction, verbatim from the reference.
+
+    A zone contributes its ``.bounds`` when it has one, else the bounding
+    box of a truthy ``.polygon``; anything else is skipped.  The *count*
+    of the original list still matters (a non-empty list of unusable
+    zones does NOT take the uniform branch), so callers pass both.
+    """
+    out: list[tuple[float, float, float, float]] = []
+    if not copper_zones:
+        return out
+    for zone in copper_zones:
+        if hasattr(zone, "bounds"):
+            zx0, zy0, zx1, zy1 = zone.bounds
+        elif hasattr(zone, "polygon") and zone.polygon:
+            # approximate polygon by bounding box
+            xs = [p[0] for p in zone.polygon]
+            ys = [p[1] for p in zone.polygon]
+            zx0, zy0, zx1, zy1 = min(xs), min(ys), max(xs), max(ys)
+        else:
+            continue
+        out.append((float(zx0), float(zy0), float(zx1), float(zy1)))
+    return out
+
 
 # ---------------------------------------------------------------------------
 # Dataclasses
@@ -60,6 +115,21 @@ class ThermalPotentialConfig:
 
     # Grid resolution (N x N) for the discretized potential field
     grid_resolution: int = 50
+
+
+def _config_tuple(config: ThermalPotentialConfig) -> tuple[float, ...]:
+    """The nine scalars the Rust kernels read, in boundary order."""
+    return (
+        config.edge_weight,
+        config.copper_weight,
+        config.coupling_weight,
+        config.exclusion_weight,
+        config.convection_weight,
+        config.edge_decay_length_mm,
+        config.thermal_exclusion_radius_mm,
+        config.exclusion_barrier_height,
+        config.exclusion_steepness,
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -94,22 +164,15 @@ def phi_edge(
     This yields phi_edge = 0 at the edge (minimum = best thermal position)
     and phi_edge -> 1 far from the edge (maximum = worst position).
     """
-    x_min, y_min, x_max, y_max = board_bounds
     _validate_edge(edge, board_bounds)
-
-    edge_upper = edge.upper().strip()
-    if edge_upper == "TOP":
-        d = y_max - y_grid
-    elif edge_upper == "BOTTOM":
-        d = y_grid - y_min
-    elif edge_upper == "LEFT":
-        d = x_grid - x_min
-    elif edge_upper == "RIGHT":
-        d = x_max - x_grid
-    else:
-        return np.zeros_like(x_grid)
-
-    return 1.0 - np.exp(-d / decay_length_mm)
+    raw = _tt.thermal_potential_phi_edge_py(
+        _f64_bytes(x_grid),
+        _f64_bytes(y_grid),
+        *board_bounds,
+        _edge_code(edge),
+        decay_length_mm,
+    )
+    return _as_grid(raw, np.shape(x_grid))
 
 
 def phi_copper(
@@ -126,46 +189,11 @@ def phi_copper(
     spreading is better.
     """
     del x_grid, y_grid  # uniform when no zone data
-    eps = 1e-12
-
-    if copper_zones is None or len(copper_zones) == 0:
-        # Uniform conductivity --- return a constant field
-        return np.ones((1, 1)) * 0.5
-
-    # Build per-cell conductance from copper zones
-    x_min, y_min, x_max, y_max = board_bounds
-    board_w = x_max - x_min
-    board_h = y_max - y_min
-    if board_w <= 0 or board_h <= 0:
-        return np.ones((1, 1)) * 0.5
-
-    grid_res = 50  # default coarse estimate for copper
-    conductance = np.zeros((grid_res, grid_res))
-
-    for zone in copper_zones:
-        if hasattr(zone, "bounds"):
-            zx0, zy0, zx1, zy1 = zone.bounds
-        elif hasattr(zone, "polygon") and zone.polygon:
-            # approximate polygon by bounding box
-            xs = [p[0] for p in zone.polygon]
-            ys = [p[1] for p in zone.polygon]
-            zx0, zy0, zx1, zy1 = min(xs), min(ys), max(xs), max(ys)
-        else:
-            continue
-
-        # Map zone bounds to grid indices
-        gx0 = max(0, int((zx0 - x_min) / board_w * grid_res))
-        gx1 = min(grid_res, int((zx1 - x_min) / board_w * grid_res) + 1)
-        gy0 = max(0, int((zy0 - y_min) / board_h * grid_res))
-        gy1 = min(grid_res, int((zy1 - y_min) / board_h * grid_res) + 1)
-
-        if gx1 > gx0 and gy1 > gy0:
-            conductance[gx0:gx1, gy0:gy1] += 1.0
-
-    # Compute effective conductivity: high fill -> low potential
-    # phi_copper = 1 / (k_eff + epsilon)
-    k_eff = np.clip(conductance, 0.0, None) + eps
-    return 1.0 / k_eff
+    zone_count = 0 if copper_zones is None else len(copper_zones)
+    rows, cols, raw = _tt.thermal_potential_phi_copper_py(
+        *board_bounds, zone_count, _zone_bounds(copper_zones)
+    )
+    return _as_grid(raw, (rows, cols))
 
 
 def phi_coupling(
@@ -182,19 +210,14 @@ def phi_coupling(
 
     If no device positions are provided, returns a zero field.
     """
-    if not device_positions:
-        return np.zeros_like(x_grid)
-
-    field = np.zeros_like(x_grid)
-    for pos, power in zip(device_positions, device_powers):
-        dx = x_grid - pos[0]
-        dy = y_grid - pos[1]
-        dist_sq = dx * dx + dy * dy
-        sigma = np.sqrt(max(power, 1e-6)) * sigma_factor
-        sigma_sq = 2.0 * sigma * sigma
-        field = field + power * np.exp(-dist_sq / sigma_sq)
-
-    return field
+    pairs = [
+        ((float(pos[0]), float(pos[1])), float(power))
+        for pos, power in zip(device_positions, device_powers)
+    ]
+    raw = _tt.thermal_potential_phi_coupling_py(
+        _f64_bytes(x_grid), _f64_bytes(y_grid), pairs, sigma_factor
+    )
+    return _as_grid(raw, np.shape(x_grid))
 
 
 def phi_exclusion(
@@ -211,20 +234,15 @@ def phi_exclusion(
     differentiable.  At the anchor centroid the potential is ~barrier_height,
     decaying to ~0 at radius_mm.
     """
-    if not anchor_positions:
-        return np.zeros_like(x_grid)
-
-    field = np.zeros_like(x_grid)
-    for ax, ay in anchor_positions:
-        dx = x_grid - ax
-        dy = y_grid - ay
-        dist = np.sqrt(dx * dx + dy * dy)
-        # sigmoid: high when dist < radius, low when dist > radius
-        # barrier_height * sigma(kappa * (radius - dist))
-        barrier = barrier_height * (1.0 / (1.0 + np.exp(-steepness * (dist - radius_mm))))
-        field = np.maximum(field, barrier)
-
-    return field
+    raw = _tt.thermal_potential_phi_exclusion_py(
+        _f64_bytes(x_grid),
+        _f64_bytes(y_grid),
+        [(float(ax), float(ay)) for ax, ay in anchor_positions],
+        radius_mm,
+        barrier_height,
+        steepness,
+    )
+    return _as_grid(raw, np.shape(x_grid))
 
 
 def phi_convection(
@@ -237,19 +255,14 @@ def phi_convection(
     If airflow_vector is None, returns a zero field (uniform ambient).
     """
     if airflow_vector is None:
-        return np.zeros_like(x_grid)
-
-    magnitude, direction_deg = airflow_vector
-    if magnitude <= 0:
-        return np.zeros_like(x_grid)
-
-    # Convert direction (degrees from +x) to unit vector
-    rad = np.radians(direction_deg)
-    ux = np.cos(rad)
-    uy = np.sin(rad)
-
-    # Linear ramp: projection onto airflow direction
-    return magnitude * (x_grid * ux + y_grid * uy)
+        airflow = None
+    else:
+        magnitude, direction_deg = airflow_vector
+        airflow = (float(magnitude), float(direction_deg))
+    raw = _tt.thermal_potential_phi_convection_py(
+        _f64_bytes(x_grid), _f64_bytes(y_grid), airflow
+    )
+    return _as_grid(raw, np.shape(x_grid))
 
 
 # ---------------------------------------------------------------------------
@@ -273,6 +286,12 @@ def superpose_fields(
 
     Returns a scalar potential array of shape (grid_resolution, grid_resolution).
     Lower potential = better thermal position.
+
+    The accumulation stays in numpy on purpose: `phi_copper` returns a
+    fixed 50x50 array when copper zones are supplied, and numpy's own
+    broadcasting is what decides whether that composes with the potential
+    grid (a `ValueError` when it does not).  Every component it sums is a
+    Rust kernel.
     """
     total = np.zeros_like(x_grid)
 
@@ -320,11 +339,9 @@ def build_potential_grid(
 
     Returns two (resolution, resolution) arrays.
     """
-    x_min, y_min, x_max, y_max = board_bounds
-    x_lin = np.linspace(x_min, x_max, resolution)
-    y_lin = np.linspace(y_min, y_max, resolution)
-    x_grid, y_grid = np.meshgrid(x_lin, y_lin)
-    return x_grid, y_grid
+    x_bytes, y_bytes = _tt.thermal_potential_build_grid_py(*board_bounds, resolution)
+    shape = (resolution, resolution)
+    return _as_grid(x_bytes, shape), _as_grid(y_bytes, shape)
 
 
 # ---------------------------------------------------------------------------
@@ -369,195 +386,52 @@ def assign_thermal_anchors(
         keepouts = []
 
     resolution = config.grid_resolution
-    x_grid, y_grid = build_potential_grid(board_bounds, resolution)
+    if resolution < 0:
+        # np.linspace rejects a negative sample count with a ValueError;
+        # raise it from the same place the reference did rather than
+        # letting the pyo3 boundary report a different exception class.
+        build_potential_grid(board_bounds, resolution)
 
-    # Determine edge strip bounds (within 10mm of declared edge)
-    x_min, y_min, x_max, y_max = board_bounds
-    edge_upper = edge.upper().strip()
-    edge_margin = 10.0
+    devices = [
+        (
+            ref,
+            float(power),
+            None if (zones is None or ref not in zones) else tuple(zones[ref]),
+        )
+        for ref, power in power_devices
+    ]
 
-    def _in_edge_strip(x: float, y: float) -> bool:
-        if edge_upper == "TOP":
-            return (y_max - y) <= edge_margin
-        elif edge_upper == "BOTTOM":
-            return (y - y_min) <= edge_margin
-        elif edge_upper == "LEFT":
-            return (x - x_min) <= edge_margin
-        elif edge_upper == "RIGHT":
-            return (x_max - x) <= edge_margin
-        return False
-
-    def _in_zone(ref: str, x: float, y: float) -> bool:
-        if zones is None or ref not in zones:
-            return True
-        zx0, zy0, zx1, zy1 = zones[ref]
-        return zx0 <= x <= zx1 and zy0 <= y <= zy1
-
-    def _in_keepout(x: float, y: float) -> bool:
-        return any(kx0 <= x <= kx1 and ky0 <= y <= ky1 for kx0, ky0, kx1, ky1 in keepouts)
-
-    def _find_min_valid(
-        phi: Array, ref: str, existing_positions: list[tuple[float, float]]
-    ) -> tuple[float, float] | None:
-        """Find the minimum phi position within all constraints."""
-        best_val = float("inf")
-        best_xy: tuple[float, float] | None = None
-        min_dist2 = min_separation_mm * min_separation_mm
-        for i in range(resolution):
-            for j in range(resolution):
-                x = float(x_grid[i, j])
-                y = float(y_grid[i, j])
-                if not _in_edge_strip(x, y):
-                    continue
-                if not _in_zone(ref, x, y):
-                    continue
-                if _in_keepout(x, y):
-                    continue
-                # Check min separation from existing anchors
-                too_close = False
-                for ex, ey in existing_positions:
-                    if ((x - ex) ** 2 + (y - ey) ** 2) < min_dist2:
-                        too_close = True
-                        break
-                if too_close:
-                    continue
-                val = float(phi[i, j])
-                if val < best_val:
-                    best_val = val
-                    best_xy = (x, y)
-        return best_xy
-
-    # --- Pass 1: phi_base only (edge + copper, no coupling) ---
-    phi_base = superpose_fields(
-        x_grid,
-        y_grid,
-        board_bounds,
-        edge,
-        ThermalPotentialConfig(
-            edge_weight=config.edge_weight,
-            copper_weight=config.copper_weight,
-            coupling_weight=0.0,  # no coupling in Pass 1
-            exclusion_weight=0.0,  # no exclusion in Pass 1
-            convection_weight=config.convection_weight,
-            edge_decay_length_mm=config.edge_decay_length_mm,
-            grid_resolution=config.grid_resolution,
-        ),
-        copper_zones=copper_zones,
-        airflow_vector=airflow_vector,
+    anchors, skipped, clamped = _tt.thermal_potential_assign_anchors_py(
+        *board_bounds,
+        _edge_code(edge),
+        resolution,
+        devices,
+        [tuple(k) for k in keepouts],
+        _config_tuple(config),
+        0 if copper_zones is None else len(copper_zones),
+        _zone_bounds(copper_zones),
+        None
+        if airflow_vector is None
+        else (float(airflow_vector[0]), float(airflow_vector[1])),
+        min_separation_mm,
     )
 
-    pass1_anchors: dict[str, tuple[float, float]] = {}
-    existing: list[tuple[float, float]] = []
+    for ref in skipped:
+        logger.warning("No valid anchor position found for '%s' --- skipping device", ref)
 
-    for ref, _power in power_devices:
-        xy = _find_min_valid(phi_base, ref, existing)
-        if xy is None:
-            logger.warning("No valid anchor position found for '%s' --- skipping device", ref)
-            continue
-        pass1_anchors[ref] = xy
-        existing.append(xy)
-
-    if not pass1_anchors:
-        return {}
-
-    # --- Pass 2: phi_coupling correction (up to 3 iterations) ---
-    MAX_ITERATIONS = 3
-    REASSIGN_THRESHOLD_MM = 5.0
-
-    for _iteration in range(MAX_ITERATIONS):
-        anchor_positions_list = list(pass1_anchors.values())
-        [p for _, p in power_devices if _ in pass1_anchors]
-        # Use anchor positions as device_positions for coupling
-        coupled_device_positions = [
-            pass1_anchors[ref] for ref, _ in power_devices if ref in pass1_anchors
-        ]
-        coupled_powers = [pw for ref, pw in power_devices if ref in pass1_anchors]
-
-        phi_full = superpose_fields(
-            x_grid,
-            y_grid,
-            board_bounds,
-            edge,
-            ThermalPotentialConfig(
-                edge_weight=config.edge_weight,
-                copper_weight=config.copper_weight,
-                coupling_weight=config.coupling_weight,
-                exclusion_weight=config.exclusion_weight,
-                convection_weight=config.convection_weight,
-                edge_decay_length_mm=config.edge_decay_length_mm,
-                thermal_exclusion_radius_mm=config.thermal_exclusion_radius_mm,
-                exclusion_barrier_height=config.exclusion_barrier_height,
-                exclusion_steepness=config.exclusion_steepness,
-                grid_resolution=config.grid_resolution,
-            ),
-            device_positions=coupled_device_positions,
-            device_powers=coupled_powers,
-            anchor_positions=anchor_positions_list,
-            copper_zones=copper_zones,
-            airflow_vector=airflow_vector,
+    for ref, ax, ay, cx, cy, dist in clamped:
+        logger.warning(
+            "Clamped anchor for '%s': phi_min=(%.2f, %.2f) -> clamped=(%.2f, %.2f) "
+            "(delta=%.2f mm)",
+            ref,
+            ax,
+            ay,
+            cx,
+            cy,
+            dist,
         )
 
-        updated = False
-        new_anchors: dict[str, tuple[float, float]] = {}
-        new_existing: list[tuple[float, float]] = []
-
-        for ref, _power in power_devices:
-            if ref not in pass1_anchors:
-                continue
-            xy = _find_min_valid(phi_full, ref, new_existing)
-            if xy is None:
-                new_anchors[ref] = pass1_anchors[ref]
-                new_existing.append(pass1_anchors[ref])
-                continue
-
-            old_x, old_y = pass1_anchors[ref]
-            new_x, new_y = xy
-            dist = np.sqrt((new_x - old_x) ** 2 + (new_y - old_y) ** 2)
-            if float(dist) > REASSIGN_THRESHOLD_MM:
-                new_anchors[ref] = xy
-                new_existing.append(xy)
-                updated = True
-            else:
-                new_anchors[ref] = pass1_anchors[ref]
-                new_existing.append(pass1_anchors[ref])
-
-        pass1_anchors = new_anchors
-        if not updated:
-            break
-
-    # --- Clamp final positions ---
-    final: dict[str, tuple[float, float]] = {}
-    for ref, (ax, ay) in pass1_anchors.items():
-        # Clamp to board bounds
-        cx = float(np.clip(ax, x_min, x_max))
-        cy = float(np.clip(ay, y_min, y_max))
-
-        # Clamp to zone
-        if zones and ref in zones:
-            zx0, zy0, zx1, zy1 = zones[ref]
-            cx = float(np.clip(cx, zx0, zx1))
-            cy = float(np.clip(cy, zy0, zy1))
-
-        # Warn if clamped position differs significantly from phi_min
-        dist = np.sqrt((cx - ax) ** 2 + (cy - ay) ** 2)
-        if float(dist) > 2.0:
-            logger.warning(
-                "Clamped anchor for '%s': phi_min=(%.2f, %.2f) -> clamped=(%.2f, %.2f) "
-                "(delta=%.2f mm)",
-                ref,
-                ax,
-                ay,
-                cx,
-                cy,
-                float(dist),
-            )
-
-        final[ref] = (cx, cy)
-
-    # --- Uniqueness enforcement (R13) ---
-    _enforce_unique_positions(final, board_bounds)
-
-    return final
+    return {ref: (x, y) for ref, x, y in anchors}
 
 
 def _enforce_unique_positions(
@@ -571,20 +445,14 @@ def _enforce_unique_positions(
     If a duplicate is found, offsets the second device by offset_mm along
     the edge strip and re-checks. Mutates anchors in-place.
     """
-    refs = list(anchors.keys())
-    for i in range(len(refs)):
-        for j in range(i + 1, len(refs)):
-            ri, rj = refs[i], refs[j]
-            xi, yi = anchors[ri]
-            xj, yj = anchors[rj]
-            dist = ((xi - xj) ** 2 + (yi - yj) ** 2) ** 0.5
-            if dist < tolerance_mm:
-                # Offset rj by offset_mm along x (clamped to board bounds)
-                _, _, x_max, _ = board_bounds
-                new_x = min(xj + offset_mm, x_max)
-                anchors[rj] = (new_x, yj)
-
-
+    updated = _tt.thermal_potential_enforce_unique_py(
+        [(ref, float(x), float(y)) for ref, (x, y) in anchors.items()],
+        *board_bounds,
+        tolerance_mm,
+        offset_mm,
+    )
+    for ref, x, y in updated:
+        anchors[ref] = (x, y)
 # ---------------------------------------------------------------------------
 # Safety Gates (U5)
 # ---------------------------------------------------------------------------
