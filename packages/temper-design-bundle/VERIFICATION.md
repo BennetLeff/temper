@@ -880,11 +880,20 @@ the failure path.
   mutability, `__eq__` and `__repr__` are preserved;
   `dataclasses.fields()` / `dataclasses.asdict()` / `dataclasses.replace()`
   no longer apply. No consumer uses them (verified 2026-08-04).
-- **Argument-type-check precedence.** `source`, `pattern`, `name` and
+- **Argument-type-check precedence and message.** `source`, `name` and
   `description` are typed `String` at the pyo3 boundary, so a non-`str`
-  argument raises `TypeError` with the identical pyo3 message but *before*
-  the body runs — where the oracle would have raised its own `LoopLoadError`
-  first if `data` was also invalid. Message identical, precedence different.
+  argument raises `TypeError` with the identical pyo3 message
+  (`'int' object is not an instance of 'str'`) but *before* the body runs —
+  where the oracle would have raised its own `LoopLoadError` first if `data`
+  was also invalid. Message identical, precedence different. `pattern` is the
+  one exception: the oracle passes it straight to `pathlib.Path.glob` (kept
+  Python-side for its intricate pattern semantics), whose message is
+  `expected str, bytes or os.PathLike object, not int`, while the Rust
+  boundary raises the pyo3 message — the messages DIFFER by design
+  (pathlib.glob semantics are not re-implemented). The divergence is pinned,
+  not just described, by
+  `test_load_loop_collection_pattern_type_message_divergence_pinned`, which
+  asserts each side's exact message text.
 - **`.items()` unpacking text.** Iterating a mapping's `.items()` uses pyo3
   2-tuple extraction, so a pathological custom mapping yielding non-pairs
   reports `expected a sequence of length 2` where CPython's tuple unpacking
@@ -908,7 +917,7 @@ the failure path.
 ## Evidence
 
 - **Differential (R1a / R1f, TDD red → green):**
-  `packages/temper-placer/tests/io/test_loaders_rust_differential.py` — 168
+  `packages/temper-placer/tests/io/test_loaders_rust_differential.py` — 169
   tests against the verbatim oracles `_netclass_loader_py_oracle.py` /
   `_loop_loader_py_oracle.py` (commit `e90991a2a`). Coverage: the shipped
   `configs/netclass_rules.yaml` field-for-field, 10 crafted netclass
@@ -921,13 +930,13 @@ the failure path.
   (`AttributeError: module 'temper_design_bundle_python' has no attribute
   'load_netclass_rules'`) before the Rust landed.
 - **Anti-vacuity (the differential demonstrably bites).** Six independent
-  mutations of `loaders.rs` were built and run, plus one on the Python save
-  path; each was caught, and reverting restored green. All five load-path
+  mutations were built and run — five of `loaders.rs` and one on the Python
+  save path; each was caught, and reverting restored green. All five load-path
   mutants were re-verified against the rebased tree on 2026-08-04:
 
   | Mutant | Change | Caught by |
   |--------|--------|-----------|
-  | A | drop `sorted()` on class-pair keys | 4 tests — `test_netclass_real_fixture_bit_identical`, `..._class_pairs_exact`, `test_netclass_crafted_yaml_bit_identical[pair_key_sorting, pair_key_arity]` |
+  | A | drop `sorted()` on class-pair keys | 3 tests — `test_netclass_real_fixture_bit_identical`, `test_netclass_real_fixture_class_pairs_exact`, `test_netclass_crafted_yaml_bit_identical[pair_key_sorting]` — the real fixture's four genuinely-unsorted pairs (`HighVoltage-GND`, `HighVoltage-FinePitch`, `HighVoltageIsolated-GND`, `HighVoltageIsolated-FinePitch`) plus the crafted `Zeta-Alpha`/`Alpha-Zeta` overwrite. `pair_key_arity` is excluded: its only well-formed pair keys are `A-B` and `-`, both already in sorted order, so dropping the sort changes nothing for it |
   | B | emitter uses truthiness instead of `is not None` for events | 2 tests — `test_save_loop_to_yaml_byte_identical[zero_valued_events]`, `..._round_trip_parity[zero_valued_events]` (verified 2026-08-04 against the Python-side save path) |
   | C | `max_area_mm2` default 100.0 → 10.0 | 57 tests |
   | D | drop `str()` coercion on the pin component | 3 tests, incl. `test_load_loop_template_yaml_11_booleans_parity` |
@@ -981,7 +990,7 @@ the failure path.
   The R24 Chebyshev-soundness / BMC-exhaustive / post-solve-audit obligations
   have no referent here.
 - **Consumer suites run unchanged against the migrated loaders:**
-  `tests/io/` (480 passed, 12 skipped, 1 xfailed), `tests/core` + `tests/pcl`
+  `tests/io/` (481 passed, 12 skipped, 1 xfailed), `tests/core` + `tests/pcl`
   (932 passed), `tests/io/test_netclass_loader.py`,
   `tests/io/test_loop_loader.py`, `tests/core/test_design_rules_field_parity.py`,
   `tests/router_v6/test_layer_assignment_ssot.py`,
