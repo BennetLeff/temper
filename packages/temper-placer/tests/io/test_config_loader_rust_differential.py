@@ -315,6 +315,29 @@ def canon(value):
         return (type(value).__name__, tuple(sorted(canon(v) for v in value)))
     if isinstance(value, np.ndarray):
         return ("ndarray", value.dtype.str, value.shape, value.tobytes())
+    # pydantic models: canonicalize structurally via model_dump (their repr is
+    # exact for the declared fields, but any field holding an arbitrary object
+    # — e.g. net_classification — embeds that object's memory address).
+    if hasattr(value, "model_dump") and not type(value).__name__ == "NetClassification":
+        return (
+            type(value).__name__,
+            canon(value.model_dump(mode="python")),
+        )
+    # NetClassification is a Rust pyclass whose repr embeds the instance
+    # memory address — each arm builds its own instance, so the repr is
+    # nondeterministic. Canonicalize by value instead.
+    if type(value).__name__ == "NetClassification":
+        return (
+            "NetClassification",
+            tuple(
+                sorted(
+                    (name, repr(spec)) for name, spec in value.specs.items()
+                )
+            ),
+            tuple(sorted(value.ground_patterns)),
+            tuple(sorted(value.power_patterns)),
+            tuple(sorted(value.hv_patterns)),
+        )
     # Typed object (Zone, NetGraph, pydantic model, ...): CPython repr is
     # exact for the objects both arms produce (same construction path), and
     # the type name catches int-vs-float repr ambiguity classes.

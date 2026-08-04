@@ -139,7 +139,7 @@ def test_rejects_non_string_values():
 
 def test_loop_alias_validation_uses_loop_namespace():
     _both_raise(
-        "schema_version: 1\nloop_aliases:\n  LEGACY_LOOP: REAL_LOOP\n",
+        "schema_version: 1\nloop_aliases:\n  LEGACY_LOOP: MISSING_LOOP\n",
         set(), {"REAL_LOOP"}, "missing loop",
     )
 
