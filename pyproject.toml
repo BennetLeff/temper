@@ -41,6 +41,7 @@ dev = [
     "temper-ipc",
     "temper-io-types",
     "temper-design-bundle",
+    "temper-placement-topology",
 ]
 
 [tool.uv.workspace]
@@ -56,6 +57,7 @@ temper-dsn = { workspace = true }
 temper-ipc = { workspace = true }
 temper-io-types = { workspace = true }
 temper-design-bundle = { workspace = true }
+temper-placement-topology = { workspace = true }
 
 [tool.pytest.ini_options]
 testpaths = [

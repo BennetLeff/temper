@@ -29,6 +29,7 @@ members = [
     "temper-io-types",
     "temper-ipc",
     "temper-pcl-ir",
+    "temper-placement-topology",
     "temper-placer",
     "temper-quality-oracle",
     "temper-rust-router",
@@ -1558,6 +1559,11 @@ version = "0.1.0"
 source = { virtual = "packages/temper-pcl-ir" }
 
 [[package]]
+name = "temper-placement-topology"
+version = "0.1.0"
+source = { editable = "packages/temper-placement-topology" }
+
+[[package]]
 name = "temper-placer"
 version = "0.1.0"
 source = { editable = "packages/temper-placer" }
@@ -1714,6 +1720,7 @@ dev = [
     { name = "temper-geometry" },
     { name = "temper-io-types" },
     { name = "temper-ipc" },
+    { name = "temper-placement-topology" },
     { name = "vulture" },
 ]
 
@@ -1738,6 +1745,7 @@ dev = [
     { name = "temper-geometry", editable = "packages/temper-geometry" },
     { name = "temper-io-types", editable = "packages/temper-io-types" },
     { name = "temper-ipc", editable = "packages/temper-ipc" },
+    { name = "temper-placement-topology", editable = "packages/temper-placement-topology" },
     { name = "vulture", specifier = ">=2.16,<3.0" },
 ]
 

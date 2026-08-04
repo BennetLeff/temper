@@ -73,6 +73,14 @@ surfaces:
   - pattern: packages/temper-placer/src/temper_placer/topological/**
     verdict: MIGRATE
     phase: 4
+    note: >-
+      DONE 2026-08-04 -- migrated to the new crate temper-placement-topology
+      (graph clustering, Floyd-Warshall propagation, force refinement, initial
+      placement, zone backtracking). networkx stays as graph storage and
+      CPython renders all float-bearing message text; both recorded in that
+      crate's VERIFICATION.md along with the measured PYTHONHASHSEED
+      nondeterminism in ZoneSolver that made candidate order an explicit
+      kernel input rather than something the port normalises.
   - pattern: packages/temper-placer/src/temper_placer/fields/**
     verdict: MIGRATE
     phase: 4

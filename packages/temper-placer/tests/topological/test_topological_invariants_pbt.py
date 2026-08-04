@@ -20,11 +20,10 @@ from __future__ import annotations
 import math
 from collections import Counter
 
-import pytest
+import temper_placement_topology as _rust  # noqa: F401 -- Rust-backed guard
 from hypothesis import HealthCheck, event, given, settings
 from hypothesis import strategies as st
 
-import temper_placement_topology as _rust  # noqa: F401 -- Rust-backed guard
 from temper_placer.core.board import Zone
 from temper_placer.topological import (
     ConstraintPropagator,
@@ -140,17 +139,45 @@ class TestPropagationInvariants:
 
     @given(graph_specs())
     @SETTINGS
-    def test_bounds_matrix_is_symmetric(self, spec):
+    def test_max_bounds_are_symmetric(self, spec):
+        """The **max** matrix is symmetric: it is seeded symmetrically and the
+        update `max(i,j) <- max(i,k) + max(k,j)` sees identical candidates for
+        `(i,j)` and `(j,i)` because the matrix it reads is itself symmetric.
+
+        The **min** matrix is deliberately *not* asserted symmetric — see
+        :meth:`test_min_bound_propagation_is_directional`.
+        """
         comps, g = _graph(spec)
         p = ConstraintPropagator(g)
         p.propagate()
         for a in comps:
             for b in comps:
-                if a == b:
-                    continue
                 ab, ba = p.get_bound(a, b), p.get_bound(b, a)
                 assert ab.max_distance == ba.max_distance
-                assert ab.min_distance == ba.min_distance
+
+    def test_min_bound_propagation_is_directional(self):
+        """Min bounds are seeded symmetrically but propagate asymmetrically.
+
+        `min(i,j) >= min(i,k) - max(k,j)` reads `min` from the *row* and `max`
+        from the *column*, so `(i,j)` and `(j,i)` consult different quantities.
+        Measured on origin/main f57b52d51 with A-B adjacent(1.0) and
+        A-C separated(2.0): `min(C,B) = 1.0` (from `min(C,A) - max(A,B)`)
+        while `min(B,C) = 0.0` (from `min(B,A) - max(A,C)` = `0 - inf`).
+
+        Pinned as a fixture rather than left as an unstated gap in the
+        symmetry property above, so that a future change making the matrix
+        symmetric has to be a deliberate, recorded decision.
+        """
+        g = TopologicalGraph()
+        for ref in ("A", "B", "C"):
+            g.add_component(ref)
+        g.add_adjacency("A", "B", 1.0, "c1")
+        g.add_separation("A", "C", 2.0, "s1")
+        p = ConstraintPropagator(g)
+        p.propagate()
+        assert p.get_bound("C", "B").min_distance == 1.0
+        assert p.get_bound("B", "C").min_distance == 0.0
+        assert p.get_bound("C", "B").max_distance == p.get_bound("B", "C").max_distance
 
     @given(graph_specs())
     @SETTINGS
@@ -425,7 +452,7 @@ class TestZoneSolverInvariants:
     @given(component_lists(min_size=1, max_size=5), st.integers(min_value=1, max_value=4))
     @SETTINGS
     def test_enclosing_constraint_pins_its_components(self, comps, n_zones):
-        from temper_placer.pcl.constraints import EnclosingConstraint
+        from temper_placer.pcl.constraints import ConstraintTier, EnclosingConstraint
 
         names = [f"Z{i}" for i in range(n_zones)]
         zs = [Zone(name=n, bounds=(0.0, 0.0, 10.0, 10.0)) for n in names]
@@ -433,7 +460,8 @@ class TestZoneSolverInvariants:
         pinned = comps[0]
         cons = [
             EnclosingConstraint(
-                id="e1", outer=target, inner=[pinned], source_line=1, raw_text="enclosing"
+                outer=target, inner=[pinned], tier=ConstraintTier.HARD,
+                because="pin this component into the target zone", id="e1"
             )
         ]
         result = ZoneSolver(zs, cons, list(comps)).solve()
@@ -441,8 +469,9 @@ class TestZoneSolverInvariants:
         assert result.assignments[pinned] == target
 
 
-@pytest.mark.order("last")
 def test_no_property_was_vacuous():
+    # Defined last in the module, and pytest runs tests in definition order,
+    # so every property above has already populated `_Coverage` by now.
     """G4 anti-vacuity: assert each interesting branch was reached at least
     once. If a strategy drifts so that (say) no conflict is ever generated,
     the conflict property silently degrades to ``for _ in []`` -- this test

@@ -265,6 +265,114 @@ def bench_bottleneck_hard_blocked() -> tuple[float, float]:
     )
 
 
+# ---------------------------------------------------------------------------
+# Wave 4 Phase 4 -- topological placement (temper-placement-topology)
+# ---------------------------------------------------------------------------
+
+
+def _topological_oracles() -> tuple[ModuleType, ModuleType, ModuleType]:
+    """The verbatim pinned oracles the R1a differential uses.
+
+    These are imported under their real ``tests.topological.*`` names rather
+    than loaded from a path, because they import each other by that package
+    name -- loading them standalone would break the sibling imports.
+    """
+    import importlib
+
+    placer_root = str(REPO_ROOT / "packages/temper-placer")
+    if placer_root not in sys.path:
+        sys.path.insert(0, placer_root)
+
+    graph = importlib.import_module("tests.topological._graph_py_oracle")
+    prop = importlib.import_module("tests.topological._propagation_py_oracle")
+    force = importlib.import_module("tests.topological._force_refinement_py_oracle")
+    return graph, prop, force
+
+
+def _topological_fixture(graph_cls: Any, n: int = 26) -> Any:
+    """A deterministic connected constraint graph of `n` components."""
+    rng = random.Random(_BENCH_SEED)
+    refs = [f"U{i:02d}" for i in range(n)]
+    g = graph_cls()
+    for ref in refs:
+        g.add_component(ref)
+    # a spanning chain keeps it connected, plus deterministic extra chords
+    for i in range(n - 1):
+        g.add_adjacency(refs[i], refs[i + 1], 4.0 + (i % 5), f"adj{i}")
+    for k in range(n):
+        a, b = rng.randrange(n), rng.randrange(n)
+        if a != b:
+            g.add_separation(refs[a], refs[b], 12.0 + (k % 7), f"sep{k}")
+    return g, refs
+
+
+def bench_topological_propagation() -> tuple[float, float]:
+    """A/B the O(n^3) Floyd-Warshall bound propagation."""
+    from temper_placer.topological.graph import TopologicalGraph
+    from temper_placer.topological.propagation import ConstraintPropagator
+
+    graph_oracle, prop_oracle, _ = _topological_oracles()
+
+    def run_rust() -> Any:
+        g, refs = _topological_fixture(TopologicalGraph)
+        p = ConstraintPropagator(g)
+        ok = p.propagate()
+        return ok, [(p.get_bound(a, b).min_distance, p.get_bound(a, b).max_distance)
+                    for a in refs for b in refs]
+
+    def run_oracle() -> Any:
+        g, refs = _topological_fixture(graph_oracle.TopologicalGraph)
+        p = prop_oracle.ConstraintPropagator(g)
+        ok = p.propagate()
+        return ok, [(p.get_bound(a, b).min_distance, p.get_bound(a, b).max_distance)
+                    for a in refs for b in refs]
+
+    if run_rust() != run_oracle():
+        raise AssertionError(
+            "perf A/B arms disagree for topological propagation -- the "
+            "behavioral A/B (test_topological_rust_differential.py) should be "
+            "failing too"
+        )
+    return _time_us(run_rust, DEFAULT_WARMUP, DEFAULT_REPEATS), _time_us(
+        run_oracle, DEFAULT_WARMUP, DEFAULT_REPEATS
+    )
+
+
+def bench_topological_force_refinement() -> tuple[float, float]:
+    """A/B the iterative force-directed refinement loop."""
+    from temper_placer.core.board import Zone
+    from temper_placer.topological.force_refinement import apply_force_refinement
+    from temper_placer.topological.graph import TopologicalGraph
+
+    graph_oracle, _, force_oracle = _topological_oracles()
+
+    zones = {"Z": Zone(name="Z", bounds=(-200.0, -200.0, 200.0, 200.0))}
+
+    def _positions(refs: list[str]) -> dict[str, tuple[float, float]]:
+        return {ref: (0.7 * i - 9.0, -0.4 * i + 5.0) for i, ref in enumerate(refs)}
+
+    def run_rust() -> Any:
+        g, refs = _topological_fixture(TopologicalGraph)
+        return apply_force_refinement(
+            _positions(refs), g, zones, dict.fromkeys(refs, "Z"), 120, 0.05
+        )
+
+    def run_oracle() -> Any:
+        g, refs = _topological_fixture(graph_oracle.TopologicalGraph)
+        return force_oracle.apply_force_refinement(
+            _positions(refs), g, zones, dict.fromkeys(refs, "Z"), 120, 0.05
+        )
+
+    if run_rust() != run_oracle():
+        raise AssertionError(
+            "perf A/B arms disagree for topological force refinement -- the "
+            "behavioral A/B should be failing too"
+        )
+    return _time_us(run_rust, DEFAULT_WARMUP, DEFAULT_REPEATS), _time_us(
+        run_oracle, DEFAULT_WARMUP, DEFAULT_REPEATS
+    )
+
+
 # (module, stage) -> callable returning (rust_us, oracle_us).
 #
 # `module` and `stage` become the comparison key together with `board`, so they
@@ -273,6 +381,8 @@ def bench_bottleneck_hard_blocked() -> tuple[float, float]:
 _BENCHMARKS: dict[tuple[str, str], Callable[[], tuple[float, float]]] = {
     ("bottleneck-geometry", "cell_capacity_batch"): bench_bottleneck_cell_capacity,
     ("bottleneck-geometry", "hard_blocked_batch"): bench_bottleneck_hard_blocked,
+    ("topological", "constraint_propagation"): bench_topological_propagation,
+    ("topological", "force_refinement"): bench_topological_force_refinement,
 }
 
 

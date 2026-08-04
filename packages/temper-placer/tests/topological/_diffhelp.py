@@ -45,7 +45,7 @@ def key(value: Any) -> Any:
     if isinstance(value, (set, frozenset)):
         # sets are unordered by definition; sort the *keys* so the comparison
         # is order-insensitive exactly where Python itself is.
-        return ("set", tuple(sorted((repr(key(v)) for v in value))))
+        return ("set", tuple(sorted(repr(key(v)) for v in value)))
     if isinstance(value, dict):
         return ("dict", tuple(sorted((repr(key(k)), key(v)) for k, v in value.items())))
     raise TypeError(f"no bit-exact comparison key for {type(value)!r}: {value!r}")

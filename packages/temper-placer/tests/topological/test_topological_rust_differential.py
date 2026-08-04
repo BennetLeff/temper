@@ -27,17 +27,18 @@ import math
 
 import pytest
 
-import tests.topological._force_refinement_py_oracle as fr_oracle
-import tests.topological._graph_py_oracle as graph_oracle
-import tests.topological._initial_placement_py_oracle as ip_oracle
-import tests.topological._propagation_py_oracle as prop_oracle
-import tests.topological._zone_solver_py_oracle as zs_oracle
 # The differential is only meaningful if the live package really is
 # Rust-backed. Without this import it would compare Python against Python and
 # pass vacuously, which is the exact failure mode the R1a gate exists to
 # prevent -- so the extension is imported directly and collection fails loudly
 # whenever the delegation is absent or has regressed.
 import temper_placement_topology as _rust
+
+import tests.topological._force_refinement_py_oracle as fr_oracle
+import tests.topological._graph_py_oracle as graph_oracle
+import tests.topological._initial_placement_py_oracle as ip_oracle
+import tests.topological._propagation_py_oracle as prop_oracle
+import tests.topological._zone_solver_py_oracle as zs_oracle
 from temper_placer.core.board import Zone
 from temper_placer.topological import (
     ConstraintPropagator,
@@ -52,6 +53,7 @@ from temper_placer.topological import (
     place_components_in_zone,
 )
 from tests.topological._diffhelp import assert_identical
+
 
 def test_live_package_is_rust_backed():
     """Anti-vacuity guard for the whole file: every migrated entry point must
@@ -148,6 +150,26 @@ GRAPH_CASES = {
         [("A", "B", 9.0, "s1"), ("B", "C", 8.0, "s2")],
     ),
     "sep_only": (["A", "B", "C"], [], [("A", "B", 12.0, "s1"), ("B", "C", 4.0, "s2")]),
+    # Exactly-equal bounds: the conflict test is strict `<`, so an adjacency
+    # ceiling equal to the separation floor is satisfiable and must NOT be
+    # reported. Pins that boundary deterministically -- a `<=` would add a
+    # spurious conflict here. (Mutation M15.)
+    "conflict_equal_bounds": (
+        ["A", "B"],
+        [("A", "B", 7.0, "c1")],
+        [("A", "B", 7.0, "s1")],
+    ),
+    # ...and one ulp apart on either side of that boundary.
+    "conflict_one_ulp_under": (
+        ["A", "B"],
+        [("A", "B", 6.999999999999999, "c1")],
+        [("A", "B", 7.0, "s1")],
+    ),
+    "conflict_one_ulp_over": (
+        ["A", "B"],
+        [("A", "B", 7.000000000000001, "c1")],
+        [("A", "B", 7.0, "s1")],
+    ),
     "clique4": (
         ["A", "B", "C", "D"],
         [
@@ -475,6 +497,106 @@ def test_place_in_zone_total_area_neumaier_boundary(n):
     )
 
 
+def test_place_in_zone_neumaier_and_naive_straddle_the_packing_threshold():
+    """The decisive Neumaier case: compensated and naive sums land on
+    *opposite sides* of `total_area > zone_area * 0.8`.
+
+    `total_area` is observable only through that branch -- the positions never
+    read it -- so a differential that merely computes a slightly different sum
+    proves nothing. Here 8 components of area 0.1 sum to `0x1.999999999999ap-1`
+    compensated but `0x1.9999999999999p-1` naively, and the zone area is
+    chosen so the threshold is *exactly* the naive value. The correct
+    implementation raises PlacementError; a naive accumulator returns
+    positions instead. (Mutation M1.)
+    """
+    zw = 0.9999999999999999  # one ulp below 1.0
+    zone = Zone(name="Z", bounds=(0.0, 0.0, zw, 1.0))
+    comps = [f"U{i}" for i in range(8)]
+    sizes = dict.fromkeys(comps, (0.5, 0.2))  # 0.5*0.2 == 0.1 exactly
+
+    got = _capture(lambda: place_components_in_zone(zone, comps, sizes))
+    want = _capture(lambda: ip_oracle.place_components_in_zone(zone, comps, sizes))
+    assert want[0] == "raised", "fixture must land on the raising side of the threshold"
+    assert_identical(got, want, "Neumaier/naive threshold straddle")
+
+
+def test_place_in_zone_packing_limit_is_exactly_eighty_percent():
+    """Pin the 80% constant itself: this fill lands between 0.80 and 0.81 of
+    the zone area, so the correct implementation raises while any loosened
+    limit would not. (Mutation M12.)"""
+    zone = Zone(name="Z", bounds=(0.0, 0.0, 100.0, 100.0))
+    comps = [f"U{i}" for i in range(100)]
+    sizes = dict.fromkeys(comps, (10.0, 8.05))  # total 8050 of 10000
+
+    got = _capture(lambda: place_components_in_zone(zone, comps, sizes))
+    want = _capture(lambda: ip_oracle.place_components_in_zone(zone, comps, sizes))
+    assert want[0] == "raised", "fixture must exceed the 80% limit"
+    assert_identical(got, want, "80% packing limit")
+
+
+def test_place_cluster_clamp_order_with_an_oversized_component():
+    """`place_cluster` performs no size check, so a component wider than the
+    zone drives the clamp into `lo > hi`, where `max(lo, min(x, hi))` and
+    `min(hi, max(x, lo))` disagree -- the former pins to `lo`, the latter to
+    `hi`. Pins the clamp nesting order. (Mutation M13.)"""
+    zone = Zone(name="Z", bounds=(0.0, 0.0, 10.0, 10.0))
+    live, orc = _pair(["A", "B"], [("A", "B", 4.0, "c1")], [])
+    sizes = {"A": (40.0, 40.0), "B": (40.0, 40.0)}  # far wider than the zone
+
+    assert_identical(
+        place_cluster({"A", "B"}, zone, live, sizes, 0, 1),
+        ip_oracle.place_cluster({"A", "B"}, zone, orc, sizes, 0, 1),
+        "clamp order under an inverted clamp window",
+    )
+
+
+def test_place_cluster_with_nan_component_sizes():
+    """A NaN size reaches the `max`/`min` folds, where CPython's semantics
+    (NaN propagates from the left operand, is discarded from the right) differ
+    from `f64::max`/`f64::min`, which always discard it. (Mutation M2.)"""
+    zone = Zone(name="Z", bounds=(0.0, 0.0, 50.0, 50.0))
+    live, orc = _pair(["A", "B", "C"], [("A", "B", 4.0, "c1")], [])
+    sizes = {"A": (float("nan"), 2.0), "B": (3.0, float("nan")), "C": (2.0, 2.0)}
+
+    assert_identical(
+        place_cluster({"A", "B", "C"}, zone, live, sizes, 0, 1),
+        ip_oracle.place_cluster({"A", "B", "C"}, zone, orc, sizes, 0, 1),
+        "NaN component sizes through the min/max folds",
+    )
+
+
+def test_place_components_in_zone_with_nan_component_sizes():
+    """Same NaN fold hazard on the zone entry point."""
+    zone = Zone(name="Z", bounds=(0.0, 0.0, 50.0, 50.0))
+    comps = ["A", "B", "C"]
+    sizes = {"A": (float("nan"), 2.0), "B": (3.0, float("nan")), "C": (2.0, 2.0)}
+    assert_identical(
+        _capture(lambda: place_components_in_zone(zone, comps, sizes)),
+        _capture(lambda: ip_oracle.place_components_in_zone(zone, comps, sizes)),
+        "NaN sizes in place_components_in_zone",
+    )
+
+
+def test_propagation_with_nan_distances():
+    """NaN constraint distances through `tighten_min`/`tighten_max`."""
+    nan = float("nan")
+    live, orc = _pair(
+        ["A", "B", "C"],
+        [("A", "B", nan, "c1"), ("B", "C", 3.0, "c2")],
+        [("A", "C", nan, "s1")],
+    )
+    p_live, p_orc = ConstraintPropagator(live), prop_oracle.ConstraintPropagator(orc)
+    assert_identical(p_live.propagate(), p_orc.propagate(), "NaN propagate verdict")
+    for a in ("A", "B", "C"):
+        for b in ("A", "B", "C"):
+            ba, bb = p_live.get_bound(a, b), p_orc.get_bound(a, b)
+            assert_identical(
+                (ba.min_distance, ba.max_distance),
+                (bb.min_distance, bb.max_distance),
+                f"NaN bound({a},{b})",
+            )
+
+
 def test_place_in_zone_total_area_catastrophic_cancellation():
     """A magnitude spread that a naive accumulator loses entirely: the
     compensated sum keeps the small terms, a naive one drops them."""
@@ -482,7 +604,7 @@ def test_place_in_zone_total_area_catastrophic_cancellation():
     sizes = {
         "BIG": (1e150, 1e150),
         "NEG": (1e150, -1e150),
-        **{c: (0.1, 0.1) for c in ["A", "B", "C", "D", "E", "F", "G"]},
+        **dict.fromkeys(["A", "B", "C", "D", "E", "F", "G"], (0.1, 0.1)),
     }
     big_zone = Zone(name="B", bounds=(0.0, 0.0, 1e200, 1e200))
     got = _capture(lambda: place_components_in_zone(big_zone, comps, sizes))
@@ -737,12 +859,13 @@ def test_zone_solver_candidate_sets_identical():
 
 
 def test_zone_solver_enclosing_constraint_identical():
-    from temper_placer.pcl.constraints import EnclosingConstraint
+    from temper_placer.pcl.constraints import ConstraintTier, EnclosingConstraint
 
     def mk():
         return [
             EnclosingConstraint(
-                id="e1", outer="Z2", inner=["A"], source_line=1, raw_text="enclosing"
+                outer="Z2", inner=["A"], tier=ConstraintTier.HARD,
+                because="pin A into zone Z2 for the differential", id="e1"
             )
         ]
 
@@ -757,12 +880,13 @@ def test_zone_solver_enclosing_constraint_identical():
 
 
 def test_zone_solver_missing_zone_conflict_identical():
-    from temper_placer.pcl.constraints import EnclosingConstraint
+    from temper_placer.pcl.constraints import ConstraintTier, EnclosingConstraint
 
     def mk():
         return [
             EnclosingConstraint(
-                id="e1", outer="GONE", inner=["A"], source_line=1, raw_text="enclosing"
+                outer="GONE", inner=["A"], tier=ConstraintTier.HARD,
+                because="reference a zone that does not exist", id="e1"
             )
         ]
 

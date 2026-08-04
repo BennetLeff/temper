@@ -28,10 +28,10 @@ from __future__ import annotations
 
 import math
 
+import temper_placement_topology as _rust  # noqa: F401 -- Rust-backed guard
 from hypothesis import HealthCheck, assume, given, settings
 from hypothesis import strategies as st
 
-import temper_placement_topology as _rust  # noqa: F401 -- Rust-backed guard
 from temper_placer.core.board import Zone
 from temper_placer.topological import (
     ConstraintPropagator,
@@ -220,11 +220,33 @@ def test_mr3_translation_is_equivariant(spec, data, shift):
 @given(graph_specs(), st.data())
 @SETTINGS
 def test_mr4_x_reflection_is_equivariant(spec, data):
-    """Mirroring x about 0 (an exact sign flip) mirrors the refined x and
-    leaves y untouched."""
+    """Mirroring x about 0 mirrors the refined x exactly and leaves y alone.
+
+    Unlike MR3 this **is** bit-exact, and that asymmetry between the two
+    relations is the point. Negation is exact in IEEE-754 and every operation
+    on the path is sign-symmetric: `dx` negates exactly, `dx*dx` is unchanged
+    so the distance is identical, the unit vector's x negates exactly, and
+    float addition satisfies `(-a) + (-b) == -(a + b)` exactly. The zone box
+    is chosen symmetric about 0 so the boundary term mirrors too.
+
+    **Excluded: the degenerate coincidence branch.** When two constrained
+    components sit within 1e-6 of each other, both force kernels bail out to a
+    hard-coded *x-axis* nudge (`[0.1, 0]` / `[-1.0, 0]`). That constant has no
+    mirror image — reflecting the input leaves it pointing the same way — so
+    equivariance genuinely fails there. This is pre-existing Python behaviour,
+    reproduced faithfully; it is pinned as its own fixture below rather than
+    silently absorbed by a tolerance.
+    """
     comps, adj, sep = spec
     g = _g(comps, adj, sep)
     positions = data.draw(position_maps(comps))
+
+    # keep clear of the degeneracy floor documented above
+    pts = list(positions.values())
+    for i in range(len(pts)):
+        for j in range(i + 1, len(pts)):
+            assume(math.dist(pts[i], pts[j]) > 1e-3)
+
     zone = Zone(name="Z", bounds=(-2048.0, -2048.0, 2048.0, 2048.0))
     assign = dict.fromkeys(comps, "Z")
 
@@ -244,6 +266,28 @@ def test_mr4_x_reflection_is_equivariant(spec, data):
         mx, my = mirrored[ref]
         assert mx == -bx, f"{ref}: x not equivariant under reflection"
         assert my == by, f"{ref}: y changed under an x-only reflection"
+
+
+def test_mr4_exception_coincident_components_break_reflection_equivariance():
+    """Pin the one case MR4 excludes, so the exclusion stays measured.
+
+    Two components at the same point trip the `distance < 1e-6` guard, which
+    returns a fixed `[-1.0, 0.0]` / `[1.0, 0.0]` separation nudge along +x.
+    That constant is not mirrored when the input is, so the reflected run
+    lands on the *same* x rather than the negated one.
+    """
+    comps = ["A", "B"]
+    g = _g(comps, [], [("A", "B", 5.0, "s1")])
+    positions = {"A": (0.0, 0.0), "B": (0.0, 0.0)}
+    zone = Zone(name="Z", bounds=(-2048.0, -2048.0, 2048.0, 2048.0))
+    assign = dict.fromkeys(comps, "Z")
+
+    base = apply_force_refinement(dict(positions), g, {"Z": zone}, dict(assign), 1, 0.1)
+    mirrored = apply_force_refinement(
+        {k: (-x, y) for k, (x, y) in positions.items()}, g, {"Z": zone}, dict(assign), 1, 0.1
+    )
+    # the degenerate nudge is identical, not mirrored
+    assert base["A"][0] == mirrored["A"][0] != 0.0
 
 
 # ---------------------------------------------------------------------------
