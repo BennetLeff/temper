@@ -846,3 +846,37 @@ pre-migration Python implementation
   (KTD9) applies.
 - Consumer suites run unchanged against the shim:
   `test_loop_loader.py` (25 tests) — verified in the migration PR.
+
+## Board/Netlist consumer-semantics catalog (R11, committed 2026-08-04)
+
+The Wave-4 Phase 3 first-pull slice commits the full consumer enumeration
+of `core/board.py` and `core/netlist.py` (plan U4, D3): 66 board importers,
+76 netlist importers, 48 overlap, 94 unique — complete lists in
+`docs/evidence/2026-08-04-wave4-contract-consumer-semantics-audit.md`
+(counting rule recorded there). Every enumerated access-pattern class below
+carries a resolution slot; the board/netlist differential suites
+(`test_board_rust_differential.py`, `test_netlist_rust_differential.py`)
+key their pins to these classes, and every later pull that consumes
+Board/Netlist records new patterns against this catalog in its own pull
+(R13 — the scorecard convention is the drift mechanism; no new CI gate).
+
+| Pattern class | Slot | Differential pin |
+|---|---|---|
+| Container iteration (`for x in obj.nets/components/pins/...`) | reproduced (pyclass container fields are the real Python list objects; iteration via the landed `PyList` container pattern) | iteration parity over canonicalized element tuples |
+| `len()` / integer indexing | reproduced (`__len__`/`__getitem__` with negative-wrap and `IndexError` semantics, per the `LoopCollection` precedent) | len/index parity incl. negative indices and out-of-range |
+| Attribute reads (fields, properties) | reproduced (read-only `#[pyo3(get)]` fields; property methods) | field-by-field canonical parity |
+| Constructor call sites | reproduced (dataclass `#[new]` signatures with identical defaults, incl. `frozen`-style immutability where the dataclass is frozen) | identical-kwargs construction parity (the `_split_enum_kwargs` convention) |
+| Getter-method calls | reproduced | per-method parity on shared fixtures |
+| numpy float32 surface (`polygon_array`, `get_bounds_array`, `get_fixed_mask`, `build_adjacency_matrix`) | shim-kept (R10/KTD6: deterministic float32 wrappers over Rust f64 fields) | dtype/shape asserted explicitly (`np.float32(10.0) == 10.0` hides dtype loss) |
+| `compute_eigenvector_centrality` (`np.linalg.eigh`) | shim-kept, never gated (R10 — the recorded non-deterministic exception) | not part of the bit-parity differential |
+| `find_isomorphic_groups` (hashlib-based) | shim-kept (KTD7: non-data helper precedent) | delegation-path identity check |
+| `repr`/`str` | reproduced with B9/B10 byte-parity (`py_str_repr`/`py_float_str`) | full `repr` byte-for-byte |
+| `LayerIndex` IntEnum | documented deviation (KTD2): member identity, `__str__` (KiCad name), `members()`, value getters reproduced; int-comparison is NOT — consumers adapted inside the PR | enum name/value/str/repr parity; `members()` list parity |
+| Identity checks (`x is`) | none found in src (0 sites) | n/a |
+| Monkeypatch surfaces on `core.board`/`core.netlist` | none found in src or tests (0 sites; L10) | n/a — no re-export band-aids needed |
+
+Resolution order when a pattern cannot be reproduced: pyclass gains the
+compat surface → consumer adapted inside the migration PR → R3
+JUSTIFIED-KEEP with a named blocker (R12, AE1). The catalog records each
+outcome; unresolved entries are cross-checked at pull-2 closeout (U7,
+Covers AE1).
