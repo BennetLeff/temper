@@ -32,6 +32,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 import numpy as np
+import temper_thermal as _tt
 
 if TYPE_CHECKING:
     from temper_placer.physics.thermal_fdm import ThermalFDMConfig
@@ -119,81 +120,24 @@ def build_thermal_parameter_bounds(
     bounds: list[ParameterBound] = []
 
     # --- From prereg parametric_ranges ---
+    # Wave 4 Phase 4: the monotonicity CLASSIFICATION (keyword matching
+    # and the because-citation templates) delegates to the Rust kernel
+    # ``temper_thermal.classify_parameter_py``; the prereg/FDM-config
+    # introspection and the literal ambient_C / h_sink_min bounds stay
+    # here.  Bit-identical parity (incl. the exact citation strings) is
+    # pinned by ``tests/physics/test_parameter_bounds_rust_differential.py``.
     for pr in prereg.parametric_ranges:
-        param_lower = pr.parameter.lower()
-
-        if "power" in param_lower or "dissipation" in param_lower or "P_loss" in param_lower:
-            bounds.append(
-                ParameterBound(
-                    parameter=pr.parameter,
-                    min=pr.min,
-                    max=pr.max,
-                    monotonicity=+1,
-                    unit=pr.because,  # because field carries the reason, not a unit
-                    because=(
-                        "b = Q_vec + h*T_amb; A unchanged.  A^{-1} >= 0 "
-                        "(M-matrix property), so T = A^{-1} b increases "
-                        "monotonically in Q component-wise.  -> "
-                        f"T_j INCREASING in {pr.parameter}"
-                    ),
-                )
+        mono, unit, because = _tt.classify_parameter_py(pr.parameter, pr.because)
+        bounds.append(
+            ParameterBound(
+                parameter=pr.parameter,
+                min=pr.min,
+                max=pr.max,
+                monotonicity=mono,
+                unit=unit,
+                because=because,
             )
-
-        elif (
-            "junction_to_case" in param_lower
-            or "r_theta" in param_lower
-            or "thermal_resistance" in param_lower
-        ):
-            bounds.append(
-                ParameterBound(
-                    parameter=pr.parameter,
-                    min=pr.min,
-                    max=pr.max,
-                    monotonicity=+1,
-                    unit=pr.because,
-                    because=(
-                        "R_theta = 1/h for through-plane sink.  "
-                        "d T / d h_i = A^{-1} e_i (T_amb - T_i) <= 0 "
-                        "when T_i >= T_amb (M-matrix inverse non-negativity).  "
-                        "Higher R_theta -> lower h -> higher T_j.  "
-                        f"-> T_j INCREASING in {pr.parameter}"
-                    ),
-                )
-            )
-
-        elif "heatspread" in param_lower or "spread" in param_lower or "copper" in param_lower:
-            bounds.append(
-                ParameterBound(
-                    parameter=pr.parameter,
-                    min=pr.min,
-                    max=pr.max,
-                    monotonicity=-1,
-                    unit=pr.because,
-                    because=(
-                        "Larger heatspread -> more copper coverage -> higher "
-                        "effective k_eff -> lower thermal resistance -> lower "
-                        "T_j.  Scaling k_field by alpha > 1 gives A(alpha) >= "
-                        "A(1) component-wise (M-matrix ordering), so "
-                        "A(alpha)^{-1} <= A(1)^{-1}, b unchanged, hence "
-                        f"T(alpha) <= T.  -> T_j DECREASING in {pr.parameter}"
-                    ),
-                )
-            )
-
-        else:
-            bounds.append(
-                ParameterBound(
-                    parameter=pr.parameter,
-                    min=pr.min,
-                    max=pr.max,
-                    monotonicity=0,
-                    unit="unknown",
-                    because=(
-                        f"No monotonicity proof for '{pr.parameter}'; "
-                        "corner-bound is NOT a guarantee for this parameter."
-                    ),
-                )
-            )
+        )
 
     # --- ambient_C from config (not in prereg ranges, but physically relevant) ---
     if fdm_config is not None:
@@ -254,10 +198,14 @@ def worst_case_corner(bounds: list[ParameterBound]) -> dict[str, float]:
     Returns:
         ``{parameter_name: worst_case_value}``.
     """
-    corner: dict[str, float] = {}
-    for b in bounds:
-        corner[b.parameter] = b.worst_case_value
-    return corner
+    # Wave 4 Phase 4: the per-bound worst-case selection delegates to
+    # the Rust kernel ``temper_thermal.worst_case_values_py``.
+    values = _tt.worst_case_values_py(
+        [b.min for b in bounds],
+        [b.max for b in bounds],
+        [b.monotonicity for b in bounds],
+    )
+    return {b.parameter: v for b, v in zip(bounds, values)}
 
 
 # ---------------------------------------------------------------------------

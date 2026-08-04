@@ -69,6 +69,14 @@ unsafe extern "C" fn fallback_exp(x: f64) -> f64 {
     f64::exp(x)
 }
 
+unsafe extern "C" fn fallback_log(x: f64) -> f64 {
+    f64::ln(x)
+}
+
+unsafe extern "C" fn fallback_log10(x: f64) -> f64 {
+    f64::log10(x)
+}
+
 unsafe extern "C" fn fallback_cos(x: f64) -> f64 {
     f64::cos(x)
 }
@@ -94,6 +102,10 @@ macro_rules! host_unary {
 #[cfg(not(target_arch = "wasm32"))]
 host_unary!(host_exp, c"exp", fallback_exp);
 #[cfg(not(target_arch = "wasm32"))]
+host_unary!(host_log, c"log", fallback_log);
+#[cfg(not(target_arch = "wasm32"))]
+host_unary!(host_log10, c"log10", fallback_log10);
+#[cfg(not(target_arch = "wasm32"))]
 host_unary!(host_cos, c"cos", fallback_cos);
 #[cfg(not(target_arch = "wasm32"))]
 host_unary!(host_sin, c"sin", fallback_sin);
@@ -114,6 +126,34 @@ pub fn exp(x: f64) -> f64 {
     }
     #[cfg(target_arch = "wasm32")]
     f64::exp(x)
+}
+
+/// `math.log(x)` / `np.log(x)` as the host Python runtime computes it
+/// (added for the Phase-4 emi/safety kernels; measured 2026-08-04:
+/// bit-identical to numpy's `log` on 20 000 random samples).
+#[inline]
+pub fn log(x: f64) -> f64 {
+    #[cfg(not(target_arch = "wasm32"))]
+    // SAFETY: `host_log()` is a C `double(double)`; no shared state.
+    unsafe {
+        (host_log())(x)
+    }
+    #[cfg(target_arch = "wasm32")]
+    f64::ln(x)
+}
+
+/// `math.log10(x)` / `np.log10(x)` as the host Python runtime computes
+/// it (measured 2026-08-04: bit-identical to numpy's `log10` on 20 000
+/// random samples).
+#[inline]
+pub fn log10(x: f64) -> f64 {
+    #[cfg(not(target_arch = "wasm32"))]
+    // SAFETY: `host_log10()` is a C `double(double)`; no shared state.
+    unsafe {
+        (host_log10())(x)
+    }
+    #[cfg(target_arch = "wasm32")]
+    f64::log10(x)
 }
 
 /// `math.cos(x)` / `np.cos(x)` as the host Python runtime computes it.
