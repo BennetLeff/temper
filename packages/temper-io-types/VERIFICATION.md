@@ -266,9 +266,11 @@ disagreement so the distinction cannot be optimised away later.
 
 36 source mutants were applied to `src/placer_core/`, one at a time,
 each followed by a full rebuild and a full gate run
-(`cargo test --lib` + `pytest tests/wave4_phase2/`), then reverted.
-Script: `mutate.py` in the session scratchpad; raw results in
-`results2.json`.
+(`cargo test --lib` + `pytest tests/wave4_phase2/`), then reverted. The
+driver was a throwaway script (apply literal `(file, old, new)` edits;
+rebuild; gate; revert) run outside the repo, so the durable record is
+this section: every mutant is listed below by the exact behaviour it
+reverts, which is enough to reconstruct the corpus.
 
 **33 / 36 killed.** The 3 survivors are each accounted for below; none
 was closed by weakening a claim.
