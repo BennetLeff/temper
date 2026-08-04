@@ -1,0 +1,156 @@
+// provenance: Provenance, sha256_hex.
+//
+// `sha256_hex` previously shelled out to Python's `hashlib` via
+// `py.import("hashlib")`; it is now a native `sha2` digest, byte-identical
+// to CPython's `hashlib.sha256(...).hexdigest()` (both are the standard
+// SHA-256 algorithm — see the crate tests for a known-answer check against
+// the empty-string and "abc" vectors).
+
+use sha2::{Digest, Sha256};
+
+/// SHA-256 of `data`, lower-case hex-encoded — matches
+/// `hashlib.sha256(data).hexdigest()`.
+pub fn sha256_hex(data: &[u8]) -> String {
+    let mut hasher = Sha256::new();
+    hasher.update(data);
+    let digest = hasher.finalize();
+    digest.iter().map(|byte| format!("{byte:02x}")).collect()
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct Provenance {
+    pub board_sha256: String,
+    pub netlist_sha256: String,
+    pub config_sha256: Option<String>,
+    pub generated_at: String,
+}
+
+impl Provenance {
+    pub fn as_comment(&self) -> String {
+        let config_part = match &self.config_sha256 {
+            Some(c) => format!(" config={}", c),
+            None => String::new(),
+        };
+        format!(
+            "provenance: board={} netlist={}{} at={}",
+            self.board_sha256, self.netlist_sha256, config_part, self.generated_at
+        )
+    }
+
+    pub fn repr(&self) -> String {
+        format!(
+            "Provenance(board_sha256={:?}, netlist_sha256={:?}, generated_at={:?})",
+            self.board_sha256, self.netlist_sha256, self.generated_at
+        )
+    }
+}
+
+#[cfg(feature = "python")]
+mod py_bridge {
+    use super::*;
+    use pyo3::prelude::*;
+
+    #[pyclass(name = "Provenance", from_py_object)]
+    #[derive(Clone)]
+    pub struct PyProvenance {
+        #[pyo3(get, set)]
+        pub board_sha256: String,
+        #[pyo3(get, set)]
+        pub netlist_sha256: String,
+        #[pyo3(get, set)]
+        pub config_sha256: Option<String>,
+        #[pyo3(get, set)]
+        pub generated_at: String,
+    }
+
+    impl PyProvenance {
+        fn pure(&self) -> Provenance {
+            Provenance {
+                board_sha256: self.board_sha256.clone(),
+                netlist_sha256: self.netlist_sha256.clone(),
+                config_sha256: self.config_sha256.clone(),
+                generated_at: self.generated_at.clone(),
+            }
+        }
+    }
+
+    #[pymethods]
+    impl PyProvenance {
+        #[new]
+        #[pyo3(signature = (board_sha256, netlist_sha256, generated_at, config_sha256 = None))]
+        fn new(
+            board_sha256: String,
+            netlist_sha256: String,
+            generated_at: String,
+            config_sha256: Option<String>,
+        ) -> Self {
+            PyProvenance {
+                board_sha256,
+                netlist_sha256,
+                config_sha256,
+                generated_at,
+            }
+        }
+
+        fn as_comment(&self) -> String {
+            self.pure().as_comment()
+        }
+
+        fn __repr__(&self) -> String {
+            self.pure().repr()
+        }
+    }
+
+    #[pyfunction(name = "sha256_hex")]
+    pub fn sha256_hex_py(data: Vec<u8>) -> String {
+        super::sha256_hex(&data)
+    }
+}
+
+#[cfg(feature = "python")]
+pub use py_bridge::{PyProvenance, sha256_hex_py};
+
+#[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn sha256_empty_matches_known_vector() {
+        assert_eq!(
+            sha256_hex(b""),
+            "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        );
+    }
+
+    #[test]
+    fn sha256_abc_matches_known_vector() {
+        assert_eq!(
+            sha256_hex(b"abc"),
+            "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+        );
+    }
+
+    #[test]
+    fn provenance_as_comment_with_and_without_config() {
+        let p = Provenance {
+            board_sha256: "aaa".into(),
+            netlist_sha256: "bbb".into(),
+            config_sha256: None,
+            generated_at: "2026-08-03T00:00:00Z".into(),
+        };
+        assert_eq!(
+            p.as_comment(),
+            "provenance: board=aaa netlist=bbb at=2026-08-03T00:00:00Z"
+        );
+
+        let p2 = Provenance {
+            config_sha256: Some("ccc".into()),
+            ..p
+        };
+        assert_eq!(
+            p2.as_comment(),
+            "provenance: board=aaa netlist=bbb config=ccc at=2026-08-03T00:00:00Z"
+        );
+    }
+}

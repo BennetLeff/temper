@@ -112,6 +112,38 @@ class Constraint:
 class CapacityConstraint(Constraint):
     """
     Constraint: sum(uses[n,c] * width[n]) <= capacity[c] * slack
+
+    **AtMostK encoding soundness proof (R24 item 1) — re-homed 2026-08-02
+    from ``docs/solutions/logic-errors/unsound-atmostk-capacity-encoding.md``
+    (plan 2026-08-02-004 U1).** The CNF encoding of this constraint's
+    ``esl()`` semantics (``sum(width_i * uses_i) <= capacity * slack``,
+    equivalently ``sum(vars) <= K`` with ``K = capacity * slack / min_width``)
+    is the Sinz (2005) **sequential counter**: ``sum(vars) <= K`` in O(n*k)
+    auxiliary variables and O(n*k) clauses.  The encoding is **exact — sound
+    AND complete**: a SAT assignment exists iff the capacity bound holds, the
+    strongest form of the R24 conservative-bound branch (it can never admit
+    an assignment the capacity bound forbids, and it rejects no assignment
+    the bound permits).
+
+    Induction (k-induction over n = |terms|): the auxiliary variables
+    ``s[i][j]`` form the transitive closure of partial sums — ``s[i][j]`` is
+    true iff at least j+1 of ``vars[0..i]`` are true.  Base case n <= 1 is
+    vacuous (no auxiliary variables; a single term is within capacity iff its
+    coefficient fits, which the unit clauses enforce).  Step n -> n+1: the
+    new term only *extends* the chain with clauses over previously defined
+    variables, so the existing counter's semantics are unaffected.  The
+    broken predecessor encoding (a single "at least one surplus variable
+    false" clause) is the documented counterexample this replaces: for K=3,
+    N=10 it admitted 6 nets.  Exhaustive verification: all n <= 8, all
+    k <= n-1, all 2^n primary assignments (3,286 SAT checks, 0.06s) via the
+    mini DPLL solver, plus Hypothesis PBT cross-validation against pysat
+    Glucose3 (91 BMC tests in ``tests/router_v6/``).
+
+    **Physics-gated surface (KTD4):** ``physics_gated: true`` — the encoded
+    capacity bound limits the total routed width of a channel, a physical
+    routing resource in the same family as the ampacity-derived width bounds
+    ``core/ipc2152`` enforces. See the register entry in
+    ``power_pcb_dataset/physics_soundness_register.yaml``.
     """
 
     channel_id: str

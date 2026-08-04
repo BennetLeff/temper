@@ -553,8 +553,8 @@ def test_enum_member_not_equal_to_int():
     ints."""
     from temper_placer.core.net_types import NetType
 
-    assert not (NetType.GROUND == 1)
-    assert not (NetType.GROUND == 1.0)
+    assert NetType.GROUND != 1
+    assert NetType.GROUND != 1.0
     assert NetType.GROUND != 1
     # Members still compare equal to themselves and hash like Enum members.
     assert NetType.GROUND == NetType.GROUND

@@ -2,6 +2,11 @@
 
 from __future__ import annotations
 
+from types import SimpleNamespace
+
+import pytest
+
+from temper_placer.core.netlist import Component, Netlist
 from temper_placer.pcl.constraints import (
     AdjacentConstraint,
     AlignedConstraint,
@@ -15,12 +20,215 @@ from temper_placer.pcl.constraints import (
     OnSideConstraint,
     SeparatedConstraint,
 )
+from temper_placer.placer.cp_sat._encoder_core import UnresolvedConstraintRefsError
 from temper_placer.placer.cp_sat.encoder import (
     EncoderContext,
     encode_constraints,
+    reconcile_constraint_refs,
+    reconcile_loop_components,
+    solve_placement,
+    validate_constraint_refs,
 )
 from temper_placer.placer.cp_sat.handlers import HANDLER_REGISTRY
 from temper_placer.placer.cp_sat.model import CpSatModel
+
+
+class TestReferenceReconciliation:
+    """Aliases are explicit, canonical, and fail closed when incomplete."""
+
+    def test_reconciles_component_and_loop_operands(self) -> None:
+        constraints = [
+            AdjacentConstraint(
+                "OLD_Q1",
+                "OLD_Q2",
+                max_distance_mm=10.0,
+                tier=ConstraintTier.HARD,
+                because="Keep the commutation switches close",
+            ),
+            LoopAreaConstraint(
+                "old_commutation",
+                max_area_mm2=500.0,
+                tier=ConstraintTier.HARD,
+                because="Limit switching loop area",
+            ),
+        ]
+
+        result = reconcile_constraint_refs(
+            constraints,
+            {
+                "OLD_Q1": "Q1",
+                "OLD_Q2": "Q2",
+                "old_commutation": "commutation_loop",
+            },
+        )
+
+        assert (result.constraints[0].a, result.constraints[0].b) == ("Q1", "Q2")
+        assert result.constraints[1].loop_name == "commutation_loop"
+        assert result.aliases_applied == (
+            ("OLD_Q1", "Q1"),
+            ("OLD_Q2", "Q2"),
+            ("old_commutation", "commutation_loop"),
+        )
+
+    def test_alias_chains_are_canonicalized(self) -> None:
+        constraint = AdjacentConstraint(
+            "LEGACY_Q1",
+            "Q2",
+            max_distance_mm=10.0,
+            tier=ConstraintTier.HARD,
+            because="Keep the commutation switches close",
+        )
+
+        result = reconcile_constraint_refs(
+            [constraint], {"LEGACY_Q1": "OLD_Q1", "OLD_Q1": "Q1"}
+        )
+
+        assert result.constraints[0].a == "Q1"
+        assert result.aliases_applied == (("LEGACY_Q1", "Q1"),)
+
+    def test_alias_cycles_are_rejected(self) -> None:
+        with pytest.raises(ValueError, match="cycle"):
+            reconcile_constraint_refs([], {"A": "B", "B": "A"})
+
+    def test_alias_to_missing_target_stays_unresolved(self) -> None:
+        constraint = AdjacentConstraint(
+            "LEGACY_Q1",
+            "Q2",
+            max_distance_mm=10.0,
+            tier=ConstraintTier.HARD,
+            because="Keep the commutation switches close",
+        )
+        result = reconcile_constraint_refs([constraint], {"LEGACY_Q1": "MISSING_Q1"})
+
+        unresolved = validate_constraint_refs(
+            list(result.constraints),
+            component_refs={"Q1", "Q2"},
+            zone_names=set(),
+            loop_names=set(),
+            on_unresolved="ignore",
+        )
+
+        assert unresolved == {"adj_LEGACY_Q1_Q2": ["MISSING_Q1"]}
+
+    def test_loop_aliases_work_without_component_aliases(self) -> None:
+        constraint = LoopAreaConstraint(
+            "legacy_loop",
+            max_area_mm2=100.0,
+            tier=ConstraintTier.HARD,
+            because="Keep the extracted loop bounded",
+        )
+
+        result = reconcile_constraint_refs(
+            [constraint], loop_aliases={"legacy_loop": "commutation_loop"}
+        )
+
+        assert result.constraints[0].loop_name == "commutation_loop"
+
+    def test_loop_components_reconcile_names_and_members(self) -> None:
+        result = reconcile_loop_components(
+            {"legacy_loop": ["OLD_Q1", "Q2"]},
+            {"OLD_Q1": "Q1"},
+            {"legacy_loop": "commutation_loop"},
+        )
+
+        assert result.loop_components == {"commutation_loop": ["Q1", "Q2"]}
+        assert result.aliases_applied == (
+            ("OLD_Q1", "Q1"),
+            ("legacy_loop", "commutation_loop"),
+        )
+
+    def test_loop_alias_collision_is_rejected(self) -> None:
+        with pytest.raises(ValueError, match="multiple loop definitions"):
+            reconcile_loop_components(
+                {"legacy_a": ["Q1"], "legacy_b": ["Q2"]},
+                loop_aliases={"legacy_a": "commutation", "legacy_b": "commutation"},
+            )
+
+    # ------------------------------------------------------------------
+    # Metamorphic fail-closed invariant (rework of PR #498)
+    # ------------------------------------------------------------------
+    # The placement gate must be metamorphic with respect to the alias map:
+    # the SAME legacy constraint either (a) fails closed at validation when
+    # no source-backed map is supplied, or (b) is reconciled to live refs and
+    # solves when the map is supplied. Nothing in between -- a broken source
+    # reference can never silently place against nothing.
+
+    @staticmethod
+    def _component(ref: str) -> Component:
+        return Component(ref=ref, footprint="R_0603", bounds=(1.6, 0.8), pins=[])
+
+    def test_gate_fires_on_broken_ref_and_passes_on_reconciled(self) -> None:
+        legacy_constraints = [
+            AdjacentConstraint(
+                "U_GATE",
+                "C_BOOT",
+                max_distance_mm=10.0,
+                tier=ConstraintTier.HARD,
+                because="Keep the gate-driver bootstrap close",
+            ),
+            AdjacentConstraint(
+                "U_MCU",
+                "C_MCU_1",
+                max_distance_mm=15.0,
+                tier=ConstraintTier.HARD,
+                because="Keep the MCU decoupling close",
+            ),
+        ]
+        live_refs = ["U7", "C17", "U27", "C37", "Q1", "Q2"]
+        netlist = Netlist(components=[self._component(r) for r in live_refs], nets=[])
+        board = SimpleNamespace(width=60.0, height=60.0, zones=[], constraints=[])
+        aliases = {
+            "U_GATE": "U7",
+            "C_BOOT": "C17",
+            "U_MCU": "U27",
+            "C_MCU_1": "C37",
+        }
+
+        # Leg 1 (broken source reference): the same constraint that references
+        # legacy conceptual names raises the fail-closed validator error.
+        with pytest.raises(UnresolvedConstraintRefsError):
+            solve_placement(
+                netlist=netlist,
+                board=board,
+                extra_constraints=legacy_constraints,
+                timeout_ms=200,
+            )
+
+        # Leg 2 (reconciled): with the source-backed map supplied, the same
+        # constraint set validates and produces a placement.
+        result = solve_placement(
+            netlist=netlist,
+            board=board,
+            extra_constraints=legacy_constraints,
+            timeout_ms=200,
+            reference_aliases=aliases,
+        )
+        assert result.status in ("optimal", "feasible", "unknown")
+        assert set(result.positions) == set(live_refs)
+
+    def test_gate_rejects_alias_to_missing_target_at_solve_time(self) -> None:
+        """An alias whose target is not a live netlist ref must not silently
+        no-op: the loader rejects it before the model is built."""
+        netlist = Netlist(
+            components=[self._component(r) for r in ("U7", "C17")], nets=[]
+        )
+        board = SimpleNamespace(width=60.0, height=60.0, zones=[], constraints=[])
+        with pytest.raises(UnresolvedConstraintRefsError):
+            solve_placement(
+                netlist=netlist,
+                board=board,
+                extra_constraints=[
+                    AdjacentConstraint(
+                        "U_GATE",
+                        "C_BOOT",
+                        max_distance_mm=10.0,
+                        tier=ConstraintTier.HARD,
+                        because="bootstrap proximity",
+                    )
+                ],
+                timeout_ms=200,
+                reference_aliases={"U_GATE": "U7", "C_BOOT": "U999"},  # bad target
+            )
 
 
 class TestHandlerCoverage:

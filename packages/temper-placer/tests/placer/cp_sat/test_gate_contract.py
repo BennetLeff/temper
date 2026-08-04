@@ -8,7 +8,6 @@ BoardState, Gate) is verified here.
 
 from __future__ import annotations
 
-import dataclasses
 from pathlib import Path
 from typing import Any
 
@@ -31,7 +30,7 @@ from temper_placer.placer.cp_sat.gates import (
 
 class TestGateStatus:
     def test_exactly_three_members(self):
-        members = list(GateStatus)
+        members = list(GateStatus.members())
         assert len(members) == 3
         assert GateStatus.CLEAN in members
         assert GateStatus.VIOLATIONS in members
@@ -50,7 +49,7 @@ class TestGateStatus:
 
 class TestGateStage:
     def test_exactly_two_members(self):
-        members = list(GateStage)
+        members = list(GateStage.members())
         assert len(members) == 2
         assert GateStage.PLACEMENT in members
         assert GateStage.ROUTING in members
@@ -76,7 +75,7 @@ class TestViolationType:
             ViolationType.VIA_COUNT,
             ViolationType.SLOP,
         }
-        all_types = set(ViolationType)
+        all_types = set(ViolationType.members())
         assert required <= all_types
 
     def test_has_w1_w2_w4_types(self):
@@ -128,9 +127,12 @@ class TestViolation:
 
     def test_is_frozen(self):
         v = Violation(type=ViolationType.CLEARANCE)
-        with pytest.raises(dataclasses.FrozenInstanceError):
+        # Wave 4 Phase 2: the pyclass raises AttributeError (the dataclass
+        # raised the FrozenInstanceError subclass — same base class; see
+        # VERIFICATION.md § documented deviations).
+        with pytest.raises(AttributeError):
             v.severity = 1.0  # type: ignore[misc]
-        with pytest.raises(dataclasses.FrozenInstanceError):
+        with pytest.raises(AttributeError):
             v.components = ("X",)  # type: ignore[misc]
 
     def test_is_hashable(self):
@@ -179,7 +181,7 @@ class TestGateResult:
 
     def test_is_frozen(self):
         r = GateResult(GateStatus.CLEAN)
-        with pytest.raises(dataclasses.FrozenInstanceError):
+        with pytest.raises(AttributeError):
             r.status = GateStatus.UNMEASURED  # type: ignore[misc]
 
     def test_is_hashable(self):
@@ -256,7 +258,7 @@ class TestBoardState:
 
     def test_is_frozen(self):
         bs = BoardState()
-        with pytest.raises(dataclasses.FrozenInstanceError):
+        with pytest.raises(AttributeError):
             bs.placement = object()  # type: ignore[misc]
 
     def test_equality(self):
@@ -267,13 +269,20 @@ class TestBoardState:
         assert bs1 is not bs2
 
     def test_has_required_fields(self):
-        fields = {f.name for f in dataclasses.fields(BoardState)}
-        assert "placement" in fields
-        assert "routing" in fields
-        assert "netlist" in fields
-        assert "board" in fields
-        assert "design_rules" in fields
-        assert "routed_pcb_path" in fields
+        # Wave 4 Phase 2: BoardState is a pyo3 pyclass, so
+        # `dataclasses.fields()` is unavailable; the field surface is
+        # asserted by presence + default instead (identical contract).
+        bs = BoardState()
+        for field_name in (
+            "placement",
+            "routing",
+            "netlist",
+            "board",
+            "design_rules",
+            "routed_pcb_path",
+        ):
+            assert hasattr(bs, field_name)
+            assert getattr(bs, field_name) is None
 
 
 # ---------------------------------------------------------------------------

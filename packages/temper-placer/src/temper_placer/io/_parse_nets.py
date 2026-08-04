@@ -6,12 +6,19 @@ import contextlib
 import re
 from typing import TYPE_CHECKING, Any
 
+# DesignRules is CONSTRUCTED at runtime (see _extract_design_rules' return), so
+# it cannot live under TYPE_CHECKING. `from __future__ import annotations` makes
+# the annotations resolve lazily either way, which is why mypy and the Type Check
+# gate stayed green while the runtime path raised
+# `name 'DesignRules' is not defined` -- surfaced as
+# "written board failed parse_kicad_pcb_v6" in the regression suite.
+# Safe as a module-level import: core.design_rules pulls in numpy, the design
+# bundle and core.netclass_rules_gen, none of which import temper_placer.io.
+from temper_placer.core.design_rules import DesignRules
 from temper_placer.core.netlist import Component, Net, Netlist
 
 if TYPE_CHECKING:
     from kiutils.board import Board as KiBoard
-
-    from temper_placer.core.design_rules import DesignRules
 
 
 def _extract_nets_from_pcb(
@@ -180,7 +187,7 @@ def _extract_design_rules(
     Returns:
         DesignRules with net classes and assignments.
     """
-    from temper_placer.router_v6.stage0_data import DesignRules, NetClassRules
+    from temper_placer.router_v6.stage0_data import NetClassRules
 
     net_classes = {}
     net_class_assignments = {}
@@ -307,8 +314,8 @@ def _extract_design_rules(
     return DesignRules(
         net_classes=net_classes,
         net_class_assignments=net_class_assignments,
-        default_clearance_mm=default_clearance,
-        default_trace_width_mm=default_trace_width,
-        default_via_diameter_mm=default_via_diameter,
-        default_via_drill_mm=default_via_drill,
+        default_clearance=default_clearance,
+        default_trace_width=default_trace_width,
+        default_via_diameter=default_via_diameter,
+        default_via_drill=default_via_drill,
     )

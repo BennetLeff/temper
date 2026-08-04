@@ -211,7 +211,13 @@ def profile_router_benchmark(
         with tempfile.NamedTemporaryFile(suffix=".json", delete=False, mode="w") as tmp:
             output_path = Path(tmp.name)
 
-        reports = run_benchmark_suite(router="v6", output_file=output_path)
+        # The benchmark suite prints progress to stdout, and `temper profile
+        # run --json` writes its NDJSON records to the same stream. Mixing them
+        # corrupts the metrics file: scripts/pr_perf_compare.py crashed on
+        # every CI run for exactly this reason, under a continue-on-error mask
+        # that reported the job green. Progress belongs on stderr.
+        with contextlib.redirect_stdout(sys.stderr):
+            reports = run_benchmark_suite(router="v6", output_file=output_path)
         if not reports:
             return []
 

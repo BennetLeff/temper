@@ -223,14 +223,26 @@ def build_scan_targets(repo_root: Path) -> list[ScanTarget]:
     placer = repo_root / "packages" / "temper-placer"
     workflow = repo_root / "packages" / "temper-workflow"
     elec_validation = repo_root / "elec" / "validation"
+    # firmware/tools is a local_roots sibling for scripts/*.py because two
+    # gates share the derivation library there: check_pll_range_consistency.py
+    # and check_firmware_board_contract.py both sys.path-insert
+    # firmware/tools at import time (plan 2026-08-02-027, KTD3 -- one
+    # formula implementation, two checks). Those modules are first-party
+    # repo code, not undeclared third-party dependencies.
+    fw_tools = repo_root / "firmware" / "tools"
     return [
-        ScanTarget("scripts/*.py (top-level)", scripts_dir, "*.py", (scripts_dir,)),
+        ScanTarget(
+            "scripts/*.py (top-level)",
+            scripts_dir,
+            "*.py",
+            (scripts_dir, fw_tools),
+        ),
         ScanTarget("scripts/_lib/*.py", scripts_dir / "_lib", "*.py", (scripts_dir,)),
         ScanTarget(
             "scripts/tests/**/*.py",
             scripts_dir / "tests",
             "**/*.py",
-            (scripts_dir, scripts_dir / "tests"),
+            (scripts_dir, scripts_dir / "tests", fw_tools),
         ),
         ScanTarget(
             "packages/temper-placer/tests/**/*.py",

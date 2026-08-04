@@ -3,11 +3,18 @@ Composite quality score for placement evaluation.
 
 Combines multiple metrics into a single 0-100 score for easy comparison
 of different placements.
+
+The scoring arithmetic runs in the ``temper-quality-oracle`` Rust kernels
+(``placement_score_py`` / ``drc_score_py`` / ``overall_score_py`` /
+``interpret_score_py``, Wave 4 Phase A #5); this module keeps the public
+API, the dataclasses, and the input plumbing.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass
+
+import temper_quality_oracle as _tqo
 
 from temper_placer.metrics.routing_quality import RoutingQualityScore, evaluate_routing_quality
 from temper_placer.router_v6.verifier import VerificationResult
@@ -98,11 +105,20 @@ def compute_quality_score(
     Returns:
         QualityScore with overall score and interpretation.
     """
-    # Compute placement score (0-100)
-    placement_score = _compute_placement_score(placement_metrics)
+    # Compute placement score (0-100) — Rust kernel (temper-quality-oracle)
+    placement_score = _tqo.placement_score_py(
+        placement_metrics.overlap_count,
+        placement_metrics.boundary_violations,
+        placement_metrics.hv_lv_violations,
+        placement_metrics.keepout_violations,
+        placement_metrics.clearance_violations,
+        placement_metrics.zone_violations,
+        placement_metrics.total_wirelength,
+        getattr(placement_metrics, "avg_net_length", 0.0),
+    )
 
-    # Compute DRC score (0-100)
-    drc_score = _compute_drc_score(drc_result)
+    # Compute DRC score (0-100) — Rust kernel (temper-quality-oracle)
+    drc_score = _tqo.drc_score_py(drc_result.error_count, drc_result.warning_count)
 
     # Compute routing score if available (0-100)
     routing_score = None
@@ -111,16 +127,11 @@ def compute_quality_score(
         routing_quality = evaluate_routing_quality(routing_result, drc_result)
         routing_score = routing_quality.score
 
-    # Compute overall weighted score
-    if routing_score is None:
-        # No routing: 50/50 placement/DRC
-        overall = 0.5 * placement_score + 0.5 * drc_score
-    else:
-        # With routing: 40/40/20 placement/DRC/routing
-        overall = 0.4 * placement_score + 0.4 * drc_score + 0.2 * routing_score
+    # Compute overall weighted score — Rust kernel (temper-quality-oracle)
+    overall = _tqo.overall_score_py(placement_score, drc_score, routing_score)
 
-    # Determine interpretation
-    interpretation = interpret_score(overall)
+    # Determine interpretation — Rust kernel (temper-quality-oracle)
+    interpretation = _tqo.interpret_score_py(overall)
     pass_quality = overall >= 60
 
     return QualityScore(
@@ -136,38 +147,25 @@ def compute_quality_score(
 
 def _compute_placement_score(metrics: PlacementMetrics) -> float:
     """
-    Compute placement quality score (0-100).
+    Compute placement quality score (0-100) — Rust kernel.
     """
-    score = 100.0
-
-    # Critical violations (block routing or violate safety)
-    score -= metrics.overlap_count * 20
-    score -= metrics.boundary_violations * 15
-    score -= metrics.hv_lv_violations * 25
-    score -= metrics.keepout_violations * 10
-
-    # Medium violations (sub-optimal but not critical)
-    score -= (metrics.clearance_violations - metrics.hv_lv_violations) * 5
-    score -= metrics.zone_violations * 10
-
-    # Wirelength penalty
-    if metrics.total_wirelength > 0:
-        # Assume avg net length > 50mm is problematic
-        avg_len = getattr(metrics, "avg_net_length", 0.0)
-        if avg_len > 50:
-            score -= min(10, (avg_len - 50) / 10)
-
-    return max(0.0, min(100.0, score))
+    return _tqo.placement_score_py(
+        metrics.overlap_count,
+        metrics.boundary_violations,
+        metrics.hv_lv_violations,
+        metrics.keepout_violations,
+        metrics.clearance_violations,
+        metrics.zone_violations,
+        metrics.total_wirelength,
+        getattr(metrics, "avg_net_length", 0.0),
+    )
 
 
 def _compute_drc_score(drc_result: DrcResult) -> float:
     """
-    Compute DRC quality score (0-100).
+    Compute DRC quality score (0-100) — Rust kernel.
     """
-    score = 100.0
-    score -= drc_result.error_count * 15
-    score -= drc_result.warning_count * 3
-    return max(0.0, min(100.0, score))
+    return _tqo.drc_score_py(drc_result.error_count, drc_result.warning_count)
 
 
 def _compute_routing_score(
@@ -196,12 +194,5 @@ def _compute_routing_score(
 
 
 def interpret_score(score: float) -> str:
-    """Human-readable interpretation."""
-    if score >= 90:
-        return "excellent"
-    elif score >= 80:
-        return "good"
-    elif score >= 60:
-        return "ok"
-    else:
-        return "poor"
+    """Human-readable interpretation — Rust kernel."""
+    return _tqo.interpret_score_py(score)

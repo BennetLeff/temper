@@ -1,4 +1,4 @@
-<!-- provenance: commit=fed05e82b45c7612a2f1e636b007511e7deda8c1 dirty=false -->
+<!-- provenance: commit=b39035f508d208b92ce4061e890662acf3262ceb dirty=false -->
 
 # K2/K3 bus-discharge relay coil<->contact isolation: real replacement candidates, and why "drop-in" doesn't quite hold
 

@@ -1,6 +1,6 @@
 # PR #460's corrected box is sound; the golden-board short was a writer sign bug — root cause, fix, measurement
 
-<!-- provenance: commit=b21110ab626e14b3afda3562d95a4ec4445e7cbd dirty=true -->
+<!-- provenance: commit=4a387393ec9e4626fa2ebbf044ecc029ec9e003d dirty=true -->
 <!-- base: fix/domain-clearance-copper-aware, includes cherry-picked #470/#471 -->
 
 **Date:** 2026-07-30

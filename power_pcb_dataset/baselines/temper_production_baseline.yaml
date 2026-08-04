@@ -90,6 +90,18 @@
 # sanity-check drc_errors/drc_warnings above.
 #
 
+
+# --- drc_errors/drc_warnings RE-BASELINED 2026-08-02 (2nd, #568 edge-nudge) ---
+#
+# WHY IT MOVED AGAIN. a2fdfd1bb (#568) nudged edge-hanging refs inward to
+# clear the #523 scoped-solve edge-margin wall -- a reviewed board change
+# landing after the 2026-08-02 K2-resolve re-baseline. Re-measured the
+# bare run_drc path (--all-track-errors, kicad-cli 10.0.4): errors 1046
+# (single run; CI median-of-5 measured 1043 on the same board), warnings
+# 425 flat. The +7 over the prior 1039 baseline is the ref-nudge
+# consequence. NOTE: this baseline measures the bare path; the ratchet
+# ceiling (drc_ceiling.json) measures the regenerated-DRU path (1355) --
+# separate numbers, do not cross-check them.
 # --- drc_errors/drc_warnings RE-BASELINED 2026-08-02 (K2 RT314012 re-solve) ---
 #
 # WHY IT MOVED. The ladder-merged K2 relay re-solve (#517, 829af5c59 /
@@ -176,10 +188,24 @@
 # unconfirmed cross-version number for a metric that isn't gating is the
 # same "guess between versions" this file's own drc_errors section above
 # was explicit about not doing.
+#
+# 2026-08-03 re-measure (PR #602, K3 RT314012 swap + validator-gated board
+# write): CI golden-check measured drc_warnings 472 vs 425 recorded
+# (kicad-cli 10.0.x, deterministic pipeline, run 30826582009). Every
+# warning-category rise is attributed to the deliberate, reviewed board
+# change (docs/evidence/2026-08-02-k3-swap-and-board-write.md, _march entry
+# in power_pcb_dataset/drc_ceiling.json): silk_over_copper +50 (the
+# 60mm-cap re-solve's movement class, same as the #517 doc recorded),
+# track_dangling +1 (one moved-pad stub), lib_fp_issues +1 (K3 now
+# references the project temper library, same class as K2's swap in #524).
+# drc_errors did not regress (no REGRESSION line for errors) and is left
+# at 1046 per this file's own discipline: only the gating metric that
+# moved is recorded here. drc_ceiling.json carries the full 120-sample
+# protocol measurement.
 drc_available: true
-drc_errors: 1039
-drc_warnings: 428
-extraction_date: '2026-07-17'
+drc_errors: 1046
+drc_warnings: 472
+extraction_date: '2026-08-03'
 extraction_method: deterministic-pipeline
 deterministic_pipeline:
   config: configs/temper_production_config.yaml

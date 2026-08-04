@@ -62,6 +62,11 @@ fp-info-cache
 /*.log
 /*.txt
 !/.loc-allowlist.txt
+# Generated from uv.lock and COPYed by .github/docker/ci.Dockerfile to
+# pre-install third-party Python deps into the image's /_temper-venv. It must be
+# tracked or the image build fails on a missing COPY source; the blanket /*.txt
+# rule above would otherwise silently exclude it from `git add`.
+!/requirements-ci.txt
 
 # IDEs
 .vscode/

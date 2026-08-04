@@ -6,9 +6,9 @@ Usage:
   python3 gen_transition_table.py --check      # Validate table only (no output)
 """
 
+import os
 import re
 import sys
-import os
 from pathlib import Path
 
 # ---------------------------------------------------------------------------
@@ -64,7 +64,12 @@ TRANSITIONS = [
 
     # FAULT transitions (require fault_setup = True)
     ("STATE_FAULT", "FAULT_RESET_CLEARED", "STATE_INIT", None, True),
-    ("STATE_FAULT", "FAULT_RESET_PERSISTS", "STATE_FAULT", None, True),
+    # FAULT_RESET_PERSISTS keeps the latched fault: the two-step runner always
+    # triggers FAULT_OVER_TEMP (trigger_fault_entry(FAULT_OVER_TEMP)), and a
+    # failed reset leaves sm_ctx.fault_code untouched. Declaring the code here
+    # makes the row accurate and lets the mutation suite's guard-drop/swap
+    # mutants die (see firmware/test/mutate_transition_table.py).
+    ("STATE_FAULT", "FAULT_RESET_PERSISTS", "STATE_FAULT", "FAULT_OVER_TEMP", True),
 
     # RUNAWAY_FAULT transitions (require fault_setup = True)
     ("STATE_RUNAWAY_FAULT", "FAULT_RESET_PERSISTS", "STATE_RUNAWAY_FAULT", None, True),
@@ -156,7 +161,7 @@ def parse_state_machine_header(header_path):
     """Extract STATE_* and FAULT_* members from state_machine.h.
     Handles X-macro pattern: STATE_LIST(X) / FAULT_LIST(X)."""
     header_path = Path(header_path)
-    with open(header_path, 'r') as f:
+    with open(header_path) as f:
         content = f.read()
 
     state_members = set()
@@ -180,7 +185,7 @@ def parse_state_machine_header(header_path):
     # Read from generated file first; fall back to state_machine.h inline
     fault_list_path = header_path.parent / "fault_list_generated.h"
     if fault_list_path.exists():
-        with open(fault_list_path, 'r') as ff:
+        with open(fault_list_path) as ff:
             fault_content = ff.read()
         fault_block = re.search(r'#define\s+FAULT_LIST\(X\)\s*\\(.*?)(?=/\*|\Z)', fault_content, re.DOTALL)
     else:
@@ -204,7 +209,7 @@ def validate_table(transitions, states, faults):
     table_states = set()
     table_faults = set()
 
-    for from_s, event, to_s, fault, _ in transitions:
+    for from_s, _event, to_s, fault, _ in transitions:
         if from_s != "*":
             table_states.add(from_s)
         table_states.add(to_s)
@@ -236,12 +241,12 @@ def validate_table(transitions, states, faults):
 # C code generation
 # ---------------------------------------------------------------------------
 
-def _c_event_stubs():
+def _c_event_stubs(transitions=TRANSITIONS):
     """Generate the apply_event_stubs() function body (deduplicated)."""
     lines = []
     lines.append("static void apply_event_stubs(const char *event) {")
     seen = set()
-    for row in TRANSITIONS:
+    for row in transitions:
         event = row[1]
         if event in seen:
             continue
@@ -340,10 +345,10 @@ def _c_fault_setup():
     ]
 
 
-def _c_table_rows():
+def _c_table_rows(transitions=TRANSITIONS):
     """Generate the transition_table[] array entries, expanding wildcards."""
     lines = []
-    for from_s, event, to_s, fault, _ in TRANSITIONS:
+    for from_s, event, to_s, fault, _ in transitions:
         if from_s == "*":
             # Wildcard: expand to one entry per active state
             for active_state in ACTIVE_STATES:
@@ -413,10 +418,12 @@ def _c_test_function():
         "            system_state_t result = drain_message();",
         "",
         "            TEST_ASSERT_EQUAL_INT_MESSAGE(row->expected_to, result, msg);",
-        "            if (row->has_fault) {",
-        "                TEST_ASSERT_EQUAL_INT_MESSAGE(",
-        "                    row->expected_fault, state_machine_get_fault(), msg);",
-        "            }",
+        "            /* Always assert the fault code (FAULT_NONE for benign rows);",
+        "               a has_fault-conditional assert would leave the mutation",
+        "               suite's guard-drop/guard-swap/guard-add mutants live",
+        "               (see mutate_transition_table.py). */",
+        "            TEST_ASSERT_EQUAL_INT_MESSAGE(",
+        "                row->expected_fault, state_machine_get_fault(), msg);",
         "            continue;",
         "        }",
         "",
@@ -453,10 +460,8 @@ def _c_test_function():
         "            state_machine_update();",
         "            system_state_t result2 = state_machine_get_state();",
         "            TEST_ASSERT_EQUAL_INT_MESSAGE(row->expected_to, result2, msg);",
-        "            if (row->has_fault) {",
-        "                TEST_ASSERT_EQUAL_INT_MESSAGE(row->expected_fault,",
-        "                    state_machine_get_fault(), msg);",
-        "            }",
+        "            TEST_ASSERT_EQUAL_INT_MESSAGE(row->expected_fault,",
+        "                state_machine_get_fault(), msg);",
         "            continue;",
         "        }",
         "",
@@ -467,6 +472,11 @@ def _c_test_function():
         "            }",
         "            TEST_ASSERT_EQUAL_INT_MESSAGE(row->expected_to,",
         "                state_machine_get_state(), msg);",
+        "            /* The confidence-loop branch must also assert the fault",
+        "               code; without it the mutation suite's guard_add mutant",
+        "               on PAN_DETECTED stays live (see mutate_transition_table.py). */",
+        "            TEST_ASSERT_EQUAL_INT_MESSAGE(row->expected_fault,",
+        "                state_machine_get_fault(), msg);",
         "            continue;",
         "        }",
         "",
@@ -483,10 +493,8 @@ def _c_test_function():
         "                result3 = drain_message();",
         "            }",
         "            TEST_ASSERT_EQUAL_INT_MESSAGE(row->expected_to, result3, msg);",
-        "            if (row->has_fault) {",
-        "                TEST_ASSERT_EQUAL_INT_MESSAGE(row->expected_fault,",
-        "                    state_machine_get_fault(), msg);",
-        "            }",
+        "            TEST_ASSERT_EQUAL_INT_MESSAGE(row->expected_fault,",
+        "                state_machine_get_fault(), msg);",
         "            continue;",
         "        }",
         "",
@@ -504,10 +512,8 @@ def _c_test_function():
         "",
         "        /* Assertions */",
         "        TEST_ASSERT_EQUAL_INT_MESSAGE(row->expected_to, actual, msg);",
-        "        if (row->has_fault) {",
-        "            TEST_ASSERT_EQUAL_INT_MESSAGE(row->expected_fault,",
-        "                state_machine_get_fault(), msg);",
-        "        }",
+        "        TEST_ASSERT_EQUAL_INT_MESSAGE(row->expected_fault,",
+        "            state_machine_get_fault(), msg);",
         "    }",
         "}",
     ]
@@ -562,8 +568,8 @@ def generate_c_output(transitions, output_path):
         "static const transition_row_t transition_table[] = {",
     ]
 
-    for l in _c_table_rows():
-        lines.append(l)
+    for row_line in _c_table_rows(transitions):
+        lines.append(row_line)
 
     lines.extend([
         "};",
@@ -572,7 +578,7 @@ def generate_c_output(transitions, output_path):
         "",
     ])
 
-    lines.extend(_c_event_stubs())
+    lines.extend(_c_event_stubs(transitions))
     lines.append("")
 
     lines.extend(_c_fault_setup())

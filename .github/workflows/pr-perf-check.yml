@@ -10,7 +10,18 @@ on:
   pull_request:
     types: [opened, synchronize]
     paths:
+      # Wave 4 R2 widens this beyond `packages/**` to the surfaces that now
+      # carry the A/B harness itself. It deliberately does NOT widen to all of
+      # `scripts/**`: no migrated code lives there today, and CI is
+      # capacity-bound (~24 concurrent job ceiling against ~40 requested per
+      # push), so a blanket widen would cost slots for no coverage. Add the
+      # specific path when a migrated surface lands under scripts/.
       - 'packages/**'
+      - 'benchmarks/**'
+      - 'scripts/pr_perf_compare.py'
+      - 'scripts/tests/test_pr_perf_compare.py'
+      - 'power_pcb_dataset/metrics/perf_ab_baseline.jsonl'
+      - '.github/workflows/pr-perf-check.yml'
 
 jobs:
   perf-check:
@@ -24,6 +35,7 @@ jobs:
       pull-requests: write
     env:
       VIRTUAL_ENV: ${{ github.workspace }}/.venv
+      BASELINE_PATH: power_pcb_dataset/metrics/perf_ab_baseline.jsonl
     steps:
       - uses: actions/checkout@v7
         with:
@@ -56,36 +68,63 @@ jobs:
       - name: Install dependencies
         run: uv sync --all-packages
 
-      - name: Profile PR branch
-        id: profile
+      # The performance A/B runs both arms -- the verbatim pre-migration Python
+      # oracle and the Rust kernel that replaced it -- in one process, and
+      # reports their ratio. See benchmarks/perf_ab.py for why the ratio, and
+      # not an absolute wall time, is the gated metric.
+      #
+      # This replaced `temper profile run --module all`, which emitted
+      # `wall_time_ms: 0` for every record (profile_pipeline times a dataclass
+      # constructor, not the pipeline) and polluted its own NDJSON stream with
+      # the router benchmark's progress prints. Evidence: run 30885725905.
+      - name: Run the performance A/B (PR branch)
         run: |
-          uv run temper profile run \
-            --module all --board temper \
+          uv run python benchmarks/perf_ab.py \
             --commit "${{ github.event.pull_request.head.sha }}" \
             --json > pr-metrics.jsonl
           cat pr-metrics.jsonl
 
-      - name: Fetch main-branch JSONL
+      # The baseline is read from main, never from the PR checkout: a PR must
+      # not be able to move the bar it is being measured against. An absent
+      # file yields an empty baseline, which the comparison fails closed on.
+      - name: Fetch the committed baseline from main
         run: |
           git fetch origin main --depth=100
-          git show origin/main:power_pcb_dataset/metrics/pipeline_metrics.jsonl \
-            > main-pipeline_metrics.jsonl 2>/dev/null || echo "" > main-pipeline_metrics.jsonl
+          git show "origin/main:$BASELINE_PATH" > main-perf-baseline.jsonl 2>/dev/null \
+            || : > main-perf-baseline.jsonl
+          wc -l main-perf-baseline.jsonl
 
-      - name: Compare and comment
-        continue-on-error: true  # JSON parse race in PR comments; temper-N6-U8 -- hard-fail after 2026-09-01
+      # 2026-08-04 (Wave 4 Phase 0, R2): `continue-on-error: true` removed. It
+      # cited `temper-N6-U8`, a placeholder ticket id shared across 27 masks and
+      # documented as a stub in
+      # docs/plans/2026-07-25-002-refactor-baseline-burndown-plan.md:37, whose
+      # own requirement is that stubs be replaced with an explicit dated
+      # decision. This is that decision: the performance A/B is a hard merge
+      # gate, and a comparison that cannot be made fails closed.
+      #
+      # The mask's stated reason -- "JSON parse race in PR comments" -- was not
+      # what it was hiding. It was hiding a traceback: the comparison had been
+      # crashing on every run since the profiler began emitting NDJSON, and the
+      # job reported success anyway. Comment posting is the step that can
+      # legitimately race, so that step -- not this one -- carries
+      # `if: always()`, and it reports its own failures.
+      - name: Compare against baseline (hard gate)
         run: |
-          REPORT=$(uv run python scripts/pr_perf_compare.py \
+          uv run python scripts/pr_perf_compare.py \
             --pr-metrics pr-metrics.jsonl \
-            --main-jsonl main-pipeline_metrics.jsonl)
-          echo "PR_PERF_REPORT<<EOF" >> "$GITHUB_ENV"
-          echo "$REPORT" >> "$GITHUB_ENV"
-          echo "EOF" >> "$GITHUB_ENV"
+            --baseline-jsonl main-perf-baseline.jsonl \
+            --report-file perf-report.md
 
       - name: Post PR comment
+        if: always()
         uses: actions/github-script@v9
         with:
           script: |
-            const body = process.env.PR_PERF_REPORT || "Performance comparison failed.";
+            const fs = require("fs");
+            const body = fs.existsSync("perf-report.md")
+              ? fs.readFileSync("perf-report.md", "utf8")
+              : "## Performance Comparison\n\nThe performance A/B did not reach " +
+                "the point of producing a report. See the job log.";
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,

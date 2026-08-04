@@ -45,7 +45,7 @@ as the classification table lagged the rename.
 
 **The same rename orphaned a second, independent lookup, in a different
 file, discovered separately the same day.**
-`docs/evidence/2026-07-28-drc-courtyard-condition-fix.md` §3b found that the
+`docs/evidence/2026-07-28-drc-courtyard-condition-fix.md (evidence doc never merged to main; finding reproduced inline)` §3b found that the
 DRC rule generator's own `netclass_assignments` table still references the
 retired names `DC_BUS+`/`SWITCH_NODE`, and its `netclass_patterns` wildcard
 `DC_BUS*` does not match either `+170V_BUS` or `SW_NODE` — so the two TO-247
@@ -186,7 +186,7 @@ TEMPER_NET_ASSIGNMENTS = {
 
 ```
 # The same rename, orphaning a second, independent key, found the same day:
-# docs/evidence/2026-07-28-drc-courtyard-condition-fix.md §3b
+# docs/evidence/2026-07-28-drc-courtyard-condition-fix.md (evidence doc never merged to main; finding reproduced inline) §3b
 netclass_assignments: {..., "DC_BUS+": "HighVoltage", "SWITCH_NODE": ...}  # retired names
 netclass_patterns:    {"DC_BUS*": "HighVoltage"}   # does not match +170V_BUS or SW_NODE
 board's real nets:    +170V_BUS, SW_NODE             # neither resolves to HighVoltage
@@ -214,7 +214,7 @@ board's real nets:    +170V_BUS, SW_NODE             # neither resolves to HighV
   classification can itself silently fail to bind.
 - `packages/temper-placer/src/temper_placer/core/design_rules.py:421-445` —
   the fixed table, with the full clause chain in the surrounding comment.
-- `docs/evidence/2026-07-28-drc-courtyard-condition-fix.md` §3b — the
+- `docs/evidence/2026-07-28-drc-courtyard-condition-fix.md (evidence doc never merged to main; finding reproduced inline)` §3b — the
   independent, same-day discovery of the second orphaned key in the DRC
   rule generator's own netclass tables.
 - Commit `688c15bb` — the fix, its audit of all 38 `TEMPER_NET_ASSIGNMENTS`

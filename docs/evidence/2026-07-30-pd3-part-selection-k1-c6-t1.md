@@ -411,9 +411,10 @@ that it has been (at this rough-estimate level), the 5.6nF alternative
 looks like it plausibly exceeds this design's own documented touch-current
 budget on its own, without even counting the other omitted leakage paths
 -- and the incumbent 2.2nF value itself has less headroom against that
-budget (~1.2x) than the "3.5x-10x margin" language in
-`IEC60335_CRITICAL_COMPONENTS.md` might suggest at a glance, because that
-margin figure describes one divider's normal-vs-fault range in isolation,
+budget (~1.2x) than the divider-margin figures in
+`IEC60335_CRITICAL_COMPONENTS.md` (tightest 1.4x on the ADC divider at the
+declared +170V half-bus) might suggest at a glance, because that margin
+figure describes one divider's normal-vs-fault range in isolation,
 not the combined total once C6's own leakage is stacked on top.** This
 changes the finding's character: it is not "no 2.2nF part exists, but a
 5.6nF one would work fine" -- it is "no 2.2nF part exists with genuine PCB

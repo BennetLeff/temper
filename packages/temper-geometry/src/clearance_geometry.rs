@@ -68,7 +68,9 @@
 // general. The pre-migration implementation has the same asymmetry; it is
 // preserved here, not "fixed".
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use temper_py_bridge;
 
 use crate::pad_geometry::{bounding_radius, core_half_extents, corner_radius, math_cos_sin, py_hypot};
@@ -454,6 +456,7 @@ fn rotate_local_to_world(x: f64, y: f64, theta_rad: f64) -> (f64, f64) {
     (x * c + y * s, -x * s + y * c)
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn rotate_local_to_world_py(x: f64, y: f64, theta_rad: f64) -> PyResult<(f64, f64)> {
     temper_py_bridge::catch_unwind(|| rotate_local_to_world(x, y, theta_rad))
@@ -463,6 +466,7 @@ pub fn rotate_local_to_world_py(x: f64, y: f64, theta_rad: f64) -> PyResult<(f64
 /// CPython `math.dist` (Dekker vector_norm) between two points — the
 /// origin-to-origin distance used by `lower_bound` and the no-pad-geometry
 /// fallbacks.
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn origin_distance_py(ax: f64, ay: f64, bx: f64, by: f64) -> PyResult<f64> {
     temper_py_bridge::catch_unwind(|| py_hypot(ax - bx, ay - by)).map_err(temper_py_bridge::panic_to_err)
@@ -472,6 +476,7 @@ pub fn origin_distance_py(ax: f64, ay: f64, bx: f64, by: f64) -> PyResult<f64> {
 /// over its pads (CPython `math.hypot` on the centre offset, plus the
 /// Rust bounding radius). Returns 0.0 for an empty pad list (the Python
 /// caller only invokes it for components with pads).
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn component_reach_py(pads: Vec<PadSpec>, ox: f64, oy: f64) -> PyResult<f64> {
     temper_py_bridge::catch_unwind(|| {
@@ -491,6 +496,7 @@ pub fn component_reach_py(pads: Vec<PadSpec>, ox: f64, oy: f64) -> PyResult<f64>
 
 /// `pad_geometry.pad_pair_distance`, exact and bit-identical to the
 /// pre-migration Shapely/GEOS implementation (see module docstring).
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn pad_pair_distance_py(pad_a: PadSpec, pad_b: PadSpec) -> PyResult<f64> {
     temper_py_bridge::catch_unwind(|| pad_pair_distance_spec(&pad_a, &pad_b))
@@ -502,6 +508,7 @@ pub fn pad_pair_distance_py(pad_a: PadSpec, pad_b: PadSpec) -> PyResult<f64> {
 /// ``[id(p) for p in pads_b]`` from Python — equal ids reproduce the
 /// `pa is pb` identity skip exactly, including shared objects between a
 /// domain-filtered sublist and the component's stored full pad list.
+#[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (pads_a, pads_b, ids_a, ids_b))]
 pub fn copper_scan_py(

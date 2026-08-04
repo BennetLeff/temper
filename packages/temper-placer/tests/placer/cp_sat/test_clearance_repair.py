@@ -37,6 +37,7 @@ import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
+from temper_placer.placer.cp_sat.clearance_repair import run_clearance_repair_solve
 from temper_placer.placer.cp_sat.encoder import solve_placement
 from temper_placer.placer.cp_sat.model import CpSatModel
 
@@ -450,53 +451,60 @@ class TestUnclassifiedHvKeepawayConstraints:
 # ---------------------------------------------------------------------------
 
 
+def _synthetic_repair_input(gap_mm: float, bounds_pad: float):
+    """A (HV, SELV, unclassified) triple whose HV/SELV pair violates at
+    *gap_mm*; ``bounds_pad`` widens the solver's box beyond the pads.
+
+    Shared by the synthetic repair-loop tests and the issue #617
+    fixed-copper tests (module-level so both classes use one fixture)."""
+    from temper_placer.requirements.validators.clearance import VoltageDomain
+
+    # A: one 1x1mm DC_BUS pad at (0,0). B: one 1x1mm gnd pad at (gap, 0).
+    half = 0.5
+    comp_a = MockComp(
+        ref="A",
+        bounds=(2 * half + bounds_pad, 2 * half + bounds_pad),
+        initial_position=(10.0, 10.0),
+        pins=[MockPin("1", "dc_bus", (0.0, 0.0))],
+    )
+    comp_b = MockComp(
+        ref="B",
+        bounds=(2 * half + bounds_pad, 2 * half + bounds_pad),
+        initial_position=(10.0 + gap_mm, 10.0),
+        pins=[MockPin("1", "gnd", (0.0, 0.0))],
+    )
+    comp_c = MockComp(
+        ref="C", bounds=(10.0, 10.0), initial_position=(40.0, 40.0), pins=[]
+    )
+    netlist, board = _synthetic_board([comp_a, comp_b, comp_c])
+    placement = _make_placement(
+        components=[
+            {
+                "ref": "A",
+                "position": (10.0, 10.0),
+                "nets": ["dc_bus"],
+                "pads": _pads_for_ref("A", "dc_bus", (0.0, 0.0)),
+                "rotation_deg": 0.0,
+            },
+            {
+                "ref": "B",
+                "position": (10.0 + gap_mm, 10.0),
+                "nets": ["gnd"],
+                "pads": _pads_for_ref("B", "gnd", (0.0, 0.0)),
+                "rotation_deg": 0.0,
+            },
+        ],
+        nets={"dc_bus": VoltageDomain.DC_BUS, "gnd": VoltageDomain.LV_CONTROL},
+    )
+    return netlist, board, placement, {"dc_bus": VoltageDomain.DC_BUS, "gnd": VoltageDomain.LV_CONTROL}
+
+
 class TestRepairLoopSynthetic:
     """End-to-end repair-loop behaviour on small synthetic boards with real
     pad geometry (so the independent checker measures real copper)."""
 
     def _synthetic_repair_input(self, gap_mm: float, bounds_pad: float):
-        """A (HV, SELV, unclassified) triple whose HV/SELV pair violates at
-        *gap_mm*; ``bounds_pad`` widens the solver's box beyond the pads."""
-        from temper_placer.requirements.validators.clearance import VoltageDomain
-
-        # A: one 1x1mm DC_BUS pad at (0,0). B: one 1x1mm gnd pad at (gap, 0).
-        half = 0.5
-        comp_a = MockComp(
-            ref="A",
-            bounds=(2 * half + bounds_pad, 2 * half + bounds_pad),
-            initial_position=(10.0, 10.0),
-            pins=[MockPin("1", "dc_bus", (0.0, 0.0))],
-        )
-        comp_b = MockComp(
-            ref="B",
-            bounds=(2 * half + bounds_pad, 2 * half + bounds_pad),
-            initial_position=(10.0 + gap_mm, 10.0),
-            pins=[MockPin("1", "gnd", (0.0, 0.0))],
-        )
-        comp_c = MockComp(
-            ref="C", bounds=(10.0, 10.0), initial_position=(40.0, 40.0), pins=[]
-        )
-        netlist, board = _synthetic_board([comp_a, comp_b, comp_c])
-        placement = _make_placement(
-            components=[
-                {
-                    "ref": "A",
-                    "position": (10.0, 10.0),
-                    "nets": ["dc_bus"],
-                    "pads": _pads_for_ref("A", "dc_bus", (0.0, 0.0)),
-                    "rotation_deg": 0.0,
-                },
-                {
-                    "ref": "B",
-                    "position": (10.0 + gap_mm, 10.0),
-                    "nets": ["gnd"],
-                    "pads": _pads_for_ref("B", "gnd", (0.0, 0.0)),
-                    "rotation_deg": 0.0,
-                },
-            ],
-            nets={"dc_bus": VoltageDomain.DC_BUS, "gnd": VoltageDomain.LV_CONTROL},
-        )
-        return netlist, board, placement, {"dc_bus": VoltageDomain.DC_BUS, "gnd": VoltageDomain.LV_CONTROL}
+        return _synthetic_repair_input(gap_mm, bounds_pad)
 
     def test_repair_drives_inter_component_violations_to_zero(self) -> None:
         from temper_placer.placer.cp_sat.clearance_repair import run_clearance_repair_solve
@@ -665,14 +673,17 @@ class TestRealBoardClearanceRepair:
         )
         # Intra-footprint pairs are unfixable by placement: they must be
         # reported explicitly, never silently present in the count. On this
-        # board the known intra family is the isolator set flagged by
-        # find_intra_footprint_domain_conflicts.
-        assert report.intra_blocker_refs, (
-            "expected documented intra-footprint blockers (C6/K1/K2/K3/T1/U6 family)"
+        # board the known intra family was the isolator set flagged by
+        # find_intra_footprint_domain_conflicts -- and the wave-2 board
+        # write (K3 -> TE Schrack RT314012, docs/evidence/2026-08-02-k3-swap-
+        # and-board-write.md) cleared the LAST blocker: the written board
+        # measures 0 intra records. The repair must therefore report NO
+        # blockers (fail-closed: any blocker ref fails).
+        assert not report.intra_blocker_refs, (
+            "expected zero intra-footprint blockers on the wave-2 written "
+            f"board (K3 RT314012 swap cleared the last one), got "
+            f"{sorted(report.intra_blocker_refs)}"
         )
-        assert set(report.intra_blocker_refs) <= {
-            "C6", "K1", "K2", "K3", "PS1", "T1", "U3", "U7",
-        }, f"unexpected intra blocker refs: {report.intra_blocker_refs}"
         print(
             f"\nbaseline={report.baseline_violations} inter/final_inter="
             f"{report.final_inter_violations} intra={report.final_intra_violations} "
@@ -691,7 +702,18 @@ class TestRealBoardClearanceRepair:
         a geometric law -- a pad pair facing away can exceed the origin
         distance (measured on this board: C22<->L2, copper 11.489mm vs
         origin 10.341mm). We assert the provable bound and count how many
-        pairs sit in the optimistic (copper < origin) direction."""
+        pairs sit in the optimistic (copper < origin) direction.
+
+        RE-BASELINED 2026-08-02 (see docs/evidence/2026-08-02-checker-
+        lower-bound-rebaseline.md): the original version asserted the sound
+        bound only on *violating* inter pairs and required at least one to
+        exist. The #517 PD2/8.0mm re-solve (merged #521, 2026-08-01) cleared
+        all 23 placement-fixable inter pairs, so the baseline now has 0 inter
+        violations (only the documented K3 intra-footprint floor remains) --
+        the invariant is therefore asserted on EVERY inter pair the checker
+        measures (the 114 survivors of its own sound-origin prune), which is
+        strictly stronger than a violating-pairs-only sample and stays
+        non-vacuous on a clean board."""
         try:
             from tests.requirements.safety._real_board_fixture import (
                 load_real_board_placement,
@@ -699,7 +721,11 @@ class TestRealBoardClearanceRepair:
         except Exception as exc:  # pragma: no cover - environment guard
             pytest.skip(f"real-board fixture unavailable: {exc}")
         from temper_placer.core.pad_geometry import pad_bounding_radius
+        from temper_placer.requirements.validators._copper import _CopperModel
         from temper_placer.requirements.validators.clearance import (
+            IEC60335_REQUIREMENTS,
+            _domain_boundary_pairs,
+            _nets_domain_map,
             verify_iec60335_compliance,
         )
 
@@ -720,27 +746,75 @@ class TestRealBoardClearanceRepair:
                 default=0.0,
             )
 
+        # Documented board state (re-baselined 2026-08-02): #517's PD2/8.0mm
+        # re-solve cleared every placement-fixable inter-component pair; the
+        # only remaining REQ-SAFE-01 records were the K3 intra-footprint pair
+        # (3.558846mm, tracked by #518/#523). The wave-2 board write (K3 ->
+        # TE Schrack RT314012, docs/evidence/2026-08-02-k3-swap-and-board-
+        # write.md) cleared that too: the written board measures REQ-SAFE-01
+        # = 0/0 (0 inter / 0 intra). Asserted fail-closed: any NEW
+        # inter-component violation, or any intra record, fails.
         inter = [v for v in result.violations if v.pair_kind != "intra"]
-        assert inter, "expected inter-component violations in the baseline"
+        assert not inter, (
+            f"expected the documented wave-2 state (0 "
+            f"inter-component violations), found {len(inter)}: "
+            f"{sorted({(v.ref_a, v.ref_b) for v in inter})}"
+        )
+        intra_refs = sorted({v.ref_a for v in result.violations if v.pair_kind == "intra"})
+        assert intra_refs == [], (
+            f"expected zero intra-footprint records on the wave-2 written "
+            f"board (K3 RT314012 swap cleared the last blocker), "
+            f"got {intra_refs}"
+        )
+
+        # The invariant, on every inter pair the checker actually MEASURES
+        # (survivors of its own sound-origin prune across all IEC rows) --
+        # not just the (now empty) violating subset. These are the pairs
+        # whose numbers the prune trusts, so they are the decision-relevant
+        # sample for the safety property.
+        nets_domain = _nets_domain_map(placement, voltage_domains)
+        model = _CopperModel(placement)
+        measured: dict[frozenset[str], tuple[float, str]] = {}
+        for (domain_a, domain_b, _ins), req in IEC60335_REQUIREMENTS.items():
+            for comp_a, comp_b in _domain_boundary_pairs(placement, domain_a, domain_b, nets_domain):
+                ref_a, ref_b = comp_a["ref"], comp_b["ref"]
+                key = frozenset({ref_a, ref_b})
+                if key in measured:
+                    continue
+                if model.lower_bound(ref_a, ref_b) >= max(
+                    req["min_clearance_mm"], req["min_creepage_mm"]
+                ):
+                    continue  # pruned by the checker's own sound bound
+                dist, geometry_model, _closest = model.copper_distance(
+                    ref_a, domain_a, ref_b, domain_b, nets_domain
+                )
+                measured[key] = (dist, geometry_model)
+
+        assert len(measured) >= 50, (
+            f"suspiciously few measured inter pairs ({len(measured)}); "
+            "the checker's measured set should be O(100) on this board"
+        )
         optimistic = 0
-        for v in inter:
-            if not (v.ref_a and v.ref_b and v.ref_a in positions and v.ref_b in positions):
-                continue
-            origin_dist = math.dist(positions[v.ref_a], positions[v.ref_b])
-            assert v.measured_mm is not None
-            # Sound lower bound: copper >= origin - reach_a - reach_b.
-            assert v.measured_mm >= origin_dist - _reach(v.ref_a) - _reach(v.ref_b) - 1e-9, (
-                f"{v.ref_a}<->{v.ref_b}: copper {v.measured_mm}mm below the "
-                f"sound origin-based lower bound "
-                f"{origin_dist - _reach(v.ref_a) - _reach(v.ref_b):.3f}mm"
+        for (ref_a, ref_b), (dist, geometry_model) in measured.items():
+            assert geometry_model == "copper", (
+                f"{ref_a}<->{ref_b} measured with model {geometry_model!r}; "
+                "the origin proxy is the optimistic fallback this suite "
+                "exists to catch"
             )
-            if v.measured_mm < origin_dist:
+            origin_dist = math.dist(positions[ref_a], positions[ref_b])
+            # Sound lower bound: copper >= origin - reach_a - reach_b.
+            assert dist >= origin_dist - _reach(ref_a) - _reach(ref_b) - 1e-9, (
+                f"{ref_a}<->{ref_b}: copper {dist}mm below the "
+                f"sound origin-based lower bound "
+                f"{origin_dist - _reach(ref_a) - _reach(ref_b):.3f}mm"
+            )
+            if dist < origin_dist:
                 optimistic += 1
-        # The old origin-only checker was optimistic on a large majority of
-        # the currently-flagged pairs -- that is the relation that explains
-        # why 123 violations exist under the copper model.
-        assert optimistic >= len(inter) // 2, (
-            f"only {optimistic}/{len(inter)} violating pairs sit in the "
+        # The old origin-only checker is optimistic (copper < origin) on a
+        # large majority of the measured pairs -- the relation that explains
+        # why the copper model flags more than the origin proxy ever did.
+        assert optimistic >= len(measured) // 2, (
+            f"only {optimistic}/{len(measured)} measured pairs sit in the "
             "optimistic (copper < origin) direction"
         )
 
@@ -799,3 +873,197 @@ class TestRepairLoopTermination:
         )
         assert len(report.rounds) <= 3
         assert report.status in ("gap", "max_rounds"), report.status
+
+
+# ---------------------------------------------------------------------------
+# Issue #617 -- fixed_copper hoisted into the repair loop
+# ---------------------------------------------------------------------------
+
+
+class TestRepairLoopFixedCopper:
+    """Issue #617: the hoisted fixed_copper recipe.
+
+    ``run_clearance_repair_solve`` now accepts ``fixed_copper=`` and
+    forwards it into every ``solve_placement`` round, so the production
+    caller can express the full run-B recipe (the piece Run A of the
+    wave-2 write could not express -- see docs/evidence/2026-08-02-k3-
+    swap-and-board-write.md). Three contracts are under test:
+
+    1. Flow (spy): the recipe dict reaches ``solve_placement`` unchanged
+       on every round -- a forward that silently dropped it would pass any
+       behavior-only test in which the constraint did not bite.
+    2. Behavior: a feasible solve with ``fixed_copper`` + ``validator_input``
+       returns the expected buckets (hard=0/intra=0/gaps=0) and records the
+       recipe on the report; the fixed-copper audit ran and passed
+       (``fixed_copper_audit_violations == 0``).
+    3. Round-abort: a fixed-copper audit hard failure (an encoding-unsound
+       solve -- a free ref's pad on different-net fixed copper within the
+       margin) aborts the repair with status ``"gap"``, exactly like the
+       validator audit's handling -- fail-closed, never a repairable
+       report, no further rounds.
+    """
+
+    @staticmethod
+    def _fc_parse_result(traces):
+        """A run-B-shaped parse_result (no zone items) for the synthetic
+        board (local frame, origin (0,0) -- matches the synthetic netlist)."""
+        from types import SimpleNamespace
+
+        return SimpleNamespace(
+            traces=traces,
+            vias=[],
+            board=SimpleNamespace(
+                zones=[],
+                width=152.0,
+                height=234.0,
+                origin=(0.0, 0.0),
+            ),
+        )
+
+    def _fc_recipe(self, traces, free_refs=("A", "B"), margin_mm=0.05):
+        return {
+            "parse_result": self._fc_parse_result(traces),
+            "free_refs": set(free_refs),
+            "margin_mm": margin_mm,
+        }
+
+    def test_fixed_copper_is_forwarded_into_every_solve_round(self, monkeypatch) -> None:
+        """Spy: the recipe dict must reach ``solve_placement`` on every
+        round, byte-identical. The delegated call still runs the real solve
+        (a forward that crashes the loop would fail here too)."""
+        import temper_placer.placer.cp_sat.clearance_repair as cr_mod
+
+        netlist, board, placement, vd = _synthetic_repair_input(gap_mm=5.0, bounds_pad=0.0)
+        recipe = self._fc_recipe(traces=[])
+        seen: list[dict] = []
+
+        real_solve = cr_mod.solve_placement
+
+        def _spy(**kwargs):
+            seen.append(dict(kwargs))
+            return real_solve(**kwargs)
+
+        monkeypatch.setattr(cr_mod, "solve_placement", _spy)
+
+        report = cr_mod.run_clearance_repair_solve(
+            pcb_path=_PCB_PATH,
+            placement=placement,
+            voltage_domains=vd,
+            timeout_ms=20_000,
+            seed=0,
+            max_rounds=3,
+            fixed_copper=recipe,
+            netlist=netlist,
+            board=board,
+        )
+        assert seen, "solve_placement was never called by the loop"
+        for call in seen:
+            assert call["fixed_copper"] is recipe, (
+                "fixed_copper was not forwarded unchanged into a solve round"
+            )
+            assert call["validator_input"] == {
+                "placement": placement,
+                "voltage_domains": vd,
+            }
+        assert report.status in ("clean", "intra_only"), report.reason
+        assert report.fixed_copper_free_refs == ("A", "B")
+
+    def test_fixed_copper_feasible_solve_returns_expected_buckets(self) -> None:
+        """Behavior: a feasible solve with ``fixed_copper`` + the
+        unconditional ``validator_input`` returns the expected buckets and
+        records the recipe. The fixed-copper audit ran and passed
+        (0 violations), which is what makes the solve succeed instead of
+        raising into the ``"gap"`` path."""
+        netlist, board, placement, vd = _synthetic_repair_input(gap_mm=5.0, bounds_pad=0.0)
+        recipe = self._fc_recipe(traces=[])
+        report = run_clearance_repair_solve(
+            pcb_path=_PCB_PATH,
+            placement=placement,
+            voltage_domains=vd,
+            timeout_ms=20_000,
+            seed=0,
+            max_rounds=3,
+            fixed_copper=recipe,
+            netlist=netlist,
+            board=board,
+        )
+        assert report.status in ("clean", "intra_only"), report.reason
+        # Validator buckets: the repair cleared the inter pair (hard=0), the
+        # 1x1mm pads are box-contained so no intra straddler (intra=0), and
+        # the constrained A/B pair leaves no coverage gap (gaps=0).
+        assert report.validator_hard_failures == 0, report.reason
+        assert report.validator_intra_footprint == 0, report.reason
+        assert report.validator_coverage_gaps == 0, report.reason
+        assert report.validator_geometry_trusted is True
+        # The recipe is recorded on the report (evidence fields) and the
+        # audit passed -- 0 violations, so nothing aborted the repair.
+        assert report.fixed_copper_free_refs == ("A", "B")
+        assert report.fixed_copper_margin_mm == 0.05
+        assert report.fixed_copper_audit_violations == 0
+
+    def test_fixed_copper_audit_hard_failure_aborts_round_as_gap(self, monkeypatch) -> None:
+        """Round-abort: a fixed-copper audit hard failure (a free ref's pad
+        on different-net fixed copper within the margin on a feasible solve
+        -- encoding unsound) raises inside solve_placement; the loop must
+        catch it and terminate with status ``"gap"`` naming the ref, with
+        NO further rounds -- the same fail-closed terminal state as the
+        validator audit (issue #617 makes the two audits' handling
+        consistent by construction)."""
+        netlist, board, placement, vd = _synthetic_repair_input(gap_mm=5.0, bounds_pad=0.0)
+        recipe = self._fc_recipe(traces=[])
+
+        import temper_placer.placer.cp_sat.fixed_copper as fc_mod
+
+        def _audit_raises(*_args, **_kwargs):
+            raise RuntimeError(
+                "fixed-copper post-solve audit FAILED for a feasible solve: "
+                "3 violation(s); first: A pad 1 vs segment (NET_FIXED): "
+                "actual clearance 0.0000mm < required 0.0500mm. The "
+                "fixed-copper encoding is unsound for this solve (see "
+                "fixed_copper.py soundness proof)."
+            )
+
+        monkeypatch.setattr(fc_mod, "audit_fixed_copper", _audit_raises)
+
+        report = run_clearance_repair_solve(
+            pcb_path=_PCB_PATH,
+            placement=placement,
+            voltage_domains=vd,
+            timeout_ms=20_000,
+            seed=0,
+            max_rounds=3,
+            fixed_copper=recipe,
+            netlist=netlist,
+            board=board,
+        )
+        assert report.status == "gap", report.reason
+        assert "fixed-copper post-solve audit HARD failure" in report.reason, report.reason
+        assert report.fixed_copper_audit_violations == 3
+        # No round completed (the raise happened inside solve_placement) and
+        # no further rounds were attempted -- a round-1 abort stops the loop.
+        assert report.rounds == [], report.rounds
+        # The offender is named on the report through the gap's pair channel
+        # (a single-ref pair "(A, '')" -- a pad-vs-copper violation has no
+        # second component ref).
+        assert ("A", "") in report.unreinforced_pairs, report.unreinforced_pairs
+
+    def test_absent_fixed_copper_param_is_unchanged(self) -> None:
+        """Absent-param contract: without ``fixed_copper`` the loop behaves
+        exactly as before the hoist -- the report's fixed-copper evidence
+        fields are empty/None and the solve succeeds. (The whole existing
+        suite runs this path; this pins the report-surface contract.)"""
+        netlist, board, placement, vd = _synthetic_repair_input(gap_mm=5.0, bounds_pad=0.0)
+        report = run_clearance_repair_solve(
+            pcb_path=_PCB_PATH,
+            placement=placement,
+            voltage_domains=vd,
+            timeout_ms=20_000,
+            seed=0,
+            max_rounds=3,
+            netlist=netlist,
+            board=board,
+        )
+        assert report.status in ("clean", "intra_only"), report.reason
+        assert report.fixed_copper_free_refs == ()
+        assert report.fixed_copper_margin_mm is None
+        assert report.fixed_copper_audit_violations == 0

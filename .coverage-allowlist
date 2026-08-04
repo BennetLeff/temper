@@ -710,9 +710,6 @@ temper_placer/metrics/quality.py::loop_area_score  # TODO: temper-xxx
 temper_placer/metrics/quality.py::thermal_score  # TODO: temper-xxx
 temper_placer/metrics/quality.py::total_wirelength  # TODO: temper-xxx
 temper_placer/metrics/quality.py::zone_compliance_score  # TODO: temper-xxx
-temper_placer/metrics/quality_score.py::QualityScore.to_dict  # TODO: temper-xxx
-temper_placer/metrics/quality_score.py::compute_quality_score  # TODO: temper-xxx
-temper_placer/metrics/quality_score.py::interpret_score  # TODO: temper-xxx
 temper_placer/metrics/routing_quality.py::RoutingQualityScore.to_dict  # TODO: temper-xxx
 temper_placer/metrics/routing_quality.py::evaluate_routing_quality  # TODO: temper-xxx
 temper_placer/pcl/constraints.py::AdjacentConstraint.involves_component  # TODO: temper-xxx

@@ -2,6 +2,7 @@
 Tests for preflight validation checks.
 """
 
+from pathlib import Path
 from unittest.mock import patch
 
 import pytest
@@ -554,3 +555,150 @@ class TestPreflightResult:
         assert result.error_count == 2
         assert result.warning_count == 1
         assert result.info_count == 3
+
+
+# =============================================================================
+# Test Netlist <-> Board Reconciliation Check (plan 2026-08-02-021, R16)
+# =============================================================================
+
+
+def _write_synthetic_pair(tmp_path) -> tuple[Path, Path]:
+    """Write a small board + design netlist that reconcile cleanly. The board
+    has C1@a.cap1 and C2@b.cap2, pads 1->gnd / 2->vcc; the design netlist
+    declares the same two components and nets."""
+    from kiutils.board import Board
+    from kiutils.footprint import Footprint, Pad
+    from kiutils.items.common import Net as KiNet
+    from kiutils.items.common import Position
+
+    board_path = tmp_path / "board.kicad_pcb"
+    board = Board(version="20230121", generator="pytest", nets=[])
+    fps = []
+    for ref, sheetpath in [("C1", "a.cap1"), ("C2", "b.cap2")]:
+        fp = Footprint(entryName="temper:Test", tstamp=f"fp-{ref}", position=Position(0, 0))
+        fp.properties = {"Reference": ref, "Value": "?", "Sheetpath": sheetpath}
+        fp.pads = [
+            Pad(number="1", type="smd", tstamp=f"fp-{ref}-p1", net=KiNet(number=1, name="gnd")),
+            Pad(number="2", type="smd", tstamp=f"fp-{ref}-p2", net=KiNet(number=2, name="vcc")),
+        ]
+        fps.append(fp)
+    board.footprints = fps
+    board.to_file(str(board_path))
+
+    netlist_path = tmp_path / "default.net"
+    netlist_path.write_text(
+        '(export (version "E")\n'
+        "  (components\n"
+        '    (comp (ref "C1") (value "?") (footprint "?")\n'
+        '      (sheetpath (names "/x/main.ato:Top::a.cap1") (tstamps "0")))\n'
+        '    (comp (ref "C2") (value "?") (footprint "?")\n'
+        '      (sheetpath (names "/x/main.ato:Top::b.cap2") (tstamps "0")))\n'
+        "  )\n"
+        "  (nets\n"
+        '    (net (code "1") (name "gnd")\n'
+        '      (node (ref "C1") (pin "1")) (node (ref "C2") (pin "1")))\n'
+        '    (net (code "2") (name "vcc")\n'
+        '      (node (ref "C1") (pin "2")) (node (ref "C2") (pin "2")))\n'
+        "  )\n)\n"
+    )
+    return board_path, netlist_path
+
+
+class TestNetlistBoardReconciliationCheck:
+    def test_clean_pair_reports_zero_findings(self, tmp_path) -> None:
+        """run_all_preflight_checks over the board and a matching design
+        netlist reports zero reconciliation findings (the entry surface stays
+        clean on a reconciling pair)."""
+        board_path, netlist_path = _write_synthetic_pair(tmp_path)
+        result = run_all_preflight_checks(
+            netlist=None,
+            constraints=None,
+            check_tools=False,
+            board_path=board_path,
+            design_netlist_path=netlist_path,
+        )
+        assert result.passed is True
+        assert not any(i.code.startswith("RECON_") and i.code != "RECON_000" for i in result.issues)
+        assert any(i.code == "RECON_000" for i in result.issues)
+
+    def test_renumbered_netlist_fails_the_preflight_surface(self, tmp_path) -> None:
+        """A wholesale renumber (same refdes set, refs swapped by path) must
+        fail the preflight surface with a RENUMBERED finding."""
+        board_path, _ = _write_synthetic_pair(tmp_path)
+        mutated = tmp_path / "renumbered.net"
+        mutated.write_text(
+            '(export (version "E")\n'
+            "  (components\n"
+            '    (comp (ref "C2") (value "?") (footprint "?")\n'
+            '      (sheetpath (names "/x/main.ato:Top::a.cap1") (tstamps "0")))\n'
+            '    (comp (ref "C1") (value "?") (footprint "?")\n'
+            '      (sheetpath (names "/x/main.ato:Top::b.cap2") (tstamps "0")))\n'
+            "  )\n"
+            "  (nets\n"
+            '    (net (code "1") (name "gnd")\n'
+            '      (node (ref "C2") (pin "1")) (node (ref "C1") (pin "1")))\n'
+            '    (net (code "2") (name "vcc")\n'
+            '      (node (ref "C2") (pin "2")) (node (ref "C1") (pin "2")))\n'
+            "  )\n)\n"
+        )
+        result = run_all_preflight_checks(
+            netlist=None,
+            constraints=None,
+            check_tools=False,
+            board_path=board_path,
+            design_netlist_path=mutated,
+        )
+        assert result.passed is False
+        assert any(i.code == "RECON_RENUMBERED" for i in result.issues)
+
+    def test_missing_design_component_fails_the_preflight_surface(self, tmp_path) -> None:
+        """A design component absent from the board (the tank-capacitor
+        class) fails the preflight surface with a MISSING finding."""
+        board_path, _ = _write_synthetic_pair(tmp_path)
+        mutated = tmp_path / "missing.net"
+        mutated.write_text(
+            '(export (version "E")\n'
+            "  (components\n"
+            '    (comp (ref "C1") (value "?") (footprint "?")\n'
+            '      (sheetpath (names "/x/main.ato:Top::a.cap1") (tstamps "0")))\n'
+            '    (comp (ref "C3") (value "?") (footprint "?")\n'
+            '      (sheetpath (names "/x/main.ato:Top::tank.c_tank3") (tstamps "0")))\n'
+            "  )\n"
+            "  (nets\n"
+            '    (net (code "1") (name "gnd")\n'
+            '      (node (ref "C1") (pin "1")) (node (ref "C3") (pin "1")))\n'
+            "  )\n)\n"
+        )
+        result = run_all_preflight_checks(
+            netlist=None,
+            constraints=None,
+            check_tools=False,
+            board_path=board_path,
+            design_netlist_path=mutated,
+        )
+        assert result.passed is False
+        assert any(i.code == "RECON_MISSING" for i in result.issues)
+
+    def test_missing_files_are_a_gate_error_not_a_pass(self, tmp_path) -> None:
+        result = run_all_preflight_checks(
+            netlist=None,
+            constraints=None,
+            check_tools=False,
+            board_path=tmp_path / "missing.kicad_pcb",
+            design_netlist_path=tmp_path / "missing.net",
+        )
+        assert result.passed is False
+        assert any(i.code == "RECON_GATE_ERROR" for i in result.issues)
+
+    def test_reconciliation_requires_both_paths(self, tmp_path) -> None:
+        """Providing only one of board_path/design_netlist_path must NOT run
+        the reconciliation -- no RECON_ findings either way."""
+        board_path, _ = _write_synthetic_pair(tmp_path)
+        result = run_all_preflight_checks(
+            netlist=None,
+            constraints=None,
+            check_tools=False,
+            board_path=board_path,
+        )
+        assert result.passed is True
+        assert not any(i.code.startswith("RECON_") for i in result.issues)

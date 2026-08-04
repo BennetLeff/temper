@@ -20,6 +20,9 @@ tags:
   - gate-re-verification
 ---
 
+> **Status update (2026-08-03 refresh):** the `scripts/_lib/net_classification.py` / `scripts/gen_net_classification.py` machinery described here (including `UNWIRED_DOMAIN` and the `unwired` state) exists only on the unmerged `feat/ato-net-classification-ssot` branch — it never landed on main. The pattern stands; the live domain SSOT on main is `elec/domain_manifest.yaml` + `scripts/check_domain_partition.py`.
+
+
 # Encode machine-verifiable facts as facts, not as judgments
 
 ## Context

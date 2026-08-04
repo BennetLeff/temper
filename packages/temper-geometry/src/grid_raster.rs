@@ -27,19 +27,34 @@
 // mutated in place through numpy's buffer protocol (PyBuffer<i32>),
 // exactly like the JIT originals.
 
+#[cfg(feature = "python")]
 use pyo3::buffer::PyBuffer;
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
 use std::cell::Cell;
+#[cfg(not(target_arch = "wasm32"))]
 use std::sync::OnceLock;
+#[cfg(feature = "python")]
 use temper_py_bridge;
 
 // ---------------------------------------------------------------------------
 // dlsym math: match the host Python runtime's libm bit-for-bit
+//
+// `dlsym` is a libc/dynamic-loader facility that does not exist on
+// wasm32-unknown-unknown (no OS, no dynamic linker). The whole
+// dlsym-resolution path below is compiled only off wasm32; on wasm32
+// `math_pow`/`math_cos`/`math_sin` go straight to the `fallback_*`
+// implementations. This means wasm32 builds may diverge from the host
+// Python's libm in the last ULP — expected and acceptable; wasm32 has no
+// host CPython process to match bit-for-bit against in the first place.
 // ---------------------------------------------------------------------------
 
+#[cfg(not(target_arch = "wasm32"))]
 type UnaryMathFn = unsafe extern "C" fn(f64) -> f64;
+#[cfg(not(target_arch = "wasm32"))]
 type BinaryMathFn = unsafe extern "C" fn(f64, f64) -> f64;
 
+#[cfg(not(target_arch = "wasm32"))]
 fn dlsym_unary(symbol: &str) -> Option<UnaryMathFn> {
     unsafe extern "C" {
         fn dlsym(handle: *const u8, symbol: *const u8) -> *mut u8;
@@ -55,6 +70,7 @@ fn dlsym_unary(symbol: &str) -> Option<UnaryMathFn> {
     }
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 fn dlsym_binary(symbol: &str) -> Option<BinaryMathFn> {
     unsafe extern "C" {
         fn dlsym(handle: *const u8, symbol: *const u8) -> *mut u8;
@@ -70,6 +86,7 @@ fn dlsym_binary(symbol: &str) -> Option<BinaryMathFn> {
     }
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 fn host_pow() -> &'static BinaryMathFn {
     static F: OnceLock<Option<BinaryMathFn>> = OnceLock::new();
     F.get_or_init(|| dlsym_binary("pow").or(Some(fallback_pow)))
@@ -77,6 +94,7 @@ fn host_pow() -> &'static BinaryMathFn {
         .unwrap_or_else(|| unreachable!("fallback always set"))
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 fn host_cos() -> &'static UnaryMathFn {
     static F: OnceLock<Option<UnaryMathFn>> = OnceLock::new();
     F.get_or_init(|| dlsym_unary("cos").or(Some(fallback_cos)))
@@ -84,6 +102,7 @@ fn host_cos() -> &'static UnaryMathFn {
         .unwrap_or_else(|| unreachable!("fallback always set"))
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 fn host_sin() -> &'static UnaryMathFn {
     static F: OnceLock<Option<UnaryMathFn>> = OnceLock::new();
     F.get_or_init(|| dlsym_unary("sin").or(Some(fallback_sin)))
@@ -104,18 +123,39 @@ unsafe extern "C" fn fallback_sin(x: f64) -> f64 {
 }
 
 /// CPython `float ** float` (libm `pow`), bit-exact with the reference.
+#[cfg(not(target_arch = "wasm32"))]
 fn math_pow(x: f64, y: f64) -> f64 {
     unsafe { host_pow()(x, y) }
 }
 
+/// `x.powf(y)` (wasm32 has no host CPython libm to dlsym against).
+#[cfg(target_arch = "wasm32")]
+fn math_pow(x: f64, y: f64) -> f64 {
+    unsafe { fallback_pow(x, y) }
+}
+
 /// CPython `math.cos`, bit-exact with the reference.
+#[cfg(not(target_arch = "wasm32"))]
 fn math_cos(x: f64) -> f64 {
     unsafe { host_cos()(x) }
 }
 
+/// `f64::cos` (wasm32 has no host CPython libm to dlsym against).
+#[cfg(target_arch = "wasm32")]
+fn math_cos(x: f64) -> f64 {
+    unsafe { fallback_cos(x) }
+}
+
 /// CPython `math.sin`, bit-exact with the reference.
+#[cfg(not(target_arch = "wasm32"))]
 fn math_sin(x: f64) -> f64 {
     unsafe { host_sin()(x) }
+}
+
+/// `f64::sin` (wasm32 has no host CPython libm to dlsym against).
+#[cfg(target_arch = "wasm32")]
+fn math_sin(x: f64) -> f64 {
+    unsafe { fallback_sin(x) }
 }
 
 // ---------------------------------------------------------------------------
@@ -397,6 +437,7 @@ fn closest_component_for_zone(
 // ---------------------------------------------------------------------------
 
 /// Return the grid's column count, or a Python error for non-2D buffers.
+#[cfg(feature = "python")]
 fn grid_cols(grid: &PyBuffer<i32>) -> PyResult<usize> {
     let shape = grid.shape();
     if shape.len() != 2 {
@@ -408,6 +449,7 @@ fn grid_cols(grid: &PyBuffer<i32>) -> PyResult<usize> {
     Ok(shape[1])
 }
 
+#[cfg(feature = "python")]
 fn grid_cells<'a>(grid: &'a PyBuffer<i32>, py: Python<'a>) -> PyResult<&'a [Cell<i32>]> {
     grid.as_mut_slice(py).ok_or_else(|| {
         pyo3::exceptions::PyValueError::new_err(
@@ -416,6 +458,7 @@ fn grid_cells<'a>(grid: &'a PyBuffer<i32>, py: Python<'a>) -> PyResult<&'a [Cell
     })
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (grid, cx, cy, total_radius, net_id, cell_size_mm, min_row, max_row, min_col, max_col))]
 #[expect(clippy::too_many_arguments, reason = "PyO3 boundary mirrors the Python block_circle_into_grid signature 1:1; a config struct would change the FFI")]
@@ -443,6 +486,7 @@ pub fn block_circle_into_grid_py(
     .map_err(temper_py_bridge::panic_to_err)?
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (grid, x1, y1, x2, y2, total_radius, net_id, cell_size_mm, min_row, max_row, min_col, max_col))]
 #[expect(clippy::too_many_arguments, reason = "PyO3 boundary mirrors the Python block_segment_into_grid signature 1:1; a config struct would change the FFI")]
@@ -473,6 +517,7 @@ pub fn block_segment_into_grid_py(
     .map_err(temper_py_bridge::panic_to_err)?
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (grid, net_id, min_row, max_row, min_col, max_col))]
 pub fn block_rect_into_grid_py(
@@ -493,6 +538,7 @@ pub fn block_rect_into_grid_py(
     .map_err(temper_py_bridge::panic_to_err)?
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (grid, cx, cy, radius_mm, cell_size_mm, min_row, max_row, min_col, max_col))]
 #[expect(clippy::too_many_arguments, reason = "PyO3 boundary mirrors the Python clear_circle_from_grid signature 1:1; a config struct would change the FFI")]
@@ -519,6 +565,7 @@ pub fn clear_circle_from_grid_py(
     .map_err(temper_py_bridge::panic_to_err)?
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (trace, pad, rows, cols, stride))]
 pub fn occupancy_bitmap_row_py(
@@ -537,6 +584,7 @@ pub fn occupancy_bitmap_row_py(
     .map_err(temper_py_bridge::panic_to_err)?
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (shape, pos_x, pos_y, pad_radius, pad_size_x, pad_size_y, eff_creep, inset, sample_count_circle))]
 #[expect(clippy::too_many_arguments, reason = "PyO3 boundary mirrors the Python fence_samples signature 1:1; a config struct would change the FFI")]
@@ -567,6 +615,7 @@ pub fn fence_samples_py(
     .map_err(temper_py_bridge::panic_to_err)?
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (is_outer, base_creepage_mm))]
 pub fn effective_creepage_py(is_outer: bool, base_creepage_mm: f64) -> PyResult<f64> {
@@ -574,6 +623,7 @@ pub fn effective_creepage_py(is_outer: bool, base_creepage_mm: f64) -> PyResult<
         .map_err(temper_py_bridge::panic_to_err)
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (positions, zx, zy, half_w, half_h))]
 pub fn closest_component_for_zone_py(

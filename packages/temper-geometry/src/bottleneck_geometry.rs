@@ -30,9 +30,13 @@
 // first stride the deadline never fires — matching the reference, which
 // only checks at stride boundaries; the caller owns the post-build check.
 
+#[cfg(feature = "python")]
 use pyo3::exceptions::PyIndexError;
+#[cfg(feature = "python")]
 use pyo3::exceptions::PyTimeoutError;
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use temper_py_bridge;
 
 /// Starting capacity per cell (4 cardinal trace directions), mirroring
@@ -355,6 +359,7 @@ fn build_capacitated_graph(
 /// row-major; `pad_class_rank` carries each cell's resolved safety rank
 /// (or `NO_CLASS_RANK`); `current_category` is -1 for "no mapping".
 /// Raises IndexError for an out-of-range layer, mirroring the reference.
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn cell_capacity_batch_py(
     cells: Vec<i64>,
@@ -398,6 +403,7 @@ pub fn cell_capacity_batch_py(
 /// Batch hard-blocked check — one FFI crossing for many cells.
 /// Bit-identical to calling the reference `is_hard_blocked` per cell.
 /// `cells` is a flat int array of (layer, row, col) triples.
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn hard_blocked_batch_py(
     cells: Vec<i64>,
@@ -441,6 +447,7 @@ pub fn hard_blocked_batch_py(
 /// the call starts (the wrapper computes it from the Python-side
 /// `time.monotonic()` deadline); `None` disables the deadline. Raises
 /// TimeoutError (stride-checked, every 256 iterations) when exceeded.
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn build_capacitated_graph_py(
     trace_flat: Vec<i32>,
