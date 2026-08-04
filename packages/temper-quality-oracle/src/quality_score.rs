@@ -39,7 +39,9 @@
 //! renders no floats or dataclass reprs (the interpretation is a fixed
 //! vocabulary of plain strings).
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use temper_py_bridge;
 
 /// Compute the composite placement subscore (0-100).
@@ -153,6 +155,7 @@ pub fn interpret_score(score: f64) -> String {
 }
 
 /// pyo3 bridge for [`placement_score`].
+#[cfg(feature = "python")]
 #[pyfunction]
 #[allow(clippy::too_many_arguments)]
 #[pyo3(signature = (overlap_count, boundary_violations, hv_lv_violations, keepout_violations, clearance_violations, zone_violations, total_wirelength, avg_net_length))]
@@ -182,6 +185,7 @@ pub fn placement_score_py(
 }
 
 /// pyo3 bridge for [`drc_score`].
+#[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (error_count, warning_count))]
 pub fn drc_score_py(error_count: i64, warning_count: i64) -> PyResult<f64> {
@@ -190,6 +194,7 @@ pub fn drc_score_py(error_count: i64, warning_count: i64) -> PyResult<f64> {
 }
 
 /// pyo3 bridge for [`overall_score`].
+#[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (placement_score, drc_score, routing_score=None))]
 pub fn overall_score_py(
@@ -202,6 +207,7 @@ pub fn overall_score_py(
 }
 
 /// pyo3 bridge for [`interpret_score`].
+#[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (score))]
 pub fn interpret_score_py(score: f64) -> PyResult<String> {
