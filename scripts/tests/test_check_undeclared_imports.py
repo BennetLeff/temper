@@ -479,16 +479,20 @@ class TestRealRepoIntegration:
         assert state == "clean"
         assert report.files_inspected > 100
         assert report.import_statements_seen > 1000
-        # Only one precisely-scoped jax entry remains
-        # (jax::scripts/internal_route.py). The former second entry,
-        # jax::scripts/check_perf_regression.py, was deliberately removed
-        # in 64923d7d ("commit the 4/5 of the JAX retirement that never
-        # got staged") because that script was deleted by the JAX/
-        # benders_loop retirement -- an allowlist entry scoped to a file
-        # that no longer exists exempts nothing while reading as an open
-        # gap, so it was dropped rather than kept. This assertion was left
-        # asserting the pre-retirement count of 2 instead of being updated
-        # alongside that commit. If this drops to 0, either
-        # internal_route.py was fixed/retired too (update the allowlist)
-        # or the scan stopped reaching it (investigate).
-        assert report.allowlisted_count == 1
+        # Zero entries: the allowlist is now empty, and that is the correct
+        # state rather than a broken scan. Both entries it ever held were
+        # jax, and both were removed when their file was deleted, on the
+        # same precedent -- an allowlist entry scoped to a file that no
+        # longer exists exempts nothing while reading as an open gap.
+        # jax::scripts/check_perf_regression.py went in 64923d7d (JAX/
+        # benders_loop retirement); jax::scripts/internal_route.py went on
+        # 2026-08-04 when that script was RETIREd as import-dead.
+        #
+        # The previous revision of this comment predicted this exact drop
+        # and asked for it to be distinguished from a scan that stopped
+        # reaching the file. It is the former: files_inspected and
+        # import_statements_seen above are asserted non-trivial, so the
+        # scan is still doing real work -- it simply has nothing to exempt.
+        # If this ever rises above 0, a new undeclared import was granted an
+        # exemption; that needs a justification, not a passing test.
+        assert report.allowlisted_count == 0

@@ -492,6 +492,7 @@ dependencies = [
  "serde_yaml",
  "sha2",
  "temper-pcl-ir",
+ "temper-py-bridge",
  "thiserror",
 ]
 
@@ -500,6 +501,23 @@ name = "temper-pcl-ir"
 version = "0.1.0"
 dependencies = [
  "serde",
+]
+
+[[package]]
+name = "temper-py-bridge"
+version = "0.1.0"
+dependencies = [
+ "pyo3",
+ "temper-py-bridge-derive",
+]
+
+[[package]]
+name = "temper-py-bridge-derive"
+version = "0.1.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]
