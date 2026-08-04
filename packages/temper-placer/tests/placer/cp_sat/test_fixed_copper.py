@@ -39,6 +39,8 @@ from temper_placer.placer.cp_sat.fixed_copper import (
     COPPER_LAYERS,
     FixedCopperItem,
     PadRectLocal,
+    _convex_polygon_edges,
+    _mm_to_units,
     _rectilinear_convex_edges,
     audit_fixed_copper,
     build_fixed_copper_items,
@@ -123,7 +125,7 @@ def _zone_item(polygon, net="NET_B", layers=None):
     xs = [p[0] for p in polygon]
     ys = [p[1] for p in polygon]
     exp = _MARGIN + _HEADROOM
-    edges = _rectilinear_convex_edges(polygon, _MARGIN)
+    edges = _convex_polygon_edges(polygon, _MARGIN)
     return FixedCopperItem(
         kind="zone",
         net=net,
@@ -504,10 +506,239 @@ class TestZonePolygonExactBMC:
         )
 
     def test_edges_helper_classifies_convex_vs_not(self) -> None:
+        # The legacy rectilinear-only helper still classifies as before.
         assert _rectilinear_convex_edges([(0.0, 0.0), (4.0, 0.0), (4.0, 4.0), (0.0, 4.0)], 0.05) is not None
         assert _rectilinear_convex_edges([(0.0, 0.0), (4.0, 0.0), (4.0, 2.0), (2.0, 2.0), (2.0, 4.0), (0.0, 4.0)], 0.05) is None
-        # diagonal edge -> bbox fallback
-        assert _rectilinear_convex_edges([(0.0, 0.0), (4.0, 1.0), (4.0, 4.0), (0.0, 4.0)], 0.05) is None
+        # diagonal edge -> legacy helper bbox fallback, but the general
+        # helper (issue #651) now emits half-planes for it.
+        diag = [(0.0, 0.0), (4.0, 1.0), (4.0, 4.0), (0.0, 4.0)]
+        assert _rectilinear_convex_edges(diag, 0.05) is None
+        edges = _convex_polygon_edges(diag, 0.05)
+        assert edges is not None and any(e[0] == "n" for e in edges)
+        # non-convex (L-shape) -> still bbox fallback in BOTH helpers
+        lshape = [(0.0, 0.0), (4.0, 0.0), (4.0, 2.0), (2.0, 2.0), (2.0, 4.0), (0.0, 4.0)]
+        assert _rectilinear_convex_edges(lshape, 0.05) is None
+        assert _convex_polygon_edges(lshape, 0.05) is None
+        # degenerate polygons -> None
+        assert _convex_polygon_edges([], 0.05) is None
+        assert _convex_polygon_edges([(0.0, 0.0), (1.0, 1.0)], 0.05) is None
+
+
+class TestZoneGeneralConvexBMC:
+    """R24 item-2 for the issue-#651 general-convex zone encoding: diagonal-
+    edge convex polygons.
+
+    The #567 rectilinear case is EXACT (encoded == oracle, tested above).
+    The general-convex case is sound-but-conservative (chamfer-corner wedges
+    at vertices + the large-pad-vs-small-polygon case; both safe
+    directions, documented in fixed_copper.py's module docstring), so this
+    sweep asserts the R24-critical direction -- encoded-clear implies
+    exact-clear, zero counterexamples -- and bounds the observed
+    conservatism for the shapes used. Includes the DC_BUS_RTN-class
+    regression: a board-spanning pour whose AABB contains the whole board
+    (encoded-clear 0) but whose half-plane encoding unlocks a real clear
+    region (issue #651, the run-C blocker).
+    """
+
+    # Convex polygons WITH diagonal edges (CCW and CW), including the
+    # DC_BUS_RTN-class board-spanning pentagon and a sharp 28.7-degree
+    # triangle (the production board's sharpest zone vertex, +3V3 Zone_9).
+    _CONVEX_DIAGONAL = [
+        # right triangle with a 45-degree hypotenuse, CCW
+        [(0.0, 0.0), (4.0, 0.0), (0.0, 4.0)],
+        # quad with a diagonal edge, CW (mixed winding coverage)
+        [(0.0, 0.0), (5.0, 0.0), (3.0, 4.0), (0.0, 4.0)],
+        # hexagon with two diagonal edges
+        [(0.0, 0.0), (3.0, 0.0), (4.0, 2.0), (3.0, 4.0), (0.0, 4.0), (-1.0, 2.0)],
+        # sharp acute triangle (28.7 deg vertex, +3V3 Zone_9 class)
+        [(0.0, 0.0), (6.0, 0.0), (0.8, 0.44)],
+    ]
+    # DC_BUS_RTN-class board-spanning pentagon: every edge diagonal, AABB
+    # contains the whole 40x30 test board -> the bbox fallback clears
+    # NOTHING on-board while the half-plane encoding must.
+    _BOARD_SPANNING = [(44.0, 10.0), (30.0, -3.0), (-4.0, 8.0), (2.0, 33.0), (20.0, 28.0)]
+    _BOARD = (0.0, 0.0, 40.0, 30.0)
+    _PAD_HALVES = [(0.0, 0.0), (0.5, 0.5), (1.5, 1.0)]
+    _ROTS = (0, 1, 2, 3)
+
+    @staticmethod
+    def _capsule_polygon(length=10.0, height=0.5, n_arc=24):
+        """A convex stadium strip: body x in [-length/2, length/2], y in
+        [-height/2, height/2], ends rounded by n_arc-segment semicircles of
+        radius height/2 (~0.03 mm per segment for these dims). This is the
+        +15V_LS class of geometry: the sub-0.1 mm arc edges destroy their
+        slope when the half-plane direction is quantized to the 0.01 mm
+        model grid, which rotates the half-plane enough to exclude polygon
+        vertices (the unsoundness fixed 2026-08-04)."""
+        import math
+        r = height / 2.0
+        half = length / 2.0
+        pts = [(-half, r), (half, r)]  # top edge left -> right
+        for i in range(1, n_arc):  # right arc 90deg -> -90deg (bulges +x)
+            a = math.pi / 2.0 - math.pi * i / n_arc
+            pts.append((half + r * math.cos(a), r * math.sin(a)))
+        pts.append((half, -r))
+        pts.append((-half, -r))  # bottom edge right -> left
+        for i in range(1, n_arc):  # left arc 270deg -> 90deg (bulges -x)
+            a = 3 * math.pi / 2.0 - math.pi * i / n_arc
+            pts.append((-half + r * math.cos(a), r * math.sin(a)))
+        return pts
+
+    def test_general_convex_soundness_zero_counterexamples(self) -> None:
+        """Encoded-clear => exact-clear for diagonal-edge convex zones, over
+        pad sizes x rotations x an exhaustive position grid. Any violation is
+        an encoding bug (the R24 audit would catch it as a hard failure; the
+        BMC is the earlier gate)."""
+        steps = [x * 0.25 for x in range(-20, 41)]  # -5.0..+10.0 mm
+        checked = 0
+        unsound = []
+        for poly in self._CONVEX_DIAGONAL:
+            item = _zone_item(poly)
+            assert item.edges is not None and any(e[0] == "n" for e in item.edges)
+            for (w, h), rot in itertools.product(self._PAD_HALVES, self._ROTS):
+                pad = _pad(half=(w, h))
+                for dx, dy in itertools.product(steps, steps):
+                    center = (float(dx), float(dy))
+                    erect = encoded_pad_world_rect(pad, center, rot)
+                    if encoded_overlap(erect, item):
+                        continue  # encoded-overlap; soundness not implicated
+                    checked += 1
+                    rect = pad_world_rect(pad, center, rot)
+                    if exact_clearance_mm(rect, item) < item.margin_mm - 1e-9:
+                        unsound.append((poly, (w, h), rot, center))
+                        if len(unsound) >= 5:
+                            break
+                if len(unsound) >= 5:
+                    break
+            if len(unsound) >= 5:
+                break
+        assert checked > 50_000, f"general-convex sweep collapsed: {checked}"
+        assert unsound == [], (
+            f"general-convex zone encoding FALSIFIED: {len(unsound)} "
+            f"encoded-clear-but-exact-below-margin case(s). First: {unsound[:2]}"
+        )
+
+    def test_diagonal_halfplanes_contain_polygon(self) -> None:
+        """Direct invariant behind the soundness proof: for EVERY diagonal
+        edge the whole polygon must lie inside the encoded half-plane
+        (max over the polygon of a*x + b*y <= r). This is what the rounded-
+        end strip regression is about: a sub-0.1 mm arc edge whose slope is
+        destroyed by model-grid quantization violates it (the +15V_LS
+        unsoundness, 1,534 cells on the real board, fixed 2026-08-04 by
+        computing the direction at 100x model resolution). Fast O(V) check
+        over the capsule and the diagonal test shapes."""
+        import math
+        polys = list(self._CONVEX_DIAGONAL) + [self._capsule_polygon()]
+        for poly in polys:
+            item = _zone_item(poly)
+            assert item.edges is not None
+            for entry in item.edges:
+                if entry[0] != "n":
+                    continue
+                _, a, b, r = entry
+                # polygon vertex in MODEL units; (a, b, r) are fine-scaled
+                # (100x model) integers, consistent at the fine scale.
+                mx = max(a * _mm_to_units(x) + b * _mm_to_units(y) for (x, y) in poly)
+                assert mx <= r, (
+                    f"diagonal half-plane does not contain the polygon: "
+                    f"max(a*x+b*y)={mx} > r={r} for edge ({a},{b},{r})"
+                )
+        # The capsule must actually exercise the short-edge path (the
+        # regression it exists for): at least one sub-0.05 mm arc edge.
+        cap = self._capsule_polygon()
+        assert any(
+            math.hypot(
+                _mm_to_units(cap[i][0]) - _mm_to_units(cap[(i + 1) % len(cap)][0]),
+                _mm_to_units(cap[i][1]) - _mm_to_units(cap[(i + 1) % len(cap)][1]),
+            ) < 5
+            for i in range(len(cap))
+        ), "capsule has no sub-0.05mm edges -- regression shape is vacuous"
+
+    def test_general_convex_conservatism_bounded_for_run_c_geometry(self) -> None:
+        """The safe (over-constraining) direction is measured on the run-C
+        geometry class -- a small pad against a large board-spanning pour
+        with obtuse vertices. There the encoded-overlap-but-exact-clear
+        excess is bounded by the embedded grid headroom (0.02 mm): measured
+        <= 0.0200 mm for every pad size up to 6x4 mm and all four rotations
+        over the whole board. (The sharp-vertex / pad-larger-than-polygon
+        configurations that can produce larger excess are excluded here on
+        purpose -- that conservatism is unbounded in principle and
+        documented as such in fixed_copper.py's module docstring; the
+        soundness sweep above still covers those shapes.)"""
+        item = _zone_item(self._BOARD_SPANNING)
+        worst = 0.0
+        x0, y0, x1, y1 = self._BOARD
+        for (w, h), rot in itertools.product(self._PAD_HALVES, self._ROTS):
+            pad = _pad(half=(w, h))
+            for ix in range(int((x1 - x0) / 0.5) + 1):
+                for iy in range(int((y1 - y0) / 0.5) + 1):
+                    center = (x0 + ix * 0.5, y0 + iy * 0.5)
+                    erect = encoded_pad_world_rect(pad, center, rot)
+                    if not encoded_overlap(erect, item):
+                        continue
+                    rect = pad_world_rect(pad, center, rot)
+                    exact = exact_clearance_mm(rect, item)
+                    if exact >= item.margin_mm:
+                        worst = max(worst, exact - item.margin_mm)
+        # Grid headroom is 0.02 mm; chamfer wedges at the pentagon's
+        # obtuse vertices add << 0.01 mm. 0.05 is a comfortable honest
+        # ceiling (measured 0.0200).
+        assert worst <= 0.05, (
+            f"run-C-class conservatism exceeded 0.05 mm ceiling: {worst:.4f} mm"
+        )
+
+    def test_board_spanning_pour_unlocks_encoded_clear_region(self) -> None:
+        """The issue-#651 regression: a DC_BUS_RTN-class board-spanning pour
+        whose AABB contains the entire board makes the bbox encoding reject
+        every on-board placement (0 encoded-clear cells -- the run-C
+        blocker, 2026-08-03 probe). The diagonal half-plane encoding must
+        clear a real region, staying sound (encoded-clear <= exact-clear)."""
+        poly = self._BOARD_SPANNING
+        item = _zone_item(poly)
+        assert item.edges is not None and all(e[0] == "n" for e in item.edges)
+        # bbox fallback twin: same polygon with edges=None (the pre-#651
+        # behaviour the probe measured).
+        bbox_item = FixedCopperItem(
+            kind="zone", net="NET_B", layers=item.layers, rect=item.rect,
+            exact=item.exact, slack_mm=float("inf"), margin_mm=item.margin_mm,
+            label="bbox-twin", edges=None,
+        )
+        x0, y0, x1, y1 = self._BOARD
+        pad = _pad(half=(0.5, 0.5))
+        n_exact = n_encoded = n_bbox = 0
+        n_unsound = 0
+        step = 0.5
+        nx = int((x1 - x0) / step)
+        ny = int((y1 - y0) / step)
+        for ix in range(nx + 1):
+            for iy in range(ny + 1):
+                center = (x0 + ix * step, y0 + iy * step)
+                rect = pad_world_rect(pad, center, 0)
+                exact = exact_clearance_mm(rect, item) >= item.margin_mm
+                encoded = not encoded_overlap(rect, item)
+                bbox = not encoded_overlap(rect, bbox_item)
+                n_exact += exact
+                n_encoded += encoded
+                n_bbox += bbox
+                if encoded and not exact:
+                    n_unsound += 1
+        assert n_bbox == 0, (
+            "precondition broken: the AABB fallback must cover the whole "
+            f"board (bbox_clear={n_bbox})"
+        )
+        assert n_encoded > 0, (
+            "regression: the general-convex encoding still clears nothing "
+            "on-board for a board-spanning pour"
+        )
+        assert n_unsound == 0, (
+            f"{n_unsound} encoded-clear-but-exact-below-margin cells on the board"
+        )
+        # The unlock must be substantial (encoded within ~5% of exact), not
+        # a sliver: the probe measured 0 vs 14,973 for C27/DC_BUS_RTN.
+        assert n_encoded >= 0.9 * n_exact, (
+            f"encoded_clear={n_encoded} far below exact_clear={n_exact} -- "
+            "the half-plane encoding is still over-conservative"
+        )
 
 
 # ---------------------------------------------------------------------------
