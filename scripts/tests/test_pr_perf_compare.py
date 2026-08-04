@@ -305,3 +305,50 @@ def test_committed_baseline_fills_the_rolling_window():
         f"darwin measures ~-11% against the Linux CI container on identical "
         f"code."
     )
+
+
+def _unbaselined_entry(module="new-mod", stage="new_stage"):
+    return [{
+        "module": module, "board": "synthetic", "stage": stage,
+        "metrics": {"rust_over_oracle_ratio": 0.5},
+    }]
+
+
+def test_new_benchmark_does_not_fail_the_gate() -> None:
+    """A benchmark absent from main's registry is its first appearance.
+
+    No baseline CAN exist: the gate reads the baseline from main (so a PR
+    cannot move its own goalposts) and main does not have this code. Failing
+    here made adding any benchmark impossible in one PR.
+    """
+    results = compare(
+        _unbaselined_entry(), {}, main_benchmarks={("existing-mod", "existing_stage")}
+    )
+    assert results[0]["status"] == "NEW_BENCHMARK"
+    assert gate_failures(results) == []
+
+
+def test_benchmark_on_main_without_a_baseline_row_still_fails() -> None:
+    """The vacuity case must keep failing closed.
+
+    A module that exists on main and ships without a baseline row is not
+    covered by the performance A/B. That is what this gate is for, and the
+    NEW_BENCHMARK carve-out must not widen to cover it.
+    """
+    results = compare(
+        _unbaselined_entry(), {}, main_benchmarks={("new-mod", "new_stage")}
+    )
+    assert results[0]["status"] == "NO_BASELINE"
+    failures = gate_failures(results)
+    assert len(failures) == 1
+    assert "already exists on main" in failures[0]
+
+
+def test_absent_registry_degrades_to_the_strict_behaviour() -> None:
+    """No registry supplied -> every unbaselined key stays NO_BASELINE.
+
+    A fetch failure in CI must not silently turn the gate permissive.
+    """
+    results = compare(_unbaselined_entry(), {}, main_benchmarks=None)
+    assert results[0]["status"] == "NO_BASELINE"
+    assert len(gate_failures(results)) == 1
