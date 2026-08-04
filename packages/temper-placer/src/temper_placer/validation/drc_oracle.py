@@ -28,7 +28,6 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from temper_placer.core.loss_types import LossContext
     from temper_placer.validation.drc_result import RunResult
     from temper_placer.validation.drc_types import ConstraintSet as DrcConstraintSet
     from temper_placer.validation.drc_types import Placement as DrcPlacement
@@ -67,7 +66,7 @@ def _infer_package_type(footprint: str | None) -> str:
 
 def build_placement_from_netlist(
     positions: Array,
-    context: LossContext,
+    context: Any,
 ) -> DrcPlacement:
     """Convert temper-placer Netlist + positions into a temper_drc.input.Placement.
 
@@ -119,7 +118,7 @@ def build_placement_from_netlist(
     )
 
 
-def build_constraint_set(context: LossContext) -> DrcConstraintSet:
+def build_constraint_set(context: Any) -> DrcConstraintSet:
     """Convert temper-placer clearance_rules into a temper_drc.input.ConstraintSet.
 
     Maps temper_placer.losses.types.ClearanceRule (net_class_a, net_class_b,
@@ -174,7 +173,7 @@ class DRCOracle:
     def evaluate(
         self,
         positions: Array,
-        context: LossContext,
+        context: Any,
         categories: list[str] | None = None,
         use_rust: bool = True,
     ) -> RunResult:
@@ -186,7 +185,7 @@ class DRCOracle:
 
         Args:
             positions: (N, 2) array of component positions in mm.
-            context: LossContext with netlist and board.
+            context: Object with netlist and board (duck-typed).
             categories: Optional list of check categories to run
                 (e.g. ["drc", "safety"]). None means all categories.
             use_rust: If True and temper_drc_rs is installed, use the
@@ -233,10 +232,10 @@ class DRCOracle:
     def _build_board_dict(
         self,
         positions: Array,
-        context: LossContext,
+        context: Any,
         parsed_pcb: Any = None,
     ) -> dict[str, Any]:
-        """Build a K1-schema board dict from positions + LossContext.
+        """Build a K1-schema board dict from positions + context.
 
         Produces the dict format consumed by temper_drc_rs.run_drc():
         - components: list of dicts with ref, x, y, rot, side, width, height, net_class, ...
@@ -404,7 +403,7 @@ class DRCOracle:
 
     def _build_constraints_dict(
         self,
-        context: LossContext,
+        context: Any,
     ) -> dict[str, Any]:
         """Build a constraints dict for the Rust DRC engine.
 
@@ -568,7 +567,7 @@ class DRCOracle:
         return RunResult(check_results=check_results)
 
 
-def create_standard_drc_oracle(context: LossContext) -> DRCOracle:
+def create_standard_drc_oracle(context: Any) -> DRCOracle:
     """Create a DRCOracle pre-loaded with all 12 standard temper-drc checks.
 
     The oracle is configured with:
@@ -578,7 +577,7 @@ def create_standard_drc_oracle(context: LossContext) -> DRCOracle:
     - All ERC checks: floating_pins, net_connectivity, power_domain
 
     Args:
-        context: LossContext with netlist and clearance rules.
+        context: Object with netlist and clearance_rules (duck-typed).
 
     Returns:
         Configured DRCOracle instance.

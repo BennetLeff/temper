@@ -14,19 +14,41 @@ from __future__ import annotations
 
 import math
 import subprocess
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 import yaml
 
-from temper_placer.core.loss_types import LossContext
 from temper_placer.core.state import PlacementState
 
 if TYPE_CHECKING:
     from temper_placer.io._kicad_types import ParseResult
+
+# ---------------------------------------------------------------------------
+# Minimal quality-metrics context
+# ---------------------------------------------------------------------------
+
+
+@dataclass
+class _QualityContext:
+    """Minimal stand-in for the retired core.loss_types.LossContext stub.
+
+    metrics.quality functions only read `.netlist` / `.board` and, for the
+    empty-net_pin_indices short-circuit paths (total_wirelength,
+    connectivity_clustering_score), `.net_pin_indices` / `.net_pin_mask`.
+    Human-reference extraction never has a pre-computed net-pin index
+    tensor, so both default to empty arrays -- reproducing the exact
+    stub defaults LossContext used to provide.
+    """
+
+    netlist: Any = None
+    board: Any = None
+    net_pin_indices: Any = field(default_factory=lambda: np.zeros((0, 2), dtype=np.int64))
+    net_pin_mask: Any = field(default_factory=lambda: np.zeros((0, 2), dtype=bool))
+
 
 # ---------------------------------------------------------------------------
 # Pydantic-style data models (plain dataclasses for zero-dependency YAML I/O)
@@ -130,14 +152,14 @@ def _parse_and_validate(pcb_path: Path | str, validate: bool) -> ParseResult:
 
 
 # ---------------------------------------------------------------------------
-# Step 2 — build PlacementState + LossContext from parse output
+# Step 2 — build PlacementState + _QualityContext from parse output
 # ---------------------------------------------------------------------------
 
 
 def _build_state_and_context(
     parse_result: ParseResult,
-) -> tuple[PlacementState, LossContext]:
-    """Create a PlacementState from the human-designed positions and a LossContext."""
+) -> tuple[PlacementState, _QualityContext]:
+    """Create a PlacementState from the human-designed positions and a quality context."""
     board = parse_result.board
     if board is None:
         raise ValueError("No board geometry extracted from PCB.")
@@ -167,7 +189,7 @@ def _build_state_and_context(
         positions=np.array(positions, dtype=np.float32),
         rotation_logits=rotation_logits,
     )
-    context = LossContext(netlist=netlist, board=board)
+    context = _QualityContext(netlist=netlist, board=board)
     return state, context
 
 
@@ -178,7 +200,7 @@ def _build_state_and_context(
 
 def _compute_placement_metrics(
     state: PlacementState,
-    context: LossContext,
+    context: _QualityContext,
     pcb_git_hash: str,
     now: str,
 ) -> dict[str, MetricValue]:
@@ -357,7 +379,7 @@ def _compute_aesthetic_metrics(
 
 def _compute_quality_metrics(
     state: PlacementState,
-    context: LossContext,
+    context: _QualityContext,
     parse_result: ParseResult,
     pcb_git_hash: str,
     now: str,

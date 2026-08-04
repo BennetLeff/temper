@@ -19,7 +19,6 @@ if TYPE_CHECKING:
     from temper_placer.core.state import PlacementState
     from temper_placer.pipeline.state import PipelineState
 
-from temper_placer.core.loss_types import LossContext, LossFunction, LossResult
 from temper_placer.core.state import PlacementState
 from temper_placer.router_v6.congestion_heatmap import CongestionHeatmap
 
@@ -30,7 +29,20 @@ class AdjustmentType(Enum):
     SPECIFICATION = "specification"
 
 
-class RoutingFeedbackLoss(LossFunction):
+@dataclass(frozen=True)
+class LossResult:
+    """Minimal loss-result container.
+
+    Inlined from the retired core.loss_types stub (JAX retirement): the
+    only fields RoutingFeedbackLoss / MomentumDampedRoutingFeedbackLoss
+    ever populated were `value` and `breakdown`.
+    """
+
+    value: float = 0.0
+    breakdown: dict[str, float] = field(default_factory=dict)
+
+
+class RoutingFeedbackLoss:
     """Loss function that penalizes placement in congested areas.
 
     Uses a pre-computed CongestionHeatmap to create a cost field
@@ -62,7 +74,7 @@ class RoutingFeedbackLoss(LossFunction):
         self,
         positions: np.ndarray,
         _rotations: np.ndarray,
-        _context: LossContext,
+        _context: Any,
         _epoch: int = 0,
         _total_epochs: int = 1,
         _net_virtual_nodes: np.ndarray | None = None,
@@ -130,7 +142,7 @@ class MomentumDampedRoutingFeedbackLoss:
         self,
         positions: np.ndarray,
         _rotations: np.ndarray,
-        _context: LossContext,
+        _context: Any,
         _epoch: int = 0,
         _total_epochs: int = 1,
         _net_virtual_nodes: np.ndarray | None = None,
