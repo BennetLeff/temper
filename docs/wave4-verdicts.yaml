@@ -136,13 +136,43 @@ surfaces:
     note: Small orchestration surface; moves with the pipeline it wraps.
 
   # ---- Phase 1 gated: the solver boundary ---------------------------------
-  - pattern: packages/temper-placer/src/temper_placer/placer/**
-    verdict: UNDECIDED
-    owed: >-
-      Gated on the Phase 1 ortools CP-SAT decision (R4). The spike reached a
-      KEEP verdict but that verdict is not yet recorded in-repo, so this
-      surface has no landed decision. The non-solver compute in placer/ is
-      Phase 4 and does not wait on the gate; the solver boundary itself does.
+  # Decided 2026-08-04; evidence docs/evidence/2026-08-04-wave4-residual-verdicts.md
+  # The plan's Phase-1 dependency rationale splits this tree: the ortools
+  # model/solve wiring is the gated boundary, "the remaining placer compute
+  # beyond the ortools boundary" is Phase 4. The split follows that line.
+  - pattern: packages/temper-placer/src/temper_placer/placer/cp_sat/**
+    verdict: JUSTIFIED-KEEP
+    blocker: >-
+      The ortools CP-SAT boundary, KEEP per the Phase 1 R4 gate. Every module
+      in this subtree either calls the ortools Python API or exists to build
+      or interpret a `cp_model.CpModel`, so it cannot leave Python while the
+      engine's Python API is the boundary. The blocker is NOT feature
+      coverage -- that claim was corrected 2026-08-04: Pumpkin 0.4.0 covers 12
+      of the spike's 13 constraint classes natively, including the
+      half-reification (`implied_by`) that encodes every `OnlyEnforceIf` and
+      the assumption cores (`extract_core`) previously assumed absent; the one
+      gap, `AddNoOverlap2D`, is documented redundant for correctness in the
+      spike's own section 1.5. The real blocker is that acceptance is
+      unassertable: (a) R1a's bit-identical bar cannot be asserted across
+      solver engines by construction, (b) search quality on this board class
+      is unmeasured for every candidate, (c) every pure-Rust candidate is
+      pre-1.0, and (d) what "good enough" means here is a human judgment about
+      candidate quality under a wall-clock budget, which no gate in this repo
+      expresses. Re-decidable when a corpus benchmark measures search quality
+      AND a gate expressing solution acceptance exists -- (d) is the one that
+      must fall first, because without it (b) has no pass mark to measure
+      against. `cp_sat/gates.py` already delegates its contract types to
+      temper-design-bundle (Phase 2, landed); the Python file remains as the
+      delegation shim, which is this repo's standard post-migration shape.
+  - pattern: packages/temper-placer/src/temper_placer/placer/*.py
+    verdict: MIGRATE
+    phase: 4
+    note: >-
+      deterministic, template, adjustment -- the placer compute beyond the
+      ortools boundary, which the plan's Phase 1 rationale assigns to Phase 4
+      and which does not wait on the solver gate. None of these import
+      ortools. template.py carries real rotation geometry (it is in the
+      guarded-file list of scripts/check_no_raw_rotation_trig.py).
 
   - pattern: packages/temper-placer/src/temper_placer/constraints/**
     verdict: MIGRATE
@@ -178,30 +208,158 @@ surfaces:
       migrating them would make the harness that proves every other migration
       correct depend on the pyo3 boundary it is meant to be checking.
 
-  # ---- Undecided residuals: the real backlog ------------------------------
-  - pattern: packages/temper-placer/src/temper_placer/*.py
-    verdict: UNDECIDED
-    owed: >-
-      Package root and entry points -- __init__, __main__, _version, protocol,
-      runner, strategy_registry. Never assigned by the plan's phase table; the
-      R7 coverage check surfaced them. The real question is whether a
-      pyo3-backed distribution keeps a Python package root at all. It probably
-      must, which would make this a JUSTIFIED-KEEP -- but that reasoning has
-      not been written down or reviewed, and D6 forbids assuming it.
+  # ---- Package root and entry points (decided 2026-08-04) -----------------
+  # Enumerated file-by-file rather than as `*.py`: the six files split across
+  # three verdicts, and enumeration means a NEW package-root file matches no
+  # entry and fails the check, which is exactly what R7 wants of a new surface.
+  - pattern: packages/temper-placer/src/temper_placer/__init__.py
+    verdict: JUSTIFIED-KEEP
+    blocker: &distribution-root >-
+      Python distribution root. The package is built by hatchling
+      (`pyproject.toml` build-backend, not maturin) and ships two console
+      entry points (`temper-placer`, `temper` -> `temper_placer.cli:main`),
+      both resolved by Python packaging machinery that requires an importable
+      Python package root to exist. A pyo3 extension is imported BY this root,
+      it cannot replace it under the current build backend. Re-decidable if
+      the distribution moves to maturin and ships `temper_placer` as a native
+      extension module -- that is a packaging decision, not a migration, and
+      it would delete these files rather than port them.
+  - pattern: packages/temper-placer/src/temper_placer/__main__.py
+    verdict: JUSTIFIED-KEEP
+    blocker: *distribution-root
+  - pattern: packages/temper-placer/src/temper_placer/_version.py
+    verdict: JUSTIFIED-KEEP
+    blocker: *distribution-root
+  - pattern: packages/temper-placer/src/temper_placer/protocol.py
+    verdict: JUSTIFIED-KEEP
+    blocker: >-
+      Already decided under R3 in the plan's Phase-2 residual pass (recorded
+      2026-08-03): a `@runtime_checkable` structural-typing Protocol is a
+      typing construct with no pyclass mapping, `Contract` holds
+      `dict[str, type]` of live Python type objects for isinstance schema
+      validation, and `ContractViolation` is an exception; written
+      cost-benefit -- the full R1 migration battery against 141 LOC and 7
+      consumers is net-negative. This entry records that existing verdict
+      against the file, it does not re-decide it.
+  - pattern: packages/temper-placer/src/temper_placer/runner.py
+    verdict: MIGRATE
+    phase: 5
+    note: >-
+      PipelineRunner + data-flow validation + resolve_and_run. The plan's
+      Phase-2 residual pass explicitly routes this here ("orchestration seam
+      (PipelineRunner, adapters, strategy_registry) -> Phase 5").
+  - pattern: packages/temper-placer/src/temper_placer/strategy_registry.py
+    verdict: MIGRATE
+    phase: 5
+    note: Same Phase-5 orchestration seam as runner.py, named in that record.
+
+  # ---- Visualization (decided 2026-08-04) ---------------------------------
   - pattern: packages/temper-placer/src/temper_placer/visualization/**
-    verdict: UNDECIDED
-    owed: >-
-      Phase 6. The Plotly/HTML board renderer is the specific question: WASM/web,
-      retire, or JUSTIFIED-KEEP. Named in the plan as an open residual.
-  - pattern: scripts/**
-    verdict: UNDECIDED
-    owed: >-
-      Phase 6, and the largest undecided surface. The parent roadmap deferred
-      it; R7 converts that deferral into an owed verdict. CI gate scripts are
-      churny by design, which is an argument for JUSTIFIED-KEEP but not yet a
-      written one.
+    verdict: JUSTIFIED-KEEP
+    blocker: >-
+      Acceptance is unassertable, and the surface is not on any product path.
+      The output is an HTML document embedding Plotly figure JSON, rendered by
+      a browser and accepted by human visual judgment; plotly.py's figure
+      serialization (key order, float repr, bundled JS version) is an
+      implementation detail of the Python library, so a Rust re-implementation
+      emits a byte-different document that R1a's bit-identical bar cannot
+      adjudicate and no repo gate can score -- there is no image-diff or
+      figure-schema regression gate. plotly and websockets are already
+      optional guarded imports (`report.py` PLOTLY_AVAILABLE, `server.py`
+      falls back to a mock), so this surface does not load on the default
+      install path and carries no hot-path compute. Its only gated content is
+      the shared rotation convention in board_renderer/model, which
+      check_no_raw_rotation_trig.py already governs and which that gate
+      records as a visual proxy and currently a no-op. Re-decidable if a
+      rendering regression gate lands (making equivalence assertable), or if
+      product authority retargets the renderer to WASM/web -- a rewrite for a
+      different runtime, decided as a product question, not a migration.
+
+  # ---- scripts/ (decided 2026-08-04) --------------------------------------
+  # Was a genuine mix: two import-dead scripts RETIRE, the rest kept on a
+  # blocker that is the inverse of consolidation -- these gates are correct
+  # BECAUSE they are duplicated and independent.
+  #
+  # The two RETIRE entries (scripts/internal_route.py,
+  # scripts/placement_quality_report.py) and their carve-outs from the
+  # scripts/*.py pattern below were removed when the deletion landed on
+  # 2026-08-04: this ledger records verdicts for files that exist, and an
+  # entry matching nothing is not a decision anyone can act on. The verdicts
+  # and their full justifications are preserved in
+  # docs/evidence/2026-08-04-wave4-residual-verdicts.md (Sec 9), which is the
+  # durable record; removing them here does not retract them.
+  - pattern: scripts/*.py
+    verdict: JUSTIFIED-KEEP
+    blocker: >-
+      Fail-closed independence, bootstrap, and a measured CI cost -- and the
+      first of those makes migration actively harmful, not merely unprofitable.
+      This repo's gates are deliberately NOT consolidated: check_isolation_keepout,
+      check_copper_net_consistency, check_footprint_drift and
+      measure_cross_domain_creepage each carry their own copy of the board and
+      netlist parsers, each citing METHODOLOGY.md Sec 4/5 and the rule that "this
+      gate's correctness must not depend on a sibling gate's internal
+      representation changing out from under it". Migrating 61 ci-gate scripts
+      into a shared crate would share exactly the parsers whose duplication is
+      the property being protected. Bootstrap: the gates must run when the Rust
+      workspace does not compile -- check_rust_drc_presence.py literally checks
+      that Rust DRC is present, and cannot be a Rust binary. Cost: 22 of 26
+      workflows carry no Rust toolchain (required-checks.yml runs bare
+      `python3 scripts/check_required_checks.py`), so this would add a cargo
+      build to every gate job on a CI that is capacity-bound, not speed-bound.
+      RETIRE was already run on this surface: scripts/manifest.yaml (audited
+      2026-08-02, gated for completeness by check_manifest_gate.py) records 40
+      scripts already deleted and all 102 survivors as category=keep -- the two
+      exceptions above are import-dead scripts that audit missed.
+      The above covers the 61 ci-gate and 7 shell-invoked scripts (29,919 LOC).
+      The 34 utility + 1 measurement scripts (11,554 LOC) are kept on a
+      different and weaker rationale, named here so it is not smuggled in under
+      the gate argument: roughly two thirds of that LOC is itself verification
+      instrumentation (constraint_mutation_runner, the netlist/board defect
+      mutators, kicad_pad_rotation_oracle, bench_rust_*, profile_rust_*,
+      measure_cross_domain_creepage, the baseline blessers) and inherits the
+      benchmarks/ blocker -- an instrument that compares a Python arm to a Rust
+      arm must be able to run the Python arm. The remainder is manual board and
+      repo tooling (route_board, add_power_planes, generate_kicad_dru,
+      worktree_report) that is a thin shell over temper_placer library code
+      already assigned to phases 2-5; migrating the shell moves no compute, and
+      the R1 battery -- 5 PBT properties, 3 metamorphic relations, an induction
+      proof -- against a script run a few times a year is the written
+      cost-benefit R3 admits, in the same form the plan already used for
+      protocol.py. This is the weakest verdict in the ledger and the one to
+      revisit first. Re-decidable if the repo ships a prebuilt gate binary as a
+      release artifact that CI downloads without building, AND the
+      bootstrap-critical gates stay independent of it.
+  - pattern: scripts/_lib/**
+    verdict: JUSTIFIED-KEEP
+    blocker: >-
+      In-process shared runtime for the ci-gate scripts (provenance, freshness,
+      repo root, gate allowlist, path setup). It is imported into the gates'
+      own interpreter, so it can only move if they move, and it inherits their
+      bootstrap constraint verbatim: it must import on a bare `python3` with no
+      Rust toolchain present. Moves with the surface it serves, not before it.
+  - pattern: scripts/tests/**
+    verdict: JUSTIFIED-KEEP
+    blocker: >-
+      pytest suite for the gate scripts -- the harness that proves the CI gates
+      work. Same reasoning already recorded for testing/ and fixtures/, plus the
+      bootstrap constraint: these tests must be able to run and fail closed when
+      the Rust build is broken, which is precisely when a gate regression is
+      most likely and most costly to miss. They can only move if the scripts
+      they test move.
+
+  # ---- benchmarks/ (decided 2026-08-04) -----------------------------------
   - pattern: benchmarks/**
-    verdict: UNDECIDED
-    owed: >-
-      Phase 6. Carries migrated code paths, so the Phase 0 performance trigger
-      widens to cover it; whether the harness itself migrates is undecided.
+    verdict: JUSTIFIED-KEEP
+    blocker: >-
+      This is the instrument that authorizes every other migration, and it must
+      host the Python arm it measures. benchmarks/perf_ab.py is the R1b/R2
+      performance A/B: it runs "both arms in one process, back to back -- the
+      verbatim pre-migration Python oracle and the Rust kernel it replaced",
+      importing the same verbatim oracle copy the R1a differential test pins so
+      the two gates cannot drift apart. A Rust-only harness cannot import and
+      execute a verbatim Python pre-migration implementation, so migrating it
+      would delete the baseline arm of the gate that every Wave 4 migration has
+      to pass. benchmarks/cp_sat_bench.py likewise drives the ortools boundary
+      that Phase 1 decided to KEEP. Re-decidable only when the last Python
+      oracle retires -- at which point the harness has no arm left to compare
+      and becomes a RETIRE candidate, not a MIGRATE one.

@@ -14,6 +14,20 @@ safeguard that detects ceiling breaches from non-monotone coupling models.
 The per-device power values this gate validates are the SAME values the
 thermal solver uses as Q heat sources — both sourced from the config/YAML
 authority (cross-cutting invariant with the field track's U5).
+
+**Wave 4 Phase 4 (physics-gated migration).**  The numeric core — the
+coupling model ``L_eff(k)``, the thermal chain and ceiling arithmetic of
+``compute_extremes``, and the endpoint/interior arithmetic of the
+bounding-soundness safeguard — delegates to ``temper_thermal`` (Rust,
+``packages/temper-thermal/src/operating_point.rs``).  The config
+dataclass and its validation, the ``Violation``/``GateResult``
+construction, the SPICE cross-check and the ``_coupling_l_eff_fn`` test
+hook stay here, and ``P_device`` keeps delegating to
+``physics/device_power.py`` so there is still exactly one power-source
+formula (issue #140).  Parity is pinned bit-exactly by
+``tests/physics/test_operating_point_rust_differential.py`` against the
+verbatim pre-migration oracle, and ``audit_operating_point`` is the R24
+post-solve recompute.
 """
 
 from __future__ import annotations
@@ -21,6 +35,8 @@ from __future__ import annotations
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import Any
+
+import temper_thermal as _tt
 
 from temper_placer.placer.cp_sat.gates import (
     BoardState,
@@ -246,8 +262,12 @@ def _l_eff(cfg: OperatingPointConfig, k: float) -> float:
     (highest di/dt, lowest L_loop_max) MUST occur at an endpoint k=0
     or k=1.  The endpoints therefore provably bound all interior coupling
     values.
+
+    The arithmetic delegates to ``temper_thermal`` (Wave 4 Phase 4); the
+    proof above is restated at the Rust kernel and its BMC-exhaustive
+    validation lives in ``packages/temper-thermal/VERIFICATION.md``.
     """
-    return cfg.L_coil * (1.0 - k) + cfg.L_leakage * k
+    return _tt.operating_point_l_eff_py(cfg.L_coil, cfg.L_leakage, k)
 
 
 # Number of coupling grid points for interior-sampling safeguard.
@@ -285,39 +305,45 @@ def _interior_bounding_soundness_check(
         def coupling_l_eff_fn(k):
             return _l_eff(cfg, k)
 
-    v_br_derated = cfg.V_BR * cfg.derate
-    num = v_br_derated - cfg.V_bus
+    # The coupling model is evaluated HERE, not in Rust: the
+    # ``_coupling_l_eff_fn`` test hook is a Python callable, and a
+    # deliberately non-monotone override has to reach the same scan the
+    # production model does or the safeguard would be untestable.
+    k_grid = _tt.operating_point_interior_k_grid_py(_INTERIOR_GRID_POINTS)
+    samples = [(k, coupling_l_eff_fn(k)) for k in k_grid]
 
-    # Compute endpoint values for bounding comparison.
-    l_eff_k0 = coupling_l_eff_fn(0.0)
-    l_eff_k1 = coupling_l_eff_fn(1.0)
-    if l_eff_k0 <= 0 or l_eff_k1 <= 0:
-        return []
-
-    di_dt_k0 = cfg.V_bus / l_eff_k0
-    di_dt_k1 = cfg.V_bus / l_eff_k1
-    endpoint_worst_di_dt = max(di_dt_k0, di_dt_k1)
-
-    l_loop_max_k0 = num / di_dt_k0 if num > 0 else 0.0
-    l_loop_max_k1 = num / di_dt_k1 if num > 0 else 0.0
-    endpoint_worst_L_loop_max = min(l_loop_max_k0, l_loop_max_k1)
+    (
+        evaluated,
+        endpoint_worst_di_dt,
+        endpoint_worst_L_loop_max,
+        l_loop_max_k0,
+        l_loop_max_k1,
+        records,
+    ) = _tt.operating_point_interior_scan_py(
+        cfg.V_bus,
+        cfg.V_BR,
+        cfg.derate,
+        cfg.min_feasible_L_loop,
+        coupling_l_eff_fn(0.0),
+        coupling_l_eff_fn(1.0),
+        samples,
+    )
 
     violations: list[Violation] = []
+    if not evaluated:
+        return violations
 
-    # Interior samples (exclude k=0 and k=1 which are already covered).
-    for i in range(1, _INTERIOR_GRID_POINTS - 1):
-        k = i / (_INTERIOR_GRID_POINTS - 1)
-        L_eff_val = coupling_l_eff_fn(k)
-        if L_eff_val <= 0:
-            continue
-
-        di_dt_val = cfg.V_bus / L_eff_val
-
-        l_loop_max = num / di_dt_val if num > 0 else 0.0
-
+    for (
+        k,
+        di_dt_val,
+        l_loop_max,
+        breaches_min_feasible,
+        worse_di_dt,
+        worse_l_loop_max,
+    ) in records:
         # Check: does this interior point breach a ceiling the endpoints
         # pass?  That would mean the endpoint-only approach is unsound.
-        if l_loop_max < cfg.min_feasible_L_loop:
+        if breaches_min_feasible:
             violations.append(
                 Violation(
                     type=ViolationType.LOOP_INDUCTANCE,
@@ -353,7 +379,7 @@ def _interior_bounding_soundness_check(
             )
 
         # Check: is interior di/dt worse than the endpoint worst?
-        if di_dt_val > endpoint_worst_di_dt * (1.0 + 1e-12):
+        if worse_di_dt:
             violations.append(
                 Violation(
                     type=ViolationType.LOOP_INDUCTANCE,
@@ -381,7 +407,7 @@ def _interior_bounding_soundness_check(
             )
 
         # Check: is interior L_loop_max worse than the endpoint worst?
-        if l_loop_max < endpoint_worst_L_loop_max * (1.0 - 1e-12):
+        if worse_l_loop_max:
             violations.append(
                 Violation(
                     type=ViolationType.LOOP_INDUCTANCE,
@@ -415,33 +441,111 @@ def _interior_bounding_soundness_check(
 
 def compute_extremes(cfg: OperatingPointConfig) -> tuple[_ExtremePoint, _ExtremePoint]:
     """Compute di/dt, per-device power, and ceiling checks at BOTH extremes."""
-    R_th_total = cfg.R_theta_jc + cfg.R_theta_cs + cfg.R_theta_sa
-    v_br_derated = cfg.V_BR * cfg.derate
     P_device = _compute_per_device_power(cfg)
-    T_j = cfg.T_amb + P_device * R_th_total
-
-    def _extreme(label: str, coupling: float, L_eff: float) -> _ExtremePoint:
-        di_dt_val = cfg.V_bus / L_eff
-        # L_loop_max condition: V_bus + L_loop * di/dt ≤ V_BR * derate
-        # → L_loop ≤ (V_BR * derate - V_bus) / di/dt
-        num = v_br_derated - cfg.V_bus
-        l_loop_max = 0.0 if num <= 0 else num / di_dt_val
-
-        feasible = T_j <= cfg.T_j_max and l_loop_max >= cfg.min_feasible_L_loop
-        return _ExtremePoint(
-            label=label,
-            coupling=coupling,
-            di_dt=di_dt_val,
-            P_device=P_device,
-            T_j=T_j,
-            L_loop_max=l_loop_max,
-            feasible=feasible,
-        )
-
-    k0 = _extreme("zero-coupling (k=0)", 0.0, cfg.L_coil)
-    k1 = _extreme("ideal-coupling (k=1)", 1.0, cfg.L_leakage)
+    (
+        T_j,
+        _R_th_total,
+        di_dt_k0,
+        l_loop_max_k0,
+        feasible_k0,
+        di_dt_k1,
+        l_loop_max_k1,
+        feasible_k1,
+    ) = _tt.operating_point_extremes_py(
+        P_device,
+        cfg.T_amb,
+        cfg.R_theta_jc,
+        cfg.R_theta_cs,
+        cfg.R_theta_sa,
+        cfg.V_BR,
+        cfg.derate,
+        cfg.V_bus,
+        cfg.T_j_max,
+        cfg.min_feasible_L_loop,
+        cfg.L_coil,
+        cfg.L_leakage,
+    )
+    k0 = _ExtremePoint(
+        label="zero-coupling (k=0)",
+        coupling=0.0,
+        di_dt=di_dt_k0,
+        P_device=P_device,
+        T_j=T_j,
+        L_loop_max=l_loop_max_k0,
+        feasible=feasible_k0,
+    )
+    k1 = _ExtremePoint(
+        label="ideal-coupling (k=1)",
+        coupling=1.0,
+        di_dt=di_dt_k1,
+        P_device=P_device,
+        T_j=T_j,
+        L_loop_max=l_loop_max_k1,
+        feasible=feasible_k1,
+    )
     return k0, k1
 
+
+# ---------------------------------------------------------------------------
+# R24 post-solve audit
+# ---------------------------------------------------------------------------
+
+
+def audit_operating_point(
+    cfg: OperatingPointConfig,
+    k0: _ExtremePoint,
+    k1: _ExtremePoint,
+    coupling_l_eff_fn: Callable[[float], float] | None = None,
+    n_samples: int = 513,
+) -> list[str]:
+    """R24 post-solve audit for the operating-point ceilings.
+
+    Recomputes ``T_j``, ``di/dt`` and ``L_loop_max`` from the raw
+    configuration — never from the gate's intermediate state — and
+    re-derives the endpoint-bounding claim on a dense interior sweep.  A
+    drift between what the gate reported and what the physics gives is a
+    finding, not a silent pass.
+
+    This is the third leg of the R24 discipline for this surface: the
+    Chebyshev-style soundness proof is on ``_l_eff`` (and its Rust
+    mirror), the BMC-exhaustive validation is in
+    ``tests/physics/test_operating_point_rust_differential.py`` and in
+    the crate's own test module, and this is the audit.
+
+    Args:
+        cfg: The validated configuration the gate was built from.
+        k0: The reported zero-coupling extreme.
+        k1: The reported ideal-coupling extreme.
+        coupling_l_eff_fn: Optional coupling-model override; when None the
+            production ``_l_eff`` is swept.
+        n_samples: Interior sweep resolution.
+
+    Returns:
+        A list of finding names; empty means the report survived the
+        recompute.
+    """
+    fn = coupling_l_eff_fn or (lambda k: _l_eff(cfg, k))
+    samples = [
+        (k, fn(k)) for k in _tt.operating_point_interior_k_grid_py(n_samples)
+    ]
+    return _tt.operating_point_audit_py(
+        k0.P_device,
+        cfg.T_amb,
+        cfg.R_theta_jc,
+        cfg.R_theta_cs,
+        cfg.R_theta_sa,
+        cfg.V_BR,
+        cfg.derate,
+        cfg.V_bus,
+        cfg.T_j_max,
+        cfg.min_feasible_L_loop,
+        fn(0.0),
+        fn(1.0),
+        k0.T_j,
+        (k0.di_dt, k0.L_loop_max, k0.feasible),
+        (k1.di_dt, k1.L_loop_max, k1.feasible),
+        samples,
+    )
 
 # ---------------------------------------------------------------------------
 # SPICE cross-check metadata

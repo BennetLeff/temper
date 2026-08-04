@@ -191,15 +191,6 @@
     ".github/workflows/python-tests.yml"
   ],
   "install_git_stash_guard.py": [],
-  "internal_route.py": [
-    "Makefile",
-    "packages/temper-placer/tests/pipeline/stages/test_input_stage_identity_preflight.py",
-    "packages/temper-placer/tests/requirements/safety/test_rotation_convention_remaining_sites_oracle.py",
-    "scripts/route_v3.sh",
-    "scripts/run_physics_flow.sh",
-    "scripts/sprint1_validation.sh",
-    "scripts/verify_occupancy_strict.sh"
-  ],
   "kicad_fill_zones.py": [
     "packages/temper-placer/tests/placer/cp_sat/test_zone_pour_production_measurement.py"
   ],
@@ -229,7 +220,6 @@
   "pipeline_report.py": [
     ".github/workflows/metrics-record.yml"
   ],
-  "placement_quality_report.py": [],
   "pr_perf_compare.py": [
     ".github/workflows/pr-perf-check.yml"
   ],
