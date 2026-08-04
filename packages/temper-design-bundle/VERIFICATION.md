@@ -1235,9 +1235,6 @@ the shipped corpus and neither currently diverges:
   CP-SAT constraints, not to config parsing.
 - Type-check: stubs updated in `temper_design_bundle_python/__init__.pyi`;
   the `io/config_loader.py` allowlist entry shrank 2 → 0 errors.
-||||||| parent of 6dc58d6bc (feat(wave4): Phase 3 candidate 3 — the KiCad parse engine to Rust)
-
-
 
 ---
 
@@ -1315,7 +1312,14 @@ exactly as the oracle produces).
   corpus plus `pcb/temper.kicad_pcb`, both `normalize` values. Floats compare
   via `float.hex()`; every non-float leaf carries its concrete type in the
   comparison key (int-vs-float cannot hide); dicts compare key-sorted, lists
-  in order. 42 assertions + the M8 discriminating fixture (net-0 trace) pass.
+  in order. 42 corpus assertions + 11 discriminating fixtures (each RED
+  first against both arms, closing the review findings): the M8 net-0 trace,
+  empty-Reference property (dropped), no-libId footprint (both raise),
+  nameless pad/board `(net N)` (both raise), via without `(layers ...)`
+  (stays `()`), drill-offset angle + unlocked, `(track_width 0)` net class,
+  the tokenizer-conformance matrix (caret/adjacent-quotes/backslash-quote/
+  `+5`/CRLF vs `kiutils.utils.sexpr.parse_sexp`), unnumbered-pad courtyard,
+  truncated position (both raise), oval drill without width (both raise).
 - **R1b — performance A/B.** `benchmarks/perf_ab.py` gains the
   `("parse-engine", "parse_kicad_pcb")` benchmark: both arms run in one
   process on `pcb/temper.kicad_pcb`, outputs repr-asserted equal, ratio
@@ -1380,6 +1384,22 @@ M8 is the second surviving-mutant close in the program's history: the corpus
 cannot exercise a net-0 segment (none exist on any of the six boards), so a
 discriminating synthetic fixture was added rather than lowering the claim.
 
+The adversarial review added three more surviving mutants, each closed with a
+discriminating fixture the same way (the corpus cannot reach them):
+
+| # | Mutation | Closed by |
+|---|----------|-----------|
+| M9 | empty-Reference footprints emitted as phantom components | `test_empty_ref_property_footprint_dropped` + `test_no_libid_footprint_raises` (empty-reference property, no-libId footprint) |
+| M10 | nameless `(net N)` pad/board tokens fail open (pin.net="") | `test_nameless_pad_net_raises` + `test_nameless_board_net_raises` (both arms raise) |
+| M11 | via without `(layers ...)` defaulted to ("F.Cu","B.Cu") (dead oracle branch) | `test_via_without_layers_stays_empty` |
+| M12 | `(track_width 0)` net class kept 0.0 (oracle's `or` is truthiness) | `test_track_width_zero_net_class_parity` |
+
+Plus the tokenizer-conformance matrix (`test_tokenizer_kiutils_exact`) pins
+the "kiutils-exact" tokenizer claim on adversarial strings the corpus cannot
+contain (caret, adjacent quotes, backslash-quote runs, `+5`, CRLF,
+unterminated strings), and the drill-offset / courtyard-unnumbered-pad /
+truncated-position / oval-drill fixtures pin the remaining review findings.
+
 ## Documented deviations (per R1, recorded here)
 
 - Integers outside i64 range in integral decimal tokens stay floats (Python
@@ -1397,3 +1417,51 @@ discriminating synthetic fixture was added rather than lowering the claim.
 - `_extract_stackup`'s shim signature adds a `pcb_content` keyword (the v6
   wrapper passes the content it already reads); `_extract_design_rules`
   drops the kiutils board argument usage (accepted for compatibility).
+- **`Position` pyclass kwargs are lowercase (`x`/`y`) while kiutils' field
+  names are `X`/`Y`** — the .pyi pins the lowercase form deliberately (no
+  in-repo consumer constructs `Position` directly; the engine constructs it
+  internally, and the attribute/repr surface stays `X`/`Y` for parity).
+- **Non-string position coordinates fail open in Rust, fail later in the
+  oracle.** A position token whose x/y are non-numeric (e.g. `(at 5^0 50)`,
+  tokenized kiutils-exactly as the bare string `"5"`, int `0`, int `50`)
+  is carried through by kiutils' `Position.from_sexpr` and only crashes when
+  a downstream `float()` hits it; the Rust `parse_pos` keeps the walker's
+  (0,0) default instead of propagating the string. Making x/y type-preserving
+  would ripple through every position consumer for a token class the corpus
+  never contains — recorded, not fixed. The tokenizer itself is pinned exact
+  by `test_tokenizer_kiutils_exact`.
+- **Non-string Reference property values** (e.g. `(property "Reference" 42)`):
+  the oracle raises `AttributeError` on `ref.startswith(...)`; Rust stringifies
+  the value and emits the component. Property values are flattened to strings
+  in the raw model; type-preserving property values would change every
+  property consumer. Recorded, not fixed.
+- **Numeric / list libIds**: a numeric `(footprint 5 ...)` libId is a bare
+  int in kiutils and raises AttributeError only when `_get_footprint_reference`
+  reaches the entryName branch (a Reference property short-circuits before
+  it); the Rust stringifies it. A LIST libId (no libId token at all) is the
+  one case the engine DOES fail closed on (both arms raise — the oracle's
+  entryName is the raw list, `AttributeError`; the engine's `parse_footprint`
+  records a parse error) — pinned by `test_no_libid_footprint_raises`.
+- **gr_arc `mid` default**: when an arc's outline excludes `(0,0)`, the
+  Rust `mid` defaults to (0,0) while the oracle keeps kiutils' default
+  `Position()` — the divergence only exists for arcs whose start/end bound
+  the box without the origin, and the bounds extraction reads `mid` only
+  when it is finite. Recorded, not fixed.
+- **`(general (thickness 0))`**: the pre-migration stackup fallback used a
+  truthiness check (`and ki_board.general.thickness`), so thickness 0 fell
+  through to the 1.6/0.8 default; the shim's `is not None` check keeps 0.0.
+  The differential's stackup parity cannot discriminate (no corpus file has
+  `(thickness 0)`). Recorded, not fixed.
+- **kiutils-version drift**: the oracle is frozen at kiutils 1.4.8; the
+  differential cannot detect upstream tokenizer/`from_sexpr` changes.
+- **M1's 8-ulp bound is engine self-covariance**: it compares the Rust
+  engine against itself under normalize on/off, so a shift-invariant error
+  (both arms shifted identically) passes; the differential against the
+  pinned oracle is the only guard for that class, and it is corpus-bounded
+  as the review findings show.
+- **Stackup/design-rules differential skips corpus files without the
+  surface**: `STACKUP` in the differential is `{rp2040, bitaxe, piantor}` —
+  the `temper`/`minimal`/`pcb` corpus files carry no declared stackup and
+  are skipped for the stackup-parity assertion (design-rules parity runs on
+  all six; the v6 fallback path is exercised by the restored plane/mixed
+  assertions in `tests/router_v6/test_stackup_parsing.py`).
