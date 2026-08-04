@@ -275,15 +275,19 @@ be dropped from the required set when its own workflow legitimately does not
 fire. That is a change to the single most `main`-breaking file in the repo and
 belongs in its own PR with its own tests.
 
-### 2. The committed baseline is not yet CI-measured
+### 2. The baseline is CI-measured but only n=1
 
-`power_pcb_dataset/metrics/perf_ab_baseline.jsonl` was captured on
-darwin/arm64. The ratio cancels machine *speed*, but not the relative scaling of
-CPython versus Rust across architectures, and CI is linux/x86_64 in a container.
-Until a CI-side baseline exists on `main`, the cross-platform offset is
-unmeasured and could exceed 20% in either direction. The first PR runs of this
-workflow will measure it; the baseline should then be re-captured from a CI run
-before the context is ever required.
+*Originally this reason read "the offset is unmeasured". The first live run of
+the new workflow measured it, and the number was large enough to change the
+shipped artifact — see "Cross-platform bias" below. The baseline is now
+CI-captured; what remains is that it is a single sample.*
+
+The comparison takes a rolling median of the trailing 5 rows per key. The
+committed baseline has **one** row per benchmark, so the median is that row and
+CI run-to-run noise (≤9.9% measured) applies to it in full, leaving roughly 10
+points of effective headroom inside the 20% margin. That is workable for a
+reporting gate and for blocking a single PR, but it is not the multi-sample
+baseline a required context should rest on. Widen it as `main` runs accumulate.
 
 ### 3. Headroom is adequate to report on, thin to wedge every PR on
 
@@ -304,6 +308,57 @@ recording this is in `.github/required-checks.json` under
 A well-evidenced "not yet" is the honest outcome here. The gate is real — it
 fails the job, it fails closed, and both halves have been shown to bite. It is
 simply not yet wired to branch protection.
+
+---
+
+## Live confirmation, and the cross-platform bias it exposed
+
+The workflow's first run on this change
+([run 30923554749](https://github.com/BennetLeff/temper/actions/runs/30923554749),
+job 92039998662, commit `5b3d9893`) did two useful things.
+
+**It confirmed the gate works end to end.** The benchmark ran in the CI
+container, the baseline fetch from `main` returned an empty file, and the gate
+failed closed with exit 1 — the job is now **red**, where the identical
+condition previously produced a green job:
+
+```
+0 main-perf-baseline.jsonl
+FAIL: baseline main-perf-baseline.jsonl is empty. Every PR record would be
+      unbaselined, so the comparison cannot be made -- failing closed.
+### 🔴 Performance A/B gate FAILED
+##[error]Process completed with exit code 1.
+```
+
+**It measured the cross-platform bias**, which turned out to matter enough to
+change what this change ships. Same commit, same unmodified code:
+
+| Benchmark | darwin/arm64 | linux/x86_64 (CI) | bias |
+|---|---|---|---|
+| `cell_capacity_batch` | 0.176739 | **0.157191** | **−11.06%** |
+| `hard_blocked_batch`  | 0.368986 | **0.328949** | **−10.85%** |
+
+Consistent on both benchmarks, so this is systematic platform bias, not noise.
+The ratio cancels machine *speed*; it does not cancel the relative scaling of
+CPython against Rust across architectures.
+
+**Why that is not cosmetic.** With a darwin baseline of 0.176739, tripping the
+20% margin needs a CI reading above 0.212087 — which is **+34.9%** against what
+CI actually measures on unmodified code. The gate would have silently missed
+every regression between +20% and +35%, a ~15-point blind spot, while reporting
+a spurious "🟢 IMPROVED −11%" on every clean PR. A gate that always shows a
+green arrow is the kind that stops being read.
+
+**Action taken:** `power_pcb_dataset/metrics/perf_ab_baseline.jsonl` was
+replaced with the CI-measured records. The code they measure is `main`'s — both
+demonstration perturbations were reverted before the commit — so they are a
+legitimate baseline for `main`, taken on the platform the gate runs on. The
+capture procedure is now documented in `benchmarks/perf_ab.py` with this
+measurement as the reason.
+
+This is also a small vindication of the ratio design: an absolute-wall-time
+metric would have been off by the full CPU-speed difference (`oracle_wall_us`
+moved 2015.6 → 1832.1, `rust_wall_us` 361.3 → 288.0), not 11%.
 
 ---
 

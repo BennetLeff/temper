@@ -36,6 +36,24 @@ Registering a migration:
     Add a ``_BENCHMARKS`` entry. A new entry with no baseline row in
     power_pcb_dataset/metrics/perf_ab_baseline.jsonl fails the gate closed --
     capture a baseline in the same PR.
+
+Capturing a baseline -- CAPTURE IT ON CI, NOT LOCALLY:
+    The ratio cancels machine *speed*, but not the relative scaling of CPython
+    against Rust across architectures. Measured 2026-08-04, same commit, same
+    code: darwin/arm64 0.176739 vs linux/x86_64 (CI container) 0.157191 for
+    cell_capacity_batch, and 0.368986 vs 0.328949 for hard_blocked_batch -- a
+    consistent -11% platform bias on both.
+
+    That bias is not cosmetic. A darwin-captured baseline of 0.176739 needs a
+    CI reading above 0.212087 to trip the 20% margin, which is +34.9% against
+    what CI actually measures on unmodified code -- so the gate would silently
+    miss every regression between +20% and +35%, while reporting a spurious
+    "IMPROVED" on every clean PR.
+
+    To capture: read the NDJSON that the "Run the performance A/B (PR branch)"
+    step of .github/workflows/pr-perf-check.yml prints, and commit those lines.
+    Prefer several runs from main once they exist -- the comparison takes a
+    rolling median of the trailing 5 rows per (module, board, stage).
 """
 
 from __future__ import annotations
