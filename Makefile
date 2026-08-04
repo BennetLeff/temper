@@ -31,6 +31,13 @@ help:
 	@echo "  make onboard-status- Show cached onboard summary"
 	@echo ""
 
+# NOTE: this does NOT place the board. `route` routes traces over whatever
+# placement is already on disk, and `footprints` is a stub. Placement is a
+# separate, deliberately human-gated CP-SAT solve with candidate selection --
+# every recent pcb/temper.kicad_pcb change came from one, never from `make
+# build`. CP-SAT placement is only deterministic when it terminates without
+# hitting its timeout, which is why it is not automated here. See
+# docs/plans/2026-08-04-001-feat-board-regeneration-proposal.md.
 build: netlist footprints schematics route drc
 
 NETLIST_FILE = $(ELEC_DIR)/build/default.net
@@ -79,9 +86,19 @@ route: netlist
 	@echo "Running internal maze router..."
 	uv run python3 scripts/internal_route.py $(PCB_FILE) -o $(ROUTED_PCB) --cell-size 0.2
 
+# --all-track-errors is load-bearing, for determinism as much as completeness.
+# Without it KiCad reports only a SUBSET of the errors on each track, and which
+# subset varies between runs on a byte-identical board: measured over 11 runs,
+# clearance 334-343 and shorting_items 148-174. With it those counts are stable
+# and clearance reads 499 -- the same figure docs/STRATEGY.md records for this
+# board. The earlier numbers were a sample, not a measurement.
+#
+# Omitting it here meant `make drc` disagreed with CI, with
+# power_pcb_dataset/drc_ceiling.json, and with itself between runs. See the
+# rationale in packages/temper-placer/src/temper_placer/validation/_drc_api.py.
 drc:
 	@echo "Running KiCad DRC..."
-	kicad-cli pcb drc --exit-code-violations $(ROUTED_PCB)
+	kicad-cli pcb drc --all-track-errors --exit-code-violations $(ROUTED_PCB)
 
 # Fast inner-loop test run: skips the 163 tests marked `slow` (of 6389).
 #
