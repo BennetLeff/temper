@@ -18,6 +18,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from pr_perf_compare import (  # noqa: E402
     COMPLETION_MARGIN,
+    DEFAULT_WINDOW,
     IMPROVEMENT_THRESHOLD,
     TIMING_MARGIN,
     PerfGateError,
@@ -217,3 +218,137 @@ def test_baseline_is_the_median_of_the_trailing_window():
 
 def test_records_without_board_or_stage_are_not_baselines():
     assert load_main_baselines([{"module": "m", "metrics": {"x_ms": 1.0}}]) == {}
+
+
+# ---------------------------------------------------------------------------
+# Baseline WIDTH -- the defect that produced false positives on clean PRs
+#
+# The window logic above was always correct. What was wrong is that the
+# committed baseline could never fill it: .github/workflows/pr-perf-check.yml
+# triggered on `pull_request` only, so no row was ever measured on main and the
+# file sat at n=1 per (module, board, stage). A one-row "median" is that row,
+# so no smoothing happened at all and the full CI variance landed against the
+# 20% margin.
+# ---------------------------------------------------------------------------
+
+# Verbatim CI readings of `rust_over_oracle_ratio` for
+# bottleneck-geometry/synthetic/hard_blocked_batch, taken from
+# power_pcb_dataset/metrics/perf_ab_baseline.jsonl. The first is the lone row
+# the baseline shipped with; the rest are later CI runs of code that does not
+# touch the benchmarked module. The reading under test, 0.416550, is PR #544 --
+# a one-line `typing.cast()` in router_v6/channel_widths.py, which compiles to
+# `return val` and cannot move a bottleneck-geometry benchmark.
+_CI_HARD_BLOCKED = [0.328949, 0.368897, 0.343520, 0.360175, 0.367011]
+_PR544_HARD_BLOCKED = 0.416550
+
+
+def test_single_row_baseline_reports_a_runtime_no_op_as_a_regression():
+    """The false positive, reproduced. This is the behaviour being fixed."""
+    baselines = load_main_baselines(
+        [_record(_CI_HARD_BLOCKED[0], stage="hard_blocked_batch")]
+    )
+    results = compare(
+        [_record(_PR544_HARD_BLOCKED, stage="hard_blocked_batch")], baselines
+    )
+    delta = results[0]["deltas"]["rust_over_oracle_ratio"]
+    assert delta["delta_pct"] == pytest.approx(26.6, abs=0.1)
+    assert delta["status"] == "REGRESSION"
+    assert gate_failures(results)
+
+
+def test_five_row_baseline_absorbs_the_same_reading():
+    """Same reading, same margin, baseline widened to the full window."""
+    baselines = load_main_baselines(
+        [
+            _record(r, stage="hard_blocked_batch", ts=f"2026-08-04T00:00:0{i}")
+            for i, r in enumerate(_CI_HARD_BLOCKED)
+        ]
+    )
+    results = compare(
+        [_record(_PR544_HARD_BLOCKED, stage="hard_blocked_batch")], baselines
+    )
+    delta = results[0]["deltas"]["rust_over_oracle_ratio"]
+    assert delta["delta_pct"] == pytest.approx(15.7, abs=0.1)
+    assert delta["status"] == "OK"
+    assert gate_failures(results) == []
+    # And the fix is the baseline, not a loosened margin.
+    assert TIMING_MARGIN == 0.20
+
+
+def test_committed_baseline_fills_the_rolling_window():
+    """The committed baseline must carry a full window per benchmark key.
+
+    A key with fewer than DEFAULT_WINDOW rows gets no smoothing, which is what
+    made an unrelated PR look like a 26.6% regression. New benchmarks land with
+    one row by necessity; the capture path on main
+    (.github/workflows/pr-perf-check.yml, `push: branches: [main]`) is what
+    fills them in, and this test is the reminder that it has to happen.
+    """
+    baseline_path = (
+        Path(__file__).resolve().parents[2]
+        / "power_pcb_dataset/metrics/perf_ab_baseline.jsonl"
+    )
+    records = _parse_records(baseline_path.read_text(), str(baseline_path))
+    assert records, "the committed baseline is empty -- the gate fails closed"
+
+    counts: dict[tuple[str, str, str], int] = {}
+    for r in records:
+        key = (r.get("module", ""), r.get("board", ""), r.get("stage", ""))
+        counts[key] = counts.get(key, 0) + 1
+
+    thin = {k: n for k, n in counts.items() if n < DEFAULT_WINDOW}
+    assert not thin, (
+        f"these benchmark keys have fewer than {DEFAULT_WINDOW} baseline rows "
+        f"and are therefore unsmoothed: {thin}. Capture more rows from main "
+        f"(run pr-perf-check.yml via workflow_dispatch, or wait for a main "
+        f"push in its trigger paths) and append them. Do NOT capture locally: "
+        f"darwin measures ~-11% against the Linux CI container on identical "
+        f"code."
+    )
+
+
+def _unbaselined_entry(module="new-mod", stage="new_stage"):
+    return [{
+        "module": module, "board": "synthetic", "stage": stage,
+        "metrics": {"rust_over_oracle_ratio": 0.5},
+    }]
+
+
+def test_new_benchmark_does_not_fail_the_gate() -> None:
+    """A benchmark absent from main's registry is its first appearance.
+
+    No baseline CAN exist: the gate reads the baseline from main (so a PR
+    cannot move its own goalposts) and main does not have this code. Failing
+    here made adding any benchmark impossible in one PR.
+    """
+    results = compare(
+        _unbaselined_entry(), {}, main_benchmarks={("existing-mod", "existing_stage")}
+    )
+    assert results[0]["status"] == "NEW_BENCHMARK"
+    assert gate_failures(results) == []
+
+
+def test_benchmark_on_main_without_a_baseline_row_still_fails() -> None:
+    """The vacuity case must keep failing closed.
+
+    A module that exists on main and ships without a baseline row is not
+    covered by the performance A/B. That is what this gate is for, and the
+    NEW_BENCHMARK carve-out must not widen to cover it.
+    """
+    results = compare(
+        _unbaselined_entry(), {}, main_benchmarks={("new-mod", "new_stage")}
+    )
+    assert results[0]["status"] == "NO_BASELINE"
+    failures = gate_failures(results)
+    assert len(failures) == 1
+    assert "already exists on main" in failures[0]
+
+
+def test_absent_registry_degrades_to_the_strict_behaviour() -> None:
+    """No registry supplied -> every unbaselined key stays NO_BASELINE.
+
+    A fetch failure in CI must not silently turn the gate permissive.
+    """
+    results = compare(_unbaselined_entry(), {}, main_benchmarks=None)
+    assert results[0]["status"] == "NO_BASELINE"
+    assert len(gate_failures(results)) == 1
