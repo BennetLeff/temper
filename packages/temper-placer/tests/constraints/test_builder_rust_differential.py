@@ -192,3 +192,16 @@ class TestToYamlDifferential:
         for zones in (None, [], ["Zone1"]):
             assert o.validate(100.0, 100.0, ["A"], zones) == s.validate(100.0, 100.0, ["A"], zones)
             assert s.validate(100.0, 100.0, ["A"], zones) == []
+
+    def test_empty_string_zone_omitted_in_to_yaml(self):
+        """The `if group.zone:` gate applies to the to_yaml dict-shape too:
+        an empty-string zone is falsy, so the `zone` key is omitted exactly
+        as for zone=None. `test_empty_string_zone_is_ignored` pins the same
+        gate on validate(); this pins it on the serialization shape (the
+        `if let Some(zone) = &g.zone` variant would emit `zone: ''`)."""
+        for zone in ("", None):
+            o = _apply(_oracle.ConstraintBuilder(), [("add_group", ("g", ["A"]), {"zone": zone})])
+            s = _apply(ConstraintBuilder(), [("add_group", ("g", ["A"]), {"zone": zone})])
+            assert o.to_yaml() == s.to_yaml(), f"to_yaml mismatch zone={zone!r}"
+        data = yaml.safe_load(s.to_yaml())
+        assert "zone" not in data["groups"][0]

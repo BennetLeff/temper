@@ -335,6 +335,22 @@ class TestReportBoundaryDifferential:
         assert sr.results[0].status == ConstraintStatus.SATISFIED
         assert sr.results[0].message == "ComponentSpacing: A - B (10.0mm ≥ 10.0mm)"
 
+    def test_spacing_message_multi_decimal_threshold(self):
+        """A multi-decimal threshold discriminates `py_float_str` from
+        `{:.1}` in messages: str(10.25) == '10.25' but format('{:.1}',
+        10.25) == '10.2' (mutant M5). An integral `.0` threshold like 10.0
+        does NOT discriminate — both render '10.0'."""
+        constraints = PlacementConstraints(
+            component_spacing_rules=[
+                ComponentSpacingRule(component_a="A", component_b="B", min_separation_mm=10.25, tier="hard")
+            ]
+        )
+        o, s = _both(constraints)
+        placements = {"A": (0.0, 0.0), "B": (5.0, 0.0)}  # dist 5.0 < 10.25 -> violated
+        or_, sr = o.check(placements), s.check(placements)
+        assert [_result_key(r) for r in or_.results] == [_result_key(r) for r in sr.results]
+        assert sr.results[0].message == "ComponentSpacing: A - B (5.0mm < 10.25mm)"
+
     def test_corridor_check_exact_half_width_clear(self):
         """dist == half_width is NOT a violation (strict <)."""
         constraints = PlacementConstraints(

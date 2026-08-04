@@ -264,6 +264,114 @@ class TestSlotScorerDifferential:
             assert _f(os_(slot, "MOSFET", {})) == _f(ss(slot, "MOSFET", {}))
 
 
+class TestMalformedPlacementsDifferential:
+    """Placement values that are not 2-sequences of numbers raise in the
+    oracle (`placements[other]` + tuple unpack inside `_distance`); the Rust
+    must raise the same exception rather than silently skipping the rule
+    (slot accepted / zero penalty). The oracle raises lazily — only a
+    placement actually touched by a rule that fires on `component`."""
+
+    def _both_compilers(self):
+        constraints = _constraints(
+            component_spacing_rules=[
+                ComponentSpacingRule(component_a="A", component_b="B", min_separation_mm=10.0, tier="hard")
+            ],
+            component_groups=[
+                ComponentGroup(
+                    name="g",
+                    components=["A", "B"],
+                    proximity_rules=[
+                        ProximityRule(component_a="A", component_b="B", max_distance_mm=20.0, tier="soft")
+                    ],
+                )
+            ],
+        )
+        return _both(constraints)
+
+    def _assert_same_exception(self, label, placements, check_message=True):
+        """Both surfaces (filter and scorer) must raise on both sides, with
+        the same exception type (and, where wording is identical, message)."""
+        o, s = self._both_compilers()
+        for surface, make in (
+            ("filter", lambda c: c.compile_to_slot_filter()),
+            ("scorer", lambda c: c.compile_to_slot_scorer()),
+        ):
+            o_f, s_f = make(o), make(s)
+            try:
+                o_f((0.0, 0.0), "B", placements)
+            except Exception as oe:  # noqa: BLE001
+                oracle_err = oe
+            else:
+                raise AssertionError(f"{label}/{surface}: oracle did not raise")
+            try:
+                s_f((0.0, 0.0), "B", placements)
+            except Exception as se:  # noqa: BLE001
+                shim_err = se
+            else:
+                raise AssertionError(
+                    f"{label}/{surface}: shim did not raise (rule silently not "
+                    f"fired); oracle raised {type(oracle_err).__name__}"
+                )
+            assert type(shim_err) is type(oracle_err), (
+                f"{label}/{surface}: type mismatch — shim {type(shim_err).__name__}, "
+                f"oracle {type(oracle_err).__name__}"
+            )
+            if check_message:
+                assert str(shim_err) == str(oracle_err), (
+                    f"{label}/{surface}: message mismatch — shim {str(shim_err)!r}, "
+                    f"oracle {str(oracle_err)!r}"
+                )
+
+    def test_non_tuple_value_raises(self):
+        """placements['A'] = 5.0: oracle `p2[0]` raises TypeError
+        ('float' object is not subscriptable); identical from pyo3."""
+        self._assert_same_exception("non-tuple", {"A": 5.0})
+
+    def test_short_sequence_raises(self):
+        """placements['A'] = (1.0,): oracle `p2[1]` raises IndexError
+        (tuple index out of range); identical from pyo3."""
+        self._assert_same_exception("1-elem", {"A": (1.0,)})
+
+    def test_non_numeric_value_raises_type_error(self):
+        """placements['A'] = ('x', 'y'): both sides raise TypeError, but the
+        message wording differs (CPython's arithmetic error vs pyo3's
+        extract error) — type is pinned here, wording deviation recorded in
+        VERIFICATION.md."""
+        self._assert_same_exception("non-numeric", {"A": ("x", "y")}, check_message=False)
+
+    def test_dict_subclass_raising_getitem_propagates(self):
+        """A dict subclass whose `__getitem__` raises must propagate that
+        exception (oracle `placements[other]` goes through `__getitem__`)."""
+
+        class RaisingDict(dict):
+            def __getitem__(self, key):
+                if key == "A":
+                    raise RuntimeError("boom from __getitem__")
+                return dict.__getitem__(self, key)
+
+        self._assert_same_exception("raising-dict", RaisingDict({"A": (1.0, 2.0), "Z": (3.0, 4.0)}))
+
+    def test_longer_sequence_uses_first_two(self):
+        """A 3-sequence works on both sides: Python `_distance` and Rust
+        `extract_point` both read only elements [0] and [1]."""
+        o, s = self._both_compilers()
+        of, sf = o.compile_to_slot_filter(), s.compile_to_slot_filter()
+        os_, ss = o.compile_to_slot_scorer(), s.compile_to_slot_scorer()
+        placements = {"A": (1.0, 2.0, 3.0)}
+        assert of((0.0, 0.0), "B", placements) == sf((0.0, 0.0), "B", placements)
+        assert _f(os_((0.0, 0.0), "B", placements)) == _f(ss((0.0, 0.0), "B", placements))
+
+    def test_unrelated_malformed_is_inert(self):
+        """A malformed placement for a component no fired rule references is
+        never touched (lazy semantics): both sides accept the slot."""
+        o, s = self._both_compilers()
+        of, sf = o.compile_to_slot_filter(), s.compile_to_slot_filter()
+        os_, ss = o.compile_to_slot_scorer(), s.compile_to_slot_scorer()
+        placements = {"Z9": "nope"}
+        assert of((0.0, 0.0), "B", placements) == sf((0.0, 0.0), "B", placements)
+        assert _f(os_((0.0, 0.0), "B", placements)) == _f(ss((0.0, 0.0), "B", placements))
+
+
 class TestValidateDifferential:
     def _netlist(self, refs):
         class NL:
