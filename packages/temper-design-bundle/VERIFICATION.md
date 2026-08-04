@@ -1029,3 +1029,209 @@ implementations (`tests/core/_board_py_oracle.py`, commit `5a17025b1`;
 - R1h: **N/A — these modules hold no state machine.** They are data
   contracts; the only mutable state is the caller's own field values and the
   three derived index dicts, whose rebuild is asserted idempotent (MR1/MR4).
+
+---
+
+# Config / reference loaders — Verification
+
+The config/reference loaders (`src/config_loader.rs`, `src/reference_loader.rs`
+in this crate; `src/footprint_library.rs`, `src/reference_aliases.rs` in
+`temper-io-types`) are Wave 4 **Phase 3, candidate 5** (plan
+`docs/plans/2026-08-02-001-feat-wave4-phase3-formats-io-plan.md`), ported from
+`temper_placer/io/config_loader.py` (967 LOC), `io/reference_loader.py` (405),
+`io/footprint_library.py` (213) and `io/reference_aliases.py` (92). All four
+Python modules are now delegation shims (config_loader and reference_loader
+keep their orchestration Python where the parse engine / numpy boundary is
+unmigrated; footprint_library and reference_aliases are pure re-exports).
+
+## Home-crate decision (Q3)
+
+The candidate splits across the two seeded crates, on dependency grounds:
+
+- **`temper-design-bundle`** owns `config_loader.rs` and `reference_loader.rs`
+  because the config loader constructs this crate's own contract pyclasses
+  (`Zone`, `GroundDomain`, `Board`, `LayerStackup`, `NetClassification`) and
+  calls `NetClassification.from_yaml_config` (already Rust here); a
+  dependency from `temper-io-types` onto this crate would have been the only
+  one of its kind.
+- **`temper-io-types`** owns `footprint_library.rs` and `reference_aliases.rs`
+  because `FootprintSpec` already lived there (`footprint_spec.rs`, the pure
+  data holder); the loader reuses it, and neither module touches the
+  contract pyclasses.
+
+## The pydantic boundary (the candidate-5 crux)
+
+**pydantic is not reimplemented in Rust.** Two of the three authorities in
+the load chain stay on the Python side and are called back across the
+boundary, exactly like `design_rules.rs`'s Python call-backs:
+
+1. **PyYAML** (`yaml.safe_load`) — YAML 1.1 vs serde_yaml's 1.2 disagree on
+   `on`/`off`, `012`, `1_000`. Re-tokenising in Rust would change behaviour
+   while the differential on shipped fixtures stays green; the differential
+   pins a YAML-1.1 discriminator (`thermal_pad: on` → `True`) so the choice
+   is load-bearing, and mutant M2 (a BaseLoader no-typing parse) was caught.
+2. **pydantic** (`PlacementConstraints.model_validate`) — the final authority
+   over coercion, constraint validation and the `ValidationError` text. A
+   second, drifting copy of the schema in Rust is exactly what this
+   candidate refuses to build.
+
+Everything downstream of the YAML parse — field mapping, default evaluation
+order, coercion *order*, dict iteration order, the eager typed-construction
+error timing (a `ClearanceRule(...)` inside the transform raises *before*
+`model_validate`, unwrapped by `load_constraints`), and the post-validate
+passes (`_emit_keepout_constraints`, `_build_net_classification`,
+`_validate_current_capacity`) — is Rust, with typed leaves constructed by
+calling the Python classes at the same points the oracle does (pydantic
+models from `temper_placer._constraint_types`, `NetGraph`/`SubNetEdge` from
+`core.net_graph`, PCL constraints from `temper_placer.pcl`,
+`estimate_current_from_net_class` from `core.ipc2221`), so error timing and
+error text are the oracle's by construction. Arithmetic (`bounds_ratio`
+scaling, fixed-position floats) goes through Python's own operators
+(`PyAnyMethods::mul` etc.), never Rust `f64`, so `int`-vs-`float` outcomes
+are CPython's (board-contracts case-6 lesson). `round()` in
+`reference_loader.rs` is CPython's own `round()` called back (banker's
+rounding on the exact binary value — the candidate-6 trap; mutant M8, a
+`f64::round` half-away-from-zero port, was caught by a `0.0625` exact-tie
+density discriminator).
+
+## R3 boundary decision (named blocker)
+
+`reference_loader.py`'s *load* path — `load_reference_pcb` (calls the KiCad
+parse engine, candidate 3, built in parallel), `filter_components` (numpy
+fancy indexing + `ParseResult` construction) and
+`netlist_to_placement_state` (numpy `PlacementState`, a Phase 4/5 surface) —
+**stays Python** until those surfaces land; the two pure kernels
+(`compute_design_stats`, `infer_quality_config`) are Rust and the shim calls
+them. This is not a deferral: the kernels are pure over the candidate-1
+`Netlist`/`Net`/`Board` pyclasses, so migrating them now is sound, and the
+entangled orchestration names its blockers (parse engine, numpy
+`PlacementState`).
+
+## Induction applicability
+
+**Mathematical induction is not applicable to these modules.** No loader
+function is recursive, and none iterates over a dimension whose correctness
+depends on a size parameter: `preprocess_config` is a fixed section-by-section
+dict transform (each section's correctness is local), `from_yaml_string` /
+`load_reference_alias_manifest` validate per-entry with per-entry
+independence, and the stats/quality kernels fold over caller-provided
+collections with per-element independence (asserted by the permutation MRs).
+Per the plan's R1e, a **structural proof** is recorded instead:
+
+**Claim (bit-identical parity).** For every migrated symbol, the Rust
+behaviour is bit-identical to the pinned pre-migration Python
+implementations (`tests/io/_config_loader_py_oracle.py` etc., commit
+79ab9bd0e).
+
+*Proof by structural cases.* (1) **Field mapping/defaults** — every `.get(key,
+default)` call is transcribed with the oracle's exact default and evaluation
+order, and every typed leaf is constructed by calling the Python class at the
+same point, so construction errors raise with the oracle's timing and text.
+(2) **Coercions** — `float()`/`bool()`/`str()`/`int()`/`tuple()`/`set()` are
+CPython's own constructors called back. (3) **Iteration order** — dict
+iterations go through `items()` (insertion order), asserted by MR1; a
+HashMap-based port would scramble it. (4) **Truthiness-`or`** — the
+differential-pair and `via_template` fallbacks preserve `x or y` semantics
+(P5 pins the falsy-primary cases). (5) **Numeric leaves** — all arithmetic
+through Python operators; `round()` through CPython; `{:.1f}`-style messages
+format identically (both languages round decimal digits half-to-even).
+(6) **Error strings** — every `ValueError`/`KeyError`/`FileNotFoundError`
+message is transcribed byte-identically and asserted by the differential's
+`canon_call` error parity. (7) **Type preservation** — `FootprintSpec`
+stores the caller's own objects (`Py<PyAny>`), so `bounds: [2, 1]` stays
+`int`; the pydantic `model_validate` authority then coerces exactly as it
+always did.
+
+## Mutation campaign (anti-vacuity)
+
+Ten mutants, every one ultimately caught by the differential/PBT suites;
+three survived their first run and were closed by adding discriminating
+fixtures (the guide's survivable-mutant pattern):
+
+| # | Mutant | Caught by | Notes |
+|---|--------|-----------|-------|
+| M1 | footprint bounds `len == 2` check dropped | invalid-bounds error parity | |
+| M2 | `yaml.safe_load` → `yaml.BaseLoader` (no scalar typing) | 7 failures incl. the YAML-1.1 `on` discriminator | proves the PyYAML call-back is load-bearing |
+| M3 | self-alias check dropped | `test_rejects_self_alias` | |
+| M4 | `str.strip` → Rust `str::trim` | **strip is load-bearing** — a trim-based port would diverge on escape-decoded C0 controls | Python `str.strip` strips U+001C-U+001F (part of its Unicode whitespace set); Rust `str::trim`/`char::is_whitespace` does not (category Cc, not White_Space). PyYAML DECODES the double-quoted escape `"\x1c"` into U+001C — the Reader validates the raw input stream, not decoded escapes — so the divergence IS reachable. The `"\x1c"`-escaped fixture in `test_reference_aliases_rust_differential.py::test_escape_decoded_control_char_name_rejected` pins the call-back: the oracle rejects the name as empty, and the shim reaches the same verdict through the KEPT Python `str.strip` call (reference_aliases.rs:182); a trim-based port would accept it (asserted via the Rust unit test `rust_trim_keeps_u001c_where_python_strip_removes_it`). |
+| M5 | `_NAME_MAP` `zone_membership` alias dropped | P3 / P1 | |
+| M6 | `allow_neckdown` default flipped | production-fixture differential | |
+| M7 | differential-pair key-existence fallback | rewritten P5 | the exploration **exposed a real bug**: the initial Rust had key-existence (the truthiness-or fix had silently not applied) and P5's first draft was vacuous (no negative net in any case) — both fixed. The fix scope is the FULL truthiness-or chain: the pos/neg polarity fallbacks (`positive_net or net_pos`) **and** the spacing/impedance fallbacks (`separation_mm or spacing_mm or 0.2`, `target_impedance_ohm or impedance_ohm`) — key-existence on the latter fed `0` into pydantic's `gt=0` spacing field (raise) or `0.0` into impedance where the oracle yields `None`. RED fixtures: `separation_mm: 0`, `spacing_mm: 0`, `target_impedance_ohm: 0`, `impedance_ohm: 0`, each alone and alongside a live fallback key (commit 3b387e7cc, 9 failed) |
+| M8 | CPython `round()` → `f64::round` | `0.0625` exact-tie density discriminator | survived v1 (whole-number fixtures); round-half-even gives 0.062, f64::round 0.063 |
+| M9 | `loops[:3]` cap dropped | loop-cap test / P5 | |
+| M10 | `LossConfig.enabled` default flipped | dict-form-losses discriminator | survived v1 (the `loss_weights` path goes through the float branch and cannot see it) |
+
+## Recorded risks (per R1, documented here)
+
+Two review-flagged risks are recorded, not fixed — both are unreachable from
+the shipped corpus and neither currently diverges:
+
+1. **Triple-source RJC table drift.** `infer_rjc` carries a Rust copy of the
+   package table (`RJC_PACKAGE_LOOKUP` / `DEFAULT_RJC` in `config_loader.rs`,
+   lines ~192/205) while the shim keeps the legacy module constants
+   (`_RJC_PACKAGE_LOOKUP` / `_DEFAULT_RJC` in `io/config_loader.py`) for
+   import-surface stability — and the same table exists a THIRD time in
+   `temper_placer/_constraint_types/thermal.py` (`_RJC_PACKAGE_LOOKUP` /
+   `_DEFAULT_RJC`, the thermal-constraint module's own copy, predating the
+   migration). All three copies now agree, each carries a cross-linking
+   "mirrors ..." comment naming the other two, and the differential's
+   `test_infer_rjc_matches_oracle` exercises the Rust table against the
+   oracle's own constant-driven `infer_rjc` — so a drift in the Rust table
+   would be caught, but a simultaneous edit of two or three of the tables (or
+   a drift in the shim/thermal constants, which the differential does not
+   read) would not be. Nothing enforces future identity; a follow-up could
+   derive one table from the other or pin all three in a single shared
+   fixture.
+2. **Non-dict `board` section error-family divergence risk.** A non-dict
+   `board` value reaches the `.get` probe through different mechanisms on
+   the two arms (oracle: Python attribute access `board.get(...)`; Rust:
+   `call_method("get", ...)`). On every reachable probe (`int`, `float`,
+   `bool`, `str`, `list`, `None`) both arms raise `AttributeError: '<T>'
+   object has no attribute 'get'` with identical text, so the shipped
+   behavior agrees; the *family* could split only for a mapping-lite type
+   whose `.get` resolves via `__getattr__` (or shadows differently), which
+   no YAML document can produce. Untested by design — unreachable from the
+   shipped corpus (every production config has a dict `board` section).
+
+## Evidence
+
+- Differential (R1a/R1f, TDD red→green): 56 assertions across
+  `tests/io/test_{config_loader,reference_loader,footprint_library,reference_aliases}_rust_differential.py`
+  (oracles `_*_py_oracle.py`, commit 79ab9bd0e). RED first: all four failed
+  to collect (`AttributeError: module 'temper_io_types' has no attribute
+  'FootprintLibrary'`) before the Rust landed. Floats via `float.hex()`,
+  concrete leaf types in comparison keys, error type+message parity via
+  `canon_call`, numpy arrays as `(dtype, shape, tobytes())`.
+- PBT (R1c): 6+5+6+6 = 23 properties across the four `test_*_pbt.py` files,
+  each parity- or invariant-stated against the pinned oracle and vacuity-
+  guarded (int-bounds type preservation, empty-input semantics, the
+  falsy-primary differential-pair cases, the `0.0625` tie, the loop cap).
+- Metamorphic (R1d): 3 relations per module (16 total): insertion-order
+  preservation, add-replace idempotence, get-default (footprint);
+  available-set independence, set order, namespace isolation (aliases);
+  insertion order, unknown-section independence, losses-vs-loss-weights
+  precedence (config); permutation, append, additive area (reference).
+- Performance A/B (R1b): `benchmarks/perf_ab.py` registers
+  `config-loader/preprocess_config` and `footprint-library/from_yaml_string`
+  — pure-delegation arms (both sides call the same Python constructors), so
+  the honest claim is no-regression-beyond-noise, and no speedup is claimed
+  (measured local ratios 1.26 / 0.85 — marshalling-dominated, and baselines
+  are captured on CI per the harness docs).
+- Consumer suites: all 371 `tests/io/` tests pass (including the pre-existing
+  `test_footprint_library.py`, `test_reference_aliases.py`,
+  `test_config_validation.py`, `test_escape_clearance.py`,
+  `test_net_topology_config.py`, `test_integration.py`); the broad suite shows
+  no regression — every one of the 16 failures present is pre-existing at the
+  base commit (verified in a scratch worktree: physics-provenance script
+  tests, closure/router runs, mfem binary, kicad-cli courtyard counts).
+- R1g: no `unwrap`/`expect` outside tests (both crates deny them via
+  `[lints.clippy]`); container fields are stored/returned by handle
+  (`Py<PyAny>`) not copied; every Python call-back is a `PyResult` and panics
+  at the pyo3 boundary are converted by pyo3 0.29's generated trampolines
+  (`catch_unwind` in the `#[pymethods]`/`#[pyfunction]` expansion).
+- R1h: **N/A — the loaders are not physics-gated.** They move numbers
+  (bounds, clearances, current ratings) without gating on a physics quantity;
+  the R24 discipline (soundness proof, BMC, post-solve audit) applies to
+  CP-SAT constraints, not to config parsing.
+- Type-check: stubs updated in `temper_design_bundle_python/__init__.pyi`;
+  the `io/config_loader.py` allowlist entry shrank 2 → 0 errors.
