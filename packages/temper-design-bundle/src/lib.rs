@@ -11,6 +11,9 @@ mod design_rules;
 mod netclass_loader;
 
 #[cfg(feature = "python")]
+mod loop_loader;
+
+#[cfg(feature = "python")]
 mod gates;
 
 #[cfg(feature = "python")]
@@ -182,6 +185,7 @@ mod python {
         crate::loops::register(module)?;
         crate::design_rules::register(module)?;
         crate::netclass_loader::register(module)?;
+        crate::loop_loader::register(module)?;
         crate::gates::register(module)?;
         crate::priority::register(module)
     }

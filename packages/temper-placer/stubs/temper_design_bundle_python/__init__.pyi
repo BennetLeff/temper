@@ -37,6 +37,16 @@ def load_netclass_rules(
     """
 
 
+def load_loop_from_dict(yaml_text: str, source: str = "yaml") -> Loop:
+    """Map a loop-definition YAML document to a Loop pyclass.
+
+    Raises ``temper_placer.io.loop_loader.LoopLoadError`` (imported at call
+    time) with the loader's exact message texts; missing pin fields raise
+    ``KeyError``. The Python shim (temper_placer.io.loop_loader) serializes
+    its input dict to YAML text before delegating.
+    """
+
+
 def preflight_identity(
     pcb_path: str,
     pcb_bytes: bytes,

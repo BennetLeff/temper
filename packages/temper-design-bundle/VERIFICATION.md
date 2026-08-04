@@ -766,3 +766,83 @@ the pinned pre-migration Python implementation
 - Consumer suites run unchanged against the shim:
   `test_netclass_loader.py` (15 tests, including the GateDrive-split
   regression guards) — verified in the migration PR.
+
+## loop_loader — Verification
+
+`temper_placer/io/loop_loader.py` is now a delegation shim: it keeps the
+file and directory I/O (`load_loop_template`/`load_loop_collection` glue),
+the PyYAML syntax handling, the `save_loop_to_yaml` writer, and the
+`LoopLoadError` exception class (KTD7). The dict-to-`Loop` mapping —
+`load_loop_from_dict`, the case-insensitive enum matching via the landed
+`members()` staticmethod, and the loader's exact error texts — lives in
+this crate's `loop_loader.rs`.
+
+## Induction applicability
+
+**Mathematical induction is not applicable to this module.** The mapping is
+a fixed transcription pass:
+
+- The `pins`/`components`/`nets` loops map each element independently;
+  per-element correctness does not depend on the list's size or order
+  (order is preserved as-is, matching the oracle).
+- Enum matching iterates the finite `members()` list once; the match is a
+  per-member value comparison with no size-dependent behavior.
+
+Per the plan's R1e, a **structural proof** is recorded instead.
+
+## Structural proof
+
+**Claim (bit-identical parity).** For every loop-definition YAML document,
+the Rust mapping produces the same `Loop` pyclass as the pinned
+pre-migration Python implementation
+(`packages/temper-placer/tests/io/_loop_loader_py_oracle.py`, commit
+`f2b09d846`).
+
+*Proof by structural cases.*
+
+1. **Required fields.** `name` and `loop_type` are read first; a missing
+   key raises `LoopLoadError` with the oracle's exact text (including the
+   `'name'`/`'loop_type'` KeyError repr inside). `description` defaults to
+   `""`.
+2. **Enum members.** `loop_type` and `priority` are matched
+   case-insensitively against the enum's own `members()` staticmethod (the
+   pyo3 iteration substitute — the same call the pre-migration Python used
+   after the Phase-2 adaptation); a non-match raises the oracle's exact
+   text, including the Python-style single-quoted value list (B9) and the
+   asymmetric "Valid types:" / "Valid priorities:" wording. An absent
+   priority defaults to `MEDIUM`.
+3. **Pins.** Each pin maps `component`/`pin` through the oracle's `str()`
+   coercion and `net` as optional; a missing `component`/`pin` raises the
+   raw `KeyError` the oracle's `str(pin_data["component"])` raises outside
+   its try/except.
+4. **Optional scalars and lists.** `max_area_mm2` coerces via Python
+   `float()` semantics (numbers pass, strings parse); events map their six
+   optional fields with `None` preservation; `components`/`nets` pass
+   through in order; `return_layer`/`return_net` are optional strings.
+5. **`LoopLoadError` identity.** The Rust side imports the Python exception
+   class at call time (the `design_rules.rs` lazy-import pattern), so
+   consumers catching `temper_placer.io.loop_loader.LoopLoadError` observe
+   the same class, not a Rust-native substitute.
+6. **Source passthrough.** `source` is carried verbatim from the shim's
+   call, so `load_loop_template`'s `template:<name>` provenance is
+   unchanged.
+
+## Evidence
+
+- Differential (R1a): `test_loop_loader_rust_differential.py` — 17 tests
+  pinning bit-identical loads of all five templates
+  (`packages/temper-placer/configs/templates/loops/`), collection parity,
+  priority defaults, case-insensitivity, events round-trip, save/reload
+  round-trip, and error-text parity (unknown type/priority, missing
+  required fields, raw pin KeyError, empty document). RED first: the test
+  failed to collect before the pyfunction existed.
+- PBT (R1c): `test_loop_loader_pbt.py` — 5 hypothesis properties (P1-P5),
+  each generated over structurally-valid loop definitions.
+- Metamorphic (R1d): `test_loop_loader_pbt.py` — MR1 (key-order
+  independence), MR2 (enum case invariance), MR3 (int/float equivalence).
+- Performance A/B (R1b): pure-delegation loader with no compute kernel;
+  the "no regression beyond noise" carve-out recorded in
+  `docs/evidence/2026-08-04-wave4-slice-delegation-perf-carveout.md`
+  (KTD9) applies.
+- Consumer suites run unchanged against the shim:
+  `test_loop_loader.py` (25 tests) — verified in the migration PR.
