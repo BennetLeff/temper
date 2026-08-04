@@ -489,7 +489,11 @@ pub fn preprocess_config<'py>(py: Python<'py>, raw: &Bound<'py, PyAny>) -> PyRes
                 let entry = entry?;
                 let class_name = entry.get_item(0)?;
                 let net_list = entry.get_item(1)?;
-                if net_list.is_instance_of::<PyList>() || net_list.is_instance_of::<PyTuple>() {
+                // Oracle: `isinstance(net_list, list)` — lists only. A
+                // tuple-valued net_list is NOT processed by the oracle
+                // (tuples are accepted only for keepouts/proximity/
+                // fixed_positions, not here).
+                if net_list.is_instance_of::<PyList>() {
                     for net_name in net_list.try_iter()? {
                         let net_name = net_name?;
                         if net_name.is_instance_of::<PyString>() {
@@ -555,7 +559,10 @@ pub fn preprocess_config<'py>(py: Python<'py>, raw: &Bound<'py, PyAny>) -> PyRes
             let loop_cfg = entry?;
             let pins = if loop_cfg.contains("pins")? {
                 let pins_raw = loop_cfg.get_item("pins")?;
-                if pins_raw.is_none() {
+                // Oracle: `[...] if pins_raw else None` — truthiness, so an
+                // explicit `pins: []` / `pins: ()` / `pins: 0` yields None,
+                // not an empty list (key-existence would diverge).
+                if pins_raw.is_none() || !pins_raw.is_truthy()? {
                     none_obj(py)
                 } else {
                     let pins = PyList::empty(py);
@@ -1080,13 +1087,34 @@ pub fn preprocess_config<'py>(py: Python<'py>, raw: &Bound<'py, PyAny>) -> PyRes
                 dict_get(py, &dc, "net_neg", &none_obj(py))?
             };
             if pos.is_truthy()? && neg.is_truthy()? {
+                // `dc.get("separation_mm") or dc.get("spacing_mm") or 0.2`
+                // — truthiness-or, not key-existence (M7/P5): a present-but-
+                // falsy primary (e.g. `separation_mm: 0`) falls through to
+                // the secondary, then to the 0.2 default. Key-existence here
+                // feeds 0 into pydantic's gt=0 field and raises instead.
                 let spacing = {
-                    let alt = dict_get(py, &dc, "spacing_mm", &f64_obj(py, 0.2)?)?;
-                    dict_get(py, &dc, "separation_mm", &alt)?
+                    let sep = dict_get(py, &dc, "separation_mm", &none_obj(py))?;
+                    if sep.is_truthy()? {
+                        sep
+                    } else {
+                        let sp = dict_get(py, &dc, "spacing_mm", &none_obj(py))?;
+                        if sp.is_truthy()? {
+                            sp
+                        } else {
+                            f64_obj(py, 0.2)?.into_any()
+                        }
+                    }
                 };
+                // `dc.get("target_impedance_ohm") or dc.get("impedance_ohm")`
+                // — same truthiness-or; the result may be None (both absent
+                // or both falsy), which pydantic's None default accepts.
                 let impedance = {
-                    let alt = dict_get(py, &dc, "impedance_ohm", &none_obj(py))?;
-                    dict_get(py, &dc, "target_impedance_ohm", &alt)?
+                    let target = dict_get(py, &dc, "target_impedance_ohm", &none_obj(py))?;
+                    if target.is_truthy()? {
+                        target
+                    } else {
+                        dict_get(py, &dc, "impedance_ohm", &none_obj(py))?
+                    }
                 };
                 let dp = call_with_kwargs(
                     &cls,
@@ -1266,14 +1294,18 @@ pub fn preprocess_config<'py>(py: Python<'py>, raw: &Bound<'py, PyAny>) -> PyRes
                 let entry = entry?;
                 let wkey = entry.get_item(0)?;
                 let wval = entry.get_item(1)?;
-            let wkey_str: String = wkey.extract()?;
-            let name: &str = NAME_MAP
-                .iter()
-                .find(|(from, _)| *from == wkey_str)
-                .map(|(_, to)| *to)
-                .unwrap_or(&wkey_str);
-            if LOSS_NAMES.contains(&name) {
-                mapped.set_item(name, py_float(py, &wval)?)?;
+            // Oracle: `_NAME_MAP.get(wkey, wkey)` tolerates any hashable
+            // key — a non-str key can never be a loss name, so it is
+            // skipped silently (a raw extract here would raise TypeError).
+            if let Ok(wkey_str) = wkey.extract::<String>() {
+                let name: &str = NAME_MAP
+                    .iter()
+                    .find(|(from, _)| *from == wkey_str)
+                    .map(|(_, to)| *to)
+                    .unwrap_or(&wkey_str);
+                if LOSS_NAMES.contains(&name) {
+                    mapped.set_item(name, py_float(py, &wval)?)?;
+                }
             }
         }
         let losses = build_losses_config(py, &mapped.into_any())?;
@@ -1408,12 +1440,19 @@ pub fn preprocess_config<'py>(py: Python<'py>, raw: &Bound<'py, PyAny>) -> PyRes
             let center_t = PyTuple::new(py, [cx, cy])?;
             let size_t = PyTuple::new(py, [sx, sy])?;
             let hz_name = hc.get_item("name")?;
-            let hz_name_str: String = hz_name.extract()?;
-            let component_refdes = name_to_refdes
-                .iter()
-                .find(|(n, _)| *n == hz_name_str)
-                .map(|(_, r)| str_obj(py, r))
-                .unwrap_or_else(|| none_obj(py));
+            // Oracle: `_NAME_TO_REFDES.get(hc["name"])` — a non-str name
+            // simply misses the lookup (dict.get, not __getitem__) and
+            // yields None; pydantic then raises its own wrapped
+            // ValidationError for the bad `name` field. A raw extract
+            // here would raise a bare TypeError instead.
+            let component_refdes = match hz_name.extract::<String>() {
+                Ok(hz_name_str) => name_to_refdes
+                    .iter()
+                    .find(|(n, _)| *n == hz_name_str)
+                    .map(|(_, r)| str_obj(py, r))
+                    .unwrap_or_else(|| none_obj(py)),
+                Err(_) => none_obj(py),
+            };
             let z = call_with_kwargs(
                 &cls,
                 py,

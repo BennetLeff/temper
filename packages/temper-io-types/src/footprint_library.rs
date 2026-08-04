@@ -133,8 +133,11 @@ impl PyFootprintLibrary {
         let lib = PyFootprintLibrary::new(py)?;
         let data = yaml_safe_load(py, yaml_content)?;
 
-        // `if not data or "footprints" not in data: return lib`
-        if data.bind(py).is_none() {
+        // `if not data or "footprints" not in data: return lib` — the falsy
+        // short-circuit matters: `from_yaml_string("0")` / `"false"` load to
+        // falsy scalars and must return an empty library, NOT raise TypeError
+        // from the `in` probe below (int/bool have no `__contains__`).
+        if data.bind(py).is_none() || !data.bind(py).is_truthy()? {
             return Ok(lib);
         }
         let data = data.bind(py);

@@ -1156,10 +1156,37 @@ fixtures (the guide's survivable-mutant pattern):
 | M4 | `str.strip` → Rust `str::trim` | **proven equivalent** on the reachable domain | the C0-control chars where they diverge are YAML-unprintable (PyYAML raises `ReaderError` before `strip` runs); the call-back is kept by design |
 | M5 | `_NAME_MAP` `zone_membership` alias dropped | P3 / P1 | |
 | M6 | `allow_neckdown` default flipped | production-fixture differential | |
-| M7 | differential-pair key-existence fallback | rewritten P5 | the exploration **exposed a real bug**: the initial Rust had key-existence (the truthiness-or fix had silently not applied) and P5's first draft was vacuous (no negative net in any case) — both fixed |
+| M7 | differential-pair key-existence fallback | rewritten P5 | the exploration **exposed a real bug**: the initial Rust had key-existence (the truthiness-or fix had silently not applied) and P5's first draft was vacuous (no negative net in any case) — both fixed. The fix scope is the FULL truthiness-or chain: the pos/neg polarity fallbacks (`positive_net or net_pos`) **and** the spacing/impedance fallbacks (`separation_mm or spacing_mm or 0.2`, `target_impedance_ohm or impedance_ohm`) — key-existence on the latter fed `0` into pydantic's `gt=0` spacing field (raise) or `0.0` into impedance where the oracle yields `None`. RED fixtures: `separation_mm: 0`, `spacing_mm: 0`, `target_impedance_ohm: 0`, `impedance_ohm: 0`, each alone and alongside a live fallback key (commit 3b387e7cc, 9 failed) |
 | M8 | CPython `round()` → `f64::round` | `0.0625` exact-tie density discriminator | survived v1 (whole-number fixtures); round-half-even gives 0.062, f64::round 0.063 |
 | M9 | `loops[:3]` cap dropped | loop-cap test / P5 | |
 | M10 | `LossConfig.enabled` default flipped | dict-form-losses discriminator | survived v1 (the `loss_weights` path goes through the float branch and cannot see it) |
+
+## Recorded risks (per R1, documented here)
+
+Two review-flagged risks are recorded, not fixed — both are unreachable from
+the shipped corpus and neither currently diverges:
+
+1. **Dual-source RJC table drift.** `infer_rjc` carries a Rust copy of the
+   package table (`RJC_PACKAGE_LOOKUP` / `DEFAULT_RJC` in `config_loader.rs`,
+   lines ~187/1907) while the shim keeps the legacy module constants
+   (`_RJC_PACKAGE_LOOKUP` / `_DEFAULT_RJC` in `io/config_loader.py`) for
+   import-surface stability. The two are currently identical, and the
+   differential's `test_infer_rjc_matches_oracle` exercises the Rust table
+   against the oracle's own constant-driven `infer_rjc` — so a drift in the
+   Rust table would be caught, but a simultaneous edit of BOTH tables (or a
+   drift in the *shim* constants, which the differential does not read) would
+   not be. Nothing enforces future identity; a follow-up could derive one
+   table from the other or pin both in a single shared fixture.
+2. **Non-dict `board` section error-family divergence risk.** A non-dict
+   `board` value reaches the `.get` probe through different mechanisms on
+   the two arms (oracle: Python attribute access `board.get(...)`; Rust:
+   `call_method("get", ...)`). On every reachable probe (`int`, `float`,
+   `bool`, `str`, `list`, `None`) both arms raise `AttributeError: '<T>'
+   object has no attribute 'get'` with identical text, so the shipped
+   behavior agrees; the *family* could split only for a mapping-lite type
+   whose `.get` resolves via `__getattr__` (or shadows differently), which
+   no YAML document can produce. Untested by design — unreachable from the
+   shipped corpus (every production config has a dict `board` section).
 
 ## Evidence
 
