@@ -13,11 +13,11 @@ execution: code
 
 ## Goal Capsule
 
-**Objective:** carry the Wave-4 Phase 3 formats/IO phase's first execution slice to landed state: two sequential pulls — the loaders (netclass/loop) as the pilot, then the board/netlist contracts as the spine — plus the Phase-0 hard perf-gate wiring the slice depends on. The parent plan (`docs/plans/2026-08-02-001-feat-wave4-phase3-formats-io-plan.md`) is requirements-only and ready; this plan pins the pull-level contract it left open: the consumer-semantics audit's deliverable, the perf-gate wiring's scope, and the pull sequencing.
+**Objective:** carry the Wave-4 Phase 3 formats/IO phase's first execution slice to landed state: two sequential pulls — the loaders (netclass/loop) as the pilot, then the board/netlist contracts as the spine. The parent plan (`docs/plans/2026-08-02-001-feat-wave4-phase3-formats-io-plan.md`) is requirements-only and ready; this plan pins the pull-level contract it left open: the consumer-semantics audit's deliverable, the pull sequencing, and the adoption of the perf gate that landed upstream (KTD9) while this plan was in review.
 
 **Product authority:** temper-placer plus temper-design-bundle/temper-io-types maintainers, with residual verdicts (R3) reviewed at the program's product authority.
 
-**Open blockers:** none. The two risk centers resolved in-plan: the required-status-check arm of program R2 is recorded as blocked-by-governance (main has no branch protection, per AGENTS.md), and the delegation-mode CI noise floor is a required measurement inside pull 1, not an assumed existing asset.
+**Open blockers:** none. The perf-gate wiring this plan originally carried (U1) landed upstream on 2026-08-04 (#686, #691) while the plan was in review — `continue-on-error` removed, per-key NO_BASELINE fails with capture guidance, baseline growth path (n=6/stage), noise floor measured and documented (`docs/evidence/2026-08-04-perf-ab-harness-noise-floor.md`). Pull 1 re-scopes to verifying the landed gate and recording the delegation carve-out (KTD9). The required-status-check arm of program R2 remains blocked-by-governance (main has no branch protection, per AGENTS.md).
 
 ---
 
@@ -25,7 +25,7 @@ execution: code
 
 ### Summary
 
-The slice is two sequential pulls that open Phase 3. Pull 1 migrates the netclass and loop loaders onto their already-Rust contracts and ships the hard perf-gate wiring (program R2 completion). Pull 2 migrates `core/board.py` and `core/netlist.py` to Rust pyclasses with pure-delegation shims, backed by a full consumer-semantics enumeration whose catalog is committed in the crate's VERIFICATION.md and enforced through the existing per-pull scorecard convention — no new CI gate.
+The slice is two sequential pulls that open Phase 3. Pull 1 migrates the netclass and loop loaders onto their already-Rust contracts, verifies the hard perf gate that landed upstream (#686/#691), and records the delegation carve-out for the slice's A/Bs (KTD9). Pull 2 migrates `core/board.py` and `core/netlist.py` to Rust pyclasses with pure-delegation shims, backed by a full consumer-semantics enumeration whose catalog is committed in the crate's VERIFICATION.md and enforced through the existing per-pull scorecard convention — no new CI gate.
 
 ### Problem Frame
 
@@ -35,12 +35,14 @@ The audit's blast radius is verified at origin/main: 69 src modules import `temp
 
 The tension behind the audit's deliverable shape is in-repo documented: simple cataloging drifts (the coverage allowlist's monotonic-shrink rule exists because entries go stale), and CI is saturated by concurrent agent workstreams (handoff lesson 7). The resolution reuses the mechanism the repo already maintains — per-pull VERIFICATION.md scorecard updates — instead of adding a new gate.
 
+The perf-gate wiring this plan originally scoped to pull 1 landed upstream on 2026-08-04 while the plan was in review: #686 removed `continue-on-error` with a dated decision (the "JSON parse race" comment was hiding a traceback, now fixed), and #691 gave the baseline a growth path (push-to-main capture, n=6/stage) plus the measured noise floor (`docs/evidence/2026-08-04-perf-ab-harness-noise-floor.md`, n=19 CI deltas / n=20 ratio runs). The measurement harness changed shape: `benchmarks/perf_ab.py` (dual-arm ratio) replaced `temper profile run --module all`, which removed the unbaselined `loss-fn`/`router-bench` keys from the PR measurement surface. This plan's R4 content is revised to adopt the landed state (KTD9) rather than re-wiring it.
+
 ### Key Decisions
 
 - D1. **Slice scope is Phase 3 candidates 1 and 2 together** (session-settled: user-directed — chosen over a single candidate and over Phase-A continuation: the handoff's next-action ordering makes the loaders pilot plus the contracts spine the first execution slice of Phase 3). Governs R1, R2, R3.
 - D2. **Two sequential pulls, loaders first** (session-settled: user-directed — chosen over one combined pull and over parallel pulls: the pilot exercises the full gate set — differential, stub sync, allowlist, hard perf gate — on a 3-5 day surface before the 8-12 day spine). Governs R1, R4.
 - D3. **Full consumer enumeration for the audit** (session-settled: user-directed — chosen over a bounded API-parity audit and over product-path-ranked enumeration: maximal semantic confidence on the critical-path spine; every access pattern of all 69+77 src importers is pinned). Governs R11, R12.
-- D4. **Hard perf-gate wiring lands in this slice** (session-settled: user-directed — chosen over deferring to a separate pull: pure-delegation pulls are the safest first victims of a hard gate, and program R2 is verifiably unwired on main). Governs R4, R5, R6.
+- D4. **The perf gate is adopted as landed, not re-wired** (session-settled: user-directed at the original pull — chosen over deferring the wiring; the wiring itself landed upstream on 2026-08-04 (#686/#691) before this slice executed, so the slice verifies and adopts rather than re-implementing). Governs R4, R5, R6, KTD9.
 - D5. **Audit catalog committed in VERIFICATION.md, no new CI gate** (session-settled: user-directed — chosen over a PR-time catalog and over a CI-enforced inventory: the repo's own drift and CI-saturation evidence made committed catalog plus scorecard enforcement the resolution). Governs R11, R13.
 - D6. **"Wired" means workflow-level hard fail, not a required status check** (session-settled: user-approved — chosen over adding branch protection on main: AGENTS.md documents main's no-branch-protection posture, so the required-check arm is recorded as blocked-by-governance, not claimed). Governs R6.
 
@@ -48,14 +50,14 @@ The tension behind the audit's deliverable shape is in-repo documented: simple c
 
 **Pull structure**
 
-- R1. The slice ships as two sequential, independently mergeable pulls: pull 1 is the loaders migration plus the perf-gate wiring, pull 2 is the board/netlist contract migration (D2). Each pull is closed by the full parent plan gate set per the program contract (G1-G8, B1-B10, R1a-R1h) and the program R3 procedure where applicable.
+- R1. The slice ships as two sequential, independently mergeable pulls: pull 1 is the loaders migration plus gate verification, pull 2 is the board/netlist contract migration (D2). Each pull is closed by the full parent plan gate set per the program contract (G1-G8, B1-B10, R1a-R1h) and the program R3 procedure where applicable.
 - R2. Neither pull touches the board path: `pcb/**`, `elec/src/**`, and the DRC ratchet constants in `test_regression_drc.py` are read-only for this slice; the #575 ratchet decision stays with the board workstream (standing constraints, unchanged).
 - R3. Pull 2 lands only after pull 1 has merged, and the migration pipeline (`docs/migration-pipeline.md`) governs both: brainstorm → doc-review → work → code-review → verify → land.
 
 **Perf-gate wiring (pull 1)**
 
-- R4. The hard gate ships in pull 1: `pr-perf-check.yml` loses `continue-on-error`, the comparison script exits non-zero on regression, and a missing or empty baseline file fails closed — file-level per KTD8, with per-key NO_BASELINE rows reported rather than failing — plus the workflow-level arms of program R2, with the margins preserved (TIMING_MARGIN 0.20, COMPLETION_MARGIN 0.10, IMPROVEMENT_THRESHOLD 0.10). Completes program R2.
-- R5. The delegation-mode CI noise floor is quantified and recorded as part of the wiring: the "no regression beyond noise" calibration for pure-delegation modules that pull 1's own migration and pull 2's migration are measured against. The measurement exists before pull 1 claims the gate.
+- R4. The hard gate is adopted as landed on main (2026-08-04, #686/#691): `continue-on-error` removed, per-key NO_BASELINE fails with capture guidance, empty baseline fails closed, and the measurement harness is `benchmarks/perf_ab.py` (ratio-based, replacing the `--module all` profile). Pull 1 verifies the landed behavior against the new unit tests and does not re-implement the wiring. Completes program R2 as landed.
+- R5. The delegation-mode noise floor is adopted from the landed evidence (`docs/evidence/2026-08-04-perf-ab-harness-noise-floor.md`: n=19 main-branch CI deltas, sd 4.6%, worst excursion 9.9%; n=20 ratio runs, worst 7.72%) and cited in each pull's perf A/B record; the margins (TIMING_MARGIN 0.20, COMPLETION_MARGIN 0.10, IMPROVEMENT_THRESHOLD 0.10) are justified by that measurement and are not re-tuned (KTD9).
 - R6. The required-status-check arm of program R2 is recorded in pull 1's notes as blocked-by-governance, with the AGENTS.md evidence cited; the pull does not silently claim a required check main cannot enforce (D6).
 
 **Loaders pull (candidate 2, parent R5 subset)**
@@ -81,7 +83,7 @@ LOC from the parent plan's 2026-08-03 measurement at origin/main, re-verified at
 
 | Pull | Scope (repo-relative) | LOC | Risk | Gates |
 |---|---|---|---|---|
-| 1 | Loaders + perf-gate wiring: `io/netclass_loader.py`, `io/loop_loader.py` → Rust; `pr-perf-check.yml` + `scripts/pr_perf_compare.py` hard-fail | 402 + wiring | Low | R1 gate set; YAML→contract bit-parity (R7); noise floor quantified (R5) |
+| 1 | Loaders + gate verification: `io/netclass_loader.py`, `io/loop_loader.py` → Rust; landed perf gate verified (KTD9), delegation carve-out recorded | 402 + carve-out | Low | R1 gate set; YAML→contract bit-parity (R7); gate verification (R4) |
 | 2 | Contracts: `core/board.py`, `core/netlist.py` → temper-design-bundle pyclasses + delegation shims + consumer-semantics catalog | 1,243 | High | R1 with construction/round-trip bit-parity (R9); full enumeration catalog (R11); resolution order (R12) |
 
 Dependency rationale: pull 1 first because it is the pilot — small surface, already-Rust target contracts, and the first migration to run against the hard perf gate it ships. Pull 2 second because its 100+ consumer surface needs the pilot's proven gate path and because `parse_kicad_pcb` constructs the contracts, so the migrated target types are the prerequisite for the phase's later parse pulls.
@@ -89,12 +91,12 @@ Dependency rationale: pull 1 first because it is the pilot — small surface, al
 ### Acceptance Examples
 
 - AE1. **Non-reproducible pattern.** When the audit finds a consumer pattern the pyclass cannot reproduce (e.g., int-comparison on a member-identity enum), the pull follows R12's order: compat surface, then in-PR consumer adaptation, then an R3 JUSTIFIED-KEEP with a named blocker; the catalog entry records which outcome landed.
-- AE2. **Hard-gate failure modes.** When the perf baseline file is missing or empty, CI fails closed (R4, file-level per KTD8) instead of skipping; when the PR profile produces no metrics at all, CI fails closed rather than silently passing; a delegation migration's delta trips the margin-based REGRESSION check, and the measured noise floor (R5) demonstrates the margins exceed run-to-run noise — the pull fails rather than commenting.
+- AE2. **Hard-gate failure modes (as landed).** When the baseline file is missing or empty, CI fails closed; when a PR row has no baseline key, the gate fails with the "capture one into the committed baseline" guidance (per-key NO_BASELINE, as landed in #686/#691); a delegation migration's delta trips the margin-based REGRESSION check, and the landed noise-floor evidence (R5) demonstrates the margins exceed run-to-run noise — the pull fails rather than commenting.
 - AE3. **Later-pull drift.** When a future pull (parse engine, config loaders) adds a Board/Netlist consumer with an access pattern absent from the catalog, that pull records the new pattern and its resolution against the committed catalog in VERIFICATION.md (R13) — no new gate fires, and the scorecard diff is the review evidence.
 
 ### Scope Boundaries
 
-- In scope: pull 1 (netclass/loop loaders + hard perf-gate wiring + noise-floor measurement), pull 2 (board/netlist contracts + full-enumeration catalog), the two-candidate slice of the parent Phase 3 plan.
+- In scope: pull 1 (netclass/loop loaders + landed-gate verification + delegation carve-out), pull 2 (board/netlist contracts + full-enumeration catalog), the two-candidate slice of the parent Phase 3 plan.
 - Out: Phase 3 candidates 3-7 (parse engine, write/export engine, config/reference loaders, DSN surface, residuals) — pulled in their own decisions; the kiutils-removal gate (parent R4) closes at the parse/write pulls, not this slice.
 - Out: Phase A kernel continuation, Phase 5 orchestration (`ParsedPCB` verdict), Phase 6 residuals — recorded program areas, not active scope.
 - Out: the #575 DRC-ratchet decision — owned by the board workstream; `test_regression_drc.py` is read-only here (R2).
@@ -117,14 +119,14 @@ This plan owns the Phase 3 first-pull slice of the Wave-4 full-migration program
 
 - **Parent plans:** `docs/plans/2026-08-02-001-feat-wave4-phase3-formats-io-plan.md` (candidate scope, D1-D7, R1-R10, Q1-Q5) and `docs/plans/2026-08-01-001-feat-wave4-full-migration-program-plan.md` (discipline contract G1-G8/B1-B10, R1a-R1h, R2, R3, R5).
 - **Seed crates:** temper-design-bundle (net_types, loops, design_rules, gates, priority pyclasses) and temper-io-types (DSN primitives, serializers), per parent plan; the `.pyi` stub at `packages/temper-placer/stubs/temper_design_bundle_python/__init__.pyi` is the keep-in-sync contract for every pyclass change in this slice.
-- **Verified facts (origin/main, 2026-08-03):** `pr-perf-check.yml` still carries `continue-on-error: true` with the `temper-N6-U8` stub (verified at line 75); `scripts/pr_perf_compare.py` holds the margins but no delegation-mode noise floor; 69 src modules import board, 77 import netlist; main has no branch protection (AGENTS.md).
+- **Verified facts (origin/main, 2026-08-04 `f2b09d846`):** the perf gate landed upstream — `continue-on-error` removed (dated decision at `pr-perf-check.yml`), per-key NO_BASELINE exits non-zero with capture guidance (`scripts/pr_perf_compare.py`), baseline growth path via push-to-main capture (`power_pcb_dataset/metrics/perf_ab_baseline.jsonl`, n=6/stage), noise floor documented (`docs/evidence/2026-08-04-perf-ab-harness-noise-floor.md`, margins justified at `scripts/pr_perf_compare.py`); 69 src modules import board, 77 import netlist; main has no branch protection (AGENTS.md).
 - **Build discipline:** `make extensions` / `make extensions-check` / `make venv-isolate` and `scripts/check_stale_extensions.py` remain mandatory per migrated crate; fresh-`.so` verification (`hasattr` check) is part of each pull's work.
 - Assumption: the loaders' YAML fixtures (`packages/temper-placer/configs/netclass_rules.yaml`, loop templates) are the parity oracle and stay frozen through pull 1.
 - Assumption: the differential-oracle and scorecard conventions documented in the parent plan's discipline anchors apply unchanged to both pulls.
 
 ### Outstanding Questions
 
-Resolve Before Planning: none (the requirements-only draft's own Q1-Q3 — loader home-crate, noise-floor procedure, PBT/metamorphic counts — resolved in this enrichment to KTD1, KTD4, and the plan minima of 5 properties and 3 relations per module; these are the draft's numbers, distinct from the parent plan's Q1/Q2, which are out of slice or carried as the float-parse assumption below).
+Resolve Before Planning: none (the requirements-only draft's own Q1-Q3 — loader home-crate, noise-floor procedure, PBT/metamorphic counts — resolved in this enrichment to KTD1, KTD9, and the plan minima of 5 properties and 3 relations per module; these are the draft's numbers, distinct from the parent plan's Q1/Q2, which are out of slice or carried as the float-parse assumption below).
 
 Deferred:
 
@@ -136,7 +138,8 @@ Deferred:
 - Parent Phase 3 plan: `docs/plans/2026-08-02-001-feat-wave4-phase3-formats-io-plan.md` (D2 audit budget, candidate 1/2 rows, R1/R5/R7/R10, Q3/Q4).
 - Program plan: `docs/plans/2026-08-01-001-feat-wave4-full-migration-program-plan.md` (R1b mandatory perf A/B, R2 hard-gate wiring, R3/R5 governance).
 - Session handoff: `docs/handoffs/2026-08-03-wave4-migration-program.md` (next actions, audit precedent, lessons 5-8).
-- Harness state: `.github/workflows/pr-perf-check.yml`, `scripts/pr_perf_compare.py` (margins at lines 24-26; `continue-on-error` at workflow line 75; `main()` returns 0 on every path at line 228 — verified on origin/main `52df5627a`).
+- Harness state: `.github/workflows/pr-perf-check.yml`, `scripts/pr_perf_compare.py` (margins at lines 24-26 with noise-floor justification comments; per-key NO_BASELINE fails at `gate_failures`), `benchmarks/perf_ab.py`, `power_pcb_dataset/metrics/perf_ab_baseline.jsonl` — verified on origin/main `f2b09d846`.
+- Landed perf-gate evidence: `docs/evidence/2026-08-04-perf-ab-harness-noise-floor.md`, `docs/evidence/2026-08-04-perf-ab-baseline-widening.md`, and the dated R2 decision comment in `pr-perf-check.yml` (replacing the `temper-N6-U8` stub).
 - Governance posture: `docs/STRATEGY.md` (board path is critical; the program commits no capacity) and AGENTS.md (branch-protection absence, DRC ceiling protocol, git-stash guard).
 - Migration pipeline: `docs/migration-pipeline.md` (per-pull stage order).
 - Landed migration pattern: `packages/temper-design-bundle/src/{net_types,loops,design_rules,gates,priority}.rs` (enum macros, `members()`, `py_str_repr`/`py_float_str` helpers, Python call-backs), `packages/temper-placer/src/temper_placer/core/{loop,design_rules,priority}.py` (delegation shims), `packages/temper-placer/tests/{core,placer}/test_{loop,design_rules,gates,priority}_rust_differential.py` plus the `_py_oracle.py` convention, `packages/temper-placer/stubs/temper_design_bundle_python/__init__.pyi`, `packages/temper-design-bundle/VERIFICATION.md` scorecard format (lines 219-236, 543-555).
@@ -150,25 +153,23 @@ Deferred:
 
 - KTD1. **The loaders' Rust home is temper-design-bundle** (session-settled: user-directed — chosen over temper-io-types: the loaders construct design-bundle contracts, `serde_yaml` 0.9 is already a dependency there, and the `design_rules.rs` call-back precedent covers the remaining Python constants). Governs the U2/U3 approach.
 - KTD2. **LayerIndex follows the priority IntEnum precedent** (session-settled: user-directed — chosen over adding an int-compat pyclass surface: member identity, `__str__` (KiCad name), `members()`, and value getters are reproduced; int-comparison becomes a documented deviation, and consumers that need it are adapted inside the migration PR per R12). Governs the U5 approach.
-- KTD3. **Hard-gate mechanism: exit-code paths plus workflow removal plus race fix plus trigger widening** (session-settled: user-directed — chosen over deferring the wiring: the comparison script currently exits 0 on every path; the wiring adds non-zero exits for REGRESSION and NO_BASELINE, resolves the JSON-parse race the stub comment cites, widens the trigger to `scripts/` and `benchmarks/`, and records the required-check arm as blocked-by-governance). Instantiates D4; governs R4-R6, U1.
-- KTD4. **Noise-floor protocol: N≥5 profile runs, median plus range per metric, stated in the PR body** (session-settled: user-directed — chosen over assuming a floor exists: the R2 carve-out requires a quantified floor before a delegation pull claims "no regression beyond noise"). Instantiates D4; governs R5, U1.
 - KTD5. **Differential-oracle pinning** — each migration pins a verbatim pre-migration copy as a `_py_oracle` module at the pre-migration commit; construction parity drives identical kwargs into both sides; floats canonicalize via `.hex()`; enums compare via `getattr` plus `members()`; full `repr` is byte-parity using the landed `py_str_repr`/`py_float_str` helpers (B9/B10); `ValueError`/`LoopLoadError` texts match exactly. Governs U2, U3, U5, U6.
 - KTD6. **Numpy boundary: f64 in Rust, float32 wrappers in the shim** — `Board.polygon_array`/bounds arrays and `Netlist.get_bounds_array`/`get_fixed_mask` stay in the delegation shim as deterministic wrappers, and the differential asserts dtype explicitly (per R10, `np.float32(10.0) == 10.0` hides dtype loss). Governs U5, U6.
 - KTD7. **Python-kept helper surface** — `compute_eigenvector_centrality` (eigh, R10), `build_adjacency_matrix`, `find_isomorphic_groups`, `save_loop_to_yaml`, and the loader-side `NetClassRulesDict` wrapper stay Python in the delegation modules, per the priority/gates precedent of keeping non-data helpers Python; the Rust netclass loader imports `TEMPER_NET_ASSIGNMENTS` from Python at call time per the `design_rules.rs` precedent (per `docs/solutions/best-practices/substring-net-classification-drifts-from-ssot-2026-07-27.md`: one home for the keyword tables). Governs U2, U3, U6.
-- KTD8. **NO_BASELINE scoping: file-level fail-closed, per-key reported, baseline-coverage reconciliation** (session-settled: user-approved — chosen over per-key fail-closed: the PR-side `--module all` profile emits `loss-fn`/`router-bench` records that main's baseline has no rows for, so per-key fail-closed would redden every PR; the gate fails only when the baseline file is missing or empty, per-key NO_BASELINE rows are reported in the comparison output, and U1 reconciles baseline key coverage before the gate goes hard). Governs R4, AE2, U1.
+- KTD9. **Perf-gate state: landed upstream; slice verifies and records the delegation carve-out** — the hard-gate wiring this plan originally scoped to U1 (formerly KTD3/KTD4/KTD8, session-settled user-directed/user-approved) landed upstream on 2026-08-04 (#686, #691) with a different but sound mechanism: per-key NO_BASELINE fails with capture guidance, the `perf_ab.py` dual-arm ratio harness replaced `--module all` (removing the unbaselined keys), the baseline grows via push-to-main capture, and the noise floor is measured and documented. The slice's remaining perf obligation is: verify the landed gate's exit paths, run the existing harness unchanged for both pulls' mandatory A/B, and record the delegation carve-out — pure-delegation modules (loaders, shims) carry "no regression beyond noise" with the landed noise floor as calibration; if a differential signals overhead beyond the floor, `benchmarks/perf_ab.py` is extended to cover the migrated surface in the same PR. Governs R4, R5, U1, U7.
 
 ### High-Level Technical Design
 
 ```mermaid
 flowchart TB
-    subgraph P1["Pull 1 - loaders plus hard gate"]
+    subgraph P1["Pull 1 - loaders plus gate verification"]
         FIX["YAML fixtures (committed oracles)"] --> LDR["Rust loaders (temper-design-bundle, serde_yaml)"]
         LDR --> CON1["DesignRules / Loop pyclasses"]
         CON1 --> SH1["Python delegation shims"]
         SH1 --> C1["Consumers (io/, pipeline, tests)"]
         OR1["_py_oracle verbatim pins"] -. differential .-> LDR
-        NF["Noise-floor measurement (N >= 5)"] --> GATE["pr_perf_compare exit paths plus workflow"]
-        GATE --> CI["CI hard-fails on REGRESSION / NO_BASELINE"]
+        NF["Noise floor (landed evidence, 2026-08-04)"] --> CARVE["Delegation carve-out record (KTD9)"]
+        GATE["Landed perf gate (#686/#691)"] --> VER["Verify exit paths + A/B runs"]
     end
     subgraph P2["Pull 2 - board/netlist contracts"]
         AUDIT["Consumer-semantics audit"] --> CAT["Catalog (VERIFICATION.md)"]
@@ -187,40 +188,35 @@ The slice is two dependency-ordered pulls. Pull 1 builds the loader pyclasses (R
 
 ## Implementation Units
 
-### U1. Hard perf-gate wiring plus noise-floor measurement (pull 1)
+### U1. Perf-gate verification and delegation carve-out (pull 1)
 
-- **Goal:** make the performance gate real and prove it fires, and quantify the delegation-mode noise floor both pulls are measured against.
+- **Goal:** verify the landed hard gate (#686/#691) actually fires as documented, adopt the landed noise-floor evidence, record the delegation carve-out for this slice's migrations, and run both pulls' mandatory perf A/B against the landed harness (KTD9).
 - **Requirements:** R4, R5, R6.
 - **Dependencies:** none.
 - **Files:**
-  - `scripts/pr_perf_compare.py` (exit paths; NO_BASELINE fail-closed)
-  - `.github/workflows/pr-perf-check.yml` (continue-on-error removal; trigger widening; race handling)
-  - `scripts/tests/test_pr_perf_compare.py` (new — exit-path unit tests)
-  - Noise-floor evidence record under `docs/evidence/` (N≥5 runs, median plus range per metric)
+  - `scripts/tests/test_pr_perf_compare.py` (verify landed exit paths; add pins where missing)
+  - `docs/evidence/` perf carve-out record for this slice (delegation A/B basis, noise-floor citation)
+  - PR notes (R6 governance-blocker note; carve-out record)
 - **Approach:**
-  1. Add non-zero exit paths: REGRESSION fails the run; a missing or empty baseline file fails closed (file-level, per KTD8); OK and IMPROVED exit zero. Per-key NO_BASELINE rows — a PR key the baseline has no rows for — are reported in the comparison output, not failing (KTD3, KTD8).
-  2. Make the empty-PR-metrics path fail closed: the current return-0 "No PR metrics found — skipping comparison" path exits non-zero, so a profile that produced no data is loud, not silent-green (Covers AE2).
-  3. Reconcile baseline key coverage before the gate goes hard: enumerate the PR-side `--module all` keys (`pipeline`, `loss-fn`, `router-bench`) against the baseline rows; wire the main-branch metrics recording for `loss-fn`/`router-bench` so the baseline covers the PR profile keys (they run best-effort today and never commit rows); record any permanently-absent keys as documented exceptions in the PR notes (KTD8).
-  4. Resolve the JSON-parse race the stub comment cites — either harden the report parsing or demonstrate on main's recent history that it no longer occurs — before removing `continue-on-error` (the comment is a real claimed race, not a stub placeholder).
-  5. Remove `continue-on-error` from the compare step and record the required-status-check arm as blocked-by-governance in the PR notes, citing AGENTS.md (R6).
-  6. Widen the workflow trigger beyond `packages/**` to the `scripts/` and `benchmarks/` paths that carry migrated code (program R2).
-  7. Measure the noise floor: N≥5 `temper profile run --module all --board temper --json` runs, median plus range per metric, committed as evidence (KTD4; per `docs/solutions/best-practices/characterize-oracle-noise-floor-2026-07-26.md`).
-- **Patterns to follow:** `docs/solutions/best-practices/gate-neutering-mechanisms-2026-07-26.md` (prove the gate fires; anti-vacuity), `docs/solutions/best-practices/characterize-oracle-noise-floor-2026-07-26.md` (N≥5, median plus range, control reruns).
+  1. Verify the landed gate behavior on main: `continue-on-error` removed from `pr-perf-check.yml`, per-key NO_BASELINE exits non-zero with the "capture one into the committed baseline" message, empty baseline fails closed, REGRESSION exits non-zero, and the trigger covers `packages/**` plus `benchmarks/**`. Add unit-test pins for any of these paths not already covered (KTD9).
+  2. Verify the noise-floor evidence (`docs/evidence/2026-08-04-perf-ab-harness-noise-floor.md`) is present and cited by `scripts/pr_perf_compare.py`'s margin comments; no margin re-tuning (R5).
+  3. Record the delegation carve-out: both pulls' migrations are pure delegation, so their perf A/B is "no regression beyond noise" per program R2, with the landed noise floor (n=19 CI deltas, worst 9.9%) as calibration and the existing `perf_ab.py` harness run unchanged; if a differential signals overhead beyond the floor, `benchmarks/perf_ab.py` is extended to cover the migrated surface in the same PR (KTD9).
+  4. Record the required-status-check arm as blocked-by-governance in the PR notes, citing AGENTS.md (R6).
+- **Patterns to follow:** `docs/solutions/best-practices/gate-neutering-mechanisms-2026-07-26.md` (prove the gate fires; anti-vacuity), the landed workflow comments in `pr-perf-check.yml` (dated decision replacing the stub ticket).
 - **Test scenarios:**
-  - The comparison script exits non-zero when a REGRESSION row is present
-  - The script exits non-zero when the baseline file is missing or empty (file-level NO_BASELINE, per KTD8)
-  - The script reports, and does not fail on, a per-key NO_BASELINE row when the baseline file exists but lacks that key (KTD8)
-  - The script exits non-zero when the PR metrics file is empty or missing (Covers AE2)
+  - The comparison script exits non-zero when a REGRESSION row is present (verifying the landed path still holds)
+  - The script exits non-zero when a PR row has no baseline key (per-key NO_BASELINE, as landed)
+  - The script exits non-zero when the baseline file is missing or empty (fails closed, as landed)
   - The script exits zero on OK and IMPROVED rows
-  - A synthetic REGRESSION fault-injection run is documented turning the workflow red (recorded in the PR, run on a scratch branch so main's CI is not deliberately reddened)
-- **Verification:** exit paths covered by the new unit tests; the fault-injection run documented in the PR body; noise-floor evidence committed; the baseline-coverage reconciliation recorded in the PR notes (PR-side keys vs baseline rows); `actionlint` clean on the workflow change; the R6 governance-blocker note present in the PR notes.
-- **Execution note:** land the exit-code and noise-floor work first; the workflow change is the last step, after the race resolution is verified.
+  - The delegation carve-out record names the landed noise-floor numbers and the trigger condition for extending `perf_ab.py` (Covers AE2)
+- **Verification:** landed exit paths pinned by the unit tests; carve-out record committed under `docs/evidence/`; the R6 governance-blocker note present in the PR notes; no workflow file changed unless a landed defect is found (which would be reported, not silently re-wired).
+- **Execution note:** this is a verification unit — if everything holds as documented, it lands as evidence plus tests, with no workflow edits.
 
 ### U2. netclass_loader migration (pull 1)
 
 - **Goal:** migrate `io/netclass_loader.py` to Rust with YAML-to-contract bit-parity; the Python module becomes a delegation shim.
 - **Requirements:** R1, R7, R8; parent-plan R5; KTD1, KTD5, KTD7.
-- **Dependencies:** U1 (the pull's perf A/B needs the measured noise floor), then independent of U3.
+- **Dependencies:** U1 (gate verification precedes the pull's perf A/B record), then independent of U3.
 - **Files:**
   - `packages/temper-design-bundle/src/netclass_loader.rs` (new)
   - `packages/temper-design-bundle/src/lib.rs` (module registration)
@@ -366,7 +362,7 @@ The slice is two dependency-ordered pulls. Pull 1 builds the loader pyclasses (R
   - `packages/temper-design-bundle/VERIFICATION.md` (final scorecards and structural proofs for board/netlist)
   - `.coverage-allowlist`, `.typecheck-allowlist` (monotonic-shrink removals only)
   - Docs path inventory record (grep of `docs/`, AGENTS.md for the old module paths)
-  - Perf A/B evidence for pull 2 (no-regression-beyond-noise against the U1 noise floor)
+  - Perf A/B evidence for pull 2 (no-regression-beyond-noise against the landed noise-floor evidence, R5/KTD9)
 - **Approach:**
   1. Cross-check every catalog entry carries a differential pin; unresolved entries follow the R12 resolution order and are recorded, not dropped (Covers AE1).
   2. Run the full gate sweep: ruff, mypy gate, vulture, import-linter, coverage gate, extensions-check, `cargo test` and `cargo clippy --all-features` in temper-design-bundle.
@@ -379,21 +375,22 @@ The slice is two dependency-ordered pulls. Pull 1 builds the loader pyclasses (R
 
 ## System-Wide Impact
 
-- **CI behavior:** the performance gate becomes hard for every future PR touching the widened paths. This is a repo-wide behavior change, not local to the slice; the required-status-check arm stays blocked-by-governance (no branch protection on main, AGENTS.md).
+- **CI behavior:** the performance gate is hard for every PR touching the widened paths (landed 2026-08-04). The required-status-check arm stays blocked-by-governance (no branch protection on main, AGENTS.md).
 - **Type checking:** the `.pyi` stub grows with every new pyclass; the keep-in-sync rule (handoff lesson) makes drift a hard mypy-gate failure.
 - **Coverage and import-linter:** migrated Python functions leave the coverage allowlist (shrink under monotonic-shrink); delegation shims add no import-linter edges (verified precedent in #622).
 - **Consumers:** 100+ src modules observe no behavior change; the documented exceptions are the IntEnum int-comparison deviation (KTD2) and any consumer adaptations, both landing inside the migration PRs.
 - **Board path:** untouched — `pcb/**`, `elec/src/**`, and the DRC ratchet test are read-only (R2); #575 remains the board workstream's call.
-- **Concurrent workstreams:** main moves under the slice; the parent plan's re-verify-at-pull-time rule applies to file lists and oracle commits (main was at `52df5627a` when this plan was written).
+- **Concurrent workstreams:** main moves under the slice; the parent plan's re-verify-at-pull-time rule applies to file lists and oracle commits (the plan was re-verified at origin/main `f2b09d846`, 2026-08-04, after the perf-gate landing).
 
 ## Risks & Dependencies
 
-- **JSON-parse race (high):** the workflow's own comment claims a real race in PR-comment reporting; removing `continue-on-error` without resolving it trades a silent skip for a flaky red. U1 fixes or verifies it before the removal (KTD3).
+- **Perf-gate regression risk (resolved upstream, verification only):** the wiring this plan originally carried landed on 2026-08-04 (#686/#691) with a dated decision — the "JSON parse race" comment was hiding a traceback, now fixed. U1 verifies the landed behavior rather than re-wiring; if verification finds a defect, it is reported with evidence, not silently re-implemented (KTD9).
+- **Gate's repo-wide behavior change (medium):** the hard gate now applies to every PR touching the widened paths; the landed trigger deliberately excludes `scripts/**` (no migrated code there today; CI is capacity-bound) — this slice's migrations land under `packages/**`, which the trigger covers.
 - **Stale extension hazards (high):** `cargo test` proves only the rlib; a stale `.so` makes the differential test the old implementation against itself — a vacuous pass. Mitigation: `make extensions` plus `make extensions-check` plus a `hasattr` smoke check before any differential run (per `docs/solutions/best-practices/green-rust-tests-are-not-evidence-the-extension-was-rebuilt-2026-07-27.md` and `docs/solutions/build-errors/stale-rust-build-artifacts-gil-crash-2026-07-06.md`).
 - **Main drift (medium):** the loaders and contracts are measured at specific commits; concurrent workstreams may shift LOC and import counts. Mitigation: re-verify at pull time and pin oracles at the actual pre-migration commit.
 - **Float-parse parity (medium):** Rust `str::parse::<f64>()` vs Python `float()` on YAML tokens is assumed IEEE-correct; the loaders' differential verifies it before the engine is claimed (Q2).
 - **CI saturation (low):** concurrent agents queue runners; PRs may wait, and docs-only PRs already follow the admin-merge convention (handoff lesson 7).
-- **Baseline staleness (medium):** main's `pipeline_metrics.jsonl` last row predates the slice (2026-06-30), and the `loss-fn`/`router-bench` keys are never committed. U1's reconciliation step (key coverage + wiring the main-branch recording) and a staleness flag in the PR comment handle this; comparisons still run on the rolling window, which is acceptable for pure-delegation modules whose perf does not move (KTD8).
+- **Baseline coverage (resolved upstream, monitor):** the baseline now grows via push-to-main capture (`perf_ab_baseline.jsonl`, n=6/stage); per-key NO_BASELINE fails with capture guidance, so an unbaselined module surfaces loudly rather than silently passing. This slice's migrations measure nothing new (delegation carve-out, KTD9), so no baseline extension is expected.
 - **The eigh kernel (informational):** `compute_eigenvector_centrality` is not bit-reproducible across BLAS; it stays Python and is never gated (R10) — this is the plan's recorded exception, not a parity gap.
 
 ## Verification Contract
@@ -402,10 +399,10 @@ The slice is two dependency-ordered pulls. Pull 1 builds the loader pyclasses (R
 - **Rust:** `cargo test` and `cargo clippy --all-features` in `packages/temper-design-bundle` (clippy lints the `#[cfg(feature = "python")]` code).
 - **Python suites (from `packages/temper-placer/`):** the four new differential suites (board, netlist, netclass_loader, loop_loader) plus their PBT modules; existing anchors `tests/io/test_netclass_loader.py`, `tests/io/test_loop_loader.py`, and the affected consumer suites must stay green.
 - **Repo gates:** `uv run python scripts/check_typecheck_gate.py`, ruff, vulture, `uv run python scripts/import_linter_gate.py`, `scripts/check_coverage_gate.py` (allowlists shrink or hold, never grow without a TODO ticket), `scripts/check_stale_extensions.py` (0 STALE), `actionlint` on the workflow change.
-- **Perf gate proof:** `scripts/tests/test_pr_perf_compare.py` green (REGRESSION, file-level NO_BASELINE, per-key reported, empty-PR-metrics fail-closed paths); fault-injection run documented; noise-floor evidence committed under `docs/evidence/`; baseline-coverage reconciliation recorded (KTD8).
+- **Perf gate proof:** landed exit paths verified by `scripts/tests/test_pr_perf_compare.py` pins (REGRESSION, per-key NO_BASELINE, empty baseline fail-closed, OK/IMPROVED zero); delegation carve-out record committed under `docs/evidence/` citing the landed noise-floor numbers (KTD9).
 - **Pipeline stages:** per `docs/migration-pipeline.md` — doc-review, code review, then land; the ratchet/corpus rules from AGENTS.md apply unchanged.
 
 ## Definition of Done
 
-- **Global:** both pulls landed and merged in order (pull 1, then pull 2 per R3); every unit's Verification list is satisfied; the perf gate is live with a measured noise floor and proof-of-fire (U1); the consumer-semantics catalog is committed and every catalog entry has a pin (U4, U7); no ratchet, allowlist cap, or ceiling was weakened; `pcb/**`, `elec/src/**`, and the DRC ratchet test are untouched; the corpus and goldens are frozen (R14); no abandoned-attempt or experimental code remains in either final diff (cleanup criterion); no new CI gate was added (D5).
+- **Global:** both pulls landed and merged in order (pull 1, then pull 2 per R3); every unit's Verification list is satisfied; the perf gate is verified as landed with the delegation carve-out recorded (U1, KTD9); the consumer-semantics catalog is committed and every catalog entry has a pin (U4, U7); no ratchet, allowlist cap, or ceiling was weakened; `pcb/**`, `elec/src/**`, and the DRC ratchet test are untouched; the corpus and goldens are frozen (R14); no abandoned-attempt or experimental code remains in either final diff (cleanup criterion); no new CI gate was added (D5).
 - **Per-unit:** U1-U7 each complete when its own Verification list passes and its requirements are satisfied; U2/U3 additionally require their existing consumer tests green and stubs synced; U5/U6 additionally require their consumer adaptations' suites green and allowlists shrunk or held.
