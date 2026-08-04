@@ -1,9 +1,9 @@
-# provenance: PLACEHOLDER
+# provenance: commit=PLACEHOLDER dirty=PLACEHOLDER
 #!/usr/bin/env python3
 """Gap-1 run-C envelope probe: does relaxing the displacement cap unblock the
 zone-inclusive fixed-copper solve?
 
-# provenance: PLACEHOLDER
+# provenance: commit=PLACEHOLDER dirty=PLACEHOLDER
 
 Companion to ``docs/evidence/2026-08-03-gap1-runC-envelope-probe.md``.
 Re-derives the run-C formulation (issue #523, "gap 1") against the CURRENT
@@ -123,7 +123,15 @@ VARIANTS: dict[str, dict] = {
     "C_120_s1": {"fc": "zones", "cap_mm": 120.0, "seed": 1, "timeout_ms": 90_000},
     "C_c27x_s0": {"fc": "zones", "cap_mm": 60.0, "seed": 0, "exclude_c27": True, "timeout_ms": 90_000},
     "C_240_s0": {"fc": "zones", "cap_mm": 240.0, "seed": 0, "timeout_ms": 90_000},
+    # Diagnostic: zone-inclusive but WITHOUT the three board-spanning pour
+    # nets (DC_BUS_RTN / SW_NODE / +15V_LS). These pours are convex/non-
+    # rectilinear so the encoder falls back to their AABB, which spans the
+    # board -- if dropping them flips the solve to feasible, they (and by
+    # extension their bbox encoding) are the infeasibility driver.
+    "C_nobigpours_s0": {"fc": "no_big_pours", "cap_mm": 60.0, "seed": 0, "timeout_ms": 90_000},
 }
+
+BIG_POUR_NETS = {"DC_BUS_RTN", "SW_NODE", "+15V_LS"}
 
 
 def parse_result_without_zones(pcb):
@@ -133,6 +141,24 @@ def parse_result_without_zones(pcb):
         vias=pcb.vias,
         board=SimpleNamespace(
             zones=[],
+            width=pcb.board.width,
+            height=pcb.board.height,
+            origin=getattr(pcb.board, "origin", (0.0, 0.0)),
+        ),
+    )
+
+
+def parse_result_without_zone_nets(pcb, exclude_nets):
+    """ParseResult whose zone list drops every zone on one of *exclude_nets*
+    (diagnostic only -- the board file itself is untouched)."""
+    from types import SimpleNamespace
+    zones = [z for z in pcb.board.zones
+             if not any(n in exclude_nets for n in z.net_classes)]
+    return SimpleNamespace(
+        traces=pcb.traces,
+        vias=pcb.vias,
+        board=SimpleNamespace(
+            zones=zones,
             width=pcb.board.width,
             height=pcb.board.height,
             origin=getattr(pcb.board, "origin", (0.0, 0.0)),
@@ -151,6 +177,9 @@ def run_variant(pcb, extra, *, name, cfg, timeout_ms_override=None):
 
     if cfg["fc"] == "zones":
         fc = {"parse_result": pcb, "free_refs": FREE, "margin_mm": MARGIN_FC_MM}
+    elif cfg["fc"] == "no_big_pours":
+        fc = {"parse_result": parse_result_without_zone_nets(pcb, BIG_POUR_NETS),
+              "free_refs": FREE, "margin_mm": MARGIN_FC_MM}
     else:
         fc = {"parse_result": parse_result_without_zones(pcb),
               "free_refs": FREE, "margin_mm": MARGIN_FC_MM}
@@ -456,7 +485,6 @@ def zone_reachability(pcb, pads_by_ref, items, positions, rotations,
 
     board_w = float(pcb.board.width)
     board_h = float(pcb.board.height)
-    model = CpSatModel(units_per_mm=100)
     bounds = {c.ref: (float(c.bounds[0]), float(c.bounds[1]))
               for c in pcb.netlist.components}
 
@@ -531,6 +559,219 @@ def zone_reachability(pcb, pads_by_ref, items, positions, rotations,
     return rows
 
 
+def joint_zone_reachability(pcb, pads_by_ref, items, positions, rotations,
+                           cap_mm, step_mm=0.5):
+    """For each free ref, is there ANY center position within its
+    displacement envelope (respecting the board edge_margin) at which EVERY
+    (pad, zone) pair currently in violation clears its zone by the margin?
+
+    This is the joint version of ``zone_reachability``: it answers "can this
+    component go anywhere that satisfies all of its zone conflicts at once"
+    -- the necessary condition for an envelope-only unblock of the zone
+    side. A ref with zero clear cells is blocked by its zone set no matter
+    where it goes (within the cap and the board), so those zone items are
+    unsatisfiable at ANY reachable placement.
+    """
+    from temper_placer.placer.cp_sat.fixed_copper import (
+        exact_clearance_mm,
+        pad_world_rect,
+    )
+
+    board_w = float(pcb.board.width)
+    board_h = float(pcb.board.height)
+    bounds = {c.ref: (float(c.bounds[0]), float(c.bounds[1]))
+              for c in pcb.netlist.components}
+
+    zone_items = [i for i in items if i.kind == "zone"]
+    # Per ref: the violating (pad, zone) pairs at the best placement.
+    conflicts: dict[str, list[tuple]] = {}
+    for ref, pads in pads_by_ref.items():
+        center0 = positions.get(ref)
+        if center0 is None:
+            continue
+        rot_idx = int(rotations.get(ref, 0))
+        comp_nets = {p.net for p in pads if p.net}
+        for pad in pads:
+            for item in zone_items:
+                if not (pad.layers & item.layers):
+                    continue
+                if item.net is not None and item.net in comp_nets:
+                    continue
+                rect0 = pad_world_rect(pad, center0, rot_idx)
+                if exact_clearance_mm(rect0, item) < item.margin_mm - MARGIN_EPS:
+                    conflicts.setdefault(ref, []).append((pad, item))
+
+    rows = []
+    for ref, pairs in conflicts.items():
+        cx0, cy0 = positions[ref]
+        rot_idx = int(rotations.get(ref, 0))
+        bwx, bwy = bounds.get(ref, (0.0, 0.0))
+        hw, hh = bwx / 2.0, bwy / 2.0
+        n_cells = 0
+        n_clear_all = 0
+        first_clear = None
+        x = cx0 - cap_mm
+        while x <= cx0 + cap_mm + 1e-9:
+            y = cy0 - cap_mm
+            while y <= cy0 + cap_mm + 1e-9:
+                n_cells += 1
+                if abs(x - cx0) + abs(y - cy0) > cap_mm + 1e-9:
+                    y += step_mm
+                    continue
+                if (x - hw < EDGE_MARGIN_MM or y - hh < EDGE_MARGIN_MM
+                        or x + hw > board_w - EDGE_MARGIN_MM
+                        or y + hh > board_h - EDGE_MARGIN_MM):
+                    y += step_mm
+                    continue
+                ok = True
+                for pad, item in pairs:
+                    rect = pad_world_rect(pad, (x, y), rot_idx)
+                    if exact_clearance_mm(rect, item) < item.margin_mm - MARGIN_EPS:
+                        ok = False
+                        break
+                if ok:
+                    n_clear_all += 1
+                    if first_clear is None:
+                        first_clear = {"x_mm": round(x, 2), "y_mm": round(y, 2),
+                                       "disp_mm": round(abs(x - cx0) + abs(y - cy0), 2)}
+                y += step_mm
+            x += step_mm
+        rows.append({
+            "ref": ref,
+            "n_conflicting_zone_pairs": len(pairs),
+            "conflicting_pads": sorted({p.number for p, _i in pairs}),
+            "conflicting_zone_nets": sorted({i.net for _p, i in pairs}),
+            "envelope_cap_mm": cap_mm,
+            "grid_step_mm": step_mm,
+            "grid_cells": n_cells,
+            "grid_cells_clearing_all_zones": n_clear_all,
+            "any_position_clears_all_zones": n_clear_all > 0,
+            "first_clearing_position": first_clear,
+            "best_placement": {"x_mm": round(cx0, 3), "y_mm": round(cy0, 3)},
+        })
+    return rows
+
+
+def encoded_zone_reachability(pcb, pads_by_ref, items, positions, rotations,
+                             cap_mm, step_mm=0.5):
+    """For each (free pad, zone item) in exact violation at the best
+    placement, count envelope positions where the SOLVER'S ENCODED predicate
+    clears the zone, alongside the exact-oracle count.
+
+    This is the encoding-vs-geometry discriminator: the exact oracle answers
+    "is the zone's demand met anywhere this component can actually go?"; the
+    encoded predicate answers "would the solver even be able to see that
+    position?". For bbox-fallback zones whose AABB spans the board, the
+    encoded count is ~0 (the constraint is unsatisfiable on-board) while the
+    exact count can be large -- proving the infeasibility is the encoding,
+    not the zone geometry.
+    """
+    from temper_placer.placer.cp_sat.fixed_copper import (
+        encoded_overlap,
+        encoded_overlap_edges,
+        exact_clearance_mm,
+        pad_world_rect,
+    )
+
+    board_w = float(pcb.board.width)
+    board_h = float(pcb.board.height)
+    bounds = {c.ref: (float(c.bounds[0]), float(c.bounds[1]))
+              for c in pcb.netlist.components}
+
+    zone_items = [i for i in items if i.kind == "zone"]
+    rows = []
+    seen = set()
+    for ref, pads in pads_by_ref.items():
+        center0 = positions.get(ref)
+        if center0 is None:
+            continue
+        rot_idx = int(rotations.get(ref, 0))
+        comp_nets = {p.net for p in pads if p.net}
+        bwx, bwy = bounds.get(ref, (0.0, 0.0))
+        hw, hh = bwx / 2.0, bwy / 2.0
+        cx0, cy0 = center0
+        for pad in pads:
+            for item in zone_items:
+                if not (pad.layers & item.layers):
+                    continue
+                if item.net is not None and item.net in comp_nets:
+                    continue
+                rect0 = pad_world_rect(pad, center0, rot_idx)
+                if exact_clearance_mm(rect0, item) >= item.margin_mm - MARGIN_EPS:
+                    continue
+                key = (ref, pad.number, item.net)
+                if key in seen:
+                    continue
+                seen.add(key)
+                n_exact = 0
+                n_encoded = 0
+                n_cells = 0
+                x = cx0 - cap_mm
+                while x <= cx0 + cap_mm + 1e-9:
+                    y = cy0 - cap_mm
+                    while y <= cy0 + cap_mm + 1e-9:
+                        n_cells += 1
+                        if abs(x - cx0) + abs(y - cy0) > cap_mm + 1e-9:
+                            y += step_mm
+                            continue
+                        if (x - hw < EDGE_MARGIN_MM or y - hh < EDGE_MARGIN_MM
+                                or x + hw > board_w - EDGE_MARGIN_MM
+                                or y + hh > board_h - EDGE_MARGIN_MM):
+                            y += step_mm
+                            continue
+                        rect = pad_world_rect(pad, (x, y), rot_idx)
+                        if exact_clearance_mm(rect, item) >= item.margin_mm - MARGIN_EPS:
+                            n_exact += 1
+                        if item.edges:
+                            if not encoded_overlap_edges(rect, item):
+                                n_encoded += 1
+                        else:
+                            if not encoded_overlap(rect, item):
+                                n_encoded += 1
+                        y += step_mm
+                    x += step_mm
+                rows.append({
+                    "ref": ref, "pad": pad.number, "zone_net": item.net,
+                    "encoding": "EXACT" if item.edges else "BBOX-FALLBACK",
+                    "envelope_cap_mm": cap_mm,
+                    "grid_cells": n_cells,
+                    "exact_clear_cells": n_exact,
+                    "encoded_clear_cells": n_encoded,
+                    "encoded_can_reach_exact_clear": n_encoded > 0,
+                })
+    return rows
+
+
+def candidate_compound_audit(pcb, pads_by_ref, items, positions, rotations,
+                             candidate):
+    """Exact fixed-copper audit + pair verdicts at a candidate placement
+    where the free refs are moved to per-ref zone-clear positions (from the
+    joint reachability scan's first-clearing positions), everything else
+    pinned. Shows whether the compound constraint set (zones + traces +
+    vias + pads + pair separations) accepts the naive zone-clear placement
+    or what new conflicts it introduces."""
+    cand_pos = dict(positions)
+    for ref, xy in candidate.items():
+        cand_pos[ref] = (xy["x_mm"], xy["y_mm"])
+    from temper_placer.placer.cp_sat.fixed_copper import audit_fixed_copper
+    viol = audit_fixed_copper(pads_by_ref, items, cand_pos, rotations)
+    from collections import Counter
+    by_kind = dict(Counter(v.item_kind for v in viol))
+    by_net = dict(Counter(f"{v.item_kind}:{v.item_net}" for v in viol))
+    return {
+        "candidate_positions": candidate,
+        "exact_fc_violations": len(viol),
+        "by_kind": by_kind,
+        "by_net": by_net,
+        "violations": [
+            {"ref": v.ref, "pad": v.pad_number, "item_kind": v.item_kind,
+             "item_net": v.item_net, "actual_mm": round(v.actual_mm, 4),
+             "required_mm": v.required_mm}
+            for v in viol[:40]
+        ],
+    }
+
+
 # ---------------------------------------------------------------------------
 # solve + analyze
 # ---------------------------------------------------------------------------
@@ -569,7 +810,8 @@ def main():
             matrix[name] = run_variant(pcb, extra, name=name, cfg=cfg,
                                        timeout_ms_override=args.timeout_ms)
             OUT_MATRIX.write_text(json.dumps(
-                {"variants": matrix}, indent=2, sort_keys=True))
+                {"provenance": {"commit": "PLACEHOLDER", "dirty": "PLACEHOLDER"},
+                 "variants": matrix}, indent=2, sort_keys=True))
             print(f"wrote {OUT_MATRIX}")
 
     if args.solve_only:
@@ -616,6 +858,16 @@ def main():
     # headline; also report 60 for contrast).
     zone_rows = zone_reachability(pcb, pads, items_z, pos, rot, cap_mm=120.0)
     zone_rows_60 = zone_reachability(pcb, pads, items_z, pos, rot, cap_mm=60.0)
+    joint_rows = joint_zone_reachability(pcb, pads, items_z, pos, rot, cap_mm=120.0)
+    joint_rows_60 = joint_zone_reachability(pcb, pads, items_z, pos, rot, cap_mm=60.0)
+    encoded_rows = encoded_zone_reachability(pcb, pads, items_z, pos, rot, cap_mm=120.0)
+
+    # Compound audit at the per-ref zone-clear candidate positions.
+    candidate = {}
+    for r in joint_rows:
+        if r["first_clearing_position"] is not None:
+            candidate[r["ref"]] = r["first_clearing_position"]
+    compound = candidate_compound_audit(pcb, pads, items_z, pos, rot, candidate)
 
     # Pair verdicts from the run-C baseline core (C_60_s0).
     core_c = matrix.get("C_60_s0", {}).get("core", [])
@@ -624,6 +876,7 @@ def main():
     edges = edge_slack_mm(pcb, pos, rot)
 
     analysis = {
+        "provenance": {"commit": "PLACEHOLDER", "dirty": "PLACEHOLDER"},
         "best_known_placement_is_current_board": True,
         "c27_at_mm": pos.get("C27"),
         "k3_at_mm": pos.get("K3"),
@@ -635,6 +888,10 @@ def main():
                      "via": n_via, "pad": n_pad},
         "zone_conflict_reachability_cap120": zone_rows,
         "zone_conflict_reachability_cap60": zone_rows_60,
+        "joint_zone_reachability_cap120": joint_rows,
+        "joint_zone_reachability_cap60": joint_rows_60,
+        "encoded_zone_reachability_cap120": encoded_rows,
+        "candidate_compound_audit": compound,
         "pair_verdict_counts": pair_counts,
         "pairs": pairs,
         "edge_slack_mm_at_best": edges,
@@ -643,14 +900,22 @@ def main():
     print(f"wrote {OUT_ZONES}")
 
     with OUT_ZONES_CSV.open("w", newline="") as f:
+        f.write("# provenance: commit=PLACEHOLDER dirty=PLACEHOLDER\n")
         w = csv.DictWriter(f, fieldnames=list(zone_rows[0].keys()) if zone_rows else ["ref"])
         w.writeheader()
         w.writerows(zone_rows)
+    out_joint_csv = REPO / "docs" / "evidence" / "gap1_runc_envelope_joint.csv"
+    with out_joint_csv.open("w", newline="") as f:
+        f.write("# provenance: commit=PLACEHOLDER dirty=PLACEHOLDER\n")
+        w = csv.DictWriter(f, fieldnames=list(joint_rows[0].keys()) if joint_rows else ["ref"])
+        w.writeheader()
+        w.writerows(joint_rows)
     with OUT_PAIRS_CSV.open("w", newline="") as f:
+        f.write("# provenance: commit=PLACEHOLDER dirty=PLACEHOLDER\n")
         w = csv.DictWriter(f, fieldnames=list(pairs[0].keys()) if pairs else ["name"])
         w.writeheader()
         w.writerows(pairs)
-    print(f"wrote {OUT_ZONES_CSV} / {OUT_PAIRS_CSV}")
+    print(f"wrote {OUT_ZONES_CSV} / {out_joint_csv} / {OUT_PAIRS_CSV}")
 
 
 if __name__ == "__main__":
