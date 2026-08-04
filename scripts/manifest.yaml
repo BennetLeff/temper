@@ -1,71 +1,35 @@
 _meta:
   last_audit_date: '2026-08-02'
-  total_scripts: 93
+  total_scripts: 98
   counts:
-    keep: 93
+    keep: 98
     ticket: 0
   ticket_scripts_deleted: 40
 scripts:
-- path: constraint_mutation_gate.py
-  purpose: 'CI gate: every constraint encoding carries a non-empty, triaged kill set in power_pcb_dataset/constraint_kill_sets.yaml
-    (R32)'
-  owner: bennet
-  last_run: '2026-08-02'
-  category: keep
-  disposition: ci-gate
-  imports:
-  - __future__
-  - ast
-  - pathlib
-  - sys
-- path: constraint_mutation_runner.py
-  purpose: Apply R4 bug-class mutations (sign flip, dropped term, loosened bound, off-by-one, double-count) to CP-SAT encoders
-    at source level and classify killed/survived against their existing defenses; regenerates the kill-set register
-  owner: bennet
-  last_run: '2026-08-02'
-  category: keep
-  disposition: utility
-  imports:
-  - __future__
-  - argparse
-  - ast
-  - dataclasses
-  - pathlib
-  - sys
-  - types
-- path: kicad_fill_zones.py
-  purpose: Fill zones via KiCad's pcbnew API before DRC (kicad-cli lacks --refill-zones pre-CI's KiCad 8.0.9)
-  owner: zone-pour-u3-measurement
-  last_run: '2026-07-21'
-  category: keep
-  disposition: utility
-  imports:
-  - sys
-- path: kicad_pad_rotation_oracle.py
-  purpose: 'Oracle for the rotation-convention differential tests (packages/temper-placer/tests/requirements/safety/test_rotation_convention_oracle.py):
-    places a pad via real pcbnew (KiCad''s own footprint-placement engine) and reports where it actually lands, given a local
-    offset and a footprint rotation. Must run under a Python interpreter with KiCad''s pcbnew bindings, not the project uv
-    venv.'
-  owner: bennet
-  last_run: '2026-07-30'
-  category: keep
-  disposition: utility
-  imports:
-  - __future__
-  - json
-  - sys
-- path: literal_removal_check.py
-  purpose: 'Advisory check: flags literals removed by a diff that are still referenced elsewhere in the repo'
+- path: add_power_planes.py
+  purpose: Manually add power plane geometry to a KiCad PCB
   owner: unassigned
-  last_run: '2026-07-20'
+  last_run: '2026-06-22'
   category: keep
   disposition: utility
   imports:
-  - argparse
   - pathlib
   - re
-  - subprocess
   - sys
+  - uuid
+- path: batch_pipeline_validate.py
+  purpose: "Batch pipeline validation \u2014 feed corpus boards through parse\u2192placement\u2192route and quarantine failures"
+  owner: bennet
+  last_run: '2026-07-23'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - argparse
+  - pathlib
+  - sys
+  - time
+  - yaml
 - path: bench_coarse_to_fine.py
   purpose: 'A/B benchmark: compare baseline vs coarse-to-fine corridor routing on temper.kicad_pcb'
   owner: router-v6-closure-rate
@@ -80,17 +44,32 @@ scripts:
   - sys
   - time
   - typing
-- path: add_power_planes.py
-  purpose: Manually add power plane geometry to a KiCad PCB
-  owner: unassigned
-  last_run: '2026-06-22'
+- path: bench_rust_constraints.py
+  purpose: "Benchmark gate for Rust constraint engine extraction \u2014 compares Rust vs Python loss computation wall-clock\
+    \ performance"
+  owner: bennet
+  last_run: '2026-07-23'
   category: keep
   disposition: utility
   imports:
+  - __future__
+  - argparse
+  - json
   - pathlib
-  - re
+  - statistics
   - sys
-  - uuid
+  - time
+- path: bench_rust_geometry.py
+  purpose: Benchmark Rust-backed geometry functions vs pure-Python equivalents
+  owner: bennet
+  last_run: '2026-07-23'
+  category: keep
+  disposition: utility
+  imports:
+  - math
+  - statistics
+  - temper_geometry
+  - time
 - path: bless_baselines.py
   purpose: Re-extract baseline metrics after intentional quality improvements (requires Ceiling-Approval)
   owner: pipeline
@@ -105,6 +84,65 @@ scripts:
   - sys
   - typing
   - yaml
+- path: bmc_adoption_gate.py
+  purpose: 'CI gate: enforce ESL + BMC test coverage for every Constraint subclass'
+  owner: pipeline
+  last_run: '2026-06-29'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - ast
+  - pathlib
+  - sys
+- path: calibrate_drc_ceiling.py
+  purpose: Calibrate DRC violation ceiling for Rust DRC engine
+  owner: pipeline
+  last_run: '2026-06-30'
+  category: keep
+  disposition: utility
+  imports:
+  - argparse
+  - collections
+  - json
+  - pathlib
+  - sys
+- path: capacity_budget_gate.py
+  purpose: 'CI gate: design-capacity budget check over the fault-tree''s SN74HC4075 fan-in -- reachability over elec/build/default.net,
+    not pin-occupancy counting; fails closed on missing/empty netlist or BOM, an absent required package, or a real fault
+    source wired into a dead-output gate (docs/evidence/2026-07-26-design-capacity-budget-gate.md)'
+  owner: bennet
+  last_run: '2026-07-26'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - csv
+  - dataclasses
+  - pathlib
+  - sys
+  - yaml
+- path: check_copper_net_consistency.py
+  purpose: 'Board-copper / netlist consistency gate: catch corrupted net ordinals.'
+  owner: bennet
+  last_run: '2026-07-30'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.freshness
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - dataclasses
+  - json
+  - pathlib
+  - re
+  - sys
+  - typing
 - path: check_coverage_gate.py
   purpose: 'Coverage gate: fail CI on zero-coverage public functions'
   owner: pipeline
@@ -119,6 +157,298 @@ scripts:
   - json
   - pathlib
   - rich.console
+  - sys
+- path: check_creepage_clearance_drift.py
+  purpose: 'Safety-constant SSOT drift gate: compare declared creepage and clearance figures across electrical source, scripts,
+    packages, and configuration.'
+  owner: bennet
+  last_run: '2026-07-30'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - ast
+  - dataclasses
+  - pathlib
+  - re
+  - sys
+- path: check_derived_doc_drift.py
+  purpose: 'Derived-document drift gate: fail when a summary table silently drops a qualifier, column, or value restated from
+    docs/FUNCTIONAL_TEST_CRITERIA.md'
+  owner: bennet
+  last_run: '2026-07-26'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - dataclasses
+  - datetime
+  - pathlib
+  - re
+  - rich.console
+  - sys
+  - yaml
+- path: check_domain_partition.py
+  purpose: 'Netlist domain-partition CI gate: verify the compiled netlist''s HV/SELV domains are actually disjoint (docs/hardware/IEC60335_CRITICAL_COMPONENTS.md
+    Sec 2) against elec/domain_manifest.yaml; fail-closed on missing/empty/stale netlist or manifest'
+  owner: bennet
+  last_run: '2026-07-26'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.freshness
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - collections
+  - dataclasses
+  - json
+  - pathlib
+  - re
+  - sys
+  - typing
+- path: check_drc_ceiling_approval.py
+  purpose: 'CI gate: fail a PR that raises any power_pcb_dataset/drc_ceiling.json ceiling value (aggregate error_ceiling/warning_ceiling,
+    or any violations_by_type/warnings_by_type rule) relative to the merge base unless a commit in the PR carries a Ceiling-Approval:
+    trailer -- wires DrcRatchet.detect_ceiling_raise (temper_placer.regression.drc_ratchet), which existed and was unit-tested
+    but had no CI caller, into the Provenance & Anti-Vacuity Gates job'
+  owner: bennet
+  last_run: '2026-07-29'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.repo
+  - argparse
+  - json
+  - pathlib
+  - rich.console
+  - subprocess
+  - sys
+- path: check_evidence_provenance.py
+  purpose: 'Fail-closed provenance gate for docs/evidence/: every evidence file must declare how its numbers were produced'
+  owner: bennet
+  last_run: '2026-07-27'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.gate_allowlist
+  - _lib.repo
+  - argparse
+  - json
+  - pathlib
+  - re
+  - rich.console
+  - subprocess
+  - sys
+- path: check_fault_list_consistency.py
+  purpose: 'CI cross-check: verify manifest.json fault codes are a subset of generated FAULT_LIST'
+  owner: firmware
+  last_run: '2026-06-29'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - json
+  - pathlib
+  - re
+  - sys
+  - yaml
+- path: check_firmware_board_contract.py
+  purpose: 'Firmware-assumption contract oracle (plan 2026-08-02-027, R18): reverse-checks every firmware constant with a
+    board derivation against the ACTUAL board (pcb/temper.kicad_pcb), not against another declaration -- hardware and firmware
+    cannot disagree about a load-bearing value. Iterates firmware/tools/board_derivations.yaml (the registry), extracts the
+    board inputs by Sheetpath property, classifies a registered component OUTSIDE the Edge.Cuts outline as missing (the off-board
+    tank.c_tank3 defect class a refdes/value lookup would pass), applies the shared formula library firmware/tools/board_derivation_lib.py,
+    and fails with the constant and both values named on disagreement / missing component / UNMEASURED. Advisory in CI until
+    the off-outline tank cap is placed (landing contract); the unit tests are hard.'
+  owner: bennet
+  last_run: '2026-08-02'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - board_component_extractor
+  - board_derivation_lib
+  - check_pll_range_consistency
+  - dataclasses
+  - math
+  - pathlib
+  - re
+  - sys
+  - yaml
+- path: check_footprint_drift.py
+  purpose: 'Footprint-drift gate: catch a footprint corrected in elec/src/*.ato that never propagated into pcb/temper.kicad_pcb,
+    matched by sheetpath (designator-renumbering-safe), not refdes.'
+  owner: bennet
+  last_run: '2026-07-30'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.freshness
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - dataclasses
+  - json
+  - pathlib
+  - re
+  - sys
+  - typing
+- path: check_hv_netclass_coverage.py
+  purpose: 'CI gate: assert every elec/domain_manifest.yaml HV-domain net has a TEMPER_NET_ASSIGNMENTS entry, and every declared
+    netclass (TEMPER_NET_CLASSES union pcb/temper.kicad_pro-described classes, minus the structural Default/Differential classes)
+    has at least one positive rule in scripts/generate_kicad_dru.py''s generated output -- catches the +170V_BUS-resolves-to-no-netclass
+    and HighVoltageIsolated-enforces-nothing defect class confirmed on origin/main (docs/evidence/2026-07-29-hv-netclass-coverage-gate.md)'
+  owner: bennet
+  last_run: '2026-07-29'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - check_domain_partition
+  - collections.abc
+  - dataclasses
+  - json
+  - pathlib
+  - re
+  - sys
+  - typing
+- path: check_isolation_keepout.py
+  purpose: 'Physical mains<->SELV isolation-barrier CI gate: verify a dedicated keepout region spans all copper layers, is
+    >=8.0mm wide (REINFORCED creepage) throughout, bisects the board into HV/SELV sides, and that no copper (trace/via/pad/zone)
+    intrudes -- pcb/temper.kicad_pcb has zero keepout zones today, so this barrier exists only as declarations/after-the-fact
+    checks; fail-closed on missing/empty board or manifest, zero HV or SELV pads found, or a missing barrier zone (docs/evidence/2026-07-28-isolation-keepout.md)'
+  owner: bennet
+  last_run: '2026-07-28'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - dataclasses
+  - pathlib
+  - sys
+  - temper_placer.core.isolation_constants
+  - temper_placer.core.pad_geometry
+  - temper_placer.geometry.kicad_transform
+- path: check_manifest_gate.py
+  purpose: 'CI gate: enforce scripts/manifest.yaml <-> filesystem consistency'
+  owner: pipeline
+  last_run: '2026-06-22'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - argparse
+  - pathlib
+  - sys
+- path: check_measurement_provenance.py
+  purpose: 'CI gate: fail closed when a measurement artifact (power_pcb_dataset/drc_ceiling.json today) declares input-file
+    content hashes that no longer match reality -- catches the DRC ceiling recording 91 errors for a board three commits (c6b1b463,
+    556ccf4f, 65bd0159) had since changed to ~710, with the ceiling file byte-identical throughout (docs/evidence/2026-07-27-drc-truth-gate-discrepancy.md,
+    docs/evidence/2026-07-28-measurement-provenance.md); STALE is a GATE ERROR, not a violation, generalizing the netlist-freshness
+    precedent in check_domain_partition.py'
+  owner: bennet
+  last_run: '2026-07-28'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.gate_allowlist
+  - _lib.github_summary
+  - _lib.measurement_provenance
+  - _lib.repo
+  - argparse
+  - dataclasses
+  - json
+  - pathlib
+  - sys
+  - typing
+- path: check_net_classification.py
+  purpose: 'CI gate: fail when safety-relevant net classification (HV/SELV) is decided by plain substring match against a
+    hand-maintained keyword list, in parallel to elec/domain_manifest.yaml -- the defect class confirmed three times in this
+    repo (creepage_check.py false positives, clearance_check.py false negatives, clearance_engine.py bare HV/AC substrings)
+    (docs/evidence/2026-07-27-net-classification-gate.md)'
+  owner: bennet
+  last_run: '2026-07-27'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - ast
+  - dataclasses
+  - fnmatch
+  - pathlib
+  - sys
+- path: check_netlist_board_reconciliation.py
+  purpose: 'Netlist<->board reconciliation CI gate (plan 2026-08-02-021, R16): compares the netlist extracted from pcb/temper.kicad_pcb
+    against the compiled design netlist keyed by instance path (Sheetpath) and net membership, not refdes -- wholesale renumbering,
+    missing components, reused refdes, and dropped nets fail regardless of refdes overlap; the tank-cap class is PASS-for-missing
+    on the current board (tank.c_tank3 is present off-outline, owned by the R26 plan).'
+  owner: bennet
+  last_run: '2026-08-02'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - pathlib
+  - sys
+- path: check_netlist_mutation_corpus.py
+  purpose: 'Netlist-mutation corpus CI runner (plan 2026-08-02-021, R39/U7): applies the renumber/dropped-net/reused-refdes
+    mutations to a copy of the design netlist and asserts each class fails its owning identity check (renumber must PASS the
+    95% refdes-overlap check while the sheetpath oracle reports RENUMBERED) with the clean netlist green (anti-vacuity); fail-closed
+    on a stale netlist or missing tool.'
+  owner: bennet
+  last_run: '2026-08-02'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - pathlib
+  - sys
+  - tempfile
+- path: check_no_raw_rotation_trig.py
+  purpose: 'CI gate: fail if any of the 12 files that have already carried KiCad''s R(+theta)/R(-theta) footprint-child rotation
+    sign bug (see docs/evidence/2026-07-29-cross-domain-creepage-rotation-convention.md) contains a raw math.cos/math.sin/np.cos/np.sin
+    call instead of importing temper_placer.geometry.kicad_transform, the single sanctioned implementation those 12 sites
+    were consolidated into'
+  owner: bennet
+  last_run: '2026-07-30'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - ast
+  - dataclasses
+  - pathlib
   - sys
 - path: check_pad_orientation.py
   purpose: 'Pad-orientation gate: catch footprint rotations that never reached the pads. Check 1 -- a footprint rotated by
@@ -159,6 +489,53 @@ scripts:
   - re
   - rich.console
   - sys
+- path: check_pll_range_consistency.py
+  purpose: 'CI gate: fail when firmware/components/control/pll_control.h''s PLL_MIN/MAX/DEFAULT_FREQ_HZ and elec/src/main.ato''s
+    declared f_switching/f_pll_tracking_min/max disagree -- main.ato asserted a 20-100kHz tracking range 5x wider than the
+    firmware''s real 30-50kHz clamp, and PLL_DEFAULT_FREQ_HZ (35000) started the bridge at the frequency an independent ZVS
+    analysis found loses 100.7% of ZVS margin, while main.ato had already moved to 47kHz (docs/evidence/2026-07-28-pll-defaults-and-range-gate.md).
+    EXTENDED 2026-07-29: also DERIVES the required PLL floor from main.ato''s declared l_tank_assumed / l_pan_loaded_ratio
+    / c_tank_total / l_tank_tolerance (1.05 x the worst-case loaded resonance) and fails if PLL_MIN_FREQ_HZ is below it --
+    the previous checks only compared declarations against each other and so were blind to both files agreeing on 30kHz, 7.6kHz
+    BELOW the tank''s loaded resonance, where a series-resonant bridge hard-switches (docs/evidence/2026-07-29-pll-floor-above-resonance.md).
+    Also cross-checks main.ato''s c_tank_total mirror against modules.ato''s c_tank1+c_tank2'
+  owner: bennet
+  last_run: '2026-07-29'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - dataclasses
+  - math
+  - pathlib
+  - re
+  - sys
+- path: check_refdes_identity_stability.py
+  purpose: Discovers safety-relevant test/fixture assertions keyed to a ref-designator string literal (e.g. "U3", "K1") instead
+    of instance_path, and cross-checks real-board-bound ones against the current compiled netlist plus elec/domain_manifest.yaml
+    to flag an ACTUAL identity mismatch, not just presence -- built after a ZCD-optocoupler deletion reshuffled U-prefix refs
+    and left test_the_seven_known_intra_footprint_blockers_are_now_visible checking different real components than its own
+    name/docstring claim while still passing. Reports a full denominator (raw literals, safety-keyword context, assert-reachable,
+    load-bearing, real-board-bound) at every stage; never wired into CI (false-positive rate unmeasured on first pass) --
+    see docs/evidence/2026-07-30-refdes-identity-stability-gate.md.
+  owner: bennet
+  last_run: '2026-07-30'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - ast
+  - check_domain_partition
+  - dataclasses
+  - pathlib
+  - re
+  - sys
 - path: check_regression.py
   purpose: Functional regression check (called by Makefile)
   owner: unassigned
@@ -166,6 +543,96 @@ scripts:
   category: keep
   disposition: shell-invoked
   imports:
+  - sys
+- path: check_required_checks.py
+  purpose: 'Always-on pull-request aggregator: require the candidate Python Tests contexts when a manifest trigger path matches,
+    while treating workflow-level path filtering as an explicit legitimate skip. A `skipped` required context passes only
+    when the checker verifies the skip against the PR changed-file list and the manifest per-job trigger sets (fail-closed
+    otherwise).'
+  owner: bennet
+  last_run: '2026-08-02'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - collections.abc
+  - dataclasses
+  - json
+  - os
+  - pathlib
+  - re
+  - sys
+  - time
+  - typing
+  - urllib.error
+  - urllib.parse
+  - urllib.request
+- path: check_rust_drc_presence.py
+  purpose: 'CI gate: fail-closed presence/freshness check for the temper_drc_rs PyO3 extension -- a bare import cannot detect
+    a stale wheel missing a symbol the current lib.rs registers (2026-07-26 incident: verify_route_clearance silently absent,
+    differential test silently skipped); TEMPER_REQUIRE_RUST_DRC=1 (CI) makes any gap fatal, unset (local dev) makes it a
+    warning'
+  owner: bennet
+  last_run: '2026-07-26'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - importlib
+  - os
+  - pathlib
+  - re
+  - sys
+- path: check_script_sunset.py
+  purpose: 'CI gate: warn on stale scripts per the 30-day sunset clock'
+  owner: pipeline
+  last_run: '2026-06-22'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - argparse
+  - datetime
+  - json
+  - pathlib
+  - sys
+- path: check_stale_extensions.py
+  purpose: 'CI gate: fail-closed freshness check for every pyo3/maturin Rust extension crate under packages/ -- an installed
+    .so older than its own crate''s source (or a crate whose extension is missing entirely) is reported; zero crates discovered
+    is always a gate error, never a vacuous pass (2026-07-27 incident: missing .cargo/config.toml broke every `maturin develop`
+    on macOS, so temper_io_types.cpython-312-darwin.so stayed frozen while lib.rs gained ConfigBoardMismatchError, silently
+    failing two test modules'' collection; see commit 02e907b9 and docs/evidence/2026-07-27-stale-extension-gate.md)'
+  owner: bennet
+  last_run: '2026-07-27'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.freshness
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - dataclasses
+  - datetime
+  - hashlib
+  - importlib.util
+  - os
+  - pathlib
+  - sys
+  - tomllib
+- path: check_stash_stack_gate.py
+  purpose: Detector for git stash activity the reference-transaction hook cannot block (apply, and pop/drop of a non-terminal
+    entry) -- snapshots the stash reflog and flags additions/removals since the last run. Not a CI gate; run manually or on
+    a timer against the shared dev machine.
+  owner: bennet
+  last_run: '2026-07-28'
+  category: keep
+  disposition: utility
+  imports:
+  - argparse
+  - json
+  - pathlib
+  - subprocess
   - sys
 - path: check_traceability.py
   purpose: Verify @req() tags in code match plan requirements
@@ -179,6 +646,83 @@ scripts:
   - pathlib
   - subprocess
   - sys
+- path: check_transition_table_mutations.py
+  purpose: 'CI gate (R40/P1, runs in the Firmware Tests workflow): fail on any live transition-table mutant, mutation error,
+    or skipped row reported by firmware/test/mutate_transition_table.py --sweep, and fail closed on a stale report (generated_at
+    older than --max-report-age-seconds) so a scheduled or committed report can never satisfy the gate -- the mutation suite
+    proves every row of the test-side TRANSITIONS manifest (firmware/test/gen_transition_table.py) is exercised by tests that
+    can fail'
+  owner: bennet
+  last_run: '2026-08-02'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - datetime
+  - json
+  - pathlib
+  - sys
+- path: check_typecheck_gate.py
+  purpose: Type-check gate with per-file monotonic-shrink allowlist baseline
+  owner: pipeline
+  last_run: '2026-06-29'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - argparse
+  - collections
+  - pathlib
+  - re
+  - subprocess
+  - sys
+- path: check_undeclared_imports.py
+  purpose: 'CI gate: fail when a module-level import in scripts/ or a Python test tree is not resolvable in the synced environment
+    (undeclared third-party dependency) -- catches the jinja2/sympy class of incident (docs/evidence/2026-07-27-undeclared-import-gate.md)'
+  owner: bennet
+  last_run: '2026-07-27'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - ast
+  - dataclasses
+  - fnmatch
+  - importlib.util
+  - pathlib
+  - sys
+- path: check_vacuous_gates.py
+  purpose: 'CI gate: reject unguarded all() in gate and validator modules (docs/METHODOLOGY.md Sec 4/5, anti-vacuous-truth);
+    any() exempt (already fail-closed); asserts zero, no allowlist. Also rejects tautological assert expressions (X or not
+    X, X or True, X is X, literal X == X, bare assert True/1 with nothing preceding it) anywhere in packages/scripts, including
+    test_*.py -- added 2026-07-28 after test_clearance.py shipped one uncaught.'
+  owner: bennet
+  last_run: '2026-07-28'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - ast
+  - pathlib
+  - re
+  - rich.console
+  - sys
+- path: check_workflow_pr_triggers.py
+  purpose: 'CI gate: ensure workflow files with push triggers also declare pull_request (issue #315)'
+  owner: pipeline
+  last_run: '2026-07-23'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - argparse
+  - pathlib
+  - re
+  - sys
+  - yaml
 - path: ci_check_drc.py
   purpose: 'CI entry point: DRC ratchet check'
   owner: pipeline
@@ -200,27 +744,32 @@ scripts:
   - os
   - pathlib
   - sys
-- path: check_manifest_gate.py
-  purpose: 'CI gate: enforce scripts/manifest.yaml <-> filesystem consistency'
-  owner: pipeline
-  last_run: '2026-06-22'
+- path: ci_identity_check.py
+  purpose: 'CI enforcement of the board identity gate (plan 2026-07-15-001, U7): rejects the quarantined fixture, verifies
+    the production board once it exists'
+  owner: bennet
+  last_run: '2026-07-15'
   category: keep
   disposition: ci-gate
   imports:
-  - argparse
+  - __future__
   - pathlib
   - sys
-- path: check_script_sunset.py
-  purpose: 'CI gate: warn on stale scripts per the 30-day sunset clock'
-  owner: pipeline
-  last_run: '2026-06-22'
+- path: classify_changed_paths.py
+  purpose: 'Workflow-side per-job run decisions for python-tests.yml path-conditional jobs (change-driven CI): applies check_required_checks.job_should_run
+    to the PR changed-file list against the manifest per-job trigger sets, so a job skipped in the workflow is exactly a skip
+    the checker verifies.'
+  owner: bennet
+  last_run: '2026-08-02'
   category: keep
   disposition: ci-gate
   imports:
-  - argparse
-  - datetime
+  - __future__
+  - check_required_checks
   - json
+  - os
   - pathlib
+  - subprocess
   - sys
 - path: compare_drc_reports.py
   purpose: Compare DRC reports across runs (shell-invoked)
@@ -233,6 +782,42 @@ scripts:
   - json
   - pathlib
   - sys
+- path: constraint_mutation_gate.py
+  purpose: 'CI gate: every constraint encoding carries a non-empty, triaged kill set in power_pcb_dataset/constraint_kill_sets.yaml
+    (R32)'
+  owner: bennet
+  last_run: '2026-08-02'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - ast
+  - pathlib
+  - sys
+- path: constraint_mutation_runner.py
+  purpose: Apply R4 bug-class mutations (sign flip, dropped term, loosened bound, off-by-one, double-count) to CP-SAT encoders
+    at source level and classify killed/survived against their existing defenses; regenerates the kill-set register
+  owner: bennet
+  last_run: '2026-08-02'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - argparse
+  - ast
+  - dataclasses
+  - pathlib
+  - sys
+  - types
+- path: deadcode-baseline.py
+  purpose: 'Vulture whitelist/baseline data file: one accepted dead-code finding per line (name + comment), diffed against
+    by vulture_gate.py. Needs a .py extension because vulture parses whitelist files as Python source; moved here from the
+    repo root 2026-07-29 (scripts/test_root_hygiene.py flags any tracked *.py file at root).'
+  owner: pipeline
+  last_run: '2026-07-29'
+  category: keep
+  disposition: utility
+  imports: []
 - path: debug_diff_pair_path.py
   purpose: Debug differential pair path (shell-invoked)
   owner: unassigned
@@ -251,6 +836,109 @@ scripts:
   disposition: utility
   imports:
   - sys
+- path: full_pipeline_profile.py
+  purpose: Full closure-test profile with per-net A* logging; surfaces the actual SM1 baseline on temper.kicad_pcb
+  owner: router-v6-closure-rate
+  last_run: '2026-06-23'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - argparse
+  - cProfile
+  - io
+  - json
+  - logging
+  - os
+  - pathlib
+  - pstats
+  - sys
+  - time
+  - typing
+- path: gen_architecture_poster.py
+  purpose: Generate a deterministic SVG architecture poster from monorepo build manifests
+  owner: pipeline
+  last_run: '2026-07-13'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - argparse
+  - json
+  - math
+  - os
+  - pathlib
+  - re
+  - sys
+  - tomllib
+  - typing
+- path: gen_domain_models.py
+  purpose: "Cross-language domain model codegen \u2014 NetClassRules SSOT from YAML manifest to Python+Rust (plan 2026-07-22-004)"
+  owner: bennet
+  last_run: '2026-07-22'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - argparse
+  - jinja2
+  - os
+  - pathlib
+  - sys
+  - typing
+  - yaml
+- path: gen_pcb_skeleton.py
+  purpose: Generate a production KiCad PCB skeleton from the atopile netlist (CI-gate --check mode)
+  owner: bennet
+  last_run: '2026-07-23'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - collections
+  - dataclasses
+  - hashlib
+  - json
+  - pathlib
+  - re
+  - subprocess
+  - sys
+  - tempfile
+  - typing
+- path: gen_repo_state.py
+  purpose: Generate README.md and docs/plans/README.md state blocks from source; --check fails closed on drift so hand-maintained
+    state cannot go stale
+  owner: pipeline
+  last_run: '2026-07-26'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - pathlib
+  - subprocess
+  - sys
+- path: gen_schematics.py
+  purpose: Generate KiCad schematics from atopile netlist (default.net), with per-designator part identity from default.csv
+    (default.net's libsource is footprint-aliased); --check is the schematic-drift CI gate
+  owner: bennet
+  last_run: '2026-07-15'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - collections
+  - csv
+  - dataclasses
+  - hashlib
+  - json
+  - pathlib
+  - re
+  - subprocess
+  - sys
+  - tempfile
+  - typing
 - path: generate_kicad_dru.py
   purpose: Generate KiCad design rules from config (used by temper-drc tests)
   owner: unassigned
@@ -260,6 +948,17 @@ scripts:
   imports:
   - pathlib
   - temper_placer.core.design_rules
+- path: human_reference_compare.py
+  purpose: Generate human-reference PR comment comparing optimizer metrics to human placement
+  owner: pipeline
+  last_run: '2026-07-01'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - pathlib
+  - sys
+  - yaml
 - path: import_linter_gate.py
   purpose: Import boundary enforcement CI gate wrapper
   owner: pipeline
@@ -271,6 +970,97 @@ scripts:
   - _lib.repo
   - argparse
   - datetime
+  - pathlib
+  - re
+  - subprocess
+  - sys
+- path: install_git_stash_guard.py
+  purpose: Install the shared-hooks reference-transaction hook (scripts/git-hooks/reference-transaction) that blocks git stash
+    push/save/clear repo-wide, since the stash stack is shared across all concurrent worktrees on this .git directory. See
+    AGENTS.md "Git Stash Guard".
+  owner: bennet
+  last_run: '2026-07-28'
+  category: keep
+  disposition: utility
+  imports:
+  - argparse
+  - pathlib
+  - shutil
+  - subprocess
+  - sys
+- path: internal_route.py
+  purpose: Internal route command (Makefile + shell-invoked)
+  owner: unassigned
+  last_run: '2026-06-22'
+  category: keep
+  disposition: shell-invoked
+  imports:
+  - argparse
+  - jax.numpy
+  - math
+  - pathlib
+  - rich.console
+  - sys
+  - temper_placer.core.loop
+  - temper_placer.geometry.kicad_transform
+  - temper_placer.io.kicad_parser
+  - temper_placer.io.trace_writer
+  - temper_placer.io.zone_manager
+  - temper_placer.router_v6.adapter
+  - temper_placer.routing.constraints.geometry
+  - temper_placer.routing.constraints.spatial_index
+  - temper_placer.routing.fanout
+  - temper_placer.routing.layer_assignment
+  - temper_placer.routing.net_ordering
+  - time
+- path: kicad_fill_zones.py
+  purpose: Fill zones via KiCad's pcbnew API before DRC (kicad-cli lacks --refill-zones pre-CI's KiCad 8.0.9)
+  owner: zone-pour-u3-measurement
+  last_run: '2026-07-21'
+  category: keep
+  disposition: utility
+  imports:
+  - sys
+- path: kicad_pad_rotation_oracle.py
+  purpose: 'Oracle for the rotation-convention differential tests (packages/temper-placer/tests/requirements/safety/test_rotation_convention_oracle.py):
+    places a pad via real pcbnew (KiCad''s own footprint-placement engine) and reports where it actually lands, given a local
+    offset and a footprint rotation. Must run under a Python interpreter with KiCad''s pcbnew bindings, not the project uv
+    venv.'
+  owner: bennet
+  last_run: '2026-07-30'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - json
+  - sys
+- path: known_failure_pins.py
+  purpose: 'CI gate + shared helper: validate known-failure-pins.yaml (a known-red test''s declared failure signature) as
+    a monotonic-shrink ratchet -- live-pin cap, forced expiry/renewal, required evidence-doc link, orphan-nodeid detection
+    -- and provide annotate_failure()/check_signature() for a test to compare its actual failure signature against the declared
+    one, distinguishing "known reason" from "changed reason" without xfail (docs/solutions/best-practices/pin-known-failure-reasons-2026-07-30.md,
+    the PR #460 near-miss).'
+  owner: bennet
+  last_run: '2026-07-30'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - dataclasses
+  - datetime
+  - pathlib
+  - sys
+  - typing
+  - yaml
+- path: literal_removal_check.py
+  purpose: 'Advisory check: flags literals removed by a diff that are still referenced elsewhere in the repo'
+  owner: unassigned
+  last_run: '2026-07-20'
+  category: keep
+  disposition: utility
+  imports:
+  - argparse
   - pathlib
   - re
   - subprocess
@@ -315,31 +1105,38 @@ scripts:
   - pathlib
   - re
   - sys
-- path: internal_route.py
-  purpose: Internal route command (Makefile + shell-invoked)
-  owner: unassigned
-  last_run: '2026-06-22'
+- path: netlist_mutator.py
+  purpose: 'Deterministic seeded mutation harness for the compiled design netlist (plan 2026-08-02-021, R39/U5): applies one
+    named mutation per class -- renumber (set-preserving ref permutation), drop-net (a net''s nodes removed), reuse (one ref
+    assigned to two components) -- to a copy of elec/build/default.net and serialises a parseable mutated netlist for the
+    mutation corpus.'
+  owner: bennet
+  last_run: '2026-08-02'
   category: keep
-  disposition: shell-invoked
+  disposition: utility
   imports:
+  - __future__
   - argparse
-  - jax.numpy
-  - math
+  - check_domain_partition
+  - dataclasses
   - pathlib
-  - rich.console
+  - random
+  - re
   - sys
-  - temper_placer.core.loop
-  - temper_placer.geometry.kicad_transform
-  - temper_placer.io.kicad_parser
-  - temper_placer.io.trace_writer
-  - temper_placer.io.zone_manager
-  - temper_placer.router_v6.adapter
-  - temper_placer.routing.constraints.geometry
-  - temper_placer.routing.constraints.spatial_index
-  - temper_placer.routing.fanout
-  - temper_placer.routing.layer_assignment
-  - temper_placer.routing.net_ordering
-  - time
+- path: packages/temper-placer/scripts/gen_config_reference.py
+  purpose: Generate docs/reference/config-reference.md from Pydantic model introspection (plan 2026-07-22-005)
+  owner: bennet
+  last_run: '2026-07-22'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - sys
+  - pathlib
+  - typing
+  - pydantic
+  - temper_placer.constraint_types.config
 - path: pipeline_metrics.py
   purpose: Record pipeline metrics to JSON for trend analysis (CI-invoked)
   owner: pipeline
@@ -351,6 +1148,17 @@ scripts:
   - datetime
   - json
   - math
+  - pathlib
+  - sys
+- path: pipeline_report.py
+  purpose: Generate self-contained static HTML pipeline report (R7, R8)
+  owner: pipeline
+  last_run: '2026-06-29'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - json
   - pathlib
   - sys
 - path: placement_quality_report.py
@@ -376,6 +1184,140 @@ scripts:
   - temper_placer.routing.analysis
   - tempfile
   - typing
+- path: pr_perf_compare.py
+  purpose: Compare PR performance metrics against main-branch JSONL baseline
+  owner: pipeline
+  last_run: '2026-06-29'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - json
+  - pathlib
+  - statistics
+  - sys
+  - typing
+- path: pr_scorecard.py
+  purpose: 'PR pipeline scorecard: compare pipeline_metrics.jsonl files, produce markdown delta table'
+  owner: pipeline
+  last_run: '2026-06-29'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - json
+  - logging
+  - pathlib
+  - sys
+  - typing
+- path: profile_router_v6_sampling.py
+  purpose: Profile router_v6 on a small subset of nets for sampling analysis
+  owner: router-v6-closure-rate
+  last_run: '2026-06-23'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - argparse
+  - cProfile
+  - io
+  - pathlib
+  - pstats
+  - sys
+  - time
+- path: profile_rust_topology.py
+  purpose: Compare Rust vs Python SAT solver backend performance on closure test
+  owner: unassigned
+  last_run: '2026-06-28'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - json
+  - os
+  - pathlib
+  - subprocess
+  - sys
+  - time
+- path: pytest_guard.py
+  purpose: Run pytest and fail if fewer than --min-tests actually executed; catches a suite silently collapsing to zero (missing
+    path, mass skip, bad deselect)
+  owner: pipeline
+  last_run: '2026-07-27'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - pathlib
+  - subprocess
+  - sys
+  - tempfile
+  - xml.etree.ElementTree
+- path: quarantine_report.py
+  purpose: Report on dead-letter quarantine status and taxonomy distribution (CI gate)
+  owner: pipeline
+  last_run: '2026-06-30'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - json
+  - pathlib
+  - sys
+- path: reconcile_metrics.py
+  purpose: Reconcile pipeline metrics across multiple runs
+  owner: pipeline
+  last_run: '2026-06-29'
+  category: keep
+  disposition: utility
+  imports:
+  - json
+  - pathlib
+  - sys
+- path: resync_pcb_netlist.py
+  purpose: Resync pcb/temper.kicad_pcb nets/designators/footprints against elec/build/default.net without moving any existing
+    footprint
+  owner: bennet
+  last_run: '2026-07-27'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - argparse
+  - copy
+  - dataclasses
+  - gen_pcb_skeleton
+  - json
+  - kiutils.board
+  - kiutils.footprint
+  - kiutils.items.common
+  - kiutils.items.zones
+  - pathlib
+  - sys
+- path: route_board.py
+  purpose: Working entry point to route a .kicad_pcb through router_v6's route_pcb() (make route and internal_route.py are
+    dead ends -- see module docstring). --output is mandatory and refuses to match --pcb, so it can never overwrite the input
+    board. --runs N routes N times from identical input and reports the completion spread -- the measurement instrument for
+    the router's run-to-run non-determinism.
+  owner: bennet
+  last_run: '2026-07-28'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - argparse
+  - json
+  - os
+  - pathlib
+  - statistics
+  - subprocess
+  - sys
+  - tempfile
+  - time
+  - typing
 - path: run_feedback_loop.py
   purpose: Run iterative feedback loop (shell-invoked)
   owner: unassigned
@@ -396,6 +1338,61 @@ scripts:
   - temper_placer.io.kicad_parser
   - temper_placer.io.kicad_writer
   - temper_placer.io.zone_manager
+- path: scan_external_corpus.py
+  purpose: Scan downloads_digital_iot/ for .kicad_pcb files, profile parse success and difficulty tiers
+  owner: pipeline
+  last_run: '2026-06-30'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - argparse
+  - pathlib
+  - sys
+  - time
+  - yaml
+- path: slo_evaluator.py
+  purpose: SLO definition schema and evaluation engine
+  owner: pipeline
+  last_run: '2026-06-29'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - dataclasses
+  - typing
+  - yaml
+- path: spc_rules.py
+  purpose: "Western Electric SPC rules \u2014 pure Python, no external stats dependency"
+  owner: pipeline
+  last_run: '2026-06-29'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - math
+- path: sweep_plan_status.py
+  purpose: One-shot supersession sweep of docs/plans/ frontmatter status (2026-07-25); see docs/plans/README.md
+  owner: bennet
+  last_run: '2026-07-25'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - argparse
+  - collections
+  - pathlib
+  - re
+  - subprocess
+- path: test_root_hygiene.py
+  purpose: 'CI gate: reject root-level artifact files that should live in subdirectories'
+  owner: pipeline
+  last_run: '2026-07-13'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - pathlib
+  - subprocess
 - path: trace_invocations.py
   purpose: Build scripts/invocation_graph.json from CI/shell/Makefile/top-level .py/packages/ references
   owner: pipeline
@@ -432,6 +1429,17 @@ scripts:
   - dataclasses
   - pathlib
   - re
+- path: verify_proofs.py
+  purpose: "Verify PROOFS.toml completeness \u2014 CI gate"
+  owner: pipeline
+  last_run: '2026-06-29'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - pathlib
+  - re
+  - sys
 - path: vulture_gate.py
   purpose: 'Vulture dead-code CI gate: diff wrapper with baseline allowlist'
   owner: pipeline
@@ -446,458 +1454,25 @@ scripts:
   - re
   - subprocess
   - sys
-- path: deadcode-baseline.py
-  purpose: 'Vulture whitelist/baseline data file: one accepted dead-code finding per line (name + comment), diffed against
-    by vulture_gate.py. Needs a .py extension because vulture parses whitelist files as Python source; moved here from the
-    repo root 2026-07-29 (scripts/test_root_hygiene.py flags any tracked *.py file at root).'
-  owner: pipeline
-  last_run: '2026-07-29'
-  category: keep
-  disposition: utility
-  imports: []
-- path: profile_router_v6_sampling.py
-  purpose: Profile router_v6 on a small subset of nets for sampling analysis
-  owner: router-v6-closure-rate
-  last_run: '2026-06-23'
-  category: keep
-  disposition: utility
-  imports:
-  - __future__
-  - argparse
-  - cProfile
-  - io
-  - pathlib
-  - pstats
-  - sys
-  - time
-- path: full_pipeline_profile.py
-  purpose: Full closure-test profile with per-net A* logging; surfaces the actual SM1 baseline on temper.kicad_pcb
-  owner: router-v6-closure-rate
-  last_run: '2026-06-23'
-  category: keep
-  disposition: utility
-  imports:
-  - __future__
-  - argparse
-  - cProfile
-  - io
-  - json
-  - logging
-  - os
-  - pathlib
-  - pstats
-  - sys
-  - time
-  - typing
-- path: profile_rust_topology.py
-  purpose: Compare Rust vs Python SAT solver backend performance on closure test
-  owner: unassigned
-  last_run: '2026-06-28'
-  category: keep
-  disposition: utility
-  imports:
-  - __future__
-  - json
-  - os
-  - pathlib
-  - subprocess
-  - sys
-  - time
-- path: bmc_adoption_gate.py
-  purpose: 'CI gate: enforce ESL + BMC test coverage for every Constraint subclass'
-  owner: pipeline
-  last_run: '2026-06-29'
-  category: keep
-  disposition: ci-gate
-  imports:
-  - __future__
-  - ast
-  - pathlib
-  - sys
-- path: check_fault_list_consistency.py
-  purpose: 'CI cross-check: verify manifest.json fault codes are a subset of generated FAULT_LIST'
-  owner: firmware
-  last_run: '2026-06-29'
-  category: keep
-  disposition: ci-gate
-  imports:
-  - json
-  - pathlib
-  - re
-  - sys
-  - yaml
-- path: check_typecheck_gate.py
-  purpose: Type-check gate with per-file monotonic-shrink allowlist baseline
-  owner: pipeline
-  last_run: '2026-06-29'
-  category: keep
-  disposition: ci-gate
-  imports:
-  - argparse
-  - collections
-  - pathlib
-  - re
-  - subprocess
-  - sys
-- path: pipeline_report.py
-  purpose: Generate self-contained static HTML pipeline report (R7, R8)
-  owner: pipeline
-  last_run: '2026-06-29'
-  category: keep
-  disposition: utility
-  imports:
-  - __future__
-  - json
-  - pathlib
-  - sys
-- path: pr_perf_compare.py
-  purpose: Compare PR performance metrics against main-branch JSONL baseline
-  owner: pipeline
-  last_run: '2026-06-29'
-  category: keep
-  disposition: ci-gate
-  imports:
-  - __future__
-  - argparse
-  - json
-  - pathlib
-  - statistics
-  - sys
-  - typing
-- path: pr_scorecard.py
-  purpose: 'PR pipeline scorecard: compare pipeline_metrics.jsonl files, produce markdown delta table'
-  owner: pipeline
-  last_run: '2026-06-29'
-  category: keep
-  disposition: ci-gate
-  imports:
-  - __future__
-  - json
-  - logging
-  - pathlib
-  - sys
-  - typing
-- path: reconcile_metrics.py
-  purpose: Reconcile pipeline metrics across multiple runs
-  owner: pipeline
-  last_run: '2026-06-29'
-  category: keep
-  disposition: utility
-  imports:
-  - json
-  - pathlib
-  - sys
-- path: slo_evaluator.py
-  purpose: SLO definition schema and evaluation engine
-  owner: pipeline
-  last_run: '2026-06-29'
-  category: keep
-  disposition: utility
-  imports:
-  - __future__
-  - dataclasses
-  - typing
-  - yaml
-- path: spc_rules.py
-  purpose: "Western Electric SPC rules \u2014 pure Python, no external stats dependency"
-  owner: pipeline
-  last_run: '2026-06-29'
-  category: keep
-  disposition: utility
-  imports:
-  - __future__
-  - math
-- path: verify_proofs.py
-  purpose: "Verify PROOFS.toml completeness \u2014 CI gate"
-  owner: pipeline
-  last_run: '2026-06-29'
-  category: keep
-  disposition: ci-gate
-  imports:
-  - __future__
-  - pathlib
-  - re
-  - sys
-- path: calibrate_drc_ceiling.py
-  purpose: Calibrate DRC violation ceiling for Rust DRC engine
-  owner: pipeline
-  last_run: '2026-06-30'
-  category: keep
-  disposition: utility
-  imports:
-  - argparse
-  - collections
-  - json
-  - pathlib
-  - sys
-- path: scan_external_corpus.py
-  purpose: Scan downloads_digital_iot/ for .kicad_pcb files, profile parse success and difficulty tiers
-  owner: pipeline
-  last_run: '2026-06-30'
-  category: keep
-  disposition: utility
-  imports:
-  - __future__
-  - argparse
-  - pathlib
-  - sys
-  - time
-  - yaml
-- path: quarantine_report.py
-  purpose: Report on dead-letter quarantine status and taxonomy distribution (CI gate)
-  owner: pipeline
-  last_run: '2026-06-30'
-  category: keep
-  disposition: ci-gate
-  imports:
-  - __future__
-  - argparse
-  - json
-  - pathlib
-  - sys
-- path: human_reference_compare.py
-  purpose: Generate human-reference PR comment comparing optimizer metrics to human placement
-  owner: pipeline
-  last_run: '2026-07-01'
-  category: keep
-  disposition: ci-gate
-  imports:
-  - __future__
-  - pathlib
-  - sys
-  - yaml
-- path: pytest_guard.py
-  purpose: Run pytest and fail if fewer than --min-tests actually executed; catches a suite silently collapsing to zero (missing
-    path, mass skip, bad deselect)
-  owner: pipeline
-  last_run: '2026-07-27'
-  category: keep
-  disposition: ci-gate
-  imports:
-  - __future__
-  - argparse
-  - pathlib
-  - subprocess
-  - sys
-  - tempfile
-  - xml.etree.ElementTree
-- path: gen_repo_state.py
-  purpose: Generate README.md and docs/plans/README.md state blocks from source; --check fails closed on drift so hand-maintained
-    state cannot go stale
-  owner: pipeline
-  last_run: '2026-07-26'
-  category: keep
-  disposition: ci-gate
-  imports:
-  - __future__
-  - argparse
-  - pathlib
-  - subprocess
-  - sys
-- path: gen_architecture_poster.py
-  purpose: Generate a deterministic SVG architecture poster from monorepo build manifests
-  owner: pipeline
-  last_run: '2026-07-13'
-  category: keep
-  disposition: utility
-  imports:
-  - __future__
-  - argparse
-  - json
-  - math
-  - os
-  - pathlib
-  - re
-  - sys
-  - tomllib
-  - typing
-- path: test_root_hygiene.py
-  purpose: 'CI gate: reject root-level artifact files that should live in subdirectories'
-  owner: pipeline
-  last_run: '2026-07-13'
-  category: keep
-  disposition: ci-gate
-  imports:
-  - pathlib
-  - subprocess
-- path: gen_schematics.py
-  purpose: Generate KiCad schematics from atopile netlist (default.net), with per-designator part identity from default.csv
-    (default.net's libsource is footprint-aliased); --check is the schematic-drift CI gate
-  owner: bennet
-  last_run: '2026-07-15'
-  category: keep
-  disposition: ci-gate
-  imports:
-  - __future__
-  - argparse
-  - collections
-  - csv
-  - dataclasses
-  - hashlib
-  - json
-  - pathlib
-  - re
-  - subprocess
-  - sys
-  - tempfile
-  - typing
-- path: packages/temper-placer/scripts/gen_config_reference.py
-  purpose: Generate docs/reference/config-reference.md from Pydantic model introspection (plan 2026-07-22-005)
-  owner: bennet
-  last_run: '2026-07-22'
-  category: keep
-  disposition: ci-gate
-  imports:
-  - __future__
-  - argparse
-  - sys
-  - pathlib
-  - typing
-  - pydantic
-  - temper_placer.constraint_types.config
-- path: gen_domain_models.py
-  purpose: "Cross-language domain model codegen \u2014 NetClassRules SSOT from YAML manifest to Python+Rust (plan 2026-07-22-004)"
-  owner: bennet
-  last_run: '2026-07-22'
-  category: keep
-  disposition: ci-gate
-  imports:
-  - argparse
-  - jinja2
-  - os
-  - pathlib
-  - sys
-  - typing
-  - yaml
-- path: ci_identity_check.py
-  purpose: 'CI enforcement of the board identity gate (plan 2026-07-15-001, U7): rejects the quarantined fixture, verifies
-    the production board once it exists'
-  owner: bennet
-  last_run: '2026-07-15'
-  category: keep
-  disposition: ci-gate
-  imports:
-  - __future__
-  - pathlib
-  - sys
-- path: batch_pipeline_validate.py
-  purpose: "Batch pipeline validation \u2014 feed corpus boards through parse\u2192placement\u2192route and quarantine failures"
-  owner: bennet
-  last_run: '2026-07-23'
-  category: keep
-  disposition: utility
-  imports:
-  - __future__
-  - argparse
-  - pathlib
-  - sys
-  - time
-  - yaml
-- path: bench_rust_constraints.py
-  purpose: "Benchmark gate for Rust constraint engine extraction \u2014 compares Rust vs Python loss computation wall-clock\
-    \ performance"
-  owner: bennet
-  last_run: '2026-07-23'
-  category: keep
-  disposition: utility
-  imports:
-  - __future__
-  - argparse
-  - json
-  - pathlib
-  - statistics
-  - sys
-  - time
-- path: bench_rust_geometry.py
-  purpose: Benchmark Rust-backed geometry functions vs pure-Python equivalents
-  owner: bennet
-  last_run: '2026-07-23'
-  category: keep
-  disposition: utility
-  imports:
-  - math
-  - statistics
-  - temper_geometry
-  - time
-- path: gen_pcb_skeleton.py
-  purpose: Generate a production KiCad PCB skeleton from the atopile netlist (CI-gate --check mode)
-  owner: bennet
-  last_run: '2026-07-23'
-  category: keep
-  disposition: ci-gate
-  imports:
-  - __future__
-  - argparse
-  - collections
-  - dataclasses
-  - hashlib
-  - json
-  - pathlib
-  - re
-  - subprocess
-  - sys
-  - tempfile
-  - typing
-- path: check_workflow_pr_triggers.py
-  purpose: 'CI gate: ensure workflow files with push triggers also declare pull_request (issue #315)'
-  owner: pipeline
-  last_run: '2026-07-23'
-  category: keep
-  disposition: ci-gate
-  imports:
-  - argparse
-  - pathlib
-  - re
-  - sys
-  - yaml
-- path: sweep_plan_status.py
-  purpose: One-shot supersession sweep of docs/plans/ frontmatter status (2026-07-25); see docs/plans/README.md
-  owner: bennet
-  last_run: '2026-07-25'
-  category: keep
-  disposition: utility
-  imports:
-  - __future__
-  - argparse
-  - collections
-  - pathlib
-  - re
-  - subprocess
-- path: check_vacuous_gates.py
-  purpose: 'CI gate: reject unguarded all() in gate and validator modules (docs/METHODOLOGY.md Sec 4/5, anti-vacuous-truth);
-    any() exempt (already fail-closed); asserts zero, no allowlist. Also rejects tautological assert expressions (X or not
-    X, X or True, X is X, literal X == X, bare assert True/1 with nothing preceding it) anywhere in packages/scripts, including
-    test_*.py -- added 2026-07-28 after test_clearance.py shipped one uncaught.'
-  owner: bennet
-  last_run: '2026-07-28'
-  category: keep
-  disposition: ci-gate
-  imports:
-  - __future__
-  - argparse
-  - ast
-  - pathlib
-  - re
-  - rich.console
-  - sys
-- path: capacity_budget_gate.py
-  purpose: 'CI gate: design-capacity budget check over the fault-tree''s SN74HC4075 fan-in -- reachability over elec/build/default.net,
-    not pin-occupancy counting; fails closed on missing/empty netlist or BOM, an absent required package, or a real fault
-    source wired into a dead-output gate (docs/evidence/2026-07-26-design-capacity-budget-gate.md)'
+- path: worktree_report.py
+  purpose: 'Worktree hygiene report: inventory each git worktree with HEAD, age, distance behind main, and unique unmerged
+    commits (read-only, prunes nothing)'
   owner: bennet
   last_run: '2026-07-26'
   category: keep
-  disposition: ci-gate
+  disposition: utility
   imports:
   - __future__
-  - _lib.github_summary
   - _lib.repo
   - argparse
-  - csv
-  - dataclasses
+  - datetime
+  - json
   - pathlib
+  - rich.console
+  - rich.table
+  - shutil
+  - subprocess
   - sys
-  - yaml
 - path: write_build_stamp.py
   purpose: 'Build-side half of content-hash freshness: record the SHA-256 digest of a build''s inputs beside its artifact,
     so freshness gates can compare content instead of mtimes and a restored cache is no longer permanently STALE (see scripts/_lib/freshness.py)'
@@ -927,533 +1502,5 @@ scripts:
   - _lib.repo
   - argparse
   - check_stale_extensions
-  - pathlib
-  - sys
-- path: check_domain_partition.py
-  purpose: 'Netlist domain-partition CI gate: verify the compiled netlist''s HV/SELV domains are actually disjoint (docs/hardware/IEC60335_CRITICAL_COMPONENTS.md
-    Sec 2) against elec/domain_manifest.yaml; fail-closed on missing/empty/stale netlist or manifest'
-  owner: bennet
-  last_run: '2026-07-26'
-  category: keep
-  disposition: ci-gate
-  imports:
-  - __future__
-  - _lib.freshness
-  - _lib.github_summary
-  - _lib.repo
-  - argparse
-  - collections
-  - dataclasses
-  - json
-  - pathlib
-  - re
-  - sys
-  - typing
-- path: check_rust_drc_presence.py
-  purpose: 'CI gate: fail-closed presence/freshness check for the temper_drc_rs PyO3 extension -- a bare import cannot detect
-    a stale wheel missing a symbol the current lib.rs registers (2026-07-26 incident: verify_route_clearance silently absent,
-    differential test silently skipped); TEMPER_REQUIRE_RUST_DRC=1 (CI) makes any gap fatal, unset (local dev) makes it a
-    warning'
-  owner: bennet
-  last_run: '2026-07-26'
-  category: keep
-  disposition: ci-gate
-  imports:
-  - __future__
-  - importlib
-  - os
-  - pathlib
-  - re
-  - sys
-- path: check_derived_doc_drift.py
-  purpose: 'Derived-document drift gate: fail when a summary table silently drops a qualifier, column, or value restated from
-    docs/FUNCTIONAL_TEST_CRITERIA.md'
-  owner: bennet
-  last_run: '2026-07-26'
-  category: keep
-  disposition: ci-gate
-  imports:
-  - __future__
-  - _lib.github_summary
-  - _lib.repo
-  - argparse
-  - dataclasses
-  - datetime
-  - pathlib
-  - re
-  - rich.console
-  - sys
-  - yaml
-- path: check_undeclared_imports.py
-  purpose: 'CI gate: fail when a module-level import in scripts/ or a Python test tree is not resolvable in the synced environment
-    (undeclared third-party dependency) -- catches the jinja2/sympy class of incident (docs/evidence/2026-07-27-undeclared-import-gate.md)'
-  owner: bennet
-  last_run: '2026-07-27'
-  category: keep
-  disposition: ci-gate
-  imports:
-  - __future__
-  - _lib.github_summary
-  - _lib.repo
-  - argparse
-  - ast
-  - dataclasses
-  - fnmatch
-  - importlib.util
-  - pathlib
-  - sys
-- path: check_pll_range_consistency.py
-  purpose: 'CI gate: fail when firmware/components/control/pll_control.h''s PLL_MIN/MAX/DEFAULT_FREQ_HZ and elec/src/main.ato''s
-    declared f_switching/f_pll_tracking_min/max disagree -- main.ato asserted a 20-100kHz tracking range 5x wider than the
-    firmware''s real 30-50kHz clamp, and PLL_DEFAULT_FREQ_HZ (35000) started the bridge at the frequency an independent ZVS
-    analysis found loses 100.7% of ZVS margin, while main.ato had already moved to 47kHz (docs/evidence/2026-07-28-pll-defaults-and-range-gate.md).
-    EXTENDED 2026-07-29: also DERIVES the required PLL floor from main.ato''s declared l_tank_assumed / l_pan_loaded_ratio
-    / c_tank_total / l_tank_tolerance (1.05 x the worst-case loaded resonance) and fails if PLL_MIN_FREQ_HZ is below it --
-    the previous checks only compared declarations against each other and so were blind to both files agreeing on 30kHz, 7.6kHz
-    BELOW the tank''s loaded resonance, where a series-resonant bridge hard-switches (docs/evidence/2026-07-29-pll-floor-above-resonance.md).
-    Also cross-checks main.ato''s c_tank_total mirror against modules.ato''s c_tank1+c_tank2'
-  owner: bennet
-  last_run: '2026-07-29'
-  category: keep
-  disposition: ci-gate
-  imports:
-  - __future__
-  - _lib.github_summary
-  - _lib.repo
-  - argparse
-  - board_derivation_lib
-  - dataclasses
-  - math
-  - pathlib
-  - re
-  - sys
-
-- path: check_firmware_board_contract.py
-  purpose: 'Firmware-assumption contract oracle (plan 2026-08-02-027, R18): reverse-checks every
-    firmware constant with a board derivation against the ACTUAL board (pcb/temper.kicad_pcb),
-    not against another declaration -- hardware and firmware cannot disagree about a load-bearing
-    value. Iterates firmware/tools/board_derivations.yaml (the registry), extracts the board
-    inputs by Sheetpath property, classifies a registered component OUTSIDE the Edge.Cuts outline
-    as missing (the off-board tank.c_tank3 defect class a refdes/value lookup would pass), applies
-    the shared formula library firmware/tools/board_derivation_lib.py, and fails with the constant
-    and both values named on disagreement / missing component / UNMEASURED. Advisory in CI until
-    the off-outline tank cap is placed (landing contract); the unit tests are hard.'
-  owner: bennet
-  last_run: '2026-08-02'
-  category: keep
-  disposition: ci-gate
-  imports:
-  - __future__
-  - _lib.github_summary
-  - _lib.repo
-  - argparse
-  - board_component_extractor
-  - board_derivation_lib
-  - check_pll_range_consistency
-  - dataclasses
-  - math
-  - pathlib
-  - re
-  - sys
-  - yaml
-- path: check_net_classification.py
-  purpose: 'CI gate: fail when safety-relevant net classification (HV/SELV) is decided by plain substring match against a
-    hand-maintained keyword list, in parallel to elec/domain_manifest.yaml -- the defect class confirmed three times in this
-    repo (creepage_check.py false positives, clearance_check.py false negatives, clearance_engine.py bare HV/AC substrings)
-    (docs/evidence/2026-07-27-net-classification-gate.md)'
-  owner: bennet
-  last_run: '2026-07-27'
-  category: keep
-  disposition: ci-gate
-  imports:
-  - __future__
-  - _lib.github_summary
-  - _lib.repo
-  - argparse
-  - ast
-  - dataclasses
-  - fnmatch
-  - pathlib
-  - sys
-- path: check_hv_netclass_coverage.py
-  purpose: 'CI gate: assert every elec/domain_manifest.yaml HV-domain net has a TEMPER_NET_ASSIGNMENTS entry, and every declared
-    netclass (TEMPER_NET_CLASSES union pcb/temper.kicad_pro-described classes, minus the structural Default/Differential classes)
-    has at least one positive rule in scripts/generate_kicad_dru.py''s generated output -- catches the +170V_BUS-resolves-to-no-netclass
-    and HighVoltageIsolated-enforces-nothing defect class confirmed on origin/main (docs/evidence/2026-07-29-hv-netclass-coverage-gate.md)'
-  owner: bennet
-  last_run: '2026-07-29'
-  category: keep
-  disposition: ci-gate
-  imports:
-  - __future__
-  - _lib.github_summary
-  - _lib.repo
-  - argparse
-  - check_domain_partition
-  - collections.abc
-  - dataclasses
-  - json
-  - pathlib
-  - re
-  - sys
-  - typing
-- path: check_drc_ceiling_approval.py
-  purpose: 'CI gate: fail a PR that raises any power_pcb_dataset/drc_ceiling.json ceiling value (aggregate error_ceiling/warning_ceiling,
-    or any violations_by_type/warnings_by_type rule) relative to the merge base unless a commit in the PR carries a Ceiling-Approval:
-    trailer -- wires DrcRatchet.detect_ceiling_raise (temper_placer.regression.drc_ratchet), which existed and was unit-tested
-    but had no CI caller, into the Provenance & Anti-Vacuity Gates job'
-  owner: bennet
-  last_run: '2026-07-29'
-  category: keep
-  disposition: ci-gate
-  imports:
-  - __future__
-  - _lib.repo
-  - argparse
-  - json
-  - pathlib
-  - rich.console
-  - subprocess
-  - sys
-- path: check_measurement_provenance.py
-  purpose: 'CI gate: fail closed when a measurement artifact (power_pcb_dataset/drc_ceiling.json today) declares input-file
-    content hashes that no longer match reality -- catches the DRC ceiling recording 91 errors for a board three commits (c6b1b463,
-    556ccf4f, 65bd0159) had since changed to ~710, with the ceiling file byte-identical throughout (docs/evidence/2026-07-27-drc-truth-gate-discrepancy.md,
-    docs/evidence/2026-07-28-measurement-provenance.md); STALE is a GATE ERROR, not a violation, generalizing the netlist-freshness
-    precedent in check_domain_partition.py'
-  owner: bennet
-  last_run: '2026-07-28'
-  category: keep
-  disposition: ci-gate
-  imports:
-  - __future__
-  - _lib.gate_allowlist
-  - _lib.github_summary
-  - _lib.measurement_provenance
-  - _lib.repo
-  - argparse
-  - dataclasses
-  - json
-  - pathlib
-  - sys
-  - typing
-- path: worktree_report.py
-  purpose: 'Worktree hygiene report: inventory each git worktree with HEAD, age, distance behind main, and unique unmerged
-    commits (read-only, prunes nothing)'
-  owner: bennet
-  last_run: '2026-07-26'
-  category: keep
-  disposition: utility
-  imports:
-  - __future__
-  - _lib.repo
-  - argparse
-  - datetime
-  - json
-  - pathlib
-  - rich.console
-  - rich.table
-  - shutil
-  - subprocess
-  - sys
-- path: resync_pcb_netlist.py
-  purpose: Resync pcb/temper.kicad_pcb nets/designators/footprints against elec/build/default.net without moving any existing
-    footprint
-  owner: bennet
-  last_run: '2026-07-27'
-  category: keep
-  disposition: utility
-  imports:
-  - __future__
-  - argparse
-  - copy
-  - dataclasses
-  - gen_pcb_skeleton
-  - json
-  - kiutils.board
-  - kiutils.footprint
-  - kiutils.items.common
-  - kiutils.items.zones
-  - pathlib
-  - sys
-- path: check_evidence_provenance.py
-  purpose: 'Fail-closed provenance gate for docs/evidence/: every evidence file must declare how its numbers were produced'
-  owner: bennet
-  last_run: '2026-07-27'
-  category: keep
-  disposition: ci-gate
-  imports:
-  - __future__
-  - _lib.gate_allowlist
-  - _lib.repo
-  - argparse
-  - json
-  - pathlib
-  - re
-  - rich.console
-  - subprocess
-  - sys
-- path: check_no_raw_rotation_trig.py
-  purpose: 'CI gate: fail if any of the 12 files that have already carried KiCad''s R(+theta)/R(-theta) footprint-child rotation
-    sign bug (see docs/evidence/2026-07-29-cross-domain-creepage-rotation-convention.md) contains a raw math.cos/math.sin/np.cos/np.sin
-    call instead of importing temper_placer.geometry.kicad_transform, the single sanctioned implementation those 12 sites
-    were consolidated into'
-  owner: bennet
-  last_run: '2026-07-30'
-  category: keep
-  disposition: ci-gate
-  imports:
-  - __future__
-  - _lib.github_summary
-  - _lib.repo
-  - argparse
-  - ast
-  - dataclasses
-  - pathlib
-  - sys
-- path: check_isolation_keepout.py
-  purpose: 'Physical mains<->SELV isolation-barrier CI gate: verify a dedicated keepout region spans all copper layers, is
-    >=8.0mm wide (REINFORCED creepage) throughout, bisects the board into HV/SELV sides, and that no copper (trace/via/pad/zone)
-    intrudes -- pcb/temper.kicad_pcb has zero keepout zones today, so this barrier exists only as declarations/after-the-fact
-    checks; fail-closed on missing/empty board or manifest, zero HV or SELV pads found, or a missing barrier zone (docs/evidence/2026-07-28-isolation-keepout.md)'
-  owner: bennet
-  last_run: '2026-07-28'
-  category: keep
-  disposition: ci-gate
-  imports:
-  - __future__
-  - _lib.github_summary
-  - _lib.repo
-  - argparse
-  - dataclasses
-  - pathlib
-  - sys
-  - temper_placer.core.isolation_constants
-  - temper_placer.core.pad_geometry
-  - temper_placer.geometry.kicad_transform
-- path: check_stale_extensions.py
-  purpose: 'CI gate: fail-closed freshness check for every pyo3/maturin Rust extension crate under packages/ -- an installed
-    .so older than its own crate''s source (or a crate whose extension is missing entirely) is reported; zero crates discovered
-    is always a gate error, never a vacuous pass (2026-07-27 incident: missing .cargo/config.toml broke every `maturin develop`
-    on macOS, so temper_io_types.cpython-312-darwin.so stayed frozen while lib.rs gained ConfigBoardMismatchError, silently
-    failing two test modules'' collection; see commit 02e907b9 and docs/evidence/2026-07-27-stale-extension-gate.md)'
-  owner: bennet
-  last_run: '2026-07-27'
-  category: keep
-  disposition: ci-gate
-  imports:
-  - __future__
-  - _lib.freshness
-  - _lib.github_summary
-  - _lib.repo
-  - argparse
-  - dataclasses
-  - datetime
-  - hashlib
-  - importlib.util
-  - os
-  - pathlib
-  - sys
-  - tomllib
-- path: check_copper_net_consistency.py
-  purpose: 'Board-copper / netlist consistency gate: catch corrupted net ordinals.'
-  owner: bennet
-  last_run: '2026-07-30'
-  category: keep
-  disposition: ci-gate
-  imports:
-  - __future__
-  - _lib.freshness
-  - _lib.github_summary
-  - _lib.repo
-  - argparse
-  - dataclasses
-  - json
-  - pathlib
-  - re
-  - sys
-  - typing
-- path: check_creepage_clearance_drift.py
-  purpose: 'Safety-constant SSOT drift gate: compare declared creepage and clearance figures across electrical source, scripts,
-    packages, and configuration.'
-  owner: bennet
-  last_run: '2026-07-30'
-  category: keep
-  disposition: ci-gate
-  imports:
-  - __future__
-  - _lib.github_summary
-  - _lib.repo
-  - argparse
-  - ast
-  - dataclasses
-  - pathlib
-  - re
-  - sys
-- path: check_footprint_drift.py
-  purpose: 'Footprint-drift gate: catch a footprint corrected in elec/src/*.ato that never propagated into pcb/temper.kicad_pcb,
-    matched by sheetpath (designator-renumbering-safe), not refdes.'
-  owner: bennet
-  last_run: '2026-07-30'
-  category: keep
-  disposition: ci-gate
-  imports:
-  - __future__
-  - _lib.freshness
-  - _lib.github_summary
-  - _lib.repo
-  - argparse
-  - dataclasses
-  - json
-  - pathlib
-  - re
-  - sys
-  - typing
-- path: route_board.py
-  purpose: Working entry point to route a .kicad_pcb through router_v6's route_pcb() (make route and internal_route.py are
-    dead ends -- see module docstring). --output is mandatory and refuses to match --pcb, so it can never overwrite the input
-    board. --runs N routes N times from identical input and reports the completion spread -- the measurement instrument for
-    the router's run-to-run non-determinism.
-  owner: bennet
-  last_run: '2026-07-28'
-  category: keep
-  disposition: utility
-  imports:
-  - __future__
-  - argparse
-  - json
-  - os
-  - pathlib
-  - statistics
-  - subprocess
-  - sys
-  - tempfile
-  - time
-  - typing
-- path: install_git_stash_guard.py
-  purpose: Install the shared-hooks reference-transaction hook (scripts/git-hooks/reference-transaction) that blocks git stash
-    push/save/clear repo-wide, since the stash stack is shared across all concurrent worktrees on this .git directory. See
-    AGENTS.md "Git Stash Guard".
-  owner: bennet
-  last_run: '2026-07-28'
-  category: keep
-  disposition: utility
-  imports:
-  - argparse
-  - pathlib
-  - shutil
-  - subprocess
-  - sys
-- path: check_stash_stack_gate.py
-  purpose: Detector for git stash activity the reference-transaction hook cannot block (apply, and pop/drop of a non-terminal
-    entry) -- snapshots the stash reflog and flags additions/removals since the last run. Not a CI gate; run manually or on
-    a timer against the shared dev machine.
-  owner: bennet
-  last_run: '2026-07-28'
-  category: keep
-  disposition: utility
-  imports:
-  - argparse
-  - json
-  - pathlib
-  - subprocess
-  - sys
-- path: known_failure_pins.py
-  purpose: 'CI gate + shared helper: validate known-failure-pins.yaml (a known-red test''s declared failure signature) as
-    a monotonic-shrink ratchet -- live-pin cap, forced expiry/renewal, required evidence-doc link, orphan-nodeid detection
-    -- and provide annotate_failure()/check_signature() for a test to compare its actual failure signature against the declared
-    one, distinguishing "known reason" from "changed reason" without xfail (docs/solutions/best-practices/pin-known-failure-reasons-2026-07-30.md,
-    the PR #460 near-miss).'
-  owner: bennet
-  last_run: '2026-07-30'
-  category: keep
-  disposition: ci-gate
-  imports:
-  - __future__
-  - argparse
-  - dataclasses
-  - datetime
-  - pathlib
-  - sys
-  - typing
-  - yaml
-- path: check_required_checks.py
-  purpose: 'Always-on pull-request aggregator: require the candidate Python Tests contexts when a manifest trigger path matches,
-    while treating workflow-level path filtering as an explicit legitimate skip. A `skipped` required context passes only
-    when the checker verifies the skip against the PR changed-file list and the manifest per-job trigger sets (fail-closed
-    otherwise).'
-  owner: bennet
-  last_run: '2026-08-02'
-  category: keep
-  disposition: ci-gate
-  imports:
-  - __future__
-  - argparse
-  - collections.abc
-  - dataclasses
-  - json
-  - os
-  - pathlib
-  - re
-  - sys
-  - time
-  - typing
-  - urllib.error
-  - urllib.parse
-  - urllib.request
-- path: classify_changed_paths.py
-  purpose: 'Workflow-side per-job run decisions for python-tests.yml path-conditional jobs (change-driven CI): applies check_required_checks.job_should_run
-    to the PR changed-file list against the manifest per-job trigger sets, so a job skipped in the workflow is exactly a skip
-    the checker verifies.'
-  owner: bennet
-  last_run: '2026-08-02'
-  category: keep
-  disposition: ci-gate
-  imports:
-  - __future__
-  - check_required_checks
-  - json
-  - os
-  - pathlib
-  - subprocess
-  - sys
-- path: check_refdes_identity_stability.py
-  purpose: Discovers safety-relevant test/fixture assertions keyed to a ref-designator string literal (e.g. "U3", "K1") instead
-    of instance_path, and cross-checks real-board-bound ones against the current compiled netlist plus elec/domain_manifest.yaml
-    to flag an ACTUAL identity mismatch, not just presence -- built after a ZCD-optocoupler deletion reshuffled U-prefix refs
-    and left test_the_seven_known_intra_footprint_blockers_are_now_visible checking different real components than its own
-    name/docstring claim while still passing. Reports a full denominator (raw literals, safety-keyword context, assert-reachable,
-    load-bearing, real-board-bound) at every stage; never wired into CI (false-positive rate unmeasured on first pass) --
-    see docs/evidence/2026-07-30-refdes-identity-stability-gate.md.
-  owner: bennet
-  last_run: '2026-07-30'
-  category: keep
-  disposition: utility
-  imports:
-  - __future__
-  - _lib.github_summary
-  - _lib.repo
-  - argparse
-  - ast
-  - check_domain_partition
-  - dataclasses
-  - pathlib
-  - re
-  - sys
-- path: check_transition_table_mutations.py
-  purpose: 'CI gate (R40/P1, runs in the Firmware Tests workflow): fail on any live transition-table mutant,
-    mutation error, or skipped row reported by firmware/test/mutate_transition_table.py --sweep, and fail
-    closed on a stale report (generated_at older than --max-report-age-seconds) so a scheduled or committed
-    report can never satisfy the gate -- the mutation suite proves every row of the test-side TRANSITIONS
-    manifest (firmware/test/gen_transition_table.py) is exercised by tests that can fail'
-  owner: bennet
-  last_run: '2026-08-02'
-  category: keep
-  disposition: ci-gate
-  imports:
-  - __future__
-  - argparse
-  - datetime
-  - json
   - pathlib
   - sys
