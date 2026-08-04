@@ -368,39 +368,24 @@ def build_adjacency_matrix(netlist: Netlist) -> Array:
         connecting components i and j. Returns (0,0) array for empty netlist.
     """
     import numpy as np
+    import temper_io_types as _rs
 
     n = len(netlist.components)
 
+    # The empty branch is reproduced here, not in Rust, because
+    # `np.array([]).reshape(0, 0)` is **float64** -- not the float32 the
+    # populated branch returns. Both dtypes are part of the contract.
     if n == 0:
         return np.array([]).reshape(0, 0)
 
-    # Build component ref -> index mapping
-    ref_to_idx = {comp.ref: i for i, comp in enumerate(netlist.components)}
-
-    # Initialize adjacency matrix
-    adj = np.zeros((n, n), dtype=np.float32)
-
-    # For each net, connect all component pairs
-    for net in netlist.nets:
-        # Get component indices for this net
-        comp_indices = []
-        for comp_ref, _ in net.pins:
-            if comp_ref in ref_to_idx:
-                comp_indices.append(ref_to_idx[comp_ref])
-
-        # Remove duplicates (component may have multiple pins on same net)
-        comp_indices = list(set(comp_indices))
-
-        # Add edges between all pairs (complete subgraph)
-        for i in range(len(comp_indices)):
-            for j in range(i + 1, len(comp_indices)):
-                idx_i = comp_indices[i]
-                idx_j = comp_indices[j]
-
-                adj[idx_i, idx_j] += 1
-                adj[idx_j, idx_i] += 1  # Symmetric
-
-    return np.array(adj)
+    # The pair scan is O(sum over nets of k^2) and runs in Rust; the two
+    # projections below are all it reads. Accumulation is float32 there
+    # too, so `+= 1` saturates at 2^24 exactly as numpy's does.
+    n_out, flat = _rs.build_adjacency_flat(
+        [comp.ref for comp in netlist.components],
+        [[comp_ref for comp_ref, _ in net.pins] for net in netlist.nets],
+    )
+    return np.asarray(flat, dtype=np.float32).reshape(n_out, n_out)
 
 
 def compute_eigenvector_centrality(adjacency: Array) -> Array:
