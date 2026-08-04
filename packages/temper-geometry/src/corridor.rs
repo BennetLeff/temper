@@ -9,10 +9,14 @@
 // Returns the mask as bytes (1 byte per cell, 0/1) so the Python
 // wrapper can build a numpy bool view via np.frombuffer.
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use pyo3::types::PyBytes;
+#[cfg(feature = "python")]
 use temper_py_bridge;
 
+#[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (coarse_path, coarse_factor, buffer_cells, fine_rows, fine_cols))]
 pub fn extract_corridor_mask(

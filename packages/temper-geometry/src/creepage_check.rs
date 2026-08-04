@@ -14,8 +14,11 @@
 // double-double vector_norm, shared with pad_geometry.rs), and
 // Python-builtin `min`/`max` NaN semantics (see `py_min`/`py_max`).
 
+#[cfg(feature = "python")]
 use pyo3::exceptions::PyValueError;
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use temper_py_bridge;
 
 /// Python builtin `max(a, b)` for two args — returns `a` whenever `b > a`
@@ -339,6 +342,7 @@ fn is_high_voltage_net(net_name: &str) -> bool {
 // PyO3 bridge
 // ---------------------------------------------------------------------------
 
+#[cfg(feature = "python")]
 #[pyfunction]
 #[allow(clippy::too_many_arguments)]
 pub fn point_to_segment_distance_py(
@@ -353,6 +357,7 @@ pub fn point_to_segment_distance_py(
         .map_err(temper_py_bridge::panic_to_err)
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 #[allow(clippy::too_many_arguments)]
 pub fn closest_point_on_segment_py(
@@ -367,6 +372,7 @@ pub fn closest_point_on_segment_py(
         .map_err(temper_py_bridge::panic_to_err)
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 #[allow(clippy::too_many_arguments)]
 pub fn segments_intersect_py(
@@ -383,6 +389,7 @@ pub fn segments_intersect_py(
         .map_err(temper_py_bridge::panic_to_err)
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 #[allow(clippy::too_many_arguments)]
 pub fn segment_to_segment_info_py(
@@ -399,12 +406,14 @@ pub fn segment_to_segment_info_py(
         .map_err(temper_py_bridge::panic_to_err)
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn min_clearance_distance_py(segs1: Vec<Seg>, segs2: Vec<Seg>) -> PyResult<(f64, f64, f64)> {
     temper_py_bridge::catch_unwind(|| min_clearance_distance(&segs1, &segs2))
         .map_err(temper_py_bridge::panic_to_err)
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn calculate_required_creepage_py(voltage: f64) -> PyResult<f64> {
     temper_py_bridge::catch_unwind(|| {
@@ -419,6 +428,7 @@ pub fn calculate_required_creepage_py(voltage: f64) -> PyResult<f64> {
     .map_err(temper_py_bridge::panic_to_err)?
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn is_high_voltage_net_py(net_name: String) -> PyResult<bool> {
     temper_py_bridge::catch_unwind(|| is_high_voltage_net(&net_name))
