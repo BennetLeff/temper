@@ -22,7 +22,7 @@ Pattern notes:
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Iterator
 
 def sha256_hex(bytes: bytes) -> str: ...
 
@@ -506,3 +506,215 @@ class PriorityConfig:
         self, ref: str, _netlist: Any = None
     ) -> PlacementPriority: ...
     def classify_net(self, net_name: str) -> RoutingPriority: ...
+
+
+class LayerIndex:
+    F_CU: LayerIndex
+    IN1_CU: LayerIndex
+    IN2_CU: LayerIndex
+    B_CU: LayerIndex
+
+    def __init__(self, value: int) -> None: ...
+
+    @staticmethod
+    def members() -> list[LayerIndex]: ...
+
+    @staticmethod
+    def from_name(name: str) -> LayerIndex: ...
+
+    @property
+    def name(self) -> str: ...
+
+    @property
+    def value(self) -> int: ...
+
+
+class MountingHole:
+    position: tuple[float, float]
+    diameter: float
+    keepout_radius: float
+
+    def __init__(self, position: tuple[float, float], diameter: float, keepout_radius: float = 3.0) -> None: ...
+
+
+class Pad:
+    position: tuple[float, float]
+    size: tuple[float, float]
+    shape: str
+    layer: str
+    number: str
+    net_name: str | None
+
+    def __init__(self, position: tuple[float, float], size: tuple[float, float], shape: str = "rect", layer: str = "F.Cu", number: str = "", net_name: str | None = None) -> None: ...
+
+
+class Component:
+    ref: str
+    position: tuple[float, float]
+    rotation: float
+    width: float
+    height: float
+    footprint: str | None
+    pads: list[Pad]
+    layer: str
+    fixed: bool
+
+    def __init__(self, ref: str, position: tuple[float, float], rotation: float, width: float, height: float, footprint: str | None = None, pads: list[Pad] | None = None, layer: str = "F.Cu", fixed: bool = False) -> None: ...
+
+
+class Trace:
+    start: tuple[float, float]
+    end: tuple[float, float]
+    width: float
+    layer: str
+    net: str | None
+
+    def __init__(self, start: tuple[float, float], end: tuple[float, float], width: float, layer: str, net: str | None = None) -> None: ...
+
+
+class Via:
+    position: tuple[float, float]
+    drill: float
+    width: float
+    layers: tuple[str, ...]
+    net: str | None
+    is_diff_pair: bool
+
+    def __init__(self, position: tuple[float, float], drill: float, width: float, layers: tuple[str, ...] | None = None, net: str | None = None, is_diff_pair: bool = False) -> None: ...
+
+
+class Layer:
+    name: str
+    layer_type: str
+    copper_weight: float
+    is_routable: bool
+
+    def __init__(self, name: str, layer_type: str, copper_weight: float = 1.0, is_routable: bool = True) -> None: ...
+
+
+class Rect:
+    x_min: float
+    y_min: float
+    x_max: float
+    y_max: float
+
+    def __init__(self, x_min: float, y_min: float, x_max: float, y_max: float) -> None: ...
+
+    @staticmethod
+    def from_xyxy(x_min: float, y_min: float, x_max: float, y_max: float) -> Rect: ...
+
+    @staticmethod
+    def from_xywh(x: float, y: float, width: float, height: float) -> Rect: ...
+
+    @staticmethod
+    def coerce(value: Rect | tuple[float, float, float, float]) -> Rect: ...
+
+    @property
+    def width(self) -> float: ...
+
+    @property
+    def height(self) -> float: ...
+
+    def __iter__(self) -> Iterator[float]: ...
+
+    def __getitem__(self, index: int) -> float: ...
+
+    def __len__(self) -> int: ...
+
+
+class Zone:
+    name: str
+    bounds: Rect
+    net_classes: list[str]
+    components: list[str]
+    weight: float
+    polygon: list[tuple[float, float]] | None
+    layers: list[str]
+    max_size: tuple[float, float] | None
+    can_expand: list[str]
+    zone_type: str
+
+    def __init__(self, name: str, bounds: Rect | tuple[float, float, float, float], net_classes: list[str] | None = None, components: list[str] | None = None, weight: float = 1.0, polygon: list[tuple[float, float]] | None = None, layers: list[str] | None = None, max_size: tuple[float, float] | None = None, can_expand: list[str] | None = None, zone_type: str = "placement") -> None: ...
+
+    @property
+    def width(self) -> float: ...
+
+    @property
+    def height(self) -> float: ...
+
+    @property
+    def center(self) -> tuple[float, float]: ...
+
+    @property
+    def area(self) -> float: ...
+
+    def contains_point(self, x: float, y: float) -> bool: ...
+
+
+class GroundDomain:
+    name: str
+    bounds: tuple[float, float, float, float]
+    star_point: tuple[float, float] | None
+
+    def __init__(self, name: str, bounds: tuple[float, float, float, float], star_point: tuple[float, float] | None = None) -> None: ...
+
+    def contains_point(self, x: float, y: float) -> bool: ...
+
+
+class LayerStackup:
+    layers: tuple[Layer, ...]
+    thickness: float
+
+    def __init__(self, layers: tuple[Layer, ...] | None = None, thickness: float = 1.6) -> None: ...
+
+    @staticmethod
+    def default_4layer() -> LayerStackup: ...
+
+    def is_plane_layer(self, layer_idx: int) -> bool: ...
+
+    def routable_layers(self, net_class: str = "Signal") -> list[int]: ...
+
+    def tracks_per_cell(self, grid_size: float, net_class: str = "Signal") -> float: ...
+
+
+class Board:
+    width: float
+    height: float
+    origin: tuple[float, float]
+    zones: list[Zone]
+    mounting_holes: list[MountingHole]
+    keepouts: list[tuple[float, float, float, float]]
+    ground_domains: list[GroundDomain]
+    layer_stackup: LayerStackup | None
+    outline_polygon: list[tuple[float, float]] | None
+
+    def __init__(self, width: float, height: float, origin: tuple[float, float] | None = None, zones: list[Zone] | None = None, mounting_holes: list[MountingHole] | None = None, keepouts: list[tuple[float, float, float, float]] | None = None, ground_domains: list[GroundDomain] | None = None, layer_stackup: LayerStackup | None = None, outline_polygon: list[tuple[float, float]] | None = None) -> None: ...
+
+    @staticmethod
+    def from_polygon(polygon: list[tuple[float, float]], origin: tuple[float, float] = (0.0, 0.0)) -> Board: ...
+
+    @staticmethod
+    def temper_default() -> Board: ...
+
+    def build_indices(self) -> None: ...
+
+    @property
+    def keepout_regions(self) -> list[tuple[float, float, float, float]]: ...
+
+    @property
+    def has_polygon_outline(self) -> bool: ...
+
+    def get_zone(self, name: str) -> Zone: ...
+
+    def get_zone_for_point(self, x: float, y: float) -> Zone | None: ...
+
+    def get_ground_domain(self, x: float, y: float) -> GroundDomain | None: ...
+
+    def contains_point(self, x: float, y: float) -> bool: ...
+
+    def point_in_keepout(self, x: float, y: float) -> bool: ...
+
+    @property
+    def area(self) -> float: ...
+
+    def rotated_90(self) -> Board: ...

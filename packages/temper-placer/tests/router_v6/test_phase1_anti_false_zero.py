@@ -154,13 +154,19 @@ class TestClaimsTraceable:
     """Guard: every Phase 1 numeric claim is traceable to a test artifact."""
 
     def test_u3_routed_nets_traceable(self):
-        """U3's routed_nets (71) comes from the baseline YAML via the test."""
+        """U3's routed_nets comes from the baseline YAML via the test.
+
+        The value moved 71 -> 40 with the K3 RT314012 swap (#602,
+        2026-08-04), which re-measured the production routing baseline on
+        the new board; the guard tracks the committed artifact, not the
+        pre-swap claim.
+        """
         import yaml
 
         with open(_BASELINE_PATH) as f:
             doc = yaml.safe_load(f) or {}
         routed = doc.get("router_v6_routing", {}).get("routed_nets")
-        assert routed == 71, f"Expected routed_nets=71 from U3 baseline, got {routed}"
+        assert routed == 40, f"Expected routed_nets=40 post-K3 baseline, got {routed}"
 
     def test_u3_completion_rate_traceable(self):
         """U3's completion_rate (74.74%) is recorded."""

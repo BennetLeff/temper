@@ -7,7 +7,7 @@ from being exported.
 
 from dataclasses import replace
 
-from ...core.board import LAYER_NAME_TO_IDX, STANDARD_LAYER_ORDER, Trace, Via
+from ...core.board import LAYER_NAME_TO_IDX, STANDARD_LAYER_ORDER, LayerIndex, Trace, Via
 from ...core.pin_geometry import pin_world_position_at
 from ..state import BoardState
 from .base import Stage
@@ -54,7 +54,7 @@ class DRCSweepStage(Stage):
                 valid_traces.append(trace)
                 continue
 
-            layer_idx = LAYER_NAME_TO_IDX.get(trace.layer, 0)
+            layer_idx = LAYER_NAME_TO_IDX.get(trace.layer, LayerIndex.F_CU).value
             valid, reason = oracle.can_place_track_segment(
                 start=trace.start,
                 end=trace.end,

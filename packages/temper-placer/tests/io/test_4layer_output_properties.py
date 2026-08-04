@@ -15,6 +15,7 @@ from temper_placer.core.board import (
     Board,
     Layer,
     LayerStackup,
+    _test_only_2layer,
 )
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent
@@ -40,7 +41,7 @@ class TestStackupCorrectness:
     def test_2layer_board_refused_at_construction(self):
         """Board with 2-layer stackup raises ValueError (AE2)."""
         with pytest.raises(ValueError, match="2 layers"):
-            Board(width=100, height=100, layer_stackup=LayerStackup._test_only_2layer())
+            Board(width=100, height=100, layer_stackup=_test_only_2layer())
 
     def test_6layer_board_refused_at_construction(self):
         """Board with non-canonical layer count raises ValueError."""

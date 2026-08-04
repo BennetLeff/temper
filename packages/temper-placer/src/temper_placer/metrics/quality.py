@@ -18,7 +18,7 @@ from typing import Any
 
 import numpy as np
 
-from temper_placer.core.board import Board
+from temper_placer.core.board import Board, get_relative_bounds_array
 from temper_placer.core.netlist import Netlist
 from temper_placer.core.state import PlacementState
 
@@ -84,7 +84,7 @@ def thermal_score(
     if not thermal_components:
         return 1.0  # Perfect score if nothing to optimize
 
-    board_bounds = board.get_relative_bounds_array()
+    board_bounds = get_relative_bounds_array(board)
     x_min, y_min, x_max, y_max = board_bounds
 
     total_score = 0.0
@@ -441,7 +441,7 @@ def congestion_score(
         0.0 = severe congestion hotspots.
     """
 
-    board.get_relative_bounds_array()
+    get_relative_bounds_array(board)
     return 1.0  # routing demand computation removed (JAX retirement)
 
 

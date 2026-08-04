@@ -11,6 +11,7 @@ from dataclasses import dataclass, replace
 
 from shapely.geometry import MultiPolygon, Polygon, box
 
+from temper_placer.core.board import get_bounds_array
 from temper_placer.deterministic.stages.base import Stage
 from temper_placer.deterministic.state import BoardState
 from temper_placer.router_v6.obstacle_map import build_obstacle_map
@@ -135,7 +136,7 @@ def _get_board_polygon(pcb: ParsedPCB) -> Polygon:
         # Otherwise use bounds
         try:
             # Board.get_bounds_array returns [xmin, ymin, xmax, ymax]
-            bounds = board.get_bounds_array()
+            bounds = get_bounds_array(board)
             return box(float(bounds[0]), float(bounds[1]), float(bounds[2]), float(bounds[3]))
         except (AttributeError, IndexError):
             if hasattr(board, "width") and hasattr(board, "height"):

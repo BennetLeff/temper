@@ -880,3 +880,91 @@ compat surface → consumer adapted inside the migration PR → R3
 JUSTIFIED-KEEP with a named blocker (R12, AE1). The catalog records each
 outcome; unresolved entries are cross-checked at pull-2 closeout (U7,
 Covers AE1).
+
+## board — Verification
+
+`temper_placer/core/board.py` is now a delegation shim: the data model
+(Board, Zone, Rect, LayerStackup, Layer, Component, Pad, Trace, Via,
+MountingHole, GroundDomain, LayerIndex) lives in this crate's `board.rs`.
+The shim keeps the numpy float32 surface as module-level wrappers
+(`polygon_array`/`get_bounds_array`/`get_relative_bounds_array` — R10/KTD6,
+with consumers adapted per R12), the module constants and layer helpers
+derived from the `LayerIndex` pyclass, and the frame-inspecting
+`_test_only_2layer` (KTD7).
+
+## Induction applicability
+
+**Mathematical induction is not applicable to this module.** The geometry
+surface is a fixed set of finite fields and closed-form methods:
+
+- `Board.rotated_90` maps each zone/hole/keepout/domain/outline element
+  independently — per-element correctness does not depend on the element
+  count (verified by the rotated_90 differential and the twice-is-180
+  relation).
+- `Rect`'s dunders, `LayerStackup.routable_layers`, and the containment
+  methods are constant-time transcriptions.
+
+Per the plan's R1e, a **structural proof** is recorded instead.
+
+## Structural proof
+
+**Claim (bit-identical parity).** For every public symbol, the pyclass
+behavior is bit-identical to the pinned pre-migration Python module
+(`packages/temper-placer/tests/core/_board_py_oracle.py`, commit
+`f2b09d846`).
+
+*Proof by structural cases.*
+
+1. **Construction.** Each `#[new]` mirrors the dataclass constructor
+   exactly (signature, defaults, field order); container and tuple fields
+   hold the real Python objects (the design_rules precedent), so
+   construction parity is exact and mutation persists.
+2. **`Rect`.** The invariant checks reproduce the oracle's `ValueError`
+   texts verbatim; `from_xyxy`/`from_xywh`/`coerce` mirror the
+   classmethods; `__iter__` returns a real Python iterator over the four
+   floats; `__getitem__` supports negative wrap and raises `IndexError`;
+   `__eq__` is tuple/list-compatible (converting lists via `tuple(...)`
+   like the oracle) and cross-Rect via tuple equality; `__hash__`
+   delegates to Python's tuple hash for in-process parity.
+3. **`Zone`/`Board` invariants.** Zone `__post_init__` bounds coercion
+   and Board's 4-layer stackup enforcement reproduce the exact `ValueError`
+   texts (including the sorted canonical layer-name list); `_zone_map`
+   caching and `build_indices` match the dataclass's `init=False` cache.
+4. **`LayerIndex`.** Members, `__str__` (KiCad name), `repr`, `name`,
+   `value`, `members()`, `from_name`, and value construction
+   (`LayerIndex(n)`) reproduce the IntEnum surface; value construction and
+   `from_name` return the cached class member so `is` identity holds.
+   Int-comparison is the KTD2 documented deviation; consumers were adapted
+   to `.value` inside this PR.
+5. **`rotated_90`.** The rotation math reproduces the oracle's int/float
+   passthrough exactly (only `h - b[3]`/`h - b[1]`/`h - y` are float
+   expressions; `b[0]`/`b[2]`/`x` pass through with their original type),
+   and the oracle's quirk of dropping `zone_type` (defaulting rotated zones
+   to "placement") is reproduced.
+6. **repr parity (B9/B10).** Every class implements `__repr__` with
+   `py_str_repr`/`py_float_str` and delegates nested objects to their own
+   Python reprs; the differential asserts byte-for-byte equality including
+   `_zone_map`.
+
+## Evidence
+
+- Differential (R1a): `test_board_rust_differential.py` — 39 tests:
+  leaf-type construction/repr parity, LayerIndex member/str/repr/from_name/
+  construction identity, Rect tuple drop-in + invariant texts + classmethods
+  + hash, Zone coercion/properties/defaults, GroundDomain parity,
+  LayerStackup defaults/plane/routable/capacity, Board temper_default/full
+  kwargs/repr/stackup enforcement/zone-lookup/point-queries/rotated_90
+  (incl. twice-is-180)/from_polygon/build_indices, and the numpy shim
+  surface with explicit dtype assertions (KTD6). RED first: failed to
+  collect before the pyclasses existed.
+- KTD2 adaptations: `test_net_types_pbt.py` (int-ness via `.value`),
+  `router_v6/bottleneck_geometry.py`, `deterministic/stages/drc_sweep.py`
+  — landed inside this PR per R12.
+- Consumer suites run unchanged or adapted in-PR: `test_board.py`,
+  `test_stackup.py`, `test_4layer_output_properties.py`, and the full
+  io/core/router_v6/validation/deterministic/metrics/heuristics/pipeline/
+  placer sweep.
+- Performance A/B (R1b): pure-data contract migration; the "no regression
+  beyond noise" carve-out (`docs/evidence/2026-08-04-wave4-slice-
+  delegation-perf-carveout.md`, KTD9) applies.
+- Type-check: board.py's allowlist entry removed (0 errors, down from 1).

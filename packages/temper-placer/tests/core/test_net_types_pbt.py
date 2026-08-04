@@ -461,8 +461,11 @@ def test_mr3_from_yaml_config_equals_direct_construction():
         assert _spec_fields(via_yaml.specs[name]) == _spec_fields(expected), name
     # Vacuity guard: the two paths construct at least one spec with a
     # non-default value (the HV rule) and one with a LayerIndex default (GND).
+    # KTD2 adaptation: the migrated LayerIndex pyclass member is not an
+    # int subclass (the documented IntEnum deviation), so int-ness is
+    # asserted via the member's value instead.
     assert via_yaml.specs["HV"].creepage_mm == 6.0
-    assert isinstance(via_yaml.specs["GND"].target_layer, int)
+    assert via_yaml.specs["GND"].target_layer.value == 1
 
 
 # ---------------------------------------------------------------------------

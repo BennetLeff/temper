@@ -17,7 +17,10 @@ from temper_placer.core.board import (
     is_signal_layer,
     layer_name_to_index,
     side_to_layer_name,
+    get_bounds_array,
+    _test_only_2layer,
 )
+
 
 
 class TestRect:
@@ -201,7 +204,7 @@ class TestBoard:
 
     def test_get_bounds_array(self, temper_board):
         """Test getting bounds as JAX array."""
-        bounds = temper_board.get_bounds_array()
+        bounds = get_bounds_array(temper_board)
         assert bounds.shape == (4,)
         assert float(bounds[0]) == 0.0  # x_min
         assert float(bounds[1]) == 0.0  # y_min
@@ -352,7 +355,7 @@ class TestLayerCountInvariant:
         import temper_placer.core.board as bm
 
         with pytest.raises(ValueError, match="2 layers"):
-            bm.Board(width=100, height=100, layer_stackup=bm.LayerStackup._test_only_2layer())
+            bm.Board(width=100, height=100, layer_stackup=bm._test_only_2layer())
 
     def test_6layer_board_raises_valueerror(self):
         """Board with a non-canonical layer count raises ValueError."""
@@ -376,7 +379,7 @@ class TestLayerCountInvariant:
         """_test_only_2layer() constructs a LayerStackup (not used with Board)."""
         import temper_placer.core.board as bm
 
-        stackup = bm.LayerStackup._test_only_2layer()
+        stackup = bm._test_only_2layer()
         assert len(stackup.layers) == 2
         assert stackup.layers[0].name == "F.Cu"
         assert stackup.layers[1].name == "B.Cu"

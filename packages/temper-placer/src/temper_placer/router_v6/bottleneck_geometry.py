@@ -758,7 +758,7 @@ def _layers_for_pin(pin: object, grid_layer_count: int) -> list[int]:
     if is_pth or pin_layer == "all":
         return list(range(grid_layer_count))
     if pin_layer in _SMD_LAYER_NAME_TO_IDX:
-        idx = _SMD_LAYER_NAME_TO_IDX[pin_layer]
+        idx = _SMD_LAYER_NAME_TO_IDX[pin_layer].value
         return [idx] if 0 <= idx < grid_layer_count else [0]
     # Unknown / missing layer — treat as F.Cu so the cell is still
     # routable; the caller can still detect the anomaly via the
