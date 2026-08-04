@@ -40,7 +40,7 @@ Parity for all of this is asserted in
 from __future__ import annotations
 
 import dataclasses
-from typing import Any
+from typing import Any, cast
 
 __all__ = ["install_dataclass_fields"]
 
@@ -70,5 +70,13 @@ def install_dataclass_fields(
         else:
             spec.append((name, Any, dataclasses.field(default=_UNSET)))
 
-    prototype = dataclasses.make_dataclass(f"_{cls.__name__}Fields", spec)
-    cls.__dataclass_fields__ = prototype.__dataclass_fields__
+    # `make_dataclass` is annotated as returning bare `type`, which does not
+    # carry `__dataclass_fields__`; neither does the `cls` we write it to.
+    # Both ends are narrowed through `Any` at exactly this one expression
+    # rather than weakening the `cls: type` parameter. The *consumer* side is
+    # fully typed: the pyclass stubs declare
+    # `__dataclass_fields__: ClassVar[dict[str, Field[Any]]]`, which is what
+    # lets `dataclasses.replace()` type-check at call sites like
+    # `deterministic/stages/apply_placements.py`.
+    prototype: Any = dataclasses.make_dataclass(f"_{cls.__name__}Fields", spec)
+    cast(Any, cls).__dataclass_fields__ = prototype.__dataclass_fields__

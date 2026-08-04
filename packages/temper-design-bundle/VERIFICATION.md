@@ -953,8 +953,37 @@ implementations (`tests/core/_board_py_oracle.py`, commit `5a17025b1`;
 
 3. **Not pickleable.** The pyclasses define no `__reduce__`, and the
    submodules are not in `sys.modules`. Verified 2026-08-04 that nothing
-   in-repo pickles, `copy.deepcopy`s, or applies `dataclasses.replace` /
-   `asdict` / `fields` / `is_dataclass` to any of these types.
+   in-repo pickles or `copy.deepcopy`s any of these types.
+
+4. **The dataclass protocol is restored, not dropped.** An earlier draft of
+   this section claimed nothing in-repo applied `dataclasses.replace` to
+   these types. **That claim was wrong**, and the consumer suite disproved it:
+   `deterministic/stages/apply_placements.py` rebuilds both `Component` and
+   `Netlist` with `replace()`, and the migration broke it with
+   `TypeError: replace() should be called on dataclass instances`. The
+   original grep was scoped to lines that also mentioned a contract type by
+   name, which `replace(component, ...)` does not.
+
+   `temper_placer/core/_contract_dataclass_compat.py` now installs a genuine
+   `__dataclass_fields__` on each pyclass, built from a throwaway
+   `dataclasses.make_dataclass` prototype carrying the same field list and
+   the same `init` flags — so the `Field` objects are real rather than faked
+   around the private `_FIELD` sentinel, and `replace()`, `fields()` and
+   `is_dataclass()` all behave as they did pre-migration.
+   `Board._zone_map` keeps `init=False`, so `replace()` still refuses it with
+   the same `ValueError`. Field-name and `init`-flag parity against the
+   oracle is asserted by `test_dataclass_field_surface_matches_the_oracle` in
+   both differentials.
+
+   The methodological lesson, recorded because it generalizes to the
+   remaining Phase-3 candidates: **a contract differential proves the
+   contract, not the consumers.** Both gaps found in this migration
+   (`dataclasses.replace`, and `board.traces` attribute injection) were
+   properties of a `@dataclass` that no consumer declares and no contract
+   test would think to assert. Both were caught only by running the broad
+   suite against a *pre-migration baseline of the same selection* — the
+   comparison, not the absolute pass count, is what made them visible, since
+   ~10 unrelated environment failures were present on both sides.
 
 ## Evidence
 

@@ -15,11 +15,17 @@ coerce nothing, mirroring the dataclasses they replace.
 
 from __future__ import annotations
 
-from typing import Any
+from dataclasses import Field
+from typing import Any, ClassVar
 
 import numpy as np
 
 class MountingHole:
+    # Installed at import time by `temper_placer.core._contract_dataclass_compat`
+    # so `dataclasses.replace()` / `fields()` / `is_dataclass()` keep working on
+    # the migrated contracts. Declaring it here is what makes the pyclass satisfy
+    # typeshed's `DataclassInstance` protocol at the call sites.
+    __dataclass_fields__: ClassVar[dict[str, Field[Any]]]
     position: tuple[float, float]
     diameter: float
     keepout_radius: float
@@ -32,6 +38,11 @@ class MountingHole:
     ) -> None: ...
 
 class Pad:
+    # Installed at import time by `temper_placer.core._contract_dataclass_compat`
+    # so `dataclasses.replace()` / `fields()` / `is_dataclass()` keep working on
+    # the migrated contracts. Declaring it here is what makes the pyclass satisfy
+    # typeshed's `DataclassInstance` protocol at the call sites.
+    __dataclass_fields__: ClassVar[dict[str, Field[Any]]]
     position: tuple[float, float]
     size: tuple[float, float]
     shape: str
@@ -50,6 +61,11 @@ class Pad:
     ) -> None: ...
 
 class Component:
+    # Installed at import time by `temper_placer.core._contract_dataclass_compat`
+    # so `dataclasses.replace()` / `fields()` / `is_dataclass()` keep working on
+    # the migrated contracts. Declaring it here is what makes the pyclass satisfy
+    # typeshed's `DataclassInstance` protocol at the call sites.
+    __dataclass_fields__: ClassVar[dict[str, Field[Any]]]
     ref: str
     position: tuple[float, float]
     rotation: float
@@ -76,6 +92,11 @@ class Component:
 class Trace:
     """`frozen=True`: assignment raises `dataclasses.FrozenInstanceError`."""
 
+    # Installed at import time by `temper_placer.core._contract_dataclass_compat`
+    # so `dataclasses.replace()` / `fields()` / `is_dataclass()` keep working on
+    # the migrated contracts. Declaring it here is what makes the pyclass satisfy
+    # typeshed's `DataclassInstance` protocol at the call sites.
+    __dataclass_fields__: ClassVar[dict[str, Field[Any]]]
     @property
     def start(self) -> tuple[float, float]: ...
     @property
@@ -98,6 +119,11 @@ class Trace:
 class Via:
     """`frozen=True`: assignment raises `dataclasses.FrozenInstanceError`."""
 
+    # Installed at import time by `temper_placer.core._contract_dataclass_compat`
+    # so `dataclasses.replace()` / `fields()` / `is_dataclass()` keep working on
+    # the migrated contracts. Declaring it here is what makes the pyclass satisfy
+    # typeshed's `DataclassInstance` protocol at the call sites.
+    __dataclass_fields__: ClassVar[dict[str, Field[Any]]]
     @property
     def position(self) -> tuple[float, float]: ...
     @property
@@ -121,6 +147,11 @@ class Via:
     ) -> None: ...
 
 class Layer:
+    # Installed at import time by `temper_placer.core._contract_dataclass_compat`
+    # so `dataclasses.replace()` / `fields()` / `is_dataclass()` keep working on
+    # the migrated contracts. Declaring it here is what makes the pyclass satisfy
+    # typeshed's `DataclassInstance` protocol at the call sites.
+    __dataclass_fields__: ClassVar[dict[str, Field[Any]]]
     name: str
     layer_type: str
     copper_weight: float
@@ -137,6 +168,11 @@ class Layer:
 class LayerStackup:
     """`frozen=True`. Hashable only while empty -- `Layer` is unhashable."""
 
+    # Installed at import time by `temper_placer.core._contract_dataclass_compat`
+    # so `dataclasses.replace()` / `fields()` / `is_dataclass()` keep working on
+    # the migrated contracts. Declaring it here is what makes the pyclass satisfy
+    # typeshed's `DataclassInstance` protocol at the call sites.
+    __dataclass_fields__: ClassVar[dict[str, Field[Any]]]
     @property
     def layers(self) -> tuple[Layer, ...]: ...
     @property
@@ -159,6 +195,11 @@ class Rect:
     `float()`.
     """
 
+    # Installed at import time by `temper_placer.core._contract_dataclass_compat`
+    # so `dataclasses.replace()` / `fields()` / `is_dataclass()` keep working on
+    # the migrated contracts. Declaring it here is what makes the pyclass satisfy
+    # typeshed's `DataclassInstance` protocol at the call sites.
+    __dataclass_fields__: ClassVar[dict[str, Field[Any]]]
     @property
     def x_min(self) -> float: ...
     @property
@@ -185,6 +226,11 @@ class Rect:
     def __len__(self) -> int: ...
 
 class Zone:
+    # Installed at import time by `temper_placer.core._contract_dataclass_compat`
+    # so `dataclasses.replace()` / `fields()` / `is_dataclass()` keep working on
+    # the migrated contracts. Declaring it here is what makes the pyclass satisfy
+    # typeshed's `DataclassInstance` protocol at the call sites.
+    __dataclass_fields__: ClassVar[dict[str, Field[Any]]]
     name: str
     # Coerced to `Rect` at construction only; a later assignment stores the
     # raw object, as the dataclass did.
@@ -222,6 +268,11 @@ class Zone:
     def contains_point(self, x: float, y: float) -> bool: ...
 
 class GroundDomain:
+    # Installed at import time by `temper_placer.core._contract_dataclass_compat`
+    # so `dataclasses.replace()` / `fields()` / `is_dataclass()` keep working on
+    # the migrated contracts. Declaring it here is what makes the pyclass satisfy
+    # typeshed's `DataclassInstance` protocol at the call sites.
+    __dataclass_fields__: ClassVar[dict[str, Field[Any]]]
     name: str
     bounds: tuple[float, float, float, float]
     star_point: tuple[float, float] | None
@@ -235,6 +286,11 @@ class GroundDomain:
     def contains_point(self, x: float, y: float) -> bool: ...
 
 class Board:
+    # Installed at import time by `temper_placer.core._contract_dataclass_compat`
+    # so `dataclasses.replace()` / `fields()` / `is_dataclass()` keep working on
+    # the migrated contracts. Declaring it here is what makes the pyclass satisfy
+    # typeshed's `DataclassInstance` protocol at the call sites.
+    __dataclass_fields__: ClassVar[dict[str, Field[Any]]]
     width: float
     height: float
     origin: tuple[float, float]

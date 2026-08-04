@@ -15,11 +15,17 @@ they are deliberately not tightened beyond what the runtime enforces
 
 from __future__ import annotations
 
-from typing import Any
+from dataclasses import Field
+from typing import Any, ClassVar
 
 import numpy as np
 
 class Pin:
+    # Installed at import time by `temper_placer.core._contract_dataclass_compat`
+    # so `dataclasses.replace()` / `fields()` / `is_dataclass()` keep working on
+    # the migrated contracts. Declaring it here is what makes the pyclass satisfy
+    # typeshed's `DataclassInstance` protocol at the call sites.
+    __dataclass_fields__: ClassVar[dict[str, Field[Any]]]
     name: str
     number: str
     position: tuple[float, float]
@@ -52,6 +58,11 @@ class Pin:
     def mask_expansion(self) -> float: ...
 
 class Component:
+    # Installed at import time by `temper_placer.core._contract_dataclass_compat`
+    # so `dataclasses.replace()` / `fields()` / `is_dataclass()` keep working on
+    # the migrated contracts. Declaring it here is what makes the pyclass satisfy
+    # typeshed's `DataclassInstance` protocol at the call sites.
+    __dataclass_fields__: ClassVar[dict[str, Field[Any]]]
     ref: str
     footprint: str
     bounds: tuple[float, float]
@@ -90,6 +101,11 @@ class Component:
     def get_pins_for_net(self, net_name: str) -> list[Pin]: ...
 
 class Net:
+    # Installed at import time by `temper_placer.core._contract_dataclass_compat`
+    # so `dataclasses.replace()` / `fields()` / `is_dataclass()` keep working on
+    # the migrated contracts. Declaring it here is what makes the pyclass satisfy
+    # typeshed's `DataclassInstance` protocol at the call sites.
+    __dataclass_fields__: ClassVar[dict[str, Field[Any]]]
     name: str
     pins: list[tuple[str, str]]
     net_class: str
@@ -111,6 +127,11 @@ class Net:
     def get_component_refs(self) -> set[str]: ...
 
 class Netlist:
+    # Installed at import time by `temper_placer.core._contract_dataclass_compat`
+    # so `dataclasses.replace()` / `fields()` / `is_dataclass()` keep working on
+    # the migrated contracts. Declaring it here is what makes the pyclass satisfy
+    # typeshed's `DataclassInstance` protocol at the call sites.
+    __dataclass_fields__: ClassVar[dict[str, Field[Any]]]
     components: list[Component]
     nets: list[Net]
     # Real `init=True, repr=False, compare=True` dataclass fields; rebuilt
