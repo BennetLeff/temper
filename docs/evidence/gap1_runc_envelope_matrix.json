@@ -1,6 +1,6 @@
 {
   "provenance": {
-    "commit": "7acaddd5670148e256c0a76f9d54d0fb2981ba88",
+    "commit": "5253c837745a6cd6dbf9bad74c1200db1e3274ab",
     "dirty": true
   },
   "variants": {
@@ -15297,9 +15297,9 @@
       "exclude_c27": false,
       "fc": "zones",
       "seed": 0,
-      "solve_time_ms": 3195.8,
+      "solve_time_ms": 3102.2,
       "status": "infeasible",
-      "wall_s": 3.2
+      "wall_s": 3.1
     }
   }
 }
