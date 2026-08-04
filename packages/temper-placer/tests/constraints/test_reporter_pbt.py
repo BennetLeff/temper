@@ -39,6 +39,7 @@ Four metamorphic relations (honestly bounded):
 from __future__ import annotations
 
 import json
+import math
 
 from hypothesis import given, settings
 from hypothesis import strategies as st
@@ -180,7 +181,12 @@ def test_p3_spacing_satisfied_iff_distance_ge_threshold(min_sep, pa, pb):
     if r.status == ConstraintStatus.SKIPPED:
         # both placed -> cannot be skipped; guard for hypothesis edge
         return
-    dist = ((pa[0] - pb[0]) ** 2 + (pa[1] - pb[1]) ** 2) ** 0.5
+    # Reference must use `math.sqrt` (correctly-rounded IEEE sqrt, exactly
+    # what Rust `f64::sqrt` and the oracle's `math.sqrt` compute) — `** 0.5`
+    # is libm pow and is not guaranteed to match (the P3 PBT found a 1-ULP
+    # falsifying example with the pow-based reference). `** 2` is kept: both
+    # the oracle and the Rust replicate it as libm pow.
+    dist = math.sqrt((pa[0] - pb[0]) ** 2 + (pa[1] - pb[1]) ** 2)
     if dist >= min_sep:
         assert r.status == ConstraintStatus.SATISFIED
         assert r.actual_value >= r.expected_value

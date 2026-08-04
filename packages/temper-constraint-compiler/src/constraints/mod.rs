@@ -133,13 +133,71 @@ pub const DEFAULT_ESCAPE_CLEARANCE: f64 = 3.0;
 // the f64 rounding is bit-identical (see VERIFICATION.md).
 // ---------------------------------------------------------------------------
 
-/// `math.sqrt((p1[0]-p2[0])**2 + (p1[1]-p2[1])**2)` — the exact expression
-/// order of both `_distance` implementations.
+// ---------------------------------------------------------------------------
+// Host-runtime libm `pow` — CPython's `x ** 2` is libm `pow`, not `x * x`.
+//
+// The oracle computes `math.sqrt((p1[0]-p2[0]) ** 2 + (p1[1]-p2[1]) ** 2)`,
+// and CPython's float `**` calls the host runtime's libm `pow` — measured to
+// differ from the (correctly-rounded) IEEE product `x * x` on ~0.14% of
+// random f64. `f64::powf(2.0)` is not a safe stand-in either: the extension's
+// release build folds it into `x * x`. So `pow` is resolved through `dlsym`
+// once per process (same pattern as temper-thermal's `hostmath.rs`, same
+// class-B1 bit-exactness rationale), with a `powf` fallback on platforms
+// without `dlsym`. `sqrt` stays `f64::sqrt`: IEEE-754 requires a
+// correctly-rounded square root, so it is bit-identical to `math.sqrt`.
+// ---------------------------------------------------------------------------
+
+type PowFn = unsafe extern "C" fn(f64, f64) -> f64;
+
+#[cfg(not(target_arch = "wasm32"))]
+fn dlsym_pow() -> Option<PowFn> {
+    unsafe extern "C" {
+        fn dlsym(handle: *const u8, symbol: *const u8) -> *mut u8;
+    }
+    const RTLD_DEFAULT: *const u8 = core::ptr::null();
+    let symbol = c"pow";
+    // SAFETY: `symbol` is a NUL-terminated C string literal; RTLD_DEFAULT is
+    // the documented "search every loaded object" handle; a miss returns
+    // null, which is checked.
+    let p = unsafe { dlsym(RTLD_DEFAULT, symbol.as_ptr().cast::<u8>()) };
+    if p.is_null() {
+        None
+    } else {
+        // SAFETY: the resolved symbol is C `double(double, double)` from libm.
+        Some(unsafe { std::mem::transmute::<*mut u8, PowFn>(p) })
+    }
+}
+
+/// `f64::powf` as an `extern "C"`-compatible fallback (dlsym unavailable).
+unsafe extern "C" fn fallback_pow(x: f64, y: f64) -> f64 {
+    f64::powf(x, y)
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+fn host_pow() -> PowFn {
+    static F: std::sync::OnceLock<PowFn> = std::sync::OnceLock::new();
+    *F.get_or_init(|| dlsym_pow().unwrap_or(fallback_pow as PowFn))
+}
+
+/// CPython's float `**` (the host Python runtime's libm `pow`).
 #[inline]
+pub fn py_pow(x: f64, y: f64) -> f64 {
+    #[cfg(not(target_arch = "wasm32"))]
+    // SAFETY: `host_pow()` is C `double(double, double)`; no shared state.
+    unsafe {
+        (host_pow())(x, y)
+    }
+    #[cfg(target_arch = "wasm32")]
+    f64::powf(x, y)
+}
+
 pub fn distance(p1: (f64, f64), p2: (f64, f64)) -> f64 {
     let dx = p1.0 - p2.0;
     let dy = p1.1 - p2.1;
-    (dx * dx + dy * dy).sqrt()
+    // `py_pow(x, 2.0)`, NOT `x * x` and not `x.powf(2.0)`: the oracle's
+    // `_distance` uses `** 2` (libm pow — see the trap note above). `.sqrt()`
+    // is correctly-rounded IEEE sqrt (== CPython `math.sqrt`).
+    (py_pow(dx, 2.0) + py_pow(dy, 2.0)).sqrt()
 }
 
 /// CPython 3.12+ `sum()` is Neumaier-compensated (not naive `+=`); replicating

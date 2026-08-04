@@ -6,7 +6,7 @@
 //! is opaque here (the shim passes it through for `to_json`).
 
 use crate::constraints::{
-    distance, min_edge_distance, point_to_segment_distance, py_float_str, py_max, py_min,
+    distance, min_edge_distance, point_to_segment_distance, py_float_str, py_max, py_min, py_pow,
     ConstraintData, Corridor, EscapeClearance, Group, ProximityRule, SpacingRule, Thermal,
 };
 
@@ -327,7 +327,9 @@ fn check_group_spread(group: &Group, placements: &[(String, (f64, f64))]) -> Che
     let ys: Vec<f64> = positions.iter().map(|p| p.1).collect();
     let width = py_max(&xs) - py_min(&xs);
     let height = py_max(&ys) - py_min(&ys);
-    let diagonal = (width * width + height * height).sqrt();
+    // Oracle: `math.sqrt(width**2 + height**2)` — `**2` is host libm pow,
+    // not the IEEE product (see `py_pow` in mod.rs for the same trap).
+    let diagonal = (py_pow(width, 2.0) + py_pow(height, 2.0)).sqrt();
 
     let satisfied = diagonal <= group.max_spread_mm;
     let status = if satisfied { "satisfied" } else { "violated" };

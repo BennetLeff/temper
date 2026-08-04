@@ -44,6 +44,21 @@ transitively.
   exactly; the differential's cancellation case
   `[(1e16,0),(1.0,0),(-1e16,0)] -> 1/3` discriminates it from naive
   accumulation (mutant M4 caught).
+- **`x ** 2` is libm `pow`, not the IEEE product.** CPython's float `**`
+  calls the host runtime's libm `pow`, which is not guaranteed to equal the
+  (correctly-rounded) IEEE multiply: measured to differ by 1 ULP on ~0.14%
+  of values on macOS arm64 (`pow(96.147…, 2.0)` vs `96.147… * 96.147…`).
+  The oracle's `_distance` and GroupSpread diagonal use `** 2`, so Rust
+  `distance()` and the GroupSpread diagonal route the square through
+  `py_pow` — host libm `pow` resolved via `dlsym` once per process (the
+  same class-B1 pattern as temper-thermal's `hostmath.rs`), with a `powf`
+  fallback where `dlsym` is unavailable. Plain `f64::powf(2.0)` is NOT a
+  safe stand-in: the extension's release build folds it into `x * x`
+  (verified in the installed `.so`; the P3 spacing PBT surfaced the 1-ULP
+  divergence, and a 200k-sample A/B against the oracle shows zero
+  mismatches with the `dlsym` route). `sqrt` stays `f64::sqrt` — IEEE-754
+  correctly rounded, bit-identical to `math.sqrt`; the PBT reference uses
+  `math.sqrt` (not `** 0.5`, which is libm `pow` again).
 - **CPython float repr.** `py_float_str` reproduces `str(float)`: decimal
   notation for `1e-4 <= |x| < 1e16` with a `.0` suffix on integrals, signed
   zero-padded exponents otherwise (`1e+16`, `1e-05`, `nan`, `inf`, `-0.0`).
