@@ -1,12 +1,13 @@
 """
-DRC Fence: Per-stage design rule checking orchestration.
+Pinned Python oracle for ``temper_placer/validation/drc_fence.py`` (Wave 4, Phase 4).
 
-Moved from the now-removed ``temper-drc`` Python package.
-
-Former locations:
-  - ``temper_drc.core.fence`` → DRCFence, InvariantSpec, FenceResult, …
-  - ``temper_drc.core.metrics`` → CheckMetrics, MetricsSummary
-  - ``temper_drc.core._issue_fingerprint`` → ``_issue_fingerprint`` (here)
+VERBATIM copy of the pre-migration implementation of
+``temper_placer/validation/drc_fence.py`` as of commit ``aece7c372`` (origin/main,
+the Wave-4 Phase-4 validation DRC-check base). Do NOT edit the semantics:
+this is the oracle the Rust kernels in ``temper-drc-rs`` (``validation.rs``)
+must reproduce bit-identically. Any edit here silently weakens the
+differential proof; if the module's contract changes, re-pin the oracle
+from the new base first.
 """
 
 from __future__ import annotations
@@ -33,20 +34,6 @@ logger = logging.getLogger(__name__)
 
 _BUDGET_ENFORCEMENT_START = datetime(2026, 7, 6)
 
-_RS = None
-
-
-def _rs() -> Any:
-    """Lazily import the Rust kernel module (avoids a hard import-time
-    dependency; same pattern as the other Wave-4 Phase-4 delegation
-    modules)."""
-    global _RS
-    if _RS is None:
-        import temper_drc_rs  # type: ignore[import-untyped]
-
-        _RS = temper_drc_rs
-    return _RS
-
 
 # =========================================================================
 #  _issue_fingerprint  (was in temper_drc.core.__init__)
@@ -54,15 +41,9 @@ def _rs() -> Any:
 
 
 def _issue_fingerprint(issue: Issue) -> str:
-    """Canonical fingerprint for comparing issues across fence runs.
-
-    Wave 4 Phase 4: delegates to the Rust kernel
-    ``temper_drc_rs.issue_fingerprint`` (``code:message:`` +
-    comma-joined sorted affected_items, verbatim port). Rust's String
-    sort matches CPython's lexicographic str sort for UTF-8 (byte order
-    == code-point order), so the sorted item segment is bit-identical.
-    """
-    return _rs().issue_fingerprint(issue.code, issue.message, list(issue.affected_items))
+    """Canonical fingerprint for comparing issues across fence runs."""
+    items = ",".join(sorted(issue.affected_items))
+    return f"{issue.code}:{issue.message}:{items}"
 
 
 # =========================================================================
@@ -421,32 +402,25 @@ class MetricsSummary:
             checks_skipped=skipped_checks or [],
         )
 
-        # Wave 4 Phase 4: the per-check aggregation loop (checks_run order,
-        # check_timings first-seen/last-value-wins, the erc/drc/safety/emc
-        # elif-chain counts, custom-metric += accumulation) runs in the Rust
-        # kernel ``temper_drc_rs.metrics_summary``; the fixed fields above
-        # are copied from the result contract as before. The caller's
-        # numeric values pass through RAW (no float(...) coercion): the
-        # oracle assigns/accumulates them verbatim, so an int elapsed_ms or
-        # int metric value stays int (exact beyond 2^53).
-        payload = _rs().metrics_summary(
-            [
-                (
-                    check_result.check_name,
-                    check_result.elapsed_ms,
-                    [issue.category for issue in check_result.issues],
-                    list(check_result.metrics.items()),
-                )
-                for check_result in result.check_results
-            ]
-        )
-        summary.checks_run = payload["checks_run"]
-        summary.check_timings = payload["check_timings"]
-        summary.erc_issues = payload["erc_issues"]
-        summary.drc_issues = payload["drc_issues"]
-        summary.safety_issues = payload["safety_issues"]
-        summary.emc_issues = payload["emc_issues"]
-        summary.custom_metrics = payload["custom_metrics"]
+        for check_result in result.check_results:
+            summary.checks_run.append(check_result.check_name)
+            summary.check_timings[check_result.check_name] = check_result.elapsed_ms
+
+            for issue in check_result.issues:
+                if issue.category == "erc":
+                    summary.erc_issues += 1
+                elif issue.category == "drc":
+                    summary.drc_issues += 1
+                elif issue.category == "safety":
+                    summary.safety_issues += 1
+                elif issue.category == "emc":
+                    summary.emc_issues += 1
+
+            for key, value in check_result.metrics.items():
+                if key in summary.custom_metrics:
+                    summary.custom_metrics[key] += value
+                else:
+                    summary.custom_metrics[key] = value
 
         return summary
 

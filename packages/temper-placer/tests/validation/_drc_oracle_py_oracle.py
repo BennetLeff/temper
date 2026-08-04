@@ -1,19 +1,13 @@
 """
-DRCOracle: Batch DRC evaluator using temper-drc composable checks (or Rust engine).
+Pinned Python oracle for ``temper_placer/validation/drc_oracle.py`` (Wave 4, Phase 4).
 
-Provides a DRCOracle class that wraps temper_drc.CheckRunner for batch
-placement evaluation. Not to be confused with routing.constraints.drc_oracle.DRCOracle
-which serves real-time track/via clearance queries.
-
-This oracle:
-- Converts temper-placer Netlist/Board data into temper_drc.input.Placement + ConstraintSet
-- Runs the full temper-drc check suite (DRC, Safety, EMC, ERC)
-- Returns RunResult with aggregate penalty
-- Optionally uses the Rust DRC engine (temper_drc_rs) for improved performance
-
-Graceful degradation: If temper-drc is not installed, the factory function raises
-ImportError with a clear message. If temper_drc_rs is not installed, the Rust
-backend is unavailable but the Python backend still works.
+VERBATIM copy of the pre-migration implementation of
+``temper_placer/validation/drc_oracle.py`` as of commit ``aece7c372`` (origin/main,
+the Wave-4 Phase-4 validation DRC-check base). Do NOT edit the semantics:
+this is the oracle the Rust kernels in ``temper-drc-rs`` (``validation.rs``)
+must reproduce bit-identically. Any edit here silently weakens the
+differential proof; if the module's contract changes, re-pin the oracle
+from the new base first.
 """
 
 from __future__ import annotations
@@ -39,38 +33,13 @@ try:
 except ImportError:
     _HAS_RUST_DRC = False
 
-_RS = None
-
-
-def _rs() -> Any:
-    """Lazily import the Rust kernel module."""
-    global _RS
-    if _RS is None:
-        import temper_drc_rs  # type: ignore[import-untyped]
-
-        _RS = temper_drc_rs
-    return _RS
-
 
 def _infer_package_type(footprint: str | None) -> str:
     """Infer SMD package type from footprint name.
 
     Heuristic used by both the placer-path and parsed-PCB-path
     board-dict builders.
-
-    Wave 4 Phase 4: with the Rust extension present, delegates to the Rust
-    kernel ``temper_drc_rs.infer_package_type`` (verbatim first-match
-    keyword-order port, case-insensitive substring matching, None/empty →
-    "smd"; pinned by the differential suite
-    ``test_drc_oracle_rust_differential.py``). Without the extension
-    (``_HAS_RUST_DRC=False``), falls back to the verbatim pre-migration
-    pure-Python body — the module's graceful-degradation contract, which
-    the parsed-PCB dict-builder path (``ci_closure_test.py``) depends on
-    extension-absent (adversarial-review pass 2 restored this after the
-    migration had introduced a hard runtime dependency on ``_rs()``).
     """
-    if _HAS_RUST_DRC:
-        return _rs().infer_package_type(footprint)
     fp_lower = footprint.lower() if footprint else ""
     if any(p in fp_lower for p in ("tht", "through", "pin", "dip")):
         return "tht"
@@ -521,11 +490,6 @@ class DRCOracle:
         ``CheckResult``.  This allows existing Python consumers (loss
         functions, CI reports) to consume Rust DRC output transparently.
 
-        Wave 4 Phase 4: the grouping + severity-normalization compute runs
-        in the shared Rust kernel ``temper_drc_rs.group_violations`` (also
-        consumed by ``drc_runner._violations_to_run_result``); this wrapper
-        only marshals the normalized records into the contract objects.
-
         Args:
             violation_dicts: List of violation dicts from
                 ``temper_drc_rs.run_drc()``, each with keys:
@@ -536,13 +500,7 @@ class DRCOracle:
             RunResult consumable by temper_drc consumers.
         """
         # Lazy import to avoid hard dependency on temper_drc
-        from temper_placer.validation.drc_result import (
-            CheckResult,
-            Issue,
-            Location,
-            RunResult,
-            Severity,
-        )
+        from temper_placer.validation.drc_result import CheckResult, Issue, RunResult, Severity
 
         _SEVERITY_MAP = {
             "INFO": Severity.INFO,
@@ -551,38 +509,46 @@ class DRCOracle:
             "CRITICAL": Severity.CRITICAL,
         }
 
-        # --- Group by check_name (Rust kernel) ---
+        # --- Group by check_name ---
+        grouped: dict[str, list[dict[str, Any]]] = {}
+        for v in violation_dicts:
+            name = v.get("check_name", "unknown")
+            grouped.setdefault(name, []).append(v)
+
+        # --- Build CheckResult per group ---
         check_results: list[CheckResult] = []
-        for check_name, records in _rs().group_violations(violation_dicts):
+        for check_name, violations in sorted(grouped.items()):
             issues: list[Issue] = []
             has_failure = False
-            for v in records:
-                severity = _SEVERITY_MAP[v["severity"]]
+            for v in violations:
+                severity_str = v.get("severity", "ERROR").upper()
+                severity = _SEVERITY_MAP.get(severity_str, Severity.ERROR)
                 if severity in (Severity.ERROR, Severity.CRITICAL):
                     has_failure = True
 
                 # Build Location
-                loc_dict = v["location"]
+                loc_dict = v.get("location")
                 location = None
-                if loc_dict is not None:
-                    location = Location(
+                if loc_dict is not None and isinstance(loc_dict, dict):
+                    from temper_placer.validation.drc_result import Location as DrcLocation
+
+                    location = DrcLocation(
                         x=loc_dict.get("x"),
                         y=loc_dict.get("y"),
                         layer=loc_dict.get("layer"),
                     )
 
-                issues.append(
-                    Issue(
-                        severity=severity,
-                        code=v["code"],
-                        message=v["message"],
-                        category=v["category"],
-                        check_name=check_name,
-                        affected_items=v["affected_items"],
-                        location=location,
-                        details=v["details"],
-                    )
+                issue = Issue(
+                    severity=severity,
+                    code=v.get("code", "DRC_RS_000"),
+                    message=v.get("message", ""),
+                    category=v.get("category", "drc"),
+                    check_name=check_name,
+                    affected_items=v.get("affected_items", []),
+                    location=location,
+                    details=v.get("details", {}),
                 )
+                issues.append(issue)
 
             check_results.append(
                 CheckResult(
