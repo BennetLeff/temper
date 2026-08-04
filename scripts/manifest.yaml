@@ -733,6 +733,27 @@ scripts:
   - importlib.util
   - pathlib
   - sys
+- path: check_verdict_coverage.py
+  purpose: >-
+    Wave 4 R7 coverage gate: every Python file under the roots in
+    docs/wave4-verdicts.yaml must match exactly one ledger entry with a recorded
+    verdict (MIGRATE / RETIRE / JUSTIFIED-KEEP / UNDECIDED). Enforces D6
+    structurally -- a JUSTIFIED-KEEP without a named blocker fails, because
+    "consolidation" alone is never a sufficient justification. Reports UNDECIDED
+    LOC as the migration backlog rather than hiding it.
+  owner: bennet
+  last_run: "2026-08-04"
+  category: keep
+  disposition: ci-gate
+  imports:
+    - __future__
+    - argparse
+    - collections
+    - fnmatch
+    - os
+    - pathlib
+    - sys
+    - yaml
 - path: check_vacuous_gates.py
   purpose: 'CI gate: reject unguarded all() in gate and validator modules (docs/METHODOLOGY.md Sec 4/5, anti-vacuous-truth);
     any() exempt (already fail-closed); asserts zero, no allowlist. Also rejects tautological assert expressions (X or not
