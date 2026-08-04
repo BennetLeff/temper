@@ -909,6 +909,47 @@ emi/safety kernels need them; `sqrt` deliberately stays `f64::sqrt` per
 hostmath's documented reasoning — IEEE correctly-rounded, bit-identical to
 libm).
 
+**Oracle-convention note (this slice).** The Wave-4 guide's documented
+unit of work places the verbatim pre-migration implementation in a
+separate `_<mod>_py_oracle.py` module (as #713 did for
+`_thermal_potential_py_oracle.py` / `_operating_point_py_oracle.py`).
+This slice instead EMBEDS the oracles inside each differential test file
+as `_oracle_*` functions (`test_emi_rust_differential.py`,
+`test_safety_rust_differential.py`,
+`test_heat_removal_rust_differential.py`,
+`test_copper_coverage_phase4_rust_differential.py`,
+`test_tj_cross_check_rust_differential.py`,
+`test_parameter_bounds_rust_differential.py`).  The oracle content is
+verbatim (semantically identical to the pre-migration implementation,
+pinning the same bit-exact behaviour) — only the file SHAPE differs
+from the documented convention, so the differential suites double as
+their own oracle reference and the perf harness imports them directly
+(`benchmarks/perf_ab.py`).  Verified verbatim against the pre-migration
+implementations at migration time (2026-08-04).
+
+**R1b performance A/B status — NO_BASELINE, by decision.** The six
+physics benchmarks are registered in `benchmarks/perf_ab.py`, but the
+committed baseline (`power_pcb_dataset/metrics/perf_ab_baseline.jsonl`)
+carries NO rows for them: the 30 rows this PR originally committed were
+local darwin/arm64 measurements (`git_commit` literally `"HEAD"`),
+which violate the harness's documented contract — "CAPTURE IT ON CI,
+NOT LOCALLY" (`benchmarks/perf_ab.py` docstring, measured -11% darwin-
+vs-linux bias, provably blind in the +20..+35% band).  They were
+REMOVED in review (restoring the baseline to its pre-PR state; the
+pre-existing loaders/bottleneck-geometry rows are untouched).  The
+physics arms are therefore honestly **NO_BASELINE** until a CI capture
+lands: per the harness's per-key convention they are REPORTED in the
+comparison output without failing (NEW_BENCHMARK on this PR — main does
+not yet have the physics registry — then NO_BASELINE on later PRs until
+a capture lands; never silent confidence), and this PR does not claim
+otherwise.  Capturing
+the physics rows is a NAMED FOLLOW-UP (trigger
+`.github/workflows/pr-perf-check.yml` on main via workflow_dispatch,
+append the published rows in a reviewed PR) — nothing writes the
+baseline file automatically, by the harness's design.  The loaders
+(`bottleneck-geometry`) arm keeps its existing CI-captured rows and is
+still compared normally.
+
 ## EMI radiated-emissions kernels — induction non-applicability note
 
 `emi::predict_radiated_emissions` and `emi::check_emi_compliance` are
@@ -1099,9 +1140,13 @@ applicable**; structural argument recorded.
   device-check pins with NaN in every argument position, the
   conservative-max NaN pin, module-level delegation.
 - PBT: `test_tj_parameter_bounds_rust_pbt.py` (shared with
-  parameter_bounds) — P1 conservative ≥ both estimates, P2 delta/exceeds
-  exact with the strict-`>` boundary, P3 distance geometry, plus M1
-  zero-power degeneracy, M2 conservative order-independence.
+  parameter_bounds) — **5 properties + 3 metamorphic relations for
+  tj_cross_check** (P1 conservative ≥ both estimates, P2 delta/exceeds
+  exact with the strict-`>` boundary, P3 distance geometry, P6 margin
+  definitional, P7 exceeds gated only on (delta, tau); M1 zero-power
+  degeneracy, M2 conservative order-independence, M4 reciprocal
+  power-of-two scaling), each property vacuity-guarded by a real
+  mutant.
 
 ## Parameter-bound kernels — induction non-applicability note
 
@@ -1144,22 +1189,44 @@ recorded.
   cases, empty names), 6 randomized-seed pins (100 samples each,
   string-exact), worst-case-value pins, module-level pins with a real
   prereg.
-- PBT: `test_tj_parameter_bounds_rust_pbt.py` — P4 classification totality
-  + family consistency, P5 worst-case corner selection + dominance, M3
-  ASCII case-folding invariance.
+- PBT: `test_tj_parameter_bounds_rust_pbt.py` — **5 properties + 3
+  metamorphic relations for parameter_bounds** (P4 classification
+  totality + family consistency, P5 worst-case corner selection +
+  dominance, P8 citation fidelity with the original-case name, P9
+  mirror dominance for −1, P10 family-precedence stability; M3 ASCII
+  case-folding invariance, M5 substring-match semantics, M6
+  permutation equivariance of worst_case_values), each property
+  vacuity-guarded by a real mutant.
 
 ## Anti-vacuity summary (this slice's kernels)
 
 Mutants applied to the Rust kernels and confirmed to fail the
-differential/PBT, then reverted:
+differential/PBT, then reverted.  Each mutant is listed ONCE: a mutant
+either was killed by the general differential/PBT suite, or it survived
+that suite and was closed with a CONSTRUCTED discriminator pin (the
+guide's "no survivor left open" pattern).  A closing pin is NOT a
+separate kill — it is the evidence that the survivor is bit-wrong.
 
-| Module | Mutants | Killed by | Survived/triaged |
+**Totals: 19 mutants applied; 16 killed by the general suite; 3
+survived the general suite and were each closed with a constructed
+discriminator pin (no survivor left open).**  (The survivors: one
+heat_removal pow→mul in h_bg, and two copper_coverage mutants —
+pow-for-offsets and kr·kr-for-radius — the two arms of the array-`** 2`-
+is-mul / float-`** 2`-is-pow trap.)
+
+| Module | Mutants | Killed by (general differential/PBT) | Survived the general suite → closed by constructed pin |
 |---|---|---|---|
 | emi | 3 | randomized pins, pow-vs-mul discriminator, underflow guard | — |
-| safety | 2 | randomized pins, one-time-constant; domain-error raise arm | — |
-| heat_removal | 4 | R_vert-skip pin, randomized pins, slice-wrap pin, off-by-one | pow→mul in h_bg SURVIVED → closed with 1-ulp discriminator pin (cs=66.24771326355554) |
-| copper_coverage | 5 | mul-vs-pow offset pin, rect axis, trace min-cap, NaN-discard, kr·kr radius pin | pow-for-offsets and kr·kr SURVIVED → both closed with discriminator pins |
+| safety | 2 | randomized pins, one-time-constant, domain-error raise arm | — |
+| heat_removal | 5 | R_vert-skip pin, randomized pins, slice-wrap pin, off-by-one | pow→mul in h_bg → closed by the 1-ulp discriminator pin (cs=66.24771326355554) |
+| copper_coverage | 5 | rect axis, trace min-cap, NaN-discard | pow-for-offsets → closed by the mul-vs-pow offset discriminator; kr·kr-for-radius → closed by the radius pow-vs-mul discriminator |
 | tj_cross_check | 2 | NaN conservative-max pin, distance abs pin | — |
 | parameter_bounds | 2 | case-folding pin (P_LOSS dead code), worst-case selection pin | — |
 
 (No operating_point flag-bit-swap entry: that module landed via #713.)
+
+Every kill was confirmed by the differential/PBT failing under the
+mutated kernel, then reverting; every survivor is pinned by a
+constructed discriminator that flips exactly under the mutation (see
+the per-module differential sections above for the discriminator
+values).
