@@ -1274,6 +1274,36 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python scripts/check_derived_doc_drift.py
 
+      # Component-inventory guard (plan 2026-08-04-003, Option A step 2).
+      #
+      # The DRC ceiling is a count ratchet, and a count falls when a component
+      # is DELETED as readily as when a defect is fixed. Measured over all 169
+      # footprints (507 kicad-cli runs): 66 deletions reduce the total with zero
+      # penalised above the nondeterminism floor, the most profitable being C4
+      # at -46; deleting a component and moving it off-board produce
+      # byte-identical DRC signatures. A deletion also needs no
+      # `Ceiling-Approval:` trailer, because detect_ceiling_raise only reacts to
+      # increases.
+      #
+      # Both checks below already existed and already passed -- they detect a
+      # deletion outright by comparing the board's footprint inventory against
+      # the netlist. They lived only in `Board, Provenance & Requirements
+      # Gates`, which is not a required context, so the detection could never
+      # block anything. That is the same failure the goal set's AE1/AE2 condemn,
+      # in a different costume: the gate works, it just cannot stop a merge.
+      #
+      # Hosted here rather than in a new job: this job is already a required
+      # context, already triggers on pcb/**, and already builds the netlist
+      # these checks need -- so the marginal cost is two Python invocations and
+      # zero new jobs, against a measured ~24-slot concurrency ceiling.
+      - name: Footprint-drift gate (component inventory vs source)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python scripts/check_footprint_drift.py
+
+      - name: Netlist<->board reconciliation gate (component inventory)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python scripts/check_netlist_board_reconciliation.py
+
       - name: Net-classification-by-substring gate tests
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run pytest scripts/tests/test_check_net_classification.py -v --tb=short
