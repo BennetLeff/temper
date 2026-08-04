@@ -906,7 +906,8 @@ def main():
         "encoded_zone_reachability_cap120": encoded_rows,
         "candidate_compound_audit": compound,
         "pair_verdict_counts": pair_counts,
-        "pairs": pairs,
+        # Full per-pair rows are in gap1_runc_envelope_pairs.csv (15,113
+        # rows); the JSON keeps only the counts to stay lean.
         "edge_slack_mm_at_best": edges,
     }
     OUT_ZONES.write_text(json.dumps(analysis, indent=2, sort_keys=True))
