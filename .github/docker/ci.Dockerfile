@@ -17,11 +17,35 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     && rm -rf /var/lib/apt/lists/*
 
 # KiCad (large package, separate layer for caching)
+#
+# PINNED 2026-08-04. `ppa:kicad/kicad-10.0-releases` is a rolling PPA: it serves
+# only the newest 10.0.x and drops the previous one. Unpinned, `kicad-cli` -- the
+# oracle every DRC baseline and every entry in power_pcb_dataset/drc_ceiling.json
+# is measured against -- could change under the repo with no commit landing here.
+#
+# That is not hypothetical. It already happened: every provenance block in
+# tests/placer/cp_sat/test_regression_drc.py records "kicad-cli 10.0.4, macOS
+# arm64", while this image had silently rolled to 10.0.5. Measured on one commit
+# (PR #673) across the two environments, byte-identical router output gave
+# `total` 1395 on macOS/10.0.4 and 1502 in this container -- a +107 swing from
+# the environment alone, with `unconnected_items` identical at 460 (connectivity
+# is environment-independent; the geometric categories are not). See
+# docs/evidence/2026-08-04-router-output-rebaseline-interim.md.
+#
+# CHANGING THIS VERSION IS A RE-BASELINE EVENT, not a routine bump. Every DRC
+# constant in the repo is measured against it. When the PPA drops this version
+# the image build fails loudly on a missing apt version -- that is the intended
+# behaviour, and it is strictly better than the counts moving silently. To bump:
+# raise the version here, then re-measure the baselines against the new binary
+# and land both together, per AGENTS.md's same-PR re-measurement rule.
+ARG KICAD_VERSION=10.0.5~ubuntu24.04.1
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt-get update && apt-get install -y --no-install-recommends software-properties-common \
     && add-apt-repository -y ppa:kicad/kicad-10.0-releases \
-    && apt-get update && apt-get install -y --no-install-recommends kicad kicad-footprints \
+    && apt-get update && apt-get install -y --no-install-recommends \
+        "kicad=${KICAD_VERSION}" "kicad-footprints=${KICAD_VERSION}" \
+    && kicad-cli version \
     && rm -rf /var/lib/apt/lists/*
 
 # Rust toolchain (stable, minimal profile)
