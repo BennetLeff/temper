@@ -9,11 +9,15 @@ name = "temper_rust_router_core"
 crate-type = ["rlib"]
 
 [dependencies]
-rustsat = { version = "0.7.5", default-features = false, features = ["fxhash"] }
-rustsat-cadical = "0.7.5"
+rustsat = { version = "0.7.5", default-features = false, features = ["fxhash"], optional = true }
+rustsat-cadical = { version = "0.7.5", optional = true }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 thiserror = "1"
+
+[features]
+default = ["sat"]
+sat = ["dep:rustsat", "dep:rustsat-cadical"]
 
 [profile.release]
 panic = "unwind"

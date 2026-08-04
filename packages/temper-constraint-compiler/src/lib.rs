@@ -3,13 +3,18 @@ pub mod desugar_tier1;
 pub mod ir_tier0;
 pub mod ir_tier1;
 pub mod provenance;
+#[cfg(feature = "python")]
 pub mod pyo3_bridge;
 pub mod type_lattice;
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use pyo3::types::{PyDict, PyList};
+#[cfg(feature = "python")]
 use pyo3::Py;
 
+#[cfg(feature = "python")]
 #[pyfunction]
 #[allow(clippy::too_many_arguments)]
 fn compile_pcl_constraints(
@@ -38,6 +43,7 @@ fn compile_pcl_constraints(
     )
 }
 
+#[cfg(feature = "python")]
 #[pyclass]
 struct PyCompiler {
     _lattice: Option<crate::type_lattice::TypeLattice>,
@@ -48,6 +54,7 @@ struct PyCompiler {
     prov: crate::provenance::ProvenanceMap,
 }
 
+#[cfg(feature = "python")]
 #[pymethods]
 impl PyCompiler {
     #[new]
@@ -173,6 +180,7 @@ impl PyCompiler {
     }
 }
 
+#[cfg(feature = "python")]
 #[pymodule]
 fn temper_constraint_compiler(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(compile_pcl_constraints, m)?)?;
