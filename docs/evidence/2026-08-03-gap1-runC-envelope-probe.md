@@ -1,4 +1,4 @@
-<!-- provenance: commit=07d949c7fe73c4ebe9e246ec02f40004f1602809 dirty=false -->
+<!-- provenance: commit=5d574d4c1d33c42441a84ebd753f65068f514532 dirty=false -->
 
 # Gap-1 run-C envelope probe — does relaxing the displacement cap unblock the zone-inclusive solve? (issue #618)
 
