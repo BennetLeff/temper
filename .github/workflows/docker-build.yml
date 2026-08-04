@@ -12,6 +12,10 @@ on:
     paths:
       - '.github/docker/ci.Dockerfile'
       - '.github/workflows/docker-build.yml'
+      # requirements-ci.txt is COPYed into the image, so a change to it must
+      # rebuild -- it is in the tag hash below, and a tag that never gets built
+      # is worse than no tag at all.
+      - 'requirements-ci.txt'
       - 'uv.lock'
       - 'packages/*/Cargo.lock'
       - 'packages/temper-placer/temper-constraints/Cargo.lock'
@@ -47,7 +51,12 @@ jobs:
       - name: Compute image tag from lock files
         id: tag
         run: |
-          HASH=$(cat .github/docker/ci.Dockerfile uv.lock packages/*/Cargo.lock packages/temper-placer/temper-constraints/Cargo.lock 2>/dev/null | sha256sum | cut -c1-12)
+          # requirements-ci.txt is included explicitly rather than relying on
+          # uv.lock: the image bakes that file's exact contents into the
+          # pre-installed venv, so a regenerated requirements-ci.txt must
+          # produce a new tag even in the (gate-prevented) case where it has
+          # drifted from the lockfile.
+          HASH=$(cat .github/docker/ci.Dockerfile uv.lock requirements-ci.txt packages/*/Cargo.lock packages/temper-placer/temper-constraints/Cargo.lock 2>/dev/null | sha256sum | cut -c1-12)
           echo "hash=${HASH}" >> "$GITHUB_OUTPUT"
           echo "full=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${HASH}" >> "$GITHUB_OUTPUT"
           echo "latest=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest" >> "$GITHUB_OUTPUT"

@@ -24,6 +24,9 @@ tags:
   - a-b-testing
 ---
 
+> **Status update (2026-08-03 refresh):** the C-CAP worked example (`project_to_feasible`, `ccap_enabled`) and the `train_multiphase`/`jax.random.PRNGKey` A/B template were retired with the JAX loss stack (2026-07). The byte-identical A/B finding pattern stands; current toggles live in the CP-SAT gate/constraint flags.
+
+
 # Silent guard conditions prevent infrastructure from executing — a recurring failure pattern
 
 ## Context
@@ -307,3 +310,9 @@ def guarded_operation(config, state, context):
 - `docs/solutions/architecture-patterns/quality-metrics-built-but-never-connected-2026-07-01.md` — sibling pattern: infrastructure built and tested but never called (no guard condition, just absent call site)
 - `docs/solutions/workflow-issues/infrastructure-components-unwired-2026-06-28.md` — audit methodology for finding unwired infrastructure
 - `docs/solutions/workflow-issues/dead-code-from-features-with-no-activation-surface-2026-07-01.md` — superset pattern: config flags with `False` defaults and no reachable activation path
+
+## Consolidated instance: C-CAP indentation root cause (2026-08-03 refresh)
+
+The `silent-guard-condition-c-cap-indentation-2026-07-02.md` instance doc was consolidated here and deleted. Its worked example (`project_to_feasible`, `train.py:406`, `initialize_training_state`) was deleted with the JAX retirement; the pattern remains the three-instance taxonomy this doc documents.
+
+Original doc's root-cause diagram: see git history (`git log --diff-filter=D -- docs/solutions/logic-errors/silent-guard-condition-c-cap-indentation-2026-07-02.md`).

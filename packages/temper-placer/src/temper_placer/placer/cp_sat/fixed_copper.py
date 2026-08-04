@@ -55,15 +55,17 @@ exact copper shape, expanded by the margin:
   ``(√2 − 1)·(diameter/2 + margin)``.
 * *Zone (pour outline)* — exact copper is the zone's fill region, which the
   parser sees only as the zone *outline* polygon (fills are not persisted
-  to ``.kicad_pcb``; they are recomputed on open). Encoded as the outline
-  polygon's bounding rectangle expanded by the margin — a conservative
-  superset of the fill. **Conservatism is potentially large for a big or
-  diagonal pour** (a pour outline can span most of the board while its real
-  fill is carved into islands by clearances); the task brief explicitly
-  accepts this for v1 and notes that a polygon-exact zone encoding is the
-  documented future tightening. Measured on the production board this still
-  leaves large viable regions (see ``docs/evidence/2026-08-01-fixed-copper-
-  constraint.md``).
+  to ``.kicad_pcb``; they are recomputed on open). **Convex zones** (any
+  orientation, diagonal edges allowed) use the polygon-exact per-edge
+  half-plane encoding below — the direct generalization of the #567
+  rectilinear path. **Non-convex zones** fall back to the outline polygon's
+  bounding rectangle expanded by the margin — a conservative superset of
+  the fill (the half-plane proof below requires the zone to lie inside
+  every edge's interior half-plane, which fails exactly for reflex
+  vertices; the bbox is the documented sound fallback). Measured on the
+  production board every one of the 96 zone items is convex, so the bbox
+  fallback is unreachable there (verified 2026-08-04, see
+  ``docs/evidence/2026-08-04-convex-zone-encoding.md``).
 * *Other components' pads* — exact copper is the pad's own axis-aligned
   box (rotated to the pinned component's placement rotation). Encoded as
   that box expanded by the margin in both axes. The expansion is the square
@@ -91,6 +93,80 @@ see ``geometry/kicad_transform.py`` and
 with zero half-extent is handled by clamping the half-extent to a minimum
 of 1 model unit (0.01 mm) so the interval stays non-degenerate; the 0.05 mm
 margin absorbs the clamp.
+
+**Zone half-plane encoding (#567 → general convex, issue #651).** A convex
+polygon is the intersection of its edge half-planes, so a pad is disjoint
+from it iff the pad lies wholly outside AT LEAST ONE edge half-plane —
+encoded as a single ``BoolOr`` over one literal per edge, where each edge
+literal is the pad's clearance of that edge's half-plane:
+
+* *Axis-aligned edge* (x = c or y = c): the pad clears iff its whole
+  extent is beyond the line shifted out by the margin, e.g.
+  ``pad.x_min >= c + margin`` (one ``("x", coord, sign)`` entry, the #567
+  form — exact for convex rectilinear zones).
+* *Diagonal edge* (any other direction): the pad clears iff the pad's
+  minimum of the edge's outward linear form ``a·x + b·y`` is at least the
+  edge's shifted offset ``r``. For a pad whose world rectangle is
+  ``[x_center+ox−hwx, x_center+ox+hwx] × [y_center+oy−hwy, y_center+oy+hwy]``,
+  that minimum is achieved at the corner in direction (−a, −b):
+
+      min over pad of (a·x + b·y)
+        = a·(x_center+ox) + b·(y_center+oy) − |a|·hwx − |b|·hwy
+
+  which is a single linear expression in the model's integer variables
+  (``x_center``/``y_center`` plus the rotation-table vars), so each
+  diagonal edge contributes ONE linear literal — no per-corner disjunction
+  is needed, because the pad is an axis-aligned rectangle and the minimum
+  of a linear form over a rectangle is attained at a single corner whose
+  identity is fixed by the sign of the coefficients. Coefficients
+  ``(a, b)`` are the edge direction computed at 100× the model resolution
+  (0.0001 mm — sub-0.1 mm edges keep their true slope, see the two
+  soundness bugs in the 2026-08-04 evidence doc) and scaled to integer
+  model-unit coefficients (CP-SAT requires integer coefficients); the
+  offset ``r`` is computed at the same fine scale from the quantized
+  vertices, rounded UP (conservative), and the margin shift embeds the
+  integer-grid headroom (the rectilinear #567 path predates the headroom
+  and is margin-only; the diagonal path is the stronger, headroom-
+  protected form — see below).
+
+**Convex-zone soundness (R24 item 1 — Chebyshev-style).** Let ``Z`` be the
+convex polygon, ``E_i = {n_i·p <= d_i}`` its edge half-planes with outward
+unit normals ``n_i`` (``Z ⊆ E_i`` for every edge — this is exactly what
+convexity buys, and it is what fails for a reflex vertex). The margin
+region ``Z ⊕ disc(margin) = ∩_i {n_i·p <= d_i + margin}`` (for a convex
+polygon the disc-dilation equals the intersection of the edge half-planes
+shifted outward by the margin — the standard offset-polygon identity). If
+the encoded predicate declares a pad clear, some edge literal holds, i.e.
+the pad's minimum of ``n_i·p`` is at least ``d_i + margin``, i.e. every
+pad point satisfies ``n_i·p >= d_i + margin``. Then for every pad point
+``p`` and every zone point ``q``:
+
+    n_i·(p − q) = n_i·p − n_i·q >= (d_i + margin) − d_i = margin
+
+so by Cauchy–Schwarz ``|p − q| >= n_i·(p − q) >= margin`` (n_i is unit).
+Hence ``dist(pad, Z) >= margin``: **encoded-clear implies exact-clear —
+no false negatives, in the continuous sense**. The integer grid erodes
+this by the quantization terms below, which the diagonal edges' embedded
+headroom (``margin + _GRID_HEADROOM_MM``) fully covers; the rectilinear
+#567 path keeps the documented <= 0.015 mm residual that the post-solve
+audit catches.
+
+**Conservatism of the convex-zone encoding (encoded-overlap but
+exact-clear).** Two sources: (1) at each vertex the offset polygon's
+corner is the intersection of the two shifted edge lines, which pokes
+beyond the true disc-dilation's circular arc; a pad sitting in that
+corner wedge (within the shifted half-planes but beyond the arc) is
+rejected although exactly clear. For an interior angle θ the wedge depth
+is ``margin·(1/sin(θ/2) − 1)`` (measured max on the production board's
+sharpest zone vertex, 28.7°, is 0.15 mm). (2) a pad large relative to the
+polygon can poke into every edge's strip while staying far from the
+polygon (e.g. a 10 mm pad next to a 15 mm triangle measured 19 mm of
+excess) — unbounded in the worst case, exactly like the bbox fallback,
+and the reason ``slack_mm`` stays ``inf`` for zones. Both directions are
+safe (over-constraining); the run-C unlock only needs the C27-vs-DC_BUS_RTN
+encoded-clear count to jump from 0 toward the exact 14,973, which the
+diagonal half-plane encoding does (see ``docs/evidence/2026-08-04-convex-
+zone-encoding.md``).
 
 **Soundness (R24 item 1 — Chebyshev-style).** Let ``E`` be the encoded
 obstacle (the expanded box above) and ``S`` the exact copper shape. For
@@ -217,6 +293,48 @@ _MIN_HALF_MM = 0.01
 # soundness section).
 _GRID_HEADROOM_MM = 0.02
 
+# The solver is always built with units_per_mm=100 (see _encoder_solve.py),
+# so 1 model unit == 0.01 mm. The diagonal-edge zone half-planes (issue
+# #651) are computed in model units so their coefficients are integers
+# (CP-SAT requires integer linear coefficients).
+_UNITS_PER_MM = 100
+
+
+def _mm_to_units(mm: float) -> int:
+    """Mirror of ``CpSatModel.mm_to_units`` (round-half-even on mm*100, then
+    floor-modulo even-parity), for the fixed 100 units/mm the solver always
+    uses. Bit-exact against the ``temper-constraints`` Rust impl for the
+    values it pins (see encoder.rs's unit tests); the even-parity adjustment
+    exists so sizes stay even for the model's midpoint constraint. The
+    diagonal-edge builder uses this so the half-plane vertices sit on the
+    same integer grid as the pad variables the CP-SAT encoding uses.
+    """
+    raw = round(mm * _UNITS_PER_MM)
+    if raw % 2:
+        raw -= 1
+    return raw
+
+
+# Diagonal-edge half-planes are computed at 100x the model resolution
+# (0.0001 mm) so a short edge keeps its true slope after integerization.
+# Quantizing the edge direction to the 0.01 mm model grid destroys the
+# slope of sub-0.1 mm edges (a 0.025 mm arc edge at the rounded end of the
+# +15V_LS strip becomes exactly horizontal), which rotates the half-plane
+# enough to exclude polygon vertices -- UNSOUND (measured 2026-08-04, 1,534
+# cells on the real board). At 0.0001 mm resolution the direction error is
+# <= ~0.0001 mm of line shift, absorbed by the margin headroom.
+_FINE_UNITS_PER_MM = 10_000
+# Scale factor from fine to model units (10000 / 100).
+_FINE_TO_MODEL = _FINE_UNITS_PER_MM // _UNITS_PER_MM
+
+
+def _mm_to_fine_units(mm: float) -> int:
+    """Round a mm coordinate to the fine (0.0001 mm) integer grid used by
+    the diagonal half-plane builder. Round-half-even (Python round); no
+    even-parity adjustment -- that exists only for model *sizes* (the
+    midpoint constraint), not for vertices."""
+    return round(mm * _FINE_UNITS_PER_MM)
+
 
 @dataclass(frozen=True)
 class PadRectLocal:
@@ -255,24 +373,38 @@ class FixedCopperItem:
     margin_mm: float
     label: str = ""
     # Optional polygon-exact zone encoding. ``edges`` holds one entry per
-    # polygon edge for a CONVEX, AXIS-ALIGNED (rectilinear) zone polygon:
-    # each entry is ("x"|"y", coord, sign) with sign encoding which side of
-    # the edge line the polygon interior lies AWAY from, i.e. the side the
-    # pad must be on to be separated:
-    #   ("x", c, +1) -> pad.x_min >= c   (interior is at x < c; pad clears
-    #                                     only by being wholly at x >= c)
-    #   ("x", c, -1) -> pad.x_max <= c   (interior is at x > c)
-    #   ("y", c, +1) -> pad.y_min >= c   (interior is at y < c)
-    #   ("y", c, -1) -> pad.y_max <= c   (interior is at y > c)
-    # A convex polygon is the intersection of its edge half-planes, so a
-    # pad is disjoint from it iff the pad lies wholly outside AT LEAST ONE
-    # half-plane -- encoded as a SINGLE BoolOr over one literal per edge
-    # (the direct analogue of the 4-way bbox disjunction, exact rather than
-    # conservative). For a non-convex rectilinear polygon the edge
-    # half-planes describe the CONVEX HULL: encoded-clear then implies the
-    # pad is outside the hull, hence outside the polygon -- still SOUND,
-    # with bounded conservatism equal to the hull-minus-polygon reach.
-    # Zones with diagonal edges keep the bbox encoding (``edges=None``).
+    # polygon edge for a CONVEX zone polygon (any orientation -- diagonal
+    # edges allowed; issue #651): a pad is disjoint from the convex polygon
+    # iff it lies wholly outside AT LEAST ONE edge half-plane, encoded as a
+    # single BoolOr over one literal per edge (the direct analogue of the
+    # 4-way bbox disjunction).
+    #
+    # Two entry formats coexist:
+    #   ("x"|"y", coord, sign) -- axis-aligned edge (the #567 form). ``coord``
+    #     is in mm (already shifted by margin), ``sign`` encodes which side
+    #     of the edge line the polygon interior lies AWAY from, i.e. the side
+    #     the pad must be on to be separated:
+    #       ("x", c, +1) -> pad.x_min >= c   (interior is at x < c)
+    #       ("x", c, -1) -> pad.x_max <= c   (interior is at x > c)
+    #       ("y", c, +1) -> pad.y_min >= c   (interior is at y < c)
+    #       ("y", c, -1) -> pad.y_max <= c   (interior is at y > c)
+    #   ("n", a, b, r) -- diagonal edge (issue #651). The pad clears iff its
+    #     minimum of the outward linear form is beyond the shifted offset:
+    #         min over pad of (a*x + b*y) >= r
+    #     where (a, b) = (dy, -dx) are the edge's direction components in
+    #     MODEL UNITS (integers; CP-SAT needs integer coefficients) and ``r``
+    #     is the integer RHS in model units = ceil(D0 + (margin + headroom)*L)
+    #     with D0 = a*x0u + b*y0u, L the edge length in units -- rounded UP
+    #     (conservative) and embedding the integer-grid headroom.
+    #
+    # For a CONVEX polygon the encoding is exact in the #567 sense for
+    # rectilinear zones and sound-but-conservative for diagonal-edge zones
+    # (chamfer-corner + large-pad conservatism, documented in the module
+    # docstring). For a non-convex polygon the edge half-planes describe the
+    # CONVEX HULL: encoded-clear then implies the pad is outside the hull,
+    # hence outside the polygon -- still SOUND, but the bbox fallback is
+    # used instead (edges=None) to keep the hull-minus-polygon reach out of
+    # the picture.
     # ``rect`` remains the bbox for the encoded_overlap BMC mirror and the
     # slack bookkeeping.
     edges: tuple | None = None
@@ -623,6 +755,142 @@ def _rectilinear_convex_edges(
     return tuple(edges)
 
 
+def _convex_polygon_edges(
+    polygon: list[tuple[float, float]], margin_mm: float
+) -> tuple | None:
+    """Per-edge half-plane separations for ANY convex polygon — axis-aligned
+    or diagonal edges — or ``None`` if the polygon is non-convex/degenerate.
+
+    Generalizes ``_rectilinear_convex_edges`` (#567) to general convex
+    polygons (issue #651). A convex polygon is the intersection of its edge
+    half-planes, so a pad is disjoint from it iff it lies wholly outside at
+    least one edge half-plane — one ``BoolOr`` over one literal per edge
+    (see ``FixedCopperItem.edges`` for the two entry formats).
+
+    * Axis-aligned edges keep the #567 ``("x"|"y", coord, sign)`` form
+      (mm, margin-shifted) so convex rectilinear zones behave exactly as
+      before.
+    * Diagonal edges are ``("n", a, b, r)``: the pad clears iff
+      ``min over pad of (a*x + b*y) >= r`` with x, y the pad's world rect
+      in model units, ``(a, b) = 100*(dy, -dx)`` the edge direction scaled
+      to integer model-unit coefficients, and ``r = ceil(D0 + (margin +
+      headroom) * L)`` where ``D0 = dy*x0 + (-dx)*y0`` and ``L`` is the
+      edge length -- all at 100x model resolution (0.0001 mm) so short
+      edges keep their true slope (quantizing to the 0.01 mm model grid
+      rotates the half-plane of a sub-0.1 mm edge enough to exclude
+      polygon vertices -- the unsoundness fixed 2026-08-04). The RHS is
+      rounded UP (a larger RHS is a stricter separation -- the conservative
+      direction) and embeds the integer-grid headroom so the quantization
+      of the vertices and pad edges can never push the guaranteed clearance
+      below the physical margin.
+
+    The polygon is normalized to CCW winding first; the interior of a CCW
+    polygon is LEFT of every directed edge, so the outward (exterior) side
+    is RIGHT and the pad must satisfy ``(dy, -dx) . p >= edge offset``.
+    Soundness and conservatism are documented in the module docstring
+    (convex-zone soundness section).
+    """
+    n = len(polygon)
+    if n < 3:
+        return None
+    # Signed area -> winding. Positive (math convention, y up) = CCW.
+    area2 = 0.0
+    for i in range(n):
+        x0, y0 = polygon[i]
+        x1, y1 = polygon[(i + 1) % n]
+        area2 += x0 * y1 - x1 * y0
+    if abs(area2) < 1e-9:
+        return None
+    cw = area2 < 0  # clockwise winding
+
+    def cross(ax, ay, bx, by):
+        return ax * by - ay * bx
+
+    # Convexity: every vertex must lie on the same (interior) side of every
+    # edge line. For CCW, interior is left (cross > 0); for CW, right.
+    for i in range(n):
+        x0, y0 = polygon[i]
+        x1, y1 = polygon[(i + 1) % n]
+        for (px, py) in polygon:
+            c = cross(x1 - x0, y1 - y0, px - x0, py - y0)
+            if cw:
+                c = -c
+            if c < -1e-9:
+                return None  # a vertex on the exterior side -> non-convex
+
+    def _axis_aligned(p0: tuple[float, float], p1: tuple[float, float]) -> bool:
+        return abs(p0[0] - p1[0]) < 1e-9 or abs(p0[1] - p1[1]) < 1e-9
+
+    if all(
+        _axis_aligned(polygon[i], polygon[(i + 1) % n]) for i in range(n)
+    ):
+        # Purely rectilinear: delegate to the legacy #567 encoder (it
+        # handles either winding and its exactness is pinned by the BMC
+        # test's encoded == exact assertion).
+        return _rectilinear_convex_edges(polygon, margin_mm)
+
+    # General convex polygon with at least one diagonal edge: normalize to
+    # CCW and emit the mixed-format edges (axis-aligned #567 form for
+    # axis-aligned edges, integer-unit half-planes for diagonal edges).
+    if cw:
+        polygon = list(reversed(polygon))
+    edges: list[tuple] = []
+    # The (margin + headroom) shift must be at the FINE scale to match d0
+    # and length_fine below (a model-scale shift here is 100x too small and
+    # shrinks the encoded clearance to ~0.0007 mm -- unsound, measured
+    # 2026-08-04).
+    margin_shift_fine = (margin_mm + _GRID_HEADROOM_MM) * _FINE_UNITS_PER_MM
+    for i in range(n):
+        x0, y0 = polygon[i]
+        x1, y1 = polygon[(i + 1) % n]
+        if abs(x0 - x1) < 1e-9:  # vertical edge at x = x0
+            upward = y1 > y0
+            # CCW interior is left of the directed edge: left of upward is
+            # x < x0 (pad clears at x >= x0 + margin); left of downward is
+            # x > x0 (pad clears at x <= x0 - margin).
+            if upward:
+                edges.append(("x", x0 + margin_mm, +1))
+            else:
+                edges.append(("x", x0 - margin_mm, -1))
+        elif abs(y0 - y1) < 1e-9:  # horizontal edge at y = y0
+            rightward = x1 > x0
+            # Left of rightward is y > y0 (pad clears at y <= y0 - margin);
+            # left of leftward is y < y0 (pad clears at y >= y0 + margin).
+            if rightward:
+                edges.append(("y", y0 - margin_mm, -1))
+            else:
+                edges.append(("y", y0 + margin_mm, +1))
+        else:
+            # Diagonal edge: half-plane (A, B, R), the pad clears iff
+            #   min over pad of (A*x + B*y) >= R
+            # with x, y the pad's world rect in MODEL units and (A, B, R)
+            # integers. The direction is computed at 100x model resolution
+            # (_FINE_UNITS_PER_MM) so a short edge keeps its true slope
+            # after integerization, then scaled by _FINE_TO_MODEL so the
+            # coefficients are integers in model-unit coordinates (CP-SAT
+            # requires integer linear coefficients). R is the fine-scale
+            # interior offset plus the (margin + headroom) shift, rounded UP
+            # (a larger RHS is a stricter separation -- conservative).
+            x0f = _mm_to_fine_units(x0)
+            y0f = _mm_to_fine_units(y0)
+            x1f = _mm_to_fine_units(x1)
+            y1f = _mm_to_fine_units(y1)
+            dxf = x1f - x0f
+            dyf = y1f - y0f
+            if dxf == 0 and dyf == 0:
+                # Edge collapses to a point; omitting its literal only makes
+                # the BoolOr stricter (fewer ways to clear) -- conservative,
+                # never unsound.
+                continue
+            a = dyf
+            b = -dxf
+            length_fine = math.hypot(dxf, dyf)
+            d0 = a * x0f + b * y0f
+            r = math.ceil(d0 + margin_shift_fine * length_fine)
+            edges.append(("n", a * _FINE_TO_MODEL, b * _FINE_TO_MODEL, r))
+    return tuple(edges) if edges else None
+
+
 
 def _zone_item(zone, margin) -> FixedCopperItem | None:
     """Conservative box for a zone (pour) outline.
@@ -639,10 +907,12 @@ def _zone_item(zone, margin) -> FixedCopperItem | None:
     if not layers:
         return None
     net = zone.net_classes[0] if zone.net_classes else None
-    edges = _rectilinear_convex_edges(polygon, margin)
+    edges = _convex_polygon_edges(polygon, margin)
     if edges is None:
-        # Non-rectilinear or non-convex: fall back to the documented bbox
+        # Non-convex or degenerate polygon: fall back to the documented bbox
         # encoding (sound; slack unbounded by construction, see docstring).
+        # On the production board all 96 zone items are convex, so this
+        # fallback is unreachable there (verified 2026-08-04).
         edges = None
     # The bbox corner overhang vs the polygon is not bounded analytically
     # for an arbitrary outline (a long diagonal pour's bbox corner can be
@@ -879,21 +1149,43 @@ def _add_no_overlap(
     m = model
     if item.kind == "zone" and item.edges:
         literals: list[Any] = []
-        for (axis, coord, sign) in item.edges:
-            c = m.mm_to_units(coord)
-            lit = m.model_ref.NewBoolVar(f"fc_zone_{pad.number}_{axis}{sign}")
-            if axis == "x":
-                if sign > 0:
-                    # pad.x_min >= c : x_center + ox - hwx >= c
-                    m.model_ref.Add(cv.x_center + ox - hwx >= c).OnlyEnforceIf(lit)
-                else:
-                    # pad.x_max <= c : x_center + ox + hwx <= c
-                    m.model_ref.Add(cv.x_center + ox + hwx <= c).OnlyEnforceIf(lit)
+        for entry in item.edges:
+            if entry[0] == "n":
+                # Diagonal edge half-plane (issue #651): the pad clears iff
+                #   min over pad of (a*x + b*y) >= r
+                # where (a, b) is the outward-normal edge direction in model
+                # units (integers) and r the integer offset (margin +
+                # headroom shifted, ceil-rounded). The min over the pad's
+                # world rectangle [x_center+ox-hwx, x_center+ox+hwx] x
+                # [y_center+oy-hwy, y_center+oy+hwy] is attained at the
+                # corner in direction (-a, -b):
+                #   a*(x_center+ox) + b*(y_center+oy) - |a|*hwx - |b|*hwy
+                # -- a single linear expression, no per-corner disjunction.
+                _, a, b, r = entry
+                lit = m.model_ref.NewBoolVar(f"fc_zone_{pad.number}_n{a}{b}")
+                m.model_ref.Add(
+                    a * (cv.x_center + ox)
+                    + b * (cv.y_center + oy)
+                    - abs(a) * hwx
+                    - abs(b) * hwy
+                    >= r
+                ).OnlyEnforceIf(lit)
             else:
-                if sign > 0:
-                    m.model_ref.Add(cv.y_center + oy - hwy >= c).OnlyEnforceIf(lit)
+                axis, coord, sign = entry
+                c = m.mm_to_units(coord)
+                lit = m.model_ref.NewBoolVar(f"fc_zone_{pad.number}_{axis}{sign}")
+                if axis == "x":
+                    if sign > 0:
+                        # pad.x_min >= c : x_center + ox - hwx >= c
+                        m.model_ref.Add(cv.x_center + ox - hwx >= c).OnlyEnforceIf(lit)
+                    else:
+                        # pad.x_max <= c : x_center + ox + hwx <= c
+                        m.model_ref.Add(cv.x_center + ox + hwx <= c).OnlyEnforceIf(lit)
                 else:
-                    m.model_ref.Add(cv.y_center + oy + hwy <= c).OnlyEnforceIf(lit)
+                    if sign > 0:
+                        m.model_ref.Add(cv.y_center + oy - hwy >= c).OnlyEnforceIf(lit)
+                    else:
+                        m.model_ref.Add(cv.y_center + oy + hwy <= c).OnlyEnforceIf(lit)
             literals.append(lit)
         m.model_ref.AddBoolOr(literals).OnlyEnforceIf(assumption)
         return
@@ -1047,10 +1339,28 @@ def encoded_overlap_edges(pad_rect: tuple[float, float, float, float], item: Fix
     (outside at least one edge line, shifted out by the margin) -- the exact
     analogue of ``_add_no_overlap``'s zone path: encoded overlap means the
     pad fails EVERY edge separation.
+
+    Axis-aligned edges are evaluated in mm directly (the #567 mirror); a
+    diagonal edge is evaluated on the model's integer grid -- the pad rect
+    is quantized with the same ``_mm_to_units`` the half-plane builder used
+    for the vertices, then the min of ``a*x + b*y`` over the unit rect is
+    compared to ``r``. This mirrors ``_add_no_overlap``'s diagonal path
+    within the component-rounding-order discrepancy (<= ~1.5 units, covered
+    by the diagonal edges' embedded grid headroom).
     """
     assert item.edges is not None  # encoded_overlap guards before dispatching
     x0, y0, x1, y1 = pad_rect
-    for (axis, coord, sign) in item.edges:
+    for entry in item.edges:
+        if entry[0] == "n":
+            _, a, b, r = entry
+            # Quantize the pad rect to the model grid, mirroring the
+            # encoder's per-component rounding for the pad's world edges.
+            px = _mm_to_units(x0) if a >= 0 else _mm_to_units(x1)
+            py = _mm_to_units(y0) if b >= 0 else _mm_to_units(y1)
+            if a * px + b * py >= r:
+                return False  # cleared via this edge -> no overlap
+            continue
+        axis, coord, sign = entry
         if axis == "x":
             if sign > 0:
                 if x0 >= coord:

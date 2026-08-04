@@ -8,6 +8,20 @@
 use pyo3::prelude::*;
 use pyo3::types::PyBytes;
 
+// This struct's whole method surface doubles as the pyo3 bridge (it is
+// registered directly via `m.add_class::<CongestionTensor>()` in lib.rs).
+// Unlike the free-function modules there is no separate kernel/wrapper
+// split possible here — pyo3's `pyclass`/`pymethods` macros consume the
+// struct's and impl block's inner attributes (`#[pyo3(get)]`, `#[new]`,
+// etc.) as raw tokens, so wrapping them individually in `cfg_attr` does
+// not work (they stop being recognized once `pyclass`/`pymethods` aren't
+// applied unconditionally). So the whole module is gated instead, at its
+// `pub mod congestion_tensor;` declaration in lib.rs, matching how
+// bridge.rs (wholly pyo3 surface) is handled. `cargo check` without
+// `--all-targets` never compiles `tests/test_congestion_tensor.rs` (a
+// plain-Rust consumer of this struct), so gating the whole module out of
+// the `--no-default-features` wasm32 build is safe: nothing in that
+// build configuration references it.
 #[pyclass(name = "CongestionTensor")]
 pub struct CongestionTensor {
     #[pyo3(get)]

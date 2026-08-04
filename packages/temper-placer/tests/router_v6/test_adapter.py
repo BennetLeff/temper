@@ -366,6 +366,166 @@ class TestApplyPlacementsToPcbCenterOffset:
         assert expected in result
 
 
+class TestApplyPlacementsToPcbRoundTrip:
+    """Round-trip oracle coverage for the adapter write path (U2).
+
+    Scoping note (docs/evidence/2026-08-02-validation-portfolio-review.md,
+    fix-before-execution #2): the adapter-path PASS claim is scoped to
+    components WITHOUT a center offset.  ``route_pcb`` callers do not wire
+    ``components=``/``rotations=`` through to ``_apply_placements_to_pcb``
+    (``_loop_routing.py`` passes neither), so on the center-offset class
+    the adapter writes the raw box centre -- the deferred R22 divergence;
+    that class asserts expected-FAIL with a documented SKIP below.
+    """
+
+    _SKELETON = """(kicad_pcb (version 20240108) (generator pcbnew)
+  (general (thickness 1.6))
+  (paper "A4")
+  (layers
+    (0 "F.Cu" signal)
+    (31 "B.Cu" signal)
+    (44 "Edge.Cuts" user)
+  )
+  (setup (pad_to_mask_clearance 0))
+{footprints}
+)"""
+
+    def _content(self, ref: str, at: str, pads: list[tuple[str, float, float, float | None]]) -> str:
+        """A minimal board with one footprint whose pads carry optional
+        absolute angles."""
+        pad_blocks = []
+        for num, px, py, p_ang in pads:
+            p_suffix = "" if p_ang is None else f" {p_ang}"
+            pad_blocks.append(
+                f'    (pad "{num}" smd rect (at {px} {py}{p_suffix}) (size 0.6 1.2)'
+                f' (layers "F.Cu" "F.Paste" "F.Mask") (net 1 "n1"))'
+            )
+        pads_str = "\n".join(pad_blocks)
+        fp = (
+            f'  (footprint "Test:SOIC" (layer "F.Cu")\n'
+            f"    (tstamp 00000000-0000-0000-0000-000000000001)\n"
+            f"    (at {at})\n"
+            f'    (property "Reference" "{ref}" (at 0 0 0) (layer "F.SilkS"))\n'
+            f"{pads_str}\n"
+            "  )"
+        )
+        return self._SKELETON.format(footprints=fp)
+
+    def _parse_components(self, tmp_path, content: str) -> list:
+        from pathlib import Path
+
+        from temper_placer.io.kicad_parser import parse_kicad_pcb
+
+        template = Path(tmp_path) / "template.kicad_pcb"
+        template.write_text(content, encoding="utf-8")
+        return parse_kicad_pcb(template, normalize=False).netlist.components
+
+    def _write_result(self, tmp_path, content: str) -> str:
+        from pathlib import Path
+
+        out = Path(tmp_path) / "written.kicad_pcb"
+        out.write_text(content, encoding="utf-8")
+        return str(out)
+
+    def test_rotations_supplied_symmetric_part_passes(self, tmp_path):
+        """U2 scenario 3: ``_apply_placements_to_pcb`` with a solved
+        rotations mapping, on a component WITHOUT center offset, round-trips
+        with PASS."""
+        content = self._content("U1", "10.0 20.0", [("1", -0.775, 0.0, None), ("2", 0.775, 0.0, None)])
+        components = self._parse_components(tmp_path, content)
+        symmetric = SimpleNamespace(ref="U1", attributes={"_center_offset_x": "0", "_center_offset_y": "0"})
+
+        placed = _apply_placements_to_pcb(
+            content,
+            {"U1": (50.0, 60.0)},
+            rotations={"U1": 90.0},
+            components=[symmetric],
+        )
+        written = self._write_result(tmp_path, placed)
+
+        from temper_placer.validation.placement_roundtrip import check_placement_roundtrip
+
+        result = check_placement_roundtrip(
+            written, {"U1": (50.0, 60.0)}, {"U1": 90.0}, components
+        )
+        assert result.passed, result.summary
+
+    def test_rotations_none_keeps_template_angles_passes(self, tmp_path):
+        """U2 scenario 4: ``rotations=None`` leaves every footprint angle
+        exactly as the template had it; the oracle PASSes (no rotation was
+        requested)."""
+        content = self._content(
+            "U1", "10.0 20.0 90.0", [("1", -0.775, 0.0, 90.0), ("2", 0.775, 0.0, 90.0)]
+        )
+        components = self._parse_components(tmp_path, content)
+
+        placed = _apply_placements_to_pcb(content, {"U1": (50.0, 60.0)})
+        assert "at 50.0000 60.0000 90.0" in placed
+        written = self._write_result(tmp_path, placed)
+
+        from temper_placer.validation.placement_roundtrip import check_placement_roundtrip
+
+        # rotations={} -- absent ref means "no rotation change": the model
+        # expects the template's own 90 degrees.
+        result = check_placement_roundtrip(written, {"U1": (50.0, 60.0)}, {}, components)
+        assert result.passed, result.summary
+
+    def test_falsifier_rotations_none_on_nonzero_solve_fails(self, tmp_path):
+        """U2 scenario 8 / falsifier: ``_apply_placements_to_pcb`` called
+        without rotations on a solve that chose a non-zero rotation -- the
+        exact 2026-07-30 incident class.  The oracle FAILS on footprint
+        angle and pad bodies."""
+        content = self._content("U1", "10.0 20.0", [("1", -0.775, 0.0, None), ("2", 0.775, 0.0, None)])
+        components = self._parse_components(tmp_path, content)
+
+        placed = _apply_placements_to_pcb(content, {"U1": (50.0, 60.0)})
+        written = self._write_result(tmp_path, placed)
+
+        from temper_placer.validation.placement_roundtrip import check_placement_roundtrip
+
+        result = check_placement_roundtrip(written, {"U1": (50.0, 60.0)}, {"U1": 90.0}, components)
+        assert not result.passed
+        kinds = {m.kind for m in result.mismatches}
+        assert "footprint_angle" in kinds
+        assert "pad_angle" in kinds
+
+    @pytest.mark.skip(
+        reason=(
+            "R22 deferred (docs/evidence/2026-08-02-validation-portfolio-review.md, "
+            "fix #2): route_pcb callers do not wire components=/rotations= through to "
+            "_apply_placements_to_pcb, so on the center-offset class the adapter write "
+            "path writes the raw box centre as the KiCad anchor -- the round-trip oracle "
+            "CANNOT pass on this class until the R22 position-frame fix lands. When it "
+            "does, remove this skip and assert result.passed instead. The assertion below "
+            "documents the expected-FAIL: the oracle must report a footprint_anchor "
+            "mismatch on the status-quo call shape."
+        )
+    )
+    def test_center_offset_class_expected_fail_pending_r22(self, tmp_path):
+        """Adapter path + center-offset footprint + status-quo call shape
+        (no components=, no rotations=): expected-FAIL.  The written anchor
+        is the raw box centre; the model's expected anchor is the centre
+        minus the R(-theta)-rotated center offset."""
+        content = self._content(
+            "Q1",
+            "10.0 20.0",
+            [("1", 0.0, 0.0, None), ("2", 20.0, 8.0, None)],
+        )
+        components = self._parse_components(tmp_path, content)
+        q1 = next(c for c in components if c.ref == "Q1")
+        assert q1.attributes["_center_offset_x"] == "10.0"
+
+        # Status-quo call shape (matches _loop_routing.py's route_pcb call).
+        placed = _apply_placements_to_pcb(content, {"Q1": (100.0, 100.0)})
+        written = self._write_result(tmp_path, placed)
+
+        from temper_placer.validation.placement_roundtrip import check_placement_roundtrip
+
+        result = check_placement_roundtrip(written, {"Q1": (100.0, 100.0)}, {}, components)
+        assert not result.passed
+        assert any(m.kind == "footprint_anchor" for m in result.mismatches)
+
+
 class TestRoutePcbErrorHandling:
     def test_no_source_path_raises_value_error(self):
         parsed = type("FakeParsed", (), {})()

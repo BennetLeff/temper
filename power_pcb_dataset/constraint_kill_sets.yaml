@@ -1,0 +1,352 @@
+schema_version: 1
+generated: '2026-08-02'
+generator: scripts/constraint_mutation_runner.py
+note: 'Kill-set register for the constraint mutation suite (R32). Each surface''s mutations are the R4 bug classes (sign-flip,
+  dropped-term, loosened-bound, off-by-one, double-count) applied at source level; outcome is killed when the surface''s existing
+  defenses (encoder unit-test mirrors + post-solve PlacementAuditor) fail. Survivors are triaged: benign (documented rationale),
+  test-gap (TODO), or non-applicable (mutation not expressible on the current code shape, with a recorded reason). Enforced
+  by scripts/constraint_mutation_gate.py.'
+families:
+  placer-pcl-handlers:
+    status: active
+    surfaces:
+    - id: adjacent
+      constraint_type: ADJACENT
+      handler_module: temper_placer.placer.cp_sat.handlers.adjacent
+      mutations:
+      - id: adj_drop_x_direction
+        operator: dropped-term
+        description: 'second edge-to-edge x bound (vb.x_start - va.x_end <= max_d) dropped: the pair may drift arbitrarily
+          far apart in the b-right-of-a direction'
+        outcome: survived
+        triage: test-gap
+        triage_rationale: 'The b-left-of-a direction bound is dropped, so the pair may drift arbitrarily far in that direction.
+          The existing test''s origin-parked solve (no objective) never exploits it and the auditor sees the parked (still
+          adjacent) placement. TODO: a probe that incentivizes the solver to separate the pair (plan 2026-08-02-005 exhaustive
+          bound).'
+      - id: adj_loosened_bound
+        operator: loosened-bound
+        description: 'max_distance_mm doubled before mm_to_units: the enforced proximity cap is twice the stated requirement'
+        outcome: survived
+        triage: test-gap
+        triage_rationale: 'The proximity cap is doubled; the parked solve has coincident centers so the doubled cap is unobservable.
+          TODO: a probe that forces the pair apart (plan 2026-08-02-005).'
+      - id: adj_off_by_one
+        operator: off-by-one
+        description: 'max_distance_mm loosened by one grid unit (max_d + 1): a 0.01 mm fencepost error in the proximity cap'
+        outcome: survived
+        triage: benign
+        triage_rationale: Cap loosened by 1 grid unit = 0.01 mm at units_per_mm=100 — below placement and audit resolution;
+          the stated mm requirement is unaffected at any enforceable precision.
+      - id: adj_sign_flip_comparison
+        operator: sign-flip
+        description: 'first edge-to-edge x bound direction flipped (va.x_start - vb.x_end <= max_d becomes >= max_d): the
+          proximity cap becomes a minimum-distance floor on x'
+        outcome: killed
+        defenses_fired:
+        - encoder-unit:adjacent
+      killed:
+      - adj_sign_flip_comparison
+      survived:
+      - adj_drop_x_direction
+      - adj_loosened_bound
+      - adj_off_by_one
+    - id: aligned
+      constraint_type: ALIGNED
+      handler_module: temper_placer.placer.cp_sat.handlers.aligned
+      mutations:
+      - id: align_drop_direction
+        operator: dropped-term
+        description: 'reverse-direction alignment bound (cvb - cva <= tol_u) dropped: one direction of the |diff| <= tol pair
+          is unconstrained'
+        outcome: survived
+        triage: test-gap
+        triage_rationale: 'One direction of |diff| <= tol is dropped; with all centers coincident in the parked solve the
+          drop is invisible. TODO: an adversarial probe that spreads the components (plan 2026-08-02-005).'
+      - id: align_loosened_tol
+        operator: loosened-bound
+        description: 'tolerance doubled before mm_to_units: the enforced alignment tolerance is twice the stated requirement'
+        outcome: survived
+        triage: test-gap
+        triage_rationale: 'Tolerance doubled; unobservable while the solve parks all components at the same center. TODO:
+          a spread probe (plan 2026-08-02-005).'
+      - id: align_off_by_one
+        operator: off-by-one
+        description: 'tolerance loosened by one grid unit (tol_u + 1): a 0.01 mm fencepost error in the alignment tolerance'
+        outcome: survived
+        triage: benign
+        triage_rationale: Tolerance loosened by 1 grid unit = 0.01 mm — below placement and audit resolution.
+      - id: align_sign_flip_comparison
+        operator: sign-flip
+        description: 'first axis alignment comparison flipped (cva - cvb <= tol_u becomes cva - cvb >= tol_u): the tolerance
+          cap becomes a minimum-separation floor'
+        outcome: killed
+        defenses_fired:
+        - encoder-unit:aligned
+        - placement-auditor:aligned
+      killed:
+      - align_sign_flip_comparison
+      survived:
+      - align_drop_direction
+      - align_loosened_tol
+      - align_off_by_one
+    - id: anchored
+      constraint_type: ANCHORED
+      handler_module: temper_placer.placer.cp_sat.handlers.anchored
+      mutations:
+      - id: anchor_drop_y_center
+        operator: dropped-term
+        description: 'v.y_center == py_u dropped: the component''s y coordinate is unanchored'
+        outcome: killed
+        defenses_fired:
+        - encoder-unit:anchored
+        - placement-auditor:anchored
+      - id: anchor_off_by_one_x
+        operator: off-by-one
+        description: 'x anchor target shifted by one grid unit (px_u + 1): a 0.01 mm fencepost error in the anchor position'
+        outcome: survived
+        triage: benign
+        triage_rationale: Anchor target shifted by 1 grid unit = 0.01 mm. The existing test tolerance is ±50 units (0.5 mm);
+          a 0.01 mm anchor error is below placement precision.
+      - id: anchor_sign_flip_y_pos
+        operator: sign-flip
+        description: 'y position sign flipped (v.y_center == py_u becomes v.y_center == -py_u): the anchor target is negative,
+          which no valid IntVar can equal'
+        outcome: killed
+        defenses_fired:
+        - encoder-unit:anchored
+        - placement-auditor:anchored
+      killed:
+      - anchor_drop_y_center
+      - anchor_sign_flip_y_pos
+      survived:
+      - anchor_off_by_one_x
+    - id: enclosing
+      constraint_type: ENCLOSING
+      handler_module: temper_placer.placer.cp_sat.handlers.enclosing
+      mutations:
+      - id: enc_drop_y_start
+        operator: dropped-term
+        description: 'v.y_start >= zy_min_u + margin_u dropped: the component may start below the zone''s lower boundary'
+        outcome: killed
+        defenses_fired:
+        - encoder-unit:enclosing
+        - placement-auditor:enclosing
+      - id: enc_loosened_margin
+        operator: loosened-bound
+        description: 'zone margin halved before mm_to_units: the enforced inset is half the stated margin, so components may
+          sit closer to the zone edge'
+        outcome: no-op
+        detail: encoder output identical on every probe input (mutation not exercised)
+      - id: enc_off_by_one_margin
+        operator: off-by-one
+        description: 'zone margin loosened by one grid unit (margin_u - 1): a 0.01 mm fencepost error in the margin comparison'
+        outcome: killed
+        defenses_fired:
+        - encoder-unit:enclosing
+        - placement-auditor:enclosing
+      - id: enc_sign_flip_y_min
+        operator: sign-flip
+        description: 'y_min bound direction flipped (v.y_start >= zy_min_u + margin_u becomes v.y_start <= zy_min_u + margin_u):
+          the component is pushed toward/out of the zone bottom instead of kept inside'
+        outcome: killed
+        defenses_fired:
+        - encoder-unit:enclosing
+        - placement-auditor:enclosing
+      killed:
+      - enc_drop_y_start
+      - enc_off_by_one_margin
+      - enc_sign_flip_y_min
+      survived: []
+    - id: keepout
+      constraint_type: KEEPOUT
+      handler_module: temper_placer.placer.cp_sat.handlers.keepout
+      mutations:
+      - id: keepout_double_count_margin
+        operator: double-count
+        description: 'keepout margin counted twice (2 * margin_u becomes 4 * margin_u in both interval sizes): the keepout
+          grows by two extra margins'
+        outcome: non-applicable
+        detail: 'transform failed: expected 2 margin-doubled sizes, mutated 0 (mutation not expressible on the current code
+          shape)'
+        triage: non-applicable
+        triage_rationale: keepout margin arithmetic moved into the Rust kernel (temper_constraints.keepout_rect_units_py)
+          by main's Wave 4 migration; the Python source no longer carries the assignments this mutation targets, so it is
+          not expressible on the current code shape. Rust-side mutation testing of the kernel is plan 2026-08-02-012 (R34)
+          scope.
+      - id: keepout_drop_no_overlap
+        operator: dropped-term
+        description: 'AddNoOverlap2D statement dropped: the keepout interval is created but never enforced, so components
+          may overlap the keepout zone'
+        outcome: killed
+        defenses_fired:
+        - encoder-unit:test_keepout_mutation_defense::test_origin_zone_keepout
+      - id: keepout_loosened_interval
+        operator: loosened-bound
+        description: 'keepout interval size halved: the enforced keepout is half its stated extent (a looser constraint)'
+        outcome: non-applicable
+        detail: 'transform failed: kx_w assignment not found (mutation not expressible on the current code shape)'
+        triage: non-applicable
+        triage_rationale: keepout margin arithmetic moved into the Rust kernel (temper_constraints.keepout_rect_units_py)
+          by main's Wave 4 migration; the Python source no longer carries the assignments this mutation targets, so it is
+          not expressible on the current code shape. Rust-side mutation testing of the kernel is plan 2026-08-02-012 (R34)
+          scope.
+      - id: keepout_sign_flip_start
+        operator: sign-flip
+        description: 'keepout start sign flipped (kx_s = mm_to_units(zx_min) - margin_u becomes kx_s = margin_u - mm_to_units(zx_min)):
+          the interval is mirrored about the origin'
+        outcome: non-applicable
+        detail: 'transform failed: expected 1 kx_s assignment, flipped 0 (mutation not expressible on the current code shape)'
+        triage: non-applicable
+        triage_rationale: keepout margin arithmetic moved into the Rust kernel (temper_constraints.keepout_rect_units_py)
+          by main's Wave 4 migration; the Python source no longer carries the assignments this mutation targets, so it is
+          not expressible on the current code shape. Rust-side mutation testing of the kernel is plan 2026-08-02-012 (R34)
+          scope.
+      killed:
+      - keepout_drop_no_overlap
+      survived: []
+    - id: loop_area
+      constraint_type: LOOP_AREA
+      handler_module: temper_placer.placer.cp_sat.handlers.loop_area
+      mutations:
+      - id: loop_double_count_units
+        operator: double-count
+        description: 'units_per_mm applied twice in the mm2 -> units2 ceiling conversion: the cap is multiplied by an extra
+          units-per-mm factor'
+        outcome: survived
+        triage: test-gap
+        triage_rationale: 'The mm2 -> units2 conversion multiplies by units_per_mm twice — a 100x loosened ceiling. Invisible
+          because the anchored-spread AABB (~1764 mm^2) sits far below even the unmutated 5000 mm^2 cap. TODO: a probe whose
+          AABB approaches the ceiling (plan 2026-08-02-005).'
+      - id: loop_drop_aabb_max_x
+        operator: dropped-term
+        description: 'loop_x_max >= v.x_end dropped: the AABB''s x maximum is unconstrained, so the computed width (and area)
+          can understate the true loop extent'
+        outcome: survived
+        triage: test-gap
+        triage_rationale: 'The AABB x-max bound is dropped, so the encoded area can understate the true loop extent. Unobservable
+          while solved AABBs are compact. TODO: a probe with a wide spread (plan 2026-08-02-005).'
+      - id: loop_loosened_ceiling
+        operator: loosened-bound
+        description: 'max_area ceiling doubled: the enforced loop-area cap is twice the stated requirement'
+        outcome: survived
+        triage: test-gap
+        triage_rationale: 'The area ceiling is doubled; unobservable while the solved AABB is well under the cap. TODO: a
+          probe whose AABB approaches the ceiling (plan 2026-08-02-005).'
+      - id: loop_off_by_one
+        operator: off-by-one
+        description: 'area ceiling loosened by one grid unit (max_area_units + 1): a fencepost error in the area cap'
+        outcome: survived
+        triage: benign
+        triage_rationale: Ceiling loosened by 1 grid unit^2 = 0.0001 mm^2 — utterly negligible.
+      - id: loop_sign_flip_ceiling
+        operator: sign-flip
+        description: 'area ceiling direction flipped (area <= max_area_units becomes area >= max_area_units): the ceiling
+          becomes a minimum-area floor'
+        outcome: killed
+        defenses_fired:
+        - encoder-unit:test_loop_area_mutation_defense::test_anchored_spread_ceiling
+      killed:
+      - loop_sign_flip_ceiling
+      survived:
+      - loop_double_count_units
+      - loop_drop_aabb_max_x
+      - loop_loosened_ceiling
+      - loop_off_by_one
+    - id: onside
+      constraint_type: ON_SIDE
+      handler_module: temper_placer.placer.cp_sat.handlers.onside
+      mutations:
+      - id: oside_drop_constraint
+        operator: dropped-term
+        description: 'left-edge onside bound dropped entirely: the component is no longer pinned near the left edge'
+        outcome: survived
+        triage: test-gap
+        triage_rationale: 'The left-edge bound is dropped entirely; the component still parks at the origin, which satisfies
+          the left-edge assertion, so the drop is invisible. TODO: a probe with an objective or other constraints pulling
+          the component away from the edge (plan 2026-08-02-005).'
+      - id: oside_loosened_bound
+        operator: loosened-bound
+        description: 'max_distance_mm doubled before mm_to_units: components may sit twice as far from the edge as stated'
+        outcome: survived
+        triage: test-gap
+        triage_rationale: 'The edge-distance cap is doubled; unobservable while the component parks at the origin. TODO: a
+          probe pulling the component off the edge (plan 2026-08-02-005).'
+      - id: oside_off_by_one
+        operator: off-by-one
+        description: 'max_distance_mm loosened by one grid unit (max_d_u + 1): a 0.01 mm fencepost error in the edge-distance
+          cap'
+        outcome: survived
+        triage: benign
+        triage_rationale: Cap loosened by 1 grid unit = 0.01 mm — below placement and audit resolution.
+      - id: oside_sign_flip_bound
+        operator: sign-flip
+        description: 'left-edge bound sign flipped (v.x_start <= board_x_min + max_d_u becomes v.x_start <= board_x_min -
+          max_d_u): the margin is subtracted, pushing the allowed start negative (infeasible)'
+        outcome: killed
+        defenses_fired:
+        - encoder-unit:onside
+        - placement-auditor:onside
+      killed:
+      - oside_sign_flip_bound
+      survived:
+      - oside_drop_constraint
+      - oside_loosened_bound
+      - oside_off_by_one
+    - id: separated
+      constraint_type: SEPARATED
+      handler_module: temper_placer.placer.cp_sat.handlers.separated
+      mutations:
+      - id: sep_drop_y_ok_clause
+        operator: dropped-term
+        description: 'y_ok definitional clause AddBoolOr([y_ok.Not(), below, above]) dropped: y_ok becomes a free literal,
+          so the final x_ok ∨ y_ok disjunction is satisfiable without any y separation (the weak-nooverlap2d class)'
+        outcome: survived
+        triage: test-gap
+        triage_rationale: 'WEAK-NOOVERLAP2D CLASS: dropping the y_ok definitional clause frees the literal, so the final x_ok
+          ∨ y_ok disjunction is satisfiable with y_ok=true and NO y separation enforced — the encoding under-delivers the
+          stated clearance. Neither existing defense catches it: the encoder test asserts at-least-one-axis and the auditor''s
+          max(dx, dy) Chebyshev gap equals the enforced margin even when one axis fully overlaps (the plan''s U1 scenario
+          expected an auditor kill; empirically it survives — the plan''s expectation was wrong, and the suite records reality).
+          TODO: one-axis separation check in the auditor (plan 2026-08-02-016) or an exhaustive encoder-vs-auditor test (plan
+          2026-08-02-005).'
+      - id: sep_loosened_margin
+        operator: loosened-bound
+        description: 'min_distance_mm margin halved before mm_to_units: the enforced Chebyshev clearance is half the stated
+          requirement'
+        outcome: killed
+        defenses_fired:
+        - encoder-unit:separated
+        - placement-auditor:separated
+      - id: sep_off_by_one_x
+        operator: off-by-one
+        description: 'x-axis direction bounds loosened by one grid unit (margin - 1): a 0.01 mm fencepost error in the x separation'
+        outcome: killed
+        defenses_fired:
+        - placement-auditor:separated
+      - id: sep_sign_flip_x_margin
+        operator: sign-flip
+        description: 'x-axis separation margin sign flipped on both direction constraints (a.x_end + margin <= b.x_start becomes
+          a.x_end - margin <= b.x_start): components may overlap by up to the margin on x'
+        outcome: killed
+        defenses_fired:
+        - encoder-unit:separated
+        - placement-auditor:separated
+      killed:
+      - sep_loosened_margin
+      - sep_off_by_one_x
+      - sep_sign_flip_x_margin
+      survived:
+      - sep_drop_y_ok_clause
+  router-v6-topology:
+    status: deferred
+    deferred_reason: The router-V6 topology family's ESL/BMC defense machinery (esl.py, bmc.py, test_bmc_*.py) was removed
+      in commit 772776115; without those defenses there is nothing for a mutation to be killed against. The mutation suite
+      measures existing defenses only (KTD2), and plan 2026-08-02-005 (which restores the family's exhaustive ground truth)
+      is not landing in this changeset. Once the family regains defenses, move these entries from deferred to active with
+      a non-empty killed set. The family is also slated for review under the Wave 4 Rust migration.
+    classes:
+    - CapacityConstraint
+    - DiffPairConstraint
+    - LayerConstraint
+    - ChannelSeparationConstraint

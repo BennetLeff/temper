@@ -857,4 +857,231 @@ mod tests {
         assert!((ROTATION_ANGLES_DEG[2] - 180.0).abs() < 1e-15);
         assert!((ROTATION_ANGLES_DEG[3] - 270.0).abs() < 1e-15);
     }
+
+    // -----------------------------------------------------------------
+    // Exhaustive algebra over ROTATION_ANGLES_RAD (plan 011, U2):
+    // composition closure, inverse round-trip, convention anchors,
+    // one-hot round-trip, and the sign-flip falsifier. Mirrors the Python
+    // exhaustive suite in
+    // packages/temper-placer/tests/geometry/test_kicad_transform_algebra.py;
+    // the differential test keeps the two in lockstep.
+    // -----------------------------------------------------------------
+
+    /// Closed-form R(-theta) at the finite angle set, exact integer entries
+    /// -- the algebraic oracle for the R(-theta) convention anchors (NOT a
+    /// second numerical implementation). Panics on non-quadrant angles so a
+    /// misused helper fails the test, not silently drifts.
+    fn quadrant_rotate_minus(px: f64, py: f64, angle_rad: f64) -> Point {
+        let two_pi = 2.0 * std::f64::consts::PI;
+        let a = (angle_rad % two_pi + two_pi) % two_pi;
+        if (a - 0.0).abs() < 1e-12 {
+            Point::new(px, py)
+        } else if (a - std::f64::consts::FRAC_PI_2).abs() < 1e-12 {
+            Point::new(py, -px)
+        } else if (a - std::f64::consts::PI).abs() < 1e-12 {
+            Point::new(-px, -py)
+        } else if (a - 3.0 * std::f64::consts::FRAC_PI_2).abs() < 1e-12 {
+            Point::new(-py, px)
+        } else {
+            panic!("not a quadrant angle: {angle_rad}");
+        }
+    }
+
+    /// The flipped-convention reference R(+theta), computed with the
+    /// sanctioned CCW `get_rotation_matrix` -- the sign every pre-fix site
+    /// computed. Used by the falsifier tests to prove the anchors and the
+    /// non-masking composition pairs actually discriminate a sign flip.
+    fn r_plus(px: f64, py: f64, theta_rad: f64) -> Point {
+        let m = get_rotation_matrix(theta_rad);
+        Point::new(m[0][0] * px + m[0][1] * py, m[1][0] * px + m[1][1] * py)
+    }
+
+    /// Normalize an angle to [0, 2π).
+    fn norm_angle(angle_rad: f64) -> f64 {
+        let two_pi = 2.0 * std::f64::consts::PI;
+        (angle_rad % two_pi + two_pi) % two_pi
+    }
+
+    const TEST_OFFSETS: [(f64, f64); 5] =
+        [(0.5, 0.3), (2.0, -1.0), (5.0, 0.0), (3.7, -2.1), (-5.0, 5.0)];
+
+    #[test]
+    fn test_rotate_point_composition_closes_over_finite_angle_set() {
+        // R(θ1)(R(θ2)(p)) == R(θ1+θ2)(p) mod 2π for all 16 pairs over
+        // ROTATION_ANGLES_RAD and every offset.
+        let mut n_checked = 0;
+        for &t1 in &ROTATION_ANGLES_RAD {
+            for &t2 in &ROTATION_ANGLES_RAD {
+                for &(px, py) in &TEST_OFFSETS {
+                    let p = Point::new(px, py);
+                    let composed = rotate_point(&rotate_point(&p, t1, None), t2, None);
+                    let expected = rotate_point(&p, norm_angle(t1 + t2), None);
+                    assert!(
+                        (composed.x - expected.x).abs() < 1e-9,
+                        "pair ({t1}, {t2}) offset ({px}, {py}): {} vs {}",
+                        composed.x,
+                        expected.x
+                    );
+                    assert!(
+                        (composed.y - expected.y).abs() < 1e-9,
+                        "pair ({t1}, {t2}) offset ({px}, {py}): {} vs {}",
+                        composed.y,
+                        expected.y
+                    );
+                    n_checked += 1;
+                }
+            }
+        }
+        assert_eq!(n_checked, 16 * TEST_OFFSETS.len());
+    }
+
+    #[test]
+    fn test_rotate_point_inverse_round_trip_over_finite_angle_set() {
+        // R(-θ)(R(θ)(p)) == p for every angle in the finite set. `rotate_point`
+        // is the CCW R(+θ) family, so its inverse is rotate_point(p, -θ).
+        for &t in &ROTATION_ANGLES_RAD {
+            for &(px, py) in &TEST_OFFSETS {
+                let p = Point::new(px, py);
+                let rotated = rotate_point(&p, t, None);
+                let back = rotate_point(&rotated, -t, None);
+                assert!((back.x - px).abs() < 1e-9, "angle {t}, offset ({px}, {py})");
+                assert!((back.y - py).abs() < 1e-9, "angle {t}, offset ({px}, {py})");
+            }
+        }
+    }
+
+    #[test]
+    fn test_transform_pin_position_convention_anchor_over_finite_angle_set() {
+        // transform_pin_position's R(-theta) convention anchored at every
+        // angle of the finite set with asymmetric offsets, against the
+        // closed-form quadrant law. A sign flip produces the opposite
+        // quadrant result and fails (e.g. (2.0, -1.0) at 90°: R(-90) ->
+        // (-1, -2) but R(+90) -> (1, 2)).
+        let origin = Point::zero();
+        for (i, &t) in ROTATION_ANGLES_RAD.iter().enumerate() {
+            for &(px, py) in &TEST_OFFSETS {
+                let got = transform_pin_position(&Point::new(px, py), &origin, t);
+                let expected = quadrant_rotate_minus(px, py, t);
+                assert!(
+                    (got.x - expected.x).abs() < 1e-9,
+                    "angle index {i} ({t}) offset ({px}, {py}): {} vs {}",
+                    got.x,
+                    expected.x
+                );
+                assert!(
+                    (got.y - expected.y).abs() < 1e-9,
+                    "angle index {i} ({t}) offset ({px}, {py}): {} vs {}",
+                    got.y,
+                    expected.y
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn test_transform_pin_positions_batch_convention_anchor() {
+        // The batch form must satisfy the same anchors as the single form.
+        let origin = Point::zero();
+        for &t in &ROTATION_ANGLES_RAD {
+            let flat: Vec<f64> = TEST_OFFSETS.iter().flat_map(|&(x, y)| [x, y]).collect();
+            let out = transform_pin_positions(
+                &flat
+                    .chunks(2)
+                    .map(|c| Point::new(c[0], c[1]))
+                    .collect::<Vec<_>>(),
+                &origin,
+                t,
+            );
+            for (k, &(px, py)) in TEST_OFFSETS.iter().enumerate() {
+                let expected = quadrant_rotate_minus(px, py, t);
+                assert!((out[k].x - expected.x).abs() < 1e-9, "angle {t} offset ({px}, {py})");
+                assert!((out[k].y - expected.y).abs() < 1e-9, "angle {t} offset ({px}, {py})");
+            }
+        }
+    }
+
+    #[test]
+    fn test_rotation_encoding_round_trip_over_finite_angle_set() {
+        // index -> one-hot -> degrees and degrees -> one-hot -> degrees are
+        // both the identity on the finite set.
+        for (i, &deg) in ROTATION_ANGLES_DEG.iter().enumerate() {
+            let onehot = rotation_index_to_onehot(i, ROTATION_ANGLES_DEG.len());
+            let deg_back = onehot_to_rotation_degrees(&onehot, &ROTATION_ANGLES_DEG);
+            assert!(
+                (deg - deg_back).abs() < 1e-15,
+                "index {i}: {deg} != {deg_back}"
+            );
+
+            let onehot_deg = rotation_degrees_to_onehot(deg, &ROTATION_ANGLES_DEG);
+            let deg_back_2 = onehot_to_rotation_degrees(&onehot_deg, &ROTATION_ANGLES_DEG);
+            assert!(
+                (deg - deg_back_2).abs() < 1e-15,
+                "degrees {deg}: {deg} != {deg_back_2}"
+            );
+        }
+    }
+
+    #[test]
+    fn test_transform_pin_position_sign_flip_discriminates_at_90_and_270() {
+        // Falsifier: prove the convention anchors actually discriminate.
+        // At 90° and 270°, transform_pin_position (R(-θ)) must differ from
+        // the flipped R(+θ) reference by O(1) on asymmetric offsets; if the
+        // implementation were reverted to R(+theta), this fails.
+        let origin = Point::zero();
+        for &t in &[std::f64::consts::FRAC_PI_2, 3.0 * std::f64::consts::FRAC_PI_2] {
+            for &(px, py) in &[(0.5, 0.3), (2.0, -1.0), (3.7, -2.1), (-5.0, 5.0)] {
+                let got = transform_pin_position(&Point::new(px, py), &origin, t);
+                let flipped = r_plus(px, py, t);
+                assert!(
+                    (got.x - flipped.x).abs() > 1e-6 || (got.y - flipped.y).abs() > 1e-6,
+                    "angle {t} offset ({px}, {py}): R(-θ) {:?} vs R(+θ) {:?} coincide",
+                    got,
+                    flipped
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn test_transform_pin_position_composition_discriminates_only_non_masking_pairs() {
+        // Falsifier: composition R(-θ1)·R(-θ2) discriminates a sign flip
+        // only when θ1+θ2 ∉ {0, 180} mod 360. The 8 non-masking pairs must
+        // produce a composed result different from the flipped
+        // R(+(θ1+θ2)) reference; the 8 masking pairs (including (90, 270)
+        // and (90, 90)) coincide with it -- this suite never relies on them
+        // to detect a sign flip.
+        let origin = Point::zero();
+        let mut non_masking = 0usize;
+        let mut masking = 0usize;
+        for &t1 in &ROTATION_ANGLES_RAD {
+            for &t2 in &ROTATION_ANGLES_RAD {
+                let sum_norm = norm_angle(t1 + t2);
+                let is_masking =
+                    (sum_norm).abs() < 1e-9 || (sum_norm - std::f64::consts::PI).abs() < 1e-9;
+                for &(px, py) in &[(0.5, 0.3), (2.0, -1.0), (3.7, -2.1), (-5.0, 5.0)] {
+                    let pin = Point::new(px, py);
+                    let composed =
+                        transform_pin_position(&transform_pin_position(&pin, &origin, t1), &origin, t2);
+                    let flipped = r_plus(px, py, sum_norm);
+                    let differs =
+                        (composed.x - flipped.x).abs() > 1e-6 || (composed.y - flipped.y).abs() > 1e-6;
+                    if is_masking {
+                        // Masking pair: composed coincides with the flipped
+                        // reference -- cannot discriminate.
+                        assert!(!differs, "masking pair ({t1}, {t2}) unexpectedly discriminates");
+                        masking += 1;
+                    } else {
+                        assert!(
+                            differs,
+                            "non-masking pair ({t1}, {t2}) offset ({px}, {py}) failed to discriminate"
+                        );
+                        non_masking += 1;
+                    }
+                }
+            }
+        }
+        // 8 non-masking pairs x 4 asymmetric offsets each.
+        assert_eq!(non_masking, 8 * 4);
+        assert_eq!(masking, 8 * 4);
+    }
 }

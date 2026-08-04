@@ -37,8 +37,6 @@ footprints and the absolute pad angles were propagated into the board
 
 from __future__ import annotations
 
-import contextlib
-import json
 import os
 import re
 import statistics
@@ -49,6 +47,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 import pytest
+
+from tests.placer.cp_sat._parallel_drc import run_drc_loud, run_drc_samples
 
 TEMPER_PLACER_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 REPO_ROOT = TEMPER_PLACER_ROOT.parent.parent
@@ -75,51 +75,6 @@ def _kicad_cli_available() -> bool:
         return result.returncode == 0
     except (FileNotFoundError, subprocess.TimeoutExpired):
         return False
-
-
-def _run_drc(pcb_path: str) -> dict:
-    """Run kicad-cli DRC and return parsed JSON dict."""
-    drc_out = Path(tempfile.mktemp(suffix=".json"))
-    try:
-        proc = subprocess.run(
-            [
-                "kicad-cli",
-                "pcb",
-                "drc",
-                "--format",
-                "json",
-                "-o",
-                str(drc_out),
-                pcb_path,
-            ],
-            capture_output=True,
-            text=True,
-            timeout=120,
-        )
-        stderr_summary = proc.stderr.strip()[:200] if proc.returncode != 0 and proc.stderr else ""
-    except subprocess.TimeoutExpired:
-        if drc_out.exists():
-            os.unlink(drc_out)
-        pytest.skip("kicad-cli DRC timed out")
-        return {}
-    except Exception:
-        if drc_out.exists():
-            os.unlink(drc_out)
-        raise
-
-    if not drc_out.exists():
-        pytest.skip(
-            "kicad-cli DRC produced no output file"
-            + (f": {stderr_summary}" if stderr_summary else "")
-        )
-        return {}
-
-    try:
-        with open(drc_out) as f:
-            return json.load(f)
-    finally:
-        with contextlib.suppress(OSError):
-            os.unlink(drc_out)
 
 
 def _load_pcl_constraints(config_path: Path) -> list:
@@ -250,8 +205,27 @@ def test_golden_board_drc_regression(monkeypatch: pytest.MonkeyPatch, request: p
         placed_path = tmp.name
 
     try:
+        # 5b. Round-trip oracle (plan 2026-08-02-009 U3): re-parse the
+        # written artifact and assert write-vs-model agreement BEFORE any
+        # DRC measurement.  A dropped or mis-signed rotation here would
+        # otherwise only surface (if at all) as a DRC-count regression
+        # much later -- this assertion makes it immediate.
+        from temper_placer.validation.placement_roundtrip import (
+            check_placement_roundtrip,
+        )
+
+        rt = check_placement_roundtrip(
+            placed_path,
+            result.to_placements_dict(),
+            result.to_rotations_dict(),
+            netlist.components,
+        )
+        assert rt.passed, (
+            f"Round-trip oracle FAILED after golden-board write: {rt.summary}"
+        )
+
         # 6. Run kicad-cli DRC and parse
-        drc_data = _run_drc(placed_path)
+        drc_data = run_drc_loud(placed_path, timeout=120, label="golden-board")
         violations = drc_data.get("violations", [])
 
         # 7. Count violations by type, distinguishing placement-fixable
@@ -332,6 +306,52 @@ def test_golden_board_drc_regression(monkeypatch: pytest.MonkeyPatch, request: p
             raise AssertionError(
                 annotate_failure(request.node.nodeid, signature, str(exc))
             ) from exc
+    finally:
+        os.unlink(tmp.name)
+
+
+def test_golden_board_rotation_drop_mutant_fails_oracle() -> None:
+    """U3 falsifier: substituting a rotation-drop mutant board into the
+    golden-board write flow fails at the oracle assertion -- the written
+    footprints' angles do not match the model's solved rotations.  This is
+    the exact 2026-07-30 incident class (a caller that never applied the
+    solved rotation); the oracle catches it before any DRC count is
+    compared (plan 2026-08-02-009 U3 scenario 3)."""
+    from temper_placer.io.kicad_parser import parse_kicad_pcb
+    from temper_placer.router_v6.adapter import _apply_placements_to_pcb
+    from temper_placer.validation.placement_roundtrip import (
+        check_placement_roundtrip,
+    )
+
+    parse_result = parse_kicad_pcb(BOARD_PATH)
+    netlist = parse_result.netlist
+
+    # The golden-board write shape, but with the solved rotation dropped
+    # (the pre-fix caller passed no `rotations=` -- _loop_routing.py's
+    # status-quo call): positions move, angles stay byte-identical.
+    # Use refs whose template angle is 0 so a claimed 90-deg solve is
+    # unambiguous.
+    zero_angle_refs = [
+        c.ref
+        for c in netlist.components
+        if float(c.attributes.get("_rotation_deg", "0")) % 360.0 == 0.0
+    ][:5]
+    assert zero_angle_refs, "expected at least one 0-degree component on the corpus board"
+    positions = {c.ref: c.initial_position for c in netlist.components if c.ref in zero_angle_refs}
+
+    raw = BOARD_PATH.read_text(encoding="utf-8")
+    placed = _apply_placements_to_pcb(raw, positions)
+
+    with tempfile.NamedTemporaryFile(suffix=".kicad_pcb", mode="w", delete=False) as tmp:
+        tmp.write(placed)
+        placed_path = tmp.name
+    try:
+        # The model claims the solve rotated every placed ref to 90.
+        rotations = dict.fromkeys(positions, 90.0)
+        rt = check_placement_roundtrip(placed_path, positions, rotations, netlist.components)
+        assert not rt.passed
+        assert any(m.kind == "footprint_angle" for m in rt.mismatches)
+        assert any(m.kind == "pad_angle" for m in rt.mismatches)
     finally:
         os.unlink(tmp.name)
 
@@ -456,7 +476,7 @@ def test_golden_board_routing_drc_regression(monkeypatch: pytest.MonkeyPatch):
         placed_path = placed_tmp.name
 
     try:
-        placement_drc = _run_drc(placed_path)
+        placement_drc = run_drc_loud(placed_path, timeout=120, label="production-placement")
     finally:
         os.unlink(placed_path)
 
@@ -495,7 +515,7 @@ def test_golden_board_routing_drc_regression(monkeypatch: pytest.MonkeyPatch):
 
     try:
         # 9. Run kicad-cli DRC on the routed PCB
-        routed_drc = _run_drc(routed_path)
+        routed_drc = run_drc_loud(routed_path, timeout=120, label="golden-routing")
     finally:
         os.unlink(routed_path)
 
@@ -716,9 +736,56 @@ PRODUCTION_DRC_SAMPLE_RUNS = 5
 # measurement of the same board (runs on branches ba02616f / 7e9b04c7)
 # reproduces the same failure mode: total 1226 / shorting 68 / unconnected
 # 393 — the committed-board gate was red on `unconnected`, not on `total`.
-PRODUCTION_COMMITTED_BOARD_TOTAL_DVIOLATIONS = 1283
+#
+# 2026-08-03 RE-MEASUREMENT (kicad-cli 10.0.4, macOS arm64, wave-2 board
+# write, PR #602 -- this PR): the board was re-solved (Run B) and written —
+# K3's embedded footprint G5LE-1 -> RT314012, C27 staged off-board
+# (20, 272.75) -> on-board (28.62, 242.0), and the other 166 refs moved to
+# their re-solved positions.  The write is placement-only: the copper is
+# byte-identical to the pre-write board (2338 segments / 48 vias / 96 zones,
+# item-for-item, verified by extracting and diffing every copper item).
+# N=5 DRC runs, plain `kicad-cli pcb drc` (the exact invocation this test's
+# _run_drc uses):
+#   pre-write (content hash cf161bee, = origin/main)  unconnected 425 in all
+#     5 runs (no scatter at all)
+#   written (content hash 51e39844)                   unconnected 428 in all
+#     5 runs (no scatter at all)
+# (Measured at the repo path with the project DRU resolved — the /tmp
+# copies without the adjacent `.kicad_pro` read ~990 total, the documented
+# measurement-context artifact from the evidence doc's Sec 4.)  Verified
+# pair-by-pair against the DRC JSONs (full proof, including the 222-new /
+# 219-gone pair churn table, in docs/evidence/2026-08-02-k3-swap-and-board-
+# write.md Sec 5b): of 222 newly-reported pairs, 0 are cross-net; only 4
+# genuinely-NEW unconnected PADS (pads that were CONNECTED pre-write) exist,
+# and every one belongs to a ref the re-solve moved:
+#   K3 pad 3 [discharge.k_dis2-no]  — RT314012's NO contact sits ~53mm from
+#     the old G5LE-1 NO trace (footprint swap: contacts moved from the
+#     y=14.2 row to the x=15.26..25.34 column, plus K3 itself moved 21.8mm)
+#   C14 pad 1 [+170V_BUS]           — C14 moved 40.9mm
+#   C19 pad 1 [inb]                 — C19 moved 42.8mm
+#   L2 pad 2 [+3V3]                 — L2 moved 18.0mm
+# C27's two pads were ALREADY unconnected pre-write (staged off-board, nets
+# never routed) — the on-board move relocates the same unconnectedness, it
+# does not create it.  This is the same legitimate class as the K2 swap
+# (7 K2-attributed records, #524) and the 2026-07-30 resync (+2
+# tank.c_tank3 pairs): board changed, connectivity re-derived, 0 cross-net,
+# no untouched geometry regressed.
+#
+# `total` also moved and is re-baselined here (1283 -> 1425), the same
+# board-write consequence measured at the repo path (project DRU applied;
+# N=15 runs of `kicad-cli pcb drc --format json` on pcb/temper.kicad_pcb):
+# pre-write (documented, #568): total median 1264 (1248-1273) -> written
+# total median 1408 (1390-1417), worst median-of-5 1415, +10 headroom =
+# 1425.  The rise is dominated by silk_over_copper 122 -> 172 (+50) — the
+# deliberate, Ceiling-Approval'd wave-2 write consequence documented in
+# docs/evidence/2026-08-02-k3-swap-and-board-write.md Sec 4 (Run-B re-solve
+# moved 167 refs; moved footprints' silk now crosses copper it did not
+# before) — plus the netclass-reclassification context on main already
+# sitting at 1264 vs the then-threshold 1283 (+19 headroom).  `shorting`
+# does NOT move: written worst median-of-5 138 still clears 141.
+PRODUCTION_COMMITTED_BOARD_TOTAL_DVIOLATIONS = 1425
 PRODUCTION_COMMITTED_BOARD_SHORTING_ITEMS = 141
-PRODUCTION_COMMITTED_BOARD_UNCONNECTED = 425
+PRODUCTION_COMMITTED_BOARD_UNCONNECTED = 428
 
 # --- Category B: kicad-cli DRC on route_pcb()'s output for that board ---
 # RE-MEASURED 2026-07-29 (kicad-cli 10.0.4, macOS arm64), against the shape
@@ -842,7 +909,17 @@ PRODUCTION_COMMITTED_BOARD_UNCONNECTED = 425
 # remainder of the shorting/total rise is the K2 +18.2mm move (K2's
 # re-routed copper neighbourhood). See
 # docs/evidence/2026-08-01-edge-hanging-refs-fix.md.
-PRODUCTION_ROUTER_OUTPUT_TOTAL_DVIOLATIONS = 1436
+#
+# 2026-08-04 re-baseline (PR #671): the wave-4 NetClassRules _mm fix made
+# route_pcb() functional again; the router's deterministic output on the
+# post-#602 board (K3 RT314012 swap + C27 on-board, board hash 51e39844)
+# measures total median 1502 (sample [1502,1502,1502,1502,1504], N=5) vs
+# this threshold's 1418-class measurement which predates #602's board
+# write. Same board-change class as the 411->463 router_v6 gate re-baseline
+# in this PR (docs/evidence/2026-08-04-designrules-parse-fix.md): the
+# threshold was set on an older board while the router path was crash-dead.
+# Threshold: worst median-of-5 (1504) + 10 = 1514.
+PRODUCTION_ROUTER_OUTPUT_TOTAL_DVIOLATIONS = 1514
 PRODUCTION_ROUTER_OUTPUT_SHORTING_ITEMS = 178
 PRODUCTION_ROUTER_OUTPUT_UNCONNECTED = 463
 
@@ -879,16 +956,14 @@ def _drc_median(pcb_path: str, runs: int = PRODUCTION_DRC_SAMPLE_RUNS) -> _DrcSa
     totals: list[int] = []
     shorting: list[int] = []
     unconnected: list[int] = []
-    last: dict = {}
-    for _ in range(runs):
-        last = _run_drc(pcb_path)
-        violations = last.get("violations", [])
+    for drc_data in run_drc_samples(pcb_path, n=runs, timeout=120, label="routing-drc"):
+        violations = drc_data.get("violations", [])
         totals.append(len(violations))
         shorting.append(sum(1 for v in violations if v.get("type") == "shorting_items"))
-        unconnected.append(len(last.get("unconnected_items", [])))
+        unconnected.append(len(drc_data.get("unconnected_items", [])))
 
     by_type: dict[str, int] = {}
-    for v in last.get("violations", []):
+    for v in drc_data.get("violations", []):
         vtype = v.get("type", "other")
         by_type[vtype] = by_type.get(vtype, 0) + 1
 
@@ -900,7 +975,7 @@ def _drc_median(pcb_path: str, runs: int = PRODUCTION_DRC_SAMPLE_RUNS) -> _DrcSa
         totals=totals,
         shortings=shorting,
         last_by_type=by_type,
-        last_raw=last,
+        last_raw=drc_data,
     )
 
 
@@ -979,7 +1054,10 @@ def test_production_board_drc_regression(monkeypatch: pytest.MonkeyPatch):
     assert sample.unconnected <= PRODUCTION_COMMITTED_BOARD_UNCONNECTED, (
         f"Committed board unconnected_items {sample.unconnected} exceeds the "
         f"measured baseline {PRODUCTION_COMMITTED_BOARD_UNCONNECTED} "
-        f"(2026-07-29: 388 in all 15 runs, zero scatter). This number may only "
+        f"(2026-08-03: 428 in all 5 runs on the written board, zero scatter; "
+        f"pre-write 425 — re-baselined for the wave-2 board write, proof in "
+        f"docs/evidence/2026-08-02-k3-swap-and-board-write.md Sec 5b). This "
+        f"number may only "
         f"go down FOR A FIXED BOARD GEOMETRY — routing can only ever close "
         f"connections. It legitimately rose once, 382 -> 388 on 2026-07-29, "
         f"when correcting the pad geometry removed copper overlaps that KiCad's "
@@ -993,7 +1071,10 @@ def test_production_board_drc_regression(monkeypatch: pytest.MonkeyPatch):
     assert sample.total <= PRODUCTION_COMMITTED_BOARD_TOTAL_DVIOLATIONS, (
         f"Committed board DRC total median {sample.total} exceeds threshold "
         f"{PRODUCTION_COMMITTED_BOARD_TOTAL_DVIOLATIONS} "
-        f"(2026-07-29: median 1234, range 1232–1258 over N=15 runs; "
+        f"(2026-08-03: median 1408, range 1390–1417 over N=15 runs on the "
+        f"written board — re-baselined 1283 -> 1425 for the wave-2 board "
+        f"write, proof in "
+        f"docs/evidence/2026-08-02-k3-swap-and-board-write.md Sec 5b; "
         f"this run's sample: {sample.totals}). "
         f"By type (last run): {dict(sorted(sample.last_by_type.items()))}"
     )

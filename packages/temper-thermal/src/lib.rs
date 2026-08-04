@@ -16,12 +16,17 @@
 //! order so outputs are bit-identical (pinned by the differential
 //! suite in packages/temper-placer/tests/physics/).
 
+pub mod device_power;
 pub mod fdm;
+pub mod inductance;
+pub mod junction_temp;
 pub mod rtd;
 pub mod thermal_scorer;
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
 
+#[cfg(feature = "python")]
 #[pymodule]
 fn temper_thermal(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(fdm::assemble_system_py, m)?)?;
@@ -39,5 +44,9 @@ fn temper_thermal(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(thermal_scorer::build_conductivity_field_py, m)?)?;
     m.add_function(wrap_pyfunction!(thermal_scorer::build_heat_source_field_py, m)?)?;
     m.add_function(wrap_pyfunction!(thermal_scorer::assemble_convective_system_py, m)?)?;
+    m.add_function(wrap_pyfunction!(device_power::single_device_power_py, m)?)?;
+    m.add_function(wrap_pyfunction!(junction_temp::estimate_junction_temp_py, m)?)?;
+    m.add_function(wrap_pyfunction!(inductance::estimate_loop_inductance_py, m)?)?;
+    m.add_function(wrap_pyfunction!(inductance::estimate_gate_inductance_py, m)?)?;
     Ok(())
 }

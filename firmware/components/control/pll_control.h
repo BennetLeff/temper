@@ -101,7 +101,7 @@ extern "C" {
  * 1.05 cliff). PLL_MAX_FREQ_HZ was deliberately NOT widened to
  * compensate.
  */
-#define PLL_MIN_FREQ_HZ     44000   /**< Minimum switching frequency: derived ZVS floor, 1.05x worst-case loaded resonance (worst-case L AND C). See block comment. */
+#define PLL_MIN_FREQ_HZ     44000   /**< Minimum switching frequency: derived ZVS floor, 1.05x worst-case loaded resonance (worst-case L AND C). See block comment. @board-derived (re-derived from the board's placed tank caps by scripts/check_firmware_board_contract.py; registry: firmware/tools/board_derivations.yaml). */
 #define PLL_MAX_FREQ_HZ     50000   /**< Maximum switching frequency */
 /**
  * @brief Default startup frequency.

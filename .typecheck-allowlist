@@ -1,5 +1,5 @@
 # Type-check allowlist — monotonic-shrink baseline
-# 220 total errors across 37 files
+# 214 total errors across 31 files
 # <filepath> <max-allowed-error-count>
 # Do not increase these numbers. Fix the errors.
 
@@ -10,12 +10,9 @@ packages/temper-placer/src/temper_placer/deterministic/stages/_phase_core.py 4
 packages/temper-placer/src/temper_placer/deterministic/stages/_phase_rotation.py 19
 packages/temper-placer/src/temper_placer/deterministic/stages/_phase_validation.py 5
 packages/temper-placer/src/temper_placer/deterministic/stages/_phase_zones.py 14
-packages/temper-placer/src/temper_placer/io/_parse_nets.py 1
 packages/temper-placer/src/temper_placer/io/config_loader.py 2
 packages/temper-placer/src/temper_placer/io/dsn_exporter.py 1
 packages/temper-placer/src/temper_placer/io/kicad_exporter.py 1
-packages/temper-placer/src/temper_placer/io/kicad_parser.py 1
-packages/temper-placer/src/temper_placer/io/netclass_loader.py 1
 packages/temper-placer/src/temper_placer/pcl/parser.py 1
 packages/temper-placer/src/temper_placer/pipeline/convergence.py 13
 packages/temper-placer/src/temper_placer/pipeline/dag_engine.py 18
@@ -29,7 +26,6 @@ packages/temper-placer/src/temper_placer/placer/cp_sat/_loop_gates.py 8
 packages/temper-placer/src/temper_placer/placer/cp_sat/_loop_stability.py 12
 packages/temper-placer/src/temper_placer/placer/cp_sat/delta_mapper.py 4
 packages/temper-placer/src/temper_placer/placer/cp_sat/feedback.py 2
-packages/temper-placer/src/temper_placer/placer/cp_sat/gates.py 1
 packages/temper-placer/src/temper_placer/placer/cp_sat/netclass_constraints.py 1
 packages/temper-placer/src/temper_placer/placer/cp_sat/unsat.py 1
 packages/temper-placer/src/temper_placer/router_v6/_pipeline_core.py 17

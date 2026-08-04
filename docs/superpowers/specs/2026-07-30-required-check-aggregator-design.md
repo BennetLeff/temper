@@ -30,7 +30,17 @@ the merge commit, and will:
 
 The polling budget is 2700 seconds (45 minutes): this leaves headroom for the
 observed queue delay while still bounding a missing workflow. The workflow job
-has a 50-minute timeout so runner setup and cleanup do not truncate that budget. The known-red
+has a 240-minute timeout so runner setup and cleanup do not truncate that
+budget. Measured in production (2026-08-03), the runner backlog exceeded the
+45-minute budget with every required context still `queued`; the checker
+failed closed on a PR that was simply waiting for a runner. A
+`backlog_grace_seconds` manifest field (7200s) now covers that case: if no
+required context has left the queue by the deadline (pure runner backlog, not
+pipeline progress), the checker extends its polling window to
+`timeout_seconds + backlog_grace_seconds` once. Any context that has started
+(`in_progress` or later) disables the extension — a started-but-stuck pipeline
+still fails at the original deadline. The budget is 165 minutes worst-case; the
+job-level 240-minute timeout bounds it. The known-red
 hardware and requirements jobs remain advisory in this phase;
 they are not included in the candidate list. They will be added to the
 manifest only after their underlying defects are resolved and main is green.
@@ -54,9 +64,13 @@ manifest only after their underlying defects are resolved and main is green.
 The aggregator never converts an applicable failure into success. A skipped
 Python Tests workflow is acceptable only when no manifest trigger path
 matches. API errors, malformed event data, malformed manifest data, and
-timeouts are hard failures. The 45-minute polling timeout accounts for queue
-time plus the observed roughly 20-minute slow CP-SAT shard while remaining
-bounded so a missing workflow cannot consume a runner indefinitely.
+timeouts are hard failures. The 45-minute polling timeout accounts for the
+observed roughly 20-minute slow CP-SAT shard while remaining bounded so a
+missing workflow cannot consume a runner indefinitely; the backlog grace
+(see "The polling budget" above) separately absorbs time the contexts spend
+queued before a runner picks them up, without ever converting a failure into
+a pass — the extension only keeps the check pending, and the job-level
+240-minute timeout remains the hard bound.
 
 ## Verification
 

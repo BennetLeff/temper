@@ -442,3 +442,46 @@ def test_infeasible_placement_exits_early(loop, basic_netlist, basic_board):
         result = loop.run(basic_netlist, basic_board, seed=42)
         assert result.success is False
         assert result.reason == LoopExitReason.ALL_FEEDBACK_UNSAT.value
+
+
+# ---------------------------------------------------------------------------
+# U3.9: reference/loop alias forwarding to the solver
+# ---------------------------------------------------------------------------
+
+
+def test_call_solver_forwards_reference_aliases(basic_netlist, basic_board):
+    """run()'s stored aliases reach the placement solver as kwargs.
+
+    The fail-closed reference gate lives inside solve_placement; if the
+    place→route loop silently dropped the manifest, aliases would never be
+    applied and every legacy-named constraint would fail closed. This test
+    pins the forwarding path (metamorphic: the wiring exists iff the kwargs
+    arrive at the solver unchanged).
+    """
+    from temper_placer.placer.cp_sat.encoder import CpSatPlacementResult
+
+    received: dict = {}
+
+    def recording_solver(**kwargs):
+        received.update(kwargs)
+        return CpSatPlacementResult(
+            positions=np.zeros((3, 2), dtype=np.float32),
+            rotations=np.zeros(3, dtype=np.int32),
+            placed_refs=["Q1", "Q2", "C_BUS1"],
+            status="feasible",
+        )
+
+    loop = PlaceRouteLoop(_placement_solver=recording_solver)
+    loop._reference_aliases = {"C_BUS1": "C2"}
+    loop._loop_aliases = {"legacy_loop": "commutation_loop"}
+
+    loop._call_solver(
+        netlist=basic_netlist,
+        board=basic_board,
+        extra_constraints=[],
+        timeout_ms=100,
+        seed=42,
+    )
+
+    assert received.get("reference_aliases") == {"C_BUS1": "C2"}
+    assert received.get("loop_aliases") == {"legacy_loop": "commutation_loop"}

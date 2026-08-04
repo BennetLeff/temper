@@ -435,6 +435,23 @@ def optimize(
                 emi = spec.get("emi", {})
                 for name, comps in emi.get("loop_components", {}).items():
                     loop_comps[name] = comps
+            reference_aliases: dict[str, str] = {}
+            loop_aliases: dict[str, str] = {}
+            manifest_path = config.with_suffix(".references.yaml")
+            if manifest_path.exists():
+                from temper_placer.io.reference_aliases import load_reference_alias_manifest
+
+                manifest = load_reference_alias_manifest(
+                    manifest_path,
+                    component_refs=[component.ref for component in netlist.components],
+                    loop_names=loop_comps,
+                )
+                reference_aliases = manifest.component_aliases
+                loop_aliases = manifest.loop_aliases
+                console.print(
+                    f"  Loaded {len(reference_aliases)} component and "
+                    f"{len(loop_aliases)} loop reference aliases"
+                )
             loop_result = loop_runner.run(
                 netlist=netlist,
                 board=board,
@@ -443,6 +460,8 @@ def optimize(
                 zones={z.name: z.bounds for z in zone_objs} if zone_objs else None,
                 zone_components=zone_comps if zone_comps else None,
                 loop_components=loop_comps if loop_comps else None,
+                reference_aliases=reference_aliases or None,
+                loop_aliases=loop_aliases or None,
                 all_gates=all_gates,
                 source_pcb_path=input_pcb,
             )
@@ -579,6 +598,26 @@ def optimize(
             constraints = load_constraints(config)
             pcl_constraints = list(getattr(constraints, "pcl_constraints", []))
 
+            reference_aliases = {}
+            loop_aliases = {}
+            manifest_path = config.with_suffix(".references.yaml")
+            if manifest_path.exists():
+                from temper_placer.io.reference_aliases import load_reference_alias_manifest
+                from temper_placer.placer.cp_sat.encoder import _resolve_loop_components
+
+                loop_names = _resolve_loop_components(netlist)
+                manifest = load_reference_alias_manifest(
+                    manifest_path,
+                    component_refs=[component.ref for component in netlist.components],
+                    loop_names=loop_names,
+                )
+                reference_aliases = manifest.component_aliases
+                loop_aliases = manifest.loop_aliases
+                console.print(
+                    f"  Loaded {len(reference_aliases)} component and "
+                    f"{len(loop_aliases)} loop reference aliases"
+                )
+
             console.print(f"  Parsed {len(netlist.components)} components from input PCB")
             console.print(f"  Loaded {len(pcl_constraints)} PCL constraints")
 
@@ -605,6 +644,18 @@ def optimize(
                 extra_constraints=pcl_constraints,
                 seed=seed,
                 hint_positions=hint_positions,
+                reference_aliases=reference_aliases or None,
+                loop_aliases=loop_aliases or None,
+                # TODO(#523 gap 2 follow-up): pass validator_input here to run
+                # the REQ-SAFE-01 validator post-solve audit on the optimized
+                # placement too -- currently missing the validator-shape
+                # placement + voltage_domains map this path does not construct:
+                # the optimize command only builds netlist/board/constraints
+                # (load_real_board_placement + domain-manifest wiring lives in
+                # the tests fixture and the repair path, not here). Wiring it
+                # half-way would raise ValueError on the missing keys, so this
+                # stays a precise TODO until the placement/domain construction
+                # is hoisted into a shared production loader.
             )
 
             console.print(f"  Solver status: {cp_result.status} ({cp_result.solve_time_ms:.0f}ms)")
@@ -639,6 +690,35 @@ def optimize(
                 if write_result.has_warnings:
                     for w in write_result.warnings:
                         console.print(f"  [yellow]⚠[/] {w}")
+
+                # After-write round-trip oracle (plan 2026-08-02-009 U3):
+                # re-parse the written file and compare its pad geometry
+                # against the solver's model before declaring success -- a
+                # dropped or mis-signed rotation must fail the command at
+                # the write site, not surface later as a DRC regression.
+                from temper_placer.validation.placement_roundtrip import (
+                    check_placement_roundtrip,
+                )
+
+                # The writer emits an explicit angle for every solved ref
+                # (rotation index * 90), so the model rotations are the same
+                # complete dict the placements were built from -- not the
+                # sparse to_rotations_dict() shape.
+                rt_rotations = {
+                    ref: cp_result.rotations.get(ref, 0) * 90.0
+                    for ref in cp_result.positions
+                }
+                rt_result = check_placement_roundtrip(
+                    output,
+                    cp_result.positions,
+                    rt_rotations,
+                    netlist.components,
+                )
+                if not rt_result.passed:
+                    raise click.ClickException(
+                        f"Round-trip oracle FAILED after write: {rt_result.summary}"
+                    )
+                console.print(f"  [green]✓[/] Round-trip oracle: {rt_result.summary}")
                 console.print(f"  Output: {output}")
             else:
                 console.print(f"  [red]Solver returned unexpected status: {cp_result.status}[/]")

@@ -16,6 +16,7 @@ from __future__ import annotations
 import shutil
 from dataclasses import dataclass, field
 from enum import Enum, auto
+from pathlib import Path
 
 from temper_placer.core.board import Zone
 from temper_placer.core.netlist import Netlist
@@ -467,6 +468,89 @@ def check_impossible_constraints(
 
 
 # =============================================================================
+# Netlist <-> Board Reconciliation Check
+# =============================================================================
+
+
+def check_netlist_board_reconciliation(
+    board_path: Path | str,
+    design_netlist_path: Path | str,
+) -> PreflightResult:
+    """Reconcile the netlist extracted from the actual board file against the
+    compiled design netlist, keyed by instance path and net membership (R16).
+
+    Produces an ERROR-level ``PreflightIssue`` per reconciliation finding
+    (MISSING / EXTRA / RENUMBERED / REUSE / UNKEYABLE / NET-MISSING /
+    NET-EXTRA / NET-MEMBERSHIP). A fail-closed condition (missing or
+    unparseable board/netlist) is reported as an ERROR issue with code
+    ``RECON_GATE_ERROR`` -- never as a silent pass.
+
+    This is the identity authority. ``preflight_identity``'s 95% refdes
+    overlap check stays in the preflight surface but is demoted to a
+    secondary signal -- it is structurally blind to a wholesale renumber
+    (KTD3/KTD4 of plan 2026-08-02-021).
+
+    Args:
+        board_path: Path to the ``.kicad_pcb`` board file.
+        design_netlist_path: Path to the compiled design netlist
+            (``elec/build/default.net``).
+    """
+    from temper_placer.validation.netlist_reconciliation import (
+        ReconciliationGateError,
+        extract_board_netlist,
+        parse_design_netlist,
+        reconcile,
+    )
+
+    try:
+        board = extract_board_netlist(board_path)
+        design = parse_design_netlist(design_netlist_path)
+        report = reconcile(board, design)
+    except ReconciliationGateError as exc:
+        return PreflightResult(
+            passed=False,
+            issues=[
+                PreflightIssue(
+                    severity=PreflightSeverity.ERROR,
+                    code="RECON_GATE_ERROR",
+                    message=f"Netlist<->board reconciliation could not run: {exc}",
+                )
+            ],
+        )
+
+    if report.passed:
+        return PreflightResult(
+            passed=True,
+            issues=[
+                PreflightIssue(
+                    severity=PreflightSeverity.INFO,
+                    code="RECON_000",
+                    message=(
+                        f"Netlist<->board reconciliation passed: "
+                        f"{report.matched_paths} component(s) matched by "
+                        f"instance path, {report.design_nets_nonempty} design "
+                        f"net(s) / {report.board_nets} board net(s) reconciled, "
+                        f"0 findings"
+                    ),
+                )
+            ],
+        )
+
+    issues = []
+    for finding in report.findings:
+        issues.append(
+            PreflightIssue(
+                severity=PreflightSeverity.ERROR,
+                code=f"RECON_{finding.kind}",
+                message=finding.detail,
+                components=list(finding.refs),
+                details={"kind": finding.kind, "paths": list(finding.paths)},
+            )
+        )
+    return PreflightResult(passed=False, issues=issues)
+
+
+# =============================================================================
 # Combined Preflight Check
 # =============================================================================
 
@@ -476,6 +560,8 @@ def run_all_preflight_checks(
     constraints: PlacementConstraints | None,
     check_tools: bool = True,
     require_zone_assignments: bool = False,
+    board_path: Path | str | None = None,
+    design_netlist_path: Path | str | None = None,
 ) -> PreflightResult:
     """
     Run all preflight checks.
@@ -485,6 +571,11 @@ def run_all_preflight_checks(
         constraints: Loaded constraints (optional, some checks skipped if None).
         check_tools: Whether to check external tool availability.
         require_zone_assignments: If True, missing zone assignments are errors.
+        board_path: Optional path to the ``.kicad_pcb`` board file. When given
+            together with ``design_netlist_path``, runs the netlist<->board
+            reconciliation oracle (R16) as part of the preflight surface.
+        design_netlist_path: Optional path to the compiled design netlist
+            (``elec/build/default.net``) for the reconciliation check.
 
     Returns:
         Combined PreflightResult from all checks.
@@ -494,6 +585,13 @@ def run_all_preflight_checks(
     # Tool checks
     if check_tools:
         result = result.merge(check_external_tools())
+
+    # Netlist <-> board reconciliation oracle (R16): the identity authority,
+    # keyed by instance path and net membership -- not refdes overlap.
+    if board_path is not None and design_netlist_path is not None:
+        result = result.merge(
+            check_netlist_board_reconciliation(board_path, design_netlist_path)
+        )
 
     # Constraint checks (require both netlist and constraints)
     if constraints:

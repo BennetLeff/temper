@@ -16,7 +16,9 @@
 // correctly-rounded libm cos/sin/hypot, same integer-exact rotation
 // table. Pinned by the differential suite.
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use temper_py_bridge;
 
 const DEFAULT_ROUNDRECT_RATIO: f64 = 0.25;
@@ -27,10 +29,21 @@ const DEFAULT_ROUNDRECT_RATIO: f64 = 0.25;
 // real input while f64::cos matched). Resolve cos/sin through dlsym so
 // the crate matches the runtime's math bit-exactly; fall back to the
 // std intrinsics when dlsym is unavailable.
+//
+// `dlsym` is a libc/dynamic-loader facility that does not exist on
+// wasm32-unknown-unknown (no OS, no dynamic linker). The dlsym-resolution
+// path below is compiled only off wasm32; on wasm32 `math_cos`/
+// `math_sin`/`math_cos_sin` go straight to the `fallback_*`
+// implementations (see grid_raster.rs for the identical pattern). wasm32
+// builds may therefore diverge from the host Python's libm in the last
+// ULP — expected and acceptable there.
+#[cfg(not(target_arch = "wasm32"))]
 use std::sync::OnceLock;
 
+#[cfg(not(target_arch = "wasm32"))]
 type MathFn = unsafe extern "C" fn(f64) -> f64;
 
+#[cfg(not(target_arch = "wasm32"))]
 fn dlsym_math(symbol: &str) -> Option<MathFn> {
     unsafe extern "C" {
         fn dlsym(handle: *const u8, symbol: *const u8) -> *mut u8;
@@ -54,6 +67,7 @@ unsafe extern "C" fn fallback_sin(x: f64) -> f64 {
     f64::sin(x)
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 fn host_cos() -> &'static MathFn {
     static F: OnceLock<Option<MathFn>> = OnceLock::new();
     let f = F.get_or_init(|| dlsym_math("cos").or(Some(fallback_cos)));
@@ -63,6 +77,7 @@ fn host_cos() -> &'static MathFn {
     f.as_ref().unwrap()
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 fn host_sin() -> &'static MathFn {
     static F: OnceLock<Option<MathFn>> = OnceLock::new();
     let f = F.get_or_init(|| dlsym_math("sin").or(Some(fallback_sin)));
@@ -72,16 +87,38 @@ fn host_sin() -> &'static MathFn {
     f.as_ref().unwrap()
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 fn math_cos(x: f64) -> f64 {
     unsafe { host_cos()(x) }
 }
 
+/// `f64::cos` (wasm32 has no host CPython libm to dlsym against).
+#[cfg(target_arch = "wasm32")]
+fn math_cos(x: f64) -> f64 {
+    unsafe { fallback_cos(x) }
+}
+
+#[cfg(not(target_arch = "wasm32"))]
 pub(crate) fn math_sin(x: f64) -> f64 {
     unsafe { host_sin()(x) }
 }
 
+/// `f64::sin` (wasm32 has no host CPython libm to dlsym against).
+#[cfg(target_arch = "wasm32")]
+pub(crate) fn math_sin(x: f64) -> f64 {
+    unsafe { fallback_sin(x) }
+}
+
+#[cfg(not(target_arch = "wasm32"))]
 pub(crate) fn math_cos_sin(x: f64) -> (f64, f64) {
     unsafe { (host_cos()(x), host_sin()(x)) }
+}
+
+/// `(f64::cos(x), f64::sin(x))` (wasm32 has no host CPython libm to dlsym
+/// against).
+#[cfg(target_arch = "wasm32")]
+pub(crate) fn math_cos_sin(x: f64) -> (f64, f64) {
+    unsafe { (fallback_cos(x), fallback_sin(x)) }
 }
 
 /// Pad-shape codes passed across the FFI boundary. The Python wrapper
@@ -352,18 +389,21 @@ fn best_rotation_for_barrier(hv: &[PadTuple], selv: &[PadTuple], barrier_axis: i
 // PyO3 bridge
 // ---------------------------------------------------------------------------
 
+#[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (width, height, shape, roundrect_ratio = DEFAULT_ROUNDRECT_RATIO))]
 pub fn pad_corner_radius_py(width: f64, height: f64, shape: i64, roundrect_ratio: f64) -> PyResult<f64> {
     temper_py_bridge::catch_unwind(|| corner_radius(width, height, shape, roundrect_ratio)).map_err(temper_py_bridge::panic_to_err)
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (width, height, shape, roundrect_ratio = DEFAULT_ROUNDRECT_RATIO))]
 pub fn pad_core_half_extents_py(width: f64, height: f64, shape: i64, roundrect_ratio: f64) -> PyResult<(f64, f64)> {
     temper_py_bridge::catch_unwind(|| core_half_extents(width, height, shape, roundrect_ratio)).map_err(temper_py_bridge::panic_to_err)
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (width, height, shape, direction_rad, rotation_rad = 0.0, roundrect_ratio = DEFAULT_ROUNDRECT_RATIO))]
 pub fn pad_support_radius_py(
@@ -378,6 +418,7 @@ pub fn pad_support_radius_py(
         .map_err(temper_py_bridge::panic_to_err)
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (width, height, shape, axis, rotation_rad = 0.0, roundrect_ratio = DEFAULT_ROUNDRECT_RATIO))]
 pub fn pad_axis_radius_py(
@@ -392,18 +433,21 @@ pub fn pad_axis_radius_py(
         .map_err(temper_py_bridge::panic_to_err)
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (width, height, shape, roundrect_ratio = DEFAULT_ROUNDRECT_RATIO))]
 pub fn pad_bounding_radius_py(width: f64, height: f64, shape: i64, roundrect_ratio: f64) -> PyResult<f64> {
     temper_py_bridge::catch_unwind(|| bounding_radius(width, height, shape, roundrect_ratio)).map_err(temper_py_bridge::panic_to_err)
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (hv_pads, selv_pads, axis_idx))]
 pub fn barrier_axis_gap_py(hv_pads: Vec<PadTuple>, selv_pads: Vec<PadTuple>, axis_idx: i64) -> PyResult<f64> {
     temper_py_bridge::catch_unwind(|| barrier_axis_gap(&hv_pads, &selv_pads, axis_idx)).map_err(temper_py_bridge::panic_to_err)
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (hv_pads, selv_pads, barrier_axis))]
 pub fn best_rotation_for_barrier_py(hv_pads: Vec<PadTuple>, selv_pads: Vec<PadTuple>, barrier_axis: i64) -> PyResult<(i64, f64, bool)> {
