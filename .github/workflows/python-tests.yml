@@ -653,6 +653,7 @@ jobs:
                        packages/temper-quality-oracle/Cargo.toml \
                        packages/temper-rust-router-core/Cargo.toml \
                        packages/temper-rust-router/Cargo.toml \
+                       packages/temper-thermal/Cargo.toml \
                        packages/temper-placer/temper-constraints/Cargo.toml; do
             echo "=== clippy $manifest ==="
             # temper-constraints is the one abi3 crate; without the forward-compat
