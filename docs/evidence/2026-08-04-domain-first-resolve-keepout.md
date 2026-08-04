@@ -1,4 +1,4 @@
-<!-- provenance: commit=<PLACEHOLDER> dirty=false -->
+<!-- provenance: commit=ed5ac381c986e25aa1e0e343cd4f86d20ac398cb dirty=false -->
 
 # Domain-first re-solve for the MAINS_SELV_ISOLATION_BARRIER keepout — keepout NOT landed (issue #518, plan R1)
 
