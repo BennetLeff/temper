@@ -821,9 +821,9 @@ def _convex_polygon_edges(
     def _axis_aligned(p0: tuple[float, float], p1: tuple[float, float]) -> bool:
         return abs(p0[0] - p1[0]) < 1e-9 or abs(p0[1] - p1[1]) < 1e-9
 
-    if all(
-        _axis_aligned(polygon[i], polygon[(i + 1) % n]) for i in range(n)
-    ):
+    ring_edges = tuple((polygon[i], polygon[(i + 1) % n]) for i in range(n))
+    assert ring_edges, "empty ring: `n < 3` returns above, so n >= 3 holds here"
+    if all(_axis_aligned(p0, p1) for p0, p1 in ring_edges):
         # Purely rectilinear: delegate to the legacy #567 encoder (it
         # handles either winding and its exactness is pinned by the BMC
         # test's encoded == exact assertion).
