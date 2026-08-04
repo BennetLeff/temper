@@ -219,10 +219,10 @@ class TestCheckDifferential:
 
 class TestReportTextAndJsonDifferential:
     def test_empty_report_text(self):
-        """Empty-input semantics for to_text: header + blank line only."""
+        """Empty-input semantics for to_text: header + blank line + bare SUMMARY."""
         o, s = ConstraintReport(), ConstraintReport()
         assert o.to_text() == s.to_text()
-        assert s.to_text() == "=== Constraint Satisfaction Report ===\n"
+        assert s.to_text() == "=== Constraint Satisfaction Report ===\n\nSUMMARY:"
 
     def test_empty_report_json(self):
         o, s = ConstraintReport(), ConstraintReport()

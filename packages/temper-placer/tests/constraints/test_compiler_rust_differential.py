@@ -156,7 +156,9 @@ def _random_constraints(rng: random.Random, seed_for: int) -> PlacementConstrain
     ]
     zones = []
     if r.random() < 0.5:
-        zones.append(type("Z", (), {"name": "Zone1", "bounds": (0.0, 0.0, 100.0, 80.0)}))
+        from temper_placer.core.board import Zone
+
+        zones.append(Zone(name="Zone1", bounds=(0.0, 0.0, 100.0, 80.0)))
     assignments = {}
     if zones:
         assignments[r.choice(refs)] = "Zone1"
