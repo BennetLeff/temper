@@ -26,7 +26,6 @@ from pathlib import Path
 from typing import cast
 
 import numpy as np
-
 import temper_design_bundle_python as _tdb
 
 from temper_placer.core.board import Board

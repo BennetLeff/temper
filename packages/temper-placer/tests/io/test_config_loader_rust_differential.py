@@ -31,10 +31,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
-import yaml
-
 import temper_design_bundle_python as _tdb
+import yaml
 
 import tests.io._config_loader_py_oracle as _oracle
 
@@ -318,7 +316,7 @@ def canon(value):
     # pydantic models: canonicalize structurally via model_dump (their repr is
     # exact for the declared fields, but any field holding an arbitrary object
     # — e.g. net_classification — embeds that object's memory address).
-    if hasattr(value, "model_dump") and not type(value).__name__ == "NetClassification":
+    if hasattr(value, "model_dump") and type(value).__name__ != "NetClassification":
         return (
             type(value).__name__,
             canon(value.model_dump(mode="python")),

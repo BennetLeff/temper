@@ -23,11 +23,14 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+import temper_design_bundle_python as _tdb
 from pydantic import ValidationError
 
-import temper_design_bundle_python as _tdb
-
-from temper_placer._constraint_types import (
+# Intentional re-exports: consumers (io/__init__.py, tests, pipeline stages)
+# import the constraint types from this module, exactly as they did before
+# the migration. The trailing noqa keeps ruff from flagging them as unused
+# imports — these names ARE the module surface.
+from temper_placer._constraint_types import (  # noqa: F401
     AestheticConstraints,
     BleedResistor,
     ClearanceRule,
@@ -62,14 +65,13 @@ from temper_placer._constraint_types import (
     ThermalConstraint,
     ThermalProperties,
 )
-from temper_placer.core.board import Board, GroundDomain, LayerStackup, Zone
-from temper_placer.core.differential_pair import DifferentialPairConstraint
-from temper_placer.core.net_graph import NetGraph, SubNetEdge
-from temper_placer.core.net_types import NetClassification
+from temper_placer.core.board import Board, GroundDomain, LayerStackup, Zone  # noqa: F401
+from temper_placer.core.differential_pair import DifferentialPairConstraint  # noqa: F401
+from temper_placer.core.net_graph import NetGraph, SubNetEdge  # noqa: F401
+from temper_placer.core.net_types import NetClassification  # noqa: F401
 
 if TYPE_CHECKING:
-    from temper_placer.core.design_rules import DesignRules
-    from temper_placer.core.netlist import Netlist
+    pass
 
 
 class ConfigValidationError(Exception):

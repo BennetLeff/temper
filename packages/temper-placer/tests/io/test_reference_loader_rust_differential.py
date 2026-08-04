@@ -28,8 +28,6 @@ from __future__ import annotations
 
 from types import SimpleNamespace
 
-import pytest
-
 import temper_design_bundle_python as _tdb
 
 import tests.io._reference_loader_py_oracle as _oracle

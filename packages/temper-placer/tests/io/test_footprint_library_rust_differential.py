@@ -26,9 +26,8 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
-import yaml
-
 import temper_io_types as _io
+import yaml
 
 import tests.io._footprint_library_py_oracle as _oracle
 

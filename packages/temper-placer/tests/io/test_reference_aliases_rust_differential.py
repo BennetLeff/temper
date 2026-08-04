@@ -21,7 +21,6 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
-
 import temper_io_types as _io
 
 import tests.io._reference_aliases_py_oracle as _oracle
