@@ -54,9 +54,9 @@
 // tuple shapes are dictated by the API being pinned, not by taste.
 #![allow(clippy::too_many_arguments, clippy::type_complexity)]
 
-use pyo3::exceptions::{PyRuntimeError, PyValueError};
+use pyo3::exceptions::{PyKeyError, PyRuntimeError, PyValueError};
 use pyo3::prelude::*;
-use pyo3::types::{PyDict, PyList, PyTuple};
+use pyo3::types::{PyDict, PyList, PySet, PyTuple};
 
 // =============================================================================
 // Pure helpers — reproduced operation-for-operation from the pinned Python.
@@ -331,9 +331,12 @@ fn is_truthy(v: &Bound<'_, PyAny>) -> PyResult<bool> {
 /// are not strings go through `__float__` (numbers, bools, numpy scalars).
 fn py_float(v: &Bound<'_, PyAny>) -> PyResult<f64> {
     if let Ok(s) = v.extract::<String>() {
-        return s
-            .parse::<f64>()
-            .map_err(|_| PyValueError::new_err("could not convert string to float"));
+        // CPython's `float("abc")` message includes the repr'd value:
+        // `could not convert string to float: 'abc'` — reproduced verbatim
+        // (the placements_from_json error-path differential pins it).
+        return s.parse::<f64>().map_err(|_| {
+            PyValueError::new_err(format!("could not convert string to float: '{}'", s))
+        });
     }
     let f = v.call_method0("__float__")?;
     f.extract::<f64>()
@@ -853,22 +856,28 @@ pub fn extract_pad_centers(py: Python<'_>, board: Bound<'_, PyAny>) -> PyResult<
             for pitem in pads.try_iter()? {
                 let pad = pitem?;
                 // net name resolution: pad.net.name if available, else
-                // str(pad.net), else "".
-                let net_name: String = match pad.getattr("net").ok().filter(|n| !n.is_none()) {
-                    Some(net) => {
-                        if let Ok(name) = net.getattr("name") {
-                            if let Ok(s) = name.extract::<String>() {
-                                s
+                // str(pad.net), else "" (verbatim oracle). The name value is
+                // kept RAW (never str-coerced): the oracle's dict key is the
+                // value itself, so a pad with a non-str net name (int, e.g.)
+                // stays under its original key type and only its truthiness
+                // decides the skip — str()-coercing would change dict-key
+                // matching downstream. Out of the kiutils domain (net names
+                // are always str there); pinned by the raw-key pass-through.
+                let net_key: Option<Bound<'_, PyAny>> =
+                    match pad.getattr("net").ok().filter(|n| !n.is_none()) {
+                        Some(net) => {
+                            if let Ok(name) = net.getattr("name") {
+                                Some(name)
                             } else {
-                                continue; // `if not net_name: continue`
+                                Some(net.str()?.into_any())
                             }
-                        } else {
-                            net.str()?.to_string()
                         }
-                    }
-                    None => String::new(),
+                        None => None,
+                    };
+                let Some(net_key) = net_key else {
+                    continue;
                 };
-                if net_name.is_empty() {
+                if !is_truthy(&net_key)? {
                     continue;
                 }
                 let (rel_x, rel_y) = match pad.getattr("position").ok().filter(|p| !p.is_none()) {
@@ -878,7 +887,7 @@ pub fn extract_pad_centers(py: Python<'_>, board: Bound<'_, PyAny>) -> PyResult<
                 let (rot_x, rot_y) = rotate_local_to_world(rel_x, rel_y, rad);
                 let abs_x = fp_x + rot_x;
                 let abs_y = fp_y + rot_y;
-                match out.get_item(net_name.as_str())? {
+                match out.get_item(net_key.clone())? {
                     Some(list) => {
                         let tuple = PyTuple::new(py, [abs_x, abs_y])?;
                         list.call_method1("append", (tuple,))?;
@@ -887,7 +896,7 @@ pub fn extract_pad_centers(py: Python<'_>, board: Bound<'_, PyAny>) -> PyResult<
                         let list = PyList::empty(py);
                         let tuple = PyTuple::new(py, [abs_x, abs_y])?;
                         list.append(tuple)?;
-                        out.set_item(net_name.as_str(), list)?;
+                        out.set_item(net_key, list)?;
                     }
                 }
             }
@@ -939,29 +948,43 @@ pub fn generate_connector_segments(
 
         let mut connectors: Vec<Py<PyAny>> = Vec::new();
         for (net, pads) in pad_centers.iter() {
-            let net_str: String = net.extract()?;
+            // A non-str net key (int net name — out of the kiutils domain but
+            // reachable through extract_pad_centers' raw-key pass-through)
+            // never matches a segment net: the oracle's `if net not in
+            // segs_by_net: continue` resolves to False and skips. Skip rather
+            // than raise, matching it.
+            let net_str: String = match net.extract::<String>() {
+                Ok(s) => s,
+                Err(_) => continue,
+            };
             let net_segs = match segs_by_net.iter().find(|(n, _)| n == &net_str) {
                 Some((_, l)) => l,
                 None => continue,
             };
-            // endpoints set (bit-exact tuple membership)
-            let mut endpoints: Vec<(f64, f64)> = Vec::new();
+            // endpoints as a REAL Python set, built by adding each segment's
+            // start then end in segment order exactly like the verbatim
+            // oracle (`endpoints = set(); endpoints.add(seg.start);
+            // endpoints.add(seg.end)`). Iterating this object yields
+            // CPython's hash-table slot order — bit-exact by construction
+            // because it IS the same interpreter's set, populated in the same
+            // order (re-adding an existing key is a no-op that never moves a
+            // slot, so the table grows identically). A Vec in
+            // first-appearance order picks the OTHER endpoint on an exact
+            // distance tie (see the `test_tie_break_*` differential cases:
+            // both endpoints sqrt(0.5) from a pad, set order the reverse of
+            // insertion order), so the tie discriminator lives exactly here.
+            let endpoints = PySet::empty(py)?;
             for s in net_segs {
-                let st = (s.0, s.1);
-                let en = (s.2, s.3);
-                if !endpoints.contains(&st) {
-                    endpoints.push(st);
-                }
-                if !endpoints.contains(&en) {
-                    endpoints.push(en);
-                }
+                endpoints.add((s.0, s.1))?;
+                endpoints.add((s.2, s.3))?;
             }
             for pitem in pads.try_iter()? {
                 let pad = pitem?;
                 let (px_, py_): (f64, f64) = pad.extract()?;
                 // Already connected? (abs < 0.01 on both axes)
                 let mut is_connected = false;
-                for &(ex, ey) in &endpoints {
+                for ep in endpoints.iter() {
+                    let (ex, ey): (f64, f64) = ep.extract()?;
                     if (ex - px_).abs() < 0.01 && (ey - py_).abs() < 0.01 {
                         is_connected = true;
                         break;
@@ -973,7 +996,8 @@ pub fn generate_connector_segments(
                 // Nearest endpoint
                 let mut nearest_ep: Option<(f64, f64)> = None;
                 let mut min_dist = f64::INFINITY;
-                for &(ex, ey) in &endpoints {
+                for ep in endpoints.iter() {
+                    let (ex, ey): (f64, f64) = ep.extract()?;
                     let dx = ex - px_;
                     let dy = ey - py_;
                     let dist = (dx * dx + dy * dy).sqrt();
@@ -1001,7 +1025,7 @@ pub fn generate_connector_segments(
                             },
                         )?;
                         connectors.push(seg.into_any());
-                        endpoints.push((px_, py_));
+                        endpoints.add((px_, py_))?;
                     }
                 }
             }
@@ -1293,11 +1317,13 @@ pub fn placements_from_json(py: Python<'_>, data: Bound<'_, PyDict>) -> PyResult
             let v = values.cast::<PyDict>().map_err(|_| {
                 value_error("placements_from_json entries must be dicts")
             })?;
-            let x = py_float(&v.get_item("x")?.ok_or_else(|| value_error("missing 'x'"))?)?;
-            let y = py_float(&v.get_item("y")?.ok_or_else(|| value_error("missing 'y'"))?)?;
+            // Missing keys raise KeyError exactly like the verbatim oracle's
+            // `values["x"]` (`PyKeyError::new_err("x")` -> KeyError('x')).
+            let x = py_float(&v.get_item("x")?.ok_or_else(|| PyKeyError::new_err("x"))?)?;
+            let y = py_float(&v.get_item("y")?.ok_or_else(|| PyKeyError::new_err("y"))?)?;
             let rotation = py_float(
                 &v.get_item("rotation")?
-                    .ok_or_else(|| value_error("missing 'rotation'"))?,
+                    .ok_or_else(|| PyKeyError::new_err("rotation"))?,
             )?;
             let ref_str: String = ref_.extract()?;
             let update = Py::new(
@@ -1864,9 +1890,15 @@ pub fn write_routes_plan(
 ) -> PyResult<(Py<PyDict>, Py<PyList>, Py<PyList>, Py<PyList>)> {
     guarded(move || {
         let warnings = PyList::empty(py);
+        // Rebuild the net map ONLY when the caller passed None, exactly like
+        // the verbatim oracle's `if net_name_to_index is None:` — an
+        // explicitly-passed (even empty) dict is used as-is, so a caller
+        // passing `{}` gets index 0 + the not-found warning instead of a
+        // silently-rebuilt map (the explicit-empty-net-map differential pins
+        // both the warning and the net index).
         let net_map = match net_name_to_index {
-            Some(m) if !m.is_empty() => m,
-            _ => net_name_to_index_map(py, nets)?.bind(py).clone(),
+            Some(m) => m,
+            None => net_name_to_index_map(py, nets)?.bind(py).clone(),
         };
 
         if clear_existing && original_trace_count > 0 {
@@ -1980,27 +2012,25 @@ pub fn write_zones_plan(
                 .get_item("layer")?
                 .ok_or_else(|| value_error("zone missing 'layer'"))?
                 .extract()?;
-            let pts: Vec<(f64, f64)> = d
+            // polygon_pts passes through RAW (the original Python object):
+            // the oracle's `Position(p[0], p[1]) for p in pts` forwards each
+            // value untouched, so an int coordinate renders "3" in the
+            // kiutils sexpr, not "3.0" — extracting to Vec<(f64, f64)> would
+            // coerce it (write_zones int-coordinate differential).
+            let pts: Bound<'_, PyAny> = d
                 .get_item("polygon_pts")?
-                .ok_or_else(|| value_error("zone missing 'polygon_pts'"))?
-                .extract()?;
+                .ok_or_else(|| value_error("zone missing 'polygon_pts'"))?;
             let net_index: i64 = net_name_to_index
                 .get_item(net_name.as_str())?
                 .map(|v| v.extract::<i64>().unwrap_or(0))
                 .unwrap_or(0);
-            let pts_list = PyList::new(
-                py,
-                pts.iter()
-                    .map(|&(x, y)| PyTuple::new(py, [x, y]).map(|t| t.into_any()))
-                    .collect::<PyResult<Vec<_>>>()?,
-            )?;
             let spec = PyTuple::new(
                 py,
                 [
                     net_name.into_pyobject(py)?.into_any(),
                     net_index.into_pyobject(py)?.into_any(),
                     layer.into_pyobject(py)?.into_any(),
-                    pts_list.into_any(),
+                    pts.into_any(),
                     0.254f64.into_pyobject(py)?.into_any(),
                 ],
             )?;
@@ -2029,8 +2059,13 @@ pub fn write_placements_plan(
     guarded(move || {
         let warnings = PyList::empty(py);
         // center offsets from components (float() of "_center_offset_*",
-        // default "0"; only non-zero offsets recorded).
-        let mut center_offsets: Vec<(String, (f64, f64))> = Vec::new();
+        // default "0"; only non-zero offsets recorded). A PyDict, NOT a
+        // Vec+find: the verbatim oracle writes `center_offsets[comp.ref] =
+        // (cx, cy)` — a duplicate ref LAST wins — and this matches the
+        // sibling `extract_center_offsets` kernel, which already builds a
+        // PyDict (the two Rust paths must agree; the duplicate-ref
+        // differential pins the 1 mm shift a first-wins Vec would produce).
+        let center_offsets = PyDict::new(py);
         if let Some(comps) = components {
             for item in comps.try_iter()? {
                 let comp = item?;
@@ -2054,7 +2089,7 @@ pub fn write_placements_plan(
                         Err(_) => 0.0,
                     };
                     if cx != 0.0 || cy != 0.0 {
-                        center_offsets.push((ref_, (cx, cy)));
+                        center_offsets.set_item(ref_.as_str(), (cx, cy))?;
                     }
                 }
             }
@@ -2099,9 +2134,10 @@ pub fn write_placements_plan(
 
             let mut new_x = x;
             let mut new_y = y;
-            if let Some((_, (cx, cy))) = center_offsets.iter().find(|(r, _)| r == &ref_) {
+            if let Some(v) = center_offsets.get_item(ref_.as_str())? {
+                let (cx, cy): (f64, f64) = v.extract()?;
                 let rot_rad = radians(rotation_deg);
-                let (rotated_cx, rotated_cy) = rotate_local_to_world(*cx, *cy, rot_rad);
+                let (rotated_cx, rotated_cy) = rotate_local_to_world(cx, cy, rot_rad);
                 new_x -= rotated_cx;
                 new_y -= rotated_cy;
             }
