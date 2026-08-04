@@ -43,8 +43,10 @@ def test_fixture_board_rejected_before_constraints_apply(tmp_path: Path):
 def test_missing_netlist_skips_preflight_without_raising(tmp_path: Path):
     # Not every InputStage caller has this project's real netlist available
     # (other boards' tests, pre-`make netlist` runs) -- a missing netlist is
-    # a soft skip here, unlike scripts/internal_route.py where it's a hard
-    # configuration error (see that script's own wiring).
+    # a soft skip here, unlike the DAG-bypass entry points such as
+    # scripts/ci_closure_test.py, where it is a hard configuration error
+    # (see that script's own wiring). The other such entry point,
+    # scripts/internal_route.py, was deleted 2026-08-04 as import-dead.
     context = {
         "input_pcb": _FIXTURE_PCB,
         "netlist_path": tmp_path / "does_not_exist.net",

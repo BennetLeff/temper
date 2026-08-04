@@ -13,6 +13,9 @@ mod gates;
 #[cfg(feature = "python")]
 mod priority;
 
+#[cfg(feature = "python")]
+mod loaders;
+
 mod atopile;
 mod constraint_merge;
 mod error;
@@ -137,7 +140,7 @@ mod python {
     /// Fail-closed board/netlist identity preflight. Raises `ValueError` on
     /// any mismatch or role violation -- never returns a warning or a bool,
     /// per the identity-provenance plan's hard-fail requirement. Callers
-    /// (`InputStage`, `scripts/internal_route.py`) read files themselves and
+    /// (`InputStage`, `scripts/ci_closure_test.py`) read files themselves and
     /// pass bytes across the boundary; `pcb_path` is used only to infer the
     /// board's role from its path (a `benchmarks` path component means
     /// `Fixture`), never to re-read the file on the Rust side.
@@ -179,6 +182,13 @@ mod python {
         crate::loops::register(module)?;
         crate::design_rules::register(module)?;
         crate::gates::register(module)?;
-        crate::priority::register(module)
+        crate::priority::register(module)?;
+
+        // Wave 4 Phase 3 candidate 2: the YAML loaders ported from
+        // temper_placer/io/netclass_loader.py and
+        // temper_placer/io/loop_loader.py (see loaders.rs). They bind onto
+        // the Phase-2 contracts registered above, which is why they are the
+        // phase's opportunistic first pull.
+        crate::loaders::register(module)
     }
 }
