@@ -132,6 +132,9 @@ on:
       - 'scripts/_lib/measurement_provenance.py'
       - 'scripts/tests/_lib/test_lib_measurement_provenance.py'
       - 'power_pcb_dataset/drc_ceiling.json'
+      - 'power_pcb_dataset/physics_soundness_register.yaml'
+      - 'scripts/physics_soundness_register_gate.py'
+      - 'packages/temper-placer/tests/scripts/test_physics_soundness_register_gate.py'
   pull_request:
     branches: [main]
     paths:
@@ -224,6 +227,9 @@ on:
       - 'scripts/_lib/measurement_provenance.py'
       - 'scripts/tests/_lib/test_lib_measurement_provenance.py'
       - 'power_pcb_dataset/drc_ceiling.json'
+      - 'power_pcb_dataset/physics_soundness_register.yaml'
+      - 'scripts/physics_soundness_register_gate.py'
+      - 'packages/temper-placer/tests/scripts/test_physics_soundness_register_gate.py'
   workflow_dispatch:
   schedule:
     - cron: '0 3 * * *'  # nightly at 3am UTC
@@ -1467,6 +1473,10 @@ jobs:
       - name: Import boundary enforcement
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python scripts/import_linter_gate.py
+
+      - name: Physics soundness-proof register gate (R20)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python scripts/physics_soundness_register_gate.py
 
       - name: Undeclared-import gate tests
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}

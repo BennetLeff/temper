@@ -20,8 +20,7 @@
   "check_board_defect_corpus.py": [],
   "check_copper_net_consistency.py": [
     ".github/workflows/python-tests.yml",
-    "packages/temper-placer/src/temper_placer/router_v6/clearance_check.py",
-    "packages/temper-placer/src/temper_placer/validation/netlist_reconciliation.py"
+    "packages/temper-placer/src/temper_placer/router_v6/clearance_check.py"
   ],
   "check_coverage_gate.py": [
     ".github/workflows/python-tests.yml"
@@ -34,7 +33,6 @@
   "check_domain_partition.py": [
     ".github/workflows/python-tests.yml",
     "packages/temper-placer/src/temper_placer/router_v6/clearance_check.py",
-    "packages/temper-placer/src/temper_placer/validation/netlist_reconciliation.py",
     "packages/temper-placer/tests/requirements/safety/_real_board_fixture.py"
   ],
   "check_drc_ceiling_approval.py": [
@@ -51,8 +49,7 @@
     ".github/workflows/python-tests.yml"
   ],
   "check_footprint_drift.py": [
-    ".github/workflows/python-tests.yml",
-    "packages/temper-placer/src/temper_placer/validation/netlist_reconciliation.py"
+    ".github/workflows/python-tests.yml"
   ],
   "check_hv_netclass_coverage.py": [
     ".github/workflows/python-tests.yml",
@@ -85,12 +82,6 @@
     "packages/temper-placer/src/temper_placer/router_v6/constraints_design_rules.py",
     "packages/temper-placer/src/temper_placer/router_v6/routing_demand.py",
     "packages/temper-placer/src/temper_placer/router_v6/trace_width_assignment.py"
-  ],
-  "check_netlist_board_reconciliation.py": [
-    ".github/workflows/python-tests.yml"
-  ],
-  "check_netlist_mutation_corpus.py": [
-    ".github/workflows/python-tests.yml"
   ],
   "check_no_raw_rotation_trig.py": [
     ".github/workflows/python-tests.yml",
@@ -224,7 +215,9 @@
   "mpn_fabrication_gate.py": [
     ".github/workflows/python-tests.yml"
   ],
-  "netlist_mutator.py": [],
+  "physics_soundness_register_gate.py": [
+    "packages/temper-placer/tests/scripts/test_physics_soundness_register_gate.py"
+  ],
   "pipeline_metrics.py": [
     ".github/workflows/firmware-perf-record.yml",
     ".github/workflows/health-digest.yml",
@@ -291,5 +284,12 @@
   ],
   "write_extension_stamps.py": [
     ".github/workflows/python-tests.yml"
-  ]
+  ],
+  "check_netlist_board_reconciliation.py": [
+    ".github/workflows/python-tests.yml"
+  ],
+  "check_netlist_mutation_corpus.py": [
+    ".github/workflows/python-tests.yml"
+  ],
+  "netlist_mutator.py": []
 }

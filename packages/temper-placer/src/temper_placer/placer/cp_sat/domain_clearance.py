@@ -262,6 +262,13 @@ def generate_domain_clearance_constraints(
 ) -> list[SeparatedConstraint]:
     """Generate one HARD SeparatedConstraint per domain-crossing component pair.
 
+    **Physics-gated surface (KTD4):** ``physics_gated: true`` — the encoded
+    margin is the IEC 60335-2-6 clearance/creepage requirement for the
+    (domain_a, domain_b, insulation_type) row, a physics-derived safety
+    distance. The soundness proof lives in this module's docstring
+    (``Soundness proof (R24 item 1)``); see the register entry in
+    ``power_pcb_dataset/physics_soundness_register.yaml``.
+
     Mirrors ``verify_iec60335_compliance``'s own walk of
     ``IEC60335_REQUIREMENTS`` exactly (same classifier, same pairing
     function, imported not reimplemented) so the constraint this function
