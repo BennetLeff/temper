@@ -60,7 +60,7 @@ jobs:
             --closure-json closure-result.json \
             --metrics-file "$NDJSON_FILE"
       - name: Upload baseline for PR scorecard
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: baseline-metrics
           path: pipeline-metrics/pipeline_metrics.jsonl
