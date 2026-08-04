@@ -563,3 +563,169 @@ mod tests {
         }
     }
 }
+
+// ---------------------------------------------------------------------------
+// Property-based and metamorphic tests — Phase 1 of the WASM verification tier
+// plan (docs/plans/2026-08-03-002-feat-wasm-verification-tier-plan.md).
+//
+// Ported from packages/temper-placer/tests/router_v6/test_creepage_geometry_pbt.py,
+// which drives these same kernels through the pyo3 layer at 200 examples. Running
+// them natively removes both the interpreter round trip and the CI budget that
+// caps the Python suite, so `cases` here is set an order of magnitude higher.
+//
+// These target the private kernels directly, which same-module tests can reach.
+// The module needs no `pub` surface until the same properties run on wasm.
+//
+// Property IDs match the Python source so the correspondence stays traceable.
+// P1-P5 are invariants; M1-M3 are metamorphic relations (a class the repo had
+// none of before this, and which Wave 4's discipline contract R1d requires at
+// three per module).
+// ---------------------------------------------------------------------------
+#[cfg(test)]
+mod properties {
+    use super::*;
+    use proptest::prelude::*;
+
+    /// Board-scale coordinates. Bounded rather than unrestricted f64 because
+    /// these kernels model physical geometry in millimetres; NaN and 1e300 are
+    /// not inputs the caller can produce, and admitting them would test the
+    /// float type rather than the kernel.
+    fn coord() -> impl Strategy<Value = f64> {
+        -50.0f64..50.0f64
+    }
+
+    type Seg8 = (f64, f64, f64, f64, f64, f64, f64, f64);
+
+    fn seg_pair() -> impl Strategy<Value = Seg8> {
+        (coord(), coord(), coord(), coord(), coord(), coord(), coord(), coord())
+    }
+
+    fn dist(s: Seg8) -> f64 {
+        segment_to_segment_info(s.0, s.1, s.2, s.3, s.4, s.5, s.6, s.7).0
+    }
+
+    fn translate(s: Seg8, tx: f64, ty: f64) -> Seg8 {
+        (s.0 + tx, s.1 + ty, s.2 + tx, s.3 + ty, s.4 + tx, s.5 + ty, s.6 + tx, s.7 + ty)
+    }
+
+    fn rotate(s: Seg8, theta: f64) -> Seg8 {
+        let (c, sn) = (theta.cos(), theta.sin());
+        let r = |x: f64, y: f64| (x * c - y * sn, x * sn + y * c);
+        let (a, b) = r(s.0, s.1);
+        let (cc, d) = r(s.2, s.3);
+        let (e, f) = r(s.4, s.5);
+        let (g, h) = r(s.6, s.7);
+        (a, b, cc, d, e, f, g, h)
+    }
+
+    fn scale(s: Seg8, k: f64) -> Seg8 {
+        (s.0 * k, s.1 * k, s.2 * k, s.3 * k, s.4 * k, s.5 * k, s.6 * k, s.7 * k)
+    }
+
+    proptest! {
+        #![proptest_config(ProptestConfig { cases: 2000, ..ProptestConfig::default() })]
+
+        /// P1. A distance is never negative.
+        #[test]
+        fn p1_distance_is_non_negative(s in seg_pair()) {
+            prop_assert!(dist(s) >= 0.0, "negative distance {}", dist(s));
+        }
+
+        /// P2. Swapping the two segments is bit-exact, not merely close. The
+        /// distance is a minimum over the same four endpoint-to-opposite-segment
+        /// values regardless of argument order, so any difference means the
+        /// reduction is order-dependent.
+        ///
+        /// This is the property most exposed to the wasm/native divergence: this
+        /// module sits alongside the `dlsym`-resolved CPython libm, and on wasm32
+        /// those calls fall back to Rust's libm. Bit-exactness is expected to
+        /// hold on both individually; it is equality *across* the two builds that
+        /// is not promised.
+        #[test]
+        fn p2_swapping_segments_is_bit_exact(s in seg_pair()) {
+            let swapped = (s.4, s.5, s.6, s.7, s.0, s.1, s.2, s.3);
+            prop_assert_eq!(dist(s), dist(swapped));
+        }
+
+        /// P3. Moving a point directly away from a segment never decreases its
+        /// distance.
+        #[test]
+        fn p3_distance_is_monotonic_moving_away(
+            x1 in coord(), y1 in coord(), x2 in coord(), y2 in coord(),
+            px in coord(), py in coord(), step in 0.1f64..10.0f64,
+        ) {
+            let near = point_to_segment_distance(px, py, x1, y1, x2, y2);
+            let (cx, cy) = closest_point_on_segment(px, py, x1, y1, x2, y2);
+            let (dx, dy) = (px - cx, py - cy);
+            let len = (dx * dx + dy * dy).sqrt();
+            prop_assume!(len > 1e-9); // on the segment: "away" has no direction
+            let far = point_to_segment_distance(
+                px + dx / len * step, py + dy / len * step, x1, y1, x2, y2,
+            );
+            prop_assert!(far >= near - 1e-9, "{far} < {near}");
+        }
+
+        /// P4. Distance is bounded above by the distance between midpoints —
+        /// the midpoints are two points on the segments, so the minimum over all
+        /// pairs cannot exceed them.
+        #[test]
+        fn p4_distance_is_bounded_by_midpoints(s in seg_pair()) {
+            let (m1x, m1y) = ((s.0 + s.2) / 2.0, (s.1 + s.3) / 2.0);
+            let (m2x, m2y) = ((s.4 + s.6) / 2.0, (s.5 + s.7) / 2.0);
+            let mid = ((m1x - m2x).powi(2) + (m1y - m2y).powi(2)).sqrt();
+            prop_assert!(dist(s) <= mid + 1e-9, "{} > {mid}", dist(s));
+        }
+
+        /// P5. The IPC-2221 creepage bracket is non-decreasing in voltage. A
+        /// higher voltage must never require less clearance — an inversion here
+        /// would under-specify isolation on a mains-connected board.
+        #[test]
+        fn p5_creepage_bracket_is_monotonic_in_voltage(
+            a in 0.0f64..1200.0, b in 0.0f64..1200.0,
+        ) {
+            let (lo, hi) = if a <= b { (a, b) } else { (b, a) };
+            prop_assert!(
+                required_creepage_bracket(hi) >= required_creepage_bracket(lo),
+                "bracket({hi}) < bracket({lo})"
+            );
+        }
+
+        /// M1 (metamorphic). Translating both segments together leaves the
+        /// distance unchanged. Tolerance rather than equality because the
+        /// translation itself loses low bits at board scale.
+        #[test]
+        fn m1_distance_invariant_under_translation(
+            s in seg_pair(), tx in -100.0f64..100.0, ty in -100.0f64..100.0,
+        ) {
+            let before = dist(s);
+            let after = dist(translate(s, tx, ty));
+            prop_assert!((after - before).abs() < 1e-6, "{before} -> {after}");
+        }
+
+        /// M2 (metamorphic). Rotating both segments about the origin leaves the
+        /// distance unchanged, up to cos/sin rounding.
+        #[test]
+        fn m2_distance_invariant_under_rotation(
+            s in seg_pair(), theta in 0.0f64..std::f64::consts::TAU,
+        ) {
+            let before = dist(s);
+            let after = dist(rotate(s, theta));
+            prop_assert!((after - before).abs() < 1e-6, "{before} -> {after}");
+        }
+
+        /// M3 (metamorphic). Scaling both segments by k scales the distance by
+        /// k. This relation is not in the Python source; it is added here
+        /// because a distance kernel that is translation- and rotation-invariant
+        /// can still get units wrong, and scale is what catches that.
+        #[test]
+        fn m3_distance_scales_with_geometry(s in seg_pair(), k in 0.1f64..10.0) {
+            let before = dist(s);
+            let after = dist(scale(s, k));
+            let expected = before * k;
+            prop_assert!(
+                (after - expected).abs() <= 1e-6 * expected.max(1.0),
+                "scaling by {k}: expected {expected}, got {after}"
+            );
+        }
+    }
+}
