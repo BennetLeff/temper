@@ -23,8 +23,10 @@ pub mod junction_temp;
 pub mod rtd;
 pub mod thermal_scorer;
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
 
+#[cfg(feature = "python")]
 #[pymodule]
 fn temper_thermal(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(fdm::assemble_system_py, m)?)?;
