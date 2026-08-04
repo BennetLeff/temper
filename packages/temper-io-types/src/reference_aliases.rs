@@ -231,3 +231,32 @@ fn validate_aliases(
     }
     Ok(())
 }
+
+#[cfg(test)]
+mod strip_vs_trim_tests {
+    /// M4 discriminator (see VERIFICATION.md): the oracle's empty-name check
+    /// is Python `str.strip`, whose whitespace set includes the C0 controls
+    /// U+001C-U+001F; Rust `str::trim`/`char::is_whitespace` does NOT
+    /// (category Cc, not White_Space). PyYAML decodes the double-quoted
+    /// escape `"\x1c"` into U+001C (the Reader validates the raw stream, not
+    /// decoded escapes), so the divergence is reachable and the Python
+    /// call-back at `read_aliases` is load-bearing. These assertions pin the
+    /// Rust side of the divergence: a trim-based port would keep the name
+    /// non-empty and accept the manifest that the oracle rejects.
+    #[test]
+    fn rust_trim_keeps_u001c_where_python_strip_removes_it() {
+        assert_eq!("\u{1c}".trim(), "\u{1c}");
+        assert_eq!("\u{1c}".trim_start(), "\u{1c}");
+        assert_eq!("\u{1c}".trim_end(), "\u{1c}");
+        assert!(!'\u{1c}'.is_whitespace());
+        // The full C0 range Python strips but Rust trim keeps:
+        for c in ['\u{1c}', '\u{1d}', '\u{1e}', '\u{1f}'] {
+            assert!(!c.is_whitespace());
+            let s: String = c.to_string();
+            assert_eq!(s.trim(), s);
+        }
+        // Contrast: a genuinely-whitespace char (U+0020) IS trimmed by both.
+        assert_eq!("\u{20}".trim(), "");
+        assert_eq!("\u{1c}".trim(), "\u{1c}"); // not empty — a trim-port accepts
+    }
+}

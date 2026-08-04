@@ -565,6 +565,54 @@ def test_preprocess_critical_loops_empty_pins_yield_none():
     assert rs["critical_loops"][0].pins is None
 
 
+def test_preprocess_lenless_pins_values_raise_typeerror():
+    """The oracle calls `len()` directly on sized-position values — a
+    len-less truthy value raises `TypeError: object of type 'int' has no
+    len()` and the load FAILS. The Rust arm previously swallowed the len()
+    failure via `.map(...).unwrap_or(...)` and silently degraded
+    (pins=None / element skipped) — a silent divergence (P2 parity bug).
+    Both arms must raise the identical TypeError."""
+    for raw in (
+        # critical_paths: `pins=tuple(pins) if pins and len(pins) >= 2 else None`
+        {"critical_paths": {"p": {"from": "U1", "to": "U2", "pins": 42}}},
+        # critical_loops per-element: `[tuple(p) for p in pins_raw if len(p) >= 2]`
+        {"critical_loops": [{"name": "L", "pins": [42]}]},
+        # critical_loops non-iterable: `for p in 42` raises 'int' object is not iterable
+        {"critical_loops": [{"name": "L", "pins": 42}]},
+        # group_separation: `len(groups) >= 2`
+        {"group_separation": [{"groups": 42}]},
+        # minimum_spacing: `len(comps) >= 2`
+        {"minimum_spacing": [{"components": 42}]},
+    ):
+        assert canon_call(PRECONFIG, raw) == canon_call(_oracle._preprocess_config, raw)
+    # Pin the concrete error family/message both arms must produce.
+    py_res = canon_call(_oracle._preprocess_config, {"critical_paths": {"p": {"from": "U1", "to": "U2", "pins": 42}}})
+    rs_res = canon_call(PRECONFIG, {"critical_paths": {"p": {"from": "U1", "to": "U2", "pins": 42}}})
+    assert py_res[0] == rs_res[0] == "err"
+    assert py_res[1] == rs_res[1] == "TypeError"
+    assert "has no len()" in rs_res[2]
+
+
+def test_preprocess_isinstance_gated_sites_skip_unsized():
+    """The isinstance-gated sites (keepouts / proximity pair /
+    fixed_positions) NEVER call len() on an unsized value — the oracle gates
+    on `isinstance(x, (list, tuple))` first and silently skips, so `42` there
+    must NOT raise (unlike the direct-len sites above). The Rust arm's
+    isinstance gate matches; this pins that the two families differ
+    deliberately."""
+    for raw in (
+        # keepouts: `isinstance(ko, (list, tuple)) and len(ko) >= 4`
+        {"board": {"keepouts": [42]}},
+        # proximity: `isinstance(pair, (list, tuple)) and len(pair) >= 2`
+        {"groups": [{"name": "G", "components": ["U1", "R1"], "proximity": [{"components": 42}]}]},
+        # fixed_positions: `isinstance(pos, (list, tuple)) and len(pos) >= 2`
+        {"fixed_positions": {"R1": 42, "R2": [1, 2]}},
+    ):
+        assert canon_call(PRECONFIG, raw) == canon_call(_oracle._preprocess_config, raw)
+    rs = PRECONFIG({"fixed_positions": {"R1": 42, "R2": [1, 2]}})
+    assert dict(rs["fixed_positions"]) == {"R2": (1.0, 2.0)}
+
+
 def test_preprocess_net_assignments_tuple_values_skipped():
     """Oracle gates on `isinstance(net_list, list)` — tuple-valued
     net_assignments are NOT processed (unlike keepouts / proximity /

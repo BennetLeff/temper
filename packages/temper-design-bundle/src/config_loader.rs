@@ -184,6 +184,10 @@ const NAME_MAP: [(&str, &str); 12] = [
     ("star_point", "star_point"),
 ];
 
+// RJC package table — mirrors `_RJC_PACKAGE_LOOKUP` in
+// `temper_placer/io/config_loader.py` AND `_RJC_PACKAGE_LOOKUP` in
+// `temper_placer/_constraint_types/thermal.py` (three sources total; see
+// VERIFICATION.md "Recorded risks" #1). Keep all three in lockstep.
 const RJC_PACKAGE_LOOKUP: [(&str, f64); 9] = [
     ("TO-247", 0.6),
     ("TO-220", 1.0),
@@ -196,6 +200,7 @@ const RJC_PACKAGE_LOOKUP: [(&str, f64); 9] = [
     ("QFN-48", 5.0),
 ];
 
+// Mirrors `_DEFAULT_RJC` in the two Python modules above.
 const DEFAULT_RJC: f64 = 0.6;
 
 // ---------------------------------------------------------------------------
@@ -261,8 +266,11 @@ fn parse_proximity_rules<'py>(
         } else {
             continue;
         };
+        // Oracle: `isinstance(pair, (list, tuple)) and len(pair) >= 2` (line
+        // 134) — the isinstance gate short-circuits first, then len() runs on
+        // a real list/tuple; a len() failure propagates like CPython's.
         if (pair.is_instance_of::<PyList>() || pair.is_instance_of::<PyTuple>())
-            && pair.len().map(|n| n >= 2).unwrap_or(false)
+            && pair.len()? >= 2
         {
             let cls = py_callable(py, "temper_placer._constraint_types", "ProximityRule")?;
             let rule = call_with_kwargs(
@@ -349,7 +357,7 @@ pub fn preprocess_config<'py>(py: Python<'py>, raw: &Bound<'py, PyAny>) -> PyRes
             for ko in board.get_item("keepouts")?.try_iter()? {
                 let ko = ko?;
                 if (ko.is_instance_of::<PyList>() || ko.is_instance_of::<PyTuple>())
-                    && ko.len().map(|n| n >= 4).unwrap_or(false)
+                    && ko.len()? >= 4
                 {
                     keepouts.append(py_tuple(py, &ko)?)?;
                 }
@@ -568,7 +576,12 @@ pub fn preprocess_config<'py>(py: Python<'py>, raw: &Bound<'py, PyAny>) -> PyRes
                     let pins = PyList::empty(py);
                     for p in pins_raw.try_iter()? {
                         let p = p?;
-                        if p.len().map(|n| n >= 2).unwrap_or(false) {
+                        // Oracle: `len(p) >= 2` — called directly on each
+                        // element, so an unsized element (e.g. `pins: [42]`)
+                        // raises TypeError exactly like CPython `len(42)`;
+                        // a len() failure must propagate, not degrade to a
+                        // skip (an unwrap_or here would silently differ).
+                        if p.len()? >= 2 {
                             pins.append(py_tuple(py, &p)?)?;
                         }
                     }
@@ -604,10 +617,18 @@ pub fn preprocess_config<'py>(py: Python<'py>, raw: &Bound<'py, PyAny>) -> PyRes
                 let path_cfg = entry.get_item(1)?;
             let pins = if path_cfg.contains("pins")? {
                 let pins_raw = path_cfg.get_item("pins")?;
-                if pins_raw.is_none() || pins_raw.len().map(|n| n < 2).unwrap_or(true) {
+                // Oracle: `pins=tuple(pins) if pins and len(pins) >= 2 else
+                // None` — truthiness first (a falsy pins — `[]`, `()`, `0`,
+                // `None` — never reaches len()), then len() runs directly on
+                // the value: a truthy len-less value (e.g. `pins: 42`) raises
+                // TypeError exactly like CPython `len(42)`, and must not
+                // degrade to None (unwrap_or would silently diverge).
+                if pins_raw.is_none() || !pins_raw.is_truthy()? {
                     none_obj(py)
-                } else {
+                } else if pins_raw.len()? >= 2 {
                     py_tuple(py, &pins_raw)?
+                } else {
+                    none_obj(py)
                 }
             } else {
                 none_obj(py)
@@ -855,7 +876,10 @@ pub fn preprocess_config<'py>(py: Python<'py>, raw: &Bound<'py, PyAny>) -> PyRes
         for entry in raw.get_item("group_separation")?.try_iter()? {
             let sc = entry?;
             let groups = dict_get(py, &sc, "groups", &PyList::empty(py).into_any())?;
-            if groups.len().map(|n| n >= 2).unwrap_or(false) {
+            // Oracle: `len(groups) >= 2` — called directly (line 394), so a
+            // len-less value raises TypeError like CPython; it must not
+            // degrade to a skip.
+            if groups.len()? >= 2 {
                 let g = call_with_kwargs(
                     &cls,
                     py,
@@ -879,7 +903,9 @@ pub fn preprocess_config<'py>(py: Python<'py>, raw: &Bound<'py, PyAny>) -> PyRes
         for entry in raw.get_item("minimum_spacing")?.try_iter()? {
             let sc = entry?;
             let comps = dict_get(py, &sc, "components", &PyList::empty(py).into_any())?;
-            if comps.len().map(|n| n >= 2).unwrap_or(false) {
+            // Oracle: `len(comps) >= 2` — called directly (line 409); same
+            // propagate-not-degrade rule as `groups` above.
+            if comps.len()? >= 2 {
                 let rule = call_with_kwargs(
                     &cls,
                     py,
@@ -984,8 +1010,11 @@ pub fn preprocess_config<'py>(py: Python<'py>, raw: &Bound<'py, PyAny>) -> PyRes
             let entry = entry?;
             let ref_ = entry.get_item(0)?;
             let pos = entry.get_item(1)?;
+            // Oracle: `isinstance(pos, (list, tuple)) and len(pos) >= 2`
+            // (line 452) — isinstance short-circuits first, then len() runs
+            // on a real list/tuple and its failure propagates.
             if (pos.is_instance_of::<PyList>() || pos.is_instance_of::<PyTuple>())
-                && pos.len().map(|n| n >= 2).unwrap_or(false)
+                && pos.len()? >= 2
             {
                 let x = py_float(py, &pos.get_item(0)?)?;
                 let y = py_float(py, &pos.get_item(1)?)?;

@@ -21,7 +21,6 @@ importers.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING
 
 import temper_design_bundle_python as _tdb
 from pydantic import ValidationError
@@ -70,9 +69,6 @@ from temper_placer.core.differential_pair import DifferentialPairConstraint  # n
 from temper_placer.core.net_graph import NetGraph, SubNetEdge  # noqa: F401
 from temper_placer.core.net_types import NetClassification  # noqa: F401
 
-if TYPE_CHECKING:
-    pass
-
 
 class ConfigValidationError(Exception):
     """Wraps Pydantic ValidationError with the config file path context."""
@@ -93,7 +89,13 @@ apply_zones_to_netlist = _tdb.apply_zones_to_netlist
 apply_fixed_components_to_netlist = _tdb.apply_fixed_components_to_netlist
 
 # Module-level constants kept for import-surface stability (the Rust
-# ``infer_rjc`` carries its own copy of the lookup table).
+# ``infer_rjc`` carries its own copy of the lookup table). This table MIRRORS
+# the identical ``_RJC_PACKAGE_LOOKUP`` in
+# ``temper_placer/_constraint_types/thermal.py`` AND the Rust
+# ``RJC_PACKAGE_LOOKUP`` in ``temper-design-bundle/src/config_loader.rs`` —
+# three sources total; keep all three in lockstep (VERIFICATION.md, Recorded
+# risks #1; the differential's ``test_infer_rjc_matches_oracle`` pins the Rust
+# table against this one).
 _RJC_PACKAGE_LOOKUP: dict[str, float] = {
     "TO-247": 0.6,
     "TO-220": 1.0,
@@ -106,4 +108,6 @@ _RJC_PACKAGE_LOOKUP: dict[str, float] = {
     "QFN-48": 5.0,
 }
 
+# Mirrors `_DEFAULT_RJC` in `_constraint_types/thermal.py` and `DEFAULT_RJC`
+# in the Rust config_loader.rs.
 _DEFAULT_RJC: float = 0.6

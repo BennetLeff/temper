@@ -182,14 +182,42 @@ def test_missing_file_raises_same_error(tmp_path):
 
 def test_whitespace_names_rejected_on_both_arms(tmp_path):
     """A name of only spaces/tabs is empty after str.strip and rejected with
-    the oracle's exact message. (The C0-control chars where Python strip and
-    Rust trim genuinely diverge are YAML-unprintable — PyYAML rejects them
-    with ReaderError before strip runs — so over the reachable domain the
-    two are equivalent; the strip call-back is kept by design and M4 is
-    recorded as a proven-equivalent mutant in VERIFICATION.md.)"""
+    the oracle's exact message. (The full divergence surface of Python strip
+    vs Rust trim is covered by
+    ``test_escape_decoded_control_char_name_rejected`` below: the C0 controls
+    U+001C-U+001F that Python strips but Rust trim does not are reachable
+    through PyYAML double-quoted escapes, so M4 is recorded as load-bearing,
+    not proven-equivalent, in VERIFICATION.md.)"""
     for name in ("   ", "\t\t", " \t "):
         content = f'schema_version: 1\ncomponent_aliases:\n  "{name}": C2\n'
         path = tmp_path / "ws.yaml"
+        path.write_text(content, encoding="utf-8")
+        with pytest.raises(ValueError, match="empty name"):
+            _oracle.load_reference_alias_manifest(path, component_refs={"C2"}, loop_names=set())
+        with pytest.raises(ValueError, match="empty name"):
+            LOAD_MANIFEST(str(path), component_refs={"C2"}, loop_names=set())
+
+
+def test_escape_decoded_control_char_name_rejected(tmp_path):
+    """PyYAML decodes the double-quoted escape ``"\\x1c"`` into U+001C (the
+    Reader validates the raw input stream, not decoded escapes), and Python
+    ``str.strip`` treats U+001C-U+001F as whitespace — so the oracle rejects
+    the name as empty. Rust ``str::trim``/``char::is_whitespace`` does NOT
+    strip U+001C (category Cc, not White_Space): a trim-based port would keep
+    the name non-empty and ACCEPT this manifest. The shim must reach the
+    oracle's verdict through the KEPT Python ``str.strip`` call-back (M4 is
+    load-bearing, not equivalent — see VERIFICATION.md)."""
+    # The Python primitive that defines the divergence:
+    assert "\x1c".strip() == ""          # Python strips U+001C (empty result)
+    assert not "\x1c".isprintable()      # a C0 control, not printable
+    # Rust str::trim leaves U+001C untouched (verified independently in
+    # reference_aliases.rs::rust_trim_keeps_u001c_where_python_strip_removes_it)
+    # so a trim-based port would see a non-empty name and ACCEPT the manifest.
+    # Only bare control chars strip to empty — a control char with adjacent
+    # printable text strips to that text and is a *valid* name on both arms.
+    for code in (0x1C, 0x1D, 0x1E, 0x1F):
+        content = f'schema_version: 1\ncomponent_aliases:\n  "\\x{code:02x}": C2\n'
+        path = tmp_path / "ctrl.yaml"
         path.write_text(content, encoding="utf-8")
         with pytest.raises(ValueError, match="empty name"):
             _oracle.load_reference_alias_manifest(path, component_refs={"C2"}, loop_names=set())
