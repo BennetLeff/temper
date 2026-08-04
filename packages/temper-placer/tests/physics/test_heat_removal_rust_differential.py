@@ -325,3 +325,92 @@ def test_module_missing_config_raises() -> None:
     # device_thermal non-empty but missing a device → per-device ValueError.
     with pytest.raises(ValueError, match="Device 'Q1' has no DeviceThermalConfig"):
         build_h_field(cfg, devices, {"Q2": _dev_cfg("Q2", 0.25, 1.0)})
+
+
+# ---------------------------------------------------------------------------
+# Degenerate-input error parity (NaN/inf coordinates, NaN origin, cs=0.0)
+# ---------------------------------------------------------------------------
+# The reference's `int(np.floor(x))` / `int(np.ceil(x))` raise on
+# degenerate floats: ValueError on NaN ("cannot convert float NaN to
+# integer"), OverflowError on ±inf ("cannot convert float infinity to
+# integer").  Rust's `as i64` cast silently saturates (NaN→0, ±inf→
+# i64::MAX/MIN), and the shim validates device_thermal presence but NOT
+# coordinates/cs — so NaN/inf centroids and cs=0.0 are reachable through
+# the public API.  These pins force the Rust side to raise the same
+# errors as the reference (the pyo3 bridge maps the checked conversion
+# to ValueError/OverflowError/ZeroDivisionError).  Written RED first:
+# against the saturating kernel the Rust arm returned a field instead of
+# raising.
+
+
+def test_degenerate_nan_coord_raises_value_error() -> None:
+    cfg = _cfg(4, 4, 1.0)
+    devices = {"Q1": (float("nan"), 1.0)}
+    device_thermal = {"Q1": _dev_cfg("Q1", 0.25, 1.0)}
+    with pytest.raises(ValueError, match="cannot convert float NaN to integer"):
+        _oracle_build_h_field(cfg, devices, device_thermal)
+    with pytest.raises(ValueError, match="cannot convert float NaN to integer"):
+        build_h_field(cfg, devices, device_thermal)
+
+
+def test_degenerate_nan_y_coord_raises_value_error() -> None:
+    cfg = _cfg(4, 4, 1.0)
+    devices = {"Q1": (1.0, float("nan"))}
+    device_thermal = {"Q1": _dev_cfg("Q1", 0.25, 1.0)}
+    with pytest.raises(ValueError, match="cannot convert float NaN to integer"):
+        _oracle_build_h_field(cfg, devices, device_thermal)
+    with pytest.raises(ValueError, match="cannot convert float NaN to integer"):
+        build_h_field(cfg, devices, device_thermal)
+
+
+def test_degenerate_nan_origin_raises_value_error() -> None:
+    # NaN origin poisons the bbox numerators the same way a NaN centroid
+    # does: (dx - half_f - NaN)/cs is NaN → int(np.floor(NaN)) raises.
+    cfg = _cfg(4, 4, 1.0, ox=float("nan"))
+    devices = {"Q1": (1.0, 1.0)}
+    device_thermal = {"Q1": _dev_cfg("Q1", 0.25, 1.0)}
+    with pytest.raises(ValueError, match="cannot convert float NaN to integer"):
+        _oracle_build_h_field(cfg, devices, device_thermal)
+    with pytest.raises(ValueError, match="cannot convert float NaN to integer"):
+        build_h_field(cfg, devices, device_thermal)
+
+
+def test_degenerate_inf_coord_raises_overflow_error() -> None:
+    cfg = _cfg(4, 4, 1.0)
+    devices = {"Q1": (float("inf"), 1.0)}
+    device_thermal = {"Q1": _dev_cfg("Q1", 0.25, 1.0)}
+    with pytest.raises(OverflowError, match="cannot convert float infinity to integer"):
+        _oracle_build_h_field(cfg, devices, device_thermal)
+    with pytest.raises(OverflowError, match="cannot convert float infinity to integer"):
+        build_h_field(cfg, devices, device_thermal)
+
+
+def test_degenerate_neg_inf_coord_raises_overflow_error() -> None:
+    cfg = _cfg(4, 4, 1.0)
+    devices = {"Q1": (1.0, float("-inf"))}
+    device_thermal = {"Q1": _dev_cfg("Q1", 0.25, 1.0)}
+    with pytest.raises(OverflowError, match="cannot convert float infinity to integer"):
+        _oracle_build_h_field(cfg, devices, device_thermal)
+    with pytest.raises(OverflowError, match="cannot convert float infinity to integer"):
+        build_h_field(cfg, devices, device_thermal)
+
+
+def test_degenerate_zero_cs_raises_zero_division() -> None:
+    # The reference computes `10.0 * (cs*1e-3)**2 / (cs*cs)` FIRST — with
+    # cs=0.0 that is 0.0/0.0 → ZeroDivisionError before any device
+    # arithmetic, even with no devices at all.
+    cfg = _cfg(4, 4, 0.0)
+    with pytest.raises(ZeroDivisionError, match="float division by zero"):
+        _oracle_build_h_field(cfg, {}, {})
+    with pytest.raises(ZeroDivisionError, match="float division by zero"):
+        build_h_field(cfg, {}, {})
+
+
+def test_degenerate_zero_cs_with_device_raises_zero_division() -> None:
+    cfg = _cfg(4, 4, 0.0)
+    devices = {"Q1": (1.0, 1.0)}
+    device_thermal = {"Q1": _dev_cfg("Q1", 0.25, 1.0)}
+    with pytest.raises(ZeroDivisionError, match="float division by zero"):
+        _oracle_build_h_field(cfg, devices, device_thermal)
+    with pytest.raises(ZeroDivisionError, match="float division by zero"):
+        build_h_field(cfg, devices, device_thermal)
