@@ -383,6 +383,7 @@ jobs:
     timeout-minutes: 35
     env:
       VIRTUAL_ENV: /_temper-venv
+      UV_PROJECT_ENVIRONMENT: /_temper-venv
       # CI is the environment where the Rust DRC/clearance accelerator and
       # its Python-equivalence proof are themselves under test, so a skip
       # here must not be silent -- see the presence-gate step below and
@@ -601,6 +602,7 @@ jobs:
     timeout-minutes: 45
     env:
       VIRTUAL_ENV: /_temper-venv
+      UV_PROJECT_ENVIRONMENT: /_temper-venv
       TEMPER_REQUIRE_RUST_DRC: "1"
     steps:
       - uses: actions/checkout@v7
@@ -708,6 +710,7 @@ jobs:
     timeout-minutes: 40
     env:
       VIRTUAL_ENV: /_temper-venv
+      UV_PROJECT_ENVIRONMENT: /_temper-venv
       TEMPER_REQUIRE_RUST_DRC: "1"
     steps:
       # fetch-depth: 0 (full history, not the default shallow depth-1 clone):
@@ -1106,6 +1109,7 @@ jobs:
     timeout-minutes: 20
     env:
       VIRTUAL_ENV: /_temper-venv
+      UV_PROJECT_ENVIRONMENT: /_temper-venv
       TEMPER_REQUIRE_RUST_DRC: "1"
     steps:
       - uses: actions/checkout@v7
@@ -1302,6 +1306,7 @@ jobs:
     timeout-minutes: 20
     env:
       VIRTUAL_ENV: /_temper-venv
+      UV_PROJECT_ENVIRONMENT: /_temper-venv
       TEMPER_REQUIRE_RUST_DRC: "1"
     steps:
       - uses: actions/checkout@v7
@@ -1556,6 +1561,7 @@ jobs:
     timeout-minutes: 15
     env:
       VIRTUAL_ENV: /_temper-venv
+      UV_PROJECT_ENVIRONMENT: /_temper-venv
       TEMPER_REQUIRE_RUST_DRC: "1"
     steps:
       - uses: actions/checkout@v7
@@ -1784,6 +1790,7 @@ jobs:
     timeout-minutes: 15
     env:
       VIRTUAL_ENV: /_temper-venv
+      UV_PROJECT_ENVIRONMENT: /_temper-venv
       TEMPER_REQUIRE_RUST_DRC: "1"
     steps:
       - uses: actions/checkout@v7
@@ -1935,6 +1942,7 @@ jobs:
     timeout-minutes: 25
     env:
       VIRTUAL_ENV: /_temper-venv
+      UV_PROJECT_ENVIRONMENT: /_temper-venv
       TEMPER_REQUIRE_RUST_DRC: "1"
     steps:
       - uses: actions/checkout@v7
@@ -2070,6 +2078,7 @@ jobs:
     timeout-minutes: 30
     env:
       VIRTUAL_ENV: /_temper-venv
+      UV_PROJECT_ENVIRONMENT: /_temper-venv
       TEMPER_REQUIRE_RUST_DRC: "1"
     steps:
       - uses: actions/checkout@v7
@@ -2157,6 +2166,7 @@ jobs:
     timeout-minutes: 30
     env:
       VIRTUAL_ENV: /_temper-venv
+      UV_PROJECT_ENVIRONMENT: /_temper-venv
       TEMPER_REQUIRE_RUST_DRC: "1"
     steps:
       - uses: actions/checkout@v7
@@ -2239,6 +2249,7 @@ jobs:
     timeout-minutes: 30
     env:
       VIRTUAL_ENV: /_temper-venv
+      UV_PROJECT_ENVIRONMENT: /_temper-venv
       TEMPER_REQUIRE_RUST_DRC: "1"
     steps:
       - uses: actions/checkout@v7
@@ -2328,6 +2339,7 @@ jobs:
     timeout-minutes: 30
     env:
       VIRTUAL_ENV: /_temper-venv
+      UV_PROJECT_ENVIRONMENT: /_temper-venv
       TEMPER_REQUIRE_RUST_DRC: "1"
     steps:
       - uses: actions/checkout@v7
@@ -2413,6 +2425,7 @@ jobs:
     timeout-minutes: 20
     env:
       VIRTUAL_ENV: /_temper-venv
+      UV_PROJECT_ENVIRONMENT: /_temper-venv
       TEMPER_REQUIRE_RUST_DRC: "1"
     steps:
       - uses: actions/checkout@v7
@@ -2497,6 +2510,7 @@ jobs:
     if: ${{ github.event_name != 'pull_request' }}
     env:
       VIRTUAL_ENV: /_temper-venv
+      UV_PROJECT_ENVIRONMENT: /_temper-venv
     steps:
       - uses: actions/checkout@v7
 

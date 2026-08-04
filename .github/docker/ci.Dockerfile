@@ -126,11 +126,16 @@ RUN uv venv /_temper-venv \
     && VIRTUAL_ENV=/_temper-venv uv pip install --no-cache -r /tmp/requirements-ci.txt \
     && rm -rf /root/.cache/uv
 
-# CI jobs set VIRTUAL_ENV=/_temper-venv so `uv sync`, `maturin develop` and
-# `uv run` all target this pre-populated environment rather than building a
-# fresh .venv in the workspace.
-ENV VIRTUAL_ENV=/_temper-venv
-ENV UV_PROJECT_ENVIRONMENT=/_temper-venv
-ENV PATH="/_temper-venv/bin:${PATH}"
+# Deliberately NO `ENV VIRTUAL_ENV` / `ENV UV_PROJECT_ENVIRONMENT` /
+# `ENV PATH` for this venv. Nine workflows share this image, and six of them
+# (regression, r9-evidence, placer-regression, cp-sat-benchmarks, pr-perf-check,
+# pr-pipeline-scorecard) build their own workspace .venv and set VIRTUAL_ENV to
+# it at job level. Setting UV_PROJECT_ENVIRONMENT here overrode nothing they
+# declare -- a job-level VIRTUAL_ENV does not displace it -- so `uv pip install`
+# targeted their .venv while `uv run` targeted /_temper-venv, and regression
+# failed with `Failed to spawn: maturin` on 2026-08-03.
+#
+# The image offers the environment; consumers opt in. python-tests.yml sets both
+# VIRTUAL_ENV and UV_PROJECT_ENVIRONMENT to /_temper-venv at job level.
 
 WORKDIR /workspace
