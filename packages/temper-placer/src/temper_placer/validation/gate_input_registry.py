@@ -554,6 +554,11 @@ def _acceptance_truth_non_covered() -> InputSpec:
 # test re-derives this list from the workflow and fails on drift.
 _CI_SCRIPT_SURVEY: list[tuple[str, str, str]] = [
     # (script, primary declared input file, reason probe is non-covered)
+    ("check_dead_parameter_inputs.py", "power_pcb_dataset/physics_parameter_map.yaml", "dead-parameter standing check (plan 2026-08-02-019 U3); probe is the check itself"),
+    ("check_firmware_board_contract.py", "firmware/tools/board_derivations.yaml", "firmware-board contract oracle (plan 2026-08-02-027); probe harness deferred"),
+    ("check_required_checks.py", ".github/required-checks.json", "aggregator drift validation; probe harness deferred"),
+    ("classify_changed_paths.py", "", "change-driven CI path classifier (main, 2026-08-03); probe harness deferred"),
+    ("constraint_mutation_gate.py", "power_pcb_dataset/constraint_kill_sets.yaml", "mutation-suite gate (plan 2026-08-02-006); probe harness deferred"),
     ("capacity_budget_gate.py", "scripts/capacity_budget_packages.yaml", "reads fault-tree fan-in data; probe harness deferred"),
     ("check_copper_net_consistency.py", "pcb/temper.kicad_pcb", "needs compiled netlist (elec/build/, not committed); baseline red today"),
     ("check_coverage_gate.py", "coverage.json", "consumes pytest-cov output; probe harness deferred"),
