@@ -9,9 +9,16 @@ license = "MIT"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-faer = "0.24.4"
-pyo3 = { version = "0.29", features = ["extension-module"] }
-temper-py-bridge = { path = "../temper-py-bridge" }
+faer = { version = "0.24.4", optional = true }
+pyo3 = { version = "0.29", features = ["extension-module"], optional = true }
+temper-py-bridge = { path = "../temper-py-bridge", optional = true }
+
+[features]
+default = ["python"]
+# faer (the sparse-LU solver used by fdm::solve_faer_py) is only ever
+# reached from that pyo3-gated wrapper, so it rides the same feature
+# rather than being compiled unconditionally.
+python = ["dep:pyo3", "dep:temper-py-bridge", "dep:faer"]
 
 [dev-dependencies]
 proptest = "1"

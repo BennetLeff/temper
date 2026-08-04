@@ -3,8 +3,11 @@
 //! `_trace_to_cell_coverage`; the `_point_to_segment_distance` check is
 //! inlined in `trace_coverage_inner`).
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use pyo3::types::PyBytes;
+#[cfg(feature = "python")]
 use temper_py_bridge;
 
 // ---------------------------------------------------------------------------
@@ -38,8 +41,11 @@ pub(crate) const HEATSINK_RIGHT: i64 = 3;
 ///
 /// Returns (rows, cols, values, b) — the matrix as COO triplets plus the
 /// RHS vector; the Python side builds scipy CSR from the triplets.
-#[pyfunction]
-#[pyo3(signature = (k_field_bytes, q_bytes, h_field_bytes, height_cells, width_cells, ambient_c, cell_size_mm, heatsink_edge))]
+#[cfg_attr(feature = "python", pyfunction)]
+#[cfg_attr(
+    feature = "python",
+    pyo3(signature = (k_field_bytes, q_bytes, h_field_bytes, height_cells, width_cells, ambient_c, cell_size_mm, heatsink_edge))
+)]
 #[expect(
     clippy::too_many_arguments,
     reason = "Pyo3 boundary mirrors the Python signature 1:1; a config struct would change the FFI"
@@ -155,6 +161,7 @@ pub fn assemble_system(
 /// (the Python side validates buffer lengths); this panics loudly as a
 /// Python RuntimeError instead of aborting the interpreter if a
 /// malformed buffer ever gets through.
+#[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (k_field_bytes, q_bytes, h_field_bytes, height_cells, width_cells, ambient_c, cell_size_mm, heatsink_edge))]
 #[expect(
@@ -209,6 +216,7 @@ fn heatsink_face(row: usize, col: usize, direction: &str, h: usize, w: usize, hs
 /// per cell (anti-aliased, 4x4 supersampling). Mirrors
 /// `_trace_to_cell_coverage` bit-for-bit. Returns the (height_cells,
 /// width_cells) float64 grid as little-endian bytes.
+#[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (x0, y0, x1, y1, trace_width_mm, origin_x, origin_y, cell_size_mm, height_cells, width_cells))]
 #[expect(
@@ -334,6 +342,7 @@ fn parse_f64s(bytes: &[u8]) -> Vec<f64> {
 
 /// Solve A·x = b with faer's sparse LU (partial row pivoting), given the
 /// matrix as COO triplets. Returns the solution as f64 bytes.
+#[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (rows, cols, values, b_bytes, n))]
 pub fn solve_faer_py(
