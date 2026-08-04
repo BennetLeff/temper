@@ -143,8 +143,32 @@ pub const DEFAULT_ESCAPE_CLEARANCE: f64 = 3.0;
 // release build folds it into `x * x`. So `pow` is resolved through `dlsym`
 // once per process (same pattern as temper-thermal's `hostmath.rs`, same
 // class-B1 bit-exactness rationale), with a `powf` fallback on platforms
-// without `dlsym`. `sqrt` stays `f64::sqrt`: IEEE-754 requires a
+// where the dlsym route fails. `sqrt` stays `f64::sqrt`: IEEE-754 requires a
 // correctly-rounded square root, so it is bit-identical to `math.sqrt`.
+//
+// How the two routes actually resolve, per platform (verified 2026-08-04):
+//
+// - **Linux (Ubuntu CI)**: `dlsym(RTLD_DEFAULT, "pow")` resolves the
+//   process-global glibc libm `pow` — the primary route; the 200k-sample A/B
+//   against the oracle shows zero mismatches.
+// - **macOS**: `dlsym(RTLD_DEFAULT, "pow")` returns NULL when called from a
+//   Python-loaded extension: `RTLD_DEFAULT` (the null handle) only searches
+//   the main image and images loaded with `RTLD_GLOBAL`, and CPython loads
+//   extension bundles with `RTLD_LOCAL`. (The same call succeeds from a
+//   standalone C binary — the probe that makes the "invalid handle" claim
+//   look wrong until you reproduce it inside Python.) The `f64::powf`
+//   fallback therefore runs on macOS, and — because the exponent arrives as a
+//   *runtime* value — LLVM cannot fold it to `x * x`: it emits an undefined
+//   `_pow` reference resolved to libSystem, the SAME function CPython's
+//   `float_pow` calls. Sound by accident, and now regression-pinned: the
+//   compiler differential's `test_distance_pow_vs_product_discriminator`
+//   drives a found `(dx, dy)` through `_distance` where `pow` differs from
+//   the product by 1 ULP, and `nm` on the built `.so` shows `U _pow` (the
+//   fallback is live on this platform).
+// - **Windows**: `#[cfg(not(target_arch = "wasm32"))]` compiles the `dlsym`
+//   declaration on Windows, where the CRT has no `dlsym` — a link error.
+//   Recorded, not fixed: out of scope for the Ubuntu CI target (the guard
+//   exists to keep wasm32 builds off the dlsym path).
 // ---------------------------------------------------------------------------
 
 type PowFn = unsafe extern "C" fn(f64, f64) -> f64;
@@ -157,7 +181,9 @@ fn dlsym_pow() -> Option<PowFn> {
     const RTLD_DEFAULT: *const u8 = core::ptr::null();
     let symbol = c"pow";
     // SAFETY: `symbol` is a NUL-terminated C string literal; RTLD_DEFAULT is
-    // the documented "search every loaded object" handle; a miss returns
+    // the null handle (on Linux, "search every loaded object" — on macOS it
+    // only covers the main image + RTLD_GLOBAL-loaded images, which is why
+    // the fallback runs there; see the platform note above); a miss returns
     // null, which is checked.
     let p = unsafe { dlsym(RTLD_DEFAULT, symbol.as_ptr().cast::<u8>()) };
     if p.is_null() {
@@ -169,6 +195,13 @@ fn dlsym_pow() -> Option<PowFn> {
 }
 
 /// `f64::powf` as an `extern "C"`-compatible fallback (dlsym unavailable).
+///
+/// On macOS this is the LIVE route (dlsym returns NULL inside a
+/// Python-loaded extension — see the platform note above). It is sound there
+/// only by accident: the runtime exponent defeats LLVM's `x * x` folding, so
+/// the lowered call resolves to libSystem `pow`, the same function CPython's
+/// `float_pow` calls (verified via `nm`: `U _pow` in the built `.so`, and the
+/// pow-vs-product discriminator in the compiler differential).
 unsafe extern "C" fn fallback_pow(x: f64, y: f64) -> f64 {
     f64::powf(x, y)
 }
@@ -418,6 +451,26 @@ pub fn py_lower(s: &str) -> String {
     s.chars().map(|c| c.to_ascii_lowercase()).collect()
 }
 
+/// CPython's `f"{x:.1f}"` for the message float sites: round-half-even at one
+/// decimal — byte-identical to Rust's `{x:.1}` on every finite value (pinned
+/// by the existing message comparisons) — except that NaN/inf render as
+/// `nan`/`inf`/`-inf`, where Rust's Display writes `NaN` (CPython's `%.1f`
+/// never writes `NaN`). The escape/corridor *distance* sites are unreachable
+/// with NaN through `check()` (`NaN < x` is False, so no violation ever
+/// carries a NaN distance), but every `{:.1}` message site goes through this
+/// helper so a NaN that does reach one (spacing/proximity distance, thermal
+/// edge distance/threshold, group-spread diagonal, escape/corridor zone
+/// clearance) renders identically on both sides.
+pub fn py_float_fmt_1(x: f64) -> String {
+    if x.is_nan() {
+        return "nan".to_string();
+    }
+    if x.is_infinite() {
+        return if x > 0.0 { "inf".to_string() } else { "-inf".to_string() };
+    }
+    format!("{x:.1}")
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -491,5 +544,31 @@ mod tests {
     fn py_lower_is_ascii_only() {
         assert_eq!(py_lower("U_MCU"), "u_mcu");
         assert_eq!(py_lower(""), "");
+    }
+
+    #[test]
+    fn py_float_fmt_1_matches_cpython() {
+        // CPython `f"{x:.1f}"` on the finite set is round-half-even at one
+        // decimal — identical to Rust `{x:.1}` (pinned transitively by the
+        // message comparisons). The divergence this helper closes is NaN:
+        // CPython renders 'nan', Rust Display renders 'NaN'.
+        let cases: &[(f64, &str)] = &[
+            (10.0, "10.0"),
+            (10.25, "10.2"),
+            (10.26, "10.3"),
+            (2.5, "2.5"),
+            (3.5, "3.5"),
+            (-0.0, "-0.0"),
+            (0.0, "0.0"),
+            (0.05, "0.1"),
+            (0.04, "0.0"),
+            (1e300, "1000000000000000052504760255204420248704468581108159154915854115511802457988908195786371375080447864043704443832883878176942523235360430575644792184786706982848387200926575803737830233794788090059368953234970799945081119038967640880074652742780142494579258788820056842838115669472196386865459400540160.0"),
+            (f64::NAN, "nan"),
+            (f64::INFINITY, "inf"),
+            (f64::NEG_INFINITY, "-inf"),
+        ];
+        for (x, expected) in cases {
+            assert_eq!(&py_float_fmt_1(*x), expected, "py_float_fmt_1({x:?})");
+        }
     }
 }

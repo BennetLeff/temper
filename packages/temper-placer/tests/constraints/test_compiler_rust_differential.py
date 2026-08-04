@@ -380,9 +380,12 @@ class TestDictSubclassProtocolDifferential:
     (``PyDict_Contains`` / ``PyDict_GetItem``) that bypass them."""
 
     def _both_compilers(self):
+        # One hard rule (fires in the filter) and one soft rule (fires in the
+        # scorer) so BOTH surfaces touch the placements lookup.
         constraints = _constraints(
             component_spacing_rules=[
-                ComponentSpacingRule(component_a="A", component_b="B", min_separation_mm=10.0, tier="hard")
+                ComponentSpacingRule(component_a="A", component_b="B", min_separation_mm=10.0, tier="hard"),
+                ComponentSpacingRule(component_a="B", component_b="C", min_separation_mm=10.0, tier="soft"),
             ]
         )
         return _both(constraints)

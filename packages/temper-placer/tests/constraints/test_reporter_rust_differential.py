@@ -357,9 +357,11 @@ class TestReportTextAndJsonDifferential:
                         actual_value=True,
                         expected_value=False,
                     ),
+                    # Soft + VIOLATED is a warning in the report's terms; its
+                    # int expected leaf must survive the warnings JSON path.
                     result_cls(
                         "Thermal",
-                        status_enum.WARNING,
+                        status_enum.VIOLATED,
                         "soft",
                         ["T"],
                         "float leaf",
@@ -392,6 +394,7 @@ class TestReportTextAndJsonDifferential:
         assert data["warnings"][0]["actual"] == 1.5
         assert type(data["warnings"][0]["actual"]) is float
         assert type(data["warnings"][0]["expected"]) is int
+        assert data["warnings"][0]["expected"] == 3
         # all_results[1] (Proximity): bool leaves stay bool.
         assert data["all_results"][1]["actual"] is True
         assert type(data["all_results"][1]["actual"]) is bool

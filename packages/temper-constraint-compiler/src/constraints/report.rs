@@ -6,9 +6,11 @@
 //! is opaque here (the shim passes it through for `to_json`).
 
 use crate::constraints::{
-    distance, min_edge_distance, point_to_segment_distance, py_float_str, py_max, py_min, py_pow,
-    ConstraintData, Corridor, EscapeClearance, Group, ProximityRule, SpacingRule, Thermal,
+    distance, min_edge_distance, point_to_segment_distance, py_float_fmt_1, py_float_str, py_max,
+    py_min, py_pow, ConstraintData, Corridor, EscapeClearance, Group, ProximityRule, SpacingRule,
+    Thermal,
 };
+use crate::constraints::slot::Lookup;
 
 /// One checked constraint — mirrors the fields of `ConstraintResult` with
 /// `status` as its canonical string value.
@@ -122,44 +124,46 @@ pub fn report_to_text(results: &[CheckResult]) -> String {
 /// `ConstraintReporter.check(placements)` — every check, in the Python
 /// source's rule order: spacing rules, proximity rules (per group), thermals,
 /// group spreads, escape clearances (1+ results each), corridors (1+ results).
+///
+/// `lookup` is the Python-level per-ref lookup (honors a dict subclass's
+/// `__contains__`/`__getitem__`); `placements` is the ordered item list used
+/// for the escape/corridor full-iteration (the oracle iterates
+/// `placements.items()`, which yields raw values without `__getitem__`).
 pub fn check_all(
     data: &ConstraintData,
     placements: &[(String, (f64, f64))],
+    lookup: &Lookup<'_>,
 ) -> Vec<CheckResult> {
     let mut out = Vec::new();
     for rule in &data.spacing_rules {
-        out.push(check_spacing(rule, placements));
+        out.push(check_spacing(rule, lookup));
     }
     for group in &data.groups {
         for pr in &group.proximity_rules {
-            out.push(check_proximity(pr, placements));
+            out.push(check_proximity(pr, lookup));
         }
     }
     for thermal in &data.thermals {
-        out.push(check_thermal(thermal, placements, data.board_bounds));
+        out.push(check_thermal(thermal, lookup, data.board_bounds));
     }
     for group in &data.groups {
-        out.push(check_group_spread(group, placements));
+        out.push(check_group_spread(group, lookup));
     }
     for escape in &data.escape_clearances {
-        out.extend(check_escape_clearance(escape, placements));
+        out.extend(check_escape_clearance(escape, placements, lookup));
     }
     for corridor in &data.corridors {
-        out.extend(check_routing_corridor(corridor, placements));
+        out.extend(check_routing_corridor(corridor, placements, lookup));
     }
     out
 }
 
-fn placed(placements: &[(String, (f64, f64))], ref_: &str) -> Option<(f64, f64)> {
-    placements.iter().find(|(r, _)| r == ref_).map(|(_, p)| *p)
-}
-
 /// `_check_spacing`.
-fn check_spacing(rule: &SpacingRule, placements: &[(String, (f64, f64))]) -> CheckResult {
+fn check_spacing(rule: &SpacingRule, lookup: &Lookup<'_>) -> CheckResult {
     let a = &rule.a;
     let b = &rule.b;
-    let pos_a = placed(placements, a);
-    let pos_b = placed(placements, b);
+    let pos_a = lookup(a);
+    let pos_b = lookup(b);
     match (pos_a, pos_b) {
         (None, _) | (_, None) => CheckResult {
             ctype: "ComponentSpacing".to_string(),
@@ -176,7 +180,8 @@ fn check_spacing(rule: &SpacingRule, placements: &[(String, (f64, f64))]) -> Che
             let status = if satisfied { "satisfied" } else { "violated" };
             let op = if satisfied { '≥' } else { '<' };
             let message = format!(
-                "ComponentSpacing: {a} - {b} ({distance:.1}mm {op} {}mm)",
+                "ComponentSpacing: {a} - {b} ({}mm {op} {}mm)",
+                py_float_fmt_1(distance),
                 py_float_str(rule.min_separation_mm)
             );
             CheckResult {
@@ -193,11 +198,11 @@ fn check_spacing(rule: &SpacingRule, placements: &[(String, (f64, f64))]) -> Che
 }
 
 /// `_check_proximity`.
-fn check_proximity(rule: &ProximityRule, placements: &[(String, (f64, f64))]) -> CheckResult {
+fn check_proximity(rule: &ProximityRule, lookup: &Lookup<'_>) -> CheckResult {
     let a = &rule.a;
     let b = &rule.b;
-    let pos_a = placed(placements, a);
-    let pos_b = placed(placements, b);
+    let pos_a = lookup(a);
+    let pos_b = lookup(b);
     match (pos_a, pos_b) {
         (None, _) | (_, None) => CheckResult {
             ctype: "Proximity".to_string(),
@@ -214,7 +219,8 @@ fn check_proximity(rule: &ProximityRule, placements: &[(String, (f64, f64))]) ->
             let status = if satisfied { "satisfied" } else { "violated" };
             let op = if satisfied { '≤' } else { '>' };
             let message = format!(
-                "Proximity: {a} - {b} ({distance:.1}mm {op} {}mm)",
+                "Proximity: {a} - {b} ({}mm {op} {}mm)",
+                py_float_fmt_1(distance),
                 py_float_str(rule.max_distance_mm)
             );
             CheckResult {
@@ -233,13 +239,13 @@ fn check_proximity(rule: &ProximityRule, placements: &[(String, (f64, f64))]) ->
 /// `_check_thermal` — first placed component only, always soft tier.
 fn check_thermal(
     thermal: &Thermal,
-    placements: &[(String, (f64, f64))],
+    lookup: &Lookup<'_>,
     board_bounds: Option<[f64; 4]>,
 ) -> CheckResult {
     let placed_comps: Vec<&String> = thermal
         .components
         .iter()
-        .filter(|c| placed(placements, c).is_some())
+        .filter(|c| lookup(c).is_some())
         .collect();
 
     let Some(comp) = placed_comps.first() else {
@@ -266,7 +272,7 @@ fn check_thermal(
         };
     }
 
-    let pos = placed(placements, comp);
+    let pos = lookup(comp);
     let (Some(edge_pos), Some(bounds)) = (pos, board_bounds) else {
         // Unreachable by the guards above, but the pyo3 boundary is not the
         // place to panic — mirror the source's contract instead.
@@ -286,7 +292,9 @@ fn check_thermal(
     let status = if satisfied { "satisfied" } else { "violated" };
     let op = if satisfied { '≤' } else { '>' };
     let message = format!(
-        "Thermal: {comp} edge distance ({edge_distance:.1}mm {op} {threshold:.1}mm preferred)"
+        "Thermal: {comp} edge distance ({}mm {op} {}mm preferred)",
+        py_float_fmt_1(edge_distance),
+        py_float_fmt_1(threshold)
     );
     CheckResult {
         ctype: "Thermal".to_string(),
@@ -300,11 +308,11 @@ fn check_thermal(
 }
 
 /// `_check_group_spread` — bounding-box diagonal of the placed group members.
-fn check_group_spread(group: &Group, placements: &[(String, (f64, f64))]) -> CheckResult {
+fn check_group_spread(group: &Group, lookup: &Lookup<'_>) -> CheckResult {
     let placed_comps: Vec<&String> = group
         .components
         .iter()
-        .filter(|c| placed(placements, c).is_some())
+        .filter(|c| lookup(c).is_some())
         .collect();
 
     if placed_comps.len() < 2 {
@@ -319,10 +327,7 @@ fn check_group_spread(group: &Group, placements: &[(String, (f64, f64))]) -> Che
         };
     }
 
-    let positions: Vec<(f64, f64)> = placed_comps
-        .iter()
-        .filter_map(|c| placed(placements, c))
-        .collect();
+    let positions: Vec<(f64, f64)> = placed_comps.iter().filter_map(|c| lookup(c)).collect();
     let xs: Vec<f64> = positions.iter().map(|p| p.0).collect();
     let ys: Vec<f64> = positions.iter().map(|p| p.1).collect();
     let width = py_max(&xs) - py_min(&xs);
@@ -335,8 +340,9 @@ fn check_group_spread(group: &Group, placements: &[(String, (f64, f64))]) -> Che
     let status = if satisfied { "satisfied" } else { "violated" };
     let op = if satisfied { '≤' } else { '>' };
     let message = format!(
-        "GroupSpread: {} ({diagonal:.1}mm {op} {}mm)",
+        "GroupSpread: {} ({}mm {op} {}mm)",
         group.name,
+        py_float_fmt_1(diagonal),
         py_float_str(group.max_spread_mm)
     );
     CheckResult {
@@ -351,15 +357,19 @@ fn check_group_spread(group: &Group, placements: &[(String, (f64, f64))]) -> Che
 }
 
 /// `_check_escape_clearance` — 1 result when clear/skipped, 1 per violation,
-/// in placements dict iteration order.
+/// in placements dict iteration order. The checked component's position comes
+/// from the Python-level `lookup` (a dict subclass's `__getitem__` is
+/// honored); the other components are iterated from the ordered item list,
+/// mirroring the oracle's `placements.items()` (raw values, no `__getitem__`).
 fn check_escape_clearance(
     escape: &EscapeClearance,
     placements: &[(String, (f64, f64))],
+    lookup: &Lookup<'_>,
 ) -> Vec<CheckResult> {
     let mut results = Vec::new();
     let comp = &escape.component;
 
-    let Some(pos) = placed(placements, comp) else {
+    let Some(pos) = lookup(comp) else {
         results.push(CheckResult {
             ctype: "EscapeClearance".to_string(),
             status: "skipped".to_string(),
@@ -402,14 +412,19 @@ fn check_escape_clearance(
             status: "satisfied".to_string(),
             tier: escape.tier.clone(),
             components: vec![comp.clone()],
-            message: format!("EscapeClearance: {comp} ({clearance:.1}mm zone clear)"),
+            message: format!(
+                "EscapeClearance: {comp} ({}mm zone clear)",
+                py_float_fmt_1(clearance)
+            ),
             actual: None,
             expected: None,
         });
     } else {
         for (other_ref, d) in violations {
             let message = format!(
-                "EscapeClearance: {other_ref} in {comp} zone ({d:.1}mm < {clearance:.1}mm)"
+                "EscapeClearance: {other_ref} in {comp} zone ({}mm < {}mm)",
+                py_float_fmt_1(d),
+                py_float_fmt_1(clearance)
             );
             results.push(CheckResult {
                 ctype: "EscapeClearance".to_string(),
@@ -427,17 +442,20 @@ fn check_escape_clearance(
 }
 
 /// `_check_routing_corridor` — 1 result when clear/skipped, 1 per violation,
-/// in placements dict iteration order.
+/// in placements dict iteration order. Endpoint positions come from the
+/// Python-level `lookup` (honors `__getitem__`); the other components are
+/// iterated from the ordered item list, mirroring `placements.items()`.
 fn check_routing_corridor(
     corridor: &Corridor,
     placements: &[(String, (f64, f64))],
+    lookup: &Lookup<'_>,
 ) -> Vec<CheckResult> {
     let mut results = Vec::new();
     let from_comp = &corridor.from_component;
     let to_comp = &corridor.to_component;
 
-    let pos_from = placed(placements, from_comp);
-    let pos_to = placed(placements, to_comp);
+    let pos_from = lookup(from_comp);
+    let pos_to = lookup(to_comp);
     let (Some(pos_from), Some(pos_to)) = (pos_from, pos_to) else {
         results.push(CheckResult {
             ctype: "RoutingCorridor".to_string(),
@@ -497,8 +515,10 @@ fn check_routing_corridor(
     } else {
         for (other_ref, d) in violations {
             let message = format!(
-                "RoutingCorridor: {other_ref} in {} path ({d:.1}mm < {half_width:.1}mm)",
-                corridor.name
+                "RoutingCorridor: {other_ref} in {} path ({}mm < {}mm)",
+                corridor.name,
+                py_float_fmt_1(d),
+                py_float_fmt_1(half_width)
             );
             results.push(CheckResult {
                 ctype: "RoutingCorridor".to_string(),
@@ -518,6 +538,10 @@ fn check_routing_corridor(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn vec_lookup(placements: &[(String, (f64, f64))]) -> impl Fn(&str) -> Option<(f64, f64)> + '_ {
+        move |r: &str| placements.iter().find(|(k, _)| k == r).map(|(_, p)| *p)
+    }
 
     #[test]
     fn empty_report_text_is_header_only() {
@@ -545,7 +569,7 @@ mod tests {
             ("A".to_string(), (0.0, 0.0)),
             ("B".to_string(), (15.0, 0.0)),
         ];
-        let r = check_spacing(&rule, &placements);
+        let r = check_spacing(&rule, &vec_lookup(&placements));
         assert_eq!(r.status, "satisfied");
         assert_eq!(r.message, "ComponentSpacing: A - B (15.0mm ≥ 10.0mm)");
         assert_eq!(r.actual, Some(15.0));
@@ -555,9 +579,31 @@ mod tests {
             ("A".to_string(), (0.0, 0.0)),
             ("B".to_string(), (5.0, 0.0)),
         ];
-        let r = check_spacing(&rule, &placements);
+        let r = check_spacing(&rule, &vec_lookup(&placements));
         assert_eq!(r.status, "violated");
         assert!(r.is_violation());
+    }
+
+    #[test]
+    fn spacing_nan_message_renders_lowercase_nan() {
+        // CPython `f"{float('nan'):.1f}"` == 'nan'; Rust Display would render
+        // 'NaN'. The message site must go through py_float_fmt_1.
+        let rule = SpacingRule {
+            a: "A".into(),
+            b: "B".into(),
+            min_separation_mm: 10.0,
+            tier: "hard".into(),
+            weight: 1.0,
+            description: String::new(),
+        };
+        let placements = vec![
+            ("A".to_string(), (0.0, 0.0)),
+            ("B".to_string(), (f64::NAN, 0.0)),
+        ];
+        let r = check_spacing(&rule, &vec_lookup(&placements));
+        assert_eq!(r.status, "violated");
+        assert_eq!(r.message, "ComponentSpacing: A - B (nanmm < 10.0mm)");
+        assert!(r.actual.is_some_and(|a| a.is_nan()));
     }
 
     #[test]
@@ -569,7 +615,7 @@ mod tests {
             min_spacing_mm: 5.0,
             description: String::new(),
         };
-        let r = check_thermal(&t, &[], Some([0.0, 0.0, 100.0, 100.0]));
+        let r = check_thermal(&t, &vec_lookup(&[]), Some([0.0, 0.0, 100.0, 100.0]));
         assert_eq!(r.status, "skipped");
         assert_eq!(r.message, "Thermal: Q1, Q2 (not placed)");
         assert_eq!(r.components, vec!["Q1", "Q2"]);

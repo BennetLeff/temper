@@ -264,9 +264,13 @@ fn placements_vec(dict: &Bound<'_, PyDict>) -> PyResult<Vec<(String, (f64, f64))
 /// the rule not fire. Errors are captured into `err` and raised by the
 /// caller after the (side-effect-free) filter/scorer returns.
 ///
-/// `as_any().get_item()` is deliberate: `PyDict::get_item()` uses the dict
-/// C-API fast path and bypasses a subclass's `__getitem__` override, which
-/// the oracle's `placements[other]` honors.
+/// `as_any().contains()` / `as_any().get_item()` are deliberate: `PyDict`'s
+/// own `contains`/`get_item` use the dict C-API fast paths
+/// (`PyDict_Contains`/`PyDict_GetItem`) that BYPASS a subclass's Python-level
+/// `__contains__`/`__getitem__` overrides, which the oracle's `other in
+/// placements` / `placements[other]` honor (`PySequence_Contains` dispatches
+/// to the `sq_contains` slot, which is `slot_sq_contains` for any Python
+/// subclass that overrides `__contains__`).
 fn placements_lookup<'a, 'py>(
     placements: &'a Bound<'py, PyDict>,
     err: &'a RefCell<Option<PyErr>>,
@@ -275,7 +279,7 @@ fn placements_lookup<'a, 'py>(
         if err.borrow().is_some() {
             return None;
         }
-        let in_placements = match placements.contains(r) {
+        let in_placements = match placements.as_any().contains(r) {
             Ok(b) => b,
             Err(e) => {
                 *err.borrow_mut() = Some(e);
@@ -595,58 +599,116 @@ fn check_result_to_dict(py: Python<'_>, r: &CheckResult) -> PyResult<Py<PyAny>> 
 }
 
 /// `ConstraintReporter.check(placements)` — all checks, in rule order.
+///
+/// The reporter's per-ref placement lookups go through the SAME Python-level
+/// protocol as the compiled filter/scorer (`placements_lookup`: `__contains__`
+/// + `__getitem__` honored), so a dict subclass whose `__getitem__` raises
+/// surfaces that raise from `check()` exactly like the oracle's
+/// `placements[ref]`. The ordered item list (for the escape/corridor
+/// full-iteration, which the oracle reads via `placements.items()` — raw
+/// values, no `__getitem__`) is still extracted with the C-level fast path.
 #[pyfunction]
 fn check_constraints(
     py: Python<'_>,
     payload: &Bound<'_, PyDict>,
     placements: &Bound<'_, PyDict>,
 ) -> PyResult<Py<PyAny>> {
-    catch_panic(|| {
+    let err: RefCell<Option<PyErr>> = RefCell::new(None);
+    let lookup = placements_lookup(placements, &err);
+    let out = catch_panic(|| {
         let data = parse_payload(payload)?;
-        let placements = placements_vec(placements)?;
-        let results = crate::constraints::report::check_all(&data, &placements);
+        let items = placements_vec(placements)?;
+        let results = crate::constraints::report::check_all(&data, &items, &lookup);
         let list = PyList::empty(py);
         for r in &results {
             list.append(check_result_to_dict(py, r)?)?;
         }
         Ok(list.into())
     })
-    .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!("{e}")))
+    .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!("{e}")))?;
+    if let Some(e) = err.borrow_mut().take() {
+        return Err(e);
+    }
+    Ok(out)
 }
 
 // ---------------------------------------------------------------------------
 // ConstraintReport.to_text / to_json
 // ---------------------------------------------------------------------------
 
-fn result_from_dict(d: &Bound<'_, PyDict>) -> PyResult<CheckResult> {
-    Ok(CheckResult {
-        ctype: get_str(d, "type")?,
-        status: get_str(d, "status")?,
-        tier: get_str(d, "tier")?,
-        components: get_str_list(d, "components")?,
-        message: get_str(d, "message")?,
-        actual: get_opt_f64(d, "actual")?,
-        expected: get_opt_f64(d, "expected")?,
-    })
+/// The parsed shape of the shim's result dicts: the typed `CheckResult`s
+/// (used for summary/status/type filtering), the opaque `details` dicts, and
+/// the RAW `actual`/`expected` leaves (used verbatim by the JSON builder so
+/// int/bool leaf types survive — see `parse_results`).
+struct ParsedResults<'py> {
+    results: Vec<CheckResult>,
+    details: Vec<Bound<'py, PyAny>>,
+    actuals: Vec<Option<Bound<'py, PyAny>>>,
+    expecteds: Vec<Option<Bound<'py, PyAny>>>,
 }
 
-/// Parse the shim's result dicts into `CheckResult`s, keeping each result's
-/// `details` dict (opaque — passed through to `to_json`).
-fn parse_results<'py>(
-    py: Python<'py>,
-    results: &Bound<'py, PyList>,
-) -> PyResult<(Vec<CheckResult>, Vec<Bound<'py, PyAny>>)> {
+/// Parse the shim's result dicts into `ParsedResults`.
+///
+/// The raw leaves are what `to_json` must emit: the oracle's `to_json` puts
+/// `r.actual_value` into the dict UNTOUCHED, so `json.dumps` renders an int
+/// leaf as `5` and a bool leaf as `true`, not `5.0`/`1.0`. The `f64`
+/// coercion on `CheckResult` is best-effort (`.ok()`): a hand-built report
+/// may carry a non-numeric leaf, which the oracle happily renders in JSON —
+/// raising here would diverge. No consumer of this path reads the coerced
+/// value; the JSON builder emits the raw leaf.
+fn parse_results<'py>(py: Python<'py>, results: &Bound<'py, PyList>) -> PyResult<ParsedResults<'py>> {
     let mut parsed = Vec::with_capacity(results.len());
     let mut details = Vec::with_capacity(results.len());
+    let mut actuals = Vec::with_capacity(results.len());
+    let mut expecteds = Vec::with_capacity(results.len());
     for item in results {
         let d: Bound<'py, PyDict> = item.cast_into()?;
-        parsed.push(result_from_dict(&d)?);
+        let actual_leaf = match d.get_item("actual")? {
+            Some(v) if !v.is_none() => Some(v),
+            _ => None,
+        };
+        let expected_leaf = match d.get_item("expected")? {
+            Some(v) if !v.is_none() => Some(v),
+            _ => None,
+        };
+        parsed.push(CheckResult {
+            ctype: get_str(&d, "type")?,
+            status: get_str(&d, "status")?,
+            tier: get_str(&d, "tier")?,
+            components: get_str_list(&d, "components")?,
+            message: get_str(&d, "message")?,
+            actual: actual_leaf.as_ref().and_then(|v| v.extract::<f64>().ok()),
+            expected: expected_leaf.as_ref().and_then(|v| v.extract::<f64>().ok()),
+        });
         match d.get_item("details")? {
             Some(v) if !v.is_none() => details.push(v),
             _ => details.push(PyDict::new(py).into_any()),
         }
+        actuals.push(actual_leaf);
+        expecteds.push(expected_leaf);
     }
-    Ok((parsed, details))
+    Ok(ParsedResults {
+        results: parsed,
+        details,
+        actuals,
+        expecteds,
+    })
+}
+
+/// Emit a raw `actual`/`expected` leaf into the JSON data dict — the value
+/// the oracle puts in verbatim (int stays int, bool stays bool, float stays
+/// float, `None` stays `null`).
+fn set_leaf<'py>(
+    py: Python<'py>,
+    d: &Bound<'py, PyDict>,
+    key: &str,
+    leaf: &Option<Bound<'py, PyAny>>,
+) -> PyResult<()> {
+    match leaf {
+        Some(v) => d.set_item(key, v)?,
+        None => d.set_item(key, py.None())?,
+    }
+    Ok(())
 }
 
 fn py_str_list<'py>(py: Python<'py>, items: &[String]) -> PyResult<Bound<'py, PyList>> {
@@ -662,8 +724,8 @@ fn py_str_list<'py>(py: Python<'py>, items: &[String]) -> PyResult<Bound<'py, Py
 fn report_to_text(results: &Bound<'_, PyList>) -> PyResult<String> {
     catch_panic(|| {
         let py = results.py();
-        let (parsed, _) = parse_results(py, results)?;
-        Ok(crate::constraints::report::report_to_text(&parsed))
+        let parsed = parse_results(py, results)?;
+        Ok(crate::constraints::report::report_to_text(&parsed.results))
     })
     .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!("{e}")))
 }
@@ -676,8 +738,8 @@ fn report_to_json_data(
     results: &Bound<'_, PyList>,
 ) -> PyResult<Py<PyAny>> {
     catch_panic(|| {
-        let (parsed, details) = parse_results(py, results)?;
-        let summary = crate::constraints::report::report_summary(&parsed);
+        let parsed = parse_results(py, results)?;
+        let summary = crate::constraints::report::report_summary(&parsed.results);
 
         let data = PyDict::new(py);
         let summary_d = PyDict::new(py);
@@ -692,7 +754,7 @@ fn report_to_json_data(
 
         // violations: type, components, message, actual, expected, details
         let violations_list = PyList::empty(py);
-        for (i, r) in parsed.iter().enumerate() {
+        for (i, r) in parsed.results.iter().enumerate() {
             if !r.is_violation() {
                 continue;
             }
@@ -700,55 +762,42 @@ fn report_to_json_data(
             entry.set_item("type", &r.ctype)?;
             entry.set_item("components", py_str_list(py, &r.components)?)?;
             entry.set_item("message", &r.message)?;
-            match r.actual {
-                Some(a) => entry.set_item("actual", a)?,
-                None => entry.set_item("actual", py.None())?,
-            }
-            match r.expected {
-                Some(e) => entry.set_item("expected", e)?,
-                None => entry.set_item("expected", py.None())?,
-            }
-            entry.set_item("details", &details[i])?;
+            set_leaf(py, &entry, "actual", &parsed.actuals[i])?;
+            set_leaf(py, &entry, "expected", &parsed.expecteds[i])?;
+            entry.set_item("details", &parsed.details[i])?;
             violations_list.append(entry)?;
         }
         data.set_item("violations", violations_list)?;
 
         // warnings: type, components, message, actual, expected (NO details)
         let warnings_list = PyList::empty(py);
-        for r in parsed.iter().filter(|r| r.tier == "soft" && r.status == "violated") {
+        for (i, r) in parsed
+            .results
+            .iter()
+            .enumerate()
+            .filter(|(_, r)| r.tier == "soft" && r.status == "violated")
+        {
             let entry = PyDict::new(py);
             entry.set_item("type", &r.ctype)?;
             entry.set_item("components", py_str_list(py, &r.components)?)?;
             entry.set_item("message", &r.message)?;
-            match r.actual {
-                Some(a) => entry.set_item("actual", a)?,
-                None => entry.set_item("actual", py.None())?,
-            }
-            match r.expected {
-                Some(e) => entry.set_item("expected", e)?,
-                None => entry.set_item("expected", py.None())?,
-            }
+            set_leaf(py, &entry, "actual", &parsed.actuals[i])?;
+            set_leaf(py, &entry, "expected", &parsed.expecteds[i])?;
             warnings_list.append(entry)?;
         }
         data.set_item("warnings", warnings_list)?;
 
         // all_results: type, status, tier, components, message, actual, expected
         let all_list = PyList::empty(py);
-        for r in &parsed {
+        for (i, r) in parsed.results.iter().enumerate() {
             let entry = PyDict::new(py);
             entry.set_item("type", &r.ctype)?;
             entry.set_item("status", &r.status)?;
             entry.set_item("tier", &r.tier)?;
             entry.set_item("components", py_str_list(py, &r.components)?)?;
             entry.set_item("message", &r.message)?;
-            match r.actual {
-                Some(a) => entry.set_item("actual", a)?,
-                None => entry.set_item("actual", py.None())?,
-            }
-            match r.expected {
-                Some(e) => entry.set_item("expected", e)?,
-                None => entry.set_item("expected", py.None())?,
-            }
+            set_leaf(py, &entry, "actual", &parsed.actuals[i])?;
+            set_leaf(py, &entry, "expected", &parsed.expecteds[i])?;
             all_list.append(entry)?;
         }
         data.set_item("all_results", all_list)?;

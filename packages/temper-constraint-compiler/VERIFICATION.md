@@ -20,22 +20,32 @@ the delegation shim:
   randomized constraint sets per surface (bool / `float.hex()`), `validate()`
   error tuples (all four fields + `__str__`), the helper methods
   (`_distance`/`_centroid`/`_min_edge_distance`/`_point_to_segment_distance`/
-  `_in_zone`/`_find_similar`), NaN/inf placements, exact-boundary cases, and
+  `_in_zone`/`_find_similar`), NaN/inf placements, exact-boundary cases,
   malformed-placement error paths (lazy raise semantics: a fired rule that
   touches a non-2-sequence placement raises the oracle's exception instead
-  of silently not firing; unrelated malformed entries stay inert).
+  of silently not firing; unrelated malformed entries stay inert), dict-
+  subclass protocol parity (a `__contains__` override that returns False
+  skips the rule on BOTH sides; a raising `__contains__` propagates), and
+  the pinned pow-vs-product discriminator (regression-proofs the `py_pow`
+  seam).
 - `test_reporter_rust_differential.py` — `check()` result lists (status,
   tier, components, message, `actual`/`expected` via `.hex()`, details),
   `to_text()` and `to_json()` byte-identical (including hand-built reports
-  with non-empty `details`), result ORDER (rule order + placements dict
-  iteration order).
+  with non-empty `details` AND with int/bool `actual`/`expected` leaves —
+  the oracle emits the leaf untouched, so `json.dumps` renders `5`/`true`,
+  not `5.0`/`1.0`), NaN-coordinate message parity (`nanmm`, not `NaNmm`),
+  dict-subclass `__getitem__`-raise propagation from `check()`, and result
+  ORDER (rule order + placements dict iteration order).
 - `test_builder_rust_differential.py` — `validate()` error strings and
   `to_yaml()` byte-identical.
 
 Floats are compared via `float.hex()` (never tolerance); concrete types are
 carried in the comparison keys (`_result_key`); every message string is
-compared as-is, which pins `py_float_str` and the `:.1f` rounding
-transitively.
+compared as-is, which pins `py_float_str`, the `:.1f` rounding on finite
+values, and — via `test_nan_placements_messages_byte_identical` — the NaN/inf
+rendering of the message float sites (`%.1f` in CPython renders NaN as `nan`;
+Rust's `{:.1}` Display would write `NaN` — the sites go through
+`py_float_fmt_1`, see below).
 
 ### Numerical traps found and handled
 
@@ -52,19 +62,45 @@ transitively.
   `distance()` and the GroupSpread diagonal route the square through
   `py_pow` — host libm `pow` resolved via `dlsym` once per process (the
   same class-B1 pattern as temper-thermal's `hostmath.rs`), with a `powf`
-  fallback where `dlsym` is unavailable. Plain `f64::powf(2.0)` is NOT a
-  safe stand-in: the extension's release build folds it into `x * x`
-  (verified in the installed `.so`; the P3 spacing PBT surfaced the 1-ULP
-  divergence, and a 200k-sample A/B against the oracle shows zero
-  mismatches with the `dlsym` route). `sqrt` stays `f64::sqrt` — IEEE-754
-  correctly rounded, bit-identical to `math.sqrt`; the PBT reference uses
-  `math.sqrt` (not `** 0.5`, which is libm `pow` again).
+  fallback. How the two routes resolve per platform (verified 2026-08-04):
+  on **Linux** (Ubuntu CI) `dlsym(RTLD_DEFAULT, "pow")` resolves the
+  process-global glibc libm `pow` (primary route; the 200k-sample A/B shows
+  zero mismatches); on **macOS** `dlsym(RTLD_DEFAULT, "pow")` returns NULL
+  from a Python-loaded extension — `RTLD_DEFAULT` (null handle) only covers
+  the main image + `RTLD_GLOBAL` images, and CPython loads extension bundles
+  with `RTLD_LOCAL` (the same call succeeds from a standalone C binary, so
+  the "invalid handle" claim only reproduces inside Python) — so the `powf`
+  fallback runs there and is sound *by accident*: with a runtime exponent
+  LLVM cannot fold `f64::powf` to `x * x`, it emits an undefined `_pow`
+  resolved to libSystem, the SAME function CPython's `float_pow` calls
+  (verified via `nm`: `U _pow` in the built `.so`, plus the
+  pow-vs-product discriminator in the compiler differential). The dlsym
+  declaration is `#[cfg(not(target_arch = "wasm32"))]`-guarded, which leaves
+  it compiled (and unlinked — no `dlsym` in the MSVC CRT) on Windows;
+  recorded, not fixed: out of scope for the Ubuntu CI target. Plain
+  `f64::powf(2.0)` with a LITERAL exponent is NOT a safe stand-in: the
+  extension's release build folds it into `x * x` (verified in the installed
+  `.so`; the P3 spacing PBT surfaced the 1-ULP divergence). `sqrt` stays
+  `f64::sqrt` — IEEE-754 correctly rounded, bit-identical to `math.sqrt`;
+  the PBT reference uses `math.sqrt` (not `** 0.5`, which is libm `pow`
+  again).
 - **CPython float repr.** `py_float_str` reproduces `str(float)`: decimal
   notation for `1e-4 <= |x| < 1e16` with a `.0` suffix on integrals, signed
   zero-padded exponents otherwise (`1e+16`, `1e-05`, `nan`, `inf`, `-0.0`).
   Rust `{}` would write `1e16`/`1e-5`/`1`. The `:.1f` message precision uses
-  Rust `{:.1}`, which matches CPython's round-half-even on the exact value
-  (verified on the tie/edge set; pinned by every message comparison).
+  `py_float_fmt_1`, which is Rust `{x:.1}` (round-half-even, byte-identical
+  to CPython's `%.1f` on every finite value — verified on the tie/edge set;
+  pinned by every message comparison) with NaN/inf special-cased: CPython's
+  `f"{float('nan'):.1f}"` is `nan`, while Rust's `{:.1}` Display writes `NaN`
+  — a byte-parity break demonstrated by the adversarial re-review and closed
+  by the shared helper. NaN reaches the messages only through the placements
+  dict (every constraint-side float is pydantic-bounded `ge`/`gt` 0, so NaN
+  cannot ride a rule field): spacing/proximity distance, the thermal edge
+  distance, and the group-spread diagonal all render `nanmm` identically
+  (pinned by `test_nan_placements_messages_byte_identical`). The escape/
+  corridor DISTANCE sites are unreachable with NaN through `check()` (`NaN <
+  x` is False, so no violation ever carries a NaN distance) — the helper
+  covers them anyway.
 - **NaN semantics.** CPython's `min`/`max` keep the running first element
   (replace only on strict `<`/`>`), so `min(1, NaN) == 1`, `max(0, NaN) == 0`
   and a NaN in position 0 of `_min_edge_distance`'s four distances survives.
@@ -194,6 +230,46 @@ green under a mutation is a survivor; the survivors above were each closed
 with a discriminating case (committed with the campaign record), and all 11
 now fail the differential.
 
+## Adversarial re-review (2026-08-04) — three byte-parity breaks closed
+
+An adversarial pass on the merged Phase-4 branch returned HOLD with three
+demonstrated byte-parity breaks and two residual risks; all were closed:
+
+1. **NaN message rendering.** `{:.1}` Display writes `NaN` where CPython's
+   `%.1f` writes `nan` — six message sites in `report.rs`, diverging in
+   `check()` messages and propagating into `to_text()`/`to_json()`.
+   Closed by `py_float_fmt_1` (finite values unchanged; NaN/inf mapped to
+   `nan`/`inf`/`-inf`) + `test_nan_placements_messages_byte_identical`
+   (NaN driven through the placements dict, which is the only NaN channel —
+   constraint-side floats are pydantic-bounded).
+2. **Dict-subclass protocol.** (a) The compiled filter/scorer used
+   `PyDict_Contains`, bypassing a Python-level `__contains__` override —
+   an always-False `__contains__` flipped filter decisions (oracle skips
+   the rule, shim fired it) and a raising `__contains__` was swallowed.
+   Closed by routing `placements_lookup` through `PySequence_Contains`
+   (`as_any().contains`). (b) The reporter extracted placements into a
+   C-level list, so a dict subclass whose `__getitem__` raises made the
+   oracle's `check()` raise while the shim returned a normal report.
+   Closed by routing the reporter's per-ref lookups through the same
+   Python-level lookup closure (the escape/corridor item iteration stays
+   C-level, matching `placements.items()` on non-overriding subclasses).
+3. **Hand-built `to_json` with int/bool leaves.** `result_from_dict` coerced
+   leaves to f64, so `actual_value=5` re-emitted as `5.0`. Closed by
+   marshalling the RAW Python leaf through the JSON builder (`ParsedResults`
+   carries the untouched leaves; the f64 coercion on `CheckResult` is now
+   best-effort since no consumer of the to_text/to_json path reads it).
+4. **py_pow seam docs** were inaccurate on macOS (`dlsym(RTLD_DEFAULT,
+   "pow")` returns NULL inside a Python-loaded extension, so the `powf`
+   fallback runs and is sound by accident — see the `** 2` bullet above).
+   Corrected in-source and in this file, and `test_distance_pow_vs_product_
+   discriminator` pins the found input where `pow` differs from the IEEE
+   product through `_distance`. The Windows link gap (the `not(wasm32)`
+   guard leaves the `dlsym` declaration unlinked on Windows) is recorded,
+   not fixed.
+
+The RED fixtures were committed first (commit `9624bb1fd`): 5 of the 6
+failed against the built extension; the fixes commit turns them green.
+
 ## `Py<PyAny>` decision
 
 The seed crate carries 11 `Py<PyAny>` handles — all in the PCL pipeline's
@@ -217,6 +293,25 @@ none are stored past the call.)
   are ASCII, so the ASCII fold matches CPython exactly on the tested domain.
   Non-ASCII component refs are outside the tested domain (the oracle's
   `str.lower` would fold them differently).
+- **Compiled filter/scorer entry-point narrowing.** The pyclass `__call__`
+  signatures require `component: str` and a real `dict` for `placements`
+  (pyo3 extraction). The oracle's `filter_slot`/`score_slot` accept any
+  hashable component (e.g. `int 5`) and any object with `__contains__`/
+  `__getitem__` (a `collections.abc.Mapping`): oracle `True`/`False` vs shim
+  `TypeError` (`'int' object is not an instance of 'str'`, `'...' object is
+  not an instance of 'dict'`). Realistic usage is str components and dict
+  placements (the shim's own type aliases and every consumer), and the
+  dict-subclass PROTOCOL (Python-level `__contains__`/`__getitem__`) IS
+  honored on the values that pass extraction — so this is recorded as a
+  documented deviation, not widened.
+- **Dict-subclass protocol.** The shim's placement lookups use the
+  Python-level membership/subscript protocol (`PySequence_Contains` /
+  `__getitem__` via `as_any()`), NOT the dict C-API fast paths, so a dict
+  subclass's `__contains__`/`__getitem__` overrides behave identically to
+  the oracle's `other in placements` / `placements[other]`: an override
+  returning False skips the rule (filter accepts), and a raising override
+  propagates (compiler differential's `TestDictSubclassProtocolDifferential`
+  and the reporter's `__getitem__`-raise case).
 - **Malformed-placement error wording.** When a fired rule touches a
   placement value that is not a 2-sequence of numbers, both the oracle and
   the Rust raise — same exception type, and byte-identical message for the
@@ -231,10 +326,21 @@ none are stored past the call.)
   messages for the other three.
 - **Malformed-placement scope.** The error propagation covers the compiled
   filter/scorer `__call__`s (the per-call hot path the oracle reaches via
-  `placements[other]`). The reporter's `check()` also raises on malformed
-  values (its eager `placements_vec` extraction), but there the error is
-  wrapped in `PyRuntimeError` by the uniform entry-point mapping rather than
-  passed through as the native type; no differential exercises that path.
+  `placements[other]`) and the reporter's `check()`, whose per-ref placement
+  lookups go through the same Python-level protocol — a dict subclass whose
+  `__getitem__` raises propagates natively from `check()` exactly like the
+  oracle (`test_dict_subclass_raising_getitem_raises_in_check`). The
+  reporter's EAGER `placements_vec` extraction of the item list (non-tuple /
+  non-numeric placement VALUES, reached through the escape/corridor
+  iteration which the oracle reads from `placements.items()`) still raises
+  inside the uniform entry-point mapping and is wrapped in `PyRuntimeError`
+  rather than passed through as the native type; no differential exercises
+  that path.
+- **Reporter iterates `placements.items()` at the C level.** The escape/
+  corridor full-iteration extracts the ordered item list with the dict
+  C-API fast path, matching `placements.items()` on any dict subclass that
+  does NOT override `items()`. A subclass that overrides `items()` is
+  outside the tested domain (recorded, not closed).
 - **PyYAML `yaml.dump` and `json.dumps` stay Python stdlib.** The
   `to_yaml` data-shape logic (conditional keys, insertion order) is Rust;
   the serialization call itself stays Python per the Wave-4 guide's PyYAML
@@ -267,15 +373,19 @@ none are stored past the call.)
   the oracle returns `1.0` would compare equal (both `0x1.0p+0`). The
   helper is duplicated per-suite rather than shared, so the coercion was
   recorded rather than churned: every migrated surface returns typed values
-  (`f64` in Rust, float in Python) and the reporter's `actual`/`expected`
-  leaves are floats by construction; the PBT suites additionally assert
-  concrete Python types on the shim outputs.
+  (`f64` in Rust, float in Python), the check()-produced reporter
+  `actual`/`expected` leaves are floats by construction on both sides, and
+  the hand-built-report `to_json` path is pinned on the LEAF TYPE directly
+  (`test_hand_built_report_int_and_bool_leaves_json` asserts
+  `json.loads(...)` yields `int`/`bool`/`float`/`None` exactly as the
+  oracle renders); the PBT suites additionally assert concrete Python types
+  on the shim outputs.
 
 ## Scorecard
 
 | Gate | Status |
 |---|---|
-| R1a bit-identical A/B | ✓ 40 differential assertions across the three suites (randomized + boundary) |
+| R1a bit-identical A/B | ✓ 54 differential test methods across the three suites (randomized + boundary + protocol + NaN + int/bool-leaf cases) |
 | R1b perf A/B | ✓ no benchmarked surface (baseline covers bottleneck-geometry); not a speedup candidate — stated, not manufactured |
 | R1c ≥5 properties/module | ✓ 5 + 5 + 5 (all non-vacuous, each has a witness/guard) |
 | R1d ≥3 metamorphic/module | ✓ 4 + 4 + 4 (bounds stated in-test) |
