@@ -20,8 +20,15 @@
 //!   to f64 exactly like Python's int*float multiply.
 //! - **Int-truncation parity:** `int(np.floor(x))` / `int(np.ceil(x))`
 //!   are floor/ceil-then-truncate-toward-zero, identical to Rust's
-//!   `x.floor() as i64` / `x.ceil() as i64` for the values that reach
-//!   them (measured 2026-08-04 for negative and fractional inputs).
+//!   `x.floor() as i64` / `x.ceil() as i64` for the FINITE values that
+//!   reach them (measured 2026-08-04 for negative and fractional
+//!   inputs).  On degenerate values CPython RAISES (`int(NaN)` →
+//!   ValueError, `int(±inf)` → OverflowError) where Rust's `as i64`
+//!   cast would silently saturate — the kernel replicates the raise via
+//!   [`BuildHFieldError`] (NaN centroids / NaN origin / ±inf centroids /
+//!   cs == 0.0 are all reachable through the shim, which validates
+//!   device_thermal presence but not coordinates/cs; pinned by the
+//!   degenerate-input differential cases).
 //! - **Iteration order:** devices are accumulated in the caller's dict
 //!   iteration order (the Python shim passes them in that order); two
 //!   overlapping footprints accumulate `+= h_cell` in the same order on
@@ -51,6 +58,53 @@ pub const H_CONV_BACKGROUND: f64 = 10.0;
 /// Device footprint side length (mm) — mirrors `_DEVICE_FOOTPRINT_MM`.
 pub const DEVICE_FOOTPRINT_MM: f64 = 5.0;
 
+/// Error a degenerate input raises through the pyo3 bridge, matching the
+/// reference's CPython exception exactly (the reference's
+/// `int(np.floor(x))` / `int(np.ceil(x))` raise on degenerate floats and
+/// its `... / (cs * cs)` raises on cs == 0.0; a Rust `as i64` cast would
+/// silently saturate instead).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum BuildHFieldError {
+    /// `int(np.floor/ceil(NaN))` → `ValueError("cannot convert float NaN
+    /// to integer")` (reachable via NaN device centroids or a NaN grid
+    /// origin; the shim validates device_thermal presence but NOT
+    /// coordinates/cs).
+    NanToInt,
+    /// `int(np.floor/ceil(±inf))` → `OverflowError("cannot convert float
+    /// infinity to integer")` (a ±inf centroid, or the ±inf quotient of a
+    /// finite numerator over cs == 0.0 — see below).
+    InfToInt,
+    /// `10.0 * (cs*1e-3)**2 / (cs*cs)` with cs == 0.0 is 0.0/0.0 in
+    /// CPython → `ZeroDivisionError("float division by zero")`, raised by
+    /// the reference BEFORE any per-device arithmetic (even with no
+    /// devices).
+    DivisionByZero,
+}
+
+/// Checked floor/ceil-then-truncate, matching `int(np.floor(x))` /
+/// `int(np.ceil(x))`: NaN raises ValueError and ±inf raises
+/// OverflowError exactly like CPython, instead of Rust's saturating
+/// `as i64` cast (NaN→0, ±inf→i64::MAX/MIN).
+fn checked_int_floor(v: f64) -> Result<i64, BuildHFieldError> {
+    if v.is_nan() {
+        return Err(BuildHFieldError::NanToInt);
+    }
+    if v.is_infinite() {
+        return Err(BuildHFieldError::InfToInt);
+    }
+    Ok(v.floor() as i64)
+}
+
+fn checked_int_ceil(v: f64) -> Result<i64, BuildHFieldError> {
+    if v.is_nan() {
+        return Err(BuildHFieldError::NanToInt);
+    }
+    if v.is_infinite() {
+        return Err(BuildHFieldError::InfToInt);
+    }
+    Ok(v.ceil() as i64)
+}
+
 /// Build the per-cell vertical conductance field `(H, W)` in
 /// W/(K·mm²).  Mirrors `build_h_field`'s grid arithmetic verbatim:
 ///
@@ -68,6 +122,13 @@ pub const DEVICE_FOOTPRINT_MM: f64 = 5.0;
 ///
 /// Returns the `(height_cells * width_cells)` float64 field as
 /// little-endian bytes.
+///
+/// # Errors
+///
+/// Returns [`BuildHFieldError`] for the same degenerate inputs that make
+/// the reference raise: NaN or ±inf values reaching the int conversions
+/// (NaN centroids/origin, ±inf centroids), or `cs == 0.0` (the
+/// reference's 0.0/0.0 background division raises first).
 ///
 /// # Arguments
 ///
@@ -92,12 +153,20 @@ pub fn build_h_field(
     ys: &[f64],
     r_cs: &[f64],
     r_sa: &[f64],
-) -> Vec<f64> {
+) -> Result<Vec<f64>, BuildHFieldError> {
     let cs = cell_size_mm;
     let ox = origin_x;
     let oy = origin_y;
     let h = height_cells;
     let w = width_cells;
+
+    // `h_bg = (10.0 * cell_area_m2) / (cs * cs)` — with cs == 0.0 the
+    // reference's CPython float division is 0.0/0.0 → ZeroDivisionError,
+    // raised before any per-device arithmetic.  Rust IEEE division would
+    // silently produce NaN; replicate the reference's raise.
+    if cs == 0.0 {
+        return Err(BuildHFieldError::DivisionByZero);
+    }
 
     // Background convection (uniform).  `(cs * 1e-3) ** 2` is host
     // libm pow (B1); `h_bg = (10.0 * cell_area_m2) / (cs * cs)` is the
@@ -122,16 +191,17 @@ pub fn build_h_field(
         // Footprint bounding box in grid coordinates — the reference
         // computes `col_min = max(0, int(np.floor(...)))` and
         // `col_max = min(w, int(np.ceil(...)))` (floor/ceil then
-        // truncate toward zero, identical to `as i64` for these
-        // values), THEN numpy reinterprets a NEGATIVE slice stop as
-        // `dim + stop` (e.g. `a[:, 0:-3]` on a width-4 grid covers
-        // columns [0, 1)) — measured 2026-08-04.  `n_cells` is computed
-        // from the RAW post-clamp values BEFORE the numpy
-        // reinterpretation, exactly like the reference.
-        let col_min = 0i64.max(((dx_mm - half_f - ox) / cs).floor() as i64);
-        let col_max_raw = (w as i64).min(((dx_mm + half_f - ox) / cs).ceil() as i64);
-        let row_min = 0i64.max(((dy_mm - half_f - oy) / cs).floor() as i64);
-        let row_max_raw = (h as i64).min(((dy_mm + half_f - oy) / cs).ceil() as i64);
+        // truncate toward zero, identical to `as i64` for finite values,
+        // with the int() raise on NaN/±inf replicated above), THEN numpy
+        // reinterprets a NEGATIVE slice stop as `dim + stop` (e.g.
+        // `a[:, 0:-3]` on a width-4 grid covers columns [0, 1)) —
+        // measured 2026-08-04.  `n_cells` is computed from the RAW
+        // post-clamp values BEFORE the numpy reinterpretation, exactly
+        // like the reference.
+        let col_min = 0i64.max(checked_int_floor((dx_mm - half_f - ox) / cs)?);
+        let col_max_raw = (w as i64).min(checked_int_ceil((dx_mm + half_f - ox) / cs)?);
+        let row_min = 0i64.max(checked_int_floor((dy_mm - half_f - oy) / cs)?);
+        let row_max_raw = (h as i64).min(checked_int_ceil((dy_mm + half_f - oy) / cs)?);
 
         // `n_cells = max(1, (row_max_raw - row_min) * (col_max_raw -
         // col_min))` — computed from the RAW post-clamp values exactly
@@ -170,10 +240,12 @@ pub fn build_h_field(
         }
     }
 
-    field
+    Ok(field)
 }
 
-/// pyo3 bridge for [`build_h_field`].
+/// pyo3 bridge for [`build_h_field`].  Maps [`BuildHFieldError`] to the
+/// reference's CPython exceptions (ValueError / OverflowError /
+/// ZeroDivisionError) with the reference's message text.
 #[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (cell_size_mm, origin_x, origin_y, height_cells, width_cells, xs, ys, r_cs, r_sa))]
@@ -193,7 +265,7 @@ pub fn build_h_field_py(
     r_cs: Vec<f64>,
     r_sa: Vec<f64>,
 ) -> PyResult<Bound<'_, PyBytes>> {
-    let field = temper_py_bridge::catch_unwind(|| {
+    let field = match temper_py_bridge::catch_unwind(|| {
         build_h_field(
             cell_size_mm,
             origin_x,
@@ -205,8 +277,25 @@ pub fn build_h_field_py(
             &r_cs,
             &r_sa,
         )
-    })
-    .map_err(temper_py_bridge::panic_to_err)?;
+    }) {
+        Ok(Ok(field)) => field,
+        Ok(Err(BuildHFieldError::NanToInt)) => {
+            return Err(pyo3::exceptions::PyValueError::new_err(
+                "cannot convert float NaN to integer",
+            ))
+        }
+        Ok(Err(BuildHFieldError::InfToInt)) => {
+            return Err(pyo3::exceptions::PyOverflowError::new_err(
+                "cannot convert float infinity to integer",
+            ))
+        }
+        Ok(Err(BuildHFieldError::DivisionByZero)) => {
+            return Err(pyo3::exceptions::PyZeroDivisionError::new_err(
+                "float division by zero",
+            ))
+        }
+        Err(e) => return Err(temper_py_bridge::panic_to_err(e)),
+    };
     let mut out = Vec::with_capacity(field.len() * 8);
     for v in field {
         out.extend_from_slice(&v.to_le_bytes());
@@ -219,11 +308,16 @@ pub fn build_h_field_py(
 
 #[cfg(test)]
 mod tests {
+    // The crate denies `unwrap`/`expect` in production code (Cargo.toml
+    // `[lints.clippy]`); a failing unwrap in a test IS the test failure,
+    // which is the documented carve-out in the Wave-4 G7 bar.
+    #![allow(clippy::expect_used, clippy::unwrap_used)]
+
     use super::*;
 
     #[test]
     fn empty_devices_background_only() {
-        let f = build_h_field(1.0, 0.0, 0.0, 4, 4, &[], &[], &[], &[]);
+        let f = build_h_field(1.0, 0.0, 0.0, 4, 4, &[], &[], &[], &[]).unwrap();
         // h_bg = 10.0 * pow(1e-3, 2.0) / (1.0 * 1.0) = 10.0 * 1e-6 = 1e-5
         assert_eq!(f.len(), 16);
         // h_bg = 10.0 * pow(1e-3, 2.0) / (1.0*1.0) — NOT exactly 1e-5
@@ -236,7 +330,7 @@ mod tests {
     fn device_sink_accumulates() {
         // One device at the centre of a 4x4 grid, cs=1, origin (0,0),
         // footprint 5x5 → covers the whole 4x4 grid (16 cells).
-        let f = build_h_field(1.0, 0.0, 0.0, 4, 4, &[2.0], &[2.0], &[0.25], &[1.0]);
+        let f = build_h_field(1.0, 0.0, 0.0, 4, 4, &[2.0], &[2.0], &[0.25], &[1.0]).unwrap();
         let g_dev = 1.0 / (0.25 + 1.0);
         let h_cell = g_dev / (16.0 * 1.0 * 1.0);
         let h_bg = 10.0 * (1e-3f64).powi(2) / (1.0 * 1.0);
@@ -247,14 +341,14 @@ mod tests {
     fn board_heatsinked_device_skipped() {
         // R_vert = 0 → skip; the cell keeps only the background value.
         let h_bg = 10.0 * (1e-3f64).powi(2) / (1.0 * 1.0);
-        let f = build_h_field(1.0, 0.0, 0.0, 4, 4, &[2.0], &[2.0], &[0.0], &[0.0]);
+        let f = build_h_field(1.0, 0.0, 0.0, 4, 4, &[2.0], &[2.0], &[0.0], &[0.0]).unwrap();
         assert!(f.iter().all(|&v| v == h_bg));
     }
 
     #[test]
     fn off_grid_footprint_is_noop() {
         let h_bg = 10.0 * (1e-3f64).powi(2) / (1.0 * 1.0);
-        let f = build_h_field(1.0, 0.0, 0.0, 4, 4, &[-100.0], &[-100.0], &[0.25], &[1.0]);
+        let f = build_h_field(1.0, 0.0, 0.0, 4, 4, &[-100.0], &[-100.0], &[0.25], &[1.0]).unwrap();
         assert!(f.iter().all(|&v| v == h_bg));
     }
 
@@ -262,7 +356,7 @@ mod tests {
     fn overlapping_footprints_accumulate() {
         // Two devices whose footprints overlap the same cells; both
         // h_cells accumulate per cell.
-        let f = build_h_field(1.0, 0.0, 0.0, 4, 4, &[1.0, 2.0], &[1.0, 2.0], &[0.25, 0.5], &[1.0, 1.0]);
+        let f = build_h_field(1.0, 0.0, 0.0, 4, 4, &[1.0, 2.0], &[1.0, 2.0], &[0.25, 0.5], &[1.0, 1.0]).unwrap();
         let g1 = 1.0 / 1.25;
         let g2 = 1.0 / 1.5;
         // device 1 footprint: x in [2.5-2.5, 2.5+2.5] → [0, 5] → cols 0..4;
@@ -271,5 +365,29 @@ mod tests {
         let h1 = g1 / (16.0 * 1.0);
         let h2 = g2 / (16.0 * 1.0);
         assert!(f.iter().all(|&v| (v - (1e-5 + h1 + h2)).abs() < 1e-18));
+    }
+
+    #[test]
+    fn degenerate_inputs_raise_like_cpython() {
+        // int(np.floor(NaN)) → ValueError; int(np.floor(±inf)) →
+        // OverflowError; cs=0.0 → the reference's 0.0/0.0 background
+        // division → ZeroDivisionError.  Rust `as i64` would saturate;
+        // the checked conversions must reject.
+        assert_eq!(
+            build_h_field(1.0, 0.0, 0.0, 4, 4, &[f64::NAN], &[1.0], &[0.25], &[1.0]),
+            Err(BuildHFieldError::NanToInt)
+        );
+        assert_eq!(
+            build_h_field(1.0, 0.0, 0.0, 4, 4, &[f64::INFINITY], &[1.0], &[0.25], &[1.0]),
+            Err(BuildHFieldError::InfToInt)
+        );
+        assert_eq!(
+            build_h_field(1.0, 0.0, f64::NAN, 4, 4, &[1.0], &[1.0], &[0.25], &[1.0]),
+            Err(BuildHFieldError::NanToInt)
+        );
+        assert_eq!(
+            build_h_field(0.0, 0.0, 0.0, 4, 4, &[], &[], &[], &[]),
+            Err(BuildHFieldError::DivisionByZero)
+        );
     }
 }
