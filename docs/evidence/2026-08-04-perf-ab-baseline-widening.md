@@ -1,3 +1,4 @@
+<!-- provenance: commit=f2b09d84673b3a18d8fabe454230f1b240148f3d dirty=false -->
 # The performance A/B baseline could not grow: root cause, capture path, and the widened baseline (2026-08-04)
 
 Companion to `2026-08-04-perf-ab-harness-noise-floor.md`, which set the margins.
