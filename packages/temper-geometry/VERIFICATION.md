@@ -796,3 +796,279 @@ input), and `precompute_from_pad_polygons` / `compute_drc_proxy_score`
 cold paths). Return-value tuples (`Vec<(usize,usize,f64)>` from
 `check_clearance_violation`, etc.) were left as-is: the spike targets
 parameters, and pyo3's return-tuple extraction is already efficient.
+
+> **Superseded in part (Wave 4 Phase 4, 2026-08-04):** the two `drc_inflate`
+> entries in the "deliberately kept" list above no longer exist.
+> `precompute_from_pad_polygons` was retired from Rust (it was dead and did not
+> match the Python semantics) and `compute_drc_proxy_score` was replaced by
+> `drc_proxy_score`, which takes flat positions and half-dimensions rather than
+> nested polygons — so the variable-length-nesting objection no longer applies
+> to it. See the next section.
+
+## DRC Inflation Kernels — Wave 4 Phase 4 (the `geometry/` remainder, 2026-08-04)
+
+### What Phase 4 actually found
+
+Phase 4's brief was "the 2,630 LOC of `temper_placer/geometry/` that Waves 1-3
+left behind". Surveying the tree first — before migrating anything — showed
+that most of it was **already migrated**. Per file, at base `ebf9326ff`:
+
+| File | LOC | State at base |
+|---|---:|---|
+| `primitives.py` | 329 | already a pure delegation shim (`_tg.*`) |
+| `polygon.py` | 329 | already a pure delegation shim |
+| `sdf.py` | 302 | already a shim except `sdf_gradient` |
+| `transform.py` | 271 | already a pure delegation shim |
+| `smooth.py` | 267 | already a pure delegation shim |
+| `constraints.py` | 235 | already delegating; NamedTuple wrappers only |
+| `overlap.py` | 176 | already a pure delegation shim |
+| `projections.py` | 127 | already a pure delegation shim |
+| `__init__.py` | 202 | re-export table + 2 static constant tuples + `sdf_gradient` |
+| `kicad_transform.py` | 164 | **Python**, deliberately and already documented |
+| `drc_inflate.py` | 228 | **Python** — the only genuinely unmigrated compute |
+
+So the residual compute surface was one module, and the work was to decide,
+per function, what could be moved with a *proof* rather than a hope.
+
+### Verdicts
+
+**MIGRATED** (Rust: `src/drc_inflate.rs`, bound in `src/bridge.rs`):
+`_smooth_relu_array`, `compute_inflated_half_dims_from_bounds`,
+`compute_drc_proxy_score`.
+
+**JUSTIFIED-KEEP, named blocker — GEOS buffer**: `inflate_pad_polygon`,
+`precompute_inflated_dims`, `precompute_from_pad_polygons`.
+
+Shapely's `buffer(r, resolution=16)` is GEOS's *polygonal approximation* of the
+round Minkowski offset. It is tempting to assume the inflated bounds are just
+`bounds ± r` — the extreme of a disk offset is axis-aligned — and to "port" the
+function as four additions. Measured at `ebf9326ff` over random polygons:
+
+| corpus | bit-mismatches vs `bounds ± r` | worst deviation |
+|---|---:|---:|
+| general polygons (3-8 vertices) | 169 / 169 | 2.4e-3 mm |
+| axis-aligned rectangles | 12 / 400 | 8.9e-16 mm |
+
+2.4e-3 mm is three orders of magnitude above a rounding artefact and about 1%
+of a 0.2 mm clearance — the approximation is visible at the scale this module
+works at. Reproducing it means vendoring GEOS's buffer algorithm; approximating
+it is a behaviour change that a differential over shipped fixtures would not
+catch, which is the judgment PR #688 made about keeping `yaml.safe_load` on the
+Python side. The measurement is pinned by
+`tests/geometry/test_drc_inflate_rust_differential.py::TestGeosBlockedSurfacesStayPython`,
+which fails if GEOS ever *does* match the closed form — so the verdict is
+re-decidable rather than folklore.
+
+**JUSTIFIED-KEEP, named blocker — Python callable argument**:
+`sdf.py::sdf_gradient` and `__init__.py::sdf_gradient` take an arbitrary Python
+`sdf_fn` and evaluate it at four probe points. Moving the finite-difference
+stencil to Rust would put a Python call inside the inner loop, so the boundary
+crossing grows rather than shrinks. Already documented in `sdf.py`'s own
+docstring at base; recorded here so it carries a verdict.
+
+**JUSTIFIED-KEEP, unchanged**: `kicad_transform.py`. Its module docstring
+already argues the case (a two-line scalar formula is not worth a per-call FFI
+crossing) and the drift risk is already closed by
+`tests/geometry/test_kicad_transform_rust_differential.py`, which pins it
+against this crate's `rotate_local_to_world`. Phase 4 re-examined and upheld
+it; nothing changed.
+
+**RETIRED**: the previous `drc_inflate.rs` carried functions named
+`inflate_pad_polygon`, `precompute_inflated_dims` and
+`precompute_from_pad_polygons`, exported through pyo3 under those names. They
+had no caller anywhere in the repo, in Rust or Python, and they were *not* the
+Python semantics: `inflate_pad_polygon` pushed vertices away from the centroid
+instead of taking a Minkowski sum and returned vertices rather than an AABB;
+`precompute_inflated_dims` took a `(width, height)` pair where the Python
+function takes a list of polygons. A caller reaching for
+`temper_geometry.precompute_inflated_dims` expecting the documented Python
+behaviour would have got silently different arithmetic. Dead and misleading is
+worse than absent, so they went with this port. `bridge.rs`'s `vec_to_aabbs`
+helper existed only to feed them and went too.
+
+### Verification by induction — `pairwise_sum`
+
+`compute_drc_proxy_score` ends in `np.sum`, and `np.sum` is **not** a
+left-to-right accumulation: it is numpy's blocked pairwise reduction. Float
+addition is not associative, so the reduction order is part of the result.
+Measured on this repo's corpora, `np.sum` and naive accumulation disagree at
+n = 8, 16, 129, 300 and 4950. The Rust port therefore transcribes numpy's
+algorithm rather than approximating it.
+
+*Base case.* For `n < 8` the algorithm is defined to be naive left-to-right
+accumulation, and the port is literally that loop. Verified exhaustively for
+n = 0..7 (`pairwise_sum_small_inputs_are_naive`).
+
+*Induction step.* Two cases.
+
+1. `8 <= n <= 128`. The reduction is a fixed, finite expression over the input:
+   eight accumulators seeded from `a[0..8]`, an 8-strided loop over
+   `a[8 .. n - n%8]`, the fixed tree `((r0+r1)+(r2+r3))+((r4+r5)+(r6+r7))`, then
+   a naive tail over the final `n % 8` elements. There is no recursion, so
+   correctness here is by construction from the transcription and needs no
+   hypothesis.
+2. `n > 128`. The result is `pairwise_sum(a[..n2]) + pairwise_sum(a[n2..])`
+   where `n2 = (n/2) - (n/2) % 8`. Both halves are strictly shorter than `n`
+   (for `n > 128`, `n2 >= 56` and `n - n2 <= n - 56 < n`), so the induction
+   hypothesis applies to each, and the outer `+` is a single f64 addition
+   fixed by the split point. The split point depends only on `n`, so the
+   partition — and hence the association tree — is identical to numpy's.
+
+Since every input length falls into exactly one of these three cases and each
+either terminates or reduces to strictly shorter inputs, the reproduction is
+exact for all n. Empirically confirmed against `np.sum` for every n in
+0..300 plus 500, 1000, 4950 and 10000: zero bit-mismatches.
+
+### Verification by induction — dtype width
+
+The pre-migration pipeline is **dtype-polymorphic**: the pairwise gap
+arithmetic runs in the caller's numpy dtype (float32 at every shipped call
+site — see `tests/geometry/test_drc_inflate.py`) and only widens to float64 at
+the softplus. Computing the gaps in f64 would be numerically close and
+bit-wrong.
+
+The port does not carry a separate f32 code path. It computes in f64 and
+rounds through `f32` after each operation whose numpy result dtype is float32
+(`round_to`). That is exact, not an approximation:
+
+*Base case.* Every geometry-side operation in this module is `+`, `-`, `abs`,
+`min` or `max` on values already exactly representable in f32. For those,
+the f64 result of a single operation on f32 operands is itself exact (no
+rounding occurs at f64 width), so rounding that exact value to f32 gives
+precisely what f32 arithmetic would have produced.
+
+*Induction step.* Each intermediate is the output of one such operation on
+values that the previous step already narrowed to f32, so the base case
+applies again at every step and the invariant "every f32-typed intermediate
+holds exactly its f32 value" is maintained through the whole chain.
+
+The one place this needs care is the weak scalar: numpy's NEP-50 promotion
+casts a Python float to the *array's* dtype before the operation. Adding the
+f64 literal and then narrowing is not the same as narrowing first — for
+`bound = 0.14703835546970367` and `trace_width = 0.1` the two orders differ.
+`inflated_half_dims_from_bounds` narrows the trace width first, and both the
+Rust unit test and the differential pin the discriminating case.
+
+The promotion is tracked per operand rather than per call, because numpy
+promotes per operation: a gap is f32 only when both of its operands are, and
+`distances` (through `np.where`) is f32 only when both gaps are.
+
+### `np.minimum` / `np.maximum` are not `f64::min` / `f64::max`
+
+numpy's form is `(a < b || isnan(a)) ? a : b`, which propagates a NaN in
+*either* operand. Rust's `f64::min`/`f64::max` discard NaN and return the other
+operand. The port uses numpy's form. Only the `np_maximum` NaN path is
+reachable from `drc_proxy_score` — the `np_minimum` call is guarded by
+`gap_x < 0 && gap_y < 0`, which is False whenever a gap is NaN — and the
+differential pins that reachable path with NaN and +/-inf positions.
+
+### Empirical verification
+
+`tests/geometry/test_drc_inflate_rust_differential.py` — 91 bit-exact
+assertions against `_drc_inflate_py_oracle.py`, a verbatim copy of the module
+at `ebf9326ff`. Floats are compared via `float.hex()`, never a tolerance, and
+every leaf carries its concrete `type` in the comparison key so an int/float
+swap or an f32/f64 width change cannot hide behind numeric equality. Coverage:
+the full float32 x float64 dtype matrix, four mixed-dtype combinations,
+n = 0,1,2,3,4,5,9,13,20,40 (straddling numpy's 128-element blocksize and its
+8-way unroll), a clearance x beta grid, dense all-overlapping placements,
+coincident and zero-size components, subnormal/infinite/NaN softplus inputs,
+and the `n < 2` return-type asymmetry (a 0-d `ndarray`, where `n >= 2` returns
+`np.float64` — oracle behaviour, preserved rather than fixed).
+
+`tests/geometry/test_drc_inflate_pbt.py` — 7 properties and 6 metamorphic
+relations, each carrying an explicit anti-vacuity witness, plus a
+`TestPropertiesAreFalsifiable` class that feeds each assertion a deliberately
+wrong value and requires it to fail.
+
+Metamorphic relations: translation (bit-exact, integer coordinates),
+translation with general reals (approximate — see below), reflection in x/y/
+both (bit-exact), 90-degree rotation as a coordinate *and* dimension swap
+(bit-exact), permutation (tight tolerance — see below), and power-of-two scale
+on the half-dims (bit-exact).
+
+Two of those tolerances are statements about the implementation, not hedges:
+
+* **Permutation is not bit-exact.** Relabelling components permutes the
+  summands, and the blocked pairwise reduction is order-dependent. Claiming
+  exactness here would be claiming something false.
+* **Translation is exact only for exactly-representable shifts.** Translating
+  `[0,0], [1e-6, 0]` by 1024 rounds the second coordinate, changes the computed
+  gap, and moves the score in its last three hex digits. This is inherited
+  arithmetic — the pre-migration numpy implementation does exactly the same
+  thing, verified — not a porting defect. M1 therefore generates integer
+  coordinates so it can assert on the bits, and M1b states the general-real
+  case separately so M1's exactness claim cannot quietly be weakened into it.
+
+### Anti-vacuity (mutation campaign)
+
+Eight mutations of the Rust kernel, each rebuilt and run against the full
+differential + PBT suite (baseline 109 passed / 0 failed):
+
+| # | Mutation | Result |
+|---|---|---|
+| M1 | naive accumulation instead of the pairwise split | 3 failed |
+| M2 | drop f32 narrowing in `round_to` | 26 failed |
+| M3 | `np_maximum` instead of `np_minimum` in the overlap branch | 17 failed |
+| M4 | `f64::max` instead of `np_maximum` | 2 failed |
+| M5 | widen the trace width before adding instead of narrowing first | 1 failed |
+| M6 | drop the `n % 8` guard on the unrolled loop bound | 38 failed |
+| M7 | hard-code alpha = 10.0 instead of using `beta` | 10 failed |
+| M8 | halve before inflating instead of after | 16 failed |
+
+M4 and M5 **survived the first pass** — the differential had no NaN/inf input
+and no trace-width/bound pair that discriminated the two rounding orders. Both
+gaps were closed with targeted cases before the campaign was re-run; the table
+above is the re-run. This is the whole point of mutating: two of eight gates
+were not measuring what they claimed until they were shown a mutant they let
+through.
+
+### Performance A/B (R1b)
+
+Measured darwin/arm64, release build, median of 9 after 3 warmups
+(`benchmarks/perf_ab.py`):
+
+| stage | rust / oracle | reading |
+|---|---:|---|
+| `drc_proxy_score` (40 components, 780 pairs, float32) | **0.195** | 5.1x faster |
+| `smooth_relu_array` (4096 samples) | **1.890** | 1.9x *slower* |
+
+The second number is reported rather than buried. The kernel is not the cost —
+the Python-list marshalling across the pyo3 boundary is. Measured crossover:
+
+| n | rust total | numpy | `.tolist()` alone | ratio |
+|---:|---:|---:|---:|---:|
+| 16 | 1.46us | 6.33us | 0.29us | 0.230 |
+| 256 | 11.96us | 11.12us | 2.63us | 1.075 |
+| 4096 | 203.25us | 110.12us | 42.92us | 1.846 |
+| 65536 | 3760.29us | 2066.25us | 704.33us | 1.820 |
+
+Rust wins below n ~= 256 and loses above it, with `.tolist()` alone accounting
+for ~40% of the Rust arm at 4096. This does not affect the migration's value:
+`_smooth_relu_array` is a private helper whose only production caller was
+`compute_drc_proxy_score`, and the migrated `compute_drc_proxy_score` does not
+call it — it runs the whole O(n^2) pipeline in Rust, crossing the boundary with
+3n floats instead of n^2. It is kept Rust-backed anyway because the numpy
+formulation was a hand-transcribed copy of `smooth.rs`'s branch split (its own
+docstring said so), which is the duplicated-formula hazard that
+`kicad_transform.py` exists to prevent.
+
+Removing the marshalling cost means moving this crate's FFI convention from
+flat `Vec<f64>` to the buffer protocol. That is a crate-wide change affecting
+30+ bindings and contradicts the C7 FFI audit's settled convention, so it is
+recorded as a measured, deferred optimisation rather than done here.
+
+**Baseline capture is outstanding.** Both new `_BENCHMARKS` entries have no row
+in `power_pcb_dataset/metrics/perf_ab_baseline.jsonl`, so `pr_perf_compare.py`
+fails closed with NO_BASELINE. That is deliberate: `perf_ab.py`'s own guidance
+is that a darwin-captured baseline is *worse* than none (a consistent -11%
+platform bias would make the gate miss every regression between +20% and +35%
+while reporting spurious improvements). The rows must be taken from this PR's
+own CI "Run the performance A/B (PR branch)" step and committed before merge.
+
+### R1h — physics gating
+
+N/A. Nothing in this module is physics-gated. `compute_drc_proxy_score` is a
+differentiable *proxy* loss for optimisation, not a manufacturing or safety
+rule: it has no threshold, produces no verdict, and gates nothing. The R24
+discipline applies to CP-SAT physics constraints; there are none here.

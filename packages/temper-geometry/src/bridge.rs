@@ -57,11 +57,9 @@ fn vec_to_rects(v: &[f64]) -> Vec<Rect> {
         .collect()
 }
 
-fn vec_to_aabbs(v: &[f64]) -> Vec<AABB> {
-    v.chunks(4)
-        .map(|c| AABB::new(c[0], c[1], c[2], c[3]))
-        .collect()
-}
+// `vec_to_aabbs` lived here to feed the retired `compute_drc_proxy_score`
+// binding (which took component rectangles; the real Python signature takes
+// centre positions and half-dimensions). It had no other caller and went with it.
 
 fn aabb_to_tuple(bb: &AABB) -> (f64, f64, f64, f64) {
     (bb.x_min, bb.y_min, bb.x_max, bb.y_max)
@@ -1232,60 +1230,64 @@ fn point_in_zone(
 // drc_inflate module
 // =============================================================================
 
+// The three Shapely-backed surfaces of `temper_placer/geometry/drc_inflate.py`
+// (`inflate_pad_polygon`, `precompute_inflated_dims`,
+// `precompute_from_pad_polygons`) are intentionally absent: they stay in Python
+// on GEOS under a Wave 4 R3 JUSTIFIED-KEEP. Bindings under those names used to
+// exist here, but bound a *different* computation with a different signature —
+// dead code that could only ever be reached by mistake. See
+// packages/temper-geometry/VERIFICATION.md and drc_inflate.rs's header.
+
+/// Elementwise `softplus(alpha * x) / alpha` over a float64 buffer.
 #[pyfunction]
-fn inflate_pad_polygon(pad_points: Vec<f64>, clearance_mm: f64) -> PyResult<Vec<f64>> {
-    temper_py_bridge::catch_unwind(|| {
-        let pts = vec_to_points(&pad_points);
-        let result = crate::drc_inflate::inflate_pad_polygon(&pts, clearance_mm);
-        Ok(points_to_vec(&result))
-    })
-    .map_err(temper_py_bridge::panic_to_err)?
+fn smooth_relu_array(xs: Vec<f64>, alpha: f64) -> PyResult<Vec<f64>> {
+    temper_py_bridge::catch_unwind(|| crate::drc_inflate::smooth_relu_array(&xs, alpha))
+        .map_err(temper_py_bridge::panic_to_err)
 }
 
+/// `(bound + trace_width_mm) / 2`, evaluated in the caller's numpy dtype.
+///
+/// `bounds` is the caller's array flattened; `as_f32` says whether numpy would
+/// have done this arithmetic in float32. The caller restores the shape.
 #[pyfunction]
-fn precompute_inflated_dims(width: f64, height: f64, clearance_mm: f64) -> PyResult<(f64, f64)> {
+fn inflated_half_dims_from_bounds(
+    bounds: Vec<f64>,
+    trace_width_mm: f64,
+    as_f32: bool,
+) -> PyResult<Vec<f64>> {
     temper_py_bridge::catch_unwind(|| {
-        Ok(crate::drc_inflate::precompute_inflated_dims(width, height, clearance_mm))
+        crate::drc_inflate::inflated_half_dims_from_bounds(&bounds, trace_width_mm, as_f32)
     })
-    .map_err(temper_py_bridge::panic_to_err)?
+    .map_err(temper_py_bridge::panic_to_err)
 }
 
+/// Sum of squared clearance violations over every component pair.
+///
+/// `positions` is a flat row-major `(n, 2)` buffer. The three `*_is_f32` flags
+/// carry the caller's numpy dtypes; numpy promotes per operation, so they are
+/// independent rather than one combined flag.
 #[pyfunction]
-fn precompute_from_pad_polygons(pad_polys: Vec<Vec<f64>>, clearance_mm: f64) -> PyResult<Vec<(f64, f64)>> {
-    temper_py_bridge::catch_unwind(|| {
-        let polys: Vec<Vec<Point>> = pad_polys
-            .iter()
-            .map(|v| vec_to_points(v))
-            .collect();
-        Ok(crate::drc_inflate::precompute_from_pad_polygons(&polys, clearance_mm))
-    })
-    .map_err(temper_py_bridge::panic_to_err)?
-}
-
-#[pyfunction]
-fn compute_inflated_half_dims_from_bounds(
-    x1: f64, y1: f64, x2: f64, y2: f64, clearance_mm: f64,
-) -> PyResult<(f64, f64)> {
-    temper_py_bridge::catch_unwind(|| {
-        let bb = AABB::new(x1, y1, x2, y2);
-        Ok(crate::drc_inflate::compute_inflated_half_dims_from_bounds(&bb, clearance_mm))
-    })
-    .map_err(temper_py_bridge::panic_to_err)?
-}
-
-#[pyfunction]
-fn compute_drc_proxy_score(
-    component_rects: Vec<f64>,
-    pad_polys: Vec<Vec<f64>>,
+fn drc_proxy_score(
+    positions: Vec<f64>,
+    half_widths: Vec<f64>,
+    half_heights: Vec<f64>,
     clearance_mm: f64,
+    beta: f64,
+    positions_is_f32: bool,
+    half_widths_is_f32: bool,
+    half_heights_is_f32: bool,
 ) -> PyResult<f64> {
     temper_py_bridge::catch_unwind(|| {
-        let rects = vec_to_aabbs(&component_rects);
-        let polys: Vec<Vec<Point>> = pad_polys
-            .iter()
-            .map(|v| vec_to_points(v))
-            .collect();
-        crate::drc_inflate::compute_drc_proxy_score(&rects, &polys, clearance_mm)
+        crate::drc_inflate::drc_proxy_score(
+            &positions,
+            &half_widths,
+            &half_heights,
+            clearance_mm,
+            beta,
+            positions_is_f32,
+            half_widths_is_f32,
+            half_heights_is_f32,
+        )
     })
     .map_err(temper_py_bridge::panic_to_err)
 }
@@ -1429,11 +1431,9 @@ pub fn register_functions(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(point_in_zone, m)?)?;
 
     // drc_inflate
-    m.add_function(wrap_pyfunction!(inflate_pad_polygon, m)?)?;
-    m.add_function(wrap_pyfunction!(precompute_inflated_dims, m)?)?;
-    m.add_function(wrap_pyfunction!(precompute_from_pad_polygons, m)?)?;
-    m.add_function(wrap_pyfunction!(compute_inflated_half_dims_from_bounds, m)?)?;
-    m.add_function(wrap_pyfunction!(compute_drc_proxy_score, m)?)?;
+    m.add_function(wrap_pyfunction!(smooth_relu_array, m)?)?;
+    m.add_function(wrap_pyfunction!(inflated_half_dims_from_bounds, m)?)?;
+    m.add_function(wrap_pyfunction!(drc_proxy_score, m)?)?;
 
     // corridor
     m.add_function(wrap_pyfunction!(extract_corridor_mask, m)?)?;

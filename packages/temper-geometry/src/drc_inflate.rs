@@ -1,204 +1,224 @@
 // =============================================================================
-// DRC inflation functions — ported from temper-placer Python
+// DRC inflation kernels — Wave 4 Phase 4 port of temper_placer/geometry/drc_inflate.py
 // =============================================================================
 //
-// Precompute Minkowski-inflated pad dimensions for DRC proxy loss.
+// Scope. Three of the module's six public surfaces live here; the other three
+// (`inflate_pad_polygon`, `precompute_inflated_dims`, `precompute_from_pad_polygons`)
+// deliberately stay in Python on Shapely. That is a recorded R3 JUSTIFIED-KEEP
+// with a named blocker, not an omission: `buffer(r, resolution=16)` is GEOS's
+// *polygonal approximation* of the round offset, so the inflated bounds are not
+// the closed form `bounds ± r`. Measured on 169 random polygons: 169/169 differ,
+// worst deviation 2.4e-3 mm; even axis-aligned rectangles differ in 12/400 cases.
+// See packages/temper-geometry/VERIFICATION.md.
 //
-// The Python version used `shapely.geometry.Polygon.buffer()` for Minkowski
-// sum padding.  This Rust port uses a simpler approach:
-//   - Rectangular pads → expand AABB by clearance_mm on each side
-//   - Non-rectangular pads → compute centroid and push each vertex outward
-//     by clearance_mm/2 along the centroid-to-vertex direction
+// (An earlier revision of this file carried functions with those same three
+// names. They were dead — no caller in Rust or Python — and they were *not* the
+// Python semantics: `inflate_pad_polygon` pushed vertices away from the
+// centroid instead of taking a Minkowski sum, and `precompute_inflated_dims`
+// took a (width, height) pair where Python takes a list of polygons. They were
+// retired with this port rather than left to be mistaken for the real thing.)
 //
-// At evaluation time only pairwise AABB distance checks run — lightweight
-// and amortises the inflation step.
+// Two properties of the numpy original are load-bearing and are reproduced
+// exactly rather than "cleaned up":
+//
+//   * dtype width — the pairwise gap arithmetic runs in the caller's dtype
+//     (float32 at every shipped call site), widening to float64 only at the
+//     softplus. See `Width` below.
+//   * reduction order — `np.sum` is a blocked pairwise reduction, and float
+//     addition is not associative. See `pairwise_sum` below.
 
-use crate::types::*;
-use crate::primitives;
-use crate::smooth::*;
+use crate::smooth::smooth_relu;
 
-// =============================================================================
-// Helpers
-// =============================================================================
+// -----------------------------------------------------------------------------
+// numpy dtype-width emulation
+// -----------------------------------------------------------------------------
 
-/// Check whether a set of vertices form an axis-aligned rectangle (4 corners
-/// that exactly match the AABB).
-fn is_axis_aligned_rectangle(vertices: &[Point]) -> bool {
-    if vertices.len() != 4 {
-        return false;
-    }
-    let bb = AABB::from_points(vertices);
-    let corners = [
-        Point::new(bb.x_min, bb.y_min),
-        Point::new(bb.x_max, bb.y_min),
-        Point::new(bb.x_max, bb.y_max),
-        Point::new(bb.x_min, bb.y_max),
-    ];
-    for corner in &corners {
-        if !vertices
-            .iter()
-            .any(|v| (v.x - corner.x).abs() < 1e-9 && (v.y - corner.y).abs() < 1e-9)
-        {
-            return false;
+/// Round an exact f64 intermediate to the width numpy would have produced.
+///
+/// Every operation this module performs on the geometry side is `+`, `-`,
+/// `abs`, `min` or `max` over values that are exactly representable in f32. For
+/// those, IEEE-754 gives `f32_op(a, b) == round_f32(f64_op(a, b))` — the f64
+/// result of one such operation on f32 operands is exact, so a single rounding
+/// step reproduces f32 arithmetic without needing a separate f32 code path.
+#[inline]
+fn round_to(as_f32: bool, v: f64) -> f64 {
+    if as_f32 { v as f32 as f64 } else { v }
+}
+
+/// `np.minimum`, including its NaN and signed-zero behaviour.
+///
+/// numpy's scalar form is `(a < b || isnan(a)) ? a : b`, which propagates a NaN
+/// in *either* operand (a NaN in `b` loses the `a < b` comparison and is
+/// returned). `f64::min` instead *ignores* NaN, so it is the wrong primitive.
+#[inline]
+fn np_minimum(a: f64, b: f64) -> f64 {
+    if a < b || a.is_nan() { a } else { b }
+}
+
+/// `np.maximum` — the mirror of [`np_minimum`], with the same NaN contract.
+#[inline]
+fn np_maximum(a: f64, b: f64) -> f64 {
+    if a > b || a.is_nan() { a } else { b }
+}
+
+// -----------------------------------------------------------------------------
+// numpy's blocked pairwise summation
+// -----------------------------------------------------------------------------
+
+/// numpy's unrolled-block size for `add.reduce` (`PW_BLOCKSIZE`).
+const PW_BLOCKSIZE: usize = 128;
+
+/// Reproduce `np.sum` over a contiguous f64 array, bit for bit.
+///
+/// `np.sum` does **not** accumulate left to right. It uses the blocked pairwise
+/// algorithm below (numpy's `pairwise_sum_DOUBLE`), and because float addition
+/// is not associative the two orders give different bits: measured on this
+/// repo's own corpora they disagree at n = 8, 16, 129, 300 and 4950. A naive
+/// `iter().sum()` here would be numerically reasonable and bit-wrong, so the
+/// blocking is transcribed rather than approximated.
+///
+/// The differential suite pins that the two orders genuinely differ on the
+/// tested corpus, so this reproduction cannot pass for the trivial reason.
+fn pairwise_sum(a: &[f64]) -> f64 {
+    let n = a.len();
+
+    if n < 8 {
+        let mut res = 0.0;
+        for &v in a {
+            res += v;
         }
-    }
-    true
-}
-
-// =============================================================================
-// Core Inflation Functions
-// =============================================================================
-
-/// Inflate a pad polygon outward by `clearance_mm / 2`.
-///
-/// *Rectangular pads* — compute the AABB and expand it by `clearance_mm / 2`
-/// on each side.  Returns the four corners of the expanded rectangle.
-///
-/// *Non-rectangular pads* — compute the arithmetic-mean centroid, then push
-/// each vertex outward along the centroid→vertex direction by
-/// `clearance_mm / 2`.
-pub fn inflate_pad_polygon(pad_points: &[Point], clearance_mm: f64) -> Vec<Point> {
-    if pad_points.is_empty() {
-        return vec![];
+        return res;
     }
 
-    if is_axis_aligned_rectangle(pad_points) {
-        // Expand the AABB uniformly by half the clearance on each side.
-        let bb = AABB::from_points(pad_points);
-        let half = clearance_mm * 0.5;
-        let x_min = bb.x_min - half;
-        let x_max = bb.x_max + half;
-        let y_min = bb.y_min - half;
-        let y_max = bb.y_max + half;
-        vec![
-            Point::new(x_min, y_min),
-            Point::new(x_max, y_min),
-            Point::new(x_max, y_max),
-            Point::new(x_min, y_max),
-        ]
-    } else {
-        // Push each vertex outward from the centroid.
-        let centroid = primitives::points_centroid(pad_points);
-        let half = clearance_mm * 0.5;
-        pad_points
-            .iter()
-            .map(|p| {
-                let dx = p.x - centroid.x;
-                let dy = p.y - centroid.y;
-                let dist = (dx * dx + dy * dy).sqrt();
-                if dist < 1e-15 {
-                    *p
-                } else {
-                    Point::new(p.x + (dx / dist) * half, p.y + (dy / dist) * half)
-                }
-            })
-            .collect()
-    }
-}
-
-/// Add clearance to both dimensions for a simple rectangular pad.
-///
-/// This is the cheap path when you already know the raw (width, height) and
-/// only need the inflated dimensions rather than full polygon vertices.
-pub fn precompute_inflated_dims(width: f64, height: f64, clearance_mm: f64) -> (f64, f64) {
-    (width + clearance_mm, height + clearance_mm)
-}
-
-/// Precompute inflated (width, height) for every pad polygon in a batch.
-///
-/// Each pad is inflated via [`inflate_pad_polygon`], the AABB is extracted,
-/// and the resulting (width, height) is returned.  Empty polygons yield
-/// `(0.0, 0.0)`.
-pub fn precompute_from_pad_polygons(
-    pad_polys: &[Vec<Point>],
-    clearance_mm: f64,
-) -> Vec<(f64, f64)> {
-    pad_polys
-        .iter()
-        .map(|poly| {
-            if poly.is_empty() {
-                return (0.0, 0.0);
+    if n <= PW_BLOCKSIZE {
+        // Eight independent accumulators, filled from the first eight elements.
+        let mut r = [a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7]];
+        let unrolled_end = n - (n % 8);
+        let mut i = 8;
+        while i < unrolled_end {
+            for (k, acc) in r.iter_mut().enumerate() {
+                *acc += a[i + k];
             }
-            let inflated = inflate_pad_polygon(poly, clearance_mm);
-            let bb = AABB::from_points(&inflated);
-            (bb.width(), bb.height())
-        })
+            i += 8;
+        }
+        // The reduction tree numpy uses to combine the accumulators; the
+        // parenthesisation is part of the result, not a style choice.
+        let mut res = ((r[0] + r[1]) + (r[2] + r[3])) + ((r[4] + r[5]) + (r[6] + r[7]));
+        while i < n {
+            res += a[i];
+            i += 1;
+        }
+        return res;
+    }
+
+    // Split, keeping the left half a multiple of the unroll factor.
+    let mut n2 = n / 2;
+    n2 -= n2 % 8;
+    pairwise_sum(&a[..n2]) + pairwise_sum(&a[n2..])
+}
+
+// -----------------------------------------------------------------------------
+// Kernels
+// -----------------------------------------------------------------------------
+
+/// Vectorised smooth ReLU: `softplus(alpha * x) / alpha`, elementwise.
+///
+/// The Python original widened its input to float64 on entry and kept a stable
+/// branch split so the untaken arm can never overflow. Both are preserved: the
+/// per-element body is [`crate::smooth::smooth_relu`], which carries exactly
+/// that split, and the caller hands us f64 already.
+pub fn smooth_relu_array(xs: &[f64], alpha: f64) -> Vec<f64> {
+    xs.iter().map(|&x| smooth_relu(x, alpha)).collect()
+}
+
+/// Inflate `(width, height)` bounds by `trace_width_mm` and halve them.
+///
+/// `half = (bound + trace_width_mm) / 2`, evaluated in `bounds`'s own width.
+/// When `as_f32` is set, `trace_width_mm` is narrowed to f32 *first* — numpy's
+/// NEP-50 weak-scalar promotion casts the Python float to the array's dtype
+/// before the add, and for a value like 0.1, adding the f64 literal and then
+/// rounding is not the same as adding the f32 literal.
+///
+/// Shape-agnostic by construction: the Python original broadcasts and never
+/// indexes, so a flat buffer plus the caller's own reshape is faithful.
+pub fn inflated_half_dims_from_bounds(
+    bounds: &[f64],
+    trace_width_mm: f64,
+    as_f32: bool,
+) -> Vec<f64> {
+    let inflation = round_to(as_f32, trace_width_mm);
+    bounds
+        .iter()
+        .map(|&b| round_to(as_f32, round_to(as_f32, b + inflation) / 2.0))
         .collect()
 }
 
-/// Compute inflated *half*-dimensions from an existing AABB.
+/// Sum of squared clearance violations over every component pair.
 ///
-/// Inflation is applied on both sides, so the full width/height grows by
-/// `clearance_mm` and the result is halved:
+/// `positions` is a flat `(n, 2)` row-major buffer; `half_widths` and
+/// `half_heights` are length `n`. The three `*_is_f32` flags carry the caller's
+/// numpy dtypes so the gap arithmetic rounds where numpy would; they are
+/// independent because numpy promotes per-operation, not per-call.
 ///
-/// ```text
-/// half_w = (bounds.width()  + clearance_mm) / 2
-/// half_h = (bounds.height() + clearance_mm) / 2
-/// ```
-pub fn compute_inflated_half_dims_from_bounds(bounds: &AABB, clearance_mm: f64) -> (f64, f64) {
-    let w = bounds.width() + clearance_mm;
-    let h = bounds.height() + clearance_mm;
-    (w * 0.5, h * 0.5)
-}
-
-/// Compute the DRC proxy score — sum of squared clearance violations across
-/// all component pairs.
-///
-/// This is a direct port of the Python `compute_drc_proxy_score`.  It:
-///
-/// 1. Inflates each pad polygon via [`precompute_from_pad_polygons`] to obtain
-///    half-dimensions for every component.
-/// 2. Derives component center positions from each AABB.
-/// 3. For every pair computes the gap in x and y using the inflated
-///    half-dimensions, determines the signed distance between the pads,
-///    and applies a smooth ReLU penalty for any violation of `clearance_mm`.
-///
-/// The smoothing parameter `beta` is fixed at 10.0 (matching the Python default).
-pub fn compute_drc_proxy_score(
-    component_rects: &[AABB],
-    pad_polys: &[Vec<Point>],
+/// Only the strict upper triangle is evaluated. The Python original built the
+/// full `n x n` matrix and then indexed `triu_indices(n, k=1)`; every operation
+/// in that pipeline is elementwise, so the discarded entries cannot influence
+/// the kept ones, and the row-major `(i, j)` order matches `triu_indices`.
+#[allow(clippy::too_many_arguments)]
+pub fn drc_proxy_score(
+    positions: &[f64],
+    half_widths: &[f64],
+    half_heights: &[f64],
     clearance_mm: f64,
+    beta: f64,
+    positions_is_f32: bool,
+    half_widths_is_f32: bool,
+    half_heights_is_f32: bool,
 ) -> f64 {
-    let n = component_rects.len();
+    let n = half_widths.len();
     if n < 2 {
         return 0.0;
     }
 
-    // Precompute inflated half-dimensions.
-    let inflated_dims = precompute_from_pad_polygons(pad_polys, clearance_mm);
+    // numpy promotion: a gap is f32 only when *both* of its operands are.
+    let gap_x_f32 = positions_is_f32 && half_widths_is_f32;
+    let gap_y_f32 = positions_is_f32 && half_heights_is_f32;
+    // `np.where` promotes across both branches, so `distances` — and the
+    // `clearance_mm - distances` that follows — is f32 only if both gaps are.
+    let dist_f32 = gap_x_f32 && gap_y_f32;
+    let clearance = round_to(dist_f32, clearance_mm);
 
-    // Component centres.
-    let centers: Vec<Point> = component_rects.iter().map(|r| r.center()).collect();
-
-    let beta = 10.0;
-    let mut total = 0.0;
-
+    let mut squared = Vec::with_capacity(n * (n - 1) / 2);
     for i in 0..n {
-        let (hw_i, hh_i) = inflated_dims[i];
+        let (xi, yi) = (positions[2 * i], positions[2 * i + 1]);
         for j in (i + 1)..n {
-            let dx = (centers[i].x - centers[j].x).abs();
-            let dy = (centers[i].y - centers[j].y).abs();
+            let (xj, yj) = (positions[2 * j], positions[2 * j + 1]);
 
-            let (hw_j, hh_j) = inflated_dims[j];
+            // center_diff, then abs — both at the positions' own width.
+            let dx = round_to(positions_is_f32, xi - xj).abs();
+            let dy = round_to(positions_is_f32, yi - yj).abs();
 
-            let gap_x = dx - (hw_i + hw_j);
-            let gap_y = dy - (hh_i + hh_j);
+            let sum_half_w = round_to(half_widths_is_f32, half_widths[i] + half_widths[j]);
+            let sum_half_h = round_to(half_heights_is_f32, half_heights[i] + half_heights[j]);
 
-            // When both gaps are negative the boxes overlap — take the more
-            // restrictive (more negative) gap.  Otherwise at least one dimension
-            // is separated — take the larger (positive) gap.
-            let dist = if gap_x < 0.0 && gap_y < 0.0 {
-                gap_x.min(gap_y)
+            let gap_x = round_to(gap_x_f32, dx - sum_half_w);
+            let gap_y = round_to(gap_y_f32, dy - sum_half_h);
+
+            // Both gaps negative => the boxes overlap in both axes and the more
+            // negative gap is the penetration depth. Otherwise at least one axis
+            // is clear and the larger gap is the separation.
+            let distance = if gap_x < 0.0 && gap_y < 0.0 {
+                np_minimum(gap_x, gap_y)
             } else {
-                gap_x.max(gap_y)
+                np_maximum(gap_x, gap_y)
             };
 
-            let violation = smooth_relu(clearance_mm - dist, beta);
-            total += violation * violation;
+            let violation = smooth_relu(round_to(dist_f32, clearance - distance), beta);
+            squared.push(violation * violation);
         }
     }
 
-    total
+    pairwise_sum(&squared)
 }
 
 // =============================================================================
@@ -209,261 +229,275 @@ pub fn compute_drc_proxy_score(
 mod tests {
     use super::*;
 
-    const EPS: f64 = 1e-9;
-
-    fn square_pad() -> Vec<Point> {
-        vec![
-            Point::new(0.0, 0.0),
-            Point::new(1.0, 0.0),
-            Point::new(1.0, 1.0),
-            Point::new(0.0, 1.0),
-        ]
-    }
-
-    fn rect_pad() -> Vec<Point> {
-        vec![
-            Point::new(0.0, 0.0),
-            Point::new(2.0, 0.0),
-            Point::new(2.0, 1.0),
-            Point::new(0.0, 1.0),
-        ]
-    }
-
-    fn l_shaped_pad() -> Vec<Point> {
-        vec![
-            Point::new(0.0, 0.0),
-            Point::new(2.0, 0.0),
-            Point::new(2.0, 1.0),
-            Point::new(1.0, 1.0),
-            Point::new(1.0, 2.0),
-            Point::new(0.0, 2.0),
-        ]
-    }
-
     // -----------------------------------------------------------------
-    // inflate_pad_polygon: square pad → larger square
+    // pairwise_sum
     // -----------------------------------------------------------------
+
+    /// The whole point of transcribing numpy's blocking is that it differs from
+    /// naive accumulation. If it did not, this port would be pointless — so pin
+    /// the disagreement, not just the agreement.
     #[test]
-    fn test_inflate_square_pad() {
-        let sq = square_pad();
-        let inflated = inflate_pad_polygon(&sq, 2.0);
-
-        // Should still be a 4-vertex rectangle.
-        assert_eq!(inflated.len(), 4);
-        assert!(is_axis_aligned_rectangle(&inflated));
-
-        // Original was 1×1.  Clearance = 2 → each side gets 1 → 3×3.
-        let bb = AABB::from_points(&inflated);
-        let w = bb.width();
-        let h = bb.height();
-        assert!((w - 3.0).abs() < EPS, "expected width 3.0, got {w}");
-        assert!((h - 3.0).abs() < EPS, "expected height 3.0, got {h}");
-
-        // Centered: original was [0,1] → expanded to [-1, 2].
-        assert!((bb.x_min - (-1.0)).abs() < EPS);
-        assert!((bb.y_min - (-1.0)).abs() < EPS);
-        assert!((bb.x_max - 2.0).abs() < EPS);
-        assert!((bb.y_max - 2.0).abs() < EPS);
+    fn pairwise_sum_differs_from_naive_accumulation() {
+        // 0.1 is not representable in binary, so a long run of it accumulates
+        // visible reassociation error.
+        let a: Vec<f64> = (0..1000).map(|k| 0.1 + (k as f64) * 1e-9).collect();
+        let naive: f64 = a.iter().fold(0.0, |acc, &v| acc + v);
+        assert_ne!(
+            pairwise_sum(&a).to_bits(),
+            naive.to_bits(),
+            "pairwise and naive summation agree — the blocking is untested"
+        );
     }
 
-    // -----------------------------------------------------------------
-    // inflate_pad_polygon: clearance=0 → same polygon
-    // -----------------------------------------------------------------
     #[test]
-    fn test_inflate_zero_clearance() {
-        let sq = square_pad();
-        let inflated = inflate_pad_polygon(&sq, 0.0);
-
-        assert_eq!(inflated.len(), 4);
-        for (orig, inf) in sq.iter().zip(inflated.iter()) {
-            assert!((orig.x - inf.x).abs() < EPS);
-            assert!((orig.y - inf.y).abs() < EPS);
+    fn pairwise_sum_small_inputs_are_naive() {
+        for n in 0..8usize {
+            let a: Vec<f64> = (0..n).map(|k| 0.1 + k as f64).collect();
+            let naive: f64 = a.iter().fold(0.0, |acc, &v| acc + v);
+            assert_eq!(pairwise_sum(&a).to_bits(), naive.to_bits(), "n={n}");
         }
     }
 
-    // -----------------------------------------------------------------
-    // inflate_pad_polygon: l-shaped pad with clearance
-    // -----------------------------------------------------------------
     #[test]
-    fn test_inflate_l_shaped_pad() {
-        let l = l_shaped_pad();
-        let inflated = inflate_pad_polygon(&l, 1.0);
-
-        assert_eq!(inflated.len(), 6);
-        // Non-rectangular: vertices should have moved outward from centroid.
-        // At minimum, some vertex should be further from origin than before.
-        let orig_bb = AABB::from_points(&l);
-        let inf_bb = AABB::from_points(&inflated);
-        assert!(inf_bb.width() > orig_bb.width());
-        assert!(inf_bb.height() > orig_bb.height());
-    }
-
-    // -----------------------------------------------------------------
-    // inflate_pad_polygon: empty input
-    // -----------------------------------------------------------------
-    #[test]
-    fn test_inflate_empty() {
-        let inflated = inflate_pad_polygon(&[], 2.0);
-        assert!(inflated.is_empty());
-    }
-
-    // -----------------------------------------------------------------
-    // precompute_inflated_dims: adds clearance to dimensions
-    // -----------------------------------------------------------------
-    #[test]
-    fn test_precompute_inflated_dims() {
-        let (w, h) = precompute_inflated_dims(1.0, 2.0, 0.5);
-        assert!((w - 1.5).abs() < EPS, "expected 1.5, got {w}");
-        assert!((h - 2.5).abs() < EPS, "expected 2.5, got {h}");
+    fn pairwise_sum_exact_on_representable_values() {
+        // Powers of two sum exactly regardless of order, so any correct
+        // reduction lands on the same answer.
+        let a: Vec<f64> = (0..300).map(|_| 0.5).collect();
+        assert_eq!(pairwise_sum(&a), 150.0);
     }
 
     #[test]
-    fn test_precompute_inflated_dims_zero_clearance() {
-        let (w, h) = precompute_inflated_dims(3.0, 4.0, 0.0);
-        assert!((w - 3.0).abs() < EPS);
-        assert!((h - 4.0).abs() < EPS);
+    fn pairwise_sum_empty_is_zero() {
+        assert_eq!(pairwise_sum(&[]), 0.0);
     }
 
     // -----------------------------------------------------------------
-    // precompute_from_pad_polygons
+    // np_minimum / np_maximum
     // -----------------------------------------------------------------
+
     #[test]
-    fn test_precompute_from_pad_polygons() {
-        let polys = vec![square_pad(), rect_pad()];
-        let dims = precompute_from_pad_polygons(&polys, 1.0);
-
-        assert_eq!(dims.len(), 2);
-
-        // Square: 1×1 + 1 = 2×2
-        assert!((dims[0].0 - 2.0).abs() < EPS, "expected 2.0, got {}", dims[0].0);
-        assert!((dims[0].1 - 2.0).abs() < EPS, "expected 2.0, got {}", dims[0].1);
-
-        // Rect: 2×1 + 1 = 3×2
-        assert!((dims[1].0 - 3.0).abs() < EPS, "expected 3.0, got {}", dims[1].0);
-        assert!((dims[1].1 - 2.0).abs() < EPS, "expected 2.0, got {}", dims[1].1);
+    fn np_min_max_propagate_nan_from_either_operand() {
+        assert!(np_minimum(f64::NAN, 1.0).is_nan());
+        assert!(np_minimum(1.0, f64::NAN).is_nan());
+        assert!(np_maximum(f64::NAN, 1.0).is_nan());
+        assert!(np_maximum(1.0, f64::NAN).is_nan());
+        // f64::min would silently drop the NaN; that is the bug this guards.
+        assert!(!f64::min(1.0, f64::NAN).is_nan());
     }
 
     #[test]
-    fn test_precompute_from_pad_polygons_empty() {
-        let dims = precompute_from_pad_polygons(&[], 1.0);
-        assert!(dims.is_empty());
-    }
-
-    #[test]
-    fn test_precompute_from_pad_polygons_empty_poly() {
-        let polys = vec![vec![], square_pad()];
-        let dims = precompute_from_pad_polygons(&polys, 1.0);
-        assert_eq!(dims.len(), 2);
-        assert!((dims[0].0 - 0.0).abs() < EPS);
-        assert!((dims[0].1 - 0.0).abs() < EPS);
+    fn np_min_max_ordinary_values() {
+        assert_eq!(np_minimum(-3.0, 2.0), -3.0);
+        assert_eq!(np_maximum(-3.0, 2.0), 2.0);
+        assert_eq!(np_minimum(2.0, 2.0), 2.0);
     }
 
     // -----------------------------------------------------------------
-    // compute_inflated_half_dims_from_bounds
+    // round_to
     // -----------------------------------------------------------------
-    #[test]
-    fn test_inflated_half_dims_from_bounds() {
-        // AABB for a 10×20 rect centered at origin → x_min=-5, y_min=-10, ...
-        let bb = AABB::new(-5.0, -10.0, 5.0, 10.0);
-        let (hw, hh) = compute_inflated_half_dims_from_bounds(&bb, 2.0);
-
-        // width=10, clearance=2 → (10+2)/2 = 6
-        assert!((hw - 6.0).abs() < EPS, "expected 6.0, got {hw}");
-        // height=20, clearance=2 → (20+2)/2 = 11
-        assert!((hh - 11.0).abs() < EPS, "expected 11.0, got {hh}");
-    }
 
     #[test]
-    fn test_inflated_half_dims_zero_clearance() {
-        let bb = AABB::new(0.0, 0.0, 10.0, 20.0);
-        let (hw, hh) = compute_inflated_half_dims_from_bounds(&bb, 0.0);
-        assert!((hw - 5.0).abs() < EPS, "expected 5.0, got {hw}");
-        assert!((hh - 10.0).abs() < EPS, "expected 10.0, got {hh}");
+    fn round_to_f32_narrows_and_f64_does_not() {
+        let v = 0.1f64;
+        assert_ne!(round_to(true, v).to_bits(), v.to_bits());
+        assert_eq!(round_to(false, v).to_bits(), v.to_bits());
     }
 
     // -----------------------------------------------------------------
-    // compute_drc_proxy_score: no overlap → 0
+    // smooth_relu_array
     // -----------------------------------------------------------------
-    #[test]
-    fn test_drc_proxy_score_no_overlap() {
-        // Two components far apart — no DRC violation expected.
-        let rects = vec![
-            AABB::new(0.0, 0.0, 10.0, 10.0),
-            AABB::new(100.0, 0.0, 110.0, 10.0),
-        ];
-        let pads = vec![square_pad(), square_pad()];
 
-        let score = compute_drc_proxy_score(&rects, &pads, 0.2);
-        assert!(
-            score < 1e-6,
-            "far-apart components should give ~0 score, got {score}"
+    #[test]
+    fn smooth_relu_array_matches_scalar_elementwise() {
+        let xs = [-5.0, -0.5, 0.0, 0.5, 5.0, 70.0, -70.0];
+        let got = smooth_relu_array(&xs, 10.0);
+        for (i, &x) in xs.iter().enumerate() {
+            assert_eq!(got[i].to_bits(), smooth_relu(x, 10.0).to_bits(), "i={i}");
+        }
+    }
+
+    #[test]
+    fn smooth_relu_array_is_monotone_and_bounds_relu() {
+        let xs: Vec<f64> = (-50..50).map(|k| k as f64 * 0.1).collect();
+        let got = smooth_relu_array(&xs, 10.0);
+        for w in got.windows(2) {
+            assert!(w[1] >= w[0], "softplus must be non-decreasing");
+        }
+        for (i, &x) in xs.iter().enumerate() {
+            assert!(got[i] >= x.max(0.0) - 1e-12, "softplus dominates relu");
+        }
+    }
+
+    #[test]
+    fn smooth_relu_array_empty() {
+        assert!(smooth_relu_array(&[], 10.0).is_empty());
+    }
+
+    // -----------------------------------------------------------------
+    // inflated_half_dims_from_bounds
+    // -----------------------------------------------------------------
+
+    #[test]
+    fn half_dims_f64_closed_form() {
+        let got = inflated_half_dims_from_bounds(&[10.0, 5.0], 0.25, false);
+        assert_eq!(got[0].to_bits(), ((10.0 + 0.25) / 2.0f64).to_bits());
+        assert_eq!(got[1].to_bits(), ((5.0 + 0.25) / 2.0f64).to_bits());
+    }
+
+    #[test]
+    fn half_dims_f32_narrows_the_intermediate() {
+        // A width that is representable in f32 but whose inflated value is not.
+        let b = 1.9658657312393188f64; // exactly an f32; chosen so the widths diverge
+        let wide = inflated_half_dims_from_bounds(&[b], 0.25, false);
+        let narrow = inflated_half_dims_from_bounds(&[b], 0.25, true);
+        assert_ne!(
+            wide[0].to_bits(),
+            narrow[0].to_bits(),
+            "f32 and f64 paths must not collapse — the dtype flag would be dead"
+        );
+        assert_eq!(narrow[0].to_bits(), (((b as f32 + 0.25f32) / 2.0f32) as f64).to_bits());
+    }
+
+    #[test]
+    fn half_dims_narrows_the_trace_width_before_adding() {
+        // 0.1 differs between f32 and f64; adding the wide literal and then
+        // rounding is NOT the same as adding the narrow one.
+        let b = 0.14703835546970367f64; // exactly an f32; found by search
+        let got = inflated_half_dims_from_bounds(&[b], 0.1, true);
+        let correct = ((b as f32 + 0.1f32) / 2.0f32) as f64;
+        let wrong = (((b + 0.1f64) as f32) / 2.0f32) as f64;
+        assert_eq!(got[0].to_bits(), correct.to_bits());
+        // Guard that the two really do differ, so the assertion above bites.
+        assert_ne!(correct.to_bits(), wrong.to_bits());
+    }
+
+    #[test]
+    fn half_dims_empty() {
+        assert!(inflated_half_dims_from_bounds(&[], 0.25, true).is_empty());
+    }
+
+    // -----------------------------------------------------------------
+    // drc_proxy_score
+    // -----------------------------------------------------------------
+
+    fn grid(n: usize, spacing: f64) -> Vec<f64> {
+        (0..n).flat_map(|i| [i as f64 * spacing, 0.0]).collect()
+    }
+
+    #[test]
+    fn proxy_score_fewer_than_two_components_is_zero() {
+        assert_eq!(drc_proxy_score(&[], &[], &[], 0.2, 10.0, false, false, false), 0.0);
+        assert_eq!(
+            drc_proxy_score(&[0.0, 0.0], &[1.0], &[1.0], 0.2, 10.0, false, false, false),
+            0.0
         );
     }
 
-    // -----------------------------------------------------------------
-    // compute_drc_proxy_score: some overlap → > 0
-    // -----------------------------------------------------------------
     #[test]
-    fn test_drc_proxy_score_some_overlap() {
-        // Two overlapping components — should produce a positive score.
-        let rects = vec![
-            AABB::new(0.0, 0.0, 10.0, 10.0),
-            AABB::new(1.0, 1.0, 11.0, 11.0),
-        ];
-        let pads = vec![square_pad(), square_pad()];
-
-        let score = compute_drc_proxy_score(&rects, &pads, 0.2);
-        assert!(
-            score > 1e-6,
-            "overlapping components should give positive score, got {score}"
-        );
+    fn proxy_score_separated_components_are_near_zero() {
+        let pos = grid(3, 100.0);
+        let hw = vec![3.0; 3];
+        let hh = vec![3.0; 3];
+        let s = drc_proxy_score(&pos, &hw, &hh, 0.2, 10.0, false, false, false);
+        assert!(s < 1e-6, "well-separated components scored {s}");
     }
 
-    // -----------------------------------------------------------------
-    // compute_drc_proxy_score: single component → 0
-    // -----------------------------------------------------------------
     #[test]
-    fn test_drc_proxy_score_single() {
-        let rects = vec![AABB::new(0.0, 0.0, 10.0, 10.0)];
-        let pads = vec![square_pad()];
-        let score = compute_drc_proxy_score(&rects, &pads, 0.2);
-        assert!(
-            (score - 0.0).abs() < EPS,
-            "single component should give 0, got {score}"
-        );
+    fn proxy_score_overlapping_components_are_positive() {
+        let pos = [0.0, 0.0, 2.0, 0.0];
+        let hw = [5.0, 5.0];
+        let hh = [5.0, 5.0];
+        let s = drc_proxy_score(&pos, &hw, &hh, 0.2, 10.0, false, false, false);
+        assert!(s > 0.0, "overlapping components scored {s}");
     }
 
-    // -----------------------------------------------------------------
-    // compute_drc_proxy_score: empty → 0
-    // -----------------------------------------------------------------
     #[test]
-    fn test_drc_proxy_score_empty() {
-        let score = compute_drc_proxy_score(&[], &[], 0.2);
-        assert!((score - 0.0).abs() < EPS);
+    fn proxy_score_is_monotone_in_separation() {
+        let hw = [2.0, 2.0];
+        let hh = [2.0, 2.0];
+        let mut prev = f64::INFINITY;
+        for k in 0..20 {
+            let pos = [0.0, 0.0, 1.0 + k as f64 * 0.5, 0.0];
+            let s = drc_proxy_score(&pos, &hw, &hh, 0.2, 10.0, false, false, false);
+            assert!(s <= prev, "score rose as components separated: {s} > {prev}");
+            prev = s;
+        }
     }
 
-    // -----------------------------------------------------------------
-    // compute_drc_proxy_score: tight clearance still passes
-    // -----------------------------------------------------------------
     #[test]
-    fn test_drc_proxy_score_tight_clearance() {
-        // Components separated by exactly the required clearance.
-        let rects = vec![
-            AABB::new(0.0, 0.0, 10.0, 10.0),
-            AABB::new(12.0, 0.0, 22.0, 10.0),
-        ];
-        let pads = vec![square_pad(), square_pad()];
-        // Centres: (5,5) and (17,5), gap_x = 12, half_w each = (1+0)/2 = 0.5
-        // Inflated half_dims: (1.0, 1.0) each (after inflation with clearance=0.0)
-        // Actually we need the clearance parameter to affect both inflation AND the violation check.
-        // With clearance=2.0, each pad is inflated by 1 per side:
-        //   square becomes 3×3, half_w = 1.5
-        //   gap_x = 12 - (1.5+1.5) = 9
-        //   clearance - dist = 2 - 9 = -7 → no violation
-        let score = compute_drc_proxy_score(&rects, &pads, 2.0);
-        assert!(
-            score < 1e-6,
-            "components at exactly clearance distance should give ~0 score, got {score}"
-        );
+    fn proxy_score_is_translation_invariant() {
+        let hw = [1.5, 2.5, 0.5];
+        let hh = [0.5, 1.5, 2.5];
+        let base = [0.0, 0.0, 3.0, 1.0, -2.0, 4.0];
+        let shifted: Vec<f64> = base
+            .iter()
+            .enumerate()
+            .map(|(k, v)| if k % 2 == 0 { v + 17.0 } else { v - 9.0 })
+            .collect();
+        let a = drc_proxy_score(&base, &hw, &hh, 0.2, 10.0, false, false, false);
+        let b = drc_proxy_score(&shifted, &hw, &hh, 0.2, 10.0, false, false, false);
+        assert_eq!(a.to_bits(), b.to_bits(), "integer translation must be exact");
+    }
+
+    #[test]
+    fn proxy_score_dtype_flags_change_the_answer() {
+        // Values chosen so the f32 rounding is observable. If this ever stops
+        // holding, the dtype plumbing has gone dead and the differential's
+        // dtype matrix is testing nothing.
+        let pos: Vec<f64> = vec![0.1, 0.2, 3.3, 1.7, -2.9, 4.1]
+            .into_iter()
+            .map(|v: f64| v as f32 as f64)
+            .collect();
+        let hw: Vec<f64> = vec![1.1f64, 2.3, 0.7].into_iter().map(|v| v as f32 as f64).collect();
+        let hh: Vec<f64> = vec![0.9f64, 1.3, 2.1].into_iter().map(|v| v as f32 as f64).collect();
+        let wide = drc_proxy_score(&pos, &hw, &hh, 0.2, 10.0, false, false, false);
+        let narrow = drc_proxy_score(&pos, &hw, &hh, 0.2, 10.0, true, true, true);
+        assert_ne!(wide.to_bits(), narrow.to_bits());
+    }
+
+    #[test]
+    fn proxy_score_coincident_components_hit_the_overlap_branch() {
+        let n = 4;
+        let pos = vec![0.0; 2 * n];
+        let hw = vec![1.0; n];
+        let hh = vec![1.0; n];
+        let s = drc_proxy_score(&pos, &hw, &hh, 0.2, 10.0, false, false, false);
+        // Every pair has gap_x == gap_y == -2, distance -2, violation
+        // smooth_relu(2.2, 10) ~= 2.2, squared ~= 4.84, over 6 pairs.
+        let one = smooth_relu(2.2, 10.0);
+        let expected = pairwise_sum(&[one * one; 6]);
+        assert_eq!(s.to_bits(), expected.to_bits());
+    }
+
+    #[test]
+    fn proxy_score_uses_pairwise_not_naive_reduction() {
+        // 40 components => 780 pairs, well past PW_BLOCKSIZE, so the blocked
+        // reduction and a naive one land on different bits.
+        let n = 40;
+        let pos: Vec<f64> = (0..n)
+            .flat_map(|i| {
+                let f = i as f64;
+                [f * 0.37 % 7.0, f * 0.91 % 5.0]
+            })
+            .collect();
+        let hw: Vec<f64> = (0..n).map(|i| 1.0 + (i as f64) * 0.013).collect();
+        let hh: Vec<f64> = (0..n).map(|i| 1.0 + (i as f64) * 0.017).collect();
+        let s = drc_proxy_score(&pos, &hw, &hh, 0.2, 10.0, false, false, false);
+
+        let mut squared = Vec::new();
+        for i in 0..n {
+            for j in (i + 1)..n {
+                let dx = (pos[2 * i] - pos[2 * j]).abs();
+                let dy = (pos[2 * i + 1] - pos[2 * j + 1]).abs();
+                let gx = dx - (hw[i] + hw[j]);
+                let gy = dy - (hh[i] + hh[j]);
+                let d = if gx < 0.0 && gy < 0.0 { np_minimum(gx, gy) } else { np_maximum(gx, gy) };
+                let v = smooth_relu(0.2 - d, 10.0);
+                squared.push(v * v);
+            }
+        }
+        let naive = squared.iter().fold(0.0f64, |acc, &v| acc + v);
+        assert_eq!(s.to_bits(), pairwise_sum(&squared).to_bits());
+        assert_ne!(s.to_bits(), naive.to_bits(), "reduction order is not observable here");
     }
 }
