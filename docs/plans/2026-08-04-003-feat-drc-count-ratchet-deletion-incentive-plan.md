@@ -15,7 +15,7 @@ origin: docs/evidence/2026-08-04-board-defect-corpus-uncovered-classes.md (PR #6
 ## Goal Capsule
 
 - **Objective:** Decide how the project should respond to a structural property of `power_pcb_dataset/drc_ceiling.json`: because it caps *counts* of DRC errors, removing a component from the board scores as an improvement. PR #689 observed this in passing while closing the `off-board` corpus class. This document re-derives the observation, measures how far it reaches, enumerates what actually guards against it, weighs the options, and recommends one. It changes no gate, no threshold and no ceiling.
-- **Headline finding:** The premise holds exactly, and it is larger and better-guarded than #689's note implies. Re-measured at N=11, moving C26 off the board is **−9 errors**, and *deleting C26 outright produces the identical per-category delta* — at the ratchet's resolution the two mutations are the same event. The exposure is not 9: the single most profitable deletion on this board is **−46 errors** (C4), the five most profitable together are **−147** (11.6% of the 1263-error board), and **625 of 1263 clean errors (49.5%) name at least one footprint**. But the class is already detected, three times over, by landed and currently-green gates (`check_footprint_drift.py`, `check_netlist_board_reconciliation.py`, `check_measurement_provenance.py`) — all of which live in `Board, Provenance & Requirements Gates`, which is **not a required context** and is red on `main`. Two corrections to the framing that motivated this work: #689's own containment gate is **blind to deletion** (it iterates the footprints that are present, so a deleted one is simply not checked), and errors-per-component normalisation **does not remove the incentive** (deleting C4 improves errors/component from 7.47 to 7.24).
+- **Headline finding:** The premise holds exactly, and it is larger and better-guarded than #689's note implies. Re-measured at N=11, moving C26 off the board is **−9 errors**, and *deleting C26 outright produces the identical per-category delta* — at the ratchet's resolution the two mutations are the same event. The exposure is not 9: the single most profitable deletion on this board is **−46 errors** (C4), the five most profitable together are **−147** (11.6% of the 1263-error board), and **625 of 1263 clean errors (49.5%) name at least one footprint**. Deleting each of the 169 footprints in turn settles the shape of the incentive exhaustively: **66 components are rewarded outside the measurement's noise floor and zero are penalised outside it**. But the class is already detected by landed, unit-tested, currently-green gates: `check_footprint_drift.py` (`MISSING-FROM-BOARD`) and `check_netlist_board_reconciliation.py` (`MISSING`) catch it outright, and `check_measurement_provenance.py` catches the lazy version that skips re-measurement. All three live in `Board, Provenance & Requirements Gates`, which is **not a required context** and is red on `main`. Two corrections to the framing that motivated this work: #689's own containment gate is **blind to deletion** (it iterates the footprints that are present, so a deleted one is simply not checked), and errors-per-component normalisation **does not remove the incentive** (deleting C4 improves errors/component from 7.47 to 7.24; 27 of 169 components stay profitable under it).
 - **Scope:** Analysis, options and a recommendation. `pcb/temper.kicad_pcb` and `power_pcb_dataset/drc_ceiling.json` were read-only throughout; every measurement was taken on run-time copies under a scratch directory. No `Ceiling-Approval:` trailer is authored by this work. Nothing here is implemented.
 - **Product authority:** temper board maintainer.
 - **Open blockers:** The recommended sequence cannot start until the two currently-failing steps in `Board, Provenance & Requirements Gates` are fixed; a red job cannot be promoted to required.
@@ -42,7 +42,7 @@ Three things make this more than a curiosity in this repository:
 
 - **D1. The count ratchet stays; the compensating invariant is what moves.** (Chosen over changing the unit of measurement: §5 Option C shows per-component normalisation does not remove the incentive, and it would rebase every recorded baseline, every `_march` entry and every evidence doc that cites an absolute count.) Governs R1, R2.
 - **D2. The invariant that covers this class is an *inventory* invariant, not a positional one.** (Chosen over generalising #689's containment gate: §3 shows that gate iterates the footprints present on the board and therefore cannot see a footprint that is gone. Two landed gates already implement the inventory check; a third positional gate would not.) Governs R2, R3.
-- **D3. Promotion, not construction, is the work.** (Chosen over building a new gate: `check_footprint_drift.py`, `check_netlist_board_reconciliation.py` and `check_measurement_provenance.py` each detect this class today, are unit-tested for it, and are green on `main`. A fourth checker with the same logic is the vacuous-gate class `scripts/check_vacuous_gates.py` exists to catch.) Governs R3, R4.
+- **D3. Promotion, not construction, is the work.** (Chosen over building a new gate: `check_footprint_drift.py` and `check_netlist_board_reconciliation.py` detect this class outright today, are unit-tested for it, and are green on `main`, with `check_measurement_provenance.py` catching the variant that skips re-measurement. A further checker with the same logic is the vacuous-gate class `scripts/check_vacuous_gates.py` exists to catch.) Governs R3, R4.
 - **D4. Promotion must be capacity-honest.** (Chosen over making `Board, Provenance & Requirements Gates` required as it stands: that job has a 40-minute budget and builds three Rust crates plus the netlist before any gate runs, and `.github/required-checks.json`'s own `_required_contexts_note` records eight contexts being *removed* on 2026-08-03 because CI is capacity-bound at ~24 concurrent jobs against ~40 requested per push.) Governs R4, R5.
 
 ### Requirements
@@ -51,7 +51,7 @@ Three things make this more than a curiosity in this repository:
   - Success signal: `violations_by_type` keeps its current semantics and every historical `_march` entry stays directly comparable.
 - **R2. A fall in any per-category count is covered by an inventory invariant that is a required context.** The board's footprint inventory, keyed by instance path against the compiled netlist, must be checked by a gate that can block a merge.
   - Success signal: a PR that deletes one footprint from `pcb/temper.kicad_pcb` turns a *required* check red, with a finding naming that component.
-- **R3. The inventory invariant is one of the gates that already implements it.** No new checker is written for a class three landed gates already cover.
+- **R3. The inventory invariant is one of the gates that already implements it.** No new checker is written for a class two landed gates already cover outright.
   - Success signal: the required check runs `check_footprint_drift.py` and `check_netlist_board_reconciliation.py` unchanged.
 - **R4. Promotion costs at most one additional required runner slot, and that slot does not build the Rust crates.** The inventory gates need the compiled netlist and Python; they do not need `temper-rust-router`, `temper-drc-rs` or `temper-constraints`.
   - Success signal: the new required context's median wall time is measured, and is a small fraction of `Board, Provenance & Requirements Gates`'s current budget.
@@ -78,7 +78,7 @@ Three things make this more than a curiosity in this repository:
 
 - Measurements below were taken with `kicad-cli 10.0.4` on darwin. CI runs 10.0.5 and the two disagree on geometric counts, so **no absolute number here may be compared against a CI-recorded figure**. Every claim is a clean-vs-mutated comparison within one environment — the same comparison the ratchet makes.
 - The compiled netlist used to count components (168) was the one present in the working checkout, dated before `origin/main`'s tip. It is used only for the `min_overlap` arithmetic in §3, where a ±few-component error does not change the conclusion.
-- `check_footprint_drift.py` and `check_netlist_board_reconciliation.py` detect a deleted footprint. This is asserted from their documented finding classes (`MISSING-FROM-BOARD`, `MISSING`) and from their landed unit tests (`test_component_missing_from_board`, `test_gate_exits_three_on_missing_component`), which pass in CI. It was **not** re-executed here: both gates refuse to run against a netlist they consider stale (exit 5, fail-closed), and rebuilding the netlist would have mutated a checkout other sessions were building in.
+- `check_footprint_drift.py` and `check_netlist_board_reconciliation.py` detect a deleted footprint. This is read off the comparison itself, not inferred from a docstring: `check_footprint_drift.py` walks `netlist.by_sheetpath` and emits a `missing-from-board` violation naming the ref whenever `board_by_sheetpath.get(sheetpath)` is `None`, and `netlist_reconciliation.py` emits `KIND_MISSING` at error severity whenever `board_by_path.get(path)` is `None` — both are exactly the state a deleted footprint produces, and the reconciliation gate additionally reports `NET-MEMBERSHIP` for every net the removed component belonged to. Their landed unit tests for the class (`test_component_missing_from_board`, `test_gate_exits_three_on_missing_component`) pass in CI. Neither gate was **re-executed** here: both refuse to run against a netlist they consider stale (exit 5, fail-closed), and rebuilding the netlist would have mutated a checkout other sessions were building in.
 
 ### Outstanding Questions
 
@@ -134,7 +134,7 @@ Both configurations are reported below. The premise holds identically in both, s
 
 **The single most profitable deletion on this board is C4 at −46 errors** — five times the C26 figure that prompted this work, and 3.6% of the whole 1263-error board. Deleting the five highest-credit components together (`C4`, `U27`, `U7`, `R30`, `U9`) measures **−147**, 11.6% of the board: `shorting_items` −40, `solder_mask_bridge` −41, `hole_clearance` −23, `creepage` −21, `clearance` −17, `courtyards_overlap` −3, `hole_to_hole` −2.
 
-**Which categories are reachable.** For each category, how many of its clean errors name at least one footprint (N=3, clean board):
+**Which categories are reachable.** For each category, how many of its clean errors name at least one footprint. Measured on a single clean run that totalled 1263 — the upper end of §1's 1262–1263 band, the same ±1 `creepage` noise, and the reason percentages here are quoted against 1263 rather than 1262:
 
 | category | clean errors | name ≥1 footprint | share | name ≥2 |
 |---|---:|---:|---:|---:|
@@ -160,7 +160,11 @@ Both configurations are reported below. The premise holds identically in both, s
 
 The 49.5% is a **lower** bound on reach, not an upper one. Deleting components whose modelled credit is zero still measured −1 or −2, because an error can involve a footprint's copper without naming its designator in the description.
 
-**Is deletion always rewarded?** Sampling 14 components spanning the full credit range (46 down to 0) at N=3, every one produced a negative total delta. An exhaustive single-deletion sweep over all 169 footprints (N=3) separates signal from noise: for high-credit components the reward is large and far outside any noise floor, while for zero- and low-credit components the delta is ±1–2 in either direction — inside `creepage`'s own ±2 run-to-run variance on a byte-identical board, so those cases are **not** resolvable at this sample size and no claim is made about them. The defensible statement is narrower than "always rewarded" and is sufficient for the decision: **every component whose deletion is worth anything is rewarded, by a margin far outside the measurement's noise, and no component was observed to be penalised by more than noise.**
+**Is deletion always rewarded?** Settled exhaustively: every one of the 169 footprints was deleted in turn and the board re-measured (N=3 each, 507 DRC runs). Total delta was negative for 93, zero for 53, and positive for 23 — but **every one of those 23 was exactly +1**, and only two categories ever rose at all: `creepage` (33 components, max +1) and `shorting_items` (9 components, max +1). Those are precisely the two categories `drc_ceiling.json`'s own `nondeterministic_error_types` records as varying run to run on a byte-identical board. Taking |delta| ≥ 3 as the floor above that noise:
+
+> **66 of 169 components are rewarded outside the noise floor. Zero are penalised outside it.**
+
+There is no component on this board whose removal the ratchet treats as a regression. The top of the distribution is `C4` −46, `U27` −29, `R51` −25, `R30` −24, `U9` −24, `RT1` −23, `U14` −22, `U7` −22, `U3` −21, `C6` −20.
 
 ## 3. What actually guards against this today
 
@@ -170,15 +174,26 @@ Enumerated honestly, including the ones that do not help:
 |---|---|---|---|---|
 | `check_footprint_drift.py` | **Yes** — `MISSING-FROM-BOARD`, keyed by sheetpath | Board, Provenance & Requirements Gates | **no** | step green, job red |
 | `check_netlist_board_reconciliation.py` | **Yes** — `MISSING`, keyed by instance path | same | **no** | step green, job red |
-| `check_measurement_provenance.py` | **Yes, indirectly** — any board byte change invalidates `drc_ceiling.json`'s recorded input sha256 | same | **no** | step green, job red |
-| `check_copper_net_consistency.py` | Partially — designator/net drift, not an inventory count | same | **no** | step green, job red |
+| `check_measurement_provenance.py` | **Only the lazy version** — any board byte change invalidates `drc_ceiling.json`'s recorded input sha256, but a PR that re-measures satisfies it | same | **no** | step green, job red |
+| `check_copper_net_consistency.py` | **No** — see below | same | **no** | step green, job red |
 | `check_board_containment.py` (#689) | **No** — see below | same | **no** | step green, job red |
 | `preflight_identity` (`ci_identity_check.py`) | **No, for ≤8 deletions** — see below | same | **no** | step green, job red |
 | `ci_check_drc.py` (the ratchet itself) | **No** — a fall always passes | `regression` | **no** | — |
 | `check_drc_ceiling_approval.py` | **No** — `detect_ceiling_raise` reacts only to increases | Board gates | **no** | step green, job red |
 | golden corpus (`golden-check.yml`) | **No** — the production board has no baseline; missing baselines are `SKIP`, not `FAIL` | `golden-check` | **no** | — |
 
-Three of these deserve their own paragraph.
+Four of these deserve their own paragraph.
+
+**`check_copper_net_consistency.py` reads the pads that are there.** All three of
+its checks iterate the board's own copper items and footprint pads; a deleted
+footprint contributes no pads and therefore no findings. Its check 2
+(orphaned copper — a net name that resolves but is not in the netlist) is the
+*opposite* direction, and its docstring names the case explicitly as "the
+deleted-resistor case (a net removed from the schematic while copper for it is
+still routed)". Deleting a footprint from the board removes nothing from the
+netlist, so the tracks left behind still resolve to nets that exist and the
+gate stays silent. Its own docstring also records why this is structural:
+"Nothing else in this project's CI can see board copper at all."
 
 **#689's containment gate is blind to deletion.** `analyze_board` in `scripts/check_board_containment.py` opens with `for footprint in board.footprints:` — a footprint that has been deleted is not in that iteration and is not checked. The gate reports `footprints_checked`, but nothing asserts that number against anything; on a board with C4 removed it would report 168 footprints checked, zero violations, exit 0. This is the most important correction in this document, because "generalise the #689 pattern" was the leading candidate going in. #689 built a *geometry* invariant over the components that are present. The class in question is the disappearance of a component. A positional invariant cannot express it; only an inventory invariant can.
 
@@ -190,10 +205,10 @@ Three of these deserve their own paragraph.
 
 The unchecked-free-text weakness of the `Ceiling-Approval:` trailer that `docs/plans/2026-08-04-001-...md` §3 calls "the sharpest identified risk" is, for this class, **irrelevant** — and that is worse, not better. An automated writer does not need to forge a plausible trailer to lower a ceiling. It needs no trailer.
 
-**What is required, and what it checks.** `.github/required-checks.json` lists ten required contexts. Because `required_contexts_for_files` returns every context once any of the ~90 `trigger_paths` match, a PR touching only `pcb/temper.kicad_pcb` makes all ten required. None of them reads the board's footprint inventory:
+**What is required, and what it checks.** `.github/required-checks.json` lists ten required contexts. Because `required_contexts_for_files` returns every context once any of the ~90 `trigger_paths` match, a PR touching only `pcb/temper.kicad_pcb` makes all ten required. Some of them read the board; none of them checks its footprint inventory against the netlist:
 
 - `Cross-Source Consistency Gates` (triggers on `pcb/**`): domain-model codegen drift, config reference doc, MPN fabrication, derived-doc drift, net-name classification, PLL range, firmware-board contract. No board/netlist inventory comparison.
-- `Invariant tests (router_v6 group 3)` (triggers on `pcb/**`): router unit and property tests.
+- `Invariant tests (router_v6 group 3)` (triggers on `pcb/**`): router unit and property tests. Several of them *do* parse the committed board (`test_net_ordering.py`, `test_wave5_net_ordering.py`), but they assert determinism and self-consistency over whatever the board contains — `test_net_ordering.py` builds its channel map with an explicit `if r in comp_by_ref` guard, so a missing component is skipped, not flagged.
 - `Core Tests`: `tests/core/`, which contains no assertion over the committed board's footprints.
 - The remainder (`Rust Checks`, `Type Check`, `Cargo Smoke`, `Generated Repo State`, `Repo Hygiene`, `LOC Cap Gate`, `PR Performance Comparison`) do not read the board.
 
@@ -229,7 +244,7 @@ The #689 pattern generalised: a count may fall only if the component inventory i
 
 Ratchet errors-per-component rather than absolute counts.
 
-- **Against, measured and decisive: it does not remove the incentive.** The clean board is 1262 errors over 169 footprints, 7.47 errors per component. Deleting C4 gives 1216 over 168 — **7.24, an improvement**. Deleting the top five gives 6.81. Normalisation only penalises deleting a component whose credit is *below* the mean; **26 of 169 components carry a credit above it** and remain profitable to delete. It converts "every deletion is rewarded" into "the 15% of deletions with the largest payoff are still rewarded," which is the wrong 15% to leave exposed.
+- **Against, measured and decisive: it does not remove the incentive.** The clean board is 1262 errors over 169 footprints, 7.47 errors per component. Deleting C4 gives 1216 over 168 — **7.24, an improvement**. Deleting the top five gives 6.81. Normalisation only penalises a deletion that removes *fewer* than 7.47 errors; the exhaustive sweep measures **27 of 169 components (16%) whose deletion still improves the ratio**, against the credit model's independent prediction of 26. It converts "every deletion is rewarded" into "the 16% of deletions with the largest payoff are still rewarded," which is the wrong 16% to leave exposed.
 
   | deleted | credit | errors/component after | improved? |
   |---|---:|---:|---|
