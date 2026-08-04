@@ -266,7 +266,18 @@
     "Generated Repo State",
     "Invariant tests (router_v6 group 3)",
     "Repo Hygiene & Import Gates",
-    "LOC Cap Gate"
+    "LOC Cap Gate",
+    "PR Performance Comparison"
   ],
-  "backlog_grace_seconds": 7200
+  "backlog_grace_seconds": 7200,
+  "context_triggers": {
+    "PR Performance Comparison": [
+      "packages/**",
+      "benchmarks/**",
+      "scripts/pr_perf_compare.py",
+      "scripts/tests/test_pr_perf_compare.py",
+      "power_pcb_dataset/metrics/perf_ab_baseline.jsonl",
+      ".github/workflows/pr-perf-check.yml"
+    ]
+  }
 }
