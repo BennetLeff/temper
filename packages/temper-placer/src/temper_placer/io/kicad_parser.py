@@ -27,10 +27,7 @@ import temper_design_bundle_python as _tdb
 from temper_placer.core.board import Board
 from temper_placer.core.design_rules import DesignRules
 from temper_placer.io._kicad_types import (
-    PadData,
     ParseResult,
-    TraceData,
-    ViaData,
 )
 from temper_placer.io._parse_board import _extract_stackup
 from temper_placer.io._parse_nets import _apply_safety_classifications, _extract_design_rules

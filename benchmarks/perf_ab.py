@@ -89,13 +89,14 @@ import json
 import random
 import statistics
 import sys
-import yaml
 import time
 from collections.abc import Callable
 from datetime import UTC, datetime
 from pathlib import Path
 from types import ModuleType
 from typing import Any
+
+import yaml
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
