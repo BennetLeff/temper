@@ -1,9 +1,9 @@
-# provenance: commit=PLACEHOLDER dirty=PLACEHOLDER
+# provenance: commit=fa4841d25ce642720dccd982361a4f44cef1299f dirty=false
 #!/usr/bin/env python3
 """Gap-1 run-C envelope probe: does relaxing the displacement cap unblock the
 zone-inclusive fixed-copper solve?
 
-# provenance: commit=PLACEHOLDER dirty=PLACEHOLDER
+# provenance: commit=fa4841d25ce642720dccd982361a4f44cef1299f dirty=false
 
 Companion to ``docs/evidence/2026-08-03-gap1-runC-envelope-probe.md``.
 Re-derives the run-C formulation (issue #523, "gap 1") against the CURRENT
@@ -103,6 +103,19 @@ OUT_MATRIX = REPO / "docs" / "evidence" / "gap1_runc_envelope_matrix.json"
 OUT_ZONES = REPO / "docs" / "evidence" / "gap1_runc_envelope_zones.json"
 OUT_ZONES_CSV = REPO / "docs" / "evidence" / "gap1_runc_envelope_zones.csv"
 OUT_PAIRS_CSV = REPO / "docs" / "evidence" / "gap1_runc_envelope_pairs.csv"
+
+
+def git_provenance():
+    """(commit, dirty) at write time, so artifacts carry the tree they were
+    produced on (docs/METHODOLOGY.md Sec 5) instead of a stale placeholder."""
+    import subprocess
+    sha = subprocess.run(
+        ["git", "rev-parse", "HEAD"], capture_output=True, text=True,
+        cwd=str(REPO)).stdout.strip()
+    dirty = bool(subprocess.run(
+        ["git", "status", "--porcelain"], capture_output=True, text=True,
+        cwd=str(REPO)).stdout.strip())
+    return {"commit": sha, "dirty": dirty}
 
 # ---------------------------------------------------------------------------
 # Variant matrix
@@ -810,7 +823,7 @@ def main():
             matrix[name] = run_variant(pcb, extra, name=name, cfg=cfg,
                                        timeout_ms_override=args.timeout_ms)
             OUT_MATRIX.write_text(json.dumps(
-                {"provenance": {"commit": "PLACEHOLDER", "dirty": "PLACEHOLDER"},
+                {"provenance": git_provenance(),
                  "variants": matrix}, indent=2, sort_keys=True))
             print(f"wrote {OUT_MATRIX}")
 
@@ -876,7 +889,7 @@ def main():
     edges = edge_slack_mm(pcb, pos, rot)
 
     analysis = {
-        "provenance": {"commit": "PLACEHOLDER", "dirty": "PLACEHOLDER"},
+        "provenance": git_provenance(),
         "best_known_placement_is_current_board": True,
         "c27_at_mm": pos.get("C27"),
         "k3_at_mm": pos.get("K3"),
@@ -899,19 +912,20 @@ def main():
     OUT_ZONES.write_text(json.dumps(analysis, indent=2, sort_keys=True))
     print(f"wrote {OUT_ZONES}")
 
+    _prov = git_provenance()
     with OUT_ZONES_CSV.open("w", newline="") as f:
-        f.write("# provenance: commit=PLACEHOLDER dirty=PLACEHOLDER\n")
+        f.write(f"# provenance: commit={_prov['commit']} dirty={_prov['dirty']}\n")
         w = csv.DictWriter(f, fieldnames=list(zone_rows[0].keys()) if zone_rows else ["ref"])
         w.writeheader()
         w.writerows(zone_rows)
     out_joint_csv = REPO / "docs" / "evidence" / "gap1_runc_envelope_joint.csv"
     with out_joint_csv.open("w", newline="") as f:
-        f.write("# provenance: commit=PLACEHOLDER dirty=PLACEHOLDER\n")
+        f.write(f"# provenance: commit={_prov['commit']} dirty={_prov['dirty']}\n")
         w = csv.DictWriter(f, fieldnames=list(joint_rows[0].keys()) if joint_rows else ["ref"])
         w.writeheader()
         w.writerows(joint_rows)
     with OUT_PAIRS_CSV.open("w", newline="") as f:
-        f.write("# provenance: commit=PLACEHOLDER dirty=PLACEHOLDER\n")
+        f.write(f"# provenance: commit={_prov['commit']} dirty={_prov['dirty']}\n")
         w = csv.DictWriter(f, fieldnames=list(pairs[0].keys()) if pairs else ["name"])
         w.writeheader()
         w.writerows(pairs)
