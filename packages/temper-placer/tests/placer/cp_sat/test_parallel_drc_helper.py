@@ -9,6 +9,7 @@ no real kicad-cli or board is needed.
 from __future__ import annotations
 
 import os
+import subprocess
 import tempfile
 import time
 from pathlib import Path
@@ -203,6 +204,58 @@ def test_samples_use_distinct_output_paths(fake_kicad_cli, tmp_path: Path):
     assert len(set(paths)) == 3, "two samples shared an output path"
 
 
+def _process_state(pid: int) -> str:
+    """Single-letter process state for ``pid``, or ``""`` if it is gone.
+
+    Reads procfs where it exists (Linux, including the CI container) and
+    falls back to ``ps`` elsewhere (macOS). A missing ``ps`` raises
+    ``FileNotFoundError`` rather than reporting a false "gone", so this
+    can never silently turn the caller's liveness check vacuous.
+    """
+    stat = Path(f"/proc/{pid}/stat")
+    if stat.exists():
+        try:
+            # "<pid> (<comm>) <state> ..." — comm may itself contain
+            # spaces and parens, so split after the *last* ')'.
+            return stat.read_text().rpartition(")")[2].split()[0]
+        except (OSError, IndexError):
+            return ""
+    proc = subprocess.run(
+        ["ps", "-o", "state=", "-p", str(pid)], capture_output=True, text=True
+    )
+    return proc.stdout.strip()[:1]
+
+
+def _process_is_alive(pid: int) -> bool:
+    """True only if ``pid`` is still *running* — a zombie counts as dead.
+
+    ``os.kill(pid, 0)`` on its own is not a liveness probe: it also
+    succeeds for a zombie, a process that has already died but whose
+    parent has not yet reaped it. That distinction is exactly what this
+    file's reaping test turns on.
+
+    When the helper's timeout kills the process group, the grandchild's
+    parent (the fake kicad-cli) is killed alongside it, so the grandchild
+    is orphaned and reparented to PID 1 of its PID namespace. On macOS
+    that is launchd, which reaps immediately — so ``os.kill`` starts
+    raising ``ProcessLookupError`` and the naive probe looks correct. A
+    GitHub Actions container job instead runs the image with
+    ``--entrypoint tail -f /dev/null``, making PID 1 a ``tail`` that
+    never calls ``wait()``. There the correctly-killed grandchild stays
+    a zombie for the life of the container and ``os.kill(pid, 0)`` keeps
+    succeeding forever — which is what made this test fail in CI while
+    passing locally, despite the process-group reaping working fine.
+    """
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        # Exists, owned by someone else — conservatively "alive".
+        return True
+    return _process_state(pid) not in ("", "Z")
+
+
 def test_timeout_reaps_the_process_group(tmp_path: Path):
     """A timed-out DRC must not leave orphaned child processes behind.
 
@@ -210,6 +263,9 @@ def test_timeout_reaps_the_process_group(tmp_path: Path):
     helper's timeout fires it must kill the whole session/process group,
     not just the direct child (subprocess.run(timeout=...) alone kills
     only the direct child).
+
+    "Behind" means *still running*: see :func:`_process_is_alive` for why
+    an already-killed-but-unreaped grandchild is not a survivor.
     """
     pidfile = tmp_path / "grandchild.pid"
     board = _probe_board(tmp_path)
@@ -230,10 +286,11 @@ def test_timeout_reaps_the_process_group(tmp_path: Path):
     grandchild_pid = int(pidfile.read_text().strip())
     deadline = time.monotonic() + 5
     while time.monotonic() < deadline:
-        try:
-            os.kill(grandchild_pid, 0)
-        except ProcessLookupError:
+        if not _process_is_alive(grandchild_pid):
             break
         time.sleep(0.1)
     else:
-        pytest.fail("grandchild survived the timeout")
+        pytest.fail(
+            f"grandchild {grandchild_pid} survived the timeout still running "
+            f"(state {_process_state(grandchild_pid)!r})"
+        )
