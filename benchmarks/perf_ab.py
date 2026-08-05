@@ -86,6 +86,28 @@ Baseline WIDTH -- keep 5+ rows per (module, board, stage):
     Only append rows measured on a commit that does not modify the benchmarked
     module -- a row from a commit that changed the kernel ratchets the bar to
     whatever that change did, which is exactly what the gate exists to catch.
+
+Capture SEVERAL runs of the SAME commit -- the margins depend on it:
+    Since 2026-08-05 the gate's per-benchmark margins are derived from the
+    spread of baseline rows that share a ``git_commit``. Within one commit the
+    code is identical, so that spread is noise by construction; across commits
+    it may be real performance change, and using it would absorb genuine
+    regressions into the margin. Groups of 5 same-commit rows are the unit;
+    ``workflow_dispatch`` runs in parallel (PR #734), so five dispatches on one
+    ref produce one group in one sitting. See
+    docs/evidence/2026-08-05-perf-ab-per-benchmark-margin.md and
+    ``scripts/pr_perf_compare.py --derive-margins``.
+
+    Five arms are currently NOT GATED because their fixed-commit noise leaves
+    no band between noise and the smallest real regression on record (+50.7%):
+    physics-emi/predict (42.8%), parse-engine/parse_kicad_pcb (32.5%),
+    board-netlist/contracts_construction (30.9%), drc-geometry/point_rect
+    (26.0%), physics-heat_removal/build_h_field (24.4%). The remedy lives in
+    THIS file, not in the gate: the noisiest arms are the ones with the
+    smallest timed region (build_h_field runs 1.6us; cell_capacity_batch runs
+    590us and measures 3.7%). Raising DEFAULT_REPEATS for those arms, or
+    batching them the way bench_physics_emi already batches 500 calls, is what
+    earns them their gate back.
 """
 
 from __future__ import annotations
