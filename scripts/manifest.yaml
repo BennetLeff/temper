@@ -1610,3 +1610,16 @@ scripts:
   - pathlib
   - subprocess
   - sys
+- path: phase5_batch2_mutations.py
+  purpose: 'Wave-4 Phase-5 mutation campaign driver (deterministic slot_generation/zone_geometry/zone_assignment):
+    applies each Rust-kernel mutant, rebuilds temper-design-bundle, runs the six Batch-2 suites, expects
+    failure, reverts. Reproducible anti-vacuity evidence.'
+  owner: wave4-migration
+  last_run: '2026-08-04'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - pathlib
+  - subprocess
+  - sys

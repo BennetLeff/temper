@@ -236,6 +236,7 @@
   ],
   "netlist_mutator.py": [],
   "phase5_batch1_mutations.py": [],
+  "phase5_batch2_mutations.py": [],
   "physics_soundness_register_gate.py": [
     ".github/workflows/python-tests.yml",
     "packages/temper-placer/tests/scripts/test_physics_soundness_register_gate.py"
