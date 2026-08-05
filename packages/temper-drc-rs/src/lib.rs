@@ -12,6 +12,10 @@ pub mod board;
 #[cfg(feature = "python")]
 pub mod board_py_bridge;
 pub mod constraints;
+pub mod dfm;
+#[cfg(feature = "python")]
+pub mod dfm_py;
+pub mod pymath;
 pub mod router_clearance;
 pub mod rules;
 pub mod types;
@@ -285,5 +289,7 @@ fn temper_drc_rs(m: &Bound<'_, PyModule>) -> PyResult<()> {
     )?)?;
     // Wave 4 Phase 4 — validation DRC-check kernels (validation.rs).
     crate::validation::register(m)?;
+    // Wave 4 cluster D — router_v6 post-route DFM kernels (dfm.rs).
+    crate::dfm_py::register(m)?;
     Ok(())
 }
