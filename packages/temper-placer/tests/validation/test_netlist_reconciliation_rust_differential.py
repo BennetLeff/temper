@@ -209,6 +209,36 @@ def test_parse_differential_hand_built(tmp_path):
     assert shim == oracle
 
 
+def test_parse_duplicate_ref_three_occurrences_first_seen_anchoring(tmp_path):
+    """A ref appearing >=3 times is the ONLY input that discriminates the
+    two duplicate-ref anchoring strategies: the oracle's `ref_paths[ref]`
+    is written once (first-seen), so every pair anchors at path1; a
+    chained implementation (insert's replace-and-return) would emit
+    `(R1, path2, path3)` for the second pair. The 2-occurrence cases in
+    test_parse_differential_hand_built and mr3 render identically under
+    both strategies, so this case is the mutation-sweep pin for the
+    anchoring fix (M4b)."""
+    text = (
+        '(export (version "E")\n  (components\n'
+        '    (comp (ref "R1") (value "?")\n'
+        '      (sheetpath (names "/a/b.ato:Top::x.r1") (tstamps "0")))\n'
+        '    (comp (ref "R1") (value "?")\n'
+        '      (sheetpath (names "/a/b.ato:Top::y.r2") (tstamps "0")))\n'
+        '    (comp (ref "R1") (value "?")\n'
+        '      (sheetpath (names "/a/b.ato:Top::z.r3") (tstamps "0")))\n'
+        "  )\n  (nets\n"
+        '    (net (code "1") (name "gnd")\n'
+        '      (node (ref "R1") (pin "1")))\n'
+        '    (net (code "2") (name "sig") (node (ref "R1") (pin "2")))\n'
+        "  )\n)\n"
+    )
+    oracle, shim = _run_parse_both(tmp_path, text)
+    assert shim == oracle
+    # Every duplicate pair anchors at the FIRST-seen path. Chaining would
+    # yield (("R1", "x.r1", "y.r2"), ("R1", "y.r2", "z.r3")).
+    assert shim[2] == (("R1", "x.r1", "y.r2"), ("R1", "x.r1", "z.r3"))
+
+
 def test_parse_error_strings_byte_identical(tmp_path):
     """Every parser/gate error is byte-identical, including the `!r` reprs
     and the character-index syntax position."""
@@ -217,7 +247,13 @@ def test_parse_error_strings_byte_identical(tmp_path):
         "(export)\n)",
         # unbalanced '('
         "(export\n",
-        # invalid syntax at a byte position (mid-text garbage)
+        # Garbage text after a valid export block: the tokenizer's
+        # [^\s()]+ arm accepts '<garbage!!>' as a bare atom (no syntax
+        # error), so BOTH arms fail on the missing components block —
+        # the oracle's 'invalid netlist syntax at byte {pos}' branch is
+        # unreachable (see VERIFICATION.md structural-proof item 4). The
+        # case pins error parity on the components-block failure, not on
+        # a byte-position syntax error.
         '(export (version "E"))\n  <garbage!!>\n',
         # missing export block
         "(components)\n",
