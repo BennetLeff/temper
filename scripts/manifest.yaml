@@ -1,8 +1,8 @@
 _meta:
   last_audit_date: '2026-08-02'
-  total_scripts: 105
+  total_scripts: 106
   counts:
-    keep: 105
+    keep: 106
     ticket: 0
   ticket_scripts_deleted: 40
 scripts:
@@ -160,6 +160,16 @@ scripts:
   - pathlib
   - sys
   - yaml
+- path: check_drc_determinism.py
+  purpose: 'DRC determinism harness: runs the KiCad DRC through the CI gate''s own path N times and
+    reports whether each violation category returns a stable count and a stable violation SET. Backs the
+    kicad-cli worker-pool pinning -- clearance and shorting_items were a thread-pool race, creepage a
+    pointer-keyed dedup (upstream kicad#20048). Carries --inject-variance so the harness is provably
+    able to report nondeterminism, not only absence of it.'
+  owner: bennet
+  last_run: '2026-08-05'
+  category: keep
+  disposition: ci-gate
 - path: check_board_containment.py
   purpose: 'Board-containment gate (R26 invariant, owning gate of the board-defect corpus''s off-board
     class): every footprint''s pad copper must lie inside the Edge.Cuts outline. Closes the class no gate
