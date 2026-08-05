@@ -382,7 +382,7 @@ def test_witness_and_or_do_not_return_the_operand() -> None:
     assert type(out) is bool
 
     tree = rust_impl.parse_skip_expr("true and config.epochs")
-    handle = getattr(tree, "_temper_rs_skip_expr")
+    handle = tree._temper_rs_skip_expr
     assert handle.evaluate(cfg, state, ctx) is True
 
 

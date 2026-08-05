@@ -344,7 +344,7 @@ def test_skip_expr_handle_pickle_and_deepcopy_roundtrip() -> None:
     tree = rust_impl.parse_skip_expr(src)
     expected = rust_impl.evaluate_skip_expr(tree, cfg, state, ctx)
 
-    handle = getattr(tree, "_temper_rs_skip_expr")
+    handle = tree._temper_rs_skip_expr
     revived = pickle.loads(pickle.dumps(handle))
     assert revived.evaluate(cfg, state, ctx) == expected
 
@@ -433,9 +433,11 @@ def test_fallback_walker_matches_rust() -> None:
         tree = rust_impl.parse_skip_expr(src)
         stripped = ast.Expression(body=tree.body)  # no handle attached
         assert not hasattr(stripped, "_temper_rs_skip_expr")
-        expected = outcome_signature(lambda: rust_impl.evaluate_skip_expr(tree, cfg, state, ctx))
+        expected = outcome_signature(
+            lambda t=tree: rust_impl.evaluate_skip_expr(t, cfg, state, ctx)
+        )
         actual = outcome_signature(
-            lambda: rust_impl.evaluate_skip_expr(stripped, cfg, state, ctx)
+            lambda t=stripped: rust_impl.evaluate_skip_expr(t, cfg, state, ctx)
         )
         assert actual == expected, f"fallback walker diverged for {src!r}"
 
