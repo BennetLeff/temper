@@ -46,6 +46,7 @@
 use std::collections::HashMap;
 use std::panic::AssertUnwindSafe;
 
+use pyo3::exceptions::PyAttributeError;
 use pyo3::prelude::*;
 use pyo3::types::PyTuple;
 
@@ -234,15 +235,29 @@ fn assign_component_zones<'py>(
         let nets = netlist.getattr("nets")?;
         let components = netlist.getattr("components")?;
 
-        // net_class_map: net.name -> net.net_class. The oracle's
-        // `getattr(net, "net_class", "Signal")` fallback never fires on the
-        // pyclass, which always carries `net_class` (default "Signal").
+        // net_class_map: net.name -> net.net_class. The oracle reads
+        // `getattr(net, "net_class", "Signal")`: a MISSING attribute falls
+        // back to the non-matching literal "Signal", and an attribute
+        // present-but-None is stored as None — both fail the
+        // `== "HighVoltage"` / `== "Power"` comparisons below, so both fall
+        // through to Signal. Extract as Option and insert only a class that
+        // is present-and-String; None/missing maps to the fall-through
+        // (behaviorally identical to the oracle for the only consumer, the
+        // two `==` comparisons). The AttributeError-only swallow mirrors
+        // CPython's `getattr` default (a `__getattr__` raising anything
+        // else propagates).
         let mut net_class_map: HashMap<String, String> = HashMap::new();
         for net in nets.try_iter()? {
             let net = net?;
             let name: String = net.getattr("name")?.extract()?;
-            let net_class: String = net.getattr("net_class")?.extract()?;
-            net_class_map.insert(name, net_class);
+            let net_class: Option<String> = match net.getattr("net_class") {
+                Ok(value) => value.extract()?,
+                Err(err) if err.is_instance_of::<PyAttributeError>(net.py()) => None,
+                Err(err) => return Err(err),
+            };
+            if let Some(net_class) = net_class {
+                net_class_map.insert(name, net_class);
+            }
         }
 
         // comp_nets: comp_ref -> [net names], appended in netlist order
