@@ -59,11 +59,7 @@ pub(crate) fn py_str(obj: &Bound<'_, PyAny>) -> PyResult<String> {
 /// Python `min(a, b)`: returns `a` unless `b < a` (order-sensitive around
 /// NaN — CPython's min keeps the first arg when the comparison is False).
 fn py_min(a: f64, b: f64) -> f64 {
-    if b < a {
-        b
-    } else {
-        a
-    }
+    if b < a { b } else { a }
 }
 
 /// `obj.severity.name` for a drc_result.Issue.
@@ -86,17 +82,23 @@ pub(crate) fn iter_items<'py>(obj: &Bound<'py, PyAny>) -> PyResult<Vec<Bound<'py
 // ---------------------------------------------------------------------------
 
 fn format_text_impl(result: &Bound<'_, PyAny>) -> PyResult<String> {
-    let mut lines: Vec<String> = Vec::new();
-    lines.push("=".repeat(80));
-    lines.push("temper-drc Check Report".to_string());
-    lines.push("=".repeat(80));
+    let mut lines: Vec<String> = vec![
+        "=".repeat(80),
+        "temper-drc Check Report".to_string(),
+        "=".repeat(80),
+    ];
     lines.push(String::new());
 
     let check_results = iter_items(&result.getattr("check_results")?)?;
     let total_checks = check_results.len();
-    let passed_checks = check_results.iter().filter(|r| {
-        r.getattr("passed").map(|p| p.is_truthy().unwrap_or(false)).unwrap_or(false)
-    }).count();
+    let passed_checks = check_results
+        .iter()
+        .filter(|r| {
+            r.getattr("passed")
+                .map(|p| p.is_truthy().unwrap_or(false))
+                .unwrap_or(false)
+        })
+        .count();
     let failed_checks = total_checks - passed_checks;
     let all_issues = iter_items(&result.getattr("all_issues")?)?;
     let total_issues = all_issues.len();
@@ -115,10 +117,7 @@ fn format_text_impl(result: &Bound<'_, PyAny>) -> PyResult<String> {
     }
 
     let passed = result.getattr("passed")?.is_truthy()?;
-    lines.push(format!(
-        "Status: {}",
-        if passed { "PASS" } else { "FAIL" }
-    ));
+    lines.push(format!("Status: {}", if passed { "PASS" } else { "FAIL" }));
     lines.push(format!(
         "Checks: {passed_checks} passed, {failed_checks} failed (out of {total_checks})"
     ));
@@ -182,7 +181,9 @@ fn format_text_impl(result: &Bound<'_, PyAny>) -> PyResult<String> {
     }
 
     let metrics_exist = check_results.iter().any(|r| {
-        r.getattr("metrics").map(|m| m.is_truthy().unwrap_or(false)).unwrap_or(false)
+        r.getattr("metrics")
+            .map(|m| m.is_truthy().unwrap_or(false))
+            .unwrap_or(false)
     });
     if metrics_exist {
         lines.push("-".repeat(80));
@@ -224,9 +225,14 @@ fn format_json_data_impl<'py>(
     result: &Bound<'py, PyAny>,
 ) -> PyResult<Bound<'py, PyDict>> {
     let check_results = iter_items(&result.getattr("check_results")?)?;
-    let passed_checks = check_results.iter().filter(|r| {
-        r.getattr("passed").map(|p| p.is_truthy().unwrap_or(false)).unwrap_or(false)
-    }).count();
+    let passed_checks = check_results
+        .iter()
+        .filter(|r| {
+            r.getattr("passed")
+                .map(|p| p.is_truthy().unwrap_or(false))
+                .unwrap_or(false)
+        })
+        .count();
     let failed_checks = check_results.len() - passed_checks;
     let total_issues = iter_items(&result.getattr("all_issues")?)?.len();
 
@@ -278,10 +284,7 @@ fn format_json_data_impl<'py>(
 
 /// `format_json`'s data half — the shim renders it with `json.dumps(indent=2)`.
 #[pyfunction]
-pub fn report_format_json_data(
-    py: Python<'_>,
-    result: &Bound<'_, PyAny>,
-) -> PyResult<Py<PyDict>> {
+pub fn report_format_json_data(py: Python<'_>, result: &Bound<'_, PyAny>) -> PyResult<Py<PyDict>> {
     temper_py_bridge_catch(|| format_json_data_impl(py, result).map(|d| d.unbind()))
 }
 
@@ -291,9 +294,14 @@ fn format_html_impl(result: &Bound<'_, PyAny>, placement_name: &str) -> PyResult
     let status_text = if passed { "PASS" } else { "FAIL" };
 
     let check_results = iter_items(&result.getattr("check_results")?)?;
-    let passed_checks = check_results.iter().filter(|r| {
-        r.getattr("passed").map(|p| p.is_truthy().unwrap_or(false)).unwrap_or(false)
-    }).count();
+    let passed_checks = check_results
+        .iter()
+        .filter(|r| {
+            r.getattr("passed")
+                .map(|p| p.is_truthy().unwrap_or(false))
+                .unwrap_or(false)
+        })
+        .count();
     let failed_checks = check_results.len() - passed_checks;
 
     let mut severity_counts = [0usize; 4]; // CRITICAL, ERROR, WARNING, INFO
@@ -313,7 +321,11 @@ fn format_html_impl(result: &Bound<'_, PyAny>, placement_name: &str) -> PyResult
     for check_result in &check_results {
         let cr_passed = check_result.getattr("passed")?.is_truthy()?;
         let status_icon = if cr_passed { "\u{2713}" } else { "\u{2717}" };
-        let row_class = if cr_passed { "table-success" } else { "table-danger" };
+        let row_class = if cr_passed {
+            "table-success"
+        } else {
+            "table-danger"
+        };
 
         let mut issue_details = String::new();
         let issues = iter_items(&check_result.getattr("issues")?)?;
@@ -343,14 +355,19 @@ fn format_html_impl(result: &Bound<'_, PyAny>, placement_name: &str) -> PyResult
     let all_issues_count = iter_items(&result.getattr("all_issues")?)?.len();
     let total_elapsed = py_float_fmt_1(get_f64(result, "total_elapsed_ms")?);
 
-    let mut out = String::from("\n<!DOCTYPE html>\n<html>\n<head>\n    <meta charset=\"utf-8\">\n    <title>temper-drc Check Report</title>\n    <link rel=\"stylesheet\" href=\"https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css\">\n    <style>\n        body { padding: 20px; }\n        .summary-card { margin-bottom: 20px; }\n        .metric-badge { font-size: 2rem; margin: 10px 0; }\n    </style>\n</head>\n<body>\n    <div class=\"container-fluid\">\n        <h1>temper-drc Check Report</h1>\n        <p class=\"text-muted\">Placement: ");
+    let mut out = String::from(
+        "\n<!DOCTYPE html>\n<html>\n<head>\n    <meta charset=\"utf-8\">\n    <title>temper-drc Check Report</title>\n    <link rel=\"stylesheet\" href=\"https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css\">\n    <style>\n        body { padding: 20px; }\n        .summary-card { margin-bottom: 20px; }\n        .metric-badge { font-size: 2rem; margin: 10px 0; }\n    </style>\n</head>\n<body>\n    <div class=\"container-fluid\">\n        <h1>temper-drc Check Report</h1>\n        <p class=\"text-muted\">Placement: ",
+    );
     out.push_str(placement_name);
     out.push_str("</p>\n\n        <div class=\"row summary-card\">\n            <div class=\"col-md-3\">\n                <div class=\"card text-center\">\n                    <div class=\"card-body\">\n                        <h5 class=\"card-title\">Status</h5>\n                        <div class=\"metric-badge\" style=\"color: ");
     out.push_str(status_color);
     out.push_str(";\">");
     out.push_str(status_text);
     out.push_str("</div>\n                    </div>\n                </div>\n            </div>\n            <div class=\"col-md-3\">\n                <div class=\"card text-center\">\n                    <div class=\"card-body\">\n                        <h5 class=\"card-title\">Checks</h5>\n                        <div class=\"metric-badge\">");
-    out.push_str(&format!("{passed_checks}/{total_checks}", total_checks = check_results.len()));
+    out.push_str(&format!(
+        "{passed_checks}/{total_checks}",
+        total_checks = check_results.len()
+    ));
     out.push_str("</div>\n                        <p class=\"text-muted\">");
     out.push_str(&format!("{failed_checks} failed"));
     out.push_str("</p>\n                    </div>\n                </div>\n            </div>\n            <div class=\"col-md-3\">\n                <div class=\"card text-center\">\n                    <div class=\"card-body\">\n                        <h5 class=\"card-title\">Issues</h5>\n                        <div class=\"metric-badge\">");
@@ -372,10 +389,7 @@ fn format_html_impl(result: &Bound<'_, PyAny>, placement_name: &str) -> PyResult
 /// `temper_placer.report.formatter.format_html` — byte-identical HTML.
 #[pyfunction]
 #[pyo3(signature = (result, placement_name))]
-pub fn report_format_html(
-    result: &Bound<'_, PyAny>,
-    placement_name: &str,
-) -> PyResult<String> {
+pub fn report_format_html(result: &Bound<'_, PyAny>, placement_name: &str) -> PyResult<String> {
     temper_py_bridge_catch(|| format_html_impl(result, placement_name))
 }
 
@@ -399,10 +413,8 @@ fn dict_get<'py>(
     key: &str,
     default: impl FnOnce() -> PyResult<Bound<'py, PyAny>>,
 ) -> PyResult<Bound<'py, PyAny>> {
-    if let Ok(v) = dict.get_item(key) {
-        if let Some(v) = v {
-            return Ok(v);
-        }
+    if let Ok(Some(v)) = dict.get_item(key) {
+        return Ok(v);
     }
     default()
 }
@@ -451,12 +463,18 @@ fn calculate_benchmark_result_impl<'py>(
     let loss_breakdown = loss_breakdown_obj.cast::<PyDict>()?;
 
     let get_loss = |key: &str| -> PyResult<f64> {
-        let v = dict_get(loss_breakdown, key, || Ok(0.0_f64.into_pyobject(py)?.into_any()))?;
+        let v = dict_get(loss_breakdown, key, || {
+            Ok(0.0_f64.into_pyobject(py)?.into_any())
+        })?;
         to_f64(&v)
     };
 
     let opt_wl = get_loss("wirelength")?;
-    let wl_ratio = if human_wl > 0.0 { opt_wl / human_wl } else { 1.0 };
+    let wl_ratio = if human_wl > 0.0 {
+        opt_wl / human_wl
+    } else {
+        1.0
+    };
 
     let overlap_val = get_loss("overlap")?;
     let overlap_score = if overlap_val < 1.0 {
@@ -494,10 +512,16 @@ fn calculate_benchmark_result_impl<'py>(
 
     let mut violations: Vec<String> = Vec::new();
     if overlap_val > 10.0 {
-        violations.push(format!("Overlap too high ({})", py_float_fmt_1(overlap_val)));
+        violations.push(format!(
+            "Overlap too high ({})",
+            py_float_fmt_1(overlap_val)
+        ));
     }
     if boundary_val > 10.0 {
-        violations.push(format!("Boundary violation ({})", py_float_fmt_1(boundary_val)));
+        violations.push(format!(
+            "Boundary violation ({})",
+            py_float_fmt_1(boundary_val)
+        ));
     }
 
     let status = if !violations.is_empty() {
@@ -614,7 +638,8 @@ fn extract_key_metrics_impl<'py>(
                 let name_obj: Bound<'py, PyAny> = name.into_pyobject(py)?.into_any();
                 let tup = PyTuple::new(py, [name_obj, v])?;
                 out.append(tup)?;
-            }        }
+            }
+        }
     }
     Ok(out)
 }
@@ -633,16 +658,21 @@ fn generate_summary_impl<'py>(
     result: &Bound<'py, PyAny>,
     placement: &Bound<'py, PyAny>,
 ) -> PyResult<String> {
-    let mut lines: Vec<String> = Vec::new();
-    lines.push("=".repeat(60));
-    lines.push("temper-drc Summary".to_string());
-    lines.push("=".repeat(60));
-    lines.push(String::new());
+    let mut lines: Vec<String> = vec![
+        "=".repeat(60),
+        "temper-drc Summary".to_string(),
+        "=".repeat(60),
+        String::new(),
+    ];
 
     let passed = result.getattr("passed")?.is_truthy()?;
     lines.push(format!(
         "Overall Status: {}",
-        if passed { "\u{2713} PASS" } else { "\u{2717} FAIL" }
+        if passed {
+            "\u{2713} PASS"
+        } else {
+            "\u{2717} FAIL"
+        }
     ));
     lines.push(String::new());
 
@@ -662,9 +692,14 @@ fn generate_summary_impl<'py>(
 
     let check_results = iter_items(&result.getattr("check_results")?)?;
     let total_checks = check_results.len();
-    let passed_checks = check_results.iter().filter(|r| {
-        r.getattr("passed").map(|p| p.is_truthy().unwrap_or(false)).unwrap_or(false)
-    }).count();
+    let passed_checks = check_results
+        .iter()
+        .filter(|r| {
+            r.getattr("passed")
+                .map(|p| p.is_truthy().unwrap_or(false))
+                .unwrap_or(false)
+        })
+        .count();
     let failed_checks = total_checks - passed_checks;
 
     lines.push("Check Summary:".to_string());
@@ -762,7 +797,7 @@ fn generate_summary_impl<'py>(
         ranked.sort_by(|a, b| a.0.cmp(&b.0));
         let top_issues = ranked.iter().take(5);
 
-        if ranked.len() > 0 {
+        if !ranked.is_empty() {
             lines.push("Top Issues:".to_string());
             for (_, issue) in top_issues {
                 let sev = severity_name(issue)?;

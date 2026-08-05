@@ -27,7 +27,11 @@ use crate::report::{iter_items, py_str, to_f64};
 // trace.py — Trace.why
 // ---------------------------------------------------------------------------
 
-fn trace_why_impl(entries: &Bound<'_, PyAny>, subject: &str, max_reasons: usize) -> PyResult<String> {
+fn trace_why_impl(
+    entries: &Bound<'_, PyAny>,
+    subject: &str,
+    max_reasons: usize,
+) -> PyResult<String> {
     let mut filtered: Vec<Bound<'_, PyAny>> = Vec::new();
     for entry in iter_items(entries)? {
         let s: String = entry.getattr("subject")?.extract()?;
@@ -40,7 +44,11 @@ fn trace_why_impl(entries: &Bound<'_, PyAny>, subject: &str, max_reasons: usize)
         return Ok(format!("No decisions recorded for {subject}"));
     }
 
-    let final_entry = filtered.last().expect("filtered is non-empty");
+    let final_entry = filtered.last().ok_or_else(|| {
+        pyo3::exceptions::PyRuntimeError::new_err(
+            "internal: subject entries emptied between the emptiness check and the read",
+        )
+    })?;
     let value = final_entry.getattr("value")?;
     let value_str = if value.is_instance_of::<PyTuple>() {
         let tup = value.cast::<PyTuple>()?;
@@ -97,15 +105,16 @@ fn filter_by_subject<'py>(
     Ok(out)
 }
 
-fn decision_trace_why_impl(
-    decisions: &Bound<'_, PyAny>,
-    subject: &str,
-) -> PyResult<String> {
+fn decision_trace_why_impl(decisions: &Bound<'_, PyAny>, subject: &str) -> PyResult<String> {
     let filtered = filter_by_subject(decisions, subject)?;
     if filtered.is_empty() {
         return Ok(format!("No decisions recorded for {subject}"));
     }
-    let last = filtered.last().expect("filtered is non-empty");
+    let last = filtered.last().ok_or_else(|| {
+        pyo3::exceptions::PyRuntimeError::new_err(
+            "internal: subject entries emptied between the emptiness check and the read",
+        )
+    })?;
     let value = py_str(&last.getattr("value")?)?;
     let reason: String = last.getattr("reason")?.extract()?;
     let mut msg = format!("{subject} is at {value} because: {reason}");
@@ -123,10 +132,7 @@ fn decision_trace_why_impl(
 
 /// `DecisionTrace.why`'s compute.
 #[pyfunction]
-pub fn explain_decision_trace_why(
-    decisions: &Bound<'_, PyAny>,
-    subject: &str,
-) -> PyResult<String> {
+pub fn explain_decision_trace_why(decisions: &Bound<'_, PyAny>, subject: &str) -> PyResult<String> {
     catch(|| decision_trace_why_impl(decisions, subject))
 }
 
@@ -137,11 +143,7 @@ fn is_seq(v: &Bound<'_, PyAny>) -> bool {
 
 /// `values_match(v1, v2)`: list/tuple on BOTH sides compare elementwise;
 /// anything else uses Python `==`.
-fn values_match(
-    _py: Python<'_>,
-    v1: &Bound<'_, PyAny>,
-    v2: &Bound<'_, PyAny>,
-) -> PyResult<bool> {
+fn values_match(_py: Python<'_>, v1: &Bound<'_, PyAny>, v2: &Bound<'_, PyAny>) -> PyResult<bool> {
     if is_seq(v1) && is_seq(v2) {
         let a = iter_items(v1)?;
         let b = iter_items(v2)?;
@@ -155,7 +157,7 @@ fn values_match(
         }
         return Ok(true);
     }
-    Ok(v1.eq(v2)?)
+    v1.eq(v2)
 }
 
 fn decision_trace_why_not_impl(
@@ -358,6 +360,7 @@ pub fn explain_significant_change(
 }
 
 /// `DecisionLogger.log_position`'s decision-construction payload.
+#[allow(clippy::too_many_arguments)] // mirrors DecisionLogger.log_position's signature
 #[pyfunction]
 #[pyo3(signature = (phase_value, subject, value, previous, reason, constraint_refs, alternatives, loss_delta, epoch, iteration))]
 pub fn explain_log_position(
@@ -405,6 +408,7 @@ pub fn explain_log_position(
 }
 
 /// `DecisionLogger.log_rotation`'s decision-construction payload.
+#[allow(clippy::too_many_arguments)] // mirrors DecisionLogger.log_rotation's signature
 #[pyfunction]
 #[pyo3(signature = (phase_value, subject, rotation, previous, reason, epoch, iteration))]
 pub fn explain_log_rotation(
@@ -445,6 +449,7 @@ pub fn explain_log_rotation(
 
 /// `DecisionLogger.log_heuristic`'s decision-construction payload
 /// (effective-reason generation, confidence-as-loss, TOPOLOGICAL default).
+#[allow(clippy::too_many_arguments)] // mirrors DecisionLogger.log_heuristic's signature
 #[pyfunction]
 #[pyo3(signature = (heuristic_name, subject, position, reason, confidence, epoch, iteration))]
 pub fn explain_log_heuristic(
@@ -487,6 +492,7 @@ pub fn explain_log_heuristic(
 
 /// `DecisionLogger.log_constraint_application`'s decision-construction
 /// payload (effective-reason generation, constraint_refs=[id]).
+#[allow(clippy::too_many_arguments)] // mirrors log_constraint_application's signature
 #[pyfunction]
 #[pyo3(signature = (phase_value, constraint_id, affected_components, action, reason, epoch, iteration))]
 pub fn explain_log_constraint(
@@ -562,12 +568,12 @@ fn format_value_impl(value: &Bound<'_, PyAny>) -> PyResult<String> {
         let has_x = d.get_item("x")?.is_some();
         let has_y = d.get_item("y")?.is_some();
         if has_x && has_y {
-            let x_item = d.get_item("x")?.ok_or_else(|| {
-                pyo3::exceptions::PyKeyError::new_err("x")
-            })?;
-            let y_item = d.get_item("y")?.ok_or_else(|| {
-                pyo3::exceptions::PyKeyError::new_err("y")
-            })?;
+            let x_item = d
+                .get_item("x")?
+                .ok_or_else(|| pyo3::exceptions::PyKeyError::new_err("x"))?;
+            let y_item = d
+                .get_item("y")?
+                .ok_or_else(|| pyo3::exceptions::PyKeyError::new_err("y"))?;
             let x = py_float_fmt_1(to_f64(&x_item)?);
             let y = py_float_fmt_1(to_f64(&y_item)?);
             let rot = match d.get_item("rotation")? {
@@ -590,7 +596,9 @@ fn truncate(text: &str, max_len: usize) -> String {
     if chars.len() <= max_len {
         return text.to_string();
     }
-    let cut = chars[..max_len.saturating_sub(3)].iter().collect::<String>();
+    let cut = chars[..max_len.saturating_sub(3)]
+        .iter()
+        .collect::<String>();
     format!("{cut}...")
 }
 
@@ -601,7 +609,7 @@ fn py_title(s: &str) -> String {
         .map(|word| {
             let mut chars = word.chars();
             match chars.next() {
-                Some(first) => first.to_uppercase().collect::<String>() + &chars.as_str(),
+                Some(first) => first.to_uppercase().collect::<String>() + chars.as_str(),
                 None => String::new(),
             }
         })
@@ -609,10 +617,17 @@ fn py_title(s: &str) -> String {
         .join(" ")
 }
 
-fn count_by_phase_impl<'py>(py: Python<'py>, decisions: &Bound<'py, PyAny>) -> PyResult<Bound<'py, PyDict>> {
+fn count_by_phase_impl<'py>(
+    py: Python<'py>,
+    decisions: &Bound<'py, PyAny>,
+) -> PyResult<Bound<'py, PyDict>> {
     // Order by DecisionPhase enum order; only counts > 0.
     let order = [
-        "semantic", "topological", "geometric", "routing", "refinement",
+        "semantic",
+        "topological",
+        "geometric",
+        "routing",
+        "refinement",
     ];
     let mut counts: [usize; 5] = [0; 5];
     for d in iter_items(decisions)? {
@@ -630,7 +645,10 @@ fn count_by_phase_impl<'py>(py: Python<'py>, decisions: &Bound<'py, PyAny>) -> P
     Ok(out)
 }
 
-fn count_by_type_impl<'py>(py: Python<'py>, decisions: &Bound<'py, PyAny>) -> PyResult<Bound<'py, PyDict>> {
+fn count_by_type_impl<'py>(
+    py: Python<'py>,
+    decisions: &Bound<'py, PyAny>,
+) -> PyResult<Bound<'py, PyDict>> {
     // Counter(...).most_common(): count descending, ties by first-seen
     // (CPython's sort is stable).
     let mut counts: Vec<(String, usize)> = Vec::new();
@@ -665,7 +683,11 @@ fn render_component_section_impl(
         return Ok(lines.join("\n"));
     }
 
-    let final_decision = decisions_vec.last().expect("non-empty");
+    let final_decision = decisions_vec.last().ok_or_else(|| {
+        pyo3::exceptions::PyRuntimeError::new_err(
+            "internal: decisions emptied between the emptiness check and the read",
+        )
+    })?;
     lines.push(format!(
         "**Final Value**: {}",
         format_value_impl(&final_decision.getattr("value")?)?
@@ -757,15 +779,19 @@ fn render_component_section_impl(
     Ok(lines.join("\n"))
 }
 
+struct MarkdownRenderOpts<'a> {
+    include_config: bool,
+    include_positions: bool,
+    start_str: &'a str,
+    end_str: Option<&'a str>,
+    duration: Option<f64>,
+    max_decisions_per_component: usize,
+}
+
 fn render_markdown_report_impl(
     py: Python<'_>,
     trace: &Bound<'_, PyAny>,
-    include_config: bool,
-    include_positions: bool,
-    start_str: &str,
-    end_str: Option<&str>,
-    duration: Option<f64>,
-    max_decisions_per_component: usize,
+    opts: MarkdownRenderOpts<'_>,
 ) -> PyResult<String> {
     let mut lines: Vec<String> = Vec::new();
 
@@ -774,10 +800,14 @@ fn render_markdown_report_impl(
     lines.push("# Placement Decision Report".to_string());
     lines.push(String::new());
     lines.push(format!("**Run ID**: `{run_id}`"));
-    lines.push(format!("**Started**: {start_str}"));
-    if let Some(end) = end_str {
+    lines.push(format!("**Started**: {}", opts.start_str));
+    if let Some(end) = opts.end_str {
         lines.push(format!("**Ended**: {end}"));
-        let d = duration.expect("end_time implies duration");
+        let d = opts.duration.ok_or_else(|| {
+            pyo3::exceptions::PyRuntimeError::new_err(
+                "internal: ended timestamp present without a opts.duration",
+            )
+        })?;
         lines.push(format!("**Duration**: {} seconds", py_float_fmt_1(d)));
     }
     let decisions = trace.getattr("decisions")?;
@@ -786,7 +816,10 @@ fn render_markdown_report_impl(
         .map(|d| d.getattr("subject").and_then(|s| s.extract::<String>()))
         .collect::<PyResult<_>>()?;
     lines.push(format!("**Components**: {}", subjects.len()));
-    lines.push(format!("**Total Decisions**: {}", iter_items(&decisions)?.len()));
+    lines.push(format!(
+        "**Total Decisions**: {}",
+        iter_items(&decisions)?.len()
+    ));
     lines.push(String::new());
 
     // -- summary metrics --
@@ -858,13 +891,13 @@ fn render_markdown_report_impl(
                 py,
                 subject,
                 &subj_list.into_any(),
-                max_decisions_per_component,
+                opts.max_decisions_per_component,
             )?);
         }
     }
 
     // -- final positions --
-    if include_positions {
+    if opts.include_positions {
         let final_positions = trace.getattr("final_positions")?;
         if !final_positions.is_empty()? {
             lines.push("## Final Positions".to_string());
@@ -887,7 +920,7 @@ fn render_markdown_report_impl(
     }
 
     // -- config snapshot --
-    if include_config {
+    if opts.include_config {
         let config = trace.getattr("config_snapshot")?;
         if !config.is_empty()? {
             lines.push("## Configuration".to_string());
@@ -911,6 +944,7 @@ fn render_markdown_report_impl(
 
 /// `render_markdown_report` — the shim pre-formats the two timestamp
 /// strings and the duration (strftime / datetime arithmetic stay Python).
+#[allow(clippy::too_many_arguments)] // mirrors markdown_report.render_markdown_report's signature
 #[pyfunction]
 #[pyo3(signature = (trace, include_config, include_positions, start_str, end_str, duration, max_decisions_per_component = 10))]
 pub fn explain_render_markdown_report(
@@ -927,12 +961,14 @@ pub fn explain_render_markdown_report(
         render_markdown_report_impl(
             py,
             trace,
-            include_config,
-            include_positions,
-            start_str,
-            end_str,
-            duration,
-            max_decisions_per_component,
+            MarkdownRenderOpts {
+                include_config,
+                include_positions,
+                start_str,
+                end_str,
+                duration,
+                max_decisions_per_component,
+            },
         )
     })
 }
@@ -1008,10 +1044,7 @@ fn serialize_value_impl<'py>(
 
 /// `_serialize_value`'s compute.
 #[pyfunction]
-pub fn explain_serialize_value(
-    py: Python<'_>,
-    value: &Bound<'_, PyAny>,
-) -> PyResult<Py<PyAny>> {
+pub fn explain_serialize_value(py: Python<'_>, value: &Bound<'_, PyAny>) -> PyResult<Py<PyAny>> {
     catch(|| serialize_value_impl(py, value).map(|v| v.unbind()))
 }
 
@@ -1027,10 +1060,8 @@ pub fn explain_deserialize_value(
         if value.is_none() {
             return Ok(value.clone().unbind());
         }
-        if as_tuple {
-            if let Ok(l) = value.cast::<PyList>() {
-                return Ok(PyTuple::new(py, l.iter())?.into_any().unbind());
-            }
+        if as_tuple && let Ok(l) = value.cast::<PyList>() {
+            return Ok(PyTuple::new(py, l.iter())?.into_any().unbind());
         }
         Ok(value.clone().unbind())
     })
@@ -1081,10 +1112,7 @@ pub fn explain_serialize_decision(
         )?;
         out.set_item("reason", decision.getattr("reason")?)?;
         out.set_item("constraint_refs", decision.getattr("constraint_refs")?)?;
-        out.set_item(
-            "loss_contribution",
-            decision.getattr("loss_contribution")?,
-        )?;
+        out.set_item("loss_contribution", decision.getattr("loss_contribution")?)?;
         let alts = PyList::empty(py);
         for alt in iter_items(&decision.getattr("alternatives")?)? {
             alts.append(explain_serialize_alternative(py, &alt)?)?;
@@ -1099,10 +1127,7 @@ pub fn explain_serialize_decision(
 /// `serialize_trace`'s dict shape (`final_positions` tuples -> lists via
 /// Python's `list()`).
 #[pyfunction]
-pub fn explain_serialize_trace(
-    py: Python<'_>,
-    trace: &Bound<'_, PyAny>,
-) -> PyResult<Py<PyDict>> {
+pub fn explain_serialize_trace(py: Python<'_>, trace: &Bound<'_, PyAny>) -> PyResult<Py<PyDict>> {
     catch(|| {
         let out = PyDict::new(py);
         out.set_item("run_id", trace.getattr("run_id")?)?;
@@ -1173,10 +1198,7 @@ pub fn explain_trace_threshold(value: f64, threshold: f64) -> PyResult<bool> {
 /// `compose_traces`'s monoid fold — concatenate the entries of N traces,
 /// order-preserving, returning the combined entries tuple.
 #[pyfunction]
-pub fn explain_compose_traces(
-    py: Python<'_>,
-    traces: &Bound<'_, PyAny>,
-) -> PyResult<Py<PyTuple>> {
+pub fn explain_compose_traces(py: Python<'_>, traces: &Bound<'_, PyAny>) -> PyResult<Py<PyTuple>> {
     catch(|| {
         let mut entries: Vec<Bound<'_, PyAny>> = Vec::new();
         for t in iter_items(traces)? {

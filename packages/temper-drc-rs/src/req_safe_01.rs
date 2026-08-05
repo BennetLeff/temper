@@ -50,8 +50,7 @@ const SHAPE_ROUNDRECT: i64 = 3;
 const SHAPE_THRU_HOLE: i64 = 4;
 const SHAPE_UNKNOWN: i64 = 99;
 
-const CREEPAGE_MODEL_UNBROKEN_SURFACE: &str =
-    "unbroken-surface (exact: geodesic == straight line)";
+const CREEPAGE_MODEL_UNBROKEN_SURFACE: &str = "unbroken-surface (exact: geodesic == straight line)";
 const CREEPAGE_MODEL_STRAIGHT_LINE_LOWER_BOUND: &str = "straight-line lower bound (CONSERVATIVE: board has cutouts, slot-aware surface pathing not implemented)";
 
 // ---------------------------------------------------------------------------
@@ -66,12 +65,9 @@ fn py_str(obj: &Bound<'_, PyAny>) -> PyResult<String> {
 /// `obj.get(key)` for dict objects (placement/component dicts in the
 /// fixtures), falling back to attribute access for object-style inputs.
 /// Returns None when the key is absent.
-fn get_key_opt<'py>(
-    obj: &Bound<'py, PyAny>,
-    key: &str,
-) -> PyResult<Option<Bound<'py, PyAny>>> {
+fn get_key_opt<'py>(obj: &Bound<'py, PyAny>, key: &str) -> PyResult<Option<Bound<'py, PyAny>>> {
     if let Ok(d) = obj.cast::<PyDict>() {
-        return Ok(d.get_item(key)?);
+        return d.get_item(key);
     }
     match obj.getattr(key) {
         Ok(v) => Ok(Some(v)),
@@ -80,13 +76,9 @@ fn get_key_opt<'py>(
 }
 
 /// `obj[key]` — required key; KeyError when absent (like Python indexing).
-fn get_key_required<'py>(
-    obj: &Bound<'py, PyAny>,
-    key: &str,
-) -> PyResult<Bound<'py, PyAny>> {
-    get_key_opt(obj, key)?.ok_or_else(|| {
-        pyo3::exceptions::PyKeyError::new_err(format!("'{}'", key))
-    })
+fn get_key_required<'py>(obj: &Bound<'py, PyAny>, key: &str) -> PyResult<Bound<'py, PyAny>> {
+    get_key_opt(obj, key)?
+        .ok_or_else(|| pyo3::exceptions::PyKeyError::new_err(format!("'{}'", key)))
 }
 
 /// Python `float(obj)`.
@@ -123,10 +115,8 @@ fn shape_code(shape: &str) -> i64 {
 /// Extract a domain value as a string: `.value` for an Enum member, `str()`
 /// otherwise (the verify-overrides path passes plain strings).
 fn domain_to_str(obj: &Bound<'_, PyAny>) -> PyResult<String> {
-    if let Ok(value) = obj.getattr("value") {
-        if let Ok(s) = value.extract::<String>() {
-            return Ok(s);
-        }
+    if let Ok(s) = obj.getattr("value").and_then(|v| v.extract::<String>()) {
+        return Ok(s);
     }
     py_str(obj)
 }
@@ -167,7 +157,7 @@ fn pad_spec_tuple<'py>(py: Python<'py>, spec: &PadSpec) -> PyResult<Bound<'py, P
         spec.5.into_pyobject(py)?.into_any(),
         spec.6.into_pyobject(py)?.into_any(),
     ];
-    Ok(PyTuple::new(py, items)?)
+    PyTuple::new(py, items)
 }
 
 /// Call `temper_geometry.rotate_local_to_world_py(x, y, theta_rad)`.
@@ -290,9 +280,11 @@ struct CopperModel {
     origins: HashMap<String, (f64, f64)>,
     reach: HashMap<String, f64>,
     components_without_pads: Vec<String>,
-    dist_cache: HashMap<(String, String, String, String), (f64, String, String)>,
+    dist_cache: CopperDistanceCache,
     next_id: i64,
 }
+
+type CopperDistanceCache = HashMap<(String, String, String, String), (f64, String, String)>;
 
 impl CopperModel {
     fn new(py: Python<'_>, placement: &Bound<'_, PyAny>) -> PyResult<CopperModel> {
@@ -434,7 +426,11 @@ impl CopperModel {
                     format!("{ref_a} <-> {ref_b} (origins; no distinct pad pair)"),
                 )
             } else {
-                let (i, j) = best_pair.expect("copper_scan pair present when finite");
+                let (i, j) = best_pair.ok_or_else(|| {
+                    pyo3::exceptions::PyRuntimeError::new_err(
+                        "internal: copper scan returned a finite distance without a pair",
+                    )
+                })?;
                 (
                     best,
                     "copper".to_string(),
@@ -478,10 +474,11 @@ fn component_pads_impl(
             _ => (0.0, 0.0),
         };
         let (rx, ry) = tg_rotate(py, dx, dy, comp_rot_rad)?;
-        let pad_rot_rad = comp_rot_rad + radians(match get_key_opt(&p, "pad_rotation_deg")? {
-            Some(r) if !r.is_none() => to_f64(&r)?,
-            _ => 0.0,
-        });
+        let pad_rot_rad = comp_rot_rad
+            + radians(match get_key_opt(&p, "pad_rotation_deg")? {
+                Some(r) if !r.is_none() => to_f64(&r)?,
+                _ => 0.0,
+            });
         let number = match get_key_opt(&p, "number")? {
             Some(n) if !n.is_none() => py_str(&n)?,
             _ => i.to_string(),
@@ -544,20 +541,19 @@ fn nets_domain_map_impl<'py>(
     };
     if let Ok(nets_dict) = nets.cast::<PyDict>() {
         for (net, net_info) in nets_dict.iter() {
-            if let Ok(info_dict) = net_info.cast::<PyDict>() {
-                if let Ok(Some(domain)) = info_dict.get_item("domain") {
-                    if !domain.is_none() {
-                        out.set_item(&net, domain)?;
-                    }
-                }
+            if let Ok(info_dict) = net_info.cast::<PyDict>()
+                && let Ok(Some(domain)) = info_dict.get_item("domain")
+                && !domain.is_none()
+            {
+                out.set_item(&net, domain)?;
             }
         }
     }
-    if let Some(over) = overrides {
-        if let Ok(over_dict) = over.cast::<PyDict>() {
-            for (net, domain) in over_dict.iter() {
-                out.set_item(&net, domain)?;
-            }
+    if let Some(over) = overrides
+        && let Ok(over_dict) = over.cast::<PyDict>()
+    {
+        for (net, domain) in over_dict.iter() {
+            out.set_item(&net, domain)?;
         }
     }
     Ok(out)
@@ -599,7 +595,11 @@ fn components_in_domain_vec<'py>(
         let mut in_domain = false;
         for net in iter_items(&nets)? {
             let net_str = py_str(&net)?;
-            if string_map.get(&net_str).map(|d| d == domain).unwrap_or(false) {
+            if string_map
+                .get(&net_str)
+                .map(|d| d == domain)
+                .unwrap_or(false)
+            {
                 in_domain = true;
                 break;
             }
@@ -694,13 +694,12 @@ fn board_cutouts<'py>(
         Some(b) if !b.is_none() => b,
         _ => return Ok(out),
     };
-    if let Ok(board_dict) = board.cast::<PyDict>() {
-        if let Ok(Some(cutouts)) = board_dict.get_item("surface_cutouts") {
-            if cutouts.is_truthy()? {
-                for c in iter_items(&cutouts)? {
-                    out.append(c)?;
-                }
-            }
+    if let Ok(board_dict) = board.cast::<PyDict>()
+        && let Ok(Some(cutouts)) = board_dict.get_item("surface_cutouts")
+        && cutouts.is_truthy()?
+    {
+        for c in iter_items(&cutouts)? {
+            out.append(c)?;
         }
     }
     Ok(out)
@@ -720,7 +719,10 @@ fn creepage_from_clearance(
     warnings.push(format!(
         "REQ-SAFE-01 creepage: the board declares {cutouts_len} Edge.Cuts cutout(s)/slot(s), but slot-aware surface pathing is not implemented. Reported creepage is the straight-line CLEARANCE distance -- a conservative LOWER BOUND on the true surface path. Violations near a slot may be false positives; no real violation can be masked. Implement surface pathing before relying on these numbers to justify a placement."
     ));
-    (straight_mm, CREEPAGE_MODEL_STRAIGHT_LINE_LOWER_BOUND.to_string())
+    (
+        straight_mm,
+        CREEPAGE_MODEL_STRAIGHT_LINE_LOWER_BOUND.to_string(),
+    )
 }
 
 struct CheckOutcome {
@@ -740,23 +742,20 @@ fn check_distance_internal(
     nets_domain: Option<&HashMap<String, String>>,
     model: Option<&mut CopperModel>,
 ) -> PyResult<CheckOutcome> {
-    let mut owned_map: Option<HashMap<String, String>> = None;
-    let string_map: &HashMap<String, String> = match nets_domain {
-        Some(m) => m,
-        None => {
-            let d = nets_domain_map_impl(py, placement, None)?;
-            let m = nets_domain_string_map(py, &d)?;
-            owned_map = Some(m);
-            owned_map.as_ref().expect("just set")
-        }
+    let owned_map;
+    let string_map: &HashMap<String, String> = if let Some(m) = nets_domain {
+        m
+    } else {
+        let d = nets_domain_map_impl(py, placement, None)?;
+        owned_map = nets_domain_string_map(py, &d)?;
+        &owned_map
     };
-    let mut owned_model: Option<CopperModel> = None;
-    let model_ref: &mut CopperModel = match model {
-        Some(m) => m,
-        None => {
-            owned_model = Some(CopperModel::new(py, placement)?);
-            owned_model.as_mut().expect("just set")
-        }
+    let mut owned_model;
+    let model_ref: &mut CopperModel = if let Some(m) = model {
+        m
+    } else {
+        owned_model = CopperModel::new(py, placement)?;
+        &mut owned_model
     };
 
     let cutouts = board_cutouts(py, placement)?;
@@ -766,7 +765,9 @@ fn check_distance_internal(
 
     let inter = domain_boundary_pairs_vec(placement, domain_a, domain_b, string_map)?;
     let pairs_inter = inter.len();
-    let intra = intra_component_boundary_components_vec(py, placement, domain_a, domain_b, string_map, model_ref)?;
+    let intra = intra_component_boundary_components_vec(
+        py, placement, domain_a, domain_b, string_map, model_ref,
+    )?;
     let pairs_intra = intra.len();
 
     let mut violations: Vec<ViolationPayload> = Vec::new();
@@ -792,14 +793,8 @@ fn check_distance_internal(
             continue;
         }
 
-        let (dist, geometry_model, closest) = model_ref.copper_distance(
-            py,
-            &ref_a,
-            domain_a,
-            &ref_b,
-            domain_b,
-            string_map,
-        )?;
+        let (dist, geometry_model, closest) =
+            model_ref.copper_distance(py, &ref_a, domain_a, &ref_b, domain_b, string_map)?;
         if geometry_model == "origin" {
             origin_modelled += 1;
         } else if !model_ref.domain_restricted(&ref_a, domain_a, string_map)
@@ -825,9 +820,7 @@ fn check_distance_internal(
         let midpoint = ((ax + bx) / 2.0, (ay + by) / 2.0);
 
         let where_ = if pair_kind == "intra" {
-            format!(
-                "within {ref_a} ({domain_a} pad <-> {domain_b} pad)"
-            )
+            format!("within {ref_a} ({domain_a} pad <-> {domain_b} pad)")
         } else {
             format!("between {ref_a} ({domain_a}) and {ref_b} ({domain_b})")
         };
@@ -948,10 +941,7 @@ fn capitalize(s: &str) -> String {
 // Payload construction (shim-facing)
 // ---------------------------------------------------------------------------
 
-fn violation_to_dict<'py>(
-    py: Python<'py>,
-    v: &ViolationPayload,
-) -> PyResult<Bound<'py, PyDict>> {
+fn violation_to_dict<'py>(py: Python<'py>, v: &ViolationPayload) -> PyResult<Bound<'py, PyDict>> {
     let d = PyDict::new(py);
     d.set_item("code", &v.code)?;
     d.set_item("message", &v.message)?;
@@ -1082,14 +1072,7 @@ pub fn req_safe_01_check_creepage_path(
 ) -> PyResult<Py<PyDict>> {
     catch(|| {
         let outcome = check_distance_internal(
-            py,
-            placement,
-            domain_a,
-            domain_b,
-            min_mm,
-            "creepage",
-            None,
-            None,
+            py, placement, domain_a, domain_b, min_mm, "creepage", None, None,
         )?;
         let passed = outcome.violations.is_empty();
         outcome_to_payload(py, outcome, passed).map(|d| d.unbind())
@@ -1120,7 +1103,7 @@ pub fn req_safe_01_verify_iec60335(
         let mut model = CopperModel::new(py, placement)?;
 
         let mut all_violations: Vec<ViolationPayload> = Vec::new();
-        let mut rows = PyList::empty(py);
+        let rows = PyList::empty(py);
         let mut warnings: Vec<String> = Vec::new();
 
         for (da, db, ins, min_clr, min_crp, _design) in MATRIX_ROWS {
@@ -1265,7 +1248,10 @@ pub fn req_safe_01_format_clearance_report(
             "pair", "boundary", "insul", "metric", "meas", "req", "short"
         );
         let mut lines = vec![
-            format!("{} REQ-SAFE-01 violation(s), worst first:", violations.len()),
+            format!(
+                "{} REQ-SAFE-01 violation(s), worst first:",
+                violations.len()
+            ),
             header.clone(),
             "-".repeat(header.len()),
         ];
@@ -1276,8 +1262,14 @@ pub fn req_safe_01_format_clearance_report(
             let ref_b: Option<String> = opt_str(&v.getattr("ref_b")?)?;
             let pair = if pair_kind == "intra" {
                 format!("{} (intra)", ref_a.as_deref().unwrap_or("?"))
-            } else if ref_a.as_deref().unwrap_or("") != "" && ref_b.as_deref().unwrap_or("") != "" {
-                format!("{}<->{}", ref_a.as_deref().unwrap_or(""), ref_b.as_deref().unwrap_or(""))
+            } else if !ref_a.as_deref().unwrap_or("").is_empty()
+                && !ref_b.as_deref().unwrap_or("").is_empty()
+            {
+                format!(
+                    "{}<->{}",
+                    ref_a.as_deref().unwrap_or(""),
+                    ref_b.as_deref().unwrap_or("")
+                )
             } else {
                 ref_a.clone().unwrap_or_else(|| "?".to_string())
             };
@@ -1307,10 +1299,10 @@ pub fn req_safe_01_format_clearance_report(
             };
             let metric: Option<String> = opt_str(&v.getattr("metric")?)?;
             let creepage_model: Option<String> = opt_str(&v.getattr("creepage_model")?)?;
-            if metric.as_deref() == Some("creepage") {
-                if let Some(cm) = creepage_model {
-                    model = format!("{model}; {cm}");
-                }
+            if metric.as_deref() == Some("creepage")
+                && let Some(cm) = creepage_model
+            {
+                model = format!("{model}; {cm}");
             }
             let boundary = match opt_str(&v.getattr("boundary")?)? {
                 Some(b) => b,
@@ -1322,10 +1314,10 @@ pub fn req_safe_01_format_clearance_report(
             ));
         }
 
-        if let Some(l) = limit {
-            if (l as usize) < rows.len() {
-                lines.push(format!("... and {} more", rows.len() - (l as usize)));
-            }
+        if let Some(l) = limit
+            && (l as usize) < rows.len()
+        {
+            lines.push(format!("... and {} more", rows.len() - (l as usize)));
         }
 
         lines.push(String::new());
@@ -1450,17 +1442,14 @@ fn pad_tuple<'py>(py: Python<'py>, p: &Pad) -> PyResult<Bound<'py, PyTuple>> {
         p.roundrect_ratio.into_pyobject(py)?.into_any(),
         p.rotation_rad.into_pyobject(py)?.into_any(),
     ];
-    Ok(PyTuple::new(py, items)?)
+    PyTuple::new(py, items)
 }
 
 /// `_component_pads(comp)` — resolve a component's pads into board
 /// coordinates, returned as 10-tuples for the Wave-3-pinned `_copper`
 /// facade to rebuild `_Pad` objects from.
 #[pyfunction]
-pub fn req_safe_01_component_pads(
-    py: Python<'_>,
-    comp: &Bound<'_, PyAny>,
-) -> PyResult<Py<PyList>> {
+pub fn req_safe_01_component_pads(py: Python<'_>, comp: &Bound<'_, PyAny>) -> PyResult<Py<PyList>> {
     catch(|| {
         let ref_ = comp_ref_str(comp)?;
         let mut next_id = 1_i64;

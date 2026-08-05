@@ -46,7 +46,11 @@ fn py_float_fmt(x: f64, prec: usize) -> String {
         return "nan".to_string();
     }
     if x.is_infinite() {
-        return if x > 0.0 { "inf".to_string() } else { "-inf".to_string() };
+        return if x > 0.0 {
+            "inf".to_string()
+        } else {
+            "-inf".to_string()
+        };
     }
     format!("{x:.prec$}")
 }
@@ -67,7 +71,13 @@ mod tests {
             (3.25, "3.2"), // round half to even at 1 dp
             (3.35, "3.4"), // 3.35 is 3.35000...000355 -> rounds up
             (-0.0, "-0.0"),
-            (1e300, "1" + &"0".repeat(300) + ".0"),
+            // 1e300's exact decimal expansion (not "1"+300 zeros): both
+            // CPython and Rust print the correctly-rounded expansion, and
+            // this pins it byte-for-byte.
+            (
+                1e300,
+                "1000000000000000052504760255204420248704468581108159154915854115511802457988908195786371375080447864043704443832883878176942523235360430575644792184786706982848387200926575803737830233794788090059368953234970799945081119038967640880074652742780142494579258788820056842838115669472196386865459400540160.0",
+            ),
             (f64::NAN, "nan"),
             (f64::INFINITY, "inf"),
             (f64::NEG_INFINITY, "-inf"),

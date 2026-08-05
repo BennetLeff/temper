@@ -30,10 +30,18 @@ pub fn py_float_str(x: f64) -> String {
         return "nan".to_string();
     }
     if x.is_infinite() {
-        return if x > 0.0 { "inf".to_string() } else { "-inf".to_string() };
+        return if x > 0.0 {
+            "inf".to_string()
+        } else {
+            "-inf".to_string()
+        };
     }
     if x == 0.0 {
-        return if x.is_sign_negative() { "-0.0".to_string() } else { "0.0".to_string() };
+        return if x.is_sign_negative() {
+            "-0.0".to_string()
+        } else {
+            "0.0".to_string()
+        };
     }
     // Rust's `{:e}` emits the shortest digits that round-trip — the same digit
     // sequence CPython's repr uses — with the decimal exponent in the suffix.
@@ -99,7 +107,11 @@ fn py_float_fmt(x: f64, prec: usize) -> String {
         return "nan".to_string();
     }
     if x.is_infinite() {
-        return if x > 0.0 { "inf".to_string() } else { "-inf".to_string() };
+        return if x > 0.0 {
+            "inf".to_string()
+        } else {
+            "-inf".to_string()
+        };
     }
     format!("{x:.prec$}")
 }
