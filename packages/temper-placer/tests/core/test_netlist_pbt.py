@@ -349,6 +349,8 @@ def test_mr4_appending_a_component_extends_the_index_by_exactly_one(spec, extra)
             st.tuples(refs, refs),
             st.tuples(refs, refs, refs),  # wrong arity -> ValueError
             st.just(("solo",)),  # wrong arity -> ValueError
+            st.lists(refs, min_size=2, max_size=2),  # list-valued (valid)
+            st.lists(refs, min_size=1, max_size=3),  # list-valued, wrong arity
             st.integers(),  # non-iterable -> TypeError
         ),
         min_size=1,
@@ -357,18 +359,62 @@ def test_mr4_appending_a_component_extends_the_index_by_exactly_one(spec, extra)
 )
 def test_malformed_pin_tuples_fail_identically(pins):
     """Error TYPE and MESSAGE parity for the `(ref, name)` unpack, which the
-    Rust had to reimplement rather than inherit from CPython."""
+    Rust had to reimplement rather than inherit from CPython.
+
+    Drives the same malformed pins through THREE unpack sites that all
+    transcribe the same `for ref, _ in pins` loop:
+      1. `Net.get_component_refs` (`{ref for ref, _ in self.pins}`)
+      2. `Netlist(...)` construction (`__post_init__` -> `build_indices`)
+      3. `netlist.build_indices()` re-run after swapping in malformed pins
+    """
     py_out = canon_call(lambda: _oracle.Net("N", list(pins)).get_component_refs())
     rs_out = canon_call(lambda: _rs.Net("N", list(pins)).get_component_refs())
     assert py_out == rs_out
 
+    # build_indices through construction -- the same unpack, reached via
+    # `__post_init__` on the oracle and the shared compute_indices body on
+    # the pyclass `#[new]`.
+    def _construct(net_cls, netlist_cls):
+        return netlist_cls(components=[], nets=[net_cls("N", list(pins))])
+
+    assert canon_call(_construct, _oracle.Net, _oracle.Netlist) == canon_call(
+        _construct, _rs.Net, _rs.Netlist
+    )
+
+    # build_indices() re-run on a constructed netlist whose net's pins were
+    # swapped for the malformed ones -- the same unpack via the public method.
+    def _rebuild(net_cls, netlist_cls):
+        nl = netlist_cls(components=[], nets=[net_cls("N", [("R1", "1")])])
+        nl.nets[0].pins = list(pins)
+        return canon_call(nl.build_indices)
+
+    assert canon_call(_rebuild, _oracle.Net, _oracle.Netlist) == canon_call(
+        _rebuild, _rs.Net, _rs.Netlist
+    )
+
 
 def test_malformed_pin_tuples_is_non_vacuous():
+    """The fuzz arms above are exercised on all three sites with every error
+    class, including the list-valued cases a pyo3 tuple `extract()` would
+    have rejected outright (the divergence `unpack2` exists to close)."""
     for bad, exc in [
         ([("a", "b", "c")], "too many values to unpack (expected 2)"),
         ([("solo",)], "not enough values to unpack (expected 2, got 1)"),
+        ([["a", "b"]], None),  # valid list-valued pin -- must NOT raise
+        ([["a"]], "not enough values to unpack (expected 2, got 1)"),
+        ([["a", "b", "c"]], "too many values to unpack (expected 2)"),
         ([5], "cannot unpack non-iterable int object"),
     ]:
-        with pytest.raises((ValueError, TypeError), match=None):
-            _rs.Net("N", bad).get_component_refs()
-        assert canon_call(lambda b=bad: _rs.Net("N", b).get_component_refs())[2] == exc
+        if exc is not None:
+            with pytest.raises((ValueError, TypeError), match=None):
+                _rs.Net("N", bad).get_component_refs()
+            assert canon_call(lambda b=bad: _rs.Net("N", b).get_component_refs())[2] == exc
+        else:
+            assert canon_call(lambda b=bad: _rs.Net("N", b).get_component_refs())[0] == "ok"
+        # The construction and rebuild arms reach the same verdict.
+        assert canon_call(lambda b=bad: _rs.Netlist(nets=[_rs.Net("N", b)]))[0] == (
+            "ok" if exc is None else "raised"
+        )
+        nl = _rs.Netlist(nets=[_rs.Net("N", [("R1", "1")])])
+        nl.nets[0].pins = bad
+        assert canon_call(nl.build_indices)[0] == ("ok" if exc is None else "raised")

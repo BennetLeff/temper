@@ -317,8 +317,16 @@ def test_layer_stackup_populated_is_unhashable_identically():
     assert canon_call(hash, py)[0] == "raised"
 
 
-@pytest.mark.parametrize("idx", [-1, 0, 1, 2, 3, 4, 99])
+@pytest.mark.parametrize("idx", [-1, 0, 1, 2, 3, 4, 99, 1.5, 2.5, True])
 def test_layer_stackup_is_plane_layer_identical(idx):
+    """Int indexes (in- and out-of-range, negatives), float indexes and bools.
+
+    The float cases pin the tuple-indexing error text: the oracle's guard
+    `0 <= 1.5 < len` passes, so `self.layers[1.5]` is reached and raises
+    `TypeError: tuple indices must be integers or slices, not float`. The
+    out-of-range ints (4, 99, -1) fail the guard and return False without
+    ever reaching the index — the Rust must not raise IndexError there.
+    """
     py, rs = _oracle.LayerStackup.default_4layer(), RS_LAYER_STACKUP.default_4layer()
     assert canon_call(py.is_plane_layer, idx) == canon_call(rs.is_plane_layer, idx)
     empty_py, empty_rs = _pair(_oracle.LayerStackup, RS_LAYER_STACKUP)
@@ -898,4 +906,49 @@ def test_layer_predicate_helpers_identical(probe):
     assert canon_call(public.is_signal_layer, probe) == canon_call(_oracle.is_signal_layer, probe)
     assert canon_call(public.layer_name_to_index, probe) == canon_call(
         _oracle.layer_name_to_index, probe
+    )
+
+
+def test_explicit_none_literal_defaults_divergence_pinned():
+    """The pyo3 Option params cannot distinguish an *omitted* argument from an
+    *explicitly passed* `None` (pyo3's extract_argument_with_default turns a
+    present `None` into the Rust `None` and only consults the default when the
+    argument is absent), so explicit `None` collapses onto the literal default
+    on the pyclasses while the dataclasses store what they are given.
+
+    Latent: no in-repo caller passes explicit `None` for any of these fields
+    (verified 2026-08-04). Assert each arm's exact behavior (#712 pattern-5
+    precedent) so a change to either arm -- or a new caller passing explicit
+    `None` -- is caught rather than silently diverging. Recorded in
+    VERIFICATION.md (board/netlist documented deviation 6).
+    """
+    # --- MountingHole.keepout_radius: None -> 3.0 on the pyclass ----------
+    py = _oracle.MountingHole((0.0, 0.0), 3.0, keepout_radius=None)
+    rs = RS_MOUNTING_HOLE((0.0, 0.0), 3.0, keepout_radius=None)
+    assert py.keepout_radius is None  # oracle stores the passed None
+    assert canon(rs.keepout_radius) == canon(3.0)  # pyclass collapses to the default
+    # Omitted-arg default is identical on both arms.
+    assert canon(_oracle.MountingHole((0.0, 0.0), 3.0).keepout_radius) == canon(3.0)
+    assert canon(RS_MOUNTING_HOLE((0.0, 0.0), 3.0).keepout_radius) == canon(3.0)
+    # An explicit non-None value is stored identically.
+    assert canon(
+        _oracle.MountingHole((0.0, 0.0), 3.0, keepout_radius=5.0).keepout_radius
+    ) == canon(RS_MOUNTING_HOLE((0.0, 0.0), 3.0, keepout_radius=5.0).keepout_radius)
+
+    # --- Zone literal-default fields: None -> default on the pyclass ------
+    zone_fields = ["net_classes", "weight", "layers", "can_expand", "zone_type"]
+    py = _oracle.Zone("Z", (0, 0, 1, 1), **dict.fromkeys(zone_fields))
+    rs = RS_ZONE("Z", (0, 0, 1, 1), **dict.fromkeys(zone_fields))
+    for field in zone_fields:
+        assert canon(getattr(py, field)) == canon(None), field  # oracle stores None
+    # net_classes is the finding's named field; assert its pyclass collapse
+    # directly, and the rest by the same rule.
+    assert canon(rs.net_classes) == canon(["Signal"])
+    assert canon(rs.weight) == canon(1.0)
+    assert canon(rs.layers) == canon(["F.Cu"])
+    assert canon(rs.can_expand) == canon(["up", "down", "left", "right"])
+    assert canon(rs.zone_type) == canon("placement")
+    # Omitted-arg defaults agree between the arms.
+    assert canon(_oracle.Zone("Z", (0, 0, 1, 1)).net_classes) == canon(
+        RS_ZONE("Z", (0, 0, 1, 1)).net_classes
     )
