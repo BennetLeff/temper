@@ -110,3 +110,66 @@ def test_rotation(simple_bga_component, mock_design_rules):
     vias = generate_escape_vias(simple_bga_component, mock_design_rules, strategy="via-in-pad")
     via1 = next(v for v in vias if v.pin_number == "1")
     assert via1.position == pytest.approx((9.5, 10.5))
+
+
+# ---------------------------------------------------------------------------
+# Issue #752 defect 3: escape via layer must follow the component's side
+#
+# `generate_escape_vias` read `getattr(component, "side", 0) or 0`, but
+# `Component` has no `side` attribute -- the contract field is `initial_side`
+# (`core/netlist.py`, and `core/pin_geometry.py` reads it correctly). The
+# `getattr` default therefore fired unconditionally and every escape via was
+# labelled "F.Cu". The trap: a bottom-side component's pad coordinates ARE
+# mirrored (pin_world_position honours initial_side), so the two halves of the
+# same via disagreed -- mirrored geometry, front-side layer.
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture
+def bottom_side_bga(simple_bga_component):
+    simple_bga_component.component.initial_side = 1
+    return simple_bga_component
+
+
+def test_component_has_no_side_attribute_only_initial_side(simple_bga_component):
+    """Pin the contract the buggy getattr silently defaulted around."""
+    comp = simple_bga_component.component
+    assert not hasattr(comp, "side")
+    assert hasattr(comp, "initial_side")
+
+
+@pytest.mark.parametrize("strategy", ["via-in-pad", "dog-bone"])
+def test_bottom_side_component_yields_b_cu_vias(bottom_side_bga, mock_design_rules, strategy):
+    vias = generate_escape_vias(bottom_side_bga, mock_design_rules, strategy=strategy)
+    assert vias
+    assert {v.layer for v in vias} == {"B.Cu"}
+
+
+@pytest.mark.parametrize("strategy", ["via-in-pad", "dog-bone"])
+def test_top_side_component_still_yields_f_cu_vias(
+    simple_bga_component, mock_design_rules, strategy
+):
+    simple_bga_component.component.initial_side = 0
+    vias = generate_escape_vias(simple_bga_component, mock_design_rules, strategy=strategy)
+    assert vias
+    assert {v.layer for v in vias} == {"F.Cu"}
+
+
+def test_unset_initial_side_defaults_to_front(simple_bga_component, mock_design_rules):
+    """`initial_side=None` (the dataclass default) means front, as before."""
+    simple_bga_component.component.initial_side = None
+    vias = generate_escape_vias(simple_bga_component, mock_design_rules, strategy="via-in-pad")
+    assert {v.layer for v in vias} == {"F.Cu"}
+
+
+def test_bottom_side_via_layer_agrees_with_its_mirrored_pad(bottom_side_bga, mock_design_rules):
+    """Geometry and layer must describe the same side of the board.
+
+    Pin 1 sits at local (-0.5, -0.5); on the bottom side KiCad mirrors X, so
+    its world position is (10.5, 9.5), not (9.5, 9.5). Pre-fix the position
+    was already mirrored while the layer said "F.Cu".
+    """
+    vias = generate_escape_vias(bottom_side_bga, mock_design_rules, strategy="via-in-pad")
+    via1 = next(v for v in vias if v.pin_number == "1")
+    assert via1.position == pytest.approx((10.5, 9.5))
+    assert via1.layer == "B.Cu"
