@@ -6,8 +6,77 @@ from pathlib import Path
 
 from kiutils.board import Board as KiBoard
 
+from temper_placer.core.board import LAYER_NAME_TO_IDX, STANDARD_LAYER_ORDER
 from temper_placer.io._write_types import StrippingResult, WriteResult, _get_footprint_reference
 from temper_placer.io.kicad_exporter import _validate_4_layer_output
+
+# Layer rank for unknown / non-canonical layer names. Sorts them after every
+# layer in the standard stackup, still totally ordered among themselves by name.
+_UNRANKED_LAYER = len(STANDARD_LAYER_ORDER)
+
+
+def _layer_rank(layer: object) -> tuple[int, str]:
+    """Rank a layer by physical stackup position, falling back to its name.
+
+    Stackup position -- not lexicographic name -- is the physically meaningful
+    order (``F.Cu`` above ``In1.Cu`` above ``B.Cu``); sorting by name alone
+    would put ``B.Cu`` first. The name is retained as the second element so
+    layers outside the standard stackup are still totally ordered.
+    """
+    name = str(layer)
+    idx = LAYER_NAME_TO_IDX.get(name)
+    return (_UNRANKED_LAYER if idx is None else int(idx), name)
+
+
+def _resolve_net_index(net: object, net_name_to_index: dict[str, int]) -> int:
+    """Board net index actually written for ``net`` (0 when unknown).
+
+    Single source for both the emitted ``(net ...)`` field and the emission
+    sort key, so the file's own net numbering and its physical ordering can
+    never drift apart.
+    """
+    if net and net in net_name_to_index:
+        return net_name_to_index[str(net)]
+    return 0
+
+
+def _trace_emission_key(route: object, net_name_to_index: dict[str, int]) -> tuple:
+    """Total order over ``Trace`` objects for deterministic emission.
+
+    Totality argument: ``Trace`` equality/hash is defined over exactly
+    ``(start, end, width, layer, net)``, and every one of those fields appears
+    in this key. Two traces with equal keys are therefore ``==`` and cannot
+    both be members of the ``routes`` set -- so no tie is ever left for set
+    iteration order to break.
+    """
+    net = route.net or ""  # type: ignore[attr-defined]
+    return (
+        _resolve_net_index(net, net_name_to_index),
+        str(net),
+        _layer_rank(route.layer),  # type: ignore[attr-defined]
+        (float(route.start[0]), float(route.start[1])),  # type: ignore[attr-defined]
+        (float(route.end[0]), float(route.end[1])),  # type: ignore[attr-defined]
+        float(route.width),  # type: ignore[attr-defined]
+    )
+
+
+def _via_emission_key(via: object, net_name_to_index: dict[str, int]) -> tuple:
+    """Total order over ``Via`` objects for deterministic emission.
+
+    Same totality argument as :func:`_trace_emission_key`: ``Via`` equality is
+    over ``(position, drill, width, layers, net, is_diff_pair)`` and all six
+    appear here.
+    """
+    net = via.net or ""  # type: ignore[attr-defined]
+    return (
+        _resolve_net_index(net, net_name_to_index),
+        str(net),
+        (float(via.position[0]), float(via.position[1])),  # type: ignore[attr-defined]
+        float(via.drill),  # type: ignore[attr-defined]
+        float(via.width),  # type: ignore[attr-defined]
+        tuple(str(layer) for layer in via.layers),  # type: ignore[attr-defined]
+        bool(getattr(via, "is_diff_pair", False)),
+    )
 
 
 def strip_routing(
@@ -193,11 +262,29 @@ def write_routes_to_pcb(
     (as Trace objects) and adds them to a KiCad board as Segment objects.
     Also adds Vias if provided.
 
+    Emission order (load-bearing)
+    -----------------------------
+    ``routes`` and ``vias`` are **unordered sets** and are treated as such: the
+    writer does not consume their iteration order, it imposes a canonical one.
+    Segments are emitted sorted by :func:`_trace_emission_key` and vias by
+    :func:`_via_emission_key` -- board net index first (so a net's copper is
+    contiguous in the file, as in a KiCad-authored board), then physical layer
+    position, then geometry. Both keys are proven total against the element
+    type's own equality, so nothing is left for set iteration order to decide.
+
+    This matters because the written ``.kicad_pcb`` is a shipped artifact whose
+    content hash is recorded as measurement provenance. Before this ordering,
+    the byte order of tracks and vias followed CPython's per-process string
+    hash salt (PEP 456), so re-writing an identical route set produced a
+    different file on every process.
+
     Args:
         template_pcb: Path to the template .kicad_pcb file.
         output_pcb: Path for the output .kicad_pcb file.
-        routes: Frozen set of Trace objects from BoardState.routes.
-        vias: Frozen set of Via objects from BoardState.vias.
+        routes: Unordered set of Trace objects from BoardState.routes.
+            Iteration order is deliberately not honoured; see above.
+        vias: Unordered set of Via objects from BoardState.vias.
+            Iteration order is deliberately not honoured; see above.
         net_name_to_index: Optional map of net name → net index.
             If None, will be built from the template PCB.
         clear_existing: If True, remove all existing traces before adding new ones.
@@ -238,13 +325,10 @@ def write_routes_to_pcb(
     if not hasattr(ki_board, "traceItems") or ki_board.traceItems is None:
         ki_board.traceItems = []
 
-    # Add routes as Segment objects
-    for route in routes:
-        # Get net index (default to 0 if not found)
-        net_index = 0
-        if route.net and route.net in net_name_to_index:
-            net_index = net_name_to_index[route.net]
-        elif route.net:
+    # Add routes as Segment objects, in canonical order (see docstring).
+    for route in sorted(routes, key=lambda r: _trace_emission_key(r, net_name_to_index)):
+        net_index = _resolve_net_index(route.net, net_name_to_index)
+        if route.net and route.net not in net_name_to_index:
             warnings.append(f"Net '{route.net}' not found in board, using index 0")
 
         try:
@@ -266,10 +350,8 @@ def write_routes_to_pcb(
 
     # Add vias if provided
     if vias:
-        for via in vias:
-            net_index = 0
-            if via.net and via.net in net_name_to_index:
-                net_index = net_name_to_index[via.net]
+        for via in sorted(vias, key=lambda v: _via_emission_key(v, net_name_to_index)):
+            net_index = _resolve_net_index(via.net, net_name_to_index)
 
             try:
                 import uuid
