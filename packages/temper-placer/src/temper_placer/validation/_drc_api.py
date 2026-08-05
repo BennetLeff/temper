@@ -15,10 +15,13 @@ from __future__ import annotations
 
 import contextlib
 import json
+import os
 import re
 import shutil
 import subprocess
+import sys
 import tempfile
+from collections.abc import Iterator
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -140,6 +143,136 @@ def get_kicad_cli_version() -> str | None:
         return None
     version = result.stdout.strip()
     return version or None
+
+
+# --- Determinism: pin KiCad's worker thread pool to a single thread ---------
+#
+# kicad-cli runs the DRC providers over a shared BS::thread_pool.  Several of
+# them accumulate per-item state from whichever worker reaches an item first
+# -- notably the connectivity search that builds copper clusters and the
+# copper-clearance provider's checked-pair cache -- so the ORDER in which
+# results land varies with thread scheduling, and on a byte-identical board
+# the reported violation COUNT moves with it.  Measured on this repo's
+# pcb/temper.kicad_pcb (macOS 15.5 arm64, kicad-cli 10.0.4, 120 samples --
+# see docs/evidence/2026-08-04-drc-measurement-determinism.md):
+#
+#     default pool       clearance 377-378   shorting_items 199-200
+#     MaximumThreads=1   clearance 378       shorting_items 199
+#
+# Wall time is unaffected (~4.8 s per run either way) -- the DRC is not
+# thread-bound on this board.
+#
+# ``MaximumThreads`` is a KiCad "advanced config" key, readable only from a
+# ``kicad_advanced`` file inside KiCad's per-user settings tree.  Rather than
+# mutate the developer's real KiCad configuration -- ambient state that would
+# make the measurement depend on who ran it -- we build a throwaway settings
+# tree per invocation, seeded with a copy of the real one so library tables
+# still resolve exactly as they otherwise would, and point KICAD_CONFIG_HOME
+# at it for the lifetime of the subprocess.
+#
+# This does NOT make ``creepage`` deterministic, and it leaves a small
+# residual set-level churn in ``clearance`` at a constant count.  Both have a
+# different, upstream cause: KiCad dedupes reported pairs through containers
+# keyed on raw BOARD_ITEM pointer values, so the dedup outcome follows the
+# process's own allocation addresses and is redrawn every run.  No kicad-cli
+# invocation reaches that; see the evidence doc and KiCad issue #20048.
+#
+# Set ``TEMPER_DRC_THREAD_PIN=0`` to disable the pin and reproduce the
+# unpinned behaviour (this is what ``scripts/check_drc_determinism.py
+# --inject-variance=unpin`` does).
+_KICAD_ADVANCED_FILENAME = "kicad_advanced"
+_MAX_THREADS_KEY = "MaximumThreads"
+
+
+def _kicad_user_config_root() -> Path | None:
+    """Root of KiCad's per-user settings tree (the directory holding the
+    ``<major>.<minor>`` version folders), mirroring KiCad's own
+    ``PATHS::calculateUserSettingsPath()``.  Returns None when the platform
+    convention can't be resolved."""
+    env_home = os.environ.get("KICAD_CONFIG_HOME")
+    if env_home:
+        return Path(env_home)
+    if sys.platform == "darwin":
+        return Path.home() / "Library" / "Preferences" / "kicad"
+    if os.name == "nt":
+        appdata = os.environ.get("APPDATA")
+        return Path(appdata) / "kicad" if appdata else None
+    xdg = os.environ.get("XDG_CONFIG_HOME")
+    return (Path(xdg) if xdg else Path.home() / ".config") / "kicad"
+
+
+def _kicad_settings_dirname() -> str | None:
+    """The ``<major>.<minor>`` settings folder name for the running
+    kicad-cli (e.g. ``"10.0"`` for 10.0.4), or None if unreadable."""
+    version = get_kicad_cli_version()
+    if not version:
+        return None
+    parts = version.strip().split(".")
+    if len(parts) < 2 or not parts[0].isdigit() or not parts[1].isdigit():
+        return None
+    return f"{parts[0]}.{parts[1]}"
+
+
+def _write_pinned_advanced_config(dest_dir: Path, existing: str) -> None:
+    """Write ``kicad_advanced`` into ``dest_dir``, preserving any keys the
+    real config already set and forcing ``MaximumThreads=1``."""
+    kept = [
+        line
+        for line in existing.splitlines()
+        if line.split("=", 1)[0].strip().casefold() != _MAX_THREADS_KEY.casefold()
+    ]
+    kept.append(f"{_MAX_THREADS_KEY}=1")
+    (dest_dir / _KICAD_ADVANCED_FILENAME).write_text("\n".join(kept) + "\n", encoding="utf-8")
+
+
+@contextlib.contextmanager
+def _single_threaded_kicad_env() -> Iterator[dict[str, str] | None]:
+    """Yield an environment mapping that pins kicad-cli's worker pool to one
+    thread, or None to run with the ambient environment unchanged.
+
+    Yielding None (rather than raising) is deliberate: an unreadable
+    kicad-cli version or an unwritable temp dir should degrade to a
+    *measurable but unpinned* DRC run, not to no measurement at all.  The
+    determinism harness reports which mode it got.
+    """
+    if os.environ.get("TEMPER_DRC_THREAD_PIN") == "0":
+        yield None
+        return
+
+    settings_dirname = _kicad_settings_dirname()
+    if settings_dirname is None:
+        yield None
+        return
+
+    try:
+        with tempfile.TemporaryDirectory(prefix="temper-kicad-cfg-") as tmp_root:
+            dest = Path(tmp_root) / settings_dirname
+            dest.mkdir(parents=True)
+
+            existing_advanced = ""
+            src_root = _kicad_user_config_root()
+            src = (src_root / settings_dirname) if src_root else None
+            if src is not None and src.is_dir():
+                # Top-level regular files only: that is where the library
+                # tables and kicad_common.json live, so resolution is
+                # unchanged, and it bounds the copy to a few tens of KB.
+                for entry in sorted(src.iterdir()):
+                    if not entry.is_file():
+                        continue
+                    if entry.name == _KICAD_ADVANCED_FILENAME:
+                        with contextlib.suppress(OSError, UnicodeDecodeError):
+                            existing_advanced = entry.read_text(encoding="utf-8")
+                        continue
+                    with contextlib.suppress(OSError):
+                        shutil.copy2(entry, dest / entry.name)
+
+            _write_pinned_advanced_config(dest, existing_advanced)
+
+            env = dict(os.environ)
+            env["KICAD_CONFIG_HOME"] = tmp_root
+            yield env
+    except OSError:
+        yield None
 
 
 def _get_drc_json_path(pcb_path: Path) -> Path:
@@ -334,22 +467,28 @@ def run_drc(pcb_path: Path) -> DrcResult:
         # any tight ceiling fails intermittently and gets written off as flake,
         # which is exactly how a removed placement capability stayed hidden
         # behind a "nondeterministic on CI runners" comment for months.
-        result = subprocess.run(
-            [
-                "kicad-cli",
-                "pcb",
-                "drc",
-                "--all-track-errors",
-                "--format",
-                "json",
-                "--output",
-                str(json_path),
-                str(pcb_path),
-            ],
-            capture_output=True,
-            text=True,
-            timeout=60,
-        )
+        #
+        # The worker pool is pinned to one thread for the same reason (see
+        # _single_threaded_kicad_env): with the default pool the *count*
+        # itself moves run to run.
+        with _single_threaded_kicad_env() as env:
+            result = subprocess.run(
+                [
+                    "kicad-cli",
+                    "pcb",
+                    "drc",
+                    "--all-track-errors",
+                    "--format",
+                    "json",
+                    "--output",
+                    str(json_path),
+                    str(pcb_path),
+                ],
+                capture_output=True,
+                text=True,
+                timeout=60,
+                env=env,
+            )
 
         # kicad-cli returns 0 even with DRC errors (errors are in the report).
         # Any other status is an unavailable measurement, even if a stale or
