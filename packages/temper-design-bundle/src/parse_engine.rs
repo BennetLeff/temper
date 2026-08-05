@@ -80,7 +80,8 @@ use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyList, PyTuple};
 use pyo3::IntoPyObjectExt;
 
-use crate::netlist_contracts::{dataclass_eq, dataclass_repr, repr_of, unhashable};
+use crate::board_contracts::Board;
+use crate::netlist_contracts::{dataclass_eq, dataclass_repr, repr_of, unhashable, Netlist};
 
 // ===========================================================================
 // 1. Tokenizer (kiutils-exact grammar)
@@ -2588,10 +2589,18 @@ impl Position {
 #[pyclass(dict, module = "temper_design_bundle_python.parse_engine")]
 #[derive(Debug)]
 pub struct ParseResult {
+    // Wave-4 "PyAny removal" tightening (2026-08-04): `netlist`/`board` are
+    // always constructed as the `Netlist`/`Board` pyclasses (build_netlist /
+    // build_board / reference_loader.py), so the opaque `Py<PyAny>` handle
+    // is replaced by the typed reference. Behavior is unchanged: the wrapped
+    // value IS the pyclass and identity is preserved by the typed handle.
+    // The remaining four fields stay `Py<PyAny>` (Python list containers;
+    // identity-mutable, no-coercion — STILL-NEEDED per the PyAny surface
+    // audit, docs/evidence/2026-08-05-pyany-surface-audit.md).
     #[pyo3(get, set)]
-    pub netlist: Py<PyAny>,
+    pub netlist: Py<Netlist>,
     #[pyo3(get, set)]
-    pub board: Py<PyAny>,
+    pub board: Py<Board>,
     #[pyo3(get, set)]
     pub warnings: Py<PyAny>,
     #[pyo3(get, set)]
@@ -2605,8 +2614,8 @@ pub struct ParseResult {
 impl ParseResult {
     fn fields(&self, py: Python<'_>) -> Vec<Py<PyAny>> {
         vec![
-            same(py, &self.netlist),
-            same(py, &self.board),
+            self.netlist.clone_ref(py).into_any(),
+            self.board.clone_ref(py).into_any(),
             same(py, &self.warnings),
             same(py, &self.traces),
             same(py, &self.vias),
@@ -2621,8 +2630,8 @@ impl ParseResult {
     #[pyo3(signature = (netlist, board, warnings, traces=None, vias=None, pads=None))]
     fn new(
         py: Python<'_>,
-        netlist: &Bound<'_, PyAny>,
-        board: &Bound<'_, PyAny>,
+        netlist: &Bound<'_, Netlist>,
+        board: &Bound<'_, Board>,
         warnings: &Bound<'_, PyAny>,
         traces: Option<&Bound<'_, PyAny>>,
         vias: Option<&Bound<'_, PyAny>>,
@@ -2654,11 +2663,13 @@ impl ParseResult {
     }
 
     fn __repr__(&self, py: Python<'_>) -> PyResult<String> {
+        let netlist = self.netlist.clone_ref(py).into_any();
+        let board = self.board.clone_ref(py).into_any();
         Ok(dataclass_repr(
             "ParseResult",
             &[
-                ("netlist", repr_of(&self.netlist, py)?),
-                ("board", repr_of(&self.board, py)?),
+                ("netlist", repr_of(&netlist, py)?),
+                ("board", repr_of(&board, py)?),
                 ("warnings", repr_of(&self.warnings, py)?),
                 ("traces", repr_of(&self.traces, py)?),
                 ("vias", repr_of(&self.vias, py)?),
@@ -2758,7 +2769,7 @@ fn build_board(
     py: Python<'_>,
     raw: &RawBoard,
     zone_warnings: &mut Vec<String>,
-) -> PyResult<Py<PyAny>> {
+) -> PyResult<Py<Board>> {
     let board_cls = py.get_type::<crate::board_contracts::Board>();
     let mount_cls = py.get_type::<crate::board_contracts::MountingHole>();
     let zone_cls = py.get_type::<crate::board_contracts::Zone>();
@@ -2771,7 +2782,9 @@ fn build_board(
             "No Edge.Cuts found in PCB. Using default 100x150mm."
         };
         zone_warnings.push(message.to_string());
-        return board_cls.call_method("temper_default", (), None)?.unbind().into_py_any(py);
+        return Ok(board_cls
+            .call_method("temper_default", (), None)?
+            .extract::<Py<Board>>()?);
     }
     let width = width.ok_or_else(|| PyValueError::new_err("edge cuts width missing"))?;
     let height = height.ok_or_else(|| PyValueError::new_err("edge cuts height missing"))?;
@@ -2826,13 +2839,12 @@ fn build_board(
     let width_py = num_to_py(py, width)?;
     let height_py = num_to_py(py, height)?;
     let origin_py = PyTuple::new(py, [num_to_py(py, ox)?, num_to_py(py, oy)?])?;
-    board_cls
+    Ok(board_cls
         .call(
             (width_py.bind(py), height_py.bind(py), origin_py, zones_list, holes_list),
             None,
         )?
-        .unbind()
-        .into_py_any(py)
+        .extract::<Py<Board>>()?)
 }
 
 /// Construct the contract pyclasses (Component/Pin/Net/Netlist) from the
@@ -2841,7 +2853,7 @@ fn build_netlist(
     py: Python<'_>,
     components: &[CompOut],
     net_names: &[(String, Vec<(String, String)>)],
-) -> PyResult<Py<PyAny>> {
+) -> PyResult<Py<Netlist>> {
     let pin_cls = py.get_type::<crate::netlist_contracts::Pin>();
     let comp_cls = py.get_type::<crate::netlist_contracts::Component>();
     let net_cls = py.get_type::<crate::netlist_contracts::Net>();
@@ -2932,10 +2944,9 @@ fn build_netlist(
     }
     let comps_list = PyList::new(py, comp_objs.iter().map(|c| c.bind(py)))?;
     let nets_list = PyList::new(py, net_objs.iter().map(|n| n.bind(py)))?;
-    netlist_cls
+    Ok(netlist_cls
         .call((comps_list, nets_list), None)?
-        .unbind()
-        .into_py_any(py)
+        .extract::<Py<Netlist>>()?)
 }
 
 fn build_trace_data(py: Python<'_>, t: &TraceOut) -> PyResult<Py<PyAny>> {
@@ -3031,8 +3042,8 @@ fn parse_kicad_pcb_impl(py: Python<'_>, pcb_content: &str, normalize: bool) -> P
 
 fn build_parse_result(
     py: Python<'_>,
-    netlist: Py<PyAny>,
-    board: Py<PyAny>,
+    netlist: Py<Netlist>,
+    board: Py<Board>,
     warnings: Vec<String>,
     traces: Vec<Py<PyAny>>,
     vias: Vec<Py<PyAny>>,
