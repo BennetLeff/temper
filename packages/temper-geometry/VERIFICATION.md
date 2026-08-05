@@ -1226,8 +1226,8 @@ rebuild → run the four suites → expect failure → revert).
   order invariance, reflection, spiral-lattice candidates).
 - **R1e** — this entry (structural proof; induction N/A, stated why).
 - **R1f** — TDD: oracles + differentials + PBT committed first as RED
-  (fails to collect), then the Rust landed GREEN (commit 02593b8f0 →
-  subsequent migration commit).
+  (fails to collect; RED commit 2128f6225, reachable from this branch),
+  then the Rust landed GREEN (migration commit b3e269d94).
 - **R1g** — borrow over clone, no `unwrap` outside tests, `catch_unwind`
   at every pyo3 boundary (`temper_py_bridge::catch_unwind` +
   `panic_to_err`), `PyResult` everywhere.

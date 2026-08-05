@@ -2136,8 +2136,8 @@ rebuild → run the six suites → expect failure → revert).
 - **R1e** — this entry (structural proof; induction N/A, stated why).
 - **R1f** — TDD: oracles + differentials + PBT committed first as RED
   (fails to collect on the missing `deterministic_stages` submodule —
-  verified live before the Rust landed), then GREEN (commit 9b4a672d6 →
-  the migration commit).
+  verified live before the Rust landed; RED commit 16bb2adaa, reachable
+  from this branch), then GREEN (the migration commit c9854c16c).
 - **R1g** — borrow over clone (net names cloned into the `comp_nets` map;
   `infer_zone` borrows), no `unwrap` outside tests, `catch_unwind` at every
   pyo3 boundary, `PyResult` everywhere.
