@@ -18,7 +18,7 @@
 | `abandoned` | 17 | Named deliverables largely absent; work never landed. |
 | `superseded` | 5 | Replaced by a later plan or by STRATEGY.md. |
 | `research-only, no elec/src or pcb/ changes made -- this is a requirements document for a human/planning decision, not an implementation` | 1 | -- |
-| *(no frontmatter)* | 48 | Legacy documents predating the plan format. |
+| *(no frontmatter)* | 49 | Legacy documents predating the plan format. |
 
 **Active plans (10):**
 
