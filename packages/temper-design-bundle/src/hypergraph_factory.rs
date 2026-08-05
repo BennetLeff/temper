@@ -168,7 +168,11 @@ impl HypergraphFactory {
         let mut valid_indices: Vec<usize> = Vec::new();
         for (i, net) in net_list.iter().enumerate() {
             let n_pins = net.getattr("pins")?.len()?;
-            if self.ignore_global_nets && n_pins > self.global_net_threshold as usize {
+            // `len(net.pins) > global_net_threshold` — the comparison stays
+            // in i64 so a NEGATIVE threshold filters every net (the oracle's
+            // `len > -5` is true for any len). Casting `-5i64 as usize`
+            // would wrap to a huge threshold and filter nothing.
+            if self.ignore_global_nets && (n_pins as i64) > self.global_net_threshold {
                 continue;
             }
             if n_pins >= 2 {

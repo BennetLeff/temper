@@ -411,21 +411,31 @@ impl ToleranceTable {
 // ---------------------------------------------------------------------------
 
 /// Tolerance analysis for a specific feature (mirrors `FeatureTolerance`).
-#[pyclass(from_py_object, module = "temper_design_bundle_python")]
-#[derive(Debug, Clone, PartialEq)]
+// Note: `from_py_object` (used on the other dataclasses) requires `Clone`,
+// which `Py<PyAny>` fields cannot provide; nothing in the crate or the
+// shim extracts a `FeatureTolerance` from an argument, so it is dropped.
+#[pyclass(module = "temper_design_bundle_python")]
+#[derive(Debug)]
 pub struct FeatureTolerance {
     #[pyo3(get)]
     pub feature_type: String,
+    /// The original caller object — the oracle's dataclass stores the
+    /// argument unmodified, so an int nominal stays int (repr `1`, not
+    /// `1.0`). Arithmetic-derived fields below are `f64` (the oracle's
+    /// derived fields are floats whenever the table values are floats).
     #[pyo3(get)]
-    pub nominal_value: f64,
+    pub nominal_value: Py<PyAny>,
     #[pyo3(get)]
     pub tolerance_plus: f64,
     #[pyo3(get)]
     pub tolerance_minus: f64,
     #[pyo3(get)]
     pub worst_case_min: f64,
+    /// Original caller object for `analyze_clearance` (the oracle passes
+    /// `clearance_mm` through unchanged); the trace arm stores the computed
+    /// `width + etch` float.
     #[pyo3(get)]
-    pub worst_case_max: f64,
+    pub worst_case_max: Py<PyAny>,
 }
 
 #[pymethods]
@@ -435,23 +445,25 @@ impl FeatureTolerance {
     #[pyo3(signature = (feature_type, nominal_value, tolerance_plus, tolerance_minus, worst_case_min, worst_case_max))]
     fn new(
         feature_type: String,
-        nominal_value: f64,
+        nominal_value: &Bound<'_, PyAny>,
         tolerance_plus: f64,
         tolerance_minus: f64,
         worst_case_min: f64,
-        worst_case_max: f64,
+        worst_case_max: &Bound<'_, PyAny>,
     ) -> Self {
         Self {
             feature_type,
-            nominal_value,
+            nominal_value: nominal_value.clone().unbind(),
             tolerance_plus,
             tolerance_minus,
             worst_case_min,
-            worst_case_max,
+            worst_case_max: worst_case_max.clone().unbind(),
         }
     }
 
-    /// Dataclass-style equality (all six fields).
+    /// Dataclass-style equality (all six fields). The preserved-object
+    /// fields compare through CPython's own `==` (int 1 == float 1.0 is
+    /// True, exactly like the dataclass).
     fn __eq__(slf: &Bound<'_, Self>, other: &Bound<'_, PyAny>) -> PyResult<Py<PyAny>> {
         let py = slf.py();
         let Ok(other) = other.cast::<Self>() else {
@@ -460,26 +472,29 @@ impl FeatureTolerance {
         let lhs = slf.borrow();
         let rhs = other.borrow();
         let equal = lhs.feature_type == rhs.feature_type
-            && lhs.nominal_value == rhs.nominal_value
+            && lhs.nominal_value.bind(py).eq(rhs.nominal_value.bind(py))?
             && lhs.tolerance_plus == rhs.tolerance_plus
             && lhs.tolerance_minus == rhs.tolerance_minus
             && lhs.worst_case_min == rhs.worst_case_min
-            && lhs.worst_case_max == rhs.worst_case_max;
+            && lhs.worst_case_max.bind(py).eq(rhs.worst_case_max.bind(py))?;
         Ok(PyBool::new(py, equal).to_owned().into_any().unbind())
     }
 
-    /// Dataclass-style repr with CPython str/float rendering.
-    fn __repr__(&self) -> String {
-        format!(
+    /// Dataclass-style repr with CPython str/float rendering. The
+    /// preserved-object fields render through CPython's own `repr()` (int
+    /// `1` renders `1`, float `1.0` renders `1.0` — the dataclass's
+    /// rendering of the stored object).
+    fn __repr__(&self, py: Python<'_>) -> PyResult<String> {
+        Ok(format!(
             "FeatureTolerance(feature_type={}, nominal_value={}, tolerance_plus={}, \
              tolerance_minus={}, worst_case_min={}, worst_case_max={})",
             py_str_repr(&self.feature_type),
-            py_float_str(self.nominal_value),
+            self.nominal_value.bind(py).repr()?,
             py_float_str(self.tolerance_plus),
             py_float_str(self.tolerance_minus),
             py_float_str(self.worst_case_min),
-            py_float_str(self.worst_case_max),
-        )
+            self.worst_case_max.bind(py).repr()?,
+        ))
     }
 }
 
@@ -546,24 +561,33 @@ impl ToleranceAnalyzer {
     fn analyze_clearance(
         &self,
         py: Python<'_>,
-        clearance_mm: f64,
+        clearance_mm: &Bound<'_, PyAny>,
         copper_weight: &Bound<'_, PyAny>,
         layer_type: &Bound<'_, PyAny>,
     ) -> PyResult<FeatureTolerance> {
         let table = self.table.bind(py);
-        let etch = Self::dict_get_f64(&table.getattr("etch_tolerance")?, copper_weight, 0.06)?;
+        // The etch fallback is the oracle's `0.05` — the same constant
+        // `analyze_trace` uses (a `0.06` fallback here shipped once and was
+        // caught by the clearance-side fallback differential case; see the
+        // module's VERIFICATION.md mutation record).
+        let etch = Self::dict_get_f64(&table.getattr("etch_tolerance")?, copper_weight, 0.05)?;
         let reg = Self::dict_get_f64(&table.getattr("registration")?, layer_type, 0.1)?;
 
         // Oracle: `total_minus = 2 * etch + reg` (left-associative).
         let total_minus = 2.0 * etch + reg;
+        let clearance: f64 = clearance_mm.extract()?;
 
         Ok(FeatureTolerance {
             feature_type: "clearance".to_string(),
-            nominal_value: clearance_mm,
+            // The oracle stores the ORIGINAL argument: `nominal_value` and
+            // `worst_case_max` are the caller's object, so an int clearance
+            // stays int (repr `1`, not `1.0`) — int preservation like the
+            // monte_carlo dataclasses.
+            nominal_value: clearance_mm.clone().unbind(),
             tolerance_plus: 0.0,
             tolerance_minus: total_minus,
-            worst_case_min: clearance_mm - total_minus,
-            worst_case_max: clearance_mm,
+            worst_case_min: clearance - total_minus,
+            worst_case_max: clearance_mm.clone().unbind(),
         })
     }
 
@@ -571,19 +595,21 @@ impl ToleranceAnalyzer {
     fn analyze_trace(
         &self,
         py: Python<'_>,
-        width_mm: f64,
+        width_mm: &Bound<'_, PyAny>,
         copper_weight: &Bound<'_, PyAny>,
     ) -> PyResult<FeatureTolerance> {
         let table = self.table.bind(py);
         let etch = Self::dict_get_f64(&table.getattr("etch_tolerance")?, copper_weight, 0.05)?;
+        let width: f64 = width_mm.extract()?;
 
         Ok(FeatureTolerance {
             feature_type: "trace_width".to_string(),
-            nominal_value: width_mm,
+            // The oracle stores the ORIGINAL `width_mm` (int stays int).
+            nominal_value: width_mm.clone().unbind(),
             tolerance_plus: etch,
             tolerance_minus: etch,
-            worst_case_min: width_mm - etch,
-            worst_case_max: width_mm + etch,
+            worst_case_min: width - etch,
+            worst_case_max: (width + etch).into_py_any(py)?,
         })
     }
 }

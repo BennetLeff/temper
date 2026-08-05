@@ -751,6 +751,47 @@ impl MonteCarloSimulator {
         check_positions_ndim(positions)?;
         check_bounds_ndim(bounds)?;
 
+        // Inner-dimension parity: `check_*_ndim` only pins the ndim; the
+        // second dimension is validated here, replicating numpy's exact
+        // failure classes at the oracle's op order (the positions broadcast
+        // at `s_pos` fires before the bounds indexes at `s_heights`).
+        //
+        // positions trailing dim k:
+        // - k == 1: numpy broadcasts the size-1 axis (x → [x, x]) — the
+        //   kernel normalizes the extracted rows below.
+        // - k == 0 or k >= 3: `positions[None, :, :] + stack(...)[:, None,
+        //   :]` raises numpy's ValueError with the exact shape text.
+        let pos_shape: (i64, i64) = positions.getattr("shape")?.extract()?;
+        let (n_pos, k_pos) = pos_shape;
+        let s_samples: i64 = n_samples.extract()?;
+        if k_pos != 1 && k_pos != 2 {
+            // numpy's broadcast error text ends with a trailing space (each
+            // shape renders as "%s " — verified against numpy 2.3.5).
+            return Err(PyValueError::new_err(format!(
+                "operands could not be broadcast together with shapes \
+                 (1,{n_pos},{k_pos}) ({s_samples},1,2) "
+            )));
+        }
+        // bounds trailing dim k:
+        // - k == 0: `bounds[None, :, 0]` raises numpy's IndexError.
+        // - k == 1: `bounds[None, :, 1]` raises numpy's IndexError.
+        // - k >= 2: fine — the oracle indexes only columns 0 and 1 (the
+        //   kernel does the same, so extra columns are ignored identically).
+        let bnd_shape: (i64, i64) = bounds.getattr("shape")?.extract()?;
+        match bnd_shape.1 {
+            0 => {
+                return Err(PyIndexError::new_err(
+                    "index 0 is out of bounds for axis 1 with size 0",
+                ))
+            }
+            1 => {
+                return Err(PyIndexError::new_err(
+                    "index 1 is out of bounds for axis 1 with size 1",
+                ))
+            }
+            _ => {}
+        }
+
         // Exact widening of any real numeric dtype to f64 (float32 → f64
         // is exact; ints convert via Python's float()).
         let pos_v: Vec<Vec<f64>> = positions.extract()?;
@@ -758,6 +799,16 @@ impl MonteCarloSimulator {
         let etch_v: Vec<f64> = etch.extract()?;
         let reg_x_v: Vec<f64> = reg_x.extract()?;
         let reg_y_v: Vec<f64> = reg_y.extract()?;
+        // numpy's k == 1 broadcast: the single coordinate feeds both the
+        // x- and y-expansion (`s_pos[:, :, 0] == s_pos[:, :, 1]`).
+        let pos_v: Vec<Vec<f64>> = if k_pos == 1 {
+            pos_v
+                .into_iter()
+                .map(|row| vec![row[0], row[0]])
+                .collect()
+        } else {
+            pos_v
+        };
 
         let n = pos_v.len();
         // numpy's min-reduction over empty slices has no identity:

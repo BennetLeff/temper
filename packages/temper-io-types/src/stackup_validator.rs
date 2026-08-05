@@ -506,7 +506,7 @@ mod python {
 
     fn check_impedance_spec(
         differential_nets: &[String],
-        impedance_spec_ohms: Option<f64>,
+        impedance_spec_ohms: Option<&Bound<'_, PyAny>>,
     ) -> PyResult<PyStackupValidationResult> {
         if differential_nets.is_empty() {
             return Ok(PyStackupValidationResult {
@@ -517,6 +517,13 @@ mod python {
                 details: None,
             });
         }
+        // The oracle's f-string renders the ORIGINAL argument (`{90}` →
+        // "90", `{90.0}` → "90.0" — an int spec stays int), so the message
+        // text is rendered from the caller's object via CPython's str(),
+        // while the comparisons below use the extracted f64. Extracting
+        // first and rendering the f64 would diverge for any int input
+        // ("90.0 Omega" vs the oracle's "90 Omega").
+        let render = |obj: &Bound<'_, PyAny>| obj.str().map(|s| s.to_string());
         match impedance_spec_ohms {
             None => {
                 let mut sorted = differential_nets.to_vec();
@@ -539,37 +546,44 @@ mod python {
                     details: None,
                 })
             }
-            Some(z) if z <= 0.0 => Ok(PyStackupValidationResult {
-                check_name: "Controlled Impedance".to_string(),
-                passed: false,
-                message: format!(
-                    "Invalid impedance value: {} Omega. Expected positive value.",
-                    super::py_float_str(z)
-                ),
-                layer: None,
-                details: None,
-            }),
-            Some(z) if !(70.0..=120.0).contains(&z) => Ok(PyStackupValidationResult {
-                check_name: "Controlled Impedance".to_string(),
-                passed: false,
-                message: format!(
-                    "Impedance {} Omega outside typical USB range (70-120 Omega). \
-                     Verify this is intentional.",
-                    super::py_float_str(z)
-                ),
-                layer: None,
-                details: None,
-            }),
-            Some(z) => Ok(PyStackupValidationResult {
-                check_name: "Controlled Impedance".to_string(),
-                passed: true,
-                message: format!(
-                    "Impedance specification: {} Omega for differential nets",
-                    super::py_float_str(z)
-                ),
-                layer: None,
-                details: None,
-            }),
+            Some(obj) => {
+                let z: f64 = obj.extract()?;
+                if z <= 0.0 {
+                    Ok(PyStackupValidationResult {
+                        check_name: "Controlled Impedance".to_string(),
+                        passed: false,
+                        message: format!(
+                            "Invalid impedance value: {} Omega. Expected positive value.",
+                            render(obj)?
+                        ),
+                        layer: None,
+                        details: None,
+                    })
+                } else if !(70.0..=120.0).contains(&z) {
+                    Ok(PyStackupValidationResult {
+                        check_name: "Controlled Impedance".to_string(),
+                        passed: false,
+                        message: format!(
+                            "Impedance {} Omega outside typical USB range (70-120 Omega). \
+                             Verify this is intentional.",
+                            render(obj)?
+                        ),
+                        layer: None,
+                        details: None,
+                    })
+                } else {
+                    Ok(PyStackupValidationResult {
+                        check_name: "Controlled Impedance".to_string(),
+                        passed: true,
+                        message: format!(
+                            "Impedance specification: {} Omega for differential nets",
+                            render(obj)?
+                        ),
+                        layer: None,
+                        details: None,
+                    })
+                }
+            }
         }
     }
 
@@ -709,7 +723,7 @@ mod python {
         py: Python<'_>,
         stackup: &Bound<'_, PyAny>,
         differential_nets: Option<&Bound<'_, PyAny>>,
-        impedance_spec_ohms: Option<f64>,
+        impedance_spec_ohms: Option<&Bound<'_, PyAny>>,
         copper_fill_percentages: Option<&Bound<'_, PyAny>>,
         routing_results: Option<&Bound<'_, PyAny>>,
         board_dims: Option<&Bound<'_, PyAny>>,
