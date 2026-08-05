@@ -32,6 +32,7 @@ from typing import Any
 # pyclass's `__name__`/`__qualname__` equal to the dataclass it replaces,
 # which the `unhashable type: 'X'` / repr parity assertions depend on.
 from . import board_contracts as board_contracts
+from . import deterministic_stages as deterministic_stages
 from . import netlist_contracts as netlist_contracts
 from . import parse_engine as parse_engine
 from . import validation as validation
@@ -576,6 +577,9 @@ def load_loop_collection(
     pattern: str = "*.yaml",
     name: str = "",
     description: str = "",
+) -> LoopCollection: ...
+) -> LoopCollection: ...
+
 ) -> LoopCollection: ...
 
 # ---------------------------------------------------------------------------

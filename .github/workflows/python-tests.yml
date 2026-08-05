@@ -589,13 +589,15 @@ jobs:
 
       # Wave 4 Phase 4 anti-vacuity gate (PR merge path): the validation
       # DRC-check differential/PBT suites are the ONLY tests that pin the
-      # migrated Rust kernels (temper_drc_rs.validation) bit-exactly
-      # against the verbatim Python oracles. They previously ran in NO
+      # migrated Rust kernels (temper_drc_rs.validation, and the Phase-5
+      # deterministic grid_utils/via_placement + slot_generation/
+      # zone_geometry/zone_assignment kernels) bit-exactly against the
+      # verbatim Python oracles. They previously ran in NO
       # PR-time job (invariant-rest is trunk-only and masked), so a kernel
       # regression would merge silently. This step runs them hard on every
       # PR and on every push to main (this job runs on both events), with a
       # pytest_guard floor so a silently-shrunk collection fails instead of
-      # passing vacuously. The 7 files are the PR's differential surface;
+      # passing vacuously. The 17 files are the PR's differential surface;
       # the full tests/validation directory is NOT added here because it
       # carries pre-existing CI-environment failures unrelated to this PR
       # (test_mfem_runner.py::test_check_mfem_binary_present needs an MFEM
@@ -606,7 +608,7 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         working-directory: packages/temper-placer
         run: >
-          uv run python ../../scripts/pytest_guard.py --min-tests 94 --
+          uv run python ../../scripts/pytest_guard.py --min-tests 176 --
           tests/validation/test_drc_rust_differential.py
           tests/validation/test_drc_oracle_rust_differential.py
           tests/validation/test_drc_runner_rust_differential.py
@@ -614,6 +616,16 @@ jobs:
           tests/validation/test_geometric_rust_differential.py
           tests/validation/test_tht_check_rust_differential.py
           tests/validation/test_trace_analyzer_rust_differential.py
+          tests/deterministic/test_grid_utils_rust_differential.py
+          tests/deterministic/test_via_placement_rust_differential.py
+          tests/deterministic/test_grid_utils_pbt.py
+          tests/deterministic/test_via_placement_pbt.py
+          tests/deterministic/stages/test_slot_generation_rust_differential.py
+          tests/deterministic/stages/test_zone_geometry_rust_differential.py
+          tests/deterministic/stages/test_zone_assignment_rust_differential.py
+          tests/deterministic/stages/test_slot_generation_pbt.py
+          tests/deterministic/stages/test_zone_geometry_pbt.py
+          tests/deterministic/stages/test_zone_assignment_pbt.py
           -v --tb=short -p no:cacheprovider --maxfail=10
         env:
           RUST_BACKTRACE: full

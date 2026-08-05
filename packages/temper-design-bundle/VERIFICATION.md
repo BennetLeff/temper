@@ -1997,6 +1997,169 @@ the failure path.
   `tests/io/test_loop_loader.py`, `tests/core/test_design_rules_field_parity.py`,
   `tests/router_v6/test_layer_assignment_ssot.py`,
   `tests/router_v6/test_phase1_anti_false_zero.py`.
+# Deterministic leaf stages (slot_generation / zone_geometry / zone_assignment) — Verification
+
+Wave 4 **Phase 5, first slice** (deterministic leaf stages). The pure
+compute of three leaf stages moved here (`src/deterministic_stages.rs`):
+
+| Kernel | Python origin | Rust function |
+|---|---|---|
+| slot-grid walk | `deterministic/stages/slot_generation.py` → `SlotGenerationStage._generate_slots_for_zone` | `generate_slots_for_zone` |
+| 4-zone MVP-3 layout | `deterministic/stages/zone_geometry.py` → `_define_zone_layout` | `define_zone_layout` |
+| bounds_ratio scaling | `zone_geometry.py` → `_define_zones_from_config` (dict branch) | `scale_zone_bounds` |
+| component→zone assignment | `deterministic/stages/zone_assignment.py` → `_assign_components_to_zones` | `assign_component_zones` |
+
+The Python stages are delegation shims; the `run()` orchestration (the
+`state.*` guards, the config-vs-default dispatch, and the `frozenset` wraps)
+stays Python and is not part of the oracle. The pre-migration method bodies
+are pinned VERBATIM as the differential oracles
+(`tests/deterministic/stages/_slot_generation_py_oracle.py`,
+`_zone_geometry_py_oracle.py`, `_zone_assignment_py_oracle.py`).
+
+## Home-crate decision (Q3)
+
+These kernels land in `temper-design-bundle` (not `temper-geometry`), the
+home of the Phase-2/3 contract pyclasses they bind onto: `assign_component_zones`
+reads the `Netlist`/`Net`/`Component` pyclass attribute surface defined in
+`netlist_contracts.rs`, and the delegated stages are part of the pipeline
+contract surface the bundle already owns (the Phase-3 board/netlist
+contracts live here). `temper-geometry` hosts coordinate geometry
+(grid_utils / via_placement, Batch 1); these are stage-level orchestration
+kernels over the bundle's contracts. `generate_slots_for_zone` /
+`define_zone_layout` / `scale_zone_bounds` are pure float math with no pyclass
+dependency, but keeping all four kernels of one slice in one crate avoids a
+split-boundary shim; the alternative is recorded here for the R3 ledger.
+
+## Induction applicability
+
+Mathematical induction is not applicable: none of these kernels is
+recursive, and none iterates over a dimension whose correctness depends on a
+size parameter. The slot-grid walk iterates over a caller-provided extent
+with a fixed stepping rule (per-iteration state depends only on the
+previous iteration's state — see the accumulation claim below, which is a
+finite chain argument, not an induction). Per R1e, a **structural proof** is
+recorded instead.
+
+## Structural proof (bit-identical parity)
+
+Each kernel is a direct transcription of the oracle body with the following
+load-bearing equivalences, each pinned by the differential suites and the
+mutation campaign:
+
+1. **Naive `+=` accumulation, not compensated.** `generate_slots_for_zone`
+   walks `x`/`y` with `x += spacing` starting from `min + spacing / 2`
+   (the half-cell anchor recomputed per row, as the oracle does). Rust `f64`
+   `+=` performs the identical IEEE-754 addition sequence as CPython's
+   `float.__iadd__`, so every generated coordinate — including the
+   accumulated drift for non-representable spacings like `0.1` — is
+   bit-identical. The differential pins the drift explicitly
+   (`test_slots_float_accumulation`).
+2. **Strict `<` upper bounds + empty-input semantics.** A slot exactly at
+   `x_max`/`y_max` is NOT emitted; `spacing >= zone extent` (or a
+   zero-extent zone) yields an EMPTY slot list. Both asserted explicitly
+   (vacuity guards); mutants M1/M2 (`<=`) killed by the strict-bound cases.
+3. **Expression order in the 4-zone layout.** Every MAX boundary is an
+   INDEPENDENT fresh multiply `board_width * 0.3 / * 0.6 / * 0.9` — the
+   oracle computes each product from `board_width` directly, never as a
+   reuse chain (`(w*0.3)*3 = 0.09` but `w*0.9 = 0.09000000000000001` for
+   `w = 0.1`; doubling for the 0.6 boundary happens to be exact, but the
+   oracle still computes it fresh). Only the MIN boundaries reuse the
+   previous product (`power_x_min = hv_x_max`, `signal_x_min =
+   power_x_max`, `mcu_x_min = signal_x_max`) — pinned by the PBT
+   `test_p2_fractions` asserting `zones[1][1] == zones[0][3]` (same float
+   object bits) and the Rust unit test
+   `layout_boundaries_fresh_products`. Mutants M5/M6 (wrong products)
+   killed by the fixed 30/60/90 boundaries.
+4. **`int`-vs-`float` leaves preserved.** The oracle's zone bounds are
+   `((0, 0), ...)` — Python `int` 0 for `HV.x_min` and every `y_min`, and
+   the board DIMS pass through untouched (`int` on an integer board:
+   `define_zone_layout(100, 100)` keeps `y_max` / `MCU.x_max` as `int`
+   100; the boundary products are float regardless of the dims' type).
+   The type-carrying differential canon discriminates `int` from `float`,
+   so `define_zone_layout` emits Python `int` 0 in exactly those positions
+   and passes the raw dims through as the original objects (a `0.0_f64`
+   or an f64-widened `board_height` would fail the differential). The
+   `bounds_ratio` branch scales `ratio[i] * board_dim` in the oracle's
+   order — all `float` products on the pinned surface — and is pinned by
+   `test_scale_zone_bounds_dict_branch` / `test_p5_bounds_ratio_scale`
+   (mutants M7/M8 killed).
+5. **Rule precedence + iteration order in zone assignment.** The five
+   rules run in priority order (ref prefix → protocol substring → HV net
+   class → Power net class → Signal default); the net-scan is in
+   `netlist.nets` order and per-net pin order (a list — deterministic; no
+   set/dict iteration anywhere). The `(ref, zone)` output pairs follow
+   `netlist.components` order so the shim's dict insertion order is pinned.
+   Mutants M9 (prefix), M10 (protocol set), M11 (net-class spelling), M12
+   (rule-order swap: Power before HV) killed by the priority cases
+   (`test_rule_priority`, `test_component_on_multiple_nets`).
+6. **String semantics scope.** `ref.startswith("U_MCU")` and the
+   protocol scan (`SPI`/`I2C`/`UART` substrings of the UPPERCASED net name)
+   are ASCII-identical to CPython's `str.startswith` / `str.upper` on the
+   pinned surface (the differential corpus is ASCII; the PBT refs use
+   `Lu`/`Nd`/`_`). Stated, not papered over: non-ASCII net names are out of
+   the pinned contract.
+7. **`catch_unwind` at the boundary.** Every pyfunction wraps its body in
+   `temper_py_bridge::catch_unwind` + `panic_to_err` (G7), so a Rust panic
+   surfaces as a Python `RuntimeError`, never an interpreter abort.
+
+## Mutation campaign (Phase 5, Batch 2 — 12 mutants, 12 killed, 0 survivors)
+
+Driver: `scripts/phase5_batch2_mutations.py` (reproducible; apply →
+rebuild → run the six suites → expect failure → revert). Only a suite
+failure counts as a kill; rebuild/pytest infra failures are counted as
+ERROR (driver exit non-zero), so the 12/12 claim cannot be inflated by a
+spurious infra failure.
+
+| Mutant | Site | What caught it |
+|---|---|---|
+| M1 outer bound `<=` for `<` | `generate_slots` | `test_slots_strict_upper_bound` (x at 11 not emitted) |
+| M2 inner bound `<=` for `<` | `generate_slots` | `test_slots_strict_upper_bound` (y at 11 not emitted) |
+| M3 anchor `min + spacing` for `min + spacing/2` | `generate_slots` | `test_slots_basic_grid` first-slot (1.0 vs 2.0) |
+| M4 inner anchor `min` for `min + spacing/2` | `generate_slots` | `test_slots_float_accumulation` (0.0 vs 0.05) |
+| M5 Power boundary `0.7` for `0.6` | `layout_boundaries` | `test_layout_boundaries` (60.0 not 70.0) |
+| M6 Signal boundary `0.8` for `0.9` | `layout_boundaries` | `test_layout_boundaries` (90.0 not 80.0) |
+| M7 y scaled by width not height | `scale_bounds` | `test_scale_zone_bounds_dict_branch` (ratio[1]*h) |
+| M8 x2/y2 swapped | `scale_bounds` | `test_scale_zone_bounds_dict_branch` |
+| M9 `U_MCU` prefix without underscore | `infer_zone` | `test_mcu_prefix_and_protocol_nets` (U_MCU1) |
+| M10 UART dropped from protocol scan | `infer_zone` | `test_mcu_prefix_and_protocol_nets` (uart_tx) |
+| M11 net-class spelling `HighVoltageX` | `infer_zone` | `test_hv_net_class` |
+| M12 Power rule before HV rule | `infer_zone` | `test_component_on_multiple_nets` (rule 3 beats 4) |
+
+## R1 gate status (Phase 5, Batch 2)
+
+- **R1a** — differential suites assert bit-identical output
+  (`float.hex()`, type-carrying `canon` incl. int-vs-float, empty-input
+  semantics, dict-insertion order). 43 assertions/examples green.
+- **R1b** — pure-delegation compute with no measurable workload at this
+  slice's call sites (dormant leaf kernels behind stage `run()`s that the
+  pipeline does not yet invoke); no perf arm registered, recorded as
+  not-applicable (same rationale as Batch 1 — the R2 "no-regression-beyond-
+  noise" arm has no hot path to measure here).
+- **R1c** — 5 non-vacuous properties per module (slot_generation: in-zone,
+  row-major order, first-slot anchor, determinism, row-step bound;
+  zone_geometry: tiling, fractions, y-extent, non-empty, bounds-ratio scale;
+  zone_assignment: totality, `U_MCU`-prefix wins, HV forces, isolated
+  default, determinism).
+- **R1d** — 3 metamorphic relations per module (slot_generation:
+  square-zone transpose, pow-2 scale invariance, y-axis independence —
+  honestly bounded to zones that emit rows; zone_geometry: pow-2 scale,
+  x-depends-only-on-width, y-depends-only-on-height; zone_assignment:
+  signal-net addition neutral, class demotion HV→Power, protocol-suffix
+  invariance).
+- **R1e** — this entry (structural proof; induction N/A, stated why).
+- **R1f** — TDD: oracles + differentials + PBT committed first as RED
+  (fails to collect on the missing `deterministic_stages` submodule —
+  verified live before the Rust landed; RED commit 16bb2adaa, reachable
+  from this branch), then GREEN (the migration commit c9854c16c).
+- **R1g** — borrow over clone (net names cloned into the `comp_nets` map;
+  `infer_zone` borrows), no `unwrap` outside tests, `catch_unwind` at every
+  pyo3 boundary, `PyResult` everywhere.
+- **R1h** — not physics-gated: no thermal/creepage/clearance physics
+  quantity is computed; the only arithmetic is the slot lattice, zone
+  boundary fractions, and string rules. Not applicable.
+  `tests/router_v6/test_phase1_anti_false_zero.py`.
+
+  `tests/router_v6/test_phase1_anti_false_zero.py`.
 # Manufacturing tolerance model — Verification
 
 The manufacturing tolerance model (`src/manufacturing_tolerances.rs`) is the
