@@ -48,7 +48,7 @@ threshold_amps  # unused variable (packages/temper-placer/tests/requirements/val
 threshold_volts  # unused variable (packages/temper-placer/tests/requirements/validators/schematic.py:708)
 threshold_celsius  # unused variable (packages/temper-placer/tests/requirements/validators/schematic.py:735)
 same_layer  # unused variable (packages/temper-placer/tests/router_v6/astar_property_strategies.py:85)
-expected_base  # unused variable (packages/temper-placer/tests/router_v6/test_acid_trap_boundary.py:399)
+expected_base  # unused variable (packages/temper-placer/tests/router_v6/test_acid_trap_boundary.py:437)
 extra_kwargs  # unused variable (packages/temper-placer/tests/router_v6/test_geometric_degeneracy.py:862)
 mcu_running  # unused variable (packages/temper-placer/tests/validation/test_rtd_fault_latch_pbt.py:189)
 spi_active  # unused variable (packages/temper-placer/tests/validation/test_rtd_fault_latch_pbt.py:190)
