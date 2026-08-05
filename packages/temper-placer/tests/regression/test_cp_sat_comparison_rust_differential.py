@@ -221,10 +221,12 @@ def test_mr2_wirelength_ratio_scale_invariance():
         r2 = ShimCompare(
             {"wl": cand * 10, "t": 1.0}, {"wl": base * 10, "t": 1.0}, wirelength_metric="wl"
         )
-        assert r1.comparisons[0].passed == r2.comparisons[0].passed
+        wl1 = next(c for c in r1.comparisons if c.name == "wl")
+        wl2 = next(c for c in r2.comparisons if c.name == "wl")
+        assert wl1.passed == wl2.passed
         # ratio text is preserved: candidate/base ratio unchanged
-        d1 = r1.comparisons[0].detail
-        d2 = r2.comparisons[0].detail
+        d1 = wl1.detail
+        d2 = wl2.detail
         ratio_part1 = d1.split("ratio=")[1].split(",")[0]
         ratio_part2 = d2.split("ratio=")[1].split(",")[0]
         assert ratio_part1 == ratio_part2

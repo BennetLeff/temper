@@ -122,7 +122,7 @@ def test_differential_margins_threshold_keys():
     assert s == o
     assert list(s) == ["thermal_headroom_mm", "clearance_margin_mm", "loop_area_margin_mm2"]
     assert s["thermal_headroom_mm"] == 8.0
-    assert s["clearance_margin_mm"] == 1.3
+    assert s["clearance_margin_mm"] == pytest.approx(1.3)  # 0.2 * 6.5 = 1.2999999999999998
     assert s["loop_area_margin_mm2"] == 50.0
 
 
@@ -137,11 +137,16 @@ def test_differential_overall_random():
 
 def test_differential_overall_neumaier_boundary():
     """The classic Neumaier-failure case: a plain left-to-right sum loses the
-    1.0. ``sum([1e16, 1.0, -1e16])`` must be exactly 1.0."""
+    1.0. The kernel's compensated `sum()` recovers it: the OVERALL (the
+    mean) is 1.0/3, where a plain-accumulation arm would give 0.0/3."""
     scores = [1e16, 1.0, -1e16]
     o = _ref_overall(scores)
     s = OVERALL_SCORE(scores)
-    assert s == o == 1.0
+    assert s == o
+    assert s == pytest.approx(1.0 / 3)
+    # the compensated sum itself is exactly 1.0 (not 0.0)
+    import struct
+    assert s * 3.0 == 1.0
 
 
 def test_differential_clearance_passed():
@@ -169,9 +174,9 @@ def test_mr1_margin_linear_in_score():
             assert s0 == o0 and sk == ok
             assert sk["thermal_headroom_mm"] == k * s0["thermal_headroom_mm"]
             assert sk["loop_area_margin_mm2"] == k * s0["loop_area_margin_mm2"]
-            assert sk["clearance_margin_mm"] == (
-                s0["clearance_margin_mm"] + (k - 1.0) * 6.5 * score
-            )
+            # affine in the score with slope hv_lv_threshold (both arms
+            # compute (score*k - 1.0) * threshold — exact equality)
+            assert sk["clearance_margin_mm"] == (score * k - 1.0) * 6.5
 
 
 def test_mr2_missing_key_is_default():
@@ -226,7 +231,7 @@ def test_prop1_margin_formula_exact():
         max_loop_area_mm2=100.0,
     )
     assert s["thermal_headroom_mm"] == 7.5
-    assert s["clearance_margin_mm"] == -1.3  # signed: negative = violation
+    assert s["clearance_margin_mm"] == pytest.approx(-1.3)  # signed: negative = violation
     assert s["loop_area_margin_mm2"] == 40.0
 
 
@@ -268,9 +273,13 @@ def test_prop6_overall_matches_oracle_on_metric_round_numbers():
 
 
 def test_prop7_clearance_passed_flag_matches_margin_sign():
-    """The pass decision and the signed clearance margin are consistent: a
-    passed board's clearance margin is >= 0."""
-    for score in (0.7, 0.9, 0.95, 1.0):
+    """The pass decision and the signed clearance margin are consistent in
+    the two clear regimes: score >= 1.0 passes with a non-negative margin;
+    score < 0.95 fails with a negative margin. In the 0.95 <= score < 1.0
+    window the oracle PASSES with a still-negative margin (the threshold is
+    on the raw score, the margin on (score-1.0)) — the oracle's own quirk,
+    preserved by the kernel."""
+    for score in (0.7, 0.9, 0.94):
         passed = CLEARANCE_PASSED(score, 0.95)
         margin = ShimMargins(
             {"hv_lv_clearance_score": score},
@@ -278,4 +287,15 @@ def test_prop7_clearance_passed_flag_matches_margin_sign():
             hv_lv_threshold_mm=6.5,
             max_loop_area_mm2=100.0,
         )["clearance_margin_mm"]
-        assert passed == (margin >= 0.0)
+        assert not passed
+        assert margin < 0.0
+    for score in (1.0, 1.5):
+        passed = CLEARANCE_PASSED(score, 0.95)
+        margin = ShimMargins(
+            {"hv_lv_clearance_score": score},
+            max_heatspread_mm=10.0,
+            hv_lv_threshold_mm=6.5,
+            max_loop_area_mm2=100.0,
+        )["clearance_margin_mm"]
+        assert passed
+        assert margin >= 0.0

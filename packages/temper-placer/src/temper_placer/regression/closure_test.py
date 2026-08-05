@@ -4,6 +4,15 @@ Runs the full closed-loop pipeline and asserts:
 - 100% nets routed (or current baseline)
 - DRC count within ratchet ceiling
 - No crashes.
+
+Wave 4 Phase 4 (regression slice): the self-consistency compute —
+``ClosureResult.validate`` and ``ClosureResult.summary`` — moved to the Rust
+kernels ``temper_drc_rs.closure_validate`` / ``closure_summary``
+(packages/temper-drc-rs/src/closure_test.rs). ``ClosureTest.run()``
+orchestration, the channel-analysis sidecar writer and the routing-failure
+extractor stay Python (they consume pipeline/router surfaces outside this
+slice's scope). Design boundaries are argued in
+``packages/temper-drc-rs/VERIFICATION.md``.
 """
 
 from __future__ import annotations
@@ -22,6 +31,17 @@ from typing import Any
 import temper_placer.adapters.register_strategies  # noqa: F401
 
 _LOGGER = logging.getLogger(__name__)
+
+_RS = None
+
+
+def _tdrc():
+    global _RS
+    if _RS is None:
+        import temper_drc_rs  # type: ignore[import-untyped]
+
+        _RS = temper_drc_rs
+    return _RS
 
 
 def _run_channel_analysis(*, output_dir: Path, stages_exercised: int) -> int:
@@ -173,35 +193,38 @@ class ClosureResult:
     routing_failure_messages: list[str] = field(default_factory=list)
 
     def validate(self) -> list[str]:
-        """Return assertion failures if the pipeline produced no real results."""
-        failures: list[str] = []
-        if self.benders_iterations <= 0:
-            failures.append("benders_iterations <= 0: pipeline produced no placement iterations")
-        if self.router_completion_pct <= 0:
-            failures.append("router_completion_pct <= 0: pipeline produced no routing results")
-        if self.stages_exercised < 2:
-            failures.append(
-                f"stages_exercised ({self.stages_exercised}) < 2: insufficient pipeline execution"
-            )
-        if self.benders_iterations <= 0 and self.router_completion_pct <= 0:
-            failures.append("zero-results: both placement and routing produced no results")
-        return failures
+        """Return assertion failures if the pipeline produced no real results.
+
+        Wave 4 Phase 4: the assertions run in
+        ``temper_drc_rs.closure_validate`` (bit-identical to the
+        pre-migration logic, pinned by the differential).
+        """
+        return _tdrc().closure_validate(
+            self.benders_iterations,
+            float(self.router_completion_pct),
+            self.stages_exercised,
+        )
 
     def summary(self) -> str:
-        lines = [
-            f"=== Closure Test: {self.board_id} ===",
-            f"Status: {'PASS' if self.passed else 'FAIL'}",
-            f"Benders iterations: {self.benders_iterations}, cuts: {self.benders_cuts}",
-            f"Router completion: {self.router_completion_pct:.1f}%",
-            f"DRC: {self.drc_errors} errors, {self.drc_warnings} warnings",
-            f"Wall clock: {self.wall_clock_seconds:.1f}s",
-            f"Stages exercised: {self.stages_exercised}",
-        ]
-        for err in self.errors:
-            lines.append(f"  ERROR: {err}")
-        for warn in self.warnings:
-            lines.append(f"  WARNING: {warn}")
-        return "\n".join(lines)
+        """The exact report string (incl. the ``:.1f`` formatting).
+
+        Wave 4 Phase 4: the report rendering runs in
+        ``temper_drc_rs.closure_summary`` (bit-identical to the
+        pre-migration rendering, pinned by the differential).
+        """
+        return _tdrc().closure_summary(
+            self.board_id,
+            self.passed,
+            self.benders_iterations,
+            self.benders_cuts,
+            float(self.router_completion_pct),
+            self.drc_errors,
+            self.drc_warnings,
+            float(self.wall_clock_seconds),
+            self.stages_exercised,
+            list(self.errors),
+            list(self.warnings),
+        )
 
 
 class ClosureTest:

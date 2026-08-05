@@ -62,17 +62,32 @@ def _metrics_dict(rng, field_names):
     return d
 
 
+def _run_arm(validator, metrics):
+    """Run one arm and return (field, reason, message) on failure, None on
+    pass. Catches Exception so each arm's own SchemaValidationError class is
+    observed (the oracle defines its own)."""
+    try:
+        validator.validate(metrics)
+    except Exception as e:  # noqa: BLE001
+        return (getattr(e, "field", None), getattr(e, "reason", None), str(e))
+    return None
+
+
 def _as_field_table(fields):
     out = []
     for name, spec in fields.items():
-        out.append(
-            (
-                name,
-                spec.get("min"),
-                spec.get("max"),
-                spec.get("zero_is_valid", True),
+        if isinstance(spec, dict):
+            out.append(
+                (
+                    name,
+                    spec.get("min"),
+                    spec.get("max"),
+                    spec.get("zero_is_valid", True),
+                )
             )
-        )
+        else:
+            # shorthand: (min, max, zero_is_valid)
+            out.append((name, spec[0], spec[1], spec[2]))
     return out
 
 
@@ -92,25 +107,13 @@ def test_differential_random(tmp_path):
         p.write_text("schema_version: 1\n" + _yaml(fields))
         oracle = _oracle.SchemaValidator(p)
         shim = ShimValidator(p)
-        o_exc = None
-        s_exc = None
-        try:
-            oracle.validate(metrics)
-        except SchemaValidationError as e:
-            o_exc = e
-        try:
-            shim.validate(metrics)
-        except SchemaValidationError as e:
-            s_exc = e
-        if o_exc is None:
-            assert s_exc is None, f"shim raised but oracle passed: {metrics}"
+        o_out = _run_arm(oracle, metrics)
+        s_out = _run_arm(shim, metrics)
+        if o_out is None:
+            assert s_out is None, f"shim raised but oracle passed: {metrics}"
         else:
-            assert s_exc is not None, f"shim passed but oracle raised: {metrics}"
-            assert (s_exc.field, s_exc.reason, str(s_exc)) == (
-                o_exc.field,
-                o_exc.reason,
-                str(o_exc),
-            )
+            assert s_out is not None, f"shim passed but oracle raised: {metrics}"
+            assert s_out == o_out
 
 
 def _yaml(fields):
@@ -134,36 +137,27 @@ def test_differential_first_unknown_field(tmp_path):
     oracle = _oracle.SchemaValidator(p)
     shim = ShimValidator(p)
     metrics = {"m0": 500, "mystery": 1.0}
-    with pytest.raises(SchemaValidationError) as oe:
-        oracle.validate(metrics)
-    with pytest.raises(SchemaValidationError) as se:
-        shim.validate(metrics)
-    assert se.value.field == "mystery"
-    assert (se.value.field, se.value.reason, str(se.value)) == (
-        oe.value.field,
-        oe.value.reason,
-        str(oe.value),
-    )
-    assert "unknown field" in str(se.value)
+    o_out = _run_arm(oracle, metrics)
+    s_out = _run_arm(shim, metrics)
+    assert o_out is not None and s_out is not None
+    assert s_out[0] == "mystery"
+    assert s_out == o_out
+    assert "unknown field" in s_out[2]
 
 
 def test_differential_int_vs_float_message_leaves(tmp_path):
     """int and float leaves in the metrics/schema dicts render differently
     in the message (str(int) vs str(float)) — the shim must type-carry."""
     p = tmp_path / "schema.yaml"
-    p.write_text(_yaml({"m0": {"min": 0.0, "max": 10.0, "zero_is_valid": True}}))
+    p.write_text(_yaml({"m0": {"min": 10.0, "max": 20.0, "zero_is_valid": True}}))
     oracle = _oracle.SchemaValidator(p)
     shim = ShimValidator(p)
-    with pytest.raises(SchemaValidationError) as oe:
-        oracle.validate({"m0": 5})
-    with pytest.raises(SchemaValidationError) as se:
-        shim.validate({"m0": 5})
-    assert (se.value.field, se.value.reason, str(se.value)) == (
-        oe.value.field,
-        oe.value.reason,
-        str(oe.value),
-    )
-    assert "value 5 is below minimum 0.0" in str(se.value)
+    o_out = _run_arm(oracle, {"m0": 5})  # int leaf, float min
+    s_out = _run_arm(shim, {"m0": 5})
+    assert o_out is not None and s_out is not None
+    assert s_out == o_out
+    # str(5) == "5" (int leaf), str(10.0) == "10.0" (float min) — type-carrying
+    assert "value 5 is below minimum 10.0" in s_out[2]
 
 
 def test_differential_zero_is_valid_false(tmp_path):
@@ -172,17 +166,12 @@ def test_differential_zero_is_valid_false(tmp_path):
     oracle = _oracle.SchemaValidator(p)
     shim = ShimValidator(p)
     for metrics in ({"m0": 0.0}, {"m0": 0}, {"m0": 42.0}):
-        with pytest.raises(SchemaValidationError) as oe:
-            oracle.validate(metrics)
-        with pytest.raises(SchemaValidationError) as se:
-            shim.validate(metrics)
-        assert (se.value.field, se.value.reason, str(se.value)) == (
-            oe.value.field,
-            oe.value.reason,
-            str(oe.value),
-        )
+        o_out = _run_arm(oracle, metrics)
+        s_out = _run_arm(shim, metrics)
+        assert s_out == o_out, (metrics, s_out, o_out)
     # 42.0 is within [42.0, 42.0] and non-zero -> passes
-    oracle.validate({"m0": 42.0})
+    assert _run_arm(oracle, {"m0": 42.0}) is None
+    assert _run_arm(shim, {"m0": 42.0}) is None
 
 
 def test_differential_valid_metrics_pass(tmp_path):
@@ -207,7 +196,13 @@ def test_differential_kernel_direct():
     schema2 = _as_field_table(
         {"x": {"min": 1, "max": 10, "zero_is_valid": False}}
     )
-    assert VALIDATE_SCHEMA([("x", 0.0)], schema2) == ("x", "zero_invalid")
+    # 0.0 < min(1) fires below_min BEFORE the zero_is_valid check (the
+    # oracle's min-then-max-then-zero order).
+    assert VALIDATE_SCHEMA([("x", 0.0)], schema2) == ("x", "below_min")
+    schema3 = _as_field_table(
+        {"x": {"min": 0, "max": 10, "zero_is_valid": False}}
+    )
+    assert VALIDATE_SCHEMA([("x", 0.0)], schema3) == ("x", "zero_invalid")
     assert VALIDATE_SCHEMA([("y", 1.0)], schema2) == ("y", "unknown")
 
 
@@ -223,16 +218,17 @@ def test_mr1_first_violation_in_insertion_order(tmp_path):
     p.write_text(_yaml({"m0": {"min": 0, "max": 100, "zero_is_valid": True}}))
     oracle = _oracle.SchemaValidator(p)
     shim = ShimValidator(p)
-    with pytest.raises(SchemaValidationError) as se:
-        shim.validate({"m0": -5, "m1": 999})
-    assert se.value.field == "m0"
-    with pytest.raises(SchemaValidationError) as oe:
-        oracle.validate({"m0": -5, "m1": 999})
-    assert (se.value.field, str(se.value)) == (oe.value.field, str(oe.value))
-    # reorder: m1 is now first and unknown
-    with pytest.raises(SchemaValidationError) as se2:
-        shim.validate({"m1": 999, "m0": -5})
-    assert se2.value.field == "m1"
+    # m0 is out of range in pass 2, but m1 is UNKNOWN in pass 1 — pass 1 runs
+    # first, so the unknown field fires before the range check (the oracle's
+    # two-pass structure, pinned here).
+    s_out = _run_arm(shim, {"m0": -5, "m1": 999})
+    o_out = _run_arm(oracle, {"m0": -5, "m1": 999})
+    assert s_out == o_out and s_out is not None
+    assert s_out[0] == "m1"
+    assert "unknown field" in s_out[2]
+    # reorder: m1 (unknown) still fires in pass 1 regardless of position
+    s_out2 = _run_arm(shim, {"m1": 999, "m0": -5})
+    assert s_out2 is not None and s_out2[0] == "m1"
 
 
 def test_mr2_passing_metric_addition_is_idempotent():
@@ -246,8 +242,9 @@ def test_mr2_passing_metric_addition_is_idempotent():
 def test_mr3_zero_is_valid_negation_boundary():
     """zero_is_valid True vs False is the ONLY thing distinguishing a zero
     metric's outcome — the same metric with zero_is_valid True passes."""
-    schema_true = _as_field_table({"x": (1.0, 10.0, True)})
-    schema_false = _as_field_table({"x": (1.0, 10.0, False)})
+    # min 0.0 so 0.0 does not collide with the below_min check
+    schema_true = _as_field_table({"x": (0.0, 10.0, True)})
+    schema_false = _as_field_table({"x": (0.0, 10.0, False)})
     assert VALIDATE_SCHEMA([("x", 0.0)], schema_true) is None
     assert VALIDATE_SCHEMA([("x", 0.0)], schema_false) == ("x", "zero_invalid")
 
@@ -300,7 +297,7 @@ def test_prop6_zero_is_valid_default_true():
     """A schema field without a zero_is_valid key defaults to True."""
     # (min, max, zero_is_valid) — the shim marshals the default; direct kernel
     # call with an explicit True is the same decision
-    assert VALIDATE_SCHEMA([("m", 0.0)], _as_field_table({"m": (1.0, 10.0, True)})) is None
+    assert VALIDATE_SCHEMA([("m", 0.0)], _as_field_table({"m": (0.0, 10.0, True)})) is None
 
 
 def test_prop7_below_min_precedes_zero_check():

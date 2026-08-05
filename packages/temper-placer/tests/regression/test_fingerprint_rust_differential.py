@@ -106,7 +106,12 @@ def test_differential_input_fingerprint_all_missing(tmp_path):
     o = _oracle.compute_input_fingerprint(a, b, c, 1, 1)
     s = ShimInputFp(a, b, c, 1, 1)
     assert s == o
-    assert s != _oracle.compute_input_fingerprint(b, a, c, 1, 1)  # order matters
+    # all-missing: the sorted() normalizes the argument order, so the digest
+    # is order-invariant — but a DIFFERENT missing path changes the digest
+    # (the path string is hashed for a missing file).
+    assert s == _oracle.compute_input_fingerprint(b, a, c, 1, 1)
+    d = tmp_path / "different.json"
+    assert s != _oracle.compute_input_fingerprint(a, b, d, 1, 1)
 
 
 def test_differential_source_fingerprint():
@@ -222,11 +227,15 @@ def test_mr3_seed_epochs_sensitive():
 
 
 def test_mr4_should_skip_requires_both_matches():
-    """Flipping either fingerprint individually makes should_skip False."""
-    cache = {"boards": {"b": {"input_fingerprint": "i", "source_fingerprint": "s"}}}
-    assert SHOULD_SKIP("b", "i", "s", cache) is True
-    assert SHOULD_SKIP("b", "i2", "s", cache) is False
-    assert SHOULD_SKIP("b", "i", "s2", cache) is False
+    """Flipping either fingerprint individually makes should_skip False.
+    The kernel receives the board ENTRY (the shim does the
+    cache["boards"][board_id] lookup)."""
+    entry = {"input_fingerprint": "i", "source_fingerprint": "s"}
+    assert SHOULD_SKIP("i", "s", entry) is True
+    assert SHOULD_SKIP("i2", "s", entry) is False
+    assert SHOULD_SKIP("i", "s2", entry) is False
+    assert SHOULD_SKIP("i", "s", None) is False
+    assert SHOULD_SKIP("i", "s", {}) is False
 
 
 # ---------------------------------------------------------------------------
@@ -265,5 +274,5 @@ def test_prop5_empty_source_fingerprint_is_empty_sha256():
 
 
 def test_prop6_should_skip_missing_board_is_false():
-    assert SHOULD_SKIP("nope", "i", "s", {"boards": {"b": {}}}) is False
-    assert SHOULD_SKIP("nope", "i", "s", None) is False
+    assert SHOULD_SKIP("i", "s", {"boards": {"b": {}}}) is False
+    assert SHOULD_SKIP("i", "s", None) is False

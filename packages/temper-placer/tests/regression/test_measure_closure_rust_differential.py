@@ -221,8 +221,12 @@ def test_prop3_never_negative():
 
 
 def test_prop4_never_above_100():
+    """For non-negative error counts the formula never exceeds 100.0 (a
+    negative count would produce >100 in BOTH arms — the oracle's
+    max(0.0, 100 - 10*errors) has no upper clamp; that is the oracle's own
+    behavior and is pinned, not "fixed")."""
     for stages in range(0, 10):
-        for errors in range(-10, 50):
+        for errors in range(0, 50):
             assert COMPUTE_DRC_CLEARANCE_PASS_PCT(stages, errors) <= 100.0
 
 

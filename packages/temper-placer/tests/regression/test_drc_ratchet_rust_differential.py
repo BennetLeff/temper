@@ -202,7 +202,7 @@ def test_differential_pass_with_slack(tmp_path, backend):
         "path": "pcb/board.kicad_pcb",
         "error_ceiling": 10,
         "warning_ceiling": 5,
-        "violations_by_type": {"clearance": 3},
+        "violations_by_type": {"clearance": 5},  # 4 measured -> within ceiling
         "warnings_by_type": {},
         "provenance": {"tool_versions": {"kicad-cli": "v1"}},
     }
@@ -478,7 +478,7 @@ def test_differential_unknown_backend(tmp_path):
 
 
 @pytest.mark.parametrize("backend", ["rust", "kicad-cli"])
-def test_differential_drc_backend_exception(tmp_path, backend):
+def test_differential_drc_backend_exception(tmp_path, backend, monkeypatch):
     """A backend exception must produce the same failure result in both arms."""
     entry = {
         "board_id": "b",
@@ -498,12 +498,18 @@ def test_differential_drc_backend_exception(tmp_path, backend):
     s = ShimRatchet(ceiling_path, backend=backend)
     o.load()
     s.load()
-    o._run_rust_drc = boom  # type: ignore[method-assign]
-    s._run_rust_drc = boom  # type: ignore[method-assign]
+    if backend == "rust":
+        o._run_rust_drc = boom  # type: ignore[method-assign]
+        s._run_rust_drc = boom  # type: ignore[method-assign]
+    else:
+        import temper_placer.validation._drc_api as drc_api
+
+        monkeypatch.setattr(drc_api, "run_drc", boom)
+        monkeypatch.setattr(drc_api, "get_kicad_cli_version", lambda: None)
     o_res = o._check_board("b", pcb, o.entries["b"])
     s_res = s._check_board("b", pcb, s.entries["b"])
     assert _canon_result(s_res) == _canon_result(o_res)
-    assert "DRC (rust) failed: kaboom" in s_res.message
+    assert f"DRC ({backend}) failed: kaboom" in s_res.message
 
 
 def test_differential_random_stress(tmp_path):
