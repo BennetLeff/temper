@@ -62,3 +62,5 @@ fake_kicad_cli  # unused variable (packages/temper-placer/tests/placer/cp_sat/te
 fake_kicad_cli  # unused variable (packages/temper-placer/tests/placer/cp_sat/test_parallel_drc_helper.py:195)
 fake_kicad_cli  # unused variable (packages/temper-placer/tests/placer/cp_sat/test_parallel_drc_helper.py:207)
 fake_kicad_cli  # unused variable (packages/temper-placer/tests/placer/cp_sat/test_parallel_drc_helper.py:222)
+protected_artifact_guard  # unused import (packages/temper-placer/tests/conftest.py:25)
+pytest_sessionstart  # unused import (packages/temper-placer/tests/conftest.py:25)
