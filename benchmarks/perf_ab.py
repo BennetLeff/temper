@@ -85,7 +85,6 @@ from __future__ import annotations
 
 import argparse
 import importlib.util
-import yaml
 import json
 import random
 import statistics
@@ -96,6 +95,8 @@ from datetime import UTC, datetime
 from pathlib import Path
 from types import ModuleType
 from typing import Any
+
+import yaml
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
@@ -271,6 +272,55 @@ def bench_bottleneck_hard_blocked() -> tuple[float, float]:
 # `module` and `stage` become the comparison key together with `board`, so they
 # must stay stable once a baseline row exists. Renaming one is a baseline reset
 # and fails the gate closed until the baseline row is renamed with it.
+
+_PARSE_BOARD = REPO_ROOT / "pcb" / "temper.kicad_pcb"
+
+
+def bench_parse_kicad_pcb() -> tuple[float, float]:
+    """A/B the Rust parse engine vs the verbatim kiutils oracle on the
+    production board.
+
+    The parse surface is I/O-shaped (file text in, model out), so this is the
+    *no-regression-beyond-noise* arm of R1b -- no speedup claim is made. The
+    arms' outputs are asserted equal (the pyclass __eq__ chain, identical to
+    the behavioral differential's assertion) so a performance number for an
+    engine that drifted from its oracle is rejected on the spot.
+    """
+    import temper_design_bundle_python as _tdb
+
+    # The verbatim oracle is the same module the behavioral differential pins
+    # (loaded by explicit path, like the bottleneck oracles).
+    oracle_pkg = _load_module_from_path(
+        "_perf_ab_parse_engine_oracle_pkg",
+        REPO_ROOT / "packages/temper-placer/tests/io/_parse_engine_py_oracle/__init__.py",
+    )
+    _oracle_parser = oracle_pkg.kicad_parser
+
+    content = _PARSE_BOARD.read_text(encoding="utf-8")
+
+    def run_rust() -> Any:
+        return _tdb.parse_engine.parse_kicad_pcb(content, normalize=True)
+
+    def run_oracle() -> Any:
+        return _oracle_parser.parse_kicad_pcb(_PARSE_BOARD, normalize=True)
+
+    # Parity assertion: the pyclass/dataclass __eq__ chain cannot be used
+    # directly here -- pyo3's __eq__ returns NotImplemented for foreign types
+    # but the reverse dataclass comparison is not guaranteed to be consulted
+    # symmetrically, so `rust == oracle` can be False for identical values.
+    # repr() is exact (floats round-trip) and both arms render the same
+    # dataclass-style shape, so repr equality is the bit-exact check.
+    if repr(run_rust()) != repr(run_oracle()):
+        raise AssertionError(
+            "perf A/B arms disagree for parse-engine parse_kicad_pcb -- the "
+            "behavioral A/B (test_parse_engine_rust_differential.py) should "
+            "be failing too"
+        )
+    return _time_us(run_rust, DEFAULT_WARMUP, DEFAULT_REPEATS), _time_us(
+        run_oracle, DEFAULT_WARMUP, DEFAULT_REPEATS
+    )
+
+
 # ---------------------------------------------------------------------------
 # Wave 4 Phase 3 candidate 5: config/reference loaders (pure-delegation arms)
 # ---------------------------------------------------------------------------
@@ -353,6 +403,7 @@ _BENCHMARKS: dict[tuple[str, str], Callable[[], tuple[float, float]]] = {
     ("bottleneck-geometry", "hard_blocked_batch"): bench_bottleneck_hard_blocked,
     ("config-loader", "preprocess_config"): bench_config_loader_preprocess,
     ("footprint-library", "from_yaml_string"): bench_footprint_library_load,
+    ("parse-engine", "parse_kicad_pcb"): bench_parse_kicad_pcb,
 }
 
 

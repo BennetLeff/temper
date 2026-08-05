@@ -33,6 +33,7 @@ from typing import Any
 # which the `unhashable type: 'X'` / repr parity assertions depend on.
 from . import board_contracts as board_contracts
 from . import netlist_contracts as netlist_contracts
+from . import parse_engine as parse_engine
 
 def sha256_hex(bytes: bytes) -> str: ...
 

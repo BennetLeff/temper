@@ -38,7 +38,6 @@ from temper_placer.io.dsn_validator import (
 )
 from temper_placer.io.kicad_parser import (
     parse_kicad_pcb,
-    parse_kicad_schematic,
 )
 from temper_placer.io.kicad_writer import (
     PlacementUpdate,
@@ -72,7 +71,6 @@ from temper_placer.io.reference_loader import (
 __all__ = [
     # Parser
     "parse_kicad_pcb",
-    "parse_kicad_schematic",
     "ParseResult",
     # Config
     "load_constraints",

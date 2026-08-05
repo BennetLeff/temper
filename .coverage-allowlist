@@ -613,7 +613,6 @@ temper_placer/io/kicad_parser.py::extract_footprint_positions  # TODO: temper-xx
 temper_placer/io/kicad_parser.py::extract_net_classes  # TODO: temper-xxx
 temper_placer/io/kicad_parser.py::parse_kicad_pcb  # TODO: temper-xxx
 temper_placer/io/kicad_parser.py::parse_kicad_pcb_v6  # TODO: temper-xxx
-temper_placer/io/kicad_parser.py::parse_kicad_schematic  # TODO: temper-xxx
 temper_placer/io/kicad_writer.py::IsolationSlotResult.has_warnings  # TODO: temper-xxx
 temper_placer/io/kicad_writer.py::StrippingResult.has_warnings  # TODO: temper-xxx
 temper_placer/io/kicad_writer.py::WriteResult.has_warnings  # TODO: temper-xxx
