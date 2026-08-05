@@ -393,6 +393,7 @@ def test_seed_determinism_and_distinction():
     assert _arr(b_py["etch_tolerance"]) == _arr(b_rs["etch_tolerance"])
     assert _arr(a_rs["etch_tolerance"]) == _arr(b_rs["etch_tolerance"])  # deterministic
     assert a_rs["etch_tolerance"].tobytes() != c_rs["etch_tolerance"].tobytes()
+    assert a_py["etch_tolerance"].tobytes() != c_py["etch_tolerance"].tobytes()
 
 
 # ---------------------------------------------------------------------------

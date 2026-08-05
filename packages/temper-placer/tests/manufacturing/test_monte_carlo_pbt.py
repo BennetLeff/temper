@@ -15,10 +15,9 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+import temper_design_bundle_python as _tdb
 from hypothesis import given, settings
 from hypothesis import strategies as st
-
-import temper_design_bundle_python as _tdb
 
 DISTRIBUTION_PARAMS = _tdb.DistributionParams
 MANUFACTURING_VARIABLES = _tdb.ManufacturingVariables

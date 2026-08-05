@@ -41,9 +41,8 @@ properties in ``tests/core/test_hypergraph_factory_pbt.py``.
 from __future__ import annotations
 
 import numpy as np
-from scipy.sparse import coo_matrix
-
 import temper_design_bundle_python as _tdb
+from scipy.sparse import coo_matrix
 
 from temper_placer.core.hypergraph import HypergraphIncidence, PhysicsHypergraph
 from temper_placer.core.netlist import Netlist

@@ -18,7 +18,6 @@ import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-import temper_design_bundle_python as _tdb
 from temper_placer.core.netlist import Component, Net, Netlist
 from temper_placer.extraction.hypergraph_factory import HypergraphFactory as ShimFactory
 

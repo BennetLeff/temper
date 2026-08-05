@@ -762,13 +762,13 @@ class MonteCarloSimulator:
 class HypergraphBuildResult:
     n_nodes: int
     n_edges: int
-    node_refs: list[object]
-    hyperedge_names: list[object]
+    node_refs: list[str]
+    hyperedge_names: list[str]
     edge_voltages: list[float]
-    edge_currents: list[object]
+    edge_currents: list[float]
     edge_widths: list[float]
-    node_weights: list[object]
-    hyperedge_weights: list[object]
+    node_weights: list[float]
+    hyperedge_weights: list[float]
     connected_indices: list[list[int]]
 
 

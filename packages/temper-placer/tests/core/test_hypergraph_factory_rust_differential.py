@@ -44,6 +44,8 @@ import tests.core._hypergraph_factory_py_oracle as _oracle
 from temper_placer.core.netlist import Component, Net, Netlist
 from temper_placer.extraction.hypergraph_factory import (
     HypergraphFactory as ShimFactory,
+)
+from temper_placer.extraction.hypergraph_factory import (
     netlist_to_hypergraph as shim_netlist_to_hypergraph,
 )
 
