@@ -24,6 +24,17 @@ from __future__ import annotations
 
 from typing import Any
 
+# Wave 4 Phase 3 candidate 1: the parse-target contracts, in SUBMODULES.
+#
+# They are nested rather than flattened into this namespace because
+# board.py and netlist.py each define a class called `Component`; a single
+# namespace would silently alias one over the other. Nesting also keeps each
+# pyclass's `__name__`/`__qualname__` equal to the dataclass it replaces,
+# which the `unhashable type: 'X'` / repr parity assertions depend on.
+from . import board_contracts as board_contracts
+from . import netlist_contracts as netlist_contracts
+from . import parse_engine as parse_engine
+
 def sha256_hex(bytes: bytes) -> str: ...
 
 
@@ -487,6 +498,34 @@ class PriorityConfig:
     ) -> PlacementPriority: ...
     def classify_net(self, net_name: str) -> RoutingPriority: ...
 
+
+# ---------------------------------------------------------------------------
+# Wave 4 Phase 3 candidate 5: the config/reference loaders (config_loader.rs,
+# reference_loader.rs). PyYAML + pydantic stay on the Python side and are
+# called back across the boundary; the transform and the downstream helpers
+# are Rust. `load_constraints` accepts a path (str or pathlib.Path) and
+# returns the pydantic PlacementConstraints model; the Rust side only
+# constructs the preprocessed dict.
+# ---------------------------------------------------------------------------
+
+def preprocess_config(raw: Any) -> dict[str, Any]: ...
+
+def load_constraints(config_path: Any) -> Any: ...
+
+def infer_rjc(package_type: str | None) -> float: ...
+
+def create_board_from_constraints(constraints: Any) -> Any: ...
+
+def constraints_to_design_rules(constraints: Any) -> Any: ...
+
+def apply_zones_to_netlist(netlist: Any, constraints: Any) -> None: ...
+
+def apply_fixed_components_to_netlist(netlist: Any, constraints: Any) -> None: ...
+
+def compute_design_stats(result: Any) -> dict[str, Any]: ...
+
+def infer_quality_config(design: Any) -> dict[str, Any]: ...
+||||||| f57b52d51
 
 # ---------------------------------------------------------------------------
 # Wave 4 Phase 3 candidate 2: the YAML loaders (crate module `loaders.rs`),
