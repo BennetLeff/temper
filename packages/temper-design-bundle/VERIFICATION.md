@@ -985,13 +985,167 @@ implementations (`tests/core/_board_py_oracle.py`, commit `5a17025b1`;
    comparison, not the absolute pass count, is what made them visible, since
    ~10 unrelated environment failures were present on both sides.
 
+5. **KTD7 overturn — the plan's keep-Python decision for the numpy/re/hashlib
+   kernels is overturned by migration.** The plan's R1 wording ("every numpy
+   `float32`-returning method stays in the shim as a thin deterministic
+   wrapper") kept `build_adjacency_matrix` (a float32-returning method) in
+   the shim, and the general "compute kernels stay Python" framing carried
+   `find_isomorphic_groups` with it. Both are **migrated to Rust** — but in
+   the plan's own spirit: they call `re`/`hashlib`/numpy themselves across
+   the boundary (structural proof cases 7 and 9), so no third-party
+   algorithm is re-implemented and the bit-parity is provable rather than
+   assumed. Rationale for overturning: their consumers are hot-path compute
+   (`core/community.py` calls `build_adjacency_matrix` at lines 57/119), and
+   keeping them Python behind the shim would have made every array-returning
+   method a Python hop while the class itself was Rust. The Rust versions
+   are pinned by P6/P7/P8, MR3 (net permutation leaves the adjacency matrix
+   bit-identical), the empty-path float64 `(0, 0)` dtype pin, the
+   `iterations ∈ {0, 1, 2, 3}` parity pins, and the malformed-pin fuzzing.
+   The R20 evidence chain is preserved because the bit-parity differential
+   gates them (a mutant kernel cannot survive `(dtype, shape, tobytes())`
+   comparison). The one genuinely non-deterministic kernel,
+   `compute_eigenvector_centrality`, stays Python exactly as the plan's R1
+   requires — R3 #2 above.
+
+6. **Explicit `None` for a literal default collapses to the default on the
+   pyclasses.** The pyo3 `Option<&Bound<PyAny>>` parameters cannot
+   distinguish an *omitted* argument from an *explicitly passed* `None`
+   (pyo3's `extract_argument_with_default` extracts a present `None` to the
+   Rust `None` and only uses the default when the argument is absent). The
+   dataclasses store what they are given, so
+   `MountingHole(pos, dia, keepout_radius=None).keepout_radius` is `None`
+   in the oracle but `3.0` on the pyclass; `Zone(..., net_classes=None)`
+   stores `None` in the oracle but `["Signal"]` on the pyclass; and the
+   literal-default fields of `Component`/`Pin`/`Net`
+   (`net_class="Signal"`, `fixed=False`, `width/height=1.0`,
+   `shape="rect"`, `layer="F.Cu"`, `drill=0.0`, `is_pth=False`,
+   `roundrect_ratio=0.25`, `pad_rotation_deg=0.0`, `weight=1.0`,
+   `max_current=0.0`, `voltage_class="LV"`) behave identically.
+   **Recorded, not fixed**, per the R1 deviation rule: a pyo3 sentinel
+   default *is* mechanically possible in pyo3 0.29 (defaults are per-call
+   Rust expressions), but it would render `keepout_radius=...` in
+   `__text_signature__` (a real observable surface, currently untested but
+   part of the contract) and requires ~20 per-param sentinel identity checks
+   across five classes — churn against a 105-test differential for a
+   divergence with **zero in-repo callers** (verified 2026-08-04: no caller
+   passes explicit `None` for any of these fields). The divergence is pinned
+   explicitly instead: `test_explicit_none_literal_defaults_divergence_pinned`
+   in both differentials asserts each arm's exact behavior on `{field: None}`
+   inputs for the affected classes (the #712 pattern-5 precedent). A future
+   caller passing explicit `None` will be caught by those pins rather than
+   silently diverging. If the product authority prefers oracle parity over
+   `__text_signature__` parity, the sentinel mechanism is the recorded path.
+
+## R11 consumer-semantics catalog — re-scope record (2026-08-04)
+
+This record re-scopes plan requirement **R11/U4** — the full enumeration of
+the **69 board + 77 netlist src importers** (`grep -rl` over
+`packages/temper-placer/src/` for modules importing
+`core.board`/`core.netlist` at the pre-migration base; counting rule and
+provenance in `docs/evidence/2026-08-04-r11-consumer-semantics-re-scope.md`)
+— for this migration.
+
+**Re-scope.** The full per-symbol enumeration of every importer's usage is
+explicitly RE-SCOPED by this record to the enumerated pin-list below: the
+consumer behaviors this migration's differentials pin **by name**. This is a
+plan-level change; it takes effect on the product authority's concurrence,
+and a fresh full enumeration remains available as a follow-up if the
+authority rejects the re-scope.
+
+**Why full enumeration is superseded.** The stacked PRs built against these
+contracts — #716 (config/reference loaders, merged into this branch),
+#718/#723 (further candidates) — constructed and consumed `Board`/`Netlist`
+through their own differentials and reviews, exercising the consumer surface
+broadly. The broad-suite baseline comparison at this pull (pre-migration
+baseline vs migration, same selection, same process) found **both** escaped
+regressions a full enumeration exists to catch — `dataclasses.replace` and
+`board.traces` injection — which is the strongest evidence available that the
+enumerated surface below, plus the comparison, covers the consumer
+semantics that matter. The two regressions were properties of the
+`@dataclass` protocol, not of individual call sites, which is precisely why
+a call-site enumeration alone would not have caught them either.
+
+**The enumerated pin-list — every consumer behavior the differentials pin by
+name:**
+
+| # | Consumer behavior | Pinned by (differential/PBT/MR) |
+|---|---|---|
+| 1 | `Net.pins` list identity — `io/_parse_nets.py:50` `nets_dict[pin.net].pins.append(...)` must land in the stored list | `test_net_pins_list_is_shared_by_identity` |
+| 2 | `dataclasses.replace()` — `deterministic/stages/apply_placements.py` rebuilds `Component`/`Netlist` | `test_dataclasses_replace_works_on_the_public_contracts` (both), `test_replace_rejects_the_init_false_field_identically`, `test_dataclass_field_surface_matches_the_oracle` (both) |
+| 3 | `board.traces` attribute injection — `validation/trace_analyzer.py`, `visualization/board_renderer.py` | `test_undeclared_attributes_can_be_attached_like_on_a_dataclass`, `test_mutable_contracts_accept_undeclared_attributes` |
+| 4 | Duck-typed zones — `cli/__init__.py:419` assigns anonymous `type("Zone", ...)` instances | `test_board_zones_accepts_duck_typed_objects` |
+| 5 | Raw-tuple `zone.bounds` assignment (no re-coercion) — `deterministic/feedback/orchestrator.py` writes inverted intermediates | `test_zone_bounds_assignment_does_not_recoerce` |
+| 6 | `pin.net` mutation — `fixtures/synthetic.py` | `test_pin_is_mutable_like_the_dataclass` |
+| 7 | `build_adjacency_matrix` duck-typed on `.components`/`.nets` — `core/community.py:57,119` | `test_build_adjacency_matrix_accepts_the_delegating_public_class`, `test_build_adjacency_matrix_is_bit_identical_including_dtype`, `test_build_adjacency_matrix_empty_keeps_float64_shape_0_0` |
+| 8 | `LayerIndex` stays a Python `IntEnum` (int-comparison deviation, R3 #1) — `router_v6/constraints_drc_oracle.py`, `deterministic/stages/_grid_hv.py`, `net_types.rs` | `test_layer_index_stays_a_python_intenum_r3`, `test_layer_index_surface_matches_the_oracle`, `test_layer_predicate_helpers_identical` |
+| 9 | Container identity on mutable fields generally — `Component.pins`, `Board.zones`, `Board.keepout_regions is Board.keepouts` | `test_component_pins_list_is_shared_by_identity`, `test_board_zones_list_is_shared_by_identity`, `test_board_keepout_regions_alias_is_the_same_list_object` |
+| 10 | `net.net_class` assignment — `io/_parse_nets.py`, `Netlist.apply_net_class_mapping` | `test_net_class_is_assignable`, `test_netlist_apply_net_class_mapping_identical` |
+| 11 | `build_indices` rebinds (not mutates) and rebuilds after mutation — callers mutate then re-index | `test_netlist_build_indices_rebuilds_after_mutation`, MR1/MR4, `test_netlist_explicitly_passed_indices_are_overwritten` |
+| 12 | numpy surface — `polygon_array`, `get_bounds_array`, `get_relative_bounds_array`, `get_fixed_mask` dtype/bit pins for every array consumer | `test_board_polygon_array_is_bit_identical_including_dtype`, `test_board_bounds_arrays_are_bit_identical_including_dtype`, `test_netlist_bounds_array_is_bit_identical_including_dtype`, `test_netlist_fixed_mask_is_bit_identical_including_dtype`, `test_netlist_empty_arrays_keep_their_dtypes`, `test_board_has_polygon_outline_identical` |
+| 13 | `Board.rotated_90` preserves the zone-type-reset oracle quirk | `test_board_rotated_90_drops_zone_type_identically` (+ the rotation MRs) |
+| 14 | Frozen semantics — `Trace`/`Via`/`Rect`/`LayerStackup` reject mutation with CPython's own `FrozenInstanceError` text | `test_frozen_dataclasses_hash_and_reject_mutation_identically`, `test_frozen_contracts_reject_undeclared_attributes_identically`, `test_rect_is_frozen_identically`, `test_layer_stackup_is_frozen_identically` |
+| 15 | Point queries — `contains_point`, `point_in_keepout`, `get_zone_for_point`, `get_ground_domain` | `test_board_point_queries_identical`, `test_zone_contains_point_identical`, `test_ground_domain_contains_point_identical` |
+| 16 | Unpacking diagnostics on malformed pins — the `for ref, _ in pins` CPython error text for every pin-consuming path | `test_malformed_pin_tuples_fail_identically` (extended to `Netlist(...)` construction, `build_indices()`, list-valued and wrong-arity pins), `test_malformed_pin_tuples_is_non_vacuous` |
+| 17 | `LayerStackup.is_plane_layer` tuple-indexing semantics — float index raises the oracle's `TypeError`, out-of-range returns `False` | `test_layer_stackup_is_plane_layer_identical` (float 1.5/2.5, out-of-range, bool cases) |
+| 18 | Explicit-`None` divergence pins — the #712 pattern-5 divergence record for the literal-default fields of `MountingHole`/`Zone`/`Component`/`Pin`/`Net` | `test_explicit_none_literal_defaults_divergence_pinned` (both differentials) |
+| 19 | `find_isomorphic_groups` parity for every `iterations ∈ {0, 1, 2, 3}` and the empty netlist | `test_netlist_find_isomorphic_groups_identical`, `test_netlist_find_isomorphic_groups_empty_identical`, P8 |
+
+**Drift mechanism (R13).** With full enumeration re-scoped, the R13 drift
+mechanism operates via the **per-pull scorecard convention**: every later
+pull that consumes `Board`/`Netlist` (or adapts a consumer to them) records
+any new consumer adaptation against this list **in its own pull** — the same
+rule the migration's own consumer adaptations followed (rows 2, 3, 4, 6, 7
+above were each added to the differentials by the pull that discovered
+them). A pull that changes a consumer behavior without a pin lands red on
+the relevant differential row. This record, not the deleted enumeration, is
+the reference the next pull diffs against.
+
 ## Evidence
 
-- Differential (R1a/R1f, TDD red→green): 214 assertions across
+## Mutation campaign (anti-vacuity)
+
+Six mutants, every one caught by the differential/PBT suites (the campaign
+record from the PR body, committed here so the table does not live only in
+the PR):
+
+| # | Mutant | Caught by |
+|---|--------|-----------|
+| M1 | `Netlist.get_bounds_array` dtype `float32` → `float64` | 2 failed — `test_netlist_bounds_array_is_bit_identical_including_dtype`, P6 |
+| M2 | `Rect.from_xyxy` stops coercing to `float` | 17 failed — the whole type-preservation cluster |
+| M3 | `Zone.width` computes `bounds[0] - bounds[2]` (sign flip) | 4 failed — geometry properties + `Zone` repr parity |
+| M4 | `Net.pins` stores a **copy**, losing caller identity | 1 failed — `test_net_pins_list_is_shared_by_identity` |
+| M5 | `Board.__repr__` omits the `init=False` `_zone_map` field | 5 failed — `Board` repr/aggregate parity |
+| M6 | empty `build_adjacency_matrix` uses `float32` instead of `float64` | 2 failed — `test_build_adjacency_matrix_empty_keeps_float64_shape_0_0` |
+
+Clean build immediately after the campaign: 214 passed (the pre-review
+differential count; the review-pin additions below raise it).
+
+Review-pass pins (2026-08-04) added to the differential/PBT surface:
+- `test_layer_stackup_is_plane_layer_identical` gained float-index rows
+  (1.5, 2.5) and `True`, pinning the tuple-indexing error text: a float index
+  passes the oracle's `0 <= idx < len` guard and reaches
+  `self.layers[1.5]`, which raises `TypeError: tuple indices must be
+  integers or slices, not float` — the pyclass now tuple-indexes through
+  CPython's own `get_item` instead of a `usize` extract (board_contracts.rs
+  `is_plane_layer`), and out-of-range ints still return `False` on both arms
+  (the guard fails first; no `IndexError`).
+- `test_malformed_pin_tuples_fail_identically` was extended from
+  `Net.get_component_refs` alone to also drive `Netlist(...)` construction
+  and `netlist.build_indices()` re-runs, with list-valued and wrong-arity
+  pins added to the generator. `compute_indices` (netlist_contracts.rs) now
+  uses the shared `unpack2` helper instead of a raw pyo3 2-tuple `extract()`
+  (which rejects lists outright and raises different text).
+- `test_explicit_none_literal_defaults_divergence_pinned` (both
+  differentials) pins the explicit-`None`-for-literal-default collapse
+  (documented deviation 6): each arm's exact behavior on `{field: None}`.
+
+- Differential (R1a/R1f, TDD red→green): 214 runtime assertions at the
+  original pull across
   `packages/temper-placer/tests/core/test_board_rust_differential.py`
   (oracle `_board_py_oracle.py`, commit `5a17025b1`) and
   `test_netlist_rust_differential.py` (oracle `_netlist_py_oracle.py`,
-  commit `e799183c4`). RED first: both files failed to collect
+  commit `e799183c4`); the 2026-08-04 review-pass pins above raise the
+  runtime count. RED first: both files failed to collect
   (`AttributeError: module 'temper_design_bundle_python' has no attribute
   'netlist_contracts'`) before the pyclasses existed.
 - Comparison convention: `tests/core/_contract_canon.py` carries each leaf's
@@ -1007,7 +1161,12 @@ implementations (`tests/core/_board_py_oracle.py`, commit `5a17025b1`;
   error classes; both `polygon_array` outcomes; both `Rect.__init__`
   outcomes; a real `int` in the coordinate corpus; last-wins zone-name
   collisions; a self-referencing net that would put a `1` on the adjacency
-  diagonal if the dedup were dropped).
+  diagonal if the dedup were dropped). Error-path parity under fuzzing:
+  `test_malformed_pin_tuples_fail_identically` drives malformed
+  (list-valued, wrong-arity, non-iterable) pins through all three unpack
+  sites (`Net.get_component_refs`, `Netlist(...)` construction,
+  `build_indices()` re-runs) with type+message parity, vacuity-anchored by
+  `test_malformed_pin_tuples_is_non_vacuous`.
 - Metamorphic (R1d): 4 relations per module. Board — MR1 (repeated rotation,
   including the degenerate `Rect` raise compared as a value), MR2 (four
   rotations restore the envelope, one transposes it), MR3
