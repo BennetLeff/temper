@@ -42,6 +42,18 @@ pub mod bottleneck_geometry;
 pub use bottleneck_geometry::{build_capacitated_graph_py, cell_capacity_batch_py, hard_blocked_batch_py};
 pub mod audit;
 pub mod creepage_check;
+// Wave 4, router_v6 core slice: the DRC constraint-geometry kernel behind
+// router_v6/constraints_geometry.py. Declared after creepage_check because
+// it reuses that module's CPython min/max replications.
+pub mod drc_constraints_geometry;
+#[cfg(feature = "python")]
+pub use drc_constraints_geometry::{
+    drc_closest_points_segment_segment_py, drc_point_to_circle_distance_py,
+    drc_point_to_rotated_rect_distance_py, drc_point_to_segment_distance_py,
+    drc_rotated_rect_bounding_radius_py, drc_rotated_rect_corners_py, drc_segment_direction_py,
+    drc_segment_length_py, drc_segment_midpoint_py, drc_segment_to_rotated_rect_distance_py,
+    drc_segment_to_segment_distance_py, drc_segments_intersect_py,
+};
 #[cfg(feature = "python")]
 mod bridge;
 
