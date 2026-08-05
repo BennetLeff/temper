@@ -2,17 +2,37 @@
 Pytest configuration and shared fixtures for temper-placer tests.
 """
 
+import sys
 from pathlib import Path
 
 import numpy as np
 import pytest
 
-from temper_placer.core.board import Board, Zone
-from temper_placer.core.design_rules import DesignRules, NetClassRules
-from temper_placer.core.netlist import Component, Net, Netlist, Pin
-from temper_placer.core.state import PlacementState
-from temper_placer.deterministic.state import BoardState
-from temper_placer.io.footprint_library import load_footprint_library
+# ── protected-measurement-artifact guard ─────────────────────────────────────
+#
+# Duplicated from the repo-root conftest.py on purpose. CI runs most of this
+# suite as `cd packages/temper-placer && uv run pytest ...`, which makes THIS
+# package the pytest rootdir; pytest's confcutdir defaults to rootdir, so the
+# repo-root conftest is never loaded on that path and a guard installed only
+# there would be silently absent from exactly the invocation CI uses. Both
+# conftests bind the same function object under the same fixture name, so when
+# both are in scope pytest treats this as an override rather than running two
+# guards. See scripts/_lib/pytest_artifact_guard.py.
+_SCRIPTS_DIR = Path(__file__).resolve().parents[3] / "scripts"
+if str(_SCRIPTS_DIR) not in sys.path:
+    sys.path.insert(0, str(_SCRIPTS_DIR))
+
+from _lib.pytest_artifact_guard import (  # noqa: E402
+    protected_artifact_guard,  # noqa: F401  (imported to register the fixture)
+    pytest_sessionstart,  # noqa: F401  (imported to register the hook)
+)
+
+from temper_placer.core.board import Board, Zone  # noqa: E402
+from temper_placer.core.design_rules import DesignRules, NetClassRules  # noqa: E402
+from temper_placer.core.netlist import Component, Net, Netlist, Pin  # noqa: E402
+from temper_placer.core.state import PlacementState  # noqa: E402
+from temper_placer.deterministic.state import BoardState  # noqa: E402
+from temper_placer.io.footprint_library import load_footprint_library  # noqa: E402
 
 # ── pytest-dependency clusters, pinned to one xdist worker (defensive) ────────
 #
