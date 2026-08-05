@@ -547,13 +547,17 @@ def _write_routes_to_content(
             # (x, y, layer) points across all branches), not on a branch's
             # individual RoutePath/RoutePath3D -- neither has iter_segments.
             for (sx, sy, s_layer), (ex, ey, e_layer) in tree_route.geometry.iter_segments():
-                if s_layer != e_layer:
+                if s_layer != e_layer or (sx == ex and sy == ey):
                     # A layer change between consecutive points is a via
                     # crossing, not a same-layer copper run -- KiCad segments
                     # are single-layer. Via emission for tree-routed nets
                     # isn't wired yet (pre-existing gap; the vias loop below
                     # is skipped for this branch by the `continue`), so this
                     # point-pair is dropped rather than drawn incorrectly.
+                    # Coincident points are dropped for the same reason as in
+                    # the path branch below: a start == end track is copper
+                    # joining a node to itself, carrying no connectivity but
+                    # leaving DRC's tracks_crossing test without a direction.
                     continue
                 seg_id = _next_tstamp(tstamp_counter)
                 segments.append(
@@ -609,7 +613,24 @@ def _write_routes_to_content(
             i = 0
             while i < len(path_points) - 1:
                 x1, y1, lyr = path_points[i]
-                x2, y2, _l2 = path_points[i + 1]
+                x2, y2, l2 = path_points[i + 1]
+                if l2 != lyr or (x2 == x1 and y2 == y1):
+                    # Not a copper run on `lyr`, so it must not become a
+                    # (segment ...) -- the rule the tree-route branch above
+                    # already applies. A layer change IS the via crossing:
+                    # astar_core records it as the same (x, y) on two layers
+                    # and never merges that pair, and _chamfer_path_points
+                    # passes it through, so reading it as from-layer copper
+                    # emitted a start == end track (48 on the committed board,
+                    # one per via, each on a via position). Such a track joins
+                    # a node to itself: no connectivity (the via already ties
+                    # the layers) and no direction, which leaves its crossing
+                    # point undefined for DRC's tracks_crossing test. The
+                    # coincident-point half of the test is the same defect via
+                    # a duplicated same-layer point, guarded so "no zero-length
+                    # segment is emitted" holds outright, not as a consequence.
+                    i += 1
+                    continue
                 dx_prev = x2 - x1
                 dy_prev = y2 - y1
                 j = i + 2
