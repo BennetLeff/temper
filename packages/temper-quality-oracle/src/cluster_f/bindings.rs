@@ -1,0 +1,642 @@
+//! pyo3 surface for router_v6 cluster F.
+//!
+//! The 23 exports named in
+//! `tests/router_v6/test_quality_metrics_rust_differential.py::REQUIRED_RUST_SYMBOLS`.
+//!
+//! Two conventions the differential's `sig()` comparator forces:
+//!
+//! * **Container and scalar types are part of the value.** `sig` records
+//!   `type(v).__name__` at every leaf, so a `tuple` never matches a `list` and
+//!   an `int` never matches a `float`. `_vector`, `_overlap` and `_gap` are
+//!   therefore evaluated on the Python objects themselves — `_vector((0,0),
+//!   (3,4))` is `(3, 4)`, two *ints*, and returning `(3.0, 4.0)` would fail.
+//!   Every other kernel returns a float or a bool in Python for every input,
+//!   so those extract to `f64` up front.
+//! * **Dict and list order is part of the value.** `sig` does not sort, so the
+//!   finding order and the `_load_traces_by_net` key order are compared
+//!   directly.
+//!
+//! A "board source" argument is either a scenario `dict` from
+//! `_quality_metrics_cases` or a path to a `.kicad_pcb`. A path is resolved by
+//! calling the same `parse_kicad_pcb` the oracle's `_parse_pcb` calls: the
+//! parser is shared I/O, already migrated separately, and is the reason the
+//! oracle omits the `_parse_pcb` copies as "pure I/O delegation".
+
+use pyo3::exceptions::PyTypeError;
+use pyo3::prelude::*;
+use pyo3::types::{PyDict, PyFloat, PyInt, PyList, PyString, PyTuple};
+
+use super::board::{
+    Board, Component, Num, ParseView, Point, Trace, TraceRecord, Via, load_traces_by_net, pf,
+};
+use super::corridor;
+use super::slop_linter::{self, Finding};
+use super::via_count;
+
+// ---------------------------------------------------------------------------
+// Board-source extraction
+// ---------------------------------------------------------------------------
+
+/// `router_v6.net_classification._SINGLE_LAYER_MODE`, read at call time.
+///
+/// It is a module global that `is_ground_net` branches on, i.e. a hidden input
+/// to `_classify_vias`. Sampling it per call is what makes the Rust arm track
+/// `set_single_layer_mode` the way the Python arm does.
+fn read_single_layer_mode(py: Python<'_>) -> bool {
+    py.import("temper_placer.router_v6.net_classification")
+        .and_then(|m| m.getattr("_SINGLE_LAYER_MODE"))
+        .and_then(|v| v.extract::<bool>())
+        .unwrap_or(false)
+}
+
+/// Extract a coordinate while keeping its Python type.
+///
+/// `sig()` compares `type(v).__name__` at every leaf, and the real parser
+/// emits a mix of `int` and `float` coordinates, so an `int` that is widened
+/// here comes back as a `float` in an echoed `position` and fails the
+/// differential. Exact type checks are used so a `bool` (a Python `int`
+/// subclass) is not silently rendered as an `int`.
+fn extract_num(value: &Bound<'_, PyAny>) -> PyResult<Num> {
+    if value.is_exact_instance_of::<PyFloat>() {
+        Ok(Num::Float(value.extract()?))
+    } else if value.is_exact_instance_of::<PyInt>() {
+        Ok(Num::Int(value.extract()?))
+    } else {
+        Ok(Num::Float(value.extract()?))
+    }
+}
+
+fn extract_point(value: &Bound<'_, PyAny>) -> PyResult<Point> {
+    let tup: Bound<'_, PyTuple> = value.clone().cast_into::<PyTuple>()?;
+    Ok((
+        extract_num(&tup.get_item(0)?)?,
+        extract_num(&tup.get_item(1)?)?,
+    ))
+}
+
+fn num_to_py<'py>(py: Python<'py>, n: Num) -> PyResult<Bound<'py, PyAny>> {
+    Ok(match n {
+        Num::Int(i) => i.into_pyobject(py)?.into_any(),
+        Num::Float(x) => x.into_pyobject(py)?.into_any(),
+    })
+}
+
+fn point_to_py<'py>(py: Python<'py>, p: Point) -> PyResult<Bound<'py, PyTuple>> {
+    PyTuple::new(py, [num_to_py(py, p.0)?, num_to_py(py, p.1)?])
+}
+
+fn opt_string(value: &Bound<'_, PyAny>) -> PyResult<Option<String>> {
+    if value.is_none() {
+        Ok(None)
+    } else {
+        Ok(Some(value.extract::<String>()?))
+    }
+}
+
+fn view_from_scenario(scenario: &Bound<'_, PyDict>, single_layer_mode: bool) -> PyResult<ParseView> {
+    let mut view = ParseView {
+        single_layer_mode,
+        ..Default::default()
+    };
+
+    if let Some(items) = scenario.get_item("traces")? {
+        for item in items.try_iter()? {
+            let t = item?;
+            let tup: Bound<'_, PyTuple> = t.cast_into::<PyTuple>()?;
+            view.traces.push(Trace {
+                start: (
+                    extract_num(&tup.get_item(0)?)?,
+                    extract_num(&tup.get_item(1)?)?,
+                ),
+                end: (
+                    extract_num(&tup.get_item(2)?)?,
+                    extract_num(&tup.get_item(3)?)?,
+                ),
+                width: extract_num(&tup.get_item(4)?)?,
+                layer: tup.get_item(5)?.extract()?,
+                net: opt_string(&tup.get_item(6)?)?,
+            });
+        }
+    }
+
+    if let Some(items) = scenario.get_item("vias")? {
+        for item in items.try_iter()? {
+            let v = item?;
+            let tup: Bound<'_, PyTuple> = v.cast_into::<PyTuple>()?;
+            view.vias.push(Via {
+                position: extract_point(&tup.get_item(0)?)?,
+                net: opt_string(&tup.get_item(1)?)?,
+            });
+        }
+    }
+
+    if let Some(items) = scenario.get_item("components")? {
+        for item in items.try_iter()? {
+            let c = item?;
+            let tup: Bound<'_, PyTuple> = c.cast_into::<PyTuple>()?;
+            let pos_obj = tup.get_item(1)?;
+            let initial_position = if pos_obj.is_none() {
+                None
+            } else {
+                Some(pos_obj.extract::<(f64, f64)>()?)
+            };
+            view.components.push(Component {
+                reference: tup.get_item(0)?.extract()?,
+                initial_position,
+                width: tup.get_item(2)?.extract()?,
+                height: tup.get_item(3)?.extract()?,
+            });
+        }
+    }
+
+    if let Some(board) = scenario.get_item("board")?
+        && !board.is_none()
+    {
+        let (width, height): (f64, f64) = board.extract()?;
+        view.board = Some(Board { width, height });
+    }
+
+    Ok(view)
+}
+
+fn view_from_parse_result(result: &Bound<'_, PyAny>, single_layer_mode: bool) -> PyResult<ParseView> {
+    let mut view = ParseView {
+        single_layer_mode,
+        ..Default::default()
+    };
+
+    for item in result.getattr("traces")?.try_iter()? {
+        let t = item?;
+        view.traces.push(Trace {
+            start: extract_point(&t.getattr("start")?)?,
+            end: extract_point(&t.getattr("end")?)?,
+            width: extract_num(&t.getattr("width")?)?,
+            layer: t.getattr("layer")?.extract()?,
+            net: opt_string(&t.getattr("net")?)?,
+        });
+    }
+
+    for item in result.getattr("vias")?.try_iter()? {
+        let v = item?;
+        view.vias.push(Via {
+            position: extract_point(&v.getattr("position")?)?,
+            net: opt_string(&v.getattr("net")?)?,
+        });
+    }
+
+    for item in result.getattr("netlist")?.getattr("components")?.try_iter()? {
+        let c = item?;
+        let pos_obj = c.getattr("initial_position")?;
+        let initial_position = if pos_obj.is_none() {
+            None
+        } else {
+            Some(pos_obj.extract::<(f64, f64)>()?)
+        };
+        view.components.push(Component {
+            reference: c.getattr("ref")?.extract()?,
+            initial_position,
+            width: c.getattr("width")?.extract()?,
+            height: c.getattr("height")?.extract()?,
+        });
+    }
+
+    let board = result.getattr("board")?;
+    if !board.is_none() {
+        view.board = Some(Board {
+            width: board.getattr("width")?.extract()?,
+            height: board.getattr("height")?.extract()?,
+        });
+    }
+
+    Ok(view)
+}
+
+/// Turn a scenario dict or a `.kicad_pcb` path into the parsed-board view.
+fn build_view(py: Python<'_>, source: &Bound<'_, PyAny>) -> PyResult<ParseView> {
+    let single_layer_mode = read_single_layer_mode(py);
+    if let Ok(dict) = source.clone().cast_into::<PyDict>() {
+        return view_from_scenario(&dict, single_layer_mode);
+    }
+    if source.is_instance_of::<PyString>() || source.hasattr("__fspath__")? {
+        let parser = py.import("temper_placer.io.kicad_parser")?;
+        let result = parser.call_method1("parse_kicad_pcb", (source,))?;
+        return view_from_parse_result(&result, single_layer_mode);
+    }
+    Err(PyTypeError::new_err(
+        "board source must be a scenario dict or a .kicad_pcb path",
+    ))
+}
+
+// ---------------------------------------------------------------------------
+// Conversion helpers
+// ---------------------------------------------------------------------------
+
+fn finding_to_dict<'py>(py: Python<'py>, f: &Finding) -> PyResult<Bound<'py, PyDict>> {
+    let d = PyDict::new(py);
+    d.set_item("type", f.kind)?;
+    d.set_item("net_name", &f.net_name)?;
+    d.set_item("position", point_to_py(py, f.position)?)?;
+    d.set_item("severity", f.severity)?;
+    d.set_item("description", &f.description)?;
+    Ok(d)
+}
+
+fn findings_to_list<'py>(py: Python<'py>, findings: &[Finding]) -> PyResult<Bound<'py, PyList>> {
+    let out = PyList::empty(py);
+    for f in findings {
+        out.append(finding_to_dict(py, f)?)?;
+    }
+    Ok(out)
+}
+
+fn courtyards_from_py(items: &Bound<'_, PyAny>) -> PyResult<Vec<corridor::Courtyard>> {
+    let mut out = Vec::new();
+    for item in items.try_iter()? {
+        let c = item?;
+        let tup: Bound<'_, PyTuple> = c.cast_into::<PyTuple>()?;
+        out.push(corridor::Courtyard {
+            reference: tup.get_item(0)?.extract()?,
+            x_min: tup.get_item(1)?.extract()?,
+            y_min: tup.get_item(2)?.extract()?,
+            x_max: tup.get_item(3)?.extract()?,
+            y_max: tup.get_item(4)?.extract()?,
+        });
+    }
+    Ok(out)
+}
+
+// ---------------------------------------------------------------------------
+// metrics/slop_linter
+// ---------------------------------------------------------------------------
+
+#[pyfunction]
+pub fn slop_distance_mm_py(ax: f64, ay: f64, bx: f64, by: f64) -> f64 {
+    slop_linter::distance_mm((ax, ay), (bx, by))
+}
+
+/// `_vector`, evaluated on the Python operands.
+///
+/// `_vector((0, 0), (3, 4))` is `(3, 4)` — two *ints*. Extracting to `f64`
+/// first would return `(3.0, 4.0)`, which `sig()` separates.
+#[pyfunction]
+pub fn slop_vector_py<'py>(
+    ax: &Bound<'py, PyAny>,
+    ay: &Bound<'py, PyAny>,
+    bx: &Bound<'py, PyAny>,
+    by: &Bound<'py, PyAny>,
+) -> PyResult<(Py<PyAny>, Py<PyAny>)> {
+    Ok((bx.sub(ax)?.unbind(), by.sub(ay)?.unbind()))
+}
+
+#[pyfunction]
+#[allow(clippy::too_many_arguments)]
+pub fn slop_angle_between_py(
+    i0x: f64,
+    i0y: f64,
+    i1x: f64,
+    i1y: f64,
+    o0x: f64,
+    o0y: f64,
+    o1x: f64,
+    o1y: f64,
+) -> f64 {
+    slop_linter::angle_between(((i0x, i0y), (i1x, i1y)), ((o0x, o0y), (o1x, o1y)))
+}
+
+/// `_order_traces` over bare `(sx, sy, ex, ey)` segments, returning the
+/// ordered `(start, end)` pairs — including which segments were reversed.
+#[pyfunction]
+pub fn slop_order_traces_py(
+    segments: Vec<(f64, f64, f64, f64)>,
+) -> Vec<((f64, f64), (f64, f64))> {
+    let records: Vec<TraceRecord> = segments
+        .iter()
+        .map(|&(sx, sy, ex, ey)| TraceRecord {
+            start: (Num::Float(sx), Num::Float(sy)),
+            end: (Num::Float(ex), Num::Float(ey)),
+            width: Num::Float(0.25),
+            layer: "F.Cu".to_string(),
+        })
+        .collect();
+    slop_linter::order_traces(&records)
+        .into_iter()
+        .map(|t| (pf(t.start), pf(t.end)))
+        .collect()
+}
+
+#[pyfunction]
+pub fn slop_load_traces_by_net_py<'py>(
+    py: Python<'py>,
+    source: &Bound<'py, PyAny>,
+) -> PyResult<Bound<'py, PyDict>> {
+    let view = build_view(py, source)?;
+    let out = PyDict::new(py);
+    for (net, records) in load_traces_by_net(&view) {
+        let items = PyList::empty(py);
+        for r in records {
+            let d = PyDict::new(py);
+            d.set_item("start", point_to_py(py, r.start)?)?;
+            d.set_item("end", point_to_py(py, r.end)?)?;
+            d.set_item("width", num_to_py(py, r.width)?)?;
+            d.set_item("layer", r.layer)?;
+            items.append(d)?;
+        }
+        out.set_item(net, items)?;
+    }
+    Ok(out)
+}
+
+#[pyfunction]
+pub fn slop_lint_hairpin_turns_py<'py>(
+    py: Python<'py>,
+    source: &Bound<'py, PyAny>,
+) -> PyResult<Bound<'py, PyList>> {
+    let view = build_view(py, source)?;
+    findings_to_list(py, &slop_linter::lint_hairpin_turns(&view))
+}
+
+#[pyfunction]
+pub fn slop_lint_zigzag_patterns_py<'py>(
+    py: Python<'py>,
+    source: &Bound<'py, PyAny>,
+) -> PyResult<Bound<'py, PyList>> {
+    let view = build_view(py, source)?;
+    findings_to_list(py, &slop_linter::lint_zigzag_patterns(&view))
+}
+
+#[pyfunction]
+pub fn slop_lint_isolated_vias_py<'py>(
+    py: Python<'py>,
+    source: &Bound<'py, PyAny>,
+) -> PyResult<Bound<'py, PyList>> {
+    let view = build_view(py, source)?;
+    findings_to_list(py, &slop_linter::lint_isolated_vias(&view))
+}
+
+#[pyfunction]
+#[pyo3(signature = (source, max_ratio = 1.5))]
+pub fn slop_lint_single_net_detours_py<'py>(
+    py: Python<'py>,
+    source: &Bound<'py, PyAny>,
+    max_ratio: f64,
+) -> PyResult<Bound<'py, PyList>> {
+    let view = build_view(py, source)?;
+    findings_to_list(py, &slop_linter::lint_single_net_detours(&view, max_ratio))
+}
+
+#[pyfunction]
+pub fn slop_lint_all_py<'py>(
+    py: Python<'py>,
+    source: &Bound<'py, PyAny>,
+) -> PyResult<Bound<'py, PyList>> {
+    let view = build_view(py, source)?;
+    findings_to_list(py, &slop_linter::lint_all(&view))
+}
+
+// ---------------------------------------------------------------------------
+// quality/corridor
+// ---------------------------------------------------------------------------
+
+/// `_overlap`, evaluated on the Python operands so `max`/`min` return the
+/// argument objects themselves (`_overlap(0, 10, 5, 15)` is `(5, 10)`, ints).
+#[pyfunction]
+pub fn corridor_overlap_py(
+    a_min: &Bound<'_, PyAny>,
+    a_max: &Bound<'_, PyAny>,
+    b_min: &Bound<'_, PyAny>,
+    b_max: &Bound<'_, PyAny>,
+) -> PyResult<Option<(Py<PyAny>, Py<PyAny>)>> {
+    // max(a_min, b_min): the running maximum starts at the first argument and
+    // is replaced only on a true `>`, so a NaN anywhere keeps the first.
+    let o_min = if b_min.gt(a_min)? { b_min } else { a_min };
+    let o_max = if b_max.lt(a_max)? { b_max } else { a_max };
+    if o_min.lt(o_max)? {
+        Ok(Some((
+            o_min.clone().unbind(),
+            o_max.clone().unbind(),
+        )))
+    } else {
+        Ok(None)
+    }
+}
+
+/// `_gap` — `b_min - a_max`, on the Python operands.
+#[pyfunction]
+pub fn corridor_gap_py(a_max: &Bound<'_, PyAny>, b_min: &Bound<'_, PyAny>) -> PyResult<Py<PyAny>> {
+    Ok(b_min.sub(a_max)?.unbind())
+}
+
+#[pyfunction]
+pub fn corridor_point_in_rect_py(
+    x: f64,
+    y: f64,
+    x_min: f64,
+    y_min: f64,
+    x_max: f64,
+    y_max: f64,
+) -> bool {
+    corridor::point_in_rect(x, y, x_min, y_min, x_max, y_max)
+}
+
+#[pyfunction]
+pub fn corridor_compute_courtyards_py(
+    py: Python<'_>,
+    source: &Bound<'_, PyAny>,
+    clearance_mm: f64,
+) -> PyResult<Vec<CourtyardTuple>> {
+    let view = build_view(py, source)?;
+    Ok(corridor::compute_courtyards(&view, clearance_mm)
+        .into_iter()
+        .map(|c| (c.reference, c.x_min, c.y_min, c.x_max, c.y_max))
+        .collect())
+}
+
+type CourtyardTuple = (String, f64, f64, f64, f64);
+type ChannelTuple = (f64, f64, f64, f64, f64, String, String, String);
+
+#[pyfunction]
+pub fn corridor_identify_channels_py(
+    courtyards: &Bound<'_, PyAny>,
+    min_gap_width_mm: f64,
+) -> PyResult<Vec<ChannelTuple>> {
+    let parsed = courtyards_from_py(courtyards)?;
+    Ok(corridor::identify_channels(&parsed, min_gap_width_mm)
+        .into_iter()
+        .map(|ch| {
+            (
+                ch.x_min,
+                ch.y_min,
+                ch.x_max,
+                ch.y_max,
+                ch.gap_width_mm,
+                ch.axis.to_string(),
+                ch.component_a,
+                ch.component_b,
+            )
+        })
+        .collect())
+}
+
+type TrackTuple = (String, f64, f64, f64, String);
+
+/// `_assign_tracks_to_channels`, keyed by **channel index**.
+///
+/// Python keys by `id(ch)`, a CPython object address. Index keys preserve the
+/// property that matters — two value-equal channels stay distinct buckets —
+/// without depending on an address.
+#[pyfunction]
+pub fn corridor_assign_tracks_to_channels_py(
+    py: Python<'_>,
+    source: &Bound<'_, PyAny>,
+    channels: &Bound<'_, PyAny>,
+) -> PyResult<Vec<Vec<TrackTuple>>> {
+    let view = build_view(py, source)?;
+    // Channels arrive as the same 8-tuple shape
+    // `corridor_identify_channels_py` returns.
+    let mut chans: Vec<corridor::Channel> = Vec::new();
+    for item in channels.try_iter()? {
+        let c = item?;
+        let tup: Bound<'_, PyTuple> = c.cast_into::<PyTuple>()?;
+        let axis: String = tup.get_item(5)?.extract()?;
+        chans.push(corridor::Channel {
+            x_min: tup.get_item(0)?.extract()?,
+            y_min: tup.get_item(1)?.extract()?,
+            x_max: tup.get_item(2)?.extract()?,
+            y_max: tup.get_item(3)?.extract()?,
+            gap_width_mm: tup.get_item(4)?.extract()?,
+            axis: if axis == "vertical" {
+                "vertical"
+            } else {
+                "horizontal"
+            },
+            component_a: tup.get_item(6)?.extract()?,
+            component_b: tup.get_item(7)?.extract()?,
+        });
+    }
+    Ok(corridor::assign_tracks_to_channels(&view, &chans)
+        .into_iter()
+        .map(|segs| {
+            segs.into_iter()
+                .map(|s| (s.net, s.x, s.y, s.width_mm, s.layer))
+                .collect()
+        })
+        .collect())
+}
+
+#[pyfunction]
+pub fn corridor_compute_consolidation_py(
+    py: Python<'_>,
+    source: &Bound<'_, PyAny>,
+    courtyard_clearance_mm: Option<f64>,
+    track_width_mm: Option<f64>,
+    min_clearance_mm: Option<f64>,
+) -> PyResult<f64> {
+    let view = build_view(py, source)?;
+    Ok(corridor::compute_consolidation(
+        &view,
+        courtyard_clearance_mm,
+        track_width_mm,
+        min_clearance_mm,
+    ))
+}
+
+#[pyfunction]
+pub fn corridor_compute_spread_py(
+    py: Python<'_>,
+    source: &Bound<'_, PyAny>,
+    courtyard_clearance_mm: Option<f64>,
+    track_width_mm: Option<f64>,
+    min_clearance_mm: Option<f64>,
+) -> PyResult<f64> {
+    let view = build_view(py, source)?;
+    Ok(corridor::compute_spread(
+        &view,
+        courtyard_clearance_mm,
+        track_width_mm,
+        min_clearance_mm,
+    ))
+}
+
+// ---------------------------------------------------------------------------
+// quality/via_count
+// ---------------------------------------------------------------------------
+
+#[pyfunction]
+pub fn via_count_get_component_bboxes_py(
+    py: Python<'_>,
+    source: &Bound<'_, PyAny>,
+    refs: Vec<String>,
+) -> PyResult<Vec<(f64, f64, f64, f64)>> {
+    let view = build_view(py, source)?;
+    Ok(via_count::get_component_bboxes(&view, &refs))
+}
+
+#[pyfunction]
+pub fn via_count_get_board_bbox_py(
+    py: Python<'_>,
+    source: &Bound<'_, PyAny>,
+) -> PyResult<Option<(f64, f64, f64, f64)>> {
+    let view = build_view(py, source)?;
+    Ok(via_count::get_board_bbox(&view))
+}
+
+#[pyfunction]
+pub fn via_count_is_via_in_bbox_py(
+    x: f64,
+    y: f64,
+    bboxes: Vec<(f64, f64, f64, f64)>,
+) -> bool {
+    via_count::is_via_in_bbox(x, y, &bboxes)
+}
+
+#[pyfunction]
+#[allow(clippy::too_many_arguments)]
+pub fn via_count_is_via_near_board_edge_py(
+    vx: f64,
+    vy: f64,
+    x_min: f64,
+    y_min: f64,
+    x_max: f64,
+    y_max: f64,
+    margin_mm: f64,
+) -> bool {
+    via_count::is_via_near_board_edge(vx, vy, (x_min, y_min, x_max, y_max), margin_mm)
+}
+
+#[pyfunction]
+pub fn via_count_classify_vias_py(
+    py: Python<'_>,
+    source: &Bound<'_, PyAny>,
+) -> PyResult<(i64, i64, i64, i64)> {
+    let view = build_view(py, source)?;
+    let counts = via_count::classify_vias(&view);
+    Ok((counts.signal, counts.thermal, counts.stitching, counts.total))
+}
+
+/// Register every cluster-F export on the extension module.
+pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
+    m.add_function(wrap_pyfunction!(slop_distance_mm_py, m)?)?;
+    m.add_function(wrap_pyfunction!(slop_vector_py, m)?)?;
+    m.add_function(wrap_pyfunction!(slop_angle_between_py, m)?)?;
+    m.add_function(wrap_pyfunction!(slop_order_traces_py, m)?)?;
+    m.add_function(wrap_pyfunction!(slop_load_traces_by_net_py, m)?)?;
+    m.add_function(wrap_pyfunction!(slop_lint_hairpin_turns_py, m)?)?;
+    m.add_function(wrap_pyfunction!(slop_lint_zigzag_patterns_py, m)?)?;
+    m.add_function(wrap_pyfunction!(slop_lint_isolated_vias_py, m)?)?;
+    m.add_function(wrap_pyfunction!(slop_lint_single_net_detours_py, m)?)?;
+    m.add_function(wrap_pyfunction!(slop_lint_all_py, m)?)?;
+    m.add_function(wrap_pyfunction!(corridor_overlap_py, m)?)?;
+    m.add_function(wrap_pyfunction!(corridor_gap_py, m)?)?;
+    m.add_function(wrap_pyfunction!(corridor_point_in_rect_py, m)?)?;
+    m.add_function(wrap_pyfunction!(corridor_compute_courtyards_py, m)?)?;
+    m.add_function(wrap_pyfunction!(corridor_identify_channels_py, m)?)?;
+    m.add_function(wrap_pyfunction!(corridor_assign_tracks_to_channels_py, m)?)?;
+    m.add_function(wrap_pyfunction!(corridor_compute_consolidation_py, m)?)?;
+    m.add_function(wrap_pyfunction!(corridor_compute_spread_py, m)?)?;
+    m.add_function(wrap_pyfunction!(via_count_get_component_bboxes_py, m)?)?;
+    m.add_function(wrap_pyfunction!(via_count_get_board_bbox_py, m)?)?;
+    m.add_function(wrap_pyfunction!(via_count_is_via_in_bbox_py, m)?)?;
+    m.add_function(wrap_pyfunction!(via_count_is_via_near_board_edge_py, m)?)?;
+    m.add_function(wrap_pyfunction!(via_count_classify_vias_py, m)?)?;
+    Ok(())
+}
