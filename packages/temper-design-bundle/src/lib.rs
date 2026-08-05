@@ -30,6 +30,7 @@ mod parse_engine;
 #[cfg(feature = "python")]
 mod manufacturing_tolerances;
 mod manufacturing_monte_carlo;
+mod hypergraph_factory;
 
 #[cfg(feature = "python")]
 mod loaders;
@@ -254,6 +255,11 @@ mod python {
         // (see manufacturing_monte_carlo.rs — the numpy RNG/aggregation
         // boundary is argued in that module's docstring).
         crate::manufacturing_monte_carlo::register(module)?;
+
+        // Wave 4 Phase 4 leftovers slice: the hypergraph factory ported
+        // from temper_placer/extraction/hypergraph_factory.py (see
+        // hypergraph_factory.rs — scipy/numpy/set-iteration stay Python).
+        crate::hypergraph_factory::register(module)?;
 
         // Wave 4 Phase 3 candidate 2: the YAML loaders ported from
         // temper_placer/io/netclass_loader.py and

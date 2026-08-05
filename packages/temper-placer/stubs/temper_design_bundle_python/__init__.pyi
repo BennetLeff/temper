@@ -749,3 +749,39 @@ class MonteCarloSimulator:
         bounds: object,
         required_clearance: float,
     ) -> MonteCarloResult: ...
+
+
+# ---------------------------------------------------------------------------
+# Wave 4 Phase 4 leftovers — extraction/hypergraph_factory.py migration.
+# The Rust builder computes the filtering/classification/ordering; the
+# Python shim class (temper_placer.extraction.hypergraph_factory) owns the
+# scipy/numpy assembly.
+# ---------------------------------------------------------------------------
+
+
+class HypergraphBuildResult:
+    n_nodes: int
+    n_edges: int
+    node_refs: list[object]
+    hyperedge_names: list[object]
+    edge_voltages: list[float]
+    edge_currents: list[object]
+    edge_widths: list[float]
+    node_weights: list[object]
+    hyperedge_weights: list[object]
+    connected_indices: list[list[int]]
+
+
+class HypergraphFactory:
+    netlist: object
+    ignore_global_nets: bool
+    global_net_threshold: int
+
+    def __init__(
+        self,
+        netlist: object,
+        ignore_global_nets: bool = False,
+        global_net_threshold: int = 50,
+    ) -> None: ...
+
+    def build(self) -> HypergraphBuildResult: ...

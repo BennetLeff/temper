@@ -2353,3 +2353,152 @@ commit `58b302ce8`).
    classes (verified byte-for-byte); the exact `TypeError` text numpy's
    fancy indexing emits for ndim ≥ 3 inputs is not replicated (the oracle
    computes instead of raising there).
+
+---
+
+# Hypergraph factory — Verification
+
+The hypergraph factory (`src/hypergraph_factory.rs`) is the Wave 4 Phase 4
+leftovers slice's fourth migration: the `HypergraphFactory` pyclass (the
+valid-nets filter, the ref→index mapping, the physics classification and the
+per-net connection extraction) plus the `HypergraphBuildResult` pyclass,
+ported from `temper_placer/extraction/hypergraph_factory.py` (the Python
+module is now a wrapper: the `HypergraphFactory` shim class owns the scipy
+COO assembly and the `netlist_to_hypergraph` convenience function stays
+Python). Home crate: `temper-design-bundle` — the factory consumes the
+`Netlist` contract pyclasses (`netlist_contracts.rs`), so the netlist reader
+and the factory share one crate.
+
+## Induction applicability
+
+**Mathematical induction is not applicable to this module.** None of its
+functions are recursive, and none iterate over a dimension whose
+correctness depends on a size parameter:
+
+- the valid-nets filter, the physics classification and the connection
+  extraction are per-net constant-branch decisions (threshold compare,
+  two-pin rule, HV/width classification) whose per-element operation is
+  independent of the count and of the iteration order;
+- the ref→index mapping is a per-component insert whose outcome (last
+  duplicate ref wins) is fixed, not size-dependent;
+- the per-net connection list is a bounded membership-filtered copy of the
+  net's pins — the set collapse and its iteration order happen CPython-side
+  (see the KTD9 boundary note below), by construction identical to the
+  oracle's.
+
+Per the plan's R1e, a **structural proof** is recorded instead.
+
+## Structural proof
+
+**Claim (bit-identical parity).** For every public symbol, the pyclass
+behaviour is bit-identical to the pinned pre-migration Python
+implementation (`packages/temper-placer/tests/core/_hypergraph_factory_py_oracle.py`,
+commit `58b302ce8`).
+
+*Proof by structural cases.*
+
+1. **The valid-nets filter.** The Rust side mirrors the oracle's loop
+   exactly: a net survives iff `len(pins) >= 2` AND (not
+   `ignore_global_nets` OR `len(pins) <= global_net_threshold`). The
+   `pins` length is read through Python (`PyAny::len`), so non-list pins
+   raise CPython's own `TypeError`; the `>` threshold comparison and the
+   `>= 2` rule are the oracle's exact predicates (the off-by-one boundary
+   is pinned by the differential's custom-threshold case and the PBT
+   selection property, and by the H1/H2 mutants).
+2. **The ref→index mapping.** `node_ref_to_idx = {c.ref: i for i, c in
+   enumerate(components)}` — a Rust `HashMap<String, usize>` with the same
+   last-wins overwrite semantics (pinned by the duplicate-ref differential
+   case and the H5 mutant). Ref strings extract losslessly; non-str refs
+   are outside the documented envelope. `n_nodes` = `len(components)`
+   (Python's own `len`).
+3. **The physics classification.** `is_hv` uses CPython's own `==` on the
+   stored `voltage_class`/`net_class` objects (`rich_compare`-based `.eq`),
+   so the pyclass enum/str comparisons behave exactly as the oracle's
+   `net.voltage_class == "HV"`. The width chain reproduces the oracle's
+   branch order (net_class HighVoltage FIRST, then `max_current > 1.0`
+   through CPython's `>`), with the constants 1.0/0.5/0.2 (0.2 is not
+   representable in f32 — the cast is numpy's, so the stored double and the
+   cast f32 both match the oracle's by construction; pinned by the
+   float32-boundary differential case). `edge_voltages`/`edge_widths` are
+   the exact 1.0/0.0 and 1.0/0.5/0.2 constants.
+4. **The connection extraction.** Per valid net, the Rust side emits the
+   connected component INDICES in PIN ORDER, membership-filtered through
+   the ref→index map (`if comp_ref in node_ref_to_idx` — the oracle's exact
+   predicate; the H6 mutant pinned it). The shim then builds
+   `set(connected_indices)` — the identical construction the oracle
+   performed (same members, same pin-order insertion) — so CPython's set
+   iteration order, and therefore the COO triplet ORDER, is CPython's on
+   both sides; the differential asserts `matrix.data/row/col` INCLUDING
+   order (`test_matrix_triplet_order_is_cpython_set_order`,
+   `test_duplicate_component_refs_last_wins`; the H10 pin-reversal mutant).
+   `net.weight`/`net.max_current`/`net.name` pass through as the original
+   Python objects — the Rust side never converts them, so int-vs-float
+   leaves reach numpy and the PhysicsHypergraph untouched.
+5. **Node weights.** `width * height` is Python's own `__mul__` on the
+   original objects (int × int stays int; the H9 mutant pinned the
+   operator), collected in component order.
+6. **The assembly boundary (KTD9).** `np.array(..., dtype=np.float32)`
+   casts and `coo_matrix((values, (rows, cols)), shape=...)` run in the
+   shim on the Rust-returned objects — numpy/scipy conversion semantics
+   (int leaves, 0.2's f32 rounding, empty-matrix handling, scipy's COO
+   construction) are the libraries' own on both sides of the differential.
+
+## Evidence
+
+- Differential (R1a/R1f, TDD red→green):
+  `packages/temper-placer/tests/core/test_hypergraph_factory_rust_differential.py`
+  (17 tests; the RED state was demonstrated: the file fails to collect with
+  `AttributeError: module 'temper_design_bundle_python' has no attribute
+  'HypergraphFactory'` before the Rust pyclasses landed). Comparison keys:
+  the COO matrix as `(shape, nnz, data-(dtype,shape,tobytes), row, col)` —
+  triplet order included — plus every array as `(dtype, shape, tobytes())`.
+- PBT (R1c): `test_hypergraph_factory_pbt.py` — 6 hypothesis properties
+  (P1 edge-selection rule, P2 HV flag classification, P3 width
+  classification with branch order, P4 incidence connectedness, P5 node
+  weights, P6 hyperedge weights), each fail-capable.
+- Metamorphic (R1d): `test_hypergraph_factory_pbt.py` — MR1 (net-order
+  permutation: names/voltages/matrix columns follow the permutation;
+  node_weights/node_refs invariant), MR2 (threshold monotonicity), MR3
+  (pin-order permutation: the canonicalized matrix and all value arrays are
+  invariant — the per-net triplet ORDER is CPython's and is the
+  differential's domain, not a claim here), MR4 (ignore + threshold ≥
+  max-pins ≡ no filtering).
+- Anti-vacuity: 10 mutants, all caught by the differential/PBT suites:
+  threshold `>`→`>=`, `>=2`→`>2` pins, HV flag `||`→`&&`, HV width branch
+  dropped, ref map last-wins→first-wins (closed by the duplicate-ref
+  differential case), connection membership check dropped (closed by the
+  UNKNOWN_REF case), HV flag 1.0/0.0 swapped, 0.5/0.2 widths swapped,
+  node weights `*`→`+`, pin order reversed (caught by the triplet-order
+  matrix comparison). Each was applied to the Rust source, the suites were
+  run against the rebuilt extension, and the failure was confirmed before
+  reverting (campaign log in the PR).
+- Rust practices (R1g): no `unwrap`/`expect` in non-test code; `PyResult`
+  everywhere; `cargo clippy --release --features python` clean (0 warnings);
+  borrow over clone (the net list is borrowed per iteration; only the
+  emitted result holds owned handles).
+- Performance A/B (R1b): the construction is O(components + pins) with no
+  production consumers beyond the tests (the factory's only callers are
+  `tests/core/test_hypergraph.py` and the extraction module re-export), so
+  a `perf_ab` registration would measure a synthetic hot path. Per the
+  plan's R2 this is the **"no regression beyond noise"** arm: the migrated
+  factory performs the same per-net classification work plus one pyo3
+  boundary crossing for the shim's assembly; no speedup is claimed. (No
+  `perf_ab` registration — recorded, not skipped.)
+- R1h (physics discipline): NOT APPLICABLE. The factory CLASSIFIES physics
+  attributes (HV flags, current-based widths) onto a data structure that
+  downstream heuristics consume; it encodes no CP-SAT constraint gating a
+  physics quantity, computes no quantity a post-solve audit could recompute
+  from placement coordinates, and feeds no solver. The R24
+  Chebyshev/BMC/post-solve obligations have no referent.
+
+## Documented deviations (per R1, recorded here)
+
+1. **Ref-string envelope.** Component refs and net-pin refs must be `str`
+   (the netlist contract's `ref` field is a str; every in-repo netlist uses
+   str refs). A non-str ref raises a pyo3 extraction `TypeError` where the
+   oracle would hash the object and compare by its own equality. Recorded,
+   not silently matched; the differential and PBT suites use the netlist
+   contract types exclusively.
+2. **`HypergraphFactory` (the Python shim class) remains Python.** It owns
+   the scipy/numpy assembly — the KTD9 boundary is the class boundary, not
+   a method boundary. The pyclass underneath is the migrated compute.
