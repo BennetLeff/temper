@@ -407,18 +407,34 @@ pub enum Node {
 // Parser
 // ---------------------------------------------------------------------------
 
-/// Nesting depth ceiling.
+/// Parser recursion ceiling, counted in PARSER FRAMES (not nesting levels).
 ///
-/// The Python parser is recursive (`_not_expr` -> `_not_expr`, and `_atom` ->
-/// `_expr` through `(`), so deep input raises `RecursionError` there. Rust has
-/// no such guard and would overflow the stack -- an abort, not an exception --
-/// so this port needs an explicit limit. The two thresholds cannot be made
-/// identical (CPython's depends on `sys.getrecursionlimit()` AND remaining C
-/// stack), so this is a KNOWN, WITNESSED divergence band rather than a claim
-/// of parity: see `test_witness_deep_nesting_divergence`, which pins where
-/// each side gives up instead of quietly narrowing the differential's input
-/// space to hide it.
-pub const MAX_DEPTH: usize = 180;
+/// One level of `(` costs four frames here -- `expr` -> `and_expr` ->
+/// `comparison` -> `atom` -- so this is roughly `MAX_DEPTH / 4` levels of
+/// nesting. Getting that unit wrong is not hypothetical: the first version of
+/// this constant was 180 and read as "levels", which made the port reject at
+/// nesting depth 60 input that CPython parses without complaint. The
+/// differential caught it.
+///
+/// The Python parser is recursive too, so deep input raises `RecursionError`
+/// there; measured on CPython 3.12 with the default `recursionlimit` of 1000,
+/// it gives up at nesting depth 199. Rust has no such guard and would
+/// overflow the stack -- an abort, not an exception -- so this port needs an
+/// explicit limit.
+///
+/// 1000 frames is ~250 nesting levels: comfortably above CPython's 199, so
+/// the Rust side never rejects input the oracle parses, and small enough to
+/// stay inside a 2 MiB thread stack in an unoptimised build. (4000 was tried
+/// first and aborted the debug test binary with a stack overflow -- the
+/// ceiling has to fit the *smallest* stack this code runs on, not the main
+/// thread's.)
+///
+/// This is a stack-safety backstop, NOT a parity claim: the two ceilings
+/// differ, and `test_witness_deep_nesting_divergence` pins that explicitly
+/// rather than hiding it by shrinking the differential's input range. Raising
+/// `sys.setrecursionlimit` far above the default would let CPython parse
+/// deeper than this limit allows; that is a documented, witnessed difference.
+pub const MAX_DEPTH: usize = 1000;
 
 struct Parser {
     tokens: Vec<Token>,
@@ -465,7 +481,7 @@ impl Parser {
         self.depth += 1;
         if self.depth > MAX_DEPTH {
             return Err(ExprError::runtime(format!(
-                "skip expression nested deeper than {MAX_DEPTH} levels"
+                "skip expression exceeds the parser recursion limit of {MAX_DEPTH} frames"
             )));
         }
         Ok(())
@@ -1010,7 +1026,19 @@ mod tests {
         let src = format!("{}true{}", "(".repeat(MAX_DEPTH + 50), ")".repeat(MAX_DEPTH + 50));
         let e = parse_err(&src);
         assert_eq!(e.kind, ErrKind::Runtime);
-        assert!(e.message.contains("nested deeper"), "{}", e.message);
+        assert!(e.message.contains("recursion limit"), "{}", e.message);
+    }
+
+    #[test]
+    fn nesting_cpython_accepts_is_not_rejected() {
+        // CPython gives up at nesting depth 199 (measured, default
+        // recursionlimit). Anything below that MUST parse here -- the first
+        // cut of MAX_DEPTH failed at depth 60 because it counted frames as
+        // if they were levels.
+        for depth in [60usize, 120, 170, 198] {
+            let src = format!("{}true{}", "(".repeat(depth), ")".repeat(depth));
+            assert!(parse(&src).is_ok(), "depth {depth} should parse");
+        }
     }
 
     #[test]

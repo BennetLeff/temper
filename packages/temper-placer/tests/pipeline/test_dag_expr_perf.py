@@ -38,6 +38,18 @@ BENCH_DEPTHS = NESTING_DEPTHS
 
 _REPEATS = 30
 
+# An unoptimised build of the SAME Rust code measured 0.51x vs Python where
+# the release build measures 2.70x -- a 5x swing that has nothing to do with
+# the port. Ratio assertions are therefore only meaningful against a release
+# build; parity assertions run either way, because correctness does not care
+# about the profile.
+_BUILD_PROFILE = getattr(rust_impl._rs, "BUILD_PROFILE", "unknown")
+_IS_RELEASE = _BUILD_PROFILE == "release"
+_DEBUG_REASON = (
+    f"timing ratios are meaningless against a {_BUILD_PROFILE} build of "
+    "temper_io_types; rebuild with --release to gate on speed"
+)
+
 
 def _time_parse(impl, sources: tuple[str, ...], repeats: int) -> tuple[float, list]:
     """Time parsing, capturing every outcome so parity can be checked."""
@@ -82,12 +94,15 @@ def test_parse_perf_ab_with_parity() -> None:
 
     ratio = py_time / rs_time if rs_time else float("inf")
     print(
-        f"\n[dag_expr parse] python={py_time * 1e3:.2f}ms rust={rs_time * 1e3:.2f}ms "
-        f"speedup={ratio:.2f}x over {len(BENCH_CORPUS)} exprs x {_REPEATS}"
+        f"\n[dag_expr parse, {_BUILD_PROFILE}] python={py_time * 1e3:.2f}ms "
+        f"rust={rs_time * 1e3:.2f}ms speedup={ratio:.2f}x "
+        f"over {len(BENCH_CORPUS)} exprs x {_REPEATS}"
     )
+    if not _IS_RELEASE:
+        pytest.skip(_DEBUG_REASON)
     # Deliberately loose: this gate exists to catch a catastrophic regression
     # (e.g. re-parsing per call), not to police normal machine variance.
-    assert ratio > 0.5, f"Rust parse is {1 / ratio:.1f}x SLOWER than Python"
+    assert ratio > 1.0, f"Rust parse is {1 / ratio:.1f}x SLOWER than Python"
 
 
 def test_eval_perf_ab_with_parity() -> None:
@@ -98,10 +113,13 @@ def test_eval_perf_ab_with_parity() -> None:
 
     ratio = py_time / rs_time if rs_time else float("inf")
     print(
-        f"\n[dag_expr eval ] python={py_time * 1e3:.2f}ms rust={rs_time * 1e3:.2f}ms "
-        f"speedup={ratio:.2f}x over {len(EVAL_CORPUS)} exprs x {_REPEATS}"
+        f"\n[dag_expr eval, {_BUILD_PROFILE}] python={py_time * 1e3:.2f}ms "
+        f"rust={rs_time * 1e3:.2f}ms speedup={ratio:.2f}x "
+        f"over {len(EVAL_CORPUS)} exprs x {_REPEATS}"
     )
-    assert ratio > 0.5, f"Rust eval is {1 / ratio:.1f}x SLOWER than Python"
+    if not _IS_RELEASE:
+        pytest.skip(_DEBUG_REASON)
+    assert ratio > 1.0, f"Rust eval is {1 / ratio:.1f}x SLOWER than Python"
 
 
 @pytest.mark.parametrize("depth", BENCH_DEPTHS, ids=lambda d: f"depth{d}")
@@ -114,4 +132,7 @@ def test_nested_parse_perf_ab_with_parity(depth: int) -> None:
     assert rs_outcomes == py_outcomes, f"arms diverged at depth {depth}"
 
     ratio = py_time / rs_time if rs_time else float("inf")
-    print(f"\n[dag_expr parse depth={depth}] speedup={ratio:.2f}x")
+    print(f"\n[dag_expr parse depth={depth}, {_BUILD_PROFILE}] speedup={ratio:.2f}x")
+    if not _IS_RELEASE:
+        pytest.skip(_DEBUG_REASON)
+    assert ratio > 1.0, f"Rust parse at depth {depth} is {1 / ratio:.1f}x SLOWER"

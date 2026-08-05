@@ -55,8 +55,16 @@ _float_literals = st.one_of(
     .map(repr),
     st.sampled_from(["0.0", "1.", ".5", "1e3", "1E3", "1e-3", "1.5e+10", "0.1"]),
 )
+# Surrogates are excluded DELIBERATELY and the exclusion is witnessed by
+# test_witness_lone_surrogate_is_not_representable_in_rust below. A lone
+# surrogate is a legal Python `str` but has no UTF-8 encoding, so it cannot
+# cross the pyo3 boundary at all -- the port raises UnicodeEncodeError where
+# the oracle parses happily. That is a real, accepted difference; narrowing
+# the strategy without recording it would be exactly the silent narrowing this
+# gate set is supposed to prevent.
 _string_literals = st.text(
-    alphabet=st.characters(blacklist_characters="'\"\\\n"), max_size=8
+    alphabet=st.characters(blacklist_characters="'\"\\\n", blacklist_categories=("Cs",)),
+    max_size=8,
 ).map(lambda s: f"'{s}'")
 
 _literals = st.one_of(
@@ -306,6 +314,55 @@ def test_witness_double_negation_is_not_identity_on_the_tree() -> None:
     cfg, state, ctx = make_env()
     assert rust_impl.evaluate_skip_expr(plain, cfg, state, ctx) is True
     assert rust_impl.evaluate_skip_expr(doubled, cfg, state, ctx) is True
+
+
+def test_witness_lone_surrogate_is_not_representable_in_rust() -> None:
+    """A REAL divergence, found by test_pbt_evaluate_agrees. Not narrowed away.
+
+    ``"'\\ud800'"`` is a perfectly legal Python ``str``: CPython's internal
+    representation allows unpaired surrogates. It has no UTF-8 encoding, so it
+    cannot be handed to Rust as a ``&str`` at all -- pyo3 raises
+    ``UnicodeEncodeError`` before the tokenizer ever runs.
+
+    Behaviour:
+      - oracle: parses, evaluates the string literal as truthy -> True
+      - port:   raises UnicodeEncodeError
+
+    Why this is accepted rather than fixed:
+      - the only way to preserve it would be to keep a pure-Python parser
+        alongside the Rust one and dispatch on encodability, which reinstates
+        the code the port exists to remove;
+      - ``str.to_string_lossy()`` is NOT an option: it would substitute U+FFFD
+        and silently change what the expression means, which is worse than
+        raising;
+      - the input is unreachable through the real pipeline. `skip_if` comes
+        from a YAML manifest parsed by ``yaml.safe_load`` from a UTF-8 file,
+        and a lone surrogate cannot survive UTF-8 decoding, so no manifest can
+        express one.
+
+    The PBT string strategy excludes category Cs, pointing here.
+    """
+    src = "'\ud800'"
+    cfg, state, ctx = make_env()
+
+    py_outcome = outcome_signature(
+        lambda: py_oracle.evaluate_skip_expr(py_oracle.parse_skip_expr(src), cfg, state, ctx)
+    )
+    rs_outcome = outcome_signature(
+        lambda: rust_impl.evaluate_skip_expr(rust_impl.parse_skip_expr(src), cfg, state, ctx)
+    )
+
+    assert py_outcome == ("ok", ("bool", "True"))
+    assert rs_outcome[0] == "raise"
+    assert rs_outcome[1] == "UnicodeEncodeError"
+    assert py_outcome != rs_outcome, "if these ever agree, delete this witness"
+
+    # The boundary is encodability, not "contains a high codepoint": a valid
+    # astral character round-trips through the port unchanged.
+    astral = "'\U0001f600'"
+    assert outcome_signature(rust_impl.parse_skip_expr, astral) == outcome_signature(
+        py_oracle.parse_skip_expr, astral
+    )
 
 
 def test_witness_and_or_do_not_return_the_operand() -> None:

@@ -70,6 +70,16 @@ mod pymodule_def {
                 .get_type::<crate::config_binding::ConfigBoardMismatchError>(),
         )?;
 
+        // Which Cargo profile this extension was built with. The dag_expr
+        // performance A/B reads it: an unoptimised build of the same code
+        // measured 0.51x vs Python where the release build measures 2.70x,
+        // so a debug .so silently turns a speed-up into a apparent
+        // regression. Better to say so than to publish the wrong number.
+        m.add(
+            "BUILD_PROFILE",
+            if cfg!(debug_assertions) { "debug" } else { "release" },
+        )?;
+
         m.add(
             "DagExprSyntaxError",
             m.py().get_type::<crate::dag_expr::DagExprSyntaxError>(),

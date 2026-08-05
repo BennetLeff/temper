@@ -332,10 +332,13 @@ def test_and_or_short_circuit_and_return_bool() -> None:
 # ---------------------------------------------------------------------------
 
 
-def test_skip_expr_pickle_and_deepcopy_roundtrip() -> None:
+def test_skip_expr_handle_pickle_and_deepcopy_roundtrip() -> None:
     """#724: a pyclass is unpicklable by default and nothing noticed for 941
-    assertions. The handle rides on an ast.Expression callers may copy, so
-    both protocols are exercised explicitly."""
+    assertions.
+
+    The handle is NEW state introduced by the port and it rides on an object
+    callers may copy, so both protocols are exercised explicitly here.
+    """
     cfg, state, ctx = make_env()
     src = "config.epochs == 100 and context.flag"
     tree = rust_impl.parse_skip_expr(src)
@@ -348,8 +351,60 @@ def test_skip_expr_pickle_and_deepcopy_roundtrip() -> None:
     copied_handle = copy.deepcopy(handle)
     assert copied_handle.evaluate(cfg, state, ctx) == expected
 
-    copied_tree = copy.deepcopy(tree)
-    assert rust_impl.evaluate_skip_expr(copied_tree, cfg, state, ctx) == expected
+
+def test_deepcopy_of_the_tree_is_broken_identically_in_both_arms() -> None:
+    """`copy.deepcopy` on a parsed tree raises -- and always did.
+
+    `_AccessorExpr.__init__` requires `ns` and `field` positionally, which
+    `copy._reconstruct` cannot supply, so deepcopying any tree containing an
+    accessor raises TypeError. That is PRE-EXISTING behaviour, reproduced
+    exactly by the port.
+
+    It is tempting to "fix" this while porting -- a `__reduce__` or default
+    arguments would do it. That would be an unrequested behaviour change
+    smuggled into a parity port, so the bug is pinned here instead. If it is
+    ever fixed deliberately, this test is the place that records the decision.
+    """
+    cfg, state, ctx = make_env()  # noqa: F841 - env kept for symmetry
+    src = "config.epochs == 100"
+    py_outcome = outcome_signature(lambda: copy.deepcopy(py_oracle.parse_skip_expr(src)))
+    rs_outcome = outcome_signature(lambda: copy.deepcopy(rust_impl.parse_skip_expr(src)))
+
+    assert rs_outcome == py_outcome
+    assert py_outcome[0] == "raise"
+    assert py_outcome[1] == "TypeError"
+
+    # A tree with no accessor deepcopies fine in both arms -- so the failure
+    # really is the accessor node, not deepcopy support in general.
+    assert outcome_signature(
+        lambda: copy.deepcopy(rust_impl.parse_skip_expr("true and false"))
+    ) == outcome_signature(lambda: copy.deepcopy(py_oracle.parse_skip_expr("true and false")))
+
+
+def test_oracle_recursion_headroom() -> None:
+    """The oracle's RecursionError ceiling must stay well above what we test.
+
+    Measured rather than assumed: CPython's limit moves with the surrounding
+    stack depth, so a suite that sits close to it flakes on one machine and
+    passes on another (#714's failure mode). If this fails, LOWER
+    NESTING_DEPTHS -- do not raise the recursion limit, which would only move
+    the cliff.
+    """
+    from ._dag_expr_fixtures import REQUIRED_RECURSION_HEADROOM
+
+    ceiling = None
+    for depth in range(max(NESTING_DEPTHS), 400):
+        try:
+            py_oracle.parse_skip_expr(nested_expr(depth))
+        except RecursionError:
+            ceiling = depth
+            break
+    assert ceiling is not None, "oracle never hit RecursionError; range too small"
+    headroom = ceiling - max(NESTING_DEPTHS)
+    assert headroom >= REQUIRED_RECURSION_HEADROOM, (
+        f"only {headroom} levels of headroom between the deepest tested nesting "
+        f"({max(NESTING_DEPTHS)}) and the oracle's RecursionError at {ceiling}"
+    )
 
 
 def test_benchmark_inputs_are_covered_by_differential() -> None:
@@ -436,8 +491,10 @@ def test_witness_deep_nesting_divergence() -> None:
     assert rs_outcome[0] == "raise"
     assert py_outcome[1] == "RecursionError"
     assert rs_outcome[1] == "DAGExprError"
-    assert "nested deeper" in rs_outcome[2]
+    assert "recursion limit" in rs_outcome[2]
 
-    # The agreed band: every depth the differential exercises is well inside
-    # both limits, so the divergence cannot leak into the parity claim.
-    assert max(NESTING_DEPTHS) < 180
+    # The agreed band: every depth the differential exercises is far inside
+    # BOTH limits, so the divergence cannot leak into the parity claim. The
+    # oracle's own ceiling (~199) is the binding one, not the port's (~1000
+    # levels), which is why the port never rejects input the oracle accepts.
+    assert max(NESTING_DEPTHS) == 120

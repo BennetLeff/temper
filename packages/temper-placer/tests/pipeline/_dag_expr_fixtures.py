@@ -261,7 +261,20 @@ def make_env() -> tuple[Any, Any, dict[str, Any]]:
 
 #: Parenthesis-nesting depths exercised by BOTH the differential and the
 #: benchmark. A benchmark may not use a depth outside this tuple.
-NESTING_DEPTHS: tuple[int, ...] = (0, 1, 2, 5, 17, 60, 120, 170)
+#:
+#: Capped at 120 because the ORACLE, not the port, runs out of road: CPython
+#: raises RecursionError at nesting depth 199 with the default recursionlimit,
+#: and that ceiling drops as the surrounding call stack deepens (pytest's is
+#: deeper than a bare script's). Testing at 170 passed but left only ~15%
+#: headroom, which is precisely how a suite starts flaking on one machine and
+#: not another. ``test_oracle_recursion_headroom`` measures the real ceiling
+#: and asserts the margin, so a shrinking environment reports a clear
+#: diagnostic instead of a mysterious parity failure.
+NESTING_DEPTHS: tuple[int, ...] = (0, 1, 2, 5, 17, 60, 120)
+
+#: Minimum nesting headroom required between max(NESTING_DEPTHS) and the
+#: oracle's measured RecursionError threshold.
+REQUIRED_RECURSION_HEADROOM = 50
 
 #: Expression sources. Deliberately includes syntax and runtime errors: an
 #: error's type and message are behaviour under port, not "not applicable".
