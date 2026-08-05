@@ -18,13 +18,10 @@ dict shapes. ``json.dumps`` / ``json.loads`` / ``datetime.fromisoformat`` /
 
 from __future__ import annotations
 
-import json
-import random
 from datetime import datetime
 
 import temper_io_types as _rust
 
-from tests.explainability.explain_oracle import serialization_oracle as _oracle
 from temper_placer.explainability.decision import (
     Alternative,
     Decision,
@@ -35,13 +32,13 @@ from temper_placer.explainability.decision import (
 from temper_placer.explainability.serialization import (
     _deserialize_value,
     _serialize_value,
-    deserialize_alternative,
     deserialize_decision,
     serialize_alternative,
     serialize_decision,
     serialize_trace,
     trace_to_json,
 )
+from tests.explainability.explain_oracle import serialization_oracle as _oracle
 
 # Module-scope RED arm.
 assert hasattr(_rust, "explain_serialize_value")
@@ -158,6 +155,7 @@ def test_round_trip_preserves_ids_and_metrics():
     trace.decisions.append(_decision(subject="Q9", value=(3, 4), counter=5))
     trace.final_metrics = {"loss": 2.5}
     blob = trace_to_json(trace)
+    assert blob == trace_to_json(trace)
     loaded = deserialize_decision(_decision_payload(trace))
     assert loaded.id == "d5"
     assert loaded.subject == "Q9"

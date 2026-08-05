@@ -27,13 +27,8 @@ from __future__ import annotations
 
 import random
 
-import pytest
 import temper_io_types as _rust
 
-from tests.explainability.explain_oracle import (
-    pipeline_oracle as _pipeline_oracle,
-    traced_loss_oracle as _oracle,
-)
 from temper_placer.explainability.pipeline import TracedPipeline, compose_traces
 from temper_placer.explainability.trace import Trace
 from temper_placer.explainability.traced_loss import (
@@ -42,6 +37,12 @@ from temper_placer.explainability.traced_loss import (
     constraint_to_traced_loss,
     traced,
     traced_loss,
+)
+from tests.explainability.explain_oracle import (
+    pipeline_oracle as _pipeline_oracle,
+)
+from tests.explainability.explain_oracle import (
+    traced_loss_oracle as _oracle,
 )
 
 # Module-scope RED arm.
@@ -80,8 +81,8 @@ def test_constraint_subject_introspection_identical():
         _Constraint(foo="bar"),  # no subject -> "unknown"
     ]
     for constraint in cases:
-        ours = constraint_to_traced_loss(constraint, lambda *a, **k: 1.0)
-        theirs = _oracle.constraint_to_traced_loss(constraint, lambda *a, **k: 1.0)
+        ours = constraint_to_traced_loss(constraint, lambda *_a, **_k: 1.0)
+        theirs = _oracle.constraint_to_traced_loss(constraint, lambda *_a, **_k: 1.0)
         # The wrapped functions are closures; compare via a call.
         assert ours(1.0)[1].entries[0].subject == theirs(1.0)[1].entries[0].subject
         assert ours(1.0)[1].entries[0].because == theirs(1.0)[1].entries[0].because

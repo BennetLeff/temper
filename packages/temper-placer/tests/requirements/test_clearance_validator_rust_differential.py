@@ -28,14 +28,10 @@ until the temper-drc-rs surface lands).
 
 from __future__ import annotations
 
-import math
 import random
 
-import pytest
 import temper_drc_rs as _rust
 
-from tests.requirements import clearance_oracle as _oracle_pkg
-from tests.requirements.clearance_oracle import _copper as _oracle_copper
 from temper_placer.requirements.validators.clearance import (
     InsulationType,
     VoltageDomain,
@@ -45,6 +41,8 @@ from temper_placer.requirements.validators.clearance import (
     get_requirement_matrix,
     verify_iec60335_compliance,
 )
+from tests.requirements import clearance_oracle as _oracle_pkg
+from tests.requirements.clearance_oracle import _copper as _oracle_copper
 
 # Module-scope RED arm.
 assert hasattr(_rust, "req_safe_01_check_domain_clearance")
@@ -177,7 +175,7 @@ def _fixture_placements() -> list[dict]:
     placements.append({"components": [], "nets": dict(NETS)})
 
     # Pad-geometry fixtures.
-    for i in range(30):
+    for _ in range(30):
         comps = []
         for j in range(rng.randint(1, 5)):
             ref = f"C{j}"

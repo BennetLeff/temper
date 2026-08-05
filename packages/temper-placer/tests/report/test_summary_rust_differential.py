@@ -148,7 +148,6 @@ def test_board_size_rendering_pins():
 
 def test_category_sorting_pinned():
     """Categories render sorted ascending, uppercased."""
-    from temper_placer.validation.drc_types import ComponentPlacement
 
     result = RunResult(
         check_results=[

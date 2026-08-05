@@ -24,13 +24,10 @@ Example:
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
 
 import temper_io_types as _rust
 
 from temper_placer.explainability.decision import (
-    Decision,
-    DecisionPhase,
     DecisionTrace,
 )
 

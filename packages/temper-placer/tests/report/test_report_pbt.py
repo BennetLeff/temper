@@ -20,8 +20,6 @@ import pytest
 
 from temper_placer.report.formatter import format_json, format_text
 from temper_placer.report.generator import (
-    BenchmarkResult,
-    BenchmarkSummary,
     calculate_benchmark_result,
 )
 from temper_placer.report.summary import generate_summary

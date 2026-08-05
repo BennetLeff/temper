@@ -20,11 +20,10 @@ from __future__ import annotations
 
 import random
 
-import pytest
 import temper_io_types as _rust
 
-from tests.explainability.explain_oracle import trace_oracle as _oracle
 from temper_placer.explainability.trace import Entry, Trace
+from tests.explainability.explain_oracle import trace_oracle as _oracle
 
 # Module-scope RED arm.
 assert hasattr(_rust, "explain_trace_why")
@@ -117,7 +116,6 @@ def test_why_max_reasons_truncation_pinned():
 
 def test_why_float_edge_values():
     """NaN/inf tuples render via py_float_fmt_1 (nan/inf, not NaN/Inf)."""
-    import math
 
     trace = _trace([_entry("Q1", (float("nan"), 1.0), "r")])
     text = trace.why("Q1")

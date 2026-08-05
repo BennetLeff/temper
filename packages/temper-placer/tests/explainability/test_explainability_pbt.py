@@ -9,17 +9,11 @@ surface (associativity, identity, order preservation).
 
 from __future__ import annotations
 
-import random
 from datetime import datetime
 
-import pytest
-
 from temper_placer.explainability.decision import (
-    Alternative,
     Decision,
-    DecisionPhase,
     DecisionTrace,
-    DecisionType,
 )
 from temper_placer.explainability.logger import DecisionLogger
 from temper_placer.explainability.markdown_report import render_component_report

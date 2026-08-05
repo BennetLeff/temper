@@ -21,7 +21,6 @@ from datetime import datetime
 
 import temper_io_types as _rust
 
-from tests.explainability.explain_oracle import markdown_report_oracle as _oracle
 from temper_placer.explainability.decision import (
     Alternative,
     Decision,
@@ -33,6 +32,7 @@ from temper_placer.explainability.markdown_report import (
     render_component_report,
     render_markdown_report,
 )
+from tests.explainability.explain_oracle import markdown_report_oracle as _oracle
 
 # Module-scope RED arm.
 assert hasattr(_rust, "explain_render_markdown_report")
@@ -86,8 +86,7 @@ def _fixture_traces() -> list[DecisionTrace]:
     # Multi-subject decisions.
     for _ in range(20):
         decisions = []
-        counter = 0
-        for _ in range(rng.randint(0, 7)):
+        for counter in range(rng.randint(0, 7)):
             subject = rng.choice(["Q1", "Q2", "U1", "VCC", "R5"])
             kind = rng.randint(0, 4)
             if kind == 0:
@@ -118,7 +117,6 @@ def _fixture_traces() -> list[DecisionTrace]:
                 epoch=rng.choice([None, 0, 100]),
                 counter=counter,
             ))
-            counter += 1
         t = _trace(decisions)
         if rng.random() < 0.5:
             t.final_metrics = {"loss": rng.uniform(0, 10)}

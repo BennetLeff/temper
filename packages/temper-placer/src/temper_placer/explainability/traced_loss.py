@@ -41,7 +41,6 @@ from functools import wraps
 from typing import Any, Optional
 
 import numpy as np
-
 import temper_io_types as _rust
 
 from temper_placer.explainability.trace import Trace

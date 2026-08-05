@@ -22,11 +22,10 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+import temper_io_types as _rust
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
-
-import temper_io_types as _rust
 
 
 @dataclass

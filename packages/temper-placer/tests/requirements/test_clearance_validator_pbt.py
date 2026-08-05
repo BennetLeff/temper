@@ -14,7 +14,6 @@ import random
 import pytest
 
 from temper_placer.requirements.validators.clearance import (
-    InsulationType,
     VoltageDomain,
     check_creepage_path,
     check_domain_clearance,

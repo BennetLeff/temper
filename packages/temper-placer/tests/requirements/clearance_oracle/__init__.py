@@ -6,5 +6,7 @@ submodules here so ``_oracle_pkg.clearance.check_domain_clearance``
 resolves. The modules themselves are VERBATIM pre-migration copies.
 """
 
-from tests.requirements.clearance_oracle import _copper  # noqa: F401
-from tests.requirements.clearance_oracle import clearance  # noqa: F401
+from tests.requirements.clearance_oracle import (
+    _copper,  # noqa: F401
+    clearance,  # noqa: F401
+)

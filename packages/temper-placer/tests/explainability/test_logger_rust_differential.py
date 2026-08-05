@@ -18,13 +18,12 @@ phase/epoch/iteration). Enable/disable state, the context managers and
 
 from __future__ import annotations
 
-import math
 import random
 
 import temper_io_types as _rust
 
-from tests.explainability.explain_oracle import logger_oracle as _oracle
 from temper_placer.explainability.logger import DecisionLogger
+from tests.explainability.explain_oracle import logger_oracle as _oracle
 
 # Module-scope RED arm.
 assert hasattr(_rust, "explain_should_log")

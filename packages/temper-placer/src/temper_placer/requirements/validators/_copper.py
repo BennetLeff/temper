@@ -28,7 +28,6 @@ import temper_drc_rs as _rust
 import temper_geometry as _tg
 
 from temper_placer.core.pad_geometry import (
-    DEFAULT_ROUNDRECT_RATIO,
     shape_code,
 )
 

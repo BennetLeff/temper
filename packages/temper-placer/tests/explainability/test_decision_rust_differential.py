@@ -29,7 +29,6 @@ from datetime import datetime
 
 import temper_io_types as _rust
 
-from tests.explainability.explain_oracle import decision_oracle as _oracle
 from temper_placer.explainability.decision import (
     Alternative,
     Decision,
@@ -37,6 +36,7 @@ from temper_placer.explainability.decision import (
     DecisionTrace,
     DecisionType,
 )
+from tests.explainability.explain_oracle import decision_oracle as _oracle
 
 # Module-scope RED arm.
 assert hasattr(_rust, "explain_decision_trace_why")
@@ -85,8 +85,7 @@ def _fixture_decisions() -> list[list[Decision]]:
     out.append([_decision("Q1", (10, 20), "initial", counter=0)])
     for _ in range(25):
         decisions = []
-        counter = 0
-        for _ in range(rng.randint(0, 8)):
+        for counter in range(rng.randint(0, 8)):
             subject = rng.choice(["Q1", "Q2", "U1", "VCC", "R5"])
             value = rng.choice([(rng.uniform(-50, 50), rng.uniform(-50, 50)),
                                 rng.randint(0, 270), "L2", None])
@@ -110,7 +109,6 @@ def _fixture_decisions() -> list[list[Decision]]:
                 iteration=rng.choice([None, 0, 3]),
                 counter=counter,
             ))
-            counter += 1
         out.append(decisions)
     return out
 
