@@ -9,26 +9,6 @@ This module provides checks that should run BEFORE optimization starts:
 
 These are distinct from validation.geometric and validation.drc which
 validate a completed placement.
-
-Wave 4 Phase 4: the decision compute — the zone AABB predicate
-(``_zones_overlap``), the zone-fit boundary checks and reason-string
-selection, the have-zones set arithmetic, and the impossible-constraints
-bounds/set checks — is implemented in Rust as the ``validation`` submodule
-of ``temper_design_bundle_python`` (``temper-design-bundle/src/validation.rs``)
-and delegated to here. This module keeps the dataclasses
-(``PreflightIssue``/``PreflightResult``/``PreflightSeverity``), the
-tool-availability checks (``shutil.which`` / ``find_kicad_cli`` are I/O
-boundaries), the netlist<->board reconciliation check (an orchestration
-over the reconciliation surface, itself migrated), and the message
-assembly wherever a no-format ``str(float)`` interpolation is involved
-(ZONE_003's suggestion and ZONE_005's message — Rust ``Display`` renders
-``10.0`` as ``10``; CPython renders ``10.0``).
-
-Verification: bit-identical parity against the pinned pre-migration
-implementation is asserted by
-``tests/validation/test_preflight_rust_differential.py`` (oracle:
-``tests/validation/_preflight_py_oracle.py``); the structural proof lives
-in ``packages/temper-design-bundle/VERIFICATION.md``.
 """
 
 from __future__ import annotations
@@ -37,8 +17,6 @@ import shutil
 from dataclasses import dataclass, field
 from enum import Enum, auto
 from pathlib import Path
-
-import temper_design_bundle_python as _tdb
 
 from temper_placer.core.board import Zone
 from temper_placer.core.netlist import Netlist
@@ -186,29 +164,6 @@ def check_external_tools() -> PreflightResult:
 # Zone Assignment Checks
 # =============================================================================
 
-#: Map the Rust kernel's severity strings back onto the enum.
-_SEVERITY = {
-    "INFO": PreflightSeverity.INFO,
-    "WARNING": PreflightSeverity.WARNING,
-    "ERROR": PreflightSeverity.ERROR,
-}
-
-
-def _wrap_issues(raw_issues: list[dict]) -> list[PreflightIssue]:
-    """Wrap the Rust kernels' ``{severity, code, message, suggestion,
-    components, details}`` dicts into ``PreflightIssue`` dataclasses."""
-    return [
-        PreflightIssue(
-            severity=_SEVERITY[i["severity"]],
-            code=i["code"],
-            message=i["message"],
-            suggestion=i["suggestion"],
-            components=list(i["components"]),
-            details=dict(i["details"]),
-        )
-        for i in raw_issues
-    ]
-
 
 def check_components_have_zones(
     netlist: Netlist,
@@ -226,23 +181,66 @@ def check_components_have_zones(
     Returns:
         PreflightResult with unassigned component issues.
     """
-    netlist_refs = [c.ref for c in netlist.components]
+    issues = []
 
-    # Get components assigned to zones (from constraints) — set semantics
-    # (dedup) are applied on the Rust side, so list order here is irrelevant.
-    assigned_refs: list[str] = list(constraints.zone_assignments.keys())
+    # Get all component refs from netlist
+    netlist_refs = {c.ref for c in netlist.components}
+
+    # Get components assigned to zones (from constraints)
+    assigned_refs: set[str] = set()
+
+    # From zone_assignments dict
+    assigned_refs.update(constraints.zone_assignments.keys())
+
+    # From zone.components lists
     for zone in constraints.zones:
-        assigned_refs.extend(zone.components)
+        assigned_refs.update(zone.components)
+
+    # From component groups with zone
     for group in constraints.component_groups:
         if group.zone:
-            assigned_refs.extend(group.components)
+            assigned_refs.update(group.components)
 
-    fixed_refs = list(constraints.fixed_components)
+    # Fixed components are exempt (they don't need zone assignment)
+    fixed_refs = set(constraints.fixed_components)
 
-    passed, raw_issues = _tdb.validation.preflight_unassigned(
-        netlist_refs, assigned_refs, fixed_refs, require_all
-    )
-    return PreflightResult(passed=passed, issues=_wrap_issues(raw_issues))
+    # Find unassigned components
+    unassigned = netlist_refs - assigned_refs - fixed_refs
+
+    if unassigned:
+        sorted_unassigned = sorted(unassigned)
+        severity = PreflightSeverity.ERROR if require_all else PreflightSeverity.WARNING
+        issues.append(
+            PreflightIssue(
+                severity=severity,
+                code="ZONE_001",
+                message=f"{len(unassigned)} components have no zone assignment",
+                suggestion=(
+                    "Add zone assignments in constraints.yaml under 'zone_assignments' "
+                    "or add components to zone 'components' list. "
+                    f"Unassigned: {', '.join(sorted_unassigned[:10])}"
+                    + (
+                        f" and {len(sorted_unassigned) - 10} more..."
+                        if len(sorted_unassigned) > 10
+                        else ""
+                    )
+                ),
+                components=sorted_unassigned,
+                details={"unassigned_count": len(unassigned)},
+            )
+        )
+        passed = not require_all  # Pass with warning if not required
+    else:
+        issues.append(
+            PreflightIssue(
+                severity=PreflightSeverity.INFO,
+                code="ZONE_002",
+                message=f"All {len(netlist_refs)} components have zone assignments",
+            )
+        )
+        passed = True
+
+    return PreflightResult(passed=passed, issues=issues)
 
 
 # =============================================================================
@@ -262,51 +260,61 @@ def check_zones_fit_on_board(
     Returns:
         PreflightResult with zone boundary issues.
     """
+    issues = []
     board_w = constraints.board_width_mm
     board_h = constraints.board_height_mm
+    margin = constraints.board_margin_mm
 
-    passed, outside, overlaps = _tdb.validation.preflight_zones_fit(
-        [(z.name, tuple(z.bounds)) for z in constraints.zones],
-        board_w,
-        board_h,
-    )
+    # Effective board bounds with margin
+    board_w - margin
+    board_h - margin
 
-    issues = []
+    zones_outside = []
 
-    # ZONE_003 — the suggestion interpolates no-format str(float) board
-    # dimensions, so it is assembled here (Rust Display renders 10.0 as 10).
-    for zone_name, reasons in outside:
-        issues.append(
-            PreflightIssue(
-                severity=PreflightSeverity.ERROR,
-                code="ZONE_003",
-                message=f"Zone '{zone_name}' extends outside board boundaries",
-                suggestion=(
-                    f"Adjust zone bounds to fit within 0-{board_w}mm x 0-{board_h}mm. "
-                    f"Issues: {'; '.join(reasons)}"
-                ),
-                details={"zone_name": zone_name, "reasons": list(reasons)},
+    for zone in constraints.zones:
+        x_min, y_min, x_max, y_max = zone.bounds
+
+        outside_reasons = []
+        if x_min < 0:
+            outside_reasons.append(f"x_min={x_min:.1f} < 0")
+        if y_min < 0:
+            outside_reasons.append(f"y_min={y_min:.1f} < 0")
+        if x_max > board_w:
+            outside_reasons.append(f"x_max={x_max:.1f} > board_width={board_w:.1f}")
+        if y_max > board_h:
+            outside_reasons.append(f"y_max={y_max:.1f} > board_height={board_h:.1f}")
+
+        if outside_reasons:
+            zones_outside.append((zone.name, outside_reasons))
+
+    if zones_outside:
+        for zone_name, reasons in zones_outside:
+            issues.append(
+                PreflightIssue(
+                    severity=PreflightSeverity.ERROR,
+                    code="ZONE_003",
+                    message=f"Zone '{zone_name}' extends outside board boundaries",
+                    suggestion=f"Adjust zone bounds to fit within 0-{board_w}mm x 0-{board_h}mm. Issues: {'; '.join(reasons)}",
+                    details={"zone_name": zone_name, "reasons": reasons},
+                )
             )
-        )
-
-    if outside:
         return PreflightResult(passed=False, issues=issues)
 
-    # Overlapping zones (warning, not error) — pairs in the oracle's
-    # enumerate order, from the kernel.
-    for zone1, zone2 in overlaps:
-        issues.append(
-            PreflightIssue(
-                severity=PreflightSeverity.WARNING,
-                code="ZONE_004",
-                message=f"Zones '{zone1}' and '{zone2}' overlap",
-                suggestion="Overlapping zones may cause placement conflicts. Review zone boundaries.",
-                details={"zones": [zone1, zone2]},
-            )
-        )
+    # Check for overlapping zones (warning, not error)
+    for i, zone1 in enumerate(constraints.zones):
+        for zone2 in constraints.zones[i + 1 :]:
+            if _zones_overlap(zone1, zone2):
+                issues.append(
+                    PreflightIssue(
+                        severity=PreflightSeverity.WARNING,
+                        code="ZONE_004",
+                        message=f"Zones '{zone1.name}' and '{zone2.name}' overlap",
+                        suggestion="Overlapping zones may cause placement conflicts. Review zone boundaries.",
+                        details={"zones": [zone1.name, zone2.name]},
+                    )
+                )
 
     if not issues:
-        # ZONE_005's message interpolates no-format str(float) dimensions.
         issues.append(
             PreflightIssue(
                 severity=PreflightSeverity.INFO,
@@ -319,12 +327,14 @@ def check_zones_fit_on_board(
 
 
 def _zones_overlap(zone1: Zone, zone2: Zone) -> bool:
-    """Check if two zones overlap (simple AABB check) — the Rust kernel."""
-    # ``bounds`` may be a ``Rect`` pyclass (iterable, tuple-compatible) or a
-    # bare 4-tuple; the kernel consumes plain floats.
-    a = tuple(zone1.bounds)
-    b = tuple(zone2.bounds)
-    return _tdb.validation.zones_overlap(a, b)
+    """Check if two zones overlap (simple AABB check)."""
+    x1_min, y1_min, x1_max, y1_max = zone1.bounds
+    x2_min, y2_min, x2_max, y2_max = zone2.bounds
+
+    # No overlap if one is completely to the left/right/above/below
+    if x1_max <= x2_min or x2_max <= x1_min:
+        return False
+    return not (y1_max <= y2_min or y2_max <= y1_min)
 
 
 # =============================================================================
@@ -351,14 +361,110 @@ def check_impossible_constraints(
     Returns:
         PreflightResult with constraint issues.
     """
-    passed, raw_issues = _tdb.validation.preflight_impossible(
-        [(c.ref, c.bounds[0], c.bounds[1]) for c in netlist.components],
-        [(z.name, tuple(z.bounds)) for z in constraints.zones],
-        list(constraints.zone_assignments.items()),
-        [(g.name, g.zone or "", list(g.components)) for g in constraints.component_groups],
-        [list(t.components) for t in constraints.thermal_constraints],
-    )
-    return PreflightResult(passed=passed, issues=_wrap_issues(raw_issues))
+    issues = []
+
+    # Build component bounds lookup
+    comp_bounds = {c.ref: c.bounds for c in netlist.components}
+
+    # Build zone bounds lookup
+    zone_bounds = {z.name: z.bounds for z in constraints.zones}
+
+    # Check 1: Component fits in assigned zone
+    components_too_large = []
+
+    for ref, zone_name in constraints.zone_assignments.items():
+        if ref not in comp_bounds:
+            continue  # Component not in netlist, skip
+        if zone_name not in zone_bounds:
+            issues.append(
+                PreflightIssue(
+                    severity=PreflightSeverity.ERROR,
+                    code="CONSTRAINT_001",
+                    message=f"Component '{ref}' assigned to non-existent zone '{zone_name}'",
+                    suggestion=f"Either create zone '{zone_name}' or assign '{ref}' to an existing zone.",
+                    components=[ref],
+                )
+            )
+            continue
+
+        comp_w, comp_h = comp_bounds[ref]
+        z_x_min, z_y_min, z_x_max, z_y_max = zone_bounds[zone_name]
+        zone_w = z_x_max - z_x_min
+        zone_h = z_y_max - z_y_min
+
+        # Component must fit in zone (considering both orientations)
+        fits_normal = comp_w <= zone_w and comp_h <= zone_h
+        fits_rotated = comp_h <= zone_w and comp_w <= zone_h
+
+        if not (fits_normal or fits_rotated):
+            components_too_large.append((ref, zone_name, (comp_w, comp_h), (zone_w, zone_h)))
+
+    for ref, zone_name, (cw, ch), (zw, zh) in components_too_large:
+        issues.append(
+            PreflightIssue(
+                severity=PreflightSeverity.ERROR,
+                code="CONSTRAINT_002",
+                message=f"Component '{ref}' ({cw:.1f}x{ch:.1f}mm) won't fit in zone '{zone_name}' ({zw:.1f}x{zh:.1f}mm)",
+                suggestion=f"Increase zone '{zone_name}' size or reassign '{ref}' to a larger zone.",
+                components=[ref],
+                details={"component_size": (cw, ch), "zone_size": (zw, zh)},
+            )
+        )
+
+    # Check 2: Components in groups exist
+    for group in constraints.component_groups:
+        missing = [ref for ref in group.components if ref not in comp_bounds]
+        if missing:
+            issues.append(
+                PreflightIssue(
+                    severity=PreflightSeverity.WARNING,
+                    code="CONSTRAINT_003",
+                    message=f"Group '{group.name}' references {len(missing)} components not in netlist",
+                    suggestion=f"Update group or netlist. Missing: {', '.join(missing[:5])}",
+                    components=missing,
+                    details={"group_name": group.name, "missing_count": len(missing)},
+                )
+            )
+
+    # Check 3: Group zone exists
+    for group in constraints.component_groups:
+        if group.zone and group.zone not in zone_bounds:
+            issues.append(
+                PreflightIssue(
+                    severity=PreflightSeverity.ERROR,
+                    code="CONSTRAINT_004",
+                    message=f"Group '{group.name}' requires non-existent zone '{group.zone}'",
+                    suggestion=f"Create zone '{group.zone}' or change group's zone assignment.",
+                    components=group.components,
+                )
+            )
+
+    # Check 4: Thermal components exist
+    for thermal in constraints.thermal_constraints:
+        missing = [ref for ref in thermal.components if ref not in comp_bounds]
+        if missing:
+            issues.append(
+                PreflightIssue(
+                    severity=PreflightSeverity.WARNING,
+                    code="CONSTRAINT_005",
+                    message=f"Thermal constraint references {len(missing)} components not in netlist",
+                    suggestion=f"Update thermal constraints. Missing: {', '.join(missing[:5])}",
+                    components=missing,
+                )
+            )
+
+    # Summary
+    error_count = sum(1 for i in issues if i.severity == PreflightSeverity.ERROR)
+    if error_count == 0:
+        issues.append(
+            PreflightIssue(
+                severity=PreflightSeverity.INFO,
+                code="CONSTRAINT_006",
+                message="All constraints are feasible",
+            )
+        )
+
+    return PreflightResult(passed=error_count == 0, issues=issues)
 
 
 # =============================================================================

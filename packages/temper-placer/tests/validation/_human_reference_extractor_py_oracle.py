@@ -20,7 +20,6 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
-import temper_drc_rs as _tdrc  # type: ignore[import-untyped]
 import yaml
 
 from temper_placer.core.state import PlacementState
@@ -255,19 +254,12 @@ def _compute_routing_metrics(
     def mk(v):
         return MetricValue(value=v, extracted_at=now, pcb_git_hash=pcb_git_hash)
 
-    # Routed length from trace segments. The RDL loop — per segment
-    # ``rdl += math.hypot(end.x - start.x, end.y - start.y)`` — is the
-    # ``temper_drc_rs.rdl_sum`` kernel (the trace-kernel family; home-crate
-    # decision recorded in VERIFICATION.md). ``math.hypot`` is passed in as
-    # the per-segment length function and called back from the kernel:
-    # CPython inlines its own hypot into mathmodule.c, so neither libm nor
-    # ``f64::hypot`` matches it bit-for-bit (measured 1-ulp divergence).
-    # The trace starts/ends are passed through in segment order, and the
-    # kernel preserves the oracle's in-order `+=` accumulation.
-    rdl = _tdrc.rdl_sum(
-        [(t.start[0], t.start[1], t.end[0], t.end[1]) for t in parse_result.traces],
-        math.hypot,
-    )
+    # Routed length from trace segments
+    rdl = 0.0
+    for t in parse_result.traces:
+        dx = float(t.end[0]) - float(t.start[0])
+        dy = float(t.end[1]) - float(t.start[1])
+        rdl += math.hypot(dx, dy)
 
     # Via count
     via_count = len(parse_result.vias)

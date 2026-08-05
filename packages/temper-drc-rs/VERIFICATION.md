@@ -269,3 +269,39 @@ scorecard's "dict builders stay Python" claim is accurate again.
   quantity), so the R24 discipline (Chebyshev-style soundness proof,
   BMC-exhaustive validation, post-solve audit) does not apply. State
   recorded explicitly because the ledger requires it.
+
+## Phase 4 — the validation-remainder RDL kernel (`rdl_sum`)
+
+Wave-4 Phase-4 moved the ONE in-module numeric compute of
+`temper_placer/validation/human_reference_extractor.py`'s
+`_compute_routing_metrics` here: the routed-length loop
+`rdl += math.hypot(end.x - start.x, end.y - start.y)` in segment order.
+Home-crate decision: temper-drc-rs, because the kernel is a trace-kernel —
+the same family as this crate's already-landed `trace_length` — and the
+crate already owns the hostmath machinery.
+
+**The `math.hypot` boundary — why it is a callback, not a dlsym.**
+The first transcription dlsym'd the system libm `hypot` (the B1 hostmath
+precedent that works for `pow`). It diverges from CPython's `math.hypot`
+by 1 ulp on non-correctly-rounded inputs: `math.hypot(0.1, 0.1)` is
+`0x1.21a1851ff630ap-3` while libm `hypot` (and `sqrt(x*x + y*y)`, and
+`sqrt(fma(...))`, all verified by C probe) is `…b-3`. CPython 3.12 inlines
+its own fdlibm-style hypot into `mathmodule.c` (bpo-33083), so no dlsym
+target reproduces it. `rdl_sum` therefore takes `math.hypot` as a
+per-segment callback: the host runtime's own function, so bit-parity holds
+by construction, while the in-order `+=` accumulation stays Rust. The
+delegation module and the differential pass `math.hypot` explicitly. The
+1-ulp divergence was caught by the differential on first run and is
+recorded in `docs/evidence/2026-08-05-wave4-phase4-validation-remainder-
+mutation-sweep.md`; the M11 mutant (manhattan substitute) is caught.
+
+R1 coverage (shared with the design-bundle Phase-4 section): R1a via
+`test_human_reference_extractor_rust_differential.py` (floats via
+`.hex()`); R1c 5 properties (non-negativity, per-segment lower bound,
+single-segment = hypot, zero-length invariance, empty = 0.0); R1d 3 MRs
+(scaling homogeneity, negation identity, midpoint splitting); R1f RED
+commit `28d712e75` (the file fails to collect without `temper_drc_rs.
+rdl_sum`); R1g no `unwrap`/`expect` outside tests, pyo3 `catch_unwind`
+default; R1b no-regression arm not registered — a per-segment callback
+loop is marshalling-bound and the slice makes no speedup claim (recorded
+reason); R1h **not applicable** (no physics-gated quantity).
