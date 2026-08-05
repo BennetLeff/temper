@@ -601,6 +601,42 @@ jobs:
           RUST_BACKTRACE: full
           PYTHONFAULTHANDLER: 1
 
+      # Wave 4 Phase 5 anti-vacuity gate (PR merge path): the report /
+      # explainability / requirements differential+PBT suites are the ONLY
+      # tests that pin the migrated Phase-5 Rust kernels
+      # (temper_io_types.report/explain, temper_drc_rs.req_safe_01)
+      # bit-exactly against the verbatim Python oracles
+      # (tests/report/_*_py_oracle.py, tests/explainability/explain_oracle/,
+      # tests/requirements/clearance_oracle/). They run in no other PR-time
+      # job, so without this step a Phase-5 kernel regression would merge
+      # silently — mirroring the Phase-4 validation gate above. pytest_guard
+      # floors the collection at the 126 tests counted on the migration
+      # branch, so a silently-shrunk suite fails instead of passing
+      # vacuously. The oracle packages are exercised only through these
+      # suites.
+      - name: Run Phase-5 report/explainability/clearance differentials (anti-vacuity gate)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        working-directory: packages/temper-placer
+        run: >
+          uv run python ../../scripts/pytest_guard.py --min-tests 126 --
+          tests/report/test_formatter_rust_differential.py
+          tests/report/test_summary_rust_differential.py
+          tests/report/test_generator_rust_differential.py
+          tests/report/test_report_pbt.py
+          tests/explainability/test_trace_rust_differential.py
+          tests/explainability/test_decision_rust_differential.py
+          tests/explainability/test_logger_rust_differential.py
+          tests/explainability/test_markdown_rust_differential.py
+          tests/explainability/test_serialization_rust_differential.py
+          tests/explainability/test_traced_loss_pipeline_rust_differential.py
+          tests/explainability/test_explainability_pbt.py
+          tests/requirements/test_clearance_validator_rust_differential.py
+          tests/requirements/test_clearance_validator_pbt.py
+          -v --tb=short -p no:cacheprovider --maxfail=10
+        env:
+          RUST_BACKTRACE: full
+          PYTHONFAULTHANDLER: 1
+
       - name: Coverage gate (temper-placer)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         working-directory: packages/temper-placer
