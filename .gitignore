@@ -87,6 +87,13 @@ temper-placer/research/*.svg
 
 # Root hygiene — no generated/artifact files at repo root
 /*.py
+# ...except conftest.py, which is pytest's own root configuration rather than a
+# stray artifact. It installs the protected-measurement-artifact guard for
+# every run rooted at the repo (see scripts/_lib/pytest_artifact_guard.py).
+# Without this negation `/*.py` silently swallows it: the file works locally,
+# never reaches a commit, and the guard is simply absent in CI -- the same
+# "green because nothing ran" failure the guard exists to prevent.
+!/conftest.py
 /*.kicad_pcb
 /*.kicad_pro
 /*.kicad_prl

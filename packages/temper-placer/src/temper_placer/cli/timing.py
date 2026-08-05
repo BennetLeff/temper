@@ -5,6 +5,19 @@ Commands:
     temper timing check      Compare current timing against baselines.
     temper timing regenerate Update baselines after intentional changes.
     temper timing tighten    Auto-lower stale baselines from JSONL trends.
+
+Wave-4 Phase-5 delegation shim: the numeric compute of this module — the
+``timing_check`` stage-comparison block (``compare_stage``) and the
+``wall_ms_p95`` expression (``p95``) — is implemented in Rust in the
+``temper-orchestration`` crate (``temper_orchestration.compare_stage`` /
+``temper_orchestration.p95``), pinned bit-identically by
+``tests/cli/test_timing_rust_differential.py`` against the VERBATIM
+pre-migration oracle ``tests/cli/_timing_py_oracle.py``. The full click
+surface (flags, help, exit codes, output text) and the orchestration glue
+stay Python: the YAML manifest I/O (PyYAML is the boundary, per the loaders
+precedent), the ``git`` subprocess calls, and the calls into
+``temper_placer.profiling.timing_gate`` / ``temper_placer.regression``
+(surfaces owned by other Phase-4/5 slices).
 """
 
 from __future__ import annotations
@@ -16,6 +29,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 import click
+import temper_orchestration as _to
 import yaml  # type: ignore[import-untyped]
 
 from ._io import console
@@ -207,10 +221,7 @@ def timing_baseline(
                 "pipeline": result.pipeline,
                 "stage": result.stage_name,
                 "wall_ms_mean": round(result.wall_ms, 3),
-                "wall_ms_p95": round(
-                    sorted(result.individual_ms)[int(len(result.individual_ms) * 0.95)],
-                    3,
-                ),
+                "wall_ms_p95": _to.p95(result.individual_ms),
                 "n_runs": result.n_runs,
                 "individual_ms": [round(x, 3) for x in result.individual_ms],
                 "git_hash": git_hash,
@@ -432,12 +443,9 @@ def timing_check(
                 continue
 
             current_ms = current.wall_ms
-            delta_ms = current_ms - baseline_ms
-            delta_pct = (delta_ms / baseline_ms) * 100.0 if baseline_ms > 0 else 0.0
-
-            effective_baseline = max(baseline_ms, floor_ms)
-            threshold_ms = effective_baseline * (1.0 + margin)
-            passed = current_ms <= threshold_ms
+            delta_ms, delta_pct, effective_baseline, threshold_ms, passed = _to.compare_stage(
+                baseline_ms, current_ms, margin, floor_ms
+            )
 
             if not passed:
                 fail_count += 1
@@ -570,10 +578,7 @@ def timing_regenerate(
             "pipeline": pipeline,
             "stage": stage,
             "wall_ms_mean": round(result.wall_ms, 3),
-            "wall_ms_p95": round(
-                sorted(result.individual_ms)[int(len(result.individual_ms) * 0.95)],
-                3,
-            ),
+            "wall_ms_p95": _to.p95(result.individual_ms),
             "n_runs": result.n_runs,
             "individual_ms": [round(x, 3) for x in result.individual_ms],
             "git_hash": git_hash,
@@ -618,10 +623,7 @@ def timing_regenerate(
                 "pipeline": pipeline,
                 "stage": result.stage_name,
                 "wall_ms_mean": round(result.wall_ms, 3),
-                "wall_ms_p95": round(
-                    sorted(result.individual_ms)[int(len(result.individual_ms) * 0.95)],
-                    3,
-                ),
+                "wall_ms_p95": _to.p95(result.individual_ms),
                 "n_runs": result.n_runs,
                 "individual_ms": [round(x, 3) for x in result.individual_ms],
                 "git_hash": git_hash,
@@ -779,14 +781,7 @@ def timing_tighten(
                 and entry["stage"] == result.stage
             ):
                 # Compute p95 of qualifying runs  # R5
-                p95_ms = (
-                    round(
-                        sorted(result.qualifying_runs)[int(len(result.qualifying_runs) * 0.95)],
-                        3,
-                    )
-                    if result.qualifying_runs
-                    else 0.0
-                )
+                p95_ms = _to.p95(result.qualifying_runs) if result.qualifying_runs else 0.0
 
                 manifest["stages"][i] = {
                     "board": result.board,

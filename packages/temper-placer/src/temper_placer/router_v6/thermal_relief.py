@@ -427,6 +427,50 @@ def _clamp_to_board_outline(
 # ---------------------------------------------------------------------------
 
 
+def _plane_nets_in_netlist_order(netlist, plane_nets: frozenset[str]) -> list[str]:
+    """Project a plane-net ``frozenset`` back through the netlist's net order.
+
+    ``frozenset[str]`` iteration order depends on ``PYTHONHASHSEED``, which
+    CPython randomises per process. ``_add_smd_thermal_reliefs`` appends one
+    ``ThermalRelief`` per plane net, so iterating the frozenset directly made
+    the *order of the emitted report* differ between two runs of the same code
+    on the same board -- measured at 8 distinct orders over 8 fresh
+    interpreters (issue #752, defect 7).
+
+    Netlist order is the canonical order, not ``sorted()``. It is the
+    convention this repo already uses for exactly this problem
+    (``heuristics.structural.identify_thermal_components``: "Return components
+    in netlist order", which re-projects a ``set`` through ``netlist``), it is
+    the index basis the rest of the pipeline shares, and this loop is already
+    reading per-net data out of that same netlist. Lexicographic net-name order
+    would be an ordering the design never had.
+
+    ``netlist`` is duck-typed here, as everywhere else in this function: the
+    callers pass whatever ``board.netlist`` is. A netlist without ``.nets``
+    still gets a deterministic order.
+
+    Args:
+        netlist: Object supplying the canonical net order via ``.nets``.
+        plane_nets: Plane-net names to order.
+
+    Returns:
+        The plane-net names, netlist order first, then any names the netlist
+        does not contain in ascending name order. Names absent from the netlist
+        have no netlist position and produce no pads, so their (sorted) tail is
+        inert -- it exists so the result is total, not to impose a convention.
+    """
+    wanted = set(plane_nets)
+    ordered: list[str] = []
+    seen: set[str] = set()
+    for net in getattr(netlist, "nets", None) or ():
+        name = getattr(net, "name", None)
+        if name in wanted and name not in seen:
+            seen.add(name)
+            ordered.append(name)
+    ordered.extend(sorted(wanted - seen))
+    return ordered
+
+
 def _add_smd_thermal_reliefs(
     board: Board,
     _routing_results: RoutingResults,
@@ -457,7 +501,7 @@ def _add_smd_thermal_reliefs(
         (tr.net_name, tr.pad_position) for tr in thermal_reliefs
     }
 
-    for net_name in resolved_plane_nets:
+    for net_name in _plane_nets_in_netlist_order(netlist, resolved_plane_nets):
         if not _is_power_net(net_name):
             continue
         # Get pads for this net from the netlist
