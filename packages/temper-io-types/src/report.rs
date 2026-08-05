@@ -47,12 +47,12 @@ fn get_f64(obj: &Bound<'_, PyAny>, name: &str) -> PyResult<f64> {
 }
 
 /// Python `float(obj)`.
-fn to_f64(obj: &Bound<'_, PyAny>) -> PyResult<f64> {
+pub(crate) fn to_f64(obj: &Bound<'_, PyAny>) -> PyResult<f64> {
     obj.call_method0("__float__")?.extract::<f64>()
 }
 
 /// Python `str(obj)`.
-fn py_str(obj: &Bound<'_, PyAny>) -> PyResult<String> {
+pub(crate) fn py_str(obj: &Bound<'_, PyAny>) -> PyResult<String> {
     Ok(obj.str()?.to_string())
 }
 
@@ -73,7 +73,7 @@ fn severity_name(issue: &Bound<'_, PyAny>) -> PyResult<String> {
 }
 
 /// Iterate a Python iterable's items.
-fn iter_items<'py>(obj: &Bound<'py, PyAny>) -> PyResult<Vec<Bound<'py, PyAny>>> {
+pub(crate) fn iter_items<'py>(obj: &Bound<'py, PyAny>) -> PyResult<Vec<Bound<'py, PyAny>>> {
     let mut out = Vec::new();
     for item in obj.try_iter()? {
         out.push(item?);
