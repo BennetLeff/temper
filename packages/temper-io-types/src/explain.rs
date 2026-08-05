@@ -23,6 +23,14 @@ use pyo3::types::{PyDict, PyList, PyTuple};
 
 use crate::pyfmt::{py_float_fmt_1, py_float_fmt_2, py_float_fmt_4};
 use crate::report::{iter_items, py_str, to_f64};
+
+/// `seq[i]` — Python-level `__getitem__`, matching the oracle's indexing
+/// (`new[0]` / `old[1]` / `pos[0]`), so ANY indexable sequence works:
+/// tuple, list, numpy array. Out-of-range raises the sequence's own
+/// IndexError (the oracle raises it too).
+fn seq_index<'py>(seq: &Bound<'py, PyAny>, i: usize) -> PyResult<Bound<'py, PyAny>> {
+    seq.get_item(i)
+}
 // ---------------------------------------------------------------------------
 // trace.py — Trace.why
 // ---------------------------------------------------------------------------
@@ -348,12 +356,10 @@ pub fn explain_significant_change(
     threshold: f64,
 ) -> PyResult<bool> {
     catch(|| {
-        let old_t = old.cast::<PyTuple>()?;
-        let new_t = new.cast::<PyTuple>()?;
-        let ox = to_f64(&old_t.get_item(0)?)?;
-        let oy = to_f64(&old_t.get_item(1)?)?;
-        let nx = to_f64(&new_t.get_item(0)?)?;
-        let ny = to_f64(&new_t.get_item(1)?)?;
+        let ox = to_f64(&seq_index(old, 0)?)?;
+        let oy = to_f64(&seq_index(old, 1)?)?;
+        let nx = to_f64(&seq_index(new, 0)?)?;
+        let ny = to_f64(&seq_index(new, 1)?)?;
         let dx = nx - ox;
         let dy = ny - oy;
         let distance = (dx * dx + dy * dy).sqrt();
@@ -600,9 +606,16 @@ fn truncate(text: &str, max_len: usize) -> String {
     if chars.len() <= max_len {
         return text.to_string();
     }
-    let cut = chars[..max_len.saturating_sub(3)]
-        .iter()
-        .collect::<String>();
+    // Oracle: `text[:max_len - 3] + "..."`. For max_len < 3 the stop is
+    // negative; CPython clamps `text[:-k]` to len - k code points
+    // (max_len=2 -> text[:-1], 1 -> text[:-2], 0 -> text[:-3], floored at
+    // ""). Unreachable from the 60/40/50 call sites, but pinned anyway.
+    let cut: String = if max_len >= 3 {
+        chars[..max_len - 3].iter().collect()
+    } else {
+        let keep = chars.len().saturating_sub(3 - max_len);
+        chars[..keep].iter().collect()
+    };
     format!("{cut}...")
 }
 
@@ -914,9 +927,8 @@ fn render_markdown_report_impl(
             }
             items.sort_by(|a, b| a.0.cmp(&b.0));
             for (comp, pos) in &items {
-                let pos_t = pos.cast::<PyTuple>()?;
-                let x = py_float_fmt_2(to_f64(&pos_t.get_item(0)?)?);
-                let y = py_float_fmt_2(to_f64(&pos_t.get_item(1)?)?);
+                let x = py_float_fmt_2(to_f64(&seq_index(pos, 0)?)?);
+                let y = py_float_fmt_2(to_f64(&seq_index(pos, 1)?)?);
                 lines.push(format!("| {comp} | {x} | {y} |"));
             }
             lines.push(String::new());

@@ -86,6 +86,14 @@ fn to_f64(obj: &Bound<'_, PyAny>) -> PyResult<f64> {
     obj.call_method0("__float__")?.extract::<f64>()
 }
 
+/// `seq[i]` — Python-level `__getitem__`, matching the oracle's indexing
+/// (`new[0]` / `ox, oy = comp["position"]` / `dx, dy = p["offset"]`), so
+/// ANY indexable sequence works: tuple, list, numpy array. Out-of-range
+/// raises the sequence's own IndexError (the oracle raises it too).
+fn seq_index<'py>(seq: &Bound<'py, PyAny>, i: usize) -> PyResult<Bound<'py, PyAny>> {
+    seq.get_item(i)
+}
+
 fn iter_items<'py>(obj: &Bound<'py, PyAny>) -> PyResult<Vec<Bound<'py, PyAny>>> {
     let mut out = Vec::new();
     for item in obj.try_iter()? {
@@ -139,11 +147,14 @@ fn comp_ref_str(comp: &Bound<'_, PyAny>) -> PyResult<String> {
     }
 }
 
-/// `comp["position"]` as (x, y) f64s.
+/// `comp["position"]` as (x, y) f64s — any indexable sequence, matching
+/// the oracle's `ox, oy = comp["position"]` unpacking (a list works too).
 fn comp_position(comp: &Bound<'_, PyAny>) -> PyResult<(f64, f64)> {
     let position = get_key_required(comp, "position")?;
-    let t = position.cast::<PyTuple>()?;
-    Ok((to_f64(&t.get_item(0)?)?, to_f64(&t.get_item(1)?)?))
+    Ok((
+        to_f64(&seq_index(&position, 0)?)?,
+        to_f64(&seq_index(&position, 1)?)?,
+    ))
 }
 
 /// A pad spec as a Python 7-tuple for the temper-geometry kernels.
@@ -467,10 +478,10 @@ fn component_pads_impl(
     let mut pads: Vec<Pad> = Vec::new();
     for (i, p) in iter_items(&raw)?.into_iter().enumerate() {
         let (dx, dy) = match get_key_opt(&p, "offset")? {
-            Some(off) if !off.is_none() => {
-                let t = off.cast::<PyTuple>()?;
-                (to_f64(&t.get_item(0)?)?, to_f64(&t.get_item(1)?)?)
-            }
+            Some(off) if !off.is_none() => (
+                to_f64(&seq_index(&off, 0)?)?,
+                to_f64(&seq_index(&off, 1)?)?,
+            ),
             _ => (0.0, 0.0),
         };
         let (rx, ry) = tg_rotate(py, dx, dy, comp_rot_rad)?;
