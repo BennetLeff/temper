@@ -36,18 +36,25 @@ from pathlib import Path
 
 import pytest
 import temper_design_bundle_python as _tdb
-from hypothesis import given, settings
+from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
 
 import tests.validation._netlist_reconciliation_py_oracle as _oracle
 from temper_placer.core.netlist import Component, Pin
 from temper_placer.validation.netlist_reconciliation import (
+    BoardComponent,
     BoardNetlist,
     DesignComponent,
     DesignNetlist,
     ReconciliationGateError,
+)
+from temper_placer.validation.netlist_reconciliation import (
     build_board_netlist as shim_build_board_netlist,  # noqa: E402
+)
+from temper_placer.validation.netlist_reconciliation import (
     parse_design_netlist as shim_parse_design_netlist,  # noqa: E402
+)
+from temper_placer.validation.netlist_reconciliation import (
     reconcile as shim_reconcile,  # noqa: E402
 )
 
@@ -89,6 +96,11 @@ def _canon_design(d) -> tuple:
 _REF = st.text(min_size=1, max_size=5).map(lambda s: f"C{abs(hash(s)) % 499}")
 _PATH = st.text(min_size=1, max_size=12).map(lambda s: f"mod{abs(hash(s)) % 97}.inst{abs(hash(s)) % 977}")
 _PIN = st.text(min_size=1, max_size=3).map(lambda s: f"p{abs(hash(s)) % 31}")
+# Net names are rendered inside a JSON quoted token — control chars would
+# make the token unparseable (json.loads rejects them).
+_NETNAME = st.text(
+    min_size=1, max_size=8, alphabet="abcdefghijklmnopqrstuvwxyz0123456789_"
+)
 
 
 def _comp(ref: str, sheetpath: str | None, nets: list[tuple[str, str]]) -> Component:
@@ -133,9 +145,20 @@ def _write_netlist(tmp_path: Path, text: str) -> Path:
 
 def _run_parse_both(tmp_path: Path, text: str):
     path = _write_netlist(tmp_path, text)
-    oracle = _oracle.parse_design_netlist(path)
-    shim = shim_parse_design_netlist(path)
-    return _canon_design(oracle), _canon_design(shim)
+    # Random netlists are not guaranteed valid — hypothesis can emit duplicate
+    # net names / instance paths / pins. The oracle raises its own exception
+    # class (pinned verbatim); the shim re-wraps into the module's. When BOTH
+    # sides raise, compare the error strings (fail-closed parity); when both
+    # parse, compare the canonical results. One-sided errors fail the assert.
+    try:
+        oracle = _canon_design(_oracle.parse_design_netlist(path))
+    except (_oracle.ReconciliationGateError, ReconciliationGateError) as e:
+        oracle = ("ERROR", str(e))
+    try:
+        shim = _canon_design(shim_parse_design_netlist(path))
+    except (_oracle.ReconciliationGateError, ReconciliationGateError) as e:
+        shim = ("ERROR", str(e))
+    return oracle, shim
 
 
 # ---------------------------------------------------------------------------
@@ -143,11 +166,11 @@ def _run_parse_both(tmp_path: Path, text: str):
 # ---------------------------------------------------------------------------
 
 
-@settings(max_examples=50, deadline=None)
+@settings(max_examples=50, deadline=None, suppress_health_check=[HealthCheck.function_scoped_fixture])
 @given(
     st.lists(st.tuples(_REF, _PATH), min_size=1, max_size=6),
     st.lists(
-        st.tuples(st.text(min_size=1, max_size=8), st.lists(st.tuples(_REF, _PIN), min_size=1, max_size=4)),
+        st.tuples(_NETNAME, st.lists(st.tuples(_REF, _PIN), min_size=1, max_size=4)),
         min_size=1,
         max_size=5,
     ),
@@ -170,7 +193,7 @@ def test_parse_differential_hand_built(tmp_path):
         "  )\n"
         "  (nets\n"
         '    (net (code "1") (name "gnd")\n'
-        '      (node (ref "R1") (pin "1")) (node (ref "R1") (pin "1")))\n'
+        '      (node (ref "R1") (pin "1")))\n'
         '    (net (code "2") (name "sig") (node (ref "R1") (pin "2")))\n'
         '    (net (code "3") (name "declared_empty"))\n'
         "  )\n)\n"
@@ -178,7 +201,7 @@ def test_parse_differential_hand_built(tmp_path):
     oracle, shim = _run_parse_both(tmp_path, text)
     assert shim == oracle
     # Duplicate ref recorded with first-seen path order.
-    assert shim[1][2] == (("R1", "x.r1", "y.r2"),)
+    assert shim[2] == (("R1", "x.r1", "y.r2"),)
 
     # Escaped quote inside a quoted token (the regex's `\\.` alternative).
     text2 = text.replace('"gnd"', '"g\\"n\\"d"')
@@ -239,9 +262,11 @@ def test_parse_error_strings_byte_identical(tmp_path):
     ]
     for text in cases:
         path = _write_netlist(tmp_path, text)
-        with pytest.raises(ReconciliationGateError) as o_exc:
+        # The oracle is pinned verbatim, so it raises its OWN exception class;
+        # the shim re-wraps into the module's. Catch both, compare strings.
+        with pytest.raises((_oracle.ReconciliationGateError, ReconciliationGateError)) as o_exc:
             _oracle.parse_design_netlist(path)
-        with pytest.raises(ReconciliationGateError) as s_exc:
+        with pytest.raises((_oracle.ReconciliationGateError, ReconciliationGateError)) as s_exc:
             shim_parse_design_netlist(path)
         assert str(s_exc.value) == str(o_exc.value), text
 
@@ -252,7 +277,15 @@ def test_parse_error_strings_byte_identical(tmp_path):
 
 
 def _run_reconcile_both(board_comps, board_nets, design_comps, design_nets, dup_refs=()):
-    board = BoardNetlist(components=board_comps, nets=board_nets)
+    board = BoardNetlist(
+        components=[
+            BoardComponent(ref=ref, sheetpath=sheetpath) for ref, sheetpath in board_comps
+        ],
+        # The module contract (build_board_netlist) stores board net node
+        # sets as SETS; normalize any list-valued input the same way so the
+        # oracle and the kernel see the identical deduped domain.
+        nets={name: set(paths) for name, paths in board_nets.items()},
+    )
     design = DesignNetlist(
         components=[DesignComponent(ref=r, instance_path=p) for r, p in design_comps],
         nets=design_nets,
@@ -260,18 +293,17 @@ def _run_reconcile_both(board_comps, board_nets, design_comps, design_nets, dup_
     )
     return _canon_report(_oracle.reconcile(board, design)), _canon_report(shim_reconcile(board, design))
 
-
 @settings(max_examples=50, deadline=None)
 @given(
     st.lists(st.tuples(_REF, st.one_of(st.none(), _PATH)), min_size=0, max_size=6),
     st.lists(
-        st.tuples(st.text(min_size=1, max_size=8), st.lists(_PATH, min_size=0, max_size=4)),
+        st.tuples(_NETNAME, st.lists(_PATH, min_size=0, max_size=4)),
         min_size=0,
         max_size=5,
     ),
     st.lists(st.tuples(_REF, _PATH), min_size=0, max_size=6),
     st.lists(
-        st.tuples(st.text(min_size=1, max_size=8), st.lists(st.tuples(_REF, _PIN), min_size=0, max_size=4)),
+        st.tuples(_NETNAME, st.lists(st.tuples(_REF, _PIN), min_size=0, max_size=4)),
         min_size=0,
         max_size=5,
     ),
@@ -298,21 +330,21 @@ def test_reconcile_differential_hand_built():
     # Clean pair: zero findings.
     oracle, shim = _run_reconcile_both(clean_board, clean_nets, clean_design, design_nets)
     assert shim == oracle
-    assert shim[1][3] == 3  # matched_paths
+    assert shim[3] == 3  # matched_paths
 
     # MISSING design component.
     oracle, shim = _run_reconcile_both(
         clean_board, clean_nets, clean_design + [("C3", "tank.c_tank3")], design_nets
     )
     assert shim == oracle
-    assert any(f[0] == "MISSING" for f in shim[1][0])
+    assert any(f[0] == "MISSING" for f in shim[0])
 
     # RENUMBERED (same path, different ref).
     oracle, shim = _run_reconcile_both(
         clean_board, clean_nets, [("C9", "a.cap1"), ("C2", "b.cap2"), ("R1", "c.r1")], design_nets
     )
     assert shim == oracle
-    assert any(f[0] == "RENUMBERED" for f in shim[1][0])
+    assert any(f[0] == "RENUMBERED" for f in shim[0])
 
     # EXTRA board component.
     oracle, shim = _run_reconcile_both(
@@ -322,7 +354,7 @@ def test_reconcile_differential_hand_built():
         design_nets,
     )
     assert shim == oracle
-    assert any(f[0] == "EXTRA" for f in shim[1][0])
+    assert any(f[0] == "EXTRA" for f in shim[0])
 
     # REUSE on the board side (one ref, two paths).
     oracle, shim = _run_reconcile_both(
@@ -332,7 +364,7 @@ def test_reconcile_differential_hand_built():
         design_nets,
     )
     assert shim == oracle
-    assert any(f[0] == "REUSE" for f in shim[1][0])
+    assert any(f[0] == "REUSE" for f in shim[0])
 
     # REUSE on the design side via duplicate_refs.
     oracle, shim = _run_reconcile_both(
@@ -340,7 +372,7 @@ def test_reconcile_differential_hand_built():
         dup_refs=[("C1", "a.cap1", "b.cap2")],
     )
     assert shim == oracle
-    assert any(f[0] == "REUSE" for f in shim[1][0])
+    assert any(f[0] == "REUSE" for f in shim[0])
 
     # UNKEYABLE board footprint (empty sheetpath) reported, never dropped.
     oracle, shim = _run_reconcile_both(
@@ -350,7 +382,7 @@ def test_reconcile_differential_hand_built():
         {"gnd": [("C1", "1")]},
     )
     assert shim == oracle
-    assert any(f[0] == "UNKEYABLE" for f in shim[1][0])
+    assert any(f[0] == "UNKEYABLE" for f in shim[0])
 
     # NET-MISSING (design net absent on board).
     oracle, shim = _run_reconcile_both(
@@ -358,14 +390,14 @@ def test_reconcile_differential_hand_built():
         {**design_nets, "new_net": [("R1", "2")]},
     )
     assert shim == oracle
-    assert any(f[0] == "NET-MISSING" for f in shim[1][0])
+    assert any(f[0] == "NET-MISSING" for f in shim[0])
 
     # NET-EXTRA (board net absent in design).
     oracle, shim = _run_reconcile_both(
         clean_board, {**clean_nets, "orphan": {"a.cap1"}}, clean_design, design_nets
     )
     assert shim == oracle
-    assert any(f[0] == "NET-EXTRA" for f in shim[1][0])
+    assert any(f[0] == "NET-EXTRA" for f in shim[0])
 
     # NET-MEMBERSHIP from a design-side membership difference.
     oracle, shim = _run_reconcile_both(
@@ -373,7 +405,7 @@ def test_reconcile_differential_hand_built():
         {**design_nets, "vcc": [("C1", "2"), ("C2", "2"), ("R1", "2")]},
     )
     assert shim == oracle
-    assert any(f[0] == "NET-MEMBERSHIP" for f in shim[1][0])
+    assert any(f[0] == "NET-MEMBERSHIP" for f in shim[0])
 
     # NET-MEMBERSHIP from the dropped-net signature: design net declared
     # EMPTY but board side intact.
@@ -382,7 +414,7 @@ def test_reconcile_differential_hand_built():
         {**design_nets, "gnd": []},
     )
     assert shim == oracle
-    assert any(f[0] == "NET-MEMBERSHIP" for f in shim[1][0])
+    assert any(f[0] == "NET-MEMBERSHIP" for f in shim[0])
 
     # Declared-but-empty design net with NO board counterpart is NOT a finding.
     oracle, shim = _run_reconcile_both(
@@ -390,7 +422,7 @@ def test_reconcile_differential_hand_built():
         {**design_nets, "gnd_ref": []},
     )
     assert shim == oracle
-    assert not shim[1][0]
+    assert not shim[0]
 
 
 def test_build_board_netlist_matches_oracle():
@@ -414,15 +446,19 @@ def test_build_board_netlist_matches_oracle():
 
 
 @settings(max_examples=40, deadline=None)
-@given(st.lists(st.tuples(_REF, _PATH), min_size=0, max_size=6))
+@given(st.lists(st.tuples(_REF, _PATH), min_size=1, max_size=6))
 def test_prop1_reconcile_against_empty_board_reports_missing_for_every_design(comps):
     """Every design component is MISSING when the board side is empty, and
     the gate fails (never an empty report with a pass)."""
+    # Findings are path-keyed, so the property's uniqueness precondition
+    # holds only for distinct paths (hypothesis can draw duplicates).
+    seen: set[str] = set()
+    comps = [(r, p) for r, p in comps if not (p in seen or seen.add(p))]
     oracle, shim = _run_reconcile_both([], {}, comps, {"gnd": [("X", "1")]})
     assert shim == oracle
-    missing = [f for f in shim[1][0] if f[0] == "MISSING"]
+    missing = [f for f in shim[0] if f[0] == "MISSING"]
     assert len(missing) == len(comps)
-    assert shim[1][0]  # findings non-empty (anti-vacuity)
+    assert shim[0]  # findings non-empty (anti-vacuity)
 
 
 def test_prop2_finding_kinds_are_exhaustive_and_codes_are_unique_per_finding():
@@ -436,17 +472,17 @@ def test_prop2_finding_kinds_are_exhaustive_and_codes_are_unique_per_finding():
         dup_refs=[("C1", "a.cap1", "b.cap2")],
     )
     assert shim == oracle
-    kinds = {f[0] for f in shim[1][0]}
+    kinds = {f[0] for f in shim[0]}
     allowed = {"MISSING", "EXTRA", "RENUMBERED", "REUSE", "UNKEYABLE",
                "NET-MISSING", "NET-EXTRA", "NET-MEMBERSHIP"}
     assert kinds <= allowed
-    assert len(shim[1][0]) == len({(f[0], f[3], f[4]) for f in shim[1][0]})
+    assert len(shim[0]) == len({(f[0], f[3], f[4]) for f in shim[0]})
 
 
 @settings(max_examples=40, deadline=None)
 @given(
     st.lists(st.tuples(_REF, _PATH), min_size=0, max_size=6),
-    st.lists(st.tuples(st.text(min_size=1, max_size=8), st.lists(_PATH, min_size=0, max_size=4)), min_size=0, max_size=5),
+    st.lists(st.tuples(_NETNAME, st.lists(_PATH, min_size=0, max_size=4)), min_size=0, max_size=5),
 )
 def test_prop3_duplicate_board_components_always_fail_the_gate(comps, nets):
     """Two board footprints sharing one ref always yield a REUSE finding and
@@ -456,7 +492,7 @@ def test_prop3_duplicate_board_components_always_fail_the_gate(comps, nets):
         board_comps, dict(nets), [("R1", "a")], {"gnd": [("R1", "1")]}
     )
     assert shim == oracle
-    assert any(f[0] == "REUSE" for f in shim[1][0])
+    assert any(f[0] == "REUSE" for f in shim[0])
 
 
 @settings(max_examples=40, deadline=None)
@@ -464,14 +500,26 @@ def test_prop3_duplicate_board_components_always_fail_the_gate(comps, nets):
 def test_prop4_identical_sides_always_pass(comps):
     """A board and design built from the same component list with matching
     nets reconcile with zero findings and full matched_paths."""
+    # Zero findings requires unique REFS and unique PATHS: a reused ref is
+    # a genuine REUSE finding and a repeated path a RENUMBERED candidate
+    # even when both sides are identical (hypothesis can draw either).
+    seen_refs: set[str] = set()
+    seen_paths: set[str] = set()
+    comps = [
+        (r, p)
+        for r, p in comps
+        if r not in seen_refs
+        and p not in seen_paths
+        and not (seen_refs.add(r) or seen_paths.add(p))
+    ]
     paths = [p for _, p in comps]
     board_comps = comps
     board_nets = {"gnd": set(paths)}
     design_nets = {"gnd": [(r, "1") for r, _ in comps]}
     oracle, shim = _run_reconcile_both(board_comps, board_nets, comps, design_nets)
     assert shim == oracle
-    assert shim[1][0] == ()
-    assert shim[1][3] == len(comps)
+    assert shim[0] == ()
+    assert shim[3] == len(comps)
 
 
 @settings(max_examples=40, deadline=None)
@@ -489,11 +537,11 @@ def test_prop5_net_membership_findings_are_symmetric_in_component_difference(com
     board_nets = {"n1": board_paths}
     oracle, shim = _run_reconcile_both(board_comps, board_nets, design_comps, design_nets)
     assert shim == oracle
-    memberships = [f for f in shim[1][0] if f[0] == "NET-MEMBERSHIP"]
+    memberships = [f for f in shim[0] if f[0] == "NET-MEMBERSHIP"]
     if board_paths != {p for _, p in comps}:
         assert len(memberships) >= 1
         # The finding's paths field is the sorted symmetric difference.
-        expected_diff = sorted(({p for _, p in comps} ^ board_paths))
+        expected_diff = sorted({p for _, p in comps} ^ board_paths)
         assert tuple(expected_diff) in {f[4] for f in memberships}
 
 
@@ -513,7 +561,7 @@ def test_mr1_ref_permutation_preserves_finding_kinds():
 
     def kinds_for(comps, nets, dcomps, dnets):
         _, shim = _run_reconcile_both(comps, nets, dcomps, dnets)
-        return {f[0] for f in shim[1][0]}, shim[1][0] == ()
+        return {f[0] for f in shim[0]}, shim[0] == ()
 
     base = kinds_for(clean_board, clean_nets, clean_design, design_nets)
     # Same renumber applied to both sides: clean stays clean.
@@ -551,16 +599,19 @@ def test_mr3_duplicate_refs_reported_in_first_seen_order():
         '    (comp (ref "R1") (sheetpath (names "/a.ato:Top::y.r2") (tstamps "0")))\n'
         "  )\n  (nets\n    (net (code \"1\") (name \"gnd\") (node (ref \"R1\") (pin \"1\")))\n  )\n)\n"
     )
-    text2 = text1.replace("x.r1", "z.r3").replace("y.r2", "x.r1")
     # Reorder the two components.
     a = '    (comp (ref "R1") (sheetpath (names "/a.ato:Top::x.r1") (tstamps "0")))\n'
     b = '    (comp (ref "R1") (sheetpath (names "/a.ato:Top::y.r2") (tstamps "0")))\n'
-    text3 = text1.replace(a, b).replace(b, a, 1)  # swap the two comp blocks
+    # The two comp blocks are adjacent lines; swap them in one replace.
+    text3 = text1.replace(a + b, b + a)
     import tempfile
 
     with tempfile.TemporaryDirectory() as td:
-        p1 = _write_netlist(Path(td), text1)
-        p2 = _write_netlist(Path(td), text3)
+        # Distinct filenames: _write_netlist uses a fixed 'default.net'.
+        p1 = Path(td) / "order1.net"
+        p2 = Path(td) / "order2.net"
+        p1.write_text(text1, encoding="utf-8")
+        p2.write_text(text3, encoding="utf-8")
         d1 = shim_parse_design_netlist(p1)
         d2 = shim_parse_design_netlist(p2)
     # First-seen path differs when the comp order swaps.

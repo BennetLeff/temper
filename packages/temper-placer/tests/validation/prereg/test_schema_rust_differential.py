@@ -54,7 +54,7 @@ def _manifest_yaml(created_at: str) -> str:
     created_at."""
     return (
         "version: 1\n"
-        f"created_at: {created_at}\n"
+        f'created_at: "{created_at}"\n'
         "fields:\n"
         "  - field_name: thermal\n"
         "    independent_instrument: temper_placer.physics.thermal.ThermalOracle\n"
@@ -97,10 +97,9 @@ def _write_manifest(tmp_path: Path, created_at: str) -> Path:
 
 def _run_gate_both(path: Path, battery: datetime | None):
     if battery is None:
-        return (
-            _oracle.PreregistrationManifest.load(path),
-            ShimManifest.load(path),
-        )
+        o = _oracle.PreregistrationManifest.load(path)
+        s = ShimManifest.load(path)
+        return (o.version, o.created_at, len(o.fields)), (s.version, s.created_at, len(s.fields))
     try:
         o = _oracle.PreregistrationManifest.load(path, battery)
         o_err = None
@@ -123,9 +122,9 @@ def _run_gate_both(path: Path, battery: datetime | None):
 # ---------------------------------------------------------------------------
 
 _ISO = st.datetimes(
-    min_value=datetime(2020, 1, 1, tzinfo=UTC),
-    max_value=datetime(2030, 1, 1, tzinfo=UTC),
-)
+    min_value=datetime(2020, 1, 1),
+    max_value=datetime(2030, 1, 1),
+).map(lambda dt: dt.replace(tzinfo=UTC))
 
 
 @settings(max_examples=60, deadline=None)
@@ -168,10 +167,11 @@ def test_gate_differential_hand_built():
         o, s = _run_gate_both(path, base)
         assert o == s and not isinstance(o, str)
 
-        # Naive battery timestamp treated as UTC.
+        # Naive battery timestamp treated as UTC: equal wall time means
+        # equal instant -> accepted.
         path = _write_manifest(td, base.isoformat())
-        naive_future = base.replace(tzinfo=None) - timedelta(hours=1)
-        o, s = _run_gate_both(path, naive_future)
+        naive_equal = base.replace(tzinfo=None)
+        o, s = _run_gate_both(path, naive_equal)
         assert o == s and not isinstance(o, str)
         # Naive battery that is "later" in wall time but earlier in UTC.
         naive_later_wall = base.replace(tzinfo=None) + timedelta(hours=2)
@@ -203,7 +203,7 @@ def test_pydantic_validation_still_enforced_through_the_shim():
 
     bad = (
         "version: 1\n"
-        "created_at: 2026-01-01T00:00:00+00:00\n"
+        'created_at: "2026-01-01T00:00:00+00:00"\n'
         "fields:\n"
         "  - field_name: thermal\n"
         "    independent_instrument: x\n"

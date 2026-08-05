@@ -14,10 +14,10 @@ kiutils-tree extraction (written anchors/angles/pad local offsets), the
 template ``Component`` attribute reads, the kicad_transform primitives
 (``place_local_to_world`` / ``rotate_local_to_world`` stay single-source in
 ``geometry/kicad_transform.py`` — both arms call the same Python, so the
-shared geometry is identical by construction), and the 
+shared geometry is identical by construction), and the
 ``_get_footprint_reference`` consumer relationship (the #723 note's
-kiutils-free attribute reader moves into this module, verbatim, so the
-phase-3 ``io/_parse_modules.py`` helper can retire).
+kiutils-free attribute reader stays imported verbatim from
+``io/_parse_modules``).
 
 Comparison convention: mismatch records are compared with the concrete
 type carried on every leaf and floats via ``float.hex()`` (expected/actual
@@ -33,10 +33,8 @@ Sections:
 
 from __future__ import annotations
 
-import math
 from pathlib import Path
 
-import pytest
 import temper_design_bundle_python as _tdb
 from hypothesis import given, settings
 from hypothesis import strategies as st
@@ -46,7 +44,11 @@ from temper_placer.io.kicad_parser import parse_kicad_pcb
 from temper_placer.io.kicad_writer import PlacementUpdate, write_placements_to_pcb
 from temper_placer.validation.placement_roundtrip import (
     RoundTripResult,
+)
+from temper_placer.validation.placement_roundtrip import (
     canonical_angle as shim_canonical_angle,  # noqa: E402
+)
+from temper_placer.validation.placement_roundtrip import (
     check_placement_roundtrip as shim_check_placement_roundtrip,  # noqa: E402
 )
 
@@ -239,7 +241,7 @@ def test_check_footprint_geometry_kernel_direct():
         [("1", 49.225, 60.0, 0.0), ("2", 50.775, 60.0, 0.0)],
     )
     assert checked == 2
-    kinds = [m[0] for m in mismatches]
+    kinds = [m["kind"] for m in mismatches]
     assert "footprint_angle" in kinds
     assert kinds.count("pad_angle") == 2
 
@@ -255,7 +257,7 @@ def test_check_footprint_geometry_kernel_direct():
         [("1", 9.225, 20.0, 0.0), ("2", 10.775, 20.0, 0.0)],
         [("1", 9.225, 20.0, 0.0)],
     )
-    assert [m[0] for m in mismatches] == ["pad_missing"]
+    assert [m["kind"] for m in mismatches] == ["pad_missing"]
     assert checked == 1
 
 
@@ -278,7 +280,7 @@ class TestRoundTripDifferential:
         )
         oracle, shim = _run_roundtrip_both(out, {"U1": (10.0, 20.0)}, {}, components)
         assert shim == oracle
-        assert shim[1][0] == ()  # pass
+        assert shim[0] == ()  # pass
 
     def test_rotated_with_intrinsic_pad_angle(self, tmp_path):
         content = _board_content(
@@ -293,7 +295,7 @@ class TestRoundTripDifferential:
         )
         oracle, shim = _run_roundtrip_both(out, {"U1": (50.0, 60.0)}, {"U1": 180.0}, components)
         assert shim == oracle
-        assert shim[1][0] == ()
+        assert shim[0] == ()
 
     def test_center_offset_component(self, tmp_path):
         content = _board_content(
@@ -313,7 +315,7 @@ class TestRoundTripDifferential:
         )
         oracle, shim = _run_roundtrip_both(out, {"Q1": (100.0, 100.0)}, {"Q1": 90.0}, components)
         assert shim == oracle
-        assert shim[1][0] == ()
+        assert shim[0] == ()
 
     def test_dropped_rotation_fails_both(self, tmp_path):
         content = _board_content(
@@ -328,7 +330,7 @@ class TestRoundTripDifferential:
         )
         oracle, shim = _run_roundtrip_both(out, {"U1": (50.0, 60.0)}, {"U1": 180.0}, components)
         assert shim == oracle
-        assert shim[1][0]  # both fail
+        assert shim[0]  # both fail
 
     def test_sign_flip_fails_both(self, tmp_path):
         content = _board_content(
@@ -359,7 +361,7 @@ class TestRoundTripDifferential:
         )
         oracle, shim = _run_roundtrip_both(mutant, {"Q1": pos}, {"Q1": theta}, components)
         assert shim == oracle
-        assert any(m[1] == "footprint_anchor" for m in shim[1][0])
+        assert any(m[1] == "footprint_anchor" for m in shim[0])
 
     def test_missing_template_pad_reported_both(self, tmp_path):
         """A template pad absent from the written footprint -> pad_missing."""
@@ -379,7 +381,7 @@ class TestRoundTripDifferential:
         )
         oracle, shim = _run_roundtrip_both(mutant, {"U1": (10.0, 20.0)}, {}, components)
         assert shim == oracle
-        assert any(m[1] == "pad_missing" for m in shim[1][0])
+        assert any(m[1] == "pad_missing" for m in shim[0])
 
     def test_missing_ref_and_skipped_ref(self, tmp_path):
         """A model ref absent from the board -> footprint_missing; a ref with
@@ -403,8 +405,8 @@ class TestRoundTripDifferential:
             dropped, {"U1": (10.0, 20.0), "U2": (10.0, 40.0), "U3": (1.0, 1.0)}, {}, components
         )
         assert shim == oracle
-        assert any(m[1] == "footprint_missing" for m in shim[1][0])
-        assert any("no template component" in s for s in shim[1][3])
+        assert any(m[1] == "footprint_missing" for m in shim[0])
+        assert any("no template component" in s for s in shim[3])
 
     def test_refstar_footprints_skipped_both(self, tmp_path):
         """REF** placeholder footprints are excluded from the written map."""
@@ -424,14 +426,14 @@ class TestRoundTripDifferential:
         )
         oracle, shim = _run_roundtrip_both(out, {"U1": (10.0, 20.0)}, {}, components)
         assert shim == oracle
-        assert shim[1][0] == ()
+        assert shim[0] == ()
 
     def test_unparseable_board_is_parse_error_both(self, tmp_path):
         bad = tmp_path / "bad.kicad_pcb"
         bad.write_text("not a kicad pcb at all ((((", encoding="utf-8")
         oracle, shim = _run_roundtrip_both(bad, {"U1": (0.0, 0.0)}, {}, [])
         assert shim == oracle
-        assert any(m[1] == "parse_error" for m in shim[1][0])
+        assert any(m[1] == "parse_error" for m in shim[0])
 
 
 # ---------------------------------------------------------------------------
@@ -442,9 +444,15 @@ class TestRoundTripDifferential:
 @settings(max_examples=40, deadline=None)
 @given(st.floats(min_value=-720.0, max_value=720.0, allow_nan=False, allow_infinity=False))
 def test_prop1_canonical_angle_in_unit_interval(angle):
-    """canonical_angle maps every input into [0, 360)."""
+    """canonical_angle maps every input into [0, 360]. The upper bound is
+    INCLUSIVE: CPython's float_rem (transcribed by the kernel) yields
+    exactly 360.0 for a tiny negative input whose |value| is below
+    ulp(360) -- fmod gives the negative remainder and the sign-correction
+    ``mod += b`` rounds it to 360.0. That IS the oracle's value (the
+    differential pins it bit-for-bit); the invariant is
+    ``0 <= out <= 360`` with 360.0 meaning 0 (mod 360)."""
     out = shim_canonical_angle(angle)
-    assert 0.0 <= out < 360.0
+    assert 0.0 <= out <= 360.0
 
 
 @settings(max_examples=40, deadline=None)

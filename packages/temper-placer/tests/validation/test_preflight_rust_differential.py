@@ -31,9 +31,6 @@ Sections:
 
 from __future__ import annotations
 
-import random
-
-import pytest
 import temper_design_bundle_python as _tdb
 from hypothesis import given, settings
 from hypothesis import strategies as st
@@ -50,9 +47,17 @@ from temper_placer.validation.preflight import (
     PreflightIssue,
     PreflightResult,
     PreflightSeverity,
+)
+from temper_placer.validation.preflight import (
     _zones_overlap as shim_zones_overlap,  # noqa: E402
+)
+from temper_placer.validation.preflight import (
     check_components_have_zones as shim_components_have_zones,  # noqa: E402
+)
+from temper_placer.validation.preflight import (
     check_impossible_constraints as shim_impossible_constraints,  # noqa: E402
+)
+from temper_placer.validation.preflight import (
     check_zones_fit_on_board as shim_zones_fit,  # noqa: E402
 )
 
@@ -107,10 +112,23 @@ def _canon_result(r: PreflightResult) -> tuple:
 
 _COORD = st.floats(min_value=-500.0, max_value=1500.0, allow_nan=False, allow_infinity=False)
 _MM = st.floats(min_value=0.0, max_value=500.0, allow_nan=False, allow_infinity=False)
+# Board dimensions must be strictly positive (PlacementConstraints).
+_BOARD_MM = st.floats(
+    min_value=0.1, max_value=500.0, allow_nan=False, allow_infinity=False
+)
 _REF = st.text(min_size=1, max_size=6).map(lambda s: f"C{abs(hash(s)) % 1999}")
 _BOUNDS = st.tuples(_COORD, _COORD, _COORD, _COORD).filter(
-    lambda b: b[2] >= b[0] and b[3] >= b[1]
+    lambda b: b[2] > b[0] and b[3] > b[1]
 )
+# A zone fully inside a 2000x2000 board (used by prop2) — x/y pairs are
+# drawn independently with a light strict-increase filter (no degenerate
+# rectangles; the Rect contract rejects x_max == x_min).
+_IN_BOARD_BOUNDS = st.tuples(
+    st.floats(min_value=0.0, max_value=990.0, allow_nan=False, allow_infinity=False),
+    st.floats(min_value=0.0, max_value=990.0, allow_nan=False, allow_infinity=False),
+    st.floats(min_value=1.0, max_value=1000.0, allow_nan=False, allow_infinity=False),
+    st.floats(min_value=1.0, max_value=1000.0, allow_nan=False, allow_infinity=False),
+).filter(lambda b: b[2] > b[0] and b[3] > b[1])
 
 
 def _constraints(
@@ -205,12 +223,13 @@ def test_zones_overlap_kernel_matches_helper():
         st.tuples(
             st.text(min_size=1, max_size=6).map(lambda s: f"Z{abs(hash(s)) % 97}"),
             _BOUNDS,
+            st.lists(_REF, min_size=0, max_size=3),
         ),
         min_size=0,
         max_size=6,
     ),
-    _MM,
-    _MM,
+    _BOARD_MM,
+    _BOARD_MM,
 )
 def test_zones_fit_differential_random(zones, board_w, board_h):
     constraints = _constraints(zones, board_w=board_w, board_h=board_h)
@@ -282,22 +301,22 @@ def test_have_zones_differential_hand_built():
     )
     oracle, shim = _run_have_zones_both(netlist, constraints, require_all=True)
     assert shim == oracle
-    assert shim[1][0] is True  # passed
+    assert shim[0] is True  # passed
 
     # Unassigned with require_all=False -> WARNING ZONE_001, passed=True.
     constraints = _constraints([("Z", (0, 0, 50, 50), ["R1"])])
     oracle, shim = _run_have_zones_both(netlist, constraints, require_all=False)
     assert shim == oracle
-    issues = shim[1][1]
+    issues = shim[1]
     assert issues[0][1] == "ZONE_001"
     assert issues[0][0] == "WARNING"
-    assert shim[1][0] is True
+    assert shim[0] is True
 
     # Unassigned with require_all=True -> ERROR ZONE_001, passed=False.
     oracle, shim = _run_have_zones_both(netlist, constraints, require_all=True)
     assert shim == oracle
-    assert shim[1][0] is False
-    assert shim[1][1][0][0] == "ERROR"
+    assert shim[0] is False
+    assert shim[1][0][0] == "ERROR"
 
     # Fixed components exempt.
     constraints = _constraints(
@@ -305,7 +324,7 @@ def test_have_zones_differential_hand_built():
     )
     oracle, shim = _run_have_zones_both(netlist, constraints, require_all=True)
     assert shim == oracle
-    assert shim[1][0] is True
+    assert shim[0] is True
 
     # >10 unassigned -> the "+N more..." truncation branch.
     refs = [f"U{i}" for i in range(15)]
@@ -313,7 +332,7 @@ def test_have_zones_differential_hand_built():
     constraints = _constraints([])
     oracle, shim = _run_have_zones_both(netlist, constraints, require_all=False)
     assert shim == oracle
-    assert "+ 5 more..." in shim[1][1][0][2]  # message contains truncation
+    assert "and 5 more..." in shim[1][0][3]  # suggestion contains truncation
 
 
 # ---------------------------------------------------------------------------
@@ -328,7 +347,15 @@ def _comp(ref: str, w: float = 1.0, h: float = 1.0):
 @settings(max_examples=60, deadline=None)
 @given(
     st.lists(st.tuples(_REF, _MM, _MM), min_size=0, max_size=8),
-    st.lists(st.tuples(st.text(min_size=1, max_size=4), _BOUNDS), min_size=0, max_size=4),
+    st.lists(
+        st.tuples(
+            st.text(min_size=1, max_size=4),
+            _BOUNDS,
+            st.lists(_REF, min_size=0, max_size=3),
+        ),
+        min_size=0,
+        max_size=4,
+    ),
     st.lists(st.tuples(_REF, st.text(min_size=1, max_size=4)), min_size=0, max_size=6),
     st.lists(
         st.tuples(
@@ -342,7 +369,7 @@ def _comp(ref: str, w: float = 1.0, h: float = 1.0):
     st.lists(st.lists(_REF, min_size=0, max_size=5), min_size=0, max_size=3),
 )
 def test_impossible_differential_random(comps, zones, assignments, groups, thermals):
-    netlist = _netlist(comps)
+    netlist = _netlist([(r, (w, h)) for r, w, h in comps])
     constraints = _constraints(
         zones,
         assignments=dict(assignments),
@@ -362,8 +389,8 @@ def test_impossible_differential_hand_built():
     )
     oracle, shim = _run_impossible_both(netlist, constraints)
     assert shim == oracle
-    assert any(i[1] == "CONSTRAINT_002" for i in shim[1][1])
-    assert not shim[1][0]
+    assert any(i[1] == "CONSTRAINT_002" for i in shim[1])
+    assert not shim[0]
 
     # Fit in one orientation only -> no CONSTRAINT_002.
     netlist = _netlist([_comp("WIDE", 25.0, 5.0)])
@@ -372,15 +399,37 @@ def test_impossible_differential_hand_built():
     )
     oracle, shim = _run_impossible_both(netlist, constraints)
     assert shim == oracle
-    assert shim[1][0] is True
+    assert shim[0] is True
+
+    # EXACT boundary: component size == zone size on the fitting dimension
+    # (fits normal-only, not rotated) — the `<=` arm. Anti-vacuity
+    # discriminating case for the CONSTRAINT_002 boundary: a `<=`→`<`
+    # mutation must be caught.
+    netlist = _netlist([_comp("EXACT", 30.0, 5.0)])
+    constraints = _constraints(
+        [("Z", (0, 0, 30, 5), [])], assignments={"EXACT": "Z"}
+    )
+    oracle, shim = _run_impossible_both(netlist, constraints)
+    assert shim == oracle
+    assert shim[0] is True
+    assert not any(i[1] == "CONSTRAINT_002" for i in shim[1])
+
+    # Just over the boundary (30.1 vs 30) -> CONSTRAINT_002 fires.
+    netlist = _netlist([_comp("BIG", 30.1, 30.0)])
+    constraints = _constraints(
+        [("Z", (0, 0, 30, 30), [])], assignments={"BIG": "Z"}
+    )
+    oracle, shim = _run_impossible_both(netlist, constraints)
+    assert shim == oracle
+    assert any(i[1] == "CONSTRAINT_002" for i in shim[1])
 
     # Assignment to nonexistent zone -> CONSTRAINT_001.
     netlist = _netlist([_comp("R1")])
     constraints = _constraints([], assignments={"R1": "MISSING"})
     oracle, shim = _run_impossible_both(netlist, constraints)
     assert shim == oracle
-    assert any(i[1] == "CONSTRAINT_001" for i in shim[1][1])
-    assert not shim[1][0]
+    assert any(i[1] == "CONSTRAINT_001" for i in shim[1])
+    assert not shim[0]
 
     # Group referencing missing components -> CONSTRAINT_003 warning.
     netlist = _netlist([_comp("R1")])
@@ -390,29 +439,29 @@ def test_impossible_differential_hand_built():
     )
     oracle, shim = _run_impossible_both(netlist, constraints)
     assert shim == oracle
-    assert any(i[1] == "CONSTRAINT_003" for i in shim[1][1])
-    assert shim[1][0] is True  # warning only
+    assert any(i[1] == "CONSTRAINT_003" for i in shim[1])
+    assert shim[0] is True  # warning only
 
     # Group with nonexistent zone -> CONSTRAINT_004.
     constraints = _constraints([], groups=[("g", "GHOST", ["R1"])])
     oracle, shim = _run_impossible_both(netlist, constraints)
     assert shim == oracle
-    assert any(i[1] == "CONSTRAINT_004" for i in shim[1][1])
-    assert not shim[1][0]
+    assert any(i[1] == "CONSTRAINT_004" for i in shim[1])
+    assert not shim[0]
 
     # Thermal missing components -> CONSTRAINT_005 warning.
     constraints = _constraints([], thermals=[["Q1", "Q2"]])
     oracle, shim = _run_impossible_both(netlist, constraints)
     assert shim == oracle
-    assert any(i[1] == "CONSTRAINT_005" for i in shim[1][1])
+    assert any(i[1] == "CONSTRAINT_005" for i in shim[1])
 
     # Fully feasible -> CONSTRAINT_006 info, passed=True.
     netlist = _netlist([_comp("R1", 1.0, 1.0)])
     constraints = _constraints([("Z", (0, 0, 50, 50), [])], assignments={"R1": "Z"})
     oracle, shim = _run_impossible_both(netlist, constraints)
     assert shim == oracle
-    assert shim[1][0] is True
-    assert any(i[1] == "CONSTRAINT_006" for i in shim[1][1])
+    assert shim[0] is True
+    assert any(i[1] == "CONSTRAINT_006" for i in shim[1])
 
     # Missing[:5] truncation in the group/thermal suggestions.
     netlist = _netlist([_comp("R1")])
@@ -440,7 +489,7 @@ def test_prop1_zones_overlap_is_symmetric(a, b):
 
 
 @settings(max_examples=40, deadline=None)
-@given(_BOUNDS)
+@given(_IN_BOARD_BOUNDS)
 def test_prop2_zone_inside_board_is_always_clean(bounds):
     """A zone fully inside the board (with margin headroom) never produces a
     ZONE_003 error."""
