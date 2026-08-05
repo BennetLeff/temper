@@ -34,6 +34,7 @@
 //     (`parse_footprint_courtyard_str`) is pure and wasm32-exported.
 
 pub mod config_binding;
+pub mod dag_expr;
 pub mod dsn_types;
 pub mod export_types;
 pub mod footprint;
@@ -69,7 +70,14 @@ mod pymodule_def {
                 .get_type::<crate::config_binding::ConfigBoardMismatchError>(),
         )?;
 
+        m.add(
+            "DagExprSyntaxError",
+            m.py().get_type::<crate::dag_expr::DagExprSyntaxError>(),
+        )?;
+        m.add("DagExprError", m.py().get_type::<crate::dag_expr::DagExprError>())?;
+
         // Classes
+        m.add_class::<crate::dag_expr::PySkipExpr>()?;
         m.add_class::<crate::export_types::PyTraceSegment>()?;
         m.add_class::<crate::export_types::PyTraceVia>()?;
         m.add_class::<crate::export_types::PyExportResult>()?;
@@ -84,6 +92,7 @@ mod pymodule_def {
         m.add_class::<crate::reference_aliases::PyReferenceAliasManifest>()?;
 
         // Functions
+        m.add_function(wrap_pyfunction!(crate::dag_expr::parse_skip_expr_rs, m)?)?;
         m.add_function(wrap_pyfunction!(
             crate::footprint::parse_footprint_courtyard,
             m
