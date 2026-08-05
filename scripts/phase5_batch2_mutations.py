@@ -20,7 +20,9 @@ import subprocess
 import sys
 from pathlib import Path
 
-ROOT = Path("/private/tmp/wt5-deterministic")
+# Resolve the repo root from this file's own location so the driver is
+# reproducible from any checkout (not just the original worktree path).
+ROOT = Path(__file__).resolve().parent.parent
 CARGO = ROOT / "packages/temper-design-bundle/Cargo.toml"
 PLACER = ROOT / "packages/temper-placer"
 SUITES = [
