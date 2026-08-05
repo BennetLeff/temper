@@ -24,7 +24,6 @@ Numerical traps pinned here:
 
 from __future__ import annotations
 
-import math
 import random
 
 import pytest
