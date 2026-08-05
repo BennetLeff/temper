@@ -1,0 +1,446 @@
+{
+  "geometry_bank_counts": {
+    "pads_circle": 525,
+    "pads_exact": 525,
+    "pours": 96,
+    "traces": 2338,
+    "vias": 48
+  },
+  "half_width_mm": 4.0,
+  "hv_pads_used": 101,
+  "isolator_gaps": [
+    {
+      "circle_model_gap_mm": 8.0,
+      "exact_admits_8mm": true,
+      "exact_closest_pair": "1(PWR_RTN) <-> 2(gnd)",
+      "exact_geometry_gap_mm": 8.0,
+      "hv_copper_pads": 1,
+      "ref": "C6",
+      "selv_copper_pads": 1
+    },
+    {
+      "circle_model_gap_mm": 8.0671,
+      "exact_admits_8mm": true,
+      "exact_closest_pair": "9(DC_BUS_RTN) <-> 8(+3V3)",
+      "exact_geometry_gap_mm": 8.1,
+      "hv_copper_pads": 5,
+      "ref": "U7",
+      "selv_copper_pads": 4
+    },
+    {
+      "circle_model_gap_mm": 8.3322,
+      "exact_admits_8mm": true,
+      "exact_closest_pair": "1(a) <-> 6(+3V3)",
+      "exact_geometry_gap_mm": 8.56,
+      "hv_copper_pads": 2,
+      "ref": "U3",
+      "selv_copper_pads": 3
+    },
+    {
+      "circle_model_gap_mm": 5.9773,
+      "exact_admits_8mm": true,
+      "exact_closest_pair": "1(tank-out) <-> 4(gnd)",
+      "exact_geometry_gap_mm": 9.1,
+      "hv_copper_pads": 2,
+      "ref": "T1",
+      "selv_copper_pads": 1
+    },
+    {
+      "circle_model_gap_mm": 11.9572,
+      "exact_admits_8mm": true,
+      "exact_closest_pair": "4(discharge.k_dis1-nc) <-> 5(discharge.k_dis1-coil2)",
+      "exact_geometry_gap_mm": 12.76,
+      "hv_copper_pads": 4,
+      "ref": "K2",
+      "selv_copper_pads": 2
+    },
+    {
+      "circle_model_gap_mm": 11.9572,
+      "exact_admits_8mm": true,
+      "exact_closest_pair": "4(discharge.k_dis2-nc) <-> 5(discharge.k_dis1-coil2)",
+      "exact_geometry_gap_mm": 12.76,
+      "hv_copper_pads": 4,
+      "ref": "K3",
+      "selv_copper_pads": 2
+    },
+    {
+      "circle_model_gap_mm": 34.9768,
+      "exact_admits_8mm": true,
+      "exact_closest_pair": "2(PWR_RTN) <-> 3(+15V)",
+      "exact_geometry_gap_mm": 35.5,
+      "hv_copper_pads": 2,
+      "ref": "PS1",
+      "selv_copper_pads": 2
+    }
+  ],
+  "min_barrier_width_mm": 8.0,
+  "models": {
+    "exact-geometry-reroutable": {
+      "description": "pads only, TRUE rotated pad outlines (assume a full re-route; placement unchanged)",
+      "sweep": [
+        {
+          "barrier_width_mm": 8.0,
+          "conflicts": [],
+          "corridor_space_in_board_mm2": 32408.89,
+          "half_width_mm": 4.0,
+          "mixed_domain_regions": 0,
+          "necessary_condition_met": true,
+          "regions_outside_opening": 103
+        },
+        {
+          "barrier_width_mm": 7.0,
+          "conflicts": [],
+          "corridor_space_in_board_mm2": 32550.47,
+          "half_width_mm": 3.5,
+          "mixed_domain_regions": 0,
+          "necessary_condition_met": true,
+          "regions_outside_opening": 107
+        },
+        {
+          "barrier_width_mm": 6.0,
+          "conflicts": [],
+          "corridor_space_in_board_mm2": 32994.31,
+          "half_width_mm": 3.0,
+          "mixed_domain_regions": 0,
+          "necessary_condition_met": true,
+          "regions_outside_opening": 114
+        },
+        {
+          "barrier_width_mm": 5.0,
+          "conflicts": [],
+          "corridor_space_in_board_mm2": 33235.53,
+          "half_width_mm": 2.5,
+          "mixed_domain_regions": 0,
+          "necessary_condition_met": true,
+          "regions_outside_opening": 124
+        },
+        {
+          "barrier_width_mm": 4.0,
+          "conflicts": [],
+          "corridor_space_in_board_mm2": 33460.13,
+          "half_width_mm": 2.0,
+          "mixed_domain_regions": 0,
+          "necessary_condition_met": true,
+          "regions_outside_opening": 140
+        },
+        {
+          "barrier_width_mm": 2.0,
+          "conflicts": [],
+          "corridor_space_in_board_mm2": 33950.13,
+          "half_width_mm": 1.0,
+          "mixed_domain_regions": 0,
+          "necessary_condition_met": true,
+          "regions_outside_opening": 206
+        },
+        {
+          "barrier_width_mm": 1.0,
+          "conflicts": [],
+          "corridor_space_in_board_mm2": 34157.09,
+          "half_width_mm": 0.5,
+          "mixed_domain_regions": 0,
+          "necessary_condition_met": true,
+          "regions_outside_opening": 300
+        }
+      ]
+    },
+    "gate-model-as-routed": {
+      "description": "traces + vias + pours + pads as the gate's circumscribing circles (board exactly as committed)",
+      "sweep": [
+        {
+          "barrier_width_mm": 8.0,
+          "conflicts": [
+            {
+              "closest_circle_model_gap_mm": 5.9773,
+              "closest_pair": "T1.1(tank-out) <-> T1.4(gnd)",
+              "component_area_mm2": 32938.29,
+              "component_index": 0,
+              "hv_pads": 97,
+              "selv_pads": 218
+            }
+          ],
+          "corridor_space_in_board_mm2": 2537.7,
+          "half_width_mm": 4.0,
+          "mixed_domain_regions": 1,
+          "necessary_condition_met": false,
+          "regions_outside_opening": 3
+        },
+        {
+          "barrier_width_mm": 7.0,
+          "conflicts": [
+            {
+              "closest_circle_model_gap_mm": 5.9773,
+              "closest_pair": "T1.1(tank-out) <-> T1.4(gnd)",
+              "component_area_mm2": 32817.91,
+              "component_index": 0,
+              "hv_pads": 97,
+              "selv_pads": 218
+            }
+          ],
+          "corridor_space_in_board_mm2": 2658.99,
+          "half_width_mm": 3.5,
+          "mixed_domain_regions": 1,
+          "necessary_condition_met": false,
+          "regions_outside_opening": 4
+        },
+        {
+          "barrier_width_mm": 6.0,
+          "conflicts": [
+            {
+              "closest_circle_model_gap_mm": 5.9773,
+              "closest_pair": "T1.1(tank-out) <-> T1.4(gnd)",
+              "component_area_mm2": 32552.57,
+              "component_index": 0,
+              "hv_pads": 97,
+              "selv_pads": 218
+            }
+          ],
+          "corridor_space_in_board_mm2": 2907.6,
+          "half_width_mm": 3.0,
+          "mixed_domain_regions": 1,
+          "necessary_condition_met": false,
+          "regions_outside_opening": 5
+        },
+        {
+          "barrier_width_mm": 5.0,
+          "conflicts": [
+            {
+              "closest_circle_model_gap_mm": 5.9773,
+              "closest_pair": "T1.1(tank-out) <-> T1.4(gnd)",
+              "component_area_mm2": 32417.65,
+              "component_index": 0,
+              "hv_pads": 97,
+              "selv_pads": 218
+            }
+          ],
+          "corridor_space_in_board_mm2": 3046.94,
+          "half_width_mm": 2.5,
+          "mixed_domain_regions": 1,
+          "necessary_condition_met": false,
+          "regions_outside_opening": 5
+        },
+        {
+          "barrier_width_mm": 4.0,
+          "conflicts": [
+            {
+              "closest_circle_model_gap_mm": 5.9773,
+              "closest_pair": "T1.1(tank-out) <-> T1.4(gnd)",
+              "component_area_mm2": 32144.0,
+              "component_index": 0,
+              "hv_pads": 96,
+              "selv_pads": 218
+            }
+          ],
+          "corridor_space_in_board_mm2": 3307.25,
+          "half_width_mm": 2.0,
+          "mixed_domain_regions": 1,
+          "necessary_condition_met": false,
+          "regions_outside_opening": 7
+        },
+        {
+          "barrier_width_mm": 2.0,
+          "conflicts": [
+            {
+              "closest_circle_model_gap_mm": 5.9773,
+              "closest_pair": "T1.1(tank-out) <-> T1.4(gnd)",
+              "component_area_mm2": 31531.11,
+              "component_index": 0,
+              "hv_pads": 96,
+              "selv_pads": 210
+            }
+          ],
+          "corridor_space_in_board_mm2": 3909.66,
+          "half_width_mm": 1.0,
+          "mixed_domain_regions": 1,
+          "necessary_condition_met": false,
+          "regions_outside_opening": 13
+        },
+        {
+          "barrier_width_mm": 1.0,
+          "conflicts": [
+            {
+              "closest_circle_model_gap_mm": 5.9773,
+              "closest_pair": "T1.1(tank-out) <-> T1.4(gnd)",
+              "component_area_mm2": 31144.38,
+              "component_index": 0,
+              "hv_pads": 96,
+              "selv_pads": 205
+            }
+          ],
+          "corridor_space_in_board_mm2": 4293.53,
+          "half_width_mm": 0.5,
+          "mixed_domain_regions": 1,
+          "necessary_condition_met": false,
+          "regions_outside_opening": 20
+        }
+      ]
+    },
+    "gate-model-reroutable": {
+      "description": "pads only, gate's circumscribing circles (assume a full re-route; placement unchanged)",
+      "sweep": [
+        {
+          "barrier_width_mm": 8.0,
+          "conflicts": [],
+          "corridor_space_in_board_mm2": 32019.18,
+          "half_width_mm": 4.0,
+          "mixed_domain_regions": 0,
+          "necessary_condition_met": true,
+          "regions_outside_opening": 103
+        },
+        {
+          "barrier_width_mm": 7.0,
+          "conflicts": [],
+          "corridor_space_in_board_mm2": 32170.14,
+          "half_width_mm": 3.5,
+          "mixed_domain_regions": 0,
+          "necessary_condition_met": true,
+          "regions_outside_opening": 104
+        },
+        {
+          "barrier_width_mm": 6.0,
+          "conflicts": [],
+          "corridor_space_in_board_mm2": 32553.93,
+          "half_width_mm": 3.0,
+          "mixed_domain_regions": 0,
+          "necessary_condition_met": true,
+          "regions_outside_opening": 111
+        },
+        {
+          "barrier_width_mm": 5.0,
+          "conflicts": [],
+          "corridor_space_in_board_mm2": 32777.78,
+          "half_width_mm": 2.5,
+          "mixed_domain_regions": 0,
+          "necessary_condition_met": true,
+          "regions_outside_opening": 115
+        },
+        {
+          "barrier_width_mm": 4.0,
+          "conflicts": [],
+          "corridor_space_in_board_mm2": 33001.53,
+          "half_width_mm": 2.0,
+          "mixed_domain_regions": 0,
+          "necessary_condition_met": true,
+          "regions_outside_opening": 129
+        },
+        {
+          "barrier_width_mm": 2.0,
+          "conflicts": [],
+          "corridor_space_in_board_mm2": 33462.89,
+          "half_width_mm": 1.0,
+          "mixed_domain_regions": 0,
+          "necessary_condition_met": true,
+          "regions_outside_opening": 190
+        },
+        {
+          "barrier_width_mm": 1.0,
+          "conflicts": [],
+          "corridor_space_in_board_mm2": 33652.59,
+          "half_width_mm": 0.5,
+          "mixed_domain_regions": 0,
+          "necessary_condition_met": true,
+          "regions_outside_opening": 267
+        }
+      ]
+    }
+  },
+  "pads_excluded_from_proof": [
+    {
+      "domain": "HV",
+      "net": "power_in.ntc-no",
+      "number": "13",
+      "reason": "no copper layer",
+      "ref": "K1"
+    },
+    {
+      "domain": "HV",
+      "net": "w1_2",
+      "number": "14",
+      "reason": "no copper layer",
+      "ref": "K1"
+    }
+  ],
+  "part_a": [
+    {
+      "partition_ok": true,
+      "shape": "straight-baseline",
+      "state": "clean",
+      "violations": []
+    },
+    {
+      "partition_ok": true,
+      "shape": "serpentine-4-bend",
+      "state": "clean",
+      "violations": []
+    },
+    {
+      "partition_ok": true,
+      "shape": "boundary-following-pocket",
+      "state": "clean",
+      "violations": []
+    }
+  ],
+  "part_c": {
+    "models": {
+      "as-routed": [
+        {
+          "blobs": 2,
+          "cell_mm": 0.4,
+          "connected": false,
+          "hv_pads_with_no_admissible_space": 97,
+          "hv_reachability_components": 2,
+          "stranded_groups": [
+            [
+              "C27.1",
+              "U5.1",
+              "U5.2",
+              "U5.3"
+            ]
+          ]
+        },
+        {
+          "blobs": 1,
+          "cell_mm": 0.25,
+          "connected": false,
+          "hv_pads_with_no_admissible_space": 101,
+          "hv_reachability_components": 1,
+          "stranded_groups": []
+        }
+      ],
+      "as-routed_verdict": "impossible",
+      "reroutable": [
+        {
+          "blobs": 84,
+          "cell_mm": 0.4,
+          "connected": false,
+          "hv_pads_with_no_admissible_space": 0,
+          "hv_reachability_components": 2,
+          "stranded_groups": [
+            [
+              "R24.1",
+              "R24.2"
+            ]
+          ]
+        },
+        {
+          "blobs": 82,
+          "cell_mm": 0.25,
+          "connected": false,
+          "hv_pads_with_no_admissible_space": 0,
+          "hv_reachability_components": 2,
+          "stranded_groups": [
+            [
+              "R24.1",
+              "R24.2"
+            ]
+          ]
+        }
+      ],
+      "reroutable_verdict": "impossible"
+    }
+  },
+  "provenance": {
+    "commit": "838096820b30ca3999aaa76fffa9ea736c6c89a0",
+    "dirty": false
+  },
+  "selv_pads_used": 221
+}
