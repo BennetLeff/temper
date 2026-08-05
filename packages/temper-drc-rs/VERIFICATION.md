@@ -300,7 +300,7 @@ R1 coverage (shared with the design-bundle Phase-4 section): R1a via
 `.hex()`); R1c 5 properties (non-negativity, per-segment lower bound,
 single-segment = hypot, zero-length invariance, empty = 0.0); R1d 3 MRs
 (scaling homogeneity, negation identity, midpoint splitting); R1f RED
-commit `e783f1d6f` (the file fails to collect without `temper_drc_rs.
+commit `28d712e75` (the file fails to collect without `temper_drc_rs.
 rdl_sum`); R1g no `unwrap`/`expect` outside tests, pyo3 `catch_unwind`
 default; R1b no-regression arm not registered — a per-segment callback
 loop is marshalling-bound and the slice makes no speedup claim (recorded

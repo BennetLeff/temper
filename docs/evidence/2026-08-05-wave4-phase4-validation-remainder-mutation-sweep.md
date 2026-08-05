@@ -1,8 +1,8 @@
 # Wave 4 Phase 4 — validation remainder slice: anti-vacuity mutation sweep — 2026-08-05
 
-<!-- provenance: base=e783f1d6f (TDD-RED commit), worktree rebuilt after mid-session deletion; this doc commits with the migration -->
+<!-- provenance: base=28d712e75 (TDD-RED commit; the original e783f1d6f was recreated as 28d712e75 when the worktree was rebuilt — test blobs content-identical), worktree rebuilt after mid-session deletion; this doc commits with the migration -->
 
-**Base commit:** `e783f1d6f` (the TDD-RED commit: oracles + differential/PBT
+**Base commit:** `28d712e75` (the TDD-RED commit: oracles + differential/PBT
 suites for preflight / netlist_reconciliation / human_reference_extractor /
 placement_roundtrip / prereg::schema). The Rust kernels and delegation
 shims are working-tree changes committed together with this document.

@@ -2109,6 +2109,51 @@ measurement or by construction:
 - **No-format `str(float)` messages stay Python** (ZONE_003's suggestion,
   ZONE_005's message) — Rust `Display` renders `10.0` as `10`; the
   shims build those two messages from the kernels' numeric fields.
+- **Non-str pad numbers (`pad_key` boundary, P2-5).** The oracle's
+  `_pad_key` returns the pad's number object AS-IS (`getattr(pad,
+  'number', None) or ""`), so a truthy non-str number (e.g. an int) is
+  used verbatim as the dict key; the shim's `Option<String>` boundary
+  raises `TypeError` instead. Trigger domain: a pad model whose `.number`
+  is a non-str truthy object — EMPTY in production, because both pad
+  models are str-contracted (kiutils `Pad.number: str`; the parser's
+  `Pin.number` via `_contract_field("number", "str")`). Recorded rather
+  than chased, because an opaque-key fix would have to thread `PyAny` keys
+  through `check_footprint_geometry`'s string-keyed `Vec<(String, f64,
+  f64, f64)>`/`Vec<WrittenPad>` signatures and a Python-hash-semantics map
+  for a domain with zero production exposure. Pinned as a known-divergence
+  test (`test_pad_key_non_str_number_known_deviation`): the oracle keys by
+  object, the shim raises `TypeError`.
+- **Tokenizer whitespace classification (P2-3).** The tokenizer's
+  whitespace is Python's `\s` set for `str` (with `re.S`) — the ASCII
+  `[ \t\n\r\f\v]` PLUS U+001C–U+001F, U+0085, U+00A0, U+1680,
+  U+2000–U+200A, U+2028/U+2029, U+202F, U+205F, U+3000 — implemented
+  explicitly as `is_py_whitespace` (measured against CPython 3.12,
+  2026-08-05), NOT via Rust's `char::is_whitespace` (Unicode White_Space,
+  which misses U+001C–U+001F and U+0085 — the same classification gap
+  already recorded for `str.strip` in the reference-loader section). The
+  byte-level alternative (ASCII-only splitting) is fixed and pinned by the
+  `\xa0`/`\u2028`/`\u3000` separator cases in
+  `test_parse_error_strings_byte_identical` plus the Rust unit test
+  `tokenize_splits_on_unicode_whitespace_like_the_oracle_regex`; a
+  byte-glued bare token would also diverge in error strings via the
+  repr-escaping deviation above, which is why the split point must stay
+  pinned. Distinct from — and interacting with — the `!r`-escaping
+  deviation: a bare token containing a non-ASCII space is a GRAMMAR
+  difference (tokens split), not a rendering difference.
+- **Empty-node `node[0]` IndexError parity (P2-2).** The oracle's
+  `_field` error paths interpolate `{node[0]!r}`; a node that is an empty
+  list would raise a raw `IndexError('list index out of range')` that
+  escapes `parse_design_netlist` (it is not a `ValueError`, so the shim's
+  re-wrap cannot catch it either). Through the netlist grammar this is
+  UNREACHABLE — `_children` requires a non-empty list whose first element
+  is the name atom, and the s-expression parser always stores the head, so
+  a zero-child `(comp)` node renders its head (`"invalid 'ref' field in
+  'comp'"`, pinned in `test_parse_error_strings_byte_identical`) — but the
+  kernel mirrors the oracle's expression exactly: `field()` returns the
+  same `IndexError` class for an empty node instead of fabricating a
+  `'None'` head (Rust unit test `field_on_empty_node_is_the_oracles_
+  index_error_not_a_fabricated_head`), so the escaping class cannot
+  diverge if the grammar ever grows a headless node form.
 
 ## R1 gate coverage
 
@@ -2138,7 +2183,7 @@ measurement or by construction:
   negation / midpoint-splitting).
 - **R1e (VERIFICATION.md):** this document + the temper-drc-rs rdl_sum
   section.
-- **R1f (TDD):** the RED evidence is commit `e783f1d6f` — the five
+- **R1f (TDD):** the RED evidence is commit `28d712e75` — the five
   differential files fail to collect until the Rust kernels land
   (module-level `= _tdb.validation.<symbol>` / `temper_drc_rs.rdl_sum`
   bindings raise AttributeError). Demonstrated at the commit; the GREEN
@@ -2154,7 +2199,7 @@ measurement or by construction:
 
 ## Evidence
 
-- **TDD RED:** `e783f1d6f` (oracles + differential/PBT suites; collection
+- **TDD RED:** `28d712e75` (oracles + differential/PBT suites; collection
   fails on the missing kernels).
 - **Anti-vacuity mutation campaign:** `docs/evidence/2026-08-05-wave4-phase4-
   validation-remainder-mutation-sweep.md` — 11 mutants across all 11

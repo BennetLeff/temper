@@ -249,13 +249,22 @@ def _check_footprint(
     wa_rad = math.radians(wa)
 
     # --- pads (world) -------------------------------------------------------
-    template_pads = []
+    # Dedup by key, LAST pin wins — mirroring the oracle's
+    # `{_pad_key(p, i): p for i, p in enumerate(template.pins)}` dict
+    # comprehension exactly: two pins sharing a pad number collapse to the
+    # last one and are checked once (a dict reassignment keeps the first
+    # insertion position but replaces the value).
+    template_pads_by_key: dict[str, tuple[float, float, float]] = {}
     for i, tpin in enumerate(template.pins):
         key = _pad_key(tpin, i)
         exp_px, exp_py = place_local_to_world(
             tpin.position[0], tpin.position[1], pos[0], pos[1], theta_rad
         )
-        template_pads.append((key, exp_px, exp_py, tpin.pad_rotation_deg))
+        template_pads_by_key[key] = (exp_px, exp_py, tpin.pad_rotation_deg)
+    template_pads = [
+        (key, exp_px, exp_py, intrinsic)
+        for key, (exp_px, exp_py, intrinsic) in template_pads_by_key.items()
+    ]
 
     written_pads: list[tuple[str, float | None, float | None, float | None]] = []
     for i, wpad in enumerate(fp.pads or []):

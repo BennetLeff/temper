@@ -86,7 +86,7 @@
 
 use std::collections::HashMap;
 
-use pyo3::exceptions::PyValueError;
+use pyo3::exceptions::{PyIndexError, PyValueError};
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyDictMethods, PyTuple};
 
@@ -543,9 +543,13 @@ fn tokenize(text: &str) -> Vec<&str> {
     let mut tokens = Vec::new();
     let mut pos = 0usize;
     while pos < bytes.len() {
-        // \s*
-        while pos < bytes.len() && is_py_whitespace(bytes[pos]) {
-            pos += 1;
+        // \s* — Python's str `\s` set, Unicode-aware (see is_py_whitespace).
+        while pos < bytes.len() {
+            let c = next_char(text, pos);
+            if !is_py_whitespace(c) {
+                break;
+            }
+            pos += c.len_utf8();
         }
         if pos >= bytes.len() {
             break;
@@ -583,8 +587,12 @@ fn tokenize(text: &str) -> Vec<&str> {
                 } else {
                     // fall through: [^\s()]+ starting at the quote
                     let mut j = pos;
-                    while j < bytes.len() && !is_ws_or_paren(bytes[j]) {
-                        j += 1;
+                    while j < bytes.len() {
+                        let c = next_char(text, j);
+                        if is_ws_or_paren(c) {
+                            break;
+                        }
+                        j += c.len_utf8();
                     }
                     tokens.push(&text[pos..j]);
                     pos = j;
@@ -593,8 +601,12 @@ fn tokenize(text: &str) -> Vec<&str> {
             _ => {
                 // [^\s()]+
                 let mut j = pos;
-                while j < bytes.len() && !is_ws_or_paren(bytes[j]) {
-                    j += 1;
+                while j < bytes.len() {
+                    let c = next_char(text, j);
+                    if is_ws_or_paren(c) {
+                        break;
+                    }
+                    j += c.len_utf8();
                 }
                 tokens.push(&text[pos..j]);
                 pos = j;
@@ -604,12 +616,46 @@ fn tokenize(text: &str) -> Vec<&str> {
     tokens
 }
 
-fn is_py_whitespace(b: u8) -> bool {
-    matches!(b, b' ' | b'\t' | b'\n' | b'\r' | 0x0b | 0x0c)
+/// Decode the char at byte offset `pos` (callers guarantee
+/// `pos < text.len()`). `text` is a `String` from the Python boundary, so
+/// it is valid UTF-8; `chars()` yields U+FFFD for a lone surrogate, which
+/// cannot appear in a `String` from CPython (surrogates stay inside the
+/// pyo3 boundary, never in the kernel's `&str`).
+fn next_char(text: &str, pos: usize) -> char {
+    match text[pos..].chars().next() {
+        Some(c) => c,
+        None => unreachable!("pos < len, valid UTF-8"),
+    }
 }
 
-fn is_ws_or_paren(b: u8) -> bool {
-    is_py_whitespace(b) || b == b'(' || b == b')'
+/// Python's `\s` set for `str` (as matched by the oracle's
+/// `_TOKEN = re.compile(r'\s*...', re.S)`): the ASCII
+/// `[ \t\n\r\f\v]` plus the Unicode whitespace code points U+001C–U+001F
+/// (file/group/record/unit separators), U+0085 (NEL), U+00A0 (NBSP),
+/// U+1680 (Ogham space mark), U+2000–U+200A (the en-space family),
+/// U+2028/U+2029 (line/paragraph separators), U+202F (narrow NBSP),
+/// U+205F (medium mathematical space), U+3000 (ideographic space).
+/// Measured against CPython 3.12 (2026-08-05): these are exactly the code
+/// points `re.match(r'\s', ch)` accepts.
+///
+/// NOTE this is deliberately NOT Rust's `char::is_whitespace` (Unicode
+/// White_Space): that set MISSES U+001C–U+001F and U+0085, which Python
+/// `\s` matches — the same classification gap already recorded for
+/// `str.strip` in the reference-loader section (VERIFICATION.md §M4).
+fn is_py_whitespace(c: char) -> bool {
+    matches!(
+        c,
+        ' ' | '\t' | '\n' | '\r' | '\x0b' | '\x0c'
+            | '\u{1c}' | '\u{1d}' | '\u{1e}' | '\u{1f}'
+            | '\u{85}' | '\u{a0}' | '\u{1680}'
+            | '\u{2000}'..='\u{200a}'
+            | '\u{2028}' | '\u{2029}' | '\u{202f}'
+            | '\u{205f}' | '\u{3000}'
+    )
+}
+
+fn is_ws_or_paren(c: char) -> bool {
+    is_py_whitespace(c) || c == '(' || c == ')'
 }
 
 /// Decode one token into an atom: `json.loads(token)` for quote-leading
@@ -686,22 +732,63 @@ fn value_repr(v: &Value) -> String {
 
 /// `_field(node, name)` — the strict fail-closed single-field reader with
 /// the oracle's byte-identical error strings.
-fn field(node: &[Value], name: &str, required: bool) -> Result<String, String> {
+///
+/// The error is either a gate-error string (raised as `PyValueError` by
+/// the caller) or the oracle's raw `node[0]` `IndexError` for an EMPTY
+/// node. Through the netlist grammar the empty node is unreachable —
+/// `children()` requires a non-empty list whose first element is the name
+/// atom, and the s-expression parser always stores the head — but the
+/// oracle's expression is `{node[0]!r}`, which would raise
+/// `IndexError('list index out of range')` if it ever were empty; the
+/// kernel mirrors that expression so the escaping class cannot diverge
+/// (parity of the code, not only of reachable states).
+#[derive(Debug, PartialEq)]
+enum FieldErr {
+    Gate(String),
+    Index,
+}
+
+fn field(node: &[Value], name: &str, required: bool) -> Result<String, FieldErr> {
     let fields = children(node, name);
-    let head = node.first().map(value_repr).unwrap_or_else(|| "None".to_string());
     if fields.len() > 1 || (required && fields.is_empty()) {
-        return Err(format!("invalid {} field in {}", py_str_repr(name), head));
+        let head = match node.first() {
+            Some(first) => value_repr(first),
+            None => return Err(FieldErr::Index),
+        };
+        return Err(FieldErr::Gate(format!(
+            "invalid {} field in {}",
+            py_str_repr(name),
+            head
+        )));
     }
     if fields.is_empty() {
         return Ok(String::new());
     }
     let f = fields[0];
     if f.len() != 2 {
-        return Err(format!("malformed {} field in {}", py_str_repr(name), head));
+        // `fields` non-empty implies `node` non-empty (the field list is a
+        // child of `node`), so the oracle's `node[0]` here cannot
+        // IndexError — rendered identically.
+        return Err(FieldErr::Gate(format!(
+            "malformed {} field in {}",
+            py_str_repr(name),
+            value_repr(&node[0])
+        )));
     }
     match &f[1] {
         Value::Atom(s) => Ok(s.clone()),
-        _ => Err(format!("malformed {} field in {}", py_str_repr(name), head)),
+        _ => Err(FieldErr::Gate(format!(
+            "malformed {} field in {}",
+            py_str_repr(name),
+            value_repr(&node[0])
+        ))),
+    }
+}
+
+fn field_err(e: FieldErr) -> PyErr {
+    match e {
+        FieldErr::Gate(msg) => PyValueError::new_err(msg),
+        FieldErr::Index => PyIndexError::new_err("list index out of range"),
     }
 }
 
@@ -755,7 +842,7 @@ fn parse_design_netlist(netlist_path: String, text: String) -> PyResult<ParsedDe
     let mut ref_paths: HashMap<String, String> = HashMap::new();
 
     for node in children(components_blocks[0], "comp") {
-        let ref_ = field(node, "ref", true).map_err(PyValueError::new_err)?;
+        let ref_ = field(node, "ref", true).map_err(field_err)?;
         let sheetpath_nodes = children(node, "sheetpath");
         let instance_path = match sheetpath_nodes.first() {
             Some(sp) => instance_path_from_sheetpath(sp),
@@ -806,7 +893,7 @@ fn parse_design_netlist(netlist_path: String, text: String) -> PyResult<ParsedDe
     let mut nets: Vec<(String, Vec<(String, String)>)> = Vec::new();
     let mut pin_owner: HashMap<(String, String), String> = HashMap::new();
     for node in children(nets_blocks[0], "net") {
-        let name = field(node, "name", true).map_err(PyValueError::new_err)?;
+        let name = field(node, "name", true).map_err(field_err)?;
         if nets.iter().any(|(n, _)| *n == name) {
             return Err(PyValueError::new_err(format!(
                 "duplicate net name in netlist: {}",
@@ -815,8 +902,8 @@ fn parse_design_netlist(netlist_path: String, text: String) -> PyResult<ParsedDe
         }
         let mut nodelist: Vec<(String, String)> = Vec::new();
         for nn in children(node, "node") {
-            let ref_ = field(nn, "ref", true).map_err(PyValueError::new_err)?;
-            let pin = field(nn, "pin", true).map_err(PyValueError::new_err)?;
+            let ref_ = field(nn, "ref", true).map_err(field_err)?;
+            let pin = field(nn, "pin", true).map_err(field_err)?;
             if let Some(owner) = pin_owner.get(&(ref_.clone(), pin.clone())) {
                 return Err(PyValueError::new_err(format!(
                     "pin {}.{} appears in more than one net ({} and {}) -- malformed netlist",
@@ -1401,4 +1488,66 @@ pub fn register(module: &Bound<'_, PyModule>) -> PyResult<()> {
     sub.add_function(wrap_pyfunction!(prereg_temporal_gate, &sub)?)?;
     module.add_submodule(&sub)?;
     Ok(())
+}
+
+#[cfg(test)]
+mod validation_parity_tests {
+    use super::*;
+
+    #[test]
+    fn field_on_empty_node_is_the_oracles_index_error_not_a_fabricated_head() {
+        // The oracle's error path is `f"invalid {name!r} field in {node[0]!r}"`:
+        // an empty node would raise `IndexError('list index out of range')` —
+        // never a gate error with a fabricated `'None'` head. Unreachable
+        // through the netlist grammar (children() requires a head), pinned
+        // here so the escaping class cannot diverge if the grammar grows a
+        // headless node form.
+        match field(&[], "ref", true) {
+            Err(FieldErr::Index) => {}
+            other => panic!("expected FieldErr::Index, got {other:?}"),
+        }
+        // required=false on an empty node short-circuits before the head is
+        // evaluated, exactly as the oracle's `if not fields: return ""`.
+        assert_eq!(field(&[], "ref", false), Ok(String::new()));
+    }
+
+    #[test]
+    fn is_py_whitespace_matches_cpythons_unicode_set() {
+        // ASCII [ \t\n\r\f\v]
+        for c in [' ', '\t', '\n', '\r', '\x0b', '\x0c'] {
+            assert!(is_py_whitespace(c), "0x{:x}", c as u32);
+        }
+        // The Unicode code points Python `\s` matches but
+        // char::is_whitespace does NOT (the classification gap this
+        // function exists to close; measured against CPython 3.12).
+        for cp in [
+            0x1c, 0x1d, 0x1e, 0x1f, 0x85, 0xa0, 0x1680, 0x2000, 0x200a,
+            0x2028, 0x2029, 0x202f, 0x205f, 0x3000,
+        ] {
+            let c = char::from_u32(cp).unwrap_or_else(|| unreachable!("valid code point"));
+            assert!(is_py_whitespace(c), "U+{:04X}", cp);
+        }
+        // And the whole \u2000-\u200a range.
+        for cp in 0x2000..=0x200a {
+            let c = char::from_u32(cp).unwrap_or_else(|| unreachable!("valid code point"));
+            assert!(is_py_whitespace(c));
+        }
+        // A non-whitespace non-ASCII char is NOT whitespace.
+        assert!(!is_py_whitespace('\u{e9}'));
+    }
+
+    #[test]
+    fn tokenize_splits_on_unicode_whitespace_like_the_oracle_regex() {
+        // \xa0 separates tokens exactly like the oracle's `\s*`/`[^\s()]`
+        // (the byte-level old tokenizer glued "comp\xa0" into one token).
+        let text = "(comp\u{a0}\u{a0}(ref \"R1\"))\n";
+        let tokens = tokenize(text);
+        assert_eq!(
+            tokens,
+            vec!["(", "comp", "(", "ref", "\"R1\"", ")", ")"]
+        );
+        // \u2028 (line separator) and \u3000 (ideographic space) too.
+        let text2 = "(a\u{2028}b\u{3000}c)";
+        assert_eq!(tokenize(text2), vec!["(", "a", "b", "c", ")"]);
+    }
 }
