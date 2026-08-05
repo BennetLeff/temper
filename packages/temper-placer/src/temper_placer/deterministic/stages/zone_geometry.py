@@ -9,11 +9,15 @@ branch); the ``run`` orchestration (the ``state.board`` guard and the
 ``frozenset`` wrap) stays Python, as does the core/board.py ``Zone``-object
 adaptation in ``_define_zones_from_config`` (a type conversion, not compute).
 
-Bit-exactness: the Rust kernels reproduce the oracle's exact expression order
-(every boundary is ``board_width * 0.3 / * 0.6 / * 0.9`` with each subsequent
-zone reusing the previous product; ``ratio[i] * board_dim`` in the dict
-branch) and keep ``HV.x_min`` / every ``y_min`` as Python ``int`` ``0``, so
-the type-carrying differential canon (int-vs-float) stays green. Verified by
+Bit-exactness: the Rust kernels reproduce the oracle's exact expression
+order — every MAX boundary is an INDEPENDENT fresh multiply
+(``board_width * 0.3 / * 0.6 / * 0.9``; a reuse chain would break
+bit-parity, e.g. ``(w*0.3)*3 = 0.09`` vs ``w*0.9 = 0.09000000000000001``
+for ``w = 0.1``), only the MIN boundaries reuse the previous product, and
+the config branch scales ``ratio[i] * board_dim`` — and keep ``HV.x_min``
+/ every ``y_min`` as Python ``int`` ``0``, passing the board dims through
+with their original type (``int`` on an integer board), so the
+type-carrying differential canon (int-vs-float) stays green. Verified by
 ``tests/deterministic/stages/test_zone_geometry_rust_differential.py``
 (oracle: ``tests/deterministic/stages/_zone_geometry_py_oracle.py``) and the
 PBT suite ``test_zone_geometry_pbt.py``; the structural proof lives in

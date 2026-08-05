@@ -29,7 +29,11 @@ import random
 
 import temper_geometry as _tg
 import tests.deterministic._grid_utils_py_oracle as _oracle
-from tests.core._contract_canon import canon
+from tests.core._contract_canon import canon, canon_call
+
+from temper_placer.deterministic.geometry.grid_utils import (
+    add_endpoint_nudge as shim_nudge,
+)
 
 # Rust symbols under test — must exist or this file fails to collect (RED).
 RS_SNAP = _tg.snap_to_grid
@@ -163,7 +167,15 @@ def test_nudge_single_point_path():
 
 
 def test_nudge_threshold_boundary():
-    """The 1e-4 threshold is exclusive: exactly 1e-4 -> no nudge."""
+    """The 1e-4 threshold is exclusive: just-below and just-over cases.
+
+    NOTE the arithmetic trap: ``(1.0 + 1e-4) - 1.0`` is NOT ``1e-4`` in
+    binary — it rounds to ``9.999999999998899e-05``, just BELOW the
+    threshold, so this pair does not sit on the boundary itself (both the
+    strict ``>`` oracle and a ``>=`` mutant behave identically on it). The
+    exact-boundary case is pinned separately by
+    ``test_nudge_threshold_boundary_exact``.
+    """
     path = [(1.0, 1.0)]
     start = (1.0 + 1e-4, 1.0)
     end = (1.0, 1.0)
@@ -171,6 +183,31 @@ def test_nudge_threshold_boundary():
     # Just over the threshold -> nudge appended.
     start_over = (1.0 + 1e-4 + 1e-9, 1.0)
     _assert_nudge_equal(path, start_over, end)
+
+
+def test_nudge_threshold_boundary_exact():
+    """The 1e-4 threshold is exclusive: EXACTLY 1e-4 -> no nudge.
+
+    Discriminating case for the ``>``-vs-``>=`` mutant: the distance must
+    land on the boundary bit-exactly. ``1e-4 - 0.0`` is exactly ``1e-4``
+    and ``(1e-4 ** 2 + 0.0) ** 0.5 == 1e-4`` in IEEE-754 (verified — the
+    correctly-rounded square and square root return the boundary double),
+    so the oracle (strict ``>``) emits NO start nudge here while a ``>=``
+    mutant prepends ``actual_start``. Asserting the float identity inline
+    documents why this input is on the boundary rather than near it.
+    """
+    # The boundary property itself — if this ever flips, the case below
+    # silently stops pinning the exclusive threshold.
+    assert (1e-4 ** 2) ** 0.5 == 1e-4
+    assert 1e-4 - 0.0 == 1e-4
+    path = [(1e-4, 0.0), (2.0, 2.0)]
+    start = (0.0, 0.0)
+    end = (2.0, 2.0)
+    exp = _oracle.add_endpoint_nudge(path, start, end)
+    # Exactly on the threshold: no start nudge (strict >), no end nudge
+    # (distance 0).
+    assert exp == [(1e-4, 0.0), (2.0, 2.0)]
+    _assert_nudge_equal(path, start, end)
 
 
 def test_nudge_random_paths():
@@ -194,3 +231,46 @@ def test_nudge_preserves_path_order():
         if path:
             for p in path:
                 assert p in path_seq
+
+
+def test_nudge_malformed_path_odd_element_raises_index_error():
+    """A 1-tuple element fails the oracle's tuple contract at ``path[0][1]``
+    with IndexError. The shim must fail closed with the SAME exception class
+    instead of letting the flat kernel mispair the sequence (a flat with an
+    odd number of elements makes the kernel pair coordinates across element
+    boundaries — silent corruption) or panic (an empty-ish flat panics at
+    ``path[1]`` and surfaces as RuntimeError)."""
+    path = [(1.0,)]
+    assert canon_call(_oracle.add_endpoint_nudge, path, (0.0, 0.0), (2.0, 2.0)) == (
+        "raised",
+        "IndexError",
+        "tuple index out of range",
+    )
+    assert canon_call(shim_nudge, path, (0.0, 0.0), (2.0, 2.0)) == (
+        "raised",
+        "IndexError",
+        "tuple index out of range",
+    )
+
+
+def test_nudge_malformed_path_three_tuple_recorded_deviation():
+    """Recorded deviation, pinned fail-closed: the oracle PRESERVES the
+    original shape of a 3-tuple element (it reads only ``[0]``/``[1]`` of
+    the first and last element and extends the path verbatim), while the
+    shim refuses it with IndexError. The flat kernel contract cannot
+    express element boundaries — the end-nudge reads the flat's LAST pair,
+    which for a 3-tuple last element is the wrong coordinate pair — so full
+    shape parity would need a kernel API change for an input class the
+    router never produces (always 2-tuples). The shim fails closed rather
+    than silently corrupting the output shape."""
+    path = [(1.0, 2.0, 3.0)]
+    assert _oracle.add_endpoint_nudge(path, (0.0, 0.0), (2.0, 2.0)) == [
+        (0.0, 0.0),
+        (1.0, 2.0, 3.0),
+        (2.0, 2.0),
+    ]
+    assert canon_call(shim_nudge, path, (0.0, 0.0), (2.0, 2.0)) == (
+        "raised",
+        "IndexError",
+        "tuple index out of range",
+    )

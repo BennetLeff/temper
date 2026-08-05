@@ -2058,21 +2058,31 @@ mutation campaign:
    `x_max`/`y_max` is NOT emitted; `spacing >= zone extent` (or a
    zero-extent zone) yields an EMPTY slot list. Both asserted explicitly
    (vacuity guards); mutants M1/M2 (`<=`) killed by the strict-bound cases.
-3. **Expression order in the 4-zone layout.** Every boundary is
-   `board_width * 0.3 / * 0.6 / * 0.9`, and each subsequent zone REUSES the
-   previous product (`power_x_min = hv_x_max`, `signal_x_min = power_x_max`,
-   `mcu_x_min = signal_x_max`) rather than a fresh multiply — the reuse is
-   pinned by the PBT `test_p2_fractions` asserting `zones[1][1] ==
-   zones[0][3]` (same float object bits). Mutants M5/M6 (wrong products)
+3. **Expression order in the 4-zone layout.** Every MAX boundary is an
+   INDEPENDENT fresh multiply `board_width * 0.3 / * 0.6 / * 0.9` — the
+   oracle computes each product from `board_width` directly, never as a
+   reuse chain (`(w*0.3)*3 = 0.09` but `w*0.9 = 0.09000000000000001` for
+   `w = 0.1`; doubling for the 0.6 boundary happens to be exact, but the
+   oracle still computes it fresh). Only the MIN boundaries reuse the
+   previous product (`power_x_min = hv_x_max`, `signal_x_min =
+   power_x_max`, `mcu_x_min = signal_x_max`) — pinned by the PBT
+   `test_p2_fractions` asserting `zones[1][1] == zones[0][3]` (same float
+   object bits) and the Rust unit test
+   `layout_boundaries_fresh_products`. Mutants M5/M6 (wrong products)
    killed by the fixed 30/60/90 boundaries.
 4. **`int`-vs-`float` leaves preserved.** The oracle's zone bounds are
-   `((0, 0), ...)` — Python `int` 0 for `HV.x_min` and every `y_min`. The
-   type-carrying differential canon discriminates `int` from `float`, so
-   `define_zone_layout` emits Python `int` 0 in exactly those positions (a
-   `0.0_f64` would fail the differential). The `bounds_ratio` branch scales
-   `ratio[i] * board_dim` in the oracle's order — all `float` products —
-   and is pinned by `test_scale_zone_bounds_dict_branch` /
-   `test_p5_bounds_ratio_scale` (mutants M7/M8 killed).
+   `((0, 0), ...)` — Python `int` 0 for `HV.x_min` and every `y_min`, and
+   the board DIMS pass through untouched (`int` on an integer board:
+   `define_zone_layout(100, 100)` keeps `y_max` / `MCU.x_max` as `int`
+   100; the boundary products are float regardless of the dims' type).
+   The type-carrying differential canon discriminates `int` from `float`,
+   so `define_zone_layout` emits Python `int` 0 in exactly those positions
+   and passes the raw dims through as the original objects (a `0.0_f64`
+   or an f64-widened `board_height` would fail the differential). The
+   `bounds_ratio` branch scales `ratio[i] * board_dim` in the oracle's
+   order — all `float` products on the pinned surface — and is pinned by
+   `test_scale_zone_bounds_dict_branch` / `test_p5_bounds_ratio_scale`
+   (mutants M7/M8 killed).
 5. **Rule precedence + iteration order in zone assignment.** The five
    rules run in priority order (ref prefix → protocol substring → HV net
    class → Power net class → Signal default); the net-scan is in
@@ -2095,7 +2105,10 @@ mutation campaign:
 ## Mutation campaign (Phase 5, Batch 2 — 12 mutants, 12 killed, 0 survivors)
 
 Driver: `scripts/phase5_batch2_mutations.py` (reproducible; apply →
-rebuild → run the six suites → expect failure → revert).
+rebuild → run the six suites → expect failure → revert). Only a suite
+failure counts as a kill; rebuild/pytest infra failures are counted as
+ERROR (driver exit non-zero), so the 12/12 claim cannot be inflated by a
+spurious infra failure.
 
 | Mutant | Site | What caught it |
 |---|---|---|

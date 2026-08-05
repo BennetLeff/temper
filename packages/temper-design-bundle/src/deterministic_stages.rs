@@ -28,13 +28,19 @@
 //! - **Strict `<` upper bounds**: a slot exactly at `x_max`/`y_max` is NOT
 //!   emitted, and `spacing >= zone extent` yields an EMPTY slot list.
 //! - **`int`-vs-`float` leaves**: the oracle's 4-zone layout uses integer `0`
-//!   for `HV.x_min` and every `y_min` (`((0, 0), ...)`). The type-carrying
-//!   differential canon discriminates `int` from `float`, so
+//!   for `HV.x_min` and every `y_min` (`((0, 0), ...)`), and passes the
+//!   board DIMS through untouched — `int` on an integer board. The
+//!   type-carrying differential canon discriminates `int` from `float`, so
 //!   [`define_zone_layout`] emits Python `int` `0` in exactly those positions
-//!   (a Rust `0.0_f64` would fail the differential).
-//! - **Expression order**: every boundary is `board_width * 0.3 / * 0.6 /
-//!   * 0.9`, and each subsequent zone reuses the *previous* product
-//!   (`power_x_min = hv_x_max`, ...) rather than a fresh multiply.
+//!   and keeps the raw dims (a Rust `0.0_f64` / `board_height as f64` would
+//!   fail the differential).
+//! - **Expression order**: every MAX boundary is an INDEPENDENT fresh
+//!   multiply `board_width * 0.3 / * 0.6 / * 0.9` — the oracle computes each
+//!   product from `board_width` directly, and a reuse chain would break
+//!   bit-parity (`(w*0.3)*3 == 0.09` but `w*0.9 == 0.09000000000000001` for
+//!   `w = 0.1`); only the MIN boundaries reuse the previous product
+//!   (`power_x_min = hv_x_max`, `signal_x_min = power_x_max`,
+//!   `mcu_x_min = signal_x_max`). Pinned by `layout_boundaries_fresh_products`.
 //! - **Dict insertion order**: `assign_component_zones` emits `(ref, zone)`
 //!   pairs in `netlist.components` order (the shim rebuilds the dict, so
 //!   insertion order is pinned); `comp_nets` appends net names in netlist
@@ -67,21 +73,25 @@ fn guard<R>(body: impl FnOnce() -> PyResult<R>) -> PyResult<R> {
 /// `xmin`/`ymin` arrive as `Bound<PyAny>` so the caller controls the
 /// concrete Python type (the oracle stores `int` `0` for HV's `x_min` and
 /// every `y_min`; the type-carrying differential canon must see those as
-/// `int`, not `float`).
+/// `int`, not `float`). `xmax`/`ymax` are likewise passed through as the
+/// caller's objects: the boundary PRODUCTS are `float`, but the board-dims
+/// leaves pass through with the caller's type (`int` on an integer board —
+/// the oracle's `define_zone_layout(100, 100)` keeps `board_height`/`board_width`
+/// as `int` in the y_max / MCU x_max positions).
 fn layout_row<'py>(
     py: Python<'py>,
     name: &str,
     xmin: Bound<'py, PyAny>,
     ymin: Bound<'py, PyAny>,
-    xmax: f64,
-    ymax: f64,
+    xmax: Bound<'py, PyAny>,
+    ymax: Bound<'py, PyAny>,
 ) -> PyResult<Bound<'py, PyTuple>> {
     let items: Vec<Bound<'py, PyAny>> = vec![
         name.into_pyobject(py)?.into_any(),
         xmin,
         ymin,
-        xmax.into_pyobject(py)?.into_any(),
-        ymax.into_pyobject(py)?.into_any(),
+        xmax,
+        ymax,
     ];
     PyTuple::new(py, items)
 }
@@ -106,8 +116,12 @@ fn generate_slots(x_min: f64, y_min: f64, x_max: f64, y_max: f64, spacing: f64) 
     slots
 }
 
-/// The boundary products of the 4-zone layout: `w * 0.3 / * 0.6 / * 0.9`,
-/// each subsequent zone REUSING the previous product (not a fresh multiply).
+/// The boundary products of the 4-zone layout. Each MAX boundary is an
+/// INDEPENDENT fresh multiply (`w * 0.3`, `w * 0.6`, `w * 0.9`), exactly as
+/// the oracle computes them — a reuse chain (`(w*0.3)*3` for `w*0.9`) is
+/// NOT bit-identical in general. Only the MIN boundaries reuse products
+/// (`power_x_min = hv_x_max`, ...), which live in the caller's rows, not
+/// here.
 struct LayoutBoundaries {
     hv_x_max: f64,
     power_x_max: f64,
@@ -142,51 +156,61 @@ fn generate_slots_for_zone(
 /// `ZoneGeometryStage._define_zone_layout` — the 4-zone MVP-3 layout.
 ///
 /// Returns `(name, xmin, ymin, xmax, ymax)` rows in zone order
-/// (`HV, Power, Signal, MCU`). Every boundary is `board_width * 0.3 / 0.6 /
-/// 0.9` with each subsequent zone REUSING the previous product (not a fresh
-/// multiply); `HV.x_min` and every `y_min` are Python `int` `0` (oracle
-/// `((0, 0), ...)` — the type-carrying canon pins int-vs-float).
+/// (`HV, Power, Signal, MCU`). Every MAX boundary is an INDEPENDENT fresh
+/// product `board_width * 0.3 / 0.6 / 0.9` (the oracle computes each
+/// product from `board_width` directly — a reuse chain would break
+/// bit-parity: e.g. `(w*0.3)*3 = 0.09` while `w*0.9 = 0.09000000000000001`
+/// for `w = 0.1`); the MIN boundaries reuse the previous product
+/// (`power_x_min = hv_x_max`, `signal_x_min = power_x_max`,
+/// `mcu_x_min = signal_x_max`). `HV.x_min` and every `y_min` are Python
+/// `int` `0` (oracle `((0, 0), ...)`), and the board-dims leaves (`y_max`
+/// everywhere, `MCU.x_max`) pass through with the CALLER'S type — `int` on
+/// an integer board, exactly as the oracle preserves them (the
+/// type-carrying canon pins int-vs-float).
 #[pyfunction]
 fn define_zone_layout<'py>(
     py: Python<'py>,
-    board_width: f64,
-    board_height: f64,
+    board_width: &Bound<'py, PyAny>,
+    board_height: &Bound<'py, PyAny>,
 ) -> PyResult<Vec<Bound<'py, PyTuple>>> {
     guard(|| {
-        let b = layout_boundaries(board_width);
+        let w: f64 = board_width.extract()?;
+        let b = layout_boundaries(w);
         let zero = 0i64.into_pyobject(py)?.into_any();
+        let width = board_width.clone();
+        let height = board_height.clone();
         let rows = vec![
             layout_row(
                 py,
                 "HV",
                 zero.clone(),
                 zero.clone(),
-                b.hv_x_max,
-                board_height,
+                b.hv_x_max.into_pyobject(py)?.into_any(),
+                height.clone(),
             )?,
             layout_row(
                 py,
                 "Power",
                 b.hv_x_max.into_pyobject(py)?.into_any(),
                 zero.clone(),
-                b.power_x_max,
-                board_height,
+                b.power_x_max.into_pyobject(py)?.into_any(),
+                height.clone(),
             )?,
             layout_row(
                 py,
                 "Signal",
                 b.power_x_max.into_pyobject(py)?.into_any(),
                 zero.clone(),
-                b.signal_x_max,
-                board_height,
+                b.signal_x_max.into_pyobject(py)?.into_any(),
+                height.clone(),
             )?,
             layout_row(
                 py,
                 "MCU",
                 b.signal_x_max.into_pyobject(py)?.into_any(),
                 zero.clone(),
-                board_width,
-                board_height,
+                width,
+                height,
             )?,
         ];
         Ok(rows)
@@ -380,19 +404,25 @@ mod tests {
     }
 
     #[test]
-    fn layout_boundaries_reuse_products() {
-        // w * 0.3 / * 0.6 / * 0.9, and each boundary REUSES the previous
-        // product: power_x_min == hv_x_max, signal_x_min == power_x_max,
-        // mcu_x_min == signal_x_max.
+    fn layout_boundaries_fresh_products() {
+        // Each MAX boundary is an independent fresh multiply from w:
+        // hv = w*0.3, power = w*0.6, signal = w*0.9. The oracle REUSES
+        // products only for the MIN boundaries (power_x_min = hv_x_max,
+        // signal_x_min = power_x_max, mcu_x_min = signal_x_max), which live
+        // in the caller's rows, not in this struct.
         let b = layout_boundaries(100.0);
         assert_eq!(b.hv_x_max, 30.0);
         assert_eq!(b.power_x_max, 60.0);
         assert_eq!(b.signal_x_max, 90.0);
-        // Expression-order pin: 0.6*w is NOT 2*(0.3*w) in general; the oracle
-        // computes each product independently from w. 100*0.3 == 30 exactly.
-        let b2 = layout_boundaries(0.3);
-        assert_eq!(b2.hv_x_max, 0.3 * 0.3);
-        assert_eq!(b2.power_x_max, 0.3 * 0.6);
+        // Expression-order pin: a reuse chain is NOT bit-identical to the
+        // fresh product — (w*0.3)*3 = 0.09 while w*0.9 = 0.09000000000000001
+        // for w = 0.1. (Doubling for the 0.6 boundary IS exact, but the
+        // oracle still computes it fresh, and so does this code.)
+        let b2 = layout_boundaries(0.1);
+        assert_eq!(b2.hv_x_max, 0.1 * 0.3);
+        assert_eq!(b2.power_x_max, 0.1 * 0.6);
+        assert_eq!(b2.signal_x_max, 0.1 * 0.9);
+        assert_ne!(b2.signal_x_max, (b2.hv_x_max) * 3.0);
     }
 
     #[test]

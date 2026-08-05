@@ -24,6 +24,7 @@ Numerical traps pinned here:
 
 from __future__ import annotations
 
+import math
 import random
 
 import pytest
@@ -94,15 +95,42 @@ def test_distance_pow_not_square():
     must agree on this input (a Rust port using ``dx * dx`` would compute
     the second value internally). NOTE: the composed
     ``sqrt(pow(dx,2)+pow(dy,2))`` round-trips both squared values to the
-    same output for this input (no sqrt-discriminating input found in
-    ~12M structured draws — see VERIFICATION.md), so the x*x mutation is
-    killed by the randomized differential arm, whose per-pow mismatch
-    rate (~1.3e-3, measured in the Phase-5 campaign) surfaces it.
+    same output for THIS input — the y=0 composed distance washes the
+    1-ulp inner difference out. The sqrt-composed flip is pinned
+    separately by ``test_distance_sqrt_composed_discriminates_pow``.
     """
     x = -885681.5731814067
     exp = _oracle.distance((x, 0.0), (0.0, 0.0))
     got = RS_DISTANCE(x, 0.0, 0.0, 0.0)
     assert exp.hex() == got.hex()
+
+
+def test_distance_sqrt_composed_discriminates_pow():
+    """Fixed sqrt-composed discriminator for the ``x*x``-vs-``pow`` mutant.
+
+    The y=0 composed distance round-trips the 1-ulp inner difference away
+    (``test_distance_pow_not_square``), so the ``x*x`` mutant (M6) survives
+    the fixed single-axis case AND the seed-3 randomized arm (0/1200 draws
+    discriminate — the uniform(-100, 100) magnitude range never covers the
+    pow-mismatch regime, which starts around |x| ~ 1e3). These pairs were
+    found by scanning pow-mismatch magnitudes with a second coordinate:
+    the inner sums differ by 1 ulp AND the outer ``** 0.5`` flip survives
+    rounding. The oracle and kernel both call the platform libm, so the
+    case discriminates wherever ``pow(x, 2.0) != x * x`` holds on the
+    host, and passes vacuously on a platform where they are always equal.
+    """
+    cases = [
+        (-122980.49419472546, 1459.765068127158),
+        (3210473.261050392, 5530.1637132561655),
+        (944.9477318182489, -809488.0638653971),
+    ]
+    for x, y in cases:
+        exp = _oracle.distance((x, y), (0.0, 0.0))
+        got = RS_DISTANCE(x, y, 0.0, 0.0)
+        assert exp.hex() == got.hex(), f"composed pow discriminator {(x, y)}"
+        # Sanity: the two inner squares must actually differ on this host,
+        # or the case is vacuously passing (recorded in the docstring).
+        assert math.pow(x, 2.0) != x * x or math.pow(y, 2.0) != y * y
 
 
 # ---------------------------------------------------------------------------

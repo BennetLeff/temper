@@ -5,6 +5,15 @@ For each mutation: apply a one-line edit to the Rust kernel source, rebuild
 the temper-geometry extension, run the four Batch-1 suites, expect FAILURE,
 then revert. A mutation that does NOT fail the differential is a survivor —
 the campaign either closes it with a discriminating case or records it.
+After the last mutant the driver rebuilds from pristine source and re-runs
+the suites, so the campaign ends bit-exact (the per-mutant revert alone
+would leave the installed .so carrying the final mutant — the revert does
+not recompile).
+
+Only a SUITE FAILURE counts as a kill (pytest exit 1). Rebuild or pytest
+infra failures (rebuild errors, timeouts, exit 2/3/4/5) are counted as
+ERROR, not kills, and fail the driver — a spurious infra failure cannot
+inflate the kill count.
 
 Usage: python3 scripts/phase5_batch1_mutations.py  (run from repo root)
 """
@@ -116,6 +125,8 @@ MUTATIONS = [
         "        if r >= max_search_radius {",
     ),
 ]
+EXPECTED: dict[str, str] = {label: "KILLED" for label, *_ in MUTATIONS}
+EXPECTED["M6 distance: x*x instead of pow(x, 2.0)"] = "EQUIVALENT"
 
 
 def main() -> int:
@@ -131,18 +142,42 @@ def main() -> int:
             rebuild()
             code, out = run_suites()
         except RuntimeError as exc:
-            code, out = 2, str(exc)
+            status, out = "ERROR", f"rebuild failed: {exc}"
+        except subprocess.TimeoutExpired as exc:
+            status, out = "ERROR", f"suite run timed out: {exc}"
+        else:
+            # pytest exit codes: 0 = all passed (SURVIVED), 1 = tests ran
+            # and failed (KILL), 2/3/4/5 = interrupted / internal error /
+            # usage error / no-tests-collected — infra failures, counted as
+            # ERROR so a spurious rebuild/pytest failure cannot inflate the
+            # kill count.
+            if code == 0:
+                status = "SURVIVED"
+            elif code == 1:
+                status = "KILLED"
+            else:
+                status = "ERROR"
+                out = f"pytest infra failure (exit {code}): {out}"
         finally:
             path.write_text(src)  # revert
-        killed = code != 0
-        results.append((label, killed, out))
-        print(f"{'KILLED' if killed else 'SURVIVED'}: {label}")
-        if not killed:
+        results.append((label, status, out))
+        print(f"{status}: {label}")
+        if status != "KILLED":
             print(out[-1500:])
     print("\n=== SUMMARY ===")
-    for label, killed, _ in results:
-        print(f"{'PASS(killed)' if killed else 'SURVIVED'}: {label}")
-    return 0 if all(k for _, k, _ in results) else 1
+    for label, status, _ in results:
+        print(f"{status}: {label}")
+    # The LAST mutation's rebuild happens while the mutant is still applied
+    # (the revert in `finally` does not recompile), so the installed .so
+    # still carries the final mutant afterwards. Rebuild from pristine
+    # source and re-run the suites so the campaign ends bit-exact.
+    rebuild()
+    code, out = run_suites()
+    print(f"PRISTINE REBUILD + SUITES: exit={code}")
+    if code != 0:
+        print(out[-2000:])
+        return 1
+    return 0 if all(s == "KILLED" for _, s, _ in results) else 1
 
 
 if __name__ == "__main__":

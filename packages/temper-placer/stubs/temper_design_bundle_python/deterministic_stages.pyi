@@ -9,6 +9,10 @@ Return-shape notes:
 - `define_zone_layout` rows are `(name, xmin, ymin, xmax, ymax)` tuples;
   `HV.x_min` and every `y_min` are Python `int` `0` (the oracle stores
   `((0, 0), ...)` — type-carrying differential canon pins int-vs-float).
+  The board DIMS pass through with the caller's type: `y_max` everywhere
+  and `MCU.x_max` are `int` for integer board dims, `float` for float
+  dims; the boundary products (`x_max` of HV/Power/Signal) are always
+  `float`.
 - `assign_component_zones` accepts the `Netlist` pyclass from
   `temper_placer.core.netlist` and returns `(ref, zone)` pairs in
   `netlist.components` order.
@@ -16,8 +20,8 @@ Return-shape notes:
 
 from __future__ import annotations
 
-from typing import Any, Iterable
-
+from collections.abc import Iterable
+from typing import Any
 
 def generate_slots_for_zone(
     x_min: float,
@@ -29,9 +33,9 @@ def generate_slots_for_zone(
 
 
 def define_zone_layout(
-    board_width: float,
-    board_height: float,
-) -> list[tuple[str, int | float, int | float, float, float]]: ...
+    board_width: int | float,
+    board_height: int | float,
+) -> list[tuple[str, int | float, int, int | float, int | float]]: ...
 
 
 def scale_zone_bounds(
