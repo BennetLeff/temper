@@ -149,8 +149,7 @@ class TestLayerAudit:
         # true var — but net0 only has one var and it's forced false, so it
         # should be UNSAT).
         # Actually: the Rust solver doesn't add connectivity clauses
-        # automatically (those are added by populate_sat_from_constraints).
-        # The Rust solver only encodes the constraints given. So this should
+        # automatically. It only encodes the constraints given, so this should
         # be SAT with v=False.
         assert result["status"] == "sat"
 
