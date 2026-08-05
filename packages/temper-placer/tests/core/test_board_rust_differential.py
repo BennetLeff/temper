@@ -317,8 +317,16 @@ def test_layer_stackup_populated_is_unhashable_identically():
     assert canon_call(hash, py)[0] == "raised"
 
 
-@pytest.mark.parametrize("idx", [-1, 0, 1, 2, 3, 4, 99])
+@pytest.mark.parametrize("idx", [-1, 0, 1, 2, 3, 4, 99, 1.5, 2.5, True])
 def test_layer_stackup_is_plane_layer_identical(idx):
+    """Int indexes (in- and out-of-range, negatives), float indexes and bools.
+
+    The float cases pin the tuple-indexing error text: the oracle's guard
+    `0 <= 1.5 < len` passes, so `self.layers[1.5]` is reached and raises
+    `TypeError: tuple indices must be integers or slices, not float`. The
+    out-of-range ints (4, 99, -1) fail the guard and return False without
+    ever reaching the index — the Rust must not raise IndexError there.
+    """
     py, rs = _oracle.LayerStackup.default_4layer(), RS_LAYER_STACKUP.default_4layer()
     assert canon_call(py.is_plane_layer, idx) == canon_call(rs.is_plane_layer, idx)
     empty_py, empty_rs = _pair(_oracle.LayerStackup, RS_LAYER_STACKUP)
@@ -816,9 +824,38 @@ def test_replace_rejects_the_init_false_field_identically():
 
 
 def test_dataclass_field_surface_matches_the_oracle():
+    """The full ``Field`` surface -- not just ``(name, init)`` -- agrees with
+    the pinned oracle.
+
+    ``dataclasses.replace()`` happens to read only ``f.name`` and ``f.init``,
+    but ``dataclasses.fields()`` is public API: ``f.default`` and
+    ``f.default_factory`` drive callers that materialize field defaults,
+    ``f.type`` is the annotation a ``fields()`` consumer sees, and
+    ``typing.get_type_hints`` is how annotation tooling resolves the
+    contract. The compat layer must reproduce all of it, not only the two
+    attributes ``_replace`` reads.
+    """
     import dataclasses
+    import typing
 
     from temper_placer.core import board as public
+
+    def _canonicalize(t):
+        """Reduce a resolved annotation to structure, mapping classes to names.
+
+        The oracle resolves ``Rect`` to ``tests.core._board_py_oracle.Rect``
+        while the shim resolves it to the pyclass
+        ``temper_placer.core.board.Rect`` -- different objects by design.
+        Comparing structural form (name + type arguments) is the honest
+        equality here.
+        """
+        origin = typing.get_origin(t)
+        if origin is None:
+            return t.__name__ if isinstance(t, type) else t
+        return (
+            getattr(origin, "__name__", repr(origin)),
+            tuple(_canonicalize(arg) for arg in typing.get_args(t)),
+        )
 
     for py_cls, rs_cls in [
         (_oracle.MountingHole, public.MountingHole),
@@ -834,9 +871,30 @@ def test_dataclass_field_surface_matches_the_oracle():
         (_oracle.Board, public.Board),
     ]:
         assert dataclasses.is_dataclass(rs_cls)
-        assert [(f.name, f.init) for f in dataclasses.fields(py_cls)] == [
-            (f.name, f.init) for f in dataclasses.fields(rs_cls)
-        ]
+        py_fields = dataclasses.fields(py_cls)
+        rs_fields = dataclasses.fields(rs_cls)
+        assert [f.name for f in rs_fields] == [f.name for f in py_fields]
+        for py_f, rs_f in zip(py_fields, rs_fields):
+            assert rs_f.init == py_f.init
+            assert rs_f.repr == py_f.repr
+            if py_f.default is dataclasses.MISSING:
+                assert rs_f.default is dataclasses.MISSING
+            else:
+                assert rs_f.default == py_f.default
+            if py_f.default_factory is dataclasses.MISSING:
+                assert rs_f.default_factory is dataclasses.MISSING
+            else:
+                assert rs_f.default_factory is not dataclasses.MISSING
+                # Same zero-arg factory behaviour: identical callable where
+                # the oracle used a builtin (list/dict/frozenset), otherwise
+                # the materialized default must be identical.
+                assert rs_f.default_factory() == py_f.default_factory()
+            assert rs_f.type == py_f.type
+        py_hints = typing.get_type_hints(py_cls)
+        rs_hints = typing.get_type_hints(rs_cls)
+        assert set(rs_hints) == set(py_hints)
+        for name in py_hints:
+            assert _canonicalize(py_hints[name]) == _canonicalize(rs_hints[name]), name
 
 
 def test_public_module_delegates_to_rust():
@@ -898,4 +956,49 @@ def test_layer_predicate_helpers_identical(probe):
     assert canon_call(public.is_signal_layer, probe) == canon_call(_oracle.is_signal_layer, probe)
     assert canon_call(public.layer_name_to_index, probe) == canon_call(
         _oracle.layer_name_to_index, probe
+    )
+
+
+def test_explicit_none_literal_defaults_divergence_pinned():
+    """The pyo3 Option params cannot distinguish an *omitted* argument from an
+    *explicitly passed* `None` (pyo3's extract_argument_with_default turns a
+    present `None` into the Rust `None` and only consults the default when the
+    argument is absent), so explicit `None` collapses onto the literal default
+    on the pyclasses while the dataclasses store what they are given.
+
+    Latent: no in-repo caller passes explicit `None` for any of these fields
+    (verified 2026-08-04). Assert each arm's exact behavior (#712 pattern-5
+    precedent) so a change to either arm -- or a new caller passing explicit
+    `None` -- is caught rather than silently diverging. Recorded in
+    VERIFICATION.md (board/netlist documented deviation 6).
+    """
+    # --- MountingHole.keepout_radius: None -> 3.0 on the pyclass ----------
+    py = _oracle.MountingHole((0.0, 0.0), 3.0, keepout_radius=None)
+    rs = RS_MOUNTING_HOLE((0.0, 0.0), 3.0, keepout_radius=None)
+    assert py.keepout_radius is None  # oracle stores the passed None
+    assert canon(rs.keepout_radius) == canon(3.0)  # pyclass collapses to the default
+    # Omitted-arg default is identical on both arms.
+    assert canon(_oracle.MountingHole((0.0, 0.0), 3.0).keepout_radius) == canon(3.0)
+    assert canon(RS_MOUNTING_HOLE((0.0, 0.0), 3.0).keepout_radius) == canon(3.0)
+    # An explicit non-None value is stored identically.
+    assert canon(
+        _oracle.MountingHole((0.0, 0.0), 3.0, keepout_radius=5.0).keepout_radius
+    ) == canon(RS_MOUNTING_HOLE((0.0, 0.0), 3.0, keepout_radius=5.0).keepout_radius)
+
+    # --- Zone literal-default fields: None -> default on the pyclass ------
+    zone_fields = ["net_classes", "weight", "layers", "can_expand", "zone_type"]
+    py = _oracle.Zone("Z", (0, 0, 1, 1), **dict.fromkeys(zone_fields))
+    rs = RS_ZONE("Z", (0, 0, 1, 1), **dict.fromkeys(zone_fields))
+    for field in zone_fields:
+        assert canon(getattr(py, field)) == canon(None), field  # oracle stores None
+    # net_classes is the finding's named field; assert its pyclass collapse
+    # directly, and the rest by the same rule.
+    assert canon(rs.net_classes) == canon(["Signal"])
+    assert canon(rs.weight) == canon(1.0)
+    assert canon(rs.layers) == canon(["F.Cu"])
+    assert canon(rs.can_expand) == canon(["up", "down", "left", "right"])
+    assert canon(rs.zone_type) == canon("placement")
+    # Omitted-arg defaults agree between the arms.
+    assert canon(_oracle.Zone("Z", (0, 0, 1, 1)).net_classes) == canon(
+        RS_ZONE("Z", (0, 0, 1, 1)).net_classes
     )

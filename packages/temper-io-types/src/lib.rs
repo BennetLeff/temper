@@ -37,11 +37,13 @@ pub mod config_binding;
 pub mod dsn_types;
 pub mod export_types;
 pub mod footprint;
+pub mod footprint_library;
 pub mod footprint_spec;
 pub mod golden_serializers;
 pub mod isolation;
 pub mod kicad_write;
 pub mod provenance;
+pub mod reference_aliases;
 #[cfg(feature = "python")]
 pub mod zone_filler;
 
@@ -78,12 +80,13 @@ mod pymodule_def {
         m.add_class::<crate::dsn_types::PyDsnCircle>()?;
         m.add_class::<crate::dsn_types::PyDsnPath>()?;
         m.add_class::<crate::footprint_spec::PyFootprintSpec>()?;
+        m.add_class::<crate::footprint_library::PyFootprintLibrary>()?;
         m.add_class::<crate::provenance::PyProvenance>()?;
         m.add_class::<crate::kicad_write::PyPlacementUpdate>()?;
         m.add_class::<crate::kicad_write::PyWriteResult>()?;
         m.add_class::<crate::kicad_write::PyStrippingResult>()?;
         m.add_class::<crate::kicad_write::PyIsolationSlotResult>()?;
-
+        m.add_class::<crate::reference_aliases::PyReferenceAliasManifest>()?;
         // Functions
         m.add_function(wrap_pyfunction!(
             crate::footprint::parse_footprint_courtyard,
@@ -115,6 +118,14 @@ mod pymodule_def {
         )?)?;
         m.add_function(wrap_pyfunction!(crate::dsn_types::dsn_list, m)?)?;
         m.add_function(wrap_pyfunction!(crate::provenance::sha256_hex_py, m)?)?;
+        m.add_function(wrap_pyfunction!(
+            crate::footprint_library::load_footprint_library,
+            m
+        )?)?;
+        m.add_function(wrap_pyfunction!(
+            crate::reference_aliases::load_reference_alias_manifest,
+            m
+        )?)?;
         m.add_function(wrap_pyfunction!(
             crate::config_binding::extract_config_refs_py,
             m

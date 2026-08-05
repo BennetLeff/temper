@@ -80,6 +80,25 @@ def matches(rel: str, pattern: str) -> bool:
     return pat_dir == rel_dir and fnmatch.fnmatch(rel_base, pat_base)
 
 
+def entry_matches(rel: str, surface: dict) -> bool:
+    """``matches()`` plus an optional ``exclude:`` carve-out list.
+
+    A surface may list exact repo-relative paths under ``exclude:`` that its
+    pattern would otherwise claim, so a single file inside a broad surface can
+    carry its own verdict (R3 splits a surface where one verdict does not fit
+    all of it). This keeps the "exactly one entry per file" invariant intact
+    rather than resolving overlaps by precedence, so a carve-out stays visible
+    and auditable in the ledger instead of being implied by pattern ordering.
+
+    Both mistakes fail closed: a typo'd exclude leaves the file matching both
+    entries (reported as a multi-match), and excluding a file that no other
+    entry claims leaves it unmatched (reported as UNDECIDED coverage failure).
+    """
+    if not matches(rel, surface["pattern"]):
+        return False
+    return rel not in set(surface.get("exclude", []) or [])
+
+
 def validate_entries(surfaces: list[dict]) -> list[str]:
     errors: list[str] = []
     for i, s in enumerate(surfaces):
@@ -97,6 +116,17 @@ def validate_entries(surfaces: list[dict]) -> list[str]:
             errors.append(f"{pat}: MIGRATE requires a `phase:`")
         if verdict == "UNDECIDED" and not str(s.get("owed", "")).strip():
             errors.append(f"{pat}: UNDECIDED requires an `owed:` naming what decision is missing")
+        if verdict == "RETIRE" and not str(s.get("justification", "")).strip():
+            errors.append(
+                f"{pat}: RETIRE requires a `justification:` -- R3 defines RETIRE as "
+                f"'dead or obsolete, deleted with justification'"
+            )
+        for ex in s.get("exclude", []) or []:
+            if not matches(ex, s["pattern"]):
+                errors.append(
+                    f"{pat}: exclude entry {ex!r} does not match this pattern -- a "
+                    f"carve-out that excludes nothing is a stale or typo'd path"
+                )
     return errors
 
 
@@ -119,7 +149,7 @@ def main() -> int:
 
     for f in files:
         rel = str(f.relative_to(REPO_ROOT))
-        hits = [s for s in surfaces if matches(rel, s["pattern"])]
+        hits = [s for s in surfaces if entry_matches(rel, s)]
         if not hits:
             unmatched.append(rel)
             continue

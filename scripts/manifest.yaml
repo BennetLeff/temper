@@ -1068,31 +1068,6 @@ scripts:
   - shutil
   - subprocess
   - sys
-- path: internal_route.py
-  purpose: Internal route command (Makefile + shell-invoked)
-  owner: unassigned
-  last_run: '2026-06-22'
-  category: keep
-  disposition: shell-invoked
-  imports:
-  - argparse
-  - jax.numpy
-  - math
-  - pathlib
-  - rich.console
-  - sys
-  - temper_placer.core.loop
-  - temper_placer.geometry.kicad_transform
-  - temper_placer.io.kicad_parser
-  - temper_placer.io.trace_writer
-  - temper_placer.io.zone_manager
-  - temper_placer.router_v6.adapter
-  - temper_placer.routing.constraints.geometry
-  - temper_placer.routing.constraints.spatial_index
-  - temper_placer.routing.fanout
-  - temper_placer.routing.layer_assignment
-  - temper_placer.routing.net_ordering
-  - time
 - path: kicad_fill_zones.py
   purpose: Fill zones via KiCad's pcbnew API before DRC (kicad-cli lacks --refill-zones pre-CI's KiCad 8.0.9)
   owner: zone-pour-u3-measurement
@@ -1284,29 +1259,6 @@ scripts:
   - json
   - pathlib
   - sys
-- path: placement_quality_report.py
-  purpose: Generate placement quality report (tool-helper-invoked)
-  owner: unassigned
-  last_run: '2026-06-22'
-  category: keep
-  disposition: shell-invoked
-  imports:
-  - __future__
-  - argparse
-  - dataclasses
-  - datetime
-  - json
-  - pathlib
-  - subprocess
-  - sys
-  - temper_placer.core.netlist
-  - temper_placer.core.state
-  - temper_placer.io
-  - temper_placer.losses.base
-  - temper_placer.metrics.quality
-  - temper_placer.routing.analysis
-  - tempfile
-  - typing
 - path: pr_perf_compare.py
   purpose: Compare PR performance metrics against main-branch JSONL baseline
   owner: pipeline
@@ -1421,10 +1373,10 @@ scripts:
   - pathlib
   - sys
 - path: route_board.py
-  purpose: Working entry point to route a .kicad_pcb through router_v6's route_pcb() (make route and internal_route.py are
-    dead ends -- see module docstring). --output is mandatory and refuses to match --pcb, so it can never overwrite the input
-    board. --runs N routes N times from identical input and reports the completion spread -- the measurement instrument for
-    the router's run-to-run non-determinism.
+  purpose: The routing entry point, and what `make route` invokes; supersedes internal_route.py, which was deleted
+    2026-08-04 as import-dead (see module docstring). --output is mandatory and refuses to match --pcb, so it can never
+    overwrite the input board. --runs N routes N times from identical input and reports the completion spread -- the
+    measurement instrument for the router's run-to-run non-determinism.
   owner: bennet
   last_run: '2026-07-28'
   category: keep

@@ -48,6 +48,9 @@ import numpy as np
 import temper_design_bundle_python as _tdb
 
 from temper_placer.core._contract_dataclass_compat import (
+    field as _contract_field,
+)
+from temper_placer.core._contract_dataclass_compat import (
     install_dataclass_fields as _install_dataclass_fields,
 )
 
@@ -70,62 +73,140 @@ side_to_layer_name = _rs.side_to_layer_name
 
 # A pyclass is not a dataclass, and `dataclasses.replace()` is used across the
 # deterministic stages. See `_contract_dataclass_compat` for the mechanism.
-_install_dataclass_fields(MountingHole, ("position", "diameter", "keepout_radius"))
-_install_dataclass_fields(Pad, ("position", "size", "shape", "layer", "number", "net_name"))
+# Each field spec mirrors the pinned pre-migration oracle
+# (`tests/core/_board_py_oracle.py`) field-for-field: annotation, literal
+# default or default_factory, and the init/repr flags.
+_install_dataclass_fields(
+    MountingHole,
+    (
+        _contract_field("position", "tuple[float, float]"),
+        _contract_field("diameter", "float"),
+        _contract_field("keepout_radius", "float", 3.0),
+    ),
+    module=__name__,
+)
+_install_dataclass_fields(
+    Pad,
+    (
+        _contract_field("position", "tuple[float, float]"),
+        _contract_field("size", "tuple[float, float]"),
+        _contract_field("shape", "str", "rect"),
+        _contract_field("layer", "str", "F.Cu"),
+        _contract_field("number", "str", ""),
+        _contract_field("net_name", "str | None", None),
+    ),
+    module=__name__,
+)
 _install_dataclass_fields(
     Component,
     (
-        "ref",
-        "position",
-        "rotation",
-        "width",
-        "height",
-        "footprint",
-        "pads",
-        "layer",
-        "fixed",
+        _contract_field("ref", "str"),
+        _contract_field("position", "tuple[float, float]"),
+        _contract_field("rotation", "float"),
+        _contract_field("width", "float"),
+        _contract_field("height", "float"),
+        _contract_field("footprint", "str | None", None),
+        _contract_field("pads", "list[Pad]", default_factory=list),
+        _contract_field("layer", "str", "F.Cu"),
+        _contract_field("fixed", "bool", False),
     ),
+    module=__name__,
 )
-_install_dataclass_fields(Trace, ("start", "end", "width", "layer", "net"))
 _install_dataclass_fields(
-    Via, ("position", "drill", "width", "layers", "net", "is_diff_pair")
+    Trace,
+    (
+        _contract_field("start", "tuple[float, float]"),
+        _contract_field("end", "tuple[float, float]"),
+        _contract_field("width", "float"),
+        _contract_field("layer", "str"),
+        _contract_field("net", "str | None", None),
+    ),
+    module=__name__,
 )
-_install_dataclass_fields(Layer, ("name", "layer_type", "copper_weight", "is_routable"))
-_install_dataclass_fields(LayerStackup, ("layers", "thickness"))
-_install_dataclass_fields(Rect, ("x_min", "y_min", "x_max", "y_max"))
+_install_dataclass_fields(
+    Via,
+    (
+        _contract_field("position", "tuple[float, float]"),
+        _contract_field("drill", "float"),
+        _contract_field("width", "float"),
+        _contract_field("layers", "tuple[str, ...]", ("F.Cu", "B.Cu")),
+        _contract_field("net", "str | None", None),
+        _contract_field("is_diff_pair", "bool", False),
+    ),
+    module=__name__,
+)
+_install_dataclass_fields(
+    Layer,
+    (
+        _contract_field("name", "str"),
+        _contract_field("layer_type", "str"),
+        _contract_field("copper_weight", "float", 1.0),
+        _contract_field("is_routable", "bool", True),
+    ),
+    module=__name__,
+)
+_install_dataclass_fields(
+    LayerStackup,
+    (
+        _contract_field("layers", "tuple[Layer, ...]", ()),
+        _contract_field("thickness", "float", 1.6),
+    ),
+    module=__name__,
+)
+_install_dataclass_fields(
+    Rect,
+    (
+        _contract_field("x_min", "float"),
+        _contract_field("y_min", "float"),
+        _contract_field("x_max", "float"),
+        _contract_field("y_max", "float"),
+    ),
+    module=__name__,
+)
 _install_dataclass_fields(
     Zone,
     (
-        "name",
-        "bounds",
-        "net_classes",
-        "components",
-        "weight",
-        "polygon",
-        "layers",
-        "max_size",
-        "can_expand",
-        "zone_type",
+        _contract_field("name", "str"),
+        _contract_field("bounds", "Rect | tuple[float, float, float, float]"),
+        _contract_field("net_classes", "list[str]", default_factory=lambda: ["Signal"]),
+        _contract_field("components", "list[str]", default_factory=list),
+        _contract_field("weight", "float", 1.0),
+        _contract_field("polygon", "list[tuple[float, float]] | None", None),
+        _contract_field("layers", "list[str]", default_factory=lambda: ["F.Cu"]),
+        _contract_field("max_size", "tuple[float, float] | None", None),
+        _contract_field(
+            "can_expand", "list[str]", default_factory=lambda: ["up", "down", "left", "right"]
+        ),
+        _contract_field("zone_type", "str", "placement"),
     ),
+    module=__name__,
 )
-_install_dataclass_fields(GroundDomain, ("name", "bounds", "star_point"))
+_install_dataclass_fields(
+    GroundDomain,
+    (
+        _contract_field("name", "str"),
+        _contract_field("bounds", "tuple[float, float, float, float]"),
+        _contract_field("star_point", "tuple[float, float] | None", None),
+    ),
+    module=__name__,
+)
 # `_zone_map` is `init=False` on the original dataclass: `replace()` must skip
 # it and reject any attempt to pass it.
 _install_dataclass_fields(
     Board,
     (
-        "width",
-        "height",
-        "origin",
-        "zones",
-        "mounting_holes",
-        "keepouts",
-        "ground_domains",
-        "layer_stackup",
-        "outline_polygon",
-        "_zone_map",
+        _contract_field("width", "float"),
+        _contract_field("height", "float"),
+        _contract_field("origin", "tuple[float, float]", (0.0, 0.0)),
+        _contract_field("zones", "list[Zone]", default_factory=list),
+        _contract_field("mounting_holes", "list[MountingHole]", default_factory=list),
+        _contract_field("keepouts", "list[tuple[float, float, float, float]]", default_factory=list),
+        _contract_field("ground_domains", "list[GroundDomain]", default_factory=list),
+        _contract_field("layer_stackup", "LayerStackup | None", None),
+        _contract_field("outline_polygon", "list[tuple[float, float]] | None", None),
+        _contract_field("_zone_map", "dict[str, Zone]", default_factory=dict, init=False),
     ),
-    non_init=("_zone_map",),
+    module=__name__,
 )
 
 

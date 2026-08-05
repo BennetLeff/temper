@@ -472,10 +472,38 @@ def test_dataclasses_replace_works_on_the_public_contracts():
 
 
 def test_dataclass_field_surface_matches_the_oracle():
-    """`fields()` / `is_dataclass()` agree on names and `init` flags."""
+    """The full ``Field`` surface -- not just ``(name, init)`` -- agrees with
+    the pinned oracle.
+
+    ``dataclasses.replace()`` happens to read only ``f.name`` and ``f.init``,
+    but ``dataclasses.fields()`` is public API: ``f.default`` and
+    ``f.default_factory`` drive callers that materialize field defaults,
+    ``f.type`` is the annotation a ``fields()`` consumer sees, and
+    ``typing.get_type_hints`` is how annotation tooling resolves the
+    contract. The compat layer must reproduce all of it, not only the two
+    attributes ``_replace`` reads.
+    """
     import dataclasses
+    import typing
 
     from temper_placer.core import netlist as public
+
+    def _canonicalize(t):
+        """Reduce a resolved annotation to structure, mapping classes to names.
+
+        The oracle resolves ``Component`` to
+        ``tests.core._netlist_py_oracle.Component`` while the shim resolves
+        it to the pyclass ``temper_placer.core.netlist.Component`` -- different
+        objects by design. Comparing structural form (name + type arguments)
+        is the honest equality here.
+        """
+        origin = typing.get_origin(t)
+        if origin is None:
+            return t.__name__ if isinstance(t, type) else t
+        return (
+            getattr(origin, "__name__", repr(origin)),
+            tuple(_canonicalize(arg) for arg in typing.get_args(t)),
+        )
 
     for py_cls, rs_cls in [
         (_oracle.Pin, public.Pin),
@@ -484,9 +512,30 @@ def test_dataclass_field_surface_matches_the_oracle():
         (_oracle.Netlist, public.Netlist),
     ]:
         assert dataclasses.is_dataclass(rs_cls)
-        assert [(f.name, f.init) for f in dataclasses.fields(py_cls)] == [
-            (f.name, f.init) for f in dataclasses.fields(rs_cls)
-        ]
+        py_fields = dataclasses.fields(py_cls)
+        rs_fields = dataclasses.fields(rs_cls)
+        assert [f.name for f in rs_fields] == [f.name for f in py_fields]
+        for py_f, rs_f in zip(py_fields, rs_fields):
+            assert rs_f.init == py_f.init
+            assert rs_f.repr == py_f.repr
+            if py_f.default is dataclasses.MISSING:
+                assert rs_f.default is dataclasses.MISSING
+            else:
+                assert rs_f.default == py_f.default
+            if py_f.default_factory is dataclasses.MISSING:
+                assert rs_f.default_factory is dataclasses.MISSING
+            else:
+                assert rs_f.default_factory is not dataclasses.MISSING
+                # Same zero-arg factory behaviour: identical callable where
+                # the oracle used a builtin (list/dict/frozenset), otherwise
+                # the materialized default must be identical.
+                assert rs_f.default_factory() == py_f.default_factory()
+            assert rs_f.type == py_f.type
+        py_hints = typing.get_type_hints(py_cls)
+        rs_hints = typing.get_type_hints(rs_cls)
+        assert set(rs_hints) == set(py_hints)
+        for name in py_hints:
+            assert _canonicalize(py_hints[name]) == _canonicalize(rs_hints[name]), name
 
 
 def test_public_module_delegates_to_rust():
@@ -515,3 +564,68 @@ def test_compute_eigenvector_centrality_stays_python_r3():
         assert canon(public.compute_eigenvector_centrality(adj)) == canon(
             _oracle.compute_eigenvector_centrality(adj)
         )
+
+
+def test_explicit_none_literal_defaults_divergence_pinned():
+    """The pyo3 Option params cannot distinguish an *omitted* argument from an
+    *explicitly passed* `None`, so explicit `None` collapses onto the literal
+    default on the pyclasses while the dataclasses store what they are given.
+    Affected literal-default fields on the netlist contracts: `Component`
+    (`net_class="Signal"`, `fixed=False`), `Pin` (`width=1.0`, `height=1.0`,
+    `shape="rect"`, `layer="F.Cu"`, `drill=0.0`, `is_pth=False`,
+    `roundrect_ratio=0.25`, `pad_rotation_deg=0.0`) and `Net`
+    (`net_class="Signal"`, `weight=1.0`, `max_current=0.0`,
+    `voltage_class="LV"`). The `None`-defaulted fields (`Pin.net`, `zone`,
+    `initial_position`, ...) store `None` on both arms and are NOT affected.
+
+    Latent: no in-repo caller passes explicit `None` for any of these fields
+    (verified 2026-08-04). Assert each arm's exact behavior (#712 pattern-5
+    precedent) so a change to either arm -- or a new caller passing explicit
+    `None` -- is caught. Recorded in VERIFICATION.md (board/netlist documented
+    deviation 6).
+    """
+    # --- Component: net_class, fixed --------------------------------------
+    py = _oracle.Component("R1", "fp", (1.0, 1.0), net_class=None, fixed=None)
+    rs = RS_COMPONENT("R1", "fp", (1.0, 1.0), net_class=None, fixed=None)
+    assert py.net_class is None and py.fixed is None  # oracle stores the passed None
+    assert canon(rs.net_class) == canon("Signal")  # pyclass collapses to the default
+    assert canon(rs.fixed) == canon(False)
+    # Omitted-arg defaults agree between the arms.
+    assert canon(_oracle.Component("R1", "fp", (1.0, 1.0)).net_class) == canon(
+        RS_COMPONENT("R1", "fp", (1.0, 1.0)).net_class
+    )
+    # An explicit non-None value is stored identically.
+    assert canon(
+        _oracle.Component("R1", "fp", (1.0, 1.0), net_class="HV").net_class
+    ) == canon(RS_COMPONENT("R1", "fp", (1.0, 1.0), net_class="HV").net_class)
+
+    # --- Pin: the eight literal-default fields ----------------------------
+    pin_none_kwargs = {
+        "width": None, "height": None, "shape": None, "layer": None,
+        "drill": None, "is_pth": None, "roundrect_ratio": None,
+        "pad_rotation_deg": None,
+    }
+    py = _oracle.Pin("1", "1", (0.0, 0.0), **pin_none_kwargs)
+    rs = RS_PIN("1", "1", (0.0, 0.0), **pin_none_kwargs)
+    for field, default in [
+        ("width", 1.0), ("height", 1.0), ("shape", "rect"), ("layer", "F.Cu"),
+        ("drill", 0.0), ("is_pth", False), ("roundrect_ratio", 0.25),
+        ("pad_rotation_deg", 0.0),
+    ]:
+        assert canon(getattr(py, field)) == canon(None), field  # oracle stores None
+        assert canon(getattr(rs, field)) == canon(default), field  # pyclass default
+    # `net` has a None default on BOTH arms -- explicit None is faithful here.
+    assert _oracle.Pin("1", "1", (0.0, 0.0), net=None).net is None
+    assert RS_PIN("1", "1", (0.0, 0.0), net=None).net is None
+
+    # --- Net: the four literal-default fields -----------------------------
+    py = _oracle.Net("N", [], net_class=None, weight=None, max_current=None, voltage_class=None)
+    rs = RS_NET("N", [], net_class=None, weight=None, max_current=None, voltage_class=None)
+    assert py.net_class is None and py.weight is None  # oracle stores the passed None
+    assert py.max_current is None and py.voltage_class is None
+    assert canon(rs.net_class) == canon("Signal")
+    assert canon(rs.weight) == canon(1.0)
+    assert canon(rs.max_current) == canon(0.0)
+    assert canon(rs.voltage_class) == canon("LV")
+    # Omitted-arg defaults agree between the arms.
+    assert canon(_oracle.Net("N", []).weight) == canon(RS_NET("N", []).weight)

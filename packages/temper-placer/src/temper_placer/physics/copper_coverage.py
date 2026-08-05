@@ -8,6 +8,19 @@ by copper_weight (oz).  This replaces the former ``copper_grid=None``
 path that silently defaulted to pure-FR4 (k_eff ~ 4.8e-4 W/K), yielding
 ~189,000 deg-C at the IGBTs and a false-KILL verdict.
 
+Wave 4 Phase 4: the mask arithmetic (board area, keepout rects,
+mounting-hole circles) and the per-trace ``np.minimum(1.0, grid +
+cell_cov)`` accumulation delegate to the Rust kernels
+``temper_thermal.copper_masks_py`` / ``copper_trace_accumulate_py``
+(temper-thermal, ``copper_coverage.rs``).  The polygon rasterisation
+boundary (``temper_geometry``), the trace-object introspection
+(``_trace_layer_match``), the weighted-sum / fraction / clip numpy
+lines, and ``check_thermal_plausibility`` stay Python.  Bit-identical
+parity against the pre-migration implementation is pinned by
+``tests/physics/test_copper_coverage_phase4_rust_differential.py``
+(and the Wave 3 rasterise differential); the R1e structural proof is
+in ``packages/temper-thermal/VERIFICATION.md``.
+
 Public API
 ----------
 .. code-block:: python
@@ -28,6 +41,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 import temper_geometry as _tg
+import temper_thermal as _tt
 
 if TYPE_CHECKING:
     from temper_placer.core.board import Board
@@ -91,40 +105,26 @@ def copper_coverage_grid(
     if stackup is None or len(stackup.layers) == 0:
         return np.zeros((h, w), dtype=np.float64)
 
-    # --- Cell-centre world coordinates (for point-in-polygon tests) ---
-    row_idx = np.arange(h, dtype=np.float64).reshape(-1, 1)
-    col_idx = np.arange(w, dtype=np.float64).reshape(1, -1)
-    cx_grid = ox + (col_idx + 0.5) * cs  # (1, w)
-    cy_grid = oy + (row_idx + 0.5) * cs  # (h, 1)
-
-    # --- Board area mask ---
+    # --- Board area / keepout / active-area masks (Rust kernel) ---
     if board.has_polygon_outline and board.outline_polygon:
-        inside_board = _rasterise_polygon_mask(
-            board.outline_polygon,
-            h,
-            w,
-            ox,
-            oy,
-            cs,
-        )
+        polygon_mask = _rasterise_polygon_mask(board.outline_polygon, h, w, ox, oy, cs)
+        has_polygon = True
+        pm_bytes = polygon_mask.tobytes()
+        board_w = board.width  # unused by the kernel in polygon mode
+        board_h = board.height
     else:
-        inside_board = (
-            (cx_grid >= ox)
-            & (cx_grid <= ox + board.width)
-            & (cy_grid >= oy)
-            & (cy_grid <= oy + board.height)
-        )  # broadcast: (h, w) bool
+        has_polygon = False
+        pm_bytes = None
+        board_w = board.width
+        board_h = board.height
 
-    # --- Keepout mask (rectangular keepouts + mounting-hole circular zones) ---
-    in_keepout = np.zeros((h, w), dtype=bool)
-    for kx0, ky0, kx1, ky1 in board.keepouts:
-        in_keepout |= (cx_grid >= kx0) & (cx_grid <= kx1) & (cy_grid >= ky0) & (cy_grid <= ky1)
-    for mh in board.mounting_holes:
-        kr = mh.keepout_radius
-        mx, my = mh.position
-        in_keepout |= ((cx_grid - mx) ** 2 + (cy_grid - my) ** 2) < kr**2
+    keep_flat = [v for k in board.keepouts for v in k]
+    hole_flat = [v for mh in board.mounting_holes for v in (mh.position[0], mh.position[1], mh.keepout_radius)]
 
-    active_area = inside_board & (~in_keepout)  # (h, w) bool
+    ib, ko, act = _tt.copper_masks_py(
+        h, w, ox, oy, cs, board_w, board_h, has_polygon, pm_bytes, keep_flat, hole_flat
+    )
+    active_area = np.frombuffer(act, dtype=np.bool_).reshape((h, w))
 
     # --- Accumulate per-layer weighted coverage ---
     total_copper_weight = sum(ly.copper_weight for ly in stackup.layers)
@@ -167,7 +167,10 @@ def copper_coverage_grid(
                             h,
                             w,
                         )
-                        trace_grid = np.minimum(1.0, trace_grid + cell_cov)
+                        # np.minimum(1.0, trace_grid + cell_cov) with the
+                        # reference's NaN propagation — Rust kernel.
+                        raw = _tt.copper_trace_accumulate_py(trace_grid.tobytes(), cell_cov.tobytes())
+                        trace_grid = np.frombuffer(raw, dtype=np.float64).reshape((h, w)).copy()
                     # Clip to active area
                     trace_grid *= active_area.astype(np.float64)
                     weighted_sum += trace_grid * cw

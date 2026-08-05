@@ -1137,7 +1137,11 @@ fn compute_indices<'py>(
         let net = net?;
         let name = net.getattr("name")?;
         for pin in net.getattr("pins")?.try_iter()? {
-            let (r#ref, _rest): (Bound<'py, PyAny>, Bound<'py, PyAny>) = pin?.extract()?;
+            // Oracle: `for ref, _ in net.pins` -- the same CPython unpack the
+            // `unpack2` helper reproduces (lists are valid, and the arity
+            // diagnostics are CPython's own). A pyo3 tuple `extract()` would
+            // reject lists outright and raise different text.
+            let (r#ref, _rest) = unpack2(&pin?)?;
             if let Some(bucket) = component_nets.get_item(&r#ref)? {
                 bucket.cast::<PyList>()?.append(&name)?;
             }

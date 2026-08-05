@@ -1,103 +1,37 @@
-"""Internal: board geometry, stackup, and setup extraction from KiCad board objects."""
+"""Internal: board geometry, stackup, and setup extraction from KiCad board objects.
+
+Migrated to the Rust parse engine (``temper_design_bundle_python.parse_engine``,
+Wave 4 Phase 3 candidate 3). What moved to Rust:
+
+- board geometry / zones / mounting holes — run inside ``parse_kicad_pcb``;
+- the raw stackup + zone/net data feeding the v6 stackup assembly
+  (``parse_engine.extract_stackup_raw``).
+
+What deliberately stays Python (R3-style boundary, argued in VERIFICATION.md):
+
+- ``_is_plane_required_net`` — reads the netclass SSOT constants
+  (``TEMPER_NET_ASSIGNMENTS``/``TEMPER_NET_CLASSES``) that the
+  ``core/design_rules`` delegation shim still owns in Python.
+- ``_extract_stackup`` — the v6-only assembly targeting the Python dataclasses
+  ``StackupInfo``/``LayerInfo``/``DielectricInfo`` (``router_v6.stage0_data``);
+  it consumes the Rust raw data.
+"""
 
 from __future__ import annotations
 
-import math
 import re
 from typing import TYPE_CHECKING
 
-from temper_placer.core.board import STANDARD_LAYER_ORDER, Board, MountingHole
-from temper_placer.io._parse_zones import _extract_zones_from_pcb
+import temper_design_bundle_python as _tdb
+
+from temper_placer.core.board import STANDARD_LAYER_ORDER
+
+_rs = _tdb.parse_engine
 
 if TYPE_CHECKING:
     from kiutils.board import Board as KiBoard
 
     from temper_placer.router_v6.stage0_data import StackupInfo
-
-
-def _extract_board_geometry(ki_board: KiBoard, warnings: list[str]) -> Board:
-    """
-    Extract board dimensions and origin from Kiutils board object.
-
-    Args:
-        ki_board: Parsed kiutils Board instance.
-        warnings: List to append any issues found.
-
-    Returns:
-        Board object with width, height, and origin.
-    """
-    edge_cuts = [g for g in ki_board.graphicItems if g.layer == "Edge.Cuts"]
-
-    if not edge_cuts:
-        warnings.append("No Edge.Cuts found in PCB. Using default 100x150mm.")
-        return Board.temper_default()
-
-    x_min, y_min = float("inf"), float("inf")
-    x_max, y_max = float("-inf"), float("-inf")
-
-    for item in edge_cuts:
-        if hasattr(item, "start") and hasattr(item, "end"):
-            for pt in [item.start, item.end]:
-                if pt is not None:
-                    x_min = min(x_min, pt.X)
-                    y_min = min(y_min, pt.Y)
-                    x_max = max(x_max, pt.X)
-                    y_max = max(y_max, pt.Y)
-
-        if hasattr(item, "coordinates") and item.coordinates:
-            for pt in item.coordinates:
-                x_min = min(x_min, pt.X)
-                y_min = min(y_min, pt.Y)
-                x_max = max(x_max, pt.X)
-                y_max = max(y_max, pt.Y)
-
-        if hasattr(item, "mid") and item.mid is not None:
-            for pt in [item.start, item.mid, item.end]:
-                if pt is not None:
-                    x_min = min(x_min, pt.X)
-                    y_min = min(y_min, pt.Y)
-                    x_max = max(x_max, pt.X)
-                    y_max = max(y_max, pt.Y)
-
-    if not (
-        math.isfinite(x_min)
-        and math.isfinite(x_max)
-        and math.isfinite(y_min)
-        and math.isfinite(y_max)
-    ):
-        warnings.append(
-            "Edge.Cuts geometry present but has no parseable coordinate data. "
-            "Falling back to Board.temper_default()."
-        )
-        return Board.temper_default()
-
-    mounting_holes = []
-    for fp in ki_board.footprints:
-        is_mounting_hole = False
-
-        if hasattr(fp, "entryName") and "MountingHole" in fp.entryName:
-            is_mounting_hole = True
-
-        if not is_mounting_hole and fp.graphicItems:
-            for item in fp.graphicItems:
-                if hasattr(item, "text") and "MountingHole" in item.text:
-                    is_mounting_hole = True
-                    break
-
-        if is_mounting_hole:
-            mounting_holes.append(
-                MountingHole(position=(fp.position.X - x_min, fp.position.Y - y_min), diameter=3.2)
-            )
-
-    zones = _extract_zones_from_pcb(ki_board, x_min, y_min, warnings)
-
-    return Board(
-        width=x_max - x_min,
-        height=y_max - y_min,
-        origin=(x_min, y_min),
-        mounting_holes=mounting_holes,
-        zones=zones,
-    )
 
 
 def _is_plane_required_net(net_name: str) -> bool:
@@ -133,6 +67,9 @@ def _is_plane_required_net(net_name: str) -> bool:
     The old test was also case-sensitive (missed lowercase ``vcc``) and
     unanchored (``"GND" in "CGND"`` matched a distinct net, chassis
     ground, not literal GND).
+
+    Kept in Python: reads the Python-side netclass SSOT (``core/design_rules``
+    keeps its constant tables per the delegation precedent).
     """
     from temper_placer.core.design_rules import TEMPER_NET_ASSIGNMENTS, TEMPER_NET_CLASSES
 
@@ -148,16 +85,25 @@ def _is_plane_required_net(net_name: str) -> bool:
 
 
 def _extract_stackup(
-    ki_board: KiBoard,
+    _ki_board: KiBoard,
     warnings: list[str],
     *,
     use_declared_layer_roles: bool = False,
+    pcb_content: str | None = None,
 ) -> StackupInfo:
     """
-    Extract PCB layer stackup from KiCad board.
+    Extract PCB layer stackup from KiCad board content.
+
+    Migrated (candidate 3): the raw stackup/zones come from the Rust engine
+    (``parse_engine.extract_stackup_raw``); the assembly below targets the
+    Python ``router_v6.stage0_data`` dataclasses and reads the netclass SSOT
+    via ``_is_plane_required_net``, so it stays Python. ``_ki_board`` is
+    accepted for call compatibility but unused (kiutils left the boundary);
+    ``pcb_content`` is the raw board text (the v6 wrapper already reads it for
+    design rules).
 
     Args:
-        ki_board: Parsed KiCad board.
+        _ki_board: Accepted for call compatibility (unused).
         warnings: List to append warnings.
         use_declared_layer_roles: When ``True``, a layer's ``layer_type``
             (R8) comes purely from its structural position in the declared
@@ -184,6 +130,8 @@ def _extract_stackup(
             completion regression in
             ``docs/evidence/2026-07-28-stackup-partial-revert.md``. Land
             this flag's flip to ``True`` in the same change as U3.
+        pcb_content: Raw ``.kicad_pcb`` text; when None the board is treated
+            as having no declared stackup (fallback path).
     """
     from temper_placer.router_v6.stage0_data import (
         DielectricInfo,
@@ -194,43 +142,39 @@ def _extract_stackup(
     layers = []
     parsed_dielectrics = []
 
+    raw = _rs.extract_stackup_raw(pcb_content) if pcb_content else {}
+    raw_zones = raw.get("zones", []) if raw else []
+    raw_stackup = raw.get("stackup_layers", []) if raw else []
+    board_layers = raw.get("layers", []) if raw else []
+    general_thickness = raw.get("general_thickness") if raw else None
+
     plane_assignments = {}
-    if hasattr(ki_board, "zones"):
-        for zone in ki_board.zones:
-            if (
-                hasattr(zone, "layers")
-                and zone.layers
-                and hasattr(zone, "netName")
-                and zone.netName
-            ):
-                for layer in zone.layers:
-                    is_power = _is_plane_required_net(zone.netName)
-                    if is_power and layer.endswith(".Cu"):
-                        plane_assignments[layer] = zone.netName
+    for zone in raw_zones:
+        if zone["layers"] and zone["net_name"]:
+            for layer in zone["layers"]:
+                is_power = _is_plane_required_net(zone["net_name"])
+                if is_power and layer.endswith(".Cu"):
+                    plane_assignments[layer] = zone["net_name"]
 
-    setup_stackup = None
-    if hasattr(ki_board, "setup") and hasattr(ki_board.setup, "stackup") and ki_board.setup.stackup:
-        setup_stackup = ki_board.setup.stackup
-
-    if setup_stackup and hasattr(setup_stackup, "layers") and setup_stackup.layers:
+    if raw_stackup:
         total_thickness = 0.0
 
         copper_layers = []
         raw_dielectrics = []
 
-        for layer in setup_stackup.layers:
-            if hasattr(layer, "thickness") and layer.thickness is not None:
-                total_thickness += layer.thickness
+        for layer in raw_stackup:
+            if layer["thickness"] is not None:
+                total_thickness += layer["thickness"]
 
-            if layer.type == "copper":
+            if layer["type"] == "copper":
                 copper_layers.append(layer)
-            elif layer.type in ["core", "prepreg", "dielectric"] or "dielectric" in layer.type:
+            elif layer["type"] in ["core", "prepreg", "dielectric"] or "dielectric" in layer["type"]:
                 raw_dielectrics.append(layer)
 
         layer_count = len(copper_layers)
 
         for i, layer in enumerate(copper_layers):
-            name = layer.name
+            name = layer["name"]
 
             if use_declared_layer_roles:
                 # R8: role comes from the stackup declaration -- structural
@@ -250,11 +194,7 @@ def _extract_stackup(
                 layer_type = "mixed"
                 plane_net = None
 
-            thickness_um = (
-                (layer.thickness * 1000.0)
-                if (hasattr(layer, "thickness") and layer.thickness)
-                else 35.0
-            )
+            thickness_um = (layer["thickness"] * 1000.0) if layer["thickness"] else 35.0
 
             layers.append(
                 LayerInfo(
@@ -267,19 +207,19 @@ def _extract_stackup(
             )
 
         for d in raw_dielectrics:
-            epsilon_r = getattr(d, "epsilonR", None)
+            epsilon_r = d.get("epsilon_r")
             if epsilon_r is None:
-                epsilon_r = getattr(d, "epsilon_r", 4.5)
+                epsilon_r = 4.5
 
-            loss_tangent = getattr(d, "lossTangent", None)
+            loss_tangent = d.get("loss_tangent")
             if loss_tangent is None:
-                loss_tangent = getattr(d, "loss_tangent", 0.02)
+                loss_tangent = 0.02
 
             parsed_dielectrics.append(
                 DielectricInfo(
-                    name=d.name,
-                    material=getattr(d, "material", "FR4") or "FR4",
-                    thickness_mm=d.thickness if hasattr(d, "thickness") and d.thickness else 0.0,
+                    name=d["name"],
+                    material=d.get("material") or "FR4",
+                    thickness_mm=d["thickness"] if d.get("thickness") else 0.0,
                     epsilon_r=epsilon_r or 4.5,
                     loss_tangent=loss_tangent or 0.02,
                 )
@@ -287,16 +227,14 @@ def _extract_stackup(
 
     else:
         layer_count = 2
-        if hasattr(ki_board, "layers") and ki_board.layers:
+        if board_layers:
             # NOTE: must be a suffix match, not `in`. A substring check matches
             # "Edge.Cuts" (its tail ".Cuts" starts with ".Cu") as a spurious
             # 5th "copper" layer on a real 4-layer board, which pushes this
             # function into the "unusual layer count" branch below and
             # fabricates a phantom "In3.Cu" that does not exist on the board.
             # See docs/evidence/2026-07-27-phantom-layer-stackup.md.
-            copper_layers = [
-                ly for ly in ki_board.layers if getattr(ly, "name", "").endswith(".Cu")
-            ]
+            copper_layers = [ly for ly in board_layers if ly.endswith(".Cu")]
             layer_count = len(copper_layers)
 
         if layer_count == 2:
@@ -374,12 +312,8 @@ def _extract_stackup(
 
         total_thickness = 1.6 if layer_count >= 4 else 0.8
 
-        if (
-            hasattr(ki_board, "general")
-            and hasattr(ki_board.general, "thickness")
-            and ki_board.general.thickness
-        ):
-            total_thickness = ki_board.general.thickness
+        if general_thickness is not None:
+            total_thickness = general_thickness
 
     return StackupInfo(
         layers=layers,

@@ -33,6 +33,7 @@ from typing import Any
 # which the `unhashable type: 'X'` / repr parity assertions depend on.
 from . import board_contracts as board_contracts
 from . import netlist_contracts as netlist_contracts
+from . import parse_engine as parse_engine
 
 def sha256_hex(bytes: bytes) -> str: ...
 
@@ -496,3 +497,83 @@ class PriorityConfig:
         self, ref: str, _netlist: Any = None
     ) -> PlacementPriority: ...
     def classify_net(self, net_name: str) -> RoutingPriority: ...
+
+
+# ---------------------------------------------------------------------------
+# Wave 4 Phase 3 candidate 5: the config/reference loaders (config_loader.rs,
+# reference_loader.rs). PyYAML + pydantic stay on the Python side and are
+# called back across the boundary; the transform and the downstream helpers
+# are Rust. `load_constraints` accepts a path (str or pathlib.Path) and
+# returns the pydantic PlacementConstraints model; the Rust side only
+# constructs the preprocessed dict.
+# ---------------------------------------------------------------------------
+
+def preprocess_config(raw: Any) -> dict[str, Any]: ...
+
+def load_constraints(config_path: Any) -> Any: ...
+
+def infer_rjc(package_type: str | None) -> float: ...
+
+def create_board_from_constraints(constraints: Any) -> Any: ...
+
+def constraints_to_design_rules(constraints: Any) -> Any: ...
+
+def apply_zones_to_netlist(netlist: Any, constraints: Any) -> None: ...
+
+def apply_fixed_components_to_netlist(netlist: Any, constraints: Any) -> None: ...
+
+def compute_design_stats(result: Any) -> dict[str, Any]: ...
+
+def infer_quality_config(design: Any) -> dict[str, Any]: ...
+||||||| f57b52d51
+
+# ---------------------------------------------------------------------------
+# Wave 4 Phase 3 candidate 2: the YAML loaders (crate module `loaders.rs`),
+# ported from `temper_placer/io/netclass_loader.py` and
+# `temper_placer/io/loop_loader.py`. The `temper_placer.io.*` modules are
+# pure-delegation re-exports of these symbols.
+# ---------------------------------------------------------------------------
+
+
+class LoopLoadError(Exception):
+    """Error loading a loop definition.
+
+    Defined in Rust; `__module__` is restored to
+    `temper_placer.io.loop_loader` at registration so tracebacks read as they
+    did pre-migration.
+    """
+
+
+class NetClassRulesDict:
+    """Convenience wrapper returned by `load_netclass_rules()`.
+
+    Replaces the pre-migration `@dataclass`: same two mutable attributes,
+    field-wise `__eq__`, dataclass-shaped `__repr__`. `dataclasses.fields()`
+    no longer applies (documented deviation).
+    """
+
+    design_rules: DesignRules
+    class_pairs: dict[tuple[str, str], dict[str, Any]]
+
+    def __init__(
+        self,
+        design_rules: DesignRules,
+        class_pairs: dict[tuple[str, str], dict[str, Any]] | None = None,
+    ) -> None: ...
+
+
+def load_netclass_rules(path: Any) -> NetClassRulesDict: ...
+
+
+def load_loop_from_dict(data: dict[str, Any], source: str = "yaml") -> Loop: ...
+
+
+def load_loop_template(path: Any) -> Loop: ...
+
+
+def load_loop_collection(
+    directory: Any,
+    pattern: str = "*.yaml",
+    name: str = "",
+    description: str = "",
+) -> LoopCollection: ...
