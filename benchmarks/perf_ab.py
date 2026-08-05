@@ -846,8 +846,111 @@ def bench_contracts_construction() -> tuple[float, float]:
     )
 
 
+# ---------------------------------------------------------------------------
+# Wave 4 Phase B: router_v6/net_ordering -> temper-rust-router
+# ---------------------------------------------------------------------------
+# Fixtures come from the differential's OWN corpus module -- the `BENCH_*`
+# lists, which are *subsets* of the lists the differential compares row by
+# row, and `test_bench_corpus_is_covered_by_differential` asserts the
+# containment.  That is the structural answer to PR #714, which passed its
+# differential at 100 iterations and then failed CI on a benchmark that ran
+# 120: here the benchmark cannot reach a parameter the differential has not
+# already compared, because it draws from the same rows.
+
+
+def _net_ordering_corpus() -> ModuleType:
+    return _load_module_from_path(
+        "_perf_ab_net_ordering_cases",
+        REPO_ROOT / "packages/temper-placer/tests/router_v6/_net_ordering_cases.py",
+    )
+
+
+def _net_ordering_oracle() -> ModuleType:
+    return _load_module_from_path(
+        "_perf_ab_net_ordering_oracle",
+        REPO_ROOT / "packages/temper-placer/tests/router_v6/_net_ordering_py_oracle.py",
+    )
+
+
+def bench_net_ordering_order_nets() -> tuple[float, float]:
+    """A/B ``order_nets`` (Rust) vs the verbatim oracle."""
+    import temper_rust_router as rust
+
+    sys.path.insert(0, str(REPO_ROOT / "packages/temper-placer"))
+    from tests.router_v6._net_ordering_builders import build_loops, build_order_netlist
+
+    cases = _net_ordering_corpus()
+    oracle = _net_ordering_oracle()
+    rows = cases.BENCH_ORDER_DESIGNS
+
+    def run_rust() -> Any:
+        return [rust.order_nets_py(c, n, ls, cfg) for _l, c, n, ls, cfg in rows]
+
+    def run_oracle() -> Any:
+        return [
+            oracle.order_nets(build_order_netlist(c, n), build_loops(ls), cfg)
+            for _l, c, n, ls, cfg in rows
+        ]
+
+    if run_rust() != run_oracle():
+        raise AssertionError(
+            "perf A/B arms disagree for net_ordering order_nets -- the "
+            "behavioral A/B (test_net_ordering_rust_differential.py) should "
+            "be failing too"
+        )
+    return _time_us(run_rust, DEFAULT_WARMUP, DEFAULT_REPEATS), _time_us(
+        run_oracle, DEFAULT_WARMUP, DEFAULT_REPEATS
+    )
+
+
+def bench_net_ordering_hpwl() -> tuple[float, float]:
+    """A/B ``compute_hpwl``/``compute_bbox_area`` (Rust) vs the oracle."""
+    import temper_rust_router as rust
+
+    sys.path.insert(0, str(REPO_ROOT / "packages/temper-placer"))
+    from tests.router_v6._net_ordering_builders import build_netlist
+
+    cases = _net_ordering_corpus()
+    oracle = _net_ordering_oracle()
+    rows = cases.BENCH_HPWL_DESIGNS
+
+    def run_rust() -> Any:
+        return [
+            (rust.net_compute_hpwl_py(net, comps), rust.net_compute_bbox_area_py(net, comps))
+            for _l, comps, net in rows
+        ]
+
+    def run_oracle() -> Any:
+        out = []
+        for _l, comps, net in rows:
+            netlist = build_netlist(comps)
+            out.append(
+                (oracle.compute_hpwl(net, netlist), oracle.compute_bbox_area(net, netlist))
+            )
+        return out
+
+    if run_rust() != run_oracle():
+        raise AssertionError(
+            "perf A/B arms disagree for net_ordering hpwl/area -- the "
+            "behavioral A/B should be failing too"
+        )
+    return _time_us(run_rust, DEFAULT_WARMUP, DEFAULT_REPEATS), _time_us(
+        run_oracle, DEFAULT_WARMUP, DEFAULT_REPEATS
+    )
+
+
 _BENCHMARKS: dict[tuple[str, str], Callable[[], tuple[float, float]]] = {
     ("bottleneck-geometry", "cell_capacity_batch"): bench_bottleneck_cell_capacity,
+    # NOTE (net-ordering): these two entries have NO row yet in
+    # power_pcb_dataset/metrics/perf_ab_baseline.jsonl, so the perf gate fails
+    # closed until one is captured.  It is deliberately NOT captured locally:
+    # this module's own header measured a consistent -11% darwin/linux
+    # platform bias, and a darwin-captured baseline would make the gate miss
+    # every regression between +20% and +35% while reporting a spurious
+    # "IMPROVED" on clean PRs.  Capture via .github/workflows/pr-perf-check.yml
+    # in capture mode before this PR merges.
+    ("net-ordering", "order_nets"): bench_net_ordering_order_nets,
+    ("net-ordering", "compute_hpwl"): bench_net_ordering_hpwl,
     ("bottleneck-geometry", "hard_blocked_batch"): bench_bottleneck_hard_blocked,
     ("loaders", "loaders"): bench_loaders,
     ("physics-emi", "predict"): bench_physics_emi,
