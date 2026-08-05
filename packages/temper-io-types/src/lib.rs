@@ -43,6 +43,7 @@ pub mod golden_serializers;
 pub mod isolation;
 pub mod provenance;
 pub mod reference_aliases;
+pub mod stackup_validator;
 #[cfg(feature = "python")]
 pub mod zone_filler;
 
@@ -155,6 +156,11 @@ mod pymodule_def {
             m.getattr("serialize_connectivity_to_json")?,
         )?;
         m.add("SERIALIZER_REGISTRY", registry)?;
+
+        // Wave 4 Phase 4 leftovers slice: the stackup validator ported from
+        // temper_placer/manufacturing/stackup_validator.py (see
+        // stackup_validator.rs).
+        crate::stackup_validator::register(m)?;
 
         Ok(())
     }

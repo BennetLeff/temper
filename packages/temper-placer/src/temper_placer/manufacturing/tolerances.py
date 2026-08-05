@@ -3,112 +3,47 @@ Manufacturing tolerance models for PCB production.
 
 This module provides tools to analyze the impact of manufacturing variability
 (etching, drilling, layer registration) on the design.
+
+The data model is implemented in Rust as pyo3 pyclasses in the
+``temper-design-bundle`` crate (the ``temper_design_bundle_python``
+extension) — Wave 4 Phase 4 leftovers slice (the manufacturing/tolerances
+migration). This module keeps the pre-migration public API unchanged and
+re-exports the Rust pyclasses directly (the pure-delegation pattern
+established by ``core/loop.py``, ``core/priority.py`` and
+``core/board.py``).
+
+Verification: bit-identical parity against the pinned pre-migration
+implementation — including the concrete Python type of every field and the
+exact ``ValueError`` text for invalid enum values — is asserted by
+``tests/manufacturing/test_tolerances_rust_differential.py`` (oracle:
+``tests/manufacturing/_tolerances_py_oracle.py``) and the closed-form
+properties in ``tests/manufacturing/test_tolerances_pbt.py``; the
+structural proof lives in ``packages/temper-design-bundle/VERIFICATION.md``.
+
+Deliberately NOT migrated (R3 verdict, named blocker)
+-----------------------------------------------------
+Nothing in this module stays Python: the whole surface is the five
+pyclasses below. ``ToleranceAnalyzer``'s dict lookups, the fallback
+constants (``0.05`` / ``0.1``), the ``2 * etch + reg`` arithmetic, and the
+dataclass reprs are all reproduced bit-identically in Rust; the dict
+fields remain real Python dicts (keyed by the pyclass enum members) so
+CPython owns lookup/repr/insertion-order semantics.
 """
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from enum import Enum
+import temper_design_bundle_python as _tdb
 
+CopperWeight = _tdb.CopperWeight
+LayerType = _tdb.LayerType
+ToleranceTable = _tdb.ToleranceTable
+FeatureTolerance = _tdb.FeatureTolerance
+ToleranceAnalyzer = _tdb.ToleranceAnalyzer
 
-class CopperWeight(Enum):
-    """Copper weight in ounces per square foot (oz/ft²)."""
-
-    HALF_OZ = 0.5  # ~17um
-    ONE_OZ = 1.0  # ~35um
-    TWO_OZ = 2.0  # ~70um
-
-
-class LayerType(Enum):
-    """Type of PCB layer."""
-
-    OUTER = "outer"
-    INNER = "inner"
-
-
-@dataclass
-class ToleranceTable:
-    """Per-feature tolerance specifications."""
-
-    # Etch tolerance by copper weight (mm)
-    # Reflects the lateral etching (undercut) during production
-    etch_tolerance: dict[CopperWeight, float] = field(
-        default_factory=lambda: {
-            CopperWeight.HALF_OZ: 0.025,
-            CopperWeight.ONE_OZ: 0.05,
-            CopperWeight.TWO_OZ: 0.075,
-        }
-    )
-
-    # Registration by layer type (mm)
-    # Reflects layer-to-layer alignment accuracy
-    registration: dict[LayerType, float] = field(
-        default_factory=lambda: {
-            LayerType.OUTER: 0.1,
-            LayerType.INNER: 0.15,
-        }
-    )
-
-    # Solder mask registration (mm)
-    solder_mask_registration: float = 0.075
-
-
-@dataclass
-class FeatureTolerance:
-    """Tolerance analysis for a specific feature."""
-
-    feature_type: str
-    nominal_value: float
-    tolerance_plus: float
-    tolerance_minus: float
-    worst_case_min: float
-    worst_case_max: float
-
-
-class ToleranceAnalyzer:
-    """Analyze tolerances for a design based on manufacturing capabilities."""
-
-    def __init__(self, table: ToleranceTable = ToleranceTable()):
-        self.table = table
-
-    def analyze_clearance(
-        self, clearance_mm: float, copper_weight: CopperWeight, layer_type: LayerType
-    ) -> FeatureTolerance:
-        """
-        Calculate tolerance for a clearance (gap) between copper features.
-
-        Clearance is reduced by:
-        1. Etching: Copper expands laterally (etch factor).
-           Gap decreases by 2 * etch (one from each side).
-        2. Registration: Layers can shift relative to each other.
-        """
-        etch = self.table.etch_tolerance.get(copper_weight, 0.05)
-        reg = self.table.registration.get(layer_type, 0.1)
-
-        total_minus = 2 * etch + reg
-
-        return FeatureTolerance(
-            feature_type="clearance",
-            nominal_value=clearance_mm,
-            tolerance_plus=0.0,
-            tolerance_minus=total_minus,
-            worst_case_min=clearance_mm - total_minus,
-            worst_case_max=clearance_mm,
-        )
-
-    def analyze_trace(self, width_mm: float, copper_weight: CopperWeight) -> FeatureTolerance:
-        """
-        Calculate tolerance for trace width.
-
-        Trace width changes primarily due to etching.
-        """
-        etch = self.table.etch_tolerance.get(copper_weight, 0.05)
-
-        return FeatureTolerance(
-            feature_type="trace_width",
-            nominal_value=width_mm,
-            tolerance_plus=etch,
-            tolerance_minus=etch,
-            worst_case_min=width_mm - etch,
-            worst_case_max=width_mm + etch,
-        )
+__all__ = [
+    "CopperWeight",
+    "LayerType",
+    "ToleranceTable",
+    "FeatureTolerance",
+    "ToleranceAnalyzer",
+]

@@ -1997,6 +1997,651 @@ the failure path.
   `tests/io/test_loop_loader.py`, `tests/core/test_design_rules_field_parity.py`,
   `tests/router_v6/test_layer_assignment_ssot.py`,
   `tests/router_v6/test_phase1_anti_false_zero.py`.
+# Manufacturing tolerance model — Verification
+
+The manufacturing tolerance model (`src/manufacturing_tolerances.rs`) is the
+Wave 4 Phase 4 leftovers slice's first migration: two plain `Enum`s
+(`CopperWeight`, `LayerType`), two dataclasses (`ToleranceTable`,
+`FeatureTolerance`) and the `ToleranceAnalyzer` with its two closed-form
+analysis methods, ported from
+`temper_placer/manufacturing/tolerances.py` (the Python module is now a
+pure-delegation re-export of the `temper_design_bundle_python` pyclasses).
+
+## Induction applicability
+
+**Mathematical induction is not applicable to this module.** None of its
+functions are recursive, and none iterate over a dimension whose
+correctness depends on a size parameter:
+
+- `ToleranceAnalyzer::analyze_clearance` / `analyze_trace` are two closed-form
+  arithmetic expressions (`2 * etch + reg`, `width ± etch`) with a constant
+  table lookup — no loop, no recursion.
+- The enum value-construction `#[new]`s scan a fixed 2-3 member candidate
+  list — constant, not size-parameterized.
+- `ToleranceTable`'s default dicts are built with a fixed 2-3 item sequence.
+
+The module is data-only plus closed-form arithmetic. Per the plan's R1e, a
+**structural proof** is recorded instead.
+
+## Structural proof
+
+**Claim (bit-identical parity).** For every public symbol, the pyclass
+behaviour is bit-identical to the pinned pre-migration Python
+implementation (`packages/temper-placer/tests/manufacturing/_tolerances_py_oracle.py`,
+commit `6290942be`).
+
+*Proof by structural cases.*
+
+1. **Enum members (`CopperWeight`, `LayerType`).** Both sides expose the
+   same closed member sets with the same values (floats `0.5/1.0/2.0`,
+   strs `"outer"/"inner"`), the same `str(member)` (`"CopperWeight.HALF_OZ"`
+   — plain Enum, NOT bare-value IntEnum), the same `repr(member)`
+   (`<CopperWeight.HALF_OZ: 0.5>` / `<LayerType.OUTER: 'outer'>`, values
+   rendered by the CPython `repr(float)`/`repr(str)` rules), and the same
+   `Cls(value)` construction. Value construction compares with CPython's own
+   `==` (via `PyObject_RichCompareBool`), so `CopperWeight(1)` resolves to
+   the `1.0` member exactly as Python's Enum does; the invalid-value
+   `ValueError` text is byte-identical because it renders the *original*
+   object with CPython `repr` (`999 is not a valid CopperWeight` for an int,
+   `'x' is not a valid LayerType` for a str — the repr carries the quotes a
+   str value needs). IEEE-754 and CPython repr rendering are both
+   deterministic, so each member's surface matches bit-for-bit. Members are
+   hashable/eq (`#[pyclass(frozen, eq, hash)]`), so dict-key usage — the
+   load-bearing consumer behaviour — works identically.
+
+2. **`ToleranceTable`.** The `etch_tolerance`/`registration` dicts are real
+   Python dicts (the default factories build exactly the oracle's
+   `default_factory` entries, keyed by the pyclass enum members), so
+   lookup, insertion order and repr are CPython's own. The dataclass
+   constructor signature, the `solder_mask_registration` default `0.075`,
+   the repr, and the three-field equality all match the oracle.
+
+3. **`ToleranceAnalyzer::analyze_clearance` / `analyze_trace`.** The dict
+   lookup is CPython's own `dict.get` (via `PyDict::get_item`), so a missing
+   key returns the oracle's fallback constants (`0.05` etch — the SAME
+   constant in both methods, pinned by the clearance-side fallback
+   differential case — and `0.1` registration) and an unhashable key raises
+   CPython's own `TypeError: unhashable type: 'X'`. The arithmetic is
+   transcribed verbatim with the oracle's parenthesization (`2 * etch +
+   reg` — IEEE-754 left-associative — and `width ± etch`); IEEE-754 basic
+   operations are deterministic, so every derived field of the returned
+   `FeatureTolerance` is bit-identical. `feature_type` strings are the
+   oracle's literals.
+
+4. **`FeatureTolerance`.** Six fields, dataclass equality, dataclass repr
+   with CPython str/float rendering — all match. `nominal_value` and the
+   clearance-arm `worst_case_max` carry the ORIGINAL caller object (the
+   oracle's dataclass stores the argument unmodified): an int clearance
+   stays int (repr `1`, not `1.0`), equality on those fields runs through
+   CPython's own `==`, and repr renders them via CPython's `repr`. The
+   arithmetic-derived fields are `f64` — identical to the oracle whenever
+   the table values are floats (the pinned envelope; see the deviations
+   below for int table values). `from_py_object` is dropped on the pyclass
+   (it requires `Clone`, which `Py<PyAny>` fields cannot provide; nothing
+   in the crate or the shim extracts a `FeatureTolerance` from an
+   argument).
+
+## Evidence
+
+- Differential (R1a/R1f, TDD red→green):
+  `packages/temper-placer/tests/manufacturing/test_tolerances_rust_differential.py`
+  (34 tests; the RED state was demonstrated: the file fails to collect
+  with `AttributeError: module 'temper_design_bundle_python' has no
+  attribute 'CopperWeight'` before the Rust pyclasses landed). The
+  adversarial-review additions (2026-08-05): the clearance-side
+  copper-weight fallback case (discriminates the shipped `0.05→0.06`
+  mutant), int-clearance/width field-parity rows with the R1a type-aware
+  comparison key (concrete type alongside `float.hex()` for
+  `nominal_value`/`worst_case_max`), and the int-input repr-parity test.
+- PBT (R1c): `test_tolerances_pbt.py` — 10 hypothesis properties
+  (P1/P2/P3/P4/P5/P5b/P6/P6b/P7 + MR1-MR4), each fail-capable.
+- Metamorphic (R1d): `test_tolerances_pbt.py` — MR1 (enum
+  value-construction commutativity), MR2 (dict insertion-order permutation
+  invariance), MR3 (fallback ≡ explicit default), MR4 (etch monotonicity).
+- Anti-vacuity: **the original 11-mutant claim contained one false
+  positive — the `0.05→0.06` etch-fallback mutant SHIPPED.** The original
+  fallback test drove `analyze_trace` only, whose fallback is `0.05` on
+  both sides, so the clearance-side `0.06` sailed through the campaign and
+  the doc recorded it as caught. The adversarial review (2026-08-05) found
+  the shipped mutant and the false claim; the clearance-side fallback case
+  now discriminates it. The full campaign was RE-RUN against the fixed
+  tree with an explicit revert verification (after each mutant the source
+  was restored and `git diff` confirmed empty before the next mutant; see
+  `docs/evidence/2026-08-05-wave4-phase4-leftovers-adversarial-fixes.md`):
+  all 11 mutants caught — etch fallback `0.05→0.06` (now caught by the
+  clearance-side case), registration fallback `0.1→0.2`, `2*etch+reg →
+  etch+reg`, clearance `worst_case_min −→ +`, trace `width−etch →
+  width+etch`, trace `worst_case_max → nominal`, default etch `0.025→0.02`,
+  default registration `0.1→0.01`, enum value `0.5→0.4`, `feature_type`
+  `"clearance"→"trace_width"`, dict-miss fallback `→0.0`.
+- Rust unit tests: `manufacturing_tolerances.rs::py_repr_tests` — the
+  CPython str/float repr divergence classes (B9/B10) for the values that
+  appear in this module's reprs.
+- Rust practices (R1g): borrow over clone throughout; no `unwrap`/`expect`
+  in non-test code; `cargo clippy --release --features python` clean (0
+  warnings).
+- Performance A/B (R1b): this is a pure-data contract migration with no
+  compute kernel — the two analysis methods are O(1) closed-form arithmetic.
+  Per the plan's R2 this is the **"no regression beyond noise"** comparison:
+  the migrated analyzer is a pyo3 method call on the same Python dicts the
+  oracle used, so there is no measurable kernel to benchmark; no speedup is
+  claimed. (No `perf_ab` registration: the surface has no production hot
+  path — the only consumers are the tests and the
+  `manufacturing/__init__.py` re-export.)
+- R1h (physics discipline): NOT APPLICABLE. Tolerance analysis is
+  uncertainty/probability compute in the *domain* sense (etch/registration
+  variability), but none of it gates a CP-SAT constraint on a physics
+  quantity: no constraint is encoded, no post-solve audit has a referent,
+  and the R24 Chebyshev/BMC/post-solve obligations do not apply. The
+  R1h determination is recorded per module: `tolerances.py` — N/A (no
+  physics-gated constraint); `monte_carlo.py` — N/A (the simulator gates
+  nothing; it reports a yield estimate — see the monte_carlo section below).
+
+## Documented deviations (per R1, recorded here)
+
+1. **Enum singleton identity.** Python's `Enum` returns a *cached singleton*
+   from `Cls(value)` (`CopperWeight(1.0) is CopperWeight.ONE_OZ` is True);
+   the pyo3 pyclass constructs a fresh instance per call (attribute access
+   `CopperWeight.ONE_OZ` is still identity-stable — pyo3 caches the class
+   attribute). eq/hash — the load-bearing dict-key contract — are
+   unaffected (`d[CopperWeight(1.0)]` resolves). No in-repo consumer relies
+   on `is` identity of constructor results (verified 2026-08-04: consumers
+   use members as dict keys or pass them through the analyzer).
+2. **Class-level Enum iteration** (`for m in CopperWeight:`) is unavailable
+   on pyo3 enums (no metaclass hook); `getattr`-based access covers every
+   member in the differential suite. No consumer iterates these enums at
+   class level.
+3. **`ToleranceAnalyzer()` default table is per-instance.** The Python
+   oracle evaluates `table: ToleranceTable = ToleranceTable()` once at
+   definition time and shares that instance across all default analyzers;
+   the pyclass builds a fresh default per instance. The shared-instance
+   behaviour is unobservable — no consumer mutates the table — so it is not
+   covered by the differential.
+4. **Non-numeric dict values.** A dict value that is not a float raises a
+   pyo3 `TypeError` from the f64 extraction where the oracle's arithmetic
+   would raise a different-text `TypeError`. The oracle itself is broken on
+   such input; the differential does not cover it.
+5. **Int table VALUES are outside the pinned envelope.** The declared
+   contract types the `etch_tolerance`/`registration` dict values as
+   `float` (the oracle's own annotations), and every test fixture uses
+   floats. With an int-valued dict entry, the oracle's derived fields
+   (`tolerance_plus`/`tolerance_minus` and the trace-arm `worst_case_max`)
+   stay int through Python arithmetic while the Rust side computes them in
+   `f64` — a repr-level type difference on inputs outside the contract.
+   The int *argument* path (int clearances/widths) IS pinned: the oracle's
+   passthrough fields (`nominal_value`, clearance-arm `worst_case_max`)
+   preserve the original object on both sides.
+6. **`CopperWeight(True)`.** Python's Enum resolves `True` to the `1.0`
+   member (`True == 1.0`); the pyclass `#[new]` receives the bool and
+   CPython's `==` compares it against the float candidates — this path is
+   covered by the same rich-compare, so it matches. No consumer relies on
+   it.
+
+---
+
+# Monte-Carlo tolerance simulator — Verification
+
+The Monte-Carlo simulator (`src/manufacturing_monte_carlo.rs`) is the Wave 4
+Phase 4 leftovers slice's third migration: the four dataclasses
+(`DistributionParams`, `ManufacturingVariables`, `MonteCarloConfig`,
+`MonteCarloResult`) and the `MonteCarloSimulator` with its sampling loop and
+the clearance-simulation kernel, ported from
+`temper_placer/manufacturing/monte_carlo.py` (the Python module is now a
+pure-delegation re-export of the `temper_design_bundle_python` pyclasses).
+Home crate: `temper-design-bundle` — the data-contract home (the sibling
+`manufacturing/tolerances.py` migration landed here; the simulator's
+config/result types are contract-adjacent, and the RNG boundary lives in
+numpy, not in a geometry crate).
+
+## Induction applicability
+
+**Mathematical induction IS applicable to the kernel and is discharged
+below.** `clearance_min_distances` is an iterative fold over the sample
+count S and the N×N component-pair grid; the claim is that every iteration
+produces bit-identical values to numpy's elementwise chain on the same
+inputs.
+
+*Induction claim (K(S, N)): for samples `0..S` and pairs `0..N²`, the Rust
+kernel's per-sample min distances equal `np.min(dist, axis=(1,2))` for the
+oracle's construction, bit-for-bit.*
+
+*Base case.* S = 0: both sides produce an empty vector (the oracle's
+`np.min` over `(0, N, N)` reduces zero slices — no elements). N = 0: both
+sides raise the identical `ValueError` (see the error-parity section). For
+S ≥ 1, N ≥ 1 the diagonal pair (i == j) is masked to exactly `1e6` on both
+sides, so the fold always has at least one element and the accumulator
+initialisation (`+∞`) can never leak into the result.
+
+*Step.* Each (si, i, j) iteration computes the oracle's elementwise chain
+with the identical parenthesization, each a single IEEE-754 double
+operation:
+
+- `s_pos = positions + stack([reg_x, reg_y])` — one `f64` add per
+  coordinate (numpy's add on float64 operands is one correctly-rounded op;
+  dtype promotion to float64 is exact for float32→float64 and for ints
+  within the exact-int range, while int64 leaves beyond 2^53 round on BOTH
+  sides through the identical conversion — the parity claim, not exactness,
+  holds there);
+- `s_widths = bounds + 2 * etch` — one multiply by the exact power of two
+  `2.0` (no rounding) followed by one add;
+- `dx/dy = |a - b|`, `mw/mh = (a + b) / 2.0` — one subtract, one add, one
+  exact halving;
+- `sep = dx - mw` — one subtract;
+- `dist = np.maximum(sep_x, sep_y)` — reproduced by `np_max`: NaN when
+  either operand is NaN (numpy's `maximum` propagates NaN, Rust's
+  `f64::max` discards it — the divergence class), else the larger operand.
+  The `b > a` tie-break is value-identical to numpy for every value this
+  construction can produce: `sep` can never be `-0.0` (`|a - b|` is `+0.0`
+  or positive; `0.0 - 0.0` and `0.0 - (-0.0)` are both `+0.0` in
+  round-to-nearest), so the only tie numpy's max can see is equal positives,
+  where either choice has the same bits;
+- the eye-mask `np.where(mask, 1e6, dist)` — `1e6` is exact in f64, applied
+  to exactly the i == j entries;
+- the reduction `np.min(dist, axis=(1,2))` — `np_min` is NaN-propagating
+  (same divergence class, verified against numpy: `np.min` over a NaN
+  element returns NaN regardless of order) and order-independent for every
+  other value the construction produces (no `-0.0` candidates — the mask
+  contributes `1e6`, positive; no NaN-free order sensitivity in IEEE min).
+
+Rust does not fuse multiply-add without an explicit `mul_add` (rustc
+defaults to strict IEEE, no fast-math), so each op's rounding is numpy's.
+By induction, K(S, N) holds for all S, N; the fold is exact and the kernel
+output is bit-identical to the oracle's `min_dists`.
+
+The module's remaining structure (the sampling loop and the aggregation
+tail) is not size-parameterized computation: the sampling loop calls numpy's
+Generator for each of six fixed parameter names, and the aggregation tail
+calls numpy itself (see below).
+
+## Structural proof
+
+**Claim (bit-identical parity).** For every public symbol, the pyclass
+behaviour is bit-identical to the pinned pre-migration Python
+implementation (`packages/temper-placer/tests/manufacturing/_monte_carlo_py_oracle.py`,
+commit `58b302ce8`).
+
+*Proof by structural cases.*
+
+1. **Dataclasses.** `DistributionParams`, `ManufacturingVariables`,
+   `MonteCarloConfig`, `MonteCarloResult` store every field as `Py<PyAny>`
+   (type-preserving: an int `mean=5` stays an int, exactly as the Python
+   dataclass stores it), with `#[pyo3(get, set)]` mutation and a
+   `__dict__` (`#[pyclass(dict)]`) so attribute injection still works.
+   Defaults are built by the type-preserving `opt_or` helper: `0.0`,
+   `"normal"`, `1000`, `42`, the five-percentile tuple. `__repr__` is
+   assembled by the crate's `dataclass_repr`/`repr_of` helpers (CPython's
+   own `repr` on every stored object), `__eq__` by `dataclass_eq`
+   (field-tuple comparison with the dataclass's `other.__class__ is
+   self.__class__` gate), and `__hash__` raises CPython's exact
+   `unhashable type: 'X'` — the mutable-dataclass `__hash__ = None`
+   contract.
+
+2. **The RNG stream (KTD9 boundary).** `MonteCarloSimulator.__init__`
+   builds the generator with numpy's own `np.random.default_rng(config.seed)`
+   and stores it as `_rng`; `sample_parameters` calls
+   `rng.normal(mean, std_dev, size=n)` / `rng.uniform(min_v, max_v, size=n)`
+   through Python with the oracle's exact arguments (the uniform fallback
+   `mean ± 1.0` is Python arithmetic on the stored objects) over the six
+   parameter names in the oracle's declaration order, building a real
+   Python dict in that order. Ziggurat/PCG64 are numpy internals — no
+   independent implementation is bit-reproducible — so the stream is
+   numpy's on both sides, by construction; the differential pins it (same
+   seed ⇒ identical arrays; consecutive calls advance identically; the
+   error path consumes draws identically — `test_rng_state_after_error_matches`).
+
+3. **The clearance kernel.** The induction proof above. The kernel's only
+   inputs are the sampled arrays and the caller's `positions`/`bounds`,
+   widened to f64 exactly (float32→float64 lossless; ints via Python's
+   `float()`), and its only output is the per-sample min-distance vector —
+   everything downstream runs through numpy.
+
+4. **The aggregation tail (KTD9 boundary).** `np.asarray(min_dists)`,
+   `min_dists >= required_clearance`, `passes.astype(np.float32)`,
+   `np.mean` (yield and stats) and `np.std` are numpy calls on both sides
+   with the oracle's call order. numpy's `mean`/`std` use pairwise
+   summation whose block size is SIMD-dispatch-dependent (build and
+   platform), so an independent Rust replica would be bit-exact on one
+   build and divergent on another — a library semantic, not portable
+   compute. Because the kernel output is bit-identical (case 3), the numpy
+   tail is bit-identical by construction. The `float()` conversions (on
+   `np.float32` yield and `np.float64` stats) are exact widenings.
+
+5. **Error parity.** `N == 0` raises numpy's exact
+   `ValueError: zero-size array to reduction operation minimum which has no
+   identity` at the same point in the call sequence as the oracle's
+   `np.min` (after sampling — the RNG stream state at raise time is
+   identical); 0-D/1-D `positions`/`bounds` raise the oracle's fancy-index
+   `IndexError` texts (`array is N-dimensional, but 2/3 were indexed` — the
+   `None` index does not count), and plain lists raise numpy's
+   `TypeError: list indices must be integers or slices, not tuple`. The
+   INNER dimension is pinned too (added 2026-08-05 after an adversarial
+   review found `check_*_ndim` never examined it): positions trailing dim 1
+   broadcasts (`x → [x, x]`, exactly numpy's size-1 axis broadcast), dims 0
+   and ≥3 raise numpy's `ValueError: operands could not be broadcast
+   together with shapes (1,N,k) (S,1,2) ` (exact text, trailing space
+   included), bounds trailing dims 0/1 raise numpy's `IndexError: index
+   0/1 is out of bounds for axis 1 with size 0/1`, and bounds dims ≥3 are
+   tolerated (the oracle indexes only columns 0 and 1). All verified
+   byte-for-byte against numpy 2.3.5 by the differential.
+
+## Evidence
+
+- Differential (R1a/R1f, TDD red→green):
+  `packages/temper-placer/tests/manufacturing/test_monte_carlo_rust_differential.py`
+  (39 tests; the RED state was demonstrated: the file fails to collect with
+  `AttributeError: module 'temper_design_bundle_python' has no attribute
+  'MonteCarloSimulator'` before the Rust pyclasses landed). Comparison
+  conventions: numpy arrays as `(dtype, shape, tobytes())`, floats via
+  `float.hex()` (NaN included — `'nan' == 'nan'`), concrete leaf types in
+  the keys, errors by (type, message) via `canon_call`. The 2026-08-05
+  additions: the ragged-inner-dimension error cases above (RED before the
+  fix: the kernel silently computed on (N,3) positions and panicked —
+  `PanicException` — on (N,1) bounds) and the two tolerated-edge parity
+  cases; the tautological `... or True` assertion in
+  `test_sampling_parity_all_normal` was replaced with the byte-exact
+  stream comparison plus a non-degeneracy guard.
+- PBT (R1c): `test_monte_carlo_pbt.py` — 8 hypothesis properties
+  (P1 closed-form kernel, P2 clearance monotonicity on one stream, P3
+  two-component closed form with the float-computed separation, P4
+  same-stream etch comparison, P5/P5b uniform bounds incl. the fallback,
+  P6 shapes/dtypes incl. n=0, P7 result metadata), each fail-capable.
+- Metamorphic (R1d): `test_monte_carlo_pbt.py` — MR1 (seed invariance
+  without variables — no RNG consumption), MR2 (component-order permutation
+  invariance — bit-exact, the pair multiset is unchanged), MR3
+  (uniform-fallback ≡ explicit `mean ± 1.0` bounds — identical stream,
+  bit-identical draws), MR4 (power-of-two scaling invariance — every IEEE
+  op on `2**m`-scaled operands is itself an exponent shift, so stats scale
+  bit-exactly and yield is invariant; a translation MR was deliberately NOT
+  claimed — `(p + t) + reg` rounds differently from `p + (reg + t)`).
+- Anti-vacuity: 10 mutants, all caught by the differential/PBT suites:
+  `np_max` NaN propagation dropped (caught by the NaN y-column case),
+  `np_max` last-wins (14 failures), `reg_y` replaced by `reg_x`, self-mask
+  `1e6 → 0.0`, min-reduce init `+∞ → 0.0`, etch dropped from heights,
+  `bounds + 2*etch` reparenthesized, `np_min` NaN propagation dropped
+  (caught by the NaN x/y-column cases), `sep_y` dropped, `>=` → `>` (the
+  exact-equality boundary). **Re-verified 2026-08-05 with an explicit
+  revert verification** (each mutant applied to the Rust source, the
+  rebuilt extension run against the suites, the failure confirmed, the
+  source restored, and `git diff` confirmed EMPTY before the next mutant):
+  10/10 caught. Note on the last-wins mutant: the `>=` tie-break variant is
+  value-identical on the kernel's operand domain (separations can never be
+  -0.0 — the module docstring's argument), so it cannot be caught by the
+  differential; the campaign mutant is the always-`b` variant, which is
+  caught (3 failures). Full log in
+  `docs/evidence/2026-08-05-wave4-phase4-leftovers-adversarial-fixes.md`.
+- Rust unit tests: `manufacturing_monte_carlo.rs::kernel_tests` — NaN
+  propagation both sides for `np_max`/`np_min`, the signed-zero tie bits,
+  the masked diagonal, the sentinel single-component case, etch expansion,
+  NaN-through-reduction.
+- Rust practices (R1g): no `unwrap`/`expect` in non-test code; `PyResult`
+  everywhere; `cargo clippy --release --features python` clean (0 warnings);
+  the pyo3 boundary methods are `catch_unwind`-wrapped by pyo3 0.29's
+  generated trampolines.
+- Performance A/B (R1b): the kernel is O(S·N²) real compute — but with no
+  production consumers (the module's only callers are the tests and the
+  `manufacturing/monte_carlo.py` re-export), a `perf_ab` registration would
+  measure a synthetic hot path. Per the plan's R2 this is the
+  **"no regression beyond noise"** arm: the migrated simulator calls numpy
+  for sampling and aggregation exactly as the oracle did, and the kernel is
+  bit-identical; no speedup is claimed. (No `perf_ab` registration —
+  recorded, not skipped.)
+- R1h (physics discipline): NOT APPLICABLE. `run_clearance_simulation`
+  computes a yield *estimate*; it encodes no CP-SAT constraint gating a
+  physics quantity, computes no quantity a post-solve audit could recompute
+  from placement coordinates, and feeds no solver. The R24
+  Chebyshev/BMC/post-solve obligations have no referent. (Recorded per the
+  R1h dispatch instruction: monte_carlo/tolerances are uncertainty/
+  probability compute — this module gates nothing.)
+
+## Documented deviations (per R1, recorded here)
+
+1. **`MonteCarloSimulator(variables)` default config is per-instance.** The
+   Python oracle evaluates `config: MonteCarloConfig = MonteCarloConfig()`
+   once at definition time and shares that instance across all
+   default-config simulators (mutation of it would leak across simulators —
+   a footgun, not a contract); the pyclass builds a fresh default per
+   construction. Unobservable through any value a consumer reads — the
+   differential compares full behavior with an explicit default-config
+   construction (`test_run_parity_default_config`). A `LazyLock<Py<...>>`
+   static is not `Sync` because the config holds a Python tuple.
+2. **Input envelope.** `positions`/`bounds` must be 2-D real-valued
+   sequences (numpy arrays or sequence-of-sequences). ndim ≥ 3 arrays
+   compute something degenerate in the oracle (4-D broadcasts); they raise
+   a pyo3 extraction `TypeError` here. Complex dtypes are outside the
+   envelope. Both are recorded, not silently matched; no consumer has them.
+3. **Malformed-input error texts** are replicated for the 0-D/1-D/list
+   classes AND the inner-dimension classes (verified byte-for-byte against
+   numpy 2.3.5: positions dims 0/≥3 → the broadcast `ValueError` text
+   including its trailing space, bounds dims 0/1 → the `IndexError` text;
+   positions dim 1 broadcasts `x → [x, x]` and bounds dims ≥3 are ignored —
+   both compute bit-identically, pinned by parity cases); the exact
+   `TypeError` text numpy's fancy indexing emits for ndim ≥ 3 inputs is
+   not replicated (the oracle computes instead of raising there).
+
+---
+
+# Hypergraph factory — Verification
+
+The hypergraph factory (`src/hypergraph_factory.rs`) is the Wave 4 Phase 4
+leftovers slice's fourth migration: the `HypergraphFactory` pyclass (the
+valid-nets filter, the ref→index mapping, the physics classification and the
+per-net connection extraction) plus the `HypergraphBuildResult` pyclass,
+ported from `temper_placer/extraction/hypergraph_factory.py` (the Python
+module is now a wrapper: the `HypergraphFactory` shim class owns the scipy
+COO assembly and the `netlist_to_hypergraph` convenience function stays
+Python). Home crate: `temper-design-bundle` — the factory consumes the
+`Netlist` contract pyclasses (`netlist_contracts.rs`), so the netlist reader
+and the factory share one crate.
+
+## Induction applicability
+
+**Mathematical induction is not applicable to this module.** None of its
+functions are recursive, and none iterate over a dimension whose
+correctness depends on a size parameter:
+
+- the valid-nets filter, the physics classification and the connection
+  extraction are per-net constant-branch decisions (threshold compare,
+  two-pin rule, HV/width classification) whose per-element operation is
+  independent of the count and of the iteration order;
+- the ref→index mapping is a per-component insert whose outcome (last
+  duplicate ref wins) is fixed, not size-dependent;
+- the per-net connection list is a bounded membership-filtered copy of the
+  net's pins — the set collapse and its iteration order happen CPython-side
+  (see the KTD9 boundary note below), by construction identical to the
+  oracle's.
+
+Per the plan's R1e, a **structural proof** is recorded instead.
+
+## Structural proof
+
+**Claim (bit-identical parity).** For every public symbol, the pyclass
+behaviour is bit-identical to the pinned pre-migration Python
+implementation (`packages/temper-placer/tests/core/_hypergraph_factory_py_oracle.py`,
+commit `58b302ce8`).
+
+*Proof by structural cases.*
+
+1. **The valid-nets filter.** The Rust side mirrors the oracle's loop
+   exactly: a net survives iff `len(pins) >= 2` AND (not
+   `ignore_global_nets` OR `len(pins) <= global_net_threshold`). The
+   `pins` length is read through Python (`PyAny::len`), so non-list pins
+   raise CPython's own `TypeError`; the `>` threshold comparison (in i64 —
+   a NEGATIVE threshold filters every net, pinned by the negative-threshold
+   differential case) and the `>= 2` rule are the oracle's exact predicates
+   (the off-by-one boundary is pinned by the differential's custom-threshold
+   case and the PBT selection property, and by the H1/H2 mutants).
+2. **The ref→index mapping.** `node_ref_to_idx = {c.ref: i for i, c in
+   enumerate(components)}` — a Rust `HashMap<String, usize>` with the same
+   last-wins overwrite semantics (pinned by the duplicate-ref differential
+   case and the H5 mutant). Ref strings extract losslessly; non-str refs
+   are outside the documented envelope. `n_nodes` = `len(components)`
+   (Python's own `len`).
+3. **The physics classification.** `is_hv` uses CPython's own `==` on the
+   stored `voltage_class`/`net_class` objects (`rich_compare`-based `.eq`),
+   so the pyclass enum/str comparisons behave exactly as the oracle's
+   `net.voltage_class == "HV"`. The width chain reproduces the oracle's
+   branch order (net_class HighVoltage FIRST, then `max_current > 1.0`
+   through CPython's `>`), with the constants 1.0/0.5/0.2 (0.2 is not
+   representable in f32 — the cast is numpy's, so the stored double and the
+   cast f32 both match the oracle's by construction; pinned by the
+   float32-boundary differential case). `edge_voltages`/`edge_widths` are
+   the exact 1.0/0.0 and 1.0/0.5/0.2 constants.
+4. **The connection extraction.** Per valid net, the Rust side emits the
+   connected component INDICES in PIN ORDER, membership-filtered through
+   the ref→index map (`if comp_ref in node_ref_to_idx` — the oracle's exact
+   predicate; the H6 mutant pinned it). The shim then builds
+   `set(connected_indices)` — the identical construction the oracle
+   performed (same members, same pin-order insertion) — so CPython's set
+   iteration order, and therefore the COO triplet ORDER, is CPython's on
+   both sides; the differential asserts `matrix.data/row/col` INCLUDING
+   order (`test_matrix_triplet_order_is_cpython_set_order`,
+   `test_duplicate_component_refs_last_wins`; the H10 pin-reversal mutant).
+   `net.weight`/`net.max_current`/`net.name` pass through as the original
+   Python objects — the Rust side never converts them, so int-vs-float
+   leaves reach numpy and the PhysicsHypergraph untouched.
+5. **Node weights.** `width * height` is Python's own `__mul__` on the
+   original objects (int × int stays int; the H9 mutant pinned the
+   operator), collected in component order.
+6. **The assembly boundary (KTD9).** `np.array(..., dtype=np.float32)`
+   casts and `coo_matrix((values, (rows, cols)), shape=...)` run in the
+   shim on the Rust-returned objects — numpy/scipy conversion semantics
+   (int leaves, 0.2's f32 rounding, empty-matrix handling, scipy's COO
+   construction) are the libraries' own on both sides of the differential.
+
+## Evidence
+
+- Differential (R1a/R1f, TDD red→green):
+  `packages/temper-placer/tests/core/test_hypergraph_factory_rust_differential.py`
+  (18 tests; the RED state was demonstrated: the file fails to collect with
+  `AttributeError: module 'temper_design_bundle_python' has no attribute
+  'HypergraphFactory'` before the Rust pyclasses landed). Comparison keys:
+  the COO matrix as `(shape, nnz, data-(dtype,shape,tobytes), row, col)` —
+  triplet order included — plus every array as `(dtype, shape, tobytes())`.
+  The 2026-08-05 adversarial addition: the negative-threshold case
+  (`global_net_threshold=-5` filters EVERY net — RED before the fix: the
+  `as usize` cast wrapped -5 to a huge threshold and filtered nothing).
+- PBT (R1c): `test_hypergraph_factory_pbt.py` — 6 hypothesis properties
+  (P1 edge-selection rule, P2 HV flag classification, P3 width
+  classification with branch order, P4 incidence connectedness, P5 node
+  weights, P6 hyperedge weights), each fail-capable.
+- Metamorphic (R1d): `test_hypergraph_factory_pbt.py` — MR1 (net-order
+  permutation: names/voltages/matrix columns follow the permutation;
+  node_weights/node_refs invariant), MR2 (threshold monotonicity), MR3
+  (pin-order permutation: the canonicalized matrix and all value arrays are
+  invariant — the per-net triplet ORDER is CPython's and is the
+  differential's domain, not a claim here), MR4 (ignore + threshold ≥
+  max-pins ≡ no filtering).
+- Anti-vacuity: 10 mutants, all caught by the differential/PBT suites:
+  threshold `>`→`>=`, `>=2`→`>2` pins, HV flag `||`→`&&`, HV width branch
+  dropped, ref map last-wins→first-wins (closed by the duplicate-ref
+  differential case), connection membership check dropped (closed by the
+  zero-components differential case `test_nets_without_components_parity`
+  — nets whose refs match no component — plus the mixed-netlist cases and
+  PBT P4; the earlier "UNKNOWN_REF case" attribution referred to no test
+  in the suite and was corrected 2026-08-05), HV flag 1.0/0.0 swapped,
+  0.5/0.2 widths swapped, node weights `*`→`+`, pin order reversed (caught
+  by the triplet-order matrix comparison). **Re-verified 2026-08-05 with
+  an explicit revert verification** (each mutant applied to the Rust
+  source, the rebuilt extension run against the suites, the failure
+  confirmed, the source restored, and `git diff` confirmed EMPTY before
+  the next mutant): 10/10 caught. Full log in
+  `docs/evidence/2026-08-05-wave4-phase4-leftovers-adversarial-fixes.md`.
+- Rust practices (R1g): no `unwrap`/`expect` in non-test code; `PyResult`
+  everywhere; `cargo clippy --release --features python` clean (0 warnings);
+  borrow over clone (the net list is borrowed per iteration; only the
+  emitted result holds owned handles).
+- Performance A/B (R1b): the construction is O(components + pins) with no
+  production consumers beyond the tests (the factory's only callers are
+  `tests/core/test_hypergraph.py` and the extraction module re-export), so
+  a `perf_ab` registration would measure a synthetic hot path. Per the
+  plan's R2 this is the **"no regression beyond noise"** arm: the migrated
+  factory performs the same per-net classification work plus one pyo3
+  boundary crossing for the shim's assembly; no speedup is claimed. (No
+  `perf_ab` registration — recorded, not skipped.)
+- R1h (physics discipline): NOT APPLICABLE. The factory CLASSIFIES physics
+  attributes (HV flags, current-based widths) onto a data structure that
+  downstream heuristics consume; it encodes no CP-SAT constraint gating a
+  physics quantity, computes no quantity a post-solve audit could recompute
+  from placement coordinates, and feeds no solver. The R24
+  Chebyshev/BMC/post-solve obligations have no referent.
+
+## Documented deviations (per R1, recorded here)
+
+1. **Ref-string envelope.** Component refs and net-pin refs must be `str`
+   (the netlist contract's `ref` field is a str; every in-repo netlist uses
+   str refs). A non-str ref raises a pyo3 extraction `TypeError` where the
+   oracle would hash the object and compare by its own equality. Recorded,
+   not silently matched; the differential and PBT suites use the netlist
+   contract types exclusively.
+2. **`HypergraphFactory` (the Python shim class) remains Python.** It owns
+   the scipy/numpy assembly — the KTD9 boundary is the class boundary, not
+   a method boundary. The pyclass underneath is the migrated compute.
+
+---
+
+# fields/* — R3 JUSTIFIED-KEEP record (Wave 4 Phase 4 leftovers slice)
+
+The `temper_placer/fields/` tree (`field.py`, `interface.py`, `result.py` —
+253 LOC) was assigned MIGRATE phase 4 in this ledger. Assessed 2026-08-05
+under the Phase 4 leftovers slice, it is recorded **JUSTIFIED-KEEP** with
+the named blocker below (the ledger entry carries the same text). No
+migration was attempted: per D6, a named blocker outranks a phase row.
+
+## The named blocker
+
+**No portable compute.** Every operation in the tree is either a numpy
+buffer operation or a passthrough over Python-owned objects; a migration
+would produce a pyo3 wrapper whose every method calls back into Python —
+the phase guide's measured net-negative boundary ("prefer surfaces whose
+callers will also migrate — a Rust kernel behind a per-call marshalling
+boundary can be net-negative").
+
+Per module:
+
+1. **`field.py` — `CostField`.** A frozen dataclass over a numpy-owned
+   float32 grid. The only method, `to_flat()`, is
+   `np.ascontiguousarray(grid.ravel()).astype(np.float32)` — three numpy
+   buffer ops on a buffer Python owns. A pyclass would hold `Py<PyAny>`
+   and call numpy back. The shape/height/width/total_cells properties are
+   reads of `grid.shape`. No arithmetic, no control flow.
+2. **`interface.py` — `CostFieldInput` / `FieldGate`.** `CostFieldInput`
+   is a two-field frozen dataclass (no methods). `FieldGate` is an
+   abstract extension point: `compute_field` raises `NotImplementedError`,
+   `check` forwards to it, `to_delta` returns `None`. The concrete
+   subclasses (thermal, congestion, ...) live in surfaces owned by other
+   sessions (`router_v6/`, `physics/thermal_fdm.py`,
+   `deterministic/state.py`) and subclass it in Python; migrating the base
+   without migrating every subclass would churn their inheritance for zero
+   compute value.
+3. **`result.py` — `FieldResult` / `FieldNotReadyError`.** A frozen
+   dataclass wrapping the `GateResult` pyclass (Phase 2) with a three-line
+   fail-closed invariant (`__post_init__` compares `gate_result.status` to
+   the `UNMEASURED` member — an identity comparison on the pyclass enum —
+   and raises `ValueError`), four attribute-passthrough properties, and
+   `to_cost_field_input()`, which is the `hasattr(self.field, "to_flat")`
+   dispatch plus the same numpy buffer ops as `CostField.to_flat`. The
+   invariant is real logic but operates on Python objects on both sides;
+   the status comparison in Rust would be a `Py<PyAny>` getattr + identity
+   check against a held instance — a boundary with no algorithm to
+   protect.
+
+## Re-decidable when
+
+A consumer of these types migrates and carries the arithmetic with it (the
+phase guide's rule: migrate the kernel, keep the boundary); or the numpy
+buffer boundary is replaced by a typed buffer protocol the Rust side can
+own. At that point the ledger entry's blocker no longer holds and the
+surface can be re-assessed.
+
+## Evidence recorded (unchanged surface)
+
+The existing suites pin the current behavior:
+`tests/fields/test_field_result.py` and
+`tests/fields/test_fieldresult_invariants_pbt.py` (52 + property tests,
+all green on the current branch). The tree was NOT modified by this slice.
+  `tests/router_v6/test_phase1_anti_false_zero.py`.
+
+  `tests/router_v6/test_phase1_anti_false_zero.py`.
 # Validation decision kernels (Phase 4 — the validation remainder) — Verification
 
 `src/validation.rs` is the Wave-4 Phase-4 validation-remainder migration
