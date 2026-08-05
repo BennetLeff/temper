@@ -10,6 +10,13 @@ implemented but never wired up.
 
 Import side effect:
     import temper_placer.adapters.register_strategies  # noqa: F401
+
+Wave-4 Phase-5 R3-style record (see ``packages/temper-orchestration/VERIFICATION.md``):
+``PlacementStage``/``RoutingStage`` are ``@dataclass`` ``PipelineStage``
+subclasses whose ``run()`` bodies call ``strategy_registry.register`` and
+``router_v6.route_pcb`` (Python call-backs); ``PipelineStage`` is a
+``@runtime_checkable`` Protocol with no pyclass mapping (the ``protocol.py``
+R3 record). Zero standalone compute.
 """
 
 from __future__ import annotations

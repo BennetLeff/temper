@@ -601,6 +601,43 @@ jobs:
           RUST_BACKTRACE: full
           PYTHONFAULTHANDLER: 1
 
+      # Wave 4 Phase 5 anti-vacuity gate (PR merge path): the cli/adapters/
+      # temper-workflow differential/PBT suites are the ONLY tests that pin
+      # the migrated orchestration compute (temper_orchestration) bit-exactly
+      # against the verbatim pre-migration oracles. They must run hard on
+      # every PR with a pytest_guard floor so a silently-shrunk collection
+      # fails instead of passing vacuously. The temper-workflow package's own
+      # differential/PBT (route_and_measure) runs from its own test tree
+      # below.
+      - name: Run Phase-5 cli differentials (anti-vacuity gate)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        working-directory: packages/temper-placer
+        run: >
+          uv run python ../../scripts/pytest_guard.py --min-tests 61 --
+          tests/cli/test_timing_rust_differential.py
+          tests/cli/test_trace_commands_rust_differential.py
+          tests/cli/test_timing_pbt.py
+          tests/cli/test_trace_commands_pbt.py
+          -v --tb=short -p no:cacheprovider --maxfail=10
+        env:
+          RUST_BACKTRACE: full
+          PYTHONFAULTHANDLER: 1
+
+      # Phase-5 workflow half of the same gate: route_and_measure differential
+      # + PBT live in the temper-workflow test tree (separate package). A
+      # pytest_guard floor so the pin cannot silently shrink.
+      - name: Run Phase-5 workflow differentials (anti-vacuity gate)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        working-directory: packages/temper-workflow
+        run: >
+          uv run python ../../scripts/pytest_guard.py --min-tests 30 --
+          tests/test_route_and_measure_rust_differential.py
+          tests/test_route_and_measure_pbt.py
+          -v --tb=short -p no:cacheprovider --maxfail=10
+        env:
+          RUST_BACKTRACE: full
+          PYTHONFAULTHANDLER: 1
+
       - name: Coverage gate (temper-placer)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         working-directory: packages/temper-placer
