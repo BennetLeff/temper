@@ -3,7 +3,11 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
+import temper_design_bundle_python as _tdb
+
 from .violation_mapper import MappedViolation
+
+_DH = _tdb.deterministic_hubs
 
 
 @dataclass
@@ -24,7 +28,16 @@ class AdjustmentResult:
 
 
 class ZoneAdjuster:
-    """Computes zone geometry adjustments based on DRC violations."""
+    """Computes zone geometry adjustments based on DRC violations.
+
+    Wave 4, **Phase 5** (deterministic hubs slice): the adjustment compute of
+    ``compute_adjustments`` is implemented in Rust in the ``temper-design-bundle``
+    crate (``temper_design_bundle_python.deterministic_hubs.zone_adjustments_kernel``).
+    This class keeps the pre-migration public API unchanged and delegates.
+    ``ZoneAdjustment``/``AdjustmentResult`` stay Python dataclasses; the live
+    ``zone_config`` (re-assigned by the feedback orchestrator) crosses the
+    boundary per call.
+    """
 
     def __init__(
         self,
@@ -54,55 +67,21 @@ class ZoneAdjuster:
         Returns:
             AdjustmentResult object.
         """
-        # 1. Count violations per zone
-        zone_counts: dict[str, int] = {}
-        for v in violations:
-            if v.zone:
-                zone_counts[v.zone] = zone_counts.get(v.zone, 0) + 1
-
-        adjustments = {}
-
-        # 2. Compute adjustments for zones exceeding threshold
-        for zone_name, count in zone_counts.items():
-            if count >= self.violation_threshold:
-                config = self.zone_config.get(zone_name)
-                if not config:
-                    continue
-
-                # Calculate required expansion
-                excess = count - self.violation_threshold + 1
-                expansion = excess * self.expansion_per_violation
-
-                # Get current size and max size
-                bounds = config.get("bounds")
-                if not bounds or len(bounds) != 2:
-                    continue
-
-                (x1, y1), (x2, y2) = bounds
-                width = abs(x2 - x1)
-                height = abs(y2 - y1)
-
-                max_size = config.get("max_size", (float("inf"), float("inf")))
-                max_width, max_height = max_size
-
-                can_expand = config.get("can_expand", ["right", "left", "up", "down"])
-
-                delta_w = 0.0
-                delta_h = 0.0
-
-                # Expand width if allowed
-                if any(d in ["right", "left"] for d in can_expand):
-                    target_width = min(width + expansion, max_width)
-                    delta_w = target_width - width
-
-                # Expand height if allowed
-                if any(d in ["up", "down"] for d in can_expand):
-                    target_height = min(height + expansion, max_height)
-                    delta_h = target_height - height
-
-                if delta_w > 0 or delta_h > 0:
-                    adjustments[zone_name] = ZoneAdjustment(
-                        zone_name=zone_name, delta_width=delta_w, delta_height=delta_h
-                    )
-
-        return AdjustmentResult(adjustments=adjustments)
+        # Oracle's `if v.zone:` is a truthiness check — None AND empty-string
+        # zones are skipped. Normalise falsy zones to None so the kernel
+        # counts only the zones the oracle would count.
+        zones = [z if z else None for z in (v.zone for v in violations)]
+        adjustments = _DH.zone_adjustments_kernel(
+            zones,
+            self.zone_config,
+            self.violation_threshold,
+            self.expansion_per_violation,
+        )
+        return AdjustmentResult(
+            adjustments={
+                zone_name: ZoneAdjustment(
+                    zone_name=zone_name, delta_width=delta_w, delta_height=delta_h
+                )
+                for zone_name, delta_w, delta_h in adjustments
+            }
+        )

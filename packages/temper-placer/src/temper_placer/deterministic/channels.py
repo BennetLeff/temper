@@ -11,17 +11,41 @@ The grid is stored as a flat tuple of floats (occupancy in [0.0, 1.0]) keyed
 by ``(y * width + x)`` for O(1) integer index lookups on the placement hot
 path. Bottlenecks are stored as ``(x, y, layer, severity_index, score)``
 tuples inside a frozenset so membership tests stay hash-based.
+
+Wave 4, **Phase 5** (deterministic hubs slice): the hot-path compute — the
+worst-severity bottleneck index build and the ``routability_penalty`` kernel —
+is implemented in Rust in the ``temper-design-bundle`` crate
+(``temper_design_bundle_python.deterministic_hubs``). This module keeps the
+pre-migration public API unchanged and delegates. The data containers
+(``Bottleneck``/``ChannelMap``) stay Python dataclasses because
+``dataclasses.replace``/``FrozenInstanceError`` are load-bearing for the
+deterministic + router_v6 suites; the Rust side carries the native grid +
+per-cell index built once at load time (the ``_index`` handle), so the penalty
+hot path is a native O(1) lookup, not a per-call Python-list marshalling.
+
+Bit-exactness: the penalty kernel replicates ``math.floor((x_mm * 1000.0) /
+cell_size_um)`` floor-to-cell semantics, the occupancy clamp, and the
+``severity_weight * (0.5 + 0.5 * occupancy)`` arithmetic; the index build
+keeps the worst severity per cell (ties: highest score), which is
+order-invariant in effect because the penalty reads only the kept severity.
+Verified by ``tests/deterministic/test_channels_rust_differential.py``
+(oracle: ``tests/deterministic/_channels_py_oracle.py``) and the PBT suite
+``tests/deterministic/test_channels_pbt.py``; the structural proof is in
+``packages/temper-design-bundle/VERIFICATION.md``.
 """
 
 from __future__ import annotations
 
 import json
 import logging
-import math
 from dataclasses import dataclass, field
 from pathlib import Path
 
+import temper_design_bundle_python as _tdb
+
 logger = logging.getLogger(__name__)
+
+_DH = _tdb.deterministic_hubs
 
 
 ALLOWED_SEVERITIES: frozenset[str] = frozenset({"LOW", "MEDIUM", "HIGH", "CRITICAL"})
@@ -79,9 +103,11 @@ class ChannelMap:
         cell_size_um: Cell edge length in micrometres.
         bottlenecks: Frozenset of :class:`Bottleneck` records.
         schema_hash: Schema identifier from the sidecar; ``""`` for empty map.
-        _bottleneck_by_cell: Pre-indexed ``(x, y) -> Bottleneck`` map populated
-            once at load time so :func:`routability_penalty` does a single
-            dict lookup per call instead of scanning all bottlenecks.
+        _bottleneck_by_cell: Pre-indexed ``(x, y) -> Bottleneck`` map (kept for
+            dataclass-shape stability; the Rust ``_index`` is authoritative for
+            the migrated penalty path).
+        _index: Rust ``ChannelIndex`` (native grid + per-cell worst-severity
+            index) built once at load time; ``None`` for the empty map.
     """
 
     grid: tuple[tuple[float, ...], ...]
@@ -89,6 +115,7 @@ class ChannelMap:
     bottlenecks: frozenset[Bottleneck] = field(default_factory=frozenset)
     schema_hash: str = ""
     _bottleneck_by_cell: dict = field(default_factory=dict, repr=False, compare=False)
+    _index: object = field(default=None, repr=False, compare=False)
 
     @property
     def width(self) -> int:
@@ -107,6 +134,7 @@ class ChannelMap:
             bottlenecks=frozenset(),
             schema_hash="",
             _bottleneck_by_cell={},
+            _index=None,
         )
 
     @classmethod
@@ -215,28 +243,19 @@ class ChannelMap:
                 Bottleneck(x=x, y=y, layer=layer, severity=severity, score=float(score_raw))
             )
 
-        # Pre-index bottlenecks by (x, y) for O(1) lookup in
-        # routability_penalty. When multiple bottlenecks share a cell we
-        # keep the worst-severity one (ties: highest score), matching the
-        # "worst severity" semantics of the hot path.
-        bottleneck_by_cell: dict[tuple[int, int], Bottleneck] = {}
-        for bn in bottlenecks:
-            key = (bn.x, bn.y)
-            existing = bottleneck_by_cell.get(key)
-            if existing is None:
-                bottleneck_by_cell[key] = bn
-                continue
-            existing_w = SEVERITY_WEIGHTS.get(existing.severity, 0.0)
-            new_w = SEVERITY_WEIGHTS.get(bn.severity, 0.0)
-            if new_w > existing_w or (new_w == existing_w and bn.score > existing.score):
-                bottleneck_by_cell[key] = bn
+        # Build the Rust native index once (worst-severity per cell, ties:
+        # highest score — order-invariant in effect, see module docstring).
+        assert width is not None  # grid validated non-empty with uniform rows above
+        grid_flat = [cell for row in grid for cell in row]
+        bn_flat = [(b.x, b.y, b.severity, b.score) for b in bottlenecks]
+        index = _DH.build_channel_index(cell_size_um, width, len(grid), grid_flat, bn_flat)
 
         return cls(
             grid=grid_tuple,
             cell_size_um=cell_size_um,
             bottlenecks=frozenset(bottlenecks),
             schema_hash=schema_hash,
-            _bottleneck_by_cell=bottleneck_by_cell,
+            _index=index,
         )
 
     def has_grid(self) -> bool:
@@ -258,44 +277,14 @@ def routability_penalty(slot: tuple[float, float], channel_map: ChannelMap) -> f
     penalised purely for being outside the sidecar's coverage.
 
     An empty :class:`ChannelMap` always returns ``0.0``.
+
+    The arithmetic runs in Rust (``ChannelIndex.penalty``) against the native
+    index built at load time.
     """
     if not channel_map.has_grid():
         return 0.0
-
-    cell_size_um = channel_map.cell_size_um
-    width = channel_map.width
-    height = channel_map.height
-
+    index = getattr(channel_map, "_index", None)
+    if index is None:
+        return 0.0
     x_mm, y_mm = slot
-    gx = int(math.floor((x_mm * 1000.0) / cell_size_um))
-    gy = int(math.floor((y_mm * 1000.0) / cell_size_um))
-
-    if gx < 0 or gx >= width or gy < 0 or gy >= height:
-        return 0.0
-
-    row = channel_map.grid[gy]
-    occupancy = row[gx]
-    if occupancy < 0.0:
-        occupancy = 0.0
-    elif occupancy > 1.0:
-        occupancy = 1.0
-
-    # O(1) lookup of the worst-severity bottleneck for this cell via the
-    # precomputed ``_bottleneck_by_cell`` index (built in ``_from_payload``).
-    # Multiple bottlenecks may share a cell across layers; the index already
-    # picked the worst-severity one at load time so the hot path is just a
-    # dict lookup with no per-call scan.
-    bn = channel_map._bottleneck_by_cell.get((gx, gy))
-    if bn is None:
-        return 0.0
-
-    severity = bn.severity
-    severity_weight = SEVERITY_WEIGHTS.get(severity, 0.0)
-    if severity_weight <= 0.0:
-        return 0.0
-    penalty = severity_weight * (0.5 + 0.5 * occupancy)
-    if penalty < 0.0:
-        return 0.0
-    if penalty > 1.0:
-        return 1.0
-    return penalty
+    return index.penalty(x_mm, y_mm)

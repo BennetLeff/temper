@@ -34,6 +34,7 @@ from typing import Any
 from . import board_contracts as board_contracts
 from . import netlist_contracts as netlist_contracts
 from . import parse_engine as parse_engine
+from . import deterministic_hubs as deterministic_hubs
 
 def sha256_hex(bytes: bytes) -> str: ...
 
