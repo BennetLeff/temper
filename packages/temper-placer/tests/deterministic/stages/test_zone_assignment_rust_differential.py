@@ -41,7 +41,7 @@ def _netlist(components, nets):
     return Netlist(components=components, nets=nets)
 
 
-def _comp(ref, net_names=None, prefix=None):
+def _comp(ref, net_names=None):
     pins = []
     for i, n in enumerate(net_names or []):
         pins.append(Pin(f"{i + 1}", str(i + 1), (0.0, 0.0), net=n))
