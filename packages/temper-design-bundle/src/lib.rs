@@ -27,9 +27,18 @@ mod reference_loader;
 
 #[cfg(feature = "python")]
 mod parse_engine;
+#[cfg(feature = "python")]
+mod manufacturing_tolerances;
+#[cfg(feature = "python")]
+mod manufacturing_monte_carlo;
+#[cfg(feature = "python")]
+mod hypergraph_factory;
 
 #[cfg(feature = "python")]
 mod loaders;
+
+#[cfg(feature = "python")]
+mod validation;
 
 mod atopile;
 mod constraint_merge;
@@ -241,11 +250,33 @@ mod python {
         )?)?;
         crate::parse_engine::register(module)?;
 
+        // Wave 4 Phase 4 leftovers slice: the manufacturing tolerance model
+        // ported from temper_placer/manufacturing/tolerances.py (see
+        // manufacturing_tolerances.rs).
+        crate::manufacturing_tolerances::register(module)?;
+
+        // Wave 4 Phase 4 leftovers slice: the Monte-Carlo tolerance
+        // simulator ported from temper_placer/manufacturing/monte_carlo.py
+        // (see manufacturing_monte_carlo.rs — the numpy RNG/aggregation
+        // boundary is argued in that module's docstring).
+        crate::manufacturing_monte_carlo::register(module)?;
+
+        // Wave 4 Phase 4 leftovers slice: the hypergraph factory ported
+        // from temper_placer/extraction/hypergraph_factory.py (see
+        // hypergraph_factory.rs — scipy/numpy/set-iteration stay Python).
+        crate::hypergraph_factory::register(module)?;
+
         // Wave 4 Phase 3 candidate 2: the YAML loaders ported from
         // temper_placer/io/netclass_loader.py and
         // temper_placer/io/loop_loader.py (see loaders.rs). They bind onto
         // the Phase-2 contracts registered above, which is why they are the
         // phase's opportunistic first pull.
-        crate::loaders::register(module)
+        crate::loaders::register(module)?;
+
+        // Wave 4 Phase 4: the validation-remainder decision kernels
+        // (validation/preflight.py, netlist_reconciliation.py,
+        // placement_roundtrip.py, prereg/schema.py) registered as the
+        // `validation` submodule (see validation.rs).
+        crate::validation::register(module)
     }
 }

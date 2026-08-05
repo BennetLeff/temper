@@ -3,6 +3,13 @@
 This module demonstrates the full power of the functional explainability system
 by composing traces from different pipeline phases using monoid operations.
 
+Wave 4, Phase 5: ``compose_traces``'s monoid fold now lives in the
+``temper-io-types`` Rust crate (``explain.rs``); this module is a delegation
+shim. ``TracedPipeline.run`` / ``traced_pipeline_example`` / the
+demo/example functions stay Python: they orchestrate calls to arbitrary
+Python callables, so migrating them would ADD boundary crossings without
+removing any compute (see ``temper-io-types/VERIFICATION.md``).
+
 Example:
     >>> from temper_placer.explainability.pipeline import run_traced_pipeline
     >>>
@@ -15,6 +22,8 @@ Example:
 """
 
 from typing import Any
+
+import temper_io_types as _rust
 
 from temper_placer.explainability.trace import Trace
 
@@ -38,10 +47,8 @@ def compose_traces(*traces: Trace) -> Trace:
         >>> len(combined)
         3
     """
-    result = Trace.empty()
-    for trace in traces:
-        result = result + trace
-    return result
+    entries = _rust.explain_compose_traces(traces)
+    return Trace(entries)
 
 
 def traced_pipeline_example(placement_fn, routing_fn, *args, **kwargs) -> tuple[Any, Trace]:
