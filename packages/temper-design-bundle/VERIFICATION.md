@@ -2502,3 +2502,66 @@ commit `58b302ce8`).
 2. **`HypergraphFactory` (the Python shim class) remains Python.** It owns
    the scipy/numpy assembly — the KTD9 boundary is the class boundary, not
    a method boundary. The pyclass underneath is the migrated compute.
+
+---
+
+# fields/* — R3 JUSTIFIED-KEEP record (Wave 4 Phase 4 leftovers slice)
+
+The `temper_placer/fields/` tree (`field.py`, `interface.py`, `result.py` —
+253 LOC) was assigned MIGRATE phase 4 in this ledger. Assessed 2026-08-05
+under the Phase 4 leftovers slice, it is recorded **JUSTIFIED-KEEP** with
+the named blocker below (the ledger entry carries the same text). No
+migration was attempted: per D6, a named blocker outranks a phase row.
+
+## The named blocker
+
+**No portable compute.** Every operation in the tree is either a numpy
+buffer operation or a passthrough over Python-owned objects; a migration
+would produce a pyo3 wrapper whose every method calls back into Python —
+the phase guide's measured net-negative boundary ("prefer surfaces whose
+callers will also migrate — a Rust kernel behind a per-call marshalling
+boundary can be net-negative").
+
+Per module:
+
+1. **`field.py` — `CostField`.** A frozen dataclass over a numpy-owned
+   float32 grid. The only method, `to_flat()`, is
+   `np.ascontiguousarray(grid.ravel()).astype(np.float32)` — three numpy
+   buffer ops on a buffer Python owns. A pyclass would hold `Py<PyAny>`
+   and call numpy back. The shape/height/width/total_cells properties are
+   reads of `grid.shape`. No arithmetic, no control flow.
+2. **`interface.py` — `CostFieldInput` / `FieldGate`.** `CostFieldInput`
+   is a two-field frozen dataclass (no methods). `FieldGate` is an
+   abstract extension point: `compute_field` raises `NotImplementedError`,
+   `check` forwards to it, `to_delta` returns `None`. The concrete
+   subclasses (thermal, congestion, ...) live in surfaces owned by other
+   sessions (`router_v6/`, `physics/thermal_fdm.py`,
+   `deterministic/state.py`) and subclass it in Python; migrating the base
+   without migrating every subclass would churn their inheritance for zero
+   compute value.
+3. **`result.py` — `FieldResult` / `FieldNotReadyError`.** A frozen
+   dataclass wrapping the `GateResult` pyclass (Phase 2) with a three-line
+   fail-closed invariant (`__post_init__` compares `gate_result.status` to
+   the `UNMEASURED` member — an identity comparison on the pyclass enum —
+   and raises `ValueError`), four attribute-passthrough properties, and
+   `to_cost_field_input()`, which is the `hasattr(self.field, "to_flat")`
+   dispatch plus the same numpy buffer ops as `CostField.to_flat`. The
+   invariant is real logic but operates on Python objects on both sides;
+   the status comparison in Rust would be a `Py<PyAny>` getattr + identity
+   check against a held instance — a boundary with no algorithm to
+   protect.
+
+## Re-decidable when
+
+A consumer of these types migrates and carries the arithmetic with it (the
+phase guide's rule: migrate the kernel, keep the boundary); or the numpy
+buffer boundary is replaced by a typed buffer protocol the Rust side can
+own. At that point the ledger entry's blocker no longer holds and the
+surface can be re-assessed.
+
+## Evidence recorded (unchanged surface)
+
+The existing suites pin the current behavior:
+`tests/fields/test_field_result.py` and
+`tests/fields/test_fieldresult_invariants_pbt.py` (52 + property tests,
+all green on the current branch). The tree was NOT modified by this slice.
