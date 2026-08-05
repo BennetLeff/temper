@@ -176,7 +176,7 @@ typing-inspection==0.4.2
     # via pydantic
 tzdata==2026.2 ; sys_platform == 'emscripten' or sys_platform == 'win32'
     # via pandas
-urllib3==2.6.2
+urllib3==2.7.0
     # via requests
 vulture==2.16
 websockets==15.0.1
