@@ -40,8 +40,12 @@ import json
 import logging
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import temper_design_bundle_python as _tdb
+
+if TYPE_CHECKING:
+    from temper_design_bundle_python.deterministic_hubs import ChannelIndex
 
 logger = logging.getLogger(__name__)
 
@@ -115,7 +119,7 @@ class ChannelMap:
     bottlenecks: frozenset[Bottleneck] = field(default_factory=frozenset)
     schema_hash: str = ""
     _bottleneck_by_cell: dict = field(default_factory=dict, repr=False, compare=False)
-    _index: object = field(default=None, repr=False, compare=False)
+    _index: ChannelIndex | None = field(default=None, repr=False, compare=False)
 
     @property
     def width(self) -> int:
@@ -283,7 +287,7 @@ def routability_penalty(slot: tuple[float, float], channel_map: ChannelMap) -> f
     """
     if not channel_map.has_grid():
         return 0.0
-    index = getattr(channel_map, "_index", None)
+    index = channel_map._index
     if index is None:
         return 0.0
     x_mm, y_mm = slot
