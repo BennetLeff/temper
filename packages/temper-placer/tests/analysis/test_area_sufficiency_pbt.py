@@ -41,8 +41,6 @@ Metamorphic relations:
 
 from __future__ import annotations
 
-import math
-
 import pytest
 import temper_geometry as _tg
 from hypothesis import given, settings
@@ -61,8 +59,6 @@ _SPECIAL = st.floats(
     allow_nan=True,
     allow_infinity=True,
     allow_subnormal=True,
-    min_value=-1e300,
-    max_value=1e300,
 )
 
 _AREA_LISTS = st.lists(_FINITE, min_size=0, max_size=40)
@@ -173,9 +169,21 @@ def test_p6_ties_preserve_input_order():
 
 
 # --- MR1: power-of-two scaling ---------------------------------------------
+#
+# Bounded to the courtyard-area magnitude band (real areas are ~1e-4..1e6
+# mm^2) and exponents that keep every intermediate in the NORMAL float
+# range: IEEE addition rounding is scale-invariant only while no operand
+# underflows to a subnormal or overflows to infinity.
 
 
-@given(_AREA_LISTS, st.integers(min_value=-20, max_value=20))
+@given(
+    st.lists(
+        st.floats(allow_nan=False, allow_infinity=False, allow_subnormal=False, min_value=1e-6, max_value=1e6),
+        min_size=0,
+        max_size=40,
+    ),
+    st.integers(min_value=-30, max_value=30),
+)
 @settings(max_examples=MAX_EXAMPLES, deadline=None)
 def test_mr1_power_of_two_scaling(areas, k):
     if not areas:
@@ -186,9 +194,15 @@ def test_mr1_power_of_two_scaling(areas, k):
 
 
 # --- MR2: margin monotonicity ----------------------------------------------
+# Bounded to non-negative areas (real courtyard areas are shapely polygon
+# areas, always >= 0); a negative total would invert the ratio ordering.
 
 
-@given(st.floats(min_value=20.0, max_value=200.0), st.floats(min_value=20.0, max_value=200.0), _AREA_LISTS)
+@given(
+    st.floats(min_value=20.0, max_value=200.0),
+    st.floats(min_value=20.0, max_value=200.0),
+    st.lists(st.floats(allow_nan=False, allow_infinity=False, min_value=0.0, max_value=1e12), min_size=0, max_size=40),
+)
 @settings(max_examples=MAX_EXAMPLES, deadline=None)
 def test_mr2_margin_monotonicity(w, h, areas):
     m1 = min(w, h) / 6.0

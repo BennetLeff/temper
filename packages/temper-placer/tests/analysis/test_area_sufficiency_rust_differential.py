@@ -309,3 +309,14 @@ def test_compute_returns_original_width_height_objects():
     total, usable, ratio, w, h, n = AREA_SUFFICIENCY_COMPUTE(100, 60, 5.0, [4.0])
     assert type(w) is int and w == 100
     assert type(h) is int and h == 60
+
+
+def test_compute_ratio_ordering_matches_oracle_on_overflow_band():
+    # The oracle computes raw_ratio_pct = (total / usable) * 100.0, NOT
+    # (total * 100.0) / usable: at total == usable == 1e308 the former is
+    # 100.0 while the latter overflows to inf.  The shim must reproduce
+    # the oracle's operand order.
+    total, usable, ratio, w, h, n = AREA_SUFFICIENCY_COMPUTE(1e154, 1e154, 5.0, [1e308])
+    assert usable == 1e308
+    assert ratio == (float(total) / usable) * 100.0
+    assert ratio == 100.0

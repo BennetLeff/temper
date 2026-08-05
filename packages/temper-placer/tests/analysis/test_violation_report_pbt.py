@@ -107,7 +107,7 @@ def test_p2_refs_shaping(specs):
     errors = [_err(rule, refs, (1.0, 2.0), "m") for rule, refs in specs]
     rows = _rows_from_errors(errors)
     assert len(rows) == len(specs)
-    for (rule, refs), row in zip(specs, rows):
+    for (_rule, refs), row in zip(specs, rows):
         expected = sorted(refs) if len(refs) >= 2 else list(refs)
         assert row["refs_sorted"] == expected
         assert row["components"] == list(refs)
@@ -269,6 +269,12 @@ def test_mr2_filtering_monotonicity(specs):
 
 
 # --- MR3: ref-order symmetry ------------------------------------------------
+#
+# The canonical ``refs_sorted`` field and the overlap are invariant under a
+# swap of the two components (the sort canonicalises the pair order).  The
+# ``components`` field deliberately preserves the INPUT order (it mirrors the
+# oracle's ``err.components`` verbatim), so the invariant is asserted on the
+# canonicalised fields only — that is the honest bound.
 
 
 @given(st.lists(_REFS, min_size=2, max_size=4))
@@ -276,7 +282,9 @@ def test_mr2_filtering_monotonicity(specs):
 def test_mr3_ref_order_symmetry(refs):
     a = _rows_from_errors([_err("courtyards_overlap", refs, (0.0, 0.0), "m")])
     b = _rows_from_errors([_err("courtyards_overlap", list(reversed(refs)), (0.0, 0.0), "m")])
-    assert a == b
+    assert len(a) == len(b) == 1
+    assert a[0]["refs_sorted"] == b[0]["refs_sorted"] == sorted(refs)
+    assert a[0]["overlap_area_mm2"] == b[0]["overlap_area_mm2"]
 
 
 # --- MR4: append-stability --------------------------------------------------

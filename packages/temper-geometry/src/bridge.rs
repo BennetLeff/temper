@@ -1491,5 +1491,8 @@ pub fn register_functions(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(calculate_required_creepage_py, m)?)?;
     m.add_function(wrap_pyfunction!(is_high_voltage_net_py, m)?)?;
 
+    // area_sufficiency (Wave 4 Phase 4: analysis/_area_sufficiency.py)
+    crate::area_sufficiency::register(m)?;
+
     Ok(())
 }

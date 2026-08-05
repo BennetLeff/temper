@@ -796,3 +796,135 @@ input), and `precompute_from_pad_polygons` / `compute_drc_proxy_score`
 cold paths). Return-value tuples (`Vec<(usize,usize,f64)>` from
 `check_clearance_violation`, etc.) were left as-is: the spike targets
 parameters, and pyo3's return-tuple extraction is already efficient.
+
+## Area-Sufficiency Aggregation (`area_sufficiency.rs`) — Verification (Wave 4 Phase 4, 2026-08-04)
+
+The Wave 4 Phase 4 analysis-surface migration moved the compute of
+`temper_placer/analysis/_area_sufficiency.py` (95 LOC) into this crate.
+The Python module is now a delegation shim; its pre-migration
+implementation is pinned verbatim as the differential oracle
+(`packages/temper-placer/tests/analysis/_area_sufficiency_py_oracle.py`,
+commit `c5875adad`).
+
+**Home-crate decision (why temper-geometry).** The ledger
+(`docs/wave4-verdicts.yaml`) assigns `analysis/**` to Phase 4 and the
+mandate names temper-geometry or temper-design-bundle "per the dependency
+direction" for area sufficiency.  The dependency direction is
+`analysis → io/kicad_metadata → core/courtyard → geometry`, so the
+aggregation's natural home is the geometry crate: usable-board-area
+arithmetic and courtyard-area summation are 2D geometry math
+(`(w-2m)·(h-2m)` and a compensated sum of polygon areas), and
+temper-geometry is the crate that already owns board/courtyard-area
+kernels (`polygon_area`, `rect_area`, `compute_loop_area`).
+temper-design-bundle was rejected: it owns Phase-2 *contracts*, and the
+`AreaSufficiencyResult` dataclass is a compute result, not a contract —
+it stays Python-side in the shim (the pure-data-holder precedent from
+`core/priority.py`'s `POWER_STAGE_TEMPLATES`).
+
+**Boundary — what stays Python and why.** The per-courtyard areas
+(`c._polygon.area`) stay Python-side: they are shapely/GEOS polygon
+areas, and GEOS is not bit-reproducible outside shapely (the guide's
+"library semantics are not reimplementable" precedent, GEOS-buffer case).
+The board dimensions pass across as opaque objects and come back
+unchanged, so an `int` board width (integer s-expr coords) stays `int`
+in the result — the int-vs-float leaf type cannot drift.  The metadata
+extraction (`io/kicad_metadata`) is another session's surface, called
+but not modified.
+
+**Induction applicability.** Mathematical induction is not applicable:
+`py_sum_neumaier` iterates a caller-provided slice but each per-element
+step is a fixed two-instruction compensation independent of the slice's
+size, and `top_courtyards` is a fixed sort + slice.  Per the plan's R1e a
+**structural proof** is recorded instead.
+
+**Structural proof (bit-identical parity).** Claim: for every input in
+the differential/PBT domains, the three pyfunctions reproduce the pinned
+oracle bit-identically, with the documented deviations below.
+*Proof by structural cases.*
+- `py_sum` is a line-for-line port of CPython 3.12's
+  `builtin_sum_impl` float fast path (`Python/bltinmodule.c`, gh-100425):
+  the first item enters via `0 (int) + x0` (round-to-nearest normalises
+  `-0.0` to `+0.0`), each later item runs Neumaier's compensation
+  (`t = f + x`; `c += (f-t)+x` when `|f| ≥ |x|`, else `c += (x-t)+f`;
+  `f = t`), and the final `if (c && isfinite(c)) f += c` mirrors C's
+  truthiness exactly (`-0.0` is falsy, `NaN`/`±inf` fail the finite
+  check).  The `fabs`/`>=` branch structure is copied so NaN takes the
+  same path as CPython.  Empty input returns `int 0` (`sum([]) == 0`),
+  not `float 0.0`.  Verified against the builtin on a 125-case adversarial
+  corpus plus 80 hypothesis-generated cases (P1/P5), all bit-exact via
+  `float.hex()` with the concrete leaf type carried.
+- `area_sufficiency_compute` computes `used_w = w - 2m`,
+  `used_h = h - 2m`, `usable = used_w · used_h`, the oracle's
+  non-positive check (`used_w ≤ 0 or used_h ≤ 0 or usable ≤ 0`), the
+  oracle's `(total / usable) * 100.0` ratio (operand order is load-bearing
+  at the 1e308 overflow band — mutant M5), and the byte-identical
+  `ValueError` message: `py_float_fixed` reproduces CPython's `:.1f`
+  fixed formatting (correctly rounded; only `nan`/`inf` spellings
+  diverge and are special-cased), `py_float_str` reproduces `repr(float)`
+  (shortest round-trip; exponent sign/padding and `nan`/`inf` handled),
+  and the int-or-float dimension objects are rendered through their own
+  `str()` (so `100` renders "100", `100.0` renders "100.0").
+- `top_courtyards` replicates `sorted(pairs, key=area, reverse=True)` —
+  a *stable* descending sort (ties keep input order; `slice::sort_by` is
+  stable, matching `list.sort`) — followed by Python's `list[:n]` slice
+  semantics for every `n`: oversized, zero, and negative (`len + n`,
+  floored at 0).  The comparator treats non-comparable keys (NaN) as
+  Equal, which is deterministic and stable; Python's TimSort is not a
+  strict weak order on NaN keys (measured: all 6 orders over 3 elements),
+  but courtyard areas are shapely polygon areas or `0.0` — never NaN —
+  so the domains agree on every reachable input (deviation D1).
+
+**Documented deviations (per R1, recorded here).**
+- D1 (NaN sort keys): Python `list.sort` with NaN keys is order-sensitive
+  (TimSort's merge against a non-strict-weak-order comparator); the Rust
+  sort is deterministic-stable for NaN.  Unreachable in production (see
+  above) and asserted only on the non-NaN domain in the differential.
+- D2 (render error surface): none — the module has no other documented
+  divergences; `py_sum` covers only all-float inputs (the oracle's
+  courtyard areas are all floats).
+
+**Evidence.**
+- Differential (R1a/R1f, TDD red→green): `test_area_sufficiency_rust_differential.py`
+  — kernel arm (`py_sum` vs builtin `sum()` on a 125-case adversarial
+  corpus: empty, single, `-0.0`, NaN, ±inf, subnormals, the
+  1e16/1/-1e16 Neumaier discriminator, max-double overflow pairs),
+  full-path arm (oracle `compute_area_sufficiency`/`compute_top_courtyards`
+  vs the shim on 5 synthetic boards × 8 `n` values, floats via
+  `float.hex()` with concrete leaf types, int-board-dim case,
+  stability-tie case), and the error arm (ValueError messages
+  byte-identical, float and int dimension boards).  RED before the Rust
+  landed (fails to collect).
+- PBT (R1c): `test_area_sufficiency_pbt.py` — 6 hypothesis properties
+  (P1 kernel linkage, P2 usable arithmetic, P3 error path, P4 empty
+  semantics, P5 special-value sum parity, P6 top-N contract),
+  non-vacuously guarded.
+- Metamorphic (R1d): `test_area_sufficiency_pbt.py` — MR1 power-of-two
+  scaling (bounded to the courtyard-area band and exponents that keep
+  every intermediate normal — IEEE scale-invariance fails at
+  subnormal/overflow boundaries), MR2 margin monotonicity (bounded to
+  non-negative areas; a negative total would invert the ratio ordering),
+  MR3 top-N prefix, MR4 zero-padding (bounded to non-zero finite areas).
+- Anti-vacuity mutation campaign: **5 mutants, all caught by the
+  differential/PBT** — M1 naive accumulation (Neumaier discriminator),
+  M2 dropped final compensation, M3 dropped `-0.0` normalisation,
+  M4 dropped finite-check (max-double overflow pair: `inf + -inf → NaN`),
+  M5 ratio operand order (overflow-band test).  No survivors.
+- Performance A/B (R1b): **no perf arm registered — recorded why.**
+  The migrated compute is a compensated sum over ≤ ~170 areas plus a
+  stable sort, on a path whose wall time is dominated by the Python-side
+  kiutils/shapely metadata extraction (I/O-shaped surface).  A
+  pr_perf_compare arm would measure marshalling noise, not compute; the
+  pure-delegation no-regression-beyond-noise statement applies (the
+  differential's existence is the behavioural guarantee).  This mirrors
+  the thermal slice's NO_BASELINE-by-decision record.
+- Rust practice (R1g): borrow over clone (the sort takes the pairs by
+  value; `0.0 + items[0]` avoids a clone); no `unwrap` outside tests;
+  every `#[pyfunction]` boundary relies on pyo3's default `catch_unwind`
+  (panics surface as `PanicException`, never as UB — the validation.rs
+  precedent; an explicit `temper_py_bridge::catch_unwind` is impossible
+  on a `Py<PyAny>` return, which is not `UnwindSafe`).
+- Physics gating (R1h): **not applicable** — area sufficiency is not a
+  physics-gated surface (no CP-SAT constraint gates on a physics
+  quantity; the computation is courtyard-area vs usable-board-area
+  arithmetic), so the R24 discipline does not apply.  Stated explicitly
+  because the ledger requires the determination.

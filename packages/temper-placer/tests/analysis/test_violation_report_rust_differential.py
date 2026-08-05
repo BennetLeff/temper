@@ -30,9 +30,10 @@ import pytest
 import temper_drc_rs as _drc
 
 import tests.analysis._violation_report_py_oracle as _oracle
-
 from temper_placer.analysis._violation_report import (
     _generate_report_rows as _shim_rows,
+)
+from temper_placer.analysis._violation_report import (
     _render_report as _shim_render,
 )
 from temper_placer.validation._drc_api import DrcError
