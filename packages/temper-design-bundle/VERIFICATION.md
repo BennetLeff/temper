@@ -1364,6 +1364,25 @@ exactly as the oracle produces).
   discipline (Chebyshev soundness proof, BMC-exhaustive validation,
   post-solve audit) does not apply.
 
+## R2 — `parse_kicad_pcb_v6` wrapper parity (claim scope)
+
+The plan's R2 requires the v6 wrapper re-pointed over the migrated engine
+"with bit-identical `ParsedPCB` parity". This PR pins every leaf of the v6
+assembly individually against the pinned oracle — `parse_kicad_pcb`,
+`_extract_design_rules`, `_extract_stackup`, `extract_kicad_metadata`
+(R1a) — and the assembled result is covered *by construction*: the wrapper
+(`io/kicad_parser.py::parse_kicad_pcb_v6`) is line-identical to the oracle
+modulo the two verified-dead kiutils branches and the equivalent stackup
+source noted above. What is **not** present is a direct end-to-end
+differential of oracle-v6 vs shim-v6 `ParsedPCB` objects on a real board,
+and the stackup differential skips the three non-stackup corpus boards
+(`temper`, `minimal`, `pcb`). The R2 claim is therefore satisfied by
+leaf-parity + the consumer suites — 2,923 tests collected across
+`tests/router_v6/` and `tests/validation/` exercise the v6 path end-to-end
+— not by that direct differential. A direct oracle-v6 vs shim-v6
+`ParsedPCB` differential on the stackup-carrying corpus boards (`rp2040`,
+`bitaxe`, `piantor`) remains a possible follow-up.
+
 ## Anti-vacuity (mutation campaign)
 
 Eight mutations, each applied to the Rust source, rebuilt, and confirmed to

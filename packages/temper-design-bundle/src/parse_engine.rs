@@ -3379,6 +3379,7 @@ pub fn register(module: &Bound<'_, PyModule>) -> PyResult<()> {
 
 
 #[cfg(test)]
+#[allow(clippy::expect_used)]
 mod tests {
     use super::*;
 
@@ -3389,12 +3390,10 @@ mod tests {
     /// float).
     #[test]
     fn decimal_integral_token_is_int() {
-        let tree = match parse_ki_document(
+        let tree = parse_ki_document(
             r#"(pad "1" thru_hole circle (at 10 20 90.0) (size 3.0 3.0) (drill 1.5))"#,
-        ) {
-            Ok(t) => t,
-            Err(_) => return,
-        };
+        )
+        .expect("this fixture is tokenizer-conformant; a parse failure must be loud, not a vacuous pass");
         let KiNode::List(items) = &tree[0] else {
             return;
         };
