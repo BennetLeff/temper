@@ -1997,3 +1997,231 @@ the failure path.
   `tests/io/test_loop_loader.py`, `tests/core/test_design_rules_field_parity.py`,
   `tests/router_v6/test_layer_assignment_ssot.py`,
   `tests/router_v6/test_phase1_anti_false_zero.py`.
+# Validation decision kernels (Phase 4 — the validation remainder) — Verification
+
+`src/validation.rs` is the Wave-4 Phase-4 validation-remainder migration
+(`docs/wave4-verdicts.yaml`: `validation/**` MIGRATE phase 4; portfolio plan
+`docs/plans/2026-08-02-001-feat-validation-portfolio-plan.md`):
+the decision compute of `temper_placer/validation/{preflight,
+netlist_reconciliation,placement_roundtrip}.py` and the temporal-gate
+control flow of `validation/prereg/schema.py` (~1,700 LOC across the four
+modules). The home crate is **temper-design-bundle** (the RDL kernel of
+`human_reference_extractor.py` homes in **temper-drc-rs** — see that
+crate's VERIFICATION.md, rdl_sum section).
+
+## Candidate scorecard (why this slice, and where the boundary is drawn)
+
+| Python module | Migrated compute | Stays Python (boundary) |
+|---|---|---|
+| `preflight.py` (608) | zone-AABB predicate, zone-fit boundary checks + reason strings, have-zones set arithmetic, impossible-constraints bounds/set checks | the `PreflightIssue`/`PreflightResult` dataclasses, tool-availability checks (`shutil.which`/`find_kicad_cli` — I/O), the netlist↔board orchestration check, no-format `str(float)` messages (ZONE_003 suggestion, ZONE_005 message — Rust `Display` renders `10.0` as `10`) |
+| `netlist_reconciliation.py` (652) | the self-contained s-expression parser, the design-netlist parse navigation (`_field`/`_children`/`_instance_path_from_sheetpath` + strict fail-closed checks), and the reconciliation decision logic (`_component_findings`/`_net_findings`/`_resolve_design_net_paths`/`reconcile`) | the dataclasses (`BoardNetlist`/`DesignNetlist`/`ReconciliationFinding`/`ReconciliationReport`/`ReconciliationGateError`), file I/O (`extract_board_netlist`'s `parse_kicad_pcb_v6` call, `parse_design_netlist`'s file read), the board-side traversal (`build_board_netlist` reads the Component contract pyclass attributes) |
+| `human_reference_extractor.py` (503) | the ONE in-module numeric compute: the RDL loop in `_compute_routing_metrics` | the extraction orchestration (metric surfaces are out-of-scope verdict questions — recorded, not migrated) |
+| `placement_roundtrip.py` (398) | `canonical_angle`, `_angle_diff`, `_pad_key`, `_check_footprint`'s comparison logic (anchor/angle/pad-presence/pad-position/pad-angle + mismatch-record construction) | file I/O (KTD4: `parse_kicad_pcb_v6` + `KiBoard.from_file` re-parse), kiutils-tree extraction, template `Component` attribute reads, the kicad_transform primitives (`place_local_to_world`/`rotate_local_to_world` stay single-source in `geometry/kicad_transform.py` — both arms call the same Python, so the shared geometry is identical by construction), and the `_get_footprint_reference` consumer relationship (#723's kiutils-free attribute reader stays imported verbatim from `io/_parse_modules`) |
+| `prereg/schema.py` (203) | the temporal-gate CONTROL FLOW in `PreregistrationManifest.load` — the naive-to-UTC normalization decision, the `created > battery` comparison (Python's own `>` operator, called back via `rich_compare`), and the ValueError construction | the pydantic models + `model_validator` call-backs and `_parse_iso_to_utc` (config-loader precedent, Phase 3 candidate 5; `datetime.fromisoformat`'s error text must stay CPython's, and the function is imported directly by the out-of-scope `helps_battery.py`); `yaml.safe_load` + `model_validate` |
+
+Not in scope (verdict questions, recorded not migrated): `thermal_scorer`,
+`rtd_safety`, `battery_run`, `helps_battery`, `spice` (R24 wave),
+`scheduler`/`scorecard`/`validation_gates`/`metrics`/`base` + `mfem_*`
+(verdict questions), the #717 DRC shims, `drc_types`/`drc_result`
+(contracts).
+
+## Structural proof
+
+**Claim (bit-identical parity).** For every kernel, the Rust behaviour is
+bit-identical to the pinned pre-migration Python implementation for every
+input in the differential suites' domains, with the documented deviations
+below.
+
+*Proof by structural cases.* Each kernel is a direct transcription of the
+oracle body with the following load-bearing equivalences, each pinned by
+measurement or by construction:
+
+1. **CPython float modulo is not `f64::rem_euclid`.** CPython's
+   `float_rem` maps exact-multiple results to `copysign(0.0, b)` — so
+   `-720.0 % 360.0` is `+0.0` while `(-720.0_f64).rem_euclid(360.0)` is
+   `-0.0` (measured; the `.hex()` comparison catches it — the M6 mutant
+   `rem_euclid` substitution failed 4 tests). `py_float_mod` transcribes
+   `float_rem` exactly (fmod + sign-correction + the copysign zero
+   branch). It also reproduces the boundary behaviour that a
+   naive `[0, 360)` invariant denies: a tiny negative input below
+   `ulp(360)` yields exactly `360.0` (fmod gives the negative remainder
+   and the `mod += b` correction rounds it to 360.0 — the oracle's own
+   value; the property is stated `0 <= out <= 360`).
+2. **`!r` interpolation is CPython's `unicode_repr`.** The reconciliation
+   error strings carry `!r` reprs of strings; `py_str_repr` transcribes
+   the quote-selection rule (single by default, double when the string
+   contains `'` but not `"`) and the escapes (`\\`, the chosen quote,
+   `\n`/`\t`/`\r`, `\xNN` for control chars). The differential asserts
+   the error strings byte-identically.
+3. **Fixed-point formatting `{:.1}` matches CPython `:.1f`** bit-for-bit
+   on this platform (same claim as the temper-drc-rs `tht_hole_collisions`
+   `:.3f` measurement, 21/21 hand-built half-way cases incl. `50.125` →
+   `50.1` and `2.35` → `2.4`) — the zone-fit reason strings are therefore
+   built Rust-side. No-format `str(float)` messages stay Python (see
+   scorecard).
+4. **The s-expression tokenizer is the oracle's own regex, not a generic
+   sexpr parser.** The token rules (`\s*(?:(\()|(\))|("(?:\\.|[^"\\])*")|
+   ([^\s()]+))`, `re.S`) and the paren-stack errors (`unbalanced netlist:
+   unmatched ')'` / `'('`) are transcribed 1:1, including the
+   `json.loads`-on-quoted-tokens decoding (serde_json on JSON-valid
+   tokens — every token the netlist compiler emits). The oracle's third
+   failure arm, `invalid netlist syntax at byte {pos}`, is UNREACHABLE
+   and is NOT transcribed: after the regex's leading `\s*`, the next
+   character is always `(`, `)`, a quote, or `[^\s()]+` — a match can
+   fail only on a whitespace-only tail, which the oracle's own
+   `text[pos:].strip()` guard turns into a clean break (see
+   `validation.rs`'s tokenize, which states this explicitly). The Rust
+   tokenizer mirrors every reachable token/error path exactly.
+   Malformed quoted tokens outside the compiler's domain raise
+   different error classes/texts on the two sides — both fail closed,
+   recorded as a documented deviation, not chased.
+5. **Iteration order is the oracle's own.** Every `sorted(...)` below is
+   the oracle's sort (the reconcile findings iterate `sorted(design_by_path)`
+   etc.), not a stabilisation of a set/dict fold — the one hash-randomised
+   surface (the board-net `set` node lists) is passed as an unordered list
+   and compared as a set on both sides, exactly as the oracle's `set !=
+   set` does. Board-side REUSE groups iterate in component order sorted by
+   ref; NET-EXTRA/MISSING/MEMBERSHIP iterate sorted net names; the
+   duplicate-ref pairs anchor at the FIRST-seen path (the oracle's
+   write-once `ref_paths` map — see the evidence doc; the first
+   transcription chained them via `insert`'s replace-and-return and the
+   differential caught it on a three-occurrence random draw, now pinned
+   deterministically by the hand-built three-occurrence case).
+6. **Error-string parity for the parse/reconcile failures.** Every gate
+   error raised by the kernel is a plain-str / `!r` interpolation
+   (no no-format float repr), and the shim re-wraps `PyValueError` into
+   `ReconciliationGateError` with `from None` — the oracle raises the
+   gate error directly, so `__cause__` is None on both sides.
+7. **The prereg temporal gate calls Python's own `>` operator**
+   (`rich_compare` + `is_truthy`), so datetime comparison semantics (aware
+   vs naive, offset handling) are CPython's by construction; the
+   normalization decision and the byte-identical ValueError construction
+   are Rust.
+
+## Documented deviations (per R1, recorded here)
+
+- **Non-printable non-ASCII BMP chars in `!r` strings.** CPython's
+  `unicode_repr` escapes non-printable chars beyond the ASCII control
+  range (e.g. the unassigned code point U+D7FC as `\ud7fc`); `py_str_repr`
+  emits them literally (its printable range is the ASCII domain). The
+  differential's random domain is restricted to the compiler's ASCII
+  net-name alphabet (the design side was already; the board-side net-name
+  strategy was constrained to match), and the deviation is recorded here —
+  both sides fail closed, the finding kind/severity/paths are identical,
+  only the human-readable detail text can differ for such names.
+- **Malformed quoted tokens.** A quoted token that is not JSON-valid
+  (outside the compiler's domain) raises different error classes/texts
+  (`JSONDecodeError` vs a `PyValueError` carrying serde_json's text, which
+  the shim re-wraps as the gate error) — both fail closed, not in the
+  differential's domain, not chased.
+- **No-format `str(float)` messages stay Python** (ZONE_003's suggestion,
+  ZONE_005's message) — Rust `Display` renders `10.0` as `10`; the
+  shims build those two messages from the kernels' numeric fields.
+- **Non-str pad numbers (`pad_key` boundary, P2-5).** The oracle's
+  `_pad_key` returns the pad's number object AS-IS (`getattr(pad,
+  'number', None) or ""`), so a truthy non-str number (e.g. an int) is
+  used verbatim as the dict key; the shim's `Option<String>` boundary
+  raises `TypeError` instead. Trigger domain: a pad model whose `.number`
+  is a non-str truthy object — EMPTY in production, because both pad
+  models are str-contracted (kiutils `Pad.number: str`; the parser's
+  `Pin.number` via `_contract_field("number", "str")`). Recorded rather
+  than chased, because an opaque-key fix would have to thread `PyAny` keys
+  through `check_footprint_geometry`'s string-keyed `Vec<(String, f64,
+  f64, f64)>`/`Vec<WrittenPad>` signatures and a Python-hash-semantics map
+  for a domain with zero production exposure. Pinned as a known-divergence
+  test (`test_pad_key_non_str_number_known_deviation`): the oracle keys by
+  object, the shim raises `TypeError`.
+- **Tokenizer whitespace classification (P2-3).** The tokenizer's
+  whitespace is Python's `\s` set for `str` (with `re.S`) — the ASCII
+  `[ \t\n\r\f\v]` PLUS U+001C–U+001F, U+0085, U+00A0, U+1680,
+  U+2000–U+200A, U+2028/U+2029, U+202F, U+205F, U+3000 — implemented
+  explicitly as `is_py_whitespace` (measured against CPython 3.12,
+  2026-08-05), NOT via Rust's `char::is_whitespace` (Unicode White_Space,
+  which misses U+001C–U+001F and U+0085 — the same classification gap
+  already recorded for `str.strip` in the reference-loader section). The
+  byte-level alternative (ASCII-only splitting) is fixed and pinned by the
+  `\xa0`/`\u2028`/`\u3000` separator cases in
+  `test_parse_error_strings_byte_identical` plus the Rust unit test
+  `tokenize_splits_on_unicode_whitespace_like_the_oracle_regex`; a
+  byte-glued bare token would also diverge in error strings via the
+  repr-escaping deviation above, which is why the split point must stay
+  pinned. Distinct from — and interacting with — the `!r`-escaping
+  deviation: a bare token containing a non-ASCII space is a GRAMMAR
+  difference (tokens split), not a rendering difference.
+- **Empty-node `node[0]` IndexError parity (P2-2).** The oracle's
+  `_field` error paths interpolate `{node[0]!r}`; a node that is an empty
+  list would raise a raw `IndexError('list index out of range')` that
+  escapes `parse_design_netlist` (it is not a `ValueError`, so the shim's
+  re-wrap cannot catch it either). Through the netlist grammar this is
+  UNREACHABLE — `_children` requires a non-empty list whose first element
+  is the name atom, and the s-expression parser always stores the head, so
+  a zero-child `(comp)` node renders its head (`"invalid 'ref' field in
+  'comp'"`, pinned in `test_parse_error_strings_byte_identical`) — but the
+  kernel mirrors the oracle's expression exactly: `field()` returns the
+  same `IndexError` class for an empty node instead of fabricating a
+  `'None'` head (Rust unit test `field_on_empty_node_is_the_oracles_
+  index_error_not_a_fabricated_head`), so the escaping class cannot
+  diverge if the grammar ever grows a headless node form.
+
+## R1 gate coverage
+
+- **R1a (bit-identical parity):** five differential suites
+  (`test_{preflight,netlist_reconciliation,placement_roundtrip,
+  human_reference_extractor}_rust_differential.py` +
+  `prereg/test_schema_rust_differential.py`) drive the kernels against the
+  pinned verbatim oracles (`_<mod>_py_oracle.py` at commit `6290942be`),
+  floats via `.hex()`, non-float leaves via typed canonicalization keys,
+  error strings byte-identically, error-vs-value outcomes matched.
+- **R1b (no-regression arm):** this slice is decision/string compute with
+  no measurable compute kernel — the registerable quantities (zone AABB
+  predicates, set arithmetic, string assembly) are sub-microsecond and
+  dominated by the per-call marshalling of the delegation boundary; a
+  speedup claim would be noise-chasing. Recorded as "no-regression arm
+  registered if measurable compute, else reason recorded" per the phase
+  guide: no A/B benchmark is added for this slice. (The loaders' A/B
+  machinery covers the I/O-bound surfaces where a ratio is meaningful.)
+- **R1c (≥5 non-vacuous properties/module):** 25 PBT properties across the
+  five suites (5 each: zone-fit boundary containment, have-zones set
+  arithmetic, impossible-constraint classification, canonical-angle
+  invariant, rdl bounds — plus the reconciliation suite's own 5).
+- **R1d (≥3 MRs/module):** 15+ metamorphic relations (3+ per module:
+  timestamp-translation invariance, monotone rejection, offset-shift
+  identity, ref-permutation kind preservation, net-growth cleanliness,
+  first-seen duplicate ordering, angle-shift invariance, rdl scaling /
+  negation / midpoint-splitting).
+- **R1e (VERIFICATION.md):** this document + the temper-drc-rs rdl_sum
+  section.
+- **R1f (TDD):** the RED evidence is commit `28d712e75` — the five
+  differential files fail to collect until the Rust kernels land
+  (module-level `= _tdb.validation.<symbol>` / `temper_drc_rs.rdl_sum`
+  bindings raise AttributeError). Demonstrated at the commit; the GREEN
+  work is this changeset.
+- **R1g (Rust practice):** borrow over clone throughout; no `unwrap`/
+  `expect` outside `#[cfg(test)]`; every `#[pyfunction]` boundary relies on
+  pyo3's default `catch_unwind` (panics surface as `PanicException`,
+  never as UB across the boundary).
+- **R1h (physics discipline): NOT APPLICABLE** — none of these kernels
+  gates on a physics quantity (no CP-SAT constraint encodes a thermal/
+  mechanical value), so the R24 Chebyshev-soundness / BMC-exhaustive /
+  post-solve-audit obligations have no referent.
+
+## Evidence
+
+- **TDD RED:** `28d712e75` (oracles + differential/PBT suites; collection
+  fails on the missing kernels).
+- **Anti-vacuity mutation campaign:** `docs/evidence/2026-08-05-wave4-phase4-
+  validation-remainder-mutation-sweep.md` — 11 mutants across all 11
+  kernels, all caught; one initial survivor (CONSTRAINT_002 `<=` boundary)
+  closed by a discriminating exact-fit case that remains in the hand-built
+  differential.
+- **Green runs:** all five suites green in a fresh worktree after
+  `make extensions` (preflight 15, netlist_reconciliation 14,
+  placement_roundtrip 22, human_reference 11, prereg 11 = 73 tests).
+- **Consumer suites:** `tests/validation/` runs 669 passed (3 environmental
+  failures unrelated to the migration: `elec/build/default.net` absent in
+  the fresh worktree, `/tmp/mfem_tempsolve` binary absent, and the
+  schematic-based ucc21550 PBT).
+- **Rust tests/clippy:** `cargo test` + `cargo clippy` clean in this crate
+  (the `validation.rs` module is `cfg(feature = "python")`, exercised via
+  the differentials; the crate's own test suite covers the non-python
+  surface).

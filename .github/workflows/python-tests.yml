@@ -601,6 +601,47 @@ jobs:
           RUST_BACKTRACE: full
           PYTHONFAULTHANDLER: 1
 
+      # Wave 4 Phase 5 anti-vacuity gate (PR merge path): the cli/adapters/
+      # temper-workflow differential/PBT suites are the ONLY tests that pin
+      # the migrated orchestration compute (temper_orchestration) bit-exactly
+      # against the verbatim pre-migration oracles. They must run hard on
+      # every PR with a pytest_guard floor so a silently-shrunk collection
+      # fails instead of passing vacuously. The floors are the EXACT
+      # collection counts (63 / 32 — measured 2026-08-05), and
+      # test_discriminator_tests_are_collectable (workflow suite) pins the
+      # two load-bearing discriminator tests by symbol so a deletion paired
+      # with a matching floor lowering also fails loudly. The temper-workflow
+      # package's own differential/PBT (route_and_measure) runs from its own
+      # test tree below.
+      - name: Run Phase-5 cli differentials (anti-vacuity gate)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        working-directory: packages/temper-placer
+        run: >
+          uv run python ../../scripts/pytest_guard.py --min-tests 63 --
+          tests/cli/test_timing_rust_differential.py
+          tests/cli/test_trace_commands_rust_differential.py
+          tests/cli/test_timing_pbt.py
+          tests/cli/test_trace_commands_pbt.py
+          -v --tb=short -p no:cacheprovider --maxfail=10
+        env:
+          RUST_BACKTRACE: full
+          PYTHONFAULTHANDLER: 1
+
+      # Phase-5 workflow half of the same gate: route_and_measure differential
+      # + PBT live in the temper-workflow test tree (separate package). A
+      # pytest_guard floor so the pin cannot silently shrink.
+      - name: Run Phase-5 workflow differentials (anti-vacuity gate)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        working-directory: packages/temper-workflow
+        run: >
+          uv run python ../../scripts/pytest_guard.py --min-tests 32 --
+          tests/test_route_and_measure_rust_differential.py
+          tests/test_route_and_measure_pbt.py
+          -v --tb=short -p no:cacheprovider --maxfail=10
+        env:
+          RUST_BACKTRACE: full
+          PYTHONFAULTHANDLER: 1
+
       - name: Coverage gate (temper-placer)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         working-directory: packages/temper-placer
@@ -685,6 +726,7 @@ jobs:
                        packages/temper-geometry/Cargo.toml \
                        packages/temper-io-types/Cargo.toml \
                        packages/temper-ipc/Cargo.toml \
+                       packages/temper-orchestration/Cargo.toml \
                        packages/temper-pcl-ir/Cargo.toml \
                        packages/temper-py-bridge/Cargo.toml \
                        packages/temper-py-bridge-derive/Cargo.toml \
@@ -704,6 +746,21 @@ jobs:
               cargo clippy --manifest-path "$manifest" --all-features --all-targets -- -D warnings
             fi
           done
+
+      # Phase-5 (wave4): the temper-orchestration crate carries Rust unit
+      # tests that never ran in CI before (review P2-3, 2026-08-05) — the
+      # host_math pow-vs-multiply and libm absolute-value asserts, the NaN
+      # py_cmp/py_max semantics, and the copper_length kernels — because only
+      # temper-design-bundle got `cargo test`. A pyo3 crate that `maturin
+      # develop` builds still needs its `#[cfg(test)]` modules exercised
+      # somewhere; this step mirrors the temper-design-bundle entry's
+      # structure. NOTE: the host_math absolute-value assert bakes in a
+      # specific libm result — the discriminator value in host_math.rs was
+      # dual-platform-verified (darwin arm64 AND the Ubuntu CI container,
+      # glibc 2.39) to yield the same value on both.
+      - name: Test temper-orchestration (cargo test)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: cargo test --manifest-path packages/temper-orchestration/Cargo.toml
 
   # Split out of Core Tests 2026-07-28. Everything here reads the compiled
   # netlist (elec/build/default.net, default.csv) or pcb/temper.kicad_pcb, so
@@ -1541,6 +1598,24 @@ jobs:
       - name: Rebuild script invocation graph
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python scripts/trace_invocations.py
+
+      - name: Salted-hash order gate tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_check_hash_order_determinism.py -v --tb=short
+
+      # CPython randomises the string hash salt per process (PEP 456), so a
+      # set/frozenset iteration order -- or a hash() value -- differs between
+      # two runs of identical code on identical input. Six sites in four
+      # modules derived component coordinates, a geometric waypoint, and an
+      # emitted report's order from exactly that; see issue #752 (6 and 7),
+      # PR #730, and this script's docstring. The gate fails on any NEW site;
+      # the known ones are ratcheted in .hash-order-inventory. Its runtime
+      # counterpart runs inside the placer package
+      # (tests/deterministic/test_hash_order_determinism.py) so it is present
+      # under the `cd packages/temper-placer && pytest` invocation too.
+      - name: No new salted-hash order dependencies
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python scripts/check_hash_order_determinism.py
 
       - name: No-raw-rotation-trig gate tests
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}

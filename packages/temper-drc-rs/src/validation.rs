@@ -219,6 +219,30 @@ fn trace_length(traces: Vec<(Option<String>, f64, f64, f64, f64)>, net_name: Str
     length
 }
 
+/// RDL (routed-length) sum for the human-reference extractor (verbatim
+/// port of the `_compute_routing_metrics` loop:
+/// `rdl += math.hypot(end.x - start.x, end.y - start.y)` in segment
+/// order). `math.hypot` is called back across the boundary per segment —
+/// NOT dlsym'd: CPython 3.12 inlines its own fdlibm-style `hypot` into
+/// `mathmodule.c` (bpo-33083), so neither the system libm `hypot` nor
+/// `f64::hypot` matches it bit-for-bit (measured: `math.hypot(0.1, 0.1)`
+/// is 1 ulp below `libm hypot`; the first differential run caught it).
+/// The `hypot_fn` callable is the oracle's own function, so parity holds
+/// by construction; the accumulation stays Rust in the oracle's in-order
+/// `+=` strategy. Each segment is `(start_x, start_y, end_x, end_y)`.
+#[cfg(feature = "python")]
+#[pyfunction]
+fn rdl_sum(segments: Vec<(f64, f64, f64, f64)>, hypot_fn: Bound<'_, PyAny>) -> PyResult<f64> {
+    let mut rdl = 0.0_f64;
+    for (sx, sy, ex, ey) in &segments {
+        let dx = ex - sx;
+        let dy = ey - sy;
+        let seg_len: f64 = hypot_fn.call1((dx, dy))?.extract()?;
+        rdl += seg_len;
+    }
+    Ok(rdl)
+}
+
 /// Minimum HV↔LV trace endpoint distance (verbatim port of
 /// `trace_analyzer.calculate_min_hv_lv_clearance`). Each trace is
 /// `(x1, y1, x2, y2)`; the four endpoint-pair distances are minimized.
@@ -911,6 +935,7 @@ pub fn register(m: &Bound<'_, pyo3::types::PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(infer_package_type, m)?)?;
     m.add_function(wrap_pyfunction!(tht_hole_collisions, m)?)?;
     m.add_function(wrap_pyfunction!(trace_length, m)?)?;
+    m.add_function(wrap_pyfunction!(rdl_sum, m)?)?;
     m.add_function(wrap_pyfunction!(min_hv_lv_trace_clearance, m)?)?;
     m.add_function(wrap_pyfunction!(geometric_validate, m)?)?;
     m.add_function(wrap_pyfunction!(parse_drc_violation, m)?)?;

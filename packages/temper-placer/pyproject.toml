@@ -41,6 +41,11 @@ dependencies = [
     "pydantic>=2.13.4",
     "scipy>=1.10.0",
     "ortools>=9.10",
+    # Wave 4 Phase 5: the cli/timing.py and cli/trace_commands.py modules
+    # import `temper_orchestration` at package-import time (via cli/__init__
+    # wiring); the crate must be declared like temper-workflow declares it,
+    # not relied on as a transitive side effect (review P2-4, 2026-08-05).
+    "temper-orchestration",
 ]
 
 [project.optional-dependencies]

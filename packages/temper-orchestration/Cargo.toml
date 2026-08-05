@@ -1,0 +1,26 @@
+[package]
+name = "temper-orchestration"
+version = "0.1.0"
+edition = "2024"
+description = "Orchestration compute for the temper-placer CLI/adapters and temper-workflow — Phase 5 of the Wave 4 Python→Rust migration"
+
+[lib]
+name = "temper_orchestration"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+pyo3 = { version = "0.29", features = ["extension-module"], optional = true }
+
+[features]
+default = ["python"]
+python = ["dep:pyo3"]
+
+[profile.release]
+panic = "unwind"
+
+[dev-dependencies]
+proptest = "1"
+
+[lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"
