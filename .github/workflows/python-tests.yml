@@ -1542,6 +1542,24 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python scripts/trace_invocations.py
 
+      - name: Salted-hash order gate tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_check_hash_order_determinism.py -v --tb=short
+
+      # CPython randomises the string hash salt per process (PEP 456), so a
+      # set/frozenset iteration order -- or a hash() value -- differs between
+      # two runs of identical code on identical input. Six sites in four
+      # modules derived component coordinates, a geometric waypoint, and an
+      # emitted report's order from exactly that; see issue #752 (6 and 7),
+      # PR #730, and this script's docstring. The gate fails on any NEW site;
+      # the known ones are ratcheted in .hash-order-inventory. Its runtime
+      # counterpart runs inside the placer package
+      # (tests/deterministic/test_hash_order_determinism.py) so it is present
+      # under the `cd packages/temper-placer && pytest` invocation too.
+      - name: No new salted-hash order dependencies
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python scripts/check_hash_order_determinism.py
+
       - name: No-raw-rotation-trig gate tests
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run pytest scripts/tests/test_check_no_raw_rotation_trig.py -v --tb=short
