@@ -4,7 +4,7 @@ Wave 4, Phase 5 (cli/adapters/temper-workflow slice). Pinned from
 ``packages/temper-placer/src/temper_placer/cli/timing.py`` at the dispatch
 base (origin/main 15110fecc, the commit this slice rebased onto). Only this
 docstring replaces the module's own one-line docstring, and the relative
-import ``from temper_placer.cli._io import console`` is rewritten to its absolute form
+import ``from ._io import console`` is rewritten to its absolute form
 (``from temper_placer.cli._io import console``) so the oracle is importable
 from the test tree -- every other statement below is byte-identical to the
 pinned commit. DO NOT EDIT THE SEMANTICS: this is the oracle the Rust
