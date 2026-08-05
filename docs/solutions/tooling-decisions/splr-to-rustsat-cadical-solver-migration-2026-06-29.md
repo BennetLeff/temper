@@ -236,7 +236,7 @@ The migration in this session passed all 12 Rust tests + 44 Python SAT PBT tests
 - `packages/temper-rust-router/Cargo.toml` — dependency swap (splr 0.13 → rustsat + rustsat-cadical 0.7.5)
 - `packages/temper-placer/src/temper_placer/core/design_rules.py` — canonical `NetClassRules` with `safety_category` field
 - `packages/temper-placer/src/temper_placer/router_v6/stage0_data.py` — harmonized `NetClassRules` (1-line fix)
-- `packages/temper-drc/src/temper_drc/checks/safety/_safety_keywords.py` — `resolve_safety_category()` that consumes both types
+- `packages/temper-drc-rs/src/rules/safety/hv_lv_separation.rs (Rust `resolve_safety_category`, after the Python package's removal)` — `resolve_safety_category()` that consumes both types
 - `docs/solutions/workflow-issues/parallel-worktree-sprint-pipeline.md` — the worktree pipeline that shipped these 7 tasks in parallel
 - `docs/solutions/performance-issues/sat-model-too-large-for-splr-selective-construction-2026-06-28.md` — upstream performance issue that motivated better solver introspection
 - `docs/solutions/tooling-decisions/import-linter-boundary-enforcement-ratchet-2026-06-22.md` — boundary enforcement that prevents coupling `router_v6` to `core` internals (why harmonization was chosen over unification)

@@ -8,10 +8,14 @@
 // f64. Returns the mask as bytes (1 byte per cell, 0/1) for the
 // Python wrapper's np.frombuffer view.
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use pyo3::types::PyBytes;
+#[cfg(feature = "python")]
 use temper_py_bridge;
 
+#[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (polygon, height_cells, width_cells, ox, oy, cs))]
 pub fn rasterise_polygon_mask(

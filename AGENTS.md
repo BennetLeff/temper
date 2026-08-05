@@ -434,13 +434,21 @@ Every `NetClassRules` instance in `TEMPER_NET_CLASSES` must set:
 | `required_layer` | `str \| None` | No | KiCad layer name constraint (e.g., `"B.Cu"` for HighVoltage). `None` = no constraint. |
 | `safety_category` | `"HV" \| "LV" \| "AC" \| "iso" \| None` | No | Safety classification. `"AC"` is treated as HV-side in separation checks. |
 
-**DRC integration**: `packages/temper-drc/src/temper_drc/checks/safety/_safety_keywords.py`
-exports a shared `resolve_safety_category(net_class_str)` used by all three safety
-checks. When a net class is in `TEMPER_NET_CLASSES` with a non-`None` `safety_category`,
-the category is used directly. Otherwise a keyword-scan fallback fires with a
-**stderr warning** (grep-visible in CI logs). The warning convention:
-`"[temper-drc] safety_category fallback: ... Declare safety_category on net class
-'...' or add net to TEMPER_NET_ASSIGNMENTS."`
+**DRC integration**: `packages/temper-drc-rs/src/rules/safety/hv_lv_separation.rs`
+exports the shared `resolve_safety_category(comp, board)` used by the safety
+checks (the Python `temper-drc` package was deleted in the shim-then-delete
+migration — see
+`docs/solutions/architecture-patterns/temper-drc-rust-migration-shim-then-delete-2026-08-03.md`).
+Resolution order: a net class in `TEMPER_NET_CLASSES` with a non-`None`
+`safety_category` (a field of the codegen SSOT model) is used directly.
+Otherwise a keyword fallback fires for undeclared classes — HV:
+`hv/line/ac/neutral/mains`; LV: `lv/signal/3v3/5v/gnd/analog` (substring
+match on the lowercased net class). A declared `"AC"` category is treated as
+HV-side in separation checks. The Rust fallback is silent — the Python-era
+stderr warning convention
+(`"[temper-drc] safety_category fallback: ..."`, grep-visible in CI logs)
+died with the package; classify nets in the manifest instead of relying on
+the fallback.
 
 **Regression note**: `HighCurrent` was reclassified from *neither HV nor LV* to
 `"HV"` in this changeset. Existing boards with `HighCurrent`-classed components

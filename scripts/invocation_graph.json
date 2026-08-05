@@ -12,13 +12,21 @@
   ],
   "bless_baselines.py": [],
   "bmc_adoption_gate.py": [],
+  "board_defect_mutator.py": [],
   "calibrate_drc_ceiling.py": [],
   "capacity_budget_gate.py": [
     ".github/workflows/python-tests.yml"
   ],
+  "check_board_containment.py": [
+    ".github/workflows/python-tests.yml"
+  ],
+  "check_board_defect_corpus.py": [
+    ".github/workflows/python-tests.yml"
+  ],
   "check_copper_net_consistency.py": [
     ".github/workflows/python-tests.yml",
-    "packages/temper-placer/src/temper_placer/router_v6/clearance_check.py"
+    "packages/temper-placer/src/temper_placer/router_v6/clearance_check.py",
+    "packages/temper-placer/src/temper_placer/validation/netlist_reconciliation.py"
   ],
   "check_coverage_gate.py": [
     ".github/workflows/python-tests.yml"
@@ -31,6 +39,7 @@
   "check_domain_partition.py": [
     ".github/workflows/python-tests.yml",
     "packages/temper-placer/src/temper_placer/router_v6/clearance_check.py",
+    "packages/temper-placer/src/temper_placer/validation/netlist_reconciliation.py",
     "packages/temper-placer/tests/requirements/safety/_real_board_fixture.py"
   ],
   "check_drc_ceiling_approval.py": [
@@ -47,11 +56,13 @@
     ".github/workflows/python-tests.yml"
   ],
   "check_footprint_drift.py": [
-    ".github/workflows/python-tests.yml"
+    ".github/workflows/python-tests.yml",
+    "packages/temper-placer/src/temper_placer/validation/netlist_reconciliation.py"
   ],
   "check_hv_netclass_coverage.py": [
     ".github/workflows/python-tests.yml",
-    "packages/temper-placer/src/temper_placer/core/design_rules.py"
+    "packages/temper-placer/src/temper_placer/core/design_rules.py",
+    "packages/temper-placer/tests/core/_design_rules_py_oracle.py"
   ],
   "check_isolation_keepout.py": [
     ".github/workflows/python-tests.yml",
@@ -72,14 +83,20 @@
     ".github/workflows/python-tests.yml",
     "packages/temper-placer/src/temper_placer/_constraint_types/config.py",
     "packages/temper-placer/src/temper_placer/core/net_classification.py",
-    "packages/temper-placer/src/temper_placer/core/priority.py",
     "packages/temper-placer/src/temper_placer/deterministic/stages/zone_aware_slot_generation.py",
     "packages/temper-placer/src/temper_placer/io/net_class_manager.py",
     "packages/temper-placer/src/temper_placer/router_v6/clearance_check.py",
     "packages/temper-placer/src/temper_placer/router_v6/clearance_engine.py",
     "packages/temper-placer/src/temper_placer/router_v6/constraints_design_rules.py",
     "packages/temper-placer/src/temper_placer/router_v6/routing_demand.py",
-    "packages/temper-placer/src/temper_placer/router_v6/trace_width_assignment.py"
+    "packages/temper-placer/src/temper_placer/router_v6/trace_width_assignment.py",
+    "packages/temper-placer/tests/core/_priority_py_oracle.py"
+  ],
+  "check_netlist_board_reconciliation.py": [
+    ".github/workflows/python-tests.yml"
+  ],
+  "check_netlist_mutation_corpus.py": [
+    ".github/workflows/python-tests.yml"
   ],
   "check_no_raw_rotation_trig.py": [
     ".github/workflows/python-tests.yml",
@@ -104,7 +121,9 @@
     ".github/workflows/regression.yml"
   ],
   "check_required_checks.py": [
-    ".github/workflows/required-checks.yml"
+    ".github/workflows/python-tests.yml",
+    ".github/workflows/required-checks.yml",
+    ".github/workflows/trunk-health.yml"
   ],
   "check_rust_drc_presence.py": [
     ".github/workflows/python-tests.yml",
@@ -132,8 +151,10 @@
   "check_vacuous_gates.py": [
     ".github/workflows/python-tests.yml"
   ],
+  "check_verdict_coverage.py": [],
   "check_workflow_pr_triggers.py": [
-    ".github/workflows/lint-workflows.yml"
+    ".github/workflows/lint-workflows.yml",
+    ".github/workflows/trunk-health.yml"
   ],
   "ci_check_drc.py": [
     ".github/workflows/python-tests.yml",
@@ -144,16 +165,21 @@
     ".github/workflows/metrics-record.yml",
     ".github/workflows/pr-pipeline-scorecard.yml",
     ".github/workflows/python-tests.yml",
-    ".github/workflows/regression.yml"
+    ".github/workflows/regression.yml",
+    "packages/temper-placer/tests/pipeline/stages/test_input_stage_identity_preflight.py"
   ],
   "ci_identity_check.py": [
     ".github/workflows/python-tests.yml"
   ],
-  "classify_changed_paths.py": [],
+  "classify_changed_paths.py": [
+    ".github/workflows/python-tests.yml"
+  ],
   "compare_drc_reports.py": [
     "scripts/sprint1_validation.sh"
   ],
-  "constraint_mutation_gate.py": [],
+  "constraint_mutation_gate.py": [
+    ".github/workflows/python-tests.yml"
+  ],
   "constraint_mutation_runner.py": [
     "packages/temper-placer/tests/pcl/test_mutation_register.py"
   ],
@@ -172,7 +198,8 @@
   ],
   "gen_pcb_skeleton.py": [],
   "gen_repo_state.py": [
-    ".github/workflows/python-tests.yml"
+    ".github/workflows/python-tests.yml",
+    ".github/workflows/trunk-health.yml"
   ],
   "gen_schematics.py": [
     ".github/workflows/python-tests.yml",
@@ -189,15 +216,6 @@
     ".github/workflows/python-tests.yml"
   ],
   "install_git_stash_guard.py": [],
-  "internal_route.py": [
-    "Makefile",
-    "packages/temper-placer/tests/pipeline/stages/test_input_stage_identity_preflight.py",
-    "packages/temper-placer/tests/requirements/safety/test_rotation_convention_remaining_sites_oracle.py",
-    "scripts/route_v3.sh",
-    "scripts/run_physics_flow.sh",
-    "scripts/sprint1_validation.sh",
-    "scripts/verify_occupancy_strict.sh"
-  ],
   "kicad_fill_zones.py": [
     "packages/temper-placer/tests/placer/cp_sat/test_zone_pour_production_measurement.py"
   ],
@@ -210,8 +228,20 @@
     ".github/workflows/literal-removal-advisory.yml"
   ],
   "measure_cross_domain_creepage.py": [],
+  "measure_router_output_baseline.py": [
+    ".github/workflows/regression.yml"
+  ],
   "mpn_fabrication_gate.py": [
     ".github/workflows/python-tests.yml"
+  ],
+  "netlist_mutator.py": [],
+  "phase5_batch1_mutations.py": [],
+  "phase5_batch2_mutations.py": [],
+
+  "netlist_mutator.py": [],
+  "phase5_cli_adapters_workflow_mutations.py": [],  "physics_soundness_register_gate.py": [
+    ".github/workflows/python-tests.yml",
+    "packages/temper-placer/tests/scripts/test_physics_soundness_register_gate.py"
   ],
   "pipeline_metrics.py": [
     ".github/workflows/firmware-perf-record.yml",
@@ -224,9 +254,9 @@
   "pipeline_report.py": [
     ".github/workflows/metrics-record.yml"
   ],
-  "placement_quality_report.py": [],
   "pr_perf_compare.py": [
-    ".github/workflows/pr-perf-check.yml"
+    ".github/workflows/pr-perf-check.yml",
+    "packages/temper-placer/src/temper_placer/profiling/pipeline_metrics.py"
   ],
   "pr_scorecard.py": [
     ".github/workflows/pr-pipeline-scorecard.yml"
@@ -247,9 +277,11 @@
   ],
   "resync_pcb_netlist.py": [],
   "route_board.py": [
-    "packages/temper-placer/src/temper_placer/router_v6/_strip_copper.py",
-    "packages/temper-placer/tests/router_v6/test_strip_copper.py"
-  ],
+"Makefile",
+"packages/temper-placer/src/temper_placer/router_v6/_strip_copper.py",
+"packages/temper-placer/tests/router_v6/test_strip_copper.py",
+"packages/temper-workflow/src/temper_workflow/routing/route_and_measure.py",
+"packages/temper-workflow/tests/_route_and_measure_py_oracle.py"  ],
   "run_feedback_loop.py": [
     "scripts/test_backpath_fix.sh"
   ],

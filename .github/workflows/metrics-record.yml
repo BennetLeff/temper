@@ -84,6 +84,29 @@ jobs:
               --from-stdin --metrics-file "$NDJSON_FILE"
           echo "=== NDJSON contents ==="
           cat "$NDJSON_FILE"
+      # ORDERING IS LOAD-BEARING: this upload is the only path by which recorded
+      # metrics reach main. metrics-reconcile.yml globs `pipeline-metrics-*`
+      # artifacts, reconciles them into
+      # power_pcb_dataset/metrics/pipeline_metrics.jsonl and commits the result.
+      #
+      # It used to sit *below* "Generate HTML report". That step began raising
+      # FileNotFoundError on 2026-06-30 (it required
+      # packages/temper-placer/pipeline_execution.json, a run artifact untracked
+      # since #310), which aborted the job and left this upload `skipped`. The
+      # series was frozen for 35 days -- last successful run 2026-06-30T00:19Z,
+      # last record 2026-06-30T00:22Z -- while metrics-trend-check.yml,
+      # pr-pipeline-scorecard.yml, health-digest.yml and dashboard-deploy.yml
+      # went on reporting against it.
+      #
+      # Data capture must never sit downstream of report rendering. Keep this
+      # step above the report, and keep `if: always()` on it, so no future
+      # rendering failure can eat the measurements again.
+      - name: Upload metrics artifact
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: pipeline-metrics-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ env.NDJSON_FILE }}
       - name: Generate HTML report
         run: >
           uv run python scripts/pipeline_report.py
@@ -95,11 +118,6 @@ jobs:
         with:
           name: pipeline-report
           path: pipeline_report.html
-      - name: Upload metrics artifact
-        uses: actions/upload-artifact@v7
-        with:
-          name: pipeline-metrics-${{ github.run_id }}-${{ github.run_attempt }}
-          path: ${{ env.NDJSON_FILE }}
       - name: Auto-tighten timing baselines
         if: env.FEATURE_AUTO_BASELINE_TIGHTEN == 'true'
         continue-on-error: true  # TODO: temper-NNN -- auto-maintenance best-effort; hard-fail after 2026-09-01

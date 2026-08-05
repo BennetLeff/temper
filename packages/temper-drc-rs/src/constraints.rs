@@ -192,8 +192,11 @@ impl Default for ConstraintSet {
 // Builder from Python dict
 // ---------------------------------------------------------------------------
 
+#[cfg(feature = "python")]
 use pyo3::exceptions::PyValueError;
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use pyo3::types::{PyAny, PyDict, PyList};
 
 /// Build a `ConstraintSet` from a Python dict.
@@ -201,6 +204,7 @@ use pyo3::types::{PyAny, PyDict, PyList};
 /// The dict is expected to match the structure of the YAML-derived
 /// config (parsed by Python's `config_loader.py`).  Missing keys
 /// produce empty lists / default values.
+#[cfg(feature = "python")]
 pub fn build_constraint_set(constraints_dict: &Bound<'_, PyDict>) -> PyResult<ConstraintSet> {
     // We use serde Deserialize via the `serde_json` Value trick:
     // convert the PyDict to a JSON value and deserialize from that.
@@ -216,6 +220,7 @@ pub fn build_constraint_set(constraints_dict: &Bound<'_, PyDict>) -> PyResult<Co
 ///
 /// This handles the nested dict/list/primitive structure that naturally
 /// arises from Python's YAML parsing.
+#[cfg(feature = "python")]
 fn py_dict_to_json_value(py: &Bound<'_, PyDict>) -> PyResult<serde_json::Value> {
     let mut map = serde_json::Map::new();
     for (key, val) in py.iter() {
@@ -228,6 +233,7 @@ fn py_dict_to_json_value(py: &Bound<'_, PyDict>) -> PyResult<serde_json::Value> 
     Ok(serde_json::Value::Object(map))
 }
 
+#[cfg(feature = "python")]
 fn py_list_to_json_value(py: &Bound<'_, PyList>) -> PyResult<serde_json::Value> {
     let mut arr = Vec::with_capacity(py.len());
     for item in py.iter() {
@@ -236,6 +242,7 @@ fn py_list_to_json_value(py: &Bound<'_, PyList>) -> PyResult<serde_json::Value> 
     Ok(serde_json::Value::Array(arr))
 }
 
+#[cfg(feature = "python")]
 fn py_any_to_json_value(obj: &Bound<'_, PyAny>) -> PyResult<serde_json::Value> {
     // Check bool first (Python bool is a subclass of int)
     if let Ok(v) = obj.extract::<bool>() {

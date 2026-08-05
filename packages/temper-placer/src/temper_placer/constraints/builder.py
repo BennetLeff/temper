@@ -3,8 +3,20 @@
 This module provides a ConstraintBuilder class that allows AI agents and
 developers to programmatically construct placement constraints with a
 chainable, fluent interface.
+
+Wave 4, Phase 4: the compute of this module is migrated to Rust in the
+``temper-constraint-compiler`` crate (see ``packages/temper-constraint-compiler/
+VERIFICATION.md``). The fluent ``add_*`` construction methods stay Python —
+they build pydantic ``_constraint_types`` objects (orchestration over Python
+data, not compute); the migrated compute is ``validate()`` (error-string
+assembly, byte-identical) and the ``to_yaml()`` serialization-shape logic
+(which keys appear, in which order — the PyYAML ``yaml.dump`` call itself
+stays Python, per the Wave-4 guide's PyYAML ruling). The pre-migration
+implementation is pinned verbatim as the differential oracle
+(``tests/constraints/_builder_py_oracle.py``).
 """
 
+import temper_constraint_compiler as _rust  # type: ignore[import-untyped]
 import yaml  # type: ignore[import-untyped]
 
 from temper_placer._constraint_types import (
@@ -16,6 +28,7 @@ from temper_placer._constraint_types import (
     RoutingCorridor,
     ThermalConstraint,
 )
+from temper_placer.constraints._payload import _build_payload as build_payload
 
 
 class ConstraintBuilder:
@@ -279,141 +292,33 @@ class ConstraintBuilder:
         Returns:
             List of error messages (empty if valid)
         """
-        errors = []
-        comp_set = set(available_components)
-        zone_set = set(available_zones or [])
-
-        # Check spacing rules
-        for rule in self._constraints.component_spacing_rules:
-            if rule.component_a not in comp_set:
-                errors.append(f"ComponentSpacing: component '{rule.component_a}' not found")
-            if rule.component_b not in comp_set:
-                errors.append(f"ComponentSpacing: component '{rule.component_b}' not found")
-
-        # Check proximity rules in groups
-        for group in self._constraints.component_groups:
-            for comp in group.components:
-                if comp not in comp_set:
-                    errors.append(f"ComponentGroup '{group.name}': component '{comp}' not found")
-            if group.zone and group.zone not in zone_set and available_zones is not None:
-                errors.append(f"ComponentGroup '{group.name}': zone '{group.zone}' not found")
-
-        # Check escape clearances
-        for escape in self._constraints.escape_clearances:
-            if escape.component not in comp_set:
-                errors.append(f"EscapeClearance: component '{escape.component}' not found")
-
-        # Check routing corridors
-        for corridor in self._constraints.routing_corridors:
-            if corridor.from_component not in comp_set:
-                errors.append(
-                    f"RoutingCorridor '{corridor.name}': from_component '{corridor.from_component}' not found"
-                )
-            if corridor.to_component not in comp_set:
-                errors.append(
-                    f"RoutingCorridor '{corridor.name}': to_component '{corridor.to_component}' not found"
-                )
-
-        # Check thermal constraints
-        for thermal in self._constraints.thermal_constraints:
-            for comp in thermal.components:
-                if comp not in comp_set:
-                    errors.append(f"ThermalConstraint: component '{comp}' not found")
-
-        return errors
+        payload = build_payload(self._constraints, None)
+        return _rust.builder_validate(  # type: ignore[attr-defined]
+            payload,
+            list(available_components),
+            None if available_zones is None else list(available_zones),
+        )
 
     def to_yaml(self) -> str:
         """Serialize constraints to YAML format.
 
+        The data-shape logic (which keys appear, in which order) is Rust
+        (``temper_constraint_compiler.builder_to_yaml_data``); the PyYAML dump
+        itself stays here per the Wave-4 guide's PyYAML ruling (PyYAML is
+        YAML 1.1 and not bit-reimplementable).
+
         Returns:
             YAML string representation
         """
-        data = {}
-
-        # Component spacing rules
-        if self._constraints.component_spacing_rules:
-            data["minimum_spacing"] = [
-                {
-                    "components": [r.component_a, r.component_b],
-                    "min_separation_mm": r.min_separation_mm,
-                    "tier": r.tier,
-                    "weight": r.weight,
-                    "description": r.description,
-                }
-                for r in self._constraints.component_spacing_rules
-            ]
-
-        # Component groups with proximity rules
-        if self._constraints.component_groups:
-            data["groups"] = []
-            for group in self._constraints.component_groups:
-                group_data = {
-                    "name": group.name,
-                    "components": group.components,
-                    "max_spread_mm": group.max_spread_mm,
-                }
-                if group.zone:
-                    group_data["zone"] = group.zone
-                if group.weight != 1.0:
-                    group_data["weight"] = group.weight
-                if group.description:
-                    group_data["description"] = group.description
-                if group.proximity_rules:
-                    group_data["proximity"] = [
-                        {
-                            "pair": [r.component_a, r.component_b],
-                            "max_distance_mm": r.max_distance_mm,
-                            "tier": r.tier,
-                        }
-                        for r in group.proximity_rules
-                    ]
-                data["groups"].append(group_data)
-
-        # Escape clearances
-        if self._constraints.escape_clearances:
-            data["escape_clearances"] = [
-                {
-                    "component": ec.component,
-                    "clearance_mm": ec.clearance_mm,
-                    "priority_sides": ec.priority_sides,
-                    "tier": ec.tier,
-                    "description": ec.description,
-                }
-                for ec in self._constraints.escape_clearances
-            ]
-
-        # Routing corridors
-        if self._constraints.routing_corridors:
-            data["routing_corridors"] = [
-                {
-                    "name": rc.name,
-                    "from_component": rc.from_component,
-                    "to_component": rc.to_component,
-                    "width_mm": rc.width_mm,
-                    "keep_clear": rc.keep_clear,
-                    "nets": rc.nets,
-                    "tier": rc.tier,
-                }
-                for rc in self._constraints.routing_corridors
-            ]
-
-        # Thermal constraints
-        if self._constraints.thermal_constraints:
-            data["thermal_constraints"] = [
-                {
-                    "components": tc.components,
-                    "prefer_edge": tc.prefer_edge,
-                    "max_distance_from_edge_mm": tc.max_distance_from_edge_mm,
-                    "min_spacing_mm": tc.min_spacing_mm,
-                    "description": tc.description,
-                }
-                for tc in self._constraints.thermal_constraints
-            ]
-
+        data = _rust.builder_to_yaml_data(build_payload(self._constraints, None))  # type: ignore[attr-defined]
         return yaml.dump(data, default_flow_style=False, sort_keys=False)
 
     def _find_or_create_group(self, name: str, components: list[str]) -> ComponentGroup:
         """Find existing group by name or create new one.
+
+        Stateful mutation of the pydantic object graph — orchestration over
+        Python data, so it stays Python (the migrated compute is validate()/
+        to_yaml()).
 
         Args:
             name: Group name

@@ -19,8 +19,11 @@
 
 use std::collections::HashMap;
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use pyo3::types::PyBytes;
+#[cfg(feature = "python")]
 use temper_py_bridge;
 
 // ---------------------------------------------------------------------------
@@ -31,6 +34,7 @@ use temper_py_bridge;
 /// `_build_conductivity_field_gs`: `k_fr4_eff + (k_cu_eff - k_fr4_eff) *
 /// clip(frac, 0, 1)` with `k_*_eff = k_* * thickness_mm * 1e-3`, elementwise.
 /// When no copper grid is given, returns a uniform k_fr4_eff grid.
+#[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (k_fr4, k_copper, board_thickness_mm, copper_grid_bytes, height_cells, width_cells))]
 pub fn build_conductivity_field_py(
@@ -104,8 +108,13 @@ fn build_conductivity_field_inner(
 /// ordered `(name, power)` pairs so iteration order is preserved exactly.
 /// The reference's numpy negative-slice wrap for fully off-grid-low devices
 /// is replicated (`py_slice_indices`).
+#[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (devices, power_map, origin_x, origin_y, cell_size_mm, height_cells, width_cells))]
+#[expect(
+    clippy::too_many_arguments,
+    reason = "Pyo3 boundary mirrors the Python signature 1:1; a config struct would change the FFI"
+)]
 pub fn build_heat_source_field_py(
     py: Python<'_>,
     devices: Vec<(String, f64, f64)>,
@@ -223,8 +232,13 @@ fn py_slice_indices(lo: i64, hi: i64, n: usize) -> Vec<usize> {
 /// Returns (rows, cols, values, b) — the matrix as COO triplets plus the
 /// RHS vector; the Python side builds scipy CSR from the triplets and keeps
 /// the sparse solve in scipy (SuperLU).
+#[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (k_field_bytes, q_bytes, h_field_bytes, height_cells, width_cells, ambient_c, cell_size_mm, board_thickness_mm, h_conv, heatsink_edge))]
+#[expect(
+    clippy::too_many_arguments,
+    reason = "Pyo3 boundary mirrors the Python signature 1:1; a config struct would change the FFI"
+)]
 pub fn assemble_convective_system_py(
     k_field_bytes: Vec<u8>,
     q_bytes: Vec<u8>,
@@ -255,6 +269,10 @@ pub fn assemble_convective_system_py(
     .unwrap_or_default()
 }
 
+#[expect(
+    clippy::too_many_arguments,
+    reason = "Direct port of the Python reference signature; grouping into a config struct would churn the hot path"
+)]
 fn assemble_convective_system_inner(
     k_field_bytes: Vec<u8>,
     q_bytes: Vec<u8>,
@@ -422,7 +440,11 @@ fn parse_f64s(bytes: &[u8]) -> Vec<f64> {
     debug_assert_eq!(bytes.len() % 8, 0);
     bytes
         .chunks_exact(8)
-        .map(|c| f64::from_le_bytes(c.try_into().unwrap()))
+        .map(|c| {
+            let mut a = [0u8; 8];
+            a.copy_from_slice(c);
+            f64::from_le_bytes(a)
+        })
         .collect()
 }
 
@@ -455,7 +477,11 @@ mod tests {
             .collect();
         let got_f: Vec<f64> = got
             .chunks_exact(8)
-            .map(|c| f64::from_le_bytes(c.try_into().unwrap()))
+            .map(|c| {
+                let mut a = [0u8; 8];
+                a.copy_from_slice(c);
+                f64::from_le_bytes(a)
+            })
             .collect();
         assert_eq!(got_f, expect);
     }
@@ -465,7 +491,11 @@ mod tests {
         let got = build_conductivity_field_inner(0.3, 385.0, 1.6, None, 4, 5);
         let got_f: Vec<f64> = got
             .chunks_exact(8)
-            .map(|c| f64::from_le_bytes(c.try_into().unwrap()))
+            .map(|c| {
+                let mut a = [0u8; 8];
+                a.copy_from_slice(c);
+                f64::from_le_bytes(a)
+            })
             .collect();
         assert!(got_f.iter().all(|&v| v == 0.3 * 1.6 * 1e-3));
     }
@@ -484,7 +514,11 @@ mod tests {
         let got = build_heat_source_field_inner(&devices, &powers, 0.0, 0.0, 1.0, 10, 10);
         let got_f: Vec<f64> = got
             .chunks_exact(8)
-            .map(|c| f64::from_le_bytes(c.try_into().unwrap()))
+            .map(|c| {
+                let mut a = [0u8; 8];
+                a.copy_from_slice(c);
+                f64::from_le_bytes(a)
+            })
             .collect();
         // Reference semantics: device A covers cols 1..=7, rows 1..=7
         // (5mm footprint centered at 3.0 -> [0.5, 5.5] -> floor 0, ceil 6
@@ -502,10 +536,10 @@ mod tests {
             if r < 6 && ccol < 6 {
                 v += a;
             }
-            if r < 6 && ccol >= 3 && ccol < 9 {
+            if r < 6 && (3..9).contains(&ccol) {
                 v += b;
             }
-            if r >= 2 && r < 8 && ccol >= 2 && ccol < 8 {
+            if (2..8).contains(&r) && (2..8).contains(&ccol) {
                 v += c;
             }
             v
@@ -543,7 +577,11 @@ mod tests {
         let got = build_heat_source_field_inner(&devices, &powers, 0.0, 0.0, 1.0, 10, 12);
         let got_f: Vec<f64> = got
             .chunks_exact(8)
-            .map(|c| f64::from_le_bytes(c.try_into().unwrap()))
+            .map(|c| {
+                let mut a = [0u8; 8];
+                a.copy_from_slice(c);
+                f64::from_le_bytes(a)
+            })
             .collect();
         // n_cells uses the clamped pre-wrap bounds: rows 0..-2 -> max(1, -4) = 1
         // hmm: row_min=0, row_max=min(10, ceil(-2.5))=-2 -> ( -2 - 0 ) = -2;
@@ -561,6 +599,10 @@ mod tests {
 
     // --- convective assembly ---
 
+    #[expect(
+        clippy::too_many_arguments,
+        reason = "Test helper mirrors the Python reference signature"
+    )]
     fn ref_assemble_convective(
         k: &[f64],
         q: &[f64],

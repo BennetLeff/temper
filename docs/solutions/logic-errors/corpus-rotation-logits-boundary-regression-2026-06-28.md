@@ -13,6 +13,10 @@ symptoms:
 root_cause: "wrong_api"
 resolution_type: "code_fix"
 tags: ["corpus-runner", "temper-placer", "jax", "gumbel-softmax", "boundary-loss", "rotation-logits", "loss-evaluation"]
+status: stale
+stale_reason: "the bug domain is gone: the JAX loss stack (make_loss, BoundaryLoss, jax.nn.softmax in corpus_runner) was deleted and the reproduction tests retired; the surviving raw-vs-transformed lesson is thin and its fix is duplicated in baseline-extractor-four-silent-fail-metrics. Needs a decision: fold into that doc or rewrite as a generic pattern."
+stale_date: "2026-08-03"
+
 ---
 
 # Corpus runner passes raw rotation logits to loss functions, producing garbage metrics

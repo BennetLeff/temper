@@ -509,10 +509,10 @@ class TestTightenCLI:
         assert "--threshold" in result.output
         assert "--ci" in result.output
 
-    def test_no_manifest(self, runner, _tmp_repo):
+    def test_no_manifest(self, runner, tmp_repo):
         result = runner.invoke(timing, ["tighten", "--dry-run"])
         assert result.exit_code == 0
-        assert "No timing baselines" in result.output
+        assert "No timing baselines to tighten." in result.output
 
     def test_no_jsonl_file(self, runner, tmp_repo):
         _write_manifest(tmp_repo["yaml_path"], [_manifest_entry()])

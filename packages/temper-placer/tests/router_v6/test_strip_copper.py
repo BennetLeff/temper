@@ -139,9 +139,13 @@ class TestStripExistingCopper:
 
     def test_matches_real_production_board_zone_count(self):
         """Integration-level regression guard against the real committed
-        board: pcb/temper.kicad_pcb is known (measured) to carry 2338
-        segments, 48 vias, and 96 zones = 2482 committed copper blocks.
+        board: pcb/temper.kicad_pcb is known (measured) to carry 2290
+        segments, 48 vias, and 96 zones = 2434 committed copper blocks.
         This does not modify the file -- read-only.
+
+        Was 2338 segments until the 48 zero-length ones (start == end, one
+        per via) were removed as degenerate geometry; the writer no longer
+        emits them. 2338 - 48 = 2290.
         """
         from pathlib import Path
 
@@ -155,7 +159,7 @@ class TestStripExistingCopper:
         )
 
         cleaned, n = strip_existing_copper(content)
-        assert n == 2338 + 48 + 96
+        assert n == 2290 + 48 + 96
         assert "(zone " not in cleaned
         assert "(segment " not in cleaned
         assert "(via " not in cleaned

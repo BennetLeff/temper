@@ -46,9 +46,11 @@ _PCB_PATH = (
 
 
 @pytest.fixture(scope="module")
-def _ki_board() -> KiBoard:
+def _pcb_content() -> str:
     assert _PCB_PATH.exists(), f"production board not found at {_PCB_PATH}"
-    return KiBoard.from_file(str(_PCB_PATH))
+    # Wave 4 Phase 3 candidate 3: _extract_stackup reads raw content now
+    # (kiutils left the boundary); the raw zone scan lives in the Rust engine.
+    return _PCB_PATH.read_text(encoding="utf-8")
 
 
 def _expected_plane_required_net(net_name: str) -> bool:
@@ -74,7 +76,7 @@ def _expected_plane_required_net(net_name: str) -> bool:
     return any(re.search(rf"(?:^|_){kw}(?:$|[\d_])", upper) for kw in ("GND", "VCC", "PWR"))
 
 
-def test_production_board_fcu_is_not_a_full_layer_plane(_ki_board):
+def test_production_board_fcu_is_not_a_full_layer_plane(_pcb_content):
     """Establishes the premise: F.Cu carries many zones, only a handful of
     which are plane-required. It is not a plane by any reasonable reading
     of its content -- so classifying the whole physical layer "plane" is
@@ -88,7 +90,9 @@ def test_production_board_fcu_is_not_a_full_layer_plane(_ki_board):
     docs/evidence/2026-07-28-netclass-defect-reconciliation.md). Do not
     replace this derivation with a new literal.
     """
-    fcu_zones = [z for z in _ki_board.zones if z.layers and "F.Cu" in z.layers]
+
+    ki_board = KiBoard.from_file(str(_PCB_PATH))
+    fcu_zones = [z for z in ki_board.zones if z.layers and "F.Cu" in z.layers]
     plane_required = [z for z in fcu_zones if z.netName and _is_plane_required_net(z.netName)]
     expected_plane_required = [
         z for z in fcu_zones if z.netName and _expected_plane_required_net(z.netName)
@@ -107,22 +111,22 @@ def test_production_board_fcu_is_not_a_full_layer_plane(_ki_board):
     assert 0 < len(plane_required) < len(fcu_zones)
 
 
-def test_default_behavior_unchanged_fcu_still_classified_plane(_ki_board):
+def test_default_behavior_unchanged_fcu_still_classified_plane(_pcb_content):
     """Regression guard on the opt-in's default: with the flag unset
     (today's call sites, unmodified), F.Cu is still classified "plane" --
     this documents today's bug baseline and proves the fix is inert unless
     explicitly enabled."""
-    stackup = _extract_stackup(_ki_board, [])
+    stackup = _extract_stackup(None, [], pcb_content=_pcb_content)
     fcu = next(layer for layer in stackup.layers if layer.name == "F.Cu")
     assert fcu.layer_type == "plane"
     assert fcu.plane_net == "ac_l"
 
 
-def test_declared_role_classifies_outer_layers_as_signal(_ki_board):
+def test_declared_role_classifies_outer_layers_as_signal(_pcb_content):
     """R8: with the opt-in, F.Cu/B.Cu's role comes from structural position
     in the declared stackup (outer layers), independent of zone content.
     plane_net is still surfaced for callers that want it."""
-    stackup = _extract_stackup(_ki_board, [], use_declared_layer_roles=True)
+    stackup = _extract_stackup(None, [], use_declared_layer_roles=True, pcb_content=_pcb_content)
     fcu = next(layer for layer in stackup.layers if layer.name == "F.Cu")
     bcu = next(layer for layer in stackup.layers if layer.name == "B.Cu")
 
@@ -135,11 +139,11 @@ def test_declared_role_classifies_outer_layers_as_signal(_ki_board):
     assert bcu.plane_net == "ac_l"
 
 
-def test_declared_role_leaves_inner_layers_unaffected(_ki_board):
+def test_declared_role_leaves_inner_layers_unaffected(_pcb_content):
     """Decoupling zone content from layer_type must not change layers that
     were never misclassified in the first place."""
-    default_stackup = _extract_stackup(_ki_board, [])
-    declared_stackup = _extract_stackup(_ki_board, [], use_declared_layer_roles=True)
+    default_stackup = _extract_stackup(None, [], pcb_content=_pcb_content)
+    declared_stackup = _extract_stackup(None, [], use_declared_layer_roles=True, pcb_content=_pcb_content)
 
     for name in ("In1.Cu", "In2.Cu"):
         default_layer = next(layer for layer in default_stackup.layers if layer.name == name)
@@ -147,7 +151,7 @@ def test_declared_role_leaves_inner_layers_unaffected(_ki_board):
         assert default_layer.layer_type == declared_layer.layer_type == "mixed"
 
 
-def test_declared_role_makes_fcu_present_in_the_routing_space(_ki_board):
+def test_declared_role_makes_fcu_present_in_the_routing_space(_pcb_content):
     """The falsifier. Today (flag off), F.Cu is entirely absent from
     compute_routing_space's output -- routing_space.py excludes any layer
     whose layer_type isn't signal/mixed -- even though only 4 of 48 zones
@@ -165,7 +169,7 @@ def test_declared_role_makes_fcu_present_in_the_routing_space(_ki_board):
     assert "B.Cu" in routing_spaces
 
 
-def test_default_behavior_unchanged_fcu_absent_from_routing_space(_ki_board):
+def test_default_behavior_unchanged_fcu_absent_from_routing_space(_pcb_content):
     """Regression guard: with the flag unset, today's exact bug behavior
     (F.Cu/B.Cu absent from the routing space) is preserved byte-for-byte,
     proving this change does not silently flip production behavior."""
