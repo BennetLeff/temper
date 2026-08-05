@@ -371,7 +371,6 @@ class RouterV6Pipeline:
                 print("Stage 3: Topological routing... SKIPPED")
             stage3 = Stage3Output(
                 constraint_model=None,
-                sat_model=None,
                 solution=None,
                 topology_graph=None,
             )

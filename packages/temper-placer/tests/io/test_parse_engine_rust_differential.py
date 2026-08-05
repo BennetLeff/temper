@@ -223,6 +223,34 @@ def test_parse_kicad_pcb_bit_parity(corpus_id, path, normalize):
 
 
 # ---------------------------------------------------------------------------
+# Wave-4 PyAny removal -- typed-handle identity pins (anti-vacuity).
+# ---------------------------------------------------------------------------
+
+
+def test_parse_result_netlist_board_identity():
+    """The PyAny-removal tightening (`Py<PyAny>` -> `Py<Netlist>`/`Py<Board>`,
+    2026-08-04) must preserve object identity: `ParseResult(netlist=nl,
+    board=bd)` reads back `pr.netlist is nl` / `pr.board is bd`, and the
+    parse path yields exactly the `Netlist`/`Board` pyclasses — never a
+    duck-typed substitute. This is the anti-vacuity pin for the tightening
+    (the behavioral field-surface pins live in `assert_same` above)."""
+    from temper_placer.core.board import Board
+    from temper_placer.core.netlist import Netlist
+
+    nl = Netlist(components=[], nets=[])
+    bd = Board(width=100.0, height=150.0)
+    pr = _PARSE_ENGINE.ParseResult(netlist=nl, board=bd, warnings=["w"])
+    assert pr.netlist is nl
+    assert pr.board is bd
+
+    # The load path: parse_kicad_pcb always constructs the pyclasses.
+    content = _content(CORPUS[1][1])
+    result = _PARSE_ENGINE.parse_kicad_pcb(content, normalize=True)
+    assert isinstance(result.board, Board)
+    assert isinstance(result.netlist, Netlist)
+
+
+# ---------------------------------------------------------------------------
 # Discriminating fixtures (close surviving mutants the corpus cannot reach)
 # ---------------------------------------------------------------------------
 

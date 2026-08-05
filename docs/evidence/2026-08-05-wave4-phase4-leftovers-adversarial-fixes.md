@@ -1,6 +1,6 @@
 # Wave 4 Phase 4 leftovers — adversarial-review fixes and mutation-campaign re-run — 2026-08-05
 
-<!-- provenance: commit=c40beeb4bf165a9d20c0d5f2d6e8b057a6b1c57a dirty=false-at-campaign-time -->
+<!-- provenance: commit=cdb4f5272bf12ddd47bf70abf8fc5876f61482af dirty=false (stamped 2026-08-05: the previously-recorded commit=c40beeb4bf165a9d20c0d5f2d6e8b057a6b1c57a resolves in no object store, local or fresh clone -- mistyped or fabricated -- and the dirty field was malformed ("false-at-campaign-time"); this doc was introduced on main at cdb4f5272bf12ddd47bf70abf8fc5876f61482af, which is the cited commit) -->
 
 **Scope:** the four Phase 4 leftovers migrations
 (`manufacturing/tolerances.py`, `manufacturing/monte_carlo.py`,
