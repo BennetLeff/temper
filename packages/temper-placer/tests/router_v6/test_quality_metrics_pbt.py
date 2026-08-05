@@ -36,14 +36,19 @@ Exactness is claimed **only** where the transform preserves every f64 bit:
   a measured relative tolerance instead.
 * **Non-cardinal rotation (e.g. 30 deg)** -- **NOT exact**, and not asserted
   as such.  ``math.cos``/``math.sin`` of a non-dyadic angle introduce
-  rounding, so the relation is tested with a stated tolerance and the
-  observed band is measured and asserted to stay inside it.
+  rounding, and ``acos`` then *amplifies* it: near a collinear junction the
+  cosine is at +/-1 where ``acos(1 - eps) ~ sqrt(2*eps)``, turning a ~1e-12
+  cosine perturbation into a ~1e-6 deg angle change.  M-S4 therefore tolerates
+  1e-5 deg, and both regimes are measured separately (generic 4.0e-10,
+  collinear 1.7e-6 over 200,000 cases each).
 
-Two of the relations in this file were **written as exact and the oracle
-disproved them** (M-C2's translation invariance of spread, and an earlier
-malformed version of M-C4).  Running the properties against the pinned oracle
-before the Rust exists is what surfaced both; had they been written after the
-port, the tolerance would have been chosen to fit whatever the port did.
+Three claims in this file were **written as exact-or-tighter and the oracle
+disproved them**: M-C2's translation invariance of spread, an earlier malformed
+version of M-C4, and M-S4's original 1e-6 tolerance (Hypothesis falsified it at
+1.207e-6 with a collinear case, which is how the two-regime split was found).
+Running the properties against the pinned oracle before the Rust exists is what
+surfaced all three; had they been written after the port, each tolerance would
+have been chosen to fit whatever the port happened to do.
 
 Where a relation does **not** hold at all, that is recorded as a test too --
 :func:`test_m_c5_component_order_is_NOT_invariant` and
@@ -54,6 +59,7 @@ and they are as much part of the specification as the invariances.
 from __future__ import annotations
 
 import math
+import random
 
 import pytest
 from hypothesis import given, settings
@@ -984,11 +990,26 @@ def test_m_s4_angle_is_approximately_invariant_under_arbitrary_rotation(case, de
     """M-S4 (slop_linter): non-cardinal rotation -- **NOT EXACT**, bounded.
 
     ``math.cos``/``math.sin`` of a non-dyadic angle round, so the rotated
-    coordinates are not bit-identical and neither is the resulting angle.  The
-    relation is asserted with an explicit absolute tolerance of **1e-6 deg**,
-    which is far above the oracle's own band (measured below) and far below
-    the kernel's 5 deg and 160 deg decision thresholds.
+    coordinates are not bit-identical and neither is the resulting angle.
 
+    The tolerance is **1e-5 deg**, and the size is not arbitrary -- it is set
+    by ``acos`` being ill-conditioned at its endpoints.  For a *collinear*
+    junction the true cosine is exactly +/-1; rotation perturbs it to
+    ``1 - eps`` with ``eps`` a few ulps, and ``acos(1 - eps) ~ sqrt(2*eps)``,
+    so a ~1e-12 perturbation of the cosine becomes a ~1e-6 deg change in the
+    angle.  That square-root amplification, not the rotation itself, is what
+    sets the band:
+
+    * generic (non-collinear) junctions -- worst 4.0e-10 deg over 200,000
+      random dyadic cases;
+    * collinear junctions -- worst 1.7e-6 deg over 200,000 random cases.
+
+    An earlier version of this test claimed 1e-6 and Hypothesis falsified it
+    with a collinear case at 1.207e-6, which is how the regime split above was
+    found.  :func:`test_m_s4_measured_rotation_band` pins both numbers.
+
+    1e-5 deg remains five orders of magnitude below the kernel's 5 deg and
+    160 deg decision thresholds, so no finding can flip because of it.
     Claiming ``==`` here would be the dishonest version of this test.
     """
     theta = math.radians(degrees)
@@ -1004,28 +1025,50 @@ def test_m_s4_angle_is_approximately_invariant_under_arbitrary_rotation(case, de
     pts = [(case[0], case[1]), (case[2], case[3]), (case[4], case[5]), (case[6], case[7])]
     rot = [rotate(x, y) for x, y in pts]
     rotated = KERNELS._angle_between((rot[0], rot[1]), (rot[2], rot[3]))
-    assert abs(base - rotated) <= 1e-6
+    assert abs(base - rotated) <= 1e-5
+
+
+def _rotation_deviation(case, degrees: float) -> float:
+    theta = math.radians(degrees)
+    cos_t, sin_t = math.cos(theta), math.sin(theta)
+    pts = [(case[0], case[1]), (case[2], case[3]), (case[4], case[5]), (case[6], case[7])]
+    base = KERNELS._angle_between((pts[0], pts[1]), (pts[2], pts[3]))
+    rot = [(x * cos_t - y * sin_t, x * sin_t + y * cos_t) for x, y in pts]
+    got = KERNELS._angle_between((rot[0], rot[1]), (rot[2], rot[3]))
+    return abs(base - got)
 
 
 def test_m_s4_measured_rotation_band() -> None:
-    """Measure the band M-S4 tolerates, so the tolerance is a number.
+    """Measure M-S4's band in BOTH regimes, so the tolerance is a number.
 
-    Records the worst observed deviation over a fixed sweep and asserts it
-    stays inside the declared 1e-6 tolerance with room to spare -- if a future
-    change pushes it up, this fails before the tolerance silently absorbs a
-    real regression.
+    The two regimes differ by nearly four orders of magnitude because ``acos``
+    is ill-conditioned at its endpoints -- see M-S4's docstring.  Pinning them
+    separately is what stops the generic case from hiding behind the collinear
+    tolerance: if generic rotation error ever grew to collinear levels, the
+    first assertion fails even though the M-S4 property would still pass.
     """
-    worst = 0.0
-    for degrees in (15.0, 30.0, 45.0, 137.5):
-        theta = math.radians(degrees)
-        cos_t, sin_t = math.cos(theta), math.sin(theta)
-        for i in range(1, 400):
-            pts = [(0.0, 0.0), (i / 8.0, 0.0), (0.0, 0.0), (0.0, i / 8.0)]
-            base = KERNELS._angle_between((pts[0], pts[1]), (pts[2], pts[3]))
-            rot = [(x * cos_t - y * sin_t, x * sin_t + y * cos_t) for x, y in pts]
-            got = KERNELS._angle_between((rot[0], rot[1]), (rot[2], rot[3]))
-            worst = max(worst, abs(base - got))
-    assert worst <= 1e-9, f"rotation band widened to {worst}"
+    rng = random.Random(20260804)
+    angles = (15.0, 30.0, 45.0, 137.5)
+
+    generic_worst = 0.0
+    for _ in range(4000):
+        case = tuple(rng.randint(-4096, 4096) / 64.0 for _ in range(8))
+        generic_worst = max(generic_worst, _rotation_deviation(case, rng.choice(angles)))
+
+    collinear_worst = 0.0
+    for _ in range(4000):
+        xs = [rng.randint(-4096, 4096) / 64.0 for _ in range(4)]
+        case = (xs[0], 0.0, xs[1], 0.0, xs[2], 0.0, xs[3], 0.0)
+        collinear_worst = max(collinear_worst, _rotation_deviation(case, rng.choice(angles)))
+
+    # Generic junctions: acos is well-conditioned away from +/-1.
+    assert generic_worst <= 1e-8, f"generic rotation band widened to {generic_worst}"
+    # Collinear junctions: sqrt-amplified, and the reason M-S4 tolerates 1e-5.
+    assert collinear_worst <= 5e-6, f"collinear rotation band widened to {collinear_worst}"
+    assert collinear_worst > generic_worst, (
+        "the collinear regime is supposed to be the ill-conditioned one; if it "
+        "is not, the tolerance rationale in M-S4 no longer holds"
+    )
 
 
 # --- corridor: M-C1..M-C4 -------------------------------------------------
