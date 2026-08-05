@@ -1237,3 +1237,28 @@ fn panic_message(panic: &Box<dyn std::any::Any + Send>) -> String {
         "unknown panic payload".to_string()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn truncate_matches_cpython_negative_stop() {
+        // Oracle `text[:max_len - 3] + "..."`: for max_len < 3 the stop is
+        // negative and CPython clamps it (max_len=2 -> text[:-1],
+        // max_len=1 -> text[:-2], max_len=0 -> text[:-3], floored at "").
+        // Values measured against CPython on 2026-08-05. Unreachable from
+        // the 60/40/50 call sites, but pinned anyway.
+        assert_eq!(truncate("abcdefghij", 2), "abcdefghi...");
+        assert_eq!(truncate("abcdefghij", 1), "abcdefgh...");
+        assert_eq!(truncate("abcdefghij", 0), "abcdefg...");
+        assert_eq!(truncate("abcd", 0), "a...");
+        assert_eq!(truncate("abc", 1), "a...");
+        assert_eq!(truncate("ab", 1), "...");
+        assert_eq!(truncate("ab", 0), "...");
+        // Untruncated and normal paths unchanged.
+        assert_eq!(truncate("ab", 2), "ab");
+        assert_eq!(truncate("abcdefghij", 8), "abcde...");
+        assert_eq!(truncate("abcdefghij", 3), "...");
+    }
+}

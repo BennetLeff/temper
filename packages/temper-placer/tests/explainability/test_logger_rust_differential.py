@@ -99,6 +99,25 @@ def test_significant_change_nan():
     assert logger.significant_change((float("nan"), 0), (1, 0), 0.5) is False
 
 
+def test_significant_change_list_positions():
+    """The oracle indexes `new[0]` / `old[1]` — ANY indexable sequence,
+    not just tuples. A list-typed position must give identical results
+    (the PyTuple-only cast raised TypeError pre-fix)."""
+    oracle = _oracle.DecisionLogger()
+    shim = DecisionLogger()
+    cases = [
+        ([0.0, 0.0], [3.0, 4.0], 5.0),
+        ([1.0, 2.0], (1.0, 2.0), 0.5),
+        ((1.0, 2.0), [1.0, 2.0], 0.5),
+        ([0, 0], [3, 4], 5.0),
+        ([float("nan"), 0.0], [1.0, 0.0], 0.5),
+    ]
+    for old, new, threshold in cases:
+        assert shim.significant_change(old, new, threshold) == oracle.significant_change(
+            old, new, threshold
+        )
+
+
 def test_log_position_constructs_update_vs_initial():
     oracle = _oracle.DecisionLogger()
     shim = DecisionLogger()

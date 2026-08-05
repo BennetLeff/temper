@@ -249,6 +249,14 @@ def _fixture_placements() -> list[dict]:
         _comp("B", (4.0, 0.0), [_pad(LV, (0.0, 0.0), 1.0, 1.0, "rect")]),
     ]))
 
+    # List-typed positions and pad offsets: the oracle indexes/unpacks any
+    # sequence (`ox, oy = comp["position"]`, `dx, dy = p["offset"]`), so
+    # lists must behave identically to tuples. Appended LAST.
+    placements.append(_placement([
+        _comp("L3", [0.0, 0.0], [_pad(HV, [0.0, 0.0], 1.0, 1.0, "rect")]),
+        _comp("L4", [4.0, 0.0], [_pad(LV, [0.0, 0.0], 1.0, 1.0, "rect")]),
+    ]))
+
     return placements
 
 

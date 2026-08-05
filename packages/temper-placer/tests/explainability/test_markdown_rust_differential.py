@@ -200,6 +200,18 @@ def test_truncation_pins():
     assert "x" * 100 not in text
 
 
+def test_final_positions_list_typed():
+    """`_render_final_positions` indexes `pos[0]` / `pos[1]` — any
+    indexable sequence, so a list-typed position must render byte-
+    identically to the oracle (the PyTuple-only cast raised TypeError
+    pre-fix)."""
+    trace = _trace([], positions={"C1": [1.0, 2.0], "C2": [3.5, 4.5]})
+    ours = render_markdown_report(trace)
+    theirs = _oracle.render_markdown_report(trace)
+    assert ours == theirs
+    assert "| C1 | 1.00 | 2.00 |" in ours
+
+
 def test_decision_history_table_indexing():
     """The '# ' column starts at 1 below the per-component cap; the
     '... omitted' row appears when the cap (50 for component reports) is
