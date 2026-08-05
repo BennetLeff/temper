@@ -1,12 +1,18 @@
 # Wave 4 Phase 5 — deterministic leaf stages slice: anti-vacuity mutation sweep — 2026-08-04
 
-<!-- provenance: commit=9b4a672d6755423e74b56593409afa33302f1829 dirty=true -->
+<!-- provenance: commit=76c6853aa4e2fdd39fa30ebcb3aa507189839d72 dirty=false -->
 
-**Base commit:** `9b4a672d6` (the TDD-RED commit for
-slot_generation/zone_geometry/zone_assignment) + uncommitted working-tree
-changes (the `temper-design-bundle` kernels in `deterministic_stages.rs`
-and the Python delegation shims). `dirty=true` because this document is
-committed together with the migration it verifies.
+**Base commit:** `76c6853aa` — the committed branch state the sweep was
+independently re-run at (the GREEN migration commit for the Batch-2 kernels
+plus the follow-up test fixes, on top of the TDD-RED commit). The original
+campaign run happened against the TDD-RED commit `9b4a672d6` with
+uncommitted working-tree changes (the `temper-design-bundle` kernels in
+`deterministic_stages.rs` and the Python delegation shims); that run's
+output was lost when the worktree directory was deleted mid-session, and
+the re-run below — executed after the migration was committed and the
+branch rebased onto current main — is the recorded evidence. `dirty=false`
+because this re-run executed against the committed state; the document
+itself is committed together with the migration it verifies.
 
 ## Why this sweep exists
 
