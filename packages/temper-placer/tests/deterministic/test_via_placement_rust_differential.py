@@ -29,7 +29,6 @@ import random
 
 import pytest
 import temper_geometry as _tg
-
 import tests.deterministic._via_placement_py_oracle as _oracle
 from tests.core._contract_canon import canon
 
@@ -88,6 +87,25 @@ def test_distance_subnormals():
     assert _oracle.distance((0, 0), (0, 5e-324)).hex() == RS_DISTANCE(0.0, 0.0, 0.0, 5e-324).hex()
 
 
+def test_distance_pow_not_square():
+    """`dx ** 2` is libm pow — a value where pow(x, 2.0) != x * x.
+
+    Measured 2026-08-04: for x = -885681.5731814067, ``math.pow(x, 2.0)``
+    = 0x1.6d47903ce22edp+39 but ``x * x`` = 0x1.6d47903ce22eep+39. Both arms
+    must agree on this input (a Rust port using ``dx * dx`` would compute
+    the second value internally). NOTE: the composed
+    ``sqrt(pow(dx,2)+pow(dy,2))`` round-trips both squared values to the
+    same output for this input (no sqrt-discriminating input found in
+    ~12M structured draws — see VERIFICATION.md), so the x*x mutation is
+    killed by the randomized differential arm, whose per-pow mismatch
+    rate (~1.3e-3, measured in the Phase-5 campaign) surfaces it.
+    """
+    x = -885681.5731814067
+    exp = _oracle.distance((x, 0.0), (0.0, 0.0))
+    got = RS_DISTANCE(x, 0.0, 0.0, 0.0)
+    assert exp.hex() == got.hex()
+
+
 # ---------------------------------------------------------------------------
 # is_via_position_valid
 # ---------------------------------------------------------------------------
@@ -142,13 +160,9 @@ def test_place_empty_pads_returns_target():
 
 def test_place_returns_none_when_no_candidate():
     """A pad everywhere within the search radius -> spiral exhausts -> None."""
-    # Pad far larger than any candidate clearance: the whole 2mm spiral is
-    # inside the pad's required distance.
-    pad = _oracle.PadInfo(position=(0.0, 0.0), radius=0.0, mask_expansion=0.0)
-    # required = via_mask + 0 + clearance; with via_mask=0.2, clearance=0.0
-    # required = 0.2; the target and every candidate at distance <= ~2.8 are
-    # invalid only if required > candidate distance. To force None we need a
-    # big pad: radius such that required covers the max candidate distance.
+    # A pad far larger than any candidate clearance: the whole 2mm spiral is
+    # inside the pad's required distance (required = via_mask + 3.0 covers
+    # the farthest candidate at distance ~2.83 from the pad center).
     pad_big = _oracle.PadInfo(position=(0.0, 0.0), radius=3.0, mask_expansion=0.0)
     exp = _oracle.place_via_with_clearance((0.0, 0.0), [pad_big], 0.2, 0.0, 2.0)
     assert exp is None
@@ -158,17 +172,20 @@ def test_place_returns_none_when_no_candidate():
 
 def test_place_max_search_radius_respected():
     """Candidates at radius > max_search_radius are skipped (break)."""
-    # Target is invalid; a pad sits exactly at the 0.25mm candidate but not
-    # at the 0.5mm one... choose parameters so only a far candidate works,
-    # beyond max_search_radius.
-    pad = _oracle.PadInfo(position=(2.0, 0.0), radius=0.0, mask_expansion=0.0)
-    # At r=2.0, angle=0 candidate is (2.0, 0.0) == pad center -> invalid.
-    # Beyond max_search_radius=1.0 we would reach r=1.25/1.5... candidate at
-    # angle 180 (x = -1.25) is distance 3.25 from pad -> valid, but skipped.
+    # Target invalid (distance 0 < 0.1 + 1.0). Every candidate at r <= 1.0
+    # is within 1.0 mm of the pad center -> required 1.1 -> invalid; the
+    # r = 1.25 candidate (distance 1.25 >= 1.1) would be valid but is
+    # beyond max_search_radius=1.0 -> both arms return None.
+    pad = _oracle.PadInfo(position=(0.0, 0.0), radius=1.0, mask_expansion=0.0)
     exp = _oracle.place_via_with_clearance((0.0, 0.0), [pad], 0.1, 0.0, 1.0)
     got = RS_PLACE(0.0, 0.0, _pads_to_args([pad]), 0.1, 0.0, 1.0)
     assert canon(exp) == canon(got)
     assert exp is None
+    # Widening max_search_radius to 1.25 reaches the valid r=1.25 candidate.
+    exp2 = _oracle.place_via_with_clearance((0.0, 0.0), [pad], 0.1, 0.0, 1.25)
+    got2 = RS_PLACE(0.0, 0.0, _pads_to_args([pad]), 0.1, 0.0, 1.25)
+    assert canon(exp2) == canon(got2)
+    assert exp2 == (1.25, 0.0)
 
 
 def _assert_place_equal(pos, pads, vmr, mc, msr):

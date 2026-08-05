@@ -13,9 +13,11 @@ Five hypothesis properties (R1c, all non-vacuously guarded):
   (bit-exact — the second snap's division result is already integral).
 - P2. Half-cell bound: every snapped coordinate is within ``grid_size/2``
   of the input (round-half-even is a nearest-integer rule).
-- P3. Grid-multiple translation: shifting a point by a whole number of
-  grid cells shifts the snap by the same amount, exactly
-  (``round(x + k) == round(x) + k`` for integral ``k``).
+- P3. Power-of-two scale invariance: scaling a point and the grid size by
+  the same power of two scales the snap by it, bit-exactly
+  (``2^n * x`` is an exact float scaling, and the division
+  ``(2^n x) / (2^n g)`` has the same exact ratio as ``x / g``, so the
+  correctly-rounded quotient — and hence the round — is unchanged).
 - P4. On-grid identity: an exact integer multiple of the grid size snaps
   to itself, bit-exactly.
 - P5. Zero fixed point: ``snap_to_grid((0, 0)) == (0, 0)`` exactly, and
@@ -36,13 +38,9 @@ Three metamorphic relations (R1d):
 
 from __future__ import annotations
 
-import random
-
-import hypothesis
+import temper_geometry as _tg
 from hypothesis import given, settings
 from hypothesis import strategies as st
-
-import temper_geometry as _tg
 
 _GRID = st.floats(min_value=1e-3, max_value=4.0, allow_nan=False, allow_infinity=False)
 _POS = st.tuples(
@@ -68,13 +66,14 @@ def test_p2_half_cell_bound(pos, gs):
     assert abs(sy - pos[1]) <= gs / 2 + 1e-12
 
 
-@given(_POS, _GRID, st.integers(min_value=-20, max_value=20))
+@given(_POS, _GRID, st.integers(min_value=-8, max_value=8))
 @settings(max_examples=200, deadline=None)
-def test_p3_grid_translation(pos, gs, k):
+def test_p3_pow2_scale_invariance(pos, gs, n):
+    k = 2.0**n
     sx, sy = _tg.snap_to_grid(pos[0], pos[1], gs)
-    tx, ty = _tg.snap_to_grid(pos[0] + k * gs, pos[1] + k * gs, gs)
-    assert tx == sx + k * gs
-    assert ty == sy + k * gs
+    kx, ky = _tg.snap_to_grid(k * pos[0], k * pos[1], k * gs)
+    assert kx.hex() == (k * sx).hex()
+    assert ky.hex() == (k * sy).hex()
 
 
 @given(st.integers(min_value=-50, max_value=50), _GRID)

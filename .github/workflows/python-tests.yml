@@ -588,7 +588,7 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         working-directory: packages/temper-placer
         run: >
-          uv run python ../../scripts/pytest_guard.py --min-tests 94 --
+          uv run python ../../scripts/pytest_guard.py --min-tests 133 --
           tests/validation/test_drc_rust_differential.py
           tests/validation/test_drc_oracle_rust_differential.py
           tests/validation/test_drc_runner_rust_differential.py
@@ -596,6 +596,10 @@ jobs:
           tests/validation/test_geometric_rust_differential.py
           tests/validation/test_tht_check_rust_differential.py
           tests/validation/test_trace_analyzer_rust_differential.py
+          tests/deterministic/test_grid_utils_rust_differential.py
+          tests/deterministic/test_via_placement_rust_differential.py
+          tests/deterministic/test_grid_utils_pbt.py
+          tests/deterministic/test_via_placement_pbt.py
           -v --tb=short -p no:cacheprovider --maxfail=10
         env:
           RUST_BACKTRACE: full

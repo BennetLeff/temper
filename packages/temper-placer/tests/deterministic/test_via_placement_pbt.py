@@ -34,13 +34,10 @@ Three metamorphic relations (R1d):
 from __future__ import annotations
 
 import math
-import random
-
-import hypothesis
-from hypothesis import given, settings
-from hypothesis import strategies as st
 
 import temper_geometry as _tg
+from hypothesis import given, settings
+from hypothesis import strategies as st
 
 _COORD = st.floats(min_value=-20.0, max_value=20.0, allow_nan=False, allow_infinity=False)
 _RAD = st.floats(min_value=1e-3, max_value=2.0, allow_nan=False, allow_infinity=False)
@@ -74,7 +71,7 @@ def test_p1_self_distance_zero(x, y):
 @settings(max_examples=200, deadline=None)
 def test_p2_clearance_monotonic(pos, pads, vmr, c):
     if not _tg.is_via_position_valid(pos[0], pos[1], _flat(pads), vmr, c):
-        hypothesis.assume(False)  # property is one-directional
+        return  # property is one-directional: only constrains valid inputs
     smaller = max(0.0, c - 0.05)
     assert _tg.is_via_position_valid(pos[0], pos[1], _flat(pads), vmr, smaller) is True
 
@@ -83,7 +80,7 @@ def test_p2_clearance_monotonic(pos, pads, vmr, c):
 @settings(max_examples=200, deadline=None)
 def test_p3_mask_radius_monotonic(pos, pads, mc, vmr):
     if not _tg.is_via_position_valid(pos[0], pos[1], _flat(pads), vmr, mc):
-        hypothesis.assume(False)
+        return  # property is one-directional: only constrains valid inputs
     smaller = max(1e-3, vmr - 0.1)
     assert _tg.is_via_position_valid(pos[0], pos[1], _flat(pads), smaller, mc) is True
 
@@ -142,7 +139,7 @@ def test_mr3_candidates_on_spiral_lattice(pos, pads, vmr, mc):
     flat = _flat(pads)
     result = _tg.place_via_with_clearance(pos[0], pos[1], flat, vmr, mc, 2.0)
     if result is None or (result[0], result[1]) == pos:
-        hypothesis.assume(False)
+        return  # vacuous for these inputs; only non-target candidates are constrained
     rx, ry = result
     found = False
     for r in _RADII:

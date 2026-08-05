@@ -26,13 +26,10 @@ Numerical traps pinned here:
 from __future__ import annotations
 
 import random
-import string
 
-import pytest
 import temper_geometry as _tg
-
 import tests.deterministic._grid_utils_py_oracle as _oracle
-from tests.core._contract_canon import canon, canon_call
+from tests.core._contract_canon import canon
 
 # Rust symbols under test — must exist or this file fails to collect (RED).
 RS_SNAP = _tg.snap_to_grid
@@ -139,8 +136,13 @@ def test_snap_to_grid_default_grid_size():
 def _assert_nudge_equal(
     path: list[tuple[float, float]], start: tuple[float, float], end: tuple[float, float]
 ) -> None:
+    flat = [x for p in path for x in p]
+    rs = RS_NUDGE(flat, start[0], start[1], end[0], end[1])
+    # The delegation shim un-flattens the Rust result into the original
+    # list-of-tuples shape; mirror that exactly here.
+    rs_pts = [(rs[i], rs[i + 1]) for i in range(0, len(rs), 2)]
     assert canon(_oracle.add_endpoint_nudge(path, start, end)) == canon(
-        RS_NUDGE([x for p in path for x in p], start[0], start[1], end[0], end[1])
+        rs_pts
     ), f"add_endpoint_nudge mismatch for path={path!r} start={start!r} end={end!r}"
 
 
@@ -185,7 +187,8 @@ def test_nudge_preserves_path_order():
         path = _rand_paths(1, seed=9)[0]
         start = _rand_positions(1, seed=10)[0]
         end = _rand_positions(1, seed=11)[0]
-        result = list(RS_NUDGE([x for p in path for x in p], start[0], start[1], end[0], end[1]))
+        flat = [x for p in path for x in p]
+        result = list(RS_NUDGE(flat, start[0], start[1], end[0], end[1]))
         path_seq = [tuple(result[i : i + 2]) for i in range(0, len(result), 2)]
         # The original path points must appear as a contiguous subsequence.
         if path:

@@ -1084,3 +1084,152 @@ behind that average.
 The migration is fidelity-driven regardless: its purpose is one
 implementation of the KiCad rotation convention and CPython's float
 semantics, not throughput.
+
+---
+
+## Deterministic leaf geometry — grid_utils + via_placement (Wave 4, Phase 5, first slice, 2026-08-04)
+
+The compute of `temper_placer/deterministic/geometry/grid_utils.py`
+(`snap_to_grid`, `add_endpoint_nudge`) and
+`temper_placer/deterministic/geometry/via_placement.py` (`distance`,
+`is_via_position_valid`, `place_via_with_clearance`) moved here
+(`src/grid_utils.rs`, `src/via_placement.rs`, with the dlsym "host math"
+helpers extracted to the shared `src/host_math.rs`). The Python modules
+are now delegation shims; the pre-migration implementations are pinned
+VERBATIM as the differential oracles
+(`tests/deterministic/_grid_utils_py_oracle.py`,
+`tests/deterministic/_via_placement_py_oracle.py`).
+
+### Candidate scorecard
+
+| Kernel | Python origin | Verdict |
+|---|---|---|
+| `snap_to_grid` | `grid_utils.snap_to_grid` | migrated |
+| `add_endpoint_nudge` | `grid_utils.add_endpoint_nudge` | migrated |
+| `via_distance` | `via_placement.distance` | migrated |
+| `is_via_position_valid` | `via_placement.is_via_position_valid` | migrated |
+| `place_via_with_clearance` | `via_placement.place_via_with_clearance` | migrated |
+| `PadInfo` dataclass | `via_placement.PadInfo` | **stays Python** — pure container; the boundary crosses flattened fields |
+
+### Induction applicability
+
+Mathematical induction is not applicable to these kernels: none is
+recursive, and none iterates over a dimension whose correctness depends on
+a size parameter. `snap_to_grid` / `via_distance` / `is_via_position_valid`
+are closed-form scalar expressions; `add_endpoint_nudge` and
+`place_via_with_clearance` iterate over caller-provided collections whose
+per-element operations are size-independent (`add_endpoint_nudge` over a
+fixed 2-3-element sequence of nudges, `place_via_with_clearance` over a
+FIXED 8×8 spiral — the radius list and angle range are compile-time
+constants). Per R1e, a **structural proof** is recorded instead.
+
+### Structural proof (bit-identical parity)
+
+Each kernel is a direct transcription of the oracle body with the following
+load-bearing equivalences, each pinned by the differential suites and the
+mutation campaign:
+
+1. **round-half-to-even + int-semantics (`snap_to_grid`).** CPython's
+   `round(x)` without ndigits runs `_Py_double_round` (round-half-to-even),
+   then converts the double to an `int` before multiplying by `grid_size`.
+   `host_math::py_round` uses `f64::round_ties_even` (the same IEEE
+   roundTiesToEven `_Py_double_round` implements — both correctly rounded,
+   hence identical on every finite input) and normalises `-0.0 → +0.0`
+   because `int(-0.0) == 0` makes the CPython product `+0.0 * grid_size`.
+   Rust's `f64::round` (half-away-from-zero) is deliberately NOT used —
+   verified by mutant M1 (killed). A non-finite division result raises the
+   exact CPython errors (M2-adjacent, pinned by `SnapError`):
+   `OverflowError`/`ValueError` with CPython's message text, checked
+   left-to-right like CPython's tuple evaluation order.
+2. **`** 2` / `** 0.5` are libm `pow`.** CPython's `x ** y` on floats is
+   libm `pow` (float_pow), NOT `x * x` and NOT `sqrt` — measured
+   mismatch rates on this platform ~1.3e-3 (pow vs x*x) and ~1.4e-3 (pow
+   vs sqrt). Every squared/half-power site routes through
+   `host_math::pow`, resolved via `dlsym(RTLD_DEFAULT, ...)` to the exact
+   libm the host CPython process loaded (the `_Py_double_round` C helper
+   `round()`/`round_ties_even` are hardware IEEE ops and match without
+   dlsym). Mutant M6 (`x * x` in `via_distance`) was killed by the
+   randomized differential arm; M6 is the one survivor-adjacent case — see
+   the campaign notes below.
+3. **`math.sqrt` is correctly-rounded IEEE sqrt.** `via_distance` uses
+   `f64::sqrt` (matches `math.sqrt` bit-for-bit; NOT routed through dlsym).
+4. **`math.radians(d)` is `d * (pi / 180.0)`; `math.cos`/`math.sin` are the
+   host libm's.** The Rust side computes `angle * (std::f64::consts::PI /
+   180.0)` (the same IEEE division of the same double constant CPython
+   folds) and resolves cos/sin via `host_math` dlsym. The spiral angle
+   sweep is `range(0, 360, 45)` → `0..360 step 45`.
+5. **Strict comparison semantics.** `is_via_position_valid` uses
+   `< required_distance` (STRICT — an exactly-equal distance is VALID,
+   pinned by a fixed case; mutant M7 `<=` killed). `add_endpoint_nudge`
+   uses `> 1e-4` (STRICT — an exactly-`1e-4` offset is NOT nudged, pinned
+   by `test_nudge_threshold_boundary`; mutant M4 `>=` killed).
+6. **Search-order determinism.** `place_via_with_clearance` checks the
+   target once up front (mutant M8, removing the short-circuit, killed by
+   `test_place_empty_pads_returns_target`), then walks the FIXED radius
+   list in order with `break` on `r > max_search_radius` (mutant M9 `>=`
+   killed by the msr=1.25 case) and angles `0..360 step 45`; the first
+   valid candidate wins. There is no set/dict iteration anywhere in these
+   kernels, so no iteration-order trap applies.
+7. **Empty-input semantics.** `add_endpoint_nudge([])` returns `[]` and
+   `is_via_position_valid` over zero pads returns `True` — both asserted
+   explicitly in the differential (vacuity guards).
+
+### Mutation campaign (Phase 5, Batch 1 — 9 mutants, 9 killed, 0 survivors)
+
+Driver: `scripts/phase5_batch1_mutations.py` (reproducible; apply →
+rebuild → run the four suites → expect failure → revert).
+
+| Mutant | Site | What caught it |
+|---|---|---|
+| M1 `f64::round` (half-away) for round-half-even | `host_math::py_round` | fixed half-even cases (0.125/0.375/… grid 0.25) + exact-halves randomized |
+| M2 dropped `-0.0 → +0.0` normalisation | `host_math::py_round` | `snap_to_grid(-0.125, …)` tie → `+0.0` (hex differs) |
+| M3 no rounding at all (`rx * gs`) | `grid_utils::snap_to_grid` | randomized + on-grid identity cases |
+| M4 nudge threshold `>= 1e-4` | `grid_utils::add_endpoint_nudge` | `test_nudge_threshold_boundary` (exact 1e-4 → no nudge) |
+| M5 always append the end nudge | `grid_utils::add_endpoint_nudge` | `test_nudge_single_point_path` (end-coincides case) |
+| M6 `x * x` for `pow(x, 2.0)` | `via_placement::distance` | randomized differential arm (~1.3e-3 per-pow mismatch rate) |
+| M7 `<=` for `<` | `via_placement::is_via_position_valid` | `test_is_valid_boundary_equality_not_less_than` (equal distance → valid) |
+| M8 drop target-valid short-circuit | `via_placement::place_via_with_clearance` | `test_place_empty_pads_returns_target` |
+| M9 `>=` for `>` (max_search_radius) | `via_placement::place_via_with_clearance` | `test_place_max_search_radius_respected` (msr=1.25 reaches r=1.25) |
+
+**Equivalent-mutation notes (not kill targets, argued in-source):**
+- Commutative reorder of `pow(dx,2.0) + pow(dy,2.0)` — IEEE addition is
+  commutative, bit-identical by construction.
+- `x * x` inside `add_endpoint_nudge`'s distance — the nudge's only
+  observable use of the distance is the `> 1e-4` threshold decision, and
+  no input straddling the threshold under the two readings was found in a
+  10M-ulp-neighbourhood search around `1e-4` (the pow-vs-x*x delta is
+  ~5e-21 at that magnitude, far below the 1-ulp resolution of the
+  boundary). The same pow semantics ARE discriminated in `via_distance`
+  (M6), which shares `host_math::pow`.
+- Composed `sqrt(pow(dx,2)+pow(dy,2))` robustness — a fixed
+  sqrt-discriminating input for the pow-vs-x*x mutation was NOT found in
+  ~12M structured draws (the sqrt round-trip washes out the 1-ulp squared
+  difference); the randomized arm carries the discrimination. Recorded,
+  not a lowering of the claim: M6 was killed by the randomized arm.
+
+### R1 gate status (Phase 5, Batch 1)
+
+- **R1a** — differential suites assert bit-identical output
+  (`float.hex()`, type-carrying `canon`, empty-input semantics, error
+  type+message parity). 39 assertions/examples green.
+- **R1b** — pure-delegation compute with no measurable workload at this
+  slice's call sites (dormant leaf kernels, imp=0); no perf arm registered
+  (recorded as not-applicable — the kernels' callers are the stages under
+  migration, which are not yet wired into a measurable hot path).
+- **R1c** — 5 non-vacuous properties per module (grid_utils: idempotence,
+  half-cell bound, pow-2 scale invariance, on-grid identity, zero fixed
+  point + empty path; via_placement: self-distance zero, clearance
+  monotonic, mask-radius monotonic, extra-pad never helps, place-returns-
+  valid-or-target).
+- **R1d** — 3 metamorphic relations per module (grid_utils: axis
+  independence, reflection, nudge order preservation; via_placement: pad
+  order invariance, reflection, spiral-lattice candidates).
+- **R1e** — this entry (structural proof; induction N/A, stated why).
+- **R1f** — TDD: oracles + differentials + PBT committed first as RED
+  (fails to collect), then the Rust landed GREEN (commit 02593b8f0 →
+  subsequent migration commit).
+- **R1g** — borrow over clone, no `unwrap` outside tests, `catch_unwind`
+  at every pyo3 boundary (`temper_py_bridge::catch_unwind` +
+  `panic_to_err`), `PyResult` everywhere.
+- **R1h** — not physics-gated (no thermal/creepage physics quantity is
+  computed here; state explicitly: not applicable).
