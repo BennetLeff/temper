@@ -9,11 +9,17 @@ boundary crosses names + flat bounds). The pre-migration implementation is
 pinned VERBATIM as the oracle (``_zone_geometry_py_oracle.py``).
 
 Numerical traps pinned here:
-- the 4-zone layout derives every boundary from ``board_width * 0.3`` /
-  ``* 0.6`` / ``* 0.9`` with the oracle's exact expression order (each
-  subsequent boundary reuses the previous product, not a fresh multiply);
+- the 4-zone layout derives every MAX boundary from INDEPENDENT fresh
+  multiplies ``board_width * 0.3`` / ``* 0.6`` / ``* 0.9`` (the oracle
+  computes each product from ``board_width`` directly; only the MIN
+  boundaries reuse the previous product — a reuse chain for the MAX
+  boundaries would break bit-parity, e.g. ``(w*0.3)*3 = 0.09`` vs
+  ``w*0.9 = 0.09000000000000001`` for ``w = 0.1``);
 - the config dict branch scales ``bounds_ratio`` by the board dimensions
   with ``ratio[i] * board_dim`` in the oracle's order;
+- int board dims pass through the untouched leaves (``y_max`` everywhere,
+  ``MCU.x_max``) with the caller's type — ``int`` on an integer board —
+  while the products stay float;
 - empty/degenerate boards are guarded by the stage's ``run`` (stays
   Python); the layout kernel itself is total for finite dimensions.
 """
@@ -72,6 +78,27 @@ def test_layout_non_standard_dimensions():
         exp = _zones_to_tuples(_oracle.define_zone_layout(w, h))
         got = list(RS_LAYOUT(w, h))
         assert canon(exp) == canon(got)
+
+
+def test_layout_int_dims_preserve_int_leaves():
+    """Int board dims: the oracle passes the dims through UNTOUCHED.
+
+    The 4-zone layout keeps ``board_height`` as Python ``int`` in every
+    y_max position and ``board_width`` as ``int`` in the MCU x_max position
+    (the products ``w * 0.3 / 0.6 / 0.9`` are float regardless of w's
+    type). The type-carrying canon sees ``int 100 != float 100.0``, so the
+    Rust arm must pass the raw dims through rather than widening to f64.
+    """
+    exp = _zones_to_tuples(_oracle.define_zone_layout(100, 100))
+    got = list(RS_LAYOUT(100, 100))
+    assert canon(exp) == canon(got)
+    # The leaves the oracle preserves as int:
+    assert isinstance(exp[0][4], int)  # HV y_max
+    assert isinstance(exp[3][3], int)  # MCU x_max
+    assert isinstance(exp[3][4], int)  # MCU y_max
+    # ... and the boundary products stay float:
+    assert isinstance(exp[0][3], float)  # HV x_max = 100 * 0.3
+    assert not isinstance(exp[0][3], int)
 
 
 def test_scale_zone_bounds_dict_branch():
