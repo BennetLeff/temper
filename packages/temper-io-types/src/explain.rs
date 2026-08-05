@@ -173,8 +173,10 @@ fn decision_trace_why_not_impl(
                 let value_str = py_str(value)?;
                 let rejection: String = alt.getattr("rejection_reason")?.extract()?;
                 let mut msg = format!("{value_str} was rejected: {rejection}");
+                // Python truthiness (`if alt.constraint_violated:`): '' is
+                // falsy and suppresses the suffix.
                 let constraint_violated = alt.getattr("constraint_violated")?;
-                if !constraint_violated.is_none() {
+                if constraint_violated.is_truthy()? {
                     msg.push_str(&format!(
                         " (Constraint violated: {})",
                         py_str(&constraint_violated)?
@@ -458,7 +460,7 @@ pub fn explain_log_heuristic(
     subject: &str,
     position: &Bound<'_, PyAny>,
     reason: &str,
-    confidence: f64,
+    confidence: &Bound<'_, PyAny>,
     epoch: Option<i64>,
     iteration: Option<i64>,
 ) -> PyResult<Py<PyDict>> {
@@ -476,6 +478,8 @@ pub fn explain_log_heuristic(
         out.set_item("previous_value", py.None())?;
         out.set_item("reason", effective_reason)?;
         out.set_item("constraint_refs", PyList::empty(py))?;
+        // Pass the confidence through UNCHANGED (int stays int) — the oracle
+        // stores `loss_contribution=confidence` raw (#715/#754 int-preservation).
         out.set_item("loss_contribution", confidence)?;
         out.set_item("alternatives", PyList::empty(py))?;
         match epoch {
@@ -756,7 +760,7 @@ fn render_component_section_impl(
             let value = format_value_impl(&alt.getattr("value")?)?;
             let reason: String = alt.getattr("rejection_reason")?.extract()?;
             let constraint_violated = alt.getattr("constraint_violated")?;
-            if !constraint_violated.is_none() {
+            if constraint_violated.is_truthy()? {
                 lines.push(format!(
                     "{}. {value}: {} (`{}`)",
                     i + 1,

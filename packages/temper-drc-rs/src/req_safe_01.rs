@@ -1236,12 +1236,25 @@ pub fn req_safe_01_format_clearance_report(
                 .unwrap_or(std::cmp::Ordering::Equal)
                 .then_with(|| a.1.cmp(&b.1))
         });
-        let shown: Vec<&Bound<'_, PyAny>> = match limit {
-            Some(l) if (l as usize) < rows.len() => {
-                rows[..l as usize].iter().map(|(_, _, v)| v).collect()
+        // Python `rows[:limit]` semantics: a negative stop means
+        // len(rows) + limit, clamped to 0 (limit=-1 drops the last row);
+        // a positive stop is clamped to len(rows).
+        let n_rows = rows.len() as i64;
+        let shown_count: usize = match limit {
+            None => rows.len(),
+            Some(l) => {
+                let stop = if l >= 0 {
+                    l.min(n_rows)
+                } else {
+                    (n_rows + l).max(0)
+                };
+                stop as usize
             }
-            _ => rows.iter().map(|(_, _, v)| v).collect(),
         };
+        let shown: Vec<&Bound<'_, PyAny>> = rows[..shown_count]
+            .iter()
+            .map(|(_, _, v)| v)
+            .collect();
 
         let header = format!(
             "{:<16} {:<22} {:<11} {:<9} {:>8} {:>7} {:>8}  model",
@@ -1271,7 +1284,12 @@ pub fn req_safe_01_format_clearance_report(
                     ref_b.as_deref().unwrap_or("")
                 )
             } else {
-                ref_a.clone().unwrap_or_else(|| "?".to_string())
+                // Python `v.ref_a or "?"`: an empty string is falsy, so ''
+                // falls back to '?' just like None.
+                match ref_a.as_deref() {
+                    Some(r) if !r.is_empty() => r.to_string(),
+                    _ => "?".to_string(),
+                }
             };
 
             let insul = match v.getattr("insulation_type")? {
@@ -1314,10 +1332,13 @@ pub fn req_safe_01_format_clearance_report(
             ));
         }
 
+        // Python: `if limit is not None and len(rows) > limit` — the raw
+        // comparison/arithmetic, so a NEGATIVE limit always prints the
+        // footer ("and n+1 more" for limit=-1) exactly like CPython.
         if let Some(l) = limit
-            && (l as usize) < rows.len()
+            && n_rows > l
         {
-            lines.push(format!("... and {} more", rows.len() - (l as usize)));
+            lines.push(format!("... and {} more", n_rows - l));
         }
 
         lines.push(String::new());

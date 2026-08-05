@@ -62,6 +62,12 @@ fn py_min(a: f64, b: f64) -> f64 {
     if b < a { b } else { a }
 }
 
+/// Python `max(a, b)`: returns `a` unless `b > a` (order-sensitive around
+/// NaN — CPython's max keeps the first arg when the comparison is False).
+fn py_max(a: f64, b: f64) -> f64 {
+    if b > a { b } else { a }
+}
+
 /// `obj.severity.name` for a drc_result.Issue.
 fn severity_name(issue: &Bound<'_, PyAny>) -> PyResult<String> {
     let sev = issue.getattr("severity")?;
@@ -242,14 +248,16 @@ fn format_json_data_impl<'py>(
     data.set_item("passed_checks", passed_checks)?;
     data.set_item("failed_checks", failed_checks)?;
     data.set_item("total_issues", total_issues)?;
-    data.set_item("runtime_ms", get_f64(result, "total_elapsed_ms")?)?;
+    // Leaf type passes through raw: an int total_elapsed_ms stays an int in
+    // the JSON (the oracle copies `result.total_elapsed_ms` unchanged).
+    data.set_item("runtime_ms", result.getattr("total_elapsed_ms")?)?;
 
     let checks = PyList::empty(py);
     for check_result in &check_results {
         let check_data = PyDict::new(py);
         check_data.set_item("name", get_str(check_result, "check_name")?)?;
         check_data.set_item("passed", check_result.getattr("passed")?.is_truthy()?)?;
-        check_data.set_item("elapsed_ms", get_f64(check_result, "elapsed_ms")?)?;
+        check_data.set_item("elapsed_ms", check_result.getattr("elapsed_ms")?)?;
         let issues = iter_items(&check_result.getattr("issues")?)?;
         check_data.set_item("issue_count", issues.len())?;
         let issues_list = PyList::empty(py);
@@ -263,8 +271,8 @@ fn format_json_data_impl<'py>(
             let location = issue.getattr("location")?;
             if !location.is_none() {
                 let loc = PyDict::new(py);
-                loc.set_item("x", get_f64(&location, "x")?)?;
-                loc.set_item("y", get_f64(&location, "y")?)?;
+                loc.set_item("x", location.getattr("x")?)?;
+                loc.set_item("y", location.getattr("y")?)?;
                 loc.set_item("layer", location.getattr("layer")?)?;
                 issue_data.set_item("location", loc)?;
             }
@@ -507,7 +515,9 @@ fn calculate_benchmark_result_impl<'py>(
         // less — order-sensitive around NaN, unlike f64::min.
         py_min(overlap_score, boundary_score) * 0.5
     } else {
-        0.4 * (1.0 / (wl_ratio.max(0.5))) + 0.3 * thermal_score + 0.3 * compactness_score
+        // Python's max() keeps the first arg (wl_ratio) when the comparison
+        // is False — a NaN wl_ratio stays NaN instead of folding to 0.5.
+        0.4 * (1.0 / py_max(wl_ratio, 0.5)) + 0.3 * thermal_score + 0.3 * compactness_score
     };
 
     let mut violations: Vec<String> = Vec::new();
@@ -539,7 +549,9 @@ fn calculate_benchmark_result_impl<'py>(
     out.set_item("overlap_score", overlap_score)?;
     out.set_item("boundary_score", boundary_score)?;
     out.set_item("thermal_score", thermal_score)?;
-    out.set_item("compactness_score", compactness_score)?;
+    // compactness_score passes through raw so an int input stays int (the
+    // oracle stores `human_metrics.get("compactness_score", ...)` unchanged).
+    out.set_item("compactness_score", &compactness_obj)?;
     out.set_item("overall_score", overall)?;
     out.set_item("status", status)?;
     out.set_item("violations", violations)?;
@@ -592,7 +604,9 @@ fn benchmark_json_data_impl<'py>(
         rd.set_item("drc_errors", r.getattr("drc_errors")?.extract::<i64>()?)?;
         rd.set_item("wirelength_ratio", get_f64(&r, "wirelength_ratio")?)?;
         rd.set_item("thermal_score", get_f64(&r, "thermal_score")?)?;
-        rd.set_item("compactness_score", get_f64(&r, "compactness_score")?)?;
+        // compactness_score passes through raw: an int input stays int
+        // (`human_metrics.get("compactness_score", ...)` unchanged).
+        rd.set_item("compactness_score", r.getattr("compactness_score")?)?;
         rd.set_item("overall_score", get_f64(&r, "overall_score")?)?;
         rd.set_item("status", get_str(&r, "status")?)?;
         rd.set_item("violations", r.getattr("violations")?)?;
