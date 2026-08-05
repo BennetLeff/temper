@@ -3,99 +3,99 @@ occupancy_grid,PORT,"OccupancyGrid class is 186 stmts of pure-numpy grid marking
 constraints_drc_oracle,PORT,"DRCOracle is a single 294-stmt class; density 0.48, 115 BinOp; live via core/board.py + deterministic/state.py + deterministic/stages/setup.py"
 connectivity,PORT,"14 stdlib touch/intersect predicates over pads/tracks/vias/zones; density 0.53; only 4 shapely call sites (2 .contains, 2 .intersects)"
 _astar_theta_star,PORT,"Theta* + Lazy Theta* search loops, pure Python/numpy, density 0.33; NOT on the route_pcb entry (see caveat) but is the default for RouterV6Pipeline"
-quality/corridor,PORT,"corridor-consolidation and track-spread scoring; stdlib-only; density 0.51"
+quality/corridor,RETIRE,"#750: compares two coordinate frames (board-relative courtyards vs page-absolute traces). bitaxe_ultra identifies 739 channels and assigns 0 tracks; both published scores near-constant on 4/5 corpus boards. Both else arms of _identify_channels unreachable (97,522 if / 0 else over 200k pairs). It measures nothing"
 astar_grid,PORT,"pad/via blocking-mask maintenance over numpy grids; density 0.52; 10 functions, no third-party beyond numpy"
-resource_bound,PORT,"bbox conflict-clustering + capacity/fill arithmetic; density 0.40; numpy only"
-metrics/slop_linter,PORT,"post-route angle/zigzag/detour geometry; stdlib-only; density 0.32; consumed by placer/cp_sat/gates.py:960 (a product gate)"
-thermal_relief,PORT,"spoke-segment geometry + board-outline clamp (_clamp_to_board_outline is 47 stmts); density 0.31; 1 shapely intersection call"
-congestion,PORT,"grid congestion estimate + demand model; numpy; density 0.33"
-constraints_geometry,PORT,"already in flight as PR #732 (149->40 stmts); density 0.86"
-acid_trap_detection,PORT,"acute-angle detection + severity classification; stdlib; density 0.28"
-quality/via_count,PORT,"via classification via bbox/edge tests; stdlib; density 0.26"
-power_plane,PORT,"pour rectangles + thermal-via lattice generation; density 0.49"
-net_ordering,PORT,"HPWL / bbox-area / loop-criticality arithmetic over nets; density 0.23; also consumed by deterministic/stages/net_ordering.py"
-copper_balance,PORT,"per-layer copper-area integration incl. via annular area; density 0.41"
-capacity_check,PORT,"bbox capacity sums over the channel grid; numpy; density 0.45"
-congestion_analysis,PORT,"congested-region identification + severity classification; density 0.53"
-via_placement,PORT,"layer-transition detection and via emission along a 3D path; density 0.23"
-teardrop_generation,PORT,"teardrop polygon construction; density 0.41"
-annular_ring_check,PORT,"annular-ring arithmetic per via/layer; density 0.29"
-_astar_ordering,PORT,"single 73-stmt _compute_net_order kernel; density 0.31"
-routing_demand,PORT,"per-channel demand estimate; density 0.43"
-escape_via_generator,PORT,"escape-via position search with validity test; density 0.35"
-layer_capacity,PORT,"per-layer track capacity arithmetic; density 0.39"
-congestion_heatmap,PORT,"numpy heatmap accumulation; density 0.63"
-placement_suggestions,PORT,"suggested-position vector math; density 0.62"
-apply_suggestions,PORT,"damped position update; density 0.57"
-placement_audit,BLOCKED,"kernel is GEOS end to end -- MultiPoint.convex_hull + .buffer at :66,:69 and .intersects/.intersection/.area/.centroid at :85-94; same polygon-algebra boundary as obstacle_map/routing_space"
-neighbor_validity,PORT,"numpy neighbour-validity tensor; density 0.50; its output is already the Rust A* kernel's input (astar_core_rust.py:113)"
-terminal_tree,PORT,"deterministic nearest-neighbour terminal-tree plan; density 0.48"
-path_simplify,PORT,"collinearity test + path simplification; density 0.28"
-grid_converter,PORT,"grid<->world conversion + path length/via counting; density 0.90"
-terminal_extraction,PORT,"stable physical terminal extraction; density 0.27"
+resource_bound,PORT,bbox conflict-clustering + capacity/fill arithmetic; density 0.40; numpy only
+metrics/slop_linter,PORT,post-route angle/zigzag/detour geometry; stdlib-only; density 0.32; consumed by placer/cp_sat/gates.py:960 (a product gate)
+thermal_relief,PORT,spoke-segment geometry + board-outline clamp (_clamp_to_board_outline is 47 stmts); density 0.31; 1 shapely intersection call
+congestion,PORT,grid congestion estimate + demand model; numpy; density 0.33
+constraints_geometry,PORT,already in flight as PR #732 (149->40 stmts); density 0.86
+acid_trap_detection,PORT,acute-angle detection + severity classification; stdlib; density 0.28
+quality/via_count,PORT,via classification via bbox/edge tests; stdlib; density 0.26
+power_plane,PORT,pour rectangles + thermal-via lattice generation; density 0.49
+net_ordering,PORT,HPWL / bbox-area / loop-criticality arithmetic over nets; density 0.23; also consumed by deterministic/stages/net_ordering.py
+copper_balance,PORT,per-layer copper-area integration incl. via annular area; density 0.41
+capacity_check,PORT,bbox capacity sums over the channel grid; numpy; density 0.45
+congestion_analysis,PORT,congested-region identification + severity classification; density 0.53
+via_placement,GLUE,#749 CORRECTION: two abs() subtractions is its entire arithmetic. Pinned anyway because it PRODUCES the Via objects the other six DFM modules consume
+teardrop_generation,PORT,teardrop polygon construction; density 0.41
+annular_ring_check,PORT,annular-ring arithmetic per via/layer; density 0.29
+_astar_ordering,PORT,single 73-stmt _compute_net_order kernel; density 0.31
+routing_demand,PORT,per-channel demand estimate; density 0.43
+escape_via_generator,PORT,escape-via position search with validity test; density 0.35
+layer_capacity,PORT,per-layer track capacity arithmetic; density 0.39
+congestion_heatmap,PORT,numpy heatmap accumulation; density 0.63
+placement_suggestions,PORT,suggested-position vector math; density 0.62
+apply_suggestions,PORT,damped position update; density 0.57
+placement_audit,GLUE,S1/#747 CORRECTION: not a GEOS blocker at all -- advisory diagnostics whose output reaches only a verbose print. JUSTIFIED-KEEP
+neighbor_validity,PORT,numpy neighbour-validity tensor; density 0.50; its output is already the Rust A* kernel's input (astar_core_rust.py:113)
+terminal_tree,PORT,deterministic nearest-neighbour terminal-tree plan; density 0.48
+path_simplify,PORT,collinearity test + path simplification; density 0.28
+grid_converter,PORT,grid<->world conversion + path length/via counting; density 0.90
+terminal_extraction,PORT,stable physical terminal extraction; density 0.27
 astar_core,PORT,"_astar_search (57) + _astar_search_3d (72) + _route_segment_3d (36) are live Python search loops (2D fallback is taken whenever net_id >= 0, _astar_search.py:95); ~41 stmts are RoutePath/RouteNode3D contract dataclasses"
-channel_skeleton,BLOCKED,"shapely.ops.voronoi_diagram (channel_skeleton.py:14,279) + shapely.prepared + networkx; recorded spike-gate in docs/wave4-verdicts.yaml:111"
-routability_check,BLOCKED,"scipy.ndimage.distance_transform_edt (:395) and scipy.ndimage.label (:341); EDT is the recorded KTD8 keep (edt crate max diff 2.0-2.236)"
-_astar_heuristics,BLOCKED,"scipy.ndimage.distance_transform_edt at :100 -- named verbatim in the KTD8 verdict line of docs/wave4-discipline-contract.md:120"
-constraints_spatial_index,BLOCKED,"module's stated purpose is scipy.spatial.cKDTree (docstring line 4, import :15); kNN tie-break order is implementation-defined, no measured Rust parity"
-_zone_pour_stitch,BLOCKED,"scipy.spatial.cKDTree at :163 plus shapely; same unmeasured kNN boundary"
-zone_emission,BLOCKED,"scipy.cluster.hierarchy linkage/fcluster + scipy.spatial.distance.pdist at :91-92; merge-order semantics have no Rust drop-in"
-channel_mapping,BLOCKED,"networkx.shortest_path over the skeleton graph at :339,:343; nx path-tie order is algorithm-defined (same class as the recorded nx.minimum_cut keep)"
-topology_extraction,BLOCKED,"networkx.DiGraph is the carried type (:22,:97); also 36 of its 56 stmts are test-only (see DEAD notes)"
-obstacle_map,BLOCKED,"GEOS boolean algebra: unary_union x2 + buffer x4; emits shapely MultiPolygon as its cross-module type"
-routing_space,BLOCKED,"GEOS .difference + .area; RoutingSpace.available_area is typed MultiPolygon (:29) so the type crosses module boundaries"
-constraints_design_rules,BLOCKED,"kiutils parse (recorded 'kiutils leaves the boundary at this phase', wave4-verdicts.yaml:55) + GEOS convex_hull/buffer; a 110-stmt ClearanceMatrix sub-kernel is separable -- see split candidates"
-constraint_model,ELSEWHERE,"recorded Phase 2 contract in docs/wave4-verdicts.yaml:110"
-routing_results,ELSEWHERE,"recorded Phase 2 contract in docs/wave4-verdicts.yaml:110"
+channel_skeleton,BLOCKED,"S4/#746 CORRECTION: the recorded gate had NEVER been run, and a plan described it as 'pre-spiked'. GEOS Voronoi IS deterministic (20 repeats, 3 seeds, 8 permutations). The real blocker is edge_id built from unrounded float repr at constraint_model.py:325-337 -- geometry agrees to 1.05e-15, identifiers 0/12. Narrowing = 1nm quantisation + canonical edge ordering"
+routability_check,BLOCKED,scipy.ndimage.distance_transform_edt (:395) and scipy.ndimage.label (:341); EDT is the recorded KTD8 keep (edt crate max diff 2.0-2.236)
+_astar_heuristics,BLOCKED,scipy.ndimage.distance_transform_edt at :100 -- named verbatim in the KTD8 verdict line of docs/wave4-discipline-contract.md:120
+constraints_spatial_index,PORT,"S2/#743 CORRECTION: issues NO kNN query -- three query_ball_point radius queries, k absent. 0 accept/reject differences in 1,200 probes; the real divergence is scipy's return_sorted=None default, driven to zero by return_sorted=True at :233,:252,:266 (a precondition, not a blocker)"
+_zone_pour_stitch,PORT,"S2/#743: the k=1 query does select emitted copper (a crafted tie flips a segment endpoint, dmin bit-identical) but is unreachable -- _emit_zone_pours always passes cluster=False, 0 queries across 8 configurations. DORMANT HAZARD: reactivates for a netclass with clearance == 0, of which none exists"
+zone_emission,BLOCKED,"S5/#748: the scipy blocker is DELETED (3,904 permutation trials, 0 partition flips; _cluster_positions unreachable -- all 16 zone-eligible nets are continuity-exempt). But the survey MISSED a GEOS boundary: _convex_hull_from_positions runs on every zone regardless of clustering -- 2,141/3,904 byte flips with identical copper. Reclassified scipy -> GEOS"
+channel_mapping,PORT,"S3/#744 CORRECTION: nx.shortest_path at :339,:343 is unreachable (dominated by 'if not channel_sequence: return None'), so DELETE the branch rather than port it -- it is not stable even within Python (256 tied paths, 32/32 permutations differ). Removing it drops networkx from the module entirely"
+topology_extraction,SPLIT,"#745: extract_topology_solution and _extract_net_topology (36 stmts) retired -- _pipeline_route.py:368,377 constructs the types directly. NetTopology and TopologyGraph (20 stmts) are live ELSEWHERE contracts"
+obstacle_map,PORT,"S1/#747: unary_union falls out under the narrowing; Point.buffer vertices are exactly reconstructible as a 4q-gon (0/16 and 0/32 mismatches, class B1 only). buffer(0) at :108 and LineString.buffer at :137 stay Python -- 2 kept lines"
+routing_space,PORT,"S1/#747: narrowing measured -- contains(board,p) & ~OR intersects(obs_i,p) matches production on 598,400/598,400 cells incl. the eroded C-space path. DEGRADED by S4/#746: channel_skeleton stays Python and still needs a real MultiPolygon, so one lazy GEOS consumer remains"
+constraints_design_rules,SPLIT,"S5/#748 CORRECTION: my kiutils citation pointed at a verdict whose pattern is io/**, not router_v6/**. kiutils.board.Board has no netClasses in 1.4.8 so the parse branch is unreachable for ANY input; parse_from_file and infer_zones have zero callers repo-wide. Splits 90 PORT / 20 Phase-3 seam / 40 BLOCKED(GEOS via ZoneManager STRtree) / 64 DEAD / 36 PORT-or-Phase-3"
+constraint_model,ELSEWHERE,recorded Phase 2 contract in docs/wave4-verdicts.yaml:110
+routing_results,ELSEWHERE,recorded Phase 2 contract in docs/wave4-verdicts.yaml:110
 stage0_data,ELSEWHERE,"41 class-level AnnAssign, 7 BinOp, density 0.15; 22 router_v6 + 10 placer consumers -- the package's central contract carrier, same shape as the two recorded Phase 2 contracts"
-diagnostics,ELSEWHERE,"42 AnnAssign across 2 enums + 4 frozen dataclasses; only compute is 2 scoring functions of 7-8 stmts"
+diagnostics,ELSEWHERE,42 AnnAssign across 2 enums + 4 frozen dataclasses; only compute is 2 scoring functions of 7-8 stmts
 _pipeline_types,ELSEWHERE,"28 AnnAssign, 0 loops; Stage2/3/4Output + RouterV6Result carriers"
-_routing_reports,ELSEWHERE,"21 AnnAssign; RoutingFailureReport / PathfindingResult carriers"
+_routing_reports,ELSEWHERE,21 AnnAssign; RoutingFailureReport / PathfindingResult carriers
 _adapter_types,ELSEWHERE,"40 AnnAssign, 0 loops; 2 Protocols + 4 dataclasses"
-tree_route_geometry,ELSEWHERE,"frozen branch-geometry dataclasses; 1 BinOp"
-terminal_tree_execution,ELSEWHERE,"execution seam over the contract types; density 0.14"
-_check_report_base,ELSEWHERE,"shared dataclass base for the DFM report types"
+tree_route_geometry,ELSEWHERE,frozen branch-geometry dataclasses; 1 BinOp
+terminal_tree_execution,ELSEWHERE,execution seam over the contract types; density 0.14
+_check_report_base,ELSEWHERE,shared dataclass base for the DFM report types
 kicad_connectivity,ELSEWHERE,"parses emitted KiCad .kicad_pcb text into verifier inputs -- Phase 3 formats/IO, not router compute"
-_strip_copper,ELSEWHERE,"paren-balanced s-expression block removal -- Phase 3 formats/IO"
+_strip_copper,ELSEWHERE,paren-balanced s-expression block removal -- Phase 3 formats/IO
 benchmark,HARNESS,"only non-test consumer is profiling/pipeline_metrics.py:203, and profiling/** is a recorded JUSTIFIED-KEEP non-product surface (wave4-verdicts.yaml:182); not import-reachable from route_pcb"
-test_boards,HARNESS,"board fixture catalog; sole src consumer is benchmark.py; 8 test consumers"
-astar_monitor,HARNESS,"CI invariant monitor; calls pytest.fail in CI mode (:209-211); documented 'zero overhead when the context manager is not active'"
+test_boards,HARNESS,board fixture catalog; sole src consumer is benchmark.py; 8 test consumers
+astar_monitor,HARNESS,CI invariant monitor; calls pytest.fail in CI mode (:209-211); documented 'zero overhead when the context manager is not active'
 all_pad_evidence,HARNESS,"fail-closed validator for a committed JSON evidence record; 0 src consumers, 1 test"
 audit_provenance,HARNESS,"validator for a committed DRC measurement JSON record; 0 src consumers, 1 test"
 audit_tree_geometry,HARNESS,"post-solve audit helper; 0 src consumers, 1 test"
-sat_model,DEAD,"_pipeline_route.py:281 sets sat_model = None unconditionally; no production code constructs a SATModel"
-topology_solver,DEAD,"Python solve_topology has zero non-test call sites; production Stage 3 calls temper_rust_router.solve_topology_rust (_pipeline_route.py:290,:311)"
-metrics/octilinear,DEAD,"no import anywhere in src -- the only mention is a prose comment at astar_core.py:26"
+sat_model,DEAD,#745: _pipeline_route.py:281 sets sat_model = None unconditionally. CORRECTION to method: scripts/bmc_adoption_gate.py was a live consumer reading it as TEXT -- a channel the import graph could not see
+topology_solver,SPLIT,"#745 CORRECTION: not wholly dead. 45 stmts retired; SolverStatus and TopologicalSolution are LIVE on the production path (_pipeline_route.py:41,:349) -- 24 stmts are ELSEWHERE contracts"
+metrics/octilinear,DEAD,"#745 CORRECTION: 'imported nowhere in src/' was true of SYMBOLS, not the module -- metrics/__init__.py re-exports it, so it WAS loaded at runtime via gates.py:960 -> metrics.slop_linter. Retired regardless: no symbol has a caller"
 _adapter_convert,GLUE,"route_pcb config plumbing, netclass dict conversion, and .kicad_pcb text writing; density 0.26 with the arithmetic in string formatting"
-_pipeline_core,GLUE,"RouterV6Pipeline constructor + stage sequencing; density 0.12"
-_adapter_core,GLUE,"V6RouterAdapter MazeRouter-compatible wrapper; density 0.15"
-_pipeline_verify,GLUE,"DRC verification dispatch; density 0.19; the compute it dispatches to already delegates (temper_drc_rs)"
+_pipeline_core,GLUE,RouterV6Pipeline constructor + stage sequencing; density 0.12
+_adapter_core,GLUE,V6RouterAdapter MazeRouter-compatible wrapper; density 0.15
+_pipeline_verify,GLUE,DRC verification dispatch; density 0.19; the compute it dispatches to already delegates (temper_drc_rs)
 _astar_reconstruct,GLUE,"run_astar_pathfinding is a 175-stmt driver: per-net loop, retry/ripup policy, report assembly; the search it calls is Rust"
-_astar_search,GLUE,"dispatch + fallback ladder around the Rust kernel; the only arithmetic is coordinate marshalling for the pyo3 call"
-_pipeline_grid,GLUE,"stage-2 invocation + resource-bound call; density 0.10"
-layer_assignment,GLUE,"enum/pattern lookup; density 0.12; one 31-stmt _get_net_dominant_direction kernel is separable"
-stage_ledger,GLUE,"cardinality bookkeeping across stage boundaries; density 0.15"
-manufacturing_report,GLUE,"report string formatting; density 0.21"
-bottleneck_analysis,GLUE,"Stage wrapper + 16-stmt identify_bottlenecks and 16-stmt severity classifier; density 0.23"
+_astar_search,GLUE,dispatch + fallback ladder around the Rust kernel; the only arithmetic is coordinate marshalling for the pyo3 call
+_pipeline_grid,GLUE,stage-2 invocation + resource-bound call; density 0.10
+layer_assignment,GLUE,enum/pattern lookup; density 0.12; one 31-stmt _get_net_dominant_direction kernel is separable
+stage_ledger,GLUE,cardinality bookkeeping across stage boundaries; density 0.15
+manufacturing_report,GLUE,report string formatting; density 0.21
+bottleneck_analysis,GLUE,Stage wrapper + 16-stmt identify_bottlenecks and 16-stmt severity classifier; density 0.23
 verifier,GLUE,"config + verification-level dispatch; density 0.10, 3 BinOp"
 net_classification,GLUE,"keyword/prefix net-name matching; 0 BinOp, density 0.02; exact shape of core/priority.py's classify_net_priority, which its own Phase 2 migration deliberately kept in Python"
-clearance_engine,GLUE,"clearance-table lookup + voltage-class branching; density 0.15"
-diff_pair_inference,GLUE,"net-name pairing rules; density 0.15"
-trace_width_assignment,GLUE,"keyword -> width table lookup; density 0.27 over 26 body stmts"
-dense_package_detection,GLUE,"pitch estimation + package-type inference; density 0.20"
-route_stage,GLUE,"deterministic Stage wrapper around astar_pathfinding; 1 BinOp"
-grid_prep_stage,GLUE,"deterministic Stage wrapper; 0 BinOp"
+clearance_engine,GLUE,clearance-table lookup + voltage-class branching; density 0.15
+diff_pair_inference,GLUE,net-name pairing rules; density 0.15
+trace_width_assignment,GLUE,keyword -> width table lookup; density 0.27 over 26 body stmts
+dense_package_detection,GLUE,pitch estimation + package-type inference; density 0.20
+route_stage,GLUE,deterministic Stage wrapper around astar_pathfinding; 1 BinOp
+grid_prep_stage,GLUE,deterministic Stage wrapper; 0 BinOp
 net_prep_stage,GLUE,"deterministic Stage wrapper; 0 BinOp, 0 loops"
-result_aggregate_stage,GLUE,"deterministic Stage wrapper; density 0.18"
-stage2_orchestrator,GLUE,"chains 8 micro-stages; density 0.23"
-stage4_orchestrator,GLUE,"chains stage-4 micro-stages; density 0.24"
-stage_validators,GLUE,"validator registry (register/run/clear); 0 BinOp"
-placement_legalization,GLUE,"8-stmt guard delegating to placement_audit"
+result_aggregate_stage,GLUE,deterministic Stage wrapper; density 0.18
+stage2_orchestrator,GLUE,chains 8 micro-stages; density 0.23
+stage4_orchestrator,GLUE,chains stage-4 micro-stages; density 0.24
+stage_validators,GLUE,validator registry (register/run/clear); 0 BinOp
+placement_legalization,GLUE,8-stmt guard delegating to placement_audit
 _net_policy,GLUE,"2 predicate functions, 13 stmts total"
 astar_pathfinding,GLUE,"pure re-export shim: 12 stmts, all imports and __all__"
-adapter,GLUE,"re-export shim: 6 stmts"
-pipeline,GLUE,"re-export shim: 4 stmts"
-__init__,GLUE,"package re-exports"
-metrics/__init__,GLUE,"package re-exports"
-quality/__init__,GLUE,"package re-exports"
+adapter,GLUE,re-export shim: 6 stmts
+pipeline,GLUE,re-export shim: 4 stmts
+__init__,GLUE,package re-exports
+metrics/__init__,GLUE,package re-exports
+quality/__init__,GLUE,package re-exports
 bundle_analyzer,UNKNOWN,"kernel is net partitioning into equivalence classes (stdlib set/dict, density 0.28) but the spatial signature uses GEOS convex_hull x2 and .union x2 on MultiPoint; whether that seam is separable was not determined"

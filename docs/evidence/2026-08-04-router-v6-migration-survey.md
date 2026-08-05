@@ -15,10 +15,20 @@ Every number below is reproduced by the scripts in
 
 ## 0. Headline
 
+> **REVISED 2026-08-04 (v2).** Nine follow-up agents measured this document's
+> claims. **Every one of them corrected it.** The verdicts below are the
+> corrected set; §2.8 lists every change with the PR that measured it, and
+> states the methodological failure that produced them. Do not cite v1.
+
 **Of the 8,794 executable statements across the 100 non-delegating modules,
-3,483 (40%) are genuinely PORT.** The other 60% is orchestration, contracts
-belonging to Phase 2, harness, dead code, or work blocked behind a third-party
-numeric/geometric library with no measured Rust parity.
+3,932 (45%) are genuinely PORT.** The other 55% is orchestration, contracts
+belonging to Phase 2, harness, dead code, or work blocked behind GEOS.
+
+v1 said 3,483 (40%) and put 1,520 behind third-party numeric libraries. Both
+were wrong in the same direction: **scipy, kiutils and networkx all dissolved
+under measurement, and BLOCKED fell to 535.** What survives is a single
+systemic blocker — GEOS polygon algebra, plus identifiers built from unrounded
+float `repr` — not eleven module-level ones.
 
 And a second finding that changes what "PORT" is *for*: on the production board,
 **the router's dominant cost is already Rust**. The repo's own profile
@@ -70,15 +80,23 @@ the re-export shims and Stage wrappers sit at 0.00–0.12.
 
 ```
 bucket      files   stmts    exec     loc  %stmts
-PORT           34    4014    3483    9923   38.9%
-GLUE           32    2409    1982    6959   23.4%
-BLOCKED        12    1753    1520    4002   17.0%
+PORT           37    4536    3932   11053   44.0%
+GLUE           34    2535    2087    7233   24.6%
 ELSEWHERE      12    1022     832    2488    9.9%
+BLOCKED         4     602     535    1343    5.8%
 HARNESS         6     589     515    1275    5.7%
-DEAD            3     267     224     710    2.6%
+SPLIT           3     375     315     952    3.6%
 UNKNOWN         1     255     238     422    2.5%
+DEAD            2     198     166     539    1.9%
+RETIRE          1     197     174     474    1.9%
 TOTAL         100   10309    8794   25779
 ```
+
+Two buckets are new since v1. **SPLIT** holds three modules that measurement
+showed are two or three things at once and cannot carry a single verdict
+(`constraints_design_rules`, `topology_solver`, `topology_extraction`) — their
+per-fragment dispositions are in `classification.csv`. **RETIRE** holds
+`quality/corridor`, which #750 measured as computing nothing at all.
 
 **DEAD is a sixth bucket the brief did not ask for.** It is used deliberately
 rather than forcing three provably-bypassed modules into HARNESS or GLUE: their
@@ -244,6 +262,87 @@ in this survey. Do not plan it into a slice until someone reads
 
 ---
 
+## 2.8 Corrections (v2) — and why v1 was wrong in one direction
+
+### The method failure
+
+v1 classified modules from **symbol-level imports and docstrings**. It never
+checked reachability. Four channels it could not see, each of which produced a
+wrong verdict:
+
+1. **Package re-exports.** `metrics/__init__.py` re-exports `octilinear`, so the
+   module *was* loaded at runtime even though no symbol had a caller. v1's
+   "imported nowhere in `src/`" was true of symbols and misleading about modules.
+2. **Text-reading consumers.** `scripts/bmc_adoption_gate.py` consumed
+   `sat_model.py` by reading it as *text*. No import graph can see that.
+3. **Dominating guards.** `channel_mapping`'s networkx calls and
+   `_zone_pour_stitch`'s kNN query are both unreachable behind a guard several
+   statements earlier. v1 blocked 365 statements on primitives that never run.
+4. **Docstrings describing intent, not behaviour.** `constraints_spatial_index`
+   says cKDTree is its purpose; it issues no kNN query at all.
+
+A fifth error was simpler: v1 justified blocking `constraints_design_rules` by
+citing a ledger verdict **whose path pattern is `io/**` and does not match
+`router_v6/`**. That is a citation error, not an inference error.
+
+The bias is one-directional — every correction moved statements *toward*
+migration or *toward* deletion, never away. Treat any remaining v2 verdict that
+rests on an import rather than a traced call site as provisional.
+
+### Verdict changes, each traced to its measurement
+
+| Module | v1 | v2 | Measured by |
+|---|---|---|---|
+| `constraints_spatial_index` (226) | BLOCKED | **PORT** | #743 — no kNN; `return_sorted=True` is a precondition |
+| `_zone_pour_stitch` (162) | BLOCKED | **PORT** | #743 — k=1 unreachable (`cluster=False`); dormant hazard recorded |
+| `channel_mapping` (203) | BLOCKED | **PORT** | #744 — nx branch unreachable; **delete, don't port** |
+| `routing_space` (99) | BLOCKED | **PORT** | #747 — mask narrowing, 598,400/598,400 cells |
+| `obstacle_map` (108) | BLOCKED | **PORT** | #747 — 2 kept lines |
+| `placement_audit` (47) | BLOCKED | **GLUE** | #747 — advisory only, reaches a `verbose` print |
+| `via_placement` (79) | PORT | **GLUE** | #749 — two `abs()` subtractions |
+| `quality/corridor` (197) | PORT | **RETIRE** | #750 — two coordinate frames; 739 channels, 0 tracks |
+| `constraints_design_rules` (250) | BLOCKED | **SPLIT** | #748 — v1 cited a non-matching ledger pattern |
+| `topology_solver` (69) | DEAD | **SPLIT** | #745 — 24 stmts are live contracts |
+| `topology_extraction` (56) | BLOCKED | **SPLIT** | #745 — 36 dead, 20 live contracts |
+| `channel_skeleton` (214) | BLOCKED | BLOCKED | #746 — **right bucket, wrong reason** (see below) |
+| `zone_emission` (97) | BLOCKED | BLOCKED | #748 — **right bucket, wrong reason**: scipy dissolved, GEOS found |
+
+### The gate that was never run
+
+`channel_skeleton`'s shapely-Voronoi spike gate, which v1 cited as recorded
+evidence, **had never been executed** (#746 — `git log --all --diff-filter=A`
+over `docs/evidence/` returns empty). Worse, plan `2026-08-01-001:158` describes
+the module as *"pre-spiked."* **An unrun gate acquired the language of a
+discharged one purely by being restated**, and v1 propagated it. Other ledger
+entries plausibly share this condition; a ledger entry is not evidence.
+
+GEOS Voronoi turned out to be deterministic. The real blocker is `edge_id` built
+from **unrounded float `repr`** at `constraint_model.py:325-337` — geometry
+agrees to 1.05e-15 while identifiers agree 0/12.
+
+### Defects found while pinning oracles — reported, not fixed
+
+Fixing any would break a verbatim pin. Each is pinned by a test that fails if
+someone repairs it without re-pinning.
+
+| # | Defect | PR |
+|---|---|---|
+| 1 | `analyze_congestion(positions=...)` silently ignored — byte-identical output with every component moved 999 mm. The placement feedback loop is blind to the positions it evaluates | #751 |
+| 2 | `analyze_congestion(layer_assignments=...)` always raises `ModuleNotFoundError` (`temper_placer.routing` does not exist) — the multi-layer branch is unreachable | #751 |
+| 3 | An off-board net writes demand to a 7×7 block at the board **origin** via a negative-index slice | #751 |
+| 4 | Every escape via is labelled `F.Cu` — `getattr(component, "side", 0)` reads a field named `initial_side` | #751 |
+| 5 | `poly.buffer(0)` on a bow-tie returns one lobe — a self-intersecting zone can lose half its area from the obstacle map | #747 |
+| 6 | `thermal_relief._add_smd_thermal_reliefs` iterates a `frozenset` — 8 distinct output orders over 8 interpreters | #749 |
+| 7 | `acid_trap_detection`'s `not isfinite(t) and t < 0` is unreachable for finite negatives; `-5.0` silently yields an empty report | #749 |
+| 8 | `_classify_vias`'s `signal` accumulator is dead — overwritten two lines later | #750 |
+| 9 | `simplify_tolerance` is dead on the Voronoi path (494/494 two-point LineStrings), yet is **credited for skeleton density** in `2026-07-27-stage3-model-and-rewrite.md:211` | #746 |
+
+**Defects 4, 6 and the two in `channel_mapping` (#744) are all
+`PYTHONHASHSEED`/iteration-order class**, joining PR #730. Four instances is a
+class and warrants a standing check, not four separate fixes.
+
+---
+
 ## 3. What the profile says about whether any of this pays
 
 This section exists because a scope survey that only counts statements will
@@ -399,16 +498,41 @@ proportional.** 19.3 lines of evidence per statement is intrinsic to the R1 gate
 set — a differential test per function, a corpus row per case, 6.6 lines of Rust
 per statement. Nothing in this survey makes that number smaller.
 
-**Therefore the lever is the numerator, and this survey is the lever.** At the
-#732 rate over the brief's full 8,661, the program needs ~75 more PRs. Against
-**3,483 PORT statements in ~250-statement cluster slices**, it needs
+**Therefore the lever is the numerator, and this survey is the lever.**
 
-> **~14 slices** (3,483 / 250), at ~5,900 lines each.
+### v2: the model above was too pessimistic — measured
 
-If reviewers will only take #732-sized PRs (~3,400 lines ⇒ ~120 statements),
-it is **~28 slices**. Either way: **75 → 14–28**, and the reduction comes
-almost entirely from *not porting 60% of the surface*, not from scaffolding
-reuse.
+Three Phase A slices have now been built (#749, #750, #751). Phase A is the
+oracle + corpus + differential + PBT half; gate G1 mandates it precede the Rust,
+and **none of it needs a compiler**, so it parallelizes freely.
+
+| Slice | stmts | Phase A lines | lines/stmt |
+|---|---:|---:|---:|
+| #732 (single module, Phase A portion) | 109 | 1,848 | **17.0** |
+| #749 cluster D (7 modules, 1 slice) | 719 | 4,350 | **6.0** |
+| #750 cluster F (3 modules, 1 slice) | 480 | 4,729 | **9.9** |
+| #751 cluster E + 2 (9 modules, 3 slices) | 641 | 8,950 | **14.0** |
+
+Clustering buys **2.8×** on the Phase A half, not the ~30% projected — and the
+ordering confirms the fixed-cost model: one slice of 719 statements beats three
+slices totalling 641.
+
+**The G4 caveat.** #749 gave 7 modules 13 properties, reading "≥5 properties per
+module" (G4) as per *migrated unit*. That reading is **novel**: all 90 existing
+`*_pbt.py` files in this repo are named per source module, and the canonical
+precedent gives 11 properties to one module. If a reviewer rejects it, cluster
+D's PBT (986 lines, 23% of its Phase A) becomes seven suites at #732's ~550
+each — 7,214 lines for 719 statements, **10.0 lines/stmt**. So the amortization
+**survives the strict reading at 1.7×**; the oracle and corpus, which are
+unambiguously per-cluster, are where the win actually lives.
+
+### The resulting slice count
+
+Against **3,932 PORT statements** in cluster-shaped slices at ~6–10 lines/stmt
+for Phase A plus a comparable Phase B, the program needs roughly **12–16
+slices**, against the ~75 implied by #732's rate over the full surface. The
+reduction still comes mostly from *not porting 55% of the surface* — but
+clustering now contributes materially rather than marginally.
 
 ---
 
@@ -418,7 +542,7 @@ Ordered. Each line: slice, statements, rationale, and what it unlocks.
 
 | # | Slice | stmts | Rationale |
 |---:|---|---:|---|
-| 0 | **Retire the dead** — `sat_model`, `topology_solver`, `metrics/octilinear`, `topology_extraction.extract_topology_solution` | −303 | Deletion, not migration. Zero gate cost, removes 3% of the surface, and stops a future agent porting a Python SAT solver the production path bypasses. Do first — it is the cheapest statement reduction available |
+| 0 | **Retire the dead** — DONE, PR #745 | −279 | Deletion, not migration. Landed as 50 insertions / 2,432 deletions. v1 projected −303; the true figure is 279 because `topology_solver` is not wholly dead (§2.8). Add `quality/corridor` (197) and `channel_mapping`'s unreachable nx branch as follow-on retirements |
 | 1 | **`stage0_data` as pyclasses (Phase 2)** | 94 | **Unlocks everything.** `ParsedPCB`/`DesignRules`/`NetClassRules` are the package's contract carrier — 22 router_v6 + 10 placer consumers. No `router_v6` kernel can take typed input across the pyo3 boundary until these are pyclasses. Ride PR #724's pattern |
 | 2 | **Cluster A — DRC distance geometry** | 766 | #732 already built the oracle and half the Rust. `constraints_drc_oracle` (322) is the single densest live kernel in the package (0.48, 115 BinOp). Land #732 first, then extend its oracle module rather than starting a new one — this is the one place where the scaffolding genuinely amortizes |
 | 3 | **Cluster D — post-route DFM checks** | 719 | Extends `temper-drc-rs`, where two siblings already live and `BaseCheckReport` is already shared. One routed-board fixture serves all seven. Correctness-motivated (the DFM stage defaults **off** because it did not scale, `_adapter_convert.py:~310`), which is the honest justification for this whole surface |
@@ -432,19 +556,25 @@ Slices 2–8 are mutually independent once slice 1 lands. Slices 3, 4 and 7 do
 not even need slice 1 (they take routed-board or net-list inputs, not
 `ParsedPCB`).
 
-**Spikes, not slices** (each gates 1,753 statements of BLOCKED work, and each is
-a "measure then decide" job in the KTD8 style — a rejection is a first-class
-result):
+**Spikes — all five now run (v2).** Every one is recorded; BLOCKED fell from
+1,753 statements to 602.
 
-- **S1 — GEOS polygon boolean algebra.** Gates `obstacle_map`, `routing_space`,
-  `placement_audit`, and the type of `RoutingSpace.available_area`. Largest
-  single unlock.
-- **S2 — `scipy.spatial.cKDTree` parity.** Gates `constraints_spatial_index`
-  (226) and `_zone_pour_stitch` (162). Is kNN tie-break order observable
-  downstream? If not, the blocker dissolves.
-- **S3 — `networkx.shortest_path` order.** Gates `channel_mapping` (203).
-- The shapely-Voronoi spike (`channel_skeleton`) and the EDT KTD8 keep are
-  already recorded; no new work proposed.
+| Spike | Result | PR |
+|---|---|---|
+| S1 — GEOS polygon algebra | Narrowing found and measured; `placement_audit` was never a GEOS blocker | #747 |
+| S2 — `scipy.spatial.cKDTree` | **Dissolved** — no kNN query exists in one module, unreachable in the other | #743 |
+| S3 — `networkx.shortest_path` | **Dissolved** — the calls are unreachable; delete rather than port | #744 |
+| S4 — shapely Voronoi | Gate had never been run; GEOS is deterministic; blocker is `edge_id` | #746 |
+| S5 — scipy clustering + kiutils | **Both dissolved**; a GEOS boundary found in `zone_emission` that v1 missed | #748 |
+
+**What remains is one systemic problem, not eleven module ones:** GEOS polygon
+algebra (catalog class **B6**, raised by #747 from a scalar divergence to a
+vertex-level one — 88.4% disagreement at up to 701 ulps) and identifiers derived
+from unrounded float `repr`. The single highest-value follow-up is therefore not
+another spike but a **canonicalisation change**: 1 nm coordinate quantisation
+plus canonical edge ordering, which #746 measured as flipping `channel_skeleton`
+parity from 0/12 to 12/12. It is behaviour-changing (every SAT variable name
+moves) and needs its own A/B before anything downstream depends on it.
 
 ---
 
