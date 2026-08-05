@@ -10,9 +10,18 @@ on:
   pull_request:
     branches: [main]
     paths: ['packages/temper-placer/src/**','packages/temper-placer/configs/**','benchmarks/**','.github/workflows/cp-sat-benchmarks.yml']
+# Opt-in (2026-08-04). This workflow's only output is an uploaded
+# `cp_sat_metrics.jsonl` artifact: nothing reads it during the PR, no comment
+# is posted, and its contexts ("benchmarks (trivial)" / "benchmarks (small)")
+# are not in `.github/required-checks.json`'s `required_contexts`, so it
+# cannot fail a merge. It fires on `packages/temper-placer/src/**` for a
+# measured median of 2 jobs and 7.4 job-minutes per push, against an account
+# ceiling of ~24 concurrent jobs. Add the `ci-advisory` label to a PR when the
+# benchmark numbers are actually wanted for that change.
 jobs:
   benchmarks:
     runs-on: ubuntu-latest
+    if: contains(github.event.pull_request.labels.*.name, 'ci-advisory')
     container:
       image: ghcr.io/bennetleff/temper-ci:latest
       options: --user root
