@@ -145,8 +145,177 @@ def _time_us(fn: Callable[[], Any], warmup: int, repeats: int) -> float:
 
 
 # ---------------------------------------------------------------------------
-# Wave 3 retrofit: router_v6/bottleneck_geometry.py cell-capacity kernels
+# Wave 4 Phase 4: physics kernels (temper_placer/physics/* -> temper-thermal)
 # ---------------------------------------------------------------------------
+# The oracles are imported from the Phase-4 differential files, exactly as the
+# behavioral A/B pins them.  Fixtures are fixed-shape and fixed-seed so the
+# A/B ratio is comparable across runs.  The parity assertion inside each bench
+# is the perf harness's own behavioral gate: a perf number for an
+# implementation that disagrees with its oracle is meaningless.
+
+
+def _physics_oracle(path_name: str, file_name: str) -> ModuleType:
+    return _load_module_from_path(
+        f"_perf_ab_{path_name}",
+        REPO_ROOT / "packages" / "temper-placer" / "tests" / "physics" / file_name,
+    )
+
+
+def bench_physics_emi() -> tuple[float, float]:
+    """A/B predict_radiated_emissions (Rust) vs the verbatim oracle."""
+    import temper_thermal as _tt
+
+    oracle = _physics_oracle("emi", "test_emi_rust_differential.py")._oracle_predict_radiated_emissions
+    args = (100.0, 10.0, 1.0, 3.0)
+
+    def run_rust() -> float:
+        # Scalar kernel: batch 500 calls so the ratio is not timer noise.
+        return [_tt.predict_radiated_emissions_py(*args) for _ in range(500)][-1]
+
+    def run_oracle() -> float:
+        return [oracle(*args) for _ in range(500)][-1]
+
+    if run_rust() != run_oracle():
+        raise AssertionError("perf A/B arms disagree for physics-emi")
+    return _time_us(run_rust, DEFAULT_WARMUP, DEFAULT_REPEATS), _time_us(
+        run_oracle, DEFAULT_WARMUP, DEFAULT_REPEATS
+    )
+
+
+def bench_physics_safety() -> tuple[float, float]:
+    """A/B estimate_filter_delay (Rust) vs the verbatim oracle."""
+    import temper_thermal as _tt
+
+    oracle = _physics_oracle("safety", "test_safety_rust_differential.py")._oracle_estimate_filter_delay
+    args = (1000.0, 1e-6, 0.632)
+
+    def run_rust() -> float:
+        return [_tt.estimate_filter_delay_py(*args) for _ in range(500)][-1]
+
+    def run_oracle() -> float:
+        return [oracle(*args) for _ in range(500)][-1]
+
+    if run_rust() != run_oracle():
+        raise AssertionError("perf A/B arms disagree for physics-safety")
+    return _time_us(run_rust, DEFAULT_WARMUP, DEFAULT_REPEATS), _time_us(
+        run_oracle, DEFAULT_WARMUP, DEFAULT_REPEATS
+    )
+
+
+def _heat_removal_fixture():
+    mod = _physics_oracle("heat_removal", "test_heat_removal_rust_differential.py")
+    cfg = mod._cfg(16, 16, 1.0)
+    devices = {"Q1": (3.0, 3.0), "Q2": (8.0, 5.0), "Q3": (12.0, 12.0), "Q4": (5.0, 11.0)}
+    device_thermal = {k: mod._dev_cfg(k, 0.25, 1.0) for k in devices}
+    xs = [devices[k][0] for k in devices]
+    ys = [devices[k][1] for k in devices]
+    r_cs = [device_thermal[k].R_theta_cs for k in devices]
+    r_sa = [device_thermal[k].R_theta_sa for k in devices]
+    return mod, cfg, devices, device_thermal, xs, ys, r_cs, r_sa
+
+
+def bench_physics_heat_removal() -> tuple[float, float]:
+    """A/B build_h_field (Rust grid kernel) vs the verbatim oracle."""
+    import temper_thermal as _tt
+
+    mod, cfg, devices, device_thermal, xs, ys, r_cs, r_sa = _heat_removal_fixture()
+
+    def run_rust() -> Any:
+        raw = _tt.build_h_field_py(
+            cfg.cell_size_mm, cfg.origin_mm[0], cfg.origin_mm[1],
+            cfg.height_cells, cfg.width_cells, xs, ys, r_cs, r_sa,
+        )
+        return len(raw)
+
+    def run_oracle() -> Any:
+        return mod._oracle_build_h_field(cfg, devices, device_thermal).size
+
+    import numpy as np
+
+    raw = _tt.build_h_field_py(
+        cfg.cell_size_mm, cfg.origin_mm[0], cfg.origin_mm[1],
+        cfg.height_cells, cfg.width_cells, xs, ys, r_cs, r_sa,
+    )
+    got = np.frombuffer(raw, dtype=np.float64).reshape((cfg.height_cells, cfg.width_cells))
+    want = mod._oracle_build_h_field(cfg, devices, device_thermal)
+    if not np.array_equal(got, want):
+        raise AssertionError("perf A/B arms disagree for physics-heat_removal")
+    return _time_us(run_rust, DEFAULT_WARMUP, DEFAULT_REPEATS), _time_us(
+        run_oracle, DEFAULT_WARMUP, DEFAULT_REPEATS
+    )
+
+
+def bench_physics_copper_masks() -> tuple[float, float]:
+    """A/B the copper-coverage masks (Rust grid kernel) vs the oracle."""
+    import temper_thermal as _tt
+
+    mod = _physics_oracle("copper", "test_copper_coverage_phase4_rust_differential.py")
+    h, w = 24, 24
+    keepouts = [(10.0, 10.0, 20.0, 20.0), (50.0, 0.0, 60.0, 30.0)]
+    holes = [(80.0, 80.0, 5.0)]  # oracle form (mx, my, keepout_radius)
+    holes_flat = [80.0, 80.0, 5.0]  # Rust flat form
+    keep_flat = [v for k in keepouts for v in k]
+
+    def run_rust() -> Any:
+        ib, ko, act = _tt.copper_masks_py(h, w, 0.0, 0.0, 5.0, 100.0, 100.0, False, None, keep_flat, holes_flat)
+        return len(ib) + len(ko) + len(act)
+
+    def run_oracle() -> Any:
+        a, b, c = mod._oracle_masks(h, w, 0.0, 0.0, 5.0, 100.0, 100.0, None, keepouts, holes)
+        return a.size + b.size + c.size
+
+    import numpy as np
+
+    ib, ko, act = _tt.copper_masks_py(h, w, 0.0, 0.0, 5.0, 100.0, 100.0, False, None, keep_flat, holes_flat)
+    got = np.frombuffer(act, dtype=np.bool_).reshape((h, w))
+    want = mod._oracle_masks(h, w, 0.0, 0.0, 5.0, 100.0, 100.0, None, keepouts, holes)[2]
+    if not np.array_equal(got, want):
+        raise AssertionError("perf A/B arms disagree for physics-copper_masks")
+    return _time_us(run_rust, DEFAULT_WARMUP, DEFAULT_REPEATS), _time_us(
+        run_oracle, DEFAULT_WARMUP, DEFAULT_REPEATS
+    )
+
+
+def bench_physics_device_check() -> tuple[float, float]:
+    """A/B device_cross_check (Rust scalar chain) vs the verbatim oracle."""
+    import temper_thermal as _tt
+
+    oracle = _physics_oracle("tj", "test_tj_cross_check_rust_differential.py")._oracle_device_cross_check
+    args = (50.0, 5.0, 0.6, 0.25, 1.0, 40.0, 150.0, 5.0)
+
+    def run_rust() -> Any:
+        return [_tt.device_cross_check_py(*args) for _ in range(500)][-1]
+
+    def run_oracle() -> Any:
+        return [oracle(*args) for _ in range(500)][-1]
+
+    if run_rust() != run_oracle():
+        raise AssertionError("perf A/B arms disagree for physics-device_check")
+    return _time_us(run_rust, DEFAULT_WARMUP, DEFAULT_REPEATS), _time_us(
+        run_oracle, DEFAULT_WARMUP, DEFAULT_REPEATS
+    )
+
+
+def bench_physics_classify() -> tuple[float, float]:
+    """A/B classify_parameter (Rust string classification) vs the oracle."""
+    import temper_thermal as _tt
+
+    oracle = _physics_oracle("parameter_bounds", "test_parameter_bounds_rust_differential.py")._oracle_classify
+    args = ("junction_to_case_c_per_w", "R_theta sweep")
+
+    def run_rust() -> Any:
+        return [_tt.classify_parameter_py(*args) for _ in range(500)][-1]
+
+    def run_oracle() -> Any:
+        return [oracle(*args) for _ in range(500)][-1]
+
+    if run_rust() != run_oracle():
+        raise AssertionError("perf A/B arms disagree for physics-classify")
+    return _time_us(run_rust, DEFAULT_WARMUP, DEFAULT_REPEATS), _time_us(
+        run_oracle, DEFAULT_WARMUP, DEFAULT_REPEATS
+    )
+
+
 
 _OCCUPANCY_VALUES = (0, 1, 2, 3, 7, 11, -1, -2)
 _CLASS_POOL = ("GateDriveHV", "GateDriveSELV", "SIGNAL", "ISO_SAFE")
@@ -261,6 +430,168 @@ def bench_bottleneck_hard_blocked() -> tuple[float, float]:
         raise AssertionError(
             "perf A/B arms disagree for bottleneck hard_blocked -- the "
             "behavioral A/B should be failing too"
+        )
+    return _time_us(run_rust, DEFAULT_WARMUP, DEFAULT_REPEATS), _time_us(
+        run_oracle, DEFAULT_WARMUP, DEFAULT_REPEATS
+    )
+
+
+# ---------------------------------------------------------------------------
+# Wave 4 Phase 3 candidate 2: the YAML loaders (Rust orchestration vs the
+# verbatim pre-migration Python loaders, on the repo's own shipped fixtures)
+# ---------------------------------------------------------------------------
+
+
+def _scalar_hex(value: Any) -> tuple[str, Any]:
+    """Type-preserving canonical key for a leaf (floats via ``.hex()``)."""
+    if isinstance(value, float):
+        return ("float", value.hex())
+    if isinstance(value, bool):
+        return ("bool", value)
+    return (type(value).__name__, value)
+
+
+def _event_fields(ev):
+    """Canonical key for a LoopEvent's six fields (None-preserving)."""
+    return tuple(
+        None if v is None else _scalar_hex(v)
+        for v in (
+            ev.di_dt,
+            ev.dv_dt,
+            ev.frequency_hz,
+            ev.peak_current_a,
+            ev.rms_current_a,
+            ev.ringing_freq_hz,
+        )
+    )
+
+
+def _canon_netclass_rules(result: Any) -> tuple[Any, ...]:
+    """Deterministic fingerprint of a loaded netclass rules result — every
+    field of the ``DesignRules`` instance, mirroring the differential's
+    ``_design_rules_fields`` so a mutation confined to an omitted field
+    cannot pass the inline parity sanity."""
+    dr = result.design_rules
+
+    def net_class_fields(nc):
+        return tuple(sorted((k, _scalar_hex(v)) for k, v in nc.model_dump().items()))
+
+    def class_pairs_fields(pairs):
+        return tuple(
+            (
+                key,
+                tuple(sorted((k, _scalar_hex(v)) for k, v in value.items())),
+            )
+            for key, value in sorted(pairs.items())
+        )
+
+    def via_template_fields(vt):
+        return (
+            vt.name,
+            vt.rows,
+            vt.cols,
+            _scalar_hex(vt.via_diameter_mm),
+            _scalar_hex(vt.via_drill_mm),
+            _scalar_hex(vt.pitch_mm),
+        )
+
+    return (
+        _scalar_hex(dr.default_trace_width),
+        _scalar_hex(dr.default_clearance),
+        _scalar_hex(dr.default_via_diameter),
+        _scalar_hex(dr.default_via_drill),
+        tuple(sorted((name, net_class_fields(nc)) for name, nc in dr.net_classes.items())),
+        tuple(sorted(dr.net_overrides.items())),
+        tuple(sorted(dr.net_class_assignments.items())),
+        tuple(dr.differential_pairs),
+        tuple(dr.bus_cohorts),
+        tuple(sorted(dr.net_topologies.items())),
+        tuple(sorted((name, via_template_fields(vt)) for name, vt in dr.via_templates.items())),
+        class_pairs_fields(result.class_pairs),
+    )
+
+
+def _canon_loop_collection(coll: Any) -> tuple[Any, ...]:
+    """Deterministic fingerprint of a loaded loop collection — every
+    constructor field of every loop plus the collection fields, mirroring
+    the differential's ``_loop_fields``/``_collection_fields`` so a mutation
+    confined to an omitted field cannot pass the inline parity sanity."""
+    loops = tuple(
+        sorted(
+            (
+                loop.name,
+                (loop.loop_type.name, loop.loop_type.value),
+                loop.description,
+                tuple(
+                    (p.component_ref, p.pin_name, p.net_name, type(p.net_name).__name__)
+                    for p in loop.pins
+                ),
+                tuple(loop.components),
+                tuple(loop.nets),
+                _scalar_hex(loop.max_area_mm2),
+                (loop.priority.name, loop.priority.value),
+                _event_fields(loop.events),
+                loop.return_layer,
+                loop.return_net,
+                loop.source,
+                None
+                if loop.get_current_area() is None
+                else _scalar_hex(loop.get_current_area()),
+            )
+            for loop in coll.loops
+        )
+    )
+    return (coll.name, coll.description, loops)
+
+
+def bench_loaders() -> tuple[float, float]:
+    """A/B the migrated YAML loaders vs the verbatim pre-migration Python.
+
+    Both arms parse the SAME files with the SAME PyYAML tokenizer and call
+    the SAME contract constructors; the delta is the mapping/orchestration
+    layer (Rust in ``temper-design-bundle`` vs Python). This is the R2
+    "no regression beyond noise" arm for a pure-delegation, I/O-shaped
+    surface — NOT a speedup claim.
+    """
+    from temper_placer.io.loop_loader import load_loop_collection
+    from temper_placer.io.netclass_loader import load_netclass_rules
+
+    netclass_oracle = _load_module_from_path(
+        "_perf_ab_netclass_loader_oracle",
+        REPO_ROOT / "packages/temper-placer/tests/io/_netclass_loader_py_oracle.py",
+    )
+    loop_oracle = _load_module_from_path(
+        "_perf_ab_loop_loader_oracle",
+        REPO_ROOT / "packages/temper-placer/tests/io/_loop_loader_py_oracle.py",
+    )
+    netclass_yaml = REPO_ROOT / "packages/temper-placer/configs/netclass_rules.yaml"
+    loop_dir = REPO_ROOT / "packages/temper-placer/configs/templates/loops"
+
+    def run_rust() -> None:
+        load_netclass_rules(netclass_yaml)
+        load_loop_collection(loop_dir)
+
+    def run_oracle() -> None:
+        netclass_oracle.load_netclass_rules(netclass_yaml)
+        loop_oracle.load_loop_collection(loop_dir)
+
+    # Parity sanity inside the perf harness (the full A/B is the differential
+    # suite): a performance number for an implementation that no longer
+    # agrees with its oracle is meaningless.
+    if _canon_netclass_rules(load_netclass_rules(netclass_yaml)) != _canon_netclass_rules(
+        netclass_oracle.load_netclass_rules(netclass_yaml)
+    ):
+        raise AssertionError(
+            "perf A/B arms disagree for loaders/netclass -- the behavioral "
+            "A/B (test_loaders_rust_differential.py) should be failing too"
+        )
+    if _canon_loop_collection(load_loop_collection(loop_dir)) != _canon_loop_collection(
+        loop_oracle.load_loop_collection(loop_dir)
+    ):
+        raise AssertionError(
+            "perf A/B arms disagree for loaders/loop_collection -- the "
+            "behavioral A/B (test_loaders_rust_differential.py) should be "
+            "failing too"
         )
     return _time_us(run_rust, DEFAULT_WARMUP, DEFAULT_REPEATS), _time_us(
         run_oracle, DEFAULT_WARMUP, DEFAULT_REPEATS
@@ -518,6 +849,13 @@ def bench_contracts_construction() -> tuple[float, float]:
 _BENCHMARKS: dict[tuple[str, str], Callable[[], tuple[float, float]]] = {
     ("bottleneck-geometry", "cell_capacity_batch"): bench_bottleneck_cell_capacity,
     ("bottleneck-geometry", "hard_blocked_batch"): bench_bottleneck_hard_blocked,
+    ("loaders", "loaders"): bench_loaders,
+    ("physics-emi", "predict"): bench_physics_emi,
+    ("physics-safety", "filter_delay"): bench_physics_safety,
+    ("physics-heat_removal", "build_h_field"): bench_physics_heat_removal,
+    ("physics-copper_coverage", "copper_masks"): bench_physics_copper_masks,
+    ("physics-tj_cross_check", "device_cross_check"): bench_physics_device_check,
+    ("physics-parameter_bounds", "classify"): bench_physics_classify,
     ("config-loader", "preprocess_config"): bench_config_loader_preprocess,
     ("footprint-library", "from_yaml_string"): bench_footprint_library_load,
     ("parse-engine", "parse_kicad_pcb"): bench_parse_kicad_pcb,
