@@ -472,10 +472,38 @@ def test_dataclasses_replace_works_on_the_public_contracts():
 
 
 def test_dataclass_field_surface_matches_the_oracle():
-    """`fields()` / `is_dataclass()` agree on names and `init` flags."""
+    """The full ``Field`` surface -- not just ``(name, init)`` -- agrees with
+    the pinned oracle.
+
+    ``dataclasses.replace()`` happens to read only ``f.name`` and ``f.init``,
+    but ``dataclasses.fields()`` is public API: ``f.default`` and
+    ``f.default_factory`` drive callers that materialize field defaults,
+    ``f.type`` is the annotation a ``fields()`` consumer sees, and
+    ``typing.get_type_hints`` is how annotation tooling resolves the
+    contract. The compat layer must reproduce all of it, not only the two
+    attributes ``_replace`` reads.
+    """
     import dataclasses
+    import typing
 
     from temper_placer.core import netlist as public
+
+    def _canonicalize(t):
+        """Reduce a resolved annotation to structure, mapping classes to names.
+
+        The oracle resolves ``Component`` to
+        ``tests.core._netlist_py_oracle.Component`` while the shim resolves
+        it to the pyclass ``temper_placer.core.netlist.Component`` -- different
+        objects by design. Comparing structural form (name + type arguments)
+        is the honest equality here.
+        """
+        origin = typing.get_origin(t)
+        if origin is None:
+            return t.__name__ if isinstance(t, type) else t
+        return (
+            getattr(origin, "__name__", repr(origin)),
+            tuple(_canonicalize(arg) for arg in typing.get_args(t)),
+        )
 
     for py_cls, rs_cls in [
         (_oracle.Pin, public.Pin),
@@ -484,9 +512,30 @@ def test_dataclass_field_surface_matches_the_oracle():
         (_oracle.Netlist, public.Netlist),
     ]:
         assert dataclasses.is_dataclass(rs_cls)
-        assert [(f.name, f.init) for f in dataclasses.fields(py_cls)] == [
-            (f.name, f.init) for f in dataclasses.fields(rs_cls)
-        ]
+        py_fields = dataclasses.fields(py_cls)
+        rs_fields = dataclasses.fields(rs_cls)
+        assert [f.name for f in rs_fields] == [f.name for f in py_fields]
+        for py_f, rs_f in zip(py_fields, rs_fields):
+            assert rs_f.init == py_f.init
+            assert rs_f.repr == py_f.repr
+            if py_f.default is dataclasses.MISSING:
+                assert rs_f.default is dataclasses.MISSING
+            else:
+                assert rs_f.default == py_f.default
+            if py_f.default_factory is dataclasses.MISSING:
+                assert rs_f.default_factory is dataclasses.MISSING
+            else:
+                assert rs_f.default_factory is not dataclasses.MISSING
+                # Same zero-arg factory behaviour: identical callable where
+                # the oracle used a builtin (list/dict/frozenset), otherwise
+                # the materialized default must be identical.
+                assert rs_f.default_factory() == py_f.default_factory()
+            assert rs_f.type == py_f.type
+        py_hints = typing.get_type_hints(py_cls)
+        rs_hints = typing.get_type_hints(rs_cls)
+        assert set(rs_hints) == set(py_hints)
+        for name in py_hints:
+            assert _canonicalize(py_hints[name]) == _canonicalize(rs_hints[name]), name
 
 
 def test_public_module_delegates_to_rust():
