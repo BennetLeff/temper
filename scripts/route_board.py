@@ -1,11 +1,17 @@
 #!/usr/bin/env python3
 """Route a KiCad PCB through the router_v6 production entry point.
 
-This is the working entry point that ``make route`` and
-``scripts/internal_route.py`` are not: ``make route`` targets the
-33-net benchmark fixture (``pcb/benchmarks/temper_fixture_33.kicad_pcb``),
-and ``internal_route.py`` imports the superseded ``temper_placer.routing.*``
-tree plus an undeclared ``jax`` dependency and cannot be imported at all.
+This is now the only routing entry point, and ``make route`` invokes it.
+It was written because the two things that claimed that role were not
+doing it: ``make route`` targeted the 33-net benchmark fixture
+(``pcb/benchmarks/temper_fixture_33.kicad_pcb``) rather than the
+production board, and ``scripts/internal_route.py`` imported the
+superseded ``temper_placer.routing.*`` tree plus an undeclared ``jax``
+dependency and could not be imported at all. Both have since been
+resolved in this script's favour: the ``make route`` target was
+re-pointed at it (2026-08-04, and at ``pcb/temper.kicad_pcb``), and
+``internal_route.py`` was RETIREd as import-dead and deleted the same day
+(``docs/evidence/2026-08-04-wave4-residual-verdicts.md``).
 
 The live API is ``temper_placer.router_v6.adapter.route_pcb``, the same
 call used to produce the committed route in ``556ccf4f`` and the one

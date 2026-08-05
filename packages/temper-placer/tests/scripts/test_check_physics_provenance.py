@@ -97,11 +97,16 @@ def test_preceding_line_source_comment_passes(tmp_path: Path) -> None:
     _run_gate(tmp_path, phys)
 
 
-def test_no_module_level_floats_passes(tmp_path: Path) -> None:
+def test_no_undocumented_module_level_floats_passes(tmp_path: Path) -> None:
     phys = tmp_path / "physics"
     phys.mkdir()
+    # A documented module-level float keeps the scan non-vacuous; the
+    # function-body floats must not be flagged.
     (phys / "empty.py").write_text(
-        "def helper(x: float = 3.14) -> float:\n    y = 2.72\n    return x + y\n"
+        "DOCUMENTED = 1.5  # source: IEEE 1234\n"
+        "def helper(x: float = 3.14) -> float:\n"
+        "    y = 2.72\n"
+        "    return x + y\n"
     )
     _run_gate(tmp_path, phys)
 
@@ -129,6 +134,22 @@ def test_init_empty_all_documented(tmp_path: Path) -> None:
     assert "Allowlist populated with 0 entries" in result.stdout
 
 
+def test_scan_reports_nonzero_constants(tmp_path: Path) -> None:
+    # Regression pin: the gate must report the constants it actually scanned
+    # (non-vacuous denominator). If the scan silently finds 0 files/constants
+    # the anti-vacuity check fails closed, so every pass-asserting test in
+    # this file depends on this.
+    phys = tmp_path / "physics"
+    phys.mkdir()
+    (phys / "constants.py").write_text("MY_CONST = 3.14  # source: IEEE 1234\n")
+    (phys / "other.py").write_text("OTHER = 2.71  # source: datasheet p42\n")
+    result = _run_gate(tmp_path, phys)
+    # rich soft-wraps the long denominator line at console width; normalize
+    # whitespace before matching
+    flat = " ".join(result.stdout.split())
+    assert "Scanned 2 module-level float constant(s) across 2 file(s)" in flat
+
+
 # ---------------------------------------------------------------------------
 # edge cases
 # ---------------------------------------------------------------------------
@@ -137,35 +158,35 @@ def test_init_empty_all_documented(tmp_path: Path) -> None:
 def test_float_in_function_body_skipped(tmp_path: Path) -> None:
     phys = tmp_path / "physics"
     phys.mkdir()
-    (phys / "func.py").write_text("def f():\n    x = 3.14\n")
+    (phys / "func.py").write_text("def f():\n    x = 3.14\nOK = 1.0  # source: IEEE 1234\n")
     _run_gate(tmp_path, phys)
 
 
 def test_float_in_class_body_skipped(tmp_path: Path) -> None:
     phys = tmp_path / "physics"
     phys.mkdir()
-    (phys / "cls.py").write_text("class C:\n    x = 3.14\n")
+    (phys / "cls.py").write_text("class C:\n    x = 3.14\nOK = 1.0  # source: IEEE 1234\n")
     _run_gate(tmp_path, phys)
 
 
 def test_int_constant_skipped(tmp_path: Path) -> None:
     phys = tmp_path / "physics"
     phys.mkdir()
-    (phys / "ints.py").write_text("N = 5\n")
+    (phys / "ints.py").write_text("N = 5\nOK = 1.0  # source: IEEE 1234\n")
     _run_gate(tmp_path, phys)
 
 
 def test_string_constant_skipped(tmp_path: Path) -> None:
     phys = tmp_path / "physics"
     phys.mkdir()
-    (phys / "strs.py").write_text('NAME = "foo"\n')
+    (phys / "strs.py").write_text('NAME = "foo"\nOK = 1.0  # source: IEEE 1234\n')
     _run_gate(tmp_path, phys)
 
 
 def test_float_default_in_signature_skipped(tmp_path: Path) -> None:
     phys = tmp_path / "physics"
     phys.mkdir()
-    (phys / "sig.py").write_text("def f(x=3.14):\n    pass\n")
+    (phys / "sig.py").write_text("def f(x=3.14):\n    pass\nOK = 1.0  # source: IEEE 1234\n")
     _run_gate(tmp_path, phys)
 
 
@@ -185,14 +206,19 @@ def test_underscore_prefixed_private_file_skipped(tmp_path: Path) -> None:
     phys = tmp_path / "physics"
     phys.mkdir()
     (phys / "_internal.py").write_text("MY_CONST = 1.0\n")
-    _run_gate(tmp_path, phys)
+    (phys / "public.py").write_text("OK = 1.0  # source: IEEE 1234\n")
+    result = _run_gate(tmp_path, phys)
+    assert "_internal" not in result.stdout
 
 
 def test_syntax_error_file_skipped(tmp_path: Path) -> None:
     phys = tmp_path / "physics"
     phys.mkdir()
     (phys / "broken.py").write_text("this is not valid python {{{")
-    _run_gate(tmp_path, phys)
+    (phys / "good.py").write_text("OK = 1.0  # source: IEEE 1234\n")
+    result = _run_gate(tmp_path, phys)
+    assert "WARNING" in result.stdout
+    assert "syntax error" in result.stdout
 
 
 # ---------------------------------------------------------------------------
@@ -263,15 +289,23 @@ def test_allowlist_header_comments_ignored(tmp_path: Path) -> None:
 # ---------------------------------------------------------------------------
 
 
-def test_check_shrink_skip_when_no_origin_main(tmp_path: Path) -> None:
+def test_check_shrink_skip_when_no_origin_main(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    # The subprocess form of this test depended on the ambient clone being
+    # shallow (no origin/main) -- on a full clone `git show origin/main`
+    # succeeds and the skip branch never fires. Pin the branch directly.
     phys = tmp_path / "physics"
     phys.mkdir()
     (phys / "a.py").write_text("X = 1.0  # source: ok\n")
-    al = tmp_path / ".physics-provenance-allowlist"
-    al.write_text("")
-    result = _run_gate(tmp_path, phys, check_shrink=True)
-    assert "skipping" in result.stdout.lower()
-    assert "shrink check" in result.stdout.lower()
+
+    mod = _import_module()
+    monkeypatch.setattr(mod, "git_show_main_allowlist", lambda: None)
+    failures = mod.check_shrink_mode({}, phys)
+    captured = capsys.readouterr()
+    assert failures == 0
+    assert "skipping" in captured.out.lower()
+    assert "shrink check" in captured.out.lower()
 
 
 def test_check_shrink_fails_on_removal_without_source(

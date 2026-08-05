@@ -183,6 +183,7 @@ def _status_for(mk: str, delta_pct: float) -> str:
 def compare(
     pr_metrics: list[dict[str, Any]],
     baselines: dict[tuple[str, str, str], dict[str, float]],
+    main_benchmarks: set[tuple[str, str]] | None = None,
 ) -> list[dict[str, Any]]:
     """Compare PR metrics against baselines and return delta entries."""
     results: list[dict[str, Any]] = []
@@ -190,11 +191,31 @@ def compare(
         key = _key(pr_entry)
         baseline = baselines.get(key, {})
         if not baseline:
+            # A benchmark with no baseline row is one of two very different
+            # things, and conflating them made adding a benchmark impossible.
+            #
+            #   NEW_BENCHMARK -- the (module, stage) does not exist on main at
+            #     all, so this PR is its first appearance. No baseline CAN
+            #     exist yet: the gate reads the baseline from main (so a PR
+            #     cannot move its own goalposts), and main cannot carry a row
+            #     for code it does not have. Reported, not failed.
+            #
+            #   NO_BASELINE -- the benchmark DOES exist on main and still has
+            #     no row. That is the vacuity case this gate exists for: a
+            #     module shipped without coverage. Fails closed.
+            #
+            # main_benchmarks is None when the caller did not supply main's
+            # registry; then every unbaselined key stays NO_BASELINE, so the
+            # conservative behaviour is what you get by default.
+            is_new = (
+                main_benchmarks is not None
+                and (key[0], key[2]) not in main_benchmarks
+            )
             results.append({
                 "module": key[0],
                 "board": key[1],
                 "stage": key[2],
-                "status": "NO_BASELINE",
+                "status": "NEW_BENCHMARK" if is_new else "NO_BASELINE",
                 "deltas": {},
             })
             continue
@@ -239,11 +260,16 @@ def gate_failures(results: list[dict[str, Any]]) -> list[str]:
     failures: list[str] = []
     for res in results:
         label = f"{res['module']}/{res['board']}/{res['stage']}"
+        if res["status"] == "NEW_BENCHMARK":
+            # First appearance on this PR -- no baseline can exist yet. Not a
+            # failure; the row is captured from this run and landed on main.
+            continue
         if res["status"] == "NO_BASELINE":
             failures.append(
-                f"{label}: no baseline row. Capture one into the committed "
-                f"baseline before merging -- an unbaselined module is not "
-                f"covered by the performance A/B."
+                f"{label}: no baseline row, and this benchmark already exists "
+                f"on main. Capture one into the committed baseline before "
+                f"merging -- an unbaselined module is not covered by the "
+                f"performance A/B."
             )
             continue
         for mk, delta in sorted(res["deltas"].items()):
@@ -312,6 +338,16 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--baseline-jsonl", "--main-jsonl", dest="baseline_jsonl",
                         required=True,
                         help="Path to the committed baseline JSONL")
+    parser.add_argument(
+        "--main-benchmarks", type=Path, default=None,
+        help=(
+            "File listing main's benchmark keys, one 'module\\tstage' per "
+            "line. Used to tell a benchmark that is NEW to main (no baseline "
+            "can exist yet) from one that exists on main and is missing its "
+            "row (the vacuity case). Omit it and every unbaselined key stays "
+            "NO_BASELINE, which is the conservative default."
+        ),
+    )
     parser.add_argument("--window", type=int, default=DEFAULT_WINDOW,
                         help=f"Rolling window size for baseline median (default: {DEFAULT_WINDOW})")
     parser.add_argument("--json", action="store_true",
@@ -349,7 +385,18 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     baselines = load_main_baselines(baseline_records, args.window)
-    results = compare(pr_metrics, baselines)
+    main_benchmarks: set[tuple[str, str]] | None = None
+    if args.main_benchmarks is not None and args.main_benchmarks.exists():
+        main_benchmarks = set()
+        for line in args.main_benchmarks.read_text().splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            parts = line.split("\t")
+            if len(parts) == 2:
+                main_benchmarks.add((parts[0], parts[1]))
+
+    results = compare(pr_metrics, baselines, main_benchmarks)
     failures = gate_failures(results)
     report = format_markdown(results, failures)
 

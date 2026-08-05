@@ -4,11 +4,12 @@ Provides reusable strategies for SAT lattice tests (U1-U4), DRC
 completeness tests (U6-U7), induction tests (U9-U12), and BMC encoding
 verification (U3).
 
+The ``sat_variable`` / ``sat_clause`` / ``sat_clause_set`` strategies were
+removed with ``router_v6/sat_model.py``; the constraint-model and routing
+strategies below are unaffected.
+
 Strategies
 ----------
-* ``sat_variable`` — random ``SATVariable``
-* ``sat_clause`` — random ``SATClause`` over a variable set
-* ``sat_clause_set`` — list of clauses over shared variables
 * ``constraint_model_grid`` — ``ConstraintModel`` for a < =4x4 grid
 * ``constraint_model_with_all_types`` — ``ConstraintModel`` with all constraint
   types and net_names for BMC verification
@@ -35,7 +36,6 @@ from temper_placer.router_v6.constraint_model import (
     NetChannelVar,
 )
 from temper_placer.router_v6.routing_results import CompiledRoute, RoutingResults
-from temper_placer.router_v6.sat_model import SATClause, SATVariable
 from temper_placer.router_v6.via_placement import Via
 
 # ---------------------------------------------------------------------------
@@ -46,84 +46,6 @@ BOARD_W: float = 200.0
 BOARD_H: float = 150.0
 LAYERS: tuple[str, ...] = ("F.Cu", "B.Cu", "In1.Cu", "In2.Cu")
 SPATIAL_CELL_SIZE: float = 5.0  # mm — typical spatial-index cell size
-
-# ---------------------------------------------------------------------------
-# SAT strategies
-# ---------------------------------------------------------------------------
-
-
-@st.composite
-def sat_variable(draw: st.DrawFn) -> SATVariable:
-    """Generate a single ``SATVariable`` with random name and description."""
-    name = draw(st.text("abcdefghijklmnopqrstuvwxyz", min_size=2, max_size=12))
-    desc = f"Variable {name}"
-    return SATVariable(name=name, description=desc)
-
-
-@st.composite
-def sat_variable_set(
-    draw: st.DrawFn,
-    min_size: int = 2,
-    max_size: int = 20,
-) -> list[SATVariable]:
-    """Generate a set of ``SATVariable`` instances with unique names."""
-    n = draw(st.integers(min_value=min_size, max_value=max_size))
-    names = draw(
-        st.lists(
-            st.text("abcdefghijklmnopqrstuvwxyz", min_size=2, max_size=8),
-            min_size=n,
-            max_size=n,
-            unique=True,
-        )
-    )
-    return [SATVariable(name=nm, description=f"Variable {nm}") for nm in names]
-
-
-@st.composite
-def sat_clause(
-    draw: st.DrawFn,
-    variables: list[SATVariable] | None = None,
-    min_literals: int = 1,
-    max_literals: int = 5,
-) -> SATClause:
-    """Generate a ``SATClause`` over *variables* (or a fresh set if None)."""
-    if variables is None:
-        n_vars = draw(st.integers(min_value=2, max_value=8))
-        variables = draw(sat_variable_set(min_size=n_vars, max_size=n_vars))
-
-    n_lits = min(len(variables), draw(st.integers(min_value=min_literals, max_value=max_literals)))
-    # Use indices to avoid hashability issues with SATVariable
-    indices = draw(
-        st.lists(
-            st.integers(min_value=0, max_value=len(variables) - 1),
-            min_size=n_lits,
-            max_size=n_lits,
-            unique=True,
-        )
-    )
-    literals = [(variables[idx], draw(st.booleans())) for idx in indices]
-    desc = f"Clause: {' OR '.join(('' if pol else 'NOT ') + str(v) for v, pol in literals)}"
-    return SATClause(literals=literals, description=desc)
-
-
-@st.composite
-def sat_clause_set(
-    draw: st.DrawFn,
-    min_vars: int = 2,
-    max_vars: int = 8,
-    min_clauses: int = 2,
-    max_clauses: int = 20,
-) -> tuple[list[SATVariable], list[SATClause]]:
-    """Generate a shared variable set and list of clauses over those variables."""
-    n_vars = draw(st.integers(min_value=min_vars, max_value=max_vars))
-    variables = draw(sat_variable_set(min_size=n_vars, max_size=n_vars))
-    n_clauses = draw(st.integers(min_value=min_clauses, max_value=max_clauses))
-    clauses: list[SATClause] = []
-    for _ in range(n_clauses):
-        cl = draw(sat_clause(variables=variables))
-        clauses.append(cl)
-    return variables, clauses
-
 
 # ---------------------------------------------------------------------------
 # Constraint model grid strategy

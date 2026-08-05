@@ -1,9 +1,32 @@
 name: PR Performance Check
 
-# PR runs grouped per PR number, cancelled when superseded; main runs grouped
-# per SHA and never cancelled. Rationale: python-tests.yml.
+# PR runs grouped per PR number, cancelled when superseded. Non-PR runs are
+# CAPTURE runs and are grouped per RUN, never cancelled. Rationale:
+# python-tests.yml.
+#
+# 2026-08-05: the non-PR key was `github.sha`, which silently defeated the
+# `workflow_dispatch` trigger that exists immediately below for "topping the
+# baseline up on demand". Every dispatch against a given ref carries the SAME
+# sha, so all of them landed in ONE concurrency group; with
+# `cancel-in-progress: false` GitHub keeps only the newest PENDING run per
+# group and cancels the rest. Measured: six dispatches issued back-to-back on
+# main produced FOUR `cancelled` and one survivor.
+#
+# That capped on-demand capture at one row per sitting, against a baseline
+# convention of n=6 per stage -- and n=1 is the exact defect the push trigger
+# below was added to fix (see its comment: a single row makes the "rolling
+# median of the trailing 5" a no-op, and ordinary runner variance then trips
+# the 20% margin; PR #544 was reported as a +26.6% regression by a runtime
+# no-op). A capture path that cannot capture more than one sample cannot
+# repair that.
+#
+# `github.run_id` is unique per run, so each capture gets its own group and
+# they all execute. This does NOT weaken supersession where it matters: the
+# `pull_request` branch of the expression is unchanged, so a superseded PR push
+# still cancels its predecessor. Capture runs are samples, not gates -- there
+# is nothing to supersede, and discarding one discards data.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 on:
@@ -105,6 +128,21 @@ jobs:
       - name: Install dependencies
         run: uv sync --all-packages
 
+      # The unit tests for the comparator (scripts/tests/test_pr_perf_compare.py)
+      # are a trigger path of this workflow -- both the PR and the push trigger
+      # list them, and the script itself is too -- but until this step they ran
+      # NOWHERE: this workflow had no pytest step, and no job in python-tests.yml
+      # owns the perf gate (its scripts/tests steps sit next to the gate each
+      # test belongs to, and this gate lives in THIS workflow, not in
+      # python-tests.yml). A regression in pr_perf_compare.py therefore passed
+      # CI silently. This step closes that hole. It runs in BOTH modes like the
+      # A/B itself -- the suite is pure-python and finishes in under a second,
+      # and the push/capture mode is exactly where the windowing logic is most
+      # likely to bit-rot unseen. Placed before the A/B: a broken comparator
+      # fails here for pennies instead of after a ~5-20 minute measurement.
+      - name: Run perf-compare unit tests
+        run: uv run python -m pytest scripts/tests/test_pr_perf_compare.py -q
+
       # The performance A/B runs both arms -- the verbatim pre-migration Python
       # oracle and the Rust kernel that replaced it -- in one process, and
       # reports their ratio. See benchmarks/perf_ab.py for why the ratio, and
@@ -137,6 +175,39 @@ jobs:
           git show "origin/main:$BASELINE_PATH" > main-perf-baseline.jsonl 2>/dev/null \
             || : > main-perf-baseline.jsonl
           wc -l main-perf-baseline.jsonl
+
+          # main's benchmark registry, so the comparator can tell a benchmark
+          # that is NEW to main (no baseline can exist yet -- the baseline is
+          # read from main, and main does not have this code) from one that
+          # exists on main and is missing its row (the vacuity case, which
+          # still fails closed). Without this file every unbaselined key stays
+          # NO_BASELINE, so a fetch failure degrades to the strict behaviour.
+          git show "origin/main:benchmarks/perf_ab.py" > main-perf-ab.py 2>/dev/null \
+            || : > main-perf-ab.py
+          python3 - <<'EOF' > main-benchmarks.tsv
+          import ast, pathlib
+          src = pathlib.Path("main-perf-ab.py").read_text()
+          keys = []
+          try:
+              tree = ast.parse(src)
+          except SyntaxError:
+              tree = None
+          if tree is not None:
+              for node in ast.walk(tree):
+                  if not isinstance(node, ast.AnnAssign):
+                      continue
+                  tgt = getattr(node.target, "id", None)
+                  if tgt != "_BENCHMARKS" or not isinstance(node.value, ast.Dict):
+                      continue
+                  for k in node.value.keys:
+                      if isinstance(k, ast.Tuple) and len(k.elts) == 2:
+                          a, b = k.elts
+                          if isinstance(a, ast.Constant) and isinstance(b, ast.Constant):
+                              keys.append((a.value, b.value))
+          for module, stage in keys:
+              print(f"{module}\t{stage}")
+          EOF
+          wc -l main-benchmarks.tsv
 
       # 2026-08-04 (Wave 4 Phase 0, R2): `continue-on-error: true` removed. It
       # cited `temper-N6-U8`, a placeholder ticket id shared across 27 masks and
@@ -173,6 +244,7 @@ jobs:
           uv run python scripts/pr_perf_compare.py \
             --pr-metrics perf-metrics.jsonl \
             --baseline-jsonl main-perf-baseline.jsonl \
+            --main-benchmarks main-benchmarks.tsv \
             --report-file perf-report.md
 
       # CAPTURE-ONLY (main / manual). Emits the measured rows two ways: as a
