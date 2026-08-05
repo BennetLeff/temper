@@ -1997,3 +1997,225 @@ the failure path.
   `tests/io/test_loop_loader.py`, `tests/core/test_design_rules_field_parity.py`,
   `tests/router_v6/test_layer_assignment_ssot.py`,
   `tests/router_v6/test_phase1_anti_false_zero.py`.
+---
+
+# Wave 4 Phase 5 — deterministic hubs (`deterministic_hubs.rs`)
+
+Migrates the compute of the deterministic **hub** modules — the leaf stages'
+orchestrators — keeping the orchestration Python-side per the program rule
+("migrate the compute, keep the orchestration"). The module registration
+lives in `lib.rs` (`deterministic_hubs` submodule, registered after `loaders`
+so the parallel leaf-stages branch's `deterministic_stages` registration
+merges without textual conflict).
+
+**Home-crate decision.** `temper-design-bundle` (not `temper-geometry`, not
+`temper-drc-rs`): the program plan names "deterministic state" a Phase-2
+contracts candidate, and the reference Phase-2 migration
+(`core/priority.py` → `priority.rs`) established this crate as the home for
+deterministic-placer contracts + small kernels; the crate already carries
+`regex` and the `py_float_str`/`py_str_repr` CPython-repr replicas.
+`temper-geometry` is geometry-only (the leaves' grid kernels live there);
+`temper-drc-rs` hosts the engine's own types, not KiCad report-parsing
+contracts. Full rationale: `docs/evidence/2026-08-04-wave4-phase5-deterministic-hubs-records.md`.
+
+## What was migrated, and what was not
+
+| Python module | Kernel(s) in `deterministic_hubs` | Kept Python |
+|---|---|---|
+| `deterministic/channels.py` | `build_channel_index`, `ChannelIndex.penalty` | `Bottleneck`/`ChannelMap` dataclasses, schema validation, loader orchestration |
+| `deterministic/bottleneck_map.py` | `bottleneck_score_at`, `bottleneck_coerce_score` | `BottleneckMap` dataclass, `_from_sidecar_payload` coercion loop, `load_bottleneck_map` |
+| `deterministic/seed_filter.py` | `filter_seed_kernel` | `filter_seed` signature + map-field marshalling |
+| `deterministic/feedback/violation_mapper.py` | `map_violation_kernel` | `ViolationComponentMapper` (netlist→ref-set capture, zone_config handoff), `DRCViolation`/`MappedViolation` |
+| `deterministic/feedback/zone_adjuster.py` | `zone_adjustments_kernel` | `ZoneAdjuster` config handoff, `ZoneAdjustment`/`AdjustmentResult` |
+| `deterministic/feedback/drc_parser.py` | `process_drc_violation` | `json.load` (library semantics), `parse_kicad_drc` traversal |
+
+Data containers stay Python dataclasses — deliberately, not by omission:
+`dataclasses.replace(state/m/…)` is load-bearing across ~20 stage modules
+(including the leaves' files and router_v6), and Python 3.12's
+`dataclasses.replace` does not dispatch to a pyclass `__replace__`;
+`test_bottleneck_map.py` pins `dataclasses.FrozenInstanceError`; and the
+containers hold Python-side objects. The compute — not the containers — is
+what this slice migrates, and the differential pins the compute bit-exactly.
+
+The orchestration surfaces (`state.py`, `stages/base.py`, `stages/setup.py`,
+`feedback/orchestrator.py`, `feedback/drc_runner.py`, `instrumentation.py`,
+`flags.py`, `geometry/guard_strip.py`) get R3-style records with named
+blockers — see the evidence doc. `geometry/courtyard.py` is already a
+one-line re-export of a Phase-2/3 contract.
+
+## R1e — soundness argument
+
+**No induction applies.** Every migrated kernel is a straight-line
+arithmetic/regex sequence over bounded inputs or a single-pass loop over a
+bounded container (grid cells, bottleneck entries, seed items, violation
+items, zone config entries). Termination is immediate; there is no recursion,
+no unbounded iteration, and no solver. The R1e obligation is therefore
+discharged with a **structural proof of observational equivalence to the
+pinned Python reference**, established compositionally:
+
+1. **Leaf operations.** Each Python operation maps to a Rust operation proven
+   bit-identical on this platform: `math.floor((x*1000.0)/cell)` → naive
+   `f64::floor` of the same expression; `int(a // b)` → `py_floor_div`, a
+   transcription of CPython 3.12's `floatobject.c` `_float_div_mod` (fmod
+   remainder, sign-mismatch quotient correction, `> 0.5` snap-to-integer, and
+   `-0.0` copysign for the exact-zero case) — NOT `(a/b).floor()`, which the
+   differential's snap probes discriminate (`8.2 // 0.1 == 81.0` via a div of
+   `80.99999999999999`); `min`/`max` → `py_min`/`py_max` (Python's
+   first-argument-on-ties, NaN-propagating `b if b < a else a`, never
+   `f64::min`/`f64::max`); `float(group)`/`float(value)`/`int(x)` → a call to
+   `builtins.float`/`builtins.int`, so coercion semantics AND exact error
+   messages are identical by construction; `re.search(IGNORECASE)` →
+   `regex`-crate `(?i)` (ASCII `[A-Za-z0-9_]` patterns, identical capture
+   behaviour); `str.lower().find("via")` → `to_lowercase().contains("via")`.
+2. **Control flow.** Every branch predicate is transcribed verbatim,
+   including the floor-division non-finite guard: `int(nan // cell)` raises
+   `ValueError: cannot convert float NaN to integer` in CPython (the floordiv
+   of a non-finite operand is NaN), while a quotient that overflows to ±inf
+   raises `OverflowError: cannot convert float infinity to integer` — both
+   replicated with the exact message, pinned by the non-finite differential
+   cases. `math.floor(nan)`/`math.floor(±inf)` in `penalty` replicate the
+   same split.
+3. **Composition.** Each kernel's leaves are bit-identical and each branch
+   selects the same arm on the same inputs, so the kernels are bit-identical
+   by structural induction over their finite, acyclic call structure. The
+   mutation campaign below is the empirical check that no leaf or branch was
+   mis-transcribed.
+
+**Iteration order.** The kernels iterate Python dicts/sets where the oracle
+does: the seed (`PyDict`, insertion order), `zone_config` (insertion order,
+first-containing-zone wins), the component-ref set (membership only), and
+the violation list (order preserved). **No sort is introduced to stabilise
+anything** — the one sort in the surface (`sorted(components)` in the
+oracle) is reproduced by a `BTreeSet`; the differential's
+shuffled-permutation pins prove the kept outcomes are order-invariant in
+effect (worst-severity/max-score selection is a total order).
+
+**Empty-input semantics.** Empty seed accepts (`all()` over nothing is
+True); empty violations list yields no adjustments; empty/`None` maps return
+`0.0` penalties; missing keys take the oracle's defaults (`"unknown"`,
+`"error"`, `""`) — each asserted explicitly in the differentials.
+
+## Documented deviations (per R1, recorded here)
+
+- **`ZoneAdjustment` delta types: int vs float.** The oracle yields
+  int-typed deltas when config bounds/`max_size` are int-typed
+  (`(x2 - x1).abs()` on ints); the kernel coerces to f64. Values are
+  bit-identical (`10 == 10.0`); the differential compares `float.hex()`. A
+  consumer reading `delta_width` numerically is unaffected; the type
+  deviation is unobservable to the orchestrator (all existing assertions are
+  numeric). Recorded, not chased: pyo3 tuples cannot carry a per-element
+  "int-or-float" without wrapping every leaf.
+- **Malformed-config error parity (recorded, not replicated).** The oracle
+  *raises* `ValueError` on malformed zone-config `bounds`/`max_size`
+  (unpack of a non-pair) and `TypeError` on an explicit `can_expand: None`;
+  the kernel *skips* the zone (`extract().ok()` → default). Only reachable
+  with hand-mutated configs — the orchestrator generates these fields
+  itself — and the differential pins the well-formed behavior bit-exactly.
+  Re-decidable if a config-validator ever lets malformed values through.
+- **`drc_parser` non-str item descriptions.** A report item whose
+  `description` is not a string (e.g. `null`) is appended verbatim by the
+  oracle (`items.append(desc)`) but becomes `""` in the kernel (the
+  `Vec<String>` leaf cannot carry a non-str). KiCad reports always emit
+  string descriptions; the `type`/`severity`/`description` pass-through of
+  non-str values IS preserved (they cross as `Py<PyAny>`).
+- **`penalty` NaN/±inf slots raise where the oracle raises.** This is a
+  fidelity fix, not a deviation: `math.floor(nan)` raises ValueError and
+  `math.floor(±inf)` raises OverflowError in the oracle; the kernel raises
+  the same with the same messages instead of letting `as i64` saturate
+  (NaN would silently land in cell (0,0)).
+
+## Evidence
+
+- **Differential (R1a / R1f, TDD red → green):**
+  `packages/temper-placer/tests/deterministic/test_{channels,bottleneck_map,
+  seed_filter,violation_mapper,zone_adjuster,drc_parser}_rust_differential.py`
+  — 100+ tests against the verbatim oracles `_*_py_oracle.py` (dispatch base
+  `15110fecc`; oracle-vs-module diff is the mandated header only). Every
+  float compares as `float.hex()`; every leaf carries its concrete type via
+  `canon`; errors compare by type name AND message. Coverage includes the
+  discriminating classes: CPython floor-division snap probes (`8.2 // 0.1`
+  with distinct per-column scores), NaN/±inf error parity (ValueError for
+  NaN, OverflowError for quotient overflow), int-vs-float positions and
+  pass-throughs, empty inputs, boundary-inclusive zone containment,
+  insertion-order zone wins, both-patterns clearance extraction with
+  conflicting values, order-invariance over all permutations of shared-cell
+  bottlenecks and shuffled seeds. **RED first:** every differential failed
+  to collect (`AttributeError: ... has no attribute 'deterministic_hubs'`)
+  before the Rust landed.
+- **Anti-vacuity (the differential demonstrably bites):** 11 mutations built
+  and run via `scripts/phase5_hubs_mutations.py`; **10 caught, 1 provable
+  equivalent**.
+
+  | Mutant | Change | Caught by |
+  |--------|--------|-----------|
+  | M1 | `py_floor_div` drops the fmod subtraction (`div = a / b`) | `test_score_at_floor_div_snap_cases` — `8.2 // 0.1` computes a div of `80.99999999999999` that only the subtracted-fmod form produces |
+  | M2 | `py_floor_div` drops the `> 0.5` snap-to-integer | same test — div `80.99999999999999` floors to 80 without the snap; distinct per-column scores make col 80 vs 81 observable |
+  | M3 | channels `LOW` weight 0.05 → 0.1 | `test_penalty_severity_weight_pins` (added for exactly this; random fixtures could flakily miss LOW) |
+  | M4 | `penalty` off-by-one: `> width` instead of `>= width` | `test_penalty_parity_*` — the `_slots` probes hit `gx == width` exactly, which panics the in-bounds grid index |
+  | M5 | `bottleneck_score_at` drops the non-finite guard (saturating cast) | `test_score_at_nonfinite_error_parity` (added) — NaN lands in cell (0,0) instead of ValueError |
+  | M6 | `seed_filter` `score >= limit` → `score > limit` | `test_filter_seed_boundary_and_empty` — score == threshold must reject |
+  | M7 | `zone_adjuster` `excess = count - threshold` (off-by-one) | `test_expands_when_exceeding_threshold` — 10 violations, threshold 5: 6 vs 5 expansion steps |
+  | M8 | `map_violation_kernel` components sorted descending | `test_solder_mask_bridge_pad_dash_and_dot_formats` — `[Q2, U_GATE]` must stay ascending (the test compares the kernel's raw order; it previously normalised it away — fixed 2026-08-05) |
+  | M9 | `drc_parser` tries the TDD pattern before the KiCad pattern | `test_clearance_both_patterns_present_but_different_values` (added) — a description carrying both patterns with conflicting values pins the order |
+  | M10 | `penalty` drops the non-finite guard | `test_penalty_nonfinite_slot_error_parity` (added) |
+  | M11 | index build tie-break `score >` → `score >=` (kept score on equal-weight ties) | **SURVIVOR — provable equivalent.** `penalty` reads only the kept *severity*; equal weight ⟺ equal severity, so the kept `(severity, score)` differs only in a field no exported surface reads (the Python-side `bottlenecks` frozenset and `_bottleneck_by_cell` are the dataclass's own copies). Recorded per the phase guide's precedent rather than forcing a synthetic surface |
+
+- **PBT (R1c):** `test_*_pbt.py` — 5 hypothesis properties per module
+  (channels: range / occupancy-monotone / severity-monotone / OOB-zero /
+  same-cell determinism; bottleneck_map: member-or-zero / row-major /
+  strictly-inside-cell / OOB clamp / coerce clamp; seed_filter: totality /
+  empty-accepts / zero-map / equality-rejects / HV-stricter; violation_mapper:
+  totality / known-refs / no-unknown-refs / via-pth flags / zone containment;
+  zone_adjuster: shape / threshold gate / max-size bound / direction gating /
+  monotonicity; drc_parser: totality / defaults / first-pos / items / clearance).
+  Three PBT defects found and fixed during this slice's shake-out (2026-08-05):
+  `test_p5_same_cell_same_penalty` probed from the cell corner `gx*mm`, which
+  re-rounds into the previous cell when `cell_size_um` is not an exact binary
+  multiple of 1000 (probes now start from the cell centre with a half-cell
+  margin); `test_p4_out_of_grid_zero`'s edge predicate was fp-fragile (now a
+  full-cell margin); `test_mr2_extraneous_keys_noop` let the extra key collide
+  with kernel keys (now excluded).
+- **Metamorphic (R1d):** 3 relations per module (cell-shift / empty-map
+  equivalence / grid-layout invariance; whole-cell translation / uniform
+  constant / origin translation; seed order-invariance / absent-HV-ref noop /
+  scale invariance; item order-invariance / description independence / case
+  invariance; violation order-invariance / unrelated-zone noop / threshold
+  shift; single-pos order / extraneous-key noop / no-pattern leaves None).
+- **Rust unit tests:** `deterministic_hubs.rs::tests` — floor-division known
+  cases vs CPython, severity weights, NaN-propagating min/max.
+- **Rust practices (R1g):** every pyfunction is wrapped in
+  `temper_py_bridge::catch_panic` (catch_unwind at the boundary); the two
+  pyclass methods that make no Python calls (`penalty`, `build_channel_index`
+  internals) rely on pyo3's automatic panic guard; no `unwrap`/`expect`
+  outside tests (the crate denies `clippy::unwrap_used`; the two
+  `OnceLock<Regex>` literals carry `#[expect]` with a reason); borrows over
+  clones throughout; `cargo clippy --all-features --all-targets -- -D warnings`
+  clean.
+- **Performance A/B (R1b): deferred registration with a local no-regression
+  measurement.** The bench function was written and run locally — shim-vs-
+  oracle on a fixed-shape fixture with a parity sanity assertion inside the
+  bench; measured `ratio = 0.909` (rust 163 µs vs oracle 180 µs per batch) —
+  but **not registered in `_BENCHMARKS`**. Named blocker: the perf gate fails
+  CLOSED on any benchmark key that exists on main without CI-captured baseline
+  rows (this reddened 51/57 open PRs twice already — loaders/physics, then
+  drc-geometry, fixed by #757's in-PR row harvest), and a darwin-measured row
+  is not a valid baseline per the gate's documented platform-bias rule (~11%
+  Darwin/Linux divergence; "never compare a local measurement against a
+  CI-recorded one"). Registration is a one-line `_BENCHMARKS` entry once the
+  main capture path produces rows for the key (re-decidable per R3-style
+  records). For a pure-delegation surface whose differential already proves
+  bit-identical behavior, this is the **no-regression-beyond-noise** arm, NOT
+  a speedup claim.
+- **R1h (physics discipline): NOT APPLICABLE — evaluated and recorded.**
+  `channels.py` carries a PHYSICS-KW marker; the module consumes router-V6
+  congestion output for placement-time routability scoring — a heuristic cost
+  term in `score_slot`, not a physics invariant. The penalty is bounded in
+  `[0,1]`, gates on no physics quantity, and feeds no R24-gated constraint;
+  the R24 obligations (Chebyshev soundness, BMC-exhaustive validation,
+  post-solve audit) have no referent. None of the other kernels touch physics
+  quantities either.
+- **Consumer suites run unchanged against the migrated shims:**
+  `tests/deterministic/` + `tests/router_v6/` — 2,964 passed, 16 skipped,
+  23 xfailed (2026-08-05, measured on this branch). The state.py hub's
+  consumer pins (deterministic tests exercise it heavily) and the router_v6
+  suites stayed green across the shim conversion.
