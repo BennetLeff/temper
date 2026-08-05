@@ -398,6 +398,11 @@ mod python {
             });
         }
         // effective_weights, in stackup layer order (dict insertion order).
+        // The oracle keys by layer name (effective_weights[ly.name] = ...):
+        // duplicate layer names COLLAPSE — last value wins, first-seen
+        // position. A Vec-push kernel would double `total` on duplicates
+        // and diverge the imbalance (see the duplicate-name differential
+        // tests).
         let mut effective: Vec<(String, f64)> = Vec::new();
         for layer in stackup.getattr("layers")?.try_iter()? {
             let ly = layer?;
@@ -407,7 +412,11 @@ mod python {
                 Some(v) => v.extract::<f64>()?,
                 None => 0.0,
             } / 100.0;
-            effective.push((name, copper_weight * pct));
+            let weight = copper_weight * pct;
+            match effective.iter_mut().find(|(n, _)| *n == name) {
+                Some(slot) => slot.1 = weight,
+                None => effective.push((name, weight)),
+            }
         }
         let total = neumaier_sum(effective.iter().map(|(_, w)| *w));
         if total == 0.0 {

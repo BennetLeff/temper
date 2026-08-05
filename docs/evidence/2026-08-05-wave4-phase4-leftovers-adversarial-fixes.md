@@ -69,6 +69,16 @@ differential case (1 failed).
 | hypergraph (H1–H10) | 10 | **10/10 caught** (H6 re-run after a compile error in the mutant itself) | clean after every mutant |
 | stackup (S1–S12) | 12 | **12/12 caught** | clean after every mutant |
 
+Total: **43 mutants, 43/43 caught.** The per-mutant logs
+(`/tmp/hg_mutants_report.txt`, `/tmp/mc_mutants_report.txt`) were
+**regenerated** for the hypergraph campaign on 2026-08-05 against the
+current tree (HEAD `cdb4f5272`): the pre-rebase log's H5 and H6 rows
+showed all-pass runs ("26 passed") measured before the duplicate-ref and
+zero-components differential cases landed; the regenerated log records the
+actual failures and the killing tests for every mutant (H5: 1 failed —
+`test_duplicate_component_refs_last_wins`; H6: 5 failed — the
+zero-components and mixed-netlist differential cases plus PBT P4).
+
 **M2 nuance (recorded, not a gap):** the first M2 attempt used the `>=`
 tie-break variant of `np_max` last-wins, which SURVIVED — that variant is
 value-identical on the kernel's operand domain (separations can never be
@@ -81,7 +91,14 @@ The documented campaign mutant is the always-`b` variant, which is caught
 type error in the mutant text itself (`Some(&node_idx)` pattern against
 `Option<usize>`) and did not build; the corrected mutant
 (`ref_to_idx.get(..).copied().or(Some(usize::MAX))`) builds and is caught
-(3 failures).
+(5 failures: `test_nets_without_components_parity`, the two mixed-netlist
+cases, `test_matrix_triplet_order_is_cpython_set_order`, and the PBT
+property `test_p4_incidence_connectedness`). The zero-components case
+(`test_nets_without_components_parity` — nets whose refs match no
+component) and PBT P4 are the true discriminators; there is no
+"UNKNOWN_REF case" in the suite — the pre-rebase campaign log's
+attribution of H6 to one does not exist and was corrected in the
+regenerated log (see above).
 
 Suite totals at campaign time (pytest, all green between mutants):
 tolerances 51 tests, monte_carlo 53, hypergraph 30, stackup 56.

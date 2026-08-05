@@ -230,6 +230,55 @@ def test_symmetry_tie_for_heaviest_layer_names_first(canonical_stackup):
     assert float(rust_r.details["imbalance"]).hex() == float(py_r.details["imbalance"]).hex()
 
 
+def test_symmetry_duplicate_layer_names_collapse():
+    """Duplicate layer names COLLAPSE in the oracle's effective_weights dict
+    (last value wins, first-seen key order). A Vec-push kernel instead
+    doubles `total` for the duplicate, halving the imbalance (0.5 vs 1.0)
+    and diverging the warn message ('50.0%' vs '100.0%')."""
+    from temper_placer.core.board import Layer
+
+    stackup = LayerStackup(
+        layers=(
+            Layer("A", "signal", 1.0, True),
+            Layer("A", "signal", 1.0, True),
+            Layer("B", "signal", 0.1, True),
+        )
+    )
+    py_report, rust_report = _both(
+        stackup, copper_fill_percentages={"A": 100.0, "B": 0.0}
+    )
+    py_r = next(r for r in py_report.results if r.check_name == "Copper Symmetry")
+    rust_r = next(r for r in rust_report.results if r.check_name == "Copper Symmetry")
+    assert not py_r.passed  # dict: {A: 1.0, B: 0.0} -> imbalance 1.0 -> warn
+    assert rust_r.message == py_r.message
+    assert "100.0%" in rust_r.message
+    assert rust_r.layer == py_r.layer == "A vs B"
+    assert float(rust_r.details["imbalance"]).hex() == float(py_r.details["imbalance"]).hex()
+
+
+def test_symmetry_duplicate_layer_names_last_wins_value():
+    """Duplicate-layer collapse uses the LAST layer's weight: with layers
+    A(1.0), A(3.0), B(0.1) the dict holds A: 3.0, so the warn names 'A at
+    3.00' (a first-wins-value mutant renders 'A at 1.00')."""
+    from temper_placer.core.board import Layer
+
+    stackup = LayerStackup(
+        layers=(
+            Layer("A", "signal", 1.0, True),
+            Layer("A", "signal", 3.0, True),
+            Layer("B", "signal", 0.1, True),
+        )
+    )
+    py_report, rust_report = _both(
+        stackup, copper_fill_percentages={"A": 100.0, "B": 0.0}
+    )
+    py_r = next(r for r in py_report.results if r.check_name == "Copper Symmetry")
+    rust_r = next(r for r in rust_report.results if r.check_name == "Copper Symmetry")
+    assert rust_r.message == py_r.message
+    assert "A at 3.00" in rust_r.message
+    assert rust_r.details["max_eff"] == py_r.details["max_eff"] == 3.0
+
+
 def test_symmetry_zero_effective_copper(canonical_stackup):
     """All-zero fill: 'Zero effective copper' skip message."""
     py_report, rust_report = _both(

@@ -98,7 +98,8 @@ commit `6290942be`).
 
 - Differential (R1a/R1f, TDD red→green):
   `packages/temper-placer/tests/manufacturing/test_stackup_validator_rust_differential.py`
-  (42 tests across a 22-case argument matrix; the RED state was
+  (44 tests collected — 21 test functions + the 21-case argument matrix
+  of `test_validate_stackup_full_report_parity`; the RED state was
   demonstrated: the file fails to collect with
   `AttributeError: module 'temper_io_types' has no attribute
   'StackupValidationResult'` before the Rust landed). Includes the
@@ -106,7 +107,9 @@ commit `6290942be`).
   mutation-discriminating cases (tie-break, layer-index), and the two
   int-spec matrix rows (90, -5) added 2026-08-05 after an adversarial
   review found the int impedance messages diverged ("90.0 Omega" vs the
-  oracle's "90 Omega").
+  oracle's "90 Omega"), and the two duplicate-layer-name cases
+  (dict-collapse and last-wins-value) added 2026-08-05 after the same
+  review found the Vec-push kernel doubled `total` on duplicate names.
 - PBT (R1c): `test_stackup_validator_pbt.py` — 12 hypothesis properties
   (P1-P7 + MR1-MR4), each fail-capable.
 - Metamorphic (R1d): `test_stackup_validator_pbt.py` — MR1 (fill-dict

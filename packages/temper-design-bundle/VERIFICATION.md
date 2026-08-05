@@ -2218,8 +2218,10 @@ operation:
 
 - `s_pos = positions + stack([reg_x, reg_y])` — one `f64` add per
   coordinate (numpy's add on float64 operands is one correctly-rounded op;
-  dtype promotion to float64 is exact for every real numpy dtype: float32→
-  float64 is lossless, ints convert via Python's exact `float()`);
+  dtype promotion to float64 is exact for float32→float64 and for ints
+  within the exact-int range, while int64 leaves beyond 2^53 round on BOTH
+  sides through the identical conversion — the parity claim, not exactness,
+  holds there);
 - `s_widths = bounds + 2 * etch` — one multiply by the exact power of two
   `2.0` (no rounding) followed by one add;
 - `dx/dy = |a - b|`, `mw/mh = (a + b) / 2.0` — one subtract, one add, one
@@ -2533,13 +2535,16 @@ commit `58b302ce8`).
   threshold `>`→`>=`, `>=2`→`>2` pins, HV flag `||`→`&&`, HV width branch
   dropped, ref map last-wins→first-wins (closed by the duplicate-ref
   differential case), connection membership check dropped (closed by the
-  UNKNOWN_REF case), HV flag 1.0/0.0 swapped, 0.5/0.2 widths swapped,
-  node weights `*`→`+`, pin order reversed (caught by the triplet-order
-  matrix comparison). **Re-verified 2026-08-05 with an explicit revert
-  verification** (each mutant applied to the Rust source, the rebuilt
-  extension run against the suites, the failure confirmed, the source
-  restored, and `git diff` confirmed EMPTY before the next mutant): 10/10
-  caught. Full log in
+  zero-components differential case `test_nets_without_components_parity`
+  — nets whose refs match no component — plus the mixed-netlist cases and
+  PBT P4; the earlier "UNKNOWN_REF case" attribution referred to no test
+  in the suite and was corrected 2026-08-05), HV flag 1.0/0.0 swapped,
+  0.5/0.2 widths swapped, node weights `*`→`+`, pin order reversed (caught
+  by the triplet-order matrix comparison). **Re-verified 2026-08-05 with
+  an explicit revert verification** (each mutant applied to the Rust
+  source, the rebuilt extension run against the suites, the failure
+  confirmed, the source restored, and `git diff` confirmed EMPTY before
+  the next mutant): 10/10 caught. Full log in
   `docs/evidence/2026-08-05-wave4-phase4-leftovers-adversarial-fixes.md`.
 - Rust practices (R1g): no `unwrap`/`expect` in non-test code; `PyResult`
   everywhere; `cargo clippy --release --features python` clean (0 warnings);

@@ -29,7 +29,9 @@ mod reference_loader;
 mod parse_engine;
 #[cfg(feature = "python")]
 mod manufacturing_tolerances;
+#[cfg(feature = "python")]
 mod manufacturing_monte_carlo;
+#[cfg(feature = "python")]
 mod hypergraph_factory;
 
 #[cfg(feature = "python")]
