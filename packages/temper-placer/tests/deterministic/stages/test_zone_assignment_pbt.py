@@ -31,10 +31,10 @@ Three metamorphic relations (R1d):
 
 from __future__ import annotations
 
+import temper_design_bundle_python as _tdb
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-import temper_design_bundle_python as _tdb
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 
 _RS = _tdb.deterministic_stages
@@ -42,7 +42,9 @@ RS_ASSIGN = _RS.assign_component_zones
 
 _ZONES = ("MCU", "HV", "Power", "Signal")
 _REFS = st.text(
-    alphabet=st.characters(whitelist_categories=("Lu", "Nd", "_")), min_size=1, max_size=12
+    alphabet=st.characters(whitelist_categories=("Lu", "Nd"), whitelist_characters="_"),
+    min_size=1,
+    max_size=12,
 )
 
 
@@ -78,7 +80,7 @@ def test_p1_totality(ref, net_names, classes):
 def test_p2_mcu_prefix_wins(ref, net_names):
     if not ref.startswith("U_MCU"):
         ref = "U_MCU" + ref
-    classes = {n: "Power" for n in net_names}
+    classes = dict.fromkeys(net_names, "Power")
     z = _zones_of(_mk(ref, net_names, classes))
     assert z[ref] == "MCU"
 
@@ -104,7 +106,7 @@ def test_p4_isolated_default(ref):
 @given(_REFS, st.lists(st.text(min_size=1, max_size=8), max_size=4))
 @settings(max_examples=80, deadline=None)
 def test_p5_determinism(ref, net_names):
-    classes = {n: "Signal" for n in net_names}
+    classes = dict.fromkeys(net_names, "Signal")
     n1 = _mk(ref, net_names, classes)
     n2 = _mk(ref, net_names, classes)
     assert _zones_of(n1) == _zones_of(n2)
@@ -114,7 +116,7 @@ def test_p5_determinism(ref, net_names):
 @settings(max_examples=100, deadline=None)
 def test_mr1_signal_net_addition_neutral(ref, net_names):
     extra = "SIG_PLAIN"
-    classes = {n: "Signal" for n in net_names}
+    classes = dict.fromkeys(net_names, "Signal")
     base = _zones_of(_mk(ref, net_names, classes))
     extended = _zones_of(_mk(ref, net_names + [extra], {**classes, extra: "Signal"}))
     assert base[ref] == extended[ref]

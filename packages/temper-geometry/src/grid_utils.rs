@@ -160,6 +160,7 @@ pub fn add_endpoint_nudge_py(
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
 

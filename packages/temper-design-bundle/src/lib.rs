@@ -2,6 +2,9 @@
 mod net_types;
 
 #[cfg(feature = "python")]
+mod deterministic_stages;
+
+#[cfg(feature = "python")]
 mod loops;
 
 #[cfg(feature = "python")]
@@ -198,6 +201,11 @@ mod python {
         crate::design_rules::register(module)?;
         crate::gates::register(module)?;
         crate::priority::register(module)?;
+
+        // Wave 4 Phase 5 first slice: deterministic leaf-stage compute
+        // (slot_generation / zone_geometry / zone_assignment kernels) ported
+        // from temper_placer/deterministic/stages/ (see deterministic_stages.rs).
+        crate::deterministic_stages::register(module)?;
 
         // Wave 4 Phase 3 candidate 1: the parse-target contracts ported from
         // temper_placer/core/netlist.py (see netlist_contracts.rs) and

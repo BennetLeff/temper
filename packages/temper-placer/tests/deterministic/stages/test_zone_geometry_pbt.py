@@ -32,10 +32,9 @@ Three metamorphic relations (R1d):
 
 from __future__ import annotations
 
+import temper_design_bundle_python as _tdb
 from hypothesis import given, settings
 from hypothesis import strategies as st
-
-import temper_design_bundle_python as _tdb
 
 _RS = _tdb.deterministic_stages
 
@@ -109,8 +108,15 @@ def test_mr1_pow2_scale(w, h, n):
     assert len(base) == len(scaled)
     for (name, x1, y1, x2, y2), (sname, sx1, sy1, sx2, sy2) in zip(base, scaled):
         assert name == sname
-        assert sx1.hex() == (k * x1).hex() and sx2.hex() == (k * x2).hex()
-        assert sy1.hex() == (k * y1).hex() and sy2.hex() == (k * y2).hex()
+        # HV.x_min and every y_min are Python `int` 0 in both arms (the
+        # oracle stores ((0, 0), ...)); float() hexifies them bit-exactly
+        # (0 == 0.0 numerically, and (k * 0) is exactly 0.0).
+        assert (
+            float(sx1).hex() == (k * float(x1)).hex() and float(sx2).hex() == (k * float(x2)).hex()
+        )
+        assert (
+            float(sy1).hex() == (k * float(y1)).hex() and float(sy2).hex() == (k * float(y2)).hex()
+        )
 
 
 @given(_DIM, _DIM, _DIM)
@@ -118,7 +124,9 @@ def test_mr1_pow2_scale(w, h, n):
 def test_mr2_x_depends_only_on_width(w, h1, h2):
     a = _layout(w, h1)
     b = _layout(w, h2)
-    for (_, x1a, _, _, x2a), (_, x1b, _, _, x2b) in zip(a, b):
+    # Row layout is (name, xmin, ymin, xmax, ymax): compare the x pair
+    # (positions 1 and 3); ymax (position 4) legitimately varies with h.
+    for (_, x1a, _, x2a, _), (_, x1b, _, x2b, _) in zip(a, b):
         assert x1a == x1b and x2a == x2b
 
 

@@ -27,12 +27,11 @@ from __future__ import annotations
 
 import random
 
-import pytest
 import temper_design_bundle_python as _tdb
-from temper_placer.core.netlist import Component, Net, Netlist, Pin
-
 import tests.deterministic.stages._zone_assignment_py_oracle as _oracle
 from tests.core._contract_canon import canon
+
+from temper_placer.core.netlist import Component, Net, Netlist, Pin
 
 _RS = _tdb.deterministic_stages
 RS_ASSIGN = _RS.assign_component_zones
@@ -45,7 +44,7 @@ def _netlist(components, nets):
 def _comp(ref, net_names=None, prefix=None):
     pins = []
     for i, n in enumerate(net_names or []):
-        pins.append(Pin(f"{i+1}", str(i + 1), (0.0, 0.0), net=n))
+        pins.append(Pin(f"{i + 1}", str(i + 1), (0.0, 0.0), net=n))
     return Component(ref=ref, footprint="FP", bounds=(1, 1), pins=pins)
 
 
@@ -73,7 +72,12 @@ def test_power_net_class():
 
 def test_mcu_prefix_and_protocol_nets():
     netlist = _netlist(
-        [_comp("U_MCU1"), _comp("R1", ["SPI_CLK"]), _comp("R2", ["I2C_SDA"]), _comp("R3", ["uart_tx"])],
+        [
+            _comp("U_MCU1"),
+            _comp("R1", ["SPI_CLK"]),
+            _comp("R2", ["I2C_SDA"]),
+            _comp("R3", ["uart_tx"]),
+        ],
         [
             Net("SPI_CLK", [("R1", "1")], net_class="Signal"),
             Net("I2C_SDA", [("R2", "1")], net_class="Signal"),
@@ -133,10 +137,12 @@ def test_randomized_netlists():
 
         # Assign each component a random subset of nets (component pins carry
         # the net name; net membership lists mirror that).
-        comp_nets_of = {r: rng.sample(net_names, rng.randrange(0, min(3, n_nets) + 1)) for r in refs}
+        comp_nets_of = {
+            r: rng.sample(net_names, rng.randrange(0, min(3, n_nets) + 1)) for r in refs
+        }
         components = [_comp(r, comp_nets_of[r]) for r in refs]
         nets = []
-        for i, n in enumerate(net_names):
+        for n in net_names:
             members = [(r, "1") for r in refs if n in comp_nets_of[r]]
             if not members and refs:
                 members = [(refs[0], "1")]

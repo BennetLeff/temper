@@ -22,9 +22,7 @@ from __future__ import annotations
 
 import random
 
-import pytest
 import temper_design_bundle_python as _tdb
-
 import tests.deterministic.stages._zone_geometry_py_oracle as _oracle
 from tests.core._contract_canon import canon
 
@@ -70,7 +68,7 @@ def test_layout_randomized():
 
 def test_layout_non_standard_dimensions():
     """Odd dimensions and floats keep exact product semantics."""
-    for w, h in [(1.0, 1.0), (0.5, 3.7), (2 ** 0.5, 7.0 / 3.0), (123.456, 0.001)]:
+    for w, h in [(1.0, 1.0), (0.5, 3.7), (2**0.5, 7.0 / 3.0), (123.456, 0.001)]:
         exp = _zones_to_tuples(_oracle.define_zone_layout(w, h))
         got = list(RS_LAYOUT(w, h))
         assert canon(exp) == canon(got)

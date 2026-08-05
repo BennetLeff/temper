@@ -36,14 +36,17 @@ Three metamorphic relations (R1d):
 
 from __future__ import annotations
 
+import temper_design_bundle_python as _tdb
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-import temper_design_bundle_python as _tdb
-
 _RS = _tdb.deterministic_stages
 
-_SPACING = st.floats(min_value=1e-3, max_value=8.0, allow_nan=False, allow_infinity=False)
+_SPACING = st.floats(min_value=0.25, max_value=8.0, allow_nan=False, allow_infinity=False)
+# The grid walk is O((extent/spacing)^2) slots: with the bounds below the
+# worst case is 640_000 slots (extent 200, spacing 0.25) — bounded so the
+# suite runs in seconds. The sub-0.25 float-accumulation drift (spacing 0.1)
+# is pinned bit-exactly by the differential test, not by PBT.
 _DIM = st.floats(min_value=0.0, max_value=200.0, allow_nan=False, allow_infinity=False)
 _ZONE = st.tuples(_DIM, _DIM, _DIM, _DIM).filter(lambda b: b[2] >= b[0] and b[3] >= b[1])
 
@@ -83,7 +86,9 @@ def test_p3_first_slot_anchor(b, spacing):
 @settings(max_examples=200, deadline=None)
 def test_p4_determinism(b, spacing):
     x_min, y_min, x_max, y_max = b
-    assert _slots(x_min, y_min, x_max, y_max, spacing) == _slots(x_min, y_min, x_max, y_max, spacing)
+    assert _slots(x_min, y_min, x_max, y_max, spacing) == _slots(
+        x_min, y_min, x_max, y_max, spacing
+    )
 
 
 @given(_ZONE, _SPACING)
@@ -130,6 +135,13 @@ def test_mr3_y_axis_independence(b1, b2, spacing):
     x_min, y_min, x_max, y_max = b1
     if (b2[1], b2[3]) != (y_min, y_max):
         return  # requires equal y-extent
+    # The y-values only materialize when at least one x-row is generated
+    # (the outer loop is `while x < x_max`). A zero/near-zero x-extent on
+    # either zone yields NO y-values at all (both arms agree — the oracle
+    # behaves identically), so the property is honestly bounded to zones
+    # that actually emit rows.
+    if not (x_max - x_min > spacing / 2 and b2[2] - b2[0] > spacing / 2):
+        return
     slots1 = _slots(x_min, y_min, x_max, y_max, spacing)
     slots2 = _slots(b2[0], y_min, b2[2], y_max, spacing)
     ys1 = sorted({y for _, y in slots1})

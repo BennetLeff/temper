@@ -24,9 +24,7 @@ from __future__ import annotations
 
 import random
 
-import pytest
 import temper_design_bundle_python as _tdb
-
 import tests.deterministic.stages._slot_generation_py_oracle as _oracle
 from tests.core._contract_canon import canon
 
@@ -68,6 +66,15 @@ def test_slots_strict_upper_bound():
     """A slot exactly at x_max / y_max is NOT emitted (strict `<`)."""
     # spacing 2, x from 1 to 10: 1, 3, 5, 7, 9 (not 11).
     _assert_slots_equal(((0, 0), (10, 10)), 2.0)
+    # Discriminating cases: the lattice lands EXACTLY on the boundary, so
+    # `<` vs `<=` differ. x lattice 1,3,5 with x_max 5 -> 5 excluded;
+    # y lattice 1,3 with y_max 3 -> 3 excluded. (These are the cases that
+    # killed the `<=` mutants M1/M2 in the batch-2 campaign.)
+    _assert_slots_equal(((0.0, 0.0), (5.0, 3.0)), 2.0)
+    _assert_slots_equal(((0.0, 0.0), (5.0, 5.0)), 2.0)
+    _assert_slots_equal(((0.0, 0.0), (3.0, 5.0)), 2.0)
+    # Negative-origin variant: lattice -1, 1, 3, 5 with x_max 5 -> 5 excluded.
+    _assert_slots_equal(((-2.0, -2.0), (5.0, 5.0)), 2.0)
 
 
 def test_slots_float_accumulation():

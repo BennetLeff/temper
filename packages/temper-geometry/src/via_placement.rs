@@ -144,6 +144,7 @@ pub fn place_via_with_clearance_py(
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
 
