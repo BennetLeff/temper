@@ -808,7 +808,7 @@ fn generate_summary_impl<'py>(
                 (rank, issue)
             })
             .collect();
-        ranked.sort_by(|a, b| a.0.cmp(&b.0));
+        ranked.sort_by_key(|a| a.0);
         let top_issues = ranked.iter().take(5);
 
         if !ranked.is_empty() {

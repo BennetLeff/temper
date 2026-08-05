@@ -677,7 +677,7 @@ fn count_by_type_impl<'py>(
             counts.push((dtype, 1));
         }
     }
-    counts.sort_by(|a, b| b.1.cmp(&a.1)); // stable sort by count desc
+    counts.sort_by_key(|b| std::cmp::Reverse(b.1)); // stable sort by count desc
     let out = PyDict::new(py);
     for (k, v) in &counts {
         out.set_item(k, v)?;
