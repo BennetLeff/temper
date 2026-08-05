@@ -42,7 +42,9 @@ pub mod footprint_spec;
 pub mod golden_serializers;
 pub mod isolation;
 pub mod provenance;
+pub mod pyfmt;
 pub mod reference_aliases;
+pub mod report;
 #[cfg(feature = "python")]
 pub mod zone_filler;
 
@@ -128,6 +130,26 @@ mod pymodule_def {
         )?)?;
         m.add_function(wrap_pyfunction!(
             crate::config_binding::verify_config_matches_netlist,
+            m
+        )?)?;
+        // Wave 4 Phase 5 — report surface (report.rs).
+        m.add_function(wrap_pyfunction!(crate::report::report_format_text, m)?)?;
+        m.add_function(wrap_pyfunction!(crate::report::report_format_json_data, m)?)?;
+        m.add_function(wrap_pyfunction!(crate::report::report_format_html, m)?)?;
+        m.add_function(wrap_pyfunction!(
+            crate::report::report_calculate_benchmark_result,
+            m
+        )?)?;
+        m.add_function(wrap_pyfunction!(
+            crate::report::report_benchmark_json_data,
+            m
+        )?)?;
+        m.add_function(wrap_pyfunction!(
+            crate::report::report_generate_summary,
+            m
+        )?)?;
+        m.add_function(wrap_pyfunction!(
+            crate::report::report_extract_key_metrics,
             m
         )?)?;
         m.add_function(wrap_pyfunction!(crate::zone_filler::fill_zones_pcbnew, m)?)?;
