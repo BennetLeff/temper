@@ -1,0 +1,132 @@
+// CPython float-formatting seam for the Wave-4 Phase-5 REQ-SAFE-01
+// migration (temper-drc-rs).
+//
+// Python's `f"{x:.Nf}"` is round-half-even fixed-point decimal formatting
+// with `nan`/`inf`/`-inf` rendered lowercase (CPython's float formatting
+// never writes `NaN`). Rust's `{x:.N$}` produces the same digits on every
+// finite value but renders NaN as `NaN` — so the special values must be
+// special-cased. (The identical seam lives in temper-io-types/src/pyfmt.rs
+// for the report/explainability surfaces; this crate does not depend on
+// temper-io-types, so the small helper is duplicated with this note.)
+
+/// CPython `f"{x:.1f}"`.
+pub fn py_float_fmt_1(x: f64) -> String {
+    py_float_fmt(x, 1)
+}
+
+/// CPython `f"{x:.3f}"`.
+pub fn py_float_fmt_3(x: f64) -> String {
+    py_float_fmt(x, 3)
+}
+
+/// CPython `str(x)` for floats: shortest round-trip digits (identical to
+/// Rust's `{:e}` digit extraction), decimal notation for
+/// `1e-4 <= |x| < 1e16` with a trailing `.0` on integrals, exponent
+/// notation otherwise with a signed, zero-padded-to-2 exponent
+/// (`1e+16`, `1e-05`). Ported from temper-constraint-compiler's
+/// `py_float_str` (the established seam).
+pub fn py_float_str(x: f64) -> String {
+    if x.is_nan() {
+        return "nan".to_string();
+    }
+    if x.is_infinite() {
+        return if x > 0.0 {
+            "inf".to_string()
+        } else {
+            "-inf".to_string()
+        };
+    }
+    if x == 0.0 {
+        return if x.is_sign_negative() {
+            "-0.0".to_string()
+        } else {
+            "0.0".to_string()
+        };
+    }
+    // Rust's `{:e}` emits the shortest digits that round-trip — the same digit
+    // sequence CPython's repr uses — with the decimal exponent in the suffix.
+    let s = format!("{x:e}");
+    let Some((mant, exp)) = s.split_once('e') else {
+        return s;
+    };
+    let Ok(exp) = exp.parse::<i32>() else {
+        return s;
+    };
+    let (sign, mant) = match mant.strip_prefix('-') {
+        Some(m) => ("-", m),
+        None => ("", mant),
+    };
+    let (int_part, frac_part) = match mant.split_once('.') {
+        Some((a, b)) => (a, b),
+        None => (mant, ""),
+    };
+    let sig = format!("{int_part}{frac_part}");
+    let n = sig.len() as i32;
+    let point_pos = exp + 1; // digits before the decimal point
+
+    if (-4..16).contains(&exp) {
+        let mut out = String::from(sign);
+        if point_pos <= 0 {
+            out.push_str("0.");
+            for _ in 0..(-point_pos) {
+                out.push('0');
+            }
+            out.push_str(&sig);
+        } else if point_pos >= n {
+            out.push_str(&sig);
+            for _ in 0..(point_pos - n) {
+                out.push('0');
+            }
+            out.push_str(".0");
+        } else {
+            out.push_str(&sig[..point_pos as usize]);
+            out.push('.');
+            out.push_str(&sig[point_pos as usize..]);
+        }
+        out
+    } else {
+        let mut out = String::from(sign);
+        out.push_str(&sig[..1]);
+        if sig.len() > 1 {
+            out.push('.');
+            out.push_str(&sig[1..]);
+        }
+        out.push('e');
+        out.push(if exp < 0 { '-' } else { '+' });
+        let e = exp.abs();
+        if e < 10 {
+            out.push('0');
+        }
+        out.push_str(&e.to_string());
+        out
+    }
+}
+
+fn py_float_fmt(x: f64, prec: usize) -> String {
+    if x.is_nan() {
+        return "nan".to_string();
+    }
+    if x.is_infinite() {
+        return if x > 0.0 {
+            "inf".to_string()
+        } else {
+            "-inf".to_string()
+        };
+    }
+    format!("{x:.prec$}")
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn py_float_fmt_matches_cpython() {
+        assert_eq!(py_float_fmt_1(2.55), "2.5");
+        assert_eq!(py_float_fmt_1(3.25), "3.2");
+        assert_eq!(py_float_fmt_3(1.25), "1.250");
+        assert_eq!(py_float_fmt_1(f64::NAN), "nan");
+        assert_eq!(py_float_fmt_1(f64::INFINITY), "inf");
+        assert_eq!(py_float_fmt_1(f64::NEG_INFINITY), "-inf");
+    }
+}

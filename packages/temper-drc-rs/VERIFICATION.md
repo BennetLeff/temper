@@ -269,3 +269,137 @@ scorecard's "dict builders stay Python" claim is accurate again.
   quantity), so the R24 discipline (Chebyshev-style soundness proof,
   BMC-exhaustive validation, post-solve audit) does not apply. State
   recorded explicitly because the ledger requires it.
+
+---
+
+# REQ-SAFE-01 clearance validator — Verification (Phase 5)
+
+The `requirements/validators/{clearance,_copper}.py` compute
+(`src/req_safe_01.rs`) is the Phase 5 migration into this crate. The
+Python modules are delegation shims; the pre-migration implementations are
+pinned verbatim as the differential oracle package
+(`tests/requirements/clearance_oracle/`). TDD-RED commit: `ba3d857dd`
+(fails to collect until `temper_drc_rs.req_safe_01_*` exists); GREEN: 25
+differential+PBT tests, full requirements suite 475 passed.
+
+## Scorecard
+
+| Kernel | Python origin | Verdict |
+|---|---|---|
+| nets-domain map, domain pairing (same-domain + raw-ref pair-skip), intra-footprint boundary components | `clearance.py` | migrated |
+| copper model: pad parsing, reach, memoized `copper_distance`, domain restriction | `_copper.py` | migrated — **the `temper-geometry` kernels stay the authority**: `tg_rotate` / `tg_origin_distance` / `tg_component_reach` / `tg_copper_scan` are called back across the boundary, exactly as the Wave-3 `_copper` facade calls them (both differential arms run the same kernels — the Rust memoizes the results) |
+| check core with pruning/origin/unrestricted counters + WARNING records | `clearance.py` | migrated (records computed in Rust, emitted by the shim through the logging framework) |
+| `verify_iec60335_compliance` 6-row matrix walk over a shared model | `clearance.py` | migrated |
+| `format_clearance_report` worst-first table | `clearance.py` | migrated |
+| string-keyed requirement matrix | `clearance.py` | migrated; the `IEC60335_REQUIREMENTS` tuple-keyed data stays Python |
+| enums/dataclasses (`VoltageDomain`, `ClearanceViolation`, `ClearanceResult`), `str`-mixin Enum identity | `clearance.py` | stays Python — construction and identity are Python runtime semantics |
+| `_copper` facade attribute surface (`_Pad`/`_component_pads`/`_CopperModel`) | `_copper.py` | stays Python — the Wave-3-pinned facade, populated from Rust payloads; distance methods call the temper-geometry kernels directly |
+
+## Induction applicability
+
+Not applicable — structural proof recorded instead (per R1e): every kernel
+is a fixed transcription over caller-provided collections (pair loops,
+memoized pairwise lookup, a fixed 6-row matrix, a worst-first sort) with
+no size-parameterized invariant.
+
+## Structural proof
+
+**Claim (bit-identical parity).** The Rust behaviour is bit-identical to
+the pinned oracle for every input in the differential suites' domains,
+with the Python-side seams in the scorecard.
+
+1. **Pairing.** `domain_boundary_pairs_vec` reproduces the oracle's
+   semantics exactly: same-domain mode pairs every unique unordered pair;
+   cross-domain mode pairs every `(a, b)` except raw-`.get("ref")`
+   equality (two missing refs skip, `None == None`, exactly like Python).
+   M9 (same-domain pairing killed) was caught by the differential.
+2. **Memoized copper distance.** `copper_distance` caches by the
+   `(ref_a, domain_a, ref_b, domain_b)` key and returns the cached
+   payload — the memoization preserves bit-exactness because the cached
+   value is the identical computed value (M10, a `+1e-9` bias on the
+   computed distance, was caught by the `measured_mm` bit pins).
+3. **Counters.** `pairs_checked == pairs_inter + pairs_intra` and the
+   pruned/origin/unrestricted breakdowns are pinned both by the PBT
+   (invariant property) and by the differential stats comparisons.
+4. **WARNING records.** The origin-modelled WARNING message text is
+   computed in Rust and emitted by the shim; the differential compares the
+   full record sequences (M13, a dropped clause, was caught).
+5. **Matrix walk.** `verify_iec60335_compliance` walks the 6 fixed
+   `(domain_a, domain_b, insulation, min_clearance, min_creepage, design)`
+   rows twice (clearance + creepage) over one shared `CopperModel`,
+   producing 12 stat rows tagged with the insulation class — pinned by the
+   PBT (`len(rows) == 12`, both metrics, all three insulation classes) and
+   by the differential. M12 (halved `min_clr`, violations silently
+   forgiven) was caught.
+6. **Worst-first report.** `format_clearance_report` sorts by
+   `(-shortfall, ref_a)` — the PBT and differential pin the worst-first
+   header, the sorted table, and the closest-pads tail (M11, ascending
+   sort, was caught).
+7. **Temper-geometry authority.** Both differential arms route every
+   distance through the same `temper_geometry` kernels; the Rust adds only
+   memoization and record shaping, so geometry parity is inherited from
+   the kernels rather than re-derived.
+
+## R1 status
+
+- R1a: bit-identical differential (16 tests; floats via `float.hex()`;
+  WARNING-record sequences compared element-wise).
+- R1b: not registered — per-call marshalling surface, same argument as the
+  validation slice above; no speedup claim.
+- R1c/R1d: 9 PBT properties (violation fields, actual-gap value,
+  creepage==clearance on unbroken board, passed==(violations empty),
+  counter invariants, pruning, matrix rows, worst-first report,
+  intra-pair shape) + 4 MRs (far-pair pruning relation, passed↔violations,
+  unbroken-board creepage==clearance, intra-pair `ref_a == ref_b`).
+- R1e: this file (structural proof; induction N/A).
+- R1f: TDD — RED `ba3d857dd`, GREEN in `3ddf6fd14` (rebased).
+- R1g: `catch_unwind` at every `#[pyfunction]`; no `unwrap` outside tests;
+  the 3 `expect`s are guarded by immediately-preceding branch construction
+  (see the io-types VERIFICATION.md for the full list).
+- R1h: **not physics-gated** — `clearance.py`/`_copper.py` reference no
+  physics module (verified against the oracle pins) and the
+  physics-soundness register's scan set covers only `placer/cp_sat/*` and
+  `router_v6/constraint_model.py`; the register gate exits 0.
+
+## Mutation campaign
+
+13 mutants ran across both Phase-5 home crates (see
+`docs/evidence/2026-08-05-wave4-phase5-mutation-sweep.md`); M9–M13 target
+this crate and were all caught by the clearance differential/PBT suites.
+
+
+## Phase 4 — the validation-remainder RDL kernel (`rdl_sum`)
+
+Wave-4 Phase-4 moved the ONE in-module numeric compute of
+`temper_placer/validation/human_reference_extractor.py`'s
+`_compute_routing_metrics` here: the routed-length loop
+`rdl += math.hypot(end.x - start.x, end.y - start.y)` in segment order.
+Home-crate decision: temper-drc-rs, because the kernel is a trace-kernel —
+the same family as this crate's already-landed `trace_length` — and the
+crate already owns the hostmath machinery.
+
+**The `math.hypot` boundary — why it is a callback, not a dlsym.**
+The first transcription dlsym'd the system libm `hypot` (the B1 hostmath
+precedent that works for `pow`). It diverges from CPython's `math.hypot`
+by 1 ulp on non-correctly-rounded inputs: `math.hypot(0.1, 0.1)` is
+`0x1.21a1851ff630ap-3` while libm `hypot` (and `sqrt(x*x + y*y)`, and
+`sqrt(fma(...))`, all verified by C probe) is `…b-3`. CPython 3.12 inlines
+its own fdlibm-style hypot into `mathmodule.c` (bpo-33083), so no dlsym
+target reproduces it. `rdl_sum` therefore takes `math.hypot` as a
+per-segment callback: the host runtime's own function, so bit-parity holds
+by construction, while the in-order `+=` accumulation stays Rust. The
+delegation module and the differential pass `math.hypot` explicitly. The
+1-ulp divergence was caught by the differential on first run and is
+recorded in `docs/evidence/2026-08-05-wave4-phase4-validation-remainder-
+mutation-sweep.md`; the M11 mutant (manhattan substitute) is caught.
+
+R1 coverage (shared with the design-bundle Phase-4 section): R1a via
+`test_human_reference_extractor_rust_differential.py` (floats via
+`.hex()`); R1c 5 properties (non-negativity, per-segment lower bound,
+single-segment = hypot, zero-length invariance, empty = 0.0); R1d 3 MRs
+(scaling homogeneity, negation identity, midpoint splitting); R1f RED
+commit `28d712e75` (the file fails to collect without `temper_drc_rs.
+rdl_sum`); R1g no `unwrap`/`expect` outside tests, pyo3 `catch_unwind`
+default; R1b no-regression arm not registered — a per-segment callback
+loop is marshalling-bound and the slice makes no speedup claim (recorded
+reason); R1h **not applicable** (no physics-gated quantity).

@@ -32,131 +32,16 @@ use pyo3::buffer::PyBuffer;
 #[cfg(feature = "python")]
 use pyo3::prelude::*;
 use std::cell::Cell;
-#[cfg(not(target_arch = "wasm32"))]
-use std::sync::OnceLock;
 #[cfg(feature = "python")]
 use temper_py_bridge;
 
-// ---------------------------------------------------------------------------
-// dlsym math: match the host Python runtime's libm bit-for-bit
-//
-// `dlsym` is a libc/dynamic-loader facility that does not exist on
-// wasm32-unknown-unknown (no OS, no dynamic linker). The whole
-// dlsym-resolution path below is compiled only off wasm32; on wasm32
-// `math_pow`/`math_cos`/`math_sin` go straight to the `fallback_*`
-// implementations. This means wasm32 builds may diverge from the host
-// Python's libm in the last ULP — expected and acceptable; wasm32 has no
-// host CPython process to match bit-for-bit against in the first place.
-// ---------------------------------------------------------------------------
-
-#[cfg(not(target_arch = "wasm32"))]
-type UnaryMathFn = unsafe extern "C" fn(f64) -> f64;
-#[cfg(not(target_arch = "wasm32"))]
-type BinaryMathFn = unsafe extern "C" fn(f64, f64) -> f64;
-
-#[cfg(not(target_arch = "wasm32"))]
-fn dlsym_unary(symbol: &str) -> Option<UnaryMathFn> {
-    unsafe extern "C" {
-        fn dlsym(handle: *const u8, symbol: *const u8) -> *mut u8;
-    }
-    const RTLD_DEFAULT: *const u8 = core::ptr::null();
-    unsafe {
-        let p = dlsym(RTLD_DEFAULT, symbol.as_ptr());
-        if p.is_null() {
-            None
-        } else {
-            Some(std::mem::transmute::<*mut u8, UnaryMathFn>(p))
-        }
-    }
-}
-
-#[cfg(not(target_arch = "wasm32"))]
-fn dlsym_binary(symbol: &str) -> Option<BinaryMathFn> {
-    unsafe extern "C" {
-        fn dlsym(handle: *const u8, symbol: *const u8) -> *mut u8;
-    }
-    const RTLD_DEFAULT: *const u8 = core::ptr::null();
-    unsafe {
-        let p = dlsym(RTLD_DEFAULT, symbol.as_ptr());
-        if p.is_null() {
-            None
-        } else {
-            Some(std::mem::transmute::<*mut u8, BinaryMathFn>(p))
-        }
-    }
-}
-
-#[cfg(not(target_arch = "wasm32"))]
-fn host_pow() -> &'static BinaryMathFn {
-    static F: OnceLock<Option<BinaryMathFn>> = OnceLock::new();
-    F.get_or_init(|| dlsym_binary("pow").or(Some(fallback_pow)))
-        .as_ref()
-        .unwrap_or_else(|| unreachable!("fallback always set"))
-}
-
-#[cfg(not(target_arch = "wasm32"))]
-fn host_cos() -> &'static UnaryMathFn {
-    static F: OnceLock<Option<UnaryMathFn>> = OnceLock::new();
-    F.get_or_init(|| dlsym_unary("cos").or(Some(fallback_cos)))
-        .as_ref()
-        .unwrap_or_else(|| unreachable!("fallback always set"))
-}
-
-#[cfg(not(target_arch = "wasm32"))]
-fn host_sin() -> &'static UnaryMathFn {
-    static F: OnceLock<Option<UnaryMathFn>> = OnceLock::new();
-    F.get_or_init(|| dlsym_unary("sin").or(Some(fallback_sin)))
-        .as_ref()
-        .unwrap_or_else(|| unreachable!("fallback always set"))
-}
-
-unsafe extern "C" fn fallback_pow(x: f64, y: f64) -> f64 {
-    x.powf(y)
-}
-
-unsafe extern "C" fn fallback_cos(x: f64) -> f64 {
-    f64::cos(x)
-}
-
-unsafe extern "C" fn fallback_sin(x: f64) -> f64 {
-    f64::sin(x)
-}
-
-/// CPython `float ** float` (libm `pow`), bit-exact with the reference.
-#[cfg(not(target_arch = "wasm32"))]
-fn math_pow(x: f64, y: f64) -> f64 {
-    unsafe { host_pow()(x, y) }
-}
-
-/// `x.powf(y)` (wasm32 has no host CPython libm to dlsym against).
-#[cfg(target_arch = "wasm32")]
-fn math_pow(x: f64, y: f64) -> f64 {
-    unsafe { fallback_pow(x, y) }
-}
-
-/// CPython `math.cos`, bit-exact with the reference.
-#[cfg(not(target_arch = "wasm32"))]
-fn math_cos(x: f64) -> f64 {
-    unsafe { host_cos()(x) }
-}
-
-/// `f64::cos` (wasm32 has no host CPython libm to dlsym against).
-#[cfg(target_arch = "wasm32")]
-fn math_cos(x: f64) -> f64 {
-    unsafe { fallback_cos(x) }
-}
-
-/// CPython `math.sin`, bit-exact with the reference.
-#[cfg(not(target_arch = "wasm32"))]
-fn math_sin(x: f64) -> f64 {
-    unsafe { host_sin()(x) }
-}
-
-/// `f64::sin` (wasm32 has no host CPython libm to dlsym against).
-#[cfg(target_arch = "wasm32")]
-fn math_sin(x: f64) -> f64 {
-    unsafe { fallback_sin(x) }
-}
+// The dlsym "host math" helpers (pow/cos/sin, resolved to the host
+// Python runtime's libm so `x ** 2` / `x ** 0.5` / `math.cos` / `math.sin`
+// match bit-for-bit) previously lived here; they were extracted to
+// `crate::host_math` when the Phase-5 deterministic geometry kernels
+// needed the same helpers. The `math_pow`/`math_cos`/`math_sin` names are
+// aliased here so the kernels below read exactly as they did.
+use crate::host_math::{cos as math_cos, pow as math_pow, sin as math_sin};
 
 // ---------------------------------------------------------------------------
 // Pure kernels (no pyo3, unit-testable without libpython)
