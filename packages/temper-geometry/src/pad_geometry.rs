@@ -16,7 +16,9 @@
 // correctly-rounded libm cos/sin/hypot, same integer-exact rotation
 // table. Pinned by the differential suite.
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use temper_py_bridge;
 
 const DEFAULT_ROUNDRECT_RATIO: f64 = 0.25;
@@ -27,10 +29,21 @@ const DEFAULT_ROUNDRECT_RATIO: f64 = 0.25;
 // real input while f64::cos matched). Resolve cos/sin through dlsym so
 // the crate matches the runtime's math bit-exactly; fall back to the
 // std intrinsics when dlsym is unavailable.
+//
+// `dlsym` is a libc/dynamic-loader facility that does not exist on
+// wasm32-unknown-unknown (no OS, no dynamic linker). The dlsym-resolution
+// path below is compiled only off wasm32; on wasm32 `math_cos`/
+// `math_sin`/`math_cos_sin` go straight to the `fallback_*`
+// implementations (see grid_raster.rs for the identical pattern). wasm32
+// builds may therefore diverge from the host Python's libm in the last
+// ULP — expected and acceptable there.
+#[cfg(not(target_arch = "wasm32"))]
 use std::sync::OnceLock;
 
+#[cfg(not(target_arch = "wasm32"))]
 type MathFn = unsafe extern "C" fn(f64) -> f64;
 
+#[cfg(not(target_arch = "wasm32"))]
 fn dlsym_math(symbol: &str) -> Option<MathFn> {
     unsafe extern "C" {
         fn dlsym(handle: *const u8, symbol: *const u8) -> *mut u8;
@@ -54,6 +67,7 @@ unsafe extern "C" fn fallback_sin(x: f64) -> f64 {
     f64::sin(x)
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 fn host_cos() -> &'static MathFn {
     static F: OnceLock<Option<MathFn>> = OnceLock::new();
     let f = F.get_or_init(|| dlsym_math("cos").or(Some(fallback_cos)));
@@ -63,6 +77,7 @@ fn host_cos() -> &'static MathFn {
     f.as_ref().unwrap()
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 fn host_sin() -> &'static MathFn {
     static F: OnceLock<Option<MathFn>> = OnceLock::new();
     let f = F.get_or_init(|| dlsym_math("sin").or(Some(fallback_sin)));
@@ -72,16 +87,38 @@ fn host_sin() -> &'static MathFn {
     f.as_ref().unwrap()
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 fn math_cos(x: f64) -> f64 {
     unsafe { host_cos()(x) }
 }
 
+/// `f64::cos` (wasm32 has no host CPython libm to dlsym against).
+#[cfg(target_arch = "wasm32")]
+fn math_cos(x: f64) -> f64 {
+    unsafe { fallback_cos(x) }
+}
+
+#[cfg(not(target_arch = "wasm32"))]
 pub(crate) fn math_sin(x: f64) -> f64 {
     unsafe { host_sin()(x) }
 }
 
+/// `f64::sin` (wasm32 has no host CPython libm to dlsym against).
+#[cfg(target_arch = "wasm32")]
+pub(crate) fn math_sin(x: f64) -> f64 {
+    unsafe { fallback_sin(x) }
+}
+
+#[cfg(not(target_arch = "wasm32"))]
 pub(crate) fn math_cos_sin(x: f64) -> (f64, f64) {
     unsafe { (host_cos()(x), host_sin()(x)) }
+}
+
+/// `(f64::cos(x), f64::sin(x))` (wasm32 has no host CPython libm to dlsym
+/// against).
+#[cfg(target_arch = "wasm32")]
+pub(crate) fn math_cos_sin(x: f64) -> (f64, f64) {
+    unsafe { (fallback_cos(x), fallback_sin(x)) }
 }
 
 /// Pad-shape codes passed across the FFI boundary. The Python wrapper
@@ -181,17 +218,23 @@ pub(crate) fn bounding_radius(width: f64, height: f64, shape: i64, ratio: f64) -
 /// `math.hypot` (the creepage/clearance geometry in `creepage_check.rs`
 /// is the second consumer, added Wave 3).
 pub(crate) fn py_hypot(x: f64, y: f64) -> f64 {
-    // CPython `math_hypot_impl` returns NaN up front when any input is
-    // NaN (before vector_norm runs); the `f64::max` below would otherwise
-    // discard a NaN argument.  And hypot(±inf, anything) is +inf, which
-    // the vector_norm path would turn into NaN through the fma-based
-    // correction (CPython's frexp gives e=0 for inf, ours does not), so
-    // both guards are exact CPython semantics, not approximations.
-    if x.is_nan() || y.is_nan() {
-        return f64::NAN;
-    }
+    // Infinity BEFORE NaN.  CPython's `math_hypot_impl` scans its
+    // coordinates recording `found_nan`, but returns `+inf` as soon as any
+    // coordinate is infinite — infinity wins over NaN:
+    //
+    //     math.hypot(inf, nan) == inf      math.hypot(nan, inf) == inf
+    //     math.hypot(nan, 1.0) == nan      math.hypot(1.0, nan) == nan
+    //
+    // This order was inverted here until the Wave-4 router_v6
+    // constraints-geometry differential hit it: `hypot(-inf, nan)` arises
+    // for real in `point_to_segment_distance` when a segment endpoint is
+    // infinite (the clamped projection produces a NaN coordinate), and the
+    // old order returned NaN where CPython returns inf.
     if x.is_infinite() || y.is_infinite() {
         return f64::INFINITY;
+    }
+    if x.is_nan() || y.is_nan() {
+        return f64::NAN;
     }
     let x = x.abs();
     let y = y.abs();
@@ -224,6 +267,32 @@ fn frexp(x: f64) -> (f64, i32) {
     (m, e)
 }
 
+/// Exact `2.0_f64.powi(e)` — CPython's `ldexp(1.0, e)`.
+///
+/// `2f64.powi(e)` is NOT this function.  LLVM lowers a negative `powi` to
+/// `1.0 / powi(|e|)`, so `2f64.powi(-1024)` first overflows `2^1024` to
+/// `inf` and then returns `0.0`, where the true value `2^-1024` is a
+/// perfectly representable subnormal.  `vector_norm_2` uses this as its
+/// scale factor, so the old expression made `math.hypot` return **NaN**
+/// for every input in the top binade (|max| >= 2^1023 ~ 8.99e307):
+/// `hypot(1e308, 1e308)` was NaN instead of `0x1.92c80954c51f5p+1023`.
+/// Found by the Wave-4 router_v6 constraints-geometry differential corpus,
+/// which carries the overflow-scale inputs deliberately.
+fn pow2(e: i32) -> f64 {
+    if e > 1023 {
+        return f64::INFINITY;
+    }
+    if e >= -1022 {
+        // normal range: build the exponent field directly
+        return f64::from_bits(((e + 1023) as u64) << 52);
+    }
+    if e >= -1074 {
+        // subnormal range: a single set bit in the mantissa
+        return f64::from_bits(1u64 << (e + 1074));
+    }
+    0.0
+}
+
 fn vector_norm_2(x: f64, y: f64, max: f64) -> f64 {
     let (_, max_e) = frexp(max);
     if max_e < -1023 {
@@ -232,7 +301,7 @@ fn vector_norm_2(x: f64, y: f64, max: f64) -> f64 {
         // implemented for exactness.
         return f64::MIN_POSITIVE * vector_norm_2(x / f64::MIN_POSITIVE, y / f64::MIN_POSITIVE, max / f64::MIN_POSITIVE);
     }
-    let scale = 2f64.powi(-max_e);
+    let scale = pow2(-max_e);
     let mut csum = 1.0f64;
     let mut frac1 = 0.0f64;
     let mut frac2 = 0.0f64;
@@ -352,18 +421,21 @@ fn best_rotation_for_barrier(hv: &[PadTuple], selv: &[PadTuple], barrier_axis: i
 // PyO3 bridge
 // ---------------------------------------------------------------------------
 
+#[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (width, height, shape, roundrect_ratio = DEFAULT_ROUNDRECT_RATIO))]
 pub fn pad_corner_radius_py(width: f64, height: f64, shape: i64, roundrect_ratio: f64) -> PyResult<f64> {
     temper_py_bridge::catch_unwind(|| corner_radius(width, height, shape, roundrect_ratio)).map_err(temper_py_bridge::panic_to_err)
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (width, height, shape, roundrect_ratio = DEFAULT_ROUNDRECT_RATIO))]
 pub fn pad_core_half_extents_py(width: f64, height: f64, shape: i64, roundrect_ratio: f64) -> PyResult<(f64, f64)> {
     temper_py_bridge::catch_unwind(|| core_half_extents(width, height, shape, roundrect_ratio)).map_err(temper_py_bridge::panic_to_err)
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (width, height, shape, direction_rad, rotation_rad = 0.0, roundrect_ratio = DEFAULT_ROUNDRECT_RATIO))]
 pub fn pad_support_radius_py(
@@ -378,6 +450,7 @@ pub fn pad_support_radius_py(
         .map_err(temper_py_bridge::panic_to_err)
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (width, height, shape, axis, rotation_rad = 0.0, roundrect_ratio = DEFAULT_ROUNDRECT_RATIO))]
 pub fn pad_axis_radius_py(
@@ -392,18 +465,21 @@ pub fn pad_axis_radius_py(
         .map_err(temper_py_bridge::panic_to_err)
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (width, height, shape, roundrect_ratio = DEFAULT_ROUNDRECT_RATIO))]
 pub fn pad_bounding_radius_py(width: f64, height: f64, shape: i64, roundrect_ratio: f64) -> PyResult<f64> {
     temper_py_bridge::catch_unwind(|| bounding_radius(width, height, shape, roundrect_ratio)).map_err(temper_py_bridge::panic_to_err)
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (hv_pads, selv_pads, axis_idx))]
 pub fn barrier_axis_gap_py(hv_pads: Vec<PadTuple>, selv_pads: Vec<PadTuple>, axis_idx: i64) -> PyResult<f64> {
     temper_py_bridge::catch_unwind(|| barrier_axis_gap(&hv_pads, &selv_pads, axis_idx)).map_err(temper_py_bridge::panic_to_err)
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (hv_pads, selv_pads, barrier_axis))]
 pub fn best_rotation_for_barrier_py(hv_pads: Vec<PadTuple>, selv_pads: Vec<PadTuple>, barrier_axis: i64) -> PyResult<(i64, f64, bool)> {
@@ -413,6 +489,36 @@ pub fn best_rotation_for_barrier_py(hv_pads: Vec<PadTuple>, selv_pads: Vec<PadTu
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn pow2_is_exact_where_powi_is_not() {
+        // The regression this function exists for.
+        assert_eq!(2f64.powi(-1024), 0.0, "powi still overflows-then-inverts");
+        assert_eq!(pow2(-1024), 5.562684646268003e-309);
+        assert_eq!(pow2(0), 1.0);
+        assert_eq!(pow2(1023), 8.98846567431158e307);
+        assert_eq!(pow2(-1022), f64::MIN_POSITIVE);
+        assert_eq!(pow2(-1074), 5e-324);
+        assert_eq!(pow2(-1075), 0.0);
+        assert_eq!(pow2(1024), f64::INFINITY);
+    }
+
+    #[test]
+    fn py_hypot_matches_cpython_on_the_top_binade() {
+        // math.hypot(1e308, 1e308) == 0x1.92c80954c51f5p+1023 (measured on
+        // CPython 3.12); this returned NaN before pow2 replaced powi.
+        assert_eq!(py_hypot(1e308, 1e308).to_bits(), 0x7FE92C80954C51F5);
+        assert!(py_hypot(f64::MAX, 0.0) == f64::MAX);
+    }
+
+    #[test]
+    fn py_hypot_lets_infinity_win_over_nan() {
+        assert_eq!(py_hypot(f64::INFINITY, f64::NAN), f64::INFINITY);
+        assert_eq!(py_hypot(f64::NAN, f64::INFINITY), f64::INFINITY);
+        assert_eq!(py_hypot(f64::NEG_INFINITY, f64::NAN), f64::INFINITY);
+        assert!(py_hypot(f64::NAN, 1.0).is_nan());
+        assert!(py_hypot(1.0, f64::NAN).is_nan());
+    }
 
     #[test]
     fn test_corner_radius_shapes() {

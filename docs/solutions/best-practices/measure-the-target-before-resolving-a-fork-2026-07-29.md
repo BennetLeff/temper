@@ -46,7 +46,7 @@ approach:
   design today."*
 
 Measured directly from real pad/slot geometry
-(`docs/evidence/2026-07-28-isolator-fork-resolution.md`):
+(`docs/evidence/2026-07-30-pollution-degree-determination.md §5.3`):
 
 | Approach | U3 | U7 |
 |---|---:|---:|
@@ -152,7 +152,7 @@ Feature branch's docstring:
 
 ## Related
 
-- `docs/evidence/2026-07-28-isolator-fork-resolution.md` — full
+- `docs/evidence/2026-07-30-pollution-degree-determination.md §5.3` — full
   measurement: pad/slot geometry sourced independently from both branches'
   files, IEC 60664-1 cl. 4.2 groove-width citation re-fetched from primary
   source, U3/U7 courtyard-clearance figures reproduced from raw geometry.

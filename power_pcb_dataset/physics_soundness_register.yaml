@@ -1,0 +1,144 @@
+_schema_version: 1
+_goal: >-
+  Every physics-gated constraint surface carries a Chebyshev-style soundness
+  proof (conservative bound, or classified approximation error) in one
+  register; the R24 discipline (AGENTS.md 'Future CP-SAT Physics Constraint
+  Discipline') becomes an inventory, not a policy. A new physics-gated
+  constraint encoder without a register entry fails CI
+  (scripts/physics_soundness_register_gate.py).
+_detection: >-
+  A surface is physics-gated (KTD4, plan 2026-08-02-004) if EITHER (a) its
+  module or its own code AST-references one of the physics modules
+  (thermal_fdm, heat_removal, thermal_potential, core/ipc2152), OR (b) its
+  own docstring carries the explicit per-surface marker `physics_gated: true`.
+  Classification is per-surface: the same encoding mechanism can gate on
+  physics in one call and pure geometry in another (e.g. encode_separated is
+  physics-gated for the domain-clearance and thermal-feedback call paths).
+_march:
+  "2026-08-02": >-
+    Initial population (U1 + U2 of plan 2026-08-02-004). Inventoried the
+    proofs that already exist in code rather than rewriting any:
+    domain_clearance.py's corrected copper-to-copper Chebyshev box proof
+    (module docstring, REVISED 2026-07-30), handlers/separated.py's Chebyshev
+    case-analysis soundness proof (docstring), and the router-V6 AtMostK
+    sequential-counter induction RE-HOMED from
+    docs/solutions/logic-errors/unsound-atmostk-capacity-encoding.md into
+    CapacityConstraint's class docstring (the register's proof-location
+    substring check resolves there). The U2 enumeration over the scan set
+    (handlers/*, domain_clearance, router_v6 constraint classes) additionally
+    closed one gap: encode_loop_area's bound is derived from measured loop
+    inductance (delta_mapper.py LOOP_INDUCTANCE branch) and now carries a
+    soundness proof at the encoder (exact AABB-ceiling encoding with the
+    stated rounding quantum) plus this register entry. All four entries are
+    conservative-bound proofs; the atmostk and loop-area encodings are exact
+    (sound AND complete), the strongest form of that branch. No classified-error
+    entries yet; no remaining gap. loop_area's AABB-vs-measured-loop-polygon
+    relationship is recorded as a stated loop-model limitation in its entry,
+    not silently assumed. post-solve audits: audit.py::PlacementAuditor
+    (_check_separated, _check_loop_area) and domain_clearance.audit_domain_clearance.
+surfaces:
+  - encoder: temper_placer.placer.cp_sat.handlers.separated.encode_separated
+    proof_type: conservative-bound
+    proof_location:
+      path: packages/temper-placer/src/temper_placer/placer/cp_sat/handlers/separated.py
+      symbol: "Soundness: SAT"
+    coverage_scope: >-
+      SAT of the pairwise Chebyshev disjunction implies an L-infinity
+      (edge-to-edge, one axis) gap of at least min_distance_mm between the two
+      components' bounding boxes, by case analysis over which of
+      left/right/below/above holds (6 Boolean auxiliaries per pair). The
+      domain-clearance caller additionally proves the box bound is
+      copper-to-copper sound (see the domain_clearance entry). Self-pairs
+      (ra == rb) are skipped by design; intra-footprint domain straddling is
+      out of scope for any placement-time constraint.
+    exemptions: >-
+      Intra-footprint (self) pairs are not covered and cannot be: no
+      placement constraint separates a component's own pads. Surfaced loudly
+      by domain_clearance.find_intra_footprint_domain_conflicts.
+    audit: temper_placer.placer.cp_sat.audit.PlacementAuditor._check_separated
+      (recomputes the Chebyshev gap from resolved bboxes).
+    last_verified: "2026-08-02"
+    provenance_note: "Initial population from the existing docstring proof (U1); marker added."
+  - encoder: temper_placer.placer.cp_sat.domain_clearance.generate_domain_clearance_constraints
+    proof_type: conservative-bound
+    proof_location:
+      path: packages/temper-placer/src/temper_placer/placer/cp_sat/domain_clearance.py
+      symbol: "Soundness proof (R24 item 1)"
+    coverage_scope: >-
+      SAT of the encoded SeparatedConstraint at margin M implies every point
+      of component A's bounding box is >= M from every point of component B's
+      bounding box (Chebyshev box bound), which is copper-to-copper sound
+      given the box-contains-copper precondition now guaranteed by construction
+      (_calculate_footprint_bounds computes its envelope around the placement
+      centre). margin = max(min_clearance_mm, min_creepage_mm) per IEC
+      60335-2-6 matrix row satisfies both validator checks. BMC-exhaustive
+      sweep: tests/placer/cp_sat/test_domain_clearance.py::TestChebyshevSoundnessBMC;
+      box-contains-pads preconditions: test_geometry_constraints_pbt.py P8/P9/P10.
+    exemptions: >-
+      Intra-footprint (self) pairs are NOT covered: no placement-time
+      constraint can separate a component's own pads; surfaced loudly via
+      find_intra_footprint_domain_conflicts and the validator's own pad-level
+      check (clearance.py::_intra_component_boundary_components).
+    audit: domain_clearance.audit_domain_clearance (recomputes center-to-center
+      distance from resolved coordinates; weaker than the box guarantee, cheap
+      encoder/units sanity check only).
+    last_verified: "2026-08-02"
+    provenance_note: "Initial population from the corrected module-docstring proof (U1); marker added."
+  - encoder: temper_placer.placer.cp_sat.handlers.loop_area.encode_loop_area
+    proof_type: conservative-bound
+    proof_location:
+      path: packages/temper-placer/src/temper_placer/placer/cp_sat/handlers/loop_area.py
+      symbol: "Soundness proof (R24 item 1)"
+    coverage_scope: >-
+      The encoding bounds the AABB (axis-aligned bounding box) area of the
+      union of the loop's component boxes: loop_w = x_max - x_min and
+      loop_h = y_max - y_min over all loop components, then area = w * h <=
+      max_area_units via AddMultiplicationEquality plus a linear bound. CP-SAT
+      multiplication equality is exact for bounded integer variables, so SAT
+      of the encoding => area(AABB) <= max_area_units, where max_area_units =
+      mm_to_units(max_area_mm2) * units_per_mm (dimensionally mm^2 *
+      (units/mm)^2, the same unit square the AABB area is expressed in).
+      mm_to_units even-rounds, so the effective ceiling differs from the
+      nominal max_area_mm2 by at most one unit in the mm^2 conversion (0.01
+      mm^2 at the default 100 units/mm) -- a stated rounding quantum, not a
+      silent approximation.
+    exemptions: >-
+      What the encoding does NOT promise: the current-loop polygon measured by
+      the physics gate (ViolationType.LOOP_INDUCTANCE) is a separate loop-model
+      quantity; trace segments can wander outside the component AABBs. The
+      encoding controls the component-envelope area, and the feedback path
+      (delta_mapper.py) derives max_area_mm2 from the MEASURED loop inductance,
+      so the bound is physics-derived while the envelope-to-measured-loop
+      relationship is a stated loop-model limitation.
+    audit: temper_placer.placer.cp_sat.audit.PlacementAuditor._check_loop_area
+      (recomputes the same AABB area from resolved coordinates and hard-fails
+      if it exceeds the ceiling).
+    last_verified: "2026-08-02"
+    provenance_note: "Gap closed in U2: proof written at the encoder + marker added."
+  - encoder: temper_placer.router_v6.constraint_model.CapacityConstraint
+    proof_type: conservative-bound
+    proof_location:
+      path: packages/temper-placer/src/temper_placer/router_v6/constraint_model.py
+      symbol: "sequential counter"
+    coverage_scope: >-
+      The AtMostK capacity encoding (sum(width_i * uses_i) <= capacity *
+      slack) uses the Sinz (2005) sequential counter: sum(vars) <= K in O(n*k)
+      auxiliary variables and O(n*k) clauses. The encoding is exact -- sound
+      AND complete (a SAT assignment exists iff the capacity bound holds),
+      the strongest form of the R24 conservative-bound branch: it can never
+      admit an assignment the capacity bound forbids, and it rejects no
+      assignment the bound permits. The induction (base n<=1 vacuous; step
+      n -> n+1 extends the partial-sum chain over previously defined variables)
+      is re-homed into the class docstring from
+      docs/solutions/logic-errors/unsound-atmostk-capacity-encoding.md.
+      Exhaustive verification: all n <= 8, all k <= n-1, all 2^n primary
+      assignments (3,286 SAT checks) + Hypothesis PBT cross-validation against
+      pysat Glucose3.
+    exemptions: null
+    audit: "Post-solve constraint audit (audit.rs / pipeline.py) validates
+      every solver output against the input constraint model -- violations
+      raise RuntimeError, no silent wrong answers."
+    last_verified: "2026-08-02"
+    provenance_note: "Initial population; induction proof re-homed from
+      docs/solutions/logic-errors/unsound-atmostk-capacity-encoding.md into
+      the class docstring (U1)."

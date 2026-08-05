@@ -300,7 +300,29 @@ def generate_report(metrics_file: Path, execution_log: Path, output: Path) -> No
     from temper_placer.regression.metrics_recorder import load_metrics
 
     metrics = load_metrics(metrics_file)
-    execution = _load_json(execution_log)
+    # The execution log is a *run artifact*, deliberately untracked since #310
+    # ("chore: untrack pipeline_execution.json run artifact"). metrics-record.yml
+    # was never updated to match, so this raised FileNotFoundError on every run
+    # from 2026-06-30 onward -- and because the step sat upstream of "Upload
+    # metrics artifact", it took the whole metrics pipeline down with it: no
+    # artifact uploaded, nothing for metrics-reconcile.yml to reconcile, and
+    # power_pcb_dataset/metrics/pipeline_metrics.jsonl frozen for 35 days while
+    # four downstream consumers kept reporting on it.
+    #
+    # This report is enrichment, not a gate, so a missing execution log degrades
+    # to an empty execution section with a loud warning rather than failing. The
+    # structural fix is in the workflow: data capture no longer sits downstream
+    # of report rendering.
+    if execution_log.exists():
+        execution = _load_json(execution_log)
+    else:
+        print(
+            f"WARNING: execution log {execution_log} not found; rendering the "
+            "report with an empty execution section. This file is a run "
+            "artifact and is not tracked in git.",
+            file=sys.stderr,
+        )
+        execution = {}
     if isinstance(execution, list):
         execution = execution[0] if execution else {}
     data = _build_data(metrics, execution)

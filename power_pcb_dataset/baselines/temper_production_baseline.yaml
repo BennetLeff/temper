@@ -188,10 +188,24 @@
 # unconfirmed cross-version number for a metric that isn't gating is the
 # same "guess between versions" this file's own drc_errors section above
 # was explicit about not doing.
+#
+# 2026-08-03 re-measure (PR #602, K3 RT314012 swap + validator-gated board
+# write): CI golden-check measured drc_warnings 472 vs 425 recorded
+# (kicad-cli 10.0.x, deterministic pipeline, run 30826582009). Every
+# warning-category rise is attributed to the deliberate, reviewed board
+# change (docs/evidence/2026-08-02-k3-swap-and-board-write.md, _march entry
+# in power_pcb_dataset/drc_ceiling.json): silk_over_copper +50 (the
+# 60mm-cap re-solve's movement class, same as the #517 doc recorded),
+# track_dangling +1 (one moved-pad stub), lib_fp_issues +1 (K3 now
+# references the project temper library, same class as K2's swap in #524).
+# drc_errors did not regress (no REGRESSION line for errors) and is left
+# at 1046 per this file's own discipline: only the gating metric that
+# moved is recorded here. drc_ceiling.json carries the full 120-sample
+# protocol measurement.
 drc_available: true
 drc_errors: 1046
-drc_warnings: 425
-extraction_date: '2026-07-17'
+drc_warnings: 472
+extraction_date: '2026-08-03'
 extraction_method: deterministic-pipeline
 deterministic_pipeline:
   config: configs/temper_production_config.yaml

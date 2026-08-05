@@ -13,7 +13,9 @@
 // which makes max(NaN, x) == NaN but max(x, NaN) == x.  Rust's
 // f64::max discards NaN, so `py_max` below is the exact replica.
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use temper_py_bridge;
 
 use crate::pad_geometry::py_hypot;
@@ -57,12 +59,14 @@ fn chebyshev_gap(
 // PyO3 bridge
 // ---------------------------------------------------------------------------
 
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn bbox_from_center_py(cx: f64, cy: f64, sw: f64, sh: f64) -> PyResult<(f64, f64, f64, f64)> {
     temper_py_bridge::catch_unwind(|| bbox_from_center(cx, cy, sw, sh))
         .map_err(temper_py_bridge::panic_to_err)
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 #[expect(clippy::too_many_arguments, reason = "PyO3 boundary mirrors the Python signature 1:1; a config struct would change the FFI")]
 pub fn chebyshev_gap_py(
@@ -93,6 +97,7 @@ fn dist(ax: f64, ay: f64, bx: f64, by: f64) -> f64 {
     py_hypot(ax - bx, ay - by)
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn dist_py(ax: f64, ay: f64, bx: f64, by: f64) -> PyResult<f64> {
     temper_py_bridge::catch_unwind(|| dist(ax, ay, bx, by))

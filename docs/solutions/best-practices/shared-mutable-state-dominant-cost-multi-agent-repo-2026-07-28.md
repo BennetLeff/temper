@@ -39,7 +39,7 @@ always looks "newer" than a `.venv` shared from the main checkout via
 `UV_PROJECT_ENVIRONMENT` — regardless of whether the sources actually
 changed. This exact false positive fired independently in **five** of
 today's evidence sessions
-(`docs/evidence/2026-07-28-pd3-retarget-keepout.md`,
+(`docs/evidence/2026-07-30-pollution-degree-determination.md §5.2`,
 `-pd3-retarget-slots.md`, `-pd3-retarget-relay.md`,
 `-drc-courtyard-condition-fix.md`, `-drc-coating-failopen-fix.md`), each one
 independently re-diagnosing the same checkout-mtime mechanism because
@@ -60,10 +60,10 @@ files in the wrong working tree and dropped that other session's stash
 entry outright. Recovery required tagging a dangling commit object before
 GC could reclaim it and hand-writing a patch file for the other session to
 apply. A second session
-(`docs/evidence/2026-07-28-pd3-retarget-keepout.md`, in its own test-fixture
+(`docs/evidence/2026-07-30-pollution-degree-determination.md §5.2`, in its own test-fixture
 notes) independently reports the stash ref "has already corrupted another
 session's entry." A third invocation
-(`docs/evidence/2026-07-28-pd3-retarget-slots.md`) was an accidental
+(`docs/evidence/2026-07-30-pollution-degree-determination.md §5.3`) was an accidental
 same-rule violation that happened to be harmless only because nothing was
 uncommitted at the moment it ran. Three violations of one hard rule in one
 day, one with real cross-session damage, because the rule exists precisely
@@ -231,7 +231,7 @@ if stamp matches recomputed digest: FRESH, regardless of any mtime
 ```
 
 ```
-# The stash incident (docs/evidence/2026-07-28-drc-coating-failopen-fix.md):
+# The stash incident (docs/evidence/2026-07-28-drc-coating-failopen-fix.md (evidence doc never merged to main; finding reproduced inline)):
 git stash            # push MY changes           <- violates the hard rule
 git stash pop         # pops a DIFFERENT session's entry (race, shared ref)
   -> 4 unrelated files land in my working tree
@@ -267,7 +267,7 @@ dc8de067 (01:07): worktrees at 51 GB -> 28 GB (23 GB reclaimed,
   the same "isolation at the worktree level does not imply isolation of
   everything that touches it" root cause, in the merge step instead of the
   build/stash/disk layer.
-- `scripts/check_stale_extensions.py` — the mtime-based gate; see its own
+- `scripts/check_stale_extensions.py` — the freshness gate: content-hash stamp (written by `scripts/write_extension_stamps.py`) authoritative, mtime as fallback for unstamped installs; see its own
   docstring (lines ~103-116) naming the checkout-mtime blind spot before
   this day's fix closed it.
 - Commit `f9c043a6` — the content-hash freshness fix.
@@ -275,9 +275,9 @@ dc8de067 (01:07): worktrees at 51 GB -> 28 GB (23 GB reclaimed,
   disk figures.
 - Commit `83ffbdd3` — `--clean-artifacts`, the 79 GB → 15 GB → +11.3 GB
   cycle, and the 10,612-tracked-file hand-cleanup incident.
-- `docs/evidence/2026-07-28-drc-coating-failopen-fix.md` — the full stash
+- `docs/evidence/2026-07-28-drc-coating-failopen-fix.md (evidence doc never merged to main; finding reproduced inline)` — the full stash
   corruption incident and its recovery, with no further `git stash` used.
-- `docs/evidence/2026-07-28-pd3-retarget-keepout.md`,
+- `docs/evidence/2026-07-30-pollution-degree-determination.md §5.2`,
   `-pd3-retarget-slots.md`, `-pd3-retarget-relay.md`,
   `-drc-courtyard-condition-fix.md` — four of the five independent
   stale-extension false-positive diagnoses, plus the branch-repointing

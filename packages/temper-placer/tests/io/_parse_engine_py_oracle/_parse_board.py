@@ -1,0 +1,397 @@
+# VERBATIM pre-migration oracle: _parse_board.py (Wave 4 Phase 3 candidate 3, parse engine).
+# Copied from packages/temper-placer/src/temper_placer/io/_parse_board.py at commit 79ab9bd0e.
+# Only edits vs the source: intra-oracle imports rewritten (temper_placer.io.X -> .X)
+# so the oracle package is self-contained. Extraction bodies, dataclasses and
+# kiutils usage are byte-identical to the pre-migration source. This is the pinned
+# Python arm of the Rust parse-engine differential (R1a).
+
+"""Internal: board geometry, stackup, and setup extraction from KiCad board objects."""
+
+from __future__ import annotations
+
+import math
+import re
+from typing import TYPE_CHECKING
+
+from temper_placer.core.board import STANDARD_LAYER_ORDER, Board, MountingHole
+
+from ._parse_zones import _extract_zones_from_pcb
+
+if TYPE_CHECKING:
+    from kiutils.board import Board as KiBoard
+
+    from temper_placer.router_v6.stage0_data import StackupInfo
+
+
+def _extract_board_geometry(ki_board: KiBoard, warnings: list[str]) -> Board:
+    """
+    Extract board dimensions and origin from Kiutils board object.
+
+    Args:
+        ki_board: Parsed kiutils Board instance.
+        warnings: List to append any issues found.
+
+    Returns:
+        Board object with width, height, and origin.
+    """
+    edge_cuts = [g for g in ki_board.graphicItems if g.layer == "Edge.Cuts"]
+
+    if not edge_cuts:
+        warnings.append("No Edge.Cuts found in PCB. Using default 100x150mm.")
+        return Board.temper_default()
+
+    x_min, y_min = float("inf"), float("inf")
+    x_max, y_max = float("-inf"), float("-inf")
+
+    for item in edge_cuts:
+        if hasattr(item, "start") and hasattr(item, "end"):
+            for pt in [item.start, item.end]:
+                if pt is not None:
+                    x_min = min(x_min, pt.X)
+                    y_min = min(y_min, pt.Y)
+                    x_max = max(x_max, pt.X)
+                    y_max = max(y_max, pt.Y)
+
+        if hasattr(item, "coordinates") and item.coordinates:
+            for pt in item.coordinates:
+                x_min = min(x_min, pt.X)
+                y_min = min(y_min, pt.Y)
+                x_max = max(x_max, pt.X)
+                y_max = max(y_max, pt.Y)
+
+        if hasattr(item, "mid") and item.mid is not None:
+            for pt in [item.start, item.mid, item.end]:
+                if pt is not None:
+                    x_min = min(x_min, pt.X)
+                    y_min = min(y_min, pt.Y)
+                    x_max = max(x_max, pt.X)
+                    y_max = max(y_max, pt.Y)
+
+    if not (
+        math.isfinite(x_min)
+        and math.isfinite(x_max)
+        and math.isfinite(y_min)
+        and math.isfinite(y_max)
+    ):
+        warnings.append(
+            "Edge.Cuts geometry present but has no parseable coordinate data. "
+            "Falling back to Board.temper_default()."
+        )
+        return Board.temper_default()
+
+    mounting_holes = []
+    for fp in ki_board.footprints:
+        is_mounting_hole = False
+
+        if hasattr(fp, "entryName") and "MountingHole" in fp.entryName:
+            is_mounting_hole = True
+
+        if not is_mounting_hole and fp.graphicItems:
+            for item in fp.graphicItems:
+                if hasattr(item, "text") and "MountingHole" in item.text:
+                    is_mounting_hole = True
+                    break
+
+        if is_mounting_hole:
+            mounting_holes.append(
+                MountingHole(position=(fp.position.X - x_min, fp.position.Y - y_min), diameter=3.2)
+            )
+
+    zones = _extract_zones_from_pcb(ki_board, x_min, y_min, warnings)
+
+    return Board(
+        width=x_max - x_min,
+        height=y_max - y_min,
+        origin=(x_min, y_min),
+        mounting_holes=mounting_holes,
+        zones=zones,
+    )
+
+
+def _is_plane_required_net(net_name: str) -> bool:
+    """Whether a zone's net should mark its physical copper layer as a
+    non-routable "plane" layer -- routing_space.py:85 excludes any layer
+    whose ``layer_type`` is not ``"signal"``/``"mixed"`` from the router's
+    grid entirely, so this decision controls whether an *entire physical
+    layer* stays in the routing space.
+
+    Reads the netclass SSOT first: a net whose class (``TEMPER_NET_ASSIGNMENTS``)
+    declares ``routing_strategy == "plane_required"`` (``core/design_rules.py`` --
+    today only ``ACMains``/``HighVoltage``) is plane-worthy. This is the
+    same SSOT field ``_zone_layers_for_net()``
+    (``router_v6/_adapter_convert.py``) drives zone-*generation* eligibility
+    from, so the two decisions ("should this net get a pour" and "does a
+    pour on this net make its layer non-routable") stay in step by
+    construction instead of drifting independently.
+
+    Falls back to a word-boundary-anchored keyword match (never a bare
+    substring ``in`` test -- see
+    ``docs/solutions/best-practices/substring-net-classification-drifts-from-ssot-2026-07-27.md``)
+    for nets absent from the SSOT's per-net assignment table, so an
+    unrecognized or renamed net isn't silently treated as never plane-worthy.
+
+    FIXED 2026-07-28: the previous version tested bare
+    ``"GND" in netName or "VCC" in netName or "+" in netName or "PWR" in
+    netName``. A single ``"+"`` character matched *any* net containing
+    one, including ``+3V3`` (Power class -- a handful of sub-mm2
+    decoupling-cap zone islands, per
+    ``docs/evidence/2026-07-28-pour-strategy-audit.md``), flipping an
+    entire outer copper layer to "plane" and removing it from the
+    router's routing space over a single small, non-plane-worthy zone.
+    The old test was also case-sensitive (missed lowercase ``vcc``) and
+    unanchored (``"GND" in "CGND"`` matched a distinct net, chassis
+    ground, not literal GND).
+    """
+    from temper_placer.core.design_rules import TEMPER_NET_ASSIGNMENTS, TEMPER_NET_CLASSES
+
+    nc_name = TEMPER_NET_ASSIGNMENTS.get(net_name, "")
+    nc = TEMPER_NET_CLASSES.get(nc_name)
+    if nc is not None:
+        return nc.routing_strategy == "plane_required"
+
+    upper = net_name.upper()
+    return any(
+        re.search(rf"(?:^|_){kw}(?:$|[\d_])", upper) for kw in ("GND", "VCC", "PWR")
+    )
+
+
+def _extract_stackup(
+    ki_board: KiBoard,
+    warnings: list[str],
+    *,
+    use_declared_layer_roles: bool = False,
+) -> StackupInfo:
+    """
+    Extract PCB layer stackup from KiCad board.
+
+    Args:
+        ki_board: Parsed KiCad board.
+        warnings: List to append warnings.
+        use_declared_layer_roles: When ``True``, a layer's ``layer_type``
+            (R8) comes purely from its structural position in the declared
+            stackup (outer layers -- index 0 and the last copper index --
+            are "signal"; inner layers are "mixed") and is never overridden
+            by what happens to be poured on it. ``plane_net`` is still
+            populated from the zone scan when a plane-required net's zone
+            sits on that layer, so callers that want "does this layer carry
+            a plane-required pour" keep that information -- only the
+            *routability* classification stops reading zone content.
+
+            Defaults to ``False``: today's behavior, unchanged. A zone on a
+            plane-required net (``_is_plane_required_net``) still forces its
+            whole physical layer to ``"plane"``, which
+            ``routing_space.py``'s ``compute_routing_space`` then excludes
+            from the router's routing space entirely (R8's bug).
+
+            NOT SAFE TO ENABLE ALONE IN PRODUCTION: this only changes
+            layer *role* classification. It does not stop the router's
+            obstacle map (``obstacle_map.py``) from treating the board's
+            existing, un-regenerated zones as opaque obstacles on every
+            layer they sit on -- so flipping this on before pours become
+            derived output (this plan's U3) reproduces the recorded 12x
+            completion regression in
+            ``docs/evidence/2026-07-28-stackup-partial-revert.md``. Land
+            this flag's flip to ``True`` in the same change as U3.
+    """
+    from temper_placer.router_v6.stage0_data import (
+        DielectricInfo,
+        LayerInfo,
+        StackupInfo,
+    )
+
+    layers = []
+    parsed_dielectrics = []
+
+    plane_assignments = {}
+    if hasattr(ki_board, "zones"):
+        for zone in ki_board.zones:
+            if (
+                hasattr(zone, "layers")
+                and zone.layers
+                and hasattr(zone, "netName")
+                and zone.netName
+            ):
+                for layer in zone.layers:
+                    is_power = _is_plane_required_net(zone.netName)
+                    if is_power and layer.endswith(".Cu"):
+                        plane_assignments[layer] = zone.netName
+
+    setup_stackup = None
+    if hasattr(ki_board, "setup") and hasattr(ki_board.setup, "stackup") and ki_board.setup.stackup:
+        setup_stackup = ki_board.setup.stackup
+
+    if setup_stackup and hasattr(setup_stackup, "layers") and setup_stackup.layers:
+        total_thickness = 0.0
+
+        copper_layers = []
+        raw_dielectrics = []
+
+        for layer in setup_stackup.layers:
+            if hasattr(layer, "thickness") and layer.thickness is not None:
+                total_thickness += layer.thickness
+
+            if layer.type == "copper":
+                copper_layers.append(layer)
+            elif layer.type in ["core", "prepreg", "dielectric"] or "dielectric" in layer.type:
+                raw_dielectrics.append(layer)
+
+        layer_count = len(copper_layers)
+
+        for i, layer in enumerate(copper_layers):
+            name = layer.name
+
+            if use_declared_layer_roles:
+                # R8: role comes from the stackup declaration -- structural
+                # position among this board's declared copper layers -- not
+                # from zone content. plane_net is still surfaced when a
+                # plane-required zone sits here, but it no longer decides
+                # layer_type.
+                layer_type = "signal" if i == 0 or i == layer_count - 1 else "mixed"
+                plane_net = plane_assignments.get(name)
+            elif name in plane_assignments:
+                layer_type = "plane"
+                plane_net = plane_assignments[name]
+            elif i == 0 or i == layer_count - 1:
+                layer_type = "signal"
+                plane_net = None
+            else:
+                layer_type = "mixed"
+                plane_net = None
+
+            thickness_um = (
+                (layer.thickness * 1000.0)
+                if (hasattr(layer, "thickness") and layer.thickness)
+                else 35.0
+            )
+
+            layers.append(
+                LayerInfo(
+                    index=i,
+                    name=name,
+                    layer_type=layer_type,
+                    thickness_um=thickness_um,
+                    plane_net=plane_net,
+                )
+            )
+
+        for d in raw_dielectrics:
+            epsilon_r = getattr(d, "epsilonR", None)
+            if epsilon_r is None:
+                epsilon_r = getattr(d, "epsilon_r", 4.5)
+
+            loss_tangent = getattr(d, "lossTangent", None)
+            if loss_tangent is None:
+                loss_tangent = getattr(d, "loss_tangent", 0.02)
+
+            parsed_dielectrics.append(
+                DielectricInfo(
+                    name=d.name,
+                    material=getattr(d, "material", "FR4") or "FR4",
+                    thickness_mm=d.thickness if hasattr(d, "thickness") and d.thickness else 0.0,
+                    epsilon_r=epsilon_r or 4.5,
+                    loss_tangent=loss_tangent or 0.02,
+                )
+            )
+
+    else:
+        layer_count = 2
+        if hasattr(ki_board, "layers") and ki_board.layers:
+            # NOTE: must be a suffix match, not `in`. A substring check matches
+            # "Edge.Cuts" (its tail ".Cuts" starts with ".Cu") as a spurious
+            # 5th "copper" layer on a real 4-layer board, which pushes this
+            # function into the "unusual layer count" branch below and
+            # fabricates a phantom "In3.Cu" that does not exist on the board.
+            # See docs/evidence/2026-07-27-phantom-layer-stackup.md.
+            copper_layers = [
+                ly for ly in ki_board.layers if getattr(ly, "name", "").endswith(".Cu")
+            ]
+            layer_count = len(copper_layers)
+
+        if layer_count == 2:
+            layer_names = ["F.Cu", "B.Cu"]
+        elif layer_count == 4:
+            layer_names = [str(idx) for idx in STANDARD_LAYER_ORDER]
+        elif layer_count == 6:
+            layer_names = ["F.Cu", "In1.Cu", "In2.Cu", "In3.Cu", "In4.Cu", "B.Cu"]
+        else:
+            warnings.append(f"Unusual layer count: {layer_count}. Using generic naming.")
+            layer_names = ["F.Cu"] + [f"In{i}.Cu" for i in range(1, layer_count - 1)] + ["B.Cu"]
+
+        for i, name in enumerate(layer_names):
+            # REVERTED 2026-07-28, deliberately. a1fe623e added a branch here
+            # forcing F.Cu/B.Cu to "signal" on a 4-layer board before the
+            # zone-netname heuristic ran, on the authority of
+            # docs/hardware/POWER_PLANE_DESIGN.md and the 4-layer enforcement
+            # plan (outer = signal, inner = GND/PWR planes).
+            #
+            # That is what the DESIGN DOCUMENTS say. It is not what the BOARD
+            # is. pcb/temper.kicad_pcb pours per-net copper fill on F.Cu/B.Cu
+            # for creepage and thermal reasons, so both outer layers are
+            # effectively occupied. Measured, same harness, only this file
+            # differing:
+            #
+            #     outer forced to signal : 3.12% completion, 93/96 unrouted
+            #     zone heuristic honoured: 38.54% completion, 59/96 unrouted
+            #
+            # A 12x regression -- layer assignment spread nets onto two blocked
+            # layers. test_astar_3d_production_scale_spike confirms the
+            # mechanism: with F.Cu present it cannot construct ANY free
+            # same-layer segment on it.
+            #
+            # The zone heuristic is therefore kept: it describes the artifact,
+            # and the artifact is what gets routed. The phantom-In3.Cu half of
+            # a1fe623e is RETAINED (see the .endswith(".Cu") fixes above) --
+            # that layer genuinely does not exist.
+            #
+            # OPEN DESIGN QUESTION, not a code defect: the docs and the board
+            # disagree about whether the outer layers should be poured at all.
+            # Resolving that is a board decision. Until then this code follows
+            # the board. See docs/evidence/2026-07-28-stackup-partial-revert.md.
+            #
+            # `use_declared_layer_roles=True` (U2, opt-in, default off) is the
+            # supported way out of this tension: role is read from structural
+            # position in the declared stackup, never from zone content, so
+            # a handful of small plane-required pours (e.g. 4 of 48 zones on
+            # F.Cu on the production board) no longer condemns the whole
+            # physical layer. It must not be turned on before pours become
+            # derived output (U3) -- see the docstring above.
+            if use_declared_layer_roles:
+                layer_type = "signal" if i == 0 or i == layer_count - 1 else "mixed"
+                plane_net = plane_assignments.get(name)
+            elif name in plane_assignments:
+                layer_type = "plane"
+                plane_net = plane_assignments[name]
+            elif i == 0 or i == layer_count - 1:
+                layer_type = "signal"
+                plane_net = None
+            else:
+                layer_type = "mixed"
+                plane_net = None
+
+            thickness_um = 35.0
+
+            layers.append(
+                LayerInfo(
+                    index=i,
+                    name=name,
+                    layer_type=layer_type,
+                    thickness_um=thickness_um,
+                    plane_net=plane_net,
+                )
+            )
+
+        total_thickness = 1.6 if layer_count >= 4 else 0.8
+
+        if (
+            hasattr(ki_board, "general")
+            and hasattr(ki_board.general, "thickness")
+            and ki_board.general.thickness
+        ):
+            total_thickness = ki_board.general.thickness
+
+    return StackupInfo(
+        layers=layers,
+        total_thickness_mm=total_thickness,
+        layer_count=layer_count,
+        dielectrics=parsed_dielectrics,
+    )

@@ -72,6 +72,7 @@ Test groups (mapping to the task's R24 suite):
 from __future__ import annotations
 
 import logging
+import math
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -800,25 +801,41 @@ class TestProductionBoardSolve:
     """The real board, real validator, real loader -- the production recipe.
 
     The full #523 scoped solve (FREE={K3} + the ~12k-constraint
-    domain-clearance set) is **infeasible** on current main: the 8.0mm PD2
-    box bar forces pinned refs' boxes past their current separations (the
-    documented "domain-bar wall" -- see
+    domain-clearance set) was **infeasible** on pre-write main: the 8.0mm
+    PD2 box bar forced pinned refs' boxes past their current separations
+    (the documented "domain-bar wall" -- see
     ``docs/evidence/2026-07-31-k3-rtsolve-infeasible-board.md`` and
     ``docs/evidence/2026-08-01-fixed-copper-constraint.md``, verified again
     while writing this suite). The pure-geometry recipe -- FREE={K3}, C27
     excluded from the model (staged off-board), everything else pinned,
-    min-displacement toward the current board -- is the one the edge-hanging
-    evidence doc verified `optimal` on current main, so that is what this
-    test runs. It proves:
+    min-displacement toward the current board -- was the one the edge-hanging
+    evidence doc verified `optimal` on the pre-write board.
+
+    RE-BASELINED 2026-08-02 (wave-2 board write, this change): the owner
+    granted the K3 RT314012 swap + validator-gated re-solve + board write
+    (docs/evidence/2026-08-02-k3-swap-and-board-write.md). The written
+    board is the product of the **Run B production recipe** -- direct
+    ``solve_placement`` with ``fixed_copper`` WITHOUT zone items
+    (``free_refs={K3,C27}``, margin 0.05), nothing pinned, min-displacement,
+    full domain-clearance (11,571) + keepaway (530), no chain exemption,
+    seed 0 -- the evidence-validated candidate recipe
+    (docs/evidence/2026-08-01-k3-resolve-validator-gated.md §4 Run B). The
+    old pure-geometry recipe (pin everything except K3) is no longer
+    feasible on the written board: its box no-overlap model is stricter
+    than KiCad's actual courtyards, and the written positions satisfy the
+    production recipe, not the pin-everything model. The test therefore
+    runs the recipe the board was actually written with. It proves:
 
     - the solve is feasible/optimal and the validator audit runs;
-    - ``hard_failures`` is empty (the committed board's inter pairs are
+    - ``hard_failures`` is empty (the written board's inter pairs are
       copper-clean);
-    - the known K3-intra straddler (G5LE-1: 3.559mm vs the 4.0/6.0/8.0 bars,
-      3 violations / 1 pair -- the single remaining REQ-SAFE-01 finding on
-      the board) lands in ``intra_footprint``, NOT hard, with the EXACT
-      committed-board measured distance -- the position-frame proof that
-      fixed refs' copper geometry is unchanged by the overlay.
+    - the wave-2 board write (K3 -> TE Schrack RT314012, the owner-granted
+      swap + re-solve + write, docs/evidence/2026-08-02-k3-swap-and-board-
+      write.md) cleared the last intra-footprint straddler: the written
+      board measures REQ-SAFE-01 = 0/0, so ``intra_footprint`` is EMPTY
+      (the G5LE-1-era 3-record / 1-pair K3-intra finding no longer exists)
+      -- the position-frame proof that fixed refs' copper geometry is
+      unchanged by the overlay still holds over an empty violation set.
     """
 
     def _skip_if_unavailable(self):
@@ -840,52 +857,82 @@ class TestProductionBoardSolve:
         placement, voltage_domains, _stats = self._skip_if_unavailable()
 
         from temper_placer.io.kicad_parser import parse_kicad_pcb
+        from temper_placer.placer.cp_sat.domain_clearance import (
+            generate_domain_clearance_constraints,
+            generate_unclassified_hv_keepaway_constraints,
+        )
 
         pr = parse_kicad_pcb(str(_PCB_PATH))
         netlist = pr.netlist
-        # C27 is staged off-board (local (20, 252.75) on a 234mm-tall board);
-        # pinning it would make the edge-margin set infeasible, so it is
-        # excluded from the solve model (the production recipe's filtering).
-        netlist.components = [c for c in netlist.components if c.ref != "C27"]
+        # C27 is now ON-BOARD (written at (28.62, 222.0) by the wave-2
+        # write) -- it is part of the model, not excluded as it was when
+        # staged off-board.
 
         current: dict[str, tuple[float, float, int]] = {}
         for c in netlist.components:
             current[c.ref] = (c.initial_position[0], c.initial_position[1], c.initial_rotation)
-        free = {"K3"}
-        fixed_positions = {ref: v for ref, v in current.items() if ref not in free}
-        fixed_rotations = {ref: v[2] for ref, v in current.items() if ref not in free}
+
+        # The Run B production recipe the written board came from: fixed
+        # copper WITHOUT zone items, free_refs={K3,C27}, margin 0.05;
+        # nothing pinned; min-displacement; full domain-clearance +
+        # keepaway; no chain exemption; seed 0.
+        all_refs = {c.ref for c in netlist.components}
+        dc = generate_domain_clearance_constraints(
+            placement, voltage_domains, component_refs=all_refs
+        )
+        kw = generate_unclassified_hv_keepaway_constraints(
+            placement, voltage_domains, component_refs=all_refs
+        )
+        from types import SimpleNamespace
+
+        fc_nozones = {
+            "parse_result": SimpleNamespace(
+                traces=pr.traces,
+                vias=pr.vias,
+                board=SimpleNamespace(
+                    zones=[],
+                    width=pr.board.width,
+                    height=pr.board.height,
+                    origin=getattr(pr.board, "origin", (0.0, 0.0)),
+                ),
+            ),
+            "free_refs": {"K3", "C27"},
+            "margin_mm": 0.05,
+        }
 
         result = solve_placement(
             netlist=netlist,
             board=pr.board,
-            timeout_ms=60_000,
+            extra_constraints=[*dc, *kw],
+            timeout_ms=180_000,
             seed=0,
             hint_positions=dict(current),
             minimize_displacement_to={ref: (v[0], v[1]) for ref, v in current.items()},
-            fixed_positions=fixed_positions,
-            fixed_rotations=fixed_rotations,
+            max_displacement_mm=60.0,
+            fixed_rotations={ref: v[2] for ref, v in current.items()},
+            fixed_copper=fc_nozones,
             validator_input={"placement": placement, "voltage_domains": voltage_domains},
         )
         assert result.status in ("optimal", "feasible"), result.status
         assert result.validator_audit is not None
         audit = result.validator_audit
         assert audit.hard_failures == [], (
-            "a validator HARD failure on the committed-board placement means "
+            "a validator HARD failure on the written-board placement means "
             "the domain-clearance encoding is unsound for a solve that kept "
             "every inter pair where the board already has them -- see "
             f"{audit.report()}"
         )
         assert audit.coverage_gaps == [], (
-            f"unexpected coverage gaps on the committed board: {audit.report()}"
+            f"unexpected coverage gaps on the written board: {audit.report()}"
         )
-        # The known K3-intra straddler: G5LE-1, 3 violations / 1 pair, all
-        # self-pairs -- placement-independent, reported, never hard.
-        assert len(audit.intra_footprint) == 3, audit.report()
-        assert {v.ref_a for v in audit.intra_footprint} == {"K3"}
-        assert all(v.ref_a == v.ref_b for v in audit.intra_footprint)
-        # Position-frame proof: fixed refs' copper geometry is unchanged --
-        # the validator's per-pair distances on the solved placement equal
-        # the committed board's exactly (3.559mm, the documented figure).
+        # The wave-2 written board has NO intra-footprint straddler: K3 now
+        # carries the RT314012 (12.76mm internal gap), so the intra bucket is
+        # empty -- the G5LE-1-era 3-record / 1-pair finding is gone
+        # (docs/evidence/2026-08-02-k3-swap-and-board-write.md).
+        assert len(audit.intra_footprint) == 0, audit.report()
+        # Position-frame proof: the validator's per-pair distances on the
+        # solved placement equal the committed board's exactly (both empty:
+        # 0 violations).
         base = verify_iec60335_compliance(placement, voltage_domains)
         base_metrics = sorted(
             (v.ref_a, v.ref_b, v.metric, round(v.measured_mm, 3)) for v in base.violations
@@ -899,35 +946,29 @@ class TestProductionBoardSolve:
             f"solved placement for refs the solve did not move:\n"
             f"base={base_metrics}\nsolved={solved_metrics}"
         )
-        # And K3 (the free ref) is overlaid with its solved position while
-        # C27 (excluded from the model) keeps its staged base position.
+        # And K3/C27 (the free refs) are overlaid with their solved positions.
         from temper_placer.placer.cp_sat.validator_audit import build_validator_placement
 
         vp = build_validator_placement(placement, result.positions, result.rotations, netlist)
         by_ref = {c["ref"]: c for c in vp["components"]}
         base_pos_by_ref = {c["ref"]: c["position"] for c in placement["components"]}
         assert by_ref["K3"]["position"] == result.positions["K3"]
-        assert by_ref["C27"]["position"] == base_pos_by_ref["C27"], (
-            "C27 is excluded from the solve model (staged off-board): its "
-            "validator position must be the base one, unchanged by the overlay"
+        assert by_ref["C27"]["position"] == result.positions["C27"], (
+            "C27 is a free ref in the Run B recipe (fixed_copper "
+            "free_refs={K3,C27}): its validator position must be the solved "
+            "one, overlaid by the solve"
         )
-        # Every OTHER classified ref is pinned in the solve, so its solved
-        # position must be within one 0.01mm model-grid step of its base
-        # board position -- `mm_to_units` uses round-half-even, so a pinned
-        # center can shift by exactly one grid step (the documented
-        # quantization; see docs/evidence/2026-08-01-edge-hanging-refs-fix.md
-        # "model quantization" wall). This is the mixed free/fixed
-        # frame-consistency proof: fixed refs stay at their true board
-        # coordinates (modulo the 0.01mm grid), so the validator's copper
-        # model sees the committed board for everything the solve did not
-        # deliberately move.
+        # Run B recipe: nothing is pinned (all refs are decision variables,
+        # min-displacement objective, fixed_copper treats every non-free ref's
+        # copper as a fixed obstacle that K3/C27's pads must clear). The
+        # recipe's displacement contract is the <=60mm cap, so every solved
+        # position must lie within that envelope of its base board position.
         for ref, pos in base_pos_by_ref.items():
-            if ref in free:
-                continue
             if ref not in result.positions:
-                continue  # excluded from the model (C27): keeps base, asserted above
+                continue  # not in the model: keeps base
             solved = result.positions[ref]
-            assert abs(solved[0] - pos[0]) <= 0.011 and abs(solved[1] - pos[1]) <= 0.011, (
-                f"fixed ref {ref} moved more than one grid step: "
-                f"{solved} vs board {pos}"
+            disp = math.hypot(solved[0] - pos[0], solved[1] - pos[1])
+            assert disp <= 60.0 + 1e-6, (
+                f"ref {ref} solved beyond the recipe's 60mm displacement cap: "
+                f"{solved} vs board {pos} ({disp:.3f}mm)"
             )

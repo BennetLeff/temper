@@ -10,7 +10,9 @@
 //! Bit-exactness: identical f64 operation order (shoelace accumulation,
 //! `mu_0 * area_m2 / h_m` left-to-right, the unit thresholds).
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use temper_py_bridge;
 
 /// Estimate loop inductance from resolved component positions (mm).
@@ -96,6 +98,7 @@ fn infer_unit(name: &str, value: f64) -> String {
 // PyO3 bridge
 // ---------------------------------------------------------------------------
 
+#[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (positions, trace_height_mm))]
 pub fn spice_loop_inductance_py(positions: Vec<f64>, trace_height_mm: f64) -> PyResult<f64> {
@@ -110,6 +113,7 @@ pub fn spice_loop_inductance_py(positions: Vec<f64>, trace_height_mm: f64) -> Py
         .map_err(temper_py_bridge::panic_to_err)
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (name, value))]
 pub fn spice_infer_unit_py(name: &str, value: f64) -> String {

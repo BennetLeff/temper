@@ -51,6 +51,25 @@ land on ``ClearanceRepairReport.validator_audit`` (the final round's
 stays (it drives reinforcement); the audit inside the solve is additive and is
 the one that gates on exact copper.
 
+**Fixed-copper hoisted (issue #617).** ``run_clearance_repair_solve`` now
+accepts ``fixed_copper=`` (a dict, default ``None``) and forwards it into
+every ``solve_placement`` round, so the production repair caller can express
+the full run-B recipe -- the free refs' pads must not land on different-net
+fixed copper (traces/vias/other pads; see ``fixed_copper.py``). This closes
+the interface gap the wave-2 board write exposed (docs/evidence/2026-08-02-
+k3-swap-and-board-write.md): Run A through this caller could not express
+fixed-copper, moved 166 refs and regressed DRC to 1428-1437 errors, while the
+Run-B direct solve (with fixed-copper) was the written, clean board. The
+fixed-copper post-solve audit shares the validator audit's fail-closed
+contract **exactly**: a violation on a feasible/optimal solve raises
+``RuntimeError`` inside ``solve_placement``, the loop catches it and
+terminates with status ``"gap"`` naming the offending ref(s) -- round-aborting
+and never a repairable report over an encoding-unsound solve. The two audits'
+handling is therefore consistent by construction (same raise, same catch,
+same ``"gap"`` terminal status); the report's ``reason`` distinguishes which
+audit fired. Absent (default ``None``), behaviour is byte-identical to before:
+the loop callers that do not pass it are unchanged.
+
 **Loop invariant and termination (the induction that makes this a loop,
 not a script).**
 
@@ -148,9 +167,14 @@ class ClearanceRepairReport:
       the time budget (or the model was invalid) -- NOT a proof of
       infeasibility, reported as distinct from ``"infeasible"`` so a caller
       never mistakes a timeout for a proven UNSAT.
-    - ``"gap"``: a checker-flagged inter pair survived a SAT solve -- the
-      solver's box model does not contain the component's real pad copper.
-      Reported loudly; never treated as success.
+    - ``"gap"``: a post-solve audit hard failure on a feasible solve -- a
+      checker-flagged inter pair that survived a SAT solve (the solver's box
+      model does not contain the component's real pad copper), OR a
+      fixed-copper audit violation (a free ref's pad on different-net fixed
+      copper within the margin) OR a REQ-SAFE-01 validator audit HARD failure
+      (a constraint-covered inter pair the exact-copper validator still flags).
+      All three classes mean the encoding is unsound for that solve. Reported
+      loudly; never treated as success.
     - ``"max_rounds"``: reinforcement did not converge within the bound
       (should not happen given the termination argument above; reported).
 
@@ -163,6 +187,20 @@ class ClearanceRepairReport:
     catches it, and the repair terminates with status ``"gap"`` naming the
     offending pair(s) -- fail-closed, so an encoding-unsound solve is never
     reported as a repairable outcome (see the module docstring).
+
+    **Fixed-copper recipe (issue #617).** When ``fixed_copper=`` is passed
+    to ``run_clearance_repair_solve``, the recipe is forwarded into every
+    solve round and recorded here (``fixed_copper_free_refs`` /
+    ``fixed_copper_margin_mm``) so the caller's evidence can show exactly
+    which recipe produced the placement. A fixed-copper audit hard failure
+    (a free ref's pad on different-net fixed copper within the margin on a
+    feasible solve) aborts the repair exactly like the validator audit's:
+    the loop catches the raise from ``solve_placement`` and terminates with
+    status ``"gap"``, ``fixed_copper_audit_violations`` carries the count
+    from the aborting audit, and ``reason`` names the offending ref(s).
+    ``fixed_copper_audit_violations`` is 0 on every other outcome (including
+    a clean fixed-copper run -- the audit PASSED then, it did not count 0
+    violations into a report field).
     """
 
     pcb_path: str
@@ -202,6 +240,19 @@ class ClearanceRepairReport:
     #: (False when no audit ran -- nothing was verified, so the solve must
     #: not be treated as validator-clean on the strength of these counts).
     validator_geometry_trusted: bool = False
+    #: Fixed-copper recipe forwarded into every solve round (issue #617):
+    #: the sorted free refs (empty when no fixed_copper was passed) and the
+    #: margin in mm (None when no fixed_copper was passed). Evidence fields
+    #: only -- they record what the caller asked for, not what the audit
+    #: found (see ``fixed_copper_audit_violations``).
+    fixed_copper_free_refs: tuple[str, ...] = ()
+    fixed_copper_margin_mm: float | None = None
+    #: Number of fixed-copper audit violations when a fixed-copper audit
+    #: hard failure aborted the repair (0 otherwise -- including a clean
+    #: fixed-copper run, where the audit PASSED). Mirrors the
+    #: ``validator_hard_failures`` contract: a hard failure never lands in
+    #: a success report, it terminates the repair with status ``"gap"``.
+    fixed_copper_audit_violations: int = 0
 
     @property
     def moved_refs(self) -> tuple[str, ...]:
@@ -249,6 +300,7 @@ def run_clearance_repair_solve(
     max_rounds: int = 4,
     max_displacement_mm: float | None = None,
     chain_exempt_pairs: set[frozenset[str]] | None = None,
+    fixed_copper: dict | None = None,
     netlist: Any = None,
     board: Any = None,
 ) -> ClearanceRepairReport:
@@ -279,6 +331,23 @@ def run_clearance_repair_solve(
         chain_exempt_pairs: protective-impedance-chain sibling pairs
             exempted from the keep-away constraints (the same single
             exemption the real-board fixture's proximity check applies).
+        fixed_copper: optional pad-vs-fixed-copper NoOverlap recipe
+            (issue #617), forwarded unchanged into every ``solve_placement``
+            round. The dict carries ``parse_result`` (a ``ParseResult``
+            carrying ``.traces``/``.vias``/``.board``), ``free_refs`` (the
+            refs whose pads must not land on different-net fixed copper),
+            ``margin_mm`` (default 0.05) and ``include_other_pads`` (default
+            True) -- see ``solve_placement``/``fixed_copper.py``. This is the
+            piece the production caller could not express before the hoist
+            (Run A vs Run B of the wave-2 write differ only by it). The
+            fixed-copper post-solve audit runs inside every feasible round
+            and shares the validator audit's fail-closed contract: a
+            violation raises inside ``solve_placement``, the loop catches it
+            and terminates with status ``"gap"`` (round-aborting; see the
+            module docstring). The recipe is recorded on the report
+            (``fixed_copper_free_refs``/``fixed_copper_margin_mm``). Default
+            ``None``: no fixed-copper constraints, byte-identical to the
+            pre-hoist behaviour.
         netlist/board: optional pre-parsed CP-SAT inputs (tests inject
             synthetic ones); parsed from ``pcb_path`` when absent.
 
@@ -289,15 +358,18 @@ def run_clearance_repair_solve(
         RuntimeError: a REQ-SAFE-01 validator-aligned post-solve audit HARD
             failure on any feasible/optimal solve round -- a constraint-
             covered inter-component pair the exact-copper validator still
-            flags (the run-B "box-separated but copper-touching" class).
-            This is FAIL-CLOSED by design: the encoding is unsound for that
-            solve. The loop catches it and returns status ``"gap"`` naming
-            the offending pair(s) (see the module docstring); it is only
-            re-raised here if the catch itself is not reached, which never
-            happens in this loop -- the raise is documented for the
-            ``solve_placement`` contract, not as this function's normal
-            exit. The repair recipe is expected validator-clean; this is
-            the safety net, not the normal path.
+            flags (the run-B "box-separated but copper-touching" class) -- or
+            a fixed-copper post-solve audit violation (a free ref's pad on
+            different-net fixed copper within the margin), which shares the
+            same raise contract (issue #617). Both are FAIL-CLOSED by design:
+            the encoding is unsound for that solve. The loop catches either
+            and returns status ``"gap"`` naming the offending pair(s)/ref(s)
+            (see the module docstring); they are only re-raised here if the
+            catch itself is not reached, which never happens in this loop --
+            the raise is documented for the ``solve_placement`` contract, not
+            as this function's normal exit. The repair recipe is expected
+            validator-clean and fixed-copper-clean; this is the safety net,
+            not the normal path.
     """
     from temper_placer.io.kicad_parser import parse_kicad_pcb
 
@@ -359,6 +431,9 @@ def run_clearance_repair_solve(
     final_rotations: dict[str, int] = {}
     total_displacement = 0.0
     audit_violations_total = 0
+    #: Fixed-copper audit violation count when a fixed-copper audit hard
+    #: failure aborted the repair (0 otherwise). Set in the catch below.
+    fixed_copper_audit_violations = 0
     #: The final successful round's validator-aligned audit result (None when
     #: no feasible/optimal solve completed -- hard failures raise instead).
     #: Cast from ``CpSatPlacementResult.validator_audit`` (typed ``object``
@@ -393,19 +468,58 @@ def run_clearance_repair_solve(
                     "placement": placement,
                     "voltage_domains": voltage_domains,
                 },
+                # Issue #617: the fixed-copper recipe (free refs' pads must
+                # not land on different-net fixed copper) is forwarded into
+                # every round so the production caller can express the full
+                # run-B recipe. Its post-solve audit raises inside
+                # solve_placement on a violation -- caught below, same
+                # fail-closed "gap" handling as the validator audit.
+                fixed_copper=fixed_copper,
             )
         except RuntimeError as exc:
-            # REQ-SAFE-01 validator post-solve audit HARD failure (issue #523
-            # gap 2): a constraint-covered inter pair the exact-copper
-            # validator still flags on a feasible/optimal solve means the box
-            # encoding is unsound for this solve. This is the same class the
-            # loop's own "gap" status exists for (a checker-flagged pair whose
-            # hard constraint was SAT), so terminate with a loud "gap" report
-            # naming the pair(s) instead of propagating the exception -- the
-            # caller gets the evidence on the report, and no further rounds are
-            # attempted (a round-1 hard failure aborts the whole repair).
+            # Post-solve audit hard failure on a feasible/optimal solve.
+            # Two classes share this raise contract (issue #617 makes them
+            # consistent by construction):
+            #   (1) the REQ-SAFE-01 validator audit (issue #523 gap 2): a
+            #       constraint-covered inter pair the exact-copper validator
+            #       still flags -- the box encoding is unsound for this solve;
+            #   (2) the fixed-copper audit: a free ref's pad lands on
+            #       different-net fixed copper within the margin -- the
+            #       fixed-copper encoding is unsound for this solve.
+            # Both are the same class the loop's own "gap" status exists for
+            # (a checker-flagged pair whose hard constraint was SAT), so both
+            # terminate with a loud "gap" report naming the offender(s)
+            # instead of propagating the exception -- the caller gets the
+            # evidence on the report, and no further rounds are attempted (a
+            # round-1 hard failure aborts the whole repair).
+            _msg = str(exc)
+            if _msg.startswith("fixed-copper post-solve audit FAILED"):
+                _fc_match = re.search(r"(\d+) violation\(s\)", _msg)
+                _fc_refs = re.findall(r"([A-Za-z0-9_]+) pad ", _msg)
+                fixed_copper_audit_violations = (
+                    int(_fc_match.group(1)) if _fc_match else 0
+                )
+                status = "gap"
+                unreinforced = [
+                    (ref, "") for ref in dict.fromkeys(_fc_refs)
+                ]  # dedupe, keep order
+                reason = (
+                    f"round {round_index + 1}: fixed-copper post-solve audit "
+                    f"HARD failure ({fixed_copper_audit_violations} "
+                    f"violation(s)) -- a free ref's pad overlaps different-"
+                    f"net fixed copper within the margin on a feasible "
+                    f"solve; the fixed-copper encoding is unsound for this "
+                    f"solve (fail-closed). Ref(s): "
+                    f"{sorted(set(_fc_refs)) or '?'}. {exc}"
+                )
+                logger.error(
+                    "repair round %d: fixed-copper audit hard failure -> gap: %s",
+                    round_index + 1,
+                    exc,
+                )
+                break
             _pairs = re.findall(
-                r"([A-Za-z0-9_]+)<->([A-Za-z0-9_]+)", str(exc)
+                r"([A-Za-z0-9_]+)<->([A-Za-z0-9_]+)", _msg
             )
             status = "gap"
             unreinforced = list(dict.fromkeys(_pairs))  # dedupe, keep order
@@ -585,6 +699,13 @@ def run_clearance_repair_solve(
         final_intra = len(final_intra_violations)
 
     _v_audit = final_validator_audit
+    _fc_free_refs: tuple[str, ...] = ()
+    _fc_margin: float | None = None
+    if fixed_copper is not None:
+        _fc_free_refs = tuple(sorted(fixed_copper.get("free_refs", ())))
+        _fc_margin = (
+            float(fixed_copper["margin_mm"]) if "margin_mm" in fixed_copper else 0.05
+        )
     return ClearanceRepairReport(
         pcb_path=str(pcb_path),
         status=status,
@@ -623,6 +744,9 @@ def run_clearance_repair_solve(
             if final_validator_audit is not None
             else False
         ),
+        fixed_copper_free_refs=_fc_free_refs,
+        fixed_copper_margin_mm=_fc_margin,
+        fixed_copper_audit_violations=fixed_copper_audit_violations,
     )
 
 

@@ -1,0 +1,16 @@
+# provenance: commit=5c480a3bcbdddfa42f47b3ad16bb3921fcaf589f dirty=false
+conflict,ref,pad,item_kind,item_net,clearance_at_best_mm,required_mm,clearance_at_candidate_mm,zone_clear_cells_also_clearing_item,jointly_clearable_with_zones,first_clearing_position,min_disp_clearing_position
+K3 pad 2 vs zone GATE_HS,K3,2,zone,GATE_HS,20.574,0.05,0.0348,96,True,"{'x_mm': 16.12, 'y_mm': 42.92, 'disp_mm': 52.0}","{'x_mm': 18.12, 'y_mm': 8.92, 'disp_mm': 34.0}"
+K3 pad 2 vs zone GATE_HS,K3,2,zone,GATE_HS,20.574,0.05,0.0348,96,True,"{'x_mm': 16.12, 'y_mm': 42.92, 'disp_mm': 52.0}","{'x_mm': 18.12, 'y_mm': 8.92, 'disp_mm': 34.0}"
+K3 pad 2 vs pad io41,K3,2,pad,io41,27.8326,0.05,0.0,96,True,"{'x_mm': 16.12, 'y_mm': 42.92, 'disp_mm': 52.0}","{'x_mm': 18.12, 'y_mm': 8.92, 'disp_mm': 34.0}"
+K3 pad 2 vs pad io42,K3,2,pad,io42,26.6387,0.05,0.0,91,True,"{'x_mm': 16.12, 'y_mm': 42.92, 'disp_mm': 52.0}","{'x_mm': 18.12, 'y_mm': 8.92, 'disp_mm': 34.0}"
+K3 pad 5 vs pad gpio35,K3,5,pad,gpio35,27.9458,0.05,0.0,96,True,"{'x_mm': 16.12, 'y_mm': 42.92, 'disp_mm': 52.0}","{'x_mm': 18.12, 'y_mm': 8.92, 'disp_mm': 34.0}"
+K3 pad 5 vs pad gpio36,K3,5,pad,gpio36,26.7512,0.05,0.0,94,True,"{'x_mm': 16.12, 'y_mm': 42.92, 'disp_mm': 52.0}","{'x_mm': 18.12, 'y_mm': 8.92, 'disp_mm': 34.0}"
+K3 pad 4 vs segment hb.gate_hs.driver-p2,K3,4,segment,hb.gate_hs.driver-p2,24.9719,0.05,0.0,93,True,"{'x_mm': 16.12, 'y_mm': 42.92, 'disp_mm': 52.0}","{'x_mm': 18.62, 'y_mm': 8.42, 'disp_mm': 34.0}"
+K3 pad 4 vs segment safety.coil_thermal.comp-inp,K3,4,segment,safety.coil_thermal.comp-inp,22.871,0.05,0.0,92,True,"{'x_mm': 16.12, 'y_mm': 42.92, 'disp_mm': 52.0}","{'x_mm': 18.12, 'y_mm': 8.92, 'disp_mm': 34.0}"
+K3 pad 4 vs zone GATE_HS,K3,4,zone,GATE_HS,19.5517,0.05,0.0,96,True,"{'x_mm': 16.12, 'y_mm': 42.92, 'disp_mm': 52.0}","{'x_mm': 18.12, 'y_mm': 8.92, 'disp_mm': 34.0}"
+K3 pad 4 vs zone GATE_HS,K3,4,zone,GATE_HS,19.5517,0.05,0.0,96,True,"{'x_mm': 16.12, 'y_mm': 42.92, 'disp_mm': 52.0}","{'x_mm': 18.12, 'y_mm': 8.92, 'disp_mm': 34.0}"
+K3 pad 4 vs segment safety.coil_thermal.comp-inp,K3,4,segment,safety.coil_thermal.comp-inp,22.871,0.05,0.0,92,True,"{'x_mm': 16.12, 'y_mm': 42.92, 'disp_mm': 52.0}","{'x_mm': 18.12, 'y_mm': 8.92, 'disp_mm': 34.0}"
+K3 pad 1 vs pad hb.power_loop.q_high-g,K3,1,pad,hb.power_loop.q_high-g,26.2804,0.05,0.0,94,True,"{'x_mm': 16.12, 'y_mm': 42.92, 'disp_mm': 52.0}","{'x_mm': 18.12, 'y_mm': 8.92, 'disp_mm': 34.0}"
+K3 pad 1 vs pad SW_NODE,K3,1,pad,SW_NODE,27.8644,0.05,0.0,96,True,"{'x_mm': 16.12, 'y_mm': 42.92, 'disp_mm': 52.0}","{'x_mm': 18.12, 'y_mm': 8.92, 'disp_mm': 34.0}"
+K3 pad 1 vs pad gnd,K3,1,pad,gnd,105.9533,0.05,0.0,96,True,"{'x_mm': 16.12, 'y_mm': 42.92, 'disp_mm': 52.0}","{'x_mm': 18.12, 'y_mm': 8.92, 'disp_mm': 34.0}"

@@ -31,6 +31,7 @@
 // fraction is large (see the falsifier in the evidence doc); it is not a
 // silent correctness trade-off in that case, just a lost optimization.
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
 use std::collections::HashMap;
 
@@ -989,11 +990,16 @@ fn run_via_phases(
 // PyO3 bridge
 // ---------------------------------------------------------------------------
 
+#[cfg(feature = "python")]
 type PySegment = (f64, f64, f64, f64, String);
+#[cfg(feature = "python")]
 type PyExplicitVia = (f64, f64, f64, String, String);
+#[cfg(feature = "python")]
 type PyPathVia = (f64, f64, String, String);
+#[cfg(feature = "python")]
 type PyRoute = (String, f64, Vec<PySegment>, Vec<PyExplicitVia>, Vec<PyPathVia>);
 
+#[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (routes, default_clearance, voltage_ratings, hv_net_names=None))]
 pub fn verify_route_clearance(

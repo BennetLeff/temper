@@ -80,6 +80,25 @@ violations, which was the lie). The anti-vacuity gate caught
 explicit `len(...) == 0` check) while removing the vacuity. When a measurement's
 passing state is an empty collection, write the emptiness check explicitly.
 
+## The crash-masked threshold: a dead code path can freeze a stale number
+
+The wave-4 migration's `route_pcb` crash (NetClassRules `_mm` reads, fixed
+2026-08-04) had a second cost beyond the crash itself: **every ratchet whose
+test depended on the crashed path was frozen at its pre-crash-era value**, and
+the crashes masked the staleness (the test failed on the crash, not on the
+number — so the threshold was never re-examined). Unmasking the router produced
+two re-baselines in one PR: `PRODUCTION_ROUTER_OUTPUT_UNCONNECTED` 411→463 (the
+sibling gate had been re-measured on 2026-08-02; the router_v6 one was missed
+because its test was crashing) and `PRODUCTION_ROUTER_OUTPUT_TOTAL_DVIOLATIONS`
+1436→1514 (measured on a pre-#602 board, deterministic post-fix sample
+[1502,1502,1502,1502,1504] → worst median-of-5 + 10). The tell: a threshold
+predating a documented board change whose test crashes → when the crash is
+fixed, expect the threshold to be stale, and re-measure it in the SAME PR
+(`docs/evidence/2026-08-04-designrules-parse-fix.md`). Related: the LOC-cap
+ratchet's allowlist entries may track growth with justification (the gates.py
+precedent: baseline 1035→1198 with a comment) — a documented growth update is
+the norm; extraction is not required to pass the gate.
+
 ## Evidence
 
 - `docs/evidence/2026-08-01-safety-test-rebaseline.md` — the two test

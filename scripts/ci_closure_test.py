@@ -71,14 +71,16 @@ def main() -> int:
         return 1
 
     # Board identity preflight (plan 2026-07-15-001, unit U4). This script
-    # is a third pipeline-DAG-bypass entry point (alongside InputStage and
-    # scripts/internal_route.py) that U4's original wiring missed -- it
-    # calls parse_kicad_pcb_v6 directly rather than going through
+    # is a pipeline-DAG-bypass entry point that U4's original wiring missed
+    # -- it calls parse_kicad_pcb_v6 directly rather than going through
     # InputStage, so nothing gated this path. Three CI workflows
     # (regression.yml, metrics-record.yml, pr-pipeline-scorecard.yml) had
     # been silently scoring the quarantined fixture as if it were the
     # production board as a result. Missing netlist is a hard configuration
-    # error here, matching internal_route.py's DAG-bypass convention.
+    # error here: a DAG-bypass caller supplies its own inputs, so an absent
+    # netlist is a misconfiguration rather than the soft skip InputStage
+    # allows. (U4 wired a third such entry point, scripts/internal_route.py,
+    # which was deleted as import-dead on 2026-08-04.)
     netlist_path = Path(args.netlist)
     if not netlist_path.is_absolute():
         netlist_path = repo_root / netlist_path

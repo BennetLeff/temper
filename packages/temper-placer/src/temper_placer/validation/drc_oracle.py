@@ -28,7 +28,6 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from temper_placer.core.loss_types import LossContext
     from temper_placer.validation.drc_result import RunResult
     from temper_placer.validation.drc_types import ConstraintSet as DrcConstraintSet
     from temper_placer.validation.drc_types import Placement as DrcPlacement
@@ -40,13 +39,38 @@ try:
 except ImportError:
     _HAS_RUST_DRC = False
 
+_RS = None
+
+
+def _rs() -> Any:
+    """Lazily import the Rust kernel module."""
+    global _RS
+    if _RS is None:
+        import temper_drc_rs  # type: ignore[import-untyped]
+
+        _RS = temper_drc_rs
+    return _RS
+
 
 def _infer_package_type(footprint: str | None) -> str:
     """Infer SMD package type from footprint name.
 
     Heuristic used by both the placer-path and parsed-PCB-path
     board-dict builders.
+
+    Wave 4 Phase 4: with the Rust extension present, delegates to the Rust
+    kernel ``temper_drc_rs.infer_package_type`` (verbatim first-match
+    keyword-order port, case-insensitive substring matching, None/empty →
+    "smd"; pinned by the differential suite
+    ``test_drc_oracle_rust_differential.py``). Without the extension
+    (``_HAS_RUST_DRC=False``), falls back to the verbatim pre-migration
+    pure-Python body — the module's graceful-degradation contract, which
+    the parsed-PCB dict-builder path (``ci_closure_test.py``) depends on
+    extension-absent (adversarial-review pass 2 restored this after the
+    migration had introduced a hard runtime dependency on ``_rs()``).
     """
+    if _HAS_RUST_DRC:
+        return _rs().infer_package_type(footprint)
     fp_lower = footprint.lower() if footprint else ""
     if any(p in fp_lower for p in ("tht", "through", "pin", "dip")):
         return "tht"
@@ -67,7 +91,7 @@ def _infer_package_type(footprint: str | None) -> str:
 
 def build_placement_from_netlist(
     positions: Array,
-    context: LossContext,
+    context: Any,
 ) -> DrcPlacement:
     """Convert temper-placer Netlist + positions into a temper_drc.input.Placement.
 
@@ -119,7 +143,7 @@ def build_placement_from_netlist(
     )
 
 
-def build_constraint_set(context: LossContext) -> DrcConstraintSet:
+def build_constraint_set(context: Any) -> DrcConstraintSet:
     """Convert temper-placer clearance_rules into a temper_drc.input.ConstraintSet.
 
     Maps temper_placer.losses.types.ClearanceRule (net_class_a, net_class_b,
@@ -174,7 +198,7 @@ class DRCOracle:
     def evaluate(
         self,
         positions: Array,
-        context: LossContext,
+        context: Any,
         categories: list[str] | None = None,
         use_rust: bool = True,
     ) -> RunResult:
@@ -186,7 +210,7 @@ class DRCOracle:
 
         Args:
             positions: (N, 2) array of component positions in mm.
-            context: LossContext with netlist and board.
+            context: Object with netlist and board (duck-typed).
             categories: Optional list of check categories to run
                 (e.g. ["drc", "safety"]). None means all categories.
             use_rust: If True and temper_drc_rs is installed, use the
@@ -233,10 +257,10 @@ class DRCOracle:
     def _build_board_dict(
         self,
         positions: Array,
-        context: LossContext,
+        context: Any,
         parsed_pcb: Any = None,
     ) -> dict[str, Any]:
-        """Build a K1-schema board dict from positions + LossContext.
+        """Build a K1-schema board dict from positions + context.
 
         Produces the dict format consumed by temper_drc_rs.run_drc():
         - components: list of dicts with ref, x, y, rot, side, width, height, net_class, ...
@@ -404,7 +428,7 @@ class DRCOracle:
 
     def _build_constraints_dict(
         self,
-        context: LossContext,
+        context: Any,
     ) -> dict[str, Any]:
         """Build a constraints dict for the Rust DRC engine.
 
@@ -497,6 +521,11 @@ class DRCOracle:
         ``CheckResult``.  This allows existing Python consumers (loss
         functions, CI reports) to consume Rust DRC output transparently.
 
+        Wave 4 Phase 4: the grouping + severity-normalization compute runs
+        in the shared Rust kernel ``temper_drc_rs.group_violations`` (also
+        consumed by ``drc_runner._violations_to_run_result``); this wrapper
+        only marshals the normalized records into the contract objects.
+
         Args:
             violation_dicts: List of violation dicts from
                 ``temper_drc_rs.run_drc()``, each with keys:
@@ -507,7 +536,13 @@ class DRCOracle:
             RunResult consumable by temper_drc consumers.
         """
         # Lazy import to avoid hard dependency on temper_drc
-        from temper_placer.validation.drc_result import CheckResult, Issue, RunResult, Severity
+        from temper_placer.validation.drc_result import (
+            CheckResult,
+            Issue,
+            Location,
+            RunResult,
+            Severity,
+        )
 
         _SEVERITY_MAP = {
             "INFO": Severity.INFO,
@@ -516,46 +551,38 @@ class DRCOracle:
             "CRITICAL": Severity.CRITICAL,
         }
 
-        # --- Group by check_name ---
-        grouped: dict[str, list[dict[str, Any]]] = {}
-        for v in violation_dicts:
-            name = v.get("check_name", "unknown")
-            grouped.setdefault(name, []).append(v)
-
-        # --- Build CheckResult per group ---
+        # --- Group by check_name (Rust kernel) ---
         check_results: list[CheckResult] = []
-        for check_name, violations in sorted(grouped.items()):
+        for check_name, records in _rs().group_violations(violation_dicts):
             issues: list[Issue] = []
             has_failure = False
-            for v in violations:
-                severity_str = v.get("severity", "ERROR").upper()
-                severity = _SEVERITY_MAP.get(severity_str, Severity.ERROR)
+            for v in records:
+                severity = _SEVERITY_MAP[v["severity"]]
                 if severity in (Severity.ERROR, Severity.CRITICAL):
                     has_failure = True
 
                 # Build Location
-                loc_dict = v.get("location")
+                loc_dict = v["location"]
                 location = None
-                if loc_dict is not None and isinstance(loc_dict, dict):
-                    from temper_placer.validation.drc_result import Location as DrcLocation
-
-                    location = DrcLocation(
+                if loc_dict is not None:
+                    location = Location(
                         x=loc_dict.get("x"),
                         y=loc_dict.get("y"),
                         layer=loc_dict.get("layer"),
                     )
 
-                issue = Issue(
-                    severity=severity,
-                    code=v.get("code", "DRC_RS_000"),
-                    message=v.get("message", ""),
-                    category=v.get("category", "drc"),
-                    check_name=check_name,
-                    affected_items=v.get("affected_items", []),
-                    location=location,
-                    details=v.get("details", {}),
+                issues.append(
+                    Issue(
+                        severity=severity,
+                        code=v["code"],
+                        message=v["message"],
+                        category=v["category"],
+                        check_name=check_name,
+                        affected_items=v["affected_items"],
+                        location=location,
+                        details=v["details"],
+                    )
                 )
-                issues.append(issue)
 
             check_results.append(
                 CheckResult(
@@ -568,7 +595,7 @@ class DRCOracle:
         return RunResult(check_results=check_results)
 
 
-def create_standard_drc_oracle(context: LossContext) -> DRCOracle:
+def create_standard_drc_oracle(context: Any) -> DRCOracle:
     """Create a DRCOracle pre-loaded with all 12 standard temper-drc checks.
 
     The oracle is configured with:
@@ -578,7 +605,7 @@ def create_standard_drc_oracle(context: LossContext) -> DRCOracle:
     - All ERC checks: floating_pins, net_connectivity, power_domain
 
     Args:
-        context: LossContext with netlist and clearance rules.
+        context: Object with netlist and clearance_rules (duck-typed).
 
     Returns:
         Configured DRCOracle instance.

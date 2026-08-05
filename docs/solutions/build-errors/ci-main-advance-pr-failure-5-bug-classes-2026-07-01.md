@@ -25,6 +25,9 @@ tags:
   - allowlist
 ---
 
+> **Status update (2026-08-03 refresh):** the `train.py` loc-cap and `initialization.py`/`zone_aware_init.py` mypy-shim examples were deleted with the JAX retirement — the loc-cap/mypy lessons are historical records; the rebase/uvx/replaceAll lessons stand.
+
+
 # CI failure cascade on PR branch after `main` advances (5 bug classes, PR #103)
 
 ## Problem

@@ -40,7 +40,9 @@
 //! named-constant-vs-division hazard), rounds nothing, and computes no
 //! distances.
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use temper_py_bridge;
 
 /// Estimate component junction temperature from placement and environment.
@@ -96,6 +98,7 @@ pub fn estimate_junction_temp(
 }
 
 /// pyo3 bridge for [`estimate_junction_temp`].
+#[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (power_w, edge_distance_mm, copper_area_mm2, ambient_c, rjc, rch, rha_base))]
 pub fn estimate_junction_temp_py(

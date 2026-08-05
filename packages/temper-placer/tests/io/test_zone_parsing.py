@@ -1,56 +1,61 @@
-from unittest.mock import MagicMock
+"""Zone parsing: non-rectangular warning + polygon extraction.
 
-from temper_placer.io.kicad_parser import _extract_board_geometry
+Wave 4 Phase 3 candidate 3: board/zone geometry moved to the Rust parse
+engine (``temper_design_bundle_python.parse_engine``); these tests drive it
+through synthetic board files and assert the same invariants the old
+kiutils-mock tests did (L-shaped zone warns, rectangular zone does not, and
+the zone polygon survives into ``ParseResult.board.zones``).
+"""
+
+from pathlib import Path
+
+from temper_placer.io.kicad_parser import parse_kicad_pcb
 
 
-class Pt:
-    def __init__(self, x, y):
-        self.X = x
-        self.Y = y
+def _board_with_zone(points: list[tuple[float, float]], name: str) -> str:
+    """A one-zone board with an Edge.Cuts outline and no footprints."""
+    pts = "\n".join(f"        (xy {x} {y})" for x, y in points)
+    return (
+        "(kicad_pcb (version 20211014) (generator test)\n"
+        "  (general (thickness 1.6))\n"
+        '  (layers (0 "F.Cu" signal) (31 "B.Cu" signal) (44 "Edge.Cuts" user))\n'
+        '  (net 0 "")\n'
+        '  (net 1 "GND")\n'
+        "  (gr_line (start 0 0) (end 200 0) (layer \"Edge.Cuts\"))\n"
+        "  (gr_line (start 200 0) (end 200 200) (layer \"Edge.Cuts\"))\n"
+        "  (gr_line (start 200 200) (end 0 200) (layer \"Edge.Cuts\"))\n"
+        "  (gr_line (start 0 200) (end 0 0) (layer \"Edge.Cuts\"))\n"
+        f'  (zone (net 1) (net_name "GND") (layer "F.Cu")\n'
+        f'    (name "{name}")\n'
+        "    (polygon\n"
+        "      (pts\n"
+        f"{pts}\n"
+        "      )\n"
+        "    )\n"
+        "  )\n"
+        ")\n"
+    )
 
 
-def test_zone_parsing_l_shape_warning():
-    mock_board = MagicMock()
-    mock_board.graphicItems = []
-    mock_board.footprints = []
-
+def test_zone_parsing_l_shape_warning(tmp_path: Path):
     # Define an L-shaped zone
     # Bounds: 0,0 to 100,100 (area 10000)
     # Polygon: (0,0), (100,0), (100,20), (20,20), (20,100), (0,100)
     # Area = 100*20 + 20*80 = 2000 + 1600 = 3600
     # Bbox area = 10000
     # Mismatch = (10000 - 3600) / 10000 = 0.64 > 0.05 -> Warning!
+    path = tmp_path / "l_shape.kicad_pcb"
+    path.write_text(
+        _board_with_zone(
+            [(0, 0), (100, 0), (100, 20), (20, 20), (20, 100), (0, 100)], "L_Zone"
+        )
+    )
 
-    mock_poly = MagicMock()
+    result = parse_kicad_pcb(path)
+    warnings = result.warnings
 
-    points = [Pt(0, 0), Pt(100, 0), Pt(100, 20), Pt(20, 20), Pt(20, 100), Pt(0, 100)]
-    mock_poly.points = points  # Newer kiutils
-    mock_poly.pts = points  # Older kiutils backup
-
-    mock_zone = MagicMock()
-    mock_zone.polygons = [mock_poly]
-    mock_zone.name = "L_Zone"
-    mock_zone.netName = "GND"
-
-    mock_board.zones = [mock_zone]
-
-    # We also need edge cuts for the board bounds to work
-    edge_cut = MagicMock()
-    edge_cut.layer = "Edge.Cuts"
-    edge_cut.start = Pt(0, 0)
-    edge_cut.end = Pt(200, 200)  # Big board
-    # A real kiutils gr_line has no `mid`; a bare MagicMock auto-vends one
-    # (any attribute access succeeds), which false-triggers the gr_arc
-    # midpoint branch in _extract_board_geometry and compares a MagicMock
-    # against a float. Pin it to None to match real gr_line semantics.
-    edge_cut.mid = None
-    mock_board.graphicItems = [edge_cut]
-
-    warnings = []
-    board = _extract_board_geometry(mock_board, warnings)
-
-    assert len(board.zones) == 1
-    zone = board.zones[0]
+    assert len(result.board.zones) == 1
+    zone = result.board.zones[0]
     assert zone.name == "L_Zone"
     # Check if warning was generated
     assert any("Approximating polygon" in w for w in warnings)
@@ -61,36 +66,15 @@ def test_zone_parsing_l_shape_warning():
     assert len(zone.polygon) == 6
 
 
-def test_zone_parsing_rectangular_no_warning():
-    mock_board = MagicMock()
-    mock_board.graphicItems = []
-    mock_board.footprints = []
+def test_zone_parsing_rectangular_no_warning(tmp_path: Path):
+    path = tmp_path / "rect_zone.kicad_pcb"
+    path.write_text(
+        _board_with_zone([(0, 0), (100, 0), (100, 100), (0, 100)], "Rect_Zone")
+    )
 
-    # Rectangular zone
+    result = parse_kicad_pcb(path)
+    warnings = result.warnings
 
-    points = [Pt(0, 0), Pt(100, 0), Pt(100, 100), Pt(0, 100)]
-    mock_poly = MagicMock()
-    mock_poly.points = points
-    mock_poly.pts = points
-
-    mock_zone = MagicMock()
-    mock_zone.polygons = [mock_poly]
-    mock_zone.name = "Rect_Zone"
-    mock_zone.netName = "GND"
-
-    mock_board.zones = [mock_zone]
-
-    edge_cut = MagicMock()
-    edge_cut.layer = "Edge.Cuts"
-    edge_cut.start = Pt(0, 0)
-    edge_cut.end = Pt(200, 200)
-    # See test_zone_parsing_l_shape_warning for why `mid` must be pinned.
-    edge_cut.mid = None
-    mock_board.graphicItems = [edge_cut]
-
-    warnings = []
-    board = _extract_board_geometry(mock_board, warnings)
-
-    assert len(board.zones) == 1
+    assert len(result.board.zones) == 1
     # Should be no warnings about approximation
     assert not any("Approximating polygon" in w for w in warnings)

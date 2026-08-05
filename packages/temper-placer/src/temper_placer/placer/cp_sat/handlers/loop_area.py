@@ -26,6 +26,43 @@ def encode_loop_area(
     """Hard ceiling: AABB area of loop components <= max_area_mm2.
 
     Uses cp_model.AddMultiplicationEquality for width*height <= max_area.
+
+    **Soundness proof (R24 item 1) — conservative bound.** The encoding
+    bounds the AABB (axis-aligned bounding box) area of the union of the
+    loop's component boxes: ``loop_w = loop_x_max - loop_x_min`` and
+    ``loop_h = loop_y_max - loop_y_min`` over every loop component, then
+    ``area = loop_w * loop_h <= max_area_units`` via
+    ``AddMultiplicationEquality`` plus a linear bound.  CP-SAT's
+    multiplication equality is exact for bounded integer variables, so
+
+        SAT of the encoding  =>  area(AABB) <= max_area_units
+
+    where ``max_area_units = mm_to_units(max_area_mm2) * units_per_mm`` —
+    dimensionally ``mm^2 * (units/mm)^2``, the same unit square the AABB
+    area (``loop_w``, ``loop_h`` in units) is expressed in.  ``mm_to_units``
+    even-rounds to the nearest integer unit, so the effective ceiling differs
+    from the nominal ``max_area_mm2`` by at most one unit in the mm^2
+    conversion (0.01 mm^2 at the default 100 units/mm) — a stated rounding
+    quantum, not a silent approximation.
+
+    Classification: ``conservative-bound``.  The AABB is an upper envelope of
+    the loop components' boxes, and the post-solve audit
+    (``audit.py::PlacementAuditor._check_loop_area``) recomputes exactly this
+    AABB area from resolved coordinates and hard-fails if it exceeds the
+    ceiling — the encoder's promise is re-derived from coordinates, not
+    trusted.  What the encoding does NOT promise: the current-loop polygon
+    measured by the physics gate (``ViolationType.LOOP_INDUCTANCE``) is a
+    separate loop-model quantity — trace segments can wander outside the
+    component AABBs, so the encoding controls the component-envelope area.
+    The feedback path (``delta_mapper.py``) derives ``max_area_mm2`` from the
+    *measured* loop inductance, so the bound is physics-derived while the
+    envelope-to-measured-loop relationship is a stated loop-model limitation,
+    not a silent assumption.
+
+    **Physics-gated surface (KTD4):** ``physics_gated: true`` — the encoded
+    ``max_area_mm2`` bound is derived from measured loop inductance
+    (``delta_mapper.py`` LOOP_INDUCTANCE branch). See the register entry in
+    ``power_pcb_dataset/physics_soundness_register.yaml``.
     """
     labels: list[AssumptionLiteral] = []
     loop_comps = ctx.loop_components.get(constraint.loop_name, [])

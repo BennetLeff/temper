@@ -4,7 +4,7 @@ Placement exporter for DRC validation.
 This module provides bridge functions to export current optimization state
 to temporary PCB files for DRC validation. It handles:
 - Soft rotation to discrete conversion (argmax of one-hot)
-- Component reference ordering from LossContext
+- Component reference ordering from the placement context's netlist
 - Board origin offset application
 - Temporary file management
 
@@ -30,7 +30,6 @@ from numpy.typing import NDArray
 
 Array: TypeAlias = NDArray
 
-from temper_placer.core.loss_types import LossContext
 from temper_placer.io.kicad_writer import PlacementUpdate, write_placements_to_pcb
 
 
@@ -138,7 +137,7 @@ def export_positions_to_temp_pcb(
     Args:
         positions: (N, 2) array of component positions in mm.
         rotations: (N, 4) soft one-hot rotation vectors.
-        context: LossContext containing netlist with component order.
+        context: Object exposing `.netlist.components` in placement order.
         template_pcb: Path to the template .kicad_pcb file.
         board_origin: (x, y) offset to add to all positions.
         temp_dir: Directory for temp files (uses system temp if None).
@@ -209,7 +208,7 @@ def export_positions_to_temp_pcb(
         raise RuntimeError(f"Failed to write temp PCB: {e}") from e
 
 
-PCBExporterFn = Callable[[Array, Array, LossContext], Path]
+PCBExporterFn = Callable[[Array, Array, Any], Path]
 
 
 def create_pcb_exporter(
@@ -238,7 +237,7 @@ def create_pcb_exporter(
         ... )
     """
 
-    def exporter(positions: Array, rotations: Array, context: LossContext) -> Path:
+    def exporter(positions: Array, rotations: Array, context: Any) -> Path:
         return export_positions_to_temp_pcb(
             positions=positions,
             rotations=rotations,
