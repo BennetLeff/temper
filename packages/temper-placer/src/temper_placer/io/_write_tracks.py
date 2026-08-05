@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import hashlib
+import uuid
 from pathlib import Path
 
 from kiutils.board import Board as KiBoard
@@ -13,6 +15,26 @@ from temper_placer.io.kicad_exporter import _validate_4_layer_output
 # Layer rank for unknown / non-canonical layer names. Sorts them after every
 # layer in the standard stackup, still totally ordered among themselves by name.
 _UNRANKED_LAYER = len(STANDARD_LAYER_ORDER)
+
+
+def _stable_tstamp(kind: str, key: tuple) -> str:
+    """A reproducible KiCad object UUID derived from the object's own identity.
+
+    KiCad requires each track and via to carry a unique ``tstamp``. This was
+    ``uuid.uuid4()``, i.e. fresh randomness on every write, which made the
+    written board byte-different on every run even at a fixed hash seed --
+    independently of emission order. Since the board's content hash is recorded
+    as measurement provenance, that alone made the artifact unreproducible.
+
+    Uniqueness is preserved, not weakened. ``key`` is the element's emission
+    key, which is total over its set (see :func:`_trace_emission_key`), so
+    distinct elements always yield distinct digests; ``kind`` domain-separates
+    the track and via spaces so the two can never collide. Nothing references
+    a track's UUID, and the previous value was random, so deriving it changes
+    no meaning -- only its reproducibility.
+    """
+    digest = hashlib.sha256(f"{kind}\x00{key!r}".encode()).digest()
+    return str(uuid.UUID(bytes=digest[:16], version=4))
 
 
 def _layer_rank(layer: object) -> tuple[int, str]:
@@ -325,22 +347,27 @@ def write_routes_to_pcb(
     if not hasattr(ki_board, "traceItems") or ki_board.traceItems is None:
         ki_board.traceItems = []
 
-    # Add routes as Segment objects, in canonical order (see docstring).
-    for route in sorted(routes, key=lambda r: _trace_emission_key(r, net_name_to_index)):
+    # Add routes as Segment objects, in canonical order (see docstring). The
+    # emission key doubles as the segment's identity, so it is computed once.
+    keyed_routes = sorted(
+        ((_trace_emission_key(r, net_name_to_index), r) for r in routes),
+        key=lambda pair: pair[0],
+    )
+    for route_key, route in keyed_routes:
         net_index = _resolve_net_index(route.net, net_name_to_index)
         if route.net and route.net not in net_name_to_index:
             warnings.append(f"Net '{route.net}' not found in board, using index 0")
 
         try:
-            import uuid
-
             segment = Segment(
                 start=Position(X=route.start[0], Y=route.start[1]),
                 end=Position(X=route.end[0], Y=route.end[1]),
                 width=route.width,
                 layer=route.layer,
                 net=net_index,
-                tstamp=str(uuid.uuid4()),  # Required: unique timestamp ID
+                # Required: unique object ID. Derived, not random -- see
+                # _stable_tstamp.
+                tstamp=_stable_tstamp("segment", route_key),
             )
             ki_board.traceItems.append(segment)
             traces_added += 1
@@ -350,19 +377,21 @@ def write_routes_to_pcb(
 
     # Add vias if provided
     if vias:
-        for via in sorted(vias, key=lambda v: _via_emission_key(v, net_name_to_index)):
+        keyed_vias = sorted(
+            ((_via_emission_key(v, net_name_to_index), v) for v in vias),
+            key=lambda pair: pair[0],
+        )
+        for via_key, via in keyed_vias:
             net_index = _resolve_net_index(via.net, net_name_to_index)
 
             try:
-                import uuid
-
                 kicad_via = Via(
                     position=Position(X=via.position[0], Y=via.position[1]),
                     size=via.width,
                     drill=via.drill,
                     layers=list(via.layers),
                     net=net_index,
-                    tstamp=str(uuid.uuid4()),
+                    tstamp=_stable_tstamp("via", via_key),
                 )
                 ki_board.traceItems.append(kicad_via)
                 vias_added += 1

@@ -44,23 +44,10 @@ NETS = (("GND", 1), ("VBUS", 2), ("AVDD", 3))
 LAYERS = ("B.Cu", "In2.Cu", "F.Cu", "In1.Cu")
 
 
-def _emitted_items(pcb_text: str) -> list[str]:
-    """The board's ``segment``/``via`` lines, in file order, tstamps removed.
-
-    The tstamp is stripped so this measures *order* alone and cannot be
-    confounded by per-object identity tokens.
-    """
-    lines = [
-        ln.strip()
-        for ln in pcb_text.splitlines()
-        if ln.lstrip().startswith("(segment ") or ln.lstrip().startswith("(via ")
-    ]
-    return [re.sub(r"\((?:tstamp|uuid) [^)]*\)", "", ln) for ln in lines]
-
-
 _CHILD = textwrap.dedent(
     """
-    import hashlib, json, re, sys
+    import hashlib
+    import json, re, sys
     from pathlib import Path
     from kiutils.board import Board as KiBoard
     from kiutils.items.common import Net
@@ -89,13 +76,24 @@ _CHILD = textwrap.dedent(
     out = tmp / "out.kicad_pcb"
     write_routes_to_pcb(template, out, routes, vias, clear_existing=True)
 
+    raw = out.read_bytes()
     lines = [
         ln.strip()
-        for ln in out.read_text().splitlines()
+        for ln in raw.decode().splitlines()
         if ln.lstrip().startswith("(segment ") or ln.lstrip().startswith("(via ")
     ]
     stripped = [re.sub(r"\\((?:tstamp|uuid) [^)]*\\)", "", ln) for ln in lines]
-    print(json.dumps({"n": len(stripped), "items": stripped}))
+    stamps = [
+        m.group(1)
+        for ln in lines
+        if (m := re.search(r'\\((?:tstamp|uuid) "?([0-9a-fA-F-]{36})"?\\)', ln))
+    ]
+    print(json.dumps({
+        "n": len(stripped),
+        "items": stripped,
+        "raw": hashlib.sha256(raw).hexdigest(),
+        "stamps": stamps,
+    }))
     """
 )
 
@@ -152,9 +150,7 @@ def test_emission_order_is_not_vacuous(per_seed):
 
 def test_emission_order_is_independent_of_pythonhashseed(per_seed):
     """The whole point: identical route set -> identical file order, every process."""
-    digests = [
-        hashlib.sha256("\n".join(r["items"]).encode()).hexdigest() for r in per_seed
-    ]
+    digests = [hashlib.sha256("\n".join(r["items"]).encode()).hexdigest() for r in per_seed]
     distinct = set(digests)
     if len(distinct) != 1:
         disagree = sum(1 for d in digests[1:] if d != digests[0])
@@ -167,6 +163,36 @@ def test_emission_order_is_independent_of_pythonhashseed(per_seed):
             "iterated directly instead of sorted by _trace_emission_key / "
             "_via_emission_key."
         )
+
+
+def test_written_board_is_byte_identical_across_processes(per_seed):
+    """The whole file -- not just its order -- must reproduce byte for byte.
+
+    Emission order was one of two independent defects. The other was a
+    ``uuid.uuid4()`` tstamp per object, which made the board byte-different on
+    every write even at a fixed hash seed. Both must stay fixed for the board
+    sha256 recorded in power_pcb_dataset/drc_ceiling.json to mean anything.
+    """
+    raws = {r["raw"] for r in per_seed}
+    assert len(raws) == 1, (
+        f"written .kicad_pcb is not byte-reproducible: {len(raws)} distinct file "
+        f"hashes over {len(SEEDS)} fresh interpreters. If the emission ORDER "
+        "test passes but this one fails, the residual nondeterminism is in line "
+        "content -- check that _stable_tstamp is still used instead of "
+        "uuid.uuid4() in write_routes_to_pcb."
+    )
+
+
+def test_derived_tstamps_are_unique(per_seed):
+    """Deriving the tstamp must not weaken the uniqueness KiCad requires."""
+    stamps = per_seed[0]["stamps"]
+    assert len(stamps) == per_seed[0]["n"], (
+        f"only {len(stamps)} of {per_seed[0]['n']} emitted objects carry a tstamp"
+    )
+    assert len(set(stamps)) == len(stamps), (
+        f"derived tstamps collide: {len(stamps) - len(set(stamps))} duplicate(s). "
+        "Distinct set elements must yield distinct object IDs."
+    )
 
 
 def test_segments_are_grouped_by_board_net_index_not_net_name(per_seed):
@@ -185,12 +211,8 @@ def test_segments_are_grouped_by_board_net_index_not_net_name(per_seed):
         if not seen or seen[-1] != net:
             seen.append(net)
 
-    assert seen == sorted(seen), (
-        f"segments are not grouped by ascending board net index: {seen}"
-    )
-    assert len(seen) == len(set(seen)), (
-        f"a net's copper is split into non-contiguous runs: {seen}"
-    )
+    assert seen == sorted(seen), f"segments are not grouped by ascending board net index: {seen}"
+    assert len(seen) == len(set(seen)), f"a net's copper is split into non-contiguous runs: {seen}"
     assert seen == [n for _, n in NETS], (
         f"expected net-index order {[n for _, n in NETS]}, got {seen}; "
         "if this is lexicographic net-name order the writer sorted by the "
@@ -223,7 +245,7 @@ def test_emission_order_is_total_over_the_route_set(spec):
     from temper_placer.core.board import Trace, Via
     from temper_placer.io._write_tracks import _trace_emission_key, _via_emission_key
 
-    index = {name: number for name, number in NETS}
+    index = dict(NETS)
 
     routes = [
         Trace(start=tuple(r[0]), end=tuple(r[1]), width=r[2], layer=r[3], net=r[4])
