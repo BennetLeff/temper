@@ -66,6 +66,10 @@ unambiguous).
   oracle and the sweep re-run to completion.
 - The 43 Batch-2 assertions/examples re-passed after the sweep (exit 0,
   suites green), confirming the revert cycle restored the bit-exact state.
+  (The driver now performs this pristine rebuild + re-run itself, so the
+  sweep ends bit-exact even when the last mutant's revert is the final
+  step; the per-mutant revert alone would leave the installed .so carrying
+  the final mutant.)
 - RED re-verification (R1f): with the `deterministic_stages` submodule
   absent (simulated by deleting the module attribute before collection,
   identical to the pre-migration build), all six suites fail to collect

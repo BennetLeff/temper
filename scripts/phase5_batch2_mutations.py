@@ -6,7 +6,10 @@ For each mutation: apply a one-line edit to the Rust kernel source, rebuild
 the temper-design-bundle extension, run the six Batch-2 suites (3 differential
 + 3 PBT), expect FAILURE, then revert. A mutation that does NOT fail the
 differential is a survivor — the campaign either closes it with a
-discriminating case or records it.
+discriminating case or records it. After the last mutant the driver rebuilds
+from pristine source and re-runs the suites, so the campaign ends bit-exact
+(the per-mutant revert alone would leave the installed .so carrying the
+final mutant — the revert does not recompile).
 
 Run: python3 scripts/phase5_batch2_mutations.py  (from repo root)
 """
@@ -189,6 +192,16 @@ def main() -> int:
     print("\n=== SUMMARY ===")
     for label, killed, _ in results:
         print(f"{'PASS(killed)' if killed else 'SURVIVED'}: {label}")
+    # The LAST mutation's rebuild happens while the mutant is still applied
+    # (the revert in `finally` does not recompile), so the installed .so
+    # still carries the final mutant afterwards. Rebuild from pristine
+    # source and re-run the suites so the campaign ends bit-exact.
+    rebuild()
+    code, out = run_suites()
+    print(f"PRISTINE REBUILD + SUITES: exit={code}")
+    if code != 0:
+        print(out[-2000:])
+        return 1
     return 0 if all(k for _, k, _ in results) else 1
 
 
