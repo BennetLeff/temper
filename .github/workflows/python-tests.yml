@@ -610,15 +610,16 @@ jobs:
       # tests/requirements/clearance_oracle/). They run in no other PR-time
       # job, so without this step a Phase-5 kernel regression would merge
       # silently — mirroring the Phase-4 validation gate above. pytest_guard
-      # floors the collection at the 126 tests counted on the migration
-      # branch, so a silently-shrunk suite fails instead of passing
-      # vacuously. The oracle packages are exercised only through these
-      # suites.
+      # floors the collection at the 131 tests counted on the migration
+      # branch (126 at Phase-5 landing, +3 from the pass-2 parity-break
+      # fixtures, +2 from the list-position/truncate review pins), so a
+      # silently-shrunk suite fails instead of passing vacuously. The oracle
+      # packages are exercised only through these suites.
       - name: Run Phase-5 report/explainability/clearance differentials (anti-vacuity gate)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         working-directory: packages/temper-placer
         run: >
-          uv run python ../../scripts/pytest_guard.py --min-tests 126 --
+          uv run python ../../scripts/pytest_guard.py --min-tests 131 --
           tests/report/test_formatter_rust_differential.py
           tests/report/test_summary_rust_differential.py
           tests/report/test_generator_rust_differential.py

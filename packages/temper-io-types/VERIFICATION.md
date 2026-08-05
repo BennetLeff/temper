@@ -17,7 +17,7 @@ until the Rust surface landed).
 | Kernel | Python origin | Verdict |
 |---|---|---|
 | `format_text` / `format_html` rendering | `formatter.py` | migrated (byte-identical text/HTML; `str(value)` and Rich's `generate_text_report` are called back / not reimplemented) |
-| `format_json` data shape (dict insertion order, concrete leaf types) | `formatter.py` | migrated — **`json.dumps(json_data)` stays Python stdlib** per the Phase-3 PyYAML/json ruling: re-tokenising JSON in Rust would change behaviour while the differential stays green. The Rust side returns the JSON data with pinned key order and int-vs-float leaf types; the shim renders it. |
+| `format_json` data shape (dict insertion order, concrete leaf types) | `formatter.py` | migrated — **`json.dumps(json_data)` stays Python stdlib** per the Phase-3 PyYAML/json ruling: re-tokenising JSON in Rust would change behaviour while the differential stays green. The Rust side returns the JSON data with pinned key order and **raw pass-through leaf types** (the oracle copies `total_elapsed_ms` / `elapsed_ms` / location attrs into the dict unchanged, so an int leaf stays an int); the shim renders it. |
 | `calculate_benchmark_result` scoring kernel | `generator.py` | migrated; `BenchmarkResult` dataclass construction stays Python |
 | `generate_summary` / key-metric extraction | `summary.py` | migrated; `BenchmarkSummary` dataclass stays Python |
 | `Trace.why` NL generation | `trace.py` | migrated |
@@ -69,12 +69,17 @@ or by construction:
    the exact `data = {...}` literal order of the oracle; `test_json_key_order_pinned`
    pins the top-level and per-check key order and the metrics dict's
    insertion order (`["z", "a"]` — deliberately *not* sorted).
-3. **int-vs-float leaf types.** Counts (`total_checks`, `passed_checks`,
+3. **Raw leaf pass-through.** Counts (`total_checks`, `passed_checks`,
    `failed_checks`, `total_issues`, `issue_count`) are set as Python `int`s;
-   measured quantities (`elapsed_ms`, `runtime_ms`, locations) as `float`s.
-   `_run_json_key` carries each leaf's concrete type into the comparison
-   key, so `5` vs `5.0` cannot hide behind numeric equality (M2 caught this
-   class).
+   measured quantities (`elapsed_ms`, `runtime_ms`, location `x`/`y`/`layer`)
+   pass through **raw** — `format_json_data_impl` copies
+   `result.total_elapsed_ms`, `check_result.elapsed_ms` and the location
+   attributes into the JSON untouched, exactly as the oracle's dict literal
+   does, so an int leaf stays an int (`5` vs `5.0` both occur and must both
+   survive; `test_json_int_elapsed_leaf_type_pinned` closes the pre-fix
+   float coercion). `_run_json_key` carries each leaf's concrete type into
+   the comparison key, so `5` vs `5.0` cannot hide behind numeric equality
+   (M2 caught this class).
 4. **Python `%` modulo.** `should_log` uses `epoch % interval == 0` with
    CPython semantics for negative epochs (`py_mod`: result takes the sign
    of the divisor); the differential pins negative-epoch and boundary
@@ -95,6 +100,21 @@ or by construction:
    entry lists; the monoid laws (associativity, identity, order
    preservation) are asserted as metamorphic relations and the fold is
    differentially driven over N traces including the empty case.
+9. **Indexable-any-sequence positions.** `significant_change`, the markdown
+   final-positions renderer and the clearance validator reach position
+   elements through Python `__getitem__` (`seq_index`), matching the
+   oracles' `new[0]`/`old[1]`, `pos[0]` and `ox, oy = comp["position"]` /
+   `dx, dy = p["offset"]` — a list-typed (or numpy-typed) position behaves
+   exactly like a tuple (review P3-3; the differential pins feed list-typed
+   positions and pad offsets through all three surfaces). Tuple-only sites
+   exist only where the oracle itself is tuple-only (`Trace.why`'s
+   `isinstance(final.value, tuple)` and `_serialize_value`'s
+   `isinstance(value, tuple)`).
+10. **Truncation negative-stop.** `_truncate`'s `text[:max_len - 3]` is a
+    negative slice for `max_len < 3`; the Rust reproduces CPython's clamp
+    (max_len=2 → `text[:-1]`, 1 → `text[:-2]`, 0 → `text[:-3]`, floored at
+    "") rather than `saturating_sub`'s "..." alone (review P3-4;
+    unit-pinned, unreachable from the 60/40/50 call sites).
 
 ## R24 determination — traced_loss.py and decision.py are NOT physics-gated
 
@@ -125,7 +145,7 @@ the pre-migration sources (the RED-commit oracle pins):
 
 | Gate | Status | Evidence |
 |---|---|---|
-| R1a behavioural A/B | PASS | 97 differential tests, bit-identical (strings byte-for-byte; floats via `float.hex()`; JSON via re-serialised `json.dumps` + concrete leaf types in the comparison key) |
+| R1a behavioural A/B | PASS | 102 differential tests, bit-identical (strings byte-for-byte; floats via `float.hex()`; JSON via re-serialised `json.dumps` + concrete leaf types in the comparison key) |
 | R1b no-regression arm | N/A, recorded | `pr_perf_compare` has **no benchmark rows for any Phase-5 surface** (its 11 arms are the Phase-2/3/4 kernels: board-netlist, bottleneck-geometry, config-loader, footprint-library, loaders, parse-engine, physics-*). These surfaces are report-time string builders invoked once per run — not hot loops — and their wall time is dominated by Python-side input marshalling, so a per-call A/B would measure the pyo3 boundary, not the kernel. The guide's Phase-4 warning ("a Rust kernel behind a per-call marshalling boundary can be net-negative") applies; no speedup claim is made. Adding harness rows is a follow-up if a caller of these surfaces ever becomes hot. |
 | R1c ≥5 non-vacuous properties/module | PASS | see the per-module table below |
 | R1d ≥3 MRs/module | PASS | see the per-module table below |
