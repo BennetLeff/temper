@@ -1643,7 +1643,6 @@ truncated-position / oval-drill fixtures pin the remaining review findings.
   are skipped for the stackup-parity assertion (design-rules parity runs on
   all six; the v6 fallback path is exercised by the restored plane/mixed
   assertions in `tests/router_v6/test_stackup_parsing.py`).
-||||||| f57b52d51
 
 ---
 
