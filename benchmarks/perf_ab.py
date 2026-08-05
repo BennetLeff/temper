@@ -398,12 +398,130 @@ def bench_footprint_library_load() -> tuple[float, float]:
     )
 
 
+# ---------------------------------------------------------------------------
+# Wave 4 Phase 3 candidate 1: board/netlist contract construction
+# ---------------------------------------------------------------------------
+
+# The verbatim pre-migration oracles live in the differential test files
+# (tests/core/_board_py_oracle.py / _netlist_py_oracle.py); importing them
+# here keeps the perf A/B measuring the same reference the behavioural A/B
+# pins (same pattern as the config-loader arms above).
+_CORE_ORACLE_DIR = REPO_ROOT / "packages/temper-placer/tests/core"
+
+# Fixed synthetic fixture (plain data, built once). A Temper-shaped board
+# (4 zones, 4 mounting holes, 2 ground domains) plus a 3-component /
+# 4-net netlist with a multi-pin net, a self-referential net and a net that
+# references an unknown component -- the same shapes the behavioural
+# differentials drive. Fixed, because the A/B ratio is only comparable
+# across runs if both arms see byte-identical input every time.
+_CONTRACTS_ZONES = (
+    ("HV_ZONE", (0, 0, 50, 80)),
+    ("POWER_ZONE", (50, 0, 100, 80)),
+    ("MCU_ZONE", (0, 80, 100, 130)),
+    ("UI_ZONE", (0, 130, 100, 150)),
+)
+_CONTRACTS_HOLES = ((5, 5), (95, 5), (5, 145), (95, 145))
+_CONTRACTS_GROUNDS = (
+    ("PGND", (0, 0, 50, 150), (50, 75)),
+    ("CGND", (50, 0, 100, 150), (50, 75)),
+)
+
+
+def _contracts_build_board(mod: Any) -> Any:
+    """Build the representative Board (including `build_indices`) on `mod`."""
+    board = mod.Board(
+        width=100.0,
+        height=150.0,
+        origin=(0.0, 0.0),
+        zones=[mod.Zone(name, bounds) for name, bounds in _CONTRACTS_ZONES],
+        mounting_holes=[mod.MountingHole(pos, 3.2) for pos in _CONTRACTS_HOLES],
+        ground_domains=[
+            mod.GroundDomain(name, bounds, star_point=sp)
+            for name, bounds, sp in _CONTRACTS_GROUNDS
+        ],
+    )
+    board.build_indices()
+    return board
+
+
+def _contracts_build_netlist(mod: Any) -> Any:
+    """Build the representative Netlist (including `build_indices`) on `mod`."""
+
+    def pin(name: str, num: str) -> Any:
+        return mod.Pin(name, num, (0.0, 0.0), net=None)
+
+    r1 = mod.Component("R1", "R_0402", (1.0, 0.5), pins=[pin("1", "1"), pin("2", "2")])
+    r2 = mod.Component("R2", "R_0402", (1.0, 0.5), pins=[pin("1", "1"), pin("2", "2")])
+    u1 = mod.Component(
+        "U1", "QFN-32", (5.0, 5.0), pins=[pin("A", "1"), pin("B", "2")], fixed=True
+    )
+    nets = [
+        mod.Net("GND", [("R1", "1"), ("R2", "1"), ("U1", "A")]),
+        mod.Net("VCC", [("R1", "2"), ("U1", "B")]),
+        mod.Net("SELF", [("U1", "A"), ("U1", "B")]),
+        mod.Net("DANGLING", [("NOPE", "1"), ("R2", "2")]),
+    ]
+    netlist = mod.Netlist(components=[r1, r2, u1], nets=nets)
+    netlist.build_indices()
+    return netlist
+
+
+def bench_contracts_construction() -> tuple[float, float]:
+    """A/B Board/Netlist construction (Rust pyclasses) vs the verbatim oracles.
+
+    Pure-delegation surface: the pyclass constructors mirror the dataclass
+    ``__init__`` field-for-field and the ``build_indices`` rebuild is
+    identical, so this is the *no-regression-beyond-noise* arm of R1b -- no
+    speedup claim is made. The parity assertion builds both arms from the
+    same argument tuples and compares the full reprs (the same bit-exact
+    check the behavioural differentials pin), so a performance number for an
+    implementation that drifted from its oracle is rejected on the spot.
+    """
+    import temper_design_bundle_python as _tdb
+
+    board_oracle = _load_module_from_path(
+        "_perf_ab_board_oracle", _CORE_ORACLE_DIR / "_board_py_oracle.py"
+    )
+    netlist_oracle = _load_module_from_path(
+        "_perf_ab_netlist_oracle", _CORE_ORACLE_DIR / "_netlist_py_oracle.py"
+    )
+    rs_board = _tdb.board_contracts
+    rs_netlist = _tdb.netlist_contracts
+
+    def run_rust() -> str:
+        return repr(
+            (
+                _contracts_build_board(rs_board),
+                _contracts_build_netlist(rs_netlist),
+            )
+        )
+
+    def run_oracle() -> str:
+        return repr(
+            (
+                _contracts_build_board(board_oracle),
+                _contracts_build_netlist(netlist_oracle),
+            )
+        )
+
+    if run_rust() != run_oracle():
+        raise AssertionError(
+            "perf A/B arms disagree for board/netlist contracts_construction -- "
+            "the behavioural A/B (test_board_rust_differential.py / "
+            "test_netlist_rust_differential.py) should be failing too"
+        )
+    return _time_us(run_rust, DEFAULT_WARMUP, DEFAULT_REPEATS), _time_us(
+        run_oracle, DEFAULT_WARMUP, DEFAULT_REPEATS
+    )
+
+
 _BENCHMARKS: dict[tuple[str, str], Callable[[], tuple[float, float]]] = {
     ("bottleneck-geometry", "cell_capacity_batch"): bench_bottleneck_cell_capacity,
     ("bottleneck-geometry", "hard_blocked_batch"): bench_bottleneck_hard_blocked,
     ("config-loader", "preprocess_config"): bench_config_loader_preprocess,
     ("footprint-library", "from_yaml_string"): bench_footprint_library_load,
     ("parse-engine", "parse_kicad_pcb"): bench_parse_kicad_pcb,
+    ("board-netlist", "contracts_construction"): bench_contracts_construction,
 }
 
 
