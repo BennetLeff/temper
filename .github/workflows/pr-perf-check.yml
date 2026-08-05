@@ -128,6 +128,21 @@ jobs:
       - name: Install dependencies
         run: uv sync --all-packages
 
+      # The unit tests for the comparator (scripts/tests/test_pr_perf_compare.py)
+      # are a trigger path of this workflow -- both the PR and the push trigger
+      # list them, and the script itself is too -- but until this step they ran
+      # NOWHERE: this workflow had no pytest step, and no job in python-tests.yml
+      # owns the perf gate (its scripts/tests steps sit next to the gate each
+      # test belongs to, and this gate lives in THIS workflow, not in
+      # python-tests.yml). A regression in pr_perf_compare.py therefore passed
+      # CI silently. This step closes that hole. It runs in BOTH modes like the
+      # A/B itself -- the suite is pure-python and finishes in under a second,
+      # and the push/capture mode is exactly where the windowing logic is most
+      # likely to bit-rot unseen. Placed before the A/B: a broken comparator
+      # fails here for pennies instead of after a ~5-20 minute measurement.
+      - name: Run perf-compare unit tests
+        run: uv run python -m pytest scripts/tests/test_pr_perf_compare.py -q
+
       # The performance A/B runs both arms -- the verbatim pre-migration Python
       # oracle and the Rust kernel that replaced it -- in one process, and
       # reports their ratio. See benchmarks/perf_ab.py for why the ratio, and
