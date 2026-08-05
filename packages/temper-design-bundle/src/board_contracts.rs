@@ -748,11 +748,18 @@ impl LayerStackup {
         // Chained `0 <= layer_idx < len(...)` short-circuits on the first
         // false comparison, so a non-numeric index that would raise on `<`
         // still raises here only when `0 <= idx` succeeded — as in Python.
+        // Out-of-range indexes (negative, >= len) fail the guard and return
+        // False, exactly like the oracle — the tuple index is never reached.
         if !zero.le(layer_idx)? || !layer_idx.lt(&len)? {
             return Ok(false);
         }
+        // Tuple-index the layers through CPython's own `get_item` so the
+        // indexing semantics are the oracle's: a float index raises
+        // `TypeError: tuple indices must be integers or slices, not float`
+        // (a `usize` extract would raise different text), and `__index__`
+        // coercion (e.g. `True` -> layers[1]) is CPython's own.
         layers
-            .get_item(layer_idx.extract::<usize>()?)?
+            .get_item(layer_idx)?
             .getattr("layer_type")?
             .eq("plane")
     }
