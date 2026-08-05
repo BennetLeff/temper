@@ -2107,8 +2107,8 @@ commit `6290942be`).
   quantity: no constraint is encoded, no post-solve audit has a referent,
   and the R24 Chebyshev/BMC/post-solve obligations do not apply. The
   R1h determination is recorded per module: `tolerances.py` — N/A (no
-  physics-gated constraint); `monte_carlo.py` — see the JUSTIFIED-KEEP
-  record in the Phase 4 leftovers PR (numpy RNG + numpy reductions).
+  physics-gated constraint); `monte_carlo.py` — N/A (the simulator gates
+  nothing; it reports a yield estimate — see the monte_carlo section below).
 
 ## Documented deviations (per R1, recorded here)
 
@@ -2139,3 +2139,217 @@ commit `6290942be`).
    CPython's `==` compares it against the float candidates — this path is
    covered by the same rich-compare, so it matches. No consumer relies on
    it.
+
+---
+
+# Monte-Carlo tolerance simulator — Verification
+
+The Monte-Carlo simulator (`src/manufacturing_monte_carlo.rs`) is the Wave 4
+Phase 4 leftovers slice's third migration: the four dataclasses
+(`DistributionParams`, `ManufacturingVariables`, `MonteCarloConfig`,
+`MonteCarloResult`) and the `MonteCarloSimulator` with its sampling loop and
+the clearance-simulation kernel, ported from
+`temper_placer/manufacturing/monte_carlo.py` (the Python module is now a
+pure-delegation re-export of the `temper_design_bundle_python` pyclasses).
+Home crate: `temper-design-bundle` — the data-contract home (the sibling
+`manufacturing/tolerances.py` migration landed here; the simulator's
+config/result types are contract-adjacent, and the RNG boundary lives in
+numpy, not in a geometry crate).
+
+## Induction applicability
+
+**Mathematical induction IS applicable to the kernel and is discharged
+below.** `clearance_min_distances` is an iterative fold over the sample
+count S and the N×N component-pair grid; the claim is that every iteration
+produces bit-identical values to numpy's elementwise chain on the same
+inputs.
+
+*Induction claim (K(S, N)): for samples `0..S` and pairs `0..N²`, the Rust
+kernel's per-sample min distances equal `np.min(dist, axis=(1,2))` for the
+oracle's construction, bit-for-bit.*
+
+*Base case.* S = 0: both sides produce an empty vector (the oracle's
+`np.min` over `(0, N, N)` reduces zero slices — no elements). N = 0: both
+sides raise the identical `ValueError` (see the error-parity section). For
+S ≥ 1, N ≥ 1 the diagonal pair (i == j) is masked to exactly `1e6` on both
+sides, so the fold always has at least one element and the accumulator
+initialisation (`+∞`) can never leak into the result.
+
+*Step.* Each (si, i, j) iteration computes the oracle's elementwise chain
+with the identical parenthesization, each a single IEEE-754 double
+operation:
+
+- `s_pos = positions + stack([reg_x, reg_y])` — one `f64` add per
+  coordinate (numpy's add on float64 operands is one correctly-rounded op;
+  dtype promotion to float64 is exact for every real numpy dtype: float32→
+  float64 is lossless, ints convert via Python's exact `float()`);
+- `s_widths = bounds + 2 * etch` — one multiply by the exact power of two
+  `2.0` (no rounding) followed by one add;
+- `dx/dy = |a - b|`, `mw/mh = (a + b) / 2.0` — one subtract, one add, one
+  exact halving;
+- `sep = dx - mw` — one subtract;
+- `dist = np.maximum(sep_x, sep_y)` — reproduced by `np_max`: NaN when
+  either operand is NaN (numpy's `maximum` propagates NaN, Rust's
+  `f64::max` discards it — the divergence class), else the larger operand.
+  The `b > a` tie-break is value-identical to numpy for every value this
+  construction can produce: `sep` can never be `-0.0` (`|a - b|` is `+0.0`
+  or positive; `0.0 - 0.0` and `0.0 - (-0.0)` are both `+0.0` in
+  round-to-nearest), so the only tie numpy's max can see is equal positives,
+  where either choice has the same bits;
+- the eye-mask `np.where(mask, 1e6, dist)` — `1e6` is exact in f64, applied
+  to exactly the i == j entries;
+- the reduction `np.min(dist, axis=(1,2))` — `np_min` is NaN-propagating
+  (same divergence class, verified against numpy: `np.min` over a NaN
+  element returns NaN regardless of order) and order-independent for every
+  other value the construction produces (no `-0.0` candidates — the mask
+  contributes `1e6`, positive; no NaN-free order sensitivity in IEEE min).
+
+Rust does not fuse multiply-add without an explicit `mul_add` (rustc
+defaults to strict IEEE, no fast-math), so each op's rounding is numpy's.
+By induction, K(S, N) holds for all S, N; the fold is exact and the kernel
+output is bit-identical to the oracle's `min_dists`.
+
+The module's remaining structure (the sampling loop and the aggregation
+tail) is not size-parameterized computation: the sampling loop calls numpy's
+Generator for each of six fixed parameter names, and the aggregation tail
+calls numpy itself (see below).
+
+## Structural proof
+
+**Claim (bit-identical parity).** For every public symbol, the pyclass
+behaviour is bit-identical to the pinned pre-migration Python
+implementation (`packages/temper-placer/tests/manufacturing/_monte_carlo_py_oracle.py`,
+commit `58b302ce8`).
+
+*Proof by structural cases.*
+
+1. **Dataclasses.** `DistributionParams`, `ManufacturingVariables`,
+   `MonteCarloConfig`, `MonteCarloResult` store every field as `Py<PyAny>`
+   (type-preserving: an int `mean=5` stays an int, exactly as the Python
+   dataclass stores it), with `#[pyo3(get, set)]` mutation and a
+   `__dict__` (`#[pyclass(dict)]`) so attribute injection still works.
+   Defaults are built by the type-preserving `opt_or` helper: `0.0`,
+   `"normal"`, `1000`, `42`, the five-percentile tuple. `__repr__` is
+   assembled by the crate's `dataclass_repr`/`repr_of` helpers (CPython's
+   own `repr` on every stored object), `__eq__` by `dataclass_eq`
+   (field-tuple comparison with the dataclass's `other.__class__ is
+   self.__class__` gate), and `__hash__` raises CPython's exact
+   `unhashable type: 'X'` — the mutable-dataclass `__hash__ = None`
+   contract.
+
+2. **The RNG stream (KTD9 boundary).** `MonteCarloSimulator.__init__`
+   builds the generator with numpy's own `np.random.default_rng(config.seed)`
+   and stores it as `_rng`; `sample_parameters` calls
+   `rng.normal(mean, std_dev, size=n)` / `rng.uniform(min_v, max_v, size=n)`
+   through Python with the oracle's exact arguments (the uniform fallback
+   `mean ± 1.0` is Python arithmetic on the stored objects) over the six
+   parameter names in the oracle's declaration order, building a real
+   Python dict in that order. Ziggurat/PCG64 are numpy internals — no
+   independent implementation is bit-reproducible — so the stream is
+   numpy's on both sides, by construction; the differential pins it (same
+   seed ⇒ identical arrays; consecutive calls advance identically; the
+   error path consumes draws identically — `test_rng_state_after_error_matches`).
+
+3. **The clearance kernel.** The induction proof above. The kernel's only
+   inputs are the sampled arrays and the caller's `positions`/`bounds`,
+   widened to f64 exactly (float32→float64 lossless; ints via Python's
+   `float()`), and its only output is the per-sample min-distance vector —
+   everything downstream runs through numpy.
+
+4. **The aggregation tail (KTD9 boundary).** `np.asarray(min_dists)`,
+   `min_dists >= required_clearance`, `passes.astype(np.float32)`,
+   `np.mean` (yield and stats) and `np.std` are numpy calls on both sides
+   with the oracle's call order. numpy's `mean`/`std` use pairwise
+   summation whose block size is SIMD-dispatch-dependent (build and
+   platform), so an independent Rust replica would be bit-exact on one
+   build and divergent on another — a library semantic, not portable
+   compute. Because the kernel output is bit-identical (case 3), the numpy
+   tail is bit-identical by construction. The `float()` conversions (on
+   `np.float32` yield and `np.float64` stats) are exact widenings.
+
+5. **Error parity.** `N == 0` raises numpy's exact
+   `ValueError: zero-size array to reduction operation minimum which has no
+   identity` at the same point in the call sequence as the oracle's
+   `np.min` (after sampling — the RNG stream state at raise time is
+   identical); 0-D/1-D `positions`/`bounds` raise the oracle's fancy-index
+   `IndexError` texts (`array is N-dimensional, but 2/3 were indexed` — the
+   `None` index does not count), and plain lists raise numpy's
+   `TypeError: list indices must be integers or slices, not tuple`. All
+   verified byte-for-byte against numpy 2.3.5 by the differential.
+
+## Evidence
+
+- Differential (R1a/R1f, TDD red→green):
+  `packages/temper-placer/tests/manufacturing/test_monte_carlo_rust_differential.py`
+  (34 tests; the RED state was demonstrated: the file fails to collect with
+  `AttributeError: module 'temper_design_bundle_python' has no attribute
+  'MonteCarloSimulator'` before the Rust pyclasses landed). Comparison
+  conventions: numpy arrays as `(dtype, shape, tobytes())`, floats via
+  `float.hex()` (NaN included — `'nan' == 'nan'`), concrete leaf types in
+  the keys, errors by (type, message) via `canon_call`.
+- PBT (R1c): `test_monte_carlo_pbt.py` — 8 hypothesis properties
+  (P1 closed-form kernel, P2 clearance monotonicity on one stream, P3
+  two-component closed form with the float-computed separation, P4
+  same-stream etch comparison, P5/P5b uniform bounds incl. the fallback,
+  P6 shapes/dtypes incl. n=0, P7 result metadata), each fail-capable.
+- Metamorphic (R1d): `test_monte_carlo_pbt.py` — MR1 (seed invariance
+  without variables — no RNG consumption), MR2 (component-order permutation
+  invariance — bit-exact, the pair multiset is unchanged), MR3
+  (uniform-fallback ≡ explicit `mean ± 1.0` bounds — identical stream,
+  bit-identical draws), MR4 (power-of-two scaling invariance — every IEEE
+  op on `2**m`-scaled operands is itself an exponent shift, so stats scale
+  bit-exactly and yield is invariant; a translation MR was deliberately NOT
+  claimed — `(p + t) + reg` rounds differently from `p + (reg + t)`).
+- Anti-vacuity: 10 mutants, all caught by the differential/PBT suites:
+  `np_max` NaN propagation dropped (caught by the NaN y-column case),
+  `np_max` last-wins (14 failures), `reg_y` replaced by `reg_x`, self-mask
+  `1e6 → 0.0`, min-reduce init `+∞ → 0.0`, etch dropped from heights,
+  `bounds + 2*etch` reparenthesized, `np_min` NaN propagation dropped
+  (caught by the NaN x/y-column cases), `sep_y` dropped, `>=` → `>` (the
+  exact-equality boundary). Each was applied to the Rust source, the suites
+  were run against the rebuilt extension, and the failure was confirmed
+  before reverting (campaign log in the PR).
+- Rust unit tests: `manufacturing_monte_carlo.rs::kernel_tests` — NaN
+  propagation both sides for `np_max`/`np_min`, the signed-zero tie bits,
+  the masked diagonal, the sentinel single-component case, etch expansion,
+  NaN-through-reduction.
+- Rust practices (R1g): no `unwrap`/`expect` in non-test code; `PyResult`
+  everywhere; `cargo clippy --release --features python` clean (0 warnings);
+  the pyo3 boundary methods are `catch_unwind`-wrapped by pyo3 0.29's
+  generated trampolines.
+- Performance A/B (R1b): the kernel is O(S·N²) real compute — but with no
+  production consumers (the module's only callers are the tests and the
+  `manufacturing/monte_carlo.py` re-export), a `perf_ab` registration would
+  measure a synthetic hot path. Per the plan's R2 this is the
+  **"no regression beyond noise"** arm: the migrated simulator calls numpy
+  for sampling and aggregation exactly as the oracle did, and the kernel is
+  bit-identical; no speedup is claimed. (No `perf_ab` registration —
+  recorded, not skipped.)
+- R1h (physics discipline): NOT APPLICABLE. `run_clearance_simulation`
+  computes a yield *estimate*; it encodes no CP-SAT constraint gating a
+  physics quantity, computes no quantity a post-solve audit could recompute
+  from placement coordinates, and feeds no solver. The R24
+  Chebyshev/BMC/post-solve obligations have no referent. (Recorded per the
+  R1h dispatch instruction: monte_carlo/tolerances are uncertainty/
+  probability compute — this module gates nothing.)
+
+## Documented deviations (per R1, recorded here)
+
+1. **`MonteCarloSimulator(variables)` default config is per-instance.** The
+   Python oracle evaluates `config: MonteCarloConfig = MonteCarloConfig()`
+   once at definition time and shares that instance across all
+   default-config simulators (mutation of it would leak across simulators —
+   a footgun, not a contract); the pyclass builds a fresh default per
+   construction. Unobservable through any value a consumer reads — the
+   differential compares full behavior with an explicit default-config
+   construction (`test_run_parity_default_config`). A `LazyLock<Py<...>>`
+   static is not `Sync` because the config holds a Python tuple.
+2. **Input envelope.** `positions`/`bounds` must be 2-D real-valued
+   sequences (numpy arrays or sequence-of-sequences). ndim ≥ 3 arrays
+   compute something degenerate in the oracle (4-D broadcasts); they raise
+   a pyo3 extraction `TypeError` here. Complex dtypes are outside the
+   envelope. Both are recorded, not silently matched; no consumer has them.
+3. **Malformed-input error texts** are replicated for the 0-D/1-D/list
+   classes (verified byte-for-byte); the exact `TypeError` text numpy's
+   fancy indexing emits for ndim ≥ 3 inputs is not replicated (the oracle
+   computes instead of raising there).

@@ -29,6 +29,7 @@ mod reference_loader;
 mod parse_engine;
 #[cfg(feature = "python")]
 mod manufacturing_tolerances;
+mod manufacturing_monte_carlo;
 
 #[cfg(feature = "python")]
 mod loaders;
@@ -247,6 +248,12 @@ mod python {
         // ported from temper_placer/manufacturing/tolerances.py (see
         // manufacturing_tolerances.rs).
         crate::manufacturing_tolerances::register(module)?;
+
+        // Wave 4 Phase 4 leftovers slice: the Monte-Carlo tolerance
+        // simulator ported from temper_placer/manufacturing/monte_carlo.py
+        // (see manufacturing_monte_carlo.rs — the numpy RNG/aggregation
+        // boundary is argued in that module's docstring).
+        crate::manufacturing_monte_carlo::register(module)?;
 
         // Wave 4 Phase 3 candidate 2: the YAML loaders ported from
         // temper_placer/io/netclass_loader.py and
