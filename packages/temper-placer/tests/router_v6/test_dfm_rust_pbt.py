@@ -296,11 +296,13 @@ def test_p14_rust_power_net_membership_is_a_boundary_match() -> None:
     def prop(rail, sep, glue, from_layer, to_layer) -> None:
         # a non-word separator preserves the boundary
         assert is_power(f"A{sep}{rail}{sep}B" if sep else rail)
-        # a word character glued on the right destroys it, unless the glued
-        # name is itself an alternative (`VDD` + `_CORE` -> `VDD_CORE`)
-        glued = f"{rail}{glue}"
-        if glue and glued not in ("VDD_", "GND_"):
-            assert is_power(glued) == is_power(glued.rstrip("_")) or not is_power(glued)
+        # ... and a word character glued on the right destroys it. `_` is a
+        # word character too, which is why `A_VDD` and `NET_VCC_FILT` do not
+        # match while `VDD-1` and `VCC/2` do. None of `rail + glue` is itself
+        # an alternative for these seven rails (`VDD_CORE` would be, which is
+        # why `_CORE` is not in the glue set), so the claim is unconditional.
+        if glue:
+            assert not is_power(f"{rail}{glue}"), f"{rail}{glue} must not match"
         # membership gates the layer test entirely
         assert not connects(rail, from_layer, to_layer, list(LAYER_NAMES), [])
         touches = from_layer in ("In1.Cu", "In2.Cu") or to_layer in ("In1.Cu", "In2.Cu")
