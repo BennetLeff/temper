@@ -204,7 +204,7 @@ R1 gates apply in full.
 | Gate | Status | Evidence |
 |---|---|---|
 | R1a bit-identical vs verbatim oracles | **PASS** | 6 differential files, 100+ tests, `float.hex()` + type-carrying `canon`; oracles are the pinned verbatim modules (header-only diff) |
-| R1b no-regression arm | **PASS (measured, registration deferred)** | local shim-vs-oracle A/B: ratio 0.909, parity sanity inside the bench; NOT registered in `_BENCHMARKS` — named blocker: an unbaselined key reddens every open PR (happened twice; #757) and darwin rows are invalid per the platform-bias rule. Re-decidable when the main capture path rows the key |
+| R1b no-regression arm | **NOT MET — claim downgraded** | the earlier `ratio 0.909` record had no committed artifact (no bench function/fixture/`_BENCHMARKS` entry/script in this PR) and is withdrawn as a measurement; local-only numbers, date and deferral rationale are in the VERIFICATION.md R1b record, which also names the unmeasured per-call `list(self.scores)` O(n) marshalling cost and the follow-up: commit a hubs perf arm with a bench + fixture once the leaf branch merges |
 | R1c >= 5 non-vacuous properties | **PASS** | 5 hypothesis properties per module (30 total), each with the boundary probes that caught real PBT bugs during shake-out |
 | R1d >= 3 MRs | **PASS** | 3 metamorphic relations per module (18 total) |
 | R1e VERIFICATION.md | **PASS** | "Wave 4 Phase 5 — deterministic hubs" section in `packages/temper-design-bundle/VERIFICATION.md`: structural soundness proof (induction non-applicable — bounded straight-line kernels), documented deviations, mutation table |
@@ -246,12 +246,26 @@ green after every revert.
 
 ## Documented edge divergences (recorded, not replicated)
 
+Updated after the adversarial review (2026-08-05): the malformed-config
+divergence below is now scoped to `bounds` only — the review showed the
+prior note's justification ("only reachable with hand-mutated configs the
+orchestrator cannot produce") was **false** for `max_size`/`can_expand`:
+`AutomatedZeroDRC._get_zone_config` (orchestrator.py:115-123) passes user
+YAML through unvalidated (`zone.get("max_size", …)` / `zone.get("can_expand", …)`),
+so `can_expand: right` or `max_size: 20` in a config file reaches the oracle
+unchanged. Both fields now raise the oracle's exact errors on the kernel side
+(pinned by the new differential cases); `bounds` stays a recorded divergence
+because the orchestrator CONSTRUCTS it from `bounds_ratio` and cannot produce
+a malformed value.
+
 - `ZoneAdjustment.delta_width/height` are f64 in the shim where the oracle
   yields int for int-typed configs (values bit-identical; type recorded in
   VERIFICATION.md).
-- Malformed zone-config `bounds`/`max_size`/`can_expand: None` raise in the
-  oracle (unpack/TypeError) but are skipped by the kernel — only reachable
-  with hand-mutated configs the orchestrator cannot produce.
+- Malformed zone-config `bounds` (non-2x2 shape) raise in the oracle
+  (`len()` TypeError for scalars, element-unpack TypeError for flat lists)
+  but are skipped by the kernel — reachable only through hand-mutated configs
+  or a non-orchestrator caller; the orchestrator builds bounds from
+  `bounds_ratio` and cannot produce them.
 - `drc_parser`: a non-str item `description` (e.g. `null`) becomes `""` in
   the kernel where the oracle appends it verbatim; KiCad always emits strings.
 - `penalty`/`score_at` non-finite inputs: the kernel raises the oracle's
@@ -260,4 +274,58 @@ green after every revert.
 - `violation_mapper` shim: `pos=()` (empty tuple) would raise IndexError in
   the shim's unpack where the oracle's truthiness check skips it; `pos` is
   `tuple[float,float] | None` by contract.
+
+## Adversarial-review fixes (2026-08-05)
+
+All findings fixed on this branch (RED first — each new differential case
+failed against the pre-fix kernel, then passed after the Rust change):
+
+- **P1 NaN cell_size_mm silent filter disable**: `filter_seed_kernel`'s guard
+  was `cell_size_mm > 0.0`, False for NaN → valid_map=False → score 0.0 →
+  accept everything. Guard now shaped like `bottleneck_score_at`'s
+  (`!(… <= 0.0)`), so NaN flows to `py_floor_div` and raises the oracle's
+  `ValueError: cannot convert float NaN to integer`. Pinned for all three
+  kernels that consume cell size (`test_score_at_nonfinite_cell_size_parity`,
+  `test_filter_seed_nan_cell_size_error_parity`,
+  `test_penalty_nonfinite_cell_size_direct_kernel`).
+- **P1 zone_adjuster fallbacks flipped loud failures into silent geometry
+  changes**: `can_expand` is now read with the oracle's iteration semantics
+  (string → characters → no directions → no adjustment; non-iterable →
+  TypeError '<T> object is not iterable'; tuple elements match nothing) and
+  `max_size` with CPython 2-target unpack semantics (scalar/None → TypeError
+  'cannot unpack non-iterable <T> object'; 1-/3-tuples → exact ValueError;
+  2-char string → the oracle's `<` TypeError). Absent keys still take the
+  defaults; PRESENT None raises like the oracle. Pinned by
+  `test_can_expand_non_list_parity` / `test_max_size_non_pair_parity` /
+  `test_present_none_keys_are_not_defaults`.
+- **P2 short-scores BottleneckMap**: `score_at` and `filter_seed` raise
+  `IndexError: tuple index out of range` for an in-grid index beyond
+  `len(scores)` (loader truncation makes this production-reachable) instead
+  of returning 0.0. Pinned by `test_score_at_short_scores_index_error_parity`
+  and `test_filter_seed_short_scores_error_parity`.
+- **P2 seed-unpack error classes**: `x, y = position` uses CPython
+  UNPACK_SEQUENCE semantics — 1-tuple → ValueError 'not enough values to
+  unpack (expected 2, got 1)', non-sequence → TypeError 'cannot unpack
+  non-iterable <T> object' (the rewritten GetIter message), str elements →
+  the oracle's subtraction TypeError. Pinned by
+  `test_filter_seed_unpack_error_parity`.
+- **P2 ChannelIndex.penalty NaN asymmetry**: the guard is now shaped like the
+  oracle's `has_grid()` (`!(cell_size_um > 0.0)`): NaN → 0.0 without raising;
+  +inf passes and floors into cell (0, 0). Pinned by
+  `test_penalty_nonfinite_cell_size_direct_kernel`.
+- **P2 drc_parser non-list items**: `items` is now iterated with Python
+  iteration semantics — int/None → TypeError '<T> object is not iterable',
+  string/dict → AttributeError on the first item without `.get` — instead of
+  silently becoming `[]`. Pinned by `test_non_list_items_error_parity`.
+- **P2 seed_filter oracle arm shared the Rust score_at**: the oracle arm
+  imported `BottleneckMap` from the SHIM (Rust-delegating), so both
+  differential arms ran the Rust scoring kernel and scoring regressions were
+  invisible by construction. The arm now imports the map from the
+  bottleneck_map ORACLE module (pure Python); `test_oracle_arm_uses_pure_python_map`
+  pins the structural property.
+- **P2 R1b '0.909' had no artifact**: the claim is downgraded (see the R1b
+  table row and the VERIFICATION.md R1b record) — the measurement was
+  local-only and not committed; the per-call `list(self.scores)` O(n)
+  marshalling copy is recorded as an unmeasured hot-path cost with a named
+  follow-up to commit a hubs perf arm once the leaf branch merges.
 

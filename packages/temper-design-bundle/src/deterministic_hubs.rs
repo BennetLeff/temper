@@ -51,11 +51,21 @@
 //! matching `re`'s). Non-ASCII digits in a description would make Python's
 //! `float()` raise on the oracle side; the kernel calls `builtins.float` so
 //! the failure mode matches.
+//!
+//! Error-parity helpers: `py_unpack_2` transcribes CPython's UNPACK_SEQUENCE
+//! (the seed position unpack and the zone-config `max_size` unpack, including
+//! the rewritten `cannot unpack non-iterable <T> object` TypeError),
+//! `coerce_position_elem`/`coerce_max_size_elem` reproduce the oracle's
+//! arithmetic TypeErrors for non-numeric elements, and the zone-config
+//! `can_expand` / DRC `items` reads use Python iteration semantics. The
+//! degenerate-map guards are shaped like the oracle's (`!(x > 0.0)`, not
+//! `x <= 0.0`) so NaN reaches the oracle's error path instead of silently
+//! disabling the map (see the differential error-parity cases).
 
 use std::collections::HashMap;
 use std::sync::OnceLock;
 
-use pyo3::exceptions::{PyOverflowError, PyTypeError, PyValueError};
+use pyo3::exceptions::{PyIndexError, PyOverflowError, PyTypeError, PyValueError};
 use pyo3::prelude::*;
 use pyo3::types::{PyBool, PyDict, PyModule, PySet, PyString};
 use regex::Regex;
@@ -130,17 +140,86 @@ fn py_float<'py>(py: Python<'py>, arg: &Bound<'py, PyAny>) -> PyResult<f64> {
     builtin_call(py, "float", arg)?.extract::<f64>()
 }
 
+/// Python `type(obj).__name__` — used to reproduce CPython's error messages.
+fn type_name_of(obj: &Bound<'_, PyAny>) -> String {
+    obj.get_type()
+        .name()
+        .ok()
+        .map(|n| n.to_string())
+        .unwrap_or_else(|| "object".to_string())
+}
+
+/// Replicate Python's 2-target unpack `a, b = obj` (CPython UNPACK_SEQUENCE)
+/// with exact error classes and messages. Iteration goes through
+/// `PyObject_GetIter`, but UNPACK_SEQUENCE REWRITES the TypeError for
+/// non-iterables into `cannot unpack non-iterable <T> object` (ceval.c
+/// `UNPACK_SEQUENCE`) — the generic `'<T>' object is not iterable` message is
+/// what a plain `for` loop raises, not an unpack. Short/long iterables raise
+/// the exact not-enough/too-many `ValueError` texts; strings iterate to
+/// characters and dicts to keys, exactly like the oracle's unpack sites (the
+/// seed positions `x, y = position` and the zone-config `max_width, max_height
+/// = max_size`).
+fn py_unpack_2<'py>(
+    py: Python<'py>,
+    obj: &Bound<'py, PyAny>,
+) -> PyResult<(Bound<'py, PyAny>, Bound<'py, PyAny>)> {
+    let iter = match obj.try_iter() {
+        Ok(it) => it,
+        Err(err) if err.is_instance_of::<PyTypeError>(py) => {
+            return Err(PyTypeError::new_err(format!(
+                "cannot unpack non-iterable {} object",
+                type_name_of(obj)
+            )));
+        }
+        Err(err) => return Err(err),
+    };
+    let items = iter.collect::<PyResult<Vec<_>>>()?;
+    if items.len() < 2 {
+        return Err(PyValueError::new_err(format!(
+            "not enough values to unpack (expected 2, got {})",
+            items.len()
+        )));
+    }
+    if items.len() > 2 {
+        return Err(PyValueError::new_err("too many values to unpack (expected 2)"));
+    }
+    Ok((items[0].clone(), items[1].clone()))
+}
+
+/// Coerce one unpacked seed-position element as the oracle's `x - origin_x`
+/// arithmetic would: numerics (int/float/bool) subtract; anything else raises
+/// the oracle's exact `TypeError: unsupported operand type(s) for -: '<T>'
+/// and 'float'` (CPython's binary-op failure for the subtract).
+fn coerce_position_elem(item: &Bound<'_, PyAny>) -> PyResult<f64> {
+    item.extract::<f64>().map_err(|_| {
+        PyTypeError::new_err(format!(
+            "unsupported operand type(s) for -: '{}' and 'float'",
+            type_name_of(item)
+        ))
+    })
+}
+
+/// Coerce one unpacked `max_size` element as the oracle's `min(width +
+/// expansion, max_width)` comparison would: numerics compare; anything else
+/// raises the oracle's exact `TypeError: '<' not supported between instances
+/// of '<T>' and 'float'` (CPython's richcompare failure for the `<`).
+fn coerce_max_size_elem(item: &Bound<'_, PyAny>) -> PyResult<f64> {
+    item.extract::<f64>().map_err(|_| {
+        PyTypeError::new_err(format!(
+            "'<' not supported between instances of '{}' and 'float'",
+            type_name_of(item)
+        ))
+    })
+}
+
 /// CPython `re.search` with a non-str subject raises
 /// `TypeError: expected string or bytes-like object, got '<type>'` — replicate
 /// the message for non-str descriptions so error parity holds.
 fn not_string_err(_py: Python<'_>, obj: &Bound<'_, PyAny>) -> PyErr {
-    let name = obj
-        .get_type()
-        .name()
-        .ok()
-        .map(|n| n.to_string())
-        .unwrap_or_else(|| "object".to_string());
-    PyTypeError::new_err(format!("expected string or bytes-like object, got '{name}'"))
+    PyTypeError::new_err(format!(
+        "expected string or bytes-like object, got '{}'",
+        type_name_of(obj)
+    ))
 }
 
 /// Python `int()` error for a non-finite float — `int(inf)` raises
@@ -235,7 +314,17 @@ impl ChannelIndex {
     /// clamped to `[0.0, 1.0]`. Non-finite quotients raise exactly like
     /// Python's `math.floor` (ValueError for NaN, OverflowError for inf).
     fn penalty(&self, x_mm: f64, y_mm: f64) -> PyResult<f64> {
-        if self.width <= 0 || self.height <= 0 || self.cell_size_um <= 0.0 {
+        // Guard shaped like the oracle's has_grid() (`cell_size_um > 0`): a
+        // NaN cell_size_um makes the comparison False -> 0.0 WITHOUT raising
+        // (explicitly tested here: `!(NaN > 0.0)` is True, where a bare
+        // `cell_size_um <= 0.0` guard would pass NaN through to a ValueError).
+        // +inf passes the guard and floors every finite slot into cell (0, 0),
+        // matching the oracle (P2).
+        if self.width <= 0
+            || self.height <= 0
+            || self.cell_size_um.is_nan()
+            || self.cell_size_um <= 0.0
+        {
             return Ok(0.0);
         }
         let qx = (x_mm * 1000.0) / self.cell_size_um;
@@ -364,7 +453,11 @@ fn bottleneck_score_at(
         }
         let idx = (row * width + col) as usize;
         if idx >= scores.len() {
-            return Ok(0.0);
+            // Oracle: `self.scores[row * width + col]` on a scores tuple
+            // shorter than width*height raises IndexError — the sidecar
+            // loader truncates to `raw[:expected]`, so such a map is
+            // production-reachable. Do NOT silently return 0.0 (P2).
+            return Err(PyIndexError::new_err("tuple index out of range"));
         }
         Ok(scores[idx])
     })
@@ -417,15 +510,32 @@ fn filter_seed_kernel(
     hv_refs: &Bound<'_, PySet>,
 ) -> PyResult<bool> {
     catch_panic(|| {
-        let valid_map = width > 0 && height > 0 && cell_size_mm > 0.0;
+        let py = seed.py();
+        // Guard shaped like bottleneck_score_at's (and the oracle's score_at):
+        // `!(width <= 0 || height <= 0 || cell_size_mm <= 0.0)`. For a NaN
+        // cell_size_mm, `cell_size_mm <= 0.0` is False, so the map stays
+        // "valid" and NaN flows into py_floor_div, raising the oracle's
+        // `ValueError: cannot convert float NaN to integer` — the old
+        // `cell_size_mm > 0.0` shape made NaN silently disable the filter
+        // (valid_map=False -> score 0.0 -> accept everything) (P1).
+        let valid_map = !(width <= 0 || height <= 0 || cell_size_mm <= 0.0);
         for (ref_key, pos) in seed.iter() {
-            // Python `x, y = position` unpacks any 2-sequence; use get_item so
-            // tuples AND lists behave identically.
-            let x = pos.get_item(0)?.extract::<f64>()?;
-            let y = pos.get_item(1)?.extract::<f64>()?;
+            // Python `x, y = position` — CPython 2-target unpack semantics
+            // (py_unpack_2): a 1-tuple raises the oracle's ValueError 'not
+            // enough values to unpack (expected 2, got 1)', a non-sequence
+            // the oracle's TypeError 'cannot unpack non-iterable <T> object'
+            // (the prior get_item raised IndexError / "'int' object is not
+            // subscriptable") (P2).
+            let (x_obj, y_obj) = py_unpack_2(py, &pos)?;
             let score = if !valid_map {
                 0.0
             } else {
+                // Element coercion mirrors the oracle's `rel_x = x - origin_x`
+                // arithmetic, which happens AFTER the degenerate-map guard:
+                // with a degenerate map the elements are never touched and a
+                // non-numeric position does not raise (P2).
+                let x = coerce_position_elem(&x_obj)?;
+                let y = coerce_position_elem(&y_obj)?;
                 let rel_x = x - origin_x;
                 let rel_y = y - origin_y;
                 if rel_x < 0.0 || rel_y < 0.0 {
@@ -447,10 +557,11 @@ fn filter_seed_kernel(
                     } else {
                         let idx = (row * width + col) as usize;
                         if idx >= scores.len() {
-                            0.0
-                        } else {
-                            scores[idx]
+                            // Oracle: score_at's tuple index raises IndexError
+                            // for a short scores sequence (P2).
+                            return Err(PyIndexError::new_err("tuple index out of range"));
                         }
+                        scores[idx]
                     }
                 }
             };
@@ -617,6 +728,7 @@ fn zone_adjustments_kernel(
     expansion_per_violation: f64,
 ) -> PyResult<Vec<(String, f64, f64)>> {
     catch_panic(|| {
+        let py = zone_config.py();
         // Count per zone, preserving first-seen order.
         let mut counts: Vec<(String, i64)> = Vec::new();
         for zone_opt in violation_zones {
@@ -657,44 +769,66 @@ fn zone_adjustments_kernel(
             let height = (y2 - y1).abs();
 
             let (max_width, max_height) = {
+                // Presence check distinguishes an ABSENT key (oracle default)
+                // from a PRESENT None (oracle raises — `config.get(k,
+                // default)` with a stored None returns that None, and
+                // unpacking it raises). Non-dict configs already raised at
+                // the bounds lookup above (oracle's `.get` AttributeError).
+                let ms_present = config_any.contains("max_size")?;
                 let ms = dict_get(&config_any, "max_size")?;
-                if ms.is_none() {
+                if !ms_present {
                     (f64::INFINITY, f64::INFINITY)
                 } else {
-                    match ms.extract::<(f64, f64)>() {
-                        Ok((mw, mh)) => (mw, mh),
-                        Err(_) => (f64::INFINITY, f64::INFINITY),
-                    }
+                    // Oracle: `max_width, max_height = max_size` is CPython
+                    // 2-target unpack (py_unpack_2: TypeError 'cannot unpack
+                    // non-iterable <T> object' for a scalar/None, ValueError
+                    // for wrong-length iterables) followed by the oracle's
+                    // min() comparison on the unpacked elements. A malformed
+                    // max_size RAISES like the oracle — it must NOT fall back
+                    // to unbounded expansion (P1).
+                    let (a, b) = py_unpack_2(py, &ms)?;
+                    (coerce_max_size_elem(&a)?, coerce_max_size_elem(&b)?)
                 }
             };
 
-            let can_expand: Vec<String> = {
+            let (expand_w, expand_h) = {
+                let ce_present = config_any.contains("can_expand")?;
                 let ce = dict_get(&config_any, "can_expand")?;
-                if ce.is_none() {
-                    vec![
-                        "right".to_string(),
-                        "left".to_string(),
-                        "up".to_string(),
-                        "down".to_string(),
-                    ]
+                if !ce_present {
+                    (true, true)
                 } else {
-                    ce.extract::<Vec<String>>().unwrap_or_else(|_| {
-                        vec![
-                            "right".to_string(),
-                            "left".to_string(),
-                            "up".to_string(),
-                            "down".to_string(),
-                        ]
-                    })
+                    // Oracle: `any(d in ["right", "left"] for d in
+                    // can_expand)` — Python iteration semantics: a string
+                    // iterates to CHARACTERS (never equal to a multi-char
+                    // direction -> no directions -> no adjustment), a dict
+                    // to keys, a non-iterable raises TypeError '<T> object
+                    // is not iterable, and list elements compare by
+                    // equality (a ('right',) element matches nothing). The
+                    // oracle iterates the object once per axis; a single
+                    // pass is equivalent for the re-iterable JSON/YAML
+                    // containers configs can hold. The kernel must NOT fall
+                    // back to all four directions (P1).
+                    let mut ew = false;
+                    let mut eh = false;
+                    for item_res in ce.try_iter()? {
+                        let item: Bound<'_, PyAny> = item_res?;
+                        if item.eq("right")? || item.eq("left")? {
+                            ew = true;
+                        }
+                        if item.eq("up")? || item.eq("down")? {
+                            eh = true;
+                        }
+                    }
+                    (ew, eh)
                 }
             };
 
             let mut delta_w = 0.0;
             let mut delta_h = 0.0;
-            if can_expand.iter().any(|d| d == "right" || d == "left") {
+            if expand_w {
                 delta_w = py_min(width + expansion, max_width) - width;
             }
-            if can_expand.iter().any(|d| d == "up" || d == "down") {
+            if expand_h {
                 delta_h = py_min(height + expansion, max_height) - height;
             }
             if delta_w > 0.0 || delta_h > 0.0 {
@@ -735,10 +869,13 @@ fn process_drc_violation(
         let mut items: Vec<String> = Vec::new();
         let mut pos: Option<(Py<PyAny>, Py<PyAny>)> = None;
         if let Some(raw_items) = v.get_item("items")? {
-            let list = raw_items
-                .extract::<Vec<Bound<'_, PyAny>>>()
-                .unwrap_or_default();
-            for item in list {
+            // Oracle: `for item in v.get("items", [])` — Python iteration
+            // semantics. A non-list items value must raise, not silently
+            // become an empty list: an int/None raises TypeError '<T> object
+            // is not iterable'; a string/dict iterates to chars/keys and the
+            // first item's missing `.get` raises AttributeError (P2).
+            for item in raw_items.try_iter()? {
+                let item = item?;
                 let desc_any = item.call_method("get", ("description", ""), None)?;
                 let desc = desc_any.extract::<String>().unwrap_or_default();
                 items.push(desc);

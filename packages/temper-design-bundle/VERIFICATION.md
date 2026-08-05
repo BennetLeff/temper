@@ -2105,13 +2105,21 @@ True); empty violations list yields no adjustments; empty/`None` maps return
   deviation is unobservable to the orchestrator (all existing assertions are
   numeric). Recorded, not chased: pyo3 tuples cannot carry a per-element
   "int-or-float" without wrapping every leaf.
-- **Malformed-config error parity (recorded, not replicated).** The oracle
-  *raises* `ValueError` on malformed zone-config `bounds`/`max_size`
-  (unpack of a non-pair) and `TypeError` on an explicit `can_expand: None`;
-  the kernel *skips* the zone (`extract().ok()` → default). Only reachable
-  with hand-mutated configs — the orchestrator generates these fields
-  itself — and the differential pins the well-formed behavior bit-exactly.
-  Re-decidable if a config-validator ever lets malformed values through.
+- **Malformed-config error parity (bounds only; fixed for max_size/can_expand).**
+  The oracle *raises* on malformed zone-config shapes; the kernel now
+  replicates the exact classes and messages for `max_size` (CPython 2-target
+  unpack: TypeError for a scalar/None, ValueError for wrong-length iterables)
+  and `can_expand` (Python iteration semantics: TypeError '<T> object is not
+  iterable', character iteration for strings → no directions, tuple elements
+  match nothing) — production-reachable, since the orchestrator passes user
+  YAML through unvalidated for those two fields (orchestrator.py
+  `_get_zone_config`). The remaining deviation is `bounds`: a non-2x2
+  `bounds` shape raises in the oracle (len()/unpack TypeError) but is skipped
+  by the kernel — reachable only through hand-mutated configs, because the
+  orchestrator CONSTRUCTS bounds from `bounds_ratio` and cannot produce a
+  malformed value. Both behaviors are pinned by the differential
+  (`test_can_expand_non_list_parity`, `test_max_size_non_pair_parity`,
+  `test_present_none_keys_are_not_defaults`).
 - **`drc_parser` non-str item descriptions.** A report item whose
   `description` is not a string (e.g. `null`) is appended verbatim by the
   oracle (`items.append(desc)`) but becomes `""` in the kernel (the
@@ -2191,21 +2199,42 @@ True); empty violations list yields no adjustments; empty/`None` maps return
   `OnceLock<Regex>` literals carry `#[expect]` with a reason); borrows over
   clones throughout; `cargo clippy --all-features --all-targets -- -D warnings`
   clean.
-- **Performance A/B (R1b): deferred registration with a local no-regression
-  measurement.** The bench function was written and run locally — shim-vs-
-  oracle on a fixed-shape fixture with a parity sanity assertion inside the
-  bench; measured `ratio = 0.909` (rust 163 µs vs oracle 180 µs per batch) —
-  but **not registered in `_BENCHMARKS`**. Named blocker: the perf gate fails
-  CLOSED on any benchmark key that exists on main without CI-captured baseline
-  rows (this reddened 51/57 open PRs twice already — loaders/physics, then
-  drc-geometry, fixed by #757's in-PR row harvest), and a darwin-measured row
-  is not a valid baseline per the gate's documented platform-bias rule (~11%
-  Darwin/Linux divergence; "never compare a local measurement against a
-  CI-recorded one"). Registration is a one-line `_BENCHMARKS` entry once the
-  main capture path produces rows for the key (re-decidable per R3-style
-  records). For a pure-delegation surface whose differential already proves
-  bit-identical behavior, this is the **no-regression-beyond-noise** arm, NOT
-  a speedup claim.
+- **Performance A/B (R1b): CLAIM DOWNGRADED — local-only measurement, NOT
+  committed.** An earlier revision of this record stated `ratio = 0.909`
+  (rust 163 µs vs oracle 180 µs per batch) with "registration deferred"; the
+  adversarial review (2026-08-05) found that measurement has **no artifact in
+  this PR** — no bench function, fixture, `_BENCHMARKS` entry, or script. Per
+  the repo's provenance discipline (a measurement carries the commit it was
+  taken at, or it is not a measurement), that claim is withdrawn and replaced
+  with this honest record:
+  - **What was measured (local-only, 2026-08-05, darwin):** an ad-hoc
+    shim-vs-oracle wall-time comparison on a fixed-shape bottleneck-map batch
+    (per-call `score_at`), observed `ratio ≈ 0.909`. No committed artifact;
+    the numbers are not reproducible from this tree and are not a benchmark
+    claim.
+  - **Why it was not committed:** (1) the perf gate fails CLOSED on any
+    benchmark key that exists on main without CI-captured baseline rows (this
+    reddened 51/57 open PRs twice — loaders/physics, then drc-geometry, fixed
+    by #757's in-PR row harvest); (2) a darwin-measured row is not a valid
+    baseline per the gate's documented platform-bias rule (~11%
+    Darwin/Linux divergence; "never compare a local measurement against a
+    CI-recorded one").
+  - **Known unmeasured hot-path cost:** the shim's `score_at` builds
+    `list(self.scores)` on EVERY call (`bottleneck_map.py`), an O(n)
+    marshalling copy across the pyo3 boundary — for a 100×100 map that is
+    10,000 floats per lookup, and `filter_seed` calls `score_at` once per
+    seed ref. The `routability_penalty` channels path avoids this (the index
+    is built once at load); the bottleneck-map path does not. This cost is
+    REAL and unmeasured by any committed bench.
+  - **Named follow-up:** register a hubs perf arm — committed bench function
+    + fixture in `benchmarks/perf_ab.py` with a `_BENCHMARKS` entry and CI
+    baseline rows — **once the leaf branch merges** (its consumer
+    `state.py`-side scoring lands then, giving the arm a real capture path
+    through the main pipeline). The arm must also baseline the
+    `list(self.scores)` marshalling cost so the O(n) copy is measured, not
+    assumed. Until then R1b is **NOT met** for the bottleneck-map path (the
+    differential proves bit-identical behavior; it is not a performance
+    claim).
 - **R1h (physics discipline): NOT APPLICABLE — evaluated and recorded.**
   `channels.py` carries a PHYSICS-KW marker; the module consumes router-V6
   congestion output for placement-time routability scoring — a heuristic cost
