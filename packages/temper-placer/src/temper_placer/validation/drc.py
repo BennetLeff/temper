@@ -7,6 +7,18 @@ This module provides:
 - Penalty computation for validation-in-the-loop optimization
 
 Requires KiCad 7+ with kicad-cli available in PATH or at standard location.
+
+Wave 4 Phase 4: two pure compute kernels delegate to ``temper_drc_rs``
+(packages/temper-drc-rs/src/validation.rs):
+- ``_parse_single_violation`` → ``temper_drc_rs.parse_drc_violation``
+  (the kicad-cli JSON → normalized-record classification; the DRCViolation
+  contract construction and the ``DRCViolationType`` enum lookup stay here)
+- ``compute_penalty`` → ``temper_drc_rs.compute_drc_penalty``
+
+The ``kicad-cli`` subprocess invocation (``run_drc``) stays Python — an I/O
+boundary, nothing to migrate. The ``DRCViolation``/``DRCResult`` contract
+dataclasses and the presentation helpers (``summary``, ``to_dict``) stay
+Python (Phase 2 contract objects / formatting, per the slice boundaries).
 """
 
 from __future__ import annotations
@@ -30,6 +42,17 @@ from temper_placer.validation.base import (
     ValidationSeverity,
     Validator,
 )
+
+_RS = None
+
+
+def _rs() -> Any:
+    global _RS
+    if _RS is None:
+        import temper_drc_rs  # type: ignore[import-untyped]
+
+        _RS = temper_drc_rs
+    return _RS
 
 
 class DRCSeverity(Enum):
@@ -473,53 +496,41 @@ class KiCadDRCValidator(Validator):
         return violations
 
     def _parse_single_violation(self, item: dict[str, Any]) -> DRCViolation | None:
-        """Parse a single violation from JSON."""
+        """Parse a single violation from JSON.
+
+        The classification compute (severity, type normalization, enum
+        resolution, position extraction, affected-items extraction) runs in
+        the Rust kernel ``temper_drc_rs.parse_drc_violation``; this method
+        keeps the ``except Exception → None`` guard and wraps the normalized
+        record into the ``DRCViolation`` contract object.
+        """
         try:
-            # Get severity
-            severity_str = item.get("severity", "warning").lower()
-            if severity_str == "error":
+            rec = _rs().parse_drc_violation(item)
+            if rec is None:
+                return None
+
+            # Get severity (kernel returns the normalized "ERROR"/"WARNING")
+            if rec["severity"] == "ERROR":
                 severity = ValidationSeverity.ERROR
             else:
                 severity = ValidationSeverity.WARNING
 
-            # Get violation type
-            type_str = item.get("type", "").lower().replace(" ", "_").replace("-", "_")
+            # Get violation type (enum lookup — contract, stays Python)
+            type_str = rec["type"]
             try:
                 violation_type = DRCViolationType(type_str)
             except ValueError:
                 violation_type = DRCViolationType.OTHER
 
-            # Get position
-            position = None
-            pos_data = item.get("pos", {})
-            if pos_data:
-                x = pos_data.get("x", 0)
-                y = pos_data.get("y", 0)
-                position = (float(x), float(y))
-
-            # Get affected items
-            affected_items = []
-            for affected in item.get("items", []):
-                if isinstance(affected, dict):
-                    ref = affected.get("reference", affected.get("net", ""))
-                    if ref:
-                        affected_items.append(str(ref))
-                elif isinstance(affected, str):
-                    affected_items.append(affected)
-
-            # Build message
-            description = item.get("description", "")
-            message = description or f"{violation_type.value} violation"
-
             return DRCViolation(
                 severity=severity,
-                code=f"DRC_{violation_type.value.upper()}",
-                message=message,
+                code=rec["code"],
+                message=rec["message"],
                 violation_type=violation_type,
-                rule_name=item.get("rule", ""),
-                position=position,
-                affected_items=affected_items,
-                description=description,
+                rule_name=rec["rule"],
+                position=rec["position"],
+                affected_items=list(rec["affected_items"]),
+                description=rec["description"],
             )
         except Exception:
             return None
@@ -531,6 +542,11 @@ class KiCadDRCValidator(Validator):
         Used for validation-in-the-loop optimization.
         Higher penalty = more/worse violations.
 
+        The per-violation weight accumulation runs in the Rust kernel
+        ``temper_drc_rs.compute_drc_penalty`` (identical default-1.0 lookup
+        and in-order ``+=`` accumulation); the failed-DRC short-circuit and
+        the severity/type key extraction stay here.
+
         Args:
             result: DRCResult from run_drc().
 
@@ -540,20 +556,13 @@ class KiCadDRCValidator(Validator):
         if not result.success:
             return 100.0  # High penalty for failed DRC
 
-        penalty = 0.0
-
-        for violation in result.violations:
-            # Base weight from severity (use name for lookup)
-            severity_key = violation.severity.name.lower()
-            base_weight = self.severity_weights.get(severity_key, 1.0)
-
-            # Optional type-specific multiplier
-            type_key = violation.violation_type.value
-            type_mult = self.violation_weights.get(type_key, 1.0)
-
-            penalty += base_weight * type_mult
-
-        return penalty
+        violations = [
+            (violation.severity.name.lower(), violation.violation_type.value)
+            for violation in result.violations
+        ]
+        return float(_rs().compute_drc_penalty(
+            violations, self.severity_weights, self.violation_weights
+        ))
 
     def to_validation_result(self, result: DRCResult) -> ValidationResult:
         """

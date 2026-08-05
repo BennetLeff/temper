@@ -9,6 +9,7 @@ no real kicad-cli or board is needed.
 from __future__ import annotations
 
 import os
+import subprocess
 import tempfile
 import time
 from pathlib import Path
@@ -121,6 +122,29 @@ def _probe_board(tmp_path: Path) -> Path:
     return board
 
 
+def _is_zombie(pid: int) -> bool:
+    """True if ``pid`` exists only as a zombie (dead, awaiting reap).
+
+    ``os.kill(pid, 0)`` succeeds on zombies too, so it cannot distinguish
+    a process the helper failed to kill (still alive) from one it killed
+    whose corpse PID 1 has not reaped yet. ``ps -o stat=`` reports ``Z``
+    only for zombies, and no live state contains ``Z``, so it is the
+    reliable cross-platform signal. On ps failure, report "not a zombie"
+    so a genuinely leaked process still fails the assertion.
+    """
+    try:
+        out = subprocess.run(
+            ["ps", "-o", "stat=", "-p", str(pid)],
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=10,
+        ).stdout.strip()
+    except (OSError, subprocess.SubprocessError):
+        return False
+    return "Z" in out
+
+
 def test_run_drc_samples_returns_all_results_in_order(fake_kicad_cli, tmp_path: Path):
     board = _probe_board(tmp_path)
     results = run_drc_samples(board, n=4, timeout=30, label="probe")
@@ -223,17 +247,37 @@ def test_timeout_reaps_the_process_group(tmp_path: Path):
     monkeypatch.setenv("FAKE_GRANDCHILD_PIDFILE", str(pidfile))
     try:
         with pytest.raises(LoudDrcError):
-            run_drc_loud(board, timeout=1, label="orphan")
+            # timeout=5 (not 1): the fake must spawn the grandchild and
+            # record its pid before the helper's timeout fires. Under CI
+            # or multi-agent local load a cold python3 startup can exceed
+            # 1s, and the timeout then SIGKILLs the fake mid-setup --
+            # "grandchild never started" is a test-setup race, not a reap
+            # failure. The fake sleeps 60s, so timeout=5 still exercises
+            # the timeout path while giving setup a 5x margin.
+            run_drc_loud(board, timeout=5, label="orphan")
     finally:
         monkeypatch.undo()
     assert pidfile.exists(), "grandchild never started"
     grandchild_pid = int(pidfile.read_text().strip())
-    deadline = time.monotonic() + 5
+    # The helper SIGKILLs the whole process group at its ~1s timeout, so by
+    # the time we poll, the grandchild is either reaped or a zombie. GitHub
+    # Actions container jobs run with a Node.js PID 1 that does not reap
+    # orphaned children, so the zombie can persist for the container's
+    # lifetime -- os.kill(pid, 0) keeps succeeding on it, and the test used
+    # to fail with "grandchild survived the timeout" on every CI run
+    # (6/6 on main, 2026-08-04) while passing 4/4 locally (1.1-1.6s) where
+    # launchd reaps orphans in ~5ms. "Survived" must mean *alive*, not
+    # *unreaped*: a zombie proves the SIGKILL landed, so only a process in
+    # a live state is a leak. The 30s window is deliberately generous -- the
+    # assertion is about eventual reaping, not latency.
+    deadline = time.monotonic() + 30
     while time.monotonic() < deadline:
         try:
             os.kill(grandchild_pid, 0)
         except ProcessLookupError:
-            break
+            break  # reaped
+        if _is_zombie(grandchild_pid):
+            break  # dead but unreaped by PID 1 -- the SIGKILL landed
         time.sleep(0.1)
     else:
         pytest.fail("grandchild survived the timeout")

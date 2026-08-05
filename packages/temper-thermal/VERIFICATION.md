@@ -897,3 +897,361 @@ claiming a strict monotonicity the arithmetic does not deliver.
 * `packages/temper-placer/tests/physics/test_operating_point.py` and
   `test_operating_point_monotonicity.py` — the pre-existing U6/U2
   batteries, unchanged and still green.
+
+# Phase 4 continuation: emi / safety / heat_removal / copper_coverage / tj_cross_check / parameter_bounds
+
+Added 2026-08-04 (Wave 4 Phase 4, second slice — the sibling #713 landed
+`thermal_potential` + `operating_point`; this slice migrates the six
+remaining physics modules' compute).  The Python modules keep their public
+APIs and delegate; bit-identical parity is pinned by the differential suites
+listed per module below.  `hostmath` was extended with `log`/`log10` (the
+emi/safety kernels need them; `sqrt` deliberately stays `f64::sqrt` per
+hostmath's documented reasoning — IEEE correctly-rounded, bit-identical to
+libm).
+
+**Oracle-convention note (this slice).** The Wave-4 guide's documented
+unit of work places the verbatim pre-migration implementation in a
+separate `_<mod>_py_oracle.py` module (as #713 did for
+`_thermal_potential_py_oracle.py` / `_operating_point_py_oracle.py`).
+This slice instead EMBEDS the oracles inside each differential test file
+as `_oracle_*` functions (`test_emi_rust_differential.py`,
+`test_safety_rust_differential.py`,
+`test_heat_removal_rust_differential.py`,
+`test_copper_coverage_phase4_rust_differential.py`,
+`test_tj_cross_check_rust_differential.py`,
+`test_parameter_bounds_rust_differential.py`).  The oracle content is
+verbatim (semantically identical to the pre-migration implementation,
+pinning the same bit-exact behaviour) — only the file SHAPE differs
+from the documented convention, so the differential suites double as
+their own oracle reference and the perf harness imports them directly
+(`benchmarks/perf_ab.py`).  Verified verbatim against the pre-migration
+implementations at migration time (2026-08-04).
+
+**R1b performance A/B status — NO_BASELINE, by decision.** The six
+physics benchmarks are registered in `benchmarks/perf_ab.py`, but the
+committed baseline (`power_pcb_dataset/metrics/perf_ab_baseline.jsonl`)
+carries NO rows for them: the 30 rows this PR originally committed were
+local darwin/arm64 measurements (`git_commit` literally `"HEAD"`),
+which violate the harness's documented contract — "CAPTURE IT ON CI,
+NOT LOCALLY" (`benchmarks/perf_ab.py` docstring, measured -11% darwin-
+vs-linux bias, provably blind in the +20..+35% band).  They were
+REMOVED in review (restoring the baseline to its pre-PR state; the
+pre-existing loaders/bottleneck-geometry rows are untouched).  The
+physics arms are therefore honestly **NO_BASELINE** until a CI capture
+lands: per the harness's per-key convention they are REPORTED in the
+comparison output without failing (NEW_BENCHMARK on this PR — main does
+not yet have the physics registry — then NO_BASELINE on later PRs until
+a capture lands; never silent confidence), and this PR does not claim
+otherwise.  Capturing
+the physics rows is a NAMED FOLLOW-UP (trigger
+`.github/workflows/pr-perf-check.yml` on main via workflow_dispatch,
+append the published rows in a reviewed PR) — nothing writes the
+baseline file automatically, by the harness's design.  The loaders
+(`bottleneck-geometry`) arm keeps its existing CI-captured rows and is
+still compared normally.
+
+**darwin RTLD_DEFAULT pin — CI-blind, by decision (pass 2 P2).**  The
+macOS `RTLD_DEFAULT = (void*)-2` correction in
+`hostmath.rs::dlsym_ptr` is pinned by `dlsym_resolves_on_macos`, a
+`#[cfg(target_os = "macos")]` unit test that NEVER executes in CI
+(every workflow runs ubuntu-latest, where the NULL-handle arm is
+correct for glibc).  On darwin the differentials pass under either
+resolution (dlsym and the std fallback resolve the same libSystem
+functions), so the pin is the ONLY thing that would catch a regression
+of the handle value.  **Recorded follow-up: the pin requires a local
+macOS `cargo test` (run `cargo test --all-features -p temper-thermal`
+on a darwin host), or a future macOS CI runner — no macOS CI job is
+added in this PR, by decision.**  The BSDs share `RTLD_DEFAULT = -2`
+with macOS but are NOT covered by the `target_os = "macos"` cfg (they
+fall to the NULL arm — a recorded gap; no BSD target is built or
+tested in this repo's CI).
+
+## EMI radiated-emissions kernels — induction non-applicability note
+
+`emi::predict_radiated_emissions` and `emi::check_emi_compliance` are
+**closed-form, loop-free and recursion-free functions of their scalar
+inputs** — no size-parameterized invariant to induct on, so R1e is **not
+applicable** in the induction form; the structural correctness argument is
+recorded instead (same convention as the prior kernel notes).
+
+### Structural correctness argument (bit-exact parity)
+
+1. **Pure functions of scalars.** Every output bit depends only on the
+   scalar arguments and on correctly-rounded IEEE-754 f64 arithmetic,
+   deterministic and identical in CPython and Rust for the same operation
+   sequence.
+2. **Operation-order pinning** (pinned by
+   `tests/physics/test_emi_rust_differential.py`, which embeds the verbatim
+   pre-migration implementation as an oracle): `frequency_mhz ** 2` is
+   CPython `float.__pow__` → host libm `pow(x, 2.0)` via `hostmath::pow`
+   (B1) — NOT `x * x` (pinned by the pow-vs-mul discriminator);
+   `(1.316e-14 * A * I * pow(f, 2.0)) / d` is the exact four-op left-to-
+   right chain (B7); `e_v * 1e6`; the `e_uv_per_m <= 0` guard; `20.0 *
+   log10(...)` with `hostmath::log10` (B1).  B8 denormal-band parity
+   pinned.
+3. **Branch equivalence.** The three `<= 0` input guards and the output
+   guard are IEEE comparisons (NaN flows through, exactly like the
+   reference).
+4. **R24.** Analysis estimator (metrics/physics.py EMI measurement), not a
+   CP-SAT constraint encoder — the constraint-form R24 gates do not apply;
+   bit-exact parity (R1a) is the applicable contract.
+
+### Empirical verification
+
+- Differential: `test_emi_rust_differential.py` — 20 randomized-seed ×
+  50-sample pins, known values, pow-vs-mul discriminator, guard arms, the
+  underflow guard, denormal band, NaN/inf parity, compliance limits, and
+  module-level delegation.
+- PBT: `test_emi_rust_pbt.py` — 5 vacuity-guarded properties (each with a
+  real mutant) + 4 metamorphic relations (honestly bounded dB scaling
+  laws, compliance-limit monotonicity).
+- Rust unit tests in `emi.rs`.
+
+## Safety-interlock timing kernels — induction non-applicability note
+
+`safety::estimate_filter_delay` / `estimate_fault_response_time` /
+`is_safety_timing_valid` are closed-form scalar functions — R1e **not
+applicable** in the induction form; structural argument recorded.
+
+### Structural correctness argument (bit-exact parity)
+
+1. **Operation-order pinning** (pinned by
+   `tests/physics/test_safety_rust_differential.py`): `tau = r * c`;
+   `(-tau) * log(1.0 - threshold)` with the unary minus bound BEFORE the
+   multiply (B7); `(comparator_delay_ns + mcu_latency_ns) * 1e-3`
+   parenthesized; `hostmath::log` (B1).
+2. **Domain-error parity (the reference raises).** CPython `math.log(x)`
+   raises `ValueError("math domain error")` for `x <= 0.0` (incl. `-0.0`)
+   but returns NaN for NaN.  The pyo3 bridge replicates this exactly in the
+   reference's guard order (`r <= 0 || c <= 0` returns 0.0 first, then the
+   raise).  Pinned by `test_direct_threshold_extremes`.
+3. **R24.** Safety-timing estimators, not constraint encoders — parity is
+   the applicable contract.
+
+### Empirical verification
+
+- Differential: 20 randomized-seed pins, known values (one time constant →
+  exactly RC), guard arms, NaN/inf, threshold extremes with the raise arms,
+  module-level delegation.
+- PBT: `test_safety_rust_pbt.py` — 5 vacuity-guarded properties + 3
+  metamorphic relations (M1 power-of-two scale EXACT, M2 r·c commutativity
+  EXACT, M3 component commutativity EXACT — the stronger ±shift claim is
+  NOT made because float addition is not associative).
+
+## Vertical-sink field kernel — induction non-applicability note
+
+`heat_removal::build_h_field` is the migration of
+`temper_placer/physics/heat_removal.py::build_h_field` (issue #141).  The
+loop over devices is **data-driven with a per-element formula independent
+of the collection's size and of the iteration order** — R1e **not
+applicable** in the induction form; structural argument recorded.
+
+### Structural correctness argument (bit-exact parity)
+
+1. **Closed-form per-cell arithmetic (B1/B7).** `h_bg = (10.0 *
+   pow(cs*1e-3, 2.0)) / (cs*cs)` via `hostmath::pow`; per-device
+   `g_dev = 1.0 / (r_cs + r_sa)`; bbox from `max(0, int(np.floor((x -
+   2.5 - ox)/cs)))` / `min(w, int(np.ceil(...)))` (floor/ceil-then-
+   truncate = `as i64`); `n_cells = max(1, raw product)` from the RAW
+   post-clamp values; `h_cell = g_dev / ((n_cells * cs) * cs)`.
+2. **numpy slice semantics (the trap this migration found).** When a
+   footprint sits LEFT of / BELOW the grid, `min(w, int(ceil(...)))` goes
+   NEGATIVE and numpy wraps the slice stop as `dim + stop` (measured:
+   `a[:, 0:-3]` on width-4 covers columns [0, 1)) — while `n_cells` is
+   computed from the raw pre-wrap values.  The kernel replicates both
+   behaviors exactly, pinned by dedicated wrap tests.
+3. **Iteration order.** Devices accumulate in the caller's dict order
+   (overlapping footprints `+=` in the same order on both sides).
+4. **R24.** Input FIELD builder for the FDM (not a constraint encoder);
+   the field's boundedness (non-negative, ≤ background + Σ g_dev/
+   (n_cells·cs²)) is asserted by PBT P4.
+
+### Empirical verification
+
+- Differential: `test_heat_removal_rust_differential.py` — 8 randomized
+  seeds with in-grid/edge/off-grid devices, the negative-slice-wrap pins,
+  denormal band, the pow-vs-mul h_bg discriminator (cs=66.24771326355554 —
+  a mul-mutant initially SURVIVED the randomized differential and was
+  closed with this 1-ulp pin), module-level delegation incl. the original
+  ValueError arms.
+- PBT: `test_heat_removal_rust_pbt.py` — 5 properties + 3 metamorphic
+  relations (origin-translation covariance, area-consistency
+  `peak·(n_cells·cs²) = g_dev`, R_θ commutativity).
+
+## Copper-coverage grid kernels — induction non-applicability note
+
+`copper_coverage::copper_masks` and `copper_coverage::copper_trace_accumulate`
+are the migration of `temper_placer/physics/copper_coverage.py`'s mask and
+per-trace-accumulation arithmetic (issue #137).  Per-element formulas, no
+size-parameterized invariant — R1e **not applicable**; structural argument
+recorded.
+
+### Structural correctness argument (bit-exact parity)
+
+1. **Per-element closed forms (B1/B7).** Cell centres `ox + ((col + 0.5) *
+   cs)`; rect bounds IEEE `<=`; the keepout circle test and the trace cap
+   keep the reference's op order.
+2. **Array `** 2` vs float `** 2` (the trap this migration found).**
+   Measured 2026-08-04: numpy's `** 2` on an ARRAY with an INTEGER
+   exponent dispatches to the x*x multiply path (NOT libm pow), while
+   `kr ** 2` on a PYTHON float IS libm pow.  The circle test uses both —
+   the kernel mirrors both exactly (a pow-for-offsets kernel is bit-wrong;
+   closed with a constructed adjacent-float discriminator pin).
+3. **`np.minimum` NaN semantics.** `np.minimum(1.0, grid + cell_cov)`
+   propagates NaN from either operand — implemented explicitly (Rust
+   `f64::min` discards NaN; pinned by the NaN-propagation test).
+4. **Iteration order.** The mask accumulation is a bool OR (order-
+   independent — pinned by the keepout-permutation metamorphic); the trace
+   path accumulates per trace in caller order.
+5. **R24.** Copper fraction is an input FIELD (not a constraint encoder);
+   the [0, 1] boundedness is asserted by PBT P1/P4.
+
+### Empirical verification
+
+- Differential: `test_copper_coverage_phase4_rust_differential.py` — 6
+  randomized mask seeds, the mul-vs-pow offset discriminator, the pow-vs-
+  mul radius discriminator (kr=2.882033520478047), 6 randomized trace
+  seeds, NaN propagation, module-level end-to-end pins (keepouts + holes,
+  traces incl. tuple form, zero-weight stackup, plausibility).  The Wave 3
+  rasterise differential continues to pin the polygon boundary.
+- PBT: `test_copper_coverage_phase4_rust_pbt.py` — 5 properties + 3
+  metamorphic relations (keepout-order permutation bit-exact, hole mirror
+  symmetry bit-exact, resolution invariance of the mean — honest approx
+  bound).
+
+## T_j cross-check kernels — induction non-applicability note
+
+`tj_cross_check::distance_to_heatsink_edge` and `tj_cross_check::device_cross_check`
+are the migration of `temper_placer/physics/tj_cross_check.py`'s scalar
+cross-check arithmetic (U11).  Closed-form scalar functions — R1e **not
+applicable**; structural argument recorded.
+
+### Structural correctness argument (bit-exact parity)
+
+1. **Closed-form chains (B7).** `H = height_cells * cell_size` (int
+   widened exactly like Python int*float); `abs(oy + H - y)` etc.;
+   `T_j_fdm = T_case_fdm + power * R_jc`; `R_total = R_jc + R_cs + R_sa`;
+   `T_j_lumped = T_amb + (power * R_total)`; `delta = abs(...)`;
+   `margin = T_j_max - conservative`; `exceeds = delta > tau`.
+2. **Python max semantics.** `conservative_T_j = max(T_j_fdm, T_j_lumped)`
+   is CPython's two-arg max (first argument wins unless the second is
+   strictly greater — `max(nan, x) = nan`, measured 2026-08-04); the kernel
+   implements the same rule explicitly, NOT `f64::max` (which discards
+   NaN).  This matters for the safety gating.
+3. **Kept-Python boundary (np.mean).** `_area_average_temperature`'s
+   `np.mean` is deliberately NOT migrated: numpy 2.3.5's SIMD reduction is
+   not bit-reproducible by any Rust summation strategy (measured 2026-08-04
+   on arm64 — naive, Neumaier, pairwise-128 and sequential-block pairwise
+   all disagree with np.sum/np.mean even for n=8).  Same discipline class
+   as the KTD9 scipy-spsolve keep — argued in-source at the call site.
+4. **R24.** Gate, not a constraint encoder: the T_j_max ceiling is gated
+   on the CONSERVATIVE (higher) estimate so the optimistic model can never
+   decide; corroborated-but-over-limit is still a VIOLATION.  Fail-closed
+   on missing R_θ.
+
+### Empirical verification
+
+- Differential: `test_tj_cross_check_rust_differential.py` — 8 randomized
+  distance pins (incl. unknown-edge zero), known values, 8 randomized
+  device-check pins with NaN in every argument position, the
+  conservative-max NaN pin, module-level delegation.
+- PBT: `test_tj_parameter_bounds_rust_pbt.py` (shared with
+  parameter_bounds) — **5 properties + 3 metamorphic relations for
+  tj_cross_check** (P1 conservative ≥ both estimates, P2 delta/exceeds
+  exact with the strict-`>` boundary, P3 distance geometry, P6 margin
+  definitional, P7 exceeds gated only on (delta, tau); M1 zero-power
+  degeneracy, M2 conservative order-independence, M4 reciprocal
+  power-of-two scaling), **each property and relation vacuity-guarded
+  by a real mutant** — pass 2 added the missing P3 / M1 / M2 / M4
+  guards (`test_p3_fails_for_drops_abs`,
+  `test_m1_fails_for_phantom_power` (evaluated at NONZERO power — a
+  phantom power-proportional term is invisible at p=0, the honest
+  guard for M1's degenerate sampling),
+  `test_m2_fails_for_first_arg_wins`,
+  `test_m4_fails_for_forgot_halve_r`), so the header's "every property
+  is guarded" claim now holds.
+
+## Parameter-bound kernels — induction non-applicability note
+
+`parameter_bounds::classify_parameter` and `parameter_bounds::worst_case_values`
+are the migration of `temper_placer/physics/parameter_bounds.py`'s
+monotonicity classification and worst-case-corner selection (L2).  No
+size-parameterized invariant — R1e **not applicable**; structural argument
+recorded.
+
+### Structural correctness argument (bit-exact parity)
+
+1. **Classification fidelity.** The keyword rules replicate the reference's
+   exact branch ORDER and its BUG-FOR-BUG case sensitivity: `"P_loss" in
+   param_lower` compares the capital-P literal against the LOWERCASED name,
+   so it never matches (dead code); the kernel keeps the same literal.
+   Found by the differential (a lowercased kernel misclassified
+   `P_LOSS_W4`).  The `because` citation strings are reproduced VERBATIM
+   (double spaces, interpolated original-case name).  Rust `to_lowercase`
+   matches CPython `lower()` for the ASCII parameter names in the prereg
+   manifests (documented divergence: non-ASCII case folding — none in the
+   repo's surface).
+2. **Worst-case selection.** `mono < 0 → min, else max` (0 is
+   conservatively max — not a guarantee, per the module's own docs).
+3. **Kept-Python boundaries.** `build_thermal_parameter_bounds` keeps the
+   prereg/FDM-config introspection and the literal ambient_C / h_sink_min
+   bounds; `compute_thermal_soundness` stays Python (drives the FDM corner
+   solve — the solver boundary); `monotonicity_proof()` returns the
+   docstring.
+4. **R24.** This module IS the L2 soundness-gate surface.  Its
+   Chebyshev-style soundness claim: the worst-case corner bounds every
+   interior configuration for provably-monotone parameters, via the
+   M-matrix A⁻¹ ≥ 0 monotonicity argument; mono-0 parameters are NOT
+   guaranteed and the module says so.  The corner computation IS the audit
+   of that claim.
+
+### Empirical verification
+
+- Differential: `test_parameter_bounds_rust_differential.py` — 15 fixed-
+  name classification pins (incl. the P_LOSS dead-code case, precedence
+  cases, empty names), 6 randomized-seed pins (100 samples each,
+  string-exact), worst-case-value pins, module-level pins with a real
+  prereg.
+- PBT: `test_tj_parameter_bounds_rust_pbt.py` — **5 properties + 3
+  metamorphic relations for parameter_bounds** (P4 classification
+  totality + family consistency, P5 worst-case corner selection +
+  dominance, P8 citation fidelity with the original-case name, P9
+  mirror dominance for −1, P10 family-precedence stability; M3 ASCII
+  case-folding invariance, M5 substring-match semantics, M6
+  permutation equivariance of worst_case_values), **each property and
+  relation vacuity-guarded by a real mutant** — pass 2 added the
+  missing M3 guard (`test_m3_fails_for_case_sensitive`), completing the
+  file's guard inventory.
+
+## Anti-vacuity summary (this slice's kernels)
+
+Mutants applied to the Rust kernels and confirmed to fail the
+differential/PBT, then reverted.  Each mutant is listed ONCE: a mutant
+either was killed by the general differential/PBT suite, or it survived
+that suite and was closed with a CONSTRUCTED discriminator pin (the
+guide's "no survivor left open" pattern).  A closing pin is NOT a
+separate kill — it is the evidence that the survivor is bit-wrong.
+
+**Totals: 19 mutants applied; 16 killed by the general suite; 3
+survived the general suite and were each closed with a constructed
+discriminator pin (no survivor left open).**  (The survivors: one
+heat_removal pow→mul in h_bg, and two copper_coverage mutants —
+pow-for-offsets and kr·kr-for-radius — the two arms of the array-`** 2`-
+is-mul / float-`** 2`-is-pow trap.)
+
+| Module | Mutants | Killed by (general differential/PBT) | Survived the general suite → closed by constructed pin |
+|---|---|---|---|
+| emi | 3 | randomized pins, pow-vs-mul discriminator, underflow guard | — |
+| safety | 2 | B7 order mutant → randomized pins + one-time-constant; domain-error raise-arm mutant → test_direct_threshold_extremes | — |
+| heat_removal | 5 | R_vert-skip pin, randomized pins, slice-wrap pin, off-by-one | pow→mul in h_bg → closed by the 1-ulp discriminator pin (cs=66.24771326355554) |
+| copper_coverage | 5 | rect axis, trace min-cap, NaN-discard | pow-for-offsets → closed by the mul-vs-pow offset discriminator; kr·kr-for-radius → closed by the radius pow-vs-mul discriminator |
+| tj_cross_check | 2 | NaN conservative-max pin, distance abs pin | — |
+| parameter_bounds | 2 | case-folding pin (P_LOSS dead code), worst-case selection pin | — |
+
+(No operating_point flag-bit-swap entry: that module landed via #713.)
+
+Every kill was confirmed by the differential/PBT failing under the
+mutated kernel, then reverting; every survivor is pinned by a
+constructed discriminator that flips exactly under the mutation (see
+the per-module differential sections above for the discriminator
+values).

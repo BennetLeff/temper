@@ -18,6 +18,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
+import temper_thermal as _tt
 
 from temper_placer.placer.cp_sat.gates import (
     BoardState,
@@ -306,21 +307,25 @@ class TjCrossCheckGate(Gate):
                     ),
                 )
 
-            # 2. T_j from the distributed FDM model
-            T_j_fdm = T_case_fdm + power * dev_th.R_theta_jc
-
-            # 3. T_j from the lumped R_θ ladder
-            R_total = dev_th.R_theta_jc + dev_th.R_theta_cs + dev_th.R_theta_sa
-            T_j_lumped = self._T_amb + power * R_total
-
-            delta = abs(T_j_fdm - T_j_lumped)
-            # Gate the SAFETY ceiling on the CONSERVATIVE (higher) estimate —
-            # the optimistic one must not decide whether a mains switch survives.
-            conservative_T_j = max(T_j_fdm, T_j_lumped)
-            margin = dev_th.T_j_max - conservative_T_j
+            # 2/3/4. Per-device cross-check scalars (T_j_fdm from the
+            # distributed model, T_j_lumped from the datasheet R_θ
+            # ladder, delta, the CONSERVATIVE T_j and its margin) —
+            # Wave 4 Phase 4: delegated to the Rust kernel
+            # ``temper_thermal.device_cross_check_py`` (bit-identical
+            # parity pinned by
+            # ``tests/physics/test_tj_cross_check_rust_differential.py``).
+            T_j_fdm, T_j_lumped, delta, conservative_T_j, margin, exceeds = _tt.device_cross_check_py(
+                T_case_fdm,
+                power,
+                dev_th.R_theta_jc,
+                dev_th.R_theta_cs,
+                dev_th.R_theta_sa,
+                self._T_amb,
+                dev_th.T_j_max,
+                self._tau_C,
+            )
 
             # 4a. Corroboration: the two independent models must agree.
-            exceeds = delta > self._tau_C
             attribution = ""
             if exceeds:
                 attribution = _classify_disagreement(
@@ -444,6 +449,14 @@ def _area_average_temperature(
     Returns:
         Mean temperature over the footprint cells (5mm × 5mm), or
         ``None`` if the footprint falls entirely outside the grid.
+
+    Wave 4 Phase 4 — ``np.mean`` is deliberately KEPT Python-side: numpy
+    2.3.5's SIMD reduction is not bit-reproducible by any Rust summation
+    strategy (measured 2026-08-04 on arm64: naive, Neumaier,
+    128-block pairwise and sequential-block pairwise all disagree with
+    ``np.sum``/``np.mean``), so a Rust reimplementation could not pass
+    the bit-exact differential.  This is the same library-boundary
+    discipline as the KTD9 scipy-spsolve keep — the call stays numpy.
     """
     fp_mm = (5.0, 5.0)
     half_w = fp_mm[0] / 2.0
@@ -471,23 +484,20 @@ def _distance_to_heatsink_edge(
     position_mm: tuple[float, float],
     fdm_config: Any,
 ) -> float:
-    """Distance from device centroid to the heatsink edge (mm)."""
+    """Distance from device centroid to the heatsink edge (mm).
+
+    Wave 4 Phase 4: delegates to
+    ``temper_thermal.distance_to_heatsink_edge_py`` (the edge string is
+    mapped to a code here — the reference's ``.upper().strip()``).
+    """
     x, y = position_mm
     hs = fdm_config.heatsink_edge.upper().strip()
     ox, oy = fdm_config.origin_mm
     cell = fdm_config.cell_size_mm
-    H = fdm_config.height_cells * cell
-    W = fdm_config.width_cells * cell
-
-    if hs == "TOP":
-        return abs(oy + H - y)
-    elif hs == "BOTTOM":
-        return abs(y - oy)
-    elif hs == "LEFT":
-        return abs(x - ox)
-    elif hs == "RIGHT":
-        return abs(ox + W - x)
-    return 0.0
+    H = fdm_config.height_cells
+    W = fdm_config.width_cells
+    code = {"TOP": 0, "BOTTOM": 1, "LEFT": 2, "RIGHT": 3}.get(hs, 99)
+    return _tt.distance_to_heatsink_edge_py(x, y, ox, oy, cell, H, W, code)
 
 
 def _classify_disagreement(
