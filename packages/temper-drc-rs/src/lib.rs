@@ -14,6 +14,10 @@ pub mod board_py_bridge;
 pub mod constraints;
 pub mod pyfmt;
 pub mod req_safe_01;
+pub mod dfm;
+#[cfg(feature = "python")]
+pub mod dfm_py;
+pub mod pymath;
 pub mod router_clearance;
 pub mod rules;
 pub mod types;
@@ -329,5 +333,7 @@ fn temper_drc_rs(m: &Bound<'_, PyModule>) -> PyResult<()> {
         crate::req_safe_01::req_safe_01_copper_model_init,
         m
     )?)?;
+    // Wave 4 cluster D — router_v6 post-route DFM kernels (dfm.rs).
+    crate::dfm_py::register(m)?;
     Ok(())
 }

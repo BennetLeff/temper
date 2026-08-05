@@ -71,53 +71,14 @@ use pyo3::types::{PyAnyMethods, PyDict, PyDictMethods, PyList, PyListMethods};
 /// `llvm.pow.f64` intrinsic with a *constant* exponent —
 /// `powf(2.0)` → `x*x`, `powf(0.5)` → `sqrt` (verified in this crate's
 /// release disassembly) — both of which disagree with libm `pow`.
+///
+/// The resolver itself now lives in [`crate::pymath`], shared with the
+/// Wave-4 cluster-D DFM kernels (`dfm.rs`), which need `cos`/`sin`/`acos`
+/// from the same host libm. This alias keeps the call sites below reading
+/// `host_math::pow(..)`; the function is byte-for-byte the one this module
+/// used to define privately.
 #[cfg(feature = "python")]
-mod host_math {
-    use std::ffi::CStr;
-    use std::sync::OnceLock;
-
-    type BinaryFn = unsafe extern "C" fn(f64, f64) -> f64;
-
-    fn dlsym_ptr(symbol: &CStr) -> Option<*mut u8> {
-        unsafe extern "C" {
-            fn dlsym(handle: *const u8, symbol: *const u8) -> *mut u8;
-        }
-        const RTLD_DEFAULT: *const u8 = core::ptr::null();
-        // SAFETY: `symbol` is a NUL-terminated C string literal and
-        // RTLD_DEFAULT is the documented "search every loaded object"
-        // handle. A miss returns null, which is checked below.
-        let p = unsafe { dlsym(RTLD_DEFAULT, symbol.as_ptr().cast::<u8>()) };
-        if p.is_null() {
-            None
-        } else {
-            Some(p)
-        }
-    }
-
-    unsafe extern "C" fn fallback_pow(x: f64, y: f64) -> f64 {
-        f64::powf(x, y)
-    }
-
-    fn host_pow() -> BinaryFn {
-        static F: OnceLock<BinaryFn> = OnceLock::new();
-        *F.get_or_init(|| {
-            // SAFETY: the resolved symbol is a C `double(double, double)`
-            // from libm.
-            dlsym_ptr(c"pow")
-                .map(|p| unsafe { std::mem::transmute::<*mut u8, BinaryFn>(p) })
-                .unwrap_or(fallback_pow as BinaryFn)
-        })
-    }
-
-    /// CPython's `x ** y` on floats (libm `pow`). **Not** `x * x` for
-    /// `y == 2.0`, and **not** `sqrt(x)` for `y == 0.5`.
-    #[inline]
-    pub fn pow(x: f64, y: f64) -> f64 {
-        // SAFETY: `host_pow()` is a C `double(double, double)`; no shared
-        // state.
-        unsafe { (host_pow())(x, y) }
-    }
-}
+use crate::pymath as host_math;
 
 // ---------------------------------------------------------------------------
 // drc_oracle._infer_package_type
