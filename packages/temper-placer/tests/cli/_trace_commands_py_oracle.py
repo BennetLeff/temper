@@ -1,32 +1,26 @@
-"""``temper-placer trace`` — query and analyze placement decision traces.
+"""VERBATIM pre-migration oracle for ``temper_placer/cli/trace_commands.py``.
 
-Wave-4 Phase-5 delegation shim: the decision-trace filtering compute of the
-``why`` and ``why_not`` commands — the subject filter and the nested
-alternative scan — is implemented in Rust in the ``temper-orchestration``
-crate (``temper_orchestration.filter_decisions`` /
-``temper_orchestration.find_rejected_alternative``), pinned bit-identically
-by ``tests/cli/test_trace_commands_rust_differential.py`` against the
-VERBATIM pre-migration oracle ``tests/cli/_trace_commands_py_oracle.py``.
-The click surface (flags, help, exit codes, output text) stays Python, and
-the comparisons that decide the filters stay Python value semantics — the
-Rust side calls back into Python for each leaf comparison (``dict.get``,
-``str()``, ``==``), so ``d.get("subject") == subject`` and
-``str(alt.get("value")) == value`` behave exactly as before, including the
-``AttributeError``/``TypeError`` failure modes.
+Wave 4, Phase 5 (cli/adapters/temper-workflow slice). Pinned from
+``packages/temper-placer/src/temper_placer/cli/trace_commands.py`` at the
+dispatch base (origin/main 15110fecc). The pre-migration module had no
+module docstring; this oracle prepends one and keeps every statement below
+it byte-identical to the pinned commit. DO NOT EDIT THE SEMANTICS: this is
+the oracle the Rust compute (``temper_orchestration``) must reproduce
+bit-identically; any edit here silently weakens the differential proof.
 
-The ``report`` command stays entirely Python: it reconstructs
-``Decision``/``DecisionTrace`` objects (a ``temper_placer.core`` surface)
-and calls ``generate_markdown_report`` (a ``temper_placer.pipeline``
-surface) — both owned by other slices; there is no standalone compute here
-to migrate.
+The compute this oracle pins is INLINE in the click command bodies: the
+``why`` subject filter (``[d for d in data.get("decisions", []) if
+d.get("subject") == subject]``) and the ``why_not`` nested scan
+(``for alt in d.get("alternatives_considered", []): if str(alt.get("value"))
+== value``). The differential (``test_trace_commands_rust_differential.py``)
+extracts those expressions mechanically and drives them against the Rust
+``temper_orchestration.filter_decisions`` /
+``temper_orchestration.find_rejected_alternative``.
 """
-
-from __future__ import annotations
 
 import json
 
 import click
-import temper_orchestration as _to
 
 
 @click.group()
@@ -43,16 +37,14 @@ def why(trace_file: str, subject: str):
     with open(trace_file) as f:
         data = json.load(f)
 
-    decisions = data.get("decisions", [])
-    matches = _to.filter_decisions(decisions, subject)
+    decisions = [d for d in data.get("decisions", []) if d.get("subject") == subject]
 
-    if not matches:
+    if not decisions:
         click.echo(f"No decisions found for {subject}")
         return
 
     click.echo(f"Decisions for {subject}:")
-    for i in matches:
-        d = decisions[i]
+    for d in decisions:
         click.echo(f"- [{d['phase']}] {d['decision_type']}: {d['value']}")
         click.echo(f"  Reason: {d['reason']}")
         if d.get("constraint_refs"):
@@ -68,17 +60,16 @@ def why_not(trace_file: str, subject: str, value: str):
     with open(trace_file) as f:
         data = json.load(f)
 
-    decisions = data.get("decisions", [])
-    hit = _to.find_rejected_alternative(decisions, subject, value)
+    decisions = [d for d in data.get("decisions", []) if d.get("subject") == subject]
 
-    if hit is not None:
-        di, ai = hit
-        alt = decisions[di]["alternatives_considered"][ai]
-        click.echo(f"Rejected {value} for {subject}:")
-        click.echo(f"Rejection Reason: {alt['rejection_reason']}")
-        if alt.get("constraint_violated"):
-            click.echo(f"Constraint Violated: {alt['constraint_violated']}")
-        return
+    for d in decisions:
+        for alt in d.get("alternatives_considered", []):
+            if str(alt.get("value")) == value:
+                click.echo(f"Rejected {value} for {subject}:")
+                click.echo(f"Rejection Reason: {alt['rejection_reason']}")
+                if alt.get("constraint_violated"):
+                    click.echo(f"Constraint Violated: {alt['constraint_violated']}")
+                return
 
     click.echo(f"Value {value} was not explicitly considered as an alternative for {subject}")
 
