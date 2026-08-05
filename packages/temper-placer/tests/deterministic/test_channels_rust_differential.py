@@ -230,6 +230,26 @@ def test_penalty_nonfinite_slot_error_parity():
         assert s == o, f"non-finite penalty divergence at {slot}: {s} vs {o}"
 
 
+def test_penalty_nonfinite_cell_size_direct_kernel():
+    """NaN cell_size_um must behave like the oracle's has_grid(): ``NaN > 0``
+    is False -> penalty 0.0 WITHOUT raising. +inf cell_size_um passes
+    has_grid() (``inf > 0`` is True) and floors every finite slot into cell
+    (0, 0) on both sides (P2)."""
+    grid = [[0.5, 0.5], [0.5, 0.5]]
+    entries = [{"x": 0, "y": 0, "layer": "F.Cu", "severity": "HIGH", "score": 0.9}]
+    for cell in [float("nan"), float("inf")]:
+        payload = _payload(grid=grid, cell_size_um=cell, bottlenecks=entries)
+        oracle_map = _oracle.ChannelMap._from_payload(payload)
+        grid_flat = [v for row in grid for v in row]
+        index = RS_BUILD(cell, 2, 2, grid_flat, [(0, 0, "HIGH", 0.9)])
+        for slot in [(0.5, 0.5), (0.0, 0.0), (5.0, 5.0), (-1.0, -1.0), (1e5, 1e5)]:
+            o = _oracle.routability_penalty(slot, oracle_map)
+            s = RS_PENALTY(index, slot[0], slot[1])
+            assert canon(s) == canon(o), (
+                f"non-finite cell_size divergence ({cell!r}) at {slot}: {s} vs {o}"
+            )
+
+
 def test_penalty_severity_weight_pins():
     """One bottleneck per severity at a fixed occupancy — pins the exact
     weight arithmetic ``weight * (0.5 + 0.5 * occupancy)`` (discriminates

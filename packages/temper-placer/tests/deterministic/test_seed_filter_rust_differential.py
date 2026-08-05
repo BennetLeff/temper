@@ -160,3 +160,97 @@ def test_filter_seed_cross_module_score_parity():
         assert canon(_rs_filter(seed, m_shim, 1.0, 1.0, frozenset())) == canon(
             _oracle.filter_seed(seed, m_oracle, 1.0, 1.0, frozenset())
         )
+
+
+def test_oracle_arm_uses_pure_python_map():
+    """The oracle arm MUST NOT delegate score_at to Rust: the shim's
+    BottleneckMap.score_at runs the Rust kernel, so importing it into the
+    oracle arm would run the Rust scoring kernel on BOTH differential arms and
+    make scoring regressions invisible by construction. The arm imports the
+    pre-migration map from the bottleneck_map ORACLE module (P2)."""
+    from temper_placer.deterministic.bottleneck_map import BottleneckMap as ShimMap
+
+    assert _oracle.BottleneckMap is not ShimMap
+    assert _oracle.BottleneckMap.__module__ == "tests.deterministic._bottleneck_map_py_oracle"
+    # the oracle map's score_at must be the verbatim Python method, not the
+    # shim's delegation one-liner
+    from temper_placer.deterministic.bottleneck_map import BottleneckMap
+
+    assert (
+        _oracle.BottleneckMap.score_at.__code__.co_code
+        != BottleneckMap.score_at.__code__.co_code
+    )
+    assert "deterministic_hubs" not in (
+        _oracle.BottleneckMap.score_at.__code__.co_names
+        + _oracle.BottleneckMap.score_at.__code__.co_consts
+    )
+
+
+def test_filter_seed_nan_cell_size_error_parity():
+    """A NaN cell_size_mm must NOT silently disable the filter: the oracle's
+    score_at guard is False for NaN, so the floordiv path raises
+    ``ValueError: cannot convert float NaN to integer`` (the kernel's old
+    ``cell_size_mm > 0.0``-shaped guard returned False -> valid_map=False ->
+    score 0.0 -> silent filter disable; P1)."""
+    m = _oracle.BottleneckMap(
+        cell_size_mm=float("nan"), width=2, height=2, origin_xy=(0.0, 0.0),
+        scores=(0.1, 0.1, 0.1, 0.1),
+    )
+    o = canon_call(_oracle.filter_seed, {"R1": (0.5, 0.5)}, m, 0.7, 0.5, frozenset())
+    s = canon_call(_rs_filter, {"R1": (0.5, 0.5)}, m, 0.7, 0.5, frozenset())
+    assert s == o, f"NaN cell_size divergence: {s} vs {o}"
+    assert s[0] == "raised" and s[1] == "ValueError"
+
+
+def test_filter_seed_short_scores_error_parity():
+    """A scores sequence shorter than width*height raises the oracle's
+    IndexError ('tuple index out of range') for an in-grid cell beyond
+    len(scores) — the kernel must not silently score 0.0 (P2)."""
+    m = _oracle.BottleneckMap(
+        cell_size_mm=1.0, width=2, height=2, origin_xy=(0.0, 0.0), scores=(0.1, 0.2, 0.3)
+    )
+    # cell (1, 1) -> idx 3 beyond len(scores) == 3
+    o = canon_call(_oracle.filter_seed, {"R1": (1.5, 1.5)}, m, 0.7, 0.5, frozenset())
+    s = canon_call(_rs_filter, {"R1": (1.5, 1.5)}, m, 0.7, 0.5, frozenset())
+    assert s == o, f"short-scores divergence: {s} vs {o}"
+    assert s[0] == "raised" and s[1] == "IndexError" and s[2] == "tuple index out of range"
+    # in-bounds cells keep working on both sides
+    o0 = canon_call(_oracle.filter_seed, {"R1": (0.5, 0.5)}, m, 0.7, 0.5, frozenset())
+    s0 = canon_call(_rs_filter, {"R1": (0.5, 0.5)}, m, 0.7, 0.5, frozenset())
+    assert s0 == o0 and s0[0] == "ok"
+
+
+def test_filter_seed_unpack_error_parity():
+    """``x, y = position`` must raise the oracle's EXACT classes and messages:
+    a 1-tuple raises ValueError 'not enough values to unpack (expected 2, got
+    1)' (the kernel's get_item raised IndexError 'tuple index out of range'),
+    a 3-tuple ValueError 'too many values to unpack (expected 2)', a non-
+    sequence TypeError 'cannot unpack non-iterable <T> object' (the kernel
+    raised "'int' object is not subscriptable"), and a 2-tuple of strings
+    TypeError 'unsupported operand type(s) for -: ...' from the oracle's
+    `x - origin_x` arithmetic (P2)."""
+    m = _oracle_map(scores=(0.1, 0.1, 0.1, 0.1))
+    cases = [
+        (0.5,),              # 1-tuple
+        (0.5, 0.5, 0.5),     # 3-tuple
+        5,                   # non-sequence int
+        None,                # non-sequence None
+        ("a", "b"),          # str elements -> oracle's subtraction TypeError
+        (True, 0.5),         # bool element subtracts numerically on both sides
+    ]
+    for pos in cases:
+        o = canon_call(_oracle.filter_seed, {"R1": pos}, m, 0.7, 0.5, frozenset())
+        s = canon_call(_rs_filter, {"R1": pos}, m, 0.7, 0.5, frozenset())
+        assert s == o, f"unpack divergence for {pos!r}: {s} vs {o}"
+    # and with a DEGENERATE map the oracle still unpack-fails (unpack happens
+    # before score_at), while non-numeric ELEMENTS never reach the arithmetic
+    # (score_at's degenerate guard returns 0.0 first) — both pinned:
+    degenerate = _oracle.BottleneckMap(
+        cell_size_mm=-1.0, width=2, height=2, origin_xy=(0.0, 0.0), scores=(0.1, 0.1, 0.1, 0.1)
+    )
+    o = canon_call(_oracle.filter_seed, {"R1": (0.5,)}, degenerate, 0.7, 0.5, frozenset())
+    s = canon_call(_rs_filter, {"R1": (0.5,)}, degenerate, 0.7, 0.5, frozenset())
+    assert s == o and s[0] == "raised" and s[1] == "ValueError"
+    o = canon_call(_oracle.filter_seed, {"R1": ("a", "b")}, degenerate, 0.7, 0.5, frozenset())
+    s = canon_call(_rs_filter, {"R1": ("a", "b")}, degenerate, 0.7, 0.5, frozenset())
+    assert s == o and s[0] == "ok"

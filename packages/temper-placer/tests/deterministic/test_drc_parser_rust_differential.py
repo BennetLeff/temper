@@ -188,3 +188,21 @@ def test_clearance_both_patterns_present_but_different_values():
     _assert_parity(
         {"description": "clearance 0.1000 mm; actual 0.2000 mm and 0.5mm < 0.6mm required"}
     )
+
+
+def test_non_list_items_error_parity():
+    """A non-list ``items`` value must raise the oracle's EXACT errors instead
+    of silently becoming an empty item list: the oracle ITERATES the object
+    (`for item in v.get("items", [])`) and calls ``item.get`` — a string or
+    dict iterates to chars/keys and the first one fails .get with
+    AttributeError '<T> object has no attribute 'get'', an int/None raises
+    TypeError '<T> object is not iterable', and a list containing a non-dict
+    raises AttributeError on that item (P2)."""
+    from tests.core._contract_canon import canon_call
+
+    for items in ["somestr", {"a": 1}, 42, None, [42], [{"description": "ok"}, 7]]:
+        v = {"items": items}
+        o = canon_call(_oracle._process_raw_violation, v)
+        s = canon_call(_process_rust, v)
+        assert s == o, f"non-list items={items!r} divergence: {s} vs {o}"
+        assert s[0] == "raised"

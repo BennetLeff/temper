@@ -3,6 +3,11 @@
 # ``packages/temper-placer/src/temper_placer/deterministic/seed_filter.py``
 # at the dispatch base (origin/main 15110fecc). Do NOT edit: this file is the
 # Python arm of the differential. If it drifts, the differential proves nothing.
+# The only import adjusted for relocation is ``BottleneckMap``, which resolves
+# to the bottleneck_map ORACLE module (``tests/deterministic/_bottleneck_map_py_oracle.py``)
+# rather than the delegation shim — the oracle arm must run the PRE-migration
+# Python ``score_at``, not the Rust kernel, or scoring regressions would be
+# invisible to this differential by construction (both arms running Rust).
 
 """
 filter_seed: pure accept/reject function over a seed candidate.
@@ -21,7 +26,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 
-from temper_placer.deterministic.bottleneck_map import BottleneckMap
+from tests.deterministic._bottleneck_map_py_oracle import BottleneckMap
 
 
 def filter_seed(

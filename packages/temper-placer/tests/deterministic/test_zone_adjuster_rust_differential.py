@@ -204,3 +204,84 @@ def test_reversed_bounds_abs():
     # bounds in (max, min) order -> width/height via abs still positive.
     config = {"R": {"bounds": [(75, 15), (60, 0)], "max_size": (80, 20), "can_expand": ["right", "up", "down", "left"]}}
     _assert_parity(_zones(*(["R"] * 10)), config, threshold=5)
+
+
+# ---------------------------------------------------------------------------
+# Malformed user-config shapes: the orchestrator passes user YAML through
+# unvalidated (`zone.get("max_size", ...)` / `zone.get("can_expand", ...)` in
+# `AutomatedZeroDRC._get_zone_config`), so these are PRODUCTION-reachable and
+# must raise exactly like the oracle instead of silently changing geometry
+# (P1: can_expand fallback-to-all-four-directions, max_size fallback-to-
+# unbounded).
+# ---------------------------------------------------------------------------
+
+
+def _error_outcome(fn):
+    try:
+        return ("ok", fn())
+    except Exception as exc:  # noqa: BLE001 -- comparing failure modes IS the test
+        return ("raised", type(exc).__name__, str(exc))
+
+
+def _run_both_outcomes(violation_zones, zone_config, threshold=5, expansion=0.5):
+    oracle_violations = [
+        _oracle.MappedViolation(type="clearance", components=[], zone=z)
+        for z in violation_zones
+    ]
+    adjuster = _oracle.ZoneAdjuster(
+        zone_config, violation_threshold=threshold, expansion_per_violation=expansion
+    )
+    o = _error_outcome(
+        lambda: {
+            k: (v.delta_width, v.delta_height)
+            for k, v in adjuster.compute_adjustments(oracle_violations).adjustments.items()
+        }
+    )
+    s = _error_outcome(
+        lambda: {
+            name: (delta_w, delta_h)
+            for (name, delta_w, delta_h) in RS_ADJUST(violation_zones, zone_config, threshold, expansion)
+        }
+    )
+    return o, s
+
+
+def test_can_expand_non_list_parity():
+    """Oracle semantics for a non-list can_expand: the oracle ITERATES the
+    object (`any(d in [...] for d in can_expand)`) — a string iterates to
+    characters (no direction matches -> NO adjustment, not an all-directions
+    expansion), an int/None raises TypeError '<T> object is not iterable', and
+    a list of tuples compares by equality (no match). The kernel must not
+    fall back to all four directions (P1)."""
+    base = {"Z": {"bounds": [(0, 0), (10, 10)], "max_size": (20, 20)}}
+    for can_expand in ["right", "right,left", "", 42, None, [("right",)], [1, 2]]:
+        cfg = {"Z": dict(base["Z"], can_expand=can_expand)}
+        o, s = _run_both_outcomes(_zones(*(["Z"] * 6)), cfg)
+        assert s == o, f"can_expand={can_expand!r} divergence: {s} vs {o}"
+
+
+def test_max_size_non_pair_parity():
+    """Oracle semantics for a non-2-tuple max_size: `max_width, max_height =
+    max_size` is CPython 2-target unpack — a scalar (int/float) or None raises
+    TypeError 'cannot unpack non-iterable <T> object', a 1-tuple ValueError
+    'not enough values to unpack (expected 2, got 1)', a 3-tuple ValueError
+    'too many values to unpack (expected 2)', and a 2-char string unpacks to
+    chars and then fails the oracle's min() comparison. The kernel must not
+    fall back to unbounded expansion (P1)."""
+    base = {"Z": {"bounds": [(0, 0), (10, 10)], "can_expand": ["right", "up", "down", "left"]}}
+    for max_size in [20, 20.5, None, (20,), (20, 20, 20), "20", "2020", [20, 20]]:
+        cfg = {"Z": dict(base["Z"], max_size=max_size)}
+        o, s = _run_both_outcomes(_zones(*(["Z"] * 6)), cfg)
+        assert s == o, f"max_size={max_size!r} divergence: {s} vs {o}"
+
+
+def test_present_none_keys_are_not_defaults():
+    """`config.get("max_size", default)`/`config.get("can_expand", default)`
+    return the STORED None when the key is present — the oracle then raises
+    (unpack / iteration), it does NOT apply the default. The kernel must
+    distinguish an absent key from a present-None (P1)."""
+    for key in ["max_size", "can_expand"]:
+        cfg = {"Z": {"bounds": [(0, 0), (10, 10)], key: None}}
+        o, s = _run_both_outcomes(_zones(*(["Z"] * 6)), cfg)
+        assert s == o, f"present-None {key} divergence: {s} vs {o}"
+        assert s[0] == "raised" and s[1] == "TypeError"

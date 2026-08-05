@@ -157,6 +157,64 @@ def test_score_at_degenerate_maps_parity():
             )
 
 
+def test_score_at_nonfinite_cell_size_parity():
+    """A NaN cell_size_mm must NOT silently disable the map: the oracle's
+    ``cell_size_mm <= 0`` guard is False for NaN, so the floordiv path raises
+    ``ValueError: cannot convert float NaN to integer`` — the same failure a
+    ``placement.channels.json`` sidecar with a bare-NaN ``cell_size_mm`` (json
+    round-trips NaN) produces on the oracle. The kernel's guard must let NaN
+    through to the identical ValueError, not return 0.0. ±inf cell sizes are
+    NOT degenerate either: ``+inf`` floors every sample into cell (0, 0),
+    ``-inf`` hits the ``<= 0`` guard and returns 0.0 (P1)."""
+    for cell, expect in [
+        (float("nan"), ("raised", "ValueError", "cannot convert float NaN to integer")),
+        (float("-inf"), ("ok", ("float", "0x0.0p+0"))),
+    ]:
+        oracle_map = _oracle.BottleneckMap(
+            cell_size_mm=cell, width=2, height=2, origin_xy=(0.0, 0.0),
+            scores=(0.1, 0.2, 0.3, 0.4),
+        )
+        o = canon_call(oracle_map.score_at, 0.5, 0.5)
+        s = canon_call(RS_SCORE_AT, cell, 2, 2, 0.0, 0.0, [0.1, 0.2, 0.3, 0.4], 0.5, 0.5)
+        assert s == o, f"non-finite cell_size divergence ({cell!r}): {s} vs {o}"
+        assert s == expect
+        # +inf cell: floor(rel / inf) == 0 for every finite coordinate -> cell
+        # (0, 0) on both sides (NOT a degenerate 0.0).
+        oracle_inf = _oracle.BottleneckMap(
+            cell_size_mm=float("inf"), width=2, height=2, origin_xy=(0.0, 0.0),
+            scores=(0.7, 0.2, 0.3, 0.4),
+        )
+        assert canon_call(oracle_inf.score_at, 5.0, 5.0) == (
+            "ok",
+            ("float", "0x1.6666666666666p-1"),
+        )
+        assert canon_call(RS_SCORE_AT, float("inf"), 2, 2, 0.0, 0.0, [0.7, 0.2, 0.3, 0.4], 5.0, 5.0) == (
+            "ok",
+            ("float", "0x1.6666666666666p-1"),
+        )
+
+
+def test_score_at_short_scores_index_error_parity():
+    """A scores tuple shorter than ``width * height`` is NOT silently 0.0:
+    the oracle's ``self.scores[row * width + col]`` raises
+    ``IndexError: tuple index out of range`` for an in-grid index beyond
+    ``len(scores)``. ``_from_sidecar_payload`` truncates to ``raw[:expected]``,
+    so such a map is production-reachable from a short sidecar; the failure
+    mode must match (P2)."""
+    oracle_map = _oracle.BottleneckMap(
+        cell_size_mm=1.0, width=2, height=2, origin_xy=(0.0, 0.0), scores=(0.1, 0.2, 0.3)
+    )
+    # cell (1, 1) -> idx 3, in-grid but beyond len(scores) == 3
+    o = canon_call(oracle_map.score_at, 1.5, 1.5)
+    s = canon_call(RS_SCORE_AT, 1.0, 2, 2, 0.0, 0.0, [0.1, 0.2, 0.3], 1.5, 1.5)
+    assert s == o, f"short-scores divergence: {s} vs {o}"
+    assert s[0] == "raised" and s[1] == "IndexError" and s[2] == "tuple index out of range"
+    # in-bounds cells keep working on both sides (idx 0, 1, 2 all fine)
+    o0 = canon_call(oracle_map.score_at, 0.5, 0.5)
+    s0 = canon_call(RS_SCORE_AT, 1.0, 2, 2, 0.0, 0.0, [0.1, 0.2, 0.3], 0.5, 0.5)
+    assert s0 == o0 and s0[0] == "ok"
+
+
 # ---------------------------------------------------------------------------
 # _coerce_score parity
 # ---------------------------------------------------------------------------
