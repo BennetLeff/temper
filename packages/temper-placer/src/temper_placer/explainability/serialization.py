@@ -3,6 +3,15 @@
 This module provides functions to save and load DecisionTrace objects as JSON,
 enabling persistent storage, analysis, and sharing of placement decision history.
 
+Wave 4, Phase 5: ``_serialize_value`` / ``_deserialize_value`` recursion and
+the ``serialize_alternative`` / ``serialize_decision`` / ``serialize_trace``
+dict shapes now live in the ``temper-io-types`` Rust crate (``explain.rs``);
+this module is a delegation shim. ``json.dumps`` / ``json.loads`` /
+``datetime.fromisoformat`` / ``Enum`` construction stay Python stdlib (per
+the established rulings) — ``trace_to_json``'s data comes from Rust,
+``json.dumps`` renders it. The pre-migration implementation is pinned
+verbatim as ``tests/explainability/explain_oracle/serialization_oracle.py``.
+
 Example:
     >>> from temper_placer.explainability.decision import DecisionTrace, Decision
     >>> from temper_placer.explainability.serialization import save_trace, load_trace
@@ -23,6 +32,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+import temper_io_types as _rust
+
 from temper_placer.explainability.decision import (
     Alternative,
     Decision,
@@ -41,17 +52,7 @@ def _serialize_value(value: Any) -> Any:
     Returns:
         JSON-serializable version of the value
     """
-    if value is None:
-        return None
-    if isinstance(value, tuple):
-        return list(value)
-    if hasattr(value, "tolist"):  # numpy/jax array
-        return value.tolist()
-    if isinstance(value, dict):
-        return {k: _serialize_value(v) for k, v in value.items()}
-    if isinstance(value, list):
-        return [_serialize_value(v) for v in value]
-    return value
+    return _rust.explain_serialize_value(value)
 
 
 def _deserialize_value(value: Any, as_tuple: bool = False) -> Any:
@@ -64,11 +65,7 @@ def _deserialize_value(value: Any, as_tuple: bool = False) -> Any:
     Returns:
         Deserialized Python value
     """
-    if value is None:
-        return None
-    if isinstance(value, list) and as_tuple:
-        return tuple(value)
-    return value
+    return _rust.explain_deserialize_value(value, as_tuple)
 
 
 def serialize_alternative(alt: Alternative) -> dict[str, Any]:
@@ -80,12 +77,7 @@ def serialize_alternative(alt: Alternative) -> dict[str, Any]:
     Returns:
         JSON-serializable dictionary
     """
-    return {
-        "value": _serialize_value(alt.value),
-        "rejection_reason": alt.rejection_reason,
-        "constraint_violated": alt.constraint_violated,
-        "loss_if_chosen": alt.loss_if_chosen,
-    }
+    return _rust.explain_serialize_alternative(alt)
 
 
 def deserialize_alternative(data: dict[str, Any]) -> Alternative:
@@ -114,21 +106,7 @@ def serialize_decision(decision: Decision) -> dict[str, Any]:
     Returns:
         JSON-serializable dictionary
     """
-    return {
-        "id": decision.id,
-        "timestamp": decision.timestamp.isoformat(),
-        "phase": decision.phase.value,
-        "decision_type": decision.decision_type.value,
-        "subject": decision.subject,
-        "value": _serialize_value(decision.value),
-        "previous_value": _serialize_value(decision.previous_value),
-        "reason": decision.reason,
-        "constraint_refs": decision.constraint_refs,
-        "loss_contribution": decision.loss_contribution,
-        "alternatives": [serialize_alternative(alt) for alt in decision.alternatives],
-        "epoch": decision.epoch,
-        "iteration": decision.iteration,
-    }
+    return _rust.explain_serialize_decision(decision)
 
 
 def deserialize_decision(data: dict[str, Any]) -> Decision:
@@ -193,15 +171,7 @@ def serialize_trace(trace: DecisionTrace) -> dict[str, Any]:
     Returns:
         JSON-serializable dictionary with all trace data
     """
-    return {
-        "run_id": trace.run_id,
-        "start_time": trace.start_time.isoformat(),
-        "end_time": trace.end_time.isoformat() if trace.end_time else None,
-        "config_snapshot": trace.config_snapshot,
-        "decisions": [serialize_decision(d) for d in trace.decisions],
-        "final_positions": {k: list(v) for k, v in trace.final_positions.items()},
-        "final_metrics": trace.final_metrics,
-    }
+    return _rust.explain_serialize_trace(trace)
 
 
 def deserialize_trace(data: dict[str, Any]) -> DecisionTrace:

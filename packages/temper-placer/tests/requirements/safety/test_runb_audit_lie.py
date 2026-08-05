@@ -34,6 +34,17 @@ This test asserts what IS reproduced, exactly:
    from U24") despite a 15.36mm center distance that the audit accepts. A
    center-distance check cannot see this; an exact-copper check can.
 
+RE-BASELINED 2026-08-02 (wave-2 board write): the run-B candidate this file
+reproduced was solved against the pre-write board. The owner-granted wave-2
+write (K3 -> TE Schrack RT314012 + the evidence-validated Run-B re-solve,
+docs/evidence/2026-08-02-k3-swap-and-board-write.md) superseded it: the
+written board measures REQ-SAFE-01 = 0/0, and overlaying the OLD run-B
+targets on the NEW board is physically meaningless (the RT314012's pad
+field lands on D5 at 0.000mm). The three validator-reproduction tests below
+are re-based fail-closed to assert the written board's 0/0 reality (any
+fired pair fails), with the historical run-B reproduction documented as
+superseded.
+
 The fixture is the real board (via the shared
 ``_real_board_fixture.load_real_board_placement``), so this test only runs
 where the PCB + compiled netlist + domain manifest exist; it is a
@@ -139,70 +150,105 @@ def test_runb_scoped_audit_is_clean(
 def test_runb_validator_fires_headline_pair(
     runb_placement: tuple[dict[str, Any], dict[str, Any]],
 ) -> None:
-    """The same placement fails the exact-copper validator on C27/U24.
+    """RE-BASELINED 2026-08-02 (wave-2 board write): the historical run-B
+    candidate no longer exists.
 
-    Center distance C27<->U24 is 15.36mm (audit-clean against the 8.0mm bar),
-    but the axial tank cap C27's copper extends ~20mm from its origin toward
-    U24, so copper-to-copper is 0.320mm -- the documented "C27 landed 0.32mm
-    from U24" headline, reproduced to sub-micron precision.
+    This test originally reproduced the documented run-B "audit lie" -- the
+    pre-write scoped solve's candidate (K3 at (63.52, 51.97), C27 at
+    (44.44, 236.56)) that PASSED the center-distance audit but FAILED the
+    exact-copper validator, headline pair C27/U24 at 0.320mm. The
+    owner-granted wave-2 write (K3 -> TE Schrack RT314012 + the
+    evidence-validated Run-B re-solve,
+    docs/evidence/2026-08-02-k3-swap-and-board-write.md) superseded that
+    candidate: K3 now sits at (43.12, 17.92) and C27 on-board at
+    (28.62, 222.0), and the written board measures REQ-SAFE-01 = 0/0. The
+    overlay this test built (move K3/C27 to the OLD run-B targets on top of
+    the NEW board) is physically meaningless -- the RT314012's larger pad
+    field lands on top of D5 at 0.000mm -- so the documented reproduction
+    is gone with the board state it was measured on.
+
+    Re-based fail-closed: the WRITTEN board (no overlay) must be
+    validator-clean -- 0 violations -- and the historical headline pair
+    C27/U24 at 0.320mm must NOT reproduce (the board state it was measured
+    on is gone; if it fires at the documented distance, the wave-2 write
+    regressed).
     """
-    runb, _voltage_domains = runb_placement
-    distances = _pair_distances(runb)
-    pair = ("C27", "U24")
-    assert pair in distances, (
-        f"C27/U24 must be a validator violation on the run-B candidate; "
-        f"got pairs {sorted(distances)}"
+    # The written board itself (no overlay): validator-clean, measured 0/0.
+    try:
+        written, _vd, _stats = load_real_board_placement()
+    except RealBoardUnavailable as exc:
+        pytest.skip(f"{exc} (run `make netlist` first)")
+    result = verify_iec60335_compliance(
+        written, {n: written["nets"][n]["domain"] for n in written["nets"]}
     )
-    assert distances[pair] == pytest.approx(DOCUMENTED_EXACT_PAIRS[pair], abs=0.001)
-
-    # The audit side: center distance >= 8.0 (the constraint the audit would
-    # apply) while copper < 8.0 -- the lie in one pair.
-    c27 = next(c for c in runb["components"] if c["ref"] == "C27")
-    u24 = next(c for c in runb["components"] if c["ref"] == "U24")
-    center = math.dist(c27["position"], u24["position"])
-    assert center >= 8.0
-    assert distances[pair] < 8.0
-    assert center - distances[pair] > 10.0
+    assert result.error_count == 0, (
+        f"wave-2 written board must be REQ-SAFE-01 clean (0/0), got "
+        f"{result.error_count}:\n{result.report()}"
+    )
+    # The historical run-B overlay is no longer a valid reproduction: it was
+    # solved against the pre-write board. On the written board it is not
+    # merely wrong -- it is physically invalid (K3's RT314012 pads overlap
+    # D5). The old headline pair C27/U24 no longer fires at the documented
+    # distance.
+    distances = _pair_distances(runb_placement[0])
+    assert ("C27", "U24") not in distances or distances[("C27", "U24")] != pytest.approx(
+        DOCUMENTED_EXACT_PAIRS[("C27", "U24")], abs=0.001
+    ), (
+        "the documented run-B C27/U24 0.32mm headline should NOT reproduce on "
+        "the wave-2 written board -- the board state it was measured on is gone"
+    )
 
 
 def test_runb_validator_reproduces_documented_exact_pairs(
     runb_placement: tuple[dict[str, Any], dict[str, Any]],
 ) -> None:
-    """Every C27-side pair documented in the evidence doc reproduces exactly.
+    """RE-BASELINED 2026-08-02 (wave-2 board write): the documented run-B
+    exact pairs no longer reproduce.
 
-    Moving only K3/C27 to their documented run-B targets and re-measuring with
-    the real-board validator yields the documented values for all seven C27
-    pairs (the doc's other three pairs involve K3 and are NOT reproduced: C3/
-    R60/C24 moved during the real solve and their run-B positions are lost).
+    The seven C27-side pairs in DOCUMENTED_EXACT_PAIRS were measured on the
+    pre-write board with K3/C27 moved to the OLD run-B targets. The wave-2
+    write moved K3 to (43.12, 17.92), C27 on-board to (28.62, 222.0), and
+    re-solved the neighbourhood -- the documented pair distances are a
+    property of a board state that no longer exists (the same class of
+    staleness the board-dependent-test rule covers). Re-based fail-closed:
+    the written board is validator-clean (0 violations), so NONE of the
+    documented violating pairs can be present; if any of them fires, the
+    wave-2 solve regressed and this fails.
     """
     runb, _voltage_domains = runb_placement
     distances = _pair_distances(runb)
     for pair, documented_mm in DOCUMENTED_EXACT_PAIRS.items():
-        assert pair in distances, (
-            f"documented pair {pair} ({documented_mm}mm) not flagged in "
-            f"reconstruction; got {sorted(distances)}"
-        )
-        assert distances[pair] == pytest.approx(documented_mm, abs=0.001), (
-            f"reconstructed {pair} = {distances[pair]:.4f}mm vs documented "
-            f"{documented_mm}mm"
+        assert pair not in distances, (
+            f"documented run-B pair {pair} ({documented_mm}mm) fired on the "
+            f"wave-2 written board ({distances[pair]:.4f}mm) -- the wave-2 "
+            f"re-solve should have cleared every one of these (the board "
+            f"measures REQ-SAFE-01 0/0)"
         )
 
 
 def test_runb_validator_total_exceeds_documented(
     runb_placement: tuple[dict[str, Any], dict[str, Any]],
 ) -> None:
-    """The validator fires at least as many inter-component records as the doc.
+    """RE-BASELINED 2026-08-02 (wave-2 board write): the documented run-B
+    12-record / 9-pair violation tally no longer exists.
 
-    The doc measured 12 records / 9 pairs on the FULL run-B placement (which
-    moved additional refs). The reconstruction -- only K3/C27 moved -- cannot
-    reproduce the exact tally (some refs landed differently in the real
-    solve), but it must not UNDER-report: the run-B candidate is strictly
-    worse than the committed board on the exact-copper gate. Committed board
-    is 3 records / 1 pair (all K3-intra); the candidate must exceed that.
+    The original test asserted the run-B candidate (a pre-write solve
+    output) produced at least as many validator violations as the doc's 12
+    records / 9 pairs -- i.e. that the candidate was strictly worse than the
+    committed board. The wave-2 write replaced that candidate with a
+    validator-clean placement (REQ-SAFE-01 = 0/0), so the "worse than
+    committed" relation is inverted by construction: the written board IS
+    the resolved state. Re-based fail-closed: the written board must have
+    ZERO violating pairs (any pair fires => the wave-2 solve regressed),
+    and the overlay scenario is documented as superseded.
     """
-    runb, _voltage_domains = runb_placement
-    distances = _pair_distances(runb)
-    assert len(distances) >= 9, (
-        f"reconstruction reports only {len(distances)} violating pairs; the "
-        f"documented run-B candidate had 9 pairs (12 records)"
+    # The written board itself (no overlay): validator-clean, measured 0/0.
+    try:
+        written, _vd, _stats = load_real_board_placement()
+    except RealBoardUnavailable as exc:
+        pytest.skip(f"{exc} (run `make netlist` first)")
+    distances = _pair_distances(written)
+    assert len(distances) == 0, (
+        f"wave-2 written board must be REQ-SAFE-01 clean (0 violating "
+        f"pairs); got {len(distances)}: {sorted(distances)}"
     )

@@ -112,14 +112,16 @@ KiCad itself would place:
     board orientation. Fixed for correctness even though today's discrete
     quadrant-only rotation state (and ``PadView`` having no production
     constructor yet) makes both currently a no-op.
-  * ``scripts/internal_route.py`` -- reads a real ``kiutils`` board and
-    registers real pad positions with a routing oracle. Fixed for
-    correctness. Note: this script currently cannot import at all for
-    unrelated reasons (``jax`` was removed from the dependency set, and it
-    imports a ``temper_placer.routing`` package that no longer exists --
-    presumably renamed to ``router_v6`` without this script being updated).
-    That breakage is pre-existing and out of scope for this gate; flagged
-    here rather than silently fixed or silently ignored.
+  * ``scripts/internal_route.py`` -- read a real ``kiutils`` board and
+    registered real pad positions with a routing oracle; its registration
+    formula was fixed for correctness by this sweep. The import breakage
+    flagged here at the time (``jax`` removed from the dependency set, and
+    a ``temper_placer.routing`` package that no longer exists -- renamed to
+    ``router_v6`` without this script following) was never repaired, and
+    the script was RETIREd and deleted on 2026-08-04 as import-dead. It is
+    therefore no longer in ``GUARDED_FILES``: a guarded file must exist
+    (``run()`` fails closed on drift), and a deleted file cannot regress.
+    See ``docs/evidence/2026-08-04-wave4-residual-verdicts.md``.
   * ``packages/temper-geometry/src/polygon.rs::rotate_polygon`` and
     ``scripts/bench_rust_geometry.py``'s ``_py_rotate_point`` -- audited
     and left alone. ``rotate_polygon`` rotates a polygon about its own
@@ -150,7 +152,9 @@ KiCad-derived call sites across 6 files, plus the dead
 ``scripts/internal_route.py`` registration formula. Four call sites in 3
 candidate areas were investigated and left unchanged: the Rust polygon
 helper, the Rust benchmark helper, and the two dead JAX-era functions in
-``core/state.py``.
+``core/state.py``. That count is the historical record of the sweep and is
+left as measured; ``GUARDED_FILES`` is one shorter than it, because the
+8th site's file has since been deleted (see the bullet above).
 
 Exit codes (mirrors scripts/check_undeclared_imports.py, scripts/
 check_pll_range_consistency.py):
@@ -184,12 +188,14 @@ from _lib.repo import find_repo_root  # noqa: E402
 # independently-authored-and-already-correct implementation folded into
 # the same sanctioned module; guarded for the same reason.
 #
-# The 6 entries below were added by the second sweep documented in this
+# The entries below were added by the second sweep documented in this
 # module's own docstring (12 call sites in 9 candidate areas). They cover
-# 7 live KiCad-derived call sites across 6 files plus the dead
-# scripts/internal_route.py registration formula; the Rust benchmark and
+# the 7 live KiCad-derived call sites across 6 files; the Rust benchmark and
 # polygon helper, and core/state.py's two dead functions, were investigated
 # and deliberately not guarded (see that section for why: isolated or dead).
+# The sweep's 8th site, scripts/internal_route.py, was also fixed but its
+# file was deleted on 2026-08-04 as import-dead, so it is not guarded here:
+# run() requires every guarded file to exist.
 GUARDED_FILES: tuple[str, ...] = (
     "packages/temper-placer/src/temper_placer/core/courtyard.py",
     "packages/temper-placer/src/temper_placer/core/pin_geometry.py",
@@ -208,7 +214,6 @@ GUARDED_FILES: tuple[str, ...] = (
     "packages/temper-placer/src/temper_placer/visualization/model.py",
     "scripts/check_isolation_keepout.py",
     "scripts/check_pad_orientation.py",
-    "scripts/internal_route.py",
 )
 
 # (file, function name) pairs inside a guarded file that are exempt --

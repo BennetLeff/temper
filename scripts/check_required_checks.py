@@ -71,6 +71,7 @@ class Manifest:
     trigger_paths: tuple[str, ...]
     required_contexts: tuple[str, ...]
     job_triggers: Mapping[str, JobTrigger] = field(default_factory=dict)
+    context_triggers: Mapping[str, tuple[str, ...]] = field(default_factory=dict)
     catch_all_paths: tuple[str, ...] = ()
     mapped_to_nothing: tuple[str, ...] = ()
     timeout_seconds: int = 1800
@@ -97,6 +98,32 @@ class Manifest:
                         "manifest job_triggers keys must be non-empty strings"
                     )
                 job_triggers[name] = JobTrigger.from_mapping(entry, name)
+        context_triggers: dict[str, tuple[str, ...]] = {}
+        raw_ctx = raw.get("context_triggers")
+        if raw_ctx is not None:
+            if not isinstance(raw_ctx, dict):
+                raise RequiredChecksError("manifest context_triggers must be an object")
+            for name, paths in raw_ctx.items():
+                if not isinstance(name, str) or not name:
+                    raise RequiredChecksError(
+                        "manifest context_triggers keys must be non-empty strings"
+                    )
+                if name not in required_contexts:
+                    raise RequiredChecksError(
+                        f"manifest context_triggers entry {name!r} is not in "
+                        f"required_contexts -- a typo here would silently never match"
+                    )
+                if name in job_triggers:
+                    raise RequiredChecksError(
+                        f"manifest context_triggers entry {name!r} also has a "
+                        f"job_triggers entry; a context is owned by one workflow, "
+                        f"so declare it in exactly one of the two"
+                    )
+                # _string_tuple rejects an empty or non-string list, which is
+                # the behaviour we want: an empty path list would make the
+                # context unreachable rather than always-required.
+                context_triggers[name] = _string_tuple({"paths": paths}, "paths")
+
         catch_all_paths = (
             _string_tuple(raw, "catch_all_paths") if "catch_all_paths" in raw else ()
         )
@@ -117,6 +144,7 @@ class Manifest:
             trigger_paths=trigger_paths,
             required_contexts=required_contexts,
             job_triggers=job_triggers,
+            context_triggers=context_triggers,
             catch_all_paths=catch_all_paths,
             mapped_to_nothing=mapped_to_nothing,
             timeout_seconds=timeout_seconds,
@@ -468,9 +496,31 @@ def matching_patterns(
 def required_contexts_for_files(
     changed_files: Iterable[str], manifest: Manifest
 ) -> tuple[str, ...]:
-    if matching_patterns(changed_files, manifest.trigger_paths):
-        return manifest.required_contexts
-    return ()
+    """Which contexts this diff must wait for.
+
+    A context owned by `python-tests.yml` is required whenever the manifest's
+    global `trigger_paths` match; if its job then path-skips, it reports
+    `skipped` and `verify_skips` rescues it.
+
+    A context owned by a *different* workflow cannot use that path. When that
+    workflow's own path filter does not match, GitHub creates **no check run at
+    all** -- the context is `missing`, not `skipped`, and `verify_skips` never
+    sees it. The aggregate would poll until timeout and then go red, on every
+    pull request that touched none of that workflow's paths.
+
+    `context_triggers` closes that: a context listed there is required only
+    when its own paths match. Contexts absent from it keep the global rule.
+    """
+    global_hit = bool(matching_patterns(changed_files, manifest.trigger_paths))
+    required = []
+    for context in manifest.required_contexts:
+        own_paths = manifest.context_triggers.get(context)
+        if own_paths is None:
+            if global_hit:
+                required.append(context)
+        elif matching_patterns(changed_files, own_paths):
+            required.append(context)
+    return tuple(required)
 
 
 def _latest_runs(raw_runs: Iterable[Mapping[str, Any]]) -> dict[str, CheckRun]:
@@ -486,19 +536,34 @@ def _latest_runs(raw_runs: Iterable[Mapping[str, Any]]) -> dict[str, CheckRun]:
     return latest
 
 
-def _any_started(
+def _any_still_queueing(
     required_contexts: Sequence[str], raw_runs: Iterable[Mapping[str, Any]]
 ) -> bool:
-    """True if any required context has left the queue (in_progress or completed).
+    """True if a required context is still waiting on a runner.
 
-    A required context that never leaves 'queued' is runner backlog, not
-    pipeline progress; the backlog grace deadline extension exists for exactly
-    that case, and must not fire once the pipeline has actually started.
+    Two distinct states, both of which mean "not yet done, and not failing":
+
+      - the check run exists and is `queued` -- the job has not been given a
+        runner (the original backlog case), and
+      - the check run does not exist at all -- GitHub has not *created* it yet.
+        Job creation itself lags when the pool is full, so the aggregate can
+        watch for a name that is not on the commit yet. This state was not
+        covered before, and it is the common one under saturation.
+
+    This is the trigger for the backlog grace extension. It replaces
+    `_any_started`, which asked whether *anything* had left the queue and so
+    fired only on a total backlog. A partial backlog -- some contexts already
+    passing, others still queued or uncreated -- got no grace and failed at the
+    base timeout while the rest were still waiting. That is what produced
+    `missing: Rust Checks, Core Tests, ...` on pull requests whose jobs were
+    merely late.
+
+    A context that will genuinely never appear still fails: the grace window is
+    granted once and bounded, after which the same missing set fails closed.
     """
     latest = _latest_runs(raw_runs)
     return any(
-        latest.get(context) is not None
-        and latest[context].status in ("in_progress", "completed")
+        latest.get(context) is None or latest[context].status == "queued"
         for context in required_contexts
     )
 
@@ -785,13 +850,15 @@ def _run(
             if (
                 not extended_for_backlog
                 and manifest.backlog_grace_seconds > 0
-                and not _any_started(required, check_runs)
+                and _any_still_queueing(required, check_runs)
             ):
                 extended_for_backlog = True
                 deadline = grace_deadline
                 print(
-                    "WARNING: required contexts never left the queue within "
-                    f"{manifest.timeout_seconds}s (runner backlog); extending the "
+                    "WARNING: required contexts have no check run yet within "
+                    f"{manifest.timeout_seconds}s -- GitHub has not created them, "
+                    "which under runner saturation is queue latency rather than "
+                    "absence; extending the "
                     f"polling window by {manifest.backlog_grace_seconds}s "
                     "before failing closed"
                 )

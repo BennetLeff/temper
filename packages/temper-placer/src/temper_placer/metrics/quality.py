@@ -19,7 +19,6 @@ from typing import Any
 import numpy as np
 
 from temper_placer.core.board import Board
-from temper_placer.core.loss_types import LossContext
 from temper_placer.core.netlist import Netlist
 from temper_placer.core.state import PlacementState
 
@@ -27,7 +26,7 @@ from temper_placer.core.state import PlacementState
 def total_wirelength(
     _state: PlacementState,
     _netlist: Netlist,
-    context: LossContext,
+    context: Any,
     _alpha: float = 10.0,
 ) -> float:
     """
@@ -360,7 +359,7 @@ def dual_rail_clearance_report(
 def loop_area_score(
     state: PlacementState,
     netlist: Netlist,
-    _context: LossContext,
+    _context: Any,
     loop_components: list[list[str]],
     max_area: float = 100.0,
 ) -> float:
@@ -420,7 +419,7 @@ def congestion_score(
     _state: PlacementState,
     _netlist: Netlist,
     board: Board,
-    _context: LossContext,
+    _context: Any,
     _grid_shape: tuple[int, int] = (10, 10),
     _capacity_per_cell: float = 10.0,
 ) -> float:
@@ -505,7 +504,7 @@ def compactness_score(
 def connectivity_clustering_score(
     state: PlacementState,
     netlist: Netlist,
-    context: LossContext,
+    context: Any,
 ) -> float:
     """
     Score connectivity clustering (0-1, higher is better).
@@ -579,7 +578,7 @@ def compute_quality_report(
     state: PlacementState,
     netlist: Netlist,
     board: Board,
-    context: LossContext,
+    context: Any,
     config: dict[str, Any],
 ) -> dict[str, float]:
     """

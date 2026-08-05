@@ -23,6 +23,9 @@ tags:
   - deterministic-pipeline
 ---
 
+> **Status update (2026-08-03 refresh):** subject (`create_drc_aware_pipeline` slot_generation parsing) is live and resolved; the linked `deterministic-placer-pipeline-post-jax-retirement-stubs.md` was deleted — see `jax-framework-retirement-reverse-topological-deletion-2026-07-05.md` for that era's record.
+
+
 # slot_generation config key was whitelisted but never parsed
 
 ## Problem

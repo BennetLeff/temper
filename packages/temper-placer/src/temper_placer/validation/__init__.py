@@ -54,6 +54,7 @@ from temper_placer.validation.preflight import (
     check_external_tools,
     check_impossible_constraints,
     check_kicad_cli,
+    check_netlist_board_reconciliation,
     check_ngspice,
     check_zones_fit_on_board,
     run_all_preflight_checks,
@@ -127,6 +128,7 @@ __all__ = [
     "check_zones_fit_on_board",
     "check_impossible_constraints",
     "run_all_preflight_checks",
+    "check_netlist_board_reconciliation",
     # Validation Gates
     "GateResult",
     "GateStatus",

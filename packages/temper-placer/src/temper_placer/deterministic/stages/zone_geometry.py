@@ -1,5 +1,33 @@
+"""Zone geometry for the deterministic placement pipeline.
+
+The pure compute is implemented in Rust in the ``temper-design-bundle`` crate
+(Wave 4 **Phase 5, first slice** — deterministic leaf stages). This module
+keeps the pre-migration public API unchanged and delegates the layout math to
+``temper_design_bundle_python.deterministic_stages`` (``define_zone_layout``
+for the 4-zone MVP-3 layout, ``scale_zone_bounds`` for the config ``bounds_ratio``
+branch); the ``run`` orchestration (the ``state.board`` guard and the
+``frozenset`` wrap) stays Python, as does the core/board.py ``Zone``-object
+adaptation in ``_define_zones_from_config`` (a type conversion, not compute).
+
+Bit-exactness: the Rust kernels reproduce the oracle's exact expression
+order — every MAX boundary is an INDEPENDENT fresh multiply
+(``board_width * 0.3 / * 0.6 / * 0.9``; a reuse chain would break
+bit-parity, e.g. ``(w*0.3)*3 = 0.09`` vs ``w*0.9 = 0.09000000000000001``
+for ``w = 0.1``), only the MIN boundaries reuse the previous product, and
+the config branch scales ``ratio[i] * board_dim`` — and keep ``HV.x_min``
+/ every ``y_min`` as Python ``int`` ``0``, passing the board dims through
+with their original type (``int`` on an integer board), so the
+type-carrying differential canon (int-vs-float) stays green. Verified by
+``tests/deterministic/stages/test_zone_geometry_rust_differential.py``
+(oracle: ``tests/deterministic/stages/_zone_geometry_py_oracle.py``) and the
+PBT suite ``test_zone_geometry_pbt.py``; the structural proof lives in
+``packages/temper-design-bundle/VERIFICATION.md``.
+"""
+
 from dataclasses import dataclass, replace
 from typing import Any
+
+import temper_design_bundle_python as _tdb
 
 from ..state import BoardState
 from .base import Stage
@@ -52,15 +80,10 @@ class ZoneGeometryStage(Stage):
                 # Dict format - use bounds_ratio
                 name = z["name"]
                 ratio = z.get("bounds_ratio", [0, 0, 1, 1])
-                zones.append(
-                    Zone(
-                        name=name,
-                        bounds=(
-                            (ratio[0] * board_width, ratio[1] * board_height),
-                            (ratio[2] * board_width, ratio[3] * board_height),
-                        ),
-                    )
+                x_min, y_min, x_max, y_max = _tdb.deterministic_stages.scale_zone_bounds(
+                    name, ratio[0], ratio[1], ratio[2], ratio[3], board_width, board_height
                 )
+                zones.append(Zone(name=name, bounds=((x_min, y_min), (x_max, y_max))))
             else:
                 print(f"WARNING: Unknown zone format: {type(z)}")
         return zones
@@ -75,24 +98,8 @@ class ZoneGeometryStage(Stage):
         - Signal: 30% (control: sensing, temperature)
         - MCU: 10% (ESP32-S3 and peripherals)
         """
-        zones = []
-
-        # HV Zone: 0 to 30%
-        hv_x_max = board_width * 0.3
-        zones.append(Zone(name="HV", bounds=((0, 0), (hv_x_max, board_height))))
-
-        # Power Zone: 30% to 60%
-        power_x_min = hv_x_max
-        power_x_max = board_width * 0.6
-        zones.append(Zone(name="Power", bounds=((power_x_min, 0), (power_x_max, board_height))))
-
-        # Signal Zone: 60% to 90%
-        signal_x_min = power_x_max
-        signal_x_max = board_width * 0.9
-        zones.append(Zone(name="Signal", bounds=((signal_x_min, 0), (signal_x_max, board_height))))
-
-        # MCU Zone: 90% to 100%
-        mcu_x_min = signal_x_max
-        zones.append(Zone(name="MCU", bounds=((mcu_x_min, 0), (board_width, board_height))))
-
-        return zones
+        rows = _tdb.deterministic_stages.define_zone_layout(board_width, board_height)
+        return [
+            Zone(name=name, bounds=((x_min, y_min), (x_max, y_max)))
+            for name, x_min, y_min, x_max, y_max in rows
+        ]
