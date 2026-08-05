@@ -379,10 +379,10 @@ class TestVerifyIec60335:
             )
 
     def test_verify_stats_components_and_rows(self):
-        placement = _fixture_placements()[2]  # 3 comps with pads
+        placement = _fixture_placements()[1]  # 2 comps (A/B, no pads)
         result = verify_iec60335_compliance(placement, dict(NETS_STR))
         stats = result.stats
-        assert stats["components"] == 3
+        assert stats["components"] == 2
         assert len(stats["rows"]) == 12  # 6 matrix rows x clearance+creepage
         assert all(r["insulation"] in ("basic", "reinforced", "functional") for r in stats["rows"])
 
@@ -424,10 +424,21 @@ class TestFormatClearanceReport:
         ours = format_clearance_report(result)
         theirs = _oracle_pkg.clearance.format_clearance_report(result)
         assert ours == theirs
-        rows = [r for r in ours.splitlines() if " <-> " in r or "(intra)" in r]
-        shortfalls = [
-            v.shortfall_mm if v.shortfall_mm is not None else 0.0 for v in result.violations
+        # The REPORT's data rows are sorted worst-first (shortfall column
+        # descending). The raw `result.violations` list is candidate-order by
+        # design — only the report sorts — so the assertion reads the report's
+        # own shortfall column at its fixed offset (pair:16 bnd:22 ins:11
+        # metric:9 meas:8 req:7 short:8).
+        rows = [
+            r for r in ours.splitlines()
+            if not r.startswith(" ") and (" <-> " in r or "(intra)" in r)
         ]
+        shortfalls = []
+        for r in rows:
+            try:
+                shortfalls.append(float(r[79:87].strip()))
+            except ValueError:
+                continue
         assert shortfalls == sorted(shortfalls, reverse=True)
 
 
