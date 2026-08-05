@@ -2835,13 +2835,143 @@ jobs:
 # the job was setup steps and nothing else, so the job goes too. Restoring this
 # coverage requires a placement strategy that still exists.
 
+  # ---------------------------------------------------------------------------
+  # `fast-gates` is the merge of four bare-runner jobs -- `loc-cap`,
+  # `repo-state`, `type-check` and `known-failure-pins` -- into one slot.
+  #
+  # WHY. Those four are the only jobs in this workflow with no `container:`, so
+  # they cannot consume the image's baked `/_temper-venv` and each one builds a
+  # Python environment from scratch. The runner prologue is cheap (checkout +
+  # setup-uv is ~15s); the environment is not, and it is invisible because uv
+  # syncs lazily inside the first `uv run`, so the cost is billed to the gate
+  # step rather than to setup. Measured on run 31048753257 (2026-08-05):
+  #
+  #   Known-Failure Pin Registry Gate  4.5 min -- `uv sync --all-packages` 4m18s,
+  #                                    then the gate itself 0s and its unit
+  #                                    tests 1s
+  #   Type Check                       2.0 min -- prologue 13s, `uv run` sync +
+  #                                    mypy 1m48s
+  #   LOC Cap Gate                     2.0 min -- prologue 16s, `uv run` sync +
+  #                                    the check 1m45s
+  #   Generated Repo State             2.0 min -- prologue 17s, `uv run pytest`
+  #                                    sync + tests 1m36s, the drift check 0s
+  #
+  # Median over 33 PR runs: 4 slots, 10.4 job-minutes, for work that is seconds.
+  # Merged, the environment is built once and every gate runs against it.
+  #
+  # WHY NOT MOVE THEM INTO THE CONTAINER instead. A bare container job's
+  # prologue is ~55s of `Initialize containers` (measured: Cargo / Rustc Smoke
+  # Check, same run), and `/_temper-venv` deliberately carries third-party
+  # packages only -- the 15 workspace members install editable and are not
+  # baked. `check_typecheck_gate.py` compares per-file mypy counts against
+  # `.typecheck-allowlist`, and mypy's counts depend on which workspace members
+  # are importable, so changing that environment is a verdict-changing change to
+  # a required gate. Not worth it to save 15s of prologue.
+  #
+  # ENVIRONMENT PARITY. `loc-cap`, `repo-state` and `type-check` today run
+  # against whatever the first `uv run` syncs -- the project's default dependency
+  # groups. The explicit `uv sync` below is that same set, so mypy sees exactly
+  # the environment it sees now. `known-failure-pins` is the one behaviour change:
+  # it drops from `uv sync --all-packages` to the default sync. That is safe by
+  # inspection -- `scripts/known_failure_pins.py` imports argparse, datetime,
+  # sys, dataclasses, pathlib, typing and yaml, and `_nodeid_resolves` documents
+  # itself as a regex-level check specifically to avoid "spinning up the target
+  # package's environment". `pyyaml` and `pytest` are both in the root `dev`
+  # group, so nothing it or its unit tests import comes from a workspace member.
+  #
+  # GATE INDEPENDENCE. Same idiom as the 2026-07-28 split above: every gate step
+  # carries `if: ${{ !cancelled() && steps.setup.outcome == 'success' }}`, so one
+  # red gate still lets the others report their own verdict in the same run, and
+  # a failed setup skips all of them rather than reporting them against a
+  # half-built environment. `steps.setup` has no `if:` of its own -- that is what
+  # keeps setup fail-fast.
+  # ---------------------------------------------------------------------------
+  fast-gates:
+    name: Fast Gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      VIRTUAL_ENV: ${{ github.workspace }}/.venv
+
+    steps:
+      # fetch-depth: 0 is the union of the four jobs' checkouts. `loc-cap`,
+      # `repo-state` and `known-failure-pins` all take full history today;
+      # `type-check` takes a shallow one and does not care either way.
+      - uses: actions/checkout@v7
+        with: { fetch-depth: 0 }
+
+      # Carried over from `type-check`. Harmless on a bare runner, and it keeps
+      # every `git` call in the gate steps behaving identically if this job ever
+      # moves under a root container.
+      - name: Mark workspace safe for git
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: "latest"
+          enable-cache: true
+
+      - name: Cache virtualenv
+        uses: actions/cache@v6
+        id: cache-venv
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
+
+      # Explicit, so that a broken environment fails HERE -- before the barrier
+      # -- instead of being billed to whichever gate step happened to be first.
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Setup barrier -- environment ready
+        id: setup
+        run: echo "environment ready"
+
+      - name: LOC cap gate
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python tools/loc_cap_check.py
+
+      # Unit tests for the generator itself -- includes an anti-vacuity check
+      # that mutates DIRECTORY_PURPOSE for one real, currently-described
+      # directory and asserts the completeness check still fires (exit 2).
+      - name: Generator unit tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_gen_repo_state.py -v --tb=short
+
+      # Deliberately NOT continue-on-error and deliberately not soft-launched.
+      # The blocks are generated, so they start clean and there is nothing to
+      # grandfather. Exit 1 = drift, exit 2 = tool error (missing marker,
+      # undescribed directory) -- both block.
+      - name: Generated repo state matches committed
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python scripts/gen_repo_state.py --check
+
+      # Validates known-failure-pins.yaml itself (see scripts/known_failure_pins.py
+      # and docs/solutions/best-practices/pin-known-failure-reasons-2026-07-30.md):
+      # every pin must cite a real evidence/solutions doc, stay within its
+      # lifetime cap, resolve to a real test, and the registry must not exceed
+      # its live-pin ratchet. This is what stops the mechanism from becoming an
+      # xfail list -- a pin nobody is forced to revisit is not a pin.
+      - name: Known-failure pin registry gate
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python scripts/known_failure_pins.py
+
+      - name: Known-failure pin mechanism unit tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_known_failure_pins.py -v --tb=short
+
+      - name: Type-check gate (monotonic-shrink baseline)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python scripts/check_typecheck_gate.py
+
   loc-cap:
     name: LOC Cap Gate
     runs-on: ubuntu-latest
     timeout-minutes: 5
     env:
       VIRTUAL_ENV: ${{ github.workspace }}/.venv
-    
+
     steps:
       - uses: actions/checkout@v7
         with: { fetch-depth: 0 }

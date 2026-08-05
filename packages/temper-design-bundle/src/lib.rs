@@ -40,9 +40,18 @@ mod hypergraph_factory;
 #[cfg(feature = "python")]
 mod loaders;
 
+// Wave 4 Phase 5 (deterministic hubs slice): the deterministic hub kernels
+// (channels penalty, bottleneck score, seed filter, feedback mapper/adjuster/
+// parser). Registered as the `deterministic_hubs` submodule (see lib.rs's
+// `python` module). Kept separate from the leaf-stages slice's
+// `deterministic_stages` submodule (owned by the parallel branch
+// feat/wave4-phase5-deterministic-stages-rust) so the two branches' lib.rs
+// additions merge cleanly.
+#[cfg(feature = "python")]
+mod deterministic_hubs;
+
 #[cfg(feature = "python")]
 mod validation;
-
 mod atopile;
 mod constraint_merge;
 mod error;
@@ -280,6 +289,12 @@ mod python {
         // the Phase-2 contracts registered above, which is why they are the
         // phase's opportunistic first pull.
         crate::loaders::register(module)?;
+
+        // Wave 4 Phase 5 (deterministic hubs slice): the deterministic hub
+        // kernels. See deterministic_hubs.rs; registered after loaders so the
+        // leaf-stages branch's deterministic_stages registration (appended on
+        // its own branch) merges without textual conflict.
+        crate::deterministic_hubs::register(module)?;
 
         // Wave 4 Phase 4: the validation-remainder decision kernels
         // (validation/preflight.py, netlist_reconciliation.py,

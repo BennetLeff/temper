@@ -747,12 +747,13 @@ scripts:
   - subprocess
   - sys
 - path: check_test_baseline_writes.py
-  purpose: 'CI gate: fail closed when a test source writes a committed measurement artifact (baselines, drc_ceiling.json,
-    goldens, recorded metrics). Static half of the 2026-08-04 fix for test_update_baseline_yaml, a maintenance routine named
-    test_* that pytest collected on ordinary runs and that rewrote temper_production_baseline.yaml via yaml.safe_dump --
-    stripping all ~235 comment lines including the ~200-line rationale header, and leaving the rewrite for git add -A to
-    commit. Complements the runtime guard in scripts/_lib/pytest_artifact_guard.py: this half reads source, so it still
-    fires when the offending test is deselected, unmarked or skipped for a missing kicad-cli'
+  purpose: 'CI gate: fail closed when a test source writes a committed measurement artifact (baselines,
+    drc_ceiling.json, goldens, recorded metrics). Static half of the 2026-08-04 fix for test_update_baseline_yaml,
+    a maintenance routine named test_* that pytest collected on ordinary runs and that rewrote temper_production_baseline.yaml
+    via yaml.safe_dump -- stripping all ~235 comment lines including the ~200-line rationale header, and
+    leaving the rewrite for git add -A to commit. Complements the runtime guard in scripts/_lib/pytest_artifact_guard.py:
+    this half reads source, so it still fires when the offending test is deselected, unmarked or skipped
+    for a missing kicad-cli'
   owner: bennet
   last_run: '2026-08-04'
   category: keep
@@ -808,6 +809,7 @@ scripts:
   - re
   - subprocess
   - sys
+  - tempfile
 - path: check_undeclared_imports.py
   purpose: 'CI gate: fail when a module-level import in scripts/ or a Python test tree is not resolvable
     in the synced environment (undeclared third-party dependency) -- catches the jinja2/sympy class of
@@ -1560,10 +1562,11 @@ scripts:
   - re
   - yaml
 - path: update_production_routing_baseline.py
-  purpose: Regenerate the router_v6_routing block of power_pcb_dataset/baselines/temper_production_baseline.yaml -- the only
-    writer of that file. Runs the routing measurement test with TEMPER_ROUTING_RECORD_OUT pointed at a scratch path, then
-    splices just that one block back in via _lib.yaml_block_patch so the file's ~235 comment lines survive byte-for-byte.
-    Replaces test_update_baseline_yaml, which did the same job from inside pytest and destroyed the comments every run
+  purpose: Regenerate the router_v6_routing block of power_pcb_dataset/baselines/temper_production_baseline.yaml
+    -- the only writer of that file. Runs the routing measurement test with TEMPER_ROUTING_RECORD_OUT
+    pointed at a scratch path, then splices just that one block back in via _lib.yaml_block_patch so the
+    file's ~235 comment lines survive byte-for-byte. Replaces test_update_baseline_yaml, which did the
+    same job from inside pytest and destroyed the comments every run
   owner: bennet
   last_run: '2026-08-04'
   category: keep
@@ -1681,6 +1684,20 @@ scripts:
   - argparse
   - check_stale_extensions
   - pathlib
+  - sys
+- path: phase5_hubs_mutations.py
+  purpose: 'Wave 4 Phase 5 (deterministic hubs) anti-vacuity driver: applies one-line mutants to packages/temper-design-bundle/src/deterministic_hubs.rs,
+    rebuilds the extension, runs the six hubs differential + PBT suites expecting failure, reverts. M11
+    (index tie-break) is a recorded provable-equivalent survivor. Run manually by the migrating agent;
+    the differentials it exercises run in CI.'
+  owner: bennet
+  last_run: '2026-08-05'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - pathlib
+  - subprocess
   - sys
 - path: phase5_batch1_mutations.py
   purpose: 'Wave-4 Phase-5 mutation campaign driver (deterministic grid_utils/via_placement): applies
