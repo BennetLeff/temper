@@ -1,3 +1,4 @@
+pub mod constraints;
 pub mod desugar_tier0;
 pub mod desugar_tier1;
 pub mod ir_tier0;
@@ -185,5 +186,6 @@ impl PyCompiler {
 fn temper_constraint_compiler(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(compile_pcl_constraints, m)?)?;
     m.add_class::<PyCompiler>()?;
+    crate::constraints::py::register(m)?;
     Ok(())
 }

@@ -41,10 +41,36 @@ fn dlsym_ptr(symbol: &CStr) -> Option<*mut u8> {
     unsafe extern "C" {
         fn dlsym(handle: *const u8, symbol: *const u8) -> *mut u8;
     }
+    // RTLD_DEFAULT is platform-specific: `(void*)0` on glibc/Linux, but
+    // `(void*)-2` on macOS AND the BSDs (`#define RTLD_DEFAULT ((void *)
+    // -2)` in <dlfcn.h>).  Passing a bare NULL handle on darwin makes
+    // `dlsym` FAIL (NULL is not the "search every loaded image" handle
+    // there), so every hostmath call would silently fall back to the std
+    // intrinsics — the wasm32-only fallback this module documents, made
+    // load-bearing on macOS.  Use the platform's real RTLD_DEFAULT so
+    // the host-libm resolution actually happens on macOS too.  On darwin
+    // the resolved symbol IS the same libSystem function that Rust std's
+    // f64::exp/cos/sin/powf lower to (measured 2026-08-04: the
+    // differentials are bit-identical before and after this correction).
+    //
+    // Coverage truth (pass 2 P2): the `-2` arm is cfg'd for **macOS
+    // only**.  The BSDs (FreeBSD/NetBSD/OpenBSD/DragonFly) share
+    // RTLD_DEFAULT = -2 but are NOT covered — they fall into the
+    // `not(target_os = "macos")` arm below and would get NULL, the
+    // wrong handle.  Recorded gap: no BSD target is built or tested in
+    // this repo's CI (ubuntu-latest only), so it is documented rather
+    // than cfg'd.  CI runs Linux (NULL arm, correct for glibc); the
+    // macOS pin is `#[cfg(target_os = "macos")]` and therefore never
+    // executes in CI — it requires a local macOS `cargo test` (see
+    // VERIFICATION.md notes; no macOS CI job, by decision).
+    #[cfg(target_os = "macos")]
+    const RTLD_DEFAULT: *const u8 = (-2isize) as *const u8;
+    #[cfg(not(target_os = "macos"))]
     const RTLD_DEFAULT: *const u8 = core::ptr::null();
     // SAFETY: `symbol` is a NUL-terminated C string literal and
     // RTLD_DEFAULT is the documented "search every loaded object"
-    // handle.  A miss returns null, which is checked below.
+    // handle (never dereferenced).  A miss returns null, which is
+    // checked below.
     let p = unsafe { dlsym(RTLD_DEFAULT, symbol.as_ptr().cast::<u8>()) };
     if p.is_null() {
         None
@@ -67,6 +93,14 @@ fn dlsym_binary(symbol: &CStr) -> Option<BinaryFn> {
 
 unsafe extern "C" fn fallback_exp(x: f64) -> f64 {
     f64::exp(x)
+}
+
+unsafe extern "C" fn fallback_log(x: f64) -> f64 {
+    f64::ln(x)
+}
+
+unsafe extern "C" fn fallback_log10(x: f64) -> f64 {
+    f64::log10(x)
 }
 
 unsafe extern "C" fn fallback_cos(x: f64) -> f64 {
@@ -94,6 +128,10 @@ macro_rules! host_unary {
 #[cfg(not(target_arch = "wasm32"))]
 host_unary!(host_exp, c"exp", fallback_exp);
 #[cfg(not(target_arch = "wasm32"))]
+host_unary!(host_log, c"log", fallback_log);
+#[cfg(not(target_arch = "wasm32"))]
+host_unary!(host_log10, c"log10", fallback_log10);
+#[cfg(not(target_arch = "wasm32"))]
 host_unary!(host_cos, c"cos", fallback_cos);
 #[cfg(not(target_arch = "wasm32"))]
 host_unary!(host_sin, c"sin", fallback_sin);
@@ -114,6 +152,34 @@ pub fn exp(x: f64) -> f64 {
     }
     #[cfg(target_arch = "wasm32")]
     f64::exp(x)
+}
+
+/// `math.log(x)` / `np.log(x)` as the host Python runtime computes it
+/// (added for the Phase-4 emi/safety kernels; measured 2026-08-04:
+/// bit-identical to numpy's `log` on 20 000 random samples).
+#[inline]
+pub fn log(x: f64) -> f64 {
+    #[cfg(not(target_arch = "wasm32"))]
+    // SAFETY: `host_log()` is a C `double(double)`; no shared state.
+    unsafe {
+        (host_log())(x)
+    }
+    #[cfg(target_arch = "wasm32")]
+    f64::ln(x)
+}
+
+/// `math.log10(x)` / `np.log10(x)` as the host Python runtime computes
+/// it (measured 2026-08-04: bit-identical to numpy's `log10` on 20 000
+/// random samples).
+#[inline]
+pub fn log10(x: f64) -> f64 {
+    #[cfg(not(target_arch = "wasm32"))]
+    // SAFETY: `host_log10()` is a C `double(double)`; no shared state.
+    unsafe {
+        (host_log10())(x)
+    }
+    #[cfg(target_arch = "wasm32")]
+    f64::log10(x)
 }
 
 /// `math.cos(x)` / `np.cos(x)` as the host Python runtime computes it.
@@ -262,5 +328,28 @@ mod tests {
         assert!(np_clip(f64::NAN, 0.0, 1.0).is_nan());
         assert!(np_clip(5.0, f64::NAN, 1.0).is_nan());
         assert!(np_clip(5.0, 0.0, f64::NAN).is_nan());
+    }
+
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn dlsym_resolves_on_macos() {
+        // Regression pin for the darwin RTLD_DEFAULT correction: on macOS
+        // RTLD_DEFAULT is `(void*)-2`, NOT NULL — with a NULL handle
+        // dlsym fails and hostmath silently falls back to the std
+        // intrinsics (which match the host Python's libm on darwin only
+        // by the coincidence that Rust std lowers to libSystem too).
+        //
+        // CI-blind (pass 2 P2): every CI workflow runs ubuntu-latest, so
+        // this `#[cfg(target_os = "macos")]` test NEVER executes in CI —
+        // it requires a local macOS `cargo test` (recorded follow-up in
+        // VERIFICATION.md; no macOS CI job, by decision).  On darwin the
+        // differentials pass under either resolution (dlsym and the std
+        // fallback resolve the same libSystem functions), so the pin is
+        // the only thing that would catch a future regression of the
+        // handle value here.
+        assert!(dlsym_unary(c"exp").is_some(), "dlsym(\"exp\") must resolve on darwin");
+        assert!(dlsym_unary(c"log").is_some(), "dlsym(\"log\") must resolve on darwin");
+        assert!(dlsym_unary(c"log10").is_some(), "dlsym(\"log10\") must resolve on darwin");
+        assert!(dlsym_binary(c"pow").is_some(), "dlsym(\"pow\") must resolve on darwin");
     }
 }

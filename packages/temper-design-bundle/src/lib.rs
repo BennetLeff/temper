@@ -14,6 +14,21 @@ mod gates;
 mod priority;
 
 #[cfg(feature = "python")]
+mod netlist_contracts;
+
+#[cfg(feature = "python")]
+mod board_contracts;
+
+#[cfg(feature = "python")]
+mod config_loader;
+
+#[cfg(feature = "python")]
+mod reference_loader;
+
+#[cfg(feature = "python")]
+mod parse_engine;
+
+#[cfg(feature = "python")]
 mod loaders;
 
 mod atopile;
@@ -183,6 +198,48 @@ mod python {
         crate::design_rules::register(module)?;
         crate::gates::register(module)?;
         crate::priority::register(module)?;
+
+        // Wave 4 Phase 3 candidate 1: the parse-target contracts ported from
+        // temper_placer/core/netlist.py (see netlist_contracts.rs) and
+        // temper_placer/core/board.py (see board_contracts.rs). Both are
+        // registered under `Netlist*`/`Board*`-prefixed names because the two
+        // source modules each define a DIFFERENT class called `Component`;
+        // flattening them into one namespace would silently alias them.
+        crate::netlist_contracts::register(module)?;
+        crate::board_contracts::register(module)?;
+
+        // Wave 4 Phase 3 candidate 5: the config/reference loaders. The
+        // preprocess transform, the load chain, and the downstream helpers
+        // (see config_loader.rs / reference_loader.rs) — PyYAML + pydantic are
+        // called back across the boundary.
+        module.add_function(wrap_pyfunction!(crate::config_loader::preprocess_config, module)?)?;
+        module.add_function(wrap_pyfunction!(crate::config_loader::load_constraints, module)?)?;
+        module.add_function(wrap_pyfunction!(crate::config_loader::infer_rjc, module)?)?;
+        module.add_function(wrap_pyfunction!(
+            crate::config_loader::create_board_from_constraints,
+            module
+        )?)?;
+        module.add_function(wrap_pyfunction!(
+            crate::config_loader::constraints_to_design_rules,
+            module
+        )?)?;
+        module.add_function(wrap_pyfunction!(
+            crate::config_loader::apply_zones_to_netlist,
+            module
+        )?)?;
+        module.add_function(wrap_pyfunction!(
+            crate::config_loader::apply_fixed_components_to_netlist,
+            module
+        )?)?;
+        module.add_function(wrap_pyfunction!(
+            crate::reference_loader::compute_design_stats,
+            module
+        )?)?;
+        module.add_function(wrap_pyfunction!(
+            crate::reference_loader::infer_quality_config,
+            module
+        )?)?;
+        crate::parse_engine::register(module)?;
 
         // Wave 4 Phase 3 candidate 2: the YAML loaders ported from
         // temper_placer/io/netclass_loader.py and

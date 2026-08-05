@@ -2,11 +2,32 @@
 Validation check for THT hole collisions.
 
 Part of Phase 3: Placement Validation (temper-d336).
+
+Wave 4 Phase 4: the pairwise hole-distance compute (distance, required
+clearance, message building) delegates to the Rust kernel
+``temper_drc_rs.tht_hole_collisions`` (packages/temper-drc-rs/src/validation.rs).
+The netlist/pad traversal stays here (it reads duck-typed ``comp.pads``
+attributes and computes the hole radius as ``drill / 2.0`` exactly as the
+pre-migration code did). The `:.3f` message formatting is produced
+Rust-side — CPython fixed-point formatting parity is measured
+(100k/100k random values) and pinned by the differential suite
+``tests/validation/test_tht_check_rust_differential.py``.
 """
 
-import math
+from typing import Any
 
 from temper_placer.core.netlist import Netlist
+
+_RS = None
+
+
+def _rs() -> Any:
+    global _RS
+    if _RS is None:
+        import temper_drc_rs  # type: ignore[import-untyped]
+
+        _RS = temper_drc_rs
+    return _RS
 
 
 def validate_hole_clearance(
@@ -22,7 +43,6 @@ def validate_hole_clearance(
     Returns:
         List of violation messages
     """
-    violations = []
     holes = []
 
     # Extract all holes with their absolute positions
@@ -34,33 +54,16 @@ def validate_hole_clearance(
                 # TODO: Support rotation
                 abs_x = pos[0] + pad.position[0]
                 abs_y = pos[1] + pad.position[1]
+                # radius = drill / 2.0 — same expression the oracle used
                 holes.append(
-                    {
-                        "ref": comp.ref,
-                        "pad": pad.number,
-                        "x": abs_x,
-                        "y": abs_y,
-                        "drill": pad.drill,
-                        "radius": pad.drill / 2.0,
-                    }
+                    (
+                        comp.ref,
+                        pad.number,
+                        abs_x,
+                        abs_y,
+                        pad.drill / 2.0,
+                    )
                 )
 
-    # Check pairwise collisions
-    for i in range(len(holes)):
-        h1 = holes[i]
-        for j in range(i + 1, len(holes)):
-            h2 = holes[j]
-
-            dx = h1["x"] - h2["x"]
-            dy = h1["y"] - h2["y"]
-            dist = math.sqrt(dx * dx + dy * dy)
-
-            required = h1["radius"] + h2["radius"] + min_clearance
-
-            if dist < required:
-                violations.append(
-                    f"{h1['ref']}.{h1['pad']} <-> {h2['ref']}.{h2['pad']}: "
-                    f"dist={dist:.3f}mm (min {required:.3f}mm)"
-                )
-
-    return violations
+    # Pairwise collision check in Rust (returns `:.3f`-formatted messages).
+    return _rs().tht_hole_collisions(holes, min_clearance)
