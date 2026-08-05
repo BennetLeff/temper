@@ -525,7 +525,6 @@ def apply_fixed_components_to_netlist(netlist: Any, constraints: Any) -> None: .
 def compute_design_stats(result: Any) -> dict[str, Any]: ...
 
 def infer_quality_config(design: Any) -> dict[str, Any]: ...
-||||||| f57b52d51
 
 # ---------------------------------------------------------------------------
 # Wave 4 Phase 3 candidate 2: the YAML loaders (crate module `loaders.rs`),
