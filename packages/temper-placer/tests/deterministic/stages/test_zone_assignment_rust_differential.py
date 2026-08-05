@@ -110,6 +110,42 @@ def test_empty_semantics():
     assert dict(RS_ASSIGN(empty)) == {}
 
 
+def test_net_class_none_falls_through_to_signal():
+    """A present-but-None ``net_class`` (reachable via the pyclass's settable
+    attribute — the constructor's ``None`` is coerced to the "Signal"
+    default by ``opt_or``, but ``net.net_class = None`` assignment stores
+    None as-is, the same assignment path ``io/_parse_nets.py`` uses) fails
+    both ``==`` comparisons in the oracle and falls through to Signal; the
+    Rust must NOT TypeError on the None."""
+    net = Net("X", [("R1", "1")])
+    net.net_class = None
+    netlist = _netlist([_comp("R1", ["X"])], [net])
+    exp = _oracle.assign_components_to_zones(netlist)
+    assert exp == {"R1": "Signal"}
+    _assert_assign_equal(netlist)
+
+
+def test_net_class_missing_attribute_falls_through_to_signal():
+    """Duck-typed net WITHOUT a ``net_class`` attribute: the oracle's
+    ``getattr(net, "net_class", "Signal")`` default fires (falls through to
+    Signal); the Rust must NOT AttributeError."""
+
+    class _PlainNet:
+        """Minimal duck-typed net with no ``net_class`` attribute."""
+
+        def __init__(self, name, pins):
+            self.name = name
+            self.pins = pins
+
+    netlist = _netlist(
+        [_comp("R1", ["X"])],
+        [_PlainNet("X", [("R1", "1")])],
+    )
+    exp = _oracle.assign_components_to_zones(netlist)
+    assert exp == {"R1": "Signal"}
+    _assert_assign_equal(netlist)
+
+
 def test_component_on_multiple_nets():
     """comp_nets appends net names in netlist order (insertion order pinned)."""
     netlist = _netlist(
