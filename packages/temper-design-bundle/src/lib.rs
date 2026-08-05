@@ -31,6 +31,9 @@ mod parse_engine;
 #[cfg(feature = "python")]
 mod loaders;
 
+#[cfg(feature = "python")]
+mod validation;
+
 mod atopile;
 mod constraint_merge;
 mod error;
@@ -246,6 +249,12 @@ mod python {
         // temper_placer/io/loop_loader.py (see loaders.rs). They bind onto
         // the Phase-2 contracts registered above, which is why they are the
         // phase's opportunistic first pull.
-        crate::loaders::register(module)
+        crate::loaders::register(module)?;
+
+        // Wave 4 Phase 4: the validation-remainder decision kernels
+        // (validation/preflight.py, netlist_reconciliation.py,
+        // placement_roundtrip.py, prereg/schema.py) registered as the
+        // `validation` submodule (see validation.rs).
+        crate::validation::register(module)
     }
 }

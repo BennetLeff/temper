@@ -52,6 +52,30 @@ error while being orders of magnitude below every failure mode this
 oracle exists to catch (a dropped rotation shifts a pad body by 90
 degrees; a sign flip shifts an asymmetric footprint's anchor by
 ``2 * center_offset``).
+
+Wave 4 Phase 4: the decision compute — ``canonical_angle`` (mod-360),
+``_angle_diff`` (shortest signed-magnitude angle difference), ``_pad_key``
+(stable per-footprint pad key), and ``_check_footprint``'s comparison
+logic (anchor / footprint-angle / pad-presence / pad-position / pad-angle
+checks and mismatch-record construction) — is implemented in Rust as the
+``validation`` submodule of ``temper_design_bundle_python``
+(``temper-design-bundle/src/validation.rs``) and delegated to here. This
+module keeps the file I/O (KTD4: ``parse_kicad_pcb_v6`` +
+``KiBoard.from_file`` re-parse), the kiutils-tree extraction (written
+anchors/angles/pad local offsets), the template ``Component`` attribute
+reads, the kicad_transform primitives (``place_local_to_world`` /
+``rotate_local_to_world`` stay single-source in
+``geometry/kicad_transform.py`` — both arms call the same Python, so the
+shared geometry is identical by construction), and the
+``_get_footprint_reference`` consumer relationship (the #723 note's
+kiutils-free attribute reader stays imported verbatim from
+``io/_parse_modules``).
+
+Verification: bit-identical parity against the pinned pre-migration
+implementation is asserted by
+``tests/validation/test_placement_roundtrip_rust_differential.py``
+(oracle: ``tests/validation/_placement_roundtrip_py_oracle.py``); the
+structural proof lives in ``packages/temper-design-bundle/VERIFICATION.md``.
 """
 
 from __future__ import annotations
@@ -62,6 +86,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+import temper_design_bundle_python as _tdb
 from kiutils.board import Board as KiBoard
 
 from temper_placer.core.netlist import Component
@@ -86,14 +111,19 @@ def canonical_angle(angle: float) -> float:
     Canonicalization rule (KTD2): KiCad/kiutils omit the ``(at ... angle)``
     angle token when it is zero, so a written angle of 360, 0, or an absent
     token must all compare equal.  Mod-360 normalization gives that.
+
+    Implemented in Rust (``temper_design_bundle_python.validation.
+    canonical_angle``) with CPython float-``%`` semantics — the oracle's
+    ``-720.0 % 360.0`` is ``+0.0``, not ``-0.0`` (CPython's float_rem
+    ``copysign`` branch).
     """
-    return angle % 360.0
+    return _tdb.validation.canonical_angle(angle)
 
 
 def _angle_diff(a: float, b: float) -> float:
-    """Shortest signed-magnitude difference between two angles, in degrees."""
-    diff = abs(canonical_angle(a) - canonical_angle(b)) % 360.0
-    return min(diff, 360.0 - diff)
+    """Shortest signed-magnitude difference between two angles, in degrees
+    (the Rust ``angle_diff`` kernel)."""
+    return _tdb.validation.angle_diff(a, b)
 
 
 def _template_fp_angle(comp: Component) -> float:
@@ -111,9 +141,9 @@ def _center_offset(comp: Component) -> tuple[float, float]:
 def _pad_key(pad: object, index: int) -> str:
     """A stable per-footprint key for a pad: its number when it has one,
     else its positional index (a pad with an empty number is legal in
-    KiCad, e.g. an unconnected pad numbered ``""``)."""
-    number = getattr(pad, "number", None) or ""
-    return number if number else f"__pad_{index}"
+    KiCad, e.g. an unconnected pad numbered ``""``).  The Rust
+    ``pad_key`` kernel."""
+    return _tdb.validation.pad_key(getattr(pad, "number", None) or None, index)
 
 
 @dataclass(frozen=True)
@@ -190,7 +220,11 @@ def _check_footprint(
 
     All geometry is reduced to world coordinates by
     ``kicad_transform``'s R(-theta) convention -- the single sanctioned
-    formula (KTD1); this module never re-derives it.
+    formula (KTD1); this module never re-derives it. The world reduction
+    (kicad_transform primitives, template attribute reads, kiutils-tree
+    extraction) stays here; the comparison logic -- the anchor/angle/pad
+    checks and mismatch-record construction -- is the Rust
+    ``check_footprint_geometry`` kernel.
     """
     # A ref absent from `rotations` means "no rotation change": the solved
     # rotation record (CpSatPlacementResult.to_rotations_dict) omits
@@ -202,95 +236,61 @@ def _check_footprint(
 
     co_x, co_y = _center_offset(template)
 
-    # --- footprint anchor ------------------------------------------------
+    # --- footprint anchor (world) ------------------------------------------
     # The solver's position is the box CENTRE (the parser's
     # initial_position convention).  KiCad's ``(at X Y)`` is the raw
     # footprint anchor; the writers subtract the rotated center offset to
     # convert between the two frames.  Expected anchor = centre minus the
     # R(-theta)-rotated offset, exactly the writers' own correction.
     rot_cx, rot_cy = rotate_local_to_world(co_x, co_y, theta_rad)
-    exp_anchor = (pos[0] - rot_cx, pos[1] - rot_cy)
     wx = float(fp.position.X) if fp.position and fp.position.X is not None else 0.0
     wy = float(fp.position.Y) if fp.position and fp.position.Y is not None else 0.0
-    if abs(wx - exp_anchor[0]) > epsilon or abs(wy - exp_anchor[1]) > epsilon:
-        result.mismatches.append(
-            RoundTripMismatch(
-                ref=ref,
-                kind="footprint_anchor",
-                expected=exp_anchor,
-                actual=(wx, wy),
-            )
-        )
-
-    # --- footprint angle --------------------------------------------------
     wa = (fp.position.angle or 0.0) if fp.position else 0.0
-    if _angle_diff(theta, wa) > epsilon:
-        result.mismatches.append(
-            RoundTripMismatch(
-                ref=ref,
-                kind="footprint_angle",
-                expected=canonical_angle(theta),
-                actual=canonical_angle(wa),
-            )
-        )
-
-    # --- pads -------------------------------------------------------------
-    template_pads = {_pad_key(p, i): p for i, p in enumerate(template.pins)}
-    written_pads = {_pad_key(p, i): p for i, p in enumerate(fp.pads or [])}
     wa_rad = math.radians(wa)
 
-    for key, tpin in template_pads.items():
-        wpad = written_pads.get(key)
-        if wpad is None:
-            result.mismatches.append(
-                RoundTripMismatch(
-                    ref=ref, kind="pad_missing", pad=key,
-                    detail="template pad not present in the written footprint",
-                )
-            )
-            continue
-        if wpad.position is None:
-            result.mismatches.append(
-                RoundTripMismatch(
-                    ref=ref, kind="pad_missing", pad=key,
-                    detail="written pad has no (at ...) position",
-                )
-            )
-            continue
-
-        # Expected pad world position: the model box centre plus the
-        # R(-theta)-rotated, centre-subtracted pin offset (KTD1).
+    # --- pads (world) -------------------------------------------------------
+    template_pads = []
+    for i, tpin in enumerate(template.pins):
+        key = _pad_key(tpin, i)
         exp_px, exp_py = place_local_to_world(
             tpin.position[0], tpin.position[1], pos[0], pos[1], theta_rad
         )
-        # Written pad world position: the written anchor plus the
-        # R(-written-angle)-rotated raw local offset from the file tree.
-        act_px, act_py = place_local_to_world(
-            float(wpad.position.X), float(wpad.position.Y), wx, wy, wa_rad
+        template_pads.append((key, exp_px, exp_py, tpin.pad_rotation_deg))
+
+    written_pads: list[tuple[str, float | None, float | None, float | None]] = []
+    for i, wpad in enumerate(fp.pads or []):
+        key = _pad_key(wpad, i)
+        if wpad.position is None:
+            written_pads.append((key, None, None, None))
+        else:
+            act_px, act_py = place_local_to_world(
+                float(wpad.position.X), float(wpad.position.Y), wx, wy, wa_rad
+            )
+            written_pads.append((key, act_px, act_py, wpad.position.angle or 0.0))
+
+    mismatches, checked_pads = _tdb.validation.check_footprint_geometry(
+        ref,
+        pos,
+        (rot_cx, rot_cy),
+        (wx, wy),
+        theta,
+        wa,
+        epsilon,
+        template_pads,
+        written_pads,
+    )
+    for m in mismatches:
+        result.mismatches.append(
+            RoundTripMismatch(
+                ref=ref,
+                kind=m["kind"],
+                pad=m["pad"],
+                expected=m["expected"],
+                actual=m["actual"],
+                detail=m["detail"],
+            )
         )
-        if abs(exp_px - act_px) > epsilon or abs(exp_py - act_py) > epsilon:
-            result.mismatches.append(
-                RoundTripMismatch(
-                    ref=ref, kind="pad_position", pad=key,
-                    expected=(exp_px, exp_py), actual=(act_px, act_py),
-                )
-            )
-
-        # Pad body angle: a .kicad_pcb pad angle is ABSOLUTE (world), so
-        # the expected value is ``new_fp_angle + intrinsic`` where
-        # ``intrinsic = template pad angle - template fp angle`` -- the
-        # parser's ``pad_rotation_deg`` -- matching _reorient_pads.
-        exp_ang = canonical_angle(theta + tpin.pad_rotation_deg)
-        act_ang = canonical_angle(wpad.position.angle or 0.0)
-        if _angle_diff(exp_ang, act_ang) > epsilon:
-            result.mismatches.append(
-                RoundTripMismatch(
-                    ref=ref, kind="pad_angle", pad=key,
-                    expected=exp_ang, actual=act_ang,
-                )
-            )
-        result.checked_pads += 1
-
+    result.checked_pads += checked_pads
     result.checked_components += 1
 
 
