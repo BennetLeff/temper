@@ -2062,10 +2062,17 @@ measurement or by construction:
 4. **The s-expression tokenizer is the oracle's own regex, not a generic
    sexpr parser.** The token rules (`\s*(?:(\()|(\))|("(?:\\.|[^"\\])*")|
    ([^\s()]+))`, `re.S`) and the paren-stack errors (`unbalanced netlist:
-   unmatched ')'` / `'('`, `invalid netlist syntax at byte {pos}`) are
-   transcribed 1:1, including the `json.loads`-on-quoted-tokens decoding
-   (serde_json on JSON-valid tokens — every token the netlist compiler
-   emits). Malformed quoted tokens outside the compiler's domain raise
+   unmatched ')'` / `'('`) are transcribed 1:1, including the
+   `json.loads`-on-quoted-tokens decoding (serde_json on JSON-valid
+   tokens — every token the netlist compiler emits). The oracle's third
+   failure arm, `invalid netlist syntax at byte {pos}`, is UNREACHABLE
+   and is NOT transcribed: after the regex's leading `\s*`, the next
+   character is always `(`, `)`, a quote, or `[^\s()]+` — a match can
+   fail only on a whitespace-only tail, which the oracle's own
+   `text[pos:].strip()` guard turns into a clean break (see
+   `validation.rs`'s tokenize, which states this explicitly). The Rust
+   tokenizer mirrors every reachable token/error path exactly.
+   Malformed quoted tokens outside the compiler's domain raise
    different error classes/texts on the two sides — both fail closed,
    recorded as a documented deviation, not chased.
 5. **Iteration order is the oracle's own.** Every `sorted(...)` below is
@@ -2078,7 +2085,8 @@ measurement or by construction:
    duplicate-ref pairs anchor at the FIRST-seen path (the oracle's
    write-once `ref_paths` map — see the evidence doc; the first
    transcription chained them via `insert`'s replace-and-return and the
-   differential caught it).
+   differential caught it on a three-occurrence random draw, now pinned
+   deterministically by the hand-built three-occurrence case).
 6. **Error-string parity for the parse/reconcile failures.** Every gate
    error raised by the kernel is a plain-str / `!r` interpolation
    (no no-format float repr), and the shim re-wraps `PyValueError` into
