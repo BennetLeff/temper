@@ -23,8 +23,8 @@ Coverage intent per named list
                    BGA grids at the pitches that straddle the dog-bone
                    feasibility boundary, non-square pad shapes, every
                    ``initial_rotation`` index 0-3 and ``None``, both
-                   ``initial_side`` values (defect D4 -- the layer is always
-                   ``F.Cu`` regardless), ``initial_position = None``, and the
+                   ``initial_side`` values (the D4 corpus -- since #760 the
+                   layer follows the side), ``initial_position = None``, and the
                    ``pitch_mm`` values ``0.0`` / negative / ``inf`` / ``NaN``.
 ``RULE_SETS``      ``DesignRules.get_rules_for_net``: the default fall-through,
                    an assignment naming a class that exists, an assignment
@@ -148,7 +148,7 @@ PACKAGES: list[tuple[str, tuple[float, float] | None, int | None, int | None, fl
     # quadrants).  B1's dlsym cos/sin trap is live here.
     ("rot_5_out_of_range", (10.0, 20.0), 5, 0, 1.27, "BGA", _grid_pins(3, 1.27)),
     ("rot_negative", (10.0, 20.0), -1, 0, 1.27, "BGA", _grid_pins(3, 1.27)),
-    # --- side (defect D4: the layer is F.Cu no matter what) ----------------
+    # --- side (the D4 corpus: since #760 the layer follows initial_side) ---
     ("side_0", (10.0, 20.0), 0, 0, 1.27, "BGA", _grid_pins(3, 1.27)),
     ("side_1_back", (10.0, 20.0), 0, 1, 1.27, "BGA", _grid_pins(3, 1.27)),
     ("side_none", (10.0, 20.0), 0, None, 1.27, "BGA", _grid_pins(3, 1.27)),

@@ -3,7 +3,7 @@
 DO NOT EDIT -- THESE ARE THE REFERENCE.
 =======================================
 Every executable statement below is a **verbatim** ``git show`` extraction
-from commit ``15110feccc6ec9389f0777d3cff1ce9f81b11068`` (``origin/main``,
+from commit ``143752893c177dc976da614566c64e4e53e4951f`` (``origin/main``,
 2026-08-04) of the six modules listed in the survey's cluster E
 (``docs/evidence/2026-08-04-router-v6-migration-survey.md`` §4):
 

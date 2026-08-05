@@ -12,7 +12,7 @@ Arms
 ----
 * **oracle** -- ``tests/router_v6/_congestion_py_oracle.py``, a verbatim
   ``git show`` copy of the six cluster-E modules at
-  ``15110feccc6ec9389f0777d3cff1ce9f81b11068`` (``origin/main``).
+  ``143752893c177dc976da614566c64e4e53e4951f`` (``origin/main``).
 * **rust** -- the pyfunctions Phase B will add.  All of them are listed in
   :data:`REQUIRED_RUST_SYMBOLS` and bound in the adapter block below; nothing
   outside that block knows the Rust arm exists.
@@ -151,7 +151,7 @@ def _rust(symbol: str):
 # END ADAPTER BLOCK
 # ===========================================================================
 
-_ORACLE_PIN_SHA = "15110feccc6ec9389f0777d3cff1ce9f81b11068"
+_ORACLE_PIN_SHA = "143752893c177dc976da614566c64e4e53e4951f"
 _ORACLE_SOURCES: dict[str, tuple[str, ...]] = {
     "congestion.py": (
         "CongestionGrid",

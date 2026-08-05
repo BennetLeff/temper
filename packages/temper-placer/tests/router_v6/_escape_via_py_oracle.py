@@ -3,15 +3,28 @@
 DO NOT EDIT -- THESE ARE THE REFERENCE.
 =======================================
 Every executable statement below is a **verbatim** ``git show`` extraction
-from commit ``15110feccc6ec9389f0777d3cff1ce9f81b11068`` (``origin/main``,
-2026-08-04) of ``temper_placer/router_v6/escape_via_generator.py`` (67
-stmts): ``EscapeVia``, ``generate_escape_vias``, ``_is_position_valid`` --
+from commit ``143752893c177dc976da614566c64e4e53e4951f`` (``origin/main``,
+2026-08-05) of ``temper_placer/router_v6/escape_via_generator.py``:
+``EscapeVia``, ``generate_escape_vias``, ``_is_position_valid`` --
 i.e. the whole module except its import block.
 
-Nothing has been cleaned up, refactored, or fixed -- **including defect D4
-below**.  ``test_escape_via_rust_differential.py::test_oracle_is_verbatim_copy``
+Nothing has been cleaned up, refactored, or fixed *by this file*.
+``test_escape_via_rust_differential.py::test_oracle_is_verbatim_copy``
 re-extracts each definition from the pinned commit and compares the source
 text character for character.
+
+**Re-pinned 2026-08-05.**  The original pin was
+``15110feccc6ec9389f0777d3cff1ce9f81b11068`` (2026-08-04), which predated
+#760 (``aebaecd99``).  That PR repaired defect D4 below, so the old pin
+recorded behaviour the product no longer has -- 1 of the 41 ``PACKAGES``
+cases (``side_1_back``) diverged, the pin saying ``F.Cu`` where main says
+``B.Cu``.  The re-capture is a fresh ``git show`` of the same three
+definitions at the new commit, not a hand-edit; only
+``generate_escape_vias`` moved (6 lines: the ``getattr`` and its comment).
+``EscapeVia`` and ``_is_position_valid`` are byte-identical across the two
+commits, so every measurement in the "which operator" and "NaN behaviour"
+sections below still holds unchanged -- D4 touched neither the geometry nor
+the clearance predicate, only the layer *label*.
 
 Why this is its own oracle module, separate from ``net_ordering``
 ------------------------------------------------------------------
@@ -83,20 +96,35 @@ subtraction of a non-representable decimal from a distance; the corpus
 carries a case that lands the comparison inside the denormal band so a
 fast-math/FTZ build is caught.
 
-Known defects -- REPORTED, NOT FIXED
--------------------------------------
-**D4 -- every escape via is placed on ``F.Cu``, whatever side the component is on.**
-``generate_escape_vias`` resolves the layer with
+Known defects -- D4 REPAIRED, re-pinned
+----------------------------------------
+**D4 -- every escape via was placed on ``F.Cu``, whatever side the component
+was on.  REPAIRED by #760 (``aebaecd99``, issue #752 defect 3).**
+
+As originally pinned: ``generate_escape_vias`` resolved the layer with
 ``side = getattr(component, "side", 0) or 0`` and then
 ``layer = side_to_layer_name(side)``.  ``Component`` has **no ``side``
 attribute** -- the field is called ``initial_side`` (and
 ``pin_world_position`` reads *that* one when it mirrors the pad).  So the
-``getattr`` default fires unconditionally, ``side`` is always ``0``, and
-``layer`` is always ``"F.Cu"``.  Measured: a component with
-``initial_side=1`` (back side) still produces ``layer='F.Cu'`` on every
-generated via, while its pad coordinates *are* mirrored -- so the vias are
-geometrically on the back and labelled front.  Pinned by
-``test_d4_layer_is_always_f_cu_regardless_of_side``.
+``getattr`` default fired unconditionally, ``side`` was always ``0``, and
+``layer`` was always ``"F.Cu"``.  Measured on the old pin: a component with
+``initial_side=1`` (back side) still produced ``layer='F.Cu'`` on every
+generated via, while its pad coordinates *were* mirrored -- the vias were
+geometrically on the back and labelled front.
+
+The shipped line is now ``side = component.initial_side or 0``, and this
+oracle carries that.  Measured on the re-pinned oracle: ``side_1_back``
+yields ``{'B.Cu'}``; ``side_0`` and ``side_none`` still yield ``{'F.Cu'}``
+(``initial_side=None`` short-circuits to ``0`` through the ``or``, which is
+the pre-existing default and did not change).  Geometry is untouched --
+``side_0`` and ``side_1_back`` still differ in pad coordinates, exactly as
+before, so the *label* now agrees with the *geometry* instead of
+contradicting it.
+
+The pin for it was **inverted, not deleted**:
+``test_d4_layer_is_always_f_cu_regardless_of_side`` became
+``test_repaired_d4_layer_follows_the_component_side``, which fails if the
+``getattr`` form or any other side-blind resolution comes back.
 
 Two further behaviours that look like defects and are **not**, so nobody
 "fixes" them into a differential failure:
@@ -184,7 +212,12 @@ def generate_escape_vias(
     # Resolve layer from component side
     from temper_placer.core.board import side_to_layer_name
 
-    side = getattr(component, "side", 0) or 0
+    # The contract field is `initial_side` (core/netlist.py), not `side`.
+    # Reading a `side` attribute Component does not have made the getattr
+    # default fire unconditionally, labelling every escape via "F.Cu" -- while
+    # pin_world_position DID mirror the pad coordinates for bottom-side parts,
+    # so the two halves of the same via disagreed. See issue #752 defect 3.
+    side = component.initial_side or 0
     layer = side_to_layer_name(side)
 
     # Get component absolute position
