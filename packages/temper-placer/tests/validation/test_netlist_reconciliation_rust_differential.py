@@ -259,6 +259,29 @@ def test_parse_error_strings_byte_identical(tmp_path):
         "  )\n  (nets\n"
         '    (net (code "1") (name "gnd") (node (ref "R1") (pin "1")))\n'
         '    (net (code "2") (name "sig") (node (ref "R1") (pin "1")))\n  )\n)\n',
+        # zero-child '(comp)' node: node[0] renders the head atom 'comp' —
+        # a plain gate error on BOTH arms (the s-expression parser always
+        # stores the head, so the oracle's node[0] cannot IndexError here).
+        '(export (version "E")\n  (components\n    (comp)\n  )\n  (nets\n'
+        '    (net (code "1") (name "gnd"))\n  )\n)\n',
+        # zero-child '(net)' node (same head-rendering class)
+        '(export (version "E")\n  (components\n'
+        '    (comp (ref "R1")\n      (sheetpath (names "/a.ato:Top::x") (tstamps "0")))\n'
+        "  )\n  (nets\n    (net)\n  )\n)\n",
+        # Unicode whitespace separates tokens exactly like Python's `\s`
+        # with re.S: a bare token glued to \xa0 is TWO tokens, so the head
+        # renders 'comp' (not 'comp\xa0') and the error strings stay
+        # byte-identical. \xa0 is also non-printable: the repr-escaping
+        # deviation would render a glued token differently, which is why
+        # this split point must be pinned (P2-3).
+        '(export (version "E")\n  (components\n    (comp\xa0\xa0)\n  )\n  (nets\n'
+        '    (net (code "1") (name "gnd"))\n  )\n)\n',
+        # \u2028 (line separator) and \u3000 (ideographic space) split the
+        # same way.
+        '(export (version "E")\n  (components\n    (comp\u2028)\n  )\n  (nets\n'
+        '    (net (code "1") (name "gnd"))\n  )\n)\n',
+        '(export (version "E")\n  (components\n    (comp\u3000)\n  )\n  (nets\n'
+        '    (net (code "1") (name "gnd"))\n  )\n)\n',
     ]
     for text in cases:
         path = _write_netlist(tmp_path, text)

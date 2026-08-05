@@ -35,6 +35,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
 import temper_design_bundle_python as _tdb
 from hypothesis import given, settings
 from hypothesis import strategies as st
@@ -202,6 +203,21 @@ def test_pad_key_differential_random(number, index):
     oracle = _oracle._pad_key(_FakePad(number), index)
     shim = PAD_KEY(number, index)
     assert shim == oracle
+
+
+def test_pad_key_non_str_number_known_deviation():
+    """RECORDED DEVIATION (P2-5, VERIFICATION.md): the oracle keys by the
+    pad object's number AS-IS (`getattr(pad, 'number', None) or ""`), so a
+    truthy non-str number (e.g. an int) is used verbatim as the dict key;
+    the shim's `Option<String>` boundary raises TypeError instead. The
+    trigger domain is empty in production — both pad models are
+    str-contracted (kiutils `Pad.number: str`, the parser's `Pin.number`
+    via `_contract_field("number", "str")`) — so the divergence is recorded
+    rather than chased through the kernel's string-keyed signatures. This
+    pin documents the boundary so it cannot drift silently."""
+    assert _oracle._pad_key(_FakePad(7), 0) == 7  # object-as-key
+    with pytest.raises(TypeError):
+        PAD_KEY(7, 0)
 
 
 class _FakePad:
@@ -427,6 +443,32 @@ class TestRoundTripDifferential:
         oracle, shim = _run_roundtrip_both(out, {"U1": (10.0, 20.0)}, {}, components)
         assert shim == oracle
         assert shim[0] == ()
+
+    def test_duplicate_pad_number_last_wins_differential(self, tmp_path):
+        """Two template pins sharing one pad number: the oracle's
+        `{_pad_key(p, i): p ...}` dict comprehension collapses them to the
+        LAST pin and checks the key once (checked_pads == 1); the shim's
+        template-pad list must dedup the same way before the kernel runs
+        (P1)."""
+        content = _board_content(
+            _fp(
+                "U1",
+                (10.0, 20.0, None),
+                [("1", -0.775, 0.0, None), ("1", 0.775, 0.0, None)],
+            )
+        )
+        template = tmp_path / "template.kicad_pcb"
+        template.write_text(content, encoding="utf-8")
+        components = _template_components(template)
+        assert len(components[0].pins) == 2
+        out = tmp_path / "out.kicad_pcb"
+        write_placements_to_pcb(
+            template, out, _placements_dict({"U1": (10.0, 20.0, 0.0)}), components=components
+        )
+        oracle, shim = _run_roundtrip_both(out, {"U1": (10.0, 20.0)}, {}, components)
+        assert shim == oracle
+        assert shim[0] == ()  # the surviving (last) pin matches the written pad
+        assert shim[2] == 1  # checked_pads is 1, not 2 (deduped key)
 
     def test_unparseable_board_is_parse_error_both(self, tmp_path):
         bad = tmp_path / "bad.kicad_pcb"

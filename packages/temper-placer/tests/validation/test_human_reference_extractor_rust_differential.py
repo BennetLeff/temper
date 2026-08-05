@@ -34,6 +34,8 @@ import temper_drc_rs as _tdrc
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
+import tests.validation._human_reference_extractor_py_oracle as _oracle
+
 # Rust symbol under test — must exist or this file fails to collect (RED).
 RDL_SUM = _tdrc.rdl_sum
 
@@ -41,15 +43,26 @@ _COORD = st.floats(min_value=-1000.0, max_value=1000.0, allow_nan=False, allow_i
 
 
 def _oracle_rdl(segments: list[tuple[float, float, float, float]]) -> float:
-    """VERBATIM RDL loop from the pre-migration
-    ``human_reference_extractor._compute_routing_metrics`` (pinned at
-    commit 6290942be): ``rdl += math.hypot(dx, dy)`` in segment order."""
-    rdl = 0.0
-    for (sx, sy, ex, ey) in segments:
-        dx = float(ex) - float(sx)
-        dy = float(ey) - float(sy)
-        rdl += math.hypot(dx, dy)
-    return rdl
+    """RDL via the pinned oracle's own ``_compute_routing_metrics`` (not a
+    hand-copy — nothing may tie the reference arm to the kernel's formula
+    except the oracle module itself). A minimal ``ParseResult`` duck-type
+    carries only the traces (and the empty vias list); the via-count and
+    corridor/consolidation steps fall back to their -1 sentinels inside the
+    oracle, so the returned ``rdl`` MetricValue is exactly the oracle's
+    ``math.hypot`` accumulation over the segment list."""
+
+    class _Trace:
+        def __init__(self, sx, sy, ex, ey):
+            self.start = (sx, sy)
+            self.end = (ex, ey)
+
+    class _ParseResultStub:
+        def __init__(self, segs):
+            self.traces = [_Trace(*s) for s in segs]
+            self.vias = []
+
+    res = _oracle._compute_routing_metrics(_ParseResultStub(segments), "h", "now")
+    return float(res["rdl"].value)
 
 
 def _run_both(segments):
