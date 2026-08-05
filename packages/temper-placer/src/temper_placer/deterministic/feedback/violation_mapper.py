@@ -1,8 +1,11 @@
 from __future__ import annotations
 
-import re
 from dataclasses import dataclass, field
 from typing import Any
+
+import temper_design_bundle_python as _tdb
+
+_DH = _tdb.deterministic_hubs
 
 
 @dataclass
@@ -34,7 +37,17 @@ class MappedViolation:
 
 
 class ViolationComponentMapper:
-    """Analyzes DRC violations to identify responsible components and zones."""
+    """Analyzes DRC violations to identify responsible components and zones.
+
+    Wave 4, **Phase 5** (deterministic hubs slice): the regex compute of
+    ``map_violation`` is implemented in Rust in the ``temper-design-bundle``
+    crate (``temper_design_bundle_python.deterministic_hubs.map_violation_kernel``).
+    This class keeps the pre-migration public API unchanged and delegates.
+    ``DRCViolation``/``MappedViolation`` stay Python dataclasses; the
+    ``component_refs`` snapshot and the live ``zone_config`` (re-assigned by
+    the feedback orchestrator) stay Python-side and cross the boundary per
+    call.
+    """
 
     def __init__(self, netlist, zone_config: dict[str, Any] | None = None):
         """
@@ -58,78 +71,21 @@ class ViolationComponentMapper:
         Returns:
             MappedViolation object.
         """
-        components = set()
-        involves_via = False
-        involves_pth = False
-
-        # 1. Parse component references from items
-        for item in violation.items:
-            # Look for "of <REF>" (KiCad standard)
-            match = re.search(r"of ([A-Za-z0-9_]+)", item, re.IGNORECASE)
-            if match:
-                ref = match.group(1)
-                if ref in self.component_refs:
-                    components.add(ref)
-
-            # Look for "Pad <REF>-<PIN>" (Some formats)
-            match = re.search(r"pad ([A-Za-z0-9_]+)-", item, re.IGNORECASE)
-            if match:
-                ref = match.group(1)
-                if ref in self.component_refs:
-                    components.add(ref)
-
-            # Look for "Pad <REF>." (Some formats)
-            match = re.search(r"pad ([A-Za-z0-9_]+)\.", item, re.IGNORECASE)
-            if match:
-                ref = match.group(1)
-                if ref in self.component_refs:
-                    components.add(ref)
-
-            if "Via" in item or "via" in item.lower():
-                involves_via = True
-            if "PTH" in item or "pth" in item.lower():
-                involves_pth = True
-
-        # 2. Extract position from violation if not explicitly set
         pos = violation.pos
-
-        # 3. Determine zone from position
-        zone = None
-        if pos and self.zone_config:
-            for zone_name, config in self.zone_config.items():
-                bounds = config.get("bounds")
-                if bounds and len(bounds) == 2:
-                    (x1, y1), (x2, y2) = bounds
-                    # Support both (min, max) and (p1, p2) orders
-                    min_x, max_x = min(x1, x2), max(x1, x2)
-                    min_y, max_y = min(y1, y2), max(y1, y2)
-
-                    if min_x <= pos[0] <= max_x and min_y <= pos[1] <= max_y:
-                        zone = zone_name
-                        break
-
-        # 4. Extract clearance info from description if not already set
-        required = violation.required
-        actual = violation.actual
-
-        if (required is None or actual is None) and violation.description:
-            # Common clearance description: "Clearance violation (0.15mm < 0.20mm required)"
-            match = re.search(r"([\d\.]+)mm < ([\d\.]+)mm required", violation.description)
-            if match:
-                actual = float(match.group(1))
-                required = float(match.group(2))
-            else:
-                # KiCad JSON style: "clearance 0.2000 mm; actual 0.1958 mm"
-                match = re.search(
-                    r"clearance ([\d\.]+) mm; actual ([\d\.]+) mm", violation.description
-                )
-                if match:
-                    required = float(match.group(1))
-                    actual = float(match.group(2))
+        components, zone, required, actual, involves_via, involves_pth = _DH.map_violation_kernel(
+            list(violation.items),
+            set(self.component_refs),
+            pos[0] if pos is not None else None,
+            pos[1] if pos is not None else None,
+            violation.required,
+            violation.actual,
+            violation.description,
+            self.zone_config,
+        )
 
         return MappedViolation(
             type=violation.type,
-            components=sorted(components),
+            components=components,
             position=pos,
             zone=zone,
             required_clearance=required,

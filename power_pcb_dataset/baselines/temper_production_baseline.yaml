@@ -1,207 +1,3 @@
-# --- component_count / net_count removed (2026-07-29) ---
-#
-# These two keys used to live here as frozen absolutes, compared for exact
-# equality against whatever pcb/temper.kicad_pcb happened to measure that
-# run. They are DESCRIPTIONS of the board, not quality metrics -- a board
-# legitimately gains and loses parts and nets as the design changes -- so
-# pinning them here guaranteed a recurring false failure on every
-# legitimate board change. It happened three times in three days:
-#   2026-07-27: component_count 149 -> 169, net_count 95 -> 106
-#               (PCB resynced to netlist, 20 previously-unplaced parts added)
-#   2026-07-27 (same day, second edit): 169 -> 170, 106 -> 108
-#               (U27/MCU re-designated; UVL-02 fault-OR fan-in expansion)
-#   2026-07-28: 170 -> 168 (net_count unchanged)
-#               (OVP-01 Option C deleted R55/R56; commit 75a708a8/65bd0159)
-# ...and it was red again on main a fourth time (168 measured vs. 170
-# still recorded) before a fifth hand edit (PR #417, 77ccc70c) matched the
-# number back up -- which bought nothing, because the underlying mechanism
-# (an absolute compared to a mutable artifact) was untouched and would go
-# stale on the next legitimate component/net change regardless.
-#
-# The durable fix: `RegressionRunner._run_board`
-# (packages/temper-placer/src/temper_placer/regression/runner.py) now
-# measures component_count/net_count from pcb/temper.kicad_pcb on every
-# run and reports them for visibility ("BOARD: component_count=N,
-# net_count=N" in the golden-check output) without comparing them to any
-# stored number. Nothing here can go stale because nothing here is stored.
-# Full detail:
-# docs/solutions/best-practices/stale-absolute-baseline-vs-mutable-board-2026-07-29.md
-#
-# drc_errors/drc_warnings below are NOT the same kind of field as
-# component_count/net_count and were deliberately left alone at first pass:
-# they are genuine quality ratchets (an increase means the board actually
-# got worse, not merely different), so they stay pinned. Re-measure and
-# justify any change to them the same way a corpus-board Ceiling-Approval
-# bless would require -- see the runner's failure message for what's
-# expected.
-#
-# --- drc_available flipped false -> true (2026-07-29, same day) ---
-#
-# Leaving drc_available: false made the two lines above vacuous: with
-# component_count/net_count no longer gating either, golden-check asserted
-# approximately nothing beyond "the board parses" -- a green-and-empty gate,
-# worse than the false failure it replaced, because nobody investigates a
-# passing check. Root cause: golden-check ran on bare ubuntu-latest with no
-# kicad-cli installed at all, so `drc_available: true` would have made
-# RegressionRunner._run_board's run_drc() call raise -- and the runner's own
-# try/except silently fell back to comparing a fabricated 0 against whatever
-# ceiling was pinned here, always passing regardless of the board's actual
-# DRC state. Two fixes landed together: (1) golden-check.yml now runs in
-# the same container image (ghcr.io/bennetleff/temper-ci:latest) the
-# board-gates job in python-tests.yml uses, which has kicad-cli
-# preinstalled; (2) RegressionRunner._run_board now hard-fails the board
-# (not a silent skip) if drc_available: true but DRC still can't be run for
-# any reason -- an unmeasured run must never read as a clean one.
-#
-# MEASURED VALUES. kicad-cli 10.0.4 (Darwin arm64 25.5.0, matching the CI
-# image's KiCad 10.0 PPA install), against the board shape below (verified
-# via `grep -c '(footprint '/'(segment '/'(via '/'(zone ' pcb/temper.kicad_pcb`,
-# same shape test_regression_drc.py's PRODUCTION_BOARD_BASELINE_SHAPE records
-# for this commit): footprints 168, segments 2338, vias 48, zones 96.
-#
-# `run_drc()` (packages/temper-placer/src/temper_placer/validation/_drc_api.py,
-# the function RegressionRunner actually calls) uses `--all-track-errors`,
-# unlike test_regression_drc.py's own `_run_drc` helper -- the two modules'
-# violation counts are NOT directly comparable even on the identical board;
-# do not cross-check one against the other without accounting for that flag.
-#
-# N=15 `run_drc()` samples, all on the unmodified committed board:
-#   errors    all 15 runs: 817 x10, 818 x5  ->  median 817, range 817-818
-#   warnings  all 15 runs: 683 (zero scatter)
-# RegressionRunner now samples DRC_SAMPLE_RUNS=5 per run and compares
-# medians (same discipline as test_regression_drc.py's
-# PRODUCTION_DRC_SAMPLE_RUNS); every 5-of-15 subset of the sample above has
-# a median of 817 or 818, never higher. Thresholds set just above the worst
-# observed median-of-5, same rule test_regression_drc.py uses -- not so
-# loose that a real regression could hide inside the margin:
-#   drc_errors:   worst median-of-5 = 818  -> ceiling 820  (margin 2)
-#   drc_warnings: worst median-of-5 = 683  -> ceiling 685  (margin 2)
-#
-# `deterministic_pipeline.kicad_cli_drc_errors: 142` /
-# `kicad_cli_drc_warnings: 454` below are NOT the right figures for this
-# comparison and were left untouched deliberately: they're dated
-# extraction_date 2026-07-17, measured on the 149-footprint, ZERO-copper
-# board before it was ever routed (see docs/solutions/best-practices/
-# stale-absolute-baseline-vs-mutable-board-2026-07-29.md, instance 2, for
-# the same bare-vs-routed category error on test_regression_drc.py's old
-# PRODUCTION_PLACEMENT_ONLY_DRC_VIOLATIONS constants). They describe a board
-# that no longer exists and are kept only as a historical record inside
-# deterministic_pipeline, not as a live ratchet -- do not use them to
-# sanity-check drc_errors/drc_warnings above.
-#
-
-
-# --- drc_errors/drc_warnings RE-BASELINED 2026-08-02 (2nd, #568 edge-nudge) ---
-#
-# WHY IT MOVED AGAIN. a2fdfd1bb (#568) nudged edge-hanging refs inward to
-# clear the #523 scoped-solve edge-margin wall -- a reviewed board change
-# landing after the 2026-08-02 K2-resolve re-baseline. Re-measured the
-# bare run_drc path (--all-track-errors, kicad-cli 10.0.4): errors 1046
-# (single run; CI median-of-5 measured 1043 on the same board), warnings
-# 425 flat. The +7 over the prior 1039 baseline is the ref-nudge
-# consequence. NOTE: this baseline measures the bare path; the ratchet
-# ceiling (drc_ceiling.json) measures the regenerated-DRU path (1355) --
-# separate numbers, do not cross-check them.
-# --- drc_errors/drc_warnings RE-BASELINED 2026-08-02 (K2 RT314012 re-solve) ---
-#
-# WHY IT MOVED. The ladder-merged K2 relay re-solve (#517, 829af5c59 /
-# 27ea686c5) replaced the G5LE-1 with the RT314012 at (134.26, 30.46,
-# rot 90.0) -- a placement change, not a quality regression. Re-measured
-# 2026-08-02 with the SAME bare `run_drc()` (--all-track-errors, kicad-cli
-# 10.0.4, matching the prior entry) over 120 samples on the committed
-# board (content hash 0fff888a...): errors min=1031 max=1039 (unique
-# {1031..1039}; worst median-of-5 = 1037 -> ceiling 1039, margin 2),
-# warnings 428 flat across all 120 runs. drc_warnings dropped 685 -> 428
-# because the K2 re-solve removed the warning-heavy overlap the old
-# G5LE-1 position produced. NOTE: this baseline measures the bare
-# run_drc path (no DRU regeneration); the DRC-ratchet ceiling in
-# power_pcb_dataset/drc_ceiling.json measures the regenerated-DRU path and
-# is a separate number (1329/1334) -- do not cross-check them.
-# --- drc_errors RE-BASELINED 2026-07-30 (PR #459, board resync against
-# elec/src / pcb/libs) ---
-#
-# WHY IT MOVED. This PR corrects 6 embedded footprints on
-# pcb/temper.kicad_pcb that had drifted behind elec/src/pcb/libs (U3
-# DIP-6_W7.62mm -> W10.16mm, C6 and C1 each a 5mm-pitch disc "stub" ->
-# their real 10mm/15mm-pitch bodies, C25/C26 tank capacitors WIMA FKP1
-# rect -> CDE 942C16P1K-F axial, U7's pad/silk/courtyard geometry matched
-# to the already-corrected pcb/libs/lib.pretty/SOIC16W_Isolated.kicad_mod),
-# plus stages one previously-missing component (tank.c_tank3) in a clear
-# row below the board outline. See docs/evidence/
-# 2026-07-30-board-resync-against-source.md for the full resync.
-#
-# Every one of these 7 components keeps its EXISTING position/rotation --
-# verified footprint-by-footprint, 0 of 168 pre-existing components moved
-# (same doc, by-name copper-net-identity proof). No placement or routing
-# ran in this change. That makes the attribution airtight: a physically
-# larger, datasheet-correct footprint sitting at an unchanged anchor point
-# necessarily overlaps unchanged neighbouring copper/courtyards/silk more
-# than the smaller, wrong footprint it replaces -- there is no other
-# mechanism available in this diff that could move a DRC count.
-#
-# VERIFIED, not assumed: every one of the 100+ new DRC error instances was
-# checked against the 7 changed components' reference designators. Zero of
-# them involve any OTHER, unchanged component -- i.e. 0 new violations
-# between components this PR did not touch. Per-rule breakdown (kicad-cli
-# 10.0.4, macOS arm64, `run_drc()` i.e. `--all-track-errors`, both boards
-# measured against a full pcb/ directory copy -- WITHOUT the adjacent
-# .kicad_pro/fp-lib-table a bare board-file comparison silently picks up
-# kicad-cli's built-in default severities instead of this project's own
-# `rule_severities` overrides, e.g. pth_inside_courtyard flips
-# error<->warning as a pure measurement artefact, not a real board change --
-# this was caught and corrected before being recorded here):
-#
-#   rule                  old  new  delta  driven by (ref: instance count)
-#   hole_clearance        101  109   +8    U3:8, U7:2
-#   shorting_items        113  118   +5    U3:4, U7:1, C1:1
-#   courtyards_overlap     11   16   +5    C25:3, C26:2, C1:1
-#   solder_mask_bridge     64   69   +5    U3:4, U7:1, C1:1
-#   copper_edge_clearance  13   15   +2    C1:2
-#   (every other rule: delta 0)
-#                                +25  (this specific paired sample; see the
-#                                      median figures below for the ratchet)
-#
-# All five categories are the textbook consequence of a bigger, correct
-# body/lead-pitch sitting where a smaller, wrong one used to: U3's DIP-6
-# pins now span 10.16mm not 7.62mm; C1/C6's THT pads now sit 15mm/10mm
-# apart, not 5mm; C25/C26's real axial capacitor bodies are a different
-# shape than the WIMA rect stub they replace; U7's corrected land pattern
-# is 0.3mm wider per side. None of this is a placer/router regression --
-# there is no placer or router in this diff's causal chain, only a
-# footprint-geometry correction at a frozen position.
-#
-# THE NUMBER ITSELF. CI (golden-check, run 30498739994, kicad-cli 10.0.5,
-# this exact commit) measured drc_errors: 842.0 (its own median-of-5) --
-# this is the authoritative figure the ratchet evaluates against and is
-# used directly below, not re-derived. Cross-checked locally on kicad-cli
-# 10.0.4 (not the CI version -- recorded for corroboration only): N=15
-# `run_drc()` samples gave errors 842 x9, 843 x6 (median 842, worst
-# median-of-5 over all 3003 five-run subsets = 843) -- the same median
-# value CI reported, to the run. Ceiling set the same way the original 820
-# was derived (worst observed median-of-5 + margin 2): 843 + 2 = 845.
-#
-# drc_warnings did NOT regress (CI printed no drc_warnings REGRESSION line)
-# and is left UNCHANGED at 685. Locally it measured 680 (kicad-cli 10.0.4,
-# zero scatter over N=15) -- an improvement, not a regression -- but that
-# number was only measured on 10.0.4, never confirmed against CI's 10.0.5,
-# and it isn't blocking anything, so it is not written here: recording an
-# unconfirmed cross-version number for a metric that isn't gating is the
-# same "guess between versions" this file's own drc_errors section above
-# was explicit about not doing.
-#
-# 2026-08-03 re-measure (PR #602, K3 RT314012 swap + validator-gated board
-# write): CI golden-check measured drc_warnings 472 vs 425 recorded
-# (kicad-cli 10.0.x, deterministic pipeline, run 30826582009). Every
-# warning-category rise is attributed to the deliberate, reviewed board
-# change (docs/evidence/2026-08-02-k3-swap-and-board-write.md, _march entry
-# in power_pcb_dataset/drc_ceiling.json): silk_over_copper +50 (the
-# 60mm-cap re-solve's movement class, same as the #517 doc recorded),
-# track_dangling +1 (one moved-pad stub), lib_fp_issues +1 (K3 now
-# references the project temper library, same class as K2's swap in #524).
-# drc_errors did not regress (no REGRESSION line for errors) and is left
-# at 1046 per this file's own discipline: only the gating metric that
-# moved is recorded here. drc_ceiling.json carries the full 120-sample
-# protocol measurement.
 drc_available: true
 drc_errors: 1046
 drc_warnings: 472
@@ -228,123 +24,126 @@ cp_sat:
   loop_drc_errors: null
   loop_success: null
 router_v6_routing:
-  wall_time_s: 35.4
-  completion_rate: 0.7473684210526316
-  routed_nets: 71
-  unrouted_nets: 24
+  wall_time_s: 52.9
+  completion_rate: 0.3673469387755102
+  routed_nets: 40
+  unrouted_nets: 62
   unrouted_nets_list:
-  - DC_BUS_RTN
-  - I_SENSE
-  - PWR_RTN
-  - V_BUS_SENSE
-  - ZCD
+  - GATE_HS
+  - GATE_LS
+  - PWM_LS
+  - RELAY_CTRL
+  - RTD_DRDY
+  - RTD_SCK
+  - RTD_SDI
+  - RTD_SDO
+  - WDT_KICK
+  - WDT_RESET_N
+  - ZCD_ISO
+  - bias
   - boot
+  - cs_n
   - discharge.k_dis1-coil1
   - discharge.k_dis1-coil2
   - discharge.k_dis1-nc
   - discharge.k_dis2-coil1
   - discharge.k_dis2-nc
-  - discharge.q_dis_drv-g
+  - discharge.r_dis1a-p2
+  - discharge.r_dis2a-p2
   - discharge.r_snub1-p2
   - discharge.r_snub2-p2
   - en
-  - hb.gate_hs.driver-p1-1
+  - fb
+  - hb.power_loop.q_high-g
+  - i2c_sda_ui
+  - ina
+  - inb
   - power_in.bypass_relay-coil1
   - power_in.bypass_relay-coil2
   - power_in.ntc-no
+  - power_in.q_relay_drv-g
+  - refin_n
+  - rtd_pan.r_low_top-inn
+  - rtd_pan.rail_monitor-ina_p
+  - rtd_pan.rail_monitor-outa
+  - safety-line
+  - safety-line-1
+  - safety-line-2
+  - safety-line-3
+  - safety.coil_thermal-line
+  - safety.coil_thermal.comp-inp
+  - safety.fault_any_or-a2
+  - safety.fault_any_or-y2
+  - safety.fault_or-a2
+  - safety.fault_or-b2
+  - safety.fault_or-y2
+  - safety.ovp-line
+  - safety.ovp.r_adc_top2-p2
+  - safety.ovp.r_div_top2-p2
+  - safety.uvlo_logic.mon-ina_p
+  - sdi
+  - sdo
   - sw
+  - tank-out
   - tank.c_tank1-p2
   - thermal.j_fan-p1
+  - vbias
   - w1_1
   - w1_2
-  drc_violations_post_route: 953
+  - zcd
+  drc_violations_post_route: 1389
   drc_violations_by_type:
-    tracks_crossing: 100
-    shorting_items: 109
-    clearance: 15
-    hole_clearance: 4
-    courtyards_overlap: 27
-    pth_inside_courtyard: 16
-    copper_edge_clearance: 21
-    solder_mask_bridge: 207
-    silk_edge_clearance: 9
-    hole_to_hole: 3
-    lib_footprint_issues: 30
-    lib_footprint_mismatch: 14
+    clearance: 499
+    shorting_items: 130
+    hole_clearance: 20
+    tracks_crossing: 2
+    courtyards_overlap: 11
+    pth_inside_courtyard: 1
+    copper_edge_clearance: 20
+    drill_out_of_range: 4
+    via_diameter: 4
+    solder_mask_bridge: 154
+    track_dangling: 111
+    via_dangling: 15
+    silk_edge_clearance: 1
+    lib_footprint_mismatch: 12
+    lib_footprint_issues: 34
     silk_overlap: 199
-    silk_over_copper: 199
-  unconnected_items: 149
+    silk_over_copper: 172
+  unconnected_items: 460
   extraction_date: '2026-07-18'
   extraction_method: router_v6.route_pcb(existing_positions)
   kicad_cli_version: 10.0.4
-
-# Post-U9 (W2 U2 layer_constraints wired + layer output fix) measurements.
-# COMPLETION-PRESERVING SEMANTICS (PR #220 regression fix):
-# The SSOT layer override is gated: it only applies when SSOT matches the
-# heuristic layer.  Nets whose heuristic says F.Cu (signal/SMD pads) are
-# never forced to B.Cu.  This prevents unconnected pads (A* routes on a
-# single-layer occupancy grid and cannot connect F.Cu-only pads from B.Cu).
-# Demotions to heuristic layer: 0 (by design — SSOT=heuristic only).
-#
-# Corpus board (golden test methodology, CP-SAT placements, seed=42,
-# kicad-cli 10.0.4):
-#   Completion: 100.00% (preserved — matches main)
-#   Unconnected: 8 (pre-existing on kicad-cli 10.0.4; CI kicad-cli 8.0 reports 0)
-#   DRC total: 353 (routing-introduced 310)
-#   shorting_items: 73 (unchanged from main — SSOT override reverted)
-#   diff_pair_gap_out_of_range: 0 (was 6 — from layer output fix only)
-#
-# Production board (existing positions, kicad-cli 10.0.4):
-#   DRC total: ~953-957 (unchanged — no explicit netclasses, U2 finding)
-#   completion: 74.74% (unchanged)
-#
-# EARLIER 249→209 CLAIM PROVENANCE GAP (U10 report, commit 254eb3e4):
-# The earlier measurement claimed corpus DRC 249→209 with -8 shorting and
-# -6 diff_pair.  That measurement used existing positions (not CP-SAT)
-# and a different kicad-cli invocation than the golden test's
-# `_run_drc` helper.  The 249→209 delta was real for that specific
-# invocation but overstated the improvement on the golden-test methodology
-# (CP-SAT placements) where the SSOT override produced the 8-unconnected
-# CI regression (PR #220).  Final U9 state: layer_constraints threading
-# is landed but completion-gated (SSOT applies only when it equals the
-# heuristic layer), and routed-segment output remains F.Cu — divergent
-# SSOT layers require via-aware layer transitions (A* routes B.Cu but
-# SMD pads exist only on F.Cu).  Router output is byte-identical to
-# main; enabling divergent layers is the W2 via-insertion follow-up.
 u9_final:
   extraction_date: '2026-07-18'
   kicad_cli_version: 10.0.4
-  semantics: |
-    completion-gated: _assign_layer applies SSOT only when it matches
+  semantics: 'completion-gated: _assign_layer applies SSOT only when it matches
+
     the heuristic; _write_routes_to_content writes routed segments to
+
     F.Cu (main behavior).  Net effect vs main: none, by construction.
+
+    '
   corpus:
-    golden_test_signature: |
-      Measured post-revert on kicad-cli 10.0.4 (2026-07-18):
-      unconnected_items assert PASSES (0; delta -84 vs placement
-      baseline, matching main's CI signature).  Final
-      routing_introduced assert fails with 406 locally / 443 on CI —
-      the pre-existing corpus red (single-layer routing quality),
-      unchanged by this branch.
-    provenance_note: |
-      Earlier u9_post_fix claims are retracted: the 249->209 (-16%)
-      improvement was measured with a non-golden invocation (existing
-      positions, not CP-SAT placements) while the path_layer output
-      change was active — that change broke completion (8 unconnected)
-      and was reverted.  The "diff_pair_gap survived" and "unconnected
-      8 also present on main" claims were artifacts of the same
-      invocation mismatch and do not hold under the golden test.
-    remaining_violations: |
-      Pre-existing corpus categories (CI, kicad-cli 8.x): clearance 144,
-      tracks_crossing 108, solder_mask_bridge 99, shorting_items 88,
-      diff_pair_gap_out_of_range 4.  These require via-aware multi-layer
-      output (W2 follow-up), W2 U3 (IPC-2152), U4 (power pours), or
-      improved A* path quality — layer assignment alone cannot resolve
-      them.
+    golden_test_signature: "Measured post-revert on kicad-cli 10.0.4 (2026-07-18):\n\
+      unconnected_items assert PASSES (0; delta -84 vs placement\nbaseline, matching\
+      \ main's CI signature).  Final\nrouting_introduced assert fails with 406 locally\
+      \ / 443 on CI \u2014\nthe pre-existing corpus red (single-layer routing quality),\n\
+      unchanged by this branch.\n"
+    provenance_note: "Earlier u9_post_fix claims are retracted: the 249->209 (-16%)\n\
+      improvement was measured with a non-golden invocation (existing\npositions,\
+      \ not CP-SAT placements) while the path_layer output\nchange was active \u2014\
+      \ that change broke completion (8 unconnected)\nand was reverted.  The \"diff_pair_gap\
+      \ survived\" and \"unconnected\n8 also present on main\" claims were artifacts\
+      \ of the same\ninvocation mismatch and do not hold under the golden test.\n"
+    remaining_violations: "Pre-existing corpus categories (CI, kicad-cli 8.x): clearance\
+      \ 144,\ntracks_crossing 108, solder_mask_bridge 99, shorting_items 88,\ndiff_pair_gap_out_of_range\
+      \ 4.  These require via-aware multi-layer\noutput (W2 follow-up), W2 U3 (IPC-2152),\
+      \ U4 (power pours), or\nimproved A* path quality \u2014 layer assignment alone\
+      \ cannot resolve\nthem.\n"
   production:
     drc_total: 953
     delta_vs_u3_baseline: 0
-    attribution: |
-      No change — U2 confirmed no production-board nets have explicit
-      netclass assignments, so the SSOT has no targets; output layers
-      match the U3 baseline measurement.
+    attribution: "No change \u2014 U2 confirmed no production-board nets have explicit\n\
+      netclass assignments, so the SSOT has no targets; output layers\nmatch the U3\
+      \ baseline measurement.\n"
