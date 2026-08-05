@@ -1,10 +1,12 @@
 # Wave 4 Phase 5 mutation sweep — report / requirements / explainability — 2026-08-05
 
-<!-- provenance: commit=63dedc87b dirty=true -->
+<!-- provenance: commit=8521b6caaa3de5241e8691dd87a960fc9e30b419 dirty=false (re-pointed 2026-08-05: the sweep's measurement tree 63dedc87b10eefa01e6a0673c11cb2f5a532889d was a pre-rebase branch commit, orphaned by force-push; the half_even pins and this sweep evidence landed on main at 8521b6caaa3de5241e8691dd87a960fc9e30b419, which is the cited commit; dirty=false because the evidence is committed there) -->
 
 **Base commit:** the TDD-RED commit `ba3d857dd` (post-rebase hash). The
-sweep ran against the committed tree at `63dedc87b` with the `half_even`
-fixture added during the sweep itself (hence `dirty=true`): oracles +
+sweep ran against the measurement tree with the `half_even` fixture added
+during the sweep itself (the measurement-tree commit `63dedc87b` was
+orphaned when the branch was rebased; the half_even pins and this evidence
+landed on main at `8521b6ca`, which the header cites): oracles +
 differential/PBT suites, branch `feat/wave4-phase5-report-requirements-explain-rust` in the
 isolated worktree `/private/tmp/wt5-report`.
 
