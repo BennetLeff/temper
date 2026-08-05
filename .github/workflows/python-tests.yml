@@ -109,6 +109,7 @@ on:
       - 'docs/hardware/PROTECTION_CHAIN_REVIEW.md'
       - 'docs/plans/**'
       - 'docs/traceability-registry.yaml'
+      - 'docs/wave4-verdicts.yaml'
       - '**/TRACEABILITY'
       - 'power_pcb_dataset/timing_baselines.yaml'
       - 'power_pcb_dataset/golden_manifest.yaml'
@@ -213,6 +214,7 @@ on:
       - 'docs/hardware/PROTECTION_CHAIN_REVIEW.md'
       - 'docs/plans/**'
       - 'docs/traceability-registry.yaml'
+      - 'docs/wave4-verdicts.yaml'
       - '**/TRACEABILITY'
       - 'power_pcb_dataset/timing_baselines.yaml'
       - 'power_pcb_dataset/golden_manifest.yaml'
@@ -1670,6 +1672,17 @@ jobs:
       - name: Script manifest gate
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python scripts/check_manifest_gate.py
+
+      # Wave 4 R7: "the program is complete only when every surface has a
+      # recorded verdict". docs/wave4-verdicts.yaml records one per surface and
+      # this asserts the ledger stays well-formed and covers every Python file
+      # under its roots -- a new module in an undecided surface, or a
+      # JUSTIFIED-KEEP with no named blocker (D6), fails here rather than
+      # drifting silently. The instrument shipped in #682 without being wired
+      # to anything, which is the ungated-gate class this job exists to close.
+      - name: Wave 4 verdict coverage gate (R7)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python scripts/check_verdict_coverage.py
 
       # requirements-ci.txt is baked into the CI image's pre-installed venv
       # (.github/docker/ci.Dockerfile). If it drifts from uv.lock, the image
