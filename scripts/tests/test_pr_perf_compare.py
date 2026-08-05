@@ -20,14 +20,25 @@ from pr_perf_compare import (  # noqa: E402
     COMPLETION_MARGIN,
     DEFAULT_WINDOW,
     IMPROVEMENT_THRESHOLD,
+    MAX_GATEABLE_MARGIN,
+    MIN_NOISE_GROUP,
+    NOISE_HEADROOM,
+    PER_BENCHMARK_TIMING_MARGIN,
+    REAL_REGRESSION_FLOOR,
     TIMING_MARGIN,
+    UNGATEABLE_BENCHMARKS,
     PerfGateError,
     _parse_records,
     _status_for,
+    advisory_notes,
     compare,
+    derive_margin_table,
+    format_markdown,
     gate_failures,
     load_main_baselines,
     main,
+    margin_for,
+    measure_fixed_commit_noise,
 )
 
 
@@ -352,3 +363,255 @@ def test_absent_registry_degrades_to_the_strict_behaviour() -> None:
     results = compare(_unbaselined_entry(), {}, main_benchmarks=None)
     assert results[0]["status"] == "NO_BASELINE"
     assert len(gate_failures(results)) == 1
+
+
+# ---------------------------------------------------------------------------
+# Per-benchmark margins (2026-08-05)
+#
+# One constant for seventeen benchmarks produced false regressions on arms
+# whose own fixed-commit noise exceeded it. These tests pin the derivation so
+# the table cannot drift from the measurement in EITHER direction: too tight
+# and the false positives come back, too wide and the gate stops biting.
+# See docs/evidence/2026-08-05-perf-ab-per-benchmark-margin.md.
+# ---------------------------------------------------------------------------
+
+_BASELINE_PATH = (
+    Path(__file__).resolve().parents[2]
+    / "power_pcb_dataset/metrics/perf_ab_baseline.jsonl"
+)
+
+_REDERIVE = (
+    "Re-derive with `python3 scripts/pr_perf_compare.py --derive-margins "
+    "--baseline-jsonl power_pcb_dataset/metrics/perf_ab_baseline.jsonl` and "
+    "paste the result into scripts/pr_perf_compare.py."
+)
+
+
+def _baseline_records() -> list[dict]:
+    return _parse_records(_BASELINE_PATH.read_text(), str(_BASELINE_PATH))
+
+
+def test_fixed_commit_noise_is_actually_measurable():
+    """The derivation must rest on repeated runs of ONE commit.
+
+    Spread across commits may be real performance change; using it as the
+    margin would absorb genuine regressions into the band. If the baseline ever
+    stops carrying same-commit groups, every margin below is unfounded and this
+    must fail rather than silently fall back to cross-commit spread.
+    """
+    measured = measure_fixed_commit_noise(_baseline_records())
+    assert measured, (
+        "the committed baseline carries no group of "
+        f"{MIN_NOISE_GROUP}+ rows sharing one git_commit, so per-benchmark "
+        "noise cannot be measured at all. Capture repeated runs of a single "
+        "commit via workflow_dispatch on .github/workflows/pr-perf-check.yml."
+    )
+    for key, stats in measured.items():
+        assert stats["n"] >= MIN_NOISE_GROUP, key
+
+
+def test_committed_margins_match_the_measurement():
+    """PER_BENCHMARK_TIMING_MARGIN is exactly what the baseline implies.
+
+    Hand-editing a margin upward to make a failure pass is the thing the gate's
+    own output forbids. This test is the mechanical form of that rule: the
+    number has to come out of the measurement.
+    """
+    gated, _ = derive_margin_table(_baseline_records())
+    assert PER_BENCHMARK_TIMING_MARGIN == gated, _REDERIVE
+
+
+def test_ungateable_set_matches_the_measurement():
+    """UNGATEABLE_BENCHMARKS is exactly the measured-ungateable set.
+
+    Both directions matter. A benchmark cannot be excused from the gate
+    without a measurement saying no margin separates its noise from the
+    real-regression class -- that is what stops the exclusion list from
+    becoming a place to park inconvenient failures. And a benchmark whose
+    variance has since been reduced must be re-gated, not left excused.
+    """
+    _, ungateable = derive_margin_table(_baseline_records())
+    assert set(UNGATEABLE_BENCHMARKS) == set(ungateable), _REDERIVE
+
+
+def test_no_gated_margin_reaches_the_real_regression_class():
+    """Every gated margin stays clear of the smallest real regression on record.
+
+    A margin at or above +50.7% cannot tell noise from a genuine regression, so
+    a benchmark carrying one is not gated in any meaningful sense.
+    """
+    for key, margin in PER_BENCHMARK_TIMING_MARGIN.items():
+        assert margin <= MAX_GATEABLE_MARGIN, key
+        assert margin < REAL_REGRESSION_FLOOR, key
+    assert TIMING_MARGIN <= MAX_GATEABLE_MARGIN
+
+
+def test_no_benchmark_is_gated_tighter_than_its_measured_noise():
+    """A margin below ~2x a benchmark's own noise is a false-positive factory.
+
+    This is the defect being fixed, stated as an invariant: the 20% default was
+    below the fixed-commit noise of physics-safety, loaders, and the three
+    ungateable arms, and each of them failed PRs that could not have touched
+    them.
+    """
+    measured = measure_fixed_commit_noise(_baseline_records())
+    for key, stats in measured.items():
+        if key in UNGATEABLE_BENCHMARKS:
+            continue
+        applied = margin_for(key)
+        assert applied * 100 >= NOISE_HEADROOM * stats["worst_pct"], (
+            f"{key} is gated at {applied:.0%} but its worst measured "
+            f"fixed-commit excursion is {stats['worst_pct']:.1f}%. " + _REDERIVE
+        )
+
+
+def _gated_benchmarks() -> list[tuple[str, str]]:
+    measured = measure_fixed_commit_noise(_baseline_records())
+    return sorted(k for k in measured if k not in UNGATEABLE_BENCHMARKS)
+
+
+def _window(module: str, stage: str, base: float) -> list[dict]:
+    return [
+        {"module": module, "board": "synthetic", "stage": stage,
+         "timestamp": f"2026-08-05T00:00:0{i}", "git_commit": "base",
+         "metrics": {"rust_over_oracle_ratio": base}}
+        for i in range(DEFAULT_WINDOW)
+    ]
+
+
+def _pr_row(module: str, stage: str, ratio: float) -> list[dict]:
+    return [{"module": module, "board": "synthetic", "stage": stage,
+             "metrics": {"rust_over_oracle_ratio": ratio}}]
+
+
+@pytest.mark.parametrize("bench", _gated_benchmarks())
+def test_a_real_scale_regression_still_fails_every_gated_benchmark(bench):
+    """THE BITE PROOF. A regression at the real-regression scale must fail.
+
+    +50.7% is the smallest genuine regression in the repo's own metric history
+    (docs/evidence/2026-08-04-perf-ab-harness-noise-floor.md). Widening margins
+    to stop false positives is only defensible if the gate still catches this,
+    so it is asserted for every gated benchmark on every run -- not
+    demonstrated once and trusted thereafter.
+    """
+    module, stage = bench
+    base = 0.400000
+    results = compare(
+        _pr_row(module, stage, base * (1 + REAL_REGRESSION_FLOOR)),
+        load_main_baselines(_window(module, stage, base)),
+    )
+    assert results[0]["deltas"]["rust_over_oracle_ratio"]["status"] == "REGRESSION"
+    assert gate_failures(results), f"{bench} no longer bites at +50.7%"
+
+
+def test_the_widened_benchmarks_still_bite_just_above_their_margin():
+    """Widening is bounded: a delta just past the new margin still fails."""
+    for (module, stage), margin in PER_BENCHMARK_TIMING_MARGIN.items():
+        base = 0.500000
+        baselines = load_main_baselines(_window(module, stage, base))
+        over = compare(
+            _pr_row(module, stage, base * (1 + margin) * 1.01), baselines
+        )
+        assert gate_failures(over), (module, stage)
+        under = compare(
+            _pr_row(module, stage, base * (1 + margin) * 0.99), baselines
+        )
+        assert not gate_failures(under), (module, stage)
+
+
+def test_default_margin_still_applies_to_an_uncharacterised_benchmark():
+    """An unknown key is gated at 20%, not excused.
+
+    A benchmark nobody has characterised must not fall through into the
+    permissive branch -- that is how a per-benchmark table would otherwise
+    become a way to opt out of the gate by omission.
+    """
+    assert margin_for(("brand-new", "arm")) == TIMING_MARGIN
+    assert margin_for(None) == TIMING_MARGIN
+    assert _status_for("rust_over_oracle_ratio", 20.1, ("brand-new", "arm")) == "REGRESSION"
+
+
+def _ungateable_case(delta_ratio: float):
+    module, stage = next(iter(UNGATEABLE_BENCHMARKS))
+    base = 0.400000
+    return compare(
+        _pr_row(module, stage, base * delta_ratio),
+        load_main_baselines(_window(module, stage, base)),
+    )
+
+
+def test_ungateable_benchmark_reports_advisory_and_never_fails():
+    results = _ungateable_case(2.0)  # +100%, far past any margin
+    assert results[0]["deltas"]["rust_over_oracle_ratio"]["status"] == "ADVISORY"
+    assert gate_failures(results) == []
+    notes = advisory_notes(results)
+    assert len(notes) == 1
+    assert "NOT GATED" in notes[0]
+
+
+def test_ungateable_benchmark_never_claims_an_improvement():
+    """physics-emi's own noise produced -42.8% on unmodified code.
+
+    Reporting that as an IMPROVED is the same error as reporting its mirror
+    image as a regression, and a gate that always shows a green arrow stops
+    being read.
+    """
+    results = _ungateable_case(0.5)  # -50%
+    assert results[0]["deltas"]["rust_over_oracle_ratio"]["status"] == "ADVISORY"
+    assert results[0]["status"] == "ADVISORY"
+
+
+def test_advisories_appear_in_the_report_even_when_the_gate_passes():
+    """An exclusion nobody sees is an exclusion nobody revisits."""
+    results = _ungateable_case(1.5)
+    report = format_markdown(results, [], advisory_notes(results))
+    assert "NOT gated" in report
+    assert "Performance A/B gate passed" in report
+    assert "not gated" in report  # the Margin column
+
+
+def test_ungateable_arms_are_a_minority_of_the_harness():
+    """The gate must not become a report by attrition.
+
+    Excluding a benchmark is legitimate when the measurement demands it, but if
+    most of the harness were excused the gate would be vacuous -- the failure
+    mode scripts/check_vacuous_gates.py exists because of.
+    """
+    measured = measure_fixed_commit_noise(_baseline_records())
+    gated = [k for k in measured if k not in UNGATEABLE_BENCHMARKS]
+    assert len(gated) > len(UNGATEABLE_BENCHMARKS), (
+        f"only {len(gated)} of {len(measured)} benchmarks are gated"
+    )
+
+
+def test_ungateable_entries_are_all_registered_benchmarks():
+    """No stale exclusion for a benchmark that no longer exists."""
+    measured = set(measure_fixed_commit_noise(_baseline_records()))
+    assert set(UNGATEABLE_BENCHMARKS) <= measured
+    assert set(PER_BENCHMARK_TIMING_MARGIN) <= measured
+
+
+def test_derive_margins_fails_closed_without_fixed_commit_groups(tmp_path):
+    """A baseline with no repeated commit cannot produce a margin table.
+
+    Printing an empty table would invite someone to paste it over one derived
+    from real data, silently returning every benchmark to the default.
+    """
+    thin = tmp_path / "thin.jsonl"
+    thin.write_text("".join(
+        json.dumps({
+            "module": "m", "board": "synthetic", "stage": "s",
+            "git_commit": f"c{i}", "timestamp": f"2026-08-05T00:00:0{i}",
+            "metrics": {"rust_over_oracle_ratio": 0.5},
+        }) + "\n" for i in range(5)
+    ))
+    assert main(["--derive-margins", "--baseline-jsonl", str(thin)]) == 1
+
+
+def test_derive_margins_reproduces_the_committed_table(capsys):
+    """The documented re-derivation command actually works end to end."""
+    assert main(["--derive-margins", "--baseline-jsonl", str(_BASELINE_PATH)]) == 0
+    out = capsys.readouterr().out
+    assert "UNGATEABLE" in out
+    for module, stage in UNGATEABLE_BENCHMARKS:
+        assert f"{module}/{stage}" in out

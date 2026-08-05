@@ -105,8 +105,22 @@ surfaces:
     verdict: MIGRATE
     phase: 4
   - pattern: packages/temper-placer/src/temper_placer/fields/**
-    verdict: MIGRATE
-    phase: 4
+    verdict: JUSTIFIED-KEEP
+    blocker: >-
+      No portable compute: the three modules are contract-adjacent data
+      containers over numpy-owned buffers and kept-Python gate objects,
+      assessed 2026-08-05 (Wave 4 Phase 4 leftovers slice). CostField /
+      CostFieldInput are frozen dataclasses whose every operation is a numpy
+      buffer op (ravel/astype/ascontiguousarray — to_flat, to_cost_field_input);
+      FieldResult wraps the kept-Python GateResult pyclass with a three-line
+      fail-closed invariant (a status identity comparison) and forwards
+      numpy ops; FieldGate is an abstract extension point whose concrete
+      subclasses live in other sessions' surfaces (router_v6, physics/
+      thermal_fdm, deterministic/state). A migration would produce a pyo3
+      wrapper whose every method calls back into Python — a per-call
+      marshalling boundary with no algorithm to protect (the phase guide's
+      measured net-negative boundary). Re-decidable when a consumer
+      migrates and carries the arithmetic with it.
   - pattern: packages/temper-placer/src/temper_placer/analysis/**
     verdict: MIGRATE
     phase: 4

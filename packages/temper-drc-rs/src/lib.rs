@@ -12,6 +12,8 @@ pub mod board;
 #[cfg(feature = "python")]
 pub mod board_py_bridge;
 pub mod constraints;
+pub mod pyfmt;
+pub mod req_safe_01;
 pub mod dfm;
 #[cfg(feature = "python")]
 pub mod dfm_py;
@@ -289,6 +291,48 @@ fn temper_drc_rs(m: &Bound<'_, PyModule>) -> PyResult<()> {
     )?)?;
     // Wave 4 Phase 4 — validation DRC-check kernels (validation.rs).
     crate::validation::register(m)?;
+    // Wave 4 Phase 5 — REQ-SAFE-01 clearance/creepage validator
+    // (req_safe_01.rs).
+    m.add_function(wrap_pyfunction!(
+        crate::req_safe_01::req_safe_01_check_domain_clearance,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        crate::req_safe_01::req_safe_01_check_creepage_path,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        crate::req_safe_01::req_safe_01_verify_iec60335,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        crate::req_safe_01::req_safe_01_format_clearance_report,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        crate::req_safe_01::req_safe_01_requirement_matrix,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        crate::req_safe_01::req_safe_01_nets_domain_map,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        crate::req_safe_01::req_safe_01_components_in_domain,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        crate::req_safe_01::req_safe_01_domain_boundary_pairs,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        crate::req_safe_01::req_safe_01_component_pads,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        crate::req_safe_01::req_safe_01_copper_model_init,
+        m
+    )?)?;
     // Wave 4 cluster D — router_v6 post-route DFM kernels (dfm.rs).
     crate::dfm_py::register(m)?;
     Ok(())

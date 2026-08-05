@@ -45,6 +45,9 @@ The project's own history sets two traps for such a tier. The burn-down plan rec
 - D6. **Success is search-space coverage, and every coverage claim must carry demonstrated kill capability** (session-settled: user-directed on coverage, user-approved on the pairing — chosen over defect count, a fabrication-readiness bar, and kill-set escape rate: coverage alone is an activity metric, and the portfolio's own non-vacuity requirements are the available antidote). Governs R7, R8.
 - D7. **`kicad-cli` supplements now and is superseded later** (session-settled: user-directed — chosen over treating `kicad-cli` as the permanent oracle, which is how `docs/plans/2026-08-02-001-feat-validation-portfolio-plan.md` frames it: the Rust suite is expected to become comprehensive enough to retire it, and retirement is gated on measured equivalence rather than a date). Governs R9, R10, R11.
 - D8. **Findings route into the existing burn-down rather than a new tracker** (session-settled: user-directed — chosen over the tier owning its own triage: the burn-down plan already owns the target, what counts as progress, the ratchet, and escalation for violations layout cannot fix). Governs R12, R13, R14.
+- D9. **The existing Rust test suite is the tier's first payload** (session-settled: user-directed — chosen over leading with new property kernels: the suite already exists and proves the substrate against real code rather than kernels written for the purpose). Governs R17, R18.
+- D10. **Durability machinery is gated on gating** (session-settled: user-approved — chosen over building dead-letter handling, reconciliation and replication up front: while R15 holds the tier advisory, a lost result costs a data point rather than a merge). Governs R22, R23.
+- D11. **Regeneration verifies; it does not commit** (session-settled: user-directed — chosen over a scheduled job opening a PR on difference, and over on-demand only: the committed board is a reviewed artifact with curated history, and any diff-based cadence is untrustworthy while the board writer emits track and via order from a `frozenset`). Governs R3.
 
 ### Requirements
 
@@ -52,7 +55,7 @@ The project's own history sets two traps for such a tier. The burn-down plan rec
 
 - R1. `temper-drc-rs` and `temper-geometry` compile for `wasm32-unknown-unknown` with `pyo3` behind a feature flag, and a failure to do so reopens D3 rather than being worked around.
 - R2. Per-case CPU cost and peak resident memory for a full-board rule pass are measured natively before any Worker is written, with memory reported against the 128 MiB isolate limit. Measured 2026-08-04 (`packages/temper-geometry/examples/r2_cost_model.rs`): median 4 ns per kernel case, and an occupancy grid costing 24 MB across six layers at 0.1 mm but 2,400 MB at 0.01 mm. CPU is therefore not a constraint even allowing a thousandfold margin for input generation and assertion; memory is, and grid resolution sets it.
-- R3. Board regeneration is automated, so the tier has an input that changes when the harness changes.
+- R3. Board regeneration runs per harness change in CI and verifies the pipeline still produces a valid board; the regenerated artifact is discarded and the committed board stays human-reviewed.
 
 **The tier**
 
@@ -82,6 +85,19 @@ The project's own history sets two traps for such a tier. The burn-down plan rec
 - R15. Verdicts from the WASM tier are advisory; native `temper-drc-rs` and `kicad-cli` hold merge authority until R10's equivalence bar is met.
 - R16. The plan is a gated roadmap pulled opportunistically, committing no engineering capacity against the board path, matching the governance pattern in `docs/plans/2026-08-01-001-feat-wave4-full-migration-program-plan.md` (D4, R5) and the portfolio's pull-to-plan model.
 
+**Test-suite payload**
+
+- R17. The portable Rust test suite runs on the tier, one test function per Worker invocation.
+- R18. Test dispatch is generated at build time, because `cargo test`'s harness cannot target `wasm32-unknown-unknown`.
+- R19. Per-test verdicts are compared against GitHub Actions verdicts for the same commit, and sustained agreement is the bar for licensing any later gating under R15.
+
+**Result capture and feedback**
+
+- R20. Every test outcome is recorded durably, attributable to a commit, a crate, and a test function.
+- R21. Run completion is signalled back to GitHub Actions.
+- R22. Result delivery becomes loss-proof — dead-letter handling, idempotent keys, and a reconciliation pass — before the tier's verdicts gain merge authority under R15.
+- R23. Results are replicated outside the primary store, on the same trigger as R22.
+
 ### Phased Path
 
 Phases are pulled individually. Phase 0 gates every later phase because its outcomes can invalidate D3.
@@ -98,7 +114,7 @@ Phases are pulled individually. Phase 0 gates every later phase because its outc
 - Cloudflare containers-as-runners, rejected under D3 on cost.
 - Running `kicad-cli` on Workers. It is a native application and cannot execute in an isolate; R9 keeps it in GitHub Actions.
 - The CP-SAT solve and the SAT-backed router core. Neither is portable to `wasm32`, and the solver boundary's fate is already an explicit spike under `docs/plans/2026-08-01-001-feat-wave4-full-migration-program-plan.md` (R4).
-- Migration of the Python test suite. That belongs to Wave 4.
+- Migration of the Python test suite. That belongs to Wave 4; the Rust suite is in scope under D9.
 
 ### Dependencies / Assumptions
 
@@ -106,6 +122,10 @@ Phases are pulled individually. Phase 0 gates every later phase because its outc
 - Every module Wave 4 moves from Python to Rust becomes a candidate for this tier, so the addressable surface grows with that programme. Wave 4's discipline contract also mandates five property tests and three metamorphic relations per migrated module, which grows the property surface the tier exists to run.
 - WASM and native builds use different math libraries, so results may differ in the final unit of least precision. R15 assumes this divergence is tolerable because the tier is advisory; a divergence at a rule threshold is itself a finding worth recording rather than a defect in the tier.
 - The tier will eventually want finer grid resolution than production. Production uses 1.0 mm predominantly (131 call sites), 0.5 mm and 0.1 mm elsewhere, and nothing uses 0.01 mm — so at today's resolutions R2's memory figures are comfortable and the 128 MiB limit does not bind. Sweeping manufacturing variation is expected to want sub-trace-width detail, which is where it starts to.
+- R1's `pyo3` feature gate is an interim measure, not the permanent shape. Wave 4's endgame removes the Python boundary entirely, at which point `pyo3` has no consumer and these crates target `wasm32` without a flag.
+- `packages/temper-geometry/src/pad_geometry.rs` resolves `cos`/`sin` through `dlsym`, which is a link-time dependency `cargo check` cannot observe. Any R1 evidence that stops at type-checking does not establish that a `.wasm` artifact links.
+- `rustsat-cadical` transitively blocks `temper-rust-router-core`, `temper-constraint-compiler` and `temper-rust-router` from `wasm32`. This is the concrete extent of the SAT-router exclusion recorded in Scope Boundaries.
+- The board writer emits track and via order from a `frozenset`, so regeneration is not byte-reproducible across processes. R3 avoids depending on it by discarding the regenerated artifact; a diff-based cadence, or a regenerated board carrying the DRC ceiling's hash provenance, would each require fixing the writer first.
 - Cloudflare's pricing model bills CPU time and requests but not provisioned memory or disk, which is what makes the economics differ from containers by roughly two orders of magnitude. A change to that model invalidates D3's cost basis.
 
 ### Outstanding Questions
@@ -113,7 +133,6 @@ Phases are pulled individually. Phase 0 gates every later phase because its outc
 **Resolve Before Planning**
 
 - Q1. What licenses `kicad-cli` retirement under R10 — how much agreement, over what corpus, sustained for how long. Without this the trajectory in D7 has no terminal condition.
-- Q2. What automated board regeneration under R3 consists of, and whether it runs per-change or on a schedule. This may be larger than the rest of Phase 0.
 - Q3. What a fabrication-envelope model contains for Phase 2, and where its values come from.
 
 **Deferred to Planning**
@@ -122,6 +141,7 @@ Phases are pulled individually. Phase 0 gates every later phase because its outc
 - Q5. How findings are ranked under R14.
 - Q6. Which kernel Phase 1 ports first.
 - Q7. Which memory strategy carries the tier past production resolution, given R2 measured 2,400 MB at 0.01 mm against a 128 MiB limit. Four candidates, cheapest first: reuse the existing `occupancy_bitmap_row` packing (1 bit per cell rather than an `i32` net id — 32x, already implemented, but discards net identity and most DRC rules need it); region sharding (bounded by construction, composes with the rest); run-length encoding per row (matches the kernels' scanline write pattern); and a hash-consed quadtree in the hashlife sense (highest compression on empty space and pours, worst case on thin diagonal traces). Only the quadtree's spatial half transfers — hashlife's memoised time evolution has no analogue here — and the obstacle is not compression but mutation: the kernels write cell-by-cell via `merge_cell`, whereas hash-consing assumes immutability, so it needs the kernels restructured from mutate-in-place to build-then-freeze. R2's finding that CPU is effectively free is what makes trading access cost for memory a good deal.
+- Q8. Whether one build-time dispatch table serves the whole portable set or one per crate, per R18.
 
 ### Sources / Research
 

@@ -6,8 +6,14 @@ AST-scans ``constraint_model.py`` for ``Constraint`` subclasses and verifies
 each has:
   1. An ``esl()`` method on the class definition
   2. An entry in ``ESL_REGISTRY``
-  3. An ``isinstance`` branch in ``populate_sat_from_constraints()``
-  4. At least one BMC test reference in ``tests/router_v6/test_bmc_*.py``
+  3. At least one BMC test reference in ``tests/router_v6/test_bmc_*.py``
+
+The former check 3 -- an ``isinstance`` branch in the Python
+``populate_sat_from_constraints()`` -- was dropped when ``router_v6/sat_model.py``
+was retired: production Stage 3 encodes constraints in Rust
+(``temper_rust_router.solve_topology_rust``), so a Python encoding branch was
+no longer evidence that a constraint type is encoded at all.  Encoding coverage
+for the live path belongs in ``temper-rust-router-core/src/encoding.rs``.
 
 Exit codes (following the import_linter_gate.py pattern):
   0 — All constraint types have full ESL + encoding + BMC test coverage
@@ -26,10 +32,6 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 CONSTRAINT_MODEL = (
     REPO_ROOT
     / "packages/temper-placer/src/temper_placer/router_v6/constraint_model.py"
-)
-SAT_MODEL = (
-    REPO_ROOT
-    / "packages/temper-placer/src/temper_placer/router_v6/sat_model.py"
 )
 TEST_DIR = REPO_ROOT / "packages/temper-placer/tests/router_v6"
 
@@ -73,11 +75,6 @@ def _has_esl_registry_entry(code: str, class_name: str) -> bool:
     return f'ESL_REGISTRY["{class_name}"]' in code
 
 
-def _has_encoding_branch(code: str, class_name: str) -> bool:
-    """Check that populate_sat_from_constraints has isinstance branch."""
-    return f"isinstance(constraint, {class_name})" in code
-
-
 def _has_bmc_test_reference(class_name: str) -> bool:
     """Check that at least one BMC test file references class_name."""
     tested = False
@@ -92,13 +89,9 @@ def _has_bmc_test_reference(class_name: str) -> bool:
 def main() -> None:
     if not CONSTRAINT_MODEL.exists():
         _die(EXIT_ERROR, f"constraint_model.py not found: {CONSTRAINT_MODEL}")
-    if not SAT_MODEL.exists():
-        _die(EXIT_ERROR, f"sat_model.py not found: {SAT_MODEL}")
 
     cm_code = CONSTRAINT_MODEL.read_text()
     cm_tree = ast.parse(cm_code)
-
-    sm_code = SAT_MODEL.read_text()
 
     subclasses = _find_constraint_subclasses(cm_tree)
 
@@ -114,8 +107,6 @@ def main() -> None:
             missing.append("esl() method")
         if not _has_esl_registry_entry(cm_code, cls):
             missing.append("ESL_REGISTRY entry")
-        if not _has_encoding_branch(sm_code, cls):
-            missing.append("encoding branch in populate_sat_from_constraints")
         if not _has_bmc_test_reference(cls):
             missing.append("BMC test reference")
 
@@ -131,7 +122,7 @@ def main() -> None:
 
     print(
         f"[BMC-GATE] OK: {len(subclasses)} constraint types have full "
-        f"ESL + encoding + BMC test coverage"
+        f"ESL + BMC test coverage"
     )
 
 

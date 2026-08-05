@@ -8,6 +8,7 @@ common data structures for passing information between heuristics.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from collections.abc import Iterable
 from dataclasses import dataclass, field
 from enum import IntEnum
 from typing import TypeAlias
@@ -20,6 +21,40 @@ from temper_placer.core.netlist import Component, Netlist
 from temper_placer.io.config_loader import PlacementConstraints
 
 Array: TypeAlias = NDArray
+
+
+def order_refs_by_netlist(netlist: Netlist, refs: Iterable[str]) -> list[str]:
+    """Project component refs back through netlist order.
+
+    Set and ``frozenset`` iteration order for ``str`` keys depends on
+    ``PYTHONHASHSEED``, which CPython randomises per process. Any placement
+    decision made by *position* in such an iteration -- a polar angle chosen by
+    index, a grid cell chosen by index, or a floating-point ``sum()`` whose
+    rounding depends on addition order -- therefore differs between two runs of
+    the same code on the same input.
+
+    Re-projecting through ``netlist.components`` removes that dependency: the
+    netlist is an ordered list, so the result is fully determined by the input
+    design. This is the ordering convention already used by
+    ``heuristics.structural.identify_thermal_components`` ("Return components in
+    netlist order") and matches the index basis of the ``ref_to_idx`` maps built
+    from ``enumerate(netlist.components)`` elsewhere in the pipeline.
+
+    Netlist order is preferred over ``sorted()`` deliberately: lexicographic
+    refdes order is not physically meaningful (it interleaves ``R10`` before
+    ``R2``) and would disagree with the index basis the rest of the pipeline
+    already uses.
+
+    Args:
+        netlist: Netlist supplying the canonical component order.
+        refs: Refs to order. May be any iterable, including a set. Duplicates
+            are collapsed. Refs absent from the netlist are dropped.
+
+    Returns:
+        The refs, in netlist order.
+    """
+    wanted = set(refs)
+    return [c.ref for c in netlist.components if c.ref in wanted]
 
 
 class HeuristicPriority(IntEnum):

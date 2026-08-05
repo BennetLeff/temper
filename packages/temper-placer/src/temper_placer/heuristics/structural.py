@@ -29,6 +29,7 @@ from temper_placer.heuristics.base import (
     HeuristicPriority,
     HeuristicResult,
     PlacementContext,
+    order_refs_by_netlist,
 )
 from temper_placer.io.config_loader import PlacementConstraints
 
@@ -749,16 +750,22 @@ class CriticalLoopHeuristic(Heuristic):
         existing_placements: dict[str, ComponentPlacement],
     ) -> dict[str, ComponentPlacement]:
         """Place components belonging to a critical loop."""
-        # Find all components connected to loop nets
-        loop_components: set[str] = set()
+        # Find all components connected to loop nets.
+        # Collected into a set for de-duplication, then re-projected through
+        # netlist order: set iteration order for str depends on PYTHONHASHSEED,
+        # and this order drives both the polar angle index below and the
+        # floating-point accumulation order of the centroid sums.
+        seen: set[str] = set()
         for net_name in loop_nets:
             try:
                 net = netlist.get_net(net_name)
                 for ref, _ in net.pins:
-                    loop_components.add(ref)
+                    seen.add(ref)
             except KeyError:
                 # Net not found in netlist
                 continue
+
+        loop_components = order_refs_by_netlist(netlist, seen)
 
         if not loop_components:
             return {}

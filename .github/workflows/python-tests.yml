@@ -131,6 +131,15 @@ on:
       - 'scripts/tests/test_check_measurement_provenance.py'
       - 'scripts/_lib/measurement_provenance.py'
       - 'scripts/tests/_lib/test_lib_measurement_provenance.py'
+      - 'scripts/check_test_baseline_writes.py'
+      - 'scripts/tests/test_check_test_baseline_writes.py'
+      - 'scripts/_lib/protected_artifacts.py'
+      - 'scripts/_lib/pytest_artifact_guard.py'
+      - 'scripts/_lib/yaml_block_patch.py'
+      - 'scripts/tests/_lib/test_lib_yaml_block_patch.py'
+      - 'scripts/update_production_routing_baseline.py'
+      - 'power_pcb_dataset/baselines/**'
+      - 'conftest.py'
       - 'power_pcb_dataset/drc_ceiling.json'
       - 'power_pcb_dataset/physics_soundness_register.yaml'
       - 'scripts/physics_soundness_register_gate.py'
@@ -226,6 +235,15 @@ on:
       - 'scripts/tests/test_check_measurement_provenance.py'
       - 'scripts/_lib/measurement_provenance.py'
       - 'scripts/tests/_lib/test_lib_measurement_provenance.py'
+      - 'scripts/check_test_baseline_writes.py'
+      - 'scripts/tests/test_check_test_baseline_writes.py'
+      - 'scripts/_lib/protected_artifacts.py'
+      - 'scripts/_lib/pytest_artifact_guard.py'
+      - 'scripts/_lib/yaml_block_patch.py'
+      - 'scripts/tests/_lib/test_lib_yaml_block_patch.py'
+      - 'scripts/update_production_routing_baseline.py'
+      - 'power_pcb_dataset/baselines/**'
+      - 'conftest.py'
       - 'power_pcb_dataset/drc_ceiling.json'
       - 'power_pcb_dataset/physics_soundness_register.yaml'
       - 'scripts/physics_soundness_register_gate.py'
@@ -571,13 +589,15 @@ jobs:
 
       # Wave 4 Phase 4 anti-vacuity gate (PR merge path): the validation
       # DRC-check differential/PBT suites are the ONLY tests that pin the
-      # migrated Rust kernels (temper_drc_rs.validation) bit-exactly
-      # against the verbatim Python oracles. They previously ran in NO
+      # migrated Rust kernels (temper_drc_rs.validation, and the Phase-5
+      # deterministic grid_utils/via_placement + slot_generation/
+      # zone_geometry/zone_assignment kernels) bit-exactly against the
+      # verbatim Python oracles. They previously ran in NO
       # PR-time job (invariant-rest is trunk-only and masked), so a kernel
       # regression would merge silently. This step runs them hard on every
       # PR and on every push to main (this job runs on both events), with a
       # pytest_guard floor so a silently-shrunk collection fails instead of
-      # passing vacuously. The 7 files are the PR's differential surface;
+      # passing vacuously. The 17 files are the PR's differential surface;
       # the full tests/validation directory is NOT added here because it
       # carries pre-existing CI-environment failures unrelated to this PR
       # (test_mfem_runner.py::test_check_mfem_binary_present needs an MFEM
@@ -588,7 +608,7 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         working-directory: packages/temper-placer
         run: >
-          uv run python ../../scripts/pytest_guard.py --min-tests 94 --
+          uv run python ../../scripts/pytest_guard.py --min-tests 176 --
           tests/validation/test_drc_rust_differential.py
           tests/validation/test_drc_oracle_rust_differential.py
           tests/validation/test_drc_runner_rust_differential.py
@@ -596,11 +616,98 @@ jobs:
           tests/validation/test_geometric_rust_differential.py
           tests/validation/test_tht_check_rust_differential.py
           tests/validation/test_trace_analyzer_rust_differential.py
+          tests/deterministic/test_grid_utils_rust_differential.py
+          tests/deterministic/test_via_placement_rust_differential.py
+          tests/deterministic/test_grid_utils_pbt.py
+          tests/deterministic/test_via_placement_pbt.py
+          tests/deterministic/stages/test_slot_generation_rust_differential.py
+          tests/deterministic/stages/test_zone_geometry_rust_differential.py
+          tests/deterministic/stages/test_zone_assignment_rust_differential.py
+          tests/deterministic/stages/test_slot_generation_pbt.py
+          tests/deterministic/stages/test_zone_geometry_pbt.py
+          tests/deterministic/stages/test_zone_assignment_pbt.py
           -v --tb=short -p no:cacheprovider --maxfail=10
         env:
           RUST_BACKTRACE: full
           PYTHONFAULTHANDLER: 1
 
+      # Wave 4 Phase 5 anti-vacuity gate (PR merge path): the report /
+      # explainability / requirements differential+PBT suites are the ONLY
+      # tests that pin the migrated Phase-5 Rust kernels
+      # (temper_io_types.report/explain, temper_drc_rs.req_safe_01)
+      # bit-exactly against the verbatim Python oracles
+      # (tests/report/_*_py_oracle.py, tests/explainability/explain_oracle/,
+      # tests/requirements/clearance_oracle/). They run in no other PR-time
+      # job, so without this step a Phase-5 kernel regression would merge
+      # silently — mirroring the Phase-4 validation gate above. pytest_guard
+      # floors the collection at the 131 tests counted on the migration
+      # branch (126 at Phase-5 landing, +3 from the pass-2 parity-break
+      # fixtures, +2 from the list-position/truncate review pins), so a
+      # silently-shrunk suite fails instead of passing vacuously. The oracle
+      # packages are exercised only through these suites.
+      - name: Run Phase-5 report/explainability/clearance differentials (anti-vacuity gate)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        working-directory: packages/temper-placer
+        run: >
+          uv run python ../../scripts/pytest_guard.py --min-tests 131 --
+          tests/report/test_formatter_rust_differential.py
+          tests/report/test_summary_rust_differential.py
+          tests/report/test_generator_rust_differential.py
+          tests/report/test_report_pbt.py
+          tests/explainability/test_trace_rust_differential.py
+          tests/explainability/test_decision_rust_differential.py
+          tests/explainability/test_logger_rust_differential.py
+          tests/explainability/test_markdown_rust_differential.py
+          tests/explainability/test_serialization_rust_differential.py
+          tests/explainability/test_traced_loss_pipeline_rust_differential.py
+          tests/explainability/test_explainability_pbt.py
+          tests/requirements/test_clearance_validator_rust_differential.py
+          tests/requirements/test_clearance_validator_pbt.py
+          -v --tb=short -p no:cacheprovider --maxfail=10
+        env:
+          RUST_BACKTRACE: full
+          PYTHONFAULTHANDLER: 1
+
+      # Wave 4 Phase 5 anti-vacuity gate (PR merge path): the cli/adapters/
+      # temper-workflow differential/PBT suites are the ONLY tests that pin
+      # the migrated orchestration compute (temper_orchestration) bit-exactly
+      # against the verbatim pre-migration oracles. They must run hard on
+      # every PR with a pytest_guard floor so a silently-shrunk collection
+      # fails instead of passing vacuously. The floors are the EXACT
+      # collection counts (63 / 32 — measured 2026-08-05), and
+      # test_discriminator_tests_are_collectable (workflow suite) pins the
+      # two load-bearing discriminator tests by symbol so a deletion paired
+      # with a matching floor lowering also fails loudly. The temper-workflow
+      # package's own differential/PBT (route_and_measure) runs from its own
+      # test tree below.
+      - name: Run Phase-5 cli differentials (anti-vacuity gate)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        working-directory: packages/temper-placer
+        run: >
+          uv run python ../../scripts/pytest_guard.py --min-tests 63 --
+          tests/cli/test_timing_rust_differential.py
+          tests/cli/test_trace_commands_rust_differential.py
+          tests/cli/test_timing_pbt.py
+          tests/cli/test_trace_commands_pbt.py
+          -v --tb=short -p no:cacheprovider --maxfail=10
+        env:
+          RUST_BACKTRACE: full
+          PYTHONFAULTHANDLER: 1
+
+      # Phase-5 workflow half of the same gate: route_and_measure differential
+      # + PBT live in the temper-workflow test tree (separate package). A
+      # pytest_guard floor so the pin cannot silently shrink.
+      - name: Run Phase-5 workflow differentials (anti-vacuity gate)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        working-directory: packages/temper-workflow
+        run: >
+          uv run python ../../scripts/pytest_guard.py --min-tests 32 --
+          tests/test_route_and_measure_rust_differential.py
+          tests/test_route_and_measure_pbt.py
+          -v --tb=short -p no:cacheprovider --maxfail=10
+        env:
+          RUST_BACKTRACE: full
+          PYTHONFAULTHANDLER: 1
       - name: Coverage gate (temper-placer)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         working-directory: packages/temper-placer
@@ -685,6 +792,7 @@ jobs:
                        packages/temper-geometry/Cargo.toml \
                        packages/temper-io-types/Cargo.toml \
                        packages/temper-ipc/Cargo.toml \
+                       packages/temper-orchestration/Cargo.toml \
                        packages/temper-pcl-ir/Cargo.toml \
                        packages/temper-py-bridge/Cargo.toml \
                        packages/temper-py-bridge-derive/Cargo.toml \
@@ -704,6 +812,21 @@ jobs:
               cargo clippy --manifest-path "$manifest" --all-features --all-targets -- -D warnings
             fi
           done
+
+      # Phase-5 (wave4): the temper-orchestration crate carries Rust unit
+      # tests that never ran in CI before (review P2-3, 2026-08-05) — the
+      # host_math pow-vs-multiply and libm absolute-value asserts, the NaN
+      # py_cmp/py_max semantics, and the copper_length kernels — because only
+      # temper-design-bundle got `cargo test`. A pyo3 crate that `maturin
+      # develop` builds still needs its `#[cfg(test)]` modules exercised
+      # somewhere; this step mirrors the temper-design-bundle entry's
+      # structure. NOTE: the host_math absolute-value assert bakes in a
+      # specific libm result — the discriminator value in host_math.rs was
+      # dual-platform-verified (darwin arm64 AND the Ubuntu CI container,
+      # glibc 2.39) to yield the same value on both.
+      - name: Test temper-orchestration (cargo test)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: cargo test --manifest-path packages/temper-orchestration/Cargo.toml
 
   # Split out of Core Tests 2026-07-28. Everything here reads the compiled
   # netlist (elec/build/default.net, default.csv) or pcb/temper.kicad_pcb, so
@@ -895,6 +1018,33 @@ jobs:
       - name: Anti-vacuous-truth gate (gates/validators)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python scripts/check_vacuous_gates.py
+
+      # Static half of the protected-measurement-artifact gate. Closes the
+      # 2026-08-04 incident: `test_update_baseline_yaml` in
+      # tests/router_v6/test_temper_production_board_routing.py was a
+      # maintenance routine named `test_*` with no skipif, env guard or opt-in
+      # marker, so pytest collected and ran it on ordinary sessions. It
+      # rebuilt power_pcb_dataset/baselines/temper_production_baseline.yaml
+      # from a plain dict via yaml.safe_dump -- deleting all ~235 comment
+      # lines, among them the ~200-line header explaining why
+      # component_count/net_count were removed on 2026-07-29 -- and left the
+      # rewrite in the working tree for `git add -A` to commit (-292/+91 on
+      # one observed run; two agents hit it independently within hours).
+      #
+      # Its runtime counterpart (scripts/_lib/pytest_artifact_guard.py, an
+      # autouse fixture installed from conftest.py) only fires for tests that
+      # RUN, and the offending test sits behind `slow`/`routing` marks and a
+      # kicad-cli dependency -- so under `-m 'not slow'`, or on a runner
+      # without KiCad, a runtime-only gate is green while the defect is still
+      # in the tree. This step reads source instead, so deselection cannot
+      # satisfy it. Both halves are required; neither subsumes the other.
+      - name: Protected measurement artifact gate tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_check_test_baseline_writes.py scripts/tests/_lib/test_lib_yaml_block_patch.py -v --tb=short
+
+      - name: No test writes a committed measurement baseline
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python scripts/check_test_baseline_writes.py
 
       - name: Measurement-provenance gate tests
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
@@ -1541,6 +1691,24 @@ jobs:
       - name: Rebuild script invocation graph
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python scripts/trace_invocations.py
+
+      - name: Salted-hash order gate tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_check_hash_order_determinism.py -v --tb=short
+
+      # CPython randomises the string hash salt per process (PEP 456), so a
+      # set/frozenset iteration order -- or a hash() value -- differs between
+      # two runs of identical code on identical input. Six sites in four
+      # modules derived component coordinates, a geometric waypoint, and an
+      # emitted report's order from exactly that; see issue #752 (6 and 7),
+      # PR #730, and this script's docstring. The gate fails on any NEW site;
+      # the known ones are ratcheted in .hash-order-inventory. Its runtime
+      # counterpart runs inside the placer package
+      # (tests/deterministic/test_hash_order_determinism.py) so it is present
+      # under the `cd packages/temper-placer && pytest` invocation too.
+      - name: No new salted-hash order dependencies
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python scripts/check_hash_order_determinism.py
 
       - name: No-raw-rotation-trig gate tests
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
@@ -2231,7 +2399,7 @@ jobs:
         working-directory: packages/temper-placer
         run: >
           uv run python ../../scripts/pytest_guard.py --min-tests 500 --
-          tests/router_v6/test_acid_trap_boundary.py tests/router_v6/test_acid_trap_detection.py tests/router_v6/test_acid_trap_induction.py  tests/router_v6/test_acid_trap_properties.py tests/router_v6/test_adapter.py tests/router_v6/test_annular_ring_induction.py  tests/router_v6/test_astar_cost_field.py tests/router_v6/test_astar_inductive_ladder.py tests/router_v6/test_astar_pathfinding.py  tests/router_v6/test_astar_perf_regression.py tests/router_v6/test_bundle_analyzer.py tests/router_v6/test_bundled_model_builder.py  tests/router_v6/test_capacity_check.py tests/router_v6/test_channel_skeleton.py tests/router_v6/test_channel_skeleton_pbt.py  tests/router_v6/test_ci_bug_regressions.py tests/router_v6/test_clearance_segment_dist.py tests/router_v6/test_copper_balance.py  tests/router_v6/test_copper_balance_boundary.py tests/router_v6/test_copper_balance_induction.py tests/router_v6/test_creepage_boundary.py  tests/router_v6/test_creepage_properties.py tests/router_v6/test_dfm_interaction.py tests/router_v6/test_finish_board_gate.py  tests/router_v6/test_forced_segment_fail_closed_pbt.py tests/router_v6/test_grid_prep_pbt.py tests/router_v6/test_layer_capacity.py  tests/router_v6/test_los_bb_shortcut.py tests/router_v6/test_manufacturing_report.py tests/router_v6/test_manufacturing_report_properties.py  tests/router_v6/test_net_class_parser.py tests/router_v6/test_net_ordering_proof.py tests/router_v6/test_occupancy_grid_pbt.py  tests/router_v6/test_phase1_anti_false_zero.py tests/router_v6/test_quality_corridor.py tests/router_v6/test_resource_bound.py  tests/router_v6/test_routing_demand_pbt.py tests/router_v6/test_routing_space.py tests/router_v6/test_sat_model.py  tests/router_v6/test_stage3_monolith_parity.py tests/router_v6/test_stage4_result_pbt.py tests/router_v6/test_stage_ledger.py  tests/router_v6/test_teardrop_properties.py tests/router_v6/test_temper_production_board_routing.py tests/router_v6/test_terminal_extraction.py  tests/router_v6/test_topology_solver.py tests/router_v6/test_trace_width_assignment.py tests/router_v6/test_tree_route_geometry.py  tests/router_v6/test_truthful_completion.py tests/router_v6/test_via_layer_properties_pbt.py tests/router_v6/test_via_placement.py  tests/router_v6/test_wave3_skip_sat.py tests/router_v6/test_wave4_pathfinder.py
+          tests/router_v6/test_acid_trap_boundary.py tests/router_v6/test_acid_trap_detection.py tests/router_v6/test_acid_trap_induction.py  tests/router_v6/test_acid_trap_properties.py tests/router_v6/test_adapter.py tests/router_v6/test_annular_ring_induction.py  tests/router_v6/test_astar_cost_field.py tests/router_v6/test_astar_inductive_ladder.py tests/router_v6/test_astar_pathfinding.py  tests/router_v6/test_astar_perf_regression.py tests/router_v6/test_bundle_analyzer.py tests/router_v6/test_bundled_model_builder.py  tests/router_v6/test_capacity_check.py tests/router_v6/test_channel_skeleton.py tests/router_v6/test_channel_skeleton_pbt.py  tests/router_v6/test_ci_bug_regressions.py tests/router_v6/test_clearance_segment_dist.py tests/router_v6/test_copper_balance.py  tests/router_v6/test_copper_balance_boundary.py tests/router_v6/test_copper_balance_induction.py tests/router_v6/test_creepage_boundary.py  tests/router_v6/test_creepage_properties.py tests/router_v6/test_dfm_interaction.py tests/router_v6/test_finish_board_gate.py  tests/router_v6/test_forced_segment_fail_closed_pbt.py tests/router_v6/test_grid_prep_pbt.py tests/router_v6/test_layer_capacity.py  tests/router_v6/test_los_bb_shortcut.py tests/router_v6/test_manufacturing_report.py tests/router_v6/test_manufacturing_report_properties.py  tests/router_v6/test_net_class_parser.py tests/router_v6/test_net_ordering_proof.py tests/router_v6/test_occupancy_grid_pbt.py  tests/router_v6/test_phase1_anti_false_zero.py tests/router_v6/test_quality_corridor.py tests/router_v6/test_resource_bound.py  tests/router_v6/test_routing_demand_pbt.py tests/router_v6/test_routing_space.py  tests/router_v6/test_stage3_monolith_parity.py tests/router_v6/test_stage4_result_pbt.py tests/router_v6/test_stage_ledger.py  tests/router_v6/test_teardrop_properties.py tests/router_v6/test_temper_production_board_routing.py tests/router_v6/test_terminal_extraction.py  tests/router_v6/test_topology_solver.py tests/router_v6/test_trace_width_assignment.py tests/router_v6/test_tree_route_geometry.py  tests/router_v6/test_truthful_completion.py tests/router_v6/test_via_layer_properties_pbt.py tests/router_v6/test_via_placement.py  tests/router_v6/test_wave3_skip_sat.py tests/router_v6/test_wave4_pathfinder.py
           -v --tb=short -p no:cacheprovider --maxfail=10 -m "not slow"
           --continue-on-collection-errors -n auto --dist loadgroup
         # Re-masked 2026-07-28. The triage that un-masked this job measured it
@@ -2319,7 +2487,7 @@ jobs:
         working-directory: packages/temper-placer
         run: >
           uv run python ../../scripts/pytest_guard.py --min-tests 500 --
-          tests/router_v6/metrics/test_octilinear.py tests/router_v6/test_adapter_repair_verification.py tests/router_v6/test_all_pad_tree_routing.py  tests/router_v6/test_annular_ring_boundary.py tests/router_v6/test_apply_suggestions.py tests/router_v6/test_assignment_validation_pbt.py  tests/router_v6/test_astar_3d_production_scale_spike.py tests/router_v6/test_astar_metamorphic_pbt.py tests/router_v6/test_audit_tree_geometry.py  tests/router_v6/test_bottleneck_geometry.py tests/router_v6/test_bottleneck_ordering_pbt.py tests/router_v6/test_bundled_equivalence.py  tests/router_v6/test_channel_mapping.py tests/router_v6/test_channel_widths_pbt.py tests/router_v6/test_clearance_rust_differential.py  tests/router_v6/test_coarse_grid_pbt.py tests/router_v6/test_congestion_analysis.py tests/router_v6/test_constraint_model.py  tests/router_v6/test_copper_balance_properties.py tests/router_v6/test_corridor.py tests/router_v6/test_diagnostics.py  tests/router_v6/test_diff_pair_constraints.py tests/router_v6/test_diff_pair_inference.py tests/router_v6/test_escape_via_generator.py  tests/router_v6/test_inductive_ladder.py tests/router_v6/test_kicad_connectivity_preflight.py tests/router_v6/test_layer_assignment_ssot.py  tests/router_v6/test_layer_constraints.py tests/router_v6/test_los_rust_correctness.py tests/router_v6/test_manufacturing_report_induction.py  tests/router_v6/test_multi_layer_tree_routing.py tests/router_v6/test_multilayer_edge_cases.py tests/router_v6/test_net_prep_pbt.py  tests/router_v6/test_obstacle_map_pbt.py tests/router_v6/test_placement_suggestions.py tests/router_v6/test_quality_via_count.py  tests/router_v6/test_routability_check.py tests/router_v6/test_router_v6_drc_invariants_pbt.py tests/router_v6/test_routing_demand.py  tests/router_v6/test_routing_results.py tests/router_v6/test_scale_resolution.py tests/router_v6/test_stage0_loader.py tests/router_v6/test_teardrop_generation.py tests/router_v6/test_teardrop_induction.py  tests/router_v6/test_terminal_tree_execution.py tests/router_v6/test_terminal_tree_planner.py tests/router_v6/test_thermal_relief_properties.py  tests/router_v6/test_topology_extraction.py tests/router_v6/test_via_insertion_anti_false_zero.py tests/router_v6/test_via_output_writer.py  tests/router_v6/test_wave4_bit_tensor.py tests/router_v6/test_wave4_numba_astar.py
+          tests/router_v6/test_adapter_repair_verification.py tests/router_v6/test_all_pad_tree_routing.py  tests/router_v6/test_annular_ring_boundary.py tests/router_v6/test_apply_suggestions.py tests/router_v6/test_assignment_validation_pbt.py  tests/router_v6/test_astar_3d_production_scale_spike.py tests/router_v6/test_astar_metamorphic_pbt.py tests/router_v6/test_audit_tree_geometry.py  tests/router_v6/test_bottleneck_geometry.py tests/router_v6/test_bottleneck_ordering_pbt.py tests/router_v6/test_bundled_equivalence.py  tests/router_v6/test_channel_mapping.py tests/router_v6/test_channel_widths_pbt.py tests/router_v6/test_clearance_rust_differential.py  tests/router_v6/test_coarse_grid_pbt.py tests/router_v6/test_congestion_analysis.py tests/router_v6/test_constraint_model.py  tests/router_v6/test_copper_balance_properties.py tests/router_v6/test_corridor.py tests/router_v6/test_diagnostics.py  tests/router_v6/test_diff_pair_constraints.py tests/router_v6/test_diff_pair_inference.py tests/router_v6/test_escape_via_generator.py  tests/router_v6/test_inductive_ladder.py tests/router_v6/test_kicad_connectivity_preflight.py tests/router_v6/test_layer_assignment_ssot.py  tests/router_v6/test_layer_constraints.py tests/router_v6/test_los_rust_correctness.py tests/router_v6/test_manufacturing_report_induction.py  tests/router_v6/test_multi_layer_tree_routing.py tests/router_v6/test_multilayer_edge_cases.py tests/router_v6/test_net_prep_pbt.py  tests/router_v6/test_obstacle_map_pbt.py tests/router_v6/test_placement_suggestions.py tests/router_v6/test_quality_via_count.py  tests/router_v6/test_routability_check.py tests/router_v6/test_router_v6_drc_invariants_pbt.py tests/router_v6/test_routing_demand.py  tests/router_v6/test_routing_results.py tests/router_v6/test_scale_resolution.py tests/router_v6/test_stage0_loader.py tests/router_v6/test_teardrop_generation.py tests/router_v6/test_teardrop_induction.py  tests/router_v6/test_terminal_tree_execution.py tests/router_v6/test_terminal_tree_planner.py tests/router_v6/test_thermal_relief_properties.py  tests/router_v6/test_topology_extraction.py tests/router_v6/test_via_insertion_anti_false_zero.py tests/router_v6/test_via_output_writer.py  tests/router_v6/test_wave4_bit_tensor.py tests/router_v6/test_wave4_numba_astar.py
           -v --tb=short -p no:cacheprovider --maxfail=10 -m "not slow"
           --continue-on-collection-errors -n auto --dist loadgroup
         continue-on-error: true  # TODO: temper-NNN -- parallel test suite flakiness; hard-fail after 2026-09-01
@@ -2402,7 +2570,7 @@ jobs:
         working-directory: packages/temper-placer
         run: >
           uv run python ../../scripts/pytest_guard.py --min-tests 500 --
-          tests/router_v6/test_all_pad_connectivity.py tests/router_v6/test_all_pad_evidence.py tests/router_v6/test_annular_ring_check.py  tests/router_v6/test_annular_ring_properties.py tests/router_v6/test_astar_cost_field_pbt.py tests/router_v6/test_astar_dijkstra_oracle_pbt.py  tests/router_v6/test_astar_route_multilayer_via_fallback.py tests/router_v6/test_astar_runtime_monitor.py tests/router_v6/test_bottleneck_analysis.py  tests/router_v6/test_bottleneck_analysis_pbt.py tests/router_v6/test_capacity_constraints.py tests/router_v6/test_channel_widths.py  tests/router_v6/test_channel_widths_edt.py tests/router_v6/test_clearance_boundary.py tests/router_v6/test_clearance_check.py  tests/router_v6/test_clearance_induction.py tests/router_v6/test_congestion_derivative_pbt.py tests/router_v6/test_constraint_generation_pbt.py  tests/router_v6/test_creepage_check.py tests/router_v6/test_creepage_induction.py tests/router_v6/test_demand_budget_pbt.py  tests/router_v6/test_dense_package_detection.py tests/router_v6/test_dfm_hypothesis_fuzzing.py tests/router_v6/test_empty_data_edge_cases.py  tests/router_v6/test_geometric_degeneracy.py tests/router_v6/test_induction_base.py tests/router_v6/test_induction_strategy.py  tests/router_v6/test_layer_capacity_pbt.py tests/router_v6/test_manufacturing_drc_integration.py tests/router_v6/test_model_extraction_pbt.py  tests/router_v6/test_net_ordering.py tests/router_v6/test_obstacle_map.py tests/router_v6/test_occupancy_grid.py  tests/router_v6/test_power_plane_geometry.py tests/router_v6/test_router_v6_geometric_invariants_pbt.py tests/router_v6/test_router_v6_output_validity_pbt.py  tests/router_v6/test_router_v6_topological_invariants_pbt.py tests/router_v6/test_routing_space_pbt.py tests/router_v6/test_sat_solve_pbt.py  tests/router_v6/test_stackup_parsing.py tests/router_v6/test_stage3_constraint_audit.py tests/router_v6/test_stage4_route_pbt.py  tests/router_v6/test_stage_validators.py tests/router_v6/test_teardrop_boundary.py tests/router_v6/test_thermal_relief.py  tests/router_v6/test_thermal_relief_boundary.py tests/router_v6/test_thermal_relief_induction.py tests/router_v6/test_variable_mapping_pbt.py  tests/router_v6/test_wave1_easy_wins.py tests/router_v6/test_wave2_structural_small.py tests/router_v6/test_wave5_net_ordering.py  tests/router_v6/test_zone_emission.py
+          tests/router_v6/test_all_pad_connectivity.py tests/router_v6/test_all_pad_evidence.py tests/router_v6/test_annular_ring_check.py  tests/router_v6/test_annular_ring_properties.py tests/router_v6/test_astar_cost_field_pbt.py tests/router_v6/test_astar_dijkstra_oracle_pbt.py  tests/router_v6/test_astar_route_multilayer_via_fallback.py tests/router_v6/test_astar_runtime_monitor.py tests/router_v6/test_bottleneck_analysis.py  tests/router_v6/test_bottleneck_analysis_pbt.py tests/router_v6/test_capacity_constraints.py tests/router_v6/test_channel_widths.py  tests/router_v6/test_channel_widths_edt.py tests/router_v6/test_clearance_boundary.py tests/router_v6/test_clearance_check.py  tests/router_v6/test_clearance_induction.py tests/router_v6/test_congestion_derivative_pbt.py tests/router_v6/test_constraint_generation_pbt.py  tests/router_v6/test_creepage_check.py tests/router_v6/test_creepage_induction.py tests/router_v6/test_demand_budget_pbt.py  tests/router_v6/test_dense_package_detection.py tests/router_v6/test_dfm_hypothesis_fuzzing.py tests/router_v6/test_empty_data_edge_cases.py  tests/router_v6/test_geometric_degeneracy.py tests/router_v6/test_induction_base.py tests/router_v6/test_induction_strategy.py  tests/router_v6/test_layer_capacity_pbt.py tests/router_v6/test_manufacturing_drc_integration.py tests/router_v6/test_model_extraction_pbt.py  tests/router_v6/test_net_ordering.py tests/router_v6/test_obstacle_map.py tests/router_v6/test_occupancy_grid.py  tests/router_v6/test_power_plane_geometry.py tests/router_v6/test_router_v6_geometric_invariants_pbt.py tests/router_v6/test_router_v6_output_validity_pbt.py  tests/router_v6/test_router_v6_topological_invariants_pbt.py tests/router_v6/test_routing_space_pbt.py  tests/router_v6/test_stackup_parsing.py tests/router_v6/test_stage3_constraint_audit.py tests/router_v6/test_stage4_route_pbt.py  tests/router_v6/test_stage_validators.py tests/router_v6/test_teardrop_boundary.py tests/router_v6/test_thermal_relief.py  tests/router_v6/test_thermal_relief_boundary.py tests/router_v6/test_thermal_relief_induction.py tests/router_v6/test_variable_mapping_pbt.py  tests/router_v6/test_wave1_easy_wins.py tests/router_v6/test_wave2_structural_small.py tests/router_v6/test_wave5_net_ordering.py  tests/router_v6/test_zone_emission.py
           -v --tb=short -p no:cacheprovider --maxfail=10 -m "not slow"
           --continue-on-collection-errors -n auto --dist loadgroup
 
@@ -2667,112 +2835,74 @@ jobs:
 # the job was setup steps and nothing else, so the job goes too. Restoring this
 # coverage requires a placement strategy that still exists.
 
-  loc-cap:
-    name: LOC Cap Gate
+  # ---------------------------------------------------------------------------
+  # `fast-gates` is the merge of four bare-runner jobs -- `loc-cap`,
+  # `repo-state`, `type-check` and `known-failure-pins` -- into one slot.
+  #
+  # WHY. Those four are the only jobs in this workflow with no `container:`, so
+  # they cannot consume the image's baked `/_temper-venv` and each one builds a
+  # Python environment from scratch. The runner prologue is cheap (checkout +
+  # setup-uv is ~15s); the environment is not, and it is invisible because uv
+  # syncs lazily inside the first `uv run`, so the cost is billed to the gate
+  # step rather than to setup. Measured on run 31048753257 (2026-08-05):
+  #
+  #   Known-Failure Pin Registry Gate  4.5 min -- `uv sync --all-packages` 4m18s,
+  #                                    then the gate itself 0s and its unit
+  #                                    tests 1s
+  #   Type Check                       2.0 min -- prologue 13s, `uv run` sync +
+  #                                    mypy 1m48s
+  #   LOC Cap Gate                     2.0 min -- prologue 16s, `uv run` sync +
+  #                                    the check 1m45s
+  #   Generated Repo State             2.0 min -- prologue 17s, `uv run pytest`
+  #                                    sync + tests 1m36s, the drift check 0s
+  #
+  # Median over 33 PR runs: 4 slots, 10.4 job-minutes, for work that is seconds.
+  # Merged, the environment is built once and every gate runs against it.
+  #
+  # WHY NOT MOVE THEM INTO THE CONTAINER instead. A bare container job's
+  # prologue is ~55s of `Initialize containers` (measured: Cargo / Rustc Smoke
+  # Check, same run), and `/_temper-venv` deliberately carries third-party
+  # packages only -- the 15 workspace members install editable and are not
+  # baked. `check_typecheck_gate.py` compares per-file mypy counts against
+  # `.typecheck-allowlist`, and mypy's counts depend on which workspace members
+  # are importable, so changing that environment is a verdict-changing change to
+  # a required gate. Not worth it to save 15s of prologue.
+  #
+  # ENVIRONMENT PARITY. `loc-cap`, `repo-state` and `type-check` today run
+  # against whatever the first `uv run` syncs -- the project's default dependency
+  # groups. The explicit `uv sync` below is that same set, so mypy sees exactly
+  # the environment it sees now. `known-failure-pins` is the one behaviour change:
+  # it drops from `uv sync --all-packages` to the default sync. That is safe by
+  # inspection -- `scripts/known_failure_pins.py` imports argparse, datetime,
+  # sys, dataclasses, pathlib, typing and yaml, and `_nodeid_resolves` documents
+  # itself as a regex-level check specifically to avoid "spinning up the target
+  # package's environment". `pyyaml` and `pytest` are both in the root `dev`
+  # group, so nothing it or its unit tests import comes from a workspace member.
+  #
+  # GATE INDEPENDENCE. Same idiom as the 2026-07-28 split above: every gate step
+  # carries `if: ${{ !cancelled() && steps.setup.outcome == 'success' }}`, so one
+  # red gate still lets the others report their own verdict in the same run, and
+  # a failed setup skips all of them rather than reporting them against a
+  # half-built environment. `steps.setup` has no `if:` of its own -- that is what
+  # keeps setup fail-fast.
+  # ---------------------------------------------------------------------------
+  fast-gates:
+    name: Fast Gates
     runs-on: ubuntu-latest
-    timeout-minutes: 5
-    env:
-      VIRTUAL_ENV: ${{ github.workspace }}/.venv
-    
-    steps:
-      - uses: actions/checkout@v7
-        with: { fetch-depth: 0 }
-      
-      - name: Install uv
-        uses: astral-sh/setup-uv@v7
-        with:
-          version: "latest"
-          enable-cache: true
-      
-      - name: Cache virtualenv
-        uses: actions/cache@v6
-        id: cache-venv
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
-
-      - name: Create virtualenv (cache miss)
-        if: steps.cache-venv.outputs.cache-hit != 'true'
-        run: uv venv
-      
-      - name: LOC cap gate
-        run: uv run python tools/loc_cap_check.py
-
-  known-failure-pins:
-    name: Known-Failure Pin Registry Gate
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    env:
-      VIRTUAL_ENV: ${{ github.workspace }}/.venv
-
-    steps:
-      - uses: actions/checkout@v7
-        with: { fetch-depth: 0 }
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v7
-        with:
-          version: "latest"
-          enable-cache: true
-
-      - name: Install dependencies
-        run: uv sync --all-packages
-
-      # Validates known-failure-pins.yaml itself (see scripts/known_failure_pins.py
-      # and docs/solutions/best-practices/pin-known-failure-reasons-2026-07-30.md):
-      # every pin must cite a real evidence/solutions doc, stay within its
-      # lifetime cap, resolve to a real test, and the registry must not exceed
-      # its live-pin ratchet. This is what stops the mechanism from becoming an
-      # xfail list -- a pin nobody is forced to revisit is not a pin.
-      - name: Known-failure pin registry gate
-        run: uv run python scripts/known_failure_pins.py
-
-      - name: Known-failure pin mechanism unit tests
-        run: uv run pytest scripts/tests/test_known_failure_pins.py -v --tb=short
-
-  repo-state:
-    name: Generated Repo State
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 20
     env:
       VIRTUAL_ENV: ${{ github.workspace }}/.venv
 
     steps:
+      # fetch-depth: 0 is the union of the four jobs' checkouts. `loc-cap`,
+      # `repo-state` and `known-failure-pins` all take full history today;
+      # `type-check` takes a shallow one and does not care either way.
       - uses: actions/checkout@v7
         with: { fetch-depth: 0 }
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@v7
-        with:
-          version: "latest"
-          enable-cache: true
-
-      # Unit tests for the generator itself -- includes an anti-vacuity check
-      # that mutates DIRECTORY_PURPOSE for one real, currently-described
-      # directory and asserts the completeness check still fires (exit 2).
-      - name: Generator unit tests
-        run: uv run pytest scripts/tests/test_gen_repo_state.py -v --tb=short
-
-      # Deliberately NOT continue-on-error and deliberately not soft-launched.
-      # The blocks are generated, so they start clean and there is nothing to
-      # grandfather. Exit 1 = drift, exit 2 = tool error (missing marker,
-      # undescribed directory) -- both block.
-      - name: Generated repo state matches committed
-        run: uv run python scripts/gen_repo_state.py --check
-
-  type-check:
-    name: Type Check
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    env:
-      VIRTUAL_ENV: ${{ github.workspace }}/.venv
-    
-    steps:
-      - uses: actions/checkout@v7
-
-      # Container runs as root; workspace is owned by the runner user. Without
-      # this, every `git` call in a later `run:` step exits 128 on "dubious
-      # ownership" rather than doing its job.
+      # Carried over from `type-check`. Harmless on a bare runner, and it keeps
+      # every `git` call in the gate steps behaving identically if this job ever
+      # moves under a root container.
       - name: Mark workspace safe for git
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
@@ -2781,7 +2911,7 @@ jobs:
         with:
           version: "latest"
           enable-cache: true
-      
+
       - name: Cache virtualenv
         uses: actions/cache@v6
         id: cache-venv
@@ -2789,11 +2919,50 @@ jobs:
           path: .venv
           key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
 
-      - name: Create virtualenv (cache miss)
-        if: steps.cache-venv.outputs.cache-hit != 'true'
-        run: uv venv
-      
+      # Explicit, so that a broken environment fails HERE -- before the barrier
+      # -- instead of being billed to whichever gate step happened to be first.
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Setup barrier -- environment ready
+        id: setup
+        run: echo "environment ready"
+
+      - name: LOC cap gate
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python tools/loc_cap_check.py
+
+      # Unit tests for the generator itself -- includes an anti-vacuity check
+      # that mutates DIRECTORY_PURPOSE for one real, currently-described
+      # directory and asserts the completeness check still fires (exit 2).
+      - name: Generator unit tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_gen_repo_state.py -v --tb=short
+
+      # Deliberately NOT continue-on-error and deliberately not soft-launched.
+      # The blocks are generated, so they start clean and there is nothing to
+      # grandfather. Exit 1 = drift, exit 2 = tool error (missing marker,
+      # undescribed directory) -- both block.
+      - name: Generated repo state matches committed
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python scripts/gen_repo_state.py --check
+
+      # Validates known-failure-pins.yaml itself (see scripts/known_failure_pins.py
+      # and docs/solutions/best-practices/pin-known-failure-reasons-2026-07-30.md):
+      # every pin must cite a real evidence/solutions doc, stay within its
+      # lifetime cap, resolve to a real test, and the registry must not exceed
+      # its live-pin ratchet. This is what stops the mechanism from becoming an
+      # xfail list -- a pin nobody is forced to revisit is not a pin.
+      - name: Known-failure pin registry gate
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python scripts/known_failure_pins.py
+
+      - name: Known-failure pin mechanism unit tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_known_failure_pins.py -v --tb=short
+
       - name: Type-check gate (monotonic-shrink baseline)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python scripts/check_typecheck_gate.py
 
   astar-nightly:

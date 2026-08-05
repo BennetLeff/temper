@@ -1,6 +1,6 @@
 # R11 consumer-semantics catalog — audit working record (2026-08-04)
 
-<!-- provenance: commit=3400e7ecc, branch=feat/wave4-phase3-board-netlist-contracts, dirty=false -->
+<!-- provenance: commit=3400e7ecce664bc97087cfc4556b0d10bf73aa88, branch=feat/wave4-phase3-board-netlist-contracts, dirty=false -->
 <!-- base: PR #701 (board/netlist parse-target contracts), tip 3400e7ecc -->
 
 **Date:** 2026-08-04
