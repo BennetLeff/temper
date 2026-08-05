@@ -22,7 +22,7 @@ import numpy as np
 Array: TypeAlias = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
 
 from temper_placer.core.board import Board
-from temper_placer.core.netlist import Netlist
+from temper_placer.core.netlist import Netlist, get_bounds_array
 from temper_placer.core.state import PlacementState
 from temper_placer.geometry.constraints import (
     compute_boundary_violation,
@@ -129,7 +129,7 @@ class GeometricValidator(Validator):
         rotations = np.eye(4)[rotation_indices]  # (N, 4) one-hot
 
         # Get component dimensions
-        bounds = netlist.get_bounds_array()  # (N, 2)
+        bounds = get_bounds_array(netlist)  # (N, 2)
         widths = bounds[:, 0]
         heights = bounds[:, 1]
 

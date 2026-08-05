@@ -17,6 +17,9 @@ mod loop_loader;
 mod board;
 
 #[cfg(feature = "python")]
+mod netlist_contracts;
+
+#[cfg(feature = "python")]
 mod gates;
 
 #[cfg(feature = "python")]
@@ -190,6 +193,7 @@ mod python {
         crate::netclass_loader::register(module)?;
         crate::loop_loader::register(module)?;
         crate::board::register(module)?;
+        crate::netlist_contracts::register(module)?;
         crate::gates::register(module)?;
         crate::priority::register(module)
     }

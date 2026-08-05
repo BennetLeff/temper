@@ -718,3 +718,100 @@ class Board:
     def area(self) -> float: ...
 
     def rotated_90(self) -> Board: ...
+
+
+class Pin:
+    name: str
+    number: str
+    position: tuple[float, float]
+    net: str | None
+    width: float
+    height: float
+    shape: str
+    layer: str
+    drill: float
+    is_pth: bool
+    roundrect_ratio: float
+    pad_rotation_deg: float
+
+    def __init__(self, name: str, number: str, position: tuple[float, float], net: str | None = None, width: float = 1.0, height: float = 1.0, shape: str = "rect", layer: str = "F.Cu", drill: float = 0.0, is_pth: bool = False, roundrect_ratio: float = 0.25, pad_rotation_deg: float = 0.0) -> None: ...
+
+    @property
+    def mask_expansion(self) -> float: ...
+
+
+class NetlistComponent:
+    """The netlist's Component — exposed under this name because the
+    extension's flat namespace already holds board's Component. The
+    temper_placer.core.netlist shim re-exports it as Component."""
+
+    ref: str
+    footprint: str
+    bounds: tuple[float, float]
+    pins: list[Pin]
+    net_class: str
+    zone: str | None
+    fixed: bool
+    initial_position: tuple[float, float] | None
+    initial_rotation: int | None
+    initial_side: int | None
+    attributes: dict[str, str]
+    tags: frozenset
+    sheetpath: str | None
+
+    def __init__(self, ref: str, footprint: str, bounds: tuple[float, float], pins: list[Pin] | None = None, net_class: str = "Signal", zone: str | None = None, fixed: bool = False, initial_position: tuple[float, float] | None = None, initial_rotation: int | None = None, initial_side: int | None = None, attributes: dict[str, str] | None = None, tags: frozenset | None = None, sheetpath: str | None = None) -> None: ...
+
+    @property
+    def width(self) -> float: ...
+
+    @property
+    def height(self) -> float: ...
+
+    def get_pin(self, name_or_number: str) -> Pin | None: ...
+
+    def get_pins_for_net(self, net_name: str) -> list[Pin]: ...
+
+
+class Net:
+    name: str
+    pins: list[tuple[str, str]]
+    net_class: str
+    weight: float
+    max_current: float
+    voltage_class: str
+
+    def __init__(self, name: str, pins: list[tuple[str, str]] | None = None, net_class: str = "Signal", weight: float = 1.0, max_current: float = 0.0, voltage_class: str = "LV") -> None: ...
+
+    @property
+    def pin_count(self) -> int: ...
+
+    def get_component_refs(self) -> set[str]: ...
+
+
+class Netlist:
+    components: list[NetlistComponent]
+    nets: list[Net]
+
+    def __init__(self, components: list[NetlistComponent] | None = None, nets: list[Net] | None = None) -> None: ...
+
+    def build_indices(self) -> None: ...
+
+    def get_component_index(self, ref: str) -> int: ...
+
+    def get_component(self, ref: str) -> NetlistComponent: ...
+
+    def get_net(self, name: str) -> Net: ...
+
+    def get_component_nets(self, ref: str) -> list[str]: ...
+
+    def get_net_pins(self, net_name: str) -> list[tuple[str, str]]: ...
+
+    @property
+    def n_components(self) -> int: ...
+
+    @property
+    def n_nets(self) -> int: ...
+
+    def apply_net_class_mapping(self, mapping: dict[str, str]) -> int: ...
+
+    def validate(self) -> list[str]: ...

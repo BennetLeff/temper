@@ -17,17 +17,36 @@ class ApplyPlacementsStage(Stage):
 
         placements_dict = dict(state.placements)
 
-        # Create new component list with updated positions
+        # Create new component list with updated positions.
+        # Wave-4 adaptation (R12): the migrated Component/Netlist are pyo3
+        # pyclasses, not dataclasses — `dataclasses.replace` does not apply.
         updated_components = []
         for component in state.netlist.components:
             if component.ref in placements_dict:
                 # Create new component with updated position
-                new_comp = replace(component, initial_position=placements_dict[component.ref])
+                new_comp = type(component)(  # noqa: E721 — pyclass ctor
+                    component.ref,
+                    component.footprint,
+                    component.bounds,
+                    pins=component.pins,
+                    net_class=component.net_class,
+                    zone=component.zone,
+                    fixed=component.fixed,
+                    initial_position=placements_dict[component.ref],
+                    initial_rotation=component.initial_rotation,
+                    initial_side=component.initial_side,
+                    attributes=component.attributes,
+                    tags=component.tags,
+                    sheetpath=component.sheetpath,
+                )
                 updated_components.append(new_comp)
             else:
                 updated_components.append(component)
 
         # Create new netlist with updated components
-        new_netlist = replace(state.netlist, components=list(updated_components))
+        new_netlist = type(state.netlist)(  # noqa: E721 — pyclass ctor
+            components=list(updated_components),
+            nets=state.netlist.nets,
+        )
 
         return replace(state, netlist=new_netlist)

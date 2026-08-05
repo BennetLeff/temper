@@ -19,7 +19,7 @@ import numpy as np
 Array: TypeAlias = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
 
 from temper_placer.core.board import Board
-from temper_placer.core.netlist import Netlist
+from temper_placer.core.netlist import Netlist, get_bounds_array
 from temper_placer.core.pin_geometry import pin_world_position_at
 from temper_placer.core.state import PlacementState
 from temper_placer.geometry.overlap import (
@@ -155,7 +155,7 @@ def compute_metrics(
     rotations = np.eye(4)[rotation_indices]
 
     # Get component dimensions
-    bounds = netlist.get_bounds_array()
+    bounds = get_bounds_array(netlist)
     widths = bounds[:, 0]
     heights = bounds[:, 1]
 

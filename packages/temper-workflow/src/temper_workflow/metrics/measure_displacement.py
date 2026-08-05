@@ -64,7 +64,11 @@ def measure_displacement(pcb_path: Path, config_path: Path, seed: int = 42):
             [[board.origin[0] + board.width / 2, board.origin[1] + board.height / 2]]
         )
     else:
-        fixed_positions = netlist.get_bounds_array()[fixed_indices]  # Wrong, get positions
+        # Wave-4 adaptation (R12): get_bounds_array is a shim module
+        # function, not a Netlist method.
+        from temper_placer.core.netlist import get_bounds_array
+
+        fixed_positions = get_bounds_array(netlist)[fixed_indices]  # Wrong, get positions
         # Actually get positions from parse_result
         all_initial_pos = jnp.array(
             [c.initial_position if c.initial_position else (0, 0) for c in netlist.components]

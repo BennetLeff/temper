@@ -1,6 +1,13 @@
 """Tests for core.netlist module."""
 
-from temper_placer.core.netlist import Component, Net, Netlist, Pin
+from temper_placer.core.netlist import (
+    Component,
+    Net,
+    Netlist,
+    Pin,
+    get_bounds_array,
+    get_fixed_mask,
+)
 
 
 class TestPin:
@@ -117,14 +124,14 @@ class TestNetlist:
 
     def test_get_bounds_array(self, simple_netlist):
         """Test getting bounds as JAX array."""
-        bounds = simple_netlist.get_bounds_array()
+        bounds = get_bounds_array(simple_netlist)
         assert bounds.shape == (3, 2)
         assert bounds[0, 0] == 5.0  # U1 width
         assert bounds[0, 1] == 4.0  # U1 height
 
     def test_get_fixed_mask(self, simple_netlist):
         """Test getting fixed component mask."""
-        mask = simple_netlist.get_fixed_mask()
+        mask = get_fixed_mask(simple_netlist)
         assert mask.shape == (3,)
         assert not any(mask)  # None are fixed in simple_netlist
 

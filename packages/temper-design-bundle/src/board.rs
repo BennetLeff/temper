@@ -193,6 +193,19 @@ impl MountingHole {
         }
     }
 
+
+    fn __eq__(&self, py: Python<'_>, other: Bound<'_, PyAny>) -> PyResult<bool> {
+        if !other.is_instance_of::<MountingHole>() {
+            return Ok(false);
+        }
+        let o = other.extract::<Py<MountingHole>>()?;
+        let o = o.bind(py).borrow();
+        if !self.position.bind(py).eq(o.position.bind(py))? { return Ok(false); }
+        if self.diameter != o.diameter { return Ok(false); }
+        if self.keepout_radius != o.keepout_radius { return Ok(false); }
+        Ok(true)
+    }
+
     fn __repr__(&self, py: Python<'_>) -> PyResult<String> {
         Ok(format!(
             "MountingHole(position={}, diameter={}, keepout_radius={})",
@@ -241,6 +254,22 @@ impl Pad {
         }
     }
 
+
+    fn __eq__(&self, py: Python<'_>, other: Bound<'_, PyAny>) -> PyResult<bool> {
+        if !other.is_instance_of::<Pad>() {
+            return Ok(false);
+        }
+        let o = other.extract::<Py<Pad>>()?;
+        let o = o.bind(py).borrow();
+        if !self.position.bind(py).eq(o.position.bind(py))? { return Ok(false); }
+        if !self.size.bind(py).eq(o.size.bind(py))? { return Ok(false); }
+        if self.shape != o.shape { return Ok(false); }
+        if self.layer != o.layer { return Ok(false); }
+        if self.number != o.number { return Ok(false); }
+        if self.net_name != o.net_name { return Ok(false); }
+        Ok(true)
+    }
+
     fn __repr__(&self, py: Python<'_>) -> PyResult<String> {
         Ok(format!(
             "Pad(position={}, size={}, shape={}, layer={}, number={}, net_name={})",
@@ -282,10 +311,10 @@ pub struct Component {
 impl Component {
     #[new]
     #[allow(clippy::too_many_arguments)]
-    #[pyo3(signature = (ref_, position, rotation, width, height, footprint=None, pads=None, layer="F.Cu".to_string(), fixed=false))]
+    #[pyo3(signature = (r#ref, position, rotation, width, height, footprint=None, pads=None, layer="F.Cu".to_string(), fixed=false))]
     fn new(
         py: Python<'_>,
-        ref_: String,
+        r#ref: String,
         position: Bound<'_, PyAny>,
         rotation: f64,
         width: f64,
@@ -300,7 +329,7 @@ impl Component {
             None => PyList::empty(py).into_any().unbind(),
         };
         Self {
-            ref_,
+            ref_: r#ref,
             position: position.unbind(),
             rotation,
             width,
@@ -310,6 +339,25 @@ impl Component {
             layer,
             fixed,
         }
+    }
+
+
+    fn __eq__(&self, py: Python<'_>, other: Bound<'_, PyAny>) -> PyResult<bool> {
+        if !other.is_instance_of::<Component>() {
+            return Ok(false);
+        }
+        let o = other.extract::<Py<Component>>()?;
+        let o = o.bind(py).borrow();
+        if !self.position.bind(py).eq(o.position.bind(py))? { return Ok(false); }
+        if !self.pads.bind(py).eq(o.pads.bind(py))? { return Ok(false); }
+        if self.ref_ != o.ref_ { return Ok(false); }
+        if self.rotation != o.rotation { return Ok(false); }
+        if self.width != o.width { return Ok(false); }
+        if self.height != o.height { return Ok(false); }
+        if self.footprint != o.footprint { return Ok(false); }
+        if self.layer != o.layer { return Ok(false); }
+        if self.fixed != o.fixed { return Ok(false); }
+        Ok(true)
     }
 
     fn __repr__(&self, py: Python<'_>) -> PyResult<String> {
@@ -360,6 +408,35 @@ impl Trace {
             layer,
             net,
         }
+    }
+
+
+    fn __eq__(&self, py: Python<'_>, other: Bound<'_, PyAny>) -> PyResult<bool> {
+        if !other.is_instance_of::<Trace>() {
+            return Ok(false);
+        }
+        let o = other.extract::<Py<Trace>>()?;
+        let o = o.bind(py).borrow();
+        if !self.start.bind(py).eq(o.start.bind(py))? { return Ok(false); }
+        if !self.end.bind(py).eq(o.end.bind(py))? { return Ok(false); }
+        if self.width != o.width { return Ok(false); }
+        if self.layer != o.layer { return Ok(false); }
+        if self.net != o.net { return Ok(false); }
+        Ok(true)
+    }
+
+    fn __hash__(&self, py: Python<'_>) -> PyResult<isize> {
+        // Field-based hash, matching the frozen dataclass (via Python's
+        // tuple hash — in-process parity).
+        let items: Vec<Py<PyAny>> = vec![
+            self.start.clone_ref(py),
+            self.end.clone_ref(py),
+            self.width.into_pyobject(py)?.into_any().unbind(),
+            self.layer.clone().into_pyobject(py)?.into_any().unbind(),
+            self.net.clone().into_pyobject(py)?.into_any().unbind(),
+        ];
+        let t = PyTuple::new(py, items)?;
+        t.hash()
     }
 
     fn __repr__(&self, py: Python<'_>) -> PyResult<String> {
@@ -418,6 +495,43 @@ impl Via {
         })
     }
 
+
+    fn __eq__(&self, py: Python<'_>, other: Bound<'_, PyAny>) -> PyResult<bool> {
+        if !other.is_instance_of::<Via>() {
+            return Ok(false);
+        }
+        let o = other.extract::<Py<Via>>()?;
+        let o = o.bind(py).borrow();
+        if !self.position.bind(py).eq(o.position.bind(py))? { return Ok(false); }
+        if !self.layers.bind(py).eq(o.layers.bind(py))? { return Ok(false); }
+        if self.drill != o.drill { return Ok(false); }
+        if self.width != o.width { return Ok(false); }
+        if self.net != o.net { return Ok(false); }
+        if self.is_diff_pair != o.is_diff_pair { return Ok(false); }
+        Ok(true)
+    }
+
+    fn __hash__(&self, py: Python<'_>) -> PyResult<isize> {
+        // Field-based hash, matching the frozen dataclass (via Python's
+        // tuple hash — in-process parity).
+        let items: Vec<Py<PyAny>> = vec![
+            self.position.clone_ref(py),
+            self.drill.into_pyobject(py)?.into_any().unbind(),
+            self.width.into_pyobject(py)?.into_any().unbind(),
+            self.layers.clone_ref(py),
+            self.net.clone().into_pyobject(py)?.into_any().unbind(),
+            {
+                let is_diff_pair: bool = self.is_diff_pair;
+                pyo3::types::PyBool::new(py, is_diff_pair)
+                    .to_owned()
+                    .into_any()
+                    .unbind()
+            },
+        ];
+        let t = PyTuple::new(py, items)?;
+        t.hash()
+    }
+
     fn __repr__(&self, py: Python<'_>) -> PyResult<String> {
         Ok(format!(
             "Via(position={}, drill={}, width={}, layers={}, net={}, is_diff_pair={})",
@@ -454,6 +568,21 @@ impl Layer {
             copper_weight,
             is_routable,
         }
+    }
+
+
+    fn __eq__(&self, py: Python<'_>, other: Bound<'_, PyAny>) -> PyResult<bool> {
+        if !other.is_instance_of::<Layer>() {
+            return Ok(false);
+        }
+        let o = other.extract::<Py<Layer>>()?;
+        let o = o.bind(py).borrow();
+
+        if self.name != o.name { return Ok(false); }
+        if self.layer_type != o.layer_type { return Ok(false); }
+        if self.copper_weight != o.copper_weight { return Ok(false); }
+        if self.is_routable != o.is_routable { return Ok(false); }
+        Ok(true)
     }
 
     fn __repr__(&self) -> String {
@@ -746,6 +875,26 @@ impl Zone {
         Ok(x_min <= x && x <= x_max && y_min <= y && y <= y_max)
     }
 
+
+    fn __eq__(&self, py: Python<'_>, other: Bound<'_, PyAny>) -> PyResult<bool> {
+        if !other.is_instance_of::<Zone>() {
+            return Ok(false);
+        }
+        let o = other.extract::<Py<Zone>>()?;
+        let o = o.bind(py).borrow();
+        if !self.bounds.bind(py).eq(o.bounds.bind(py))? { return Ok(false); }
+        if !self.net_classes.bind(py).eq(o.net_classes.bind(py))? { return Ok(false); }
+        if !self.components.bind(py).eq(o.components.bind(py))? { return Ok(false); }
+        if !self.polygon.bind(py).eq(o.polygon.bind(py))? { return Ok(false); }
+        if !self.layers.bind(py).eq(o.layers.bind(py))? { return Ok(false); }
+        if !self.max_size.bind(py).eq(o.max_size.bind(py))? { return Ok(false); }
+        if !self.can_expand.bind(py).eq(o.can_expand.bind(py))? { return Ok(false); }
+        if self.name != o.name { return Ok(false); }
+        if self.weight != o.weight { return Ok(false); }
+        if self.zone_type != o.zone_type { return Ok(false); }
+        Ok(true)
+    }
+
     fn __repr__(&self, py: Python<'_>) -> PyResult<String> {
         Ok(format!(
             "Zone(name={}, bounds={}, net_classes={}, components={}, weight={}, polygon={}, layers={}, max_size={}, can_expand={}, zone_type={})",
@@ -796,6 +945,19 @@ impl GroundDomain {
         let x_max: f64 = b.get_item(2)?.extract()?;
         let y_max: f64 = b.get_item(3)?.extract()?;
         Ok(x_min <= x && x <= x_max && y_min <= y && y <= y_max)
+    }
+
+
+    fn __eq__(&self, py: Python<'_>, other: Bound<'_, PyAny>) -> PyResult<bool> {
+        if !other.is_instance_of::<GroundDomain>() {
+            return Ok(false);
+        }
+        let o = other.extract::<Py<GroundDomain>>()?;
+        let o = o.bind(py).borrow();
+        if !self.bounds.bind(py).eq(o.bounds.bind(py))? { return Ok(false); }
+        if !self.star_point.bind(py).eq(o.star_point.bind(py))? { return Ok(false); }
+        if self.name != o.name { return Ok(false); }
+        Ok(true)
     }
 
     fn __repr__(&self, py: Python<'_>) -> PyResult<String> {
@@ -929,6 +1091,29 @@ impl LayerStackup {
         Ok((grid_size / pitch) * layers)
     }
 
+
+    fn __eq__(&self, py: Python<'_>, other: Bound<'_, PyAny>) -> PyResult<bool> {
+        if !other.is_instance_of::<LayerStackup>() {
+            return Ok(false);
+        }
+        let o = other.extract::<Py<LayerStackup>>()?;
+        let o = o.bind(py).borrow();
+        if !self.layers.bind(py).eq(o.layers.bind(py))? { return Ok(false); }
+        if self.thickness != o.thickness { return Ok(false); }
+        Ok(true)
+    }
+
+    fn __hash__(&self, py: Python<'_>) -> PyResult<isize> {
+        // Field-based hash, matching the frozen dataclass (via Python's
+        // tuple hash — in-process parity).
+        let items: Vec<Py<PyAny>> = vec![
+            self.layers.clone_ref(py),
+            self.thickness.into_pyobject(py)?.into_any().unbind(),
+        ];
+        let t = PyTuple::new(py, items)?;
+        t.hash()
+    }
+
     fn __repr__(&self, py: Python<'_>) -> PyResult<String> {
         Ok(format!(
             "LayerStackup(layers={}, thickness={})",
@@ -942,7 +1127,10 @@ impl LayerStackup {
 // Board
 // ---------------------------------------------------------------------------
 
-#[pyclass]
+/// Dataclass semantics include a per-instance `__dict__`: consumers
+/// dynamically attach attributes (`board.traces = [...]` in the trace
+/// analyzer / board renderer). `#[pyclass(dict)]` reproduces that.
+#[pyclass(dict)]
 pub struct Board {
     #[pyo3(get, set)]
     width: f64,
@@ -1445,6 +1633,25 @@ impl Board {
                 Some(rotated_outline.bind(py).clone()),
             )?,
         )
+    }
+
+
+    fn __eq__(&self, py: Python<'_>, other: Bound<'_, PyAny>) -> PyResult<bool> {
+        if !other.is_instance_of::<Board>() {
+            return Ok(false);
+        }
+        let o = other.extract::<Py<Board>>()?;
+        let o = o.bind(py).borrow();
+        if !self.origin.bind(py).eq(o.origin.bind(py))? { return Ok(false); }
+        if !self.zones.bind(py).eq(o.zones.bind(py))? { return Ok(false); }
+        if !self.mounting_holes.bind(py).eq(o.mounting_holes.bind(py))? { return Ok(false); }
+        if !self.keepouts.bind(py).eq(o.keepouts.bind(py))? { return Ok(false); }
+        if !self.ground_domains.bind(py).eq(o.ground_domains.bind(py))? { return Ok(false); }
+        if !self.layer_stackup.bind(py).eq(o.layer_stackup.bind(py))? { return Ok(false); }
+        if !self.outline_polygon.bind(py).eq(o.outline_polygon.bind(py))? { return Ok(false); }
+        if self.width != o.width { return Ok(false); }
+        if self.height != o.height { return Ok(false); }
+        Ok(true)
     }
 
     fn __repr__(&self, py: Python<'_>) -> PyResult<String> {

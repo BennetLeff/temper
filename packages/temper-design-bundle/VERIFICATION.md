@@ -968,3 +968,77 @@ behavior is bit-identical to the pinned pre-migration Python module
   beyond noise" carve-out (`docs/evidence/2026-08-04-wave4-slice-
   delegation-perf-carveout.md`, KTD9) applies.
 - Type-check: board.py's allowlist entry removed (0 errors, down from 1).
+
+## netlist — Verification
+
+`temper_placer/core/netlist.py` is now a delegation shim: the data model
+(Pin, Component, Net, Netlist) lives in this crate's `netlist_contracts.rs`.
+The shim keeps the numpy surface (`get_bounds_array`/`get_fixed_mask`/
+`build_adjacency_matrix` — R10/KTD6, consumers adapted per R12), the
+never-gated `compute_eigenvector_centrality` kernel (`np.linalg.eigh`,
+R10), and the hashlib-based `find_isomorphic_groups` helper (KTD7).
+
+## Induction applicability
+
+**Mathematical induction is not applicable to this module.** The data
+model is fixed finite fields plus index caches:
+
+- `build_indices` maps each component/net independently; per-element
+  correctness does not depend on the list size (verified by MR1/MR2 in
+  `test_netlist_pbt.py`).
+- `apply_net_class_mapping` and `validate` iterate the nets once with
+  per-element checks.
+
+Per the plan's R1e, a **structural proof** is recorded instead.
+
+## Structural proof
+
+**Claim (bit-identical parity).** For every public symbol, the pyclass
+behavior is bit-identical to the pinned pre-migration Python module
+(`packages/temper-placer/tests/core/_netlist_py_oracle.py`, commit
+`f2b09d846`).
+
+*Proof by structural cases.*
+
+1. **Construction.** Each `#[new]` mirrors the dataclass constructor
+   exactly (signature, defaults, field order); container fields hold the
+   real Python objects; the `ref` keyword (a Python keyword) is supported
+   via pyo3's raw-ident unraw path; the netlist `Component` is exposed in
+   the extension as `NetlistComponent` because the flat extension
+   namespace already holds board's `Component` — the shim re-exports the
+   module's public name.
+2. **Lookup caches.** `_component_index`/`_net_index`/`_component_nets`
+   are rebuilt by `build_indices` in `__post_init__` order; `repr`
+   omits them (`repr=False`), matching the dataclass repr; misses raise
+   the same `KeyError`s.
+3. **Mutation.** `apply_net_class_mapping` mutates `net.net_class`
+   in place with the oracle's updated-count semantics and idempotence
+   (MR3); `build_indices` after list mutation behaves identically.
+4. **`validate`.** The duplicate-ref / duplicate-net detection and the
+   unknown-component / unknown-pin messages reproduce the oracle's texts;
+   the `set(...)` reprs are produced by Python's own `set`, so the
+   hash-seeded ordering divergence the oracle itself exhibits is shared.
+5. **repr parity (B9/B10).** Every class implements `__repr__` with
+   `py_str_repr`/`py_float_str` and delegates nested objects to their own
+   Python reprs; the differential asserts byte-for-byte equality.
+
+## Evidence
+
+- Differential (R1a): `test_netlist_rust_differential.py` — 13 tests:
+  leaf construction/repr parity, property/lookup parity, mutation paths,
+  validate parity, index-miss KeyErrors, and the shim-kept numpy/hashlib
+  surface with explicit dtype assertions. RED first: failed to collect
+  before the pyclasses existed.
+- PBT (R1c): `test_netlist_pbt.py` — 5 hypothesis properties (P1-P5)
+  over consistently-generated netlists.
+- Metamorphic (R1d): `test_netlist_pbt.py` — MR1 (component-order
+  independence), MR2 (net-order independence), MR3 (mapping idempotence).
+- Consumer adaptations per R12: `validation/metrics.py`,
+  `validation/geometric.py`, `tests/core/test_netlist.py` (numpy
+  wrappers as module functions).
+- Consumer suites run unchanged or adapted in-PR: `test_netlist.py` (20
+  tests) and the broad io/core/router_v6/validation/deterministic/metrics/
+  heuristics/pipeline/placer sweep.
+- Performance A/B (R1b): pure-data contract migration; the "no regression
+  beyond noise" carve-out (`docs/evidence/2026-08-04-wave4-slice-
+  delegation-perf-carveout.md`, KTD9) applies.

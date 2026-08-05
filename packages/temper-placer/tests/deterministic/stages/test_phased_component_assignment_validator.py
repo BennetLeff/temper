@@ -219,7 +219,9 @@ class TestPhasedComponentAssignmentValidator:
             initial_position=far_slot,
             pins=[],
         )
-        new_netlist = replace(netlist, components=[*netlist.components, big])
+        # Wave-4 adaptation (R12): the migrated Netlist is a pyclass, not a
+        # dataclass — construct a new Netlist instead of `replace`.
+        new_netlist = Netlist(components=[*netlist.components, big], nets=netlist.nets)
         new_state = replace(state, netlist=new_netlist)
         result2 = _run_placer(new_state)
         # The placer won't place BIG at exactly (0, 0) since it's
