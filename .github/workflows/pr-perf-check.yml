@@ -1,9 +1,32 @@
 name: PR Performance Check
 
-# PR runs grouped per PR number, cancelled when superseded; main runs grouped
-# per SHA and never cancelled. Rationale: python-tests.yml.
+# PR runs grouped per PR number, cancelled when superseded. Non-PR runs are
+# CAPTURE runs and are grouped per RUN, never cancelled. Rationale:
+# python-tests.yml.
+#
+# 2026-08-05: the non-PR key was `github.sha`, which silently defeated the
+# `workflow_dispatch` trigger that exists immediately below for "topping the
+# baseline up on demand". Every dispatch against a given ref carries the SAME
+# sha, so all of them landed in ONE concurrency group; with
+# `cancel-in-progress: false` GitHub keeps only the newest PENDING run per
+# group and cancels the rest. Measured: six dispatches issued back-to-back on
+# main produced FOUR `cancelled` and one survivor.
+#
+# That capped on-demand capture at one row per sitting, against a baseline
+# convention of n=6 per stage -- and n=1 is the exact defect the push trigger
+# below was added to fix (see its comment: a single row makes the "rolling
+# median of the trailing 5" a no-op, and ordinary runner variance then trips
+# the 20% margin; PR #544 was reported as a +26.6% regression by a runtime
+# no-op). A capture path that cannot capture more than one sample cannot
+# repair that.
+#
+# `github.run_id` is unique per run, so each capture gets its own group and
+# they all execute. This does NOT weaken supersession where it matters: the
+# `pull_request` branch of the expression is unchanged, so a superseded PR push
+# still cancels its predecessor. Capture runs are samples, not gates -- there
+# is nothing to supersede, and discarding one discards data.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 on:
