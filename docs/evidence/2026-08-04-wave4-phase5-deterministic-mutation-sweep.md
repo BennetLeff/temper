@@ -64,6 +64,9 @@ unambiguous).
   found`: the zombie campaign had left M5's mutation (`0.7`) applied in the
   source when it was killed. The source was restored from the pinned
   oracle and the sweep re-run to completion.
+- Independently re-run on the final committed state (branch tip after the
+  GREEN migration commit + rebase onto current main): 12/12 killed again,
+  exit 0, end state bit-exact (extensions fresh, 226/226 stages green).
 - The 43 Batch-2 assertions/examples re-passed after the sweep (exit 0,
   suites green), confirming the revert cycle restored the bit-exact state.
   (The driver now performs this pristine rebuild + re-run itself, so the
