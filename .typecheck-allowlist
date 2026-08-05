@@ -1,15 +1,13 @@
 # Type-check allowlist — monotonic-shrink baseline
-# 214 total errors across 31 files
+# 209 total errors across 27 files
 # <filepath> <max-allowed-error-count>
 # Do not increase these numbers. Fix the errors.
 
 packages/temper-placer/src/temper_placer/core/state.py 2
-packages/temper-placer/src/temper_placer/deterministic/__init__.py 1
 packages/temper-placer/src/temper_placer/deterministic/stages/_phase_core.py 4
 packages/temper-placer/src/temper_placer/deterministic/stages/_phase_rotation.py 19
 packages/temper-placer/src/temper_placer/deterministic/stages/_phase_validation.py 5
 packages/temper-placer/src/temper_placer/deterministic/stages/_phase_zones.py 14
-packages/temper-placer/src/temper_placer/io/config_loader.py 0
 packages/temper-placer/src/temper_placer/io/dsn_exporter.py 1
 packages/temper-placer/src/temper_placer/io/kicad_exporter.py 1
 packages/temper-placer/src/temper_placer/pcl/parser.py 1
@@ -17,7 +15,6 @@ packages/temper-placer/src/temper_placer/pipeline/convergence.py 13
 packages/temper-placer/src/temper_placer/pipeline/dag_engine.py 18
 packages/temper-placer/src/temper_placer/pipeline/dag_expr.py 1
 packages/temper-placer/src/temper_placer/pipeline/stages/geometric_stage.py 3
-packages/temper-placer/src/temper_placer/pipeline/stages/input_stage.py 1
 packages/temper-placer/src/temper_placer/pipeline/stages/output_stage.py 2
 packages/temper-placer/src/temper_placer/placer/cp_sat/_encoder_core.py 6
 packages/temper-placer/src/temper_placer/placer/cp_sat/_loop_core.py 63

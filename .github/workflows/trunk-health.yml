@@ -99,6 +99,13 @@ jobs:
           run_gate "Workflow pull_request trigger coverage" \
             python3 scripts/check_workflow_pr_triggers.py
 
+          # A NEW set/frozenset iteration or hash() whose order reaches an
+          # output. Six such sites shipped (issue #752 6 & 7, PR #730); the
+          # known ones are ratcheted in .hash-order-inventory, so a STALE_ENTRY
+          # here also means a fix landed without the ledger being updated.
+          run_gate "No new salted-hash order dependencies" \
+            python3 scripts/check_hash_order_determinism.py
+
           run_gate "Required-checks manifest (trigger paths + job conditions)" \
             python3 -c "
           import sys
