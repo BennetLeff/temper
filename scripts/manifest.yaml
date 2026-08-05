@@ -1,11 +1,26 @@
 _meta:
   last_audit_date: '2026-08-02'
-  total_scripts: 102
+  total_scripts: 103
   counts:
-    keep: 102
+    keep: 103
     ticket: 0
   ticket_scripts_deleted: 40
 scripts:
+- path: phase5_cli_adapters_workflow_mutations.py
+  purpose: 'Wave-4 Phase-5 anti-vacuity mutation campaign driver for the cli/adapters/temper-workflow
+    slice (temper-orchestration crate): applies 11 one-line mutants to the Rust kernels, rebuilds, runs
+    the six differential/PBT suites expecting failure, reverts, and rebuilds from the reverted source
+    so the installed extension is always left correct. Two round-1 survivors were closed with discriminating
+    cases (recorded in packages/temper-orchestration/VERIFICATION.md).'
+  owner: wave4-migration
+  last_run: '2026-08-05'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - pathlib
+  - subprocess
+  - sys
 - path: add_power_planes.py
   purpose: Manually add power plane geometry to a KiCad PCB
   owner: unassigned
@@ -366,6 +381,24 @@ scripts:
   - re
   - sys
   - typing
+- path: check_hash_order_determinism.py
+  purpose: 'CI gate: fail on any NEW site under packages/*/src that records a PYTHONHASHSEED-chosen order
+    -- a set/frozenset iteration materialised, accumulated over, indexed, first-element-selected or appended
+    in a loop body, or a call to the salted hash() builtin outside __hash__. Six such sites shipped (issue
+    #752 defects 6 and 7; PR #730), producing component coordinates, a geometric waypoint and a report
+    order that differed between processes on identical input. Known sites are ratcheted in .hash-order-inventory;
+    a stale entry is a failure so paid-down debt must be recorded.'
+  owner: bennet
+  last_run: '2026-08-05'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - ast
+  - dataclasses
+  - pathlib
+  - sys
 - path: check_hv_netclass_coverage.py
   purpose: 'CI gate: assert every elec/domain_manifest.yaml HV-domain net has a TEMPER_NET_ASSIGNMENTS
     entry, and every declared netclass (TEMPER_NET_CLASSES union pcb/temper.kicad_pro-described classes,

@@ -237,7 +237,9 @@
   "netlist_mutator.py": [],
   "phase5_batch1_mutations.py": [],
   "phase5_batch2_mutations.py": [],
-  "physics_soundness_register_gate.py": [
+
+  "netlist_mutator.py": [],
+  "phase5_cli_adapters_workflow_mutations.py": [],  "physics_soundness_register_gate.py": [
     ".github/workflows/python-tests.yml",
     "packages/temper-placer/tests/scripts/test_physics_soundness_register_gate.py"
   ],
@@ -275,11 +277,11 @@
   ],
   "resync_pcb_netlist.py": [],
   "route_board.py": [
-    "Makefile",
-    "packages/temper-placer/src/temper_placer/router_v6/_strip_copper.py",
-    "packages/temper-placer/tests/router_v6/test_strip_copper.py",
-    "packages/temper-workflow/src/temper_workflow/routing/route_and_measure.py"
-  ],
+"Makefile",
+"packages/temper-placer/src/temper_placer/router_v6/_strip_copper.py",
+"packages/temper-placer/tests/router_v6/test_strip_copper.py",
+"packages/temper-workflow/src/temper_workflow/routing/route_and_measure.py",
+"packages/temper-workflow/tests/_route_and_measure_py_oracle.py"  ],
   "run_feedback_loop.py": [
     "scripts/test_backpath_fix.sh"
   ],
