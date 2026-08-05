@@ -22,6 +22,11 @@
 //!   build's libm measured 1 ulp apart on real inputs).  Both are
 //!   resolved via `dlsym(RTLD_DEFAULT, ...)` (cached in a `OnceLock`),
 //!   falling back to the std intrinsic only when `dlsym` is unavailable.
+//!   `dlsym`/`RTLD_DEFAULT` do not exist on `wasm32-unknown-unknown` (no
+//!   libc, no dynamic loader), so that target skips host resolution
+//!   entirely and always uses the statically-linked `f64::sqrt`/`powf`
+//!   fallback — the up-to-1-ulp divergence from CPython's host libm is
+//!   accepted there, not eliminated (there is no CPython host to match).
 //! - **B7 (f64 operation order):** `I_load_rms**2 * R_ds_on` is
 //!   `pow(I, 2.0) * R_ds_on` — NOT `I*I * R_ds_on` (the two differ by 1
 //!   ulp on ~0.14% of random floats, measured 2026-08-02 and pinned in
@@ -40,15 +45,29 @@
 //! and `E_on > 0 or E_off > 0` are false for NaN (IEEE comparisons),
 //! selecting the same arms CPython selects.
 
+#[cfg(not(target_arch = "wasm32"))]
 use std::sync::OnceLock;
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use temper_py_bridge;
 
 /// Host-runtime libm function pointers, resolved once via `dlsym`.
+///
+/// wasm32 note: `dlsym`/`RTLD_DEFAULT` are POSIX concepts with no
+/// equivalent on `wasm32-unknown-unknown` (no libc, no dynamic loader),
+/// so this whole resolution path is compiled only for non-wasm targets.
+/// `wasm32` falls back to Rust's statically-linked `f64::sqrt`/`powf`
+/// (see `math_sqrt`/`math_pow` below) — these can differ from CPython's
+/// host libm by up to 1 ULP (B1 in the module docs). That divergence is
+/// accepted, not eliminated: wasm32 has no CPython host libm to match.
+#[cfg(not(target_arch = "wasm32"))]
 type UnaryMathFn = unsafe extern "C" fn(f64) -> f64;
+#[cfg(not(target_arch = "wasm32"))]
 type BinaryMathFn = unsafe extern "C" fn(f64, f64) -> f64;
 
+#[cfg(not(target_arch = "wasm32"))]
 fn dlsym_unary(symbol: &str) -> Option<UnaryMathFn> {
     unsafe extern "C" {
         fn dlsym(handle: *const u8, symbol: *const u8) -> *mut u8;
@@ -64,6 +83,7 @@ fn dlsym_unary(symbol: &str) -> Option<UnaryMathFn> {
     }
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 fn dlsym_binary(symbol: &str) -> Option<BinaryMathFn> {
     unsafe extern "C" {
         fn dlsym(handle: *const u8, symbol: *const u8) -> *mut u8;
@@ -79,6 +99,7 @@ fn dlsym_binary(symbol: &str) -> Option<BinaryMathFn> {
     }
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 fn host_sqrt() -> &'static UnaryMathFn {
     static F: OnceLock<Option<UnaryMathFn>> = OnceLock::new();
     F.get_or_init(|| dlsym_unary("sqrt").or(Some(fallback_sqrt)))
@@ -86,6 +107,7 @@ fn host_sqrt() -> &'static UnaryMathFn {
         .unwrap_or_else(|| unreachable!("fallback always set"))
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 fn host_pow() -> &'static BinaryMathFn {
     static F: OnceLock<Option<BinaryMathFn>> = OnceLock::new();
     F.get_or_init(|| dlsym_binary("pow").or(Some(fallback_pow)))
@@ -93,22 +115,43 @@ fn host_pow() -> &'static BinaryMathFn {
         .unwrap_or_else(|| unreachable!("fallback always set"))
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 unsafe extern "C" fn fallback_sqrt(x: f64) -> f64 {
     f64::sqrt(x)
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 unsafe extern "C" fn fallback_pow(x: f64, y: f64) -> f64 {
     x.powf(y)
 }
 
-/// CPython `math.sqrt(x)`, bit-exact with the reference.
+/// CPython `math.sqrt(x)`, bit-exact with the reference on non-wasm
+/// targets (resolved via host `dlsym`). On `wasm32-unknown-unknown`
+/// there is no host libm to bind to, so this is Rust's statically-linked
+/// `f64::sqrt` — may differ from CPython by up to 1 ULP (B1, not
+/// eliminated, see the module docs and the type comment above).
+#[cfg(not(target_arch = "wasm32"))]
 fn math_sqrt(x: f64) -> f64 {
     unsafe { host_sqrt()(x) }
 }
 
-/// CPython `x ** y` (libm `pow`), bit-exact with the reference.
+#[cfg(target_arch = "wasm32")]
+fn math_sqrt(x: f64) -> f64 {
+    f64::sqrt(x)
+}
+
+/// CPython `x ** y` (libm `pow`), bit-exact with the reference on
+/// non-wasm targets (resolved via host `dlsym`). On `wasm32-unknown-unknown`
+/// this is Rust's statically-linked `f64::powf` — may differ from
+/// CPython by up to 1 ULP (B1, not eliminated).
+#[cfg(not(target_arch = "wasm32"))]
 fn math_pow(x: f64, y: f64) -> f64 {
     unsafe { host_pow()(x, y) }
+}
+
+#[cfg(target_arch = "wasm32")]
+fn math_pow(x: f64, y: f64) -> f64 {
+    x.powf(y)
 }
 
 /// Device-type code passed across the FFI boundary.  The Python wrapper
@@ -190,6 +233,7 @@ pub fn single_device_power(
 }
 
 /// pyo3 bridge for [`single_device_power`].
+#[cfg(feature = "python")]
 #[pyfunction]
 #[allow(clippy::too_many_arguments)]
 #[pyo3(signature = (device_type, v_ce_sat, r_ds_on, e_on, e_off, v_f, e_rr, v_bus, i_load_rms, f_sw, t_rise, t_fall))]

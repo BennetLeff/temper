@@ -28,6 +28,9 @@ related_components:
   - code-review
 ---
 
+> **Status update (2026-08-03 refresh):** the optimizer overlap-point examples (config.py, train.py, initialization.py) were deleted with the JAX retirement; current overlap points: `io/config_loader.py`, `pipeline/dag_engine.py`, `core/state.py`.
+
+
 # Silent Source Code Loss During Parallel Worktree Merge Batches
 
 ## Context

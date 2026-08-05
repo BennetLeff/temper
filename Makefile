@@ -31,6 +31,13 @@ help:
 	@echo "  make onboard-status- Show cached onboard summary"
 	@echo ""
 
+# NOTE: this does NOT place the board. `route` routes traces over whatever
+# placement is already on disk, and `footprints` is a stub. Placement is a
+# separate, deliberately human-gated CP-SAT solve with candidate selection --
+# every recent pcb/temper.kicad_pcb change came from one, never from `make
+# build`. CP-SAT placement is only deterministic when it terminates without
+# hitting its timeout, which is why it is not automated here. See
+# docs/plans/2026-08-04-001-feat-board-regeneration-proposal.md.
 build: netlist footprints schematics route drc
 
 NETLIST_FILE = $(ELEC_DIR)/build/default.net
@@ -68,20 +75,49 @@ diff:
 visualize:
 	cd $(ELEC_DIR) && uv tool run --from 'atopile>=0.2,<0.3' ato --non-interactive view $(ATO_ENTRY)
 
-# Interim: points at the quarantined 33-component benchmark fixture until the
-# real production board is generated from schematics. The identity gate (plan
-# 2026-07-15-001 U4) will make routing fail-closed against a fixture-path board;
-# re-point PCB_FILE at the production board once it exists.
-PCB_FILE = pcb/benchmarks/temper_fixture_33.kicad_pcb
+# Re-pointed 2026-08-04 at the production board, which now exists -- this is the
+# "re-point PCB_FILE at the production board once it exists" the previous comment
+# here asked for. It had pointed at the quarantined 33-net benchmark fixture, so
+# `make route` (and therefore `make build`) routed a fixture and `make drc`
+# measured that fixture's output rather than the board.
+PCB_FILE = pcb/temper.kicad_pcb
 ROUTED_PCB = pcb/temper_routed.kicad_pcb
 
+# Was `scripts/internal_route.py`, which had been unable to even import since
+# 2026-07-10: it read `temper_placer.io.trace_writer` (deleted in 6d9e24db7 as
+# dead code) and `jax` (declared in no pyproject.toml and absent from uv.lock).
+# `docs/evidence/2026-07-30-rotation-sign-remaining-sites.md` recorded the script
+# as dead on 2026-07-30; the Makefile kept calling it regardless, so this target
+# was broken, not slow or wrong, for roughly four weeks. That script has since
+# been RETIREd and deleted (2026-08-04) -- do not go looking for it.
+#
+# scripts/route_board.py is the live path -- it calls
+# temper_placer.router_v6.adapter.route_pcb, the same entry point that produced
+# the committed route in 556ccf4f and that
+# test_production_board_routing_drc_regression exercises as a CI gate. Its own
+# docstring already described itself as "the working entry point that `make
+# route` and `scripts/internal_route.py` are not"; only this wiring was missing.
+#
+# --cell-size is not carried over: route_pcb owns its own grid parameters, and
+# the committed route and the CI gate both use its defaults. Passing 0.2 here
+# would have made `make route` diverge from the path everything else measures.
 route: netlist
-	@echo "Running internal maze router..."
-	uv run python3 scripts/internal_route.py $(PCB_FILE) -o $(ROUTED_PCB) --cell-size 0.2
+	@echo "Routing $(PCB_FILE) through router_v6 (route_pcb)..."
+	uv run python3 scripts/route_board.py --pcb $(PCB_FILE) --output $(ROUTED_PCB)
 
+# --all-track-errors is load-bearing, for determinism as much as completeness.
+# Without it KiCad reports only a SUBSET of the errors on each track, and which
+# subset varies between runs on a byte-identical board: measured over 11 runs,
+# clearance 334-343 and shorting_items 148-174. With it those counts are stable
+# and clearance reads 499 -- the same figure docs/STRATEGY.md records for this
+# board. The earlier numbers were a sample, not a measurement.
+#
+# Omitting it here meant `make drc` disagreed with CI, with
+# power_pcb_dataset/drc_ceiling.json, and with itself between runs. See the
+# rationale in packages/temper-placer/src/temper_placer/validation/_drc_api.py.
 drc:
 	@echo "Running KiCad DRC..."
-	kicad-cli pcb drc --exit-code-violations $(ROUTED_PCB)
+	kicad-cli pcb drc --all-track-errors --exit-code-violations $(ROUTED_PCB)
 
 # Fast inner-loop test run: skips the 163 tests marked `slow` (of 6389).
 #
@@ -187,6 +223,16 @@ extensions-check:
 # git-checkout-mtime false positive regardless of isolation, so isolating
 # is about removing concurrent-mutation risk, not about the gate's own
 # correctness.
+# Shared cargo build cache. `.cargo/config.toml`'s relative `target-dir` gives
+# every worktree a PRIVATE cache (measured 2026-08-05: five worktrees holding
+# 10G/1.4G/750M/398M/109M separately), which is what drove .claude/worktrees to
+# 51 GB. `--git-common-dir` points at the MAIN checkout's .git from any
+# worktree, so this resolves to one absolute path everywhere -- including
+# worktrees outside the repo tree, which no relative path can reach.
+# CARGO_TARGET_DIR overrides build.target-dir.
+CARGO_TARGET_DIR := $(shell dirname "$(shell git rev-parse --path-format=absolute --git-common-dir)")/target-shared
+export CARGO_TARGET_DIR
+
 venv-isolate:
 	@echo "Provisioning this worktree's own .venv (uv sync --all-packages)..."
 	uv sync --all-packages

@@ -1,0 +1,644 @@
+"""Differential test: ConstraintCompiler compute (temper-constraint-compiler)
+vs the pinned Python oracle.
+
+Wave 4, Phase 4 — the constraints surface migration. The Rust migration
+(reproducing ``temper_placer/constraints/compiler.py`` bit-identically in the
+``temper-constraint-compiler`` crate) is driven through the delegation shim
+``temper_placer.constraints.compiler``; the pre-migration implementation is
+pinned verbatim as the oracle (``_compiler_py_oracle.py``, commit aece7c372).
+
+Every assertion drives IDENTICAL inputs through both sides and compares
+bit-exactly: floats via ``float.hex()`` (never tolerance), the concrete type
+carried in comparison keys (so int-vs-float cannot hide), and tuples/strings
+compared as-is.
+
+The module-scope reference to ``_rust.CompiledSlotFilter`` is the RED arm:
+before the Rust surface lands this file fails to collect (AttributeError).
+"""
+
+from __future__ import annotations
+
+import math
+import random
+
+import temper_constraint_compiler as _rust
+
+import tests.constraints._compiler_py_oracle as _oracle
+from temper_placer._constraint_types import (
+    ComponentGroup,
+    ComponentSpacingRule,
+    EscapeClearance,
+    PlacementConstraints,
+    ProximityRule,
+    RoutingCorridor,
+    ThermalConstraint,
+)
+from temper_placer.constraints.compiler import ConstraintCompiler, ValidationError
+
+# Module-scope RED arm: the Rust symbols must exist or collection fails.
+assert hasattr(_rust, "CompiledSlotFilter")
+assert hasattr(_rust, "CompiledSlotScorer")
+assert hasattr(_rust, "constraint_distance")
+assert hasattr(_rust, "constraint_centroid")
+assert hasattr(_rust, "constraint_min_edge_distance")
+assert hasattr(_rust, "constraint_point_to_segment_distance")
+assert hasattr(_rust, "constraint_in_zone")
+assert hasattr(_rust, "constraint_find_similar")
+assert hasattr(_rust, "validate_constraints")
+
+
+# ---------------------------------------------------------------------------
+# Canonicalization helpers (bit-exact floats, concrete types).
+# ---------------------------------------------------------------------------
+
+
+def _f(value):
+    """Bit-exact float key: None stays None, else float.hex()."""
+    return None if value is None else float(value).hex()
+
+
+def _pt(p):
+    return None if p is None else (_f(p[0]), _f(p[1]))
+
+
+def _err_key(e: ValidationError):
+    """Canonical key for a ValidationError (all strings)."""
+    return (
+        e.constraint_type,
+        e.message,
+        e.component,
+        e.suggestion,
+        str(e),  # __str__ formatting must match too
+    )
+
+
+def _constraints(**kw) -> PlacementConstraints:
+    return PlacementConstraints(**kw)
+
+
+def _noisy_placements(rng: random.Random, refs: list[str], n: int) -> dict:
+    out = {}
+    for _ in range(n):
+        ref = rng.choice(refs)
+        out[ref] = (rng.uniform(-100.0, 100.0), rng.uniform(-100.0, 100.0))
+    return out
+
+
+def _random_constraints(rng: random.Random, seed_for: int) -> PlacementConstraints:
+    """Random but deterministic constraint set (fixed seed per index)."""
+    r = random.Random(seed_for)
+    refs = ["A", "B", "C", "D", "E", "U1", "U2", "Q1", "Q2", "R5"]
+    spacing = []
+    for _ in range(r.randint(0, 4)):
+        spacing.append(
+            ComponentSpacingRule(
+                component_a=r.choice(refs),
+                component_b=r.choice(refs),
+                min_separation_mm=r.uniform(1.0, 40.0),
+                tier=r.choice(["hard", "soft"]),
+                weight=r.uniform(0.1, 5.0),
+                description=r.choice(["", "keep apart", "thermal pair"]),
+            )
+        )
+    groups = []
+    for _ in range(r.randint(0, 3)):
+        comps = r.sample(refs, r.randint(2, 3))
+        prox = []
+        for _ in range(r.randint(0, 2)):
+            a, b = r.sample(comps, 2)
+            prox.append(
+                ProximityRule(
+                    component_a=a,
+                    component_b=b,
+                    max_distance_mm=r.uniform(5.0, 50.0),
+                    tier=r.choice(["hard", "soft"]),
+                )
+            )
+        groups.append(
+            ComponentGroup(
+                name=f"g{r.randint(1, 99)}",
+                components=comps,
+                max_spread_mm=r.uniform(10.0, 60.0),
+                zone=r.choice([None, None, "Zone1"]),
+                weight=r.uniform(0.5, 3.0),
+                proximity_rules=prox,
+            )
+        )
+    escapes = [
+        EscapeClearance(
+            component=r.choice(refs),
+            clearance_mm=r.choice([None, r.uniform(2.0, 15.0)]),
+            priority_sides=r.sample(["top", "bottom", "left", "right"], r.randint(0, 2)),
+            tier=r.choice(["hard", "soft"]),
+        )
+        for _ in range(r.randint(0, 3))
+    ]
+    corridors = [
+        RoutingCorridor(
+            name=f"c{i}",
+            from_component=r.choice(refs),
+            to_component=r.choice(refs),
+            width_mm=r.uniform(1.0, 10.0),
+            keep_clear=r.choice([True, False]),
+            nets=r.sample(["N1", "N2", "N3"], r.randint(0, 2)),
+            tier=r.choice(["hard", "soft"]),
+        )
+        for i in range(r.randint(0, 2))
+    ]
+    thermals = [
+        ThermalConstraint(
+            components=r.sample(refs, r.randint(1, 2)),
+            prefer_edge=r.choice([True, False]),
+            max_distance_from_edge_mm=r.uniform(5.0, 30.0),
+        )
+        for _ in range(r.randint(0, 2))
+    ]
+    zones = []
+    if r.random() < 0.5:
+        from temper_placer.core.board import Zone
+
+        zones.append(Zone(name="Zone1", bounds=(0.0, 0.0, 100.0, 80.0)))
+    assignments = {}
+    if zones:
+        assignments[r.choice(refs)] = "Zone1"
+    return PlacementConstraints(
+        board_width_mm=100.0,
+        board_height_mm=80.0,
+        component_spacing_rules=spacing,
+        component_groups=groups,
+        escape_clearances=escapes,
+        routing_corridors=corridors,
+        thermal_constraints=thermals,
+        zones=zones,
+        zone_assignments=assignments,
+    )
+
+
+def _both(constraints, board_bounds=None):
+    """Build oracle and shim compilers on identical inputs."""
+    o = _oracle.ConstraintCompiler(constraints, board_bounds)
+    s = ConstraintCompiler(constraints, board_bounds)
+    return o, s
+
+
+# ---------------------------------------------------------------------------
+# R1a — behavioural A/B: slot filter (hard constraints), bit-identical.
+# ---------------------------------------------------------------------------
+
+
+class TestSlotFilterDifferential:
+    def test_empty_constraints_filter_always_true(self):
+        o, s = _both(PlacementConstraints())
+        of, sf = o.compile_to_slot_filter(), s.compile_to_slot_filter()
+        for slot in [(0.0, 0.0), (50.0, 50.0), (-3.5, 12.25)]:
+            for comp in ["U_MCU", "A", "X1"]:
+                for placements in [{}, {"A": (1.0, 2.0)}, {"A": (1.0, 2.0), "B": (3.0, 4.0)}]:
+                    assert of(slot, comp, placements) == sf(slot, comp, placements)
+
+    def test_random_differential(self):
+        rng = random.Random(0xC0FFEE)
+        for case in range(120):
+            constraints = _random_constraints(rng, case)
+            bounds = None if case % 3 == 0 else (0.0, 0.0, 100.0, 80.0)
+            o, s = _both(constraints, bounds)
+            of, sf = o.compile_to_slot_filter(), s.compile_to_slot_filter()
+            refs = ["A", "B", "C", "D", "E", "U1", "U2", "Q1", "Q2", "R5"]
+            for _ in range(8):
+                slot = (rng.uniform(-20.0, 120.0), rng.uniform(-20.0, 100.0))
+                comp = rng.choice(refs)
+                placements = _noisy_placements(rng, refs, rng.randint(0, 6))
+                assert of(slot, comp, placements) == sf(
+                    slot, comp, placements
+                ), f"filter mismatch case={case} slot={slot} comp={comp}"
+
+    def test_nan_inf_placements(self):
+        """NaN/inf positions must not crash and must agree bit-for-bit."""
+        o, s = _both(
+            _constraints(
+                component_spacing_rules=[
+                    ComponentSpacingRule(component_a="A", component_b="B", min_separation_mm=10.0, tier="hard")
+                ]
+            )
+        )
+        of, sf = o.compile_to_slot_filter(), s.compile_to_slot_filter()
+        for slot in [(float("nan"), 0.0), (0.0, float("inf")), (float("-inf"), 5.0)]:
+            for placements in [{"A": (float("nan"), 0.0)}, {"A": (0.0, 0.0), "B": (float("inf"), 0.0)}]:
+                assert of(slot, "B", placements) == sf(slot, "B", placements)
+
+
+class TestSlotScorerDifferential:
+    def test_empty_constraints_scorer_zero(self):
+        o, s = _both(PlacementConstraints())
+        os_, ss = o.compile_to_slot_scorer(), s.compile_to_slot_scorer()
+        for slot in [(0.0, 0.0), (50.0, 50.0)]:
+            for placements in [{}, {"A": (1.0, 2.0)}]:
+                assert _f(os_(slot, "U_MCU", placements)) == _f(ss(slot, "U_MCU", placements))
+
+    def test_random_differential(self):
+        rng = random.Random(0xBEEF)
+        for case in range(120):
+            constraints = _random_constraints(rng, case)
+            bounds = None if case % 3 == 0 else (0.0, 0.0, 100.0, 80.0)
+            o, s = _both(constraints, bounds)
+            os_, ss = o.compile_to_slot_scorer(), s.compile_to_slot_scorer()
+            refs = ["A", "B", "C", "D", "E", "U1", "U2", "Q1", "Q2", "R5"]
+            for _ in range(8):
+                slot = (rng.uniform(-20.0, 120.0), rng.uniform(-20.0, 100.0))
+                comp = rng.choice(refs)
+                placements = _noisy_placements(rng, refs, rng.randint(0, 6))
+                assert _f(os_(slot, comp, placements)) == _f(
+                    ss(slot, comp, placements)
+                ), f"scorer mismatch case={case}"
+
+    def test_default_board_bounds_from_constraints(self):
+        """board_bounds=None must resolve to (0,0,w,h) identically."""
+        constraints = _constraints(
+            board_width_mm=100.0,
+            board_height_mm=100.0,
+            thermal_constraints=[
+                ThermalConstraint(components=["MOSFET"], prefer_edge=True, max_distance_from_edge_mm=10.0)
+            ],
+        )
+        o, s = _both(constraints, None)
+        os_, ss = o.compile_to_slot_scorer(), s.compile_to_slot_scorer()
+        for slot in [(5.0, 50.0), (50.0, 50.0), (98.0, 2.0)]:
+            assert _f(os_(slot, "MOSFET", {})) == _f(ss(slot, "MOSFET", {}))
+
+
+class TestMalformedPlacementsDifferential:
+    """Placement values that are not 2-sequences of numbers raise in the
+    oracle (`placements[other]` + tuple unpack inside `_distance`); the Rust
+    must raise the same exception rather than silently skipping the rule
+    (slot accepted / zero penalty). The oracle raises lazily — only a
+    placement actually touched by a rule that fires on `component`."""
+
+    def _both_compilers(self):
+        constraints = _constraints(
+            component_spacing_rules=[
+                ComponentSpacingRule(component_a="A", component_b="B", min_separation_mm=10.0, tier="hard")
+            ],
+            component_groups=[
+                ComponentGroup(
+                    name="g",
+                    components=["A", "B"],
+                    proximity_rules=[
+                        ProximityRule(component_a="A", component_b="B", max_distance_mm=20.0, tier="soft")
+                    ],
+                )
+            ],
+        )
+        return _both(constraints)
+
+    def _assert_same_exception(self, label, placements, check_message=True):
+        """Both surfaces (filter and scorer) must raise on both sides, with
+        the same exception type (and, where wording is identical, message)."""
+        o, s = self._both_compilers()
+        for surface, make in (
+            ("filter", lambda c: c.compile_to_slot_filter()),
+            ("scorer", lambda c: c.compile_to_slot_scorer()),
+        ):
+            o_f, s_f = make(o), make(s)
+            try:
+                o_f((0.0, 0.0), "B", placements)
+            except Exception as oe:  # noqa: BLE001
+                oracle_err = oe
+            else:
+                raise AssertionError(f"{label}/{surface}: oracle did not raise")
+            try:
+                s_f((0.0, 0.0), "B", placements)
+            except Exception as se:  # noqa: BLE001
+                shim_err = se
+            else:
+                raise AssertionError(
+                    f"{label}/{surface}: shim did not raise (rule silently not "
+                    f"fired); oracle raised {type(oracle_err).__name__}"
+                )
+            assert type(shim_err) is type(oracle_err), (
+                f"{label}/{surface}: type mismatch — shim {type(shim_err).__name__}, "
+                f"oracle {type(oracle_err).__name__}"
+            )
+            if check_message:
+                assert str(shim_err) == str(oracle_err), (
+                    f"{label}/{surface}: message mismatch — shim {str(shim_err)!r}, "
+                    f"oracle {str(oracle_err)!r}"
+                )
+
+    def test_non_tuple_value_raises(self):
+        """placements['A'] = 5.0: oracle `p2[0]` raises TypeError
+        ('float' object is not subscriptable); identical from pyo3."""
+        self._assert_same_exception("non-tuple", {"A": 5.0})
+
+    def test_short_sequence_raises(self):
+        """placements['A'] = (1.0,): oracle `p2[1]` raises IndexError
+        (tuple index out of range); identical from pyo3."""
+        self._assert_same_exception("1-elem", {"A": (1.0,)})
+
+    def test_non_numeric_value_raises_type_error(self):
+        """placements['A'] = ('x', 'y'): both sides raise TypeError, but the
+        message wording differs (CPython's arithmetic error vs pyo3's
+        extract error) — type is pinned here, wording deviation recorded in
+        VERIFICATION.md."""
+        self._assert_same_exception("non-numeric", {"A": ("x", "y")}, check_message=False)
+
+    def test_dict_subclass_raising_getitem_propagates(self):
+        """A dict subclass whose `__getitem__` raises must propagate that
+        exception (oracle `placements[other]` goes through `__getitem__`)."""
+
+        class RaisingDict(dict):
+            def __getitem__(self, key):
+                if key == "A":
+                    raise RuntimeError("boom from __getitem__")
+                return dict.__getitem__(self, key)
+
+        self._assert_same_exception("raising-dict", RaisingDict({"A": (1.0, 2.0), "Z": (3.0, 4.0)}))
+
+    def test_longer_sequence_uses_first_two(self):
+        """A 3-sequence works on both sides: Python `_distance` and Rust
+        `extract_point` both read only elements [0] and [1]."""
+        o, s = self._both_compilers()
+        of, sf = o.compile_to_slot_filter(), s.compile_to_slot_filter()
+        os_, ss = o.compile_to_slot_scorer(), s.compile_to_slot_scorer()
+        placements = {"A": (1.0, 2.0, 3.0)}
+        assert of((0.0, 0.0), "B", placements) == sf((0.0, 0.0), "B", placements)
+        assert _f(os_((0.0, 0.0), "B", placements)) == _f(ss((0.0, 0.0), "B", placements))
+
+    def test_unrelated_malformed_is_inert(self):
+        """A malformed placement for a component no fired rule references is
+        never touched (lazy semantics): both sides accept the slot."""
+        o, s = self._both_compilers()
+        of, sf = o.compile_to_slot_filter(), s.compile_to_slot_filter()
+        os_, ss = o.compile_to_slot_scorer(), s.compile_to_slot_scorer()
+        placements = {"Z9": "nope"}
+        assert of((0.0, 0.0), "B", placements) == sf((0.0, 0.0), "B", placements)
+        assert _f(os_((0.0, 0.0), "B", placements)) == _f(ss((0.0, 0.0), "B", placements))
+
+
+class TestDictSubclassProtocolDifferential:
+    """Dict-subclass protocol parity. The oracle's ``other in placements``
+    (``__contains__``) and ``placements[other]`` (``__getitem__``) honor
+    Python-level overrides; the Rust must NOT use the dict C-API fast paths
+    (``PyDict_Contains`` / ``PyDict_GetItem``) that bypass them."""
+
+    def _both_compilers(self):
+        # One hard rule (fires in the filter) and one soft rule (fires in the
+        # scorer) so BOTH surfaces touch the placements lookup.
+        constraints = _constraints(
+            component_spacing_rules=[
+                ComponentSpacingRule(component_a="A", component_b="B", min_separation_mm=10.0, tier="hard"),
+                ComponentSpacingRule(component_a="B", component_b="C", min_separation_mm=10.0, tier="soft"),
+            ]
+        )
+        return _both(constraints)
+
+    def test_contains_false_skips_rule(self):
+        """A dict subclass whose ``__contains__`` returns False for PRESENT
+        keys: the oracle's ``other in placements`` honors it, so the rule is
+        skipped and the filter ACCEPTS the slot; ``PyDict_Contains`` would
+        fire the rule and reject — opposite decisions."""
+        class NoContainsDict(dict):
+            def __contains__(self, key):
+                return False
+
+        o, s = self._both_compilers()
+        of, sf = o.compile_to_slot_filter(), s.compile_to_slot_filter()
+        os_, ss = o.compile_to_slot_scorer(), s.compile_to_slot_scorer()
+        placements = NoContainsDict({"A": (0.0, 0.0)})
+        # Rule skipped -> filter accepts, scorer adds no penalty.
+        assert of((5.0, 0.0), "B", placements) is True
+        assert sf((5.0, 0.0), "B", placements) is True
+        assert _f(os_((5.0, 0.0), "B", placements)) == _f(ss((5.0, 0.0), "B", placements))
+        assert ss((5.0, 0.0), "B", placements) == 0.0
+
+    def test_contains_raises_propagates(self):
+        """A dict subclass whose ``__contains__`` raises must propagate that
+        raise from filter AND scorer (oracle: ``other in placements`` raises)."""
+        class RaisingContainsDict(dict):
+            def __contains__(self, key):
+                raise RuntimeError("boom from __contains__")
+
+        o, s = self._both_compilers()
+        placements = RaisingContainsDict({"A": (0.0, 0.0)})
+        for surface, make in (
+            ("filter", lambda c: c.compile_to_slot_filter()),
+            ("scorer", lambda c: c.compile_to_slot_scorer()),
+        ):
+            o_f, s_f = make(o), make(s)
+            try:
+                o_f((5.0, 0.0), "B", placements)
+            except Exception as oe:  # noqa: BLE001
+                oracle_err = oe
+            else:
+                raise AssertionError(f"{surface}: oracle did not raise")
+            try:
+                s_f((5.0, 0.0), "B", placements)
+            except Exception as se:  # noqa: BLE001
+                shim_err = se
+            else:
+                raise AssertionError(
+                    f"{surface}: shim did not raise (silently proceeded); "
+                    f"oracle raised {type(oracle_err).__name__}"
+                )
+            assert type(shim_err) is type(oracle_err), surface
+            assert str(shim_err) == str(oracle_err), surface
+
+
+class TestValidateDifferential:
+    def _netlist(self, refs):
+        class NL:
+            pass
+
+        nl = NL()
+        nl.components = [type("C", (), {"ref": ref})() for ref in refs]
+        return nl
+
+    def test_random_differential(self):
+        rng = random.Random(0x5EED)
+        for case in range(60):
+            constraints = _random_constraints(rng, case)
+            o, s = _both(constraints)
+            refs = rng.sample(["A", "B", "C", "D", "E", "U1", "U2", "Q1", "Q2", "R5", "X_MISSING"], rng.randint(0, 8))
+            nl = self._netlist(refs)
+            oe, se = o.validate(None, nl), s.validate(None, nl)
+            assert [_err_key(e) for e in oe] == [_err_key(e) for e in se], f"validate mismatch case={case}"
+
+    def test_suggestion_and_zone_errors(self):
+        """Typo suggestion (set-order dependent — same process ⇒ same order) + zone errors."""
+        from temper_placer.core.board import Zone
+
+        constraints = _constraints(
+            zones=[Zone(name="Signal", bounds=(0, 0, 100, 100))],
+            escape_clearances=[EscapeClearance(component="U_MC")],
+            zone_assignments={"U_MCU": "UNDEFINED", "TYPO2": "Signal"},
+        )
+        o, s = _both(constraints)
+        nl = self._netlist(["U_MCU", "U_GATE"])
+        oe, se = o.validate(None, nl), s.validate(None, nl)
+        assert [_err_key(e) for e in oe] == [_err_key(e) for e in se]
+        # The suggestion must be non-empty somewhere (not vacuous)
+        assert any(e.suggestion for e in se)
+
+
+class TestHelperMethodsDifferential:
+    def test_distance_centroid_edge_segment_zone(self):
+        o, s = _both(PlacementConstraints())
+        rng = random.Random(42)
+        for _ in range(200):
+            p1 = (rng.uniform(-1e6, 1e6), rng.uniform(-1e6, 1e6))
+            p2 = (rng.uniform(-1e6, 1e6), rng.uniform(-1e6, 1e6))
+            assert _f(o._distance(p1, p2)) == _f(s._distance(p1, p2))
+        for _ in range(80):
+            pts = [(rng.uniform(-100, 100), rng.uniform(-100, 100)) for _ in range(rng.randint(0, 8))]
+            assert _pt(o._centroid(pts)) == _pt(s._centroid(pts))
+        for _ in range(100):
+            slot = (rng.uniform(-50, 150), rng.uniform(-50, 150))
+            assert _f(o._min_edge_distance(slot)) == _f(s._min_edge_distance(slot))
+            p = (rng.uniform(-50, 150), rng.uniform(-50, 150))
+            a = (rng.uniform(-50, 150), rng.uniform(-50, 150))
+            b = (rng.uniform(-50, 150), rng.uniform(-50, 150))
+            assert _f(o._point_to_segment_distance(p, a, b)) == _f(s._point_to_segment_distance(p, a, b))
+        # degenerate segment + NaN projection input
+        assert _f(o._point_to_segment_distance((5.0, 5.0), (0.0, 0.0), (0.0, 0.0))) == _f(
+            s._point_to_segment_distance((5.0, 5.0), (0.0, 0.0), (0.0, 0.0))
+        )
+
+    def test_zone_membership(self):
+        o, s = _both(PlacementConstraints())
+        zone = type("Z", (), {"bounds": (10.0, 20.0, 30.0, 40.0)})()
+        for slot in [(10.0, 20.0), (30.0, 40.0), (15.0, 25.0), (9.0, 25.0), (35.0, 45.0), (float("nan"), 25.0)]:
+            assert o._in_zone(slot, zone) == s._in_zone(slot, zone)
+
+    def test_distance_pow_vs_product_discriminator(self):
+        """Pins the py_pow seam: ``_distance``'s ``** 2`` must route through
+        host libm pow, NOT the IEEE product ``x*x``. Found discriminator
+        (dx, dy) = (176.73393916349272, -164.87635632111505), where
+        sqrt(pow(dx,2)+pow(dy,2)) differs from sqrt(dx*dx+dy*dy) by 1 ULP
+        (0x1.e3669ed51db9ap+7 vs 0x1.e3669ed51db9bp+7 on macOS arm64). The
+        oracle/shim parity is asserted UNCONDITIONALLY (a regression to the
+        product diverges on every platform whose libm pow differs from the
+        product for this input); the seam-liveness assertion is made only
+        when this platform's libm pow actually discriminates (on platforms
+        where pow(x,2)==x*x exactly the seam is behaviorally inert)."""
+        dx, dy = 176.73393916349272, -164.87635632111505
+        o, s = _both(PlacementConstraints())
+        d_oracle = o._distance((dx, dy), (0.0, 0.0))
+        d_shim = s._distance((dx, dy), (0.0, 0.0))
+        assert _f(d_oracle) == _f(d_shim)
+        d_product = math.sqrt(dx * dx + dy * dy)
+        if _f(d_oracle) != _f(d_product):
+            # Seam is live on this platform: assert the shim took the pow route.
+            assert _f(d_shim) != _f(d_product)
+
+    def test_find_similar_set_order(self):
+        """_find_similar iterates a set — pass the same set's iteration order to both."""
+        o, s = _both(PlacementConstraints())
+        options = {"U_MCU", "U_GATE", "C1", "R5", "U_MCUX", "X_GATE"}
+        for name in ["U_MC", "X_GATE", "MISSING", "C", "", "U_MCU", "C12"]:
+            assert o._find_similar(name, options) == s._find_similar(name, options)
+
+
+class TestValidationErrorFormatting:
+    def test_str_formatting(self):
+        """__str__ of ValidationError must match the oracle exactly."""
+        for kwargs in [
+            {"constraint_type": "Test", "message": "Something went wrong"},
+            {"constraint_type": "Test", "message": "Invalid component", "component": "U_MCU"},
+            {
+                "constraint_type": "Test",
+                "message": "Component not found",
+                "component": "U_MC",
+                "suggestion": "Did you mean: U_MCU?",
+            },
+        ]:
+            o = _oracle.ValidationError(**kwargs)
+            s = ValidationError(**kwargs)
+            assert str(o) == str(s)
+            assert o.constraint_type == s.constraint_type
+            assert o.message == s.message
+            assert o.component == s.component
+            assert o.suggestion == s.suggestion
+
+
+class TestBoundaryDifferential:
+    """Exact-boundary cases that discriminate strict-vs-non-strict comparisons
+    and the None-clearance default. Added to close surviving mutants found by
+    the anti-vacuity mutation campaign (M1/M2/M3): random inputs almost never
+    land exactly on a threshold, so the strictness of a comparison and the
+    escape default were invisible to the random differential."""
+
+    def test_spacing_filter_exact_threshold_accepted(self):
+        """dist == min_separation is NOT a violation (strict <)."""
+        constraints = _constraints(
+            component_spacing_rules=[
+                ComponentSpacingRule(component_a="A", component_b="B", min_separation_mm=10.0, tier="hard")
+            ]
+        )
+        o, s = _both(constraints)
+        of, sf = o.compile_to_slot_filter(), s.compile_to_slot_filter()
+        # dist = sqrt((10-0)^2 + 0) = 10.0 exactly
+        assert of((10.0, 0.0), "B", {"A": (0.0, 0.0)}) is True
+        assert sf((10.0, 0.0), "B", {"A": (0.0, 0.0)}) is True
+        # just inside is rejected
+        assert of((9.5, 0.0), "B", {"A": (0.0, 0.0)}) is False
+        assert sf((9.5, 0.0), "B", {"A": (0.0, 0.0)}) is False
+
+    def test_proximity_filter_exact_threshold_accepted(self):
+        """dist == max_distance is NOT a violation (strict >)."""
+        constraints = _constraints(
+            component_groups=[
+                ComponentGroup(
+                    name="g",
+                    components=["A", "B"],
+                    proximity_rules=[
+                        ProximityRule(component_a="A", component_b="B", max_distance_mm=10.0, tier="hard")
+                    ],
+                )
+            ]
+        )
+        o, s = _both(constraints)
+        of, sf = o.compile_to_slot_filter(), s.compile_to_slot_filter()
+        assert of((10.0, 0.0), "B", {"A": (0.0, 0.0)}) is True
+        assert sf((10.0, 0.0), "B", {"A": (0.0, 0.0)}) is True
+        assert of((10.5, 0.0), "B", {"A": (0.0, 0.0)}) is False
+        assert sf((10.5, 0.0), "B", {"A": (0.0, 0.0)}) is False
+
+    def test_escape_none_clearance_default_three_mm(self):
+        """clearance_mm=None uses the 3.0mm default in filter AND scorer."""
+        constraints = _constraints(
+            escape_clearances=[EscapeClearance(component="U_MCU", clearance_mm=None, tier="hard")],
+        )
+        o, s = _both(constraints)
+        of, sf = o.compile_to_slot_filter(), s.compile_to_slot_filter()
+        # 2.0mm < 3.0mm -> hard rejection
+        assert of((2.0, 0.0), "C1", {"U_MCU": (0.0, 0.0)}) is False
+        assert sf((2.0, 0.0), "C1", {"U_MCU": (0.0, 0.0)}) is False
+        # 4.0mm >= 3.0mm -> accepted
+        assert of((4.0, 0.0), "C1", {"U_MCU": (0.0, 0.0)}) is True
+        assert sf((4.0, 0.0), "C1", {"U_MCU": (0.0, 0.0)}) is True
+
+        soft = _constraints(
+            escape_clearances=[EscapeClearance(component="U_MCU", clearance_mm=None, tier="soft")],
+        )
+        o, s = _both(soft)
+        os_, ss = o.compile_to_slot_scorer(), s.compile_to_slot_scorer()
+        # 2.0mm inside the default 3.0mm zone -> +50.0 fixed penalty
+        assert _f(os_((2.0, 0.0), "C1", {"U_MCU": (0.0, 0.0)})) == _f(
+            ss((2.0, 0.0), "C1", {"U_MCU": (0.0, 0.0)})
+        )
+        assert ss((2.0, 0.0), "C1", {"U_MCU": (0.0, 0.0)}) == 50.0
+        assert ss((4.0, 0.0), "C1", {"U_MCU": (0.0, 0.0)}) == 0.0
+
+    def test_centroid_neumaier_cancellation(self):
+        """The classic Neumaier-vs-naive discriminator: 1e16 + 1 - 1e16."""
+        o, s = _both(PlacementConstraints())
+        pts = [(1e16, 0.0), (1.0, 0.0), (-1e16, 0.0)]
+        assert _pt(o._centroid(pts)) == _pt(s._centroid(pts))
+        # Neumaier: (1e16 + 1 - 1e16)/3 = 1/3; naive: (0)/3 = 0.
+        assert s._centroid(pts)[0] == (1.0 / 3.0)
+
+    def test_find_similar_single_char_name(self):
+        """len(name) < 2 returns None (min-length guard)."""
+        o, s = _both(PlacementConstraints())
+        options = {"C1", "U_MCU"}
+        for name in ["C", "1", ""]:
+            assert o._find_similar(name, options) == s._find_similar(name, options)
+            assert s._find_similar(name, options) is None

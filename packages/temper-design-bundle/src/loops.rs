@@ -107,6 +107,7 @@ mod py_float_str_tests {
 // (e.g. `GATE_DRIVE_HIGH`) — the pyo3 attribute access contract.
 #[allow(non_camel_case_types)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
+#[allow(clippy::upper_case_acronyms)] // variant names are the Python API surface
 pub enum LoopType {
     COMMUTATION,
     BUCK_SWITCH,
@@ -127,6 +128,7 @@ pub enum LoopType {
 #[pyclass(frozen, eq, hash, from_py_object)]
 #[allow(non_camel_case_types)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
+#[allow(clippy::upper_case_acronyms)] // variant names are the Python API surface
 pub enum LoopPriority {
     CRITICAL,
     HIGH,
@@ -277,6 +279,10 @@ impl LoopEvent {
         rms_current_a=None,
         ringing_freq_hz=None,
     ))]
+    // Argument count mirrors the Python dataclass this pyclass replaces; it is
+    // fixed by the contract, not a design choice (same rationale as
+    // design_rules.rs's constructor).
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         di_dt: Option<f64>,
         dv_dt: Option<f64>,
@@ -474,6 +480,10 @@ impl Loop {
         return_net=None,
         source="manual".to_string(),
     ))]
+    // Argument count mirrors the Python dataclass this pyclass replaces; it is
+    // fixed by the contract, not a design choice (same rationale as
+    // design_rules.rs's constructor).
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         name: String,
         loop_type: LoopType,

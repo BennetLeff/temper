@@ -19,7 +19,6 @@ from typing import Any
 import numpy as np
 
 from temper_placer.core.design_rules import create_temper_design_rules
-from temper_placer.core.loss_types import LossContext
 from temper_placer.core.specification import PcbSpecification
 from temper_placer.core.state import PlacementState
 from temper_placer.io.kicad_parser import parse_kicad_pcb
@@ -126,18 +125,6 @@ def _build_placement_state(positions: np.ndarray, n_components: int) -> Placemen
     )
 
 
-def _make_minimal_context(netlist, board) -> LossContext:
-    """Create a minimal LossContext for metric functions that need one.
-
-    Post-JAX retirement, LossContext is a stub; metric functions that take
-    context only access shape checks (e.g. net_pin_indices.shape[0]) before
-    early-returning.  We populate just enough to keep those guards happy.
-    """
-    ctx = LossContext(netlist=netlist, board=board)
-    ctx.net_pin_indices = np.array([], dtype=np.int32).reshape(0, 2)
-    return ctx
-
-
 def score_placement(
     placement: PlacementResult,
     board,
@@ -159,7 +146,6 @@ def score_placement(
     positions = np.asarray(placement.positions, dtype=np.float32)
     n_components = positions.shape[0]
     state = _build_placement_state(positions, n_components)
-    context = _make_minimal_context(netlist, board)
 
     hv_components = {c.ref for c in netlist.components if c.net_class in ("HighVoltage", "ACMains")}
     lv_components = {c.ref for c in netlist.components if c.net_class == "Signal"}
@@ -170,7 +156,10 @@ def score_placement(
     )
     thermal = thermal_score(state, netlist, board, set())
     zone = zone_compliance_score(state, netlist, board, {})
-    loop = loop_area_score(state, netlist, context, [])
+    # loop_area_score's context parameter is unused (JAX-era LossContext
+    # retirement left it a dead pass-through); None keeps behaviour identical
+    # to the previous minimal-stub-context call.
+    loop = loop_area_score(state, netlist, None, [])
     compact = compactness_score(state, netlist, board)
 
     normalized_scores = [thermal, zone, clearance, loop, compact]
@@ -301,7 +290,6 @@ def run_physics_oracle(
 
     n_components = positions.shape[0]
     state = _build_placement_state(positions, n_components)
-    context = _make_minimal_context(netlist, board)
 
     # Solve HV/LV component sets from net classification
     hv_components = {c.ref for c in netlist.components if c.net_class in ("HighVoltage", "ACMains")}
@@ -349,7 +337,8 @@ def run_physics_oracle(
             board,
             quality_config.get("zone_assignments", {}),
         )
-        loop = loop_area_score(state, netlist, context, loop_comps)
+        # loop_area_score's context parameter is unused (see score_placement).
+        loop = loop_area_score(state, netlist, None, loop_comps)
         compact = compactness_score(state, netlist, board)
 
         normalized_scores = [thermal, zone, clearance, loop, compact]

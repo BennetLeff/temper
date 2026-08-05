@@ -21,6 +21,9 @@ tags:
   - jax-retirement
 ---
 
+> **Status update (2026-08-03 refresh):** RESOLVED since: `cli/__init__.py` `optimize()` now runs `PlaceRouteLoop` from `placer/cp_sat/loop.py`, surfaces UNSAT cores, writes the routed PCB and runs kicad-cli DRC. The `--no-loop` non-loop path is the only remaining vestige.
+
+
 # temper-placer optimize's CP-SAT branch never calls the solver
 
 ## Problem

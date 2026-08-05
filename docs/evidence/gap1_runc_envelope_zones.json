@@ -1,0 +1,815 @@
+{
+  "best_known_placement_is_current_board": true,
+  "c27_at_mm": [
+    28.620000000000005,
+    222.0
+  ],
+  "candidate_compound_audit": {
+    "by_kind": {
+      "pad": 7,
+      "segment": 3,
+      "zone": 4
+    },
+    "by_net": {
+      "pad:SW_NODE": 1,
+      "pad:gnd": 1,
+      "pad:gpio35": 1,
+      "pad:gpio36": 1,
+      "pad:hb.power_loop.q_high-g": 1,
+      "pad:io41": 1,
+      "pad:io42": 1,
+      "segment:hb.gate_hs.driver-p2": 1,
+      "segment:safety.coil_thermal.comp-inp": 2,
+      "zone:GATE_HS": 4
+    },
+    "candidate_positions": {
+      "C27": {
+        "disp_mm": 1.0,
+        "x_mm": 29.62,
+        "y_mm": 222.0
+      },
+      "K3": {
+        "disp_mm": 37.5,
+        "x_mm": 16.12,
+        "y_mm": 7.42
+      }
+    },
+    "exact_fc_violations": 14,
+    "violations": [
+      {
+        "actual_mm": 0.0348,
+        "item_kind": "zone",
+        "item_net": "GATE_HS",
+        "pad": "2",
+        "ref": "K3",
+        "required_mm": 0.05
+      },
+      {
+        "actual_mm": 0.0348,
+        "item_kind": "zone",
+        "item_net": "GATE_HS",
+        "pad": "2",
+        "ref": "K3",
+        "required_mm": 0.05
+      },
+      {
+        "actual_mm": 0.0,
+        "item_kind": "pad",
+        "item_net": "io41",
+        "pad": "2",
+        "ref": "K3",
+        "required_mm": 0.05
+      },
+      {
+        "actual_mm": 0.0,
+        "item_kind": "pad",
+        "item_net": "io42",
+        "pad": "2",
+        "ref": "K3",
+        "required_mm": 0.05
+      },
+      {
+        "actual_mm": 0.0,
+        "item_kind": "pad",
+        "item_net": "gpio35",
+        "pad": "5",
+        "ref": "K3",
+        "required_mm": 0.05
+      },
+      {
+        "actual_mm": 0.0,
+        "item_kind": "pad",
+        "item_net": "gpio36",
+        "pad": "5",
+        "ref": "K3",
+        "required_mm": 0.05
+      },
+      {
+        "actual_mm": 0.0,
+        "item_kind": "segment",
+        "item_net": "hb.gate_hs.driver-p2",
+        "pad": "4",
+        "ref": "K3",
+        "required_mm": 0.05
+      },
+      {
+        "actual_mm": 0.0,
+        "item_kind": "segment",
+        "item_net": "safety.coil_thermal.comp-inp",
+        "pad": "4",
+        "ref": "K3",
+        "required_mm": 0.05
+      },
+      {
+        "actual_mm": 0.0,
+        "item_kind": "zone",
+        "item_net": "GATE_HS",
+        "pad": "4",
+        "ref": "K3",
+        "required_mm": 0.05
+      },
+      {
+        "actual_mm": 0.0,
+        "item_kind": "zone",
+        "item_net": "GATE_HS",
+        "pad": "4",
+        "ref": "K3",
+        "required_mm": 0.05
+      },
+      {
+        "actual_mm": 0.0,
+        "item_kind": "segment",
+        "item_net": "safety.coil_thermal.comp-inp",
+        "pad": "4",
+        "ref": "K3",
+        "required_mm": 0.05
+      },
+      {
+        "actual_mm": 0.0,
+        "item_kind": "pad",
+        "item_net": "hb.power_loop.q_high-g",
+        "pad": "1",
+        "ref": "K3",
+        "required_mm": 0.05
+      },
+      {
+        "actual_mm": 0.0,
+        "item_kind": "pad",
+        "item_net": "SW_NODE",
+        "pad": "1",
+        "ref": "K3",
+        "required_mm": 0.05
+      },
+      {
+        "actual_mm": 0.0,
+        "item_kind": "pad",
+        "item_net": "gnd",
+        "pad": "1",
+        "ref": "K3",
+        "required_mm": 0.05
+      }
+    ]
+  },
+  "edge_slack_mm_at_best": {
+    "C1": 27.73,
+    "C10": 6.31,
+    "C11": 3.1,
+    "C12": 20.98,
+    "C13": 13.37,
+    "C14": 5.38,
+    "C15": 63.56,
+    "C16": 8.07,
+    "C17": 23.82,
+    "C18": 0.51,
+    "C19": 4.89,
+    "C2": 35.4,
+    "C20": 8.07,
+    "C21": 35.24,
+    "C22": 55.15,
+    "C23": 0.51,
+    "C24": 9.81,
+    "C25": 0.5,
+    "C26": 34.42,
+    "C27": 0.5,
+    "C28": 0.5,
+    "C29": 0.5,
+    "C3": 4.88,
+    "C30": 1.58,
+    "C31": 12.67,
+    "C32": 0.51,
+    "C33": 0.65,
+    "C34": 27.64,
+    "C35": 0.5,
+    "C36": 0.5,
+    "C37": 2.39,
+    "C38": 0.51,
+    "C39": 11.24,
+    "C4": 55.6,
+    "C40": 12.81,
+    "C5": 15.5,
+    "C6": 40.74,
+    "C7": 3.59,
+    "C8": 1.67,
+    "C9": 0.5,
+    "D1": 1.31,
+    "D2": 26.65,
+    "D3": 0.59,
+    "D4": 6.96,
+    "D5": 44.45,
+    "F1": 39.1,
+    "J1": 69.15,
+    "K1": 20.87,
+    "K2": 24.14,
+    "K3": 2.45,
+    "L1": 16.02,
+    "L2": 33.97,
+    "PS1": 45.74,
+    "Q1": 0.5,
+    "Q2": 37.4,
+    "R1": 0.5,
+    "R10": 45.69,
+    "R11": 11.4,
+    "R12": 0.53,
+    "R13": 50.03,
+    "R14": 2.66,
+    "R15": 9.56,
+    "R16": 62.44,
+    "R17": 15.21,
+    "R18": 5.54,
+    "R19": 0.61,
+    "R2": 0.93,
+    "R20": 20.21,
+    "R21": 8.86,
+    "R22": 12.75,
+    "R23": 23.86,
+    "R24": 0.51,
+    "R25": 4.12,
+    "R26": 0.51,
+    "R27": 29.77,
+    "R28": 31.01,
+    "R29": 4.49,
+    "R3": 0.51,
+    "R30": 12.1,
+    "R31": 0.51,
+    "R32": 43.23,
+    "R33": 4.82,
+    "R34": 31.5,
+    "R35": 4.74,
+    "R36": 4.1,
+    "R37": 10.29,
+    "R38": 11.18,
+    "R39": 0.51,
+    "R4": 56.55,
+    "R40": 0.51,
+    "R41": 7.0,
+    "R42": 24.55,
+    "R43": 20.96,
+    "R44": 8.06,
+    "R45": 1.14,
+    "R46": 8.7,
+    "R47": 8.71,
+    "R48": 20.06,
+    "R49": 8.96,
+    "R5": 4.39,
+    "R50": 8.52,
+    "R51": 62.54,
+    "R52": 2.09,
+    "R53": 10.61,
+    "R54": 8.42,
+    "R55": 2.36,
+    "R56": 12.09,
+    "R57": 1.9,
+    "R58": 56.53,
+    "R59": 1.37,
+    "R6": 27.38,
+    "R60": 16.55,
+    "R61": 44.64,
+    "R62": 1.99,
+    "R63": 9.9,
+    "R64": 33.36,
+    "R65": 4.85,
+    "R66": 0.78,
+    "R67": 69.16,
+    "R68": 0.53,
+    "R69": 38.44,
+    "R7": 19.67,
+    "R70": 11.41,
+    "R71": 53.16,
+    "R72": 3.86,
+    "R73": 1.58,
+    "R74": 2.37,
+    "R75": 10.51,
+    "R76": 10.29,
+    "R77": 31.51,
+    "R78": 0.5,
+    "R79": 25.17,
+    "R8": 29.5,
+    "R9": 2.53,
+    "RT1": 11.89,
+    "RV1": 9.96,
+    "SW1": 11.41,
+    "SW2": 31.51,
+    "T1": 17.96,
+    "TP1": 60.36,
+    "TP2": 59.78,
+    "TP3": 0.5,
+    "U1": 1.29,
+    "U10": 15.63,
+    "U11": 12.03,
+    "U12": 20.05,
+    "U13": 41.8,
+    "U14": 20.78,
+    "U15": 10.53,
+    "U16": 4.56,
+    "U17": 45.16,
+    "U18": 14.95,
+    "U19": 45.74,
+    "U2": 0.49,
+    "U20": 51.43,
+    "U21": 6.1,
+    "U22": 8.96,
+    "U23": 0.5,
+    "U24": 10.54,
+    "U25": 52.02,
+    "U26": 40.46,
+    "U27": 0.5,
+    "U3": 3.87,
+    "U4": 52.03,
+    "U5": 0.77,
+    "U6": 66.42,
+    "U7": 60.5,
+    "U8": 0.49,
+    "U9": 0.61
+  },
+  "encoded_zone_reachability_cap120": [
+    {
+      "encoded_can_reach_exact_clear": true,
+      "encoded_clear_cells": 14966,
+      "encoding": "EXACT",
+      "envelope_cap_mm": 120.0,
+      "exact_clear_cells": 14973,
+      "grid_cells": 231361,
+      "pad": "2",
+      "ref": "C27",
+      "zone_net": "DC_BUS_RTN"
+    },
+    {
+      "encoded_can_reach_exact_clear": true,
+      "encoded_clear_cells": 19692,
+      "encoding": "EXACT",
+      "envelope_cap_mm": 120.0,
+      "exact_clear_cells": 19709,
+      "grid_cells": 231361,
+      "pad": "2",
+      "ref": "K3",
+      "zone_net": "SW_NODE"
+    },
+    {
+      "encoded_can_reach_exact_clear": true,
+      "encoded_clear_cells": 21478,
+      "encoding": "EXACT",
+      "envelope_cap_mm": 120.0,
+      "exact_clear_cells": 21496,
+      "grid_cells": 231361,
+      "pad": "5",
+      "ref": "K3",
+      "zone_net": "SW_NODE"
+    },
+    {
+      "encoded_can_reach_exact_clear": true,
+      "encoded_clear_cells": 22919,
+      "encoding": "EXACT",
+      "envelope_cap_mm": 120.0,
+      "exact_clear_cells": 22936,
+      "grid_cells": 231361,
+      "pad": "4",
+      "ref": "K3",
+      "zone_net": "SW_NODE"
+    },
+    {
+      "encoded_can_reach_exact_clear": true,
+      "encoded_clear_cells": 23777,
+      "encoding": "EXACT",
+      "envelope_cap_mm": 120.0,
+      "exact_clear_cells": 23793,
+      "grid_cells": 231361,
+      "pad": "1",
+      "ref": "K3",
+      "zone_net": "SW_NODE"
+    },
+    {
+      "encoded_can_reach_exact_clear": true,
+      "encoded_clear_cells": 24806,
+      "encoding": "EXACT",
+      "envelope_cap_mm": 120.0,
+      "exact_clear_cells": 24834,
+      "grid_cells": 231361,
+      "pad": "3",
+      "ref": "K3",
+      "zone_net": "SW_NODE"
+    },
+    {
+      "encoded_can_reach_exact_clear": true,
+      "encoded_clear_cells": 42852,
+      "encoding": "EXACT",
+      "envelope_cap_mm": 120.0,
+      "exact_clear_cells": 42871,
+      "grid_cells": 231361,
+      "pad": "3",
+      "ref": "K3",
+      "zone_net": "+15V_LS"
+    }
+  ],
+  "fc_items": {
+    "pad": 517,
+    "segment": 2338,
+    "total": 2999,
+    "via": 48,
+    "zone": 96
+  },
+  "fc_violations_by_kind": {
+    "zone": 20
+  },
+  "fc_violations_by_net": {
+    "zone:+15V_LS": 2,
+    "zone:DC_BUS_RTN": 2,
+    "zone:SW_NODE": 16
+  },
+  "joint_zone_reachability_cap120": [
+    {
+      "any_position_clears_all_zones": true,
+      "best_placement": {
+        "x_mm": 28.62,
+        "y_mm": 222.0
+      },
+      "conflicting_pads": [
+        "2"
+      ],
+      "conflicting_zone_nets": [
+        "DC_BUS_RTN"
+      ],
+      "envelope_cap_mm": 120.0,
+      "first_clearing_position": {
+        "disp_mm": 1.0,
+        "x_mm": 29.62,
+        "y_mm": 222.0
+      },
+      "grid_cells": 231361,
+      "grid_cells_clearing_all_zones": 14973,
+      "grid_step_mm": 0.5,
+      "n_conflicting_zone_pairs": 2,
+      "ref": "C27"
+    },
+    {
+      "any_position_clears_all_zones": true,
+      "best_placement": {
+        "x_mm": 43.12,
+        "y_mm": 17.92
+      },
+      "conflicting_pads": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5"
+      ],
+      "conflicting_zone_nets": [
+        "+15V_LS",
+        "SW_NODE"
+      ],
+      "envelope_cap_mm": 120.0,
+      "first_clearing_position": {
+        "disp_mm": 37.5,
+        "x_mm": 16.12,
+        "y_mm": 7.42
+      },
+      "grid_cells": 231361,
+      "grid_cells_clearing_all_zones": 12916,
+      "grid_step_mm": 0.5,
+      "n_conflicting_zone_pairs": 18,
+      "ref": "K3"
+    }
+  ],
+  "joint_zone_reachability_cap60": [
+    {
+      "any_position_clears_all_zones": true,
+      "best_placement": {
+        "x_mm": 28.62,
+        "y_mm": 222.0
+      },
+      "conflicting_pads": [
+        "2"
+      ],
+      "conflicting_zone_nets": [
+        "DC_BUS_RTN"
+      ],
+      "envelope_cap_mm": 60.0,
+      "first_clearing_position": {
+        "disp_mm": 1.0,
+        "x_mm": 29.62,
+        "y_mm": 222.0
+      },
+      "grid_cells": 58081,
+      "grid_cells_clearing_all_zones": 3918,
+      "grid_step_mm": 0.5,
+      "n_conflicting_zone_pairs": 2,
+      "ref": "C27"
+    },
+    {
+      "any_position_clears_all_zones": true,
+      "best_placement": {
+        "x_mm": 43.12,
+        "y_mm": 17.92
+      },
+      "conflicting_pads": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5"
+      ],
+      "conflicting_zone_nets": [
+        "+15V_LS",
+        "SW_NODE"
+      ],
+      "envelope_cap_mm": 60.0,
+      "first_clearing_position": {
+        "disp_mm": 37.5,
+        "x_mm": 16.12,
+        "y_mm": 7.42
+      },
+      "grid_cells": 58081,
+      "grid_cells_clearing_all_zones": 1030,
+      "grid_step_mm": 0.5,
+      "n_conflicting_zone_pairs": 18,
+      "ref": "K3"
+    }
+  ],
+  "k3_at_mm": [
+    43.11999999999999,
+    17.92
+  ],
+  "nozones_fixed_copper_violations_at_best": 0,
+  "pair_verdict_counts": {
+    "box_bar_blocker": 38,
+    "clean": 15075,
+    "copper_violation": 0,
+    "total": 15113,
+    "unmatched_refs": 0
+  },
+  "provenance": {
+    "commit": "c60825861f337fa7d7c6d0ec8e9240c5aa97c74a",
+    "dirty": true
+  },
+  "zone_conflict_reachability_cap120": [
+    {
+      "best_placement": {
+        "x_mm": 28.62,
+        "y_mm": 222.0
+      },
+      "clearance_at_best_mm": 0.0,
+      "clears_within_cap": true,
+      "envelope_cap_mm": 120.0,
+      "grid_cells": 231361,
+      "grid_clear_cells": 14973,
+      "grid_step_mm": 0.5,
+      "min_disp_clearance_mm": 0.149,
+      "min_disp_to_clear_mm": 1.0,
+      "pad": "2",
+      "ref": "C27",
+      "required_mm": 0.05,
+      "zone_label": "zone Zone_46 net=DC_BUS_RTN",
+      "zone_net": "DC_BUS_RTN"
+    },
+    {
+      "best_placement": {
+        "x_mm": 43.12,
+        "y_mm": 17.92
+      },
+      "clearance_at_best_mm": 0.0,
+      "clears_within_cap": true,
+      "envelope_cap_mm": 120.0,
+      "grid_cells": 231361,
+      "grid_clear_cells": 19709,
+      "grid_step_mm": 0.5,
+      "min_disp_clearance_mm": 0.228,
+      "min_disp_to_clear_mm": 26.0,
+      "pad": "2",
+      "ref": "K3",
+      "required_mm": 0.05,
+      "zone_label": "zone Zone_48 net=SW_NODE",
+      "zone_net": "SW_NODE"
+    },
+    {
+      "best_placement": {
+        "x_mm": 43.12,
+        "y_mm": 17.92
+      },
+      "clearance_at_best_mm": 0.0,
+      "clears_within_cap": true,
+      "envelope_cap_mm": 120.0,
+      "grid_cells": 231361,
+      "grid_clear_cells": 21496,
+      "grid_step_mm": 0.5,
+      "min_disp_clearance_mm": 0.228,
+      "min_disp_to_clear_mm": 18.5,
+      "pad": "5",
+      "ref": "K3",
+      "required_mm": 0.05,
+      "zone_label": "zone Zone_48 net=SW_NODE",
+      "zone_net": "SW_NODE"
+    },
+    {
+      "best_placement": {
+        "x_mm": 43.12,
+        "y_mm": 17.92
+      },
+      "clearance_at_best_mm": 0.0,
+      "clears_within_cap": true,
+      "envelope_cap_mm": 120.0,
+      "grid_cells": 231361,
+      "grid_clear_cells": 22936,
+      "grid_step_mm": 0.5,
+      "min_disp_clearance_mm": 0.287,
+      "min_disp_to_clear_mm": 14.0,
+      "pad": "4",
+      "ref": "K3",
+      "required_mm": 0.05,
+      "zone_label": "zone Zone_48 net=SW_NODE",
+      "zone_net": "SW_NODE"
+    },
+    {
+      "best_placement": {
+        "x_mm": 43.12,
+        "y_mm": 17.92
+      },
+      "clearance_at_best_mm": 0.0,
+      "clears_within_cap": true,
+      "envelope_cap_mm": 120.0,
+      "grid_cells": 231361,
+      "grid_clear_cells": 23793,
+      "grid_step_mm": 0.5,
+      "min_disp_clearance_mm": 0.212,
+      "min_disp_to_clear_mm": 11.0,
+      "pad": "1",
+      "ref": "K3",
+      "required_mm": 0.05,
+      "zone_label": "zone Zone_48 net=SW_NODE",
+      "zone_net": "SW_NODE"
+    },
+    {
+      "best_placement": {
+        "x_mm": 43.12,
+        "y_mm": 17.92
+      },
+      "clearance_at_best_mm": 0.0,
+      "clears_within_cap": true,
+      "envelope_cap_mm": 120.0,
+      "grid_cells": 231361,
+      "grid_clear_cells": 24834,
+      "grid_step_mm": 0.5,
+      "min_disp_clearance_mm": 0.107,
+      "min_disp_to_clear_mm": 7.5,
+      "pad": "3",
+      "ref": "K3",
+      "required_mm": 0.05,
+      "zone_label": "zone Zone_48 net=SW_NODE",
+      "zone_net": "SW_NODE"
+    },
+    {
+      "best_placement": {
+        "x_mm": 43.12,
+        "y_mm": 17.92
+      },
+      "clearance_at_best_mm": 0.0,
+      "clears_within_cap": true,
+      "envelope_cap_mm": 120.0,
+      "grid_cells": 231361,
+      "grid_clear_cells": 42871,
+      "grid_step_mm": 0.5,
+      "min_disp_clearance_mm": 0.388,
+      "min_disp_to_clear_mm": 0.5,
+      "pad": "3",
+      "ref": "K3",
+      "required_mm": 0.05,
+      "zone_label": "zone Zone_42 net=+15V_LS",
+      "zone_net": "+15V_LS"
+    }
+  ],
+  "zone_conflict_reachability_cap60": [
+    {
+      "best_placement": {
+        "x_mm": 28.62,
+        "y_mm": 222.0
+      },
+      "clearance_at_best_mm": 0.0,
+      "clears_within_cap": true,
+      "envelope_cap_mm": 60.0,
+      "grid_cells": 58081,
+      "grid_clear_cells": 3918,
+      "grid_step_mm": 0.5,
+      "min_disp_clearance_mm": 0.149,
+      "min_disp_to_clear_mm": 1.0,
+      "pad": "2",
+      "ref": "C27",
+      "required_mm": 0.05,
+      "zone_label": "zone Zone_46 net=DC_BUS_RTN",
+      "zone_net": "DC_BUS_RTN"
+    },
+    {
+      "best_placement": {
+        "x_mm": 43.12,
+        "y_mm": 17.92
+      },
+      "clearance_at_best_mm": 0.0,
+      "clears_within_cap": true,
+      "envelope_cap_mm": 60.0,
+      "grid_cells": 58081,
+      "grid_clear_cells": 4246,
+      "grid_step_mm": 0.5,
+      "min_disp_clearance_mm": 0.228,
+      "min_disp_to_clear_mm": 26.0,
+      "pad": "2",
+      "ref": "K3",
+      "required_mm": 0.05,
+      "zone_label": "zone Zone_48 net=SW_NODE",
+      "zone_net": "SW_NODE"
+    },
+    {
+      "best_placement": {
+        "x_mm": 43.12,
+        "y_mm": 17.92
+      },
+      "clearance_at_best_mm": 0.0,
+      "clears_within_cap": true,
+      "envelope_cap_mm": 60.0,
+      "grid_cells": 58081,
+      "grid_clear_cells": 5619,
+      "grid_step_mm": 0.5,
+      "min_disp_clearance_mm": 0.228,
+      "min_disp_to_clear_mm": 18.5,
+      "pad": "5",
+      "ref": "K3",
+      "required_mm": 0.05,
+      "zone_label": "zone Zone_48 net=SW_NODE",
+      "zone_net": "SW_NODE"
+    },
+    {
+      "best_placement": {
+        "x_mm": 43.12,
+        "y_mm": 17.92
+      },
+      "clearance_at_best_mm": 0.0,
+      "clears_within_cap": true,
+      "envelope_cap_mm": 60.0,
+      "grid_cells": 58081,
+      "grid_clear_cells": 6231,
+      "grid_step_mm": 0.5,
+      "min_disp_clearance_mm": 0.287,
+      "min_disp_to_clear_mm": 14.0,
+      "pad": "4",
+      "ref": "K3",
+      "required_mm": 0.05,
+      "zone_label": "zone Zone_48 net=SW_NODE",
+      "zone_net": "SW_NODE"
+    },
+    {
+      "best_placement": {
+        "x_mm": 43.12,
+        "y_mm": 17.92
+      },
+      "clearance_at_best_mm": 0.0,
+      "clears_within_cap": true,
+      "envelope_cap_mm": 60.0,
+      "grid_cells": 58081,
+      "grid_clear_cells": 6811,
+      "grid_step_mm": 0.5,
+      "min_disp_clearance_mm": 0.212,
+      "min_disp_to_clear_mm": 11.0,
+      "pad": "1",
+      "ref": "K3",
+      "required_mm": 0.05,
+      "zone_label": "zone Zone_48 net=SW_NODE",
+      "zone_net": "SW_NODE"
+    },
+    {
+      "best_placement": {
+        "x_mm": 43.12,
+        "y_mm": 17.92
+      },
+      "clearance_at_best_mm": 0.0,
+      "clears_within_cap": true,
+      "envelope_cap_mm": 60.0,
+      "grid_cells": 58081,
+      "grid_clear_cells": 7574,
+      "grid_step_mm": 0.5,
+      "min_disp_clearance_mm": 0.107,
+      "min_disp_to_clear_mm": 7.5,
+      "pad": "3",
+      "ref": "K3",
+      "required_mm": 0.05,
+      "zone_label": "zone Zone_48 net=SW_NODE",
+      "zone_net": "SW_NODE"
+    },
+    {
+      "best_placement": {
+        "x_mm": 43.12,
+        "y_mm": 17.92
+      },
+      "clearance_at_best_mm": 0.0,
+      "clears_within_cap": true,
+      "envelope_cap_mm": 60.0,
+      "grid_cells": 58081,
+      "grid_clear_cells": 14931,
+      "grid_step_mm": 0.5,
+      "min_disp_clearance_mm": 0.388,
+      "min_disp_to_clear_mm": 0.5,
+      "pad": "3",
+      "ref": "K3",
+      "required_mm": 0.05,
+      "zone_label": "zone Zone_42 net=+15V_LS",
+      "zone_net": "+15V_LS"
+    }
+  ],
+  "zone_inclusive_fixed_copper_violations_at_best": 20
+}

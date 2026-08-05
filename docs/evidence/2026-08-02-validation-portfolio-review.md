@@ -1,3 +1,4 @@
+<!-- provenance: commit=2624ec63302cb473cc5255a0af78b811bcc8b659 dirty=false -->
 # Validation Portfolio Review — 2026-08-02
 
 Consolidated outcome of ce-doc-review runs (5 personas per document, non-interactive, executed in six parallel batches) over the 35 implementation-ready plans derived from `docs/plans/2026-08-02-001-feat-validation-portfolio-plan.md`.

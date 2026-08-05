@@ -1,9 +1,12 @@
 """U3: First-ever route_pcb run against ``pcb/temper.kicad_pcb``.
 
-Records ``routed_nets``, ``completion_rate``, DRC violation counts, and wall
-time for the production board (95 nets, 149 components, 100x150mm) as a
-reproducible artifact, replacing the ``null``/``0`` placeholders in
-``power_pcb_dataset/baselines/temper_production_baseline.yaml``.
+Measures ``routed_nets``, ``completion_rate``, DRC violation counts, and wall
+time for the production board (95 nets, 149 components, 100x150mm).
+
+This module MEASURES only. It does not write
+``power_pcb_dataset/baselines/temper_production_baseline.yaml`` -- refreshing
+that file's ``router_v6_routing`` block is done deliberately, through
+``scripts/update_production_routing_baseline.py``.
 
 Uses the post-2026-07-18 gate-dispatch path via ``route_pcb`` wired with
 W2 U2's ``layer_constraints`` from the netclass SSOT.
@@ -32,7 +35,11 @@ _REPO_ROOT = _TEMPER_PLACER_ROOT.parent.parent
 
 _PCB_PATH = _REPO_ROOT / "pcb" / "temper.kicad_pcb"
 _RULES_PATH = _TEMPER_PLACER_ROOT / "configs" / "netclass_rules.yaml"
-_BASELINE_PATH = _REPO_ROOT / "power_pcb_dataset" / "baselines" / "temper_production_baseline.yaml"
+
+# No _BASELINE_PATH here, deliberately. This module used to hold one and write
+# to it from a collected `test_*` function; nothing in this suite may name a
+# committed measurement artifact as a write target. The baseline path lives in
+# scripts/update_production_routing_baseline.py, which is the only writer.
 
 
 def _kicad_cli_available() -> bool:
@@ -99,8 +106,9 @@ class TestProductionBoardRouting:
     Measures routing metrics against ``pcb/temper.kicad_pcb`` with
     component positions unmodified (no CP-SAT placement — routing-only
     pass using the board's existing layout).  Results are recorded as
-    both test assertions and a module-level ``_ROUTING_RECORD`` dict
-    consumed by ``test_update_baseline_yaml``.
+    both test assertions and a module-level ``_ROUTING_RECORD`` dict,
+    emitted by ``_emit_routing_record`` for consumption by
+    ``scripts/update_production_routing_baseline.py``.
     """
 
     def test_route_pcb_production_board(self):
@@ -184,25 +192,33 @@ class TestProductionBoardRouting:
         # APC gate: router output must not regress past the measured
         # baseline for the current board.
         #
-        # RE-BASELINED 2026-07-31 (kicad-cli 10.0.4, macOS arm64): the K2
-        # discharge-relay swap (PR #524, pcb/temper.kicad_pcb) moved K2's
-        # pads 11-15mm to the RT314012's pad field while traces stayed at the
-        # old G5LE-1 positions, leaving same-net unrouted pairs. Measured on
-        # this branch's router: unconnected_items 408, zero scatter across 10
-        # DRC runs (both bare and --all-track-errors). The authoritative
-        # re-baseline is 411, verified pair-by-pair SAME-NET (0 cross-net) in
-        # docs/evidence/2026-07-31-k2k3-relay-swap-placement.md; the +3 over
-        # this run's 408 reflects the relay-branch measurement on pre-merge
-        # router code. This is a documented, attributed board change -- not a
-        # ratchet-up to absorb a regression; see that evidence doc and the
-        # matching re-baseline of PRODUCTION_ROUTER_OUTPUT_UNCONNECTED in
-        # tests/placer/cp_sat/test_regression_drc.py. The historical
-        # 149->0 U8 measurement no longer applies to this board; the router
-        # re-route is the follow-up.
-        assert unconnected <= 411, (
-            f"APC gate: expected <= 411 unconnected_items (2026-07-31 K2 "
-            f"relay-swap re-baseline, docs/evidence/"
-            f"2026-07-31-k2k3-relay-swap-placement.md), got {unconnected}."
+        # RE-BASELINED 2026-08-02 (kicad-cli 10.0.4, macOS arm64): this gate
+        # sat at the 2026-07-31 K2-swap measurement (411) while the router's
+        # deterministic output drifted to ~460 unconnected over two attributed
+        # changes: (1) the 2026-08-02 board change (31 footprints nudged --
+        # K2 +18.2mm y, RT1 -2.4mm, 29 refs by 0.01-0.03mm; content hash
+        # 0fff888a -> cf161bee) and (2) measurement-context drift from three
+        # netclass-reclassification commits to pcb/temper.kicad_pro (369fc0f7b,
+        # e3040b9a1, cbaad2eb7). The sibling gate
+        # PRODUCTION_ROUTER_OUTPUT_UNCONNECTED in
+        # tests/placer/cp_sat/test_regression_drc.py was re-baselined to 463
+        # for exactly this measurement (route_pcb deterministic, completion
+        # rate 0.4021, DRC N=11 on the one routed file: unconnected 463, zero
+        # scatter) -- see that file's provenance block and
+        # docs/evidence/2026-08-01-edge-hanging-refs-fix.md. This gate was
+        # missed because the same route_pcb call was crashing on main
+        # (DesignRules/NetClassRules `_mm` drift, fixed by commit 592cf4b29)
+        # from the wave-4 migration through 2026-08-03, so it could not run
+        # to surface the stale threshold. Re-aligned to the sibling's
+        # attributed 463; a fresh measurement on this code (2026-08-03,
+        # post-fix) reports 460 <= 463. Same documented, attributed class as
+        # every prior move -- not a ratchet-up to absorb an unexplained
+        # regression. The router re-route is the standing follow-up.
+        assert unconnected <= 463, (
+            f"APC gate: expected <= 463 unconnected_items (2026-08-02 "
+            f"re-baseline, tests/placer/cp_sat/test_regression_drc.py "
+            f"provenance + docs/evidence/"
+            f"2026-08-01-edge-hanging-refs-fix.md), got {unconnected}."
         )
 
         # Store results globally for the baseline updater
@@ -247,44 +263,43 @@ class TestProductionBoardRouting:
         if critical_remaining:
             print(f"  Critical nets still unrouted: {critical_remaining}")
 
+        # Emit the measurement for scripts/update_production_routing_baseline.py.
+        # No-op unless that script (or a human running it by hand) set
+        # TEMPER_ROUTING_RECORD_OUT to a scratch path. This never touches the
+        # committed baseline -- see _emit_routing_record's docstring.
+        _emit_routing_record()
+
 
 # Module-level record, populated by test_route_pcb_production_board
 _ROUTING_RECORD: dict = {}
 
 
-def test_update_baseline_yaml():
-    """Patch the production baseline YAML with router_v6 routing metrics.
+def _emit_routing_record() -> None:
+    """Write ``_ROUTING_RECORD`` to the path in ``TEMPER_ROUTING_RECORD_OUT``.
 
-    Reads ``_ROUTING_RECORD`` (populated by
-    ``test_route_pcb_production_board``), adds a ``router_v6_routing``
-    block to the baseline YAML, and writes it back.  The existing
-    ``deterministic_pipeline`` and ``cp_sat`` blocks are preserved.
+    This is the *whole* of this suite's involvement in baseline regeneration,
+    and it deliberately writes to a caller-supplied scratch path -- never to
+    ``_BASELINE_PATH``.
+
+    What used to be here was a ``test_update_baseline_yaml`` that rewrote
+    ``power_pcb_dataset/baselines/temper_production_baseline.yaml`` in place
+    via ``yaml.safe_dump``. It carried no ``skipif``, no env guard and no
+    opt-in marker (the class-level ``slow``/``routing`` marks above are on a
+    different class), so pytest collected and ran it on an ordinary session:
+    it stripped all ~235 comment lines from the baseline -- including the
+    ~200-line header explaining why ``component_count``/``net_count`` were
+    removed on 2026-07-29 -- and left the rewrite in the working tree for
+    ``git add -A`` to commit. Two agents hit it independently on 2026-08-04.
+
+    The split is the fix: this suite MEASURES and emits a record; the writing
+    of a committed measurement artifact belongs to a deliberate, reviewed
+    entry point, ``scripts/update_production_routing_baseline.py``, which
+    splices only the ``router_v6_routing`` block and leaves every other byte
+    of the file alone. No environment variable makes a test in this repo write
+    a protected baseline -- see ``scripts/_lib/pytest_artifact_guard.py``.
     """
-    if not _ROUTING_RECORD:
-        pytest.skip("No routing record available. Run test_route_pcb_production_board first.")
-
-    import yaml
-
-    assert _BASELINE_PATH.exists(), f"Baseline not found: {_BASELINE_PATH}"
-
-    with open(_BASELINE_PATH) as f:
-        doc = yaml.safe_load(f) or {}
-
-    doc["router_v6_routing"] = {
-        "wall_time_s": _ROUTING_RECORD["wall_time_s"],
-        "completion_rate": _ROUTING_RECORD["completion_rate"],
-        "routed_nets": _ROUTING_RECORD["routed_nets"],
-        "unrouted_nets": _ROUTING_RECORD["unrouted_nets"],
-        "unrouted_nets_list": _ROUTING_RECORD["unrouted_nets_list"],
-        "drc_violations_post_route": _ROUTING_RECORD["drc_violations_post_route"],
-        "drc_violations_by_type": dict(_ROUTING_RECORD["drc_violations_by_type"]),
-        "unconnected_items": _ROUTING_RECORD["unconnected_items"],
-        "extraction_date": _ROUTING_RECORD["extraction_date"],
-        "extraction_method": _ROUTING_RECORD["extraction_method"],
-        "kicad_cli_version": _ROUTING_RECORD.get("kicad_cli_version", ""),
-    }
-
-    with open(_BASELINE_PATH, "w") as f:
-        yaml.safe_dump(doc, f, default_flow_style=False, sort_keys=False)
-
-    print(f"Updated {_BASELINE_PATH} with router_v6_routing block")
+    out_path = os.environ.get("TEMPER_ROUTING_RECORD_OUT")
+    if not out_path:
+        return
+    Path(out_path).write_text(json.dumps(_ROUTING_RECORD, indent=2, sort_keys=False))
+    print(f"Wrote routing record to {out_path}")

@@ -22,8 +22,9 @@ OCTILE_DIAG: Final[float] = math.sqrt(2.0) - 1.0
 
 # Configurable diagonal cost multiplier for the A* inner loop.
 # 1.0 = standard octile (diagonal  1.414, cardinal  1.0).
-# Lower values incentivise diagonals.  Set via
-# :func:`temper_placer.router_v6.metrics.octilinear.add_diagonal_incentive`.
+# Lower values incentivise diagonals.  Assign to this module attribute
+# directly; the former `metrics.octilinear.add_diagonal_incentive` setter was
+# retired along with that module (it had no callers).
 DIAGONAL_COST_FACTOR: float = 1.0
 _BASE_DIAGONAL_COST: Final[float] = math.sqrt(2.0)
 # Cost multiplier for cells already occupied by the same net.

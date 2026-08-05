@@ -2,22 +2,26 @@
 
 This module provides functionality to check whether placement constraints
 are satisfied and generate reports. Reporting only - no optimization.
+
+Wave 4, Phase 4: the compute of this module is migrated to Rust in the
+``temper-constraint-compiler`` crate (see ``packages/temper-constraint-compiler/
+VERIFICATION.md``). ``ConstraintReporter.check`` runs every check in Rust
+(``temper_constraint_compiler.check_constraints``) and reassembles the plain
+result dicts into ``ConstraintResult`` dataclasses; ``ConstraintReport.to_text``
+and ``to_json`` delegate the formatting/shape logic to Rust (``json.dumps``
+itself stays Python stdlib). ``ConstraintStatus`` stays a Python enum (member
+identity is load-bearing in consumers). The pre-migration implementation is
+pinned verbatim as the differential oracle
+(``tests/constraints/_reporter_py_oracle.py``).
 """
 
 import json
-import math
 from dataclasses import dataclass, field
 from enum import Enum
 
-from temper_placer._constraint_types import (
-    ComponentGroup,
-    ComponentSpacingRule,
-    EscapeClearance,
-    PlacementConstraints,
-    ProximityRule,
-    RoutingCorridor,
-    ThermalConstraint,
-)
+import temper_constraint_compiler as _rust  # type: ignore[import-untyped]
+
+from temper_placer.constraints._payload import _build_payload as build_payload
 
 
 class ConstraintStatus(Enum):
@@ -27,6 +31,9 @@ class ConstraintStatus(Enum):
     VIOLATED = "violated"
     WARNING = "warning"  # Soft constraint not satisfied
     SKIPPED = "skipped"  # Component not placed
+
+
+_STATUS_FROM_STRING = {s.value: s for s in ConstraintStatus}
 
 
 @dataclass
@@ -49,6 +56,23 @@ class ConstraintResult:
     def is_warning(self) -> bool:
         """True if this is a soft constraint warning."""
         return self.tier == "soft" and self.status == ConstraintStatus.VIOLATED
+
+
+def _results_to_dicts(results: list[ConstraintResult]) -> list[dict]:
+    """Marshall results into the plain-dict form the Rust side consumes."""
+    return [
+        {
+            "type": r.constraint_type,
+            "status": r.status.value,
+            "tier": r.tier,
+            "components": list(r.components),
+            "message": r.message,
+            "actual": r.actual_value,
+            "expected": r.expected_value,
+            "details": r.details,
+        }
+        for r in results
+    ]
 
 
 @dataclass
@@ -83,98 +107,17 @@ class ConstraintReport:
         return [r for r in self.results if r.tier == "soft"]
 
     def to_text(self) -> str:
-        """Generate human-readable text report."""
-        lines = ["=== Constraint Satisfaction Report ===", ""]
-
-        # Hard constraints
-        hard = self.hard_results
-        if hard:
-            lines.append("HARD CONSTRAINTS (must satisfy):")
-            for result in hard:
-                symbol = "✓" if result.status == ConstraintStatus.SATISFIED else "✗"
-                annotation = " ← VIOLATION" if result.is_violation() else ""
-                lines.append(f"  {symbol} {result.message}{annotation}")
-            lines.append("")
-
-        # Soft constraints
-        soft = self.soft_results
-        if soft:
-            lines.append("SOFT CONSTRAINTS (prefer):")
-            for result in soft:
-                if result.status == ConstraintStatus.SATISFIED:
-                    symbol = "✓"
-                elif result.status == ConstraintStatus.VIOLATED:
-                    symbol = "⚠"
-                else:
-                    symbol = "○"
-                lines.append(f"  {symbol} {result.message}")
-            lines.append("")
-
-        # Summary
-        lines.append("SUMMARY:")
-        hard_satisfied = len([r for r in hard if r.status == ConstraintStatus.SATISFIED])
-        soft_satisfied = len([r for r in soft if r.status == ConstraintStatus.SATISFIED])
-
-        if hard:
-            lines.append(f"  Hard: {hard_satisfied}/{len(hard)} satisfied")
-        if soft:
-            lines.append(f"  Soft: {soft_satisfied}/{len(soft)} satisfied")
-
-        if self.violations:
-            lines.append(f"  VIOLATIONS: {len(self.violations)}")
-
-        return "\n".join(lines)
+        """Generate human-readable text report (Rust formatting, byte-identical)."""
+        return _rust.report_to_text(_results_to_dicts(self.results))  # type: ignore[attr-defined]
 
     def to_json(self) -> str:
-        """Generate machine-readable JSON report."""
-        data = {
-            "summary": {
-                "total_constraints": len(self.results),
-                "hard_satisfied": len(
-                    [r for r in self.hard_results if r.status == ConstraintStatus.SATISFIED]
-                ),
-                "hard_total": len(self.hard_results),
-                "soft_satisfied": len(
-                    [r for r in self.soft_results if r.status == ConstraintStatus.SATISFIED]
-                ),
-                "soft_total": len(self.soft_results),
-                "violations": len(self.violations),
-                "warnings": len(self.warnings),
-            },
-            "violations": [
-                {
-                    "type": r.constraint_type,
-                    "components": r.components,
-                    "message": r.message,
-                    "actual": r.actual_value,
-                    "expected": r.expected_value,
-                    "details": r.details,
-                }
-                for r in self.violations
-            ],
-            "warnings": [
-                {
-                    "type": r.constraint_type,
-                    "components": r.components,
-                    "message": r.message,
-                    "actual": r.actual_value,
-                    "expected": r.expected_value,
-                }
-                for r in self.warnings
-            ],
-            "all_results": [
-                {
-                    "type": r.constraint_type,
-                    "status": r.status.value,
-                    "tier": r.tier,
-                    "components": r.components,
-                    "message": r.message,
-                    "actual": r.actual_value,
-                    "expected": r.expected_value,
-                }
-                for r in self.results
-            ],
-        }
+        """Generate machine-readable JSON report.
+
+        The data-shape logic (summary counts, which entries appear) is Rust
+        (``temper_constraint_compiler.report_to_json_data``); ``json.dumps``
+        stays Python stdlib.
+        """
+        data = _rust.report_to_json_data(_results_to_dicts(self.results))  # type: ignore[attr-defined]
         return json.dumps(data, indent=2)
 
     def has_violations(self) -> bool:
@@ -187,7 +130,7 @@ class ConstraintReporter:
 
     def __init__(
         self,
-        constraints: PlacementConstraints,
+        constraints,
         board_bounds: tuple[float, float, float, float] | None = None,
     ):
         """Initialize reporter.
@@ -199,7 +142,7 @@ class ConstraintReporter:
         self.constraints = constraints
         self.board_bounds = board_bounds
 
-    def check(self, placements: dict[str, tuple[float, float]]) -> ConstraintReport:
+    def check(self, placements: dict) -> ConstraintReport:
         """Check all constraints against placements.
 
         Args:
@@ -208,392 +151,20 @@ class ConstraintReporter:
         Returns:
             ConstraintReport with all check results
         """
+        payload = build_payload(self.constraints, self.board_bounds)
+        result_dicts = _rust.check_constraints(payload, placements)  # type: ignore[attr-defined]
         report = ConstraintReport()
-
-        # Check spacing rules
-        for rule in self.constraints.component_spacing_rules:
-            result = self._check_spacing(rule, placements)
-            report.results.append(result)
-
-        # Check proximity rules (in groups)
-        for group in self.constraints.component_groups:
-            for prox_rule in group.proximity_rules:
-                result = self._check_proximity(prox_rule, placements)
-                report.results.append(result)
-
-        # Check thermal constraints
-        for thermal in self.constraints.thermal_constraints:
-            result = self._check_thermal(thermal, placements)
-            report.results.append(result)
-
-        # Check group spread
-        for group in self.constraints.component_groups:
-            result = self._check_group_spread(group, placements)
-            report.results.append(result)
-
-        # Check escape clearances
-        for escape in self.constraints.escape_clearances:
-            results = self._check_escape_clearance(escape, placements)
-            report.results.extend(results)
-
-        # Check routing corridors
-        for corridor in self.constraints.routing_corridors:
-            results = self._check_routing_corridor(corridor, placements)
-            report.results.extend(results)
-
+        for rd in result_dicts:
+            report.results.append(
+                ConstraintResult(
+                    constraint_type=rd["type"],
+                    status=_STATUS_FROM_STRING[rd["status"]],
+                    tier=rd["tier"],
+                    components=rd["components"],
+                    message=rd["message"],
+                    actual_value=rd["actual"],
+                    expected_value=rd["expected"],
+                    details=rd["details"],
+                )
+            )
         return report
-
-    def _check_spacing(self, rule: ComponentSpacingRule, placements: dict) -> ConstraintResult:
-        """Check ComponentSpacingRule."""
-        comp_a, comp_b = rule.component_a, rule.component_b
-
-        # Check if both components are placed
-        if comp_a not in placements or comp_b not in placements:
-            return ConstraintResult(
-                constraint_type="ComponentSpacing",
-                status=ConstraintStatus.SKIPPED,
-                tier=rule.tier,
-                components=[comp_a, comp_b],
-                message=f"ComponentSpacing: {comp_a} - {comp_b} (not placed)",
-            )
-
-        # Calculate distance
-        pos_a = placements[comp_a]
-        pos_b = placements[comp_b]
-        distance = _distance(pos_a, pos_b)
-
-        # Check against threshold
-        satisfied = distance >= rule.min_separation_mm
-        status = ConstraintStatus.SATISFIED if satisfied else ConstraintStatus.VIOLATED
-
-        message = f"ComponentSpacing: {comp_a} - {comp_b} ({distance:.1f}mm {'≥' if satisfied else '<'} {rule.min_separation_mm}mm)"
-
-        return ConstraintResult(
-            constraint_type="ComponentSpacing",
-            status=status,
-            tier=rule.tier,
-            components=[comp_a, comp_b],
-            message=message,
-            actual_value=distance,
-            expected_value=rule.min_separation_mm,
-        )
-
-    def _check_proximity(self, rule: ProximityRule, placements: dict) -> ConstraintResult:
-        """Check ProximityRule."""
-        comp_a, comp_b = rule.component_a, rule.component_b
-
-        # Check if both components are placed
-        if comp_a not in placements or comp_b not in placements:
-            return ConstraintResult(
-                constraint_type="Proximity",
-                status=ConstraintStatus.SKIPPED,
-                tier=rule.tier,
-                components=[comp_a, comp_b],
-                message=f"Proximity: {comp_a} - {comp_b} (not placed)",
-            )
-
-        # Calculate distance
-        pos_a = placements[comp_a]
-        pos_b = placements[comp_b]
-        distance = _distance(pos_a, pos_b)
-
-        # Check against threshold
-        satisfied = distance <= rule.max_distance_mm
-        status = ConstraintStatus.SATISFIED if satisfied else ConstraintStatus.VIOLATED
-
-        message = f"Proximity: {comp_a} - {comp_b} ({distance:.1f}mm {'≤' if satisfied else '>'} {rule.max_distance_mm}mm)"
-
-        return ConstraintResult(
-            constraint_type="Proximity",
-            status=status,
-            tier=rule.tier,
-            components=[comp_a, comp_b],
-            message=message,
-            actual_value=distance,
-            expected_value=rule.max_distance_mm,
-        )
-
-    def _check_thermal(self, thermal: ThermalConstraint, placements: dict) -> ConstraintResult:
-        """Check ThermalConstraint edge preference.
-
-        Note: ThermalConstraint.components is a list, but we check each component individually.
-        For simplicity, we check the first placed component only.
-        """
-        # Get first placed component from the thermal components list
-        placed_comps = [c for c in thermal.components if c in placements]
-
-        if not placed_comps:
-            return ConstraintResult(
-                constraint_type="Thermal",
-                status=ConstraintStatus.SKIPPED,
-                tier="soft",  # Thermal is always soft
-                components=thermal.components,
-                message=f"Thermal: {', '.join(thermal.components)} (not placed)",
-            )
-
-        comp = placed_comps[0]  # Check first one
-
-        if not thermal.prefer_edge or not self.board_bounds:
-            # No edge preference or no bounds to check against
-            return ConstraintResult(
-                constraint_type="Thermal",
-                status=ConstraintStatus.SATISFIED,
-                tier="soft",
-                components=[comp],
-                message=f"Thermal: {comp} (no edge preference)",
-            )
-
-        pos = placements[comp]
-        edge_distance = _min_edge_distance(pos, self.board_bounds)
-
-        # Check against threshold - use max_distance_from_edge_mm
-        threshold = thermal.max_distance_from_edge_mm
-        satisfied = edge_distance <= threshold
-        status = ConstraintStatus.SATISFIED if satisfied else ConstraintStatus.VIOLATED
-
-        message = f"Thermal: {comp} edge distance ({edge_distance:.1f}mm {'≤' if satisfied else '>'} {threshold:.1f}mm preferred)"
-
-        return ConstraintResult(
-            constraint_type="Thermal",
-            status=status,
-            tier="soft",
-            components=[comp],
-            message=message,
-            actual_value=edge_distance,
-            expected_value=threshold,
-        )
-
-    def _check_group_spread(self, group: ComponentGroup, placements: dict) -> ConstraintResult:
-        """Check ComponentGroup max_spread_mm."""
-        # Get placed components in group
-        placed_comps = [c for c in group.components if c in placements]
-
-        if len(placed_comps) < 2:
-            return ConstraintResult(
-                constraint_type="GroupSpread",
-                status=ConstraintStatus.SKIPPED,
-                tier="soft",  # Group spread is always soft
-                components=group.components,
-                message=f"GroupSpread: {group.name} (< 2 components placed)",
-            )
-
-        # Calculate bounding box diagonal
-        positions = [placements[c] for c in placed_comps]
-        xs = [p[0] for p in positions]
-        ys = [p[1] for p in positions]
-
-        width = max(xs) - min(xs)
-        height = max(ys) - min(ys)
-        diagonal = math.sqrt(width**2 + height**2)
-
-        # Check against threshold
-        satisfied = diagonal <= group.max_spread_mm
-        status = ConstraintStatus.SATISFIED if satisfied else ConstraintStatus.VIOLATED
-
-        message = f"GroupSpread: {group.name} ({diagonal:.1f}mm {'≤' if satisfied else '>'} {group.max_spread_mm}mm)"
-
-        return ConstraintResult(
-            constraint_type="GroupSpread",
-            status=status,
-            tier="soft",
-            components=placed_comps,
-            message=message,
-            actual_value=diagonal,
-            expected_value=group.max_spread_mm,
-        )
-
-    def _check_escape_clearance(
-        self, escape: EscapeClearance, placements: dict
-    ) -> list[ConstraintResult]:
-        """Check EscapeClearance - no other components in clearance zone."""
-        results = []
-        comp = escape.component
-
-        if comp not in placements:
-            results.append(
-                ConstraintResult(
-                    constraint_type="EscapeClearance",
-                    status=ConstraintStatus.SKIPPED,
-                    tier=escape.tier,
-                    components=[comp],
-                    message=f"EscapeClearance: {comp} (not placed)",
-                )
-            )
-            return results
-
-        pos = placements[comp]
-        clearance = escape.clearance_mm
-
-        if clearance is None:
-            # Clearance not computed - skip check
-            results.append(
-                ConstraintResult(
-                    constraint_type="EscapeClearance",
-                    status=ConstraintStatus.SKIPPED,
-                    tier=escape.tier,
-                    components=[comp],
-                    message=f"EscapeClearance: {comp} (clearance not computed)",
-                )
-            )
-            return results
-
-        # Check each other component
-        violations = []
-        for other_ref, other_pos in placements.items():
-            if other_ref == comp:
-                continue
-
-            distance = _distance(pos, other_pos)
-            if distance < clearance:
-                violations.append((other_ref, distance))
-
-        if not violations:
-            results.append(
-                ConstraintResult(
-                    constraint_type="EscapeClearance",
-                    status=ConstraintStatus.SATISFIED,
-                    tier=escape.tier,
-                    components=[comp],
-                    message=f"EscapeClearance: {comp} ({clearance:.1f}mm zone clear)",
-                )
-            )
-        else:
-            # Report each violation
-            for other_ref, distance in violations:
-                results.append(
-                    ConstraintResult(
-                        constraint_type="EscapeClearance",
-                        status=ConstraintStatus.VIOLATED,
-                        tier=escape.tier,
-                        components=[comp, other_ref],
-                        message=f"EscapeClearance: {other_ref} in {comp} zone ({distance:.1f}mm < {clearance:.1f}mm)",
-                        actual_value=distance,
-                        expected_value=clearance,
-                    )
-                )
-
-        return results
-
-    def _check_routing_corridor(
-        self, corridor: RoutingCorridor, placements: dict
-    ) -> list[ConstraintResult]:
-        """Check RoutingCorridor - no components blocking path."""
-        results = []
-        from_comp = corridor.from_component
-        to_comp = corridor.to_component
-
-        # Check if endpoints are placed
-        if from_comp not in placements or to_comp not in placements:
-            results.append(
-                ConstraintResult(
-                    constraint_type="RoutingCorridor",
-                    status=ConstraintStatus.SKIPPED,
-                    tier=corridor.tier,
-                    components=[from_comp, to_comp],
-                    message=f"RoutingCorridor: {corridor.name} (endpoints not placed)",
-                )
-            )
-            return results
-
-        if not corridor.keep_clear:
-            # Not a keep-clear corridor
-            results.append(
-                ConstraintResult(
-                    constraint_type="RoutingCorridor",
-                    status=ConstraintStatus.SATISFIED,
-                    tier=corridor.tier,
-                    components=[from_comp, to_comp],
-                    message=f"RoutingCorridor: {corridor.name} (no keep-clear requirement)",
-                )
-            )
-            return results
-
-        pos_from = placements[from_comp]
-        pos_to = placements[to_comp]
-        half_width = corridor.width_mm / 2.0
-
-        # Check each other component
-        violations = []
-        for other_ref, other_pos in placements.items():
-            if other_ref in (from_comp, to_comp):
-                continue
-
-            distance = _point_to_segment_distance(other_pos, pos_from, pos_to)
-            if distance < half_width:
-                violations.append((other_ref, distance))
-
-        if not violations:
-            results.append(
-                ConstraintResult(
-                    constraint_type="RoutingCorridor",
-                    status=ConstraintStatus.SATISFIED,
-                    tier=corridor.tier,
-                    components=[from_comp, to_comp],
-                    message=f"RoutingCorridor: {corridor.name} ({corridor.width_mm}mm corridor clear)",
-                )
-            )
-        else:
-            # Report each violation
-            for other_ref, distance in violations:
-                results.append(
-                    ConstraintResult(
-                        constraint_type="RoutingCorridor",
-                        status=ConstraintStatus.VIOLATED,
-                        tier=corridor.tier,
-                        components=[from_comp, to_comp, other_ref],
-                        message=f"RoutingCorridor: {other_ref} in {corridor.name} path ({distance:.1f}mm < {half_width:.1f}mm)",
-                        actual_value=distance,
-                        expected_value=half_width,
-                    )
-                )
-
-        return results
-
-
-def _distance(p1: tuple[float, float], p2: tuple[float, float]) -> float:
-    """Euclidean distance between two points."""
-    return math.sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2)
-
-
-def _min_edge_distance(
-    pos: tuple[float, float], bounds: tuple[float, float, float, float]
-) -> float:
-    """Minimum distance from point to any board edge."""
-    x, y = pos
-    x_min, y_min, x_max, y_max = bounds
-
-    distances = [
-        x - x_min,  # Left edge
-        x_max - x,  # Right edge
-        y - y_min,  # Bottom edge
-        y_max - y,  # Top edge
-    ]
-
-    return min(distances)
-
-
-def _point_to_segment_distance(
-    point: tuple[float, float], seg_start: tuple[float, float], seg_end: tuple[float, float]
-) -> float:
-    """Minimum distance from point to line segment."""
-    px, py = point
-    x1, y1 = seg_start
-    x2, y2 = seg_end
-
-    # Vector from start to end
-    dx = x2 - x1
-    dy = y2 - y1
-
-    if dx == 0 and dy == 0:
-        # Segment is a point
-        return math.sqrt((px - x1) ** 2 + (py - y1) ** 2)
-
-    # Parameter t for projection onto line
-    t = ((px - x1) * dx + (py - y1) * dy) / (dx * dx + dy * dy)
-    t = max(0, min(1, t))  # Clamp to segment
-
-    # Closest point on segment
-    closest_x = x1 + t * dx
-    closest_y = y1 + t * dy
-
-    return math.sqrt((px - closest_x) ** 2 + (py - closest_y) ** 2)

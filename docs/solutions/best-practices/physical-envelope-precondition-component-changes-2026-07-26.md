@@ -146,7 +146,7 @@ REJECT, move sense point or add isolation before this part sees that node.
 - `docs/solutions/best-practices/assert-input-preconditions-not-just-output-metrics.md`
   — the code-side sibling: verifying an input precondition rather than only an
   output metric
-- `docs/evidence/2026-07-26-bus-capacitor-reselection.md`,
+- `docs/evidence/2026-07-26-bus-capacitor-architecture-review.md`,
   `docs/hardware/BOM.md` v1.7 changelog — full detail on the third instance
   added below, including the withdrawn part number and the corrected area math
 
@@ -163,7 +163,7 @@ recording on its own.
 `docs/evidence/2026-07-26-bus-capacitor-ripple.md` established that the DC
 bus capacitors (`EKMQ251VSN182MA50S`, `elec/src/modules.ato:591-618`) fail
 their rated ripple current by 4.2–5.8×. A same-day reselection
-(`docs/evidence/2026-07-26-bus-capacitor-reselection.md`) correctly derived a
+(`docs/evidence/2026-07-26-bus-capacitor-architecture-review.md`) correctly derived a
 part that clears the electrical requirement — KEMET `ALS30A472MF250`, 4700 µF
 /250 V, screw-terminal, 66 mm can diameter, 3 in parallel per half-bus — and
 was landed in `elec/src/modules.ato` and `docs/hardware/BOM.md` v1.6. It was

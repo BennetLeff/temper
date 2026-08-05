@@ -45,6 +45,9 @@
     "scripts/tests/test_check_net_classification.py",
     "scripts/check_pll_range_consistency.py",
     "scripts/tests/test_check_pll_range_consistency.py",
+    "scripts/check_firmware_board_contract.py",
+    "scripts/tests/test_check_firmware_board_contract.py",
+    "firmware/tools/**",
     "scripts/check_isolation_keepout.py",
     "scripts/tests/test_check_isolation_keepout.py",
     "scripts/check_pad_orientation.py",
@@ -88,7 +91,19 @@
     "scripts/tests/test_check_measurement_provenance.py",
     "scripts/_lib/measurement_provenance.py",
     "scripts/tests/_lib/test_lib_measurement_provenance.py",
-    "power_pcb_dataset/drc_ceiling.json"
+    "scripts/check_test_baseline_writes.py",
+    "scripts/tests/test_check_test_baseline_writes.py",
+    "scripts/_lib/protected_artifacts.py",
+    "scripts/_lib/pytest_artifact_guard.py",
+    "scripts/_lib/yaml_block_patch.py",
+    "scripts/tests/_lib/test_lib_yaml_block_patch.py",
+    "scripts/update_production_routing_baseline.py",
+    "power_pcb_dataset/baselines/**",
+    "conftest.py",
+    "power_pcb_dataset/drc_ceiling.json",
+    "power_pcb_dataset/physics_soundness_register.yaml",
+    "scripts/physics_soundness_register_gate.py",
+    "packages/temper-placer/tests/scripts/test_physics_soundness_register_gate.py"
   ],
   "job_triggers": {
     "Cargo / Rustc Smoke Check": {
@@ -216,6 +231,53 @@
     "returning these contexts to the required set -- not leaving them here",
     "as decoration that costs runner slots and buys no safety."
   ],
+  "_perf_ab_context_note": [
+    "2026-08-04 (Wave 4 Phase 0, R2): 'PR Performance Comparison' is a real",
+    "hard gate as of this date -- it exits non-zero on regression, fails closed",
+    "on a missing or empty baseline, and its continue-on-error mask is gone.",
+    "It was held OUT of required_contexts until the prerequisite below shipped;",
+    "the context_triggers section at the bottom of this file IS that",
+    "prerequisite, and the context was registered in #686 once it existed. The",
+    "paragraphs below are kept as the standing reason the two must stay",
+    "together: dropping context_triggers while leaving the context required",
+    "reintroduces the failure exactly.",
+    "",
+    "Why: required_contexts_for_files returns EVERY context in this list as",
+    "soon as ANY of the ~90 trigger_paths match. Every context here today comes",
+    "from python-tests.yml, whose path list is drift-checked against this",
+    "manifest. pr-perf-check.yml is a DIFFERENT workflow with a narrower path",
+    "set. A PR touching only docs/plans/** or pcb/*.kicad_pro matches this",
+    "manifest but never fires pr-perf-check, so no check run is created --",
+    "'missing', not 'skipped', so verify_skips cannot rescue it. The aggregator",
+    "would poll timeout_seconds (2700) + backlog_grace_seconds (7200) = 2h45m",
+    "and then fail. That is a guaranteed red required check on every docs-only",
+    "PR, i.e. every open PR blocked at once.",
+    "",
+    "Prerequisite (SHIPPED): a per-context workflow-trigger gate here (a",
+    "context_triggers section mapping a context to its own workflow's paths:",
+    "list), so a context can be dropped from the required set when its own",
+    "workflow legitimately does not fire.",
+    "",
+    "Note that context_triggers mirrors pr-perf-check.yml's PULL_REQUEST paths.",
+    "That workflow also has a push trigger on main with the same path list, but",
+    "push runs create no PR check run, so only the pull_request list is what",
+    "this section has to track.",
+    "",
+    "RESOLVED 2026-08-04 (same day): the committed baseline was CI-measured but",
+    "n=1 per benchmark, so the rolling median was that single row, nothing was",
+    "smoothed, and CI noise (<=9.9%) applied to it in full. The structural",
+    "cause was that pr-perf-check.yml triggered on `pull_request` ONLY, so no",
+    "row could ever be measured on main and the baseline could not grow. It now",
+    "also triggers on `push: branches: [main]` and workflow_dispatch, and in",
+    "that mode it captures instead of gating. The baseline is at n=6 per stage,",
+    "harvested from six CI runs of commits verified not to touch the",
+    "bottleneck-geometry module. Still do NOT re-capture locally: a",
+    "darwin-captured baseline measured -11% against linux CI on identical code,",
+    "which would blind the 20% margin to every regression below +35%.",
+    "",
+    "Measurements and full reasoning:",
+    "docs/evidence/2026-08-04-perf-ab-harness-noise-floor.md"
+  ],
   "required_contexts": [
     "Rust Checks (cargo check + clippy)",
     "Cross-Source Consistency Gates",
@@ -225,7 +287,18 @@
     "Generated Repo State",
     "Invariant tests (router_v6 group 3)",
     "Repo Hygiene & Import Gates",
-    "LOC Cap Gate"
+    "LOC Cap Gate",
+    "PR Performance Comparison"
   ],
-  "backlog_grace_seconds": 7200
+  "backlog_grace_seconds": 7200,
+  "context_triggers": {
+    "PR Performance Comparison": [
+      "packages/**",
+      "benchmarks/**",
+      "scripts/pr_perf_compare.py",
+      "scripts/tests/test_pr_perf_compare.py",
+      "power_pcb_dataset/metrics/perf_ab_baseline.jsonl",
+      ".github/workflows/pr-perf-check.yml"
+    ]
+  }
 }
