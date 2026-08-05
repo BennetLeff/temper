@@ -42,6 +42,9 @@ import numpy as np
 import temper_design_bundle_python as _tdb
 
 from temper_placer.core._contract_dataclass_compat import (
+    field as _contract_field,
+)
+from temper_placer.core._contract_dataclass_compat import (
     install_dataclass_fields as _install_dataclass_fields,
 )
 
@@ -58,48 +61,72 @@ build_adjacency_matrix = _rs.build_adjacency_matrix
 # A pyclass is not a dataclass, and `dataclasses.replace()` is load-bearing
 # here -- `deterministic/stages/apply_placements.py` rebuilds both `Component`
 # and `Netlist` with it. See `_contract_dataclass_compat` for the mechanism.
+# Each field spec mirrors the pinned pre-migration oracle
+# (`tests/core/_netlist_py_oracle.py`) field-for-field: annotation, literal
+# default or default_factory, and the init/repr flags.
 _install_dataclass_fields(
     Pin,
     (
-        "name",
-        "number",
-        "position",
-        "net",
-        "width",
-        "height",
-        "shape",
-        "layer",
-        "drill",
-        "is_pth",
-        "roundrect_ratio",
-        "pad_rotation_deg",
+        _contract_field("name", "str"),
+        _contract_field("number", "str"),
+        _contract_field("position", "tuple[float, float]"),
+        _contract_field("net", "str | None", None),
+        _contract_field("width", "float", 1.0),
+        _contract_field("height", "float", 1.0),
+        _contract_field("shape", "str", "rect"),
+        _contract_field("layer", "str", "F.Cu"),
+        _contract_field("drill", "float", 0.0),
+        _contract_field("is_pth", "bool", False),
+        _contract_field("roundrect_ratio", "float", 0.25),
+        _contract_field("pad_rotation_deg", "float", 0.0),
     ),
+    module=__name__,
 )
 _install_dataclass_fields(
     Component,
     (
-        "ref",
-        "footprint",
-        "bounds",
-        "pins",
-        "net_class",
-        "zone",
-        "fixed",
-        "initial_position",
-        "initial_rotation",
-        "initial_side",
-        "attributes",
-        "tags",
-        "sheetpath",
+        _contract_field("ref", "str"),
+        _contract_field("footprint", "str"),
+        _contract_field("bounds", "tuple[float, float]"),
+        _contract_field("pins", "list[Pin]", default_factory=list),
+        _contract_field("net_class", "str", "Signal"),
+        _contract_field("zone", "str | None", None),
+        _contract_field("fixed", "bool", False),
+        _contract_field("initial_position", "tuple[float, float] | None", None),
+        _contract_field("initial_rotation", "int | None", None),
+        _contract_field("initial_side", "int | None", None),
+        _contract_field("attributes", "dict[str, str]", default_factory=dict),
+        _contract_field("tags", "frozenset", default_factory=frozenset),
+        _contract_field("sheetpath", "str | None", None),
     ),
+    module=__name__,
 )
 _install_dataclass_fields(
     Net,
-    ("name", "pins", "net_class", "weight", "max_current", "voltage_class"),
+    (
+        _contract_field("name", "str"),
+        _contract_field("pins", "list[tuple[str, str]]"),
+        _contract_field("net_class", "str", "Signal"),
+        _contract_field("weight", "float", 1.0),
+        _contract_field("max_current", "float", 0.0),
+        _contract_field("voltage_class", "str", "LV"),
+    ),
+    module=__name__,
 )
+# The computed indices are `repr=False` on the original dataclass; the
+# init/repr flags mirror the oracle exactly.
 _install_dataclass_fields(
     Netlist,
-    ("components", "nets", "_component_index", "_net_index", "_component_nets"),
+    (
+        _contract_field("components", "list[Component]", default_factory=list),
+        _contract_field("nets", "list[Net]", default_factory=list),
+        _contract_field("_component_index", "dict[str, int]", default_factory=dict, repr=False),
+        _contract_field("_net_index", "dict[str, int]", default_factory=dict, repr=False),
+        _contract_field(
+            "_component_nets", "dict[str, list[str]]", default_factory=dict, repr=False
+        ),
+    ),
+    module=__name__,
 )
 
 
