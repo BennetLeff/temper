@@ -69,13 +69,41 @@ Three properties of the Python were measured against CPython 3.12.13 /
 NumPy 2.3.5 **before** writing any Rust, because in each case the obvious Rust
 spelling is a different operation.
 
-### 1. `np.linalg.norm` on a 2-vector — no FMA
+### 1. `np.linalg.norm` on a 2-vector — no FMA, *on this platform*
 
 NumPy evaluates `sqrt(dot(v,v))`; for length-2 float64 that is `x*x + y*y`.
 Compared against `math.sqrt(x*x + y*y)` over **200,000 randomised vectors**
 spanning 1e-8…1e6 in magnitude, using `float.hex()`: **0 mismatches**. The Rust
 uses the same unfused association and explicitly **not** `f64::mul_add` —
 mutation **M3** confirms an FMA-contracted norm is caught.
+
+**This one is platform-conditional, and that is a genuine limit of the port's
+parity — not a property of the Rust.** `v.dot(v)` is a BLAS `ddot`. In the
+OpenBLAS that ships inside NumPy's manylinux wheels, `ddot`'s microkernel is
+selected from CPUID at load time (`gotoblas_dynamic_init`), the n<16 tail is a
+scalar `dot += x[i]*y[i]` loop, and whether that loop is contracted into an FMA
+depends on which kernel the CPU selected. So the *Python* answer is not fixed
+by the source: it is fixed by the machine.
+
+Measured 2026-08-04 (CPython 3.12.13 / NumPy 2.3.5, darwin/arm64 Accelerate),
+over 200,000 random 2-vectors in this fixture's magnitude range:
+
+| candidate reduction | mismatches vs `np.linalg.norm` |
+| --- | --- |
+| `sqrt(x*x + y*y)`      (what `norm2` does) | **0** (0.00%) |
+| `sqrt(fma(y, y, x*x))` (a contracted ddot) | 16,260 (8.13%) |
+| `sqrt(fma(x, x, y*y))` (the other association) | 16,312 (8.16%) |
+
+So: **`norm2` is bit-identical to `np.linalg.norm` on every platform whose
+2-element BLAS reduction is unfused, and on no other.** Where the reduction
+contracts, the two differ by 1 ULP on ~8% of vectors. There is no in-repo
+change that makes the Python side agree with itself across such machines — the
+divergence is upstream of this crate.
+
+`test_norm_contract_holds_on_this_platform` in the differential asserts the
+precondition directly, over 20,000 vectors, so a non-conforming runner reports
+*that* rather than an unexplained downstream disagreement. See "The #714 perf
+A/B flake" below for what that disagreement looked like before the test existed.
 
 ### 2. CPython `sum()` is Neumaier-compensated
 
@@ -345,6 +373,94 @@ partition, and hence the output, is invariant under the union heuristic — see
 the structural proof above); M17 swaps an O(1) membership test for an O(n) one
 over a container holding exactly the same elements. Neither is observable
 through any public API, so neither is a test gap.
+
+---
+
+## The #714 perf A/B flake — and what it actually proved
+
+`benchmarks/perf_ab.py::bench_topological_force_refinement` asserts the two arms
+agree bit-for-bit before timing them. On PR #714 it **failed** (run
+`30950000723`, commit `914697ff6`) and then **passed** (run `30954298616`,
+commit `5c9fb4c48`) with no fix. The two commits differ in nothing the benchmark
+executes — `git diff` over `benchmarks/`, `packages/temper-placer/src/`,
+`packages/temper-placement-topology/`, `packages/temper-placer/tests/topological/`,
+`uv.lock` and `pyproject.toml` returns only two comment-only edits in unrelated
+modules. Same code, opposite verdicts.
+
+**It was not `PYTHONHASHSEED`.** That was the first hypothesis, and it is wrong
+for this benchmark: the fixture is built from a *list* of refs in list order, so
+the graph's edge order is a function of `n` alone. Measured over **32 explicit
+seeds × 2 harnesses × 2 reduction kernels = 128 runs**: the edge-list digest and
+the refined-position digest are identical in all 128, and no cell's verdict moves
+with the seed. (`ZoneSolver.solve()` *is* seed-dependent — it iterates a `set` of
+candidates — but force refinement is not, and the benchmark does not call it.)
+
+**It was the 2-vector reduction of §1**, amplified. Two facts compose:
+
+1. The benchmark's fixture is a bounded but **non-converging** force
+   simulation. Its per-iteration step is still O(1) at iteration 400, and a
+   **single ULP** perturbation of one input coordinate grows to **1.2e-1 mm**
+   by iteration 120:
+
+   | iterations | components differing | max \|Δ\| |
+   | --- | --- | --- |
+   | 1 | 1/26 | 1.8e-15 |
+   | 8 | 20/26 | 1.2e-12 |
+   | 17 | 26/26 | 4.0e-11 |
+   | 40 | 26/26 | 9.6e-03 |
+   | 120 | 26/26 | 1.2e-01 |
+
+2. Per §1, a contracted `ddot` changes ~8% of distances by 1 ULP. The fixture
+   has 73 edges, so on a non-conforming runner *some* edge diverges on the very
+   first iteration — reproduced by substituting `sqrt(fma(y,y,x*x))` for
+   `np.linalg.norm` in the oracle arm: parity fails at **iteration 1**
+   (Δ 4.4e-16) and at 120 (Δ 8.2e-3).
+
+Fewer iterations would therefore not have helped, and neither would a smaller
+fixture: the differential's own `adjacent_pair` (2 components) also breaks at 8
+iterations under the same substitution. **Every bit-exact force-refinement
+comparison in this repo is conditional on the runner's BLAS reduction.** That is
+recorded here rather than papered over, and it is asserted directly by
+`test_norm_contract_holds_on_this_platform`.
+
+What changed in response:
+
+* **The perf A/B pins the primitive, not the result.** For the duration of its
+  parity check only — never around the timed runs, which feed a ratio measured
+  against a committed baseline — `np.linalg.norm` on a 2-vector is bound to the
+  association §1 documents and `norm2` implements. This is the same move the
+  graph shim already makes for edge order: make the shared input explicit
+  instead of letting the environment pick it. Nothing is sorted, no tolerance is
+  introduced, no iteration count is reduced, and the equality assertion itself
+  is unchanged. On any platform CI is green on the binding is provably a no-op,
+  because the contract test asserts exactly that.
+* **The benchmark and the differential now share one fixture module**
+  (`tests/topological/_topo_bench_fixture.py`). The gap that let this reach a
+  perf job at all was that the differential parametrised force refinement over
+  `iterations ∈ [0,1,2,8,17,100]` on graphs of ≤ 4 components while the
+  benchmark ran `(120, 0.05)` on 26 — so no behavioral gate ever executed the
+  benchmark's parameters. `test_apply_force_refinement_identical_at_benchmark_parameters`
+  now does, on the same fixture object, and
+  `test_bench_fixture_edge_order_does_not_move_with_the_hash_seed` pins the
+  order property the exactness depends on.
+
+Evidence, 32 seeds per cell (`bench_topological_force_refinement` run end to
+end in a fresh interpreter per seed; "pre-fix" is a verbatim `git show HEAD:`
+copy of the harness):
+
+| harness | ddot reduction | parity |
+| --- | --- | --- |
+| pre-fix | unfused | 32 pass / 0 fail |
+| pre-fix | FMA-contracted | 0 pass / **32 fail** |
+| post-fix | unfused | 32 pass / 0 fail |
+| post-fix | FMA-contracted | **32 pass** / 0 fail |
+
+The two new differential cases are anti-vacuous against the same perturbation:
+under a contracted reduction `test_norm_contract_holds_on_this_platform` and
+`test_apply_force_refinement_identical_at_benchmark_parameters` both fail (the
+former naming the cause), while
+`test_bench_fixture_edge_order_does_not_move_with_the_hash_seed` still passes —
+it is about order, which the reduction does not touch.
 
 ---
 

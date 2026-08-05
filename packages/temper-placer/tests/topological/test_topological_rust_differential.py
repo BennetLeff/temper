@@ -38,6 +38,7 @@ import tests.topological._force_refinement_py_oracle as fr_oracle
 import tests.topological._graph_py_oracle as graph_oracle
 import tests.topological._initial_placement_py_oracle as ip_oracle
 import tests.topological._propagation_py_oracle as prop_oracle
+import tests.topological._topo_bench_fixture as bench_fixture
 import tests.topological._zone_solver_py_oracle as zs_oracle
 from temper_placer.core.board import Zone
 from temper_placer.topological import (
@@ -418,6 +419,96 @@ def test_apply_force_refinement_identical(gname, iterations, lr):
         ),
         f"apply_force_refinement[{gname}/{iterations}/{lr}]",
     )
+
+
+def test_apply_force_refinement_identical_at_benchmark_parameters():
+    """The perf A/B's own fixture, at the perf A/B's own parameters.
+
+    ``benchmarks/perf_ab.py`` imports ``_topo_bench_fixture`` too, so this is
+    the same 26-component graph, the same starting coordinates and the same
+    ``(120, 0.05)`` the benchmark runs -- a combination the grid above never
+    reached (it stops at 100 iterations on graphs of at most 4 components).
+    That gap is why a perf job, not the behavioral A/B, was the gate that
+    caught a divergence here; sharing one fixture module closes it by
+    construction rather than by remembering to keep two lists in step.
+    """
+    live, _ = bench_fixture.build_graph(TopologicalGraph)
+    orc, refs = bench_fixture.build_graph(graph_oracle.TopologicalGraph)
+    zones = bench_fixture.bench_zones(Zone)
+    assignments = bench_fixture.bench_zone_assignments(refs)
+
+    assert_identical(
+        apply_force_refinement(
+            bench_fixture.bench_positions(refs), live, zones, dict(assignments),
+            bench_fixture.BENCH_ITERATIONS, bench_fixture.BENCH_LEARNING_RATE,
+        ),
+        fr_oracle.apply_force_refinement(
+            bench_fixture.bench_positions(refs), orc, zones, dict(assignments),
+            bench_fixture.BENCH_ITERATIONS, bench_fixture.BENCH_LEARNING_RATE,
+        ),
+        "apply_force_refinement at the perf A/B's parameters",
+    )
+
+
+def test_bench_fixture_edge_order_does_not_move_with_the_hash_seed():
+    """The benchmark's fixture is built from a list, not a set.
+
+    Force refinement is deliberately order-sensitive, so an edge order that
+    varied with PYTHONHASHSEED would make the perf A/B's parity assertion a
+    coin flip. It does not: this pins that the order is a function of the
+    fixture alone, which is what lets the assertion above be exact.
+    """
+    live, refs = bench_fixture.build_graph(TopologicalGraph)
+    again, refs2 = bench_fixture.build_graph(TopologicalGraph)
+    orc, refs3 = bench_fixture.build_graph(graph_oracle.TopologicalGraph)
+
+    def edges(g):
+        return [
+            (u, v, d.get("edge_type"), d.get("distance"))
+            for u, v, d in g.graph.edges(data=True)
+        ]
+
+    assert refs == refs2 == refs3
+    assert edges(live) == edges(again), "fixture is not reproducible in-process"
+    assert edges(live) == edges(orc), (
+        "the two arms of the perf A/B do not see the same edge order"
+    )
+
+
+def test_norm_contract_holds_on_this_platform():
+    """``norm2`` is ``sqrt(x*x + y*y)``; assert NumPy agrees *here*.
+
+    This is the precondition the whole force-refinement differential rests on,
+    and it is a property of the platform, not of the port. ``np.linalg.norm``
+    of a 2-vector is ``sqrt(v.dot(v))`` and ``v.dot(v)`` is a BLAS ``ddot``;
+    in the OpenBLAS that ships inside NumPy's manylinux wheels the n<16 tail
+    loop is chosen by CPUID at load time, and whether it contracts
+    ``dot += x[i]*y[i]`` into an FMA differs between those kernels. Measured
+    2026-08-04: a contracted reduction differs from the unfused one on 8.13%
+    of random 2-vectors in this fixture's magnitude range (16,260 of 200,000).
+
+    Without this test that divergence surfaces as an unexplained "arms
+    disagree" in whichever gate happens to run on a non-conforming runner --
+    which is exactly how it surfaced on #714 (run 30950000723 failed, run
+    30954298616 passed, with no change to any file either one executes).
+    """
+    import random
+
+    import numpy as np
+
+    rng = random.Random(20260804)
+    for _ in range(20_000):
+        x = rng.uniform(-40.0, 40.0)
+        y = rng.uniform(-40.0, 40.0)
+        got = float(np.linalg.norm(np.array([x, y])))
+        want = math.sqrt(x * x + y * y)
+        assert got.hex() == want.hex(), (
+            "this platform's np.linalg.norm is not the unfused sqrt(x*x + y*y) "
+            f"that temper_placement_topology::numeric::norm2 implements: "
+            f"norm([{x!r}, {y!r}]) = {got.hex()} but sqrt(x*x + y*y) = "
+            f"{want.hex()}. Force-refinement parity cannot hold here -- see "
+            "packages/temper-placement-topology/VERIFICATION.md."
+        )
 
 
 def test_apply_force_refinement_unzoned_default_bounds_identical():

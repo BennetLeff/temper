@@ -86,12 +86,15 @@ from __future__ import annotations
 import argparse
 import importlib.util
 import json
+import math
 import random
 import statistics
 import sys
 import time
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
+from contextlib import contextmanager
 from datetime import UTC, datetime
+from functools import cache
 from pathlib import Path
 from types import ModuleType
 from typing import Any
@@ -289,21 +292,87 @@ def _topological_oracles() -> tuple[ModuleType, ModuleType, ModuleType]:
     return graph, prop, force
 
 
-def _topological_fixture(graph_cls: Any, n: int = 26) -> Any:
-    """A deterministic connected constraint graph of `n` components."""
-    rng = random.Random(_BENCH_SEED)
-    refs = [f"U{i:02d}" for i in range(n)]
-    g = graph_cls()
-    for ref in refs:
-        g.add_component(ref)
-    # a spanning chain keeps it connected, plus deterministic extra chords
-    for i in range(n - 1):
-        g.add_adjacency(refs[i], refs[i + 1], 4.0 + (i % 5), f"adj{i}")
-    for k in range(n):
-        a, b = rng.randrange(n), rng.randrange(n)
-        if a != b:
-            g.add_separation(refs[a], refs[b], 12.0 + (k % 7), f"sep{k}")
-    return g, refs
+@cache
+def _topological_bench_fixture() -> ModuleType:
+    """The fixture module the R1a differential also imports.
+
+    One source of inputs for both gates, so the benchmark cannot reach a
+    parameterisation the behavioral A/B has not compared. Before this existed
+    the differential covered ``iterations in [0, 1, 2, 8, 17, 100]`` on its own
+    small graphs and the benchmark ran ``(120, 0.05)`` on a 26-component one,
+    so the perf job was the only gate that ever executed those parameters.
+
+    Memoised because ``_topological_fixture`` runs inside the timed closures:
+    re-executing the module on every repeat would land in the measurement.
+    """
+    return _load_module_from_path(
+        "_perf_ab_topo_bench_fixture",
+        REPO_ROOT / "packages/temper-placer/tests/topological/_topo_bench_fixture.py",
+    )
+
+
+def _topological_fixture(graph_cls: Any, n: int | None = None) -> Any:
+    """A deterministic connected constraint graph, from the shared module."""
+    fixture = _topological_bench_fixture()
+    return fixture.build_graph(graph_cls, fixture.BENCH_N if n is None else n)
+
+
+@contextmanager
+def _two_vector_norm_pinned_to_the_ported_contract() -> Iterator[None]:
+    """Make both arms evaluate the 2-vector norm the *same* way, by contract.
+
+    Force refinement's only step that IEEE-754 does not pin to a single answer
+    is the squared length inside ``np.linalg.norm``. For a 2-vector NumPy
+    evaluates ``sqrt(v.dot(v))``, and ``v.dot(v)`` is a BLAS ``ddot``: on the
+    OpenBLAS that ships in NumPy's manylinux wheels the n<16 tail loop is
+    selected by CPUID at load time, and whether it contracts ``dot += x[i]*y[i]``
+    into an FMA differs between kernels. ``temper-placement-topology``'s
+    ``numeric::norm2`` is the unfused ``sqrt(x*x + y*y)``, which is what the
+    port was verified against -- so on a runner whose ddot contracts, the two
+    arms compute genuinely different distances, 1 ULP apart on ~8% of vectors.
+
+    That is not a tolerance problem that more iterations would wash out. The
+    benchmark's fixture is a bounded but non-converging force simulation (its
+    per-iteration step is still O(1) at iteration 400) and a single ULP grows
+    to 1.2e-1 mm by iteration 120, so an exact comparison of the endpoint has
+    no error budget at all. It fails at *iteration 1* on a 73-edge graph,
+    because with ~8% of norms at risk some edge diverges immediately.
+
+    So this pins the primitive rather than the result: for the duration of the
+    parity check ``np.linalg.norm`` on a 2-vector is the association
+    ``numeric.rs`` documents and ``norm2`` implements. It is exactly the same
+    move the shim already makes for edge order -- make the shared input
+    explicit instead of letting the environment choose it -- and like that one
+    it normalises nothing about the *computation*: no sorting, no compensated
+    accumulation, no tolerance, and the parity assertion itself is untouched.
+
+    This can never hide a real divergence, because it is only ever a no-op on a
+    platform CI is green on: ``test_norm_contract_holds_on_this_platform`` in
+    the differential asserts, over 20k randomised vectors, that this platform's
+    ``np.linalg.norm`` already *is* this association. If a runner violates the
+    contract, that test fails and names it; the flake used to surface here
+    instead, as an unexplained "arms disagree" 40 minutes into a perf job.
+
+    Deliberately NOT wrapped around the timed runs -- only the parity check.
+    A Python-level norm has a different cost from ``np.linalg.norm``, and the
+    gated metric is a ratio against a committed baseline.
+    """
+    import numpy as np
+
+    real_norm = np.linalg.norm
+
+    def norm(x: Any, *args: Any, **kwargs: Any) -> Any:
+        if not args and not kwargs and getattr(x, "shape", None) == (2,):
+            a = float(x[0])
+            b = float(x[1])
+            return math.sqrt(a * a + b * b)
+        return real_norm(x, *args, **kwargs)
+
+    np.linalg.norm = norm
+    try:
+        yield
+    finally:
+        np.linalg.norm = real_norm
 
 
 def bench_topological_propagation() -> tuple[float, float]:
@@ -345,28 +414,42 @@ def bench_topological_force_refinement() -> tuple[float, float]:
     from temper_placer.topological.graph import TopologicalGraph
 
     graph_oracle, _, force_oracle = _topological_oracles()
+    fixture = _topological_bench_fixture()
 
-    zones = {"Z": Zone(name="Z", bounds=(-200.0, -200.0, 200.0, 200.0))}
-
-    def _positions(refs: list[str]) -> dict[str, tuple[float, float]]:
-        return {ref: (0.7 * i - 9.0, -0.4 * i + 5.0) for i, ref in enumerate(refs)}
+    zones = fixture.bench_zones(Zone)
+    iterations = fixture.BENCH_ITERATIONS
+    lr = fixture.BENCH_LEARNING_RATE
 
     def run_rust() -> Any:
         g, refs = _topological_fixture(TopologicalGraph)
         return apply_force_refinement(
-            _positions(refs), g, zones, dict.fromkeys(refs, "Z"), 120, 0.05
+            fixture.bench_positions(refs),
+            g,
+            zones,
+            fixture.bench_zone_assignments(refs),
+            iterations,
+            lr,
         )
 
     def run_oracle() -> Any:
         g, refs = _topological_fixture(graph_oracle.TopologicalGraph)
         return force_oracle.apply_force_refinement(
-            _positions(refs), g, zones, dict.fromkeys(refs, "Z"), 120, 0.05
+            fixture.bench_positions(refs),
+            g,
+            zones,
+            fixture.bench_zone_assignments(refs),
+            iterations,
+            lr,
         )
 
-    if run_rust() != run_oracle():
+    with _two_vector_norm_pinned_to_the_ported_contract():
+        arms_agree = run_rust() == run_oracle()
+    if not arms_agree:
         raise AssertionError(
             "perf A/B arms disagree for topological force refinement -- the "
-            "behavioral A/B should be failing too"
+            "behavioral A/B should be failing too "
+            "(test_apply_force_refinement_identical_at_benchmark_parameters "
+            "runs this exact fixture at these exact parameters)"
         )
     return _time_us(run_rust, DEFAULT_WARMUP, DEFAULT_REPEATS), _time_us(
         run_oracle, DEFAULT_WARMUP, DEFAULT_REPEATS
