@@ -131,6 +131,15 @@ on:
       - 'scripts/tests/test_check_measurement_provenance.py'
       - 'scripts/_lib/measurement_provenance.py'
       - 'scripts/tests/_lib/test_lib_measurement_provenance.py'
+      - 'scripts/check_test_baseline_writes.py'
+      - 'scripts/tests/test_check_test_baseline_writes.py'
+      - 'scripts/_lib/protected_artifacts.py'
+      - 'scripts/_lib/pytest_artifact_guard.py'
+      - 'scripts/_lib/yaml_block_patch.py'
+      - 'scripts/tests/_lib/test_lib_yaml_block_patch.py'
+      - 'scripts/update_production_routing_baseline.py'
+      - 'power_pcb_dataset/baselines/**'
+      - 'conftest.py'
       - 'power_pcb_dataset/drc_ceiling.json'
       - 'power_pcb_dataset/physics_soundness_register.yaml'
       - 'scripts/physics_soundness_register_gate.py'
@@ -226,6 +235,15 @@ on:
       - 'scripts/tests/test_check_measurement_provenance.py'
       - 'scripts/_lib/measurement_provenance.py'
       - 'scripts/tests/_lib/test_lib_measurement_provenance.py'
+      - 'scripts/check_test_baseline_writes.py'
+      - 'scripts/tests/test_check_test_baseline_writes.py'
+      - 'scripts/_lib/protected_artifacts.py'
+      - 'scripts/_lib/pytest_artifact_guard.py'
+      - 'scripts/_lib/yaml_block_patch.py'
+      - 'scripts/tests/_lib/test_lib_yaml_block_patch.py'
+      - 'scripts/update_production_routing_baseline.py'
+      - 'power_pcb_dataset/baselines/**'
+      - 'conftest.py'
       - 'power_pcb_dataset/drc_ceiling.json'
       - 'power_pcb_dataset/physics_soundness_register.yaml'
       - 'scripts/physics_soundness_register_gate.py'
@@ -988,6 +1006,33 @@ jobs:
       - name: Anti-vacuous-truth gate (gates/validators)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run python scripts/check_vacuous_gates.py
+
+      # Static half of the protected-measurement-artifact gate. Closes the
+      # 2026-08-04 incident: `test_update_baseline_yaml` in
+      # tests/router_v6/test_temper_production_board_routing.py was a
+      # maintenance routine named `test_*` with no skipif, env guard or opt-in
+      # marker, so pytest collected and ran it on ordinary sessions. It
+      # rebuilt power_pcb_dataset/baselines/temper_production_baseline.yaml
+      # from a plain dict via yaml.safe_dump -- deleting all ~235 comment
+      # lines, among them the ~200-line header explaining why
+      # component_count/net_count were removed on 2026-07-29 -- and left the
+      # rewrite in the working tree for `git add -A` to commit (-292/+91 on
+      # one observed run; two agents hit it independently within hours).
+      #
+      # Its runtime counterpart (scripts/_lib/pytest_artifact_guard.py, an
+      # autouse fixture installed from conftest.py) only fires for tests that
+      # RUN, and the offending test sits behind `slow`/`routing` marks and a
+      # kicad-cli dependency -- so under `-m 'not slow'`, or on a runner
+      # without KiCad, a runtime-only gate is green while the defect is still
+      # in the tree. This step reads source instead, so deselection cannot
+      # satisfy it. Both halves are required; neither subsumes the other.
+      - name: Protected measurement artifact gate tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_check_test_baseline_writes.py scripts/tests/_lib/test_lib_yaml_block_patch.py -v --tb=short
+
+      - name: No test writes a committed measurement baseline
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python scripts/check_test_baseline_writes.py
 
       - name: Measurement-provenance gate tests
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}

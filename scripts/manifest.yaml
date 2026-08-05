@@ -1,8 +1,8 @@
 _meta:
   last_audit_date: '2026-08-02'
-  total_scripts: 103
+  total_scripts: 105
   counts:
-    keep: 103
+    keep: 105
     ticket: 0
   ticket_scripts_deleted: 40
 scripts:
@@ -735,6 +735,26 @@ scripts:
   - json
   - pathlib
   - subprocess
+  - sys
+- path: check_test_baseline_writes.py
+  purpose: 'CI gate: fail closed when a test source writes a committed measurement artifact (baselines, drc_ceiling.json,
+    goldens, recorded metrics). Static half of the 2026-08-04 fix for test_update_baseline_yaml, a maintenance routine named
+    test_* that pytest collected on ordinary runs and that rewrote temper_production_baseline.yaml via yaml.safe_dump --
+    stripping all ~235 comment lines including the ~200-line rationale header, and leaving the rewrite for git add -A to
+    commit. Complements the runtime guard in scripts/_lib/pytest_artifact_guard.py: this half reads source, so it still
+    fires when the offending test is deselected, unmarked or skipped for a missing kicad-cli'
+  owner: bennet
+  last_run: '2026-08-04'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.protected_artifacts
+  - _lib.repo
+  - argparse
+  - ast
+  - dataclasses
+  - pathlib
   - sys
 - path: check_traceability.py
   purpose: Verify @req() tags in code match plan requirements
@@ -1529,6 +1549,28 @@ scripts:
   - pathlib
   - re
   - yaml
+- path: update_production_routing_baseline.py
+  purpose: Regenerate the router_v6_routing block of power_pcb_dataset/baselines/temper_production_baseline.yaml -- the only
+    writer of that file. Runs the routing measurement test with TEMPER_ROUTING_RECORD_OUT pointed at a scratch path, then
+    splices just that one block back in via _lib.yaml_block_patch so the file's ~235 comment lines survive byte-for-byte.
+    Replaces test_update_baseline_yaml, which did the same job from inside pytest and destroyed the comments every run
+  owner: bennet
+  last_run: '2026-08-04'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - _lib.repo
+  - _lib.yaml_block_patch
+  - argparse
+  - datetime
+  - difflib
+  - json
+  - os
+  - pathlib
+  - subprocess
+  - sys
+  - tempfile
 - path: update_regression_cache.py
   purpose: Update .regression-cache.json from regression reports for incremental corpus regression
   owner: pipeline
