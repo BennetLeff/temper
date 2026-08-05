@@ -104,7 +104,7 @@ def _fixture_traces() -> list[DecisionTrace]:
                 Alternative(
                     value=rng.choice([(1, 1), 45, "L1"]),
                     rejection_reason="rejected " + "x" * rng.randint(5, 80),
-                    constraint_violated=rng.choice([None, "clearance.hv_lv"]),
+                    constraint_violated=rng.choice([None, "", "clearance.hv_lv"]),
                 )
                 for _ in range(rng.randint(0, 3))
             ]

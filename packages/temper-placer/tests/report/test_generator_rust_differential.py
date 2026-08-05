@@ -16,6 +16,7 @@ library semantic, not reimplementable — see VERIFICATION.md).
 from __future__ import annotations
 
 import json
+import math
 import random
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -146,6 +147,22 @@ def test_zero_human_wl_ratio_is_one():
         baseline = {"human_metrics": {"total_wirelength_mm": human_wl}}
         ours = calculate_benchmark_result("t", opt, baseline, None)
         assert ours.wirelength_ratio == 1.0
+
+
+def test_wirelength_nan_overall_score_pinned():
+    """max(wl_ratio, 0.5) keeps the NaN first arg — CPython order-sensitive
+    max, not f64::max (which would fold NaN to 0.5 and change the score)."""
+    opt = _MockOptResult(history=[_LossBreakdown(loss_breakdown={
+        "wirelength": float("nan"), "overlap": 0.0, "boundary": 0.0, "thermal": 0.0,
+    })])
+    baseline = {"human_metrics": {"total_wirelength_mm": 1.0, "compactness_score": 0.5}}
+    ours = calculate_benchmark_result("t", opt, baseline, None)
+    theirs = _oracle.calculate_benchmark_result("t", opt, baseline, None)
+    assert math.isnan(ours.wirelength_ratio)
+    assert math.isnan(theirs.wirelength_ratio)
+    assert math.isnan(ours.overall_score)
+    assert math.isnan(theirs.overall_score)
+    assert _result_key(ours) == _result_key(theirs)
 
 
 def test_generate_json_report_byte_identical(tmp_path: Path):

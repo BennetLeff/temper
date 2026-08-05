@@ -134,7 +134,21 @@ def _fixtures() -> list[RunResult]:
         ],
         total_elapsed_ms=8.25,
     )
-    results.extend([empty, single, half_even])
+    # int elapsed leaves must stay ints in the JSON (the oracle copies
+    # `total_elapsed_ms` / `elapsed_ms` unchanged — #715/#754 int-preservation).
+    int_elapsed = RunResult(
+        check_results=[
+            CheckResult(
+                check_name="int",
+                passed=True,
+                issues=[],
+                elapsed_ms=3,
+                metrics={},
+            )
+        ],
+        total_elapsed_ms=7,
+    )
+    results.extend([empty, single, half_even, int_elapsed])
     return results
 
 
@@ -168,6 +182,23 @@ def test_json_shape_and_leaf_types_identical():
         ours = json.loads(format_json(result))
         theirs = json.loads(_oracle.format_json(result))
         assert _run_json_key(ours) == _run_json_key(theirs)
+
+
+def test_json_int_elapsed_leaf_type_pinned():
+    """int total_elapsed_ms / elapsed_ms pass through as ints, not floats."""
+    result = RunResult(
+        check_results=[
+            CheckResult(
+                check_name="c", passed=True, issues=[], elapsed_ms=3, metrics={}
+            )
+        ],
+        total_elapsed_ms=7,
+    )
+    ours = json.loads(format_json(result))
+    theirs = json.loads(_oracle.format_json(result))
+    assert _run_json_key(ours) == _run_json_key(theirs)
+    assert isinstance(ours["runtime_ms"], int)
+    assert isinstance(ours["checks"][0]["elapsed_ms"], int)
 
 
 def test_html_byte_identical():

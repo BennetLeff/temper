@@ -240,6 +240,15 @@ def _fixture_placements() -> list[dict]:
         _comp("B", (8.0, 0.0), [_pad("N_Y", (0.0, 0.0), 1.0, 1.0, "rect")]),
     ], nets={"N_X": {"domain": VoltageDomain.MAINS}, "N_Y": {"domain": VoltageDomain.LV_CONTROL}}))
 
+    # Component with an EMPTY-STRING ref: "" is falsy, so the report's pair
+    # column falls back to '?' via `ref_a or "?"` (None and '' must render
+    # identically). Appended LAST so the index-based fixtures above (e.g.
+    # placements[38]) keep pointing at their fixtures.
+    placements.append(_placement([
+        _comp("", (0.0, 0.0), [_pad(HV, (0.0, 0.0), 1.0, 1.0, "rect")]),
+        _comp("B", (4.0, 0.0), [_pad(LV, (0.0, 0.0), 1.0, 1.0, "rect")]),
+    ]))
+
     return placements
 
 
@@ -402,7 +411,7 @@ class TestFormatClearanceReport:
             placements[19], VoltageDomain.DC_BUS, VoltageDomain.LV_CONTROL, 1000.0
         )
         assert len(result.violations) >= 2
-        for limit in [1, 2, 5, None, 0]:
+        for limit in [1, 2, 5, None, 0, -1, -2]:
             theirs = _oracle_pkg.clearance.format_clearance_report(result, limit)
             ours = format_clearance_report(result, limit)
             assert ours == theirs

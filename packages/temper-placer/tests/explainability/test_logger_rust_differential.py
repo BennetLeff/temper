@@ -153,6 +153,32 @@ def test_log_heuristic_reason_generation():
     assert d0.decision_type.value == "initial_position"
 
 
+def test_log_heuristic_int_confidence_type_preserved():
+    """An int confidence stays an int in loss_contribution (the oracle
+    stores `confidence` raw; the shim must not coerce through f64)."""
+    oracle = _oracle.DecisionLogger()
+    shim = DecisionLogger()
+    shim.log_heuristic("thermal_edge", "Q1", (5, 5), confidence=1)
+    oracle.log_heuristic("thermal_edge", "Q1", (5, 5), confidence=1)
+    assert isinstance(oracle.trace.decisions[0].loss_contribution, int)
+    assert isinstance(shim.trace.decisions[0].loss_contribution, int)
+    assert _leaf(shim.trace.decisions[0].loss_contribution) == _leaf(
+        oracle.trace.decisions[0].loss_contribution
+    )
+
+
+def _leaf(v):
+    """Type-carrying canon (like the report suites' _run_json_key): == is
+    type-blind (1 == 1.0), this is not."""
+    if isinstance(v, bool):
+        return ("bool", v)
+    if isinstance(v, int):
+        return ("int", v)
+    if isinstance(v, float):
+        return ("float", v.hex())
+    return ("str", v)
+
+
 def test_log_constraint_reason_generation():
     oracle = _oracle.DecisionLogger()
     shim = DecisionLogger()

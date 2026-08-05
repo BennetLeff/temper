@@ -93,7 +93,7 @@ def _fixture_decisions() -> list[list[Decision]]:
                 Alternative(
                     value=rng.choice([(1, 1), (2, 2), "L1", 90]),
                     rejection_reason=f"reject {rng.randint(1, 9)}",
-                    constraint_violated=rng.choice([None, "clearance.hv_lv", "thermal.edge"]),
+                    constraint_violated=rng.choice([None, "", "clearance.hv_lv", "thermal.edge"]),
                     loss_if_chosen=rng.choice([None, rng.uniform(0.1, 5.0)]),
                 )
                 for _ in range(rng.randint(0, 3))
