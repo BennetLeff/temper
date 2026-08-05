@@ -15,12 +15,44 @@ reimplementable" boundary, argued in the module source.
 
 Floats are compared bit-exactly via ``float.hex()``; ``+inf`` (empty input
 semantics) is a first-class asserted output, not an accident.
+
+The min-clearance oracle's 2-vector norm is the one primitive that is *not*
+verbatim, and the reason is measured, not assumed. ``np.linalg.norm(v)`` on a
+length-2 float64 array is ``sqrt(v.dot(v))``, and ``v.dot(v)`` is a BLAS
+``ddot``. OpenBLAS in NumPy's manylinux wheels selects its microkernel from
+CPUID at load time, and some kernels contract the ``n < 16`` tail loop into an
+FMA. So the oracle's own norm has no fixed association — it is a property of
+the *runner's CPU*, not of the code:
+
+  ``dx = 0x1.23609245d9560p+8``, ``dy = 0x1.03b3e26ed4008p+7``
+    unfused ``sqrt(dx*dx + dy*dy)``      → ``0x1.3f006cfc844dbp+8``
+    ddot-order ``sqrt(fma(dy,dy,dx*dx))`` → ``0x1.3f006cfc844dap+8``
+
+That pair is not hypothetical: it is stress iteration 2 of
+``test_differential_random_stress``, and it is the exact 1-ulp mismatch this
+suite reported on ``main`` (runs 31042192573 / 31038667606, 2026-08-05) —
+``got`` the unfused value, ``ref`` the FMA-contracted one. It reproduces on
+none of the darwin/arm64 hosts here (0/200_000 mismatches vs unfused), which
+is the same two-runners-one-codebase split PR #714 measured and
+``drc_constraints_geometry.rs`` already names.
+
+Widening the assertion to a tolerance was rejected: it would retire exactly
+the defect class this differential exists for. Instead the *association* is
+pinned — the oracle squares and sums through ``_norm2_unfused`` below, which
+is the association the Rust kernel implements and the one every non-FMA
+microkernel produces — and the pin is kept honest by two trap tests:
+``test_trap_numpy_norm2_is_a_ddot_association_of_the_sum_of_squares`` (numpy
+is still computing a ddot-shaped sum of squares, on any platform) and
+``test_trap_kernel_pins_the_unfused_association`` (the kernel still is the
+unfused one). The parity claim is therefore scoped and provable rather than
+platform-lucky.
 """
 
 from __future__ import annotations
 
 import math
 import random
+from fractions import Fraction
 
 import numpy as np
 import pytest
@@ -42,6 +74,40 @@ from temper_placer.validation.trace_analyzer import (  # noqa: E402
 )
 
 # ---------------------------------------------------------------------------
+# The pinned 2-vector norm association (see the module docstring)
+# ---------------------------------------------------------------------------
+
+
+def _exact_fma(a: float, b: float, c: float) -> float:
+    """``a * b + c`` with a single rounding — ``math.fma`` is 3.13+, this repo
+    runs 3.12. The exact rational value is rounded once by
+    ``Fraction.__float__`` (correctly-rounded), which is definitionally fma
+    for finite inputs."""
+    if not (math.isfinite(a) and math.isfinite(b) and math.isfinite(c)):
+        return a * b + c
+    return float(Fraction(a) * Fraction(b) + Fraction(c))
+
+
+def _norm2_unfused(dx: float, dy: float) -> float:
+    """``sqrt(dx*dx + dy*dy)`` — the unfused association, which is what the
+    Rust kernel computes and what a non-FMA BLAS ``ddot`` produces."""
+    return math.sqrt(dx * dx + dy * dy)
+
+
+def _norm2_associations(dx: float, dy: float) -> tuple[float, float, float]:
+    """Every bit pattern a ``ddot`` of a 2-vector may legitimately produce:
+    the unfused sum, and the two single-FMA contraction orders. A ``ddot``
+    accumulator runs ``s = 0; s = fma(x0,x0,s); s = fma(x1,x1,s)``, which
+    reduces to ``fma(dy, dy, dx*dx)`` — the third entry, and the one the
+    linux CI runners select."""
+    return (
+        _norm2_unfused(dx, dy),
+        math.sqrt(_exact_fma(dx, dx, dy * dy)),
+        math.sqrt(_exact_fma(dy, dy, dx * dx)),
+    )
+
+
+# ---------------------------------------------------------------------------
 # Oracles — the pre-migration implementations, verbatim (commit aece7c372)
 # ---------------------------------------------------------------------------
 
@@ -58,8 +124,15 @@ def _ref_calculate_actual_trace_length(board: Board, net_name: str) -> float:
 
 
 def _ref_calculate_min_hv_lv_clearance(board: Board, net_classes: dict[str, str]) -> float:
-    """Pre-migration ``calculate_min_hv_lv_clearance``, verbatim (the numpy
-    norm calls and the split are kept byte-for-byte)."""
+    """Pre-migration ``calculate_min_hv_lv_clearance``: the split, the
+    iteration order, the ``min`` and the ``float()`` casts are byte-for-byte.
+
+    The single deliberate substitution is ``np.linalg.norm(p1 - p2)`` →
+    ``_norm2_unfused``, because that call has no fixed association across
+    runners (module docstring). The ``p1 - p2`` numpy subtraction is kept: a
+    single IEEE-754 double subtraction is correctly rounded and cannot be
+    contracted, so it is bit-identical to the scalar form — asserted in
+    ``test_trap_numpy_norm2_is_a_ddot_association_of_the_sum_of_squares``."""
     hv_traces = [t for t in board.traces if net_classes.get(t.net) == "HighVoltage"]  # type: ignore[attr-defined]
     lv_traces = [t for t in board.traces if net_classes.get(t.net) != "HighVoltage"]  # type: ignore[attr-defined]
 
@@ -77,7 +150,8 @@ def _ref_calculate_min_hv_lv_clearance(board: Board, net_classes: dict[str, str]
 
             for p1 in pts_hv:
                 for p2 in pts_lv:
-                    dist = float(np.linalg.norm(p1 - p2))
+                    delta = p1 - p2
+                    dist = float(_norm2_unfused(float(delta[0]), float(delta[1])))
                     min_dist = min(min_dist, dist)
 
     return float(min_dist)
@@ -206,6 +280,90 @@ def test_trace_length_pow2_libm_parity():
     ref = _ref_calculate_actual_trace_length(board, "HV")
     got = shim_trace_length(board, "HV")
     assert got.hex() == ref.hex()
+
+
+# ---------------------------------------------------------------------------
+# Traps — the conditions that make the min-clearance parity claim true
+# ---------------------------------------------------------------------------
+
+# The witness pair: stress iteration 2 of test_differential_random_stress, the
+# case that actually failed on main. Its two associations differ by 1 ulp.
+_WITNESS_DX = float.fromhex("0x1.23609245d9560p+8")
+_WITNESS_DY = float.fromhex("0x1.03b3e26ed4008p+7")
+
+
+def test_trap_numpy_norm2_is_a_ddot_association_of_the_sum_of_squares():
+    """Scope of the min-clearance parity claim — measured, not assumed.
+
+    The oracle no longer calls ``np.linalg.norm`` (module docstring), so this
+    is what keeps that substitution honest. It holds on *every* platform: it
+    does not require numpy to pick the unfused association, only to still be
+    computing a ``ddot``-shaped sum of squares. If numpy ever switched to a
+    different formula (a scaled/hypot-style norm, a pairwise or compensated
+    accumulation, a float32 path), its value would leave the three-element
+    admissible set and this fires — which is the real behaviour change the
+    oracle substitution could otherwise have hidden.
+
+    It also reports which association the host selected, so a failure
+    elsewhere in this file can be read against the platform.
+    """
+    rng = random.Random(2026)
+    outside = 0
+    contracted = 0
+    separable = 0
+    for _ in range(4_000):
+        dx = rng.uniform(-1e3, 1e3)
+        dy = rng.uniform(-1e3, 1e3)
+        # the oracle's `p1 - p2` is a single correctly-rounded subtraction
+        delta = np.array([0.0, 0.0]) - np.array([dx, dy])
+        assert float(delta[0]) == -dx and float(delta[1]) == -dy
+        got = float(np.linalg.norm(np.array([dx, dy])))
+        associations = _norm2_associations(dx, dy)
+        if len({a.hex() for a in associations}) > 1:
+            separable += 1
+        if got.hex() != associations[0].hex():
+            contracted += 1
+        if got.hex() not in {a.hex() for a in associations}:
+            outside += 1
+    # anti-vacuity: the associations must genuinely disagree on this corpus,
+    # or "pinning one" would be pinning nothing.
+    assert separable > 100, (
+        f"only {separable}/4000 draws separate the ddot associations — this "
+        "trap has stopped discriminating and the pin is vacuous"
+    )
+    assert outside == 0, (
+        f"np.linalg.norm on a 2-vector produced {outside}/4000 values outside "
+        "{unfused, fma(dx,dx,dy*dy), fma(dy,dy,dx*dx)} — it is no longer a "
+        "ddot of the sum of squares, so _norm2_unfused is no longer a faithful "
+        "stand-in for the pre-migration oracle"
+    )
+    # Informational, and deliberately not asserted either way: 0 here on
+    # darwin/arm64, non-zero on the linux runners whose OpenBLAS microkernel
+    # contracts the tail loop.
+    print(f"\n[trap] numpy {np.__version__}: {contracted}/4000 draws FMA-contracted")
+
+
+def test_trap_kernel_pins_the_unfused_association():
+    """The other half of the scope: the Rust kernel *is* the unfused
+    association, on the exact pair that split the two on main.
+
+    This is the gate that bites if someone "fixes" the kernel by contracting
+    into a ``mul_add`` — the differential would then agree with an
+    FMA-contracted runner and disagree with every other one, silently
+    reintroducing platform-dependence at the SSOT.
+    """
+    unfused, _fma_xy, fma_yx = _norm2_associations(_WITNESS_DX, _WITNESS_DY)
+    assert unfused.hex() != fma_yx.hex(), "witness no longer separates the associations"
+
+    board = _board_from_traces(
+        [
+            ("HV", 0.0, 0.0, 0.0, 0.0),
+            ("LV", _WITNESS_DX, _WITNESS_DY, _WITNESS_DX, _WITNESS_DY),
+        ]
+    )
+    got = shim_min_clearance(board, {"HV": "HighVoltage", "LV": "Signal"})
+    assert got.hex() == unfused.hex(), (got.hex(), unfused.hex(), fma_yx.hex())
+    assert got.hex() != fma_yx.hex()
 
 
 def test_differential_random_stress():
