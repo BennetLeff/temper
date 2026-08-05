@@ -1,6 +1,32 @@
+"""``temper-placer trace`` — query and analyze placement decision traces.
+
+Wave-4 Phase-5 delegation shim: the decision-trace filtering compute of the
+``why`` and ``why_not`` commands — the subject filter and the nested
+alternative scan — is implemented in Rust in the ``temper-orchestration``
+crate (``temper_orchestration.filter_decisions`` /
+``temper_orchestration.find_rejected_alternative``), pinned bit-identically
+by ``tests/cli/test_trace_commands_rust_differential.py`` against the
+VERBATIM pre-migration oracle ``tests/cli/_trace_commands_py_oracle.py``.
+The click surface (flags, help, exit codes, output text) stays Python, and
+the comparisons that decide the filters stay Python value semantics — the
+Rust side calls back into Python for each leaf comparison (``dict.get``,
+``str()``, ``==``), so ``d.get("subject") == subject`` and
+``str(alt.get("value")) == value`` behave exactly as before, including the
+``AttributeError``/``TypeError`` failure modes.
+
+The ``report`` command stays entirely Python: it reconstructs
+``Decision``/``DecisionTrace`` objects (a ``temper_placer.core`` surface)
+and calls ``generate_markdown_report`` (a ``temper_placer.pipeline``
+surface) — both owned by other slices; there is no standalone compute here
+to migrate.
+"""
+
+from __future__ import annotations
+
 import json
 
 import click
+import temper_orchestration as _to
 
 
 @click.group()
@@ -17,14 +43,16 @@ def why(trace_file: str, subject: str):
     with open(trace_file) as f:
         data = json.load(f)
 
-    decisions = [d for d in data.get("decisions", []) if d.get("subject") == subject]
+    decisions = data.get("decisions", [])
+    matches = _to.filter_decisions(decisions, subject)
 
-    if not decisions:
+    if not matches:
         click.echo(f"No decisions found for {subject}")
         return
 
     click.echo(f"Decisions for {subject}:")
-    for d in decisions:
+    for i in matches:
+        d = decisions[i]
         click.echo(f"- [{d['phase']}] {d['decision_type']}: {d['value']}")
         click.echo(f"  Reason: {d['reason']}")
         if d.get("constraint_refs"):
@@ -40,16 +68,17 @@ def why_not(trace_file: str, subject: str, value: str):
     with open(trace_file) as f:
         data = json.load(f)
 
-    decisions = [d for d in data.get("decisions", []) if d.get("subject") == subject]
+    decisions = data.get("decisions", [])
+    hit = _to.find_rejected_alternative(decisions, subject, value)
 
-    for d in decisions:
-        for alt in d.get("alternatives_considered", []):
-            if str(alt.get("value")) == value:
-                click.echo(f"Rejected {value} for {subject}:")
-                click.echo(f"Rejection Reason: {alt['rejection_reason']}")
-                if alt.get("constraint_violated"):
-                    click.echo(f"Constraint Violated: {alt['constraint_violated']}")
-                return
+    if hit is not None:
+        di, ai = hit
+        alt = decisions[di]["alternatives_considered"][ai]
+        click.echo(f"Rejected {value} for {subject}:")
+        click.echo(f"Rejection Reason: {alt['rejection_reason']}")
+        if alt.get("constraint_violated"):
+            click.echo(f"Constraint Violated: {alt['constraint_violated']}")
+        return
 
     click.echo(f"Value {value} was not explicitly considered as an alternative for {subject}")
 

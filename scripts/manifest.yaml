@@ -1,11 +1,26 @@
 _meta:
   last_audit_date: '2026-08-02'
-  total_scripts: 102
+  total_scripts: 105
   counts:
-    keep: 102
+    keep: 105
     ticket: 0
   ticket_scripts_deleted: 40
 scripts:
+- path: phase5_cli_adapters_workflow_mutations.py
+  purpose: 'Wave-4 Phase-5 anti-vacuity mutation campaign driver for the cli/adapters/temper-workflow
+    slice (temper-orchestration crate): applies 11 one-line mutants to the Rust kernels, rebuilds, runs
+    the six differential/PBT suites expecting failure, reverts, and rebuilds from the reverted source
+    so the installed extension is always left correct. Two round-1 survivors were closed with discriminating
+    cases (recorded in packages/temper-orchestration/VERIFICATION.md).'
+  owner: wave4-migration
+  last_run: '2026-08-05'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - pathlib
+  - subprocess
+  - sys
 - path: add_power_planes.py
   purpose: Manually add power plane geometry to a KiCad PCB
   owner: unassigned
@@ -366,6 +381,24 @@ scripts:
   - re
   - sys
   - typing
+- path: check_hash_order_determinism.py
+  purpose: 'CI gate: fail on any NEW site under packages/*/src that records a PYTHONHASHSEED-chosen order
+    -- a set/frozenset iteration materialised, accumulated over, indexed, first-element-selected or appended
+    in a loop body, or a call to the salted hash() builtin outside __hash__. Six such sites shipped (issue
+    #752 defects 6 and 7; PR #730), producing component coordinates, a geometric waypoint and a report
+    order that differed between processes on identical input. Known sites are ratcheted in .hash-order-inventory;
+    a stale entry is a failure so paid-down debt must be recorded.'
+  owner: bennet
+  last_run: '2026-08-05'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - ast
+  - dataclasses
+  - pathlib
+  - sys
 - path: check_hv_netclass_coverage.py
   purpose: 'CI gate: assert every elec/domain_manifest.yaml HV-domain net has a TEMPER_NET_ASSIGNMENTS
     entry, and every declared netclass (TEMPER_NET_CLASSES union pcb/temper.kicad_pro-described classes,
@@ -703,6 +736,27 @@ scripts:
   - pathlib
   - subprocess
   - sys
+- path: check_test_baseline_writes.py
+  purpose: 'CI gate: fail closed when a test source writes a committed measurement artifact (baselines,
+    drc_ceiling.json, goldens, recorded metrics). Static half of the 2026-08-04 fix for test_update_baseline_yaml,
+    a maintenance routine named test_* that pytest collected on ordinary runs and that rewrote temper_production_baseline.yaml
+    via yaml.safe_dump -- stripping all ~235 comment lines including the ~200-line rationale header, and
+    leaving the rewrite for git add -A to commit. Complements the runtime guard in scripts/_lib/pytest_artifact_guard.py:
+    this half reads source, so it still fires when the offending test is deselected, unmarked or skipped
+    for a missing kicad-cli'
+  owner: bennet
+  last_run: '2026-08-04'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.protected_artifacts
+  - _lib.repo
+  - argparse
+  - ast
+  - dataclasses
+  - pathlib
+  - sys
 - path: check_traceability.py
   purpose: Verify @req() tags in code match plan requirements
   owner: pipeline
@@ -745,6 +799,7 @@ scripts:
   - re
   - subprocess
   - sys
+  - tempfile
 - path: check_undeclared_imports.py
   purpose: 'CI gate: fail when a module-level import in scripts/ or a Python test tree is not resolvable
     in the synced environment (undeclared third-party dependency) -- catches the jinja2/sympy class of
@@ -1496,6 +1551,29 @@ scripts:
   - pathlib
   - re
   - yaml
+- path: update_production_routing_baseline.py
+  purpose: Regenerate the router_v6_routing block of power_pcb_dataset/baselines/temper_production_baseline.yaml
+    -- the only writer of that file. Runs the routing measurement test with TEMPER_ROUTING_RECORD_OUT
+    pointed at a scratch path, then splices just that one block back in via _lib.yaml_block_patch so the
+    file's ~235 comment lines survive byte-for-byte. Replaces test_update_baseline_yaml, which did the
+    same job from inside pytest and destroyed the comments every run
+  owner: bennet
+  last_run: '2026-08-04'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - _lib.repo
+  - _lib.yaml_block_patch
+  - argparse
+  - datetime
+  - difflib
+  - json
+  - os
+  - pathlib
+  - subprocess
+  - sys
+  - tempfile
 - path: update_regression_cache.py
   purpose: Update .regression-cache.json from regression reports for incremental corpus regression
   owner: pipeline
@@ -1604,6 +1682,32 @@ scripts:
     the differentials it exercises run in CI.'
   owner: bennet
   last_run: '2026-08-05'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - pathlib
+  - subprocess
+  - sys
+- path: phase5_batch1_mutations.py
+  purpose: 'Wave-4 Phase-5 mutation campaign driver (deterministic grid_utils/via_placement): applies
+    each Rust-kernel mutant, rebuilds temper-geometry, runs the four Batch-1 suites, expects failure,
+    reverts. Reproducible anti-vacuity evidence.'
+  owner: wave4-migration
+  last_run: '2026-08-04'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - pathlib
+  - subprocess
+  - sys
+- path: phase5_batch2_mutations.py
+  purpose: 'Wave-4 Phase-5 mutation campaign driver (deterministic slot_generation/zone_geometry/zone_assignment):
+    applies each Rust-kernel mutant, rebuilds temper-design-bundle, runs the six Batch-2 suites, expects
+    failure, reverts. Reproducible anti-vacuity evidence.'
+  owner: wave4-migration
+  last_run: '2026-08-04'
   category: keep
   disposition: utility
   imports:

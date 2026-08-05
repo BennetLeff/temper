@@ -1,4 +1,4 @@
-<!-- provenance: commit=f28a5944bc29479fccc5aa193f587f7076aacbb9 dirty=false -->
+<!-- provenance: commit=367fcf2b566398d1878433eff672b85411c62178 dirty=false (re-pointed 2026-08-05: f28a5944bc29479fccc5aa193f587f7076aacbb9 was this change's pre-rebase original, orphaned by force-push; the change landed on main at 367fcf2b566398d1878433eff672b85411c62178 with the same subject, "feat(scripts): netlist<->board reconciliation oracle + mutation corpus") -->
 
 # Netlist-mutation corpus: wholesale-renumber proof
 

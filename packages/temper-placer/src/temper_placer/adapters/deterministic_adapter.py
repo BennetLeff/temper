@@ -3,6 +3,12 @@
 A single function ``wrap_deterministic_stage()`` creates a closure that
 translates ``StageInput.data`` (a ``BoardState``) → ``stage.run(state)`` →
 ``StageOutput(data=result)``.  The original stage is **not** modified.
+
+Wave-4 Phase-5 R3-style record (see ``packages/temper-orchestration/VERIFICATION.md``):
+``_WrappedDeterministicStage`` is a protocol-compat wrapper whose ``run()``
+calls the wrapped ``deterministic.stages.Stage`` (the ``deterministic/``
+slice owns the stages). Zero standalone compute; the wrapper is data plus one
+call-back.
 """
 
 from __future__ import annotations

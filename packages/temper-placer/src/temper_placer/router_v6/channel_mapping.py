@@ -379,12 +379,55 @@ def _extract_waypoints(
     if waypoints:
         return waypoints
 
-    # Fallback: use skeleton to generate path
+    # Fallback: use skeleton to generate path.
+    #
+    # Determinism: `list(graph.nodes())` is networkx *insertion* order, i.e.
+    # whichever nodes `extract_channel_skeleton` happened to emit first while
+    # walking the Voronoi output. Slicing that is not a property of the board
+    # geometry -- permuting node/edge insertion order on an otherwise identical
+    # 40-node graph changed this return value in 16/16 trials
+    # (docs/evidence/2026-08-04-networkx-path-order-spike.md §6, hazard H2).
+    # Coordinate order is used instead: it is a function of the geometry alone,
+    # and it is this module's own existing convention for the same problem
+    # (`fallback_channel_path` -> `sorted(pads)`, "deterministic coordinate
+    # order"; `expand_channel_path_terminals` -> `min(missing)`).
     if skeleton.graph.number_of_nodes() > 0:
-        nodes = list(skeleton.graph.nodes())
+        nodes = _skeleton_nodes_in_coordinate_order(skeleton)
         return nodes[: min(len(channel_sequence) + 1, len(nodes))]
 
     return []
+
+
+def _skeleton_nodes_in_coordinate_order(
+    skeleton: ChannelSkeleton,
+) -> list[tuple[float, float]]:
+    """Return the skeleton's nodes in ascending ``(x, y)`` order.
+
+    Skeleton nodes *are* coordinates (``ChannelSkeleton.graph``: "Nodes are
+    (x, y) positions"), so lexicographic tuple order is a total order derived
+    from the board geometry rather than from how the graph was built. Callers
+    that select nodes by position must use this instead of
+    ``list(graph.nodes())``, which yields networkx insertion order.
+    """
+    return sorted(skeleton.graph.nodes())
+
+
+def _nearest_skeleton_node(
+    coord: tuple[float, float],
+    skeleton: ChannelSkeleton,
+) -> tuple[float, float] | None:
+    """Return the skeleton node closest to ``coord``, or ``None`` if empty.
+
+    Ties are broken by the node's own coordinate, so the result depends only on
+    the node *set* and ``coord`` -- never on iteration or insertion order.
+    """
+    nodes = skeleton.graph.nodes()
+    if not nodes:
+        return None
+    return min(
+        nodes,
+        key=lambda n: ((n[0] - coord[0]) ** 2 + (n[1] - coord[1]) ** 2, n),
+    )
 
 
 def _is_near_skeleton(
@@ -413,7 +456,11 @@ def _parse_channel_coordinate(
     Attempts multiple strategies:
     1. Parse as "x_y" format (e.g., "10.5_20.3")
     2. Parse as "(x, y)" format
-    3. Find nearest skeleton node matching the ID
+    3. Snap a parsed-but-off-skeleton coordinate to the nearest skeleton node
+
+    A channel ID carrying no parseable coordinate yields ``None``: there is no
+    position to report, and this function's contract is to *parse* one, not to
+    invent one.
 
     Args:
         channel_id: Channel identifier
@@ -423,6 +470,7 @@ def _parse_channel_coordinate(
         (x, y) coordinate or None
     """
     # Strategy 1: Parse "x_y" format
+    parsed: tuple[float, float] | None = None
     if "_" in channel_id:
         parts = channel_id.split("_")
         # Try last two parts as coordinates
@@ -431,9 +479,9 @@ def _parse_channel_coordinate(
                 x = float(parts[-2])
                 y = float(parts[-1])
                 # Verify this coordinate is near a skeleton node
-                coord = (x, y)
-                if _is_near_skeleton(coord, skeleton, tolerance=5.0):
-                    return coord
+                parsed = (x, y)
+                if _is_near_skeleton(parsed, skeleton, tolerance=5.0):
+                    return parsed
             except ValueError:
                 pass
 
@@ -449,13 +497,30 @@ def _parse_channel_coordinate(
             except ValueError:
                 pass
 
-    # Strategy 3: Find closest skeleton node (if skeleton is small)
-    if skeleton.graph.number_of_nodes() <= 20:
-        # For small skeletons, use hash of channel_id to pick a node
-        nodes = list(skeleton.graph.nodes())
-        if nodes:
-            idx = hash(channel_id) % len(nodes)
-            return nodes[idx]
+    # Strategy 3: Find closest skeleton node (if skeleton is small).
+    #
+    # This used to read `idx = hash(channel_id) % len(nodes); return nodes[idx]`
+    # -- a *geometric coordinate* derived from CPython's per-process salted
+    # string hash, so the same channel ID resolved to a different physical
+    # (x, y) in every interpreter (12/12 fresh interpreters disagreed;
+    # docs/evidence/2026-08-04-networkx-path-order-spike.md §6, hazard H1).
+    #
+    # What it was trying to compute is stated by this function's own docstring
+    # and by the comment above the branch: "find closest skeleton node". That
+    # is only meaningful relative to a coordinate, and there is exactly one
+    # available -- the one strategy 1 parsed out of the ID and then discarded
+    # because it fell outside the 5 mm skeleton tolerance. Snapping *that* to
+    # the nearest node is the operation the code claimed to perform; a hash was
+    # never a stand-in for proximity, only for "any node at all".
+    #
+    # When no coordinate parsed, the result is None. That is strictly fewer
+    # invented waypoints than before, never more: every ID that now yields None
+    # previously yielded an arbitrary node, and no ID yields a coordinate that
+    # it did not previously yield one for. The `<= 20` size gate belonged to
+    # the hash hack (it bounded how arbitrary the pick could be) and is kept
+    # only so this fix cannot widen the set of inputs that produce a waypoint.
+    if parsed is not None and skeleton.graph.number_of_nodes() <= 20:
+        return _nearest_skeleton_node(parsed, skeleton)
 
     return None
 

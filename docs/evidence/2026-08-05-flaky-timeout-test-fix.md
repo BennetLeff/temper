@@ -1,4 +1,4 @@
-<!-- provenance: commit=197314aa658b9cded556bfd480683cbf5c1705c7 dirty=false -->
+<!-- provenance: commit=96fb58871c6d3951c70342784f9bcc07119bd7e1 dirty=false (re-pointed 2026-08-05: the cited 197314aa658b9cded556bfd480683cbf5c1705c7 was a pre-squash #699 branch commit, orphaned by force-push; the zombie-aware timeout probe fix landed at 96fb58871c6d3951c70342784f9bcc07119bd7e1 (#699), which is the cited commit) -->
 
 # Flaky grandchild-reap test — observation-semantics bug, not a helper leak or a tight deadline
 
