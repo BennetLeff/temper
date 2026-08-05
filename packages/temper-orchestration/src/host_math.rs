@@ -101,7 +101,17 @@ mod tests {
     #[test]
     fn pow_matches_python_libm_on_known_values() {
         // Values where x*x disagrees with libm pow (measured pre-migration).
-        let discriminator = 31.651289106463764_f64;
+        //
+        // PLATFORM SENSITIVITY (measured 2026-08-05): which inputs land on a
+        // pow-vs-multiply ulp boundary differs per libm. The pre-review
+        // discriminator 31.651289106463764 bites on darwin (pow ->
+        // 1001.8041021009517, hex 0x1.005edb92751c8p+9) but NOT on Ubuntu CI
+        // (glibc 2.39): there pow(31.65..., 2.0) == x*x == 1001.8041021009518.
+        // The value below was searched to bite on BOTH libms — verified on
+        // darwin arm64 (this machine) and in the CI container image
+        // ghcr.io/bennetleff/temper-ci (glibc 2.39), where it yields the SAME
+        // absolute value, so the assert holds on both without a cfg split.
+        let discriminator = 95.20693529967261_f64;
         // Rust's own x*x:
         let xx = discriminator * discriminator;
         // The host-libm pow (dlsym'd on Linux; the powf fallback, which is
@@ -109,8 +119,9 @@ mod tests {
         let p = pow(discriminator, 2.0);
         assert_ne!(p, xx, "discriminator lost its bite — pow now folds to multiply");
         // And it must match what CPython's math.pow gives for the same input
-        // (1.0018041021009517, hex 0x1.005edb92751c8p+9).
-        assert_eq!(p, 1001.8041021009517_f64);
+        // (9064.360529156045, hex 0x1.1b42e25d1c33cp+13) — the same value on
+        // darwin libm and glibc (see the platform-sensitivity note above).
+        assert_eq!(p, 9064.360529156045_f64);
     }
 
     #[test]

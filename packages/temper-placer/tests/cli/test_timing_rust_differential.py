@@ -55,8 +55,13 @@ Numerical traps pinned here:
   ``else`` arm.
 
 The differential domain is non-empty lists of ``float`` wall-clock values
-(the timing gate's ``individual_ms`` are floats; int inputs are outside the
-oracle's real domain and are not claimed).
+(the timing gate's ``individual_ms`` are floats). All-int and mixed
+int/float lists are ALSO pinned (``test_p95_all_int_inputs_preserve_int_type``):
+``round(int, 3)`` returns an int, and the shim writes the result into the
+YAML manifest where ``100`` and ``100.0`` render differently, so the Rust
+side must preserve the selected element's type exactly as the oracle does.
+Ints with ``|x| >= 2**53`` sort by their f64 approximation (the sort key
+was always f64); values of that magnitude are not claimed.
 """
 
 from __future__ import annotations
@@ -89,8 +94,9 @@ def _ref_compare_stage(
     return (delta_ms, delta_pct, effective_baseline, threshold_ms, passed)
 
 
-def _ref_p95(values: list[float]) -> float:
-    """Extracted from the oracle's ``wall_ms_p95`` expression."""
+def _ref_p95(values: list[float | int]) -> float | int:
+    """Extracted from the oracle's ``wall_ms_p95`` expression. The result
+    carries the selected element's type: round(int, 3) returns int."""
     return round(sorted(values)[int(len(values) * 0.95)], 3)
 
 
@@ -103,7 +109,7 @@ def _assert_stage_equal(baseline_ms, current_ms, margin, floor_ms) -> None:
     )
 
 
-def _assert_p95_equal(values: list[float]) -> None:
+def _assert_p95_equal(values: list[float | int]) -> None:
     ref = canon_call(_ref_p95, values)
     got = canon_call(RS_P95, values)
     assert ref == got, f"p95 mismatch for {values!r}\n  ref={ref}\n  got={got}"
@@ -211,6 +217,31 @@ def test_p95_decimal_rounding_discriminators():
     ]
     for values in cases:
         _assert_p95_equal(values)
+
+
+def test_p95_all_int_inputs_preserve_int_type():
+    """``round(int, 3)`` is the identity and returns an ``int`` — so an
+    all-int list must yield an int from the Rust side too, not a float (the
+    shim writes the result into the YAML manifest, where ``100`` vs
+    ``100.0`` render differently; review P2-6). Mixed lists follow the
+    ORACLE's rule: the type of the SELECTED element wins (e.g.
+    ``[1.5, 2.0, 3]`` selects int ``3`` -> int). ``canon`` carries the
+    concrete type on every leaf, so an int-vs-float drift cannot hide."""
+    cases = [
+        [1, 2, 3],
+        [10, 20, 30, 40],
+        list(range(1, 41)),
+        [5],
+        [0, 0, 0],
+        [100] * 7,
+        [1.5, 2.0, 3],
+        [1, 2, 3.5],
+        [1.0, 2, 3.0],
+    ]
+    for values in cases:
+        ref = canon_call(_ref_p95, values)
+        got = canon_call(RS_P95, values)
+        assert ref == got, f"p95 type mismatch for {values!r}\n  ref={ref}\n  got={got}"
 
 
 def test_p95_index_boundaries():

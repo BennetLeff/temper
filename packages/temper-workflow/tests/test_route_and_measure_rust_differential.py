@@ -42,8 +42,10 @@ and compared against the oracle extraction's full dict result.
 
 from __future__ import annotations
 
+import ast
 import math
 import random
+from pathlib import Path
 
 import pytest
 import temper_orchestration as _to
@@ -209,12 +211,20 @@ def test_measure_pow_vs_multiply_discriminators():
     trusted (review 2026-08-05: the original 4th case,
     ``(10.5, -3.25, 73.76269374144761, 20.182844750239716)``, was inert —
     its ``dx**2 + dy**2`` is bit-identical under pow and multiply — and was
-    replaced by a searched successor)."""
+    replaced by a searched successor).
+
+    PLATFORM SENSITIVITY (measured 2026-08-05): which deltas land on a
+    pow-vs-multiply ulp boundary differs per libm — the first pass-1
+    replacement set discriminated on darwin arm64 but 3 of 4 cases were
+    INERT under Ubuntu CI (glibc 2.39, where ``pow(x, 2.0) == x*x`` for the
+    vast majority of inputs). The four cases below were searched to bite on
+    BOTH libms and re-verified byte-for-byte in the CI container image
+    (ghcr.io/bennetleff/temper-ci, glibc 2.39) and on darwin arm64."""
     discriminators = [
-        (0.0, 0.0, 19.502714311008788, 77.77522467438322),
-        (0.0, 0.0, 63.25882713708185, 96.53268856857747),
-        (0.0, 0.0, -5.007201717971483, -65.13159001325664),
-        (-11.159781888653413, 4.398313061261025, 41.20432400134166, 92.12326230306232),
+        (0.0, 0.0, -3.010339879465036, 85.07267329996083),
+        (0.0, 0.0, 74.57706610826827, -64.2240147754797),
+        (0.0, 0.0, -86.86344329292469, 28.2567162727683),
+        (0.0, 0.0, -58.551909623376815, 77.34303627891697),
     ]
     for sx, sy, ex, ey in discriminators:
         dx, dy = ex - sx, ey - sy
@@ -255,3 +265,38 @@ def test_measure_net_count_boundaries(n):
     """Single-net accumulation across lengths — the dict/vec grows 1..n."""
     segments = [("ONENET", float(i), 0.0, float(i + 1), 0.0) for i in range(n)]
     _assert_segments_equal(segments, n)
+
+
+def test_discriminator_tests_are_collectable():
+    """Anti-drift pin for the pytest_guard floors (review P2-1, 2026-08-05).
+
+    The Phase-5 anti-vacuity gates run with ``--min-tests`` floors set to the
+    EXACT collection counts (cli 63, workflow 32). A single deleted test is
+    therefore caught by the floor — but a deletion *paired with a matching
+    floor lowering* would pass silently. The two load-bearing discriminator
+    tests are pinned by symbol here: the M10 pow-vs-multiply cases (this
+    module) and the p95 decimal-rounding cases (the cli timing differential,
+    addressed across the package boundary by path). Removing either fails
+    loudly instead of letting the pin shrink.
+    """
+    module = Path(__file__).resolve()
+    cli_module = (
+        module.parents[2]
+        / "temper-placer"
+        / "tests"
+        / "cli"
+        / "test_timing_rust_differential.py"
+    )
+    for path, expected in [
+        (module, {"test_measure_pow_vs_multiply_discriminators"}),
+        (cli_module, {"test_p95_decimal_rounding_discriminators"}),
+    ]:
+        assert path.exists(), f"differential module missing: {path}"
+        tree = ast.parse(path.read_text(encoding="utf-8"))
+        names = {node.name for node in ast.walk(tree) if isinstance(node, ast.FunctionDef)}
+        for name in expected:
+            assert name in names, (
+                f"{path.name} no longer defines {name} — the M10/p95 "
+                "discriminator is load-bearing for the anti-vacuity gates; "
+                "re-raise the pytest_guard floor instead of deleting it"
+            )

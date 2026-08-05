@@ -102,25 +102,30 @@ MUTATIONS = [
         "packages/temper-orchestration/src/timing.rs",
         """    let builtins = py.import("builtins")?;
     let rounded = builtins.getattr("round")?.call1((selected, 3))?;
-    rounded.extract::<f64>()""",
+    Ok(rounded.unbind())""",
         """    let _ = py.import("builtins")?;
-    Ok((*selected * 1000.0).round() / 1000.0)""",
+    let selected_f = selected.extract::<f64>(py)?;
+    Ok(pyo3::types::PyFloat::new(py, (selected_f * 1000.0).round() / 1000.0)
+        .into_any()
+        .unbind())""",
     ),
     (
         "M6 p95: f64 total-order sort (total_cmp) instead of py_cmp (NaN/-0.0 placement)",
         "packages/temper-orchestration/src/timing.rs",
-        "values.sort_by(py_cmp);",
-        "values.sort_by(f64::total_cmp);",
+        "pairs.sort_by(|a, b| py_cmp(&a.0, &b.0));",
+        "pairs.sort_by(|a, b| a.0.total_cmp(&b.0));",
     ),
     (
         "M7 p95: empty list returns 0.0 instead of IndexError",
         "packages/temper-orchestration/src/timing.rs",
-        """    let selected = values
+        """    let (_, selected) = pairs
         .get(idx)
         .ok_or_else(|| PyIndexError::new_err("list index out of range"))?;""",
-        """    let selected = match values.get(idx) {
-        Some(v) => *v,
-        None => return Ok(0.0),
+        """    let (_, selected) = match pairs.get(idx) {
+        Some(v) => v,
+        None => {
+            return Ok(pyo3::types::PyFloat::new(py, 0.0).into_any().unbind())
+        }
     };""",
     ),
     (

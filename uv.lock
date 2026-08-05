@@ -1583,6 +1583,7 @@ dependencies = [
     { name = "rich" },
     { name = "scipy" },
     { name = "shapely" },
+    { name = "temper-orchestration" },
     { name = "tqdm" },
     { name = "websockets" },
 ]
@@ -1631,6 +1632,7 @@ requires-dist = [
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.1.6" },
     { name = "scipy", specifier = ">=1.10.0" },
     { name = "shapely", specifier = ">=2.1.2" },
+    { name = "temper-orchestration", editable = "packages/temper-orchestration" },
     { name = "tqdm", specifier = ">=4.67.1" },
     { name = "websockets", specifier = ">=12.0" },
 ]

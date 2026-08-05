@@ -23,6 +23,12 @@
 //   non-NaN operand).
 // - `baseline_ms > 0` guards the division, so zero/-0.0/NaN baselines land
 //   in the `else` arm (delta_pct == 0.0) and the division never executes.
+// - The p95 result carries the SELECTED element's Python type: the oracle
+//   `round(sorted(values)[...], 3)` returns an int when the selected element
+//   is an int (round on an int is the identity), and the shim writes the
+//   result into the YAML manifest where `100` and `100.0` render
+//   differently. `p95` therefore carries each element as its original
+//   Python object and hands the selected one to Python's `round`.
 
 use pyo3::exceptions::PyIndexError;
 use pyo3::prelude::*;
@@ -83,20 +89,33 @@ pub fn compare_stage(
 ///
 /// The sort and index selection are Rust; the final decimal rounding calls
 /// Python's `round` (bit-identical by identity — decimal round-half-to-even
-/// is a CPython library semantic, not a double multiply-divide). An empty
-/// list raises `IndexError` exactly like the bare expression; the
+/// is a CPython library semantic, not a double multiply-divide). Each
+/// element is carried as its original Python object alongside its f64
+/// value, so `round` receives the SELECTED element with its original type:
+/// an all-int list yields an int exactly like the oracle (the shim writes
+/// the result into the YAML manifest, where `100` vs `100.0` render
+/// differently). Values with |x| >= 2^53 sort by their f64 approximation —
+/// the same boundary the pre-migration `Vec<f64>` extraction had; arbitrary
+/// ints of that magnitude are outside the differential's claimed domain.
+/// An empty list raises `IndexError` exactly like the bare expression; the
 /// `timing_tighten` call site's `else 0.0` guard for empty qualifying runs
 /// lives in the Python shim, not here.
 #[pyfunction]
-pub fn p95(py: Python<'_>, mut values: Vec<f64>) -> PyResult<f64> {
-    values.sort_by(py_cmp);
-    let idx = (values.len() as f64 * 0.95) as usize;
-    let selected = values
+pub fn p95(py: Python<'_>, values: &Bound<'_, PyAny>) -> PyResult<Py<PyAny>> {
+    let mut pairs: Vec<(f64, Py<PyAny>)> = Vec::new();
+    for item in values.try_iter()? {
+        let item = item?;
+        let f = item.extract::<f64>()?;
+        pairs.push((f, item.unbind()));
+    }
+    pairs.sort_by(|a, b| py_cmp(&a.0, &b.0));
+    let idx = (pairs.len() as f64 * 0.95) as usize;
+    let (_, selected) = pairs
         .get(idx)
         .ok_or_else(|| PyIndexError::new_err("list index out of range"))?;
     let builtins = py.import("builtins")?;
     let rounded = builtins.getattr("round")?.call1((selected, 3))?;
-    rounded.extract::<f64>()
+    Ok(rounded.unbind())
 }
 
 #[cfg(test)]

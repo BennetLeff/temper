@@ -98,7 +98,13 @@ each pinned by measurement or by identity:
    mode-1 decimal round-half-to-even — measured 494/2M mismatches vs
    `(x * 1000).round() / 1000` on uniform samples plus every exact `.xxx5`
    tick. `p95` therefore calls Python's `round` for the final step
-   (bit-identical by identity); the sort and index selection are Rust.
+   (bit-identical by identity); the sort and index selection are Rust. The
+   selected element is handed to `round` as its ORIGINAL Python object, so
+   the result carries its type (int in → int out, exactly like the oracle —
+   review P2-6: the shim writes the result into the YAML manifest, where
+   `100` vs `100.0` render differently). Elements with `|x| >= 2**53` sort
+   by their f64 approximation (the pre-migration extraction had the same
+   boundary; not claimed).
 2. **Stable `<`-sort (p95).** CPython `sorted()` on floats is a stable sort
    under `<`, where `-0.0 < 0.0` is False and every NaN comparison is
    False. `py_cmp` maps non-comparable pairs to `Equal`, reproducing
@@ -158,9 +164,9 @@ not part of the kernel contract — pinned as such by the differential).
 
 | Suite | Location | Count |
 |---|---|---|
-| timing differential | `packages/temper-placer/tests/cli/test_timing_rust_differential.py` | 13 |
+| timing differential | `packages/temper-placer/tests/cli/test_timing_rust_differential.py` | 14 |
 | trace_commands differential (incl. CLI-surface A/B) | `packages/temper-placer/tests/cli/test_trace_commands_rust_differential.py` | 18 |
-| route_and_measure differential | `packages/temper-workflow/tests/test_route_and_measure_rust_differential.py` | 18 |
+| route_and_measure differential | `packages/temper-workflow/tests/test_route_and_measure_rust_differential.py` | 19 |
 | timing PBT (+G4 mutants) | `packages/temper-placer/tests/cli/test_timing_pbt.py` | 16 |
 | trace_commands PBT (+G4 mutants) | `packages/temper-placer/tests/cli/test_trace_commands_pbt.py` | 15 |
 | route_and_measure PBT (+G4 mutants) | `packages/temper-workflow/tests/test_route_and_measure_pbt.py` | 13 |
@@ -172,6 +178,28 @@ Oracles (VERBATIM pre-migration copies, byte-verified):
 its header) so it is importable from the test tree; the trace oracle had no
 module docstring and gains one; everything else is byte-identical to the
 pinned commit (origin/main `15110fecc`).
+
+### Oracle drift — status and named follow-up (review P2-2, 2026-08-05)
+
+- **(a) The byte-identity claim above is a ONE-TIME verification**, performed
+  at migration time against the pinned commit. Nothing in CI re-checks that
+  a `_*_py_oracle.py` file still matches the module it was copied from, so a
+  future edit to either side can silently invalidate the claim.
+- **(b) Named follow-up (program-level decision, NOT built here):** a
+  committed content-hash gate for the `_*_py_oracle.py` files — e.g. a
+  checksum manifest checked by CI (`check_vacuous_gates`-style) that fails
+  when an oracle file changes without an accompanying
+  re-verification-and-repin step. This requires a new CI gate, which is a
+  program decision (the same class of decision as adding any gate), so it is
+  recorded here rather than built in this PR.
+- **(c) Current pin:** the oracles are pinned against the pre-migration
+  module versions at origin/main `15110fecc` (the dispatch base this slice
+  rebased onto). Byte-verified 2026-08-05 on this branch: each oracle was
+  diffed against `git show 15110fecc:<module>` and differs ONLY by its
+  documented header/import rewrites (the timing oracle's docstring +
+  relative-import rewrite; the trace oracle's added docstring + two leading
+  blank lines; the ram oracle's docstring replacement) — every other
+  statement is byte-identical.
 
 ## Mutation campaign (anti-vacuity)
 
@@ -191,7 +219,7 @@ the installed extension is always left correct.
 | M7 | p95 | empty list returns 0.0 | differential (IndexError parity) |
 | M8 | filter_decisions | `d["subject"]` instead of `d.get("subject")` | differential (missing-key None semantics) |
 | M9 | find_rejected | dropped the subject check | differential (first-match subject scope) |
-| M10 | copper_length | `dx*dx` instead of libm `pow` | differential — **survived round 1**; closed by adding full-precision discriminating segments (`test_measure_pow_vs_multiply_discriminators` — 4 cases, each asserted to genuinely discriminate pow-vs-multiply; the original 4th case was found inert in review 2026-08-05 and replaced by a searched successor); killed round 2 |
+| M10 | copper_length | `dx*dx` instead of libm `pow` | differential — **survived round 1**; closed by adding full-precision discriminating segments (`test_measure_pow_vs_multiply_discriminators` — 4 cases, each asserted to genuinely discriminate pow-vs-multiply; the original 4th case was found inert in review 2026-08-05 and replaced by a searched successor; review 2026-08-05 round 2 found 3 of the 4 successors ALSO inert under Ubuntu CI — glibc 2.39 — where `pow(x, 2.0) == x*x` for most inputs, so the cases were re-searched to bite on BOTH darwin and glibc and re-verified byte-for-byte in the CI container); killed round 2 |
 | M11 | copper_length | empty-string nets pass through | differential (falsy-net skip) |
 
 M10 is the campaign's honest survivor-turned-kill: the initial randomized
@@ -205,7 +233,7 @@ test that must fail).
 
 ## R1 gate status
 
-- **R1a** — bit-identical differentials vs verbatim oracles: green (49
+- **R1a** — bit-identical differentials vs verbatim oracles: green (51
   differential assertions across 3 modules; floats via `float.hex()`, type
   carried on every leaf, error parity via `canon_call`).
 - **R1b** — performance/no-regression arm: the migrated compute is invoked
