@@ -1997,3 +1997,145 @@ the failure path.
   `tests/io/test_loop_loader.py`, `tests/core/test_design_rules_field_parity.py`,
   `tests/router_v6/test_layer_assignment_ssot.py`,
   `tests/router_v6/test_phase1_anti_false_zero.py`.
+# Manufacturing tolerance model — Verification
+
+The manufacturing tolerance model (`src/manufacturing_tolerances.rs`) is the
+Wave 4 Phase 4 leftovers slice's first migration: two plain `Enum`s
+(`CopperWeight`, `LayerType`), two dataclasses (`ToleranceTable`,
+`FeatureTolerance`) and the `ToleranceAnalyzer` with its two closed-form
+analysis methods, ported from
+`temper_placer/manufacturing/tolerances.py` (the Python module is now a
+pure-delegation re-export of the `temper_design_bundle_python` pyclasses).
+
+## Induction applicability
+
+**Mathematical induction is not applicable to this module.** None of its
+functions are recursive, and none iterate over a dimension whose
+correctness depends on a size parameter:
+
+- `ToleranceAnalyzer::analyze_clearance` / `analyze_trace` are two closed-form
+  arithmetic expressions (`2 * etch + reg`, `width ± etch`) with a constant
+  table lookup — no loop, no recursion.
+- The enum value-construction `#[new]`s scan a fixed 2-3 member candidate
+  list — constant, not size-parameterized.
+- `ToleranceTable`'s default dicts are built with a fixed 2-3 item sequence.
+
+The module is data-only plus closed-form arithmetic. Per the plan's R1e, a
+**structural proof** is recorded instead.
+
+## Structural proof
+
+**Claim (bit-identical parity).** For every public symbol, the pyclass
+behaviour is bit-identical to the pinned pre-migration Python
+implementation (`packages/temper-placer/tests/manufacturing/_tolerances_py_oracle.py`,
+commit `6290942be`).
+
+*Proof by structural cases.*
+
+1. **Enum members (`CopperWeight`, `LayerType`).** Both sides expose the
+   same closed member sets with the same values (floats `0.5/1.0/2.0`,
+   strs `"outer"/"inner"`), the same `str(member)` (`"CopperWeight.HALF_OZ"`
+   — plain Enum, NOT bare-value IntEnum), the same `repr(member)`
+   (`<CopperWeight.HALF_OZ: 0.5>` / `<LayerType.OUTER: 'outer'>`, values
+   rendered by the CPython `repr(float)`/`repr(str)` rules), and the same
+   `Cls(value)` construction. Value construction compares with CPython's own
+   `==` (via `PyObject_RichCompareBool`), so `CopperWeight(1)` resolves to
+   the `1.0` member exactly as Python's Enum does; the invalid-value
+   `ValueError` text is byte-identical because it renders the *original*
+   object with CPython `repr` (`999 is not a valid CopperWeight` for an int,
+   `'x' is not a valid LayerType` for a str — the repr carries the quotes a
+   str value needs). IEEE-754 and CPython repr rendering are both
+   deterministic, so each member's surface matches bit-for-bit. Members are
+   hashable/eq (`#[pyclass(frozen, eq, hash)]`), so dict-key usage — the
+   load-bearing consumer behaviour — works identically.
+
+2. **`ToleranceTable`.** The `etch_tolerance`/`registration` dicts are real
+   Python dicts (the default factories build exactly the oracle's
+   `default_factory` entries, keyed by the pyclass enum members), so
+   lookup, insertion order and repr are CPython's own. The dataclass
+   constructor signature, the `solder_mask_registration` default `0.075`,
+   the repr, and the three-field equality all match the oracle.
+
+3. **`ToleranceAnalyzer::analyze_clearance` / `analyze_trace`.** The dict
+   lookup is CPython's own `dict.get` (via `PyDict::get_item`), so a missing
+   key returns the oracle's fallback constants (`0.05` etch, `0.1`
+   registration) and an unhashable key raises CPython's own
+   `TypeError: unhashable type: 'X'`. The arithmetic is transcribed
+   verbatim with the oracle's parenthesization (`2 * etch + reg` — IEEE-754
+   left-associative — and `width ± etch`); IEEE-754 basic operations are
+   deterministic, so every field of the returned `FeatureTolerance` is
+   bit-identical. `feature_type` strings are the oracle's literals.
+
+4. **`FeatureTolerance`.** Six fields, dataclass equality, dataclass repr
+   with CPython str/float rendering — all match.
+
+## Evidence
+
+- Differential (R1a/R1f, TDD red→green):
+  `packages/temper-placer/tests/manufacturing/test_tolerances_rust_differential.py`
+  (23 assertions; the RED state was demonstrated: the file fails to collect
+  with `AttributeError: module 'temper_design_bundle_python' has no
+  attribute 'CopperWeight'` before the Rust pyclasses landed).
+- PBT (R1c): `test_tolerances_pbt.py` — 10 hypothesis properties
+  (P1/P2/P3/P4/P5/P5b/P6/P6b/P7 + MR1-MR4), each fail-capable.
+- Metamorphic (R1d): `test_tolerances_pbt.py` — MR1 (enum
+  value-construction commutativity), MR2 (dict insertion-order permutation
+  invariance), MR3 (fallback ≡ explicit default), MR4 (etch monotonicity).
+- Anti-vacuity: 11 mutants, all caught by the differential/PBT suites:
+  etch fallback `0.05→0.06`, registration fallback `0.1→0.2`, `2*etch+reg →
+  etch+reg`, clearance `worst_case_min −→ +`, trace `width−etch → width+etch`,
+  trace `worst_case_max → nominal`, default etch `0.025→0.02`, default
+  registration `0.1→0.01`, enum value `0.5→0.4`, `feature_type`
+  `"clearance"→"trace_width"`, dict-miss fallback `→0.0`.
+- Rust unit tests: `manufacturing_tolerances.rs::py_repr_tests` — the
+  CPython str/float repr divergence classes (B9/B10) for the values that
+  appear in this module's reprs.
+- Rust practices (R1g): borrow over clone throughout; no `unwrap`/`expect`
+  in non-test code; `cargo clippy --release --features python` clean (0
+  warnings).
+- Performance A/B (R1b): this is a pure-data contract migration with no
+  compute kernel — the two analysis methods are O(1) closed-form arithmetic.
+  Per the plan's R2 this is the **"no regression beyond noise"** comparison:
+  the migrated analyzer is a pyo3 method call on the same Python dicts the
+  oracle used, so there is no measurable kernel to benchmark; no speedup is
+  claimed. (No `perf_ab` registration: the surface has no production hot
+  path — the only consumers are the tests and the
+  `manufacturing/__init__.py` re-export.)
+- R1h (physics discipline): NOT APPLICABLE. Tolerance analysis is
+  uncertainty/probability compute in the *domain* sense (etch/registration
+  variability), but none of it gates a CP-SAT constraint on a physics
+  quantity: no constraint is encoded, no post-solve audit has a referent,
+  and the R24 Chebyshev/BMC/post-solve obligations do not apply. The
+  R1h determination is recorded per module: `tolerances.py` — N/A (no
+  physics-gated constraint); `monte_carlo.py` — see the JUSTIFIED-KEEP
+  record in the Phase 4 leftovers PR (numpy RNG + numpy reductions).
+
+## Documented deviations (per R1, recorded here)
+
+1. **Enum singleton identity.** Python's `Enum` returns a *cached singleton*
+   from `Cls(value)` (`CopperWeight(1.0) is CopperWeight.ONE_OZ` is True);
+   the pyo3 pyclass constructs a fresh instance per call (attribute access
+   `CopperWeight.ONE_OZ` is still identity-stable — pyo3 caches the class
+   attribute). eq/hash — the load-bearing dict-key contract — are
+   unaffected (`d[CopperWeight(1.0)]` resolves). No in-repo consumer relies
+   on `is` identity of constructor results (verified 2026-08-04: consumers
+   use members as dict keys or pass them through the analyzer).
+2. **Class-level Enum iteration** (`for m in CopperWeight:`) is unavailable
+   on pyo3 enums (no metaclass hook); `getattr`-based access covers every
+   member in the differential suite. No consumer iterates these enums at
+   class level.
+3. **`ToleranceAnalyzer()` default table is per-instance.** The Python
+   oracle evaluates `table: ToleranceTable = ToleranceTable()` once at
+   definition time and shares that instance across all default analyzers;
+   the pyclass builds a fresh default per instance. The shared-instance
+   behaviour is unobservable — no consumer mutates the table — so it is not
+   covered by the differential.
+4. **Non-numeric dict values.** A dict value that is not a float raises a
+   pyo3 `TypeError` from the f64 extraction where the oracle's arithmetic
+   would raise a different-text `TypeError`. The oracle itself is broken on
+   such input; the differential does not cover it.
+5. **`CopperWeight(True)`.** Python's Enum resolves `True` to the `1.0`
+   member (`True == 1.0`); the pyclass `#[new]` receives the bool and
+   CPython's `==` compares it against the float candidates — this path is
+   covered by the same rich-compare, so it matches. No consumer relies on
+   it.

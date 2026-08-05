@@ -27,6 +27,8 @@ mod reference_loader;
 
 #[cfg(feature = "python")]
 mod parse_engine;
+#[cfg(feature = "python")]
+mod manufacturing_tolerances;
 
 #[cfg(feature = "python")]
 mod loaders;
@@ -240,6 +242,11 @@ mod python {
             module
         )?)?;
         crate::parse_engine::register(module)?;
+
+        // Wave 4 Phase 4 leftovers slice: the manufacturing tolerance model
+        // ported from temper_placer/manufacturing/tolerances.py (see
+        // manufacturing_tolerances.rs).
+        crate::manufacturing_tolerances::register(module)?;
 
         // Wave 4 Phase 3 candidate 2: the YAML loaders ported from
         // temper_placer/io/netclass_loader.py and
