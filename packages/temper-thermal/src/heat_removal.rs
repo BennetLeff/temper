@@ -127,8 +127,15 @@ fn checked_int_ceil(v: f64) -> Result<i64, BuildHFieldError> {
 ///
 /// Returns [`BuildHFieldError`] for the same degenerate inputs that make
 /// the reference raise: NaN or ±inf values reaching the int conversions
-/// (NaN centroids/origin, ±inf centroids), or `cs == 0.0` (the
-/// reference's 0.0/0.0 background division raises first).
+/// (NaN centroids/origin, ±inf centroids), or a `cs` whose background
+/// division is 0.0/0.0 — `cs == 0.0` AND the whole subnormal underflow
+/// band where `cs * cs` rounds to 0.0 (|cs| ≲ 2.2e-162, e.g. 5e-324 or
+/// 1e-200) raise the reference's ZeroDivisionError first.  Non-finite
+/// `cs` deliberately does NOT raise: CPython `inf/inf` and `nan/nan`
+/// return NaN without raising, and the oracle returns an all-NaN field
+/// (or raises ValueError from the NaN int conversions with devices) —
+/// both already replicated downstream, so an `!cs.is_finite()` guard
+/// here would break that parity (measured 2026-08-04).
 ///
 /// # Arguments
 ///
@@ -163,8 +170,16 @@ pub fn build_h_field(
     // `h_bg = (10.0 * cell_area_m2) / (cs * cs)` — with cs == 0.0 the
     // reference's CPython float division is 0.0/0.0 → ZeroDivisionError,
     // raised before any per-device arithmetic.  Rust IEEE division would
-    // silently produce NaN; replicate the reference's raise.
-    if cs == 0.0 {
+    // silently produce NaN; replicate the reference's raise.  The SAME
+    // raise fires for the whole subnormal underflow band: when `cs*cs`
+    // rounds to 0.0 (|cs| ≲ 2.2e-162 — cs=5e-324 and cs=1e-200 both
+    // underflow, and the numerator `10.0 * (cs*1e-3)**2` underflows to
+    // 0.0 too) the reference's division is still 0.0/0.0 →
+    // ZeroDivisionError, while IEEE division yields NaN.  This guard
+    // catches the whole band.  Non-finite cs is intentionally NOT
+    // guarded: CPython returns NaN for inf/inf and nan/nan without
+    // raising (see the docstring above — parity, measured 2026-08-04).
+    if cs == 0.0 || cs * cs == 0.0 {
         return Err(BuildHFieldError::DivisionByZero);
     }
 
@@ -388,6 +403,39 @@ mod tests {
         assert_eq!(
             build_h_field(0.0, 0.0, 0.0, 4, 4, &[], &[], &[], &[]),
             Err(BuildHFieldError::DivisionByZero)
+        );
+    }
+
+    #[test]
+    fn subnormal_underflow_band_raises_division_by_zero() {
+        // cs*cs rounds to 0.0 for the subnormal band (|cs| ≲ 2.2e-162) —
+        // the reference's 0.0/0.0 background division raises
+        // ZeroDivisionError there too, even with no devices; the kernel
+        // must NOT return an all-NaN field (pass 2 P1: was all-NaN).
+        for cs in [5e-324f64, 1e-200f64, 1e-162f64, -5e-324f64] {
+            assert_eq!(
+                build_h_field(cs, 0.0, 0.0, 4, 4, &[], &[], &[], &[]),
+                Err(BuildHFieldError::DivisionByZero),
+                "cs={cs:e} must raise DivisionByZero"
+            );
+            assert_eq!(
+                build_h_field(cs, 0.0, 0.0, 4, 4, &[1.0], &[1.0], &[0.25], &[1.0]),
+                Err(BuildHFieldError::DivisionByZero),
+                "cs={cs:e} with a device must raise DivisionByZero"
+            );
+        }
+        // Non-finite cs does NOT raise (CPython inf/inf and nan/nan are
+        // NaN without an exception — the oracle returns an all-NaN
+        // field for an empty device set).
+        for cs in [f64::INFINITY, f64::NAN] {
+            let f = build_h_field(cs, 0.0, 0.0, 4, 4, &[], &[], &[], &[]);
+            assert!(f.is_ok(), "cs={cs:?} must NOT raise (NaN field, like the oracle)");
+            assert!(f.unwrap().iter().all(|v| v.is_nan()));
+        }
+        // The band boundary: cs*cs stays nonzero just above it → no raise.
+        assert_eq!(
+            build_h_field(1e-100, 0.0, 0.0, 4, 4, &[], &[], &[], &[]),
+            Ok(vec![1.0000000000000003e-05; 16])
         );
     }
 }

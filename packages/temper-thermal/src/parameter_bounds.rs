@@ -42,6 +42,8 @@
 #[cfg(feature = "python")]
 use pyo3::prelude::*;
 #[cfg(feature = "python")]
+use pyo3::types::{PyAny, PyString};
+#[cfg(feature = "python")]
 use temper_py_bridge;
 
 /// Classify a swept parameter into a monotonicity direction (+1 / −1 /
@@ -108,23 +110,49 @@ pub fn classify_parameter(param_name: &str, source_because: &str) -> (i64, Strin
 /// Per-bound worst-case corner values.  Mirrors
 /// `ParameterBound.worst_case_value` verbatim: mono > 0 → max,
 /// mono < 0 → min, mono == 0 → max (conservative, not a guarantee).
-pub fn worst_case_values(mins: &[f64], maxs: &[f64], monos: &[i64]) -> Vec<f64> {
+/// `monos` are `f64` — the reference's `b.monotonicity > 0` comparison
+/// accepts ANY comparable (ints, floats, bools, numpy scalars all
+/// coerce; pass 2 P2: the previous `i64` bridge raised TypeError for a
+/// float monotonicity the oracle arithmetic accepted).
+pub fn worst_case_values(mins: &[f64], maxs: &[f64], monos: &[f64]) -> Vec<f64> {
     mins.iter()
         .zip(maxs.iter())
         .zip(monos.iter())
-        .map(|((&min, &max), &mono)| if mono < 0 { min } else { max })
+        .map(|((&min, &max), &mono)| if mono < 0.0 { min } else { max })
         .collect()
 }
 
 /// pyo3 bridge for [`classify_parameter`].
+///
+/// `param_name` is accepted as any Python object: the reference calls
+/// `parameter.lower()`, which raises `AttributeError("'<type>' object
+/// has no attribute 'lower'")` for ANY non-str — NOT the TypeError a
+/// `String` extraction would produce (pass 2 P2).  The bridge
+/// replicates the reference's class AND message (via the object's
+/// type name, e.g. `'NoneType'`, `'int'`, `'list'`).
+///
+/// `source_because` stays narrowed to `str` (documented deviation):
+/// the reference passes ANY object through as the `unit` for matched
+/// parameters (`None` included); the prereg manifests always carry a
+/// str and the shim always passes one, so this only affects direct
+/// kernel callers — recorded, not widened.
 #[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (param_name, source_because))]
 pub fn classify_parameter_py(
-    param_name: String,
+    param_name: Bound<'_, PyAny>,
     source_because: String,
 ) -> PyResult<(i64, String, String)> {
-    temper_py_bridge::catch_unwind(|| classify_parameter(&param_name, &source_because))
+    use pyo3::exceptions::PyAttributeError;
+    use pyo3::types::PyAnyMethods;
+    if !param_name.is_instance_of::<PyString>() {
+        let ty = param_name.get_type().name()?;
+        return Err(PyAttributeError::new_err(format!(
+            "'{ty}' object has no attribute 'lower'"
+        )));
+    }
+    let name: String = param_name.extract()?;
+    temper_py_bridge::catch_unwind(|| classify_parameter(&name, &source_because))
         .map_err(temper_py_bridge::panic_to_err)
 }
 
@@ -135,7 +163,7 @@ pub fn classify_parameter_py(
 pub fn worst_case_values_py(
     mins: Vec<f64>,
     maxs: Vec<f64>,
-    monos: Vec<i64>,
+    monos: Vec<f64>,
 ) -> PyResult<Vec<f64>> {
     temper_py_bridge::catch_unwind(|| worst_case_values(&mins, &maxs, &monos))
         .map_err(temper_py_bridge::panic_to_err)
@@ -195,7 +223,13 @@ mod tests {
 
     #[test]
     fn worst_case_selection() {
-        let v = worst_case_values(&[1.0, 2.0, 3.0], &[10.0, 20.0, 30.0], &[1, -1, 0]);
+        let v = worst_case_values(&[1.0, 2.0, 3.0], &[10.0, 20.0, 30.0], &[1.0, -1.0, 0.0]);
         assert_eq!(v, vec![10.0, 2.0, 30.0]);
+        // f64 monos match the reference's `b.monotonicity > 0` (any
+        // comparable coerces — floats/bools; pass 2 P2).
+        let v = worst_case_values(&[1.0], &[10.0], &[1.5]);
+        assert_eq!(v, vec![10.0]);
+        let v = worst_case_values(&[1.0], &[10.0], &[-0.5]);
+        assert_eq!(v, vec![1.0]);
     }
 }

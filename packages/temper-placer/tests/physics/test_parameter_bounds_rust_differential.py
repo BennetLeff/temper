@@ -153,12 +153,42 @@ def test_direct_classify_randomized(seed):
         assert (mono, unit, because) == (w_mono, w_unit, w_because), name
 
 
+@pytest.mark.parametrize("bad", [None, 123, 45.0, [1, 2], object()])
+def test_direct_classify_non_str_raises_attribute_error(bad):
+    # Pass 2 P2: the reference's `parameter.lower()` raises AttributeError
+    # for ANY non-str — CPython's "'NoneType' object has no attribute
+    # 'lower'" — NOT the TypeError a pyo3 `String` extraction produced.
+    # The bridge replicates the reference's class AND message (via the
+    # object's type name).  Written RED first: TypeError.
+    with pytest.raises(AttributeError, match="object has no attribute 'lower'"):
+        _oracle_classify(bad, "src")
+    with pytest.raises(AttributeError, match="object has no attribute 'lower'"):
+        _tt.classify_parameter_py(bad, "src")
+
+
 def test_direct_worst_case_values():
     mins = [1.0, 2.0, 3.0, 4.0]
     maxs = [10.0, 20.0, 30.0, 40.0]
     monos = [1, -1, 0, -1]
     got = _tt.worst_case_values_py(mins, maxs, monos)
     assert got == [10.0, 2.0, 30.0, 4.0]
+
+
+def test_direct_worst_case_values_coerces_numeric_monos():
+    # Pass 2 P2: the reference's `b.monotonicity > 0` accepts ANY
+    # comparable — floats, bools and numpy scalars coerce (1.5 > 0 →
+    # max).  The Vec<i64> bridge rejected a float monotonicity with
+    # TypeError where the oracle arithmetic accepted it.  Vec<f64>
+    # matches.  Written RED first: TypeError for 1.5.
+    mins = [1.0, 2.0, 3.0, 4.0]
+    maxs = [10.0, 20.0, 30.0, 40.0]
+    got = _tt.worst_case_values_py(mins, maxs, [1.5, -0.5, 0.0, True])
+    # oracle selection: 1.5 > 0 → max; -0.5 < 0 → min; 0.0 → max;
+    # True > 0 → max.
+    assert got == [10.0, 2.0, 30.0, 40.0]
+    # None still raises TypeError on BOTH arms (class parity).
+    with pytest.raises(TypeError):
+        _tt.worst_case_values_py([1.0], [10.0], [None])
 
 
 @pytest.mark.parametrize("seed", range(6))

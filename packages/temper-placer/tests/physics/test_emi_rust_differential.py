@@ -209,6 +209,23 @@ def test_direct_compliance_randomized() -> None:
         assert got is want, f"db={db} std={std}: got {got} want {want}"
 
 
+def test_direct_compliance_accepts_any_standard_object() -> None:
+    # Pass 2 P2: the reference compares `standard == "CISPR32_CLASS_A"`
+    # at the Python level — ANY object (None, ints, floats, lists, ...)
+    # is accepted and falls to the 40.0 else-branch unless it equals the
+    # string.  The Rust `standard: String` raised TypeError for None/123
+    # (reproduced: check_emi_compliance(45.0, None) → reference False,
+    # shim TypeError).  The PyAny `eq` reproduces the duck-typed
+    # comparison.  Written RED first: TypeError.
+    for std in (None, 123, 45.0, ["CISPR32_CLASS_A"], ("CISPR32_CLASS_A",), object()):
+        got = _tt.check_emi_compliance_py(45.0, std)
+        want = _oracle_check_emi_compliance(45.0, std)
+        assert got is want, f"std={std!r}: got {got} want {want}"
+    # The class-A arm still fires for the exact string.
+    assert _tt.check_emi_compliance_py(45.0, "CISPR32_CLASS_A") is True
+    assert _oracle_check_emi_compliance(45.0, "CISPR32_CLASS_A") is True
+
+
 # ---------------------------------------------------------------------------
 # Module-level delegation pins
 # ---------------------------------------------------------------------------

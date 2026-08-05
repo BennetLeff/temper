@@ -395,6 +395,35 @@ def test_trace_accumulate_nan_propagates():
     assert np.isnan(got[0]) and np.isnan(got[1])
 
 
+def test_trace_accumulate_rejects_malformed_buffer_lengths() -> None:
+    # Pass 2 P3: a buffer length that is not a multiple of 8 must raise
+    # ValueError — numpy's `np.frombuffer` raises
+    # "buffer size must be a multiple of element size" for the same
+    # input (the oracle arm).  The old kernel's `chunks_exact(8)` +
+    # debug_assert silently DROPPED the tail in release builds and
+    # returned a truncated field.  Written RED first: returned 8 bytes.
+    with pytest.raises(ValueError, match="multiple of element size"):
+        np.frombuffer(b"\x00" * 9, dtype=np.float64)  # oracle arm (numpy shape mismatch)
+    with pytest.raises(ValueError, match="multiple of element size"):
+        _tt.copper_trace_accumulate_py(b"\x00" * 9, b"\x00" * 9)
+    with pytest.raises(ValueError, match="multiple of element size"):
+        _tt.copper_trace_accumulate_py(b"\x00" * 8, b"\x00" * 9)
+
+
+def test_masks_reject_malformed_keepout_hole_lengths() -> None:
+    # Pass 2 P3: the reference's tuple iteration (`for kx0, ky0, kx1,
+    # ky1 in keepouts`) raises ValueError for a wrong-length keepout /
+    # hole tuple; the flat bridge must raise the same CLASS for a flat
+    # length that is not a multiple of 4 / 3 instead of silently
+    # dropping the partial tail tuple.  Written RED first: no raise.
+    with pytest.raises(ValueError):
+        _oracle_masks(4, 4, 0.0, 0.0, 1.0, 10.0, 10.0, None, [(0.0, 0.0, 1.0)], [])
+    with pytest.raises(ValueError, match="multiple of 4"):
+        _tt.copper_masks_py(4, 4, 0.0, 0.0, 1.0, 10.0, 10.0, False, None, [0.0, 0.0, 1.0], [])
+    with pytest.raises(ValueError, match="multiple of 3"):
+        _tt.copper_masks_py(4, 4, 0.0, 0.0, 1.0, 10.0, 10.0, False, None, [], [1.0, 1.0, 2.0, 3.0, 3.0])
+
+
 # ---------------------------------------------------------------------------
 # Module-level end-to-end pins (full grid with keepouts/holes/traces)
 # ---------------------------------------------------------------------------

@@ -950,6 +950,22 @@ baseline file automatically, by the harness's design.  The loaders
 (`bottleneck-geometry`) arm keeps its existing CI-captured rows and is
 still compared normally.
 
+**darwin RTLD_DEFAULT pin — CI-blind, by decision (pass 2 P2).**  The
+macOS `RTLD_DEFAULT = (void*)-2` correction in
+`hostmath.rs::dlsym_ptr` is pinned by `dlsym_resolves_on_macos`, a
+`#[cfg(target_os = "macos")]` unit test that NEVER executes in CI
+(every workflow runs ubuntu-latest, where the NULL-handle arm is
+correct for glibc).  On darwin the differentials pass under either
+resolution (dlsym and the std fallback resolve the same libSystem
+functions), so the pin is the ONLY thing that would catch a regression
+of the handle value.  **Recorded follow-up: the pin requires a local
+macOS `cargo test` (run `cargo test --all-features -p temper-thermal`
+on a darwin host), or a future macOS CI runner — no macOS CI job is
+added in this PR, by decision.**  The BSDs share `RTLD_DEFAULT = -2`
+with macOS but are NOT covered by the `target_os = "macos"` cfg (they
+fall to the NULL arm — a recorded gap; no BSD target is built or
+tested in this repo's CI).
+
 ## EMI radiated-emissions kernels — induction non-applicability note
 
 `emi::predict_radiated_emissions` and `emi::check_emi_compliance` are
@@ -1145,8 +1161,15 @@ applicable**; structural argument recorded.
   exact with the strict-`>` boundary, P3 distance geometry, P6 margin
   definitional, P7 exceeds gated only on (delta, tau); M1 zero-power
   degeneracy, M2 conservative order-independence, M4 reciprocal
-  power-of-two scaling), each property vacuity-guarded by a real
-  mutant.
+  power-of-two scaling), **each property and relation vacuity-guarded
+  by a real mutant** — pass 2 added the missing P3 / M1 / M2 / M4
+  guards (`test_p3_fails_for_drops_abs`,
+  `test_m1_fails_for_phantom_power` (evaluated at NONZERO power — a
+  phantom power-proportional term is invisible at p=0, the honest
+  guard for M1's degenerate sampling),
+  `test_m2_fails_for_first_arg_wins`,
+  `test_m4_fails_for_forgot_halve_r`), so the header's "every property
+  is guarded" claim now holds.
 
 ## Parameter-bound kernels — induction non-applicability note
 
@@ -1195,8 +1218,10 @@ recorded.
   dominance, P8 citation fidelity with the original-case name, P9
   mirror dominance for −1, P10 family-precedence stability; M3 ASCII
   case-folding invariance, M5 substring-match semantics, M6
-  permutation equivariance of worst_case_values), each property
-  vacuity-guarded by a real mutant.
+  permutation equivariance of worst_case_values), **each property and
+  relation vacuity-guarded by a real mutant** — pass 2 added the
+  missing M3 guard (`test_m3_fails_for_case_sensitive`), completing the
+  file's guard inventory.
 
 ## Anti-vacuity summary (this slice's kernels)
 
@@ -1217,7 +1242,7 @@ is-mul / float-`** 2`-is-pow trap.)
 | Module | Mutants | Killed by (general differential/PBT) | Survived the general suite → closed by constructed pin |
 |---|---|---|---|
 | emi | 3 | randomized pins, pow-vs-mul discriminator, underflow guard | — |
-| safety | 2 | randomized pins, one-time-constant, domain-error raise arm | — |
+| safety | 2 | B7 order mutant → randomized pins + one-time-constant; domain-error raise-arm mutant → test_direct_threshold_extremes | — |
 | heat_removal | 5 | R_vert-skip pin, randomized pins, slice-wrap pin, off-by-one | pow→mul in h_bg → closed by the 1-ulp discriminator pin (cs=66.24771326355554) |
 | copper_coverage | 5 | rect axis, trace min-cap, NaN-discard | pow-for-offsets → closed by the mul-vs-pow offset discriminator; kr·kr-for-radius → closed by the radius pow-vs-mul discriminator |
 | tj_cross_check | 2 | NaN conservative-max pin, distance abs pin | — |

@@ -13,9 +13,9 @@ met PER MODULE, not across the pair:
 - ``parameter_bounds`` (P4–P5, P8–P10 + M3, M5, M6): **5 non-vacuous
   properties + 3 metamorphic relations**.
 
-Every property is vacuity-guarded by a real mutant (the file's
-convention: ``_mutant_*`` implementations whose outputs violate the
-property, pinned by ``test_pN_fails_for_<mutant>``):
+Every property AND every metamorphic relation is vacuity-guarded by a
+real mutant (the file's convention: ``_mutant_*`` implementations whose
+outputs violate the property, pinned by ``test_pN_fails_for_<mutant>``):
 
 1. P1 — the conservative T_j is always >= both estimates (soundness of
    the safety gating: the optimistic estimate cannot decide).
@@ -61,6 +61,16 @@ Metamorphic relations:
 - M6 — worst_case_values is ELEMENTWISE: permuting the parallel
   (mins, maxs, monos) lists permutes the outputs identically (bit-
   exact).
+
+Guard inventory (pass 2 P3): P1, P2, P4, P6, P7, P8, P9, P10, M5, M6
+had pins at pass 1; the header's "every property is guarded" claim was
+then FALSE for P3, M1, M2, M3, M4.  Pass 2 added the missing
+``test_p3_fails_for_drops_abs``, ``test_m1_fails_for_phantom_power``,
+``test_m2_fails_for_first_arg_wins``, ``test_m3_fails_for_case_sensitive``
+and ``test_m4_fails_for_forgot_halve_r`` pins so the claim holds.  M1's
+guard is the honest one: a phantom power-proportional term is invisible
+at p=0 (the degenerate sampling M1 uses), so the pin evaluates the
+mutant at NONZERO power where the phantom breaks the cross-check chain.
 """
 
 from __future__ import annotations
@@ -126,6 +136,35 @@ def test_p3_distance_non_negative_geometry(x, y):
     assert d_top == abs(20.0 - y) and d_bot == abs(y)
     assert d_lef == abs(x) and d_rig == abs(20.0 - x)
     assert min(d_top, d_bot, d_lef, d_rig) >= 0.0
+
+
+def _mutant_drops_abs(x, y, ox, oy, cell, h, w, edge_code):
+    """P3 mutant: computes the distances WITHOUT the reference's abs()
+    — a device beyond an edge yields a NEGATIVE distance (P3 demands
+    non-negative)."""
+    if edge_code == 0:
+        return oy + h * cell - y
+    if edge_code == 1:
+        return y - oy
+    if edge_code == 2:
+        return x - ox
+    if edge_code == 3:
+        return ox + w * cell - x
+    return 0.0
+
+
+def test_p3_fails_for_drops_abs():
+    """Pass 2 P3: P3 lacked a vacuity guard — the header's "every
+    property is guarded" claim was false.  A device beyond the far
+    edge: the real kernel returns the positive absolute distance, the
+    abs-less mutant returns a NEGATIVE one, breaking P3's
+    non-negativity."""
+    x, y = -1.0, 21.0  # beyond LEFT and TOP edges
+    ox, oy, cell, h, w = 0.0, 0.0, 1.0, 20, 20
+    assert _tt.distance_to_heatsink_edge_py(x, y, ox, oy, cell, h, w, 0) == abs(20.0 - y)
+    assert _tt.distance_to_heatsink_edge_py(x, y, ox, oy, cell, h, w, 2) == abs(x)
+    assert _mutant_drops_abs(x, y, ox, oy, cell, h, w, 0) < 0  # beyond TOP
+    assert _mutant_drops_abs(x, y, ox, oy, cell, h, w, 2) < 0  # beyond LEFT
 
 
 def test_p4_classification_total_and_consistent():
@@ -378,6 +417,34 @@ def test_m1_zero_power_degeneracy(tc, s):
     assert d == abs(tc - 40.0)
 
 
+def _mutant_phantom_power(tc, p, rj, rc, rs, ta, tjm, tau):
+    """M1 mutant: T_j_fdm gains a phantom power-proportional term
+    (T_j_fdm = tc + p*rj + p*0.5).  The term is INVISIBLE at p=0 — the
+    degenerate sampling M1 uses — so the guard evaluates it at NONZERO
+    power, where it breaks the FDM chain (T_j_fdm no longer equals
+    T_case_fdm + p*R_jc) that M1's p=0 case is the limit of."""
+    f, lump, d, c, m, e = _dcc(tc, p, rj, rc, rs, ta, tjm, tau)
+    return f + 0.5 * p, lump, d, c, m, e
+
+
+def test_m1_fails_for_phantom_power():
+    """Pass 2 P3: M1 lacked a vacuity guard.  A phantom power-
+    proportional term is the bug class M1's p=0-only sampling cannot
+    see: at p=0 the phantom vanishes (f == tc either way), so a kernel
+    with correct p=0 behaviour and wrong p>0 arithmetic passed M1.
+    The pin demonstrates the phantom at NONZERO power, where it breaks
+    T_j_fdm == tc + p*r_jc."""
+    tc, p = 50.0, 5.0
+    # At p=0 the phantom is invisible — exactly the vacuity diagnosed.
+    f0_real, _, _, _, _, _ = _dcc(tc, 0.0, 0.6, 0.25, 1.0, 40.0, 150.0, 5.0)
+    f0_mut, _, _, _, _, _ = _mutant_phantom_power(tc, 0.0, 0.6, 0.25, 1.0, 40.0, 150.0, 5.0)
+    assert f0_mut == f0_real
+    # At p>0 the phantom breaks the chain M1's degeneracy is the limit
+    # of: T_j_fdm != T_case_fdm + p*R_jc.
+    f_mut, _, _, _, _, _ = _mutant_phantom_power(tc, p, 0.6, 0.25, 1.0, 40.0, 150.0, 5.0)
+    assert f_mut != tc + p * 0.6  # phantom visible at p>0
+
+
 @settings(max_examples=MAX_EXAMPLES, deadline=None)
 @given(tc=_t, p=_pos)
 def test_m2_conservative_order_independent(tc, p):
@@ -386,6 +453,23 @@ def test_m2_conservative_order_independent(tc, p):
     non-NaN; the NaN asymmetry is pinned by the differential)."""
     f, lump, d, c, m, e = _dcc(tc, p, 0.6, 0.25, 1.0, 40.0, 150.0, 5.0)
     assert c == max(lump, f)  # order-independent
+
+
+def _mutant_first_arg_wins(tc, p, rj, rc, rs, ta, tjm, tau):
+    """M2 mutant: conservative_T_j is the FIRST estimate, not the max —
+    order-DEPENDENT (swap the estimates and the output changes)."""
+    f, lump, d, c, m, e = _dcc(tc, p, rj, rc, rs, ta, tjm, tau)
+    return f, lump, d, f, m, e
+
+
+def test_m2_fails_for_first_arg_wins():
+    """Pass 2 P3: M2 lacked a vacuity guard.  Pick a case where the
+    estimates differ (lump > f): the real kernel's conservative ==
+    max(lump, f) == lump; the first-arg-wins mutant keeps f, breaking
+    M2's order-independence."""
+    tc, p = 30.0, 5.0  # f = 30+3 = 33, lump = 40+5*1.85 = 49.25
+    f, lump, d, c, m, e = _mutant_first_arg_wins(tc, p, 0.6, 0.25, 1.0, 40.0, 150.0, 5.0)
+    assert c != max(lump, f)  # M2's order-independence broken
 
 
 @settings(max_examples=MAX_EXAMPLES, deadline=None)
@@ -403,6 +487,22 @@ def test_m4_reciprocal_power_of_two_scaling(tc, p):
     assert b == a
 
 
+def _mutant_forgot_halve_r(tc, p, rj, rc, rs, ta, tjm, tau):
+    """M4 mutant: doubles power but FORGETS to halve the R_θ chain —
+    the reciprocal scaling is broken, so the outputs move."""
+    return _dcc(tc, 2.0 * p, rj, rc, rs, ta, tjm, tau)
+
+
+def test_m4_fails_for_forgot_halve_r():
+    """Pass 2 P3: M4 lacked a vacuity guard.  The forgot-halve-R
+    mutant breaks M4's bit-exact invariance: doubling p without halving
+    R_θ moves T_j_fdm and T_j_lumped, so the outputs differ."""
+    tc, p = 50.0, 5.0
+    a = _dcc(tc, p, 0.6, 0.25, 1.0, 40.0, 150.0, 5.0)
+    b = _mutant_forgot_halve_r(tc, p, 0.6, 0.25, 1.0, 40.0, 150.0, 5.0)
+    assert b != a  # M4's bit-exact invariance broken
+
+
 def test_m3_classify_case_folding():
     """M3 — for ASCII names, the classification is invariant under the
     name's case (CPython lower() folds ASCII; Rust to_lowercase does
@@ -411,6 +511,22 @@ def test_m3_classify_case_folding():
         m1 = _tt.classify_parameter_py(name, "s")[0]
         m2 = _tt.classify_parameter_py(name.lower(), "s")[0]
         assert m1 == m2, name
+
+
+def _mutant_case_sensitive(name):
+    """M3 mutant: matches the family keywords against the ORIGINAL-case
+    name (no lowercasing) — "Power_W" no longer matches "power"."""
+    if "power" in name or "dissipation" in name or "P_loss" in name:
+        return 1, "s", "T_j INCREASING in " + name
+    return 0, "unknown", "No monotonicity proof for '" + name + "'"
+
+
+def test_m3_fails_for_case_sensitive():
+    """Pass 2 P3: M3 lacked a vacuity guard.  The case-sensitive mutant
+    misclassifies an ALLCAPS/TitleCase power name (0 instead of +1),
+    breaking M3's case-folding invariance."""
+    assert _mutant_case_sensitive("Power_W")[0] != 1  # mutant misses the power family
+    assert _tt.classify_parameter_py("Power_W", "s")[0] == 1  # real kernel folds case
 
 
 def test_m5_substring_semantics():

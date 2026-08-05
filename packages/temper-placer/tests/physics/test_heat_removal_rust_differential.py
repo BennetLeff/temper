@@ -414,3 +414,56 @@ def test_degenerate_zero_cs_with_device_raises_zero_division() -> None:
         _oracle_build_h_field(cfg, devices, device_thermal)
     with pytest.raises(ZeroDivisionError, match="float division by zero"):
         build_h_field(cfg, devices, device_thermal)
+
+
+@pytest.mark.parametrize("cs", [5e-324, 1e-200, 1e-162])
+def test_degenerate_subnormal_cs_raises_zero_division(cs: float) -> None:
+    # Pass 2 P1: the reference computes `10.0 * (cs*1e-3)**2 / (cs*cs)`
+    # FIRST — for the subnormal underflow band `cs*cs` rounds to 0.0
+    # and the division is 0.0/0.0 → ZeroDivisionError, even with no
+    # devices.  Pass 1's kernel guard caught only the exact `cs == 0.0`;
+    # the all-NaN field it returned instead poisoned the downstream FDM.
+    # Written RED first: the shim returned an all-NaN field here.
+    cfg = _cfg(4, 4, cs)
+    with pytest.raises(ZeroDivisionError, match="float division by zero"):
+        _oracle_build_h_field(cfg, {}, {})
+    with pytest.raises(ZeroDivisionError, match="float division by zero"):
+        build_h_field(cfg, {}, {})
+
+
+@pytest.mark.parametrize("cs", [5e-324, 1e-200, 1e-162])
+def test_degenerate_subnormal_cs_with_device_raises_zero_division(cs: float) -> None:
+    # Same band with a device present: the reference's h_bg division
+    # still raises FIRST (before any per-device arithmetic).
+    cfg = _cfg(4, 4, cs)
+    devices = {"Q1": (1.0, 1.0)}
+    device_thermal = {"Q1": _dev_cfg("Q1", 0.25, 1.0)}
+    with pytest.raises(ZeroDivisionError, match="float division by zero"):
+        _oracle_build_h_field(cfg, devices, device_thermal)
+    with pytest.raises(ZeroDivisionError, match="float division by zero"):
+        build_h_field(cfg, devices, device_thermal)
+
+
+def test_degenerate_zero_cs_raise_order_beats_missing_config() -> None:
+    # Pass 2 P1 (raise-order inversion): the reference computes h_bg
+    # BEFORE the device_thermal validation, so with cs=0.0 the geometry
+    # ZeroDivisionError wins regardless of config state.  The shim used
+    # to validate device_thermal first and raised ValueError instead —
+    # a caller catching ZeroDivisionError (geometry) vs ValueError
+    # (config) misclassified.  Written RED first: shim ValueError,
+    # oracle ZeroDivisionError.
+    cfg = _cfg(4, 4, 0.0)
+    devices = {"Q1": (1.0, 1.0)}
+    # Empty device_thermal → aggregate ValueError arm — ZeroDivisionError
+    # must still win.
+    with pytest.raises(ZeroDivisionError, match="float division by zero"):
+        _oracle_build_h_field(cfg, devices, {})
+    with pytest.raises(ZeroDivisionError, match="float division by zero"):
+        build_h_field(cfg, devices, {})
+    # Partial device_thermal (Q2 present, Q1 missing) → per-device
+    # ValueError arm — same precedence.
+    device_thermal = {"Q2": _dev_cfg("Q2", 0.25, 1.0)}
+    with pytest.raises(ZeroDivisionError, match="float division by zero"):
+        _oracle_build_h_field(cfg, devices, device_thermal)
+    with pytest.raises(ZeroDivisionError, match="float division by zero"):
+        build_h_field(cfg, devices, device_thermal)

@@ -190,6 +190,11 @@ fn f64_to_bytes<'py>(py: Python<'py>, vals: &[f64]) -> PyResult<Bound<'py, PyByt
 }
 
 fn parse_f64s(bytes: &[u8]) -> Vec<f64> {
+    // The pyo3 bridges validate the length (raising ValueError) before
+    // calling this; the debug_assert documents the invariant and the
+    // chunks_exact defensively drops any tail (unreachable via the
+    // bridges).  Pass 2 P3: this was the ONLY guard — a release build
+    // silently truncated malformed buffers; the bridges now raise.
     debug_assert_eq!(bytes.len() % 8, 0);
     bytes
         .chunks_exact(8)
@@ -205,6 +210,17 @@ fn parse_f64s(bytes: &[u8]) -> Vec<f64> {
 /// the board has no polygon outline (rect compare is used);
 /// `keepouts` is a flat `[kx0, ky0, kx1, ky1, ...]`; `holes` a flat
 /// `[mx, my, keepout_radius, ...]`.
+///
+/// Malformed flat lengths raise `ValueError` (pass 2 P3): the
+/// reference's tuple iteration (`for kx0, ky0, kx1, ky1 in keepouts`)
+/// raises ValueError for a wrong-length keepout/hole tuple, and the
+/// previous `chunks_exact` silently DROPPED a partial tail tuple.
+/// Documented shape deviation (pass 2 P2): the reference's native
+/// representation is a LIST OF TUPLES; this bridge takes the FLAT form
+/// by FFI design (the shim flattens `board.keepouts` /
+/// `board.mounting_holes`), so a direct kernel caller passing tuples
+/// gets a TypeError where the tuple-form reference would work —
+/// recorded, not widened (accepting both shapes would muddy the FFI).
 #[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (height_cells, width_cells, ox, oy, cs, board_w, board_h, has_polygon, polygon_mask, keepouts, holes))]
@@ -226,6 +242,20 @@ pub fn copper_masks_py(
     keepouts: Vec<f64>,
     holes: Vec<f64>,
 ) -> PyResult<(Bound<'_, PyBytes>, Bound<'_, PyBytes>, Bound<'_, PyBytes>)> {
+    if !keepouts.len().is_multiple_of(4) {
+        return Err(temper_py_bridge::py_value_err(format!(
+            "keepouts must be a flat list of 4-tuples [x0, y0, x1, y1, ...]: \
+             length must be a multiple of 4, got {}",
+            keepouts.len()
+        )));
+    }
+    if !holes.len().is_multiple_of(3) {
+        return Err(temper_py_bridge::py_value_err(format!(
+            "holes must be a flat list of 3-tuples [mx, my, radius, ...]: \
+             length must be a multiple of 3, got {}",
+            holes.len()
+        )));
+    }
     let pm = polygon_mask.unwrap_or_default();
     let (inside, keepout, active) = temper_py_bridge::catch_unwind(|| {
         copper_masks(
@@ -238,6 +268,16 @@ pub fn copper_masks_py(
 }
 
 /// pyo3 bridge for [`copper_trace_accumulate`].
+///
+/// `trace_grid_bytes` / `cell_cov_bytes` are little-endian f64 byte
+/// buffers (the shim passes `trace_grid.tobytes()` / `cell_cov.tobytes()`).
+/// A length that is not a multiple of 8 raises `ValueError` — the same
+/// class and message numpy's `np.frombuffer` raises for a malformed
+/// buffer (pass 2 P3: the previous `chunks_exact` silently truncated).
+/// Documented shape deviation (pass 2 P2): the reference takes numpy
+/// ARRAYS; this bridge takes BYTES by FFI design, so a direct kernel
+/// caller passing lists gets a TypeError where the array-form reference
+/// would coerce — recorded, not widened.
 #[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (trace_grid_bytes, cell_cov_bytes))]
@@ -246,6 +286,11 @@ pub fn copper_trace_accumulate_py(
     trace_grid_bytes: Vec<u8>,
     cell_cov_bytes: Vec<u8>,
 ) -> PyResult<Bound<'_, PyBytes>> {
+    if !trace_grid_bytes.len().is_multiple_of(8) || !cell_cov_bytes.len().is_multiple_of(8) {
+        return Err(temper_py_bridge::py_value_err(
+            "buffer size must be a multiple of element size",
+        ));
+    }
     let grid = parse_f64s(&trace_grid_bytes);
     let cov = parse_f64s(&cell_cov_bytes);
     let out = temper_py_bridge::catch_unwind(|| copper_trace_accumulate(&grid, &cov))

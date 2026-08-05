@@ -96,12 +96,32 @@ def build_h_field(
         ``(height_cells, width_cells)`` float64 array in ``W/(K·mm²)``.
 
     Raises:
+        ZeroDivisionError: If the FDM grid's cell size is degenerate
+            (``cs == 0.0`` or the subnormal underflow band where
+            ``cs * cs`` rounds to 0.0) — the reference's ``0.0/0.0``
+            background division, raised BEFORE the config validation.
         ValueError: If a device in *devices* has no thermal config.
     """
     h = config.height_cells
     w = config.width_cells
     cs = config.cell_size_mm  # mm
     ox, oy = config.origin_mm
+
+    # --- Geometry-failure precedence (pass 2 P1) ---
+    # The reference computes `h_bg = 10.0 * (cs*1e-3)**2 / (cs*cs)`
+    # FIRST — a cs-degenerate division raises ZeroDivisionError BEFORE
+    # any device_thermal validation, so the geometry error wins
+    # regardless of config state (a caller catching ZeroDivisionError
+    # vs ValueError must see the reference's class).  The degenerate
+    # band is cs == 0.0 AND every cs whose `cs*cs` rounds to 0.0 (the
+    # subnormal underflow band, |cs| ≲ 2.2e-162 — e.g. 5e-324, 1e-200):
+    # the reference's division is 0.0/0.0 there too.  The Rust kernel
+    # guard in heat_removal.rs replicates the same division for direct
+    # kernel callers; this check exists ONLY to preserve the raise
+    # ORDER (the config ValueError below must not pre-empt it) and must
+    # stay in sync with that guard.
+    if cs == 0.0 or cs * cs == 0.0:
+        raise ZeroDivisionError("float division by zero")
 
     # --- Contract validation (unchanged from the pre-migration
     # implementation): a device without a DeviceThermalConfig raises the
