@@ -294,7 +294,7 @@ def test_feature_tolerance_eq_parity():
     py = _oracle.ToleranceAnalyzer().analyze_clearance(0.5, _oracle.CopperWeight.ONE_OZ, _oracle.LayerType.OUTER)
     rust = TOLERANCE_ANALYZER().analyze_clearance(0.5, COPPER_WEIGHT.ONE_OZ, LAYER_TYPE.OUTER)
     assert rust == rust
-    assert not (rust == py)  # different types never compare equal (dataclass __eq__)
+    assert rust != py  # different types never compare equal (dataclass __eq__)
     other = TOLERANCE_ANALYZER().analyze_clearance(0.6, COPPER_WEIGHT.ONE_OZ, LAYER_TYPE.OUTER)
     assert rust != other
 

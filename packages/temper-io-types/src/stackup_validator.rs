@@ -38,6 +38,12 @@
 //!   per-module convention) and Rust's `{:.0}` / `{:.1}` / `{:.2}`
 //!   formatting, which round identically to Python's `{:.0f}` / `{:.1%}` /
 //!   `{:.2f}` (verified empirically on the values this module can produce).
+//! - The controlled-impedance spec in the messages renders from the ORIGINAL
+//!   caller object via CPython's `str()` (an int 90 renders "90", a float
+//!   90.0 renders "90.0" — the oracle's f-string renders the original), while
+//!   the branch comparisons use the extracted f64. This was the divergence
+//!   an adversarial review found (2026-08-05): the f64 extraction rendered
+//!   "90.0" for an int spec.
 //! - `max`/`min` are first-wins (strict comparison keeps the earlier item on
 //!   ties), matching CPython's `max()`/`min()` over dict values in
 //!   insertion order.

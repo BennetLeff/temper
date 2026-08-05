@@ -253,7 +253,6 @@ def test_symmetry_nonstandard_layers():
     py_report, rust_report = _both(stackup)
     assert _report_keys(rust_report) == _report_keys(py_report)
     # No fill data -> symmetry + balance skipped; 2 layers -> adjacency pass.
-    names = [r.check_name for r in rust_report.results]
     assert all(r.passed for r in rust_report.results), rust_report.summary()
 
 

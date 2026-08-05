@@ -13,10 +13,10 @@ R1c: properties P1-P7.  R1d: MR1-MR4.
 from __future__ import annotations
 
 import pytest
+import temper_io_types as _io
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-import temper_io_types as _io
 from temper_placer.core.board import Layer, LayerStackup
 
 VALIDATE_STACKUP = _io.validate_stackup

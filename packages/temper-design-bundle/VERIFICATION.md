@@ -2058,34 +2058,61 @@ commit `6290942be`).
 
 3. **`ToleranceAnalyzer::analyze_clearance` / `analyze_trace`.** The dict
    lookup is CPython's own `dict.get` (via `PyDict::get_item`), so a missing
-   key returns the oracle's fallback constants (`0.05` etch, `0.1`
-   registration) and an unhashable key raises CPython's own
-   `TypeError: unhashable type: 'X'`. The arithmetic is transcribed
-   verbatim with the oracle's parenthesization (`2 * etch + reg` — IEEE-754
-   left-associative — and `width ± etch`); IEEE-754 basic operations are
-   deterministic, so every field of the returned `FeatureTolerance` is
-   bit-identical. `feature_type` strings are the oracle's literals.
+   key returns the oracle's fallback constants (`0.05` etch — the SAME
+   constant in both methods, pinned by the clearance-side fallback
+   differential case — and `0.1` registration) and an unhashable key raises
+   CPython's own `TypeError: unhashable type: 'X'`. The arithmetic is
+   transcribed verbatim with the oracle's parenthesization (`2 * etch +
+   reg` — IEEE-754 left-associative — and `width ± etch`); IEEE-754 basic
+   operations are deterministic, so every derived field of the returned
+   `FeatureTolerance` is bit-identical. `feature_type` strings are the
+   oracle's literals.
 
 4. **`FeatureTolerance`.** Six fields, dataclass equality, dataclass repr
-   with CPython str/float rendering — all match.
+   with CPython str/float rendering — all match. `nominal_value` and the
+   clearance-arm `worst_case_max` carry the ORIGINAL caller object (the
+   oracle's dataclass stores the argument unmodified): an int clearance
+   stays int (repr `1`, not `1.0`), equality on those fields runs through
+   CPython's own `==`, and repr renders them via CPython's `repr`. The
+   arithmetic-derived fields are `f64` — identical to the oracle whenever
+   the table values are floats (the pinned envelope; see the deviations
+   below for int table values). `from_py_object` is dropped on the pyclass
+   (it requires `Clone`, which `Py<PyAny>` fields cannot provide; nothing
+   in the crate or the shim extracts a `FeatureTolerance` from an
+   argument).
 
 ## Evidence
 
 - Differential (R1a/R1f, TDD red→green):
   `packages/temper-placer/tests/manufacturing/test_tolerances_rust_differential.py`
-  (23 assertions; the RED state was demonstrated: the file fails to collect
+  (34 tests; the RED state was demonstrated: the file fails to collect
   with `AttributeError: module 'temper_design_bundle_python' has no
-  attribute 'CopperWeight'` before the Rust pyclasses landed).
+  attribute 'CopperWeight'` before the Rust pyclasses landed). The
+  adversarial-review additions (2026-08-05): the clearance-side
+  copper-weight fallback case (discriminates the shipped `0.05→0.06`
+  mutant), int-clearance/width field-parity rows with the R1a type-aware
+  comparison key (concrete type alongside `float.hex()` for
+  `nominal_value`/`worst_case_max`), and the int-input repr-parity test.
 - PBT (R1c): `test_tolerances_pbt.py` — 10 hypothesis properties
   (P1/P2/P3/P4/P5/P5b/P6/P6b/P7 + MR1-MR4), each fail-capable.
 - Metamorphic (R1d): `test_tolerances_pbt.py` — MR1 (enum
   value-construction commutativity), MR2 (dict insertion-order permutation
   invariance), MR3 (fallback ≡ explicit default), MR4 (etch monotonicity).
-- Anti-vacuity: 11 mutants, all caught by the differential/PBT suites:
-  etch fallback `0.05→0.06`, registration fallback `0.1→0.2`, `2*etch+reg →
-  etch+reg`, clearance `worst_case_min −→ +`, trace `width−etch → width+etch`,
-  trace `worst_case_max → nominal`, default etch `0.025→0.02`, default
-  registration `0.1→0.01`, enum value `0.5→0.4`, `feature_type`
+- Anti-vacuity: **the original 11-mutant claim contained one false
+  positive — the `0.05→0.06` etch-fallback mutant SHIPPED.** The original
+  fallback test drove `analyze_trace` only, whose fallback is `0.05` on
+  both sides, so the clearance-side `0.06` sailed through the campaign and
+  the doc recorded it as caught. The adversarial review (2026-08-05) found
+  the shipped mutant and the false claim; the clearance-side fallback case
+  now discriminates it. The full campaign was RE-RUN against the fixed
+  tree with an explicit revert verification (after each mutant the source
+  was restored and `git diff` confirmed empty before the next mutant; see
+  `docs/evidence/2026-08-05-wave4-phase4-leftovers-adversarial-fixes.md`):
+  all 11 mutants caught — etch fallback `0.05→0.06` (now caught by the
+  clearance-side case), registration fallback `0.1→0.2`, `2*etch+reg →
+  etch+reg`, clearance `worst_case_min −→ +`, trace `width−etch →
+  width+etch`, trace `worst_case_max → nominal`, default etch `0.025→0.02`,
+  default registration `0.1→0.01`, enum value `0.5→0.4`, `feature_type`
   `"clearance"→"trace_width"`, dict-miss fallback `→0.0`.
 - Rust unit tests: `manufacturing_tolerances.rs::py_repr_tests` — the
   CPython str/float repr divergence classes (B9/B10) for the values that
@@ -2134,7 +2161,17 @@ commit `6290942be`).
    pyo3 `TypeError` from the f64 extraction where the oracle's arithmetic
    would raise a different-text `TypeError`. The oracle itself is broken on
    such input; the differential does not cover it.
-5. **`CopperWeight(True)`.** Python's Enum resolves `True` to the `1.0`
+5. **Int table VALUES are outside the pinned envelope.** The declared
+   contract types the `etch_tolerance`/`registration` dict values as
+   `float` (the oracle's own annotations), and every test fixture uses
+   floats. With an int-valued dict entry, the oracle's derived fields
+   (`tolerance_plus`/`tolerance_minus` and the trace-arm `worst_case_max`)
+   stay int through Python arithmetic while the Rust side computes them in
+   `f64` — a repr-level type difference on inputs outside the contract.
+   The int *argument* path (int clearances/widths) IS pinned: the oracle's
+   passthrough fields (`nominal_value`, clearance-arm `worst_case_max`)
+   preserve the original object on both sides.
+6. **`CopperWeight(True)`.** Python's Enum resolves `True` to the `1.0`
    member (`True == 1.0`); the pyclass `#[new]` receives the bool and
    CPython's `==` compares it against the float candidates — this path is
    covered by the same rich-compare, so it matches. No consumer relies on
@@ -2274,19 +2311,33 @@ commit `58b302ce8`).
    identical); 0-D/1-D `positions`/`bounds` raise the oracle's fancy-index
    `IndexError` texts (`array is N-dimensional, but 2/3 were indexed` — the
    `None` index does not count), and plain lists raise numpy's
-   `TypeError: list indices must be integers or slices, not tuple`. All
-   verified byte-for-byte against numpy 2.3.5 by the differential.
+   `TypeError: list indices must be integers or slices, not tuple`. The
+   INNER dimension is pinned too (added 2026-08-05 after an adversarial
+   review found `check_*_ndim` never examined it): positions trailing dim 1
+   broadcasts (`x → [x, x]`, exactly numpy's size-1 axis broadcast), dims 0
+   and ≥3 raise numpy's `ValueError: operands could not be broadcast
+   together with shapes (1,N,k) (S,1,2) ` (exact text, trailing space
+   included), bounds trailing dims 0/1 raise numpy's `IndexError: index
+   0/1 is out of bounds for axis 1 with size 0/1`, and bounds dims ≥3 are
+   tolerated (the oracle indexes only columns 0 and 1). All verified
+   byte-for-byte against numpy 2.3.5 by the differential.
 
 ## Evidence
 
 - Differential (R1a/R1f, TDD red→green):
   `packages/temper-placer/tests/manufacturing/test_monte_carlo_rust_differential.py`
-  (34 tests; the RED state was demonstrated: the file fails to collect with
+  (39 tests; the RED state was demonstrated: the file fails to collect with
   `AttributeError: module 'temper_design_bundle_python' has no attribute
   'MonteCarloSimulator'` before the Rust pyclasses landed). Comparison
   conventions: numpy arrays as `(dtype, shape, tobytes())`, floats via
   `float.hex()` (NaN included — `'nan' == 'nan'`), concrete leaf types in
-  the keys, errors by (type, message) via `canon_call`.
+  the keys, errors by (type, message) via `canon_call`. The 2026-08-05
+  additions: the ragged-inner-dimension error cases above (RED before the
+  fix: the kernel silently computed on (N,3) positions and panicked —
+  `PanicException` — on (N,1) bounds) and the two tolerated-edge parity
+  cases; the tautological `... or True` assertion in
+  `test_sampling_parity_all_normal` was replaced with the byte-exact
+  stream comparison plus a non-degeneracy guard.
 - PBT (R1c): `test_monte_carlo_pbt.py` — 8 hypothesis properties
   (P1 closed-form kernel, P2 clearance monotonicity on one stream, P3
   two-component closed form with the float-computed separation, P4
@@ -2306,9 +2357,16 @@ commit `58b302ce8`).
   `1e6 → 0.0`, min-reduce init `+∞ → 0.0`, etch dropped from heights,
   `bounds + 2*etch` reparenthesized, `np_min` NaN propagation dropped
   (caught by the NaN x/y-column cases), `sep_y` dropped, `>=` → `>` (the
-  exact-equality boundary). Each was applied to the Rust source, the suites
-  were run against the rebuilt extension, and the failure was confirmed
-  before reverting (campaign log in the PR).
+  exact-equality boundary). **Re-verified 2026-08-05 with an explicit
+  revert verification** (each mutant applied to the Rust source, the
+  rebuilt extension run against the suites, the failure confirmed, the
+  source restored, and `git diff` confirmed EMPTY before the next mutant):
+  10/10 caught. Note on the last-wins mutant: the `>=` tie-break variant is
+  value-identical on the kernel's operand domain (separations can never be
+  -0.0 — the module docstring's argument), so it cannot be caught by the
+  differential; the campaign mutant is the always-`b` variant, which is
+  caught (3 failures). Full log in
+  `docs/evidence/2026-08-05-wave4-phase4-leftovers-adversarial-fixes.md`.
 - Rust unit tests: `manufacturing_monte_carlo.rs::kernel_tests` — NaN
   propagation both sides for `np_max`/`np_min`, the signed-zero tie bits,
   the masked diagonal, the sentinel single-component case, etch expansion,
@@ -2350,9 +2408,13 @@ commit `58b302ce8`).
    a pyo3 extraction `TypeError` here. Complex dtypes are outside the
    envelope. Both are recorded, not silently matched; no consumer has them.
 3. **Malformed-input error texts** are replicated for the 0-D/1-D/list
-   classes (verified byte-for-byte); the exact `TypeError` text numpy's
-   fancy indexing emits for ndim ≥ 3 inputs is not replicated (the oracle
-   computes instead of raising there).
+   classes AND the inner-dimension classes (verified byte-for-byte against
+   numpy 2.3.5: positions dims 0/≥3 → the broadcast `ValueError` text
+   including its trailing space, bounds dims 0/1 → the `IndexError` text;
+   positions dim 1 broadcasts `x → [x, x]` and bounds dims ≥3 are ignored —
+   both compute bit-identically, pinned by parity cases); the exact
+   `TypeError` text numpy's fancy indexing emits for ndim ≥ 3 inputs is
+   not replicated (the oracle computes instead of raising there).
 
 ---
 
@@ -2401,10 +2463,11 @@ commit `58b302ce8`).
    exactly: a net survives iff `len(pins) >= 2` AND (not
    `ignore_global_nets` OR `len(pins) <= global_net_threshold`). The
    `pins` length is read through Python (`PyAny::len`), so non-list pins
-   raise CPython's own `TypeError`; the `>` threshold comparison and the
-   `>= 2` rule are the oracle's exact predicates (the off-by-one boundary
-   is pinned by the differential's custom-threshold case and the PBT
-   selection property, and by the H1/H2 mutants).
+   raise CPython's own `TypeError`; the `>` threshold comparison (in i64 —
+   a NEGATIVE threshold filters every net, pinned by the negative-threshold
+   differential case) and the `>= 2` rule are the oracle's exact predicates
+   (the off-by-one boundary is pinned by the differential's custom-threshold
+   case and the PBT selection property, and by the H1/H2 mutants).
 2. **The ref→index mapping.** `node_ref_to_idx = {c.ref: i for i, c in
    enumerate(components)}` — a Rust `HashMap<String, usize>` with the same
    last-wins overwrite semantics (pinned by the duplicate-ref differential
@@ -2447,11 +2510,14 @@ commit `58b302ce8`).
 
 - Differential (R1a/R1f, TDD red→green):
   `packages/temper-placer/tests/core/test_hypergraph_factory_rust_differential.py`
-  (17 tests; the RED state was demonstrated: the file fails to collect with
+  (18 tests; the RED state was demonstrated: the file fails to collect with
   `AttributeError: module 'temper_design_bundle_python' has no attribute
   'HypergraphFactory'` before the Rust pyclasses landed). Comparison keys:
   the COO matrix as `(shape, nnz, data-(dtype,shape,tobytes), row, col)` —
   triplet order included — plus every array as `(dtype, shape, tobytes())`.
+  The 2026-08-05 adversarial addition: the negative-threshold case
+  (`global_net_threshold=-5` filters EVERY net — RED before the fix: the
+  `as usize` cast wrapped -5 to a huge threshold and filtered nothing).
 - PBT (R1c): `test_hypergraph_factory_pbt.py` — 6 hypothesis properties
   (P1 edge-selection rule, P2 HV flag classification, P3 width
   classification with branch order, P4 incidence connectedness, P5 node
@@ -2469,9 +2535,12 @@ commit `58b302ce8`).
   differential case), connection membership check dropped (closed by the
   UNKNOWN_REF case), HV flag 1.0/0.0 swapped, 0.5/0.2 widths swapped,
   node weights `*`→`+`, pin order reversed (caught by the triplet-order
-  matrix comparison). Each was applied to the Rust source, the suites were
-  run against the rebuilt extension, and the failure was confirmed before
-  reverting (campaign log in the PR).
+  matrix comparison). **Re-verified 2026-08-05 with an explicit revert
+  verification** (each mutant applied to the Rust source, the rebuilt
+  extension run against the suites, the failure confirmed, the source
+  restored, and `git diff` confirmed EMPTY before the next mutant): 10/10
+  caught. Full log in
+  `docs/evidence/2026-08-05-wave4-phase4-leftovers-adversarial-fixes.md`.
 - Rust practices (R1g): no `unwrap`/`expect` in non-test code; `PyResult`
   everywhere; `cargo clippy --release --features python` clean (0 warnings);
   borrow over clone (the net list is borrowed per iteration; only the

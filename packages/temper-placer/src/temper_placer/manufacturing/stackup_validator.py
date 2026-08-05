@@ -36,8 +36,8 @@ proof lives in ``packages/temper-io-types/VERIFICATION.md``.
 from __future__ import annotations
 
 from temper_io_types import (
-    StackupValidationResult,
     StackupValidationReport,
+    StackupValidationResult,
     validate_stackup,
 )
 

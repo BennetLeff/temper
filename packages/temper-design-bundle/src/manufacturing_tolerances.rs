@@ -54,6 +54,13 @@
 //! - A non-numeric dict VALUE raises a pyo3 `TypeError` where the oracle's
 //!   arithmetic would raise a different-text `TypeError`; the oracle itself
 //!   is broken there, so the differential does not cover it.
+//! - INT dict values (e.g. `etch_tolerance={ONE_OZ: 1}`) stay int through
+//!   the oracle's Python arithmetic (derived fields keep int type) while the
+//!   derived fields here are `f64` — a repr-level type difference on inputs
+//!   outside the declared float-typed contract (deviation #5 in
+//!   `VERIFICATION.md`). INT ARGUMENTS (clearances/widths) are fully
+//!   preserved: `nominal_value` and the clearance-arm `worst_case_max` store
+//!   the original caller object, so an int stays int (repr `1`, not `1.0`).
 
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;

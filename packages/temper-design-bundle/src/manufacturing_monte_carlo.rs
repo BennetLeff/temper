@@ -56,10 +56,16 @@
 //! - Input arrays must be 2-D numpy arrays (or any sequence-of-sequences of
 //!   real numbers). Malformed shapes raise the oracle's own error classes
 //!   where replicated (0-D/1-D positions and bounds → the fancy-indexing
-//!   `IndexError` text, plain lists → the list-indexing `TypeError` text);
-//!   ndim ≥ 3 positions/bounds compute something degenerate in the oracle
-//!   and are outside the supported envelope (documented, no consumer has
-//!   them). Complex dtypes are outside the envelope.
+//!   `IndexError` text, plain lists → the list-indexing `TypeError` text).
+//!   The INNER dimension is replicated exactly too (added 2026-08-05 after
+//!   an adversarial review): positions trailing dim 1 broadcasts numpy's
+//!   size-1 axis (`x → [x, x]`); dims 0 and ≥3 raise numpy's broadcast
+//!   `ValueError` with the exact shape text (trailing space included);
+//!   bounds trailing dims 0/1 raise numpy's `IndexError` text; bounds dims
+//!   ≥3 are tolerated (the oracle indexes only columns 0 and 1). ndim ≥ 3
+//!   positions/bounds compute something degenerate in the oracle and are
+//!   outside the supported envelope (documented, no consumer has them).
+//!   Complex dtypes are outside the envelope.
 //! - Python-class `__eq__` semantics are reproduced via `dataclass_eq`;
 //!   `MonteCarloSimulator` itself has no `__eq__` (identity, like the
 //!   oracle's default object equality).

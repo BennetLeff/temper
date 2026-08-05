@@ -14,10 +14,9 @@ R1c: properties P1-P7 (>= 5).  R1d: MR1-MR4 (>= 3).
 from __future__ import annotations
 
 import pytest
+import temper_design_bundle_python as _tdb
 from hypothesis import given, settings
 from hypothesis import strategies as st
-
-import temper_design_bundle_python as _tdb
 
 COPPER_WEIGHT = _tdb.CopperWeight
 LAYER_TYPE = _tdb.LayerType
@@ -100,7 +99,7 @@ def test_p2_clearance_formula_bit_exact(c, cw_name, lt_name):
 def test_p3_clearance_monotonic_in_nominal(c1, c2, cw_name, lt_name):
     """c1 > c2 implies ft(c1).worst_case_min > ft(c2).worst_case_min."""
     analyzer = TOLERANCE_ANALYZER()
-    kw = dict(copper_weight=getattr(COPPER_WEIGHT, cw_name), layer_type=getattr(LAYER_TYPE, lt_name))
+    kw = {"copper_weight": getattr(COPPER_WEIGHT, cw_name), "layer_type": getattr(LAYER_TYPE, lt_name)}
     ft1 = analyzer.analyze_clearance(c1, **kw)
     ft2 = analyzer.analyze_clearance(c2, **kw)
     if c1 > c2:

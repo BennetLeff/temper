@@ -74,9 +74,15 @@ commit `6290942be`).
 4. **Controlled impedance (R10).** The four branch tests (`empty nets`
    skip, `None` spec, `<= 0` invalid, `70..=120` pass, else out-of-range)
    match exactly; the `None`-spec message names the nets in `sorted()`
-   order with CPython str-repr list rendering and the `{len}` count; the
-   float rendering of the spec uses CPython `repr(float)` rules
-   (`py_float_str`).
+   order with CPython str-repr list rendering and the `{len}` count. The
+   spec value in the messages is rendered from the ORIGINAL caller object
+   via CPython's `str()` (`{90}` → "90", `{90.0}` → "90.0") — an int spec
+   stays int in the message, exactly like the oracle's f-string. The
+   branch comparisons use the extracted f64, so int and float specs take
+   identical branches. The int-spec message parity is pinned by the
+   differential matrix rows `impedance_spec_ohms=90` and `=-5` (added
+   2026-08-05; RED before the fix: the f64 extraction rendered "90.0
+   Omega"/"-5.0 Omega" where the oracle renders "90 Omega"/"-5 Omega").
 
 5. **Copper balance (R11).** `min < 25 or max > 75` threshold, first-wins
    max/min over the dict values in insertion order, warn/pass messages and
@@ -92,12 +98,15 @@ commit `6290942be`).
 
 - Differential (R1a/R1f, TDD red→green):
   `packages/temper-placer/tests/manufacturing/test_stackup_validator_rust_differential.py`
-  (35 assertions across a 22-case argument matrix; the RED state was
+  (42 tests across a 22-case argument matrix; the RED state was
   demonstrated: the file fails to collect with
   `AttributeError: module 'temper_io_types' has no attribute
   'StackupValidationResult'` before the Rust landed). Includes the
-  `routing_results` call-back arm (via a stub routing object) and the two
-  mutation-discriminating cases (tie-break, layer-index).
+  `routing_results` call-back arm (via a stub routing object), the two
+  mutation-discriminating cases (tie-break, layer-index), and the two
+  int-spec matrix rows (90, -5) added 2026-08-05 after an adversarial
+  review found the int impedance messages diverged ("90.0 Omega" vs the
+  oracle's "90 Omega").
 - PBT (R1c): `test_stackup_validator_pbt.py` — 12 hypothesis properties
   (P1-P7 + MR1-MR4), each fail-capable.
 - Metamorphic (R1d): `test_stackup_validator_pbt.py` — MR1 (fill-dict
@@ -111,7 +120,12 @@ commit `6290942be`).
   flip, default fill `35.0→30.0`, `neumaier_sum→naive sum`, argmax
   first-wins→last-wins (caught by the tie case), adjacency index
   `2→1` (caught by the mixed-type case), adjacency `>=4→>4`, symmetry
-  skip-arm removal, impedance message net-count off-by-one.
+  skip-arm removal, impedance message net-count off-by-one. **Re-verified
+  2026-08-05 with an explicit revert verification** (each mutant applied to
+  the Rust source, the rebuilt extension run against the suites, the
+  failure confirmed, the source restored, and `git diff` confirmed EMPTY
+  before the next mutant): 12/12 caught. Full log in
+  `docs/evidence/2026-08-05-wave4-phase4-leftovers-adversarial-fixes.md`.
 - Rust unit tests: `stackup_validator.rs::helper_tests` — the Neumaier
   replica against CPython's divergence classes, the repr helpers' B9/B10
   classes, and the first-wins max/min/argmax semantics.
