@@ -118,7 +118,23 @@ def _fixtures() -> list[RunResult]:
         ],
         total_elapsed_ms=0.1,
     )
-    results.extend([empty, single])
+    # Exact decimal .5 boundary after x10 scaling: 8.25/2.25 must render
+    # "8.2"/"2.2" (round-half-even, f"{8.25:.1f}") — the pyfmt seam mutant
+    # (round-half-up) renders "8.3"/"2.3" and is caught HERE, on the report
+    # surface, not only by the explainability 8.25 pin.
+    half_even = RunResult(
+        check_results=[
+            CheckResult(
+                check_name="half",
+                passed=True,
+                issues=[],
+                elapsed_ms=2.25,
+                metrics={},
+            )
+        ],
+        total_elapsed_ms=8.25,
+    )
+    results.extend([empty, single, half_even])
     return results
 
 
