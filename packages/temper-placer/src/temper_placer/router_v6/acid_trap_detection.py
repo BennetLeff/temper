@@ -93,7 +93,13 @@ def detect_acid_traps(
         )
         return AcidTrapReport(acid_traps=[])
 
-    if not math.isfinite(min_angle_threshold) and min_angle_threshold < 0:
+    # Any negative threshold -- finite or -inf -- means no angle can qualify.
+    # This was `not math.isfinite(t) and t < 0`, which only -inf satisfies, so
+    # a finite negative like -5.0 fell through and silently produced an empty
+    # report with no warning (issue #752 defect 9). The predicate is NOT
+    # `not isfinite(t) or t < 0`: that would swallow +inf, which must instead
+    # reach the clamp below and become 90.0. NaN is already handled above.
+    if min_angle_threshold < 0:
         warnings.warn(
             f"min_angle_threshold={min_angle_threshold}° is negative — "
             f"all angles are ≥ 0°, returning empty report.",
