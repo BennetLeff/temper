@@ -121,9 +121,18 @@ each pinned by measurement or by identity:
 5. **libm `pow` via dlsym (copper_length).** `dx ** 2` is CPython
    `float ** float` — libm `pow`, NOT `x * x` (measured 229-389/200k-300k
    mismatches of `x*x` vs `**2` in this slice's own environment).
-   `host_math::pow` resolves `dlsym(RTLD_DEFAULT, "pow")` (`RTLD_DEFAULT`
-   is `null()` on Darwin, not NULL) to the exact libm the host CPython
-   loads. `math.sqrt` is the correctly-rounded IEEE sqrt → `f64::sqrt`.
+   `host_math::pow` resolves `dlsym(RTLD_DEFAULT, "pow")` — the NULL
+   handle (== `RTLD_DEFAULT` on ELF; NOT on Darwin, where it is -2) — to
+   the exact libm the host CPython loads, with `f64::powf` as the
+   fallback. On macOS the NULL handle fails ('invalid handle': it only
+   searches the main image plus `RTLD_GLOBAL`-loaded images, and CPython
+   loads extension bundles `RTLD_LOCAL`), so the fallback is the LIVE
+   route there; it is sound by accident, exactly as documented for
+   temper-constraint-compiler (`constraints/mod.rs`, with the
+   `nm`-verified `U _pow` and the 200k-sample A/B): the runtime exponent
+   defeats LLVM's `x*x` folding and the lowered call resolves to libSystem
+   `pow`, the same function CPython's `float_pow` calls. `math.sqrt` is
+   the correctly-rounded IEEE sqrt → `f64::sqrt`.
 6. **Naive accumulation (copper_length).** `total_length += length` and
    `net_lengths.get(net, 0.0) + length` are non-compensated; the Rust uses
    plain f64 `+=` / add in the same per-segment order (the differential
@@ -131,6 +140,11 @@ each pinned by measurement or by identity:
    preserved (Vec + `dict(pairs)` assembly on the shim side).
 7. **Falsy-net skip (copper_length).** `if not trace.net` skips `None` AND
    `""` (flattened as `Option<String>`; empty string skipped explicitly).
+   The shim applies the skip BEFORE the `start[0]`/`end[0]` index accesses
+   (its flatten comprehension carries `if trace.net`), matching the
+   oracle's statement order — a falsy-net trace whose `start`/`end` are not
+   indexable is skipped rather than raised on (ordering fix from review
+   2026-08-05).
 
 **Documented boundary choices** (kept Python, argued in-source and above):
 PyYAML manifest I/O (`timing.py` — the loaders precedent), the `git`
@@ -177,7 +191,7 @@ the installed extension is always left correct.
 | M7 | p95 | empty list returns 0.0 | differential (IndexError parity) |
 | M8 | filter_decisions | `d["subject"]` instead of `d.get("subject")` | differential (missing-key None semantics) |
 | M9 | find_rejected | dropped the subject check | differential (first-match subject scope) |
-| M10 | copper_length | `dx*dx` instead of libm `pow` | differential — **survived round 1**; closed by adding full-precision discriminating segments (`test_measure_pow_vs_multiply_discriminators`); killed round 2 |
+| M10 | copper_length | `dx*dx` instead of libm `pow` | differential — **survived round 1**; closed by adding full-precision discriminating segments (`test_measure_pow_vs_multiply_discriminators` — 4 cases, each asserted to genuinely discriminate pow-vs-multiply; the original 4th case was found inert in review 2026-08-05 and replaced by a searched successor); killed round 2 |
 | M11 | copper_length | empty-string nets pass through | differential (falsy-net skip) |
 
 M10 is the campaign's honest survivor-turned-kill: the initial randomized

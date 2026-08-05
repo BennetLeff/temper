@@ -7,7 +7,10 @@ suites, expect FAILURE, then revert. A mutation that does NOT fail the
 differential is a survivor — the campaign either closes it with a
 discriminating case or records it (see VERIFICATION.md).
 
-Run from repo root:
+Run from any checkout (the repo root is derived from this file's own
+location, so the R20 re-run procedure works from any worktree, not only
+the one the campaign was authored in):
+
     python3 scripts/phase5_cli_adapters_workflow_mutations.py
 
 The differential suites are the merge-path anti-vacuity surface; the PBT
@@ -19,7 +22,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-ROOT = Path("/private/tmp/wt5-cli")
+ROOT = Path(__file__).resolve().parents[1]  # scripts/ -> repo root
 CARGO = ROOT / "packages/temper-orchestration/Cargo.toml"
 PLACER = ROOT / "packages/temper-placer"
 WORKFLOW = ROOT / "packages/temper-workflow"
@@ -191,6 +194,14 @@ def main() -> int:
         print("FAIL: post-campaign rebuild/suites are not green; extension left mutated?")
         return 1
     print("post-campaign rebuild + suites green")
+    # Anti-vacuity guard (check_vacuous_gates.py): the aggregation below
+    # must fail closed if the campaign ran fewer mutations than the
+    # manifest declares — a short results list (e.g. an empty MUTATIONS)
+    # must never read as a clean pass.
+    assert len(results) == len(MUTATIONS), (
+        f"campaign ran {len(results)} of {len(MUTATIONS)} mutations — "
+        "short results fail closed, never pass vacuously"
+    )
     return 0 if all(k for _, k, _ in results) else 1
 
 

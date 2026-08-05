@@ -204,14 +204,26 @@ def test_measure_randomized():
 def test_measure_pow_vs_multiply_discriminators():
     """Full-precision deltas where ``math.sqrt(dx**2 + dy**2)`` (libm pow)
     differs from ``math.sqrt(dx*dx + dy*dy)`` in the last ulp — the M10
-    survivor's discriminating cases (found by the mutation campaign)."""
+    survivor's discriminating cases (found by the mutation campaign). Each
+    case is asserted to genuinely discriminate pow-vs-multiply before it is
+    trusted (review 2026-08-05: the original 4th case,
+    ``(10.5, -3.25, 73.76269374144761, 20.182844750239716)``, was inert —
+    its ``dx**2 + dy**2`` is bit-identical under pow and multiply — and was
+    replaced by a searched successor)."""
     discriminators = [
         (0.0, 0.0, 19.502714311008788, 77.77522467438322),
         (0.0, 0.0, 63.25882713708185, 96.53268856857747),
         (0.0, 0.0, -5.007201717971483, -65.13159001325664),
-        (10.5, -3.25, 73.76269374144761, 20.182844750239716),
+        (-11.159781888653413, 4.398313061261025, 41.20432400134166, 92.12326230306232),
     ]
     for sx, sy, ex, ey in discriminators:
+        dx, dy = ex - sx, ey - sy
+        pow_len = math.sqrt(dx**2 + dy**2)
+        mul_len = math.sqrt(dx * dx + dy * dy)
+        assert pow_len != mul_len, (
+            f"discriminator {(sx, sy, ex, ey)} lost its bite: pow and multiply "
+            f"agree ({pow_len.hex()}) — it cannot kill the dx*dx mutant"
+        )
         _assert_segments_equal([("N", sx, sy, ex, ey)], 1)
         _assert_segments_equal([("N", sx, sy, ex, ey), ("M", sx, sy, ex, ey)], 2)
 

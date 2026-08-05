@@ -4,10 +4,13 @@
 // multiplication and NOT `sqrt`. Measured in this slice's own environment
 // (uv standalone CPython 3.12, darwin arm64): `x ** 2` == `math.pow(x, 2.0)`
 // on 0/300000 samples while `x * x` disagreed on 389/300000 — so any kernel
-// whose differential must be bit-identical to a Python reference must
-// resolve `pow` through `dlsym(RTLD_DEFAULT, "pow")` to the exact libm the
-// host CPython process loaded, exactly as `temper-geometry/src/host_math.rs`
-// established for the Wave-4 Phase-5 batch-1 slice.
+// whose differential must be bit-identical to a Python reference must call
+// the exact libm `pow` the host CPython process loaded. `pow` is therefore
+// resolved through `dlsym` once per process (same pattern as
+// `temper-constraint-compiler/src/constraints/mod.rs`, which documents the
+// same code path in full; the migration guide's class-B1 hostmath precedent
+// is `temper-thermal/src/hostmath.rs`), with an `f64::powf` fallback on
+// platforms where the dlsym route fails.
 //
 // `dlsym` is a libc/dynamic-loader facility that does not exist on
 // wasm32-unknown-unknown (no OS, no dynamic linker), so the dlsym path is
@@ -16,11 +19,31 @@
 // last ulp — expected and acceptable: wasm32 has no host CPython process to
 // match bit-for-bit against in the first place.
 //
-// Note on `RTLD_DEFAULT`: it is -2 on Darwin and NULL on most ELF platforms;
-// passing NULL makes `dlsym` return null and LLVM would then lower the
-// fallback `powf(x, 2.0)` → `x*x` — silently reintroducing the forbidden
-// optimisation. This module therefore passes `core::ptr::null()` (==
-// RTLD_DEFAULT on Darwin) exactly as temper-geometry's host_math.rs does.
+// How the two routes actually resolve, per platform:
+//
+// - **Linux (Ubuntu CI)**: `dlsym(RTLD_DEFAULT, "pow")` — the NULL handle,
+//   which on ELF means "search every loaded object" — resolves the
+//   process-global glibc libm `pow`: the primary route.
+// - **macOS/Darwin**: the NULL handle is NOT `RTLD_DEFAULT` (that is -2 on
+//   Darwin) and `dlsym(NULL, "pow")` FAILS ('invalid handle'): the null
+//   handle only searches the main image and images loaded with
+//   `RTLD_GLOBAL`, while CPython loads extension bundles with `RTLD_LOCAL`.
+//   Measured on this machine (darwin arm64): only the -2 handle resolves,
+//   NULL never does — so `dlsym_binary` always returns `None` here and the
+//   `f64::powf` fallback is ALWAYS the live route; the dlsym path never
+//   runs. The fallback is sound by accident, exactly as
+//   `temper-constraint-compiler/src/constraints/mod.rs` documents: because
+//   the exponent arrives as a *runtime* value, LLVM cannot fold it to
+//   `x * x` — it emits an undefined `_pow` reference resolved to libSystem,
+//   the SAME function CPython's `float_pow` calls (verified via `nm`:
+//   `U _pow` in the built `.so`, plus the pow-vs-multiply discriminator
+//   tests in the route_and_measure/timing differentials). The NULL-handle
+//   call failing is therefore load-bearing on Darwin, not a bug: the
+//   fallback it selects is bit-identical to the host CPython's `pow`.
+// - **Windows**: `#[cfg(not(target_arch = "wasm32"))]` compiles the `dlsym`
+//   declaration on Windows, where the CRT has no `dlsym` — a link error.
+//   Recorded, not fixed: out of scope for the Ubuntu CI target (the guard
+//   exists to keep wasm32 builds off the dlsym path).
 //
 // `math.sqrt` is the correctly-rounded IEEE-754 sqrt → `f64::sqrt` (measured
 // 0/200000 mismatches in the batch-1 slice); sqrt is deliberately NOT routed
@@ -81,7 +104,8 @@ mod tests {
         let discriminator = 31.651289106463764_f64;
         // Rust's own x*x:
         let xx = discriminator * discriminator;
-        // The dlsym'd libm pow must NOT equal the x*x result here.
+        // The host-libm pow (dlsym'd on Linux; the powf fallback, which is
+        // the LIVE route on Darwin) must NOT equal the x*x result here.
         let p = pow(discriminator, 2.0);
         assert_ne!(p, xx, "discriminator lost its bite — pow now folds to multiply");
         // And it must match what CPython's math.pow gives for the same input

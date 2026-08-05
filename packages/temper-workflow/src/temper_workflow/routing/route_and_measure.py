@@ -49,9 +49,14 @@ def measure_copper_length(pcb_path: Path) -> dict:
     """Parse a routed PCB and sum up trace lengths per net."""
     result = parse_kicad_pcb(pcb_path)
 
+    # The falsy-net skip runs BEFORE the start/end index accesses, in the
+    # oracle's statement order: `if not trace.net: continue` precedes
+    # `trace.end[0] - trace.start[0]`, so a falsy-net trace with a
+    # non-indexable start/end must be skipped, not raised on.
     segments = [
         (trace.net, trace.start[0], trace.start[1], trace.end[0], trace.end[1])
         for trace in result.traces
+        if trace.net
     ]
     return _measure_from_segments(segments, len(result.pads))
 
