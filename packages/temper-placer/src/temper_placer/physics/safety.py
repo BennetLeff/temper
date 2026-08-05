@@ -3,11 +3,21 @@ Safety-critical interlock timing and fault response estimation.
 
 This module estimates the latency from a physical fault (OCP/OVP) to the
 interlock triggering, based on filter parasitics and signal path.
+
+Wave 4 Phase 4: the arithmetic delegates to the Rust kernels in
+`temper-thermal` (`temper_thermal.estimate_filter_delay_py`,
+`temper_thermal.estimate_fault_response_time_py`,
+`temper_thermal.is_safety_timing_valid_py`).  Bit-identical parity
+against the pre-migration implementation is pinned by
+`tests/physics/test_safety_rust_differential.py`, including the CPython
+`math.log` domain-error raise (`ValueError("math domain error")` for a
+threshold >= 1.0 with strictly positive r and c) which the Rust bridge
+reproduces exactly.
 """
 
 from __future__ import annotations
 
-import math
+import temper_thermal as _tt
 
 
 def estimate_filter_delay(
@@ -20,11 +30,7 @@ def estimate_filter_delay(
 
     t = -RC * ln(1 - threshold)
     """
-    if r_ohms <= 0 or c_farads <= 0:
-        return 0.0
-
-    tau = r_ohms * c_farads
-    return -tau * math.log(1.0 - threshold_fraction)
+    return _tt.estimate_filter_delay_py(r_ohms, c_farads, threshold_fraction)
 
 
 def estimate_fault_response_time(
@@ -45,16 +51,11 @@ def estimate_fault_response_time(
     Returns:
         Total response time in microseconds.
     """
-    # 1. Propagation delay (simplified)
-    # Trace delay is ~6ps/mm, negligible here compared to filters.
-
-    # 2. Total logic delay
-    digital_delay_us = (comparator_delay_ns + mcu_latency_ns) * 1e-3
-
-    # Total
-    return filter_delay_us + digital_delay_us
+    return _tt.estimate_fault_response_time_py(
+        _loop_inductance_nh, filter_delay_us, comparator_delay_ns, mcu_latency_ns
+    )
 
 
 def is_safety_timing_valid(response_time_us: float, max_limit_us: float = 10.0) -> bool:
     """Check if fault response is within safety limits."""
-    return response_time_us <= max_limit_us
+    return _tt.is_safety_timing_valid_py(response_time_us, max_limit_us)
