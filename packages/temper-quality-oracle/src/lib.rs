@@ -20,16 +20,23 @@ pub mod routing_quality;
 #[path = "tests_common.rs"]
 mod tests_common;
 
+#[cfg(feature = "python")]
 use pyo3::exceptions::PyValueError;
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use pyo3::types::{PyDict, PyList};
+#[cfg(feature = "python")]
 use pyo3::Py;
+#[cfg(feature = "python")]
 use std::collections::HashMap;
 
+#[cfg(feature = "python")]
 use crate::types::{
     ComponentInfo, NetInfo, Netlist, PcbSpecification, PlacementState, PrecomputedMetrics,
 };
 
+#[cfg(feature = "python")]
 fn extract_netlist(py: Python<'_>, dict: &Bound<'_, PyDict>) -> PyResult<Netlist> {
     let nets_list = dict
         .get_item("nets")?
@@ -100,6 +107,7 @@ fn extract_netlist(py: Python<'_>, dict: &Bound<'_, PyDict>) -> PyResult<Netlist
     Ok(Netlist { nets, components })
 }
 
+#[cfg(feature = "python")]
 fn extract_spec(dict: &Bound<'_, PyDict>) -> PyResult<PcbSpecification> {
     let name: String = dict
         .get_item("name")?
@@ -152,6 +160,7 @@ fn extract_spec(dict: &Bound<'_, PyDict>) -> PyResult<PcbSpecification> {
     })
 }
 
+#[cfg(feature = "python")]
 fn metrics_to_py_dict(
     py: Python<'_>,
     metrics: &crate::types::QualityMetrics,
@@ -172,6 +181,7 @@ fn metrics_to_py_dict(
     Ok(dict.into())
 }
 
+#[cfg(feature = "python")]
 fn violation_to_py_dict(
     py: Python<'_>,
     v: &crate::types::Violation,
@@ -194,6 +204,7 @@ fn violation_to_py_dict(
     Ok(dict.into())
 }
 
+#[cfg(feature = "python")]
 fn extract_metrics(dict: &Bound<'_, PyDict>) -> PrecomputedMetrics {
     let get = |key: &str| -> f64 {
         dict.get_item(key)
@@ -219,6 +230,7 @@ fn extract_metrics(dict: &Bound<'_, PyDict>) -> PrecomputedMetrics {
     }
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 fn evaluate_quality_py(
     py: Python<'_>,
@@ -304,6 +316,7 @@ fn evaluate_quality_py(
     })
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 fn classify_nets_py(py: Python<'_>, netlist: &Bound<'_, PyDict>) -> PyResult<Py<PyAny>> {
     temper_py_bridge::catch_panic(|| {
@@ -317,11 +330,13 @@ fn classify_nets_py(py: Python<'_>, netlist: &Bound<'_, PyDict>) -> PyResult<Py<
     })
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 fn required_clearance_py(_py: Python<'_>, voltage: f64) -> f64 {
     ipc2221::required_clearance(voltage)
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 fn routing_quality_score_py(
     completion_rate: f64,
@@ -339,6 +354,7 @@ fn routing_quality_score_py(
     })
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 #[allow(clippy::too_many_arguments)]
 fn placement_score_py(
@@ -365,6 +381,7 @@ fn placement_score_py(
     })
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 fn drc_score_py(error_count: i64, warning_count: i64) -> PyResult<f64> {
     temper_py_bridge::catch_panic(|| {
@@ -372,6 +389,7 @@ fn drc_score_py(error_count: i64, warning_count: i64) -> PyResult<f64> {
     })
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 fn overall_score_py(
     placement_score: f64,
@@ -387,21 +405,25 @@ fn overall_score_py(
     })
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 fn interpret_score_py(score: f64) -> PyResult<String> {
     temper_py_bridge::catch_panic(|| Ok(quality_score::interpret_score(score)))
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 fn is_available_py() -> bool {
     true
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 fn version_py() -> String {
     env!("CARGO_PKG_VERSION").to_string()
 }
 
+#[cfg(feature = "python")]
 #[pymodule]
 fn temper_quality_oracle(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(evaluate_quality_py, m)?)?;

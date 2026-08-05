@@ -23,6 +23,12 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.sha }}
   cancel-in-progress: false
 
+# no-pr-trigger: advisory only -- the job carries job-level
+# continue-on-error and scripts/literal_removal_check.py "always exits 0" by
+# its own docstring, so it can never block a merge. Running it per merge
+# instead of per PR push analyses exactly the same diffs (on a squash merge
+# github.event.before is the previous main tip) at a fraction of the runner
+# cost.
 on:
   push:
     branches: [main]

@@ -3,6 +3,12 @@
 Aesthetic Turing Test.
 
 Establish the 'Professional Standard' by scoring high-quality human designs.
+
+Wave-4 Phase-5 R3-style record: standalone study script whose compute is
+one-hot rotation encoding (6 lines) plus call-backs into the retired-JAX
+stack and Phase-2/3/4 surfaces (``core.state``, ``io.kicad_parser``,
+``metrics.aesthetic``). Migrating the 6 lines behind a JAX boundary is
+net-negative marshalling. See ``packages/temper-orchestration/VERIFICATION.md``.
 """
 
 import argparse

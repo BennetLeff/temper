@@ -5,6 +5,21 @@ the mathematical structure of a physics-informed EDA feature. Extracted from the
 thermal solver battery (U4–U9 on plan 2026-07-09-001) and extended with the
 MFEM FEM corroboration (U1–U4 on plan 2026-07-09-002).
 
+> **R24 discipline inventory (2026-08-02).** The R24 rule — every physics-gated
+> CP-SAT constraint must carry a Chebyshev-style soundness proof (conservative
+> bound, or classified approximation error), BMC-exhaustive validation on small
+> N, and a post-solve audit — is enforced as an *inventory*, not a policy, via
+> the machine-readable register
+> [`power_pcb_dataset/physics_soundness_register.yaml`](../power_pcb_dataset/physics_soundness_register.yaml).
+> Every physics-gated constraint surface is listed there with its proof type,
+> proof location (the full proof lives at the encoder; the register links to
+> it), coverage scope, exemptions, and post-solve audit. The gate
+> `scripts/physics_soundness_register_gate.py` fails CI when a physics-gated
+> surface — detected by AST reference to the physics modules (`thermal_fdm`,
+> `heat_removal`, `thermal_potential`, `core/ipc2152`) or by an explicit
+> `physics_gated: true` docstring marker — has no register entry. See plan
+> `docs/plans/2026-08-02-004-feat-physics-soundness-proof-register-plan.md` (R20).
+
 The methodology has four components across a **three-target correctness/soundness/validity ladder**:
 
 1. **Four verification layers** (R1) — fuzz / domain-invariant / independent-method

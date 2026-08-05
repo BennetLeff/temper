@@ -727,6 +727,17 @@ class TestRealBoardIsolatorFigures:
         present, K2/C6/K1/T1/U3/U7 absent, so a regression that re-adds ANY
         of the cleared refs -- or loses the last genuine blocker -- fails
         this test.
+
+        UPDATE 2026-08-02b (wave-2 board write, this change): the owner
+        granted the K3 RT314012 swap + validator-gated re-solve + board
+        write (docs/evidence/2026-08-02-k3-swap-and-board-write.md). K3 now
+        carries the RT314012 (12.76mm internal gap, same as K2's) -- the
+        last intra-footprint blocker is cleared, and the written board
+        measures **REQ-SAFE-01 = 0/0** (0 inter / 0 intra). The assertions
+        below are re-baselined to intra == set() (measured on the written
+        board), fail-closed: any ref in the intra set fails, and the full
+        cleared set (K2, K3, C6, K1, T1, U3, U7) is asserted absent so a
+        regression that re-adds ANY of them is caught.
         """
         from ._real_board_fixture import RealBoardUnavailable, load_real_board_placement
 
@@ -738,11 +749,14 @@ class TestRealBoardIsolatorFigures:
         result = verify_iec60335_compliance(placement, domains)
         intra = {v.ref_a for v in result.violations if v.pair_kind == "intra"}
 
-        # K3: still a genuine blocker at the 8.0mm PD2 target -- measured
-        # 3.558846mm, ~4.4mm short, and unaffected by pollution degree at all
-        # (also below the PD-independent 6.0mm clearance minimum). Its own
-        # RT314012 swap is blocked on placement (PR #524 / issue #523).
-        assert "K3" in intra, f"expected K3 to still be blocking, got intra={intra}"
+        # Wave-2 written board: 0 intra-footprint blockers -- K3's RT314012
+        # swap (12.76mm internal gap) cleared the last one (measured REQ-
+        # SAFE-01 = 0/0 on the written board; see
+        # docs/evidence/2026-08-02-k3-swap-and-board-write.md).
+        assert intra == set(), (
+            f"expected zero intra-footprint blockers on the wave-2 written "
+            f"board (K3 cleared by the RT314012 swap), got intra={intra}"
+        )
         assert all(
             v.insulation_type in (InsulationType.BASIC, InsulationType.REINFORCED)
             for v in result.violations
@@ -758,6 +772,15 @@ class TestRealBoardIsolatorFigures:
             f"#524), got it back in the blocker set: intra={intra}"
         )
 
+        # K3: cleared by ITS OWN RT314012 swap in this wave-2 write (12.76mm
+        # internal gap, same part K2 got in #524). Asserted absent so a
+        # reversion of the swap (back to G5LE-1) is caught.
+        assert "K3" not in intra, (
+            "K3 should clear after the wave-2 RT314012 swap (12.76mm "
+            f"measured; docs/evidence/2026-08-02-k3-swap-and-board-write.md), "
+            f"got it back in the blocker set: intra={intra}"
+        )
+
         # C6, K1, T1, U3, U7: cleared by the PD2 8.0mm target (were
         # violations only at PD3's stricter 12.6mm). Asserted absent, not
         # merely unmentioned, so a regression that silently re-adds any of
@@ -767,7 +790,3 @@ class TestRealBoardIsolatorFigures:
         assert "T1" not in intra, "T1 should clear at the 8.0mm PD2 target (9.100mm measured)"
         assert "U3" not in intra, "U3 should clear at the 8.0mm PD2 target (8.560mm measured)"
         assert "U7" not in intra, "U7 should clear at the 8.0mm PD2 target (8.100mm measured)"
-
-        assert intra == {"K3"}, (
-            f"expected only K3 to remain an intra-footprint blocker, got {intra}"
-        )

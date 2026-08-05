@@ -5,142 +5,209 @@ This module defines the PCB board geometry and placement zones:
 - Board: Overall board dimensions, outline, mounting holes
 - Zone: Named regions for component placement constraints
 - LayerStackup: Layer definitions for routing estimation
+
+The data model is implemented in Rust as pyo3 pyclasses in the
+``temper-design-bundle`` crate (the ``temper_design_bundle_python``
+extension) — Wave 4 **Phase 3, candidate 1**
+(``docs/plans/2026-08-02-001-feat-wave4-phase3-formats-io-plan.md``). This
+module keeps the pre-migration public API unchanged and re-exports the Rust
+pyclasses directly (the pure-delegation pattern established by
+``core/loop.py`` and ``core/priority.py``).
+
+Verification: bit-identical parity against the pinned pre-migration
+implementation — including the concrete Python type of every field and the
+``float32`` dtype of every returned array — is asserted by
+``tests/core/test_board_rust_differential.py`` (oracle:
+``tests/core/_board_py_oracle.py``) and ``tests/core/test_board_pbt.py``;
+the structural proof lives in
+``packages/temper-design-bundle/VERIFICATION.md``.
+
+Deliberately NOT migrated (R3 verdict, named blocker)
+-----------------------------------------------------
+``LayerIndex`` and its derived tables stay Python. ``LayerIndex`` is an
+``IntEnum``, and its int-ness is load-bearing in-repo:
+``router_v6/constraints_drc_oracle.py`` evaluates
+``LayerIndex(layer) in INTERNAL_LAYERS``, ``deterministic/stages/_grid_hv.py``
+keys ``LAYER_IDX_TO_NAME`` by it, and the already-migrated ``net_types.rs``
+round-trips ``LayerIndex`` members through ``NetTypeSpec.target_layer``
+where they are compared with ``==`` against layer-name strings. pyo3 cannot
+produce a pyclass that subclasses ``int`` — variable-sized built-ins are not
+valid ``extends=`` bases — so a Rust ``LayerIndex`` would compare unequal to
+its own value and hash differently from the equal ``int``. That is a silent
+behaviour change a value-level differential could pass while production
+broke, so the enum, its tables, and the two predicates that dispatch on it
+remain here. See ``packages/temper-design-bundle/VERIFICATION.md``.
 """
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
 from enum import IntEnum
 from typing import TypeAlias
 
 import numpy as np
+import temper_design_bundle_python as _tdb
+
+from temper_placer.core._contract_dataclass_compat import (
+    field as _contract_field,
+)
+from temper_placer.core._contract_dataclass_compat import (
+    install_dataclass_fields as _install_dataclass_fields,
+)
 
 Array: TypeAlias = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
 
+_rs = _tdb.board_contracts
 
-@dataclass
-class MountingHole:
-    """
-    A mounting hole on the PCB.
+MountingHole = _rs.MountingHole
+Pad = _rs.Pad
+Component = _rs.Component
+Trace = _rs.Trace
+Via = _rs.Via
+Layer = _rs.Layer
+LayerStackup = _rs.LayerStackup
+Rect = _rs.Rect
+Zone = _rs.Zone
+GroundDomain = _rs.GroundDomain
+Board = _rs.Board
+side_to_layer_name = _rs.side_to_layer_name
 
-    Attributes:
-        position: (x, y) center position in mm.
-        diameter: Hole diameter in mm.
-        keepout_radius: Radius of keepout zone around hole in mm.
-    """
-
-    position: tuple[float, float]
-    diameter: float
-    keepout_radius: float = 3.0  # Default 3mm keepout
-
-
-@dataclass
-class Pad:
-    """
-    A component pad.
-
-    Attributes:
-        position: (x, y) relative to component center.
-        size: (width, height) in mm.
-        shape: 'rect', 'circle', 'oval', 'roundrect'.
-        layer: Layer name.
-        number: Pad number.
-        net_name: Name of connected net.
-    """
-
-    position: tuple[float, float]
-    size: tuple[float, float]
-    shape: str = "rect"
-    layer: str = "F.Cu"
-    number: str = ""
-    net_name: str | None = None
-
-
-@dataclass
-class Component:
-    """
-    A PCB component footprint.
-
-    Attributes:
-        ref: Reference designator (e.g. U1).
-        position: (x, y) center position.
-        rotation: Rotation in degrees.
-        width: Bounding box width.
-        height: Bounding box height.
-        pads: List of pads.
-        layer: Layer name.
-        fixed: Whether the component is locked.
-    """
-
-    ref: str
-    position: tuple[float, float]
-    rotation: float
-    width: float
-    height: float
-    footprint: str | None = None
-    pads: list[Pad] = field(default_factory=list)
-    layer: str = "F.Cu"
-    fixed: bool = False
-
-
-@dataclass(frozen=True)
-class Trace:
-    """
-    A routed trace segment.
-
-    Attributes:
-        start: (x, y) start point.
-        end: (x, y) end point.
-        width: Trace width in mm.
-        layer: Layer name.
-        net: Net name.
-    """
-
-    start: tuple[float, float]
-    end: tuple[float, float]
-    width: float
-    layer: str
-    net: str | None = None
-
-
-@dataclass(frozen=True)
-class Via:
-    """
-    A plated through-hole via.
-
-    Attributes:
-        position: (x, y) coordinates.
-        drill: Drill diameter in mm.
-        width: Annular ring diameter in mm.
-        layers: List of connected layers (e.g. ["F.Cu", "In1.Cu", "B.Cu"]).
-        net: Net name.
-        is_diff_pair: If True, via is part of differential pair routing and protected from validation removal.
-    """
-
-    position: tuple[float, float]
-    drill: float
-    width: float
-    layers: tuple[str, ...] = ("F.Cu", "B.Cu")
-    net: str | None = None
-    is_diff_pair: bool = False
-
-
-@dataclass
-class Layer:
-    """
-    A PCB layer definition.
-
-    Attributes:
-        name: Layer name (e.g., "F.Cu", "GND", "PWR", "B.Cu").
-        layer_type: Type of layer ("signal", "plane", "mixed").
-        copper_weight: Copper weight in oz (1oz, 2oz, etc.).
-        is_routable: Whether traces can be routed on this layer.
-    """
-
-    name: str
-    layer_type: str  # "signal", "plane", "mixed"
-    copper_weight: float = 1.0  # oz
-    is_routable: bool = True
+# A pyclass is not a dataclass, and `dataclasses.replace()` is used across the
+# deterministic stages. See `_contract_dataclass_compat` for the mechanism.
+# Each field spec mirrors the pinned pre-migration oracle
+# (`tests/core/_board_py_oracle.py`) field-for-field: annotation, literal
+# default or default_factory, and the init/repr flags.
+_install_dataclass_fields(
+    MountingHole,
+    (
+        _contract_field("position", "tuple[float, float]"),
+        _contract_field("diameter", "float"),
+        _contract_field("keepout_radius", "float", 3.0),
+    ),
+    module=__name__,
+)
+_install_dataclass_fields(
+    Pad,
+    (
+        _contract_field("position", "tuple[float, float]"),
+        _contract_field("size", "tuple[float, float]"),
+        _contract_field("shape", "str", "rect"),
+        _contract_field("layer", "str", "F.Cu"),
+        _contract_field("number", "str", ""),
+        _contract_field("net_name", "str | None", None),
+    ),
+    module=__name__,
+)
+_install_dataclass_fields(
+    Component,
+    (
+        _contract_field("ref", "str"),
+        _contract_field("position", "tuple[float, float]"),
+        _contract_field("rotation", "float"),
+        _contract_field("width", "float"),
+        _contract_field("height", "float"),
+        _contract_field("footprint", "str | None", None),
+        _contract_field("pads", "list[Pad]", default_factory=list),
+        _contract_field("layer", "str", "F.Cu"),
+        _contract_field("fixed", "bool", False),
+    ),
+    module=__name__,
+)
+_install_dataclass_fields(
+    Trace,
+    (
+        _contract_field("start", "tuple[float, float]"),
+        _contract_field("end", "tuple[float, float]"),
+        _contract_field("width", "float"),
+        _contract_field("layer", "str"),
+        _contract_field("net", "str | None", None),
+    ),
+    module=__name__,
+)
+_install_dataclass_fields(
+    Via,
+    (
+        _contract_field("position", "tuple[float, float]"),
+        _contract_field("drill", "float"),
+        _contract_field("width", "float"),
+        _contract_field("layers", "tuple[str, ...]", ("F.Cu", "B.Cu")),
+        _contract_field("net", "str | None", None),
+        _contract_field("is_diff_pair", "bool", False),
+    ),
+    module=__name__,
+)
+_install_dataclass_fields(
+    Layer,
+    (
+        _contract_field("name", "str"),
+        _contract_field("layer_type", "str"),
+        _contract_field("copper_weight", "float", 1.0),
+        _contract_field("is_routable", "bool", True),
+    ),
+    module=__name__,
+)
+_install_dataclass_fields(
+    LayerStackup,
+    (
+        _contract_field("layers", "tuple[Layer, ...]", ()),
+        _contract_field("thickness", "float", 1.6),
+    ),
+    module=__name__,
+)
+_install_dataclass_fields(
+    Rect,
+    (
+        _contract_field("x_min", "float"),
+        _contract_field("y_min", "float"),
+        _contract_field("x_max", "float"),
+        _contract_field("y_max", "float"),
+    ),
+    module=__name__,
+)
+_install_dataclass_fields(
+    Zone,
+    (
+        _contract_field("name", "str"),
+        _contract_field("bounds", "Rect | tuple[float, float, float, float]"),
+        _contract_field("net_classes", "list[str]", default_factory=lambda: ["Signal"]),
+        _contract_field("components", "list[str]", default_factory=list),
+        _contract_field("weight", "float", 1.0),
+        _contract_field("polygon", "list[tuple[float, float]] | None", None),
+        _contract_field("layers", "list[str]", default_factory=lambda: ["F.Cu"]),
+        _contract_field("max_size", "tuple[float, float] | None", None),
+        _contract_field(
+            "can_expand", "list[str]", default_factory=lambda: ["up", "down", "left", "right"]
+        ),
+        _contract_field("zone_type", "str", "placement"),
+    ),
+    module=__name__,
+)
+_install_dataclass_fields(
+    GroundDomain,
+    (
+        _contract_field("name", "str"),
+        _contract_field("bounds", "tuple[float, float, float, float]"),
+        _contract_field("star_point", "tuple[float, float] | None", None),
+    ),
+    module=__name__,
+)
+# `_zone_map` is `init=False` on the original dataclass: `replace()` must skip
+# it and reject any attempt to pass it.
+_install_dataclass_fields(
+    Board,
+    (
+        _contract_field("width", "float"),
+        _contract_field("height", "float"),
+        _contract_field("origin", "tuple[float, float]", (0.0, 0.0)),
+        _contract_field("zones", "list[Zone]", default_factory=list),
+        _contract_field("mounting_holes", "list[MountingHole]", default_factory=list),
+        _contract_field("keepouts", "list[tuple[float, float, float, float]]", default_factory=list),
+        _contract_field("ground_domains", "list[GroundDomain]", default_factory=list),
+        _contract_field("layer_stackup", "LayerStackup | None", None),
+        _contract_field("outline_polygon", "list[tuple[float, float]] | None", None),
+        _contract_field("_zone_map", "dict[str, Zone]", default_factory=dict, init=False),
+    ),
+    module=__name__,
+)
 
 
 class LayerIndex(IntEnum):
@@ -152,6 +219,8 @@ class LayerIndex(IntEnum):
     `Enum.name` returns the Python identifier (`"F_CU"`, etc.).
     Use `__str__(layer)` for the KiCad name and `layer.name` for the
     identifier — do not conflate them.
+
+    Not migrated to Rust — see the module docstring's R3 note.
     """
 
     F_CU = 0
@@ -213,591 +282,33 @@ def is_signal_layer(name_or_index: str | LayerIndex) -> bool:
     return not is_plane_layer(name_or_index)
 
 
-def side_to_layer_name(side: int) -> str:
-    """Map a board side (0=top, 1=bottom) to its KiCad layer name.
-
-    Raises ValueError for sides other than 0 or 1.
-    """
-    if side == 0:
-        return "F.Cu"
-    if side == 1:
-        return "B.Cu"
-    raise ValueError(f"side must be 0 or 1, got {side!r}")
-
-
 def layer_name_to_index(name: str) -> LayerIndex:
     """Map a KiCad layer name to its LayerIndex. Raises KeyError on miss."""
     return LAYER_NAME_TO_IDX[name]
 
 
-@dataclass(frozen=True)
-class LayerStackup:
-    """
-    PCB layer stackup definition.
-
-    For the Temper board (4-layer):
-    - L1 (F.Cu): 2oz copper, signal/power, HV traces
-    - L2 (In1.Cu): 1oz copper, GND plane
-    - L3 (In2.Cu): 1oz copper, PWR plane
-    - L4 (B.Cu): 1oz copper, signal
-
-    Attributes:
-        layers: Tuple of layers from top to bottom.
-        thickness: Total board thickness in mm.
-    """
-
-    layers: tuple[Layer, ...] = ()
-    thickness: float = 1.6  # mm
-
-    def is_plane_layer(self, layer_idx: int) -> bool:
-        """Check if a layer is a plane layer."""
-        if 0 <= layer_idx < len(self.layers):
-            return self.layers[layer_idx].layer_type == "plane"
-        return False
-
-    @classmethod
-    def default_4layer(cls) -> LayerStackup:
-        """Create default 4-layer stackup for Temper board.
-
-        Inner layers (In1.Cu, In2.Cu) are plane layers (GND and PWR) and
-        are not routable for signal traces. The PowerPlaneStage handles
-        plane net connections separately via vias.
-        """
-        return cls(
-            layers=(
-                Layer("F.Cu", "signal", copper_weight=2.0, is_routable=True),
-                Layer("In1.Cu", "plane", copper_weight=1.0, is_routable=False),
-                Layer("In2.Cu", "plane", copper_weight=1.0, is_routable=False),
-                Layer("B.Cu", "signal", copper_weight=1.0, is_routable=True),
-            ),
-            thickness=1.6,
-        )
-
-    @classmethod
-    def _test_only_2layer(cls) -> LayerStackup:
-        """TEST-ONLY: Create a 2-layer stackup for focused unit tests.
-
-        Not a production path. The canonical Temper board is 4-layer.
-        Use `default_4layer()` for any production or integration code.
-
-        Raises RuntimeError if called from outside a test file.
-        """
-        import sys
-        import warnings
-
-        frame = sys._getframe(1)
-        caller_file = frame.f_code.co_filename
-        if "/test" not in caller_file and "/tests/" not in caller_file:
-            raise RuntimeError(
-                "_test_only_2layer() may only be called from test files. "
-                f"Called from {caller_file}. Use default_4layer() instead."
-            )
-
-        warnings.warn(
-            "_test_only_2layer() is for test use only. Use default_4layer() for production.",
-            stacklevel=2,
-        )
-        return cls(
-            layers=(
-                Layer("F.Cu", "signal", copper_weight=1.0, is_routable=True),
-                Layer("B.Cu", "signal", copper_weight=1.0, is_routable=True),
-            ),
-            thickness=1.6,
-        )
-
-    def routable_layers(self, net_class: str = "Signal") -> list[int]:
-        """
-        Return layer indices where this net class can route.
-
-        Args:
-            net_class: Net class name ("HighVoltage", "Power", "Signal").
-
-        Returns:
-            List of layer indices (0-based) that can be used for routing.
-        """
-        if net_class == "HighVoltage":
-            # HV traces only on L1 (2oz copper for current capacity)
-            return [0]
-        elif net_class == "Power":
-            # Power traces on L1 or L4
-            return [i for i, layer in enumerate(self.layers) if layer.is_routable]
-        else:
-            # Signal traces can route on any routable layer
-            return [i for i, layer in enumerate(self.layers) if layer.is_routable]
-
-    def tracks_per_cell(self, grid_size: float, net_class: str = "Signal") -> float:
-        """
-        Estimate routing capacity per routing cell.
-
-        Args:
-            grid_size: Size of routing estimation cell in mm.
-            net_class: Net class being routed.
-
-        Returns:
-            Number of tracks that can cross a cell boundary.
-        """
-        # Minimum track width + spacing defaults (mm)
-        # These would ideally come from KiCad net class constraints
-        if net_class == "HighVoltage":
-            width, space = 1.0, 1.0  # Wide HV traces
-        elif net_class == "Power":
-            width, space = 0.5, 0.3
-        else:
-            width, space = 0.2, 0.2
-
-        pitch = width + space
-        layers = len(self.routable_layers(net_class))
-
-        # Tracks per layer = grid_size / pitch
-        return (grid_size / pitch) * layers
-
-
-@dataclass(frozen=True, eq=False)
-class Rect:
-    """An axis-aligned rectangle in board coordinates (mm).
-
-    The canonical bounds representation across the placer is
-    ``(x_min, y_min, x_max, y_max)``. A bare 4-tuple is dangerously
-    ambiguous — ``[70, 0, 50, 80]`` reads equally well as an
-    ``(x, y, width, height)`` rectangle or as an *inverted*
-    ``(x_min, y_min, x_max, y_max)`` one, and the two conventions were
-    silently mixed across configs, the loader, and the CP-SAT encoder.
-    That mismatch produced empty zones and infeasible placements with no
-    error at the point of the mistake.
-
-    ``Rect`` removes the ambiguity by construction:
-
-    * The two conventions are separate, self-documenting constructors —
-      :meth:`from_xyxy` and :meth:`from_xywh`. You cannot build a ``Rect``
-      without stating which one you mean.
-    * The min/max invariant (``x_max > x_min`` and ``y_max > y_min``) is
-      validated at construction, so an inverted or degenerate rectangle
-      raises :class:`ValueError` at the mistake site instead of silently
-      becoming an empty region downstream.
-
-    ``Rect`` is iterable and indexable and unpacks as
-    ``(x_min, y_min, x_max, y_max)``, so it is a drop-in replacement for
-    the legacy tuple everywhere bounds are consumed positionally.
-    """
-
-    x_min: float
-    y_min: float
-    x_max: float
-    y_max: float
-
-    def __post_init__(self) -> None:
-        if not (self.x_max > self.x_min):
-            raise ValueError(
-                f"Rect requires x_max > x_min, got x_min={self.x_min}, "
-                f"x_max={self.x_max}. If you have (x, y, width, height) "
-                f"bounds, build with Rect.from_xywh(...)."
-            )
-        if not (self.y_max > self.y_min):
-            raise ValueError(
-                f"Rect requires y_max > y_min, got y_min={self.y_min}, "
-                f"y_max={self.y_max}. If you have (x, y, width, height) "
-                f"bounds, build with Rect.from_xywh(...)."
-            )
-
-    @classmethod
-    def from_xyxy(cls, x_min: float, y_min: float, x_max: float, y_max: float) -> Rect:
-        """Build from ``(x_min, y_min, x_max, y_max)`` — the canonical form."""
-        return cls(float(x_min), float(y_min), float(x_max), float(y_max))
-
-    @classmethod
-    def from_xywh(cls, x: float, y: float, width: float, height: float) -> Rect:
-        """Build from an ``(x, y, width, height)`` origin+size rectangle."""
-        return cls(float(x), float(y), float(x) + float(width), float(y) + float(height))
-
-    @classmethod
-    def coerce(cls, value: Rect | tuple[float, float, float, float]) -> Rect:
-        """Coerce a legacy 4-tuple (assumed ``x_min,y_min,x_max,y_max``) to Rect.
-
-        Accepts an existing ``Rect`` unchanged. This is the migration
-        seam for call sites that still pass raw tuples; it deliberately
-        assumes the canonical ``xyxy`` convention and inherits the
-        invariant check, so a mis-conventioned tuple fails loudly here.
-        """
-        if isinstance(value, cls):
-            return value
-        x_min, y_min, x_max, y_max = value
-        return cls.from_xyxy(x_min, y_min, x_max, y_max)
-
-    @property
-    def width(self) -> float:
-        return self.x_max - self.x_min
-
-    @property
-    def height(self) -> float:
-        return self.y_max - self.y_min
-
-    def __iter__(self):
-        yield self.x_min
-        yield self.y_min
-        yield self.x_max
-        yield self.y_max
-
-    def __getitem__(self, index: int) -> float:
-        return (self.x_min, self.y_min, self.x_max, self.y_max)[index]
-
-    def __len__(self) -> int:
-        return 4
-
-    def __eq__(self, other: object) -> bool:
-        # Compare equal to both another Rect and a legacy 4-tuple/list, so
-        # Rect is a true drop-in for the tuple it replaces (existing code and
-        # tests that assert ``zone.bounds == (x_min, y_min, x_max, y_max)``
-        # keep working).
-        if isinstance(other, Rect):
-            other = (other.x_min, other.y_min, other.x_max, other.y_max)
-        if isinstance(other, (tuple, list)) and len(other) == 4:
-            return (self.x_min, self.y_min, self.x_max, self.y_max) == tuple(other)
-        return NotImplemented
-
-    def __hash__(self) -> int:
-        return hash((self.x_min, self.y_min, self.x_max, self.y_max))
-
-
-@dataclass
-class Zone:
-    """
-    A placement zone with specific constraints.
-
-    Attributes:
-        name: Unique zone name.
-        bounds: (x_min, y_min, x_max, y_max) relative to board origin.
-            Coerced to a validated :class:`Rect` on construction, so an
-            inverted or degenerate zone raises at build time rather than
-            silently becoming an empty region.
-        net_classes: Allowed net classes in this zone.
-        components: Mandatory components for this zone.
-        weight: Priority weight for zone constraints.
-        max_size: Optional (max_width, max_height) for feedback expansion.
-        can_expand: List of allowed expansion directions ('up', 'down', 'left', 'right').
-    """
-
-    name: str
-    bounds: Rect | tuple[float, float, float, float]
-    net_classes: list[str] = field(default_factory=lambda: ["Signal"])
-    components: list[str] = field(default_factory=list)
-    weight: float = 1.0
-    polygon: list[tuple[float, float]] | None = (
-        None  # Optional polygon vertices for non-rectangular zones
-    )
-    layers: list[str] = field(default_factory=lambda: ["F.Cu"])
-    max_size: tuple[float, float] | None = None
-    can_expand: list[str] = field(default_factory=lambda: ["up", "down", "left", "right"])
-    zone_type: str = "placement"
-
-    def __post_init__(self) -> None:
-        # Coerce legacy 4-tuple bounds to a validated Rect so a zone can
-        # never hold an inverted or degenerate rectangle. This is the
-        # invariant that turns the (x,y,w,h) vs (x_min,y_min,x_max,y_max)
-        # convention mismatch into a construction-time error.
-        self.bounds = Rect.coerce(self.bounds)
-
-    @property
-    def width(self) -> float:
-        """Zone width in mm."""
-        return self.bounds[2] - self.bounds[0]
-
-    @property
-    def height(self) -> float:
-        """Zone height in mm."""
-        return self.bounds[3] - self.bounds[1]
-
-    @property
-    def center(self) -> tuple[float, float]:
-        """(x, y) center position of the zone."""
-        return (
-            (self.bounds[0] + self.bounds[2]) / 2,
-            (self.bounds[1] + self.bounds[3]) / 2,
-        )
-
-    @property
-    def area(self) -> float:
-        """Zone area in mm²."""
-        return self.width * self.height
-
-    def contains_point(self, x: float, y: float) -> bool:
-        """Check if a point is within zone boundaries."""
-        return self.bounds[0] <= x <= self.bounds[2] and self.bounds[1] <= y <= self.bounds[3]
-
-
-@dataclass
-class GroundDomain:
-    """
-    A ground plane domain (e.g., AGND, PGND).
-
-    Used to detect and penalize traces crossing ground splits.
-
-    Attributes:
-        name: Domain name.
-        bounds: Polygon or bounding box.
-        star_point: (x, y) location where this domain connects to main GND.
-    """
-
-    name: str
-    bounds: tuple[float, float, float, float]
-    star_point: tuple[float, float] | None = None
-
-    def contains_point(self, x: float, y: float) -> bool:
-        """Check if a point is within ground domain boundaries."""
-        return self.bounds[0] <= x <= self.bounds[2] and self.bounds[1] <= y <= self.bounds[3]
-
-
-@dataclass
-class Board:
-    """
-    The PCB board geometry and constraints.
-
-    Attributes:
-        width: Board width in mm.
-        height: Board height in mm.
-        origin: (x, y) origin point in mm (for absolute coordinates).
-        zones: List of placement zones.
-        mounting_holes: List of mounting holes (keep-outs).
-        ground_domains: List of ground plane domains.
-        layer_stackup: Layer definition.
-        outline_polygon: Optional list of (x, y) points for non-rectangular boards.
-    """
-
-    width: float
-    height: float
-    origin: tuple[float, float] = (0.0, 0.0)
-    zones: list[Zone] = field(default_factory=list)
-    mounting_holes: list[MountingHole] = field(default_factory=list)
-    keepouts: list[tuple[float, float, float, float]] = field(
-        default_factory=list
-    )  # (x_min, y_min, x_max, y_max)
-    ground_domains: list[GroundDomain] = field(default_factory=list)
-    layer_stackup: LayerStackup | None = None
-    outline_polygon: list[tuple[float, float]] | None = None
-
-    # Fast lookup caches
-    _zone_map: dict[str, Zone] = field(init=False, default_factory=dict)
-
-    def __post_init__(self) -> None:
-        """Initialize caches and defaults. Enforce 4-layer stackup."""
-        if not self.layer_stackup:
-            self.layer_stackup = LayerStackup.default_4layer()
-        elif len(self.layer_stackup.layers) != CANONICAL_LAYER_COUNT:
-            actual = [ly.name for ly in self.layer_stackup.layers]
-            raise ValueError(
-                f"Board requires {CANONICAL_LAYER_COUNT}-layer stackup (canonical: "
-                f"{sorted(CANONICAL_4LAYER_LAYER_NAMES)}), got "
-                f"{len(self.layer_stackup.layers)} layers: {actual}"
-            )
-        self.build_indices()
-
-    def build_indices(self) -> None:
-        """Build name -> object map for zones."""
-        self._zone_map = {z.name: z for z in self.zones}
-
-    @property
-    def keepout_regions(self) -> list[tuple[float, float, float, float]]:
-        """Alias for keepouts for heuristic compatibility."""
-        return self.keepouts
-
-    @property
-    def has_polygon_outline(self) -> bool:
-        """True if the board has a non-rectangular outline."""
-        return self.outline_polygon is not None and len(self.outline_polygon) > 2
-
-    def polygon_array(self) -> Array | None:
-        """Get outline as a (P, 2) JAX array."""
-        if not self.outline_polygon:
-            return None
-        return np.array(self.outline_polygon, dtype=np.float32)
-
-    @classmethod
-    def from_polygon(
-        cls,
-        polygon: list[tuple[float, float]],
-        origin: tuple[float, float] = (0.0, 0.0),
-    ) -> Board:
-        """
-        Create a board from an arbitrary polygon outline.
-
-        Automatically computes width and height from polygon bounds.
-
-        Args:
-            polygon: List of (x, y) vertices.
-            origin: Board origin in mm.
-
-        Returns:
-            Initialized Board instance.
-        """
-        xs = [p[0] for p in polygon]
-        ys = [p[1] for p in polygon]
-        x_min, x_max = min(xs), max(xs)
-        y_min, y_max = min(ys), max(ys)
-
-        return cls(
-            width=x_max - x_min,
-            height=y_max - y_min,
-            origin=origin,
-            outline_polygon=polygon,
-        )
-
-    @classmethod
-    def temper_default(cls) -> Board:
-        """Create a default board matching the Temper induction cooker specs."""
-        return cls(
-            width=100.0,
-            height=150.0,
-            origin=(0.0, 0.0),
-            zones=[
-                Zone("HV_ZONE", (0, 0, 50, 80)),
-                Zone("POWER_ZONE", (50, 0, 100, 80)),
-                Zone("MCU_ZONE", (0, 80, 100, 130)),
-                Zone("UI_ZONE", (0, 130, 100, 150)),
-            ],
-            mounting_holes=[
-                MountingHole((5, 5), 3.2),
-                MountingHole((95, 5), 3.2),
-                MountingHole((5, 145), 3.2),
-                MountingHole((95, 145), 3.2),
-            ],
-            ground_domains=[
-                GroundDomain("PGND", (0, 0, 50, 150), star_point=(50, 75)),
-                GroundDomain("CGND", (50, 0, 100, 150), star_point=(50, 75)),
-            ],
-        )
-
-    def get_zone(self, name: str) -> Zone:
-        """Get zone by name."""
-        return self._zone_map[name]
-
-    def get_zone_for_point(self, x: float, y: float) -> Zone | None:
-        """Find the first zone that contains the given point."""
-        for zone in self.zones:
-            if zone.contains_point(x, y):
-                return zone
-        return None
-
-    def get_ground_domain(self, x: float, y: float) -> GroundDomain | None:
-        """Find the ground domain at the given point."""
-        for domain in self.ground_domains:
-            if domain.contains_point(x, y):
-                return domain
-        return None
-
-    def contains_point(self, x: float, y: float) -> bool:
-        """
-        Check if a point is within the board boundaries.
-
-        Args:
-            x, y: Board-relative coordinates.
-        """
-        return 0 <= x <= self.width and 0 <= y <= self.height
-
-    def point_in_keepout(self, x: float, y: float) -> bool:
-        """
-        Check if a point is inside a restricted keep-out area.
-
-        Includes mounting holes and user-defined keep-out zones.
-
-        Args:
-            x, y: Point to check.
-
-        Returns:
-            True if the point is restricted.
-        """
-        # Check mounting holes
-        for hole in self.mounting_holes:
-            dist_sq = (x - hole.position[0]) ** 2 + (y - hole.position[1]) ** 2
-            if dist_sq < hole.keepout_radius**2:
-                return True
-        return False
-
-    def get_bounds_array(self) -> Array:
-        """Get [x_min, y_min, x_max, y_max] absolute board bounds."""
-        ox, oy = self.origin
-        return np.array([ox, oy, ox + self.width, oy + self.height], dtype=np.float32)
-
-    def get_relative_bounds_array(self) -> Array:
-        """Get [0, 0, width, height] relative board bounds."""
-        return np.array([0.0, 0.0, self.width, self.height], dtype=np.float32)
-
-    @property
-    def area(self) -> float:
-        """Total board area in mm²."""
-        return self.width * self.height
-
-    def rotated_90(self) -> Board:
-        """Return a new Board rotated 90° clockwise.
-
-        All geometry is transformed: (x, y) maps to (old_height - y, x).
-        Zones, mounting holes, keepouts, ground domains, and outline
-        polygon are deep-copied and rotated.  Layer stackup is preserved.
-        """
-        h = self.height
-
-        def _rotate_point(x: float, y: float) -> tuple[float, float]:
-            return (h - y, x)
-
-        def _rotate_bounds(
-            b: tuple[float, float, float, float],
-        ) -> tuple[float, float, float, float]:
-            return (h - b[3], b[0], h - b[1], b[2])
-
-        _EXPAND_ROTATE = {"up": "right", "right": "down", "down": "left", "left": "up"}
-
-        def _rotate_expand(dirs: list[str]) -> list[str]:
-            return [_EXPAND_ROTATE.get(d, d) for d in dirs]
-
-        rotated_zones = [
-            Zone(
-                name=z.name,
-                bounds=_rotate_bounds(z.bounds),
-                net_classes=list(z.net_classes),
-                components=list(z.components),
-                weight=z.weight,
-                polygon=[_rotate_point(px, py) for px, py in z.polygon] if z.polygon else None,
-                layers=list(z.layers),
-                max_size=z.max_size,
-                can_expand=_rotate_expand(z.can_expand),
-            )
-            for z in self.zones
-        ]
-
-        rotated_holes = [
-            MountingHole(
-                position=_rotate_point(mh.position[0], mh.position[1]),
-                diameter=mh.diameter,
-                keepout_radius=mh.keepout_radius,
-            )
-            for mh in self.mounting_holes
-        ]
-
-        rotated_keepouts = [_rotate_bounds(k) for k in self.keepouts]
-
-        rotated_grounds = [
-            GroundDomain(
-                name=gd.name,
-                bounds=_rotate_bounds(gd.bounds),
-                star_point=_rotate_point(gd.star_point[0], gd.star_point[1])
-                if gd.star_point
-                else None,
-            )
-            for gd in self.ground_domains
-        ]
-
-        rotated_outline = (
-            [_rotate_point(px, py) for px, py in self.outline_polygon]
-            if self.outline_polygon
-            else None
-        )
-
-        return Board(
-            width=self.height,
-            height=self.width,
-            origin=self.origin,
-            zones=rotated_zones,
-            mounting_holes=rotated_holes,
-            keepouts=rotated_keepouts,
-            ground_domains=rotated_grounds,
-            layer_stackup=self.layer_stackup,
-            outline_polygon=rotated_outline,
-        )
+__all__ = [
+    "CANONICAL_4LAYER_LAYER_NAMES",
+    "CANONICAL_LAYER_COUNT",
+    "LAYER_IDX_TO_NAME",
+    "LAYER_NAME_TO_IDX",
+    "PLANE_LAYER_INDICES",
+    "STANDARD_LAYER_ORDER",
+    "Array",
+    "Board",
+    "Component",
+    "GroundDomain",
+    "Layer",
+    "LayerIndex",
+    "LayerStackup",
+    "MountingHole",
+    "Pad",
+    "Rect",
+    "Trace",
+    "Via",
+    "Zone",
+    "is_plane_layer",
+    "is_signal_layer",
+    "layer_name_to_index",
+    "side_to_layer_name",
+]

@@ -140,7 +140,6 @@ def _classify_vias(result: ParseResult) -> ViaCounts:
     # Get board edges for stitching via detection
     board_bbox = _get_board_bbox(result)
 
-    signal = 0
     thermal = 0
     stitching = 0
 
@@ -161,16 +160,17 @@ def _classify_vias(result: ParseResult) -> ViaCounts:
                 stitching += 1
                 continue
 
-        # Signal via: everything else (including valid signal nets)
-        if is_signal_net(via_net):
-            signal += 1
-        else:
-            # Via on non-signal net (ground/power/HV) that isn't thermal/stitching
-            # — still count these outside the signal group
-            pass
-
     total = len(result.vias)
-    # Ensure signal count covers all remaining vias not classified as thermal/stitching
+    # "signal" is the residual class, by construction: every via that is not
+    # thermal and not stitching. This deliberately includes vias on power/HV
+    # nets, so the three counts always partition `total`.
+    #
+    # There used to be a per-via `signal` accumulator here, guarded by
+    # `is_signal_net(via_net)` and then unconditionally overwritten by the
+    # line below -- a dead store that made this function look as though it
+    # excluded non-signal nets from the signal count when it never did
+    # (issue #752 defect 10). Removed; the residual definition is the real
+    # one and is now pinned by tests.
     signal = total - thermal - stitching
 
     return ViaCounts(signal=signal, thermal=thermal, stitching=stitching, total=total)

@@ -43,6 +43,14 @@ class DrcError:
         nets: List of net names involved (from items with no owning
             component, e.g. bare copper tracks/vias -- KiCad embeds the
             net name in square brackets, e.g. "Via [GND] on F.Cu - B.Cu").
+        items: Raw kicad-cli item descriptions, verbatim and in report
+            order (e.g. "Pad 1 [I_SENSE] of C28 on F.Cu"). ``components``
+            and ``nets`` are lossy summaries of these -- both are deduped,
+            so a violation between two pads of ONE footprint collapses to a
+            single-entry ``components`` list and the pad numbers are gone.
+            The board-defect corpus asserts that a seeded pad short
+            produces a violation naming BOTH mutated pads, which is only
+            decidable from the raw descriptions.
     """
 
     rule: str
@@ -51,6 +59,7 @@ class DrcError:
     message: str
     components: list[str] = field(default_factory=list)
     nets: list[str] = field(default_factory=list)
+    items: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -224,9 +233,11 @@ def _parse_drc_json(json_path: Path) -> DrcResult:
         location = (0.0, 0.0)
         components: list[str] = []
         nets: list[str] = []
+        raw_items: list[str] = []
         location_set = False
         for item in items:
             description = item.get("description", "")
+            raw_items.append(description)
             ref = _extract_ref_from_item_description(description)
             if ref and ref not in components:
                 components.append(ref)
@@ -261,6 +272,7 @@ def _parse_drc_json(json_path: Path) -> DrcResult:
                     message=message,
                     components=components,
                     nets=nets,
+                    items=raw_items,
                 )
             )
 

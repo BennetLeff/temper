@@ -12,8 +12,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-
-from temper_placer.core.loss_types import RunMetrics
+from typing import Any
 
 
 class GateStatus(Enum):
@@ -96,7 +95,7 @@ class ValidationGate:
     def required_metrics(self) -> list[str]:
         return []
 
-    def check(self, metrics: RunMetrics) -> GateResult:
+    def check(self, metrics: Any) -> GateResult:
         raise NotImplementedError
 
 
@@ -120,7 +119,7 @@ class PlacementCompleteGate(ValidationGate):
             "igbt_edge_distance_mm",
         ]
 
-    def check(self, metrics: RunMetrics) -> GateResult:
+    def check(self, metrics: Any) -> GateResult:
         import time
 
         start = time.time()
@@ -181,7 +180,7 @@ class RoutingCompleteGate(ValidationGate):
             "drc_errors",
         ]
 
-    def check(self, metrics: RunMetrics) -> GateResult:
+    def check(self, metrics: Any) -> GateResult:
         import time
 
         start = time.time()
@@ -248,7 +247,7 @@ class ProductionReadyGate(ValidationGate):
             "spice_power_ripple",
         ]
 
-    def check(self, metrics: RunMetrics) -> GateResult:
+    def check(self, metrics: Any) -> GateResult:
         import time
 
         start = time.time()
@@ -310,7 +309,7 @@ class ValidatedGate(ValidationGate):
             "loss_cv",
         ]
 
-    def check(self, metrics: RunMetrics) -> GateResult:
+    def check(self, metrics: Any) -> GateResult:
         import time
 
         start = time.time()
@@ -355,12 +354,12 @@ class ValidatedGate(ValidationGate):
         )
 
 
-def check_all_gates(metrics: RunMetrics) -> ValidationGatesResult:
+def check_all_gates(metrics: Any) -> ValidationGatesResult:
     """
     Run all validation gates on a single run's metrics.
 
     Args:
-        metrics: RunMetrics from a single training run
+        metrics: Run-metrics object (duck-typed) from a single training run
 
     Returns:
         ValidationGatesResult with results from all gates
@@ -373,12 +372,12 @@ def check_all_gates(metrics: RunMetrics) -> ValidationGatesResult:
     )
 
 
-def check_gate(metrics: RunMetrics, gate_name: str) -> GateResult | None:
+def check_gate(metrics: Any, gate_name: str) -> GateResult | None:
     """
     Run a specific validation gate.
 
     Args:
-        metrics: RunMetrics from a single training run
+        metrics: Run-metrics object (duck-typed) from a single training run
         gate_name: Name of the gate to check
 
     Returns:

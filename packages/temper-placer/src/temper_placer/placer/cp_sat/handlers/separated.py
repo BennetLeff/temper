@@ -26,6 +26,14 @@ def encode_separated(
 ) -> list[AssumptionLiteral]:
     """Enforce Chebyshev clearance between every component in group A and B.
 
+    **Physics-gated surface (KTD4):** ``physics_gated: true`` — this handler
+    is physics-gated on the domain-clearance call path
+    (``domain_clearance.py`` sets ``min_distance_mm`` from IEC 60335-2-6
+    clearance/creepage matrix values) and on the thermal-feedback call path
+    (``delta_mapper.py`` sets it from a measured thermal violation's
+    threshold). See the register entry in
+    ``power_pcb_dataset/physics_soundness_register.yaml``.
+
     Each pair (a, b) gets a pairwise Chebyshev disjunction — exactly the
     margin required on **either** the x-axis **or** the y-axis — using 6
     Boolean auxiliary variables per pair.  This is strictly stronger than

@@ -9,9 +9,15 @@ name = "temper_constraint_compiler"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-pyo3 = { version = "0.29", features = ["extension-module"] }
-temper-rust-router-core = { path = "../temper-rust-router-core" }
+pyo3 = { version = "0.29", features = ["extension-module"], optional = true }
+temper-rust-router-core = { path = "../temper-rust-router-core", default-features = false }
+temper-py-bridge = { path = "../temper-py-bridge", optional = true }
 serde = { version = "1", features = ["derive"] }
+
+[features]
+default = ["python", "sat"]
+python = ["dep:pyo3", "dep:temper-py-bridge"]
+sat = ["temper-rust-router-core/sat"]
 
 [profile.release]
 panic = "unwind"

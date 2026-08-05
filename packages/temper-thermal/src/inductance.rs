@@ -42,7 +42,9 @@
 //! B3/B4/B5/B6 are likewise not applicable (no rounding, no hypot, no
 //! Python `max`/`min`).
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use temper_py_bridge;
 
 /// Estimate parasitic loop inductance (nH) from loop area and perimeter.
@@ -118,6 +120,7 @@ pub fn estimate_gate_inductance(source_to_gate_dist_mm: f64, return_dist_mm: f64
 }
 
 /// pyo3 bridge for [`estimate_loop_inductance`].
+#[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (loop_area_mm2, perimeter_mm, layer_separation_mm, routing_factor))]
 pub fn estimate_loop_inductance_py(
@@ -138,6 +141,7 @@ pub fn estimate_loop_inductance_py(
 }
 
 /// pyo3 bridge for [`estimate_gate_inductance`].
+#[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (source_to_gate_dist_mm, return_dist_mm))]
 pub fn estimate_gate_inductance_py(

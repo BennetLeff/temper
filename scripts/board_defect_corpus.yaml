@@ -1,0 +1,133 @@
+_meta:
+  title: Board-defect mutation corpus — seed manifest
+  plan: docs/plans/2026-08-02-024-feat-board-defect-mutation-corpus-plan.md
+  requirement: R38
+  board: pcb/temper.kicad_pcb
+  # Content hash of the committed board the seeds below were validated
+  # against. The runner compares its run-time board hash to this value; a
+  # mismatch means the board changed since the corpus was seeded and every
+  # seed is re-validated by the run itself (KTD3: the corpus re-derives from
+  # the committed board on every run). Update this hash with
+  # `--update-manifest` after a board change has been re-validated green.
+  board_sha256: 51e39844b18aa37c84e4cc0b011acc51dc24cb1282359e1334ecbdf6ed07d9af
+  board_commit: de59c045822194bbaffbefeb542cc48f895ecc82
+  created: 2026-08-02
+  reseeded: 2026-08-04
+  measured_kicad_cli: 10.0.4
+  reseed_note: >-
+    Re-seeded 2026-08-04 from board_sha256 e2fb9237 (commit 54372bbf,
+    2026-07-29) to 51e39844 (commit de59c0458, 2026-08-03). The corpus was
+    AUTHORED on 2026-08-02 against a 2026-07-29 board that main had already
+    moved past: 55226f8ad (#517, 2026-07-31) re-solved the placement and
+    changed the position of ALL 169 footprints, and 829af5c59 / 27ea686c5
+    (K2 RT314012), a2fdfd1bb (#568 edge-nudge) and de59c0458 (#602, K3
+    RT314012 swap) each changed it again. That stale seed is what unmasked
+    two vacuous owning-gate choices -- see
+    docs/evidence/2026-08-04-board-defect-corpus-uncovered-classes.md.
+  note: >-
+    Seeds are deterministic transforms on run-time copies of the committed
+    board; the committed board is NEVER modified and the DRC-ceiling
+    re-measurement convention stays inert. The three real defect instances
+    (tank cap off-outline at (at 20.0 272.75), C1 pad2<->R7 pad2 short,
+    DC_BUS<->LV_CONTROL creepage crossings) are ALREADY present on the
+    committed board, so each seed starts from a DEFECT-FREE point: move an
+    in-board tank cap off-board, short a not-yet-shorted pad pair, compress
+    a currently-compliant creepage pair.
+
+# Defect-to-gate mapping (KTD2): each class names its owning gate(s); a
+# class whose owning gate does not fire on the mutated board is a corpus
+# error, not a pass.
+#
+# failure_signal values:
+#   gate-names-defect -- the owning gate must NAME the seeded defect on the
+#     mutated board and must NOT name it on the clean board (both halves of
+#     R9). Strictly stronger than a count-delta: a count can rise for an
+#     unrelated reason, but a finding naming the exact ref/pads the mutator
+#     touched cannot.
+#   count-delta -- the owning gate's per-class count must exceed the clean
+#     board's. Retained only for creepage, whose gate is red on main and so
+#     has a documented known-finding baseline rather than a zero.
+classes:
+  off-board:
+    mutation: off-board
+    seed: 1
+    params:
+      ref: C26
+      position_mm: [59.38, 256.0]
+    owning_gates: [board_containment]
+    failure_signal: gate-names-defect
+    note: >-
+      tank-cap class (the real C27-off-outline staging). C26
+      (tank.c_tank2, in-board at (65.92, 72.32) rot 270) is moved to
+      (59.38, 256.0), past the bottom edge of the 20..172 x 20..254
+      outline. Owning gate is scripts/check_board_containment.py -- the R26
+      "every component inside the outline" invariant -- which reports C26
+      pads 1 and 2 fully outside the outline on the mutated board and
+      reports nothing at all on the clean board.
+    superseded_owning_gates: >-
+      Until 2026-08-04 this class named courtyards_overlap and
+      copper_edge_clearance, described as "the standing proxy for the R26
+      containment invariant until R26 lands". Measured 2026-08-04, both
+      proxies are vacuous for this class: copper_edge_clearance never fired
+      on this seed on ANY board (12 -> 12 today, 15 -> 15 on the seed-era
+      board -- it measures copper too CLOSE to the edge, and copper that has
+      left the board is simply far from it), and courtyards_overlap fired
+      only on the pre-#517 geometry (14 -> 29, when C26 was at rot 0 and the
+      move laid its 40mm-pitch body across a populated region), going
+      11 -> 11 today at rot 270. Moving a component off the board REMOVES
+      its copper from the layout, so DRC counts FALL: hole_clearance
+      105 -> 102, shorting_items 200 -> 197, solder_mask_bridge 154 -> 151,
+      net -9 errors. No count-delta can ever detect this class.
+  pad-short:
+    mutation: pad-short
+    seed: 2
+    params:
+      ref: C28
+      pad_a: "1"
+      pad_b: "2"
+    owning_gates: [kicad-drc]
+    failure_signal: gate-names-defect
+    note: >-
+      C1 pad2<->R7 pad2 short class. C28 (0603, pad 1 I_SENSE, pad 2 gnd)
+      pad 2's copper is moved onto pad 1's position; the two pads keep
+      their distinct nets, so overlapping copper on different nets appears.
+      A net-join alone cannot create a short on a static board -- see
+      board_defect_mutator.py's mutate_pad_short docstring for the review
+      fix rationale. Asserted as "some DRC error names BOTH C28 pad 1 and
+      C28 pad 2 on the mutated board, and none does on the clean board".
+    superseded_owning_gates: >-
+      Until 2026-08-04 this class asserted a shorting_items count-delta
+      against max(clean, recorded ceiling). Three independent defects, all
+      measured 2026-08-04: (1) KiCad does not assign this defect a stable
+      category -- the identical mutation yields shorting_items on the
+      seed-era board but "clearance (actual 0.0000 mm)" +
+      solder_mask_bridge on today's, so a single hard-coded category name
+      cannot see it; (2) shorting_items is not stable enough to carry a +1
+      assertion, measuring 199,199,199,200,199 over five runs of ONE
+      byte-identical board, so the signal sat inside the noise floor; and
+      (3) the max(clean, ceiling) baseline made the assertion
+      mathematically unsatisfiable once the recorded ceiling (201) rose
+      above clean+1 (clean 200) -- the mutation would have had to produce
+      202. That third defect is what turned this class red; the first two
+      meant it had never been a sound assertion.
+  creepage:
+    mutation: creepage
+    seed: 3
+    params:
+      ref: C8
+      position_mm: [116.26, 138.72]
+    owning_gates: [req-safe-01-creepage-dc-lv]
+    failure_signal: count-delta
+    baseline_note: >-
+      The REQ-SAFE-01 creepage gate is RED on main today (99
+      DC_BUS<->LV_CONTROL creepage violations measured 2026-08-02 via
+      verify_iec60335_compliance at the matrix's enforced min_creepage_mm
+      12.6/6.3). The anti-vacuity control is therefore scoped to the DRC
+      categories that ARE green on the clean board, and this class is
+      asserted via per-class count-delta against the clean measurement as
+      its documented known-finding baseline.
+    note: >-
+      DC_BUS<->LV_CONTROL creepage class. C8 (DC_BUS_RTN 0603) is moved to
+      (116.26, 138.72) -- ~2mm from C11 (LV_CONTROL) -- compressing a
+      currently-compliant HV<->SELV pair below the enforced margin.
+      Measured 2026-08-02: DC_BUS<->LV_CONTROL creepage 99 -> 102.
