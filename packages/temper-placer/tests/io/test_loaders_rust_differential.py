@@ -316,6 +316,18 @@ def test_netclass_class_pairs_is_the_same_object_on_design_rules():
     assert rust.design_rules.class_pairs is rust.class_pairs
 
 
+def test_netclass_design_rules_is_a_design_rules_instance():
+    """Wave-4 PyAny removal (2026-08-04): ``NetClassRulesDict.design_rules``
+    is the typed ``DesignRules`` pyclass — the field's documented type — not
+    a duck-typed substitute. Pinned via ``isinstance`` so the
+    ``Py<PyAny>`` -> ``Py<DesignRules>`` tightening cannot silently regress
+    to a lookalike while the identity tests below stay green."""
+    from temper_placer.core.design_rules import DesignRules
+
+    rust = RUST_LOAD_NETCLASS(_NETCLASS_YAML)
+    assert isinstance(rust.design_rules, DesignRules)
+
+
 def test_netclass_result_is_the_rust_wrapper_type():
     """The migrated wrapper replaces the dataclass; its attribute surface is
     unchanged (the public-API contract this migration must preserve)."""

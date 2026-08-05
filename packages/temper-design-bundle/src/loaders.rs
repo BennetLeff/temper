@@ -114,6 +114,7 @@ use pyo3::exceptions::{PyException, PyFileNotFoundError};
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyList, PyString, PyTuple};
 
+use crate::design_rules::DesignRules;
 use crate::loops::{Loop, LoopCollection, LoopEvent, LoopPin, LoopPriority, LoopType};
 
 create_exception!(
@@ -196,12 +197,16 @@ fn loop_load_error_from(py: Python<'_>, message: String, cause: PyErr) -> PyErr 
 /// pre-migration `NetClassRulesDict` dataclass: mutable, two fields,
 /// field-wise `__eq__`, dataclass-shaped `__repr__`).
 ///
-/// Both fields are held opaquely: `design_rules` is the `DesignRules` pyclass
-/// and `class_pairs` is a plain Python `dict` keyed by sorted `(str, str)`
-/// tuples, and consumers mutate both in place.
+/// `design_rules` is the `DesignRules` pyclass and `class_pairs` is a plain
+/// Python `dict` keyed by sorted `(str, str)` tuples, and consumers mutate
+/// both in place. Wave-4 "PyAny removal" tightening (2026-08-04):
+/// `design_rules` is now a typed `Py<DesignRules>` reference (the wrapped
+/// value IS the pyclass, constructed in `load_netclass_rules` below — never
+/// a duck-typed substitute); `class_pairs` stays `Py<PyAny>` (a consumer-
+/// mutated plain dict, STILL-NEEDED per the PyAny surface audit).
 #[pyclass]
 pub struct NetClassRulesDict {
-    design_rules: Py<PyAny>,
+    design_rules: Py<DesignRules>,
     class_pairs: Py<PyAny>,
 }
 
@@ -209,7 +214,7 @@ pub struct NetClassRulesDict {
 impl NetClassRulesDict {
     #[new]
     #[pyo3(signature = (design_rules, class_pairs=None))]
-    fn new(py: Python<'_>, design_rules: Py<PyAny>, class_pairs: Option<Py<PyAny>>) -> Self {
+    fn new(py: Python<'_>, design_rules: Py<DesignRules>, class_pairs: Option<Py<PyAny>>) -> Self {
         Self {
             design_rules,
             class_pairs: class_pairs
@@ -218,12 +223,12 @@ impl NetClassRulesDict {
     }
 
     #[getter]
-    fn design_rules(&self, py: Python<'_>) -> Py<PyAny> {
+    fn design_rules(&self, py: Python<'_>) -> Py<DesignRules> {
         self.design_rules.clone_ref(py)
     }
 
     #[setter]
-    fn set_design_rules(&mut self, value: Py<PyAny>) {
+    fn set_design_rules(&mut self, value: Py<DesignRules>) {
         self.design_rules = value;
     }
 
@@ -313,8 +318,12 @@ fn load_netclass_rules(
 
     // The delegation module re-exports the very pyclass/model objects the
     // oracle imported, so construction is identical, not merely equivalent.
+    // `DesignRules` is THIS crate's own pyclass, so the circular half of the
+    // call-back (Rust -> temper_placer.core.design_rules shim -> same crate)
+    // is replaced by the crate's own type object; `NetClassRules` (pydantic)
+    // and `TEMPER_NET_ASSIGNMENTS` are genuinely Python and stay on the shim.
+    let design_rules = py.get_type::<DesignRules>().call0()?;
     let design_rules_module = py.import("temper_placer.core.design_rules")?;
-    let design_rules = design_rules_module.getattr("DesignRules")?.call0()?;
     let net_class_rules = design_rules_module.getattr("NetClassRules")?;
 
     // `dr.default_clearance = data["default_clearance_mm"]` — the subscript
@@ -403,7 +412,7 @@ fn load_netclass_rules(
     design_rules.setattr("class_pairs", &class_pairs)?;
 
     Ok(NetClassRulesDict {
-        design_rules: design_rules.unbind(),
+        design_rules: design_rules.extract::<Py<DesignRules>>()?,
         class_pairs: class_pairs.into_any().unbind(),
     })
 }

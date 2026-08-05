@@ -1,4 +1,4 @@
-<!-- provenance: commit=6565f09d317c33828623325a0cc9ba658cc8f0d8 dirty=false -->
+<!-- provenance: commit=40024a13ccc0a359cc4ea3326de450005eda1fbb dirty=false (re-pointed 2026-08-05: the cited 6565f09d317c33828623325a0cc9ba658cc8f0d8 was a pre-squash #671 branch commit, orphaned by force-push; the fix landed at 40024a13ccc0a359cc4ea3326de450005eda1fbb (#671), which is the cited commit) -->
 
 # DesignRules parse-fix — `_mm` constructor/read drift between the Rust pyclass and the Pydantic NetClassRules model
 

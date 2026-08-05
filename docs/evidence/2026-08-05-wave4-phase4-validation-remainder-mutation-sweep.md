@@ -1,6 +1,6 @@
 # Wave 4 Phase 4 — validation remainder slice: anti-vacuity mutation sweep — 2026-08-05
 
-<!-- provenance: base=28d712e75 (TDD-RED commit; the original e783f1d6f was recreated as 28d712e75 when the worktree was rebuilt — test blobs content-identical), worktree rebuilt after mid-session deletion; this doc commits with the migration. Amended 2026-08-05 (PR #761 pass 2): M4b (chained duplicate-ref anchoring) run through the sweep and recorded; the two claims in defect 1 corrected — the random 3-occurrence catch was a luck draw and the deterministic three-occurrence case, not mr3, is the pin. -->
+<!-- provenance: commit=28d712e7547b52ff52a4f032145acca730043a92 dirty=true (TDD-RED commit 28d712e75; the original e783f1d6f was recreated as 28d712e75 when the worktree was rebuilt -- test blobs content-identical), worktree rebuilt after mid-session deletion; this doc commits with the migration. Amended 2026-08-05 (PR #761 pass 2): M4b (chained duplicate-ref anchoring) run through the sweep and recorded; the two claims in defect 1 corrected -- the random 3-occurrence catch was a luck draw and the deterministic three-occurrence case, not mr3, is the pin. -->
 
 **Base commit:** `28d712e75` (the TDD-RED commit: oracles + differential/PBT
 suites for preflight / netlist_reconciliation / human_reference_extractor /

@@ -1,3 +1,71 @@
+# PyAny removal wave (2026-08-04) — typed-handle tightenings + circular call-backs
+
+Record per plan R1e, as part of the Wave-4 PyAny-removal wave
+(`docs/evidence/2026-08-05-pyany-surface-audit.md`, PR #740 follow-up). All
+changes are behavior-preserving except where explicitly noted; the pinned
+differentials/identity tests stayed green unchanged, and two small
+anti-vacuity identity pins were added (see below).
+
+## Typed-handle tightenings (`Py<PyAny>` → typed `Py<T>`, stored fields)
+
+| Struct | Field | Change | Evidence |
+|---|---|---|---|
+| `ParseResult` (parse_engine.rs) | `netlist` | `Py<PyAny>` → `Py<Netlist>` | `build_netlist` always constructs the `netlist_contracts::Netlist` pyclass; the Python shim (`io/_kicad_types.py`, `io/reference_loader.py:232`) is pure-delegation and passes the pyclass. Added pin: `test_parse_result_netlist_board_identity` (direct-construction `is` identity + parse-path `isinstance`). |
+| `ParseResult` (parse_engine.rs) | `board` | `Py<PyAny>` → `Py<Board>` | `build_board` always constructs the `board_contracts::Board` pyclass (both arms). Same added pin. |
+| `NetClassRulesDict` (loaders.rs) | `design_rules` | `Py<PyAny>` → `Py<DesignRules>` | Constructed in `load_netclass_rules` as the `DesignRules` pyclass; getter/setter/`__copy__`/`__eq__` follow the field type. Added pin: `test_netclass_design_rules_is_a_design_rules_instance`. Existing pins (`test_netclass_rules_dict_identity_and_module`, pickles-and-shallow-copies) stay green. |
+
+`#[new]`/setter argument types tightened to match, so a non-pyclass payload
+now raises `TypeError` where it was previously stored opaquely. Verified no
+Python consumer passes a duck-typed substitute (grep across `src/` and
+`tests/`; the only duck-typed constructions are the ORACLE dataclasses in
+`_*_py_oracle.py`, which are the pre-migration Python side, not this crate's
+pyclasses).
+
+## Circular call-backs removed (Rust → delegation shim → same crate)
+
+- `loaders.rs` `load_netclass_rules` — `DesignRules()` was constructed via
+  `temper_placer.core.design_rules` (a pure-delegation shim re-exporting this
+  crate's pyclass). Replaced with `py.get_type::<DesignRules>().call0()` —
+  the same type object (verified: `_tdb.DesignRules is
+  temper_placer.core.design_rules.DesignRules`). The pydantic `NetClassRules`
+  and `TEMPER_NET_ASSIGNMENTS` lookups in the same function are genuinely
+  Python and remain on the shim.
+- `config_loader.rs` `constraints_to_design_rules` — same replacement for the
+  `DesignRules()` half; `NetClassRules` (pydantic) and
+  `DifferentialPairConstraint` (`core/differential_pair.py`, pure Python)
+  stay.
+
+## Kept (recorded reason)
+
+- `config_loader.rs` `wrap_validation_error` — the `ConfigValidationError`
+  import from `temper_placer.io.config_loader` is **not** removable: the
+  exception class is genuinely Python (exceptions have no pyclass mapping)
+  and its definition lives IN that module — the shim module is its real home,
+  so there is no non-circular path to import it from. It is not circular at
+  runtime (the module is in `sys.modules` before this function can run). The
+  defensive fallback (lines ~1845–1849) stays. The differential pins error
+  type-name + message (test_load_constraints_validation_error_parity), which
+  are unchanged.
+- `BoardState.netlist` / `.board` / `.design_rules` (gates.rs) — **not
+  tightened**. The surface audit's REMOVABLE classification assumed "no test
+  asserts a non-contract payload flows through" — this is factually wrong:
+  the gates PBT suite's P5 (`test_mr4_board_state_payload_independence`,
+  `BoardState(board=object())`) and `TestBoardState::test_all_fields_populated`
+  (`netlist=object()`, `board=object()`, `design_rules=object()`) pin the
+  opaque-payload contract (the exact-object identity the dataclass had).
+  Tightening would change observable behaviour (TypeError) and break R1a pins,
+  so the three fields stay `Py<PyAny>` (STILL-NEEDED, documented in the
+  struct doc + gates.rs module doc).
+
+## Watch-list (unchanged)
+
+`config_loader.rs` call-backs to `core.net_graph` (1173/1207),
+`pcl.constraints` (1679), `_constraint_types` (1894) remain pure-Python
+targets; they become circular only when those surfaces migrate (#721 in
+flight). Per the audit §5, they are left.
+
+---
+
 # Net-type classification data model — Verification
 
 The net-types data model (`src/net_types.rs`) is the Wave 4 Phase 2
