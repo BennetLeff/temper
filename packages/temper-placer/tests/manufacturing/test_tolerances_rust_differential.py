@@ -53,11 +53,16 @@ def _f(value):
 def _feature_tolerance_fields(ft):
     return (
         ft.feature_type,
-        _f(ft.nominal_value),
+        # R1a type-aware key: `nominal_value` and `worst_case_max` carry the
+        # ORIGINAL caller object (an int clearance stays int — the oracle's
+        # dataclass stores the argument unmodified). The concrete type rides
+        # alongside .hex() so an int-vs-float drift cannot hide behind
+        # numeric equality.
+        (type(ft.nominal_value).__name__, _f(ft.nominal_value)),
         _f(ft.tolerance_plus),
         _f(ft.tolerance_minus),
         _f(ft.worst_case_min),
-        _f(ft.worst_case_max),
+        (type(ft.worst_case_max).__name__, _f(ft.worst_case_max)),
     )
 
 
@@ -223,6 +228,10 @@ def test_tolerance_table_repr_parity():
         (2.0, "TWO_OZ", "OUTER"),
         (0.125, "HALF_OZ", "INNER"),
         (1e-9, "TWO_OZ", "OUTER"),
+        # Int input: the oracle's dataclass stores the ORIGINAL object —
+        # nominal_value and worst_case_max stay int (repr `1`, not `1.0`).
+        (1, "ONE_OZ", "OUTER"),
+        (-3, "TWO_OZ", "INNER"),
     ],
 )
 def test_analyze_clearance_field_parity(clearance_mm, copper_name, layer_name):
@@ -243,6 +252,7 @@ def test_analyze_clearance_field_parity(clearance_mm, copper_name, layer_name):
         (0.5, "ONE_OZ"),
         (0.25, "HALF_OZ"),
         (3.5, "TWO_OZ"),
+        (1, "ONE_OZ"),
     ],
 )
 def test_analyze_trace_field_parity(width_mm, copper_name):
@@ -261,6 +271,22 @@ def test_feature_tolerance_repr_parity():
     py = _oracle.ToleranceAnalyzer().analyze_clearance(0.5, _oracle.CopperWeight.ONE_OZ, _oracle.LayerType.OUTER)
     rust = TOLERANCE_ANALYZER().analyze_clearance(0.5, COPPER_WEIGHT.ONE_OZ, LAYER_TYPE.OUTER)
     assert repr(rust) == repr(py)
+
+
+def test_feature_tolerance_repr_parity_int_nominal():
+    """Int input stays int in nominal_value/worst_case_max — the repr
+    renders `1` on both sides (an f64 extraction would render `1.0`, which
+    was the shipped drift an adversarial review flagged)."""
+    py = _oracle.ToleranceAnalyzer().analyze_clearance(
+        1, _oracle.CopperWeight.ONE_OZ, _oracle.LayerType.OUTER
+    )
+    rust = TOLERANCE_ANALYZER().analyze_clearance(1, COPPER_WEIGHT.ONE_OZ, LAYER_TYPE.OUTER)
+    assert repr(rust) == repr(py)
+    py_t = _oracle.ToleranceAnalyzer().analyze_trace(1, _oracle.CopperWeight.ONE_OZ)
+    rust_t = TOLERANCE_ANALYZER().analyze_trace(1, COPPER_WEIGHT.ONE_OZ)
+    assert repr(rust_t) == repr(py_t)
+    assert type(py.nominal_value).__name__ == type(rust.nominal_value).__name__ == "int"
+    assert type(py_t.nominal_value).__name__ == type(rust_t.nominal_value).__name__ == "int"
 
 
 def test_feature_tolerance_eq_parity():
@@ -296,6 +322,28 @@ def test_analyzer_missing_copper_weight_falls_back_to_005():
     rust = TOLERANCE_ANALYZER(table=rust_table).analyze_trace(1.0, COPPER_WEIGHT.TWO_OZ)
     assert _feature_tolerance_fields(rust) == _feature_tolerance_fields(py)
     assert _f(rust.tolerance_minus) == _f(0.05)
+
+
+def test_analyzer_missing_copper_weight_falls_back_to_005_clearance():
+    """The same missing-key fallback drives analyze_CLEARANCE — the
+    discriminator for the shipped `0.05→0.06` mutant: the original
+    fallback case exercised analyze_trace only, whose fallback is 0.05 on
+    BOTH sides, so a clearance-side 0.06 fallback sailed through the
+    original campaign. With the 0.06 fallback this case sees
+    tolerance_minus 0.22 / worst_case_min 0.28 where the oracle yields
+    0.2 / 0.3 (hex compare below)."""
+    py_table = _oracle.ToleranceTable(etch_tolerance={_oracle.CopperWeight.ONE_OZ: 0.01})
+    rust_table = TOLERANCE_TABLE(etch_tolerance={COPPER_WEIGHT.ONE_OZ: 0.01})
+    py = _oracle.ToleranceAnalyzer(table=py_table).analyze_clearance(
+        0.5, _oracle.CopperWeight.TWO_OZ, _oracle.LayerType.OUTER
+    )
+    rust = TOLERANCE_ANALYZER(table=rust_table).analyze_clearance(
+        0.5, COPPER_WEIGHT.TWO_OZ, LAYER_TYPE.OUTER
+    )
+    assert _feature_tolerance_fields(rust) == _feature_tolerance_fields(py)
+    # total_minus = 2 * 0.05 + 0.1 = 0.2; worst_case_min = 0.5 - 0.2 = 0.3.
+    assert _f(rust.tolerance_minus) == _f(0.2)
+    assert _f(rust.worst_case_min) == _f(0.3)
 
 
 def test_analyzer_missing_layer_type_falls_back_to_01():

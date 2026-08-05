@@ -181,6 +181,18 @@ def test_custom_threshold_parity(star_ground_netlist):
     assert rust_hg.n_edges == 2
 
 
+def test_negative_threshold_filters_all_nets(star_ground_netlist):
+    """global_net_threshold=-5: `len(pins) > -5` is true for EVERY net, so
+    ignore_global_nets filters the whole list. The Rust side must compare
+    in i64 — an `as usize` cast wraps -5 to a huge threshold and would
+    filter NOTHING (the shipped divergence an adversarial review found)."""
+    py_hg, rust_hg = _both(star_ground_netlist, ignore_global_nets=True, global_net_threshold=-5)
+    assert _hg_key(py_hg) == _hg_key(rust_hg)
+    assert py_hg.n_edges == 0
+    assert rust_hg.n_edges == 0
+    assert rust_hg.incidence.matrix.shape == (100, 0)
+
+
 def test_physics_embedding_parity(physics_netlist):
     """HV via net_class, high-current width 0.5, plain width 0.2, node
     weights width*height (int*int → int, float32 cast) — all bit-identical."""

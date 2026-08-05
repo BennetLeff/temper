@@ -104,6 +104,11 @@ def _both(stackup, **kw):
         {"copper_fill_percentages": {}},
         {"differential_nets": frozenset({"USB_D+", "USB_D-"})},
         {"differential_nets": frozenset({"USB_D+", "USB_D-"}), "impedance_spec_ohms": 90.0},
+        # Int specs: the oracle's f-string renders the ORIGINAL object —
+        # `{90}` is "90" and `{-5}` is "-5" (an f64 extraction renders
+        # "90.0"/"-5.0"). The messages must match byte-for-byte.
+        {"differential_nets": frozenset({"USB_D+", "USB_D-"}), "impedance_spec_ohms": 90},
+        {"differential_nets": frozenset({"USB_D+", "USB_D-"}), "impedance_spec_ohms": -5},
         {"differential_nets": frozenset({"USB_D+", "USB_D-"}), "impedance_spec_ohms": 0.0},
         {"differential_nets": frozenset({"USB_D+", "USB_D-"}), "impedance_spec_ohms": 150.0},
         {"differential_nets": frozenset({"USB_D+", "USB_D-"}), "impedance_spec_ohms": 70.0},

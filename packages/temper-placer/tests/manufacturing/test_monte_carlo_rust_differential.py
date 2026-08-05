@@ -295,7 +295,13 @@ def test_sampling_parity_all_normal(normal_etch_pair):
     assert list(rust_samples.keys()) == list(py_samples.keys())
     for name, arr in py_samples.items():
         assert _arr(arr) == _arr(rust_samples[name]), name
-        assert float(arr.mean()).hex() != float(rust_samples[name].mean()).hex() or True
+        # Anti-vacuity replacement for an always-true `... or True`
+        # assertion an adversarial review flagged: the RNG stream is
+        # numpy-owned on both sides, so the byte-exact comparison above IS
+        # the stream-equality assertion. This guard additionally pins that
+        # the stream is not degenerate (more than one distinct draw), so
+        # the byte-exact comparison is discriminating.
+        assert float(arr.std()) > 0.0, name
     # Stream advance: a second call on the SAME simulators draws different
     # values, identically on both sides.
     py_out2, rust_out2 = _both_samples(sim_py, sim_rust, 37)
@@ -705,6 +711,84 @@ def test_empty_positions_error_parity():
         "ValueError",
         "zero-size array to reduction operation minimum which has no identity",
     )
+
+
+def test_positions_three_columns_broadcast_error_parity():
+    """positions (N,3): `positions[None, :, :] + stack(...)` raises numpy's
+    ValueError with the exact shape text — the kernel must NOT silently
+    compute on the first two columns (the shipped divergence)."""
+    import numpy as np
+
+    positions = np.zeros((2, 3))
+    bounds = np.zeros((2, 2))
+    vars_py, vars_rust = _oracle.ManufacturingVariables(), MANUFACTURING_VARIABLES()
+    py_out, rust_out = _both_run(vars_py, vars_rust, positions, bounds, 0.05, num_samples=8)
+    assert py_out[0] == rust_out[0] == "err"
+    assert py_out[1:] == rust_out[1:] == (
+        "ValueError",
+        # numpy's broadcast error ends with a trailing space.
+        "operands could not be broadcast together with shapes (1,2,3) (8,1,2) ",
+    )
+
+
+def test_bounds_one_column_index_error_parity():
+    """bounds (N,1): `bounds[None, :, 1]` raises numpy's IndexError — the
+    kernel must not panic (a Rust slice index out of bounds surfaces as a
+    PanicException, not the oracle's IndexError)."""
+    import numpy as np
+
+    positions = np.zeros((2, 2))
+    bounds = np.zeros((2, 1))
+    vars_py, vars_rust = _oracle.ManufacturingVariables(), MANUFACTURING_VARIABLES()
+    py_out, rust_out = _both_run(vars_py, vars_rust, positions, bounds, 0.05, num_samples=8)
+    assert py_out[0] == rust_out[0] == "err"
+    assert py_out[1:] == rust_out[1:] == (
+        "IndexError",
+        "index 1 is out of bounds for axis 1 with size 1",
+    )
+
+
+def test_positions_zero_columns_broadcast_error_parity():
+    """positions (N,0): the broadcast of a size-0 axis raises numpy's
+    ValueError (size 0 does not broadcast) — same shape-text parity."""
+    import numpy as np
+
+    positions = np.zeros((2, 0))
+    bounds = np.zeros((2, 2))
+    vars_py, vars_rust = _oracle.ManufacturingVariables(), MANUFACTURING_VARIABLES()
+    py_out, rust_out = _both_run(vars_py, vars_rust, positions, bounds, 0.05, num_samples=8)
+    assert py_out[0] == rust_out[0] == "err"
+    assert py_out[1:] == rust_out[1:] == (
+        "ValueError",
+        "operands could not be broadcast together with shapes (1,2,0) (8,1,2) ",
+    )
+
+
+def test_run_parity_positions_single_column_broadcast():
+    """positions (N,1): numpy broadcasts the size-1 axis (the single
+    coordinate feeds both the x- and y-expansion) — the kernel replicates
+    the broadcast, so the full result is bit-identical."""
+    import numpy as np
+
+    positions = np.array([[0.0], [10.05]])
+    bounds = np.array([[10.0, 10.0], [10.0, 10.0]])
+    vars_py, vars_rust = _oracle.ManufacturingVariables(), MANUFACTURING_VARIABLES()
+    py_out, rust_out = _both_run(vars_py, vars_rust, positions, bounds, 0.05, num_samples=64)
+    assert py_out[0] == rust_out[0] == "ok"
+    assert _result_key(py_out[1]) == _result_key(rust_out[1])
+
+
+def test_run_parity_bounds_extra_column_tolerated():
+    """bounds (N,3): the oracle indexes only columns 0 and 1 — the extra
+    column is ignored identically by the kernel (no new error)."""
+    import numpy as np
+
+    positions = np.array([[0.0, 0.0], [10.05, 0.0]])
+    bounds = np.array([[10.0, 10.0, 99.0], [10.0, 10.0, 99.0]])
+    vars_py, vars_rust = _oracle.ManufacturingVariables(), MANUFACTURING_VARIABLES()
+    py_out, rust_out = _both_run(vars_py, vars_rust, positions, bounds, 0.05, num_samples=64)
+    assert py_out[0] == rust_out[0] == "ok"
+    assert _result_key(py_out[1]) == _result_key(rust_out[1])
 
 
 def test_one_dimensional_positions_error_parity():
