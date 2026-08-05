@@ -128,7 +128,10 @@ def test_serialize_decision_nested_values():
     ours = serialize_decision(d)
     theirs = _oracle.serialize_decision(d)
     assert ours == theirs
-    assert ours["value"] == {"pos": (1, 2), "arr": [1, 2]}
+    # _serialize_value converts the nested tuple SHALLOWLY only at the top
+    # of the recursion for the value itself; inside a dict the recursion
+    # converts every tuple to a list ("pos" -> [1, 2]).
+    assert ours["value"] == {"pos": [1, 2], "arr": [1, 2]}
 
 
 def test_serialize_trace_identical():

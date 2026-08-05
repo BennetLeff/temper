@@ -102,7 +102,9 @@ def test_why_value_tuple_float_formatting():
 def test_why_uses_final_value():
     trace = _trace([_entry("Q1", (1.0, 1.0), "first"), _entry("Q1", (9.5, 8.25), "last")])
     text = trace.why("Q1")
-    assert "Q1 is at (9.5, 8.3)" in text
+    # f"{8.25:.1f}" is round-half-even -> "8.2" (8.25 is exactly
+    # representable and 2 is even), matching the oracle byte-for-byte.
+    assert "Q1 is at (9.5, 8.2)" in text
     assert "first" in text and "last" in text
 
 

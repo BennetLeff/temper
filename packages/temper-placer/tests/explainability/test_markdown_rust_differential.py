@@ -203,14 +203,20 @@ def test_truncation_pins():
 
 
 def test_decision_history_table_indexing():
-    """The '# ' column starts at 1 and the '... omitted' row appears when
-    the per-component cap is exceeded."""
+    """The '# ' column starts at 1 below the per-component cap; the
+    '... omitted' row appears when the cap (50 for component reports) is
+    exceeded. Both branches are pinned against the oracle."""
     decisions = [_decision("Q1", (i, i), f"r{i}", counter=i) for i in range(12)]
     trace = _trace(decisions)
     text = render_component_report(trace, "Q1")
     assert "| 1 |" in text
     assert "| 12 |" in text
-    assert "earlier decisions omitted" in text
+    assert "earlier decisions omitted" not in text  # 12 <= 50 cap
+    many = [_decision("Q1", (i, i), f"r{i}", counter=i) for i in range(60)]
+    text2 = render_component_report(_trace(many), "Q1")
+    assert "| 11 |" in text2  # start_idx = 60 - 50 + 1
+    assert "| 60 |" in text2
+    assert "earlier decisions omitted" in text2
 
 
 def test_phase_and_type_tables_ordered():

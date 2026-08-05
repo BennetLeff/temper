@@ -53,7 +53,7 @@ def test_prop_trace_why_filters_to_subject():
     trace = _trace([("Q1", (1, 2), "a"), ("Q2", (3, 4), "b"), ("Q1", (5, 6), "c")])
     text = trace.why("Q1")
     assert "Q1 is at (5.0, 6.0)" in text
-    assert "b" not in text
+    assert "Q2" not in text  # the other subject's entries are filtered out
     assert "a" in text and "c" in text
 
 

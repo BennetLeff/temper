@@ -80,8 +80,8 @@ def test_constraint_subject_introspection_identical():
         _Constraint(foo="bar"),  # no subject -> "unknown"
     ]
     for constraint in cases:
-        ours = constraint_to_traced_loss(constraint, lambda *a, **k: 0.0)
-        theirs = _oracle.constraint_to_traced_loss(constraint, lambda *a, **k: 0.0)
+        ours = constraint_to_traced_loss(constraint, lambda *a, **k: 1.0)
+        theirs = _oracle.constraint_to_traced_loss(constraint, lambda *a, **k: 1.0)
         # The wrapped functions are closures; compare via a call.
         assert ours(1.0)[1].entries[0].subject == theirs(1.0)[1].entries[0].subject
         assert ours(1.0)[1].entries[0].because == theirs(1.0)[1].entries[0].because
@@ -147,8 +147,13 @@ def test_traced_defaults_subject_and_because():
 
     _, ours = compute()
     _, theirs = oracle_compute()
-    assert ours.entries[0].subject == theirs.entries[0].subject == "compute"
-    assert ours.entries[0].because == theirs.entries[0].because == "Result of compute"
+    # Each side defaults to its OWN function name (func.__name__ — a Python
+    # runtime semantic); the differential pins that both sides apply the
+    # same default rule, not that the names are literally equal.
+    assert ours.entries[0].subject == "compute"
+    assert theirs.entries[0].subject == "oracle_compute"
+    assert ours.entries[0].because == "Result of compute"
+    assert theirs.entries[0].because == "Result of oracle_compute"
 
 
 def test_traced_context_mode():

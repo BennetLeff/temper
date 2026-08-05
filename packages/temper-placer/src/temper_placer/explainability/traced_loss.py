@@ -6,6 +6,16 @@ enabling automatic trace generation from constraint evaluation.
 The key insight: PCL constraints already have 'because' fields. We just need to
 propagate them through the loss computation pipeline.
 
+Wave 4, Phase 5: the ``constraint_to_traced_loss`` subject/because
+introspection (the hasattr chain) and the ``traced``/``traced_loss``
+threshold gate (``float(value) > threshold``) now live in the
+``temper-io-types`` Rust crate (``explain.rs``). The decorators themselves
+stay Python: they wrap arbitrary Python callables, so migrating them would
+ADD boundary crossings without removing any compute (see
+``temper-io-types/VERIFICATION.md``). ``float()`` conversion and ``sum()``
+also stay Python (float() accepts str/bytes; sum() is Neumaier-compensated
+— both Python runtime semantics per the guide).
+
 Example:
     >>> from temper_placer.explainability import Trace
     >>> from temper_placer.explainability.traced_loss import compute_traced_loss
@@ -31,6 +41,8 @@ from functools import wraps
 from typing import Any, Optional
 
 import numpy as np
+
+import temper_io_types as _rust
 
 from temper_placer.explainability.trace import Trace
 
@@ -86,7 +98,7 @@ def traced(
             trace = Trace.empty()
             try:
                 val_float = float(result)
-                if val_float > threshold:
+                if _rust.explain_trace_threshold(val_float, threshold):
                     trace = trace.add(final_subject, val_float, final_because)
             except (TypeError, ValueError):
                 # If result is not a float (e.g. specialized object), record it anyway
@@ -129,7 +141,7 @@ def traced_loss(
 
         # Create trace entry if loss is significant
         trace = Trace.empty()
-        if float(loss_value) > 1e-6:  # Only trace if constraint is active
+        if _rust.explain_trace_threshold(float(loss_value), 1e-6):  # Only trace if constraint is active
             trace = trace.add(subject, float(loss_value), because)
 
         return loss_value, trace
@@ -173,18 +185,7 @@ def constraint_to_traced_loss(
     Returns:
         Traced loss function returning (loss, trace)
     """
-    # Get subject from constraint
-    if hasattr(constraint, "a"):
-        subject = constraint.a
-    elif hasattr(constraint, "component"):
-        subject = constraint.component
-    elif hasattr(constraint, "components"):
-        subject = constraint.components[0] if constraint.components else "unknown"
-    else:
-        subject = "unknown"
-
-    # Get because from constraint
-    because = constraint.because if hasattr(constraint, "because") else "constraint"
+    subject, because = _rust.explain_constraint_subject(constraint)
 
     # Wrap loss function
     return traced_loss(
