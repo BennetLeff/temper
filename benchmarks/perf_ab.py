@@ -846,6 +846,156 @@ def bench_contracts_construction() -> tuple[float, float]:
     )
 
 
+
+# ---------------------------------------------------------------------------
+# Wave 4: router_v6 DRC constraint geometry
+# (router_v6/constraints_geometry.py -> temper-geometry)
+# ---------------------------------------------------------------------------
+# The oracle is the same verbatim pre-migration copy the differential pins,
+# and the INPUT CORPUS is the same module the differential iterates
+# (`tests/router_v6/_constraints_geometry_cases.py`).  Sharing the corpus is
+# structural, not stylistic: PR #714 passed its differential at iterations
+# [0, 1, 2, 8, 17, 100] and then failed CI on a benchmark that ran 120.
+# `test_benchmark_corpus_is_covered_by_differential` asserts the containment
+# from the test side as well, so neither half can drift.
+
+
+def _drc_geometry_modules() -> tuple[ModuleType, ModuleType]:
+    """(verbatim oracle, shared input corpus)."""
+    tests_dir = REPO_ROOT / "packages" / "temper-placer" / "tests" / "router_v6"
+    oracle = _load_module_from_path(
+        "_perf_ab_drc_geometry_oracle", tests_dir / "_constraints_geometry_py_oracle.py"
+    )
+    cases = _load_module_from_path(
+        "_perf_ab_drc_geometry_cases", tests_dir / "_constraints_geometry_cases.py"
+    )
+    return oracle, cases
+
+
+def _drc_geometry_ab(build_arms: Callable[[Any, Any, Any], tuple[Callable[[], Any], Callable[[], Any]]], label: str):
+    """Shared scaffolding: build both arms, assert parity, then time both.
+
+    Parity is asserted by `float.hex()` over the whole result list -- the
+    same no-tolerance rule the behavioral gate uses.  A perf number for an
+    implementation that disagrees with its oracle is meaningless.
+    """
+    from temper_placer.router_v6 import constraints_geometry as shim
+
+    oracle, cases = _drc_geometry_modules()
+    run_rust, run_oracle = build_arms(shim, oracle, cases)
+
+    got, want = run_rust(), run_oracle()
+    if [repr(v) for v in got] != [repr(v) for v in want]:
+        raise AssertionError(f"perf A/B arms disagree for {label}")
+    return _time_us(run_rust, DEFAULT_WARMUP, DEFAULT_REPEATS), _time_us(
+        run_oracle, DEFAULT_WARMUP, DEFAULT_REPEATS
+    )
+
+
+def _hexes(values: list[float]) -> list[str]:
+    return [v.hex() if isinstance(v, float) else repr(v) for v in values]
+
+
+def bench_drc_geometry_point_segment() -> tuple[float, float]:
+    """A/B point_to_segment_distance over the shared differential corpus."""
+
+    def build(shim, oracle, cases):
+        corpus = cases.BENCH_POINT_SEGMENTS
+
+        def arm(m):
+            def run():
+                out = []
+                for px, py, x1, y1, x2, y2 in corpus:
+                    out.append(
+                        m.point_to_segment_distance(
+                            m.Point(px, py), m.LineSegment(m.Point(x1, y1), m.Point(x2, y2))
+                        )
+                    )
+                return _hexes(out)
+
+            return run
+
+        return arm(shim), arm(oracle)
+
+    return _drc_geometry_ab(build, "drc-geometry-point-segment")
+
+
+def bench_drc_geometry_segment_segment() -> tuple[float, float]:
+    """A/B segment_to_segment_distance (the composite: 1 intersect test +
+    4 point-to-segment calls) over the shared corpus."""
+
+    def build(shim, oracle, cases):
+        corpus = cases.BENCH_SEGMENT_PAIRS
+
+        def arm(m):
+            def run():
+                out = []
+                for c in corpus:
+                    a = m.LineSegment(m.Point(c[0], c[1]), m.Point(c[2], c[3]))
+                    b = m.LineSegment(m.Point(c[4], c[5]), m.Point(c[6], c[7]))
+                    out.append(m.segment_to_segment_distance(a, b))
+                return _hexes(out)
+
+            return run
+
+        return arm(shim), arm(oracle)
+
+    return _drc_geometry_ab(build, "drc-geometry-segment-segment")
+
+
+def bench_drc_geometry_point_rect() -> tuple[float, float]:
+    """A/B point_to_rotated_rect_distance over the shared corpus."""
+
+    def build(shim, oracle, cases):
+        # `rotation` is finite in every BENCH_POINT_RECTS row; infinite
+        # rotations raise (error parity is a behavioral gate, not a perf one).
+        corpus = [c for c in cases.BENCH_POINT_RECTS if all(v == v for v in c)]
+
+        def arm(m):
+            def run():
+                out = []
+                for px, py, cx, cy, w, h, rot in corpus:
+                    out.append(
+                        m.point_to_rotated_rect_distance(
+                            m.Point(px, py), m.RotatedRect(m.Point(cx, cy), (w, h), rot)
+                        )
+                    )
+                return _hexes(out)
+
+            return run
+
+        return arm(shim), arm(oracle)
+
+    return _drc_geometry_ab(build, "drc-geometry-point-rect")
+
+
+def bench_drc_geometry_segment_rect() -> tuple[float, float]:
+    """A/B segment_to_rotated_rect_distance -- the deepest composite in the
+    module (2 point-to-rect calls, 4 corners, then up to 4 segment-to-segment
+    distances, each itself 5 calls)."""
+
+    def build(shim, oracle, cases):
+        corpus = [c for c in cases.BENCH_SEGMENT_RECTS if all(v == v for v in c)]
+
+        def arm(m):
+            def run():
+                out = []
+                for sx, sy, ex, ey, cx, cy, w, h, rot in corpus:
+                    out.append(
+                        m.segment_to_rotated_rect_distance(
+                            m.LineSegment(m.Point(sx, sy), m.Point(ex, ey)),
+                            m.RotatedRect(m.Point(cx, cy), (w, h), rot),
+                        )
+                    )
+                return _hexes(out)
+
+            return run
+
+        return arm(shim), arm(oracle)
+
+    return _drc_geometry_ab(build, "drc-geometry-segment-rect")
+
+
 _BENCHMARKS: dict[tuple[str, str], Callable[[], tuple[float, float]]] = {
     ("bottleneck-geometry", "cell_capacity_batch"): bench_bottleneck_cell_capacity,
     ("bottleneck-geometry", "hard_blocked_batch"): bench_bottleneck_hard_blocked,
@@ -860,6 +1010,10 @@ _BENCHMARKS: dict[tuple[str, str], Callable[[], tuple[float, float]]] = {
     ("footprint-library", "from_yaml_string"): bench_footprint_library_load,
     ("parse-engine", "parse_kicad_pcb"): bench_parse_kicad_pcb,
     ("board-netlist", "contracts_construction"): bench_contracts_construction,
+    ("drc-geometry", "point_segment"): bench_drc_geometry_point_segment,
+    ("drc-geometry", "segment_segment"): bench_drc_geometry_segment_segment,
+    ("drc-geometry", "point_rect"): bench_drc_geometry_point_rect,
+    ("drc-geometry", "segment_rect"): bench_drc_geometry_segment_rect,
 }
 
 

@@ -218,17 +218,23 @@ pub(crate) fn bounding_radius(width: f64, height: f64, shape: i64, ratio: f64) -
 /// `math.hypot` (the creepage/clearance geometry in `creepage_check.rs`
 /// is the second consumer, added Wave 3).
 pub(crate) fn py_hypot(x: f64, y: f64) -> f64 {
-    // CPython `math_hypot_impl` returns NaN up front when any input is
-    // NaN (before vector_norm runs); the `f64::max` below would otherwise
-    // discard a NaN argument.  And hypot(±inf, anything) is +inf, which
-    // the vector_norm path would turn into NaN through the fma-based
-    // correction (CPython's frexp gives e=0 for inf, ours does not), so
-    // both guards are exact CPython semantics, not approximations.
-    if x.is_nan() || y.is_nan() {
-        return f64::NAN;
-    }
+    // Infinity BEFORE NaN.  CPython's `math_hypot_impl` scans its
+    // coordinates recording `found_nan`, but returns `+inf` as soon as any
+    // coordinate is infinite — infinity wins over NaN:
+    //
+    //     math.hypot(inf, nan) == inf      math.hypot(nan, inf) == inf
+    //     math.hypot(nan, 1.0) == nan      math.hypot(1.0, nan) == nan
+    //
+    // This order was inverted here until the Wave-4 router_v6
+    // constraints-geometry differential hit it: `hypot(-inf, nan)` arises
+    // for real in `point_to_segment_distance` when a segment endpoint is
+    // infinite (the clamped projection produces a NaN coordinate), and the
+    // old order returned NaN where CPython returns inf.
     if x.is_infinite() || y.is_infinite() {
         return f64::INFINITY;
+    }
+    if x.is_nan() || y.is_nan() {
+        return f64::NAN;
     }
     let x = x.abs();
     let y = y.abs();
@@ -261,6 +267,32 @@ fn frexp(x: f64) -> (f64, i32) {
     (m, e)
 }
 
+/// Exact `2.0_f64.powi(e)` — CPython's `ldexp(1.0, e)`.
+///
+/// `2f64.powi(e)` is NOT this function.  LLVM lowers a negative `powi` to
+/// `1.0 / powi(|e|)`, so `2f64.powi(-1024)` first overflows `2^1024` to
+/// `inf` and then returns `0.0`, where the true value `2^-1024` is a
+/// perfectly representable subnormal.  `vector_norm_2` uses this as its
+/// scale factor, so the old expression made `math.hypot` return **NaN**
+/// for every input in the top binade (|max| >= 2^1023 ~ 8.99e307):
+/// `hypot(1e308, 1e308)` was NaN instead of `0x1.92c80954c51f5p+1023`.
+/// Found by the Wave-4 router_v6 constraints-geometry differential corpus,
+/// which carries the overflow-scale inputs deliberately.
+fn pow2(e: i32) -> f64 {
+    if e > 1023 {
+        return f64::INFINITY;
+    }
+    if e >= -1022 {
+        // normal range: build the exponent field directly
+        return f64::from_bits(((e + 1023) as u64) << 52);
+    }
+    if e >= -1074 {
+        // subnormal range: a single set bit in the mantissa
+        return f64::from_bits(1u64 << (e + 1074));
+    }
+    0.0
+}
+
 fn vector_norm_2(x: f64, y: f64, max: f64) -> f64 {
     let (_, max_e) = frexp(max);
     if max_e < -1023 {
@@ -269,7 +301,7 @@ fn vector_norm_2(x: f64, y: f64, max: f64) -> f64 {
         // implemented for exactness.
         return f64::MIN_POSITIVE * vector_norm_2(x / f64::MIN_POSITIVE, y / f64::MIN_POSITIVE, max / f64::MIN_POSITIVE);
     }
-    let scale = 2f64.powi(-max_e);
+    let scale = pow2(-max_e);
     let mut csum = 1.0f64;
     let mut frac1 = 0.0f64;
     let mut frac2 = 0.0f64;
@@ -457,6 +489,36 @@ pub fn best_rotation_for_barrier_py(hv_pads: Vec<PadTuple>, selv_pads: Vec<PadTu
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn pow2_is_exact_where_powi_is_not() {
+        // The regression this function exists for.
+        assert_eq!(2f64.powi(-1024), 0.0, "powi still overflows-then-inverts");
+        assert_eq!(pow2(-1024), 5.562684646268003e-309);
+        assert_eq!(pow2(0), 1.0);
+        assert_eq!(pow2(1023), 8.98846567431158e307);
+        assert_eq!(pow2(-1022), f64::MIN_POSITIVE);
+        assert_eq!(pow2(-1074), 5e-324);
+        assert_eq!(pow2(-1075), 0.0);
+        assert_eq!(pow2(1024), f64::INFINITY);
+    }
+
+    #[test]
+    fn py_hypot_matches_cpython_on_the_top_binade() {
+        // math.hypot(1e308, 1e308) == 0x1.92c80954c51f5p+1023 (measured on
+        // CPython 3.12); this returned NaN before pow2 replaced powi.
+        assert_eq!(py_hypot(1e308, 1e308).to_bits(), 0x7FE92C80954C51F5);
+        assert!(py_hypot(f64::MAX, 0.0) == f64::MAX);
+    }
+
+    #[test]
+    fn py_hypot_lets_infinity_win_over_nan() {
+        assert_eq!(py_hypot(f64::INFINITY, f64::NAN), f64::INFINITY);
+        assert_eq!(py_hypot(f64::NAN, f64::INFINITY), f64::INFINITY);
+        assert_eq!(py_hypot(f64::NEG_INFINITY, f64::NAN), f64::INFINITY);
+        assert!(py_hypot(f64::NAN, 1.0).is_nan());
+        assert!(py_hypot(1.0, f64::NAN).is_nan());
+    }
 
     #[test]
     fn test_corner_radius_shapes() {
