@@ -33,14 +33,15 @@ from temper_placer.io.footprint_library import load_footprint_library
 # 2026-07-27. Installing the plugin should not require also remembering to fix
 # the scheduler, so the grouping is in place ahead of it.
 #
-# The two clusters in tests/router_v6/:
+# The one remaining cluster in tests/router_v6/:
 #
 #   induction -- "induction-base" is declared ONLY in test_induction_base.py and
 #                depended on by 8 sibling modules. Being cross-file, `--dist
 #                loadfile` would not be sufficient for it.
-#   sat       -- test_sat_solve_pbt.py's internal bmc-l0 / sat-l1..l4 chain.
-#                Same-file, but `loadgroup` distributes UNGROUPED tests
-#                per-test, which would break it -- so it needs a tag too.
+#
+# A second cluster, "sat", pinned test_sat_solve_pbt.py's internal
+# bmc-l0 / sat-l1..l4 chain. That module tested the retired Python
+# router_v6/sat_model.py and was deleted with it, so the group went with it.
 #
 # Measured 2026-07-28 on the invariant-router-v6-1 file list: serial vs
 # `-n 4 --dist loadgroup` gave identical per-test outcomes (728 tests;
@@ -62,7 +63,6 @@ _XDIST_GROUPS = {
         "test_teardrop_induction",
         "test_thermal_relief_induction",
     },
-    "sat": {"test_sat_solve_pbt"},
 }
 _MODULE_TO_GROUP = {
     module: group for group, modules in _XDIST_GROUPS.items() for module in modules

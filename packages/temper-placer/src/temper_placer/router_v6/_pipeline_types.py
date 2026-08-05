@@ -22,7 +22,6 @@ from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 from temper_placer.router_v6.routing_demand import RoutingDemand
 from temper_placer.router_v6.routing_results import RoutingResults
 from temper_placer.router_v6.routing_space import RoutingSpace
-from temper_placer.router_v6.sat_model import SATModel
 from temper_placer.router_v6.stage0_data import ParsedPCB
 from temper_placer.router_v6.topology_extraction import TopologyGraph
 from temper_placer.router_v6.topology_solver import TopologicalSolution
@@ -61,7 +60,6 @@ class Stage3Output:
     """Output from Stage 3: Topological Routing."""
 
     constraint_model: ConstraintModel | None
-    sat_model: SATModel | None
     solution: TopologicalSolution | None
     topology_graph: TopologyGraph | None
     aesthetic_preferences: list = field(default_factory=list)
@@ -72,7 +70,6 @@ class Stage3Output:
     def to_snapshot_dict(self) -> dict[str, Any]:
         return {
             "constraint_model": self.constraint_model,
-            "sat_model": self.sat_model,
             "solution": self.solution,
             "topology_graph": self.topology_graph,
         }
