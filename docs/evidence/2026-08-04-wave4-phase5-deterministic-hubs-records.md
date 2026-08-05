@@ -204,7 +204,7 @@ R1 gates apply in full.
 | Gate | Status | Evidence |
 |---|---|---|
 | R1a bit-identical vs verbatim oracles | **PASS** | 6 differential files, 100+ tests, `float.hex()` + type-carrying `canon`; oracles are the pinned verbatim modules (header-only diff) |
-| R1b no-regression arm | **NOT MET — claim downgraded** | the earlier `ratio 0.909` record had no committed artifact (no bench function/fixture/`_BENCHMARKS` entry/script in this PR) and is withdrawn as a measurement; local-only numbers, date and deferral rationale are in the VERIFICATION.md R1b record, which also names the unmeasured per-call `list(self.scores)` O(n) marshalling cost and the follow-up: commit a hubs perf arm with a bench + fixture once the leaf branch merges |
+| R1b no-regression arm | **NOT MET — claim downgraded** | the earlier `ratio 0.909` record had no committed artifact (no bench function/fixture/`_BENCHMARKS` entry/script in this PR) and is withdrawn as a measurement; local-only numbers, date and deferral rationale are in the VERIFICATION.md R1b record, which also names the unmeasured per-call `list(self.scores)` O(n) marshalling cost. The follow-up arm is now REGISTERED: PR #775 (commit 6eb74b9c8, on main 2026-08-05) landed `bench_deterministic_hubs_score_at` + a committed seeded 100×100 fixture + the `("deterministic-hubs", "score_at")` `_BENCHMARKS` entry in `benchmarks/perf_ab.py`, dormant (returns None, harness skips) until THIS PR merges and `deterministic_hubs` exists in the installed extension; it times the per-call `list(self.scores)` O(n) marshalling copy inside the timed region. Remaining step: CI-captured baseline rows per the #757 pattern |
 | R1c >= 5 non-vacuous properties | **PASS** | 5 hypothesis properties per module (30 total), each with the boundary probes that caught real PBT bugs during shake-out |
 | R1d >= 3 MRs | **PASS** | 3 metamorphic relations per module (18 total) |
 | R1e VERIFICATION.md | **PASS** | "Wave 4 Phase 5 — deterministic hubs" section in `packages/temper-design-bundle/VERIFICATION.md`: structural soundness proof (induction non-applicable — bounded straight-line kernels), documented deviations, mutation table |
@@ -274,6 +274,21 @@ a malformed value.
 - `violation_mapper` shim: `pos=()` (empty tuple) would raise IndexError in
   the shim's unpack where the oracle's truthiness check skips it; `pos` is
   `tuple[float,float] | None` by contract.
+- **F2 `ZoneAdjuster(zone_config=None)` (2026-08-05 review):** the shim's
+  pyo3 boundary raises `TypeError: 'None' is not an instance of 'dict'` for
+  ANY `zone_config=None` call, where the oracle returns
+  `AdjustmentResult(adjustments={})` for None config + empty violations
+  (or any input whose zone counts stay below the threshold). Evaluated and
+  NOT fixed at the shim: the "treat None as an empty dict" shape would
+  diverge in the WRONG direction for the count >= threshold case — the
+  oracle raises `AttributeError: 'NoneType' object has no attribute 'get'`
+  (verified empirically) and an empty dict would silently return no
+  adjustments, the exact silent-acceptance failure pattern the P1 fixes
+  eliminated. A faithful fix needs Python-side replication of the
+  count-and-compare logic to choose empty-vs-AttributeError — not trivially
+  contained, and it would reintroduce a Python parallel of the kernel.
+  Production-unreachable: the feedback orchestrator's `_get_zone_config`
+  (orchestrator.py:95-107) always returns a dict.
 
 ## Adversarial-review fixes (2026-08-05)
 
@@ -326,6 +341,10 @@ failed against the pre-fix kernel, then passed after the Rust change):
 - **P2 R1b '0.909' had no artifact**: the claim is downgraded (see the R1b
   table row and the VERIFICATION.md R1b record) — the measurement was
   local-only and not committed; the per-call `list(self.scores)` O(n)
-  marshalling copy is recorded as an unmeasured hot-path cost with a named
-  follow-up to commit a hubs perf arm once the leaf branch merges.
+  marshalling copy is recorded as an unmeasured hot-path cost. The follow-up
+  arm has since LANDED on main as PR #775 (commit 6eb74b9c8,
+  `bench_deterministic_hubs_score_at` + committed 100×100 fixture +
+  `_BENCHMARKS` entry), registered-but-dormant (returns None until the
+  `deterministic_hubs` kernels ship with this PR); CI-captured baseline rows
+  per the #757 pattern remain the last step.
 

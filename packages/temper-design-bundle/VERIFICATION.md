@@ -2126,11 +2126,35 @@ True); empty violations list yields no adjustments; empty/`None` maps return
   `Vec<String>` leaf cannot carry a non-str). KiCad reports always emit
   string descriptions; the `type`/`severity`/`description` pass-through of
   non-str values IS preserved (they cross as `Py<PyAny>`).
+- **`ZoneAdjuster(zone_config=None)` raises at the pyo3 boundary where the
+  oracle returns an empty result.** Verified empirically (2026-08-05): for
+  None config + empty violations (or sub-threshold counts) the oracle
+  returns `AdjustmentResult(adjustments={})`, while the shim raises
+  `TypeError: 'None' is not an instance of 'dict'` on any call. For None
+  config + count >= threshold the oracle raises
+  `AttributeError: 'NoneType' object has no attribute 'get'`, so a
+  "treat None as an empty dict" shim fix would diverge in the WRONG
+  direction (silent empty result where the oracle raises) and a faithful
+  fix needs Python-side count-and-compare logic. Recorded, not fixed:
+  production-unreachable — the orchestrator's `_get_zone_config`
+  (orchestrator.py:95-107) always returns a dict. Full rationale:
+  `docs/evidence/2026-08-04-wave4-phase5-deterministic-hubs-records.md`.
 - **`penalty` NaN/±inf slots raise where the oracle raises.** This is a
   fidelity fix, not a deviation: `math.floor(nan)` raises ValueError and
   `math.floor(±inf)` raises OverflowError in the oracle; the kernel raises
   the same with the same messages instead of letting `as i64` saturate
   (NaN would silently land in cell (0,0)).
+- **`py_unpack_2` full-collect vs CPython's bounded UNPACK_SEQUENCE.**
+  `py_unpack_2` (deterministic_hubs.rs) collects the ENTIRE iterable before
+  checking length, where CPython's `UNPACK_SEQUENCE` consumes at most 3
+  items (first two, then a peek for the too-many decision) and never drains
+  the rest. Consequences: an infinite iterator hangs the kernel where the
+  oracle raises `ValueError: too many values to unpack (expected 2)`, and a
+  4+ item generator is over-consumed (observable only with side-effecting
+  iterators). Recorded, not fixed: production-unreachable — the two unpack
+  sites (seed positions, `max_size`) consume dict values / YAML scalars and
+  lists, and YAML cannot produce generators; the differential is tuple-only.
+  Tracked as a follow-up: **issue #779**.
 
 ## Evidence
 
@@ -2226,15 +2250,23 @@ True); empty violations list yields no adjustments; empty/`None` maps return
     seed ref. The `routability_penalty` channels path avoids this (the index
     is built once at load); the bottleneck-map path does not. This cost is
     REAL and unmeasured by any committed bench.
-  - **Named follow-up:** register a hubs perf arm — committed bench function
-    + fixture in `benchmarks/perf_ab.py` with a `_BENCHMARKS` entry and CI
-    baseline rows — **once the leaf branch merges** (its consumer
-    `state.py`-side scoring lands then, giving the arm a real capture path
-    through the main pipeline). The arm must also baseline the
-    `list(self.scores)` marshalling cost so the O(n) copy is measured, not
-    assumed. Until then R1b is **NOT met** for the bottleneck-map path (the
-    differential proves bit-identical behavior; it is not a performance
-    claim).
+  - **Named follow-up: REGISTERED — PR #775 (commit 6eb74b9c8, on main since
+    2026-08-05).** The hubs perf arm landed in `benchmarks/perf_ab.py` as
+    `bench_deterministic_hubs_score_at`, registered as
+    `("deterministic-hubs", "score_at")` in `_BENCHMARKS`, with a committed
+    seeded 100×100 fixture and a parity sanity assertion inside the harness.
+    The arm is **dormant until this PR merges**: it returns None while
+    `deterministic_hubs` is absent from the installed extension and the
+    harness skips it with a stderr note — a registered-but-dormant arm, not
+    a crash that takes the other benchmarks down. It activates automatically
+    the moment the kernels land, with no second change. It also timestamps
+    the per-call `list(self.scores)` O(n) marshalling copy INSIDE the timed
+    region — the unmeasured hot-path cost named above — by replicating the
+    shim's exact call shape. **Remaining step:** capture the baseline rows
+    on CI per the #757 pattern (the perf gate fails closed on any benchmark
+    key without CI-captured baseline rows). Until those rows exist, R1b is
+    **NOT met** for the bottleneck-map path (the differential proves
+    bit-identical behavior; it is not a performance claim).
 - **R1h (physics discipline): NOT APPLICABLE — evaluated and recorded.**
   `channels.py` carries a PHYSICS-KW marker; the module consumes router-V6
   congestion output for placement-time routability scoring — a heuristic cost
@@ -2244,7 +2276,12 @@ True); empty violations list yields no adjustments; empty/`None` maps return
   post-solve audit) have no referent. None of the other kernels touch physics
   quantities either.
 - **Consumer suites run unchanged against the migrated shims:**
-  `tests/deterministic/` + `tests/router_v6/` — 2,964 passed, 16 skipped,
-  23 xfailed (2026-08-05, measured on this branch). The state.py hub's
-  consumer pins (deterministic tests exercise it heavily) and the router_v6
-  suites stayed green across the shim conversion.
+  `tests/deterministic/` + `tests/router_v6/` — 3,272 passed, 16 skipped,
+  23 xfailed (3,311 collected; 2026-08-05, measured on this branch head).
+  The single full-suite failure,
+  `TestMonolithParity::test_performance_regression`, is a wall-clock <5%
+  overhead assertion that flaked under concurrent machine load and passes
+  in isolation (382 s) — timing-only, unrelated to the shim conversion
+  (this pass changes annotations and docs, no runtime behavior). The
+  state.py hub's consumer pins (deterministic tests exercise it heavily)
+  and the router_v6 suites stayed green across the shim conversion.
