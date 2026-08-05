@@ -1,20 +1,37 @@
+# Pinned Python oracle for ``temper_placer/requirements/validators/clearance.py``
+# (Wave 4, Phase 5 migration to ``temper-drc-rs``).
+#
+# VERBATIM copy of the pre-migration implementation as of origin/main
+# (the Wave-4 Phase-5 base). Only difference from the original module is
+# this header. The Rust migration must reproduce every behaviour here
+# bit-identically; any edit silently weakens the differential proof.
+#
 """
 Clearance and creepage distance validation functions.
 
 These functions check if PCB layout meets IEC 60335-2-6 safety requirements
 for creepage and clearance distances per REQ-SAFE-01.
 
-Wave 4, Phase 5: the validator compute — pairing, pruning, copper
-measurement orchestration (through the ``temper-geometry`` kernels),
-violation construction, stats and the WARNING records — now lives in the
-``temper-drc-rs`` Rust crate (``req_safe_01.rs``). This module is a
-delegation shim: the enums, dataclasses and the ``IEC60335_REQUIREMENTS``
-matrix data stay Python; the check/report/matrix functions delegate to Rust,
-which returns a payload dict plus the ordered WARNING messages the shim
-emits. The pre-migration implementation is pinned verbatim as the oracle
-(``tests/requirements/clearance_oracle/``).
+**What this module used to measure, and why that was unsafe.**
+``_check_distance`` -- the single shared core behind
+:func:`check_domain_clearance`, :func:`check_creepage_path` and
+:func:`verify_iec60335_compliance` -- used to compute
+``math.dist(comp_a["position"], comp_b["position"])``: the straight line
+between two components' *origins*. ``position`` is
+``Component.initial_position``, the centre of the footprint's pad bounding
+box. No pad width, height, shape or rotation entered anywhere.
 
-**What this module measures.** Copper-to-copper distance between the two
+Copper extends **outward** from that origin, so origin-to-origin distance is
+an **upper bound** on true copper-to-copper separation. Every clearance and
+creepage figure this checker ever reported was therefore optimistic -- in the
+unsafe direction. It could not over-report a violation; it could and did hide
+them. Measured on ``pcb/temper.kicad_pcb``: mean optimism ~3.6mm over the
+pairs it did flag, worst case ``C22``<->``L2`` reported at 10.341mm against a
+true copper separation of 1.969mm -- 8.4mm of margin that does not exist. See
+``docs/evidence/2026-07-28-req-safe-01-rederivation.md`` (the measurement) and
+``docs/evidence/2026-07-28-clearance-copper-to-copper.md`` (this fix).
+
+**What it measures now.** Copper-to-copper distance between the two
 components' actual pads, using the exact, rotation-aware, shape-aware pad
 model in :mod:`temper_placer.core.pad_geometry` (the model landed by PR #388,
 whose isolator figures -- T1 = 9.100mm, K1 = 8.000mm -- this module's
@@ -52,8 +69,6 @@ import logging
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
-
-import temper_drc_rs as _rust
 
 # The copper-geometry half of this check lives in ``_copper`` so this file
 # stays under the repo's 1000-line cap. Re-exported here because
@@ -188,6 +203,26 @@ class ClearanceResult:
 # use of the appliance." PD3 is therefore the governing DEFAULT; PD2 is an
 # exception that must be earned by an enclosure/sealing argument.
 #
+# That argument did not exist in this project's own mechanical documents as
+# of the determination above, checked directly (not inherited):
+# ``docs/CHASSIS_AIRFLOW_DESIGN.md`` ducted forced, unfiltered kitchen air
+# (bottom vents -> intake plenum -> fan -> transition duct -> IGBT heatsink
+# -> exhaust) through the same chassis cavity the PCB sits in;
+# ``docs/COIL_BRACKET_DESIGN.md`` described "large triangular cutouts ...
+# allow air from the bottom intake to flow directly through the Litz wire
+# strands" (a baffle, not a seal); ``docs/ASSEMBLY_GUIDE.md`` mounted the PCB
+# on M3 standoffs directly in that same vented cavity, with its only gasket
+# sealing the glass-ceramic cooktop to the chassis, not the PCB compartment;
+# and the board's own IP20 rating stated "No liquid ingress protection
+# guaranteed." No enclosure/sealing argument for the PCB compartment existed
+# at that time, so the PD2 exception was not earned and PD3 governed. **That
+# analysis is still correct for the construction it examined** -- it is not
+# retracted, only superseded for a different, later-adopted construction (see
+# the next paragraph). If the sealed-compartment prerequisite below is not
+# met, PD3 and the figures this pollution-degree-correction pass computed
+# (6.3mm basic / 12.6mm reinforced creepage) are the ones that actually
+# apply, and this matrix must revert to them.
+#
 # OWNER DECISION, PD2 ADOPTED FOR PRODUCTION, 2026-07-30 (later, this
 # change). The project owner selected the PD2 enclosure exception
 # (IEC 60335-2-6 cl. 29.2 Addition) as the production architecture: see
@@ -227,6 +262,27 @@ class ClearanceResult:
 # ``docs/specs/HIGH_VOLTAGE_CLEARANCE_SPEC.md`` Sec 5.1 (Table 17, both
 # columns shown side by side).
 #
+# Every domain this table's HV side can classify -- MAINS (peak/transient
+# 340V, spec Sec 2.1), DC_BUS (peak/transient 400V, spec Sec 2.1 -- and, per
+# ``tests/requirements/safety/_real_board_fixture.py``, the bucket every
+# declared-HV net that isn't literally ``ac_l``/``ac_n`` falls into, so it
+# also covers HV nets that sit at raw mains potential, e.g. the CMC winding
+# taps), and Gate Drive Isolated (peak-to-earth 355V, spec Sec 2.1) -- has a
+# working voltage over 300V, so (as before) all round up to the same 400V
+# row rather than the 300V row (IEC 60664-1/60335-1 tables are not
+# interpolated). See
+# ``docs/evidence/2026-07-30-creepage-requirement-reconciliation.md`` for
+# that voltage-row derivation (unaffected by the pollution-degree question
+# either way) and ``docs/evidence/2026-07-30-pollution-degree-determination.md``
+# for the pollution-degree derivation layered on top of it here.
+#
+# ``design_value_mm`` is not read by ``verify_iec60335_compliance`` (only
+# ``min_clearance_mm``/``min_creepage_mm`` gate anything); it is a
+# documentary "add 2.0mm over the creepage minimum" design target -- at PD2
+# this is 10.0mm reinforced / 6.0mm basic, matching
+# ``docs/specs/HIGH_VOLTAGE_CLEARANCE_SPEC.md`` Sec 5.2's design-creepage
+# table -- tested directly by ``test_requirement_matrix_values``.
+#
 # ``min_clearance_mm`` is intentionally NOT changed by either the
 # pollution-degree correction or the PD2 adoption above: IEC 60335-1 Table 16
 # (clearance) is keyed to rated impulse voltage (via Table 15's
@@ -251,11 +307,6 @@ class ClearanceResult:
 # whether clause 29.2.4's short-circuit-test exemption already applies
 # before changing -- flagged for a follow-up, not corrected in this pass;
 # see the evidence doc Sec "What this determination does not do."
-#
-# The matrix data lives here (Python) and is mirrored in
-# ``temper-drc-rs/src/req_safe_01.rs``'s ``MATRIX_ROWS`` (pinned together by
-# ``test_requirement_matrix_values_pinned``); the tuple-keyed rows below are
-# consumed directly by the CP-SAT encoder.
 IEC60335_REQUIREMENTS = {
     (VoltageDomain.MAINS, VoltageDomain.LV_CONTROL, InsulationType.BASIC): {
         "min_clearance_mm": 3.0,
@@ -290,11 +341,6 @@ IEC60335_REQUIREMENTS = {
 }
 
 
-def _domain_str(domain: VoltageDomain | str) -> str:
-    """The domain as a string: ``.value`` for the Enum, as-is otherwise."""
-    return domain.value if isinstance(domain, VoltageDomain) else domain
-
-
 def _nets_domain_map(
     placement: dict[str, Any],
     overrides: dict[str, VoltageDomain] | None = None,
@@ -302,12 +348,15 @@ def _nets_domain_map(
     """Build {net_name: VoltageDomain} from ``placement["nets"]``, with
     *overrides* (e.g. the ``voltage_domains`` argument of
     :func:`verify_iec60335_compliance`) taking precedence per net name.
-
-    Wave 4, Phase 5: computed in Rust; the original domain objects are
-    returned (str-mixin Enums compare equal to their strings, so both the
-    CP-SAT encoder's ``==``/``in`` checks and the checks work).
     """
-    return _rust.req_safe_01_nets_domain_map(placement, overrides)
+    domain_map: dict[str, VoltageDomain] = {}
+    for net_name, net_info in placement.get("nets", {}).items():
+        domain = net_info.get("domain") if isinstance(net_info, dict) else None
+        if domain is not None:
+            domain_map[net_name] = domain
+    if overrides:
+        domain_map.update(overrides)
+    return domain_map
 
 
 def _components_in_domain(
@@ -316,9 +365,11 @@ def _components_in_domain(
     nets_domain: dict[str, VoltageDomain],
 ) -> list[dict[str, Any]]:
     """Every component with at least one net assigned to *domain*."""
-    return list(_rust.req_safe_01_components_in_domain(
-        placement, _domain_str(domain), nets_domain
-    ))
+    return [
+        comp
+        for comp in placement.get("components", [])
+        if any(nets_domain.get(net) == domain for net in comp.get("nets", []))
+    ]
 
 
 def _domain_boundary_pairs(
@@ -335,30 +386,226 @@ def _domain_boundary_pairs(
     within that single domain is checked instead (the FUNCTIONAL
     within-LV_CONTROL matrix entry).
     """
-    return list(_rust.req_safe_01_domain_boundary_pairs(
-        placement, _domain_str(domain_a), _domain_str(domain_b), nets_domain
-    ))
+    group_a = _components_in_domain(placement, domain_a, nets_domain)
+    pairs: list[tuple[dict[str, Any], dict[str, Any]]] = []
+
+    if domain_a == domain_b:
+        for i in range(len(group_a)):
+            for j in range(i + 1, len(group_a)):
+                pairs.append((group_a[i], group_a[j]))
+        return pairs
+
+    group_b = _components_in_domain(placement, domain_b, nets_domain)
+    for comp_a in group_a:
+        for comp_b in group_b:
+            if comp_a.get("ref") == comp_b.get("ref"):
+                continue
+            pairs.append((comp_a, comp_b))
+    return pairs
 
 
-def _result_from_payload(payload: dict[str, Any]) -> ClearanceResult:
-    """Materialize a ClearanceResult from the Rust payload dict, emitting
-    the WARNING records in order (the logs are computed in Rust; the
-    logging framework stays Python)."""
-    for msg in payload["warnings"]:
-        logger.warning(msg)
-    violations = [_violation_from_dict(v) for v in payload["violations"]]
-    return ClearanceResult(
-        passed=payload["passed"], violations=violations, stats=payload["stats"]
-    )
+
+# =============================================================================
+# The check
+# =============================================================================
 
 
-def _violation_from_dict(v: dict[str, Any]) -> ClearanceViolation:
-    """Rebuild a ClearanceViolation from the Rust payload; the
-    ``insulation_type`` string becomes the Enum member (matching the oracle,
-    which assigns the member)."""
-    if v.get("insulation_type") is not None:
-        v = {**v, "insulation_type": InsulationType(v["insulation_type"])}
-    return ClearanceViolation(**v)
+def _intra_component_boundary_components(
+    placement: dict[str, Any],
+    domain_a: VoltageDomain,
+    domain_b: VoltageDomain,
+    nets_domain: dict[str, VoltageDomain],
+    model: _CopperModel,
+) -> list[dict[str, Any]]:
+    """Single components whose OWN pads straddle the *domain_a*/*domain_b*
+    boundary.
+
+    ``_domain_boundary_pairs`` deliberately pairs only *distinct*
+    components -- that contract is also relied on by
+    ``placer.cp_sat.domain_clearance.generate_domain_clearance_constraints``,
+    which would emit a nonsensical ``SeparatedConstraint(a=X, b=X)`` if it
+    started seeing self-pairs. So intra-footprint crossings are enumerated
+    here instead, and only for the distance check.
+
+    Why they must be checked at all: a part whose own pads sit at different
+    potentials across the barrier violates the barrier at *every* placement.
+    On ``pcb/temper.kicad_pcb`` five such parts exist (C6, K2, K3, U3, U7)
+    and were invisible to this checker at any position. They are real
+    blockers, and they are not fixable by moving anything -- the remedy is a
+    different footprint, a different part, or a milled isolation slot.
+
+    Restricted to ``domain_a != domain_b`` on purpose. The one same-domain
+    matrix row is LV_CONTROL<->LV_CONTROL FUNCTIONAL (0.5mm/1.0mm), and
+    applying it inside a single footprint would flag the fixed, qualified pad
+    pitch of essentially every multi-pad SELV part. Measured on this board
+    rather than assumed: it adds **41 further violation records across 33
+    parts**, whose closest pairs are a 0.35mm QFN/SOT pitch and a 0.65mm
+    0402 pad gap -- i.e. the manufacturer's own footprint, identical on every
+    unit ever shipped, not a layout decision. None of them is a barrier
+    crossing and none is actionable (you cannot re-pitch a 0402). Functional
+    insulation between two SELV nets of one part is governed by that part's
+    own datasheet ratings, not by PCB layout; the cross-domain case is
+    different precisely because it is a mains-to-SELV barrier crossing that a
+    designer must resolve with a different part, a different footprint, or a
+    milled slot.
+    """
+    if domain_a == domain_b:
+        return []
+    out: list[dict[str, Any]] = []
+    for comp in placement.get("components", []):
+        ref = str(comp.get("ref", "?"))
+        if not model.has_pads(ref):
+            continue
+        if model.domain_restricted(ref, domain_a, nets_domain) and model.domain_restricted(
+            ref, domain_b, nets_domain
+        ):
+            out.append(comp)
+    return out
+
+
+def _check_distance(
+    placement: dict[str, Any],
+    domain_a: VoltageDomain,
+    domain_b: VoltageDomain,
+    min_mm: float,
+    *,
+    metric: str,
+    nets_domain: dict[str, VoltageDomain] | None = None,
+    model: _CopperModel | None = None,
+) -> ClearanceResult:
+    """Shared core for :func:`check_domain_clearance` and
+    :func:`check_creepage_path`.
+
+    Measures **copper-to-copper** distance between the two components' pads
+    (see module docstring), not origin-to-origin. *metric* selects which
+    physical quantity is being asked for:
+
+    - ``"clearance"``: shortest distance through air = the straight line
+      between nearest copper. That is exactly what the pad-polygon distance
+      computes, so clearance is reported directly.
+    - ``"creepage"``: shortest path along the insulating surface, which must
+      go *around* slots/cutouts. Routed through
+      :func:`_creepage_from_clearance`, which is exact on an unbroken board
+      and an explicitly-tagged conservative lower bound otherwise.
+
+    Both metrics also cover intra-footprint crossings (see
+    :func:`_intra_component_boundary_components`).
+    """
+    if nets_domain is None:
+        nets_domain = _nets_domain_map(placement)
+    if model is None:
+        model = _CopperModel(placement)
+
+    cutouts = _board_cutouts(placement)
+    boundary = f"{domain_a.value}<->{domain_b.value}"
+
+    inter = _domain_boundary_pairs(placement, domain_a, domain_b, nets_domain)
+    intra = _intra_component_boundary_components(placement, domain_a, domain_b, nets_domain, model)
+    candidates: list[tuple[dict[str, Any], dict[str, Any], str]] = [
+        (a, b, "inter") for a, b in inter
+    ]
+    candidates.extend((c, c, "intra") for c in intra)
+
+    violations: list[ClearanceViolation] = []
+    pruned = 0
+    origin_modelled = 0
+    unrestricted = 0
+
+    for comp_a, comp_b, pair_kind in candidates:
+        ref_a = str(comp_a.get("ref", "?"))
+        ref_b = str(comp_b.get("ref", "?"))
+
+        if pair_kind == "inter" and model.lower_bound(ref_a, ref_b) >= min_mm:
+            pruned += 1
+            continue
+
+        dist, geometry_model, closest = model.copper_distance(
+            ref_a, domain_a, ref_b, domain_b, nets_domain
+        )
+        if geometry_model == "origin":
+            origin_modelled += 1
+        else:
+            if not model.domain_restricted(ref_a, domain_a, nets_domain) or (
+                not model.domain_restricted(ref_b, domain_b, nets_domain)
+            ):
+                unrestricted += 1
+
+        creepage_model: str | None = None
+        if metric == "creepage":
+            dist, creepage_model = _creepage_from_clearance(dist, cutouts)
+
+        if dist >= min_mm:
+            continue
+
+        pos_a = comp_a["position"]
+        pos_b = comp_b["position"]
+        midpoint = ((pos_a[0] + pos_b[0]) / 2.0, (pos_a[1] + pos_b[1]) / 2.0)
+        where = (
+            f"within {ref_a} ({domain_a.value} pad <-> {domain_b.value} pad)"
+            if pair_kind == "intra"
+            else f"between {ref_a} ({domain_a.value}) and {ref_b} ({domain_b.value})"
+        )
+        kwargs: dict[str, Any] = {
+            "code": f"{metric.upper()}_INSUFFICIENT",
+            "message": (
+                f"{metric.capitalize()} {where} is {dist:.3f}mm "
+                f"(copper-to-copper, closest pads {closest}), "
+                f"below required minimum {min_mm}mm"
+                if geometry_model == "copper"
+                else (
+                    f"{metric.capitalize()} {where} is {dist:.3f}mm "
+                    f"(ORIGIN-TO-ORIGIN -- no pad geometry available, so this "
+                    f"figure is optimistic), below required minimum {min_mm}mm"
+                )
+            ),
+            "location": midpoint,
+            "severity": "error",
+            "boundary": boundary,
+            "ref_a": ref_a,
+            "ref_b": ref_b,
+            "metric": metric,
+            "measured_mm": dist,
+            "required_mm": min_mm,
+            "geometry_model": geometry_model,
+            "creepage_model": creepage_model,
+            "pair_kind": pair_kind,
+            "closest_pads": closest,
+        }
+        if metric == "clearance":
+            kwargs["measured_clearance_mm"] = dist
+            kwargs["required_clearance_mm"] = min_mm
+        else:
+            kwargs["measured_creepage_mm"] = dist
+            kwargs["required_creepage_mm"] = min_mm
+        violations.append(ClearanceViolation(**kwargs))
+
+    if origin_modelled:
+        logger.warning(
+            "REQ-SAFE-01 %s %s: %d of %d candidate pairs were measured "
+            "ORIGIN-TO-ORIGIN because a component carried no pad geometry. That "
+            "proxy is an UPPER bound on true copper-to-copper separation -- i.e. "
+            "optimistic, in the unsafe direction. Supply `pads` on every "
+            "placement component to get a real answer.",
+            metric,
+            boundary,
+            origin_modelled,
+            len(candidates),
+        )
+
+    stats = {
+        "boundary": boundary,
+        "metric": metric,
+        "min_mm": min_mm,
+        "pairs_checked": len(candidates),
+        "pairs_inter": len(inter),
+        "pairs_intra": len(intra),
+        "pairs_pruned_by_bound": pruned,
+        "pairs_origin_modelled": origin_modelled,
+        "pairs_unrestricted_pads": unrestricted,
+        "components_without_pads": sorted(model.components_without_pads),
+        "board_cutouts": len(cutouts),
+    }
+    return ClearanceResult(passed=len(violations) == 0, violations=violations, stats=stats)
 
 
 # =============================================================================
@@ -375,7 +622,56 @@ def format_clearance_report(result: ClearanceResult, limit: int | None = None) -
     read. Replaces dumping repr'd dataclasses, which at ~30 violations is
     unreadable and therefore ignored.
     """
-    return _rust.req_safe_01_format_clearance_report(result, limit)
+    if not result.violations:
+        return "No clearance/creepage violations."
+
+    rows = sorted(
+        result.violations,
+        key=lambda v: (-(v.shortfall_mm if v.shortfall_mm is not None else 0.0), v.ref_a or ""),
+    )
+    shown = rows if limit is None else rows[:limit]
+
+    header = (
+        f"{'pair':<16} {'boundary':<22} {'insul':<11} {'metric':<9} "
+        f"{'meas':>8} {'req':>7} {'short':>8}  model"
+    )
+    lines = [
+        f"{len(result.violations)} REQ-SAFE-01 violation(s), worst first:",
+        header,
+        "-" * len(header),
+    ]
+    for v in shown:
+        pair = (
+            f"{v.ref_a} (intra)"
+            if v.pair_kind == "intra"
+            else f"{v.ref_a}<->{v.ref_b}"
+            if v.ref_a and v.ref_b
+            else (v.ref_a or "?")
+        )
+        insul = v.insulation_type.value if v.insulation_type is not None else "-"
+        meas = "n/a" if v.measured_mm is None else f"{v.measured_mm:.3f}"
+        req = "n/a" if v.required_mm is None else f"{v.required_mm:.1f}"
+        short = "n/a" if v.shortfall_mm is None else f"{v.shortfall_mm:.3f}"
+        model = v.geometry_model or "?"
+        if v.metric == "creepage" and v.creepage_model:
+            model = f"{model}; {v.creepage_model}"
+        lines.append(
+            f"{pair:<16} {v.boundary or '-':<22} {insul:<11} {v.metric or '-':<9} "
+            f"{meas:>8} {req:>7} {short:>8}  {model}"
+        )
+    if limit is not None and len(rows) > limit:
+        lines.append(f"... and {len(rows) - limit} more")
+
+    lines.append("")
+    lines.append("Closest copper, per violating pair:")
+    seen: set[tuple[str | None, str | None, str | None]] = set()
+    for v in shown:
+        key = (v.ref_a, v.ref_b, v.closest_pads)
+        if key in seen:
+            continue
+        seen.add(key)
+        lines.append(f"  {v.closest_pads}")
+    return "\n".join(lines)
 
 
 def check_domain_clearance(
@@ -416,10 +712,7 @@ def check_domain_clearance(
     Returns:
         ClearanceResult with violations for insufficient clearance
     """
-    payload = _rust.req_safe_01_check_domain_clearance(
-        placement, _domain_str(domain_a), _domain_str(domain_b), min_mm
-    )
-    return _result_from_payload(payload)
+    return _check_distance(placement, domain_a, domain_b, min_mm, metric="clearance")
 
 
 def check_creepage_path(
@@ -474,10 +767,7 @@ def check_creepage_path(
     Returns:
         ClearanceResult with violations for insufficient creepage
     """
-    payload = _rust.req_safe_01_check_creepage_path(
-        placement, _domain_str(domain_a), _domain_str(domain_b), min_mm
-    )
-    return _result_from_payload(payload)
+    return _check_distance(placement, domain_a, domain_b, min_mm, metric="creepage")
 
 
 def verify_iec60335_compliance(
@@ -506,8 +796,54 @@ def verify_iec60335_compliance(
     Returns:
         ClearanceResult with all IEC 60335-2-6 violations
     """
-    payload = _rust.req_safe_01_verify_iec60335(placement, voltage_domains)
-    return _result_from_payload(payload)
+    nets_domain = _nets_domain_map(placement, voltage_domains)
+    # One shared copper model across all 12 sub-checks: the same pad polygons
+    # and the same pair distances are reused by both metrics and by the basic
+    # and reinforced tiers of the same boundary.
+    model = _CopperModel(placement)
+
+    all_violations: list[ClearanceViolation] = []
+    per_row: list[dict[str, Any]] = []
+    for (domain_a, domain_b, insulation_type), requirements in IEC60335_REQUIREMENTS.items():
+        clearance_result = _check_distance(
+            placement,
+            domain_a,
+            domain_b,
+            requirements["min_clearance_mm"],
+            metric="clearance",
+            nets_domain=nets_domain,
+            model=model,
+        )
+        creepage_result = _check_distance(
+            placement,
+            domain_a,
+            domain_b,
+            requirements["min_creepage_mm"],
+            metric="creepage",
+            nets_domain=nets_domain,
+            model=model,
+        )
+        for violation in (*clearance_result.violations, *creepage_result.violations):
+            violation.insulation_type = insulation_type
+            all_violations.append(violation)
+        for sub in (clearance_result, creepage_result):
+            per_row.append({**sub.stats, "insulation": insulation_type.value})
+
+    stats = {
+        "rows": per_row,
+        "components": len(placement.get("components", [])),
+        "components_without_pads": sorted(model.components_without_pads),
+        "board_cutouts": len(_board_cutouts(placement)),
+        "violating_pairs": len(
+            {
+                (v.ref_a, v.ref_b)
+                for v in all_violations
+                if v.ref_a is not None and v.ref_b is not None
+            }
+        ),
+        "intra_component_violations": sum(1 for v in all_violations if v.pair_kind == "intra"),
+    }
+    return ClearanceResult(passed=len(all_violations) == 0, violations=all_violations, stats=stats)
 
 
 def get_requirement_matrix() -> dict[tuple[str, str, str], dict[str, float]]:
@@ -517,4 +853,7 @@ def get_requirement_matrix() -> dict[tuple[str, str, str], dict[str, float]]:
     Returns:
         Dictionary with (domain_a, domain_b, insulation_type) -> requirements
     """
-    return _rust.req_safe_01_requirement_matrix()
+    return {
+        (domain_a.value, domain_b.value, insulation_type.value): requirements
+        for (domain_a, domain_b, insulation_type), requirements in IEC60335_REQUIREMENTS.items()
+    }

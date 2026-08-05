@@ -1,17 +1,16 @@
+# Pinned Python oracle for ``temper_placer/report/generator.py``
+# (Wave 4, Phase 5 migration to ``temper-io-types``).
+#
+# VERBATIM copy of the pre-migration implementation as of origin/main
+# (the Wave-4 Phase-5 base). Only difference from the original module is
+# this header. The Rust migration must reproduce every behaviour here
+# bit-identically; any edit silently weakens the differential proof.
+#
 """
 Benchmark report generator for temper-placer.
 
 This module provides functions to generate human-readable and machine-readable
 reports comparing optimizer results against human baselines.
-
-Wave 4, Phase 5: the numeric scoring kernel (``calculate_benchmark_result``)
-and the JSON data shape (``generate_json_report``'s dict) now live in the
-``temper-io-types`` Rust crate (``report.rs``); this module is a delegation
-shim. The pre-migration implementation is pinned verbatim as
-``tests/report/_generator_py_oracle.py`` and driven bit-identical by
-``test_generator_rust_differential.py``. ``json.dump`` stays Python stdlib.
-``generate_text_report`` stays Python: Rich console rendering is a library
-semantic, not reimplementable (see ``temper-io-types/VERIFICATION.md``).
 """
 
 from __future__ import annotations
@@ -22,7 +21,6 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-import temper_io_types as _rust
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
@@ -63,8 +61,66 @@ def calculate_benchmark_result(
     _context: Any,  # LossContext
 ) -> BenchmarkResult:
     """Compute quantitative scores comparing optimizer to baseline."""
-    payload = _rust.report_calculate_benchmark_result(name, opt_result, baseline)
-    return BenchmarkResult(**payload)
+    # Handle both new and legacy schema
+    human_p = baseline.get("human_placement", {})
+    human_metrics = human_p.get("metrics", baseline.get("human_metrics", {}))
+
+    human_wl = human_metrics.get("total_wirelength_mm", human_metrics.get("total_hpwl_mm", 0.0))
+
+    # 1. Wirelength Ratio
+    # result.history[-1] contains final metrics
+    final_metrics = opt_result.history[-1]
+    opt_wl = final_metrics.loss_breakdown.get("wirelength", 0.0)
+    wl_ratio = opt_wl / human_wl if human_wl > 0 else 1.0
+
+    # 2. Hard Constraint Scores
+    # We use 1.0 if violation is < 1.0, and decay exponentially
+    overlap_val = final_metrics.loss_breakdown.get("overlap", 0.0)
+    overlap_score = 1.0 if overlap_val < 1.0 else max(0.0, 1.0 - (overlap_val / 100.0))
+
+    boundary_val = final_metrics.loss_breakdown.get("boundary", 0.0)
+    boundary_score = 1.0 if boundary_val < 1.0 else max(0.0, 1.0 - (boundary_val / 100.0))
+
+    # 3. Quality Scores
+    thermal_val = final_metrics.loss_breakdown.get("thermal", 0.0)
+    thermal_score = 1.0 / (1.0 + thermal_val / 10.0) if thermal_val > 0 else 1.0
+
+    compactness_score = human_metrics.get("compactness_score", human_metrics.get("density", 0.5))
+
+    # 4. Overall Score (Weighted)
+    # Hard constraints must be satisfied for high score
+    if overlap_score < 0.9 or boundary_score < 0.9:
+        overall = min(overlap_score, boundary_score) * 0.5
+    else:
+        # Balanced score if hard constraints pass
+        overall = 0.4 * (1.0 / max(wl_ratio, 0.5)) + 0.3 * thermal_score + 0.3 * compactness_score
+
+    # 5. Status Determination
+    violations = []
+    if overlap_val > 10.0:
+        violations.append(f"Overlap too high ({overlap_val:.1f})")
+    if boundary_val > 10.0:
+        violations.append(f"Boundary violation ({boundary_val:.1f})")
+
+    if violations:
+        status = "FAIL"
+    elif wl_ratio < 0.95:
+        status = "BETTER"
+    else:
+        status = "PASS"
+
+    return BenchmarkResult(
+        name=name,
+        drc_errors=0,  # Need kicad-cli for this
+        wirelength_ratio=wl_ratio,
+        overlap_score=overlap_score,
+        boundary_score=boundary_score,
+        thermal_score=thermal_score,
+        compactness_score=compactness_score,
+        overall_score=overall,
+        status=status,
+        violations=violations,
+    )
 
 
 def generate_text_report(summary: BenchmarkSummary) -> str:
@@ -139,6 +195,28 @@ def generate_text_report(summary: BenchmarkSummary) -> str:
 
 def generate_json_report(summary: BenchmarkSummary, output_path: Path):
     """Save benchmark results to JSON."""
-    data = _rust.report_benchmark_json_data(summary)
+    data = {
+        "timestamp": summary.timestamp,
+        "summary": {
+            "total_pcbs": summary.total_pcbs,
+            "passed": summary.passed,
+            "failed": summary.failed,
+            "better_than_human": summary.better_than_human,
+            "pass_rate": summary.passed / summary.total_pcbs if summary.total_pcbs > 0 else 0,
+        },
+        "results": [
+            {
+                "name": r.name,
+                "drc_errors": r.drc_errors,
+                "wirelength_ratio": r.wirelength_ratio,
+                "thermal_score": r.thermal_score,
+                "compactness_score": r.compactness_score,
+                "overall_score": r.overall_score,
+                "status": r.status,
+                "violations": r.violations,
+            }
+            for r in summary.results
+        ],
+    }
     with open(output_path, "w") as f:
         json.dump(data, f, indent=2)

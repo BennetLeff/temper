@@ -1,3 +1,11 @@
+# Pinned Python oracle for temper_placer/explainability/decision.py
+# (Wave 4, Phase 5 migration to temper-io-types).
+#
+# VERBATIM copy of the pre-migration implementation as of origin/main
+# (the Wave-4 Phase-5 base). Only difference from the original module is
+# this header. The Rust migration must reproduce every behaviour here
+# bit-identically; any edit silently weakens the differential proof.
+#
 """Decision and DecisionTrace data structures for auditable placement.
 
 This module provides the core data structures for tracking every decision
@@ -5,14 +13,6 @@ the placer makes. Each decision includes:
 - What was decided (subject, value, previous value)
 - Why (reason, constraint references, loss contribution)
 - What alternatives were considered and rejected
-
-Wave 4, Phase 5: ``DecisionTrace.why`` / ``why_not`` / ``history`` /
-``summary`` compute now lives in the ``temper-io-types`` Rust crate
-(``explain.rs``); this module is a delegation shim. The enums, dataclasses
-and their construction stay Python (Enum member identity, dataclass field
-access, ``uuid``/``datetime`` defaults). ``unique_subjects`` (set iteration
-order) and ``duration_seconds`` (datetime arithmetic) are computed
-Python-side and passed into the Rust summary kernel — see VERIFICATION.md.
 
 Example:
     >>> trace = DecisionTrace()
@@ -42,8 +42,6 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from typing import Any
-
-import temper_io_types as _rust
 
 
 class DecisionType(Enum):
@@ -267,7 +265,15 @@ class DecisionTrace:
         Returns:
             Human-readable explanation string
         """
-        return _rust.explain_decision_trace_why(self.decisions, subject)
+        decisions = self.query_subject(subject)
+        if not decisions:
+            return f"No decisions recorded for {subject}"
+
+        last = decisions[-1]
+        msg = f"{subject} is at {last.value} because: {last.reason}"
+        if last.constraint_refs:
+            msg += f" (Constraints: {', '.join(last.constraint_refs)})"
+        return msg
 
     def why_not(self, subject: str, value: Any) -> str:
         """Explain why a particular value wasn't chosen.
@@ -283,7 +289,23 @@ class DecisionTrace:
             Explanation of why the value was rejected, or indication
             that it wasn't found in the decision history
         """
-        return _rust.explain_decision_trace_why_not(self.decisions, subject, value)
+
+        def values_match(v1, v2):
+            if isinstance(v1, (list, tuple)) and isinstance(v2, (list, tuple)):
+                return list(v1) == list(v2)
+            return v1 == v2
+
+        decisions = self.query_subject(subject)
+        for d in decisions:
+            for alt in d.alternatives:
+                if values_match(alt.value, value):
+                    msg = f"{value} was rejected: {alt.rejection_reason}"
+                    if alt.constraint_violated:
+                        msg += f" (Constraint violated: {alt.constraint_violated})"
+                    if alt.loss_if_chosen is not None:
+                        msg += f" (Loss if chosen: {alt.loss_if_chosen:.4f})"
+                    return msg
+        return f"No record of {value} being considered for {subject}"
 
     def history(self, subject: str) -> list[tuple[Any, str]]:
         """Get the complete value history for a subject.
@@ -294,7 +316,7 @@ class DecisionTrace:
         Returns:
             List of (value, reason) tuples in chronological order
         """
-        return list(_rust.explain_decision_trace_history(self.decisions, subject))
+        return [(d.value, d.reason) for d in self.query_subject(subject)]
 
     def finalize(
         self,
@@ -331,15 +353,27 @@ class DecisionTrace:
         Returns:
             Dictionary with decision counts by phase and type
         """
-        # unique_subjects is a Python set — iteration order is a
-        # hash-randomized Python runtime semantic (the guide's
-        # iteration-order trap); duration is datetime arithmetic. Both are
-        # computed here and passed into the Rust aggregation kernel.
-        subjects = {d.subject for d in self.decisions}
-        duration = (self.end_time - self.start_time).total_seconds() if self.end_time else None
-        return _rust.explain_decision_trace_summary(
-            self.decisions, list(subjects), duration, self.run_id, self.final_metrics
-        )
+        by_phase: dict[str, int] = {}
+        by_type: dict[str, int] = {}
+        subjects: set[str] = set()
+
+        for d in self.decisions:
+            by_phase[d.phase.value] = by_phase.get(d.phase.value, 0) + 1
+            by_type[d.decision_type.value] = by_type.get(d.decision_type.value, 0) + 1
+            subjects.add(d.subject)
+
+        return {
+            "run_id": self.run_id,
+            "total_decisions": len(self.decisions),
+            "unique_subjects": list(subjects),
+            "component_count": len(subjects),
+            "decisions_by_phase": by_phase,
+            "decisions_by_type": by_type,
+            "duration_seconds": (
+                (self.end_time - self.start_time).total_seconds() if self.end_time else None
+            ),
+            "final_metrics": self.final_metrics,
+        }
 
     def __len__(self) -> int:
         """Return the number of decisions in the trace."""

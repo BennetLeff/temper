@@ -1,3 +1,11 @@
+# Pinned Python oracle for temper_placer/explainability/trace.py
+# (Wave 4, Phase 5 migration to temper-io-types).
+#
+# VERBATIM copy of the pre-migration implementation as of origin/main
+# (the Wave-4 Phase-5 base). Only difference from the original module is
+# this header. The Rust migration must reproduce every behaviour here
+# bit-identically; any edit silently weakens the differential proof.
+#
 """Functional, immutable trace for explainability.
 
 This module provides a composable, immutable trace system for recording
@@ -21,8 +29,6 @@ Example:
 
 from dataclasses import dataclass
 from typing import Any
-
-import temper_io_types as _rust
 
 
 @dataclass(frozen=True)
@@ -137,10 +143,6 @@ class Trace:
         This is lazy - NL is only generated when queried, not when
         entries are added.
 
-        Wave 4, Phase 5: the NL-generation compute is Rust
-        (``temper_io_types.explain_trace_why``); the dataclasses and the
-        monoid operations stay Python.
-
         Args:
             subject: Subject to explain
             max_reasons: Maximum number of reasons to show (default 3)
@@ -157,7 +159,32 @@ class Trace:
               - Minimize commutation loop
               - Thermal edge constraint
         """
-        return _rust.explain_trace_why(self.entries, subject, max_reasons)
+        entries = self.for_subject(subject).entries
+
+        if not entries:
+            return f"No decisions recorded for {subject}"
+
+        # Get final value
+        final = entries[-1]
+
+        # Format value nicely
+        if isinstance(final.value, tuple) and len(final.value) == 2:
+            value_str = f"({final.value[0]:.1f}, {final.value[1]:.1f})"
+        else:
+            value_str = str(final.value)
+
+        # Build explanation
+        lines = [f"{subject} is at {value_str} because:"]
+
+        # Show top N reasons
+        for entry in entries[:max_reasons]:
+            lines.append(f"  - {entry.because}")
+
+        # Indicate if there are more
+        if len(entries) > max_reasons:
+            lines.append(f"  ... and {len(entries) - max_reasons} more reasons")
+
+        return "\n".join(lines)
 
     def __len__(self) -> int:
         """Return number of entries in trace."""
