@@ -13,11 +13,13 @@ pub mod board;
 pub mod board_py_bridge;
 pub mod constraints;
 pub mod pyfmt;
+#[cfg(feature = "python")]
 pub mod req_safe_01;
 pub mod dfm;
 #[cfg(feature = "python")]
 pub mod dfm_py;
 pub mod pymath;
+#[cfg(feature = "python")]
 pub mod router_clearance;
 pub mod rules;
 pub mod types;
