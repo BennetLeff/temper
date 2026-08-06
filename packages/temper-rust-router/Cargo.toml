@@ -6,7 +6,10 @@ description = "Router V6 topology stage — pyo3 Python extension (wraps temper-
 
 [lib]
 name = "temper_rust_router"
-crate-type = ["cdylib"]
+# `rlib` alongside `cdylib` so `cargo test` can build a harness for the
+# in-crate unit tests (net_ordering's CPython-semantics pins). `cdylib` alone
+# leaves nothing for the test binary to link against.
+crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 temper-rust-router-core = { path = "../temper-rust-router-core" }

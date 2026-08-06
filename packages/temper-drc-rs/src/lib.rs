@@ -38,6 +38,7 @@ pub mod types;
 pub mod validation;
 #[cfg(feature = "python")]
 pub mod violation_report;
+#[cfg(feature = "python")]
 #[cfg(feature = "wasm-test-registry")]
 pub mod wasm_test_registry;
 
@@ -359,6 +360,8 @@ fn temper_drc_rs(m: &Bound<'_, PyModule>) -> PyResult<()> {
     crate::drc_ratchet::register(m)?;
     crate::closure_test::register(m)?;
     crate::physics_oracle::register(m)?;
+    // Wave 4 Phase 4 — regression slice: drc_ratchet / closure_test /
+    // physics_oracle kernels.
     // Wave 4 Phase 2 — drc_types / drc_result contract pyclasses.
     crate::drc_contracts::register(m)?;
     Ok(())
