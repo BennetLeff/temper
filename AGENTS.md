@@ -252,6 +252,66 @@ cmake --build firmware/test/build
 ./firmware/test/build/test_state_machine_only
 ```
 
+## Regenerate derived artifacts before pushing
+
+```bash
+make regen         # regenerate what is safe; refuse where it would hide a defect
+make regen-check   # report only -- what CI's gates will see
+```
+
+Several committed files are *generated* from source: `README.md`'s package and
+plan counts, `scripts/oracle_hashes.json`, the wasm test registry. When one
+drifts behind a change, the gate that polices it fails on `main` **after** the
+merge, and every open PR inherits the red. That happened four times on
+2026-08-06 — README counts after a merge run, the oracle registry after the
+gate landed, the workspace package count after a crate was added, and the
+oracle registry again after five oracles were added.
+
+`make regen` deliberately does **not** regenerate everything. Two of these
+artifacts are evidence, not output, and it refuses rather than laundering them:
+
+- A **hash-order `NEW_SITE`** is a determinism *defect* — a `set` iterated to
+  build an ordered artifact carries `PYTHONHASHSEED`'s order into it. Fix the
+  iteration (project through the input, or sort). Do not add it to
+  `.hash-order-inventory`. Paid-down `STALE_ENTRY` records are written, since
+  that is the shrink direction.
+- A **drifted oracle pin** means a verbatim oracle's bytes changed, which is
+  exactly what `check_oracle_hashes.py` exists to catch. `make regen` prints the
+  commit that last touched each drifted file so the cause can be established,
+  and records it only under `--accept-oracle-drift`. A genuinely *new* oracle is
+  unregistered rather than drifted, and is recorded without ceremony.
+
+## Shared cargo build cache — required when working in a worktree
+
+Before invoking `cargo` or `maturin` **directly** (not via `make`), source
+this once per shell:
+
+```bash
+source scripts/cargo_shared_env.sh
+```
+
+Anything run through `make` already exports the same value and needs no
+action.
+
+Why it matters: `.cargo/config.toml` sets `build.target-dir` to the
+*relative* path `target-shared`. Cargo resolves a relative `target-dir`
+against the config file's own directory, and every git worktree gets its own
+tracked **copy** of that file — so each worktree lands on its own
+`target-shared` and compiles all 10 pyo3 crates from cold. `CARGO_TARGET_DIR`
+overrides `build.target-dir` and can hold an absolute path, which is why the
+sharing is done there rather than in the config.
+
+This is not hypothetical. It caused the 51 GB incident the config block
+cites, and it recurred on 2026-08-06: 25 private caches totalling 36.6 GB,
+the disk at 98%, and 16 GB reclaimed by hand. Agent worktrees are the main
+source, because they are created outside the repo tree (`/private/tmp/...`)
+and then run `cargo test` / `cargo build` / `cargo clippy` directly.
+
+The trade-off is deliberate and unchanged: cargo takes an exclusive lock on
+the target directory, so concurrent builds in different worktrees serialise
+instead of running in parallel. That is still far cheaper than each doing a
+cold build — after the first, the rest are incremental.
+
 ## Rebuilding pyo3/maturin Rust Extensions
 
 This repo has 10 pyo3/maturin extension crates under `packages/`. A merge

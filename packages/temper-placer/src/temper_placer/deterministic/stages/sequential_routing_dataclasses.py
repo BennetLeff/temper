@@ -1,12 +1,20 @@
-from dataclasses import dataclass
+"""Configuration dataclasses for sequential routing.
 
+The ``DiffPairConfig`` dataclass is implemented as a pyo3 pyclass in the
+``temper-design-bundle`` crate (Wave 4 **Phase 5, batch 2** — deterministic
+leaf stages); this module re-exports it under the pre-migration name so
+every ``from ...sequential_routing_dataclasses import DiffPairConfig``
+import path is unchanged.
 
-@dataclass
-class DiffPairConfig:
-    """Configuration for a differential pair."""
+Bit-exactness: the pyclass preserves the dataclass's no-coercion field
+storage (an ``int`` passed for ``spacing_mm`` stays an ``int``), its
+defaults (``0.15`` / ``0.5`` / ``0.5``), all-five-field equality, and the
+CPython repr. Verified by
+``tests/deterministic/stages/test_sequential_routing_dataclasses_rust_differential.py``
+(oracle: ``tests/deterministic/stages/_sequential_routing_dataclasses_py_oracle.py``);
+the structural proof lives in ``packages/temper-design-bundle/VERIFICATION.md``.
+"""
 
-    net_pos: str  # Positive net name (e.g., "USB_D+")
-    net_neg: str  # Negative net name (e.g., "USB_D-")
-    spacing_mm: float = 0.15  # Target spacing between traces
-    coupling_tolerance_mm: float = 0.5  # Max allowed divergence
-    max_skew_mm: float = 0.5  # Max length mismatch
+from temper_design_bundle_python import DiffPairConfig
+
+__all__ = ["DiffPairConfig"]

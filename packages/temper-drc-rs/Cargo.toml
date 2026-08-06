@@ -24,6 +24,11 @@ thiserror = "1"
 [features]
 default = ["python"]
 python = ["dep:pyo3"]
+# Compiles the `#[cfg(test)]` unit-test modules into a normal (non-test) build
+# and exposes them through `wasm_test_registry`, so a `wasm32` entry point can
+# call each test function by index.  Off by default; never enabled for the
+# Python extension module.
+wasm-test-registry = []
 
 [profile.release]
 panic = "unwind"

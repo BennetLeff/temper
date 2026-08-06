@@ -10,7 +10,7 @@ mod isolation_slot;
 mod pad_entry_width;
 mod parallel_run;
 mod partial_discharge;
-mod power_pad_teardrop;
+pub(crate) mod power_pad_teardrop;
 mod split_plane_crossing;
 mod stitching_via_density;
 mod tht_thermal_relief;

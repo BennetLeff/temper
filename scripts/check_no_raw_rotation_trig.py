@@ -223,15 +223,28 @@ GUARDED_FILES: tuple[str, ...] = (
 # same kind of justification an allowlist entry gets elsewhere in this
 # repo (``.undeclared-imports-allowlist``'s convention) -- see the comment
 # on each entry, not just this preamble.
-#
-# (currently empty: check_pad_orientation.py::_corners was the only entry
-# and has been fixed to route through kicad_transform instead of carrying
-# raw trig -- see this module's docstring, "Second sweep" section, first
-# bullet. An empty frozenset is deliberate, not a placeholder: it is not
-# vacuous the way GUARDED_FILES being empty would be, since exemptions are
-# an opt-out layered on top of a non-empty guarded-file list, checked by
-# `_exempt_line_ranges` for whichever GUARDED_FILES entries exist.)
-EXEMPT_FUNCTIONS: frozenset[tuple[str, str]] = frozenset()
+EXEMPT_FUNCTIONS: frozenset[tuple[str, str]] = frozenset(
+    {
+        # placer/template.py::_cos_sin -- Wave-4 Phase-4 migration. The
+        # R(-theta) formula that this file once hosted (and that this gate
+        # exists to stop it re-hosting) has MOVED to the Rust kernel
+        # ``placer_core::placer_compute::apply_{component,parametric}_
+        # template`` (packages/temper-io-types), where it is transcribed
+        # from kicad_transform and pinned bit-identical by the differential
+        # suite (tests/placer/test_placer_template_rust_differential.py).
+        # The Python shim's ``_cos_sin(theta)`` returns the (cos, sin)
+        # *transcendental pair* the kernel calls back into -- CPython's
+        # ``math.cos``/``math.sin`` are the oracle's libm bits (Rust
+        # ``f64::sin`` is 1-ULP-divergent on this platform, measured
+        # 2026-08-05), so the seam exists precisely so the kernel does NOT
+        # re-type the transcendental. It computes no rotation at all; the
+        # formula the gate guards against lives only in the pinned Rust
+        # kernel now. Re-checking this exemption means re-confirming
+        # ``_cos_sin`` still contains only ``math.cos``/``math.sin`` and no
+        # rel/abs arithmetic.
+        ("packages/temper-placer/src/temper_placer/placer/template.py", "_cos_sin"),
+    }
+)
 
 _TRIG_MODULES = frozenset({"math", "np", "numpy"})
 _TRIG_FUNCS = frozenset({"cos", "sin"})

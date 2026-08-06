@@ -62,7 +62,10 @@
 # If you invoke cargo/maturin WITHOUT going through the Makefile, export it
 # yourself or you get a private cold build:
 #
-#     export CARGO_TARGET_DIR="$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)")/target-shared"
+#     source scripts/cargo_shared_env.sh
+#
+# which exports exactly that value. Prefer sourcing the script over pasting the
+# expression, so the derivation has one definition rather than three.
 [build]
 target-dir = "target-shared"
 
