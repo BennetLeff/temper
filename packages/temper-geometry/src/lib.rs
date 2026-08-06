@@ -23,6 +23,8 @@ pub mod pad_geometry;
 // wholly pyo3 surfaces: the kernel and its bridge are one module, because
 // every entry point exists to mirror one Python function bit-for-bit.
 #[cfg(feature = "python")]
+pub mod congestion;
+#[cfg(feature = "python")]
 pub mod escape_via;
 pub mod clearance_geometry;
 pub mod spice_estimators;
@@ -82,6 +84,7 @@ use pyo3::prelude::*;
 #[pymodule]
 fn temper_geometry(m: &Bound<'_, PyModule>) -> PyResult<()> {
     bridge::register_functions(m)?;
+    crate::congestion::register(m)?;
     crate::escape_via::register(m)?;
     m.add_class::<crate::congestion_tensor::CongestionTensor>()?;
     Ok(())
