@@ -1396,10 +1396,11 @@ scripts:
   - sys
 - path: phase5_batch2_mutations.py
   purpose: 'Wave-4 Phase-5 mutation campaign driver (deterministic leaf stages: sequential_routing_dataclasses,
-    layer_assignment, power_plane, component_assignment, routing_metrics, fine_pitch_escape, validator
+    layer_assignment, power_plane, component_assignment, fine_pitch_escape, validator
     slot-grid, DRC-check leaf kernels, connectivity_validation): applies each Rust-kernel mutant, rebuilds
     the owning crate, runs the differential/PBT suites, expects failure, reverts and verifies pristine.
-    Reproducible anti-vacuity evidence.'
+    Reproducible anti-vacuity evidence. (routing_metrics dropped -- its Rust pyclasses were deleted as
+    orphaned; see chore/delete-orphaned-routing-metrics.)'
   owner: wave4-migration
   last_run: '2026-08-06'
   category: keep
