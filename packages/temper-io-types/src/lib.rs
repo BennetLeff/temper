@@ -43,6 +43,12 @@ pub mod footprint_library;
 pub mod footprint_spec;
 pub mod golden_serializers;
 pub mod isolation;
+// Wave-4 Phase 2: the placer's core/ CONTRACT layer (Rect, PinInfo,
+// PlacementViolation, FabPreset + the pure kernels of units,
+// net_classification, manufacturing, placement_drc and the netlist
+// adjacency builder). See placer_core/mod.rs for what is deliberately
+// not here and why.
+pub mod placer_core;
 pub mod provenance;
 pub mod pyfmt;
 pub mod reference_aliases;
@@ -138,6 +144,9 @@ mod pymodule_def {
             crate::config_binding::verify_config_matches_netlist,
             m
         )?)?;
+        // Wave-4 Phase 2 contract layer.
+        crate::placer_core::pybridge::register(m)?;
+
         // Wave 4 Phase 5 — report surface (report.rs).
         m.add_function(wrap_pyfunction!(crate::report::report_format_text, m)?)?;
         m.add_function(wrap_pyfunction!(crate::report::report_format_json_data, m)?)?;
