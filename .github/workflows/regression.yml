@@ -166,7 +166,7 @@ jobs:
 
       - name: Upload measured baseline
         if: ${{ inputs.measure_router_baseline }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: router-output-baseline
           path: router-output-baseline.json

@@ -34,21 +34,50 @@ against the same file at the merge-base with ``--base-ref`` (default
 
 is a "raise". A raise is only accepted if at least one commit reachable
 from ``HEAD`` but not from the merge-base (i.e. a commit that is part of
-this PR) has ``Ceiling-Approval:`` somewhere in its message. A ceiling
-*decrease* (tightening), or no change at all, never requires a trailer.
+this PR) has ``Ceiling-Approval:`` somewhere in its message -- AND the
+raise satisfies the measurement-evidence contract: a NEW non-empty
+``_march`` entry naming the cause, plus a fresh measured-live provenance
+record on the raised board (source, resolvable commit, clean tree,
+recorded kicad-cli version, >= 120 samples for the nondeterministic
+``clearance`` category, input hash matching ``pcb/temper.kicad_pcb``).
+A ceiling *decrease* (tightening), or no change at all, never requires a
+trailer.
 
-This is a thin CLI wrapper: all of the actual raise-detection logic lives
-in, and stays owned by, ``DrcRatchet.detect_ceiling_raise`` -- this script
-only supplies the two JSON snapshots and the commit-message text that
-function has always accepted as arguments, from real git history instead
-of from a unit test fixture.
+This is a thin CLI wrapper: all of the actual raise-detection and
+measurement-evidence logic lives in, and stays owned by,
+``DrcRatchet`` (``find_ceiling_raises`` / ``validate_raise_evidence`` /
+``detect_ceiling_raise``) -- this script only supplies the two JSON
+snapshots and the commit-message text those methods have always accepted
+as arguments, from real git history instead of from a unit test fixture.
+
+The R27 monotone contract (docs/plans/2026-08-02-023) has two independent
+requirements, both machine-checked here:
+
+  1. an attributed cause: a raise must carry a ``Ceiling-Approval:``
+     trailer on a PR commit (the substring marker -- the raise detector)
+     AND a NEW non-empty ``_march`` entry in ``drc_ceiling.json`` naming
+     the component/commit that drove the raise (the file's ``_march`` log
+     is the single cause authority);
+  2. a measured sample: the raised board's new ``provenance`` block must
+     be measured-live (source, resolvable commit, clean tree, recorded
+     kicad-cli version), at least 120 samples for the nondeterministic
+     ``clearance`` category, and its input hash must still match
+     ``pcb/temper.kicad_pcb``'s current content.
+
+Legacy trailers (bare ``Ceiling-Approval:`` with no ``_march`` entry) are
+grandfathered only for already-landed raises; the contract applies to new
+raises.
 
 Exit codes
 ----------
   0 - OK: no ceiling raise, or every raise carries a ``Ceiling-Approval:``
-      trailer on a commit in the PR.
+      trailer on a commit in the PR AND satisfies the measurement-evidence
+      contract (attributed cause in ``_march`` + fresh measured-live
+      provenance).
   2 - Violation: a ceiling was raised (aggregate or per-type, errors or
-      warnings) with no approval trailer. Matches
+      warnings) with no approval trailer, or with a trailer but failing the
+      measurement-evidence contract (no cause, stale/backfilled/under-
+      sampled provenance, or a moved input). Matches
       ``DrcRatchetResult.exit_code`` for a ceiling-raise-without-approval
       result elsewhere in this codebase (``scripts/ci_check_drc.py``'s own
       documented exit-code contract).
@@ -211,17 +240,53 @@ def run_gate(
         )
 
     ratchet = DrcRatchet(ceiling_path)
-    result = ratchet.detect_ceiling_raise(
-        old_ceiling, new_ceiling, commit_message=commit_messages
+    raises = ratchet.find_ceiling_raises(old_ceiling, new_ceiling)
+
+    if not raises:
+        return (
+            EXIT_OK,
+            f"PASS: no ceiling raise detected between merge-base {merge_base[:12]} "
+            f"and HEAD ({ceiling_relpath}).",
+        )
+
+    has_approval_marker = "Ceiling-Approval:" in commit_messages
+    if not has_approval_marker:
+        # No trailer at all: fail on the first raise, exactly as before --
+        # ``detect_ceiling_raise`` reproduces the established message
+        # ("Ceiling increase (...) requires explicit approval.").
+        result = ratchet.detect_ceiling_raise(
+            old_ceiling, new_ceiling, commit_message=commit_messages
+        )
+        if result is not None:
+            return EXIT_UNAPPROVED_RAISE, f"FAIL: {result.message}"
+        # Unreachable in practice: a raise exists and no marker is present,
+        # so detect_ceiling_raise must return it. Guarded anyway so a logic
+        # bug here can never silently pass a raise (fail-closed discipline).
+        return EXIT_UNAPPROVED_RAISE, "FAIL: ceiling raise detected without approval"
+
+    # Trailer present: the raise is approved at the marker level, but the
+    # measurement-evidence contract still has to hold -- an attributed cause
+    # in ``_march`` and a fresh measured-live provenance record.
+    evidence_problems = ratchet.validate_raise_evidence(
+        old_ceiling, new_ceiling, repo_root
     )
+    if evidence_problems:
+        summary = "; ".join(evidence_problems)
+        return (
+            EXIT_UNAPPROVED_RAISE,
+            f"FAIL: ceiling raise carries a 'Ceiling-Approval:' trailer but fails "
+            f"the measurement-evidence contract ({ceiling_relpath}): {summary}",
+        )
 
-    if result is not None:
-        return EXIT_UNAPPROVED_RAISE, f"FAIL: {result.message}"
-
+    raised_summary = "; ".join(
+        f"{board_id} ({'; '.join(reasons)})" for board_id, reasons in raises
+    )
     return (
         EXIT_OK,
-        f"PASS: no ceiling raise detected between merge-base {merge_base[:12]} "
-        f"and HEAD ({ceiling_relpath}).",
+        f"PASS: ceiling raise detected ({raised_summary}) but carries a "
+        f"'Ceiling-Approval:' trailer and satisfies the measurement-evidence "
+        f"contract between merge-base {merge_base[:12]} and HEAD "
+        f"({ceiling_relpath}).",
     )
 
 
@@ -230,7 +295,9 @@ def main() -> int:
         description=(
             "DRC ceiling approval gate: fail if power_pcb_dataset/drc_ceiling.json "
             "raises any ceiling value relative to the merge base without a "
-            "Ceiling-Approval: trailer on a commit in this PR."
+            "Ceiling-Approval: trailer on a commit in this PR, or with a trailer "
+            "but no attributed cause (_march entry) and no fresh measured-live "
+            "provenance record."
         )
     )
     parser.add_argument(

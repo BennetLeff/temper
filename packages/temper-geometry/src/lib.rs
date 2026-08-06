@@ -12,6 +12,11 @@ pub mod drc_inflate;
 // why this can't be split into a kernel + wrapper like the other modules).
 #[cfg(feature = "python")]
 pub mod congestion_tensor;
+// Wave 4 Phase 4: analysis/_area_sufficiency.py aggregation kernels
+// (wholly pyo3 surface — the module is the pyfunction wrapper + the
+// Neumaier kernel it owns).
+#[cfg(feature = "python")]
+pub mod area_sufficiency;
 pub mod pad_geometry;
 pub mod clearance_geometry;
 pub mod spice_estimators;

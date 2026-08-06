@@ -28,17 +28,22 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+from _lib.measurement_provenance import (  # noqa: E402
+    build_provenance,
+    get_sample_count,
+    sha256_file,
+    validate_provenance_shape,
+)
 from check_measurement_provenance import (  # noqa: E402
+    _MISSING,
     EXIT_GATE_ERROR,
     EXIT_OK,
     GateError,
     Record,
-    _MISSING,
     evaluate,
     extract_records,
     load_records,
 )
-from _lib.measurement_provenance import build_provenance, sha256_file  # noqa: E402
 
 VALID_SHA = "a" * 64
 VALID_COMMIT = "b" * 40
@@ -327,3 +332,76 @@ def test_record_key_is_artifact_relative(tmp_path):
     # inside this process and tmp_path is not under it.
     assert records[0].record_id == "boards.b1"
     assert records[0].provenance == {}
+
+
+# ---------------------------------------------------------------------------
+# TestSampleCountSchema -- the R27 structured sample_count field (and its
+# legacy measured_via-prose default) added to the provenance schema.
+# ---------------------------------------------------------------------------
+
+
+class TestSampleCountSchema:
+    def test_structured_field_wins(self):
+        prov = {
+            "sample_count": 120,
+            "measured_via": "(5 samples; stale prose that must lose)",
+        }
+        assert get_sample_count(prov) == 120
+
+    def test_legacy_measured_via_prose_default(self):
+        # The current committed drc_ceiling.json record's exact shape: no
+        # structured field, count carried in measured_via prose.
+        prov = {
+            "measured_via": (
+                "temper_placer.validation._drc_api.run_drc with --all-track-errors "
+                "(120 samples; see nondeterministic_error_types.clearance.samples)"
+            )
+        }
+        assert get_sample_count(prov) == 120
+
+    def test_measured_via_prose_other_phrasings(self):
+        assert get_sample_count({"measured_via": "ran 8 samples of run_drc"}) == 8
+        assert get_sample_count({"measured_via": "8 samples; 3 warnings"}) == 8
+
+    def test_missing_sample_count_returns_none(self):
+        assert get_sample_count({}) is None
+        assert get_sample_count({"measured_via": "no count mentioned"}) is None
+
+    def test_boolean_sample_count_is_rejected_not_counted(self):
+        # bool is an int subclass; True must not read as 1 sample.
+        assert get_sample_count({"sample_count": True}) is None
+        assert get_sample_count({"sample_count": False}) is None
+
+    def test_non_positive_structured_count_is_rejected(self):
+        assert get_sample_count({"sample_count": 0}) is None
+        assert get_sample_count({"sample_count": -5}) is None
+
+    def test_validate_shape_accepts_positive_sample_count(self):
+        prov = _valid_prov("a" * 64)
+        prov["sample_count"] = 120
+        assert validate_provenance_shape(prov) is None
+
+    def test_validate_shape_rejects_invalid_sample_count(self):
+        for bad in (0, -1, True, "120", 1.5):
+            prov = _valid_prov("a" * 64)
+            prov["sample_count"] = bad
+            err = validate_provenance_shape(prov)
+            assert err is not None and "sample_count" in err, bad
+
+    def test_validate_shape_allows_absent_sample_count(self):
+        # Legacy records predate the field; absence must stay valid.
+        assert validate_provenance_shape(_valid_prov("a" * 64)) is None
+
+    def test_build_provenance_records_sample_count(self, tmp_path):
+        board = tmp_path / "board.txt"
+        board.write_text("v1")
+        prov = build_provenance(
+            tmp_path, ["board.txt"], source="measured-live", sample_count=120
+        )
+        assert prov["sample_count"] == 120
+
+    def test_build_provenance_omits_sample_count_when_none(self, tmp_path):
+        board = tmp_path / "board.txt"
+        board.write_text("v1")
+        prov = build_provenance(tmp_path, ["board.txt"], source="measured-live")
+        assert "sample_count" not in prov

@@ -12,6 +12,7 @@ every repo is a fresh ``tmp_path`` fixture.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import subprocess
 import sys
@@ -45,6 +46,64 @@ BASE_CEILING = {
         }
     ]
 }
+
+BOARD_CONTENT_V1 = b"board-content-v1"
+
+
+def _sha256(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
+
+def _write_pcb(repo: Path, content: bytes = BOARD_CONTENT_V1) -> str:
+    """Write the board file the ceiling measures and return its hash --
+    the measurement-evidence contract hashes the file on disk, so every
+    compliant-raise fixture needs a real board to hash against.
+    """
+    pcb = repo / "pcb" / "temper.kicad_pcb"
+    pcb.parent.mkdir(parents=True, exist_ok=True)
+    pcb.write_bytes(content)
+    return _sha256(content)
+
+
+def _provenance(board_sha: str, **overrides: object) -> dict:
+    """A valid measured-live provenance block (the real record's shape:
+    sample count in measured_via prose, the legacy default)."""
+    prov: dict = {
+        "measured_at_commit": "a" * 40,
+        "dirty": False,
+        "inputs": [{"path": "pcb/temper.kicad_pcb", "sha256": board_sha}],
+        "tool_versions": {"kicad-cli": "10.0.4"},
+        "source": "measured-live",
+        "measured_via": (
+            "temper_placer.validation._drc_api.run_drc with --all-track-errors "
+            "(120 samples; see nondeterministic_error_types.clearance.samples)"
+        ),
+    }
+    prov.update(overrides)
+    return prov
+
+
+def _raised_compliant_ceiling(repo: Path, base: dict = BASE_CEILING) -> dict:
+    """The compliant row of the contract matrix as a new ceiling: a raise
+    (aggregate error_ceiling +3) backed by a new non-empty ``_march`` entry
+    and a fresh measured-live provenance whose input hash matches the board
+    file just written to disk. The merge-base record (BASE_CEILING) has no
+    ``_march``, so both entries here count as new -- the contract only needs
+    at least one non-empty one.
+    """
+    board_sha = _write_pcb(repo)
+    raised = json.loads(json.dumps(base))
+    entry = raised["boards"][0]
+    entry["error_ceiling"] = entry["error_ceiling"] + 3
+    entry["nondeterministic_error_types"] = {
+        "clearance": {"observed": [499, 500, 501], "samples": 120, "note": "only nondeterministic category"}
+    }
+    entry["provenance"] = _provenance(board_sha)
+    raised["_march"] = {
+        "2026-07-30": "prior entry (base state)",
+        "2026-08-02": "attributed cause: U3 footprint resync (commit abc123)",
+    }
+    return raised
 
 
 def _git(args: list[str], cwd: Path) -> None:
@@ -127,8 +186,7 @@ class TestRaiseWithoutTrailerFails:
 class TestRaiseWithTrailerPasses:
     def test_aggregate_error_ceiling_raise_with_trailer_passes(self, tmp_path):
         repo = _base_repo(tmp_path)
-        raised = json.loads(json.dumps(BASE_CEILING))
-        raised["boards"][0]["error_ceiling"] = 1020
+        raised = _raised_compliant_ceiling(repo)
         _write_ceiling(repo, raised)
         _commit(
             repo,
@@ -140,6 +198,7 @@ class TestRaiseWithTrailerPasses:
 
         assert exit_code == EXIT_OK
         assert "PASS" in message
+        assert "satisfies the measurement-evidence contract" in message
 
     def test_trailer_on_an_earlier_pr_commit_still_counts(self, tmp_path):
         """The trailer just needs to be on *a* commit in the PR, not
@@ -149,13 +208,178 @@ class TestRaiseWithTrailerPasses:
         (repo / "NOTES.md").write_text("unrelated prep work\n")
         _commit(repo, "prep: add notes\n\nCeiling-Approval: reviewer-id")
 
-        raised = json.loads(json.dumps(BASE_CEILING))
-        raised["boards"][0]["error_ceiling"] = 1020
+        raised = _raised_compliant_ceiling(repo)
         _write_ceiling(repo, raised)
         _commit(repo, "raise the ceiling")
 
         exit_code, _message = run_gate(repo, CEILING_RELPATH, base_ref="origin/main")
         assert exit_code == EXIT_OK
+
+
+class TestRaiseWithTrailerButNoCauseFails:
+    """U1 scenario 2 at the gate level: the bare legacy string
+    ('Ceiling-Approval: reviewer-id') with a valid measurement but no new
+    ``_march`` entry must fail, naming the missing cause -- the _march log
+    is the single cause authority, not the trailer body."""
+
+    def test_bare_legacy_trailer_without_march_entry_fails(self, tmp_path):
+        repo = _base_repo(tmp_path)
+        board_sha = _write_pcb(repo)
+        raised = json.loads(json.dumps(BASE_CEILING))
+        raised["boards"][0]["error_ceiling"] = 1020
+        raised["boards"][0]["nondeterministic_error_types"] = {
+            "clearance": {"samples": 120, "observed": [499, 500, 501]}
+        }
+        raised["boards"][0]["provenance"] = _provenance(board_sha)  # measurement is fine
+        # no "_march" key at all -> no attributed cause
+        _write_ceiling(repo, raised)
+        _commit(
+            repo,
+            "fix(drc): raise ceiling for measured noise\n\nCeiling-Approval: reviewer-id",
+        )
+
+        exit_code, message = run_gate(repo, CEILING_RELPATH, base_ref="origin/main")
+
+        assert exit_code == EXIT_UNAPPROVED_RAISE
+        assert "measurement-evidence contract" in message
+        assert "no attributed cause" in message
+
+
+class TestRaiseWithCauseButBadMeasurementEvidenceFails:
+    """U2 corpus: a trailer plus a cause, but the raised board's provenance
+    record fails one evidence dimension -- each shape fails with the
+    specific reason named."""
+
+    def _approved_raise(self, repo: Path, mutate) -> None:
+        raised = _raised_compliant_ceiling(repo)
+        mutate(raised["boards"][0])
+        _write_ceiling(repo, raised)
+        _commit(
+            repo,
+            "fix(drc): raise ceiling\n\nCeiling-Approval: reviewer-id",
+        )
+
+    def test_stale_input_hash_fails(self, tmp_path):
+        repo = _base_repo(tmp_path)
+        self._approved_raise(repo, lambda entry: None)
+        # board moved after the measurement: the recorded hash no longer
+        # matches the file on disk
+        (repo / "pcb" / "temper.kicad_pcb").write_bytes(b"board-content-v2")
+
+        exit_code, message = run_gate(repo, CEILING_RELPATH, base_ref="origin/main")
+
+        assert exit_code == EXIT_UNAPPROVED_RAISE
+        assert "STALE measurement" in message
+
+    def test_under_sampled_structured_field_fails_naming_sample_count(self, tmp_path):
+        repo = _base_repo(tmp_path)
+        self._approved_raise(
+            repo,
+            lambda entry: entry["provenance"].update({"sample_count": 60}),
+        )
+
+        exit_code, message = run_gate(repo, CEILING_RELPATH, base_ref="origin/main")
+
+        assert exit_code == EXIT_UNAPPROVED_RAISE
+        assert "60" in message
+        assert "at least 120 samples" in message
+
+    def test_under_sampled_legacy_prose_fails(self, tmp_path):
+        repo = _base_repo(tmp_path)
+        self._approved_raise(
+            repo,
+            lambda entry: entry["provenance"].update(
+                {
+                    "sample_count": None,
+                    "measured_via": "run_drc with --all-track-errors (60 samples)",
+                }
+            ),
+        )
+
+        exit_code, message = run_gate(repo, CEILING_RELPATH, base_ref="origin/main")
+
+        assert exit_code == EXIT_UNAPPROVED_RAISE
+        assert "at least 120 samples" in message
+
+    def test_backfilled_historical_source_fails(self, tmp_path):
+        repo = _base_repo(tmp_path)
+        self._approved_raise(
+            repo,
+            lambda entry: entry["provenance"].update({"source": "backfilled-historical"}),
+        )
+
+        exit_code, message = run_gate(repo, CEILING_RELPATH, base_ref="origin/main")
+
+        assert exit_code == EXIT_UNAPPROVED_RAISE
+        assert "not 'measured-live'" in message
+
+    def test_dirty_tree_measurement_fails(self, tmp_path):
+        repo = _base_repo(tmp_path)
+        self._approved_raise(
+            repo,
+            lambda entry: entry["provenance"].update({"dirty": True}),
+        )
+
+        exit_code, message = run_gate(repo, CEILING_RELPATH, base_ref="origin/main")
+
+        assert exit_code == EXIT_UNAPPROVED_RAISE
+        assert "clean tree" in message
+
+    def test_unresolvable_measured_at_commit_fails(self, tmp_path):
+        repo = _base_repo(tmp_path)
+        self._approved_raise(
+            repo,
+            lambda entry: entry["provenance"].update({"measured_at_commit": "UNKNOWN"}),
+        )
+
+        exit_code, message = run_gate(repo, CEILING_RELPATH, base_ref="origin/main")
+
+        assert exit_code == EXIT_UNAPPROVED_RAISE
+        assert "does not resolve to a commit" in message
+
+    def test_unrecorded_kicad_cli_version_fails(self, tmp_path):
+        repo = _base_repo(tmp_path)
+        self._approved_raise(
+            repo,
+            lambda entry: entry["provenance"]["tool_versions"].pop("kicad-cli"),
+        )
+
+        exit_code, message = run_gate(repo, CEILING_RELPATH, base_ref="origin/main")
+
+        assert exit_code == EXIT_UNAPPROVED_RAISE
+        assert "concrete kicad-cli" in message
+
+    def test_no_provenance_record_at_all_fails(self, tmp_path):
+        repo = _base_repo(tmp_path)
+        self._approved_raise(
+            repo,
+            lambda entry: entry.pop("provenance"),
+        )
+
+        exit_code, message = run_gate(repo, CEILING_RELPATH, base_ref="origin/main")
+
+        assert exit_code == EXIT_UNAPPROVED_RAISE
+        assert "no measured sample" in message
+
+
+class TestPerTypeRaiseCompliantPasses:
+    def test_per_type_error_raise_with_full_evidence_passes(self, tmp_path):
+        repo = _base_repo(tmp_path)
+        raised = _raised_compliant_ceiling(repo)
+        entry = raised["boards"][0]
+        entry["error_ceiling"] = BASE_CEILING["boards"][0]["error_ceiling"]  # aggregate flat
+        entry["violations_by_type"]["clearance"] = 600  # the raise
+        _write_ceiling(repo, raised)
+        _commit(
+            repo,
+            "fix(drc): raise clearance ceiling for measured noise\n\n"
+            "Ceiling-Approval: reviewer-id",
+        )
+
+        exit_code, message = run_gate(repo, CEILING_RELPATH, base_ref="origin/main")
+
+        assert exit_code == EXIT_OK
+        assert "violations_by_type[clearance] 502 -> 600" in message
 
 
 class TestDecreasePasses:

@@ -1,67 +1,35 @@
+"""Fab-process capabilities and worst-case tolerance arithmetic.
+
+Wave-4 Phase 2: ``FabPreset`` is now the Rust ``#[pyclass]`` of the same
+name in ``temper-io-types``, and the two tolerance functions delegate to
+it. The Python-visible contract is unchanged -- same constructor
+signature and defaults, same ``__repr__``, same ``__eq__``, and the same
+``TypeError: unhashable type: 'FabPreset'`` a non-frozen dataclass
+raises on ``hash()``.
+
+``inflated_clearance`` is ``max(0.0, nominal - tolerance)`` with CPython's
+*builtin* ``max`` semantics, which are not ``f64::max``: the builtin keeps
+its left operand unless the right compares strictly greater, so it
+propagates a NaN from the left only. See ``placer_core/manufacturing.rs``.
+"""
+
 from __future__ import annotations
 
-from dataclasses import dataclass
+import temper_io_types as _rs
 
-
-@dataclass
-class FabPreset:
-    """Manufacturing capabilities and tolerances for a specific fab process."""
-
-    name: str
-    trace_width_pct: float = 0.15  # ±15%
-    min_trace_mm: float = 0.127  # 5 mil
-    min_clearance_mm: float = 0.127  # 5 mil
-    etch_undercut_mm: float = 0.05  # Always positive
-    layer_registration_mm: float = 0.1  # ±0.1mm
-    drill_tolerance_mm: float = 0.05  # ±0.05mm
-
-    @classmethod
-    def jlcpcb_standard(cls) -> FabPreset:
-        return cls(
-            name="jlcpcb_standard",
-            trace_width_pct=0.15,
-            min_trace_mm=0.127,
-            min_clearance_mm=0.127,
-            etch_undercut_mm=0.05,
-            layer_registration_mm=0.1,
-        )
-
-    @classmethod
-    def jlcpcb_hdi(cls) -> FabPreset:
-        return cls(
-            name="jlcpcb_hdi",
-            trace_width_pct=0.10,
-            min_trace_mm=0.075,
-            min_clearance_mm=0.075,
-            etch_undercut_mm=0.03,
-            layer_registration_mm=0.05,
-        )
-
-    @classmethod
-    def oshpark(cls) -> FabPreset:
-        return cls(
-            name="oshpark",
-            trace_width_pct=0.12,
-            min_trace_mm=0.152,
-            min_clearance_mm=0.152,
-            etch_undercut_mm=0.04,
-        )
+FabPreset = _rs.FabPreset
 
 
 def get_fab_presets() -> dict[str, FabPreset]:
     """Get all pre-configured fab house presets."""
-    return {
-        "jlcpcb_standard": FabPreset.jlcpcb_standard(),
-        "jlcpcb_hdi": FabPreset.jlcpcb_hdi(),
-        "oshpark": FabPreset.oshpark(),
-    }
+    return _rs.get_fab_presets()
 
 
 def inflated_clearance(nominal: float, tolerance: float = 0.1) -> float:
     """Calculate worst-case (smaller) clearance."""
-    return max(0.0, nominal - tolerance)
+    return _rs.inflated_clearance(nominal, tolerance)
 
 
 def inflated_width(nominal: float, tolerance: float = 0.1) -> float:
     """Calculate worst-case (larger) trace width."""
-    return nominal + tolerance
+    return _rs.inflated_width(nominal, tolerance)

@@ -10,6 +10,31 @@ All metrics are normalized to [0, 1] range for easy comparison:
 - 0.0 = worst case
 
 The exception is total_wirelength which returns raw mm value (lower is better).
+
+**Wave 4 Phase 4 — the scoring arithmetic now runs in Rust.**  Every kernel
+below delegates to ``temper-quality-oracle``
+(``packages/temper-quality-oracle/src/placement_metrics.rs``); this module
+keeps the public API and does the object plumbing — netlist ref lookups,
+``set``/``dict`` traversal, and the cardinality filters that need the netlist
+index.  The split is deliberate: the plumbing is where the *ordering* is
+decided, and ordering is load-bearing.
+
+Ordering contract (why the traversal stays in Python)
+-----------------------------------------------------
+``thermal_score`` accumulates ``total_score += component_score`` while
+iterating a ``set[str]``, and float addition is not associative.  CPython
+randomises ``str`` hashing per process, so the traversal order — and hence the
+low bits of the result — already varied between processes *before* this
+migration.  We do **not** "fix" that by sorting: sorting would be a silent
+behaviour change on shipped inputs that no differential against the current
+code could catch.  Instead each function performs exactly one pass over the
+set and hands Rust a list in that order, so the Rust result is bit-identical
+to the Python result for whatever order the process happened to produce.
+
+The ``min``-reductions (``hv_lv_clearance_score``,
+``dual_rail_clearance_report``) are order-independent by construction, and the
+``dict`` traversal in ``zone_compliance_score`` is insertion-ordered; only
+``thermal_score`` is genuinely order-sensitive.
 """
 
 from __future__ import annotations
@@ -17,10 +42,34 @@ from __future__ import annotations
 from typing import Any
 
 import numpy as np
+import temper_quality_oracle as _tqo
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist
 from temper_placer.core.state import PlacementState
+
+
+def _clearance_boxes(
+    state: PlacementState,
+    netlist: Netlist,
+    refs: set[str],
+) -> list[tuple[float, float, float, float]]:
+    """Resolve *refs* to ``(x, y, half_width, half_height)`` tuples.
+
+    Preserves the oracle's single pass over the set, its ``KeyError`` skip,
+    and its Python-side ``bounds[n] / 2`` halving (so the exact f64 that the
+    pre-migration code divided is what crosses the boundary).
+    """
+    boxes: list[tuple[float, float, float, float]] = []
+    for ref in refs:
+        try:
+            idx = netlist.get_component_index(ref)
+        except KeyError:
+            continue
+        pos = state.positions[idx]
+        bounds = netlist.components[idx].bounds
+        boxes.append((float(pos[0]), float(pos[1]), bounds[0] / 2, bounds[1] / 2))
+    return boxes
 
 
 def total_wirelength(
@@ -87,36 +136,26 @@ def thermal_score(
     board_bounds = board.get_relative_bounds_array()
     x_min, y_min, x_max, y_max = board_bounds
 
-    total_score = 0.0
-    count = 0
-
+    # ONE pass over the set — the order this produces is the order Rust
+    # accumulates in.  See the module docstring: do not sort this.
+    resolved: list[tuple[float, float]] = []
     for ref in thermal_components:
         try:
             idx = netlist.get_component_index(ref)
         except KeyError:
             continue
-
         pos = state.positions[idx]
-        x, y = float(pos[0]), float(pos[1])
+        resolved.append((float(pos[0]), float(pos[1])))
 
-        # Distance to target edge
-        if target_edge == "TOP":
-            distance = float(y_max) - y
-        elif target_edge == "BOTTOM":
-            distance = y - float(y_min)
-        elif target_edge == "LEFT":
-            distance = x - float(x_min)
-        elif target_edge == "RIGHT":
-            distance = float(x_max) - x
-        else:
-            distance = max_distance  # Unknown edge
-
-        # Normalize: 0 distance = 1.0 score, max_distance = 0.0 score
-        component_score = max(0.0, 1.0 - distance / max_distance)
-        total_score += component_score
-        count += 1
-
-    return total_score / count if count > 0 else 1.0
+    return _tqo.thermal_score_py(
+        resolved,
+        float(x_min),
+        float(y_min),
+        float(x_max),
+        float(y_max),
+        target_edge,
+        max_distance,
+    )
 
 
 def zone_compliance_score(
@@ -146,8 +185,7 @@ def zone_compliance_score(
     # Build zone lookup
     zone_lookup = {z.name: z for z in board.zones}
 
-    correct = 0
-    total = 0
+    membership: list[bool] = []
 
     for ref, zone_name in zone_assignments.items():
         if zone_name not in zone_lookup:
@@ -164,13 +202,9 @@ def zone_compliance_score(
 
         # Check if position is within zone bounds
         x_min, y_min, x_max, y_max = zone.bounds
-        in_zone = x_min <= x <= x_max and y_min <= y <= y_max
+        membership.append(x_min <= x <= x_max and y_min <= y <= y_max)
 
-        if in_zone:
-            correct += 1
-        total += 1
-
-    return correct / total if total > 0 else 1.0
+    return _tqo.zone_compliance_score_py(membership)
 
 
 def hv_lv_clearance_score(
@@ -199,54 +233,10 @@ def hv_lv_clearance_score(
     if not hv_components or not lv_components:
         return 1.0  # Perfect score if nothing to check
 
-    # Get positions for HV and LV components
-    hv_positions = []
-    hv_bounds = []
-    for ref in hv_components:
-        try:
-            idx = netlist.get_component_index(ref)
-            hv_positions.append(state.positions[idx])
-            hv_bounds.append(netlist.components[idx].bounds)
-        except KeyError:
-            continue
+    hv = _clearance_boxes(state, netlist, hv_components)
+    lv = _clearance_boxes(state, netlist, lv_components)
 
-    lv_positions = []
-    lv_bounds = []
-    for ref in lv_components:
-        try:
-            idx = netlist.get_component_index(ref)
-            lv_positions.append(state.positions[idx])
-            lv_bounds.append(netlist.components[idx].bounds)
-        except KeyError:
-            continue
-
-    if not hv_positions or not lv_positions:
-        return 1.0
-
-    # Compute minimum clearance across all HV-LV pairs
-    min_found_clearance = float("inf")
-
-    for i, hv_pos in enumerate(hv_positions):
-        hv_hw, hv_hh = hv_bounds[i][0] / 2, hv_bounds[i][1] / 2
-
-        for j, lv_pos in enumerate(lv_positions):
-            lv_hw, lv_hh = lv_bounds[j][0] / 2, lv_bounds[j][1] / 2
-
-            # Compute edge-to-edge distance (axis-aligned approximation)
-            dx = abs(float(hv_pos[0]) - float(lv_pos[0])) - hv_hw - lv_hw
-            dy = abs(float(hv_pos[1]) - float(lv_pos[1])) - hv_hh - lv_hh
-
-            clearance = (dx**2 + dy**2) ** 0.5 if dx > 0 and dy > 0 else max(dx, dy)
-
-            min_found_clearance = min(min_found_clearance, clearance)
-
-    # Score: 1.0 if clearance >= min_clearance, 0.0 if clearance <= 0
-    if min_found_clearance >= min_clearance:
-        return 1.0
-    elif min_found_clearance <= 0:
-        return 0.0
-    else:
-        return min_found_clearance / min_clearance
+    return _tqo.hv_lv_clearance_score_py(hv, lv, min_clearance)
 
 
 def dual_rail_clearance_report(
@@ -275,9 +265,6 @@ def dual_rail_clearance_report(
         - violations_3mm: int — count of HV-LV pairs below 3.0mm
         - violations_6mm: int — count of HV-LV pairs below 6.0mm
     """
-    THRESHOLD_3MM = 3.0
-    THRESHOLD_6MM = 6.0
-
     if not hv_components or not lv_components:
         return {
             "clearance_score_3mm": 1.0,
@@ -286,71 +273,16 @@ def dual_rail_clearance_report(
             "violations_6mm": 0,
         }
 
-    # Get positions for HV and LV components
-    hv_positions = []
-    hv_bounds = []
-    for ref in hv_components:
-        try:
-            idx = netlist.get_component_index(ref)
-            hv_positions.append(state.positions[idx])
-            hv_bounds.append(netlist.components[idx].bounds)
-        except KeyError:
-            continue
+    hv = _clearance_boxes(state, netlist, hv_components)
+    lv = _clearance_boxes(state, netlist, lv_components)
 
-    lv_positions = []
-    lv_bounds = []
-    for ref in lv_components:
-        try:
-            idx = netlist.get_component_index(ref)
-            lv_positions.append(state.positions[idx])
-            lv_bounds.append(netlist.components[idx].bounds)
-        except KeyError:
-            continue
-
-    if not hv_positions or not lv_positions:
-        return {
-            "clearance_score_3mm": 1.0,
-            "clearance_score_6mm": 1.0,
-            "violations_3mm": 0,
-            "violations_6mm": 0,
-        }
-
-    # Single pass through all HV-LV pairs
-    min_found_clearance = float("inf")
-    violations_3mm = 0
-    violations_6mm = 0
-
-    for i, hv_pos in enumerate(hv_positions):
-        hv_hw, hv_hh = hv_bounds[i][0] / 2, hv_bounds[i][1] / 2
-
-        for j, lv_pos in enumerate(lv_positions):
-            lv_hw, lv_hh = lv_bounds[j][0] / 2, lv_bounds[j][1] / 2
-
-            # Compute edge-to-edge distance (axis-aligned approximation)
-            dx = abs(float(hv_pos[0]) - float(lv_pos[0])) - hv_hw - lv_hw
-            dy = abs(float(hv_pos[1]) - float(lv_pos[1])) - hv_hh - lv_hh
-
-            clearance = (dx**2 + dy**2) ** 0.5 if dx > 0 and dy > 0 else max(dx, dy)
-
-            min_found_clearance = min(min_found_clearance, clearance)
-
-            if clearance < THRESHOLD_3MM:
-                violations_3mm += 1
-            if clearance < THRESHOLD_6MM:
-                violations_6mm += 1
-
-    # Compute scores using linear ramp (same pattern as hv_lv_clearance_score)
-    def _score(clearance: float, threshold: float) -> float:
-        if clearance >= threshold:
-            return 1.0
-        elif clearance <= 0:
-            return 0.0
-        else:
-            return clearance / threshold
+    score_3mm, score_6mm, violations_3mm, violations_6mm = _tqo.dual_rail_clearance_report_py(
+        hv, lv
+    )
 
     return {
-        "clearance_score_3mm": _score(min_found_clearance, THRESHOLD_3MM),
-        "clearance_score_6mm": _score(min_found_clearance, THRESHOLD_6MM),
+        "clearance_score_3mm": score_3mm,
+        "clearance_score_6mm": score_6mm,
         "violations_3mm": violations_3mm,
         "violations_6mm": violations_6mm,
     }
@@ -382,37 +314,32 @@ def loop_area_score(
     if not loop_components:
         return 1.0  # Perfect if nothing to check
 
-    total_score = 0.0
-    count = 0
+    # Resolve each loop to its vertex list, applying BOTH of the oracle's
+    # cardinality filters (>= 3 refs, and >= 3 that actually resolve) so the
+    # Rust kernel's `count` equals the oracle's.
+    resolved_loops: list[list[tuple[float, float]]] = []
 
     for loop_refs in loop_components:
         if len(loop_refs) < 3:
             continue  # Need at least 3 points for a polygon
 
-        # Get positions for components in this loop
-        positions = []
+        positions: list[tuple[float, float]] = []
         for ref in loop_refs:
             try:
                 idx = netlist.get_component_index(ref)
-                positions.append(state.positions[idx])
             except KeyError:
                 continue
+            p = state.positions[idx]
+            positions.append((float(p[0]), float(p[1])))
 
         if len(positions) < 3:
             continue
 
-        # Compute polygon area using shoelace formula
-        vertices = np.array([[float(p[0]), float(p[1])] for p in positions])
-        vertices_next = np.roll(vertices, -1, axis=0)
-        cross = vertices[:, 0] * vertices_next[:, 1] - vertices_next[:, 0] * vertices[:, 1]
-        area = abs(float(np.sum(cross)) / 2.0)
+        resolved_loops.append(positions)
 
-        # Score: 1.0 for zero area, 0.0 for max_area or larger
-        loop_score = max(0.0, 1.0 - area / max_area)
-        total_score += loop_score
-        count += 1
-
-    return total_score / count if count > 0 else 1.0
+    # The shoelace sum crosses to Rust as a numpy-pairwise reduction, not a
+    # naive one — see catalog class B11 in placement_metrics.rs.
+    return _tqo.loop_area_score_py(resolved_loops, max_area)
 
 
 def congestion_score(
@@ -469,36 +396,16 @@ def compactness_score(
 
     positions = state.positions
 
-    # Compute bounding box of all placed components
-    x_coords = positions[:, 0]
-    y_coords = positions[:, 1]
+    # The oracle wraps every extremum in float() before using it, so the
+    # source dtype (float32 from PlacementState.from_positions_dict) does not
+    # reach the arithmetic here — widening f32 -> f64 is exact.
+    pos_pairs = [(float(p[0]), float(p[1])) for p in positions]
 
-    x_min, x_max = float(np.min(x_coords)), float(np.max(x_coords))
-    y_min, y_max = float(np.min(y_coords)), float(np.max(y_coords))
+    half_widths = [c.bounds[0] / 2 for c in netlist.components]
+    half_heights = [c.bounds[1] / 2 for c in netlist.components]
+    areas = [c.bounds[0] * c.bounds[1] for c in netlist.components]
 
-    # Add component sizes to get actual bounding box
-    half_widths = np.array([c.bounds[0] / 2 for c in netlist.components])
-    half_heights = np.array([c.bounds[1] / 2 for c in netlist.components])
-
-    placement_width = (x_max - x_min) + float(np.max(half_widths)) * 2
-    placement_height = (y_max - y_min) + float(np.max(half_heights)) * 2
-
-    # Compute total component area
-    total_component_area = sum(c.bounds[0] * c.bounds[1] for c in netlist.components)
-
-    # Placement bounding box area
-    placement_area = placement_width * placement_height
-
-    if placement_area <= 0:
-        return 1.0
-
-    # Score based on utilization (component area / placement bbox area)
-    # Higher utilization = more compact
-    utilization = total_component_area / placement_area
-
-    # Clamp to [0, 1] - utilization > 1 is impossible in practice
-    # but can happen with overlaps
-    return min(1.0, utilization)
+    return _tqo.compactness_score_py(pos_pairs, half_widths, half_heights, areas)
 
 
 def connectivity_clustering_score(
@@ -525,8 +432,16 @@ def connectivity_clustering_score(
         return 1.0
 
     positions = state.positions
-    total_score = 0.0
-    count = 0
+
+    # The oracle subtracts the bbox extrema as RAW numpy scalars — so when
+    # state.positions is a float32 array (which PlacementState.
+    # from_positions_dict produces) `x_max - x_min` rounds to f32 before the
+    # following `+ 2 * max_hw` widens it.  Unlike compactness_score, this
+    # kernel has no float() wrapper to hide behind, so the dtype travels with
+    # the data.  See `narrowing_sub` in placement_metrics.rs.
+    positions_are_f32 = positions.dtype == np.float32
+
+    nets: list[tuple[list[tuple[float, float]], list[float], list[float], list[float]]] = []
 
     # We use the pre-computed net pin indices from context for efficiency
     # net_pin_indices: (M, P)
@@ -540,35 +455,19 @@ def connectivity_clustering_score(
         if len(valid_indices) < 2:
             continue
 
-        # Get positions of components in this net
         net_comp_positions = positions[valid_indices]
-
-        # Compute actual bounding box of component centers
-        x_min = np.min(net_comp_positions[:, 0])
-        x_max = np.max(net_comp_positions[:, 0])
-        y_min = np.min(net_comp_positions[:, 1])
-        y_max = np.max(net_comp_positions[:, 1])
-
-        # Add half-widths/heights to get component-aware bounding box
         net_components = [netlist.components[idx] for idx in valid_indices.tolist()]
-        max_hw = max(c.width / 2 for c in net_components)
-        max_hh = max(c.height / 2 for c in net_components)
 
-        bbox_width = (x_max - x_min) + 2 * max_hw
-        bbox_height = (y_max - y_min) + 2 * max_hh
-        actual_area = bbox_width * bbox_height
+        nets.append(
+            (
+                [(float(p[0]), float(p[1])) for p in net_comp_positions],
+                [c.width / 2 for c in net_components],
+                [c.height / 2 for c in net_components],
+                [c.width * c.height for c in net_components],
+            )
+        )
 
-        # Compute minimum possible area (sum of component areas)
-        min_possible_area = sum(c.width * c.height for c in net_components)
-
-        # Clustering ratio: min_area / actual_area (1.0 = optimal)
-        # We take max(min_possible_area, actual_area) to avoid > 1.0 due to overlaps
-        if actual_area > 0:
-            ratio = min_possible_area / max(actual_area, min_possible_area)
-            total_score += float(ratio)
-            count += 1
-
-    return total_score / count if count > 0 else 1.0
+    return _tqo.connectivity_clustering_score_py(nets, positions_are_f32)
 
 
 import warnings
@@ -643,10 +542,11 @@ def compute_quality_report(
     compact = compactness_score(state, netlist, board)
     clustering = connectivity_clustering_score(state, netlist, context)
 
-    # Compute overall score (equal weighting of normalized scores)
-    # Note: wirelength is not included since it's not normalized
+    # Compute overall score (equal weighting of normalized scores) — Rust
+    # kernel.  The score list is a fixed 7-element literal, so its summation
+    # order is deterministic (unlike the set traversals feeding thermal_score).
     normalized_scores = [thermal, zone, clearance, loop, congestion, compact, clustering]
-    overall = sum(normalized_scores) / len(normalized_scores)
+    overall = _tqo.quality_report_overall_py(normalized_scores)
 
     return {
         "total_wirelength": wl,
