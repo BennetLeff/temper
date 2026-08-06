@@ -1,6 +1,6 @@
 _meta:
   last_audit_date: '2026-08-05'
-  total_scripts: 116
+  total_scripts: 117
   counts:
     keep: 113
     ticket: 0
@@ -920,6 +920,21 @@ scripts:
   - fnmatch
   - os
   - pathlib
+  - sys
+- path: check_wire_format_fidelity.py
+  purpose: 'CI gate: fail when a Rust kernel reimplements a shipped geometry helper but its wire format
+    drops a field that helper reads. Catches the class where the differential cannot -- a field absent
+    from every corpus row is absent from the proof. Validated by replaying the three 2026-08 defects (escape_via
+    roundrect_ratio, net_ordering and congestion_analysis initial_side); all three are caught.'
+  owner: pipeline
+  last_run: '2026-08-06'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - pathlib
+  - re
   - sys
 - path: check_workflow_pr_triggers.py
   purpose: 'CI gate: ensure workflow files with push triggers also declare pull_request (issue #315)'

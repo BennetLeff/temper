@@ -103,7 +103,6 @@
     "packages/temper-placer/src/temper_placer/router_v6/clearance_check.py",
     "packages/temper-placer/src/temper_placer/router_v6/clearance_engine.py",
     "packages/temper-placer/src/temper_placer/router_v6/constraints_design_rules.py",
-    "packages/temper-placer/src/temper_placer/router_v6/routing_demand.py",
     "packages/temper-placer/src/temper_placer/router_v6/trace_width_assignment.py",
     "packages/temper-placer/tests/core/_priority_py_oracle.py",
     "packages/temper-placer/tests/router_v6/_congestion_py_oracle.py"
@@ -171,7 +170,9 @@
   "check_undeclared_imports.py": [
     ".github/workflows/python-tests.yml"
   ],
-  "check_unwired_kernels.py": [],
+  "check_unwired_kernels.py": [
+    ".github/workflows/trunk-health.yml"
+  ],
   "check_vacuous_gates.py": [
     ".github/workflows/python-tests.yml",
     "packages/temper-placer/src/temper_placer/geometry/drc_inflate.py",
@@ -179,6 +180,9 @@
   ],
   "check_verdict_coverage.py": [
     ".github/workflows/python-tests.yml"
+  ],
+  "check_wire_format_fidelity.py": [
+    ".github/workflows/trunk-health.yml"
   ],
   "check_workflow_pr_triggers.py": [
     ".github/workflows/lint-workflows.yml",

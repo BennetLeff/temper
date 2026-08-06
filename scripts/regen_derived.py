@@ -213,6 +213,28 @@ def handle_unwired() -> int:
     return 1
 
 
+
+def handle_wire_format() -> int:
+    """Kernels whose wire format is narrower than the Python they replace.
+
+    Report only: the fix is a wire-format change plus a corpus row, which is
+    a code change with its own risk. Surfaced here so it is seen before a
+    merge rather than in an audit.
+    """
+    if not (REPO_ROOT / "scripts" / "check_wire_format_fidelity.py").exists():
+        return 0
+    code, out = run(py("check_wire_format_fidelity.py"))
+    first = out.strip().splitlines()[0] if out.strip() else "(no output)"
+    if code == 0:
+        print(f"  ok     wire formats: {first}")
+        return 0
+    print(f"  ACTION wire formats: {first}")
+    for ln in out.splitlines():
+        if ln.startswith(("DROPPED_FIELD", "STALE_ENTRY")):
+            print(f"           {ln[:120]}")
+    return 1
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -228,6 +250,7 @@ def main() -> int:
     problems += handle_hash_order(args.check)
     problems += handle_manifest()
     problems += handle_unwired()
+    problems += handle_wire_format()
 
     if problems == 0:
         print("all derived artifacts consistent")
