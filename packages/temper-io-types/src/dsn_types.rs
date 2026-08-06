@@ -68,9 +68,13 @@ pub fn dsn_expression_to_string(expr: &DsnExpressionData) -> String {
         let formatted: Vec<String> = expr.args.iter().map(format_dsn_arg).collect();
         format!("({} {})", expr.name, formatted.join(" "))
     };
+    // `if self.comment:` — Python tests TRUTHINESS, so an EMPTY comment string
+    // emits no comment line at all. Matching on `Some(_)` alone would prefix a
+    // bare ";\n", which is a different DSN file. (Found by the candidate-6 PBT
+    // suite, property P5.)
     match &expr.comment {
-        Some(c) => format!(";{}\n{}", c, body),
-        None => body,
+        Some(c) if !c.is_empty() => format!(";{}\n{}", c, body),
+        _ => body,
     }
 }
 
@@ -162,6 +166,15 @@ mod py_bridge {
         if bound.is_instance_of::<pyo3::types::PyFloat>() {
             return Ok(DsnArg::Float(bound.extract()?));
         }
+        if bound.is_instance_of::<pyo3::types::PyBool>() {
+            // MUST precede the `PyInt` arm: `bool` is a subclass of `int` in
+            // CPython, so `is_instance_of::<PyInt>()` accepts it and would
+            // format `True` as `1`. The Python `DSNExpression.__str__` tests
+            // `float`, then `str`, then falls through to `str(v)` — and
+            // `str(True)` is `"True"`, not `"1"`.
+            let s: String = bound.str()?.to_string();
+            return Ok(DsnArg::Raw(s));
+        }
         if bound.is_instance_of::<pyo3::types::PyInt>() {
             // Match the pre-Rust-port behaviour for large ints (which
             // Python's arbitrary-precision `int` can represent but `i64`
@@ -202,6 +215,15 @@ mod py_bridge {
     #[pyclass(name = "DSNExpression")]
     pub struct DSNExpression {
         pub(super) inner: DsnExpressionData,
+    }
+
+    impl DSNExpression {
+        /// Wrap already-built pure-core data for return across the boundary.
+        /// Used by `dsn_exporter`, which constructs whole `DsnExpressionData`
+        /// trees in pure Rust and never round-trips them through Python.
+        pub fn from_data(inner: DsnExpressionData) -> Self {
+            DSNExpression { inner }
+        }
     }
 
     #[pymethods]
@@ -497,6 +519,22 @@ mod tests {
             "\"Quoted \\\"String\\\"\""
         );
         assert_eq!(format_dsn_arg(&DsnArg::Str(String::new())), "\"\"");
+    }
+
+    #[test]
+    fn empty_comment_is_falsy_and_emits_no_comment_line() {
+        let e = DsnExpressionData {
+            name: "pcb".into(),
+            args: vec![],
+            comment: Some(String::new()),
+        };
+        assert_eq!(dsn_expression_to_string(&e), "(pcb)");
+        let e = DsnExpressionData {
+            name: "pcb".into(),
+            args: vec![],
+            comment: Some("v: 1".into()),
+        };
+        assert_eq!(dsn_expression_to_string(&e), ";v: 1\n(pcb)");
     }
 
     #[test]

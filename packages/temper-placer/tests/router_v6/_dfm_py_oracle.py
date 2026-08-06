@@ -134,8 +134,12 @@ distance function (B6): it replicates CPython's Dekker double-double
   ``(x * 180.0) / pi``.
 
 
-Known defects, pinned not fixed
--------------------------------
+Known defects
+-------------
+
+D1 below is still open and pinned unfixed.  D2 was **repaired** after this
+oracle was captured -- see "Repaired since the pin" at the end of this
+section.
 
 **D1 -- non-deterministic output ordering in ``thermal_relief``.**
 ``_add_smd_thermal_reliefs`` (NOT pinned here; it is glue over
@@ -149,13 +153,31 @@ orchestration is not: the orchestration has no bit-exact contract to pin.
 Reported, not fixed (fixing it would change shipped behaviour and break the
 verbatim pin).
 
+Repaired since the pin
+----------------------
+
 **D2 -- unreachable negative-threshold guard in ``acid_trap_detection``.**
-``detect_acid_traps`` (NOT pinned here; it is orchestration) guards with
-``if not math.isfinite(min_angle_threshold) and min_angle_threshold < 0:``,
+**REPAIRED** by #760 (``aebaecd99``, issue #752 defect 9).  As pinned, and as
+described in the original note preserved here for the record:
+``detect_acid_traps`` (NOT pinned in this oracle; it is orchestration) guarded
+with ``if not math.isfinite(min_angle_threshold) and min_angle_threshold < 0:``,
 whose warning text says "is negative -- all angles are >= 0 degrees".  The
-``not isfinite`` conjunct means only ``-inf`` reaches it; a plain negative
-such as ``-5.0`` is finite, falls through, and silently yields an empty
-report with no warning.  Reported, not fixed.
+``not isfinite`` conjunct meant only ``-inf`` reached it; a plain negative such
+as ``-5.0`` is finite, fell through, and silently yielded an empty report with
+no warning.  The predicate is now plain ``min_angle_threshold < 0`` -- it is
+NOT the ``not isfinite(t) or t < 0`` form the issue proposed, which would
+swallow ``+inf`` that must instead clamp to ``90.0``.
+
+**This repair moved no text in this file.**  ``detect_acid_traps`` is
+orchestration and was never part of the verbatim pin; only
+``_extract_2d_coordinates``, ``_calculate_angle`` and ``_classify_severity``
+are pinned from ``acid_trap_detection``, and #760 left all three byte-identical
+(re-verified against ``143752893``, origin/main, by
+``test_oracle_kernels_are_verbatim_copies``).  The corresponding pin in
+``test_dfm_rust_differential.py`` was therefore **inverted, not deleted**:
+``test_repaired_d2_negative_angle_threshold_guard_is_reachable`` now asserts
+the guard is reachable and that neither the old ``and`` form nor the naive
+``or`` rewrite can come back.
 """
 
 from __future__ import annotations

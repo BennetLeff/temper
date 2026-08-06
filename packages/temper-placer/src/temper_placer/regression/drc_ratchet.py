@@ -15,10 +15,50 @@ installed, the check fails with a clear error message.
 
 from __future__ import annotations
 
+import hashlib
 import json
+import re
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
+
+_READ_CHUNK = 1 << 20  # 1 MiB
+_SHA256_HEX_RE = re.compile(r"[0-9a-f]{40}")
+_SAMPLE_COUNT_RE = re.compile(r"(\d+)\s*samples?\b", re.IGNORECASE)
+
+
+def _sha256_file(path: Path) -> str:
+    """Content hash (hex sha256) of *path* -- mirrors
+    ``scripts/_lib/measurement_provenance.py::sha256_file``, kept local so
+    the temper-placer package never depends on repo-internal ``scripts/``.
+    """
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(_READ_CHUNK), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def _provenance_sample_count(prov: dict[str, Any]) -> int | None:
+    """Sample count a provenance record's measurement used, or None.
+
+    Structured ``provenance.sample_count`` field first; legacy records
+    carry the count in ``measured_via`` prose (e.g. "(120 samples; ...)")
+    and are parsed from that. Mirrors
+    ``scripts/_lib/measurement_provenance.py::get_sample_count``, kept
+    local for the same package-boundary reason as ``_sha256_file``.
+    """
+    raw = prov.get("sample_count")
+    if isinstance(raw, bool):
+        return None
+    if isinstance(raw, int) and raw > 0:
+        return raw
+    measured_via = prov.get("measured_via")
+    if isinstance(measured_via, str):
+        match = _SAMPLE_COUNT_RE.search(measured_via)
+        if match:
+            return int(match.group(1))
+    return None
 
 
 @dataclass
@@ -506,10 +546,14 @@ class DrcRatchet:
             kicad_cli_version_mismatch=version_mismatch,
         )
 
-    def detect_ceiling_raise(
-        self, old_ceiling: dict, new_ceiling: dict, commit_message: str = ""
-    ) -> DrcRatchetResult | None:
-        """Detect if ceiling was raised without approval.
+    def find_ceiling_raises(
+        self, old_ceiling: dict, new_ceiling: dict
+    ) -> list[tuple[str, list[str]]]:
+        """Return ``(board_id, reasons)`` for every board whose ceiling was
+        raised between *old_ceiling* and *new_ceiling*, regardless of
+        approval. ``reasons`` is a list of human-readable per-dimension
+        deltas ("error_ceiling 1017 -> 1020", "violations_by_type[clearance]
+        502 -> 600", ...).
 
         A raise is any of: the aggregate ``error_ceiling`` increasing, the
         aggregate ``warning_ceiling`` increasing, or any single rule inside
@@ -522,16 +566,17 @@ class DrcRatchet:
         same ``Ceiling-Approval:`` trailer -- otherwise the per-type
         ceiling could be silently inflated in the JSON itself, sidestepping
         the runtime check entirely. This applies symmetrically to
-        ``violations_by_type`` and ``warnings_by_type``: an earlier version
-        of this method checked only the warnings side, which meant a
-        per-type *error* ceiling (e.g. ``clearance``) could be raised in
-        the committed JSON with no trailer and this detector would not
-        notice, even though ``_check_board`` enforces that exact ceiling at
-        runtime.
+        ``violations_by_type`` and ``warnings_by_type``.
+
+        This is the single enumeration of "what raised" -- approval
+        (``detect_ceiling_raise``) and measurement-evidence validation
+        (``validate_raise_evidence``) both consume it, so a raise can
+        never pass one check while being invisible to the other.
         """
         old_boards = {b["board_id"]: b for b in old_ceiling.get("boards", [])}
         new_boards = {b["board_id"]: b for b in new_ceiling.get("boards", [])}
 
+        raises: list[tuple[str, list[str]]] = []
         for board_id, new_entry in new_boards.items():
             old_entry = old_boards.get(board_id)
             if old_entry is None:
@@ -565,15 +610,214 @@ class DrcRatchet:
                     reasons.append(f"warnings_by_type[{rule}] {old_count} -> {new_count}")
 
             if reasons:
-                has_approval = "Ceiling-Approval:" in commit_message
-                if not has_approval:
-                    return DrcRatchetResult(
-                        passed=False,
-                        board_id=board_id,
-                        message=(
-                            f"Ceiling increase ({'; '.join(reasons)}) requires explicit approval."
-                        ),
-                        exit_code=2,
+                raises.append((board_id, reasons))
+
+        return raises
+
+    def validate_raise_evidence(
+        self, old_ceiling: dict, new_ceiling: dict, repo_root: Path
+    ) -> list[str]:
+        """Return every problem with the evidence a ceiling raise claims,
+        or ``[]`` when every raise satisfies the contract.
+
+        The R27 monotone contract (docs/plans/2026-08-02-023): a raise
+        requires two checkable artifacts in the same PR --
+
+          (a) an **attributed cause**: a NEW non-empty ``_march`` entry in
+              the new ceiling file (a key absent from the old ``_march``,
+              with a non-empty prose value naming the component/commit that
+              drove the raise). This file's ``_march`` log is the single
+              cause authority; there is deliberately no separate
+              trailer-body grammar to parse.
+          (b) a **measured sample**: the raised board's new ``provenance``
+              block must be a measured-live record -- source
+              ``"measured-live"``, a resolvable ``measured_at_commit``, a
+              clean tree (``dirty`` false), a concrete recorded kicad-cli
+              version, at least 120 samples for the nondeterministic
+              ``clearance`` category (structured ``sample_count`` or
+              ``measured_via`` prose), and an input hash that still matches
+              ``pcb/temper.kicad_pcb``'s current content.
+
+        Each violation is reported as one problem string naming the failing
+        dimension, so an unapproved raise fails with the *specific* reason
+        (the anti-vacuity discipline: a raise cannot fail for a generic
+        reason that hides which check actually bit).
+        """
+        problems: list[str] = []
+
+        raises = self.find_ceiling_raises(old_ceiling, new_ceiling)
+        if not raises:
+            return problems
+
+        # (a) Cause authority: the _march log. One check over the whole
+        # raise set -- a single new entry can attribute several per-type
+        # deltas (every real remeasurement entry in this file does exactly
+        # that), so the requirement is "at least one", not one per raise.
+        old_march = old_ceiling.get("_march") or {}
+        new_march = new_ceiling.get("_march") or {}
+        new_cause_entries = [
+            key
+            for key, value in new_march.items()
+            if key not in old_march and isinstance(value, str) and value.strip()
+        ]
+        if not new_cause_entries:
+            problems.append(
+                "raise has no attributed cause: no NEW non-empty '_march' entry "
+                "(drc_ceiling.json's _march log is the single cause authority -- "
+                "a raise must name the component/commit that drove it)"
+            )
+
+        # (b) Measurement evidence, per raised board.
+        board_by_id = {b.get("board_id"): b for b in new_ceiling.get("boards", [])}
+        for board_id, _reasons in raises:
+            record = board_by_id.get(board_id)
+            if record is None:
+                problems.append(
+                    f"{board_id}: raised board missing from the new ceiling record"
+                )
+                continue
+
+            prov = record.get("provenance")
+            if not isinstance(prov, dict):
+                problems.append(
+                    f"{board_id}: raise has no measured sample: the board's new "
+                    "record carries no 'provenance' object"
+                )
+                continue
+
+            source = prov.get("source")
+            if source != "measured-live":
+                problems.append(
+                    f"{board_id}: provenance source={source!r} is not "
+                    "'measured-live' -- a raise must cite a freshly measured "
+                    "record, not a backfilled one"
+                )
+
+            commit = prov.get("measured_at_commit")
+            if not (isinstance(commit, str) and _SHA256_HEX_RE.fullmatch(commit)):
+                problems.append(
+                    f"{board_id}: provenance measured_at_commit={commit!r} does not "
+                    "resolve to a commit -- a measured-live raise must name the "
+                    "commit it was measured at"
+                )
+
+            dirty = prov.get("dirty")
+            if dirty is not False:
+                problems.append(
+                    f"{board_id}: provenance dirty={dirty!r} -- a raise must be "
+                    "measured in a clean tree"
+                )
+
+            tool_versions = prov.get("tool_versions")
+            kicad_cli_version = (
+                tool_versions.get("kicad-cli")
+                if isinstance(tool_versions, dict)
+                else None
+            )
+            if not (
+                isinstance(kicad_cli_version, str)
+                and kicad_cli_version.strip()
+                and kicad_cli_version != "UNKNOWN"
+            ):
+                problems.append(
+                    f"{board_id}: provenance does not record a concrete kicad-cli "
+                    "version in tool_versions -- a raise must be measured with the "
+                    "contract tool (run_drc with --all-track-errors)"
+                )
+
+            # Sample count: >= 120 when clearance is the declared
+            # nondeterministic category -- the one category whose ceiling is
+            # an observed-max-plus-headroom number, which is only meaningful
+            # when the observation actually sampled the run-to-run spread.
+            nondet = record.get("nondeterministic_error_types")
+            if isinstance(nondet, dict) and "clearance" in nondet:
+                sample_count = _provenance_sample_count(prov)
+                if sample_count is None or sample_count < 120:
+                    problems.append(
+                        f"{board_id}: clearance is declared nondeterministic but the "
+                        f"provenance records {sample_count!r} sample(s) -- the "
+                        "measurement contract requires at least 120 samples "
+                        "(provenance.sample_count, or measured_via prose on "
+                        "legacy records)"
                     )
+
+            # Input freshness: the recorded board hash must still match the
+            # board file's current content -- a raise measured against a
+            # board that has since moved is a stale measurement.
+            board_rel = record.get("path")
+            inputs = prov.get("inputs") if isinstance(prov.get("inputs"), list) else []
+            matching_inputs = [
+                inp
+                for inp in inputs
+                if isinstance(inp, dict) and inp.get("path") == board_rel
+            ]
+            if not matching_inputs:
+                problems.append(
+                    f"{board_id}: provenance inputs do not name the board file "
+                    f"{board_rel!r} -- a raise must hash the exact input it measured"
+                )
+            else:
+                try:
+                    current_hash = _sha256_file(repo_root / board_rel)
+                except OSError as exc:
+                    problems.append(
+                        f"{board_id}: cannot hash the board file {board_rel!r} "
+                        f"({exc}) -- a raise must be backed by a board that exists"
+                    )
+                    continue
+                for inp in matching_inputs:
+                    recorded_hash = inp.get("sha256")
+                    if not (
+                        isinstance(recorded_hash, str)
+                        and len(recorded_hash) == 64
+                        and recorded_hash == current_hash
+                    ):
+                        problems.append(
+                            f"{board_id}: provenance input hash for {board_rel} does "
+                            "not match the file's current content -- the raise cites "
+                            "a STALE measurement (input moved since it was measured)"
+                        )
+
+        return problems
+
+    def detect_ceiling_raise(
+        self, old_ceiling: dict, new_ceiling: dict, commit_message: str = ""
+    ) -> DrcRatchetResult | None:
+        """Detect if ceiling was raised without approval.
+
+        A raise is any of: the aggregate ``error_ceiling`` increasing, the
+        aggregate ``warning_ceiling`` increasing, or any single rule inside
+        ``violations_by_type`` (errors) or ``warnings_by_type`` (warnings)
+        increasing -- including a rule that didn't exist in the old record
+        at all, which is a raise from its implicit ceiling of 0 (the same
+        implicit-zero semantics ``_check_board`` enforces at runtime).
+        Editing the ceiling *file* to grant a rule more room is exactly as
+        much a raise as editing the aggregate number, and must require the
+        same ``Ceiling-Approval:`` trailer -- otherwise the per-type
+        ceiling could be silently inflated in the JSON itself, sidestepping
+        the runtime check entirely. This applies symmetrically to
+        ``violations_by_type`` and ``warnings_by_type``: an earlier version
+        of this method checked only the warnings side, which meant a
+        per-type *error* ceiling (e.g. ``clearance``) could be raised in
+        the committed JSON with no trailer and this detector would not
+        notice, even though ``_check_board`` enforces that exact ceiling at
+        runtime.
+
+        The ``Ceiling-Approval:`` check remains the substring marker (any
+        commit in the PR containing it) -- it is the *raise detector*, not
+        the cause authority. Whether an approved raise actually carries an
+        attributed cause and a measured sample is the measurement-evidence
+        contract, validated separately by ``validate_raise_evidence``.
+        """
+        for board_id, reasons in self.find_ceiling_raises(old_ceiling, new_ceiling):
+            if "Ceiling-Approval:" not in commit_message:
+                return DrcRatchetResult(
+                    passed=False,
+                    board_id=board_id,
+                    message=(
+                        f"Ceiling increase ({'; '.join(reasons)}) requires explicit approval."
+                    ),
+                    exit_code=2,
+                )
 
         return None
