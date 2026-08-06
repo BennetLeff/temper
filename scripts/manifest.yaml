@@ -1,26 +1,11 @@
 _meta:
   last_audit_date: '2026-08-05'
-  total_scripts: 113
+  total_scripts: 115
   counts:
     keep: 113
     ticket: 0
   ticket_scripts_deleted: 40
 scripts:
-- path: phase5_cli_adapters_workflow_mutations.py
-  purpose: 'Wave-4 Phase-5 anti-vacuity mutation campaign driver for the cli/adapters/temper-workflow
-    slice (temper-orchestration crate): applies 11 one-line mutants to the Rust kernels, rebuilds, runs
-    the six differential/PBT suites expecting failure, reverts, and rebuilds from the reverted source
-    so the installed extension is always left correct. Two round-1 survivors were closed with discriminating
-    cases (recorded in packages/temper-orchestration/VERIFICATION.md).'
-  owner: wave4-migration
-  last_run: '2026-08-05'
-  category: keep
-  disposition: utility
-  imports:
-  - __future__
-  - pathlib
-  - subprocess
-  - sys
 - path: add_power_planes.py
   purpose: Manually add power plane geometry to a KiCad PCB
   owner: unassigned
@@ -160,25 +145,6 @@ scripts:
   - pathlib
   - sys
   - yaml
-- path: check_drc_determinism.py
-  purpose: 'DRC determinism harness: runs the KiCad DRC through the CI gate''s own path N times and reports
-    whether each violation category returns a stable count and a stable violation SET. Backs the kicad-cli
-    worker-pool pinning -- clearance and shorting_items were a thread-pool race, creepage a pointer-keyed
-    dedup (upstream kicad#20048). Carries --inject-variance so the harness is provably able to report
-    nondeterminism, not only absence of it.'
-  owner: bennet
-  last_run: '2026-08-05'
-  category: keep
-  disposition: ci-gate
-  imports:
-  - __future__
-  - argparse
-  - collections
-  - hashlib
-  - os
-  - pathlib
-  - re
-  - sys
 - path: check_board_containment.py
   purpose: 'Board-containment gate (R26 invariant, owning gate of the board-defect corpus''s off-board
     class): every footprint''s pad copper must lie inside the Edge.Cuts outline. Closes the class no gate
@@ -266,10 +232,11 @@ scripts:
   - re
   - sys
 - path: check_dead_parameter_inputs.py
-  purpose: "Dead-parameter & physics-input standing check (plan 2026-08-02-019, U3): wires then unwires every declared live\
-    \ gate input (acceptance-gate inner surface) and every registered physics parameter (physics_parameter_map.yaml) and requires\
-    \ the output to change \u2014 verdict flip for gate consumers, delta-over-noise-floor for threshold-less consumers; fails\
-    \ on a dead input, an unregistered physics parameter, or a registry validation error"
+  purpose: 'Dead-parameter & physics-input standing check (plan 2026-08-02-019, U3): wires then unwires
+    every declared live gate input (acceptance-gate inner surface) and every registered physics parameter
+    (physics_parameter_map.yaml) and requires the output to change — verdict flip for gate consumers,
+    delta-over-noise-floor for threshold-less consumers; fails on a dead input, an unregistered physics
+    parameter, or a registry validation error'
   owner: bennet
   last_run: '2026-08-02'
   category: keep
@@ -323,14 +290,15 @@ scripts:
   - sys
   - typing
 - path: check_drc_ceiling_approval.py
-  purpose: 'CI gate: fail a PR that raises any power_pcb_dataset/drc_ceiling.json ceiling value (aggregate error_ceiling/warning_ceiling,
-    or any violations_by_type/warnings_by_type rule) relative to the merge base unless a commit in the PR carries a Ceiling-Approval:
-    trailer AND the raise satisfies the R27 measurement-evidence contract (a NEW non-empty _march entry naming the cause --
-    the _march log is the single cause authority -- plus a fresh measured-live provenance record on the raised board: resolvable
-    commit, clean tree, recorded kicad-cli version, >=120 samples for the nondeterministic clearance category, input hash
-    matching pcb/temper.kicad_pcb) -- wires DrcRatchet.detect_ceiling_raise / find_ceiling_raises / validate_raise_evidence
-    (temper_placer.regression.drc_ratchet), which existed and was unit-tested but had no CI caller, into the Provenance &
-    Anti-Vacuity Gates job'
+  purpose: 'CI gate: fail a PR that raises any power_pcb_dataset/drc_ceiling.json ceiling value (aggregate
+    error_ceiling/warning_ceiling, or any violations_by_type/warnings_by_type rule) relative to the merge
+    base unless a commit in the PR carries a Ceiling-Approval: trailer AND the raise satisfies the R27
+    measurement-evidence contract (a NEW non-empty _march entry naming the cause -- the _march log is
+    the single cause authority -- plus a fresh measured-live provenance record on the raised board: resolvable
+    commit, clean tree, recorded kicad-cli version, >=120 samples for the nondeterministic clearance category,
+    input hash matching pcb/temper.kicad_pcb) -- wires DrcRatchet.detect_ceiling_raise / find_ceiling_raises
+    / validate_raise_evidence (temper_placer.regression.drc_ratchet), which existed and was unit-tested
+    but had no CI caller, into the Provenance & Anti-Vacuity Gates job'
   owner: bennet
   last_run: '2026-08-02'
   category: keep
@@ -343,6 +311,25 @@ scripts:
   - pathlib
   - rich.console
   - subprocess
+  - sys
+- path: check_drc_determinism.py
+  purpose: 'DRC determinism harness: runs the KiCad DRC through the CI gate''s own path N times and reports
+    whether each violation category returns a stable count and a stable violation SET. Backs the kicad-cli
+    worker-pool pinning -- clearance and shorting_items were a thread-pool race, creepage a pointer-keyed
+    dedup (upstream kicad#20048). Carries --inject-variance so the harness is provably able to report
+    nondeterminism, not only absence of it.'
+  owner: bennet
+  last_run: '2026-08-05'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - collections
+  - hashlib
+  - os
+  - pathlib
+  - re
   - sys
 - path: check_evidence_provenance.py
   purpose: 'Fail-closed provenance gate for docs/evidence/: every evidence file must declare how its numbers
@@ -882,24 +869,6 @@ scripts:
   - importlib.util
   - pathlib
   - sys
-- path: check_verdict_coverage.py
-  purpose: 'Wave 4 R7 coverage gate: every Python file under the roots in docs/wave4-verdicts.yaml must
-    match exactly one ledger entry with a recorded verdict (MIGRATE / RETIRE / JUSTIFIED-KEEP / UNDECIDED).
-    Enforces D6 structurally -- a JUSTIFIED-KEEP without a named blocker fails, because "consolidation"
-    alone is never a sufficient justification. Reports UNDECIDED LOC as the migration backlog rather than
-    hiding it.'
-  owner: bennet
-  last_run: '2026-08-04'
-  category: keep
-  disposition: ci-gate
-  imports:
-  - __future__
-  - argparse
-  - collections
-  - fnmatch
-  - os
-  - pathlib
-  - sys
 - path: check_vacuous_gates.py
   purpose: 'CI gate: reject unguarded all() in gate and validator modules (docs/METHODOLOGY.md Sec 4/5,
     anti-vacuous-truth); any() exempt (already fail-closed); asserts zero, no allowlist. Also rejects
@@ -917,6 +886,24 @@ scripts:
   - pathlib
   - re
   - rich.console
+  - sys
+- path: check_verdict_coverage.py
+  purpose: 'Wave 4 R7 coverage gate: every Python file under the roots in docs/wave4-verdicts.yaml must
+    match exactly one ledger entry with a recorded verdict (MIGRATE / RETIRE / JUSTIFIED-KEEP / UNDECIDED).
+    Enforces D6 structurally -- a JUSTIFIED-KEEP without a named blocker fails, because "consolidation"
+    alone is never a sufficient justification. Reports UNDECIDED LOC as the migration backlog rather than
+    hiding it.'
+  owner: bennet
+  last_run: '2026-08-04'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - collections
+  - fnmatch
+  - os
+  - pathlib
   - sys
 - path: check_workflow_pr_triggers.py
   purpose: 'CI gate: ensure workflow files with push triggers also declare pull_request (issue #315)'
@@ -1150,6 +1137,20 @@ scripts:
   - sys
   - tempfile
   - typing
+- path: gen_wasm_test_registry.py
+  purpose: 'Generate packages/temper-drc-rs/src/wasm_test_registry.rs -- the flat (name, fn()) list that
+    lets a wasm32 entry point call each #[test] individually, since cargo test''s libtest harness cannot
+    target wasm32-unknown-unknown; --check fails closed on drift'
+  owner: pipeline
+  last_run: '2026-08-06'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - pathlib
+  - re
+  - sys
 - path: generate_kicad_dru.py
   purpose: Generate KiCad design rules from config (used by temper-drc tests)
   owner: unassigned
@@ -1254,28 +1255,6 @@ scripts:
   - re
   - subprocess
   - sys
-- path: measure_router_output_baseline.py
-  purpose: Measure the router-output DRC constants in the environment that enforces them. PRODUCTION_ROUTER_OUTPUT_*
-    in test_regression_drc.py is a ratchet whose provenance records macOS arm64 measurements, while the
-    gate runs inside the temper-ci container, and kicad-cli's geometric counts differ between the two
-    (+107 on total, measured). Reports only -- asserts nothing and writes no constant; landing a re-baseline
-    stays a human decision under AGENTS.md.
-  owner: bennet
-  last_run: '2026-08-04'
-  category: keep
-  disposition: measurement
-  imports:
-  - __future__
-  - argparse
-  - hashlib
-  - json
-  - os
-  - platform
-  - statistics
-  - subprocess
-  - sys
-  - tempfile
-  - time
 - path: measure_cross_domain_creepage.py
   purpose: 'Pairwise HV<->SELV creepage measurement tool (NOT a gate, not wired into CI): enumerates every
     cross-domain pad pair, measures exact pad-edge-to-pad-edge distance, classifies each violation body_free/body_crossing/unknown
@@ -1298,6 +1277,28 @@ scripts:
   - sys
   - temper_placer.core.isolation_constants
   - temper_placer.core.pad_geometry
+- path: measure_router_output_baseline.py
+  purpose: Measure the router-output DRC constants in the environment that enforces them. PRODUCTION_ROUTER_OUTPUT_*
+    in test_regression_drc.py is a ratchet whose provenance records macOS arm64 measurements, while the
+    gate runs inside the temper-ci container, and kicad-cli's geometric counts differ between the two
+    (+107 on total, measured). Reports only -- asserts nothing and writes no constant; landing a re-baseline
+    stays a human decision under AGENTS.md.
+  owner: bennet
+  last_run: '2026-08-04'
+  category: keep
+  disposition: measurement
+  imports:
+  - __future__
+  - argparse
+  - hashlib
+  - json
+  - os
+  - platform
+  - statistics
+  - subprocess
+  - sys
+  - tempfile
+  - time
 - path: mpn_fabrication_gate.py
   purpose: 'Fabricated-MPN CI gate: fails closed on non-E-series resistor/capacitor values and MPN/declared-value
     disagreement in elec/src/*.ato'
@@ -1349,6 +1350,61 @@ scripts:
   - typing
   - pydantic
   - temper_placer.constraint_types.config
+- path: phase5_batch1_mutations.py
+  purpose: 'Wave-4 Phase-5 mutation campaign driver (deterministic grid_utils/via_placement): applies
+    each Rust-kernel mutant, rebuilds temper-geometry, runs the four Batch-1 suites, expects failure,
+    reverts. Reproducible anti-vacuity evidence.'
+  owner: wave4-migration
+  last_run: '2026-08-04'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - pathlib
+  - subprocess
+  - sys
+- path: phase5_batch2_mutations.py
+  purpose: 'Wave-4 Phase-5 mutation campaign driver (deterministic slot_generation/zone_geometry/zone_assignment):
+    applies each Rust-kernel mutant, rebuilds temper-design-bundle, runs the six Batch-2 suites, expects
+    failure, reverts. Reproducible anti-vacuity evidence.'
+  owner: wave4-migration
+  last_run: '2026-08-04'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - pathlib
+  - subprocess
+  - sys
+- path: phase5_cli_adapters_workflow_mutations.py
+  purpose: 'Wave-4 Phase-5 anti-vacuity mutation campaign driver for the cli/adapters/temper-workflow
+    slice (temper-orchestration crate): applies 11 one-line mutants to the Rust kernels, rebuilds, runs
+    the six differential/PBT suites expecting failure, reverts, and rebuilds from the reverted source
+    so the installed extension is always left correct. Two round-1 survivors were closed with discriminating
+    cases (recorded in packages/temper-orchestration/VERIFICATION.md).'
+  owner: wave4-migration
+  last_run: '2026-08-05'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - pathlib
+  - subprocess
+  - sys
+- path: phase5_hubs_mutations.py
+  purpose: 'Wave 4 Phase 5 (deterministic hubs) anti-vacuity driver: applies one-line mutants to packages/temper-design-bundle/src/deterministic_hubs.rs,
+    rebuilds the extension, runs the six hubs differential + PBT suites expecting failure, reverts. M11
+    (index tie-break) is a recorded provable-equivalent survivor. Run manually by the migrating agent;
+    the differentials it exercises run in CI.'
+  owner: bennet
+  last_run: '2026-08-05'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - pathlib
+  - subprocess
+  - sys
 - path: physics_soundness_register_gate.py
   purpose: 'CI gate: enforce the physics soundness-proof register (R20, plan 2026-08-02-004) — every physics-gated
     constraint encoder must carry a Chebyshev-style soundness proof (or classified-error proof) linked
@@ -1487,6 +1543,20 @@ scripts:
   - json
   - pathlib
   - sys
+- path: regen_derived.py
+  purpose: Regenerate every derived artifact in one command (repo state, wasm test registry, oracle-hash
+    registry) and REFUSE where regenerating would hide a defect -- a hash-order NEW_SITE or a drifted
+    oracle pin; --check is the report-only form CI's gates would see
+  owner: pipeline
+  last_run: '2026-08-06'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - pathlib
+  - subprocess
+  - sys
 - path: resync_pcb_netlist.py
   purpose: Resync pcb/temper.kicad_pcb nets/designators/footprints against elec/build/default.net without
     moving any existing footprint
@@ -1615,6 +1685,27 @@ scripts:
   - pathlib
   - re
   - yaml
+- path: update_oracle_hashes.py
+  purpose: 'Generator half of the oracle content-hash gate (decision 2026-08-06, issues #754 P2-2 / #758):
+    recompute scripts/oracle_hashes.json from the current _*_py_oracle.py files under packages/. Deliberately
+    NOT wired into CI -- check_oracle_hashes.py is the gate, and it compares the committed registry against
+    the files. The generator is the human/agent step a migration PR runs in the SAME PR as an oracle add
+    or re-pin, so a deliberate re-pin is a visible registry diff next to the oracle change (the keep-in-sync
+    convention, same as the config-reference / .pyi regeneration steps). Output is deterministic (sorted
+    paths, no timestamp) so regeneration is idempotent and the diff shows exactly which pins moved. Refuses
+    to write a zero-entry registry.'
+  owner: wave4-migration
+  last_run: '2026-08-05'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - _lib.repo
+  - argparse
+  - hashlib
+  - json
+  - pathlib
+  - sys
 - path: update_production_routing_baseline.py
   purpose: Regenerate the router_v6_routing block of power_pcb_dataset/baselines/temper_production_baseline.yaml
     -- the only writer of that file. Runs the routing measurement test with TEMPER_ROUTING_RECORD_OUT
@@ -1638,27 +1729,6 @@ scripts:
   - subprocess
   - sys
   - tempfile
-- path: update_oracle_hashes.py
-  purpose: 'Generator half of the oracle content-hash gate (decision 2026-08-06, issues #754 P2-2 / #758):
-    recompute scripts/oracle_hashes.json from the current _*_py_oracle.py files under packages/. Deliberately
-    NOT wired into CI -- check_oracle_hashes.py is the gate, and it compares the committed registry against
-    the files. The generator is the human/agent step a migration PR runs in the SAME PR as an oracle add
-    or re-pin, so a deliberate re-pin is a visible registry diff next to the oracle change (the keep-in-sync
-    convention, same as the config-reference / .pyi regeneration steps). Output is deterministic (sorted
-    paths, no timestamp) so regeneration is idempotent and the diff shows exactly which pins moved. Refuses
-    to write a zero-entry registry.'
-  owner: wave4-migration
-  last_run: '2026-08-05'
-  category: keep
-  disposition: utility
-  imports:
-  - __future__
-  - _lib.repo
-  - argparse
-  - hashlib
-  - json
-  - pathlib
-  - sys
 - path: update_regression_cache.py
   purpose: Update .regression-cache.json from regression reports for incremental corpus regression
   owner: pipeline
@@ -1759,44 +1829,4 @@ scripts:
   - argparse
   - check_stale_extensions
   - pathlib
-  - sys
-- path: phase5_hubs_mutations.py
-  purpose: 'Wave 4 Phase 5 (deterministic hubs) anti-vacuity driver: applies one-line mutants to packages/temper-design-bundle/src/deterministic_hubs.rs,
-    rebuilds the extension, runs the six hubs differential + PBT suites expecting failure, reverts. M11
-    (index tie-break) is a recorded provable-equivalent survivor. Run manually by the migrating agent;
-    the differentials it exercises run in CI.'
-  owner: bennet
-  last_run: '2026-08-05'
-  category: keep
-  disposition: utility
-  imports:
-  - __future__
-  - pathlib
-  - subprocess
-  - sys
-- path: phase5_batch1_mutations.py
-  purpose: 'Wave-4 Phase-5 mutation campaign driver (deterministic grid_utils/via_placement): applies
-    each Rust-kernel mutant, rebuilds temper-geometry, runs the four Batch-1 suites, expects failure,
-    reverts. Reproducible anti-vacuity evidence.'
-  owner: wave4-migration
-  last_run: '2026-08-04'
-  category: keep
-  disposition: utility
-  imports:
-  - __future__
-  - pathlib
-  - subprocess
-  - sys
-- path: phase5_batch2_mutations.py
-  purpose: 'Wave-4 Phase-5 mutation campaign driver (deterministic slot_generation/zone_geometry/zone_assignment):
-    applies each Rust-kernel mutant, rebuilds temper-design-bundle, runs the six Batch-2 suites, expects
-    failure, reverts. Reproducible anti-vacuity evidence.'
-  owner: wave4-migration
-  last_run: '2026-08-04'
-  category: keep
-  disposition: utility
-  imports:
-  - __future__
-  - pathlib
-  - subprocess
   - sys

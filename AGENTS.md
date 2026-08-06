@@ -252,6 +252,35 @@ cmake --build firmware/test/build
 ./firmware/test/build/test_state_machine_only
 ```
 
+## Regenerate derived artifacts before pushing
+
+```bash
+make regen         # regenerate what is safe; refuse where it would hide a defect
+make regen-check   # report only -- what CI's gates will see
+```
+
+Several committed files are *generated* from source: `README.md`'s package and
+plan counts, `scripts/oracle_hashes.json`, the wasm test registry. When one
+drifts behind a change, the gate that polices it fails on `main` **after** the
+merge, and every open PR inherits the red. That happened four times on
+2026-08-06 — README counts after a merge run, the oracle registry after the
+gate landed, the workspace package count after a crate was added, and the
+oracle registry again after five oracles were added.
+
+`make regen` deliberately does **not** regenerate everything. Two of these
+artifacts are evidence, not output, and it refuses rather than laundering them:
+
+- A **hash-order `NEW_SITE`** is a determinism *defect* — a `set` iterated to
+  build an ordered artifact carries `PYTHONHASHSEED`'s order into it. Fix the
+  iteration (project through the input, or sort). Do not add it to
+  `.hash-order-inventory`. Paid-down `STALE_ENTRY` records are written, since
+  that is the shrink direction.
+- A **drifted oracle pin** means a verbatim oracle's bytes changed, which is
+  exactly what `check_oracle_hashes.py` exists to catch. `make regen` prints the
+  commit that last touched each drifted file so the cause can be established,
+  and records it only under `--accept-oracle-drift`. A genuinely *new* oracle is
+  unregistered rather than drifted, and is recorded without ceremony.
+
 ## Shared cargo build cache — required when working in a worktree
 
 Before invoking `cargo` or `maturin` **directly** (not via `make`), source

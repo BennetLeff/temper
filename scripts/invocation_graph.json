@@ -42,12 +42,13 @@
   ],
   "check_domain_partition.py": [
     ".github/workflows/python-tests.yml",
+    "packages/temper-placer/src/temper_placer/io/real_board.py",
     "packages/temper-placer/src/temper_placer/router_v6/clearance_check.py",
-    "packages/temper-placer/tests/requirements/safety/_real_board_fixture.py",
     "packages/temper-placer/tests/validation/_netlist_reconciliation_py_oracle.py"
   ],
   "check_drc_ceiling_approval.py": [
-    ".github/workflows/python-tests.yml"
+    ".github/workflows/python-tests.yml",
+    "packages/temper-placer/src/temper_placer/regression/drc_ratchet.py"
   ],
   "check_drc_determinism.py": [
     "packages/temper-placer/src/temper_placer/validation/_drc_api.py"
@@ -170,7 +171,9 @@
     ".github/workflows/python-tests.yml"
   ],
   "check_vacuous_gates.py": [
-    ".github/workflows/python-tests.yml"
+    ".github/workflows/python-tests.yml",
+    "packages/temper-placer/src/temper_placer/geometry/drc_inflate.py",
+    "packages/temper-placer/tests/metrics/test_quality_rust_differential.py"
   ],
   "check_verdict_coverage.py": [
     ".github/workflows/python-tests.yml"
@@ -182,7 +185,8 @@
   "ci_check_drc.py": [
     ".github/workflows/python-tests.yml",
     ".github/workflows/regression.yml",
-    "packages/temper-placer/src/temper_placer/regression/drc_ratchet.py"
+    "packages/temper-placer/src/temper_placer/regression/drc_ratchet.py",
+    "packages/temper-placer/tests/regression/_drc_ratchet_py_oracle.py"
   ],
   "ci_closure_test.py": [
     ".github/workflows/metrics-record.yml",
@@ -229,6 +233,7 @@
     "Makefile",
     "packages/temper-placer/src/temper_placer/io/provenance.py"
   ],
+  "gen_wasm_test_registry.py": [],
   "generate_kicad_dru.py": [
     ".github/workflows/python-tests.yml"
   ],
@@ -297,6 +302,9 @@
   ],
   "reconcile_metrics.py": [
     ".github/workflows/metrics-reconcile.yml"
+  ],
+  "regen_derived.py": [
+    "Makefile"
   ],
   "resync_pcb_netlist.py": [],
   "route_board.py": [
