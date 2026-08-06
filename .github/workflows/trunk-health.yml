@@ -118,6 +118,9 @@ jobs:
           run_gate "No unwired Rust kernels" \
             python3 scripts/check_unwired_kernels.py
 
+          run_gate "Kernel wire formats match the Python they replace" \
+            python3 scripts/check_wire_format_fidelity.py
+
           run_gate "Required-checks manifest (trigger paths + job conditions)" \
             python3 -c "
           import sys
