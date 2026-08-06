@@ -51,7 +51,7 @@
 //!   (measured; recorded in the oracle header as a *non*-divergence).  The
 //!   multiply-then-divide form is kept because it is what the oracle writes.
 
-use pyo3::exceptions::PyValueError;
+use pyo3::exceptions::{PyOverflowError, PyValueError};
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyString};
 
@@ -291,24 +291,55 @@ fn parse_rules(spec: &Bound<'_, PyAny>) -> PyResult<DesignRules> {
 /// for an empty pad list (the loop body never runs).  `_ignore_net` is not a
 /// parameter here because the reference never reads it -- see the module
 /// docstring.
-fn is_position_valid(x: f64, y: f64, radius: f64, comp: &CompRow, clearance: f64) -> bool {
+/// CPython's float `**` operator, including its overflow behaviour.
+///
+/// `host_math::pow` is libm, which saturates to infinity; CPython's `**`
+/// **raises** instead.  The oracle writes `(x - px) ** 2`, so the operator's
+/// error is the one to mirror -- and it is NOT `math.pow`'s.  Measured:
+///
+/// ```text
+/// (2e200) ** 2           -> OverflowError(34, 'Result too large')
+/// math.pow(2e200, 2.0)   -> OverflowError('math range error')
+/// inf ** 2               -> inf      (no error)
+/// nan ** 2               -> nan      (no error)
+/// ```
+///
+/// Hence the guard is "result went infinite from a FINITE base", which leaves
+/// the inf and NaN paths alone -- the NaN path is load-bearing, since a NaN
+/// distance makes the `<` comparison false and the candidate is ACCEPTED.
+fn pow_operator(base: f64, exp: f64) -> PyResult<f64> {
+    let r = host_math::pow(base, exp);
+    if r.is_infinite() && base.is_finite() {
+        return Err(PyOverflowError::new_err((34, "Result too large")));
+    }
+    Ok(r)
+}
+
+fn is_position_valid(
+    x: f64,
+    y: f64,
+    radius: f64,
+    comp: &CompRow,
+    clearance: f64,
+) -> PyResult<bool> {
     for pad in &comp.pads {
         let p_pos = comp.pad_world_position(pad);
         let pin_radius = pad.world_radius();
 
         // `math.sqrt((x - p_pos[0]) ** 2 + (y - p_pos[1]) ** 2)` -- libm
         // `pow`, then `sqrt`.  Neither `hypot` nor `dx * dx` is a legal
-        // substitute (B7/B6).
-        let dist = (host_math::pow(x - p_pos.0, 2.0) + host_math::pow(y - p_pos.1, 2.0)).sqrt();
+        // substitute (B7/B6).  `**` also raises on overflow; see
+        // `pow_operator`.
+        let dist = (pow_operator(x - p_pos.0, 2.0)? + pow_operator(y - p_pos.1, 2.0)?).sqrt();
 
         let required_dist = radius + pin_radius + clearance;
 
         // NaN makes this comparison false, so the candidate is ACCEPTED.
         if dist < required_dist - 0.001 {
-            return false;
+            return Ok(false);
         }
     }
-    true
+    Ok(true)
 }
 
 /// One `EscapeVia`, flattened to the tuple the differential compares.
@@ -371,7 +402,7 @@ fn generate_escape_vias(
                 let (rot_dx, rot_dy) = rotate_local_to_world(dx, dy, angle);
                 let cand_x = pin_abs_pos.0 + rot_dx;
                 let cand_y = pin_abs_pos.1 + rot_dy;
-                if is_position_valid(cand_x, cand_y, via_diameter / 2.0, comp, clearance) {
+                if is_position_valid(cand_x, cand_y, via_diameter / 2.0, comp, clearance)? {
                     chosen_pos = Some((cand_x, cand_y));
                     break;
                 }
@@ -456,7 +487,7 @@ pub fn escape_is_position_valid_py(
         side: None,
         pads: rows,
     };
-    Ok(is_position_valid(x, y, radius, &comp, clearance))
+    is_position_valid(x, y, radius, &comp, clearance)
 }
 
 pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
@@ -512,9 +543,9 @@ mod tests {
             }],
         };
         // A coincident via is rejected ...
-        assert!(!is_position_valid(0.0, 0.0, 0.225, &comp, 0.15));
+        assert_eq!(is_position_valid(0.0, 0.0, 0.225, &comp, 0.15).ok(), Some(false));
         // ... but a NaN one is ACCEPTED, because `NaN < x` is false.
-        assert!(is_position_valid(f64::NAN, 0.0, 0.225, &comp, 0.15));
+        assert_eq!(is_position_valid(f64::NAN, 0.0, 0.225, &comp, 0.15).ok(), Some(true));
     }
 
     #[test]
@@ -525,7 +556,7 @@ mod tests {
             side: None,
             pads: vec![],
         };
-        assert!(is_position_valid(0.0, 0.0, 1.0, &comp, 1.0));
+        assert_eq!(is_position_valid(0.0, 0.0, 1.0, &comp, 1.0).ok(), Some(true));
     }
 
     #[test]
