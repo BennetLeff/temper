@@ -1,0 +1,16 @@
+[
+  {
+    "id": "M10",
+    "file": "pcl_parse.rs",
+    "desc": "stop treating the empty unit as millimetres",
+    "outcome": "SURVIVED",
+    "detail": "gate suite still green"
+  },
+  {
+    "id": "M21",
+    "file": "pcl_tags.rs",
+    "desc": "SORT the set intersection (the 'undetectable behaviour change' the brief warns about)",
+    "outcome": "KILLED",
+    "detail": ""
+  }
+]
