@@ -114,6 +114,35 @@ mixed in at roughly file granularity, not mixed within files.
 
 Subtotal: **PORT 16,424 / NEVER-PORT 7,896 = 24,320.**
 
+> **A second, independently-derived router_v6 split exists and disagrees by
+> ~3,100 LOC — flagged rather than silently reconciled.** A separate
+> sub-investigation for this document worked from
+> `docs/evidence/2026-08-04-router-v6-migration-survey.md` (v2, corrected
+> across 9 follow-up PRs) and its `tools/measurements/router_v6_survey/classification.csv`
+> — a survey that predates this triage and has had real scrutiny. Cross-checked
+> against the same file list, that survey gives **PORT 13,317 / NEVER-PORT
+> 9,859 / unresolved 1,144** — lower on PORT, mainly because it classifies
+> some files as BLOCKED (third-party-library-bound, same class as KTD8/KTD9)
+> that the cluster read above folds into PORT. One concrete, directly-verified
+> case: `zone_emission.py` (206 of the 569 LOC in the "Pour/zone emission
+> geometry" row above) is classified PORT here, but the survey's row for it
+> reads *"the scipy blocker is DELETED... but the survey MISSED a GEOS
+> boundary: `_convex_hull_from_positions` runs on every zone regardless of
+> clustering — 2,141/3,904 byte flips with identical copper. Reclassified
+> scipy → GEOS"* — i.e. it's BLOCKED on a GEOS convex-hull boundary, not a
+> clean PORT candidate, confirmed by reading the function directly. Given the
+> survey's nine rounds of correction against this exact file set, **it should
+> be treated as the more authoritative source for `router_v6/` specifically**;
+> this document's cluster-level read above is a coarser cross-check, useful
+> for the surrounding areas but not fully reconciled against the survey file
+> by file within the time available. The revised totals in §3 use this
+> section's cluster numbers (16,424/7,896) for consistency with the rest of
+> the document's methodology, but the true router_v6 PORT figure is more
+> likely in the 13,300–16,400 range than a single point estimate — narrowing
+> it further means walking the survey's SPLIT/UNKNOWN rows (`constraints_design_rules`,
+> `topology_solver`, `topology_extraction`, `bundle_analyzer`, 1,144 LOC) to a
+> single verdict each, which neither pass completed.
+
 **`placer/cp_sat/` (+ `placer/` top-level) — 8,443 LOC, 34 files.** The
 OR-Tools CP-SAT solver integration.
 
@@ -125,14 +154,16 @@ OR-Tools CP-SAT solver integration.
 | CpModel wrapper (`model.py`) | 518 | NEVER-PORT | "CP-SAT model wrapper around OR-Tools CpModel" per its own docstring — the definitional thin wrapper. Two of its unit-conversion methods (`mm_to_units`/`units_to_mm`) already delegate — see §5.1. |
 | UNSAT extraction + surfacing (`unsat.py`, `unsat_surface.py`) | 433 | NEVER-PORT | Calls ortools' own infeasible-assumption API; `unsat_surface.py` renders a `rich` panel — explicit terminal rendering. |
 | Loop controller (`_loop_core.py`, `_loop_gates.py`, `_loop_routing.py`, `_loop_types.py`, `_loop_utils.py`, `loop.py`, `gate.py`, `delta_mapper.py`, `netclass_constraints.py`) | 2,238 | NEVER-PORT | Place→Route loop control flow, gate management, PCB construction glue, violation→delta dispatch table. |
-| Loop stability/field detection (`_loop_stability.py`) | 168 | PORT | Real compute: oscillation/field-cycle detection, solve-time trend analysis over placement rounds. |
-| Clearance repair (`clearance_repair.py`) | 757 | PORT | Minimum-displacement clearance repair solve — real geometric optimization, not a thin ortools call. |
-| Feedback classifier (`feedback.py`) | 477 | PORT | Router-signal → constraint-delta heuristic position computation. |
-| Fixed-copper NoOverlap geometry (`fixed_copper.py`) | 1,452 | PORT | Pad rotation/half-extent/layer-resolution geometry feeding the constraint (largest cp_sat file); the geometry, not the final `AddNoOverlap2D` call, is the substance. |
-| Post-solve audit (`validator_audit.py`) | 509 | PORT | Domain-clearance audit recomputed independently from solved positions — real geometric audit, matching the pattern already Rust-backed elsewhere (`cp_sat/audit.py`). |
+| Loop stability/field detection (`_loop_stability.py`) | 168 | NEVER-PORT | **Corrected on re-read** (see note below): `_consecutive_stable_rounds`/`_detect_oscillation` are round-history bookkeeping (equality/threshold checks over prior rounds' recorded state), not a numeric kernel producing a new result — control-flow for the repair loop's stopping criteria. |
+| Clearance repair (`clearance_repair.py`) | 757 | NEVER-PORT | **Corrected on re-read**: `run_clearance_repair_solve` is a round-loop wrapper — parses the board, calls `solve_placement` (already counted in `_encoder_solve.py`) repeatedly with overrides, catches audit failures, tracks rounds. No independent geometry math in this file; the geometry it repairs *toward* lives in the encoder/audit files already classified elsewhere. |
+| Feedback classifier (`feedback.py`) | 477 | NEVER-PORT | **Corrected on re-read**: `_compute_heuristic_position`, the one function that sounds like compute, is `return (x, y - 5.0)` / `return (x, y + 5.0)` — a hardcoded ±5mm nudge, not geometric optimization. The rest is violation-type dispatch (`_handle_congestion`/`_handle_clearance_violation`/...) building `ConstraintDelta` objects — classification/dispatch, not a kernel. |
+| Fixed-copper NoOverlap geometry (`fixed_copper.py`) | 1,452 | PORT | Pad rotation/half-extent/layer-resolution geometry feeding the constraint (largest cp_sat file); the geometry, not the final `AddNoOverlap2D` call, is the substance. Both independent passes agree on this one. |
+| Post-solve audit (`validator_audit.py`) | 509 | NEVER-PORT | **Corrected on re-read**: `audit_domain_clearance_validator` re-invokes the domain-clearance checker (its geometry kernel is counted where that checker lives) and classifies/reports violations; this file is the audit *call site* and report builder, not the geometry itself. |
 | `placer/` top-level (`__init__.py`) | 1 | NEVER-PORT | Trivial; the real non-cp_sat placer compute already migrated (has direct ref). |
 
-Subtotal: **PORT 3,363 / NEVER-PORT 5,080 = 8,443.**
+Subtotal: **PORT 1,452 / NEVER-PORT 6,991 = 8,443.**
+
+> **Note on the four "corrected on re-read" rows.** This document went through two independent full-surface passes in parallel (see §5.9), and a *third*, narrowly-scoped pass was run specifically against `placer/cp_sat/` with instructions to read every disputed function body rather than classify by filename. That narrow pass disagreed with the broader passes on exactly these four files. Re-reading the actual function bodies (`_compute_heuristic_position`'s hardcoded ±5mm return, `run_clearance_repair_solve`'s wrapper structure, `_loop_stability.py`'s history bookkeeping, `validator_audit.py`'s call-and-report shape) sides with the narrow pass: none of the four contains an independent numeric kernel, they orchestrate/report on kernels counted elsewhere. This is the single largest correction made to either full-surface draft — 1,911 LOC moved from PORT to NEVER-PORT within `cp_sat/` alone.
 
 **`deterministic/` — 6,463 LOC, 33 files.** The deterministic (non-CP-SAT)
 placement pipeline.
@@ -176,7 +207,7 @@ Subtotal: **PORT 626 / NEVER-PORT 5,104 = 5,730.**
 | Area | LOC | Verdict | Justification |
 |---|---:|---|---|
 | `(root)` (`__init__.py`, `__main__.py`, `_version.py`, `protocol.py`, `runner.py`, `strategy_registry.py`) | 521 | NEVER-PORT | Package entry points, `Protocol` definitions, a `PipelineRunner` orchestrator, a dict-of-callables strategy registry. |
-| `_constraint_types/` | 1,033 | PORT | Substance is `pydantic.BaseModel` field lists (`config.py` 464 LOC of config fields, a few dict-lookup methods) — not numeric compute by itself. Classified PORT rather than NEVER-PORT because `docs/wave4-verdicts.yaml` already records an explicit product-authority decision (`_constraint_types/**: MIGRATE phase 2`) for architectural reasons this triage's substance-only lens doesn't capture: these are the typed contract objects the Rust constraint compiler/encoders read across the FFI boundary, and keeping them Python-side means every FFI call re-crosses a Python-validation boundary the rest of Phase 2 already eliminated. Recorded verdict wins over the bottom-up read here. |
+| `_constraint_types/` | 1,033 | NEVER-PORT | **Corrected**: an earlier draft of this row deferred to the ledger's `MIGRATE phase 2` tag over the substance read. That tag is stale. PR **#719** ("docs(wave4): measured verdict — `_constraint_types` is not a pyclass candidate", merged 2026-08-05, same day as this baseline) is a dated, measured verdict, authored by the repo owner, that supersedes it: 1,027 LOC across 9 files is 34 `pydantic.BaseModel` subclasses and exactly 5 methods (~58 LOC of bodies); none of the program's numerical traps are reachable (no numpy, no sum/min/max, no accumulation); the Phase-2 precedent (`net_types`, #560, `@dataclass`/`Enum` → pyclass) doesn't transfer because these are pydantic models with load-bearing pydantic-specific behavior a pyclass can't reproduce. `docs/wave4-verdicts.yaml`'s own comment block (added the same day, 2026-08-06) records this exact conflict and says a product-authority decision is owed — it does not resolve it, and this triage does not resolve it either, but the dated, measured, merged PR is stronger evidence than an unflipped pattern-level tag. |
 | `adapters/` | 398 | NEVER-PORT | `router_v6_stage_adapter.py`, `register_strategies.py`, `deterministic_adapter.py`, `placement_adapter.py` — each wraps another already-classified module as a `PipelineStage`; `placement_adapter.py`'s body is a single `raise NotImplementedError("... post-JAX retirement")` (dead code, not a port candidate — flag for RETIRE, see §5.3). |
 | `analysis/` | 1 | NEVER-PORT | Sole remaining file is a near-empty `__init__.py`; the substance (2 files / 281 LOC) already has a direct `temper_*` import. |
 | `cli/` | 1,501 | NEVER-PORT | `__init__.py` (click dispatcher + rich panels), `drc_cli.py`, `watch_commands.py`, `andon_commands.py`, `version.py`, `_io.py`, `_signal.py`, `_version.py`, `__main__.py` — uniformly click/rich CLI wiring dispatching into already-classified compute. (`timing.py`/`trace_commands.py`, 963 LOC, already migrated — out of this scope.) |
@@ -185,7 +216,7 @@ Subtotal: **PORT 626 / NEVER-PORT 5,104 = 5,730.**
 | `extraction/` | 0 | — | Fully migrated (125 LOC has direct ref); nothing in the residual set. |
 | `fields/` | 279 | NEVER-PORT | `interface.py` (Protocol) + `result.py` (composition/accessor properties over a kept-Python gate object) = 220 NEVER-PORT; `field.py` (numpy per-cell scalar grid ops: ravel/astype/ascontiguousarray) = 59, arguably PORT-able but recorded as `fields/**: JUSTIFIED-KEEP` in the ledger — "no algorithm to protect," every operation is a buffer op. Deferring to the recorded verdict; classified NEVER-PORT in full. |
 | `fixtures/` | 393 | NEVER-PORT | `synthetic.py` — synthetic netlist generator for scale/stress testing, consumed only by pytest. |
-| `geometry/` | 164 | PORT | `kicad_transform.py` — the sanctioned KiCad footprint-rotation implementation; see §5.6 (small file, outsized importance). |
+| `geometry/` | 164 | ALREADY-DONE | **Corrected**: `kicad_transform.py` is the sanctioned KiCad footprint-rotation implementation (see §5.6 for why it matters disproportionately to its size) — but it is not unmigrated. `packages/temper-geometry/VERIFICATION.md` records it explicitly: *"JUSTIFIED-KEEP, unchanged: `kicad_transform.py`... the drift risk is already closed by `tests/geometry/test_kicad_transform_rust_differential.py`, which pins it against this crate's `rotate_local_to_world`."* An equivalent Rust kernel (`rotate_local_to_router::rotate_local_to_world`) already exists in `temper_geometry`; the 6-test differential (confirmed present and passing-shaped, `tests/geometry/test_kicad_transform_rust_differential.py`) is exactly Trap 1 — no direct import, but an oracle already pins it. The Python function stays as the call site deliberately (a 2-line scalar formula isn't worth a per-call FFI crossing), which is a real, already-made, already-tested engineering decision, not a residual. |
 | `heuristics/` | 4,378 | PORT / NEVER-PORT split | `mcu_subsystem.py`, `power_stage.py`, `spectral.py` (networkx spectral layout), `structural.py`, `organizational.py`, `conflict.py`, `style.py`, `topological_init.py`, `graph_utils.py` (3,486 LOC) = PORT, nine real placement-heuristic algorithms. `__init__.py`, `base.py`, `pipeline.py` (892 LOC) = NEVER-PORT, package init/abstract base classes/orchestrator. **A sibling agent is porting this area now — not duplicated here.** |
 | `io/` — parse-engine boundary markers | 91 | ALREADY-DONE | `_parse_modules.py`, `_parse_tracks.py`, `_parse_zones.py` — each docstring states verbatim that the extraction logic "now run[s] inside `parse_kicad_pcb` on the Rust side" and the file "exists as the migration boundary marker." Verified by reading all three files directly. |
 | `io/` — write/export + real_board geometry | 3,531 | PORT | `_write_board/_modules/_tracks/_zones.py`, `kicad_exporter.py`, `placement_exporter.py`, `via_dedup.py`, `zone_manager.py`, `real_board.py` — s-expression construction geometry (Phase-3 plan candidate 4) plus `real_board.py`'s copper-reach and board-surface-geometry kernels (shoelace ring area, outline/cutout classification for creepage — verified by reading the function bodies, see §5.7). |
@@ -209,22 +240,33 @@ Subtotal: **PORT 626 / NEVER-PORT 5,104 = 5,730.**
 
 ## 3. Revised totals
 
-| Class | LOC | % of 82,310 | Files |
+| Class | LOC | % of 82,310 | Files (approx.) |
 |---|---:|---:|---:|
-| **PORT** (real compute, should migrate) | **39,377** | 47.8% | ~225 |
-| **NEVER-PORT** (I/O / CLI / rendering / orchestration / third-party wrapper) | **42,526** | 51.7% | ~140 |
-| **ALREADY-DONE** (miscounted — oracle/differential exists or docstring proves Rust already runs) | **407** | 0.5% | 5 |
+| **PORT** (real compute, should migrate) | **36,269** | 44.1% | ~211 |
+| **NEVER-PORT** (I/O / CLI / rendering / orchestration / third-party wrapper) | **45,470** | 55.2% | ~153 |
+| **ALREADY-DONE** (miscounted — oracle/differential exists or docstring proves Rust already runs) | **571** | 0.7% | 6 |
 
-The honest "Python remaining" debt is **39,377 LOC**, not 82,310 — **52.2%
+*(These are the corrected totals after §2.1's cp_sat re-read and the
+`_constraint_types`/`geometry` corrections documented inline above — three
+changes moving 3,108 LOC out of PORT: 1,911 within `placer/cp_sat/`
+(`clearance_repair.py`/`feedback.py`/`validator_audit.py`/`_loop_stability.py`,
+all reclassified NEVER-PORT on re-read), 1,033 (`_constraint_types/`,
+reclassified NEVER-PORT per PR #719), and 164 (`geometry/kicad_transform.py`,
+reclassified ALREADY-DONE — an existing passing differential was found after
+the first classification pass).*
+
+The honest "Python remaining" debt is **36,269 LOC**, not 82,310 — **55.9%
 lower** once NEVER-PORT and ALREADY-DONE are excluded. `router_v6/`
-(16,424 PORT LOC) and `deterministic/`+`placer/cp_sat/`+`core/`+`heuristics/`
-(13,311 PORT LOC combined) account for most of the real remaining kernel work.
-NEVER-PORT is not evenly spread — it's concentrated in five areas that are
-each >90% NEVER-PORT by construction: `visualization/` (6,086, 100%), `cli/`
+(16,424 PORT LOC) and `deterministic/`+`core/`+`heuristics/`+`placer/cp_sat/`
+(1,452 PORT LOC in cp_sat now that the re-read landed) account for most of
+the real remaining kernel work. NEVER-PORT is not evenly spread — it's
+concentrated in areas that are each >90% NEVER-PORT by construction:
+`visualization/` (6,086, 100%), `placer/cp_sat/` (6,991 of 8,443, 82.8%,
+`JUSTIFIED-KEEP`'d in the ledger as the ortools boundary itself), `cli/`
 (1,501, 100%), `profiling/` (1,302, 100%), `regression/` (1,181, 100%),
-`testing/`+`fixtures/` (1,126, 100%) — 11,196 LOC that should probably be
-dropped from the tracked denominator entirely rather than re-verified every
-sweep, since each already carries a recorded ledger `JUSTIFIED-KEEP`.
+`testing/`+`fixtures/` (1,126, 100%) — over 18,000 LOC that should probably
+be dropped from the tracked denominator entirely rather than re-verified
+every sweep, since each already carries a recorded ledger `JUSTIFIED-KEEP`.
 
 ## 4. Proposed verdict-file entries (not written — the user's call)
 
@@ -243,12 +285,36 @@ are recommendations only.
 - `router_v6/routability_check.py`: extend the KTD8 recorded verdict's
   consumer list to include it (currently omits it — see §5.2). No new verdict
   needed, just a correction to an existing one.
-- `placer/cp_sat/{_encoder_core,_encoder_solve,encoder,handlers/**,model,unsat,unsat_surface,loop.py,_loop_core,_loop_gates,_loop_routing,_loop_types,_loop_utils,delta_mapper,netclass_constraints,gate}.py`
-  (5,080 LOC): product-runtime → `JUSTIFIED-KEEP` — "no mature Rust drop-in
-  (ortools CP-SAT)," the exact named blocker in
-  `docs/wave4-discipline-contract.md` §3. `placer/cp_sat/{_loop_stability,clearance_repair,feedback,fixed_copper,validator_audit}.py`
-  (3,363 LOC) → `MIGRATE`, real geometry/optimization kernels not blocked by
-  the ortools boundary.
+- `placer/cp_sat/**` already carries a whole-subtree `JUSTIFIED-KEEP` in the
+  ledger (`docs/wave4-verdicts.yaml`, dated 2026-08-04, "the ortools CP-SAT
+  boundary, KEEP per the Phase 1 R4 gate"), with a nuanced blocker (not
+  feature-coverage — Pumpkin 0.4.0 covers 12/13 constraint classes — but
+  unassertable cross-engine acceptance criteria, re-decidable when a corpus
+  benchmark + acceptance gate exist). This triage's file-level read is
+  consistent with that whole-subtree keep for all of `cp_sat/` **except**
+  `fixed_copper.py` (1,452 LOC): its pad-rotation/half-extent/edge-extraction/
+  point-segment-distance geometry computes the constraint's *inputs*, not the
+  CP-SAT model itself, and isn't blocked by the ortools boundary at all — it
+  sits next to `audit.py`/`isolation_barrier.py`, two files that already
+  extracted the identical class of geometry primitive to `temper_geometry`
+  and are `has-ref` today. Recommend carving `fixed_copper.py` out of the
+  subtree's blanket keep as `MIGRATE`; the remaining 6,991 LOC stays under the
+  existing verdict as-is (no new entry needed, it already exists and this
+  triage's read confirms it applies cleanly).
+- `_constraint_types/**`: the ledger's `MIGRATE phase 2` entry is stale and
+  contradicted by its own same-day comment citing PR #719's measured verdict.
+  Recommend flipping to `JUSTIFIED-KEEP`, blocker = "declarative pydantic
+  schema validation (34 `BaseModel` subclasses, 5 methods) — not a
+  pyo3-pyclass candidate; pydantic-specific behavior (validators, aliasing)
+  doesn't survive the `@dataclass`/`Enum`→pyclass precedent that worked for
+  `net_types`" (this is PR #719's own finding, already measured — the ledger
+  just hasn't caught up to it).
+- `geometry/kicad_transform.py`: no verdict change needed — it's already
+  correctly `JUSTIFIED-KEEP`'d in `packages/temper-geometry/VERIFICATION.md`
+  with a passing differential. Flagging only because an early pass of this
+  same triage misclassified it as PORT before finding that record — worth
+  remembering as a live example of Trap 1 catching out the people looking for
+  Trap 1.
 - `validation/{helps_battery,results/battery_run,scheduler}.py` (1,963 LOC):
   product-runtime → `JUSTIFIED-KEEP` — harness independence, same D6 reasoning
   already recorded for `regression/`'s six carve-outs.
@@ -350,3 +416,37 @@ triage classified NEVER-PORT from a cold, bottom-up substance read
 independent read was already done. Cross-checking after the fact rather than
 before avoided anchoring on the ledger's language, and the agreement is a
 useful sanity signal on the rest of this triage's un-recorded calls.
+
+**5.9 — This document is the product of several independent passes over the
+same 82,310-LOC surface, and they disagreed in specific, checkable ways.**
+Because the task is large enough to parallelize, multiple independent
+sub-investigations were run concurrently: one per large area
+(`router_v6/`, `deterministic/`+`core/`, `validation/`+`pcl/`), plus at least
+two full-surface passes that (beyond their assigned scope) each produced an
+independent draft of the whole document, and one narrowly-scoped re-read of
+just `placer/cp_sat/`. Where two passes reached the same conclusion from
+different angles (§5.8's ledger corroboration, the `370`/`82,310` baseline
+reproducing exactly across every pass), that agreement is real signal. Where
+they disagreed — `_constraint_types/` (PORT vs NEVER-PORT, resolved by
+finding PR #719), `geometry/kicad_transform.py` (PORT vs ALREADY-DONE,
+resolved by finding the existing differential), and four `cp_sat/` files
+(resolved by reading the actual function bodies in dispute, see §2.1's
+cp_sat note) — the disagreement itself was the signal that a claim needed a
+harder look before being trusted, which is the same lesson as Traps 1 and 2:
+a plausible-sounding classification from a docstring, filename, or an
+unflipped ledger tag is not the same as one confirmed by reading the code.
+
+**5.10 — `physics/loop_area.py`'s PORT verdict has a carve-out inside it.**
+The shoelace-formula/graph-cycle-finding majority of the file is real,
+portable compute. But its convex-hull fallback path
+(`scipy.spatial.ConvexHull`, used when the trace graph doesn't produce a
+closable cycle) is a recorded KTD9-style keep:
+`packages/temper-drc-rs/VERIFICATION.md` — *"`scipy.spatial.ConvexHull`
+(Qhull)... stays Python — Qhull is not bit-reproducible outside scipy."* The
+ledger's `physics/**` note references this ("KTD9... recorded below") but no
+such carve-out entry actually exists in `docs/wave4-verdicts.yaml` — a gap
+independently flagged by `docs/evidence/2026-08-06-wave4-owned-surface-closeout.md`
+§4. Recommend porting the shoelace/graph majority under the existing
+`physics/**` `MIGRATE` verdict while adding a narrow, named `ConvexHull`
+carve-out, the same split pattern already used for `drc_inflate.py`'s
+GEOS-buffer functions.
