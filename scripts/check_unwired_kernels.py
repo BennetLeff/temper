@@ -233,13 +233,26 @@ def code_identifiers(src: str) -> set[str]:
             names.add(node.name.rsplit(".", 1)[-1])
             if node.asname:
                 names.add(node.asname)
-        elif isinstance(node, ast.Call):
-            func = node.func
-            label = getattr(func, "attr", None) or getattr(func, "id", None)
-            if label in {"getattr", "hasattr", "import_module", "__import__"}:
-                for arg in node.args:
-                    if isinstance(arg, ast.Constant) and isinstance(arg.value, str):
-                        names.update(arg.value.split("."))
+        elif isinstance(node, ast.Constant) and isinstance(node.value, str):
+            # WHOLE-string literals, never substrings.
+            #
+            # Restricting this to getattr/import_module arguments missed the
+            # dispatch TABLES that are this repo's actual idiom: pcl/rust_bridge.py
+            # lists its kernels as strings and resolves them later, and
+            # scripts/bench_rust_constraints.py does the same. Ten
+            # compute_*_loss_py kernels were being carried in the ledger as
+            # unwired while production called every one of them.
+            #
+            # Exact equality is what keeps this safe. The failure that motivated
+            # dropping strings entirely was a docstring containing "re-tokenize",
+            # which a SUBSTRING scan matched against the `tokenize` kernel. As a
+            # whole string it matches nothing, and neither does a mutation
+            # description like "M7 is_via_position_valid: <= instead of <" --
+            # verified against both.
+            v = node.value.strip()
+            if v:
+                names.add(v)
+                names.update(v.split("."))
     return names
 
 
