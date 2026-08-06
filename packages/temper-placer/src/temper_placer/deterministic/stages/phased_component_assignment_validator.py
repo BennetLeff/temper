@@ -6,11 +6,12 @@ within IEC 62368-1 creepage of every HV-class pin, and that no slot
 was over-claimed (i.e. reserved without a corresponding HV-pin ring
 or a placed component's footprint).
 
-The four pure slot-grid kernels — ``_flatten_slots``, ``_infer_slot_spacing``,
-``_build_slot_index``, ``_slots_within_radius`` — are implemented in Rust in
-the ``temper-design-bundle`` crate (Wave 4 **Phase 5, batch 2** —
-deterministic leaf stages) and delegate to
-``temper_design_bundle_python.deterministic_leaves``. The
+The three pure slot-grid kernels — ``_infer_slot_spacing``, ``_build_slot_index``,
+``_slots_within_radius`` — are implemented in Rust in the ``temper-design-bundle``
+crate (Wave 4 **Phase 5, batch 2** — deterministic leaf stages) and delegate to
+``temper_design_bundle_python.deterministic_leaves``. ``_flatten_slots`` stays
+Python (a 7-line list flattening over ``state.zone_slots`` — no bit-exact
+compute worth crossing the boundary for). The
 ``validate_phased_component_assignment_hv`` function stays Python: it binds
 router_v6's ``StageDRCFailure`` and the phasing mixins'
 ``_get_footprint_radius`` / ``_effective_ghost_pad_radius`` (unmigrated

@@ -1,6 +1,6 @@
 """Tests for deduplication key collision issues."""
 
-from temper_placer.core.board import Trace
+from temper_placer.core.board import Trace, Via
 from temper_placer.deterministic.stages.drc_sweep import TrackDeduplicationStage
 from temper_placer.deterministic.state import BoardState
 
@@ -192,3 +192,25 @@ class TestDeduplicationCollision:
         assert len(result.routes) == 2, (
             f"Different nets should not be deduplicated, got {len(result.routes)}"
         )
+
+    def test_dedup_via_before_duplicates_remaps_indices(self):
+        """A Via before duplicate traces must not corrupt the dedup index.
+
+        The kernel's kept indices reference the marshalled Trace list, NOT
+        the state.routes positions; the shim remaps them back. A Via (a
+        non-Trace route entry) at routes[0] must not shift the mapping — the
+        pre-migration dedup kept the FIRST of the two duplicate traces (the
+        near-duplicate `b` rounds to the same key) plus the Via. Routes are
+        passed as a list so the Via-before-Trace order is deterministic.
+        """
+        via = Via(position=(0.0, 0.0), drill=0.3, width=0.6, net="GND")
+        a = Trace(start=(0.0, 0.0), end=(10.0, 0.0), width=0.2, layer="B.Cu", net="N")
+        b = Trace(start=(0.0, 0.02), end=(10.0, 0.0), width=0.2, layer="B.Cu", net="N")
+
+        for routes in ([via, a, b], [a, via, b]):
+            state = BoardState(routes=routes)
+            result = TrackDeduplicationStage(tolerance_mm=0.05).run(state)
+            assert result.routes == frozenset({via, a}), (
+                f"order {[type(r).__name__ for r in routes]}: got "
+                f"{sorted(repr(r) for r in result.routes)}"
+            )

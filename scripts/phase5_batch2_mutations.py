@@ -4,9 +4,9 @@ leaf stages migrated to Rust (Wave 4).
 Reproducible driver: for every registered mutant, apply the Rust-source edit,
 rebuild the extension, run the differential suites, require at least one
 FAILURE (the mutant must be caught), then revert and verify the source is
-pristine (`git diff` clean) before the next mutant. Only a suite failure
-counts as a kill; a rebuild/pytest infrastructure failure counts as ERROR and
-aborts the campaign.
+pristine (`git diff` clean) before the next mutant. Only a pytest exit-code-1
+suite failure counts as a kill; exit 0 is a SURVIVOR and any other exit code
+(2/3/4/5...) is an infrastructure ERROR, both recorded as errors.
 
 Usage::
 
@@ -14,8 +14,8 @@ Usage::
     python scripts/phase5_batch2_mutations.py
 
 The campaign must end with a PRISTINE rebuild of both touched crates (the
-final `--pristine` pass re-installs the unmutated extensions and re-runs the
-full differential set green).
+final pass re-installs the unmutated extensions and re-runs the full
+differential set green).
 """
 
 from __future__ import annotations
@@ -126,11 +126,19 @@ add(TD, "src/deterministic_leaves.rs",
     "pub const DEFAULT_SLOT_SPACING: f64 = 4.0;",
     ["test_phased_component_assignment_validator_rust_differential.py"],
     "validator slot spacing fallback 5->4")
-# (Dropped in the rewrite: 'validator radius k ceil->floor'. The scan window
-# is `[-k, k]` in cell indices; a slot in a cell with |index| > radius/spacing
-# is at distance >= spacing*|index| > radius, so the per-slot `<= radius`
-# check filters every slot the floor window would miss — ceil and floor
-# produce IDENTICAL outputs for all inputs. Observably vacuous.)
+# (The original 'validator radius k ceil->floor' mutant was dropped claiming
+# vacuity: "a slot in a cell with |index| > radius/spacing is at distance >=
+# spacing*|index| > radius". That claim is FALSE for round-to-nearest cells:
+# center (0,0), radius 8.5, spacing 5, slot (7.6, 0) rounds to cell (2, 0)
+# (round(1.52) = 2, |2| > 8.5/5 = 1.7) yet sits at distance 7.6 <= 8.5 — it
+# is reachable only through the ceil window (k = ceil(1.7) = 2), and a floor
+# window (k = 1) misses it. The mutant is RE-ADDED below and killed by
+# test_within_radius_ceil_only_zone.)
+add(TD, "src/deterministic_leaves.rs",
+    "let k = (radius / spacing).ceil() as i64;",
+    "let k = (radius / spacing).floor() as i64;",
+    ["test_phased_component_assignment_validator_rust_differential.py"],
+    "validator radius k ceil->floor (ceil-only zone)")
 add(TD, "src/deterministic_leaves.rs",
     "if crate::host_math::hypot(sx - cx, sy - cy) <= radius {",
     "if crate::host_math::hypot(sx - cx, sy - cy) < radius {",
@@ -270,13 +278,17 @@ def main() -> int:
             path.write_text(src)
             continue
         proc = run_pytest(m["tests"])
-        killed = proc.returncode != 0
         path.write_text(src)
-        if not killed:
+        if proc.returncode == 0:
             errors.append(f"M{i} ({m['label']}): SURVIVED — differential stayed green")
             continue
+        if proc.returncode != 1:
+            errors.append(
+                f"M{i} ({m['label']}): pytest exit {proc.returncode} — INFRA, not a kill"
+            )
+            continue
         kills += 1
-        print(f"M{i:02d} KILLED {m['label']} ({proc.returncode})")
+        print(f"M{i:02d} KILLED {m['label']} (exit 1)")
     # Pristine rebuild + full suite.
     build(TD)
     build(DRC)

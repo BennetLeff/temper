@@ -1056,13 +1056,19 @@ function, not two.
 What stays Python (the shims keep their `run()` orchestration):
 kicad-cli subprocess, drc-oracle geometry extraction, per-net grouping,
 plane-net/NoNet skipping, violation-object construction, summary logging,
-`fail_on_violations` raising, and the message-formatting delegation to
-CPython's `__format__` (`fmt_1f`).
+the `DRCValidationError` raise, and the message-formatting delegation to
+CPython's `__format__` (`fmt_1f`). The `fail_on_violations` /
+`max_violations` threshold *decision* (should-raise + message) is delegated
+to the migrated `threshold_decision` kernel so it cannot drift from the
+pinned oracle. `_validate_signal_hv` receives the violation kind
+(`missing_component` / `path_too_long` / `hv_clearance`) as the kernel
+return tuple's final element — the shim no longer infers the kind from
+message text.
 
 ## R1 status
 
 - **R1a bit-identical vs verbatim oracles.** `test_drc_leaf_rust_differential.py`
-  (13 tests) and `test_connectivity_validation_rust_differential.py` (13 tests)
+  (22 tests) and `test_connectivity_validation_rust_differential.py` (14 tests)
   drive identical inputs through the oracle and the kernel; floats are compared
   bit-exactly. For connectivity the violation *locations* are input coordinates
   (never recomputed) and the descriptions are plain string interpolation, so the
@@ -1101,14 +1107,18 @@ CPython's `__format__` (`fmt_1f`).
 
 ## Anti-vacuity (mutation campaign)
 
-The 25-mutant reproducible campaign (`scripts/phase5_batch2_mutations.py`)
+The 26-mutant reproducible campaign (`scripts/phase5_batch2_mutations.py`)
 covers all batch-2 kernels: every mutant rebuilds the crate, must kill at
 least one differential/PBT test, then reverts and verifies the source is
 pristine before the next. The campaign ends with a pristine rebuild + the
-full differential set green. Three candidate mutants were proven observably
+full differential set green. Two candidate mutants were proven observably
 vacuous (the differential staying green is correct) and removed with
 in-driver notes: layer_assignment empty-net-class (maps identically to
-"Signal"), the slot-grid ceil/floor window (the per-slot `<= radius` check
-filters every cell the floor window would miss), and the single
-pad-component flag (sorted roots[1:] is empty). See the evidence doc
+"Signal") and the single pad-component flag (sorted roots[1:] is empty).
+The third originally-claimed vacuous mutant — the slot-grid ceil/floor
+window — was RE-ADDED after review: the naive "|cell| > radius/spacing
+implies distance > radius" argument is false for round-to-nearest cells
+(center (0,0), radius 8.5, spacing 5, slot (7.6, 0) sits in cell (2, 0) at
+distance 7.6 <= 8.5, reachable only through the ceil window). It is killed
+by `test_within_radius_ceil_only_zone`. See the evidence doc
 `docs/evidence/2026-08-06-wave4-phase5-batch2-mutation-sweep.md`.

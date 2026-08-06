@@ -13,7 +13,9 @@ stages): ``_point_to_segment_distance``, ``_validate_proximity`` and
 ``_validate_signal_hv`` delegate to ``temper_drc_rs``. The ``run``
 orchestration (config parsing, the parsed-pads lookup, the
 ``PlacementViolation`` construction, logging and the hard-violation gate)
-stays Python.
+stays Python. ``_validate_signal_hv`` receives the violation kind
+(``missing_component`` / ``path_too_long`` / ``hv_clearance``) from the
+kernel's return tuple rather than re-inferring it from message text.
 
 Bit-exactness: the kernels reproduce the oracle's expression order
 (``dx*dx``, libm ``pow`` for ``** 2``, host-libm ``sqrt``, ``py_max``/
@@ -239,22 +241,15 @@ class PlacementValidationStage(Stage):
         )
         if result is None or not result[0]:
             return None
-        _flag, severity, actual, required, message, comp_a, comp_b = result
+        _flag, severity, actual, required, message, comp_a, comp_b, violation_type = result
 
-        if severity == "warning" and (signal_pos is None or target_pos is None):
+        if violation_type == "missing_component":
             return PlacementViolation(
                 constraint_name=constraint.name,
-                violation_type="missing_component",
+                violation_type=violation_type,
                 message=message,
                 severity=severity,
             )
-
-        violation_type = (
-            "path_too_long" if message.startswith("Signal path from") and "passes within" not in message
-            else "hv_clearance"
-        )
-        if "Signal path" not in message:
-            violation_type = "hv_clearance"
 
         return PlacementViolation(
             constraint_name=constraint.name,

@@ -3910,17 +3910,18 @@ message forms), `copy.deepcopy` and `pickle` (via `__reduce__`, which
 phased-component-assignment-validator slot-grid kernels (`infer_slot_spacing`,
 `build_slot_index`, `slots_within_radius`) are placement/component math —
 temper-design-bundle (`deterministic_leaves.rs`). The validator's
-`run()`/`validate()` orchestration and the router_v6-bound
-`StageDRCFailure` construction stay Python in the shim.
+`run()`/`validate()` orchestration, the router_v6-bound `StageDRCFailure`
+construction, and the 7-line `_flatten_slots` list-flattening helper stay
+Python in the shim.
 
 ## R1 status
 
 - **R1a.** `test_fine_pitch_escape_rust_differential.py` (8) and
-  `test_phased_component_assignment_validator_rust_differential.py` (11)
+  `test_phased_component_assignment_validator_rust_differential.py` (13)
   compare bit-exactly (floats via `float.hex()` where recomputed, e.g. the
   libm `hypot` slot-distance kernel; cell keys via CPython round-half-to-even).
-- **R1c.** `test_fine_pitch_escape_pbt.py` (5) and
-  `test_phased_component_assignment_validator_pbt.py` (5) properties
+- **R1c.** `test_fine_pitch_escape_pbt.py` (8) and
+  `test_phased_component_assignment_validator_pbt.py` (8) properties
   (monotonicity of spacing fallback, key-disjointness of slot cells, radius
   coverage, layer-precedence, min-pitch bounds).
 - **R1d.** 3 MRs per module (spacing scale-invariance, net-set permutation,
@@ -3935,7 +3936,7 @@ temper-design-bundle (`deterministic_leaves.rs`). The validator's
 
 ## Anti-vacuity
 
-Covered by the same 28-mutant campaign (see temper-drc-rs VERIFICATION.md).
+Covered by the same 26-mutant campaign (see temper-drc-rs VERIFICATION.md).
 
 # Batch-2 remaining stages — JUSTIFIED-KEEP records (R3-style, named blockers)
 

@@ -978,17 +978,29 @@ fn cell_index(x: f64, spacing: f64) -> i64 {
 
 /// `_build_slot_index`: `(i, j) -> [slots]` with `i = int(round(x/spacing))`,
 /// `j = int(round(y/spacing))`; slots within a cell keep `all_slots` order.
+/// Entries are returned in FIRST-SEEN key order (the oracle's
+/// `dict.setdefault` insertion order) — never in HashMap iteration order,
+/// which is randomized per process.
 #[allow(clippy::type_complexity)]
 fn build_slot_index(
     slots: &[(f64, f64)],
     spacing: f64,
 ) -> Vec<((i64, i64), Vec<(f64, f64)>)> {
-    let mut index: HashMap<(i64, i64), Vec<(f64, f64)>> = HashMap::new();
+    let mut pos: HashMap<(i64, i64), usize> = HashMap::new();
+    let mut order: Vec<(i64, i64)> = Vec::new();
+    let mut cells: Vec<Vec<(f64, f64)>> = Vec::new();
     for &slot in slots {
         let key = (cell_index(slot.0, spacing), cell_index(slot.1, spacing));
-        index.entry(key).or_default().push(slot);
+        match pos.get(&key) {
+            Some(&idx) => cells[idx].push(slot),
+            None => {
+                pos.insert(key, cells.len());
+                order.push(key);
+                cells.push(vec![slot]);
+            }
+        }
     }
-    index.into_iter().collect()
+    order.into_iter().zip(cells).collect()
 }
 
 /// `_slots_within_radius`: walk the `(2k+1) x (2k+1)` cell window
@@ -1129,4 +1141,3 @@ pub fn register(module: &Bound<'_, PyModule>) -> PyResult<()> {
     sub.add_function(wrap_pyfunction!(slots_within_radius_py, &sub)?)?;
     module.add_submodule(&sub)
 }
-// touch

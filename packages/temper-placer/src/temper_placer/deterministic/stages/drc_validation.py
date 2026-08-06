@@ -45,14 +45,15 @@ class DRCValidationStage(Stage):
         # Log summary (count-by-type computed by the Rust kernel)
         self._log_summary(violations)
 
-        # Check thresholds
-        if self.fail_on_violations and violations:
-            raise DRCValidationError(f"{len(violations)} DRC violations found")
-
-        if self.max_violations > 0 and len(violations) > self.max_violations:
-            raise DRCValidationError(
-                f"{len(violations)} violations exceeds max {self.max_violations}"
-            )
+        # Check thresholds — the raise decision (should_raise + message) is
+        # the migrated Rust kernel (`threshold_decision`), so it cannot drift
+        # from the pinned oracle. The DRCValidationError raise itself stays
+        # Python.
+        should_raise, message = _drc.threshold_decision_py(
+            self.fail_on_violations, self.max_violations, len(violations)
+        )
+        if should_raise:
+            raise DRCValidationError(message)
 
         # Store as tuple for immutability in frozen BoardState
         return replace(state, drc_violations=tuple(violations))

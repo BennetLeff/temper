@@ -14,7 +14,9 @@ Five hypothesis properties (R1c):
   to the nearest endpoint and that endpoint distance (for points projecting
   onto the segment).
 - P4. Clamp bounds: the clamped coordinate lies in `[margin, dim - margin]`.
-- P5. Threshold strictness: `max_violations == count` does not raise.
+- P5. Threshold strictness: the kernel matches the pinned oracle's decision
+  over the threshold domain (`max_violations == count` does not raise;
+  `fail_on_violations` raises on any non-zero count).
 
 Three metamorphic relations (R1d):
 
@@ -31,6 +33,7 @@ from __future__ import annotations
 import math
 
 import temper_drc_rs as _drc
+import tests.deterministic.stages._drc_leaf_py_oracle as _oracle
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
@@ -46,7 +49,10 @@ _TRACES = st.lists(
 
 
 def _mk_traces(traces):
-    return [(s, e, layer, net if net else None) for s, e, layer, net in traces]
+    # Pass the net through as-is: '' (an empty-net class) must reach the
+    # kernel distinct from None. The kernel keys on the net Option, so a
+    # None-net trace and an ''-net trace are distinct keys (oracle parity).
+    return [(s, e, layer, net) for s, e, layer, net in traces]
 
 
 @given(st.lists(st.sampled_from(["a", "b", "c"]), min_size=0, max_size=20))
@@ -103,17 +109,14 @@ def test_p4_clamp_bounds(x, y, margin, w, h):
 @given(st.integers(min_value=0, max_value=10), st.integers(min_value=0, max_value=10))
 @settings(max_examples=50, deadline=None)
 def test_p5_threshold_strictness(count, mx):
-    # The oracle's rule is `count > max_violations`, never `>=`.
-    if count == mx:
-        assert _oracle_threshold(False, mx, count) == (False, "")
-
-
-def _oracle_threshold(fail, mx, count):
-    if fail and count:
-        return (True, f"{count} DRC violations found")
-    if mx > 0 and count > mx:
-        return (True, f"{count} violations exceeds max {mx}")
-    return (False, "")
+    # Drive the production kernel against the pinned oracle over the whole
+    # threshold domain — the oracle's rule is `count > max_violations`
+    # (never `>=`, so `max_violations == count` does not raise) and
+    # `fail_on_violations` raises on any non-zero count.
+    for fail in (False, True):
+        got = _drc.threshold_decision_py(fail, mx, count)
+        exp = _oracle.threshold_decision(fail, mx, count)
+        assert got == exp
 
 
 @given(_TRACES)
@@ -134,7 +137,7 @@ def test_mr1_dedup_net_sensitivity(traces):
 def test_mr2_dedup_orientation(marshalled_dummy):
     marshalled = _mk_traces(marshalled_dummy)
     kept_a, _ = _drc.deduplicate_traces_py(marshalled, 0.05)
-    reversed_traces = [((e[0], e[1]), (s[0], s[1]), l, n) for (s, e, l, n) in marshalled]
+    reversed_traces = [((e[0], e[1]), (s[0], s[1]), lyr, net) for (s, e, lyr, net) in marshalled]
     kept_b, _ = _drc.deduplicate_traces_py(reversed_traces, 0.05)
     assert kept_a == kept_b
 

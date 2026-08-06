@@ -139,20 +139,26 @@ class TrackDeduplicationStage(Stage):
         if not state.routes:
             return state
 
+        # Marshal ONLY the Trace objects; the kernel's kept indices are
+        # positions INTO this marshalled list. Non-Trace route entries (e.g.
+        # Via) are never marshalled, so the shim records the marshalled ->
+        # state.routes index mapping and remaps the kept indices back.
         marshalled = []  # (start, end, layer, net) for Trace objects
-        for trace in state.routes:
+        marshalled_to_route = {}  # marshalled index -> state.routes index
+        for route_index, trace in enumerate(state.routes):
             if isinstance(trace, Trace):
+                marshalled_to_route[len(marshalled)] = route_index
                 marshalled.append((trace.start, trace.end, trace.layer, trace.net))
 
         kept_indices, duplicates = _drc.deduplicate_traces_py(marshalled, self.tolerance_mm)
 
-        # Rebuild: non-Trace entries pass through unchanged; the kept
-        # indices reference the Trace objects' positions in `state.routes`
-        # order (the kernel keeps the ORIGINAL route index).
-        kept_set = set(kept_indices)
+        # Rebuild: non-Trace entries pass through unchanged; a Trace is kept
+        # iff its marshalled index is in kept_indices (remapped to its
+        # state.routes position via marshalled_to_route).
+        kept_route_indices = {marshalled_to_route[i] for i in kept_indices}
         unique_traces = []
         for j, trace in enumerate(state.routes):
-            if isinstance(trace, Trace) and j not in kept_set:
+            if isinstance(trace, Trace) and j not in kept_route_indices:
                 continue
             unique_traces.append(trace)
 

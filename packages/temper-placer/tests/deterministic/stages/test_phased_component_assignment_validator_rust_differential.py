@@ -1,11 +1,13 @@
 """Differential test: validator slot-grid kernels, Rust vs oracle.
 
-Wave 4, Phase 5, batch 2 (deterministic leaf stages). The four pure slot-grid
+Wave 4, Phase 5, batch 2 (deterministic leaf stages). Three pure slot-grid
 kernels of ``deterministic/stages/phased_component_assignment_validator.py``
-move to the ``temper-design-bundle`` crate
+(``infer_slot_spacing``, ``build_slot_index``, ``slots_within_radius``) move
+to the ``temper-design-bundle`` crate
 (``temper_design_bundle_python.deterministic_leaves``); the Python module
-becomes a delegation shim. The pre-migration implementation is pinned
-VERBATIM as the oracle (``_phased_component_assignment_validator_py_oracle.py``).
+becomes a delegation shim (``_flatten_slots`` stays Python). The
+pre-migration implementation is pinned VERBATIM as the oracle
+(``_phased_component_assignment_validator_py_oracle.py``).
 
 R1a: slot-spacing inference, the bucketed cell index (`int(round(x/spacing))`
 — CPython round-half-to-even), and the radius scan (`ceil`, `math.hypot`,
@@ -14,6 +16,8 @@ slots compare via `float.hex()`.
 """
 
 from __future__ import annotations
+
+import math
 
 import temper_design_bundle_python as _tdb
 import tests.deterministic.stages._phased_component_assignment_validator_py_oracle as _oracle
@@ -62,6 +66,12 @@ def _hex_index(idx):
 def _assert_index(slots, spacing):
     exp = _oracle._build_slot_index(slots, spacing)
     got = _RS.build_slot_index_py(slots, spacing)
+    # The oracle builds the dict in first-seen key order (setdefault), so the
+    # kernel's insertion order must match it EXACTLY — not just as a set. A
+    # HashMap-iteration-ordered PyDict would be nondeterministic per process.
+    assert list(got.keys()) == list(exp.keys()), (
+        f"key insertion order differs: {list(got.keys())} vs {list(exp.keys())}"
+    )
     assert set(got.keys()) == set(exp.keys()), f"keys differ: {set(got.keys())} vs {set(exp.keys())}"
     for k in exp:
         assert _hex_index({k: exp[k]}) == _hex_index({k: got[k]}), f"cell {k}"
@@ -123,3 +133,28 @@ def test_within_radius_dedup_order():
     """The output order matches the oracle's (di, dj) raster walk."""
     slots = [(0.0, 0.0), (5.0, 0.0), (0.0, 5.0), (5.0, 5.0), (10.0, 10.0)]
     _assert_within((2.5, 2.5), 10.0, slots, 5.0)
+
+
+def test_within_radius_ceil_only_zone():
+    """A within-radius slot whose cell is reachable only via the CEIL window.
+
+    radius 8.5 / spacing 5.0 -> k = ceil(1.7) = 2. A slot at (7.6, 0.0)
+    rounds to cell (2, 0) (round(1.52) = 2) and sits at distance 7.6 <= 8.5,
+    so it is only found when the scan window is [-2, 2]. A ceil->floor
+    mutation (k = floor(1.7) = 1) would miss it — this case discriminates.
+    """
+    _assert_within((0.0, 0.0), 8.5, [(7.6, 0.0), (0.0, 0.0)], 5.0)
+
+
+def test_within_radius_ceil_vacuous_claim_refuted():
+    """The naive |index| > radius/spacing vacuity claim is FALSE.
+
+    A slot in a cell with |index| > radius/spacing is NOT necessarily at
+    distance > radius: round-to-nearest cells admit |cell_index * spacing|
+    > radius with the slot still within radius (the counterexample above).
+    Both the cell-window bound (k) and the per-slot distance check are live.
+    """
+    assert int(math.ceil(8.5 / 5.0)) == 2
+    assert int(math.floor(8.5 / 5.0)) == 1
+    assert round(7.6 / 5.0) == 2
+    assert math.hypot(7.6, 0.0) <= 8.5

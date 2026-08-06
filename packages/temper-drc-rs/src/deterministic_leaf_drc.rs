@@ -86,6 +86,18 @@ pub fn threshold_decision(
     (false, String::new())
 }
 
+/// Python-visible `threshold_decision(fail_on_violations, max_violations,
+/// count)` — wired into `DRCValidationStage.run` so the raise decision is
+/// the migrated kernel, not a parallel Python copy.
+#[pyfunction]
+pub fn threshold_decision_py(
+    fail_on_violations: bool,
+    max_violations: i64,
+    count: usize,
+) -> (bool, String) {
+    threshold_decision(fail_on_violations, max_violations, count)
+}
+
 // ---------------------------------------------------------------------------
 // drc_sweep.py — track deduplication
 // ---------------------------------------------------------------------------
@@ -94,12 +106,16 @@ pub fn threshold_decision(
 /// (`(sx, sy) > (ex, ey)` tuple comparison), then
 /// `round(coord / tol) * tol` for each endpoint coordinate, then the layer
 /// and net. Returns the kept indices and the duplicate count.
+///
+/// The net key is the marshalled `Option<String>` verbatim: the oracle keys
+/// on `net` directly, so `None` and `Some("")` are DISTINCT keys (a
+/// `unwrap_or_default` collapse would dedup a pair the oracle keeps).
 #[allow(clippy::type_complexity)]
 pub fn deduplicate_traces(
     traces: &[(f64, f64, f64, f64, String, Option<String>)],
     tolerance: f64,
 ) -> (Vec<usize>, usize) {
-    let mut seen: std::collections::HashSet<(u64, u64, u64, u64, String, String)> =
+    let mut seen: std::collections::HashSet<(u64, u64, u64, u64, String, Option<String>)> =
         std::collections::HashSet::new();
     let mut kept: Vec<usize> = Vec::new();
     let mut duplicates = 0usize;
@@ -110,14 +126,13 @@ pub fn deduplicate_traces(
             std::mem::swap(&mut sx, &mut ex);
             std::mem::swap(&mut sy, &mut ey);
         }
-        let net_key = net.clone().unwrap_or_default();
         let key = (
             round_step(sx, tolerance).to_bits(),
             round_step(sy, tolerance).to_bits(),
             round_step(ex, tolerance).to_bits(),
             round_step(ey, tolerance).to_bits(),
             layer.clone(),
-            net_key,
+            net.clone(),
         );
         if !seen.insert(key) {
             duplicates += 1;
@@ -270,7 +285,17 @@ pub fn validate_proximity(
 /// `_validate_signal_hv`: the two geometry checks — path length and the
 /// per-HV-pin `_point_to_segment_distance` clearance — plus the message
 /// construction. `hv_positions` is the list of `(pin_name, (x, y))`.
+///
+/// The oracle's guard ordering is preserved: with no resolved HV pin there is
+/// nothing to check against, so a no-violation is returned BEFORE the
+/// path-length check (an over-long signal path alone yields no violation when
+/// `hv_positions` is empty).
+///
+/// The final element is the explicit violation kind (`"missing_component"`,
+/// `"path_too_long"`, `"hv_clearance"`, or `""` for no violation) — the shim
+/// must not re-infer the kind from message text.
 #[allow(clippy::too_many_arguments)]
+#[allow(clippy::type_complexity)]
 pub fn validate_signal_hv(
     name: &str,
     signal_component: &str,
@@ -285,7 +310,7 @@ pub fn validate_signal_hv(
     target_pos: Option<(f64, f64)>,
     hv_positions: &[(String, (f64, f64))],
     py: Python<'_>,
-) -> PyResult<(bool, String, f64, f64, String, String, String)> {
+) -> PyResult<(bool, String, f64, f64, String, String, String, String)> {
     let (sx, sy, tx, ty) = match (signal_pos, target_pos) {
         (Some((sx, sy)), Some((tx, ty))) => (sx, sy, tx, ty),
         _ => {
@@ -298,9 +323,22 @@ pub fn validate_signal_hv(
                 msg,
                 String::new(),
                 String::new(),
+                "missing_component".to_string(),
             ));
         }
     };
+    if hv_positions.is_empty() {
+        return Ok((
+            false,
+            String::new(),
+            0.0,
+            0.0,
+            String::new(),
+            String::new(),
+            String::new(),
+            String::new(),
+        ));
+    }
     let path_length = sqrt(pow(tx - sx, 2.0) + pow(ty - sy, 2.0));
     let severity: String = if tier == "hard" { "error".to_string() } else { "warning".to_string() };
     if path_length > max_path_length_mm {
@@ -313,7 +351,7 @@ pub fn validate_signal_hv(
             fmt_1f(py, path_length)?,
             fmt_1f(py, max_path_length_mm)?,
         );
-        return Ok((true, severity, path_length, max_path_length_mm, msg, signal_component.to_string(), target_component.to_string()));
+        return Ok((true, severity, path_length, max_path_length_mm, msg, signal_component.to_string(), target_component.to_string(), "path_too_long".to_string()));
     }
     for (hv_pin, (hx, hy)) in hv_positions {
         let clearance = point_to_segment_distance(*hx, *hy, sx, sy, tx, ty);
@@ -329,10 +367,10 @@ pub fn validate_signal_hv(
                 hv_pin,
                 fmt_1f(py, required_clearance_mm)?,
             );
-            return Ok((true, severity, clearance, required_clearance_mm, msg, signal_component.to_string(), hv_component.to_string()));
+            return Ok((true, severity, clearance, required_clearance_mm, msg, signal_component.to_string(), hv_component.to_string(), "hv_clearance".to_string()));
         }
     }
-    Ok((false, String::new(), 0.0, 0.0, String::new(), String::new(), String::new()))
+    Ok((false, String::new(), 0.0, 0.0, String::new(), String::new(), String::new(), String::new()))
 }
 
 /// Python-visible `validate_proximity(constraint, from_pos, to_pos)` — the
@@ -366,7 +404,8 @@ pub fn validate_proximity_py(
 
 /// Python-visible `validate_signal_hv(constraint, signal_pos, target_pos,
 /// hv_positions)` — positions are PRE-RESOLVED by the shim (parsed-pads
-/// lookup). Returns the violation 7-tuple or `None`.
+/// lookup). Returns the violation 8-tuple (kind as the final element) or
+/// `None`.
 #[pyfunction]
 #[allow(clippy::type_complexity)]
 pub fn validate_signal_hv_py(
@@ -375,7 +414,7 @@ pub fn validate_signal_hv_py(
     signal_pos: Option<(f64, f64)>,
     target_pos: Option<(f64, f64)>,
     hv_positions: &Bound<'_, PyAny>,
-) -> PyResult<Option<(bool, String, f64, f64, String, String, String)>> {
+) -> PyResult<Option<(bool, String, f64, f64, String, String, String, String)>> {
     let name: String = constraint.getattr("name")?.str()?.to_string();
     let signal_component: String = constraint.getattr("signal_component")?.str()?.to_string();
     let signal_pin: String = constraint.getattr("signal_pin")?.str()?.to_string();
@@ -437,6 +476,7 @@ pub fn clamp_position_py(
 /// Register the leaf DRC-check kernels on the `temper_drc_rs` module.
 pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(summarize_violations_py, m)?)?;
+    m.add_function(wrap_pyfunction!(threshold_decision_py, m)?)?;
     m.add_function(wrap_pyfunction!(deduplicate_traces_py, m)?)?;
     m.add_function(wrap_pyfunction!(point_to_segment_distance_py, m)?)?;
     m.add_function(wrap_pyfunction!(validate_proximity_py, m)?)?;
@@ -472,6 +512,82 @@ mod tests {
         let (kept, dup) = deduplicate_traces(&traces, 0.05);
         assert_eq!(dup, 1);
         assert_eq!(kept.len(), 3);
+    }
+
+    #[test]
+    fn dedup_none_and_empty_net_are_distinct_keys() {
+        // The oracle keys on `net` directly: None and '' must NOT collapse.
+        let traces = vec![
+            (0.0, 0.0, 10.0, 0.0, "0".to_string(), None),
+            (0.0, 0.0, 10.0, 0.0, "0".to_string(), Some(String::new())),
+        ];
+        let (kept, dup) = deduplicate_traces(&traces, 0.05);
+        assert_eq!(dup, 0);
+        assert_eq!(kept, vec![0, 1]);
+    }
+
+    #[test]
+    fn threshold_strict_greater_than() {
+        assert_eq!(threshold_decision(true, 0, 1), (true, "1 DRC violations found".into()));
+        assert_eq!(threshold_decision(true, 0, 0), (false, String::new()));
+        assert_eq!(threshold_decision(false, 3, 4), (true, "4 violations exceeds max 3".into()));
+        // Strict `>`: count == max_violations passes.
+        assert_eq!(threshold_decision(false, 3, 3), (false, String::new()));
+        assert_eq!(threshold_decision(false, 3, 2), (false, String::new()));
+    }
+
+    #[test]
+    fn signal_hv_empty_hv_guard_before_path_length() {
+        // An over-long signal path with no resolved HV pin yields no violation
+        // (oracle returns None before the path-length check).
+        pyo3::Python::initialize();
+        pyo3::Python::attach(|py| {
+            let result = validate_signal_hv(
+                "S", "U1", "1", "U2", "2", "MISSING", 6.0, 10.0, "hard",
+                Some((0.0, 0.0)), Some((50.0, 0.0)), &[], py,
+            )
+            .unwrap_or_else(|e| panic!("validate_signal_hv failed: {e}"));
+            assert!(!result.0);
+            assert_eq!(result.1, "");
+        });
+    }
+
+    #[test]
+    fn signal_hv_kind_is_explicit_not_inferred() {
+        pyo3::Python::initialize();
+        pyo3::Python::attach(|py| {
+            // missing_component
+            let r = validate_signal_hv(
+                "S", "U1", "1", "MISSING", "2", "Q1", 6.0, 50.0, "hard",
+                Some((0.0, 0.0)), None, &[("3".into(), (25.0, 0.0))], py,
+            )
+            .unwrap_or_else(|e| panic!("validate_signal_hv failed: {e}"));
+            assert_eq!(r.7, "missing_component");
+            // path_too_long
+            let r = validate_signal_hv(
+                "S", "U1", "1", "U2", "2", "Q1", 6.0, 10.0, "hard",
+                Some((0.0, 0.0)), Some((50.0, 0.0)), &[("3".into(), (25.0, 1.0))], py,
+            )
+            .unwrap_or_else(|e| panic!("validate_signal_hv failed: {e}"));
+            assert!(r.0);
+            assert_eq!(r.7, "path_too_long");
+            // hv_clearance
+            let r = validate_signal_hv(
+                "S", "U1", "1", "U2", "2", "Q1", 6.0, 50.0, "hard",
+                Some((0.0, 0.0)), Some((50.0, 0.0)), &[("3".into(), (25.0, 0.5))], py,
+            )
+            .unwrap_or_else(|e| panic!("validate_signal_hv failed: {e}"));
+            assert!(r.0);
+            assert_eq!(r.7, "hv_clearance");
+            // no violation
+            let r = validate_signal_hv(
+                "S", "U1", "1", "U2", "2", "Q1", 6.0, 50.0, "hard",
+                Some((0.0, 0.0)), Some((50.0, 0.0)), &[("3".into(), (25.0, 30.0))], py,
+            )
+            .unwrap_or_else(|e| panic!("validate_signal_hv failed: {e}"));
+            assert!(!r.0);
+            assert_eq!(r.7, "");
+        });
     }
 
     #[test]
