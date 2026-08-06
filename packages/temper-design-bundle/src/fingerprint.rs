@@ -25,7 +25,11 @@
 //!   observable).
 //! - `should_skip` mirrors the oracle's falsy-board-cache semantics: `None`
 //!   OR an empty dict → False; a dict lacking either fingerprint key →
-//!   False (None never equals a hash string).
+//!   False (None never equals a hash string). A non-string cached fingerprint
+//!   value also yields False, matching the oracle's `cached == fp` (a
+//!   non-string never equals a str) — the failed String extraction is treated
+//!   as a non-match, not raised (pinned by the non-string-cached-value
+//!   differential case).
 
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyDictMethods, PyModule};
@@ -81,11 +85,15 @@ fn should_skip(
         return Ok(false);
     }
     let cache_input: Option<String> = match cache.get_item("input_fingerprint")? {
-        Some(v) => v.extract()?,
+        // A non-string cached value never matches a fingerprint string: the
+        // oracle's `board_cache.get(...) == fp` returns False (graceful
+        // no-skip), so a failed String extraction must not raise — it yields
+        // None, and `None == Some(fp)` is False.
+        Some(v) => v.extract::<Option<String>>().unwrap_or(None),
         None => None,
     };
     let cache_source: Option<String> = match cache.get_item("source_fingerprint")? {
-        Some(v) => v.extract()?,
+        Some(v) => v.extract::<Option<String>>().unwrap_or(None),
         None => None,
     };
     Ok(cache_input.as_deref() == Some(input_fingerprint.as_str())

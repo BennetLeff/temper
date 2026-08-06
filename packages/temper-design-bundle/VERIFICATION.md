@@ -3410,7 +3410,7 @@ plus the netlist/board contracts that live here); three land in
 `temper-drc-rs` (drc_ratchet, closure_test, physics_oracle). The
 pre-migration modules are pinned verbatim as the differential oracles
 (`packages/temper-placer/tests/regression/_*_py_oracle.py`, commit
-`0a29f15e3`). TDD-RED commit `0d7740762`; GREEN `7c9f517d0`. The six
+`0a29f15e3`). TDD-RED commit `de1f6ac9d`; GREEN `dc603230b`. The six
 harness modules (runner, reporter, corpus_runner, metrics_recorder, cli,
 manifest) are JUSTIFIED-KEEP with a D6 harness-independence blocker
 (recorded in `docs/wave4-verdicts.yaml`); they were not modified beyond
@@ -3431,7 +3431,14 @@ metric list repr bit-for-bit.
 *Proof by structural cases:*
 1. **Metric selection.** The compared metrics are the SORTED intersection of
    the two score-dict key sets — deterministic, so no set/dict hash-order
-   dependence survives.
+   dependence survives. A non-string key present in BOTH dicts is in the
+   oracle's intersection; the oracle's `sorted(metrics)` then raises
+   `TypeError` on the mixed-type key set (the realistic shape — a stray
+   non-string key alongside string metric names), and the kernel raises the
+   same class instead of silently dropping the metric (pinned by
+   `test_differential_non_string_key_in_both_raises_typeerror`). A non-string
+   key on ONE side only is not in the intersection and is ignored by both
+   arms.
 2. **Value conversion.** Each leaf goes through Python `builtins.float`
    (the oracle's `float(...)`) — int/float/str-number leaves convert
    exactly; a non-numeric leaf raises the same failure family as the
@@ -3439,7 +3446,9 @@ metric list repr bit-for-bit.
 3. **Per-metric rules.** Higher-is-better passes iff `cand >= base - 1e-9`;
    the wirelength metric passes iff `cand <= base * 1.05` (ratio
    `cand / base`, or `inf` with `cand <= 0.0` when `base == 0`).
-4. **Formatting.** `:.Nf` fixed-point formatting is measured CPython-parity;
+4. **Formatting.** `:.Nf` fixed-point formatting is measured CPython-parity,
+   including Python's NaN spelling — `f"{nan:.4f}"` is `"nan"`, not Rust's
+   `"NaN"` (`py_fixed`, pinned by `test_differential_nan_and_inf_leaves`);
    `bool` renders `True`/`False` (Python); the failing list renders as
    `['a', 'b']` (single-quoted names joined by `, `). A metric name carrying
    a quote/backslash is a documented narrowing (Python repr would escape it).
@@ -3451,8 +3460,8 @@ metric list repr bit-for-bit.
 - R1a: `test_cp_sat_comparison_rust_differential.py` (400 randomized + rule
   boundary cases + type-carrying leaves). R1b: not registered (comparison
   infrastructure; no speedup claim). R1c: 6 non-vacuous properties. R1d: 4
-  MRs. R1e: structural proof above. R1f: RED `0d7740762`, GREEN
-  `7c9f517d0`. R1g: no `unwrap`/`expect` outside tests; pyo3 `catch_unwind`
+  MRs. R1e: structural proof above. R1f: RED `de1f6ac9d`, GREEN
+  `dc603230b`. R1g: no `unwrap`/`expect` outside tests; pyo3 `catch_unwind`
   default. R1h: **not applicable** (no physics-gated quantity).
 
 ## measure_closure
@@ -3477,7 +3486,7 @@ raise, JSON CLI) over the kept `ClosureResult` and stays Python.
   bit-exactly, including the zero-results `RuntimeError` message).
 - R1b: not registered (one formula behind a marshalling boundary; no
   speedup claim). R1c: 6 non-vacuous properties. R1d: 3 MRs. R1e: structural
-  proof above. R1f: RED `0d7740762`, GREEN `7c9f517d0`. R1g: no
+  proof above. R1f: RED `de1f6ac9d`, GREEN `dc603230b`. R1g: no
   `unwrap`/`expect` outside tests; pyo3 `catch_unwind` default. R1h: **not
   applicable**.
 
@@ -3506,15 +3515,19 @@ reproduce the pinned oracle bit-for-bit.
 3. **Skip decision.** `should_skip` returns False for `None` OR an empty
    board-cache entry (the oracle's `if not board_cache`), and False when
    either fingerprint key is absent (`None` never equals a hash string);
-   True only when both match. The delegation module performs the
-   `cache["boards"][board_id]` lookup.
+   True only when both match. A non-string cached fingerprint value also
+   yields False — the oracle's `cached == fp` returns False for a non-string
+   (never equal to a str), and the kernel's failed String extraction is
+   treated as a non-match rather than raised (pinned by
+   `test_differential_should_skip_non_string_cached_value`). The delegation
+   module performs the `cache["boards"][board_id]` lookup.
 
 ### R1 status
 - R1a: `test_fingerprint_rust_differential.py` (200 randomized kernel
   cases + end-to-end tmp-tree comparisons + skip-decision differential).
 - R1b: not registered (cache fingerprints run once per invocation; I/O-
   bound; no speedup claim). R1c: 6 non-vacuous properties. R1d: 4 MRs.
-- R1e: structural proof above. R1f: RED `0d7740762`, GREEN `7c9f517d0`.
+- R1e: structural proof above. R1f: RED `de1f6ac9d`, GREEN `dc603230b`.
 - R1g: no `unwrap`/`expect` outside tests; pyo3 `catch_unwind` default.
 - R1h: **not applicable**.
 
@@ -3556,8 +3569,8 @@ matches the oracle's messages byte-for-byte.
   oracle-vs-shim comparisons on generated schemas/metrics + message
   exactness + kernel-direct cases). R1b: not registered (validation happens
   once per metric write; no speedup claim). R1c: 7 non-vacuous properties.
-- R1d: 4 MRs. R1e: structural proof above. R1f: RED `0d7740762`, GREEN
-  `7c9f517d0`. R1g: no `unwrap`/`expect` outside tests; pyo3 `catch_unwind`
+- R1d: 4 MRs. R1e: structural proof above. R1f: RED `de1f6ac9d`, GREEN
+  `dc603230b`. R1g: no `unwrap`/`expect` outside tests; pyo3 `catch_unwind`
   default. R1h: **not applicable**.
 
 ## Mutation campaign

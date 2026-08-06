@@ -415,8 +415,8 @@ of hosting validation kernels here); four land in `temper-design-bundle`
 plus the netlist/board contracts that live there). The pre-migration modules
 are pinned verbatim as the differential oracles
 (`packages/temper-placer/tests/regression/_*_py_oracle.py`, commit
-`0a29f15e3`). TDD-RED commit `0d7740762` (the differentials fail to collect
-until the kernels exist); GREEN `7c9f517d0`.
+`0a29f15e3`). TDD-RED commit `de1f6ac9d` (the differentials fail to collect
+until the kernels exist); GREEN `dc603230b`.
 
 ## Candidate scorecard — home-crate decisions
 
@@ -479,6 +479,24 @@ pre-migration `_check_board` comparison + message composition and
    from its implicit 0). Requires `"Ceiling-Approval:"` in the commit
    message; returns `exit_code=2` on an unapproved raise, `None` otherwise.
 
+### Documented deviations
+- **`_marshal` truncates float-valued ceilings to `int` (the delegation
+  shim's marshal, not the kernel).** `detect_ceiling_raise`'s Python-side
+  `_marshal` in `temper_placer/regression/drc_ratchet.py` coerces
+  `error_ceiling`/`warning_ceiling`/per-type counts with `int(...)` before
+  calling the Rust kernel, which reads them as `i64`. The pinned oracle
+  (`_drc_ratchet_py_oracle.py`) compares the raw JSON values, so a
+  float-valued ceiling would produce a different decision AND message text
+  (e.g. `1.5 -> 2.5` truncates to `1 -> 2`). **Reachability: unreachable
+  today** — the ratchet data model is int-only (`DrcCeilingEntry.
+  error_ceiling`/`warning_ceiling` are typed `int`, `drc_ceiling.json`
+  records only integer DRC counts measured by `run_drc`, and the #575 gate
+  writes integers). Matching the oracle's raw comparison is not contained:
+  widening the kernel's `i64` marshal to `f64` would change message
+  rendering for integer-valued floats (Rust prints `2.0` as `2`), and
+  dropping the `int()` coercion without widening would make the `i64`
+  boundary raise `TypeError` on a float. Recorded rather than changed.
+
 ### R1 status
 - R1a: bit-exact differential `test_drc_ratchet_rust_differential.py` —
   full `DrcRatchetResult` (incl. message strings) vs the oracle, both
@@ -490,8 +508,8 @@ pre-migration `_check_board` comparison + message composition and
 - R1c: 9 non-vacuous properties.
 - R1d: 4 honestly-bounded metamorphic relations.
 - R1e: structural proof above (no recursion; induction N/A).
-- R1f: RED `0d7740762` (fails to collect without `ratchet_check`/
-  `detect_ceiling_raise`), GREEN `7c9f517d0`.
+- R1f: RED `de1f6ac9d` (fails to collect without `ratchet_check`/
+  `detect_ceiling_raise`), GREEN `dc603230b`.
 - R1g: no `unwrap`/`expect` outside tests; pyo3 `catch_unwind` default at
   every `#[pyfunction]` boundary.
 - R1h: **not applicable** — the ratchet enforces committed ceilings; no
@@ -526,7 +544,7 @@ byte-identically.
   cases).
 - R1b: not registered (harness report rendering; no speedup claim).
 - R1c: 7 non-vacuous properties. R1d: 3 MRs. R1e: structural proof above.
-- R1f: RED `0d7740762`, GREEN `7c9f517d0`. R1g: no `unwrap`/`expect`
+- R1f: RED `de1f6ac9d`, GREEN `dc603230b`. R1g: no `unwrap`/`expect`
   outside tests; pyo3 `catch_unwind` default.
 - R1h: **not applicable** (no physics-gated quantity).
 
@@ -582,7 +600,7 @@ reproduce the pinned oracle bit-for-bit.
 - R1b: not registered (score aggregation behind a marshalling boundary; no
    speedup claim).
 - R1c: 7 non-vacuous properties. R1d: 4 MRs. R1e: structural proof above.
-- R1f: RED `0d7740762`, GREEN `7c9f517d0`. R1g: no `unwrap`/`expect`
+- R1f: RED `de1f6ac9d`, GREEN `dc603230b`. R1g: no `unwrap`/`expect`
    outside tests; pyo3 `catch_unwind` default.
 - R1h: stated above — not a physics gate.
 

@@ -15,7 +15,9 @@
 //!   convert exactly like the oracle, and a non-numeric leaf raises the same
 //!   `ValueError`/`TypeError` family the oracle's `float()` raises.
 //! - Fixed-point `:.2f`/`:.3f`/`:.4f` formatting is measured CPython-parity
-//!   (the validation-slice precedent, 100k/100k on random values).
+//!   (the validation-slice precedent, 100k/100k on random values), including
+//!   Python's NaN spelling — `f"{nan:.Nf}"` is `"nan"`, not Rust's `"NaN"`
+//!   (`py_fixed`), pinned by the NaN-leaf differential case.
 //! - The summary's `Failing: ['a', 'b']` list is Python's repr of a list of
 //!   str; rendered here as single-quoted names joined by `, `. Metric names
 //!   are score-dict keys (realistically simple identifiers); a name carrying
@@ -28,7 +30,15 @@
 //! - Empty intersection: `passed=True`, no comparisons, summary
 //!   `"Parity comparison: 0/0 metrics passed"` — the oracle's vacuous-true
 //!   semantics, preserved exactly.
+//! - Non-string keys: a candidate key that fails `String` extraction but is
+//!   ALSO present in the baseline is in the oracle's key intersection, where
+//!   the oracle's `sorted(metrics)` raises `TypeError` on the mixed-type key
+//!   set (the realistic shape — a stray non-string key alongside string
+//!   metric names). The kernel raises the same class rather than silently
+//!   dropping the metric; a non-string key on ONE side only is not in the
+//!   intersection and is ignored by both arms.
 
+use pyo3::exceptions::PyTypeError;
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyDictMethods, PyList, PyModule};
 
@@ -38,6 +48,17 @@ fn py_bool(b: bool) -> &'static str {
         "True"
     } else {
         "False"
+    }
+}
+
+/// Python's fixed-point `:.Nf` rendering, including its NaN spelling: Rust's
+/// `{:.N}` writes `NaN`, Python's `f"{nan:.Nf}"` writes `nan` (infinities
+/// already agree — `inf`/`-inf` on both arms).
+fn py_fixed(value: f64, precision: usize) -> String {
+    if value.is_nan() {
+        "nan".to_string()
+    } else {
+        format!("{value:.precision$}")
     }
 }
 
@@ -64,10 +85,25 @@ fn compare_metric_dicts(
     // metrics = set(candidate.keys()) & set(baseline.keys())
     let mut metric_names: Vec<String> = Vec::new();
     for key in candidate_scores.keys() {
-        if let Ok(name) = key.extract::<String>()
-            && baseline_scores.get_item(&name)?.is_some()
-        {
-            metric_names.push(name);
+        match key.extract::<String>() {
+            Ok(name) => {
+                if baseline_scores.get_item(&name)?.is_some() {
+                    metric_names.push(name);
+                }
+            }
+            // A non-string candidate key that is also present in the baseline
+            // is in the oracle's key intersection. The oracle's
+            // `sorted(metrics)` then raises TypeError on a mixed-type key set
+            // (the realistic shape — a stray non-string key alongside string
+            // metric names); raise the same class rather than silently
+            // dropping the metric from the comparison.
+            Err(_) => {
+                if baseline_scores.get_item(&key)?.is_some() {
+                    return Err(PyTypeError::new_err(
+                        "score-dict keys must be strings: non-string key present in both dicts (the oracle's sorted(metrics) raises TypeError on a mixed-type key set)",
+                    ));
+                }
+            }
         }
     }
     metric_names.sort();
@@ -96,7 +132,10 @@ fn compare_metric_dicts(
             (
                 passed,
                 format!(
-                    "{metric_name}: candidate={cand_val:.2}, baseline={base_val:.2}, ratio={ratio:.3}, tolerance=1.05, passed={}",
+                    "{metric_name}: candidate={}, baseline={}, ratio={}, tolerance=1.05, passed={}",
+                    py_fixed(cand_val, 2),
+                    py_fixed(base_val, 2),
+                    py_fixed(ratio, 3),
                     py_bool(passed)
                 ),
             )
@@ -107,7 +146,10 @@ fn compare_metric_dicts(
             (
                 passed,
                 format!(
-                    "{metric_name}: candidate={cand_val:.4}, baseline={base_val:.4}, delta={delta:.4}, passed={}",
+                    "{metric_name}: candidate={}, baseline={}, delta={}, passed={}",
+                    py_fixed(cand_val, 4),
+                    py_fixed(base_val, 4),
+                    py_fixed(delta, 4),
                     py_bool(passed)
                 ),
             )

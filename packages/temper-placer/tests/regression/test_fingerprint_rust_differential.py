@@ -189,6 +189,23 @@ def test_differential_should_skip_shim():
         assert s == o
 
 
+def test_differential_should_skip_non_string_cached_value():
+    """A non-string cached fingerprint value never matches: the oracle's
+    ``==`` returns False (graceful no-skip), and the kernel must not raise —
+    it returns False, identical."""
+    cases = [
+        {"boards": {"b1": {"input_fingerprint": 123, "source_fingerprint": "s"}}},
+        {"boards": {"b1": {"input_fingerprint": "i", "source_fingerprint": 456}}},
+        {"boards": {"b1": {"input_fingerprint": ["i"], "source_fingerprint": "s"}}},
+        {"boards": {"b1": {"input_fingerprint": None, "source_fingerprint": "s"}}},
+    ]
+    for cache in cases:
+        o = _oracle.should_skip("b1", "i", "s", cache)
+        s = ShimShouldSkip("b1", "i", "s", cache)
+        assert o is False
+        assert s is False
+
+
 # ---------------------------------------------------------------------------
 # R1d — metamorphic relations (>=3, honestly bounded)
 # ---------------------------------------------------------------------------

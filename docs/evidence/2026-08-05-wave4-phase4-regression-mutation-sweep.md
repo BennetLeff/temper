@@ -1,8 +1,8 @@
 # Wave 4 Phase 4 — regression slice: anti-vacuity mutation sweep — 2026-08-05
 
-<!-- provenance: commit=7c9f517d0 dirty=true -->
+<!-- provenance: commit=dc603230b dirty=true -->
 
-**Base commit:** `7c9f517d0` (the TDD-GREEN commit — kernels + delegation
+**Base commit:** `dc603230b` (the TDD-GREEN commit — kernels + delegation
 shims) + uncommitted working-tree changes (the VERIFICATION.md entries, the
 ledger carve-out). `dirty=true` because this document is committed together
 with the migration it verifies.

@@ -189,6 +189,53 @@ def test_differential_type_carrying_values():
     assert s.comparisons[0].cp_sat_value == 5.0  # float()-converted
 
 
+def test_differential_nan_and_inf_leaves():
+    """NaN leaves render Python-style ('nan', not Rust's 'NaN') in the detail
+    strings and compare with NaN semantics (all NaN comparisons are False);
+    ±inf renders 'inf'/'-inf' identically."""
+    cand = {"a": float("nan"), "b": float("inf"), "c": -float("inf"), "wl": 1.0}
+    base = {"a": 1.0, "b": 1.0, "c": -1.0, "wl": 1.0}
+    o = _oracle.compare_metric_dicts(cand, base, wirelength_metric="wl")
+    s = ShimCompare(cand, base, wirelength_metric="wl")
+    assert _canon_result(s) == _canon_result(o)
+    by_name = {c.name: c for c in s.comparisons}
+    assert "candidate=nan" in by_name["a"].detail
+    assert "candidate=inf" in by_name["b"].detail
+    assert "candidate=-inf" in by_name["c"].detail
+    assert not by_name["a"].passed  # NaN comparisons are False
+    assert not s.passed
+
+
+def test_differential_non_string_key_in_both_raises_typeerror():
+    """A non-string key present in BOTH score dicts is in the oracle's key
+    intersection; the oracle's sorted(metrics) raises TypeError on a
+    mixed-type key set, and the kernel raises the same class instead of
+    silently dropping the metric. A non-string key on ONE side only is not in
+    the intersection and is ignored by both arms."""
+    import pytest
+
+    cand: dict[str, object] = {"a": 1.0, 7: 1.0}  # type: ignore[assignment]
+    base: dict[str, object] = {"a": 1.0, 7: 1.0}  # type: ignore[assignment]
+    with pytest.raises(TypeError):
+        _oracle.compare_metric_dicts(cand, base, wirelength_metric="none")
+    with pytest.raises(TypeError):
+        ShimCompare(cand, base, wirelength_metric="none")
+
+    # one-side-only non-string key: not in the intersection -> ignored
+    o = _oracle.compare_metric_dicts(
+        {"a": 1.0, 7: 99.0},  # type: ignore[dict-item]
+        {"a": 1.0},
+        wirelength_metric="none",
+    )
+    s = ShimCompare(
+        {"a": 1.0, 7: 99.0},  # type: ignore[dict-item]
+        {"a": 1.0},
+        wirelength_metric="none",
+    )
+    assert _canon_result(s) == _canon_result(o)
+    assert [c.name for c in s.comparisons] == ["a"]
+
+
 # ---------------------------------------------------------------------------
 # R1d — metamorphic relations (>=3, honestly bounded)
 # ---------------------------------------------------------------------------
