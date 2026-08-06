@@ -42,11 +42,30 @@ pub use grid_raster::{
     clear_circle_from_grid_py, closest_component_for_zone_py, effective_creepage_py,
     fence_samples_py, occupancy_bitmap_row_py,
 };
+pub mod host_math;
+pub mod grid_utils;
+#[cfg(feature = "python")]
+pub use grid_utils::{add_endpoint_nudge_py, snap_to_grid_py};
+pub mod via_placement;
+#[cfg(feature = "python")]
+pub use via_placement::{is_via_position_valid_py, place_via_with_clearance_py, via_distance_py};
 pub mod bottleneck_geometry;
 #[cfg(feature = "python")]
 pub use bottleneck_geometry::{build_capacitated_graph_py, cell_capacity_batch_py, hard_blocked_batch_py};
 pub mod audit;
 pub mod creepage_check;
+// Wave 4, router_v6 core slice: the DRC constraint-geometry kernel behind
+// router_v6/constraints_geometry.py. Declared after creepage_check because
+// it reuses that module's CPython min/max replications.
+pub mod drc_constraints_geometry;
+#[cfg(feature = "python")]
+pub use drc_constraints_geometry::{
+    drc_closest_points_segment_segment_py, drc_point_to_circle_distance_py,
+    drc_point_to_rotated_rect_distance_py, drc_point_to_segment_distance_py,
+    drc_rotated_rect_bounding_radius_py, drc_rotated_rect_corners_py, drc_segment_direction_py,
+    drc_segment_length_py, drc_segment_midpoint_py, drc_segment_to_rotated_rect_distance_py,
+    drc_segment_to_segment_distance_py, drc_segments_intersect_py,
+};
 #[cfg(feature = "python")]
 mod bridge;
 

@@ -37,6 +37,13 @@ Registering a migration:
     power_pcb_dataset/metrics/perf_ab_baseline.jsonl fails the gate closed --
     capture a baseline in the same PR.
 
+    A bench that depends on a surface that has not landed on this branch yet
+    (e.g. the deterministic-hubs arm before its kernels merge) returns None;
+    ``run_benchmarks`` skips it with a stderr note. The entry stays in
+    ``_BENCHMARKS`` (the registry CI reads from main to distinguish
+    NEW_BENCHMARK from NO_BASELINE), and the arm activates the moment the
+    surface exists -- no second change needed.
+
 Capturing a baseline -- CAPTURE IT ON CI, NOT LOCALLY:
     The ratio cancels machine *speed*, but not the relative scaling of CPython
     against Rust across architectures. Measured 2026-08-04, same commit, same
@@ -79,6 +86,28 @@ Baseline WIDTH -- keep 5+ rows per (module, board, stage):
     Only append rows measured on a commit that does not modify the benchmarked
     module -- a row from a commit that changed the kernel ratchets the bar to
     whatever that change did, which is exactly what the gate exists to catch.
+
+Capture SEVERAL runs of the SAME commit -- the margins depend on it:
+    Since 2026-08-05 the gate's per-benchmark margins are derived from the
+    spread of baseline rows that share a ``git_commit``. Within one commit the
+    code is identical, so that spread is noise by construction; across commits
+    it may be real performance change, and using it would absorb genuine
+    regressions into the margin. Groups of 5 same-commit rows are the unit;
+    ``workflow_dispatch`` runs in parallel (PR #734), so five dispatches on one
+    ref produce one group in one sitting. See
+    docs/evidence/2026-08-05-perf-ab-per-benchmark-margin.md and
+    ``scripts/pr_perf_compare.py --derive-margins``.
+
+    Five arms are currently NOT GATED because their fixed-commit noise leaves
+    no band between noise and the smallest real regression on record (+50.7%):
+    physics-emi/predict (42.8%), parse-engine/parse_kicad_pcb (32.5%),
+    board-netlist/contracts_construction (30.9%), drc-geometry/point_rect
+    (26.0%), physics-heat_removal/build_h_field (24.4%). The remedy lives in
+    THIS file, not in the gate: the noisiest arms are the ones with the
+    smallest timed region (build_h_field runs 1.6us; cell_capacity_batch runs
+    590us and measures 3.7%). Raising DEFAULT_REPEATS for those arms, or
+    batching them the way bench_physics_emi already batches 500 calls, is what
+    earns them their gate back.
 """
 
 from __future__ import annotations
@@ -142,6 +171,136 @@ def _time_us(fn: Callable[[], Any], warmup: int, repeats: int) -> float:
         fn()
         samples.append((time.perf_counter() - start) * 1e6)
     return statistics.median(samples)
+
+
+# ---------------------------------------------------------------------------
+# Wave 4 Phase 5: deterministic hubs
+# (deterministic/{bottleneck_map,channels,seed_filter,feedback/*} ->
+# temper-design-bundle deterministic_hubs)
+# ---------------------------------------------------------------------------
+# Registered as the #767 R1b follow-up (docs/evidence/2026-08-04-wave4-phase5-
+# deterministic-hubs-records.md): the earlier "ratio 0.909" record was
+# withdrawn because it had no committed artifact -- no bench function,
+# fixture, `_BENCHMARKS` entry, or script. This arm is that artifact.
+#
+# It A/Bs the bottleneck-map `score_at` hot path against the verbatim oracle
+# the behavioral differential pins, and the Rust arm replicates the shim's
+# exact per-call call shape (deterministic/bottleneck_map.py `score_at`):
+# the O(n) `list(self.scores)` marshalling copy sits INSIDE the timed region,
+# per call -- the unmeasured hot-path cost the R1b record names (100x100 map
+# = 10,000 floats copied per lookup; `filter_seed` calls `score_at` once per
+# seed ref). The parity assertion is the harness's own behavioral gate, same
+# convention as every other arm.
+#
+# Availability: the kernels (and the oracle module this arm loads) land in
+# the deterministic-hubs slice (PR #767). Until that merge, this arm returns
+# None and the harness skips it (see `run_benchmarks`) -- a registered-but-
+# dormant arm, not a crash that takes every other benchmark down with it.
+# The kernels and the oracle ship in the same slice, so they appear and
+# disappear together; once #767 is on main the arm activates with no further
+# change.
+
+_DETERMINISTIC_HUBS_ORACLE_DIR = REPO_ROOT / "packages" / "temper-placer" / "tests" / "deterministic"
+
+
+def _hubs_bottleneck_fixture() -> tuple[dict[str, Any], list[tuple[float, float]]]:
+    """Fixed realistic BottleneckMap + sidecar payload shape for the hubs arm.
+
+    Built from the same fixed seed as the other fixtures so the A/B ratio is
+    comparable across runs. The payload dict is shaped exactly like a
+    ``placement.channels.json`` sidecar (the shape ``_from_sidecar_payload``
+    consumes): ``cell_size_mm``/``width``/``height``/``origin_xy``/``scores``.
+    100x100 cells = the R1b record's example of the per-call
+    ``list(self.scores)`` marshalling cost (10,000 floats per lookup). The
+    probe set is a seeded lattice across the map plus the boundary/OOB and
+    overflow probes the differential drives (cell edges, just-inside /
+    just-outside the extent, huge quotients).
+    """
+    rng = random.Random(_BENCH_SEED)
+    payload: dict[str, Any] = {
+        "cell_size_mm": 1.0,
+        "width": 100,
+        "height": 100,
+        "origin_xy": [0.0, 0.0],
+        "scores": [round(rng.uniform(0.0, 1.0), 4) for _ in range(100 * 100)],
+    }
+    probes: list[tuple[float, float]] = [
+        (round(rng.uniform(0.0, 100.0), 3), round(rng.uniform(0.0, 100.0), 3))
+        for _ in range(256)
+    ]
+    probes += [
+        (0.0, 0.0),
+        (50.0, 50.0),
+        (99.999, 99.999),
+        (100.0, 50.0),  # exactly on the extent edge -> col >= width -> 0.0
+        (100.5, 50.0),  # just beyond the extent
+        (-0.001, 50.0),  # just before the origin -> 0.0
+        (50.0, -0.001),
+        (1e308, 1e308),  # huge-quotient probe (floor-div of a 1e308 co-ord)
+    ]
+    return payload, probes
+
+
+def bench_deterministic_hubs_score_at() -> tuple[float, float] | None:
+    """A/B ``BottleneckMap.score_at`` (Rust kernel + per-call O(n) scores
+    marshalling) vs the verbatim oracle.
+
+    Returns None (harness skips) while ``deterministic_hubs`` is absent from
+    the installed ``temper-design-bundle`` extension -- i.e. before the
+    deterministic-hubs slice merges.
+    """
+    import temper_design_bundle_python as _tdb
+
+    dh = getattr(_tdb, "deterministic_hubs", None)
+    if dh is None:
+        return None
+
+    oracle = _load_module_from_path(
+        "_perf_ab_hubs_bottleneck_oracle",
+        _DETERMINISTIC_HUBS_ORACLE_DIR / "_bottleneck_map_py_oracle.py",
+    )
+    payload, probes = _hubs_bottleneck_fixture()
+    cell_size_mm = payload["cell_size_mm"]
+    width = payload["width"]
+    height = payload["height"]
+    origin_xy = payload["origin_xy"]
+    scores = payload["scores"]
+    oracle_map = oracle.BottleneckMap(
+        cell_size_mm=cell_size_mm,
+        width=width,
+        height=height,
+        origin_xy=tuple(origin_xy),
+        scores=tuple(scores),
+    )
+
+    def run_rust() -> list[tuple[str, Any]]:
+        # Replicates the shim's score_at call shape exactly -- the list()
+        # marshalling copy happens per call, inside the timed region.
+        return [
+            _scalar_hex(
+                dh.bottleneck_score_at(
+                    cell_size_mm, width, height, origin_xy[0], origin_xy[1],
+                    list(scores), x, y,
+                )
+            )
+            for x, y in probes
+        ]
+
+    def run_oracle() -> list[tuple[str, Any]]:
+        return [_scalar_hex(oracle_map.score_at(x, y)) for x, y in probes]
+
+    # Parity sanity inside the perf harness (the full A/B is the differential
+    # suite): a perf number for an implementation that no longer agrees with
+    # its oracle is meaningless.
+    if run_rust() != run_oracle():
+        raise AssertionError(
+            "perf A/B arms disagree for deterministic-hubs score_at -- the "
+            "behavioral A/B (test_bottleneck_map_rust_differential.py) "
+            "should be failing too"
+        )
+    return _time_us(run_rust, DEFAULT_WARMUP, DEFAULT_REPEATS), _time_us(
+        run_oracle, DEFAULT_WARMUP, DEFAULT_REPEATS
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -846,7 +1005,157 @@ def bench_contracts_construction() -> tuple[float, float]:
     )
 
 
-_BENCHMARKS: dict[tuple[str, str], Callable[[], tuple[float, float]]] = {
+
+# ---------------------------------------------------------------------------
+# Wave 4: router_v6 DRC constraint geometry
+# (router_v6/constraints_geometry.py -> temper-geometry)
+# ---------------------------------------------------------------------------
+# The oracle is the same verbatim pre-migration copy the differential pins,
+# and the INPUT CORPUS is the same module the differential iterates
+# (`tests/router_v6/_constraints_geometry_cases.py`).  Sharing the corpus is
+# structural, not stylistic: PR #714 passed its differential at iterations
+# [0, 1, 2, 8, 17, 100] and then failed CI on a benchmark that ran 120.
+# `test_benchmark_corpus_is_covered_by_differential` asserts the containment
+# from the test side as well, so neither half can drift.
+
+
+def _drc_geometry_modules() -> tuple[ModuleType, ModuleType]:
+    """(verbatim oracle, shared input corpus)."""
+    tests_dir = REPO_ROOT / "packages" / "temper-placer" / "tests" / "router_v6"
+    oracle = _load_module_from_path(
+        "_perf_ab_drc_geometry_oracle", tests_dir / "_constraints_geometry_py_oracle.py"
+    )
+    cases = _load_module_from_path(
+        "_perf_ab_drc_geometry_cases", tests_dir / "_constraints_geometry_cases.py"
+    )
+    return oracle, cases
+
+
+def _drc_geometry_ab(build_arms: Callable[[Any, Any, Any], tuple[Callable[[], Any], Callable[[], Any]]], label: str):
+    """Shared scaffolding: build both arms, assert parity, then time both.
+
+    Parity is asserted by `float.hex()` over the whole result list -- the
+    same no-tolerance rule the behavioral gate uses.  A perf number for an
+    implementation that disagrees with its oracle is meaningless.
+    """
+    from temper_placer.router_v6 import constraints_geometry as shim
+
+    oracle, cases = _drc_geometry_modules()
+    run_rust, run_oracle = build_arms(shim, oracle, cases)
+
+    got, want = run_rust(), run_oracle()
+    if [repr(v) for v in got] != [repr(v) for v in want]:
+        raise AssertionError(f"perf A/B arms disagree for {label}")
+    return _time_us(run_rust, DEFAULT_WARMUP, DEFAULT_REPEATS), _time_us(
+        run_oracle, DEFAULT_WARMUP, DEFAULT_REPEATS
+    )
+
+
+def _hexes(values: list[float]) -> list[str]:
+    return [v.hex() if isinstance(v, float) else repr(v) for v in values]
+
+
+def bench_drc_geometry_point_segment() -> tuple[float, float]:
+    """A/B point_to_segment_distance over the shared differential corpus."""
+
+    def build(shim, oracle, cases):
+        corpus = cases.BENCH_POINT_SEGMENTS
+
+        def arm(m):
+            def run():
+                out = []
+                for px, py, x1, y1, x2, y2 in corpus:
+                    out.append(
+                        m.point_to_segment_distance(
+                            m.Point(px, py), m.LineSegment(m.Point(x1, y1), m.Point(x2, y2))
+                        )
+                    )
+                return _hexes(out)
+
+            return run
+
+        return arm(shim), arm(oracle)
+
+    return _drc_geometry_ab(build, "drc-geometry-point-segment")
+
+
+def bench_drc_geometry_segment_segment() -> tuple[float, float]:
+    """A/B segment_to_segment_distance (the composite: 1 intersect test +
+    4 point-to-segment calls) over the shared corpus."""
+
+    def build(shim, oracle, cases):
+        corpus = cases.BENCH_SEGMENT_PAIRS
+
+        def arm(m):
+            def run():
+                out = []
+                for c in corpus:
+                    a = m.LineSegment(m.Point(c[0], c[1]), m.Point(c[2], c[3]))
+                    b = m.LineSegment(m.Point(c[4], c[5]), m.Point(c[6], c[7]))
+                    out.append(m.segment_to_segment_distance(a, b))
+                return _hexes(out)
+
+            return run
+
+        return arm(shim), arm(oracle)
+
+    return _drc_geometry_ab(build, "drc-geometry-segment-segment")
+
+
+def bench_drc_geometry_point_rect() -> tuple[float, float]:
+    """A/B point_to_rotated_rect_distance over the shared corpus."""
+
+    def build(shim, oracle, cases):
+        # `rotation` is finite in every BENCH_POINT_RECTS row; infinite
+        # rotations raise (error parity is a behavioral gate, not a perf one).
+        corpus = [c for c in cases.BENCH_POINT_RECTS if all(v == v for v in c)]
+
+        def arm(m):
+            def run():
+                out = []
+                for px, py, cx, cy, w, h, rot in corpus:
+                    out.append(
+                        m.point_to_rotated_rect_distance(
+                            m.Point(px, py), m.RotatedRect(m.Point(cx, cy), (w, h), rot)
+                        )
+                    )
+                return _hexes(out)
+
+            return run
+
+        return arm(shim), arm(oracle)
+
+    return _drc_geometry_ab(build, "drc-geometry-point-rect")
+
+
+def bench_drc_geometry_segment_rect() -> tuple[float, float]:
+    """A/B segment_to_rotated_rect_distance -- the deepest composite in the
+    module (2 point-to-rect calls, 4 corners, then up to 4 segment-to-segment
+    distances, each itself 5 calls)."""
+
+    def build(shim, oracle, cases):
+        corpus = [c for c in cases.BENCH_SEGMENT_RECTS if all(v == v for v in c)]
+
+        def arm(m):
+            def run():
+                out = []
+                for sx, sy, ex, ey, cx, cy, w, h, rot in corpus:
+                    out.append(
+                        m.segment_to_rotated_rect_distance(
+                            m.LineSegment(m.Point(sx, sy), m.Point(ex, ey)),
+                            m.RotatedRect(m.Point(cx, cy), (w, h), rot),
+                        )
+                    )
+                return _hexes(out)
+
+            return run
+
+        return arm(shim), arm(oracle)
+
+    return _drc_geometry_ab(build, "drc-geometry-segment-rect")
+
+
+_BENCHMARKS: dict[tuple[str, str], Callable[[], tuple[float, float] | None]] = {
     ("bottleneck-geometry", "cell_capacity_batch"): bench_bottleneck_cell_capacity,
     ("bottleneck-geometry", "hard_blocked_batch"): bench_bottleneck_hard_blocked,
     ("loaders", "loaders"): bench_loaders,
@@ -860,14 +1169,33 @@ _BENCHMARKS: dict[tuple[str, str], Callable[[], tuple[float, float]]] = {
     ("footprint-library", "from_yaml_string"): bench_footprint_library_load,
     ("parse-engine", "parse_kicad_pcb"): bench_parse_kicad_pcb,
     ("board-netlist", "contracts_construction"): bench_contracts_construction,
+    ("drc-geometry", "point_segment"): bench_drc_geometry_point_segment,
+    ("drc-geometry", "segment_segment"): bench_drc_geometry_segment_segment,
+    ("drc-geometry", "point_rect"): bench_drc_geometry_point_rect,
+    ("drc-geometry", "segment_rect"): bench_drc_geometry_segment_rect,
+    ("deterministic-hubs", "score_at"): bench_deterministic_hubs_score_at,
 }
 
 
 def run_benchmarks(commit: str = "") -> list[dict[str, Any]]:
-    """Run every registered A/B and return PipelineMetricsRecord-shaped dicts."""
+    """Run every registered A/B and return PipelineMetricsRecord-shaped dicts.
+
+    A bench may return None to signal "registered but not runnable on this
+    tree" (the deterministic-hubs arm before its kernels land): it is
+    skipped with a stderr note rather than emitting a fabricated record --
+    a dormant arm must not crash the other benchmarks or invent a ratio.
+    """
     records: list[dict[str, Any]] = []
     for (module, stage), fn in sorted(_BENCHMARKS.items()):
-        rust_us, oracle_us = fn()
+        result = fn()
+        if result is None:
+            print(
+                f"{module}/{stage}: skipped -- benchmark surface not present "
+                "on this tree",
+                file=sys.stderr,
+            )
+            continue
+        rust_us, oracle_us = result
         if oracle_us <= 0:
             raise AssertionError(
                 f"{module}/{stage}: oracle arm measured {oracle_us}us -- the "

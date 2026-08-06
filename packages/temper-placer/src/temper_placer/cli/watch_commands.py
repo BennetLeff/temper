@@ -1,4 +1,12 @@
-"""``temper-placer watch`` — live terminal pipeline dashboard."""
+"""``temper-placer watch`` — live terminal pipeline dashboard.
+
+Wave-4 Phase-5 R3-style record (see ``packages/temper-orchestration/VERIFICATION.md``):
+``_watch_replay`` is marshalling over the Phase-5 ``pipeline/`` slice's
+``dag_observability.StageEvent`` and ``terminal_dashboard.TerminalDashboardObserver``;
+the only non-call-back logic is JSON field defaulting whose semantics are
+Python ``dict.get`` — the same boundary the migrated ``trace_filter`` keeps
+Python-side. Zero standalone compute; the click surface stays Python.
+"""
 
 from __future__ import annotations
 

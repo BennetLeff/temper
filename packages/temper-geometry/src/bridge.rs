@@ -26,6 +26,21 @@ use crate::clearance_geometry::{
     component_reach_py, copper_scan_py, origin_distance_py, pad_pair_distance_py,
     rotate_local_to_world_py,
 };
+// Wave 4, router_v6 core slice. The `drc_` prefix is load-bearing: this
+// crate already exports a `point_to_segment_distance_py` for creepage_check,
+// and that is a DIFFERENT function (different degenerate-segment threshold).
+// The prefix keeps the two visibly distinct at every call site.
+use crate::drc_constraints_geometry::{
+    drc_closest_points_segment_segment_py, drc_point_to_circle_distance_py,
+    drc_point_to_rotated_rect_distance_py, drc_point_to_segment_distance_py,
+    drc_rotated_rect_bounding_radius_py, drc_rotated_rect_corners_py, drc_segment_direction_py,
+    drc_segment_length_py, drc_segment_midpoint_py, drc_segment_to_rotated_rect_distance_py,
+    drc_segment_to_segment_distance_py, drc_segments_intersect_py,
+};
+use crate::grid_utils::{add_endpoint_nudge_py, snap_to_grid_py};
+use crate::via_placement::{
+    is_via_position_valid_py, place_via_with_clearance_py, via_distance_py,
+};
 
 
 
@@ -1493,6 +1508,28 @@ pub fn register_functions(m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     // area_sufficiency (Wave 4 Phase 4: analysis/_area_sufficiency.py)
     crate::area_sufficiency::register(m)?;
+
+    // drc_constraints_geometry (Wave 4: router_v6/constraints_geometry.py)
+    m.add_function(wrap_pyfunction!(drc_point_to_segment_distance_py, m)?)?;
+    m.add_function(wrap_pyfunction!(drc_segment_to_segment_distance_py, m)?)?;
+    m.add_function(wrap_pyfunction!(drc_segments_intersect_py, m)?)?;
+    m.add_function(wrap_pyfunction!(drc_closest_points_segment_segment_py, m)?)?;
+    m.add_function(wrap_pyfunction!(drc_point_to_circle_distance_py, m)?)?;
+    m.add_function(wrap_pyfunction!(drc_rotated_rect_corners_py, m)?)?;
+    m.add_function(wrap_pyfunction!(drc_rotated_rect_bounding_radius_py, m)?)?;
+    m.add_function(wrap_pyfunction!(drc_point_to_rotated_rect_distance_py, m)?)?;
+    m.add_function(wrap_pyfunction!(drc_segment_to_rotated_rect_distance_py, m)?)?;
+    m.add_function(wrap_pyfunction!(drc_segment_length_py, m)?)?;
+    m.add_function(wrap_pyfunction!(drc_segment_direction_py, m)?)?;
+    m.add_function(wrap_pyfunction!(drc_segment_midpoint_py, m)?)?;
+
+    // deterministic leaf geometry (Wave 4, Phase 5, first slice):
+    // deterministic/geometry/grid_utils.py and via_placement.py compute.
+    m.add_function(wrap_pyfunction!(snap_to_grid_py, m)?)?;
+    m.add_function(wrap_pyfunction!(add_endpoint_nudge_py, m)?)?;
+    m.add_function(wrap_pyfunction!(via_distance_py, m)?)?;
+    m.add_function(wrap_pyfunction!(is_via_position_valid_py, m)?)?;
+    m.add_function(wrap_pyfunction!(place_via_with_clearance_py, m)?)?;
 
     Ok(())
 }
