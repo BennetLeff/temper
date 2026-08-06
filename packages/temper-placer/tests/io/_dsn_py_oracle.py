@@ -1,0 +1,143 @@
+"""VERBATIM pin of ``temper_placer/io/dsn.py`` at origin/main ``ebf9326ff``.
+
+This file is the pre-migration oracle for the Wave-4 Phase-3 candidate-6 DSN
+migration. It is copied byte-for-byte from the shipped module and MUST NOT be
+"improved", reformatted, or kept in sync with the post-migration source: its
+whole value is that it is frozen. The differential in
+``test_dsn_rust_differential.py`` asserts the migrated Rust implementation
+reproduces this file's output bit-for-bit.
+
+Deviations from the pinned source: NONE.
+"""
+
+from __future__ import annotations
+
+from collections.abc import Sequence
+from dataclasses import dataclass, field
+
+
+@dataclass(frozen=True)
+class DSNExpression:
+    """A SPECCTRA DSN S-expression primitive."""
+
+    name: str
+    args: Sequence[str | float | int | DSNExpression] = field(default_factory=list)
+    comment: str | None = None
+
+    def with_comment(self, line: str) -> DSNExpression:
+        """Return a new DSNExpression with a comment line prepended."""
+        return DSNExpression(
+            name=self.name,
+            args=tuple(self.args),
+            comment=line,
+        )
+
+    def __str__(self) -> str:
+        def fmt(v) -> str:
+            if isinstance(v, DSNExpression):
+                return str(v)
+            if isinstance(v, float):
+                s = f"{v:.6f}".rstrip("0").rstrip(".")
+                return s
+            if isinstance(v, str):
+                if not v:
+                    return '""'
+                special_chars = set(' ()"')
+                if any(c in special_chars for c in v):
+                    escaped = v.replace('"', '\\"')
+                    return f'"{escaped}"'
+                return v
+            return str(v)
+
+        body = (
+            f"({self.name})"
+            if not self.args
+            else f"({self.name} {' '.join(fmt(a) for a in self.args)})"
+        )
+
+        if self.comment:
+            return f";{self.comment}\n{body}"
+        return body
+
+
+def dsn_list(name: str, *args) -> DSNExpression:
+    """Helper to create a DSN S-expression."""
+    return DSNExpression(name, args)
+
+
+@dataclass(frozen=True)
+class DSNPoint:
+    """A 2D point in DSN coordinates."""
+
+    x: float
+    y: float
+
+    def to_dsn(self) -> DSNExpression:
+        # Note: Specctra often uses (at x y) or just x y in different contexts.
+        # This point class is for explicit (point x y) if needed.
+        return dsn_list("point", self.x, self.y)
+
+
+@dataclass(frozen=True)
+class DSNShape:
+    """Base class for DSN shapes."""
+
+    def to_dsn(self) -> DSNExpression:
+        raise NotImplementedError
+
+
+@dataclass(frozen=True)
+class DSNRect(DSNShape):
+    """A rectangular shape in DSN: (rect layer x1 y1 x2 y2)."""
+
+    layer: str
+    x1: float
+    y1: float
+    x2: float
+    y2: float
+
+    def to_dsn(self) -> DSNExpression:
+        return dsn_list("rect", self.layer, self.x1, self.y1, self.x2, self.y2)
+
+
+@dataclass(frozen=True)
+class DSNCircle(DSNShape):
+    """A circular shape in DSN: (circle layer diameter [x y])."""
+
+    layer: str
+    diameter: float
+    x: float = 0.0
+    y: float = 0.0
+
+    def to_dsn(self) -> DSNExpression:
+        return dsn_list("circle", self.layer, self.diameter, self.x, self.y)
+
+
+@dataclass(frozen=True)
+class DSNPolygon(DSNShape):
+    """A polygon/path shape in DSN: (polygon layer width x1 y1 x2 y2 ...)."""
+
+    layer: str
+    width: float
+    points: Sequence[tuple[float, float]]
+
+    def to_dsn(self) -> DSNExpression:
+        args = [self.layer, self.width]
+        for x, y in self.points:
+            args.extend([x, y])
+        return dsn_list("polygon", *args)
+
+
+@dataclass(frozen=True)
+class DSNPath(DSNShape):
+    """A path shape in DSN: (path layer width x1 y1 x2 y2 ...)."""
+
+    layer: str
+    width: float
+    points: Sequence[tuple[float, float]]
+
+    def to_dsn(self) -> DSNExpression:
+        args = [self.layer, self.width]
+        for x, y in self.points:
+            args.extend([x, y])
+        return dsn_list("path", *args)

@@ -25,6 +25,8 @@ pub mod rules;
 pub mod types;
 #[cfg(feature = "python")]
 pub mod validation;
+#[cfg(feature = "python")]
+pub mod violation_report;
 
 #[cfg(feature = "python")]
 use pyo3::exceptions::PyValueError;
@@ -293,6 +295,8 @@ fn temper_drc_rs(m: &Bound<'_, PyModule>) -> PyResult<()> {
     )?)?;
     // Wave 4 Phase 4 — validation DRC-check kernels (validation.rs).
     crate::validation::register(m)?;
+    // Wave 4 Phase 4 — analysis/_violation_report.py report kernels.
+    crate::violation_report::register(m)?;
     // Wave 4 Phase 5 — REQ-SAFE-01 clearance/creepage validator
     // (req_safe_01.rs).
     m.add_function(wrap_pyfunction!(

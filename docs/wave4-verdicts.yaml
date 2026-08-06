@@ -341,6 +341,9 @@ surfaces:
   # docs/evidence/2026-08-04-wave4-residual-verdicts.md (Sec 9), which is the
   # durable record; removing them here does not retract them.
   - pattern: scripts/*.py
+    exclude:
+      - scripts/internal_route.py
+      - scripts/placement_quality_report.py
     verdict: JUSTIFIED-KEEP
     blocker: >-
       Fail-closed independence, bootstrap, and a measured CI cost -- and the
@@ -400,6 +403,27 @@ surfaces:
       they test move.
 
   # ---- benchmarks/ (decided 2026-08-04) -----------------------------------
+  - pattern: scripts/internal_route.py
+    verdict: RETIRE
+    justification: >-
+      Import-dead, verified 2026-08-04 by AST sweep of every top-level import
+      in scripts/ and benchmarks/. Imports `jax.numpy` (jax is not in any
+      dependency set) and eight names from `temper_placer.routing.*` plus
+      `temper_placer.io.trace_writer`, none of which exist -- the package was
+      renamed to router_v6 without this script following. It cannot be
+      imported, so it cannot have run since. Already noticed in passing by
+      scripts/check_no_raw_rotation_trig.py's own notes; superseded by
+      scripts/route_board.py, which says so in its docstring. Deletion is a
+      separate change -- this entry records the verdict only.
+  - pattern: scripts/placement_quality_report.py
+    verdict: RETIRE
+    justification: >-
+      Import-dead, same 2026-08-04 sweep. Unguarded module-level imports of
+      `temper_placer.losses.base` and `temper_placer.routing.analysis`;
+      neither package exists (both are JAX-era, retired). Manifest disposition
+      is shell-invoked, which is why the sunset clock missed it: that gate
+      keys off last_run dates and the invocation graph, not importability --
+      a gap worth closing separately. Deletion is a separate change.
   - pattern: benchmarks/**
     verdict: JUSTIFIED-KEEP
     blocker: >-

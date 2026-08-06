@@ -683,6 +683,127 @@ def bench_smooth_relu_array() -> tuple[float, float]:
 
 
 # ---------------------------------------------------------------------------
+# Wave 4 Phase 3 candidate 6: the DSN emitter (temper_placer/io/dsn_exporter.py)
+# ---------------------------------------------------------------------------
+
+_DSN_SEED = 20260804
+_DSN_COMPONENTS = 40
+_DSN_PINS_PER_COMPONENT = 8
+
+
+def _dsn_fixture() -> tuple[Any, Any]:
+    """A deterministic board+netlist of realistic size for the DSN emitter.
+
+    Fixed seed and shape: the ratio is only comparable across runs if both arms
+    serialize byte-identical input every time.
+    """
+    from temper_placer.core.board import Board, Layer, LayerStackup
+    from temper_placer.core.netlist import Component, Net, Netlist, Pin
+
+    rng = random.Random(_DSN_SEED)
+    components = []
+    for i in range(_DSN_COMPONENTS):
+        pins = [
+            Pin(
+                name=f"P{j}",
+                number=str(j + 1),
+                position=(rng.uniform(-3.0, 3.0), rng.uniform(-3.0, 3.0)),
+                width=rng.choice([0.3, 0.5, 0.6, 1.0]),
+                height=rng.choice([0.4, 0.8, 1.5]),
+                shape=rng.choice(["rect", "circle", "thru_hole", "oval"]),
+                layer=rng.choice(["F.Cu", "B.Cu", "all"]),
+            )
+            for j in range(_DSN_PINS_PER_COMPONENT)
+        ]
+        components.append(
+            Component(
+                ref=f"{rng.choice('URCQJ')}{i}",
+                footprint=f"Lib{i % 7}:Foot_{i % 11}",
+                bounds=(5.0, 4.0),
+                pins=pins,
+                initial_position=(rng.uniform(0.0, 90.0), rng.uniform(0.0, 60.0)),
+                initial_rotation=rng.randint(0, 3),
+            )
+        )
+
+    refs = [c.ref for c in components]
+    nets = [
+        Net(
+            name=rng.choice(["GND", "VCC3V3", "+5V", "DC_BUS-", f"NET{k}", f"sig_vdd{k}v"]),
+            pins=[
+                (rng.choice(refs), str(rng.randint(1, _DSN_PINS_PER_COMPONENT)))
+                for _ in range(rng.randint(2, 6))
+            ],
+        )
+        for k in range(60)
+    ]
+
+    board = Board(
+        width=100.0,
+        height=70.0,
+        keepouts=[
+            (rng.uniform(0, 90), rng.uniform(0, 60), rng.uniform(0, 90), rng.uniform(0, 60))
+            for _ in range(12)
+        ],
+        layer_stackup=LayerStackup(
+            layers=[
+                Layer(name="F.Cu", layer_type="signal"),
+                Layer(name="In1.Cu", layer_type="plane"),
+                Layer(name="In2.Cu", layer_type="mixed"),
+                Layer(name="B.Cu", layer_type="signal"),
+            ]
+        ),
+    )
+    return board, Netlist(components=components, nets=nets)
+
+
+def _dsn_oracle_module() -> ModuleType:
+    # The exporter oracle imports its sibling primitives oracle as
+    # `tests.io._dsn_py_oracle`, so the package root has to be importable.
+    # (pytest puts it there via rootdir; this harness runs outside pytest.)
+    placer_root = str(REPO_ROOT / "packages/temper-placer")
+    if placer_root not in sys.path:
+        sys.path.insert(0, placer_root)
+    return _load_module_from_path(
+        "_perf_ab_dsn_exporter_oracle",
+        REPO_ROOT / "packages/temper-placer/tests/io/_dsn_exporter_py_oracle.py",
+    )
+
+
+def bench_dsn_export_pcb() -> tuple[float, float]:
+    """A/B the full ``export_pcb`` serialization (Rust) vs the verbatim oracle.
+
+    Per R2 this is the *no-regression-beyond-noise* arm: DSN export is
+    I/O-shaped string building, not a compute kernel, and a large part of the
+    remaining cost is on the Python side of the boundary either way (attribute
+    reads off the duck-typed Board/Netlist, and the schema hash). No speedup is
+    claimed; the gate is that the ratio does not drift upward.
+    """
+    from temper_placer.io.dsn_exporter import DSNExporter
+
+    oracle_cls = _dsn_oracle_module().DSNExporter
+    board, netlist = _dsn_fixture()
+
+    def run_rust() -> Any:
+        return str(DSNExporter(board, netlist).export_pcb("bench"))
+
+    def run_oracle() -> Any:
+        return str(oracle_cls(board, netlist).export_pcb("bench"))
+
+    # Parity assertion inside the perf harness: a performance number for an
+    # implementation that no longer agrees with its oracle is meaningless.
+    # Byte equality, because bytes are this surface's contract.
+    if run_rust() != run_oracle():
+        raise AssertionError(
+            "perf A/B arms disagree for dsn export_pcb -- the behavioral A/B "
+            "(test_dsn_rust_differential.py) should be failing too"
+        )
+    return _time_us(run_rust, DEFAULT_WARMUP, DEFAULT_REPEATS), _time_us(
+        run_oracle, DEFAULT_WARMUP, DEFAULT_REPEATS
+    )
+
+
+# ---------------------------------------------------------------------------
 # Wave 4 Phase 3 candidate 2: the YAML loaders (Rust orchestration vs the
 # verbatim pre-migration Python loaders, on the repo's own shipped fixtures)
 # ---------------------------------------------------------------------------
@@ -838,6 +959,109 @@ def bench_loaders() -> tuple[float, float]:
             "perf A/B arms disagree for loaders/loop_collection -- the "
             "behavioral A/B (test_loaders_rust_differential.py) should be "
             "failing too"
+        )
+    return _time_us(run_rust, DEFAULT_WARMUP, DEFAULT_REPEATS), _time_us(
+        run_oracle, DEFAULT_WARMUP, DEFAULT_REPEATS
+    )
+
+
+# ---------------------------------------------------------------------------
+# Wave 4 Phase 2: pcl/tag_dispatch.py + pcl/_parse_utils.py
+# ---------------------------------------------------------------------------
+#
+# Both arms drive the fixture in
+# packages/temper-placer/tests/pcl/_pcl_bench_fixture.py, which
+# tests/pcl/test_pcl_bench_fixture_parity.py asserts full oracle parity over.
+# That import is the #714 gate made structural: the benchmark cannot reach an
+# input the differential has not compared, because there is one source of
+# inputs. (#714 passed a differential at iterations [0,1,2,8,17,100] and then
+# failed Linux CI on a benchmark that ran 120.)
+
+
+def _pcl_fixture_module() -> ModuleType:
+    return _load_module_from_path(
+        "_perf_ab_pcl_bench_fixture",
+        REPO_ROOT / "packages/temper-placer/tests/pcl/_pcl_bench_fixture.py",
+    )
+
+
+def _pcl_tag_oracle_module() -> ModuleType:
+    return _load_module_from_path(
+        "_perf_ab_pcl_tag_oracle",
+        REPO_ROOT / "packages/temper-placer/tests/pcl/_tag_dispatch_py_oracle.py",
+    )
+
+
+def _pcl_parse_oracle_module() -> ModuleType:
+    return _load_module_from_path(
+        "_perf_ab_pcl_parse_oracle",
+        REPO_ROOT / "packages/temper-placer/tests/pcl/_parse_utils_py_oracle.py",
+    )
+
+
+def bench_pcl_tag_resolve_sweep() -> tuple[float, float]:
+    """A/B the tag-expression sweep over a netlist: Rust pyclasses vs oracle.
+
+    This is the call the Phase-2 pivot exists for. In the oracle arm the
+    expression tree is a graph of Python dataclasses re-walked per component;
+    in the Rust arm the same tree is a graph of pyo3 pyclasses, so the whole
+    400-component sweep happens without re-marshalling it.
+    """
+    from temper_placer.pcl import tag_dispatch as live
+
+    fixture = _pcl_fixture_module()
+    oracle = _pcl_tag_oracle_module()
+
+    netlist = fixture.bench_netlist()
+    specs = fixture.bench_expr_specs()
+    live_exprs = [fixture.build_expr(s, live) for s in specs]
+    oracle_exprs = [fixture.build_expr(s, oracle) for s in specs]
+
+    def run_rust() -> Any:
+        return [[c.ref for c in live.components(e, netlist)] for e in live_exprs]
+
+    def run_oracle() -> Any:
+        return [[c.ref for c in oracle.components(e, netlist)] for e in oracle_exprs]
+
+    # Parity assertion inside the perf harness: a performance number for an
+    # implementation that no longer agrees with its oracle is meaningless.
+    if run_rust() != run_oracle():
+        raise AssertionError(
+            "perf A/B arms disagree for pcl tag_resolve_sweep -- the behavioral "
+            "A/B (test_tag_dispatch_rust_differential.py) should be failing too"
+        )
+    return _time_us(run_rust, DEFAULT_WARMUP, DEFAULT_REPEATS), _time_us(
+        run_oracle, DEFAULT_WARMUP, DEFAULT_REPEATS
+    )
+
+
+def bench_pcl_parse_distance_batch() -> tuple[float, float]:
+    """A/B ``_parse_distance_with_unit`` over the mixed-branch corpus."""
+    from temper_placer.pcl import _parse_utils as live_parse
+
+    fixture = _pcl_fixture_module()
+    oracle = _pcl_parse_oracle_module()
+    values = fixture.bench_distance_inputs()
+
+    def _drive(fn: Callable[[Any], Any]) -> Any:
+        out = []
+        for v in values:
+            try:
+                out.append(("ok", fn(v)))
+            except Exception as exc:  # noqa: BLE001 - errors are part of the API
+                out.append(("err", type(exc).__name__, str(exc)))
+        return out
+
+    def run_rust() -> Any:
+        return _drive(live_parse._parse_distance_with_unit)
+
+    def run_oracle() -> Any:
+        return _drive(oracle._parse_distance_with_unit)
+
+    if run_rust() != run_oracle():
+        raise AssertionError(
+            "perf A/B arms disagree for pcl parse_distance_batch -- the "
+            "behavioral A/B should be failing too"
         )
     return _time_us(run_rust, DEFAULT_WARMUP, DEFAULT_REPEATS), _time_us(
         run_oracle, DEFAULT_WARMUP, DEFAULT_REPEATS
@@ -1247,7 +1471,17 @@ _BENCHMARKS: dict[tuple[str, str], Callable[[], tuple[float, float] | None]] = {
     ("bottleneck-geometry", "hard_blocked_batch"): bench_bottleneck_hard_blocked,
     ("drc-inflate", "drc_proxy_score"): bench_drc_proxy_score,
     ("drc-inflate", "smooth_relu_array"): bench_smooth_relu_array,
+    ("dsn-exporter", "export_pcb"): bench_dsn_export_pcb,
     ("loaders", "loaders"): bench_loaders,
+    # Wave 4 Phase 2. NOTE: these two keys have no row in
+    # power_pcb_dataset/metrics/perf_ab_baseline.jsonl yet, so they fail the
+    # gate closed until a baseline is captured ON CI (linux/x86_64) via
+    # .github/workflows/pr-perf-check.yml and appended in a reviewed PR. That
+    # is deliberate and is this file's own documented procedure: a
+    # darwin-captured row carries the measured ~-11% platform bias, which
+    # would make the gate miss every regression between +20% and +35%.
+    ("pcl-tag-dispatch", "tag_resolve_sweep"): bench_pcl_tag_resolve_sweep,
+    ("pcl-parse-utils", "parse_distance_batch"): bench_pcl_parse_distance_batch,
     ("physics-emi", "predict"): bench_physics_emi,
     ("physics-safety", "filter_delay"): bench_physics_safety,
     ("physics-heat_removal", "build_h_field"): bench_physics_heat_removal,
