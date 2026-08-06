@@ -416,6 +416,26 @@ below.
   (`tests/report/test_report_pbt.py`, which selected random severities via
   `rng.choice(list(Severity))`) was adapted to `Severity.members()`.
 
+## Stub surface (mypy) — no `.pyi` added
+
+No `.pyi` stub is added for the `temper_drc_rs` contracts, matching the
+earlier `temper_drc_rs` kernel slices (validation/regression/req_safe) that
+also added none. The extension is consumed through the typed Python shims
+(`drc_types.py` / `drc_result.py`); under the repo's mypy config
+(`ignore_missing_imports = true`, `disable_error_code = ["import-untyped"]`)
+their re-export names resolve to `Any`, and no typed consumer calls
+`dataclasses.replace` / `dataclasses.fields` on a contract pyclass — the
+board/netlist stubs exist precisely because their consumers import
+`temper_design_bundle_python` directly and call `replace()` on the
+pyclasses (the `_contract_dataclass_compat` docstring's load-bearing case).
+The type-check gate is unchanged by this slice, verified byte-for-byte
+against origin/main under an identical environment (identical NEW/STALE
+violation lists): `drc_result.py` stays at its allowlisted 1-error baseline
+(the `TypeAlias` marker on the re-exports) and `drc_types.py` stays at 0.
+Direct `temper_drc_rs` imports in `drc_runner` / `drc_fence` / `tht_check`
+/ `geometric` / the regression modules keep their existing
+`# type: ignore[import-untyped]` (the pre-slice pattern), unchanged.
+
 ## R1 status
 
 - R1a: **bit-identical differential** — `test_drc_contracts_rust_differential.py`
@@ -485,7 +505,7 @@ objects end-to-end and stayed green unchanged):
 
 ## Mutation campaign (anti-vacuity)
 
-**10 mutants, all caught, no survivors** — see
+**11 mutants, all caught, no survivors** — see
 `docs/evidence/2026-08-06-wave4-phase2-drc-contracts-mutation-sweep.md`:
 severity weight table, INFO-vs-ERROR count, fail-open `passed`, merge
 later-wins, repr field omission, `__str__` truncation index, bounds sign

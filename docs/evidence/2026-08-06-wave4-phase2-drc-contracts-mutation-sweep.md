@@ -1,6 +1,8 @@
 # Wave 4 Phase 2 — drc_types/drc_result contracts: anti-vacuity mutation sweep — 2026-08-06
 
-<!-- provenance: commit=<to-be-filled> dirty=true; driver /tmp/wt7-drc-mutants.py -->
+<!-- provenance: commit=9995e8323 (migration GREEN); count + pristine verification
+     re-run 2026-08-06 on the completion commit (11/11 killed, pristine 52/52);
+     driver /tmp/wt7-drc-mutants.py -->
 
 **Base commit:** `b7af1384b` (TDD-RED) + the GREEN working-tree state this PR
 commits (`packages/temper-drc-rs/src/drc_contracts.rs`,
@@ -48,7 +50,7 @@ revert alone leaves the last mutant's `.so` installed). The driver is
 `/tmp/wt7-drc-mutants.py` (outside the repo; a repo script would trigger the
 script-manifest gate).
 
-## Results — 10 mutants, all caught, no survivors
+## Results — 11 mutants, all caught, no survivors
 
 | # | Region | Mutation | Caught by |
 |---|---|---|---|
@@ -81,7 +83,8 @@ The differential's direct parity pin makes that region non-vacuous.
 - Rebuild was `cargo build` + `.so` copy rather than `maturin develop` (see
   Method). The final `make extensions` in the PR re-installs every crate
   through maturin, so the shipped artifact is the maturin build.
-- No `APPLY_FAILED`/`BUILD_FAILED` entries — the 10 mutants all built and
+- No `APPLY_FAILED`/`BUILD_FAILED` entries — the 11 mutants all built and
   were all caught. (`M5`'s first anchor was non-unique and re-anchored with
-  class-specific context before the run; the recorded run has 10 clean
-  kills.)
+  class-specific context before the run; the recorded run has 11 clean
+  kills. The `Severity.members()` surface was added mid-sweep, so M11 was
+  run as an 11th mutant on the completed source.)
