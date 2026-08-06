@@ -325,6 +325,59 @@ def test_barrier_infeasible_isolator_forces_unsat(tmp_path: Path):
     assert any("isolator_straddle_C6" in a for a in solution.unsat_assumptions)
 
 
+def test_barrier_relax_isolator_straddle_turns_unsat_into_sat(tmp_path: Path):
+    """The experiment-only relaxation: a C6-shaped isolator (5mm pad pitch,
+    infeasible at 8.5mm) makes the whole model UNSAT; exempting it via
+    ``relax_isolator_straddle`` drops ONLY its straddle constraint (and its
+    rotation pin), leaving the rest of the model intact and SAT."""
+    hv_comp = _comp("R_HV", [Pin("1", "1", (0, 0), net="AC_L")], w=5, h=5)
+    selv_comp = _comp("R_SELV", [Pin("1", "1", (0, 0), net="GND")], w=5, h=5)
+    isolator = _comp(
+        "C6",
+        [
+            Pin("1", "1", (0.0, 0.0), net="AC_L", width=1.8, height=1.8),
+            Pin("2", "2", (5.0, 0.0), net="GND", width=1.8, height=1.8),
+        ],
+        w=8,
+        h=4,
+    )
+    netlist = Netlist(components=[hv_comp, selv_comp, isolator])
+    manifest = _write_manifest(tmp_path)
+
+    # Un-relaxed: UNSAT, and the offending assumption is named.
+    model = _build_model(netlist.components)
+    report = add_isolation_barrier_to_model(
+        model,
+        netlist,
+        manifest,
+        board_w_mm=100.0,
+        board_h_mm=100.0,
+        corridor_width_mm=8.5,
+    )
+    assert report.infeasible_isolators == ["C6"]
+    solution = model.solve(time_limit_s=10.0)
+    assert not solution.feasible
+    assert any("isolator_straddle_C6" in a for a in solution.unsat_assumptions)
+
+    # Relaxed: SAT, the straddle assumption label is absent, and the report
+    # still carries the true geometric verdict (C6 remains infeasible).
+    model2 = _build_model(netlist.components)
+    report2 = add_isolation_barrier_to_model(
+        model2,
+        netlist,
+        manifest,
+        board_w_mm=100.0,
+        board_h_mm=100.0,
+        corridor_width_mm=8.5,
+        relax_isolator_straddle={"C6"},
+    )
+    assert report2.infeasible_isolators == ["C6"]  # geometric verdict unchanged
+    assert report2.relaxed_isolator_straddle == frozenset({"C6"})
+    assert not any("isolator_straddle_C6" in a for a in report2.isolator_assumption_labels)
+    solution2 = model2.solve(time_limit_s=10.0)
+    assert solution2.feasible, solution2.unsat_assumptions
+
+
 def test_barrier_feasible_isolator_can_straddle(tmp_path: Path):
     """A PS1-shaped isolator (HV/SELV pads 38.5mm apart) can have its
     courtyard straddle the corridor while its own pads land on the correct
