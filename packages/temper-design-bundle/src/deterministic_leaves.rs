@@ -182,13 +182,16 @@ impl DiffPairConfig {
     fn __repr__(&self, py: Python<'_>) -> PyResult<String> {
         let pos = self.net_pos.bind(py);
         let neg = self.net_neg.bind(py);
+        let spacing = self.spacing_mm.bind(py);
+        let coupling = self.coupling_tolerance_mm.bind(py);
+        let skew = self.max_skew_mm.bind(py);
         Ok(format!(
             "DiffPairConfig(net_pos={}, net_neg={}, spacing_mm={}, coupling_tolerance_mm={}, max_skew_mm={})",
             py_str_repr(&pos.str()?.to_string()),
             py_str_repr(&neg.str()?.to_string()),
-            py_number_repr(&self.spacing_mm.bind(py))?,
-            py_number_repr(&self.coupling_tolerance_mm.bind(py))?,
-            py_number_repr(&self.max_skew_mm.bind(py))?,
+            py_number_repr(spacing)?,
+            py_number_repr(coupling)?,
+            py_number_repr(skew)?,
         ))
     }
 
@@ -591,10 +594,8 @@ fn compute_wirelength(
         }
         let mut positions: Vec<(f64, f64)> = vec![candidate_slot];
         for (r, _) in pins {
-            if r != component_ref {
-                if let Some(&p) = current_placements.get(r) {
-                    positions.push(p);
-                }
+            if r != component_ref && let Some(&p) = current_placements.get(r) {
+                positions.push(p);
             }
         }
         if positions.len() > 1 {
@@ -705,10 +706,8 @@ pub fn assign_components_to_slots(
         }
 
         // Domain filter (precomputed by the shim from the GEOS region).
-        if !no_domain {
-            if let Some(allowed) = domain_ok.get(ref_name) {
-                available_slots.retain(|s| allowed.contains(&slot_key(*s)));
-            }
+        if !no_domain && let Some(allowed) = domain_ok.get(ref_name) {
+            available_slots.retain(|s| allowed.contains(&slot_key(*s)));
         }
         if available_slots.is_empty() {
             continue;
@@ -960,7 +959,12 @@ fn infer_slot_spacing(slots: &[(f64, f64)]) -> f64 {
         return DEFAULT_SLOT_SPACING;
     }
     let mut it = candidates.iter().copied();
-    let mut best = it.next().unwrap();
+    let mut best = match it.next() {
+        Some(b) => b,
+        // `candidates` is non-empty here, so `next` always yields; the
+        // fallback is unreachable and kept only to satisfy unwrap-free linting.
+        None => return DEFAULT_SLOT_SPACING,
+    };
     for c in it {
         best = py_min(best, c);
     }
@@ -974,6 +978,7 @@ fn cell_index(x: f64, spacing: f64) -> i64 {
 
 /// `_build_slot_index`: `(i, j) -> [slots]` with `i = int(round(x/spacing))`,
 /// `j = int(round(y/spacing))`; slots within a cell keep `all_slots` order.
+#[allow(clippy::type_complexity)]
 fn build_slot_index(
     slots: &[(f64, f64)],
     spacing: f64,
@@ -1045,10 +1050,11 @@ pub fn build_slot_index_py<'py>(
         let flat = slots_to_vec(slots)?;
         let out = PyDict::new(py);
         for (key, cell) in build_slot_index(&flat, spacing) {
-            let list = PyList::new(
-                py,
-                cell.iter().map(|&(x, y)| (x, y).into_bound_py_any(py).unwrap()),
-            )?;
+            let coords: Vec<Bound<'py, PyAny>> = cell
+                .iter()
+                .map(|&(x, y)| (x, y).into_bound_py_any(py))
+                .collect::<PyResult<_>>()?;
+            let list = PyList::new(py, coords)?;
             out.set_item(key, list)?;
         }
         Ok(out)
@@ -1087,6 +1093,7 @@ fn slots_to_vec(slots: &Bound<'_, PyAny>) -> PyResult<Vec<(f64, f64)>> {
     Ok(out)
 }
 
+#[allow(clippy::type_complexity)]
 fn dict_index_to_rust(index: &Bound<'_, PyDict>) -> PyResult<HashMap<(i64, i64), Vec<(f64, f64)>>> {
     let mut idx: HashMap<(i64, i64), Vec<(f64, f64)>> = HashMap::new();
     for (k, v) in index.iter() {

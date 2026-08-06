@@ -144,6 +144,7 @@ fn via_touches_pad(v: &ViaRec, p: &PadRec) -> bool {
 /// `item` is addressed by its index in `pads ++ tracks ++ vias`; `self_layer`
 /// is the excluded track's layer (None semantics are only used for non-track
 /// exclude cases, which never occur in this kernel).
+#[allow(clippy::too_many_arguments)]
 fn point_touches_item_at(
     px: f64,
     py: f64,

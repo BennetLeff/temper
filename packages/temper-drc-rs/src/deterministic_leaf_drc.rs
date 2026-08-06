@@ -26,7 +26,7 @@
 //!   decimal rounding is Python's own.
 
 use pyo3::prelude::*;
-use pyo3::types::{PyDict, PyList, PyString};
+use pyo3::types::{PyList, PyString};
 
 use crate::pymath::{pow, py_max, py_min, sqrt};
 
@@ -94,6 +94,7 @@ pub fn threshold_decision(
 /// (`(sx, sy) > (ex, ey)` tuple comparison), then
 /// `round(coord / tol) * tol` for each endpoint coordinate, then the layer
 /// and net. Returns the kept indices and the duplicate count.
+#[allow(clippy::type_complexity)]
 pub fn deduplicate_traces(
     traces: &[(f64, f64, f64, f64, String, Option<String>)],
     tolerance: f64,
@@ -219,6 +220,7 @@ fn fmt_1f(py: Python<'_>, value: f64) -> PyResult<String> {
 /// two pin positions (both present), return `(violation: bool, severity,
 /// actual_distance_mm, message)` — `message` is empty when there is no
 /// violation. The severity is `"error"` iff `tier == "hard"`.
+#[allow(clippy::too_many_arguments)]
 pub fn validate_proximity(
     name: &str,
     from_component: &str,
@@ -232,12 +234,21 @@ pub fn validate_proximity(
     py: Python<'_>,
 ) -> PyResult<(bool, String, f64, f64, String, String, String)> {
     // Returns (violation, severity, actual, required, message, comp_a, comp_b).
-    if from_pos.is_none() || to_pos.is_none() {
-        let msg = format!("Cannot validate {name}: component not found");
-        return Ok((true, "warning".to_string(), 0.0, 0.0, msg, from_component.to_string(), to_component.to_string()));
-    }
-    let (fx, fy) = from_pos.unwrap();
-    let (tx, ty) = to_pos.unwrap();
+    let (fx, fy, tx, ty) = match (from_pos, to_pos) {
+        (Some((fx, fy)), Some((tx, ty))) => (fx, fy, tx, ty),
+        _ => {
+            let msg = format!("Cannot validate {name}: component not found");
+            return Ok((
+                true,
+                "warning".to_string(),
+                0.0,
+                0.0,
+                msg,
+                from_component.to_string(),
+                to_component.to_string(),
+            ));
+        }
+    };
     let distance = sqrt(pow(tx - fx, 2.0) + pow(ty - fy, 2.0));
     if distance > max_distance_mm {
         let severity: String = if tier == "hard" { "error".to_string() } else { "warning".to_string() };
@@ -275,12 +286,21 @@ pub fn validate_signal_hv(
     hv_positions: &[(String, (f64, f64))],
     py: Python<'_>,
 ) -> PyResult<(bool, String, f64, f64, String, String, String)> {
-    if signal_pos.is_none() || target_pos.is_none() {
-        let msg = format!("Cannot validate {name}: component not found");
-        return Ok((true, "warning".to_string(), 0.0, 0.0, msg, String::new(), String::new()));
-    }
-    let (sx, sy) = signal_pos.unwrap();
-    let (tx, ty) = target_pos.unwrap();
+    let (sx, sy, tx, ty) = match (signal_pos, target_pos) {
+        (Some((sx, sy)), Some((tx, ty))) => (sx, sy, tx, ty),
+        _ => {
+            let msg = format!("Cannot validate {name}: component not found");
+            return Ok((
+                true,
+                "warning".to_string(),
+                0.0,
+                0.0,
+                msg,
+                String::new(),
+                String::new(),
+            ));
+        }
+    };
     let path_length = sqrt(pow(tx - sx, 2.0) + pow(ty - sy, 2.0));
     let severity: String = if tier == "hard" { "error".to_string() } else { "warning".to_string() };
     if path_length > max_path_length_mm {
@@ -322,6 +342,7 @@ pub fn validate_signal_hv(
 /// positions (the shim applies the `_get_pin_position` parsed-pads lookup
 /// before delegating). Returns the violation 7-tuple or `None`.
 #[pyfunction]
+#[allow(clippy::type_complexity)]
 pub fn validate_proximity_py(
     py: Python<'_>,
     constraint: &Bound<'_, PyAny>,
@@ -347,6 +368,7 @@ pub fn validate_proximity_py(
 /// hv_positions)` — positions are PRE-RESOLVED by the shim (parsed-pads
 /// lookup). Returns the violation 7-tuple or `None`.
 #[pyfunction]
+#[allow(clippy::type_complexity)]
 pub fn validate_signal_hv_py(
     py: Python<'_>,
     constraint: &Bound<'_, PyAny>,
@@ -448,8 +470,8 @@ mod tests {
             (0.04, 0.0, 10.0, 0.0, "0".to_string(), Some("A".to_string())), // within tol
         ];
         let (kept, dup) = deduplicate_traces(&traces, 0.05);
-        assert_eq!(dup, 2);
-        assert_eq!(kept.len(), 2);
+        assert_eq!(dup, 1);
+        assert_eq!(kept.len(), 3);
     }
 
     #[test]

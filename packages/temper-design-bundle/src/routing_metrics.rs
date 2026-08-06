@@ -34,51 +34,6 @@ fn py_round_digits(x: f64, digits: usize) -> f64 {
     s.parse::<f64>().unwrap_or(x)
 }
 
-macro_rules! segment_field_accessors {
-    ($($name:ident),* $(,)?) => {
-        $(
-            #[getter]
-            fn $name(&self, py: Python<'_>) -> Py<PyAny> {
-                self.$name.clone_ref(py)
-            }
-            #[setter]
-            fn set_$name(&mut self, _py: Python<'_>, v: Bound<'_, PyAny>) {
-                self.$name = v.into_any().unbind();
-            }
-        )*
-    };
-}
-
-macro_rules! net_field_accessors {
-    ($($name:ident),* $(,)?) => {
-        $(
-            #[getter]
-            fn $name(&self, py: Python<'_>) -> Py<PyAny> {
-                self.$name.clone_ref(py)
-            }
-            #[setter]
-            fn set_$name(&mut self, _py: Python<'_>, v: Bound<'_, PyAny>) {
-                self.$name = v.into_any().unbind();
-            }
-        )*
-    };
-}
-
-macro_rules! routing_field_accessors {
-    ($($name:ident),* $(,)?) => {
-        $(
-            #[getter]
-            fn $name(&self, py: Python<'_>) -> Py<PyAny> {
-                self.$name.clone_ref(py)
-            }
-            #[setter]
-            fn set_$name(&mut self, _py: Python<'_>, v: Bound<'_, PyAny>) {
-                self.$name = v.into_any().unbind();
-            }
-        )*
-    };
-}
-
 fn opt_float(py: Python<'_>, v: Option<&Bound<'_, PyAny>>, default: f64) -> PyResult<Py<PyAny>> {
     match v {
         Some(x) => Ok(x.clone().unbind()),
