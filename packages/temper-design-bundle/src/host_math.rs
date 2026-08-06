@@ -1,15 +1,16 @@
 //! Host-libm helpers for temper-design-bundle kernels that must match a
 //! CPython reference bit-for-bit.
 //!
-//! CPython's `x ** y` on floats is libm `pow` (float_pow), `math.sqrt` is
-//! libm `sqrt`, and `math.hypot` is libm `hypot` — NOT the statically-bound
-//! Rust intrinsics, whose last-ulp answers can differ from the uv standalone
-//! Python build's libm (measured for `sin` in temper-geometry's pad_geometry
-//! work). The deterministic leaf kernels (component_assignment's
-//! `sqrt(w**2 + h**2)` and `sqrt(dx**2 + dy**2)`, the slot-grid validator's
-//! `math.hypot`) resolve these through `dlsym(RTLD_DEFAULT, ...)` to the
-//! exact libm the host CPython process loaded. Mirrors
-//! `temper-geometry/src/host_math.rs`.
+//! CPython's `x ** y` on floats is libm `pow` (float_pow) and `math.sqrt`
+//! is libm `sqrt` — NOT the statically-bound Rust intrinsics, whose
+//! last-ulp answers can differ from the uv standalone Python build's libm
+//! (measured for `sin` in temper-geometry's pad_geometry work). The
+//! deterministic leaf kernels (component_assignment's `sqrt(w**2 + h**2)`
+//! and `sqrt(dx**2 + dy**2)`) resolve `pow`/`sqrt` through
+//! `dlsym(RTLD_DEFAULT, ...)` to the exact libm the host CPython process
+//! loaded. `math.hypot` is NOT libm `hypot` — CPython uses a Dekker
+//! double-double `vector_norm` (see `hypot` below), ported from
+//! `temper-drc-rs/src/pymath.rs`. Mirrors `temper-geometry/src/host_math.rs`.
 
 #![allow(clippy::missing_safety_doc)]
 
@@ -49,6 +50,13 @@ fn dlsym_binary(symbol: &CStr) -> Option<BinaryMathFn> {
     dlsym_ptr(symbol).map(|p| unsafe { std::mem::transmute::<*mut u8, BinaryMathFn>(p) })
 }
 
+unsafe extern "C" fn fallback_pow(x: f64, y: f64) -> f64 {
+    x.powf(y)
+}
+unsafe extern "C" fn fallback_sqrt(x: f64) -> f64 {
+    f64::sqrt(x)
+}
+
 fn host_sqrt() -> &'static UnaryMathFn {
     #[cfg(not(target_arch = "wasm32"))]
     {
@@ -79,38 +87,6 @@ fn host_pow() -> &'static BinaryMathFn {
     }
 }
 
-// `hypot` has no caller in this crate yet: the kernels that use it land with
-// the Phase-5 batch-2 slice (#816), which references it from two modules.
-// Kept rather than deleted so that slice does not have to re-add it, and
-// scoped to this family rather than the module so anything else going unused
-// still fails the build.
-#[allow(dead_code)]
-fn host_hypot() -> &'static BinaryMathFn {
-    #[cfg(not(target_arch = "wasm32"))]
-    {
-        static CELL: std::sync::OnceLock<Option<BinaryMathFn>> = std::sync::OnceLock::new();
-        CELL.get_or_init(|| dlsym_binary(c"hypot").or(Some(fallback_hypot)))
-            .as_ref()
-            .unwrap_or_else(|| unreachable!("fallback always set"))
-    }
-    #[cfg(target_arch = "wasm32")]
-    {
-        static CELL: std::sync::OnceLock<BinaryMathFn> = std::sync::OnceLock::new();
-        CELL.get_or_init(fallback_hypot)
-    }
-}
-
-unsafe extern "C" fn fallback_pow(x: f64, y: f64) -> f64 {
-    x.powf(y)
-}
-unsafe extern "C" fn fallback_sqrt(x: f64) -> f64 {
-    f64::sqrt(x)
-}
-#[allow(dead_code)]
-unsafe extern "C" fn fallback_hypot(x: f64, y: f64) -> f64 {
-    f64::hypot(x, y)
-}
-
 /// CPython `float ** float` (libm `pow`), bit-exact with the reference.
 pub fn pow(x: f64, y: f64) -> f64 {
     unsafe { host_pow()(x, y) }
@@ -119,12 +95,6 @@ pub fn pow(x: f64, y: f64) -> f64 {
 /// CPython `math.sqrt` (libm `sqrt`), bit-exact with the reference.
 pub fn sqrt(x: f64) -> f64 {
     unsafe { host_sqrt()(x) }
-}
-
-/// CPython `math.hypot` (libm `hypot`), bit-exact with the reference.
-#[allow(dead_code)]
-pub fn hypot(x: f64, y: f64) -> f64 {
-    unsafe { host_hypot()(x, y) }
 }
 
 /// Python `max(a, b)` semantics: the FIRST argument on ties, NaN kept only
@@ -140,6 +110,94 @@ pub fn py_min(a: f64, b: f64) -> f64 {
     if b < a { b } else { a }
 }
 
+/// CPython `round(x)` — round-half-to-even on the double, with the sign of
+/// zero normalised to `+0.0` (the caller's `int()`/product normalises it).
+pub fn py_round(x: f64) -> f64 {
+    let r = x.round_ties_even();
+    if r == 0.0 {
+        0.0
+    } else {
+        r
+    }
+}
+
+/// CPython's `math.hypot` (the 2-argument `vector_norm`), replicated
+/// exactly: a Dekker double-double compensated norm with fma-based
+/// `dl_mul`. Rust's `f64::hypot` (libm) differs from it in the last ulp
+/// (measured 30808/200000 random cases). Port of
+/// `temper-drc-rs/src/pymath.rs::py_hypot` (itself ported from
+/// `temper-geometry/src/pad_geometry.rs`), kept here so the validator
+/// slot-grid kernels track CPython bit-for-bit.
+pub fn hypot(x: f64, y: f64) -> f64 {
+    if x.is_nan() || y.is_nan() {
+        return f64::NAN;
+    }
+    if x.is_infinite() || y.is_infinite() {
+        return f64::INFINITY;
+    }
+    let x = x.abs();
+    let y = y.abs();
+    let max = x.max(y);
+    if max == 0.0 {
+        return 0.0;
+    }
+    vector_norm_2(x, y, max)
+}
+
+struct DL {
+    hi: f64,
+    lo: f64,
+}
+
+fn dl_fast_sum(a: f64, b: f64) -> DL {
+    let s = a + b;
+    DL { hi: s, lo: (a - s) + b }
+}
+
+fn dl_mul(x: f64, y: f64) -> DL {
+    let z = x * y;
+    DL { hi: z, lo: x.mul_add(y, -z) }
+}
+
+fn frexp(x: f64) -> (f64, i32) {
+    let bits = x.to_bits();
+    let e = ((bits >> 52) & 0x7ff) as i32 - 1022;
+    let m = f64::from_bits((bits & 0x800f_ffff_ffff_ffff) | 0x3fe0_0000_0000_0000);
+    (m, e)
+}
+
+fn vector_norm_2(x: f64, y: f64, max: f64) -> f64 {
+    let (_, max_e) = frexp(max);
+    if max_e < -1023 {
+        return f64::MIN_POSITIVE
+            * vector_norm_2(
+                x / f64::MIN_POSITIVE,
+                y / f64::MIN_POSITIVE,
+                max / f64::MIN_POSITIVE,
+            );
+    }
+    let scale = 2f64.powi(-max_e);
+    let mut csum = 1.0f64;
+    let mut frac1 = 0.0f64;
+    let mut frac2 = 0.0f64;
+    for v in [x * scale, y * scale] {
+        let pr = dl_mul(v, v);
+        let sm = dl_fast_sum(csum, pr.hi);
+        csum = sm.hi;
+        frac1 += pr.lo;
+        frac2 += sm.lo;
+    }
+    let mut h = (csum - 1.0 + (frac1 + frac2)).sqrt();
+    let pr = dl_mul(-h, h);
+    let sm = dl_fast_sum(csum, pr.hi);
+    csum = sm.hi;
+    frac1 += pr.lo;
+    frac2 += sm.lo;
+    let x = csum - 1.0 + (frac1 + frac2);
+    h += x / (2.0 * h); // differential correction
+    h / scale
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -149,7 +207,6 @@ mod tests {
     fn host_libm_symbols_actually_resolve() {
         assert!(dlsym_unary(c"sqrt").is_some(), "dlsym could not resolve `sqrt`");
         assert!(dlsym_binary(c"pow").is_some(), "dlsym could not resolve `pow`");
-        assert!(dlsym_binary(c"hypot").is_some(), "dlsym could not resolve `hypot`");
     }
 
     #[test]
@@ -161,5 +218,21 @@ mod tests {
         assert_eq!(py_min(2.0, 1.0), 1.0);
         assert_eq!(py_min(1.0, 2.0), 1.0);
         assert_eq!(py_min(1.0, 1.0), 1.0);
+    }
+
+    #[test]
+    fn hypot_matches_cpython_pinned_values() {
+        assert_eq!(hypot(3.0, 4.0), 5.0);
+        assert_eq!(hypot(0.0, 0.0), 0.0);
+        // A known vector_norm last-ulp case where libm hypot diverges:
+        // math.hypot(0x1.8330e0b997a2cp+497, -0x1.34c2707315642p+498)
+        // == 0x1.6c6eee8dc9d68p+498, while libm hypot gives ...d67.
+        let a = f64::from_bits(0x5f08330e0b997a2c);
+        let b = f64::from_bits(0xdf134c2707315642);
+        let expected = f64::from_bits(0x5f16c6eee8dc9d68);
+        assert_eq!(hypot(a, b), expected);
+        assert_ne!(expected, f64::hypot(a, b)); // libm diverges here
+        assert!(hypot(f64::NAN, 1.0).is_nan());
+        assert!(hypot(f64::INFINITY, 1.0).is_infinite());
     }
 }

@@ -43,6 +43,14 @@ pub mod violation_report;
 // runner fails to compile against it. Stacked `cfg` attributes are ANDed.
 #[cfg(feature = "wasm-test-registry")]
 pub mod wasm_test_registry;
+// Wave 4 Phase 5 — deterministic leaf DRC-check kernels (drc_validation /
+// drc_sweep dedup / placement_validation / courtyard_check clamp).
+#[cfg(feature = "python")]
+pub mod deterministic_leaf_drc;
+// Wave 4 Phase 5 — deterministic connectivity-validation kernel
+// (connectivity_validation.py per-net algorithm).
+#[cfg(feature = "python")]
+pub mod deterministic_connectivity;
 
 #[cfg(feature = "python")]
 use pyo3::exceptions::PyValueError;
@@ -366,5 +374,8 @@ fn temper_drc_rs(m: &Bound<'_, PyModule>) -> PyResult<()> {
     // physics_oracle kernels.
     // Wave 4 Phase 2 — drc_types / drc_result contract pyclasses.
     crate::drc_contracts::register(m)?;
+    // Wave 4 Phase 5 — deterministic leaf DRC-check kernels.
+    crate::deterministic_leaf_drc::register(m)?;
+    crate::deterministic_connectivity::register(m)?;
     Ok(())
 }

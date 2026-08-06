@@ -110,6 +110,24 @@ def test_fixed_placements_reserves_slots():
     assert got["R2"] == (10.0, 10.0)
 
 
+def test_reservation_radius_band():
+    """A slot at distance in the (radius, radius+1] band is NOT reserved by
+    `dist <= radius` but IS by a +1.0 over-reservation — pinning the exact
+    radius boundary (BIG(10,8): radius = sqrt(164)/2 + 1 ~ 7.403; the slot
+    at (8,0) is at distance 8.0)."""
+    comps = [_comp("BIG", (10.0, 8.0)), _comp("R2", (4.0, 2.0))]
+    nl = _netlist(comps, [])
+    zone_map = {"BIG": "Signal", "R2": "Signal"}
+    zone_slots = {"Signal": ((0.0, 0.0), (8.0, 0.0), (10.0, 10.0))}
+    fixed = {"BIG": (0.0, 0.0)}
+    exp = _oracle.assign_components_to_slots(
+        nl, zone_map, zone_slots, slot_spacing=12.0, fixed_placements={"BIG": (0.0, 0.0)}
+    )
+    got = _RS.assign_components_to_slots(nl, zone_map, zone_slots, fixed, {}, 12.0)
+    assert canon(exp) == canon(got)
+    assert got["R2"] == (8.0, 0.0)
+
+
 def test_zone_fallback():
     """When a zone is exhausted, the kernel falls back to other zones."""
     comps = [_comp("A", (4.0, 2.0)), _comp("B", (4.0, 2.0)), _comp("C", (4.0, 2.0))]
