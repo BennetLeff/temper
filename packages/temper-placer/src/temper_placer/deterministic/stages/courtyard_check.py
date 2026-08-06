@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+import temper_drc_rs as _drc
+
 from ..geometry.courtyard import Courtyard
 from ..state import BoardState
 from .base import Stage
@@ -17,6 +19,13 @@ class CourtyardCheckStage(Stage):
     After each nudge, positions are clamped to stay within board boundaries.
     This prevents components from drifting outside the board area during
     overlap resolution, which would cause via_dangling DRC violations.
+
+    The pure ``_clamp_position`` kernel is implemented in Rust in the
+    ``temper-drc-rs`` crate (Wave 4 **Phase 5, batch 2** — deterministic leaf
+    stages) and delegates to ``temper_drc_rs.clamp_position_py``. The
+    collision detection (shapely/GEOS STRtree + intersects) and the
+    random-noise nudge orchestration stay Python — recorded R3-style in
+    ``VERIFICATION.md`` (GEOS is not bit-reproducible by any Rust port).
     """
 
     courtyards: dict[str, Courtyard]
@@ -39,12 +48,9 @@ class CourtyardCheckStage(Stage):
         Returns:
             Clamped (x, y) position within [margin, board_dim - margin]
         """
-        x_min = self.margin
-        x_max = self.board_width - self.margin
-        y_min = self.margin
-        y_max = self.board_height - self.margin
-
-        return (max(x_min, min(x_max, pos[0])), max(y_min, min(y_max, pos[1])))
+        return _drc.clamp_position_py(
+            pos[0], pos[1], self.margin, self.board_width, self.board_height
+        )
 
     def run(self, state: BoardState) -> BoardState:
         if not state.placements:

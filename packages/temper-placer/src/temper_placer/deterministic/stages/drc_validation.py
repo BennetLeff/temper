@@ -1,6 +1,8 @@
 import logging
 from dataclasses import replace
 
+import temper_drc_rs as _drc
+
 from ..state import BoardState
 from .base import Stage
 
@@ -40,7 +42,7 @@ class DRCValidationStage(Stage):
         # Run full validation
         violations = state.drc_oracle.validate_all()
 
-        # Log summary
+        # Log summary (count-by-type computed by the Rust kernel)
         self._log_summary(violations)
 
         # Check thresholds
@@ -60,11 +62,10 @@ class DRCValidationStage(Stage):
             logger.info("DRC validation passed: 0 violations")
             return
 
-        # Count by type
-        by_type = {}
-        for v in violations:
-            by_type[v.type] = by_type.get(v.type, 0) + 1
+        # Count by type — the kernel reproduces the oracle's counting and
+        # the descending-count sort (ties in first-seen type order).
+        total, by_type = _drc.summarize_violations_py(violations)
 
-        logger.warning(f"DRC validation: {len(violations)} violations")
-        for vtype, count in sorted(by_type.items(), key=lambda x: -x[1]):
+        logger.warning(f"DRC validation: {total} violations")
+        for vtype, count in by_type:
             logger.warning(f"  {vtype}: {count}")

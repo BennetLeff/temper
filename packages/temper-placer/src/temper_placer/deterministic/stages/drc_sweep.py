@@ -3,9 +3,25 @@
 This stage runs after routing to identify and remove tracks/vias that
 cause DRC violations. It's a cleanup pass that prevents bad geometry
 from being exported.
+
+The `TrackDeduplicationStage` dedup compute is implemented in Rust in the
+``temper-drc-rs`` crate (Wave 4 **Phase 5, batch 2** — deterministic leaf
+stages): the direction-normalised `round(x/tol) * tol` (CPython
+round-half-to-even) segment key and the duplicate count delegate to
+``temper_drc_rs.deduplicate_traces_py``. The ``DRCSweepStage`` (DRCOracle
+bound) and ``ShortCircuitDetectionStage`` (pin_geometry / core.board bound)
+stages stay Python — recorded R3-style in ``VERIFICATION.md``.
+
+Bit-exactness: the key uses the oracle's exact expression order and the
+net/layer fields; non-Trace route entries pass through unchanged. Verified
+by ``tests/deterministic/stages/test_drc_leaf_rust_differential.py`` (oracle:
+``tests/deterministic/stages/_drc_leaf_py_oracle.py``); the structural proof
+lives in ``packages/temper-drc-rs/VERIFICATION.md``.
 """
 
 from dataclasses import replace
+
+import temper_drc_rs as _drc
 
 from ...core.board import LAYER_NAME_TO_IDX, STANDARD_LAYER_ORDER, Trace, Via
 from ...core.pin_geometry import pin_world_position_at
@@ -123,37 +139,22 @@ class TrackDeduplicationStage(Stage):
         if not state.routes:
             return state
 
-        unique_traces = []
-        seen = set()  # Set of (start, end, layer, net) tuples
-        duplicates = 0
-        tol = self.tolerance_mm
-
+        marshalled = []  # (start, end, layer, net) for Trace objects
         for trace in state.routes:
-            if not isinstance(trace, Trace):
-                unique_traces.append(trace)
-                continue
+            if isinstance(trace, Trace):
+                marshalled.append((trace.start, trace.end, trace.layer, trace.net))
 
-            # Normalize segment direction for comparison
-            start, end = trace.start, trace.end
-            if (start[0], start[1]) > (end[0], end[1]):
-                start, end = end, start
+        kept_indices, duplicates = _drc.deduplicate_traces_py(marshalled, self.tolerance_mm)
 
-            # Round to tolerance for comparison
-            # Include net in key to avoid deduplicating different nets at same position
-            key = (
-                round(start[0] / tol) * tol,
-                round(start[1] / tol) * tol,
-                round(end[0] / tol) * tol,
-                round(end[1] / tol) * tol,
-                trace.layer,
-                trace.net,  # Include net in key
-            )
-
-            if key in seen:
-                duplicates += 1
-                continue
-
-            seen.add(key)
+        # Rebuild: non-Trace entries pass through unchanged; the kept
+        # indices reference the Trace objects' positions in `state.routes`
+        # order (the kernel keeps the ORIGINAL route index).
+        kept_set = set(kept_indices)
+        unique_traces = []
+        for j, trace in enumerate(state.routes):
+            if isinstance(trace, Trace):
+                if j not in kept_set:
+                    continue
             unique_traces.append(trace)
 
         if duplicates > 0:

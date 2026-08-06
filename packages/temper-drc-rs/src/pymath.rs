@@ -168,12 +168,29 @@ pub fn pow(x: f64, y: f64) -> f64 {
     unsafe { f(x, y) }
 }
 
+/// CPython `math.sqrt` (libm `sqrt`), bit-exact with the reference — the
+/// statically-bound `f64::sqrt` can differ from the host runtime's libm in
+/// the last ulp, same class as `pow`.
+pub fn sqrt(x: f64) -> f64 {
+    static F: OnceLock<UnaryFn> = OnceLock::new();
+    let f = *F.get_or_init(|| {
+        // SAFETY: the resolved symbol is a C `double(double)`.
+        dlsym_ptr(c"sqrt")
+            .map(|p| unsafe { std::mem::transmute::<*mut u8, UnaryFn>(p) })
+            .unwrap_or(fallback_sqrt)
+    });
+    // SAFETY: `f` is a C `double(double)`; no shared state.
+    unsafe { f(x) }
+}
+
+unsafe extern "C" fn fallback_sqrt(x: f64) -> f64 {
+    f64::sqrt(x)
+}
+
 /// CPython's `float.__pow__` overflowed — `OverflowError(ERANGE,
 /// strerror(ERANGE))`. See [`py_pow`].
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub struct PowOverflow;
-
-/// CPython's `x ** y` on floats, **including its errno handling**.
+pub struct PowOverflow;/// CPython's `x ** y` on floats, **including its errno handling**.
 ///
 /// `float_pow` runs `errno = 0; ix = pow(iv, iw); _Py_ADJUST_ERANGE1(ix);`
 /// and raises `OverflowError` when `errno` ends up `ERANGE`.
