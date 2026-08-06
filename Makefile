@@ -7,7 +7,7 @@ BUILD_DIR = $(ELEC_DIR)/build
 BOM_FILE = $(ELEC_DIR)/build/default.csv
 BOM_PREV = $(ELEC_DIR)/build/default.csv.prev
 
-.PHONY: all build netlist clean drc route gerbers help diff visualize test test-fast onboard clean-onboard onboard-status extensions extensions-check venv-isolate worktree
+.PHONY: all build netlist clean drc route gerbers help diff visualize test test-fast onboard clean-onboard onboard-status extensions extensions-check venv-isolate worktree regen regen-check
 
 # Show help for workflow commands
 help:
@@ -197,6 +197,17 @@ extensions:
 # `make extensions` as "check, then fix".
 extensions-check:
 	uv run --no-sync python3 scripts/check_stale_extensions.py
+
+# Regenerate every derived artifact, refusing where regeneration would hide a
+# defect (a hash-order NEW_SITE, or a drifted oracle pin). Run before pushing:
+# a derived artifact drifting behind a merge turned main red four times on
+# 2026-08-06, each time caught by a gate only AFTER the merge landed.
+regen:
+	uv run --no-sync python3 scripts/regen_derived.py
+
+# Report-only: what CI's gates will see. Changes nothing.
+regen-check:
+	uv run --no-sync python3 scripts/regen_derived.py --check
 
 # Give THIS worktree its own, independent `.venv` instead of pointing
 # UV_PROJECT_ENVIRONMENT at a shared checkout's -- see
