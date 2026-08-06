@@ -1,4 +1,10 @@
-"""version command for temper-placer CLI."""
+"""version command for temper-placer CLI.
+
+Wave-4 Phase-5 R3-style record (see ``packages/temper-orchestration/VERIFICATION.md``):
+prints a version string + notice through the rich console; zero compute, and
+consumers rely on the click wiring in ``cli/__init__.py``. The click surface
+stays Python.
+"""
 
 from __future__ import annotations
 

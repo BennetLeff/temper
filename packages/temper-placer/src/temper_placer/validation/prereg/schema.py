@@ -8,6 +8,22 @@ pre-registration must demonstrably predate results.
 Every threshold carries a non-empty ``because`` citation — the same
 convention used by ``regression.manifest`` thresholds — to make the
 rationale auditable.
+
+Wave 4 Phase 4: pydantic is NOT reimplemented (config-loader precedent,
+Phase 3 candidate 5) — the models, their ``model_validator`` call-backs,
+and ``_parse_iso_to_utc`` stay Python. What moved is the temporal-gate
+CONTROL FLOW in ``PreregistrationManifest.load`` — the naive-to-UTC
+normalization decision, the ``created > battery`` comparison (via
+Python's own ``>`` operator, called back across the boundary), and the
+ValueError construction — to ``temper_design_bundle_python.validation.
+prereg_temporal_gate`` (``temper-design-bundle/src/validation.rs``). The
+error string is byte-identical (it interpolates the same two raw
+strings). ``yaml.safe_load`` and ``model_validate`` stay here.
+
+Verification: outcome + error-string parity against the pinned
+pre-migration implementation is asserted by
+``tests/validation/prereg/test_schema_rust_differential.py`` (oracle:
+``tests/validation/prereg/_schema_py_oracle.py``).
 """
 
 from __future__ import annotations
@@ -15,6 +31,7 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from pathlib import Path
 
+import temper_design_bundle_python as _tdb
 import yaml  # type: ignore[import-untyped]
 from pydantic import BaseModel, ConfigDict, model_validator
 
@@ -180,13 +197,16 @@ class PreregistrationManifest(BaseModel):
             normalized_battery = battery_run_timestamp
             if battery_run_timestamp.tzinfo is None:
                 normalized_battery = battery_run_timestamp.replace(tzinfo=UTC)
-            if created > normalized_battery:
-                raise ValueError(
-                    f"pre-registration created_at ({manifest.created_at}) "
-                    f"post-dates battery-run timestamp "
-                    f"({battery_run_timestamp.isoformat()}); "
-                    f"pre-registration must demonstrably predate results"
-                )
+            # Temporal-gate control flow in Rust (see module docstring):
+            # the normalization decision, the `created > battery`
+            # comparison (Python's own `>` via rich_compare), and the
+            # byte-identical ValueError construction.
+            _tdb.validation.prereg_temporal_gate(
+                created,
+                manifest.created_at,
+                normalized_battery,
+                battery_run_timestamp.isoformat(),
+            )
 
         return manifest
 

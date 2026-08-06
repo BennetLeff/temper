@@ -909,7 +909,17 @@ PRODUCTION_COMMITTED_BOARD_UNCONNECTED = 428
 # remainder of the shorting/total rise is the K2 +18.2mm move (K2's
 # re-routed copper neighbourhood). See
 # docs/evidence/2026-08-01-edge-hanging-refs-fix.md.
-PRODUCTION_ROUTER_OUTPUT_TOTAL_DVIOLATIONS = 1436
+#
+# 2026-08-04 re-baseline (PR #671): the wave-4 NetClassRules _mm fix made
+# route_pcb() functional again; the router's deterministic output on the
+# post-#602 board (K3 RT314012 swap + C27 on-board, board hash 51e39844)
+# measures total median 1502 (sample [1502,1502,1502,1502,1504], N=5) vs
+# this threshold's 1418-class measurement which predates #602's board
+# write. Same board-change class as the 411->463 router_v6 gate re-baseline
+# in this PR (docs/evidence/2026-08-04-designrules-parse-fix.md): the
+# threshold was set on an older board while the router path was crash-dead.
+# Threshold: worst median-of-5 (1504) + 10 = 1514.
+PRODUCTION_ROUTER_OUTPUT_TOTAL_DVIOLATIONS = 1514
 PRODUCTION_ROUTER_OUTPUT_SHORTING_ITEMS = 178
 PRODUCTION_ROUTER_OUTPUT_UNCONNECTED = 463
 

@@ -236,3 +236,79 @@ def test_classification_is_exhaustive():
     assert signal_count + len(non_signal) == len(all_v)
     assert all(v not in signal for v in non_signal)
     assert all(v not in non_signal for v in signal)
+
+
+# ---------------------------------------------------------------------------
+# Tests: _classify_vias — issue #752 defect 10
+#
+# `_classify_vias` carried a per-via `signal` accumulator guarded by
+# `is_signal_net(...)`, then unconditionally overwrote it two lines later with
+# `signal = total - thermal - stitching`. The accumulator was a dead store, and
+# it made the function read as though non-signal (power/HV) vias were excluded
+# from the signal count when they never were. These tests pin the real,
+# residual definition, so removing the dead store cannot change behaviour and
+# "fixing" it the other way (deleting the residual line) fails loudly.
+# ---------------------------------------------------------------------------
+
+
+def _parse_result(vias, components=(), board_size=(50.0, 50.0)):
+    from temper_placer.core.board import Board
+    from temper_placer.core.netlist import Netlist
+    from temper_placer.io._kicad_types import ParseResult
+
+    return ParseResult(
+        netlist=Netlist(components=list(components), nets=[]),
+        board=Board(width=board_size[0], height=board_size[1]),
+        vias=list(vias),
+        traces=[],
+        pads=[],
+        warnings=[],
+    )
+
+
+def _via_data(net, x, y):
+    from temper_placer.io._kicad_types import ViaData
+
+    return ViaData(position=(x, y), diameter=0.6, drill=0.3, net=net, layers=("F.Cu", "B.Cu"))
+
+
+def test_classify_vias_counts_are_a_partition_of_total():
+    from temper_placer.router_v6.quality.via_count import classify_vias_from_parse
+
+    # 25.0 is the board centre: far from every edge, so nothing is stitching,
+    # and there is no Q1/Q2 footprint, so nothing is thermal.
+    vias = [_via_data(n, 25.0, 25.0) for n in ("SIG1", "GND", "VCC", "DC_BUS+", "AC_L")]
+    counts = classify_vias_from_parse(_parse_result(vias))
+
+    assert counts.total == 5
+    assert counts.thermal == 0
+    assert counts.stitching == 0
+    assert counts.signal + counts.thermal + counts.stitching == counts.total
+
+
+def test_classify_vias_signal_is_the_residual_and_includes_power_nets():
+    """A mid-board power via is neither thermal nor stitching, so it is signal.
+
+    This is the assertion the dead `is_signal_net` accumulator implied was
+    false. If someone ever "resolves" the dead store by deleting the residual
+    `signal = total - thermal - stitching` line instead, this fails.
+    """
+    from temper_placer.router_v6.quality.via_count import classify_vias_from_parse
+
+    counts = classify_vias_from_parse(_parse_result([_via_data("VCC", 25.0, 25.0)]))
+    assert counts == ViaCounts(signal=1, thermal=0, stitching=0, total=1)
+
+
+def test_classify_vias_edge_ground_via_is_stitching_not_signal():
+    from temper_placer.router_v6.quality.via_count import classify_vias_from_parse
+
+    counts = classify_vias_from_parse(_parse_result([_via_data("GND", 1.0, 25.0)]))
+    assert counts == ViaCounts(signal=0, thermal=0, stitching=1, total=1)
+
+
+def test_classify_vias_empty_is_all_zero():
+    from temper_placer.router_v6.quality.via_count import classify_vias_from_parse
+
+    assert classify_vias_from_parse(_parse_result([])) == ViaCounts(
+        signal=0, thermal=0, stitching=0, total=0
+    )

@@ -8,6 +8,31 @@ on external tools like kiutils. It checks:
 - Clearance violations (HV-LV separation, etc.)
 - Zone violations (components in wrong zones)
 - Keepout violations (components in keepout regions)
+
+Wave 4 Phase 4: the per-check DECISION compute (overlap severity
+classification, boundary edge math, HV-LV clearance classification, keepout
+intersection, mounting-hole distance) moved to the Rust kernel
+``temper_drc_rs.geometric_validate`` (packages/temper-drc-rs/src/validation.rs).
+Design boundaries, argued in-source (see the Rust module and
+``packages/temper-drc-rs/VERIFICATION.md``):
+
+- Every geometric primitive stays single-source-of-truth in temper-geometry:
+  the pairwise signed box distances (``compute_pairwise_distances``), the
+  rotated AABB half-sizes (``get_rotated_bounds``) and the boundary
+  predicate (``compute_boundary_violation``) are computed HERE (all already
+  Rust) and passed into the kernel — no reimplementation.
+- The zone check's predicate (``point_in_zone``) was already Rust; the
+  remaining zone logic is Board contract lookup (``get_zone`` /
+  ``get_zone_for_point`` — out-of-scope harness/contract) plus message
+  building, so ``_check_zones`` stays Python.
+- Messages are built here from the Rust-returned numeric fields (the
+  rtd_safety precedent): ``str(float)`` formatting (shortest-repr with a
+  ``.0`` suffix and exponent thresholds) is a Python library semantic that
+  Rust's ``Display`` does not reproduce (``10.0`` vs ``10``). The
+  differential compares the full issues INCLUDING messages, so any mutation
+  in the numeric decisions is still caught (messages derive from them).
+- Location midpoints are computed here from the float32 positions array
+  with the same numpy expressions the oracle used (float32 arithmetic).
 """
 
 from __future__ import annotations
@@ -15,7 +40,7 @@ from __future__ import annotations
 import time
 from dataclasses import dataclass
 from enum import Enum, auto
-from typing import TypeAlias
+from typing import Any, TypeAlias
 
 import numpy as np
 
@@ -38,6 +63,17 @@ from temper_placer.validation.base import (
     ValidationSeverity,
     Validator,
 )
+
+_RS = None
+
+
+def _rs() -> Any:
+    global _RS
+    if _RS is None:
+        import temper_drc_rs  # type: ignore[import-untyped]
+
+        _RS = temper_drc_rs
+    return _RS
 
 
 class ViolationType(Enum):
@@ -133,39 +169,37 @@ class GeometricValidator(Validator):
         widths = bounds[:, 0]
         heights = bounds[:, 1]
 
-        # 1. Check overlaps
-        overlap_issues, overlap_count, total_overlap = self._check_overlaps(
-            positions, rotations, widths, heights, netlist
+        # 1-3, 5: overlap / boundary / clearance / keepout+mounting-hole
+        # checks — one kernel call (Rust decision compute over the
+        # temper-geometry primitives), then per-kind wrapping below.
+        findings, kmetrics = self._run_geometric_kernel(
+            positions, rotations, widths, heights, netlist, board
+        )
+        overlap_issues, overlap_count, total_overlap = self._wrap_overlaps(
+            findings, positions, netlist
         )
         issues.extend(overlap_issues)
         metrics["overlap_count"] = overlap_count
         metrics["total_overlap_area"] = float(total_overlap)
 
-        # 2. Check boundary violations
-        boundary_issues, boundary_count = self._check_boundaries(
-            positions, rotations, widths, heights, netlist, board
-        )
+        boundary_issues = self._wrap_boundaries(findings, positions, netlist)
         issues.extend(boundary_issues)
-        metrics["boundary_violations"] = boundary_count
+        metrics["boundary_violations"] = int(kmetrics["boundary_violations"])
 
-        # 3. Check clearance violations (HV-LV)
-        clearance_issues, clearance_count = self._check_clearances(
-            positions, rotations, widths, heights, netlist
+        clearance_issues, clearance_count = self._wrap_clearances(
+            findings, positions, netlist
         )
         issues.extend(clearance_issues)
         metrics["clearance_violations"] = clearance_count
 
-        # 4. Check zone violations
+        # 4. Check zone violations (stays Python — see module docstring)
         zone_issues, zone_count = self._check_zones(positions, netlist, board)
         issues.extend(zone_issues)
         metrics["zone_violations"] = zone_count
 
-        # 5. Check keepout violations
-        keepout_issues, keepout_count = self._check_keepouts(
-            positions, rotations, widths, heights, netlist, board
-        )
+        keepout_issues = self._wrap_keepouts(findings, positions, netlist)
         issues.extend(keepout_issues)
-        metrics["keepout_violations"] = keepout_count
+        metrics["keepout_violations"] = int(kmetrics["keepout_violations"])
 
         # Determine overall validity
         error_count = sum(
@@ -185,68 +219,16 @@ class GeometricValidator(Validator):
             validator_name=self.name,
         )
 
-    def _check_overlaps(
-        self,
-        positions: Array,
-        _rotations: Array,
-        widths: Array,
-        heights: Array,
-        netlist: Netlist,
-    ) -> tuple[list[GeometricViolation], int, float]:
-        """Check for component overlaps."""
-        issues = []
+    # ------------------------------------------------------------------
+    # Rust-backed decision kernel (temper_drc_rs.geometric_validate)
+    #
+    # All geometric primitives (pairwise distances, rotated half-sizes,
+    # boundary predicate) are computed here via the existing
+    # temper-geometry Rust kernels and passed in; the kernel returns
+    # structured findings (in the oracle's exact issue order) + metrics.
+    # ------------------------------------------------------------------
 
-        # Compute pairwise distances (Rust-backed, 1-arg: Vec<f64> flat rects list)
-        n = positions.shape[0]
-        rects = np.column_stack([positions, widths[:, None], heights[:, None]])
-        rects_flat = rects.ravel().tolist()
-        distances = np.array(compute_pairwise_distances(rects_flat)).reshape(n, n)
-
-        # Find overlapping pairs (negative distance)
-        total_overlap = 0.0
-        overlap_count = 0
-
-        for i in range(n):
-            for j in range(i + 1, n):
-                dist = float(distances[i, j])
-                if dist < -self.overlap_threshold:
-                    overlap_amount = -dist
-                    total_overlap += overlap_amount
-                    overlap_count += 1
-
-                    comp_i = netlist.components[i]
-                    comp_j = netlist.components[j]
-
-                    # Determine severity based on overlap amount
-                    if overlap_amount > 5.0:
-                        severity = ValidationSeverity.CRITICAL
-                    elif overlap_amount > 1.0:
-                        severity = ValidationSeverity.ERROR
-                    else:
-                        severity = ValidationSeverity.WARNING
-
-                    issues.append(
-                        GeometricViolation(
-                            severity=severity,
-                            code="GEO_OVERLAP",
-                            message=f"Components {comp_i.ref} and {comp_j.ref} overlap by {overlap_amount:.2f}mm",
-                            component_refs=[comp_i.ref, comp_j.ref],
-                            location=(
-                                float((positions[i, 0] + positions[j, 0]) / 2),
-                                float((positions[i, 1] + positions[j, 1]) / 2),
-                            ),
-                            details={
-                                "overlap_mm": overlap_amount,
-                                "distance": dist,
-                            },
-                            violation_type=ViolationType.OVERLAP,
-                            overlap_amount=overlap_amount,
-                        )
-                    )
-
-        return issues, overlap_count, total_overlap
-
-    def _check_boundaries(
+    def _run_geometric_kernel(
         self,
         positions: Array,
         rotations: Array,
@@ -254,20 +236,23 @@ class GeometricValidator(Validator):
         heights: Array,
         netlist: Netlist,
         board: Board,
-    ) -> tuple[list[GeometricViolation], int]:
-        """Check for components outside board boundaries."""
-        issues = []
-        violation_count = 0
+    ) -> tuple[list[dict], dict]:
+        n = positions.shape[0]
 
-        # Board bounds
+        # Pairwise signed box distances — one call, shared by the overlap
+        # and clearance checks (the oracle computed the matrix twice).
+        rects = np.column_stack([positions, widths[:, None], heights[:, None]])
+        rects_flat = rects.ravel().tolist()
+        distances = np.array(compute_pairwise_distances(rects_flat)).reshape(n, n)
+
+        # Rotated half-sizes + boundary predicate (temper-geometry, Rust).
+        half_widths: list[float] = []
+        half_heights: list[float] = []
+        boundary: list[tuple[float, float, float, float]] = []
         board_x_min, board_y_min = board.origin
         board_x_max = board_x_min + board.width
         board_y_max = board_y_min + board.height
-
-        n = positions.shape[0]
-
         for i in range(n):
-            # Get rotated component bounds
             rot_one_hot = rotations[i]
             rot_idx = (
                 int(np.argmax(rot_one_hot))
@@ -284,12 +269,11 @@ class GeometricValidator(Validator):
             )
             rw, rh = xma - xmi, yma - ymi
             half_w, half_h = rw / 2, rh / 2
+            half_widths.append(half_w)
+            half_heights.append(half_h)
 
             pos = positions[i]
-            comp = netlist.components[i]
-
-            # Use shared predicate to compute boundary violation
-            boundary_violation = compute_boundary_violation(
+            bv = compute_boundary_violation(
                 position_x=float(pos[0]),
                 position_y=float(pos[1]),
                 component_half_width=float(half_w),
@@ -299,119 +283,154 @@ class GeometricValidator(Validator):
                 board_x_max=board_x_max,
                 board_y_max=board_y_max,
             )
+            boundary.append((bv.left, bv.right, bv.bottom, bv.top))
 
-            if boundary_violation.has_violation:
-                violation_count += 1
+        net_classes = [c.net_class for c in netlist.components]
+        keepouts = [tuple(float(v) for v in k) for k in board.keepout_regions]
+        mounting_holes = [
+            (float(h.position[0]), float(h.position[1]), float(h.keepout_radius))
+            for h in board.mounting_holes
+        ]
 
-                # Build list of violated edges
-                violations = []
-                if boundary_violation.left > 0:
-                    violations.append(("left", boundary_violation.left))
-                if boundary_violation.right > 0:
-                    violations.append(("right", boundary_violation.right))
-                if boundary_violation.bottom > 0:
-                    violations.append(("bottom", boundary_violation.bottom))
-                if boundary_violation.top > 0:
-                    violations.append(("top", boundary_violation.top))
+        findings, metrics = _rs().geometric_validate(
+            positions=[(float(positions[i, 0]), float(positions[i, 1])) for i in range(n)],
+            half_widths=half_widths,
+            half_heights=half_heights,
+            net_classes=net_classes,
+            boundary=boundary,
+            keepouts=keepouts,
+            mounting_holes=mounting_holes,
+            distances=distances.ravel().tolist(),
+            overlap_threshold=float(self.overlap_threshold),
+            min_clearance=float(self.min_clearance),
+            hv_lv_clearance=float(self.hv_lv_clearance),
+        )
+        return findings, metrics
 
-                edges = ", ".join(v[0] for v in violations)
-                max_violation = boundary_violation.max_violation
-
-                severity = (
-                    ValidationSeverity.CRITICAL
-                    if max_violation > 10.0
-                    else ValidationSeverity.ERROR
-                )
-
-                issues.append(
-                    GeometricViolation(
-                        severity=severity,
-                        code="GEO_BOUNDARY",
-                        message=f"Component {comp.ref} extends {max_violation:.2f}mm outside board ({edges})",
-                        component_refs=[comp.ref],
-                        location=(float(pos[0]), float(pos[1])),
-                        details={
-                            "violations": violations,
-                            "max_violation_mm": max_violation,
-                        },
-                        violation_type=ViolationType.BOUNDARY,
-                        overlap_amount=max_violation,
-                    )
-                )
-
-        return issues, violation_count
-
-    def _check_clearances(
+    def _wrap_overlaps(
         self,
+        findings: list[dict],
         positions: Array,
-        _rotations: Array,
-        widths: Array,
-        heights: Array,
+        netlist: Netlist,
+    ) -> tuple[list[GeometricViolation], int, float]:
+        issues = []
+        total_overlap = 0.0
+        overlap_count = 0
+        for f in findings:
+            if f["kind"] != "overlap":
+                continue
+            i, j = f["i"], f["j"]
+            comp_i = netlist.components[i]
+            comp_j = netlist.components[j]
+            overlap_amount = float(f["overlap_amount"])
+            dist = float(f["dist"])
+            total_overlap += overlap_amount
+            overlap_count += 1
+            issues.append(
+                GeometricViolation(
+                    severity=ValidationSeverity[f["severity"]],
+                    code=f["code"],
+                    message=f"Components {comp_i.ref} and {comp_j.ref} overlap by {overlap_amount:.2f}mm",
+                    component_refs=[comp_i.ref, comp_j.ref],
+                    location=(
+                        float((positions[i, 0] + positions[j, 0]) / 2),
+                        float((positions[i, 1] + positions[j, 1]) / 2),
+                    ),
+                    details={
+                        "overlap_mm": overlap_amount,
+                        "distance": dist,
+                    },
+                    violation_type=ViolationType.OVERLAP,
+                    overlap_amount=overlap_amount,
+                )
+            )
+        return issues, overlap_count, total_overlap
+
+    def _wrap_boundaries(
+        self,
+        findings: list[dict],
+        positions: Array,
+        netlist: Netlist,
+    ) -> list[GeometricViolation]:
+        issues = []
+        for f in findings:
+            if f["kind"] != "boundary":
+                continue
+            i = f["i"]
+            comp = netlist.components[i]
+            pos = positions[i]
+            edges = [(e[0], float(e[1])) for e in f["edges"]]
+            max_violation = float(f["max_violation"])
+            edge_names = ", ".join(e[0] for e in edges)
+            issues.append(
+                GeometricViolation(
+                    severity=ValidationSeverity[f["severity"]],
+                    code=f["code"],
+                    message=f"Component {comp.ref} extends {max_violation:.2f}mm outside board ({edge_names})",
+                    component_refs=[comp.ref],
+                    location=(float(pos[0]), float(pos[1])),
+                    details={
+                        "violations": edges,
+                        "max_violation_mm": max_violation,
+                    },
+                    violation_type=ViolationType.BOUNDARY,
+                    overlap_amount=max_violation,
+                )
+            )
+        return issues
+
+    def _wrap_clearances(
+        self,
+        findings: list[dict],
+        positions: Array,
         netlist: Netlist,
     ) -> tuple[list[GeometricViolation], int]:
-        """Check for HV-LV clearance violations."""
         issues = []
         violation_count = 0
+        for f in findings:
+            if f["kind"] != "clearance":
+                continue
+            i, j = f["i"], f["j"]
+            comp_i = netlist.components[i]
+            comp_j = netlist.components[j]
+            dist = float(f["dist"])
+            required_clearance = float(f["required_clearance"])
+            shortage = float(f["shortage"])
+            is_hv_lv_pair = bool(f["is_hv_lv"])
+            violation_count += 1
 
-        # Compute pairwise distances (Rust-backed, 1-arg: Vec<f64> flat rects list)
-        n = positions.shape[0]
-        rects = np.column_stack([positions, widths[:, None], heights[:, None]])
-        rects_flat = rects.ravel().tolist()
-        distances = np.array(compute_pairwise_distances(rects_flat)).reshape(n, n)
+            if is_hv_lv_pair:
+                severity = ValidationSeverity.CRITICAL
+                code = "GEO_HV_LV_CLEARANCE"
+                msg = f"HV-LV clearance violation: {comp_i.ref} ({comp_i.net_class}) and {comp_j.ref} ({comp_j.net_class}) are {dist:.2f}mm apart (need {required_clearance}mm)"
+            else:
+                severity = (
+                    ValidationSeverity.WARNING if dist > 0 else ValidationSeverity.ERROR
+                )
+                code = "GEO_CLEARANCE"
+                msg = f"Clearance warning: {comp_i.ref} and {comp_j.ref} are {dist:.2f}mm apart (recommend {required_clearance}mm)"
 
-        for i in range(n):
-            for j in range(i + 1, n):
-                comp_i = netlist.components[i]
-                comp_j = netlist.components[j]
-
-                # Check if HV-LV pair
-                is_hv_lv_pair = (
-                    comp_i.net_class == "HighVoltage" and comp_j.net_class != "HighVoltage"
-                ) or (comp_j.net_class == "HighVoltage" and comp_i.net_class != "HighVoltage")
-
-                required_clearance = self.hv_lv_clearance if is_hv_lv_pair else self.min_clearance
-
-                dist = float(distances[i, j])
-
-                if dist < required_clearance:
-                    # Clearance violation
-                    shortage = required_clearance - dist
-
-                    if is_hv_lv_pair:
-                        # HV-LV violations are critical
-                        severity = ValidationSeverity.CRITICAL
-                        code = "GEO_HV_LV_CLEARANCE"
-                        msg = f"HV-LV clearance violation: {comp_i.ref} ({comp_i.net_class}) and {comp_j.ref} ({comp_j.net_class}) are {dist:.2f}mm apart (need {required_clearance}mm)"
-                    else:
-                        severity = (
-                            ValidationSeverity.WARNING if dist > 0 else ValidationSeverity.ERROR
-                        )
-                        code = "GEO_CLEARANCE"
-                        msg = f"Clearance warning: {comp_i.ref} and {comp_j.ref} are {dist:.2f}mm apart (recommend {required_clearance}mm)"
-
-                    violation_count += 1
-                    issues.append(
-                        GeometricViolation(
-                            severity=severity,
-                            code=code,
-                            message=msg,
-                            component_refs=[comp_i.ref, comp_j.ref],
-                            location=(
-                                float((positions[i, 0] + positions[j, 0]) / 2),
-                                float((positions[i, 1] + positions[j, 1]) / 2),
-                            ),
-                            details={
-                                "actual_distance_mm": dist,
-                                "required_clearance_mm": required_clearance,
-                                "shortage_mm": shortage,
-                                "is_hv_lv": is_hv_lv_pair,
-                            },
-                            violation_type=ViolationType.CLEARANCE,
-                            required_clearance=required_clearance,
-                            actual_distance=dist,
-                        )
-                    )
-
+            issues.append(
+                GeometricViolation(
+                    severity=severity,
+                    code=code,
+                    message=msg,
+                    component_refs=[comp_i.ref, comp_j.ref],
+                    location=(
+                        float((positions[i, 0] + positions[j, 0]) / 2),
+                        float((positions[i, 1] + positions[j, 1]) / 2),
+                    ),
+                    details={
+                        "actual_distance_mm": dist,
+                        "required_clearance_mm": required_clearance,
+                        "shortage_mm": shortage,
+                        "is_hv_lv": is_hv_lv_pair,
+                    },
+                    violation_type=ViolationType.CLEARANCE,
+                    required_clearance=required_clearance,
+                    actual_distance=dist,
+                )
+            )
         return issues, violation_count
 
     def _check_zones(
@@ -420,7 +439,12 @@ class GeometricValidator(Validator):
         netlist: Netlist,
         board: Board,
     ) -> tuple[list[GeometricViolation], int]:
-        """Check for components in wrong zones."""
+        """Check for components in wrong zones.
+
+        Stays Python: the geometric predicate (``point_in_zone``) is already
+        Rust (temper-geometry); the remaining logic is Board contract lookup
+        (``get_zone`` / ``get_zone_for_point``) plus message building.
+        """
         issues = []
         violation_count = 0
 
@@ -481,108 +505,60 @@ class GeometricValidator(Validator):
 
         return issues, violation_count
 
-    def _check_keepouts(
+    def _wrap_keepouts(
         self,
+        findings: list[dict],
         positions: Array,
-        rotations: Array,
-        widths: Array,
-        heights: Array,
         netlist: Netlist,
-        board: Board,
-    ) -> tuple[list[GeometricViolation], int]:
-        """Check for components in keepout regions or too close to mounting holes."""
+    ) -> list[GeometricViolation]:
         issues = []
-        violation_count = 0
-
-        n = positions.shape[0]
-
-        for i in range(n):
+        for f in findings:
+            kind = f["kind"]
+            if kind not in ("keepout", "mounting_hole"):
+                continue
+            i = f["i"]
             pos = positions[i]
             x, y = float(pos[0]), float(pos[1])
             comp = netlist.components[i]
 
-            # Get rotated bounds
-            rot_one_hot = rotations[i]
-            rot_idx = (
-                int(np.argmax(rot_one_hot))
-                if isinstance(rot_one_hot, np.ndarray) and rot_one_hot.ndim == 1
-                else 0
-            )
-            angle_rad = {0: 0.0, 1: np.pi / 2, 2: np.pi, 3: 3 * np.pi / 2}[rot_idx]
-            xmi, ymi, xma, yma = get_rotated_bounds(
-                float(positions[i, 0]),
-                float(positions[i, 1]),
-                float(widths[i]),
-                float(heights[i]),
-                angle_rad,
-            )
-            rw, rh = xma - xmi, yma - ymi
-            half_w, half_h = rw / 2, rh / 2
-
-            # Component bounding box
-            comp_min_x = x - half_w
-            comp_max_x = x + half_w
-            comp_min_y = y - half_h
-            comp_max_y = y + half_h
-
-            # Check rectangular keepouts
-            for keepout in board.keepout_regions:
-                kx_min, ky_min, kx_max, ky_max = keepout
-
-                # Check for intersection
-                if (
-                    comp_max_x > kx_min
-                    and comp_min_x < kx_max
-                    and comp_max_y > ky_min
-                    and comp_min_y < ky_max
-                ):
-                    violation_count += 1
-                    issues.append(
-                        GeometricViolation(
-                            severity=ValidationSeverity.ERROR,
-                            code="GEO_KEEPOUT",
-                            message=f"Component {comp.ref} overlaps with keepout region",
-                            component_refs=[comp.ref],
-                            location=(x, y),
-                            details={
-                                "keepout_bounds": keepout,
-                            },
-                            violation_type=ViolationType.KEEPOUT,
-                        )
+            if kind == "keepout":
+                keepout = tuple(float(v) for v in f["keepout_bounds"])
+                issues.append(
+                    GeometricViolation(
+                        severity=ValidationSeverity.ERROR,
+                        code=f["code"],
+                        message=f"Component {comp.ref} overlaps with keepout region",
+                        component_refs=[comp.ref],
+                        location=(x, y),
+                        details={
+                            "keepout_bounds": keepout,
+                        },
+                        violation_type=ViolationType.KEEPOUT,
                     )
-
-            # Check mounting holes
-            for hole in board.mounting_holes:
-                hx, hy = hole.position
-
-                # Distance from component center to hole center
-                dist_to_hole = ((x - hx) ** 2 + (y - hy) ** 2) ** 0.5
-
-                # Minimum distance considering component size and keepout radius
-                min_dist = max(half_w, half_h) + hole.keepout_radius
-
-                if dist_to_hole < min_dist:
-                    violation_count += 1
-                    shortage = min_dist - dist_to_hole
-                    issues.append(
-                        GeometricViolation(
-                            severity=ValidationSeverity.ERROR,
-                            code="GEO_MOUNTING_HOLE",
-                            message=f"Component {comp.ref} is {shortage:.2f}mm too close to mounting hole at ({hx}, {hy})",
-                            component_refs=[comp.ref],
-                            location=(x, y),
-                            details={
-                                "hole_position": (hx, hy),
-                                "distance_to_hole": dist_to_hole,
-                                "required_distance": min_dist,
-                            },
-                            violation_type=ViolationType.MOUNTING_HOLE,
-                            required_clearance=float(min_dist),
-                            actual_distance=dist_to_hole,
-                        )
+                )
+            else:  # mounting_hole
+                hx, hy = (float(v) for v in f["hole_position"])
+                dist_to_hole = float(f["distance_to_hole"])
+                min_dist = float(f["min_dist"])
+                shortage = float(f["shortage"])
+                issues.append(
+                    GeometricViolation(
+                        severity=ValidationSeverity.ERROR,
+                        code=f["code"],
+                        message=f"Component {comp.ref} is {shortage:.2f}mm too close to mounting hole at ({hx}, {hy})",
+                        component_refs=[comp.ref],
+                        location=(x, y),
+                        details={
+                            "hole_position": (hx, hy),
+                            "distance_to_hole": dist_to_hole,
+                            "required_distance": min_dist,
+                        },
+                        violation_type=ViolationType.MOUNTING_HOLE,
+                        required_clearance=float(min_dist),
+                        actual_distance=dist_to_hole,
                     )
-
-        return issues, violation_count
+                )
+        return issues
 
 
 def validate_placement(

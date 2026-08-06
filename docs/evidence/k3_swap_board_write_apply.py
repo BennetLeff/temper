@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """K3 swap + board write — apply the Run-B (evidence-validated) candidate (wave-2, #523).
 
-# provenance: commit=6ab24dd8e251a71904f008757653e8d04bc8949e dirty=false
+# provenance: commit=de59c045822194bbaffbefeb542cc48f895ecc82 dirty=false
 
 Writes the solved placement from k3_swap_board_write_variantB_summary.json to
 pcb/temper.kicad_pcb using the SAME application mechanism the re-solve

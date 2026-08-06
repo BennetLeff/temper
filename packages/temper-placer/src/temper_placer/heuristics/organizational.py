@@ -29,6 +29,7 @@ from temper_placer.heuristics.base import (
     HeuristicPriority,
     HeuristicResult,
     PlacementContext,
+    order_refs_by_netlist,
 )
 from temper_placer.io.config_loader import PlacementConstraints
 from temper_placer.router_v6.net_classification import (
@@ -119,7 +120,10 @@ def identify_functional_modules(
             modules.append(
                 FunctionalModule(
                     name=f"connected_group_{i}",
-                    components=list(group_refs),
+                    # Netlist order: `group_refs` is a set, and this list becomes
+                    # `FunctionalModule.components`, whose index selects each
+                    # component's polar angle in `_place_module_components`.
+                    components=order_refs_by_netlist(netlist, group_refs),
                 )
             )
 
@@ -136,7 +140,11 @@ def _find_highly_connected_groups(
     comp_connections: dict[str, dict[str, int]] = {}
 
     for net in netlist.nets:
-        refs = list(net.get_component_refs() - exclude_refs)
+        # Netlist order, not set order: `get_component_refs()` returns a set, and
+        # set iteration order for str depends on PYTHONHASHSEED. This order
+        # propagates into `comp_connections`, into the returned groups, and
+        # ultimately into the polar angle each component is placed at.
+        refs = order_refs_by_netlist(netlist, net.get_component_refs() - exclude_refs)
         # Skip power nets (too many connections)
         if net.net_class == "Power" or len(refs) > 10:
             continue

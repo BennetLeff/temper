@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """K3 swap + board write — validator-gated repair re-solve (issue #523, wave-2).
 
-# provenance: commit=6ab24dd8e251a71904f008757653e8d04bc8949e dirty=false
+# provenance: commit=de59c045822194bbaffbefeb542cc48f895ecc82 dirty=false
 
 Runs the production repair recipe through the validator-gated caller
 ``run_clearance_repair_solve`` on the K3-swapped board (K3 now carries the

@@ -51,11 +51,16 @@ class TestExtractPiantorRight:
         assert "hpwl" in ref.metrics
         assert "overlap_loss" in ref.metrics
         assert "boundary_loss" in ref.metrics
+        assert "rdl" in ref.metrics
 
         hpwl = ref.metrics["hpwl"].value
         assert hpwl > 0.0, f"HPWL is {hpwl}, expected > 0"
         assert ref.metrics["overlap_loss"].value >= 0
         assert ref.metrics["boundary_loss"].value >= 0
+        # Value-level RDL pin: a routed board must have positive routed
+        # length (membership alone would not catch a kernel returning 0).
+        rdl = ref.metrics["rdl"].value
+        assert rdl > 0.0, f"RDL is {rdl}, expected > 0"
 
     def test_save_round_trips(self, pcb_path: Path, tmp_path: Path):
         ref = extract_human_reference(pcb_path, validate=True)

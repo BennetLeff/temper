@@ -89,6 +89,22 @@ waiting too long stalls everything downstream.
 - Don't judge dead/alive by notifications alone: most deaths this session
   produced none.
 
+## The worktree-reuse collision (2026-08-02, A5-r2/r3)
+
+The "reuse the venv-ready worktree" optimization has a failure mode that
+outweighed it once: a restart dispatched into a *suspected*-dead agent's
+worktree while the original was **alive-but-slow** (the same signature that
+made A8-r2's completion a surprise). The result was two agents racing in one
+worktree: the original committed the restart's staged review-fixes into its own
+commit (`git add -A` swept both agents' edits), and the restart only noticed
+mid-task via its duplicate-guard. The outcome was salvageable (the guard
+stopped the restart cleanly; the combined commit was correct) — but only by
+luck of the guard's existence. Refined rule: **a restart always gets a fresh
+worktree, never the suspected-dead one** — the venv rebuild cost (~3-10 min) is
+cheaper than a two-agent collision, and the dead agent's worktree stays frozen
+for salvage. The commit-level guard remains as defense-in-depth; it is not a
+substitute for worktree separation.
+
 ## Evidence
 
 - This session's dispatch log: 12 deaths (A3, A5 ×2, A8/A9/A11 ×3 rounds each,

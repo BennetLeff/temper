@@ -41,6 +41,40 @@ class NetClassRules(BaseModel):
 {%- endif %}
     {{ field.name }}: {{ field.py_type }}{{ " = " + field.py_default if not field.required else "" }}
 {% endfor %}
+    # Legacy `_mm`-suffixed read aliases for the four scalar routing fields.
+    # A large swath of pre-migration call sites (router_v6/_astar_search.py,
+    # router_v6/escape_via_generator.py, router_v6/bundle_analyzer.py,
+    # router_v6/constraint_model.py, router_v6/capacity_check.py,
+    # deterministic/stages/setup.py, regression/drc_ratchet.py,
+    # validation/drc_oracle.py) read `trace_width_mm` / `clearance_mm` /
+    # `via_diameter_mm` / `via_drill_mm` off whatever object
+    # ``DesignRules.get_rules_for_net()`` / ``net_classes`` holds. In
+    # production that is this model; in router_v6 unit tests that construct
+    # ``stage0_data.NetClassRules`` directly it is the legacy (already-`_mm`)
+    # dataclass. The canonical field names are the non-`_mm` manifest names
+    # (matching ``DesignRules`` pyclass constructor kwargs and
+    # ``create_temper_design_rules()``); these aliases close the asymmetry on
+    # the read side, mirroring the identical ``_mm`` getter aliases added to
+    # the Rust ``DesignRules`` pyclass in
+    # packages/temper-design-bundle/src/design_rules.rs (commit 28dc960de),
+    # instead of renaming a dozen call sites (which would break the
+    # stage0-constructed tests that pass the legacy dataclass into them).
+    @property
+    def trace_width_mm(self) -> float:
+        return self.trace_width
+
+    @property
+    def clearance_mm(self) -> float:
+        return self.clearance
+
+    @property
+    def via_diameter_mm(self) -> float:
+        return self.via_diameter
+
+    @property
+    def via_drill_mm(self) -> float:
+        return self.via_drill
+
     def __init__(self, name: str = "", **data: object) -> None:
         # Accept a positional name for ergonomics so callers can write
         # ``NetClassRules("HighVoltage", trace_width=0.5)`` instead of

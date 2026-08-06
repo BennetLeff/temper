@@ -2,17 +2,37 @@
 Pytest configuration and shared fixtures for temper-placer tests.
 """
 
+import sys
 from pathlib import Path
 
 import numpy as np
 import pytest
 
-from temper_placer.core.board import Board, Zone
-from temper_placer.core.design_rules import DesignRules, NetClassRules
-from temper_placer.core.netlist import Component, Net, Netlist, Pin
-from temper_placer.core.state import PlacementState
-from temper_placer.deterministic.state import BoardState
-from temper_placer.io.footprint_library import load_footprint_library
+# ── protected-measurement-artifact guard ─────────────────────────────────────
+#
+# Duplicated from the repo-root conftest.py on purpose. CI runs most of this
+# suite as `cd packages/temper-placer && uv run pytest ...`, which makes THIS
+# package the pytest rootdir; pytest's confcutdir defaults to rootdir, so the
+# repo-root conftest is never loaded on that path and a guard installed only
+# there would be silently absent from exactly the invocation CI uses. Both
+# conftests bind the same function object under the same fixture name, so when
+# both are in scope pytest treats this as an override rather than running two
+# guards. See scripts/_lib/pytest_artifact_guard.py.
+_SCRIPTS_DIR = Path(__file__).resolve().parents[3] / "scripts"
+if str(_SCRIPTS_DIR) not in sys.path:
+    sys.path.insert(0, str(_SCRIPTS_DIR))
+
+from _lib.pytest_artifact_guard import (  # noqa: E402
+    protected_artifact_guard,  # noqa: F401  (imported to register the fixture)
+    pytest_sessionstart,  # noqa: F401  (imported to register the hook)
+)
+
+from temper_placer.core.board import Board, Zone  # noqa: E402
+from temper_placer.core.design_rules import DesignRules, NetClassRules  # noqa: E402
+from temper_placer.core.netlist import Component, Net, Netlist, Pin  # noqa: E402
+from temper_placer.core.state import PlacementState  # noqa: E402
+from temper_placer.deterministic.state import BoardState  # noqa: E402
+from temper_placer.io.footprint_library import load_footprint_library  # noqa: E402
 
 # ── pytest-dependency clusters, pinned to one xdist worker (defensive) ────────
 #
@@ -33,14 +53,15 @@ from temper_placer.io.footprint_library import load_footprint_library
 # 2026-07-27. Installing the plugin should not require also remembering to fix
 # the scheduler, so the grouping is in place ahead of it.
 #
-# The two clusters in tests/router_v6/:
+# The one remaining cluster in tests/router_v6/:
 #
 #   induction -- "induction-base" is declared ONLY in test_induction_base.py and
 #                depended on by 8 sibling modules. Being cross-file, `--dist
 #                loadfile` would not be sufficient for it.
-#   sat       -- test_sat_solve_pbt.py's internal bmc-l0 / sat-l1..l4 chain.
-#                Same-file, but `loadgroup` distributes UNGROUPED tests
-#                per-test, which would break it -- so it needs a tag too.
+#
+# A second cluster, "sat", pinned test_sat_solve_pbt.py's internal
+# bmc-l0 / sat-l1..l4 chain. That module tested the retired Python
+# router_v6/sat_model.py and was deleted with it, so the group went with it.
 #
 # Measured 2026-07-28 on the invariant-router-v6-1 file list: serial vs
 # `-n 4 --dist loadgroup` gave identical per-test outcomes (728 tests;
@@ -62,7 +83,6 @@ _XDIST_GROUPS = {
         "test_teardrop_induction",
         "test_thermal_relief_induction",
     },
-    "sat": {"test_sat_solve_pbt"},
 }
 _MODULE_TO_GROUP = {
     module: group for group, modules in _XDIST_GROUPS.items() for module in modules

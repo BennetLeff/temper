@@ -140,18 +140,72 @@ def test_enum_repr_and_str_identical(rust_cls, oracle_cls):
         assert str(rust_member) == str(oracle_member)
 
 
-def test_enum_members_are_identity_cached():
-    """Load-bearing: consumers do ``status is GateStatus.CLEAN``.
+def _members_by_name(enum_cls):
+    """Resolve every member through CLASS-LEVEL ITERATION.
 
-    pyo3 caches enum members as class attributes; each access below
-    resolves the member through a DIFFERENT access path (attribute vs
-    getattr) and asserts both resolve to the SAME object -- the property
-    consumers depend on (``result.status is GateStatus.CLEAN`` must
-    hold when the status came from the same enum class)."""
-    assert GATE_STATUS.CLEAN is GATE_STATUS.CLEAN
-    assert GATE_STATUS.VIOLATIONS is GATE_STATUS.VIOLATIONS
-    assert GATE_STAGE.PLACEMENT is GATE_STAGE.PLACEMENT
-    assert VIOLATION_TYPE.CREEPAGE is VIOLATION_TYPE.CREEPAGE
+    This is a genuinely different access path from an attribute read. On
+    the Rust pyclasses ``members()`` builds its list in Rust
+    (``list.append(Self::MEMBER)`` in ``str_enum_member_impl!``), so each
+    entry arrives through pyo3's enum-to-Python conversion; on the Python
+    Enum oracle ``list(cls)`` goes through the enum metaclass. Neither
+    reads the class attribute the assertions below compare against.
+    """
+    iterator = enum_cls.members() if hasattr(enum_cls, "members") else list(enum_cls)
+    return {member.name: member for member in iterator}
+
+
+@pytest.mark.parametrize(
+    ("enum_cls", "holder_cls", "consumer_members"),
+    [
+        (GATE_STATUS, VIOLATION, ("CLEAN", "VIOLATIONS")),
+        (_oracle.GateStatus, _oracle.Violation, ("CLEAN", "VIOLATIONS")),
+        (GATE_STAGE, VIOLATION, ("PLACEMENT",)),
+        (_oracle.GateStage, _oracle.Violation, ("PLACEMENT",)),
+        (VIOLATION_TYPE, VIOLATION, ("CREEPAGE",)),
+        (_oracle.ViolationType, _oracle.Violation, ("CREEPAGE",)),
+    ],
+)
+def test_enum_members_are_identity_cached(enum_cls, holder_cls, consumer_members):
+    """Load-bearing: consumers do ``result.status is GateStatus.CLEAN``.
+
+    Enum members must be identity-stable ACROSS ACCESS PATHS, so every
+    assertion below compares two objects that were reached DIFFERENTLY:
+    one from class-level iteration (Rust ``members()`` / ``list(Enum)``),
+    one from a Python attribute read (``getattr``), and -- for the members
+    consumers ``is``-dispatch on -- one round-tripped back out of a
+    dataclass field getter. A same-path comparison (``E.M is E.M``)
+    re-reads a single object twice and cannot fail; these can, and do if
+    ``members()`` ever materialises fresh instances (``Py::new(py,
+    Self::MEMBER)``) instead of yielding pyo3's cached member object.
+
+    Asserted on BOTH sides per this file's differential convention: the
+    Rust pyclass and the pinned Python Enum oracle are driven through the
+    identical access paths.
+    """
+    from_iteration = _members_by_name(enum_cls)
+    assert from_iteration, f"{enum_cls.__name__} exposed no members to iterate"
+
+    # Every member: class-level iteration vs. attribute access.
+    for name, iterated in from_iteration.items():
+        assert getattr(enum_cls, name) is iterated, (
+            f"{enum_cls.__name__}.{name}: attribute access and class-level "
+            f"iteration returned different objects "
+            f"({getattr(enum_cls, name)!r} at {id(getattr(enum_cls, name))} "
+            f"vs {iterated!r} at {id(iterated)})"
+        )
+
+    # The members consumers dispatch on: an iterated member driven into a
+    # dataclass field must come back out as the attribute object, which is
+    # exactly ``result.status is GateStatus.CLEAN`` / ``violation.type is
+    # ViolationType.CREEPAGE``. (``Violation.type`` is unvalidated -- see
+    # ``test_violation_type_field_is_unvalidated`` -- so it holds any of
+    # the three enums opaquely.)
+    for name in consumer_members:
+        held = holder_cls(type=from_iteration[name]).type
+        assert held is getattr(enum_cls, name), (
+            f"{enum_cls.__name__}.{name}: field getter returned a different "
+            f"object than attribute access"
+        )
 
 
 # ---------------------------------------------------------------------------

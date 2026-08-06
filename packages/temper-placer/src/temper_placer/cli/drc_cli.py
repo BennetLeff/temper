@@ -2,6 +2,14 @@
 Command-line interface for DRC checking.
 
 Moved from ``temper_drc.cli``.
+
+Wave-4 Phase-5 R3-style record (see ``packages/temper-orchestration/VERIFICATION.md``):
+this module is pure dispatch/glue — every command's work is call-backs into
+the Phase-4 ``validation/`` surface (``Placement.from_yaml``,
+``ConstraintSet.from_yaml``, ``CheckRunner``, the 13 check classes) and
+``report/`` (``format_text/json/html``, ``generate_summary``), both owned by
+other slices; the remainder is static template data and click wiring. Zero
+standalone compute exists to migrate; the click surface stays Python.
 """
 
 from __future__ import annotations

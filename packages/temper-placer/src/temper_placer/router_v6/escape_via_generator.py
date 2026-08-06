@@ -64,7 +64,12 @@ def generate_escape_vias(
     # Resolve layer from component side
     from temper_placer.core.board import side_to_layer_name
 
-    side = getattr(component, "side", 0) or 0
+    # The contract field is `initial_side` (core/netlist.py), not `side`.
+    # Reading a `side` attribute Component does not have made the getattr
+    # default fire unconditionally, labelling every escape via "F.Cu" -- while
+    # pin_world_position DID mirror the pad coordinates for bottom-side parts,
+    # so the two halves of the same via disagreed. See issue #752 defect 3.
+    side = component.initial_side or 0
     layer = side_to_layer_name(side)
 
     # Get component absolute position
