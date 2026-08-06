@@ -34,11 +34,17 @@ rather than smoothed over:
 Scope note
 ----------
 The strategies below deliberately keep pins **on-board** for the monotonicity
-and metamorphic properties.  Off-board pins hit defect D3 (a negative-index
-slice that writes a block at the origin -- see the oracle header), which makes
-"adding a net never decreases demand" false in a way that is a *property of
-the defect*, not of the kernel.  D3 is pinned by name in the differential;
-duplicating it here as a weakened property would hide it.
+and metamorphic properties.  This was originally forced by defect D3 (a
+negative-index slice that wrote a block at the origin), which made "adding a
+net never decreases demand" false in a way that was a *property of the
+defect*, not of the kernel.  #760 repaired D3 -- an off-board net now returns
+the grid unchanged -- so monotonicity would hold there too, but the
+restriction is kept: off-board nets contribute exactly zero, so including
+them would make the translation and scaling metamorphic properties trivially
+satisfiable on any example the generator happened to push off the board.  The
+repaired off-board behaviour is pinned by name in the differential
+(``test_repaired_d3_offboard_net_contributes_nothing``); duplicating it here
+as a weakened property would hide it.
 """
 
 from __future__ import annotations
@@ -79,9 +85,9 @@ def _pin_pairs(draw, min_nets: int = 1, max_nets: int = 6):
 def _net_designs(draw):
     """A ``(components, nets)`` pair in the corpus's tuple shape.
 
-    Every net is 2-pin and every pin is on-board, so the D3 negative-index
-    slice (see the oracle header) is out of scope here -- it is pinned by
-    name in the differential instead.
+    Every net is 2-pin and every pin is on-board, so the off-board branch
+    (the site of defect D3, repaired by #760 -- see the oracle header) is out
+    of scope here; it is pinned by name in the differential instead.
     """
     n = draw(st.integers(min_value=1, max_value=5))
     components = []

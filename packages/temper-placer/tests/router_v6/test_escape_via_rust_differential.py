@@ -54,6 +54,7 @@ import ast
 import math
 import random
 import subprocess
+from pathlib import Path
 
 import pytest
 
@@ -101,6 +102,9 @@ def _rust(symbol: str):
 # ===========================================================================
 # END ADAPTER BLOCK
 # ===========================================================================
+
+_REPO_ROOT = Path(__file__).resolve().parents[4]
+_SRC = _REPO_ROOT / "packages" / "temper-placer" / "src" / "temper_placer" / "router_v6"
 
 _ORACLE_PIN_SHA = "143752893c177dc976da614566c64e4e53e4951f"
 _ORACLE_NAMES: tuple[str, ...] = ("EscapeVia", "generate_escape_vias", "_is_position_valid")
@@ -340,8 +344,31 @@ def test_repaired_d4_layer_follows_the_component_side():
     ``Component`` still has no ``side`` attribute; that is asserted, because
     a future ``side`` field would make the old ``getattr`` spelling start
     working again and quietly mask a regression here.
+
+    Like the cluster-E repairs, this pairs a STRUCTURAL half that reads the
+    *shipped* module with ``ast`` -- the oracle is a frozen copy pinned at a
+    SHA, so only this half can catch a regression in production -- with a
+    BEHAVIOURAL half that calls the oracle for real.
     """
     from temper_placer.core.netlist import Component
+
+    # --- structural half: the shipped resolution, read without importing ---
+    path = _SRC / "escape_via_generator.py"
+    tree = ast.parse(path.read_text(), filename=str(path))
+    assigns = [
+        ast.unparse(node.value)
+        for node in ast.walk(tree)
+        if isinstance(node, ast.Assign)
+        and any(isinstance(t, ast.Name) and t.id == "side" for t in node.targets)
+    ]
+    assert assigns, "escape_via_generator.py no longer assigns `side` -- re-derive D4"
+    assert all("getattr" not in a for a in assigns), (
+        f"the side-blind `getattr` form of D4 is back: {assigns}"
+    )
+    assert all("initial_side" in a for a in assigns), (
+        f"`side` is resolved from something other than initial_side: {assigns} -- "
+        "that is the D4 failure mode whatever spelling it wears"
+    )
 
     assert not hasattr(
         Component(

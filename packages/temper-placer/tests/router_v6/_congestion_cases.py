@@ -38,9 +38,10 @@ Coverage intent per named list
 ``NET_BBOXES``               ``estimate_net_demand``: fewer than two pins,
                              both pins in one cell, a net spanning the whole
                              board, a net entirely off-board on each side
-                             (defect D3's negative-index slice), a net
-                             straddling the boundary, and a NaN coordinate
-                             (which raises ``ValueError``).
+                             (the site of defect D3's negative-index slice,
+                             repaired by #760 -- both sides now contribute
+                             nothing), a net straddling the boundary, and a
+                             NaN coordinate (which raises ``ValueError``).
 ``ANALYZE_DESIGNS``          ``analyze_congestion`` end to end: empty netlist,
                              single one-pin net, two overlapping nets, a net
                              whose components are missing from the netlist,
@@ -223,11 +224,14 @@ NET_BBOXES: list[
     (10.0, 10.0, 1.0, (0.0, 0.0), [(5.0, 4.0), (1.0, 1.0)], 0, 1.0),  # insertion order
     # spans the whole board
     (10.0, 10.0, 1.0, (0.0, 0.0), [(0.0, 0.0), (10.0, 10.0)], 0, 1.0),
-    # DEFECT D3: entirely off-board -> negative col_max -> negative-index
-    # slice -> demand written at the ORIGIN.  Pinned, not fixed.
+    # The site of defect D3: entirely off-board used to leave col_max negative
+    # -> negative-index slice -> demand written at the ORIGIN.  Repaired by
+    # #760; these rows are kept because they are now the regression corpus for
+    # the guard, and are pinned inverted by
+    # test_repaired_d3_offboard_net_contributes_nothing.
     (10.0, 10.0, 1.0, (0.0, 0.0), [(-5.0, -5.0), (-4.0, -4.0)], 0, 1.0),
     (10.0, 10.0, 1.0, (0.0, 0.0), [(-1.0, 2.0), (-0.5, 3.0)], 0, 1.0),
-    # entirely off-board on the FAR side -> clamped, writes a 1-cell slice
+    # entirely off-board on the FAR side -> also returns the grid unchanged
     (10.0, 10.0, 1.0, (0.0, 0.0), [(50.0, 50.0), (60.0, 60.0)], 0, 1.0),
     # straddling the low boundary
     (10.0, 10.0, 1.0, (0.0, 0.0), [(-3.0, -3.0), (2.0, 2.0)], 0, 1.0),
@@ -712,8 +716,9 @@ def random_demand_supply(seed: int, n: int) -> list[tuple[list[float], list[floa
 def random_net_bboxes(seed: int, n: int) -> list[list[tuple[float, float]]]:
     """``n`` pin-position lists, seeded by ``seed``.
 
-    Coordinates deliberately range outside the board so the D3
-    negative-index slice is hit by the random sweep too, not only by the
+    Coordinates deliberately range outside the board so the off-board branch
+    -- the site of defect D3's negative-index slice, repaired by #760 and now
+    an early return -- is hit by the random sweep too, not only by the
     hand-written rows.
     """
     import random

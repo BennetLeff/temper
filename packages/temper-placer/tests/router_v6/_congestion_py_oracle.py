@@ -29,11 +29,12 @@ module                       stmts    top-level definitions copied here
                                       ``update_component_positions``
 ===========================  =======  ================================================
 
-Nothing here has been cleaned up, refactored, reformatted, or fixed --
-**including the three defects documented under "Known defects" below**.  A
-fix would break the verbatim pin and silently weaken the differential proof:
-the Rust kernel's contract is *this behaviour*, defects and all, until a
-separate PR changes the production module and re-pins the oracle.
+Nothing here has been cleaned up, refactored, reformatted, or fixed.  A fix
+applied *here* would break the verbatim pin and silently weaken the
+differential proof: the Rust kernel's contract is whatever the shipped module
+does, and the only legitimate way to change it is the one that was taken for
+the three defects below -- change the production module in its own PR, then
+re-pin this oracle onto the repaired source.
 
 ``test_congestion_rust_differential.py::test_oracle_is_verbatim_copy``
 re-extracts every definition above from the pinned commit and compares the
@@ -128,46 +129,67 @@ this cluster uses two of the three, sometimes in the same expression.
   ``numpy.float32`` while the first two are Python ``float``.  Measured.
   ``tests/router_v6/_signature.py`` separates those; ``==`` does not.
 
-Known defects -- REPORTED, NOT FIXED
--------------------------------------
-Found while pinning this oracle.  All three are reproduced verbatim above and
-pinned by named differential cases, because the oracle's job is to be the
-pre-migration behaviour, not the correct behaviour.
+Defects found while pinning -- ALL THREE REPAIRED, ORACLE RE-PINNED
+-------------------------------------------------------------------
+The first version of this oracle pinned the three defects below *unfixed*,
+because the oracle's job is to be the shipped behaviour rather than the
+correct behaviour.  **#760 (``aebaecd99``) repaired all three in the
+production modules**, so this oracle has been re-pinned onto the repaired
+source at ``143752893`` and the three differential cases were **inverted, not
+deleted**: each now asserts the repaired behaviour and fails if the original
+defect returns.  Deleting them would have removed the only named check on
+each of these paths.
 
-**D1 -- ``analyze_congestion``'s ``positions`` argument is dead.**
-``_get_pin_positions`` computes ``comp_x, comp_y`` from ``positions`` (or from
-``comp.initial_position``), then never reads them: the pin position actually
-appended comes from ``pin_world_position(pin, comp)``, which reads the
-component's own ``initial_position``.  The ``else`` branch even assigns to
-``_comp_x, _comp_y`` -- underscore-prefixed, so linters see the whole triple
-as intentionally unused rather than as a bug.  Measured: passing a
-``positions`` array that moves every component tens of millimetres produces a
-**byte-identical** result to ``positions=None``.  This is the placement
-feedback loop's input, so the loop is currently blind to the positions it is
-supposed to be evaluating.  Pinned by
-``test_d1_positions_argument_is_ignored``.
+**D1 -- ``analyze_congestion``'s ``positions`` argument was dead.**
+``_get_pin_positions`` computed ``comp_x, comp_y`` from ``positions`` (or from
+``comp.initial_position``) and then never read them: the coordinate actually
+appended came from ``pin_world_position(pin, comp)``, which reads the
+component's own ``initial_position``.  The ``else`` branch even assigned to
+``_comp_x, _comp_y`` -- underscore-prefixed, so linters saw the whole triple
+as intentionally unused rather than as a bug.  Measured then: a ``positions``
+array moving every component 999 mm produced a **byte-identical** result to
+``positions=None``, so the placement feedback loop was blind to the very
+positions it was evaluating.
 
-**D2 -- the ``layer_assignments`` path raises ``ModuleNotFoundError``.**
-``analyze_congestion`` does ``from temper_placer.routing.layer_assignment import Layer``
-in two places.  There is no ``temper_placer.routing`` package -- the tree is
-``temper_placer.router_v6`` -- so *any* call with ``layer_assignments is not None``
-raises ``ModuleNotFoundError: No module named 'temper_placer.routing'``
-before it computes anything.  The entire multi-layer branch of this module is
-unreachable in production.  Pinned as **error parity** by
-``test_d2_layer_assignments_raises_module_not_found``: the Rust arm must
-raise the same exception type with the same message, which is the honest
-contract until someone fixes the import.
+**Now:** the array becomes a ``pos_override`` passed to
+``pin_world_position_at``.  Measured on the corpus's ``two_pin_net``:
+``positions=None`` yields pins ``[(1.0, 1.0), (6.0, 5.0)]`` and the 999 mm
+array yields ``[(999.0, 999.0), (-999.0, -999.0)]``; total grid demand moves
+``30.0 -> 100.0``.  Inverted pin:
+``test_repaired_d1_positions_argument_is_honoured``.
 
-**D3 -- off-board nets add demand to a 7x7 block at the origin.**
-In ``estimate_net_demand`` the grid indices are clamped with
-``col_min = max(0, int(...))`` but ``col_max = min(width_cells - 1, int(...))``
--- the upper bound is clamped from *above* only.  For a net entirely to the
-left of the board, ``col_max`` stays negative, and
-``new_demand[row_min:row_max + 1, col_min:col_max + 1]`` becomes a
-**negative-index slice**: measured, a net at x in [-5, -4] on a 10x10 grid
-writes demand into ``[0:-3, 0:-3]``, i.e. 49 cells at the board origin, when
-the correct answer is zero cells.  Pinned by
-``test_d3_offboard_net_writes_negative_slice``.
+**D2 -- the ``layer_assignments`` path raised ``ModuleNotFoundError``.**
+``analyze_congestion`` imported ``temper_placer.routing.layer_assignment`` in
+two places.  There is no ``temper_placer.routing`` package -- the tree is
+``temper_placer.router_v6`` -- so *any* call with
+``layer_assignments is not None`` raised
+``ModuleNotFoundError: No module named 'temper_placer.routing'`` before
+computing anything, making the entire multi-layer branch unreachable.
+
+**Now:** both imports read ``temper_placer.router_v6.layer_assignment``, the
+package that actually exists.  Measured: ``layer_assignments={}`` returns a
+``CongestionResult`` instead of raising, and a mapping whose assignments span
+``L1_TOP`` and ``L4_BOT`` promotes ``num_layers`` to 2 (demand shape
+``(2, 10, 10)``).  Inverted pin:
+``test_repaired_d2_layer_assignments_path_is_reachable``.
+
+**D3 -- off-board nets added demand to a 7x7 block at the origin.**
+``estimate_net_demand`` clamped ``col_min = max(0, int(...))`` but
+``col_max = min(width_cells - 1, int(...))`` -- each bound from one side only.
+For a net entirely left of the board ``col_max`` stayed negative and
+``new_demand[row_min:row_max + 1, col_min:col_max + 1]`` became a
+**negative-index slice**: measured, a net at x, y in [-5, -4] on a 10x10 grid
+wrote 49 cells at the board *origin* where the answer is zero.  The far edge
+was right by accident (``col_min = 50 > col_max = 9`` is an empty ``[50:10]``
+slice), and that asymmetry is what made the near edge visible.
+
+**Now:** an explicit ``if col_max < col_min or row_max < row_min: return grid``
+guard.  Measured on the same 10x10 grid: the near-edge net writes **0** cells
+and the far-edge net writes 0 cells, and *both* now return the input grid
+**by identity** -- the far edge used to return a fresh copy carrying an empty
+write.  A net straddling the low boundary still contributes (9 cells), which
+is what keeps the guard from being an over-broad "reject anything negative".
+Inverted pin: ``test_repaired_d3_offboard_net_contributes_nothing``.
 
 Cluster membership note
 ------------------------
@@ -183,9 +205,10 @@ five modules' membership is as surveyed.
 #   ``CongestionGrid.from_board`` is annotated ``-> "CongestionGrid"`` and
 #   ``analyze_congestion`` takes ``dict[str, "LayerAssignment"]``.  Both quoted
 #   forward references are part of the verbatim pin.  Unquoting them is an
-#   edit to the oracle, and the ``LayerAssignment`` one would additionally
-#   turn a currently-inert reference to the non-existent
-#   ``temper_placer.routing`` package (defect D2) into a runtime name.
+#   edit to the oracle.  (Before #760 the ``LayerAssignment`` one would
+#   additionally have turned a then-inert reference to the non-existent
+#   ``temper_placer.routing`` package -- defect D2 -- into a runtime name.
+#   The module path is now real, but the quoting is still part of the pin.)
 
 from __future__ import annotations
 
@@ -199,7 +222,7 @@ import numpy as np
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist
-from temper_placer.core.pin_geometry import pin_world_position
+from temper_placer.core.pin_geometry import pin_world_position_at
 from temper_placer.router_v6.routing_results import RoutingResults
 from temper_placer.router_v6.stage0_data import ParsedPCB
 
@@ -208,7 +231,7 @@ Array: TypeAlias = np.ndarray  # numpy alias replacing JAX Array post-JAX retire
 if TYPE_CHECKING:
     from typing import Any
 
-    from temper_placer.routing.layer_assignment import LayerAssignment
+    from temper_placer.router_v6.layer_assignment import LayerAssignment
 else:
     Any = object
 
@@ -454,6 +477,16 @@ def estimate_net_demand(
     row_min = max(0, int((min_y - origin_y) / cell_size))
     row_max = min(grid.height_cells - 1, int((max_y - origin_y) / cell_size))
 
+    # A net whose bounding box does not intersect the grid contributes no
+    # demand. Clamping each pair from one side only is not enough: a net
+    # entirely left of (or above) the board leaves col_max/row_max NEGATIVE,
+    # and `demand[0 : -3 + 1, 0 : -3 + 1]` is a *negative-index* slice -- it
+    # writes a real block of demand at the board ORIGIN. The far edge was
+    # already correct by accident (col_min > col_max yields an empty
+    # `[50:10]` slice), which is exactly what made the near edge visible.
+    if col_max < col_min or row_max < row_min:
+        return grid
+
     # Add demand to cells in bounding box
     # Use half-perimeter estimation - weight cells along likely routing paths
     if grid.num_layers == 1:
@@ -523,18 +556,20 @@ def _get_pin_positions(
 
         comp_idx, comp = comp_by_ref[comp_ref]
 
-        # Get component position
+        # Get component position. When an explicit `positions` array is given
+        # it OVERRIDES the component's own initial_position -- that is the
+        # whole point of the argument, and the caller (the placement feedback
+        # loop) is evaluating a candidate placement, not the stored one.
+        # `pos_override=None` falls back to comp.initial_position, and then to
+        # (0.0, 0.0), inside pin_world_position_at.
+        pos_override: tuple[float, float] | None = None
         if positions is not None:
-            comp_x, comp_y = float(positions[comp_idx, 0]), float(positions[comp_idx, 1])
-        elif comp.initial_position is not None:
-            comp_x, comp_y = comp.initial_position
-        else:
-            _comp_x, _comp_y = 0.0, 0.0
+            pos_override = (float(positions[comp_idx, 0]), float(positions[comp_idx, 1]))
 
         # Find pin and get its position
         for pin in comp.pins:
             if pin.name == pin_name or pin.number == pin_name:
-                pin_x, pin_y = pin_world_position(pin, comp)
+                pin_x, pin_y = pin_world_position_at(pin, comp, pos_override=pos_override)
                 pin_positions.append((pin_x, pin_y))
                 break
 
@@ -575,7 +610,7 @@ def analyze_congestion(
     # Handle layer assignment impact on num_layers
     if layer_assignments is not None and num_layers == 1:
         # Check if any assignments use multiple layers
-        from temper_placer.routing.layer_assignment import Layer
+        from temper_placer.router_v6.layer_assignment import Layer
 
         layers_used = set()
         for assignment in layer_assignments.values():
@@ -604,7 +639,7 @@ def analyze_congestion(
         # Determine layer for this net
         layer = 0
         if layer_assignments is not None and net.name in layer_assignments:
-            from temper_placer.routing.layer_assignment import Layer
+            from temper_placer.router_v6.layer_assignment import Layer
 
             assignment = layer_assignments[net.name]
             if assignment.primary_layer == Layer.L4_BOT:
