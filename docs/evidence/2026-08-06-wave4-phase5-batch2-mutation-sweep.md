@@ -1,6 +1,6 @@
 # Wave-4 Phase-5 batch-2 mutation sweep (2026-08-06)
 
-<!-- provenance: commit=<filled-after-run> dirty=false -->
+<!-- provenance: commit=054ca7a20 dirty=false -->
 
 **What this is.** The anti-vacuity record for the deterministic leaf kernels
 migrated in Wave-4 Phase-5 batch 2. A kernel is "honestly bounded" only if a
