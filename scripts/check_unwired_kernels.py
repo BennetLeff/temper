@@ -74,8 +74,17 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 INVENTORY = REPO_ROOT / ".unwired-kernel-inventory"
 
 # Registration forms that mean "callable from Python".
-ADD_FUNCTION = re.compile(r"wrap_pyfunction!\(\s*([A-Za-z_][A-Za-z0-9_]*)")
-ADD_CLASS = re.compile(r"add_class::<\s*([A-Za-z_][A-Za-z0-9_]*)")
+# Registration is frequently PATH-QUALIFIED -- `wrap_pyfunction!(fdm::solve_py, m)`.
+# Capturing the first identifier yields the Rust MODULE (`fdm`), not the function,
+# which is wrong twice over: it invents a symbol that can never be "wired" (a module
+# is not callable from Python), and it silently drops the real one. Measured on
+# 2026-08-06: 113 of 572 registered functions were path-qualified, so the gate was
+# not watching them AT ALL, while 18 Rust module names sat in the ledger being
+# triaged as if they were kernels. Consume the `::` segments and keep the last.
+ADD_FUNCTION = re.compile(
+    r"wrap_pyfunction!\(\s*(?:[A-Za-z_][A-Za-z0-9_]*\s*::\s*)*([A-Za-z_][A-Za-z0-9_]*)")
+ADD_CLASS = re.compile(
+    r"add_class::<\s*(?:[A-Za-z_][A-Za-z0-9_]*\s*::\s*)*([A-Za-z_][A-Za-z0-9_]*)")
 # `#[pyo3(name = "...")]` renames the Python-visible symbol.
 PYO3_NAME = re.compile(r'#\[pyo3\([^)]*name\s*=\s*"([^"]+)"')
 PYCLASS_NAME = re.compile(r'#\[pyclass\([^)]*name\s*=\s*"([^"]+)"')
@@ -84,17 +93,28 @@ PYCLASS_NAME = re.compile(r'#\[pyclass\([^)]*name\s*=\s*"([^"]+)"')
 def registered_symbols() -> dict[str, str]:
     """Python-visible symbol -> the .rs file that registers it."""
     out: dict[str, str] = {}
+    sources: list[tuple[str, str]] = []
     for rs in REPO_ROOT.glob("packages/*/src/**/*.rs"):
         if "/target" in str(rs):
             continue
         try:
-            text = rs.read_text()
+            sources.append((str(rs.relative_to(REPO_ROOT)), rs.read_text()))
         except OSError:
             continue
-        rel = str(rs.relative_to(REPO_ROOT))
+
+    # Renames are resolved REPO-WIDE, not per file. A `#[pyclass(name = "X")]`
+    # is routinely declared in one module and registered in another --
+    # `PyDsnCircle` is `#[pyclass(name = "DSNCircle")]` in dsn_types.rs but
+    # registered from lib.rs. A per-file map cannot see across that boundary,
+    # so it reports the Rust name, which no Python caller ever writes, and the
+    # kernel looks unwired however thoroughly it is used.
+    renames: dict[str, str] = {}
+    for _rel, text in sources:
+        renames.update(pyclass_renames(text))
+
+    for rel, text in sources:
         for m in ADD_FUNCTION.finditer(text):
             out.setdefault(m.group(1), rel)
-        renames = pyclass_renames(text)
         for m in ADD_CLASS.finditer(text):
             rust_name = m.group(1)
             # A `#[pyclass(name = "X")]` is visible to Python as X, NOT as the
