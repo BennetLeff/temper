@@ -143,7 +143,7 @@ For contributors working on architecture, verification, or toolchain internals:
 
 <!-- BEGIN GENERATED: inventory -- edits here are overwritten by scripts/gen_repo_state.py -->
 
-**18 workspace packages** under `packages/`:
+**19 workspace packages** under `packages/`:
 
 - `temper-constraint-compiler`
 - `temper-design-bundle`
@@ -162,6 +162,7 @@ For contributors working on architecture, verification, or toolchain internals:
 - `temper-rust-router`
 - `temper-rust-router-core`
 - `temper-thermal`
+- `temper-wasm-test-runner`
 - `temper-workflow`
 
 Sizes and dependency edges are in [`ARCHITECTURE.svg`](./ARCHITECTURE.svg), regenerated automatically on push.
