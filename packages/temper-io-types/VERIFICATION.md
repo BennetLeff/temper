@@ -956,3 +956,299 @@ coercion (M34), and `Rect` storing `f64` instead of the original objects
 * **`np.linalg.eigh`** (`compute_eigenvector_centrality`) is *not*
   ported and no parity is claimed for it — it is the host LAPACK, and
   bit-exactness would require linking the same LAPACK build.
+
+---
+
+# Placer non-cp_sat compute — Verification
+
+The placer non-`cp_sat` compute slice (`placer/adjustment.py`,
+`placer/deterministic.py`, `placer/template.py`; `placer/__init__.py`
+stays untouched) is the Wave 4 **Phase 4** migration into the
+`temper-io-types/placer_core` crate (`src/placer_compute.rs`, exposed
+through the `placer_*` pyfunctions in `src/placer_core/pybridge.rs`).
+The three Python modules are delegation shims; the pre-migration
+implementations are pinned verbatim as the differential oracles
+(`tests/placer/_placer_adjustment_py_oracle.py`,
+`_placer_deterministic_py_oracle.py`, `_placer_template_py_oracle.py`,
+each re-pinned from commit `17553437d` and registered in
+`scripts/oracle_hashes.json`). The TDD-RED commit is `9d9e0197f`
+(rebased from `ff156e1f3` onto current `origin/main`; oracles + differential
+suites, demonstrated failing to collect until the Rust surface landed).
+
+## Home-crate decision
+
+`temper-io-types/placer_core` — the same home as #724's
+`pybridge`/`pyrepr` and the Wave-4 Phase-2 contract layer. The kernels
+consume nothing from `temper-design-bundle`; their Python-facing seams
+(transcendentals, numpy `sqrt`/`**2`, `np.random.uniform`) are passed in
+as callbacks, so no crate dependency on a Python-typed bundle is needed.
+`placer_compute.rs` compiles for `wasm32-unknown-unknown` with no pyo3
+dependency (the `#[cfg(feature = "python")]` pybridge is the only
+Python-touching boundary), mirroring the crate's other kernels.
+
+## Candidate scorecard (what stays Python, and why)
+
+| Kernel | Python origin | Verdict |
+|---|---|---|
+| `ComponentTemplate.apply` geometry | `template.py` | migrated (`placer_apply_component_template`) |
+| `ParametricTemplate.apply` geometry | `template.py` | migrated (`placer_apply_parametric_template`) |
+| `place_power_stage_template` compute (zone-center template application + mapping loop) | `deterministic.py` | migrated (`placer_place_power_stage_template`) |
+| `place_by_proximity` spiral (the #763 fix) | `deterministic.py` | migrated (`placer_place_by_proximity`) |
+| `place_in_zone_center` grid distribution | `deterministic.py` | migrated (`placer_place_in_zone_center`) |
+| `adjust_for_congestion` push loop (dtype-aware) | `adjustment.py` | migrated (`placer_adjust_for_congestion`) |
+| template dataclasses + `create_*` data constructors | `template.py` | **stays Python** — data containers, not compute |
+| `load_template_from_yaml` | `template.py` | **stays Python** — `yaml.safe_load` is a Python library seam (the Phase-3 PyYAML ruling) |
+| `PlacementResult` dataclass | `deterministic.py` | **stays Python** |
+| zone/netlist/bottleneck object navigation (`.zones`, `.bounds`, `.components[].ref/.fixed`, `n_components`, `bottleneck.overflow`, `bottleneck.to_coordinates(...)`) | all three | **stays Python** |
+| `math.cos`/`math.sin` (template rotation, spiral angle) | all three | **stays Python, called back** — CPython's libm bits are the oracle's; Rust `f64::sin` is 1-ULP-divergent on this platform (measured 461/200k, 2026-08-05) |
+| `np.sqrt(dx**2 + dy**2)` (numpy `**2` is libm `pow`, not `x*x`; numpy float32 `sqrt` is correctly-rounded f32) | `adjustment.py` | **stays Python, called back** (`dist` seam) |
+| `np.random.uniform(0, 2*pi)` (the global numpy RNG, drawn in the oracle's iteration order) | `adjustment.py` | **stays Python, called back** (`uniform` seam) |
+| `np.cos`/`np.sin` of the random push angle | `adjustment.py` | **stays Python, called back** |
+| `math.radians` (`x*(pi/180)` ratio form) | `template.py` | reproduced in the kernel as `(r as f64) * (PI/180.0)` — bit-identical (both are the correctly-rounded double product of the same π double and 180.0) |
+| Python `%` (floored) composite rotation | all | reproduced via `py_mod` |
+| CPython `min`/`max` first-arg-on-tie + NaN semantics | `deterministic.py` | reproduced via `py_min`/`py_max` |
+
+## Induction applicability
+
+**Mathematical induction is not applicable to this slice.** Every migrated
+kernel is a bounded transcription over caller-provided collections: the
+per-component template/parametric geometry is a fixed per-element
+transform independent of collection size; the spiral and grid loops apply
+a per-element formula; the congestion push loop is a doubly-bounded
+per-(bottleneck, component) pass whose per-element operation is independent
+of the counts. Nothing recurses over a size-parameterized structure whose
+correctness scales with n.
+
+Per the plan's R1e, a **structural proof** is recorded instead.
+
+## Structural proof
+
+**Claim (bit-identical parity).** For every migrated entry point, the Rust
+kernel is bit-identical to the pinned pre-migration Python implementation
+for every input in the differential suites' domains, with the documented
+Python-side seams below (whose bits are preserved by construction because
+the kernel calls back into the oracle's own library calls).
+
+*Proof by structural cases.*
+
+1. **Template rotation (R(-θ), the `if rotation != 0` bypass).** The
+   oracle computes `rot_rad = math.radians(rotation)`, then
+   `rotate_local_to_world(rel_x, rel_y, rot_rad)` = `(x*c + y*s, -x*s +
+   y*c)` with `c, s = math.cos(rot_rad), math.sin(rot_rad)`, but **only**
+   when `rotation != 0` (otherwise the rel offsets pass through). The
+   kernel transcribes the same: `rotation_radians` is the ratio-form
+   product (bit-identical to `math.radians`), the trig seam returns the
+   oracle's libm bits, the formula and evaluation order match, and the
+   `rotation != 0` bypass is preserved — pinned by the signed-zero test
+   (`test_component_template_zero_rotation_signed_zero_pins_bypass`: at
+   rotation=0 a `-0.0` rel offset must survive as `-0.0`, which an
+   always-rotate kernel would turn into `+0.0`). `abs_rotation = (rotation
+   + comp.rotation) % 360` is Python's floored modulo, reproduced by
+   `py_mod` (negative composite rotations covered in the kernel tests and
+   P3).
+2. **Parametric scaling.** `rel_x = comp.x_ratio * target_width -
+   anchor_off_x` where `anchor_off_x` is `anchor.x_ratio * target_width`
+   or, for the missing-anchor fallback, `0.5 * target_width` — same
+   products, same subtraction order. The anchor's own rel offset is
+   `arx*w - arx*w == 0.0` bit-exactly (a value minus itself), so the
+   anchor lands exactly at `(anchor_x, anchor_y)` for every dimension pair
+   (MR3).
+3. **`place_power_stage_template` mapping.** The oracle builds
+   `placements = template.apply(zone_center_x, zone_center_y, rotation=0)`
+   (a last-wins dict), `ref_to_idx = {comp.ref: i ...}` (last-wins on
+   duplicate netlist refs), then iterates the netlist in order, placing
+   each template-matched ref at its last index and appending to
+   `placed_refs` per occurrence. The kernel reproduces both last-wins
+   maps (`placements_by_ref` on the template side, `ref_to_idx` on the
+   netlist side) and the same iteration order — pinned by
+   `test_place_power_stage_template_duplicate_refs_last_wins` and the
+   kernel test `power_stage_duplicate_template_ref_last_geometry_wins`.
+   The `np.array(initial_positions, dtype=np.float32)` cast stays in the
+   shim; the kernel receives the f32-widened values and reconstructs the
+   exact f32 bits (`initial_float64_cast` differential pins the cast).
+   `rotations[idx] = rot` and `positions[idx] = [x, y]` are f64→f32
+   stores, transcribed as `as f32`.
+4. **`place_by_proximity` spiral (the #763 fix).** `angle_step =
+   2*math.pi / max(len(refs), 4)` (int max; `2*math.pi` and the division
+   are single correctly-rounded doubles, identical in the kernel);
+   `angle = i * angle_step`; `distance = 8.0 + (i // 4) * 3.0`; `x =
+   base_x + distance * cos(angle)` (trig seam); zone clamp `max(b0,
+   min(b2, x))` via `py_max`/`py_min` (first-arg-on-tie = CPython's
+   semantics). The #763 contract — the spiral runs at function level
+   regardless of `zone_name` — is preserved by construction (the loop
+   never sits inside the `zone` branch) and pinned by the no-zone arms
+   (`test_place_by_proximity_no_zone`: `"C1" in placed_refs`). The
+   oracle's `max_distance` branch is a literal no-op (`if distance >
+   max_distance: pass`); the differential drives `max_distance` across
+   values and asserts the shim is invariant, pinning the dead parameter.
+5. **`place_in_zone_center` grid.** `grid_size = ceil(sqrt(len))` is
+   IEEE correctly-rounded sqrt/ceil (bit-identical to `math.sqrt`/
+   `math.ceil`); `x = center_x + (col - grid_size/2) * spacing` with
+   `spacing = 8.0`; zone clamp via `py_max`/`py_min`. The refs→indices
+   `None` for unknown refs lands them in `unplaced_refs` exactly like the
+   oracle's `continue`.
+6. **`adjust_for_congestion` dtype awareness.** The oracle operates on
+   `result = positions.copy()` in the array's own dtype. Under numpy 2.x
+   NEP-50 a float32 array's normalized-push chain stays in float32
+   (`dx = px - bx` computed in f32, `force` in f32, the in-place add in
+   f32), while the exact-spot random push (`dist < 1e-3`) adds the f64
+   random delta to the widened f32 element and rounds only on store. The
+   kernel reproduces both paths op-for-op (`is_f32` branch); the f32
+   `1e-3` spot threshold is bit-equivalent to the f64 comparison for all
+   f32 dist values (no f32 lies strictly between `1e-3` and its f32
+   rounding), pinned by `test_float32_normalized_chain` and
+   `test_float32_exact_spot_store_semantics`. The distance is the numpy
+   `sqrt(dx**2 + dy**2)` seam (numpy `**2` is libm `pow`, not `x*x`, and
+   numpy's float32 sqrt is a correctly-rounded f32 sqrt — measured
+   divergence on both dtypes 2026-08-05), and the random angle comes from
+   the seeded `np.random.uniform` seam in the kernel's exact
+   bottleneck-major/component-minor iteration order, so seeding reproduces
+   the oracle's angle sequence. `influence_radius` is the oracle's literal
+   `10.0`; `bottleneck.to_coordinates` and the `overflow <= 0` skip stay
+   in the shim.
+7. **Int/float and iteration-order traps.** Integer `refs.len().max(4)`,
+   `i // 4`, `i // grid_size`, `i % grid_size`, `col`/`row` arithmetic and
+   `(rotation + comp.rotation)` are integer operations on both sides;
+   every `int * float` widens the int exactly (both arms are correctly
+   rounded). Iteration order is netlist order / template insertion order
+   / refs order on both sides — never a HashMap iteration.
+
+## R1 gate status
+
+| Gate | Status | Evidence |
+|---|---|---|
+| R1a behavioural A/B | PASS | 75 differential tests (adjustment 19, deterministic 27, template 29), bit-identical: numpy arrays via `tobytes()` (dtype included), floats via `float.hex()`, placements dicts on (keys, order, typed values) |
+| R1b no-regression arm | N/A, recorded | `pr_perf_compare` has no benchmark rows for these surfaces (its arms are the Phase-2/3/4 kernels). `place_by_proximity`/`place_in_zone_center`/`adjust_for_congestion` are single-shot heuristics invoked once per placement run; the template `apply` methods are called a handful of times per board. Their wall time is dominated by the Python-side object navigation and marshalling that deliberately stays in the shims, so a per-call A/B would measure the pyo3 boundary, not the kernel. The prior-phase guide's "a Rust kernel behind a per-call marshalling boundary can be net-negative" applies; no speedup claim is made, and the migration's purpose is the single-implementation / no-reimplementation goal of Wave 4, not speed. Existing callers (`mcu_subsystem`, the pipeline stages, the integration loop) are unchanged in behaviour and remain green (97 tests incl. `test_mcu_subsystem`). |
+| R1c ≥5 non-vacuous properties/module | PASS | 5 properties + 3 MRs over `template.py` in `test_placer_template_pbt.py`; the migrated deterministic/adjustment surfaces are driven by the differential suites' non-vacuous assertions (each with an explicit discriminating fixture, e.g. the no-zone #763 arm, the exact-boundary `dist == 10.0` arm). See the per-module table below. |
+| R1d ≥3 MRs/module | PASS | 3 metamorphic relations over the template apply compute (MR1 scaling-by-power-of-two, MR2 full-turn rotation periodicity, MR3 parametric anchor invariance), each with a vacuity guard and each asserting *bit-level* equalities only over IEEE-exact transforms. |
+| R1e VERIFICATION.md | PASS | this file |
+| R1f TDD | PASS | RED commit `9d9e0197f` (rebased from `ff156e1f3`) — every differential file imports the to-be-added `temper_io_types.placer_*` symbol at module level, so RED is a collection failure (`AttributeError`) verified against the RED tree (no `placer_*` registration, no `placer_compute` module); GREEN landed with this migration commit (91 differential/PBT tests pass) |
+| R1g Rust practice | PASS | pyo3 boundaries wrapped in `guard` (`temper_py_bridge::catch_unwind` → Python `RuntimeError`, G7); `?`-propagated `PyErr`; no `unwrap`/`expect` outside `#[cfg(test)]` (the test module carries `#![allow(clippy::unwrap_used)]` with a comment); borrow-over-clone throughout (the string clones are per-component output refs); `cargo clippy --all-features --all-targets -- -D warnings` clean |
+| R1h R24 | N/A | determined **not physics-gated** below; no register entry required |
+
+### R1c/R1d per module
+
+| Module | Properties (R1c) | Metamorphic relations (R1d) |
+|---|---|---|
+| `placer/template.py` | 5 in `test_placer_template_pbt.py` — P1 bit-identical-to-oracle (anchor component **not** excluded), P2 anchor lands bit-exactly at the anchor point, P3 composite rotation is floored modulo 360, P4 zero-rotation is translation-only (trig seam bypassed), P5 parametric ratios scale linearly; each with a vacuity guard proving the claim is breakable | 3 — MR1 template-coordinate power-of-two scaling (bit-exact relation vs the anchor+scale·rel arithmetic), MR2 full-turn (360k) composite-rotation periodicity + differential at the shifted rotation, MR3 parametric dimension-rescaling anchor invariance |
+| `placer/deterministic.py` | the differential suite's non-vacuous assertions: the #763 no-zone spiral arm, exact-boundary `dist == 10.0` not-pushed vs `just inside` pushed, board-center base, unknown-ref → `unplaced_refs`, empty-refs, duplicate-ref last-wins, initial-position f64→f32 cast pin | MRs are the metamorphic *arguments* encoded in the differential: `max_distance` invariance across `[1, 8, 15, 100]` (the dead parameter), refs-count scaling (`angle_step` = 2π/max(len,4) across 1/5/9 refs), grid-size scaling (1/2/3/5/9 refs), clamping kick-in when the grid spills beyond the zone |
+| `placer/adjustment.py` | differential assertions over dtype (f64/f32), fixed/not-fixed, overflow skip, `dist < 1e-3` exact-spot vs normalized push, boundary `dist == 10.0`, multiple bottlenecks accumulating in order, empty positions | RNG-sequence relation (5 seeds, both arms re-seeded → identical draws), push-strength scaling (`2.0/0.5/1.0`), bottleneck-count ordering (2-bottleneck accumulation) |
+
+### place_by_proximity #763 preservation note
+
+The #763 fix (commit `9c7d58412`) dedented the spiral loop out of the
+`zone_name` block — the placement must run even when `zone_name=None`.
+The kernel's `place_by_proximity` keeps the loop at function level with
+the zone clamp conditional, and the base position comes from the zone
+center when a zone is given, else the board center — exactly the oracle's
+`if zone:` / `else:` split. The no-zone arms of the differential
+(`test_place_by_proximity_no_zone`, parametrized over `max_distance`)
+assert `"C1" in placed_refs` — a non-vacuous pin that the spiral ran.
+
+## R24 determination — NOT physics-gated
+
+The dispatch brief asked for an R24 evaluation of the placer non-cp_sat
+slice against `power_pcb_dataset/physics_soundness_register.yaml`.
+
+**Determination: not physics-gated, no register entry.** Verified against
+the pre-migration sources (the RED-commit oracle pins):
+- none of `adjustment.py` / `deterministic.py` / `template.py` imports or
+  AST-references any physics module (`thermal_fdm`, `heat_removal`,
+  `thermal_potential`, `ipc2152` — none appear);
+- none carries a `physics_gated: true` docstring marker;
+- all three are outside the register gate's scan set
+  (`placer/cp_sat/handlers/*` register_handler encoders,
+  `domain_clearance.generate_domain_clearance_constraints`,
+  `router_v6/constraint_model.py` Constraint subclasses);
+- they place components (spiral/grid/template/anti-congestion geometry);
+  they compute no physics quantity a post-solve audit could recompute from
+  placement coordinates, and they feed no CP-SAT solver. The R24
+  Chebyshev/BMC/post-solve obligations have no referent.
+
+`scripts/physics_soundness_register_gate.py` exits 0 on this branch.
+
+## RED-test corrections
+
+No RED-commit test was changed in semantics. The oracle files were
+**renamed** from `_placer_py_oracle/{adjustment,deterministic,template}.py`
+(a directory layout) to the flat `_placer_*_py_oracle.py` convention so
+`scripts/check_oracle_hashes.py`'s `_*_py_oracle.py` glob covers them
+(verified: the renames are content-identical `git mv`s, and the registry
+now pins all three). The test-file imports were updated to match
+(`from tests.placer import _placer_*_py_oracle as oracle`). One
+verbatim-copy defect in the RED commit was corrected: the adjustment
+oracle carried a duplicate `from __future__ import annotations` (the
+pinned source has one); removed, and the registry pin regenerated (see the
+mutation-sweep evidence). Two differential fixtures were **added**
+(not edited): the clamp-firing arms `test_place_by_proximity_zone_clamp_fires`
+and `test_place_in_zone_center_grid_clamp_fires`, closing the vacuous-clamp
+gap the mutation sweep found.
+
+## Documented deviations (per R1, recorded here)
+
+1. **`place_power_stage_template` anchor-missing raise.** The oracle
+   reaches the raise through `template.apply()`; the shim raises the same
+   `ValueError("Anchor point ... not found in template")` before the
+   kernel is reached. Same class, same message, same failure point.
+2. **Short `positions` in `adjust_for_congestion`.** If the positions
+   array has fewer rows than `netlist.components`, the oracle raises
+   `IndexError` on `result[i]`; the kernel's out-of-bounds access is
+   caught by the `guard` boundary and surfaces as `RuntimeError`. Same
+   failure class (the input is invalid on both sides); the differential
+   drives valid inputs plus the empty case only.
+3. **Duplicate template refs in `apply`.** The oracle's dict and the
+   kernel's `placements_by_ref` both resolve duplicates to the LAST
+   geometry; the shim's dict comprehension keeps the last row. Verified
+   identical and pinned by the kernel unit test
+   `power_stage_duplicate_template_ref_last_geometry_wins` (the
+   differential's template fixtures use unique refs, as all `create_*`
+   templates do).
+4. **`adjust_for_congestion` int-dtype inputs.** The oracle would raise on
+   `result[i] += [float, float]` for an int array (numpy's in-place cast
+   rule); the shim passes an f64 view and writes back through
+   `np.asarray(out, dtype=result.dtype)`, which truncates. Real callers
+   pass float arrays (the differential drives f32/f64 only); the int case
+   is a pre-existing broken input, recorded rather than reproduced.
+
+## Evidence
+
+- Differential (R1a/R1f, TDD red→green):
+  `test_placer_adjustment_rust_differential.py` (19), 
+  `test_placer_deterministic_rust_differential.py` (27),
+  `test_placer_template_rust_differential.py` (29). RED state
+  demonstrated: the files fail to collect with `AttributeError: module
+  'temper_io_types' has no attribute 'placer_...'` before the Rust
+  landed.
+- PBT (R1c/R1d): `test_placer_template_pbt.py` — 5 properties + 3 MRs,
+  each with a vacuity guard.
+- Rust unit tests: `placer_compute.rs::tests` — floored `py_mod` on
+  negative rotations, first-arg-on-tie `py_min`/`py_max` including NaN,
+  the rotation=0 identity bypass, the #763 no-zone spiral, unknown-ref
+  unplaced, the zone-center grid, the f32 vs f64 congestion chains, and
+  duplicate template-ref last-wins.
+- Rust practice (R1g): `guard` catches panics at every pyo3 boundary; no
+  `unwrap`/`expect` outside `#[cfg(test)]`; `cargo clippy --all-features
+  --all-targets -- -D warnings` clean.
+- Raw-trig gate: `scripts/check_no_raw_rotation_trig.py` now exempts
+  `placer/template.py::_cos_sin` — the seam contains only
+  `math.cos`/`math.sin` calls (no rel/abs arithmetic; the R(-θ) formula
+  the gate guards against lives only in the pinned Rust kernel). The
+  gate passes (17 guarded files).
+- Oracle pins: `scripts/oracle_hashes.json` registers the three placer
+  oracles; `scripts/check_oracle_hashes.py` passes (82/82).
+
+## Anti-vacuity (mutation sweep)
+
+See `docs/evidence/2026-08-06-wave4-phase4-placer-mutation-sweep.md` for the
+mutation campaign: 10 mutants applied to the Rust kernels, rebuilt, run
+against the differential/PBT suites, failure confirmed, source restored,
+and `git diff` confirmed EMPTY before the next mutant. 9/10 were caught by
+the suites; the 10th (M9, the influence-radius `<`→`<=` boundary) is
+recorded as bit-equivalent — the boundary push is an exact-zero
+displacement, so the distinction is IEEE-invisible — with the reasoning in
+the evidence doc. One gap was found and closed: the RED-committed
+differential had no fixture that actually fired the zone-clamp path, so
+two clamp-firing fixtures were added (and a clamp-dropping mutant is now
+caught by them). The sweep also found and corrected a verbatim-copy defect
+in the RED adjustment oracle (a duplicate `from __future__` import; the
+registry was regenerated).

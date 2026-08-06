@@ -1,25 +1,17 @@
-"""
-Template-based component placement structures.
+"""Pinned Python oracle for ``temper_placer/placer/template.py`` (Wave 4, Phase 4).
 
-Defines templates for common PCB layout patterns (half-bridge, LDO cluster, etc.)
-that can be instantiated and placed deterministically.
+VERBATIM copy of the pre-migration implementation as of commit
+``17553437d`` (origin/main, the Wave-4 Phase-4 placer-slice base). Do NOT
+edit the semantics: this is the oracle the Rust kernels in the
+``temper-io-types/placer_core`` crate must reproduce bit-identically. Any
+edit here silently weakens the differential proof; if the module's contract
+changes, re-pin the oracle from the new base first.
 
-Wave 4, **Phase 4** (placer non-`cp_sat` slice): the geometry compute of
-``ComponentTemplate.apply`` and ``ParametricTemplate.apply`` (anchor-offset
-scaling, the KiCad R(-theta) rotation around the anchor, absolute placement,
-floored-modulo composite rotation) is implemented in Rust in the
-``temper-io-types/placer_core`` crate
-(``temper_io_types.placer_apply_component_template`` /
-``placer_apply_parametric_template``). The dataclasses and the ``create_*``
-data constructors stay Python (they are data containers, not compute, per
-the R1e scorecard in ``packages/temper-io-types/VERIFICATION.md``), and
-``load_template_from_yaml`` stays Python (``yaml.safe_load`` is a Python
-library seam). The ``apply`` methods delegate to the Rust kernels.
-
-The rotation transcendental (``math.cos``/``math.sin``) is a Python seam:
-the shim passes a ``(cos, sin)`` callable into the kernel, so the
-oracle's libm bits are preserved by construction (Rust's ``f64::sin`` is
-not bit-identical to CPython's ``math.sin`` on this platform).
+The rotation geometry routes through
+``temper_placer.geometry.kicad_transform.rotate_local_to_world`` (the
+sanctioned R(-theta) convention) -- a Python seam the Rust kernels call
+back into, so the oracle's transcendental bits are preserved by
+construction.
 """
 
 from __future__ import annotations
@@ -28,13 +20,9 @@ import math
 from dataclasses import dataclass
 from pathlib import Path
 
-import temper_io_types as _t
 import yaml  # type: ignore[import-untyped]
 
-
-def _cos_sin(theta: float) -> tuple[float, float]:
-    """Python seam: ``math.cos``/``math.sin`` of the rotation angle."""
-    return (math.cos(theta), math.sin(theta))
+from temper_placer.geometry.kicad_transform import rotate_local_to_world
 
 
 @dataclass
@@ -85,27 +73,42 @@ class ParametricTemplate:
         """
         Apply parametric template at absolute position with target scaling.
         """
+        # Find anchor ratio
         anchor = next((c for c in self.components if c.ref == self.anchor_ref), None)
-        # Default to center when the anchor ref is absent (the kernel's None
-        # fallback computes 0.5 * target dims).
-        anchor_ratio = None if anchor is None else (anchor.x_ratio, anchor.y_ratio)
+        if anchor is None:
+            # Default to center
+            anchor_off_x = 0.5 * target_width
+            anchor_off_y = 0.5 * target_height
+        else:
+            anchor_off_x = anchor.x_ratio * target_width
+            anchor_off_y = anchor.y_ratio * target_height
 
-        out = _t.placer_apply_parametric_template(
-            [c.ref for c in self.components],
-            [c.x_ratio for c in self.components],
-            [c.y_ratio for c in self.components],
-            [c.rotation for c in self.components],
-            anchor_ratio,
-            anchor_x,
-            anchor_y,
-            target_width,
-            target_height,
-            rotation,
-            _cos_sin,
-        )
-        # The kernel returns insertion-ordered (ref, x, y, rot) rows; the
-        # oracle's dict maps ref -> (x, y, rot) in that same order.
-        return {ref: (x, y, rot) for ref, x, y, rot in out}
+        placements = {}
+        rot_rad = math.radians(rotation)
+
+        for comp in self.components:
+            # Scale to target dimensions
+            rel_x = comp.x_ratio * target_width - anchor_off_x
+            rel_y = comp.y_ratio * target_height - anchor_off_y
+
+            # Rotate around anchor, using KiCad's real footprint/group
+            # rotation convention -- see
+            # temper_placer.geometry.kicad_transform's docstring. (All
+            # current call sites pass rotation=0, where the sign has no
+            # observed effect yet -- kept correct so a future nonzero-
+            # rotation caller is right.)
+            if rotation != 0:
+                rotated_x, rotated_y = rotate_local_to_world(rel_x, rel_y, rot_rad)
+            else:
+                rotated_x, rotated_y = rel_x, rel_y
+
+            abs_x = anchor_x + rotated_x
+            abs_y = anchor_y + rotated_y
+            abs_rotation = (rotation + comp.rotation) % 360
+
+            placements[comp.ref] = (abs_x, abs_y, abs_rotation)
+
+        return placements
 
     @classmethod
     def create_half_bridge(
@@ -163,7 +166,7 @@ class ComponentTemplate:
     height: float = 0.0
     description: str = ""
 
-    def __post_init__(self) -> None:
+    def __post_init__(self):
         """Set anchor to first component if not specified."""
         if self.anchor_point is None and self.components:
             self.anchor_point = self.components[0].ref
@@ -196,26 +199,39 @@ class ComponentTemplate:
         if anchor is None:
             raise ValueError(f"Anchor point {self.anchor_point} not found in template")
 
-        # The kernel needs the anchor index; the oracle's `next(...)` lookup
-        # (first match on the anchor ref) is reproduced here.
-        anchor_idx = next(
-            i for i, comp in enumerate(self.components) if comp.ref == self.anchor_point
-        )
+        # Anchor offset in template coordinates
+        anchor_offset_x = anchor.x
+        anchor_offset_y = anchor.y
 
-        out = _t.placer_apply_component_template(
-            [c.ref for c in self.components],
-            [c.x for c in self.components],
-            [c.y for c in self.components],
-            [c.rotation for c in self.components],
-            anchor_idx,
-            anchor_x,
-            anchor_y,
-            rotation,
-            _cos_sin,
-        )
-        # The kernel returns insertion-ordered (ref, x, y, rot) rows; the
-        # oracle's dict maps ref -> (x, y, rot) in that same order.
-        return {ref: (x, y, rot) for ref, x, y, rot in out}
+        placements = {}
+        rot_rad = math.radians(rotation)
+
+        for comp in self.components:
+            # Position relative to anchor
+            rel_x = comp.x - anchor_offset_x
+            rel_y = comp.y - anchor_offset_y
+
+            # Rotate around anchor, using KiCad's real footprint/group
+            # rotation convention -- see
+            # temper_placer.geometry.kicad_transform's docstring. (All
+            # current call sites pass rotation=0, where the sign has no
+            # observed effect yet -- kept correct so a future nonzero-
+            # rotation caller is right.)
+            if rotation != 0:
+                rotated_x, rotated_y = rotate_local_to_world(rel_x, rel_y, rot_rad)
+            else:
+                rotated_x, rotated_y = rel_x, rel_y
+
+            # Absolute position
+            abs_x = anchor_x + rotated_x
+            abs_y = anchor_y + rotated_y
+
+            # Component rotation (template rotation + component rotation)
+            abs_rotation = (rotation + comp.rotation) % 360
+
+            placements[comp.ref] = (abs_x, abs_y, abs_rotation)
+
+        return placements
 
 
 @dataclass

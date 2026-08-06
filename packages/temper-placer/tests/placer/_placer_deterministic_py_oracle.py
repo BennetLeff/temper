@@ -1,32 +1,23 @@
-"""
-Deterministic template-based component placement.
+"""Pinned Python oracle for ``temper_placer/placer/deterministic.py`` (Wave 4, Phase 4).
 
-This module provides rule-based placement strategies that guarantee
-overlap-free, zone-compliant layouts without gradient optimization.
+VERBATIM copy of the pre-migration implementation as of commit
+``17553437d`` (origin/main, the Wave-4 Phase-4 placer-slice base). Do NOT
+edit the semantics: this is the oracle the Rust kernels in the
+``temper-io-types/placer_core`` crate must reproduce bit-identically. Any
+edit here silently weakens the differential proof; if the module's contract
+changes, re-pin the oracle from the new base first.
 
-Wave 4, **Phase 4** (placer non-`cp_sat` slice): the per-component
-placement compute of ``place_power_stage_template`` (template application
-at the zone center + the mapping loop into the float32 arrays),
-``place_by_proximity`` (the #763-fixed spiral loop) and
-``place_in_zone_center`` (the grid distribution loop) is implemented in
-Rust in the ``temper-io-types/placer_core`` crate (``temper_io_types.
-placer_place_power_stage_template`` / ``placer_place_by_proximity`` /
-``placer_place_in_zone_center``). ``PlacementResult`` stays a Python
-dataclass; the zone lookup, ``board.zones``/``netlist.components``
-navigation and the numpy assembly stay here (object navigation /
-marshalling). The ``math.cos``/``math.sin`` spiral transcendental is a
-Python seam (``(cos, sin)`` callable) so the oracle's libm bits are
-preserved by construction.
+The ``place_by_proximity`` spiral loop carries the #763 fix (commit
+``9c7d58412``, dedent out of the ``zone_name`` block) -- the regression
+test must stay green against this oracle.
 """
 
 from __future__ import annotations
 
-import math
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, TypeAlias
 
 import numpy as np
-import temper_io_types as _t
 
 Array: TypeAlias = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
 
@@ -36,11 +27,6 @@ if TYPE_CHECKING:
     from temper_placer.core.board import Board
     from temper_placer.core.netlist import Netlist
     from temper_placer.placer.template import ComponentTemplate
-
-
-def _cos_sin(theta: float) -> tuple[float, float]:
-    """Python seam: ``math.cos``/``math.sin`` of the spiral angle."""
-    return (math.cos(theta), math.sin(theta))
 
 
 @dataclass
@@ -91,41 +77,31 @@ def place_power_stage_template(
     zone_center_x = (zone.bounds[0] + zone.bounds[2]) / 2
     zone_center_y = (zone.bounds[1] + zone.bounds[3]) / 2
 
-    # The kernel applies the template at the zone center and maps the
-    # placements onto the component arrays. Anchor resolution mirrors the
-    # template's own apply() contract (raise when the anchor is missing).
-    anchor = template.get_anchor_position()
-    if anchor is None:
-        raise ValueError(f"Anchor point {template.anchor_point} not found in template")
-    anchor_idx = next(
-        i for i, comp in enumerate(template.components) if comp.ref == template.anchor_point
-    )
+    # Apply template at zone center
+    placements = template.apply(zone_center_x, zone_center_y, rotation=0)
 
-    # Oracle's np.array(initial_positions, dtype=np.float32) cast happens
-    # here; the kernel receives the float32 values widened to f64.
-    initial = None
+    # Map to netlist indices
+    ref_to_idx = {comp.ref: i for i, comp in enumerate(netlist.components)}
+
+    # Initialize from original positions if provided, else zeros
     if initial_positions is not None:
-        initial = (
-            np.asarray(initial_positions, dtype=np.float32).reshape(-1).astype(np.float64).tolist()
-        )
+        positions = np.array(initial_positions, dtype=np.float32)
+    else:
+        positions = np.zeros((netlist.n_components, 2), dtype=np.float32)
 
-    flat, rotations_flat, placed_refs, unplaced_refs = _t.placer_place_power_stage_template(
-        [comp.ref for comp in netlist.components],
-        [c.ref for c in template.components],
-        [c.x for c in template.components],
-        [c.y for c in template.components],
-        [c.rotation for c in template.components],
-        anchor_idx,
-        zone_center_x,
-        zone_center_y,
-        0,
-        initial,
-        _cos_sin,
-    )
+    rotations = np.zeros(netlist.n_components, dtype=np.float32)
+    placed_refs = []
+    unplaced_refs = []
 
-    n = len(netlist.components)
-    positions = np.asarray(flat, dtype=np.float32).reshape((n, 2))
-    rotations = np.asarray(rotations_flat, dtype=np.float32)
+    for comp in netlist.components:
+        if comp.ref in placements:
+            idx = ref_to_idx[comp.ref]
+            x, y, rot = placements[comp.ref]
+            positions[idx] = [x, y]
+            rotations[idx] = rot
+            placed_refs.append(comp.ref)
+        else:
+            unplaced_refs.append(comp.ref)
 
     return PlacementResult(
         positions=positions,
@@ -159,17 +135,17 @@ def place_by_proximity(
     Returns:
         PlacementResult with proximity placements
     """
-    # `max_distance` is the oracle's dead parameter: its `if distance >
-    # max_distance: pass` branch is a literal no-op, pinned invariant by the
-    # differential (`test_place_by_proximity_no_zone` parametrized over it).
-    # Kept for API compatibility.
-    _ = max_distance
+    import math
 
     # Find target component
     ref_to_idx = {comp.ref: i for i, comp in enumerate(netlist.components)}
 
     if target_ref not in ref_to_idx:
         raise ValueError(f"Target component '{target_ref}' not found")
+
+    # Initialize from current positions (may not be set yet)
+    positions = np.zeros((netlist.n_components, 2), dtype=np.float32)
+    rotations = np.zeros(netlist.n_components, dtype=np.float32)
 
     # Get zone if specified
     zone = None
@@ -179,9 +155,9 @@ def place_by_proximity(
                 zone = z
                 break
 
-    # Spiral placement around target: base position from the zone center if
-    # a zone is given, else the board center. (The #763 fix: the spiral loop
-    # itself runs at function level regardless of zone_name.)
+    # Spiral placement around target
+    # Placeholder - would need actual target position
+    # For now, use zone center if zone specified
     if zone:
         base_x = (zone.bounds[0] + zone.bounds[2]) / 2
         base_y = (zone.bounds[1] + zone.bounds[3]) / 2
@@ -189,23 +165,37 @@ def place_by_proximity(
         base_x = board.width / 2
         base_y = board.height / 2
 
-    refs = list(refs_to_place)
-    indices = [ref_to_idx.get(r) for r in refs]
-    zone_bounds = None if zone is None else tuple(zone.bounds)
+    placed_refs = []
+    unplaced_refs = []
 
-    n = netlist.n_components
-    flat, placed_refs, unplaced_refs = _t.placer_place_by_proximity(
-        n,
-        refs,
-        indices,
-        base_x,
-        base_y,
-        zone_bounds,
-        _cos_sin,
-    )
+    angle_step = 2 * math.pi / max(len(refs_to_place), 4)
 
-    positions = np.asarray(flat, dtype=np.float32).reshape((n, 2))
-    rotations = np.zeros(n, dtype=np.float32)
+    for i, ref in enumerate(refs_to_place):
+        if ref not in ref_to_idx:
+            unplaced_refs.append(ref)
+            continue
+
+        idx = ref_to_idx[ref]
+
+        # Spiral placement
+        angle = i * angle_step
+        distance = 8.0 + (i // 4) * 3.0  # Spiral outward
+
+        # Don't exceed max_distance if provided
+        if distance > max_distance:
+            # Stop placing or clamp? For now, we'll just log/continue
+            pass
+
+        x = base_x + distance * math.cos(angle)
+        y = base_y + distance * math.sin(angle)
+
+        # Clamp to zone if specified
+        if zone:
+            x = max(zone.bounds[0], min(zone.bounds[2], x))
+            y = max(zone.bounds[1], min(zone.bounds[3], y))
+
+        positions[idx] = [x, y]
+        placed_refs.append(ref)
 
     return PlacementResult(
         positions=positions,
@@ -233,6 +223,8 @@ def place_in_zone_center(
     Returns:
         PlacementResult with zone-centered placements
     """
+    import math
+
     # Get zone
     zone = None
     for z in board.zones:
@@ -249,21 +241,35 @@ def place_in_zone_center(
 
     ref_to_idx = {comp.ref: i for i, comp in enumerate(netlist.components)}
 
-    refs = list(refs_to_place)
-    indices = [ref_to_idx.get(r) for r in refs]
+    positions = np.zeros((netlist.n_components, 2), dtype=np.float32)
+    rotations = np.zeros(netlist.n_components, dtype=np.float32)
 
-    n = netlist.n_components
-    flat, placed_refs, unplaced_refs = _t.placer_place_in_zone_center(
-        n,
-        refs,
-        indices,
-        center_x,
-        center_y,
-        tuple(zone.bounds),
-    )
+    placed_refs = []
+    unplaced_refs = []
 
-    positions = np.asarray(flat, dtype=np.float32).reshape((n, 2))
-    rotations = np.zeros(n, dtype=np.float32)
+    # Grid placement around center
+    grid_size = math.ceil(math.sqrt(len(refs_to_place)))
+    spacing = 8.0
+
+    for i, ref in enumerate(refs_to_place):
+        if ref not in ref_to_idx:
+            unplaced_refs.append(ref)
+            continue
+
+        idx = ref_to_idx[ref]
+
+        row = i // grid_size
+        col = i % grid_size
+
+        x = center_x + (col - grid_size / 2) * spacing
+        y = center_y + (row - grid_size / 2) * spacing
+
+        # Clamp to zone
+        x = max(zone.bounds[0], min(zone.bounds[2], x))
+        y = max(zone.bounds[1], min(zone.bounds[3], y))
+
+        positions[idx] = [x, y]
+        placed_refs.append(ref)
 
     return PlacementResult(
         positions=positions,

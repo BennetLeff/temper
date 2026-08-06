@@ -8,11 +8,13 @@
 use pyo3::exceptions::{PyOverflowError, PyTypeError, PyValueError, PyZeroDivisionError};
 use pyo3::prelude::*;
 use pyo3::types::{PyBool, PyFloat, PyInt, PyList, PyTuple, PyType};
+use std::panic::AssertUnwindSafe;
 
 use super::adjacency;
 use super::manufacturing;
 use super::netclass::{self, PatternSet};
 use super::placement_drc as drc;
+use super::placer_compute;
 use super::pyrepr::{repr_f64, repr_str};
 use super::rect::{RectData, x_invariant_message, y_invariant_message};
 use super::units;
@@ -915,6 +917,252 @@ pub fn build_adjacency_flat(
 // registration
 // ---------------------------------------------------------------------------
 
+/// Wrap a pyo3 boundary body so a Rust panic surfaces as a Python
+/// `RuntimeError` instead of aborting the interpreter (G7, R1g).
+fn guard<R>(body: impl FnOnce() -> PyResult<R>) -> PyResult<R> {
+    match temper_py_bridge::catch_unwind(AssertUnwindSafe(body)) {
+        Ok(result) => result,
+        Err(payload) => Err(temper_py_bridge::panic_to_err(payload)),
+    }
+}
+
+/// Build the per-call `(cos, sin)` closure the placer kernels call back
+/// into: `cos_sin(theta)` must return a 2-sequence of floats. This is a
+/// Python seam by design — the oracle's `math.cos`/`math.sin`/`np.cos`/
+/// `np.sin` bits are library semantics Rust does not reproduce (measured
+/// `f64::sin` divergence on this platform, 2026-08-05).
+#[allow(clippy::type_complexity)] // the closure's return type is the seam's contract
+fn cos_sin_impl<'a>(cb: &'a Bound<'_, PyAny>) -> impl Fn(f64) -> PyResult<(f64, f64)> + 'a {
+    move |theta: f64| -> PyResult<(f64, f64)> {
+        let r = cb.call1((theta,))?;
+        let a = r.get_item(0)?;
+        let b = r.get_item(1)?;
+        Ok((a.extract()?, b.extract()?))
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Wave-4 Phase 4: placer non-cp_sat compute kernels (placer_compute.rs)
+// ---------------------------------------------------------------------------
+
+/// `ComponentTemplate.apply` geometry compute.
+#[pyfunction]
+#[allow(clippy::too_many_arguments)] // mirrors ComponentTemplate.apply's Python signature
+pub fn placer_apply_component_template(
+    refs: Vec<String>,
+    xs: Vec<f64>,
+    ys: Vec<f64>,
+    rots: Vec<i64>,
+    anchor_idx: usize,
+    anchor_x: f64,
+    anchor_y: f64,
+    rotation: i64,
+    cos_sin: &Bound<'_, PyAny>,
+) -> PyResult<Vec<(String, f64, f64, i64)>> {
+    guard(|| {
+        if anchor_idx >= refs.len() {
+            return Err(PyValueError::new_err(
+                "anchor index out of range for template components",
+            ));
+        }
+        let components = build_template_components(refs, xs, ys, rots);
+        let cb = cos_sin_impl(cos_sin);
+        let out = placer_compute::apply_component_template(
+            &components,
+            anchor_idx,
+            anchor_x,
+            anchor_y,
+            rotation,
+            &cb,
+        )?;
+        Ok(out.into_iter().map(|p| (p.ref_, p.x, p.y, p.rotation)).collect())
+    })
+}
+
+/// `ParametricTemplate.apply` geometry compute. `anchor_ratio` is the
+/// anchor's `(x_ratio, y_ratio)` or `None` for the default-center fallback.
+#[pyfunction]
+#[allow(clippy::too_many_arguments)] // mirrors ParametricTemplate.apply's Python signature
+pub fn placer_apply_parametric_template(
+    refs: Vec<String>,
+    xs: Vec<f64>,
+    ys: Vec<f64>,
+    rots: Vec<i64>,
+    anchor_ratio: Option<(f64, f64)>,
+    anchor_x: f64,
+    anchor_y: f64,
+    target_width: f64,
+    target_height: f64,
+    rotation: i64,
+    cos_sin: &Bound<'_, PyAny>,
+) -> PyResult<Vec<(String, f64, f64, i64)>> {
+    guard(|| {
+        let components = build_template_components(refs, xs, ys, rots);
+        let cb = cos_sin_impl(cos_sin);
+        let out = placer_compute::apply_parametric_template(
+            &components,
+            anchor_ratio,
+            anchor_x,
+            anchor_y,
+            target_width,
+            target_height,
+            rotation,
+            &cb,
+        )?;
+        Ok(out.into_iter().map(|p| (p.ref_, p.x, p.y, p.rotation)).collect())
+    })
+}
+
+fn build_template_components(
+    refs: Vec<String>,
+    xs: Vec<f64>,
+    ys: Vec<f64>,
+    rots: Vec<i64>,
+) -> Vec<placer_compute::TemplateComponent> {
+    refs.into_iter()
+        .zip(xs)
+        .zip(ys)
+        .zip(rots)
+        .map(|(((ref_, x), y), rotation)| placer_compute::TemplateComponent {
+            ref_,
+            x,
+            y,
+            rotation,
+        })
+        .collect()
+}
+
+/// `place_power_stage_template` compute: template application at the zone
+/// center plus the per-component mapping into the float32 arrays.
+#[pyfunction]
+#[allow(clippy::too_many_arguments)] // mirrors place_power_stage_template's Python signature
+#[allow(clippy::type_complexity)] // the (positions, rotations, placed, unplaced) tuple is the shim's contract
+pub fn placer_place_power_stage_template(
+    component_refs: Vec<String>,
+    template_refs: Vec<String>,
+    template_xs: Vec<f64>,
+    template_ys: Vec<f64>,
+    template_rots: Vec<i64>,
+    anchor_idx: usize,
+    zone_center_x: f64,
+    zone_center_y: f64,
+    rotation: i64,
+    initial: Option<Vec<f64>>,
+    cos_sin: &Bound<'_, PyAny>,
+) -> PyResult<(Vec<f32>, Vec<f32>, Vec<String>, Vec<String>)> {
+    guard(|| {
+        if anchor_idx >= template_refs.len() {
+            return Err(PyValueError::new_err(
+                "anchor index out of range for template components",
+            ));
+        }
+        let components = build_template_components(template_refs, template_xs, template_ys, template_rots);
+        let cb = cos_sin_impl(cos_sin);
+        let out = placer_compute::place_power_stage_template(
+            &component_refs,
+            &components,
+            anchor_idx,
+            zone_center_x,
+            zone_center_y,
+            rotation,
+            initial.as_deref(),
+            &cb,
+        )?;
+        Ok((out.positions, out.rotations, out.placed, out.unplaced))
+    })
+}
+
+/// `place_by_proximity` compute: the #763-fixed spiral loop.
+#[pyfunction]
+pub fn placer_place_by_proximity(
+    n_components: usize,
+    refs: Vec<String>,
+    indices: Vec<Option<usize>>,
+    base_x: f64,
+    base_y: f64,
+    zone: Option<(f64, f64, f64, f64)>,
+    cos_sin: &Bound<'_, PyAny>,
+) -> PyResult<(Vec<f32>, Vec<String>, Vec<String>)> {
+    guard(|| {
+        let cb = cos_sin_impl(cos_sin);
+        placer_compute::place_by_proximity(
+            n_components,
+            &refs,
+            &indices,
+            base_x,
+            base_y,
+            zone,
+            &cb,
+        )
+    })
+}
+
+/// `place_in_zone_center` compute: grid distribution around the zone center.
+#[pyfunction]
+pub fn placer_place_in_zone_center(
+    n_components: usize,
+    refs: Vec<String>,
+    indices: Vec<Option<usize>>,
+    center_x: f64,
+    center_y: f64,
+    zone: (f64, f64, f64, f64),
+) -> PyResult<(Vec<f32>, Vec<String>, Vec<String>)> {
+    guard(|| {
+        Ok(placer_compute::place_in_zone_center(
+            n_components,
+            &refs,
+            &indices,
+            center_x,
+            center_y,
+            zone,
+        ))
+    })
+}
+
+/// `adjust_for_congestion` compute: the dtype-aware per-(bottleneck,
+/// component) push loop. `dist_cb(dx, dy)` reproduces
+/// `np.sqrt(dx**2 + dy**2)` in the caller's dtype; `uniform_cb()` is
+/// `np.random.uniform(0, 2*pi)` drawn in the oracle's iteration order;
+/// `cos_sin` applies to the random angle.
+#[pyfunction]
+#[allow(clippy::too_many_arguments)] // mirrors adjust_for_congestion's Python seam surface
+pub fn placer_adjust_for_congestion(
+    positions: Vec<f64>,
+    is_f32: bool,
+    fixed: Vec<bool>,
+    bottlenecks: Vec<(f64, f64)>,
+    push_strength: f64,
+    influence_radius: f64,
+    dist_cb: &Bound<'_, PyAny>,
+    uniform_cb: &Bound<'_, PyAny>,
+    cos_sin: &Bound<'_, PyAny>,
+) -> PyResult<Vec<f64>> {
+    guard(|| {
+        let dist_impl = {
+            let cb = dist_cb;
+            move |dx: f64, dy: f64| -> PyResult<f64> {
+                cb.call1((dx, dy))?.extract()
+            }
+        };
+        let uniform_impl = {
+            let cb = uniform_cb;
+            move || -> PyResult<f64> { cb.call0()?.extract() }
+        };
+        let cos_sin_impl = cos_sin_impl(cos_sin);
+        placer_compute::adjust_for_congestion(
+            &positions,
+            is_f32,
+            &fixed,
+            &bottlenecks,
+            push_strength,
+            influence_radius,
+            &dist_impl,
+            &uniform_impl,
+            &cos_sin_impl,
+        )
+    })
+}
+
 pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyRect>()?;
     m.add_class::<PyFabPreset>()?;
@@ -947,5 +1195,13 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     m.add_function(wrap_pyfunction!(validate_placement_drc, m)?)?;
     m.add_function(wrap_pyfunction!(build_adjacency_flat, m)?)?;
+
+    // Wave-4 Phase 4: placer non-cp_sat compute kernels.
+    m.add_function(wrap_pyfunction!(placer_apply_component_template, m)?)?;
+    m.add_function(wrap_pyfunction!(placer_apply_parametric_template, m)?)?;
+    m.add_function(wrap_pyfunction!(placer_place_power_stage_template, m)?)?;
+    m.add_function(wrap_pyfunction!(placer_place_by_proximity, m)?)?;
+    m.add_function(wrap_pyfunction!(placer_place_in_zone_center, m)?)?;
+    m.add_function(wrap_pyfunction!(placer_adjust_for_congestion, m)?)?;
     Ok(())
 }

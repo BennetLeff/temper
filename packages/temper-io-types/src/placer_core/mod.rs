@@ -47,6 +47,7 @@ pub mod adjacency;
 pub mod manufacturing;
 pub mod netclass;
 pub mod placement_drc;
+pub mod placer_compute;
 pub mod pyrepr;
 pub mod rect;
 pub mod units;
