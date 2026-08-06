@@ -26,10 +26,10 @@ use std::collections::{HashMap, HashSet};
 use std::panic::AssertUnwindSafe;
 
 use pyo3::prelude::*;
-use pyo3::types::{PyDict, PyList};
+use pyo3::types::{PyDict, PyList, PyTuple};
 use pyo3::IntoPyObjectExt;
 
-use crate::host_math::{pow, py_max, py_min, sqrt};
+use crate::host_math::{pow, py_max, py_min, py_round, sqrt};
 
 
 /// Wrap a pyo3 boundary body so a Rust panic surfaces as a Python
@@ -844,6 +844,260 @@ pub fn assign_components_to_slots_py<'py>(
 }
 
 // ---------------------------------------------------------------------------
+// FinePitchEscapeStage — fine_pitch_escape.py
+// ---------------------------------------------------------------------------
+
+/// `_calculate_min_pin_pitch`: minimum pairwise pin distance (`dx*dx` —
+/// direct multiplication, NOT `** 2`), `None` for fewer than two pins.
+fn min_pin_pitch(pins: &[(f64, f64)]) -> Option<f64> {
+    if pins.len() < 2 {
+        return None;
+    }
+    let mut min_dist = f64::INFINITY;
+    for i in 0..pins.len() {
+        for j in (i + 1)..pins.len() {
+            let (x1, y1) = pins[i];
+            let (x2, y2) = pins[j];
+            let dx = x1 - x2;
+            let dy = y1 - y2;
+            let dist = sqrt(dx * dx + dy * dy);
+            min_dist = py_min(min_dist, dist);
+        }
+    }
+    if min_dist != f64::INFINITY { Some(min_dist) } else { None }
+}
+
+/// `_get_escape_layer_for_net`: layer-3 nets → `(3, "B.Cu")`, layer-2 nets →
+/// `(secondary, "In2.Cu")`, else `(primary, "In1.Cu")`.
+fn escape_layer_for_net(
+    net_name: &str,
+    layer3_nets: &HashSet<String>,
+    layer2_nets: &HashSet<String>,
+    primary: i64,
+    secondary: i64,
+) -> (i64, &'static str) {
+    if layer3_nets.contains(net_name) {
+        return (3, "B.Cu");
+    }
+    if layer2_nets.contains(net_name) {
+        return (secondary, "In2.Cu");
+    }
+    (primary, "In1.Cu")
+}
+
+/// Python-visible `min_pin_pitch(pins)` — pins is an iterable of objects
+/// with a `.position` `(x, y)` attribute (the netlist `Pin` pyclass).
+#[pyfunction]
+pub fn min_pin_pitch_py(pins: &Bound<'_, PyAny>) -> PyResult<Option<f64>> {
+    guard(|| {
+        let mut positions: Vec<(f64, f64)> = Vec::new();
+        for pin in pins.try_iter()? {
+            let pin = pin?;
+            let pos = pin.getattr("position")?;
+            positions.push((pos.get_item(0)?.extract()?, pos.get_item(1)?.extract()?));
+        }
+        Ok(min_pin_pitch(&positions))
+    })
+}
+
+/// Python-visible `escape_layer_for_net(net_name, layer2_nets,
+/// layer3_nets, escape_layer, secondary_escape_layer)`.
+#[pyfunction]
+#[allow(clippy::too_many_arguments)]
+pub fn escape_layer_for_net_py(
+    net_name: &str,
+    layer2_nets: &Bound<'_, PyAny>,
+    layer3_nets: &Bound<'_, PyAny>,
+    escape_layer: i64,
+    secondary_escape_layer: i64,
+) -> PyResult<(i64, String)> {
+    guard(|| {
+        let l2: HashSet<String> = layer2_nets
+            .try_iter()?
+            .map(|i| i.and_then(|x| x.extract::<String>()))
+            .collect::<PyResult<_>>()?;
+        let l3: HashSet<String> = layer3_nets
+            .try_iter()?
+            .map(|i| i.and_then(|x| x.extract::<String>()))
+            .collect::<PyResult<_>>()?;
+        let (layer, name) = escape_layer_for_net(net_name, &l3, &l2, escape_layer, secondary_escape_layer);
+        Ok((layer, name.to_string()))
+    })
+}
+
+// ---------------------------------------------------------------------------
+// PhasedComponentAssignmentValidator — slot-grid kernels
+// ---------------------------------------------------------------------------
+
+/// The validator's `_DEFAULT_SLOT_SPACING` constant.
+pub const DEFAULT_SLOT_SPACING: f64 = 5.0;
+
+/// `_infer_slot_spacing`: minimum non-zero coordinate difference of the
+/// flattened slot grid; falls back to `DEFAULT_SLOT_SPACING` for degenerate
+/// inputs (fewer than 2 slots, or a uniform grid with no distinct coords).
+fn infer_slot_spacing(slots: &[(f64, f64)]) -> f64 {
+    if slots.len() < 2 {
+        return DEFAULT_SLOT_SPACING;
+    }
+    let mut xs: Vec<f64> = slots.iter().map(|(x, _)| *x).collect();
+    let mut ys: Vec<f64> = slots.iter().map(|(_, y)| *y).collect();
+    xs.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
+    ys.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
+    xs.dedup();
+    ys.dedup();
+    let mut candidates: Vec<f64> = Vec::new();
+    for w in xs.windows(2) {
+        if w[1] > w[0] {
+            candidates.push(w[1] - w[0]);
+        }
+    }
+    for w in ys.windows(2) {
+        if w[1] > w[0] {
+            candidates.push(w[1] - w[0]);
+        }
+    }
+    if candidates.is_empty() {
+        return DEFAULT_SLOT_SPACING;
+    }
+    let mut it = candidates.iter().copied();
+    let mut best = it.next().unwrap();
+    for c in it {
+        best = py_min(best, c);
+    }
+    best
+}
+
+/// `int(round(x / spacing))` — CPython `round` (half-to-even) then `int`.
+fn cell_index(x: f64, spacing: f64) -> i64 {
+    py_round(x / spacing) as i64
+}
+
+/// `_build_slot_index`: `(i, j) -> [slots]` with `i = int(round(x/spacing))`,
+/// `j = int(round(y/spacing))`; slots within a cell keep `all_slots` order.
+fn build_slot_index(
+    slots: &[(f64, f64)],
+    spacing: f64,
+) -> Vec<((i64, i64), Vec<(f64, f64)>)> {
+    let mut index: HashMap<(i64, i64), Vec<(f64, f64)>> = HashMap::new();
+    for &slot in slots {
+        let key = (cell_index(slot.0, spacing), cell_index(slot.1, spacing));
+        index.entry(key).or_default().push(slot);
+    }
+    index.into_iter().collect()
+}
+
+/// `_slots_within_radius`: walk the `(2k+1) x (2k+1)` cell window
+/// (`k = ceil(radius / spacing)`), distance-check via `math.hypot`, in the
+/// oracle's exact (di, dj) raster order with per-call de-dup.
+fn slots_within_radius(
+    center: (f64, f64),
+    radius: f64,
+    index: &HashMap<(i64, i64), Vec<(f64, f64)>>,
+    spacing: f64,
+) -> Vec<(f64, f64)> {
+    if radius <= 0.0 || index.is_empty() {
+        return Vec::new();
+    }
+    let k = (radius / spacing).ceil() as i64;
+    let ci = cell_index(center.0, spacing);
+    let cj = cell_index(center.1, spacing);
+    let mut out: Vec<(f64, f64)> = Vec::new();
+    let mut seen: HashSet<(u64, u64)> = HashSet::new();
+    let (cx, cy) = center;
+    for di in -k..=k {
+        for dj in -k..=k {
+            let cell = (ci + di, cj + dj);
+            let Some(cell_slots) = index.get(&cell) else { continue };
+            for &slot in cell_slots {
+                if !seen.insert(slot_key(slot)) {
+                    continue;
+                }
+                let (sx, sy) = slot;
+                if crate::host_math::hypot(sx - cx, sy - cy) <= radius {
+                    out.push(slot);
+                }
+            }
+        }
+    }
+    out
+}
+
+/// Python-visible `infer_slot_spacing(slots)`.
+#[pyfunction]
+pub fn infer_slot_spacing_py(slots: &Bound<'_, PyAny>) -> PyResult<f64> {
+    guard(|| {
+        let flat = slots_to_vec(slots)?;
+        Ok(infer_slot_spacing(&flat))
+    })
+}
+
+/// Python-visible `build_slot_index(slots, spacing)` returning
+/// `{(i, j): [slots]}` with `i = int(round(x/spacing))` (CPython
+/// round-half-to-even). Insertion order follows `slots` order, exactly like
+/// the oracle's `dict.setdefault` loop.
+#[pyfunction]
+pub fn build_slot_index_py<'py>(
+    py: Python<'py>,
+    slots: &Bound<'py, PyAny>,
+    spacing: f64,
+) -> PyResult<Bound<'py, PyDict>> {
+    guard(|| {
+        let flat = slots_to_vec(slots)?;
+        let out = PyDict::new(py);
+        for (key, cell) in build_slot_index(&flat, spacing) {
+            let list = PyList::new(
+                py,
+                cell.iter().map(|&(x, y)| (x, y).into_bound_py_any(py).unwrap()),
+            )?;
+            out.set_item(key, list)?;
+        }
+        Ok(out)
+    })
+}
+
+/// Python-visible `slots_within_radius(center, radius, index, spacing)`
+/// returning the slot list.
+#[pyfunction]
+pub fn slots_within_radius_py<'py>(
+    py: Python<'py>,
+    center: &Bound<'py, PyTuple>,
+    radius: f64,
+    index: &Bound<'py, PyDict>,
+    spacing: f64,
+) -> PyResult<Bound<'py, PyList>> {
+    guard(|| {
+        let cx: f64 = center.get_item(0)?.extract()?;
+        let cy: f64 = center.get_item(1)?.extract()?;
+        let idx = dict_index_to_rust(index)?;
+        let out = slots_within_radius((cx, cy), radius, &idx, spacing);
+        let mut items: Vec<Bound<'py, PyAny>> = Vec::new();
+        for (x, y) in out {
+            items.push((x, y).into_bound_py_any(py)?);
+        }
+        PyList::new(py, items)
+    })
+}
+
+fn slots_to_vec(slots: &Bound<'_, PyAny>) -> PyResult<Vec<(f64, f64)>> {
+    let mut out: Vec<(f64, f64)> = Vec::new();
+    for item in slots.try_iter()? {
+        let item = item?;
+        out.push((item.get_item(0)?.extract()?, item.get_item(1)?.extract()?));
+    }
+    Ok(out)
+}
+
+fn dict_index_to_rust(index: &Bound<'_, PyDict>) -> PyResult<HashMap<(i64, i64), Vec<(f64, f64)>>> {
+    let mut idx: HashMap<(i64, i64), Vec<(f64, f64)>> = HashMap::new();
+    for (k, v) in index.iter() {
+        let i: i64 = k.get_item(0)?.extract()?;
+        let j: i64 = k.get_item(1)?.extract()?;
+        idx.insert((i, j), slots_to_vec(&v)?);
+    }
+    Ok(idx)
+}
+
+// ---------------------------------------------------------------------------
 // Registration
 // ---------------------------------------------------------------------------
 
@@ -861,5 +1115,11 @@ pub fn register(module: &Bound<'_, PyModule>) -> PyResult<()> {
     sub.add_function(wrap_pyfunction!(assign_layers, &sub)?)?;
     sub.add_function(wrap_pyfunction!(recompute_plane_assignments_py, &sub)?)?;
     sub.add_function(wrap_pyfunction!(assign_components_to_slots_py, &sub)?)?;
+    sub.add_function(wrap_pyfunction!(min_pin_pitch_py, &sub)?)?;
+    sub.add_function(wrap_pyfunction!(escape_layer_for_net_py, &sub)?)?;
+    sub.add_function(wrap_pyfunction!(infer_slot_spacing_py, &sub)?)?;
+    sub.add_function(wrap_pyfunction!(build_slot_index_py, &sub)?)?;
+    sub.add_function(wrap_pyfunction!(slots_within_radius_py, &sub)?)?;
     module.add_submodule(&sub)
 }
+// touch

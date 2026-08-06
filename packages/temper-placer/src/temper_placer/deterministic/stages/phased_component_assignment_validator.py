@@ -6,18 +6,25 @@ within IEC 62368-1 creepage of every HV-class pin, and that no slot
 was over-claimed (i.e. reserved without a corresponding HV-pin ring
 or a placed component's footprint).
 
-Conforms to docs/solutions/architecture-patterns/per-stage-drc-fence-verification-2026-06-22.md.
+The four pure slot-grid kernels — ``_flatten_slots``, ``_infer_slot_spacing``,
+``_build_slot_index``, ``_slots_within_radius`` — are implemented in Rust in
+the ``temper-design-bundle`` crate (Wave 4 **Phase 5, batch 2** —
+deterministic leaf stages) and delegate to
+``temper_design_bundle_python.deterministic_leaves``. The
+``validate_phased_component_assignment_hv`` function stays Python: it binds
+router_v6's ``StageDRCFailure`` and the phasing mixins'
+``_get_footprint_radius`` / ``_effective_ghost_pad_radius`` (unmigrated
+surfaces), and its failure ordering is orchestration over the migrated
+slot-grid kernels.
 
-The validator is read-only: it does not mutate the state, and it
-returns a (possibly empty) list of ``StageDRCFailure`` records.  The
-placer logs failures as warnings and lets the closure test (SM1/SM2)
-decide promotion.
-
-Performance: the naive scans are O(pins x slots) for coverage and
-O(slots x placements x pins) for over-claim.  Both collapse to
-near-linear in (slots + pins + placements) when the slot grid is
-indexed by a 2D bucketed cell map keyed on the inferred slot
-spacing.  See ``_build_slot_index`` and ``_slots_within_radius``.
+Bit-exactness: slot-spacing inference (minimum non-zero coordinate
+difference), the bucketed cell index (`int(round(x/spacing))` — CPython
+round-half-to-even), and the radius scan (`ceil`, `math.hypot`, exact
+(di, dj) raster order) are reproduced identically. Verified by
+``tests/deterministic/stages/test_phased_component_assignment_validator_rust_differential.py``
+(oracle: ``tests/deterministic/stages/_phased_component_assignment_validator_py_oracle.py``)
+and the PBT suite; the structural proof lives in
+``packages/temper-design-bundle/VERIFICATION.md``.
 """
 
 from __future__ import annotations
@@ -25,6 +32,8 @@ from __future__ import annotations
 import math
 from collections.abc import Iterable
 from typing import TYPE_CHECKING
+
+import temper_design_bundle_python as _tdb
 
 if TYPE_CHECKING:
     from temper_placer.router_v6.stage_validators import StageDRCFailure
@@ -35,6 +44,59 @@ _HV_SAFETY_CATEGORIES = frozenset({"HV", "AC"})
 # or non-uniform).  Smaller values over-bucket (more memory, exact
 # results), larger values under-bucket (less memory, still correct).
 _DEFAULT_SLOT_SPACING = 5.0
+
+_RS = _tdb.deterministic_leaves
+
+
+def _flatten_slots(state) -> list[tuple[float, float]]:
+    """All grid slots from every zone in state.zone_slots."""
+    if not state.zone_slots:
+        return []
+    out: list[tuple[float, float]] = []
+    for _zone, slots in state.zone_slots:
+        out.extend(slots)
+    return out
+
+
+def _infer_slot_spacing(slots: list[tuple[float, float]]) -> float:
+    """Infer the regular slot-grid spacing from a flat list of slots.
+
+    The placer's zone_slots are emitted by ``_build_state`` on a
+    regular grid, so the minimum non-zero coordinate difference is
+    the spacing.  Falls back to ``_DEFAULT_SLOT_SPACING`` for
+    degenerate inputs (0, 1, or 2 slots; non-uniform grids).
+    """
+    return _RS.infer_slot_spacing_py(slots)
+
+
+def _build_slot_index(
+    slots: Iterable[tuple[float, float]],
+    spacing: float,
+) -> dict[tuple[int, int], list[tuple[float, float]]]:
+    """Build a 2D bucketed cell map ``(i, j) -> [slots in that cell]``.
+
+    Cells are unit squares of side ``spacing`` aligned to the
+    inferred grid origin (0, 0).  A slot ``(x, y)`` lives in cell
+    ``(round(x/spacing), round(y/spacing))``.
+    """
+    return _RS.build_slot_index_py(slots, spacing)
+
+
+def _slots_within_radius(
+    center: tuple[float, float],
+    radius: float,
+    index: dict[tuple[int, int], list[tuple[float, float]]],
+    spacing: float,
+) -> list[tuple[float, float]]:
+    """Yield all slots within ``radius`` of ``center`` using the cell index.
+
+    Walks the (2k+1) x (2k+1) cell window where
+    ``k = ceil(radius / spacing)``.  Each candidate slot is
+    distance-checked exactly once (de-duplicated via a per-call
+    seen-set) so the result is O(k^2 + matched) where matched is
+    the number of slots actually within the radius.
+    """
+    return _RS.slots_within_radius_py(center, radius, index, spacing)
 
 
 def _absolute_hv_pins(state) -> list[tuple[float, float, str, str]]:
@@ -87,95 +149,6 @@ def _creepage_mm(state) -> float:
     return max_creepage
 
 
-def _flatten_slots(state) -> list[tuple[float, float]]:
-    """All grid slots from every zone in state.zone_slots."""
-    if not state.zone_slots:
-        return []
-    out: list[tuple[float, float]] = []
-    for _zone, slots in state.zone_slots:
-        out.extend(slots)
-    return out
-
-
-def _infer_slot_spacing(slots: list[tuple[float, float]]) -> float:
-    """Infer the regular slot-grid spacing from a flat list of slots.
-
-    The placer's zone_slots are emitted by ``_build_state`` on a
-    regular grid, so the minimum non-zero coordinate difference is
-    the spacing.  Falls back to ``_DEFAULT_SLOT_SPACING`` for
-    degenerate inputs (0, 1, or 2 slots; non-uniform grids).
-    """
-    if len(slots) < 2:
-        return _DEFAULT_SLOT_SPACING
-    xs = sorted({sx for sx, _ in slots})
-    ys = sorted({sy for _, sy in slots})
-    dx_candidates = [b - a for a, b in zip(xs, xs[1:]) if b > a]
-    dy_candidates = [b - a for a, b in zip(ys, ys[1:]) if b > a]
-    candidates = dx_candidates + dy_candidates
-    if not candidates:
-        return _DEFAULT_SLOT_SPACING
-    return min(candidates)
-
-
-def _build_slot_index(
-    slots: Iterable[tuple[float, float]],
-    spacing: float,
-) -> dict[tuple[int, int], list[tuple[float, float]]]:
-    """Build a 2D bucketed cell map ``(i, j) -> [slots in that cell]``.
-
-    Cells are unit squares of side ``spacing`` aligned to the
-    inferred grid origin (0, 0).  A slot ``(x, y)`` lives in cell
-    ``(round(x/spacing), round(y/spacing))``.  The cell map turns
-    the O(N) per-radius scan into a 3x3 (or 5x5) cell lookup, so
-    coverage and over-claim run in O(slots + pins + placements)
-    instead of the naive quadratic.
-    """
-    index: dict[tuple[int, int], list[tuple[float, float]]] = {}
-    for slot in slots:
-        i = int(round(slot[0] / spacing))
-        j = int(round(slot[1] / spacing))
-        index.setdefault((i, j), []).append(slot)
-    return index
-
-
-def _slots_within_radius(
-    center: tuple[float, float],
-    radius: float,
-    index: dict[tuple[int, int], list[tuple[float, float]]],
-    spacing: float,
-) -> list[tuple[float, float]]:
-    """Yield all slots within ``radius`` of ``center`` using the cell index.
-
-    Walks the (2k+1) x (2k+1) cell window where
-    ``k = ceil(radius / spacing)``.  Each candidate slot is
-    distance-checked exactly once (de-duplicated via a per-call
-    seen-set) so the result is O(k^2 + matched) where matched is
-    the number of slots actually within the radius.
-    """
-    if radius <= 0.0 or not index:
-        return []
-    k = int(math.ceil(radius / spacing))
-    ci = int(round(center[0] / spacing))
-    cj = int(round(center[1] / spacing))
-    out: list[tuple[float, float]] = []
-    seen: set[tuple[float, float]] = set()
-    cx, cy = center
-    for di in range(-k, k + 1):
-        for dj in range(-k, k + 1):
-            cell = (ci + di, cj + dj)
-            cell_slots = index.get(cell)
-            if not cell_slots:
-                continue
-            for slot in cell_slots:
-                if slot in seen:
-                    continue
-                seen.add(slot)
-                sx, sy = slot
-                if math.hypot(sx - cx, sy - cy) <= radius:
-                    out.append(slot)
-    return out
-
-
 def validate_phased_component_assignment_hv(state) -> list[StageDRCFailure]:
     """Verify the placer reserved every HV pin's creepage ring AND no slot is over-claimed.
 
@@ -195,21 +168,9 @@ def validate_phased_component_assignment_hv(state) -> list[StageDRCFailure]:
     diagonal saturates coverage and the validator returns an empty
     failure list.
 
-    Performance: the naive implementation is O(pins x slots) for
-    coverage and O(slots x placements x pins) for over-claim.  This
-    implementation pre-computes two sets once and looks up coverage
-    by membership:
-
-      - ``creepage_coverage``: ``set[(slot, pin)]`` of every
-        (slot, pin) pair where the slot is within creepage of the
-        pin.  Built by indexing every HV pin in a 2D bucketed cell
-        map keyed on the inferred slot spacing.  Turn-around is
-        O(slots + pins + matched_pairs).
-
-      - ``legitimate_origin``: ``set[slot]`` of every slot that is
-        within a placed component's footprint ring or within an HV
-        ring.  Built by walking placements + the bucketed index.
-        Lookup is O(1) per slot.
+    The bucketed cell-map kernels are the migrated Rust functions; the
+    coverage / over-claim loops and the ``StageDRCFailure`` construction
+    stay Python (router_v6-bound).
     """
     from temper_placer.router_v6.stage_validators import StageDRCFailure
 

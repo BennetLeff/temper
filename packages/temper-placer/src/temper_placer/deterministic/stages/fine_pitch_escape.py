@@ -5,17 +5,29 @@ closer than a threshold) and places escape vias at their pins to enable
 inner-layer routing. This solves the problem of overlapping clearance zones
 on the surface layer that block routing.
 
-Professional PCB designers handle fine-pitch ICs by "fanning out" or "escaping"
-from the dense pin field to less congested areas or inner layers before main
-routing. This stage implements that pattern automatically.
+The two pure kernels are implemented in Rust in the ``temper-design-bundle``
+crate (Wave 4 **Phase 5, batch 2** — deterministic leaf stages):
+``_calculate_min_pin_pitch`` delegates to
+``temper_design_bundle_python.deterministic_leaves.min_pin_pitch_py`` and
+``_get_escape_layer_for_net`` to ``...escape_layer_for_net_py``. The ``run``
+orchestration (the fine-pitch detection passes, via construction, and the
+escape validation) stays Python.
 
-EXP-6b: Now supports multi-layer escape routing, distributing escape vias
-across Layer 1 (In1.Cu) and Layer 2 (In2.Cu) based on net assignments to
-reduce layer congestion.
+Bit-exactness: the min-pin-pitch kernel reproduces the oracle's ``dx*dx``
+direct multiplication and ``math.sqrt`` bit-for-bit (``float.hex()``
+differential) and the ``None``/fewer-than-two-pins semantics; the escape
+layer selection reproduces the layer-3-first / layer-2 / default precedence
+with the configured primary/secondary layers. Verified by
+``tests/deterministic/stages/test_fine_pitch_escape_rust_differential.py``
+(oracle: ``tests/deterministic/stages/_fine_pitch_escape_py_oracle.py``) and
+the PBT suite; the structural proof lives in
+``packages/temper-design-bundle/VERIFICATION.md``.
 """
 
 import math
 from dataclasses import dataclass, field
+
+import temper_design_bundle_python as _tdb
 
 from ...core.pin_geometry import pin_world_position_at
 from ..state import BoardState
@@ -81,12 +93,13 @@ class FinePitchEscapeStage(Stage):
         Returns:
             Tuple of (layer_number, layer_name)
         """
-        # EXP-9: Analog/sensing nets to B.Cu (layer 3) for outer-layer routing
-        if net_name in self.layer3_nets:
-            return (3, "B.Cu")
-        if net_name in self.layer2_nets:
-            return (self.secondary_escape_layer, "In2.Cu")
-        return (self.escape_layer, "In1.Cu")
+        return _tdb.deterministic_leaves.escape_layer_for_net_py(
+            net_name,
+            self.layer2_nets,
+            self.layer3_nets,
+            self.escape_layer,
+            self.secondary_escape_layer,
+        )
 
     def run(self, state: BoardState) -> BoardState:
         """Detect fine-pitch components and place escape vias."""
@@ -304,18 +317,4 @@ class FinePitchEscapeStage(Stage):
         Returns:
             Minimum distance between any two pins in mm, or None if < 2 pins
         """
-        pins = component.pins
-        if len(pins) < 2:
-            return None
-
-        min_dist = float("inf")
-
-        # Check all pin pairs
-        for i, pin1 in enumerate(pins):
-            for pin2 in pins[i + 1 :]:
-                dx = pin1.position[0] - pin2.position[0]
-                dy = pin1.position[1] - pin2.position[1]
-                dist = math.sqrt(dx * dx + dy * dy)
-                min_dist = min(min_dist, dist)
-
-        return min_dist if min_dist != float("inf") else None
+        return _tdb.deterministic_leaves.min_pin_pitch_py(component.pins)

@@ -132,6 +132,17 @@ pub fn py_min(a: f64, b: f64) -> f64 {
     if b < a { b } else { a }
 }
 
+/// CPython `round(x)` — round-half-to-even on the double, with the sign of
+/// zero normalised to `+0.0` (the caller's `int()`/product normalises it).
+pub fn py_round(x: f64) -> f64 {
+    let r = x.round_ties_even();
+    if r == 0.0 {
+        0.0
+    } else {
+        r
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
