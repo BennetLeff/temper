@@ -105,7 +105,8 @@
     "packages/temper-placer/src/temper_placer/router_v6/constraints_design_rules.py",
     "packages/temper-placer/src/temper_placer/router_v6/routing_demand.py",
     "packages/temper-placer/src/temper_placer/router_v6/trace_width_assignment.py",
-    "packages/temper-placer/tests/core/_priority_py_oracle.py"
+    "packages/temper-placer/tests/core/_priority_py_oracle.py",
+    "packages/temper-placer/tests/router_v6/_congestion_py_oracle.py"
   ],
   "check_netlist_board_reconciliation.py": [
     ".github/workflows/python-tests.yml"
@@ -170,6 +171,7 @@
   "check_undeclared_imports.py": [
     ".github/workflows/python-tests.yml"
   ],
+  "check_unwired_kernels.py": [],
   "check_vacuous_gates.py": [
     ".github/workflows/python-tests.yml",
     "packages/temper-placer/src/temper_placer/geometry/drc_inflate.py",
