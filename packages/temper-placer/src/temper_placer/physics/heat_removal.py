@@ -12,6 +12,14 @@ Source of truth: ``DeviceThermalConfig`` from ``tj_cross_check.py`` (U11)
 provides R_θCS and R_θSA — the ONE canonical repository of per-device
 thermal resistances.  This module REUSES that config, not a second copy.
 
+Wave 4 Phase 4: the grid arithmetic delegates to the Rust kernel
+``temper_thermal.build_h_field_py`` (temper-thermal, ``heat_removal.rs``).
+The dict-contract validation (missing ``DeviceThermalConfig`` raises the
+original ``ValueError``s) stays here.  Bit-identical parity against the
+pre-migration implementation is pinned by
+``tests/physics/test_heat_removal_rust_differential.py``; the R1e
+structural proof is in ``packages/temper-thermal/VERIFICATION.md``.
+
 Public API
 ----------
 .. code-block:: python
@@ -27,6 +35,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import numpy as np
+import temper_thermal as _tt
 
 if TYPE_CHECKING:
     from temper_placer.physics.thermal_fdm import ThermalFDMConfig
@@ -87,6 +96,10 @@ def build_h_field(
         ``(height_cells, width_cells)`` float64 array in ``W/(K·mm²)``.
 
     Raises:
+        ZeroDivisionError: If the FDM grid's cell size is degenerate
+            (``cs == 0.0`` or the subnormal underflow band where
+            ``cs * cs`` rounds to 0.0) — the reference's ``0.0/0.0``
+            background division, raised BEFORE the config validation.
         ValueError: If a device in *devices* has no thermal config.
     """
     h = config.height_cells
@@ -94,64 +107,54 @@ def build_h_field(
     cs = config.cell_size_mm  # mm
     ox, oy = config.origin_mm
 
-    # --- Background convection (weak, uniform) ---
-    cell_area_m2 = (cs * 1e-3) ** 2  # m²
-    h_bg = H_CONV_BACKGROUND * cell_area_m2 / (cs * cs)  # W/(m²·K) → W/(K·mm²)
-    # because: h [W/(m²·K)] × cell_area_m2 [m²] / cell_area_mm2 [mm²]
-    # = 10 W/(m²·K) × (cs·1e-3)² m² / cs² mm²
-    # = 10 × 1e-6 [W/K/mm²] = 1e-5 W/(K·mm²)
+    # --- Geometry-failure precedence (pass 2 P1) ---
+    # The reference computes `h_bg = 10.0 * (cs*1e-3)**2 / (cs*cs)`
+    # FIRST — a cs-degenerate division raises ZeroDivisionError BEFORE
+    # any device_thermal validation, so the geometry error wins
+    # regardless of config state (a caller catching ZeroDivisionError
+    # vs ValueError must see the reference's class).  The degenerate
+    # band is cs == 0.0 AND every cs whose `cs*cs` rounds to 0.0 (the
+    # subnormal underflow band, |cs| ≲ 2.2e-162 — e.g. 5e-324, 1e-200):
+    # the reference's division is 0.0/0.0 there too.  The Rust kernel
+    # guard in heat_removal.rs replicates the same division for direct
+    # kernel callers; this check exists ONLY to preserve the raise
+    # ORDER (the config ValueError below must not pre-empt it) and must
+    # stay in sync with that guard.
+    if cs == 0.0 or cs * cs == 0.0:
+        raise ZeroDivisionError("float division by zero")
 
-    h_field = np.full((h, w), h_bg, dtype=np.float64)
-
+    # --- Contract validation (unchanged from the pre-migration
+    # implementation): a device without a DeviceThermalConfig raises the
+    # original ValueError, in the original branch order (aggregate when
+    # device_thermal is empty, per-device otherwise).  The Rust kernel
+    # receives only validated devices, in dict iteration order. ---
     if not devices:
-        return h_field
+        xs: list[float] = []
+        ys: list[float] = []
+        r_cs: list[float] = []
+        r_sa: list[float] = []
+    else:
+        if not device_thermal:
+            missing = [d for d in devices if d not in device_thermal]
+            if missing:
+                raise ValueError(
+                    f"{len(missing)} device(s) have no DeviceThermalConfig: "
+                    f"{', '.join(sorted(missing))}. "
+                    f"Provide a DeviceThermalConfig with R_θCS + R_θSA "
+                    f"and 'because' citations."
+                )
+        for dev_name in devices:
+            if dev_name not in device_thermal:
+                raise ValueError(
+                    f"Device '{dev_name}' has no DeviceThermalConfig — "
+                    f"cannot compute through-plane sink. "
+                    f"Provide a DeviceThermalConfig with R_θCS + R_θSA "
+                    f"and 'because' citations, or remove the device."
+                )
+        xs = [devices[k][0] for k in devices]
+        ys = [devices[k][1] for k in devices]
+        r_cs = [device_thermal[k].R_theta_cs for k in devices]
+        r_sa = [device_thermal[k].R_theta_sa for k in devices]
 
-    if not device_thermal:
-        missing = [d for d in devices if d not in device_thermal]
-        if missing:
-            raise ValueError(
-                f"{len(missing)} device(s) have no DeviceThermalConfig: "
-                f"{', '.join(sorted(missing))}. "
-                f"Provide a DeviceThermalConfig with R_θCS + R_θSA "
-                f"and 'because' citations."
-            )
-        return h_field
-
-    # --- Device footprint sinks ---
-    half_f = _DEVICE_FOOTPRINT_MM / 2.0
-
-    for dev_name, (dx_mm, dy_mm) in devices.items():
-        if dev_name not in device_thermal:
-            raise ValueError(
-                f"Device '{dev_name}' has no DeviceThermalConfig — "
-                f"cannot compute through-plane sink. "
-                f"Provide a DeviceThermalConfig with R_θCS + R_θSA "
-                f"and 'because' citations, or remove the device."
-            )
-
-        dev_th = device_thermal[dev_name]
-        R_vert = dev_th.R_theta_cs + dev_th.R_theta_sa
-
-        if R_vert <= 0.0:
-            # Board-heatsinked: R_θCS + R_θSA = 0 → the FDM Dirichlet
-            # edge already models the clamped sink directly.
-            # No additional sink needed for this device.
-            continue
-
-        g_dev = 1.0 / R_vert  # W/K — total device vertical conductance
-
-        # Device footprint bounding box in grid coordinates
-        col_min = max(0, int(np.floor((dx_mm - half_f - ox) / cs)))
-        col_max = min(w, int(np.ceil((dx_mm + half_f - ox) / cs)))
-        row_min = max(0, int(np.floor((dy_mm - half_f - oy) / cs)))
-        row_max = min(h, int(np.ceil((dy_mm + half_f - oy) / cs)))
-
-        n_cells = max(1, (row_max - row_min) * (col_max - col_min))
-        h_cell = g_dev / (n_cells * cs * cs)  # W/K / mm² = W/(K·mm²)
-        # because: g_dev [W/K] divided by total footprint area [mm²]
-        # gives per-area vertical conductance matching the FDM diagonal
-        # coefficient units (W/(K·mm²)).
-
-        h_field[row_min:row_max, col_min:col_max] += h_cell
-
-    return h_field
+    raw = _tt.build_h_field_py(cs, ox, oy, h, w, xs, ys, r_cs, r_sa)
+    return np.frombuffer(raw, dtype=np.float64).reshape((h, w)).copy()

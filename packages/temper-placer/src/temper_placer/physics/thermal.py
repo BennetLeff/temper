@@ -1,8 +1,14 @@
 """
 Thermal junction temperature estimation for PCB components.
+
+The scalar arithmetic runs in the ``temper-thermal`` Rust kernel
+(``estimate_junction_temp_py``, Wave 4 Phase A #3); this module keeps
+the public API and the default thermal-resistance parameters.
 """
 
 from __future__ import annotations
+
+import temper_thermal as _tt
 
 
 def estimate_junction_temp(
@@ -28,27 +34,24 @@ def estimate_junction_temp(
         Rjc: Junction-to-case thermal resistance (K/W). Default 0.6 (TO-247).
         Rch: Case-to-heatsink thermal resistance (K/W). Default 0.25 (grease).
         Rha_base: Base heatsink-to-ambient resistance (K/W). Default 1.0.
-        Wakefield 694-100 extrusion family, ~75mm length, natural convection,
-        de-rated for temper induction-cooker enclosure (50 °C ambient, limited
-        vertical chimney).
+            Wakefield 694-100 extrusion family, ~75mm length, natural convection,
+            de-rated for temper induction-cooker enclosure (50 °C ambient, limited
+            vertical chimney).
+
+    The arithmetic runs in the ``temper-thermal`` Rust kernel
+    (``estimate_junction_temp_py``, Wave 4 Phase A #3), which mirrors
+    this function's exact f64 operation order bit-for-bit (pinned by the
+    differential suite ``tests/physics/test_thermal_rust_differential.py``).
 
     Returns:
         Estimated junction temperature in °C.
     """
-    # 1. Edge Penalty
-    # Effective Rha increases as component moves away from edge (mount point)
-    # Heuristic: 0.2 K/W per mm beyond 5mm
-    edge_penalty = max(0.0, edge_distance_mm - 5.0) * 0.2
-
-    # 2. Copper Spreading Benefit
-    # Larger copper pours help spread heat, reducing effective Rha
-    # Heuristic: 0.1 K/W reduction per 1000mm², capped at 0.5 K/W
-    copper_benefit = min(0.5, (copper_area_mm2 / 1000.0) * 0.1)
-
-    # 3. Total Resistance
-    R_total = Rjc + Rch + Rha_base + edge_penalty - copper_benefit
-
-    # 4. Junction Temperature
-    T_junction = ambient_C + (power_W * R_total)
-
-    return float(T_junction)
+    return _tt.estimate_junction_temp_py(
+        power_W,
+        edge_distance_mm,
+        copper_area_mm2,
+        ambient_C,
+        Rjc,
+        Rch,
+        Rha_base,
+    )

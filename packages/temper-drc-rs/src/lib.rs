@@ -9,20 +9,39 @@
 
 // All modules public for external / test access.
 pub mod board;
+#[cfg(feature = "python")]
 pub mod board_py_bridge;
 pub mod constraints;
+pub mod pyfmt;
+#[cfg(feature = "python")]
+pub mod req_safe_01;
+pub mod dfm;
+#[cfg(feature = "python")]
+pub mod dfm_py;
+pub mod pymath;
+#[cfg(feature = "python")]
 pub mod router_clearance;
 pub mod rules;
 pub mod types;
+#[cfg(feature = "python")]
+pub mod validation;
 
+#[cfg(feature = "python")]
 use pyo3::exceptions::PyValueError;
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use pyo3::types::{PyDict, PyList};
+#[cfg(feature = "python")]
 use pyo3::Py;
 
+#[cfg(feature = "python")]
 use crate::board_py_bridge::build_board_state;
+#[cfg(feature = "python")]
 use crate::constraints::build_constraint_set;
+#[cfg(feature = "python")]
 use crate::rules::create_default_registry;
+#[cfg(feature = "python")]
 use crate::rules::{DrcCategory, Violation};
 
 // ---------------------------------------------------------------------------
@@ -54,6 +73,7 @@ use crate::rules::{DrcCategory, Violation};
 /// During the strangler-fig migration (U4–U6), this function is called
 /// alongside the Python `temper-drc` engine. After cutover, it becomes
 /// the sole DRC provider.
+#[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (board_dict, constraints_dict, categories = None, check_names = None, modified_regions = None))]
 fn run_drc(
@@ -123,6 +143,7 @@ fn run_drc(
 // ---------------------------------------------------------------------------
 
 /// Parse a category string into a `DrcCategory` enum value.
+#[cfg(feature = "python")]
 fn parse_category(s: &str) -> Result<DrcCategory, String> {
     match s.to_lowercase().as_str() {
         "drc" => Ok(DrcCategory::Drc),
@@ -154,6 +175,7 @@ fn parse_category(s: &str) -> Result<DrcCategory, String> {
 ///     "details": {...},
 /// }
 /// ```
+#[cfg(feature = "python")]
 fn violation_to_py_dict<'py>(py: Python<'py>, v: &Violation) -> PyResult<Bound<'py, PyDict>> {
     let d = PyDict::new(py);
 
@@ -214,6 +236,7 @@ fn violation_to_py_dict<'py>(py: Python<'py>, v: &Violation) -> PyResult<Bound<'
 /// - `String`    → `str`
 /// - `Array`     → `list`
 /// - `Object`    → `dict`
+#[cfg(feature = "python")]
 fn json_value_to_py(py: Python<'_>, value: &serde_json::Value) -> PyResult<Py<PyAny>> {
     match value {
         serde_json::Value::Null => Ok(py.None()),
@@ -260,6 +283,7 @@ fn json_value_to_py(py: Python<'_>, value: &serde_json::Value) -> PyResult<Py<Py
 // ---------------------------------------------------------------------------
 
 /// Python module entry point: `temper_drc_rs`.
+#[cfg(feature = "python")]
 #[pymodule]
 fn temper_drc_rs(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(run_drc, m)?)?;
@@ -267,5 +291,51 @@ fn temper_drc_rs(m: &Bound<'_, PyModule>) -> PyResult<()> {
         crate::router_clearance::verify_route_clearance,
         m
     )?)?;
+    // Wave 4 Phase 4 — validation DRC-check kernels (validation.rs).
+    crate::validation::register(m)?;
+    // Wave 4 Phase 5 — REQ-SAFE-01 clearance/creepage validator
+    // (req_safe_01.rs).
+    m.add_function(wrap_pyfunction!(
+        crate::req_safe_01::req_safe_01_check_domain_clearance,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        crate::req_safe_01::req_safe_01_check_creepage_path,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        crate::req_safe_01::req_safe_01_verify_iec60335,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        crate::req_safe_01::req_safe_01_format_clearance_report,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        crate::req_safe_01::req_safe_01_requirement_matrix,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        crate::req_safe_01::req_safe_01_nets_domain_map,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        crate::req_safe_01::req_safe_01_components_in_domain,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        crate::req_safe_01::req_safe_01_domain_boundary_pairs,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        crate::req_safe_01::req_safe_01_component_pads,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        crate::req_safe_01::req_safe_01_copper_model_init,
+        m
+    )?)?;
+    // Wave 4 cluster D — router_v6 post-route DFM kernels (dfm.rs).
+    crate::dfm_py::register(m)?;
     Ok(())
 }

@@ -1,8 +1,14 @@
 """
 Reference Layout Loader for PCB Placement Benchmarking.
 
-This module provides functions to load open-source KiCad PCB designs
-and convert them into PlacementState objects for quality metric comparison.
+Delegation shim — under Wave 4 Phase 3, candidate 5, the two pure kernels
+(``compute_design_stats``, ``infer_quality_config``) migrated to Rust
+(``temper-design-bundle``, ``reference_loader.rs``). The orchestration that
+is entangled with the KiCad parse engine (candidate 3) and numpy
+``PlacementState`` (Phase 4/5) stays Python: ``load_reference_pcb``,
+``filter_components``, ``netlist_to_placement_state`` and
+``list_reference_designs`` keep calling the Rust kernels for the pure parts
+(see the R3 boundary decision in ``packages/temper-design-bundle/VERIFICATION.md``).
 
 Typical usage:
     # Load a reference design and compute metrics
@@ -37,6 +43,7 @@ from pathlib import Path
 from typing import cast
 
 import numpy as np
+import temper_design_bundle_python as _tdb
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Net, Netlist
@@ -66,6 +73,11 @@ class ReferenceDesign:
     board: Board
     parse_result: ParseResult
     stats: dict
+
+
+# Rust kernels (temper_design_bundle_python / reference_loader.rs).
+compute_design_stats = _tdb.compute_design_stats
+infer_quality_config = _tdb.infer_quality_config
 
 
 def load_reference_pcb(
@@ -164,60 +176,6 @@ def netlist_to_placement_state(
     )
 
 
-def compute_design_stats(result: ParseResult) -> dict:
-    """
-    Compute statistics about a parsed design.
-
-    Args:
-        result: ParseResult from parse_kicad_pcb.
-
-    Returns:
-        Dict with statistics:
-        - n_components: Number of components
-        - n_nets: Number of nets
-        - n_pins_per_net: Average pins per net
-        - board_area_mm2: Board area in mm²
-        - component_area_mm2: Total component area
-        - density: Component area / board area ratio
-        - footprint_types: Set of unique footprint types
-    """
-    netlist = result.netlist
-    board = result.board
-
-    # Component area
-    total_comp_area = 0.0
-    footprint_types = set()
-    for comp in netlist.components:
-        w, h = comp.bounds
-        total_comp_area += w * h
-        # Extract footprint type (e.g., "SOIC-8" from "Package_SO:SOIC-8")
-        fp_parts = comp.footprint.split(":")
-        footprint_types.add(fp_parts[-1] if fp_parts else comp.footprint)
-
-    # Board area
-    board_area = board.width * board.height if board else 0.0
-
-    # Net stats
-    n_nets = len(netlist.nets)
-    avg_pins = 0.0
-    if n_nets > 0:
-        total_pins = sum(len(net.pins) for net in netlist.nets)
-        avg_pins = total_pins / n_nets
-
-    return {
-        "n_components": netlist.n_components,
-        "n_nets": n_nets,
-        "n_pins_per_net": round(avg_pins, 2),
-        "board_width_mm": board.width if board else 0,
-        "board_height_mm": board.height if board else 0,
-        "board_area_mm2": round(board_area, 1),
-        "component_area_mm2": round(total_comp_area, 1),
-        "density": round(total_comp_area / board_area, 3) if board_area > 0 else 0,
-        "footprint_types": sorted(footprint_types),
-        "n_warnings": len(result.warnings),
-    }
-
-
 def filter_components(
     design: ReferenceDesign,
     refs: set[str] | None = None,
@@ -304,71 +262,6 @@ def filter_components(
         parse_result=filtered_result,
         stats=stats,
     )
-
-
-def infer_quality_config(design: ReferenceDesign) -> dict:
-    """
-    Infer a reasonable quality config from a reference design.
-
-    This auto-detects:
-    - Thermal components (large TO-* packages, power modules)
-    - HV components (high-power footprints, certain net names)
-    - LV components (small ICs, MCUs)
-    - Critical loops (gate drive paths)
-
-    Args:
-        design: Parsed reference design.
-
-    Returns:
-        Quality config dict suitable for compute_quality_report.
-    """
-    thermal = set()
-    hv = set()
-    lv = set()
-
-    for comp in design.netlist.components:
-        fp_lower = comp.footprint.lower()
-        ref_upper = comp.ref.upper()
-        w, h = comp.bounds
-        area = w * h
-
-        # Thermal: Large packages (TO-247, D2PAK, modules)
-        if (
-            any(pkg in fp_lower for pkg in ["to-247", "to-220", "d2pak", "module", "heatsink"])
-            or area > 100
-        ):
-            thermal.add(comp.ref)
-
-        # HV: Power transistors, diodes, bulk caps
-        if (
-            ref_upper.startswith(("Q", "D", "TR", "U"))
-            and area > 50
-            or "igbt" in fp_lower
-            or "mosfet" in fp_lower
-        ):
-            hv.add(comp.ref)
-
-        # LV: Small ICs, MCUs, sensors
-        if any(pkg in fp_lower for pkg in ["soic", "qfp", "bga", "qfn", "sot"]) and area < 100:
-            lv.add(comp.ref)
-
-    # Infer loops from gate drive nets
-    loops = []
-    for net in design.netlist.nets:
-        net_upper = net.name.upper()
-        if any(kw in net_upper for kw in ["GATE", "DRV", "DRIVE"]) and len(net.pins) >= 2:
-            loop_refs = [ref for ref, _ in net.pins[:3]]  # First 3 components
-            if len(loop_refs) >= 2:
-                loops.append(loop_refs)
-
-    return {
-        "thermal_components": thermal,
-        "hv_components": hv,
-        "lv_components": lv,
-        "zone_assignments": {},  # Would need zone data from board
-        "loop_components": loops[:3],  # Limit to 3 loops
-        "min_hv_lv_clearance": 4.0,  # Conservative default
-    }
 
 
 def list_reference_designs(directory: Path | str) -> list[dict]:

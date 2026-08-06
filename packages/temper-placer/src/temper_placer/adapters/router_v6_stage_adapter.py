@@ -4,6 +4,13 @@ Decomposes the 4-stage ``RouterV6Pipeline`` into standalone stages so each
 can be used independently or composed via the strategy-registry composite
 ``"router_v6_full"``.  The original ``RouterV6Pipeline`` class is **not**
 modified.
+
+Wave-4 Phase-5 R3-style record (see ``packages/temper-orchestration/VERIFICATION.md``):
+all five stage ``run()`` bodies are 100% call-backs into
+``io/kicad_parser`` (Phase 3) and ``router_v6/pipeline`` (Phase 5 router_v6
+slice) — kept Python-side per the slice brief; the stage classes are data
+(``name``/``requires``/``provides``/``contract``) plus dispatch. Zero
+standalone compute.
 """
 
 from __future__ import annotations

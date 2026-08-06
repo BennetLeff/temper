@@ -15,6 +15,7 @@
 //! 2=high overlap) so the Python wrapper can raise the exact reference
 //! ValueError messages.
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
 
 // ---------------------------------------------------------------------------
@@ -74,6 +75,10 @@ fn threshold_adc_codes(rref_ohm: f64, short_ohm: f64, open_ohm: f64) -> (i64, i6
 /// performs the corner validation and raises the reference ValueErrors).
 /// Returns (low_trip_v, high_trip_v, status) with status 0=ok,
 /// 1=low-window overlap, 2=high-window overlap.
+#[expect(
+    clippy::too_many_arguments,
+    reason = "Direct port of the Python reference signature; grouping into a config struct would obscure the physical corner parameters"
+)]
 fn derive_hardware_window(
     bias_current_min_a: f64,
     bias_current_max_a: f64,
@@ -116,6 +121,10 @@ fn derive_hardware_window(
 }
 
 /// MAX31865 VBIAS/RREF variant of the derivation.
+#[expect(
+    clippy::too_many_arguments,
+    reason = "Direct port of the Python reference signature; grouping into a config struct would obscure the physical corner parameters"
+)]
 fn derive_max31865_hardware_window(
     comparator_offset_abs_v: f64,
     divider_tolerance_fraction: f64,
@@ -163,36 +172,42 @@ fn derive_max31865_hardware_window(
 // PyO3 bridge
 // ---------------------------------------------------------------------------
 
+#[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (resistance_ohm, rref_ohm))]
 pub fn rtd_resistance_to_code_py(resistance_ohm: f64, rref_ohm: f64) -> i64 {
     resistance_to_code(resistance_ohm, rref_ohm)
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (resistance_ohm, vbias_v, rref_ohm))]
 pub fn rtd_max31865_current_a_py(resistance_ohm: f64, vbias_v: f64, rref_ohm: f64) -> f64 {
     max31865_rtd_current_a(resistance_ohm, vbias_v, rref_ohm)
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (resistance_ohm, vbias_v, rref_ohm))]
 pub fn rtd_max31865_voltage_v_py(resistance_ohm: f64, vbias_v: f64, rref_ohm: f64) -> f64 {
     max31865_rtd_voltage_v(resistance_ohm, vbias_v, rref_ohm)
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (resistance_ohm, excitation_a))]
 pub fn rtd_hardware_window_voltage_py(resistance_ohm: f64, excitation_a: f64) -> f64 {
     hardware_window_voltage(resistance_ohm, excitation_a)
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (reference_v, top_ohm, bottom_ohm))]
 pub fn rtd_reference_divider_voltage_v_py(reference_v: f64, top_ohm: f64, bottom_ohm: f64) -> f64 {
     reference_divider_voltage_v(reference_v, top_ohm, bottom_ohm)
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (driver_output_ohm, series_resistor_ohm, load_capacitance_pf))]
 pub fn rtd_spi_rc_rise_time_ns_py(
@@ -203,14 +218,20 @@ pub fn rtd_spi_rc_rise_time_ns_py(
     spi_rc_rise_time_ns(driver_output_ohm, series_resistor_ohm, load_capacitance_pf)
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (rref_ohm, short_ohm, open_ohm))]
 pub fn rtd_threshold_adc_codes_py(rref_ohm: f64, short_ohm: f64, open_ohm: f64) -> (i64, i64) {
     threshold_adc_codes(rref_ohm, short_ohm, open_ohm)
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (bias_current_min_a, bias_current_max_a, comparator_offset_abs_v, divider_tolerance_fraction, required_margin_fraction, short_max_ohm, valid_min_ohm, valid_max_ohm, open_min_ohm))]
+#[expect(
+    clippy::too_many_arguments,
+    reason = "Pyo3 boundary mirrors the Python signature 1:1; a config struct would change the FFI"
+)]
 pub fn rtd_derive_hardware_window_py(
     bias_current_min_a: f64,
     bias_current_max_a: f64,
@@ -235,8 +256,13 @@ pub fn rtd_derive_hardware_window_py(
     )
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (comparator_offset_abs_v, divider_tolerance_fraction, vbias_min_v, vbias_max_v, rref_nominal_ohm, rref_tolerance_fraction, short_max_ohm, valid_min_ohm, valid_max_ohm, open_min_ohm, required_margin_fraction))]
+#[expect(
+    clippy::too_many_arguments,
+    reason = "Pyo3 boundary mirrors the Python signature 1:1; a config struct would change the FFI"
+)]
 pub fn rtd_derive_max31865_hardware_window_py(
     comparator_offset_abs_v: f64,
     divider_tolerance_fraction: f64,

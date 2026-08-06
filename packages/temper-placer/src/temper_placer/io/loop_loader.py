@@ -16,233 +16,75 @@ Example usage:
     >>> collection = load_loop_collection("configs/templates/loops/")
     >>> print(len(collection))
     5
+
+The loader is implemented in Rust as pyo3 functions in the
+``temper-design-bundle`` crate (the ``temper_design_bundle_python``
+extension, ``src/loaders.rs``) — the Wave 4 Phase 3 formats/IO migration,
+candidate 2
+(``docs/plans/2026-08-02-001-feat-wave4-phase3-formats-io-plan.md``, R5).
+This module keeps the pre-migration public API unchanged and re-exports the
+Rust symbols directly (the pure-delegation pattern established by
+``core/priority.py`` / ``core/loop.py``). The private helpers
+(``_parse_events``, ``_parse_pins``, ``_parse_loop_type``,
+``_parse_priority``) moved into the crate with the rest of the load logic.
+
+Two boundaries stay on the Python side of the pyo3 call, both deliberately
+(see ``loaders.rs`` and ``packages/temper-design-bundle/VERIFICATION.md``):
+``yaml.safe_load`` remains the tokenizer, because PyYAML implements YAML 1.1
+and ``serde_yaml`` implements YAML 1.2 and the two genuinely disagree
+(``net: on`` → ``True`` vs ``"on"``, ``1_000`` → ``1000`` vs a string); and
+``pathlib.Path.glob`` remains the directory matcher. Everything else in the
+load path — field mapping, defaults, ``str()``/``float()`` coercion,
+case-insensitive enum resolution, every error string, README skipping, and
+error wrapping with cause chaining — is Rust.
+
+The save path — ``save_loop_to_yaml`` — stays **Python-side in this shim**,
+per KTD7 of the first-pulls plan (U3): the loaders' migration scope is the
+load path, and PyYAML's dumper formatting is not in the parity surface. The
+function below is the pre-migration implementation operating on the Rust
+``Loop`` pyclass surface; the differential pins a Rust-loaded loop re-saved
+by this Python save path re-loading identically, and the emitter's output is
+compared byte-for-byte against the pinned oracle.
+
+Verification: bit-identical parity against the pinned pre-migration
+implementation is asserted by ``tests/io/test_loaders_rust_differential.py``
+(oracle: ``tests/io/_loop_loader_py_oracle.py``), including byte-for-byte
+equality of every file the save path writes; the properties and metamorphic
+relations live in ``tests/io/test_loaders_pbt.py`` and the structural proof
+in ``packages/temper-design-bundle/VERIFICATION.md``.
+
+API note (deliberate, documented deviation): ``LoopLoadError`` is now
+defined in Rust. It still subclasses ``Exception`` and still reports
+``__module__ == "temper_placer.io.loop_loader"``, so ``except
+LoopLoadError``, ``pytest.raises`` and tracebacks read exactly as before —
+but it is not the same class *object* the pre-migration module defined, so
+pickling the class or comparing it by identity against a separately-imported
+copy would observe the change. No consumer does (verified 2026-08-04).
 """
+
+from __future__ import annotations
 
 from pathlib import Path
 from typing import Any
 
+import temper_design_bundle_python as _tdb
 import yaml  # type: ignore[import-untyped]
 
-from temper_placer.core.loop import (
-    Loop,
-    LoopCollection,
-    LoopEvent,
-    LoopPin,
-    LoopPriority,
-    LoopType,
-)
+from temper_placer.core.loop import Loop
 
-
-class LoopLoadError(Exception):
-    """Error loading a loop definition."""
-
-    pass
-
-
-def _parse_events(events_data: dict[str, Any] | None) -> LoopEvent:
-    """Parse LoopEvent from YAML data."""
-    if events_data is None:
-        return LoopEvent()
-
-    return LoopEvent(
-        di_dt=events_data.get("di_dt"),
-        dv_dt=events_data.get("dv_dt"),
-        frequency_hz=events_data.get("frequency_hz"),
-        peak_current_a=events_data.get("peak_current_a"),
-        rms_current_a=events_data.get("rms_current_a"),
-        ringing_freq_hz=events_data.get("ringing_freq_hz"),
-    )
-
-
-def _parse_pins(pins_data: list[dict[str, Any]] | None) -> list[LoopPin]:
-    """Parse list of LoopPin from YAML data."""
-    if pins_data is None:
-        return []
-
-    pins = []
-    for pin_data in pins_data:
-        pins.append(
-            LoopPin(
-                component_ref=str(pin_data["component"]),
-                pin_name=str(pin_data["pin"]),
-                net_name=pin_data.get("net"),
-            )
-        )
-    return pins
-
-
-def _parse_loop_type(type_str: str) -> LoopType:
-    """Parse LoopType from string, with case-insensitive matching."""
-    type_str_lower = type_str.lower()
-    for lt in LoopType:
-        if lt.value == type_str_lower:
-            return lt
-    raise LoopLoadError(
-        f"Unknown loop type: {type_str}. Valid types: {[t.value for t in LoopType]}"
-    )
-
-
-def _parse_priority(priority_str: str | None) -> LoopPriority:
-    """Parse LoopPriority from string, with case-insensitive matching."""
-    if priority_str is None:
-        return LoopPriority.MEDIUM
-
-    priority_lower = priority_str.lower()
-    for lp in LoopPriority:
-        if lp.value == priority_lower:
-            return lp
-    raise LoopLoadError(
-        f"Unknown priority: {priority_str}. Valid priorities: {[p.value for p in LoopPriority]}"
-    )
-
-
-def load_loop_from_dict(data: dict[str, Any], source: str = "yaml") -> Loop:
-    """Load a Loop from a dictionary (parsed YAML or JSON).
-
-    Args:
-        data: Dictionary containing loop definition.
-        source: Source identifier for tracking where the loop came from.
-
-    Returns:
-        Loop object populated from the dictionary.
-
-    Raises:
-        LoopLoadError: If required fields are missing or invalid.
-    """
-    # Required fields
-    try:
-        name = data["name"]
-        loop_type_str = data["loop_type"]
-        description = data.get("description", "")
-    except KeyError as e:
-        raise LoopLoadError(f"Missing required field: {e}") from e
-
-    # Parse loop type
-    loop_type = _parse_loop_type(loop_type_str)
-
-    # Parse optional fields
-    pins = _parse_pins(data.get("pins"))
-    components = data.get("components", [])
-    nets = data.get("nets", [])
-    max_area_mm2 = float(data.get("max_area_mm2", 100.0))
-    priority = _parse_priority(data.get("priority"))
-    events = _parse_events(data.get("events"))
-    return_layer = data.get("return_layer")
-    return_net = data.get("return_net")
-
-    return Loop(
-        name=name,
-        loop_type=loop_type,
-        description=description,
-        pins=pins,
-        components=components,
-        nets=nets,
-        max_area_mm2=max_area_mm2,
-        priority=priority,
-        events=events,
-        return_layer=return_layer,
-        return_net=return_net,
-        source=source,
-    )
-
-
-def load_loop_template(path: str | Path) -> Loop:
-    """Load a loop definition from a YAML file.
-
-    Args:
-        path: Path to the YAML file.
-
-    Returns:
-        Loop object loaded from the file.
-
-    Raises:
-        LoopLoadError: If the file cannot be loaded or parsed.
-        FileNotFoundError: If the file doesn't exist.
-
-    Example:
-        >>> loop = load_loop_template("configs/templates/loops/commutation.yaml")
-        >>> loop.name
-        'commutation'
-        >>> loop.priority
-        <LoopPriority.CRITICAL: 'critical'>
-    """
-    path = Path(path)
-
-    if not path.exists():
-        raise FileNotFoundError(f"Loop template not found: {path}")
-
-    try:
-        with open(path) as f:
-            data = yaml.safe_load(f)
-    except yaml.YAMLError as e:
-        raise LoopLoadError(f"Invalid YAML in {path}: {e}") from e
-
-    if data is None:
-        raise LoopLoadError(f"Empty YAML file: {path}")
-
-    return load_loop_from_dict(data, source=f"template:{path.name}")
-
-
-def load_loop_collection(
-    directory: str | Path,
-    pattern: str = "*.yaml",
-    name: str = "",
-    description: str = "",
-) -> LoopCollection:
-    """Load all loop templates from a directory.
-
-    Args:
-        directory: Path to directory containing YAML loop templates.
-        pattern: Glob pattern for finding template files (default: "*.yaml").
-        name: Optional name for the collection.
-        description: Optional description for the collection.
-
-    Returns:
-        LoopCollection containing all loaded loops.
-
-    Raises:
-        FileNotFoundError: If the directory doesn't exist.
-        LoopLoadError: If any template fails to load.
-
-    Example:
-        >>> collection = load_loop_collection("configs/templates/loops/")
-        >>> len(collection)
-        5
-        >>> collection.get_critical_loops()
-        [Loop(name='commutation', ...), Loop(name='gate_drive_high', ...), ...]
-    """
-    directory = Path(directory)
-
-    if not directory.exists():
-        raise FileNotFoundError(f"Loop template directory not found: {directory}")
-
-    if not directory.is_dir():
-        raise LoopLoadError(f"Path is not a directory: {directory}")
-
-    collection = LoopCollection(
-        name=name or directory.name,
-        description=description,
-    )
-
-    # Load all matching files
-    template_files = sorted(directory.glob(pattern))
-
-    for template_path in template_files:
-        # Skip README and non-template files
-        if template_path.name.lower() in ("readme.md", "readme.yaml", "readme.txt"):
-            continue
-
-        try:
-            loop = load_loop_template(template_path)
-            collection.add_loop(loop)
-        except Exception as e:
-            raise LoopLoadError(f"Failed to load {template_path}: {e}") from e
-
-    return collection
+LoopLoadError = _tdb.LoopLoadError
+load_loop_from_dict = _tdb.load_loop_from_dict
+load_loop_template = _tdb.load_loop_template
+load_loop_collection = _tdb.load_loop_collection
 
 
 def save_loop_to_yaml(loop: Loop, path: str | Path) -> None:
     """Save a Loop to a YAML file.
+
+    Kept Python-side per KTD7 (the loaders' migration scope is the load
+    path). Operates on the Rust ``Loop`` pyclass surface; PyYAML's
+    ``yaml.dump`` remains the emitter because its byte output is the
+    contract and its formatting is not reimplementable bit-exactly.
 
     Args:
         loop: Loop object to save.
@@ -283,7 +125,8 @@ def save_loop_to_yaml(loop: Loop, path: str | Path) -> None:
     data["max_area_mm2"] = loop.max_area_mm2
     data["priority"] = loop.priority.value
 
-    # Events (only include non-None values)
+    # Events (only include non-None values; 0.0 is falsy but NOT None and
+    # must survive — this is the `is not None` guard, not truthiness)
     events = {}
     if loop.events.di_dt is not None:
         events["di_dt"] = loop.events.di_dt
@@ -310,3 +153,11 @@ def save_loop_to_yaml(loop: Loop, path: str | Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with open(path, "w") as f:
         yaml.dump(data, f, default_flow_style=False, sort_keys=False, allow_unicode=True)
+
+__all__ = [
+    "LoopLoadError",
+    "load_loop_collection",
+    "load_loop_from_dict",
+    "load_loop_template",
+    "save_loop_to_yaml",
+]

@@ -74,7 +74,7 @@ documents, not inherited:**
 PD3 governs; 12.6mm is a real requirement, not a conservative bound.** This
 is reported as a determination against the documents that exist, with its
 own falsifier stated plainly
-(`docs/evidence/2026-07-28-pd3-retarget-keepout.md` §0.4): a future
+(`docs/evidence/2026-07-30-pollution-degree-determination.md §5.2` §0.4): a future
 mechanical revision documenting a genuine sealed, gasketed PCB compartment
 — separate from the coil/heatsink airflow path — that the forced-air duct
 demonstrably does not cross, would change this. No such document exists
@@ -89,7 +89,7 @@ would want the determination to conclude.
 Re-deriving from primary text is not merely a defensive ritual — it is
 supposed to sometimes report "no change needed," and here it did, cleanly.
 IEC 60664-1 clause 4.2's minimum groove width `X` is **1.0mm at PD2** and
-**1.5mm at PD3** (`docs/evidence/2026-07-28-pd3-retarget-slots.md` §1,
+**1.5mm at PD3** (`docs/evidence/2026-07-30-pollution-degree-determination.md §5.3` §1,
 re-fetched and independently re-read this session rather than carried
 across from the PD2-era design). The PD2-era `U3`/`U7` slot designs used a
 5.0mm/6.0mm groove width — **3.3x and 4.0x the PD3 minimum respectively** —
@@ -258,11 +258,11 @@ U7 groove width: 6.0mm  -- 4.0x the PD3 floor either way
 - `docs/ENVIRONMENTAL_SPEC.md` §3.1 — the clause chain and the prior
   gesture toward `CHASSIS_AIRFLOW_DESIGN.md` this session finally checked
   directly.
-- `docs/evidence/2026-07-28-pd3-retarget-keepout.md` §0 — the full
+- `docs/evidence/2026-07-30-pollution-degree-determination.md §5.2` §0 — the full
   five-document determination, its falsifier, and the consequence measured
   against the real board (152 sub-12.6mm cross-domain pad pairs; K1 and T1
   newly failing at 12.6mm having passed 8.0mm).
-- `docs/evidence/2026-07-28-pd3-retarget-slots.md` §1 — the groove-width
+- `docs/evidence/2026-07-30-pollution-degree-determination.md §5.3` §1 — the groove-width
   re-derivation (1.0mm → 1.5mm) and the margin check confirming it changes
   neither `U3` nor `U7`'s verdict.
 - `scripts/check_isolation_keepout.py` — `MIN_BARRIER_WIDTH_MM`, re-targeted

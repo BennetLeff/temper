@@ -6,6 +6,7 @@
 //
 // Origin: docs/plans/2026-07-01-009-feat-quality-oracle-typed-pipeline-plan.md
 
+pub mod cluster_f;
 pub mod types;
 pub mod ipc2221;
 pub mod classification;
@@ -13,24 +14,32 @@ pub mod derivation;
 pub mod config;
 pub mod thresholds;
 pub mod oracle;
+pub mod quality_score;
 pub mod routing_quality;
 
 #[cfg(test)]
 #[path = "tests_common.rs"]
 mod tests_common;
 
+#[cfg(feature = "python")]
 use pyo3::exceptions::PyValueError;
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use pyo3::types::{PyDict, PyList};
+#[cfg(feature = "python")]
 use pyo3::Py;
+#[cfg(feature = "python")]
 use std::collections::HashMap;
 
 use crate::oracle::PreparedQuality;
+#[cfg(feature = "python")]
 use crate::types::{
     ComponentInfo, NetClassification, NetClass, NetInfo, Netlist, PcbSpecification,
     PlacementState, PrecomputedMetrics, QualityConfig, QualityVerdict,
 };
 
+#[cfg(feature = "python")]
 fn extract_netlist(py: Python<'_>, dict: &Bound<'_, PyDict>) -> PyResult<Netlist> {
     let nets_list = dict
         .get_item("nets")?
@@ -101,6 +110,7 @@ fn extract_netlist(py: Python<'_>, dict: &Bound<'_, PyDict>) -> PyResult<Netlist
     Ok(Netlist { nets, components })
 }
 
+#[cfg(feature = "python")]
 fn extract_spec(dict: &Bound<'_, PyDict>) -> PyResult<PcbSpecification> {
     let name: String = dict
         .get_item("name")?
@@ -153,6 +163,7 @@ fn extract_spec(dict: &Bound<'_, PyDict>) -> PyResult<PcbSpecification> {
     })
 }
 
+#[cfg(feature = "python")]
 fn metrics_to_py_dict(
     py: Python<'_>,
     metrics: &crate::types::QualityMetrics,
@@ -173,6 +184,7 @@ fn metrics_to_py_dict(
     Ok(dict.into())
 }
 
+#[cfg(feature = "python")]
 fn violation_to_py_dict(
     py: Python<'_>,
     v: &crate::types::Violation,
@@ -195,6 +207,7 @@ fn violation_to_py_dict(
     Ok(dict.into())
 }
 
+#[cfg(feature = "python")]
 fn extract_metrics(dict: &Bound<'_, PyDict>) -> PrecomputedMetrics {
     let get = |key: &str| -> f64 {
         dict.get_item(key)
@@ -421,6 +434,7 @@ fn classifications_from_py_dict(prepared: &Bound<'_, PyDict>) -> PyResult<Vec<Ne
     Ok(classifications)
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 fn evaluate_quality_py(
     py: Python<'_>,
@@ -508,6 +522,7 @@ fn evaluate_prepared_py(
     })
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 fn classify_nets_py(py: Python<'_>, netlist: &Bound<'_, PyDict>) -> PyResult<Py<PyAny>> {
     temper_py_bridge::catch_panic(|| {
@@ -521,11 +536,13 @@ fn classify_nets_py(py: Python<'_>, netlist: &Bound<'_, PyDict>) -> PyResult<Py<
     })
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 fn required_clearance_py(_py: Python<'_>, voltage: f64) -> f64 {
     ipc2221::required_clearance(voltage)
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 fn routing_quality_score_py(
     completion_rate: f64,
@@ -543,16 +560,76 @@ fn routing_quality_score_py(
     })
 }
 
+#[cfg(feature = "python")]
+#[pyfunction]
+#[allow(clippy::too_many_arguments)]
+fn placement_score_py(
+    overlap_count: i64,
+    boundary_violations: i64,
+    hv_lv_violations: i64,
+    keepout_violations: i64,
+    clearance_violations: i64,
+    zone_violations: i64,
+    total_wirelength: f64,
+    avg_net_length: f64,
+) -> PyResult<f64> {
+    temper_py_bridge::catch_panic(|| {
+        Ok(quality_score::placement_score(
+            overlap_count,
+            boundary_violations,
+            hv_lv_violations,
+            keepout_violations,
+            clearance_violations,
+            zone_violations,
+            total_wirelength,
+            avg_net_length,
+        ))
+    })
+}
+
+#[cfg(feature = "python")]
+#[pyfunction]
+fn drc_score_py(error_count: i64, warning_count: i64) -> PyResult<f64> {
+    temper_py_bridge::catch_panic(|| {
+        Ok(quality_score::drc_score(error_count, warning_count))
+    })
+}
+
+#[cfg(feature = "python")]
+#[pyfunction]
+fn overall_score_py(
+    placement_score: f64,
+    drc_score: f64,
+    routing_score: Option<f64>,
+) -> PyResult<f64> {
+    temper_py_bridge::catch_panic(|| {
+        Ok(quality_score::overall_score(
+            placement_score,
+            drc_score,
+            routing_score,
+        ))
+    })
+}
+
+#[cfg(feature = "python")]
+#[pyfunction]
+fn interpret_score_py(score: f64) -> PyResult<String> {
+    temper_py_bridge::catch_panic(|| Ok(quality_score::interpret_score(score)))
+}
+
+#[cfg(feature = "python")]
 #[pyfunction]
 fn is_available_py() -> bool {
     true
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 fn version_py() -> String {
     env!("CARGO_PKG_VERSION").to_string()
 }
 
+#[cfg(feature = "python")]
 #[pymodule]
 fn temper_quality_oracle(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(evaluate_quality_py, m)?)?;
@@ -561,7 +638,12 @@ fn temper_quality_oracle(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(classify_nets_py, m)?)?;
     m.add_function(wrap_pyfunction!(required_clearance_py, m)?)?;
     m.add_function(wrap_pyfunction!(routing_quality_score_py, m)?)?;
+    m.add_function(wrap_pyfunction!(placement_score_py, m)?)?;
+    m.add_function(wrap_pyfunction!(drc_score_py, m)?)?;
+    m.add_function(wrap_pyfunction!(overall_score_py, m)?)?;
+    m.add_function(wrap_pyfunction!(interpret_score_py, m)?)?;
     m.add_function(wrap_pyfunction!(is_available_py, m)?)?;
     m.add_function(wrap_pyfunction!(version_py, m)?)?;
+    cluster_f::bindings::register(m)?;
     Ok(())
 }

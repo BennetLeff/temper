@@ -1,6 +1,6 @@
 # Zone/pour does not reduce unconnected items — measured differentially, U4 should not promote
 
-<!-- provenance: commit=0a3d2af8c2480887abe9b0e1c732a4bbfe424bef dirty=true -->
+<!-- provenance: commit=b39b382d15b25bd8d0f80e5fc2530489fab1d114 dirty=true -->
 
 **Date:** 2026-07-28
 **Board:** `pcb/temper.kicad_pcb` @ 168 footprints / 2,338 segments / 48 vias / 96 zones

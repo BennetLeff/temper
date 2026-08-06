@@ -9,8 +9,10 @@
 // f64 arithmetic order, so results are bit-identical to the per-point
 // reference.
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
 
+#[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (xs, ys, edt_bytes, mask_bytes, height_cells, width_cells, bounds, cell_size))]
 #[expect(

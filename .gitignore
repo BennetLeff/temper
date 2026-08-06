@@ -62,6 +62,11 @@ fp-info-cache
 /*.log
 /*.txt
 !/.loc-allowlist.txt
+# Generated from uv.lock and COPYed by .github/docker/ci.Dockerfile to
+# pre-install third-party Python deps into the image's /_temper-venv. It must be
+# tracked or the image build fails on a missing COPY source; the blanket /*.txt
+# rule above would otherwise silently exclude it from `git add`.
+!/requirements-ci.txt
 
 # IDEs
 .vscode/
@@ -82,6 +87,13 @@ temper-placer/research/*.svg
 
 # Root hygiene — no generated/artifact files at repo root
 /*.py
+# ...except conftest.py, which is pytest's own root configuration rather than a
+# stray artifact. It installs the protected-measurement-artifact guard for
+# every run rooted at the repo (see scripts/_lib/pytest_artifact_guard.py).
+# Without this negation `/*.py` silently swallows it: the file works locally,
+# never reaches a commit, and the guard is simply absent in CI -- the same
+# "green because nothing ran" failure the guard exists to prevent.
+!/conftest.py
 /*.kicad_pcb
 /*.kicad_pro
 /*.kicad_prl

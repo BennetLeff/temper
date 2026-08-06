@@ -7,10 +7,11 @@ from __future__ import annotations
 
 import logging
 import time
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
-from temper_placer.pcl.constraints import BaseConstraint
+from temper_placer.pcl.constraints import BaseConstraint, SeparatedConstraint
 from temper_placer.placer.cp_sat import _encoder_core
 from temper_placer.placer.cp_sat._encoder_core import (
     EncoderContext,
@@ -61,6 +62,12 @@ class CpSatPlacementResult:
     # Populated only when solve_placement(isolation_barrier=...) was passed;
     # see isolation_barrier.py::IsolationBarrierReport.
     isolation_barrier_report: object | None = None
+    # Populated only when solve_placement(validator_input=...) was passed;
+    # see validator_audit.py::DomainClearanceValidatorAuditResult. Carries
+    # the REQ-SAFE-01 validator's classified violations (hard failures are
+    # raised, not returned; intra-footprint and coverage-gap buckets land
+    # here for the caller to act on).
+    validator_audit: object | None = None
 
     def to_placements_dict(self) -> dict[str, tuple[float, float]]:
         """Return {component_ref: (x_mm, y_mm)} mapping (loop.py interface)."""
@@ -97,11 +104,14 @@ def solve_placement(
     zone_components: dict[str, list[str]] | None = None,
     hint_positions: dict[str, tuple[float, float, int]] | None = None,
     minimize_displacement_to: dict[str, tuple[float, float]] | None = None,
+    reference_aliases: Mapping[str, str] | None = None,
+    loop_aliases: Mapping[str, str] | None = None,
     fixed_rotations: dict[str, int] | None = None,
     max_displacement_mm: float | None = None,
     isolation_barrier: dict | None = None,
     fixed_positions: dict[str, tuple[float, float, int]] | None = None,
     fixed_copper: dict | None = None,
+    validator_input: dict | None = None,
 ) -> CpSatPlacementResult:
     """Build a CP-SAT model, encode constraints, solve, and return the result.
 
@@ -125,6 +135,12 @@ def solve_placement(
             only move as far as the clearance constraints force them, and
             the existing routed copper is not disturbed wholesale the way a
             free reshuffle disturbs it.
+        reference_aliases: Optional explicit config-to-netlist component
+            reference mapping applied before validation. Unmapped names
+            remain subject to the fail-closed unresolved-reference policy.
+        loop_aliases: Optional explicit mapping for legacy loop names to the
+            loop namespace supplied by ``loop_components`` or netlist loop
+            extraction.
         fixed_rotations: Optional hard pinning of component rotations to
             their current 0-3 quadrant index: ``{ref: rotation_0_3}``.
             Routed-board repair must not rotate footprints (a rotation moves
@@ -169,6 +185,30 @@ def solve_placement(
             audit is run on the resolved placement -- a feasible solve with
             audit violations raises (an encoding bug; see ``fixed_copper.py``).
             Absent (default): existing behaviour is unchanged.
+        validator_input: Optional validator-aligned post-solve audit
+            (issue #523 gap 2). A dict carrying the validator-consumable
+            placement and its net-domain map:
+            ``{"placement": <validator-shape placement>, "voltage_domains":
+            {net: VoltageDomain}}``. When given AND the solve is
+            feasible/optimal, the REQ-SAFE-01 validator itself
+            (``verify_iec60335_compliance`` -- exact copper-to-copper on pad
+            geometry, the function the CI gate runs) is re-run on a placement
+            whose positions/rotations come from this solve
+            (``validator_audit.audit_domain_clearance_validator``). A
+            violation on a constraint-covered inter-component pair (a HARD
+            failure) means the box separation the solver SAT did not imply
+            the validator's copper separation -- the encoding is unsound for
+            this solve and the solve raises, same contract as
+            ``audit_fixed_copper``. Intra-footprint straddlers (unfixable by
+            placement) and coverage gaps (pairs the generator never
+            constrained) are surfaced on ``CpSatPlacementResult.validator_audit``,
+            never raised. The cheaper center-distance audit
+            (``audit_domain_clearance``) stays independent of this; when
+            ``validator_input`` is absent the solve is unchanged. When given
+            but the solve does NOT terminate (infeasible/model_invalid/
+            unknown) there is no placement to audit -- the skip is logged at
+            WARNING, never silent, so an unaudited solve is distinguishable
+            from a clean one in the logs.
     """
     from ortools.sat.python import cp_model as cp
 
@@ -350,11 +390,20 @@ def solve_placement(
         if zone_refs:
             resolved_zone_components[z.name] = zone_refs
 
+    resolved_loop_components = loop_components or _resolve_loop_components(netlist)
+    loop_reconciliation = _encoder_core.reconcile_loop_components(
+        resolved_loop_components,
+        reference_aliases,
+        loop_aliases,
+    )
+    if loop_reconciliation.aliases_applied:
+        logger.info("Applied loop aliases: %s", loop_reconciliation.aliases_applied)
+
     ctx = EncoderContext(
         board_w,
         board_h,
         zones={k: (v.x_min, v.y_min, v.x_max, v.y_max) for k, v in resolved_zones.items()},
-        loop_components=loop_components or _resolve_loop_components(netlist),
+        loop_components=loop_reconciliation.loop_components,
         zone_components=resolved_zone_components,
         board_x_min_units=0,
         board_y_min_units=0,
@@ -368,6 +417,15 @@ def solve_placement(
     pcl_coll = getattr(board, "constraints", None)
     if pcl_coll is not None:
         constraint_objects.extend(pcl_coll)
+
+    reconciliation = _encoder_core.reconcile_constraint_refs(
+        constraint_objects,
+        reference_aliases,
+        loop_aliases=loop_aliases,
+    )
+    constraint_objects = list(reconciliation.constraints)
+    if reconciliation.aliases_applied:
+        logger.info("Applied constraint aliases: %s", reconciliation.aliases_applied)
 
     # Fail loud on config↔netlist drift: a constraint operand that resolves
     # to nothing is a silent no-op, so validate before encoding. This is the
@@ -515,6 +573,89 @@ def solve_placement(
             )
         logger.info("fixed-copper post-solve audit: %d violation(s)", len(audit_violations))
 
+    # R24 item-3 validator-aligned post-solve audit (issue #523 gap 2): when
+    # validator_input is provided, re-run the REQ-SAFE-01 validator itself
+    # (exact copper-to-copper on pad geometry -- the same function the CI
+    # gate runs, and the one that caught run-B being "audit-clean but not
+    # validator-clean") against the solved placement. The center-distance
+    # audit above stays; this is additive. By domain_clearance.py's soundness
+    # proof, a constraint-covered inter-component violation in a
+    # feasible/optimal solve means the encoding is unsound -- a hard error,
+    # same contract as audit_fixed_copper. Intra-footprint straddlers and
+    # coverage gaps are placement-independent / alignment findings: reported
+    # on the result, never raised.
+    validator_audit = None
+    if status_str in ("optimal", "feasible") and validator_input is not None:
+        from temper_placer.placer.cp_sat.validator_audit import (
+            audit_domain_clearance_validator,
+        )
+
+        v_placement = validator_input.get("placement")
+        v_domains = validator_input.get("voltage_domains")
+        if v_placement is None or v_domains is None:
+            raise ValueError(
+                "validator_input must carry both 'placement' and "
+                "'voltage_domains' -- a silent skip would leave the solve "
+                "unaudited against the REQ-SAFE-01 gate"
+            )
+        # The solve's domain-clearance constraint set is the pair coverage
+        # the classification needs. Other SeparatedConstraints (courtyard,
+        # netclass, keepaway) are not the validator-audit's concern -- the
+        # REQ-SAFE-01 validator only pairs domain-classified components.
+        domain_constraints = [
+            c
+            for c in constraint_objects
+            if isinstance(c, SeparatedConstraint) and c.id.startswith("domain_clearance_")
+        ]
+        validator_audit = audit_domain_clearance_validator(
+            domain_constraints,
+            positions,
+            rotations,
+            v_placement,
+            v_domains,
+            netlist,
+        )
+        if validator_audit.hard_failures:
+            first_hard = validator_audit.hard_failures[0]
+            # One physical pair emits 4-8 violation records (clearance/
+            # creepage x basic/reinforced), so report DISTINCT pairs as the
+            # headline count -- "N hard violation(s)" with N=records would
+            # inflate a 1-pair failure into a 4-8-pair failure. The
+            # ``hard_failures`` list itself keeps the records.
+            distinct_pairs = {
+                frozenset((v.ref_a, v.ref_b)) for v in validator_audit.hard_failures
+            }
+            raise RuntimeError(
+                f"REQ-SAFE-01 validator post-solve audit FAILED for a "
+                f"{status_str} solve: {len(distinct_pairs)} distinct violating "
+                f"pair(s) ({len(validator_audit.hard_failures)} violation "
+                f"record(s) -- clearance/creepage x basic/reinforced rows); "
+                f"first: {first_hard.ref_a}<->{first_hard.ref_b} {first_hard.metric} "
+                f"{first_hard.measured_mm:.4f}mm < required {first_hard.required_mm}mm. "
+                "The domain-clearance encoding is unsound for this solve (see "
+                "domain_clearance.py soundness proof): the solver's box "
+                "separation did NOT imply the validator's exact copper-to-"
+                "copper separation. Run audit_domain_clearance_validator "
+                "directly to inspect the full classified result."
+            )
+        logger.info(
+            "REQ-SAFE-01 validator post-solve audit: %d hard failure(s), "
+            "%d intra-footprint (placement-independent), %d coverage gap(s)",
+            len(validator_audit.hard_failures),
+            len(validator_audit.intra_footprint),
+            len(validator_audit.coverage_gaps),
+        )
+    elif validator_input is not None:
+        logger.warning(
+            "REQ-SAFE-01 validator post-solve audit did NOT run: the solve "
+            "terminated with status %r (only an optimal/feasible solve has a "
+            "placement to audit) -- this solve was NOT verified against the "
+            "REQ-SAFE-01 gate.",
+            status_str,
+        )
+    elif status_str in ("optimal", "feasible"):
+        logger.debug("validator post-solve audit skipped (validator_input not provided)")
+
     return CpSatPlacementResult(
         positions=positions,
         rotations=rotations,
@@ -525,6 +666,7 @@ def solve_placement(
         objective_value=objective,
         unsat_core=unsat_core,
         isolation_barrier_report=isolation_barrier_report,
+        validator_audit=validator_audit,
     )
 
 

@@ -68,7 +68,7 @@ static const transition_row_t transition_table[] = {
     { STATE_COOLDOWN, "COOLED_DOWN", STATE_IDLE, FAULT_NONE, false },
     { STATE_COOLDOWN, "COOLDOWN_OVERHEAT", STATE_FAULT, FAULT_COOLDOWN_OVERHEAT, true },
     { STATE_FAULT, "FAULT_RESET_CLEARED", STATE_INIT, FAULT_NONE, false },
-    { STATE_FAULT, "FAULT_RESET_PERSISTS", STATE_FAULT, FAULT_NONE, false },
+    { STATE_FAULT, "FAULT_RESET_PERSISTS", STATE_FAULT, FAULT_OVER_TEMP, true },
     { STATE_RUNAWAY_FAULT, "FAULT_RESET_PERSISTS", STATE_RUNAWAY_FAULT, FAULT_NONE, false },
     { STATE_PAN_DET, "RUNAWAY_ABSOLUTE_TEMP", STATE_RUNAWAY_FAULT, FAULT_RUNAWAY_BOUNDARY, false },
     { STATE_PREHEAT, "RUNAWAY_ABSOLUTE_TEMP", STATE_RUNAWAY_FAULT, FAULT_RUNAWAY_BOUNDARY, false },
@@ -285,10 +285,12 @@ void test_transition_table(void) {
             system_state_t result = drain_message();
 
             TEST_ASSERT_EQUAL_INT_MESSAGE(row->expected_to, result, msg);
-            if (row->has_fault) {
-                TEST_ASSERT_EQUAL_INT_MESSAGE(
-                    row->expected_fault, state_machine_get_fault(), msg);
-            }
+            /* Always assert the fault code (FAULT_NONE for benign rows);
+               a has_fault-conditional assert would leave the mutation
+               suite's guard-drop/guard-swap/guard-add mutants live
+               (see mutate_transition_table.py). */
+            TEST_ASSERT_EQUAL_INT_MESSAGE(
+                row->expected_fault, state_machine_get_fault(), msg);
             continue;
         }
 
@@ -325,10 +327,8 @@ void test_transition_table(void) {
             state_machine_update();
             system_state_t result2 = state_machine_get_state();
             TEST_ASSERT_EQUAL_INT_MESSAGE(row->expected_to, result2, msg);
-            if (row->has_fault) {
-                TEST_ASSERT_EQUAL_INT_MESSAGE(row->expected_fault,
-                    state_machine_get_fault(), msg);
-            }
+            TEST_ASSERT_EQUAL_INT_MESSAGE(row->expected_fault,
+                state_machine_get_fault(), msg);
             continue;
         }
 
@@ -339,6 +339,11 @@ void test_transition_table(void) {
             }
             TEST_ASSERT_EQUAL_INT_MESSAGE(row->expected_to,
                 state_machine_get_state(), msg);
+            /* The confidence-loop branch must also assert the fault
+               code; without it the mutation suite's guard_add mutant
+               on PAN_DETECTED stays live (see mutate_transition_table.py). */
+            TEST_ASSERT_EQUAL_INT_MESSAGE(row->expected_fault,
+                state_machine_get_fault(), msg);
             continue;
         }
 
@@ -355,10 +360,8 @@ void test_transition_table(void) {
                 result3 = drain_message();
             }
             TEST_ASSERT_EQUAL_INT_MESSAGE(row->expected_to, result3, msg);
-            if (row->has_fault) {
-                TEST_ASSERT_EQUAL_INT_MESSAGE(row->expected_fault,
-                    state_machine_get_fault(), msg);
-            }
+            TEST_ASSERT_EQUAL_INT_MESSAGE(row->expected_fault,
+                state_machine_get_fault(), msg);
             continue;
         }
 
@@ -376,9 +379,7 @@ void test_transition_table(void) {
 
         /* Assertions */
         TEST_ASSERT_EQUAL_INT_MESSAGE(row->expected_to, actual, msg);
-        if (row->has_fault) {
-            TEST_ASSERT_EQUAL_INT_MESSAGE(row->expected_fault,
-                state_machine_get_fault(), msg);
-        }
+        TEST_ASSERT_EQUAL_INT_MESSAGE(row->expected_fault,
+            state_machine_get_fault(), msg);
     }
 }

@@ -148,61 +148,53 @@ def place_by_proximity(
                 zone = z
                 break
 
-        # Spiral placement around target
-        # Placeholder - would need actual target position
-        # For now, use zone center if zone specified
+    # Spiral placement around target
+    # Placeholder - would need actual target position
+    # For now, use zone center if zone specified
+    if zone:
+        base_x = (zone.bounds[0] + zone.bounds[2]) / 2
+        base_y = (zone.bounds[1] + zone.bounds[3]) / 2
+    else:
+        base_x = board.width / 2
+        base_y = board.height / 2
+
+    placed_refs = []
+    unplaced_refs = []
+
+    angle_step = 2 * math.pi / max(len(refs_to_place), 4)
+
+    for i, ref in enumerate(refs_to_place):
+        if ref not in ref_to_idx:
+            unplaced_refs.append(ref)
+            continue
+
+        idx = ref_to_idx[ref]
+
+        # Spiral placement
+        angle = i * angle_step
+        distance = 8.0 + (i // 4) * 3.0  # Spiral outward
+
+        # Don't exceed max_distance if provided
+        if distance > max_distance:
+            # Stop placing or clamp? For now, we'll just log/continue
+            pass
+
+        x = base_x + distance * math.cos(angle)
+        y = base_y + distance * math.sin(angle)
+
+        # Clamp to zone if specified
         if zone:
-            base_x = (zone.bounds[0] + zone.bounds[2]) / 2
-            base_y = (zone.bounds[1] + zone.bounds[3]) / 2
-        else:
-            base_x = board.width / 2
-            base_y = board.height / 2
+            x = max(zone.bounds[0], min(zone.bounds[2], x))
+            y = max(zone.bounds[1], min(zone.bounds[3], y))
 
-        placed_refs = []
-        unplaced_refs = []
+        positions[idx] = [x, y]
+        placed_refs.append(ref)
 
-        angle_step = 2 * math.pi / max(len(refs_to_place), 4)
-
-        for i, ref in enumerate(refs_to_place):
-            if ref not in ref_to_idx:
-                unplaced_refs.append(ref)
-                continue
-
-            idx = ref_to_idx[ref]
-
-            # Spiral placement
-            angle = i * angle_step
-            distance = 8.0 + (i // 4) * 3.0  # Spiral outward
-
-            # Don't exceed max_distance if provided
-            if distance > max_distance:
-                # Stop placing or clamp? For now, we'll just log/continue
-                pass
-
-            x = base_x + distance * math.cos(angle)
-            y = base_y + distance * math.sin(angle)
-
-            # Clamp to zone if specified
-            if zone:
-                x = max(zone.bounds[0], min(zone.bounds[2], x))
-                y = max(zone.bounds[1], min(zone.bounds[3], y))
-
-            positions[idx] = [x, y]
-            placed_refs.append(ref)
-
-        return PlacementResult(
-            positions=positions,
-            rotations=rotations,
-            placed_refs=placed_refs,
-            unplaced_refs=unplaced_refs,
-        )
-
-    # If no zone_name provided, return empty result
     return PlacementResult(
         positions=positions,
         rotations=rotations,
-        placed_refs=[],
-        unplaced_refs=list(refs_to_place),
+        placed_refs=placed_refs,
+        unplaced_refs=unplaced_refs,
     )
 
 

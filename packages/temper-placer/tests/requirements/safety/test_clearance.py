@@ -650,6 +650,37 @@ class TestClearanceIntegration:
         are real, they are mains-to-SELV barrier breaches, and 11 of the 24
         pairs breach even the BASIC 3.0/4.0mm minima -- i.e. downgrading the
         boundary from REINFORCED would not clear them either.
+
+        UPDATE 2026-08-02 (re-baselined, board changed under the test): the
+        re-place HAS now happened -- #517 re-solved the board against the
+        PD2/8.0mm figures (docs/evidence/2026-07-30-pd2-enclosure-decision.md),
+        taking the copper-to-copper count from 56 records/24 pairs to the
+        current state, and #524 swapped K2 to the TE Schrack RT314012 (its
+        G5LE-1 3.559mm coil-to-contact gap replaced by a 12.76mm one), with
+        #568/#579 nudging edge-hanging refs inward. The board that exists on
+        main today measures **3 records / 1 pair / 3 intra, all K3<->K3
+        intra** (G5LE-1 coil<->contact, 3.558846mm vs the 4.0/6.0/8.0 bars) --
+        verified in docs/evidence/2026-08-01-runb-audit-lie-reproduction.md
+        sec 4 and re-measured directly by this test on origin/main e5bd461e2.
+        The assertions below therefore encode THAT documented reality rather
+        than "0 violations", and are fail-closed for NEW regressions: any
+        inter-component violation fails (assert inter == 0), the intra set is
+        pinned to exactly the documented K3 pair (3 records at the measured
+        3.558846mm gap), and issue #523 tracks the K3 RT314012 swap that
+        would clear it. This is NOT a ratchet-loosening -- the documented
+        0-violation state was the pre-#517/pre-#524 board, which no longer
+        exists.
+
+        UPDATE 2026-08-02b (wave-2 board write, this change): the owner
+        granted the K3 RT314012 swap + validator-gated re-solve + board
+        write (docs/evidence/2026-08-02-k3-swap-and-board-write.md). K3 now
+        carries the RT314012 (12.76mm internal coil-to-contact gap), the
+        repair re-solve placed it at (81.5, 15.97) with C27 on-board at
+        (22.05, 222.0), and the written board measures **REQ-SAFE-01 = 0
+        violations / 0 pairs (0 inter / 0 intra)** -- the K3-intra blocker
+        is GONE (a rigid part's own pads no longer straddle the bar). The
+        assertions below are re-baselined to that measured 0/0 state,
+        fail-closed: any NEW violation of either kind fails.
         """
         from ._real_board_fixture import RealBoardUnavailable, load_real_board_placement
 
@@ -783,19 +814,33 @@ class TestClearanceIntegration:
 
         result = verify_iec60335_compliance(placement, voltage_domains)
 
-        if not result.passed:
-            failures.append(
-                f"{result.error_count} REQ-SAFE-01 clearance/creepage violations "
-                f"on the real board across {result.stats['violating_pairs']} pair(s) "
-                f"({result.stats['intra_component_violations']} of the records are "
-                f"intra-footprint, i.e. unfixable by moving anything). Components "
-                f"matched: {stats['matched_components_in_placement']}.\n\n"
-                + result.report()
-                + "\n\nThese are measured COPPER-TO-COPPER on exact pad geometry. "
-                "The checker previously measured origin-to-origin, which is an "
-                "upper bound on true separation and therefore hid violations; see "
-                "docs/evidence/2026-07-28-clearance-copper-to-copper.md."
-            )
+        # --- REQ-SAFE-01: the wave-2 written board measures 0 violations /
+        # 0 pairs (0 inter / 0 intra) -- measured directly on the written
+        # board (docs/evidence/2026-08-02-k3-swap-and-board-write.md). The
+        # K3-intra blocker from the 2026-08-02a state (3 records / 1 pair,
+        # all K3<->K3 G5LE-1 coil<->contact 3.558846mm) is GONE: K3 now
+        # carries the TE Schrack RT314012 (12.76mm internal gap, cleared by
+        # the swap) and the validator-gated re-solve placed it at (81.5,
+        # 15.97) with C27 on-board at (22.05, 222.0). Evidence:
+        #   - docs/evidence/2026-08-02-k3-swap-and-board-write.md (solve
+        #     buckets: hard=0, intra=0, gaps=0; REQ-SAFE-01 = 0/0),
+        #   - issue #523 (the K3 RT314012 swap + re-solve).
+        #
+        # Re-baselined, not weakened: fail-closed for NEW violations -- any
+        # inter-component OR intra-footprint violation fails, with the
+        # violating pair(s) named.
+        inter = [v for v in result.violations if v.pair_kind == "inter"]
+        assert not inter, (
+            "NEW inter-component REQ-SAFE-01 violation(s) on the written "
+            f"board -- the wave-2 state has ZERO; got: {inter}"
+        )
+
+        intra = [v for v in result.violations if v.pair_kind == "intra"]
+        assert not intra, (
+            "NEW intra-footprint REQ-SAFE-01 violation(s) on the written "
+            f"board -- the wave-2 K3 RT314012 swap cleared the last blocker; "
+            f"got: {intra}\n{result.report()}"
+        )
 
         assert not failures, "\n\n".join(
             [f"{len(failures)} REQ-SAFE-01 finding(s) on the real board:", *failures]

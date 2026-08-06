@@ -120,6 +120,81 @@ class TestGeneratorNotVacuous:
         assert len(constraints) == 1
 
 
+class TestUnorderedPairDedup:
+    """The generator must emit AT MOST ONE SeparatedConstraint per unordered
+    pair. The pre-fix pair-dict key was the ordered (ref_a, ref_b) tuple, so
+    two matrix rows that pair the same two refs in opposite order produced
+    two constraints for one physical pair -- measured 451 duplicate emissions
+    on the production board (12,022 constraints / 11,571 unique unordered
+    pairs; docs/evidence/2026-08-01-domain-constraint-coverage-gap.md §1).
+    """
+
+    def _straddler_placement(self) -> tuple[dict, dict]:
+        """U1 straddles DC_BUS and LV_CONTROL (a level-shifting part with a
+        DC_BUS_RTN net AND a gnd net); R1 is LV_CONTROL-only. The unordered
+        pair {R1, U1} therefore matches THREE matrix rows, two of which draw
+        it in reversed order:
+
+        - LV_CONTROL<->LV_CONTROL (FUNCTIONAL, 1.0mm): both refs are drawn
+          from the LV_CONTROL group, emitted as (R1, U1).
+        - DC_BUS<->LV_CONTROL (BASIC 4.0mm and REINFORCED 8.0mm): U1 is drawn
+          from the DC_BUS group, emitted as (U1, R1) -- reversed.
+
+        This is exactly the wart scenario: the pre-fix generator emitted both
+        ``domain_clearance_R1_U1`` @1.0mm and ``domain_clearance_U1_R1``
+        @8.0mm for this one physical pair.
+        """
+        placement = {
+            "components": [
+                {"ref": "R1", "position": (0.0, 0.0), "nets": ["gnd"]},
+                {"ref": "U1", "position": (5.0, 0.0), "nets": ["gnd", "DC_BUS_RTN"]},
+            ],
+            "nets": {},
+        }
+        voltage_domains = {
+            "gnd": VoltageDomain.LV_CONTROL,
+            "DC_BUS_RTN": VoltageDomain.DC_BUS,
+        }
+        return placement, voltage_domains
+
+    def test_reversed_matrix_rows_merge_to_one_constraint(self) -> None:
+        placement, voltage_domains = self._straddler_placement()
+        constraints = generate_domain_clearance_constraints(placement, voltage_domains)
+        # Only the {R1, U1} pair matches any row; it must yield exactly one
+        # constraint, not the pre-fix two.
+        assert len(constraints) == 1
+        c = constraints[0]
+        # Canonical lexicographic (a, b) order + deterministic id, regardless
+        # of which matrix row is iterated first.
+        assert c.a == "R1"
+        assert c.b == "U1"
+        assert c.id == "domain_clearance_R1_U1"
+        # The max margin across ALL matching rows (8.0mm reinforced) wins --
+        # identical binding semantics to the pre-fix output, where the 8.0mm
+        # constraint dominated the 1.0mm duplicate in the solver anyway.
+        assert c.min_distance_mm == 8.0
+        # The because string is informative across rows: it names both the
+        # reversed-order cross-domain row(s) and the same-domain row.
+        assert "DC_BUS<->LV_CONTROL" in c.because
+        assert "LV_CONTROL<->LV_CONTROL" in c.because
+        assert "reinforced" in c.because
+        assert "functional" in c.because
+
+    def test_constraint_ids_are_unique_and_deterministic(self) -> None:
+        """Falsifier for the id scheme: after dedup, ids must be unique (one
+        per unordered pair) and fully determined by the refs alone -- two
+        generator calls on the same placement must produce identical id
+        sequences."""
+        placement, voltage_domains = self._straddler_placement()
+        first = generate_domain_clearance_constraints(placement, voltage_domains)
+        second = generate_domain_clearance_constraints(placement, voltage_domains)
+        ids_a = [c.id for c in first]
+        ids_b = [c.id for c in second]
+        assert ids_a == ids_b
+        assert len(set(ids_a)) == len(ids_a) == 1
+        assert all(c.id == f"domain_clearance_{c.a}_{c.b}" for c in first)
+
+
 class TestIntraFootprintDomainConflicts:
     """R24-follow-up (2026-07-30): self-pairs are excluded from
     ``generate_domain_clearance_constraints``'s output for a real, provable
@@ -492,32 +567,117 @@ class TestRealBoardTP3Coverage:
         U7 genuinely straddles domains (it carries `gnd`/`+3V3` -- both
         LV_CONTROL -- *and* `DC_BUS_RTN`, i.e. it is a level-shifting gate
         driver, confirmed directly: ``[c['nets'] for c in placement if
-        c['ref']=='U7'] == ['gnd', '+3V3', 'DC_BUS_RTN']``). Because the
-        generator's pair-dict key is the *ordered* tuple ``(ref_a, ref_b)``
-        rather than a canonicalized/unordered one, the same physical
-        TP3/U7 pair can be emitted under two different keys when it
-        matches rows from different domain groupings with reversed
-        ref order -- here, ``domain_clearance_U7_TP3`` (8.0mm, from the
-        DC_BUS<->LV_CONTROL cross-domain rows, where U7 is drawn from the
-        DC_BUS group) *and* ``domain_clearance_TP3_U7`` (1.0mm, from the
-        LV_CONTROL<->LV_CONTROL functional same-domain row, where both are
-        drawn from the LV_CONTROL group and happen to be visited in that
-        order). This does not lose safety margin -- the stricter 8.0mm
-        constraint is still emitted and still audited under its own id --
-        so this test checks that the *strictest* margin among any
-        constraint touching this unordered pair is the expected 8.0mm,
-        rather than assuming a single key.
+        c['ref']=='U7'] == ['gnd', '+3V3', 'DC_BUS_RTN']``).
+
+        TP3<->U7 is the production-board exemplar of the generator's
+        duplicate-emission wart (fixed 2026-08-02, see
+        docs/evidence/2026-08-01-domain-constraint-dedup.md): the unordered
+        pair matches BOTH the LV_CONTROL<->LV_CONTROL functional row (1.0mm,
+        both refs drawn from the LV_CONTROL group, emitted as (TP3, U7)) AND
+        the DC_BUS<->LV_CONTROL rows (8.0mm, U7 drawn from the DC_BUS group,
+        emitted as (U7, TP3)). The generator's pair-dict key used to be the
+        *ordered* tuple (ref_a, ref_b), so BOTH constraints were emitted --
+        ``domain_clearance_TP3_U7`` @1.0mm and ``domain_clearance_U7_TP3``
+        @8.0mm. The fix canonicalizes the key to the lexicographically
+        sorted ref pair, so exactly ONE constraint survives, at the max
+        margin across all matching rows (8.0mm -- the stricter constraint
+        that already dominated the 1.0mm duplicate in the solver), under the
+        single deterministic id ``domain_clearance_TP3_U7``. This test
+        asserts that post-fix single-constraint behavior directly.
         """
         placement, voltage_domains, _stats = self._load()
         constraints = generate_domain_clearance_constraints(placement, voltage_domains)
         matches = [c for c in constraints if {c.a, c.b} == {"TP3", "U7"}]
-        assert matches, (
-            "No SeparatedConstraint generated for the TP3<->U7 pair -- "
-            "either TP3's net is unclassified again, or U7 no longer "
-            "carries a DC_BUS-domain net (DC_BUS_RTN)."
+        assert len(matches) == 1, (
+            f"Expected exactly ONE SeparatedConstraint for the unordered "
+            f"TP3<->U7 pair after the dedup fix, got {len(matches)} -- "
+            f"either TP3's net is unclassified again, U7 no longer carries a "
+            f"DC_BUS-domain net (DC_BUS_RTN), or the generator regressed to "
+            f"emitting the same pair under both (a, b) orderings."
         )
+        c = matches[0]
         # DC_BUS<->LV_CONTROL: max across basic (3.0/4.0) and reinforced
-        # (6.0/8.0) rows is 8.0mm at the currently-enforced PD2 target. This
-        # must appear among the (possibly multiple, see docstring)
-        # constraints for this pair.
-        assert max(c.min_distance_mm for c in matches) == 8.0
+        # (6.0/8.0) rows is 8.0mm at the currently-enforced PD2 target --
+        # the stricter of the two margins the pair used to be emitted at
+        # (8.0mm vs 1.0mm) must be the single surviving one.
+        assert c.min_distance_mm == 8.0
+        # Canonical lexicographic (a, b) order + deterministic id, so the id
+        # does not depend on which matrix row is iterated first.
+        assert c.a == "TP3" and c.b == "U7"
+        assert c.id == "domain_clearance_TP3_U7"
+
+
+# ---------------------------------------------------------------------------
+# Group 5: real-board dedup regression -- 11,571 constraints, one per pair
+# ---------------------------------------------------------------------------
+
+
+class TestDomainConstraintDedup:
+    """Production-board regression for the generator's duplicate-emission
+    wart, fixed 2026-08-02 (see docs/evidence/2026-08-01-domain-constraint-
+    dedup.md). Measured on the committed board at the 2026-08-01 gap-2 audit
+    (docs/evidence/2026-08-01-domain-constraint-coverage-gap.md §1): the
+    pre-fix generator emitted **12,022 constraints for only 11,571 unique
+    unordered pairs -- 451 duplicate emissions**, every one a pair involving
+    an intra-footprint straddler (C6, K1, K2, K3, PS1, T1, U3, U7) that
+    matches both the LV_CONTROL<->LV_CONTROL row (1.0mm, both refs drawn
+    from the LV_CONTROL group) and the DC_BUS<->LV_CONTROL rows (8.0mm,
+    straddler drawn from the DC_BUS group) with reversed (a, b) ordering --
+    e.g. (C11, C6)@1.0mm and (C6, C11)@8.0mm. Post-fix the generator must
+    emit exactly one constraint per unordered pair, at the max margin
+    across all matching rows, so 12,022 -> 11,571 constraints with the
+    unordered pair set unchanged and the per-pair margin map unchanged.
+    """
+
+    def _load(self):
+        import pytest
+
+        from tests.requirements.safety._real_board_fixture import (
+            RealBoardUnavailable,
+            load_real_board_placement,
+        )
+
+        try:
+            return load_real_board_placement()
+        except RealBoardUnavailable as exc:
+            pytest.skip(f"{exc} (run `make netlist` first)")
+
+    def test_zero_duplicate_unordered_pairs(self) -> None:
+        placement, voltage_domains, _stats = self._load()
+        constraints = generate_domain_clearance_constraints(placement, voltage_domains)
+        unordered = [frozenset({c.a, c.b}) for c in constraints]
+        dupes = len(constraints) - len(set(unordered))
+        assert dupes == 0, (
+            f"{dupes} duplicate unordered-pair emissions -- every unordered "
+            f"pair must map to exactly one SeparatedConstraint (pre-fix the "
+            f"generator emitted 451 duplicates: pairs straddling an "
+            f"intra-footprint part appeared once @1.0mm from the "
+            f"LV_CONTROL<->LV_CONTROL row and once @8.0mm from the "
+            f"DC_BUS<->LV_CONTROL rows under reversed (a, b) keys)."
+        )
+
+    def test_production_board_constraint_count_11571(self) -> None:
+        """12,022 (pre-fix) -> 11,571 (post-fix) constraints on the
+        production board; the 451-constraint delta is exactly the duplicate
+        emissions, so the unordered pair set is unchanged (symmetric
+        difference 0 vs the measured 11,571-pair set) and the per-pair
+        margin map is unchanged (every duplicate pair kept its stricter
+        8.0mm margin)."""
+        placement, voltage_domains, _stats = self._load()
+        constraints = generate_domain_clearance_constraints(placement, voltage_domains)
+        assert len(constraints) == 11_571, (
+            f"Expected 11,571 constraints (one per unordered pair, down from "
+            f"the pre-fix 12,022 with 451 duplicate emissions), got "
+            f"{len(constraints)}"
+        )
+        # Margin distribution must match the measured unique-pair set:
+        # 6,006 pairs at 8.0mm + 5,565 pairs at 1.0mm == 11,571 (gap-2
+        # evidence doc §1). Every duplicate pair kept the stricter 8.0mm
+        # margin, so the 8.0mm bucket is unchanged from the pre-fix unique
+        # pair count and only the 1.0mm bucket shrank (5,988 -> 5,565).
+        from collections import Counter
+
+        dist = Counter(round(c.min_distance_mm, 3) for c in constraints)
+        assert dist[8.0] == 6_006
+        assert dist[1.0] == 5_565
+        assert sum(dist.values()) == 11_571

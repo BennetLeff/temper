@@ -203,7 +203,7 @@ if any reappear in `git ls-files` or are referenced outside `docs/`.
   set of 7 filenames.
 - **New-violation block:** Any denylisted filename tracked by git or referenced
   in a non-docs file fails with a named message pointing to
-  `docs/consolidation-log.md` for the canonical survivor.
+  `docs/plans/2026-06-22-005-feat-duplicate-script-consolidation-plan.md (the consolidation log was removed)` for the canonical survivor.
 - **Stale-entry enforcement:** N/A (denylist is fixed — no entry is expected to
   be removed; the guard is an invariant, not a shrinking allowlist).
 

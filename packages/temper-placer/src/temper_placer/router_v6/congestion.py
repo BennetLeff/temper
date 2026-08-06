@@ -12,7 +12,7 @@ Grid Model:
 - Bottleneck = demand > supply
 
 Example usage:
-    >>> from temper_placer.routing.congestion import analyze_congestion
+    >>> from temper_placer.router_v6.congestion import analyze_congestion
     >>> from temper_placer.core.board import Board
     >>>
     >>> result = analyze_congestion(netlist, board)
@@ -31,10 +31,10 @@ Array: TypeAlias = np.ndarray  # numpy alias replacing JAX Array post-JAX retire
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist
-from temper_placer.core.pin_geometry import pin_world_position
+from temper_placer.core.pin_geometry import pin_world_position_at
 
 if TYPE_CHECKING:
-    from temper_placer.routing.layer_assignment import LayerAssignment
+    from temper_placer.router_v6.layer_assignment import LayerAssignment
 
 
 @dataclass
@@ -253,6 +253,16 @@ def estimate_net_demand(
     row_min = max(0, int((min_y - origin_y) / cell_size))
     row_max = min(grid.height_cells - 1, int((max_y - origin_y) / cell_size))
 
+    # A net whose bounding box does not intersect the grid contributes no
+    # demand. Clamping each pair from one side only is not enough: a net
+    # entirely left of (or above) the board leaves col_max/row_max NEGATIVE,
+    # and `demand[0 : -3 + 1, 0 : -3 + 1]` is a *negative-index* slice -- it
+    # writes a real block of demand at the board ORIGIN. The far edge was
+    # already correct by accident (col_min > col_max yields an empty
+    # `[50:10]` slice), which is exactly what made the near edge visible.
+    if col_max < col_min or row_max < row_min:
+        return grid
+
     # Add demand to cells in bounding box
     # Use half-perimeter estimation - weight cells along likely routing paths
     if grid.num_layers == 1:
@@ -322,18 +332,20 @@ def _get_pin_positions(
 
         comp_idx, comp = comp_by_ref[comp_ref]
 
-        # Get component position
+        # Get component position. When an explicit `positions` array is given
+        # it OVERRIDES the component's own initial_position -- that is the
+        # whole point of the argument, and the caller (the placement feedback
+        # loop) is evaluating a candidate placement, not the stored one.
+        # `pos_override=None` falls back to comp.initial_position, and then to
+        # (0.0, 0.0), inside pin_world_position_at.
+        pos_override: tuple[float, float] | None = None
         if positions is not None:
-            comp_x, comp_y = float(positions[comp_idx, 0]), float(positions[comp_idx, 1])
-        elif comp.initial_position is not None:
-            comp_x, comp_y = comp.initial_position
-        else:
-            _comp_x, _comp_y = 0.0, 0.0
+            pos_override = (float(positions[comp_idx, 0]), float(positions[comp_idx, 1]))
 
         # Find pin and get its position
         for pin in comp.pins:
             if pin.name == pin_name or pin.number == pin_name:
-                pin_x, pin_y = pin_world_position(pin, comp)
+                pin_x, pin_y = pin_world_position_at(pin, comp, pos_override=pos_override)
                 pin_positions.append((pin_x, pin_y))
                 break
 
@@ -374,7 +386,7 @@ def analyze_congestion(
     # Handle layer assignment impact on num_layers
     if layer_assignments is not None and num_layers == 1:
         # Check if any assignments use multiple layers
-        from temper_placer.routing.layer_assignment import Layer
+        from temper_placer.router_v6.layer_assignment import Layer
 
         layers_used = set()
         for assignment in layer_assignments.values():
@@ -403,7 +415,7 @@ def analyze_congestion(
         # Determine layer for this net
         layer = 0
         if layer_assignments is not None and net.name in layer_assignments:
-            from temper_placer.routing.layer_assignment import Layer
+            from temper_placer.router_v6.layer_assignment import Layer
 
             assignment = layer_assignments[net.name]
             if assignment.primary_layer == Layer.L4_BOT:

@@ -2,11 +2,14 @@
 //!
 //! Each `#[pyfunction]` delegates to `core`.  All tests live in `core`.
 
-mod core;
+pub mod core;
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use std::collections::HashMap;
 
+#[cfg(feature = "python")]
 #[pyfunction]
 fn estimate_trace_current(
     width_mm: f64,
@@ -19,6 +22,7 @@ fn estimate_trace_current(
     ))
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 fn estimate_current_from_net_class(
     trace_width_mm: f64,
@@ -30,11 +34,13 @@ fn estimate_current_from_net_class(
     ))
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 fn trace_current_table_1oz() -> PyResult<HashMap<String, f64>> {
     Ok(core::trace_current_table_1oz())
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 fn calculate_min_trace_width(
     current_amps: f64,
@@ -47,6 +53,7 @@ fn calculate_min_trace_width(
     ))
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (current_amps, copper_weight_oz, temp_rise_c=10.0, internal_layer=false))]
 fn ipc2152_min_width_mm(
@@ -60,6 +67,7 @@ fn ipc2152_min_width_mm(
     ))
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (width_mm, copper_weight_oz, temp_rise_c=10.0, internal_layer=false))]
 fn ipc2152_current_capacity(
@@ -73,16 +81,19 @@ fn ipc2152_current_capacity(
     ))
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 fn get_net_current(net_name: &str) -> PyResult<f64> {
     Ok(core::get_net_current(net_name))
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 fn net_currents() -> PyResult<HashMap<String, f64>> {
     Ok(core::net_currents().clone())
 }
 
+#[cfg(feature = "python")]
 #[pymodule]
 fn temper_ipc(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(estimate_trace_current, m)?)?;

@@ -4,6 +4,11 @@ Search Quality Study: Simulated Annealing vs Greedy.
 
 Quantifies the reduction in hard overlaps and final loss when using
 SA vs Greedy for discrete rotation refinement.
+
+Wave-4 Phase-5 R3-style record: study-script glue — ``losses``/``optimizer``
+(Phase 4) call-backs plus a ``time.time()`` wall-clock study loop; zero
+standalone compute beyond retired-JAX ``PlacementState`` construction. See
+``packages/temper-orchestration/VERIFICATION.md``.
 """
 
 import argparse

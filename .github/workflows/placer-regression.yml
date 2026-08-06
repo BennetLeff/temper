@@ -67,6 +67,11 @@ jobs:
       - name: Install dependencies
         run: uv sync --all-packages
 
+      - name: Record KiCad DRC tool version
+        run: |
+          echo "kicad-cli: $(kicad-cli version 2>/dev/null || echo unavailable)"
+          echo "platform: $(uname -a)"
+
       - name: Check for baseline changes without approval
         run: |
           if git diff --name-only origin/main...HEAD | grep -q 'power_pcb_dataset/corpus/.*/baseline.json'; then

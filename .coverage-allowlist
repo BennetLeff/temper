@@ -568,12 +568,6 @@ temper_placer/heuristics/topological_init.py::TopologicalInitializationHeuristic
 temper_placer/heuristics/topological_init.py::TopologicalInitializationHeuristic.priority  # TODO: temper-xxx
 temper_placer/io/config_board_binding.py::extract_config_refs  # TODO: temper-xxx
 temper_placer/io/config_board_binding.py::verify_config_matches_netlist  # TODO: temper-xxx
-temper_placer/io/config_loader.py::apply_fixed_components_to_netlist  # TODO: temper-xxx
-temper_placer/io/config_loader.py::apply_zones_to_netlist  # TODO: temper-xxx
-temper_placer/io/config_loader.py::constraints_to_design_rules  # TODO: temper-xxx
-temper_placer/io/config_loader.py::create_board_from_constraints  # TODO: temper-xxx
-temper_placer/io/config_loader.py::infer_rjc  # TODO: temper-xxx
-temper_placer/io/config_loader.py::load_constraints  # TODO: temper-xxx
 temper_placer/io/design_bundle_preflight.py::preflight_identity  # TODO: temper-xxx
 temper_placer/io/dsn.py::DSNCircle.to_dsn  # TODO: temper-xxx
 temper_placer/io/dsn.py::DSNExpression.with_comment  # TODO: temper-xxx
@@ -597,12 +591,6 @@ temper_placer/io/dsn_schema.py::embed_schema_header  # TODO: temper-xxx
 temper_placer/io/dsn_schema.py::extract_schema_hash  # TODO: temper-xxx
 temper_placer/io/dsn_validator.py::validate_dsn  # TODO: temper-xxx
 temper_placer/io/dsn_validator.py::validate_or_warn_dsn  # TODO: temper-xxx
-temper_placer/io/footprint_library.py::FootprintLibrary.add  # TODO: temper-xxx
-temper_placer/io/footprint_library.py::FootprintLibrary.from_yaml_string  # TODO: temper-xxx
-temper_placer/io/footprint_library.py::FootprintLibrary.get  # TODO: temper-xxx
-temper_placer/io/footprint_library.py::FootprintSpec.height  # TODO: temper-xxx
-temper_placer/io/footprint_library.py::FootprintSpec.width  # TODO: temper-xxx
-temper_placer/io/footprint_library.py::load_footprint_library  # TODO: temper-xxx
 temper_placer/io/footprint_parser.py::parse_footprint_courtyard  # TODO: temper-xxx
 temper_placer/io/footprint_parser.py::parse_footprint_directory  # TODO: temper-xxx
 temper_placer/io/golden_serializers.py::serialize_boardstate_to_dsn  # TODO: temper-xxx
@@ -625,7 +613,6 @@ temper_placer/io/kicad_parser.py::extract_footprint_positions  # TODO: temper-xx
 temper_placer/io/kicad_parser.py::extract_net_classes  # TODO: temper-xxx
 temper_placer/io/kicad_parser.py::parse_kicad_pcb  # TODO: temper-xxx
 temper_placer/io/kicad_parser.py::parse_kicad_pcb_v6  # TODO: temper-xxx
-temper_placer/io/kicad_parser.py::parse_kicad_schematic  # TODO: temper-xxx
 temper_placer/io/kicad_writer.py::IsolationSlotResult.has_warnings  # TODO: temper-xxx
 temper_placer/io/kicad_writer.py::StrippingResult.has_warnings  # TODO: temper-xxx
 temper_placer/io/kicad_writer.py::WriteResult.has_warnings  # TODO: temper-xxx
@@ -646,9 +633,6 @@ temper_placer/io/kicad_writer.py::validate_output_pcb  # TODO: temper-xxx
 temper_placer/io/kicad_writer.py::write_placements_to_pcb  # TODO: temper-xxx
 temper_placer/io/kicad_writer.py::write_routes_to_pcb  # TODO: temper-xxx
 temper_placer/io/kicad_writer.py::write_zones_to_pcb  # TODO: temper-xxx
-temper_placer/io/loop_loader.py::load_loop_collection  # TODO: temper-xxx
-temper_placer/io/loop_loader.py::load_loop_from_dict  # TODO: temper-xxx
-temper_placer/io/loop_loader.py::load_loop_template  # TODO: temper-xxx
 temper_placer/io/loop_loader.py::save_loop_to_yaml  # TODO: temper-xxx
 temper_placer/io/net_class_manager.py::compute_microstrip_width  # TODO: temper-xxx
 temper_placer/io/net_class_manager.py::create_netclass_config  # TODO: temper-xxx
@@ -657,7 +641,6 @@ temper_placer/io/net_class_manager.py::get_clearance_for_net  # TODO: temper-xxx
 temper_placer/io/net_class_manager.py::get_trace_width  # TODO: temper-xxx
 temper_placer/io/net_class_manager.py::is_high_speed_net  # TODO: temper-xxx
 temper_placer/io/net_class_manager.py::is_power_net  # TODO: temper-xxx
-temper_placer/io/netclass_loader.py::load_netclass_rules  # TODO: temper-xxx
 temper_placer/io/placement_exporter.py::cleanup_temp_pcb  # TODO: temper-xxx
 temper_placer/io/placement_exporter.py::create_pcb_exporter  # TODO: temper-xxx
 temper_placer/io/placement_exporter.py::export_positions_to_temp_pcb  # TODO: temper-xxx
@@ -667,9 +650,7 @@ temper_placer/io/placement_exporter.py::soft_to_discrete_rotations  # TODO: temp
 temper_placer/io/provenance.py::Provenance.as_comment  # TODO: temper-xxx
 temper_placer/io/provenance.py::compute_provenance  # TODO: temper-xxx
 temper_placer/io/provenance.py::embed_provenance  # TODO: temper-xxx
-temper_placer/io/reference_loader.py::compute_design_stats  # TODO: temper-xxx
 temper_placer/io/reference_loader.py::filter_components  # TODO: temper-xxx
-temper_placer/io/reference_loader.py::infer_quality_config  # TODO: temper-xxx
 temper_placer/io/reference_loader.py::list_reference_designs  # TODO: temper-xxx
 temper_placer/io/reference_loader.py::load_reference_pcb  # TODO: temper-xxx
 temper_placer/io/reference_loader.py::netlist_to_placement_state  # TODO: temper-xxx
@@ -710,9 +691,6 @@ temper_placer/metrics/quality.py::loop_area_score  # TODO: temper-xxx
 temper_placer/metrics/quality.py::thermal_score  # TODO: temper-xxx
 temper_placer/metrics/quality.py::total_wirelength  # TODO: temper-xxx
 temper_placer/metrics/quality.py::zone_compliance_score  # TODO: temper-xxx
-temper_placer/metrics/quality_score.py::QualityScore.to_dict  # TODO: temper-xxx
-temper_placer/metrics/quality_score.py::compute_quality_score  # TODO: temper-xxx
-temper_placer/metrics/quality_score.py::interpret_score  # TODO: temper-xxx
 temper_placer/metrics/routing_quality.py::RoutingQualityScore.to_dict  # TODO: temper-xxx
 temper_placer/metrics/routing_quality.py::evaluate_routing_quality  # TODO: temper-xxx
 temper_placer/pcl/constraints.py::AdjacentConstraint.involves_component  # TODO: temper-xxx
