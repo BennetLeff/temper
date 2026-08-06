@@ -159,8 +159,17 @@ class ComponentAssignmentStage(Stage):
         # because it is independent of the loop's mutable `used_slots`.
         domain_ok = {}
         if domain_for_ref and domain_regions:
-            all_refs = {c.ref for c in netlist.components}
-            for ref in all_refs:
+            # Iterate the netlist's component order, not a set of refs: this
+            # loop KEYS `domain_ok`, so a set's per-process hash order would
+            # become the dict's insertion order and cross into the kernel.
+            # De-duplicated explicitly to keep the one-entry-per-ref semantics
+            # the set gave.
+            seen_refs: set[str] = set()
+            for component in netlist.components:
+                ref = component.ref
+                if ref in seen_refs:
+                    continue
+                seen_refs.add(ref)
                 domain = domain_for_ref.get(ref)
                 if not domain:
                     continue
