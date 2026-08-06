@@ -87,14 +87,23 @@ def build_pads(pads: list) -> Component:
     Used by the ``_is_position_valid`` probes, which take a ``Component``
     only to iterate ``component.pins``.
     """
+    def _pin(i, row):
+        # 5-tuple keeps the historical shape; a 6th element carries
+        # ``roundrect_ratio``, which ``pin_world_radius`` reads and the Rust
+        # kernel hardcoded to the default until 2026-08-06.
+        x, y, w, h, s = row[:5]
+        ratio = row[5] if len(row) > 5 else None
+        kw = {} if ratio is None else {"roundrect_ratio": ratio}
+        return Pin(
+            name=str(i), number=str(i), position=(x, y), net=None,
+            width=w, height=h, shape=s, **kw,
+        )
+
     return Component(
         ref="P",
         footprint="PADS",
         bounds=(10.0, 10.0),
-        pins=[
-            Pin(name=str(i), number=str(i), position=(x, y), net=None, width=w, height=h, shape=s)
-            for i, (x, y, w, h, s) in enumerate(pads)
-        ],
+        pins=[_pin(i, row) for i, row in enumerate(pads)],
         initial_position=(0.0, 0.0),
         initial_rotation=0,
     )

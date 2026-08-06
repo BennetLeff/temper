@@ -113,12 +113,22 @@ fn rotate_local_to_world(x: f64, y: f64, theta_rad: f64) -> (f64, f64) {
 /// `core/pin_geometry.pin_world_position`.
 ///
 /// `side` is not carried by the `net_ordering` corpus shape (its components
-/// are `(ref, position, rotation, pins)`), so the bottom-side mirror is
-/// structurally unreachable from here and is not modelled; the oracle's
-/// `comp.initial_side or 0` is 0 for every component this kernel can see.
+/// Rows may carry an optional 5th element, `initial_side`. Until 2026-08-06
+/// they could not, and this function did not model the bottom-side X mirror
+/// at all -- the comment here asserted that side was "0 for every component
+/// this kernel can see", which was true of the corpus and false of any real
+/// board with a back-side component.
 fn pin_world_position(pin_pos: (f64, f64), comp: &CompRow) -> (f64, f64) {
     let rotation_rad = normalize_rotation(comp.rotation);
-    let (rx, ry) = rotate_local_to_world(pin_pos.0, pin_pos.1, rotation_rad);
+    // `side = comp.initial_side or 0`, then mirror X BEFORE rotation --
+    // KiCad's bottom-side convention, and the order matters: mirroring after
+    // rotation gives a different point for any non-zero rotation.
+    let side = comp.side.unwrap_or(0);
+    let (mut px, py) = pin_pos;
+    if side == 1 {
+        px = -px;
+    }
+    let (rx, ry) = rotate_local_to_world(px, py, rotation_rad);
     let cpos = comp.position.unwrap_or((0.0, 0.0));
     (cpos.0 + rx, cpos.1 + ry)
 }
@@ -135,6 +145,8 @@ struct PinRow {
 struct CompRow {
     position: Option<(f64, f64)>,
     rotation: Option<i64>,
+    /// `Component.initial_side`. Optional so a 4-tuple row still parses.
+    side: Option<i64>,
     pins: Vec<PinRow>,
 }
 
@@ -145,6 +157,13 @@ fn parse_components(components: &Bound<'_, PyAny>) -> PyResult<Vec<CompRow>> {
         let row = row?;
         let position: Option<(f64, f64)> = row.get_item(1)?.extract()?;
         let rotation: Option<i64> = row.get_item(2)?.extract()?;
+        // 5th element is optional: a 4-tuple row keeps the old shape and is
+        // treated as front-side, which is what every pre-existing corpus row
+        // relies on.
+        let side: Option<i64> = match row.get_item(4) {
+            Ok(v) => v.extract().ok(),
+            Err(_) => None,
+        };
         let mut pins = Vec::new();
         for p in row.get_item(3)?.try_iter()? {
             let p = p?;
@@ -156,6 +175,7 @@ fn parse_components(components: &Bound<'_, PyAny>) -> PyResult<Vec<CompRow>> {
         out.push(CompRow {
             position,
             rotation,
+            side,
             pins,
         });
     }

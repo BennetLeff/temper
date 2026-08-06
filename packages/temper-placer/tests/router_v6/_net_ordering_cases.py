@@ -166,6 +166,20 @@ HPWL_DESIGNS: list[tuple[str, list, str]] = [
     ("no_components", [], "N1"),
     ("net_absent", [("U1", (0.0, 0.0), 0, [("1", (0.0, 0.0), "OTHER")])], "N1"),
     ("single_pin", [("U1", (0.0, 0.0), 0, [("1", (0.0, 0.0), "N1")])], "N1"),
+    # initial_side is READ by pin_world_position -- a bottom-side pad mirrors
+    # X BEFORE rotation -- and the Rust kernel did not model it until
+    # 2026-08-06, when its own comment asserted side was "0 for every
+    # component this kernel can see". True of this corpus at the time; false
+    # of any real board. Matching pin offsets on opposite sides collapse to
+    # hpwl 0.0 if the mirror is skipped, and 2.0 if it is honoured.
+    (
+        "mixed_side_mirror",
+        [
+            ("U1", (0.0, 0.0), 0, [("1", (1.0, 0.0), "N1")], 0),
+            ("U2", (0.0, 0.0), 0, [("1", (1.0, 0.0), "N1")], 1),
+        ],
+        "N1",
+    ),
     # two coincident pins -> zero-area bbox, hpwl 0.0, area 0.0
     (
         "coincident_pins",
