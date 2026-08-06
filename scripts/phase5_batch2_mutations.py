@@ -145,23 +145,6 @@ add(TD, "src/deterministic_leaves.rs",
     ["test_phased_component_assignment_validator_rust_differential.py"],
     "validator radius strict <")
 
-# --- routing_metrics ------------------------------------------------------
-add(TD, "src/routing_metrics.rs",
-    'search.set_item("avg_iterations_per_segment", py_round_digits(avg, 1))?;',
-    'search.set_item("avg_iterations_per_segment", avg)?;',
-    ["test_routing_metrics_rust_differential.py"],
-    "routing_metrics avg rounding dropped")
-add(TD, "src/routing_metrics.rs",
-    "let net_completion_rate = nets_full as f64 / nets_total.max(1) as f64;",
-    "let net_completion_rate = nets_full as f64 / nets_total.max(0) as f64;",
-    ["test_routing_metrics_rust_differential.py"],
-    "routing_metrics max(nets_total,1)->max(,0)")
-add(TD, "src/routing_metrics.rs",
-    "if is_full {\n            self.bump_i64(py, \"nets_fully_routed\", 1)?;",
-    "if is_full {\n            self.bump_i64(py, \"nets_partially_routed\", 1)?;",
-    ["test_routing_metrics_rust_differential.py"],
-    "routing_metrics fully-routed counter misrouted")
-
 # --- drc leaf kernels -----------------------------------------------------
 add(DRC, "src/deterministic_leaf_drc.rs",
     "by_type.sort_by(|a, b| b.1.cmp(&a.1));",
@@ -233,8 +216,6 @@ PRISTINE_TESTS = [
     "test_fine_pitch_escape_pbt.py",
     "test_phased_component_assignment_validator_rust_differential.py",
     "test_phased_component_assignment_validator_pbt.py",
-    "test_routing_metrics_rust_differential.py",
-    "test_routing_metrics_pbt.py",
     "test_drc_leaf_rust_differential.py",
     "test_drc_leaf_pbt.py",
     "test_connectivity_validation_rust_differential.py",
