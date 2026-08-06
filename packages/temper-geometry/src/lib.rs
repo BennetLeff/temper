@@ -25,6 +25,8 @@ pub mod pad_geometry;
 #[cfg(feature = "python")]
 pub mod congestion;
 #[cfg(feature = "python")]
+pub mod congestion_analysis;
+#[cfg(feature = "python")]
 pub mod escape_via;
 #[cfg(feature = "python")]
 pub mod routing_demand;
@@ -93,6 +95,7 @@ use pyo3::prelude::*;
 fn temper_geometry(m: &Bound<'_, PyModule>) -> PyResult<()> {
     bridge::register_functions(m)?;
     crate::congestion::register(m)?;
+    crate::congestion_analysis::register(m)?;
     crate::escape_via::register(m)?;
     crate::routing_demand::register(m)?;
     crate::placement_suggestions::register(m)?;

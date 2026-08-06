@@ -43,7 +43,7 @@ use pyo3::types::PyAnyMethods;
 /// board width (from `1e300 / 1e-300` as well as a literal) and NaN.
 /// A bare `v.ceil() as i64` saturates silently at `i64::MAX`, which would
 /// turn a raising case into a gigantic allocation.
-fn ceil_to_int(v: f64) -> PyResult<i64> {
+pub(crate) fn ceil_to_int(v: f64) -> PyResult<i64> {
     if v.is_nan() {
         return Err(PyValueError::new_err(
             "cannot convert float NaN to integer",
@@ -109,7 +109,7 @@ pub fn congestion_grid_from_board_py<'py>(
 
 /// Build the 1 x N f64 array `_congestion_builders.build_grid` builds, so the
 /// two arms start from an identical object.
-fn row_array<'py>(py: Python<'py>, row: &[f64]) -> PyResult<Bound<'py, PyAny>> {
+pub(crate) fn row_array<'py>(py: Python<'py>, row: &[f64]) -> PyResult<Bound<'py, PyAny>> {
     let np = py.import("numpy")?;
     let dtype = np.getattr("float64")?;
     let kwargs = pyo3::types::PyDict::new(py);
@@ -170,7 +170,7 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
 /// anywhere later is discarded. `f64::min` is the opposite (it discards NaN
 /// entirely) and `np.min` propagates any NaN; both are wrong here. The corpus
 /// carries a NaN coordinate for exactly this.
-fn cpython_min(vals: &[f64]) -> f64 {
+pub(crate) fn cpython_min(vals: &[f64]) -> f64 {
     let mut acc = vals[0];
     for &x in &vals[1..] {
         if x < acc {
@@ -181,7 +181,7 @@ fn cpython_min(vals: &[f64]) -> f64 {
 }
 
 /// CPython's `max`, mirroring [`cpython_min`]'s asymmetry.
-fn cpython_max(vals: &[f64]) -> f64 {
+pub(crate) fn cpython_max(vals: &[f64]) -> f64 {
     let mut acc = vals[0];
     for &x in &vals[1..] {
         if x > acc {
