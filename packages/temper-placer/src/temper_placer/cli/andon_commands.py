@@ -1,4 +1,10 @@
-"""``temper-placer andon`` — live Andon Board pipeline visualization."""
+"""``temper-placer andon`` — live Andon Board pipeline visualization.
+
+Wave-4 Phase-5 R3-style record (see ``packages/temper-orchestration/VERIFICATION.md``):
+the module's entire behavior is a documented ``NotImplementedError`` stub;
+migrating a stub is vacuous (the R1 battery has nothing to pin). The click
+surface stays Python.
+"""
 
 from __future__ import annotations
 

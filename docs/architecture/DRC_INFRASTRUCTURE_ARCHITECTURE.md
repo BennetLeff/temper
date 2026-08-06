@@ -115,9 +115,14 @@ class MazeRouter:
 
 ### CLI Integration
 
-```bash
-python scripts/internal_route.py input.kicad_pcb --strict-drc
-```
+**There is no CLI flag for this today.** The `--strict-drc` switch documented
+here belonged to `scripts/internal_route.py`, which was RETIREd as import-dead
+and deleted on 2026-08-04 (see
+`docs/evidence/2026-08-04-wave4-residual-verdicts.md`). The live routing entry
+point, `scripts/route_board.py`, exposes no equivalent — the modes in the table
+above are selected at the API level, by how `DRCOracle` / `strict_mode` are
+passed to the router, not from the command line. Re-exposing a strict-DRC flag
+on `route_board.py` is unclaimed work, not an existing capability.
 
 ---
 

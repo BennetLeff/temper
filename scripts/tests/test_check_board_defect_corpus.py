@@ -38,93 +38,151 @@ CEILINGS = {"courtyards_overlap": 14, "copper_edge_clearance": 15, "shorting_ite
 # ---------------------------------------------------------------------------
 
 
+OFF_BOARD_PARAMS = {"ref": "C26", "position_mm": [59.38, 256.0]}
+PAD_SHORT_PARAMS = {"ref": "C28", "pad_a": "1", "pad_b": "2"}
+
+
 class TestEvaluateClass:
-    def test_off_board_fires_when_courtyards_rise(self):
+    def test_off_board_fires_when_containment_names_the_ref(self):
         verdict = corpus.evaluate_class(
             "off-board", "off-board",
-            clean_drc={"courtyards_overlap": 14, "copper_edge_clearance": 15},
-            mutated_drc={"courtyards_overlap": 29, "copper_edge_clearance": 15},
-            ceilings=CEILINGS, clean_creepage=None, mutated_creepage=None,
+            corpus.ClassMeasurement(
+                params=OFF_BOARD_PARAMS,
+                clean_containment_refs=set(),
+                mutated_containment_refs={"C26"},
+            ),
         )
         assert verdict.ok and not verdict.gate_error
-        assert "courtyards_overlap" in verdict.message
-        assert "off-board" in verdict.message
+        assert "board_containment" in verdict.message
+        assert "C26" in verdict.message
 
-    def test_off_board_fires_via_copper_edge_clearance(self):
+    def test_off_board_uncovered_when_containment_silent(self):
+        # The exact 2026-08-04 failure: the mutation is applied, the board
+        # is genuinely defective, and no owning gate names it.
         verdict = corpus.evaluate_class(
             "off-board", "off-board",
-            clean_drc={"courtyards_overlap": 14, "copper_edge_clearance": 15},
-            mutated_drc={"courtyards_overlap": 14, "copper_edge_clearance": 17},
-            ceilings=CEILINGS, clean_creepage=None, mutated_creepage=None,
-        )
-        assert verdict.ok
-
-    def test_pad_short_fires_when_shorting_items_rise(self):
-        verdict = corpus.evaluate_class(
-            "pad-short", "pad-short",
-            clean_drc={"shorting_items": 118},
-            mutated_drc={"shorting_items": 119},
-            ceilings=CEILINGS, clean_creepage=None, mutated_creepage=None,
-        )
-        assert verdict.ok
-        assert "shorting_items" in verdict.message
-
-    def test_creepage_fires_when_dc_lv_count_rises(self):
-        verdict = corpus.evaluate_class(
-            "creepage", "creepage",
-            clean_drc={}, mutated_drc={},
-            ceilings={}, clean_creepage=99, mutated_creepage=102,
-        )
-        assert verdict.ok
-        assert "DC_BUS<->LV_CONTROL creepage" in verdict.message
-
-    def test_uncovered_class_fails_naming_the_class(self):
-        # U2 scenario 2: a mutated board that passes every gate is an
-        # uncovered class, not a pass.
-        verdict = corpus.evaluate_class(
-            "off-board", "off-board",
-            clean_drc={"courtyards_overlap": 14, "copper_edge_clearance": 15},
-            mutated_drc={"courtyards_overlap": 14, "copper_edge_clearance": 15},
-            ceilings=CEILINGS, clean_creepage=None, mutated_creepage=None,
+            corpus.ClassMeasurement(
+                params=OFF_BOARD_PARAMS,
+                clean_containment_refs=set(),
+                mutated_containment_refs=set(),
+            ),
         )
         assert not verdict.ok and not verdict.gate_error
         assert "uncovered class" in verdict.message
         assert "off-board" in verdict.message
 
+    def test_off_board_control_violated_when_ref_already_outside(self):
+        # Anti-vacuity, per class: if the ref is ALREADY off-outline on the
+        # clean board the mutation demonstrates nothing, and that is a
+        # corpus failure -- not a pass.
+        verdict = corpus.evaluate_class(
+            "off-board", "off-board",
+            corpus.ClassMeasurement(
+                params=OFF_BOARD_PARAMS,
+                clean_containment_refs={"C26"},
+                mutated_containment_refs={"C26"},
+            ),
+        )
+        assert not verdict.ok
+        assert "control violated" in verdict.message
+
+    def test_pad_short_fires_when_an_error_names_both_pads(self):
+        verdict = corpus.evaluate_class(
+            "pad-short", "pad-short",
+            corpus.ClassMeasurement(
+                params=PAD_SHORT_PARAMS,
+                clean_pair_errors=[],
+                mutated_pair_errors=["clearance: actual 0.0000 mm"],
+            ),
+        )
+        assert verdict.ok
+        assert "C28" in verdict.message
+
+    def test_pad_short_fires_regardless_of_drc_category_name(self):
+        # KiCad reports the identical seeded short as shorting_items on one
+        # board and clearance/solder_mask_bridge on another. The assertion
+        # must not depend on which.
+        for signal in ("shorting_items: Items shorting two nets",
+                       "solder_mask_bridge: aperture bridges different nets"):
+            verdict = corpus.evaluate_class(
+                "pad-short", "pad-short",
+                corpus.ClassMeasurement(
+                    params=PAD_SHORT_PARAMS, mutated_pair_errors=[signal],
+                ),
+            )
+            assert verdict.ok, signal
+
     def test_uncovered_pad_short(self):
         verdict = corpus.evaluate_class(
             "pad-short", "pad-short",
-            clean_drc={"shorting_items": 118}, mutated_drc={"shorting_items": 118},
-            ceilings=CEILINGS, clean_creepage=None, mutated_creepage=None,
+            corpus.ClassMeasurement(params=PAD_SHORT_PARAMS),
         )
         assert not verdict.ok
         assert "uncovered class" in verdict.message
 
+    def test_pad_short_control_violated_when_pair_already_shorted(self):
+        verdict = corpus.evaluate_class(
+            "pad-short", "pad-short",
+            corpus.ClassMeasurement(
+                params=PAD_SHORT_PARAMS,
+                clean_pair_errors=["clearance: already touching"],
+                mutated_pair_errors=["clearance: still touching"],
+            ),
+        )
+        assert not verdict.ok
+        assert "control violated" in verdict.message
+
+    def test_creepage_fires_when_dc_lv_count_rises(self):
+        verdict = corpus.evaluate_class(
+            "creepage", "creepage",
+            corpus.ClassMeasurement(clean_creepage=99, mutated_creepage=102),
+        )
+        assert verdict.ok
+        assert "DC_BUS<->LV_CONTROL creepage" in verdict.message
+
     def test_uncovered_creepage(self):
         verdict = corpus.evaluate_class(
             "creepage", "creepage",
-            clean_drc={}, mutated_drc={}, ceilings={},
-            clean_creepage=99, mutated_creepage=99,
+            corpus.ClassMeasurement(clean_creepage=99, mutated_creepage=99),
         )
         assert not verdict.ok
 
     def test_creepage_measurement_unavailable_is_gate_error(self):
         verdict = corpus.evaluate_class(
             "creepage", "creepage",
-            clean_drc={}, mutated_drc={}, ceilings={},
-            clean_creepage=None, mutated_creepage=None,
+            corpus.ClassMeasurement(clean_creepage=None, mutated_creepage=None),
         )
         assert not verdict.ok and verdict.gate_error
 
-    def test_mutation_must_beat_clean_and_ceiling(self):
-        # Clean at 14, ceiling 14: mutated 14 does NOT fire.
-        verdict = corpus.evaluate_class(
-            "off-board", "off-board",
-            clean_drc={"courtyards_overlap": 14, "copper_edge_clearance": 15},
-            mutated_drc={"courtyards_overlap": 14, "copper_edge_clearance": 15},
-            ceilings=CEILINGS, clean_creepage=None, mutated_creepage=None,
+
+class TestPadPairMatching:
+    """The pad-short class's failure signal is decided from raw kicad-cli
+    item descriptions, in both spellings the report uses."""
+
+    def test_matches_smd_pad_description(self):
+        assert corpus.item_names_pad("Pad 1 [I_SENSE] of C28 on F.Cu", "C28", "1")
+
+    def test_matches_pth_pad_description_lowercase(self):
+        assert corpus.item_names_pad("PTH pad 1 [SW_NODE] of C26", "C26", "1")
+
+    def test_rejects_other_ref_and_other_pad(self):
+        assert not corpus.item_names_pad("Pad 1 [I_SENSE] of C29 on F.Cu", "C28", "1")
+        assert not corpus.item_names_pad("Pad 2 [gnd] of C28 on F.Cu", "C28", "1")
+
+    def test_rejects_track_description(self):
+        assert not corpus.item_names_pad(
+            "Track [inb] on F.Cu, length 2.4000 mm", "C28", "1"
         )
-        assert not verdict.ok
+
+    def test_pair_requires_both_pads_in_one_violation(self):
+        class _E:
+            def __init__(self, items):
+                self.rule, self.message, self.items = "clearance", "m", items
+
+        both = _E(["Pad 1 [I_SENSE] of C28 on F.Cu", "Pad 2 [gnd] of C28 on F.Cu"])
+        one = _E(["Pad 1 [I_SENSE] of C28 on F.Cu", "Track [inb] on F.Cu"])
+        assert corpus.errors_naming_pad_pair([both], "C28", "1", "2")
+        assert not corpus.errors_naming_pad_pair([one], "C28", "1", "2")
 
 
 # ---------------------------------------------------------------------------
@@ -152,6 +210,17 @@ class TestAntiVacuity:
         # clean-board contract -- the corpus does not invent one.
         clean = {"courtyards_overlap": 14}
         assert corpus.check_anti_vacuity(clean, {"courtyards_overlap": 14}) == []
+
+    def test_clean_board_containment_violation_fails_the_control(self):
+        # The off-board class cannot demonstrate anything against a board
+        # that already has copper outside its outline.
+        clean = {"courtyards_overlap": 14, "copper_edge_clearance": 15, "shorting_items": 118}
+        violations = corpus.check_anti_vacuity(
+            clean, CEILINGS, clean_containment_refs={"C27"}
+        )
+        assert len(violations) == 1
+        assert "board_containment" in violations[0]
+        assert "C27" in violations[0]
 
 
 # ---------------------------------------------------------------------------

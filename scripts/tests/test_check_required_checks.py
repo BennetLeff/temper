@@ -689,3 +689,48 @@ def test_context_triggers_rejects_overlap_with_job_triggers() -> None:
         assert "exactly one of the two" in str(exc)
     else:
         raise AssertionError("expected an overlap rejection")
+
+
+def test_partial_backlog_gets_the_grace_extension() -> None:
+    """Some contexts done, others never created -> still queue latency.
+
+    This is the case that failed on real pull requests: python-tests completed
+    for the jobs that got runners, the rest had no check run at all, and the
+    aggregate reported `missing: Rust Checks, Core Tests, ...` and failed at the
+    base deadline while those jobs were merely waiting for the pool.
+
+    `_any_started` returned True (something had started), so the grace never
+    fired. `_any_still_queueing` asks the question that matters instead: is any
+    required context still waiting to run?
+    """
+    from check_required_checks import _any_still_queueing
+
+    # "Core Tests" completed; "Type Check" has no check run at all yet.
+    runs = (run("Core Tests"),)
+    assert _any_still_queueing(("Core Tests", "Type Check"), runs) is True
+
+
+def test_all_contexts_present_and_terminal_gets_no_extension() -> None:
+    """Nothing is waiting -> the grace must not fire.
+
+    The extension exists for queue latency. Once every required context has a
+    terminal check run, a still-incomplete evaluation is a real verdict, and
+    granting more time would only delay failing closed.
+    """
+    from check_required_checks import _any_still_queueing
+
+    runs = (run("Core Tests"), run("Type Check", run_id=2))
+    assert _any_still_queueing(("Core Tests", "Type Check"), runs) is False
+
+
+def test_queued_check_run_still_counts_as_waiting() -> None:
+    """The original backlog case must keep working.
+
+    A check run that exists but sits in `queued` has not been given a runner.
+    Narrowing the predicate to only-absent runs would have silently dropped
+    this, which is what the existing backlog tests caught.
+    """
+    from check_required_checks import _any_still_queueing
+
+    runs = (run("Core Tests"), queued_run("Type Check", run_id=2))
+    assert _any_still_queueing(("Core Tests", "Type Check"), runs) is True

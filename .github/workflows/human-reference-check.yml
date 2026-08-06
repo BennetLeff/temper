@@ -16,10 +16,20 @@ on:
 permissions:
   contents: read
 
+# Opt-in (2026-08-04). This workflow's whole output is one sticky comment:
+# every substantive step in both jobs already carries `continue-on-error:
+# true` (the TODOs below say so), and neither "Current (PR head)" nor
+# "Comparison" is in `.github/required-checks.json`'s `required_contexts`.
+# It therefore cannot fail a merge under any circumstances, yet it fires on
+# `packages/temper-placer/src/**` for a measured median of 2 jobs and 8.6
+# job-minutes per push -- the most expensive advisory workflow on the PR path,
+# against an account ceiling of ~24 concurrent jobs. Add the `ci-advisory`
+# label to a PR to get the oracle comparison.
 jobs:
   current:
     name: Current (PR head)
     runs-on: ubuntu-latest
+    if: contains(github.event.pull_request.labels.*.name, 'ci-advisory')
     permissions:
       contents: read
     timeout-minutes: 30
@@ -100,7 +110,11 @@ jobs:
       contents: read
       pull-requests: write
     timeout-minutes: 5
-    if: always()
+    # `always()` on its own would run this job even when `current` is skipped,
+    # so the label test has to be repeated here rather than inherited.
+    if: >-
+      always()
+      && contains(github.event.pull_request.labels.*.name, 'ci-advisory')
     steps:
       - uses: actions/checkout@v7
         with:
