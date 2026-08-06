@@ -20,10 +20,28 @@ use geo::{Coord, EuclideanDistance, Intersects, Point};
 /// λ/20 at 100 MHz ≈ 15 mm  (free-space wavelength 3e8 / 100e6 = 3.0 m).
 const MAX_SPACING_MM: f64 = 15.0;
 
+/// Returns true if `needle` appears in `haystack`, ASCII case-insensitively.
+///
+/// Slice scan with no heap allocation (replaces the previous
+/// `net.to_lowercase().contains("gnd")` which allocated a lowercased copy of
+/// the whole net name per call). Exact for ASCII net names, which is the
+/// universe of real board nets.
+fn ascii_contains_ci(haystack: &str, needle: &str) -> bool {
+    let hay = haystack.as_bytes();
+    let needle_b = needle.as_bytes();
+    if needle_b.is_empty() {
+        return true;
+    }
+    if hay.len() < needle_b.len() {
+        return false;
+    }
+    let last_start = hay.len() - needle_b.len();
+    (0..=last_start).any(|start| hay[start..start + needle_b.len()].eq_ignore_ascii_case(needle_b))
+}
+
 /// Returns true if the net name indicates a ground connection.
 fn is_gnd_net(net: &str) -> bool {
-    let lc = net.to_lowercase();
-    lc.contains("gnd")
+    ascii_contains_ci(net, "gnd")
 }
 
 // ---------------------------------------------------------------------------
@@ -57,11 +75,17 @@ fn check_zone_via_density(
     }
 
     let mut max_gap = 0.0_f64;
-    for i in 0..zone_vias.len() {
+    // Once the threshold is exceeded the violation is guaranteed to fire no
+    // matter what later pairs contain — stop scanning. (Iteration order is
+    // fixed, so the reported value is still deterministic.)
+    'pairs: for i in 0..zone_vias.len() {
         for j in (i + 1)..zone_vias.len() {
             let d = zone_vias[i].euclidean_distance(zone_vias[j]);
             if d > max_gap {
                 max_gap = d;
+                if max_gap > MAX_SPACING_MM {
+                    break 'pairs;
+                }
             }
         }
     }
