@@ -3,11 +3,41 @@
 Loads drc_ceiling.json, runs DRC on target boards, and enforces
 a monotonically-non-increasing ceiling on DRC violation counts.
 
+Wave 4 Phase 4 (regression slice): the ceiling-COMPARISON compute — aggregate
+deltas, per-type category failure detection (implicit-zero ceiling), the
+pass/fail message composition, and ``detect_ceiling_raise`` — moved to the
+Rust kernels ``temper_drc_rs.ratchet_check`` /
+``temper_drc_rs.detect_ceiling_raise`` (packages/temper-drc-rs/src/
+drc_ratchet.rs). The DRC backends (rust-engine board-dict building,
+kicad-cli subprocess), the ceiling-file loading, and the result dataclasses
+stay Python — I/O and marshalling. The ratchet CONSTANTS (drc_ceiling.json,
+the #575 gate) are untouched: this migration only ports the comparison
+logic, so the ratchet reads exactly what it read before. Design boundaries
+are argued in ``packages/temper-drc-rs/VERIFICATION.md``.
+
+R27 (the machine-checked monotone ceiling contract, #611) composes on top of
+the migration, keeping the three-way shape R27's gate relies on:
+``find_ceiling_raises`` stays the Python contract-layer enumeration of "what
+raised" (the single enumeration R27's ``validate_raise_evidence`` consumes),
+and ``detect_ceiling_raise`` runs the SAME raise rules in the Rust kernel
+``temper_drc_rs.detect_ceiling_raise`` — a verbatim port of the
+pre-migration raise detector, kept bit-identical to the Python enumeration
+by the differential suite (test_drc_ratchet_rust_differential.py).
+``validate_raise_evidence`` enforces the measurement-evidence contract (a NEW
+non-empty ``_march`` cause entry plus a fresh measured-live provenance
+record); ``scripts/check_drc_ceiling_approval.py`` runs the three-stage gate
+enumerate -> detect -> validate. The pass-2 fail-loudly marshal
+(``CeilingMarshalError``) guards every ceiling/count value on BOTH paths —
+the kernel boundary in ``detect_ceiling_raise``/``_check_board`` AND the
+enumeration reads in ``find_ceiling_raises`` that ``validate_raise_evidence``
+inherits — so a non-int (e.g. float ``100.5``) never gets silently truncated
+into an invisible raise (the #575 fail-open class).
+
 Supports two backends:
   - ``rust`` (default): uses ``temper_drc_rs.run_drc()`` with the
     parsed-PCB-via-KiCad-parser path.
   - ``kicad-cli``: uses the KiCad CLI DRC via
-    ``temper_placer.validation.drc_runner.run_drc()``.
+    ``temper_placer.validation._drc_api.run_drc()``.
 
 When the Rust backend is selected but ``temper_drc_rs`` is not
 installed, the check fails with a clear error message.
@@ -21,6 +51,53 @@ import re
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
+
+_RS = None
+
+
+def _tdrc():
+    global _RS
+    if _RS is None:
+        import temper_drc_rs  # type: ignore[import-untyped]
+
+        _RS = temper_drc_rs
+    return _RS
+
+
+class CeilingMarshalError(ValueError):
+    """A ceiling/count value the #575 gate cannot compare safely.
+
+    The ratchet data model is int-only (``DrcCeilingEntry.error_ceiling``/
+    ``warning_ceiling`` are typed ``int``; ``drc_ceiling.json`` records
+    integer DRC counts measured by ``run_drc``). The pre-fix marshal coerced
+    every value with ``int()``, which silently truncated a float-valued
+    ceiling (``100.5`` -> ``100``): a raise ``100 -> 100.5`` became invisible
+    to ``temper_drc_rs.detect_ceiling_raise``, so the shim returned None and
+    the #575 approval gate failed OPEN. Any value that is not a genuine int
+    is a data-model violation and fails LOUDLY here instead -- a fail-closed
+    deviation from the oracle's raw compare, documented in
+    ``packages/temper-drc-rs/VERIFICATION.md``.
+    """
+
+
+def _marshal_ceiling_int(value: object, field: str, board_id: str) -> int:
+    """Coerce one ceiling/count value to int, failing loudly on anything that
+    is not a genuine int (bool excluded).
+
+    Raises:
+        CeilingMarshalError: if ``value`` is not an ``int`` (a float --
+            integral or fractional -- a string, None, ...). Naming the field
+            and value so the bad record is identifiable without digging into
+            a stack trace.
+    """
+    if isinstance(value, bool) or not isinstance(value, int):
+        raise CeilingMarshalError(
+            f"non-integer {field}={value!r} on board {board_id!r}: the #575 "
+            "ceiling gate requires integer-valued ceilings/counts (an int() "
+            "coercion could hide a raise by truncating it)"
+        )
+    return value
+
 
 _READ_CHUNK = 1 << 20  # 1 MiB
 _SHA256_HEX_RE = re.compile(r"[0-9a-f]{40}")
@@ -409,141 +486,82 @@ class DrcRatchet:
         # breakdown -- exactly the categories most worth seeing -- whenever
         # the aggregate itself was also exceeded. See
         # docs/evidence/2026-07-27-drc-truth-gate-discrepancy.md.
-        aggregate_failures: list[str] = []
-
-        error_delta = current_errors - entry.error_ceiling
-        if error_delta > 0:
-            aggregate_failures.append(
-                f"errors {current_errors} exceeds ceiling {entry.error_ceiling} (+{error_delta})"
+        #
+        # Wave 4 Phase 4: this comparison + message composition now runs in
+        # ``temper_drc_rs.ratchet_check`` (the backend above still supplies
+        # the measured counts; the kernel applies the ceiling comparisons and
+        # builds the exact messages bit-identically to the pre-migration
+        # oracle). ``None`` breakdowns stay None (the "backend cannot break
+        # this dimension down" sentinel, distinct from an all-clear ``{}``).
+        # The kernel call sits INSIDE a try/except so a missing
+        # ``temper_drc_rs`` produces the clean "DRC (...) failed" FAIL (the
+        # pre-migration graceful degradation) instead of an unhandled
+        # ImportError traceback. Every ceiling/count crossing the i64
+        # boundary is int-validated: a float-valued value (e.g. a ``100.5``
+        # ceiling in the JSON) fails loudly with ``CeilingMarshalError``
+        # rather than being silently truncated by the old ``int()`` coercion
+        # (the P1-1 fail-open class).
+        try:
+            ratchet_dict = _tdrc().ratchet_check(
+                board_id=board_id,
+                current_errors=_marshal_ceiling_int(
+                    current_errors, "current_errors", board_id
+                ),
+                current_warnings=_marshal_ceiling_int(
+                    current_warnings, "current_warnings", board_id
+                ),
+                error_ceiling=_marshal_ceiling_int(
+                    entry.error_ceiling, "error_ceiling", board_id
+                ),
+                warning_ceiling=_marshal_ceiling_int(
+                    entry.warning_ceiling, "warning_ceiling", board_id
+                ),
+                current_by_type=(
+                    list(current_by_type.items())
+                    if current_by_type is not None
+                    else None
+                ),
+                allowed_by_type=list(entry.violations_by_type.items()),
+                current_warnings_by_type=(
+                    list(current_warnings_by_type.items())
+                    if current_warnings_by_type is not None
+                    else None
+                ),
+                allowed_warnings_by_type=list(entry.warnings_by_type.items()),
+                backend=self.backend,
+                version_mismatch=version_mismatch,
+                running_version=running_kicad_cli_version,
+                expected_version=expected_kicad_cli_version,
             )
-
-        warning_delta = current_warnings - entry.warning_ceiling
-        if warning_delta > 0:
-            aggregate_failures.append(
-                f"warnings {current_warnings} exceeds ceiling {entry.warning_ceiling} (+{warning_delta})"
-            )
-
-        # Per-type ceilings. `violations_by_type` is an exhaustive record of the
-        # error categories this board is allowed to have, and how many of each.
-        # Anything absent from it has an implicit ceiling of zero, so a brand
-        # new violation category cannot arrive for free under the aggregate.
-        # This is what lets categories be driven to zero independently --
-        # notably `clearance`, where the aggregate ceiling is far too coarse to
-        # notice a HighVoltage net at 0.336mm against a 2.0mm requirement.
-        category_failures: list[DrcCategoryFailure] = []
-        if entry.violations_by_type and current_by_type is not None:
-            for rule, count in sorted(current_by_type.items()):
-                allowed = entry.violations_by_type.get(rule, 0)
-                if count > allowed:
-                    category_failures.append(
-                        DrcCategoryFailure(
-                            rule=rule,
-                            count=count,
-                            allowed=allowed,
-                            is_new=rule not in entry.violations_by_type,
-                            kind="error",
-                            source=self.backend,
-                        )
-                    )
-
-        # Per-type warning ceilings -- same semantics as errors above,
-        # mirrored exactly: ``warnings_by_type`` is an exhaustive record, a
-        # rule absent from it has an implicit ceiling of zero, and this only
-        # runs when the backend actually supplied a breakdown (``is not
-        # None``) so a backend that can't break warnings down never reads
-        # as "0 categories, therefore all clear".
-        if entry.warnings_by_type and current_warnings_by_type is not None:
-            for rule, count in sorted(current_warnings_by_type.items()):
-                allowed = entry.warnings_by_type.get(rule, 0)
-                if count > allowed:
-                    category_failures.append(
-                        DrcCategoryFailure(
-                            rule=rule,
-                            count=count,
-                            allowed=allowed,
-                            is_new=rule not in entry.warnings_by_type,
-                            kind="warning",
-                            source=self.backend,
-                        )
-                    )
-
-        version_note = (
-            f"  NOTE: kicad-cli version mismatch -- running {running_kicad_cli_version}, "
-            f"ceiling measured with {expected_kicad_cli_version} (numbers may not be "
-            "directly comparable; see drc_ceiling.json provenance.tool_versions)"
-            if version_mismatch
-            else None
-        )
-
-        if aggregate_failures or category_failures:
-            lines = [f"{board_id}: DRC FAIL"]
-            if version_note:
-                lines.append(version_note)
-            for failure in aggregate_failures:
-                lines.append(f"  aggregate {failure}")
-
-            def _render_category_block(label: str, failures: list[DrcCategoryFailure]) -> None:
-                if not failures:
-                    return
-                new_failures = [c for c in failures if c.is_new]
-                regressed_failures = [c for c in failures if not c.is_new]
-                n = len(failures)
-                # All failures in one block share a single run's backend, so
-                # the source is reported once per block rather than once per
-                # line -- see DrcCategoryFailure.source's docstring for why
-                # this must never be left implicit (creepage vs. track_width
-                # style engine ambiguity).
-                source = failures[0].source
-                lines.append(
-                    f"  per-type {label} (source: {source}): {n} categor"
-                    f"{'y' if n == 1 else 'ies'} over ceiling ({len(new_failures)} new, "
-                    f"{len(regressed_failures)} regressed):"
-                )
-                for c in new_failures + regressed_failures:
-                    tag = "NEW" if c.is_new else "   "
-                    lines.append(f"    [{tag}] {c.rule} {c.count} > {c.allowed} (+{c.delta})")
-
-            _render_category_block(
-                "errors", [c for c in category_failures if c.kind == "error"]
-            )
-            _render_category_block(
-                "warnings", [c for c in category_failures if c.kind == "warning"]
-            )
+        except Exception as e:
             return DrcRatchetResult(
                 passed=False,
                 board_id=board_id,
-                message="\n".join(lines),
+                message=f"DRC ({self.backend}) failed: {e}",
                 exit_code=1,
-                violation_deltas={c.rule: c.delta for c in category_failures},
-                category_failures=category_failures,
-                aggregate_error_delta=max(error_delta, 0),
-                aggregate_warning_delta=max(warning_delta, 0),
-                kicad_cli_version_running=running_kicad_cli_version,
-                kicad_cli_version_expected=expected_kicad_cli_version,
-                kicad_cli_version_mismatch=version_mismatch,
             )
-
-        slack = entry.error_ceiling - current_errors
-        slack_note = (
-            f" [{slack} error(s) of unratcheted slack -- lower error_ceiling to "
-            f"{current_errors} to lock this in]"
-            if slack > 0
-            else ""
-        )
-        pass_message = (
-            f"{board_id}: DRC {current_errors}/{entry.error_ceiling} errors, "
-            f"{current_warnings}/{entry.warning_ceiling} warnings within ceiling"
-            f"{slack_note}"
-        )
-        if version_note:
-            pass_message = f"{pass_message}\n{version_note.strip()}"
         return DrcRatchetResult(
-            passed=True,
+            passed=ratchet_dict["passed"],
             board_id=board_id,
-            message=pass_message,
-            kicad_cli_version_running=running_kicad_cli_version,
-            kicad_cli_version_expected=expected_kicad_cli_version,
-            kicad_cli_version_mismatch=version_mismatch,
+            message=ratchet_dict["message"],
+            exit_code=ratchet_dict["exit_code"],
+            violation_deltas=ratchet_dict["violation_deltas"],
+            category_failures=[
+                DrcCategoryFailure(
+                    rule=c["rule"],
+                    count=c["count"],
+                    allowed=c["allowed"],
+                    is_new=c["is_new"],
+                    kind=c["kind"],
+                    source=c["source"],
+                )
+                for c in ratchet_dict["category_failures"]
+            ],
+            aggregate_error_delta=ratchet_dict["aggregate_error_delta"],
+            aggregate_warning_delta=ratchet_dict["aggregate_warning_delta"],
+            kicad_cli_version_running=ratchet_dict["kicad_cli_version_running"],
+            kicad_cli_version_expected=ratchet_dict["kicad_cli_version_expected"],
+            kicad_cli_version_mismatch=ratchet_dict["kicad_cli_version_mismatch"],
         )
 
     def find_ceiling_raises(
@@ -566,12 +584,33 @@ class DrcRatchet:
         same ``Ceiling-Approval:`` trailer -- otherwise the per-type
         ceiling could be silently inflated in the JSON itself, sidestepping
         the runtime check entirely. This applies symmetrically to
-        ``violations_by_type`` and ``warnings_by_type``.
+        ``violations_by_type`` and ``warnings_by_type``: an earlier version
+        of this method checked only the warnings side, which meant a
+        per-type *error* ceiling (e.g. ``clearance``) could be raised in
+        the committed JSON with no trailer and this detector would not
+        notice, even though ``_check_board`` enforces that exact ceiling at
+        runtime.
 
-        This is the single enumeration of "what raised" -- approval
-        (``detect_ceiling_raise``) and measurement-evidence validation
-        (``validate_raise_evidence``) both consume it, so a raise can
-        never pass one check while being invisible to the other.
+        This is the single enumeration of "what raised" for R27's
+        measurement-evidence validation -- ``validate_raise_evidence``
+        consumes it, so a raise can never pass evidence validation while
+        being invisible to this enumeration. Approval detection
+        (``detect_ceiling_raise``) runs the SAME raise rules in the Rust
+        kernel ``temper_drc_rs.detect_ceiling_raise`` (a verbatim port of
+        the pre-migration raise detector, kept bit-identical by the
+        differential suite in test_drc_ratchet_rust_differential.py), so a
+        raise is visible to both checks across the Python/Rust boundary --
+        the R27 "never invisible to one check" property holds.
+
+        Pass 2 (P1-1): every ceiling value is int-VALIDATED here, the same
+        fail-loudly ``CeilingMarshalError`` boundary ``detect_ceiling_raise``
+        applies before the kernel. A float-valued ceiling in EITHER record
+        is a data-model violation and fails loudly instead of being compared
+        raw (``100.5 > 100`` detects a raise only in the oracle; the int-only
+        kernels cannot represent it, and the old ``int()`` coercion silently
+        truncated it -- the #575 fail-open class). R27's
+        ``validate_raise_evidence`` inherits this marshal through its use of
+        this enumeration.
         """
         old_boards = {b["board_id"]: b for b in old_ceiling.get("boards", [])}
         new_boards = {b["board_id"]: b for b in new_ceiling.get("boards", [])}
@@ -582,10 +621,18 @@ class DrcRatchet:
             if old_entry is None:
                 continue
 
-            old_errors = old_entry.get("error_ceiling", 0)
-            new_errors = new_entry.get("error_ceiling", 0)
-            old_warnings = old_entry.get("warning_ceiling", 0)
-            new_warnings = new_entry.get("warning_ceiling", 0)
+            old_errors = _marshal_ceiling_int(
+                old_entry.get("error_ceiling", 0), "error_ceiling", board_id
+            )
+            new_errors = _marshal_ceiling_int(
+                new_entry.get("error_ceiling", 0), "error_ceiling", board_id
+            )
+            old_warnings = _marshal_ceiling_int(
+                old_entry.get("warning_ceiling", 0), "warning_ceiling", board_id
+            )
+            new_warnings = _marshal_ceiling_int(
+                new_entry.get("warning_ceiling", 0), "warning_ceiling", board_id
+            )
 
             reasons: list[str] = []
             if new_errors > old_errors:
@@ -596,16 +643,28 @@ class DrcRatchet:
             old_violations_by_type = old_entry.get("violations_by_type") or {}
             new_violations_by_type = new_entry.get("violations_by_type") or {}
             for rule in sorted(new_violations_by_type):
-                new_count = new_violations_by_type[rule]
-                old_count = old_violations_by_type.get(rule, 0)
+                new_count = _marshal_ceiling_int(
+                    new_violations_by_type[rule], f"violations_by_type[{rule}]", board_id
+                )
+                old_count = _marshal_ceiling_int(
+                    old_violations_by_type.get(rule, 0),
+                    f"violations_by_type[{rule}]",
+                    board_id,
+                )
                 if new_count > old_count:
                     reasons.append(f"violations_by_type[{rule}] {old_count} -> {new_count}")
 
             old_warnings_by_type = old_entry.get("warnings_by_type") or {}
             new_warnings_by_type = new_entry.get("warnings_by_type") or {}
             for rule in sorted(new_warnings_by_type):
-                new_count = new_warnings_by_type[rule]
-                old_count = old_warnings_by_type.get(rule, 0)
+                new_count = _marshal_ceiling_int(
+                    new_warnings_by_type[rule], f"warnings_by_type[{rule}]", board_id
+                )
+                old_count = _marshal_ceiling_int(
+                    old_warnings_by_type.get(rule, 0),
+                    f"warnings_by_type[{rule}]",
+                    board_id,
+                )
                 if new_count > old_count:
                     reasons.append(f"warnings_by_type[{rule}] {old_count} -> {new_count}")
 
@@ -642,6 +701,12 @@ class DrcRatchet:
         dimension, so an unapproved raise fails with the *specific* reason
         (the anti-vacuity discipline: a raise cannot fail for a generic
         reason that hides which check actually bit).
+
+        The ceiling values themselves are read through
+        ``find_ceiling_raises``, which int-VALIDATES them with the same
+        fail-loudly ``CeilingMarshalError`` marshal ``detect_ceiling_raise``
+        applies -- a non-int ceiling in the raise comparison fails loudly
+        here too, never silently truncated.
         """
         problems: list[str] = []
 
@@ -808,16 +873,76 @@ class DrcRatchet:
         the cause authority. Whether an approved raise actually carries an
         attributed cause and a measured sample is the measurement-evidence
         contract, validated separately by ``validate_raise_evidence``.
-        """
-        for board_id, reasons in self.find_ceiling_raises(old_ceiling, new_ceiling):
-            if "Ceiling-Approval:" not in commit_message:
-                return DrcRatchetResult(
-                    passed=False,
-                    board_id=board_id,
-                    message=(
-                        f"Ceiling increase ({'; '.join(reasons)}) requires explicit approval."
-                    ),
-                    exit_code=2,
-                )
 
-        return None
+        Wave 4 Phase 4: the raise-detection compute (the enumeration above
+        plus the substring check) now runs in ``temper_drc_rs.detect_ceiling_raise``
+        -- a verbatim port of the pre-migration raise detector, whose
+        constants are unchanged -- so the #575 gate's behavior is preserved.
+        R27's ``find_ceiling_raises`` implements the same raise rules as the
+        Python contract layer (consumed by ``validate_raise_evidence``); the
+        differential suite in test_drc_ratchet_rust_differential.py keeps the
+        two bit-identical.
+        """
+
+        def _marshal(ceiling: dict) -> list[tuple]:
+            # Pass 2 (P1-1): every value is int-VALIDATED at this marshal
+            # boundary, not merely int()-coerced. The old coercion silently
+            # truncated a float-valued ceiling (``100.5`` -> ``100``), making
+            # a raise ``100 -> 100.5`` invisible to the kernel and failing
+            # the #575 approval gate OPEN. ``CeilingMarshalError`` fires
+            # before the kernel instead.
+            boards: list[tuple] = []
+            for board in ceiling.get("boards", []):
+                board_id = board["board_id"]
+                boards.append(
+                    (
+                        board_id,
+                        _marshal_ceiling_int(
+                            board.get("error_ceiling", 0), "error_ceiling", board_id
+                        ),
+                        _marshal_ceiling_int(
+                            board.get("warning_ceiling", 0), "warning_ceiling", board_id
+                        ),
+                        [
+                            (
+                                rule,
+                                _marshal_ceiling_int(
+                                    count,
+                                    f"violations_by_type[{rule}]",
+                                    board_id,
+                                ),
+                            )
+                            for rule, count in (
+                                board.get("violations_by_type") or {}
+                            ).items()
+                        ],
+                        [
+                            (
+                                rule,
+                                _marshal_ceiling_int(
+                                    count,
+                                    f"warnings_by_type[{rule}]",
+                                    board_id,
+                                ),
+                            )
+                            for rule, count in (
+                                board.get("warnings_by_type") or {}
+                            ).items()
+                        ],
+                    )
+                )
+            return boards
+
+        result = _tdrc().detect_ceiling_raise(
+            _marshal(old_ceiling),
+            _marshal(new_ceiling),
+            commit_message,
+        )
+        if result is None:
+            return None
+        return DrcRatchetResult(
+            passed=result["passed"],
+            board_id=result["board_id"],
+            message=result["message"],
+            exit_code=result["exit_code"],
+        )

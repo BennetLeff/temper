@@ -44,6 +44,20 @@ jobs:
       - name: Build electronics netlist
         if: steps.cache-netlist.outputs.cache-hit != 'true'
         run: make netlist
+      # ci_closure_test.py imports temper_drc_rs (the closure kernels +
+      # run_drc). The shared venv cache is keyed only on uv.lock and is
+      # populated by python-tests.yml's sync, which excludes temper-drc-rs
+      # (--no-install-package) -- so a restored cache can carry a venv
+      # without it, and ci_closure_test.py crashes with `ImportError: No
+      # module named 'temper_drc_rs'` instead of a clean failure. Build the
+      # extension explicitly (after the sync, so uv cannot evict it). Mirrors
+      # python-tests.yml's per-crate maturin step.
+      - name: Build and install temper-drc-rs
+        run: |
+          uv pip install maturin
+          uv run maturin develop --release --manifest-path packages/temper-drc-rs/Cargo.toml
+      - name: Verify temper-drc-rs loads
+        run: uv run python3 -c "import temper_drc_rs; print('temper_drc_rs loaded OK')"
       - name: Run closure test
         continue-on-error: true  # TODO: temper-NNN -- closure test best-effort; hard-fail after 2026-09-01
         run: >

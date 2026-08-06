@@ -1,35 +1,14 @@
-"""Closure-measurement runner for the U5b SM1/SM2/SM6 promotion gate.
+"""Pinned Python oracle for ``temper_placer/regression/measure_closure.py`` (Wave 4, Phase 4).
 
-Wraps :class:`temper_placer.regression.closure_test.ClosureTest` with
-the conventions the promotion gate expects:
-
-  - A single function ``measure_closure(pcb_path, baseline)`` that
-    returns a dict of measurements (router completion %, DRC clearance
-    pass %, wall-clock seconds, etc.).  This is the function the
-    promotion gate calls.
-
-  - A ``python -m temper_placer.regression.measure_closure`` CLI mode
-    that takes a PCB path and emits JSON on stdout.  The promotion
-    gate (``tests/closure/test_router_completion.py``) shells out to
-    this CLI and parses the JSON, so the gate runs against a real
-    pipeline result rather than a structural stub.
-
-The runner is intentionally thin — all real work lives in
-``ClosureTest.run()``.  When Benders, Router V6, or KiCad DRC are
-unavailable, ``ClosureTest`` reports a zero-results failure; the
-runner propagates that and exits non-zero so the promotion gate
-fails loudly rather than silently passing.
-
-Wave 4 Phase 4 (regression slice): the one portable compute — the
-``drc_clearance_pass_pct`` three-branch formula — moved to
-``temper_design_bundle_python.compute_drc_clearance_pass_pct``
-(packages/temper-design-bundle/src/measure_closure.rs). The rest of this
-module — ClosureTest construction, the payload dict assembly (incl. the
-``closure_summary`` string and the ``errors!r`` in the zero-results raise),
-the JSON CLI — is marshalling over the kept ``ClosureResult`` and stays
-here. Design boundaries are argued in
-``packages/temper-design-bundle/VERIFICATION.md``.
+VERBATIM copy of the pre-migration implementation of
+``temper_placer/regression/measure_closure.py`` as of commit ``0a29f15e3`` (origin/main,
+the Wave-4 Phase-4 regression-slice base). Do NOT edit the semantics:
+this is the oracle the Rust kernels in the home crates (temper-drc-rs /
+temper-design-bundle) must reproduce bit-identically. Any edit here
+silently weakens the differential proof; if the module's contract changes,
+re-pin the oracle from the new base first.
 """
+
 
 from __future__ import annotations
 
@@ -38,17 +17,6 @@ import json
 import sys
 from pathlib import Path
 from typing import Any
-
-_TDB = None
-
-
-def _tdb():
-    global _TDB
-    if _TDB is None:
-        import temper_design_bundle_python  # type: ignore[import-untyped]
-
-        _TDB = temper_design_bundle_python
-    return _TDB
 
 
 def measure_closure(
@@ -100,12 +68,14 @@ def measure_closure(
     # (kicad-cli unavailable) we default to 100% — this is the
     # graceful-degradation behavior, and the SM2 gate's "≥ baseline"
     # check then enforces the floor.
-    # Wave 4 Phase 4: the drc-clearance-pass formula runs in
-    # ``temper_design_bundle_python.compute_drc_clearance_pass_pct``
-    # (bit-identical three-branch rule, pinned by the differential).
-    drc_clearance_pass_pct = _tdb().compute_drc_clearance_pass_pct(
-        result.stages_exercised, int(result.drc_errors)
-    )
+    if result.stages_exercised >= 4 and result.drc_errors == 0:
+        drc_clearance_pass_pct = 100.0
+    elif result.stages_exercised >= 4:
+        # Defensive: avoid div-by-zero if some check path produces
+        # an unexpected negative; clamp to [0, 100].
+        drc_clearance_pass_pct = max(0.0, 100.0 - 10.0 * result.drc_errors)
+    else:
+        drc_clearance_pass_pct = 0.0
 
     payload: dict[str, Any] = {
         "router_completion_pct": float(result.router_completion_pct),

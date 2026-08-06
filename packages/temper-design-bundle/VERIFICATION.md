@@ -3402,6 +3402,213 @@ measurement or by construction:
   (the `validation.rs` module is `cfg(feature = "python")`, exercised via
   the differentials; the crate's own test suite covers the non-python
   surface).
+---
+
+# Regression-slice kernels — Verification (Wave 4 Phase 4)
+
+The regression slice ported the portable compute of seven
+`temper_placer/regression/` modules. Four land in this crate
+(cp_sat_comparison, measure_closure, fingerprint, schema_validator — compute
+plus the netlist/board contracts that live here); three land in
+`temper-drc-rs` (drc_ratchet, closure_test, physics_oracle). The
+pre-migration modules are pinned verbatim as the differential oracles
+(`packages/temper-placer/tests/regression/_*_py_oracle.py`, commit
+`0a29f15e3`). TDD-RED commit `de1f6ac9d`; GREEN `dc603230b`. The six
+harness modules (runner, reporter, corpus_runner, metrics_recorder, cli,
+manifest) are JUSTIFIED-KEEP with a D6 harness-independence blocker
+(recorded in `docs/wave4-verdicts.yaml`); they were not modified beyond
+what the shims require.
+
+## cp_sat_comparison
+
+### Induction applicability
+Not applicable — the per-metric loop is a fixed-size-independent
+transcription with a lexicographic sort; no recursion. **Structural proof**
+recorded.
+
+### Structural proof
+**Claim.** `compare_metric_dicts` reproduces the pinned oracle's per-metric
+decisions, detail strings (`:.2f`/`:3f`/`.4f`), summary line and failing-
+metric list repr bit-for-bit.
+
+*Proof by structural cases:*
+1. **Metric selection.** The compared metrics are the SORTED intersection of
+   the two score-dict key sets — deterministic, so no set/dict hash-order
+   dependence survives. A non-string key present in BOTH dicts is in the
+   oracle's intersection; the oracle's `sorted(metrics)` then raises
+   `TypeError` on the mixed-type key set (the realistic shape — a stray
+   non-string key alongside string metric names), and the kernel raises the
+   same class instead of silently dropping the metric (pinned by
+   `test_differential_non_string_key_in_both_raises_typeerror`). A non-string
+   key on ONE side only is not in the intersection and is ignored by both
+   arms.
+2. **Value conversion.** Each leaf goes through Python `builtins.float`
+   (the oracle's `float(...)`) — int/float/str-number/bool leaves convert
+   exactly; a non-numeric leaf raises the same failure family as the
+   oracle. The `str-number`/`bool` leaf classes are pinned explicitly
+   (pass 2: `test_differential_str_number_and_bool_leaves`) so a mutation
+   replacing `py_builtin_float` with `extract::<f64>()` fails on the
+   `'1.5'` leaf (Python `float('1.5')` parses; `PyFloat_AsDouble` does
+   not).
+3. **Per-metric rules.** Higher-is-better passes iff `cand >= base - 1e-9`;
+   the wirelength metric passes iff `cand <= base * 1.05` (ratio
+   `cand / base`, or `inf` with `cand <= 0.0` when `base == 0`).
+4. **Formatting.** `:.Nf` fixed-point formatting is measured CPython-parity,
+   including Python's NaN spelling — `f"{nan:.4f}"` is `"nan"`, not Rust's
+   `"NaN"` (`py_fixed`, pinned by `test_differential_nan_and_inf_leaves`);
+   `bool` renders `True`/`False` (Python); the failing list renders as
+   `['a', 'b']` (single-quoted names joined by `, `). A metric name carrying
+   a quote/backslash is a documented narrowing (Python repr would escape it).
+5. **Empty intersection.** `passed=True`, no comparisons, summary
+   `"Parity comparison: 0/0 metrics passed"` — the oracle's vacuous-true
+   semantics.
+
+### R1 status
+- R1a: `test_cp_sat_comparison_rust_differential.py` (400 randomized + rule
+  boundary cases + type-carrying leaves). R1b: not registered (comparison
+  infrastructure; no speedup claim). R1c: 6 non-vacuous properties. R1d: 4
+  MRs. R1e: structural proof above. R1f: RED `de1f6ac9d`, GREEN
+  `dc603230b`. R1g: no `unwrap`/`expect` outside tests; pyo3 `catch_unwind`
+  default. R1h: **not applicable** (no physics-gated quantity).
+
+## measure_closure
+
+### Induction applicability
+N/A — a single three-branch formula. **Structural proof** recorded.
+
+### Structural proof
+**Claim.** `compute_drc_clearance_pass_pct` reproduces the oracle's three-
+branch rule exactly: `100.0` when `stages >= 4 and errors == 0`, else
+`max(0.0, 100.0 - 10.0*errors)` when `stages >= 4`, else `0.0`. The
+`10.0 * errors` int×float promotion and the 0.0 clamp match the oracle; a
+negative error count yields >100 in BOTH arms (the oracle has no upper
+clamp — the oracle's own behavior, pinned, not "fixed"). The rest of
+`measure_closure.py` is a thin harness (payload assembly, zero-results
+raise, JSON CLI) over the kept `ClosureResult` and stays Python.
+
+### R1 status
+- R1a: `test_measure_closure_rust_differential.py` — 400 randomized kernel
+  cases + branch boundaries + end-to-end payload differential (both arms
+  drive the same stubbed `ClosureTest.run`, comparing the full payload dict
+  bit-exactly, including the zero-results `RuntimeError` message).
+- R1b: not registered (one formula behind a marshalling boundary; no
+  speedup claim). R1c: 6 non-vacuous properties. R1d: 3 MRs. R1e: structural
+  proof above. R1f: RED `de1f6ac9d`, GREEN `dc603230b`. R1g: no
+  `unwrap`/`expect` outside tests; pyo3 `catch_unwind` default. R1h: **not
+  applicable**.
+
+## fingerprint
+
+### Induction applicability
+Not applicable — SHA-256 is a fixed transform; the update sequence is a
+linear fold over marshalled parts. **Structural proof** recorded.
+
+### Structural proof
+**Claim.** `input_fingerprint`, `source_fingerprint` and `should_skip`
+reproduce the pinned oracle bit-for-bit.
+
+*Proof by structural cases:*
+1. **Input fingerprint.** The kernel applies the oracle's exact update
+   sequence: each existing file's bytes, each missing file's
+   `str(path).encode()`, then `seed:{seed}` and `epochs:{epochs}`. SHA-256
+   is standardized — `hashlib.sha256` and the crate's `sha2` digest agree
+   by construction (pinned anyway). The parts arrive in the oracle's
+   `sorted([...])` path order, marshalled by the delegation module (which
+   keeps the file I/O). The M2/M6 mutants (missing-path → empty, seed
+   dropped) and M1 (update order swapped) are caught by the differential.
+2. **Source fingerprint.** `entries.join("\n")` + SHA-256 reproduces the
+   oracle's `"\n".join(file_hashes)` + sha256. Rust's `String` join with an
+   ASCII separator is byte-identical.
+3. **Skip decision.** `should_skip` returns False for `None` OR an empty
+   board-cache entry (the oracle's `if not board_cache`), and False when
+   either fingerprint key is absent (`None` never equals a hash string);
+   True only when both match. A non-string cached fingerprint value also
+   yields False — the oracle's `cached == fp` returns False for a non-string
+   (never equal to a str), and the kernel's failed String extraction is
+   treated as a non-match rather than raised (pinned by
+   `test_differential_should_skip_non_string_cached_value`). A non-dict
+   board entry (a corrupt cache: a list/string/number in place of the board
+   record) yields False too — the kernel boundary is `Option<&PyAny>` and a
+   failed `PyDict` cast is a graceful no-skip, never a raise, so a corrupt
+   cache cannot abort the corpus run (pass 2, P2; pinned by
+   `test_differential_should_skip_null_and_non_dict_entry`). **Documented
+   deviation, SAFE direction:** the oracle returns False only for FALSY
+   non-dicts (its `if not board_cache`) and raises `AttributeError`
+   (`board_cache.get` on a truthy non-dict); the kernel is graceful across
+   BOTH classes (pinned by
+   `test_should_skip_truthy_non_dict_entry_graceful`). The delegation
+   module performs the `cache["boards"][board_id]` lookup.
+
+### R1 status
+- R1a: `test_fingerprint_rust_differential.py` (200 randomized kernel
+  cases + end-to-end tmp-tree comparisons + skip-decision differential).
+- R1b: not registered (cache fingerprints run once per invocation; I/O-
+  bound; no speedup claim). R1c: 6 non-vacuous properties. R1d: 4 MRs.
+- R1e: structural proof above. R1f: RED `de1f6ac9d`, GREEN `dc603230b`.
+- R1g: no `unwrap`/`expect` outside tests; pyo3 `catch_unwind` default.
+- R1h: **not applicable**.
+
+## schema_validator
+
+### Induction applicability
+Not applicable — the two-pass validation is a linear scan with no recursion
+or size-parameterized claim. **Structural proof** recorded.
+
+### Structural proof
+**Claim.** `validate_schema` reproduces the oracle's two-pass, first-
+violation decision exactly, and the delegation module's message formatting
+matches the oracle's messages byte-for-byte.
+
+*Proof by structural cases:*
+1. **Pass 1 (unknown-field sweep).** Every metric field must be declared;
+   the FIRST unknown field (in metric insertion order) fires before any
+   range check — even when an earlier declared field is out of range (the
+   oracle's structure, pinned by M1 and the first-violation MR).
+2. **Pass 2 (range checks).** Per field, in insertion order: `value < min`
+   → below_min, then `value > max` → above_max, then
+   `!zero_is_valid && value == 0` → zero_invalid. Min/max are optional
+   (None = unconstrained); `zero_is_valid` defaults True (applied while
+   marshalling, matching the oracle's `constraints.get("zero_is_valid",
+   True)`). `value == 0.0` matches Python's `value == 0` for the float
+   values this schema validates.
+3. **Message type-carrying.** The kernel returns `(field, reason_code)`;
+   the delegation module formats the message with Python `str()` on the
+   ORIGINAL dict values — `str(42)` vs `str(42.0)` differ, so int-vs-float
+   leaves are preserved (pinned by `test_differential_int_vs_float_message_leaves`).
+   Non-numeric metric values raise `TypeError` from the kernel's `f64`
+   extraction, matching the oracle's `value < min` TypeError (message text
+   may differ — a documented narrowing on pathological inputs).
+4. **YAML loading and schema-shape checks** stay in `__init__` (I/O +
+   marshalling).
+
+### R1 status
+- R1a: `test_schema_validator_rust_differential.py` (400 randomized
+  oracle-vs-shim comparisons on generated schemas/metrics + message
+  exactness + kernel-direct cases). R1b: not registered (validation happens
+  once per metric write; no speedup claim). R1c: 7 non-vacuous properties.
+- R1d: 4 MRs. R1e: structural proof above. R1f: RED `de1f6ac9d`, GREEN
+  `dc603230b`. R1g: no `unwrap`/`expect` outside tests; pyo3 `catch_unwind`
+  default. R1h: **not applicable**.
+
+## Mutation campaign
+
+See `docs/evidence/2026-08-05-wave4-phase4-regression-mutation-sweep.md`
+for the full per-mutant record: **45 mutants across all seven kernels, every
+one caught by the differentials** (no surviving mutants, no infra failures
+counted as kills, pristine rebuild at the end).
+
+**Scope disclosure (pass 2): the sweep is kernel-only.** It mutated only the
+Rust kernels; the Python-side shim marshalling layer was NOT mutant-tested.
+The pass-2 review's P1-1 (the drc_ratchet `int()` marshal fail-open) is the
+concrete proof of why that scope matters — a kernel-only sweep cannot see a
+fail-open in the marshalling boundary. The `should_skip` null/non-dict
+entry class closed in pass 2 (above) is the design-bundle-side example.
+The cp_sat `str-number`/`bool` leaf pin and the drc_ratchet exact-separator
+pin added in pass 2 close the two unguarded kernel boundaries the sweep's
+mutant set did not cover.
+  surface).
+
+  surface).
 
 ---
 
