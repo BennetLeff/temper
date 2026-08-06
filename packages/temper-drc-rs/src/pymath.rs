@@ -55,12 +55,19 @@ type BinaryFn = unsafe extern "C" fn(f64, f64) -> f64;
 /// `f64::*` fallback, and no test notices — the fallback is a *plausible*
 /// answer, just not the host interpreter's. `host_libm_symbols_actually_resolve`
 /// is the assertion that closes that hole.
-#[cfg(any(target_os = "macos", target_os = "ios", target_vendor = "apple"))]
+#[cfg(all(
+    not(target_arch = "wasm32"),
+    any(target_os = "macos", target_os = "ios", target_vendor = "apple")
+))]
 const RTLD_DEFAULT: *const u8 = usize::MAX.wrapping_sub(1) as *const u8; // (void *) -2
 
-#[cfg(not(any(target_os = "macos", target_os = "ios", target_vendor = "apple")))]
+#[cfg(all(
+    not(target_arch = "wasm32"),
+    not(any(target_os = "macos", target_os = "ios", target_vendor = "apple"))
+))]
 const RTLD_DEFAULT: *const u8 = core::ptr::null();
 
+#[cfg(not(target_arch = "wasm32"))]
 fn dlsym_ptr(symbol: &CStr) -> Option<*mut u8> {
     unsafe extern "C" {
         fn dlsym(handle: *const u8, symbol: *const u8) -> *mut u8;
@@ -70,6 +77,28 @@ fn dlsym_ptr(symbol: &CStr) -> Option<*mut u8> {
     // handle. A miss returns null, which is checked here.
     let p = unsafe { dlsym(RTLD_DEFAULT, symbol.as_ptr().cast::<u8>()) };
     if p.is_null() { None } else { Some(p) }
+}
+
+/// `wasm32` has no dynamic loader, so every lookup misses and the
+/// statically-bound `f64::*` fallbacks below are used instead.
+///
+/// **This is a `cfg`, not a stub for convenience.** Declaring `dlsym` on
+/// `wasm32` emits an `env.dlsym` *import* into the module, and a module with a
+/// non-empty import list cannot be instantiated by a bare isolate — the host
+/// must supply JS glue for it. That is the exact failure the Phase 0 plan's
+/// rung-2/rung-3 distinction predicted, and it is invisible to `cargo check`
+/// and even to `cargo build`: it only appears when something instantiates the
+/// module.
+///
+/// The semantics are right, not merely expedient. The indirection exists to
+/// track *the host CPython interpreter's* libm, and in a Worker there is no
+/// interpreter to track — the module's own compiled-in libm is the only
+/// implementation present. The parent plan already anticipates the
+/// consequence: WASM and native builds may differ in the last ULP, which R15
+/// makes tolerable by keeping the tier advisory.
+#[cfg(target_arch = "wasm32")]
+fn dlsym_ptr(_symbol: &CStr) -> Option<*mut u8> {
+    None
 }
 
 unsafe extern "C" fn fallback_cos(x: f64) -> f64 {

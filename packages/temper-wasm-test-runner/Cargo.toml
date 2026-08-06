@@ -21,6 +21,13 @@ opt-level = "z"
 lto = true
 codegen-units = 1
 strip = true
+# Explicit, because the whole failure protocol depends on it: a panicking test
+# must reach the host as a WebAssembly trap. `wasm32-unknown-unknown` has no
+# unwinder on stable, so `abort` is what the default would degrade to anyway --
+# naming it keeps the runner's docs true if that default ever changes, and
+# drops the landing pads from the module. The panic hook still runs first, so
+# the assertion text is captured before the trap.
+panic = "abort"
 
 [lints.clippy]
 unwrap_used = "deny"

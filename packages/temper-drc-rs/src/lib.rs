@@ -27,6 +27,8 @@ pub mod types;
 pub mod validation;
 #[cfg(feature = "python")]
 pub mod violation_report;
+#[cfg(feature = "wasm-test-registry")]
+pub mod wasm_test_registry;
 
 #[cfg(feature = "python")]
 use pyo3::exceptions::PyValueError;
