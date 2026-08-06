@@ -34,6 +34,7 @@
 //     (`parse_footprint_courtyard_str`) is pure and wasm32-exported.
 
 pub mod config_binding;
+pub mod dsn_exporter;
 pub mod dsn_types;
 pub mod explain;
 pub mod export_types;
@@ -42,6 +43,12 @@ pub mod footprint_library;
 pub mod footprint_spec;
 pub mod golden_serializers;
 pub mod isolation;
+// Wave-4 Phase 2: the placer's core/ CONTRACT layer (Rect, PinInfo,
+// PlacementViolation, FabPreset + the pure kernels of units,
+// net_classification, manufacturing, placement_drc and the netlist
+// adjacency builder). See placer_core/mod.rs for what is deliberately
+// not here and why.
+pub mod placer_core;
 pub mod provenance;
 pub mod pyfmt;
 pub mod reference_aliases;
@@ -81,6 +88,7 @@ mod pymodule_def {
         m.add_class::<crate::export_types::PyExportResult>()?;
         m.add_class::<crate::footprint::PyFootprintBounds>()?;
         m.add_class::<crate::dsn_types::DSNExpression>()?;
+        m.add_class::<crate::dsn_exporter::PyDsnExporterCore>()?;
         m.add_class::<crate::dsn_types::PyDsnRect>()?;
         m.add_class::<crate::dsn_types::PyDsnCircle>()?;
         m.add_class::<crate::dsn_types::PyDsnPath>()?;
@@ -136,6 +144,9 @@ mod pymodule_def {
             crate::config_binding::verify_config_matches_netlist,
             m
         )?)?;
+        // Wave-4 Phase 2 contract layer.
+        crate::placer_core::pybridge::register(m)?;
+
         // Wave 4 Phase 5 — report surface (report.rs).
         m.add_function(wrap_pyfunction!(crate::report::report_format_text, m)?)?;
         m.add_function(wrap_pyfunction!(crate::report::report_format_json_data, m)?)?;

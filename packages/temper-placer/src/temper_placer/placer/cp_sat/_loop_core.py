@@ -80,6 +80,11 @@ class _LoopCoreMixin:
             solver_kwargs["reference_aliases"] = self._reference_aliases
         if getattr(self, "_loop_aliases", None):
             solver_kwargs["loop_aliases"] = self._loop_aliases
+        if getattr(self, "_validator_input", None):
+            # Issue #523 gap 2 / #617: the REQ-SAFE-01 validator post-solve
+            # audit (set by PlaceRouteLoop.run(validator_input=...)). Absent
+            # (the default) keeps the solve byte-identical to pre-wiring.
+            solver_kwargs["validator_input"] = self._validator_input
         return solver(**solver_kwargs)
 
     def run(
@@ -96,6 +101,7 @@ class _LoopCoreMixin:
         all_gates: bool = False,
         routed_pcb_path: Path | None = None,
         source_pcb_path: Path | None = None,
+        validator_input: dict | None = None,
     ) -> LoopResult:
         """Run the full place-route loop.
 
@@ -117,6 +123,11 @@ class _LoopCoreMixin:
             source_pcb_path: Authoritative KiCad source board. When supplied,
                 routing applies CP-SAT coordinates to this board rather than
                 manufacturing a synthetic footprint/pad approximation.
+            validator_input: Optional ``{"placement": ..., "voltage_domains":
+                ...}`` forwarded into every ``solve_placement`` round so the
+                REQ-SAFE-01 validator post-solve audit (issue #523 gap 2)
+                runs on each feasible solved placement. ``None`` (the
+                default) keeps every round byte-identical to pre-wiring.
 
         Returns:
             LoopResult with success status, placement, and routing.
@@ -131,6 +142,7 @@ class _LoopCoreMixin:
         self._loop_components = loop_components
         self._reference_aliases = reference_aliases
         self._loop_aliases = loop_aliases
+        self._validator_input = validator_input
         self._netclass_rules = load_netclass_rules()
         if self._netclass_rules is not None:
             self.classifier.design_rules = self._netclass_rules.design_rules

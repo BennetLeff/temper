@@ -38,6 +38,8 @@ from __future__ import annotations
 
 import re
 
+import temper_io_types as _rs
+
 # Net-name word-boundary patterns, delimited by "_" or start/end of the
 # (uppercased) name. A net is "ground" if any of these matches, "power"
 # if any power pattern matches, "hv" if any HV pattern matches. The
@@ -79,24 +81,35 @@ def _matches_any(name: str, patterns: frozenset[str]) -> bool:
     return False
 
 
+# The ten predicates below delegate to
+# `temper_io_types` (Wave-4 Phase 2). The pattern sets above stay here as
+# the declared, importable constants -- Rust holds its own copy and a
+# gate test asserts the two never drift.
+#
+# `_matches_any` above is kept, unchanged and still used by nothing in
+# production, as the in-repo statement of the matching rule the Rust port
+# reproduces; the R1a differential runs it against the Rust for every
+# name it generates.
+
+
 def is_ground_net(name: str) -> bool:
     """Return True if `name` matches a ground-net pattern."""
-    return _matches_any(name, GROUND_NET_PATTERNS)
+    return _rs.is_ground_net(name)
 
 
 def is_power_net(name: str) -> bool:
     """Return True if `name` matches a power-net pattern."""
-    return _matches_any(name, POWER_NET_PATTERNS)
+    return _rs.is_power_net(name)
 
 
 def is_hv_net(name: str) -> bool:
     """Return True if `name` matches a high-voltage-net pattern."""
-    return _matches_any(name, HV_NET_PATTERNS)
+    return _rs.is_hv_net(name)
 
 
 def is_signal_net(name: str) -> bool:
     """Return True if `name` is none of ground, power, or HV."""
-    return not (is_ground_net(name) or is_power_net(name) or is_hv_net(name))
+    return _rs.is_signal_net(name)
 
 
 def classify_net_type(name: str) -> str:
@@ -105,26 +118,20 @@ def classify_net_type(name: str) -> str:
     Precedence: ground > power > hv > signal. Matches
     `NetClassSpec.classify_net` in `core/net_types.py`.
     """
-    if is_ground_net(name):
-        return "ground"
-    if is_power_net(name):
-        return "power"
-    if is_hv_net(name):
-        return "hv"
-    return "signal"
+    return _rs.classify_net_type(name)
 
 
 def is_ground_pin(pin_name: str) -> bool:
-    return _matches_any(pin_name, GROUND_PIN_PATTERNS)
+    return _rs.is_ground_pin(pin_name)
 
 
 def is_power_pin(pin_name: str) -> bool:
-    return _matches_any(pin_name, POWER_PIN_PATTERNS)
+    return _rs.is_power_pin(pin_name)
 
 
 def is_hv_pin(pin_name: str) -> bool:
-    return _matches_any(pin_name, HV_PIN_PATTERNS)
+    return _rs.is_hv_pin(pin_name)
 
 
 def is_clock_pin(pin_name: str) -> bool:
-    return _matches_any(pin_name, CLOCK_PIN_PATTERNS)
+    return _rs.is_clock_pin(pin_name)

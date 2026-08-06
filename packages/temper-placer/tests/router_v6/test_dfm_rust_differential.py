@@ -1073,7 +1073,13 @@ def test_trap_degrees_is_a_single_multiply_by_the_constant():
 
 
 # ===========================================================================
-# Defects found while pinning -- reported, NOT fixed (a fix breaks the pin)
+# Defects found while pinning
+#
+# D1 is still open: reported, NOT fixed (a fix breaks the pin).
+# D2 was REPAIRED by #760 (aebaecd99); its pin below is inverted -- it now
+# asserts the guard *is* reachable, so a regression to the old predicate is
+# caught rather than blessed.  The inversion is deliberate: deleting the test
+# would silently remove the only structural check on that guard.
 # ===========================================================================
 
 
@@ -1107,24 +1113,82 @@ def test_defect_d1_frozenset_iteration_order_is_not_deterministic():
     assert len({frozenset(eval(o)) for o in orders}) == 1  # noqa: S307
 
 
-def test_defect_d2_negative_angle_threshold_guard_is_unreachable():
-    """D2: ``acid_trap_detection``'s negative-threshold warning never fires.
+def _negative_threshold_guard_predicate() -> str:
+    """Source text of ``detect_acid_traps``'s negative-threshold guard test.
 
-    The shipped guard is
-    ``if not math.isfinite(t) and t < 0:`` with a message reading "is negative
-    -- all angles are >= 0 degrees".  The ``not isfinite`` conjunct means only
-    ``-inf`` reaches it: a plain ``-5.0`` is finite, falls through, and yields
-    an empty report with no warning at all.  Reported, not fixed.
+    Extracted with ``ast`` rather than by importing, for the same reason
+    :func:`_shipped_source` parses instead of importing: this file's
+    oracle-side checks must stay verifiable without the Rust extensions
+    being buildable.
+    """
+    path = _SRC / "acid_trap_detection.py"
+    tree = ast.parse(path.read_text(), filename=str(path))
+    for node in tree.body:
+        if not (isinstance(node, ast.FunctionDef) and node.name == "detect_acid_traps"):
+            continue
+        for stmt in node.body:
+            body = (
+                "".join(ast.unparse(inner) for inner in stmt.body)
+                if isinstance(stmt, ast.If)
+                else ""
+            )
+            if "negative" in body:
+                return ast.unparse(stmt.test)
+    raise AssertionError(
+        "detect_acid_traps no longer has a guard whose body mentions 'negative' "
+        "-- the defect-9 repair from #760 has been reverted or restructured"
+    )
+
+
+def test_repaired_d2_negative_angle_threshold_guard_is_reachable():
+    """D2 (repaired by #760, base ``aebaecd99``): the guard now fires.
+
+    **Was:** ``if not math.isfinite(t) and t < 0:``, with a message reading
+    "is negative -- all angles are >= 0 degrees".  The ``not isfinite``
+    conjunct meant only ``-inf`` reached it; a plain ``-5.0`` is finite, fell
+    through, and yielded an empty report with no warning at all.
+
+    **Now:** ``if min_angle_threshold < 0:`` -- every negative reaches it.
+
+    This test is the *inversion* of the old defect pin, not its deletion: it
+    fails if either the original ``and`` form or the naive ``or`` rewrite
+    (``not isfinite(t) or t < 0``, which wrongly swallows ``+inf`` instead of
+    letting it clamp to 90) is reintroduced.  The behavioural half of this
+    contract lives in ``test_acid_trap_boundary.py``
+    (``test_negative_threshold_warns_rather_than_silently_returning_empty``
+    and ``test_positive_infinity_still_clamps_and_does_not_take_the_negative_path``);
+    what is pinned here is the predicate itself, checked without importing.
+
+    Note ``detect_acid_traps`` is orchestration and is deliberately NOT part
+    of the verbatim oracle, so this repair moves no pinned kernel text --
+    ``test_oracle_kernels_are_verbatim_copies`` is unaffected by it.
     """
     src = (_SRC / "acid_trap_detection.py").read_text()
-    assert "if not math.isfinite(min_angle_threshold) and min_angle_threshold < 0:" in src
-    for t in (-5.0, -0.5, -180.0):
-        assert math.isfinite(t) and t < 0
-        assert not (not math.isfinite(t) and t < 0), (
-            f"threshold {t} would now reach the guard -- D2 may be fixed; "
-            "re-pin the oracle before deleting this test"
-        )
-    assert (not math.isfinite(-math.inf)) and -math.inf < 0  # only -inf reaches it
+    assert "if not math.isfinite(min_angle_threshold) and min_angle_threshold < 0:" not in src, (
+        "the unreachable `and` form of the defect-9 guard is back"
+    )
+
+    predicate = _negative_threshold_guard_predicate()
+    assert "isfinite" not in predicate, (
+        f"the negative-threshold guard reintroduced an isfinite conjunct: {predicate!r}"
+    )
+    code = compile(predicate, "<guard>", "eval")
+
+    def reaches(threshold: float) -> bool:
+        return bool(eval(code, {"math": math}, {"min_angle_threshold": threshold}))  # noqa: S307
+
+    # every negative reaches it -- finite ones are the whole point of the repair
+    for t in (-5.0, -0.5, -180.0, -1e-300, -math.inf):
+        assert reaches(t), f"threshold {t} does not reach the negative-threshold guard"
+
+    # +inf must fall through to the clamp (90.0), not be swallowed as "negative";
+    # this is what the naive `not isfinite(t) or t < 0` rewrite would break.
+    for t in (0.0, 45.0, 90.0, 180.0, math.inf):
+        assert not reaches(t), f"threshold {t} wrongly reaches the negative-threshold guard"
+
+    # NaN is handled by an earlier guard and never gets here; the predicate is
+    # False for it either way, so neither ordering can produce a bogus warning.
+    assert not reaches(math.nan)
 
 
 # ===========================================================================

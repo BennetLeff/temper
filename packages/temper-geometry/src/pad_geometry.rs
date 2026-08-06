@@ -38,19 +38,44 @@ const DEFAULT_ROUNDRECT_RATIO: f64 = 0.25;
 // builds may therefore diverge from the host Python's libm in the last
 // ULP — expected and acceptable there.
 #[cfg(not(target_arch = "wasm32"))]
+use std::ffi::CStr;
+#[cfg(not(target_arch = "wasm32"))]
 use std::sync::OnceLock;
 
 #[cfg(not(target_arch = "wasm32"))]
 type MathFn = unsafe extern "C" fn(f64) -> f64;
 
+/// `RTLD_DEFAULT` — "search every loaded object, in load order".
+///
+/// **The constant is not portable, and getting it wrong fails silently.**
+/// glibc defines it as `((void *) 0)`; Darwin's `dlfcn.h` defines it as
+/// `((void *) -2)` (`NULL` there is not a valid handle and simply misses).
+/// A hardcoded null resolved nothing on macOS — every lookup fell through to
+/// the statically-bound `f64::*` fallback and no test noticed, because the
+/// fallback is a *plausible* answer, just not the host interpreter's.
+#[cfg(all(not(target_arch = "wasm32"), target_vendor = "apple"))]
+const RTLD_DEFAULT: *const u8 = usize::MAX.wrapping_sub(1) as *const u8; // (void *) -2
+
+#[cfg(all(not(target_arch = "wasm32"), not(target_vendor = "apple")))]
+const RTLD_DEFAULT: *const u8 = core::ptr::null();
+
+/// Resolve `symbol` in the host process's already-loaded libm.
+///
+/// `symbol` is a `&CStr`, not a `&str`: `dlsym` reads a NUL-terminated C
+/// string, and a Rust `&str` carries its length out of band with no NUL, so
+/// passing `str::as_ptr` made `dlsym` read past the end of the literal into
+/// whatever `.rodata` followed it.
 #[cfg(not(target_arch = "wasm32"))]
-fn dlsym_math(symbol: &str) -> Option<MathFn> {
+fn dlsym_math(symbol: &CStr) -> Option<MathFn> {
     unsafe extern "C" {
         fn dlsym(handle: *const u8, symbol: *const u8) -> *mut u8;
     }
-    const RTLD_DEFAULT: *const u8 = core::ptr::null();
+    // SAFETY: `symbol` is a NUL-terminated C string and `RTLD_DEFAULT` is this
+    // platform's "search every loaded object" handle (never dereferenced). A
+    // miss returns null, which is checked here. The resolved symbol is a C
+    // `double(double)` from libm.
     unsafe {
-        let p = dlsym(RTLD_DEFAULT, symbol.as_ptr());
+        let p = dlsym(RTLD_DEFAULT, symbol.as_ptr().cast::<u8>());
         if p.is_null() {
             None
         } else {
@@ -70,7 +95,7 @@ unsafe extern "C" fn fallback_sin(x: f64) -> f64 {
 #[cfg(not(target_arch = "wasm32"))]
 fn host_cos() -> &'static MathFn {
     static F: OnceLock<Option<MathFn>> = OnceLock::new();
-    let f = F.get_or_init(|| dlsym_math("cos").or(Some(fallback_cos)));
+    let f = F.get_or_init(|| dlsym_math(c"cos").or(Some(fallback_cos)));
     // The closure always returns Some (dlsym result or the fallback),
     // so the Option is never None once initialized.
     #[expect(clippy::unwrap_used, reason = "infallible: initialized with dlsym result or fallback")]
@@ -80,7 +105,7 @@ fn host_cos() -> &'static MathFn {
 #[cfg(not(target_arch = "wasm32"))]
 fn host_sin() -> &'static MathFn {
     static F: OnceLock<Option<MathFn>> = OnceLock::new();
-    let f = F.get_or_init(|| dlsym_math("sin").or(Some(fallback_sin)));
+    let f = F.get_or_init(|| dlsym_math(c"sin").or(Some(fallback_sin)));
     // The closure always returns Some (dlsym result or the fallback),
     // so the Option is never None once initialized.
     #[expect(clippy::unwrap_used, reason = "infallible: initialized with dlsym result or fallback")]
@@ -489,6 +514,20 @@ pub fn best_rotation_for_barrier_py(hv_pads: Vec<PadTuple>, selv_pads: Vec<PadTu
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// The host-libm indirection is actually wired, not silently bypassed.
+    ///
+    /// Before the Darwin `RTLD_DEFAULT` correction this failed on macOS:
+    /// `dlsym(NULL, ...)` reports `invalid handle` there, so every lookup
+    /// returned `None` and the fallback silently became the live route while
+    /// the code claimed bit-exactness with the host interpreter. Nothing else
+    /// in the suite could notice — the fallback is a *plausible* answer.
+    #[cfg(not(target_arch = "wasm32"))]
+    #[test]
+    fn host_libm_symbols_actually_resolve() {
+        assert!(dlsym_math(c"cos").is_some(), "dlsym could not resolve `cos`");
+        assert!(dlsym_math(c"sin").is_some(), "dlsym could not resolve `sin`");
+    }
 
     #[test]
     fn pow2_is_exact_where_powi_is_not() {

@@ -26,7 +26,9 @@ packages/temper-placer/src/temper_placer/placer/cp_sat/netclass_constraints.py 1
 packages/temper-placer/src/temper_placer/placer/cp_sat/unsat.py 1
 packages/temper-placer/src/temper_placer/router_v6/_pipeline_core.py 17
 packages/temper-placer/src/temper_placer/router_v6/_pipeline_route.py 1
+packages/temper-placer/src/temper_placer/validation/dead_parameter_probe.py 2
 packages/temper-placer/src/temper_placer/validation/drc_result.py 1
+packages/temper-placer/src/temper_placer/validation/gate_input_registry.py 10
 packages/temper-placer/src/temper_placer/validation/mfem_compare.py 2
 packages/temper-placer/src/temper_placer/validation/mfem_gate.py 4
 packages/temper-placer/src/temper_placer/validation/mfem_mesh.py 3
