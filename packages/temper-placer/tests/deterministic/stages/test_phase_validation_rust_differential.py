@@ -33,7 +33,7 @@ from tests.core._contract_canon import canon
 
 # Rust symbol under test -- must exist or this file fails to collect (RED).
 _DP = _tdb.deterministic_phase
-RS_VIOL = _DP.find_critical_bottleneck_violations
+RS_VIOL = _DP.find_critical_bottleneck_violations_py
 
 
 class _FakeBn:

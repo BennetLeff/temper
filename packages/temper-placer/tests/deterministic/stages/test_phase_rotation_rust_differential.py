@@ -29,7 +29,7 @@ from tests.core._contract_canon import canon
 
 # Rust symbol under test -- must exist or this file fails to collect (RED).
 _DP = _tdb.deterministic_phase
-RS_RADIUS = _DP.effective_ghost_pad_radius
+RS_RADIUS = _DP.effective_ghost_pad_radius_py
 
 
 class _FakeSlot:

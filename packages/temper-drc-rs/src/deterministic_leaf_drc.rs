@@ -26,7 +26,7 @@
 //!   decimal rounding is Python's own.
 
 use pyo3::prelude::*;
-use pyo3::types::{PyList, PyString};
+use pyo3::types::{PyDict, PyList, PyString};
 
 use crate::pymath::{pow, py_max, py_min, sqrt};
 
@@ -470,6 +470,164 @@ pub fn clamp_position_py(
 }
 
 // ---------------------------------------------------------------------------
+// via_validation.py — via connectivity + position-dedup kernels
+// ---------------------------------------------------------------------------
+
+/// `ViaValidationStage._count_connected_layers` — the per-layer trace/pin
+/// distance sweep.
+///
+/// Mirrors the oracle exactly: `tol_sq = tol * tol` is a PLAIN MULTIPLY while
+/// every distance term is `(vx - tx) ** 2` (libm `pow` via
+/// [`crate::pymath::pow`]), the plane-layer auto-connect short-circuits only
+/// when `is_plane`, the trace sweep `break`s on the first hit, and the pin
+/// sweep is skipped for a layer the trace sweep already connected (`layer not
+/// in connected_layers`). Returns the count of distinct connected layers.
+pub fn count_connected_layers(
+    via_position: (f64, f64),
+    via_layers: &[String],
+    tolerance: f64,
+    trace_index: &std::collections::HashMap<String, Vec<(f64, f64)>>,
+    pin_index: &std::collections::HashMap<String, Vec<(f64, f64)>>,
+    is_plane: bool,
+    plane_layers: &std::collections::HashSet<String>,
+) -> usize {
+    let (vx, vy) = via_position;
+    let tol_sq = tolerance * tolerance;
+    let mut connected_layers: std::collections::HashSet<String> = std::collections::HashSet::new();
+
+    for layer in via_layers {
+        if is_plane && plane_layers.contains(layer) {
+            connected_layers.insert(layer.clone());
+            continue;
+        }
+
+        if let Some(pts) = trace_index.get(layer) {
+            for &(tx, ty) in pts {
+                let dist_sq = pow(vx - tx, 2.0) + pow(vy - ty, 2.0);
+                if dist_sq <= tol_sq {
+                    connected_layers.insert(layer.clone());
+                    break;
+                }
+            }
+        }
+
+        if !connected_layers.contains(layer) {
+            if let Some(pts) = pin_index.get(layer) {
+                for &(px, py) in pts {
+                    let dist_sq = pow(vx - px, 2.0) + pow(vy - py, 2.0);
+                    if dist_sq <= tol_sq {
+                        connected_layers.insert(layer.clone());
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    connected_layers.len()
+}
+
+/// Python-visible `count_connected_layers_py(via_position, via_layers,
+/// tolerance, trace_index, pin_index, is_plane, plane_layers)`.
+#[allow(clippy::too_many_arguments)]
+#[pyfunction]
+pub fn count_connected_layers_py(
+    via_position: (f64, f64),
+    via_layers: &Bound<'_, PyAny>,
+    tolerance: f64,
+    trace_index: &Bound<'_, PyDict>,
+    pin_index: &Bound<'_, PyDict>,
+    is_plane: bool,
+    plane_layers: &Bound<'_, PyAny>,
+) -> PyResult<usize> {
+    let layers: Vec<String> = via_layers
+        .try_iter()?
+        .map(|i| i.and_then(|x| x.extract::<String>()))
+        .collect::<PyResult<_>>()?;
+    let plane_set: std::collections::HashSet<String> = plane_layers
+        .try_iter()?
+        .map(|i| i.and_then(|x| x.extract::<String>()))
+        .collect::<PyResult<_>>()?;
+    let trace_map = points_index(trace_index)?;
+    let pin_map = points_index(pin_index)?;
+    Ok(count_connected_layers(
+        via_position, &layers, tolerance, &trace_map, &pin_map, is_plane, &plane_set,
+    ))
+}
+
+/// Marshal `{layer: [ (x, y), ... ]}` into a Rust map.
+fn points_index(
+    index: &Bound<'_, PyDict>,
+) -> PyResult<std::collections::HashMap<String, Vec<(f64, f64)>>> {
+    let mut out: std::collections::HashMap<String, Vec<(f64, f64)>> =
+        std::collections::HashMap::new();
+    for (layer, pts) in index.iter() {
+        let layer: String = layer.extract()?;
+        let mut coords: Vec<(f64, f64)> = Vec::new();
+        for pt_item in pts.try_iter()? {
+            let pt: Bound<'_, PyAny> = pt_item?;
+            coords.push((pt.get_item(0)?.extract()?, pt.get_item(1)?.extract()?));
+        }
+        out.insert(layer, coords);
+    }
+    Ok(out)
+}
+
+/// `ViaDeduplicationStage.run`'s position-dedup sweep.
+///
+/// First-seen-wins in INPUT order with `tol_sq = tolerance ** 2` (libm `pow`,
+/// NOT a plain multiply — a distinct pin from `_count_connected_layers`),
+/// `<=` boundary, one `duplicates` increment per rejected position. Returns
+/// `(kept_indices, duplicates)` so the shim can recover the ORIGINAL via
+/// objects by index (object identity matters when two vias share an exact
+/// position).
+pub fn dedup_via_positions(
+    positions: &[(f64, f64)],
+    tolerance: f64,
+) -> (Vec<usize>, usize) {
+    let tol_sq = pow(tolerance, 2.0);
+    let mut kept: Vec<usize> = Vec::new();
+    let mut seen: Vec<(f64, f64)> = Vec::new();
+    let mut duplicates = 0usize;
+
+    for (i, &(vx, vy)) in positions.iter().enumerate() {
+        let mut is_duplicate = false;
+        for &(sx, sy) in &seen {
+            let dist_sq = pow(vx - sx, 2.0) + pow(vy - sy, 2.0);
+            if dist_sq <= tol_sq {
+                is_duplicate = true;
+                duplicates += 1;
+                break;
+            }
+        }
+        if !is_duplicate {
+            kept.push(i);
+            seen.push((vx, vy));
+        }
+    }
+
+    (kept, duplicates)
+}
+
+/// Python-visible `dedup_via_positions_py(positions, tolerance)` returning
+/// `(kept_indices, duplicates)`.
+#[pyfunction]
+pub fn dedup_via_positions_py<'py>(
+    py: Python<'py>,
+    positions: &Bound<'py, PyAny>,
+    tolerance: f64,
+) -> PyResult<(Bound<'py, PyList>, usize)> {
+    let mut coords: Vec<(f64, f64)> = Vec::new();
+    for pos in positions.try_iter()? {
+        let pos = pos?;
+        coords.push((pos.get_item(0)?.extract()?, pos.get_item(1)?.extract()?));
+    }
+    let (kept, duplicates) = dedup_via_positions(&coords, tolerance);
+    let list = PyList::new(py, kept)?;
+    Ok((list, duplicates))
+}
+
+// ---------------------------------------------------------------------------
 // Registration
 // ---------------------------------------------------------------------------
 
@@ -482,6 +640,8 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(validate_proximity_py, m)?)?;
     m.add_function(wrap_pyfunction!(validate_signal_hv_py, m)?)?;
     m.add_function(wrap_pyfunction!(clamp_position_py, m)?)?;
+    m.add_function(wrap_pyfunction!(count_connected_layers_py, m)?)?;
+    m.add_function(wrap_pyfunction!(dedup_via_positions_py, m)?)?;
     Ok(())
 }
 

@@ -34,10 +34,10 @@ from tests.core._contract_canon import canon
 
 # Rust symbols under test -- must exist or this file fails to collect (RED).
 _DP = _tdb.deterministic_phase
-RS_PIP = _DP.point_in_polygon
-RS_ISO = _DP.slot_intersects_iso
-RS_PTSD = _DP.point_to_segment_distance
-RS_MDP = _DP.min_distance_to_polygon
+RS_PIP = _DP.point_in_polygon_py
+RS_ISO = _DP.slot_intersects_iso_py
+RS_PTSD = _DP.point_to_segment_distance_py
+RS_MDP = _DP.min_distance_to_polygon_py
 
 
 def _pip_equal(x, y, polygon):

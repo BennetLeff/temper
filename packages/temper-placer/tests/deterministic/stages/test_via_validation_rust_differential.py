@@ -171,7 +171,8 @@ def test_count_non_vacuity_guard():
 
 def _assert_dedup(positions, tolerance):
     exp_unique, exp_dupes = _oracle.dedup_via_positions(list(positions), tolerance)
-    got_unique, got_dupes = RS_DEDUP(list(positions), tolerance)
+    got_indices, got_dupes = RS_DEDUP(list(positions), tolerance)
+    got_unique = [positions[i] for i in got_indices]
     assert canon(got_unique) == canon(exp_unique), (
         f"dedup divergence positions={positions} tol={tolerance}: "
         f"{canon(got_unique)} vs {canon(exp_unique)}"
@@ -221,5 +222,5 @@ def test_dedup_randomized():
 
 
 def test_dedup_non_vacuity_guard():
-    got, dupes = RS_DEDUP([(0.0, 0.0), (0.01, 0.01), (5.0, 5.0)], 0.05)
-    assert len(got) == 2 and dupes == 1
+    indices, dupes = RS_DEDUP([(0.0, 0.0), (0.01, 0.01), (5.0, 5.0)], 0.05)
+    assert len(indices) == 2 and dupes == 1

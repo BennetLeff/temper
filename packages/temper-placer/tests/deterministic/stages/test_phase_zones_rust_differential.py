@@ -27,7 +27,7 @@ from tests.core._contract_canon import canon
 
 # Rust symbol under test -- must exist or this file fails to collect (RED).
 _DP = _tdb.deterministic_phase
-RS_HPWL = _DP.compute_wirelength
+RS_HPWL = _DP.compute_wirelength_py
 
 
 def _assert_equal(component_ref, candidate_slot, net_pins, current_placements):
