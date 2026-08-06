@@ -22,7 +22,6 @@ from temper_placer.router_v6.pipeline import (
 )
 from temper_placer.router_v6.routing_demand import RoutingDemand
 from temper_placer.router_v6.routing_results import RoutingResults
-from temper_placer.router_v6.sat_model import SATModel
 from temper_placer.router_v6.stage0_data import ParsedPCB
 from temper_placer.router_v6.topology_extraction import TopologyGraph
 from temper_placer.router_v6.topology_solver import SolverStatus, TopologicalSolution
@@ -63,7 +62,6 @@ def _make_minimal_stage3() -> Stage3Output:
     """Build a minimal Stage3Output with empty/default fields."""
     return Stage3Output(
         constraint_model=ConstraintModel(),
-        sat_model=SATModel(variables=[], clauses=[]),
         solution=TopologicalSolution(
             status=SolverStatus.SATISFIABLE, assignment={}, solver_time_ms=0.0
         ),

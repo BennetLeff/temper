@@ -224,7 +224,7 @@ def main():
         "box_clean": n_box_clean,
         "copper_violated": n_copper_violated,
         "gap2_holds": n_gap2_holds,
-        "provenance": {"commit": "dc8accd5bb12c20f5afe7f0840e74ab9d7e8daaf", "dirty": False},
+        "provenance": {"commit": "b3638473af4b25dc44fc4ea446568f39c58dc407", "dirty": False},
     }
     out_json = REPO / "docs" / "evidence" / "gap2_wall_summary.json"
     out_json.write_text(json.dumps(summary, indent=2, sort_keys=True))

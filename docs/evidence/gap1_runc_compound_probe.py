@@ -1,8 +1,8 @@
-# provenance: commit=e19fc516934bfc95c3b311602380db50d7e0393d dirty=true
+# provenance: commit=5c480a3bcbdddfa42f47b3ad16bb3921fcaf589f dirty=false
 #!/usr/bin/env python3
 """Run-C COMPOUND feasibility probe (issue #651 follow-up).
 
-# provenance: commit=e19fc516934bfc95c3b311602380db50d7e0393d dirty=true
+# provenance: commit=5c480a3bcbdddfa42f47b3ad16bb3921fcaf589f dirty=false
 
 Reproduces the zone-inclusive (run-C) formulation on the current board with
 the general-convex zone encoding (#674) and answers the compound question the
