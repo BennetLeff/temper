@@ -37,7 +37,16 @@ name: Python Tests
 # Tests timeout raise (30 -> 45) is untouched.
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  # PRs: cancel in progress -- a superseded PR run is worthless.
+  # push (i.e. main): DO NOT cancel. A run already executing is main's
+  # only verification; killing it mid-flight is how 6 of 8 consecutive
+  # main runs ended up `cancelled` on 2026-08-06, with zero successes,
+  # so `cargo test`/clippy results never landed during a merge burst.
+  # Sharing one group by `github.ref` still prevents the 88-run pileup
+  # the sha-keyed group allowed: later pushes queue, and GitHub keeps
+  # only the newest PENDING run, so intermediate commits are still
+  # superseded -- just not the one actually running.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 on:
   push:
