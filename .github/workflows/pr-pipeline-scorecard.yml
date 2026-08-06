@@ -11,10 +11,19 @@ on:
     paths:
       - 'packages/**'
 
+# Opt-in (2026-08-04). Both jobs below exist to post one sticky comment.
+# Neither "Baseline (from main)" nor "Pipeline Scorecard" is in
+# `.github/required-checks.json`'s `required_contexts`, and the scorecard's
+# only substantive step (`ci_closure_test.py`) carries `continue-on-error:
+# true`, so this workflow cannot fail a merge under any circumstances. It
+# fires on `packages/**` -- essentially every PR -- for a measured median of
+# 2 jobs and 5.7 job-minutes per push, against an account ceiling of ~24
+# concurrent jobs. Add the `ci-advisory` label to a PR to get the scorecard.
 jobs:
   baseline:
     name: Baseline (from main)
     runs-on: ubuntu-latest
+    if: contains(github.event.pull_request.labels.*.name, 'ci-advisory')
     timeout-minutes: 5
     outputs:
       has_metrics: ${{ steps.check.outputs.has_metrics }}
@@ -56,7 +65,12 @@ jobs:
       options: --user root
     timeout-minutes: 20
     needs: baseline
-    if: always() && needs.baseline.result != 'skipped'
+    # The label test is repeated rather than inherited: `always()` would
+    # otherwise resurrect this job on an unlabelled PR if the skip semantics of
+    # `needs.baseline.result` ever change.
+    if: >-
+      always() && needs.baseline.result != 'skipped'
+      && contains(github.event.pull_request.labels.*.name, 'ci-advisory')
     permissions:
       pull-requests: write
     env:

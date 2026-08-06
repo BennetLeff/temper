@@ -1,15 +1,45 @@
-"""Load netclass_rules.yaml into a DesignRules instance."""
+"""Load netclass_rules.yaml into a DesignRules instance.
+
+The loader is implemented in Rust as pyo3 functions in the
+``temper-design-bundle`` crate (the ``temper_design_bundle_python``
+extension, ``src/loaders.rs``) — the Wave 4 Phase 3 formats/IO migration,
+candidate 2
+(``docs/plans/2026-08-02-001-feat-wave4-phase3-formats-io-plan.md``, R5).
+This module keeps the pre-migration public API unchanged and re-exports the
+Rust symbols directly (the pure-delegation pattern established by
+``core/priority.py`` / ``core/loop.py``).
+
+Two boundaries stay on the Python side of the pyo3 call, both deliberately
+(see ``loaders.rs`` and ``packages/temper-design-bundle/VERIFICATION.md``):
+``yaml.safe_load`` remains the tokenizer, because PyYAML implements YAML 1.1
+and ``serde_yaml`` implements YAML 1.2 and the two genuinely disagree
+(``on`` → ``True`` vs ``"on"``, ``012`` → ``10`` vs ``12``); and the
+``DesignRules``/``NetClassRules`` objects are built by calling the very
+constructors this module used to call, so construction parity is by
+identity. Everything else — the field mapping, the per-key defaults, the
+``class_pairs`` split/sort/dedup, the skipped-key warning — is Rust.
+
+Verification: bit-identical parity against the pinned pre-migration
+implementation is asserted by ``tests/io/test_loaders_rust_differential.py``
+(oracle: ``tests/io/_netclass_loader_py_oracle.py``); the properties and
+metamorphic relations live in ``tests/io/test_loaders_pbt.py`` and the
+structural proof in ``packages/temper-design-bundle/VERIFICATION.md``.
+
+API note (deliberate, documented deviation): ``NetClassRulesDict`` is now a
+pyo3 pyclass rather than a ``@dataclass``. Its attribute surface,
+mutability, field-wise ``__eq__`` and dataclass-shaped ``__repr__`` are
+preserved, but ``dataclasses.fields()`` / ``dataclasses.asdict()`` no longer
+apply to it. No consumer uses either (verified 2026-08-04).
+"""
 
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass, field
-from pathlib import Path
 
-import yaml
+import temper_design_bundle_python as _tdb
 
-from temper_placer.core.design_rules import TEMPER_NET_ASSIGNMENTS, DesignRules, NetClassRules
-
+# The migrated loader logs through this exact logger name, so handler and
+# `caplog` configuration keyed on the module keeps working unchanged.
 logger = logging.getLogger(__name__)
 
 # Map classify_net_type() return values to DesignRules net class names
@@ -20,64 +50,7 @@ _NET_TYPE_TO_CLASS = {
     "signal": "Signal",
 }
 
+NetClassRulesDict = _tdb.NetClassRulesDict
+load_netclass_rules = _tdb.load_netclass_rules
 
-@dataclass
-class NetClassRulesDict:
-    """Convenience wrapper returned by load_netclass_rules()."""
-
-    design_rules: DesignRules
-    class_pairs: dict[tuple[str, str], dict] = field(
-        default_factory=dict
-    )  # (A,B) sorted -> {clearance, because}
-
-
-def load_netclass_rules(path: Path) -> NetClassRulesDict:
-    """Load netclass_rules.yaml and populate a DesignRules instance.
-
-    Returns NetClassRulesDict with:
-    - design_rules: DesignRules with net_classes populated from YAML classes
-    - class_pairs: dict of (class_a, class_b) sorted -> {clearance, because}
-    """
-    with open(path) as f:
-        data = yaml.safe_load(f)
-
-    dr = DesignRules()
-    dr.default_clearance = data["default_clearance_mm"]
-
-    # Populate net_classes
-    for class_name, class_data in data.get("classes", {}).items():
-        # Map YAML field names to NetClassRules constructor args
-        nc = NetClassRules(
-            name=class_name,
-            trace_width=class_data.get("trace_width", dr.default_trace_width),
-            clearance=class_data.get("clearance", dr.default_clearance),
-            via_diameter=class_data.get("via_diameter", dr.default_via_diameter),
-            via_drill=class_data.get("via_drill", dr.default_via_drill),
-            creepage_mm=class_data.get("creepage_mm", 0.0),
-            voltage_v=class_data.get("voltage_v", 0.0),
-            safety_category=class_data.get("safety_category"),
-            dru_priority=class_data.get("dru_priority", 0),
-            required_layer=class_data.get("required_layer"),
-            layer=class_data.get("layer"),
-        )
-        dr.net_classes[class_name] = nc
-
-    # Populate net_class_assignments from TEMPER_NET_ASSIGNMENTS
-    dr.net_class_assignments.update(TEMPER_NET_ASSIGNMENTS)
-
-    # Parse class_pairs
-    class_pairs: dict[tuple[str, str], dict] = {}
-    for pair_key, pair_data in data.get("class_pairs", {}).items():
-        parts = pair_key.split("-")
-        if len(parts) != 2:
-            logger.warning("Invalid class_pairs key '%s' — skipping", pair_key)
-            continue
-        a, b = parts[0], parts[1]
-        key = tuple(sorted([a, b]))
-        class_pairs[key] = {
-            "clearance": pair_data.get("clearance", 0.0),
-            "because": pair_data.get("because"),
-        }
-    dr.class_pairs = class_pairs
-
-    return NetClassRulesDict(design_rules=dr, class_pairs=class_pairs)
+__all__ = ["NetClassRulesDict", "load_netclass_rules"]

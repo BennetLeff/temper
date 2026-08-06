@@ -1,4 +1,4 @@
-<!-- provenance: commit=61c222730f4c00e6afc7f2539dbe3102ed4d7fdf dirty=false -->
+<!-- provenance: commit=c60825861f337fa7d7c6d0ec8e9240c5aa97c74a dirty=false (re-pointed 2026-08-05: 61c222730f4c00e6afc7f2539dbe3102ed4d7fdf was the pre-merge run-C re-run artifacts commit, orphaned by force-push; this evidence landed with the general-convex encoding merge c60825861f337fa7d7c6d0ec8e9240c5aa97c74a (#674), which is the cited commit) -->
 
 # General-convex (diagonal-edge) zone encoding for fixed copper — the run-C unlock (issue #651)
 

@@ -1,4 +1,4 @@
-<!-- provenance: commit=65db97e837e2c876805cac68b9164de3a4ee23dc dirty=false -->
+<!-- provenance: commit=ab11daaba37f1fca17d057fd087110a663e01deb dirty=false (re-pointed 2026-08-05: the cited 65db97e837e2c876805cac68b9164de3a4ee23dc was a pre-merge #672 branch commit, orphaned by force-push; the domain-first re-solve evidence landed at ab11daaba37f1fca17d057fd087110a663e01deb (#672), which is the cited commit) -->
 
 # Domain-first re-solve for the MAINS_SELV_ISOLATION_BARRIER keepout — keepout NOT landed (issue #518, plan R1)
 
