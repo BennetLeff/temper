@@ -2,7 +2,7 @@
 //
 // Origin: U4 of docs/plans/2026-06-30-003-feat-temper-drc-rs-engine-plan.md
 
-mod clearance;
+pub(crate) mod clearance;
 mod component_overlap;
 mod courtyard;
 mod trace_clearance;

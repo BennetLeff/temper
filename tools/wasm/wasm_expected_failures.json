@@ -1,0 +1,35 @@
+{
+  "_comment": [
+    "Tests that are in the wasm32 registry, execute there, and legitimately FAIL there,",
+    "because they assert a property of the native host that wasm32 does not have.",
+    "",
+    "They are listed rather than deleted or cfg'd out for two reasons. First, the census:",
+    "a test excluded from the registry is invisible, whereas one listed here is executed,",
+    "observed to fail, and carries its reason. Second, the gate is bidirectional --",
+    "run_wasm_tests.mjs fails the run if a test named here PASSES, so an exclusion that",
+    "goes stale (because the platform or the code changed) is reported instead of quietly",
+    "suppressing a real test forever. Blanket-suppression is how a green harness ends up",
+    "meaning nothing, which is the failure mode this whole exercise exists to rule out.",
+    "",
+    "Native baseline, for contrast: all 94 of these tests pass under",
+    "`cargo test --no-default-features --lib` on aarch64-apple-darwin."
+  ],
+  "expected_failures": {
+    "pymath::tests::host_libm_symbols_actually_resolve": {
+      "class": "no-dynamic-loader",
+      "reason": "Asserts dlsym(RTLD_DEFAULT, ...) resolves cos/sin/acos/pow in the running process. wasm32 has no dynamic loader at all; pymath::dlsym_ptr is cfg'd to always miss there, because merely declaring the extern emits an env.dlsym import that makes the module non-instantiable in a bare isolate. The property under test is native-only by construction."
+    },
+    "pymath::tests::pow_is_not_a_multiply_or_a_sqrt": {
+      "class": "b7-pow-divergence-absent",
+      "reason": "Asserts that libm pow(x,2.0) differs from x*x for at least one x out of 200000 samples, and pow(c,0.5) from sqrt(c). That divergence is what the B7 pin exists to preserve. On wasm32 pymath::pow falls back to f64::powf, which LLVM folds for constant exponents, so the divergence count is exactly zero and the staleness assertion fires. The test is correct; the platform property it pins is native-only."
+    },
+    "dfm::tests::thermal_via_side_round_absorbs_the_pow_vs_sqrt_divergence": {
+      "class": "b7-pow-divergence-absent",
+      "reason": "Same root cause as pymath::tests::pow_is_not_a_multiply_or_a_sqrt -- it asserts the pow-vs-sqrt divergence is non-empty before checking that rounding absorbs it. Zero divergence on wasm32."
+    },
+    "dfm::tests::via_annular_area_uses_r_times_r_not_pow": {
+      "class": "b7-pow-divergence-absent",
+      "reason": "Same root cause -- asserts r*r differs from pow(r,2.0) somewhere. Zero divergence on wasm32."
+    }
+  }
+}
