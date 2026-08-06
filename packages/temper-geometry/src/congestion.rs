@@ -304,7 +304,7 @@ pub fn congestion_estimate_net_demand_py<'py>(
 /// A NaN in the FIRST position survives, because `b < NaN` is false. The
 /// corpus pins `overflow_ratio` with a NaN `total_overflow` for this (B5);
 /// `f64::min` would return the other operand instead.
-fn cpython_min2(a: f64, b: f64) -> f64 {
+pub(crate) fn cpython_min2(a: f64, b: f64) -> f64 {
     if b < a { b } else { a }
 }
 

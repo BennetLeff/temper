@@ -26,6 +26,8 @@ pub mod pad_geometry;
 pub mod congestion;
 #[cfg(feature = "python")]
 pub mod escape_via;
+#[cfg(feature = "python")]
+pub mod apply_suggestions;
 pub mod clearance_geometry;
 pub mod spice_estimators;
 #[cfg(feature = "python")]
@@ -86,6 +88,7 @@ fn temper_geometry(m: &Bound<'_, PyModule>) -> PyResult<()> {
     bridge::register_functions(m)?;
     crate::congestion::register(m)?;
     crate::escape_via::register(m)?;
+    crate::apply_suggestions::register(m)?;
     m.add_class::<crate::congestion_tensor::CongestionTensor>()?;
     Ok(())
 }
