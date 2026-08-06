@@ -3,6 +3,15 @@ Router V6 Stage 5.2: Check Annular Rings
 
 Validates that via annular rings meet minimum manufacturing requirements.
 Part of temper-j2xd (Stage 5 - Manufacturing DRC)
+
+Wave 4 Phase B (``docs/plans/2026-08-01-001-feat-wave4-full-migration-program-plan.md``):
+the numeric core of ``_check_via`` (ring-width computation, layer/via-type
+threshold selection, and the epsilon-tolerant violation comparison) delegates
+to ``temper_drc_rs.dfm_check_annular_ring_py`` (PR #749). The kernel has no
+logger, so this shim still evaluates the same two guard clauses in Python
+first -- byte-identical to the pre-migration body -- purely to preserve their
+``logger.warning`` diagnostics and early ``return None``; once past both
+guards, the kernel is the sole source of the numeric result.
 """
 
 from __future__ import annotations
@@ -10,6 +19,8 @@ from __future__ import annotations
 import logging
 import math
 from dataclasses import dataclass
+
+import temper_drc_rs as _drc
 
 from temper_placer.router_v6._check_report_base import BaseCheckReport
 from temper_placer.router_v6.routing_results import RoutingResults
@@ -92,13 +103,8 @@ def _check_via(
         )
         return None
 
-    # Calculate annular ring width
-    # Ring width = (pad_diameter - drill_diameter) / 2
-    ring_width = (via.diameter - via.drill) / 2.0  # type: ignore[attr-defined]
-
-    # ---- layer-aware threshold ----
-    # IPC-6012: external layers use the full *min_annular_ring*;
-    # internal layers use half that value.
+    # ---- layer-aware threshold (recomputed below by the kernel too; kept
+    # ---- here only to decide whether the NaN-threshold guard must log) ----
     from_layer: str = getattr(via, "from_layer", "")
     to_layer: str = getattr(via, "to_layer", "")
     if _is_external_layer(from_layer) or _is_external_layer(to_layer):
@@ -120,20 +126,26 @@ def _check_via(
         )
         return None
 
-    # ---- violation check (<= so boundary values are caught; ----
-    # ---- small epsilon tolerates IEEE-754 rounding error)     ----
-    _FP_EPSILON = 1e-12
-    if ring_width <= threshold + _FP_EPSILON:
-        return AnnularRingViolation(
-            net_name=net_name,
-            via_position=via.position,  # type: ignore[attr-defined]
-            pad_diameter=via.diameter,  # type: ignore[attr-defined]
-            drill_diameter=via.drill,  # type: ignore[attr-defined]
-            actual_ring_width=ring_width,
-            minimum_required=threshold,
-        )
-
-    return None
+    result = _drc.dfm_check_annular_ring_py(
+        via.diameter,  # type: ignore[attr-defined]
+        via.drill,  # type: ignore[attr-defined]
+        from_layer,
+        to_layer,
+        via_type,
+        min_annular_ring,
+        microvia_ring_mm,
+    )
+    if result is None:
+        return None
+    actual_ring_width, minimum_required, _deficiency = result
+    return AnnularRingViolation(
+        net_name=net_name,
+        via_position=via.position,  # type: ignore[attr-defined]
+        pad_diameter=via.diameter,  # type: ignore[attr-defined]
+        drill_diameter=via.drill,  # type: ignore[attr-defined]
+        actual_ring_width=actual_ring_width,
+        minimum_required=minimum_required,
+    )
 
 
 def check_annular_rings(

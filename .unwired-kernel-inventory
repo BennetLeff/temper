@@ -40,21 +40,10 @@ corridor_point_in_rect_py	unwired at time of recording; no reason given
 device_power	SURFACED by PR #839's AST rescan of this gate -- the previous text scan matched the symbol name in comments and docstrings and reported it wired. Genuinely has no production caller. Reason for being unwired NOT yet established; needs triage (deliberate omission vs a migration that stopped at 'the differential is green').
 dfm_adjacent_layer_py	PR #749 DFM cluster -- Rust proven, shim not written
 dfm_board_bounds_py	PR #749 DFM cluster -- Rust proven, shim not written
-dfm_calculate_angle_py	PR #749 DFM cluster -- Rust proven, shim not written
-dfm_check_annular_ring_py	PR #749 DFM cluster -- Rust proven, shim not written
-dfm_clamp_to_rect_outline_py	PR #749 DFM cluster -- Rust proven, shim not written
-dfm_classify_severity_py	PR #749 DFM cluster -- Rust proven, shim not written
-dfm_connects_to_power_plane_py	PR #749 DFM cluster -- Rust proven, shim not written
-dfm_generate_spoke_segments_py	PR #749 DFM cluster -- Rust proven, shim not written
-dfm_is_power_net_py	PR #749 DFM cluster -- Rust proven, shim not written
-dfm_layer_is_between_py	PR #749 DFM cluster -- Rust proven, shim not written
 dfm_power_pour_bounds_py	PR #749 DFM cluster -- Rust proven, shim not written
 dfm_rect_polygon_py	PR #749 DFM cluster -- Rust proven, shim not written
-dfm_segment_run_copper_area_py	PR #749 DFM cluster -- Rust proven, shim not written
 dfm_thermal_via_positions_py	PR #749 DFM cluster -- Rust proven, shim not written
-dfm_via_annular_area_py	PR #749 DFM cluster -- Rust proven, shim not written
 dfm_via_segment_index_py	PR #749 DFM cluster -- Rust proven, shim not written
-dfm_via_teardrop_py	PR #749 DFM cluster -- Rust proven, shim not written
 escape_is_position_valid_py	PR #839 -- #829's kernel defect is fixed, but the signature is a differential-only probe (implicit identity component transform, no rotation/side); generate_escape_vias delegates wholesale so the real _is_position_valid became dead code and was removed. No real caller shape can use this probe contract.
 evaluate_quality_py	SURFACED by PR #839's AST rescan of this gate -- the previous text scan matched the symbol name in comments and docstrings and reported it wired. Genuinely has no production caller. Reason for being unwired NOT yet established; needs triage (deliberate omission vs a migration that stopped at 'the differential is green').
 fdm	SURFACED by PR #839's AST rescan of this gate -- the previous text scan matched the symbol name in comments and docstrings and reported it wired. Genuinely has no production caller. Reason for being unwired NOT yet established; needs triage (deliberate omission vs a migration that stopped at 'the differential is green').
@@ -83,16 +72,11 @@ py_load_netclass_rules	unwired at time of recording; no reason given
 py_sum	SURFACED by PR #839's AST rescan of this gate -- the previous text scan matched the symbol name in comments and docstrings and reported it wired. Genuinely has no production caller. Reason for being unwired NOT yet established; needs triage (deliberate omission vs a migration that stopped at 'the differential is green').
 recompute_plane_assignments_py	unwired at time of recording; no reason given
 required_clearance_py	unwired at time of recording; no reason given
-slop_angle_between_py	unwired at time of recording; no reason given
-slop_distance_mm_py	unwired at time of recording; no reason given
-slop_lint_all_py	unwired at time of recording; no reason given
-slop_lint_hairpin_turns_py	unwired at time of recording; no reason given
-slop_lint_isolated_vias_py	unwired at time of recording; no reason given
-slop_lint_single_net_detours_py	unwired at time of recording; no reason given
-slop_lint_zigzag_patterns_py	unwired at time of recording; no reason given
-slop_load_traces_by_net_py	unwired at time of recording; no reason given
-slop_order_traces_py	unwired at time of recording; no reason given
-slop_vector_py	unwired at time of recording; no reason given
+slop_angle_between_py	PR #750 quality-metrics cluster -- metrics/slop_linter.py's public lint_* functions now delegate straight to their aggregate lint kernels (2026-08-06 wiring), which resolve tracing/geometry internally in Rust; the matching private scalar helper this symbol replaced had no caller outside those now-replaced bodies and was removed rather than left dead.
+slop_distance_mm_py	PR #750 quality-metrics cluster -- metrics/slop_linter.py's public lint_* functions now delegate straight to their aggregate lint kernels (2026-08-06 wiring), which resolve tracing/geometry internally in Rust; the matching private scalar helper this symbol replaced had no caller outside those now-replaced bodies and was removed rather than left dead.
+slop_load_traces_by_net_py	PR #750 quality-metrics cluster -- metrics/slop_linter.py's public lint_* functions now delegate straight to their aggregate lint kernels (2026-08-06 wiring), which resolve tracing/geometry internally in Rust; the matching private scalar helper this symbol replaced had no caller outside those now-replaced bodies and was removed rather than left dead.
+slop_order_traces_py	PR #750 quality-metrics cluster -- metrics/slop_linter.py's public lint_* functions now delegate straight to their aggregate lint kernels (2026-08-06 wiring), which resolve tracing/geometry internally in Rust; the matching private scalar helper this symbol replaced had no caller outside those now-replaced bodies and was removed rather than left dead.
+slop_vector_py	PR #750 quality-metrics cluster -- metrics/slop_linter.py's public lint_* functions now delegate straight to their aggregate lint kernels (2026-08-06 wiring), which resolve tracing/geometry internally in Rust; the matching private scalar helper this symbol replaced had no caller outside those now-replaced bodies and was removed rather than left dead.
 snap_to_grid_py	unwired at time of recording; no reason given
 tag_closure	unwired at time of recording; no reason given
 tag_le	unwired at time of recording; no reason given
@@ -103,9 +87,8 @@ tokenize	PR #839 -- no production caller. Hidden by the old text scan: the only 
 trace_current_table_1oz	unwired at time of recording; no reason given
 trace_filter	PR #839 -- no production caller. Hidden by the old text scan: watch_commands.py mentions it in a docstring, and phase5_cli_adapters_workflow_mutations.py names trace_filter.rs as a FILE PATH to mutate. Neither is a call site.
 validate_stackup_py	unwired at time of recording; no reason given
-via_count_classify_vias_py	unwired at time of recording; no reason given
-via_count_get_board_bbox_py	unwired at time of recording; no reason given
-via_count_get_component_bboxes_py	unwired at time of recording; no reason given
-via_count_is_via_in_bbox_py	unwired at time of recording; no reason given
-via_count_is_via_near_board_edge_py	unwired at time of recording; no reason given
+via_count_get_board_bbox_py	PR #750 quality-metrics cluster -- quality/via_count.py's classify_vias_from_parse (the real caller, used by validation/human_reference_extractor.py) is handed an already-parsed ParseResult, and the kernel's board-source boundary accepts only a scenario dict or a .kicad_pcb path, not a pre-parsed object; wiring here would break that caller or require hand-marshalling ParseResult into a scenario dict, duplicating an unused Rust-side conversion path. classify_vias_from_parse and this symbol's Python counterpart (_get_board_bbox) are left unwired together (2026-08-06 wiring); via_count_classify_vias_py itself IS wired, via the path-taking top-level functions.
+via_count_get_component_bboxes_py	PR #750 quality-metrics cluster -- same ParseResult-vs-path wire-format gap as via_count_get_board_bbox_py above (2026-08-06 wiring); left unwired alongside classify_vias_from_parse.
+via_count_is_via_in_bbox_py	PR #750 quality-metrics cluster -- same ParseResult-vs-path wire-format gap as via_count_get_board_bbox_py above (2026-08-06 wiring); left unwired alongside classify_vias_from_parse.
+via_count_is_via_near_board_edge_py	PR #750 quality-metrics cluster -- same ParseResult-vs-path wire-format gap as via_count_get_board_bbox_py above (2026-08-06 wiring); left unwired alongside classify_vias_from_parse.
 via_distance_py	unwired at time of recording; no reason given
