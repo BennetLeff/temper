@@ -20,31 +20,20 @@ check_overconstrained	unwired at time of recording; no reason given
 classify_nets_py	unwired at time of recording; no reason given
 closure_validate	unwired at time of recording; no reason given
 component_reach_py	unwired at time of recording; no reason given
-corridor_assign_tracks_to_channels_py	unwired at time of recording; no reason given
-corridor_compute_consolidation_py	unwired at time of recording; no reason given
-corridor_compute_courtyards_py	unwired at time of recording; no reason given
-corridor_compute_spread_py	unwired at time of recording; no reason given
-corridor_gap_py	unwired at time of recording; no reason given
-corridor_identify_channels_py	unwired at time of recording; no reason given
-corridor_overlap_py	unwired at time of recording; no reason given
-corridor_point_in_rect_py	unwired at time of recording; no reason given
+corridor_assign_tracks_to_channels_py	PR #750 quality-metrics cluster -- quality/corridor.py (the third module in this cluster) was retired outright (survey RETIRE: two incompatible coordinate frames, computes nothing on real boards); no Python file exists left to wire this symbol into.
+corridor_compute_consolidation_py	PR #750 quality-metrics cluster -- quality/corridor.py (the third module in this cluster) was retired outright (survey RETIRE: two incompatible coordinate frames, computes nothing on real boards); no Python file exists left to wire this symbol into.
+corridor_compute_courtyards_py	PR #750 quality-metrics cluster -- quality/corridor.py (the third module in this cluster) was retired outright (survey RETIRE: two incompatible coordinate frames, computes nothing on real boards); no Python file exists left to wire this symbol into.
+corridor_compute_spread_py	PR #750 quality-metrics cluster -- quality/corridor.py (the third module in this cluster) was retired outright (survey RETIRE: two incompatible coordinate frames, computes nothing on real boards); no Python file exists left to wire this symbol into.
+corridor_gap_py	PR #750 quality-metrics cluster -- quality/corridor.py (the third module in this cluster) was retired outright (survey RETIRE: two incompatible coordinate frames, computes nothing on real boards); no Python file exists left to wire this symbol into.
+corridor_identify_channels_py	PR #750 quality-metrics cluster -- quality/corridor.py (the third module in this cluster) was retired outright (survey RETIRE: two incompatible coordinate frames, computes nothing on real boards); no Python file exists left to wire this symbol into.
+corridor_overlap_py	PR #750 quality-metrics cluster -- quality/corridor.py (the third module in this cluster) was retired outright (survey RETIRE: two incompatible coordinate frames, computes nothing on real boards); no Python file exists left to wire this symbol into.
+corridor_point_in_rect_py	PR #750 quality-metrics cluster -- quality/corridor.py (the third module in this cluster) was retired outright (survey RETIRE: two incompatible coordinate frames, computes nothing on real boards); no Python file exists left to wire this symbol into.
 dfm_adjacent_layer_py	PR #749 DFM cluster -- Rust proven, shim not written
 dfm_board_bounds_py	PR #749 DFM cluster -- Rust proven, shim not written
-dfm_calculate_angle_py	PR #749 DFM cluster -- Rust proven, shim not written
-dfm_check_annular_ring_py	PR #749 DFM cluster -- Rust proven, shim not written
-dfm_clamp_to_rect_outline_py	PR #749 DFM cluster -- Rust proven, shim not written
-dfm_classify_severity_py	PR #749 DFM cluster -- Rust proven, shim not written
-dfm_connects_to_power_plane_py	PR #749 DFM cluster -- Rust proven, shim not written
-dfm_generate_spoke_segments_py	PR #749 DFM cluster -- Rust proven, shim not written
-dfm_is_power_net_py	PR #749 DFM cluster -- Rust proven, shim not written
-dfm_layer_is_between_py	PR #749 DFM cluster -- Rust proven, shim not written
 dfm_power_pour_bounds_py	PR #749 DFM cluster -- Rust proven, shim not written
 dfm_rect_polygon_py	PR #749 DFM cluster -- Rust proven, shim not written
-dfm_segment_run_copper_area_py	PR #749 DFM cluster -- Rust proven, shim not written
 dfm_thermal_via_positions_py	PR #749 DFM cluster -- Rust proven, shim not written
-dfm_via_annular_area_py	PR #749 DFM cluster -- Rust proven, shim not written
 dfm_via_segment_index_py	PR #749 DFM cluster -- Rust proven, shim not written
-dfm_via_teardrop_py	PR #749 DFM cluster -- Rust proven, shim not written
 escape_generate_vias_py	PR #751 -- BLOCKED on a kernel defect: escape_via.rs hardcodes DEFAULT_ROUNDRECT_RATIO; shipped pin_geometry reads pin.roundrect_ratio
 escape_is_position_valid_py	PR #751 -- BLOCKED on a kernel defect: escape_via.rs hardcodes DEFAULT_ROUNDRECT_RATIO; shipped pin_geometry reads pin.roundrect_ratio
 is_available_py	unwired at time of recording; no reason given
@@ -73,25 +62,19 @@ py_load_loop_template	unwired at time of recording; no reason given
 py_load_netclass_rules	unwired at time of recording; no reason given
 recompute_plane_assignments_py	unwired at time of recording; no reason given
 required_clearance_py	unwired at time of recording; no reason given
-slop_angle_between_py	unwired at time of recording; no reason given
-slop_distance_mm_py	unwired at time of recording; no reason given
-slop_lint_all_py	unwired at time of recording; no reason given
-slop_lint_hairpin_turns_py	unwired at time of recording; no reason given
-slop_lint_isolated_vias_py	unwired at time of recording; no reason given
-slop_lint_single_net_detours_py	unwired at time of recording; no reason given
-slop_lint_zigzag_patterns_py	unwired at time of recording; no reason given
-slop_load_traces_by_net_py	unwired at time of recording; no reason given
-slop_order_traces_py	unwired at time of recording; no reason given
-slop_vector_py	unwired at time of recording; no reason given
+slop_angle_between_py	PR #750 quality-metrics cluster -- metrics/slop_linter.py's public lint_* functions now delegate straight to their aggregate lint kernels (2026-08-06 wiring), which resolve tracing/geometry internally in Rust; the matching private scalar helper this symbol replaced had no caller outside those now-replaced bodies and was removed rather than left dead.
+slop_distance_mm_py	PR #750 quality-metrics cluster -- metrics/slop_linter.py's public lint_* functions now delegate straight to their aggregate lint kernels (2026-08-06 wiring), which resolve tracing/geometry internally in Rust; the matching private scalar helper this symbol replaced had no caller outside those now-replaced bodies and was removed rather than left dead.
+slop_load_traces_by_net_py	PR #750 quality-metrics cluster -- metrics/slop_linter.py's public lint_* functions now delegate straight to their aggregate lint kernels (2026-08-06 wiring), which resolve tracing/geometry internally in Rust; the matching private scalar helper this symbol replaced had no caller outside those now-replaced bodies and was removed rather than left dead.
+slop_order_traces_py	PR #750 quality-metrics cluster -- metrics/slop_linter.py's public lint_* functions now delegate straight to their aggregate lint kernels (2026-08-06 wiring), which resolve tracing/geometry internally in Rust; the matching private scalar helper this symbol replaced had no caller outside those now-replaced bodies and was removed rather than left dead.
+slop_vector_py	PR #750 quality-metrics cluster -- metrics/slop_linter.py's public lint_* functions now delegate straight to their aggregate lint kernels (2026-08-06 wiring), which resolve tracing/geometry internally in Rust; the matching private scalar helper this symbol replaced had no caller outside those now-replaced bodies and was removed rather than left dead.
 snap_to_grid_py	unwired at time of recording; no reason given
 tag_closure	unwired at time of recording; no reason given
 tag_le	unwired at time of recording; no reason given
 tag_to_component_refs	unwired at time of recording; no reason given
 trace_current_table_1oz	unwired at time of recording; no reason given
 validate_stackup_py	unwired at time of recording; no reason given
-via_count_classify_vias_py	unwired at time of recording; no reason given
-via_count_get_board_bbox_py	unwired at time of recording; no reason given
-via_count_get_component_bboxes_py	unwired at time of recording; no reason given
-via_count_is_via_in_bbox_py	unwired at time of recording; no reason given
-via_count_is_via_near_board_edge_py	unwired at time of recording; no reason given
+via_count_get_board_bbox_py	PR #750 quality-metrics cluster -- quality/via_count.py's classify_vias_from_parse (the real caller, used by validation/human_reference_extractor.py) is handed an already-parsed ParseResult, and the kernel's board-source boundary accepts only a scenario dict or a .kicad_pcb path, not a pre-parsed object; wiring here would break that caller or require hand-marshalling ParseResult into a scenario dict, duplicating an unused Rust-side conversion path. classify_vias_from_parse and this symbol's Python counterpart (_get_board_bbox) are left unwired together (2026-08-06 wiring); via_count_classify_vias_py itself IS wired, via the path-taking top-level functions.
+via_count_get_component_bboxes_py	PR #750 quality-metrics cluster -- same ParseResult-vs-path wire-format gap as via_count_get_board_bbox_py above (2026-08-06 wiring); left unwired alongside classify_vias_from_parse.
+via_count_is_via_in_bbox_py	PR #750 quality-metrics cluster -- same ParseResult-vs-path wire-format gap as via_count_get_board_bbox_py above (2026-08-06 wiring); left unwired alongside classify_vias_from_parse.
+via_count_is_via_near_board_edge_py	PR #750 quality-metrics cluster -- same ParseResult-vs-path wire-format gap as via_count_get_board_bbox_py above (2026-08-06 wiring); left unwired alongside classify_vias_from_parse.
 via_distance_py	unwired at time of recording; no reason given

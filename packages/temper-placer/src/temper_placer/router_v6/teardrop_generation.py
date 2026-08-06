@@ -3,6 +3,17 @@ Router V6 Stage 5.3: Insert Teardrops
 
 Adds teardrops to pad/via connections for improved reliability.
 Part of temper-q5dh (Stage 5 - Manufacturing DRC)
+
+Wave 4 Phase B (``docs/plans/2026-08-01-001-feat-wave4-full-migration-program-plan.md``):
+the numeric core of ``_generate_via_teardrop`` (nearest-coordinate search,
+direction unit vector, connection point, and teardrop length/width)
+delegates to ``temper_drc_rs.dfm_via_teardrop_py`` (PR #749). The
+diameter-validity guard stays in Python, byte-identical to the
+pre-migration body, because the kernel has no ``warnings.warn`` and this is
+the one guard that emits one; every other guard (missing/mismatched
+``path_layer``, too few coordinates) is re-evaluated by the kernel and is
+also kept here so this shim never touches ``compiled_route.path.coordinates``
+on a route whose path lacks it (``RoutePath3D``).
 """
 
 from __future__ import annotations
@@ -10,6 +21,8 @@ from __future__ import annotations
 import math
 import warnings
 from dataclasses import dataclass
+
+import temper_drc_rs as _drc
 
 from temper_placer.router_v6.routing_results import RoutingResults
 
@@ -155,67 +168,41 @@ def _generate_via_teardrop(
         return None
 
     # Guard: only generate teardrop if the compiled route's path is on a
-    # layer that this via touches.
+    # layer that this via touches. Kept in Python (byte-identical to the
+    # pre-migration body) so ``.coordinates`` below is never touched on a
+    # path that lacks it (RoutePath3D has no ``.layer_name``, so
+    # ``path_layer`` is None and this returns before reaching ``.coordinates``).
     path_layer = getattr(compiled_route.path, "layer_name", None)
     if path_layer is None:
         return None
     if path_layer not in (via.from_layer, via.to_layer):
         return None
 
-    # Find the path coordinate closest to the via position to determine
-    # the trace approach direction.
     coords = compiled_route.path.coordinates
     if len(coords) < 2:
         return None  # no segment to infer direction from
 
     via_pos = via.position
-    # Locate the coordinate nearest to the via centre
-    nearest_idx = min(
-        range(len(coords)),
-        key=lambda i: math.hypot(coords[i][0] - via_pos[0], coords[i][1] - via_pos[1]),
+    result = _drc.dfm_via_teardrop_py(
+        via_pos[0],
+        via_pos[1],
+        via.diameter,
+        via.from_layer,
+        via.to_layer,
+        path_layer,
+        [c[0] for c in coords],
+        [c[1] for c in coords],
+        compiled_route.width_mm,
+        length_ratio,
     )
-
-    # Pick a neighbour to compute the trace direction from the via outward.
-    # Prefer the next coordinate; fall back to the previous one.
-    if nearest_idx < len(coords) - 1:
-        neighbour = coords[nearest_idx + 1]
-    else:
-        neighbour = coords[nearest_idx - 1]
-
-    dx = neighbour[0] - via_pos[0]
-    dy = neighbour[1] - via_pos[1]
-    dist = math.hypot(dx, dy)
-    if dist < 1e-9:
-        return None  # coincident points — cannot determine direction
-
-    # Unit vector from via centre toward the trace
-    ux = dx / dist
-    uy = dy / dist
-
-    # Connection point at via annulus perimeter
-    connection_point = (
-        via_pos[0] + ux * via.diameter / 2.0,
-        via_pos[1] + uy * via.diameter / 2.0,
+    if result is None:
+        return None
+    connection_point, length_mm, width_mm, layer = result
+    return Teardrop(
+        net_name=net_name,
+        connection_point=connection_point,
+        connection_type="via",
+        length_mm=length_mm,
+        width_mm=width_mm,
+        layer=layer,
     )
-
-    # Calculate teardrop dimensions
-    # Guard against NaN / +inf trace width; clamp -inf / negative to 0
-    raw_trace_width = compiled_route.width_mm
-    if math.isnan(raw_trace_width) or raw_trace_width == float("inf"):
-        return None  # cannot compute sane dimensions
-    trace_width = max(0.0, raw_trace_width)
-    teardrop_length = via.diameter * length_ratio
-    teardrop_width = min(via.diameter * 0.6, trace_width * 2.0)
-
-    # Only add teardrop if via is at least as large as the threshold
-    if via.diameter >= trace_width * 1.2:
-        return Teardrop(
-            net_name=net_name,
-            connection_point=connection_point,
-            connection_type="via",
-            length_mm=teardrop_length,
-            width_mm=teardrop_width,
-            layer=path_layer,
-        )
-
-    return None
