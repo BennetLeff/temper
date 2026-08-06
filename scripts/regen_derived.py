@@ -3,12 +3,13 @@
 
 WHY THIS EXISTS
 ---------------
-On 2026-08-06 a derived artifact drifted behind a merge four separate times,
+On 2026-08-06 a derived artifact drifted behind a merge five separate times,
 and each one turned `main` red for everyone:
 
     README/docs counts          after a 29-PR merge run
     oracle-hash registry        after #794 introduced the gate
     workspace package count     after #800 added a crate
+    script manifest             after #800 added a script
     oracle-hash registry again  after #805 added five oracles
 
 Every one was caught by a gate, correctly — and every one was caught *after*
@@ -162,6 +163,32 @@ def handle_hash_order(check: bool) -> int:
     return 1
 
 
+def handle_manifest() -> int:
+    """`scripts/manifest.yaml` must list every script. Report only.
+
+    Deliberately not auto-generated: an entry carries a `purpose` written for a
+    human reader, and a machine-filled placeholder would defeat the point of
+    the inventory. This landed on `main` red once already — #800 added
+    `gen_wasm_test_registry.py` without an entry — so it is surfaced here even
+    though the fix is manual.
+    """
+    script = REPO_ROOT / "scripts" / "check_manifest_gate.py"
+    if not script.exists():
+        return 0
+    _, out = run(py("check_manifest_gate.py"))
+    missing = [ln.strip() for ln in out.splitlines()
+               if "has no manifest entry" in ln]
+    if not missing:
+        summary = next((ln for ln in out.splitlines() if "PASSED" in ln), "OK")
+        print(f"  ok     manifest: {summary.strip()}")
+        return 0
+    print(f"  ACTION manifest: {len(missing)} script(s) have no entry in "
+          f"scripts/manifest.yaml -- add one (purpose is written by hand):")
+    for ln in missing[:5]:
+        print(f"           {ln[:130]}")
+    return 1
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -175,6 +202,7 @@ def main() -> int:
     problems = regen_pure(args.check)
     problems += handle_oracles(args.check, args.accept_oracle_drift)
     problems += handle_hash_order(args.check)
+    problems += handle_manifest()
 
     if problems == 0:
         print("all derived artifacts consistent")
