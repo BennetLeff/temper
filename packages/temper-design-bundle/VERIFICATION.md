@@ -2213,16 +2213,23 @@ True); empty violations list yields no adjustments; empty/`None` maps return
   the same with the same messages instead of letting `as i64` saturate
   (NaN would silently land in cell (0,0)).
 - **`py_unpack_2` full-collect vs CPython's bounded UNPACK_SEQUENCE.**
-  `py_unpack_2` (deterministic_hubs.rs) collects the ENTIRE iterable before
+  **RESOLVED 2026-08-05 (issue #779, PR #791).** `py_unpack_2`
+  (deterministic_hubs.rs) previously collected the ENTIRE iterable before
   checking length, where CPython's `UNPACK_SEQUENCE` consumes at most 3
   items (first two, then a peek for the too-many decision) and never drains
-  the rest. Consequences: an infinite iterator hangs the kernel where the
-  oracle raises `ValueError: too many values to unpack (expected 2)`, and a
-  4+ item generator is over-consumed (observable only with side-effecting
-  iterators). Recorded, not fixed: production-unreachable — the two unpack
-  sites (seed positions, `max_size`) consume dict values / YAML scalars and
-  lists, and YAML cannot produce generators; the differential is tuple-only.
-  Tracked as a follow-up: **issue #779**.
+  the rest — an infinite iterator hung the kernel where the oracle raises
+  `ValueError: too many values to unpack (expected 2)`, and a 3+ item
+  generator was over-consumed (observable only with side-effecting
+  iterators). It now consumes at most 3 items lazily (`_PyUnpackIterable`
+  semantics) on both unpack sites (seed positions, `max_size`). Pinned by
+  the bounded-consume differential
+  `tests/deterministic/test_deterministic_hubs_unpack_bounded_consume.py`:
+  side-effect consume counts (exactly 3 on the too-many path, exactly 2 on
+  the success path) on both arms and both call sites, plus a
+  timeout-guarded subprocess probe proving the infinite-iterator case raises
+  immediately. The existing error-parity pins
+  (`test_filter_seed_unpack_error_parity`, `test_max_size_non_pair_parity`)
+  are unchanged and stay green.
 
 ## Evidence
 
