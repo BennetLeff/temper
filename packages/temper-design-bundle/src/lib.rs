@@ -15,11 +15,6 @@ mod deterministic_leaves;
 #[cfg(feature = "python")]
 mod host_math;
 
-// Wave 4 Phase 5 batch 2 — routing-metrics data model + aggregation
-// (see routing_metrics.rs).
-#[cfg(feature = "python")]
-mod routing_metrics;
-
 #[cfg(feature = "python")]
 mod loops;
 
@@ -259,7 +254,6 @@ mod python {
         // from temper_placer/deterministic/stages/ (see deterministic_stages.rs).
         crate::deterministic_stages::register(module)?;
         crate::deterministic_leaves::register(module)?;
-        crate::routing_metrics::register(module)?;
 
         // Wave 4 Phase 3 candidate 1: the parse-target contracts ported from
         // temper_placer/core/netlist.py (see netlist_contracts.rs) and
