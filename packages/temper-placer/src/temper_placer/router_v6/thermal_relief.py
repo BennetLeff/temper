@@ -3,6 +3,26 @@ Router V6 Stage 5.4: Add Thermal Relief
 
 Validates and generates thermal relief connections for power planes.
 Part of temper-95xg (Stage 5 - Manufacturing DRC)
+
+Wave 4 Phase B (``docs/plans/2026-08-01-001-feat-wave4-full-migration-program-plan.md``):
+``_is_power_net``, ``_connects_to_power_plane``, ``_generate_spoke_segments``
+and the rectangular arm of ``_clamp_to_board_outline`` delegate to
+``temper_drc_rs`` (``dfm_*_py``, PR #749) -- pure scalar/array math with no
+gap between the kernel's contract and this module's.
+
+``_generate_spoke_segments`` is a **partial** substitution: the Rust kernel
+(``dfm_generate_spoke_segments_py``) computes the raw spoke endpoints only --
+it has no board parameter -- so when a board is supplied this shim still
+clamps each spoke's endpoint in Python via ``_clamp_to_board_outline``,
+exactly as the pre-migration body did.
+
+``_clamp_to_board_outline`` is also partial: only the rectangular fast path
+(``board.has_polygon_outline is False``) delegates, to
+``dfm_clamp_to_rect_outline_py``. The polygonal arm is GEOS
+(``Polygon(...).contains``/``.touches``/``.intersection``) -- not a Rust
+target here (gated on survey spike S1, GEOS polygon boolean algebra; see
+``tests/router_v6/test_dfm_rust_differential.py::test_polygonal_clamp_arm_is_out_of_scope_and_is_a_geos_oracle``)
+-- and stays Python, unchanged.
 """
 
 from __future__ import annotations
@@ -11,6 +31,8 @@ import math
 import re
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
+
+import temper_drc_rs as _drc
 
 from temper_placer.router_v6.routing_results import RoutingResults
 
@@ -233,7 +255,7 @@ def _is_power_net(net_name: str) -> bool:
     Returns:
         True if power net
     """
-    return bool(_POWER_NET_PATTERN.search(net_name))
+    return _drc.dfm_is_power_net_py(net_name)
 
 
 # ---------------------------------------------------------------------------
@@ -262,12 +284,13 @@ def _connects_to_power_plane(
     Returns:
         True if connects to power plane
     """
-    # Net-class verification: must be a declared plane net
-    if net_name not in plane_nets:
-        return False
-    # Layer check: via must touch at least one plane layer
-    touches_plane = via.from_layer in plane_layers or via.to_layer in plane_layers
-    return touches_plane
+    return _drc.dfm_connects_to_power_plane_py(
+        net_name,
+        via.from_layer,
+        via.to_layer,
+        list(plane_layers),
+        sorted(plane_nets),
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -307,30 +330,18 @@ def _generate_spoke_segments(
     """
     cx, cy = pad_position
     pw, ph = pad_size
-    # Effective pad radius ─ use the semi-diagonal so the clearance
-    # starts outside the pad envelope for any rotation.
-    pad_radius = math.hypot(pw / 2.0, ph / 2.0)
-    spoke_length = max(clearance_gap * 2.0, spoke_width * 2.0)
+    # The kernel has no board parameter -- it returns the un-clamped
+    # segments -- so the board-outline clamp (when a board is supplied)
+    # still runs here in Python, exactly as the pre-migration body did.
+    raw_segments = _drc.dfm_generate_spoke_segments_py(
+        cx, cy, pw, ph, spoke_count, spoke_width, clearance_gap
+    )
+    if board is None:
+        return raw_segments
 
     segments: list[tuple[tuple[float, float], tuple[float, float]]] = []
-    for i in range(spoke_count):
-        angle = 2.0 * math.pi * i / spoke_count
-        dx = math.cos(angle)
-        dy = math.sin(angle)
-
-        # Start point ─ just outside the pad + clearance
-        start_r = pad_radius + clearance_gap
-        x1 = cx + start_r * dx
-        y1 = cy + start_r * dy
-
-        # End point ─ start + spoke length
-        x2 = cx + (start_r + spoke_length) * dx
-        y2 = cy + (start_r + spoke_length) * dy
-
-        # Clamp to board outline when available
-        if board is not None:
-            x2, y2 = _clamp_to_board_outline(board, (x2, y2), (cx, cy))
-
+    for (x1, y1), (x2, y2) in raw_segments:
+        x2, y2 = _clamp_to_board_outline(board, (x2, y2), (cx, cy))
         segments.append(((x1, y1), (x2, y2)))
 
     return segments
@@ -362,14 +373,7 @@ def _clamp_to_board_outline(
     # Rectangular board ─ fast path
     if not board.has_polygon_outline:
         ox, oy = board.origin
-        # Guard against NaN/inf board dimensions
-        if not (math.isfinite(board.width) and math.isfinite(board.height)):
-            return (x, y)
-        if not (math.isfinite(ox) and math.isfinite(oy)):
-            return (x, y)
-        x_min, y_min = ox, oy
-        x_max, y_max = ox + board.width, oy + board.height
-        return (max(x_min, min(x, x_max)), max(y_min, min(y, y_max)))
+        return _drc.dfm_clamp_to_rect_outline_py(x, y, ox, oy, board.width, board.height)
 
     # Polygonal board ─ use shapely
     try:

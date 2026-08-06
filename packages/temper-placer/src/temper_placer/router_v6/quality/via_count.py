@@ -8,6 +8,28 @@ Thermal vias: those under Q1/Q2 footprint on DC_BUS+.
 Stitching vias: those around board edges on GND.
 
 Part of temper-7rqf (Stage 6 - Quality Gate)
+
+Wave 4 Phase B (``docs/plans/2026-08-01-001-feat-wave4-full-migration-program-plan.md``):
+the four path-taking public functions (``count_signal_vias``,
+``count_thermal_vias``, ``count_stitching_vias``, ``classify_vias``)
+delegate to the cluster-F via-classification kernel in
+``temper_quality_oracle`` (PR #750), which accepts a scenario dict or a
+``.kicad_pcb`` path and re-parses internally through the same
+``parse_kicad_pcb`` this module's own ``_parse_pcb`` called.
+
+``classify_vias_from_parse`` -- the one real (non-test) production caller in
+this module, used by ``validation/human_reference_extractor.py`` -- is
+deliberately **not** wired: it is handed an already-parsed ``ParseResult``
+object, and the kernel boundary that builds a parsed-board view from a
+Python argument accepts only a scenario dict or a path-like value, not a
+pre-parsed object -- there is no wire format for it. Delegating here would
+either break that caller (a ``TypeError`` for an unrecognised board source)
+or require hand-marshalling ``ParseResult`` into a scenario dict in Python,
+duplicating a Rust-side conversion path that is itself unused today. Left
+unwired, along with ``_classify_vias`` and its four bbox/geometry
+sub-helpers that ``classify_vias_from_parse`` still needs -- each has its
+own scenario-or-path kernel counterpart in ``temper_quality_oracle``, also
+ledgered in ``.unwired-kernel-inventory`` for the same reason.
 """
 
 from __future__ import annotations
@@ -15,6 +37,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING
+
+import temper_quality_oracle as _rs
 
 from temper_placer.router_v6.net_classification import is_ground_net, is_signal_net
 
@@ -50,9 +74,8 @@ def count_signal_vias(routed_pcb_path: Path) -> int:
     Returns:
         Number of signal vias.
     """
-    result = _parse_pcb(routed_pcb_path)
-    counts = _classify_vias(result)
-    return counts.signal
+    signal, _thermal, _stitching, _total = _rs.via_count_classify_vias_py(routed_pcb_path)
+    return signal
 
 
 def count_thermal_vias(routed_pcb_path: Path) -> int:
@@ -64,9 +87,8 @@ def count_thermal_vias(routed_pcb_path: Path) -> int:
     Returns:
         Number of thermal vias.
     """
-    result = _parse_pcb(routed_pcb_path)
-    counts = _classify_vias(result)
-    return counts.thermal
+    _signal, thermal, _stitching, _total = _rs.via_count_classify_vias_py(routed_pcb_path)
+    return thermal
 
 
 def count_stitching_vias(routed_pcb_path: Path) -> int:
@@ -78,9 +100,8 @@ def count_stitching_vias(routed_pcb_path: Path) -> int:
     Returns:
         Number of stitching vias.
     """
-    result = _parse_pcb(routed_pcb_path)
-    counts = _classify_vias(result)
-    return counts.stitching
+    _signal, _thermal, stitching, _total = _rs.via_count_classify_vias_py(routed_pcb_path)
+    return stitching
 
 
 def classify_vias(routed_pcb_path: Path) -> ViaCounts:
@@ -92,8 +113,8 @@ def classify_vias(routed_pcb_path: Path) -> ViaCounts:
     Returns:
         ViaCounts with breakdown of signal, thermal, and stitching vias.
     """
-    result = _parse_pcb(routed_pcb_path)
-    return _classify_vias(result)
+    signal, thermal, stitching, total = _rs.via_count_classify_vias_py(routed_pcb_path)
+    return ViaCounts(signal=signal, thermal=thermal, stitching=stitching, total=total)
 
 
 def classify_vias_from_parse(parse_result: ParseResult) -> ViaCounts:
@@ -104,20 +125,21 @@ def classify_vias_from_parse(parse_result: ParseResult) -> ViaCounts:
 
     Returns:
         ViaCounts with breakdown of signal, thermal, and stitching vias.
+
+    Not delegated to Rust: the caller here already holds a parsed
+    ``ParseResult``, and the kernel boundary
+    (``temper_quality_oracle::cluster_f::bindings::build_view``) accepts only
+    a scenario dict or a ``.kicad_pcb`` path -- see the module docstring.
     """
     return _classify_vias(parse_result)
 
 
 # ---------------------------------------------------------------------------
 # Internal helpers
+#
+# Used only by classify_vias_from_parse (see the module docstring for why
+# that entry point stays pure Python), so these stay unwired too.
 # ---------------------------------------------------------------------------
-
-
-def _parse_pcb(pcb_path: Path) -> ParseResult:
-    """Parse a KiCad PCB file. Returns ParseResult with vias, pads, components."""
-    from temper_placer.io.kicad_parser import parse_kicad_pcb
-
-    return parse_kicad_pcb(Path(pcb_path))
 
 
 def _classify_vias(result: ParseResult) -> ViaCounts:

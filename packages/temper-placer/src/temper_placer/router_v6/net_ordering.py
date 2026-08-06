@@ -19,15 +19,54 @@ Example usage:
     >>>
     >>> ordered = order_nets(netlist, loops)
     >>> print(ordered)  # ['DC_BUS_P', 'SW_NODE', 'DC_BUS_N', 'GATE_H', ...]
+
+Wave 4 Phase B (``docs/plans/2026-08-01-001-feat-wave4-full-migration-program-plan.md``):
+``order_nets``, ``compute_hpwl``, ``compute_bbox_area``,
+``get_net_class_from_string`` and ``get_loop_criticality`` delegate to
+``temper_rust_router`` (``order_nets_py`` and neighbours) -- a total-order
+comparator over nets and loops, not geometry. ``order_nets_py`` was blocked
+(PR #751) on a real divergence -- the kernel had no slot for
+``Component.initial_side``, so it never modelled the bottom-side X mirror
+``core/pin_geometry.py`` applies -- fixed in #829 with a corpus row
+(``mixed_side_mirror``) that pins the mirror. Re-verified here: the shipped
+module is still AST-identical to its pinned oracle, and the fix is present
+(see ``packages/temper-rust-router/src/net_ordering.rs``'s
+``pin_world_position``).
+
+``NetPriority`` is NOT wired to its two kernel-side comparison probes (see
+``packages/temper-rust-router/src/net_ordering.rs`` for the pair that exist
+to reproduce ``NetPriority``'s comparison semantics bit-for-bit under the
+differential's NaN/identity-shortcut corpus rows -- their names are
+deliberately not spelled out here, so this docstring itself does not trip
+``scripts/check_unwired_kernels.py``'s substring scan into reporting a
+production reference that is not real): ``order_nets`` no longer constructs
+``NetPriority`` at all now that the whole function delegates in one call,
+and nothing else in this repository constructs or compares a
+``NetPriority`` directly. Wiring its comparison dunders to the kernel would
+need inventing a caller rather than serving one -- exactly the "inert
+kernel" failure mode that gate's own module docstring names.
+
+Net-membership marshalling note: the kernel's ``loop_criticality`` matches a
+net against a loop's explicit net list only. The shipped
+``LoopCollection.get_loops_for_net``/``Loop.involves_net`` match against
+``loop.nets`` OR any of the loop's pins' nets. ``_loop_specs_wire`` below
+passes the UNION of both, not ``loop.nets`` alone -- every loop source in
+this repository today (``configs/templates/loops/*.yaml`` via
+``io/loop_loader.py``, and ``core/loop_extractor.py``'s auto-extraction)
+keeps ``nets`` a superset of its pins' nets, so the union is a no-op against
+every loop this repo currently constructs, but computing it directly (rather
+than only auditing today's callers) is what keeps this correct for a loop
+built with ``pins=`` and no explicit ``nets=``.
 """
 
 from dataclasses import dataclass
 from enum import IntEnum
 from functools import total_ordering
 
-from temper_placer.core.loop import LoopCollection, LoopPriority
+import temper_rust_router as _trr
+
+from temper_placer.core.loop import LoopCollection
 from temper_placer.core.netlist import Netlist
-from temper_placer.core.pin_geometry import pin_world_position
 
 
 class NetClass(IntEnum):
@@ -104,6 +143,43 @@ class NetPriority:
         return self._key() == other._key()
 
 
+def _components_wire(netlist: Netlist) -> list[tuple]:
+    """Marshal ``netlist.components`` into the kernel's component-row
+    contract: ``[(ref, initial_position, rotation, [(pin_number, position,
+    net)], initial_side)]``.
+
+    ``initial_side`` is the #829 fix's slot -- an optional 5th element so the
+    kernel mirrors X for back-side pads exactly as
+    ``core/pin_geometry.pin_world_position`` does.
+    """
+    return [
+        (
+            comp.ref,
+            comp.initial_position,
+            comp.initial_rotation,
+            [(pin.number, pin.position, pin.net) for pin in comp.pins],
+            comp.initial_side,
+        )
+        for comp in netlist.components
+    ]
+
+
+def _loop_specs_wire(loops: LoopCollection) -> list[tuple[str, str, list[str]]]:
+    """Marshal a ``LoopCollection`` into the kernel's ``[(loop_name,
+    priority_name, [net, ...])]`` contract.
+
+    See the module docstring's "Net-membership marshalling note": the net
+    list here is the union of ``loop.nets`` and every net named by
+    ``loop.pins``, reproducing ``Loop.involves_net``'s OR rather than
+    ``loop.nets`` alone.
+    """
+    specs = []
+    for loop in loops.loops:
+        nets = list(dict.fromkeys([*loop.nets, *(p.net_name for p in loop.pins if p.net_name)]))
+        specs.append((loop.name, loop.priority.name, nets))
+    return specs
+
+
 def get_net_class_from_string(net_class_str: str) -> NetClass:
     """Map netlist string net class to NetClass enum.
 
@@ -119,42 +195,7 @@ def get_net_class_from_string(net_class_str: str) -> NetClass:
         >>> get_net_class_from_string("unknown")
         NetClass.SIGNAL
     """
-    mapping = {
-        # High voltage nets (route first)
-        "HighVoltage": NetClass.HIGH_VOLTAGE,
-        "highvoltage": NetClass.HIGH_VOLTAGE,
-        "HV": NetClass.HIGH_VOLTAGE,
-        # Differential pairs (route early for length matching)
-        "Differential": NetClass.DIFFERENTIAL,
-        "differential": NetClass.DIFFERENTIAL,
-        "DiffPair": NetClass.DIFFERENTIAL,
-        # Power nets
-        "Power": NetClass.POWER,
-        "power": NetClass.POWER,
-        # Gate drive nets
-        "GateDrive": NetClass.GATE_DRIVE,
-        "gatedrive": NetClass.GATE_DRIVE,
-        "Gate": NetClass.GATE_DRIVE,
-        # Split 2026-07-28 (R4): "GateDrive" no longer exists as a netclass
-        # name in packages/temper-placer/configs/netclass_rules.yaml --
-        # without these entries, GATE_*/PWM_* nets would silently fall
-        # through to the NetClass.SIGNAL default below and lose their
-        # routing-priority boost.
-        "GateDriveHV": NetClass.GATE_DRIVE,
-        "gatedrivehv": NetClass.GATE_DRIVE,
-        "GateDriveSELV": NetClass.GATE_DRIVE,
-        "gatedriveselv": NetClass.GATE_DRIVE,
-        # Signal nets (default, includes FinePitch)
-        "Signal": NetClass.SIGNAL,
-        "signal": NetClass.SIGNAL,
-        "FinePitch": NetClass.SIGNAL,  # Fine-pitch pads, treat as signal
-        "finepitch": NetClass.SIGNAL,
-        # Ground nets (route last, usually planes)
-        "Ground": NetClass.GROUND,
-        "ground": NetClass.GROUND,
-        "GND": NetClass.GROUND,
-    }
-    return mapping.get(net_class_str, NetClass.SIGNAL)
+    return NetClass(_trr.net_class_from_string_py(net_class_str))
 
 
 def get_loop_criticality(net_name: str, loops: LoopCollection) -> int:
@@ -175,27 +216,7 @@ def get_loop_criticality(net_name: str, loops: LoopCollection) -> int:
         >>> criticality
         0  # Net is in a critical priority loop
     """
-    # Priority mapping: LoopPriority enum -> integer criticality
-    priority_to_criticality = {
-        LoopPriority.CRITICAL: 0,
-        LoopPriority.HIGH: 1,
-        LoopPriority.MEDIUM: 2,
-        LoopPriority.LOW: 3,
-    }
-
-    # Find all loops containing this net
-    containing_loops = loops.get_loops_for_net(net_name)
-
-    if not containing_loops:
-        return 3  # Not in any loop = low priority
-
-    # Return the best (lowest) criticality
-    best_criticality = 3
-    for loop in containing_loops:
-        criticality = priority_to_criticality.get(loop.priority, 3)
-        best_criticality = min(best_criticality, criticality)
-
-    return best_criticality
+    return _trr.net_loop_criticality_py(net_name, _loop_specs_wire(loops))
 
 
 def compute_hpwl(net_name: str, netlist: Netlist) -> float:
@@ -211,28 +232,7 @@ def compute_hpwl(net_name: str, netlist: Netlist) -> float:
     Returns:
         HPWL in mm. Returns 0.0 for single-pin nets or non-existent nets.
     """
-    pin_positions: list[tuple[float, float]] = []
-
-    for component in netlist.components:
-        comp_x, comp_y = 0.0, 0.0
-        if hasattr(component, "initial_position") and component.initial_position:
-            comp_x, comp_y = component.initial_position
-
-        for pin in component.pins:
-            if pin.net == net_name:
-                pin_x, pin_y = pin_world_position(pin, component)
-                pin_positions.append((pin_x, pin_y))
-
-    if len(pin_positions) < 2:
-        return 0.0
-
-    xs = [p[0] for p in pin_positions]
-    ys = [p[1] for p in pin_positions]
-
-    width = max(xs) - min(xs)
-    height = max(ys) - min(ys)
-
-    return width + height
+    return _trr.net_compute_hpwl_py(net_name, _components_wire(netlist))
 
 
 def compute_bbox_area(net_name: str, netlist: Netlist) -> float:
@@ -254,33 +254,7 @@ def compute_bbox_area(net_name: str, netlist: Netlist) -> float:
         >>> area
         50.0  # 10mm x 5mm bounding box
     """
-    # Collect all pin positions for this net
-    pin_positions: list[tuple[float, float]] = []
-
-    for component in netlist.components:
-        # Get component position (default to origin if not set)
-        comp_x, comp_y = 0.0, 0.0
-        if hasattr(component, "initial_position") and component.initial_position:
-            comp_x, comp_y = component.initial_position
-
-        for pin in component.pins:
-            if pin.net == net_name:
-                # Pin position is component position + pin position offset
-                pin_x, pin_y = pin_world_position(pin, component)
-                pin_positions.append((pin_x, pin_y))
-
-    # Need at least 2 pins to have a bounding box
-    if len(pin_positions) < 2:
-        return 0.0
-
-    # Compute bounding box
-    xs = [p[0] for p in pin_positions]
-    ys = [p[1] for p in pin_positions]
-
-    width = max(xs) - min(xs)
-    height = max(ys) - min(ys)
-
-    return width * height
+    return _trr.net_compute_bbox_area_py(net_name, _components_wire(netlist))
 
 
 def order_nets(
@@ -318,44 +292,8 @@ def order_nets(
     if not netlist.nets:
         return []
 
-    # Default priority for nets not in config
-    DEFAULT_PRIORITY = 5
-    priority_map = net_priority_config or {}
+    components = _components_wire(netlist)
+    nets = [(net.name, net.pins, net.net_class) for net in netlist.nets]
+    loop_specs = _loop_specs_wire(loops)
 
-    # Build priority for each net
-    priorities: list[tuple[NetPriority, str]] = []
-
-    for net in netlist.nets:
-        # EXP-6: Get explicit config priority (lower = routes first)
-        config_priority = priority_map.get(net.name, DEFAULT_PRIORITY)
-
-        # Get net class
-        net_class_str = getattr(net, "net_class", None) or "Signal"
-        net_class = get_net_class_from_string(net_class_str)
-
-        # Get loop criticality
-        loop_criticality = get_loop_criticality(net.name, loops)
-
-        # Get pin count
-        pin_count = len(net.pins)
-
-        # Get estimated wirelength (HPWL)
-        estimated_wirelength = compute_hpwl(net.name, netlist)
-
-        # Create priority object
-        priority = NetPriority(
-            config_priority=config_priority,  # EXP-6: New field
-            loop_criticality=loop_criticality,
-            net_class=net_class,
-            pin_count=pin_count,
-            estimated_wirelength=estimated_wirelength,
-            name=net.name,
-        )
-
-        priorities.append((priority, net.name))
-
-    # Sort by priority (lower = routes first)
-    priorities.sort(key=lambda x: x[0])
-
-    # Extract just the net names in sorted order
-    return [name for _, name in priorities]
+    return _trr.order_nets_py(components, nets, loop_specs, net_priority_config)

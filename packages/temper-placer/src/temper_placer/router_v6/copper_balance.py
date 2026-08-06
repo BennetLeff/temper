@@ -10,6 +10,14 @@ Part of temper-nd5z (Stage 5 - Manufacturing DRC)
     accounted for in the copper area estimation.  Only trace segments
     (including per-layer segments from ``RoutePath3D``), via annular
     rings (pad minus drill), and plane-net approximations are included.
+
+Wave 4 Phase B (``docs/plans/2026-08-01-001-feat-wave4-full-migration-program-plan.md``):
+``_via_annular_area``, ``_layer_is_between`` and the ``RoutePath3D``
+per-layer accumulation loop (lifted out as ``_segment_run_copper_area``,
+matching the oracle's own extraction -- see
+``tests/router_v6/_dfm_py_oracle.py``) delegate to ``temper_drc_rs``
+(``dfm_via_annular_area_py`` / ``dfm_layer_is_between_py`` /
+``dfm_segment_run_copper_area_py``, PR #749).
 """
 
 from __future__ import annotations
@@ -17,6 +25,8 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
+
+import temper_drc_rs as _drc
 
 from temper_placer.core.board import STANDARD_LAYER_ORDER
 from temper_placer.router_v6.routing_results import RoutingResults
@@ -204,12 +214,7 @@ def _calculate_layer_copper_area(
             if not hasattr(compiled_route.path, "segments"):
                 continue
             segments = compiled_route.path.segments
-            for i in range(len(segments) - 1):
-                x1, y1, seg_layer = segments[i]
-                x2, y2, _ = segments[i + 1]
-                if seg_layer == layer_name:
-                    seg_length = math.hypot(x2 - x1, y2 - y1)
-                    copper_area += seg_length * compiled_route.width_mm
+            copper_area += _segment_run_copper_area(segments, layer_name, compiled_route.width_mm)
 
         # ---------------------------------------------------------------
         # Via annular ring area (pad minus drill hole)
@@ -230,6 +235,28 @@ def _calculate_layer_copper_area(
     return copper_area
 
 
+def _segment_run_copper_area(
+    segments: list[tuple[float, float, str]],
+    layer_name: str,
+    width_mm: float,
+) -> float:
+    """RoutePath3D per-layer trace-area accumulation for one compiled route.
+
+    Lifted out of ``_calculate_layer_copper_area``'s enclosing
+    ``for net_name, compiled_route in routing_results.compiled_routes.items()``
+    loop so it is callable standalone -- matching the oracle's own extraction
+    (``tests/router_v6/_dfm_py_oracle.py``), which is what
+    ``dfm_segment_run_copper_area_py`` was proven against.
+    """
+    return _drc.dfm_segment_run_copper_area_py(
+        [s[0] for s in segments],
+        [s[1] for s in segments],
+        [s[2] for s in segments],
+        layer_name,
+        width_mm,
+    )
+
+
 def _via_annular_area(via: object) -> float:
     """
     Return the annular ring area of a via pad on one layer (mm²).
@@ -240,18 +267,7 @@ def _via_annular_area(via: object) -> float:
     """
     diameter = via.diameter  # type: ignore[attr-defined]
     drill = getattr(via, "drill", 0.0) or 0.0
-
-    # Guard: NaN / inf diameter or drill → 0.0
-    if math.isnan(diameter) or math.isnan(drill) or math.isinf(diameter) or math.isinf(drill):
-        return 0.0
-
-    # Guard: non-positive diameter or drill >= diameter → 0.0
-    if diameter <= 0.0 or drill >= diameter:
-        return 0.0
-
-    r_pad = diameter / 2.0
-    r_hole = drill / 2.0 if drill > 0.0 else 0.0
-    return math.pi * (r_pad * r_pad - r_hole * r_hole)
+    return _drc.dfm_via_annular_area_py(diameter, drill)
 
 
 def _layer_is_between(from_layer: str, to_layer: str, candidate: str) -> bool:
@@ -259,12 +275,4 @@ def _layer_is_between(from_layer: str, to_layer: str, candidate: str) -> bool:
     Return ``True`` if *candidate* lies strictly between
     *from_layer* and *to_layer* in the standard 4-layer stack-up.
     """
-    try:
-        idx_from = _LAYER_ORDER_NAMES.index(from_layer)
-        idx_to = _LAYER_ORDER_NAMES.index(to_layer)
-        idx_candidate = _LAYER_ORDER_NAMES.index(candidate)
-    except ValueError:
-        return False
-    lo = min(idx_from, idx_to)
-    hi = max(idx_from, idx_to)
-    return lo < idx_candidate < hi
+    return _drc.dfm_layer_is_between_py(from_layer, to_layer, candidate)

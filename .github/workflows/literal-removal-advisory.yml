@@ -19,9 +19,19 @@ name: Literal-Removal Advisory
 # advice now arrives just after a merge rather than just before one. That is the
 # deliberate trade: a check that cannot fail does not justify holding a runner
 # slot away from the checks that can.
+# Keyed on the BRANCH, not the SHA. A per-SHA group is a group of one, so
+# nothing is ever superseded and every push to main adds a permanent queue
+# entry: measured 2026-08-06, seven of these were queued simultaneously, the
+# oldest three hours stale, while main's actual verification could not get a
+# runner. Keying on the ref means a newer push supersedes an older one, which
+# is the whole point of a concurrency group.
+#
+# Cancelling is safe here for the reason given above -- this advisory cannot
+# fail a build, and its verdict is about a commit that a newer push has already
+# replaced. It is recomputed from scratch on every run.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.sha }}
-  cancel-in-progress: false
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 # no-pr-trigger: advisory only -- the job carries job-level
 # continue-on-error and scripts/literal_removal_check.py "always exits 0" by

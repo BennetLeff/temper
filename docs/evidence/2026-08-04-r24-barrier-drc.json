@@ -1,0 +1,644 @@
+{
+  "ceiling_reference": {
+    "error_ceiling": 1267,
+    "violations_by_type": {
+      "annular_width": 4,
+      "clearance": 379,
+      "copper_edge_clearance": 12,
+      "courtyards_overlap": 11,
+      "creepage": 188,
+      "drill_out_of_range": 4,
+      "hole_clearance": 105,
+      "hole_to_hole": 3,
+      "shorting_items": 201,
+      "solder_mask_bridge": 154,
+      "track_width": 199,
+      "tracks_crossing": 3,
+      "via_diameter": 4
+    },
+    "warning_ceiling": 472,
+    "warnings_by_type": {
+      "lib_footprint_issues": 11,
+      "lib_footprint_mismatch": 23,
+      "missing_courtyard": 5,
+      "pth_inside_courtyard": 1,
+      "silk_edge_clearance": 1,
+      "silk_over_copper": 172,
+      "silk_overlap": 199,
+      "track_dangling": 45,
+      "via_dangling": 15
+    }
+  },
+  "conclusion": {
+    "candidate_1": "REJECTED: courtyards_overlap 11->12 and silk_over_copper 172->173 are each a ceiling RAISE requiring a Ceiling-Approval trailer; clearance also sits exactly on its 379 ceiling.",
+    "candidate_2_written": "RECOMMENDED and written: every per-type count and both aggregates identical to baseline within the same observed ranges. No ceiling moves; no Ceiling-Approval trailer is warranted and none is authored.",
+    "drc_ceiling_json": "NOT edited in this PR, per the instruction this work was done under. No number would change; only the provenance input hash is now stale (recorded 51e39844..., written board c4c2b59a...), so check_measurement_provenance.py will fail closed until the maintainer refreshes it."
+  },
+  "environment": {
+    "kicad_cli_version": "10.0.4",
+    "machine": "arm64",
+    "note": "CI runs kicad-cli 10.0.5, a different version band (~+107 on total). Never compare these local counts against a CI-recorded one.",
+    "platform": "macOS-26.5.1-arm64-arm-64bit"
+  },
+  "median_by_category": {
+    "W:lib_footprint_issues": {
+      "baseline": 11,
+      "candidate_1": 11,
+      "candidate_2_written": 11,
+      "ceiling": 11
+    },
+    "W:lib_footprint_mismatch": {
+      "baseline": 23,
+      "candidate_1": 23,
+      "candidate_2_written": 23,
+      "ceiling": 23
+    },
+    "W:missing_courtyard": {
+      "baseline": 5,
+      "candidate_1": 5,
+      "candidate_2_written": 5,
+      "ceiling": 5
+    },
+    "W:pth_inside_courtyard": {
+      "baseline": 1,
+      "candidate_1": 1,
+      "candidate_2_written": 1,
+      "ceiling": 1
+    },
+    "W:silk_edge_clearance": {
+      "baseline": 1,
+      "candidate_1": 1,
+      "candidate_2_written": 1,
+      "ceiling": 1
+    },
+    "W:silk_over_copper": {
+      "baseline": 172,
+      "candidate_1": 173,
+      "candidate_2_written": 172,
+      "ceiling": 172
+    },
+    "W:silk_overlap": {
+      "baseline": 199,
+      "candidate_1": 199,
+      "candidate_2_written": 199,
+      "ceiling": 199
+    },
+    "W:track_dangling": {
+      "baseline": 45,
+      "candidate_1": 45,
+      "candidate_2_written": 45,
+      "ceiling": 45
+    },
+    "W:via_dangling": {
+      "baseline": 15,
+      "candidate_1": 15,
+      "candidate_2_written": 15,
+      "ceiling": 15
+    },
+    "annular_width": {
+      "baseline": 4,
+      "candidate_1": 4,
+      "candidate_2_written": 4,
+      "ceiling": 4
+    },
+    "clearance": {
+      "baseline": 378,
+      "candidate_1": 379,
+      "candidate_2_written": 378,
+      "ceiling": 379
+    },
+    "copper_edge_clearance": {
+      "baseline": 12,
+      "candidate_1": 12,
+      "candidate_2_written": 12,
+      "ceiling": 12
+    },
+    "courtyards_overlap": {
+      "baseline": 11,
+      "candidate_1": 12,
+      "candidate_2_written": 11,
+      "ceiling": 11
+    },
+    "creepage": {
+      "baseline": 186,
+      "candidate_1": 187,
+      "candidate_2_written": 186,
+      "ceiling": 188
+    },
+    "drill_out_of_range": {
+      "baseline": 4,
+      "candidate_1": 4,
+      "candidate_2_written": 4,
+      "ceiling": 4
+    },
+    "hole_clearance": {
+      "baseline": 105,
+      "candidate_1": 105,
+      "candidate_2_written": 105,
+      "ceiling": 105
+    },
+    "hole_to_hole": {
+      "baseline": 3,
+      "candidate_1": 3,
+      "candidate_2_written": 3,
+      "ceiling": 3
+    },
+    "shorting_items": {
+      "baseline": 199,
+      "candidate_1": 199,
+      "candidate_2_written": 199,
+      "ceiling": 201
+    },
+    "solder_mask_bridge": {
+      "baseline": 154,
+      "candidate_1": 154,
+      "candidate_2_written": 154,
+      "ceiling": 154
+    },
+    "track_width": {
+      "baseline": 199,
+      "candidate_1": 199,
+      "candidate_2_written": 199,
+      "ceiling": 199
+    },
+    "tracks_crossing": {
+      "baseline": 3,
+      "candidate_1": 3,
+      "candidate_2_written": 3,
+      "ceiling": 3
+    },
+    "via_diameter": {
+      "baseline": 4,
+      "candidate_1": 4,
+      "candidate_2_written": 4,
+      "ceiling": 4
+    }
+  },
+  "provenance": {
+    "commit": "f2b09d84673b3a18d8fabe454230f1b240148f3d",
+    "dirty": true
+  },
+  "runs": {
+    "baseline-committed": {
+      "samples": 11,
+      "total_errors": {
+        "all": [
+          1263,
+          1262,
+          1261,
+          1262,
+          1262,
+          1263,
+          1263,
+          1262,
+          1263,
+          1262,
+          1263
+        ],
+        "max": 1263,
+        "median": 1262,
+        "min": 1261
+      },
+      "total_warnings": {
+        "all": [
+          472,
+          472,
+          472,
+          472,
+          472,
+          472,
+          472,
+          472,
+          472,
+          472,
+          472
+        ],
+        "max": 472,
+        "median": 472,
+        "min": 472
+      },
+      "violations_by_type": {
+        "annular_width": {
+          "max": 4,
+          "median": 4,
+          "min": 4
+        },
+        "clearance": {
+          "max": 378,
+          "median": 378,
+          "min": 377
+        },
+        "copper_edge_clearance": {
+          "max": 12,
+          "median": 12,
+          "min": 12
+        },
+        "courtyards_overlap": {
+          "max": 11,
+          "median": 11,
+          "min": 11
+        },
+        "creepage": {
+          "max": 187,
+          "median": 186,
+          "min": 185
+        },
+        "drill_out_of_range": {
+          "max": 4,
+          "median": 4,
+          "min": 4
+        },
+        "hole_clearance": {
+          "max": 105,
+          "median": 105,
+          "min": 105
+        },
+        "hole_to_hole": {
+          "max": 3,
+          "median": 3,
+          "min": 3
+        },
+        "shorting_items": {
+          "max": 200,
+          "median": 199,
+          "min": 199
+        },
+        "solder_mask_bridge": {
+          "max": 154,
+          "median": 154,
+          "min": 154
+        },
+        "track_width": {
+          "max": 199,
+          "median": 199,
+          "min": 199
+        },
+        "tracks_crossing": {
+          "max": 3,
+          "median": 3,
+          "min": 3
+        },
+        "via_diameter": {
+          "max": 4,
+          "median": 4,
+          "min": 4
+        }
+      },
+      "warnings_by_type": {
+        "lib_footprint_issues": {
+          "max": 11,
+          "median": 11,
+          "min": 11
+        },
+        "lib_footprint_mismatch": {
+          "max": 23,
+          "median": 23,
+          "min": 23
+        },
+        "missing_courtyard": {
+          "max": 5,
+          "median": 5,
+          "min": 5
+        },
+        "pth_inside_courtyard": {
+          "max": 1,
+          "median": 1,
+          "min": 1
+        },
+        "silk_edge_clearance": {
+          "max": 1,
+          "median": 1,
+          "min": 1
+        },
+        "silk_over_copper": {
+          "max": 172,
+          "median": 172,
+          "min": 172
+        },
+        "silk_overlap": {
+          "max": 199,
+          "median": 199,
+          "min": 199
+        },
+        "track_dangling": {
+          "max": 45,
+          "median": 45,
+          "min": 45
+        },
+        "via_dangling": {
+          "max": 15,
+          "median": 15,
+          "min": 15
+        }
+      }
+    },
+    "candidate-1-57.50-38.50": {
+      "samples": 11,
+      "total_errors": {
+        "all": [
+          1265,
+          1265,
+          1265,
+          1266,
+          1265,
+          1266,
+          1265,
+          1265,
+          1265,
+          1266,
+          1265
+        ],
+        "max": 1266,
+        "median": 1265,
+        "min": 1265
+      },
+      "total_warnings": {
+        "all": [
+          473,
+          473,
+          473,
+          473,
+          473,
+          473,
+          473,
+          473,
+          473,
+          473,
+          473
+        ],
+        "max": 473,
+        "median": 473,
+        "min": 473
+      },
+      "violations_by_type": {
+        "annular_width": {
+          "max": 4,
+          "median": 4,
+          "min": 4
+        },
+        "clearance": {
+          "max": 379,
+          "median": 379,
+          "min": 378
+        },
+        "copper_edge_clearance": {
+          "max": 12,
+          "median": 12,
+          "min": 12
+        },
+        "courtyards_overlap": {
+          "max": 12,
+          "median": 12,
+          "min": 12
+        },
+        "creepage": {
+          "max": 188,
+          "median": 187,
+          "min": 187
+        },
+        "drill_out_of_range": {
+          "max": 4,
+          "median": 4,
+          "min": 4
+        },
+        "hole_clearance": {
+          "max": 105,
+          "median": 105,
+          "min": 105
+        },
+        "hole_to_hole": {
+          "max": 3,
+          "median": 3,
+          "min": 3
+        },
+        "shorting_items": {
+          "max": 200,
+          "median": 199,
+          "min": 199
+        },
+        "solder_mask_bridge": {
+          "max": 154,
+          "median": 154,
+          "min": 154
+        },
+        "track_width": {
+          "max": 199,
+          "median": 199,
+          "min": 199
+        },
+        "tracks_crossing": {
+          "max": 3,
+          "median": 3,
+          "min": 3
+        },
+        "via_diameter": {
+          "max": 4,
+          "median": 4,
+          "min": 4
+        }
+      },
+      "warnings_by_type": {
+        "lib_footprint_issues": {
+          "max": 11,
+          "median": 11,
+          "min": 11
+        },
+        "lib_footprint_mismatch": {
+          "max": 23,
+          "median": 23,
+          "min": 23
+        },
+        "missing_courtyard": {
+          "max": 5,
+          "median": 5,
+          "min": 5
+        },
+        "pth_inside_courtyard": {
+          "max": 1,
+          "median": 1,
+          "min": 1
+        },
+        "silk_edge_clearance": {
+          "max": 1,
+          "median": 1,
+          "min": 1
+        },
+        "silk_over_copper": {
+          "max": 173,
+          "median": 173,
+          "min": 173
+        },
+        "silk_overlap": {
+          "max": 199,
+          "median": 199,
+          "min": 199
+        },
+        "track_dangling": {
+          "max": 45,
+          "median": 45,
+          "min": 45
+        },
+        "via_dangling": {
+          "max": 15,
+          "median": 15,
+          "min": 15
+        }
+      }
+    },
+    "candidate-2-81.00-21.50-WRITTEN": {
+      "board_sha256": "c4c2b59ac11bdff42506498db97e6520c82feb66afd4226e295a94ad4678b445",
+      "samples": 11,
+      "total_errors": {
+        "all": [
+          1262,
+          1262,
+          1263,
+          1261,
+          1263,
+          1262,
+          1262,
+          1262,
+          1262,
+          1261,
+          1263
+        ],
+        "max": 1263,
+        "median": 1262,
+        "min": 1261
+      },
+      "total_warnings": {
+        "all": [
+          472,
+          472,
+          472,
+          472,
+          472,
+          472,
+          472,
+          472,
+          472,
+          472,
+          472
+        ],
+        "max": 472,
+        "median": 472,
+        "min": 472
+      },
+      "violations_by_type": {
+        "annular_width": {
+          "max": 4,
+          "median": 4,
+          "min": 4
+        },
+        "clearance": {
+          "max": 378,
+          "median": 378,
+          "min": 377
+        },
+        "copper_edge_clearance": {
+          "max": 12,
+          "median": 12,
+          "min": 12
+        },
+        "courtyards_overlap": {
+          "max": 11,
+          "median": 11,
+          "min": 11
+        },
+        "creepage": {
+          "max": 187,
+          "median": 186,
+          "min": 185
+        },
+        "drill_out_of_range": {
+          "max": 4,
+          "median": 4,
+          "min": 4
+        },
+        "hole_clearance": {
+          "max": 105,
+          "median": 105,
+          "min": 105
+        },
+        "hole_to_hole": {
+          "max": 3,
+          "median": 3,
+          "min": 3
+        },
+        "shorting_items": {
+          "max": 200,
+          "median": 199,
+          "min": 199
+        },
+        "solder_mask_bridge": {
+          "max": 154,
+          "median": 154,
+          "min": 154
+        },
+        "track_width": {
+          "max": 199,
+          "median": 199,
+          "min": 199
+        },
+        "tracks_crossing": {
+          "max": 3,
+          "median": 3,
+          "min": 3
+        },
+        "via_diameter": {
+          "max": 4,
+          "median": 4,
+          "min": 4
+        }
+      },
+      "warnings_by_type": {
+        "lib_footprint_issues": {
+          "max": 11,
+          "median": 11,
+          "min": 11
+        },
+        "lib_footprint_mismatch": {
+          "max": 23,
+          "median": 23,
+          "min": 23
+        },
+        "missing_courtyard": {
+          "max": 5,
+          "median": 5,
+          "min": 5
+        },
+        "pth_inside_courtyard": {
+          "max": 1,
+          "median": 1,
+          "min": 1
+        },
+        "silk_edge_clearance": {
+          "max": 1,
+          "median": 1,
+          "min": 1
+        },
+        "silk_over_copper": {
+          "max": 172,
+          "median": 172,
+          "min": 172
+        },
+        "silk_overlap": {
+          "max": 199,
+          "median": 199,
+          "min": 199
+        },
+        "track_dangling": {
+          "max": 45,
+          "median": 45,
+          "min": 45
+        },
+        "via_dangling": {
+          "max": 15,
+          "median": 15,
+          "min": 15
+        }
+      }
+    }
+  },
+  "what": "DRC for the committed board and the two R24 candidates. Every run: N=11, kicad-cli --all-track-errors via temper_placer.validation._drc_api.run_drc, pcb/temper.kicad_dru regenerated from scripts/generate_kicad_dru.py first, board measured IN PLACE at pcb/temper.kicad_pcb (see the .md -- measuring a copy elsewhere silently drops every custom rule)."
+}

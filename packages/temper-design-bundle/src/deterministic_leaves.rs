@@ -15,7 +15,7 @@
 //! component-math kernels (component_assignment, layer_assignment,
 //! power_plane, fine_pitch_escape, phased_component_assignment_validator's
 //! slot-grid kernels) and the leaf data contracts (sequential_routing_dataclasses
-//! `DiffPairConfig`, routing_metrics), because they bind onto this crate's
+//! `DiffPairConfig`), because they bind onto this crate's
 //! contract pyclasses (`Netlist`/`Component`/`LayerAssignment`) — the same
 //! rationale #762 recorded for `deterministic_stages.rs`. DRC-check stages
 //! (courtyard_check / drc_sweep / drc_validation / placement_validation) land
