@@ -31,6 +31,21 @@ CALL-ARG HARD GATE (see docs/evidence/2026-07-26-api-signature-drift-gate.md):
   This check runs even if ``.typecheck-allowlist`` itself is missing/empty,
   and fails closed (exit != 0) if ``.call-arg-allowlist`` is missing.
 
+COVERAGE GATE (see check_coverage):
+  A per-file error count is only evidence if mypy actually analysed the file.
+  It otherwise cannot tell "0 errors" from "never looked", and the latter is
+  reported as ``STALE`` — a warning.  On 2026-08-05 a botched merge left three
+  stray ``) -> LoopCollection: ...`` lines in a ``.pyi`` stub; mypy stopped at
+  that one syntax error ("errors prevented further checking"), every other
+  file reported zero, and the gate printed "1 errors in 1 files (baseline:
+  209)" plus 27 STALE entries — output indistinguishable from a broken local
+  environment, which is what it was misdiagnosed as.  Had the stub already
+  been in the allowlist, the same abort would have PASSED the gate while
+  type-checking nothing at all.  The gate therefore now demands positive
+  evidence of coverage: it collects the analysed-module set from mypy's
+  ``--linecount-report`` and hard-fails if the run aborted or if any
+  still-existing allowlisted file is absent from that set.
+
 Usage:
   python3 scripts/check_typecheck_gate.py
   python3 scripts/check_typecheck_gate.py --init
@@ -41,6 +56,7 @@ import argparse
 import re
 import subprocess
 import sys
+import tempfile
 from collections import defaultdict
 from pathlib import Path
 
@@ -53,8 +69,58 @@ MYPY_LINE_RE = re.compile(r"^(.+?):(\d+): error: (.+?)(?:\[([a-z-]+)\])?$")
 
 CALL_ARG_CODE = "call-arg"
 
+# mypy prints this in its summary line when a *blocking* error (a syntax error,
+# an unresolvable duplicate module, ...) made it give up before analysing the
+# rest of the tree.  See ``COVERAGE GATE`` in the module docstring.
+MYPY_ABORT_MARKER = "errors prevented further checking"
 
-def run_mypy() -> tuple[dict[str, int], list[tuple[str, str, str]]]:
+
+def path_to_module(filepath: str) -> str | None:
+    """Map an allowlist file path to the dotted module name mypy reports.
+
+    ``packages/temper-placer/src/temper_placer/core/state.py`` ->
+    ``temper_placer.core.state``.  Returns None if the path is not under any
+    SCOPE root (such an entry is not something this run could have analysed).
+    """
+    for scope in SCOPE:
+        prefix = scope.rstrip("/") + "/"
+        if not filepath.startswith(prefix):
+            continue
+        rel = filepath[len(prefix):]
+        for suffix in (".pyi", ".py"):
+            if rel.endswith(suffix):
+                rel = rel[: -len(suffix)]
+                break
+        module = rel.replace("/", ".")
+        if module.endswith(".__init__"):
+            module = module[: -len(".__init__")]
+        return module
+    return None
+
+
+def parse_linecount_report(report_dir: Path) -> set[str]:
+    """Extract the set of modules mypy actually analysed from its linecount report.
+
+    ``--linecount-report`` writes one row per analysed module, plus a leading
+    ``total`` row.  Columns are ``lines lines_annotated funcs funcs_annotated
+    module``; we only want the last field.
+    """
+    modules: set[str] = set()
+    report = report_dir / "linecount.txt"
+    if not report.exists():
+        return modules
+    for line in report.read_text().splitlines():
+        parts = line.split()
+        if len(parts) < 5:
+            continue
+        name = parts[4]
+        if name == "total":
+            continue
+        modules.add(name)
+    return modules
+
+
+def run_mypy() -> tuple[dict[str, int], list[tuple[str, str, str]], set[str], list[tuple[str, str]]]:
     """Run mypy once per SCOPE entry and split results into (per-file counts,
     call-arg entries).
 
@@ -76,21 +142,35 @@ def run_mypy() -> tuple[dict[str, int], list[tuple[str, str, str]]]:
     ``call-arg`` errors ("unexpected keyword argument" / "too many arguments"
     / etc.) are deliberately excluded from the returned counts dict — they
     are governed by the separate, non-allowlistable hard gate below, not by
-    the generic monotonic-shrink mechanism. Returns
-    ``(counts, [(filepath, line, message), ...])``.
+    the generic monotonic-shrink mechanism.
+
+    Also returns the coverage evidence the gate needs to tell "this file has
+    zero errors" apart from "mypy never looked at this file": the set of
+    modules mypy reported analysing (via ``--linecount-report``) and the list
+    of scopes whose run aborted on a blocking error. Returns
+    ``(counts, [(filepath, line, message), ...], analysed_modules, aborted)``.
     """
     seen: set[tuple[str, str, str, str | None]] = set()
     counts: dict[str, int] = defaultdict(int)
     call_arg_entries: list[tuple[str, str, str]] = []
+    analysed: set[str] = set()
+    aborted: list[tuple[str, str]] = []
     for scope in SCOPE:
         scope_path = Path(scope)
         if not scope_path.exists():
             continue
-        result = subprocess.run(
-            ["uv", "run", "mypy", str(scope_path), "--ignore-missing-imports"],
-            capture_output=True, text=True,
-        )
+        with tempfile.TemporaryDirectory() as report_dir:
+            result = subprocess.run(
+                [
+                    "uv", "run", "mypy", str(scope_path), "--ignore-missing-imports",
+                    "--linecount-report", report_dir,
+                ],
+                capture_output=True, text=True,
+            )
+            analysed |= parse_linecount_report(Path(report_dir))
         for line in result.stdout.splitlines():
+            if MYPY_ABORT_MARKER in line:
+                aborted.append((scope, line.strip()))
             m = MYPY_LINE_RE.match(line.strip())
             if not m:
                 continue
@@ -103,7 +183,76 @@ def run_mypy() -> tuple[dict[str, int], list[tuple[str, str, str]]]:
                 call_arg_entries.append((filepath, lineno, message.strip()))
             else:
                 counts[filepath] += 1
-    return dict(counts), call_arg_entries
+    return dict(counts), call_arg_entries, analysed, aborted
+
+
+def check_coverage(allowlist: dict[str, int], analysed: set[str], aborted: list[tuple[str, str]]) -> int:
+    """Refuse to report a verdict unless mypy actually analysed the allowlist.
+
+    Two distinct false-verdict modes, both observed in the wild:
+
+    1. **Blocking abort.** A syntax error in a single ``.pyi`` stub makes mypy
+       print one error and stop ("errors prevented further checking"). Every
+       other file then reports zero errors, so the gate emits a wall of
+       ``STALE`` warnings and — if the offending file happened to already be
+       in the allowlist — *passes*. That is a false PASS covering the entire
+       codebase. (2026-08-05: a botched merge resolution left three stray
+       ``) -> LoopCollection: ...`` lines in the temper_design_bundle_python
+       stub; the gate reported "1 errors in 1 files (baseline: 209)" and 27
+       stale entries, which reads as a local-environment problem rather than
+       as "mypy analysed nothing".)
+
+    2. **Silently unanalysed file.** An allowlist entry mypy never reached
+       looks identical to one whose errors were all fixed: zero errors, so
+       ``STALE``, which is only a warning.
+
+    Both are eliminated by requiring positive evidence of coverage. An
+    allowlist entry whose file no longer exists is reported but not failed —
+    a deleted file genuinely has no errors.
+    """
+    if aborted:
+        print("FAIL (closed): mypy aborted before analysing the full tree.")
+        for scope, summary in aborted:
+            print(f"  {scope}: {summary}")
+        print(
+            "  A blocking error (syntax error in a .py/.pyi, duplicate module, bad config)\n"
+            "  stops mypy early, so every remaining file reports zero errors. The per-file\n"
+            "  counts below would be meaningless — and would read as 'everything shrank'.\n"
+            "  Fix the blocking error above, then re-run. Do NOT re-run --init in this state:\n"
+            "  it would wipe the entire baseline to zero."
+        )
+        return 1
+
+    missing: list[str] = []
+    gone: list[str] = []
+    for filepath in sorted(allowlist):
+        module = path_to_module(filepath)
+        if module is None:
+            continue
+        if module in analysed:
+            continue
+        if not Path(filepath).exists():
+            gone.append(filepath)
+        else:
+            missing.append(filepath)
+
+    for filepath in gone:
+        print(f"GONE: {filepath} no longer exists — remove its allowlist entry")
+
+    if missing:
+        print(
+            f"FAIL (closed): {len(missing)} allowlisted file(s) exist but mypy did not "
+            "analyse them:"
+        )
+        for filepath in missing:
+            print(f"  {filepath}")
+        print(
+            "  Their zero-error result is an absence of evidence, not evidence of absence,\n"
+            "  and would otherwise be reported as a harmless STALE entry. Check for an\n"
+            "  exclude rule, a shadowed module name, or a missing __init__.py."
+        )
+        return 1
+    return 0
 
 
 def load_call_arg_allowlist() -> set[tuple[str, str]]:
@@ -185,14 +334,27 @@ def load_allowlist() -> dict[str, int]:
     return entries
 
 
-def init_allowlist() -> dict[str, int]:
+def init_allowlist() -> int:
     """Populate allowlist from current mypy error counts.
 
     Deliberately does NOT touch .call-arg-allowlist — that file is only ever
     edited by hand, so a routine ``--init`` re-sync can never absorb a new
     call-arg regression the way commit fed27984 absorbed check_routability's.
+
+    Refuses to write anything if mypy aborted: re-baselining from a run that
+    stopped at the first blocking error would silently reset every file to
+    zero and permanently launder the real backlog away.
     """
-    current, call_arg_entries = run_mypy()
+    current, call_arg_entries, _analysed, aborted = run_mypy()
+    if aborted:
+        print("REFUSING to --init: mypy aborted before analysing the full tree.")
+        for scope, summary in aborted:
+            print(f"  {scope}: {summary}")
+        print(
+            f"  Writing {ALLOWLIST_PATH} now would record near-zero counts for every file "
+            "and destroy the baseline.\n  Fix the blocking error above first."
+        )
+        return 1
     if call_arg_entries:
         print(
             f"NOTE: {len(call_arg_entries)} call-arg error(s) found; NOT written to "
@@ -208,7 +370,7 @@ def init_allowlist() -> dict[str, int]:
         for filepath in sorted(current.keys()):
             f.write(f"{filepath} {current[filepath]}\n")
     print(f"Initialized {ALLOWLIST_PATH} with {sum(current.values())} errors across {len(current)} files")
-    return current
+    return 0
 
 
 def check_shrink(allowlist: dict[str, int]) -> int:
@@ -238,7 +400,11 @@ def check_shrink(allowlist: dict[str, int]) -> int:
         return 0
 
     # Check each removed entry against current errors
-    current, _call_arg_entries = run_mypy()
+    current, _call_arg_entries, analysed, aborted = run_mypy()
+    # An aborted run reports zero errors everywhere, which would "prove" that
+    # every removed entry was legitimately fixed. Refuse to certify that.
+    if check_coverage(allowlist, analysed, aborted):
+        return 1
     allowlist_current = load_allowlist()
     violations = 0
     for filepath in removed:
@@ -270,8 +436,7 @@ def main():
     args = parser.parse_args()
 
     if args.init:
-        init_allowlist()
-        return 0
+        return init_allowlist()
 
     if args.check_shrink:
         allowlist = load_allowlist()
@@ -290,13 +455,20 @@ def main():
         print("  Refusing to report a pass when there is nothing to type-check.")
         return 1
 
-    current, call_arg_entries = run_mypy()
+    current, call_arg_entries, analysed, aborted = run_mypy()
 
     # Call-arg hard gate: runs unconditionally and independent of the
     # generic per-file allowlist below (see module docstring for why).
     call_arg_violations = check_call_arg_gate(call_arg_entries)
 
     allowlist = load_allowlist()
+
+    # Coverage gate: a verdict is only meaningful if mypy actually looked.
+    # Runs before the per-file comparison so an aborted/incomplete run can
+    # never be reported as a wall of harmless STALE entries.
+    if check_coverage(allowlist, analysed, aborted):
+        return 1
+
     violations = 0
     stale = 0
 

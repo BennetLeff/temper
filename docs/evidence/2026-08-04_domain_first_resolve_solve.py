@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Domain-first re-solve for the MAINS_SELV_ISOLATION_BARRIER keepout (#518).
 
-# provenance: commit=d49a9c2ea1097d2a6d180b0419c58386292e8346 dirty=false
+# provenance: commit=ab11daaba37f1fca17d057fd087110a663e01deb dirty=false
 
 Frees the alternating-ring refs (the 12-pad bichromatic Delaunay cycle
 C6.2-R8.2-K1.A2-R8.1-R75.1-C27.2-C9.1-U5.3-Q1.1-U5.1-U10.2-R27.2 from

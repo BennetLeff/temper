@@ -294,6 +294,24 @@ dependencies = [
  "regex",
  "serde_json",
  "sha2",
+ "temper-py-bridge",
+]
+
+[[package]]
+name = "temper-py-bridge"
+version = "0.1.0"
+dependencies = [
+ "pyo3",
+ "temper-py-bridge-derive",
+]
+
+[[package]]
+name = "temper-py-bridge-derive"
+version = "0.1.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.119",
 ]
 
 [[package]]

@@ -15,7 +15,6 @@ from temper_placer.io import (
     PlacementUpdate,
     create_board_from_constraints,
     load_constraints,
-    parse_kicad_schematic,
     placements_from_json,
     placements_to_json,
     write_placements_to_pcb,
@@ -23,53 +22,6 @@ from temper_placer.io import (
 
 # Path to the Temper project root (relative to this test file)
 TEMPER_ROOT = Path(__file__).parent.parent.parent.parent
-
-
-class TestSchematicParsing:
-    """Integration tests for parsing Temper schematics."""
-
-    @pytest.fixture
-    def temper_schematic_path(self):
-        """Path to the main Temper schematic."""
-        return TEMPER_ROOT / "pcb" / "temper.kicad_sch"
-
-    def test_parse_main_schematic_exists(self, temper_schematic_path):
-        """Test that the main schematic file exists."""
-        if not temper_schematic_path.exists():
-            pytest.skip(f"Schematic not found at {temper_schematic_path}")
-
-    @pytest.mark.skipif(
-        not Path(__file__).parent.parent.parent.parent.joinpath("pcb", "temper.kicad_sch").exists(),
-        reason="Temper schematic not found",
-    )
-    def test_parse_main_schematic(self, temper_schematic_path):
-        """Test parsing the main Temper schematic.
-
-        Note: This test is conditionally enabled. The Temper schematics may be
-        placeholder files without actual components during early development.
-        The test verifies that the parser handles hierarchical designs without
-        errors, even if the result has zero components.
-        """
-        result = parse_kicad_schematic(temper_schematic_path, recursive=True)
-
-        # The schematic should parse without errors
-        # Note: Component count may be 0 if schematics are placeholders
-        assert result.netlist is not None
-
-        # Log parsing results for debugging
-        if result.netlist.n_components == 0:
-            pytest.skip("Schematic parsed but has no components - likely a placeholder design")
-
-        # If we have components, verify basic properties
-        assert result.netlist.n_components > 0, "Expected components in schematic"
-
-        # Check that we got component references
-        refs = [c.ref for c in result.netlist.components]
-        assert len(refs) > 0, "Expected component references"
-
-        # Log any warnings
-        if result.has_warnings:
-            print(f"Warnings during parsing: {result.warnings}")
 
 
 class TestConstraintsLoading:

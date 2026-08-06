@@ -1,4 +1,9 @@
-"""Placement adapter — raises NotImplementedError post-JAX retirement."""
+"""Placement adapter — raises NotImplementedError post-JAX retirement.
+
+Wave-4 Phase-5 R3-style record (see ``packages/temper-orchestration/VERIFICATION.md``):
+a deprecated stub whose ``run()`` raises ``NotImplementedError`` (JAX
+retirement) plus a registration side-effect. Nothing to migrate.
+"""
 
 from __future__ import annotations
 

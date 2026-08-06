@@ -62,6 +62,10 @@ class ThermalProperties(BaseModel):
     )
 
 
+# RJC package table — MIRRORS the identical ``_RJC_PACKAGE_LOOKUP`` in
+# ``temper_placer/io/config_loader.py`` AND the Rust ``RJC_PACKAGE_LOOKUP``
+# in ``temper-design-bundle/src/config_loader.rs`` (three sources total;
+# keep all three in lockstep — VERIFICATION.md, Recorded risks #1).
 _RJC_PACKAGE_LOOKUP: dict[str, float] = {
     "TO-247": 0.6,
     "TO-220": 1.0,
@@ -74,4 +78,6 @@ _RJC_PACKAGE_LOOKUP: dict[str, float] = {
     "QFN-48": 5.0,
 }
 
+# Mirrors `_DEFAULT_RJC` in `io/config_loader.py` and `DEFAULT_RJC` in the
+# Rust config_loader.rs.
 _DEFAULT_RJC: float = 0.6

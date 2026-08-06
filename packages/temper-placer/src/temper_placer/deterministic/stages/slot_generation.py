@@ -1,4 +1,25 @@
+"""Slot generation for the deterministic placement pipeline.
+
+The pure compute is implemented in Rust in the ``temper-design-bundle`` crate
+(Wave 4 **Phase 5, first slice** — deterministic leaf stages). This module
+keeps the pre-migration public API unchanged and delegates
+``_generate_slots_for_zone`` to
+``temper_design_bundle_python.deterministic_stages.generate_slots_for_zone``;
+the ``run`` orchestration (the ``state.zones`` guard and the ``frozenset``
+wrap) stays Python.
+
+Bit-exactness: the Rust kernel reproduces the oracle's naive ``+=`` slot-grid
+walk bit-for-bit (starting at ``min + spacing / 2``, strict ``<`` upper
+bounds, empty list when ``spacing >= zone extent``). Verified by
+``tests/deterministic/stages/test_slot_generation_rust_differential.py``
+(oracle: ``tests/deterministic/stages/_slot_generation_py_oracle.py``) and
+the PBT suite ``test_slot_generation_pbt.py``; the structural proof lives in
+``packages/temper-design-bundle/VERIFICATION.md``.
+"""
+
 from dataclasses import replace
+
+import temper_design_bundle_python as _tdb
 
 from ..state import BoardState
 from .base import Stage
@@ -28,16 +49,6 @@ class SlotGenerationStage(Stage):
     def _generate_slots_for_zone(self, zone, spacing: float) -> list[tuple[float, float]]:
         """Generate a regular grid of placement slots within a zone."""
         (x_min, y_min), (x_max, y_max) = zone.bounds
-
-        slots = []
-
-        # Start from minimum + half spacing to center slots in cells
-        x = x_min + spacing / 2
-        while x < x_max:
-            y = y_min + spacing / 2
-            while y < y_max:
-                slots.append((x, y))
-                y += spacing
-            x += spacing
-
-        return slots
+        return list(
+            _tdb.deterministic_stages.generate_slots_for_zone(x_min, y_min, x_max, y_max, spacing)
+        )

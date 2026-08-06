@@ -79,9 +79,21 @@ jobs:
           fi
 
   # ---- U3: PR diff + sticky comment ----
+  #
+  # Opt-in on PRs (2026-08-04). This job posts a sticky comment and nothing
+  # else -- "PR architecture diff" is not in `.github/required-checks.json`'s
+  # `required_contexts`, so it can never fail a merge. It fires on
+  # `packages/**/src/**`, i.e. essentially every PR, and costs a median 2.7
+  # job-minutes and one of ~24 concurrent slots per push. With 12 finished PRs
+  # blocked behind queue starvation, a comment nobody is waiting on is not
+  # worth a slot that a required gate needs. Add the `ci-advisory` label to a
+  # PR to get the diff on demand; the workflow is otherwise unchanged and
+  # still runs unconditionally on `push: main`.
   pr-diff:
     name: PR architecture diff
-    if: github.event_name == 'pull_request'
+    if: >-
+      github.event_name == 'pull_request'
+      && contains(github.event.pull_request.labels.*.name, 'ci-advisory')
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:

@@ -12,6 +12,27 @@ samples are clamped to ``0.0`` so that components placed at or beyond
 the map's extent never get filtered as "high congestion".
 
 @req(2026-06-23-004, R3)
+
+Wave 4, **Phase 5** (deterministic hubs slice): the ``score_at`` hot-path
+lookup and the ``_coerce_score`` numeric clamp are implemented in Rust in the
+``temper-design-bundle`` crate (``temper_design_bundle_python.deterministic_hubs``).
+This module keeps the pre-migration public API unchanged and delegates.
+``BottleneckMap`` stays a Python frozen dataclass — ``dataclasses.replace``
+and the pinned ``FrozenInstanceError`` behaviour (tests/deterministic/
+test_bottleneck_map.py) are load-bearing for the deterministic + router_v6
+suites. The loader orchestration (board-state attribute preference, file read,
+JSON parse) stays Python; the payload → map building and per-point lookup are
+Rust-backed.
+
+Bit-exactness: ``score_at`` pins CPython float floor-division
+``int(rel_x // cell_size_mm)`` (CPython's fmod-based ``_float_div_mod``, NOT a
+naive ``(a/b).floor()``) and the O(1) row-major index; ``_coerce_score``
+rejects bool/None with the oracle's exact ``ValueError`` text and clamps to
+``[0.0, 1.0]``. Verified by
+``tests/deterministic/test_bottleneck_map_rust_differential.py`` (oracle:
+``tests/deterministic/_bottleneck_map_py_oracle.py``) and the PBT suite
+``tests/deterministic/test_bottleneck_map_pbt.py``; the structural proof is in
+``packages/temper-design-bundle/VERIFICATION.md``.
 """
 
 from __future__ import annotations
@@ -22,11 +43,15 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
+import temper_design_bundle_python as _tdb
+
 if TYPE_CHECKING:
     from temper_placer.deterministic.state import BoardState
 
 
 logger = logging.getLogger(__name__)
+
+_DH = _tdb.deterministic_hubs
 
 
 @dataclass(frozen=True)
@@ -57,19 +82,20 @@ class BottleneckMap:
 
         Out-of-bounds samples return ``0.0`` rather than raising, so a
         missing or partial map never causes the caller to over-reject.
+
+        Delegates to the Rust kernel (CPython floor-division + row-major
+        lookup).
         """
-        if self.width <= 0 or self.height <= 0 or self.cell_size_mm <= 0:
-            return 0.0
-        origin_x, origin_y = self.origin_xy
-        rel_x = x - origin_x
-        rel_y = y - origin_y
-        if rel_x < 0 or rel_y < 0:
-            return 0.0
-        col = int(rel_x // self.cell_size_mm)
-        row = int(rel_y // self.cell_size_mm)
-        if col >= self.width or row >= self.height:
-            return 0.0
-        return self.scores[row * self.width + col]
+        return _DH.bottleneck_score_at(
+            self.cell_size_mm,
+            self.width,
+            self.height,
+            self.origin_xy[0],
+            self.origin_xy[1],
+            list(self.scores),
+            x,
+            y,
+        )
 
 
 def _coerce_score(value: Any) -> float:
@@ -77,15 +103,11 @@ def _coerce_score(value: Any) -> float:
 
     Booleans, strings, and ``None`` are rejected; out-of-range numerics
     are clamped so a slightly malformed sidecar cannot crash the filter.
+
+    Delegates to the Rust kernel (rejects bool/None with the oracle's
+    ``ValueError`` text; clamps to ``[0.0, 1.0]``).
     """
-    if isinstance(value, bool) or value is None:
-        raise ValueError(f"Cannot coerce {value!r} to score")
-    result = float(value)
-    if result < 0.0:
-        return 0.0
-    if result > 1.0:
-        return 1.0
-    return result
+    return _DH.bottleneck_coerce_score(value)
 
 
 def _from_sidecar_payload(payload: dict[str, Any]) -> BottleneckMap | None:
