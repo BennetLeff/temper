@@ -10,6 +10,11 @@ mod deterministic_stages;
 #[cfg(feature = "python")]
 mod deterministic_leaves;
 
+// Wave 4 Phase 5 batch 2 — host-libm helpers (pow/sqrt/hypot via dlsym)
+// for the deterministic leaf kernels (see host_math.rs).
+#[cfg(feature = "python")]
+mod host_math;
+
 // Wave 4 Phase 5 batch 2 — routing-metrics data model + aggregation
 // (see routing_metrics.rs).
 #[cfg(feature = "python")]

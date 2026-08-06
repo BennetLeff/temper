@@ -22,12 +22,14 @@
 //! in `temper-drc-rs`; GEOS/shapely- and router_v6-bound stages are recorded
 //! R3-style in `VERIFICATION.md`.
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::panic::AssertUnwindSafe;
 
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyList};
 use pyo3::IntoPyObjectExt;
+
+use crate::host_math::{pow, py_max, py_min, sqrt};
 
 
 /// Wrap a pyo3 boundary body so a Rust panic surfaces as a Python
@@ -500,6 +502,348 @@ pub fn recompute_plane_assignments_py<'py>(
 }
 
 // ---------------------------------------------------------------------------
+// ComponentAssignmentStage — component_assignment.py
+// ---------------------------------------------------------------------------
+
+/// A component's bounds, carrying each dimension's concrete Python type
+/// (the oracle computes `w ** 2` as int-pow when `bounds` holds ints and as
+/// libm `pow` when they are floats — the two differ in the last ulp).
+#[derive(Clone, Copy, Debug)]
+pub struct Bounds {
+    pub w_int: bool,
+    pub w: f64,
+    pub h_int: bool,
+    pub h: f64,
+}
+
+/// CPython `w ** 2` for a bounds dimension (int `**` int = exact int pow,
+/// then widened to float at the sum; float `** 2` = libm `pow`).
+fn sq_dim(is_int: bool, v: f64) -> f64 {
+    if is_int {
+        let i = v as i64;
+        (i * i) as f64
+    } else {
+        pow(v, 2.0)
+    }
+}
+
+/// `sqrt(w**2 + h**2) / 2 + 1.0` when bounds are present, else
+/// `slot_spacing / 2.0` — `_get_footprint_radius`.
+fn footprint_radius(bounds: Option<Bounds>, slot_spacing: f64) -> f64 {
+    match bounds {
+        Some(b) => {
+            let w2 = sq_dim(b.w_int, b.w);
+            let h2 = sq_dim(b.h_int, b.h);
+            sqrt(w2 + h2) / 2.0 + 1.0
+        }
+        None => slot_spacing / 2.0,
+    }
+}
+
+/// `sqrt(dx**2 + dy**2)` — the oracle's slot distance.
+fn slot_dist(dx: f64, dy: f64) -> f64 {
+    sqrt(pow(dx, 2.0) + pow(dy, 2.0))
+}
+
+/// `_reserve_slots`: add every slot within `radius` of `center` to
+/// `used_slots`, iterating `all_slots` in order.
+fn slot_key(s: (f64, f64)) -> (u64, u64) {
+    (s.0.to_bits(), s.1.to_bits())
+}
+
+fn reserve_slots(
+    center: (f64, f64),
+    radius: f64,
+    all_slots: &[(f64, f64)],
+    used_slots: &mut HashSet<(u64, u64)>,
+) {
+    let (cx, cy) = center;
+    for &(sx, sy) in all_slots {
+        let dist = slot_dist(sx - cx, sy - cy);
+        if dist <= radius {
+            used_slots.insert(slot_key((sx, sy)));
+        }
+    }
+}
+
+/// `_get_footprint_radius`-style "size" used for the sort:
+/// `max(comp.bounds)` when bounds present, else `0`.
+fn get_size(bounds: Option<Bounds>) -> f64 {
+    match bounds {
+        Some(b) => py_max(b.w, b.h),
+        None => 0.0,
+    }
+}
+
+/// HPWL wirelength of placing `component_ref` at `candidate_slot`, given
+/// the net-pin map and already-placed components — `_compute_wirelength`.
+fn compute_wirelength(
+    component_ref: &str,
+    candidate_slot: (f64, f64),
+    net_pins: &[(String, Vec<(String, String)>)],
+    current_placements: &HashMap<String, (f64, f64)>,
+) -> f64 {
+    let mut total = 0.0;
+    for (_net_name, pins) in net_pins {
+        let component_on_net = pins.iter().any(|(r, _)| r == component_ref);
+        if !component_on_net {
+            continue;
+        }
+        let mut positions: Vec<(f64, f64)> = vec![candidate_slot];
+        for (r, _) in pins {
+            if r != component_ref {
+                if let Some(&p) = current_placements.get(r) {
+                    positions.push(p);
+                }
+            }
+        }
+        if positions.len() > 1 {
+            let mut x_min = positions[0].0;
+            let mut x_max = positions[0].0;
+            let mut y_min = positions[0].1;
+            let mut y_max = positions[0].1;
+            for &(px, py) in &positions {
+                x_max = py_max(x_max, px);
+                x_min = py_min(x_min, px);
+                y_max = py_max(y_max, py);
+                y_min = py_min(y_min, py);
+            }
+            total += (x_max - x_min) + (y_max - y_min);
+        }
+    }
+    total
+}
+
+/// The greedy slot-assignment kernel. `components` is the netlist component
+/// list in order; `net_pins` the net → pin-list map in netlist order;
+/// `zone_slots` the (zone, slots) pairs in dict-insertion order;
+/// `fixed_placements` the pre-resolved `{ref: (x, y)}` fixed placements;
+/// `domain_ok` maps a component ref to the set of slots its HV/LV domain
+/// region covers (empty/absent = no filter, NFR6).
+///
+/// Returns `(ref, x, y)` placements in assignment order.
+pub fn assign_components_to_slots(
+    components: &[(String, Option<Bounds>)],
+    net_pins: &[(String, Vec<(String, String)>)],
+    component_zone_map: &HashMap<String, String>,
+    zone_slots: &[(String, Vec<(f64, f64)>)],
+    fixed_placements: &[(String, (f64, f64))],
+    domain_ok: &HashMap<String, HashSet<(u64, u64)>>,
+    slot_spacing: f64,
+) -> Vec<(String, f64, f64)> {
+    let mut placements: HashMap<String, (f64, f64)> = HashMap::new();
+    let mut placement_order: Vec<String> = Vec::new();
+    let mut used_slots: HashSet<(u64, u64)> = HashSet::new();
+
+    // Flatten all slots for reservation checks.
+    let all_slots: Vec<(f64, f64)> =
+        zone_slots.iter().flat_map(|(_, slots)| slots.iter().copied()).collect();
+
+    // 1. Fixed placements first.
+    for (ref_name, fixed_pos) in fixed_placements {
+        let exists = components.iter().any(|(r, _)| r == ref_name);
+        if !exists {
+            continue; // sheetpath/ref lookup missed — ignored, like the oracle
+        }
+        let footprint_radius = footprint_radius(
+            components.iter().find(|(r, _)| r == ref_name).map(|(_, b)| b).copied().flatten(),
+            slot_spacing,
+        );
+        placements.insert(ref_name.clone(), *fixed_pos);
+        placement_order.push(ref_name.clone());
+        reserve_slots(*fixed_pos, footprint_radius, &all_slots, &mut used_slots);
+    }
+
+    // 2. Sort remaining components by (-size, ref) — Python's stable sort.
+    let remaining: Vec<(String, Option<Bounds>)> = components
+        .iter()
+        .filter(|(r, _)| !placements.contains_key(r))
+        .cloned()
+        .collect();
+
+    let mut sorted = remaining;
+    sorted.sort_by(|a, b| {
+        let size_a = get_size(a.1);
+        let size_b = get_size(b.1);
+        // Key is (-size, ref): descending size, ascending ref.
+        match size_b.partial_cmp(&size_a) {
+            Some(std::cmp::Ordering::Equal) | None => a.0.cmp(&b.0),
+            Some(ord) => ord,
+        }
+    });
+
+    let no_domain = domain_ok.is_empty();
+
+    // 3. Greedy wirelength assignment.
+    for (ref_name, bounds) in &sorted {
+        let zone_name = component_zone_map.get(ref_name).cloned().unwrap_or_else(|| "Signal".to_string());
+        let footprint_radius = footprint_radius(*bounds, slot_spacing);
+
+        // Get available slots in this zone.
+        let all_zone_slots: Vec<(f64, f64)> = zone_slots
+            .iter()
+            .find(|(z, _)| z == &zone_name)
+            .map(|(_, slots)| slots.clone())
+            .unwrap_or_default();
+        let mut available_slots: Vec<(f64, f64)> =
+            all_zone_slots.iter().copied().filter(|s| !used_slots.contains(&slot_key(*s))).collect();
+
+        if available_slots.is_empty() {
+            // Fallback: use any available slot from other zones.
+            for (_other_zone, slots) in zone_slots {
+                let found: Vec<(f64, f64)> =
+                    slots.iter().copied().filter(|s| !used_slots.contains(&slot_key(*s))).collect();
+                if !found.is_empty() {
+                    available_slots = found;
+                    break;
+                }
+            }
+        }
+
+        if available_slots.is_empty() {
+            continue;
+        }
+
+        // Domain filter (precomputed by the shim from the GEOS region).
+        if !no_domain {
+            if let Some(allowed) = domain_ok.get(ref_name) {
+                available_slots.retain(|s| allowed.contains(&slot_key(*s)));
+            }
+        }
+        if available_slots.is_empty() {
+            continue;
+        }
+
+        // Score each slot by wirelength (first minimum wins, like Python
+        // `min`).
+        let mut best_slot = available_slots[0];
+        let mut best_score = compute_wirelength(ref_name, best_slot, net_pins, &placements);
+        for &slot in &available_slots[1..] {
+            let score = compute_wirelength(ref_name, slot, net_pins, &placements);
+            if score < best_score {
+                best_score = score;
+                best_slot = slot;
+            }
+        }
+
+        placements.insert(ref_name.clone(), best_slot);
+        placement_order.push(ref_name.clone());
+        reserve_slots(best_slot, footprint_radius, &all_slots, &mut used_slots);
+    }
+
+    placement_order
+        .into_iter()
+        .map(|r| {
+            let (x, y) = placements[&r];
+            (r, x, y)
+        })
+        .collect()
+}
+
+/// Python-visible `assign_components_to_slots` — marshals the netlist
+/// pyclass + config dicts into the kernel and returns the placements dict.
+#[pyfunction(name = "assign_components_to_slots")]
+pub fn assign_components_to_slots_py<'py>(
+    py: Python<'py>,
+    netlist: &Bound<'py, PyAny>,
+    component_zone_map: &Bound<'py, PyDict>,
+    zone_slots: &Bound<'py, PyDict>,
+    fixed_placements: &Bound<'py, PyAny>,
+    domain_ok: &Bound<'py, PyAny>,
+    slot_spacing: f64,
+) -> PyResult<Bound<'py, PyDict>> {
+    guard(|| {
+        let components = netlist.getattr("components")?;
+        let nets = netlist.getattr("nets")?;
+
+        let mut comps: Vec<(String, Option<Bounds>)> = Vec::new();
+        for comp in components.try_iter()? {
+            let comp = comp?;
+            let ref_name: String = comp.getattr("ref")?.extract()?;
+            let bounds = comp.getattr("bounds")?;
+            let bounds = if bounds.is_none() {
+                None
+            } else {
+                let w = bounds.get_item(0)?;
+                let h = bounds.get_item(1)?;
+                Some(Bounds {
+                    w_int: w.is_instance_of::<pyo3::types::PyInt>(),
+                    w: w.extract()?,
+                    h_int: h.is_instance_of::<pyo3::types::PyInt>(),
+                    h: h.extract()?,
+                })
+            };
+            comps.push((ref_name, bounds));
+        }
+
+        let mut zone_map: HashMap<String, String> = HashMap::new();
+        for (k, v) in component_zone_map.iter() {
+            zone_map.insert(k.extract()?, v.extract()?);
+        }
+
+        let mut z_slots: Vec<(String, Vec<(f64, f64)>)> = Vec::new();
+        for (k, v) in zone_slots.iter() {
+            let zone: String = k.extract()?;
+            let mut slots: Vec<(f64, f64)> = Vec::new();
+            for item in v.try_iter()? {
+                let item = item?;
+                slots.push((item.get_item(0)?.extract()?, item.get_item(1)?.extract()?));
+            }
+            z_slots.push((zone, slots));
+        }
+
+        let mut fixed: Vec<(String, (f64, f64))> = Vec::new();
+        // Fixed placements are pre-resolved by the shim to {ref: (x, y)}.
+        if !fixed_placements.is_none() {
+            let fp = fixed_placements.cast::<PyDict>()?;
+            for (k, v) in fp.iter() {
+                let ref_name: String = k.extract()?;
+                let x: f64 = v.get_item(0)?.extract()?;
+                let y: f64 = v.get_item(1)?.extract()?;
+                fixed.push((ref_name, (x, y)));
+            }
+        }
+
+        let mut dom_ok: HashMap<String, HashSet<(u64, u64)>> = HashMap::new();
+        if !domain_ok.is_none() {
+            let dok = domain_ok.cast::<PyDict>()?;
+            for (k, v) in dok.iter() {
+                let ref_name: String = k.extract()?;
+                let mut allowed: HashSet<(u64, u64)> = HashSet::new();
+                for item in v.try_iter()? {
+                    let item = item?;
+                    let x: f64 = item.get_item(0)?.extract()?;
+                    let y: f64 = item.get_item(1)?.extract()?;
+                    allowed.insert(slot_key((x, y)));
+                }
+                dom_ok.insert(ref_name, allowed);
+            }
+        }
+
+        let mut net_pins: Vec<(String, Vec<(String, String)>)> = Vec::new();
+        for net in nets.try_iter()? {
+            let net = net?;
+            let name: String = net.getattr("name")?.extract()?;
+            let mut pins: Vec<(String, String)> = Vec::new();
+            for pin in net.getattr("pins")?.try_iter()? {
+                let pin = pin?;
+                pins.push((pin.get_item(0)?.extract()?, pin.get_item(1)?.extract()?));
+            }
+            net_pins.push((name, pins));
+        }
+
+        let out = assign_components_to_slots(
+            &comps, &net_pins, &zone_map, &z_slots, &fixed, &dom_ok, slot_spacing,
+        );
+        let dict = PyDict::new(py);
+        for (r, x, y) in out {
+            dict.set_item(&r, (x, y))?;
+        }
+        Ok(dict)
+    })
+}
+
+// ---------------------------------------------------------------------------
 // Registration
 // ---------------------------------------------------------------------------
 
@@ -516,5 +860,6 @@ pub fn register(module: &Bound<'_, PyModule>) -> PyResult<()> {
     sub.add_function(wrap_pyfunction!(assign_layer_by_net_class_py, &sub)?)?;
     sub.add_function(wrap_pyfunction!(assign_layers, &sub)?)?;
     sub.add_function(wrap_pyfunction!(recompute_plane_assignments_py, &sub)?)?;
+    sub.add_function(wrap_pyfunction!(assign_components_to_slots_py, &sub)?)?;
     module.add_submodule(&sub)
 }
