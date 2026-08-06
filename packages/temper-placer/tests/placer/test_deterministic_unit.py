@@ -108,6 +108,25 @@ def test_place_by_proximity(basic_board, basic_netlist):
     assert not np.allclose(result.positions[idx_c1], [0, 0])
 
 
+def test_place_by_proximity_with_zone(basic_board, basic_netlist):
+    # Spiral placement must also run when a zone is given, with positions
+    # clamped to the zone bounds
+    result = place_by_proximity(
+        basic_netlist,
+        basic_board,
+        target_ref="U1",
+        refs_to_place=["C1", "D1"],
+        zone_name="power_zone",
+    )
+
+    assert "C1" in result.placed_refs
+    assert "D1" in result.placed_refs
+    idx_c1 = 4  # C1 is 5th component
+    pos = result.positions[idx_c1]
+    assert 0 <= pos[0] <= 50
+    assert 0 <= pos[1] <= 50
+
+
 def test_place_in_zone_center(basic_board, basic_netlist):
     result = place_in_zone_center(
         basic_netlist, basic_board, refs_to_place=["U1", "C1"], zone_name="logic_zone"

@@ -41,6 +41,11 @@ dependencies = [
     "pydantic>=2.13.4",
     "scipy>=1.10.0",
     "ortools>=9.10",
+    # Wave 4 Phase 5: the cli/timing.py and cli/trace_commands.py modules
+    # import `temper_orchestration` at package-import time (via cli/__init__
+    # wiring); the crate must be declared like temper-workflow declares it,
+    # not relied on as a transitive side effect (review P2-4, 2026-08-05).
+    "temper-orchestration",
 ]
 
 [project.optional-dependencies]
@@ -138,6 +143,11 @@ ignore = [
 "**/placer/cp_sat/feedback.py" = ["SIM102"]
 "**/router_v6/adapter.py" = ["SIM102"]
 "**/router_v6/quality/via_count.py" = ["SIM102"]
+# Verbatim `git show` copy of the pre-migration cluster-F sources (Wave 4 gate
+# G1). It inherits via_count.py's SIM102 above; it must NOT be "fixed", because
+# byte-identity with the pinned base commit is the whole point -- asserted by
+# tests/router_v6/test_quality_metrics_oracle_pin.py::test_oracle_is_verbatim_copy.
+"tests/router_v6/_quality_metrics_py_oracle.py" = ["SIM102"]
 "**/*.py" = ["E402"]  # intentional deferred imports for circular-import avoidance
 "**/core/state.py" = ["F821"]  # PyO3 dynamic attributes
 "**/validation/mfem_compare.py" = ["F821"]

@@ -22,7 +22,40 @@ follow-up. "Evidence location" names where in the PR the gate's proof appears.
 | G1 | **TDD differential-oracle-first** — the differential test pinning the pre-migration implementation **verbatim** is written *before* the Rust; red → green | R1f, R1a | `packages/temper-placer/tests/<module>/test_<module>_rust_differential.py` opens with a `_oracle_*` block copied from the module AS COMMITTED before migration, carrying a "do not edit — they are the reference" comment (pattern: `test_bottleneck_geometry_rust_differential.py`). Git history shows the test file's first commit (red) predating the Rust pyfunction's (green), or the combined commit's diff order proves test-before-code. |
 | G2 | **Behavioral A/B** — bit-identical parity, old vs new, asserted on identical inputs; **bit-exact `==`, not tolerance** (tolerances are only allowed where the *oracle itself* is non-deterministic, and then only with the oracle's own 1-ulp band pinned) | R1a | The differential suite, green on CI, with `==` assertions covering randomized inputs plus crafted edge cases (NaN/inf semantics, degenerate inputs, insertion order). The suite's name and scope are restated in the home crate's `VERIFICATION.md` "Empirical verification" section. |
 | G3 | **Performance A/B** — before/after CI wall-time through the existing comparison workflow | R1b, R2 | The PR's `## Performance Comparison` comment (posted by `.github/workflows/pr-perf-check.yml`), with **no 🔴 REGRESSION row** against the rolling median baseline. Margins from `scripts/pr_perf_compare.py`: `TIMING_MARGIN = 0.20` (any `_ms`/`_seconds` metric >20% over baseline → REGRESSION), `COMPLETION_MARGIN = 0.10` (completion-rate metrics dropping >10% → REGRESSION), `IMPROVEMENT_THRESHOLD = 0.10`, rolling window `DEFAULT_WINDOW = 5`. Phase 0 wiring (R2) makes this a hard gate: the script exits non-zero on regression, the workflow's `continue-on-error: true` (currently stub `temper-N6-U8`) is removed, a required status check is configured, and a missing/empty baseline (`NO_BASELINE`) fails closed. Pure-delegation modules (no compute) use the R2 carve-out: "no regression beyond noise", with the Phase-0-quantified CI noise floor stated in the PR body. |
-| G4 | **PBT: >=5 non-vacuous properties per module** — every property is vacuity-guarded by a mutation test proving a degenerate kernel violates it | R1c | `<module>_pbt.py` defines P1..P5+ and, per property, a `test_pN_fails_for_<mutant>` re-running the property against a mutated kernel via `hypothesis.inner_test` and asserting `AssertionError` (pattern: `test_bottleneck_geometry_pbt.py` — `restore_kernels` fixture, constant/position-dependent/absent-edge mutants, and a sanity test proving the input class is genuinely discriminating). Hypothesis conventions: `@given` composite strategies, `@settings(max_examples=..., deadline=...)`, docstring per property naming what a degenerate implementation would satisfy trivially. |
+| G4 | **PBT: >=5 non-vacuous properties per verification unit** (see the G4 note below for what a unit is) — every property is vacuity-guarded by a mutation test proving a degenerate kernel violates it | R1c | `<module>_pbt.py` defines P1..P5+ and, per property, a `test_pN_fails_for_<mutant>` re-running the property against a mutated kernel via `hypothesis.inner_test` and asserting `AssertionError` (pattern: `test_bottleneck_geometry_pbt.py` — `restore_kernels` fixture, constant/position-dependent/absent-edge mutants, and a sanity test proving the input class is genuinely discriminating). Hypothesis conventions: `@given` composite strategies, `@settings(max_examples=..., deadline=...)`, docstring per property naming what a degenerate implementation would satisfy trivially. |
+> **G4 — the verification unit is the CLUSTER, not the file.** Owner ruling,
+> 2026-08-05. Where several modules are migrated together behind ONE pinned
+> oracle and ONE shared corpus, they are one verification unit and the >=5
+> properties are counted across the unit.
+>
+> This is a deliberate departure from prior practice and reviewers should not
+> treat it as a slip: all 90 existing `*_pbt.py` files are named per source
+> module, and the canonical precedent (`test_bottleneck_geometry_pbt.py`) gives
+> 11 properties to a single module. The change exists because the per-file
+> reading made the R1 gate set scale with file COUNT rather than with behaviour.
+> Measured on router_v6: a 719-statement cluster costs 6.0 lines of evidence per
+> statement under the cluster reading against 17.0 for a single module (PR
+> #732), and even under the strict per-file reading it costs 10.0 -- so the
+> oracle and corpus, which are unambiguously per-cluster, carry most of the
+> saving regardless.
+>
+> **Two conditions, both load-bearing:**
+>
+> 1. **Every module in the unit must be reached by at least one property.** A
+>    7-module cluster satisfied by 5 properties that all exercise one module has
+>    not met G4; it has moved the goalposts. State the module-to-property map in
+>    the PBT file's docstring so a reviewer can check it without reading the
+>    kernels.
+> 2. **Reachability must be measured, not assumed.** This is not theoretical: a
+>    Phase A suite on this program passed **53/53 on first run** while **0 of 600
+>    generated boards reached the code the properties described** -- they were
+>    comparing constants. Record, per property, that generated inputs actually
+>    reach the kernel under test. A property that cannot fail is worse than an
+>    absent one, because it reports as coverage.
+>
+> The vacuity guard in the G4 row is unchanged: every property still needs its
+> `test_pN_fails_for_<mutant>` companion. The unit changed; the bar did not.
+
 | G5 | **Metamorphic testing: >=3 invariant relations per module** — translation/rotation/permutation/scale, honestly bounded (exactness claimed only where the transform preserves every f64 bit, e.g. power-of-two scales; otherwise a stated tolerance with the oracle's own band) | R1d | `<module>_metamorphic.py`, or a clearly-labelled section of the PBT file, naming each relation and its exactness claim (e.g. "translation invariance (exact for power-of-two cells + dyadic centres)" vs "rotation invariance (tight tolerance)"). |
 | G6 | **Induction proof** — base case + induction step in the home crate's `VERIFICATION.md`, per the `packages/temper-geometry/VERIFICATION.md` convention; data-only modules (Phase 2 pyclasses, pure-delegation wrappers) record a structural proof or an explicit non-applicability note instead | R1e | A `## <Module> — Verification by Induction` section in the home crate's `VERIFICATION.md`: named base case with the smallest meaningful input (bit-exact vs the oracle), the induction hypothesis, a step arguing per-element independence / order preservation / no cross-element interaction, and the "Empirical verification" paragraph naming the differential/PBT suites. |
 | G7 | **Rust best-practices bar** — no `unwrap` outside tests, `catch_unwind` at pyo3 boundaries, borrow over clone, iterators over indexed loops, doc comments on public items | R1g | `cargo clippy`/`cargo test` green on the touched crates; every exported pyo3 function wrapped in `temper_py_bridge::catch_unwind(...).map_err(panic_to_err)` (pattern: `clearance_geometry.rs`); grep for `unwrap` returns only `#[cfg(test)]` / test-module hits; the crate passes `make extensions-check` post-merge. |

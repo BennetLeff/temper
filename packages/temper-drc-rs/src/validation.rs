@@ -71,53 +71,14 @@ use pyo3::types::{PyAnyMethods, PyDict, PyDictMethods, PyList, PyListMethods};
 /// `llvm.pow.f64` intrinsic with a *constant* exponent —
 /// `powf(2.0)` → `x*x`, `powf(0.5)` → `sqrt` (verified in this crate's
 /// release disassembly) — both of which disagree with libm `pow`.
+///
+/// The resolver itself now lives in [`crate::pymath`], shared with the
+/// Wave-4 cluster-D DFM kernels (`dfm.rs`), which need `cos`/`sin`/`acos`
+/// from the same host libm. This alias keeps the call sites below reading
+/// `host_math::pow(..)`; the function is byte-for-byte the one this module
+/// used to define privately.
 #[cfg(feature = "python")]
-mod host_math {
-    use std::ffi::CStr;
-    use std::sync::OnceLock;
-
-    type BinaryFn = unsafe extern "C" fn(f64, f64) -> f64;
-
-    fn dlsym_ptr(symbol: &CStr) -> Option<*mut u8> {
-        unsafe extern "C" {
-            fn dlsym(handle: *const u8, symbol: *const u8) -> *mut u8;
-        }
-        const RTLD_DEFAULT: *const u8 = core::ptr::null();
-        // SAFETY: `symbol` is a NUL-terminated C string literal and
-        // RTLD_DEFAULT is the documented "search every loaded object"
-        // handle. A miss returns null, which is checked below.
-        let p = unsafe { dlsym(RTLD_DEFAULT, symbol.as_ptr().cast::<u8>()) };
-        if p.is_null() {
-            None
-        } else {
-            Some(p)
-        }
-    }
-
-    unsafe extern "C" fn fallback_pow(x: f64, y: f64) -> f64 {
-        f64::powf(x, y)
-    }
-
-    fn host_pow() -> BinaryFn {
-        static F: OnceLock<BinaryFn> = OnceLock::new();
-        *F.get_or_init(|| {
-            // SAFETY: the resolved symbol is a C `double(double, double)`
-            // from libm.
-            dlsym_ptr(c"pow")
-                .map(|p| unsafe { std::mem::transmute::<*mut u8, BinaryFn>(p) })
-                .unwrap_or(fallback_pow as BinaryFn)
-        })
-    }
-
-    /// CPython's `x ** y` on floats (libm `pow`). **Not** `x * x` for
-    /// `y == 2.0`, and **not** `sqrt(x)` for `y == 0.5`.
-    #[inline]
-    pub fn pow(x: f64, y: f64) -> f64 {
-        // SAFETY: `host_pow()` is a C `double(double, double)`; no shared
-        // state.
-        unsafe { (host_pow())(x, y) }
-    }
-}
+use crate::pymath as host_math;
 
 // ---------------------------------------------------------------------------
 // drc_oracle._infer_package_type
@@ -217,6 +178,30 @@ fn trace_length(traces: Vec<(Option<String>, f64, f64, f64, f64)>, net_name: Str
         }
     }
     length
+}
+
+/// RDL (routed-length) sum for the human-reference extractor (verbatim
+/// port of the `_compute_routing_metrics` loop:
+/// `rdl += math.hypot(end.x - start.x, end.y - start.y)` in segment
+/// order). `math.hypot` is called back across the boundary per segment —
+/// NOT dlsym'd: CPython 3.12 inlines its own fdlibm-style `hypot` into
+/// `mathmodule.c` (bpo-33083), so neither the system libm `hypot` nor
+/// `f64::hypot` matches it bit-for-bit (measured: `math.hypot(0.1, 0.1)`
+/// is 1 ulp below `libm hypot`; the first differential run caught it).
+/// The `hypot_fn` callable is the oracle's own function, so parity holds
+/// by construction; the accumulation stays Rust in the oracle's in-order
+/// `+=` strategy. Each segment is `(start_x, start_y, end_x, end_y)`.
+#[cfg(feature = "python")]
+#[pyfunction]
+fn rdl_sum(segments: Vec<(f64, f64, f64, f64)>, hypot_fn: Bound<'_, PyAny>) -> PyResult<f64> {
+    let mut rdl = 0.0_f64;
+    for (sx, sy, ex, ey) in &segments {
+        let dx = ex - sx;
+        let dy = ey - sy;
+        let seg_len: f64 = hypot_fn.call1((dx, dy))?.extract()?;
+        rdl += seg_len;
+    }
+    Ok(rdl)
 }
 
 /// Minimum HV↔LV trace endpoint distance (verbatim port of
@@ -911,6 +896,7 @@ pub fn register(m: &Bound<'_, pyo3::types::PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(infer_package_type, m)?)?;
     m.add_function(wrap_pyfunction!(tht_hole_collisions, m)?)?;
     m.add_function(wrap_pyfunction!(trace_length, m)?)?;
+    m.add_function(wrap_pyfunction!(rdl_sum, m)?)?;
     m.add_function(wrap_pyfunction!(min_hv_lv_trace_clearance, m)?)?;
     m.add_function(wrap_pyfunction!(geometric_validate, m)?)?;
     m.add_function(wrap_pyfunction!(parse_drc_violation, m)?)?;

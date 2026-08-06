@@ -277,10 +277,6 @@ def _run_stage3(self, pcb: ParsedPCB, stage2: Stage2Output) -> Stage3Output:
         print(f"    Selective SAT: top {len(target_names)} nets = {sorted(target_names)}")
 
     if self.verbose:
-        print("  3.7: Building SAT model...")
-    sat_model = None
-
-    if self.verbose:
         print("  3.8: Solving topology (Rust)...")
 
     py_vars = list(constraint_model.variables)
@@ -434,7 +430,6 @@ def _run_stage3(self, pcb: ParsedPCB, stage2: Stage2Output) -> Stage3Output:
 
     return Stage3Output(
         constraint_model=constraint_model,
-        sat_model=sat_model,
         solution=solution,
         topology_graph=topology_graph,
         aesthetic_preferences=aesthetic_preferences,
