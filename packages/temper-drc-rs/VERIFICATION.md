@@ -1037,3 +1037,78 @@ bit-identically, with the documented deviation below.
   quantity; the report summarises kicad-cli DRC output), so the R24
   discipline does not apply.  Stated explicitly because the ledger
   requires the determination.
+# Deterministic leaf DRC-check kernels — Verification (Wave 4 Phase 5, batch 2)
+
+## Candidate scorecard — home-crate decision
+
+The DRC-check leaf stages (`drc_validation.py`, `drc_sweep.py`
+TrackDeduplicationStage, `placement_validation.py`, `courtyard_check.py`)
+and the connectivity-validation kernel (`connectivity_validation.py`) are
+validation/DRC-check compute, so they live in **temper-drc-rs**
+(`deterministic_leaf_drc.rs`, `deterministic_connectivity.rs`), not
+temper-design-bundle (placements/component math) or temper-geometry (pure
+geometry primitives). The pad-touch predicate inside
+`deterministic_connectivity.rs` calls temper-geometry's single-source-of-
+truth `point_to_rotated_rect_distance` via a new rlib dependency — the same
+function the Python arm delegates to, so the `<= 1e-4` boundary is one
+function, not two.
+
+What stays Python (the shims keep their `run()` orchestration):
+kicad-cli subprocess, drc-oracle geometry extraction, per-net grouping,
+plane-net/NoNet skipping, violation-object construction, summary logging,
+`fail_on_violations` raising, and the message-formatting delegation to
+CPython's `__format__` (`fmt_1f`).
+
+## R1 status
+
+- **R1a bit-identical vs verbatim oracles.** `test_drc_leaf_rust_differential.py`
+  (13 tests) and `test_connectivity_validation_rust_differential.py` (13 tests)
+  drive identical inputs through the oracle and the kernel; floats are compared
+  bit-exactly. For connectivity the violation *locations* are input coordinates
+  (never recomputed) and the descriptions are plain string interpolation, so the
+  comparison is exact by construction.
+- **R1b no-regression arm.** The stage-level `test_connectivity_validation.py`
+  suite (7 tests) runs the delegation shim end-to-end and stays green. No
+  perf arm registered: the migrated compute is O(n^2) geometric scans that are
+  a small fraction of wall time; a pr_perf_compare arm would measure
+  marshalling noise.
+- **R1c >=5 non-vacuous properties.** `test_drc_leaf_pbt.py` (8 PBT) and
+  `test_connectivity_validation_pbt.py` (6 properties) assert structural
+  models: for connectivity, well-separated nets admit an exact prediction
+  (unconnected == pad-components - 1, orphan == copper islands,
+  dangling == lone tracks) which the properties verify over 100 draws each.
+- **R1d >=3 MRs/module.** drc-leaf: dedup net-sensitivity, orientation,
+  segment-collapse. Connectivity: translation, net-rename, bridging, order
+  permutation (MR4 asserts only the order-invariant facts — the
+  unconnected-pad *identity* is root-pinned by the largest-root-primary rule,
+  which legitimately changes under registration-order permutation).
+- **R1e VERIFICATION.md.** This section. No induction applies (single-pass /
+  bounded loops, no recursion beyond the path-compressed UnionFind `find`,
+  which terminates by construction); the differentials are the structural
+  proof of observational equivalence.
+- **R1f TDD.** The RED commits fail to collect with
+  `AttributeError: module 'temper_drc_rs' has no attribute ...` before the
+  kernels land (demonstrated live), and the PBT suites fail likewise.
+- **R1g Rust practice.** borrow-over-clone (the connectivity kernel borrows
+  `&[PadRec]`/`&[TrackRec]`/`&[ViaRec]` throughout); no `unwrap` outside
+  tests (the four guarded `.unwrap()` calls in the committed DRC kernels were
+  replaced with pattern matching in the clippy-cleanup commit); every
+  `#[pyfunction]` boundary is wrapped in the `guard` catch_unwind helper so a
+  Rust panic surfaces as a Python `RuntimeError`.
+- **R1h physics gating.** Not applicable — none of these stages gate a CP-SAT
+  constraint on a physics quantity; they summarise/validate DRC geometry.
+  Stated explicitly per the ledger.
+
+## Anti-vacuity (mutation campaign)
+
+The 25-mutant reproducible campaign (`scripts/phase5_batch2_mutations.py`)
+covers all batch-2 kernels: every mutant rebuilds the crate, must kill at
+least one differential/PBT test, then reverts and verifies the source is
+pristine before the next. The campaign ends with a pristine rebuild + the
+full differential set green. Three candidate mutants were proven observably
+vacuous (the differential staying green is correct) and removed with
+in-driver notes: layer_assignment empty-net-class (maps identically to
+"Signal"), the slot-grid ceil/floor window (the per-slot `<= radius` check
+filters every cell the floor window would miss), and the single
+pad-component flag (sorted roots[1:] is empty). See the evidence doc
+`docs/evidence/2026-08-06-wave4-phase5-batch2-mutation-sweep.md`.

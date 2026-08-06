@@ -1364,11 +1364,9 @@ scripts:
   - subprocess
   - sys
 - path: phase5_batch2_mutations.py
-  purpose: 'Wave-4 Phase-5 mutation campaign driver (deterministic slot_generation/zone_geometry/zone_assignment):
-    applies each Rust-kernel mutant, rebuilds temper-design-bundle, runs the six Batch-2 suites, expects
-    failure, reverts. Reproducible anti-vacuity evidence.'
+  purpose: 'Wave-4 Phase-5 mutation campaign driver (deterministic leaf stages: sequential_routing_dataclasses, layer_assignment, power_plane, component_assignment, routing_metrics, fine_pitch_escape, validator slot-grid, DRC-check leaf kernels, connectivity_validation): applies each Rust-kernel mutant, rebuilds the owning crate, runs the differential/PBT suites, expects failure, reverts and verifies pristine. Reproducible anti-vacuity evidence.'
   owner: wave4-migration
-  last_run: '2026-08-04'
+  last_run: '2026-08-06'
   category: keep
   disposition: utility
   imports:
