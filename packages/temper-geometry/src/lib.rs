@@ -18,6 +18,14 @@ pub mod congestion_tensor;
 #[cfg(feature = "python")]
 pub mod area_sufficiency;
 pub mod pad_geometry;
+// Wave 4 Phase B: router_v6/escape_via_generator.py (survey cluster G, split)
+// and the six-module congestion & placement-feedback cluster E. Both are
+// wholly pyo3 surfaces: the kernel and its bridge are one module, because
+// every entry point exists to mirror one Python function bit-for-bit.
+#[cfg(feature = "python")]
+pub mod escape_via;
+#[cfg(feature = "python")]
+pub mod congestion;
 pub mod clearance_geometry;
 pub mod spice_estimators;
 #[cfg(feature = "python")]
@@ -76,6 +84,8 @@ use pyo3::prelude::*;
 #[pymodule]
 fn temper_geometry(m: &Bound<'_, PyModule>) -> PyResult<()> {
     bridge::register_functions(m)?;
+    crate::escape_via::register(m)?;
+    crate::congestion::register(m)?;
     m.add_class::<crate::congestion_tensor::CongestionTensor>()?;
     Ok(())
 }
