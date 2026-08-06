@@ -36,8 +36,8 @@ name: Python Tests
 # fix that motivated the head-SHA grouping, without the queue cost. #362's Core
 # Tests timeout raise (30 -> 45) is untouched.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 on:
   push:
