@@ -153,5 +153,141 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(congestion_grid_from_board_py, m)?)?;
     m.add_function(wrap_pyfunction!(congestion_grid_utilization_py, m)?)?;
     m.add_function(wrap_pyfunction!(congestion_grid_overflow_py, m)?)?;
+    m.add_function(wrap_pyfunction!(congestion_estimate_net_demand_py, m)?)?;
     Ok(())
+}
+
+// ---------------------------------------------------------------------------
+// Slice 2: estimate_net_demand
+// ---------------------------------------------------------------------------
+
+/// CPython's `min` over a list: `acc = first; for x in rest { if x < acc { acc = x } }`.
+///
+/// A NaN comparison is false, so a NaN in the FIRST position sticks and a NaN
+/// anywhere later is discarded. `f64::min` is the opposite (it discards NaN
+/// entirely) and `np.min` propagates any NaN; both are wrong here. The corpus
+/// carries a NaN coordinate for exactly this.
+fn cpython_min(vals: &[f64]) -> f64 {
+    let mut acc = vals[0];
+    for &x in &vals[1..] {
+        if x < acc {
+            acc = x;
+        }
+    }
+    acc
+}
+
+/// CPython's `max`, mirroring [`cpython_min`]'s asymmetry.
+fn cpython_max(vals: &[f64]) -> f64 {
+    let mut acc = vals[0];
+    for &x in &vals[1..] {
+        if x > acc {
+            acc = x;
+        }
+    }
+    acc
+}
+
+/// `int(x)` — truncation toward ZERO, and CPython's errors on non-finite.
+///
+/// Not `floor`: `int(-2.7)` is `-2`, while `(-2.7f64).floor()` is `-3`. That
+/// difference is what lands a bounding box one cell off on the negative side
+/// of the origin, which is the neighbourhood of defect D3.
+fn int_trunc(v: f64) -> PyResult<i64> {
+    if v.is_nan() {
+        return Err(PyValueError::new_err(
+            "cannot convert float NaN to integer",
+        ));
+    }
+    if v.is_infinite() {
+        return Err(PyOverflowError::new_err(
+            "cannot convert float infinity to integer",
+        ));
+    }
+    Ok(v.trunc() as i64)
+}
+
+/// `estimate_net_demand`, projected as the differential signs it:
+/// `(demand, out is grid)`.
+///
+/// The identity flag is part of the contract, not a convenience. Both early
+/// returns hand back the INPUT grid — fewer than two pins, and D3's
+/// "bounding box does not intersect the grid" guard. Before #760 that guard
+/// clamped from one side only, so a net entirely left of or above the board
+/// left `col_max`/`row_max` negative and
+/// `demand[0 : -3 + 1, 0 : -3 + 1]` wrote a real block of demand at the board
+/// ORIGIN. A mirror that returns a fresh copy carrying an empty write is
+/// indistinguishable from the repair unless the identity is signed.
+///
+/// The grid is built fresh from the scalars the differential passes, so its
+/// demand starts as `np.zeros`; `0.0 + demand_per_cell` is exact for every
+/// finite, infinite and NaN `demand_per_cell`, so the rectangle can be filled
+/// directly rather than copy-then-add.
+#[pyfunction]
+#[pyo3(signature = (width, height, cell_size_mm, origin, pins, layer, demand_per_cell, num_layers))]
+#[allow(clippy::too_many_arguments)]
+pub fn congestion_estimate_net_demand_py<'py>(
+    py: Python<'py>,
+    width: f64,
+    height: f64,
+    cell_size_mm: f64,
+    origin: (f64, f64),
+    pins: Vec<(f64, f64)>,
+    layer: i64,
+    demand_per_cell: f64,
+    num_layers: i64,
+) -> PyResult<Bound<'py, PyAny>> {
+    let width_cells = ceil_to_int(width / cell_size_mm)?;
+    let height_cells = ceil_to_int(height / cell_size_mm)?;
+
+    let np = py.import("numpy")?;
+    let shape_2d = (height_cells, width_cells);
+    let shape_3d = (num_layers, height_cells, width_cells);
+    let zeros = if num_layers == 1 {
+        np.call_method1("zeros", (shape_2d,))?
+    } else {
+        np.call_method1("zeros", (shape_3d,))?
+    };
+
+    // `len(pin_positions) < 2` -- identity return, before any arithmetic, so a
+    // NaN coordinate in a one-pin net never reaches `int()` and never raises.
+    if pins.len() < 2 {
+        return Ok((zeros, true).into_pyobject(py)?.into_any());
+    }
+
+    let xs: Vec<f64> = pins.iter().map(|p| p.0).collect();
+    let ys: Vec<f64> = pins.iter().map(|p| p.1).collect();
+    let (min_x, max_x) = (cpython_min(&xs), cpython_max(&xs));
+    let (min_y, max_y) = (cpython_min(&ys), cpython_max(&ys));
+
+    let col_min = 0.max(int_trunc((min_x - origin.0) / cell_size_mm)?);
+    let col_max = (width_cells - 1).min(int_trunc((max_x - origin.0) / cell_size_mm)?);
+    let row_min = 0.max(int_trunc((min_y - origin.1) / cell_size_mm)?);
+    let row_max = (height_cells - 1).min(int_trunc((max_y - origin.1) / cell_size_mm)?);
+
+    // D3's repaired guard: BOTH pairs, not one side.
+    if col_max < col_min || row_max < row_min {
+        return Ok((zeros, true).into_pyobject(py)?.into_any());
+    }
+
+    // Fill the rectangle. `zeros` is this function's own array, so mutating it
+    // in place is equivalent to the reference's `demand.copy()` then `+=`.
+    let py_slice = py
+        .import("builtins")?
+        .getattr("slice")?;
+    let rows = py_slice.call1((row_min, row_max + 1))?;
+    let cols = py_slice.call1((col_min, col_max + 1))?;
+    let current = if num_layers == 1 {
+        zeros.get_item((&rows, &cols))?
+    } else {
+        zeros.get_item((layer, &rows, &cols))?
+    };
+    let updated = current.add(demand_per_cell)?;
+    if num_layers == 1 {
+        zeros.set_item((&rows, &cols), updated)?;
+    } else {
+        zeros.set_item((layer, &rows, &cols), updated)?;
+    }
+
+    Ok((zeros, false).into_pyobject(py)?.into_any())
 }
