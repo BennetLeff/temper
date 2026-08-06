@@ -289,6 +289,17 @@ points of effective headroom inside the 20% margin. That is workable for a
 reporting gate and for blocking a single PR, but it is not the multi-sample
 baseline a required context should rest on. Widen it as `main` runs accumulate.
 
+> **RESOLVED, same day — see
+> [`2026-08-04-perf-ab-baseline-widening.md`](./2026-08-04-perf-ab-baseline-widening.md).**
+> "Widen it as `main` runs accumulate" was not achievable as written: the
+> workflow triggered on `pull_request` only, so no `main` row could ever be
+> measured and the baseline had no growth path. That is what produced the
+> false positives once the context was registered in #686 — PR #544, a
+> `typing.cast()` that compiles to `return val`, scored +26.6%. The workflow
+> now also runs on `push: branches: [main]` and `workflow_dispatch` in
+> capture-only mode, and the baseline is at n=6 per stage from verified CI
+> runs. The same #544 reading scores +15.7% and passes, with no margin change.
+
 ### 3. Headroom is adequate to report on, thin to wedge every PR on
 
 2.0–2.6x headroom, from n = 19 (CI) + n = 20 (local) samples. That is enough to
