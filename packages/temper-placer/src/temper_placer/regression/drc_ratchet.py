@@ -44,6 +44,41 @@ def _tdrc():
     return _RS
 
 
+class CeilingMarshalError(ValueError):
+    """A ceiling/count value the #575 gate cannot compare safely.
+
+    The ratchet data model is int-only (``DrcCeilingEntry.error_ceiling``/
+    ``warning_ceiling`` are typed ``int``; ``drc_ceiling.json`` records
+    integer DRC counts measured by ``run_drc``). The pre-fix marshal coerced
+    every value with ``int()``, which silently truncated a float-valued
+    ceiling (``100.5`` -> ``100``): a raise ``100 -> 100.5`` became invisible
+    to ``temper_drc_rs.detect_ceiling_raise``, so the shim returned None and
+    the #575 approval gate failed OPEN. Any value that is not a genuine int
+    is a data-model violation and fails LOUDLY here instead -- a fail-closed
+    deviation from the oracle's raw compare, documented in
+    ``packages/temper-drc-rs/VERIFICATION.md``.
+    """
+
+
+def _marshal_ceiling_int(value: object, field: str, board_id: str) -> int:
+    """Coerce one ceiling/count value to int, failing loudly on anything that
+    is not a genuine int (bool excluded).
+
+    Raises:
+        CeilingMarshalError: if ``value`` is not an ``int`` (a float --
+            integral or fractional -- a string, None, ...). Naming the field
+            and value so the bad record is identifiable without digging into
+            a stack trace.
+    """
+    if isinstance(value, bool) or not isinstance(value, int):
+        raise CeilingMarshalError(
+            f"non-integer {field}={value!r} on board {board_id!r}: the #575 "
+            "ceiling gate requires integer-valued ceilings/counts (an int() "
+            "coercion could hide a raise by truncating it)"
+        )
+    return value
+
+
 @dataclass
 class DrcCeilingEntry:
     """A single board entry in the DRC ceiling file.
@@ -399,27 +434,53 @@ class DrcRatchet:
         # builds the exact messages bit-identically to the pre-migration
         # oracle). ``None`` breakdowns stay None (the "backend cannot break
         # this dimension down" sentinel, distinct from an all-clear ``{}``).
-        ratchet_dict = _tdrc().ratchet_check(
-            board_id=board_id,
-            current_errors=int(current_errors),
-            current_warnings=int(current_warnings),
-            error_ceiling=int(entry.error_ceiling),
-            warning_ceiling=int(entry.warning_ceiling),
-            current_by_type=(
-                list(current_by_type.items()) if current_by_type is not None else None
-            ),
-            allowed_by_type=list(entry.violations_by_type.items()),
-            current_warnings_by_type=(
-                list(current_warnings_by_type.items())
-                if current_warnings_by_type is not None
-                else None
-            ),
-            allowed_warnings_by_type=list(entry.warnings_by_type.items()),
-            backend=self.backend,
-            version_mismatch=version_mismatch,
-            running_version=running_kicad_cli_version,
-            expected_version=expected_kicad_cli_version,
-        )
+        # The kernel call sits INSIDE a try/except so a missing
+        # ``temper_drc_rs`` produces the clean "DRC (...) failed" FAIL (the
+        # pre-migration graceful degradation) instead of an unhandled
+        # ImportError traceback. Every ceiling/count crossing the i64
+        # boundary is int-validated: a float-valued value (e.g. a ``100.5``
+        # ceiling in the JSON) fails loudly with ``CeilingMarshalError``
+        # rather than being silently truncated by the old ``int()`` coercion
+        # (the P1-1 fail-open class).
+        try:
+            ratchet_dict = _tdrc().ratchet_check(
+                board_id=board_id,
+                current_errors=_marshal_ceiling_int(
+                    current_errors, "current_errors", board_id
+                ),
+                current_warnings=_marshal_ceiling_int(
+                    current_warnings, "current_warnings", board_id
+                ),
+                error_ceiling=_marshal_ceiling_int(
+                    entry.error_ceiling, "error_ceiling", board_id
+                ),
+                warning_ceiling=_marshal_ceiling_int(
+                    entry.warning_ceiling, "warning_ceiling", board_id
+                ),
+                current_by_type=(
+                    list(current_by_type.items())
+                    if current_by_type is not None
+                    else None
+                ),
+                allowed_by_type=list(entry.violations_by_type.items()),
+                current_warnings_by_type=(
+                    list(current_warnings_by_type.items())
+                    if current_warnings_by_type is not None
+                    else None
+                ),
+                allowed_warnings_by_type=list(entry.warnings_by_type.items()),
+                backend=self.backend,
+                version_mismatch=version_mismatch,
+                running_version=running_kicad_cli_version,
+                expected_version=expected_kicad_cli_version,
+            )
+        except Exception as e:
+            return DrcRatchetResult(
+                passed=False,
+                board_id=board_id,
+                message=f"DRC ({self.backend}) failed: {e}",
+                exit_code=1,
+            )
         return DrcRatchetResult(
             passed=ratchet_dict["passed"],
             board_id=board_id,
@@ -473,20 +534,49 @@ class DrcRatchet:
         """
 
         def _marshal(ceiling: dict) -> list[tuple]:
+            # Pass 2 (P1-1): every value is int-VALIDATED at this marshal
+            # boundary, not merely int()-coerced. The old coercion silently
+            # truncated a float-valued ceiling (``100.5`` -> ``100``), making
+            # a raise ``100 -> 100.5`` invisible to the kernel and failing
+            # the #575 approval gate OPEN. ``CeilingMarshalError`` fires
+            # before the kernel instead.
             boards: list[tuple] = []
             for board in ceiling.get("boards", []):
+                board_id = board["board_id"]
                 boards.append(
                     (
-                        board["board_id"],
-                        int(board.get("error_ceiling", 0)),
-                        int(board.get("warning_ceiling", 0)),
+                        board_id,
+                        _marshal_ceiling_int(
+                            board.get("error_ceiling", 0), "error_ceiling", board_id
+                        ),
+                        _marshal_ceiling_int(
+                            board.get("warning_ceiling", 0), "warning_ceiling", board_id
+                        ),
                         [
-                            (rule, int(count))
-                            for rule, count in (board.get("violations_by_type") or {}).items()
+                            (
+                                rule,
+                                _marshal_ceiling_int(
+                                    count,
+                                    f"violations_by_type[{rule}]",
+                                    board_id,
+                                ),
+                            )
+                            for rule, count in (
+                                board.get("violations_by_type") or {}
+                            ).items()
                         ],
                         [
-                            (rule, int(count))
-                            for rule, count in (board.get("warnings_by_type") or {}).items()
+                            (
+                                rule,
+                                _marshal_ceiling_int(
+                                    count,
+                                    f"warnings_by_type[{rule}]",
+                                    board_id,
+                                ),
+                            )
+                            for rule, count in (
+                                board.get("warnings_by_type") or {}
+                            ).items()
                         ],
                     )
                 )

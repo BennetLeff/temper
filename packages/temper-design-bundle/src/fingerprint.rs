@@ -29,10 +29,15 @@
 //!   value also yields False, matching the oracle's `cached == fp` (a
 //!   non-string never equals a str) — the failed String extraction is treated
 //!   as a non-match, not raised (pinned by the non-string-cached-value
-//!   differential case).
+//!   differential case). A non-dict board entry (a corrupt cache) yields
+//!   False too — the oracle is graceful only on falsy non-dicts (its
+//!   `if not board_cache`) and raises AttributeError on a truthy one; the
+//!   kernel is graceful across both classes so a corrupt cache can never
+//!   abort the corpus run (pinned by the null/non-dict-entry differential
+//!   cases; documented deviation in VERIFICATION.md).
 
 use pyo3::prelude::*;
-use pyo3::types::{PyDict, PyDictMethods, PyModule};
+use pyo3::types::{PyAnyMethods, PyDict, PyDictMethods, PyModule};
 use sha2::{Digest, Sha256};
 
 /// Input fingerprint over already-read parts (verbatim port of
@@ -75,16 +80,26 @@ fn source_fingerprint(entries: Vec<String>) -> String {
 fn should_skip(
     input_fingerprint: String,
     source_fingerprint: String,
-    board_cache: Option<&Bound<'_, PyDict>>,
+    board_cache: Option<&Bound<'_, PyAny>>,
 ) -> PyResult<bool> {
     let Some(cache) = board_cache else {
         return Ok(false);
     };
+    // A non-dict board entry (a corrupt cache: a list/string/number in place
+    // of the board record) must never abort the corpus run. The oracle's
+    // `if not board_cache` short-circuits a falsy non-dict to False and its
+    // `board_cache.get(...)` raises AttributeError on a truthy one; the
+    // kernel is deliberately graceful across BOTH classes -- any non-dict,
+    // falsy or truthy, is a no-skip (re-run the board). Documented deviation
+    // in the SAFE direction (see VERIFICATION.md).
+    let Ok(dict) = cache.cast::<PyDict>() else {
+        return Ok(false);
+    };
     // The oracle's `if not board_cache` — an empty dict is falsy.
-    if cache.is_empty() {
+    if dict.is_empty() {
         return Ok(false);
     }
-    let cache_input: Option<String> = match cache.get_item("input_fingerprint")? {
+    let cache_input: Option<String> = match dict.get_item("input_fingerprint")? {
         // A non-string cached value never matches a fingerprint string: the
         // oracle's `board_cache.get(...) == fp` returns False (graceful
         // no-skip), so a failed String extraction must not raise — it yields
@@ -92,7 +107,7 @@ fn should_skip(
         Some(v) => v.extract::<Option<String>>().unwrap_or(None),
         None => None,
     };
-    let cache_source: Option<String> = match cache.get_item("source_fingerprint")? {
+    let cache_source: Option<String> = match dict.get_item("source_fingerprint")? {
         Some(v) => v.extract::<Option<String>>().unwrap_or(None),
         None => None,
     };
