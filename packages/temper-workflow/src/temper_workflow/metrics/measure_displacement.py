@@ -4,6 +4,12 @@ Initialization Displacement Metric Collector.
 
 Compares Random, Spectral, and Analytical initializations and measures
 the L2 displacement required to legalize the board.
+
+Wave-4 Phase-5 R3-style record: study-script glue — ``optimizer.analytical``/
+``initialization``/``legalization`` (Phase 4) and ``jax`` call-backs; the
+``run_legalization_study`` reductions are numpy-library semantics not
+reimplementable bit-exactly outside numpy. See
+``packages/temper-orchestration/VERIFICATION.md``.
 """
 
 import argparse

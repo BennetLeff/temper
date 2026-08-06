@@ -27,8 +27,26 @@ on:
         description: 'DRC sample size'
         type: string
         default: '15'
+  # `feat/**` was removed from this list on 2026-08-04. Every open PR is on a
+  # feature branch, so `feat/**` made each push fire this workflow TWICE: once
+  # for `pull_request` and once for `push`, on identical content. The push copy
+  # is strictly worse than the PR copy:
+  #   - it is not cancellable (`cancel-in-progress` is false for `push`, and the
+  #     group key falls back to `github.sha`, so no run ever supersedes another
+  #     -- every commit on the branch keeps its own 30-minute slot alive);
+  #   - it is redundant. Both copies check out the same head SHA and run the
+  #     same steps, so the push copy adds no information the PR copy lacks --
+  #     it only duplicates the `regression` check run on the commit;
+  #   - it is non-gating. "Regression Suite" is not in
+  #     `.github/required-checks.json`'s `required_contexts`, so neither copy
+  #     can block a merge.
+  # Measured 2026-08-04 against the live queue: of 10 in-flight Regression Suite
+  # runs, 8 were `push` events on `feat/**` branches (two branches had two
+  # apiece), against an account ceiling of ~24 concurrent jobs. Dropping
+  # `feat/**` returns those 8 slots and loses no signal -- the `pull_request`
+  # trigger below still runs the suite on exactly the same commits.
   push:
-    branches: [main, feat/**]
+    branches: [main]
     paths:
       - 'packages/temper-placer/**'
       - 'packages/temper-drc-rs/**'

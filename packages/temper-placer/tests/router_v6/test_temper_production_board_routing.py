@@ -1,9 +1,12 @@
 """U3: First-ever route_pcb run against ``pcb/temper.kicad_pcb``.
 
-Records ``routed_nets``, ``completion_rate``, DRC violation counts, and wall
-time for the production board (95 nets, 149 components, 100x150mm) as a
-reproducible artifact, replacing the ``null``/``0`` placeholders in
-``power_pcb_dataset/baselines/temper_production_baseline.yaml``.
+Measures ``routed_nets``, ``completion_rate``, DRC violation counts, and wall
+time for the production board (95 nets, 149 components, 100x150mm).
+
+This module MEASURES only. It does not write
+``power_pcb_dataset/baselines/temper_production_baseline.yaml`` -- refreshing
+that file's ``router_v6_routing`` block is done deliberately, through
+``scripts/update_production_routing_baseline.py``.
 
 Uses the post-2026-07-18 gate-dispatch path via ``route_pcb`` wired with
 W2 U2's ``layer_constraints`` from the netclass SSOT.
@@ -32,7 +35,11 @@ _REPO_ROOT = _TEMPER_PLACER_ROOT.parent.parent
 
 _PCB_PATH = _REPO_ROOT / "pcb" / "temper.kicad_pcb"
 _RULES_PATH = _TEMPER_PLACER_ROOT / "configs" / "netclass_rules.yaml"
-_BASELINE_PATH = _REPO_ROOT / "power_pcb_dataset" / "baselines" / "temper_production_baseline.yaml"
+
+# No _BASELINE_PATH here, deliberately. This module used to hold one and write
+# to it from a collected `test_*` function; nothing in this suite may name a
+# committed measurement artifact as a write target. The baseline path lives in
+# scripts/update_production_routing_baseline.py, which is the only writer.
 
 
 def _kicad_cli_available() -> bool:
@@ -99,8 +106,9 @@ class TestProductionBoardRouting:
     Measures routing metrics against ``pcb/temper.kicad_pcb`` with
     component positions unmodified (no CP-SAT placement — routing-only
     pass using the board's existing layout).  Results are recorded as
-    both test assertions and a module-level ``_ROUTING_RECORD`` dict
-    consumed by ``test_update_baseline_yaml``.
+    both test assertions and a module-level ``_ROUTING_RECORD`` dict,
+    emitted by ``_emit_routing_record`` for consumption by
+    ``scripts/update_production_routing_baseline.py``.
     """
 
     def test_route_pcb_production_board(self):
@@ -255,44 +263,43 @@ class TestProductionBoardRouting:
         if critical_remaining:
             print(f"  Critical nets still unrouted: {critical_remaining}")
 
+        # Emit the measurement for scripts/update_production_routing_baseline.py.
+        # No-op unless that script (or a human running it by hand) set
+        # TEMPER_ROUTING_RECORD_OUT to a scratch path. This never touches the
+        # committed baseline -- see _emit_routing_record's docstring.
+        _emit_routing_record()
+
 
 # Module-level record, populated by test_route_pcb_production_board
 _ROUTING_RECORD: dict = {}
 
 
-def test_update_baseline_yaml():
-    """Patch the production baseline YAML with router_v6 routing metrics.
+def _emit_routing_record() -> None:
+    """Write ``_ROUTING_RECORD`` to the path in ``TEMPER_ROUTING_RECORD_OUT``.
 
-    Reads ``_ROUTING_RECORD`` (populated by
-    ``test_route_pcb_production_board``), adds a ``router_v6_routing``
-    block to the baseline YAML, and writes it back.  The existing
-    ``deterministic_pipeline`` and ``cp_sat`` blocks are preserved.
+    This is the *whole* of this suite's involvement in baseline regeneration,
+    and it deliberately writes to a caller-supplied scratch path -- never to
+    ``_BASELINE_PATH``.
+
+    What used to be here was a ``test_update_baseline_yaml`` that rewrote
+    ``power_pcb_dataset/baselines/temper_production_baseline.yaml`` in place
+    via ``yaml.safe_dump``. It carried no ``skipif``, no env guard and no
+    opt-in marker (the class-level ``slow``/``routing`` marks above are on a
+    different class), so pytest collected and ran it on an ordinary session:
+    it stripped all ~235 comment lines from the baseline -- including the
+    ~200-line header explaining why ``component_count``/``net_count`` were
+    removed on 2026-07-29 -- and left the rewrite in the working tree for
+    ``git add -A`` to commit. Two agents hit it independently on 2026-08-04.
+
+    The split is the fix: this suite MEASURES and emits a record; the writing
+    of a committed measurement artifact belongs to a deliberate, reviewed
+    entry point, ``scripts/update_production_routing_baseline.py``, which
+    splices only the ``router_v6_routing`` block and leaves every other byte
+    of the file alone. No environment variable makes a test in this repo write
+    a protected baseline -- see ``scripts/_lib/pytest_artifact_guard.py``.
     """
-    if not _ROUTING_RECORD:
-        pytest.skip("No routing record available. Run test_route_pcb_production_board first.")
-
-    import yaml
-
-    assert _BASELINE_PATH.exists(), f"Baseline not found: {_BASELINE_PATH}"
-
-    with open(_BASELINE_PATH) as f:
-        doc = yaml.safe_load(f) or {}
-
-    doc["router_v6_routing"] = {
-        "wall_time_s": _ROUTING_RECORD["wall_time_s"],
-        "completion_rate": _ROUTING_RECORD["completion_rate"],
-        "routed_nets": _ROUTING_RECORD["routed_nets"],
-        "unrouted_nets": _ROUTING_RECORD["unrouted_nets"],
-        "unrouted_nets_list": _ROUTING_RECORD["unrouted_nets_list"],
-        "drc_violations_post_route": _ROUTING_RECORD["drc_violations_post_route"],
-        "drc_violations_by_type": dict(_ROUTING_RECORD["drc_violations_by_type"]),
-        "unconnected_items": _ROUTING_RECORD["unconnected_items"],
-        "extraction_date": _ROUTING_RECORD["extraction_date"],
-        "extraction_method": _ROUTING_RECORD["extraction_method"],
-        "kicad_cli_version": _ROUTING_RECORD.get("kicad_cli_version", ""),
-    }
-
-    with open(_BASELINE_PATH, "w") as f:
-        yaml.safe_dump(doc, f, default_flow_style=False, sort_keys=False)
-
-    print(f"Updated {_BASELINE_PATH} with router_v6_routing block")
+    out_path = os.environ.get("TEMPER_ROUTING_RECORD_OUT")
+    if not out_path:
+        return
+    Path(out_path).write_text(json.dumps(_ROUTING_RECORD, indent=2, sort_keys=False))
+    print(f"Wrote routing record to {out_path}")

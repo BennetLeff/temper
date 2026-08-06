@@ -4,388 +4,130 @@ Component, Pin, Net, and Netlist data structures.
 This module defines the netlist representation used throughout temper-placer.
 Components represent physical parts, Pins are connection points, Nets define
 electrical connectivity, and Netlist aggregates everything.
+
+The data model is implemented in Rust as pyo3 pyclasses in the
+``temper-design-bundle`` crate (the ``temper_design_bundle_python``
+extension) — Wave 4 **Phase 3, candidate 1**
+(``docs/plans/2026-08-02-001-feat-wave4-phase3-formats-io-plan.md``). This
+module keeps the pre-migration public API unchanged and re-exports the Rust
+pyclasses directly (the pure-delegation pattern established by
+``core/loop.py`` and ``core/priority.py``).
+
+Verification: bit-identical parity against the pinned pre-migration
+implementation — including the concrete Python type of every field and the
+``float32`` dtype of every returned array — is asserted by
+``tests/core/test_netlist_rust_differential.py`` (oracle:
+``tests/core/_netlist_py_oracle.py``) and
+``tests/core/test_netlist_pbt.py``; the structural proof lives in
+``packages/temper-design-bundle/VERIFICATION.md``.
+
+Deliberately NOT migrated (R3 verdict, named blocker)
+-----------------------------------------------------
+``compute_eigenvector_centrality`` stays Python. It is a thin wrapper over
+``numpy.linalg.eigh`` — LAPACK ``?syevd``. No independent implementation
+reproduces LAPACK's output bit-for-bit (the eigenvector basis is only
+defined up to sign and, in degenerate subspaces, up to an arbitrary
+rotation), so an honest R1 bit-parity differential is unreachable for it;
+and a Rust wrapper that merely re-called ``numpy.linalg.eigh`` would add a
+boundary crossing while proving nothing. This mirrors PR #688's judgment to
+keep ``yaml.safe_load`` on the Python side rather than re-tokenize. See
+``packages/temper-design-bundle/VERIFICATION.md``.
 """
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
 from typing import TypeAlias
 
 import numpy as np
+import temper_design_bundle_python as _tdb
+
+from temper_placer.core._contract_dataclass_compat import (
+    field as _contract_field,
+)
+from temper_placer.core._contract_dataclass_compat import (
+    install_dataclass_fields as _install_dataclass_fields,
+)
 
 Array: TypeAlias = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
 
-
-@dataclass
-class Pin:
-    """
-    A pin on a component.
-
-    Attributes:
-        name: Pin name (e.g., "VCC", "GND", "1").
-        number: Pin number/pad number as string.
-        position: (x, y) offset from component center in mm.
-        net: Net name this pin connects to, or None if unconnected.
-        width: Pad width in mm (for DSN export).
-        height: Pad height in mm (for DSN export).
-        shape: Pad shape (rect, circle, oval, roundrect, thru_hole).
-        layer: Layer or "all" for through-hole pads.
-        roundrect_ratio: KiCad's own ``roundrect_rratio`` for this pad
-            (corner radius = ratio * min(width, height)). Only meaningful
-            when ``shape == "roundrect"``; ignored otherwise. Defaults to
-            KiCad's own default of 0.25 when the real per-pad value isn't
-            known -- see ``core.pad_geometry`` module docstring for why
-            that default is always a safe (never-under-reporting) choice
-            for axis-aligned queries, and a reasonable choice otherwise.
-        pad_rotation_deg: The pad's own intrinsic rotation in degrees, on
-            top of (added to) its component's rotation -- KiCad allows a
-            pad to carry an independent ``(at x y angle)``. Zero on every
-            pad on the current production board; not assumed away for
-            pad-shape extent computations (see ``core.pad_geometry``).
-    """
-
-    name: str
-    number: str
-    position: tuple[float, float]
-    net: str | None = None
-    width: float = 1.0
-    height: float = 1.0
-    shape: str = "rect"
-    layer: str = "F.Cu"
-    drill: float = 0.0  # Drill diameter (0 = SMD)
-    is_pth: bool = False  # Convenience flag for Plated Through-Hole
-    roundrect_ratio: float = 0.25  # KiCad's own default roundrect_rratio
-    pad_rotation_deg: float = 0.0  # Pad's own rotation, additive to component's
-
-    @property
-    def mask_expansion(self) -> float:
-        """Return recommended solder mask expansion for this pin."""
-        return 0.15 if self.is_pth else 0.1
-
-
-@dataclass
-class Component:
-    """
-    A component to be placed on the PCB.
-
-    Attributes:
-        ref: Reference designator (e.g., "U1", "R5", "C10").
-        footprint: Footprint name/path.
-        bounds: (width, height) bounding box in mm.
-        pins: List of pins on this component.
-        net_class: Net class for design rule checking (e.g., "HighVoltage", "Signal").
-        zone: Target placement zone name, or None for any zone.
-        fixed: If True, component position is fixed (don't optimize).
-        initial_position: Optional (x, y) initial/fixed position.
-        initial_rotation: Optional initial rotation index (0-3 for 0°/90°/180°/270°).
-        attributes: Additional component attributes (value, MPN, etc.).
-        sheetpath: Stable module-instance identity (e.g. "hb.power_loop.q_high"),
-            read from the footprint's "Sheetpath" property when present. Unlike
-            `ref`, this survives designator renumbering when the BOM changes —
-            configs should key fixed_positions/component_groups by sheetpath
-            when available (see docs/solutions/logic-errors/
-            fixed-positions-ref-fragility-across-renumbering.md).
-    """
-
-    ref: str
-    footprint: str
-    bounds: tuple[float, float]  # (width, height) in mm
-    pins: list[Pin] = field(default_factory=list)
-    net_class: str = "Signal"
-    zone: str | None = None
-    fixed: bool = False
-    initial_position: tuple[float, float] | None = None
-    initial_rotation: int | None = None
-    initial_side: int | None = None
-    attributes: dict[str, str] = field(default_factory=dict)
-    tags: frozenset = field(default_factory=frozenset)
-    sheetpath: str | None = None
-
-    @property
-    def width(self) -> float:
-        """Component width in mm."""
-        return self.bounds[0]
-
-    @property
-    def height(self) -> float:
-        """Component height in mm."""
-        return self.bounds[1]
-
-    def get_pin(self, name_or_number: str) -> Pin | None:
-        """Get a pin by name or number."""
-        for pin in self.pins:
-            if pin.name == name_or_number or pin.number == name_or_number:
-                return pin
-        return None
-
-    def get_pins_for_net(self, net_name: str) -> list[Pin]:
-        """Get all pins connected to a given net."""
-        return [p for p in self.pins if p.net == net_name]
-
-
-@dataclass
-class Net:
-    """
-    An electrical net connecting multiple pins.
-
-    Attributes:
-        name: Net name (e.g., "GND", "VCC", "NET-U1-1").
-        pins: List of (component_ref, pin_name) tuples.
-        net_class: Net class for design rules.
-        weight: Importance weight for wirelength optimization.
-            Higher = more important to minimize length.
-        max_current: Maximum current in Amps (used for width/plane inference).
-        voltage_class: Voltage classification (e.g., "LV", "HV").
-    """
-
-    name: str
-    pins: list[tuple[str, str]]  # [(component_ref, pin_name), ...]
-    net_class: str = "Signal"
-    weight: float = 1.0
-    max_current: float = 0.0  # Amps
-    voltage_class: str = "LV"  # "LV", "HV"
-
-    @property
-    def pin_count(self) -> int:
-        """Number of pins in this net."""
-        return len(self.pins)
-
-    def get_component_refs(self) -> set[str]:
-        """Get unique component references in this net."""
-        return {ref for ref, _ in self.pins}
-
-
-@dataclass
-class Netlist:
-    """
-    Complete netlist containing all components and nets.
-
-    Attributes:
-        components: List of all components.
-        nets: List of all nets.
-    """
-
-    components: list[Component] = field(default_factory=list)
-    nets: list[Net] = field(default_factory=list)
-
-    # Computed indices (populated by build_indices)
-    _component_index: dict[str, int] = field(default_factory=dict, repr=False)
-    _net_index: dict[str, int] = field(default_factory=dict, repr=False)
-    _component_nets: dict[str, list[str]] = field(default_factory=dict, repr=False)
-
-    def __post_init__(self) -> None:
-        """Build indices after initialization."""
-        self.build_indices()
-
-    def build_indices(self) -> None:
-        """Build lookup indices for efficient queries."""
-        self._component_index = {c.ref: i for i, c in enumerate(self.components)}
-        self._net_index = {n.name: i for i, n in enumerate(self.nets)}
-
-        # Build component -> nets mapping
-        self._component_nets = {c.ref: [] for c in self.components}
-        for net in self.nets:
-            for ref, _ in net.pins:
-                if ref in self._component_nets:
-                    self._component_nets[ref].append(net.name)
-
-    def get_component_index(self, ref: str) -> int:
-        """Get array index for a component by reference."""
-        return self._component_index[ref]
-
-    def get_component(self, ref: str) -> Component:
-        """Get a component by reference."""
-        return self.components[self._component_index[ref]]
-
-    def get_net(self, name: str) -> Net:
-        """Get a net by name."""
-        return self.nets[self._net_index[name]]
-
-    def get_component_nets(self, ref: str) -> list[str]:
-        """Get all net names connected to a component."""
-        return self._component_nets.get(ref, [])
-
-    def get_net_pins(self, net_name: str) -> list[tuple[str, str]]:
-        """Get all (component_ref, pin_name) for a net."""
-        return self.get_net(net_name).pins
-
-    @property
-    def n_components(self) -> int:
-        """Number of components."""
-        return len(self.components)
-
-    @property
-    def n_nets(self) -> int:
-        """Number of nets."""
-        return len(self.nets)
-
-    def get_bounds_array(self) -> Array:
-        """Get (N, 2) array of component bounds (width, height)."""
-        return np.array([c.bounds for c in self.components], dtype=np.float32)
-
-    def get_fixed_mask(self) -> Array:
-        """Get (N,) boolean array of fixed components."""
-        return np.array([c.fixed for c in self.components], dtype=np.bool_)
-
-    def apply_net_class_mapping(self, mapping: dict[str, str]) -> int:
-        """
-        Apply a net_name -> net_class mapping to all nets.
-
-        This updates the net_class attribute of each Net object based on
-        the provided mapping. Nets not in the mapping retain their current
-        net_class (typically the default 'Signal').
-
-        Args:
-            mapping: Dictionary mapping net names to net class names.
-                     Example: {'GND': 'Ground', 'AC_L': 'HighVoltage'}
-
-        Returns:
-            Number of nets that were updated.
-        """
-        updated = 0
-        for net in self.nets:
-            if net.name in mapping:
-                new_class = mapping[net.name]
-                if net.net_class != new_class:
-                    # Net is a frozen dataclass, need to create new one
-                    # But Net is not frozen, so direct assignment works
-                    net.net_class = new_class
-                    updated += 1
-        return updated
-
-    def find_isomorphic_groups(self, iterations: int = 2) -> list[list[int]]:
-        """
-        Find groups of components that are topologically isomorphic.
-
-        Uses Weisfeiler-Lehman (WL) neighborhood hashing to identify components
-        with identical local connectivity and footprints.
-
-        Args:
-            iterations: Number of neighborhood expansion steps.
-                1: Same footprint and same neighbor footprints.
-                2: Also considers neighbors of neighbors.
-
-        Returns:
-            List of groups, where each group is a list of component indices.
-            Only groups with >1 member are returned.
-        """
-        import hashlib
-
-        n = self.n_components
-        if n == 0:
-            return []
-
-        # 1. Initial labels: Footprint + Ref Prefix (to distinguish R from C)
-        labels = []
-        for c in self.components:
-            # Extract ref prefix (all letters at start)
-            import re
-
-            match = re.match(r"^([a-zA-Z]+)", c.ref)
-            prefix = match.group(1) if match else ""
-            labels.append(f"{c.footprint}|{prefix}")
-
-        # Build adjacency for hashing
-        adj = build_adjacency_matrix(self)
-        # Convert to list of neighbor indices for each component
-        neighbor_lists = []
-        for i in range(n):
-            # Components connected by any net
-            neighbors = np.where(adj[i] > 0)[0].tolist()
-            neighbor_lists.append(neighbors)
-
-        # 2. Iterative Refinement (WL algorithm)
-        for _ in range(iterations):
-            new_labels = []
-            for i in range(n):
-                # Get labels of neighbors
-                neighbor_labels = sorted([labels[j] for j in neighbor_lists[i]])
-
-                # Combine current label with neighbor labels
-                sig = f"{labels[i]}|{','.join(neighbor_labels)}"
-                # Hash to keep labels manageable
-                h = hashlib.md5(sig.encode()).hexdigest()
-                new_labels.append(h)
-            labels = new_labels
-
-        # 3. Group by final labels
-        groups_dict: dict[str, list[int]] = {}
-        for i, label in enumerate(labels):
-            if label not in groups_dict:
-                groups_dict[label] = []
-            groups_dict[label].append(i)
-
-        # 4. Filter groups with >1 member
-        return [g for g in groups_dict.values() if len(g) > 1]
-
-    def validate(self) -> list[str]:
-        """
-        Validate netlist consistency.
-
-        Returns:
-            List of validation error messages (empty if valid).
-        """
-        errors = []
-
-        # Check for duplicate component refs
-        refs = [c.ref for c in self.components]
-        if len(refs) != len(set(refs)):
-            duplicates = [r for r in refs if refs.count(r) > 1]
-            errors.append(f"Duplicate component refs: {set(duplicates)}")
-
-        # Check for duplicate net names
-        names = [n.name for n in self.nets]
-        if len(names) != len(set(names)):
-            duplicates = [n for n in names if names.count(n) > 1]
-            errors.append(f"Duplicate net names: {set(duplicates)}")
-
-        # Check that net pins reference valid components
-        for net in self.nets:
-            for ref, pin_name in net.pins:
-                if ref not in self._component_index:
-                    errors.append(f"Net {net.name} references unknown component {ref}")
-                else:
-                    comp = self.get_component(ref)
-                    if comp.get_pin(pin_name) is None:
-                        errors.append(f"Net {net.name} references unknown pin {pin_name} on {ref}")
-
-        return errors
-
-
-def build_adjacency_matrix(netlist: Netlist) -> Array:
-    """
-    Build weighted adjacency matrix from netlist connectivity.
-
-    The adjacency matrix A is symmetric with A[i,j] equal to the number of nets
-    connecting components i and j. Components on the same net create edges between
-    all pairs of components on that net (complete subgraph).
-
-    Args:
-        netlist: Netlist with components and nets.
-
-    Returns:
-        (N, N) symmetric adjacency matrix where A[i,j] = number of nets
-        connecting components i and j. Returns (0,0) array for empty netlist.
-    """
-    import numpy as np
-    import temper_io_types as _rs
-
-    n = len(netlist.components)
-
-    # The empty branch is reproduced here, not in Rust, because
-    # `np.array([]).reshape(0, 0)` is **float64** -- not the float32 the
-    # populated branch returns. Both dtypes are part of the contract.
-    if n == 0:
-        return np.array([]).reshape(0, 0)
-
-    # The pair scan is O(sum over nets of k^2) and runs in Rust; the two
-    # projections below are all it reads. Accumulation is float32 there
-    # too, so `+= 1` saturates at 2^24 exactly as numpy's does.
-    n_out, flat = _rs.build_adjacency_flat(
-        [comp.ref for comp in netlist.components],
-        [[comp_ref for comp_ref, _ in net.pins] for net in netlist.nets],
-    )
-    return np.asarray(flat, dtype=np.float32).reshape(n_out, n_out)
+_rs = _tdb.netlist_contracts
+
+Pin = _rs.Pin
+Component = _rs.Component
+Net = _rs.Net
+Netlist = _rs.Netlist
+build_adjacency_matrix = _rs.build_adjacency_matrix
+
+# A pyclass is not a dataclass, and `dataclasses.replace()` is load-bearing
+# here -- `deterministic/stages/apply_placements.py` rebuilds both `Component`
+# and `Netlist` with it. See `_contract_dataclass_compat` for the mechanism.
+# Each field spec mirrors the pinned pre-migration oracle
+# (`tests/core/_netlist_py_oracle.py`) field-for-field: annotation, literal
+# default or default_factory, and the init/repr flags.
+_install_dataclass_fields(
+    Pin,
+    (
+        _contract_field("name", "str"),
+        _contract_field("number", "str"),
+        _contract_field("position", "tuple[float, float]"),
+        _contract_field("net", "str | None", None),
+        _contract_field("width", "float", 1.0),
+        _contract_field("height", "float", 1.0),
+        _contract_field("shape", "str", "rect"),
+        _contract_field("layer", "str", "F.Cu"),
+        _contract_field("drill", "float", 0.0),
+        _contract_field("is_pth", "bool", False),
+        _contract_field("roundrect_ratio", "float", 0.25),
+        _contract_field("pad_rotation_deg", "float", 0.0),
+    ),
+    module=__name__,
+)
+_install_dataclass_fields(
+    Component,
+    (
+        _contract_field("ref", "str"),
+        _contract_field("footprint", "str"),
+        _contract_field("bounds", "tuple[float, float]"),
+        _contract_field("pins", "list[Pin]", default_factory=list),
+        _contract_field("net_class", "str", "Signal"),
+        _contract_field("zone", "str | None", None),
+        _contract_field("fixed", "bool", False),
+        _contract_field("initial_position", "tuple[float, float] | None", None),
+        _contract_field("initial_rotation", "int | None", None),
+        _contract_field("initial_side", "int | None", None),
+        _contract_field("attributes", "dict[str, str]", default_factory=dict),
+        _contract_field("tags", "frozenset", default_factory=frozenset),
+        _contract_field("sheetpath", "str | None", None),
+    ),
+    module=__name__,
+)
+_install_dataclass_fields(
+    Net,
+    (
+        _contract_field("name", "str"),
+        _contract_field("pins", "list[tuple[str, str]]"),
+        _contract_field("net_class", "str", "Signal"),
+        _contract_field("weight", "float", 1.0),
+        _contract_field("max_current", "float", 0.0),
+        _contract_field("voltage_class", "str", "LV"),
+    ),
+    module=__name__,
+)
+# The computed indices are `repr=False` on the original dataclass; the
+# init/repr flags mirror the oracle exactly.
+_install_dataclass_fields(
+    Netlist,
+    (
+        _contract_field("components", "list[Component]", default_factory=list),
+        _contract_field("nets", "list[Net]", default_factory=list),
+        _contract_field("_component_index", "dict[str, int]", default_factory=dict, repr=False),
+        _contract_field("_net_index", "dict[str, int]", default_factory=dict, repr=False),
+        _contract_field(
+            "_component_nets", "dict[str, list[str]]", default_factory=dict, repr=False
+        ),
+    ),
+    module=__name__,
+)
 
 
 def compute_eigenvector_centrality(adjacency: Array) -> Array:
@@ -401,6 +143,11 @@ def compute_eigenvector_centrality(adjacency: Array) -> Array:
 
     Returns:
         (N,) array of centrality scores, normalized to sum to 1.0.
+
+    Not migrated to Rust — see the module docstring's R3 note. The three
+    return paths have deliberately different dtypes (``n == 0`` is float64,
+    ``n == 1`` is float32, ``n >= 2`` follows the input); that is preserved
+    here by leaving the code untouched.
     """
     n = adjacency.shape[0]
     if n == 0:
@@ -423,3 +170,14 @@ def compute_eigenvector_centrality(adjacency: Array) -> Array:
         centrality = centrality / total
 
     return centrality
+
+
+__all__ = [
+    "Array",
+    "Component",
+    "Net",
+    "Netlist",
+    "Pin",
+    "build_adjacency_matrix",
+    "compute_eigenvector_centrality",
+]
