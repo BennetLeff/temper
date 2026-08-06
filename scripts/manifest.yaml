@@ -1,6 +1,6 @@
 _meta:
   last_audit_date: '2026-08-05'
-  total_scripts: 115
+  total_scripts: 116
   counts:
     keep: 113
     ticket: 0
@@ -869,6 +869,22 @@ scripts:
   - importlib.util
   - pathlib
   - sys
+- path: check_unwired_kernels.py
+  purpose: 'CI gate: fail when a Rust kernel is registered into a Python module but no non-test code calls
+    it. Closes the gap that let 4,096 LOC of proven-but-inert kernels merge across PRs #749/#750/#751
+    -- the differential compares oracle vs Rust and passes whether or not the shipped module delegates.
+    Shrink-only ledger in .unwired-kernel-inventory; NEW_UNWIRED and STALE_ENTRY both fail.'
+  owner: pipeline
+  last_run: '2026-08-06'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - pathlib
+  - re
+  - subprocess
+  - sys
 - path: check_vacuous_gates.py
   purpose: 'CI gate: reject unguarded all() in gate and validator modules (docs/METHODOLOGY.md Sec 4/5,
     anti-vacuous-truth); any() exempt (already fail-closed); asserts zero, no allowlist. Also rejects
@@ -1364,7 +1380,11 @@ scripts:
   - subprocess
   - sys
 - path: phase5_batch2_mutations.py
-  purpose: 'Wave-4 Phase-5 mutation campaign driver (deterministic leaf stages: sequential_routing_dataclasses, layer_assignment, power_plane, component_assignment, routing_metrics, fine_pitch_escape, validator slot-grid, DRC-check leaf kernels, connectivity_validation): applies each Rust-kernel mutant, rebuilds the owning crate, runs the differential/PBT suites, expects failure, reverts and verifies pristine. Reproducible anti-vacuity evidence.'
+  purpose: 'Wave-4 Phase-5 mutation campaign driver (deterministic leaf stages: sequential_routing_dataclasses,
+    layer_assignment, power_plane, component_assignment, routing_metrics, fine_pitch_escape, validator
+    slot-grid, DRC-check leaf kernels, connectivity_validation): applies each Rust-kernel mutant, rebuilds
+    the owning crate, runs the differential/PBT suites, expects failure, reverts and verifies pristine.
+    Reproducible anti-vacuity evidence.'
   owner: wave4-migration
   last_run: '2026-08-06'
   category: keep
