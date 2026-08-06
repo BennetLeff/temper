@@ -254,7 +254,17 @@ _PR544_HARD_BLOCKED = 0.416550
 
 
 def test_single_row_baseline_reports_a_runtime_no_op_as_a_regression():
-    """The false positive, reproduced. This is the behaviour being fixed."""
+    """The false positive, reproduced. This is the behaviour being fixed.
+
+    A one-row baseline makes the "median" that row, so the full CI spread
+    lands against the margin and the PR #544 runtime no-op reads +26.6% raw --
+    past the 20% floor that produced the original false positive. Whether the
+    gate actually trips is a margin question, so the classification here uses
+    the floor margin directly; hard_blocked_batch's per-benchmark margin has
+    since been widened to 30% (re-derived from fixed-commit CI noise on
+    2026-08-05), which absorbs this reading -- that absorption is what the
+    companion five-row test's "+15.7%, OK" pin is about.
+    """
     baselines = load_main_baselines(
         [_record(_CI_HARD_BLOCKED[0], stage="hard_blocked_batch")]
     )
@@ -263,8 +273,12 @@ def test_single_row_baseline_reports_a_runtime_no_op_as_a_regression():
     )
     delta = results[0]["deltas"]["rust_over_oracle_ratio"]
     assert delta["delta_pct"] == pytest.approx(26.6, abs=0.1)
-    assert delta["status"] == "REGRESSION"
-    assert gate_failures(results)
+    # Unsmoothed, it trips the 20% floor -- the original false positive.
+    assert _status_for("rust_over_oracle_ratio", delta["delta_pct"]) == "REGRESSION"
+    # ... but hard_blocked_batch's derived margin now absorbs it.
+    assert margin_for(("bottleneck-geometry", "hard_blocked_batch")) >= 0.30
+    assert delta["status"] == "OK"
+    assert gate_failures(results) == []
 
 
 def test_five_row_baseline_absorbs_the_same_reading():

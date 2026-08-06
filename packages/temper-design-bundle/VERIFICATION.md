@@ -2339,9 +2339,12 @@ True); empty violations list yields no adjustments; empty/`None` maps return
     region — the unmeasured hot-path cost named above — by replicating the
     shim's exact call shape. **Remaining step:** capture the baseline rows
     on CI per the #757 pattern (the perf gate fails closed on any benchmark
-    key without CI-captured baseline rows). Until those rows exist, R1b is
-    **NOT met** for the bottleneck-map path (the differential proves
-    bit-identical behavior; it is not a performance claim).
+    key without CI-captured baseline rows). **CAPTURED (PR #795):** 5
+    CI-captured rows appended for `("deterministic-hubs", "score_at")`
+    (workflow_dispatch runs 31063895328 / 31063929402 / 31063953781 /
+    31063979883 / 31064004110, measured commit 77af79f13), ratios 143.1–156.1.
+    R1b is **met** for the bottleneck-map path (the differential proves
+    bit-identical behavior; the CI baseline makes it a performance claim).
 - **R1h (physics discipline): NOT APPLICABLE — evaluated and recorded.**
   `channels.py` carries a PHYSICS-KW marker; the module consumes router-V6
   congestion output for placement-time routability scoring — a heuristic cost
