@@ -3,14 +3,37 @@
 Fingerprints capture the state of board inputs and placer source code so
 the regression runner can skip boards whose inputs haven't changed since
 the last successful run.
+
+Wave 4 Phase 4 (regression slice): the hashing/decision compute —
+the SHA-256 update-sequence for input fingerprints
+(``temper_design_bundle_python.input_fingerprint``), the ``"\n"``-join +
+SHA-256 for source fingerprints (``source_fingerprint``), and the cache-skip
+decision (``should_skip``) — moved to ``temper-design-bundle``
+(packages/temper-design-bundle/src/fingerprint.rs). File I/O stays here: the
+input files are read, ``SOURCE_FINGERPRINT_DIRS`` walked, and each file's
+hash computed with the crate's own ``sha256_hex`` (identical to
+``hashlib.sha256().hexdigest()``) before the kernels hash the marshalled
+parts. The cache JSON load/save and the board-entry update (with its UTC
+timestamp) stay here — I/O and marshalling. Design boundaries are argued in
+``packages/temper-design-bundle/VERIFICATION.md``.
 """
 
 from __future__ import annotations
 
-import hashlib
 import json
 from datetime import UTC, datetime
 from pathlib import Path
+
+_TDB = None
+
+
+def _tdb():
+    global _TDB
+    if _TDB is None:
+        import temper_design_bundle_python  # type: ignore[import-untyped]
+
+        _TDB = temper_design_bundle_python
+    return _TDB
 
 CACHE_FILENAME = ".regression-cache.json"
 CACHE_VERSION = 1
@@ -22,7 +45,10 @@ SOURCE_FINGERPRINT_DIRS = [
 
 
 def _hash_file(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+    # Wave 4 Phase 4: the crate's sha256_hex is byte-identical to
+    # hashlib.sha256(...).hexdigest() (SHA-256 is standardized; pinned by the
+    # differential).
+    return _tdb().sha256_hex(path.read_bytes())
 
 
 def compute_input_fingerprint(
@@ -32,15 +58,18 @@ def compute_input_fingerprint(
     manifest_seed: int,
     manifest_epochs: int,
 ) -> str:
-    h = hashlib.sha256()
+    # Wave 4 Phase 4: the hashing runs in
+    # ``temper_design_bundle_python.input_fingerprint``. The parts carry the
+    # oracle's exact update sequence in the oracle's sorted-path order:
+    # existing files contribute their bytes, missing files contribute
+    # ``str(path).encode()``, then the ``seed:``/``epochs:`` suffixes.
+    parts: list[tuple[bytes | None, str]] = []
     for path in sorted([pcb_path, constraints_path, baseline_path]):
         if path.exists():
-            h.update(path.read_bytes())
+            parts.append((path.read_bytes(), str(path)))
         else:
-            h.update(str(path).encode())
-    h.update(f"seed:{manifest_seed}".encode())
-    h.update(f"epochs:{manifest_epochs}".encode())
-    return h.hexdigest()
+            parts.append((None, str(path)))
+    return _tdb().input_fingerprint(parts, int(manifest_seed), int(manifest_epochs))
 
 
 def compute_source_fingerprint(repo_root: Path) -> str:
@@ -51,7 +80,9 @@ def compute_source_fingerprint(repo_root: Path) -> str:
             continue
         for py_file in sorted(src_dir.rglob("*.py")):
             file_hashes.append(f"{py_file.relative_to(repo_root)}:{_hash_file(py_file)}")
-    return hashlib.sha256("\n".join(file_hashes).encode()).hexdigest()
+    # Wave 4 Phase 4: the "\n"-join + SHA-256 runs in
+    # ``temper_design_bundle_python.source_fingerprint``.
+    return _tdb().source_fingerprint(file_hashes)
 
 
 def load_cache(corpus_root: Path) -> dict:
@@ -83,12 +114,9 @@ def should_skip(
     cache: dict,
 ) -> bool:
     board_cache = cache.get("boards", {}).get(board_id)
-    if not board_cache:
-        return False
-    return (
-        board_cache.get("input_fingerprint") == input_fingerprint
-        and board_cache.get("source_fingerprint") == source_fingerprint
-    )
+    # Wave 4 Phase 4: the decision (falsy entry / both-fingerprints-match)
+    # runs in ``temper_design_bundle_python.should_skip``.
+    return _tdb().should_skip(input_fingerprint, source_fingerprint, board_cache)
 
 
 def update_cache_entry(

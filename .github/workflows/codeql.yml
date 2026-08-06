@@ -71,8 +71,8 @@ on:
 # for consistency with the rest of the repo and so the expression needs no
 # rework if a pull_request trigger is ever restored (see comment above).
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   analyze:

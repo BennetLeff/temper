@@ -25,21 +25,17 @@
 //   which on ELF means "search every loaded object" — resolves the
 //   process-global glibc libm `pow`: the primary route.
 // - **macOS/Darwin**: the NULL handle is NOT `RTLD_DEFAULT` (that is -2 on
-//   Darwin) and `dlsym(NULL, "pow")` FAILS ('invalid handle'): the null
-//   handle only searches the main image and images loaded with
-//   `RTLD_GLOBAL`, while CPython loads extension bundles with `RTLD_LOCAL`.
-//   Measured on this machine (darwin arm64): only the -2 handle resolves,
-//   NULL never does — so `dlsym_binary` always returns `None` here and the
-//   `f64::powf` fallback is ALWAYS the live route; the dlsym path never
-//   runs. The fallback is sound by accident, exactly as
-//   `temper-constraint-compiler/src/constraints/mod.rs` documents: because
-//   the exponent arrives as a *runtime* value, LLVM cannot fold it to
-//   `x * x` — it emits an undefined `_pow` reference resolved to libSystem,
-//   the SAME function CPython's `float_pow` calls (verified via `nm`:
-//   `U _pow` in the built `.so`, plus the pow-vs-multiply discriminator
-//   tests in the route_and_measure/timing differentials). The NULL-handle
-//   call failing is therefore load-bearing on Darwin, not a bug: the
-//   fallback it selects is bit-identical to the host CPython's `pow`.
+//   Darwin) and `dlsym(NULL, "pow")` FAILS ('invalid handle'). This module
+//   used to hardcode NULL on every target and treat the resulting miss as
+//   load-bearing — "sound by accident", on the argument that the `f64::powf`
+//   fallback lowers to a libSystem `_pow` call the runtime exponent stops
+//   LLVM folding to `x * x`. That argument rested on an optimiser
+//   *non*-guarantee: nothing stops a future rustc/LLVM from constant-folding
+//   or inlining a libm shim, and the fallback is only reached because a
+//   *different* bug (the wrong handle) fires first. The handle is now
+//   correct on Darwin — `dlsym(-2, "pow")` resolves libSystem's `pow`
+//   directly — so the primary route is live on macOS as it always was on
+//   Linux, and the fallback is genuinely a fallback again.
 // - **Windows**: `#[cfg(not(target_arch = "wasm32"))]` compiles the `dlsym`
 //   declaration on Windows, where the CRT has no `dlsym` — a link error.
 //   Recorded, not fixed: out of scope for the Ubuntu CI target (the guard
@@ -52,16 +48,39 @@
 #![allow(clippy::missing_safety_doc)]
 
 #[cfg(not(target_arch = "wasm32"))]
-type BinaryMathFn = unsafe extern "C" fn(f64, f64) -> f64;
+use std::ffi::CStr;
 
 #[cfg(not(target_arch = "wasm32"))]
-fn dlsym_binary(symbol: &str) -> Option<BinaryMathFn> {
+type BinaryMathFn = unsafe extern "C" fn(f64, f64) -> f64;
+
+/// `RTLD_DEFAULT` — "search every loaded object, in load order".
+///
+/// **The constant is not portable, and getting it wrong fails silently.**
+/// glibc defines it as `((void *) 0)`; Darwin's `dlfcn.h` defines it as
+/// `((void *) -2)` (`NULL` there is not a valid handle and simply misses).
+#[cfg(all(not(target_arch = "wasm32"), target_vendor = "apple"))]
+const RTLD_DEFAULT: *const u8 = usize::MAX.wrapping_sub(1) as *const u8; // (void *) -2
+
+#[cfg(all(not(target_arch = "wasm32"), not(target_vendor = "apple")))]
+const RTLD_DEFAULT: *const u8 = core::ptr::null();
+
+/// Resolve `symbol` in the host process's already-loaded libm.
+///
+/// `symbol` is a `&CStr`, not a `&str`: `dlsym` reads a NUL-terminated C
+/// string, and a Rust `&str` carries its length out of band with no NUL, so
+/// passing `str::as_ptr` made `dlsym` read past the end of the literal into
+/// whatever `.rodata` followed it.
+#[cfg(not(target_arch = "wasm32"))]
+fn dlsym_binary(symbol: &CStr) -> Option<BinaryMathFn> {
     unsafe extern "C" {
         fn dlsym(handle: *const u8, symbol: *const u8) -> *mut u8;
     }
-    const RTLD_DEFAULT: *const u8 = core::ptr::null();
+    // SAFETY: `symbol` is a NUL-terminated C string and `RTLD_DEFAULT` is this
+    // platform's "search every loaded object" handle (never dereferenced). A
+    // miss returns null, which is checked here. The resolved symbol is a C
+    // `double(double, double)` from libm.
     unsafe {
-        let p = dlsym(RTLD_DEFAULT, symbol.as_ptr());
+        let p = dlsym(RTLD_DEFAULT, symbol.as_ptr().cast::<u8>());
         if p.is_null() {
             None
         } else {
@@ -73,7 +92,7 @@ fn dlsym_binary(symbol: &str) -> Option<BinaryMathFn> {
 #[cfg(not(target_arch = "wasm32"))]
 fn host_pow() -> &'static BinaryMathFn {
     static F: std::sync::OnceLock<Option<BinaryMathFn>> = std::sync::OnceLock::new();
-    F.get_or_init(|| dlsym_binary("pow").or(Some(fallback_pow)))
+    F.get_or_init(|| dlsym_binary(c"pow").or(Some(fallback_pow)))
         .as_ref()
         .unwrap_or_else(|| unreachable!("fallback always set"))
 }
@@ -97,6 +116,19 @@ pub fn pow(x: f64, y: f64) -> f64 {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// The host-libm indirection is actually wired, not silently bypassed.
+    ///
+    /// Before the Darwin `RTLD_DEFAULT` correction this failed on macOS:
+    /// `dlsym(NULL, ...)` reports `invalid handle` there, so every lookup
+    /// returned `None` and the fallback silently became the live route while
+    /// the code claimed bit-exactness with the host interpreter. Nothing else
+    /// in the suite could notice — the fallback is a *plausible* answer.
+    #[cfg(not(target_arch = "wasm32"))]
+    #[test]
+    fn host_libm_symbols_actually_resolve() {
+        assert!(dlsym_binary(c"pow").is_some(), "dlsym could not resolve `pow`");
+    }
 
     #[test]
     fn pow_matches_python_libm_on_known_values() {

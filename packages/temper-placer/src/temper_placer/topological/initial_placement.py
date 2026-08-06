@@ -13,8 +13,10 @@ Key functions:
 
 from __future__ import annotations
 
-import math
+import math  # noqa: F401 -- re-exported trig constants kept for API compatibility
 from dataclasses import dataclass, field
+
+import temper_placement_topology as _rust
 
 from temper_placer.core.board import Zone
 from temper_placer.topological.graph import TopologicalGraph
@@ -70,58 +72,31 @@ def place_components_in_zone(
     if not components:
         return {}
 
-    x_min, y_min, x_max, y_max = zone.bounds
-    zone_width = x_max - x_min
-    zone_height = y_max - y_min
-    center_x = (x_min + x_max) / 2
-    center_y = (y_min + y_max) / 2
+    bounds = tuple(float(v) for v in zone.bounds)
+    sizes = [(float(component_sizes[ref][0]), float(component_sizes[ref][1])) for ref in components]
 
-    # Check if zone is large enough for each component
-    for ref in components:
+    outcome = _rust.place_components_in_zone(bounds, sizes)
+
+    # Error text is rendered here, not in Rust: the messages interpolate
+    # floats with `{:.1f}` and CPython's own formatting is what the callers
+    # and the pinned oracle assert against.
+    if outcome[0] == "component_too_large":
+        _, idx, zone_width, zone_height = outcome
+        ref = components[idx]
         w, h = component_sizes[ref]
-        if w > zone_width or h > zone_height:
-            raise PlacementError(
-                f"Zone '{zone.name}' is too small for component '{ref}' "
-                f"(zone: {zone_width:.1f}x{zone_height:.1f}mm, "
-                f"component: {w:.1f}x{h:.1f}mm)"
-            )
-
-    # For single component, place at center
-    if len(components) == 1:
-        return {components[0]: (center_x, center_y)}
-
-    # Check total area
-    total_area = sum(component_sizes[ref][0] * component_sizes[ref][1] for ref in components)
-    zone_area = zone_width * zone_height
-    if total_area > zone_area * 0.8:  # 80% packing limit
+        raise PlacementError(
+            f"Zone '{zone.name}' is too small for component '{ref}' "
+            f"(zone: {zone_width:.1f}x{zone_height:.1f}mm, "
+            f"component: {w:.1f}x{h:.1f}mm)"
+        )
+    if outcome[0] == "zone_too_small":
+        _, total_area, zone_area = outcome
         raise PlacementError(
             f"Zone '{zone.name}' is too small to fit {len(components)} components "
             f"(total area: {total_area:.1f}mm², zone area: {zone_area:.1f}mm²)"
         )
 
-    # Circular arrangement
-    positions: dict[str, tuple[float, float]] = {}
-    n = len(components)
-
-    # Calculate radius - use smaller dimension, leave margin
-    max_component_size = max(max(component_sizes[ref]) for ref in components)
-    margin = max_component_size / 2 + 2.0  # Component half-size + 2mm
-    radius = min(zone_width, zone_height) / 2 - margin
-    radius = max(radius, max_component_size)  # Minimum radius
-
-    for i, ref in enumerate(components):
-        angle = 2 * math.pi * i / n
-        x = center_x + radius * math.cos(angle)
-        y = center_y + radius * math.sin(angle)
-
-        # Clamp to zone bounds with margin
-        w, h = component_sizes[ref]
-        x = max(x_min + w / 2, min(x, x_max - w / 2))
-        y = max(y_min + h / 2, min(y, y_max - h / 2))
-
-        positions[ref] = (x, y)
-
-    return positions
+    return {ref: tuple(pos) for ref, pos in zip(components, outcome[1], strict=True)}
 
 
 def identify_clusters(
@@ -143,43 +118,18 @@ def identify_clusters(
     if not components:
         return []
 
-    # Union-find data structures
-    parent: dict[str, str] = {c: c for c in components}
-    rank: dict[str, int] = dict.fromkeys(components, 0)
+    # Index adjacency edges against the component list, in graph order.
+    index_of = {c: i for i, c in enumerate(components)}
+    adjacent = [
+        (index_of[u], index_of[v])
+        for u, v, data in graph.graph.edges(data=True)
+        if data.get("edge_type") == "adjacent" and u in index_of and v in index_of
+    ]
 
-    def find(x: str) -> str:
-        if parent[x] != x:
-            parent[x] = find(parent[x])  # Path compression
-        return parent[x]
-
-    def union(x: str, y: str) -> None:
-        px, py = find(x), find(y)
-        if px == py:
-            return
-        # Union by rank
-        if rank[px] < rank[py]:
-            px, py = py, px
-        parent[py] = px
-        if rank[px] == rank[py]:
-            rank[px] += 1
-
-    # Process adjacency edges only - use graph's internal networkx graph
-    component_set = set(components)
-    for u, v, data in graph.graph.edges(data=True):
-        if data.get("edge_type") != "adjacent":
-            continue
-        if u in component_set and v in component_set:
-            union(u, v)
-
-    # Collect clusters
-    clusters_map: dict[str, set[str]] = {}
-    for c in components:
-        root = find(c)
-        if root not in clusters_map:
-            clusters_map[root] = set()
-        clusters_map[root].add(c)
-
-    return list(clusters_map.values())
+    return [
+        {components[i] for i in cluster}
+        for cluster in _rust.identify_clusters(list(components), adjacent)
+    ]
 
 
 def place_cluster(
@@ -209,76 +159,25 @@ def place_cluster(
     if not cluster:
         return {}
 
-    x_min, y_min, x_max, y_max = zone.bounds
-    zone_width = x_max - x_min
-    y_max - y_min
-
-    # Calculate sub-region for this cluster
-    if total_clusters == 1:
-        # Use whole zone
-        sub_x_min, sub_y_min = x_min, y_min
-        sub_x_max, sub_y_max = x_max, y_max
-    else:
-        # Divide zone into regions (horizontal split)
-        region_width = zone_width / total_clusters
-        sub_x_min = x_min + cluster_index * region_width
-        sub_x_max = sub_x_min + region_width
-        sub_y_min, sub_y_max = y_min, y_max
-
-    center_x = (sub_x_min + sub_x_max) / 2
-    center_y = (sub_y_min + sub_y_max) / 2
-
     components = sorted(cluster)  # Deterministic ordering
-    positions: dict[str, tuple[float, float]] = {}
 
-    if len(components) == 1:
-        ref = components[0]
-        w, h = component_sizes[ref]
-        # Clamp to zone bounds
-        x = max(x_min + w / 2, min(center_x, x_max - w / 2))
-        y = max(y_min + h / 2, min(center_y, y_max - h / 2))
-        return {ref: (x, y)}
-
-    # For adjacent components in a cluster, use tight spacing
-    # Find maximum adjacency distance constraint for this cluster
-    max_adjacency_dist = 15.0  # Default
+    # Tightest adjacency constraint inside the cluster (a min-reduction, so
+    # order-invariant; NaN never displaces the incumbent, as in Python).
+    min_adjacency_dist = 15.0  # Default
     for u, v, data in graph.graph.edges(data=True):
         if data.get("edge_type") == "adjacent" and u in cluster and v in cluster:
             dist = data.get("distance", 15.0)
-            if dist < max_adjacency_dist:
-                max_adjacency_dist = dist
+            if dist < min_adjacency_dist:
+                min_adjacency_dist = dist
 
-    # Calculate appropriate radius based on adjacency constraint
-    n = len(components)
-    max_size = max(max(component_sizes[ref]) for ref in components)
-
-    # For tight clusters, use radius based on adjacency distance
-    # Components on circle with radius r are at most 2*r apart (opposite sides)
-    # For n components evenly spaced, adjacent ones are ~2*r*sin(pi/n) apart
-    # We want adjacent distance <= max_adjacency_dist
-    radius = max_adjacency_dist / 2 if n == 2 else max_adjacency_dist / (2 * math.sin(math.pi / n))
-
-    # Ensure radius is at least component size
-    radius = max(radius, max_size)
-
-    # But also cap at available space
-    available_space = min(sub_x_max - sub_x_min, sub_y_max - sub_y_min) / 2 - max_size
-    if available_space > 0:
-        radius = min(radius, available_space)
-
-    for i, ref in enumerate(components):
-        angle = 2 * math.pi * i / n
-        x = center_x + radius * math.cos(angle)
-        y = center_y + radius * math.sin(angle)
-
-        # Clamp to zone bounds
-        w, h = component_sizes[ref]
-        x = max(x_min + w / 2, min(x, x_max - w / 2))
-        y = max(y_min + h / 2, min(y, y_max - h / 2))
-
-        positions[ref] = (x, y)
-
-    return positions
+    positions = _rust.place_cluster(
+        tuple(float(v) for v in zone.bounds),
+        [(float(component_sizes[r][0]), float(component_sizes[r][1])) for r in components],
+        float(min_adjacency_dist),
+        cluster_index,
+        total_clusters,
+    )
+    return {ref: tuple(pos) for ref, pos in zip(components, positions, strict=True)}
 
 
 def generate_initial_placement(

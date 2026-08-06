@@ -11,6 +11,15 @@
 pub mod board;
 #[cfg(feature = "python")]
 pub mod board_py_bridge;
+// Wave 4 Phase 4 — regression slice: DRC ratchet comparison kernels
+// (drc_ratchet.rs) and the closure-test self-consistency kernels
+// (closure_test.rs) and the physics-oracle compute kernels (physics_oracle.rs).
+#[cfg(feature = "python")]
+pub mod closure_test;
+#[cfg(feature = "python")]
+pub mod drc_ratchet;
+#[cfg(feature = "python")]
+pub mod physics_oracle;
 pub mod constraints;
 pub mod pyfmt;
 #[cfg(feature = "python")]
@@ -25,6 +34,8 @@ pub mod rules;
 pub mod types;
 #[cfg(feature = "python")]
 pub mod validation;
+#[cfg(feature = "python")]
+pub mod violation_report;
 
 #[cfg(feature = "python")]
 use pyo3::exceptions::PyValueError;
@@ -293,6 +304,8 @@ fn temper_drc_rs(m: &Bound<'_, PyModule>) -> PyResult<()> {
     )?)?;
     // Wave 4 Phase 4 — validation DRC-check kernels (validation.rs).
     crate::validation::register(m)?;
+    // Wave 4 Phase 4 — analysis/_violation_report.py report kernels.
+    crate::violation_report::register(m)?;
     // Wave 4 Phase 5 — REQ-SAFE-01 clearance/creepage validator
     // (req_safe_01.rs).
     m.add_function(wrap_pyfunction!(
@@ -337,5 +350,10 @@ fn temper_drc_rs(m: &Bound<'_, PyModule>) -> PyResult<()> {
     )?)?;
     // Wave 4 cluster D — router_v6 post-route DFM kernels (dfm.rs).
     crate::dfm_py::register(m)?;
+    // Wave 4 Phase 4 — regression slice: drc_ratchet / closure_test /
+    // physics_oracle kernels.
+    crate::drc_ratchet::register(m)?;
+    crate::closure_test::register(m)?;
+    crate::physics_oracle::register(m)?;
     Ok(())
 }

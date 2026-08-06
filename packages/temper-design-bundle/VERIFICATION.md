@@ -2339,9 +2339,12 @@ True); empty violations list yields no adjustments; empty/`None` maps return
     region — the unmeasured hot-path cost named above — by replicating the
     shim's exact call shape. **Remaining step:** capture the baseline rows
     on CI per the #757 pattern (the perf gate fails closed on any benchmark
-    key without CI-captured baseline rows). Until those rows exist, R1b is
-    **NOT met** for the bottleneck-map path (the differential proves
-    bit-identical behavior; it is not a performance claim).
+    key without CI-captured baseline rows). **CAPTURED (PR #795):** 5
+    CI-captured rows appended for `("deterministic-hubs", "score_at")`
+    (workflow_dispatch runs 31063895328 / 31063929402 / 31063953781 /
+    31063979883 / 31064004110, measured commit 77af79f13), ratios 143.1–156.1.
+    R1b is **met** for the bottleneck-map path (the differential proves
+    bit-identical behavior; the CI baseline makes it a performance claim).
 - **R1h (physics discipline): NOT APPLICABLE — evaluated and recorded.**
   `channels.py` carries a PHYSICS-KW marker; the module consumes router-V6
   congestion output for placement-time routability scoring — a heuristic cost
@@ -3399,3 +3402,503 @@ measurement or by construction:
   (the `validation.rs` module is `cfg(feature = "python")`, exercised via
   the differentials; the crate's own test suite covers the non-python
   surface).
+---
+
+# Regression-slice kernels — Verification (Wave 4 Phase 4)
+
+The regression slice ported the portable compute of seven
+`temper_placer/regression/` modules. Four land in this crate
+(cp_sat_comparison, measure_closure, fingerprint, schema_validator — compute
+plus the netlist/board contracts that live here); three land in
+`temper-drc-rs` (drc_ratchet, closure_test, physics_oracle). The
+pre-migration modules are pinned verbatim as the differential oracles
+(`packages/temper-placer/tests/regression/_*_py_oracle.py`, commit
+`0a29f15e3`). TDD-RED commit `de1f6ac9d`; GREEN `dc603230b`. The six
+harness modules (runner, reporter, corpus_runner, metrics_recorder, cli,
+manifest) are JUSTIFIED-KEEP with a D6 harness-independence blocker
+(recorded in `docs/wave4-verdicts.yaml`); they were not modified beyond
+what the shims require.
+
+## cp_sat_comparison
+
+### Induction applicability
+Not applicable — the per-metric loop is a fixed-size-independent
+transcription with a lexicographic sort; no recursion. **Structural proof**
+recorded.
+
+### Structural proof
+**Claim.** `compare_metric_dicts` reproduces the pinned oracle's per-metric
+decisions, detail strings (`:.2f`/`:3f`/`.4f`), summary line and failing-
+metric list repr bit-for-bit.
+
+*Proof by structural cases:*
+1. **Metric selection.** The compared metrics are the SORTED intersection of
+   the two score-dict key sets — deterministic, so no set/dict hash-order
+   dependence survives. A non-string key present in BOTH dicts is in the
+   oracle's intersection; the oracle's `sorted(metrics)` then raises
+   `TypeError` on the mixed-type key set (the realistic shape — a stray
+   non-string key alongside string metric names), and the kernel raises the
+   same class instead of silently dropping the metric (pinned by
+   `test_differential_non_string_key_in_both_raises_typeerror`). A non-string
+   key on ONE side only is not in the intersection and is ignored by both
+   arms.
+2. **Value conversion.** Each leaf goes through Python `builtins.float`
+   (the oracle's `float(...)`) — int/float/str-number/bool leaves convert
+   exactly; a non-numeric leaf raises the same failure family as the
+   oracle. The `str-number`/`bool` leaf classes are pinned explicitly
+   (pass 2: `test_differential_str_number_and_bool_leaves`) so a mutation
+   replacing `py_builtin_float` with `extract::<f64>()` fails on the
+   `'1.5'` leaf (Python `float('1.5')` parses; `PyFloat_AsDouble` does
+   not).
+3. **Per-metric rules.** Higher-is-better passes iff `cand >= base - 1e-9`;
+   the wirelength metric passes iff `cand <= base * 1.05` (ratio
+   `cand / base`, or `inf` with `cand <= 0.0` when `base == 0`).
+4. **Formatting.** `:.Nf` fixed-point formatting is measured CPython-parity,
+   including Python's NaN spelling — `f"{nan:.4f}"` is `"nan"`, not Rust's
+   `"NaN"` (`py_fixed`, pinned by `test_differential_nan_and_inf_leaves`);
+   `bool` renders `True`/`False` (Python); the failing list renders as
+   `['a', 'b']` (single-quoted names joined by `, `). A metric name carrying
+   a quote/backslash is a documented narrowing (Python repr would escape it).
+5. **Empty intersection.** `passed=True`, no comparisons, summary
+   `"Parity comparison: 0/0 metrics passed"` — the oracle's vacuous-true
+   semantics.
+
+### R1 status
+- R1a: `test_cp_sat_comparison_rust_differential.py` (400 randomized + rule
+  boundary cases + type-carrying leaves). R1b: not registered (comparison
+  infrastructure; no speedup claim). R1c: 6 non-vacuous properties. R1d: 4
+  MRs. R1e: structural proof above. R1f: RED `de1f6ac9d`, GREEN
+  `dc603230b`. R1g: no `unwrap`/`expect` outside tests; pyo3 `catch_unwind`
+  default. R1h: **not applicable** (no physics-gated quantity).
+
+## measure_closure
+
+### Induction applicability
+N/A — a single three-branch formula. **Structural proof** recorded.
+
+### Structural proof
+**Claim.** `compute_drc_clearance_pass_pct` reproduces the oracle's three-
+branch rule exactly: `100.0` when `stages >= 4 and errors == 0`, else
+`max(0.0, 100.0 - 10.0*errors)` when `stages >= 4`, else `0.0`. The
+`10.0 * errors` int×float promotion and the 0.0 clamp match the oracle; a
+negative error count yields >100 in BOTH arms (the oracle has no upper
+clamp — the oracle's own behavior, pinned, not "fixed"). The rest of
+`measure_closure.py` is a thin harness (payload assembly, zero-results
+raise, JSON CLI) over the kept `ClosureResult` and stays Python.
+
+### R1 status
+- R1a: `test_measure_closure_rust_differential.py` — 400 randomized kernel
+  cases + branch boundaries + end-to-end payload differential (both arms
+  drive the same stubbed `ClosureTest.run`, comparing the full payload dict
+  bit-exactly, including the zero-results `RuntimeError` message).
+- R1b: not registered (one formula behind a marshalling boundary; no
+  speedup claim). R1c: 6 non-vacuous properties. R1d: 3 MRs. R1e: structural
+  proof above. R1f: RED `de1f6ac9d`, GREEN `dc603230b`. R1g: no
+  `unwrap`/`expect` outside tests; pyo3 `catch_unwind` default. R1h: **not
+  applicable**.
+
+## fingerprint
+
+### Induction applicability
+Not applicable — SHA-256 is a fixed transform; the update sequence is a
+linear fold over marshalled parts. **Structural proof** recorded.
+
+### Structural proof
+**Claim.** `input_fingerprint`, `source_fingerprint` and `should_skip`
+reproduce the pinned oracle bit-for-bit.
+
+*Proof by structural cases:*
+1. **Input fingerprint.** The kernel applies the oracle's exact update
+   sequence: each existing file's bytes, each missing file's
+   `str(path).encode()`, then `seed:{seed}` and `epochs:{epochs}`. SHA-256
+   is standardized — `hashlib.sha256` and the crate's `sha2` digest agree
+   by construction (pinned anyway). The parts arrive in the oracle's
+   `sorted([...])` path order, marshalled by the delegation module (which
+   keeps the file I/O). The M2/M6 mutants (missing-path → empty, seed
+   dropped) and M1 (update order swapped) are caught by the differential.
+2. **Source fingerprint.** `entries.join("\n")` + SHA-256 reproduces the
+   oracle's `"\n".join(file_hashes)` + sha256. Rust's `String` join with an
+   ASCII separator is byte-identical.
+3. **Skip decision.** `should_skip` returns False for `None` OR an empty
+   board-cache entry (the oracle's `if not board_cache`), and False when
+   either fingerprint key is absent (`None` never equals a hash string);
+   True only when both match. A non-string cached fingerprint value also
+   yields False — the oracle's `cached == fp` returns False for a non-string
+   (never equal to a str), and the kernel's failed String extraction is
+   treated as a non-match rather than raised (pinned by
+   `test_differential_should_skip_non_string_cached_value`). A non-dict
+   board entry (a corrupt cache: a list/string/number in place of the board
+   record) yields False too — the kernel boundary is `Option<&PyAny>` and a
+   failed `PyDict` cast is a graceful no-skip, never a raise, so a corrupt
+   cache cannot abort the corpus run (pass 2, P2; pinned by
+   `test_differential_should_skip_null_and_non_dict_entry`). **Documented
+   deviation, SAFE direction:** the oracle returns False only for FALSY
+   non-dicts (its `if not board_cache`) and raises `AttributeError`
+   (`board_cache.get` on a truthy non-dict); the kernel is graceful across
+   BOTH classes (pinned by
+   `test_should_skip_truthy_non_dict_entry_graceful`). The delegation
+   module performs the `cache["boards"][board_id]` lookup.
+
+### R1 status
+- R1a: `test_fingerprint_rust_differential.py` (200 randomized kernel
+  cases + end-to-end tmp-tree comparisons + skip-decision differential).
+- R1b: not registered (cache fingerprints run once per invocation; I/O-
+  bound; no speedup claim). R1c: 6 non-vacuous properties. R1d: 4 MRs.
+- R1e: structural proof above. R1f: RED `de1f6ac9d`, GREEN `dc603230b`.
+- R1g: no `unwrap`/`expect` outside tests; pyo3 `catch_unwind` default.
+- R1h: **not applicable**.
+
+## schema_validator
+
+### Induction applicability
+Not applicable — the two-pass validation is a linear scan with no recursion
+or size-parameterized claim. **Structural proof** recorded.
+
+### Structural proof
+**Claim.** `validate_schema` reproduces the oracle's two-pass, first-
+violation decision exactly, and the delegation module's message formatting
+matches the oracle's messages byte-for-byte.
+
+*Proof by structural cases:*
+1. **Pass 1 (unknown-field sweep).** Every metric field must be declared;
+   the FIRST unknown field (in metric insertion order) fires before any
+   range check — even when an earlier declared field is out of range (the
+   oracle's structure, pinned by M1 and the first-violation MR).
+2. **Pass 2 (range checks).** Per field, in insertion order: `value < min`
+   → below_min, then `value > max` → above_max, then
+   `!zero_is_valid && value == 0` → zero_invalid. Min/max are optional
+   (None = unconstrained); `zero_is_valid` defaults True (applied while
+   marshalling, matching the oracle's `constraints.get("zero_is_valid",
+   True)`). `value == 0.0` matches Python's `value == 0` for the float
+   values this schema validates.
+3. **Message type-carrying.** The kernel returns `(field, reason_code)`;
+   the delegation module formats the message with Python `str()` on the
+   ORIGINAL dict values — `str(42)` vs `str(42.0)` differ, so int-vs-float
+   leaves are preserved (pinned by `test_differential_int_vs_float_message_leaves`).
+   Non-numeric metric values raise `TypeError` from the kernel's `f64`
+   extraction, matching the oracle's `value < min` TypeError (message text
+   may differ — a documented narrowing on pathological inputs).
+4. **YAML loading and schema-shape checks** stay in `__init__` (I/O +
+   marshalling).
+
+### R1 status
+- R1a: `test_schema_validator_rust_differential.py` (400 randomized
+  oracle-vs-shim comparisons on generated schemas/metrics + message
+  exactness + kernel-direct cases). R1b: not registered (validation happens
+  once per metric write; no speedup claim). R1c: 7 non-vacuous properties.
+- R1d: 4 MRs. R1e: structural proof above. R1f: RED `de1f6ac9d`, GREEN
+  `dc603230b`. R1g: no `unwrap`/`expect` outside tests; pyo3 `catch_unwind`
+  default. R1h: **not applicable**.
+
+## Mutation campaign
+
+See `docs/evidence/2026-08-05-wave4-phase4-regression-mutation-sweep.md`
+for the full per-mutant record: **45 mutants across all seven kernels, every
+one caught by the differentials** (no surviving mutants, no infra failures
+counted as kills, pristine rebuild at the end).
+
+**Scope disclosure (pass 2): the sweep is kernel-only.** It mutated only the
+Rust kernels; the Python-side shim marshalling layer was NOT mutant-tested.
+The pass-2 review's P1-1 (the drc_ratchet `int()` marshal fail-open) is the
+concrete proof of why that scope matters — a kernel-only sweep cannot see a
+fail-open in the marshalling boundary. The `should_skip` null/non-dict
+entry class closed in pass 2 (above) is the design-bundle-side example.
+The cp_sat `str-number`/`bool` leaf pin and the drc_ratchet exact-separator
+pin added in pass 2 close the two unguarded kernel boundaries the sweep's
+mutant set did not cover.
+  surface).
+
+  surface).
+
+---
+
+# PCL tag-dispatch + parse layer — Verification
+
+Wave 4, Phase 2 (the contracts-as-pyo3-pyclasses pivot). Sources:
+`packages/temper-design-bundle/src/pcl_tags.rs` and `.../pcl_parse.rs`,
+porting `temper_placer/pcl/tag_dispatch.py` and
+`temper_placer/pcl/_parse_utils.py`.
+
+## Candidate scorecard (why temper-design-bundle, not temper-pcl-ir)
+
+`docs/wave4-verdicts.yaml` records "PCL constraints are contract objects;
+temper-pcl-ir is the Rust seed." That names the right *IR vocabulary* but not
+a viable pyclass host, and the port went to `temper-design-bundle` instead.
+The reasoning, stated as a crate-selection verdict:
+
+| crate | pyo3 today | verdict |
+|---|---|---|
+| **temper-design-bundle** | yes (`python` feature, `temper_design_bundle_python`) | **CHOSEN** |
+| temper-pcl-ir | no | rejected — see below |
+| temper-constraints | yes | rejected — heavier deps, wrong layer |
+| temper-drc-rs / temper-rust-router | yes | rejected — unrelated surface |
+
+- **temper-pcl-ir is a pure `serde` data crate with no pyo3 at all**, and it
+  is consumed as an *rlib* by both `temper-design-bundle` and
+  `temper-constraints`. Adding `pyo3 = { features = ["extension-module"] }`
+  to it would push extension-module linkage into every consumer — including a
+  crate that already builds its own extension module. It stays the shared IR
+  vocabulary (`ConstraintTier`, `PclConstraintKind`, merge order), which is
+  exactly what the verdict line is about, and `temper-design-bundle` already
+  depends on it.
+- **temper-design-bundle is the established Phase-2 host.** `net_types.rs`,
+  `loops.rs`, `design_rules.rs`, `gates.rs` and `priority.rs` already live
+  there, and `temper_placer/core/*.py` are already pure-delegation shims to
+  it. It also already carries `pcl.rs` (the PCL document → IR reader), so the
+  PCL surface has a home there rather than a new one.
+- **No heavy C++ anywhere on this path.** temper-design-bundle's tree is
+  serde / serde_json / serde_yaml / sha2 / thiserror / pyo3 — no C++
+  toolchain, no OpenCV, no OR-Tools. (`temper-constraints` would have added
+  nalgebra + rayon for a layer that needs neither.)
+
+## What moved, and what deliberately did not
+
+**Moved to Rust.** The tag-expression algebra as `#[pyclass(frozen)]`
+contract objects (`TagRef`, `TagAnd`, `TagOr`, `TagNot`, `ComponentRef`); the
+Floyd-Warshall transitive closure; the `ComponentTag.__le__` relation;
+`resolve` / `components` / `_tag_to_component_refs`;
+`_check_overconstrained`; and all six `_parse_utils` functions.
+
+**Deliberately not moved, with reasons:**
+
+- **`ComponentTag` stays a Python `enum.Enum`.** Production code does
+  `for t in ComponentTag` (`_tag_parser.py`, building the "valid tags"
+  warning) and `ComponentTag(value)`. A pyo3 `#[pyclass]` enum supports
+  neither — class-level iteration requires a *metaclass* `__iter__` and pyo3
+  exposes no metaclass hook (the same limitation the `priority` migration had
+  to document as a deviation). Migrating it would be a public API change,
+  which this task forbids. Rust holds the lattice as indices and returns the
+  live Python singletons at the boundary; the differential asserts `is`
+  identity, not equality.
+- **`PCLParseError` and the five PCL enums stay Python classes**, for the
+  same reason plus exception identity: `except PCLParseError` binds a class
+  object, and Rust raises *that* object rather than a look-alike.
+- **`E()` and `pre_expansion_validate()` stay Python.** Both are
+  `hasattr`/`dir()`-driven reflection over arbitrary duck-typed constraint
+  objects. A Rust port would be one FFI hop per attribute probe — strictly
+  slower and strictly more fragile. The compute they call into is what moved.
+
+## Induction applicability
+
+Two inductive arguments are load-bearing here.
+
+**(1) `resolve` terminates and is correct by structural induction on the
+expression tree.** The tree is finite and acyclic by construction: every node
+is built by a `#[new]` that takes already-constructed children, so no node can
+reach itself. Induction over tree height `h`:
+
+- *Base (h = 0).* `TagRef` and `ComponentRef` are leaves. `TagRef` answers
+  from two finite loops over `comp.tags`; `ComponentRef` is one `==`. Both
+  terminate and match the reference's leaf branches line for line.
+- *Step.* `TagNot(e)` = `!resolve(e)`, `TagAnd(l, r)` = `resolve(l) &&
+  resolve(r)`, `TagOr(l, r)` = `resolve(l) || resolve(r)`, each with height
+  strictly less than `h`. Rust's `&&`/`||` short-circuit exactly as Python's
+  `and`/`or` do, so even the *number of child evaluations* matches — which
+  matters because a child can raise (`TypeError` from a non-ComponentTag
+  `TagRef`), and short-circuiting decides whether that raise is reached.
+- *Foreign nodes.* A value matching none of the five pyclasses falls to
+  `Ok(false)`, reproducing the reference's trailing `return False` rather than
+  raising.
+
+**(2) The Floyd-Warshall closure is the reflexive-transitive closure of the
+parent relation.** Standard loop invariant: after outer iteration `k`,
+`closure[i][j]` is true iff `j` is reachable from `i` using only intermediates
+drawn from `{0..k}`. Seeding sets `closure[i][i]` (reflexivity) and every
+direct parent edge; at `k = n` the intermediate set is unrestricted, so the
+relation is the full reachability closure. The Rust keeps the same `k, i, j`
+loop order and the same relaxation predicate as the Python, over a `u16`
+bitmask instead of a `Vec<Vec<bool>>` — a representation change, not an
+algorithm change. The lattice properties this implies are asserted directly as
+Rust unit tests (`closure_is_reflexive`, `closure_is_transitive`,
+`closure_is_antisymmetric_so_the_order_is_partial_not_merely_a_preorder`,
+`every_tag_reaches_all_and_all_reaches_only_itself`), and — because 14 tags is
+small — the full 14x14x14 triple is checked **exhaustively**, not sampled.
+That is a proof by exhaustion over the entire input domain of the relation,
+not a property test.
+
+The parse layer has no recursion and no iteration whose length depends on a
+computed value, so induction does not apply there; the structural argument
+below carries it.
+
+## Structural proof
+
+**Order sensitivity — the part most likely to be got wrong.** The reference
+reads a `set` in two places, and CPython set iteration order depends on
+`PYTHONHASHSEED`.
+
+1. `resolve`'s `for ct_str in comp.tags`. The body has no side effects and
+   only ever `return True`; the function otherwise falls through to `False`.
+   So the result is `∃t ∈ tags . lower(t) ∈ ComponentTag ∧ t ≤ expr.tag` — an
+   existential quantifier over a set, which is order-invariant by definition.
+   Made an explicit input and checked over every permutation in
+   `test_resolve_is_invariant_to_the_tag_frozensets_iteration_order`.
+2. `_check_overconstrained`'s `set(adjacency) & set(separation)`. Here the
+   order **is** observable: the function raises on the first offending pair,
+   so which message you get depends on the seed. Sorting the keys would make
+   the port deterministic and therefore *different* — precisely the
+   undetectable behaviour change this program warns about. The port instead
+   builds the same CPython `set` objects and iterates the same `__and__`
+   result, so the live order is passed through rather than replicated.
+   Mutation **M21** (sort the intersection) is the guard, and it is only
+   killed by a case with enough keys that sorted order and set order diverge —
+   twelve, in `test_M21_the_set_intersection_is_not_sorted`.
+
+**Bit-exactness classes newly catalogued by this migration:**
+
+- **B13 — `str.isdigit()` is not `char::is_ascii_digit()`.** CPython's
+  `isdigit` is true for fullwidth `'１'`, Arabic-Indic `'٣'` and superscript
+  `'²'`. `'１０mm'` parses to `10.0`. `py_isdigit` decides ASCII locally and
+  delegates everything else to CPython, so it cannot drift with a Unicode
+  version bump. (Mutation M01.)
+- **B14 — CPython's ASCII whitespace set is larger than Rust's.**
+  `str.strip()` removes `\x1c`–`\x1f` (the C0 file/group/record/unit
+  separators); Rust's `char::is_whitespace` does not, because they are not in
+  the Unicode `White_Space` property. `'\x1c5\x1c'` parses to `5.0`.
+  (Mutation M02, plus a Rust unit test asserting the exact ASCII set.)
+- **B15 — `float(s)` accepts more than `str::parse::<f64>`.** Unicode digits
+  and PEP-515 underscores. Underscores cannot survive the scanner, Unicode
+  digits can; `py_float` therefore restricts the Rust fast path to
+  `[0-9.-]`-only ASCII, where both parsers are correctly rounded and therefore
+  agree by construction, and delegates everything else.
+- **B16 — Unicode case mapping is not a bijection, and the reference relies on
+  it.** `'sıgnal'.upper() == 'SIGNAL'` but `'sıgnal'.lower() != 'signal'`, so
+  `resolve`'s uppercase membership test is *not* redundant with its lowercase
+  hierarchy walk. This is what makes mutation M15 killable at all.
+- **B17 — `x * 10.0` and `x / 0.1` are not the same function.** They agree on
+  every integer centimetre value (which is why M30 survived a corpus built
+  from integers) and disagree at e.g. 28.3475, 445.3872, 228.7622. The port
+  multiplies, as the reference does.
+
+**R24 (physical quantities).** `_parse_distance_with_unit` returns
+millimetres. The three conversion factors are the exact decimal doubles the
+Python used — `0.0254` (mm/mil), `25.4` (mm/in), `10.0` (mm/cm) — asserted by
+*bit pattern* in
+`pcl_parse.rs::unit_factors_are_the_exact_decimal_doubles_python_used`, and
+each conversion is a single correctly-rounded multiply on both sides with no
+reassociation and no fused multiply-add. Mutations M03 (wrong mil factor), M04
+(wrong inch factor) and M30 (divide instead of multiply) are all killed.
+
+**Frozen-dataclass fidelity.** `__repr__` (field names included, values via
+Python `repr()`), `__eq__` (exact-type check then per-field Python `==`;
+foreign types answer `False`, never raise), `__hash__` (CPython's own tuple
+hash over a real tuple — not a replicated xxPRIME), `__setattr__` /
+`__delattr__` (`dataclasses.FrozenInstanceError` with CPython's two distinct
+message forms), `copy.deepcopy` and `pickle` (via `__reduce__`, which
+`ConstraintCollection.copy()` exercises on the live path), and
+`__match_args__`. Each is asserted against the oracle, and each has a mutation
+(M25, M28, M26, M27).
+
+## Documented deviations (per R1, recorded here)
+
+- **`dataclasses.fields()` no longer works** on
+  `TagRef`/`TagAnd`/`TagOr`/`TagNot`/`ComponentRef` — they are pyclasses, not
+  dataclasses. Verified 2026-08-04 that no consumer calls it: no
+  `dataclasses.fields`, `asdict`, `astuple` or `dataclasses.replace` against
+  these types anywhere in `packages/temper-placer/src`, `tests/` or
+  `scripts/`. `__match_args__` is provided so structural pattern matching
+  still works.
+- **`__repr__` of the five node types is reproduced exactly**, including for
+  the duck-typed field values the frozen dataclass also accepted.
+
+## Evidence
+
+- **Differential (R1a/R1f, TDD red→green):**
+  `packages/temper-placer/tests/pcl/test_parse_utils_rust_differential.py`
+  (oracle `_parse_utils_py_oracle.py`) and
+  `.../test_tag_dispatch_rust_differential.py` (oracle
+  `_tag_dispatch_py_oracle.py`), both pinned verbatim at commit `5a17025b1`.
+  ~900 assertions. Comparison is by type-carrying signature
+  (`tests/pcl/_pclsig.py`): `float.hex()` per float, concrete type name per
+  non-float leaf, enum members by owning class + member name, exceptions by
+  class qualname + exact message. **No tolerance anywhere.**
+- **Comparator self-test (anti-vacuity on the gate itself):**
+  `tests/pcl/test_pclsig_selftest.py`, 19 tests proving the comparator
+  distinguishes f32/f64, int/float, `True`/`1`, `0.0`/`-0.0` and 1 ulp — and
+  that it *identifies* genuinely equal values. It found a real gap during
+  development: `float.hex()` renders both NaN signs as `'nan'`, so the
+  comparator now reads the sign bit via `math.copysign`.
+- **PBT (R1c):** `tests/pcl/test_pcl_rust_pbt.py` — 7 properties (P1–P7)
+  covering well-formed and arbitrary parse input, all five enum parsers,
+  random expression trees, the netlist sweep including result order, the
+  partial-order laws, and pyclass repr/eq/hash.
+- **Metamorphic (R1d):** same file — M1 double negation, M2 De Morgan, M3 tag
+  refinement narrows-never-widens, M4 monotonicity under tag addition
+  (negation-free), M5 unit-suffix case invariance, M6 whitespace invariance,
+  M7 unit-less == millimetres.
+- **Relations that do NOT hold, pinned with witnesses** rather than narrowed
+  away (`TestRelationsThatDoNotHold`): W1 `n in != n*1000 mil` (witnesses
+  n = 3, 6, 12, 24, 29, 48); W2 monotonicity fails under negation; W3 the
+  negative-sign rule is not uniform (`'-5'` accepted, `'-5mm'` rejected);
+  W4 `'²'.isdigit()` is True but `float('²')` raises; W5 scientific notation
+  is not accepted at all (found by M5/M6/M7 failing on generated floats whose
+  `repr` carries an exponent).
+- **Mutation corpus (anti-vacuity, R1 mandatory):**
+  `packages/temper-design-bundle/mutation_corpus_pcl.py`, 30 mutations,
+  results in `mutation_corpus_pcl_results.json`. **29 killed, 1 survivor
+  proven equivalent.** Every mutation is applied to the real source, rebuilt,
+  and run against the gate suite; the harness verifies the unmutated tree is
+  GREEN before starting and after restoring.
+  - First run: 22/27 killed, 4 survivors (M10, M15, M23, M26). M15, M23 and
+    M26 were closed by *new discriminating tests*
+    (`test_M15_uppercase_membership_is_not_redundant_with_the_hierarchy_walk`,
+    `test_M23_product_nesting_determines_which_contradiction_is_reported`,
+    `test_M26_hash_distinguishes_distinct_nodes_exactly_as_the_dataclass_did`).
+    Three further mutations (M28–M30) were then added; M21 was found to
+    survive and was closed by `test_M21_the_set_intersection_is_not_sorted`.
+  - **M10 (`"mm" | ""` → `"mm"`) is a proven-equivalent mutant**, not an
+    unclosed survivor. `value` is stripped before the scan, so its last
+    character is not whitespace; `unit_str = value[i:].strip().lower()` is
+    empty only if `value[i:]` is entirely whitespace, but `value[i:]` is
+    non-empty and ends with `value[-1]`. Contradiction — the arm is
+    unreachable. Backed empirically by an exhaustive search over all 69,904
+    strings of length ≤ 4 from `" \t\x1c.-0123456789ax"`, re-run inside
+    `test_M10_the_empty_unit_arm_is_provably_unreachable` so it cannot rot.
+  - The harness itself carries a fix worth noting: restoring a mutated file
+    with `shutil.copy2` preserves the *source* mtime, so cargo's mtime-based
+    staleness check skipped the rebuild and left a mutated `.so` behind a
+    clean tree. That produced a bogus `hash() == 0` in a later test session.
+    The restore now writes bytes, forcing a fresh mtime.
+- **Rust unit tests:** 49 in-crate tests, including the exhaustive lattice
+  proofs, the exact CPython ASCII-whitespace set, and the R24 factor bit
+  patterns.
+- **Performance A/B (R1b):** `benchmarks/perf_ab.py`, stages
+  `pcl-tag-dispatch/tag_resolve_sweep` and
+  `pcl-parse-utils/parse_distance_batch`. Both arms assert parity in-harness
+  before timing. Release, darwin/arm64, 400-component netlist × 8 expressions:
+  ratio **0.465** (2.15× faster) for the tag sweep and **0.421** (2.37×
+  faster) for the parse batch.
+  - The #714 lesson is enforced structurally: both the benchmark and
+    `tests/pcl/test_pcl_bench_fixture_parity.py` import the *same*
+    `tests/pcl/_pcl_bench_fixture.py`, so the benchmark cannot reach an input
+    the differential has not already compared. Neither kernel accumulates
+    across iterations, so there is no iterative float divergence to compound.
+
+## Not verified (stated, not claimed)
+
+- **Linux.** Every measurement here is darwin/arm64. The PCL kernels make no
+  libm calls — `resolve` is a boolean tree walk and the unit conversion is a
+  single IEEE-754 multiply by a decimal double that is exactly representable
+  identically in both languages — so there is no transcendental surface for
+  Linux and macOS libm to differ on. That is the argument; it is not a
+  measurement.
+- **Perf-gate baselines.** The two new `_BENCHMARKS` keys have **no row** in
+  `power_pcb_dataset/metrics/perf_ab_baseline.jsonl` and therefore fail the
+  gate closed. That is deliberate: `perf_ab.py`'s own documented procedure
+  requires capturing baselines on CI (linux/x86_64), because a
+  darwin-captured row carries a measured ~-11% platform bias that would make
+  the gate miss every regression between +20% and +35%. No baseline file was
+  edited.
+- **`pcl/constraints.py` `__repr__` is already non-deterministic**, and this
+  migration does not touch it. `BaseConstraint` is a `@dataclass` whose
+  `constraint_type` field is a `ConstraintType` enum member carrying
+  `frozenset`s of other enum members; `repr()` renders those frozensets in
+  identity-hash order, so `repr(AdjacentConstraint(...))` differs between
+  processes (measured: three runs produced three different orderings).
+  A future phase that turns those into pyclasses cannot preserve that repr,
+  because it is not a function of the value. Recorded here so the next phase
+  does not discover it late.
+- **`BaseConstraint.__eq__` ignores every subclass field.** The `@dataclass`
+  decorator is only on the base, so `AdjacentConstraint(a='Q1', b='Q2',
+  max_distance_mm=10.0, id='x') == AdjacentConstraint(a='R1', b='R2',
+  max_distance_mm=99.0, id='x')` is `True` (measured). Also out of scope here,
+  also recorded for the next phase.

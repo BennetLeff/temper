@@ -1,0 +1,127 @@
+//! Float primitives reproducing CPython/NumPy semantics exactly.
+//!
+//! Every function here exists because the obvious Rust spelling is *not* the
+//! same operation the Python it replaces performed. Each divergence below was
+//! measured against CPython 3.12.13 / NumPy 2.3.5 before the port, not
+//! assumed; see the crate's VERIFICATION.md for the probe outputs.
+
+/// CPython's `min(a, b)`.
+///
+/// `min` keeps the running item and replaces it only when the candidate
+/// compares strictly less, so a NaN in `b` is **discarded** while a NaN in `a`
+/// **propagates**. `f64::min` does the opposite (it always discards NaN), so
+/// using it here would silently change behaviour on NaN input.
+#[inline]
+pub fn py_min(a: f64, b: f64) -> f64 {
+    if b < a { b } else { a }
+}
+
+/// CPython's `max(a, b)`; mirror of [`py_min`], with the same NaN asymmetry.
+#[inline]
+pub fn py_max(a: f64, b: f64) -> f64 {
+    if b > a { b } else { a }
+}
+
+/// CPython's `max(iterable)` fold — seeded with the first element, then
+/// replaced only on a strictly-greater candidate. Returns `None` on empty,
+/// matching the `ValueError` Python raises (the callers all guard emptiness
+/// before reaching here).
+pub fn py_max_iter(values: impl IntoIterator<Item = f64>) -> Option<f64> {
+    let mut it = values.into_iter();
+    let first = it.next()?;
+    Some(it.fold(first, py_max))
+}
+
+/// CPython's `sum()` over floats: **Neumaier compensated** since 3.12.
+///
+/// This is the single most consequential primitive in the crate. A naive
+/// accumulator diverges from `sum()` measurably from n=8 upward (`[0.1]*8`
+/// gives `0x1.999999999999ap-1` compensated vs `0x1.9999999999999p-1` naive)
+/// and catastrophically under magnitude cancellation. `place_components_in_zone`
+/// computes `total_area` with `sum()`, and that value feeds a threshold
+/// comparison that decides whether `PlacementError` is raised — so getting
+/// this wrong changes control flow, not just the low bit.
+///
+/// Transliterated from CPython `Python/bltinmodule.c` `builtin_sum_impl`'s
+/// float fast path.
+pub fn neumaier_sum(values: impl IntoIterator<Item = f64>) -> f64 {
+    let mut sum = 0.0f64;
+    let mut comp = 0.0f64;
+    for x in values {
+        let t = sum + x;
+        if sum.abs() >= x.abs() {
+            comp += (sum - t) + x;
+        } else {
+            comp += (x - t) + sum;
+        }
+        sum = t;
+    }
+    sum + comp
+}
+
+/// `np.linalg.norm` of a 2-vector.
+///
+/// NumPy evaluates `sqrt(dot(v, v))`, and for a length-2 float64 vector that
+/// dot product is `x*x + y*y` in exactly this association. Verified
+/// bit-identical over 200,000 randomised vectors spanning 1e-8..1e6 in
+/// magnitude (0 mismatches under `float.hex()` comparison).
+///
+/// Deliberately **not** `f64::mul_add`: fusing the multiply-add would change
+/// the rounding and break that parity.
+#[inline]
+pub fn norm2(x: f64, y: f64) -> f64 {
+    (x * x + y * y).sqrt()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn py_min_max_propagate_nan_from_the_first_argument_only() {
+        let nan = f64::NAN;
+        assert!(py_min(nan, 5.0).is_nan(), "NaN in `a` must propagate");
+        assert_eq!(py_min(5.0, nan), 5.0, "NaN in `b` must be discarded");
+        assert!(py_max(nan, 5.0).is_nan());
+        assert_eq!(py_max(5.0, nan), 5.0);
+        // and this is precisely where f64::min disagrees:
+        assert_eq!(f64::min(nan, 5.0), 5.0);
+    }
+
+    #[test]
+    fn neumaier_matches_cpython_on_the_divergence_cases() {
+        // [0.1] * 8 — the documented n=8 boundary.
+        let v = [0.1f64; 8];
+        assert_eq!(neumaier_sum(v).to_bits(), 0.8f64.to_bits());
+        let mut naive = 0.0f64;
+        for x in v {
+            naive += x;
+        }
+        assert_ne!(naive.to_bits(), neumaier_sum(v).to_bits());
+
+        // catastrophic cancellation: naive loses every small term
+        let mut vals = vec![0.1f64; 10];
+        vals.push(1e100);
+        vals.push(-1e100);
+        assert_eq!(neumaier_sum(vals.iter().copied()), 1.0);
+    }
+
+    #[test]
+    fn neumaier_sum_of_nothing_is_positive_zero() {
+        let empty: [f64; 0] = [];
+        assert_eq!(neumaier_sum(empty).to_bits(), 0.0f64.to_bits());
+    }
+
+    #[test]
+    fn norm2_is_the_unfused_hypotenuse() {
+        assert_eq!(norm2(3.0, 4.0), 5.0);
+        assert_eq!(norm2(0.0, 0.0), 0.0);
+        assert!(norm2(f64::NAN, 1.0).is_nan());
+    }
+
+    #[test]
+    fn py_max_iter_is_none_on_empty() {
+        assert_eq!(py_max_iter(Vec::<f64>::new()), None);
+        assert_eq!(py_max_iter(vec![1.0, 5.0, 2.0]), Some(5.0));
+    }
+}

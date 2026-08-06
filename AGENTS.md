@@ -68,6 +68,9 @@ ceiling move):
     # is not reproducible (see _drc_api.py's own comment: 69-88 shorting_items
     # across 4 runs on a byte-identical board, measured 2026-07-29).
     # Run 120 times and take the observed range per category, not one sample.
+    # Record the count in provenance: the structured sample_count field, or
+    # measured_via prose on legacy records -- the approval gate requires
+    # >= 120 for the nondeterministic clearance category.
     "
 
 Then, in `power_pcb_dataset/drc_ceiling.json`:
@@ -82,6 +85,21 @@ Then, in `power_pcb_dataset/drc_ceiling.json`:
   measured run-to-run noise or an already-investigated, attributed,
   deliberate change; never to silently absorb an unexplained regression. If
   you can't attribute a rise, stop and report it instead of ratcheting past it.
+
+**The approval is machine-checked (R27 monotone contract).**
+`scripts/check_drc_ceiling_approval.py` requires a raise to carry, in the
+*same* PR: (1) a `Ceiling-Approval:` trailer on a PR commit -- the raise
+detector, a plain substring deliberately not parsed further; (2) a NEW
+non-empty `_march` entry naming the cause -- the `_march` log is the single
+cause authority, there is no trailer-body grammar; and (3) a fresh
+measured-live `provenance` record on the raised board: `source:
+"measured-live"`, a resolvable `measured_at_commit`, `dirty: false`, a
+recorded kicad-cli version, at least 120 samples for the nondeterministic
+`clearance` category (structured `provenance.sample_count`, or the legacy
+`measured_via` prose on records that predate the field), and an input hash
+still matching `pcb/temper.kicad_pcb`'s current content. A raise that
+fails any of these is an unapproved raise, mechanically. Existing `_march`
+entries and records are grandfathered; the contract applies to new raises.
 
 **Why this must land in the same PR, not after**: `check_measurement_provenance.py`
 fails closed the moment the board's content hash no longer matches this

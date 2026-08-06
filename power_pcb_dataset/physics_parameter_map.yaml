@@ -1,0 +1,146 @@
+# Physics parameter map — declarative register for the dead-parameter sweep
+# (plan 2026-08-02-019, U1 / R33).
+#
+# This file is the single source of truth for the physics-parameter input
+# surface that the standing check (`scripts/check_dead_parameter_inputs.py`)
+# probes.  Every parameter named here is perturbed deterministically at its
+# source and its downstream consumer's output must move beyond the measured
+# noise floor (KTD2/KTD3 of the plan).  Adding or removing a parameter is a
+# change to this register, never a hidden code edit.
+#
+# Schema per parameter:
+#   name:        unique parameter id used by the probe and the registry
+#   description: what the parameter is and where it lives
+#   source:      "module:attr" declaration site.  attr is one of
+#                "Class.field" (dataclass field), "CONSTANT" (module
+#                constant), or "function.arg" (function parameter).
+#                The registry validates the declaration resolves.
+#   default:     the production default value at the source.
+#   perturbation: {mode: relative|absolute, delta: <number>} — the
+#                deterministic perturbation applied at the source (KTD3).
+#   scenario:    named probe scenario in
+#                temper_placer.validation.dead_parameter_probe (the
+#                production-path consumer harness).
+#   consumers:   production-path consumers; each entry must resolve.
+#
+# Convention: a perturbation delta is chosen to be physically meaningful
+# (e.g. ±10% of the nominal value) and deterministic.  The probe records
+# baseline output, perturbed output, delta, and the measured noise floor;
+# a parameter whose delta does not exceed its floor is a dead parameter.
+version: 1
+parameters:
+  - name: k_fr4
+    description: >
+      FR4 through-plane conductivity (W/(m·K)) on ThermalFDMConfig.
+      Feeds the conductivity-field builder k_eff = (1-frac)*k_fr4 + frac*k_copper.
+    source: "temper_placer.physics.thermal_fdm:ThermalFDMConfig.k_fr4"
+    default: 0.3
+    perturbation:
+      mode: relative
+      delta: -0.10
+    scenario: fdm_all_fr4
+    consumers:
+      - consumer: "temper_placer.physics.thermal_fdm:solve_thermal_fdm"
+        role: "conductivity-field builder — perturbing k_fr4 must move the FDM temperature field"
+
+  - name: k_copper
+    description: >
+      Copper conductivity (W/(m·K)) on ThermalFDMConfig.
+      Feeds the same conductivity-field builder; only matters where copper
+      fraction is non-zero, so its scenario uses a copper field.
+    source: "temper_placer.physics.thermal_fdm:ThermalFDMConfig.k_copper"
+    default: 385.0
+    perturbation:
+      mode: relative
+      delta: -0.10
+    scenario: fdm_copper_field
+    consumers:
+      - consumer: "temper_placer.physics.thermal_fdm:solve_thermal_fdm"
+        role: "conductivity-field builder — perturbing k_copper must move the FDM temperature field on a copper field"
+
+  - name: H_CONV_BACKGROUND
+    description: >
+      Background natural-convection coefficient (W/(m²·K)) module constant in
+      heat_removal.py.  Converts to the per-cell weak vertical sink h_bg used
+      by build_h_field for through-plane heat removal.
+    source: "temper_placer.physics.heat_removal:H_CONV_BACKGROUND"
+    default: 10.0
+    perturbation:
+      mode: relative
+      delta: -0.10
+    scenario: h_field_background
+    consumers:
+      - consumer: "temper_placer.physics.heat_removal:build_h_field"
+        role: "per-cell vertical sink builder — background convection term of h_field"
+
+  - name: convection_weight
+    description: >
+      Weight of the convective airflow component in ThermalPotentialConfig.
+      Scales phi_convection in the thermal potential superposition.
+    source: "temper_placer.physics.thermal_potential:ThermalPotentialConfig.convection_weight"
+    default: 1.0
+    perturbation:
+      mode: relative
+      delta: -0.10
+    scenario: thermal_potential
+    consumers:
+      - consumer: "temper_placer.physics.thermal_potential:superpose_fields"
+        role: "thermal potential superposition — convective airflow component weight"
+
+  - name: h_conv
+    description: >
+      Convective (Robin) boundary coefficient (W/(m²·K)) on ThermalScorerConfig
+      of the independent thermal scorer (validation/thermal_scorer.py).
+    source: "temper_placer.validation.thermal_scorer:ThermalScorerConfig.h"
+    default: 10.0
+    perturbation:
+      mode: relative
+      delta: -0.10
+    scenario: thermal_scorer
+    consumers:
+      - consumer: "temper_placer.validation.thermal_scorer:ThermalScorer.score"
+        role: "independent convective-boundary solver — boundary coefficient of u7 field"
+
+  - name: ipc2152_temp_rise_c
+    description: >
+      IPC-2152 temperature-rise input (deg-C) to the min-width inversion
+      (ipc2152_min_width_mm).  Declared as a function parameter on the
+      core/ipc2152.py convenience wrappers.
+    source: "temper_placer.core.ipc2152:ipc2152_external_width.temp_rise_c"
+    default: 10.0
+    perturbation:
+      mode: relative
+      delta: -0.10
+    scenario: ipc2152_width
+    consumers:
+      - consumer: "temper_placer.core.ipc2152:ipc2152_external_width"
+        role: "IPC-2152 ampacity — temperature rise input to the min-width inversion"
+
+  - name: ipc2152_copper_weight_oz
+    description: >
+      IPC-2152 copper weight input (oz) to the min-width inversion.
+      Declared as a function parameter on the core/ipc2152.py wrappers.
+    source: "temper_placer.core.ipc2152:ipc2152_external_width.copper_weight_oz"
+    default: 1.0
+    perturbation:
+      mode: relative
+      delta: +0.10
+    scenario: ipc2152_width
+    consumers:
+      - consumer: "temper_placer.core.ipc2152:ipc2152_external_width"
+        role: "IPC-2152 ampacity — copper weight input to the min-width inversion"
+
+  - name: ipc2152_current_amps
+    description: >
+      IPC-2152 expected-current input (A) to the min-width inversion (the
+      net-current ampacity input).  Declared as a function parameter on the
+      core/ipc2152.py wrappers.
+    source: "temper_placer.core.ipc2152:ipc2152_external_width.current_amps"
+    default: 16.0
+    perturbation:
+      mode: relative
+      delta: +0.10
+    scenario: ipc2152_width
+    consumers:
+      - consumer: "temper_placer.core.ipc2152:ipc2152_external_width"
+        role: "IPC-2152 ampacity — expected-current input to the min-width inversion"
