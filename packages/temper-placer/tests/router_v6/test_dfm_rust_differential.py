@@ -1107,24 +1107,45 @@ def test_defect_d1_frozenset_iteration_order_is_not_deterministic():
     assert len({frozenset(eval(o)) for o in orders}) == 1  # noqa: S307
 
 
-def test_defect_d2_negative_angle_threshold_guard_is_unreachable():
-    """D2: ``acid_trap_detection``'s negative-threshold warning never fires.
+def test_defect_d2_negative_angle_threshold_warns_and_returns_empty():
+    """D2 (repaired): every negative threshold now reaches the guard.
 
-    The shipped guard is
-    ``if not math.isfinite(t) and t < 0:`` with a message reading "is negative
-    -- all angles are >= 0 degrees".  The ``not isfinite`` conjunct means only
-    ``-inf`` reaches it: a plain ``-5.0`` is finite, falls through, and yields
-    an empty report with no warning at all.  Reported, not fixed.
+    The guard used to read
+    ``if not math.isfinite(t) and t < 0:``.  The ``not isfinite`` conjunct
+    meant only ``-inf`` reached it: a plain ``-5.0`` is finite, fell through,
+    and yielded an empty report with *no* warning at all.  That conjunct is
+    gone, so this is re-pinned against the fix -- and pinned behaviourally,
+    not just by source string, since the string alone never proved the
+    warning fires.
+
+    The predicate is deliberately ``t < 0`` rather than the tempting
+    ``not isfinite(t) or t < 0``: the latter would swallow ``+inf``, which
+    must instead fall through to the clamp and become 90.0.  That case is
+    pinned below, because it is what makes the obvious "simplification"
+    wrong.
     """
+    from temper_placer.router_v6.acid_trap_detection import detect_acid_traps
+    from temper_placer.router_v6.routing_results import RoutingResults
+
     src = (_SRC / "acid_trap_detection.py").read_text()
-    assert "if not math.isfinite(min_angle_threshold) and min_angle_threshold < 0:" in src
-    for t in (-5.0, -0.5, -180.0):
-        assert math.isfinite(t) and t < 0
-        assert not (not math.isfinite(t) and t < 0), (
-            f"threshold {t} would now reach the guard -- D2 may be fixed; "
-            "re-pin the oracle before deleting this test"
-        )
-    assert (not math.isfinite(-math.inf)) and -math.inf < 0  # only -inf reaches it
+    assert "if min_angle_threshold < 0:" in src
+    assert (
+        "if not math.isfinite(min_angle_threshold) and min_angle_threshold < 0:"
+        not in src
+    ), "D2 has regressed -- the `not isfinite` conjunct is back"
+
+    # Both guards return before ``routing_results`` is touched, so an empty
+    # result set is enough to exercise them.
+    empty = RoutingResults(compiled_routes={}, failed_nets=[])
+
+    for t in (-5.0, -0.5, -180.0, -math.inf):
+        with pytest.warns(UserWarning, match="is negative"):
+            report = detect_acid_traps(empty, min_angle_threshold=t)
+        assert report.acid_traps == []
+
+    # +inf must NOT take the negative branch -- it clamps instead.
+    with pytest.warns(UserWarning, match="exceeds 90"):
+        detect_acid_traps(empty, min_angle_threshold=math.inf)
 
 
 # ===========================================================================
