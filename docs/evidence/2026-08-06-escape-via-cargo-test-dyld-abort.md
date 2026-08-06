@@ -62,10 +62,34 @@ That mechanism is macOS-specific, and `.cargo/config.toml` states the
 intent that "`cargo build`/`cargo test` are unaffected either way: they
 build the rlib and the test harness links libpython normally."
 
-**Unverified:** whether Linux CI hits this. It plausibly does not — the
-`dynamic_lookup` rustflags are under `[target.*-apple-darwin]` only — but
-that has not been tested, and CI runs `cargo test` per crate. Treat this as
-a possible CI failure on the branch until someone checks a Linux run.
+**RESOLVED 2026-08-06, after #751 merged: CI is not affected, for a reason
+worse than the bug.**
+
+CI does not run `cargo test` on this crate at all. It runs it on exactly two
+crates — `temper-orchestration` (`python-tests.yml:839`) and
+`temper-design-bundle` (`:2011`). Every other crate, `temper-geometry`
+included, gets only `cargo check` and `cargo clippy --all-targets`. The
+workflow says so itself at `:830`:
+
+> A pyo3 crate that `maturin develop` builds still needs its `#[cfg(test)]`
+> modules exercised somewhere
+
+So the abort could not break CI, because **the 502 unit tests it hides were
+already never run there**. What changed is that they can no longer be run
+locally on macOS either, which was the last place they executed.
+
+That is the finding worth acting on: this crate's Rust unit tests are now
+unreachable on both paths. Two options, neither taken here —
+
+1. add a `cargo test` step for `temper-geometry` mirroring the
+   `temper-orchestration` entry, which would also surface this abort in CI
+   on Linux, where `dynamic_lookup` does not apply; or
+2. fix the abort so the tests run on macOS again.
+
+Option 1 is the smaller change and closes the coverage gap for every kernel
+this crate now owns — congestion, escape_via, heatmap, placement
+suggestions, routing demand, apply-suggestions — roughly 2,700 LOC added on
+2026-08-06.
 
 ## Related
 
