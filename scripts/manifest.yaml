@@ -297,13 +297,16 @@ scripts:
   - sys
   - typing
 - path: check_drc_ceiling_approval.py
-  purpose: 'CI gate: fail a PR that raises any power_pcb_dataset/drc_ceiling.json ceiling value (aggregate
-    error_ceiling/warning_ceiling, or any violations_by_type/warnings_by_type rule) relative to the merge
-    base unless a commit in the PR carries a Ceiling-Approval: trailer -- wires DrcRatchet.detect_ceiling_raise
-    (temper_placer.regression.drc_ratchet), which existed and was unit-tested but had no CI caller, into
-    the Provenance & Anti-Vacuity Gates job'
+  purpose: 'CI gate: fail a PR that raises any power_pcb_dataset/drc_ceiling.json ceiling value (aggregate error_ceiling/warning_ceiling,
+    or any violations_by_type/warnings_by_type rule) relative to the merge base unless a commit in the PR carries a Ceiling-Approval:
+    trailer AND the raise satisfies the R27 measurement-evidence contract (a NEW non-empty _march entry naming the cause --
+    the _march log is the single cause authority -- plus a fresh measured-live provenance record on the raised board: resolvable
+    commit, clean tree, recorded kicad-cli version, >=120 samples for the nondeterministic clearance category, input hash
+    matching pcb/temper.kicad_pcb) -- wires DrcRatchet.detect_ceiling_raise / find_ceiling_raises / validate_raise_evidence
+    (temper_placer.regression.drc_ratchet), which existed and was unit-tested but had no CI caller, into the Provenance &
+    Anti-Vacuity Gates job'
   owner: bennet
-  last_run: '2026-07-29'
+  last_run: '2026-08-02'
   category: keep
   disposition: ci-gate
   imports:
