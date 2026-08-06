@@ -2,22 +2,32 @@
 
 Assigns each net to a preferred layer based on net class rules.
 This is a 2.5D approach where we pre-assign layers rather than doing full 3D A* search.
+
+The pure compute is implemented in Rust in the ``temper-design-bundle`` crate
+(Wave 4 **Phase 5, batch 2** — deterministic leaf stages): the net-class →
+(layer, is_plane) mapping table and the per-net assignment loop delegate to
+``temper_design_bundle_python.deterministic_leaves``. ``LayerAssignment`` is
+a pyo3 pyclass re-exported here under the pre-migration name; the ``run``
+orchestration (the ``state.netlist`` guard and the ``frozenset`` wrap) stays
+Python.
+
+Bit-exactness: the net-class table, the manual-assignment branch (plane
+status inferred from ``layer in (1, 2)``), the ``or "Signal"`` fallback and
+netlist-order iteration are reproduced identically. Verified by
+``tests/deterministic/stages/test_layer_assignment_rust_differential.py``
+(oracle: ``tests/deterministic/stages/_layer_assignment_py_oracle.py``) and
+the PBT suite ``test_layer_assignment_pbt.py``; the structural proof lives
+in ``packages/temper-design-bundle/VERIFICATION.md``.
 """
 
 from dataclasses import dataclass, replace
 
+import temper_design_bundle_python as _tdb
+
 from ..state import BoardState
 from .base import Stage
 
-
-@dataclass(frozen=True)
-class LayerAssignment:
-    """Assignment of a net to a preferred routing layer."""
-
-    net_name: str
-    layer: int
-    allow_layer_change: bool = True  # Can router switch layers via vias?
-    is_plane: bool = False  # Is this a power plane net (In1.Cu/In2.Cu)?
+LayerAssignment = _tdb.LayerAssignment
 
 
 class LayerAssignmentStage(Stage):
@@ -47,31 +57,9 @@ class LayerAssignmentStage(Stage):
         if not state.netlist:
             return state
 
-        assignments = []
-
-        for net in state.netlist.nets:
-            # Check if there's a manual assignment
-            if net.name in self.manual_assignments:
-                layer = self.manual_assignments[net.name]
-                # Infer plane status from layer index (1=In1, 2=In2)
-                is_plane = layer in (1, 2)
-                assignments.append(
-                    LayerAssignment(
-                        net_name=net.name, layer=layer, allow_layer_change=True, is_plane=is_plane
-                    )
-                )
-                continue
-
-            # Get net_class from config if available, otherwise use the one from parser
-            net_class = self.net_classes.get(net.name, net.net_class) or "Signal"
-
-            # Use net class rules to assign layer
-            layer, is_plane = self._assign_layer_by_net_class(net_class)
-            assignments.append(
-                LayerAssignment(
-                    net_name=net.name, layer=layer, allow_layer_change=True, is_plane=is_plane
-                )
-            )
+        assignments = _tdb.deterministic_leaves.assign_layers(
+            state.netlist.nets, self.manual_assignments, self.net_classes
+        )
 
         # Store assignments in BoardState
         return replace(state, layer_assignments=frozenset(assignments))
@@ -88,14 +76,4 @@ class LayerAssignmentStage(Stage):
         Returns:
             (layer_index, is_plane)
         """
-        mapping = {
-            "HighVoltage": (0, False),
-            "Power": (2, True),
-            "PowerTrace": (0, False),
-            "Ground": (1, True),
-            "Signal": (0, False),
-            "Differential": (0, False),
-            "FinePitch": (0, False),
-            "FinePitchPower": (2, True),
-        }
-        return mapping.get(net_class, (0, False))
+        return _tdb.deterministic_leaves.assign_layer_by_net_class_py(net_class)

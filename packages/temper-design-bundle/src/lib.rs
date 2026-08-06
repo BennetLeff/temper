@@ -4,6 +4,12 @@ mod net_types;
 #[cfg(feature = "python")]
 mod deterministic_stages;
 
+// Wave 4 Phase 5 batch 2 — deterministic leaf stages (remaining slice):
+// component-assignment / layer-assignment / power-plane / fine-pitch /
+// slot-grid kernels + leaf data contracts (see deterministic_leaves.rs).
+#[cfg(feature = "python")]
+mod deterministic_leaves;
+
 #[cfg(feature = "python")]
 mod loops;
 
@@ -242,6 +248,7 @@ mod python {
         // (slot_generation / zone_geometry / zone_assignment kernels) ported
         // from temper_placer/deterministic/stages/ (see deterministic_stages.rs).
         crate::deterministic_stages::register(module)?;
+        crate::deterministic_leaves::register(module)?;
 
         // Wave 4 Phase 3 candidate 1: the parse-target contracts ported from
         // temper_placer/core/netlist.py (see netlist_contracts.rs) and
