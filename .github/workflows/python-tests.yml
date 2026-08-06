@@ -142,6 +142,7 @@ on:
       - 'power_pcb_dataset/baselines/**'
       - 'conftest.py'
       - 'power_pcb_dataset/drc_ceiling.json'
+      - 'power_pcb_dataset/physics_parameter_map.yaml'
       - 'power_pcb_dataset/physics_soundness_register.yaml'
       - 'scripts/physics_soundness_register_gate.py'
       - 'packages/temper-placer/tests/scripts/test_physics_soundness_register_gate.py'
@@ -247,6 +248,7 @@ on:
       - 'power_pcb_dataset/baselines/**'
       - 'conftest.py'
       - 'power_pcb_dataset/drc_ceiling.json'
+      - 'power_pcb_dataset/physics_parameter_map.yaml'
       - 'power_pcb_dataset/physics_soundness_register.yaml'
       - 'scripts/physics_soundness_register_gate.py'
       - 'packages/temper-placer/tests/scripts/test_physics_soundness_register_gate.py'
@@ -584,7 +586,12 @@ jobs:
       - name: Run temper-placer tests (core only for CI speed)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         working-directory: packages/temper-placer
-        run: uv run pytest tests/core/ -v --tb=short -p no:cacheprovider --maxfail=10 --cov=temper_placer --cov-report=json --cov-report=term --cov-config=../../pyproject.toml
+        # tests/validation/test_gate_input_registry.py and
+        # tests/validation/test_dead_parameter_probe.py are included so the
+        # dead-parameter registry/probe (plan 2026-08-02-019) public surface
+        # carries executed-line coverage in the same coverage.json the
+        # coverage gate reads.
+        run: uv run pytest tests/core/ tests/validation/test_gate_input_registry.py tests/validation/test_dead_parameter_probe.py -v --tb=short -p no:cacheprovider --maxfail=10 --cov=temper_placer --cov-report=json --cov-report=term --cov-config=../../pyproject.toml
         env:
           RUST_BACKTRACE: full
           PYTHONFAULTHANDLER: 1
@@ -1010,6 +1017,25 @@ jobs:
         run: |
           uv run python ../../scripts/check_physics_provenance.py --allowlist ../../.physics-provenance-allowlist --physics-dir src/temper_placer/physics/
           uv run python ../../scripts/check_physics_provenance.py --check-shrink --allowlist ../../.physics-provenance-allowlist --physics-dir src/temper_placer/physics/
+
+      # Dead-parameter & physics-input standing check (plan 2026-08-02-019,
+      # U3): wires then unwires every declared live gate input (acceptance-gate
+      # inner surface) and every registered physics parameter and requires the
+      # output to change — verdict flip for gate consumers, delta-over-noise-
+      # floor for threshold-less consumers. Fails on a dead input, an
+      # unregistered physics parameter, or a registry validation error.
+      #
+      # LANDED WARN-ONLY per the plan's landing contract (U3 step 2): the first
+      # run must surface dead inputs / unproven parameters for triage before
+      # this can hard-fail. Hard-fail after 2026-09-01 (with the coverage-gate
+      # and ruff gates), same horizon as the other warn-only gates.
+      - name: Dead-parameter standing check (dead inputs + physics plumbing)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        working-directory: packages/temper-placer
+        run: >
+          uv run python ../../scripts/check_dead_parameter_inputs.py
+          || echo "::warning title=Dead-Parameter Standing Check::first-run triage pending (plan 2026-08-02-019 U3); gate is warn-only."
+        continue-on-error: true  # TODO: temper-NNN -- hard-fail after 2026-09-01 per plan U3 landing contract
 
       - name: Evidence provenance gate (docs/evidence/)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}

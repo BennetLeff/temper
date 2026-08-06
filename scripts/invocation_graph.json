@@ -33,6 +33,9 @@
     ".github/workflows/python-tests.yml"
   ],
   "check_creepage_clearance_drift.py": [],
+  "check_dead_parameter_inputs.py": [
+    ".github/workflows/python-tests.yml"
+  ],
   "check_derived_doc_drift.py": [
     ".github/workflows/python-tests.yml",
     "packages/temper-placer/tests/requirements/safety/test_creepage_spec_row_form.py"
