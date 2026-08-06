@@ -3,6 +3,11 @@ Router V6 Stage 5.1: Detect and Fix Acid Traps
 
 Detects acute angles in traces that can trap etchant during manufacturing.
 Part of temper-vm3g (Stage 5 - Manufacturing DRC)
+
+Wave 4 Phase B (``docs/plans/2026-08-01-001-feat-wave4-full-migration-program-plan.md``):
+``_calculate_angle`` and ``_classify_severity`` delegate to ``temper_drc_rs``
+(``dfm_calculate_angle_py`` / ``dfm_classify_severity_py``, PR #749) -- pure
+scalar math with no gap between the kernel's contract and this module's.
 """
 
 from __future__ import annotations
@@ -10,6 +15,8 @@ from __future__ import annotations
 import math
 import warnings
 from dataclasses import dataclass
+
+import temper_drc_rs as _drc
 
 from temper_placer.router_v6.routing_results import RoutingResults
 
@@ -263,36 +270,7 @@ def _calculate_angle(
     Returns:
         Angle in degrees (0-180)
     """
-    # Vectors from p2 to p1 and p3
-    v1 = (p1[0] - p2[0], p1[1] - p2[1])
-    v2 = (p3[0] - p2[0], p3[1] - p2[1])
-
-    # Calculate dot product and magnitudes
-    dot = v1[0] * v2[0] + v1[1] * v2[1]
-    mag1 = math.sqrt(v1[0] ** 2 + v1[1] ** 2)
-    mag2 = math.sqrt(v2[0] ** 2 + v2[1] ** 2)
-
-    if mag1 == 0 or mag2 == 0:
-        return 180.0  # Degenerate case
-
-    # Calculate angle
-    cos_angle = dot / (mag1 * mag2)
-    cos_angle = max(-1.0, min(1.0, cos_angle))  # Clamp to [-1, 1]
-
-    angle_rad = math.acos(cos_angle)
-
-    # Floating-point edge case: acos may still produce NaN
-    if math.isnan(angle_rad):
-        return 180.0
-
-    angle_deg = math.degrees(angle_rad)
-
-    # Round to eliminate floating-point noise (e.g. acos may return
-    # 59.99999999999999° for a mathematically exact 60° angle, which
-    # would shift the severity classification at the boundary).
-    angle_deg = round(angle_deg, 9)
-
-    return angle_deg
+    return _drc.dfm_calculate_angle_py(p1[0], p1[1], p2[0], p2[1], p3[0], p3[1])
 
 
 def _classify_severity(angle: float, trace_width_mm: float = 0.2) -> str:
@@ -309,24 +287,4 @@ def _classify_severity(angle: float, trace_width_mm: float = 0.2) -> str:
     Returns:
         Severity: "low", "medium", or "high"
     """
-    if angle < 45:
-        base = "high"  # Very acute - critical
-    elif angle < 60:
-        base = "medium"  # Moderate concern
-    else:
-        base = "low"  # Minor issue
-
-    # Narrow traces are less susceptible to etchant trapping.
-    # Non-finite / negative widths are physically meaningless — treat as
-    # if no demotion applies (the angle-based classification stands).
-    if not math.isfinite(trace_width_mm) or trace_width_mm < 0:
-        return base
-
-    if trace_width_mm < 0.2:
-        if base == "high":
-            return "medium"
-        elif base == "medium":
-            return "low"
-        # "low" stays "low"
-
-    return base
+    return _drc.dfm_classify_severity_py(angle, trace_width_mm)

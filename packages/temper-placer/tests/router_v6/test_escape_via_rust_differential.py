@@ -349,26 +349,34 @@ def test_repaired_d4_layer_follows_the_component_side():
     *shipped* module with ``ast`` -- the oracle is a frozen copy pinned at a
     SHA, so only this half can catch a regression in production -- with a
     BEHAVIOURAL half that calls the oracle for real.
+
+    Wave 4 Phase B note: ``generate_escape_vias`` now delegates its whole
+    body to ``temper_geometry.escape_generate_vias_py``, so there is no
+    longer a Python-local ``side = ...`` assignment for the structural half
+    to find -- the resolution moved into the kernel (see
+    ``packages/temper-geometry/src/escape_via.rs``'s ``CompRow::side``,
+    which reads the marshalled ``initial_side`` element the same way).  The
+    structural half below was updated to match: it now asserts the shipped
+    module still THREADS ``component.initial_side`` into the kernel call
+    (not a side-blind ``getattr``), which is the only spelling that could
+    reintroduce D4 on the Python side of the boundary.
     """
     from temper_placer.core.netlist import Component
 
     # --- structural half: the shipped resolution, read without importing ---
     path = _SRC / "escape_via_generator.py"
     tree = ast.parse(path.read_text(), filename=str(path))
-    assigns = [
-        ast.unparse(node.value)
+    fn = next(
+        node
         for node in ast.walk(tree)
-        if isinstance(node, ast.Assign)
-        and any(isinstance(t, ast.Name) and t.id == "side" for t in node.targets)
-    ]
-    assert assigns, "escape_via_generator.py no longer assigns `side` -- re-derive D4"
-    assert all("getattr" not in a for a in assigns), (
-        f"the side-blind `getattr` form of D4 is back: {assigns}"
+        if isinstance(node, ast.FunctionDef) and node.name == "generate_escape_vias"
     )
-    assert all("initial_side" in a for a in assigns), (
-        f"`side` is resolved from something other than initial_side: {assigns} -- "
-        "that is the D4 failure mode whatever spelling it wears"
+    body = ast.unparse(fn)
+    assert "component.initial_side" in body, (
+        "generate_escape_vias no longer threads component.initial_side into "
+        "the kernel call -- re-derive D4"
     )
+    assert "getattr" not in body, f"the side-blind `getattr` form of D4 is back: {body}"
 
     assert not hasattr(
         Component(

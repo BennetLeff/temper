@@ -64,6 +64,7 @@ EXIT CODES
 from __future__ import annotations
 
 import argparse
+import ast
 import re
 import subprocess
 import sys
@@ -129,10 +130,56 @@ def pyclass_renames(text: str) -> dict[str, str]:
     return renames
 
 
-def production_references() -> str:
-    """Every non-test Python source that could call a kernel, concatenated."""
+def code_identifiers(src: str) -> set[str]:
+    """Names REFERENCED BY CODE in one module -- not names merely mentioned.
+
+    Text matching cannot tell a call from prose, and that is not a hypothetical
+    distinction: `net_ordering.py`'s docstring named `net_priority_key_py` and
+    `net_priority_lt_py` while explaining that nothing constructs a
+    `NetPriority` any more. A raw substring scan read the explanation of their
+    deadness as proof of their liveness and marked both wired (PR #839).
+
+    That failure is silent and in the unsafe direction -- an unwired kernel
+    reported as wired is exactly what this gate exists to catch -- so matching
+    is done over the AST instead: attribute accesses, bare names, imported
+    aliases, and string arguments to `getattr`/`importlib` (dynamic dispatch is
+    a real call site; `dag_engine.py` resolves pipeline stages that way).
+
+    Comments and docstrings contribute nothing, which is the point.
+    """
+    try:
+        tree = ast.parse(src)
+    except SyntaxError:
+        # Unparseable file: fall back to raw text. Over-counting here can only
+        # mark something wired that is not, so it is logged by the caller
+        # rather than trusted silently.
+        raise
+
+    names: set[str] = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Attribute):
+            names.add(node.attr)
+        elif isinstance(node, ast.Name):
+            names.add(node.id)
+        elif isinstance(node, ast.alias):
+            names.add(node.name.rsplit(".", 1)[-1])
+            if node.asname:
+                names.add(node.asname)
+        elif isinstance(node, ast.Call):
+            func = node.func
+            label = getattr(func, "attr", None) or getattr(func, "id", None)
+            if label in {"getattr", "hasattr", "import_module", "__import__"}:
+                for arg in node.args:
+                    if isinstance(arg, ast.Constant) and isinstance(arg.value, str):
+                        names.update(arg.value.split("."))
+    return names
+
+
+def production_references() -> tuple[set[str], list[str]]:
+    """Identifiers referenced by every non-test Python source, and unparseable files."""
     roots = ["packages", "scripts", "tools"]
-    chunks: list[str] = []
+    names: set[str] = set()
+    unparseable: list[str] = []
     for root in roots:
         base = REPO_ROOT / root
         if not base.is_dir():
@@ -144,10 +191,15 @@ def production_references() -> str:
             if "/.venv/" in p or "/target" in p or "/_py_oracle" in p:
                 continue
             try:
-                chunks.append(py.read_text())
+                src = py.read_text()
             except OSError:
                 continue
-    return "\n".join(chunks)
+            try:
+                names |= code_identifiers(src)
+            except SyntaxError:
+                unparseable.append(str(py.relative_to(REPO_ROOT)))
+                names |= set(re.findall(r"[A-Za-z_][A-Za-z0-9_]*", src))
+    return names, unparseable
 
 
 def load_inventory() -> dict[str, str]:
@@ -195,15 +247,16 @@ def main() -> int:
               file=sys.stderr)
         return 2
 
-    haystack = production_references()
-    if not haystack.strip():
+    referenced, unparseable = production_references()
+    if not referenced:
         print("FAIL: found zero production Python sources to scan.", file=sys.stderr)
         return 2
+    if unparseable:
+        print(f"WARN: {len(unparseable)} file(s) did not parse; matched as raw text "
+              f"(a mention in prose there can still mask an unwired kernel): "
+              f"{', '.join(unparseable[:5])}", file=sys.stderr)
 
-    unwired = {
-        sym: where for sym, where in symbols.items()
-        if not re.search(rf"(?<![A-Za-z0-9_]){re.escape(sym)}(?![A-Za-z0-9_])", haystack)
-    }
+    unwired = {sym: where for sym, where in symbols.items() if sym not in referenced}
 
     ledger = load_inventory()
 
