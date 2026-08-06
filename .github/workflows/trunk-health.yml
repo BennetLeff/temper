@@ -51,7 +51,7 @@ permissions:
 # Only the newest state of main is interesting; a superseded run's verdict is
 # about a commit that is no longer the tip.
 concurrency:
-  group: trunk-health
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
