@@ -40,7 +40,7 @@ def _result(n_checks: int, n_issues: int, rng: random.Random) -> RunResult:
         for _ in range(n_issues):
             issues.append(
                 Issue(
-                    severity=rng.choice(list(Severity)),
+                    severity=rng.choice(Severity.members()),
                     code="C",
                     message="m",
                     category="c",

@@ -272,6 +272,251 @@ scorecard's "dict builders stay Python" claim is accurate again.
 
 ---
 
+# drc_types / drc_result contracts — Verification (Wave 4 Phase 2)
+
+The Wave 4 Phase 2 contract slice (`src/drc_contracts.rs`) migrates the
+CONTRACT TYPES of `temper_placer/validation/drc_types.py` and
+`temper_placer/validation/drc_result.py` to pyo3 pyclasses. Both Python
+modules are now pure-delegation re-exports of those pyclasses (the pattern
+established by `core/board.py` and `core/netlist.py`), with the dataclass
+protocol (`__dataclass_fields__` / `dataclasses.fields` /
+`dataclasses.replace`) restored by `core/_contract_dataclass_compat`. The
+pre-migration implementations are pinned VERBATIM as the oracles
+(`tests/validation/_drc_types_py_oracle.py` /
+`_drc_result_py_oracle.py`, commit `17553437d`). TDD-RED commit
+`b7af1384b` (the differential fails to collect without the pyclasses — see
+below); GREEN is this slice.
+
+## Candidate scorecard (what is a contract vs what stays Python)
+
+| Class | Python origin | Verdict |
+|---|---|---|
+| `ComponentPlacement`, `Placement`, `ClearanceRule`, `ZoneDefinition`, `LoopConstraint`, `ThermalConstraint`, `GroupConstraint`, `ConstraintSet`, `Via`, `ViaPlacement`, `TraceSegment`, `TracePlacement` | `drc_types.py` | migrated to pyclasses |
+| `Severity`, `Location`, `Issue`, `CheckResult`, `RunResult` | `drc_result.py` | migrated to pyclasses |
+| `Check` ABC, `CompositeCheck`, the 15 check stub classes (`ClearanceCheck`, `ComponentOverlapCheck`, …) | `drc_result.py` | **stays Python** — execution placeholders (delegating actual checking to the Rust engine), not data contracts; only their `CheckResult(...)` construction crosses to the pyclass |
+| K1-schema dict builders (`_placement_to_board_dict`, `_constraints_to_dict`, `_build_board_dict`), fence/runner orchestration, CLI | `drc_runner.py` / `drc_oracle.py` / `drc_fence.py` | **stays Python** — marshalling over the contracts (already ruled Phase-4 surfaces) |
+
+## Induction applicability
+
+Not applicable — none of the classes is recursive or iterates over a
+dimension whose correctness depends on a size parameter. A **structural
+proof** is recorded instead (per the plan's R1e).
+
+## Structural proof
+
+**Claim (bit-identical parity).** For every construction/access pattern in
+the differential suites' domains, the pyclasses reproduce the pinned
+pre-migration dataclasses bit-identically, with the documented narrowing
+below.
+
+*Proof by structural cases.*
+
+1. **Construction and field parity by construction.** Every field is
+   stored as the exact Python object the caller passed (each struct field
+   is an opaque `Py<PyAny>`), so the dataclass's *no-coercion* `__init__`
+   is reproduced by construction: `Location(1, 2)` stores int coordinates
+   and `.x` returns int `1`, never `1.0`. None-vs-empty follows the same
+   rule (`opt_or` stores an explicit `None` verbatim; `list_or_new` /
+   `dict_or_new` produce a fresh empty container for `default_factory`
+   fields). Literal defaults (`net_class="Signal"`, `board_width=100.0`,
+   `weight=1.0`, …) are injected only when the argument is omitted, so
+   `Placement(board_width=None)` stores `None` exactly as the dataclass
+   does. The one narrowing is recorded below.
+2. **`__eq__`.** A generated dataclass `__eq__` returns `NotImplemented`
+   unless `other.__class__ is self.__class__` (the `is` test, so a subclass
+   instance compares unequal), then defers to tuple equality on the
+   `compare=True` fields in declaration order. `dataclass_eq` reproduces
+   both — including the `NotImplemented` return that makes `x == 1` raise
+   `TypeError` — by delegating the field comparison to Python's own tuple
+   `==`. `eq=True, frozen=False` dataclasses set `__hash__ = None`;
+   `unhashable()` raises CPython's exact message
+   (`TypeError: unhashable type: 'Location'`).
+3. **`__repr__` / `__str__` byte-parity.** `__repr__` splices CPython's own
+   `repr()` of each stored field into the generated layout
+   `Cls(f1=r1, f2=r2, …)` (`dataclass_repr`). The custom `__str__`s
+   (`Location.__str__` `"(x, y) on layer"`, `Issue.__str__`
+   `"[code] message (items)"` with the 3-item truncation, `Severity`'s
+   `<Severity.ERROR: 3>` / `Severity.ERROR`) route every formatting through
+   Python's own `format()`/`str()` (the `py_float_fmt_2` / `str()`
+   helpers), so fixed-point rounding and int-vs-float rendering agree
+   bit-for-bit with the oracle.
+4. **`Severity` surface.** pyo3 cannot subclass `enum.Enum`, so `Severity`
+   is a pyclass whose four members are `#[classattr]` singletons
+   (`Severity.INFO` …) reproducing the member surface the consumers use:
+   `.name`, `.value` (int), `.weight` (the documented 0/1/10/100 table),
+   `.is_failure` (exactly ERROR/CRITICAL), `repr` `<Severity.ERROR: 3>`,
+   `str` `Severity.ERROR`, value+name equality, hashability, and
+   value-based `__lt__`/`__le__` that return `NotImplemented` for a
+   non-member (the oracle's `isinstance` guard — pinned by
+   `test_severity_surface_identical`, including the `obj < 1` TypeError).
+5. **Mutation vs frozen.** Every contract is a plain (non-frozen)
+   dataclass: fields are `#[pyo3(get, set)]`, instances carry a `__dict__`
+   (the `dict` pyclass flag), so attribute assignment/injection works and
+   stores the raw object. `CheckResult.merge` returns a *new* object with
+   fresh list/dict containers exactly as the dataclass's
+   `self.issues + other.issues` / `{**a, **b}` do (later keys win,
+   first-seen position kept — MR1 pins it).
+6. **Computed properties are recomputed, not stored.** `info_count` …
+   `critical_count`, `total_issues`, `penalty`, `RunResult.passed` /
+   `all_issues` / counts / `total_penalty`, `bounds`, `center`,
+   `distance_to`, `edge_distance_to`, `overlaps`, `overlap_area`, via
+   `radius`, trace `length` / `bounding_box`, `by_category`,
+   `by_severity`, `issues_for_component` each re-derive from the fields
+   through Python's own operators (`PyAnyMethods::sub`/`div`/`pow`, the
+   `math.sqrt`/`min`/`max` callbacks), so arithmetic — including int-widening
+   in `bounds`'s `width / 2` and the `** 2` float-pow semantics in
+   `TraceSegment.length` — is bit-exact by delegation.
+7. **`RunResult.passed` fails closed** (the anti-vacuity rule): an empty
+   run reports `False`, not Python's vacuously-True `all([])` — pinned by
+   P2 and M3.
+8. **`from_dict` / `to_dict` marshalling.** The dicts are reproduced with
+   the oracle's `Mapping.get` semantics (so dict subclasses behave
+   identically), the oracle's defaults, `tuple(bounds)` / `list(bounds)`
+   conversions, `float()` for dict-form clearances, and the oracle's exact
+   key sets — `ConstraintSet.to_dict` emits only
+   clearances/zones/critical_loops/net_classes/voltage_domains/
+   hv_clearance_mm/board (thermal/groups are NOT emitted, verbatim). The
+   round-trips are pinned by P5 and `test_consumer_from_dict_to_dict_roundtrip_identical`.
+9. **`from_yaml`.** Delegates to Python's own `yaml.safe_load(open(path))`
+   then `from_dict`, so YAML parsing parity is inherited, not re-derived.
+10. **Dataclass protocol restoration.** `_contract_dataclass_compat`
+    installs genuine `__dataclass_fields__` / `__annotations__` / the
+    public `__module__` on each pyclass, so `dataclasses.is_dataclass`,
+    `dataclasses.fields` and `dataclasses.replace` behave as they did on
+    the oracle (the FieldSpecs mirror the oracle field-for-field, including
+    `default_factory=list/dict` and literal defaults).
+
+## Documented narrowing (per R1)
+
+- **Explicit `None` to a `default_factory` field.** pyo3's
+  `Option<&Bound>` collapses "argument omitted" and "argument `None`" into
+  one `None`; the literal-default fields resolve that with *signature
+  defaults* (injected only when omitted, so `Placement(board_width=None)`
+  stores `None` verbatim), but a `default_factory` field given an explicit
+  `None` collapses to a fresh empty list/dict where the dataclass would
+  store `None`. No consumer passes `None` to a factory field (audited:
+  `drc_runner`/`drc_oracle`/`drc_fence` pass lists/dicts or omit the
+  argument), and the narrowing is recorded here rather than silently
+  matching.
+- **No pickling guarantee.** The pyclasses do not implement
+  `__reduce__`/`__getnewargs__`; pickling a contract object raises
+  `PicklingError`. The pre-migration dataclasses were picklable. No
+  production consumer pickles these objects (audited), and the differential
+  does not pin pickle, so this is recorded rather than implemented (the
+  Phase-2 core contracts' `__reduce__` was added because the board/netlist
+  consumers genuinely pickle — not the case here). `copy.deepcopy` of a
+  *field container* (a list/dict inside a pyclass) works as before; deep
+  copy of a pyclass instance itself is not part of the pinned surface.
+- **Enum class-level iteration.** pyo3 has no metaclass hook, so
+  `list(Severity)` / `set(Severity)` (the Enum's `EnumType.__iter__`)
+  cannot be wired. The pyclass exposes `Severity.members()` instead — the
+  documented `gates.py` substitute for exactly this limitation — yielding
+  the four members in definition order, pinned against the oracle's
+  `list(Severity)` by `test_severity_surface_identical`. The one consumer
+  (`tests/report/test_report_pbt.py`, which selected random severities via
+  `rng.choice(list(Severity))`) was adapted to `Severity.members()`.
+
+## Stub surface (mypy) — no `.pyi` added
+
+No `.pyi` stub is added for the `temper_drc_rs` contracts, matching the
+earlier `temper_drc_rs` kernel slices (validation/regression/req_safe) that
+also added none. The extension is consumed through the typed Python shims
+(`drc_types.py` / `drc_result.py`); under the repo's mypy config
+(`ignore_missing_imports = true`, `disable_error_code = ["import-untyped"]`)
+their re-export names resolve to `Any`, and no typed consumer calls
+`dataclasses.replace` / `dataclasses.fields` on a contract pyclass — the
+board/netlist stubs exist precisely because their consumers import
+`temper_design_bundle_python` directly and call `replace()` on the
+pyclasses (the `_contract_dataclass_compat` docstring's load-bearing case).
+The type-check gate is unchanged by this slice, verified byte-for-byte
+against origin/main under an identical environment (identical NEW/STALE
+violation lists): `drc_result.py` stays at its allowlisted 1-error baseline
+(the `TypeAlias` marker on the re-exports) and `drc_types.py` stays at 0.
+Direct `temper_drc_rs` imports in `drc_runner` / `drc_fence` / `tht_check`
+/ `geometric` / the regression modules keep their existing
+`# type: ignore[import-untyped]` (the pre-slice pattern), unchanged.
+
+## R1 status
+
+- R1a: **bit-identical differential** — `test_drc_contracts_rust_differential.py`
+  (52 tests): construction with identical kwargs (positional AND keyword),
+  field round-trip with type-carrying canonicalization (`canon` tags every
+  leaf with its concrete type and floats by `float.hex()`), repr/str
+  byte-parity, the whole-corpus equality matrix (including `x == object()`
+  → `False`), mutation semantics, `Severity` surface, `from_dict`/`to_dict`
+  round-trips, and the #717/#761 consumer access patterns pinned directly
+  (violations→RunResult, counts/penalty/fail-closed, to_dict+json,
+  `__str__` surfaces, `metrics_summary` input reads, drc_runner
+  marshalling reads, `ConstraintSet` lookup methods, geometry accessors).
+- R1b: **no-regression arm not registered** — pure-delegation contract
+  surface; the objects are constructed/marshalled per call behind a pyo3
+  boundary and the slice makes no speedup claim (the #775 carve-out's
+  "only register measurable compute" argument; the validation-slice
+  precedent applies verbatim).
+- R1c: **5 non-vacuous properties** (P1 severity weight table, P2
+  fail-closed passed, P3 counts/penalty recomputed from severities, P4
+  total_penalty is the severity-weighted sum, P5 from_dict↔to_dict
+  leaf-preserving round-trip).
+- R1d: **3 metamorphic relations** (MR1 merge order-preserving
+  concatenation + ANDed passed + later-metrics-wins, MR2 permutation
+  invariance of the aggregate counts/penalty, MR3 by_category partition +
+  empty-check-in-every-group semantics).
+- R1e: this file (structural proof; induction N/A).
+- R1f: **TDD** — RED `b7af1384b` verified against a real build of the RED
+  commit: the differential fails to collect with
+  `AttributeError: module 'temper_drc_rs' has no attribute 'Severity'`
+  (re-verified 2026-08-06 by building `lib.rs` at `b7af1384b` into the
+  shared target dir and running the RED test against that module). GREEN is
+  this slice.
+- R1g: borrow over clone (fields are cloned `Py<PyAny>` handles — a borrow
+  cannot be stored); no `unwrap`/`expect` outside tests (clippy
+  `unwrap_used`/`expect_used` are denied in `Cargo.toml`); every
+  `#[pymethods]` boundary relies on pyo3's default `catch_unwind` (panics
+  surface as `pyo3_runtime.PanicException`, never as UB across the
+  boundary).
+- R1h: **not physics-gated** — the contracts are pure data objects with
+  geometry helpers; no CP-SAT constraint gates on a physics quantity, so
+  the R24 discipline (soundness proof, BMC-exhaustive validation,
+  post-solve audit) does not apply. Stated explicitly because the ledger
+  requires it.
+
+## Consumer-semantics audit (the #717/#761 construction sites)
+
+Every production construction site is enumerated and stays working through
+the delegation shims (all pinned by the #717/#761 suites, which drive the
+objects end-to-end and stayed green unchanged):
+
+- `drc_oracle.DRCOracle._violations_to_run_result` — builds
+  `Location`/`Issue`/`CheckResult`/`RunResult` by keyword, compares
+  `severity in (Severity.ERROR, Severity.CRITICAL)`, reads
+  `v["affected_items"]`/`v["details"]` verbatim.
+- `drc_runner._violations_to_run_result` — identical construction pattern.
+- `drc_fence` — reads `.check_results`/`.passed`/`.issues`, `Severity.*.weight`,
+  feeds `issue_fingerprint(issue.code, issue.message, list(issue.affected_items))`
+  and `metrics_summary(...)` (the Rust kernel reads `c.elapsed_ms`,
+  `i.category`, `c.metrics` back off the pyclass objects).
+- `drc_runner._placement_to_board_dict` / `_constraints_to_dict`,
+  `drc_oracle._build_board_dict` — read `comp.layer/x/y/rotation/width/…`,
+  `zone.bounds`, rule fields off the drc_types pyclasses.
+- `drc_cli` — `Placement.from_yaml` / `ConstraintSet.from_yaml` (the
+  kicad-cli path), `result.passed`.
+- `Check`/`CompositeCheck`/the 15 stub classes — construct
+  `CheckResult(check_name=…, passed=True)` and call `.merge(...)`.
+
+## Mutation campaign (anti-vacuity)
+
+**11 mutants, all caught, no survivors** — see
+`docs/evidence/2026-08-06-wave4-phase2-drc-contracts-mutation-sweep.md`:
+severity weight table, INFO-vs-ERROR count, fail-open `passed`, merge
+later-wins, repr field omission, `__str__` truncation index, bounds sign
+flip, clearance rule matching disabled, `from_dict` default, doubled
+penalty, and the mid-sweep `Severity.members()` order swap (M11) — the
+class-level-enumeration surface added for the report formatter's severity
+enumeration, pinned directly against the oracle's `list(Severity)`.
+Pristine rebuild after the sweep: 52/52 green.
+
+---
+
 # REQ-SAFE-01 clearance validator — Verification (Phase 5)
 
 The `requirements/validators/{clearance,_copper}.py` compute

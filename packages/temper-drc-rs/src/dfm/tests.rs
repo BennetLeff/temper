@@ -507,7 +507,7 @@ fn segment_run_accumulates_left_to_right() {
 #[cfg_attr(test, test)]
 fn via_segment_index_is_first_match_wins() {
     assert_eq!(via_segment_index(0.5, 0.0, &[0.50005, 0.5], &[0.0, 0.0]), Ok(Some(0)));
-    assert_eq!(via_segment_index(1.0, 0.0, &[1.0, 1.0, 1.0], &[0.0, 0.0, 0.0]), Ok(Some(1 - 1)));
+    assert_eq!(via_segment_index(1.0, 0.0, &[1.0, 1.0, 1.0], &[0.0, 0.0, 0.0]), Ok(Some(0)));
     assert_eq!(via_segment_index(5.0, 5.0, &[0.0, 1.0], &[0.0, 0.0]), Ok(None));
     assert_eq!(via_segment_index(0.0, 0.0, &[], &[]), Ok(None));
     // exactly AT the 1e-4 boundary: `< 1e-4` is false
