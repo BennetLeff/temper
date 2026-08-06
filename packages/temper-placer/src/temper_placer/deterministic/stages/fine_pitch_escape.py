@@ -24,7 +24,6 @@ the PBT suite; the structural proof lives in
 ``packages/temper-design-bundle/VERIFICATION.md``.
 """
 
-import math
 from dataclasses import dataclass, field
 
 import temper_design_bundle_python as _tdb

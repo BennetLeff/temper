@@ -25,7 +25,6 @@ lives in ``packages/temper-drc-rs/VERIFICATION.md``.
 """
 
 import logging
-import math
 from dataclasses import dataclass, replace
 
 import temper_drc_rs as _drc

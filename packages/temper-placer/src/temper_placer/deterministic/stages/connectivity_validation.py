@@ -16,6 +16,7 @@ from dataclasses import dataclass, replace
 from typing import Any
 
 import temper_drc_rs as _drc
+
 from temper_placer.router_v6.constraints_geometry import Point
 
 from ..state import BoardState

@@ -152,9 +152,8 @@ class TrackDeduplicationStage(Stage):
         kept_set = set(kept_indices)
         unique_traces = []
         for j, trace in enumerate(state.routes):
-            if isinstance(trace, Trace):
-                if j not in kept_set:
-                    continue
+            if isinstance(trace, Trace) and j not in kept_set:
+                continue
             unique_traces.append(trace)
 
         if duplicates > 0:

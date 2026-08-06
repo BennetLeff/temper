@@ -160,8 +160,8 @@ def test_mr1_translation(clusters, dx, dy):
     vs = _run(clusters, "N")
     shifted = [(v[0], v[1] + _STRIDE * dx, v[2] + _STRIDE * dy, v[3]) for v in vs]
     pads, tracks, vias = _build(clusters, "N")
-    pads2 = [(x + _STRIDE * dx, y + _STRIDE * dy, l, i, w, h, r) for x, y, l, i, w, h, r in pads]
-    tracks2 = [(sx + _STRIDE * dx, sy + _STRIDE * dy, ex + _STRIDE * dx, ey + _STRIDE * dy, l) for sx, sy, ex, ey, l in tracks]
+    pads2 = [(x + _STRIDE * dx, y + _STRIDE * dy, layer, i, w, h, r) for x, y, layer, i, w, h, r in pads]
+    tracks2 = [(sx + _STRIDE * dx, sy + _STRIDE * dy, ex + _STRIDE * dx, ey + _STRIDE * dy, layer) for sx, sy, ex, ey, layer in tracks]
     vias2 = [(x + _STRIDE * dx, y + _STRIDE * dy) for x, y in vias]
     vs2 = list(_drc.connectivity_validate_net_py("N", pads2, tracks2, vias2))
     assert vs2 == shifted
