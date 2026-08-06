@@ -246,7 +246,8 @@ impl DesignRules {
 
 fn parse_rules(spec: &Bound<'_, PyAny>) -> PyResult<DesignRules> {
     let mut classes = std::collections::HashMap::new();
-    let class_dict = spec.get_item(0)?.downcast_into::<PyDict>()?;
+    let class_item = spec.get_item(0)?;
+    let class_dict = class_item.cast::<PyDict>()?;
     for (k, v) in class_dict.iter() {
         let name: String = k.extract()?;
         let (clearance, _trace_w, via_dia, via_drill): (f64, f64, f64, f64) = v.extract()?;
@@ -260,9 +261,10 @@ fn parse_rules(spec: &Bound<'_, PyAny>) -> PyResult<DesignRules> {
         );
     }
     let mut assignments = std::collections::HashMap::new();
-    let assign_dict = spec.get_item(1)?.downcast_into::<PyDict>()?;
+    let assign_item = spec.get_item(1)?;
+    let assign_dict = assign_item.cast::<PyDict>()?;
     for (k, v) in assign_dict.iter() {
-        assignments.insert(k.extract()?, v.extract()?);
+        assignments.insert(k.extract::<String>()?, v.extract::<String>()?);
     }
     let (clearance, _trace_w, via_dia, via_drill): (f64, f64, f64, f64) =
         spec.get_item(2)?.extract()?;
