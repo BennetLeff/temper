@@ -1,8 +1,8 @@
 _meta:
-  last_audit_date: '2026-08-02'
-  total_scripts: 106
+  last_audit_date: '2026-08-05'
+  total_scripts: 112
   counts:
-    keep: 106
+    keep: 112
     ticket: 0
   ticket_scripts_deleted: 40
 scripts:
@@ -161,15 +161,24 @@ scripts:
   - sys
   - yaml
 - path: check_drc_determinism.py
-  purpose: 'DRC determinism harness: runs the KiCad DRC through the CI gate''s own path N times and
-    reports whether each violation category returns a stable count and a stable violation SET. Backs the
-    kicad-cli worker-pool pinning -- clearance and shorting_items were a thread-pool race, creepage a
-    pointer-keyed dedup (upstream kicad#20048). Carries --inject-variance so the harness is provably
-    able to report nondeterminism, not only absence of it.'
+  purpose: 'DRC determinism harness: runs the KiCad DRC through the CI gate''s own path N times and reports
+    whether each violation category returns a stable count and a stable violation SET. Backs the kicad-cli
+    worker-pool pinning -- clearance and shorting_items were a thread-pool race, creepage a pointer-keyed
+    dedup (upstream kicad#20048). Carries --inject-variance so the harness is provably able to report
+    nondeterminism, not only absence of it.'
   owner: bennet
   last_run: '2026-08-05'
   category: keep
   disposition: ci-gate
+  imports:
+  - __future__
+  - argparse
+  - collections
+  - hashlib
+  - os
+  - pathlib
+  - re
+  - sys
 - path: check_board_containment.py
   purpose: 'Board-containment gate (R26 invariant, owning gate of the board-defect corpus''s off-board
     class): every footprint''s pad copper must lie inside the Edge.Cuts outline. Closes the class no gate
@@ -555,6 +564,30 @@ scripts:
   - argparse
   - ast
   - dataclasses
+  - pathlib
+  - sys
+- path: check_oracle_hashes.py
+  purpose: 'CI gate (oracle content-hash gate, decision 2026-08-06, issues #754 P2-2 / #758): every _*_py_oracle.py
+    under packages/ is a VERBATIM pin of a pre-migration Python implementation, and the Wave-4 differential
+    suites compare the Rust kernels against them -- so an oracle edit that is not a deliberate re-pin
+    silently redefines the reference and the differentials keep passing against the wrong target. The
+    gate compares each oracle''s sha256 against the committed registry (scripts/oracle_hashes.json) and
+    fails on DRIFTED / DELETED / UNREGISTERED (a new oracle with no registry entry -- the anti-vacuity
+    direction). Regeneration is the migration PR''s job (scripts/update_oracle_hashes.py, keep-in-sync
+    with the oracle change in the same PR); this script is deliberately NOT a generator, so a drifted
+    tree cannot launder its drift into the registry.'
+  owner: wave4-migration
+  last_run: '2026-08-05'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - _lib.github_summary
+  - _lib.repo
+  - argparse
+  - dataclasses
+  - hashlib
+  - json
   - pathlib
   - sys
 - path: check_pad_orientation.py
@@ -1350,6 +1383,7 @@ scripts:
   - __future__
   - argparse
   - json
+  - math
   - pathlib
   - statistics
   - sys
@@ -1584,6 +1618,27 @@ scripts:
   - subprocess
   - sys
   - tempfile
+- path: update_oracle_hashes.py
+  purpose: 'Generator half of the oracle content-hash gate (decision 2026-08-06, issues #754 P2-2 / #758):
+    recompute scripts/oracle_hashes.json from the current _*_py_oracle.py files under packages/. Deliberately
+    NOT wired into CI -- check_oracle_hashes.py is the gate, and it compares the committed registry against
+    the files. The generator is the human/agent step a migration PR runs in the SAME PR as an oracle add
+    or re-pin, so a deliberate re-pin is a visible registry diff next to the oracle change (the keep-in-sync
+    convention, same as the config-reference / .pyi regeneration steps). Output is deterministic (sorted
+    paths, no timestamp) so regeneration is idempotent and the diff shows exactly which pins moved. Refuses
+    to write a zero-entry registry.'
+  owner: wave4-migration
+  last_run: '2026-08-05'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - _lib.repo
+  - argparse
+  - hashlib
+  - json
+  - pathlib
+  - sys
 - path: update_regression_cache.py
   purpose: Update .regression-cache.json from regression reports for incremental corpus regression
   owner: pipeline

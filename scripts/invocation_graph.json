@@ -46,6 +46,9 @@
   "check_drc_ceiling_approval.py": [
     ".github/workflows/python-tests.yml"
   ],
+  "check_drc_determinism.py": [
+    "packages/temper-placer/src/temper_placer/validation/_drc_api.py"
+  ],
   "check_evidence_provenance.py": [
     ".github/workflows/python-tests.yml"
   ],
@@ -111,6 +114,9 @@
     "packages/temper-placer/src/temper_placer/geometry/kicad_transform.py",
     "packages/temper-placer/tests/requirements/safety/test_rotation_convention_remaining_sites_oracle.py"
   ],
+  "check_oracle_hashes.py": [
+    ".github/workflows/python-tests.yml"
+  ],
   "check_pad_orientation.py": [
     ".github/workflows/python-tests.yml",
     "packages/temper-placer/src/temper_placer/geometry/kicad_transform.py",
@@ -163,7 +169,9 @@
   "check_vacuous_gates.py": [
     ".github/workflows/python-tests.yml"
   ],
-  "check_verdict_coverage.py": [],
+  "check_verdict_coverage.py": [
+    ".github/workflows/python-tests.yml"
+  ],
   "check_workflow_pr_triggers.py": [
     ".github/workflows/lint-workflows.yml",
     ".github/workflows/trunk-health.yml"
@@ -308,6 +316,9 @@
     ".github/workflows/python-tests.yml"
   ],
   "trace_invocations.py": [
+    ".github/workflows/python-tests.yml"
+  ],
+  "update_oracle_hashes.py": [
     ".github/workflows/python-tests.yml"
   ],
   "update_production_routing_baseline.py": [

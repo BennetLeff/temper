@@ -1442,6 +1442,29 @@ jobs:
         run: |
           uv run python packages/temper-placer/scripts/gen_config_reference.py --check
 
+      # Oracle content-hash gate (decision 2026-08-06; issues #754 P2-2, #758).
+      #
+      # Every _*_py_oracle.py under packages/ is a VERBATIM pin of a
+      # pre-migration Python implementation that the Wave-4 differential
+      # suites compare the Rust kernels against. An edit to an oracle that is
+      # not a deliberate re-pin silently redefines the reference and the
+      # differentials keep passing against the wrong target -- the recurring
+      # "oracle drift is invisible" gap these issues filed. The gate compares
+      # each oracle's sha256 against the committed registry
+      # (scripts/oracle_hashes.json) and fails on DRIFTED / DELETED /
+      # UNREGISTERED (a new oracle with no registry entry, so the registry
+      # cannot go stale by omission). Regeneration is the migration PR's job
+      # (scripts/update_oracle_hashes.py) in the same PR as the oracle change
+      # -- the same keep-in-sync convention as the config-reference and .pyi
+      # regeneration steps above.
+      - name: Oracle content-hash gate tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run pytest scripts/tests/test_check_oracle_hashes.py -v --tb=short
+
+      - name: Oracle content-hash gate (differential foundation drift detection)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: uv run python scripts/check_oracle_hashes.py
+
       - name: MPN fabrication gate tests
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: uv run pytest scripts/tests/test_mpn_fabrication_gate.py -v --tb=short
