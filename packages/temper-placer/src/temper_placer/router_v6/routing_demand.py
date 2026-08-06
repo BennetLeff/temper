@@ -3,12 +3,22 @@ Router V6 Stage 2.7: Estimate Demand
 
 Estimates routing demand based on nets and pins.
 Part of temper-eccz (Stage 2 - Channel Analysis)
+
+Wave 4 Phase B: ``estimate_routing_demand`` and
+``RoutingDemand.routing_complexity`` delegate to ``temper_geometry``
+(``routing_demand_estimate_py`` / ``routing_demand_complexity_py``) -- both
+kernels mirror this module's real contract exactly (an arbitrary
+``ParsedPCB``'s components/nets in, the same 9-field result out), so the
+delegation is a full substitution rather than a partial one.
+``RoutingDemandStage``/``validate_routing_demand`` stay Python unchanged
+(process-global validator registration is a Python-only concern).
 """
 
 from __future__ import annotations
 
-import re
 from dataclasses import dataclass, replace
+
+import temper_geometry as _tg
 
 from temper_placer.deterministic.stages.base import Stage
 from temper_placer.deterministic.state import BoardState
@@ -40,9 +50,7 @@ class RoutingDemand:
     def routing_complexity(self) -> float:
         """Simple routing complexity score (0-1)."""
         # Higher pin count and fanout = higher complexity
-        if self.routable_nets == 0:
-            return 0.0
-        return min(1.0, (self.avg_pins_per_net / 10.0) * (self.routable_nets / 100.0))
+        return _tg.routing_demand_complexity_py(self.avg_pins_per_net, self.routable_nets)
 
 
 def estimate_routing_demand(
@@ -62,61 +70,32 @@ def estimate_routing_demand(
         >>> demand.routable_nets > 0
         True
     """
-    total_nets = len(pcb.nets)
-    total_pins = sum(len(comp.pins) for comp in pcb.components)
-
-    # Count routable nets (need >1 pin)
-    routable_nets = 0
-    pin_counts = []
-
-    # Classify nets
-    signal_nets = 0
-    power_nets = 0
-    diff_pair_nets = 0
-
     # Handle both dict and list formats for nets
     # Type annotation says list[Net] but tests and some code paths use dict
-    if isinstance(pcb.nets, dict):
-        net_items = pcb.nets.items()
-    else:
-        # Assume list[Net]
-        net_items = [(net.name, net) for net in pcb.nets]
+    as_dict = isinstance(pcb.nets, dict)
+    net_names = list(pcb.nets.keys()) if as_dict else [net.name for net in pcb.nets]
 
-    for net_name, _net in net_items:
-        # Count pins in this net
-        pin_count = sum(1 for comp in pcb.components for pin in comp.pins if pin.net == net_name)
+    # `pin.net` is `str | None`; the classification loop only ever compares
+    # it against a real net name (never `None`), so a pin with no net is
+    # marshalled as a sentinel that cannot collide with an actual net name
+    # rather than as `""` (an empty net name, while unusual, is not
+    # impossible, and `None` is never one).
+    components = [
+        (comp.ref, [(pin.number, pin.net if pin.net is not None else "\x00") for pin in comp.pins])
+        for comp in pcb.components
+    ]
 
-        if pin_count > 1:
-            routable_nets += 1
-            pin_counts.append(pin_count)
-
-            # Classify by name heuristics -- diagnostic/estimation only
-            # (feeds a rough demand count, not a clearance/creepage/DRC or
-            # plane-eligibility decision), but anchored anyway: a bare
-            # "+"/"-" substring test matched almost every net on the
-            # board (most net names contain a hyphenated pin suffix like
-            # "-p2"), which silently inflated power_nets at the expense
-            # of signal_nets. FIXED 2026-07-28, found completing the
-            # audit scripts/check_net_classification.py's vocabulary
-            # extension prompted -- see
-            # docs/evidence/2026-07-28-zone-layer-classification-fix.md.
-            net_upper = net_name.upper()
-            if re.search(r"(?:^|_)(?:GND|VCC|VDD|VSS)(?:$|[\d_])", net_upper) or re.search(
-                r"^[+-]", net_upper
-            ):
-                power_nets += 1
-            elif any(x in net_upper for x in ["_P", "_N", "DP", "DN"]):
-                diff_pair_nets += 1
-            else:
-                signal_nets += 1
-
-    # Calculate statistics
-    if pin_counts:
-        avg_pins_per_net = sum(pin_counts) / len(pin_counts)
-        max_pins_per_net = max(pin_counts)
-    else:
-        avg_pins_per_net = 0.0
-        max_pins_per_net = 0
+    (
+        total_nets,
+        routable_nets,
+        total_pins,
+        signal_nets,
+        power_nets,
+        diff_pair_nets,
+        avg_pins_per_net,
+        max_pins_per_net,
+        _routing_complexity,
+    ) = _tg.routing_demand_estimate_py(components, net_names, as_dict)
 
     return RoutingDemand(
         total_nets=total_nets,
